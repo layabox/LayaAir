@@ -556,9 +556,8 @@ export class Templet extends AnimationTemplet {
      * @return
      */
     getSkinIndexByName(skinName: string): number {
-        var tSkinData: SkinData;
-        for (var i: number = 0, n: number = this.skinDataArray.length; i < n; i++) {
-            tSkinData = this.skinDataArray[i];
+        for (let i = 0, n = this.skinDataArray.length; i < n; i++) {
+            let tSkinData = this.skinDataArray[i];
             if (tSkinData.name == skinName) {
                 return i;
             }

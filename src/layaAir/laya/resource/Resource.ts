@@ -184,8 +184,8 @@ export class Resource extends EventDispatcher {
      * 返回资源是否从指定url创建
      */
     isCreateFromURL(url: string): boolean {
-        return this.uuid && this.uuid.length === url.length + 6 && url.endsWith(this.uuid)
-            || this.url === URL.formatURL(url);
+        return this.uuid && url.length === this.uuid.length + 6 && url.endsWith(this.uuid)
+            || this.url === url;
     }
 
     /**

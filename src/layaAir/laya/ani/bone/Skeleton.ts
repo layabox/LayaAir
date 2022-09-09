@@ -1,6 +1,5 @@
 import { Bone } from "./Bone";
 import { IkConstraint } from "./IkConstraint";
-import { PathConstraintData } from "./PathConstraintData";
 import { PathConstraint } from "./PathConstraint";
 import { BoneSlot } from "./BoneSlot";
 import { TfConstraint } from "./TfConstraint";
@@ -17,7 +16,6 @@ import { Sprite } from "../../display/Sprite";
 import { Handler } from "../../utils/Handler";
 import { Matrix } from "../../maths/Matrix";
 import { Event } from "../../events/Event";
-import { SoundChannel } from "../../media/SoundChannel";
 import { SoundManager } from "../../media/SoundManager";
 import { Graphics } from "../../display/Graphics";
 import { Byte } from "../../utils/Byte";
@@ -118,6 +116,9 @@ export class Skeleton extends Sprite {
     /** @internal */
     private _soundChannelArr: any[] = [];
 
+    private _animationName: string = "";
+    private _loop: boolean = true;
+
     /**
      * 创建一个Skeleton对象
 
@@ -176,6 +177,36 @@ export class Skeleton extends Sprite {
         return this._player;
     }
 
+    get skinName(): string {
+        return this._skinName;
+    }
+
+    set skinName(value: string) {
+        this._skinName = value;
+        if (this._templet)
+            this.showSkinByName(value);
+    }
+
+    get animationName(): string {
+        return this._animationName;
+    }
+
+    set animationName(value: string) {
+        this._animationName = value;
+        if (this._templet)
+            this.play(value, this._loop, true);
+    }
+
+    get loop(): boolean {
+        return this._loop;
+    }
+
+    set loop(value: boolean) {
+        this._loop = value;
+        if (this._templet)
+            this.play(this._animationName, this._loop, true);
+    }
+
     /**
      * 得到动画模板的引用
      * @return templet.
@@ -210,11 +241,11 @@ export class Skeleton extends Sprite {
                 if (templet && !templet.isCreateFromURL(this._source))
                     return;
 
-                this.init(templet);
+                this.templet = templet;
             });
         }
         else
-            this.init(null);
+            this.templet = null;
     }
 
     get aniMode(): number {
@@ -242,7 +273,7 @@ export class Skeleton extends Sprite {
      * </tr>
      * </table>
      */
-    private init(templet: Templet): void {
+    protected init(templet: Templet): void {
         if (this._templet) {
             this.reset();
             this.graphics.clear();
@@ -252,17 +283,16 @@ export class Skeleton extends Sprite {
         if (!this._templet)
             return;
 
-        var i: number = 0, n: number;
         if (this._aniMode == 1) { //使用动画自己的缓冲区
             this._graphicsCache = [];
-            for (i = 0, n = templet.getAnimationCount(); i < n; i++) {
+            for (let i = 0, n = templet.getAnimationCount(); i < n; i++) {
                 this._graphicsCache.push([]);
             }
         }
         this._yReverseMatrix = templet.yReverseMatrix;
         this._templet._addReference(1);
         this._player = new AnimationPlayer();
- 
+
         this._player.templet = templet;
         this._player.play();
         this._parseSrcBoneMatrix();
@@ -273,20 +303,17 @@ export class Skeleton extends Sprite {
         //ik作用器
         if (templet.ikArr.length > 0) {
             this._ikArr = [];
-            for (i = 0, n = templet.ikArr.length; i < n; i++) {
+            for (let i = 0, n = templet.ikArr.length; i < n; i++) {
                 this._ikArr.push(new IkConstraint(templet.ikArr[i], this._boneList));
             }
         }
         //path作用器
         if (templet.pathArr.length > 0) {
-            var tPathData: PathConstraintData;
-            var tPathConstraint: PathConstraint;
-            if (this._pathDic == null) this._pathDic = {};
-            var tBoneSlot: BoneSlot;
-            for (i = 0, n = templet.pathArr.length; i < n; i++) {
-                tPathData = templet.pathArr[i];
-                tPathConstraint = new PathConstraint(tPathData, this._boneList);
-                tBoneSlot = this._boneSlotDic[tPathData.name];
+            this._pathDic = {};
+            for (let i = 0, n = templet.pathArr.length; i < n; i++) {
+                let tPathData = templet.pathArr[i];
+                let tPathConstraint = new PathConstraint(tPathData, this._boneList);
+                let tBoneSlot = this._boneSlotDic[tPathData.name];
                 if (tBoneSlot) {
                     tPathConstraint = new PathConstraint(tPathData, this._boneList);
                     tPathConstraint.target = tBoneSlot;
@@ -297,14 +324,16 @@ export class Skeleton extends Sprite {
         //tf作用器
         if (templet.tfArr.length > 0) {
             this._tfArr = [];
-            for (i = 0, n = templet.tfArr.length; i < n; i++) {
+            for (let i = 0, n = templet.tfArr.length; i < n; i++) {
                 this._tfArr.push(new TfConstraint(templet.tfArr[i], this._boneList));
             }
         }
         if (templet.skinDataArray.length > 0) {
-            var tSkinData: SkinData = this._templet.skinDataArray[this._skinIndex];
-            this._skinName = tSkinData.name;
+            this._skinIndex = this._templet.getSkinIndexByName(this._skinName);
+            if (this._skinIndex == -1)
+                this._skinIndex = 0;
         }
+
         this._player.on(Event.PLAYED, this, this._onPlay);
         this._player.on(Event.STOPPED, this, this._onStop);
         this._player.on(Event.PAUSED, this, this._onPause);
@@ -344,12 +373,11 @@ export class Skeleton extends Sprite {
      */
     private _onStop(): void {
         //把没播的事件播完
-        var tEventData: EventData;
-        var tEventAniArr: any[] = this._templet.eventAniArr;
-        var tEventArr: EventData[] = tEventAniArr[this._aniClipIndex];
+        let tEventAniArr: any[] = this._templet.eventAniArr;
+        let tEventArr: EventData[] = tEventAniArr[this._aniClipIndex];
         if (tEventArr && this._eventIndex < tEventArr.length) {
             for (; this._eventIndex < tEventArr.length; this._eventIndex++) {
-                tEventData = tEventArr[this._eventIndex];
+                let tEventData = tEventArr[this._eventIndex];
                 if (tEventData.time >= this._player.playStart && tEventData.time <= this._player.playEnd) {
                     this.event(Event.LABEL, tEventData);
                 }
@@ -373,9 +401,8 @@ export class Skeleton extends Sprite {
      * 创建骨骼的矩阵，保存每次计算的最终结果
      */
     private _parseSrcBoneMatrix(): void {
-        var i: number = 0, n: number = 0;
-        n = this._templet.srcBoneMatrixArr.length;
-        for (i = 0; i < n; i++) {
+        let n = this._templet.srcBoneMatrixArr.length;
+        for (let i = 0; i < n; i++) {
             this._boneMatrixArray.push(new Matrix());
         }
         if (this._aniMode == 0) {
@@ -383,15 +410,13 @@ export class Skeleton extends Sprite {
             this._bindBoneBoneSlotDic = this._templet.bindBoneBoneSlotDic;
             this._boneSlotArray = this._templet.boneSlotArray;
         } else {
-            if (this._boneSlotDic == null) this._boneSlotDic = {};
-            if (this._bindBoneBoneSlotDic == null) this._bindBoneBoneSlotDic = {};
-            if (this._boneSlotArray == null) this._boneSlotArray = [];
-            var tArr: any[] = this._templet.boneSlotArray;
-            var tBS: BoneSlot;
-            var tBSArr: any[];
-            for (i = 0, n = tArr.length; i < n; i++) {
-                tBS = tArr[i];
-                tBSArr = this._bindBoneBoneSlotDic[tBS.parent];
+            this._boneSlotDic = {};
+            this._bindBoneBoneSlotDic = {};
+            this._boneSlotArray = [];
+            let tArr: any[] = this._templet.boneSlotArray;
+            for (let i = 0, n = tArr.length; i < n; i++) {
+                let tBS = tArr[i];
+                let tBSArr = this._bindBoneBoneSlotDic[tBS.parent];
                 if (tBSArr == null) {
                     this._bindBoneBoneSlotDic[tBS.parent] = tBSArr = [];
                 }
@@ -409,14 +434,12 @@ export class Skeleton extends Sprite {
      * @param startIndex 
      */
     private _emitMissedEvents(startTime: number, endTime: number, startIndex: number = 0): void {
-        var tEventAniArr: any[] = this._templet.eventAniArr;
-        var tEventArr: EventData[] = tEventAniArr[this._player.currentAnimationClipIndex];
+        let tEventAniArr: any[] = this._templet.eventAniArr;
+        let tEventArr: EventData[] = tEventAniArr[this._player.currentAnimationClipIndex];
         if (tEventArr) {
-            var i: number = 0, len: number;
-            var tEventData: EventData;
-            len = tEventArr.length;
-            for (i = startIndex; i < len; i++) {
-                tEventData = tEventArr[i];
+            let len = tEventArr.length;
+            for (let i = startIndex; i < len; i++) {
+                let tEventData = tEventArr[i];
                 if (tEventData.time >= this._player.playStart && tEventData.time <= this._player.playEnd) {
                     this.event(Event.LABEL, tEventData);
                 }
@@ -434,9 +457,9 @@ export class Skeleton extends Sprite {
         if (autoKey && this._indexControl) {
             return;
         }
-        var tCurrTime: number = this.timer.currTimer;
-        var preIndex: number = this._player.currentKeyframeIndex;
-        var dTime: number = tCurrTime - this._lastTime;
+        let tCurrTime: number = this.timer.currTimer;
+        let preIndex: number = this._player.currentKeyframeIndex;
+        let dTime: number = tCurrTime - this._lastTime;
         if (autoKey) {
             // player update，更新当前帧数，判断是否stop或者complete
             this._player._update(dTime);
@@ -444,7 +467,6 @@ export class Skeleton extends Sprite {
             preIndex = -1;
         }
         this._lastTime = tCurrTime;
-        if (!this._player) return;
         this._index = this._clipIndex = this._player.currentKeyframeIndex;	// 当前所在帧
         if (this._index < 0) return;
         if (dTime > 0 && this._clipIndex == preIndex && this._lastUpdateAniClipIndex == this._aniClipIndex) {
@@ -457,40 +479,37 @@ export class Skeleton extends Sprite {
         }
 
         // 自定义事件的检查
-        var tEventArr: EventData[] = this._templet.eventAniArr[this._aniClipIndex];
-        var _soundChannel: SoundChannel;
+        let tEventArr: EventData[] = this._templet.eventAniArr[this._aniClipIndex];
         if (tEventArr && this._eventIndex < tEventArr.length) {
-            var tEventData: EventData = tEventArr[this._eventIndex];
+            let tEventData: EventData = tEventArr[this._eventIndex];
             if (tEventData.time >= this._player.playStart && tEventData.time <= this._player.playEnd) {
                 if (this._player.currentPlayTime >= tEventData.time) {
                     this.event(Event.LABEL, tEventData);
                     this._eventIndex++;
                     if (this._playAudio && tEventData.audioValue && tEventData.audioValue !== "null" && tEventData.audioValue !== "undefined") {
-                        _soundChannel = SoundManager.playSound((this._player.templet as any)._path + tEventData.audioValue, 1, Handler.create(this, this._onAniSoundStoped));
+                        let channel = SoundManager.playSound((this._player.templet as any)._path + tEventData.audioValue, 1, Handler.create(this, this._onAniSoundStoped));
                         SoundManager.playbackRate = this._player.playbackRate;
-                        _soundChannel && this._soundChannelArr.push(_soundChannel);
+                        channel && this._soundChannelArr.push(channel);
                     }
                 }
             } else if (tEventData.time < this._player.playStart && this._playAudio && tEventData.audioValue && tEventData.audioValue !== "null" && tEventData.audioValue !== "undefined") {
                 this._eventIndex++;
-                _soundChannel = SoundManager.playSound((this._player.templet as any)._path + tEventData.audioValue, 1, Handler.create(this, this._onAniSoundStoped), null, (this._player.currentPlayTime - tEventData.time) / 1000);
+                let channel = SoundManager.playSound((this._player.templet as any)._path + tEventData.audioValue, 1, Handler.create(this, this._onAniSoundStoped), null, (this._player.currentPlayTime - tEventData.time) / 1000);
                 SoundManager.playbackRate = this._player.playbackRate;
-                _soundChannel && this._soundChannelArr.push(_soundChannel);
+                channel && this._soundChannelArr.push(channel);
             } else {
                 this._eventIndex++;
             }
         }
 
-        var tGraphics: Graphics;
-
         if (this._aniMode == 0) {
             // 从templet中找到缓存的这一帧的 graphics
-            tGraphics = this._templet.getGrahicsDataWithCache(this._aniClipIndex, this._clipIndex) || this._createGraphics();// _clipIndex是 AnimationPlayer计算出来的
+            let tGraphics = this._templet.getGrahicsDataWithCache(this._aniClipIndex, this._clipIndex) || this._createGraphics();// _clipIndex是 AnimationPlayer计算出来的
             if (tGraphics && this.graphics != tGraphics) {
                 this.graphics = tGraphics;
             }
         } else if (this._aniMode == 1) {
-            tGraphics = this._getGrahicsDataWithCache(this._aniClipIndex, this._clipIndex) || this._createGraphics();	// 与0的区别是从this get，上面是从templet get
+            let tGraphics = this._getGrahicsDataWithCache(this._aniClipIndex, this._clipIndex) || this._createGraphics();	// 与0的区别是从this get，上面是从templet get
             if (tGraphics && this.graphics != tGraphics) {
                 this.graphics = tGraphics;
             }
@@ -505,11 +524,10 @@ export class Skeleton extends Sprite {
      * @param force 是否强制删掉所有的声音channel
      */
     private _onAniSoundStoped(force: boolean): void {
-        var _channel: SoundChannel;
-        for (var len: number = this._soundChannelArr.length, i: number = 0; i < len; i++) {
-            _channel = this._soundChannelArr[i];
-            if (_channel.isStopped || force) {
-                !_channel.isStopped && _channel.stop();
+        for (let len = this._soundChannelArr.length, i = 0; i < len; i++) {
+            let channel = this._soundChannelArr[i];
+            if (channel.isStopped || force) {
+                !channel.isStopped && channel.stop();
                 this._soundChannelArr.splice(i, 1);
                 // SoundManager.removeChannel(_channel); // TODO 是否需要? 去掉有什么好处? 是否还需要其他操作?
                 len--; i--;
@@ -524,16 +542,15 @@ export class Skeleton extends Sprite {
      */
     protected _createGraphics(_clipIndex: number = -1): GraphicsAni {
         if (_clipIndex == -1) _clipIndex = this._clipIndex;
-        var curTime: number = _clipIndex * this._player.cacheFrameRateInterval;
+        let curTime: number = _clipIndex * this._player.cacheFrameRateInterval;
         //处理绘制顺序
-        var tDrawOrderData: DrawOrderData;
-        var tDrawOrderAniArr: any[] = this._templet.drawOrderAniArr;
+        let tDrawOrderAniArr: any[] = this._templet.drawOrderAniArr;
         // 当前动作的 drawOrderArray 信息
-        var tDrawOrderArr: DrawOrderData[] = tDrawOrderAniArr[this._aniClipIndex];
+        let tDrawOrderArr: DrawOrderData[] = tDrawOrderAniArr[this._aniClipIndex];
         if (tDrawOrderArr && tDrawOrderArr.length > 0) {
             // 选出当前所在帧的 drawOrderArray
             this._drawOrderIndex = 0;	// 从0开始
-            tDrawOrderData = tDrawOrderArr[this._drawOrderIndex];
+            let tDrawOrderData = tDrawOrderArr[this._drawOrderIndex];
             while (curTime >= tDrawOrderData.time) {
                 this._drawOrder = tDrawOrderData.drawOrder;
                 this._drawOrderIndex++;	// 下一帧
@@ -547,36 +564,32 @@ export class Skeleton extends Sprite {
         //要用的graphics
         if (this._aniMode == 0 || this._aniMode == 1) {	// 有缓存的情况
             this.graphics = GraphicsAni.create();// new GraphicsAni();
-        } else {			// 实时计算的情况。 每次都是新的数据，因此要把上一帧的清理一下
+        } else { // 实时计算的情况。 每次都是新的数据，因此要把上一帧的清理一下
             if (this.graphics instanceof GraphicsAni) {
                 this.graphics.clear();
             } else {
                 this.graphics = GraphicsAni.create(); //new GraphicsAni();
             }
         }
-        var tGraphics: GraphicsAni = (<GraphicsAni>this.graphics);
+        let tGraphics: GraphicsAni = (<GraphicsAni>this.graphics);
         //获取骨骼数据
-        var bones: any[] = this._templet.getNodes(this._aniClipIndex);
+        let bones: any[] = this._templet.getNodes(this._aniClipIndex);
         // 现在把帧数计算改成实时的，根据时间算，因此时间要求准确，不能再用curTime了。
         // 用curTime可能会出一个bug就是没有到达最后一帧。例如最后两帧间隔很短
-        var stopped = this._player.state == 0;
+        let stopped = this._player.state == 0;
 
         this._templet.getOriginalData(this._aniClipIndex, this._curOriginalData, /*_templet._fullFrames[_aniClipIndex]*/null, _clipIndex, stopped ? (curTime + this._player.cacheFrameRateInterval) : curTime);
-        var tSectionArr: any[] = this._aniSectionDic[this._aniClipIndex];
-        //var tParentMatrix: Matrix;//父骨骼矩阵的引用
-        var tStartIndex: number = 0;
-        var i: number = 0, j: number = 0, k: number = 0, n: number = 0;
-        var tDBBoneSlot: BoneSlot;
-        var tDBBoneSlotArr: any[];
-        var tParentTransform: Transform;
-        var tSrcBone: Bone;
+        let tSectionArr: any[] = this._aniSectionDic[this._aniClipIndex];
+        //let tParentMatrix: Matrix;//父骨骼矩阵的引用
+        let tStartIndex: number = 0;
+        let i: number = 0, j: number = 0, k: number = 0, n: number = 0;
         //对骨骼数据进行计算
-        var boneCount: number = this._templet.srcBoneMatrixArr.length;
-        var origDt: Float32Array = this._curOriginalData;
+        let boneCount: number = this._templet.srcBoneMatrixArr.length;
+        let origDt: Float32Array = this._curOriginalData;
         for (i = 0, n = tSectionArr[0]; i < boneCount; i++) {
-            tSrcBone = this._boneList[i];
-            var resultTrans: Transform = tSrcBone.resultTransform;
-            tParentTransform = this._templet.srcBoneMatrixArr[i];
+            let tSrcBone = this._boneList[i];
+            let resultTrans: Transform = tSrcBone.resultTransform;
+            let tParentTransform = this._templet.srcBoneMatrixArr[i];
             resultTrans.scX = tParentTransform.scX * origDt[tStartIndex++];
             resultTrans.skX = tParentTransform.skX + origDt[tStartIndex++];
             resultTrans.skY = tParentTransform.skY + origDt[tStartIndex++];
@@ -590,21 +603,20 @@ export class Skeleton extends Sprite {
 
         }
         //对插槽进行插值计算
-        var tSlotDic: any = {};
-        var tSlotAlphaDic: any = {};
-        var tBoneData: any;
+        let tSlotDic: any = {};
+        let tSlotAlphaDic: any = {};
         for (n += tSectionArr[1]; i < n; i++) {
-            tBoneData = bones[i];
+            let tBoneData = bones[i];
             tSlotDic[tBoneData.name] = origDt[tStartIndex++];
             tSlotAlphaDic[tBoneData.name] = origDt[tStartIndex++];	// 每一个slot的alpha?
             //预留
             tStartIndex += 4;
         }
         //ik
-        var tBendDirectionDic: any = {};
-        var tMixDic: any = {};
+        let tBendDirectionDic: any = {};
+        let tMixDic: any = {};
         for (n += tSectionArr[2]; i < n; i++) {
-            tBoneData = bones[i];
+            let tBoneData = bones[i];
             tBendDirectionDic[tBoneData.name] = origDt[tStartIndex++];
             tMixDic[tBoneData.name] = origDt[tStartIndex++];
             //预留
@@ -612,12 +624,11 @@ export class Skeleton extends Sprite {
         }
         //path
         if (this._pathDic) {
-            var tPathConstraint: PathConstraint;
             for (n += tSectionArr[3]; i < n; i++) {
-                tBoneData = bones[i];
-                tPathConstraint = this._pathDic[tBoneData.name];
+                let tBoneData = bones[i];
+                let tPathConstraint = this._pathDic[tBoneData.name];
                 if (tPathConstraint) {
-                    var tByte: Byte = new Byte(tBoneData.extenData);
+                    let tByte: Byte = new Byte(tBoneData.extenData);
                     switch (tByte.getByte()) {
                         case 1://position
                             tPathConstraint.position = origDt[tStartIndex++];
@@ -639,7 +650,7 @@ export class Skeleton extends Sprite {
 
         //刷新IK作用器
         if (this._ikArr) {
-            var tIkConstraint: IkConstraint;
+            let tIkConstraint: IkConstraint;
             for (i = 0, n = this._ikArr.length; i < n; i++) {
                 tIkConstraint = this._ikArr[i];
                 if (tIkConstraint.name in tBendDirectionDic) {
@@ -654,52 +665,50 @@ export class Skeleton extends Sprite {
         }
         //刷新PATH作用器
         if (this._pathDic) {
-            for (var tPathStr in this._pathDic) {
-                tPathConstraint = this._pathDic[tPathStr];
+            for (let tPathStr in this._pathDic) {
+                let tPathConstraint = this._pathDic[tPathStr];
                 tPathConstraint.apply(this._boneList, tGraphics);
             }
         }
         //刷新transform作用器
         if (this._tfArr) {
-            var tTfConstraint: TfConstraint;
             for (i = 0, k = this._tfArr.length; i < k; i++) {
-                tTfConstraint = this._tfArr[i];
+                let tTfConstraint = this._tfArr[i];
                 tTfConstraint.apply();
             }
         }
 
         for (i = 0, k = this._boneList.length; i < k; i++) {
-            tSrcBone = this._boneList[i];
-            tDBBoneSlotArr = this._bindBoneBoneSlotDic[tSrcBone.name];
+            let tSrcBone = this._boneList[i];
+            let tDBBoneSlotArr = this._bindBoneBoneSlotDic[tSrcBone.name];
             tSrcBone.resultMatrix.copyTo(this._boneMatrixArray[i]);
             if (tDBBoneSlotArr) {
                 for (j = 0, n = tDBBoneSlotArr.length; j < n; j++) {
-                    tDBBoneSlot = tDBBoneSlotArr[j];
+                    let tDBBoneSlot = tDBBoneSlotArr[j];
                     if (tDBBoneSlot) {
                         tDBBoneSlot.setParentMatrix(tSrcBone.resultMatrix);
                     }
                 }
             }
         }
-        var tDeformDic: any = {};
+        let tDeformDic: any = {};
         //变形动画作用器
-        var tDeformAniArr: any[] = this._templet.deformAniArr;
-        var tDeformAniData: DeformAniData;
+        let tDeformAniArr: any[] = this._templet.deformAniArr;
         if (tDeformAniArr && tDeformAniArr.length > 0) {
             if (this._lastAniClipIndex != this._aniClipIndex) {
                 this._lastAniClipIndex = this._aniClipIndex;
                 for (i = 0, n = this._boneSlotArray.length; i < n; i++) {
-                    tDBBoneSlot = this._boneSlotArray[i];
+                    let tDBBoneSlot = this._boneSlotArray[i];
                     tDBBoneSlot.deformData = null;
                 }
             }
-            var tSkinDeformAni: any = tDeformAniArr[this._aniClipIndex];
+            let tSkinDeformAni: any = tDeformAniArr[this._aniClipIndex];
             //使用default数据
-            tDeformAniData = (<DeformAniData>(tSkinDeformAni["default"]));
+            let tDeformAniData = (<DeformAniData>(tSkinDeformAni["default"]));
             this._setDeform(tDeformAniData, tDeformDic, this._boneSlotArray, curTime);
 
             //使用其他皮肤的数据
-            var tSkin: string;
+            let tSkin: string;
             for (tSkin in tSkinDeformAni) {
                 if (tSkin != "default" && tSkin != this._skinName) {
                     tDeformAniData = (<DeformAniData>tSkinDeformAni[tSkin]);
@@ -713,15 +722,12 @@ export class Skeleton extends Sprite {
         }
 
         //_rootBone.updateDraw(this.x,this.y);
-        var tSlotData2: any;
-        var tSlotData3: any;
-        var tObject: any;
         //把动画按插槽顺序画出来
         if (this._drawOrder) {
             for (i = 0, n = this._drawOrder.length; i < n; i++) {
-                tDBBoneSlot = this._boneSlotArray[this._drawOrder[i]];
-                tSlotData2 = tSlotDic[tDBBoneSlot.name];
-                tSlotData3 = tSlotAlphaDic[tDBBoneSlot.name];
+                let tDBBoneSlot = this._boneSlotArray[this._drawOrder[i]];
+                let tSlotData2 = tSlotDic[tDBBoneSlot.name];
+                let tSlotData3 = tSlotAlphaDic[tDBBoneSlot.name];
                 if (!isNaN(tSlotData3)) {	// 如果alpha有值的话
                     //tGraphics.save();
                     //tGraphics.alpha(tSlotData3);
@@ -735,7 +741,7 @@ export class Skeleton extends Sprite {
                     }
                 }
                 if (tDeformDic[this._drawOrder[i]]) {
-                    tObject = tDeformDic[this._drawOrder[i]];
+                    let tObject = tDeformDic[this._drawOrder[i]];
                     if (tDBBoneSlot.currDisplayData && tObject[tDBBoneSlot.currDisplayData.attachmentName]) {
                         tDBBoneSlot.deformData = tObject[tDBBoneSlot.currDisplayData.attachmentName];
                     } else {
@@ -755,9 +761,9 @@ export class Skeleton extends Sprite {
             }
         } else {
             for (i = 0, n = this._boneSlotArray.length; i < n; i++) {
-                tDBBoneSlot = this._boneSlotArray[i];
-                tSlotData2 = tSlotDic[tDBBoneSlot.name];
-                tSlotData3 = tSlotAlphaDic[tDBBoneSlot.name];
+                let tDBBoneSlot = this._boneSlotArray[i];
+                let tSlotData2 = tSlotDic[tDBBoneSlot.name];
+                let tSlotData3 = tSlotAlphaDic[tDBBoneSlot.name];
                 if (!isNaN(tSlotData3)) {
                     //tGraphics.save();
                     //tGraphics.alpha(tSlotData3);
@@ -770,7 +776,7 @@ export class Skeleton extends Sprite {
                     }
                 }
                 if (tDeformDic[i]) {
-                    tObject = tDeformDic[i];
+                    let tObject = tDeformDic[i];
                     if (tDBBoneSlot.currDisplayData && tObject[tDBBoneSlot.currDisplayData.attachmentName]) {
                         tDBBoneSlot.deformData = tObject[tDBBoneSlot.currDisplayData.attachmentName];
                     } else {
@@ -799,9 +805,8 @@ export class Skeleton extends Sprite {
     }
 
     private _checkIsAllParsed(_aniClipIndex: number): void {
-        var i: number, len: number;
-        len = Math.floor(0.01 + this._templet.getAniDuration(_aniClipIndex) / 1000 * this._player.cacheFrameRate);
-        for (i = 0; i < len; i++) {
+        let len = Math.floor(0.01 + this._templet.getAniDuration(_aniClipIndex) / 1000 * this._player.cacheFrameRate);
+        for (let i = 0; i < len; i++) {
             if (!this._templet.getGrahicsDataWithCache(_aniClipIndex, i)) return;
         }
         if (!this._templet.getGrahicsDataWithCache(_aniClipIndex, len)) {
@@ -821,14 +826,13 @@ export class Skeleton extends Sprite {
      */
     private _setDeform(tDeformAniData: DeformAniData, tDeformDic: any, _boneSlotArray: any[], curTime: number): void {
         if (!tDeformAniData) return;
-        var tDeformSlotData: DeformSlotData;
-        var tDeformSlotDisplayData: DeformSlotDisplayData;
-        var tDBBoneSlot: BoneSlot;
-        var i: number, n: number, j: number;
+        let tDeformSlotData: DeformSlotData;
+        let tDeformSlotDisplayData: DeformSlotDisplayData;
+        let tDBBoneSlot: BoneSlot;
         if (tDeformAniData) {
-            for (i = 0, n = tDeformAniData.deformSlotDataList.length; i < n; i++) {
+            for (let i = 0, n = tDeformAniData.deformSlotDataList.length; i < n; i++) {
                 tDeformSlotData = tDeformAniData.deformSlotDataList[i];
-                for (j = 0; j < tDeformSlotData.deformSlotDisplayList.length; j++) {
+                for (let j = 0; j < tDeformSlotData.deformSlotDisplayList.length; j++) {
                     tDeformSlotDisplayData = tDeformSlotData.deformSlotDisplayList[j];
                     tDBBoneSlot = _boneSlotArray[tDeformSlotDisplayData.slotIndex];
                     tDeformSlotDisplayData.apply(curTime, tDBBoneSlot);
@@ -882,12 +886,11 @@ export class Skeleton extends Sprite {
      * @param	freshSlotIndex	是否将插槽纹理重置到初始化状态
      */
     showSkinByIndex(skinIndex: number, freshSlotIndex: boolean = true): void {
-        for (var i: number = 0; i < this._boneSlotArray.length; i++) {
+        for (let i = 0; i < this._boneSlotArray.length; i++) {
             ((<BoneSlot>this._boneSlotArray[i])).showSlotData(null, freshSlotIndex);
         }
         if (this._templet.showSkinByIndex(this._boneSlotDic, skinIndex, freshSlotIndex)) {
-            var tSkinData: SkinData = this._templet.skinDataArray[skinIndex];
-            this._skinIndex = skinIndex;
+            let tSkinData: SkinData = this._templet.skinDataArray[skinIndex];
             this._skinName = tSkinData.name;
         }
         this._clearCache();
@@ -900,7 +903,7 @@ export class Skeleton extends Sprite {
      */
     showSlotSkinByIndex(slotName: string, index: number): void {
         if (this._aniMode == 0) return;
-        var tBoneSlot: BoneSlot = this.getSlotByName(slotName);
+        let tBoneSlot: BoneSlot = this.getSlotByName(slotName);
         if (tBoneSlot) {
             tBoneSlot.showDisplayByIndex(index);
         }
@@ -914,7 +917,7 @@ export class Skeleton extends Sprite {
      */
     showSlotSkinByName(slotName: string, name: string): void {
         if (this._aniMode == 0) return;
-        var tBoneSlot: BoneSlot = this.getSlotByName(slotName);
+        let tBoneSlot: BoneSlot = this.getSlotByName(slotName);
         if (tBoneSlot) {
             tBoneSlot.showDisplayByName(name);
         }
@@ -929,7 +932,7 @@ export class Skeleton extends Sprite {
      */
     replaceSlotSkinName(slotName: string, oldName: string, newName: string): void {
         if (this._aniMode == 0) return;
-        var tBoneSlot: BoneSlot = this.getSlotByName(slotName);
+        let tBoneSlot: BoneSlot = this.getSlotByName(slotName);
         if (tBoneSlot) {
             tBoneSlot.replaceDisplayByName(oldName, newName);
         }
@@ -944,7 +947,7 @@ export class Skeleton extends Sprite {
      */
     replaceSlotSkinByIndex(slotName: string, oldIndex: number, newIndex: number): void {
         if (this._aniMode == 0) return;
-        var tBoneSlot: BoneSlot = this.getSlotByName(slotName);
+        let tBoneSlot: BoneSlot = this.getSlotByName(slotName);
         if (tBoneSlot) {
             tBoneSlot.replaceDisplayByIndex(oldIndex, newIndex);
         }
@@ -958,7 +961,7 @@ export class Skeleton extends Sprite {
      */
     setSlotSkin(slotName: string, texture: Texture): void {
         if (this._aniMode == 0) return;
-        var tBoneSlot: BoneSlot = this.getSlotByName(slotName);
+        let tBoneSlot: BoneSlot = this.getSlotByName(slotName);
         if (tBoneSlot) {
             tBoneSlot.replaceSkin(texture);
         }
@@ -971,8 +974,8 @@ export class Skeleton extends Sprite {
      */
     private _clearCache(): void {
         if (this._aniMode == 1) {
-            for (var i: number = 0, n: number = this._graphicsCache.length; i < n; i++) {
-                for (var j: number = 0, len: number = this._graphicsCache[i].length; j < len; j++) {
+            for (let i = 0, n = this._graphicsCache.length; i < n; i++) {
+                for (let j = 0, len = this._graphicsCache[i].length; j < len; j++) {
                     var gp: GraphicsAni = this._graphicsCache[i][j];
                     if (gp && gp != this.graphics) {
                         GraphicsAni.recycle(gp);
@@ -997,7 +1000,7 @@ export class Skeleton extends Sprite {
     play(nameOrIndex: any, loop: boolean, force: boolean = true, start: number = 0, end: number = 0, freshSkin: boolean = true, playAudio: boolean = true): void {
         this._playAudio = playAudio;
         this._indexControl = false;
-        var index: number = -1;
+        let index: number = -1;
         var duration: number;
         if (loop) {
             duration = 2147483647;//int.MAX_VALUE;
@@ -1005,8 +1008,8 @@ export class Skeleton extends Sprite {
             duration = 0;
         }
         if (typeof (nameOrIndex) == 'string') {
-            for (var i: number = 0, n: number = this._templet.getAnimationCount(); i < n; i++) {
-                var animation: any = this._templet.getAnimation(i);
+            for (let i = 0, n = this._templet.getAnimationCount(); i < n; i++) {
+                let animation: any = this._templet.getAnimation(i);
                 if (animation && nameOrIndex == animation.name) {
                     index = i;
                     break;
@@ -1071,11 +1074,10 @@ export class Skeleton extends Sprite {
                 this._player.paused = true;
             }
             if (this._soundChannelArr.length > 0) { // 有正在播放的声音
-                var _soundChannel: SoundChannel;
-                for (var len: number = this._soundChannelArr.length, i: number = 0; i < len; i++) {
-                    _soundChannel = this._soundChannelArr[i];
-                    if (!_soundChannel.isStopped) {
-                        _soundChannel.pause();
+                for (let len = this._soundChannelArr.length, i = 0; i < len; i++) {
+                    let channel = this._soundChannelArr[i];
+                    if (!channel.isStopped) {
+                        channel.pause();
                     }
 
                 }
@@ -1095,11 +1097,10 @@ export class Skeleton extends Sprite {
                 this._player.paused = false;
             }
             if (this._soundChannelArr.length > 0) { // 有正在播放的声音
-                var _soundChannel: SoundChannel;
-                for (var len: number = this._soundChannelArr.length, i: number = 0; i < len; i++) {
-                    _soundChannel = this._soundChannelArr[i];
-                    if ((_soundChannel as any).audioBuffer) {
-                        _soundChannel.resume();
+                for (let len = this._soundChannelArr.length, i = 0; i < len; i++) {
+                    let channel = this._soundChannelArr[i];
+                    if ((channel as any).audioBuffer) {
+                        channel.resume();
                     }
                 }
             }
@@ -1133,16 +1134,27 @@ export class Skeleton extends Sprite {
 
     private reset() {
         this._templet._removeReference();
-        this._templet = null;//动画解析器
-        if (this._player) this._player.offAll();
-        this._player = null;// 播放器
-        this._curOriginalData = null;//当前骨骼的偏移数据
-        this._boneMatrixArray.length = 0;//当前骨骼动画的最终结果数据
-        this._lastTime = 0;//上次的帧时间
+        this._templet = null;
+        this._player.offAll();
+        this._player = null;
+        this._curOriginalData = null;
+        this._boneMatrixArray.length = 0;
+        this._ikArr = null;
+        this._pathDic = null;
+        this._tfArr = null;
+        this._lastTime = 0;
+        this._currAniIndex = -1;
+        this._clipIndex = -1;
+        this._indexControl = false;
+        this._eventIndex = 0;
+        this._drawOrderIndex = 0;
+        this._drawOrder = null;
+        this._lastAniClipIndex = -1;
+        this._lastUpdateAniClipIndex = -1;
+        this._pause = true;
         this.timer.clear(this, this._update);
-        if (this._soundChannelArr.length > 0) { // 有正在播放的声音
+        if (this._soundChannelArr.length > 0)
             this._onAniSoundStoped(true);
-        }
     }
 
     /**
