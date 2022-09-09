@@ -1,6 +1,7 @@
 import { ILoadTask, IResourceLoader, Loader } from "../../net/Loader";
 import { IShaderObjStructor, IShaderpassStructor, Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { ShaderDataType } from "../../RenderEngine/RenderShader/ShaderData";
+import { Texture2D } from "../../resource/Texture2D";
 import { Color } from "../math/Color";
 import { Matrix4x4 } from "../math/Matrix4x4";
 import { Vector2 } from "../math/Vector2";
@@ -176,7 +177,14 @@ export class ShaderLoader implements IResourceLoader {
                 mat.cloneByArray(data);
                 return mat;
             case ShaderDataType.Texture2D:
-                return null;
+                let tex = Texture2D.whiteTexture;
+                if(data=="write")
+                    tex = Texture2D.whiteTexture;
+                else if(data == "black")
+                    tex = Texture2D.blackTexture;
+                else if(data == "gray")
+                    tex = Texture2D.grayTexture;
+                return tex;
         }
     }
 }
