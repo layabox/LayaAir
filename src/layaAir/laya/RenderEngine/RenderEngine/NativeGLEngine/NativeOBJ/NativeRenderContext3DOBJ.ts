@@ -90,7 +90,7 @@ export class NativeRenderContext3DOBJ implements IRenderContext3D {
 
     set globalShaderData(globalShaderData: ShaderData) {
         this._globalShaderData = globalShaderData;
-        this._nativeObj.globalShaderData = (globalShaderData as any)._nativeObj;
+        this._nativeObj.globalShaderData = globalShaderData ? (globalShaderData as any)._nativeObj : null;
     }
 
     get globalShaderData(): ShaderData {
@@ -99,7 +99,7 @@ export class NativeRenderContext3DOBJ implements IRenderContext3D {
 
     set sceneShaderData(sceneShaderData: ShaderData) {
         this._sceneShaderData = sceneShaderData;
-        this._nativeObj.sceneShaderData = (sceneShaderData as any)._nativeObj;
+        this._nativeObj.sceneShaderData = sceneShaderData ? (sceneShaderData as any)._nativeObj : null;
     }
 
     get sceneShaderData(): ShaderData {
@@ -108,7 +108,7 @@ export class NativeRenderContext3DOBJ implements IRenderContext3D {
 
     set cameraShaderData(cameraShaderData: ShaderData) {
         this._cameraShaderData = cameraShaderData;
-        this._nativeObj.cameraShaderData = (cameraShaderData as any)._nativeObj;
+        this._nativeObj.cameraShaderData = cameraShaderData ? (cameraShaderData as any)._nativeObj : null;
     }
 
     get cameraShaderData(): ShaderData {
