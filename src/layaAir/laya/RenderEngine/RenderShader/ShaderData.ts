@@ -29,6 +29,28 @@ export enum ShaderDataType {
 
 export type ShaderDataItem = number | boolean | Vector2 | Vector3 | Vector4 | Color | Matrix4x4 | BaseTexture | Float32Array;
 
+export function ShaderDataDefaultValue(type: ShaderDataType) {
+	switch (type) {
+		case ShaderDataType.Int:
+			return 0;
+		case ShaderDataType.Bool:
+			return false;
+		case ShaderDataType.Float:
+			return 0;
+		case ShaderDataType.Vector2:
+			return Vector2.ZERO;
+		case ShaderDataType.Vector3:
+			return Vector3.ZERO;
+		case ShaderDataType.Vector4:
+			return Vector4.ZERO;
+		case ShaderDataType.Color:
+			return Color.BLACK;
+		case ShaderDataType.Matrix4x4:
+			return Matrix4x4.DEFAULT;
+	}
+	return null;
+}
+
 /**
  * 着色器数据类。
  */

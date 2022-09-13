@@ -10,7 +10,7 @@ import { BlendEquationSeparate } from "../../../RenderEngine/RenderEnum/BlendEqu
 import { CompareFunction } from "../../../RenderEngine/RenderEnum/CompareFunction";
 import { DefineDatas } from "../../../RenderEngine/RenderShader/DefineDatas";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
-import { ShaderData, ShaderDataItem, ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData";
+import { ShaderData, ShaderDataDefaultValue, ShaderDataItem, ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData";
 import { ShaderDefine } from "../../../RenderEngine/RenderShader/ShaderDefine";
 import { UniformBufferObject } from "../../../RenderEngine/UniformBufferObject";
 import { ClassUtils } from "../../../utils/ClassUtils";
@@ -596,15 +596,16 @@ export class Material extends Resource implements IClone {
      * @internal
      */
     applyUniformDefaultValue(typeMap: Map<string, ShaderDataType>, defaultValue: { [name: string]: ShaderDataItem }) {
-        for (const key in defaultValue) {
-            if (typeMap.has(key)) {
-                let type = typeMap.get(key);
+        typeMap.forEach((type, key) => {
+            if (defaultValue[key] != undefined) {
                 let value = defaultValue[key];
                 this.setShaderData(key, type, value);
             }
-        }
+            else {
+                this.setShaderData(key, type, ShaderDataDefaultValue(type));
+            }
+        });
     }
-
 
     getBoolByIndex(uniformIndex: number): boolean {
         return this.shaderData.getBool(uniformIndex);
