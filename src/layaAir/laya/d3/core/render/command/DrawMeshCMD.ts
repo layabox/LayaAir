@@ -1,4 +1,3 @@
-import { DefineDatas } from "../../../../RenderEngine/RenderShader/DefineDatas";
 import { Matrix4x4 } from "../../../math/Matrix4x4";
 import { Mesh } from "../../../resource/models/Mesh";
 import { Material } from "../../material/Material";

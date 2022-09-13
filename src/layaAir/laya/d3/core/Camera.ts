@@ -1299,6 +1299,10 @@ export class Camera extends BaseCamera {
         this.transform.off(Event.TRANSFORM_CHANGED, this, this._onTransformChanged);
         this._cameraEventCommandBuffer = {};
         this._shaderValues.destroy();
+        if(RenderContext3D._instance.camera==this){
+            RenderContext3D._instance.cameraShaderValue=null;
+            RenderContext3D._instance.camera = null;
+        }
         //this.skyRenderer.destroy();
         // for (var i in this._cameraEventCommandBuffer) {
         //     if (!this._cameraEventCommandBuffer[i])

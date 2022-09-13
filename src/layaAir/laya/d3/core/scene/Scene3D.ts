@@ -1518,6 +1518,7 @@ export class Scene3D extends Sprite implements ISubmit {
         this._spotLights = null;
         this._alternateLights = null;
         this._shaderValues.destroy();
+        (RenderContext3D._instance.scene==this)&&(RenderContext3D._instance.scene=null);
         this._shaderValues = null;
         this.sceneRenderableManager.destroy();
         this._sceneRenderManager = null
