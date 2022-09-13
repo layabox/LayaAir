@@ -29,7 +29,7 @@ export class NativeBaseRenderQueue implements IRenderQueue {
  	    this._batch = RenderElementBatch.instance ? RenderElementBatch.instance : new RenderElementBatch();
     }
     destroy(): void {
-        //TODO lv
+        this._nativeObj.destroy();
     }
 
     set context(value:RenderContext3D){

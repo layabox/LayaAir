@@ -82,12 +82,10 @@ export class NativeBaseRenderNode implements IBaseRenderNode {
         this._nativeObj.geometryBounds = (value as any)._imp._nativeObj;
     }
 
-    //lv todo
     get renderbitFlag(): number {
-        return this._nativeObj.owner;
+        return this._nativeObj.renderbitFlag;
     }
-    //lv todo
     set renderbitFlag(value: number | null) {
-        this._nativeObj.owner = value;
+        this._nativeObj.renderbitFlag = value;
     }
 }
