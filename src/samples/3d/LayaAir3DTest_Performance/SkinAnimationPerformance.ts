@@ -5,6 +5,7 @@ import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
 import { Color } from "laya/d3/math/Color";
+import { Matrix4x4 } from "laya/d3/math/Matrix4x4";
 import { Vector3 } from "laya/d3/math/Vector3";
 import { Stage } from "laya/display/Stage";
 import { Button } from "laya/ui/Button";
@@ -38,7 +39,9 @@ export class SkinAnimationPerformance {
 		camera.addComponent(CameraMoveScript);
 
 		var directionLight: DirectionLight = (<DirectionLight>scene.addChild(new DirectionLight()));
-		directionLight.transform.worldMatrix.setForward(new Vector3(-1.0, -1.0, -1.0));
+		var mat: Matrix4x4 = directionLight.transform.worldMatrix;
+		mat.setForward(new Vector3(-1.0, -1.0, -1.0));
+		directionLight.transform.worldMatrix = mat;
 		directionLight.color = new Color(1, 1, 1, 1);
 
 		Sprite3D.load("res/threeDimen/skinModel/Zombie/Plane.lh", Handler.create(null, function (plane: Sprite3D): void {
