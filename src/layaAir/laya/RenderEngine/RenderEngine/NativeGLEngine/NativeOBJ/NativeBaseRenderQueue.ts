@@ -28,6 +28,9 @@ export class NativeBaseRenderQueue implements IRenderQueue {
         this._nativeObj = new (window as any).conchRenderQueue(isTransparent);
  	    this._batch = RenderElementBatch.instance ? RenderElementBatch.instance : new RenderElementBatch();
     }
+    destroy(): void {
+        //TODO lv
+    }
 
     set context(value:RenderContext3D){
         this._context = value._contextOBJ;

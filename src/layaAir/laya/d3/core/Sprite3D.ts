@@ -12,6 +12,7 @@ import { ILaya } from "../../../ILaya";
 import { CommandUniformMap } from "../../RenderEngine/CommandUniformMap";
 import { NodeFlags } from "../../Const";
 import { Event } from "../../events/Event";
+import { Component } from "../../components/Component";
 
 /**
  * <code>Sprite3D</code> 类用于实现3D精灵。
@@ -79,6 +80,11 @@ export class Sprite3D extends Node {
     _layer: number;
     /**@internal */
     _transform: Transform3D;
+    /**@internal 0表示不是渲染节点*/
+    _isRenderNode: number = 0;
+    /**@internal */
+    _renderComponent: Component[];
+
 
     /**
      * 唯一标识ID。
@@ -117,6 +123,25 @@ export class Sprite3D extends Node {
      */
     get transform(): Transform3D {
         return this._transform;
+    }
+
+    get renderComponent() {
+        return this._renderComponent;
+    }
+
+    _addRenderComponent(com: Component) {
+        if (!this._renderComponent)
+            this._renderComponent = [];
+        let index = this._renderComponent.indexOf(com);
+        if (index == -1)
+            this._renderComponent.push(com);
+    }
+
+    _removeRenderComponent(com: Component) {
+        let index = this._renderComponent.indexOf(com);
+        if (index != -1) {
+            this._renderComponent.splice(index, 1);
+        }
     }
 
     /**
@@ -175,7 +200,6 @@ export class Sprite3D extends Node {
 
     protected onStartListeningToType(type: string) {
         super.onStartListeningToType(type);
-
         if (type.startsWith("collision"))
             this._setBit(NodeFlags.PROCESS_COLLISIONS, true);
         else if (type.startsWith("trigger"))

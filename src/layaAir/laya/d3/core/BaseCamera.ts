@@ -59,7 +59,7 @@ export class BaseCamera extends Sprite3D {
     static SHADERDEFINE_ORTHOGRAPHIC: ShaderDefine;
     /**@internal */
     static SHADERDEFINE_FXAA: ShaderDefine;
-	/**@internal */
+    /**@internal */
     static RENDERINGTYPE_SHADERDEFINE_FXAA: string = "FXAA";
     /**渲染模式,延迟光照渲染，暂未开放。*/
     static RENDERINGTYPE_DEFERREDLIGHTING: string = "DEFERREDLIGHTING";
@@ -158,6 +158,8 @@ export class BaseCamera extends Sprite3D {
     protected _farPlane: number;
     /**渲染引擎 */
     protected _renderEngine: IRenderEngine;
+    /**@internal 相机最远处的开合高度*/
+    private _yrange: number;
     /** 视野。*/
     private _fieldOfView: number;
     /** 正交投影的垂直尺寸。*/
@@ -209,6 +211,14 @@ export class BaseCamera extends Sprite3D {
     set fieldOfView(value: number) {
         this._fieldOfView = value;
         this._calculateProjectionMatrix();
+        this._caculateMaxLocalYRange();
+    }
+
+    /**
+   * 最大本地距离
+   */
+    get maxlocalYDistance(): number {
+        return this._yrange;
     }
 
     /**
@@ -221,6 +231,7 @@ export class BaseCamera extends Sprite3D {
     set nearPlane(value: number) {
         this._nearPlane = value;
         this._calculateProjectionMatrix();
+        
     }
 
     /**
@@ -233,6 +244,7 @@ export class BaseCamera extends Sprite3D {
     set farPlane(vaule: number) {
         this._farPlane = vaule;
         this._calculateProjectionMatrix();
+        this._caculateMaxLocalYRange();
     }
 
     /**
@@ -313,7 +325,11 @@ export class BaseCamera extends Sprite3D {
         }
     }
 
-
+    private _caculateMaxLocalYRange(){
+        let halffield = 3.1416 * this.fieldOfView / 180.0/2;
+        let dist = this.farPlane;
+        this._yrange = Math.tan(halffield)*dist*2;
+    }
 
     /**
      * @internal

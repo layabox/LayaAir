@@ -25,5 +25,8 @@ export interface IRenderQueue {
     addRenderElement(renderElement: RenderElement): void;
     //清除队列
     clear(): void
+    //destroy
+    destroy():void;
+
 
 }

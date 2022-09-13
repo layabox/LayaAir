@@ -31,6 +31,9 @@ import { ISingletonElement } from "../../../utils/SimpleSingletonList";
  */
 export class BaseRender extends Component implements ISingletonElement {
     /**@internal */
+    public static RenderBitFlag_CullFlag = 1;
+
+    /**@internal */
     private static _uniqueIDCounter: number = 0;
 
     /**@internal */
@@ -93,12 +96,27 @@ export class BaseRender extends Component implements ISingletonElement {
     _motionIndexList: number = -1;
     /**@internal 是否自定义了needRender*/
     _customCull: boolean;
-    
-    set boundsChange(value:boolean){
+    /**@internal 如果这个值不是0,说明有一些条件使他不能加入渲染队列，例如如果是1，证明此节点被lod淘汰*/
+
+    get renderbitFlag() {
+        return this._rendernode.renderbitFlag;
+    }
+
+    /**
+     * 设置渲染flag,每一位都代表不同的淘汰原因，1表示lod淘汰
+     */
+    setRenderbitFlag(flag: number, pass: boolean) {
+        if (pass)
+            this._rendernode.renderbitFlag |= (1 << flag);
+        else
+            this._rendernode.renderbitFlag &= ~(1 << flag);
+    }
+
+    set boundsChange(value: boolean) {
         this._rendernode.boundsChange = value
     }
 
-    get boundsChange():boolean{
+    get boundsChange(): boolean {
         return this._rendernode.boundsChange;
     }
 
@@ -369,6 +387,7 @@ export class BaseRender extends Component implements ISingletonElement {
         this._customCull = this._needRender !== BaseRender.prototype._needRender;
         this.runInEditor = true;
         this.boundsChange = true;
+        this._rendernode.renderbitFlag = 0;
     }
 
     protected _createBaseRenderNode(): IBaseRenderNode {
@@ -390,11 +409,16 @@ export class BaseRender extends Component implements ISingletonElement {
     }
 
     protected _onEnable(): void {
+        (this.owner as Sprite3D)._isRenderNode++;
+        (this.owner as Sprite3D)._addRenderComponent(this);
+
         (this.owner.scene as Scene3D)._addRenderObject(this);
         this._setBelongScene(this.owner.scene);
     }
 
     protected _onDisable(): void {
+        (this.owner as Sprite3D)._isRenderNode--;
+        (this.owner as Sprite3D)._removeRenderComponent(this);
         (this.owner.scene as Scene3D)._removeRenderObject(this);
         this._setUnBelongScene();
     }
@@ -571,7 +595,8 @@ export class BaseRender extends Component implements ISingletonElement {
         this._lightmapScaleOffset = null;
         this._scene = null;
         this._rendernode = null;
-
+        this._shaderValues.destroy();
+        this._shaderValues = null;
         if (this._subUniformBufferData) {
             BaseRender._transLargeUbO.recover(this._subUniformBufferData);
             this._subUniformBufferData = null;

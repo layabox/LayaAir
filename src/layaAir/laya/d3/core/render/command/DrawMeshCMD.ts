@@ -28,7 +28,7 @@ export class DrawMeshCMD extends Command {
         
         cmd._matrix = matrix;
         cmd._transform.worldMatrix = cmd._matrix;
-        cmd._material = material;
+        cmd.material = material;
         cmd._subMeshIndex = subMeshIndex;
         cmd._subShaderIndex = subShaderIndex;
         cmd.mesh = mesh;
@@ -69,6 +69,11 @@ export class DrawMeshCMD extends Command {
         this._meshRender = new MeshRenderer();
     }
 
+    set material(value:Material){
+        this._material && this._material._removeReference(1);
+        this._material = value;
+        this._material && this._material._addReference(1);
+    }
 
     set mesh(value: Mesh) {
         if (this._mesh == value)
@@ -119,6 +124,8 @@ export class DrawMeshCMD extends Command {
         this._renderElemnts.forEach (element=> {
             element.destroy();
         });
+        this._material && this._material._removeReference(1);
+        this._material = null;
         this._renderElemnts = null;
         this._transform = null;
         this._material = null;

@@ -46,7 +46,7 @@ export class ShaderData implements IClone {
 	_defineDatas: DefineDatas = new DefineDatas();
 
 	/**@internal */
-	private _uniformBufferDatas: Map<string, UniformBufferObject>;
+	_uniformBufferDatas: Map<string, UniformBufferObject>;
 
 	/**
 	 * @internal
@@ -54,7 +54,7 @@ export class ShaderData implements IClone {
 	 * value: UniformBufferObject
 	 * 保存 每个 uniform id 所在的 ubo
 	 */
-	private _uniformBuffersMap: Map<number, UniformBufferObject>;
+	_uniformBuffersMap: Map<number, UniformBufferObject>;
 
 	/**
 	 * @internal
@@ -297,7 +297,7 @@ export class ShaderData implements IClone {
 	 * @param value 颜色值
 	 */
 	setColor(index: number, value: Color): void {
-		if(!value)
+		if (!value)
 			return;
 		if (this._data[index]) {
 			let gammaColor = this._gammaColorMap.get(index);
@@ -584,6 +584,7 @@ export class ShaderData implements IClone {
 
 	destroy(): void {
 		this._data = null;
+		this._defineDatas.destroy();
 		this._defineDatas = null;
 		for (var k in this._data) {
 			//维护Refrence
@@ -594,6 +595,12 @@ export class ShaderData implements IClone {
 		}
 		this._gammaColorMap.clear();
 		this._gammaColorMap = null;
+		// // 使用对象解析
+		delete this._uniformBufferDatas;
+		delete this._uniformBuffersMap;
+		this._uniformBufferDatas = null;
+		this._uniformBuffersMap = null;
+		
 	}
 }
 

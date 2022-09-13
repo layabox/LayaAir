@@ -1171,6 +1171,31 @@ export class Scene3D extends Sprite implements ISubmit {
         }
     }
 
+    private _cullInfoCamera:Camera
+    get cullInfoCamera():Camera{
+        return this._cullInfoCamera;
+    }
+    /**
+     * scence外的Camera渲染场景,需要设置这个接口
+     * @param camera 
+     */
+    _setCullCamera(camera:Camera){
+        this._cullInfoCamera = camera;
+    }
+
+    /**
+     * 重新计算CullCamera
+     */
+    recaculateCullCamera(){
+        this._cullInfoCamera = this._cameraPool[0] as Camera;
+        this._cameraPool.forEach(element => {
+            if(this.cullInfoCamera.maxlocalYDistance<(element as Camera).maxlocalYDistance){
+                this._cullInfoCamera = element as Camera;
+            }
+        });
+    }
+
+
     /**
      * @internal
      */
@@ -1492,6 +1517,7 @@ export class Scene3D extends Sprite implements ISubmit {
         this._pointLights = null;
         this._spotLights = null;
         this._alternateLights = null;
+        this._shaderValues.destroy();
         this._shaderValues = null;
         this.sceneRenderableManager.destroy();
         this._sceneRenderManager = null
@@ -1508,9 +1534,11 @@ export class Scene3D extends Sprite implements ISubmit {
                 map.lightmapDirection && map.lightmapDirection._removeReference();
             }
         }
+        //this._sceneUniformData.destroy();
         this._lightmaps = null;
         this._reflectionProbeManager.destroy();
         this._componentDriver.callDestroy();
+        
     }
 
     /**

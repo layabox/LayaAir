@@ -39,7 +39,7 @@ export class DrawMeshInstancedCMD extends Command {
 
 
         cmd._matrixs = matrixs;
-        cmd._material = material;
+        cmd.material = material;
         cmd._subMeshIndex = subMeshIndex;
         cmd._subShaderIndex = subShaderIndex;
         cmd._commandBuffer = commandBuffer;
@@ -98,6 +98,12 @@ export class DrawMeshInstancedCMD extends Command {
         this._render = new BaseRender();
         this._render._shaderValues.addDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_GPU_INSTANCE);
 
+    }
+
+    set material(value:Material){
+        this._material && this._material._removeReference(1);
+        this._material = value;
+        this._material && this._material._addReference(1);
     }
 
     get bufferState() {
@@ -242,6 +248,9 @@ export class DrawMeshInstancedCMD extends Command {
      */
     recover(): void {
         DrawMeshInstancedCMD._pool.push(this);
+
+        this._material && this._material._removeReference(1);
+        this._material = null;
         this._instanceBufferState.destroy();
         this._instanceBufferState = null;
         delete this._instanceRenderElementArray;
