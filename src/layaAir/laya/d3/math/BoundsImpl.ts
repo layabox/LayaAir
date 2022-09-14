@@ -270,7 +270,6 @@ export class BoundsImpl implements IClone {
         this.cloneTo(dest);
         return dest;
     }
-
 }
 
 const TEMP_VECTOR3_MAX0 = new Vector3();

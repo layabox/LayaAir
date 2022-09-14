@@ -159,6 +159,10 @@ export class DefineDatas implements IClone {
 		this.cloneTo(dest);
 		return dest;
 	}
+
+	destroy(){
+		delete this._mask;
+	}
 }
 
 

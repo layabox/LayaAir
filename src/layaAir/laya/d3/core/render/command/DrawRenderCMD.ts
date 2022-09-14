@@ -19,7 +19,7 @@ export class DrawRenderCMD extends Command {
         var cmd: DrawRenderCMD;
         cmd = DrawRenderCMD._pool.length > 0 ? DrawRenderCMD._pool.pop() : new DrawRenderCMD();
         cmd._render = render;
-        cmd._material = material;
+        cmd.material = material;
         cmd._subShaderIndex = subShaderIndex;
         cmd._commandBuffer = commandBuffer;
         return cmd;
@@ -39,6 +39,12 @@ export class DrawRenderCMD extends Command {
         renderElement.renderSubShader =  this._material._shader.getSubShaderAt(this._subShaderIndex);//TODO
         renderElement.material = this._material;
         context.drawRenderElement(renderElement);
+    }
+
+    set material(value:Material){
+        this._material && this._material._removeReference(1);
+        this._material = value;
+        this._material && this._material._addReference(1);
     }
 
     /**
@@ -69,7 +75,8 @@ export class DrawRenderCMD extends Command {
      */
     recover(): void {
         DrawRenderCMD._pool.push(this);
-
+        this._material && this._material._removeReference(1);
+        this._material = null;
     }
 
 }

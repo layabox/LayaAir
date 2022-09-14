@@ -20,6 +20,7 @@ import { CameraMoveScript } from "../common/CameraMoveScript";
 import { Config3D } from "Config3D";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 import { Color } from "laya/d3/math/Color";
+import { Matrix4x4 } from "laya/d3/math/Matrix4x4";
 
 
 
@@ -39,7 +40,9 @@ export class PhysicsWorld_ConfigurableJoint {
 			this.camera.addComponent(CameraMoveScript)
 			var directionLight: DirectionLight = (<DirectionLight>this.scene.addChild(new DirectionLight()));
 			directionLight.color = new Color(1, 1, 1, 1);
-			directionLight.transform.worldMatrix.setForward(new Vector3(-1.0, -1.0, 1.0));
+			var mat: Matrix4x4 = directionLight.transform.worldMatrix;
+			mat.setForward(new Vector3(-1.0, -1.0, 1.0));
+			directionLight.transform.worldMatrix = mat;
 			//平面
 			var plane: MeshSprite3D = (<MeshSprite3D>this.scene.addChild(new MeshSprite3D(PrimitiveMesh.createPlane(40, 40, 40, 40))));
 			plane.transform.position = new Vector3(0, -2.0, 0);

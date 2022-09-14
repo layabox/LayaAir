@@ -9,6 +9,7 @@ import { Camera } from "laya/d3/core/Camera"
 	import { Handler } from "laya/utils/Handler"
 	import { Stat } from "laya/utils/Stat"
 import { Color } from "laya/d3/math/Color";
+import { Matrix4x4 } from "laya/d3/math/Matrix4x4";
 	/**
 	 * ...
 	 * @author sss
@@ -46,8 +47,10 @@ import { Color } from "laya/d3/math/Color";
 			//添加方向光
 			var directionLight:DirectionLight = (<DirectionLight>scene.addChild(new DirectionLight()) );
 			directionLight.color = new Color(0.6, 0.6, 0.6, 1);
-			directionLight.transform.worldMatrix.setForward(new Vector3(1, -1, 0));
-			
+			var mat: Matrix4x4 = directionLight.transform.worldMatrix;
+			mat.setForward(new Vector3(1, -1, 0));
+			directionLight.transform.worldMatrix = mat;
+
 			var sp:Sprite3D = Laya.loader.getRes("res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh");
 			scene.addChild(sp);
 		}

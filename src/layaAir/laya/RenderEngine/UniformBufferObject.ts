@@ -33,7 +33,7 @@ export class UniformBufferObject extends Buffer {
             return null;
         } else {
             let ubo = LayaGL.renderOBJCreate.createUniformBufferObject(bufferBase._glPointerID, name, bufferUsage, bytelength, isSingle);
-            bufferBase.add(ubo);
+            if(bufferBase._singgle) bufferBase.add(ubo);
             return ubo;
         }
     }
@@ -191,4 +191,10 @@ export class UniformBufferObject extends Buffer {
         this._glBuffer.setDataEx(bufferData._buffer,offset * datalength,reallength / 4);
     }
 
+    /**
+	 * @private
+	 */
+	destroy(): void {
+		super.destroy();
+	}
 }

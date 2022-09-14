@@ -23,6 +23,7 @@ import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import { Config3D } from "Config3D";
 import { Color } from "laya/d3/math/Color";
+import { Matrix4x4 } from "laya/d3/math/Matrix4x4";
 
 export class PhysicsWorld_BuildingBlocks {
 	private scene: Scene3D;
@@ -57,7 +58,9 @@ export class PhysicsWorld_BuildingBlocks {
 
 			var directionLight: DirectionLight = (<DirectionLight>this.scene.addChild(new DirectionLight()));
 			directionLight.color = new Color(1, 1, 1, 1);
-			directionLight.transform.worldMatrix.setForward(new Vector3(-1.0, -1.0, 1.0));
+			var mat: Matrix4x4 = directionLight.transform.worldMatrix;
+			mat.setForward(new Vector3(-1.0, -1.0, 1.0));
+			directionLight.transform.worldMatrix = mat;
 
 			var plane: MeshSprite3D = (<MeshSprite3D>this.scene.addChild(new MeshSprite3D(PrimitiveMesh.createPlane(13, 13, 10, 10))));
 			var planeMat: BlinnPhongMaterial = new BlinnPhongMaterial();

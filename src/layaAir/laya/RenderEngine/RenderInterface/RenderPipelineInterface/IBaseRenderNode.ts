@@ -27,4 +27,6 @@ export interface IBaseRenderNode {
     layer:number;
     /**@internal */
     boundsChange:boolean;
+     /**@internal */
+     renderbitFlag:number;
 }

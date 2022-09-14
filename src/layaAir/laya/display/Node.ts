@@ -610,11 +610,11 @@ export class Node extends EventDispatcher {
 
     //============================组件化支持==============================
     /** @private */
-    private _components: Component[];
+    protected _components: Component[];
     /**@private */
     private _activeChangeScripts: Component[];
 
-    /**@internal */
+    
     _scene: Node;
 
     /**

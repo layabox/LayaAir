@@ -28,6 +28,7 @@ export class BaseRenderQueue implements IRenderQueue {
         this._batch = RenderElementBatch.instance ? RenderElementBatch.instance : new RenderElementBatch();
     }
 
+
     set context(value: RenderContext3D) {
         this._context = value._contextOBJ;
     }
@@ -67,5 +68,9 @@ export class BaseRenderQueue implements IRenderQueue {
     private _sort() {
         var count: number = this.elements.length;
         this._sortPass.sort(this.elements, this._isTransparent, 0, count - 1);
+    }
+
+    destroy(): void {
+        this.elements.destroy();
     }
 }

@@ -22,6 +22,7 @@ import { Browser } from "laya/utils/Browser";
 import { Event } from "laya/events/Event";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 import { Color } from "laya/d3/math/Color";
+import { Matrix4x4 } from "laya/d3/math/Matrix4x4";
 
 export class PostProcess_Edge {
 
@@ -92,7 +93,9 @@ export class PostProcess_Edge {
             Vector3.normalize(dir, dirLightDirections[index]);
             let dirLight: DirectionLight = new DirectionLight();
             this.scene.addChild(dirLight);
-            dirLight.transform.worldMatrix.setForward(dirLightDirections[index]);
+            var mat: Matrix4x4 = dirLight.transform.worldMatrix;
+            mat.setForward(dirLightDirections[index]);
+            dirLight.transform.worldMatrix = mat;
             dirLight.color = lightColor;
         }
 

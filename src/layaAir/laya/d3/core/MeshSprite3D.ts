@@ -89,16 +89,6 @@ export class MeshSprite3D extends RenderableSprite3D {
         super._cloneTo(destObject, rootSprite, dstSprite);//父类函数在最后,组件应该最后赋值，否则获取材质默认值等相关函数会有问题
     }
 
-    /**
-     * @inheritDoc
-     * @override	
-     */
-    destroy(destroyChild: boolean = true): void {
-        if (this._destroyed)
-            return;
-        super.destroy(destroyChild);
-        this._meshFilter.destroy();
-    }
 
     /**
      * @internal

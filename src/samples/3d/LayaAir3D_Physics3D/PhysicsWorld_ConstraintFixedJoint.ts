@@ -17,6 +17,7 @@ import { Config3D } from "Config3D";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
 import { Color } from "laya/d3/math/Color";
 import { Script } from "laya/components/Script";
+import { Matrix4x4 } from "laya/d3/math/Matrix4x4";
 
 export class PhysicsWorld_ConstraintFixedJoint {
 	private scene: Scene3D;
@@ -33,7 +34,9 @@ export class PhysicsWorld_ConstraintFixedJoint {
 			//  this.camera.transform.rotate(new Vector3(-30, 45, 0), true, false);
 			var directionLight: DirectionLight = (<DirectionLight>this.scene.addChild(new DirectionLight()));
 			directionLight.color = new Color(1, 1, 1, 1);
-			directionLight.transform.worldMatrix.setForward(new Vector3(-1.0, -1.0, 1.0));
+			var mat: Matrix4x4 = directionLight.transform.worldMatrix;
+			mat.setForward(new Vector3(-1.0, -1.0, 1.0));
+			directionLight.transform.worldMatrix = mat;
 			this.addbox();
 		}));
 

@@ -8,6 +8,16 @@ import { Vector3 } from "./Vector3";
  * <code>Bounds</code> 类用于创建包围体。
  */
 export class Bounds implements IClone {
+    /**
+	 * 合并两个包围盒。
+	 * @param	box1 包围盒1。
+	 * @param	box2 包围盒2。
+	 * @param	out 生成的包围盒。
+	 */
+	static merge(box1: Bounds, box2:Bounds, out: Bounds): void {
+		Vector3.min(box1.min, box2.min, out.min);
+		Vector3.max(box1.max, box2.max, out.max);
+	}
     /**@internal */
     static _UPDATE_MIN: number = 0x01;
     /**@internal */

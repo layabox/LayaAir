@@ -25,7 +25,7 @@ export class CullPassBase implements ICullPass {
         for (var i: number = 0, n: number = renderManager.list.length; i < n; i++) {
             var render = renders[i];
             var canPass: boolean;
-            canPass = ((Math.pow(2, (render.owner as Sprite3D)._layer) & cullMask) != 0) && render._enabled;
+            canPass = ((Math.pow(2, (render.owner as Sprite3D)._layer) & cullMask) != 0) && render._enabled && (render.renderbitFlag == 0);
             if (canPass) {
                 Stat.frustumCulling++;
                 if (!cameraCullInfo.useOcclusionCulling || render._needRender(boundFrustum, context)) {
@@ -41,7 +41,7 @@ export class CullPassBase implements ICullPass {
         var renders = renderList.elements;
         for (var i: number = 0, n: number = renderList.length; i < n; i++) {
             var render = renders[i];
-            var canPass: boolean = render.castShadow && render._enabled && render.sharedMaterial.depthWrite;
+            var canPass: boolean = render.castShadow && render._enabled && (render.renderbitFlag == 0);
             if (canPass) {
                 Stat.frustumCulling++;
                 let pass = FrustumCulling.cullingRenderBounds(render.bounds, cullInfo);
@@ -62,7 +62,7 @@ export class CullPassBase implements ICullPass {
         let context = RenderContext3D._instance;
         for (let i = 0, n = renderManager.list.length; i < n; i++) {
             let render = renders[i];
-            let canPass: boolean = render.castShadow && render._enabled && render.sharedMaterial.depthWrite;
+            let canPass: boolean = render.castShadow && render._enabled && (render.renderbitFlag == 0);
             if (canPass) {
                 Stat.frustumCulling++;
                 if (render._needRender(boundFrustum, context))

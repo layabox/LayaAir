@@ -72,6 +72,7 @@ export class SkyRenderer {
     }
 
     set mesh(value: GeometryElement) {
+        
         if (this._mesh !== value) {
             this._mesh = value;
             this._renderElement.setGeometry(this._mesh);
@@ -168,10 +169,16 @@ export class SkyRenderer {
      * @internal
      */
     destroy(): void {
+        
         if (this._material) {
             this._material._removeReference();
             this._material = null;
         }
+        this._renderData.destroy();
+        //@ts-ignore
+        this._renderData._onDestroy();
+        this._renderElement.destroy();
+        
 
     }
 

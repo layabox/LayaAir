@@ -109,6 +109,7 @@ export class Camera extends BaseCamera {
         Scene3D._updateMark++;
         //@ts-ignore
         scene._prepareSceneToRender();
+        scene._setCullCamera(camera);
         let recoverTexture = camera.renderTarget;
         camera.renderTarget = renderTexture;
 
@@ -132,6 +133,7 @@ export class Camera extends BaseCamera {
         camera._renderMainPass(context, viewport, scene, shader, replaceFlag, needInternalRT);
         camera._aftRenderMainPass(needShadowCasterPass);
         camera.renderTarget = recoverTexture;
+        scene.recaculateCullCamera();
         return renderTexture;
     }
 
@@ -335,6 +337,7 @@ export class Camera extends BaseCamera {
     private _depthTexture: BaseTexture;
     /** 深度法线贴图*/
     private _depthNormalsTexture: RenderTexture;
+ 
 
     private _cameraEventCommandBuffer: { [key: string]: CommandBuffer[] } = {};
     /**@internal 实现CommanBuffer的阴影渲染 */
@@ -416,6 +419,8 @@ export class Camera extends BaseCamera {
         else
             return RenderContext3D.clientHeight * Config3D.pixelRatio | 0;
     }
+
+    
 
     /**
      * 多重采样抗锯齿
@@ -592,6 +597,7 @@ export class Camera extends BaseCamera {
     set depthTextureFormat(value: RenderTargetFormat) {
         this._depthTextureFormat = value;
     }
+
     /**
      * 设置是否使用内置的深度贴图(TODO:如果开启,只可在后期使用深度贴图，不可在渲染流程中使用)
      */
@@ -653,6 +659,11 @@ export class Camera extends BaseCamera {
         this._viewport.width = pixelRightX - pixelLeftX;
         this._viewport.height = pixelRightY - pixelLeftY;
     }
+
+
+
+
+  
 
     /**
      * @inheritDoc
@@ -1287,6 +1298,12 @@ export class Camera extends BaseCamera {
         this._offScreenRenderTexture = null;
         this.transform.off(Event.TRANSFORM_CHANGED, this, this._onTransformChanged);
         this._cameraEventCommandBuffer = {};
+        this._shaderValues.destroy();
+        if(RenderContext3D._instance.camera==this){
+            RenderContext3D._instance.cameraShaderValue=null;
+            RenderContext3D._instance.camera = null;
+        }
+        //this.skyRenderer.destroy();
         // for (var i in this._cameraEventCommandBuffer) {
         //     if (!this._cameraEventCommandBuffer[i])
         //         continue;

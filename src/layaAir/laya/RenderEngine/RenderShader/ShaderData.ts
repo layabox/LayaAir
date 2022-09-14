@@ -29,6 +29,28 @@ export enum ShaderDataType {
 
 export type ShaderDataItem = number | boolean | Vector2 | Vector3 | Vector4 | Color | Matrix4x4 | BaseTexture | Float32Array;
 
+export function ShaderDataDefaultValue(type: ShaderDataType) {
+	switch (type) {
+		case ShaderDataType.Int:
+			return 0;
+		case ShaderDataType.Bool:
+			return false;
+		case ShaderDataType.Float:
+			return 0;
+		case ShaderDataType.Vector2:
+			return Vector2.ZERO;
+		case ShaderDataType.Vector3:
+			return Vector3.ZERO;
+		case ShaderDataType.Vector4:
+			return Vector4.ZERO;
+		case ShaderDataType.Color:
+			return Color.BLACK;
+		case ShaderDataType.Matrix4x4:
+			return Matrix4x4.DEFAULT;
+	}
+	return null;
+}
+
 /**
  * 着色器数据类。
  */
@@ -46,7 +68,7 @@ export class ShaderData implements IClone {
 	_defineDatas: DefineDatas = new DefineDatas();
 
 	/**@internal */
-	private _uniformBufferDatas: Map<string, UniformBufferObject>;
+	_uniformBufferDatas: Map<string, UniformBufferObject>;
 
 	/**
 	 * @internal
@@ -54,7 +76,7 @@ export class ShaderData implements IClone {
 	 * value: UniformBufferObject
 	 * 保存 每个 uniform id 所在的 ubo
 	 */
-	private _uniformBuffersMap: Map<number, UniformBufferObject>;
+	_uniformBuffersMap: Map<number, UniformBufferObject>;
 
 	/**
 	 * @internal
@@ -297,7 +319,7 @@ export class ShaderData implements IClone {
 	 * @param value 颜色值
 	 */
 	setColor(index: number, value: Color): void {
-		if(!value)
+		if (!value)
 			return;
 		if (this._data[index]) {
 			let gammaColor = this._gammaColorMap.get(index);
@@ -584,6 +606,7 @@ export class ShaderData implements IClone {
 
 	destroy(): void {
 		this._data = null;
+		this._defineDatas.destroy();
 		this._defineDatas = null;
 		for (var k in this._data) {
 			//维护Refrence
@@ -594,6 +617,12 @@ export class ShaderData implements IClone {
 		}
 		this._gammaColorMap.clear();
 		this._gammaColorMap = null;
+		// // 使用对象解析
+		delete this._uniformBufferDatas;
+		delete this._uniformBuffersMap;
+		this._uniformBufferDatas = null;
+		this._uniformBuffersMap = null;
+		
 	}
 }
 

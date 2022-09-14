@@ -14,7 +14,7 @@ import { NativeCameraCullInfo } from "./NativeCameraCullInfo";
 export class NativeCullPassBase implements ICullPass {
 
     private _nativeObj: any;
-    private _tempRenderList:SingletonList<BaseRender>;
+    private _tempRenderList: SingletonList<BaseRender>;
     get cullList(): SingletonList<BaseRender> {
         this._tempRenderList.elements = this._nativeObj.cullList;
         this._tempRenderList.length = this._nativeObj.cullList.length;
@@ -39,7 +39,7 @@ export class NativeCullPassBase implements ICullPass {
         for (var i: number = 0, n: number = customRenderList.length; i < n; i++) {
             var render: BaseRender = <BaseRender>renders[i];
             var canPass: boolean;
-            canPass = ((Math.pow(2, (render.owner as Sprite3D)._layer) & cullMask) != 0) && render._enabled;
+            canPass = ((Math.pow(2, (render.owner as Sprite3D)._layer) & cullMask) != 0) && render._enabled&&(render.renderbitFlag == 0);
             if (canPass) {
                 Stat.frustumCulling++;
                 if (!cameraCullInfo.useOcclusionCulling || render._needRender(boundFrustum, context)) {
@@ -57,7 +57,7 @@ export class NativeCullPassBase implements ICullPass {
         var renders = customRenderList.elements;
         for (var i: number = 0, n: number = customRenderList.length; i < n; i++) {
             var render: BaseRender = <BaseRender>renders[i];
-            var canPass: boolean = render.castShadow && render._enabled && render.sharedMaterial.depthWrite;
+            var canPass: boolean = render.castShadow && render._enabled && (render.renderbitFlag == 0);
             if (canPass) {
                 Stat.frustumCulling++;
                 let pass = FrustumCulling.cullingRenderBounds(render.bounds, cullInfo);
@@ -70,15 +70,15 @@ export class NativeCullPassBase implements ICullPass {
         (cameraCullInfo as NativeCameraCullInfo).serialize();
         //TODO transparent filter
         Stat.frustumCulling += this._nativeObj.cullingSpotShadow((cameraCullInfo as any)._nativeObj, (renderManager as any)._sceneManagerOBJ._nativeObj);
-        
+
         //Custom list Cull
         var customRenderList = (renderManager as any)._sceneManagerOBJ._customCullList;
         var renders = customRenderList.elements;
         let context = RenderContext3D._instance;
         for (var i: number = 0, n: number = customRenderList.length; i < n; i++) {
             var render: BaseRender = <BaseRender>renders[i];
-            var canPass: boolean = render.castShadow && render._enabled && render.sharedMaterial.depthWrite;
-            if (canPass) { 
+            var canPass: boolean = render.castShadow && render._enabled && (render.renderbitFlag == 0);
+            if (canPass) {
                 Stat.frustumCulling++;
                 var render: BaseRender = <BaseRender>renders[i];
                 if (render._needRender(cameraCullInfo.boundFrustum, context))
