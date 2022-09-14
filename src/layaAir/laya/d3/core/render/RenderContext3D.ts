@@ -106,9 +106,16 @@ export class RenderContext3D {
 
     /** @internal */
     set scene(value: Scene3D) {
-        this._contextOBJ.sceneID = value._id;
-        this._contextOBJ.sceneShaderData = value._shaderValues;
-        this._scene = value;
+        if(value){
+            this._contextOBJ.sceneID = value._id;
+            this._contextOBJ.sceneShaderData = value._shaderValues;
+            this._scene = value;
+        }else{
+            this._contextOBJ.sceneID = -1;
+            this._contextOBJ.sceneShaderData = null;
+            this._scene = null;
+        }
+        
     }
 
     get scene(): Scene3D {

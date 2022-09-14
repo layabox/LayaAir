@@ -170,7 +170,7 @@ export class Scene extends Sprite {
      */
     destroy(destroyChild: boolean = true): void {
         super.destroy(destroyChild);
-
+        this._idMap = null;
         var list: any[] = Scene.unDestroyedScenes;
         for (var i: number = list.length - 1; i > -1; i--) {
             if (list[i] === this) {

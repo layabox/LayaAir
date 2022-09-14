@@ -128,6 +128,7 @@ export class Camera extends BaseCamera {
         else {
             camera._internalRenderTexture = null;
         }
+        scene._componentDriver.callPreRender();
         var needShadowCasterPass: boolean = camera._renderShadowMap(scene, context);
         camera._preRenderMainPass(context, scene, needInternalRT, viewport);
         camera._renderMainPass(context, viewport, scene, shader, replaceFlag, needInternalRT);
@@ -337,7 +338,7 @@ export class Camera extends BaseCamera {
     private _depthTexture: BaseTexture;
     /** 深度法线贴图*/
     private _depthNormalsTexture: RenderTexture;
- 
+
 
     private _cameraEventCommandBuffer: { [key: string]: CommandBuffer[] } = {};
     /**@internal 实现CommanBuffer的阴影渲染 */
@@ -420,7 +421,7 @@ export class Camera extends BaseCamera {
             return RenderContext3D.clientHeight * Config3D.pixelRatio | 0;
     }
 
-    
+
 
     /**
      * 多重采样抗锯齿
@@ -663,7 +664,7 @@ export class Camera extends BaseCamera {
 
 
 
-  
+
 
     /**
      * @inheritDoc
@@ -987,7 +988,7 @@ export class Camera extends BaseCamera {
         context.camera = this;
         context.cameraShaderValue = this._shaderValues;
         Camera._updateMark++;
-        scene._componentDriver.callPreRender();
+
         //TODO:webgl2 should use blitFramebuffer
         //TODO:if adjacent camera param can use same internal RT can merge
         //if need internal RT and no off screen RT and clearFlag is DepthOnly or Nothing, should grab the backBuffer
@@ -1202,6 +1203,7 @@ export class Camera extends BaseCamera {
         else {
             this._internalRenderTexture = null;
         }
+        scene._componentDriver.callPreRender();
         var needShadowCasterPass: boolean = this._renderShadowMap(scene, context);
         this._preRenderMainPass(context, scene, needInternalRT, viewport);
         this._renderMainPass(context, viewport, scene, shader, replacementTag, needInternalRT);
@@ -1299,18 +1301,10 @@ export class Camera extends BaseCamera {
         this.transform.off(Event.TRANSFORM_CHANGED, this, this._onTransformChanged);
         this._cameraEventCommandBuffer = {};
         this._shaderValues.destroy();
-        if(RenderContext3D._instance.camera==this){
-            RenderContext3D._instance.cameraShaderValue=null;
+        if (RenderContext3D._instance.camera == this) {
+            RenderContext3D._instance.cameraShaderValue = null;
             RenderContext3D._instance.camera = null;
         }
-        //this.skyRenderer.destroy();
-        // for (var i in this._cameraEventCommandBuffer) {
-        //     if (!this._cameraEventCommandBuffer[i])
-        //         continue;
-        //     this._cameraEventCommandBuffer[i].forEach(element => {
-        //         element.clear();
-        //     });
-        // }
         super.destroy(destroyChild);
     }
 

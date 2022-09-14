@@ -32,6 +32,8 @@ import { ISingletonElement } from "../../../utils/SimpleSingletonList";
 export class BaseRender extends Component implements ISingletonElement {
     /**@internal */
     public static RenderBitFlag_CullFlag = 1;
+    /**@internal */
+    public static RenderBitFlag_Batch = 2;
 
     /**@internal */
     private static _uniqueIDCounter: number = 0;
@@ -102,15 +104,6 @@ export class BaseRender extends Component implements ISingletonElement {
         return this._rendernode.renderbitFlag;
     }
 
-    /**
-     * 设置渲染flag,每一位都代表不同的淘汰原因，1表示lod淘汰
-     */
-    setRenderbitFlag(flag: number, pass: boolean) {
-        if (pass)
-            this._rendernode.renderbitFlag |= (1 << flag);
-        else
-            this._rendernode.renderbitFlag &= ~(1 << flag);
-    }
 
     set boundsChange(value: boolean) {
         this._rendernode.boundsChange = value
@@ -479,6 +472,16 @@ export class BaseRender extends Component implements ISingletonElement {
         throw ("BaseRender: must override it.");
     }
 
+
+    /**
+     * 设置渲染flag,每一位都代表不同的淘汰原因，1表示lod淘汰
+     */
+    setRenderbitFlag(flag: number, pass: boolean) {
+        if (pass)
+            this._rendernode.renderbitFlag |= (1 << flag);
+        else
+            this._rendernode.renderbitFlag &= ~(1 << flag);
+    }
 
     /**
      * @internal
