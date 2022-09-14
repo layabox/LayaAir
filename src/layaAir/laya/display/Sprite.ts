@@ -461,7 +461,7 @@ export class Sprite extends Node {
         }
     }
     get_width(): number {
-        if (!this.autoSize) return 0.0000001 == this._width ? 0 : (0 < this._width ? this._width : (this.texture ? this.texture.width : 0));
+        if (!this.autoSize) return 0.0000001 == this._width ? 0 : (this._width ? this._width : (this.texture ? this.texture.width : 0));
         if (this.texture) return this.texture.width;
         if (!this._graphics && this._children.length === 0) return 0;
         return this.getSelfBounds().width;
@@ -490,7 +490,7 @@ export class Sprite extends Node {
         }
     }
     get_height(): number {
-        if (!this.autoSize) return 0.0000001 == this._height ? 0 : (0 < this._height ? this._height : (this.texture ? this.texture.height : 0));
+        if (!this.autoSize) return 0.0000001 == this._height ? 0 : (this._height ? this._height : (this.texture ? this.texture.height : 0));
         if (this.texture) return this.texture.height;
         if (!this._graphics && this._children.length === 0) return 0;
         return this.getSelfBounds().height;
