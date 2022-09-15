@@ -584,8 +584,10 @@ export class BaseRender extends Component implements ISingletonElement {
     }
 
     protected _onDestroy() {
-        (this.owner as Sprite3D)._isRenderNode--;
-        (this.owner as Sprite3D)._removeRenderComponent(this);
+        if (this.owner as Sprite3D) {
+            (this.owner as Sprite3D)._isRenderNode--;
+            (this.owner as Sprite3D)._removeRenderComponent(this);
+        }
         (this._motionIndexList !== -1) && (this._scene._sceneRenderManager.removeMotionObject(this));
         (this._scene) && this._scene.sceneRenderableManager.removeRenderObject(this);
         var i: number = 0, n: number = 0;

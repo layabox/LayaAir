@@ -70,7 +70,7 @@ import { Const } from "../Const";
 export class Context {
 
     /**@internal */
-    static _rendercontex:Context;
+    static _rendercontex: Context;
     /**@internal */
     _canvas: HTMLCanvas;
 
@@ -683,7 +683,7 @@ export class Context {
                 if (rt) {
                     rt.destroy();
                 }
-                this._targets = new RenderTexture2D(this._width, this._height, RenderTargetFormat.R8G8B8A8, -1)
+                this._targets = new RenderTexture2D(this._width, this._height, RenderTargetFormat.R8G8B8A8)
             }
         } else {
             this._targets && this._targets.destroy();
@@ -887,9 +887,9 @@ export class Context {
                 submit = this._curSubmit = SubmitTexture.create(this, this._mesh, Value2D.create(ShaderDefines2D.TEXTURE2D, 0));
                 this._submits[this._submits._length++] = submit;
                 this._copyClipInfo(submit, this._globalClipMatrix);
-                if(!this._lastTex || this._lastTex.destroyed){
-                    submit.shaderValue.textureHost = this.defTexture;    
-                }else{
+                if (!this._lastTex || this._lastTex.destroyed) {
+                    submit.shaderValue.textureHost = this.defTexture;
+                } else {
                     submit.shaderValue.textureHost = this._lastTex;
                 }
                 //这里有一个问题。例如 clip1, drawTex(tex1), clip2, fillRect, drawTex(tex2)	会被分成3个submit，

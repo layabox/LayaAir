@@ -13,9 +13,6 @@ import { Sprite3D } from "./Sprite3D"
 import { Transform3D } from "./Transform3D"
 import { MeshFilter } from "./MeshFilter"
 import { Component } from "../../components/Component"
-import { StaticBatchManager } from "../graphics/StaticBatchManager"
-import { DynamicBatchManager } from "../graphics/DynamicBatchManager"
-import { MeshRenderDynamicBatchManager } from "../graphics/MeshRenderDynamicBatchManager"
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D"
 import { ShaderDefine } from "../../RenderEngine/RenderShader/ShaderDefine"
 import { SubMesh } from "../resource/models/SubMesh"
@@ -44,8 +41,6 @@ export class MeshRenderer extends BaseRender {
         MeshSprite3DShaderDeclaration.SHADERDEFINE_TANGENT = Shader3D.getDefineByName("TANGENT");
         MeshSprite3DShaderDeclaration.SHADERDEFINE_GPU_INSTANCE = Shader3D.getDefineByName("GPU_INSTANCE");
         MeshSprite3DShaderDeclaration.SHADERDEFINE_SPECCUBE_BOX_PROJECTION = Shader3D.getDefineByName("SPECCUBE_BOX_PROJECTION");
-        StaticBatchManager._registerManager(MeshRenderStaticBatchManager.instance);
-        DynamicBatchManager._registerManager(MeshRenderDynamicBatchManager.instance);
     }
 
 
@@ -70,7 +65,7 @@ export class MeshRenderer extends BaseRender {
     protected _onEnable(): void {
         super._onEnable();
         const filter = this.owner.getComponent(MeshFilter) as MeshFilter;
-        if(filter) filter._enabled && this._onMeshChange(filter.sharedMesh);
+        if (filter) filter._enabled && this._onMeshChange(filter.sharedMesh);
     }
 
     /**

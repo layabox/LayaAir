@@ -102,7 +102,7 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
      * @param depthStencilFormat 深度格式。
      * 创建一个 <code>RenderTexture</code> 实例。
      */
-    constructor(width: number, height: number, format: number = RenderTargetFormat.R8G8B8, depthStencilFormat: number = RenderTargetFormat.DEPTH_16) {//TODO:待老郭清理
+    constructor(width: number, height: number, format: number = RenderTargetFormat.R8G8B8, depthStencilFormat: number = RenderTargetFormat.None) {//TODO:待老郭清理
 
         super(width, height, format);
         this._colorFormat = format;
@@ -243,8 +243,8 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
      * @return 像素数据。
      */
     getData(x: number, y: number, width: number, height: number): ArrayBufferView {
-        return LayaGL.textureContext.getRenderTextureData(this._renderTarget,x,y,width,height);
-   
+        return LayaGL.textureContext.getRenderTextureData(this._renderTarget, x, y, width, height);
+
     }
     recycle(): void {
 

@@ -35,8 +35,6 @@ import { RenderElement } from "../render/RenderElement";
 import { Lightmap } from "./Lightmap";
 import { Scene3DShaderDeclaration } from "./Scene3DShaderDeclaration";
 import { ShadowCasterPass } from "../../shadowMap/ShadowCasterPass";
-import { StaticBatchManager } from "../../graphics/StaticBatchManager";
-import { DynamicBatchManager } from "../../graphics/DynamicBatchManager";
 import { CannonPhysicsSimulation } from "../../physicsCannon/CannonPhysicsSimulation";
 import { CannonPhysicsSettings } from "../../physicsCannon/CannonPhysicsSettings";
 import { CannonPhysicsComponent } from "../../physicsCannon/CannonPhysicsComponent";
@@ -1493,12 +1491,6 @@ export class Scene3D extends Sprite implements ISubmit {
     _clearRenderQueue(): void {
         this._opaqueQueue.clear();
         this._transparentQueue.clear();
-        var staticBatchManagers: StaticBatchManager[] = StaticBatchManager._managers;
-        for (var i: number = 0, n: number = staticBatchManagers.length; i < n; i++)
-            staticBatchManagers[i]._clear();
-        var dynamicBatchManagers: DynamicBatchManager[] = DynamicBatchManager._managers;
-        for (var i: number = 0, n: number = dynamicBatchManagers.length; i < n; i++)
-            dynamicBatchManagers[i]._clear();
     }
 
     /**
