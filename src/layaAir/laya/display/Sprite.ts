@@ -260,6 +260,9 @@ export class Sprite extends Node {
      */
     hitTestPrior: boolean = false;
 
+    /** 如果节点需要加载相关的皮肤，但放在不同域，这里可以设置 **/
+    _skinBaseUrl?: string;
+
     /**
      * @inheritDoc 
      * @override

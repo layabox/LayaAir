@@ -5,6 +5,7 @@ import { Image } from "./Image"
 import { Handler } from "../utils/Handler"
 import { ILaya } from "../../ILaya";
 import { HideFlags } from "../Const"
+import { URL } from "../net/URL"
 
 /**
  * 值发生改变后调度。
@@ -171,7 +172,8 @@ export class ProgressBar extends UIComponent {
         if (this._skin != value) {
             this._skin = value;
             if (this._skin && !Loader.getRes(this._skin)) {
-                ILaya.loader.load(this._skin, Handler.create(this, this._skinLoaded), null, Loader.IMAGE);
+                let url = this._skinBaseUrl ? URL.formatURL(this._skinBaseUrl, this._skin) : this._skin;
+                ILaya.loader.load(url, Handler.create(this, this._skinLoaded), null, Loader.IMAGE);
             } else {
                 this._skinLoaded();
             }

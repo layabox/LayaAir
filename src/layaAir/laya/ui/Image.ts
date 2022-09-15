@@ -7,6 +7,7 @@ import { UIComponent } from "./UIComponent"
 import { UIUtils } from "./UIUtils"
 import { Handler } from "../utils/Handler"
 import { ILaya } from "../../ILaya";
+import { URL } from "../net/URL";
 
 /**
  * 资源加载完成后调度。
@@ -143,13 +144,15 @@ export class Image extends UIComponent {
         if (this._skin != value) {
             this._skin = value;
             if (value) {
-                var source = Loader.getRes(value);
+                let source = Loader.getRes(value);
                 if (source) {
                     this.source = source;
                     this.onCompResize();
-                } else
-                    ILaya.loader.load(this._skin, 
+                } else {
+                    let url = this._skinBaseUrl ? URL.formatURL(this._skinBaseUrl, this._skin) : this._skin;
+                    ILaya.loader.load(url, 
                         Handler.create(this, this.setSource, [this._skin]), null, Loader.IMAGE, 1, true, this._group);
+                }
             } else {
                 this.source = null;
             }
