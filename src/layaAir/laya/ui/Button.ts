@@ -12,6 +12,7 @@ import { Handler } from "../utils/Handler"
 import { Utils } from "../utils/Utils"
 import { ILaya } from "../../ILaya";
 import { WeakObject } from "../utils/WeakObject";
+import { URL } from "../net/URL";
 
 /**
  * 当按钮的选中状态（ <code>selected</code> 属性）发生改变时调度。
@@ -316,7 +317,8 @@ export class Button extends UIComponent implements ISelect {
             this._skin = value;
             if (value) {
                 if (!Loader.getRes(value)) {
-                    ILaya.loader.load(this._skin, Handler.create(this, this._skinLoaded), null, Loader.IMAGE); 
+                    let url = this._skinBaseUrl ? URL.formatURL(this._skin, this._skinBaseUrl) : this._skin;
+                    ILaya.loader.load(url, Handler.create(this, this._skinLoaded), null, Loader.IMAGE);
                 } else {
                     this._skinLoaded();
                 }

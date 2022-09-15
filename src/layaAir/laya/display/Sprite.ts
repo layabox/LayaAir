@@ -23,6 +23,7 @@ import { Stage } from "./Stage";
 import { RenderTexture2D } from "../resource/RenderTexture2D";
 import { Event } from "../events/Event";
 import { Dragging } from "../utils/Dragging";
+import { URL } from "../net/URL";
 
 
 /**在显示对象上按下后调度。
@@ -259,6 +260,9 @@ export class Sprite extends Node {
      * @default false	优先检测此对象的子对象，当递归检测完所有子对象后，仍然没有找到目标对象，最后再检测此对象。
      */
     hitTestPrior: boolean = false;
+
+    /** 如果节点需要加载相关的皮肤，但放在不同域，这里可以设置 **/
+    _skinBaseUrl?: string;
 
     /**
      * @inheritDoc 
@@ -1543,6 +1547,8 @@ export class Sprite extends Node {
                 complete && complete.run();
             }
             else {
+                if (this._skinBaseUrl)
+                    url = URL.formatURL(url, this._skinBaseUrl);
                 ILaya.loader.load(url).then((tex: Texture) => {
                     this.texture = tex;
                     this.repaint(SpriteConst.REPAINT_ALL);

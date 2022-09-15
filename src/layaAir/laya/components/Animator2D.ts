@@ -8,6 +8,7 @@ import { Component } from "./Component";
 import { KeyframeNode2D } from "./KeyframeNode2D";
 import { Node } from "../../laya/display/Node";
 import { ClassUtils } from "../utils/ClassUtils";
+import { Animation2DParm } from "./Animation2DParm";
 
 export class Animator2D extends Component {
     private _speed = 1;
@@ -20,15 +21,16 @@ export class Animator2D extends Component {
 
     private _isPlaying = true;
 
-    _parameters: Record<string, number | boolean>;
+    _parameters: Record<string, Animation2DParm>;
 
 
     constructor() {
         super();
         this._controllerLayers = [];
+        this._parameters = {};
     }
 
-    set parameters(val: Record<string, number | boolean>) {
+    set parameters(val: Record<string, Animation2DParm>) {
         this._parameters = val;
     }
     get parameters() {

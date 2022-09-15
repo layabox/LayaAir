@@ -12,6 +12,7 @@ import { Handler } from "../utils/Handler"
 import { Tween } from "../utils/Tween"
 import { ILaya } from "../../ILaya";
 import { HideFlags } from "../Const";
+import { URL } from "../net/URL";
 
 /**
  * 滚动条滑块位置发生变化后调度。
@@ -199,7 +200,8 @@ export class ScrollBar extends UIComponent {
         if (this._skin != value) {
             this._skin = value;
             if (this._skin && !Loader.getRes(this._skin)) {
-                ILaya.loader.load([this._skin, this._skin.replace(".png", "$up.png"), this._skin.replace(".png", "$down.png"), this._skin.replace(".png", "$bar.png")], Handler.create(this, this._skinLoaded), null, Loader.IMAGE);
+                let url = this._skinBaseUrl ? URL.formatURL(this._skin, this._skinBaseUrl) : this._skin;
+                ILaya.loader.load([url, url.replace(".png", "$up.png"), url.replace(".png", "$down.png"), url.replace(".png", "$bar.png")], Handler.create(this, this._skinLoaded), null, Loader.IMAGE);
             } else {
                 this._skinLoaded();
             }
