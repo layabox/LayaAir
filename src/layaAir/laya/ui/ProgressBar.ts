@@ -172,7 +172,7 @@ export class ProgressBar extends UIComponent {
         if (this._skin != value) {
             this._skin = value;
             if (this._skin && !Loader.getRes(this._skin)) {
-                let url = this._skinBaseUrl ? URL.formatURL(this._skinBaseUrl, this._skin) : this._skin;
+                let url = this._skinBaseUrl ? URL.formatURL(this._skin, this._skinBaseUrl) : this._skin;
                 ILaya.loader.load(url, Handler.create(this, this._skinLoaded), null, Loader.IMAGE);
             } else {
                 this._skinLoaded();

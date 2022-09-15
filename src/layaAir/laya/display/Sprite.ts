@@ -23,6 +23,7 @@ import { Stage } from "./Stage";
 import { RenderTexture2D } from "../resource/RenderTexture2D";
 import { Event } from "../events/Event";
 import { Dragging } from "../utils/Dragging";
+import { URL } from "../net/URL";
 
 
 /**在显示对象上按下后调度。
@@ -1546,6 +1547,8 @@ export class Sprite extends Node {
                 complete && complete.run();
             }
             else {
+                if (this._skinBaseUrl)
+                    url = URL.formatURL(url, this._skinBaseUrl);
                 ILaya.loader.load(url).then((tex: Texture) => {
                     this.texture = tex;
                     this.repaint(SpriteConst.REPAINT_ALL);

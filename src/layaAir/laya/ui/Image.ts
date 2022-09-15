@@ -149,7 +149,7 @@ export class Image extends UIComponent {
                     this.source = source;
                     this.onCompResize();
                 } else {
-                    let url = this._skinBaseUrl ? URL.formatURL(this._skinBaseUrl, this._skin) : this._skin;
+                    let url = this._skinBaseUrl ? URL.formatURL(this._skin, this._skinBaseUrl) : this._skin;
                     ILaya.loader.load(url, 
                         Handler.create(this, this.setSource, [this._skin]), null, Loader.IMAGE, 1, true, this._group);
                 }
