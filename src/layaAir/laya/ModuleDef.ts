@@ -30,6 +30,7 @@ import { AnimatorControllerLayer2D } from "./components/AnimatorControllerLayer2
 import { AnimatorState2D } from "./components/AnimatorState2D";
 import { AnimationClip2D } from "./components/AnimationClip2D";
 import { Animation2DNext } from "./components/Animation2DNext";
+import { Animation2DParm } from "./components/Animation2DParm";
 
 let c = ClassUtils.regClass;
 
@@ -61,3 +62,4 @@ c("AnimatorControllerLayer2D", AnimatorControllerLayer2D);
 c("AnimatorState2D", AnimatorState2D);
 c("AnimationClip2D", AnimationClip2D);
 c("Animation2DNext", Animation2DNext);
+c("Animation2DParm",Animation2DParm);
