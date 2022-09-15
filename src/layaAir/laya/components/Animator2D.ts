@@ -151,8 +151,13 @@ export class Animator2D extends Component {
     public get controllerLayers(): ReadonlyArray<AnimatorControllerLayer2D> {
         return this._controllerLayers;
     }
+    private _cacheContollerLayers: ReadonlyArray<AnimatorControllerLayer2D>;
 
     public set controllerLayers(layers: ReadonlyArray<AnimatorControllerLayer2D>) {
+        if (!this.awaked) {
+            this._cacheContollerLayers = layers;
+            return;
+        }
         if (this._controllerLayers == layers)
             return;
 
@@ -175,6 +180,12 @@ export class Animator2D extends Component {
 
         this._controllerLayers.length = 0;
         this._controllerLayers.push(...layers);
+    }
+    protected _onAwake(): void {
+        if (this._cacheContollerLayers) {
+            this.controllerLayers = this._cacheContollerLayers;
+            this._cacheContollerLayers = null;
+        }
     }
 
     /**
