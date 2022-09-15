@@ -393,6 +393,8 @@ export class BaseRender extends Component implements ISingletonElement {
 
     protected _onAdded(): void {
         this._transform = (this.owner as Sprite3D).transform;
+        (this.owner as Sprite3D)._isRenderNode++;
+        (this.owner as Sprite3D)._addRenderComponent(this);
 
         this._rendernode.transform = this._transform;
         if (this.owner) {
@@ -402,16 +404,13 @@ export class BaseRender extends Component implements ISingletonElement {
     }
 
     protected _onEnable(): void {
-        (this.owner as Sprite3D)._isRenderNode++;
-        (this.owner as Sprite3D)._addRenderComponent(this);
+
 
         (this.owner.scene as Scene3D)._addRenderObject(this);
         this._setBelongScene(this.owner.scene);
     }
 
     protected _onDisable(): void {
-        (this.owner as Sprite3D)._isRenderNode--;
-        (this.owner as Sprite3D)._removeRenderComponent(this);
         (this.owner.scene as Scene3D)._removeRenderObject(this);
         this._setUnBelongScene();
     }
@@ -585,6 +584,8 @@ export class BaseRender extends Component implements ISingletonElement {
     }
 
     protected _onDestroy() {
+        (this.owner as Sprite3D)._isRenderNode--;
+        (this.owner as Sprite3D)._removeRenderComponent(this);
         (this._motionIndexList !== -1) && (this._scene._sceneRenderManager.removeMotionObject(this));
         (this._scene) && this._scene.sceneRenderableManager.removeRenderObject(this);
         var i: number = 0, n: number = 0;

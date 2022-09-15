@@ -1171,25 +1171,25 @@ export class Scene3D extends Sprite implements ISubmit {
         }
     }
 
-    private _cullInfoCamera:Camera
-    get cullInfoCamera():Camera{
+    private _cullInfoCamera: Camera
+    get cullInfoCamera(): Camera {
         return this._cullInfoCamera;
     }
     /**
      * scence外的Camera渲染场景,需要设置这个接口
      * @param camera 
      */
-    _setCullCamera(camera:Camera){
+    _setCullCamera(camera: Camera) {
         this._cullInfoCamera = camera;
     }
 
     /**
      * 重新计算CullCamera
      */
-    recaculateCullCamera(){
+    recaculateCullCamera() {
         this._cullInfoCamera = this._cameraPool[0] as Camera;
         this._cameraPool.forEach(element => {
-            if(this.cullInfoCamera.maxlocalYDistance<(element as Camera).maxlocalYDistance){
+            if (this.cullInfoCamera.maxlocalYDistance < (element as Camera).maxlocalYDistance) {
                 this._cullInfoCamera = element as Camera;
             }
         });
@@ -1518,7 +1518,7 @@ export class Scene3D extends Sprite implements ISubmit {
         this._spotLights = null;
         this._alternateLights = null;
         this._shaderValues.destroy();
-        (RenderContext3D._instance.scene==this)&&(RenderContext3D._instance.scene=null);
+        (RenderContext3D._instance.scene == this) && (RenderContext3D._instance.scene = null);
         this._shaderValues = null;
         this.sceneRenderableManager.destroy();
         this._sceneRenderManager = null
@@ -1539,7 +1539,7 @@ export class Scene3D extends Sprite implements ISubmit {
         this._lightmaps = null;
         this._reflectionProbeManager.destroy();
         this._componentDriver.callDestroy();
-        
+
     }
 
     /**
@@ -1567,8 +1567,9 @@ export class Scene3D extends Sprite implements ISubmit {
         for (i = 0, n = this._cameraPool.length, n1 = n - 1; i < n; i++) {
             // if (Render.supportWebGLPlusRendering)
             // 	ShaderData.setRuntimeValueMode((i == n1) ? true : false);
-            var camera: Camera = (<Camera>this._cameraPool[i]);
 
+            var camera: Camera = (<Camera>this._cameraPool[i]);
+            this._setCullCamera(camera);
             if (camera.renderTarget)
                 (camera.enableBuiltInRenderTexture = false);//TODO:可能会有性能问题
             else
@@ -1576,19 +1577,19 @@ export class Scene3D extends Sprite implements ISubmit {
 
             camera.enableRender && camera.render();
             Scene3D._blitTransRT = null;
-            
+
             if (camera.enableRender && !camera.renderTarget) {
                 (Scene3D._blitTransRT = camera._internalRenderTexture);
                 var canvasWidth: number = camera._getCanvasWidth(), canvasHeight: number = camera._getCanvasHeight();
                 Scene3D._blitOffset.setValue(camera.viewport.x / canvasWidth, camera.viewport.y / canvasHeight, camera.viewport.width / canvasWidth, camera.viewport.height / canvasHeight);
-                this.blitMainCanvans(Scene3D._blitTransRT, camera.normalizedViewport,camera);
+                this.blitMainCanvans(Scene3D._blitTransRT, camera.normalizedViewport, camera);
             }
         }
         Context.set2DRenderConfig();//还原2D配置
         return 1;
     }
 
-    blitMainCanvans(source: BaseTexture, normalizeViewPort: Viewport,camera:Camera) {
+    blitMainCanvans(source: BaseTexture, normalizeViewPort: Viewport, camera: Camera) {
         if (!source)
             return;
         Scene3D.mainCavansViewPort.x = RenderContext3D.clientWidth * normalizeViewPort.x | 0;
@@ -1596,9 +1597,9 @@ export class Scene3D extends Sprite implements ISubmit {
         Scene3D.mainCavansViewPort.width = RenderContext3D.clientWidth * normalizeViewPort.width | 0;
         Scene3D.mainCavansViewPort.height = RenderContext3D.clientHeight * normalizeViewPort.height | 0;
         source.filterMode = FilterMode.Bilinear;
-        if(camera.fxaa)
+        if (camera.fxaa)
             BlitFrameBufferCMD.shaderdata.addDefine(BaseCamera.SHADERDEFINE_FXAA);
-        var cmd = BlitFrameBufferCMD.create(source, null, Scene3D.mainCavansViewPort,null,null,BlitFrameBufferCMD.shaderdata);
+        var cmd = BlitFrameBufferCMD.create(source, null, Scene3D.mainCavansViewPort, null, null, BlitFrameBufferCMD.shaderdata);
         cmd.run();
         cmd.recover();
         BlitFrameBufferCMD.shaderdata.removeDefine(BaseCamera.SHADERDEFINE_FXAA);

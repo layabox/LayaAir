@@ -406,7 +406,8 @@ export class Input extends Text {
     /**@private */
     private _focusOut(): void {
         if (!InputManager.isTextInputting) return;
-        InputManager.isTextInputting = false;
+        if (!InputManager.isiOSWKwebView)
+            InputManager.isTextInputting = false;
         this._focus = false;
 
         this._text = null;

@@ -162,9 +162,9 @@ export class SkinnedMeshRenderer extends MeshRenderer {
                 if (!renderElement) {
                     var material: Material = this.sharedMaterials[i];
                     renderElement = this._renderElements[i] = this._renderElements[i] ? this._renderElements[i] : this._createRenderElement();
-                    if(this._cacheRootBone){
+                    if (this._cacheRootBone) {
                         renderElement.setTransform(this._cacheRootBone._transform);
-                    }else{
+                    } else {
                         renderElement.setTransform((this.owner as Sprite3D)._transform);
                     }
                     renderElement.render = this;
@@ -309,7 +309,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
         //bounds
         var lbb: Bounds = this.localBounds;
         (lbb) && (lbb.cloneTo(render.localBounds));
-        (render.localBounds)&&(render.localBounds = render.localBounds);
+        (render.localBounds) && (render.localBounds = render.localBounds);
         super._cloneTo(dest);
     }
 

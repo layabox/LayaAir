@@ -1,3 +1,4 @@
+import { Animation2DNext } from "./Animation2DNext";
 import { AnimatorState2D } from "./AnimatorState2D";
 
 export class AnimatorPlayState2D {
@@ -32,7 +33,7 @@ export class AnimatorPlayState2D {
         return this._duration;
     }
 
-    checkPlayNext() {
+    checkPlayNext(): Animation2DNext {
         var nexts = this._currentState.nexts;
         if (nexts) {
             for (var i = 0, len = nexts.length; i < len; i++) {

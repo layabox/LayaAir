@@ -33,7 +33,7 @@ export class InputManager {
     static mouseY: number = 0;
     /** 当前是否正在输入文字 */
     static isTextInputting = false;
-
+    static isiOSWKwebView: boolean = false;
     protected _stage: Stage;
     protected _mouseTouch: TouchInfo;
     protected _touches: TouchInfo[];
@@ -442,9 +442,9 @@ export class InputManager {
 
             for (let i = sp._children.length - 1; i > -1; i--) {
                 let child = <Sprite>sp._children[i];
-                if (!child._is3D 
-                    && !child._destroyed 
-                    && (editor && !child.hasHideFlag(HideFlags.HideInHierarchy) || child._mouseState > 1) 
+                if (!child._is3D
+                    && !child._destroyed
+                    && (editor && !child.hasHideFlag(HideFlags.HideInHierarchy) || child._mouseState > 1)
                     && child._visible) {
                     let ret = this._getSpriteUnderPoint(child, x, y, editor);
                     if (ret)
@@ -482,8 +482,8 @@ export class InputManager {
         for (let i = sp._children.length - 1; i > -1; i--) {
             let child = <Sprite>sp._children[i];
             //只有接受交互事件的，才进行处理
-            if (!child._destroyed 
-                && (editor && !child.hasHideFlag(HideFlags.HideInHierarchy) || child._mouseState > 1) 
+            if (!child._destroyed
+                && (editor && !child.hasHideFlag(HideFlags.HideInHierarchy) || child._mouseState > 1)
                 && child._visible) {
                 let ret = this._getSpriteUnderPoint(child, x, y, editor);
                 if (ret)
@@ -493,8 +493,8 @@ export class InputManager {
         // 检查逻辑子对象
         for (let i = sp._extUIChild.length - 1; i >= 0; i--) {
             let child = <Sprite>sp._extUIChild[i];
-            if (!child._destroyed 
-                && (editor && !child.hasHideFlag(HideFlags.HideInHierarchy) || child._mouseState > 1) 
+            if (!child._destroyed
+                && (editor && !child.hasHideFlag(HideFlags.HideInHierarchy) || child._mouseState > 1)
                 && child._visible) {
                 let ret = this._getSpriteUnderPoint(child, x, y, editor);
                 if (ret)

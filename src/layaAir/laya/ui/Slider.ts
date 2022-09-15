@@ -8,6 +8,7 @@ import { Loader } from "../net/Loader"
 import { Handler } from "../utils/Handler"
 import { ILaya } from "../../ILaya";
 import { HideFlags } from "../Const";
+import { URL } from "../net/URL";
 
 /**
  * 移动滑块位置时调度。
@@ -242,7 +243,8 @@ export class Slider extends UIComponent {
         if (this._skin != value) {
             this._skin = value;
             if (this._skin && !Loader.getRes(this._skin)) {
-                ILaya.loader.load([this._skin, this._skin.replace(".png", "$bar.png")], Handler.create(this, this._skinLoaded), null, Loader.IMAGE);
+                let url = this._skinBaseUrl ? URL.formatURL(this._skin, this._skinBaseUrl) : this._skin;
+                ILaya.loader.load([url, url.replace(".png", "$bar.png")], Handler.create(this, this._skinLoaded), null, Loader.IMAGE);
             } else {
                 this._skinLoaded();
             }

@@ -1,3 +1,4 @@
+import { AssetDb } from "../resource/AssetDb";
 import { Utils } from "../utils/Utils";
 
 /**
@@ -11,7 +12,6 @@ import { Utils } from "../utils/Utils";
 export class URL {
     /**URL地址版本映射表，比如{"aaa/bb.png":99,"aaa/bb.png":12}，默认情况下，通过formatURL格式化后，会自动生成为"aaa/bb.png?v=99"的一个地址*/
     static version: any = {};
-    static uuidMap: Record<string, string> = {};
 
     /**基础路径。如果不设置，默认为当前网页的路径。最终地址将被格式化为 basePath+相对URL地址，*/
     static basePath: string = "";
@@ -55,10 +55,6 @@ export class URL {
         return url;
     }
 
-    static UUID_to_URL(uuid: string): string {
-        return URL.uuidMap[uuid];
-    }
-
     /**
      * 包含normalizedURL功能，并且合并base，如果base没有提供，则使用URL.basePath或者URL.rootPath。
      * @param url 地址。
@@ -70,7 +66,7 @@ export class URL {
 
         if (url.startsWith("res://")) {
             let uuid = url.substring(6);
-            let url2 = URL.UUID_to_URL(uuid);
+            let url2 = AssetDb.inst.UUID_to_URL(uuid);
             if (!url2)
                 return url;
 

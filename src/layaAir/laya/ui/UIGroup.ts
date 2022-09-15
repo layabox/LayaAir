@@ -8,6 +8,7 @@ import { Button } from "./Button"
 import { Handler } from "../utils/Handler"
 import { ILaya } from "../../ILaya";
 import { HideFlags } from "../Const";
+import { URL } from "../net/URL";
 
 /**
  * 当 <code>Group</code> 实例的 <code>selectedIndex</code> 属性发生变化时调度。
@@ -217,7 +218,8 @@ export class UIGroup extends Box implements IItem {
         if (this._skin != value) {
             this._skin = value;
             if (this._skin && !Loader.getRes(this._skin)) {
-                ILaya.loader.load(this._skin, Handler.create(this, this._skinLoaded), null, Loader.IMAGE);
+                let url = this._skinBaseUrl ? URL.formatURL(this._skin, this._skinBaseUrl) : this._skin;
+                ILaya.loader.load(url, Handler.create(this, this._skinLoaded), null, Loader.IMAGE);
             } else {
                 this._skinLoaded();
             }

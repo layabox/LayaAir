@@ -12,6 +12,7 @@ import { Handler } from "../utils/Handler"
 import { Tween } from "../utils/Tween"
 import { ILaya } from "../../ILaya";
 import { HideFlags } from "../Const";
+import { URL } from "../net/URL";
 
 /**
  * 滚动条滑块位置发生变化后调度。
@@ -56,6 +57,12 @@ export class ScrollBar extends UIComponent {
     downButton: Button;
     /**滑条 */
     slider: Slider;
+    /**顶部移动限制（达到限制后，会抛出dragTopLimit事件，配合stopMoveLimit()，可让开发者做一些动态数据更新的操作）*/
+    topMoveLimit: number = 0;
+    /**底部移动限制（达到限制后，会抛出dragTopLimit事件，配合stopMoveLimit()，可让开发者做一些动态数据更新的操作）*/
+    bottomMoveLimit: number = 0;
+    /** 调用滚动停止接口stopMoveLimit时，是否禁止内容的拖拽 */
+    disableDrag: boolean = false;
 
     /**@private */
     protected _showButtons: boolean = UIConfig.showButtons;
@@ -193,7 +200,8 @@ export class ScrollBar extends UIComponent {
         if (this._skin != value) {
             this._skin = value;
             if (this._skin && !Loader.getRes(this._skin)) {
-                ILaya.loader.load([this._skin, this._skin.replace(".png", "$up.png"), this._skin.replace(".png", "$down.png"), this._skin.replace(".png", "$bar.png")], Handler.create(this, this._skinLoaded), null, Loader.IMAGE);
+                let url = this._skinBaseUrl ? URL.formatURL(this._skin, this._skinBaseUrl) : this._skin;
+                ILaya.loader.load([url, url.replace(".png", "$up.png"), url.replace(".png", "$down.png"), url.replace(".png", "$bar.png")], Handler.create(this, this._skinLoaded), null, Loader.IMAGE);
             } else {
                 this._skinLoaded();
             }
@@ -506,7 +514,8 @@ export class ScrollBar extends UIComponent {
 
     triggerDownDragLimit: Function;
     triggerUpDragLimit: Function;
-
+    /** 暂停滚动的重载方法-add:xiaosong */
+    stopMoveLimit: Function;
     private checkTriggers(isTweenMove: boolean = false): boolean {
         if (this.value >= 0 && this.value - this._lastOffset <= 0) {
             if ((this.triggerDownDragLimit) && this.triggerDownDragLimit(isTweenMove)) {
@@ -535,6 +544,7 @@ export class ScrollBar extends UIComponent {
     }
     /**@private */
     protected loop(): void {
+        if (this.disableDrag) return;
         var mouseY: number = ILaya.stage.mouseY;
         var mouseX: number = ILaya.stage.mouseX;
         this._lastOffset = this.isVertical ? (mouseY - this._lastPoint.y) : (mouseX - this._lastPoint.x);
@@ -615,9 +625,13 @@ export class ScrollBar extends UIComponent {
 
         if (this._isElastic) {
             if (this._value < this.min) {
-                Tween.to(this, { value: this.min }, this.elasticBackTime, Ease.sineOut, Handler.create(this, this.elasticOver));
+                this.event("dragTopLimit");
+                var moveValue: number = (this.stopMoveLimit && this.stopMoveLimit()) ? (this.min - this.topMoveLimit) : this.min;
+                Tween.to(this, { value: moveValue }, this.elasticBackTime, Ease.sineOut, Handler.create(this, this.elasticOver));
             } else if (this._value > this.max) {
-                Tween.to(this, { value: this.max }, this.elasticBackTime, Ease.sineOut, Handler.create(this, this.elasticOver));
+                this.event("dragBottomLimit");
+                var moveValue: number = (this.stopMoveLimit && this.stopMoveLimit()) ? (this.max + this.bottomMoveLimit) : this.max;
+                Tween.to(this, { value: moveValue }, this.elasticBackTime, Ease.sineOut, Handler.create(this, this.elasticOver));
             }
         } else {
             if (!this._offsets) return;
@@ -710,5 +724,18 @@ export class ScrollBar extends UIComponent {
 
     set tick(value: number) {
         this.slider.tick = value;
+    }
+
+    /** 恢复到正常的弹性缓动效果 */
+    backToNormal(): void {
+        if (this._value < this.min) {
+            this._backToNormal(this.min);
+        } else if (this._value > this.max) {
+            this._backToNormal(this.max);
+        }
+    }
+
+    private _backToNormal(value: number) {
+        Tween.to(this, { value: value }, this.elasticBackTime, Ease.sineOut, Handler.create(this, this.elasticOver));
     }
 }

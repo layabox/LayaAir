@@ -1,7 +1,7 @@
 import { Vector3 } from "../math/Vector3";
 import { Quaternion } from "../math/Quaternion";
 
-export enum KeyFrameValueType{
+export enum KeyFrameValueType {
 	Float = 0,
 	Position = 1,
 	Rotation = 2,
@@ -40,7 +40,7 @@ export class KeyframeNodeOwner {
 	/**@internal */
 	crossFixedValue: any = null;
 	/**@internal */
-	isMaterial:boolean = false;
+	isMaterial: boolean = false;
 
 	/**
 	 * 创建一个 <code>KeyframeNodeOwner</code> 实例。
