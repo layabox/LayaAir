@@ -15,6 +15,7 @@ import { HierarchyResource } from "../resource/HierarchyResource";
 import { Node } from "../display/Node";
 import { Resource } from "../resource/Resource";
 import { Downloader } from "./Downloader";
+import { AssetDb } from "../resource/AssetDb";
 
 export interface ILoadTask {
     readonly type: string;
@@ -35,10 +36,13 @@ export interface ILoadOptions {
     priority?: number;
     group?: string;
     cache?: boolean;
+    noRetry?: boolean;
+    silent?: boolean;
     useWorkerLoader?: boolean;
     constructParams?: TextureConstructParams;
     propertyParams?: TexturePropertyParams;
     blob?: ArrayBuffer;
+    hasMeta?: boolean;
     [key: string]: any;
 }
 
@@ -285,9 +289,9 @@ export class Loader extends EventDispatcher {
         let uuid: string = null;
         if (url.startsWith("res://")) {
             uuid = url.substring(6);
-            url = URL.UUID_to_URL(uuid);
+            url = AssetDb.inst.UUID_to_URL(uuid);
             if (!url) {
-                let promise = this.queryAssetDb(uuid, 0);
+                let promise = AssetDb.inst.UUID_to_URL_async(uuid);
                 if (!promise)
                     return Promise.resolve(null);
 
@@ -300,7 +304,7 @@ export class Loader extends EventDispatcher {
             }
         }
         else {
-            let promise = this.queryAssetDb(url, 1);
+            let promise = AssetDb.inst.URL_to_UUID_async(url);
             if (promise) {
                 return promise.then(uuid => {
                     return this._load2(url, uuid, type, options, onProgress);
@@ -309,15 +313,6 @@ export class Loader extends EventDispatcher {
         }
 
         return this._load2(url, uuid, type, options, onProgress);
-    }
-
-    queryAssetDb(value: string, conversionType: number): Promise<string> {
-        if (conversionType == 0) {
-            console.error(`unknown uuid: ${value}`);
-            return null;
-        }
-        else
-            return null;
     }
 
     private _load2(url: string, uuid: string, type: string, options: ILoadOptions, onProgress: ProgressCallback): Promise<any> {
@@ -429,12 +424,16 @@ export class Loader extends EventDispatcher {
             task.useWorkerLoader = true;
         if (options.blob)
             task.blob = options.blob;
+        if (options.noRetry)
+            task.retryCnt = -1;
+        if (options.silent)
+            task.silent = true;
 
         if (url.startsWith("res://")) {
             let uuid = url.substring(6);
-            url = URL.UUID_to_URL(uuid);
+            url = AssetDb.inst.UUID_to_URL(uuid);
             if (!url) {
-                let promise = this.queryAssetDb(uuid, 0);
+                let promise = AssetDb.inst.UUID_to_URL_async(uuid);
                 if (!promise)
                     return Promise.resolve(null);
 
@@ -537,11 +536,13 @@ export class Loader extends EventDispatcher {
         }
         else if (item.retryCnt != -1 && item.retryCnt < this.retryNum) {
             item.retryCnt++;
-            console.debug(`[Loader]Retry to load: ${item.url} (${item.retryCnt})`);
+            if (!item.silent)
+                console.debug(`[Loader]Retry to load: ${item.url} (${item.retryCnt})`);
             ILaya.systemTimer.once(this.retryDelay, this, this.queueToDownload, [item], false);
         }
         else {
-            console.warn(`[Loader]Failed to load: ${item.url}`);
+            if (!item.silent)
+                console.warn(`[Loader]Failed to load: ${item.url}`);
 
             if (this._downloadings.size < this.maxLoader && this._queue.length > 0)
                 this.download(this._queue.shift());
@@ -911,6 +912,7 @@ interface DownloadItem {
     useWorkerLoader?: boolean;
     blob?: ArrayBuffer;
     retryCnt?: number;
+    silent?: boolean;
     onComplete: (content: any) => void;
     onProgress: (progress: number) => void;
 }

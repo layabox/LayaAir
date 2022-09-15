@@ -7,19 +7,60 @@ import { TextureDimension } from "../RenderEngine/RenderEnum/TextureDimension";
 import { ClassUtils } from "../utils/ClassUtils";
 import { BaseTexture } from "../resource/BaseTexture";
 import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
+import { Browser } from "../utils/Browser";
+import { AssetDb } from "../resource/AssetDb";
+
+const metaFetchingOptions = { noRetry: true, silent: true };
 
 class Texture2DLoader implements IResourceLoader {
     load(task: ILoadTask) {
-        let compress = compressedFormats.indexOf(task.ext) != -1 ? task.ext : (compressedFormats.indexOf(task.type) != -1 ? task.type : null);
+        let meta = AssetDb.inst.getMeta(task.url, task.uuid);
+        let metaUrl = typeof (meta) === "string" ? meta : (task.options.hasMeta ? (task.url + ".json") : null);
+        if (metaUrl)
+            return task.loader.fetch(metaUrl, "json", task.progress.createCallback(0.1), metaFetchingOptions)
+                .then(meta => this.load2(task, meta));
+        else
+            return this.load2(task, meta);
+    }
+
+    protected load2(task: ILoadTask, meta: any) {
+        let constructParams: TextureConstructParams;
+        let propertyParams: TexturePropertyParams;
+        let ext = task.ext;
+        let url = task.url;
+        if (meta) {
+            let platform = Browser.onAndroid ? 1 : (Browser.onIOS ? 2 : 0);
+            let fileIndex = meta.platforms[platform];
+            let fileInfo = meta.files[fileIndex];
+            if (fileInfo.file) {
+                url = AssetDb.inst.getSubAssetURL(url, task.uuid, fileInfo.file, fileInfo.ext);
+                ext = fileInfo.ext;
+            }
+
+            constructParams = [0, 0, fileInfo.format, meta.mipmap, meta.readWrite, meta.sRGB];
+            propertyParams = {
+                wrapModeU: meta.wrapMode,
+                wrapModeV: meta.wrapMode,
+                filterMode: meta.filterMode,
+                anisoLevel: meta.anisoLevel,
+                premultiplyAlpha: meta.pma
+            };
+        }
+        else {
+            constructParams = task.options.constructParams;
+            propertyParams = task.options.propertyParams;
+        }
+
+        let compress = compressedFormats.indexOf(ext) != -1 ? ext : null;
         if (compress != null) {
-            return task.loader.fetch(task.url, "arraybuffer", task.progress.createCallback(), task.options).then(data => {
+            return task.loader.fetch(url, "arraybuffer", task.progress.createCallback(), task.options).then(data => {
                 if (!data)
                     return null;
 
                 let tex: BaseTexture;
                 switch (compress) {
                     case "dds":
-                        tex = Texture2D._parseDDS(data, task.options.propertyParams, task.options.constructParams);
+                        tex = Texture2D._parseDDS(data, propertyParams, constructParams);
                         break;
 
                     case "ktx":
@@ -36,26 +77,26 @@ class Texture2DLoader implements IResourceLoader {
                                 return null;
                         }
                         else if (ktxInfo.dimension == TextureDimension.Tex2D) {
-                            tex = Texture2D._parseKTX(data, task.options.propertyParams, task.options.constructParams);
+                            tex = Texture2D._parseKTX(data, propertyParams, constructParams);
                         }
                         break;
                     case "pvr":
-                        tex = Texture2D._parsePVR(data, task.options.propertyParams, task.options.constructParams);
+                        tex = Texture2D._parsePVR(data, propertyParams, constructParams);
                         break;
 
                     case "hdr":
-                        tex = HDRTextureInfo._parseHDRTexture(data, task.options.propertyParams, task.options.constructParams);
+                        tex = HDRTextureInfo._parseHDRTexture(data, propertyParams, constructParams);
                         break;
                 }
                 return tex;
             });
         }
         else {
-            return task.loader.fetch(task.url, "image", task.progress.createCallback(), task.options).then(img => {
+            return task.loader.fetch(url, "image", task.progress.createCallback(), task.options).then(img => {
                 if (!img)
                     return null;
 
-                return Texture2D._parseImage(img, task.options.propertyParams, task.options.constructParams);
+                return Texture2D._parseImage(img, propertyParams, constructParams);
             });
         }
     }
@@ -102,5 +143,5 @@ class TextureLoader implements IResourceLoader {
 
 const compressedFormats = ["ktx", "pvr", "dds", "hdr"];
 
-Loader.registerLoader([ "png", "jpg", "jpeg", ...compressedFormats], TextureLoader, Loader.IMAGE);
+Loader.registerLoader(["png", "jpg", "jpeg", ...compressedFormats], TextureLoader, Loader.IMAGE);
 Loader.registerLoader([], Texture2DLoader, Loader.TEXTURE2D);
