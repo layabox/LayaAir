@@ -138,6 +138,8 @@ export class Sprite3D extends Node {
     }
 
     _removeRenderComponent(com: Component) {
+        if (!this._renderComponent)
+            return;
         let index = this._renderComponent.indexOf(com);
         if (index != -1) {
             this._renderComponent.splice(index, 1);
