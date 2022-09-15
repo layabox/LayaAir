@@ -1,3 +1,4 @@
+import { LayaEnv } from "../../../../LayaEnv";
 import { Color } from "../../../d3/math/Color";
 import { Vector4 } from "../../../d3/math/Vector4";
 import { CommandEncoder } from "../../../layagl/CommandEncoder";
@@ -124,7 +125,7 @@ export class WebGLEngine implements IRenderEngine {
     // private _RenderBufferResource: any;
 
     //GPU统计数据
-    private _GLStatisticsInfo:Map<RenderStatisticsInfo,number> = new Map();
+    private _GLStatisticsInfo: Map<RenderStatisticsInfo, number> = new Map();
 
     constructor(config: WebGlConfig, webglMode: WebGLMode = WebGLMode.Auto) {
         this._config = config;
@@ -155,15 +156,15 @@ export class WebGLEngine implements IRenderEngine {
         return this._config;
     }
 
-    private _initStatisticsInfo(){
-        this._GLStatisticsInfo.set(RenderStatisticsInfo.DrawCall,0);
-        this._GLStatisticsInfo.set(RenderStatisticsInfo.InstanceDrawCall,0);
-        this._GLStatisticsInfo.set(RenderStatisticsInfo.Triangle,0);
-        this._GLStatisticsInfo.set(RenderStatisticsInfo.UniformUpload,0);
-        this._GLStatisticsInfo.set(RenderStatisticsInfo.TextureMemeory,0);
-        this._GLStatisticsInfo.set(RenderStatisticsInfo.GPUMemory,0);
-        this._GLStatisticsInfo.set(RenderStatisticsInfo.RenderTextureMemory,0);
-        this._GLStatisticsInfo.set(RenderStatisticsInfo.BufferMemory,0);
+    private _initStatisticsInfo() {
+        this._GLStatisticsInfo.set(RenderStatisticsInfo.DrawCall, 0);
+        this._GLStatisticsInfo.set(RenderStatisticsInfo.InstanceDrawCall, 0);
+        this._GLStatisticsInfo.set(RenderStatisticsInfo.Triangle, 0);
+        this._GLStatisticsInfo.set(RenderStatisticsInfo.UniformUpload, 0);
+        this._GLStatisticsInfo.set(RenderStatisticsInfo.TextureMemeory, 0);
+        this._GLStatisticsInfo.set(RenderStatisticsInfo.GPUMemory, 0);
+        this._GLStatisticsInfo.set(RenderStatisticsInfo.RenderTextureMemory, 0);
+        this._GLStatisticsInfo.set(RenderStatisticsInfo.BufferMemory, 0);
     }
 
     /**
@@ -171,8 +172,8 @@ export class WebGLEngine implements IRenderEngine {
      * @param info 
      * @param value 
      */
-    _addStatisticsInfo(info:RenderStatisticsInfo,value:number){
-        this._GLStatisticsInfo.set(info,this._GLStatisticsInfo.get(info)+value);
+    _addStatisticsInfo(info: RenderStatisticsInfo, value: number) {
+        this._GLStatisticsInfo.set(info, this._GLStatisticsInfo.get(info) + value);
     }
 
     /**
@@ -180,8 +181,8 @@ export class WebGLEngine implements IRenderEngine {
      * @internal
      * @param info 
      */
-    clearStatisticsInfo(info:RenderStatisticsInfo){
-        this._GLStatisticsInfo.set(info,0);
+    clearStatisticsInfo(info: RenderStatisticsInfo) {
+        this._GLStatisticsInfo.set(info, 0);
     }
 
     /**
@@ -189,7 +190,7 @@ export class WebGLEngine implements IRenderEngine {
      * @param info 
      * @returns 
      */
-    getStatisticsInfo(info:RenderStatisticsInfo):number{
+    getStatisticsInfo(info: RenderStatisticsInfo): number {
         return this._GLStatisticsInfo.get(info);
     }
 
@@ -303,7 +304,9 @@ export class WebGLEngine implements IRenderEngine {
         // gl.scissor(x, transformY, width, height);
         const gl = this._gl;
         const lv = this._lastViewport;
-        if (x !== lv.x || y !== lv.y || width !== lv.z || height !== lv.w) {
+        if (LayaEnv.isConch) {
+            gl.viewport(x, y, width, height);
+        } else if (x !== lv.x || y !== lv.y || width !== lv.z || height !== lv.w) {
             gl.viewport(x, y, width, height);
             lv.setValue(x, y, width, height);
         }
@@ -312,7 +315,9 @@ export class WebGLEngine implements IRenderEngine {
     scissor(x: number, y: number, width: number, height: number) {
         const gl = this._gl;
         const lv = this._lastScissor;
-        if (x !== lv.x || y !== lv.y || width !== lv.z || height !== lv.w) {
+        if (LayaEnv.isConch) {
+            gl.scissor(x, y, width, height);
+        } else if (x !== lv.x || y !== lv.y || width !== lv.z || height !== lv.w) {
             gl.scissor(x, y, width, height);
             lv.setValue(x, y, width, height);
         }
