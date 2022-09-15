@@ -69,13 +69,19 @@ export class AnimatorControllerLayer2D implements IClone {
         return this._playStateInfo!;
     }
 
+    private _defaultStateNameCatch: string;
+
     set defaultStateName(str: string) {
         this._defaultState = this._statesMap[str];
         if (null == this._defaultState) {
-            for (var i = this._states.length - 1; i >= 0; i--) {
-                if (this._states[i].name == str) {
-                    this._defaultState = this._states[i];
-                    break;
+            if (0 == this._states.length) {
+                this._defaultStateNameCatch = str;
+            } else {
+                for (var i = this._states.length - 1; i >= 0; i--) {
+                    if (this._states[i].name == str) {
+                        this._defaultState = this._states[i];
+                        break;
+                    }
                 }
             }
         }
@@ -111,6 +117,10 @@ export class AnimatorControllerLayer2D implements IClone {
         } else {
             this._statesMap[stateName] = state;
             this._states.push(state);
+            if (stateName == this._defaultStateNameCatch) {
+                this._defaultState = state;
+                this._defaultStateNameCatch = null;
+            }
         }
     }
 
