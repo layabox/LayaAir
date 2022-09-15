@@ -6,6 +6,7 @@ import { Stage } from "laya/display/Stage";
 import { Scene } from "laya/display/Scene";
 import { URL } from "laya/net/URL";
 import { Loader } from "laya/net/Loader";
+import { AssetDb } from "laya/resource/AssetDb";
 
 export class IDEMain {
     constructor() {
@@ -36,17 +37,14 @@ function connectIDE() {
         ws.onclose = () => { console.log('client close'); };
 
         let requests = {};
-        Loader.prototype.queryAssetDb = function (param, conversionType) {
-            if (conversionType == 1)
-                return null;
-
+        AssetDb.prototype.UUID_to_URL_async = function (uuid: string) {
             return new Promise((resolve) => {
-                let entry = requests[param];
+                let entry = requests[uuid];
                 if (entry)
                     entry.push(resolve);
                 else {
-                    requests[param] = entry = [resolve];
-                    ws.send(param);
+                    requests[uuid] = entry = [resolve];
+                    ws.send(uuid);
                 }
             });
         };
@@ -65,7 +63,7 @@ function connectIDE() {
                 default: {
                     let callbacks = requests[cmd];
                     delete requests[msg];
-                    URL.uuidMap[cmd] = param;
+                    AssetDb.inst.uuidMap[cmd] = param;
                     for (let c of callbacks)
                         c(param);
                 }
