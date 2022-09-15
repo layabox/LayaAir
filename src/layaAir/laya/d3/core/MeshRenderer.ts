@@ -1,4 +1,3 @@
-import { MeshRenderStaticBatchManager } from "../graphics/MeshRenderStaticBatchManager"
 import { Matrix4x4 } from "../math/Matrix4x4"
 import { Mesh } from "../resource/models/Mesh"
 import { Material } from "./material/Material"
@@ -266,7 +265,6 @@ export class MeshRenderer extends BaseRender {
     }
 
     protected _onDestroy() {
-        (this._isPartOfStaticBatch) && (MeshRenderStaticBatchManager.instance._removeRenderSprite(this));
         super._onDestroy();
     }
 

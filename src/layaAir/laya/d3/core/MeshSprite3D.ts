@@ -2,7 +2,6 @@ import { RenderableSprite3D } from "./RenderableSprite3D";
 import { MeshFilter } from "./MeshFilter";
 import { MeshRenderer } from "./MeshRenderer";
 import { Material } from "./material/Material";
-import { MeshRenderStaticBatchManager } from "../graphics/MeshRenderStaticBatchManager"
 import { Vector4 } from "../math/Vector4"
 import { Mesh } from "../resource/models/Mesh"
 import { Node } from "../../display/Node"
@@ -68,16 +67,6 @@ export class MeshSprite3D extends RenderableSprite3D {
 
             render.sharedMaterials = sharedMaterials;
         }
-    }
-
-    /**
-     * @inheritDoc
-     * @override
-     * @internal
-     */
-    _addToInitStaticBatchManager(): void {
-        if (this.meshFilter.sharedMesh)//无sharedMesh精灵会报错
-            MeshRenderStaticBatchManager.instance._addBatchSprite(this);
     }
 
     /**

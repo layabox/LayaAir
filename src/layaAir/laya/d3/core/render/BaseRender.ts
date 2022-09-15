@@ -87,8 +87,6 @@ export class BaseRender extends Component implements ISingletonElement {
     /** @internal */
     _updateRenderType: number = -1;
     /** @internal */
-    _isPartOfStaticBatch: boolean = false;
-    /** @internal */
     _staticBatch: GeometryElement = null;
     /**排序矫正值。*/
     sortingFudge: number;
@@ -310,13 +308,6 @@ export class BaseRender extends Component implements ISingletonElement {
 
     set castShadow(value: boolean) {
         this.renderNode.castShadow = value;
-    }
-
-    /**
-     * 是否是静态的一部分。
-     */
-    get isPartOfStaticBatch(): boolean {
-        return this._isPartOfStaticBatch;
     }
 
     /**

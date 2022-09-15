@@ -25,7 +25,6 @@ import { TrailMaterial } from "./laya/d3/core/trail/TrailMaterial";
 import { TrailSprite3D } from "./laya/d3/core/trail/TrailSprite3D";
 import { VertexTrail } from "./laya/d3/core/trail/VertexTrail";
 import { FrustumCulling } from "./laya/d3/graphics/FrustumCulling";
-import { MeshRenderStaticBatchManager } from "./laya/d3/graphics/MeshRenderStaticBatchManager";
 import { SubMeshInstanceBatch } from "./laya/d3/graphics/SubMeshInstanceBatch";
 import { VertexMesh } from "./laya/d3/graphics/Vertex/VertexMesh";
 import { VertexPositionTerrain } from "./laya/d3/graphics/Vertex/VertexPositionTerrain";
@@ -166,7 +165,6 @@ export class Laya3D {
         MeshRenderer.__init__();
         SkyRenderer.__init__();
         Camera.__init__();
-        MeshRenderStaticBatchManager.__init__();
         ShadowUtils.init();
         RenderContext3D.__init__();
         Material.__initDefine__();

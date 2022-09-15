@@ -11,7 +11,6 @@ import { Scene3D } from "../core/scene/Scene3D";
 import { SkinnedMeshSprite3D } from "../core/SkinnedMeshSprite3D";
 import { Sprite3D } from "../core/Sprite3D";
 import { TrailSprite3D } from "../core/trail/TrailSprite3D";
-import { StaticBatchManager } from "../graphics/StaticBatchManager";
 import { ClassUtils } from "../../utils/ClassUtils";
 import { SimpleSkinnedMeshSprite3D } from "../core/SimpleSkinnedMeshSprite3D";
 import { ReflectionProbe } from "../core/reflectionProbe/ReflectionProbe";
@@ -158,7 +157,7 @@ class HierarchyParserV2 {
                 sprite = (<Sprite3D | Scene3D>HierarchyParserV2._createNodeByJson(json, outBatchSprits));
         }
 
-        StaticBatchManager.combine((sprite instanceof Sprite3D) ? sprite : null, outBatchSprits);
+        //StaticBatchManager.combine((sprite instanceof Sprite3D) ? sprite : null, outBatchSprits);
         return sprite;
     }
 
