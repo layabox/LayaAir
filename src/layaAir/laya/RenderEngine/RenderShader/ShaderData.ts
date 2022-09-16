@@ -622,7 +622,7 @@ export class ShaderData implements IClone {
 		delete this._uniformBuffersMap;
 		this._uniformBufferDatas = null;
 		this._uniformBuffersMap = null;
-		
+
 	}
 }
 
