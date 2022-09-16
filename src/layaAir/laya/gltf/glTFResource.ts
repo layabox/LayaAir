@@ -1826,5 +1826,3 @@ interface ClipNode {
     duration?: number;
     type?: number;
 }
-
-HierarchyLoader.glTFResourceClass = glTFResource;

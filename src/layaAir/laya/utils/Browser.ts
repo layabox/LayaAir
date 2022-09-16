@@ -1,4 +1,3 @@
-import { Input } from "laya/display/Input";
 import { ILaya } from "../../ILaya";
 
 /**
@@ -63,6 +62,12 @@ export class Browser {
     /** @private */
     static onLayaRuntime: boolean;
 
+    /** 真实平台类型，onMobile等是通过UserAgent判断，可能具有欺骗性 **/
+    static platform: number;
+    static PLATFORM_PC = 0;
+    static PLATFORM_ANDROID = 1;
+    static PLATFORM_IOS = 2;
+
     /** 表示是否支持WebAudio*/
     static supportWebAudio: boolean;
     /** 表示是否支持LocalStorage*/
@@ -91,28 +96,28 @@ export class Browser {
     private static fontMap: { [key: string]: string } = {};
     /**@private */
     static measureText: Function = function (txt: string, font: string): any {
-        var isChinese: boolean = Browser.hanzi.test(txt);
+        let isChinese: boolean = Browser.hanzi.test(txt);
         if (isChinese && Browser.fontMap[font]) {
             return Browser.fontMap[font];
         }
 
-        var ctx: CanvasRenderingContext2D = Browser.context;
+        let ctx: CanvasRenderingContext2D = Browser.context;
         ctx.font = font;
 
-        var r: any = ctx.measureText(txt);
+        let r: any = ctx.measureText(txt);
         if (isChinese) Browser.fontMap[font] = r;
         return r;
     }
 
     /**@internal */
     static __init__(): any {
-        var Laya:any = (window as any).Laya || ILaya.Laya;
+        let Laya: any = (window as any).Laya || ILaya.Laya;
         if (Browser._window) return Browser._window;
-        var win: any = Browser._window = window;
-        var doc: any = Browser._document = win.document;
-        var u: string = Browser.userAgent = win.navigator.userAgent;
-        var maxTouchPoints: number = win.navigator.maxTouchPoints || 0;
-        var platform: string = win.navigator.platform;
+        let win: any = Browser._window = window;
+        let doc: any = Browser._document = win.document;
+        let u: string = Browser.userAgent = win.navigator.userAgent;
+        let maxTouchPoints: number = win.navigator.maxTouchPoints || 0;
+        let platform: string = win.navigator.platform;
 
         if (!!(window as any).conch && "conchUseWXAdapter" in Browser.window) {
             (window as any).wxMiniGame(Laya, Laya);
@@ -306,6 +311,19 @@ export class Browser {
         if (u.indexOf('TB/') > -1 || u.indexOf('Taobao/') > -1 || u.indexOf('TM/') > -1) {
             Browser.onTBMiniGame = true;
         }
+
+        if (Browser.onAndroid || Browser.onIOS) {
+            //也有可能是模拟器
+            if (platform && (platform.indexOf("Win") != -1 || platform.indexOf("Mac") != -1))
+                Browser.platform = Browser.PLATFORM_PC;
+            else if (Browser.onAndroid)
+                Browser.platform = Browser.PLATFORM_ANDROID;
+            else
+                Browser.platform = Browser.PLATFORM_IOS;
+        }
+        else
+            Browser.platform = Browser.PLATFORM_PC;
+
         return win;
     }
     /**

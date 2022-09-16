@@ -29,7 +29,7 @@ class Texture2DLoader implements IResourceLoader {
         let ext = task.ext;
         let url = task.url;
         if (meta) {
-            let platform = Browser.onAndroid ? 1 : (Browser.onIOS ? 2 : 0);
+            let platform = Browser.platform;
             let fileIndex = meta.platforms[platform];
             let fileInfo = meta.files[fileIndex];
             if (fileInfo.file) {

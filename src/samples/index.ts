@@ -6,7 +6,7 @@ import "laya/ui/ModuleDef";
 import "laya/particle/ModuleDef";
 import "laya/ani/ModuleDef";
 import "laya/spine/ModuleDef";
-import "laya/gltf/glTFResource";
+import "laya/gltf/glTFLoader";
 
 import { Resource } from "laya/resource/Resource";
 import { Main } from "./Main";

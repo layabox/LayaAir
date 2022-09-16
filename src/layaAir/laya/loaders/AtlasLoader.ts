@@ -61,6 +61,7 @@ class AtlasLoader implements IResourceLoader {
                         if (!tPic)
                             continue;
 
+                        tPic.lock = true;
                         let url = directory + name;
                         tPic.scaleRate = scaleRate;
                         let tTexture = Texture.create(tPic, obj.frame.x, obj.frame.y, obj.frame.w, obj.frame.h, obj.spriteSourceSize.x, obj.spriteSourceSize.y, obj.sourceSize.w, obj.sourceSize.h);
@@ -75,6 +76,8 @@ class AtlasLoader implements IResourceLoader {
                         let tPic = pics[obj.frame.idx ? obj.frame.idx : 0];//是否释放
                         if (!tPic)
                             continue;
+
+                        tPic.lock = true;
 
                         let url = directory + name;
                         let tTexture = Texture.create(tPic, obj.frame.x, obj.frame.y, obj.frame.w, obj.frame.h, obj.spriteSourceSize.x, obj.spriteSourceSize.y, obj.sourceSize.w, obj.sourceSize.h);

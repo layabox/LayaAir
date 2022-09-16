@@ -1,6 +1,7 @@
 import { Node } from "../display/Node";
 import { IResourceLoader, ILoadTask, Loader, ILoadURL } from "../net/Loader";
 import { URL } from "../net/URL";
+import { AssetDb } from "../resource/AssetDb";
 import { HierarchyResource } from "../resource/HierarchyResource";
 import { HierarchyParser } from "./HierarchyParser";
 import { LegacyUIParser } from "./LegacyUIParser";
@@ -13,11 +14,14 @@ interface HierarchyParserAPI {
 export class HierarchyLoader implements IResourceLoader {
     static v3: HierarchyParserAPI = HierarchyParser;
     static v2: HierarchyParserAPI = null;
-    static glTFResourceClass: any = null;
     static legacySceneOrPrefab: HierarchyParserAPI = LegacyUIParser;
 
     load(task: ILoadTask) {
-        return task.loader.fetch(task.url, "json", task.progress.createCallback(0.2), task.options).then(data => {
+        let url = task.url;
+        let isModel = task.ext == "gltf" || task.ext == "fbx";
+        if (isModel)
+            url = AssetDb.inst.getSubAssetURL(url, task.uuid, "00001", "lh");
+        return task.loader.fetch(url, "json", task.progress.createCallback(0.2), task.options).then(data => {
             if (!data)
                 return null;
 
@@ -27,14 +31,6 @@ export class HierarchyLoader implements IResourceLoader {
                 return this._load(HierarchyLoader.v2, task, data);
             else if (task.ext == "scene" || task.ext == "prefab")
                 return this._load(HierarchyLoader.legacySceneOrPrefab, task, data);
-            else if (task.ext == "gltf") {
-                if (!HierarchyLoader.glTFResourceClass) {
-                    console.warn('gltf module not exists!');
-                    return null;
-                }
-                let glTF = new HierarchyLoader.glTFResourceClass();
-                return glTF._parse(data, task.url, task.progress).then(() => glTF);
-            }
             else
                 return null;
         });
@@ -88,4 +84,4 @@ class MyHierarchyResource extends HierarchyResource {
     }
 }
 
-Loader.registerLoader(["lh", "ls", "scene", "prefab", "gltf"], HierarchyLoader, Loader.HIERARCHY);
+Loader.registerLoader(["lh", "ls", "scene", "prefab"], HierarchyLoader, Loader.HIERARCHY);
