@@ -12,12 +12,12 @@ import { DrawType } from "../../RenderEngine/RenderEnum/DrawType";
 export class GeometryElement {
 	/** @internal */
 	private static _uniqueIDCounter: number = 0;
-	protected _owner:any;
+	protected _owner: any;
 	/**@internal */
 	protected static _typeCounter: number = 0;
 	/**@internal */
 	protected _destroyed: boolean;
-	_geometryElementOBj:IRenderGeometryElement;
+	_geometryElementOBj: IRenderGeometryElement;
 	/** @internal */
 	_id: number;
 	/**
@@ -53,13 +53,13 @@ export class GeometryElement {
 		return this._geometryElementOBj.drawType;
 	}
 
-	setDrawArrayParams(first: number, count: number):void {
-		this._geometryElementOBj.setDrawArrayParams(first,count);
-		
+	setDrawArrayParams(first: number, count: number): void {
+		this._geometryElementOBj.setDrawArrayParams(first, count);
+
 	}
 
-	setDrawElemenParams(count: number, offset: number):void {
-		this._geometryElementOBj.setDrawElemenParams(count,offset);
+	setDrawElemenParams(count: number, offset: number): void {
+		this._geometryElementOBj.setDrawElemenParams(count, offset);
 	}
 
 	set instanceCount(value: number) {
@@ -91,9 +91,9 @@ export class GeometryElement {
 	/**
 	 * 创建一个 <code>GeometryElement</code> 实例。
 	 */
-	constructor(mode:MeshTopology,drawType:DrawType) {
+	constructor(mode: MeshTopology, drawType: DrawType) {
 		this._destroyed = false;
-		this._geometryElementOBj = LayaGL.renderOBJCreate.createRenderGeometry(mode,drawType);
+		this._geometryElementOBj = LayaGL.renderOBJCreate.createRenderGeometry(mode, drawType);
 		this._id = ++GeometryElement._uniqueIDCounter;
 	}
 
@@ -129,7 +129,7 @@ export class GeometryElement {
 	 * @internal
 	 * UpdateGeometry Data
 	 */
-	 _updateRenderParams(state: RenderContext3D): void {
+	_updateRenderParams(state: RenderContext3D): void {
 		throw "GeometryElement:must override it.";
 	}
 
@@ -140,6 +140,7 @@ export class GeometryElement {
 		if (this._destroyed)
 			return;
 		this._destroyed = true;
+		this._geometryElementOBj.destroy();
 	}
 
 	clearRenderParams() {
