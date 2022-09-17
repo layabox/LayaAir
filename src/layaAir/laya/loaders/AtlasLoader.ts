@@ -10,7 +10,7 @@ class AtlasLoader implements IResourceLoader {
             if (!data)
                 return null;
 
-            let toloadPics: Array<Promise<any>> = [];
+            let toloadPics: Array<Promise<Texture>> = [];
             //构造加载图片信息
             if (data.meta && data.meta.image) {
                 //带图片信息的类型
@@ -61,6 +61,7 @@ class AtlasLoader implements IResourceLoader {
                         if (!tPic)
                             continue;
 
+                        tPic._addReference();
                         let url = directory + name;
                         tPic.scaleRate = scaleRate;
                         let tTexture = Texture.create(tPic, obj.frame.x, obj.frame.y, obj.frame.w, obj.frame.h, obj.spriteSourceSize.x, obj.spriteSourceSize.y, obj.sourceSize.w, obj.sourceSize.h);
@@ -76,6 +77,7 @@ class AtlasLoader implements IResourceLoader {
                         if (!tPic)
                             continue;
 
+                        tPic._addReference();
                         let url = directory + name;
                         let tTexture = Texture.create(tPic, obj.frame.x, obj.frame.y, obj.frame.w, obj.frame.h, obj.spriteSourceSize.x, obj.spriteSourceSize.y, obj.sourceSize.w, obj.sourceSize.h);
                         tTexture.lock = true;

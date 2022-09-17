@@ -222,7 +222,7 @@ export class HierarchyParser {
 
         if (Array.isArray(idPath)) {
             let node: Node;
-            for (let i = startIndex, n = idPath.length - 1; i < n; i++) {
+            for (let i = startIndex, n = idPath.length; i < n; i++) {
                 if (!map)
                     return null;
 
@@ -261,7 +261,7 @@ export class HierarchyParser {
 
                         if (typeof (item) === "object") {
                             if (item._$uuid != null)
-                                addInnerUrl(item._$uuid, item._$type == "Texture2D" ? "Texture2D" : null);
+                                addInnerUrl(item._$uuid, item._$type == "Texture2D" ? Loader.TEXTURE2D : null);
                             else if (item._$prefab != null) {
                                 addInnerUrl(item._$prefab, Loader.HIERARCHY);
                                 check(item);
@@ -273,7 +273,7 @@ export class HierarchyParser {
                 }
                 else if (typeof (child) === "object") {
                     if (child._$uuid != null)
-                        addInnerUrl(child._$uuid, child._$type == "Texture2D" ? "Texture2D" : null);
+                        addInnerUrl(child._$uuid, child._$type == "Texture2D" ? Loader.TEXTURE2D : null);
                     else if (child._$prefab != null) {
                         addInnerUrl(child._$prefab, Loader.HIERARCHY);
                         check(child);

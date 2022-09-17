@@ -16,8 +16,10 @@ export class AtlasResource extends Resource {
     }
 
     protected _disposeResource(): void {
-        for (let tex of this.textures)
-            tex.destroy();
+        for (let tex of this.textures) {
+            if (tex)
+                tex.destroy();
+        }
 
         for (let tex of this.frames)
             tex.destroy();

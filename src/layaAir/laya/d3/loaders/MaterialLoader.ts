@@ -1,52 +1,47 @@
 import { IResourceLoader, ILoadTask, Loader } from "../../net/Loader";
 import { URL } from "../../net/URL";
-import { Material } from "../core/material/Material";
+import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
+import { AssetDb } from "../../resource/AssetDb";
+import { MaterialParser } from "./MaterialParser";
 
 class MaterialLoader implements IResourceLoader {
     load(task: ILoadTask) {
-        return task.loader.fetch(task.url, "json", task.progress.createCallback(0.3), task.options).then(lmtData => {
-            if (!lmtData)
+        return task.loader.fetch(task.url, "json", task.progress.createCallback(0.3), task.options).then(data => {
+            if (!data)
                 return null;
 
-            let urls: Array<any> = this.getSubUrls(task, lmtData);
-            if (!urls)
-                return null;
+            let urls: Array<any> = MaterialParser.collectLinks(data, URL.getPath(task.url));
 
-            return task.loader.load(urls, task.options, task.progress.createCallback()).then(() => {
-                let mat = Material._parse(lmtData);
-                return mat;
-            });
-        });
-    }
-
-    protected getSubUrls(item: ILoadTask, lmatData: any) {
-        let basePath = URL.getPath(item.url);
-        let urls: any[] = [];
-        let version: string = lmatData.version;
-        switch (version) {
-            case "LAYAMATERIAL:01":
-            case "LAYAMATERIAL:02":
-            case "LAYAMATERIAL:03":
-            case "LAYAMATERIAL:04":
-                let i: number, n: number;
-                let textures: any[] = lmatData.props.textures;
-                if (textures) {
-                    for (i = 0, n = textures.length; i < n; i++) {
-                        let tex2D: any = textures[i];
-                        let tex2DPath: string = tex2D.path;
-                        if (tex2DPath) {
-                            tex2D.path = URL.join(basePath, tex2DPath);
-                            urls.push({ url: tex2D.path, type: Loader.TEXTURE2D, constructParams: tex2D.constructParams, propertyParams: tex2D.propertyParams });
+            if (data.version === "LAYAMATERIAL:04") {
+                let shaderName = data.props.type;
+                if (!Shader3D.find(shaderName)) {
+                    let url = AssetDb.inst.shaderName_to_URL(shaderName);
+                    if (url)
+                        urls.push(url);
+                    else {
+                        let promise = AssetDb.inst.shaderName_to_URL_async(shaderName);
+                        if (promise) {
+                            return promise.then(url => {
+                                if (url)
+                                    urls.push(url);
+                                this.load2(task, data, urls);
+                            });
                         }
                     }
                 }
-                break;
-            default:
-                console.log("MaterialLoader:unkonwn version.");
-                return null;
-        }
+            }
 
-        return urls;
+            return this.load2(task, data, urls);
+        });
+    }
+
+    private load2(task: ILoadTask, data: any, urls: Array<any>): Promise<any> {
+        if (urls.length == 0)
+            return Promise.resolve(MaterialParser.parse(data));
+
+        return task.loader.load(urls, task.options, task.progress.createCallback()).then(() => {
+            return MaterialParser.parse(data);
+        });
     }
 }
 

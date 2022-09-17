@@ -391,17 +391,19 @@ export class Loader extends EventDispatcher {
             if (task.options.cache == null || task.options.cache)
                 Loader._cacheRes(formattedUrl, content, typeId, main);
 
+            //console.log("[Loader]Loaded " + url);
             task.onComplete.invoke(content);
-
+            return content;
+        }).catch(error => {
+            console.warn(`[Loader]Failed to load ${url}: ${error}`);
+            task.onComplete.invoke(null);
+            return null;
+        }).finally(() => {
             this._loadings.delete(loadingKey);
             task.reset();
             loadTaskPool.push(task);
             if (this._loadings.size == 0)
                 this.event(Event.COMPLETE);
-
-            //console.log("[Loader]Loaded " + url);
-
-            return content;
         });
     }
 
