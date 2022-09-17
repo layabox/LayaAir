@@ -5,13 +5,20 @@ import { FilterMode } from "../../RenderEngine/RenderEnum/FilterMode";
 import { TextureDimension } from "../../RenderEngine/RenderEnum/TextureDimension";
 import { TextureFormat } from "../../RenderEngine/RenderEnum/TextureFormat";
 import { WrapMode } from "../../RenderEngine/RenderEnum/WrapMode";
+import { AssetDb } from "../../resource/AssetDb";
 import { Byte } from "../../utils/Byte";
 import { TextureCube } from "../resource/TextureCube";
 
+const metaFetchingOptions = { noRetry: true, silent: true };
+
 class CubemapLoader implements IResourceLoader {
     load(task: ILoadTask) {
-        if (task.ext == "ktx") {
-            return task.loader.fetch(task.url, "arraybuffer", task.progress.createCallback(), task.options).then(data => {
+        if (task.ext == "ktx" || task.ext == "ltc") {
+            let url = task.url;
+            if (task.ext == "ltc")
+                url = AssetDb.inst.getSubAssetURL(url, task.uuid, "0", "ktx");
+
+            return task.loader.fetch(url, "arraybuffer", task.progress.createCallback(), task.options).then(data => {
                 if (!data)
                     return null;
 
@@ -67,38 +74,39 @@ class CubemapLoader implements IResourceLoader {
                 return tex;
             });
         }
-        else {
-            return task.loader.fetch(task.url, "json", task.progress.createCallback(0.2), task.options).then(data => {
-                if (!data)
-                    return null;
+        // else {
+        //     return task.loader.fetch(task.url, "json", task.progress.createCallback(0.2), task.options).then(data => {
+        //         if (!data)
+        //             return null;
 
-                let ltcBasePath: string = URL.getPath(task.url);
-                let urls: any[] = [
-                    URL.join(ltcBasePath, data.front),
-                    URL.join(ltcBasePath, data.back),
-                    URL.join(ltcBasePath, data.left),
-                    URL.join(ltcBasePath, data.right),
-                    URL.join(ltcBasePath, data.up),
-                    URL.join(ltcBasePath, data.down)
-                ];
+        //         let ltcBasePath: string = URL.getPath(task.url);
+        //         let urls: any[] = [
+        //             URL.join(ltcBasePath, data.front),
+        //             URL.join(ltcBasePath, data.back),
+        //             URL.join(ltcBasePath, data.left),
+        //             URL.join(ltcBasePath, data.right),
+        //             URL.join(ltcBasePath, data.up),
+        //             URL.join(ltcBasePath, data.down)
+        //         ];
 
-                return Promise.all(urls.map(url => {
-                    if (url)
-                        return task.loader.fetch(url, "image", task.progress.createCallback(), task.options);
-                    else
-                        return Promise.resolve(null);
-                })).then(images => {
-                    let constructParams = task.options.constructParams;
-                    let size = constructParams ? constructParams[0] : ((images[0]?.width) ?? 1);
-                    let format = constructParams ? constructParams[1] : TextureFormat.R8G8B8A8;
-                    let mipmap = constructParams ? constructParams[3] : false;
-                    let tex = new TextureCube(size, format, mipmap);
-                    tex.setImageData(images, false, false);
-                    (<any>tex)._source = urls; //IDE need this
-                    return tex;
-                });
-            });
-        }
+        //         return Promise.all(urls.map(url => {
+        //             if (url)
+        //                 return task.loader.fetch(url, "image", task.progress.createCallback(), task.options);
+        //             else
+        //                 return Promise.resolve(null);
+        //         })).then(images => {
+        //             let constructParams = task.options.constructParams;
+        //             let size = constructParams ? constructParams[0] : ((images[0]?.width) ?? 1);
+        //             let format = constructParams ? constructParams[1] : TextureFormat.R8G8B8A8;
+        //             let mipmap = constructParams ? constructParams[3] : false;
+        //             let tex = new TextureCube(size, format, mipmap);
+        //             tex.setImageData(images, false, false);
+        //             return tex;
+        //         });
+        //     });
+        // }
+        else
+            return null;
     }
 }
 
