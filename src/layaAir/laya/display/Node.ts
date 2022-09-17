@@ -55,6 +55,7 @@ export class Node extends EventDispatcher {
     /**@internal */
     _is3D?: boolean;
     _url?: string;
+    _extra?: INodeExtra;
 
     /**节点名称。*/
     name: string = "";
@@ -98,7 +99,8 @@ export class Node extends EventDispatcher {
     }
 
     //@internal
-    private _initialize(): void {
+    _initialize(): void {
+        this._extra = {};
     }
 
     /**@internal */
@@ -432,6 +434,21 @@ export class Node extends EventDispatcher {
         return this._parent;
     }
 
+    /**检查本节点是否是某个节点的上层节点
+     * @param node
+     * @return
+     */
+    isAncestorOf(node: Node): boolean {
+        let p = node.parent;
+        while (p) {
+            if (p == this)
+                return true;
+
+            p = p.parent;
+        }
+        return false;
+    };
+
     /**@private */
     protected _setParent(value: Node): void {
         if (this._parent !== value) {
@@ -614,7 +631,7 @@ export class Node extends EventDispatcher {
     /**@private */
     private _activeChangeScripts: Component[];
 
-    
+
     _scene: Node;
 
     /**
@@ -878,7 +895,7 @@ export class Node extends EventDispatcher {
         comp._setOwner(this);
         if (this.activeInHierarchy)
             comp._setActive(true);
-        this._componentChanged?.();
+        this._componentsChanged?.(comp, 0);
     }
 
     /**
@@ -892,7 +909,7 @@ export class Node extends EventDispatcher {
         if (i != -1) {
             this._components.splice(i, 1);
             comp._destroy();
-            this._componentChanged?.();
+            this._componentsChanged?.(comp, 1);
         }
     }
 
@@ -908,14 +925,14 @@ export class Node extends EventDispatcher {
             item && !item.destroyed && item._destroy();
         }
         this._components.length = 0;
-        this._componentChanged?.();
+        this._componentsChanged?.(null, 2);
     }
 
     /**
      * 组件列表发生改变。
      * @private
      */
-    protected _componentChanged?(): void;
+    protected _componentsChanged?(comp: Component, action: 0 | 1 | 2): void;
 
     /**
      * @internal 克隆。
@@ -1013,3 +1030,5 @@ export class Node extends EventDispatcher {
         return this._scene ? this._scene.timer : ILaya.timer;
     }
 }
+
+export interface INodeExtra { }

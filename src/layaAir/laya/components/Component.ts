@@ -32,6 +32,8 @@ export class Component {
      * 是否可以在IDE环境中运行
      */
     runInEditor?: boolean;
+    scriptPath?: string;
+    _extra?: IComponentExtra;
 
     get hideFlags(): number {
         return this._hideFlags;
@@ -51,7 +53,8 @@ export class Component {
     }
 
     //@internal
-    private _initialize(): void {
+    _initialize(): void {
+        this._extra = {};
     }
 
     hasHideFlag(flag: number): boolean {
@@ -313,3 +316,5 @@ export class Component {
     onDestroy(): void {
     }
 }
+
+export interface IComponentExtra { }
