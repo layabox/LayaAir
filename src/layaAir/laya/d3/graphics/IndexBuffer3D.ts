@@ -2,6 +2,8 @@ import { IndexBuffer } from "../../RenderEngine/IndexBuffer";
 import { BufferTargetType, BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
 import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
 /**
+ * @internal
+ * 请使用LayaGL.RenderOBJCreate.createIndexBuffer3D来创建
  * <code>IndexBuffer3D</code> 类用于创建索引缓冲。
  */
 export class IndexBuffer3D extends IndexBuffer {
@@ -44,7 +46,7 @@ export class IndexBuffer3D extends IndexBuffer {
 	 * @param	canRead 是否可读。
 	 */
 	constructor(indexType: IndexFormat, indexCount: number, bufferUsage: BufferUsage = BufferUsage.Static, canRead: boolean = false) {
-		super(BufferTargetType.ELEMENT_ARRAY_BUFFER,bufferUsage);
+		super(BufferTargetType.ELEMENT_ARRAY_BUFFER, bufferUsage);
 		this._indexType = indexType;
 		this._indexCount = indexCount;
 
@@ -103,8 +105,8 @@ export class IndexBuffer3D extends IndexBuffer {
 					break;
 			}
 		}
-		
-		this._setIndexData(data,bufferOffset*byteCount);
+
+		this._setIndexData(data, bufferOffset * byteCount);
 
 		if (this._canRead) {
 			if (bufferOffset !== 0 || dataStartIndex !== 0 || dataCount !== 4294967295/*uint.MAX_VALUE*/) {
@@ -115,7 +117,7 @@ export class IndexBuffer3D extends IndexBuffer {
 					this._buffer.set(data, bufferOffset);
 				else
 					for (var i: number = 0; i < dataCount; i++)
-					this._buffer[bufferOffset + i] = data[i];
+						this._buffer[bufferOffset + i] = data[i];
 			} else {
 				this._buffer = data;
 			}

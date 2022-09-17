@@ -9,7 +9,7 @@ import { IRenderGeometryElement } from "../RenderInterface/RenderPipelineInterfa
 import { ShaderData } from "../RenderShader/ShaderData";
 
 export class RenderElementOBJ implements IRenderElement {
-    
+
     _geometry: IRenderGeometryElement;
 
     _shaderInstances: SingletonList<ShaderInstance>;
@@ -24,23 +24,18 @@ export class RenderElementOBJ implements IRenderElement {
 
     _owner: IBaseRenderNode;
 
-    constructor(){
+    _invertFront: boolean;
+
+    constructor() {
         this._shaderInstances = new SingletonList();
     }
 
-    _addShaderInstance(shader:ShaderInstance){
+    _addShaderInstance(shader: ShaderInstance) {
         this._shaderInstances.add(shader);
     }
 
-    _clearShaderInstance(){
+    _clearShaderInstance() {
         this._shaderInstances.length = 0;
-    }
-
-    /**
-     * @internal
-     */
-    getInvertFront(): boolean {
-        return this._transform?this._transform._isFrontFaceInvert:false;
     }
 
     /**
@@ -51,11 +46,11 @@ export class RenderElementOBJ implements IRenderElement {
         var forceInvertFace: boolean = context.invertY;
         var updateMark: number = context.cameraUpdateMark;
         var sceneID = context.sceneID;
-        var sceneShaderData:ShaderData = context.sceneShaderData;
-        var cameraShaderData:ShaderData = context.cameraShaderData;
+        var sceneShaderData: ShaderData = context.sceneShaderData;
+        var cameraShaderData: ShaderData = context.cameraShaderData;
         if (this._isRender) {
             var passes: ShaderInstance[] = this._shaderInstances.elements;
-            for (var j: number = 0, m: number =  this._shaderInstances.length; j < m; j++) {
+            for (var j: number = 0, m: number = this._shaderInstances.length; j < m; j++) {
                 const shaderIns: ShaderInstance = passes[j];;
                 var switchShader: boolean = shaderIns.bind();
                 var switchUpdateMark: boolean = (updateMark !== shaderIns._uploadMark);
@@ -66,8 +61,8 @@ export class RenderElementOBJ implements IRenderElement {
                     shaderIns._uploadScene = sceneID;
                 }
                 //render
-                if(this._renderShaderData){
-                    var uploadSprite3D: boolean =(shaderIns._uploadRender !== this._renderShaderData) || switchUpdateMark;
+                if (this._renderShaderData) {
+                    var uploadSprite3D: boolean = (shaderIns._uploadRender !== this._renderShaderData) || switchUpdateMark;
                     if (uploadSprite3D || switchShader) {
                         shaderIns.uploadUniforms(shaderIns._spriteUniformParamsMap, this._renderShaderData, uploadSprite3D);
                         shaderIns._uploadRender = this._renderShaderData;
@@ -90,13 +85,13 @@ export class RenderElementOBJ implements IRenderElement {
                 //renderData update
                 //TODO：Renderstate as a Object to less upload
                 shaderIns.uploadRenderStateBlendDepth(this._materialShaderData);
-                shaderIns.uploadRenderStateFrontFace(this._materialShaderData, forceInvertFace, this.getInvertFront());
+                shaderIns.uploadRenderStateFrontFace(this._materialShaderData, forceInvertFace, this._invertFront);
                 this.drawGeometry(shaderIns);
             }
         }
     }
 
-    drawGeometry(shaderIns:ShaderInstance){
+    drawGeometry(shaderIns: ShaderInstance) {
         LayaGL.renderDrawContext.drawGeometryElement(this._geometry);
     }
 

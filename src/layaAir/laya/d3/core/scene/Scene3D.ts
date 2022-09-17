@@ -38,7 +38,6 @@ import { ShadowCasterPass } from "../../shadowMap/ShadowCasterPass";
 import { CannonPhysicsSimulation } from "../../physicsCannon/CannonPhysicsSimulation";
 import { CannonPhysicsSettings } from "../../physicsCannon/CannonPhysicsSettings";
 import { CannonPhysicsComponent } from "../../physicsCannon/CannonPhysicsComponent";
-import { ReflectionProbeManager } from "../reflectionProbe/ReflectionProbeManager";
 import { Physics3D } from "../../Physics3D";
 import { BaseTexture } from "../../../resource/BaseTexture";
 import { BlitFrameBufferCMD } from "../render/command/BlitFrameBufferCMD";
@@ -73,6 +72,7 @@ import "./Input3D";
 import { IRenderQueue } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderQueue";
 import { LayaEnv } from "../../../../LayaEnv";
 import { SceneRenderManager } from "./SceneRenderManager";
+import { VolumeManager } from "../../component/Volume/VolumeManager";
 
 /**
  * 环境光模式
@@ -458,7 +458,7 @@ export class Scene3D extends Sprite implements ISubmit {
     /**	@internal */
     _reflectionCubeHDRParams: Vector4 = new Vector4();
     /** @internal */
-    _reflectionProbeManager: ReflectionProbeManager = new ReflectionProbeManager();
+    _volumeManager: VolumeManager = new VolumeManager();
     /**@internal */
     _sceneRenderManager: SceneRenderManager;
     /**@internal */
@@ -678,11 +678,11 @@ export class Scene3D extends Sprite implements ISubmit {
     set reflection(value: TextureCube) {
         value = value ? value : TextureCube.blackTexture;
         if (this._reflection != value) {
+            this._reflection && this._reflection._removeReference();
             value._addReference();
-            this._reflectionProbeManager.sceneReflectionProbe = value;
+            this._volumeManager.reflectionProbeManager.sceneReflectionProbe = value;
             this._reflection = value
-            this._reflectionProbeManager._needUpdateAllRender = true;
-
+            this._volumeManager.reflectionProbeManager._needUpdateAllRender = true;
         }
     }
 
@@ -700,7 +700,7 @@ export class Scene3D extends Sprite implements ISubmit {
             this._reflectionCubeHDRParams.x = this._reflectionIntensity;
             if (this._reflectionDecodeFormat == TextureDecodeFormat.RGBM)
                 this._reflectionCubeHDRParams.x *= 5.0;//5.0 is RGBM param
-            this._reflectionProbeManager.sceneReflectionCubeHDRParam = this._reflectionCubeHDRParams;
+            this._volumeManager.reflectionProbeManager.sceneReflectionCubeHDRParam = this._reflectionCubeHDRParams;
         }
     }
 
@@ -718,7 +718,7 @@ export class Scene3D extends Sprite implements ISubmit {
         if (this._reflectionDecodeFormat == TextureDecodeFormat.RGBM)
             this._reflectionCubeHDRParams.x *= 5.0;//5.0 is RGBM param
         this._reflectionIntensity = value;
-        this._reflectionProbeManager.sceneReflectionCubeHDRParam = this._reflectionCubeHDRParams;
+        this._volumeManager.reflectionProbeManager.sceneReflectionCubeHDRParam = this._reflectionCubeHDRParams;
     }
 
     /**
@@ -826,7 +826,7 @@ export class Scene3D extends Sprite implements ISubmit {
         this.reflection = TextureCube.blackTexture;
         for (var i: number = 0; i < 7; i++)
             this._shCoefficients[i] = new Vector4();
-        this._reflectionProbeManager.sceneReflectionCubeHDRParam = this._reflectionCubeHDRParams;
+        this._volumeManager.reflectionProbeManager.sceneReflectionCubeHDRParam = this._reflectionCubeHDRParams;
         this._scene = this;
         this._sceneRenderManager = new SceneRenderManager();
         this._cullPass = LayaGL.renderOBJCreate.createCullPass();
@@ -921,15 +921,17 @@ export class Scene3D extends Sprite implements ISubmit {
         this._componentDriver.callStart();
         this._componentDriver.callUpdate();
 
-        if (this._reflectionProbeManager._needUpdateAllRender)
-            this._reflectionProbeManager.updateAllRenderObjects(this._sceneRenderManager.list);
-        else
-            this._reflectionProbeManager.update();
+
 
         this._componentDriver.callLateUpdate();
         this._componentDriver.callDestroy();
 
         this._sceneRenderManager.updateMotionObjects();
+
+        if (this._volumeManager.needreCaculateAllRenderObjects())
+            this._volumeManager.reCaculateAllRenderObjects(this._sceneRenderManager.list);
+        else
+            this._volumeManager.handleMotionlist();
     }
 
     /**
@@ -1529,7 +1531,7 @@ export class Scene3D extends Sprite implements ISubmit {
         }
         //this._sceneUniformData.destroy();
         this._lightmaps = null;
-        this._reflectionProbeManager.destroy();
+        this._volumeManager.destroy();
         this._componentDriver.callDestroy();
 
     }
@@ -1636,10 +1638,16 @@ export class Scene3D extends Sprite implements ISubmit {
     }
 
     set customReflection(value: TextureCube) {
-        if (this._reflection != value) {
-            value._addReference();
-            this._reflectionProbeManager.sceneReflectionProbe = value;
-            this._reflection = value;
+        if (!value) {
+            this._reflection && this._reflection._removeReference();
+            return;
+        } else {
+            if (this._reflection != value) {
+                this._reflection && this._reflection._removeReference();
+                value._addReference();
+                this._volumeManager.reflectionProbeManager.sceneReflectionProbe = value;
+                this._reflection = value;
+            }
         }
     }
 

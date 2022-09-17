@@ -45,7 +45,7 @@ export class RenderElement {
     /**@internal */
     protected _subShader: SubShader;
     /**@internal */
-    _subShaderIndex:number = 0;
+    _subShaderIndex: number = 0;
 
 
 
@@ -156,10 +156,10 @@ export class RenderElement {
                 continue;
 
             var comDef: DefineDatas = RenderElement._compileDefine;
-            
-            if(context.sceneShaderData){
+
+            if (context.sceneShaderData) {
                 context.sceneShaderData._defineDatas.cloneTo(comDef);
-            }else{
+            } else {
                 Scene3D._configDefineValues.cloneTo(comDef);
             }
             context.cameraShaderData && comDef.addDefineDatas(context.cameraShaderData._defineDatas);
@@ -206,7 +206,7 @@ export class RenderElement {
     _update(scene: Scene3D, context: RenderContext3D, customShader: Shader3D, replacementTag: string, subshaderIndex: number = 0): void {
         if (this.material) {//材质可能为空
             this._convertSubShader(customShader, replacementTag, subshaderIndex);
-            if(!this.renderSubShader)
+            if (!this.renderSubShader)
                 return;
             var renderQueue = scene._getRenderQueue(this.material.renderQueue);
             if (renderQueue._isTransparent)
@@ -244,6 +244,7 @@ export class RenderElement {
         this._renderElementOBJ._isRender = this._geometry._prepareRender(context);
         this._geometry._updateRenderParams(context);
         this.compileShader(context._contextOBJ);
+        this._renderElementOBJ._invertFront = this.getInvertFront();
     }
 
     /**

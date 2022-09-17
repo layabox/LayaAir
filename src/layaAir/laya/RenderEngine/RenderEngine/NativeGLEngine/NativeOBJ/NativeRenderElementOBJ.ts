@@ -8,12 +8,12 @@ import { IRenderElement } from "../../../RenderInterface/RenderPipelineInterface
 import { IRenderGeometryElement } from "../../../RenderInterface/RenderPipelineInterface/IRenderGeometryElement";
 import { NativeShaderData } from "./NativeShaderData";
 export enum RenderElementType {
-	Base = 0,
-	Skin = 1,
+    Base = 0,
+    Skin = 1,
     Instance = 2,
 }
 export class NativeRenderElementOBJ implements IRenderElement {
-    
+
     private geometry: IRenderGeometryElement;
 
     //private shaderInstances: SingletonList<ShaderInstance>;
@@ -72,9 +72,17 @@ export class NativeRenderElementOBJ implements IRenderElement {
         this._nativeObj._isRender = data;
     }
 
+    get _invertFront(): boolean {
+        return this._nativeObj._invertFront;//LV TODO
+    }
+
+    set _invertFront(data: boolean) {
+        this._nativeObj._invertFront = data;//LV TODO
+    }
+
     _nativeObj: any;
 
-    constructor(){
+    constructor() {
         this.init();
     }
     init(): void {
@@ -83,21 +91,13 @@ export class NativeRenderElementOBJ implements IRenderElement {
     _shaderInstances: SingletonList<ShaderInstance>;
     _owner: IBaseRenderNode;
 
-    _addShaderInstance(shader:ShaderInstance){
+    _addShaderInstance(shader: ShaderInstance) {
         this._nativeObj._addShaderInstance((shader as any)._nativeObj);
     }
 
-    _clearShaderInstance(){
+    _clearShaderInstance() {
         this._nativeObj._clearShaderInstance();
     }
-
-    /**
-     * @internal
-     */
-    getInvertFront(): boolean {
-        return this._transform ? this._transform._isFrontFaceInvert : false;
-    }
-
     /**
      * render RenderElement
      * @param renderqueue 

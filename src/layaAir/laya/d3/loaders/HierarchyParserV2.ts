@@ -13,10 +13,10 @@ import { Sprite3D } from "../core/Sprite3D";
 import { TrailSprite3D } from "../core/trail/TrailSprite3D";
 import { ClassUtils } from "../../utils/ClassUtils";
 import { SimpleSkinnedMeshSprite3D } from "../core/SimpleSkinnedMeshSprite3D";
-import { ReflectionProbe } from "../core/reflectionProbe/ReflectionProbe";
 import { ILoadURL, Loader } from "../../net/Loader";
 import { URL } from "../../net/URL";
 import { HierarchyLoader } from "../../loaders/HierarchyLoader";
+import { ReflectionProbe } from "../component/Volume/reflectionProbe/ReflectionProbe";
 
 /**
  * @internal
@@ -67,7 +67,8 @@ class HierarchyParserV2 {
                 node = new TrailSprite3D();
                 break;
             case "ReflectionProbe":
-                node = new ReflectionProbe();
+                node = new Sprite3D();
+                node.addComponent(ReflectionProbe);
                 break;
             default:
                 throw new Error("Utils3D:unidentified class type in (.lh) file.");

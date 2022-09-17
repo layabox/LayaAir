@@ -50,11 +50,9 @@ import { ShuriKenParticle3D } from "./core/particleShuriKen/ShuriKenParticle3D";
 import { ShurikenParticleMaterial } from "./core/particleShuriKen/ShurikenParticleMaterial";
 import { ShurikenParticleRenderer } from "./core/particleShuriKen/ShurikenParticleRenderer";
 import { ShurikenParticleSystem } from "./core/particleShuriKen/ShurikenParticleSystem";
-import { ReflectionProbe } from "./core/reflectionProbe/ReflectionProbe";
 import { BaseRender } from "./core/render/BaseRender";
 import { RenderableSprite3D } from "./core/RenderableSprite3D";
 import { Lightmap } from "./core/scene/Lightmap";
-import { Sprite } from "../display/Sprite";
 import { Scene3D } from "./core/scene/Scene3D";
 import { SimpleSkinnedMeshRenderer } from "./core/SimpleSkinnedMeshRenderer";
 import { SimpleSkinnedMeshSprite3D } from "./core/SimpleSkinnedMeshSprite3D";
@@ -90,6 +88,7 @@ import "./loaders/AvatarMaskLoader";
 import "./loaders/ShaderLoader";
 
 import { Bounds } from "./math/Bounds";
+import { ReflectionProbe } from "./component/Volume/reflectionProbe/ReflectionProbe";
 
 let c = ClassUtils.regClass;
 c("Sprite3D", Sprite3D);
