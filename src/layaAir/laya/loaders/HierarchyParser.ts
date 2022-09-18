@@ -11,6 +11,10 @@ export class HierarchyParser {
         let dataList: Array<any> = [];
         let allNodes: Array<Node> = [];
         let outNodes: Array<Node> = [];
+        let inPrefab = options && options.inPrefab;
+        let prefabNodeDict: Map<Node, Record<string, Node>>;
+        if (inPrefab)
+            prefabNodeDict = options.prefabNodeDict;
 
         function createChildren(data: any, prefab: Node) {
             for (let child of data._$child) {
@@ -33,23 +37,19 @@ export class HierarchyParser {
             let node: Node;
             let pstr: string;
             if (pstr = nodeData._$override) { //prefab里的override节点
-                if (prefab) {
-                    let map = (<any>prefab).$prefabNodeMap;
-                    if (map) {
-                        if (Array.isArray(pstr)) {
-                            for (let i = 0, n = pstr.length - 1; i < n; i++) {
-                                if (!map) {
-                                    node = null;
-                                    break;
-                                }
-                                node = map[pstr[i]];
-                                if (!node)
-                                    break;
-
-                                map = (<any>node).$prefabNodeMap;
-                            }
+                if (prefab && prefabNodeDict) {
+                    if (Array.isArray(pstr)) {
+                        node = prefab;
+                        for (let i = 0, n = pstr.length; i < n; i++) {
+                            let map = prefabNodeDict.get(node);
+                            node = map?.[pstr[i]];
+                            if (!node)
+                                break;
                         }
-                        else
+                    }
+                    else {
+                        let map = prefabNodeDict.get(prefab);
+                        if (map)
                             node = map[nodeData._$override];
                     }
                 }
@@ -57,8 +57,11 @@ export class HierarchyParser {
             else {
                 if (pstr = nodeData._$prefab) { //prefab根节点
                     let res = <HierarchyResource>Loader.getRes("res://" + pstr, Loader.HIERARCHY);
-                    if (res)
-                        node = res.createNodes(null, errors);
+                    if (res) {
+                        if (!prefabNodeDict)
+                            prefabNodeDict = new Map();
+                        node = res.createNodes({ inPrefab: true, prefabNodeDict: prefabNodeDict }, errors);
+                    }
                 }
                 else if (pstr = nodeData._$type) {
                     let cls: any = ClassUtils.getClass(pstr);
@@ -87,12 +90,38 @@ export class HierarchyParser {
             if (Array.isArray(idPath)) {
                 let prefab = nodeMap[idPath[0]];
                 if (prefab && idPath.length > 1)
-                    return HierarchyParser.findNodeInPrefab(prefab, idPath, 1);
+                    return findNodeInPrefab(prefab, idPath, 1);
                 else
                     return prefab;
             }
             else
                 return nodeMap[idPath];
+        }
+
+        function findNodeInPrefab(prefab: Node, idPath: string | string[], startIndex: number = 0) {
+            if (!idPath)
+                return prefab;
+
+            let map = prefabNodeDict?.get(prefab);
+            if (!map)
+                return null;
+
+            if (Array.isArray(idPath)) {
+                let node: Node;
+                for (let i = startIndex, n = idPath.length; i < n; i++) {
+                    if (!map)
+                        return null;
+
+                    node = map[idPath[i]];
+                    if (!node)
+                        break;
+
+                    map = prefabNodeDict.get(node);
+                }
+                return node;
+            }
+            else
+                return map[idPath];
         }
 
         //创建所有节点对象，反向，先生成父再生成子，预制体需要这样
@@ -135,7 +164,7 @@ export class HierarchyParser {
                             let n = outNodes[m];
                             if (n && !n.parent) { //是预制体新增
                                 let nodeData2 = dataList[i - num + j];
-                                let parentNode = HierarchyParser.findNodeInPrefab(node, nodeData2._$parent);
+                                let parentNode = findNodeInPrefab(node, nodeData2._$parent);
                                 if (parentNode) {
                                     let pos = nodeData2._$index;
                                     if (pos != null)
@@ -144,7 +173,8 @@ export class HierarchyParser {
                                         parentNode.addChild(n);
                                 }
                                 else {
-                                    //预制体的节点可能被删掉了
+                                    //挂接的节点可能被删掉了
+                                    node.addChildAt(n, 0);
                                 }
                             }
                         }
@@ -204,38 +234,10 @@ export class HierarchyParser {
             }
         }
 
-        if (outNodes.length == 1) { //记录下nodeMap，上层创建prefab时使用
-            (<any>outNodes[0]).$prefabNodeMap = nodeMap;
-            //todo: 需要找时机清除
-        }
+        if (inPrefab && prefabNodeDict && outNodes.length > 0) //记录下nodeMap，上层创建prefab时使用
+            prefabNodeDict.set(outNodes[0], nodeMap);
 
         return outNodes;
-    }
-
-    private static findNodeInPrefab(prefab: Node, idPath: string | string[], startIndex: number = 0) {
-        if (!idPath)
-            return prefab;
-
-        let map = (<any>prefab).$prefabNodeMap;
-        if (!map)
-            return null;
-
-        if (Array.isArray(idPath)) {
-            let node: Node;
-            for (let i = startIndex, n = idPath.length; i < n; i++) {
-                if (!map)
-                    return null;
-
-                node = map[idPath[i]];
-                if (!node)
-                    break;
-
-                map = (<any>node).$prefabNodeMap;
-            }
-            return node;
-        }
-        else
-            return map[idPath];
     }
 
     public static collectResourceLinks(data: any) {

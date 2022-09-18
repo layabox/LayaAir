@@ -54,7 +54,7 @@ export class glTFResource extends HierarchyResource {
     private _nodes: Array<Sprite3D>;
 
     /** @internal */
-    private _nameID: number;
+    private _idCounter: Record<string, number>;
 
     /**
      * 保存 extra 处理函数对象
@@ -62,7 +62,7 @@ export class glTFResource extends HierarchyResource {
     protected _extras: { [name: string]: { [name: string]: Handler } } = {};// todo change context from string to enum ?
 
     constructor() {
-        super();
+        super(3);
 
         this._buffers = {};
         this._textures = [];
@@ -82,6 +82,7 @@ export class glTFResource extends HierarchyResource {
 
         let basePath = URL.getPath(createURL);
         let promise: Promise<any>;
+        this._idCounter = {};
 
         if (data.buffers) {
             let promises: Array<Promise<any>> = [];
@@ -182,7 +183,9 @@ export class glTFResource extends HierarchyResource {
         });
 
         this._pendingOps.unshift(promise);
-        return Promise.all(this._pendingOps).then();
+        return Promise.all(this._pendingOps).then(() => {
+            this._idCounter = null;
+        });
     }
 
     public createNodes(): Node {
@@ -190,7 +193,7 @@ export class glTFResource extends HierarchyResource {
 
         this._scenes.length = 0;
         this._nodes.length = 0;
-        this._nameID = 0;
+        this._idCounter = {};
 
         this.loadNodes(data.nodes);
         this.buildHierarchy(data.nodes);
@@ -201,6 +204,7 @@ export class glTFResource extends HierarchyResource {
         let defaultScene: Sprite3D = this._scenes[defaultSceneIndex];
         this._scenes.length = 0;
         this._nodes.length = 0;
+        this._idCounter = null;
 
         return defaultScene;
     }
@@ -280,8 +284,14 @@ export class glTFResource extends HierarchyResource {
      * @internal
      * 获取 node name
      */
-    private getNodeRandomName(context: string): string {
-        return `${context}_${this._nameID++}`;
+    protected generateId(context: string): string {
+        let i = this._idCounter[context];
+        if (i == null)
+            i = 0;
+        else
+            i++;
+        this._idCounter[context] = i;
+        return i.toString();
     }
 
     /**
@@ -723,13 +733,9 @@ export class glTFResource extends HierarchyResource {
      * @param glTFNodes 
      */
     private loadNodes(glTFNodes?: glTF.glTFNode[]): void {
-        if (!glTFNodes) {
+        if (!glTFNodes)
             return;
-        }
 
-        glTFNodes.forEach((glTFNode: glTF.glTFNode, index: number) => {
-            glTFNode.name = glTFNode.name || this.getNodeRandomName("node");
-        });
         glTFNodes.forEach((glTFNode: glTF.glTFNode, index: number) => {
             this._nodes[index] = this.loadNode(glTFNode);
         });
@@ -751,22 +757,25 @@ export class glTFResource extends HierarchyResource {
      * @param glTFNode 
      */
     private createSprite3D(glTFNode: glTF.glTFNode): Sprite3D {
-        glTFNode.name = glTFNode.name;
+        let sprite: Sprite3D;
         if (glTFNode.skin != null) {
-            let sprite: SkinnedMeshSprite3D = this.createSkinnedMeshSprite3D(glTFNode);
+            sprite = this.createSkinnedMeshSprite3D(glTFNode);
             this.applyTransform(glTFNode, sprite);
-            return sprite;
         }
         else if (glTFNode.mesh != null) {
-            let sprite: Sprite3D = this.createMeshSprite3D(glTFNode);
+            sprite = this.createMeshSprite3D(glTFNode);
             this.applyTransform(glTFNode, sprite);
-            return sprite;
         }
         else {
-            let sprite: Sprite3D = new Sprite3D(glTFNode.name);
+            sprite = new Sprite3D(glTFNode.name);
             this.applyTransform(glTFNode, sprite);
-            return sprite;
         }
+
+        let storeId = this.generateId("node");
+        sprite.name = glTFNode.name || `node_${storeId}`;
+        (<any>sprite._extra).storeId = "#" + storeId;
+
+        return sprite;
     }
 
     /**
@@ -1538,7 +1547,7 @@ export class glTFResource extends HierarchyResource {
 
         let stateMap: { [stateName: string]: AnimatorState } = animatorLayer._statesMap;
         if (stateMap[animationName]) {
-            animationName = clip.name = this.getNodeRandomName(animationName);
+            animationName = clip.name = `${animationName}_${this.generateId(animationName)}`;
         }
 
         let animatorState: AnimatorState = new AnimatorState();
@@ -1610,7 +1619,7 @@ export class glTFResource extends HierarchyResource {
             duration = Math.max(duration, clipNode.duration);
         });
 
-        clip.name = animation.name ? animation.name : this.getNodeRandomName("Animation");
+        clip.name = animation.name ? animation.name : `Animation_${this.generateId("Animation")}`;
         clip._duration = duration;
         clip.islooping = true;
         clip._frameRate = 30;

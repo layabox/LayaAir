@@ -2,11 +2,13 @@ import { Node } from "../display/Node";
 import { Resource } from "./Resource";
 
 export class HierarchyResource extends Resource {
+    public readonly version: number;
     protected _deps: Array<Resource>;
 
-    constructor() {
+    constructor(version?: number) {
         super();
 
+        this.version = version != null ? version : 3;
         this._deps = [];
     }
 

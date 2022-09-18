@@ -26,22 +26,22 @@ export class HierarchyLoader implements IResourceLoader {
                 return null;
 
             if (data._$ver != null)
-                return this._load(HierarchyLoader.v3, task, data);
+                return this._load(HierarchyLoader.v3, task, data, 3);
             else if (task.ext == "ls" || task.ext == "lh")
-                return this._load(HierarchyLoader.v2, task, data);
+                return this._load(HierarchyLoader.v2, task, data, 2);
             else if (task.ext == "scene" || task.ext == "prefab")
-                return this._load(HierarchyLoader.legacySceneOrPrefab, task, data);
+                return this._load(HierarchyLoader.legacySceneOrPrefab, task, data, 2);
             else
                 return null;
         });
     }
 
     //@internal
-    private _load(api: HierarchyParserAPI, task: ILoadTask, data: any): Promise<HierarchyResource> {
+    private _load(api: HierarchyParserAPI, task: ILoadTask, data: any, version: number): Promise<HierarchyResource> {
         let basePath = URL.getPath(task.url);
         let links = api.collectResourceLinks(data, basePath);
         return Promise.all(links.map(link => task.loader.load(link, null, task.progress.createCallback()))).then((resArray: any[]) => {
-            let res = new MyHierarchyResource(api, data);
+            let res = new MyHierarchyResource(api, data, version);
             res.addDeps(resArray);
             return res;
         });
@@ -52,8 +52,8 @@ class MyHierarchyResource extends HierarchyResource {
     data: any;
     api: HierarchyParserAPI;
 
-    constructor(api: HierarchyParserAPI, data: any) {
-        super();
+    constructor(api: HierarchyParserAPI, data: any, version: number) {
+        super(version);
 
         this.api = api;
         this.data = data;
