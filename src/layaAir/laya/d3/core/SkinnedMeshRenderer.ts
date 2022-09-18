@@ -123,17 +123,19 @@ export class SkinnedMeshRenderer extends MeshRenderer {
      * @internal
      */
     private _computeSubSkinnedData(bindPoses: Matrix4x4[], boneIndices: Uint16Array, data: Float32Array, matrixCaches: skinnedMatrixCache[]): void {
-        for (var k: number = 0, q: number = boneIndices.length; k < q; k++) {
-            var index: number = boneIndices[k];
+        for (let k: number = 0, q: number = boneIndices.length; k < q; k++) {
+            let index: number = boneIndices[k];
             if (this._skinnedDataLoopMarks[index] === Stat.loopCount) {
-                var c: skinnedMatrixCache = matrixCaches[index];
-                var preData: Float32Array = this._skinnedData[c.subMeshIndex][c.batchIndex];
-                var srcIndex: number = c.batchBoneIndex * 16;
-                var dstIndex: number = k * 16;
-                for (var d: number = 0; d < 16; d++)
+                let c: skinnedMatrixCache = matrixCaches[index];
+                let preData: Float32Array = this._skinnedData[c.subMeshIndex][c.batchIndex];
+                let srcIndex: number = c.batchBoneIndex * 16;
+                let dstIndex: number = k * 16;
+                for (let d: number = 0; d < 16; d++)
                     data[dstIndex + d] = preData[srcIndex + d];
             } else {
-                Utils3D._mulMatrixArray(this._bones[index].transform.worldMatrix.elements, bindPoses[index].elements, 0, data, k * 16);
+                let bone = this._bones[index];
+                if (bone)
+                    Utils3D._mulMatrixArray(bone.transform.worldMatrix.elements, bindPoses[index].elements, 0, data, k * 16);
                 this._skinnedDataLoopMarks[index] = Stat.loopCount;
             }
         }
