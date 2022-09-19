@@ -28,9 +28,9 @@ export class StaticMeshBatchManager {
             }
         }
 
-        let staticRenders = [];
+        let staticRenders: StaticBatchMeshRender[] = [];
         for (const info of this.meshVertexDecSet) {
-            staticRenders.push(info);
+            staticRenders.push(StaticBatchMeshRender.create(info));
         }
         this.meshVertexDecSet.clear();
         return staticRenders;

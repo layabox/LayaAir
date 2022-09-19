@@ -419,8 +419,7 @@ export class BaseRender extends Component implements ISingletonElement {
     }
 
     protected _onEnable(): void {
-
-
+        super._onEnable();
         (this.owner.scene as Scene3D)._addRenderObject(this);
         this._setBelongScene(this.owner.scene);
     }
