@@ -25,6 +25,9 @@ import { Bounds } from "../../math/Bounds";
 import { ISingletonElement } from "../../../utils/SimpleSingletonList";
 import { Volume } from "../../component/Volume/Volume";
 import { ReflectionProbe, ReflectionProbeMode } from "../../component/Volume/reflectionProbe/ReflectionProbe";
+import { VertexMesh } from "../../graphics/Vertex/VertexMesh";
+import { Mesh } from "../../resource/models/Mesh";
+import { ShaderDefine } from "../../../RenderEngine/RenderShader/ShaderDefine";
 
 
 /**
@@ -35,6 +38,8 @@ export class BaseRender extends Component implements ISingletonElement {
     public static RenderBitFlag_CullFlag = 1;
     /**@internal */
     public static RenderBitFlag_Batch = 2;
+    /** @internal */
+    static _meshVerticeDefine: Array<ShaderDefine> = [];
 
     /**@internal */
     private static _uniqueIDCounter: number = 0;
@@ -57,6 +62,53 @@ export class BaseRender extends Component implements ISingletonElement {
     static __init__() {
         // if (Config3D._config._uniformBlock)
         // 	BaseRender.initRenderableLargeUniformBlock();
+    }
+    /**
+      * @internal
+      * @param mesh 
+      * @param out 
+      */
+    static getMeshDefine(mesh: Mesh, out: Array<ShaderDefine>): number {
+        out.length = 0;
+        var define: number;
+        for (var i: number = 0, n: number = mesh._subMeshes.length; i < n; i++) {
+            var subMesh = mesh.getSubMesh(i);
+            var vertexElements: any[] = subMesh._vertexBuffer._vertexDeclaration._vertexElements;
+            for (var j: number = 0, m: number = vertexElements.length; j < m; j++) {
+                var vertexElement = vertexElements[j];
+                var name: number = vertexElement._elementUsage;
+                switch (name) {
+                    case VertexMesh.MESH_COLOR0:
+                        out.push(MeshSprite3DShaderDeclaration.SHADERDEFINE_COLOR);
+                        break
+                    case VertexMesh.MESH_TEXTURECOORDINATE0:
+                        out.push(MeshSprite3DShaderDeclaration.SHADERDEFINE_UV0);
+                        break;
+                    case VertexMesh.MESH_TEXTURECOORDINATE1:
+                        out.push(MeshSprite3DShaderDeclaration.SHADERDEFINE_UV1);
+                        break;
+                    case VertexMesh.MESH_TANGENT0:
+                        out.push(MeshSprite3DShaderDeclaration.SHADERDEFINE_TANGENT);
+                        break;
+                }
+            }
+        }
+        return define;
+    }
+
+    static changeVertexDefine(oldMesh: Mesh, mesh: Mesh, defineDatas: ShaderData) {
+
+        var lastValue: Mesh = oldMesh;
+        if (lastValue) {
+            BaseRender.getMeshDefine(lastValue, BaseRender._meshVerticeDefine);
+            for (var i: number = 0, n: number = BaseRender._meshVerticeDefine.length; i < n; i++)
+                defineDatas.removeDefine(BaseRender._meshVerticeDefine[i]);
+        }
+        if (mesh) {
+            BaseRender.getMeshDefine(mesh, BaseRender._meshVerticeDefine);
+            for (var i: number = 0, n: number = BaseRender._meshVerticeDefine.length; i < n; i++)
+                defineDatas.addDefine(BaseRender._meshVerticeDefine[i]);
+        }
     }
 
     /** @internal */

@@ -8,24 +8,27 @@
 
     #if defined(SHADOW) || defined(SHADOW_SPOT)
 
-	#ifdef ENUNIFORMBLOCK
+	#ifndef DEPTHPASS
+	    #ifdef ENUNIFORMBLOCK
 uniform ShadowUniformBlock
 {
     vec4 u_ShadowBias; // x: depth bias, y: normal bias
     mat4 u_ViewProjection;
     vec3 u_ShadowLightDirection;
 };
-	#else // ENUNIFORMBLOCK
+	    #else // ENUNIFORMBLOCK
 uniform vec4 u_ShadowBias; // x: depth bias, y: normal bias
 uniform mat4 u_ViewProjection;
-	    #ifdef SHADOW
+		#ifdef SHADOW
 uniform vec3 u_ShadowLightDirection;
-	    #endif // SHADOW
-	#endif // ENUNIFORMBLOCK
+		#endif // SHADOW
+	    #endif // ENUNIFORMBLOCK
+
 // 根据投影剧专重映射深度
 vec4 remapPositionZ(vec4 position)
 {
     position.z = position.z * 2.0 - position.w;
+    return position;
     return position;
 }
 
@@ -39,7 +42,7 @@ vec3 applyShadowBias(vec3 positionWS, vec3 normalWS, vec3 lightDirection)
     positionWS += normalWS * vec3(scale);
     return positionWS;
 }
-
+	#endif // DEPTHPASS
     #endif // SHADOW || SHADOW_SPOT
 
     #ifdef DEPTHPASS
@@ -53,15 +56,19 @@ vec4 DepthPositionCS(in vec3 positionWS, in vec3 normalWS)
     #endif // DEPTHPASS
 
     #ifdef SHADOW
+	#ifndef DEPTHPASS
     positionWS = applyShadowBias(positionWS, normalWS, u_ShadowLightDirection);
     vec4 positionCS = u_ViewProjection * vec4(positionWS, 1.0);
     positionCS.z = max(positionCS.z, 0.0); // min ndc z is 0.0
+	#endif // DEPTHPASS
     #endif // SHADOW
 
     #ifdef SHADOW_SPOT
+	#ifndef DEPTHPASS
     vec4 positionCS = u_ViewProjection * vec4(positionWS, 1.0);
     positionCS.z = positionCS.z - u_ShadowBias.x / positionCS.w;
     positionCS.z = max(positionCS.z, 0.0); // min ndc z is 0.0
+	#endif // DEPTHPASS
     #endif // SHADOW_SPOT
 
     return positionCS;

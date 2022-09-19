@@ -83,7 +83,7 @@ export class DrawMeshInstancedCMD extends Command {
     /**@internal */
     _instanceRenderElement: RenderElement;
     /**@internal */
-    _render:BaseRender;
+    _render: BaseRender;
 
 
     constructor() {
@@ -100,7 +100,7 @@ export class DrawMeshInstancedCMD extends Command {
 
     }
 
-    set material(value:Material){
+    set material(value: Material) {
         this._material && this._material._removeReference(1);
         this._material = value;
         this._material && this._material._addReference(1);
@@ -111,8 +111,10 @@ export class DrawMeshInstancedCMD extends Command {
     }
 
     set mesh(value: Mesh) {
+
         if (this._mesh == value)
             return;
+        BaseRender.changeVertexDefine(this._mesh, value, this._render._shaderValues);
         this._mesh = value;
         let submeshs = this._mesh._subMeshes;
         if (this._subMeshIndex == -1) {
@@ -125,7 +127,7 @@ export class DrawMeshInstancedCMD extends Command {
                 element.renderSubShader = this._material._shader.getSubShaderAt(this._subShaderIndex);
                 element._subShaderIndex = this._subShaderIndex;
                 element.render = this._render;
-                
+
                 geometry.bufferState = this._instanceBufferState;
                 geometry.instanceCount = this._drawnums;
             }
@@ -151,11 +153,11 @@ export class DrawMeshInstancedCMD extends Command {
  * @internal
      */
     private _setInstanceBuffer(): void {
-        if(!this._instanceBufferState){
+        if (!this._instanceBufferState) {
             this._instanceBufferState = new BufferState();
         }
         let instanceBufferState = this._instanceBufferState;
-        
+
         let vertexArray: Array<VertexBuffer> = [];
         let meshVertexBuffer = this._mesh._bufferState._vertexBuffers;
         meshVertexBuffer.forEach(element => {
@@ -222,12 +224,12 @@ export class DrawMeshInstancedCMD extends Command {
     run(): void {
         //update blockData
         let context = RenderContext3D._instance;
-		context._contextOBJ.applyContext(Camera._updateMark);
+        context._contextOBJ.applyContext(Camera._updateMark);
         let propertyMap = this._instanceProperty._propertyMap;
-        for(let i in propertyMap){
-			//更新自定义Instancebuffer
-			propertyMap[i].updateVertexBufferData(this._drawnums);
-		}
+        for (let i in propertyMap) {
+            //更新自定义Instancebuffer
+            propertyMap[i].updateVertexBufferData(this._drawnums);
+        }
 
         let submeshs = this.mesh._subMeshes
         if (this._subMeshIndex == -1) {

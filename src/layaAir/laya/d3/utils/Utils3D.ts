@@ -640,7 +640,7 @@ export class Utils3D {
     /**
      * @internal
      */
-    static _drawBound(debugLine: PixelLineSprite3D, boundBox: BoundBox|Bounds, color: Color): void {
+    static _drawBound(debugLine: PixelLineSprite3D, boundBox: BoundBox | Bounds, color: Color): void {
         if (debugLine.lineCount + 12 > debugLine.maxLineCount)
             debugLine.maxLineCount += 12;
 
