@@ -31,14 +31,15 @@ void getPixelParams(inout PixelParams params)
     params.tangentWS = normalize(v_TangentWS);
     params.biNormalWS = normalize(v_BiNormalWS);
     mat3 TBN = mat3(params.tangentWS, params.biNormalWS, params.normalWS);
-	#endif // NEEDTBN
-    #endif TANGENT
 
-    #ifdef NORMALMAP
+	    #ifdef NORMALMAP
     vec3 normalSampler = texture2D(u_NormalTexture, params.uv0).rgb;
     normalSampler = normalize(normalSampler * 2.0 - 1.0);
     params.normalWS = normalize(TBN * normalSampler);
-    #endif // NORMALMAP
+	    #endif // NORMALMAP
+
+	#endif // NEEDTBN
+    #endif TANGENT
 }
 
 void getPixelInfo(inout PixelInfo info, const in PixelParams pixel)
