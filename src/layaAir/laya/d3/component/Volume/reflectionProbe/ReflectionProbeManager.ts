@@ -1,25 +1,23 @@
-import { BaseRender } from "../render/BaseRender";
+import { SimpleSingletonList } from "../../../../utils/SimpleSingletonList";
+import { SingletonList } from "../../../../utils/SingletonList";
+import { BaseRender } from "../../../core/render/BaseRender";
+import { Bounds } from "../../../math/Bounds";
+import { Vector3 } from "../../../math/Vector3";
+import { Vector4 } from "../../../math/Vector4";
+import { TextureCube } from "../../../resource/TextureCube";
+import { IVolumeManager } from "../IVolumeManager";
+import { Volume } from "../Volume";
 import { ReflectionProbe } from "./ReflectionProbe";
-import { ReflectionProbeList } from "./ReflectionProbeList";
-import { SingletonList } from "../../../utils/SingletonList";
-import { SimpleSingletonList } from "../../../utils/SimpleSingletonList";
-import { TextureCube } from "../../resource/TextureCube";
-import { Vector4 } from "../../math/Vector4";
-import { Vector3 } from "../../math/Vector3";
-import { LayaGL } from "../../../layagl/LayaGL";
-import { Bounds } from "../../math/Bounds";
 
 /**
  *<code>ReflectionProbeManager</code> 类用于反射探针管理
  */
-export class ReflectionProbeManager {
+export class ReflectionProbeManager implements IVolumeManager {
 
     /** @internal 反射探针队列 */
-    private _reflectionProbes: ReflectionProbeList = new ReflectionProbeList();
+    private _reflectionProbes: SingletonList<ReflectionProbe> = new SingletonList<ReflectionProbe>();
     /** @internal 环境探针 */
     private _sceneReflectionProbe: ReflectionProbe;
-    /** @internal 需要跟新反射探针的渲染队列 */
-    private _motionObjects: SingletonList<BaseRender> = new SingletonList<BaseRender>();
     /** @internal */
     _needUpdateAllRender: boolean = false;
 
@@ -53,7 +51,7 @@ export class ReflectionProbeManager {
      * 更新baseRender的反射探针
      * @param baseRender 
      */
-    _updateMotionObjects(baseRender: BaseRender): void {
+    _updateRenderObject(baseRender: BaseRender): void {
         if (this._reflectionProbes.length == 0) {
             baseRender.probReflection = this._sceneReflectionProbe;
             return;
@@ -86,8 +84,8 @@ export class ReflectionProbeManager {
      * @internal
      * @param reflectionProbe 
      */
-    add(reflectionProbe: ReflectionProbe) {
-        this._reflectionProbes.add(reflectionProbe);
+    add(volume: Volume) {
+        this._reflectionProbes.add(volume as any);
         this._needUpdateAllRender = true;
     }
     /**
@@ -95,30 +93,25 @@ export class ReflectionProbeManager {
      * @internal
      * @param reflectionProbe 
      */
-    remove(reflectionProbe: ReflectionProbe) {
-        this._reflectionProbes.remove(reflectionProbe);
+    remove(volume: Volume) {
+        this._reflectionProbes.remove(volume as any);
         this._needUpdateAllRender = true;
-    }
-
-    /**
-     * 添加运动物体。
-     * @internal
-     * @param 运动物体。
-     */
-    addMotionObject(renderObject: BaseRender) {
-        this._motionObjects.add(renderObject);
     }
 
     /**
      * @internal
      * 更新运动物体的反射探针信息
      */
-    update(): void {
-        var elements: BaseRender[] = this._motionObjects.elements;
-        for (var i: number = 0, n: number = this._motionObjects.length; i < n; i++) {
-            this._updateMotionObjects(elements[i]);
+    handleMotionlist(motionObjects: SingletonList<BaseRender>): void {
+        var elements: BaseRender[] = motionObjects.elements;
+        let render: BaseRender;
+        for (var i: number = 0, n: number = motionObjects.length; i < n; i++) {
+            render = elements[i];
+            if (render._surportReflectionProbe && render._reflectionMode == 1) {
+                this._updateRenderObject(elements[i]);
+            }
         }
-        this.clearMotionObjects();
+        //this.clearMotionObjects();
     }
 
     /**
@@ -126,21 +119,18 @@ export class ReflectionProbeManager {
      * 更新传入所有渲染器反射探针
      * @param 渲染器列表
      */
-    updateAllRenderObjects(baseRenders: SimpleSingletonList<BaseRender>) {
+    reCaculateAllRenderObjects(baseRenders: SimpleSingletonList<BaseRender>) {
         var elements = baseRenders.elements;
+        let render: BaseRender;
         for (var i: number = 0, n: number = baseRenders.length; i < n; i++) {
-            this._updateMotionObjects(elements[i]);
+            render = elements[i];
+            if (render._surportReflectionProbe && render._reflectionMode == 1) {
+                this._updateRenderObject(render);
+            }
+            this._needUpdateAllRender = false;
         }
-        this._needUpdateAllRender = false;
     }
 
-    /**
-     * @internal
-     * 清理变动队列
-     */
-    clearMotionObjects() {
-        this._motionObjects.length = 0;
-    }
 
     /**
      * @internal
@@ -152,7 +142,6 @@ export class ReflectionProbeManager {
             probe.destroy();
         }
         this._reflectionProbes.length = 0;
-        this._motionObjects.length = 0;
         this._sceneReflectionProbe.destroy();
         this._sceneReflectionProbe = null;
     }

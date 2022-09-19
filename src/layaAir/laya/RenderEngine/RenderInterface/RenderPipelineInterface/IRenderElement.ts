@@ -6,16 +6,17 @@ import { IBaseRenderNode } from "./IBaseRenderNode";
 import { IRenderContext3D } from "./IRenderContext3D";
 import { IRenderGeometryElement } from "./IRenderGeometryElement";
 
-export interface IRenderElement{
-    _geometry:IRenderGeometryElement;
+export interface IRenderElement {
+    _geometry: IRenderGeometryElement;
     _shaderInstances: SingletonList<ShaderInstance>;
-    _materialShaderData:ShaderData;
-    _renderShaderData:ShaderData;
-    _transform:Transform3D;
-    _isRender:boolean;
-    _owner:IBaseRenderNode;
-    _render(context: IRenderContext3D):void;
-    _addShaderInstance(shader:ShaderInstance):void;
-    _clearShaderInstance():void;
-    _destroy():void;
+    _materialShaderData: ShaderData;
+    _renderShaderData: ShaderData;
+    _transform: Transform3D;
+    _isRender: boolean;
+    _owner: IBaseRenderNode;
+    _invertFront: boolean;
+    _render(context: IRenderContext3D): void;
+    _addShaderInstance(shader: ShaderInstance): void;
+    _clearShaderInstance(): void;
+    _destroy(): void;
 }

@@ -93,7 +93,7 @@ export class GLBuffer extends GLObject implements IRenderBuffer {
         this._memorychange(this._byteLength);
     }
 
-   
+
 
 
     setData(srcData: ArrayBuffer | ArrayBufferView, offset: number): void {
@@ -158,6 +158,6 @@ export class GLBuffer extends GLObject implements IRenderBuffer {
         this._glTarget = null;
         this._glUsage = null;
         this._gl = null;
-        
+
     }
 }

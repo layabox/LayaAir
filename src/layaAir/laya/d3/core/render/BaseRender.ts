@@ -10,7 +10,6 @@ import { Vector3 } from "../../math/Vector3"
 import { Vector4 } from "../../math/Vector4"
 import { Event } from "../../../events/Event"
 import { Lightmap } from "../scene/Lightmap";
-import { ReflectionProbe, ReflectionProbeMode } from "../reflectionProbe/ReflectionProbe";
 import { MeshSprite3DShaderDeclaration } from "../../../d3/core/MeshSprite3DShaderDeclaration";
 import { TextureCube } from "../../resource/TextureCube";
 import { Matrix4x4 } from "../../math/Matrix4x4";
@@ -24,6 +23,8 @@ import { SubUniformBufferData } from "../../../RenderEngine/SubUniformBufferData
 import { Stat } from "../../../utils/Stat";
 import { Bounds } from "../../math/Bounds";
 import { ISingletonElement } from "../../../utils/SimpleSingletonList";
+import { Volume } from "../../component/Volume/Volume";
+import { ReflectionProbe, ReflectionProbeMode } from "../../component/Volume/reflectionProbe/ReflectionProbe";
 
 
 /**
@@ -97,7 +98,7 @@ export class BaseRender extends Component implements ISingletonElement {
     /**@internal 是否自定义了needRender*/
     _customCull: boolean;
     /**@internal 如果这个值不是0,说明有一些条件使他不能加入渲染队列，例如如果是1，证明此节点被lod淘汰*/
-
+    private _volume: Volume;
     get renderbitFlag() {
         return this._rendernode.renderbitFlag;
     }
@@ -321,6 +322,29 @@ export class BaseRender extends Component implements ISingletonElement {
         return this._reflectionMode;
     }
 
+
+
+    set volume(value: Volume) {
+        if (!value) {//value = null,
+            if (this._volume) {
+                this._volume._removeRenderNode && this._volume._removeRenderNode(this);
+                this._volume = null;
+            }
+            return;
+        }
+        if (this._volume != value) {
+            value._addRenderNode && value._addRenderNode(this);
+            this._volume = value;
+            return;
+        } else {
+            value._motionInVolume && value._motionInVolume(this);
+        }
+    }
+
+    get volume(): Volume {
+        return this._volume;
+    }
+
     /**
      * 设置反射球
      */
@@ -395,10 +419,10 @@ export class BaseRender extends Component implements ISingletonElement {
     }
 
     protected _onEnable(): void {
-
-
+        super._onEnable();
         (this.owner.scene as Scene3D)._addRenderObject(this);
         this._setBelongScene(this.owner.scene);
+
     }
 
     protected _onDisable(): void {
@@ -444,13 +468,6 @@ export class BaseRender extends Component implements ISingletonElement {
      */
     protected _onWorldMatNeedChange(flag: number): void {
         this.boundsChange = true;
-        // if (this._octreeNode) {
-        // 	flag &= Transform3D.TRANSFORM_WORLDPOSITION | Transform3D.TRANSFORM_WORLDQUATERNION | Transform3D.TRANSFORM_WORLDSCALE;//过滤有用TRANSFORM标记
-        // 	if (flag) {
-        // 		if (this._indexInOctreeMotionList === -1)//_octreeNode表示在八叉树队列中
-        // 			this._octreeNode.getManagerNode().addMotionObject(this);
-        // 	}
-        // }
         this._addReflectionProbeUpdate();
         this._subUniformBufferData && (this._subUniformBufferData._needUpdate = true);
     }
@@ -486,9 +503,7 @@ export class BaseRender extends Component implements ISingletonElement {
      */
     _addReflectionProbeUpdate() {
         //TODO目前暂时不支持混合以及与天空盒模式，只支持simple和off
-        if (this._surportReflectionProbe && this._reflectionMode == 1) {
-            this._scene && this._scene._reflectionProbeManager.addMotionObject(this);
-        }
+        this._scene && this._scene._volumeManager.addMotionObject(this);
     }
 
     /**
