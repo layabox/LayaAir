@@ -20,7 +20,6 @@ export class StaticBatchMeshRender extends BaseRender {
         let render = new StaticBatchMeshRender();
 
         render.mergeInfo = info;
-        render.lightmapIndex = info.lightmapIndex;
 
         return render;
     }
@@ -36,9 +35,8 @@ export class StaticBatchMeshRender extends BaseRender {
     }
     public set mergeInfo(value: StaticMeshMergeInfo) {
         this._mergeInfo = value;
-        let staticMesh = StaticBatchMesh.create(value);
 
-        this._mergeInfo = value;
+        let staticMesh = StaticBatchMesh.create(value);
         this._staticMesh = staticMesh;
         this.lightmapIndex = value.lightmapIndex;
 
@@ -155,5 +153,9 @@ export class StaticBatchMeshRender extends BaseRender {
         this._renderElements = null;
         this._staticMesh.destroy();
         this._staticMesh = null;
+    }
+
+    _cloneTo(dest: StaticBatchMeshRender) {
+        dest.mergeInfo = this.mergeInfo;
     }
 }
