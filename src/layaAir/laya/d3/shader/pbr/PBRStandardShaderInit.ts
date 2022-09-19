@@ -49,7 +49,7 @@ export class PBRStandardShaderInit {
             "u_Anisotropy": 0
         };
 
-        let shader = Shader3D.add("PBR");
+        let shader = Shader3D.add("PBR", true, true);
         let subShader = new SubShader(SubShader.DefaultAttributeMap, uniformMap, defaultValue);
         shader.addSubShader(subShader);
         let shadingPass = subShader.addShaderPass(PBRStandardVS, PBRStandardFS);
