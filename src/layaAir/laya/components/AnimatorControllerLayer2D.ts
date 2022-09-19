@@ -40,20 +40,27 @@ export class AnimatorControllerLayer2D implements IClone {
         if (this._states === states)
             return;
 
-        if (this._states.length > 0) {
-            let removed = this._states.filter(s => states.indexOf(s) == -1);
-            for (let state of removed)
-                this.removeState(state);
+        for (let i = this.states.length - 1; i >= 0; i--) {
+            this.removeState(this.states[i]);
+        }
+        for (let i = states.length - 1; i >= 0; i--) {
+            this.addState(states[i]);
         }
 
-        if (states.length > 0) {
-            let newAdded = states.filter(s => this._states.indexOf(s) == -1);
-            for (let state of newAdded)
-                this.addState(state);
-        }
+        // if (this._states.length > 0) {
+        //     let removed = this._states.filter(s => states.indexOf(s) == -1);
+        //     for (let state of removed)
+        //         this.removeState(state);
+        // }
 
-        this._states.length = 0;
-        this._states.push(...states);
+        // if (states.length > 0) {
+        //     let newAdded = states.filter(s => this._states.indexOf(s) == -1);
+        //     for (let state of newAdded)
+        //         this.addState(state);
+        // }
+
+        // this._states.length = 0;
+        // this._states.push(...states);
     }
     public get states(): ReadonlyArray<AnimatorState2D> {
         return this._states;
