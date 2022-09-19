@@ -114,7 +114,7 @@ export class RenderElement {
      * @internal
      */
     getInvertFront(): boolean {
-        return this.transform._isFrontFaceInvert;
+        return this.transform ? this.transform._isFrontFaceInvert : false;
     }
 
     /**
