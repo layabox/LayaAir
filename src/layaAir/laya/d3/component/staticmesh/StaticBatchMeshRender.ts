@@ -17,11 +17,9 @@ export class StaticBatchMeshRender extends BaseRender {
 
     static create(info: StaticMeshMergeInfo): StaticBatchMeshRender {
 
-        let staticMesh = StaticBatchMesh.create(info);
-
         let render = new StaticBatchMeshRender();
 
-        render.staticMesh = staticMesh;
+        render.mergeInfo = info;
         render.lightmapIndex = info.lightmapIndex;
 
         return render;
@@ -31,32 +29,48 @@ export class StaticBatchMeshRender extends BaseRender {
     public get staticMesh(): StaticBatchMesh {
         return this._staticMesh;
     }
-    public set staticMesh(value: StaticBatchMesh) {
-        this._staticMesh = value;
-        this.geometryBounds = value.bounds;
+
+    private _mergeInfo: StaticMeshMergeInfo;
+    public get mergeInfo(): StaticMeshMergeInfo {
+        return this._mergeInfo;
+    }
+    public set mergeInfo(value: StaticMeshMergeInfo) {
+        this._mergeInfo = value;
+        let staticMesh = StaticBatchMesh.create(value);
+
+        this._mergeInfo = value;
+        this._staticMesh = staticMesh;
+        this.lightmapIndex = value.lightmapIndex;
+
+        this._staticMesh = staticMesh;
+        this.geometryBounds = staticMesh.bounds;
         let meshDefines = MeshFilter._meshVerticeDefine;
         let defineDatas = this._shaderValues;
-        this._getMeshDefine(value, meshDefines);
+        this._getMeshDefine(staticMesh, meshDefines);
 
         for (const meshDef of meshDefines) {
             defineDatas.addDefine(meshDef);
         }
 
         this._renderElements.forEach(element => {
+            element.material._removeReference();
             element.destroy();
         })
 
         this._renderElements = [];
 
-        value._staticSubMeshes.forEach((subMesh, material) => {
+        staticMesh._staticSubMeshes.forEach((subMesh, material) => {
             let element = new StaticBatchMeshRenderElement();
             this._renderElements.push(element);
             element.render = this;
             element.material = material;
             element.setGeometry(subMesh);
+
+            material._addReference();
         });
 
-        value.bounds.cloneTo(this.bounds);
+        staticMesh.bounds.cloneTo(this.bounds);
+
     }
 
     _singleton: boolean;
@@ -117,4 +131,29 @@ export class StaticBatchMeshRender extends BaseRender {
         }
     }
 
+    onEnable() {
+        super.onEnable();
+        this.mergeInfo.renders.forEach(render => {
+            render.setRenderbitFlag(BaseRender.RenderBitFlag_Batch, true);
+        });
+
+    }
+
+    onDisable() {
+        super.onDisable();
+        this.mergeInfo.renders.forEach(render => {
+            render.setRenderbitFlag(BaseRender.RenderBitFlag_Batch, false);
+        });
+    }
+
+    onDestroy() {
+        super.onDestroy();
+        this._renderElements.forEach(element => {
+            element.material._removeReference();
+            element.destroy();
+        });
+        this._renderElements = null;
+        this._staticMesh.destroy();
+        this._staticMesh = null;
+    }
 }

@@ -59,8 +59,6 @@ export class StaticBatchMesh {
         let bounds: Bounds;
 
         for (const render of info.renders) {
-            render.setRenderbitFlag(BaseRender.RenderBitFlag_Batch, true);
-
             let lightmapScaleOffset = render.lightmapScaleOffset;
 
             if (!bounds) {
