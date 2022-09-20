@@ -510,7 +510,7 @@ export class BaseRender extends Component implements ISingletonElement {
         var sharedMats: Material[] = this._sharedMaterials;
         for (var i: number = 0, n: number = sharedMats.length; i < n; i++) {
             var mat: Material = sharedMats[i];
-            this._surportReflectionProbe = (this._surportReflectionProbe || (mat && mat._shader._supportReflectionProbe));//TODO：最后一个判断是否合理
+            this._surportReflectionProbe ||= (this._surportReflectionProbe || (mat && mat._shader._supportReflectionProbe));//TODO：最后一个判断是否合理
         }
     }
 
@@ -588,6 +588,7 @@ export class BaseRender extends Component implements ISingletonElement {
      */
     _setBelongScene(scene: Scene3D): void {
         this._scene = scene;
+        this._onWorldMatNeedChange(1);
         Stat.renderNode++;
         if (false) {
             this._subUniformBufferData = BaseRender._transLargeUbO.create();
