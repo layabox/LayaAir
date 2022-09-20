@@ -45,6 +45,13 @@ export class InstanceRenderElement extends RenderElement {
         this._instanceBatchElementList = new SingletonList();
     }
 
+    /**
+     * @internal
+     */
+     getInvertFront(): boolean {
+        return false;
+    }
+
     protected _createRenderElementOBJ() {
         this._renderElementOBJ = LayaGL.renderOBJCreate.createInstanceRenderElement();
     }
@@ -106,6 +113,7 @@ export class InstanceRenderElement extends RenderElement {
         this._geometry._updateRenderParams(context);
         this.compileShader(context._contextOBJ);
         this._geometry.instanceCount = this._instanceBatchElementList.length;
+        this._renderElementOBJ._invertFront = this.getInvertFront();
     }
 
     updateInstanceData(mesh: Mesh) {

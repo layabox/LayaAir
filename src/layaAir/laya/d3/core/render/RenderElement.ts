@@ -217,6 +217,7 @@ export class RenderElement {
     }
 
     _renderUpdatePre(context: RenderContext3D) {
+
         var sceneMark: number = Scene3D._updateMark;
         var transform: Transform3D = this.transform;
         context.renderElement = this;
