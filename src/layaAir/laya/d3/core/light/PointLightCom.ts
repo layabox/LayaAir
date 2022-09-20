@@ -58,7 +58,7 @@ export class PointLightCom extends Light {
      * @override
      * @internal
      */
-    _cloneTo(dest: Component): void {
+    _cloneTo(dest: PointLightCom): void {
         super._cloneTo(dest);
         var pointlight = dest as PointLightCom;
         pointlight.range = this.range;

@@ -14,7 +14,8 @@ import { Color } from "../../math/Color";
 export enum LightType {
     Directional,
     Spot,
-    Point
+    Point,
+    Area
 }
 
 export enum LightMode {
