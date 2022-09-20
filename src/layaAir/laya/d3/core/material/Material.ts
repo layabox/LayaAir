@@ -22,6 +22,7 @@ import { RenderState } from "./RenderState";
 import { Matrix4x4 } from "../../math/Matrix4x4";
 import { Color } from "../../math/Color";
 import { ILaya } from "../../../../ILaya";
+import { CullMode } from "../../../RenderEngine/RenderEnum/CullMode";
 
 export enum MaterialRenderMode {
     /**渲染状态_不透明。*/
@@ -318,7 +319,7 @@ export class Material extends Resource implements IClone {
                 this.alphaTest = false;
                 this.renderQueue = Material.RENDERQUEUE_OPAQUE;
                 this.depthWrite = true;
-                this.cull = RenderState.CULL_BACK;
+                //this.cull = RenderState.CULL_BACK;
                 this.blend = RenderState.BLEND_DISABLE;
                 this.depthTest = RenderState.DEPTHTEST_LESS;
                 break;
@@ -326,7 +327,7 @@ export class Material extends Resource implements IClone {
                 this.renderQueue = Material.RENDERQUEUE_ALPHATEST;
                 this.alphaTest = true;
                 this.depthWrite = true;
-                this.cull = RenderState.CULL_BACK;
+                //this.cull = RenderState.CULL_BACK;
                 this.blend = RenderState.BLEND_DISABLE;
                 this.depthTest = RenderState.DEPTHTEST_LESS;
                 break;
@@ -334,7 +335,7 @@ export class Material extends Resource implements IClone {
                 this.renderQueue = Material.RENDERQUEUE_TRANSPARENT;
                 this.alphaTest = false;
                 this.depthWrite = false;
-                this.cull = RenderState.CULL_BACK;
+                //this.cull = RenderState.CULL_BACK;
                 this.blend = RenderState.BLEND_ENABLE_ALL;
                 this.blendSrc = RenderState.BLENDPARAM_SRC_ALPHA;
                 this.blendDst = RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA;
@@ -344,7 +345,7 @@ export class Material extends Resource implements IClone {
                 this.renderQueue = Material.RENDERQUEUE_TRANSPARENT;
                 this.alphaTest = false;
                 this.depthWrite = false;
-                this.cull = RenderState.CULL_NONE;
+                //this.cull = RenderState.CULL_NONE;
                 this.blend = RenderState.BLEND_ENABLE_ALL;
                 this.blendSrc = RenderState.BLENDPARAM_SRC_ALPHA;
                 this.blendDst = RenderState.BLENDPARAM_ONE;
@@ -355,7 +356,7 @@ export class Material extends Resource implements IClone {
                 this.renderQueue = Material.RENDERQUEUE_TRANSPARENT;
                 this.alphaTest = false;
                 this.depthWrite = false;
-                this.cull = RenderState.CULL_NONE;
+                //this.cull = RenderState.CULL_NONE;
                 this.blend = RenderState.BLEND_ENABLE_ALL;
                 this.blendSrc = RenderState.BLENDPARAM_SRC_ALPHA;
                 this.blendDst = RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA;
@@ -375,6 +376,7 @@ export class Material extends Resource implements IClone {
         this._shaderValues = LayaGL.renderOBJCreate.createShaderData(this);
         this.renderQueue = Material.RENDERQUEUE_OPAQUE;
         this.alphaTest = false;
+        this.cull = CullMode.Back;
     }
 
     /**
