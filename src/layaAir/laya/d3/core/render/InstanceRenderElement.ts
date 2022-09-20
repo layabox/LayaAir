@@ -36,7 +36,7 @@ export class InstanceRenderElement extends RenderElement {
     /**@internal */
     _isInPool: boolean;
     /**@internal recover renderData*/
-    private oriRendertype:number;
+    private oriRendertype: number;
 
 
     constructor() {
@@ -48,7 +48,7 @@ export class InstanceRenderElement extends RenderElement {
     /**
      * @internal
      */
-     getInvertFront(): boolean {
+    getInvertFront(): boolean {
         return false;
     }
 
@@ -89,17 +89,17 @@ export class InstanceRenderElement extends RenderElement {
             this.render._renderUpdate(context, transform);
             this.render._sceneUpdateMark = sceneMark;
             //Update Instance Data
-          
+
         }
         //camera
         var updateMark: number = Camera._updateMark;
         //var updateRender: boolean = (!!this.render) ? (updateMark !== this.render._updateMark || this.renderType !== this.render._updateRenderType) : false;
         if (true) {//此处处理更新为裁剪和合并后的，可避免浪费
             this.render._renderUpdateWithCamera(context, transform);
-            this.oriRendertype =  this.render._updateRenderType 
+            this.oriRendertype = this.render._updateRenderType
             this.render._updateMark = updateMark;
             this.render._updateRenderType = this.renderType;
-            
+
             let mesh = (this._geometry as MeshInstanceGeometry).subMesh._mesh;
             this.updateInstanceData(mesh);
         }
@@ -123,8 +123,8 @@ export class InstanceRenderElement extends RenderElement {
         switch (mesh._instanceBufferStateType) {
             case Mesh.MESH_INSTANCEBUFFER_TYPE_SIMPLEANIMATOR:
                 //worldMatrix
-                var worldMatrixData: Float32Array = (this._renderElementOBJ as InstanceRenderElementOBJ).getUpdateData(0,16 * InstanceRenderElement.maxInstanceCount);
-                (this._renderElementOBJ as InstanceRenderElementOBJ).addUpdateBuffer(mesh._instanceWorldVertexBuffer,16);
+                var worldMatrixData: Float32Array = (this._renderElementOBJ as InstanceRenderElementOBJ).getUpdateData(0, 16 * InstanceRenderElement.maxInstanceCount);
+                (this._renderElementOBJ as InstanceRenderElementOBJ).addUpdateBuffer(mesh._instanceWorldVertexBuffer, 16);
                 var insBatches = this._instanceBatchElementList;
                 var elements = insBatches.elements;
                 var count: number = insBatches.length;
@@ -141,7 +141,7 @@ export class InstanceRenderElement extends RenderElement {
                         worldMatrixData.set(elements[i].transform.worldMatrix.elements, i * 16);
                 }
                 //simpleAnimationData
-                var simpleAnimatorData: Float32Array = (this._renderElementOBJ as InstanceRenderElementOBJ).getUpdateData(1,4 * InstanceRenderElement.maxInstanceCount);
+                var simpleAnimatorData: Float32Array = (this._renderElementOBJ as InstanceRenderElementOBJ).getUpdateData(1, 4 * InstanceRenderElement.maxInstanceCount);
                 if (bone) {
                     for (var i: number = 0; i < count; i++) {
                         var render: SimpleSkinnedMeshRenderer = (elements[i].render) as SimpleSkinnedMeshRenderer;
@@ -158,12 +158,12 @@ export class InstanceRenderElement extends RenderElement {
                         simpleAnimatorData[offset + 1] = 0;
                     }
                 }
-                (this._renderElementOBJ as InstanceRenderElementOBJ).addUpdateBuffer(mesh._instanceSimpleAniVertexBuffer,4)
+                (this._renderElementOBJ as InstanceRenderElementOBJ).addUpdateBuffer(mesh._instanceSimpleAniVertexBuffer, 4)
                 break;
             case Mesh.MESH_INSTANCEBUFFER_TYPE_NORMAL:
 
-                var worldMatrixData: Float32Array = (this._renderElementOBJ as InstanceRenderElementOBJ).getUpdateData(0,16 * InstanceRenderElement.maxInstanceCount);
-                (this._renderElementOBJ as InstanceRenderElementOBJ).addUpdateBuffer(mesh._instanceWorldVertexBuffer,16);
+                var worldMatrixData: Float32Array = (this._renderElementOBJ as InstanceRenderElementOBJ).getUpdateData(0, 16 * InstanceRenderElement.maxInstanceCount);
+                (this._renderElementOBJ as InstanceRenderElementOBJ).addUpdateBuffer(mesh._instanceWorldVertexBuffer, 16);
                 var insBatches = this._instanceBatchElementList;
                 var elements: RenderElement[] = insBatches.elements;
                 var count: number = insBatches.length;
