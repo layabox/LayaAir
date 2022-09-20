@@ -903,7 +903,7 @@ export class Animator extends Component {
                             if (!nodeOwner.isMaterial) {
                                 pro && (pro[value] = this._applyVec4(pro[value], nodeOwner, additive, weight, isFirstLayer, <Vector4>realtimeDatas[i]));
                             } else {
-                                pro && pro.getVector4(value) && (pro as Material).setVector4(value, this._applyVec4(pro.getVector(value), nodeOwner, additive, weight, isFirstLayer, <Vector4>realtimeDatas[i]));
+                                pro && pro.getVector4(value) && (pro as Material).setVector4(value, this._applyVec4(pro.getVector4(value), nodeOwner, additive, weight, isFirstLayer, <Vector4>realtimeDatas[i]));
                             }
                             break;
                         case KeyFrameValueType.Color://Color
