@@ -1,6 +1,5 @@
 import { ILaya } from "../../ILaya";
 import { EventDispatcher } from "../events/EventDispatcher";
-import { URL } from "../net/URL";
 
 var _idCounter: number = 0;
 var _disposingCounter: number = 0;
@@ -99,6 +98,11 @@ export class Resource extends EventDispatcher {
     url: string;
     /**获取资源的UUID。 */
     uuid: string;
+    /** 如果设置一个已缓存的资源obsolute为true，则
+     * 1）getRes仍然可以返回这个资源；
+     * 2）下次加载时会忽略这个缓存而去重新加载。。
+     */
+    obsolute?: boolean;
 
     /**
      * 获取唯一标识ID,通常用于识别。

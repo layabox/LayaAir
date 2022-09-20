@@ -40,7 +40,7 @@ export class HierarchyLoader implements IResourceLoader {
     private _load(api: HierarchyParserAPI, task: ILoadTask, data: any, version: number): Promise<HierarchyResource> {
         let basePath = URL.getPath(task.url);
         let links = api.collectResourceLinks(data, basePath);
-        return Promise.all(links.map(link => task.loader.load(link, null, task.progress.createCallback()))).then((resArray: any[]) => {
+        return task.loader.load(links, null, task.progress.createCallback()).then((resArray: any[]) => {
             let res = new MyHierarchyResource(api, data, version);
             res.addDeps(resArray);
             return res;

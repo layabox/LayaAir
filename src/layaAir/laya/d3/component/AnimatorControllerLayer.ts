@@ -88,12 +88,28 @@ export class AnimatorControllerLayer implements IClone {
 
     //@internal
     public get defaultStateName() {
-        return this.defaultState?.name;
+        if (!this._defaultState) {
+            return null;
+        }
+        return this._defaultState.name;
     }
 
+    private _defaultStateNameCatch: string;
     //@internal
     public set defaultStateName(value: string) {
         this._defaultState = this._statesMap[value];
+        if (null == this._defaultState) {
+            if (0 == this._states.length) {
+                this._defaultStateNameCatch = value;
+            } else {
+                for (var i = this._states.length - 1; i >= 0; i--) {
+                    if (this._states[i].name == value) {
+                        this._defaultState = this._states[i];
+                        break;
+                    }
+                }
+            }
+        }
     }
 
     //@internal
@@ -198,6 +214,10 @@ export class AnimatorControllerLayer implements IClone {
         } else {
             this._statesMap[stateName] = state;
             this._states.push(state);
+            if (stateName == this._defaultStateNameCatch) {
+                this._defaultState = state;
+                this._defaultStateNameCatch = null;
+            }
 
             if (this._animator) {
                 (state._clip) && (state._clip!._addReference());
