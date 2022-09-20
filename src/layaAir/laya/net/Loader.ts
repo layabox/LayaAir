@@ -329,10 +329,15 @@ export class Loader extends EventDispatcher {
             set.add(formattedUrl);
         }
 
+        let obsoluteRes: Resource;
         if (options.cache == null || options.cache) {
             let cacheRes = Loader.getRes(formattedUrl, type);
-            if (cacheRes)
-                return Promise.resolve(cacheRes);
+            if (cacheRes) {
+                if ((cacheRes instanceof Resource) && cacheRes.obsolute)
+                    obsoluteRes = cacheRes;
+                else
+                    return Promise.resolve(cacheRes);
+            }
         }
 
         let loadingKey = formattedUrl;
