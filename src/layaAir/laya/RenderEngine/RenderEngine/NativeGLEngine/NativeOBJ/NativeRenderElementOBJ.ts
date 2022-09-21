@@ -108,5 +108,6 @@ export class NativeRenderElementOBJ implements IRenderElement {
 
     _destroy() {
         this._nativeObj._destroy();
+        this.transform = null;
     }
 }
