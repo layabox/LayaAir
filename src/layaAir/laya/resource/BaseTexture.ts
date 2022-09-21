@@ -136,6 +136,7 @@ export class BaseTexture extends Resource {
         this._width = width;
         this._height = height;
         this._format = format;
+        this.destoryedImmediately = false;
     }
 
     /**
@@ -181,7 +182,7 @@ export class BaseTexture extends Resource {
                 return false;
         }
     }
-    
+
     /**
      * 获取纹理格式的字节数
      * @internal
@@ -200,7 +201,7 @@ export class BaseTexture extends Resource {
                 return 2;
             case TextureFormat.R32G32B32A32:
                 return 4;
-                
+
             default:
                 throw "Texture2D: unknown format.";
         }

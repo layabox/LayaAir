@@ -44,4 +44,20 @@ export class HierarchyResource extends Resource {
         for (let res of this._deps)
             res._removeReference();
     }
+
+    public get obsolute(): boolean {
+        if (this._obsolute)
+            return true;
+
+        for (let dep of this._deps) {
+            if ((dep instanceof HierarchyResource) && dep._obsolute)
+                return true;
+        }
+
+        return false;
+    }
+
+    public set obsolute(value: boolean) {
+        this._obsolute = value;
+    }
 }

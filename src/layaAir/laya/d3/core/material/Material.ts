@@ -373,6 +373,7 @@ export class Material extends Resource implements IClone {
         this.renderQueue = Material.RENDERQUEUE_OPAQUE;
         this.alphaTest = false;
         this.cull = CullMode.Back;
+        this.destoryedImmediately = false;
     }
 
     /**

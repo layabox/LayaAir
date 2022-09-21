@@ -184,7 +184,7 @@ export class Mesh extends Resource implements IClone {
     /**
      * 设置indexformat
      */
-    set indexFormat(value:IndexFormat){
+    set indexFormat(value: IndexFormat) {
         this._indexFormat = value
         this._subMeshes.forEach(element => {
             element.indexFormat = value;
@@ -200,6 +200,7 @@ export class Mesh extends Resource implements IClone {
         this._bounds = new Bounds(new Vector3(), new Vector3());
         this._isReadable = isReadable;
         this._subMeshes = [];
+        this.destoryedImmediately = false;
     }
 
     /**

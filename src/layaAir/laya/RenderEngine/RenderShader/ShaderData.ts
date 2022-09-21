@@ -604,8 +604,22 @@ export class ShaderData implements IClone {
 		return dest;
 	}
 
+	reset() {
+		for (var k in this._data) {
+			//维护Refrence
+			var value: any = this._data[k];
+			if (value instanceof Resource) {
+				value._removeReference();
+			}
+		}
+		this._data = {};
+		this._gammaColorMap.clear();
+		this._uniformBufferDatas.clear();
+		this._uniformBuffersMap.clear();
+		this._defineDatas.clear();
+	}
+
 	destroy(): void {
-		this._data = null;
 		this._defineDatas.destroy();
 		this._defineDatas = null;
 		for (var k in this._data) {
@@ -615,6 +629,7 @@ export class ShaderData implements IClone {
 				value._removeReference();
 			}
 		}
+		this._data = null;
 		this._gammaColorMap.clear();
 		this._gammaColorMap = null;
 		// // 使用对象解析

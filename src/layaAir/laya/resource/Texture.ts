@@ -418,11 +418,16 @@ export class Texture extends Resource {
         }
     }
 
-    /**
-     * @inheritDoc
-     */
     get valid(): boolean {
         return !this._destroyed && this._bitmap && !this._bitmap.destroyed;
+    }
+
+    public get obsolute(): boolean {
+        return this._obsolute || !this._bitmap || this._bitmap.destroyed;
+    }
+
+    public set obsolute(value: boolean) {
+        this._obsolute = value;
     }
 
     /**

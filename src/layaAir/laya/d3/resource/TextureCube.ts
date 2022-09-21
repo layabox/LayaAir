@@ -117,6 +117,4 @@ export class TextureCube extends BaseTexture {
     get defaultTexture(): BaseTexture {
         return TextureCube.grayTexture;
     }
-
 }
-
