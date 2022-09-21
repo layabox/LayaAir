@@ -9,7 +9,7 @@ var _disposingCounter: number = 0;
  */
 export class Resource extends EventDispatcher {
     /** @private */
-    private static _idResourcesMap: any = {};
+    static _idResourcesMap: any = {};
     /** @private 以字节为单位。*/
     private static _cpuMemory: number = 0;
     /** @private 以字节为单位。*/
@@ -89,6 +89,7 @@ export class Resource extends EventDispatcher {
     protected _destroyed?: boolean;
     /**@private */
     protected _referenceCount: number = 0;
+    protected _obsolute: boolean;
 
     /**是否加锁，如果true为不能使用自动释放机制。*/
     lock?: boolean;
@@ -98,11 +99,6 @@ export class Resource extends EventDispatcher {
     url: string;
     /**获取资源的UUID。 */
     uuid: string;
-    /** 如果设置一个已缓存的资源obsolute为true，则
-     * 1）getRes仍然可以返回这个资源；
-     * 2）下次加载时会忽略这个缓存而去重新加载。。
-     */
-    obsolute?: boolean;
 
     /**是否在引用计数为0的时候立马删除他 */
     destoryedImmediately: boolean;
@@ -135,11 +131,17 @@ export class Resource extends EventDispatcher {
         return this._destroyed;
     }
 
-    /**
-     * 是否有效，未被销毁且依赖的资源未被销毁
+
+    /** 如果设置一个已缓存的资源obsolute为true，则
+     * 1）getRes仍然可以返回这个资源；
+     * 2）下次加载时会忽略这个缓存而去重新加载。。
      */
-    get valid(): boolean {
-        return !this._destroyed;
+    get obsolute(): boolean {
+        return this._obsolute;
+    }
+
+    set obsolute(value: boolean) {
+        this._obsolute = value;
     }
 
     /**

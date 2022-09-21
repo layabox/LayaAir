@@ -23,6 +23,7 @@ export interface ILoadTask {
     readonly uuid: string;
     readonly ext: string;
     readonly loader: Loader;
+    readonly obsoluteInst: Resource;
     readonly options: Readonly<ILoadOptions>;
     readonly progress: IBatchProgress;
 }
@@ -374,6 +375,7 @@ export class Loader extends EventDispatcher {
         if (onProgress)
             task.onProgress.add(onProgress);
         task.loader = this;
+        task.obsoluteInst = obsoluteRes;
 
         let assetLoader = new loaderType();
         this._loadings.set(loadingKey, task);
@@ -655,7 +657,7 @@ export class Loader extends EventDispatcher {
         else
             ret = resArr[1]; //主资源
 
-        if ((ret instanceof Resource) && !ret.valid)
+        if ((ret instanceof Resource) && ret.destroyed)
             return null;
         else
             return ret;
@@ -888,6 +890,7 @@ class LoadTask implements ILoadTask {
     options: ILoadOptions;
     loader: Loader;
     progress: BatchProgress;
+    obsoluteInst: Resource;
 
     onProgress: Delegate;
     onComplete: Delegate;
@@ -905,6 +908,7 @@ class LoadTask implements ILoadTask {
         this.onProgress.clear();
         this.onComplete.clear();
         this.progress.reset();
+        this.obsoluteInst = null;
     }
 }
 
