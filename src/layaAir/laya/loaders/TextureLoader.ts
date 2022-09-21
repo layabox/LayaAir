@@ -130,7 +130,7 @@ class TextureLoader implements IResourceLoader {
 
         let tex = <Texture>task.obsoluteInst;
         if (tex) { //recover
-            tex.bitmap = tex2D;
+            tex.setTo(tex2D);
             tex.obsolute = false;
         }
         else
