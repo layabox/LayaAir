@@ -6,13 +6,12 @@ import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import { PixelLineSprite3D } from "laya/d3/core/pixelLine/PixelLineSprite3D";
-import { ReflectionProbe } from "laya/d3/core/reflectionProbe/ReflectionProbe";
 import { Utils3D } from "laya/d3/utils/Utils3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { Color } from "laya/d3/math/Color";
 
 export class ReflectionProbeDemo {
-constructor() {
+	constructor() {
 		//初始化引擎
 		Laya3D.init(0, 0);
 		Stat.show();
@@ -24,13 +23,13 @@ constructor() {
 
 			//获取场景中的相机
 			var camera: Camera = (<Camera>scene.getChildByName("Camera"));
-			 camera.addComponent(CameraMoveScript);
+			camera.addComponent(CameraMoveScript);
 
-			 var reflectionProb:ReflectionProbe = scene.getChildByName("ReflectionProb") as ReflectionProbe;
-			 var lineSprite3D:PixelLineSprite3D = new PixelLineSprite3D(50,null);
-			 scene.addChild(lineSprite3D);
-			 //@ts-ignore  画出反射探针的volume包围盒
-			 Utils3D._drawBound(lineSprite3D,reflectionProb.bounds,Color.RED);
+			//var reflectionProb: ReflectionProbe = scene.getChildByName("ReflectionProb") as ReflectionProbe;
+			var lineSprite3D: PixelLineSprite3D = new PixelLineSprite3D(50, null);
+			scene.addChild(lineSprite3D);
+			//@ts-ignore  画出反射探针的volume包围盒
+			//Utils3D._drawBound(lineSprite3D, reflectionProb.bounds, Color.RED);
 		}));
 	}
 }
