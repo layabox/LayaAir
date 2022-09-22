@@ -573,9 +573,16 @@ export class ShaderData implements IClone {
 					((<Vector3>value)).cloneTo(v3);
 					destData[k] = v3;
 				} else if (value instanceof Vector4) {
-					var v4 = (destData[k]) || (destData[k] = new Vector4());
-					((<Vector4>value)).cloneTo(v4);
-					destData[k] = v4;
+					let color = this.getColor(parseInt(k));
+					if (color) {
+						let clonecolor = color.clone();
+						destObject.setColor(parseInt(k), clonecolor);
+					} else {
+						var v4 = (destData[k]) || (destData[k] = new Vector4());
+						((<Vector4>value)).cloneTo(v4);
+						destData[k] = v4;
+					}
+
 				} else if (value instanceof Matrix4x4) {
 					var mat = (destData[k]) || (destData[k] = new Matrix4x4());
 					((<Matrix4x4>value)).cloneTo(mat);
