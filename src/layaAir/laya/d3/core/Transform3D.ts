@@ -71,19 +71,19 @@ export class Transform3D extends EventDispatcher {
 	protected _worldMatrix: Matrix4x4 = new Matrix4x4();
 
 	/** @internal */
-	_children: Transform3D[]|null = null;
+	_children: Transform3D[] | null = null;
 	/**@internal 如果为true 表示自身相对于父节点并无任何改变，将通过这个参数忽略计算*/
-	protected _isDefaultMatrix:boolean = false;
+	protected _isDefaultMatrix: boolean = false;
 
 	/** @internal */
-	_parent: Transform3D|null = null;
+	_parent: Transform3D | null = null;
 	/**@internal */
 	_transformFlag: number = 0;
 
 
 	/**@internal */
-	get isDefaultMatrix():boolean{
-		if(this._getTransformFlag(Transform3D.TRANSFORM_LOCALMATRIX)){
+	get isDefaultMatrix(): boolean {
+		if (this._getTransformFlag(Transform3D.TRANSFORM_LOCALMATRIX)) {
 			let localMat = this.localMatrix;
 		}
 		return this._isDefaultMatrix;
@@ -324,7 +324,7 @@ export class Transform3D extends EventDispatcher {
 		let rot = this.localRotationEuler;
 		rot.z = value;
 		this.localRotationEuler = rot;
-	}                                                                                                      
+	}
 
 	/**
 	 * 局部空间欧拉角。
@@ -466,11 +466,11 @@ export class Transform3D extends EventDispatcher {
 	 */
 	get worldMatrix(): Matrix4x4 {
 		if (this._getTransformFlag(Transform3D.TRANSFORM_WORLDMATRIX)) {
-			if (this._parent != null){
+			if (this._parent != null) {
 				//这里将剔除单位矩阵的计算
 				let effectiveTrans = this._parent;
-				
-				while(effectiveTrans._parent && effectiveTrans.isDefaultMatrix){
+
+				while (effectiveTrans._parent && effectiveTrans.isDefaultMatrix) {
 					effectiveTrans = effectiveTrans._parent;
 				}
 				Matrix4x4.multiply(effectiveTrans.worldMatrix, this.localMatrix, this._worldMatrix);
@@ -713,18 +713,18 @@ export class Transform3D extends EventDispatcher {
 	 * @param	up 向上向量。
 	 * @param	isLocal 是否局部空间。
 	 */
-	lookAt(target: Vector3, up: Vector3, isLocal: boolean = false,isCamera:boolean = true): void {
+	lookAt(target: Vector3, up: Vector3, isLocal: boolean = false, isCamera: boolean = true): void {
 		var eye: Vector3;
 		if (isLocal) {
 			eye = this._localPosition;
 			if (Math.abs(eye.x - target.x) < MathUtils3D.zeroTolerance && Math.abs(eye.y - target.y) < MathUtils3D.zeroTolerance && Math.abs(eye.z - target.z) < MathUtils3D.zeroTolerance)
 				return;
-			if(isCamera){
+			if (isCamera) {
 				Quaternion.lookAt(this._localPosition, target, up, this._localRotation);
 				this._localRotation.invert(this._localRotation);
-			}else{
-				Vector3.subtract(this.localPosition,target,Transform3D._tempVector30);
-				Quaternion.rotationLookAt(Transform3D._tempVector30,up,this.localRotation);
+			} else {
+				Vector3.subtract(this.localPosition, target, Transform3D._tempVector30);
+				Quaternion.rotationLookAt(Transform3D._tempVector30, up, this.localRotation);
 			}
 
 			this.localRotation = this._localRotation;
@@ -733,12 +733,12 @@ export class Transform3D extends EventDispatcher {
 			eye = worldPosition;
 			if (Math.abs(eye.x - target.x) < MathUtils3D.zeroTolerance && Math.abs(eye.y - target.y) < MathUtils3D.zeroTolerance && Math.abs(eye.z - target.z) < MathUtils3D.zeroTolerance)
 				return;
-			if(isCamera){
+			if (isCamera) {
 				Quaternion.lookAt(worldPosition, target, up, this._rotation);
 				this._rotation.invert(this._rotation);
-			}else{
-				Vector3.subtract(this.position,target,Transform3D._tempVector30);
-				Quaternion.rotationLookAt(Transform3D._tempVector30,up,this._rotation);
+			} else {
+				Vector3.subtract(this.position, target, Transform3D._tempVector30);
+				Quaternion.rotationLookAt(Transform3D._tempVector30, up, this._rotation);
 			}
 			this.rotation = this._rotation;
 		}
@@ -750,11 +750,11 @@ export class Transform3D extends EventDispatcher {
 	 * @param up 
 	 * @param isLocal 
 	 */
-	objLookat(target: Vector3, up: Vector3, isLocal: boolean = false):void{
+	objLookat(target: Vector3, up: Vector3, isLocal: boolean = false): void {
 
 	}
 
-	
+
 
 	/**
 	 * 世界缩放。
@@ -820,9 +820,8 @@ export class Transform3D extends EventDispatcher {
 		this.setWorldLossyScale(value);
 	}
 
-	localToGlobal(value:Vector3,out:Vector3):void
-	{
-		Vector3.transformV3ToV3(value,this.worldMatrix,out);
+	localToGlobal(value: Vector3, out: Vector3): void {
+		Vector3.transformV3ToV3(value, this.worldMatrix, out);
 	}
 
 	/**
@@ -831,10 +830,9 @@ export class Transform3D extends EventDispatcher {
 		* @param out
 		* 
 		*/
-	globalToLocal(pos:Vector3,out:Vector3):void
-	{
+	globalToLocal(pos: Vector3, out: Vector3): void {
 		this.worldMatrix.invert(Transform3D._tempMatrix0);
-		Vector3.transformV3ToV3(pos,Transform3D._tempMatrix0,out);
+		Vector3.transformV3ToV3(pos, Transform3D._tempMatrix0, out);
 	}
 
 	/**
@@ -842,23 +840,22 @@ export class Transform3D extends EventDispatcher {
 	 * @param pos
 	 * @param out
 	 * 
-	 */		
-	toLocalNormal(pos:Vector3,out:Vector3):void
-	{
+	 */
+	toLocalNormal(pos: Vector3, out: Vector3): void {
 		this.worldMatrix.invert(Transform3D._tempMatrix0);
-		Vector3.TransformNormal(pos,Transform3D._tempMatrix0,out);
+		Vector3.TransformNormal(pos, Transform3D._tempMatrix0, out);
 	}
 
-	toDir(forward:Vector3, dir:Vector3){
+	toDir(forward: Vector3, dir: Vector3) {
 		//TODO 判断一样么
-		var wmat:Matrix4x4 = this.worldMatrix;
+		var wmat: Matrix4x4 = this.worldMatrix;
 		//var newForward:Vector3 = new Vector3();
 		//var newRot:Quaternion = new Quaternion();
 
 		//Vector3.TransformNormal(forward,wmat,newForward);
 		//Vector3.normalize(newForward,newForward);
 		//rotationTo(newRot,newForward,dir);
-		this.rotationTo(this.rotation,forward,dir);
+		this.rotationTo(this.rotation, forward, dir);
 		//Quaternion.multiply(rotation,newRot,rotation)
 		//DEBUG
 		//Quaternion.createFromAxisAngle(new Vector3(0,1,0),75*Math.PI/180,newRot)
@@ -866,7 +863,7 @@ export class Transform3D extends EventDispatcher {
 		this.rotation = this.rotation;
 	}
 
-	static  tmpVec3:Vector3 = new Vector3();
+	static tmpVec3: Vector3 = new Vector3();
 	/**
 	 * 这是一个 glmatrix中的函数
 	 * a,b都是规格化以后的向量
@@ -880,12 +877,12 @@ export class Transform3D extends EventDispatcher {
 	 * @param {vec3} b the destination vector
 	 * @returns {quat} out
 	 */
-	rotationTo(out:Quaternion, a:Vector3, b:Vector3):boolean {
-		var dot:number = Vector3.dot(a, b);
+	rotationTo(out: Quaternion, a: Vector3, b: Vector3): boolean {
+		var dot: number = Vector3.dot(a, b);
 		Vector3.Up
 		if (dot < -0.999999) {// 180度了，可以选择多个轴旋转
 			Vector3.cross(Vector3.UnitX, a, Transform3D.tmpVec3);
-			if (Vector3.scalarLength( Transform3D.tmpVec3) < 0.000001)
+			if (Vector3.scalarLength(Transform3D.tmpVec3) < 0.000001)
 				Vector3.cross(Vector3.UnitY, a, Transform3D.tmpVec3);
 			Vector3.normalize(Transform3D.tmpVec3, Transform3D.tmpVec3);
 			Quaternion.createFromAxisAngle(Transform3D.tmpVec3, Math.PI, out);
@@ -908,6 +905,7 @@ export class Transform3D extends EventDispatcher {
 		}
 		return false;
 	}
+
 }
 
 

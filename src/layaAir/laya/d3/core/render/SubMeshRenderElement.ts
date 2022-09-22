@@ -78,6 +78,7 @@ export class SubMeshRenderElement extends RenderElement {
 	 * @override
 	 */
 	destroy(): void {
+		(this.transform) && this.transform.off(Event.TRANSFORM_CHANGED, this, this._onWorldMatrixChanged);
 		super.destroy();
 		this.staticBatch = null;
 		this.instanceSubMesh = null;

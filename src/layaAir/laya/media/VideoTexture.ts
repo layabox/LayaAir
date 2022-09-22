@@ -10,6 +10,7 @@ import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetForma
 import { FilterMode } from "../RenderEngine/RenderEnum/FilterMode";
 import { WrapMode } from "../RenderEngine/RenderEnum/WrapMode";
 import { LayaEnv } from "../../LayaEnv";
+import { Texture2D } from "../resource/Texture2D";
 
 export const enum VideoType {
     MP4 = 1,
@@ -27,6 +28,7 @@ export class VideoTexture extends BaseTexture {
 
     private _source: string;
     private _listeningEvents: Record<string, (evt: Event) => void>;
+    private immediatelyPlay = false;
     /**
      * 创建VideoTexture对象，
      */
@@ -39,21 +41,17 @@ export class VideoTexture extends BaseTexture {
         this._listeningEvents = {};
 
         this._dimension = TextureDimension.Tex2D;
-        this._texture = LayaGL.textureContext.createTextureInternal(this._dimension, this.element.videoWidth, this.element.videoHeight, TextureFormat.R8G8B8, false, false);
-        this.wrapModeU = WrapMode.Clamp;
-        this.wrapModeV = WrapMode.Clamp;
-        this.filterMode = FilterMode.Bilinear;
-        LayaGL.textureContext.setTexturePixelsData(this._texture, null, false, false);
-        
+
+
         ele.setAttribute('crossorigin', 'Anonymous');
-        
+
         var style: any = this.element.style;
         style.position = 'absolute';
         style.top = '0px';
         style.left = '0px';
 
         // 默认放开webGL对纹理数据的跨域限制
-        
+
 
         // 默认放开webGL对纹理数据的跨域限制
         ele.setAttribute('crossorigin', 'anonymous');
@@ -84,13 +82,25 @@ export class VideoTexture extends BaseTexture {
         }
 
         ele.addEventListener("loadedmetadata", () => {
-            this._texture.width = this.element.videoWidth;
-            this._texture.height = this.element.videoHeight;
+            this._width = this.element.videoWidth;
+            this.height = this.element.videoHeight;
+            this._texture = LayaGL.textureContext.createTextureInternal(this._dimension, this.element.videoWidth, this.element.videoHeight, TextureFormat.R8G8B8, false, false);
+            this.wrapModeU = WrapMode.Clamp;
+            this.wrapModeV = WrapMode.Clamp;
+            this.filterMode = FilterMode.Bilinear;
+            LayaGL.textureContext.setTexturePixelsData(this._texture, null, false, false);
+            if (this.immediatelyPlay) {
+                this.play();
+            }
         });
     }
 
     get source(): string {
         return this._source;
+    }
+
+    get gammaCorrection() {
+        return 1;
     }
 
     /**
@@ -126,12 +136,28 @@ export class VideoTexture extends BaseTexture {
         this.onRender.invoke();
     }
 
+
+
+
     /**
      * 开始播放视频
      */
     play() {
-        this.element.play();
-        ILaya.timer.frameLoop(1, this, this.render);
+        if (!this._texture) {
+            this.immediatelyPlay = true;
+        } else {
+            this.element.play();
+            ILaya.timer.frameLoop(1, this, this.render);
+        }
+
+    }
+
+    _getSource() {
+        return this._texture ? this._texture.resource : null;
+    }
+
+    get defaultTexture() {
+        return Texture2D.whiteTexture;
     }
 
     /**

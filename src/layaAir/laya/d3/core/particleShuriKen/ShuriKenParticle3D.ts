@@ -115,9 +115,9 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 					break;
 				case "resources":
 					var resources: any = moduleData.resources;
-					for (var k in resources){
+					for (var k in resources) {
 						let res = Loader.getTexture2D(resources[k]);
-						if(!res){
+						if (!res) {
 							res = Loader.getRes(resources[k]);
 						}
 						module[k] = res;

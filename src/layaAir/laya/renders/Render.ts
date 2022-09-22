@@ -50,11 +50,11 @@ export class Render {
         Render._loopFunction = loopFun;
     }
 
-    private static _customEngine:IRenderEngine;
-    static set customRenderEngine(engine:IRenderEngine){
+    private static _customEngine: IRenderEngine;
+    static set customRenderEngine(engine: IRenderEngine) {
         Render._customEngine = engine;
     }
-    static get customRenderEngine(){
+    static get customRenderEngine() {
         return Render._customEngine;
     }
 
@@ -142,7 +142,7 @@ export class Render {
         const webglMode: WebGLMode = Config.useWebGL2 ? WebGLMode.Auto : WebGLMode.WebGL1;
 
         let engine: IRenderEngine;
-        if(!Render.customRenderEngine){
+        if (!Render.customRenderEngine) {
             if (LayaEnv.isConch && !(window as any).conchConfig.conchWebGL) {
                 engine = new NativeWebGLEngine(glConfig, webglMode);
                 engine.initRenderEngine(Render._mainCanvas.source);
@@ -155,7 +155,7 @@ export class Render {
                 var gl: WebGLRenderingContext = RenderStateContext.mainContext = engine.gl;
                 if (Config.printWebglOrder)
                     this._replaceWebglcall(gl);
-    
+
                 if (!gl)
                     return false;
                 if (gl) {
@@ -164,11 +164,11 @@ export class Render {
                 }
             }
         }
-        else{
+        else {
             engine = Render.customRenderEngine;
             engine.initRenderEngine(Render._mainCanvas.source);
         }
-        
+
         LayaGL.renderEngine = engine;
         //LayaGL.instance = gl;
         //native TODO

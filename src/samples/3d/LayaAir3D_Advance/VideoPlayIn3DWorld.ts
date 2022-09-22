@@ -10,6 +10,7 @@ import { ChinarMirrorPlane } from "../common/ChinarMirrorPlane";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { UnlitMaterial } from "laya/d3/core/material/UnlitMaterial";
 import { VideoTexture } from "laya/media/VideoTexture";
+import { Event } from "laya/events/Event";
 
 export class VideoPlayIn3DWorld {
     private videoPlane: MeshSprite3D;
@@ -34,7 +35,8 @@ export class VideoPlayIn3DWorld {
 
             //增加视频
             this.videoPlane = scene.getChildByName("moveclip") as MeshSprite3D;
-            this.createVideo("res/av/mov_bbb.mp4");
+            Laya.stage.on(Event.MOUSE_DOWN, this, this.createVideo, ["res/av/mov_bbb.mp4"]);
+            // this.createVideo("res/av/mov_bbb.mp4");
         }));
     }
 
