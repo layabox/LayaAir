@@ -4,6 +4,7 @@ import { Vector3 } from "../../../../d3/math/Vector3";
 import { Sprite3D } from "../../../../d3/core/Sprite3D";
 import { Transform3D } from "../../../../d3/core/Transform3D";
 import { NativeMemory } from "../CommonMemory/NativeMemory";
+import { EventDispatcher } from "laya/events/EventDispatcher";
 /**
  * <code>Transform3D</code> 类用于实现3D变换。
  */
@@ -16,6 +17,7 @@ export class NativeTransform3D  extends Transform3D {
     private float32Array: Float32Array;
 	private float64Array: Float64Array;
     private int32Array: Int32Array;
+	private eventDispatcher: EventDispatcher;
     _nativeObj: any;
 
 	/**
@@ -383,7 +385,8 @@ export class NativeTransform3D  extends Transform3D {
         this.float32Array = this.nativeMemory.float32Array;
 		this.float64Array = this.nativeMemory.float64Array;
         this.int32Array = this.nativeMemory.int32Array;
-        this._nativeObj = new (window as any).conchTransform(this.nativeMemory._buffer, this.event.bind(this));
+		this.eventDispatcher = new EventDispatcher();
+        this._nativeObj = new (window as any).conchTransform(this.nativeMemory._buffer, this.eventDispatcher.event.bind(this.eventDispatcher));
 	}
 
 	/**
@@ -523,6 +526,51 @@ export class NativeTransform3D  extends Transform3D {
         this._scale.z = this.float64Array[2] = value.z;
 		this._nativeObj.setWorldLossyScale();
 	}
+	hasListener(type: string): boolean {
+        return this.eventDispatcher.hasListener(type);
+    }
+
+    event(type: string, data?: any): boolean {
+        return this.eventDispatcher.event(type, data);
+    }
+
+    on(type: string, listener: Function): EventDispatcher;
+    on(type: string, caller: any, listener: Function, args?: any[]): EventDispatcher;
+    on(type: string, caller: any, listener?: Function, args?: any[]): EventDispatcher {
+		if (arguments.length == 2) {
+            listener = caller;
+            caller = null;
+        }
+		return this.eventDispatcher.on(type, caller, listener, args);
+    }
+
+    once(type: string, listener: Function): EventDispatcher;
+    once(type: string, caller: any, listener: Function, args?: any[]): EventDispatcher;
+    once(type: string, caller: any, listener?: Function, args?: any[]): EventDispatcher {
+		if (arguments.length == 2) {
+            listener = caller;
+            caller = null;
+        }
+		return this.eventDispatcher.once(type, caller, listener, args);
+    }
+
+    off(type: string, listener: Function): EventDispatcher;
+    off(type: string, caller: any, listener?: Function, args?: any[]): EventDispatcher;
+    off(type: string, caller: any, listener?: Function): EventDispatcher {
+		if (arguments.length == 2) {
+            listener = caller;
+            caller = null;
+        }
+		return this.eventDispatcher.off(type, caller, listener);
+    }
+
+    offAll(type?: string): EventDispatcher {
+        return this.eventDispatcher.offAll(type);
+    }
+
+    offAllCaller(caller: any): EventDispatcher {
+        return this.eventDispatcher.offAllCaller(caller);
+    }
 }
 
 
