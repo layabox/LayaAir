@@ -24,7 +24,7 @@ class MaterialLoader implements IResourceLoader {
                             return promise.then(url => {
                                 if (url)
                                     urls.push(url);
-                                this.load2(task, data, urls);
+                                return this.load2(task, data, urls);
                             });
                         }
                     }
