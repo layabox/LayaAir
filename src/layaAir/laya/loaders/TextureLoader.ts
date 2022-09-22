@@ -9,6 +9,7 @@ import { BaseTexture } from "../resource/BaseTexture";
 import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
 import { Browser } from "../utils/Browser";
 import { AssetDb } from "../resource/AssetDb";
+import { Resource } from "../resource/Resource";
 
 const metaFetchingOptions = { noRetry: true, silent: true };
 
@@ -88,6 +89,10 @@ class Texture2DLoader implements IResourceLoader {
                         tex = HDRTextureInfo._parseHDRTexture(data, propertyParams, constructParams);
                         break;
                 }
+
+                let obsoluteInst = <Texture2D>task.obsoluteInst;
+                if (obsoluteInst)
+                    tex = this.move(obsoluteInst, tex);
                 return tex;
             });
         }
@@ -96,9 +101,22 @@ class Texture2DLoader implements IResourceLoader {
                 if (!img)
                     return null;
 
-                return Texture2D._parseImage(img, propertyParams, constructParams);
+                let tex: BaseTexture = Texture2D._parseImage(img, propertyParams, constructParams);
+                let obsoluteInst = <Texture2D>task.obsoluteInst;
+                if (obsoluteInst)
+                    tex = this.move(obsoluteInst, tex);
+                return tex;
             });
         }
+    }
+
+    private move(obsoluteInst: BaseTexture, tex: BaseTexture) {
+        obsoluteInst._texture = tex._texture;
+        obsoluteInst.width = tex.width;
+        obsoluteInst.height = tex.height;
+        obsoluteInst.obsolute = false;
+        delete Resource._idResourcesMap[tex.id];
+        return obsoluteInst;
     }
 }
 
@@ -110,17 +128,19 @@ class TextureLoader implements IResourceLoader {
         if (!tex2D)
             return null;
 
-        let tex: Texture = task.loader.getRes(task.url);
-        if (tex) //recover
-            tex.bitmap = tex2D;
+        let tex = <Texture>task.obsoluteInst;
+        if (tex) { //recover
+            tex.setTo(tex2D);
+            tex.obsolute = false;
+        }
         else
             tex = new Texture(tex2D);
         return tex;
     }
 
     load(task: ILoadTask) {
-        let tex2D = task.loader.getRes(task.url, Loader.TEXTURE2D);
-        if (!tex2D) {
+        let tex2D = <Texture2D>task.loader.getRes(task.url, Loader.TEXTURE2D);
+        if (!tex2D || tex2D.obsolute) {
             let url: ILoadURL = { url: task.url, type: Loader.TEXTURE2D };
 
             if (!task.options.propertyParams)

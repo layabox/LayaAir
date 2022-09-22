@@ -89,6 +89,7 @@ import "./loaders/ShaderLoader";
 
 import { Bounds } from "./math/Bounds";
 import { ReflectionProbe } from "./component/Volume/reflectionProbe/ReflectionProbe";
+import { AreaLightCom } from "./core/light/AreaLightCom";
 
 let c = ClassUtils.regClass;
 c("Sprite3D", Sprite3D);
@@ -98,6 +99,7 @@ c("LightSprite", LightSprite);
 c("DirectionLight", DirectionLight);
 c("PointLight", PointLight);
 c("SpotLight", SpotLight);
+c("AreaLightCom", AreaLightCom);
 c("DirectionLightCom", DirectionLightCom);
 c("PointLightCom", PointLightCom);
 c("SpotLightCom", SpotLightCom);

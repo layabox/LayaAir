@@ -573,9 +573,16 @@ export class ShaderData implements IClone {
 					((<Vector3>value)).cloneTo(v3);
 					destData[k] = v3;
 				} else if (value instanceof Vector4) {
-					var v4 = (destData[k]) || (destData[k] = new Vector4());
-					((<Vector4>value)).cloneTo(v4);
-					destData[k] = v4;
+					let color = this.getColor(parseInt(k));
+					if (color) {
+						let clonecolor = color.clone();
+						destObject.setColor(parseInt(k), clonecolor);
+					} else {
+						var v4 = (destData[k]) || (destData[k] = new Vector4());
+						((<Vector4>value)).cloneTo(v4);
+						destData[k] = v4;
+					}
+
 				} else if (value instanceof Matrix4x4) {
 					var mat = (destData[k]) || (destData[k] = new Matrix4x4());
 					((<Matrix4x4>value)).cloneTo(mat);
@@ -604,8 +611,22 @@ export class ShaderData implements IClone {
 		return dest;
 	}
 
+	reset() {
+		for (var k in this._data) {
+			//维护Refrence
+			var value: any = this._data[k];
+			if (value instanceof Resource) {
+				value._removeReference();
+			}
+		}
+		this._data = {};
+		this._gammaColorMap.clear();
+		this._uniformBufferDatas.clear();
+		this._uniformBuffersMap.clear();
+		this._defineDatas.clear();
+	}
+
 	destroy(): void {
-		this._data = null;
 		this._defineDatas.destroy();
 		this._defineDatas = null;
 		for (var k in this._data) {
@@ -615,6 +636,7 @@ export class ShaderData implements IClone {
 				value._removeReference();
 			}
 		}
+		this._data = null;
 		this._gammaColorMap.clear();
 		this._gammaColorMap = null;
 		// // 使用对象解析

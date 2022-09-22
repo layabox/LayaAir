@@ -48,7 +48,7 @@ export class DefineDatas implements IClone {
 			this._length = size;
 		}
 		else {
-				mask[index] |= define._value;
+			mask[index] |= define._value;
 		}
 	}
 
@@ -86,8 +86,7 @@ export class DefineDatas implements IClone {
 				mask[i] = addMask[i];
 			this._length = size;
 		} else {
-			for (var i: number = 0; i < size; i++)
-			{
+			for (var i: number = 0; i < size; i++) {
 				mask[i] |= addMask[i];
 			}
 		}
@@ -103,7 +102,7 @@ export class DefineDatas implements IClone {
 		var removeMask: Array<number> = define._mask;
 		var mask: Array<number> = this._mask;
 		var endIndex: number = this._length - 1;
-		var i = Math.min(define._length,endIndex);
+		var i = Math.min(define._length, endIndex);
 		for (; i >= 0; i--) {
 			var newValue = mask[i] & ~removeMask[i];
 			if (i == endIndex && newValue === 0) {
@@ -160,7 +159,7 @@ export class DefineDatas implements IClone {
 		return dest;
 	}
 
-	destroy(){
+	destroy() {
 		delete this._mask;
 	}
 }
