@@ -16,7 +16,7 @@ export class NativeRenderElementOBJ implements IRenderElement {
 
     private geometry: IRenderGeometryElement;
 
-    //private shaderInstances: SingletonList<ShaderInstance>;
+    private shaderInstances: SingletonList<ShaderInstance>;
 
     private materialShaderData: NativeShaderData;
 
@@ -82,20 +82,24 @@ export class NativeRenderElementOBJ implements IRenderElement {
 
     _nativeObj: any;
 
-    constructor() {
+    constructor() { 
+        this.shaderInstances = new SingletonList();
         this.init();
     }
     init(): void {
+       
         this._nativeObj = new (window as any).conchRenderElement(RenderElementType.Base, (LayaGL.renderEngine as any)._nativeObj);
     }
-    _shaderInstances: SingletonList<ShaderInstance>;
+
     _owner: IBaseRenderNode;
 
     _addShaderInstance(shader: ShaderInstance) {
+        this.shaderInstances.add(shader);
         this._nativeObj._addShaderInstance((shader as any)._nativeObj);
     }
 
     _clearShaderInstance() {
+        this.shaderInstances.length = 0;
         this._nativeObj._clearShaderInstance();
     }
     /**
@@ -108,6 +112,7 @@ export class NativeRenderElementOBJ implements IRenderElement {
 
     _destroy() {
         this._nativeObj._destroy();
+        this.shaderInstances = null;
         this.transform = null;
     }
 }
