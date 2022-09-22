@@ -16,8 +16,6 @@ export class NativeRenderElementOBJ implements IRenderElement {
 
     private geometry: IRenderGeometryElement;
 
-    private shaderInstances: SingletonList<ShaderInstance>;
-
     private materialShaderData: NativeShaderData;
 
     private renderShaderData: NativeShaderData;
@@ -81,9 +79,9 @@ export class NativeRenderElementOBJ implements IRenderElement {
     }
 
     _nativeObj: any;
-
+    _shaderInstances: SingletonList<ShaderInstance>;
     constructor() { 
-        this.shaderInstances = new SingletonList();
+        this._shaderInstances = new SingletonList();
         this.init();
     }
     init(): void {
@@ -94,12 +92,12 @@ export class NativeRenderElementOBJ implements IRenderElement {
     _owner: IBaseRenderNode;
 
     _addShaderInstance(shader: ShaderInstance) {
-        this.shaderInstances.add(shader);
+        this._shaderInstances.add(shader);
         this._nativeObj._addShaderInstance((shader as any)._nativeObj);
     }
 
     _clearShaderInstance() {
-        this.shaderInstances.length = 0;
+        this._shaderInstances.length = 0;
         this._nativeObj._clearShaderInstance();
     }
     /**
@@ -112,7 +110,7 @@ export class NativeRenderElementOBJ implements IRenderElement {
 
     _destroy() {
         this._nativeObj._destroy();
-        this.shaderInstances = null;
+        this._shaderInstances = null;
         this.transform = null;
     }
 }
