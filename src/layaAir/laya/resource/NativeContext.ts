@@ -227,6 +227,15 @@ export class NativeContext {
         this._nativeObj.flushCommand();
         return this._nativeObj.globalCompositeOperation;
     }
+    set fillStyle(value: any) {
+        var c: ColorUtils = ColorUtils.create(value);
+        this.add_ii(CONTEXT2D_FUNCTION_ID.FILL_STYLE, c.numColor);
+    }
+
+    get fillStyle(): any {
+        this._nativeObj.flushCommand();
+        return this._nativeObj.fillStyle;
+    }
     set globalAlpha(value: number) {
         this.add_if(CONTEXT2D_FUNCTION_ID.ALPHA, value);
     }
@@ -442,6 +451,15 @@ export class NativeContext {
         var c2: ColorUtils = ColorUtils.create(lineColor);
         //this._nativeObj._drawPoly(x, y, new Float32Array(points), fillColor ? true : false, c1.numColor, lineColor ? true : false, c2.numColor, lineWidth, isConvexPolygon);
         this.add_iffiiiifi_ab(CONTEXT2D_FUNCTION_ID.DRAW_POLY, x, y, fillColor ? 1 : 0, c1.numColor, lineColor ? 1 : 0, c2.numColor, lineWidth, isConvexPolygon ? 1 : 0, new Float32Array(points));
+    }
+    fillRect(x: number, y: number, width: number, height: number, fillColor: any) {
+        if (fillColor != null) {
+            var c: ColorUtils = ColorUtils.create(fillColor);
+            this.add_ii(CONTEXT2D_FUNCTION_ID.FILL_STYLE, c.numColor);
+        }
+        this.add_i(CONTEXT2D_FUNCTION_ID.SAVE);
+        this.add_iffff(CONTEXT2D_FUNCTION_ID.FILL_RECT, x, y, width, height);
+        this.add_i(CONTEXT2D_FUNCTION_ID.RESTORE);
     }
     drawRect(x: number, y: number, width: number, height: number, fillColor: any, lineColor: any, lineWidth: number): void {
 
