@@ -84,7 +84,7 @@ export class VideoTexture extends BaseTexture {
         ele.addEventListener("loadedmetadata", () => {
             this._width = this.element.videoWidth;
             this.height = this.element.videoHeight;
-            this._texture = LayaGL.textureContext.createTextureInternal(this._dimension, this.element.videoWidth, this.element.videoHeight, TextureFormat.R8G8B8, false, false);
+            this._texture = LayaGL.textureContext.createTextureInternal(this._dimension, this.element.videoWidth, this.element.videoHeight, TextureFormat.R8G8B8, false, true);
             this.wrapModeU = WrapMode.Clamp;
             this.wrapModeV = WrapMode.Clamp;
             this.filterMode = FilterMode.Bilinear;

@@ -38,7 +38,7 @@ export class MeshFilter extends Component {
      */
     protected _onDisable(): void {
         const render = this.owner.getComponent(MeshRenderer) as MeshRenderer;
-        render && render._enabled && render._onMeshChange(null);
+       // render && render._enabled && render._onMeshChange(null);
     }
 
     /**

@@ -462,24 +462,26 @@ export class BaseRender extends Component implements ISingletonElement {
         this._transform = (this.owner as Sprite3D).transform;
         (this.owner as Sprite3D)._isRenderNode++;
         (this.owner as Sprite3D)._addRenderComponent(this);
-
         this._rendernode.transform = this._transform;
-        if (this.owner) {
-            (this.owner as Sprite3D).transform.on(Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange);//如果为合并BaseRender,owner可能为空
-            (this.owner as Sprite3D).on(Event.LAYERCHANGE, this, this._changeLayer);
-        }
     }
 
     protected _onEnable(): void {
         super._onEnable();
         (this.owner.scene as Scene3D)._addRenderObject(this);
         this._setBelongScene(this.owner.scene);
-
+        if (this.owner) {
+            (this.owner as Sprite3D).transform.on(Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange);//如果为合并BaseRender,owner可能为空
+            (this.owner as Sprite3D).on(Event.LAYERCHANGE, this, this._changeLayer);
+        }
     }
 
     protected _onDisable(): void {
         (this.owner.scene as Scene3D)._removeRenderObject(this);
         this._setUnBelongScene();
+        if (this.owner) {
+            (this.owner as Sprite3D).transform.off(Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange);//如果为合并BaseRender,owner可能为空
+            (this.owner as Sprite3D).off(Event.LAYERCHANGE, this, this._changeLayer);
+        }
     }
 
     /**
@@ -662,6 +664,7 @@ export class BaseRender extends Component implements ISingletonElement {
         this._rendernode = null;
         this._shaderValues.destroy();
         this._shaderValues = null;
+        this._transform=null;
         if (this._subUniformBufferData) {
             BaseRender._transLargeUbO.recover(this._subUniformBufferData);
             this._subUniformBufferData = null;
