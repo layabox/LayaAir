@@ -167,11 +167,18 @@ export class Utils {
     /**
      * 获取文件名的扩展名，并转换为小写字母。例如"1.abc"将返回abc。
      */
-    static getFileExtension(path: string, position?: number): string {
-        let i = path.lastIndexOf(".", position);
+    static getFileExtension(path: string): string {
+        let i = path.lastIndexOf(".");
 
-        if (i != -1)
-            return path.substring(i + 1).toLowerCase();
+        if (i != -1) {
+            let ext = path.substring(i + 1).toLowerCase();
+            i = ext.indexOf("?");
+            if (i != -1)
+                return ext.substring(0, i);
+            else
+                return ext;
+
+        }
         else
             return "";
     }

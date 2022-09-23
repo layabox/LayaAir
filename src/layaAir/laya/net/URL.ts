@@ -73,11 +73,17 @@ export class URL {
             url = url2;
         }
 
-        let char1 = url.charCodeAt(0);
-        if (char1 === 126) // ~
-            url = URL.join(URL.rootPath, url.substring(2));
-        else if (char1 !== 47) // /
-            url = URL.join(base != null ? base : URL.basePath, url);
+        if (url.indexOf(":") == -1) {
+            //自定义路径格式化
+            if (URL.customFormat != null)
+                url = URL.customFormat(url);
+
+            let char1 = url.charCodeAt(0);
+            if (char1 === 126) // ~
+                url = URL.join(URL.rootPath, url.substring(2));
+            else if (char1 !== 47) // /
+                url = URL.join(base != null ? base : URL.basePath, url);
+        }
 
         return url;
     }
@@ -94,10 +100,6 @@ export class URL {
             if (ext != null)
                 url = url.substring(0, url.length - extold.length) + ext;
         }
-
-        //自定义路径格式化
-        if (URL.customFormat != null)
-            url = URL.customFormat(url);
 
         return url;
     }

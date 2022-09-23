@@ -564,16 +564,8 @@ export class Loader extends EventDispatcher {
         //先根据扩展名获得注册信息A
         let ext = url.startsWith("data:") ? "png" : Utils.getFileExtension(url);
         let extEntry: Array<TypeMapEntry>;
-        if (ext.length > 0) {
-            //处理复杂的扩展名，例如ltcb.ls
-            let ext2 = Utils.getFileExtension(url, url.length - ext.length - 2);
-            if (ext2.length > 0)
-                extEntry = Loader.extMap[ext2];
-            if (extEntry)
-                ext = ext2;
-            else
-                extEntry = Loader.extMap[ext];
-        }
+        if (ext.length > 0)
+            extEntry = Loader.extMap[ext];
 
         let typeId: number;
         let main: boolean;
