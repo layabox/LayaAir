@@ -210,7 +210,6 @@ export class Node extends EventDispatcher {
             this._children === ARRAY_EMPTY && (this._children = []);
             this._children.push(node);
             node._setParent(this);
-            this._childChanged();
         }
 
         return node;
@@ -466,9 +465,10 @@ export class Node extends EventDispatcher {
                 //设置子对象不可见
                 this._onRemoved();
                 this.event(Event.REMOVED);
-                this._parent._childChanged();
+                let p = this._parent;
                 if (this._getBit(NodeFlags.DISPLAY)) this._displayChild(this, false);
                 this._parent = value;
+                p._childChanged(this);
             }
         }
     }
