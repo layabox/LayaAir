@@ -376,18 +376,6 @@ export class Material extends Resource implements IClone {
         this.destoryedImmediately = false;
     }
 
-    /**
-     * @internal
-     */
-    private _removeTetxureReference(): void {
-        var data: any = this._shaderValues.getData();
-        for (var k in data) {
-            var value: any = data[k];
-            if (value && value instanceof BaseTexture)//TODO:需要优化,杜绝is判断，慢
-                (<BaseTexture>value)._removeReference();
-        }
-    }
-
     //根据绑定的shader 缓存一些特殊的数据
     private _bindShaderInfo(shader: Shader3D) {
         //update UBOData by Shader
@@ -437,7 +425,6 @@ export class Material extends Resource implements IClone {
      * @override
      */
     protected _disposeResource(): void {
-        this._removeTetxureReference();
         this._releaseUBOData();
         this._shaderValues.destroy();
         this._shaderValues = null;
