@@ -144,6 +144,8 @@ export class Scene3D extends Sprite implements ISubmit {
     static AMBIENTCOLOR: number;
     /** @internal */
     static AMBIENTSH: number;
+    /** @internal */
+    static IBLTEX: number;
 
     /** @internal */
     static TIME: number;
@@ -223,6 +225,7 @@ export class Scene3D extends Sprite implements ISubmit {
         Scene3D.LIGHTBUFFER = Shader3D.propertyNameToID("u_LightBuffer");
         Scene3D.CLUSTERBUFFER = Shader3D.propertyNameToID("u_LightClusterBuffer");
         Scene3D.TIME = Shader3D.propertyNameToID("u_Time");
+        Scene3D.IBLTEX = Shader3D.propertyNameToID("u_IBLTex");
         Scene3D.SCENEUNIFORMBLOCK = Shader3D.propertyNameToID(UniformBufferObject.UBONAME_SCENE);
 
 
@@ -234,6 +237,7 @@ export class Scene3D extends Sprite implements ISubmit {
         sceneUniformMap.addShaderUniform(Scene3D.LIGHTBUFFER, "u_LightBuffer");
         sceneUniformMap.addShaderUniform(Scene3D.CLUSTERBUFFER, "u_LightClusterBuffer");
         sceneUniformMap.addShaderUniform(Scene3D.TIME, "u_Time");
+        sceneUniformMap.addShaderUniform(Scene3D.IBLTEX, "u_IBLTex");
         sceneUniformMap.addShaderUniform(Scene3D.SCENEUNIFORMBLOCK, UniformBufferObject.UBONAME_SCENE);
 
         // todo 移动出 scene
@@ -648,6 +652,16 @@ export class Scene3D extends Sprite implements ISubmit {
         this._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_GI_IBL);
         this._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_GI_LEGACYIBL);
         this._shaderValues.setBuffer(Scene3D.AMBIENTSH, value);
+    }
+
+    public get iblTex(): TextureCube {
+        return <TextureCube>this._shaderValues.getTexture(Scene3D.IBLTEX);
+    }
+    public set iblTex(value: TextureCube) {
+        value = value || TextureCube.blackTexture;
+        this._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_GI_IBL);
+        this._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_GI_LEGACYIBL);
+        this._shaderValues.setTexture(Scene3D.IBLTEX, value);
     }
 
     /**
