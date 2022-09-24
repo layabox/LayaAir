@@ -35,7 +35,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
     /** @internal */
     _skinnedData: any[];
     /** @internal */
-    private _skinnedDataLoopMarks: number[] = [];
+    private _skinnedDataLoopMarks: Uint32Array;
     /**@internal */
     protected _localBounds: Bounds;
     // /**@internal */
@@ -197,7 +197,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 
         var subMeshCount: number = value.subMeshCount;
         this._skinnedData = [];
-        this._skinnedDataLoopMarks.length = value._inverseBindPoses.length;
+        this._skinnedDataLoopMarks = new Uint32Array(value._inverseBindPoses.length);
         for (var i: number = 0; i < subMeshCount; i++) {
             var subBoneIndices: Uint16Array[] = ((<SubMesh>value.getSubMesh(i)))._boneIndicesList;
             var subCount: number = subBoneIndices.length;
