@@ -77,8 +77,8 @@ export class Stage extends Sprite {
     static SCALE_FIXED_HEIGHT: string = "fixedheight";
     /**应用保持设计比例不变，全屏显示全部内容(类似showall，但showall非全屏，会有黑边)，根据屏幕长宽比，自动选择使用SCALE_FIXED_WIDTH或SCALE_FIXED_HEIGHT*/
     static SCALE_FIXED_AUTO: string = "fixedauto";
-    
-	static SCALE_FIXED_AUTO_LAYAME: string = "fixedauto_layame";
+
+    static SCALE_FIXED_AUTO_LAYAME: string = "fixedauto_layame";
 
 
     /**画布水平居左对齐。*/
@@ -243,12 +243,18 @@ export class Stage extends Sprite {
             if (Browser.onSafari)
                 this._safariOffsetY = (Browser.window.__innerHeight || Browser.document.body.clientHeight || Browser.document.documentElement.clientHeight) - Browser.window.innerHeight;
 
-            this._resetCanvas();
+            if (this.screenAdaptationEnabled) {
+                this.event(Event.WILL_RESIZE);
+                this.updateCanvasSize();
+            }
         });
 
         // 微信的iframe不触发orientationchange。
         window.addEventListener("orientationchange", (e: any) => {
-            this._resetCanvas();
+            if (this.screenAdaptationEnabled) {
+                this.event(Event.WILL_RESIZE);
+                this.updateCanvasSize();
+            }
         });
 
         this._componentDriver = new ComponentDriver();
@@ -266,8 +272,7 @@ export class Stage extends Sprite {
     set width(value: number) {
         this.designWidth = value;
         super.set_width(value);
-        this._needUpdateCanvasSize = true;
-        ILaya.systemTimer.callLater(this, this._changeCanvasSize);
+        this.updateCanvasSize(true);
     }
     /**
      * @inheritDoc 
@@ -282,8 +287,7 @@ export class Stage extends Sprite {
     set height(value: number) {
         this.designHeight = value;
         super.set_height(value);
-        this._needUpdateCanvasSize = true;
-        ILaya.systemTimer.callLater(this, this._changeCanvasSize);
+        this.updateCanvasSize(true);
     }
 
     /** @override*/
@@ -316,27 +320,23 @@ export class Stage extends Sprite {
         return this._isVisibility;
     }
 
-    /**@private */
-    private _changeCanvasSize(): void {
-        this.setScreenSize(Browser.clientWidth * Browser.pixelRatio, Browser.clientHeight * Browser.pixelRatio);
+    private _needUpdateCanvasSize: boolean = false;
+    updateCanvasSize(delay?: boolean): void {
+        if (delay) {
+            if (!this._needUpdateCanvasSize) {
+                this._needUpdateCanvasSize = true;
+                ILaya.systemTimer.callLater(this, this.updateCanvasSize);
+            }
+        }
+        else {
+            this.setScreenSize(Browser.clientWidth * Browser.pixelRatio, Browser.clientHeight * Browser.pixelRatio);
+        }
     }
 
-    /**@private */
-    protected _resetCanvas(): void {
-        if (!this.screenAdaptationEnabled) return;
-        //var canvas:HTMLCanvas = Render._mainCanvas;
-        //var canvasStyle:* = canvas.source.style;
-        //canvas.size(1, 1);
-        //canvasStyle.transform = canvasStyle.webkitTransform = canvasStyle.msTransform = canvasStyle.mozTransform = canvasStyle.oTransform = "";
-        //visible = false;
-        //Laya.timer.once(100, this, this._changeCanvasSize);
-        this._changeCanvasSize();
+    needUpdateCanvasSize() {
+        if (this._needUpdateCanvasSize)
+            this.updateCanvasSize();
     }
-    private _needUpdateCanvasSize:boolean = false;
-
-    needUpdateCanvasSize(){
-		if(this._needUpdateCanvasSize) this._changeCanvasSize();
-	}
 
     /**
      * 设置屏幕大小，场景会根据屏幕大小进行适配。可以动态调用此方法，来更改游戏显示的大小。
@@ -345,6 +345,7 @@ export class Stage extends Sprite {
      */
     setScreenSize(screenWidth: number, screenHeight: number): void {
         this._needUpdateCanvasSize = false;
+
         //计算是否旋转
         var rotation: boolean = false;
         if (this._screenMode !== Stage.SCREEN_NONE) {
@@ -363,7 +364,7 @@ export class Stage extends Sprite {
         var canvasStyle: any = canvas.source.style;
         var mat: Matrix = this._canvasTransform.identity();
         var scaleMode: string = this._scaleMode;
-        var scaleX: number = screenWidth / this.designWidth
+        var scaleX: number = screenWidth / this.designWidth;
         var scaleY: number = screenHeight / this.designHeight;
         var canvasWidth: number = this.useRetinalCanvas ? screenWidth : this.designWidth;
         var canvasHeight: number = this.useRetinalCanvas ? screenHeight : this.designHeight;
@@ -390,10 +391,17 @@ export class Stage extends Sprite {
                 realWidth = Math.round(this.designWidth * scaleX);
                 realHeight = Math.round(this.designHeight * scaleY);
                 break;
+            // case Stage.SCALE_FULL:
+            //     scaleX = scaleY = 1;
+            //     this._width = canvasWidth = screenWidth;
+            //     this._height = canvasHeight = screenHeight;
+            //     break;
             case Stage.SCALE_FULL:
-                scaleX = scaleY = 1;
-                this._width = canvasWidth = screenWidth;
-                this._height = canvasHeight = screenHeight;
+                scaleX = scaleY = pixelRatio;
+                canvasWidth = screenWidth;
+                canvasHeight = screenHeight;
+                this._width = screenWidth / pixelRatio;
+                this._height = screenHeight / pixelRatio;
                 break;
             case Stage.SCALE_FIXED_WIDTH:
                 scaleY = scaleX;
@@ -440,7 +448,7 @@ export class Stage extends Sprite {
             this.transform.d = this._formatData(scaleY / (realHeight / canvasHeight));
         }
 
-        //处理canvas大小			
+        //处理canvas大小
         canvas.size(canvasWidth, canvasHeight);
         RunDriver.changeWebGLSize(canvasWidth, canvasHeight);
         mat.scale(realWidth / canvasWidth / pixelRatio, realHeight / canvasHeight / pixelRatio);
@@ -520,7 +528,7 @@ export class Stage extends Sprite {
 
     set scaleMode(value: string) {
         this._scaleMode = value;
-        ILaya.systemTimer.callLater(this, this._changeCanvasSize);
+        this.updateCanvasSize(true);
     }
 
     /**
@@ -538,8 +546,7 @@ export class Stage extends Sprite {
 
     set alignH(value: string) {
         this._alignH = value;
-        this._needUpdateCanvasSize = true;
-        ILaya.systemTimer.callLater(this, this._changeCanvasSize);
+        this.updateCanvasSize(true);
     }
 
     /**
@@ -557,8 +564,7 @@ export class Stage extends Sprite {
 
     set alignV(value: string) {
         this._alignV = value;
-        this._needUpdateCanvasSize = true;
-        ILaya.systemTimer.callLater(this, this._changeCanvasSize);
+        this.updateCanvasSize(true);
     }
 
     /**舞台的背景颜色，默认为黑色，null为透明。*/
@@ -731,22 +737,24 @@ export class Stage extends Sprite {
                 (<any>this._scene3Ds[i])._update(delta);
             this._runComponents();
 
+            context.clear();
+
             this._componentDriver.callPreRender();
 
-            context.clear();
             super.render(context, x, y);
+
             Stat._StatRender.renderNotCanvas(context, x, y);
 
+            Stage.clear(this._bgColor);
+
+            context.flush();
+
             this._componentDriver.callPostRender();
+
+            VectorGraphManager.instance && VectorGraphManager.getInstance().endDispose();
         }
         else
             this._runComponents();
-
-        if (this.renderingEnabled) {
-            Stage.clear(this._bgColor);
-            context.flush();
-            VectorGraphManager.instance && VectorGraphManager.getInstance().endDispose();
-        }
 
         this._updateTimers();
     }

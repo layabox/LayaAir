@@ -53,7 +53,7 @@ export class GarbageCollection {
 			this.changeActionButton.labelBold = true;
 			this.changeActionButton.labelSize = 30;
 			this.changeActionButton.sizeGrid = "4,4,4,4";
-			this.changeActionButton.scale(Browser.pixelRatio, Browser.pixelRatio);
+			//this.changeActionButton.scale(Browser.pixelRatio, Browser.pixelRatio);
 			this.changeActionButton.pos(200, 200);
 			this.changeActionButton.on(Event.CLICK, this, this.stypeFun0);
 		}));

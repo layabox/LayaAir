@@ -62,6 +62,8 @@ export class Event {
     static CHANGE = "change";
     /** 定义 changed 事件对象的 type 属性值。*/
     static CHANGED = "changed";
+    /** 定义 willResize 事件对象的 type 属性值。*/
+    static WILL_RESIZE = "willResize";
     /** 定义 resize 事件对象的 type 属性值。*/
     static RESIZE = "resize";
 
