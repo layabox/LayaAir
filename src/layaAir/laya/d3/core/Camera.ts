@@ -238,8 +238,8 @@ export class Camera extends BaseCamera {
             new Quaternion(0, 0, 0, 1),
             new Quaternion(0, 0.7071068, 0, 0.7071068),
             new Quaternion(0, 0.7071068, 0, -0.7071068),
-            new Quaternion(0.7071068, 0, 0, 0.7071068),
-            new Quaternion(-0.7071068, 0, 0, 0.7071068),
+            new Quaternion(0, 0.7071068, -0.7071068, 0),
+            new Quaternion(0, -0.7071068, -0.7071068, 0),
         ];
         for (var i = 0; i < 6; i++) {
             camera.transform.rotation = quaterionArray[i];
