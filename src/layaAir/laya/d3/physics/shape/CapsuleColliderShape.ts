@@ -1,6 +1,7 @@
 import { Vector3 } from "../../math/Vector3";
 import { ColliderShape } from "./ColliderShape";
 import { ILaya3D } from "../../../../ILaya3D";
+import { LayaEnv } from "../../../../LayaEnv";
 
 /**
  * <code>CapsuleColliderShape</code> 类用于创建胶囊形状碰撞器。
@@ -23,6 +24,13 @@ export class CapsuleColliderShape extends ColliderShape {
 		return this._radius;
 	}
 
+	set radius(value: number) {
+		this._radius = value;
+		if (LayaEnv.isPlaying) {
+			this.changeCapsuleShape();
+		}
+	}
+
 	/**
 	 * 长度。
 	 */
@@ -30,11 +38,25 @@ export class CapsuleColliderShape extends ColliderShape {
 		return this._length;
 	}
 
+	set length(value: number) {
+		this._length = value;
+		if (LayaEnv.isPlaying) {
+			this.changeCapsuleShape();
+		}
+	}
+
 	/**
 	 * 方向。
 	 */
 	get orientation(): number {
 		return this._orientation;
+	}
+
+	set orientation(value: number) {
+		this._orientation = value;
+		if (LayaEnv.isPlaying) {
+			this.changeCapsuleShape();
+		}
 	}
 
 	/**
@@ -65,6 +87,10 @@ export class CapsuleColliderShape extends ColliderShape {
 			default:
 				throw "CapsuleColliderShape:unknown orientation.";
 		}
+	}
+
+	changeCapsuleShape() {
+		//TODO MIner
 	}
 
 	/**

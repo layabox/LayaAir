@@ -14,17 +14,17 @@ import { Camera } from "../../Camera";
  * <code>SetShaderDataTextureCMD</code> 类用于创建设置渲染目标指令。
  */
 export class DrawMeshCMD extends Command {
-    
+
     /**@internal */
     private static _pool: DrawMeshCMD[] = [];
-    
+
     /**
      * @internal
      */
     static create(mesh: Mesh, matrix: Matrix4x4, material: Material, subMeshIndex: number, subShaderIndex: number, commandBuffer: CommandBuffer): DrawMeshCMD {
         var cmd: DrawMeshCMD;
         cmd = DrawMeshCMD._pool.length > 0 ? DrawMeshCMD._pool.pop() : new DrawMeshCMD();
-        
+
         cmd._matrix = matrix;
         cmd._transform.worldMatrix = cmd._matrix;
         cmd.material = material;
@@ -51,24 +51,24 @@ export class DrawMeshCMD extends Command {
     private _mesh: Mesh;
 
     /**@internal */
-    _renderElemnts:RenderElement[];
+    _renderElemnts: RenderElement[];
 
     /**@internal */
-    _meshRender:MeshRenderer;
+    _meshRender: MeshRenderer;
 
     /**@internal */
-    _transform:Transform3D;
-    
+    _transform: Transform3D;
+
     /**
      * 
      */
     constructor() {
         super();
-		this._transform = LayaGL.renderOBJCreate.createTransform(null);
+        this._transform = LayaGL.renderOBJCreate.createTransform(null);
         this._meshRender = new MeshRenderer();
     }
 
-    set material(value:Material){
+    set material(value: Material) {
         this._material && this._material._removeReference(1);
         this._material = value;
         this._material && this._material._addReference(1);
@@ -88,9 +88,9 @@ export class DrawMeshCMD extends Command {
         });
     }
     /**
-	 * @inheritDoc
-	 * @override
-	 */
+     * @inheritDoc
+     * @override
+     */
     run(): void {
         var context = RenderContext3D._instance;
         context._contextOBJ.applyContext(Camera._updateMark);
@@ -107,9 +107,9 @@ export class DrawMeshCMD extends Command {
     }
 
     /**
-	 * @inheritDoc
-	 * @override
-	 */
+     * @inheritDoc
+     * @override
+     */
     recover(): void {
         DrawMeshCMD._pool.push(this);
     }
@@ -118,9 +118,9 @@ export class DrawMeshCMD extends Command {
      * @inheritDoc
      * @override
      */
-    destroy(){
+    destroy() {
         super.destroy();
-        this._renderElemnts.forEach (element=> {
+        this._renderElemnts.forEach(element => {
             element.destroy();
         });
         this._material && this._material._removeReference(1);

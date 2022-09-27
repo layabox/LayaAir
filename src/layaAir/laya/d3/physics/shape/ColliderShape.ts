@@ -51,7 +51,7 @@ export class ColliderShape implements IClone {
 	 * @internal
 	 */
 	static __init__(): void {
-		var bt: any =ILaya3D.Physics3D._bullet;
+		var bt: any = ILaya3D.Physics3D._bullet;
 		ColliderShape._btScale = bt.btVector3_create(1, 1, 1);
 		ColliderShape._btVector30 = bt.btVector3_create(0, 0, 0);
 		ColliderShape._btQuaternion0 = bt.btQuaternion_create(0, 0, 0, 1);

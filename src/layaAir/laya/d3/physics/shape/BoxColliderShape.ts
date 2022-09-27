@@ -1,5 +1,6 @@
 import { ColliderShape } from "./ColliderShape";
 import { ILaya3D } from "../../../../ILaya3D";
+import { LayaEnv } from "../../../../LayaEnv";
 
 /**
  * <code>BoxColliderShape</code> 类用于创建盒子形状碰撞器。
@@ -29,11 +30,25 @@ export class BoxColliderShape extends ColliderShape {
 		return this._sizeX;
 	}
 
+	set sizeX(value: number) {
+		this._sizeX = value;
+		if (LayaEnv.isPlaying) {
+			this.changeBoxShape();
+		}
+	}
+
 	/**
 	 * Y轴尺寸。
 	 */
 	get sizeY(): number {
 		return this._sizeY;
+	}
+
+	set sizeY(value: number) {
+		this._sizeY = value;
+		if (LayaEnv.isPlaying) {
+			this.changeBoxShape();
+		}
 	}
 
 	/**
@@ -43,7 +58,12 @@ export class BoxColliderShape extends ColliderShape {
 		return this._sizeZ;
 	}
 
-
+	set sizeZ(value: number) {
+		this._sizeZ = value;
+		if (LayaEnv.isPlaying) {
+			this.changeBoxShape();
+		}
+	}
 
 	/**
 	 * 创建一个新的 <code>BoxColliderShape</code> 实例。
@@ -62,6 +82,11 @@ export class BoxColliderShape extends ColliderShape {
 		var bt: any = ILaya3D.Physics3D._bullet;
 		bt.btVector3_setValue(BoxColliderShape._btSize, sizeX / 2, sizeY / 2, sizeZ / 2);
 		this._btShape = bt.btBoxShape_create(BoxColliderShape._btSize);
+	}
+
+
+	changeBoxShape() {
+		//TODO Miner
 	}
 
 	/**

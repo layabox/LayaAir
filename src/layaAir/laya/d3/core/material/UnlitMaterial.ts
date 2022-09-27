@@ -91,7 +91,7 @@ export class UnlitMaterial extends Material {
 			this.setVector4ByIndex(UnlitMaterial.TILINGOFFSET, value);
 		}
 		else {
-			this.setVector4ByIndex(UnlitMaterial.TILINGOFFSET,new Vector4(1.0, 1.0, 0.0, 0.0));
+			this.setVector4ByIndex(UnlitMaterial.TILINGOFFSET, new Vector4(1.0, 1.0, 0.0, 0.0));
 		}
 	}
 

@@ -1,5 +1,6 @@
 import { ColliderShape } from "./ColliderShape";
 import { ILaya3D } from "../../../../ILaya3D";
+import { LayaEnv } from "../../../../LayaEnv";
 
 /**
  * <code>SphereColliderShape</code> 类用于创建球形碰撞器。
@@ -15,6 +16,11 @@ export class SphereColliderShape extends ColliderShape {
 		return this._radius;
 	}
 
+	set radius(value: number) {
+		this._radius = value;
+		if (LayaEnv.isPlaying) this.changeSphere();
+	}
+
 	/**
 	 * 创建一个新的 <code>SphereColliderShape</code> 实例。
 	 * @param radius 半径。
@@ -26,6 +32,10 @@ export class SphereColliderShape extends ColliderShape {
 		this._type = ColliderShape.SHAPETYPES_SPHERE;
 
 		this._btShape = ILaya3D.Physics3D._bullet.btSphereShape_create(radius);
+	}
+
+	changeSphere() {
+
 	}
 
 	/**

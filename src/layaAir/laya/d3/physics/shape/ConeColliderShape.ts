@@ -1,5 +1,6 @@
 import { ColliderShape } from "./ColliderShape";
 import { ILaya3D } from "../../../../ILaya3D";
+import { LayaEnv } from "../../../../LayaEnv";
 
 /**
  * <code>ConeColliderShape</code> 类用于创建圆锥碰撞器。
@@ -16,6 +17,11 @@ export class ConeColliderShape extends ColliderShape {
 		return this._radius;
 	}
 
+	set radius(value: number) {
+		this._radius = value;
+		if (LayaEnv.isPlaying) this.changeConeShape();
+	}
+
 	/**
 	 * 高度。
 	 */
@@ -23,11 +29,21 @@ export class ConeColliderShape extends ColliderShape {
 		return this._height;
 	}
 
+	set height(value: number) {
+		this._height = value;
+		if (LayaEnv.isPlaying) this.changeConeShape();
+	}
+
 	/**
 	 * 方向。
 	 */
 	get orientation(): number {
 		return this._orientation;
+	}
+
+	set orientation(value: number) {
+		this._orientation = value;
+		if (LayaEnv.isPlaying) this.changeConeShape();
 	}
 
 	/**
@@ -55,6 +71,10 @@ export class ConeColliderShape extends ColliderShape {
 			default:
 				throw "ConeColliderShape:unknown orientation.";
 		}
+	}
+
+	changeConeShape() {
+		//TODO miner
 	}
 
 	/**

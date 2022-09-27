@@ -268,7 +268,7 @@ export class GL2TextureContext extends GLTextureContext {
         return this._glParam;
     }
 
-    getGLtexMemory(tex:WebGLInternalTex):number{
+    getGLtexMemory(tex: WebGLInternalTex): number {
         let gl = <WebGL2RenderingContext>this._gl;
         let channels = 0;
         let singlebyte = 0;
@@ -308,14 +308,14 @@ export class GL2TextureContext extends GLTextureContext {
                 singlebyte = 0;
                 break;
         }
-        bytelength = channels*singlebyte*tex.width*tex.height;
-        if(tex.mipmap){
-            bytelength*=1.333;
+        bytelength = channels * singlebyte * tex.width * tex.height;
+        if (tex.mipmap) {
+            bytelength *= 1.333;
         }
-        if(tex.target==gl.TEXTURE_CUBE_MAP)
-            bytelength*=6;
-        else if(tex.target == gl.TEXTURE_2D)
-            bytelength*=1;
+        if (tex.target == gl.TEXTURE_CUBE_MAP)
+            bytelength *= 6;
+        else if (tex.target == gl.TEXTURE_2D)
+            bytelength *= 1;
         return bytelength;
     }
 
@@ -646,6 +646,90 @@ export class GL2TextureContext extends GLTextureContext {
 
     }
 
+
+	//TODO miner
+    getCubeKTXRGBMData(texture: WebGLInternalTex, ktxInfo: KTXTextureInfo) {
+        let rightFaceData = [];
+        let leftFaceData = [];
+        let upFaceData = [];
+        let downFaceData = [];
+        let backFaceData = [];
+        let frontFaceData = [];
+        //todo?
+        let premultiplyAlpha = false;
+        let invertY = false;
+
+        let gl = <WebGL2RenderingContext>this._gl;
+
+        // ktx 标准顺序
+        const cubeFace = [
+            gl.TEXTURE_CUBE_MAP_POSITIVE_X, // right
+            gl.TEXTURE_CUBE_MAP_NEGATIVE_X, // left
+            gl.TEXTURE_CUBE_MAP_POSITIVE_Y, // up
+            gl.TEXTURE_CUBE_MAP_NEGATIVE_Y, // down
+            gl.TEXTURE_CUBE_MAP_POSITIVE_Z, // back
+            gl.TEXTURE_CUBE_MAP_NEGATIVE_Z, // front
+        ]
+
+
+
+        let target = texture.target;
+        let internalFormat = texture.internalFormat;
+        let format = texture.format;
+        let type = texture.type;
+        let mipmapCount = texture.mipmapCount;
+        // todo texture size 与 ddsInfo size
+        let width = texture.width;
+        let height = texture.height;
+
+        let source = ktxInfo.source;
+        let compressed = ktxInfo.compress;
+
+        let mipmapWidth = width;
+        let mipmapHeight = height;
+        let dataOffset = ktxInfo.headerOffset + ktxInfo.bytesOfKeyValueData;
+
+        let fourSize = width % 4 == 0 && height % 4 == 0;
+
+        premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+        invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+        fourSize || gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+
+        this._engine._bindTexture(texture.target, texture.resource);
+
+        if (!compressed) {
+            gl.texStorage2D(target, ktxInfo.mipmapCount, internalFormat, width, height);
+        }
+        let memory = 0;
+        for (let index = 0; index < ktxInfo.mipmapCount; index++) {
+
+            let imageSize = new Int32Array(source, dataOffset, 1)[0];
+
+            dataOffset += 4;
+
+            for (let face = 0; face < 6; face++) {
+                let t = cubeFace[face];
+                let pixelParams = this.getFormatPixelsParams(ktxInfo.format);
+                let typedSize = imageSize / pixelParams.typedSize;
+                let sourceData = new pixelParams.dataTypedCons(source, dataOffset, typedSize);
+                gl.texSubImage2D(t, index, 0, 0, mipmapWidth, mipmapHeight, format, type, sourceData);
+                memory += sourceData.byteLength;
+            }
+            dataOffset += imageSize;
+            dataOffset += 3 - ((imageSize + 3) % 4);
+        }
+
+        mipmapWidth = Math.max(1, mipmapWidth * 0.5);
+        mipmapHeight = Math.max(1, mipmapHeight * 0.5);
+
+        texture.gpuMemory = memory;
+        this._engine._bindTexture(texture.target, null);
+
+        premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+        invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+        fourSize || gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);
+    }
+
     setTextureCompareMode(texture: WebGLInternalTex, compareMode: TextureCompareMode): TextureCompareMode {
         let gl = <WebGL2RenderingContext>this._gl;
         switch (compareMode) {
@@ -860,7 +944,7 @@ export class GL2TextureContext extends GLTextureContext {
         if (!useSRGBExt && sRGB) {
             gammaCorrection = 2.2;
         }
-        
+
 
         // let gammaCorrection = 1.0;
         // if (!useSRGBExt && sRGB) {

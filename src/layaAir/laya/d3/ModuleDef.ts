@@ -90,6 +90,11 @@ import "./loaders/ShaderLoader";
 import { Bounds } from "./math/Bounds";
 import { ReflectionProbe } from "./component/Volume/reflectionProbe/ReflectionProbe";
 import { AreaLightCom } from "./core/light/AreaLightCom";
+import { BoxColliderShape } from "./physics/shape/BoxColliderShape";
+import { CapsuleColliderShape } from "./physics/shape/CapsuleColliderShape";
+import { CylinderColliderShape } from "./physics/shape/CylinderColliderShape";
+import { ConeColliderShape } from "./physics/shape/ConeColliderShape";
+import { SphereColliderShape } from "./physics/shape/SphereColliderShape";
 
 let c = ClassUtils.regClass;
 c("Sprite3D", Sprite3D);
@@ -186,3 +191,9 @@ c("MeshRenderer", MeshRenderer);
 c("SkinnedMeshRenderer", SkinnedMeshRenderer);
 c("SimpleSkinnedMeshRenderer", SimpleSkinnedMeshRenderer);
 c("SkyRenderer", SkyRenderer);
+
+c("BoxColliderShape", BoxColliderShape);
+c("CapsuleColliderShape", CapsuleColliderShape);
+c("ConeColliderShape", ConeColliderShape);
+c("CylinderColliderShape", CylinderColliderShape);
+c("SphereColliderShape", SphereColliderShape);

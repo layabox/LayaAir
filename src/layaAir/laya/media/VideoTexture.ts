@@ -28,13 +28,14 @@ export class VideoTexture extends BaseTexture {
 
     private _source: string;
     private _listeningEvents: Record<string, (evt: Event) => void>;
-    private immediatelyPlay = false;
+    private immediatelyPlay:boolean;
     /**
      * 创建VideoTexture对象，
      */
     constructor() {
         let ele: HTMLVideoElement = ILaya.Browser.createElement("video");
         super(ele.videoWidth, ele.videoHeight, RenderTargetFormat.R8G8B8);
+        this.immediatelyPlay=false;
         this.element = ele;
 
         this.onRender = new Delegate();

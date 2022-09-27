@@ -1,5 +1,6 @@
 import { ColliderShape } from "./ColliderShape";
 import { ILaya3D } from "../../../../ILaya3D";
+import { LayaEnv } from "../../../../LayaEnv";
 
 /**
  * <code>CylinderColliderShape</code> 类用于创建圆柱碰撞器。
@@ -26,6 +27,11 @@ export class CylinderColliderShape extends ColliderShape {
 		return this._radius;
 	}
 
+	set radius(value: number) {
+		this._radius = value;
+		if (LayaEnv.isPlaying) this.changeCylinder();
+	}
+
 	/**
 	 * 高度。
 	 */
@@ -33,11 +39,21 @@ export class CylinderColliderShape extends ColliderShape {
 		return this._height;
 	}
 
+	set height(value: number) {
+		this._height = value;
+		if (LayaEnv.isPlaying) this.changeCylinder();
+	}
+
 	/**
 	 * 方向。
 	 */
 	get orientation(): number {
 		return this._orientation;
+	}
+
+	set orientation(value: number) {
+		this._orientation = value;
+		if (LayaEnv.isPlaying) this.changeCylinder();
 	}
 
 	/**
@@ -68,6 +84,10 @@ export class CylinderColliderShape extends ColliderShape {
 			default:
 				throw "CapsuleColliderShape:unknown orientation.";
 		}
+	}
+
+	changeCylinder() {
+		//TODO 
 	}
 
 	/**
