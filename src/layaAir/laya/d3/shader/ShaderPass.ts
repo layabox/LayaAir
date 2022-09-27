@@ -31,6 +31,8 @@ export class ShaderPass extends ShaderCompileDefineBase {
     _tags: any = {};
     /** @internal */
     _pipelineMode: string;
+    /**设置这个参数，会优先ShaderPass设置的渲染状态 */
+    statefirst: boolean = false;
 
     /**
      * 渲染状态。

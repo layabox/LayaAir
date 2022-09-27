@@ -150,6 +150,7 @@ export class ShaderInstance {
 		var renderState: RenderState = (<ShaderPass>this._shaderPass).renderState;
 		var datas: any = shaderDatas.getData();
 
+
 		var depthWrite: any = this._getRenderState(datas, Shader3D.RENDER_STATE_DEPTH_WRITE);
 		var depthTest: any = this._getRenderState(datas, Shader3D.RENDER_STATE_DEPTH_TEST);
 		var blend: any = this._getRenderState(datas, Shader3D.RENDER_STATE_BLEND);
@@ -157,13 +158,24 @@ export class ShaderInstance {
 		var stencilTest: any = this._getRenderState(datas, Shader3D.RENDER_STATE_STENCIL_TEST);
 		var stencilWrite: any = this._getRenderState(datas, Shader3D.RENDER_STATE_STENCIL_WRITE);
 		var stencilOp: any = this._getRenderState(datas, Shader3D.RENDER_STATE_STENCIL_OP);
-		depthWrite == null && (depthWrite = renderState.depthWrite);
-		depthTest == null && (depthTest = renderState.depthTest);
-		blend == null && (blend = renderState.blend);
-		stencilRef == null && (stencilRef = renderState.stencilRef);
-		stencilTest == null && (stencilTest = renderState.stencilTest);
-		stencilWrite == null && (stencilTest = renderState.stencilWrite);
-		stencilOp == null && (stencilOp = renderState.stencilOp);
+		if (!(<ShaderPass>this._shaderPass).statefirst) {
+			depthWrite == null && (depthWrite = renderState.depthWrite);
+			depthTest == null && (depthTest = renderState.depthTest);
+			blend == null && (blend = renderState.blend);
+			stencilRef == null && (stencilRef = renderState.stencilRef);
+			stencilTest == null && (stencilTest = renderState.stencilTest);
+			stencilWrite == null && (stencilTest = renderState.stencilWrite);
+			stencilOp == null && (stencilOp = renderState.stencilOp);
+		} else {
+			renderState.depthWrite!=null ? depthWrite = renderState.depthWrite : 0;
+			renderState.depthTest!=null ? depthTest = renderState.depthTest : 0;
+			renderState.blend!=null ? blend = renderState.blend : 0;
+			renderState.stencilRef!=null ? stencilRef = renderState.stencilRef : 0;
+			renderState.stencilTest!=null ? stencilTest = renderState.stencilTest : 0;
+			renderState.stencilWrite!=null ? stencilWrite = renderState.stencilWrite : 0;
+			renderState.stencilOp!=null ? stencilOp = renderState.stencilOp : 0;
+		}
+
 
 		RenderStateContext.setDepthMask(depthWrite);
 		if (depthTest === RenderState.DEPTHTEST_OFF)
@@ -230,7 +242,11 @@ export class ShaderInstance {
 		var renderState: RenderState = (<ShaderPass>this._shaderPass).renderState;
 		var datas: any = shaderDatas.getData();
 		var cull: any = this._getRenderState(datas, Shader3D.RENDER_STATE_CULL);
-		cull == null && (cull = renderState.cull);
+		if (!(<ShaderPass>this._shaderPass).statefirst)
+			cull == null && (cull = renderState.cull);
+		else {
+			renderState.cull ? cull = renderState.cull : 0;
+		}
 
 		var forntFace: number;
 		switch (cull) {
