@@ -1,4 +1,4 @@
-import { IResourceLoader, ILoadTask, Loader } from "../../net/Loader";
+import { IResourceLoader, ILoadTask, Loader, ILoadURL } from "../../net/Loader";
 import { URL } from "../../net/URL";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { AssetDb } from "../../resource/AssetDb";
@@ -10,7 +10,7 @@ class MaterialLoader implements IResourceLoader {
             if (!data)
                 return null;
 
-            let urls: Array<any> = MaterialParser.collectLinks(data, URL.getPath(task.url));
+            let urls: Array<ILoadURL | string> = MaterialParser.collectLinks(data, URL.getPath(task.url));
 
             if (data.version === "LAYAMATERIAL:04") {
                 let shaderName = data.props.type;

@@ -1,3 +1,5 @@
+import { Utils } from "../utils/Utils";
+
 export class AssetDb {
     static inst: AssetDb = new AssetDb();
 
@@ -32,6 +34,6 @@ export class AssetDb {
     }
 
     getSubAssetURL(url: string, uuid: string, subAssetName: string, subAssetExt: string): string {
-        return `${url}@${subAssetName}.${subAssetExt}`;
+        return `${Utils.replaceFileExtension(url, "")}@${subAssetName}.${subAssetExt}`;
     }
 }
