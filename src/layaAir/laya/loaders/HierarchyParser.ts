@@ -1,6 +1,7 @@
 import { Component } from "../components/Component";
 import { Node } from "../display/Node";
 import { Loader, ILoadURL } from "../net/Loader";
+import { URL } from "../net/URL";
 import { HierarchyResource } from "../resource/HierarchyResource";
 import { ClassUtils } from "../utils/ClassUtils";
 import { SerializeUtil } from "./SerializeUtil";
@@ -56,7 +57,7 @@ export class HierarchyParser {
             }
             else {
                 if (pstr = nodeData._$prefab) { //prefab根节点
-                    let res = <HierarchyResource>Loader.getRes("res://" + pstr, Loader.HIERARCHY);
+                    let res = <HierarchyResource>Loader.getRes(pstr, Loader.HIERARCHY);
                     if (res) {
                         if (!prefabNodeDict)
                             prefabNodeDict = new Map();
@@ -240,15 +241,20 @@ export class HierarchyParser {
         return outNodes;
     }
 
-    public static collectResourceLinks(data: any) {
+    public static collectResourceLinks(data: any, basePath: string) {
         let test = new Set();
         let innerUrls: ILoadURL[] = [];
 
-        function addInnerUrl(uuid: string, type: string) {
-            if (!test.has(uuid)) {
-                test.add(uuid);
-                innerUrls.push({ url: "res://" + uuid, type: type });
+        function addInnerUrl(url: string, type: string) {
+            if (!test.has(url)) {
+                test.add(url);
+                if (url.length == 36 && url.charCodeAt(9) === 45) //uuid
+                    url = "res://" + url;
+                else
+                    url = URL.join(basePath, url);
+                innerUrls.push({ url: url, type: type });
             }
+            return url;
         }
 
         function check(data: any) {
@@ -263,9 +269,9 @@ export class HierarchyParser {
 
                         if (typeof (item) === "object") {
                             if (item._$uuid != null)
-                                addInnerUrl(item._$uuid, item._$type == "Texture2D" ? Loader.TEXTURE2D : null);
+                                item._$uuid = addInnerUrl(item._$uuid, item._$type == "Texture2D" ? Loader.TEXTURE2D : null);
                             else if (item._$prefab != null) {
-                                addInnerUrl(item._$prefab, Loader.HIERARCHY);
+                                item._$prefab = addInnerUrl(item._$prefab, Loader.HIERARCHY);
                                 check(item);
                             }
                             else
@@ -275,9 +281,9 @@ export class HierarchyParser {
                 }
                 else if (typeof (child) === "object") {
                     if (child._$uuid != null)
-                        addInnerUrl(child._$uuid, child._$type == "Texture2D" ? Loader.TEXTURE2D : null);
+                        child._$uuid = addInnerUrl(child._$uuid, child._$type == "Texture2D" ? Loader.TEXTURE2D : null);
                     else if (child._$prefab != null) {
-                        addInnerUrl(child._$prefab, Loader.HIERARCHY);
+                        child._$prefab = addInnerUrl(child._$prefab, Loader.HIERARCHY);
                         check(child);
                     }
                     else

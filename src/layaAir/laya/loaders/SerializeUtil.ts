@@ -40,7 +40,10 @@ export class SerializeUtil {
         }
         else if (typeof (data) === "object") {
             if (data._$uuid != null) {
-                return ILaya.loader.getRes("res://" + data._$uuid, data._$type === "Texture2D" ? Loader.TEXTURE2D : null);
+                let url: string = data._$uuid;
+                if (url.length == 36 && url.charCodeAt(9) === 45) //uuid
+                    url = "res://" + url;
+                return ILaya.loader.getRes(url, data._$type === "Texture2D" ? Loader.TEXTURE2D : null);
             }
 
             if (data._$ref != null) {

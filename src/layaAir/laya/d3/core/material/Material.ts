@@ -446,8 +446,11 @@ export class Material extends Resource implements IClone {
      */
     setShaderName(name: string): void {
         this._shader = Shader3D.find(name);
-        if (!this._shader)
-            throw new Error("Material: unknown shader name.");
+        if (!this._shader) {
+            //throw new Error("Material: unknown shader name.");
+            console.warn(`Material: unknown shader name '${name}'`);
+            this._shader = Shader3D.find("BLINNPHONG");
+        }
 
         if (Config3D._uniformBlock) {
             this._releaseUBOData();

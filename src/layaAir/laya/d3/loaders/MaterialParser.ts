@@ -1,4 +1,4 @@
-import { Loader } from "../../net/Loader";
+import { ILoadURL, Loader } from "../../net/Loader";
 import { URL } from "../../net/URL";
 import { BlendEquationSeparate } from "../../RenderEngine/RenderEnum/BlendEquationSeparate";
 import { BlendFactor } from "../../RenderEngine/RenderEnum/BlendFactor";
@@ -115,7 +115,7 @@ export class MaterialParser {
     }
 
     static collectLinks(data: any, basePath: string) {
-        let urls: any[] = [];
+        let urls: ILoadURL[] = [];
         let textures: any[] = data.props.textures;
         if (textures) {
             for (let i = 0, n = textures.length; i < n; i++) {
