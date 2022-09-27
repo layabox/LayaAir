@@ -85,8 +85,8 @@ export class Main {
         }
 
         Laya.stage.addChild(Main._indexView);
-        Main._indexView.left = 20;
-        Main._indexView.top = (window as any).viewtop || 350;
+        Main._indexView.left = 10;
+        Main._indexView.bottom = (window as any).viewtop || 50;
         Main._indexView.mouseEnabled = Main._indexView.mouseThrough = true;
         Main._indexView.switchFunc(0, 0);//切换到指定case
     }

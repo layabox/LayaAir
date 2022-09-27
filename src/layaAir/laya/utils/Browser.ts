@@ -88,6 +88,11 @@ export class Browser {
     private static _pixelRatio: number = -1;
 
     /** @private */
+    private static _clientWidth: number;
+    /** @private */
+    private static _clientHeight: number;
+
+    /** @private */
     static mainCanvas: any = null;
 
     /**@private */
@@ -365,7 +370,7 @@ export class Browser {
      * 获取浏览器当前时间戳，单位为毫秒。
      */
     static now(): number {
-        return Date.now();;
+        return Date.now();
     }
 
     /**
@@ -374,7 +379,11 @@ export class Browser {
      */
     static get clientWidth(): number {
         Browser.__init__();
-        return Browser._window.innerWidth || Browser._document.body.clientWidth;
+        return Browser._clientWidth || Browser._window.innerWidth || Browser._document.body.clientWidth;
+    }
+
+    static set clientWidth(value: number) {
+        Browser._clientWidth = value;
     }
 
     /**
@@ -383,7 +392,11 @@ export class Browser {
      */
     static get clientHeight(): number {
         Browser.__init__();
-        return Browser._window.innerHeight || Browser._document.body.clientHeight || Browser._document.documentElement.clientHeight;
+        return Browser._clientHeight || Browser._window.innerHeight || Browser._document.body.clientHeight || Browser._document.documentElement.clientHeight;
+    }
+
+    static set clientHeight(value: number) {
+        Browser._clientHeight = value;
     }
 
     /** 浏览器窗口物理宽度。考虑了设备像素比。*/

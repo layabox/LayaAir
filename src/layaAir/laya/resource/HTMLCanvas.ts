@@ -177,8 +177,8 @@ export class HTMLCanvas extends Resource {
      */
     getTexture(): Texture | null | RenderTexture2D {
         if (!this._texture) {
-	var bitmap: Texture2D = new Texture2D(this.source.width, this.source.height, TextureFormat.R8G8B8A8, true, false, false);
-        bitmap.setImageData(this.source, false, false);
+            var bitmap: Texture2D = new Texture2D(this.source.width, this.source.height, TextureFormat.R8G8B8A8, true, false, false);
+            bitmap.setImageData(this.source, false, false);
             this._texture = new Texture(bitmap);
         }
         return this._texture;
