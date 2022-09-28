@@ -15,7 +15,7 @@ import { NativeRenderTexture2D } from "./NativeRenderTexture2D";
 export class RenderTexture2D extends BaseTexture implements IRenderTarget {
     /** @private */
     private static _currentActive: RenderTexture2D;
-    private static _clearColor: Color = new Color();
+    static _clearColor: Color = new Color();
     private _lastRT: RenderTexture2D;
     private _lastWidth: number;
     private _lastHeight: number;
@@ -102,7 +102,7 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
      * @param depthStencilFormat 深度格式。
      * 创建一个 <code>RenderTexture</code> 实例。
      */
-    constructor(width: number, height: number, format: number = RenderTargetFormat.R8G8B8, depthStencilFormat: number = RenderTargetFormat.None) {//TODO:待老郭清理
+    constructor(width: number, height: number, format: RenderTargetFormat = RenderTargetFormat.R8G8B8, depthStencilFormat: RenderTargetFormat = RenderTargetFormat.None) {//TODO:待老郭清理
 
         super(width, height, format);
         this._colorFormat = format;
@@ -222,7 +222,7 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
 
     }
 
-
+    
     clear(r: number = 0.0, g: number = 0.0, b: number = 0.0, a: number = 1.0): void {
 
         RenderTexture2D._clearColor.r = r;
