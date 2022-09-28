@@ -1297,7 +1297,8 @@ export class Sprite extends Node {
         }
         if (ctx._targets) {
             ctx._targets.start();
-            ctx._targets.clear(0, 0, 0, 0);	// 否则没有地方调用clear
+            let color = RenderTexture2D._clearColor;
+            ctx._targets.clear(color.r, color.g, color.b, color.a);
             RenderSprite.renders[_renderType]._fun(sprite, ctx, offsetX, offsetY);
             ctx.flush();
             ctx._targets.end();
