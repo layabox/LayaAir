@@ -628,7 +628,7 @@ export class BaseRender extends Component implements ISingletonElement {
 
     /**
      * @internal
-     * 裁剪失败后，如果需要可以调用此函数更新数据
+     * 裁剪失败后，如果需要可以调用此函数更新数据 TODO
      */
     _CullOut(): void {
     }

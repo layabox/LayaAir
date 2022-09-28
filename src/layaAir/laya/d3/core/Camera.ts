@@ -96,6 +96,8 @@ export class Camera extends BaseCamera {
 
     /** @internal 深度贴图管线*/
     static depthPass: DepthPass;
+    /**@internal 整体开启关闭后期处理 */
+    static enablePostProcess: boolean = true;//
 
     /**
      * 根据相机、scene信息获得scene中某一位置的渲染结果
@@ -1077,7 +1079,7 @@ export class Camera extends BaseCamera {
         this._applyCommandBuffer(CameraEventFlags.BeforeImageEffect, context);
         (renderTex) && (renderTex._end());
 
-        if (needInternalRT) {
+        if (needInternalRT && Camera.enablePostProcess) {
             if (this._postProcess && this._postProcess.enable) {
                 this._postProcess.commandContext = context;
                 this._postProcess._render();
