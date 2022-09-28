@@ -24,6 +24,7 @@ export class SceneRenderManagerOBJ implements ISceneRenderManager{
     }
     removeRenderObject(object: BaseRender): void {
         this._renders.remove(object);
+        this.removeMotionObject(object);
     }
 
     removeMotionObject(object: BaseRender): void {

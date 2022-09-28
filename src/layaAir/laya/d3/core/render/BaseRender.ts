@@ -608,6 +608,7 @@ export class BaseRender extends Component implements ISingletonElement {
      */
     _setUnBelongScene() {
         Stat.renderNode--;
+        this._scene._volumeManager.removeMotionObject(this);
         if (false) {
             this._subUniformBufferData && BaseRender._transLargeUbO.recover(this._subUniformBufferData);
             this._subUniformBufferData = null;
@@ -628,7 +629,7 @@ export class BaseRender extends Component implements ISingletonElement {
 
     /**
      * @internal
-     * 裁剪失败后，如果需要可以调用此函数更新数据 TODO
+     * 裁剪失败后，如果需要可以调用此函数更新数据
      */
     _CullOut(): void {
     }
