@@ -86,8 +86,31 @@ export class CylinderColliderShape extends ColliderShape {
 		}
 	}
 
+	/**
+	 * @internal
+	 */
 	changeCylinder() {
 		//TODO 
+		var bt: any = ILaya3D.Physics3D._bullet;
+		if (this._btShape) {
+			bt.btCollisionShape_destroy(this._btShape);
+		}
+		switch (this._orientation) {
+			case ColliderShape.SHAPEORIENTATION_UPX:
+				bt.btVector3_setValue(CylinderColliderShape._btSize, this._height / 2, this._radius, this._radius);
+				this._btShape = bt.btCylinderShapeX_create(CylinderColliderShape._btSize);
+				break;
+			case ColliderShape.SHAPEORIENTATION_UPY:
+				bt.btVector3_setValue(CylinderColliderShape._btSize, this._radius, this._height / 2, this._radius);
+				this._btShape = bt.btCylinderShape_create(CylinderColliderShape._btSize);
+				break;
+			case ColliderShape.SHAPEORIENTATION_UPZ:
+				bt.btVector3_setValue(CylinderColliderShape._btSize, this._radius, this._radius, this._height / 2);
+				this._btShape = bt.btCylinderShapeZ_create(CylinderColliderShape._btSize);
+				break;
+			default:
+				throw "CapsuleColliderShape:unknown orientation.";
+		}
 	}
 
 	/**

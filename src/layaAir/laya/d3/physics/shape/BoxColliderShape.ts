@@ -84,9 +84,17 @@ export class BoxColliderShape extends ColliderShape {
 		this._btShape = bt.btBoxShape_create(BoxColliderShape._btSize);
 	}
 
-
+	/**
+	 * @internal
+	 */
 	changeBoxShape() {
 		//TODO Miner
+		var bt: any = ILaya3D.Physics3D._bullet;
+		if (this._btShape) {
+			bt.btCollisionShape_destroy(this._btShape);
+		}
+		bt.btVector3_setValue(BoxColliderShape._btSize, this._sizeX / 2, this._sizeY / 2, this._sizeZ / 2);
+		this._btShape = bt.btBoxShape_create(BoxColliderShape._btSize);
 	}
 
 	/**

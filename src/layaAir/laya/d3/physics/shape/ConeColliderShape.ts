@@ -73,8 +73,28 @@ export class ConeColliderShape extends ColliderShape {
 		}
 	}
 
+	/**
+	 * @internal
+	 */
 	changeConeShape() {
-		//TODO miner
+		var bt: any = ILaya3D.Physics3D._bullet;
+		if (this._btShape) {
+			bt.btCollisionShape_destroy(this._btShape);
+		}
+
+		switch (this._orientation) {
+			case ColliderShape.SHAPEORIENTATION_UPX:
+				this._btShape = bt.btConeShapeX_create(this._radius, this._height);
+				break;
+			case ColliderShape.SHAPEORIENTATION_UPY:
+				this._btShape = bt.btConeShape_create(this._radius, this._height);
+				break;
+			case ColliderShape.SHAPEORIENTATION_UPZ:
+				this._btShape = bt.btConeShapeZ_create(this._radius, this._height);
+				break;
+			default:
+				throw "ConeColliderShape:unknown orientation.";
+		}
 	}
 
 	/**

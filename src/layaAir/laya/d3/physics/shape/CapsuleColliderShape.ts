@@ -89,8 +89,28 @@ export class CapsuleColliderShape extends ColliderShape {
 		}
 	}
 
+	/**
+	 * @internal
+	 */
 	changeCapsuleShape() {
 		//TODO MIner
+		var bt: any = ILaya3D.Physics3D._bullet;
+		if (this._btShape) {
+			bt.btCollisionShape_destroy(this._btShape);
+		}
+		switch (this._orientation) {
+			case ColliderShape.SHAPEORIENTATION_UPX:
+				this._btShape = bt.btCapsuleShapeX_create(this._radius, this._length - this._radius * 2);
+				break;
+			case ColliderShape.SHAPEORIENTATION_UPY:
+				this._btShape = bt.btCapsuleShape_create(this._radius, length - this._radius * 2);
+				break;
+			case ColliderShape.SHAPEORIENTATION_UPZ:
+				this._btShape = bt.btCapsuleShapeZ_create(this._radius, length - this._radius * 2);
+				break;
+			default:
+				throw "CapsuleColliderShape:unknown orientation.";
+		}
 	}
 
 	/**

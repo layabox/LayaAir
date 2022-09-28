@@ -34,8 +34,15 @@ export class SphereColliderShape extends ColliderShape {
 		this._btShape = ILaya3D.Physics3D._bullet.btSphereShape_create(radius);
 	}
 
+	/**
+	 * @internal
+	 */
 	changeSphere() {
-
+		var bt: any = ILaya3D.Physics3D._bullet;
+		if (this._btShape) {
+			bt.btCollisionShape_destroy(this._btShape);
+		}
+		this._btShape = ILaya3D.Physics3D._bullet.btSphereShape_create(this._radius);
 	}
 
 	/**

@@ -608,6 +608,7 @@ export class BaseRender extends Component implements ISingletonElement {
      */
     _setUnBelongScene() {
         Stat.renderNode--;
+        this._scene._volumeManager.removeMotionObject(this);
         if (false) {
             this._subUniformBufferData && BaseRender._transLargeUbO.recover(this._subUniformBufferData);
             this._subUniformBufferData = null;

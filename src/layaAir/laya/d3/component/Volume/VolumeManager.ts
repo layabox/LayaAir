@@ -74,6 +74,10 @@ export class VolumeManager implements IVolumeManager {
         this._motionObjects.add(renderObj);
     }
 
+    removeMotionObject(renderObj:BaseRender){
+        this._motionObjects.remove(renderObj);
+    }
+
     /**
      * update one RenderNode Volume info
      * @param baseRender 

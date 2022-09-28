@@ -41,9 +41,9 @@ export class SerializeUtil {
         else if (typeof (data) === "object") {
             if (data._$uuid != null) {
                 let url: string = data._$uuid;
-                if (url.length == 36 && url.charCodeAt(9) === 45) //uuid
+                if (url.length >= 36 && url.charCodeAt(8) === 45 && url.charCodeAt(13) === 45) //uuid xxxxxxxx-xxxx-...
                     url = "res://" + url;
-                return ILaya.loader.getRes(url, data._$type === "Texture2D" ? Loader.TEXTURE2D : null);
+                return ILaya.loader.getRes(url, SerializeUtil.getLoadTypeByEngineType(data._$type));
             }
 
             if (data._$ref != null) {
@@ -113,5 +113,16 @@ export class SerializeUtil {
         }
         else
             return data;
+    }
+
+    static getLoadTypeByEngineType(type: string) {
+        switch (type) {
+            case "Texture2D":
+                return Loader.TEXTURE2D;
+            case "TextureCube":
+                return Loader.TEXTURECUBE;
+            default:
+                return null;
+        }
     }
 }
