@@ -172,12 +172,18 @@ export class Utils {
 
         if (i != -1) {
             let ext = path.substring(i + 1).toLowerCase();
-            i = ext.indexOf("?");
-            if (i != -1)
-                return ext.substring(0, i);
-            else
-                return ext;
-
+            let j = ext.indexOf("?");
+            if (j != -1)
+                ext = ext.substring(0, j);
+            if (ext === "ls") { //lanit.ls ltcb.ls 这类特殊扩展名的支持
+                let k = path.lastIndexOf(".", i - 1);
+                if (k != -1) {
+                    let ext2 = path.substring(k + 1, i + 1) + ext;
+                    if (ext2 === "lanit.ls" || ext2 === "ltcb.ls")
+                        return ext2;
+                }
+            }
+            return ext;
         }
         else
             return "";

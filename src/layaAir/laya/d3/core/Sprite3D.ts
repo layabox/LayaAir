@@ -14,6 +14,10 @@ import { NodeFlags } from "../../Const";
 import { Event } from "../../events/Event";
 import { Component } from "../../components/Component";
 
+enum StaticFlag {
+    StaticBatch = 1 << 2
+}
+
 /**
  * <code>Sprite3D</code> 类用于实现3D精灵。
  */
@@ -75,7 +79,7 @@ export class Sprite3D extends Node {
     private _id: number;
 
     /** @internal */
-    _isStatic: boolean;
+    _isStatic: number;
     /** @internal */
     _layer: number;
     /**@internal */
@@ -115,7 +119,7 @@ export class Sprite3D extends Node {
      * 是否为静态。
      */
     get isStatic(): boolean {
-        return this._isStatic;
+        return !!(this._isStatic | 0x0);
     }
 
     /**
@@ -156,7 +160,7 @@ export class Sprite3D extends Node {
         this._id = ++Sprite3D._uniqueIDCounter;
         this._is3D = true;
         this._transform = LayaGL.renderOBJCreate.createTransform(this);
-        this._isStatic = isStatic;
+        this._isStatic = isStatic ? 0xffffffff : 0x0;
         this.layer = 0;
         this.name = name ? name : "New Sprite3D";
     }
