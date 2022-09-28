@@ -248,7 +248,7 @@ export class HierarchyParser {
         function addInnerUrl(url: string, type: string) {
             if (!test.has(url)) {
                 test.add(url);
-                if (url.length == 36 && url.charCodeAt(9) === 45) //uuid
+                if (url.length >= 36 && url.charCodeAt(8) === 45 && url.charCodeAt(13) === 45) //uuid xxxxxxxx-xxxx-...
                     url = "res://" + url;
                 else
                     url = URL.join(basePath, url);
