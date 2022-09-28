@@ -21,7 +21,7 @@ export class Animator2D extends Component {
 
     private _isPlaying = true;
 
-    _parameters: Record<string, Animation2DParm>;
+    _parameters: Record<number, Animation2DParm>;
 
 
     constructor() {
@@ -30,7 +30,7 @@ export class Animator2D extends Component {
         this._parameters = {};
     }
 
-    set parameters(val: Record<string, Animation2DParm>) {
+    set parameters(val: Record<number, Animation2DParm>) {
         this._parameters = val;
     }
     get parameters() {
