@@ -4,6 +4,7 @@ export enum AniParmType {
     Bool,
 }
 export class Animation2DParm {
+    name: string;
     type: AniParmType;
     value: boolean | number;
 }
