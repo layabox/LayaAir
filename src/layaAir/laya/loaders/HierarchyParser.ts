@@ -269,7 +269,7 @@ export class HierarchyParser {
 
                         if (typeof (item) === "object") {
                             if (item._$uuid != null)
-                                item._$uuid = addInnerUrl(item._$uuid, item._$type == "Texture2D" ? Loader.TEXTURE2D : null);
+                                item._$uuid = addInnerUrl(item._$uuid, SerializeUtil.getLoadTypeByEngineType(item._$type));
                             else if (item._$prefab != null) {
                                 item._$prefab = addInnerUrl(item._$prefab, Loader.HIERARCHY);
                                 check(item);
@@ -281,7 +281,7 @@ export class HierarchyParser {
                 }
                 else if (typeof (child) === "object") {
                     if (child._$uuid != null)
-                        child._$uuid = addInnerUrl(child._$uuid, child._$type == "Texture2D" ? Loader.TEXTURE2D : null);
+                        child._$uuid = addInnerUrl(child._$uuid, SerializeUtil.getLoadTypeByEngineType(child._$type));
                     else if (child._$prefab != null) {
                         child._$prefab = addInnerUrl(child._$prefab, Loader.HIERARCHY);
                         check(child);
