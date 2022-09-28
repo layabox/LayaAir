@@ -129,7 +129,6 @@ export class Laya {
             Laya.enableNative();
         }
         CacheManger.beginCheck();
-        Laya.stage = new Stage();
         stage = Laya.stage = new Stage();
         ILaya.stage = Laya.stage;
 
