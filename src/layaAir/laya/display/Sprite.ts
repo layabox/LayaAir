@@ -1213,8 +1213,8 @@ export class Sprite extends Node {
      * @param offsetX 
      * @param offsetY 
      */
-    drawToTexture(canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number, rt: RenderTexture2D | null = null): Texture | RenderTexture2D {
-        return Sprite.drawToTexture(this, this._renderType, canvasWidth, canvasHeight, offsetX, offsetY, rt);
+    drawToTexture(offsetX: number, offsetY: number, rt: RenderTexture2D | null = null): Texture | RenderTexture2D {
+        return Sprite.drawToTexture(this, this._renderType, offsetX, offsetY, rt);
     }
 
     /**
@@ -1277,7 +1277,7 @@ export class Sprite extends Node {
      * @private 
      * 
      */
-    static drawToTexture(sprite: Sprite, _renderType: number, canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number, rt: RenderTexture2D | null = null): Texture | RenderTexture2D {
+    static drawToTexture(sprite: Sprite, _renderType: number, offsetX: number, offsetY: number, rt: RenderTexture2D | null = null): Texture | RenderTexture2D {
         if (!Sprite.drawtocanvCtx) {
             Sprite.drawtocanvCtx = new Context();
         }
@@ -1285,11 +1285,11 @@ export class Sprite extends Node {
         offsetY -= sprite.y;
         offsetX |= 0;
         offsetY |= 0;
-        canvasWidth |= 0;
-        canvasHeight |= 0;
+        let width = rt.width;
+        let height = rt.height;
         var ctx = rt ? Sprite.drawtocanvCtx : new Context();
         ctx.clear();
-        ctx.size(canvasWidth, canvasHeight);
+        ctx.size(width, height);
         if (rt) {
             ctx._targets = rt;
         } else {
