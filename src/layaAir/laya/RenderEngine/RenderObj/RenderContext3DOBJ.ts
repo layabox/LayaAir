@@ -33,6 +33,7 @@ export class RenderContext3DOBJ implements IRenderContext3D {
     constructor() {
         this.viewPort = new Viewport(0, 0, 0, 0);
         this.scissor = new Vector4();
+        this.pipelineMode = "Forward";
     }
 
     /**设置IRenderContext */
