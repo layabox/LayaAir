@@ -31,4 +31,6 @@ export class Scene3DShaderDeclaration {
 	static SHADERDEFINE_GI_LEGACYIBL: ShaderDefine;
 	/**@internal */
 	static SHADERDEFINE_GI_IBL: ShaderDefine;
+	/**@internal */
+	static SHADERDEFINE_IBL_RGBD: ShaderDefine;
 }

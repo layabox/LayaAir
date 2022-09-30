@@ -34,7 +34,13 @@ vec3 specularIrradiance(in vec3 r, in float perceptualRoughness)
     vec3 reflectDir = r * vec3(-1.0, 1.0, 1.0);
 
     // todo float 编码 ?
-    return textureCubeLodEXT(u_IBLTex, reflectDir, lod).rgb;
+    vec4 reflectSampler = textureCubeLodEXT(u_IBLTex, reflectDir, lod);
+
+	#ifdef IBL_RGBD
+    return decodeRGBD(reflectSampler);
+	#else // IBL_RGBD
+    return reflectSampler.rgb;
+	#endif // IBL_RGBD
 }
 
     #endif // GI_IBL

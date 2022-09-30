@@ -213,6 +213,7 @@ export class Scene3D extends Sprite implements ISubmit {
         Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SOFT_SHADOW_LOW = Shader3D.getDefineByName("SHADOW_SOFT_SHADOW_LOW");
         Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SOFT_SHADOW_HIGH = Shader3D.getDefineByName("SHADOW_SOFT_SHADOW_HIGH");
         Scene3DShaderDeclaration.SHADERDEFINE_GI_IBL = Shader3D.getDefineByName("GI_IBL");
+        Scene3DShaderDeclaration.SHADERDEFINE_IBL_RGBD = Shader3D.getDefineByName("IBL_RGBD");
         Scene3DShaderDeclaration.SHADERDEFINE_GI_LEGACYIBL = Shader3D.getDefineByName("GI_LEGACYIBL");
         Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SPOT = Shader3D.getDefineByName("SHADOW_SPOT");
         Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SPOT_SOFT_SHADOW_LOW = Shader3D.getDefineByName("SHADOW_SPOT_SOFT_SHADOW_LOW");
@@ -669,6 +670,20 @@ export class Scene3D extends Sprite implements ISubmit {
         this._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_GI_IBL);
         this._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_GI_LEGACYIBL);
         this._shaderValues.setTexture(Scene3D.IBLTEX, value);
+    }
+
+    private _iblTexRGBD: boolean;
+    public get iblTexRGBD(): boolean {
+        return this._iblTexRGBD;
+    }
+    public set iblTexRGBD(value: boolean) {
+        this._iblTexRGBD = value;
+        if (value) {
+            this._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_IBL_RGBD);
+        }
+        else {
+            this._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_IBL_RGBD);
+        }
     }
 
     /**
