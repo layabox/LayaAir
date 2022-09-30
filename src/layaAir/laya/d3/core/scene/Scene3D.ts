@@ -381,6 +381,13 @@ export class Scene3D extends Sprite implements ISubmit {
         });
     }
 
+    /**ide配置文件使用 */
+    _reflectionsSource:number = 0;
+    /**ide配置文件使用 */
+    _reflectionsResolution:string = "256";
+
+
+
     /** @internal */
     private _group: string;
     /** @internal */

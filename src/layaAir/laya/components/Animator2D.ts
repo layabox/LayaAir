@@ -23,6 +23,8 @@ export class Animator2D extends Component {
 
     _parameters: Record<number, Animation2DParm>;
 
+    _parametersNameMap: Record<string, Animation2DParm>;
+
 
     constructor() {
         super();
@@ -32,6 +34,16 @@ export class Animator2D extends Component {
 
     set parameters(val: Record<number, Animation2DParm>) {
         this._parameters = val;
+        this._parametersNameMap = {};
+        if (val) {
+            for (var k in val) {
+                var o = val[k];
+                this._parametersNameMap[o.name] = o;
+            }
+        }
+
+
+
     }
     get parameters() {
         return this._parameters;
