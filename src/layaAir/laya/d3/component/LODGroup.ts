@@ -172,7 +172,7 @@ export class LODGroup extends Component {
      * 设置 LODInfo 数组
      * @param data 
      */
-    setLODS(data: LODInfo[]) {
+    setLODs(data: LODInfo[]) {
         this._lods = data;
         this._lods.forEach((element, index) => {
             element.group = this;
@@ -323,7 +323,7 @@ export class LODGroup extends Component {
                     cloneLOD.addNode(node);
             });
         }
-        lodGroup.setLODS(lodArray);
+        lodGroup.setLODs(lodArray);
     }
 
 
