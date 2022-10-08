@@ -95,6 +95,7 @@ import { CapsuleColliderShape } from "./physics/shape/CapsuleColliderShape";
 import { CylinderColliderShape } from "./physics/shape/CylinderColliderShape";
 import { ConeColliderShape } from "./physics/shape/ConeColliderShape";
 import { SphereColliderShape } from "./physics/shape/SphereColliderShape";
+import { LODGroup, LODInfo } from "./component/LODGroup";
 
 let c = ClassUtils.regClass;
 c("Sprite3D", Sprite3D);
@@ -181,6 +182,8 @@ c("ColorOverLifetime", ColorOverLifetime);
 c("RotationOverLifetime", RotationOverLifetime);
 c("SizeOverLifetime", SizeOverLifetime);
 c("VelocityOverLifetime", VelocityOverLifetime);
+c("LODInfo", LODInfo);
+c("LODGroup", LODGroup);
 
 
 c("DirectionLight", DirectionLight);
