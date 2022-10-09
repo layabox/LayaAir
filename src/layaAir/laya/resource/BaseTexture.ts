@@ -1,5 +1,6 @@
 import { LayaGL } from "../layagl/LayaGL";
 import { FilterMode } from "../RenderEngine/RenderEnum/FilterMode";
+import { HDREncodeFormat } from "../RenderEngine/RenderEnum/HDREncodeFormat";
 import { TextureCompareMode } from "../RenderEngine/RenderEnum/TextureCompareMode";
 import { TextureDimension } from "../RenderEngine/RenderEnum/TextureDimension";
 import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
@@ -15,6 +16,8 @@ export class BaseTexture extends Resource {
      * @internal
      */
     _texture: InternalTexture;
+    /**@internal */
+    hdrEncodeFormat:HDREncodeFormat;
     /**@private */
     protected _width: number;
     /**@private */
@@ -137,6 +140,7 @@ export class BaseTexture extends Resource {
         this._height = height;
         this._format = format;
         this.destoryedImmediately = false;
+        this.hdrEncodeFormat = HDREncodeFormat.NONE;
     }
 
     /**
