@@ -50,7 +50,12 @@ export class LODInfo {
         let ren = node;
         if (ren._isRenderNode > 0) {
             let components = ren.renderComponent as BaseRender[];
-            this._renders = this._renders.concat(components);
+            //this._renders = this._renders.concat(components);
+            components.forEach(value=>{
+                if(this._renders.indexOf(value)==-1){
+                    this._renders.push(value);
+                }
+            });
             this._group && node.transform.on(Event.TRANSFORM_CHANGED, this._group._updateRecaculateFlag);
         }
         for (var i = 0, n = node.numChildren; i < n; i++) {
@@ -126,6 +131,7 @@ export class LODGroup extends Component {
         super();
         this._bounds = new Bounds();
         this._lodPosition = new Vector3();
+        this.runInEditor = true;
     }
 
     protected _onEnable(): void {
@@ -179,6 +185,7 @@ export class LODGroup extends Component {
             this._setLODinvisible(index);
         });
         this._updateRecaculateFlag();
+        this._visialIndex = -1;
         //this.recalculateBounds();
         this._lodCount = this._lods.length;
     }
@@ -325,6 +332,4 @@ export class LODGroup extends Component {
         }
         lodGroup.setLODs(lodArray);
     }
-
-
 }
