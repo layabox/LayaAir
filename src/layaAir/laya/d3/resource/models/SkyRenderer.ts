@@ -97,7 +97,7 @@ export class SkyRenderer {
      */
     constructor() {
         this._renderElement = new RenderElement();
-        this.mesh = SkyBox.instance;
+        this.mesh = SkyDome.instance;
         this._renderData = new BaseRender();
         this._renderElement.render = this._renderData;
     }
