@@ -39,6 +39,7 @@ import { BufferUsage } from "../RenderEngine/RenderEnum/BufferTargetType";
 import { IndexFormat } from "../RenderEngine/RenderEnum/IndexFormat";
 import { Base64Tool } from "../utils/Base64Tool";
 import { HierarchyLoader } from "../loaders/HierarchyLoader";
+import { HDREncodeFormat } from "../RenderEngine/RenderEnum/HDREncodeFormat";
 
 const maxSubBoneCount = 24;
 
@@ -497,7 +498,8 @@ export class glTFResource extends HierarchyResource {
             wrapModeU: this.getTextureWrapMode(glTFSampler.wrapS),
             wrapModeV: this.getTextureWrapMode(glTFSampler.wrapT),
             // todo aniso值 设置 默认值 ?
-            anisoLevel: 16
+            anisoLevel: 16,
+            hdrEncodeFormat:HDREncodeFormat.NONE
         };
         return propertyParams;
     }
