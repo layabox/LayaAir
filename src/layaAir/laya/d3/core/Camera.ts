@@ -611,7 +611,9 @@ export class Camera extends BaseCamera {
         else
             this._internalRenderTexture && (this._internalRenderTexture.generateDepthTexture = false);
     }
-
+    get enableBlitDepth() {
+        return this._canBlitDepth;
+    }
     get canblitDepth() {
         return this._canBlitDepth && this._internalRenderTexture && this._internalRenderTexture.depthStencilFormat != null;
     }

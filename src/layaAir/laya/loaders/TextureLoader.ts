@@ -44,7 +44,8 @@ class Texture2DLoader implements IResourceLoader {
                 wrapModeV: meta.wrapMode,
                 filterMode: meta.filterMode,
                 anisoLevel: meta.anisoLevel,
-                premultiplyAlpha: meta.pma
+                premultiplyAlpha: meta.pma,
+                hdrEncodeFormat: meta.hdrEncodeFormat,
             };
         }
         else {
@@ -93,6 +94,11 @@ class Texture2DLoader implements IResourceLoader {
                 let obsoluteInst = <Texture2D>task.obsoluteInst;
                 if (obsoluteInst)
                     tex = this.move(obsoluteInst, tex);
+
+
+
+                if (null != propertyParams.hdrEncodeFormat && tex)
+                    tex.hdrEncodeFormat = propertyParams.hdrEncodeFormat;
                 return tex;
             });
         }

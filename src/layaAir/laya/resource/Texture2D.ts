@@ -12,13 +12,15 @@ import { RenderCapable } from "../RenderEngine/RenderEnum/RenderCapable";
 import { TextureDimension } from "../RenderEngine/RenderEnum/TextureDimension";
 import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
 import { LayaEnv } from "../../LayaEnv";
+import { HDREncodeFormat } from "../RenderEngine/RenderEnum/HDREncodeFormat";
 
 export interface TexturePropertyParams {
     wrapModeU?: number,
     wrapModeV?: number,
     filterMode?: FilterMode,
     anisoLevel?: number,
-    premultiplyAlpha?: boolean
+    premultiplyAlpha?: boolean,
+    hdrEncodeFormat?: HDREncodeFormat,
 }
 
 export type TextureConstructParams = ConstructorParameters<typeof Texture2D>;
