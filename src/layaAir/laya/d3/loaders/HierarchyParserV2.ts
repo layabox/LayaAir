@@ -231,17 +231,17 @@ class HierarchyParserV2 {
     }
 
     public static collectResourceLinks(data: any, basePath: string): (string | ILoadURL)[] {
-        let test: Record<string, ILoadURL> = {};
+        let test: Record<string, string> = {};
         let innerUrls: ILoadURL[] = [];
 
         function addInnerUrl(url: string, type: string, constructParams?: any, propertyParams?: any) {
-            let entry: ILoadURL = test[url];
-            if (!entry) {
-                entry = { url: URL.join(basePath, url), type: type, constructParams: constructParams, propertyParams: propertyParams };
-                test[url] = entry;
-                innerUrls.push(entry);
+            let url2 = test[url];
+            if (url2 === undefined) {
+                url2 = URL.join(basePath, url);
+                innerUrls.push({ url: url2, type: type, constructParams: constructParams, propertyParams: propertyParams });
+                test[url] = url2;
             }
-            return entry.url;
+            return url2;
         }
 
         function check(nodeData: any) {

@@ -242,19 +242,20 @@ export class HierarchyParser {
     }
 
     public static collectResourceLinks(data: any, basePath: string) {
-        let test = new Set();
+        let test: Record<string, string> = {};
         let innerUrls: ILoadURL[] = [];
 
         function addInnerUrl(url: string, type: string) {
-            if (!test.has(url)) {
-                test.add(url);
+            let url2 = test[url];
+            if (url2 === undefined) {
                 if (url.length >= 36 && url.charCodeAt(8) === 45 && url.charCodeAt(13) === 45) //uuid xxxxxxxx-xxxx-...
-                    url = "res://" + url;
+                    url2 = "res://" + url;
                 else
-                    url = URL.join(basePath, url);
-                innerUrls.push({ url: url, type: type });
+                    url2 = URL.join(basePath, url);
+                innerUrls.push({ url: url2, type: type });
+                test[url] = url2;
             }
-            return url;
+            return url2;
         }
 
         function check(data: any) {
