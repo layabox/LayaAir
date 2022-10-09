@@ -656,8 +656,10 @@ export class BaseRender extends Component implements ISingletonElement {
         var i: number = 0, n: number = 0;
         for (i = 0, n = this._renderElements.length; i < n; i++)
             this._renderElements[i].destroy();
-        for (i = 0, n = this._sharedMaterials.length; i < n; i++)
-            (this._sharedMaterials[i].destroyed) || (this._sharedMaterials[i]._removeReference());//TODO:材质可能为空
+        for (i = 0, n = this._sharedMaterials.length; i < n; i++) {
+            let m = this._sharedMaterials[i];
+            m && !m.destroyed && m._removeReference();
+        }
         this._renderElements = null;
         this._sharedMaterials = null;
         this._bounds = null;
