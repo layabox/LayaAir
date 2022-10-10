@@ -20,7 +20,7 @@ export interface TexturePropertyParams {
     filterMode?: FilterMode,
     anisoLevel?: number,
     premultiplyAlpha?: boolean,
-    hdrEncodeFormat:HDREncodeFormat
+    hdrEncodeFormat?: HDREncodeFormat,
 }
 
 export type TextureConstructParams = ConstructorParameters<typeof Texture2D>;
@@ -240,7 +240,6 @@ export class Texture2D extends BaseTexture {
             if (propertyParams.wrapModeV != null) this.wrapModeV = propertyParams.wrapModeV;
             if (propertyParams.filterMode != null) this.filterMode = propertyParams.filterMode;
             if (propertyParams.anisoLevel != null) this.anisoLevel = propertyParams.anisoLevel;
-            if(propertyParams.hdrEncodeFormat!=null) this.hdrEncodeFormat = propertyParams.hdrEncodeFormat;
         }
     }
 }

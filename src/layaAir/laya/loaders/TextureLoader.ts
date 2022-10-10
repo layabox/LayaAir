@@ -10,7 +10,6 @@ import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
 import { Browser } from "../utils/Browser";
 import { AssetDb } from "../resource/AssetDb";
 import { Resource } from "../resource/Resource";
-import { HDREncodeFormat } from "../RenderEngine/RenderEnum/HDREncodeFormat";
 
 const metaFetchingOptions = { noRetry: true, silent: true };
 
@@ -46,7 +45,7 @@ class Texture2DLoader implements IResourceLoader {
                 filterMode: meta.filterMode,
                 anisoLevel: meta.anisoLevel,
                 premultiplyAlpha: meta.pma,
-                hdrEncodeFormat:meta.hdrEncodeFormat
+                hdrEncodeFormat: meta.hdrEncodeFormat,
             };
         }
         else {
@@ -95,6 +94,11 @@ class Texture2DLoader implements IResourceLoader {
                 let obsoluteInst = <Texture2D>task.obsoluteInst;
                 if (obsoluteInst)
                     tex = this.move(obsoluteInst, tex);
+
+
+
+                if (null != propertyParams.hdrEncodeFormat && tex)
+                    tex.hdrEncodeFormat = propertyParams.hdrEncodeFormat;
                 return tex;
             });
         }
@@ -122,7 +126,7 @@ class Texture2DLoader implements IResourceLoader {
     }
 }
 
-const propertyParams2d: TexturePropertyParams = { premultiplyAlpha: true ,hdrEncodeFormat:HDREncodeFormat.NONE};
+const propertyParams2d: TexturePropertyParams = { premultiplyAlpha: true };
 const constructParams2d: TextureConstructParams = [null, null, TextureFormat.R8G8B8A8, false, false, true];
 
 class TextureLoader implements IResourceLoader {

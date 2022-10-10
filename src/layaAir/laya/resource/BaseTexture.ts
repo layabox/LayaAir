@@ -17,20 +17,11 @@ export class BaseTexture extends Resource {
      */
     _texture: InternalTexture;
     /**@internal */
-    _hdrEncodeFormat:HDREncodeFormat;
+    hdrEncodeFormat:HDREncodeFormat;
     /**@private */
     protected _width: number;
     /**@private */
     protected _height: number;
-
-
-    get hdrEncodeFormat(){
-        return this._hdrEncodeFormat;
-    }
-
-    set hdrEncodeFormat(value:HDREncodeFormat){
-        this._hdrEncodeFormat = value;
-    }
 
     /**
      * 获取宽度。
