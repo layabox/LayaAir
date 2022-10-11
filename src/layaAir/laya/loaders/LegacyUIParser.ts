@@ -606,8 +606,8 @@ export class LegacyUIParser {
         } else {
             this._tM = null;
         }
-        if (adptFun && (ClassUtils as any)[adptFun]) {
-            rst = (ClassUtils as any)[adptFun](rst);
+        if (adptFun && (this as any)[adptFun]) {
+            rst = (this as any)[adptFun](rst);
         }
         return rst;
     }
