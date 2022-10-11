@@ -666,14 +666,11 @@ export class Node extends EventDispatcher {
                 this._setBit(NodeFlags.NOT_ACTIVE, !value);
                 if (this._parent) {
                     if (this._parent.activeInHierarchy) {
-                        if (value) this._processActive();
-                        else this._processInActive();
+                        this._processActive(value, true);
                     }
                 }
-
             }
         }
-
     }
 
     /**
@@ -750,7 +747,7 @@ export class Node extends EventDispatcher {
         if (!this._scene || this.scene != scene) {
             this._scene = scene;
             this._onActiveInScene();
-            for (var i: number = 0, n: number = this._children.length; i < n; i++)
+            for (let i = 0, n = this._children.length; i < n; i++)
                 this._children[i]._setBelongScene(scene);
         }
     }
@@ -762,24 +759,32 @@ export class Node extends EventDispatcher {
         if (this._scene !== this) {//移除节点本身是scene不继续派发
             this._onInActiveInScene();
             this._scene = null;
-            for (var i: number = 0, n: number = this._children.length; i < n; i++)
+            for (let i = 0, n = this._children.length; i < n; i++)
                 this._children[i]._setUnBelongScene();
         }
     }
 
-    /**
-     * @internal
-     */
-    _processActive(): void {
+    _processActive(active: boolean, fromSetter?: boolean) {
         (this._activeChangeScripts) || (this._activeChangeScripts = []);
-        this._activeHierarchy(this._activeChangeScripts);//处理属性,保证属性的正确性和即时性
-        this._activeScripts();//延时处理组件
+        let arr = this._activeChangeScripts;
+
+        if (active)
+            this._activeHierarchy(arr, fromSetter);
+        else
+            this._inActiveHierarchy(arr, fromSetter);
+
+        for (let i = 0, n = arr.length; i < n; i++) {
+            let comp = arr[i];
+            comp.owner && comp._setActive(active);
+        }
+
+        arr.length = 0;
     }
 
     /**
      * @internal
      */
-    _activeHierarchy(activeChangeScripts: any[]): void {
+    _activeHierarchy(activeChangeScripts: any[], fromSetter?: boolean): void {
         this._setBit(NodeFlags.ACTIVE_INHIERARCHY, true);
         if (this._components) {
             for (let i = 0, n = this._components.length; i < n; i++) {
@@ -794,7 +799,7 @@ export class Node extends EventDispatcher {
         this._onActive();
         for (let i = 0, n = this._children.length; i < n; i++) {
             let child = this._children[i];
-            (!child._getBit(NodeFlags.NOT_ACTIVE) && !child._getBit(NodeFlags.NOT_READY)) && (child._activeHierarchy(activeChangeScripts));
+            (!child._getBit(NodeFlags.NOT_ACTIVE) && !child._getBit(NodeFlags.NOT_READY)) && (child._activeHierarchy(activeChangeScripts, fromSetter));
         }
         if (!this._getBit(NodeFlags.AWAKED)) {
             this._setBit(NodeFlags.AWAKED, true);
@@ -804,30 +809,9 @@ export class Node extends EventDispatcher {
     }
 
     /**
-     * @private
-     */
-    private _activeScripts(): void {
-        let arr = this._activeChangeScripts;
-        for (let i = 0, n = arr.length; i < n; i++) {
-            let comp = arr[i];
-            comp.owner && comp._setActive(true);
-        }
-        arr.length = 0;
-    }
-
-    /**
-     * @private
-     */
-    private _processInActive(): void {
-        (this._activeChangeScripts) || (this._activeChangeScripts = []);
-        this._inActiveHierarchy(this._activeChangeScripts);//处理属性,保证属性的正确性和即时性
-        this._inActiveScripts();//延时处理组件
-    }
-
-    /**
      * @internal
      */
-    _inActiveHierarchy(activeChangeScripts: any[]): void {
+    _inActiveHierarchy(activeChangeScripts: any[], fromSetter?: boolean): void {
         this._onInActive();
         if (this._components) {
             for (let i = 0, n = this._components.length; i < n; i++) {
@@ -842,21 +826,9 @@ export class Node extends EventDispatcher {
 
         for (let i = 0, n = this._children.length; i < n; i++) {
             let child = this._children[i];
-            (child && !child._getBit(NodeFlags.NOT_ACTIVE)) && (child._inActiveHierarchy(activeChangeScripts));
+            (child && !child._getBit(NodeFlags.NOT_ACTIVE)) && (child._inActiveHierarchy(activeChangeScripts, fromSetter));
         }
         this.onDisable();
-    }
-
-    /**
-     * @private
-     */
-    private _inActiveScripts(): void {
-        let arr = this._activeChangeScripts;
-        for (let i = 0, n = arr.length; i < n; i++) {
-            let comp = arr[i];
-            comp.owner && comp._setActive(false);
-        }
-        arr.length = 0;
     }
 
     /**
@@ -868,7 +840,7 @@ export class Node extends EventDispatcher {
         } else {
             let parentScene = this._parent.scene;
             parentScene && this._setBelongScene(parentScene);
-            (this._parent.activeInHierarchy && this.active) && this._processActive();
+            (this._parent.activeInHierarchy && this.active) && this._processActive(true);
         }
     }
 
@@ -879,7 +851,7 @@ export class Node extends EventDispatcher {
         if (this._activeChangeScripts && this._activeChangeScripts.length !== 0) {
             throw "Node: can't set the main active node inActive in hierarchy,if the operate is in main active node or it's children script's onEnable Event.";
         } else {
-            (this._parent.activeInHierarchy && this.active) && this._processInActive();
+            (this._parent.activeInHierarchy && this.active) && this._processActive(false);
             this._parent.scene && this._setUnBelongScene();
         }
     }
