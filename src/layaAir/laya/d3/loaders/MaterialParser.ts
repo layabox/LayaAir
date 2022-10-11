@@ -21,7 +21,9 @@ export class MaterialParser {
             case "LAYAMATERIAL:01":
             case "LAYAMATERIAL:02":
             case "LAYAMATERIAL:03":
-                return MaterialParser.parseLegacy(data);
+                 let mat = MaterialParser.parseLegacy(data);
+                 mat.oldparseEndEvent();
+                 return mat;
             case "LAYAMATERIAL:04":
                 break;
             default:

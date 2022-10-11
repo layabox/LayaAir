@@ -727,6 +727,12 @@ export class Material extends Resource implements IClone {
     get _defineDatas(): DefineDatas {
         return this._shaderValues._defineDatas;
     }
+
+    oldparseEndEvent(){
+        //TODO
+    }
+
+    
 }
 
 
