@@ -31,7 +31,7 @@ vec3 PBRGI(const in Surface surface, const in PixelInfo info)
     vec2 lightmapUV = info.lightmapUV;
     vec3 bakedColor = getBakedLightmapColor(lightmapUV);
     // todo  surface.diffuseColor ？
-    vec3 Fd = bakedColor * surface.diffuseColor;
+    vec3 Fd = bakedColor;
 	#endif // UV1
 
     #else // LIGHTMAP

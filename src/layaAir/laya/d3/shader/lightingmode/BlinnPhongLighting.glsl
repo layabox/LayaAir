@@ -59,7 +59,7 @@ vec3 BlinnPhongGI(const in Surface surface, const in PixelInfo info)
     vec2 lightmapUV = info.lightmapUV;
     vec3 bakedColor = getBakedLightmapColor(lightmapUV);
     // todo  surface.diffuseColor ？
-    indirect = bakedColor * surface.diffuseColor;
+    indirect = bakedColor;
 
 	#endif // UV1
 

@@ -138,7 +138,7 @@ vec3 getBakedLightmapColor(in vec2 lightmapUV)
 	#ifdef Gamma_u_LightMap
     lightmapSampler = gammaToLinear(lightmapSampler);
 	#endif // Gamma_u_LightMap
-    return decodeRGBM(lightmapSampler, 5.0);
+    return lightmapSampler.rgb;
 }
     #endif // LIGHTMAP
 
