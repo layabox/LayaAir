@@ -128,7 +128,7 @@ export class LegacyUIParser {
         tInitTool.finish();
         root._setBit(NodeFlags.NOT_READY, false);
         if (root.parent && root.parent.activeInHierarchy && root.active)
-            root._processActive();
+            root._processActive(true);
         return root;
     }
 

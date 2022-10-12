@@ -383,9 +383,9 @@ export class Scene3D extends Sprite implements ISubmit {
     }
 
     /**ide配置文件使用 */
-    _reflectionsSource:number = 0;
+    _reflectionsSource: number = 0;
     /**ide配置文件使用 */
-    _reflectionsResolution:string = "256";
+    _reflectionsResolution: string = "256";
     /**ide配置文件使用 */
     _reflectionsIblSamples = 1024;
 
@@ -576,6 +576,9 @@ export class Scene3D extends Sprite implements ISubmit {
                 case AmbientMode.SolidColor:
                     this._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_GI_LEGACYIBL);
                     this._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_GI_IBL);
+                    this.ambientSH = this.ambientSH;
+                    this.iblTex = this.iblTex;
+                    this.iblTexRGBD = this.iblTexRGBD;
                     break;
                 case AmbientMode.SphericalHarmonics:
                     this._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_GI_LEGACYIBL);
