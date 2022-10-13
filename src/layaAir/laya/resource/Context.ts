@@ -62,6 +62,7 @@ import { NativeContext } from "./NativeContext";
 import { RenderTexture } from "../d3/resource/RenderTexture";
 import { Const } from "../Const";
 
+const defaultClipMatrix = new Matrix(Const.MAX_CLIP_SIZE, 0, 0, Const.MAX_CLIP_SIZE, 0, 0);
 
 /**
  * @private
@@ -73,6 +74,8 @@ export class Context {
     static _rendercontex: Context;
     /**@internal */
     _canvas: HTMLCanvas;
+    /**@internal */
+    _drawingToTexture: boolean;
 
     static _SUBMITVBSIZE: number = 32000;
 
@@ -433,7 +436,7 @@ export class Context {
     _clipRect: Rectangle = Context.MAXCLIPRECT;
     //public var _transedClipInfo:Array = [0, 0, Const.MAX_CLIP_SIZE, 0, 0, Const.MAX_CLIP_SIZE];	//应用矩阵后的clip。ox,oy, xx,xy,yx,yy 	xx,xy等是缩放*宽高
     /**@internal */
-    _globalClipMatrix: Matrix = new Matrix(Const.MAX_CLIP_SIZE, 0, 0, Const.MAX_CLIP_SIZE, 0, 0);	//用矩阵描述的clip信息。最终的点投影到这个矩阵上，在0~1之间就可见。
+    _globalClipMatrix: Matrix = defaultClipMatrix.clone();	//用矩阵描述的clip信息。最终的点投影到这个矩阵上，在0~1之间就可见。
     /**@internal */
     _clipInCache: boolean = false; 	// 当前记录的clipinfo是在cacheas normal后赋值的，因为cacheas normal会去掉当前矩阵的tx，ty，所以需要记录一下，以便在是shader中恢复
     /**@internal */
@@ -454,7 +457,7 @@ export class Context {
     /**@internal */
     _nBlendType: number = 0;
     /**@internal */
-    _save: any = null;
+    _save: ISaveData[] & { _length?: number } = null;
     /**@internal */
     _targets: RenderTexture2D | null = null;
     /**@internal */
@@ -627,7 +630,7 @@ export class Context {
 
         this._shader2D.fillStyle = this._shader2D.strokeStyle = DrawStyle.DEFAULT;
 
-        for (var i: number = 0, n: number = this._submits._length; i < n; i++)
+        for (let i = 0, n = this._submits._length; i < n; i++)
             this._submits[i].releaseRender();
 
         this._submits._length = 0;
@@ -635,9 +638,8 @@ export class Context {
         this._curMat.identity();
         this._other.clear();
 
-        this._saveMark = this._save[0];
+        this._saveMark = <SaveMark>this._save[0];
         this._save._length = 1;
-
     }
 
     /**
@@ -1766,7 +1768,7 @@ export class Context {
         this._curMat.scaleEx(scaleX, scaleY);
     }
 
-    clipRect(x: number, y: number, width: number, height: number): void {
+    clipRect(x: number, y: number, width: number, height: number, escape?: boolean): void {
         SaveClipRect.save(this);
         if (this._clipRect == Context.MAXCLIPRECT) {
             this._clipRect = new Rectangle(x, y, width, height);
@@ -1781,8 +1783,14 @@ export class Context {
         this._clipID_Gen++;
         this._clipID_Gen %= 10000;
         this._clipInfoID = this._clipID_Gen;
+
+        if (escape) {
+            defaultClipMatrix.copyTo(this._globalClipMatrix);
+            return;
+        }
+
         var cm: Matrix = this._globalClipMatrix;
-        //TEMP 处理clip交集问题，这里有点问题，无法处理旋转，翻转 是临时瞎写的
+        //TEMP 处理clip交集问题，这里有点问题，无法处理旋转，翻转
         var minx: number = cm.tx;
         var miny: number = cm.ty;
         var maxx: number = minx + cm.a;
