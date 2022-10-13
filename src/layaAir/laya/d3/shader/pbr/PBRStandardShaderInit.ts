@@ -28,6 +28,7 @@ export class PBRStandardShaderInit {
             "u_OcclusionStrength": ShaderDataType.Float,
             "u_AlphaTestValue": ShaderDataType.Float,
             "u_EmissionColor": ShaderDataType.Color,
+            "u_EmissionIntensity":ShaderDataType.Float,
             "u_AlbedoTexture": ShaderDataType.Texture2D,
             "u_NormalTexture": ShaderDataType.Texture2D,
             "u_OcclusionTexture": ShaderDataType.Texture2D,
@@ -46,6 +47,7 @@ export class PBRStandardShaderInit {
             "u_SmoothnessScale": 1,
             "u_OcclusionStrength": 1,
             "u_EmissionColor": Color.WHITE,
+            "u_EmissionIntensity":1,
             "u_Anisotropy": 0
         };
 

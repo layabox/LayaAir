@@ -83,6 +83,8 @@ export class PBRMaterial extends Material {
     static EMISSIONTEXTURE: number;
     /** @internal */
     static EMISSIONCOLOR: number;
+    /**@internal */
+    static EMISSIONIntensity:number
     /** @internal */
     static ANISOTROPY: number;
     /** @internal */
@@ -120,6 +122,7 @@ export class PBRMaterial extends Material {
         PBRMaterial.PARALLAXSCALE = Shader3D.propertyNameToID("u_ParallaxScale");
         PBRMaterial.EMISSIONTEXTURE = Shader3D.propertyNameToID("u_EmissionTexture");
         PBRMaterial.EMISSIONCOLOR = Shader3D.propertyNameToID("u_EmissionColor");
+        PBRMaterial.EMISSIONIntensity = Shader3D.propertyNameToID("u_EmissionIntensity");
         PBRMaterial.ANISOTROPY = Shader3D.propertyNameToID("u_Anisotropy");
         PBRMaterial.TANGENTTEXTURE = Shader3D.propertyNameToID("u_TangentTexture");
     }
@@ -281,6 +284,15 @@ export class PBRMaterial extends Material {
 
     set emissionColor(value: Color) {
         this._shaderValues.setColor(PBRMaterial.EMISSIONCOLOR, value);
+    }
+
+    set emissionIntensity(value:number){
+        //u_EmissionIntensity
+        this._shaderValues.setNumber(PBRMaterial.EMISSIONIntensity,value);
+    }
+
+    get emissionIntensity(){
+        return this._shaderValues.getNumber(PBRMaterial.EMISSIONIntensity);
     }
 
     /**

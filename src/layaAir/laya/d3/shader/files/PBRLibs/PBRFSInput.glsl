@@ -87,9 +87,9 @@ mediump float lerpOneTo(mediump float b, mediump float t)
 	vec3 emission(vec2 uv)
 	{
 		#ifdef EMISSIONTEXTURE
-			return texture2D(u_EmissionTexture, uv).rgb * u_EmissionColor.rgb;
+			return texture2D(u_EmissionTexture, uv).rgb * u_EmissionColor.rgb * u_EmissionIntensity;
 		#else
-			return u_EmissionColor.rgb;
+			return u_EmissionColor.rgb * u_EmissionIntensity;
 		#endif
 	}
 #endif
