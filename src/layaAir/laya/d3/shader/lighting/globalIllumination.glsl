@@ -1,6 +1,19 @@
 #if !defined(globalIllumination_lib)
     #define globalIllumination_lib
 
+vec3 rotateByYAixs(in vec3 normal){
+    float x = normal.x * cos(u_GIRotate) - normal.z * sin(u_GIRotate);
+    float z = normal.x * sin(u_GIRotate) + normal.z * cos(u_GIRotate);
+    return vec3(x,normal.y,z);
+}
+
+vec4 rotateByYAixs(in vec4 normal){
+    float x = normal.x * cos(u_GIRotate) - normal.z * sin(u_GIRotate);
+    float z = normal.x * sin(u_GIRotate) + normal.z * cos(u_GIRotate);
+    return vec4(x,normal.y,z,normal.w);
+}
+
+
     #ifdef GI_IBL
 
 uniform vec3 u_IblSH[9];
@@ -8,11 +21,13 @@ uniform vec3 u_IblSH[9];
 	#define IBL_ROUGHNESS_LEVEL 4.0
 uniform samplerCube u_IBLTex;
 
+
 // todo 格式
 vec3 diffuseIrradiance(in vec3 normal)
 {
     // todo cmeng 生成的数据问题， 临时转换下
     vec3 n = normal * vec3(-1.0, 1.0, 1.0);
+    n = rotateByYAixs(n);
     return max(
 	u_IblSH[0]
 	    + u_IblSH[1] * n.y
@@ -32,6 +47,9 @@ vec3 specularIrradiance(in vec3 r, in float perceptualRoughness)
 
     // todo 临时转换
     vec3 reflectDir = r * vec3(-1.0, 1.0, 1.0);
+
+    // todo rotateY SceneConfig
+    reflectDir = rotateByYAixs(reflectDir);
 
     // todo float 编码 ?
     vec4 reflectSampler = textureCubeLodEXT(u_IBLTex, reflectDir, lod);
@@ -88,6 +106,11 @@ vec3 diffuseIrradiance(in vec3 normalWS)
 {
     // todo -x 坐标转换
     vec4 normal = vec4(-normalWS.x, normalWS.yz, 1.0);
+    
+    //TODO rotate y SceneConfig
+
+    normal = rotateByYAixs(normal);
+
     vec3 ambientContrib = shEvalLinearL0L1(normal);
     ambientContrib += shEvalLinearL2(normal);
     vec3 ambient = max(vec3(0.0), ambientContrib);
@@ -100,6 +123,8 @@ vec3 specularIrradiance(in vec3 r, in float perceptualRoughness)
     float roughness = perceptualRoughness * (1.7 - 0.7 * perceptualRoughness);
     // todo 临时转换
     r *= vec3(-1.0, 1.0, 1.0);
+    r = rotateByYAixs(r);
+
     float lod = roughness * LAYA_SPECCUBE_LOD_STEPS;
     vec4 rgbm = textureCubeLodEXT(u_ReflectTexture, r, lod);
     float range = u_ReflectCubeHDRParams.x;

@@ -149,6 +149,8 @@ export class Scene3D extends Sprite implements ISubmit {
 
     /** @internal */
     static TIME: number;
+    /**@internal */
+    static GIRotate:number;
     /** @internal */
     static sceneID: number;
 
@@ -226,6 +228,7 @@ export class Scene3D extends Sprite implements ISubmit {
         Scene3D.LIGHTBUFFER = Shader3D.propertyNameToID("u_LightBuffer");
         Scene3D.CLUSTERBUFFER = Shader3D.propertyNameToID("u_LightClusterBuffer");
         Scene3D.TIME = Shader3D.propertyNameToID("u_Time");
+        Scene3D.GIRotate = Shader3D.propertyNameToID("u_GIRotate");
         Scene3D.IBLTEX = Shader3D.propertyNameToID("u_IBLTex");
         Scene3D.SCENEUNIFORMBLOCK = Shader3D.propertyNameToID(UniformBufferObject.UBONAME_SCENE);
 
@@ -238,6 +241,7 @@ export class Scene3D extends Sprite implements ISubmit {
         sceneUniformMap.addShaderUniform(Scene3D.LIGHTBUFFER, "u_LightBuffer");
         sceneUniformMap.addShaderUniform(Scene3D.CLUSTERBUFFER, "u_LightClusterBuffer");
         sceneUniformMap.addShaderUniform(Scene3D.TIME, "u_Time");
+        sceneUniformMap.addShaderUniform(Scene3D.GIRotate,"u_GIRotate")
         sceneUniformMap.addShaderUniform(Scene3D.IBLTEX, "u_IBLTex");
         sceneUniformMap.addShaderUniform(Scene3D.SCENEUNIFORMBLOCK, UniformBufferObject.UBONAME_SCENE);
 
@@ -562,6 +566,15 @@ export class Scene3D extends Sprite implements ISubmit {
         this._shaderValues.setNumber(Scene3D.FOGRANGE, value);
     }
 
+    //0-2PI
+    set GIRotate(value:number){
+        this._shaderValues.setNumber(Scene3D.GIRotate,value);
+    }
+
+    get GIRotate(){
+        return this._shaderValues.getNumber(Scene3D.GIRotate);
+    }
+
     /**
      * 环境光模式。
      * 如果值为AmbientMode.SolidColor一般使用ambientColor作为环境光源，如果值为如果值为AmbientMode.SphericalHarmonics一般使用ambientSphericalHarmonics作为环境光源。
@@ -863,6 +876,7 @@ export class Scene3D extends Sprite implements ISubmit {
         this.fogRange = 1000;
         this.fogColor = new Color(0.7, 0.7, 0.7);
         this.ambientColor = new Color(0.212, 0.227, 0.259);
+        this.GIRotate = 0;
         this.reflectionIntensity = 1.0;
         this.reflection = TextureCube.blackTexture;
         for (var i: number = 0; i < 7; i++)
