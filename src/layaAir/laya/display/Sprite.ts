@@ -262,7 +262,7 @@ export class Sprite extends Node {
     hitTestPrior: boolean = false;
 
     /** 如果节点需要加载相关的皮肤，但放在不同域，这里可以设置 **/
-    _skinBaseUrl?: string;
+    _skinBaseUrl: string;
 
     /**
      * @inheritDoc 
@@ -1018,20 +1018,6 @@ export class Sprite extends Node {
         this.getStyle().scrollRect = value;
         this._setScrollRect(value);
         //viewport = value;
-        this.clipping = true;
-    }
-
-    /**
-     * 是否开启了裁剪。设置scrollRect自动打开。
-     */
-    get clipping(): boolean {
-        return (this._renderType & SpriteConst.CLIP) != 0;
-    }
-
-    /**
-     * 设置开启裁剪。设置scrollRect自动打开。
-     */
-    set clipping(value: boolean) {
         if (value) {
             this._renderType |= SpriteConst.CLIP;
         } else {
@@ -1299,7 +1285,9 @@ export class Sprite extends Node {
             ctx._targets.start();
             let color = RenderTexture2D._clearColor;
             ctx._targets.clear(color.r, color.g, color.b, color.a);
+            ctx._drawingToTexture = true;
             RenderSprite.renders[_renderType]._fun(sprite, ctx, offsetX, offsetY);
+            ctx._drawingToTexture = false;
             ctx.flush();
             ctx._targets.end();
             ctx._targets.restore();

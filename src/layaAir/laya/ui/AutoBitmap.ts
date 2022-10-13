@@ -212,7 +212,7 @@ export class AutoBitmap extends Graphics {
         let cmds = this.cmds;
         if (!this._one && (!cmds || cmds.length <= 0)) {
             // 如果没有，直接添加
-            this._saveToCmd(null, newcmd);
+            this._saveToCmd(newcmd);
         } else {
             // 如果只有一个
             let lastOne = this._one;
@@ -223,8 +223,8 @@ export class AutoBitmap extends Graphics {
                 } else {
                     // 否则，就是两个命令
                     this.clear();
-                    this._saveToCmd(null, newcmd);
-                    this._saveToCmd(null, lastOne);
+                    this._saveToCmd(newcmd);
+                    this._saveToCmd(lastOne);
                 }
             } else {
                 // 本身就有多个命令，则把自己插入到第一个

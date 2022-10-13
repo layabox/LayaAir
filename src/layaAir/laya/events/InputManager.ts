@@ -1,5 +1,5 @@
 import { LayaEnv } from "../../LayaEnv";
-import { HideFlags } from "../Const";
+import { HideFlags, NodeFlags } from "../Const";
 import { Node } from "../display/Node";
 import { Sprite } from "../display/Sprite";
 import { Stage } from "../display/Stage";
@@ -466,7 +466,7 @@ export class InputManager {
 
         //如果有裁剪，则先判断是否在裁剪范围内
         let scrollRect = sp._style.scrollRect;
-        if (scrollRect && sp.clipping) {
+        if (scrollRect && !sp._getBit(NodeFlags.DISABLE_INNER_CLIPPING)) {
             _tempRect.setTo(scrollRect.x, scrollRect.y, scrollRect.width, scrollRect.height);
             if (!_tempRect.contains(x, y))
                 return null;

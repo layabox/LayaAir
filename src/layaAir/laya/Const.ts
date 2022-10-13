@@ -18,18 +18,21 @@ export class Const {
  * 节点标志
  */
 export class NodeFlags {
-    static NOT_ACTIVE: number = 0x01;
-    static ACTIVE_INHIERARCHY: number = 0x02;
-    static AWAKED: number = 0x04;
-    static NOT_READY: number = 0x08;
-    static DISPLAY: number = 0x10;
-    static HAS_ZORDER: number = 0x20;
-    static HAS_MOUSE: number = 0x40;
-    static DISPLAYED_INSTAGE: number = 0x80;
-    static DRAWCALL_OPTIMIZE: number = 0x100;
-    static PROCESS_COLLISIONS: number = 0x200;
-    static PROCESS_TRIGGERS: number = 0x400;
-    static HAS_SCRIPT: number = 0x800;
+    static NOT_ACTIVE = 0x01;
+    static ACTIVE_INHIERARCHY = 0x02;
+    static AWAKED = 0x04;
+    static NOT_READY = 0x08;
+    static DISPLAY = 0x10;
+    static HAS_ZORDER = 0x20;
+    static HAS_MOUSE = 0x40;
+    static DISPLAYED_INSTAGE = 0x80;
+    static DRAWCALL_OPTIMIZE = 0x100;
+    static PROCESS_COLLISIONS = 0x200;
+    static PROCESS_TRIGGERS = 0x400;
+    static HAS_SCRIPT = 0x800;
+    static ESCAPE_DRAWING_TO_TEXTURE = 0x1000;
+    static DISABLE_INNER_CLIPPING = 0x2000;
+    static DISABLE_OUTER_CLIPPING = 0x4000;
 }
 
 export class HideFlags {
