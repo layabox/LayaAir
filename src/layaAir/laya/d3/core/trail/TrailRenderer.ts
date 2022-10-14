@@ -35,7 +35,7 @@ export class TrailRenderer extends BaseRender {
     }
 
     /**
-     * 获取淡出时间。
+     * 获取淡出时间。单位s
      * @return  淡出时间。
      */
     get time(): number {
@@ -43,7 +43,7 @@ export class TrailRenderer extends BaseRender {
     }
 
     /**
-     * 设置淡出时间。
+     * 设置淡出时间。单位s
      * @param value 淡出时间。
      */
     set time(value: number) {
