@@ -9,6 +9,7 @@ import { Gradient } from "../Gradient";
 import { Component } from "../../../components/Component";
 import { Bounds } from "../../math/Bounds";
 import { TrailTextureMode } from "../TrailTextureMode"
+import { TrailAlignment } from "./TrailAlignment"
 
 /**
  * <code>TrailRenderer</code> 类用于创建拖尾渲染器。
@@ -129,11 +130,11 @@ export class TrailRenderer extends BaseRender {
         this._trailFilter.textureMode = value;
     }
 
-    get alignment(): number {
+    get alignment(): TrailAlignment {
         return this._trailFilter.alignment;
     }
 
-    set alignment(value: number) {
+    set alignment(value: TrailAlignment) {
         this._trailFilter.alignment = value;
     }
 
