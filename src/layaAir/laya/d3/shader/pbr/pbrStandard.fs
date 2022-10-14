@@ -71,7 +71,7 @@ void initSurfaceInputs(inout SurfaceInputs inputs, const in PixelParams pixel)
 #endif // OCCLUSIONTEXTURE
 
 #ifdef EMISSION
-    inputs.emissionColor = u_EmissionColor.rgb;
+    inputs.emissionColor = u_EmissionColor.rgb*u_EmissionIntensity;
     #ifdef EMISSIONTEXTURE
     vec4 emissionSampler = texture2D(u_EmissionTexture, uv);
 	#ifdef Gamma_u_EmissionTexture
