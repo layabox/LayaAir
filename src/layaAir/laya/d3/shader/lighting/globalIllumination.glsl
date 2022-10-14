@@ -2,14 +2,18 @@
     #define globalIllumination_lib
 
 vec3 rotateByYAixs(in vec3 normal){
-    float x = normal.x * cos(u_GIRotate) - normal.z * sin(u_GIRotate);
-    float z = normal.x * sin(u_GIRotate) + normal.z * cos(u_GIRotate);
+    float co = cos(u_GIRotate);
+    float si = sin(u_GIRotate);
+    float x = normal.x * co - normal.z * si;
+    float z = normal.x * si + normal.z * co;
     return vec3(x,normal.y,z);
 }
 
 vec4 rotateByYAixs(in vec4 normal){
-    float x = normal.x * cos(u_GIRotate) - normal.z * sin(u_GIRotate);
-    float z = normal.x * sin(u_GIRotate) + normal.z * cos(u_GIRotate);
+    float co = cos(u_GIRotate);
+    float si = sin(u_GIRotate);
+    float x = normal.x * co - normal.z * si;
+    float z = normal.x * si + normal.z * co;
     return vec4(x,normal.y,z,normal.w);
 }
 
