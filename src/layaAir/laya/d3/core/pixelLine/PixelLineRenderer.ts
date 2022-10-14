@@ -30,6 +30,7 @@ export class PixelLineRenderer extends BaseRender {
     /** @private 是否加入渲染队列*/
     private _isInRenders: Boolean = false;
 
+    private _needUpdatelines: boolean = false;
     /**
      * 创建一个PixelLineRenderer实例
      * @param owner 线渲染精灵
@@ -39,6 +40,20 @@ export class PixelLineRenderer extends BaseRender {
         this._projectionViewWorldMatrix = new Matrix4x4();
         this._pixelLineFilter = new PixelLineFilter(this, 20);
         this._shaderValues.addDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_COLOR);
+    }
+
+    private _lines: PixelLineData[] = [];
+
+    get pixelLinesDatas() {
+        if (this._needUpdatelines) {
+            this._updateLineDatas();
+        }
+        return this._lines;
+    }
+
+    set pixelLineDatas(value: PixelLineData[]) {
+        this.clear();
+        this.addLines(value);
     }
 
     /**
@@ -144,6 +159,7 @@ export class PixelLineRenderer extends BaseRender {
             this.owner.scene && this.owner.scene._addRenderObject(this);
             this._isInRenders = true;
         }
+        this._needUpdatelines = true;
     }
 
     /**
@@ -163,6 +179,7 @@ export class PixelLineRenderer extends BaseRender {
             this.owner.scene && this.owner.scene._addRenderObject(this);
             this._isInRenders = true;
         }
+        this._needUpdatelines = true;
     }
 
     /**
@@ -178,6 +195,7 @@ export class PixelLineRenderer extends BaseRender {
             this.owner.scene && this.owner.scene._removeRenderObject(this);
             this._isInRenders = false;
         }
+        this._needUpdatelines = true;
     }
 
     /**
@@ -204,6 +222,20 @@ export class PixelLineRenderer extends BaseRender {
             this._pixelLineFilter._getLineData(index, out);
         else
             throw "PixelLineSprite3D: index must less than lineCount.";
+    }
+
+    /**
+     * @internal
+     */
+    private _updateLineDatas() {
+        let n = this.lineCount;
+        this._lines = [];
+        for (let i = 0; i < n; i++) {
+            let pixelLineDatas = new PixelLineData();
+            this.getLine(i, pixelLineDatas);
+            this._lines.push(pixelLineDatas);
+        }
+        this._needUpdatelines = false;
     }
 
     /**
