@@ -11,10 +11,10 @@ export class NativeBaseRenderNode implements IBaseRenderNode {
     constructor() {
         this._nativeObj = new (window as any).conchRenderNode();
     }
-    set boundsChange(value:boolean){
+    set boundsChange(value: boolean) {
         this._nativeObj.boundsChange = value;
     }
-    get boundsChange():boolean{
+    get boundsChange(): boolean {
         return this._nativeObj.boundsChange;
     }
     set layer(value: number) {
@@ -65,7 +65,7 @@ export class NativeBaseRenderNode implements IBaseRenderNode {
     set transform(value: Transform3D) {
         this._nativeObj.transform = value ? (value as any)._nativeObj : null;
     }
-    
+
     get owner(): BaseRender | null {
         return this._nativeObj.owner;
     }

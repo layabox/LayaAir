@@ -126,12 +126,12 @@ export class Sprite3D extends Node {
         return !!(this._isStatic >> 1 | 0x0);
     }
 
-    /**
-     * @internal
-     */
-    _staticEvent(){
-        this.event(Event.staticMask,this._isStatic);
+    /**@internal IDE only*/
+    set isStatic(value: boolean) {
+        this._isStatic = value ? StaticFlag.StaticBatch : StaticFlag.Normal;
+        this.event(Event.staticMask, this._isStatic);
     }
+
     /**
      * 精灵变换。
      */
