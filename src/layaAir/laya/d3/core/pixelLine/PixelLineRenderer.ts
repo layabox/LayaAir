@@ -51,7 +51,7 @@ export class PixelLineRenderer extends BaseRender {
         return this._lines;
     }
 
-    set pixelLineDatas(value: PixelLineData[]) {
+    set pixelLinesDatas(value: PixelLineData[]) {
         this.clear();
         this.addLines(value);
     }
