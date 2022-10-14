@@ -127,6 +127,12 @@ export class Sprite3D extends Node {
     }
 
     /**
+     * @internal
+     */
+    _staticEvent(){
+        this.event(Event.staticMask,this._isStatic);
+    }
+    /**
      * 精灵变换。
      */
     get transform(): Transform3D {

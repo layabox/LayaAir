@@ -88,4 +88,11 @@ export class NativeBaseRenderNode implements IBaseRenderNode {
     set renderbitFlag(value: number | null) {
         this._nativeObj.renderbitFlag = value;
     }
+
+    get staticMask(): number {
+        return this._nativeObj.staticMask;
+    }
+    set staticMask(value: number | null) {
+        this._nativeObj.staticMask = value;
+    }
 }

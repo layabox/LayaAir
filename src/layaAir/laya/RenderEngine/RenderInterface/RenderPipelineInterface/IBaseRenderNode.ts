@@ -23,10 +23,12 @@ export interface IBaseRenderNode {
     owner:BaseRender|null;
     /**@internal TODO Base Bounds/can update Bounds by transform*GeometryBounds*/
     geometryBounds:Bounds|null;
-     /**@internal layer */
+    /**@internal layer 层遮罩*/
     layer:number;
     /**@internal */
     boundsChange:boolean;
-     /**@internal */
-     renderbitFlag:number;
+    /**@internal 渲染禁用位，比如LOD，静态合并禁用后仍然还在列表的位*/
+    renderbitFlag:number;
+    /**@internal */
+    staticMask:number;
 }

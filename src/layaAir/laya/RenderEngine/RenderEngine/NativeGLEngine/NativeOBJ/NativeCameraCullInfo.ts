@@ -14,6 +14,8 @@ export class NativeCameraCullInfo implements ICameraCullInfo {
 	private _useOcclusionCulling: Boolean;
 
 	private _cullingMask: number;
+	/**静态标记 */
+	private _staticMask: number;
 
 	private _nativeObj: any;
 
@@ -57,8 +59,16 @@ export class NativeCameraCullInfo implements ICameraCullInfo {
 		return this._cullingMask;
 	}
 
-	/**静态标记 */
-	staticMask: number;
+
+	set staticMask(value: number) {
+		this._staticMask = value;
+		this._nativeObj.staticMask = value;
+	}
+
+	get staticMask(): number {
+		return this._staticMask;
+	}
+	
 
 	/**
 	 * @internal

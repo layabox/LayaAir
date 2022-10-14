@@ -4,6 +4,7 @@ import { Bounds } from "../../d3/math/Bounds";
 import { IBaseRenderNode } from "../RenderInterface/RenderPipelineInterface/IBaseRenderNode";
 
 export class BaseRenderNode implements IBaseRenderNode {
+   
     /**@interanl */
     boundsChange: boolean;
     /**@internal ID */
@@ -28,4 +29,6 @@ export class BaseRenderNode implements IBaseRenderNode {
     layer:number;
     /**@internal */
     renderbitFlag:number;
+    /**@internal */
+    staticMask: number;
 }

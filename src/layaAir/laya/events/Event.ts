@@ -133,6 +133,8 @@ export class Event {
     static TRANSFORM_CHANGED = "transformchanged";
     /**3D layer改变时触发。*/
     static LAYERCHANGE = "layerChange";
+    /**3D Static改变时触发 */
+    static staticMask = "staticMask";
 
     /**物理碰撞开始*/
     static TRIGGER_ENTER = "triggerenter";

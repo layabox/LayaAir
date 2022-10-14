@@ -27,7 +27,7 @@ export class CullPassBase implements ICullPass {
             var render = renders[i];
             var canPass: boolean;
             canPass = (Math.pow(2, render.renderNode.layer & cullMask) != 0) && render._enabled && (render.renderbitFlag == 0);
-            canPass = canPass && (((<Sprite3D>render.owner)._isStatic & staticMask) != 0);
+            canPass = canPass && (( render.renderNode.staticMask & staticMask) != 0);
             if (canPass) {
                 Stat.frustumCulling++;
                 if (!cameraCullInfo.useOcclusionCulling || render._needRender(boundFrustum, context)) {
