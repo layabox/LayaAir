@@ -603,6 +603,8 @@ export class InputManager {
     }
 }
 
+const clickTrack: Record<number, { pos: Point, time: number, button: number }> = {};
+
 class TouchInfo implements ITouchInfo {
     readonly event: Event;
     readonly pos: Point;
@@ -616,13 +618,9 @@ class TouchInfo implements ITouchInfo {
     readonly downTargets: Node[];
 
     private downPos: Point;
-    private lastClickTime: number;
-    private lastClickPos: Point;
-    private lastClickButton: number;
 
     constructor(touches: Array<TouchInfo>) {
         this.downPos = new Point();
-        this.lastClickPos = new Point();
         this.downTargets = [];
         this.event = new Event();
         this.event._touches = touches;
@@ -658,29 +656,32 @@ class TouchInfo implements ITouchInfo {
         this.began = false;
         let now = performance.now();
 
+        let lastClick = clickTrack[this.touchId];
+        if (!lastClick) {
+            lastClick = { pos: new Point(), time: 0, button: 0 };
+            clickTrack[this.touchId] = lastClick;
+        }
+
         if (this.downTargets.length == 0
             || this.clickCancelled
             || Math.abs(this.pos.x - this.downPos.x) > InputManager.clickTestThreshold
             || Math.abs(this.pos.y - this.downPos.y) > InputManager.clickTestThreshold) {
             this.clickCancelled = true;
-            this.lastClickTime = 0;
+            lastClick.time = 0;
             this.clickCount = 1;
         }
         else {
-            if (now - this.lastClickTime < 350
-                && Math.abs(this.pos.x - this.lastClickPos.x) < InputManager.clickTestThreshold
-                && Math.abs(this.pos.y - this.lastClickPos.y) < InputManager.clickTestThreshold
-                && this.lastClickButton == this.event.button) {
-                if (this.clickCount == 2)
-                    this.clickCount = 1;
-                else
-                    this.clickCount++;
+            if (now - lastClick.time < 350
+                && Math.abs(this.pos.x - lastClick.pos.x) < InputManager.clickTestThreshold
+                && Math.abs(this.pos.y - lastClick.pos.y) < InputManager.clickTestThreshold
+                && lastClick.button == this.event.button) {
+                this.clickCount = 2;
             }
             else
                 this.clickCount = 1;
-            this.lastClickTime = now;
-            this.lastClickPos.copy(this.pos);
-            this.lastClickButton = this.event.button;
+            lastClick.time = now;
+            lastClick.pos.copy(this.pos);
+            lastClick.button = this.event.button;
         }
     }
 
@@ -714,7 +715,6 @@ class TouchInfo implements ITouchInfo {
         this.pos.setTo(0, 0);
         this.touchId = 0;
         this.clickCount = 0;
-        this.lastClickTime = 0;
         this.began = false;
         this.moved = false;
         this.target = null;
