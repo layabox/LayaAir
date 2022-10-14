@@ -1,7 +1,6 @@
 import { SingletonList } from "../../utils/SingletonList"
 import { BaseRender } from "../../d3/core/render/BaseRender";
 import { RenderContext3D } from "../../d3/core/render/RenderContext3D";
-import { Sprite3D } from "../../d3/core/Sprite3D";
 import { FrustumCulling } from "../../d3/graphics/FrustumCulling";
 import { BoundFrustum } from "../../d3/math/BoundFrustum";
 import { Stat } from "../../utils/Stat";
@@ -25,7 +24,7 @@ export class CullPassBase implements ICullPass {
         for (var i: number = 0, n: number = renderManager.list.length; i < n; i++) {
             var render = renders[i];
             var canPass: boolean;
-            canPass = ((Math.pow(2, (render.owner as Sprite3D)._layer) & cullMask) != 0) && render._enabled && (render.renderbitFlag == 0);
+            canPass = (Math.pow(2, render.renderNode.layer & cullMask) != 0) && render._enabled && (render.renderbitFlag == 0);
             if (canPass) {
                 Stat.frustumCulling++;
                 if (!cameraCullInfo.useOcclusionCulling || render._needRender(boundFrustum, context)) {
