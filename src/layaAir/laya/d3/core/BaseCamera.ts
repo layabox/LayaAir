@@ -13,7 +13,7 @@ import { ShaderDefine } from "../../RenderEngine/RenderShader/ShaderDefine";
 import { UniformBufferParamsType, UnifromBufferData } from "../../RenderEngine/UniformBufferData";
 import { SkyRenderer } from "../resource/models/SkyRenderer";
 import { Scene3D } from "./scene/Scene3D";
-import { Sprite3D } from "./Sprite3D";
+import { Sprite3D, StaticFlag } from "./Sprite3D";
 import { UniformBufferObject } from "../../RenderEngine/UniformBufferObject";
 import { BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
 import { CommandUniformMap } from "../../RenderEngine/CommandUniformMap";
@@ -191,6 +191,13 @@ export class BaseCamera extends Sprite3D {
     }
     /** 可视层位标记遮罩值,支持混合 例:cullingMask=Math.pow(2,0)|Math.pow(2,1)为第0层和第1层可见。*/
     cullingMask: number;
+
+    /**
+     * @internal
+     * 静态遮罩
+     */
+    staticMask: number;
+
     /** 渲染时是否用遮挡剔除。 */
     useOcclusionCulling: boolean;
 
@@ -231,7 +238,7 @@ export class BaseCamera extends Sprite3D {
     set nearPlane(value: number) {
         this._nearPlane = value;
         this._calculateProjectionMatrix();
-        
+
     }
 
     /**
@@ -311,6 +318,7 @@ export class BaseCamera extends Sprite3D {
         this._farPlane = farPlane;
 
         this.cullingMask = 2147483647/*int.MAX_VALUE*/;
+        this.staticMask = 0xffffffff;
         this.useOcclusionCulling = true;
         this._renderEngine = LayaGL.renderEngine;
         this._orthographic = false;
@@ -325,10 +333,10 @@ export class BaseCamera extends Sprite3D {
         }
     }
 
-    private _caculateMaxLocalYRange(){
-        let halffield = 3.1416 * this.fieldOfView / 180.0/2;
+    private _caculateMaxLocalYRange() {
+        let halffield = 3.1416 * this.fieldOfView / 180.0 / 2;
         let dist = this.farPlane;
-        this._yrange = Math.tan(halffield)*dist*2;
+        this._yrange = Math.tan(halffield) * dist * 2;
     }
 
     /**

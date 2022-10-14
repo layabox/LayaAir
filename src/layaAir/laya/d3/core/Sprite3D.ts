@@ -14,8 +14,12 @@ import { NodeFlags } from "../../Const";
 import { Event } from "../../events/Event";
 import { Component } from "../../components/Component";
 
-enum StaticFlag {
-    StaticBatch = 1 << 2
+/**
+ * @internal
+ */
+export enum StaticFlag {
+    Normal = 1 << 0,
+    StaticBatch = 1 << 1,
 }
 
 /**
@@ -119,7 +123,7 @@ export class Sprite3D extends Node {
      * 是否为静态。
      */
     get isStatic(): boolean {
-        return !!(this._isStatic | 0x0);
+        return !!(this._isStatic >> 1 | 0x0);
     }
 
     /**
@@ -160,7 +164,7 @@ export class Sprite3D extends Node {
         this._id = ++Sprite3D._uniqueIDCounter;
         this._is3D = true;
         this._transform = LayaGL.renderOBJCreate.createTransform(this);
-        this._isStatic = isStatic ? 0xffffffff : 0x0;
+        this._isStatic = isStatic ? StaticFlag.StaticBatch : StaticFlag.Normal;
         this.layer = 0;
         this.name = name ? name : "New Sprite3D";
     }

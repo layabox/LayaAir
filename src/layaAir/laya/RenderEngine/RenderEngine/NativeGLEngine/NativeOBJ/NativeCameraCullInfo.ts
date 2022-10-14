@@ -7,7 +7,7 @@ import { NativeMemory } from "../CommonMemory/NativeMemory";
 /**
  * camera裁剪数据
  */
- export class NativeCameraCullInfo implements ICameraCullInfo{
+export class NativeCameraCullInfo implements ICameraCullInfo {
 	/**位置 */
 	private _position: Vector3;
 
@@ -16,24 +16,24 @@ import { NativeMemory } from "../CommonMemory/NativeMemory";
 	private _cullingMask: number;
 
 	private _nativeObj: any;
-	
+
 	private static MemoryBlock_size = 192;
-    /**native Share Memory */
-    private nativeMemory: NativeMemory;
-    private float64Array: Float64Array;
+	/**native Share Memory */
+	private nativeMemory: NativeMemory;
+	private float64Array: Float64Array;
 
 	boundFrustum: BoundFrustum;
 
 	constructor() {
 		this.nativeMemory = new NativeMemory(NativeCameraCullInfo.MemoryBlock_size, true);
-        this.float64Array = this.nativeMemory.float64Array;
-    	this._nativeObj = new (window as any).conchCameraCullInfo(this.nativeMemory._buffer);
-  	}
+		this.float64Array = this.nativeMemory.float64Array;
+		this._nativeObj = new (window as any).conchCameraCullInfo(this.nativeMemory._buffer);
+	}
 
 	set position(position: Vector3) {
 		this._position = position;
 		this._nativeObj.setPosition(position.x, position.y, position.z);
-	} 
+	}
 
 	get position(): Vector3 {
 		return this._position;
@@ -56,9 +56,13 @@ import { NativeMemory } from "../CommonMemory/NativeMemory";
 	get cullingMask(): number {
 		return this._cullingMask;
 	}
+
+	/**静态标记 */
+	staticMask: number;
+
 	/**
-     * @internal
-     */
+	 * @internal
+	 */
 	serialize(): void {
 		if (this.boundFrustum) {
 			this.setPlane(0, this.boundFrustum.near);
@@ -71,12 +75,12 @@ import { NativeMemory } from "../CommonMemory/NativeMemory";
 		}
 	}
 	/**
-     * @internal
-     */
+	 * @internal
+	 */
 	setPlane(index: number, value: Plane): void {
-        this.float64Array[index] = value.normal.x;
-        this.float64Array[index + 1] = value.normal.y;
-        this.float64Array[index + 2] = value.normal.z;
+		this.float64Array[index] = value.normal.x;
+		this.float64Array[index + 1] = value.normal.y;
+		this.float64Array[index + 2] = value.normal.z;
 		this.float64Array[index + 3] = value.distance;
-    }
+	}
 }

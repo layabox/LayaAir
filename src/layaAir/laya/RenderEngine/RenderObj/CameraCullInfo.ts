@@ -5,7 +5,7 @@ import { ICameraCullInfo } from "../RenderInterface/RenderPipelineInterface/ICam
 /**
  * camera裁剪数据
  */
- export class CameraCullInfo implements ICameraCullInfo{
+export class CameraCullInfo implements ICameraCullInfo {
 	/**位置 */
 	position: Vector3;
 	/**是否遮挡剔除 */
@@ -14,4 +14,6 @@ import { ICameraCullInfo } from "../RenderInterface/RenderPipelineInterface/ICam
 	boundFrustum: BoundFrustum;
 	/**遮挡标记 */
 	cullingMask: number;
+	/**静态标记 */
+	staticMask: number;
 }
