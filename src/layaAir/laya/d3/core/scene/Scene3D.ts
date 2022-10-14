@@ -150,7 +150,7 @@ export class Scene3D extends Sprite implements ISubmit {
     /** @internal */
     static TIME: number;
     /**@internal */
-    static GIRotate:number;
+    static GIRotate: number;
     /** @internal */
     static sceneID: number;
 
@@ -241,7 +241,7 @@ export class Scene3D extends Sprite implements ISubmit {
         sceneUniformMap.addShaderUniform(Scene3D.LIGHTBUFFER, "u_LightBuffer");
         sceneUniformMap.addShaderUniform(Scene3D.CLUSTERBUFFER, "u_LightClusterBuffer");
         sceneUniformMap.addShaderUniform(Scene3D.TIME, "u_Time");
-        sceneUniformMap.addShaderUniform(Scene3D.GIRotate,"u_GIRotate")
+        sceneUniformMap.addShaderUniform(Scene3D.GIRotate, "u_GIRotate")
         sceneUniformMap.addShaderUniform(Scene3D.IBLTEX, "u_IBLTex");
         sceneUniformMap.addShaderUniform(Scene3D.SCENEUNIFORMBLOCK, UniformBufferObject.UBONAME_SCENE);
 
@@ -567,11 +567,11 @@ export class Scene3D extends Sprite implements ISubmit {
     }
 
     //0-2PI
-    set GIRotate(value:number){
-        this._shaderValues.setNumber(Scene3D.GIRotate,value);
+    set GIRotate(value: number) {
+        this._shaderValues.setNumber(Scene3D.GIRotate, value);
     }
 
-    get GIRotate(){
+    get GIRotate() {
         return this._shaderValues.getNumber(Scene3D.GIRotate);
     }
 
@@ -1278,6 +1278,7 @@ export class Scene3D extends Sprite implements ISubmit {
         var cameraCullInfo: ICameraCullInfo = FrustumCulling._cameraCullInfo;
         var cameraPos = cameraCullInfo.position = camera._transform.position;
         cameraCullInfo.cullingMask = camera.cullingMask;
+        cameraCullInfo.staticMask = camera.staticMask;
         cameraCullInfo.boundFrustum = camera.boundFrustum;
         cameraCullInfo.useOcclusionCulling = camera.useOcclusionCulling;
         this._cullPass.cullByCameraCullInfo(cameraCullInfo, this.sceneRenderableManager);

@@ -8,6 +8,7 @@ import { ICameraCullInfo } from "../RenderInterface/RenderPipelineInterface/ICam
 import { ICullPass } from "../RenderInterface/RenderPipelineInterface/ICullPass";
 import { ISceneRenderManager } from "../RenderInterface/RenderPipelineInterface/ISceneRenderManager";
 import { IShadowCullInfo } from "../RenderInterface/RenderPipelineInterface/IShadowCullInfo";
+import { Sprite3D } from "../../d3/core/Sprite3D";
 
 export class CullPassBase implements ICullPass {
     private _cullList: SingletonList<BaseRender> = new SingletonList();
@@ -20,11 +21,13 @@ export class CullPassBase implements ICullPass {
         var renders = renderManager.list.elements;
         var boundFrustum: BoundFrustum = cameraCullInfo.boundFrustum;
         var cullMask: number = cameraCullInfo.cullingMask;
+        let staticMask = cameraCullInfo.staticMask;
         let context = RenderContext3D._instance;
         for (var i: number = 0, n: number = renderManager.list.length; i < n; i++) {
             var render = renders[i];
             var canPass: boolean;
             canPass = (Math.pow(2, render.renderNode.layer & cullMask) != 0) && render._enabled && (render.renderbitFlag == 0);
+            canPass = canPass && (((<Sprite3D>render.owner)._isStatic & staticMask) != 0);
             if (canPass) {
                 Stat.frustumCulling++;
                 if (!cameraCullInfo.useOcclusionCulling || render._needRender(boundFrustum, context)) {
