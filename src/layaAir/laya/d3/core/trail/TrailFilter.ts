@@ -8,15 +8,15 @@ import { GradientMode } from "../GradientMode";
 import { BaseRender } from "../render/BaseRender";
 import { RenderContext3D } from "../render/RenderContext3D";
 import { RenderElement } from "../render/RenderElement";
-import { Scene3D } from "../scene/Scene3D";
-import { TextureMode } from "../TextureMode";
 import { TrailGeometry } from "./TrailGeometry";
 import { TrailMaterial } from "./TrailMaterial";
 import { TrailRenderer } from "./TrailRenderer";
 import { Sprite3D } from "../Sprite3D";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
-import { CommandUniformMap } from "../../../RenderEngine/CommandUniformMap";
 import { LayaGL } from "../../../layagl/LayaGL";
+import { TrailAlignment } from "./TrailAlignment";
+import { TrailTextureMode } from "../TrailTextureMode";
+
 
 /**
  * <code>TrailFilter</code> 类用于创建拖尾过滤器。
@@ -53,7 +53,7 @@ export class TrailFilter {
 	/**@internal */
 	private _colorGradient: Gradient;
 	/**@internal */
-	private _textureMode: number;
+	private _textureMode: TrailTextureMode = TrailTextureMode.Stretch;
 	/**@internal */
 	private _trialGeometry: GeometryElement;
 	/**@internal 拖尾总长度*/
@@ -65,7 +65,7 @@ export class TrailFilter {
 	_curtime: number = 0;
 
 	/**轨迹准线。*/
-	alignment: number = TrailFilter.ALIGNMENT_VIEW;
+	alignment: TrailAlignment = TrailAlignment.View;
 
 	/**
 	 * 获取淡出时间。
@@ -162,7 +162,7 @@ export class TrailFilter {
 	 * 获取纹理模式。
 	 * @return  纹理模式。
 	 */
-	get textureMode(): number {
+	get textureMode(): TrailTextureMode {
 		return this._textureMode;
 	}
 
@@ -170,7 +170,7 @@ export class TrailFilter {
 	 * 设置纹理模式。
 	 * @param value 纹理模式。
 	 */
-	set textureMode(value: number) {
+	set textureMode(value: TrailTextureMode) {
 		this._textureMode = value;
 	}
 
@@ -227,7 +227,7 @@ export class TrailFilter {
 		this.time = 5.0;
 		this.minVertexDistance = 0.1;
 		this.widthMultiplier = 1;
-		this.textureMode = TextureMode.Stretch;
+		this.textureMode = TrailTextureMode.Stretch;
 
 		var widthKeyFrames: FloatKeyframe[] = [];
 		var widthKeyFrame1: FloatKeyframe = new FloatKeyframe();
@@ -269,11 +269,5 @@ export class TrailFilter {
 		this._curtime = 0;
 		this._totalLength = 0;
 	}
-
-	//--------------------------------------------------兼容---------------------------------------------------------------------
-	/** 轨迹准线_面向摄像机。*/
-	static ALIGNMENT_VIEW: number = 0;
-	/** 轨迹准线_面向运动方向。*/
-	static ALIGNMENT_TRANSFORM_Z: number = 1;
 }
 

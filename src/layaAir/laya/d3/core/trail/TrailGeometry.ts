@@ -4,7 +4,6 @@ import { DrawType } from "../../../RenderEngine/RenderEnum/DrawType";
 import { MeshTopology } from "../../../RenderEngine/RenderEnum/RenderPologyMode";
 import { VertexDeclaration } from "../../../RenderEngine/VertexDeclaration";
 import { Resource } from "../../../resource/Resource";
-import { Stat } from "../../../utils/Stat";
 import { VertexBuffer3D } from "../../graphics/VertexBuffer3D";
 import { Bounds } from "../../math/Bounds";
 import { Color } from "../../math/Color";
@@ -17,7 +16,7 @@ import { GeometryElement } from "../GeometryElement";
 import { Gradient } from "../Gradient";
 import { RenderContext3D } from "../render/RenderContext3D";
 import { Sprite3D } from "../Sprite3D";
-import { TextureMode } from "../TextureMode";
+import { TrailTextureMode } from "../TrailTextureMode";
 import { TrailAlignment } from "./TrailAlignment";
 import { TrailFilter } from "./TrailFilter";
 import { VertexTrail } from "./VertexTrail";
@@ -338,7 +337,7 @@ export class TrailGeometry extends GeometryElement {
 			(i !== this._activeIndex) && (curLength += this._subDistance[i]);
 			var uvX: number;
 			var lerpFactor: number;
-			if (this._owner.textureMode == TextureMode.Stretch) {
+			if (this._owner.textureMode == TrailTextureMode.Stretch) {
 				uvX = 1.0 - curLength / totalLength;
 				lerpFactor = uvX;
 			} else {

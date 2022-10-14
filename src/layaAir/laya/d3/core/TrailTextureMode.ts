@@ -1,5 +1,5 @@
 
-export class TextureMode {
+export class TrailTextureMode {
 	/**
 	 * 拉伸模式。
 	 */

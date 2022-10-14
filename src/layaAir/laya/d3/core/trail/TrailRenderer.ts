@@ -8,6 +8,7 @@ import { FloatKeyframe } from "../FloatKeyframe";
 import { Gradient } from "../Gradient";
 import { Component } from "../../../components/Component";
 import { Bounds } from "../../math/Bounds";
+import { TrailTextureMode } from "../TrailTextureMode"
 
 /**
  * <code>TrailRenderer</code> 类用于创建拖尾渲染器。
@@ -116,7 +117,7 @@ export class TrailRenderer extends BaseRender {
      * 获取纹理模式。
      * @return  纹理模式。
      */
-    get textureMode(): number {
+    get textureMode(): TrailTextureMode {
         return this._trailFilter.textureMode;
     }
 
@@ -124,7 +125,7 @@ export class TrailRenderer extends BaseRender {
      * 设置纹理模式。
      * @param value 纹理模式。
      */
-    set textureMode(value: number) {
+    set textureMode(value: TrailTextureMode) {
         this._trailFilter.textureMode = value;
     }
 
