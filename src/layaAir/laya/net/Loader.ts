@@ -334,9 +334,13 @@ export class Loader extends EventDispatcher {
         if (options.cache == null || options.cache) {
             let cacheRes = Loader.getRes(formattedUrl, type);
             if (cacheRes) {
-                if ((cacheRes instanceof Resource) && cacheRes.obsolute)
+                if (!(cacheRes instanceof Resource))
+                    return Promise.resolve(cacheRes);
+
+                if (cacheRes.obsolute)
                     obsoluteRes = cacheRes;
-                else
+
+                if (!obsoluteRes && (!cacheRes.uuid || !uuid || uuid == cacheRes.uuid))
                     return Promise.resolve(cacheRes);
             }
         }
