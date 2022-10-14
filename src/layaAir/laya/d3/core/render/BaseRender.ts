@@ -463,6 +463,7 @@ export class BaseRender extends Component implements ISingletonElement {
         (this.owner as Sprite3D)._isRenderNode++;
         (this.owner as Sprite3D)._addRenderComponent(this);
         this._rendernode.transform = this._transform;
+        this._changeLayer((this.owner as Sprite3D).layer);
     }
 
     protected _onEnable(): void {
@@ -472,6 +473,7 @@ export class BaseRender extends Component implements ISingletonElement {
         if (this.owner) {
             (this.owner as Sprite3D).transform.on(Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange);//如果为合并BaseRender,owner可能为空
             (this.owner as Sprite3D).on(Event.LAYERCHANGE, this, this._changeLayer);
+            this._changeLayer((this.owner as Sprite3D).layer);
         }
     }
 
