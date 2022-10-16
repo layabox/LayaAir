@@ -32,10 +32,10 @@ export class SkyRenderer {
     /**@internal */
     private _renderElement: RenderElement;
 
-    private _renderData:BaseRender;
-    static SUNLIGHTDIRECTION:number;
-    static SUNLIGHTDIRCOLOR:number;
-    static __init__(){
+    private _renderData: BaseRender;
+    static SUNLIGHTDIRECTION: number;
+    static SUNLIGHTDIRCOLOR: number;
+    static __init__() {
         SkyRenderer.SUNLIGHTDIRECTION = Shader3D.propertyNameToID("u_SunLight_direction");
         SkyRenderer.SUNLIGHTDIRCOLOR = Shader3D.propertyNameToID("u_SunLight_color");
         const commandUniform = LayaGL.renderOBJCreate.createGlobalUniformMap("Sprite3D");
@@ -53,14 +53,18 @@ export class SkyRenderer {
     set material(value: Material) {
         if (this._material !== value) {
             (this._material) && (this._material._removeReference());
-            (value) && (value._addReference());
             this._material = value;
-            value.cull = CullMode.Off;
-            value.depthTest = CompareFunction.LessEqual;
-            value.depthWrite = false;
-            value.stencilWrite = false;
             this._renderElement.material = value;
-            this._renderElement.renderSubShader = this._material._shader.getSubShaderAt(0);
+            if (value) {
+                value._addReference();
+                value.cull = CullMode.Off;
+                value.depthTest = CompareFunction.LessEqual;
+                value.depthWrite = false;
+                value.stencilWrite = false;
+                this._renderElement.renderSubShader = this._material._shader.getSubShaderAt(0);
+            }
+            else
+                this._renderElement.renderSubShader = null;
         }
     }
 
@@ -72,7 +76,7 @@ export class SkyRenderer {
     }
 
     set mesh(value: GeometryElement) {
-        
+
         if (this._mesh !== value) {
             this._mesh = value;
             this._renderElement.setGeometry(this._mesh);
@@ -116,12 +120,12 @@ export class SkyRenderer {
     _render(context: RenderContext3D): void {
         if (this._material && this._mesh) {
             var camera: Camera = context.camera;
-            var scene:Scene3D = context.scene;
+            var scene: Scene3D = context.scene;
             var projectionMatrix: Matrix4x4 = SkyRenderer._tempMatrix1;
             if (camera.orthographic)
                 Matrix4x4.createPerspective(camera.fieldOfView, camera.aspectRatio, camera.nearPlane, camera.farPlane, projectionMatrix);
-            this._renderData._shaderValues.setColor(SkyRenderer.SUNLIGHTDIRCOLOR,scene._sunColor);
-            this._renderData._shaderValues.setVector3(SkyRenderer.SUNLIGHTDIRECTION,scene._sundir);
+            this._renderData._shaderValues.setColor(SkyRenderer.SUNLIGHTDIRCOLOR, scene._sunColor);
+            this._renderData._shaderValues.setVector3(SkyRenderer.SUNLIGHTDIRECTION, scene._sundir);
             //无穷投影矩阵算法,DirectX右手坐标系推导
             //http://terathon.com/gdc07_lengyel.pdf
 
@@ -169,7 +173,7 @@ export class SkyRenderer {
      * @internal
      */
     destroy(): void {
-        
+
         if (this._material) {
             this._material._removeReference();
             this._material = null;
@@ -178,7 +182,7 @@ export class SkyRenderer {
         //@ts-ignore
         this._renderData._onDestroy();
         this._renderElement.destroy();
-        
+
 
     }
 

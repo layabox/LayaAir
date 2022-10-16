@@ -16,6 +16,7 @@ import { Node } from "../display/Node";
 import { Resource } from "../resource/Resource";
 import { Downloader } from "./Downloader";
 import { AssetDb } from "../resource/AssetDb";
+import { BaseTexture } from "../resource/BaseTexture";
 
 export interface ILoadTask {
     readonly type: string;
@@ -62,7 +63,6 @@ interface ContentTypeMap {
 
 var typeIdCounter = 0;
 type TypeMapEntry = { typeId: number, loaderType: new () => IResourceLoader };
-var imageEntry: TypeMapEntry;
 
 interface URLInfo {
     ext: string,
@@ -103,13 +103,11 @@ export class Loader extends EventDispatcher {
     /**Material资源。*/
     static MATERIAL = "MATERIAL";
     /**Texture2D资源。*/
-    static TEXTURE2D = "TEXTURE2D";
+    static TEXTURE2D = "TEXTURE2D"; //这里是为了兼容，实际应该是BaseTexture
     /**TextureCube资源。*/
-    static TEXTURECUBE = "TEXTURECUBE";
+    static TEXTURECUBE = "TEXTURE2D"; //兼容处理，现在TEXTURE2D类型可以载入Texture或者TextureCube
     /**AnimationClip资源。*/
     static ANIMATIONCLIP = "ANIMATIONCLIP";
-    /**SimpleAnimator资源。 */
-    static SIMPLEANIMATORBIN = "SIMPLEANIMATOR";
     /**Terrain资源。*/
     static TERRAINHEIGHTDATA = "TERRAINHEIGHTDATA";
     /**Terrain资源。*/
@@ -139,11 +137,8 @@ export class Loader extends EventDispatcher {
         let typeEntry: TypeMapEntry;
         if (type) {
             typeEntry = <TypeMapEntry>Loader.typeMap[type];
-            if (!typeEntry) {
+            if (!typeEntry)
                 Loader.typeMap[type] = typeEntry = { typeId: typeIdCounter++, loaderType: cls };
-                if (!imageEntry && type === Loader.IMAGE)
-                    imageEntry = typeEntry;
-            }
             else if (typeEntry.loaderType != cls)
                 typeEntry = { typeId: typeEntry.typeId, loaderType: cls };
         }
@@ -592,15 +587,8 @@ export class Loader extends EventDispatcher {
                 }
                 else {
                     //未与扩展名匹配的情况，例如a.lh试图以Loader.JSON类型加载，这种组合没有注册，但仍然允许加载为副资源
-                    if (type == Loader.TEXTURE2D && extEntry[0] != imageEntry) {
-                        //特别检查，TEXTURE2D必须是图片类型才允许这样，如果不是图片，忽略type
-                        main = true;
-                        loaderType = extEntry[0].loaderType;
-                    }
-                    else {
-                        main = false;
-                        loaderType = typeEntry.loaderType;
-                    }
+                    main = false;
+                    loaderType = typeEntry.loaderType;
                 }
             }
             else { //扩展名没有注册的情况
@@ -663,6 +651,13 @@ export class Loader extends EventDispatcher {
      * 
      */
     static getTexture2D(url: string): Texture2D {
+        return Loader.getRes(url, Loader.TEXTURE2D);
+    }
+
+    /**
+     * 
+     */
+    static getBaseTexture<T extends BaseTexture>(url: string): T {
         return Loader.getRes(url, Loader.TEXTURE2D);
     }
 

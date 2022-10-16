@@ -1,5 +1,6 @@
 import { Node } from "../../../display/Node";
 import { Loader } from "../../../net/Loader";
+import { Texture } from "../../../resource/Texture";
 import { Color } from "../../math/Color";
 import { Vector2 } from "../../math/Vector2";
 import { Vector3 } from "../../math/Vector3";
@@ -116,9 +117,9 @@ export class ShuriKenParticle3D extends RenderableSprite3D {
 				case "resources":
 					var resources: any = moduleData.resources;
 					for (var k in resources) {
-						let res = Loader.getTexture2D(resources[k]);
-						if (!res) {
-							res = Loader.getRes(resources[k]);
+						let res = Loader.getRes(resources[k]);
+						if (res && (res instanceof Texture)) {
+							res = res.bitmap;
 						}
 						module[k] = res;
 					}

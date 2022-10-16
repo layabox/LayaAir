@@ -51,7 +51,7 @@ export class MaterialParser {
                     for (let i = 0, n = textures.length; i < n; i++) {
                         let texture: any = textures[i];
                         let path: string = texture.path;
-                        (path) && (mat._shaderValues.setTexture(Shader3D.propertyNameToID(texture.name), Loader.getTexture2D(path)));
+                        (path) && (mat._shaderValues.setTexture(Shader3D.propertyNameToID(texture.name), Loader.getBaseTexture(path)));
                     }
                     break;
                 case "renderQueue":
@@ -199,7 +199,7 @@ export class MaterialParser {
                             for (let i = 0, n = textures.length; i < n; i++) {
                                 let texture: any = textures[i];
                                 let path: string = texture.path;
-                                (path) && ((<any>mat)[texture.name] = Loader.getTexture2D(path));
+                                (path) && ((<any>mat)[texture.name] = Loader.getBaseTexture(path));
                             }
                             break;
                         case "defines":
@@ -266,7 +266,7 @@ export class MaterialParser {
                             for (let i = 0, n = textures.length; i < n; i++) {
                                 let texture: any = textures[i];
                                 let path: string = texture.path;
-                                (path) && (mat._shaderValues.setTexture(Shader3D.propertyNameToID(texture.name), Loader.getTexture2D(path)));
+                                (path) && (mat._shaderValues.setTexture(Shader3D.propertyNameToID(texture.name), Loader.getBaseTexture(path)));
                             }
                             break;
                         case "renderQueue":

@@ -89,13 +89,15 @@ class Texture2DLoader implements IResourceLoader {
                     case "hdr":
                         tex = HDRTextureInfo._parseHDRTexture(data, propertyParams, constructParams);
                         break;
+
+                    case "lanit.ls":
+                        tex = Texture2D._SimpleAnimatorTextureParse(data, propertyParams, constructParams);
+                        break;
                 }
 
                 let obsoluteInst = <Texture2D>task.obsoluteInst;
                 if (obsoluteInst)
                     tex = this.move(obsoluteInst, tex);
-
-
 
                 if (null != propertyParams.hdrEncodeFormat && tex)
                     tex.hdrEncodeFormat = propertyParams.hdrEncodeFormat;
@@ -167,7 +169,7 @@ class TextureLoader implements IResourceLoader {
     }
 }
 
-const compressedFormats = ["ktx", "pvr", "dds", "hdr"];
+const compressedFormats = ["ktx", "pvr", "dds", "hdr", "lanit.ls"];
 
 Loader.registerLoader(["png", "jpg", "jpeg", ...compressedFormats], TextureLoader, Loader.IMAGE);
 Loader.registerLoader([], Texture2DLoader, Loader.TEXTURE2D);

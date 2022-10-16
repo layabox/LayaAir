@@ -292,7 +292,7 @@ class HierarchyParserV2 {
                             materials[i].path = addInnerUrl(materials[i].path, Loader.MATERIAL);
                     if (nodeData.type == "SimpleSkinnedMeshSprite3D")
                         if (props.animatorTexture)
-                            props.animatorTexture = addInnerUrl(props.animatorTexture, Loader.SIMPLEANIMATORBIN)
+                            props.animatorTexture = addInnerUrl(props.animatorTexture, Loader.TEXTURE2D)
                     break;
 
                 case "ShuriKenParticle3D":

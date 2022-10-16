@@ -6,6 +6,7 @@ import { TextureDimension } from "../../RenderEngine/RenderEnum/TextureDimension
 import { TextureFormat } from "../../RenderEngine/RenderEnum/TextureFormat";
 import { WrapMode } from "../../RenderEngine/RenderEnum/WrapMode";
 import { AssetDb } from "../../resource/AssetDb";
+import { Resource } from "../../resource/Resource";
 import { Byte } from "../../utils/Byte";
 import { TextureCube } from "../resource/TextureCube";
 
@@ -28,6 +29,11 @@ class CubemapLoader implements IResourceLoader {
 
                 let tex = new TextureCube(ktxInfo.width, ktxInfo.format, ktxInfo.mipmapCount > 1, ktxInfo.sRGB);
                 tex.setKTXData(ktxInfo);
+
+                let obsoluteInst = task.obsoluteInst;
+                if (obsoluteInst && (obsoluteInst instanceof TextureCube))
+                    tex = this.move(obsoluteInst, tex);
+
                 return tex;
             });
         }
@@ -69,6 +75,10 @@ class CubemapLoader implements IResourceLoader {
                     tex.updateSubPixelsData(uint8Arrays, 0, 0, mipSize, mipSize, i, false, false, false);
                     mipSize /= 2;
                 }
+
+                let obsoluteInst = task.obsoluteInst;
+                if (obsoluteInst && (obsoluteInst instanceof TextureCube))
+                    tex = this.move(obsoluteInst, tex);
                 return tex;
             });
         }
@@ -100,10 +110,23 @@ class CubemapLoader implements IResourceLoader {
                     let srgb = constructParams ? constructParams[5] : true;
                     let tex = new TextureCube(size, format, mipmap, srgb);
                     tex.setImageData(images, false, false);
+
+                    let obsoluteInst = task.obsoluteInst;
+                    if (obsoluteInst && (obsoluteInst instanceof TextureCube))
+                        tex = this.move(obsoluteInst, tex);
                     return tex;
                 });
             });
         }
+    }
+
+    private move(obsoluteInst: TextureCube, tex: TextureCube) {
+        obsoluteInst._texture = tex._texture;
+        obsoluteInst.width = tex.width;
+        obsoluteInst.height = tex.height;
+        obsoluteInst.obsolute = false;
+        delete Resource._idResourcesMap[tex.id];
+        return obsoluteInst;
     }
 }
 
