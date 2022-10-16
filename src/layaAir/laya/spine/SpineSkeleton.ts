@@ -1,4 +1,5 @@
 import { ILaya } from "../../ILaya";
+import { LayaEnv } from "../../LayaEnv";
 import { Sprite } from "../display/Sprite";
 import { Event } from "../events/Event";
 import { SoundChannel } from "../media/SoundChannel";
@@ -227,6 +228,9 @@ export class SpineSkeleton extends Sprite {
         });
 
         this.event(Event.READY);
+
+        if (LayaEnv.isPlaying && this._animationName)
+            this.play(this._animationName, this._loop, true);
     }
 
     /**

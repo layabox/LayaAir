@@ -23,6 +23,7 @@ import { Texture } from "../../resource/Texture";
 import { IAniLib } from "../AniLibPack";
 import { Templet } from "../../ani/bone/Templet";
 import { ILaya } from "../../../ILaya";
+import { LayaEnv } from "../../../LayaEnv";
 
 /**动画开始播放调度
  * @eventType Event.PLAYED
@@ -337,6 +338,9 @@ export class Skeleton extends Sprite {
         this._player.on(Event.PLAYED, this, this._onPlay);
         this._player.on(Event.STOPPED, this, this._onStop);
         this._player.on(Event.PAUSED, this, this._onPause);
+
+        if (LayaEnv.isPlaying && this._animationName)
+            this.play(this._animationName, this._loop, true);
     }
 
     /**
