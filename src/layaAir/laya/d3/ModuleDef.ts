@@ -82,7 +82,6 @@ import "./loaders/AnimationClipLoader";
 import "./loaders/CubemapLoader";
 import "./loaders/MaterialLoader";
 import "./loaders/MeshLoader";
-import "./loaders/SimpleAnimatorTextureLoader";
 import "./loaders/HierarchyParserV2";
 import "./loaders/AvatarMaskLoader";
 import "./loaders/ShaderLoader";
