@@ -264,17 +264,6 @@ export class PixelLineRenderer extends BaseRender {
         super._onDestroy();
     }
 
-
-    pixelLinesDataChange(key: any) {
-        let index = Number(key);
-        if (!isNaN(index)) {
-            let line = this._lines[index];
-            if (line) {
-                this.setLine(index, line.startPosition, line.endPosition, line.startColor, line.endColor);
-            }
-        }
-    }
-
     /**
      * @override
      * @param dest 
