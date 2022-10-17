@@ -34,12 +34,14 @@ export class NativeCullPassBase implements ICullPass {
         var customRenderList = (renderManager as any)._sceneManagerOBJ._customCullList;
         var boundFrustum = cameraCullInfo.boundFrustum;
         var cullMask: number = cameraCullInfo.cullingMask;
+        let staticMask = cameraCullInfo.staticMask;
         var renders = customRenderList.elements;
         let context = RenderContext3D._instance;
         for (var i: number = 0, n: number = customRenderList.length; i < n; i++) {
             var render: BaseRender = <BaseRender>renders[i];
             var canPass: boolean;
-            canPass = ((Math.pow(2, (render.owner as Sprite3D)._layer) & cullMask) != 0) && render._enabled&&(render.renderbitFlag == 0);
+            canPass = (Math.pow(2, render.renderNode.layer & cullMask) != 0) && render._enabled && (render.renderbitFlag == 0);
+            canPass = canPass && (( render.renderNode.staticMask & staticMask) != 0);
             if (canPass) {
                 Stat.frustumCulling++;
                 if (!cameraCullInfo.useOcclusionCulling || render._needRender(boundFrustum, context)) {

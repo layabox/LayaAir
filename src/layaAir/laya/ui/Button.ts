@@ -360,8 +360,10 @@ export class Button extends UIComponent implements ISelect {
         }
         if (this._stateNum != value) {
             this._stateNum = value < 1 ? 1 : value > 3 ? 3 : value;
-            if (this._skin)
+            if (this._skin) {
                 this.callLater(this.changeClips);
+                this._setStateChanged();
+            }
         }
     }
 

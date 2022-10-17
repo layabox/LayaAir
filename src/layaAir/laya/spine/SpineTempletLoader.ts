@@ -10,8 +10,11 @@ class SpineTempletLoader implements IResourceLoader {
             task.loader.fetch(task.url, task.ext == "skel" ? "arraybuffer" : "json", task.progress.createCallback()),
             task.loader.fetch(atlasUrl, "text", task.progress.createCallback())
         ]).then(res => {
+            if (!res[0] || !res[1])
+                return null;
+
             let templet = new SpineTemplet();
-            return templet._parse(res[0], res[1], task.url, task.progress).then(()=> templet);
+            return templet._parse(res[0], res[1], task.url, task.progress).then(() => templet);
         });
     }
 }
