@@ -448,6 +448,7 @@ export class BaseRender extends Component implements ISingletonElement {
         this.runInEditor = true;
         this.boundsChange = true;
         this._rendernode.renderbitFlag = 0;
+        this._rendernode.staticMask = 1;
     }
 
     protected _createBaseRenderNode(): IBaseRenderNode {
