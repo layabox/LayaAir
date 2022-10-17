@@ -9,12 +9,16 @@ import { Vector3 } from "../math/Vector3";
 import { Event } from "../../events/Event";
 import { Utils3D } from "../utils/Utils3D";
 
+const tempVec = new Vector3();
+const tempVec1 = new Vector3();
+
 export class LODInfo {
     _mincullRate: number;//裁剪比例 0-1
     /**@internal */
     _renders: BaseRender[];//此LOD显示的渲染节点
     /**@internal */
     private _group: LODGroup;
+
     constructor(mincullRate: number) {
         this._mincullRate = mincullRate;
         this._renders = [];
@@ -51,8 +55,8 @@ export class LODInfo {
         if (ren._isRenderNode > 0) {
             let components = ren.renderComponent as BaseRender[];
             //this._renders = this._renders.concat(components);
-            components.forEach(value=>{
-                if(this._renders.indexOf(value)==-1){
+            components.forEach(value => {
+                if (this._renders.indexOf(value) == -1) {
                     this._renders.push(value);
                 }
             });
@@ -96,8 +100,7 @@ export class LODInfo {
 }
 
 export class LODGroup extends Component {
-    public static tempVec: Vector3 = new Vector3();
-    public static tempVec1: Vector3 = new Vector3();
+
     /**
      * 是否需要重新计算_lodBoundsRadius，和_bounds
      * 在LOD值里面位置有相对改动的时候是需要重新计算的
@@ -224,16 +227,16 @@ export class LODGroup extends Component {
         let checkCamera = (this.owner.scene as Scene3D).cullInfoCamera as Camera;
         let maxYDistance = checkCamera.maxlocalYDistance;
         let cameraFrustum = checkCamera.boundFrustum;
-        Vector3.subtract(this._lodPosition, checkCamera.transform.position, LODGroup.tempVec);
+        Vector3.subtract(this._lodPosition, checkCamera.transform.position, tempVec);
         //大于farplane,或者不在视锥内.不做lod操作
-        if (LODGroup.tempVec.lengthSquared() > checkCamera.farPlane || cameraFrustum.containsPoint(this._lodPosition) == 0) {
+        if (tempVec.lengthSquared() > checkCamera.farPlane || cameraFrustum.containsPoint(this._lodPosition) == 0) {
             return;
         }
-        let length = LODGroup.tempVec.length();
-        checkCamera.transform.worldMatrix.getForward(LODGroup.tempVec1);
-        Vector3.normalize(LODGroup.tempVec, LODGroup.tempVec);
-        Vector3.normalize(LODGroup.tempVec1, LODGroup.tempVec1);
-        let rateYDistance = length * Vector3.dot(LODGroup.tempVec, LODGroup.tempVec1) / checkCamera.farPlane * maxYDistance;
+        let length = tempVec.length();
+        checkCamera.transform.worldMatrix.getForward(tempVec1);
+        Vector3.normalize(tempVec, tempVec);
+        Vector3.normalize(tempVec1, tempVec1);
+        let rateYDistance = length * Vector3.dot(tempVec, tempVec1) / checkCamera.farPlane * maxYDistance;
 
         let rate = (this._size / rateYDistance);
         this._applyVisibleRate(rate);
