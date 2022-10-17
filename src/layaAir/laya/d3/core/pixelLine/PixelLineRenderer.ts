@@ -207,17 +207,17 @@ export class PixelLineRenderer extends BaseRender {
      * @param	endColor	   结束点颜色
      */
     setLine(index: number, startPosition: Vector3, endPosition: Vector3, startColor: Color, endColor: Color): void {
-        if (index < this._pixelLineFilter._lineCount){
+        if (index < this._pixelLineFilter._lineCount) {
             this._pixelLineFilter._updateLineData(index, startPosition, endPosition, startColor, endColor);
             let pixeldata = this._lines[index];
-            if(pixeldata){
+            if (pixeldata) {
                 startColor.cloneTo(pixeldata.startColor);
                 endColor.cloneTo(pixeldata.endColor);
                 startPosition.cloneTo(pixeldata.startPosition);
                 endPosition.cloneTo(pixeldata.endPosition);
             }
         }
-            
+
         else
             throw "PixelLineSprite3D: index must less than lineCount.";
     }
@@ -262,6 +262,17 @@ export class PixelLineRenderer extends BaseRender {
         this._pixelLineFilter.destroy();
         this._pixelLineFilter = null;
         super._onDestroy();
+    }
+
+
+    pixelLinesDataChange(key: any) {
+        let index = Number(key);
+        if (!isNaN(index)) {
+            let line = this._lines[index];
+            if (line) {
+                this.setLine(index, line.startPosition, line.endPosition, line.startColor, line.endColor);
+            }
+        }
     }
 
     /**
