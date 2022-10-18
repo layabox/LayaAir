@@ -47,7 +47,16 @@ export class SerializeUtil {
             }
 
             if (data._$ref != null) {
-                return nodeFinder?.(data._$ref);
+                let node = nodeFinder?.(data._$ref);
+                if (node && data._$type) {
+                    let cls: any = ClassUtils.getClass(data._$type);
+                    if (cls)
+                        return node.getComponent(cls);
+                    else
+                        return null;
+                }
+                else
+                    return node;
             }
 
             type = type || data._$type;
