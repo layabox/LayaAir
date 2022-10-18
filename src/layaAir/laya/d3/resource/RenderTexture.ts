@@ -71,8 +71,8 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
 
     static set bindCanvasRender(value: RenderTexture) {
         if (value != this._bindCanvasRender)
-            (this._bindCanvasRender) && RenderTexture.recoverToPool(this._bindCanvasRender);
-        this._bindCanvasRender = value;
+            //(this._bindCanvasRender) && RenderTexture.recoverToPool(this._bindCanvasRender);
+            this._bindCanvasRender = value;
     }
 
 

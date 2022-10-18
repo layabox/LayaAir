@@ -341,6 +341,11 @@ export class Camera extends BaseCamera {
     /** 深度法线贴图*/
     private _depthNormalsTexture: RenderTexture;
 
+    /** 非透明物体贴图 */
+	private _opaqueTexture: RenderTexture;
+	/** 是否开启非透明物体通道 */
+	private _opaquePass: boolean;
+
 
     private _cameraEventCommandBuffer: { [key: string]: CommandBuffer[] } = {};
     /**@internal 实现CommanBuffer的阴影渲染 */
@@ -590,6 +595,23 @@ export class Camera extends BaseCamera {
     set depthTextureMode(value: number) {
         this._depthTextureMode = value;
     }
+    
+	/**
+	 * 设置OpaquePass模式
+	 */
+	set opaquePass(value: boolean) {
+		if (value == this._opaquePass)
+			return;
+		if (!value) {
+			this._shaderValues.setTexture(BaseCamera.OPAQUETEXTURE, null);
+			this._opaqueTexture&&RenderTexture.recoverToPool(this._opaqueTexture);
+		}
+		this._opaquePass = value;
+	}
+
+	get opaquePass() {
+		return this._opaquePass;
+	}
 
     /**
      * 深度贴图格式
@@ -1070,7 +1092,7 @@ export class Camera extends BaseCamera {
         this.recoverRenderContext3D(context, renderTex);
         scene._renderScene(context, ILaya3D.Scene3D.SCENERENDERFLAG_RENDERQPAQUE);
         this._applyCommandBuffer(CameraEventFlags.BeforeSkyBox, context);
-
+        this._opaquePass && this._createOpaqueTexture(renderTex, context);
         this.recoverRenderContext3D(context, renderTex);
         scene._renderScene(context, ILaya3D.Scene3D.SCENERENDERFLAG_SKYBOX);
         this._applyCommandBuffer(CameraEventFlags.BeforeTransparent, context);
@@ -1085,7 +1107,7 @@ export class Camera extends BaseCamera {
             if (this._postProcess && this._postProcess.enable) {
                 this._postProcess.commandContext = context;
                 this._postProcess._render();
-                this._postProcess._applyPostProcessCommandBuffers();
+                this._postProcess._applyPostProcessCommandBuffers();  
             } else if (this._enableHDR || this._needBuiltInRenderTexture) {
                 var canvasWidth: number = this._getCanvasWidth(), canvasHeight: number = this._getCanvasHeight();
                 if (this._offScreenRenderTexture) {
@@ -1097,11 +1119,11 @@ export class Camera extends BaseCamera {
                     this._internalCommandBuffer.clear();
                 }
             }
-            RenderTexture.bindCanvasRender = this._internalRenderTexture;
-            //RenderTexture.recoverToPool(this._internalRenderTexture);
-        } else {
+        } 
+        if (this._offScreenRenderTexture) {
             RenderTexture.bindCanvasRender = null;
-        }
+        }else
+            RenderTexture.bindCanvasRender = this._internalRenderTexture;
         this._applyCommandBuffer(CameraEventFlags.AfterEveryThing, context);
 
         // if (renderTex && renderTex._isCameraTarget)//保证反转Y状态正确
@@ -1177,6 +1199,18 @@ export class Camera extends BaseCamera {
     }
 
 
+    _createOpaqueTexture(currentTarget: RenderTexture, renderContext: RenderContext3D) {
+		if (!this._opaqueTexture) {
+			let tex = this._getRenderTexture();
+			this._opaqueTexture = RenderTexture.createFromPool(tex.width, tex.height,tex.colorFormat,RenderTargetFormat.None,false,1,false,true);
+			this._shaderValues.setTexture(BaseCamera.OPAQUETEXTURE, this._opaqueTexture);
+		}
+		var blit: BlitScreenQuadCMD = BlitScreenQuadCMD.create(currentTarget, this._opaqueTexture);
+		blit.setContext(renderContext);
+		blit.run();
+		blit.recover();
+	}
+
     /**
      * @override
      * @param shader 着色器
@@ -1202,7 +1236,6 @@ export class Camera extends BaseCamera {
                 this._internalRenderTexture = RenderTexture.createFromPool(viewport.width, viewport.height, texFormat, this._depthTextureFormat, false, 1, false, this._needRenderGamma(texFormat));
                 this._internalRenderTexture.filterMode = FilterMode.Bilinear;
             }
-
         }
         else {
             this._internalRenderTexture = null;

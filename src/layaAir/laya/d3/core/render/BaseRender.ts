@@ -149,12 +149,25 @@ export class BaseRender extends Component implements ISingletonElement {
     _motionIndexList: number = -1;
     /**@internal 是否自定义了needRender*/
     _customCull: boolean;
+    /**@internal 可以根据不同的值来设置*/
+	_ratioIgnor: number = 0.005;//TODO
     /**@internal 如果这个值不是0,说明有一些条件使他不能加入渲染队列，例如如果是1，证明此节点被lod淘汰*/
     private _volume: Volume;
+    /**
+	 * DistanceVolumCull
+	 * 根据距离和包围盒进行裁剪，越大越容易被裁
+	 */
+	set ratioIgnor(value: number) {
+		this._ratioIgnor = value;
+	}
+
+	get ratioIgnor(): number {
+		return this._ratioIgnor;
+	}
+   
     get renderbitFlag() {
         return this._rendernode.renderbitFlag;
     }
-
 
     set boundsChange(value: boolean) {
         this._rendernode.boundsChange = value

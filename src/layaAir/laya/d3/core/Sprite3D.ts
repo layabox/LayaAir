@@ -228,7 +228,7 @@ export class Sprite3D extends Node {
      * @internal
      */
     _parse(data: any, spriteMap: any): void {
-        (data.isStatic !== undefined) && (this._isStatic = data.isStatic);
+        (data.isStatic !== undefined) && (this.isStatic = data.isStatic);
         (data.active !== undefined) && (this.active = data.active);
         (data.name != undefined) && (this.name = data.name);
 
