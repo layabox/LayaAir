@@ -115,46 +115,6 @@ export class Animator extends Component {
         return this._controllerLayers.length;
     }
 
-    //@internal
-    public get controllerLayers(): ReadonlyArray<AnimatorControllerLayer> {
-        return this._controllerLayers;
-    }
-
-    /** @private*/
-    private _cacheContollerLayers: ReadonlyArray<AnimatorControllerLayer>;
-
-    //@internal
-    public set controllerLayers(layers: ReadonlyArray<AnimatorControllerLayer>) {
-        if (!this.awaked) {
-            this._cacheContollerLayers = layers;
-            return;
-        }
-        if (this._controllerLayers === layers)
-            return;
-
-        let oldLayers: Array<AnimatorControllerLayer> = this._controllerLayers;
-        if (oldLayers.length > 0) {
-            let i = 0;
-            while (i < oldLayers.length) {
-                if (layers.indexOf(oldLayers[i]) == -1)
-                    oldLayers.splice(i, 1);
-                else
-                    i++;
-            }
-        }
-        if (layers.length > 0) {
-            let newAdded = layers.filter(s => oldLayers.indexOf(s) == -1);
-            for (let layer of newAdded)
-                this.addControllerLayer(layer);
-        }
-
-
-
-
-        this._controllerLayers.length = 0;
-        this._controllerLayers.push(...layers);
-    }
-
     /**
      * 创建一个 <code>Animation</code> 实例。
      */
@@ -1044,10 +1004,15 @@ export class Animator extends Component {
         }
     }
 
-    protected _onAwake(): void {
-        if (this._cacheContollerLayers) {
-            this.controllerLayers = this._cacheContollerLayers;
-            this._cacheContollerLayers = null;
+    /** @internal */
+    onAfterDeserialize(): void {
+        let arr = (<any>this).controllerLayers;
+        if (!arr)
+            return;
+        delete (<any>this).controllerLayers;
+        this._controllerLayers.length = 0;
+        for (let layer of arr) {
+            this.addControllerLayer(layer);
         }
     }
 
