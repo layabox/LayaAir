@@ -188,8 +188,11 @@ export class Component {
         if (value) {
             if (this._status == 0) {
                 this._status = 1;
-                this._onAwake();
-                this.onAwake();
+
+                if (LayaEnv.isPlaying || this.runInEditor) {
+                    this._onAwake();
+                    this.onAwake();
+                }
             }
             if (this._enabled && !this._enableState) {
                 this._enableState = true;
@@ -198,7 +201,7 @@ export class Component {
                     let driver = (this.owner._is3D && this.owner._scene)?._componentDriver || ILaya.stage._componentDriver;
                     driver.add(this);
 
-                    if (this._isScript())
+                    if (LayaEnv.isPlaying && this._isScript())
                         this.setupScript();
 
                     this._onEnable();

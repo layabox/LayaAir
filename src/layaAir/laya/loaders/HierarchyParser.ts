@@ -198,6 +198,7 @@ export class HierarchyParser {
         outNodes = outNodes.filter(n => n != null);
 
         //加载所有组件
+        let compInitList: Array<any> = [];
         for (let i = 0; i < cnt; i++) {
             let components = dataList[i]._$comp;
             if (!components)
@@ -231,8 +232,14 @@ export class HierarchyParser {
                 }
 
                 if (comp)
-                    SerializeUtil.decodeObj(compData, comp, null, findNode, errors);
+                    compInitList.push(compData, comp);
             }
+        }
+
+        //设置组件属性
+        cnt = compInitList.length;
+        for (let i = 0; i < cnt; i += 2) {
+            SerializeUtil.decodeObj(compInitList[i], compInitList[i + 1], null, findNode, errors);
         }
 
         if (inPrefab && prefabNodeDict && outNodes.length > 0) //记录下nodeMap，上层创建prefab时使用
