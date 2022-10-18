@@ -26,6 +26,9 @@ export class SubmitCMD implements ISubmit {
         if ((--this._ref) < 1) {
             var pool: any = SubmitCMD.POOL;
             pool[pool._length++] = this;
+            this.args = null;
+            this.fun = null;
+            this._this = null;
         }
     }
 

@@ -685,7 +685,7 @@ export class Context {
                 if (rt) {
                     rt.destroy();
                 }
-                this._targets = new RenderTexture2D(this._width, this._height, RenderTargetFormat.R8G8B8A8)
+                this._targets = new RenderTexture2D(this._width, this._height, RenderTargetFormat.R8G8B8A8);
             }
         } else {
             this._targets && this._targets.destroy();
