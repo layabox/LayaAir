@@ -162,46 +162,6 @@ export class Animator2D extends Component {
         }
     }
 
-    public get controllerLayers(): ReadonlyArray<AnimatorControllerLayer2D> {
-        return this._controllerLayers;
-    }
-    private _cacheContollerLayers: ReadonlyArray<AnimatorControllerLayer2D>;
-
-    public set controllerLayers(layers: ReadonlyArray<AnimatorControllerLayer2D>) {
-        if (!this.awaked) {
-            this._cacheContollerLayers = layers;
-            return;
-        }
-        if (this._controllerLayers == layers)
-            return;
-
-        let oldLayers: Array<AnimatorControllerLayer2D> = this._controllerLayers;
-        if (oldLayers.length > 0) {
-            let i = 0;
-            while (i < oldLayers.length) {
-                if (layers.indexOf(oldLayers[i]) == -1)
-                    oldLayers.splice(i, 1);
-                else
-                    i++;
-            }
-        }
-
-        if (layers.length > 0) {
-            let newAdded = layers.filter(s => oldLayers.indexOf(s) == -1);
-            for (let layer of newAdded)
-                this.addControllerLayer(layer);
-        }
-
-        this._controllerLayers.length = 0;
-        this._controllerLayers.push(...layers);
-    }
-    protected _onAwake(): void {
-        if (this._cacheContollerLayers) {
-            this.controllerLayers = this._cacheContollerLayers;
-            this._cacheContollerLayers = null;
-        }
-    }
-
     /**
      * 添加控制器层。
      */
@@ -439,6 +399,14 @@ export class Animator2D extends Component {
         return ret;
     }
 
+    /** @internal */
+    onAfterDeserialize(): void {
+        let arr = (<any>this).controllerLayers;
+        delete (<any>this).controllerLayers;
+        for (let layer of arr) {
+            this.addControllerLayer(layer);
+        }
+    }
 
     onEnable() {
         if (this._isPlaying) {
