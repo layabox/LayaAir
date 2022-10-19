@@ -5,36 +5,7 @@ window.Physics3D = function (pages, interactive) {
                 var fd_close=() => { console.log('fd_close')};
                 var fd_write=() => { console.log('fd_write')};
                 var fd_seek=() => { console.log('fd_seek')};
-                if(!window.atob){
-                    var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
-                    window.atob=function atob(input) {
-                        var str = (String (input)).replace (/[=]+$/, ''); // #31: ExtendScript bad parse of /=
-                        if (str.length % 4 === 1) {
-                        throw new InvalidCharacterError ("'atob' failed: The string to be decoded is not correctly encoded.");
-                        }
-                        for (
-                        // initialize result and counters
-                        var bc = 0, bs, buffer, idx = 0, output = '';
-                        // get next character
-                        buffer = str.charAt (idx++); // eslint-disable-line no-cond-assign
-                        // character found in table? initialize bit storage and add its ascii value;
-                        ~buffer && (bs = bc % 4 ? bs * 64 + buffer : buffer,
-                            // and if not first of each 4 characters,
-                            // convert the first 8 bits to one ascii character
-                            bc++ % 4) ? output += String.fromCharCode (255 & bs >> (-2 * bc & 6)) : 0
-                        ) {
-                        // try to find character in table (0-63, not found => -1)
-                        buffer = chars.indexOf (buffer);
-                        }
-                        return output;
-                    }
-                }window.Physics3D = function (pages, interactive) {
-                function init(initialMemory,interactive,exports){
-                var getWorldTransform=interactive.getWorldTransform;
-                var setWorldTransform=interactive.setWorldTransform;
-                var fd_close=() => { console.log('fd_close')};
-                var fd_write=() => { console.log('fd_write')};
-                var fd_seek=() => { console.log('fd_seek')};
+                var clearLine=()=>{console.log('clearLine')};
                 if(!window.atob){
                     var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
                     window.atob=function atob(input) {
@@ -94633,7 +94604,6 @@ var retasmFunc = asmFunc(  { abort: function() { throw new Error('abort'); },
     fd_write,
     getWorldTransform,
     setWorldTransform,
-    drawLine,
     clearLine,
     fd_seek,
     memory: { buffer : memasmFunc }
@@ -94911,13 +94881,6 @@ exports._free = retasmFunc._free;
 exports.solveSphereHit = retasmFunc.solveSphereHit;
 exports.main = retasmFunc.main;
 }
-                var physics3D=window.Physics3D={};
-                physics3D.then=(completeFun)=>{
-                completeFun(physics3D);
-                }
-                init(pages*64*1024,interactive,physics3D);
-                return physics3D;
-                }}
                 var physics3D=window.Physics3D={};
                 physics3D.then=(completeFun)=>{
                 completeFun(physics3D);
