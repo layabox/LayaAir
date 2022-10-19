@@ -43,8 +43,6 @@ export class AnimatorControllerLayer implements IClone {
     /**@internal */
     _animator: Animator;
     /**@internal */
-    _statesMap: any = {};
-    /**@internal */
     _states: AnimatorState[] = [];
     /**@internal */
     _playStateInfo: AnimatorPlayState | null = new AnimatorPlayState();
@@ -72,7 +70,6 @@ export class AnimatorControllerLayer implements IClone {
 
     set defaultState(value: AnimatorState) {
         this._defaultState = value;
-        this._statesMap[value.name] = value;
     }
 
     /**
@@ -97,7 +94,7 @@ export class AnimatorControllerLayer implements IClone {
     private _defaultStateNameCatch: string;
     //@internal
     public set defaultStateName(value: string) {
-        this._defaultState = this._statesMap[value];
+        this._defaultState = this.getAnimatorState(value);
         if (null == this._defaultState) {
             if (0 == this._states.length) {
                 this._defaultStateNameCatch = value;
@@ -149,12 +146,11 @@ export class AnimatorControllerLayer implements IClone {
     /**
      * @internal
      */
-    private _removeClip(clipStateInfos: AnimatorState[], statesMap: any, index: number, state: AnimatorState): void {
+    private _removeClip(clipStateInfos: AnimatorState[], index: number, state: AnimatorState): void {
         var clip: AnimationClip = state._clip!;
         var clipStateInfo: AnimatorState = clipStateInfos[index];
 
         clipStateInfos.splice(index, 1);
-        delete statesMap[state.name];
 
         if (this._animator) {
             var frameNodes = clip._nodes;
@@ -198,7 +194,13 @@ export class AnimatorControllerLayer implements IClone {
      * @return 动画状态。
      */
     getAnimatorState(name: string): AnimatorState | null {
-        var state: AnimatorState = this._statesMap[name];
+        var state: AnimatorState;;
+        for (let i = 0; i < this._states.length; i++) {
+            if (this._states[i].name == name) {
+                state = this._states[i];
+                break;
+            }
+        }
         return state ? state : null;
     }
 
@@ -209,10 +211,9 @@ export class AnimatorControllerLayer implements IClone {
      */
     addState(state: AnimatorState): void {
         var stateName: string = state.name;
-        if (this._statesMap[stateName]) {
+        if (this.getAnimatorState(stateName)) {
             throw "AnimatorControllerLayer:this stat's name has exist.";
         } else {
-            this._statesMap[stateName] = state;
             this._states.push(state);
             if (stateName == this._defaultStateNameCatch) {
                 this._defaultState = state;
@@ -241,7 +242,7 @@ export class AnimatorControllerLayer implements IClone {
             }
         }
         if (index !== -1)
-            this._removeClip(states, this._statesMap, index, state);
+            this._removeClip(states, index, state);
     }
 
     /**
@@ -249,7 +250,6 @@ export class AnimatorControllerLayer implements IClone {
      */
     destroy(): void {
         this._clearReference();
-        this._statesMap = null;
         this._states = [];
         this._playStateInfo = null;
         this._crossPlayStateInfo = null;

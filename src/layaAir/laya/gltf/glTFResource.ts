@@ -1547,8 +1547,7 @@ export class glTFResource extends HierarchyResource {
 
         let animationName: string = clip.name;
 
-        let stateMap: { [stateName: string]: AnimatorState } = animatorLayer._statesMap;
-        if (stateMap[animationName]) {
+        if (animatorLayer.getAnimatorState(animationName)) {
             animationName = clip.name = `${animationName}_${this.generateId(animationName)}`;
         }
 

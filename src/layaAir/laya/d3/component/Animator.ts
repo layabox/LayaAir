@@ -1317,7 +1317,7 @@ export class Animator extends Component {
             var curPlayState: AnimatorState = playStateInfo._currentState!;
 
 
-            var animatorState: AnimatorState = name ? controllerLayer._statesMap[name] : defaultState;
+            var animatorState: AnimatorState = name ? controllerLayer.getAnimatorState(name) : defaultState;
             if (!animatorState._clip)
                 return;
 
@@ -1361,7 +1361,7 @@ export class Animator extends Component {
     crossFade(name: string, transitionDuration: number, layerIndex: number = 0, normalizedTime: number = Number.NEGATIVE_INFINITY): void {
         var controllerLayer = this._controllerLayers[layerIndex];
         if (controllerLayer) {
-            var destAnimatorState = controllerLayer._statesMap[name];
+            var destAnimatorState = controllerLayer.getAnimatorState(name);
             if (destAnimatorState) {
                 var playType = controllerLayer._playType;
                 if (playType === -1) {//如果未曾调用过play则回滚到play方法
