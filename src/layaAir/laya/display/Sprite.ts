@@ -1291,7 +1291,7 @@ export class Sprite extends Node {
             ctx.flush();
             ctx._targets.end();
             ctx._targets.restore();
-            //ctx._targets = null;
+            ctx._targets = null;
         }
         if (!rt) {
             var rtex: Texture = new Texture(((<Texture2D>(ctx._targets as any))), Texture.INV_UV);
