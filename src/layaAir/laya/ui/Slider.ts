@@ -356,13 +356,13 @@ export class Slider extends UIComponent {
             this._value = Math.round(Math.round(this._value / this._tick) * this._tick * pow) / pow;
         }
 
-        if (this._max >= this._max) {
-            // this._max >= this._min 时
+        if (this._max >= this._min) {
             this._value = this._value > this._max ? this._max : this._value < this._min ? this._min : this._value;
         } else {
-            // this._max < this._min 时
+            //当设置的最小值大于最大值的时候，滑动条会反向处理，滑动条限制也应反向处理。
             this._value = this._value > this._min ? this._min : this._value < this._max ? this._max : this._value;
         }
+        
         var num: number = this._max - this._min;
         if (num === 0) num = 1;
         if (this.isVertical) {
