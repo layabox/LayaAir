@@ -112,6 +112,10 @@ export class ComboBox extends UIComponent {
     /**
      * @private
      */
+    protected _itemPadding: any[] = [3, 3, 3, 3];
+    /**
+     * @private
+     */
     protected _itemSize: number = 12;
     /**
      * @private
@@ -121,7 +125,7 @@ export class ComboBox extends UIComponent {
      * @private
      * 下拉提示文本
      */
-    private _defaultLabel: string = '';
+    protected _defaultLabel: string = '';
     /**
      * @private
      */
@@ -131,7 +135,7 @@ export class ComboBox extends UIComponent {
      */
     protected _selectHandler: Handler;
     /**
-     * @private
+     * @private 下拉框列表单元的高度
      */
     protected _itemHeight: number;
     /**
@@ -183,6 +187,8 @@ export class ComboBox extends UIComponent {
         this._button = null;
         this._list = null;
         this._itemColors = null;
+        this._itemPadding = null;
+        this._itemHeight = null;
         this._labels = null;
         this._selectHandler = null;
         this._defaultLabel = null;
@@ -266,8 +272,9 @@ export class ComboBox extends UIComponent {
         this._listChanged = false;
         var labelWidth: number = this.width - 2;
         var labelColor: string = this._itemColors[2];
-        this._itemHeight = this._itemSize + 6;
-        this._list.itemRender = this.itemRender || { type: "Box", child: [{ type: "Label", props: { name: "label", x: 1, padding: "3,3,3,3", width: labelWidth, height: this._itemHeight, fontSize: this._itemSize, color: labelColor } }] };
+        this._itemHeight = (this._itemHeight) ? this._itemHeight : this._itemSize + 6;
+        let _padding: string = (this.itemPadding) ? this.itemPadding : "3,3,3,3";
+        this._list.itemRender = this.itemRender || { type: "Box", child: [{ type: "Label", props: { name: "label", x: 1, padding: _padding, width: labelWidth, height: this._itemHeight, fontSize: this._itemSize, color: labelColor } }] };
         this._list.repeatY = this._visibleNum;
         this._list.refresh();
     }
@@ -322,6 +329,20 @@ export class ComboBox extends UIComponent {
         this._itemChanged = true;
         this._listChanged = true;
     }
+
+    /**
+     * 下拉列表文本的边距Padding
+     * @readme <p><b>格式：</b>上边距,右边距,下边距,左边距</p>
+     */
+    get itemPadding(): string {
+        return this._itemPadding.join(",");
+    }
+
+    set itemPadding(value: string) {
+        this._itemPadding = UIUtils.fillArray(this._itemPadding, value, Number);
+    }
+
+
     /**
      * @inheritDoc 
      * @override
@@ -456,6 +477,18 @@ export class ComboBox extends UIComponent {
 
     set visibleNum(value: number) {
         this._visibleNum = value;
+        this._listChanged = true;
+    }
+
+
+    /**
+     * 下拉列表项的高度
+     */
+     get itemHeight(): number {
+        return this._itemHeight;
+    }
+    set itemHeight(value: number) {
+        this._itemHeight = value;
         this._listChanged = true;
     }
 
