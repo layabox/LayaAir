@@ -119,6 +119,11 @@ export class ComboBox extends UIComponent {
     protected _labels: any[] = [];
     /**
      * @private
+     * 下拉提示文本
+     */
+    private _defaultLabel: string = '';
+    /**
+     * @private
      */
     protected _selectedIndex: number = -1;
     /**
@@ -180,6 +185,7 @@ export class ComboBox extends UIComponent {
         this._itemColors = null;
         this._labels = null;
         this._selectHandler = null;
+        this._defaultLabel = null;
     }
 
     /**
@@ -408,6 +414,18 @@ export class ComboBox extends UIComponent {
     }
 
     /**
+    * 默认的下拉提示文本。
+    */
+    get defaultLabel(): string {
+        return this._defaultLabel;
+    }
+
+    set defaultLabel(value: string) {
+        this._defaultLabel = value;
+        this._selectedIndex < 0 && (this._button.label = value);
+    }
+
+    /**
      * 改变下拉列表的选择项时执行的处理器(默认返回参数index:int)。
      */
     get selectHandler(): Handler {
@@ -422,7 +440,7 @@ export class ComboBox extends UIComponent {
      * 表示选择的下拉列表项的的标签。
      */
     get selectedLabel(): string {
-        return this._selectedIndex > -1 && this._selectedIndex < this._labels.length ? this._labels[this._selectedIndex] : null;
+        return this._selectedIndex > -1 && this._selectedIndex < this._labels.length ? this._labels[this._selectedIndex] : this.defaultLabel;
     }
 
     set selectedLabel(value: string) {
@@ -485,7 +503,7 @@ export class ComboBox extends UIComponent {
 
                 var p: Point = this.localToGlobal(Point.TEMP.setTo(0, 0));
                 var py: number = p.y + this._button.height;
-                py = py + this._listHeight <= ILaya.stage.height ? py : p.y - this._listHeight;
+                py = py + this._listHeight <= ILaya.stage.height ? py : p.y - this._listHeight < 0 ? py : p.y - this._listHeight;
 
                 this._list.pos(p.x, py);
                 this._list.zOrder = 1001;
