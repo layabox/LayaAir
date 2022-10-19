@@ -402,7 +402,10 @@ export class Animator2D extends Component {
     /** @internal */
     onAfterDeserialize(): void {
         let arr = (<any>this).controllerLayers;
+        if (!arr)
+            return;
         delete (<any>this).controllerLayers;
+        this._controllerLayers.length = 0;
         for (let layer of arr) {
             this.addControllerLayer(layer);
         }

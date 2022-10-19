@@ -9,6 +9,7 @@ import { ICullPass } from "../RenderInterface/RenderPipelineInterface/ICullPass"
 import { ISceneRenderManager } from "../RenderInterface/RenderPipelineInterface/ISceneRenderManager";
 import { IShadowCullInfo } from "../RenderInterface/RenderPipelineInterface/IShadowCullInfo";
 import { Sprite3D } from "../../d3/core/Sprite3D";
+import { Vector3 } from "../../d3/math/Vector3";
 
 export class CullPassBase implements ICullPass {
     private _cullList: SingletonList<BaseRender> = new SingletonList();
@@ -16,6 +17,28 @@ export class CullPassBase implements ICullPass {
     get cullList(): SingletonList<BaseRender> {
         return this._cullList;
     }
+
+    /**
+     * TODO
+	 * 视距与包围提裁剪
+	 * @param context 
+	 * @param render 
+	 * @returns 
+	 */
+	static cullDistanceVolume(context:RenderContext3D,render:BaseRender):boolean{
+		let camera = context.camera;
+		if(!camera||!camera.transform) return false;
+		let bound = render.bounds;
+		let center = bound.getCenter();
+		let exten = bound.getExtent();
+		let dis:number = Vector3.distance(camera.transform.position,center);
+		let volum:number = Math.max(exten.x,exten.y,exten.z);
+		if(volum/dis<render._ratioIgnor){
+			return false;
+		}
+		return true;
+	}
+
     cullByCameraCullInfo(cameraCullInfo: ICameraCullInfo, renderManager: ISceneRenderManager): void {
         this._cullList.length = 0;
         var renders = renderManager.list.elements;
@@ -26,7 +49,7 @@ export class CullPassBase implements ICullPass {
         for (var i: number = 0, n: number = renderManager.list.length; i < n; i++) {
             var render = renders[i];
             var canPass: boolean;
-            canPass = (Math.pow(2, render.renderNode.layer & cullMask) != 0) && render._enabled && (render.renderbitFlag == 0);
+            canPass = (Math.pow(2, render.renderNode.layer) & cullMask) != 0 && render._enabled && (render.renderbitFlag == 0);
             canPass = canPass && (( render.renderNode.staticMask & staticMask) != 0);
             if (canPass) {
                 Stat.frustumCulling++;

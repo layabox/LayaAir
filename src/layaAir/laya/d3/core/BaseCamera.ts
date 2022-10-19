@@ -42,6 +42,8 @@ export class BaseCamera extends Sprite3D {
     static VIEWPORT: number;
     /**@internal */
     static PROJECTION_PARAMS: number;
+   /**@internal */
+	static OPAQUETEXTURE:number 
     /**@internal */
     static DEPTHTEXTURE: number;
     /**@internal */
@@ -96,6 +98,7 @@ export class BaseCamera extends Sprite3D {
         BaseCamera.PROJECTION_PARAMS = Shader3D.propertyNameToID("u_ProjectionParams");
         BaseCamera.DEPTHTEXTURE = Shader3D.propertyNameToID("u_CameraDepthTexture");
         BaseCamera.DEPTHNORMALSTEXTURE = Shader3D.propertyNameToID("u_CameraDepthNormalsTexture");
+        BaseCamera.OPAQUETEXTURE = Shader3D.propertyNameToID("u_cameraOpaqueTexture");
         BaseCamera.DEPTHZBUFFERPARAMS = Shader3D.propertyNameToID("u_ZBufferParams");
         BaseCamera.CAMERAUNIFORMBLOCK = Shader3D.propertyNameToID(UniformBufferObject.UBONAME_CAMERA);
 
