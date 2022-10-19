@@ -6,6 +6,7 @@ window.Physics3D = function (pages, interactive) {
                 var fd_write=() => { console.log('fd_write')};
                 var fd_seek=() => { console.log('fd_seek')};
                 var clearLine=()=>{console.log('clearLine')};
+                var drawLine=()=>{console.log('drawLine')};
                 if(!window.atob){
                     var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
                     window.atob=function atob(input) {
@@ -94604,6 +94605,7 @@ var retasmFunc = asmFunc(  { abort: function() { throw new Error('abort'); },
     fd_write,
     getWorldTransform,
     setWorldTransform,
+    drawLine,
     clearLine,
     fd_seek,
     memory: { buffer : memasmFunc }
