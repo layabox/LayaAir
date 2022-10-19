@@ -179,6 +179,8 @@ export class List extends Box implements IRender, IItem {
     selectEnable: boolean = false;
     /**最大分页数。*/
     totalPage: number = 0;
+	/**禁用滚动条停止 */
+	disableStopScroll: boolean = false;
     /**@internal */
     _$componentType: string = "List";
 
@@ -899,8 +901,8 @@ export class List extends Box implements IRender, IItem {
         this.startIndex = this._startIndex;
         //重设滚动条
         if (this._scrollBar) {
-            this._scrollBar.stopScroll();
-            //自动隐藏滚动条
+            //根据开关决定滚动条是否停止，默认在重设的时候会停止滚动
+            (!this.disableStopScroll && this._scrollBar.stopScroll());
             let numX = this._isVertical ? this.repeatX : this.repeatY;
             let numY = this._isVertical ? this.repeatY : this.repeatX;
             let lineCount = Math.ceil(length / numX);
