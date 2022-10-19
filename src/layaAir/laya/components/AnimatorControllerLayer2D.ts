@@ -16,7 +16,6 @@ export class AnimatorControllerLayer2D implements IClone {
     playOnWake = true;
     _playStateInfo: AnimatorPlayState2D | null = new AnimatorPlayState2D();
     _crossPlayStateInfo: AnimatorPlayState2D | null = new AnimatorPlayState2D();
-    _statesMap: Record<string, AnimatorState2D> = {};
     /** 默认权重。*/
     defaultWeight = 1.0;
 
@@ -78,8 +77,17 @@ export class AnimatorControllerLayer2D implements IClone {
 
     private _defaultStateNameCatch: string;
 
+    getStateByName(str: string) {
+        for (let i = this._states.length - 1; i >= 0; i--) {
+            if (this._states[i].name == str) {
+                return this._states[i];
+            }
+        }
+        return null;
+    }
+
     set defaultStateName(str: string) {
-        this._defaultState = this._statesMap[str];
+        this._defaultState = this.getStateByName(str);
         if (null == this._defaultState) {
             if (0 == this._states.length) {
                 this._defaultStateNameCatch = str;
@@ -119,10 +127,9 @@ export class AnimatorControllerLayer2D implements IClone {
      */
     addState(state: AnimatorState2D): void {
         var stateName = state.name;
-        if (this._statesMap[stateName]) {
+        if (this.getStateByName(stateName)) {
             throw "AnimatorControllerLayer:this stat's name has exist.";
         } else {
-            this._statesMap[stateName] = state;
             this._states.push(state);
             if (stateName == this._defaultStateNameCatch) {
                 this._defaultState = state;
@@ -149,14 +156,13 @@ export class AnimatorControllerLayer2D implements IClone {
             }
         }
         if (-1 != index)
-            this._removeClip(states, this._statesMap, index, state);
+            this._removeClip(states, index, state);
     }
-    private _removeClip(clipStateInfos: AnimatorState2D[], statesMap: any, index: number, state: AnimatorState2D): void {
+    private _removeClip(clipStateInfos: AnimatorState2D[], index: number, state: AnimatorState2D): void {
         var clip = state._clip!;
         var clipStateInfo = clipStateInfos[index];
 
         clipStateInfos.splice(index, 1);
-        delete statesMap[state.name];
     }
 
     /**
@@ -195,7 +201,6 @@ export class AnimatorControllerLayer2D implements IClone {
         this._removeReference(-this._referenceCount);
     }
     destroy() {
-        this._statesMap = null;
         this._removeReference();
         for (var i = 0, n = this._states.length; i < n; i++) {
             this._states[i].destroy();

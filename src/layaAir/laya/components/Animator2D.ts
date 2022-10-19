@@ -67,7 +67,7 @@ export class Animator2D extends Component {
 
             var playStateInfo = controllerLayer._playStateInfo!;
             var curPlayState = playStateInfo._currentState!;
-            var animatorState = name ? controllerLayer._statesMap[name] : defaultState;
+            var animatorState = name ? controllerLayer.getStateByName(name) : defaultState;
             var clipDuration = animatorState._clip!._duration;
             var calclipduration = animatorState._clip!._duration * (animatorState.clipEnd - animatorState.clipStart);
 
