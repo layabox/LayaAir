@@ -17,9 +17,9 @@ export class View extends Scene {
     /**@private 控件的数据源。 */
     protected _dataSource: any;
     /**X锚点，值为0-1，设置anchorX值最终通过pivotX值来改变节点轴心点。*/
-    protected _anchorX: number = NaN;
+    protected _anchorX: number = null;
     /**Y锚点，值为0-1，设置anchorY值最终通过pivotY值来改变节点轴心点。*/
-    protected _anchorY: number = NaN;
+    protected _anchorY: number = null;
 
     constructor() {
         super(false);   // 先不要createChildren 因为 this._widget还没有赋值
@@ -163,8 +163,8 @@ export class View extends Scene {
      * @override
     */
     protected _sizeChanged(): void {
-        if (!isNaN(this._anchorX)) this.pivotX = this.anchorX * this.width;
-        if (!isNaN(this._anchorY)) this.pivotY = this.anchorY * this.height;
+        if (this._anchorX != null) this.pivotX = this.anchorX * this.width;
+        if (this._anchorY != null) this.pivotY = this.anchorY * this.height;
         this.event(Event.RESIZE);
     }
 

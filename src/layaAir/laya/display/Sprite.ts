@@ -24,6 +24,7 @@ import { RenderTexture2D } from "../resource/RenderTexture2D";
 import { Event } from "../events/Event";
 import { Dragging } from "../utils/Dragging";
 import { URL } from "../net/URL";
+import { Scene } from "./Scene";
 
 
 /**在显示对象上按下后调度。
@@ -287,6 +288,10 @@ export class Sprite extends Node {
 
     constructor() {
         super();
+    }
+
+    get scene(): Scene {
+        return <Scene>this._scene;
     }
 
     /**根据zOrder进行重新排序。*/

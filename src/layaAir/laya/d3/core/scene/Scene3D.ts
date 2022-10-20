@@ -64,7 +64,7 @@ import { WebGL } from "../../../webgl/WebGL";
 import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { BufferState } from "../BufferState";
 import { Color } from "../../math/Color";
-import { HierarchyResource } from "../../../resource/HierarchyResource";
+import { Prefab } from "../../../resource/HierarchyResource";
 import { Stat } from "../../../utils/Stat";
 import { CommandUniformMap } from "../../../RenderEngine/CommandUniformMap";
 import { ComponentDriver } from "../../../components/ComponentDriver";
@@ -381,7 +381,7 @@ export class Scene3D extends Sprite implements ISubmit {
      * @param complete 完成回调。
      */
     static load(url: string, complete: Handler): void {
-        ILaya.loader.load(url).then((res: HierarchyResource) => {
+        ILaya.loader.load(url).then((res: Prefab) => {
             complete && complete.runWith([res?.createNodes()]);
         });
     }

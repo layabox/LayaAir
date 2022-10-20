@@ -5,10 +5,11 @@ import { Resource } from "../resource/Resource"
 import { Handler } from "../utils/Handler"
 import { Timer } from "../utils/Timer"
 import { ILaya } from "../../ILaya";
-import { HierarchyResource } from "../resource/HierarchyResource";
+import { Prefab } from "../resource/HierarchyResource";
 import { LegacyUIParser } from "../loaders/LegacyUIParser";
 import { NodeFlags } from "../Const";
 import { ClassUtils } from "../utils/ClassUtils";
+import { Scene3D } from "../d3/core/scene/Scene3D";
 
 /**
  * 场景类，负责场景创建，加载，销毁等功能
@@ -33,7 +34,7 @@ export class Scene extends Sprite {
     private _timer: Timer;
     /**@private */
     private _viewCreated: boolean = false;
-    private _scene3D: Sprite;
+    private _scene3D: Scene3D;
 
     constructor(createChildren = true) {
         super();
@@ -75,7 +76,7 @@ export class Scene extends Sprite {
      */
     loadScene(path: string): void {
         let url: string = path.indexOf(".") > -1 ? path : path + ".scene";
-        let content: HierarchyResource = ILaya.loader.getRes(url);
+        let content: Prefab = ILaya.loader.getRes(url);
         if (content) {
             if (!this._viewCreated) {
                 content.createScene({ root: this });
@@ -85,7 +86,7 @@ export class Scene extends Sprite {
             this._setBit(NodeFlags.NOT_READY, true);
             ILaya.loader.load(url, null, value => {
                 if (Scene._loadPage) Scene._loadPage.event("progress", value);
-            }).then((content: HierarchyResource) => {
+            }).then((content: Prefab) => {
                 if (!content) throw "Can not find scene:" + path;
                 if (!this._viewCreated) {
                     this.url = url;
@@ -278,7 +279,7 @@ export class Scene extends Sprite {
         this._timer = value;
     }
 
-    get scene3D(): Sprite {
+    get scene3D(): Scene3D {
         return this._scene3D;
     }
 
@@ -318,7 +319,7 @@ export class Scene extends Sprite {
             progress && progress.runWith(value);
         }).then(content => {
             if (!content) throw "Can not find scene:" + url;
-            let nodes: Array<Node> = (<HierarchyResource>content).createScene();
+            let nodes: Array<Node> = (<Prefab>content).createScene();
             let scene: Scene;
             if (nodes.length == 1 && (nodes[0] instanceof Scene)) {
                 scene = <Scene>nodes[0];
@@ -328,7 +329,7 @@ export class Scene extends Sprite {
                 let scene3DClass = ClassUtils.getClass("Scene3D");
                 let i: number;
                 if (scene3DClass && (i = nodes.findIndex(node => Object.getPrototypeOf(node).constructor === scene3DClass)) != -1) {
-                    let scene3D = <Sprite>nodes[i];
+                    let scene3D = <Scene3D>nodes[i];
                     nodes.splice(i, 1);
                     scene.addChildren(...nodes);
                     scene._scene3D = scene3D;

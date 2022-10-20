@@ -11,7 +11,7 @@ import { Texture2D, TextureConstructParams, TexturePropertyParams } from "../res
 import { IBatchProgress, ProgressCallback, BatchProgress } from "./BatchProgress";
 import { Handler } from "../utils/Handler";
 import { EventDispatcher } from "../events/EventDispatcher";
-import { HierarchyResource } from "../resource/HierarchyResource";
+import { Prefab } from "../resource/HierarchyResource";
 import { Node } from "../display/Node";
 import { Resource } from "../resource/Resource";
 import { Downloader } from "./Downloader";
@@ -675,7 +675,7 @@ export class Loader extends EventDispatcher {
     }
 
     static createNodes<T extends Node>(url: string): T {
-        return <T>(<HierarchyResource>Loader.getRes(url))?.createNodes();
+        return <T>(<Prefab>Loader.getRes(url))?.createNodes();
     }
 
     /**

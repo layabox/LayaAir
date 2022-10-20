@@ -4,7 +4,11 @@ import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
 import { Color } from "laya/d3/math/Color";
 import { Vector3 } from "laya/d3/math/Vector3";
+import { RenderTexture } from "laya/d3/resource/RenderTexture";
+import { Sprite } from "laya/display/Sprite";
 import { Stage } from "laya/display/Stage";
+import { RenderTargetFormat } from "laya/RenderEngine/RenderEnum/RenderTargetFormat";
+import { Texture } from "laya/resource/Texture";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
@@ -24,6 +28,11 @@ export class Sprite3DLoad {
 		camera.transform.translate(new Vector3(0, 0.5, 1));
 		camera.transform.rotate(new Vector3(-15, 0, 2), true, false);
 		camera.addComponent(CameraMoveScript);
+		//camera.renderTarget = RenderTexture.createFromPool(256,256,RenderTargetFormat.R8G8B8A8,RenderTargetFormat.DEPTH_16);
+
+		//let spr = Laya.stage.addChild(new Sprite());
+		//let tex = new Texture(camera.renderTarget);
+		//spr.texture = tex;
 
 		Sprite3D.load("res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh", Handler.create(null, function (sprite: Sprite3D): void {
 			scene.addChild(sprite);

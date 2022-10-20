@@ -7,12 +7,13 @@ import { Transform3D } from "./Transform3D";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { LayaGL } from "../../layagl/LayaGL";
 import { Stat } from "../../utils/Stat";
-import { HierarchyResource } from "../../resource/HierarchyResource";
+import { Prefab } from "../../resource/HierarchyResource";
 import { ILaya } from "../../../ILaya";
 import { CommandUniformMap } from "../../RenderEngine/CommandUniformMap";
 import { NodeFlags } from "../../Const";
 import { Event } from "../../events/Event";
 import { Component } from "../../components/Component";
+import { Scene3D } from "./scene/Scene3D";
 
 /**
  * @internal
@@ -74,7 +75,7 @@ export class Sprite3D extends Node {
      * @param complete 完成回掉。
      */
     static load(url: string, complete: Handler): void {
-        ILaya.loader.load(url).then((res: HierarchyResource) => {
+        ILaya.loader.load(url).then((res: Prefab) => {
             complete && complete.runWith([res?.createNodes()]);
         });
     }
@@ -141,6 +142,10 @@ export class Sprite3D extends Node {
 
     get renderComponent() {
         return this._renderComponent;
+    }
+
+    get scene(): Scene3D {
+        return <Scene3D>this._scene;
     }
 
     _addRenderComponent(com: Component) {

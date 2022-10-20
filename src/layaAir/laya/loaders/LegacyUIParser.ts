@@ -12,22 +12,7 @@ import { Pool } from "../utils/Pool";
 import { WeakObject } from "../utils/WeakObject";
 import { Handler } from "laya/utils/Handler";
 import { NodeFlags } from "../Const";
-
-/**
- * 模板，预制件
- */
-export class Prefab {
-    /**@private */
-    json: any;
-
-    /**
-     * 通过预制创建实例
-     */
-    create(): any {
-        if (this.json) return LegacyUIParser.createByData(null, this.json);
-        return null;
-    }
-}
+import { PrefabImpl } from "../resource/PrefabImpl";
 
 /**
  * @private 场景辅助类
@@ -724,9 +709,7 @@ class InitTool {
     //TODO:coverage
     getReferData(referStr: string): any {
         if (referStr.indexOf("@Prefab:") >= 0) {
-            var prefab = new Prefab();
-            prefab.json = Loader.getRes(referStr.replace("@Prefab:", ""));
-            return prefab;
+            return new PrefabImpl(LegacyUIParser, Loader.getRes(referStr.replace("@Prefab:", "")), 2);
         } else if (referStr.indexOf("@arr:") >= 0) {
             referStr = referStr.replace("@arr:", "");
             var list: string[];

@@ -130,6 +130,8 @@ export class SerializeUtil {
                 return Loader.TEXTURE2D;
             case "TextureCube":
                 return Loader.TEXTURECUBE;
+            case "Prefab":
+                return Loader.HIERARCHY;
             default:
                 return null;
         }

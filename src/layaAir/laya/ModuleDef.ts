@@ -19,12 +19,6 @@ import { Rectangle } from "./maths/Rectangle";
 import { SoundNode } from "./media/SoundNode";
 import { Texture } from "./resource/Texture";
 import { Texture2D } from "./resource/Texture2D";
-
-import "./loaders/TextResourceLoader";
-import "./loaders/AtlasLoader";
-import "./loaders/HierarchyLoader";
-import "./loaders/TextureLoader";
-import "./loaders/AnimationClip2DLoader";
 import { Animator2D } from "./components/Animator2D";
 import { AnimatorControllerLayer2D } from "./components/AnimatorControllerLayer2D";
 import { AnimatorState2D } from "./components/AnimatorState2D";
@@ -32,6 +26,13 @@ import { AnimationClip2D } from "./components/AnimationClip2D";
 import { Animation2DNext } from "./components/Animation2DNext";
 import { Animation2DParm } from "./components/Animation2DParm";
 import { Animation2DCondition } from "./components/Animation2DCondition";
+import { Prefab } from "./resource/HierarchyResource";
+
+import "./loaders/TextResourceLoader";
+import "./loaders/AtlasLoader";
+import "./loaders/HierarchyLoader";
+import "./loaders/TextureLoader";
+import "./loaders/AnimationClip2DLoader";
 
 let c = ClassUtils.regClass;
 
@@ -56,7 +57,7 @@ c("Point", Point);
 c("Rectangle", Rectangle);
 c("Texture", Texture);
 c("Texture2D", Texture2D);
-
+c("Prefab", Prefab);
 
 c("Animator2D", Animator2D);
 c("AnimatorControllerLayer2D", AnimatorControllerLayer2D);
