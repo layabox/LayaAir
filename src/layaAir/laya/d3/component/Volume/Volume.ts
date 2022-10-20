@@ -90,7 +90,7 @@ export class Volume extends Component {
      */
     protected _onEnable(): void {
         (this.owner as Sprite3D).transform.on(Event.TRANSFORM_CHANGED, this._VolumeChange);
-        this._volumeManager = (this.owner as Sprite3D).scene.volumeManager;
+        this._volumeManager = (this.owner as Sprite3D).scene._volumeManager;
         this._volumeManager.add(this);
     }
 

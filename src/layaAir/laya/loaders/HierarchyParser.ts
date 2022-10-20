@@ -2,7 +2,7 @@ import { Component } from "../components/Component";
 import { Node } from "../display/Node";
 import { Loader, ILoadURL } from "../net/Loader";
 import { URL } from "../net/URL";
-import { HierarchyResource } from "../resource/HierarchyResource";
+import { Prefab } from "../resource/HierarchyResource";
 import { ClassUtils } from "../utils/ClassUtils";
 import { SerializeUtil } from "./SerializeUtil";
 
@@ -57,7 +57,7 @@ export class HierarchyParser {
             }
             else {
                 if (pstr = nodeData._$prefab) { //prefab根节点
-                    let res = <HierarchyResource>Loader.getRes(pstr, Loader.HIERARCHY);
+                    let res = <Prefab>Loader.getRes(pstr, Loader.HIERARCHY);
                     if (res) {
                         if (!prefabNodeDict)
                             prefabNodeDict = new Map();
