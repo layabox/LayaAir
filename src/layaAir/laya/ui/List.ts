@@ -179,8 +179,8 @@ export class List extends Box implements IRender, IItem {
     selectEnable: boolean = false;
     /**最大分页数。*/
     totalPage: number = 0;
-	/**禁用滚动条停止 */
-	disableStopScroll: boolean = false;
+    /**禁用滚动条停止 */
+    disableStopScroll: boolean = false;
     /**@internal */
     _$componentType: string = "List";
 
@@ -603,6 +603,11 @@ export class List extends Box implements IRender, IItem {
         cell.on(Event.MOUSE_DOWN, this, this.onCellMouse);
         cell.on(Event.MOUSE_UP, this, this.onCellMouse);
         this._cells.push(cell);
+    }
+
+    /**@internal */
+    onAfterDeserialize() {
+        this.initItems();
     }
 
     /**@internal */

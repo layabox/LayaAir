@@ -151,6 +151,12 @@ export class UIGroup extends Box implements IItem {
             }
         }
     }
+
+    /**@internal */
+    onAfterDeserialize() {
+        this.initItems();
+    }
+
     /**@internal */
     _afterInited(): void {
         this.initItems();
