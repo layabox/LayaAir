@@ -5,6 +5,7 @@ import { Bounds } from "../../math/Bounds";
 import { Vector3 } from "../../math/Vector3";
 import { VolumeManager } from "./VolumeManager";
 import { Event } from "../../../events/Event";
+import { Scene3D } from "../../core/scene/Scene3D";
 
 export enum volumeIntersectType {
     /**包含 */
@@ -90,7 +91,7 @@ export class Volume extends Component {
      */
     protected _onEnable(): void {
         (this.owner as Sprite3D).transform.on(Event.TRANSFORM_CHANGED, this._VolumeChange);
-        this._volumeManager = (this.owner as Sprite3D).scene.volumeManager;
+        this._volumeManager = ((this.owner as Sprite3D).scene as Scene3D)._volumeManager;
         this._volumeManager.add(this);
     }
 

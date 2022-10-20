@@ -1291,7 +1291,6 @@ export class Sprite extends Node {
             ctx.flush();
             ctx._targets.end();
             ctx._targets.restore();
-            ctx._targets.destroy();//释放
             ctx._targets = null;//IDE闪
         }
         if (!rt) {
