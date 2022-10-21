@@ -271,6 +271,7 @@ export class Animator extends Component {
     private _updateStateFinish(animatorState: AnimatorState, playState: AnimatorPlayState): void {
         if (playState._finish) {
             var scripts: AnimatorStateScript[] | null = animatorState._scripts;
+            animatorState._eventExit();
             if (scripts) {
                 for (let i = 0, n = scripts.length; i < n; i++) {
                     scripts[i].onStateExit();
@@ -1338,6 +1339,7 @@ export class Animator extends Component {
                 }
             }
             var scripts: AnimatorStateScript[] = animatorState._scripts!;
+            animatorState._eventStart();
             if (scripts) {
                 for (var i: number = 0, n: number = scripts.length; i < n; i++)
                     scripts[i].onStateEnter();
@@ -1472,6 +1474,7 @@ export class Animator extends Component {
                     crossPlayStateInfo!._resetPlayState(0.0, controllerLayer._crossDuration);
 
                 var scripts: AnimatorStateScript[] = destAnimatorState._scripts;
+                destAnimatorState._eventStart();
                 if (scripts) {
                     for (i = 0, n = scripts.length; i < n; i++)
                         scripts[i].onStateEnter();
