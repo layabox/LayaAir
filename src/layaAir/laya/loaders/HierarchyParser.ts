@@ -159,8 +159,11 @@ export class HierarchyParser {
                                 let parentNode = findNodeInPrefab(node, nodeData2._$parent);
                                 if (parentNode) {
                                     let pos = nodeData2._$index;
-                                    if (pos != null)
+                                    if (pos != null) {
+                                        if (pos > parentNode.numChildren)
+                                            pos = parentNode.numChildren;
                                         parentNode.addChildAt(n, pos);
+                                    }
                                     else
                                         parentNode.addChild(n);
                                 }
