@@ -98,12 +98,30 @@ export class AnimatorState extends EventDispatcher implements IClone {
         super();
     }
 
-    _eventStart(){
+    _eventStart() {
         this.event(AnimatorState.EVENT_OnStateEnter);
+        if (this._scripts) {
+            for (var i: number = 0, n: number = this._scripts.length; i < n; i++)
+                this._scripts[i].onStateEnter();
+        }
     }
 
-    _eventExit(){
+    _eventExit() {
         this.event(AnimatorState.EVENT_OnStateExit);
+        if (this._scripts) {
+            for (let i = 0, n = this._scripts.length; i < n; i++) {
+                this._scripts[i].onStateExit();
+            }
+        }
+    }
+
+    _eventStateUpdate(value: number) {
+        this.event(AnimatorState.EVENT_OnStateExit, value);
+
+        if (this._scripts) {
+            for (var i = 0, n = this._scripts.length; i < n; i++)
+                this._scripts[i].onStateUpdate(value);
+        }
     }
 
     _getReferenceCount(): number {

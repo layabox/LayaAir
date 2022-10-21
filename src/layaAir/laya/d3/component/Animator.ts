@@ -248,19 +248,14 @@ export class Animator extends Component {
         var playTime: number = normalizedTime % 1.0;
         playState._normalizedPlayTime = playTime < 0 ? playTime + 1.0 : playTime;
         playState._duration = clipDuration;
-        var scripts: AnimatorStateScript[] | null = animatorState._scripts;
-
         if ((!islooping && elapsedPlaybackTime >= clipDuration)) {
             playState._finish = true;
             playState._elapsedTime = clipDuration;
             playState._normalizedPlayTime = 1.0;
             return;
         }
-
-        if (scripts) {
-            for (var i = 0, n = scripts.length; i < n; i++)
-                scripts[i].onStateUpdate();
-        }
+        animatorState._eventStateUpdate(playState._normalizedPlayTime);
+       
     }
 
     /**
@@ -270,13 +265,7 @@ export class Animator extends Component {
      */
     private _updateStateFinish(animatorState: AnimatorState, playState: AnimatorPlayState): void {
         if (playState._finish) {
-            var scripts: AnimatorStateScript[] | null = animatorState._scripts;
-            animatorState._eventExit();
-            if (scripts) {
-                for (let i = 0, n = scripts.length; i < n; i++) {
-                    scripts[i].onStateExit();
-                }
-            }
+            animatorState._eventExit();//派发播放完成的事件
         }
     }
 
@@ -1340,10 +1329,7 @@ export class Animator extends Component {
             }
             var scripts: AnimatorStateScript[] = animatorState._scripts!;
             animatorState._eventStart();
-            if (scripts) {
-                for (var i: number = 0, n: number = scripts.length; i < n; i++)
-                    scripts[i].onStateEnter();
-            }
+            
         }
         else {
             console.warn("Invalid layerIndex " + layerIndex + ".");
@@ -1472,13 +1458,7 @@ export class Animator extends Component {
                     crossPlayStateInfo!._resetPlayState(destClip._duration * normalizedTime, controllerLayer._crossDuration);
                 else
                     crossPlayStateInfo!._resetPlayState(0.0, controllerLayer._crossDuration);
-
-                var scripts: AnimatorStateScript[] = destAnimatorState._scripts;
                 destAnimatorState._eventStart();
-                if (scripts) {
-                    for (i = 0, n = scripts.length; i < n; i++)
-                        scripts[i].onStateEnter();
-                }
             }
             else {
                 console.warn("Invalid name " + layerIndex + ".");

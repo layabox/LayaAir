@@ -15,11 +15,11 @@ export class CustomAnimatorStateScript extends AnimatorStateScript {
 	onStateEnter(): void {
 		console.log("动画开始播放了");
 	}
-
 	/**
-	* 动画状态更新时执行。
-	*/
-	onStateUpdate(): void {
+	 * 动画状态运行中
+	 * @param normalizeTime 0-1动画播放状态
+	 */
+	onStateUpdate(normalizeTime: number): void {
 		console.log("动画状态更新了");
 	}
 
