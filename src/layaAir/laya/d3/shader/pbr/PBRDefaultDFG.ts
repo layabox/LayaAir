@@ -25,7 +25,7 @@ export class PBRDefaultDFG {
         tex.setHDRData(hdrInfo);
         tex.lock = true;
         tex.wrapModeU = WrapMode.Clamp;
-        tex.wrapModeV = WrapMode.Clamp;
+        tex.wrapModeV = WrapMode.Repeat;
         tex.anisoLevel = 1;
 
         this._defaultDFG = tex;

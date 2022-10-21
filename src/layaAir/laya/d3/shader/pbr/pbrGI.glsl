@@ -44,7 +44,7 @@ vec3 PBRGI(const in Surface surface, const in PixelInfo info)
     // specular
     float perceptualRoughness = surface.perceptualRoughness;
     float NoV = info.NoV;
-    vec2 env = prefilteredDFG_LUT(perceptualRoughness, NoV);
+    vec2 env = EnvBRDFApproxLazarov(perceptualRoughness, NoV);;
     vec3 f0 = surface.f0;
     // todo f90 用 1.0 近似 f90
     float f90 = 1.0;
