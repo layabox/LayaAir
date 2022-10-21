@@ -287,13 +287,9 @@ export class Node extends EventDispatcher {
      * @return	节点对象。
      */
     getChildByName(name: string): Node {
-        var nodes: any[] = this._children;
-        if (nodes) {
-            for (var i: number = 0, n: number = nodes.length; i < n; i++) {
-                var node: Node = nodes[i];
-                if (!node) continue;
-                if (node.name === name) return node;
-            }
+        for (let child of this._children) {
+            if (child && child.name === name)
+                return child;
         }
         return null;
     }
