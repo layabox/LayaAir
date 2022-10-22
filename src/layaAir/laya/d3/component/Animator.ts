@@ -42,6 +42,8 @@ export class Animator extends Component {
     /**@internal */
     private static _tempVector31: Vector3 = new Vector3();
     /**@internal */
+    private static _tempColor:Color = new Color();
+    /**@internal */
     private static _tempQuaternion1: Quaternion = new Quaternion();
 
     /** 裁剪模式_始终播放动画。*/
@@ -255,7 +257,7 @@ export class Animator extends Component {
             return;
         }
         animatorState._eventStateUpdate(playState._normalizedPlayTime);
-       
+
     }
 
     /**
@@ -940,9 +942,10 @@ export class Animator extends Component {
             var nodeOwner: KeyframeNodeOwner = nodeOwners[i];
             if (nodeOwner) {
                 var pro: any = nodeOwner.propertyOwner;
+                let value: string;
                 if (pro) {
                     switch (nodeOwner.type) {
-                        case 0:
+                        case KeyFrameValueType.Float:
                             var proPat: string[] = nodeOwner.property!;
                             var m: number = proPat.length - 1;
                             for (var j: number = 0; j < m; j++) {
@@ -950,9 +953,15 @@ export class Animator extends Component {
                                 if (!pro)//属性可能或被置空
                                     break;
                             }
-                            pro[proPat[m]] = nodeOwner.defaultValue;
+                            //pro && this._applyFloat(pro, proPat[m], nodeOwner, additive, weight, isFirstLayer, <number>realtimeDatas[i]);
+                            let lastpro = proPat[m];
+                            if (!nodeOwner.isMaterial) {
+                                pro && (pro[lastpro] =nodeOwner.defaultValue);
+                            } else {
+                                pro && (pro as Material).setFloat(lastpro, nodeOwner.defaultValue);
+                            }
                             break;
-                        case 1:
+                        case KeyFrameValueType.Position:
                             var locPos: Vector3 = pro.localPosition;
                             var def: Vector3 = nodeOwner.defaultValue;
                             locPos.x = def.x;
@@ -960,8 +969,7 @@ export class Animator extends Component {
                             locPos.z = def.z;
                             pro.localPosition = locPos;
                             break;
-                        case 2:
-                        case 7:
+                        case KeyFrameValueType.Rotation:
                             var locRot: Quaternion = pro.localRotation;
                             var defQua: Quaternion = nodeOwner.defaultValue;
                             locRot.x = defQua.x;
@@ -970,7 +978,7 @@ export class Animator extends Component {
                             locRot.w = defQua.w;
                             pro.localRotation = locRot;
                             break;
-                        case 3:
+                        case KeyFrameValueType.Scale:
                             var locSca: Vector3 = pro.localScale;
                             def = nodeOwner.defaultValue;
                             locSca.x = def.x;
@@ -978,13 +986,78 @@ export class Animator extends Component {
                             locSca.z = def.z;
                             pro.localScale = locSca;
                             break;
-                        case 4:
+                        case KeyFrameValueType.RotationEuler:
                             var locEul: Vector3 = pro.localRotationEuler;
                             def = nodeOwner.defaultValue;
                             locEul.x = def.x;
                             locEul.y = def.y;
                             locEul.z = def.z;
                             pro.localRotationEuler = locEul;
+                            break;
+                        case KeyFrameValueType.Vector2:
+                            var proPat: string[] = nodeOwner.property!;
+                            var m: number = proPat.length - 1;
+                            for (var j: number = 0; j < m; j++) {
+                                pro = pro[proPat[j]];
+                                if (!pro)//属性可能或被置空
+                                    break;
+                            }
+                            value = proPat[m];
+                            if (!nodeOwner.isMaterial) {
+                                pro && (pro[value] = nodeOwner.defaultValue);
+                            } else {
+                                pro && pro.getVector2(value) && (pro as Material).setVector2(value, nodeOwner.defaultValue);
+                            }
+                            break;
+                        case KeyFrameValueType.Vector3:
+                            var proPat: string[] = nodeOwner.property!;
+                            var m: number = proPat.length - 1;
+                            for (var j: number = 0; j < m; j++) {
+                                pro = pro[proPat[j]];
+                                if (!pro)//属性可能或被置空
+                                    break;
+                            }
+                            value = proPat[m];
+                            if (!nodeOwner.isMaterial) {
+                                pro && (pro[value] = nodeOwner.defaultValue);
+                            } else {
+                                pro && pro.getVector3(value) && (pro as Material).setVector3(value, nodeOwner.defaultValue);
+                            }
+                            break;
+                        case KeyFrameValueType.Vector4:
+                            var proPat: string[] = nodeOwner.property!;
+                            var m: number = proPat.length - 1;
+                            for (var j: number = 0; j < m; j++) {
+                                pro = pro[proPat[j]];
+                                if (!pro)//属性可能或被置空
+                                    break;
+                            }
+                            value = proPat[m];
+                            if (!nodeOwner.isMaterial) {
+                                pro && (pro[value] = nodeOwner.defaultValue);
+                            } else {
+                                pro && pro.getVector3(value) && (pro as Material).setVector3(value, nodeOwner.defaultValue);
+                            }
+                            break;
+                        case KeyFrameValueType.Color:
+                            var proPat: string[] = nodeOwner.property!;
+                            var m: number = proPat.length - 1;
+                            for (var j: number = 0; j < m; j++) {
+                                pro = pro[proPat[j]];
+                                if (!pro)//属性可能或被置空
+                                    break;
+                            }
+                            value = proPat[m];
+                            let tempColor = Animator._tempColor;
+                            tempColor.r = nodeOwner.defaultValue.x;
+                            tempColor.g = nodeOwner.defaultValue.y;
+                            tempColor.b = nodeOwner.defaultValue.z;
+                            tempColor.a = nodeOwner.defaultValue.w;
+                            if (!nodeOwner.isMaterial) {
+                                pro && (pro[value] = tempColor);
+                            } else {
+                                pro && pro.getColor(value) && (pro as Material).setColor(value, tempColor);
+                            }
                             break;
                         default:
                             throw "Animator:unknown type.";
@@ -1330,7 +1403,7 @@ export class Animator extends Component {
             }
             var scripts: AnimatorStateScript[] = animatorState._scripts!;
             animatorState._eventStart();
-            
+
         }
         else {
             console.warn("Invalid layerIndex " + layerIndex + ".");
