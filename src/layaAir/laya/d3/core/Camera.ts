@@ -1232,10 +1232,10 @@ export class Camera extends BaseCamera {
         let texFormat = this._getRenderTextureFormat();
         if (needInternalRT) {
             if (this._msaa) {
-                this._internalRenderTexture = RenderTexture.createFromPool(viewport.width, viewport.height, texFormat, this._depthTextureFormat, false, 4, false, this._needRenderGamma(texFormat));
+                this._internalRenderTexture = RenderTexture.createFromPool(viewport.width, viewport.height, texFormat, this._depthTextureFormat, false, 4, this.canblitDepth, this._needRenderGamma(texFormat));
                 this._internalRenderTexture.filterMode = FilterMode.Bilinear;
             } else {
-                this._internalRenderTexture = RenderTexture.createFromPool(viewport.width, viewport.height, texFormat, this._depthTextureFormat, false, 1, false, this._needRenderGamma(texFormat));
+                this._internalRenderTexture = RenderTexture.createFromPool(viewport.width, viewport.height, texFormat, this._depthTextureFormat, false, 1, this.canblitDepth, this._needRenderGamma(texFormat));
                 this._internalRenderTexture.filterMode = FilterMode.Bilinear;
             }
         }
