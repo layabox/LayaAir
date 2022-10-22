@@ -971,6 +971,7 @@ export class Animator extends Component {
                             pro.localPosition = locPos;
                             break;
                         case 2:
+                        case 7:
                             var locRot: Quaternion = pro.localRotation;
                             var defQua: Quaternion = nodeOwner.defaultValue;
                             locRot.x = defQua.x;
