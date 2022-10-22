@@ -115,7 +115,7 @@ export class PostProcess {
 		this._context!.command!.clear();
 		this._context!.source = screenTexture;
 		this._context!.indirectTarget = screenTexture;
-		this._context!.destination = cameraTarget;
+		this._context!.destination = this._effects.length==2?Indirect[0]:cameraTarget;
 		this._context!.compositeShaderData!.clearDefine();
 
 		this._context.command.blitScreenTriangle(cameraTarget, screenTexture);

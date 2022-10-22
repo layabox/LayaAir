@@ -30,9 +30,10 @@ export class ShaderCompile {
     static addInclude(fileName: string, txt: string): void {
         if (!txt || txt.length === 0)
             throw new Error("add shader include file err:" + fileName);
-        if (ShaderCompile.includes[fileName])
+        if (ShaderCompile.includes[fileName]){
+            console.error("add shader include file err, has add:" + fileName);
             return;
-        //throw new Error("add shader include file err, has add:" + fileName);
+        }
         ShaderCompile.includes[fileName] = new InlcudeFile(txt);
     }
 

@@ -62,7 +62,7 @@ export class CameraMoveScript extends Script {
 	onUpdate(): void {
 		var elapsedTime: number = Laya.timer.delta;
 		if (!isNaN(this.lastMouseX) && !isNaN(this.lastMouseY) && this.isMouseDown) {
-			var scene: Scene3D = this.owner.scene;
+			var scene = this.owner.scene;
 			InputManager.hasKeyDown(87) && this.moveForward(-this.speed * elapsedTime);//W
 			InputManager.hasKeyDown(83) && this.moveForward(this.speed * elapsedTime);//S
 			InputManager.hasKeyDown(65) && this.moveRight(-this.speed * elapsedTime);//A

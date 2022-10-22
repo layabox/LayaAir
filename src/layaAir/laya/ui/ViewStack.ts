@@ -47,6 +47,12 @@ export class ViewStack extends Box implements IItem {
         this.addChild(view);
         this.initItems();
     }
+
+    /**@internal */
+    onAfterDeserialize() {
+        this.initItems();
+    }
+
     /**@internal */
     _afterInited(): void {
         this.initItems();

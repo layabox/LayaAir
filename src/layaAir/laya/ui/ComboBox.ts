@@ -112,11 +112,20 @@ export class ComboBox extends UIComponent {
     /**
      * @private
      */
+    protected _itemPadding: any[] = [3, 3, 3, 3];
+    /**
+     * @private
+     */
     protected _itemSize: number = 12;
     /**
      * @private
      */
     protected _labels: any[] = [];
+    /**
+     * @private
+     * 下拉提示文本
+     */
+    protected _defaultLabel: string = '';
     /**
      * @private
      */
@@ -126,7 +135,7 @@ export class ComboBox extends UIComponent {
      */
     protected _selectHandler: Handler;
     /**
-     * @private
+     * @private 下拉框列表单元的高度
      */
     protected _itemHeight: number;
     /**
@@ -178,8 +187,11 @@ export class ComboBox extends UIComponent {
         this._button = null;
         this._list = null;
         this._itemColors = null;
+        this._itemPadding = null;
+        this._itemHeight = null;
         this._labels = null;
         this._selectHandler = null;
+        this._defaultLabel = null;
     }
 
     /**
@@ -260,8 +272,9 @@ export class ComboBox extends UIComponent {
         this._listChanged = false;
         var labelWidth: number = this.width - 2;
         var labelColor: string = this._itemColors[2];
-        this._itemHeight = this._itemSize + 6;
-        this._list.itemRender = this.itemRender || { type: "Box", child: [{ type: "Label", props: { name: "label", x: 1, padding: "3,3,3,3", width: labelWidth, height: this._itemHeight, fontSize: this._itemSize, color: labelColor } }] };
+        this._itemHeight = (this._itemHeight) ? this._itemHeight : this._itemSize + 6;
+        let _padding: string = (this.itemPadding) ? this.itemPadding : "3,3,3,3";
+        this._list.itemRender = this.itemRender || { type: "Box", child: [{ type: "Label", props: { name: "label", x: 1, padding: _padding, width: labelWidth, height: this._itemHeight, fontSize: this._itemSize, color: labelColor } }] };
         this._list.repeatY = this._visibleNum;
         this._list.refresh();
     }
@@ -316,6 +329,20 @@ export class ComboBox extends UIComponent {
         this._itemChanged = true;
         this._listChanged = true;
     }
+
+    /**
+     * 下拉列表文本的边距Padding
+     * @readme <p><b>格式：</b>上边距,右边距,下边距,左边距</p>
+     */
+    get itemPadding(): string {
+        return this._itemPadding.join(",");
+    }
+
+    set itemPadding(value: string) {
+        this._itemPadding = UIUtils.fillArray(this._itemPadding, value, Number);
+    }
+
+
     /**
      * @inheritDoc 
      * @override
@@ -408,6 +435,18 @@ export class ComboBox extends UIComponent {
     }
 
     /**
+    * 默认的下拉提示文本。
+    */
+    get defaultLabel(): string {
+        return this._defaultLabel;
+    }
+
+    set defaultLabel(value: string) {
+        this._defaultLabel = value;
+        this._selectedIndex < 0 && (this._button.label = value);
+    }
+
+    /**
      * 改变下拉列表的选择项时执行的处理器(默认返回参数index:int)。
      */
     get selectHandler(): Handler {
@@ -422,7 +461,7 @@ export class ComboBox extends UIComponent {
      * 表示选择的下拉列表项的的标签。
      */
     get selectedLabel(): string {
-        return this._selectedIndex > -1 && this._selectedIndex < this._labels.length ? this._labels[this._selectedIndex] : null;
+        return this._selectedIndex > -1 && this._selectedIndex < this._labels.length ? this._labels[this._selectedIndex] : this.defaultLabel;
     }
 
     set selectedLabel(value: string) {
@@ -438,6 +477,18 @@ export class ComboBox extends UIComponent {
 
     set visibleNum(value: number) {
         this._visibleNum = value;
+        this._listChanged = true;
+    }
+
+
+    /**
+     * 下拉列表项的高度
+     */
+     get itemHeight(): number {
+        return this._itemHeight;
+    }
+    set itemHeight(value: number) {
+        this._itemHeight = value;
         this._listChanged = true;
     }
 
@@ -485,7 +536,7 @@ export class ComboBox extends UIComponent {
 
                 var p: Point = this.localToGlobal(Point.TEMP.setTo(0, 0));
                 var py: number = p.y + this._button.height;
-                py = py + this._listHeight <= ILaya.stage.height ? py : p.y - this._listHeight;
+                py = py + this._listHeight <= ILaya.stage.height ? py : p.y - this._listHeight < 0 ? py : p.y - this._listHeight;
 
                 this._list.pos(p.x, py);
                 this._list.zOrder = 1001;

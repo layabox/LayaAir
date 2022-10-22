@@ -2,20 +2,20 @@ import { LayaGL } from "../../../layagl/LayaGL";
 import { ISceneRenderManager } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/ISceneRenderManager";
 import { BaseRender } from "../render/BaseRender";
 
-export class SceneRenderManager{
-    protected _sceneManagerOBJ:ISceneRenderManager;
-    constructor(){
+export class SceneRenderManager {
+    protected _sceneManagerOBJ: ISceneRenderManager;
+    constructor() {
         this._sceneManagerOBJ = LayaGL.renderOBJCreate.createSceneRenderManager();
     }
 
     /**
      * get RenderList
      */
-    get list(){
+    get list() {
         return this._sceneManagerOBJ.list;
     }
 
-    set list(value){
+    set list(value) {
         this._sceneManagerOBJ.list = value;
     }
     

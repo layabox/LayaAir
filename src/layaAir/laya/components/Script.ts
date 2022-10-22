@@ -3,11 +3,15 @@ import { Event } from "../events/Event"
 import { Collision } from "../d3/physics/Collision";
 import { PhysicsComponent } from "../d3/physics/PhysicsComponent";
 import { ColliderBase } from "../physics/ColliderBase";
+import { Sprite3D } from "../d3/core/Sprite3D";
+import { Sprite } from "../display/Sprite";
 
 /**
  * <code>Script</code> 类用于创建脚本的父类，该类为抽象类，不允许实例。
  */
 export class Script extends Component {
+    declare owner: Sprite | Sprite3D;
+
     /**
      * @internal
      * @override

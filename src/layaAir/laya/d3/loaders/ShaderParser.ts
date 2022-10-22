@@ -34,6 +34,10 @@ export class ShaderParser {
         return Shader3D.parse(obj);
     }
 
+    static GLSLPrase(name:string,data:string){
+        Shader3D.addInclude(name,data);
+    }
+
 
     static compileToTree(sliceFlag: string[], data: string, sliceIndex: number): string[] {
         if (sliceIndex == sliceFlag.length)

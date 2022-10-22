@@ -2,7 +2,7 @@ import { Component } from "../components/Component";
 import { Node } from "../display/Node";
 import { Loader, ILoadURL } from "../net/Loader";
 import { URL } from "../net/URL";
-import { HierarchyResource } from "../resource/HierarchyResource";
+import { Prefab } from "../resource/HierarchyResource";
 import { ClassUtils } from "../utils/ClassUtils";
 import { SerializeUtil } from "./SerializeUtil";
 
@@ -57,7 +57,7 @@ export class HierarchyParser {
             }
             else {
                 if (pstr = nodeData._$prefab) { //prefab根节点
-                    let res = <HierarchyResource>Loader.getRes(pstr, Loader.HIERARCHY);
+                    let res = <Prefab>Loader.getRes(pstr, Loader.HIERARCHY);
                     if (res) {
                         if (!prefabNodeDict)
                             prefabNodeDict = new Map();
@@ -140,15 +140,6 @@ export class HierarchyParser {
 
         let cnt = dataList.length;
 
-        //设置属性
-        for (let i = 0; i < cnt; i++) {
-            let nodeData = dataList[i];
-            let node = allNodes[i];
-            if (node) {
-                SerializeUtil.decodeObj(nodeData, node, null, findNode, errors);
-            }
-        }
-
         //生成树
         let k = 0;
         for (let i = 0; i < cnt; i++) {
@@ -168,7 +159,7 @@ export class HierarchyParser {
                                 let parentNode = findNodeInPrefab(node, nodeData2._$parent);
                                 if (parentNode) {
                                     let pos = nodeData2._$index;
-                                    if (pos != null)
+                                    if (pos != null && pos < parentNode.numChildren)
                                         parentNode.addChildAt(n, pos);
                                     else
                                         parentNode.addChild(n);
@@ -233,6 +224,15 @@ export class HierarchyParser {
 
                 if (comp)
                     compInitList.push(compData, comp);
+            }
+        }
+
+        //设置节点属性
+        for (let i = 0; i < cnt; i++) {
+            let nodeData = dataList[i];
+            let node = allNodes[i];
+            if (node) {
+                SerializeUtil.decodeObj(nodeData, node, null, findNode, errors);
             }
         }
 

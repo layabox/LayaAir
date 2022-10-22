@@ -1,14 +1,18 @@
 import { Node } from "../display/Node";
+import { LegacyUIParser } from "../loaders/LegacyUIParser";
 import { Resource } from "./Resource";
 
-export class HierarchyResource extends Resource {
+export class Prefab extends Resource {
     public readonly version: number;
     protected _deps: Array<Resource>;
+
+    /**@private */
+    json: any; //兼容2.0
 
     constructor(version?: number) {
         super();
 
-        this.version = version != null ? version : 3;
+        this.version = version;
         this._deps = [];
     }
 
@@ -22,6 +26,16 @@ export class HierarchyResource extends Resource {
 
     createNodes(options?: Record<string, any>, errors?: Array<any>): Node {
         return null;
+    }
+
+    /**
+     * 通过预制创建实例，createNodes的简写
+     */
+    create(): any {
+        if (this.json)
+            return LegacyUIParser.createByData(null, this.json);
+        else
+            return this.createNodes();
     }
 
     addDep(res: Resource) {
@@ -50,7 +64,7 @@ export class HierarchyResource extends Resource {
             return true;
 
         for (let dep of this._deps) {
-            if ((dep instanceof HierarchyResource) && dep._obsolute)
+            if ((dep instanceof Prefab) && dep._obsolute)
                 return true;
         }
 
@@ -61,3 +75,7 @@ export class HierarchyResource extends Resource {
         this._obsolute = value;
     }
 }
+
+//旧版本兼容
+export type HierarchyResource = Prefab;
+export var HierarchyResource = Prefab;

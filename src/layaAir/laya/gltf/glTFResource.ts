@@ -33,17 +33,16 @@ import { IBatchProgress } from "../net/BatchProgress";
 import { ILaya } from "../../ILaya";
 import { Loader } from "../net/Loader";
 import { Node } from "../display/Node";
-import { HierarchyResource } from "../resource/HierarchyResource";
+import { Prefab } from "../resource/HierarchyResource";
 import { VertexDeclaration } from "../RenderEngine/VertexDeclaration";
 import { BufferUsage } from "../RenderEngine/RenderEnum/BufferTargetType";
 import { IndexFormat } from "../RenderEngine/RenderEnum/IndexFormat";
 import { Base64Tool } from "../utils/Base64Tool";
-import { HierarchyLoader } from "../loaders/HierarchyLoader";
 import { HDREncodeFormat } from "../RenderEngine/RenderEnum/HDREncodeFormat";
 
 const maxSubBoneCount = 24;
 
-export class glTFResource extends HierarchyResource {
+export class glTFResource extends Prefab {
     protected _data: glTF.glTF;
     protected _buffers: Record<string, ArrayBuffer>;
     protected _textures: Texture2D[];

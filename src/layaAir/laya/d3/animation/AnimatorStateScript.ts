@@ -18,9 +18,10 @@ export class AnimatorStateScript {
 	}
 
 	/**
-	 * 动画状态更新时执行。
+	 * 动画状态运行中
+	 * @param normalizeTime 0-1动画播放状态
 	 */
-	onStateUpdate(): void {
+	onStateUpdate(normalizeTime: number): void {
 
 	}
 

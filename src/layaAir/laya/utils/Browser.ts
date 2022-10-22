@@ -27,6 +27,8 @@ export class Browser {
     static onMQQBrowser: boolean;
     /** 表示是否在 Safari 内。*/
     static onSafari: boolean;
+    /** 表示是否在 Chrome 内 */
+    static onChrome: boolean;
     /** 表示是否在 IE 浏览器内*/
     static onIE: boolean;
     /** 表示是否在 微信 内*/
@@ -286,6 +288,7 @@ export class Browser {
         Browser.onIE = !!win.ActiveXObject || "ActiveXObject" in win;
         Browser.onWeiXin = u.indexOf('MicroMessenger') > -1;
         Browser.onSafari = u.indexOf("Safari") > -1;
+        Browser.onChrome = u.indexOf("Chrome") > -1;
         Browser.onPC = !Browser.onMobile;
         Browser.onFirefox = u.indexOf('Firefox') > -1;
         Browser.onEdge = u.indexOf('Edge') > -1;

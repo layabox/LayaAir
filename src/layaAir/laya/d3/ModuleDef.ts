@@ -85,6 +85,7 @@ import "./loaders/MeshLoader";
 import "./loaders/HierarchyParserV2";
 import "./loaders/AvatarMaskLoader";
 import "./loaders/ShaderLoader";
+import "./loaders/GLSLLoader";
 
 import { Bounds } from "./math/Bounds";
 import { ReflectionProbe } from "./component/Volume/reflectionProbe/ReflectionProbe";

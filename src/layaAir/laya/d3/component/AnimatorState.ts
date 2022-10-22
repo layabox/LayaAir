@@ -7,11 +7,15 @@ import { Vector3 } from "../math/Vector3";
 import { KeyframeNodeList } from "../animation/KeyframeNodeList";
 import { Vector2 } from "../math/Vector2";
 import { Vector4 } from "../math/Vector4";
+import { EventDispatcher } from "../../events/EventDispatcher";
 
 /**
  * <code>AnimatorState</code> 类用于创建动作状态。
  */
-export class AnimatorState implements IClone {
+export class AnimatorState extends EventDispatcher implements IClone {
+    static EVENT_OnStateEnter = "OnStartEnter";
+    static EVENT_OnStateUpdate = "OnStateUpdate";
+    static EVENT_OnStateExit = "OnStateExit";
     /** @internal */
     private _referenceCount: number = 0;
 
@@ -91,7 +95,32 @@ export class AnimatorState implements IClone {
      * 创建一个 <code>AnimatorState</code> 实例。
      */
     constructor() {
+        super();
+    }
 
+    _eventStart() {
+        this.event(AnimatorState.EVENT_OnStateEnter);
+        if (this._scripts) {
+            for (var i: number = 0, n: number = this._scripts.length; i < n; i++)
+                this._scripts[i].onStateEnter();
+        }
+    }
+
+    _eventExit() {
+        this.event(AnimatorState.EVENT_OnStateExit);
+        if (this._scripts) {
+            for (let i = 0, n = this._scripts.length; i < n; i++) {
+                this._scripts[i].onStateExit();
+            }
+        }
+    }
+
+    _eventStateUpdate(value: number) {
+        this.event(AnimatorState.EVENT_OnStateUpdate, value);
+        if (this._scripts) {
+            for (var i = 0, n = this._scripts.length; i < n; i++)
+                this._scripts[i].onStateUpdate(value);
+        }
     }
 
     _getReferenceCount(): number {
