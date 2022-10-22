@@ -75,6 +75,7 @@ export class DrawRenderCMD extends Command {
      */
     recover(): void {
         DrawRenderCMD._pool.push(this);
+        super.recover();
         this._material && this._material._removeReference(1);
         this._material = null;
     }

@@ -252,7 +252,7 @@ export class DrawMeshInstancedCMD extends Command {
      */
     recover(): void {
         DrawMeshInstancedCMD._pool.push(this);
-
+        super.recover();
         this._material && this._material._removeReference(1);
         this._material = null;
         this._instanceBufferState.destroy();
