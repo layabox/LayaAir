@@ -82,6 +82,7 @@ export class NativeContext {
     private _nativeObj: any;
     private _tempRenderTexture2D: any;
     sprite: any = null;
+    private _renderObject3DList: any[] = [];
     static __init__(): void {
     }
     constructor() {
@@ -175,11 +176,13 @@ export class NativeContext {
         //this._nativeObj.flush();
         this._nativeObj.flushCommand();
         this._nativeObj.flush();
+
     }
     clear(): void {
         //this._nativeObj.clear();
         this.add_i(CONTEXT2D_FUNCTION_ID.CLEAR);
-        this._nativeObj.flushCommand();
+        this._nativeObj.flushCommand();   
+        this._renderObject3DList.length = 0;
     }
     /**
      * 释放所有资源
@@ -890,6 +893,7 @@ export class NativeContext {
     }
     addRenderObject3D(scene3D: ISubmit): void {
         //this._nativeObj.addRenderObject3D((scene3D as any)._nativeObj);
+        this._renderObject3DList.push(scene3D);
         this._nativeObj.flushCommand();
         this._nativeObj.addRenderObject3D((scene3D as any)._nativeObj);
     }

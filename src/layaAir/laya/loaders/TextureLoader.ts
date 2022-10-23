@@ -96,7 +96,7 @@ class Texture2DLoader implements IResourceLoader {
                 }
 
                 let obsoluteInst = <Texture2D>task.obsoluteInst;
-                if (obsoluteInst)
+                if (obsoluteInst && Object.getPrototypeOf(obsoluteInst) == Object.getPrototypeOf(tex))
                     tex = this.move(obsoluteInst, tex);
 
                 if (null != propertyParams.hdrEncodeFormat && tex)
@@ -111,7 +111,7 @@ class Texture2DLoader implements IResourceLoader {
 
                 let tex: BaseTexture = Texture2D._parseImage(img, propertyParams, constructParams);
                 let obsoluteInst = <Texture2D>task.obsoluteInst;
-                if (obsoluteInst)
+                if (obsoluteInst && Object.getPrototypeOf(obsoluteInst) == Object.getPrototypeOf(tex))
                     tex = this.move(obsoluteInst, tex);
                 return tex;
             });

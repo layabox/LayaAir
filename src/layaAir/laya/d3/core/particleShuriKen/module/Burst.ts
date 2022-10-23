@@ -41,7 +41,7 @@ export class Burst implements IClone {
 	 * @param minCount 爆裂的最小数量。
 	 * @param time 爆裂的最大数量。
 	 */
-	constructor(time: number, minCount: number, maxCount: number) {
+	constructor(time: number = 0, minCount: number = 0, maxCount: number = 0) {
 		this._time = time;
 		this._minCount = minCount;
 		this._maxCount = maxCount;
