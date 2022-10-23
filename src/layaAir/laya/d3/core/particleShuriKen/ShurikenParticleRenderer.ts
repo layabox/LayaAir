@@ -19,6 +19,7 @@ import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
 import { ShaderData, ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData";
 import { Stat } from "../../../utils/Stat";
 import { Bounds } from "../../math/Bounds";
+import { LayaEnv } from "../../../../LayaEnv";
 
 
 /**
@@ -143,7 +144,7 @@ export class ShurikenParticleRenderer extends BaseRender {
         super._onEnable();
 
         Stat.particleRenderNode++;
-        (this._particleSystem.playOnAwake) && (this._particleSystem.play());
+        (this._particleSystem.playOnAwake && LayaEnv.isPlaying) && (this._particleSystem.play());
     }
 
     protected _onDisable(): void {
