@@ -12,7 +12,6 @@ export class AssetDb {
     }
 
     UUID_to_URL_async(uuid: string): Promise<string> {
-        console.warn(`unknown uuid: ${uuid}`);
         return null;
     }
 

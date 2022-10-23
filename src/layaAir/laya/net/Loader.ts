@@ -285,19 +285,25 @@ export class Loader extends EventDispatcher {
         let uuid: string = null;
         if (url.startsWith("res://")) {
             uuid = url.substring(6);
-            url = AssetDb.inst.UUID_to_URL(uuid);
-            if (!url) {
+            let url2 = AssetDb.inst.UUID_to_URL(uuid);
+            if (!url2) {
                 let promise = AssetDb.inst.UUID_to_URL_async(uuid);
-                if (!promise)
+                if (!promise) {
+                    !options.silent && Loader.warn(url);
                     return Promise.resolve(null);
+                }
 
-                return promise.then(url => {
-                    if (url)
-                        return this._load2(url, uuid, type, options, onProgress);
-                    else
+                return promise.then(url2 => {
+                    if (url2)
+                        return this._load2(url2, uuid, type, options, onProgress);
+                    else {
+                        !options.silent && Loader.warn(url);
                         return null;
+                    }
                 });
             }
+            else
+                url = url2;
         }
         else {
             let promise = AssetDb.inst.URL_to_UUID_async(url);
@@ -314,6 +320,7 @@ export class Loader extends EventDispatcher {
     private _load2(url: string, uuid: string, type: string, options: ILoadOptions, onProgress: ProgressCallback): Promise<any> {
         let { ext, typeId, main, loaderType } = Loader.getURLInfo(url, type);
         if (!loaderType) {
+            !options.silent && Loader.warn(url);
             return Promise.resolve(null);
         }
         let formattedUrl = URL.formatURL(url);
@@ -384,7 +391,7 @@ export class Loader extends EventDispatcher {
             promise = assetLoader.load(task);
         }
         catch (err: any) {
-            console.log(err);
+            !options.silent && Loader.warn(url, err);
 
             promise = Promise.resolve(null);
         }
@@ -397,11 +404,11 @@ export class Loader extends EventDispatcher {
             if (task.options.cache == null || task.options.cache)
                 Loader._cacheRes(formattedUrl, content, typeId, main);
 
-            //console.log("[Loader]Loaded " + url);
+            //console.log("Loaded " + url);
             task.onComplete.invoke(content);
             return content;
         }).catch(error => {
-            console.warn(`[Loader]Failed to load ${url}: ${error}`);
+            !options.silent && Loader.warn(url, error);
             task.onComplete.invoke(null);
             return null;
         }).finally(() => {
@@ -545,12 +552,11 @@ export class Loader extends EventDispatcher {
         else if (item.retryCnt != -1 && item.retryCnt < this.retryNum) {
             item.retryCnt++;
             if (!item.silent)
-                console.debug(`[Loader]Retry to load: ${item.url} (${item.retryCnt})`);
+                console.debug(`Retry to load ${item.url} (${item.retryCnt})`);
             ILaya.systemTimer.once(this.retryDelay, this, this.queueToDownload, [item], false);
         }
         else {
-            if (!item.silent)
-                console.warn(`[Loader]Failed to load: ${item.url}`);
+            !item.silent && Loader.warn(item.url);
 
             if (this._downloadings.size < this.maxLoader && this._queue.length > 0)
                 this.download(this._queue.shift());
@@ -609,6 +615,10 @@ export class Loader extends EventDispatcher {
         }
 
         return { ext, main, typeId, loaderType };
+    }
+
+    private static warn(url: string, err?: any) {
+        console.warn(`Failed to load ${url}` + (err ? (":" + err) : ""));
     }
 
     /**
