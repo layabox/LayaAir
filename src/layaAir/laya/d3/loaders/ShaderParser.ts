@@ -27,15 +27,16 @@ const shaderDataOBJ: Record<string, ShaderDataType> = {
 //TODO 格式改变
 export class ShaderParser {
 
-    static parse(data: string): Shader3D {
+    static parse(data: string, url: string): Shader3D {
         let obj = ShaderParser.getShaderBlock(data);
         let cgmap = ShaderParser.getCGBlock(data);
         ShaderParser.bindCG(obj, cgmap);
-        return Shader3D.parse(obj);
+        let shader = Shader3D.parse(obj, url);
+        return shader;
     }
 
-    static GLSLPrase(name:string,data:string){
-        Shader3D.addInclude(name,data);
+    static GLSLPrase(name: string, data: string) {
+        Shader3D.addInclude(name, data);
     }
 
 

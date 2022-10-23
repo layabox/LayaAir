@@ -7,6 +7,7 @@ import { WebGL } from "../WebGL";
 import { InlcudeFile } from "./InlcudeFile";
 import { ShaderCompile } from "./ShaderCompile";
 import { ShaderNode } from "./ShaderNode";
+import { URL } from "../../net/URL";
 
 export class ShaderCompileDefineBase extends ShaderCompile {
     /** @internal */
@@ -28,8 +29,7 @@ export class ShaderCompileDefineBase extends ShaderCompile {
 
 
     constructor(owner: any, vs: string, ps: string, name: string,) {
-        super(vs, ps, null);
-        this._owner = owner;
+        super(vs, ps, null, owner);
         this.name = name;
         for (var k in this.defs)
             this._validDefine.add(Shader3D.getDefineByName(k));
@@ -59,6 +59,14 @@ export class ShaderCompileDefineBase extends ShaderCompile {
         }
     }
 
+    protected _transIncludeName?(includename: string): string {
+        if (includename.charAt(0) == ".") {
+            let baseUrl = this._owner._owner._abUrl;
+            baseUrl = baseUrl.substring(0, baseUrl.lastIndexOf("/") + 1);
+            includename = URL._formatRelativePath(baseUrl + includename);
+        }
+        return includename;
+    }
 
     /**
      * @private
@@ -158,11 +166,12 @@ export class ShaderCompileDefineBase extends ShaderCompile {
                         continue;
                     case "#include"://这里有问题,主要是空格
                         words = ShaderCompile.splitToWords(text, null);
-                        var inlcudeFile: InlcudeFile = ShaderCompile.includes[words[1]];
+                        let includeName = this._transIncludeName ? this._transIncludeName(words[1]) : words[1];
+                        var inlcudeFile: InlcudeFile = ShaderCompile.includes[includeName];
                         if (!inlcudeFile) {
-                            throw "ShaderCompile error no this include file:" + words[1];
+                            throw "ShaderCompile error no this include file:" + includeName;
                         }
-                        this._includemap.push(words[1]);
+                        this._includemap.push(includeName);
                         if ((ofs = words[0].indexOf("?")) < 0) {
                             node.setParent(parent);
                             text = inlcudeFile.getWith(words[2] == 'with' ? words[3] : null);

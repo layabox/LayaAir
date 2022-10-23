@@ -1,5 +1,4 @@
 import { ILoadTask, IResourceLoader, Loader } from "../../net/Loader";
-import { AssetDb } from "../../resource/AssetDb";
 import { ShaderParser } from "./ShaderParser";
 
 class GLSLLoader implements IResourceLoader {
@@ -8,7 +7,7 @@ class GLSLLoader implements IResourceLoader {
         return task.loader.fetch(url, "text", task.progress.createCallback(), task.options).then(data => {
             if (!data)
                 return null;
-            return ShaderParser.GLSLPrase(task.url.substring(url.lastIndexOf("/")+1),data);
+            return ShaderParser.GLSLPrase(task.url, data);
         });
     }
 }

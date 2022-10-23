@@ -25,12 +25,14 @@ export class ShaderCompile {
     /** @internal */
     public _PS: ShaderNode;
     /**@internal */
-    public _includemap:string[] = [];
+    public _includemap: string[] = [];
+    /** @internal */
+    protected _owner: any;
 
     static addInclude(fileName: string, txt: string): void {
         if (!txt || txt.length === 0)
             throw new Error("add shader include file err:" + fileName);
-        if (ShaderCompile.includes[fileName]){
+        if (ShaderCompile.includes[fileName]) {
             console.error("add shader include file err, has add:" + fileName);
             return;
         }
@@ -85,8 +87,9 @@ export class ShaderCompile {
     static _clearCR: RegExp = new RegExp("\r", "g");
     public defs: Object = {};
 
-    constructor(vs: string, ps: string, nameMap: any) {
+    constructor(vs: string, ps: string, nameMap: any, owner: any) {
         let _this = this;
+        this._owner = owner;
         function _compile(script: string): ShaderNode {
             script = script.replace(ShaderCompile._clearCR, "");//CRLF风格需要先去掉“\r",否则切分字符会出错导致宏定义编译错误等
             var includefiles: any[] = [];
@@ -208,7 +211,7 @@ export class ShaderCompile {
                         node.setCondition(words[0].substr(ofs + 1), ShaderCompile.IFDEF_YES);
                         node.text = inlcudeFile.getWith(words[2] == 'with' ? words[3] : null);
                         break;
-                    case "#import":
+                    case "#import"://??
                         words = ShaderCompile.splitToWords(text, null);
                         fname = words[1];
                         includefiles.push({ node: node, file: ShaderCompile.includes[fname], ofs: node.text.length });

@@ -220,10 +220,11 @@ export class Shader3D {
         return Shader3D._preCompileShader[name];
     }
 
-    static parse(data: IShaderObjStructor) {
+    static parse(data: IShaderObjStructor, url: string) {
         if (!data.name || !data.uniformMap)
             console.error("TODO");
         let shader = Shader3D.add(data.name, data.enableInstancing, data.supportReflectionProbe);
+        shader._abUrl = url;
         let subshader = new SubShader(data.attributeMap ? data.attributeMap : SubShader.DefaultAttributeMap, data.uniformMap, data.defaultValue);
         shader.addSubShader(subshader);
         let passArray = data.shaderPass;
@@ -231,7 +232,7 @@ export class Shader3D {
             let pass = passArray[i] as IShaderpassStructor;
             subshader.addShaderPass(pass.VS, pass.FS, pass.pipeline);
         }
-        return shader
+        return shader;
     }
 
     /**@internal */
@@ -242,6 +243,8 @@ export class Shader3D {
     _supportReflectionProbe: boolean = false;
     /**@internal */
     _subShaders: SubShader[] = [];
+    /**@internal 加载绝对路径*/
+    _abUrl: string;
 
     /**
      * 名字。

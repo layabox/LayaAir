@@ -10,7 +10,7 @@ export class Shader extends BaseShader {
     private static _count: number = 0;
     /**@internal */
     static _preCompileShader: any = {}; //存储预编译结果，可以通过名字获得内容,目前不支持#ifdef嵌套和条件
-    private _attribInfo: any[]|null = null;
+    private _attribInfo: any[] | null = null;
 
     static SHADERNAME2ID: number = 0.0002;
 
@@ -24,14 +24,14 @@ export class Shader extends BaseShader {
         return new Shader(vs, ps, saveName, nameMap, bindAttrib);
     }
 
-	// /**
-	//  * 根据宏动态生成shader文件，支持#include?COLOR_FILTER "parts/ColorFilter_ps_logic.glsl";条件嵌入文件
-	//  * @param	name
-	//  * @param	vs
-	//  * @param	ps
-	//  * @param	define 宏定义，格式:{name:value...}
-	//  * @return
-	//  */
+    // /**
+    //  * 根据宏动态生成shader文件，支持#include?COLOR_FILTER "parts/ColorFilter_ps_logic.glsl";条件嵌入文件
+    //  * @param	name
+    //  * @param	vs
+    //  * @param	ps
+    //  * @param	define 宏定义，格式:{name:value...}
+    //  * @return
+    //  */
     // //TODO:coverage
     // static withCompile(nameID: number, define: any, shaderName: any, createShader: Function): Shader {
     //     if (shaderName && Shader.sharders[shaderName])
@@ -43,14 +43,14 @@ export class Shader extends BaseShader {
     //     return pre.createShader(define, shaderName, createShader, null);
     // }
 
-	/**
-	 * 根据宏动态生成shader文件，支持#include?COLOR_FILTER "parts/ColorFilter_ps_logic.glsl";条件嵌入文件
-	 * @param	name
-	 * @param	vs
-	 * @param	ps
-	 * @param	define 宏定义，格式:{name:value...}
-	 * @return
-	 */
+    /**
+     * 根据宏动态生成shader文件，支持#include?COLOR_FILTER "parts/ColorFilter_ps_logic.glsl";条件嵌入文件
+     * @param	name
+     * @param	vs
+     * @param	ps
+     * @param	define 宏定义，格式:{name:value...}
+     * @return
+     */
     static withCompile2D(nameID: number, mainID: number, define: any, shaderName: any, createShader: Function, bindAttrib: any[] = null): Shader {
         if (shaderName && Shader.sharders[shaderName])
             return Shader.sharders[shaderName];
@@ -65,27 +65,27 @@ export class Shader extends BaseShader {
         ShaderCompile.addInclude(fileName, txt);
     }
 
-	/**
-	 * 预编译shader文件，主要是处理宏定义
-	 * @param	nameID,一般是特殊宏+shaderNameID*0.0002组成的一个浮点数当做唯一标识
-	 * @param	vs
-	 * @param	ps
-	 */
+    /**
+     * 预编译shader文件，主要是处理宏定义
+     * @param	nameID,一般是特殊宏+shaderNameID*0.0002组成的一个浮点数当做唯一标识
+     * @param	vs
+     * @param	ps
+     */
     //TODO:coverage
     static preCompile(nameID: number, vs: string, ps: string, nameMap: any): void {
         var id: number = Shader.SHADERNAME2ID * nameID;
-        Shader._preCompileShader[id] = new ShaderCompile(vs, ps, nameMap);
+        Shader._preCompileShader[id] = new ShaderCompile(vs, ps, nameMap, null);
     }
 
-	/**
-	 * 预编译shader文件，主要是处理宏定义
-	 * @param	nameID,一般是特殊宏+shaderNameID*0.0002组成的一个浮点数当做唯一标识
-	 * @param	vs
-	 * @param	ps
-	 */
+    /**
+     * 预编译shader文件，主要是处理宏定义
+     * @param	nameID,一般是特殊宏+shaderNameID*0.0002组成的一个浮点数当做唯一标识
+     * @param	vs
+     * @param	ps
+     */
     static preCompile2D(nameID: number, mainID: number, vs: string, ps: string, nameMap: any): void {
         var id: number = Shader.SHADERNAME2ID * nameID + mainID;
-        Shader._preCompileShader[id] = new ShaderCompile(vs, ps, nameMap);
+        Shader._preCompileShader[id] = new ShaderCompile(vs, ps, nameMap, null);
     }
 
     private _nameMap: any; //shader参数别名，语义
@@ -93,7 +93,7 @@ export class Shader extends BaseShader {
     private _ps: string;
     private _curActTexIndex: number = 0;
     private _reCompile: boolean;
-    private _render2DContext:IRender2DContext;
+    private _render2DContext: IRender2DContext;
 
     //存储一些私有变量
     tag: any = {};
@@ -108,15 +108,15 @@ export class Shader extends BaseShader {
     /**@internal */
     _paramsMap: any = {};
 
-	/**
-	 * 根据vs和ps信息生成shader对象
-	 * 把自己存储在 sharders 数组中
-	 * @param	vs
-	 * @param	ps
-	 * @param	name:
-	 * @param	nameMap 帮助里要详细解释为什么需要nameMap
-	 */
-    constructor(vs: string, ps: string, saveName: any = null, nameMap: any = null, bindAttrib: any[]|null = null) {
+    /**
+     * 根据vs和ps信息生成shader对象
+     * 把自己存储在 sharders 数组中
+     * @param	vs
+     * @param	ps
+     * @param	name:
+     * @param	nameMap 帮助里要详细解释为什么需要nameMap
+     */
+    constructor(vs: string, ps: string, saveName: any = null, nameMap: any = null, bindAttrib: any[] | null = null) {
         super();
         if ((!vs) || (!ps)) throw "Shader Error";
         this._attribInfo = bindAttrib;
@@ -157,7 +157,7 @@ export class Shader extends BaseShader {
         this._params = [];
 
         var result: any;
-        
+
         var gl: WebGLRenderingContext = RenderStateContext.mainContext;
         this._program = gl.createProgram();
         this._vshader = Shader._createShader(gl, this._vs, gl.VERTEX_SHADER);
@@ -179,7 +179,7 @@ export class Shader extends BaseShader {
         if (!gl.getProgramParameter(this._program, gl.LINK_STATUS)) {
             throw gl.getProgramInfoLog(this._program);
         }
-   
+
         var nUniformNum: number = gl.getProgramParameter(this._program, gl.ACTIVE_UNIFORMS); //个数
 
         for (i = 0; i < nUniformNum; i++) {
@@ -256,11 +256,11 @@ export class Shader extends BaseShader {
         }
     }
 
-	/**
-	 * 根据变量名字获得
-	 * @param	name
-	 * @return
-	 */
+    /**
+     * 根据变量名字获得
+     * @param	name
+     * @return
+     */
     //TODO:coverage
     getUniform(name: string): any {
         return this._paramsMap[name];
@@ -381,15 +381,15 @@ export class Shader extends BaseShader {
         if (uploadedValue[0] == null) {
             uploadedValue[0] = this._curActTexIndex;
             gl.uniform1i(one.location, this._curActTexIndex);
-            this._render2DContext.activeTexture(gl.TEXTURE0+this._curActTexIndex);
-            this._render2DContext.bindTexture(gl.TEXTURE_2D,value);
+            this._render2DContext.activeTexture(gl.TEXTURE0 + this._curActTexIndex);
+            this._render2DContext.bindTexture(gl.TEXTURE_2D, value);
             //WebGLContext.activeTexture(gl, gl.TEXTURE0 + this._curActTexIndex);
             //WebGLContext.bindTexture(gl, gl.TEXTURE_2D, value);
             this._curActTexIndex++;
             return 1;
         } else {
             this._render2DContext.activeTexture(gl.TEXTURE0 + uploadedValue[0]);
-            this._render2DContext.bindTexture( gl.TEXTURE_2D, value);
+            this._render2DContext.bindTexture(gl.TEXTURE_2D, value);
             return 0;
         }
     }
@@ -401,13 +401,13 @@ export class Shader extends BaseShader {
         if (uploadedValue[0] == null) {
             uploadedValue[0] = this._curActTexIndex;
             gl.uniform1i(one.location, this._curActTexIndex);
-            this._render2DContext.activeTexture( gl.TEXTURE0 + this._curActTexIndex);
-             this._render2DContext.bindTexture( gl.TEXTURE_CUBE_MAP, value);
+            this._render2DContext.activeTexture(gl.TEXTURE0 + this._curActTexIndex);
+            this._render2DContext.bindTexture(gl.TEXTURE_CUBE_MAP, value);
             this._curActTexIndex++;
             return 1;
         } else {
-            this._render2DContext.activeTexture( gl.TEXTURE0 + uploadedValue[0]);
-            this._render2DContext.bindTexture( gl.TEXTURE_CUBE_MAP, value);
+            this._render2DContext.activeTexture(gl.TEXTURE0 + uploadedValue[0]);
+            this._render2DContext.bindTexture(gl.TEXTURE_CUBE_MAP, value);
             return 0;
         }
     }
@@ -420,15 +420,15 @@ export class Shader extends BaseShader {
         // var CTX: any = RenderStateContext;
 
         // if (CTX._activeTextures[0] !== value) {
-            this._render2DContext.bindTexture( RenderStateContext.mainContext.TEXTURE_2D, value);
-            // CTX._activeTextures[0] = value;
+        this._render2DContext.bindTexture(RenderStateContext.mainContext.TEXTURE_2D, value);
+        // CTX._activeTextures[0] = value;
         //}
     }
 
-	/**
-	 * 提交shader到GPU
-	 * @param	shaderValue
-	 */
+    /**
+     * 提交shader到GPU
+     * @param	shaderValue
+     */
     upload(shaderValue: ShaderValue, params: any[] = null): void {
         BaseShader.activeShader = BaseShader.bindShader = this;
         //recreateResource();

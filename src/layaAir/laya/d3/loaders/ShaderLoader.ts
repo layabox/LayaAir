@@ -12,7 +12,7 @@ class ShaderLoader implements IResourceLoader {
             if (!data)
                 return null;
 
-            return ShaderParser.parse(data);
+            return ShaderParser.parse(data, task.url);
         });
     }
 }

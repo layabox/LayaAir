@@ -105,6 +105,24 @@ export class URL {
     }
 
     /**
+     * @internal
+     * 格式化相对路径。
+     */
+    static _formatRelativePath(value: string): string {
+        var parts: any[] = value.split("/");
+        for (var i: number = 0, len: number = parts.length; i < len; i++) {
+            if (parts[i] == '..') {
+                parts.splice(i - 1, 2);
+                i -= 2;
+            } else if (parts[i] == '.') {
+                parts.splice(i, 1)
+                i -= 1;
+            }
+        }
+        return parts.join('/');
+    }
+
+    /**
      * 格式化相对路径。主要是处理.和..这些情况。
      */
     static normalize(url: string): string {
