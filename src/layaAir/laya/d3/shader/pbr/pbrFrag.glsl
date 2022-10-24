@@ -68,18 +68,16 @@ void getPixelInfo(inout PixelInfo info, const in PixelParams pixel)
 	#endif // UV1
     #endif // LIGHTMAP
 
-    #ifdef TANGENT
-	#ifdef NEEDTBN
+    #ifdef NEEDTBN
     info.tangentWS = pixel.tangentWS;
     info.biNormalWS = pixel.biNormalWS;
 
-	    #ifdef ANISOTROPIC
+	#ifdef ANISOTROPIC
     info.ToV = pixel.ToV;
     info.BoV = pixel.BoV;
-	    #endif // ANISOTROPIC
+	#endif // ANISOTROPIC
 
-	#endif // NEEDTBN
-    #endif // TANGENT
+    #endif // NEEDTBN
 }
 
 vec3 PBRLighting(const in Surface surface, const in PixelParams pixel)
