@@ -41,7 +41,8 @@ export class RigidBody extends Component {
     protected _allowRotation: boolean = true;
     /**重力缩放系数，设置为0为没有重力*/
     protected _gravityScale: number = 1;
-
+    /** @internal */
+    static _tempPoint: Point = new Point();
     /**[只读] 指定了该主体所属的碰撞组，默认为0，碰撞规则如下：
      * 1.如果两个对象group相等
      * 		group值大于零，它们将始终发生碰撞
@@ -347,9 +348,10 @@ export class RigidBody extends Component {
     getCenter(): any {
         if (!this._body) this._onAwake();
         var p: Point = this._body.GetLocalCenter();
-        p.x = p.x * IPhysics.Physics.PIXEL_RATIO;
-        p.y = p.y * IPhysics.Physics.PIXEL_RATIO;
-        return p;
+        RigidBody._tempPoint.copy(p);
+        RigidBody._tempPoint.x = RigidBody._tempPoint.x * IPhysics.Physics.PIXEL_RATIO;
+        RigidBody._tempPoint.y = RigidBody._tempPoint.y * IPhysics.Physics.PIXEL_RATIO;
+        return RigidBody._tempPoint;
     }
 
     /**
@@ -358,9 +360,10 @@ export class RigidBody extends Component {
     getWorldCenter(): any {
         if (!this._body) this._onAwake();
         var p: Point = this._body.GetWorldCenter();
-        p.x = p.x * IPhysics.Physics.PIXEL_RATIO;
-        p.y = p.y * IPhysics.Physics.PIXEL_RATIO;
-        return p;
+        RigidBody._tempPoint.copy(p);
+        RigidBody._tempPoint.x = RigidBody._tempPoint.x * IPhysics.Physics.PIXEL_RATIO;
+        RigidBody._tempPoint.y = RigidBody._tempPoint.y * IPhysics.Physics.PIXEL_RATIO;
+        return RigidBody._tempPoint;
     }
 
     /**
