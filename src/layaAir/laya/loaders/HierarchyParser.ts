@@ -253,6 +253,8 @@ export class HierarchyParser {
         let innerUrls: ILoadURL[] = [];
 
         function addInnerUrl(url: string, type: string) {
+            if (!url)
+                return "";
             let url2 = test[url];
             if (url2 === undefined) {
                 if (url.length >= 36 && url.charCodeAt(8) === 45 && url.charCodeAt(13) === 45) //uuid xxxxxxxx-xxxx-...
