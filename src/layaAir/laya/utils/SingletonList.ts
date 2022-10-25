@@ -28,6 +28,9 @@ export class SingletonList<T> {
      * @internal
      */
     add(element: T): void {
+        let index = this.elements.indexOf(element);
+        if(index!=-1&&index<this.length)
+            return;
         if (this.length === this.elements.length)
             this.elements.push(element);
         else
