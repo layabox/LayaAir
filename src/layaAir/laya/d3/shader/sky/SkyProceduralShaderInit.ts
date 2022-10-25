@@ -5,6 +5,7 @@ import { Color } from "../../math/Color";
 import { AttributeMapType, SubShader } from "../SubShader";
 import SkyProceduralVS from "./SkyProceduralShader.vs";
 import SkyProceduralFS from "./SkyProceduralShader.fs";
+import { RenderState } from "../../core/material/RenderState";
 
 export class SkyProceduralShaderInit {
     static init() {
@@ -30,8 +31,11 @@ export class SkyProceduralShaderInit {
             "u_Exposure": 1.3,
         };
         let shader = Shader3D.add("SkyProcedural");
+        
         let subShader = new SubShader(attributeMap, uniformMap, defaultValue);
         shader.addSubShader(subShader);
         let pass = subShader.addShaderPass(SkyProceduralVS, SkyProceduralFS);
+        pass.renderState.depthTest = RenderState.DEPTHTEST_LEQUAL;
+        pass.statefirst = true;
     }
 }

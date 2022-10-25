@@ -6,6 +6,7 @@ import { VertexMesh } from "../../graphics/Vertex/VertexMesh";
 import SkyboxVS from "./SkyBox.vs";
 import SkyboxFS from "./SkyBox.fs";
 import { Color } from "../../math/Color";
+import { RenderState } from "../../core/material/RenderState";
 
 export class SkyBoxShaderInit {
 
@@ -32,6 +33,9 @@ export class SkyBoxShaderInit {
         let subShader = new SubShader(attributeMap, uniformMap, defaultValue);
         shader.addSubShader(subShader);
         let pass = subShader.addShaderPass(SkyboxVS, SkyboxFS);
+        pass.renderState.depthTest = RenderState.DEPTHTEST_LEQUAL;
+        pass.statefirst = true;
+
 
     }
 

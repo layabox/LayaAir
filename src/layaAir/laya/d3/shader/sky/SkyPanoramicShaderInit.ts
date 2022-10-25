@@ -7,6 +7,7 @@ import SkyPanoramicVS from "./SkyPanoramic.vs";
 import SkyPanoramicFS from "./SkyPanoramic.fs";
 import { Texture2D } from "../../../resource/Texture2D";
 import { Vector4 } from "../../math/Vector4";
+import { RenderState } from "../../core/material/RenderState";
 
 export class SkyPanoramicShaderInit {
     static init() {
@@ -31,5 +32,7 @@ export class SkyPanoramicShaderInit {
         let subShader = new SubShader(attributeMap, uniformMap, defaultValue);
         shader.addSubShader(subShader);
         let pass = subShader.addShaderPass(SkyPanoramicVS, SkyPanoramicFS);
+        pass.renderState.depthTest = RenderState.DEPTHTEST_LEQUAL;
+        pass.statefirst = true;
     }
 }
