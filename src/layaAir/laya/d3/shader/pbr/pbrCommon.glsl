@@ -4,7 +4,6 @@
 // varying
 varying vec3 v_PositionWS;
 varying vec3 v_NormalWS;
-varying vec3 v_ViewDir;
 
     #ifdef UV
 varying vec2 v_Texcoord0;

@@ -37,9 +37,6 @@ void initPixelParams(inout PixelParams params, in Vertex vertex)
     params.vertexColor = a_Color;
     v_VertexColor = params.vertexColor;
     #endif // COLOR
-
-    params.viewDir = getViewDirection(params.positionWS);
-    v_ViewDir = params.viewDir;
 }
 
 #endif // pbrVertex_lib

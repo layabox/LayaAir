@@ -24,7 +24,7 @@ void getPixelParams(inout PixelParams params)
     params.vertexColor = v_VertexColor;
     #endif // COLOR
 
-    params.viewDir = normalize(v_ViewDir);
+    params.viewDir = normalize(u_CameraPos - params.positionWS);
 
     #ifdef TANGENT
 	#ifdef NEEDTBN
