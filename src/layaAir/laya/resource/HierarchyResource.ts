@@ -38,10 +38,18 @@ export class Prefab extends Resource {
             return this.createNodes();
     }
 
+    get deps(): ReadonlyArray<Resource> {
+        return this._deps;
+    }
+
     addDep(res: Resource) {
         if (res instanceof Resource) {
             res._addReference();
             this._deps.push(res);
+
+
+            if (res instanceof Prefab)
+                res.on("obsolute", this, this.onDepObsolute);
         }
     }
 
@@ -50,29 +58,36 @@ export class Prefab extends Resource {
             if (res instanceof Resource) {
                 res._addReference();
                 this._deps.push(res);
+
+                if (res instanceof Prefab)
+                    res.on("obsolute", this, this.onDepObsolute);
             }
         }
     }
 
     protected _disposeResource(): void {
-        for (let res of this._deps)
+        for (let res of this._deps) {
             res._removeReference();
+
+            if (res instanceof Prefab)
+                res.off("obsolute", this, this.onDepObsolute);
+        }
     }
 
     public get obsolute(): boolean {
-        if (this._obsolute)
-            return true;
-
-        for (let dep of this._deps) {
-            if ((dep instanceof Prefab) && dep._obsolute)
-                return true;
-        }
-
-        return false;
+        return this._obsolute;
     }
 
     public set obsolute(value: boolean) {
-        this._obsolute = value;
+        if (this._obsolute != value) {
+            this._obsolute = value;
+            if (value)
+                this.event("obsolute");
+        }
+    }
+
+    private onDepObsolute() {
+        this.obsolute = true;
     }
 }
 

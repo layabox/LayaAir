@@ -2,6 +2,7 @@ import { IResourceLoader, ILoadTask, Loader, ILoadURL } from "../../net/Loader";
 import { URL } from "../../net/URL";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { AssetDb } from "../../resource/AssetDb";
+import { Material } from "../core/material/Material";
 import { MaterialParser } from "./MaterialParser";
 
 class MaterialLoader implements IResourceLoader {
@@ -40,7 +41,19 @@ class MaterialLoader implements IResourceLoader {
             return Promise.resolve(MaterialParser.parse(data));
 
         return task.loader.load(urls, task.options, task.progress.createCallback()).then(() => {
-            return MaterialParser.parse(data);
+            let mat = MaterialParser.parse(data);
+
+            let oldMat: Material;
+            if (oldMat = <Material>task.obsoluteInst) {
+                oldMat.setShaderName(mat._shader.name);
+                oldMat._shaderValues.reset();
+                mat._shaderValues.cloneTo(oldMat._shaderValues);
+                oldMat.renderQueue = mat.renderQueue;
+                mat.destroy();
+                mat = oldMat;
+                mat.obsolute = false;
+            }
+            return mat;
         });
     }
 }
