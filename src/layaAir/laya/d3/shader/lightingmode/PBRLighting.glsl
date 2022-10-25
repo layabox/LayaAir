@@ -21,18 +21,16 @@
 struct PixelInfo {
     vec3 normalWS;
 
-    #ifdef TANGENT
-	#ifdef NEEDTBN
+    #ifdef NEEDTBN
     vec3 tangentWS;
     vec3 biNormalWS;
 
-	    #ifdef ANISOTROPIC
+	#ifdef ANISOTROPIC
     float ToV;
     float BoV;
-	    #endif // ANISOTROPIC
+	#endif // ANISOTROPIC
 
-	#endif // NEEDTBN
-    #endif // TANGENT
+    #endif // NEEDTBN
 
     vec3 viewDir;
     float NoV;
@@ -118,8 +116,7 @@ vec3 specularLobe(const in Surface surface, const in PixelInfo pixel, const in L
     float roughness = surface.roughness;
     #ifdef ANISOTROPIC
 
-	#ifdef TANGENT
-	    #ifdef NEEDTBN
+	#ifdef NEEDTBN
 
     float at = max(roughness * (1.0 + surface.anisotropy), 0.001);
     float ab = max(roughness * (1.0 - surface.anisotropy), 0.001);
@@ -127,8 +124,7 @@ vec3 specularLobe(const in Surface surface, const in PixelInfo pixel, const in L
     float D = D_GGX_Anisotropic(lightParams.NoH, lightParams.h, pixel.tangentWS, pixel.biNormalWS, at, ab);
     float V = V_SmithGGXCorrelated_Anisotropic(at, ab, pixel.ToV, pixel.BoV, lightParams.ToL, lightParams.BoL, pixel.NoV, lightParams.NoL);
 
-	    #endif // NEEDTBN
-	#endif // TANGENT
+	#endif // NEEDTBN
 
     #else // ANISOTROPIC
 

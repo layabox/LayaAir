@@ -28,34 +28,32 @@ void getPixelParams(inout PixelParams params)
     // todo NoV varying ?
     params.NoV = max(dot(params.normalWS, params.viewDir), MIN_N_DOT_V);
 
-    #ifdef TANGENT
-	#ifdef NEEDTBN
+    #ifdef NEEDTBN
     params.tangentWS = normalize(v_TangentWS);
     params.biNormalWS = normalize(v_BiNormalWS);
     mat3 TBN = mat3(params.tangentWS, params.biNormalWS, params.normalWS);
 
-	    #ifdef NORMALTEXTURE
+	#ifdef NORMALTEXTURE
     vec3 normalSampler = texture2D(u_NormalTexture, params.uv0).rgb;
     normalSampler = normalize(normalSampler * 2.0 - 1.0);
     normalSampler.y *= -1.0;
     params.normalWS = normalize(TBN * normalSampler);
-	    // params.normalWS = normalize(TBN * normalSampler);
-	    #endif // NORMALTEXTURE
+	// params.normalWS = normalize(TBN * normalSampler);
+	#endif // NORMALTEXTURE
 
-	    #ifdef TANGENTTEXTURE
+	#ifdef TANGENTTEXTURE
     vec3 tangentSampler = texture2D(u_TangentTexture, params.uv0).rgb;
     tangentSampler = normalize(tangentSampler * 2.0 - 1.0);
     params.tangentWS = normalize(TBN * tangentSampler);
     params.biNormalWS = normalize(cross(params.normalWS, params.tangentWS));
-	    #endif // TANGENTTEXTURE
+	#endif // TANGENTTEXTURE
 
-	    #ifdef ANISOTROPIC
+	#ifdef ANISOTROPIC
     params.ToV = dot(params.tangentWS, params.viewDir);
     params.BoV = dot(params.biNormalWS, params.viewDir);
-	    #endif // ANISOTROPIC
+	#endif // ANISOTROPIC
 
-	#endif // NEEDTBN
-    #endif // TANGENT
+    #endif // NEEDTBN
 }
 
 void getPixelInfo(inout PixelInfo info, const in PixelParams pixel)
@@ -70,18 +68,16 @@ void getPixelInfo(inout PixelInfo info, const in PixelParams pixel)
 	#endif // UV1
     #endif // LIGHTMAP
 
-    #ifdef TANGENT
-	#ifdef NEEDTBN
+    #ifdef NEEDTBN
     info.tangentWS = pixel.tangentWS;
     info.biNormalWS = pixel.biNormalWS;
 
-	    #ifdef ANISOTROPIC
+	#ifdef ANISOTROPIC
     info.ToV = pixel.ToV;
     info.BoV = pixel.BoV;
-	    #endif // ANISOTROPIC
+	#endif // ANISOTROPIC
 
-	#endif // NEEDTBN
-    #endif // TANGENT
+    #endif // NEEDTBN
 }
 
 vec3 PBRLighting(const in Surface surface, const in PixelParams pixel)

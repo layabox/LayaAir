@@ -51,4 +51,4 @@ struct PixelParams {
     vec3 viewDir;
 };
 
-#endif // BlinnPhongCommon_libn
+#endif // BlinnPhongCommon_lib
