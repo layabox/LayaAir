@@ -121,7 +121,7 @@ export class GLShaderInstance extends GLObject implements IRenderShaderInstance 
         gl.shaderSource(shader, str);
         gl.compileShader(shader);
         if (this._engine._isShaderDebugMode && !gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-            throw gl.getShaderInfoLog(shader);
+            console.warn(gl.getShaderInfoLog(shader));
         }
         return shader;
     }
