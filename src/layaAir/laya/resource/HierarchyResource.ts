@@ -81,7 +81,8 @@ export class Prefab extends Resource {
     public set obsolute(value: boolean) {
         if (this._obsolute != value) {
             this._obsolute = value;
-            this.event("obsolute");
+            if (value)
+                this.event("obsolute");
         }
     }
 
