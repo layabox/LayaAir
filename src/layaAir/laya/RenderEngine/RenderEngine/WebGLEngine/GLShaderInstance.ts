@@ -37,6 +37,8 @@ export class GLShaderInstance extends GLObject implements IRenderShaderInstance 
     /**@internal */
     // todo 没用到
     private _uniformObjectMap: { [key: string]: ShaderVariable };
+    /**@internal */
+    _complete:boolean = true;
 
     constructor(engine: WebGLEngine, vs: string, ps: string, attributeMap: { [name: string]: [number, ShaderDataType] }) {
         super(engine);
@@ -60,8 +62,9 @@ export class GLShaderInstance extends GLObject implements IRenderShaderInstance 
         const bo = gl.getProgramParameter(this._program, gl.LINK_STATUS);
         if (!bo) {
             var info = gl.getProgramInfoLog(this._program);
-            debugger;
-            throw new Error('Could not compile WebGL program. \n\n' + info);
+            console.error(new Error('Could not compile WebGL program. \n\n' + info));
+            this._complete = false;
+            return;
         }
         //Uniform
         //Unifrom Objcet

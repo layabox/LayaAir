@@ -51,7 +51,9 @@ export class RenderElementOBJ implements IRenderElement {
         if (this._isRender) {
             var passes: ShaderInstance[] = this._shaderInstances.elements;
             for (var j: number = 0, m: number = this._shaderInstances.length; j < m; j++) {
-                const shaderIns: ShaderInstance = passes[j];;
+                const shaderIns: ShaderInstance = passes[j];
+                if(!shaderIns.complete)
+                    continue;
                 var switchShader: boolean = shaderIns.bind();
                 var switchUpdateMark: boolean = (updateMark !== shaderIns._uploadMark);
                 var uploadScene: boolean = (shaderIns._uploadScene !== sceneID) || switchUpdateMark;

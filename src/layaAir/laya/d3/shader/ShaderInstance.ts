@@ -58,9 +58,16 @@ export class ShaderInstance {
 	constructor(vs: string, ps: string, attributeMap: { [name: string]: [number, ShaderDataType] }, shaderPass: ShaderCompileDefineBase) {
 		this._cullStateCMD = LayaGL.renderOBJCreate.createRenderStateComand();
 		this._renderShaderInstance = LayaGL.renderEngine.createShaderInstance(vs, ps, attributeMap);
-		this._shaderPass = shaderPass;
-		this._create();
+		if (this._renderShaderInstance._complete) {
+			this._shaderPass = shaderPass;
+			this._create();
+		}
 
+
+	}
+
+	get complete(): boolean {
+		return this._renderShaderInstance._complete;
 	}
 
 
@@ -167,13 +174,13 @@ export class ShaderInstance {
 			stencilWrite == null && (stencilTest = renderState.stencilWrite);
 			stencilOp == null && (stencilOp = renderState.stencilOp);
 		} else {
-			renderState.depthWrite!=null ? depthWrite = renderState.depthWrite : 0;
-			renderState.depthTest!=null ? depthTest = renderState.depthTest : 0;
-			renderState.blend!=null ? blend = renderState.blend : 0;
-			renderState.stencilRef!=null ? stencilRef = renderState.stencilRef : 0;
-			renderState.stencilTest!=null ? stencilTest = renderState.stencilTest : 0;
-			renderState.stencilWrite!=null ? stencilWrite = renderState.stencilWrite : 0;
-			renderState.stencilOp!=null ? stencilOp = renderState.stencilOp : 0;
+			renderState.depthWrite != null ? depthWrite = renderState.depthWrite : 0;
+			renderState.depthTest != null ? depthTest = renderState.depthTest : 0;
+			renderState.blend != null ? blend = renderState.blend : 0;
+			renderState.stencilRef != null ? stencilRef = renderState.stencilRef : 0;
+			renderState.stencilTest != null ? stencilTest = renderState.stencilTest : 0;
+			renderState.stencilWrite != null ? stencilWrite = renderState.stencilWrite : 0;
+			renderState.stencilOp != null ? stencilOp = renderState.stencilOp : 0;
 		}
 
 
