@@ -6,6 +6,7 @@ import { Matrix4x4 } from "../math/Matrix4x4";
 import { Vector2 } from "../math/Vector2";
 import { Vector3 } from "../math/Vector3";
 import { Vector4 } from "../math/Vector4";
+import { TextureCube } from "../resource/TextureCube";
 import { ParseJSON } from "../utils/ParseJSON";
 
 const CGBlock: string[] = ["CG Start", "CG End"];
@@ -191,6 +192,15 @@ export class ShaderParser {
                 else if (data == "gray")
                     tex = Texture2D.grayTexture;
                 return tex;
+            case ShaderDataType.TextureCube:
+                let texcube = TextureCube.grayTexture;
+                if (data == "write")
+                    texcube = TextureCube.whiteTexture;
+                else if (data == "black")
+                    texcube = TextureCube.blackTexture;
+                else if (data == "gray")
+                    texcube = TextureCube.grayTexture;
+                return texcube;
         }
     }
 }

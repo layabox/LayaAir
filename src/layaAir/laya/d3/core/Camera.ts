@@ -1336,6 +1336,7 @@ export class Camera extends BaseCamera {
      * @override
      */
     destroy(destroyChild: boolean = true): void {
+        (!this._internalRenderTexture._inPool) && RenderTexture.recoverToPool(this._internalRenderTexture); 
         this._offScreenRenderTexture = null;
         this.transform.off(Event.TRANSFORM_CHANGED, this, this._onTransformChanged);
         this._cameraEventCommandBuffer = {};

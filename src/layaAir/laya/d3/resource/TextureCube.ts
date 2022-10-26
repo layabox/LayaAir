@@ -32,7 +32,9 @@ export class TextureCube extends BaseTexture {
     private static _blackTexture: TextureCube;
     /**@private*/
     private static _grayTexture: TextureCube;
-
+    /**@private*/
+    private static _whiteTexture: TextureCube;
+    
     /**
      * 黑色纯色纹理。
      */
@@ -48,11 +50,19 @@ export class TextureCube extends BaseTexture {
     }
 
     /**
+     * 白色纯色纹理。
+     */
+     static get whiteTexture() {
+        return TextureCube._grayTexture;
+    }
+
+    /**
      * @internal
      */
     static __init__(): void {
         var blackTexture: TextureCube = new TextureCube(1, TextureFormat.R8G8B8, false);
         var grayTexture: TextureCube = new TextureCube(1, TextureFormat.R8G8B8, false);
+        var writeTexture:TextureCube = new TextureCube(1,TextureFormat.R8G8B8,false);
         var pixels = DEFAULT_PIXELS;
         pixels[0] = 0, pixels[1] = 0, pixels[2] = 0;
         blackTexture.setPixelsData([pixels, pixels, pixels, pixels, pixels, pixels], false, false);
@@ -60,8 +70,12 @@ export class TextureCube extends BaseTexture {
         pixels[0] = 128, pixels[1] = 128, pixels[2] = 128;
         grayTexture.setPixelsData([pixels, pixels, pixels, pixels, pixels, pixels], false, false);
         grayTexture.lock = true;//锁住资源防止被资源管理释放
+        pixels[0] = 255, pixels[1] = 255, pixels[2] = 255;
+        writeTexture.setPixelsData([pixels, pixels, pixels, pixels, pixels, pixels], false, false);
+        writeTexture.lock = true;
         TextureCube._grayTexture = grayTexture;
         TextureCube._blackTexture = blackTexture;
+        TextureCube._whiteTexture = writeTexture;
     }
 
     constructor(size: number, format: TextureFormat, mipmap: boolean = true, sRGB: boolean = false) {
