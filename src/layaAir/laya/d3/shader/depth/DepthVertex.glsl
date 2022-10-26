@@ -77,7 +77,9 @@ vec4 DepthPositionCS(in vec3 positionWS, in vec3 normalWS)
 vec3 getViewDirection(in vec3 positionWS)
 {
     vec3 viewDirection = vec3(0.0);
+    #ifdef SHADOW
     viewDirection = u_ShadowLightDirection;
+    #endif // SHADOW
     return viewDirection;
 }
     #endif

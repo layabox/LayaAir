@@ -29,7 +29,7 @@ export class SingletonList<T> {
      */
     add(element: T): void {
         let index = this.elements.indexOf(element);
-        if(index!=-1&&index<this.length)
+        if ((typeof (element) != "number") && index != -1 && index < this.length)
             return;
         if (this.length === this.elements.length)
             this.elements.push(element);
