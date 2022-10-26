@@ -35,6 +35,7 @@ void getPixelParams(inout PixelParams params)
 	    #ifdef NORMALMAP
     vec3 normalSampler = texture2D(u_NormalTexture, params.uv0).rgb;
     normalSampler = normalize(normalSampler * 2.0 - 1.0);
+    normalSampler.y *= -1.0;
     params.normalWS = normalize(TBN * normalSampler);
 	    #endif // NORMALMAP
 
