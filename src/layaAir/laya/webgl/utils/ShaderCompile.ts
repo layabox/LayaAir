@@ -262,8 +262,10 @@ export class ShaderCompile {
                     }
                     else {
                         includeFile = ShaderCompile.includes[includeName];
-                        if (!includeFile)
+                        if (!includeFile) {
                             includeName = URL.join(basePath, includeName);
+                            includeFile = ShaderCompile.includes[includeName];
+                        }
                     }
 
                     if (!includeFile && ShaderCompile.loadIncludeFileSync) {
