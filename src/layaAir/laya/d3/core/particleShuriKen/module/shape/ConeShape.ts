@@ -14,7 +14,7 @@ export class ConeShape extends BaseShape {
 	/** @internal */
 	protected static _tempDirectionPoint: Vector2 = new Vector2();
 
-	/**发射角度。*/
+	/**发射弧度。*/
 	angle: number;
 	/**发射器半径。*/
 	radius: number;
@@ -33,6 +33,18 @@ export class ConeShape extends BaseShape {
 		this.radius = 1.0;
 		this.length = 5.0;
 		this.emitType = 0;
+
+	}
+
+	/**
+	 * 发射角度0-360
+	 */
+	set angleDEG(deg: number) {
+		this.angle = deg / 180 * Math.PI;
+	}
+
+	get angleDEG(){
+		return this.angle*180/Math.PI;
 	}
 
 	/**
