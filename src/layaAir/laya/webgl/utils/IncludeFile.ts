@@ -1,6 +1,6 @@
 import { ShaderCompile } from "./ShaderCompile";
 
-export class InlcudeFile {
+export class IncludeFile {
     script: string;
     codes: any = {};
     funs: any = {};
@@ -43,7 +43,7 @@ export class InlcudeFile {
         }
     }
 
-    getWith(name: string|null = null): string {
+    getWith(name: string | null = null): string {
         var r: string = name ? this.codes[name] : this.script;
         if (!r) {
             throw "get with error:" + name;

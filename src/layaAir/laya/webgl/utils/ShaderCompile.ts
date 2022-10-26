@@ -1,6 +1,22 @@
-import { Shader } from "../shader/Shader";
-import { InlcudeFile } from "./InlcudeFile";
+import { ILaya } from "../../../ILaya";
+import { URL } from "../../net/URL";
+import { IncludeFile } from "./IncludeFile";
 import { ShaderNode } from "./ShaderNode";
+
+export interface IShaderCompiledObj {
+    vsNode: ShaderNode;
+    psNode: ShaderNode;
+    includeNames: Set<string>;
+    defs: Set<string>;
+};
+
+type IncludeItem = { name: string, node: ShaderNode, codeName: string, file: IncludeFile };
+
+const _clearCR: RegExp = new RegExp("\r", "g");
+const _removeAnnotation: RegExp = new RegExp("(/\\*([^*]|[\\r\\\n]|(\\*+([^*/]|[\\r\\n])))*\\*+/)|(//.*)", "g");
+const _reg: RegExp = new RegExp("(\".*\")|('.*')|([#\\w\\*-\\.+/()=<>{}\\\\]+)|([,;:\\\\])", "g");
+const _splitToWordExps: RegExp = new RegExp("[(\".*\")]+|[('.*')]+|([ \\t=\\+\\-*/&%!<>!%\(\),;])", "g");
+const _splitToWordExps3: RegExp = new RegExp("[ \\t=\\+\\-*/&%!<>!%\(\),;\\|]", "g");
 
 /**
  * @private
@@ -12,35 +28,283 @@ export class ShaderCompile {
     static IFDEF_ELSE: number = 2;
     static IFDEF_PARENT: number = 3;
 
-    static _removeAnnotation: RegExp = new RegExp("(/\\*([^*]|[\\r\\\n]|(\\*+([^*/]|[\\r\\n])))*\\*+/)|(//.*)", "g");
-    static _reg: RegExp = new RegExp("(\".*\")|('.*')|([#\\w\\*-\\.+/()=<>{}\\\\]+)|([,;:\\\\])", "g");
-    static _splitToWordExps: RegExp = new RegExp("[(\".*\")]+|[('.*')]+|([ \\t=\\+\\-*/&%!<>!%\(\),;])", "g");
+    static includes: Record<string, IncludeFile> = {};
 
-    static includes: any = {};
-    static shaderParamsMap: any;
+    static loadIncludeFileSync: (fileName: string) => void;
 
-    private _nameMap: any;
-    /** @internal */
-    public _VS: ShaderNode;
-    /** @internal */
-    public _PS: ShaderNode;
-    /**@internal */
-    public _includemap: string[] = [];
-    /** @internal */
-    protected _owner: any;
-
-    static addInclude(fileName: string, txt: string): void {
-        if (!txt || txt.length === 0)
-            throw new Error("add shader include file err:" + fileName);
-        if (ShaderCompile.includes[fileName]) {
-            console.error("add shader include file err, has add:" + fileName);
-            return;
+    static addInclude(fileName: string, txt: string, allowReplace?: boolean): IncludeFile {
+        if (!txt || txt.length === 0) {
+            console.error("shader include file err:" + fileName);
+            return null;
         }
-        ShaderCompile.includes[fileName] = new InlcudeFile(txt);
+
+        if (!allowReplace && ShaderCompile.includes[fileName]) {
+            console.warn("shader include file already exists:" + fileName);
+            return ShaderCompile.includes[fileName];
+        }
+
+        txt = txt.replace(_clearCR, "");//CRLF风格需要先去掉“\r",否则切分字符会出错导致宏定义编译错误等
+        let file = new IncludeFile(txt);
+        ShaderCompile.includes[fileName] = file;
+        return file;
     }
 
-    static splitToWords(str: string, block: ShaderNode): any[]//这里要修改
-    {
+    static compile(vs: string, ps: string, basePath?: string): IShaderCompiledObj {
+        let result: IShaderCompiledObj = {
+            vsNode: new ShaderNode([]),
+            psNode: new ShaderNode([]),
+            includeNames: new Set(),
+            defs: new Set()
+        };
+
+        let includes: Array<IncludeItem> = [];
+
+        vs = vs.replace(_clearCR, "");//CRLF风格需要先去掉“\r",否则切分字符会出错导致宏定义编译错误等
+        ps = ps.replace(_clearCR, "")
+
+        ShaderCompile._compileToTree(result.vsNode, vs, result.defs, includes, basePath);
+        ShaderCompile._compileToTree(result.psNode, ps, result.defs, includes, basePath);
+
+        for (let inc of includes) {
+            if (inc.file)
+                result.includeNames.add(inc.name);
+            else
+                console.warn(`ShaderCompile missing file ${inc.name}`);
+        }
+
+        return result;
+    }
+
+    static compileAsync(vs: string, ps: string, basePath: string): Promise<IShaderCompiledObj> {
+        let result: IShaderCompiledObj = {
+            vsNode: new ShaderNode([]),
+            psNode: new ShaderNode([]),
+            includeNames: new Set(),
+            defs: new Set()
+        };
+
+        let includes: Array<IncludeItem> = [];
+
+        vs = vs.replace(_clearCR, "");
+        ps = ps.replace(_clearCR, "")
+
+        ShaderCompile._compileToTree(result.vsNode, vs, result.defs, includes, basePath);
+        ShaderCompile._compileToTree(result.psNode, ps, result.defs, includes, basePath);
+
+        let toLoad: Array<IncludeItem>;
+        for (let inc of includes) {
+            if (inc.file)
+                result.includeNames.add(inc.name);
+            else {
+                if (!toLoad) toLoad = [];
+                toLoad.push(inc);
+            }
+        }
+
+        if (toLoad)
+            return this._loadIncludesDeep(result, toLoad).then(() => result);
+        else
+            return Promise.resolve(result);
+    }
+
+    private static _loadIncludesDeep(result: IShaderCompiledObj, toLoad: Array<IncludeItem>): Promise<void> {
+        return ILaya.loader.load(toLoad.map(tc => tc.name)).then(files => {
+            let cnt = toLoad.length;
+            for (let i = 0; i < cnt; i++) {
+                let inc = toLoad[i];
+                let file = files[i];
+                if (!file) {
+                    let childs = inc.node.parent.childs;
+                    childs.splice(childs.indexOf(inc.node));
+                }
+                else {
+                    result.includeNames.add(inc.name);
+
+                    let text = file.getWith(inc.codeName);
+                    if (inc.node.condition)
+                        inc.node.text = text;
+                    else {
+                        ShaderCompile._compileToTree(inc.node, text, result.defs, toLoad, URL.getPath(inc.name));
+                        inc.node.text = "";
+                    }
+                }
+            }
+            if (toLoad.length > cnt) {
+                toLoad.splice(0, cnt);
+
+                return ShaderCompile._loadIncludesDeep(result, toLoad);
+            }
+            else
+                return null;
+        });
+    }
+
+    /**
+     * @private
+     */
+    private static _compileToTree(parent: ShaderNode, script: string, defs: Set<string>, includes: Array<IncludeItem>, basePath: string): void {
+        let node: ShaderNode, preNode: ShaderNode;
+        let text: string, name: string, fname: string;
+        let ofs: number, words: any[];
+        let i: number, n: number, j: number;
+        let lines = script.split("\n");
+
+        for (i = 0; i < lines.length; i++) {
+            text = lines[i];
+            if (text.length < 1) continue;
+            ofs = text.indexOf("//");
+            if (ofs === 0) continue;
+            if (ofs >= 0) text = text.substr(0, ofs);
+
+            if ((ofs = text.indexOf("#")) < 0) {
+                preNode = parent.childs[parent.childs.length - 1];
+                let includefiles = parent.includefiles;
+                if (preNode && !preNode.name) {
+                    includefiles.length > 0 && ShaderCompile.splitToWords(text, preNode);
+                    preNode.text += "\n" + text;
+                    continue;
+                }
+
+                node = new ShaderNode(includefiles);
+                node.text = text;
+                node.noCompile = true;
+                includefiles.length > 0 && ShaderCompile.splitToWords(text, node);
+                node.setParent(parent);
+                continue;
+            }
+
+            node = new ShaderNode(parent.includefiles);
+            node.text = text;
+            node.noCompile = true;
+
+            name = "#";
+            for (j = ofs + 1, n = text.length; j < n; j++) {
+                let c: string = text.charAt(j);
+                if (c === ' ' || c === '\t' || c === '?') break;
+                name += c;
+            }
+            node.name = name;
+            switch (name) {
+                case "#ifdef":
+                case "#ifndef":
+                    node.src = text;
+                    node.noCompile = text.match(/[!&|()=<>]/) != null;
+                    if (!node.noCompile) {
+                        words = text.replace(/^\s*/, '').split(/\s+/);
+                        node.setCondition(words[1], name === "#ifdef" ? ShaderCompile.IFDEF_YES : ShaderCompile.IFDEF_ELSE);
+                        node.text = node.text;
+                    } else {
+                        console.log("function():Boolean{return " + text.substr(ofs + node.name.length) + "}");
+                    }
+                    node.setParent(parent);
+                    parent = node;
+
+                    words = text.substr(j).split(_splitToWordExps3);
+                    for (j = 0; j < words.length; j++) {
+                        text = words[j];
+                        text.length && defs.add(text);
+                    }
+                    break;
+
+                case "#if":
+                case "#elif":
+                    node.src = text;
+                    node.noCompile = true;
+                    if (name == "#elif") {
+                        parent = parent.parent;
+                        preNode = parent.childs[parent.childs.length - 1];
+                        //匹配"#ifdef"
+                        preNode.text = preNode.src;
+                        preNode.noCompile = true;
+                        preNode.condition = null;
+                    }
+                    node.setParent(parent);
+                    parent = node;
+
+                    words = text.substr(j).split(_splitToWordExps3);
+                    for (j = 0; j < words.length; j++) {
+                        text = words[j];
+                        text.length && text != "defined" && defs.add(text);
+                    }
+                    break;
+
+                case "#else":
+                    node.src = text;
+                    parent = parent.parent;
+                    preNode = parent.childs[parent.childs.length - 1];
+                    node.noCompile = preNode.noCompile;
+                    if (!node.noCompile) {
+                        node.condition = preNode.condition;
+                        node.conditionType = preNode.conditionType == ShaderCompile.IFDEF_YES ? ShaderCompile.IFDEF_ELSE : ShaderCompile.IFDEF_YES;
+                        //node.text =  node.text + " " + preNode.text + " " + node.conditionType;
+                    }
+                    //递归节点树
+                    node.setParent(parent);
+                    parent = node;
+                    break;
+
+                case "#endif":
+                    parent = parent.parent;
+                    preNode = parent.childs[parent.childs.length - 1];
+                    node.noCompile = preNode.noCompile;
+                    if (!node.noCompile) {
+                        node.text = node.text;
+                    }
+                    node.setParent(parent);
+                    break;
+
+                case "#include"://这里有问题,主要是空格
+                    words = ShaderCompile.splitToWords(text, null);
+                    let includeName: string = words[1];
+                    let includeFile: IncludeFile;
+                    if (includeName.startsWith(".")) {
+                        includeName = URL.join(basePath, includeName);
+                        includeFile = ShaderCompile.includes[includeName];
+                    }
+                    else {
+                        includeFile = ShaderCompile.includes[includeName];
+                        if (!includeFile)
+                            includeName = URL.join(basePath, includeName);
+                    }
+
+                    if (!includeFile && ShaderCompile.loadIncludeFileSync) {
+                        ShaderCompile.loadIncludeFileSync(includeName);
+                        includeFile = ShaderCompile.includes[includeName];
+                    }
+
+                    let codeName = words[2] == 'with' ? words[3] : null;
+                    includes.push({ name: includeName, codeName: codeName, node: node, file: includeFile });
+                    node.setParent(parent);
+
+                    if ((ofs = words[0].indexOf("?")) < 0) {
+                        if (includeFile) {
+                            text = includeFile.getWith(codeName);
+                            this._compileToTree(node, text, defs, includes, URL.getPath(includeName));
+                        }
+                        node.text = "";
+                    }
+                    else {
+                        node.setCondition(words[0].substr(ofs + 1), ShaderCompile.IFDEF_YES);
+
+                        if (includeFile)
+                            node.text = includeFile.getWith(codeName);
+                    }
+                    break;
+
+                case "#import":
+                    words = ShaderCompile.splitToWords(text, null);
+                    fname = words[1];
+                    node.includefiles.push({ node: node, file: ShaderCompile.includes[fname], ofs: node.text.length });
+                    break;
+
+                default:
+                    node.setParent(parent);
+                    break;
+            }
+        }
+    }
+
+    static splitToWords(str: string, block: ShaderNode): any[] {//这里要修改
         var out: any[] = [];
         /*
            var words:Array = str.split(_splitToWordExps);
@@ -83,168 +347,6 @@ export class ShaderCompile {
         }
         return out;
     }
-
-    static _clearCR: RegExp = new RegExp("\r", "g");
-    public defs: Object = {};
-
-    constructor(vs: string, ps: string, nameMap: any, owner: any) {
-        let _this = this;
-        this._owner = owner;
-        function _compile(script: string): ShaderNode {
-            script = script.replace(ShaderCompile._clearCR, "");//CRLF风格需要先去掉“\r",否则切分字符会出错导致宏定义编译错误等
-            var includefiles: any[] = [];
-            var top: ShaderNode = new ShaderNode(includefiles);
-            _this._compileToTree(top, script.split('\n'), 0, includefiles, _this.defs);
-            return top;
-        }
-
-        //先要去掉注释,还没有完成
-        var startTime: number = Date.now();
-        this._VS = _compile(vs);
-        this._PS = _compile(ps);
-        this._nameMap = nameMap;
-        if ((Date.now() - startTime) > 2)
-            console.log("ShaderCompile use time:" + (Date.now() - startTime) + "  size:" + vs.length + "/" + ps.length);
-    }
-
-    static _splitToWordExps3: RegExp = new RegExp("[ \\t=\\+\\-*/&%!<>!%\(\),;\\|]", "g");
-
-    /**
-     * @private
-     */
-    protected _compileToTree(parent: ShaderNode, lines: any[], start: number, includefiles: any[], defs: any): void {
-        var node: ShaderNode, preNode: ShaderNode;
-        var text: string, name: string, fname: string;
-        var ofs: number, words: any[], noUseNode: ShaderNode;
-        var i: number, n: number, j: number;
-        for (i = start; i < lines.length; i++) {
-            text = lines[i];
-            if (text.length < 1) continue;
-            ofs = text.indexOf("//");
-            if (ofs === 0) continue;
-            if (ofs >= 0) text = text.substr(0, ofs);
-
-            node = noUseNode || new ShaderNode(includefiles);
-            noUseNode = null;
-            node.text = text;
-            node.noCompile = true;
-
-            if ((ofs = text.indexOf("#")) >= 0) {
-                name = "#";
-                for (j = ofs + 1, n = text.length; j < n; j++) {
-                    var c: string = text.charAt(j);
-                    if (c === ' ' || c === '\t' || c === '?') break;
-                    name += c;
-                }
-                node.name = name;
-                switch (name) {
-                    case "#ifdef":
-                    case "#ifndef":
-                        node.src = text;
-                        node.noCompile = text.match(/[!&|()=<>]/) != null;
-                        if (!node.noCompile) {
-                            words = text.replace(/^\s*/, '').split(/\s+/);
-                            node.setCondition(words[1], name === "#ifdef" ? ShaderCompile.IFDEF_YES : ShaderCompile.IFDEF_ELSE);
-                            node.text = node.text;
-                        } else {
-                            console.log("function():Boolean{return " + text.substr(ofs + node.name.length) + "}");
-                        }
-                        node.setParent(parent);
-                        parent = node;
-                        if (defs) {
-                            words = text.substr(j).split(ShaderCompile._splitToWordExps3);
-                            for (j = 0; j < words.length; j++) {
-                                text = words[j];
-                                text.length && (defs[text] = true);
-                            }
-                        }
-                        continue;
-                    case "#if":
-                        node.src = text;
-                        node.noCompile = true;
-                        node.setParent(parent);
-                        parent = node;
-                        if (defs) {
-                            words = text.substr(j).split(ShaderCompile._splitToWordExps3);
-                            for (j = 0; j < words.length; j++) {
-                                text = words[j];
-                                text.length && text != "defined" && (defs[text] = true);
-                            }
-                        }
-                        continue;
-                    case "#else":
-                        node.src = text;
-                        parent = parent.parent;
-                        preNode = parent.childs[parent.childs.length - 1];
-                        node.noCompile = preNode.noCompile;
-                        if (!node.noCompile) {
-                            node.condition = preNode.condition;
-                            node.conditionType = preNode.conditionType == ShaderCompile.IFDEF_YES ? ShaderCompile.IFDEF_ELSE : ShaderCompile.IFDEF_YES;
-                            node.text = node.text + " " + preNode.text + " " + node.conditionType;
-                        }
-                        node.setParent(parent);
-                        parent = node;
-                        continue;
-                    case "#endif":
-                        parent = parent.parent;
-                        preNode = parent.childs[parent.childs.length - 1];
-                        node.noCompile = preNode.noCompile;
-                        if (!node.noCompile) {
-                            node.text = node.text;
-                        }
-                        node.setParent(parent);
-                        continue;
-                    case "#include"://这里有问题,主要是空格
-                        words = ShaderCompile.splitToWords(text, null);
-                        var inlcudeFile: InlcudeFile = ShaderCompile.includes[words[1]];
-                        this._includemap.push(words[1]);
-                        if (!inlcudeFile) {
-                            throw "ShaderCompile error no this include file:" + words[1];
-                        }
-                        if ((ofs = words[0].indexOf("?")) < 0) {
-                            node.setParent(parent);
-                            text = inlcudeFile.getWith(words[2] == 'with' ? words[3] : null);
-                            this._compileToTree(node, text.split('\n'), 0, includefiles, defs);
-                            node.text = "";
-                            continue;
-                        }
-                        node.setCondition(words[0].substr(ofs + 1), ShaderCompile.IFDEF_YES);
-                        node.text = inlcudeFile.getWith(words[2] == 'with' ? words[3] : null);
-                        break;
-                    case "#import"://??
-                        words = ShaderCompile.splitToWords(text, null);
-                        fname = words[1];
-                        includefiles.push({ node: node, file: ShaderCompile.includes[fname], ofs: node.text.length });
-                        continue;
-                }
-            } else {
-                preNode = parent.childs[parent.childs.length - 1];
-                if (preNode && !preNode.name) {
-                    includefiles.length > 0 && ShaderCompile.splitToWords(text, preNode);
-                    noUseNode = node;
-                    preNode.text += "\n" + text;
-                    continue;
-                }
-                includefiles.length > 0 && ShaderCompile.splitToWords(text, node);
-            }
-            node.setParent(parent);
-        }
-    }
-
-    createShader(define: any, shaderName: any, createShader: Function, bindAttrib: any[]): Shader {
-        var defMap: any = {};
-        var defineStr: string = "";
-        if (define) {
-            for (var i in define) {
-                defineStr += "#define " + i + "\n";
-                defMap[i] = true;
-            }
-        }
-        var vs: any[] = this._VS.toscript(defMap, []);
-        var ps: any[] = this._PS.toscript(defMap, []);
-        return ((<Function>createShader) || (<Function>Shader.create))(defineStr + vs.join('\n'), defineStr + ps.join('\n'), shaderName, this._nameMap, bindAttrib);
-    }
-
 }
 
 

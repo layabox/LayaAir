@@ -1,5 +1,5 @@
 import { ILoadTask, IResourceLoader, Loader } from "../../net/Loader";
-import { ShaderParser } from "./ShaderParser";
+import { ShaderCompile } from "../../webgl/utils/ShaderCompile";
 
 class GLSLLoader implements IResourceLoader {
     load(task: ILoadTask) {
@@ -7,9 +7,10 @@ class GLSLLoader implements IResourceLoader {
         return task.loader.fetch(url, "text", task.progress.createCallback(), task.options).then(data => {
             if (!data)
                 return null;
-            return ShaderParser.GLSLPrase(task.url, data);
+
+            return ShaderCompile.addInclude(task.url, data, true);
         });
     }
 }
 
-Loader.registerLoader(["glsl"], GLSLLoader);
+Loader.registerLoader(["glsl", "vs", "fs"], GLSLLoader);

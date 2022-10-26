@@ -11,6 +11,7 @@ import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { ShaderVariant } from "../../RenderEngine/RenderShader/ShaderVariantCollection";
 import { ShaderInstance } from "./ShaderInstance";
 import { GLSLCodeGenerator } from "./GLSLCodeGenerator";
+import { IShaderCompiledObj } from "../../webgl/utils/ShaderCompile";
 
 /**
  * <code>ShaderPass</code> 类用于实现ShaderPass。
@@ -41,8 +42,8 @@ export class ShaderPass extends ShaderCompileDefineBase {
         return this._renderState;
     }
 
-    constructor(owner: SubShader, vs: string, ps: string, stateMap: { [key: string]: number }) {
-        super(owner, vs, ps, null);
+    constructor(owner: SubShader, compiledObj: IShaderCompiledObj, stateMap: { [key: string]: number }) {
+        super(owner, null, compiledObj);
         this._stateMap = stateMap;
         this._renderState = LayaGL.renderOBJCreate.createRenderState();
     }
