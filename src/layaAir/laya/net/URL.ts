@@ -122,7 +122,7 @@ export class URL {
             }
             else if (parts[i] == '..') {
                 let index: number = i - 1;
-                if (index > 0 && parts[index] !== '..') {
+                if (index >= 0 && parts[index] !== '..') {
                     parts.splice(index, 2);
                     len -= 2;
                     i--;
