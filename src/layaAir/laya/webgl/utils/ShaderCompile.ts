@@ -91,8 +91,14 @@ export class ShaderCompile {
         ShaderCompile._compileToTree(result.vsNode, vs, result.defs, includes, basePath);
         ShaderCompile._compileToTree(result.psNode, ps, result.defs, includes, basePath);
 
+        return this._loadIncludesDeep(result, includes, 0);
+    }
+
+    private static _loadIncludesDeep(result: IShaderCompiledObj, includes: Array<IncludeItem>, index: number): Promise<IShaderCompiledObj> {
         let toLoad: Array<IncludeItem>;
-        for (let inc of includes) {
+        let includesCnt = includes.length;
+        for (let i = index; i < includesCnt; i++) {
+            let inc = includes[i];
             if (inc.file)
                 result.includeNames.add(inc.name);
             else {
@@ -101,13 +107,9 @@ export class ShaderCompile {
             }
         }
 
-        if (toLoad)
-            return this._loadIncludesDeep(result, toLoad).then(() => result);
-        else
+        if (!toLoad)
             return Promise.resolve(result);
-    }
 
-    private static _loadIncludesDeep(result: IShaderCompiledObj, toLoad: Array<IncludeItem>): Promise<void> {
         return ILaya.loader.load(toLoad.map(tc => tc.name)).then(files => {
             let cnt = toLoad.length;
             for (let i = 0; i < cnt; i++) {
@@ -129,13 +131,10 @@ export class ShaderCompile {
                     }
                 }
             }
-            if (toLoad.length > cnt) {
-                toLoad.splice(0, cnt);
-
-                return ShaderCompile._loadIncludesDeep(result, toLoad);
-            }
+            if (includes.length > includesCnt)
+                return ShaderCompile._loadIncludesDeep(result, includes, includesCnt);
             else
-                return null;
+                return result;
         });
     }
 
