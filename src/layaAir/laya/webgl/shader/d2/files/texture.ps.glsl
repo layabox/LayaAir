@@ -7,6 +7,20 @@ precision highp float;
 precision mediump float;
 #endif
 
+vec3 linearToGamma(in vec3 value)
+{
+    return vec3(mix(pow(value.rgb, vec3(0.41666)) * 1.055 - vec3(0.055), value.rgb * 12.92, vec3(lessThanEqual(value.rgb, vec3(0.0031308)))));
+
+    // return pow(value, vec3(1.0 / 2.2));
+    // return pow(value, vec3(0.455));
+}
+
+vec4 linearToGamma(in vec4 value)
+{
+    return vec4(linearToGamma(value.rgb), value.a);
+}
+
+
 varying vec4 v_texcoordAlpha;
 varying vec4 v_color;
 varying float v_useTex;
@@ -17,7 +31,7 @@ vec4 sampleTexture(sampler2D texture, vec2 uv)
 {
     vec4 color = texture2D(texture, uv);
 #ifdef GAMMASPACE
-    color.xyz = sqrt(color.xyz);
+    color.xyz = linearToGamma(color.xyz);
 #endif
     return color;
 }
