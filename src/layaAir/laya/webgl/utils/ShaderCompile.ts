@@ -117,7 +117,7 @@ export class ShaderCompile {
                 let file = files[i];
                 if (!file) {
                     let childs = inc.node.parent.childs;
-                    childs.splice(childs.indexOf(inc.node));
+                    childs.splice(childs.indexOf(inc.node), 1);
                 }
                 else {
                     result.includeNames.add(inc.name);
