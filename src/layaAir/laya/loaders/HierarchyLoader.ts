@@ -15,7 +15,7 @@ export class HierarchyLoader implements IResourceLoader {
         let url = task.url;
         let isModel = task.ext == "gltf" || task.ext == "fbx";
         if (isModel)
-            url = AssetDb.inst.getSubAssetURL(url, task.uuid, "00001", "lh");
+            url = AssetDb.inst.getSubAssetURL(url, task.uuid, "0", "lh");
         return task.loader.fetch(url, "json", task.progress.createCallback(0.2), task.options).then(data => {
             if (!data)
                 return null;
