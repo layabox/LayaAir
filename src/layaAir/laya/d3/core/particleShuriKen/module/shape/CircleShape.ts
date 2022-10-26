@@ -31,6 +31,17 @@ export class CircleShape extends BaseShape {
 	}
 
 	/**
+	 * 发射角度0-360
+	 */
+	 set arcDEG(deg: number) {
+		this.arc = deg / 180 * Math.PI;
+	}
+
+	get arcDEG(){
+		return this.arc*180/Math.PI;
+	}
+
+	/**
 	 * @inheritDoc
 	 * @override
 	 * @internal
