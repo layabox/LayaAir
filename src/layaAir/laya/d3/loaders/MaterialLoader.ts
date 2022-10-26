@@ -11,7 +11,8 @@ class MaterialLoader implements IResourceLoader {
             if (!data)
                 return null;
 
-            let urls: Array<ILoadURL | string> = MaterialParser.collectLinks(data, URL.getPath(task.url));
+            let basePath = URL.getPath(task.url);
+            let urls: Array<ILoadURL | string> = MaterialParser.collectLinks(data, basePath);
 
             if (data.version === "LAYAMATERIAL:04") {
                 let shaderName = data.props.type;
@@ -27,6 +28,9 @@ class MaterialLoader implements IResourceLoader {
                                     urls.push(url);
                                 return this.load2(task, data, urls);
                             });
+                        }
+                        else if (data.props.shaderPath) {
+                            urls.push(URL.join(basePath, data.props.shaderPath));
                         }
                     }
                 }

@@ -1,5 +1,5 @@
 import { StringKey } from "../../utils/StringKey";
-import { ShaderCompile } from "../utils/ShaderCompile";
+import { IShaderCompiledObj, ShaderCompile } from "../utils/ShaderCompile";
 import { BaseShader } from "./BaseShader";
 import { ShaderValue } from "./ShaderValue";
 import { LayaGL } from "../../layagl/LayaGL";
@@ -9,7 +9,7 @@ import { RenderStateContext } from "../../RenderEngine/RenderStateContext";
 export class Shader extends BaseShader {
     private static _count: number = 0;
     /**@internal */
-    static _preCompileShader: any = {}; //存储预编译结果，可以通过名字获得内容,目前不支持#ifdef嵌套和条件
+    static _preCompileShader: Record<string, IShaderCompiledObj> = {}; //存储预编译结果，可以通过名字获得内容,目前不支持#ifdef嵌套和条件
     private _attribInfo: any[] | null = null;
 
     static SHADERNAME2ID: number = 0.0002;
@@ -55,10 +55,22 @@ export class Shader extends BaseShader {
         if (shaderName && Shader.sharders[shaderName])
             return Shader.sharders[shaderName];
 
-        var pre: ShaderCompile = Shader._preCompileShader[Shader.SHADERNAME2ID * nameID + mainID];
+        var pre: IShaderCompiledObj = Shader._preCompileShader[Shader.SHADERNAME2ID * nameID + mainID];
         if (!pre)
             throw new Error("withCompile shader err!" + nameID + " " + mainID);
-        return pre.createShader(define, shaderName, createShader, bindAttrib);
+
+        var defMap: any = {};
+        var defineStr: string = "";
+        if (define) {
+            for (var i in define) {
+                defineStr += "#define " + i + "\n";
+                defMap[i] = true;
+            }
+        }
+        var vs: any[] = pre.vsNode.toscript(defMap, []);
+        var ps: any[] = pre.psNode.toscript(defMap, []);
+        return ((<Function>createShader)
+            || (<Function>Shader.create))(defineStr + vs.join('\n'), defineStr + ps.join('\n'), shaderName, (<any>pre).nameMap, bindAttrib);
     }
 
     static addInclude(fileName: string, txt: string): void {
@@ -73,8 +85,10 @@ export class Shader extends BaseShader {
      */
     //TODO:coverage
     static preCompile(nameID: number, vs: string, ps: string, nameMap: any): void {
-        var id: number = Shader.SHADERNAME2ID * nameID;
-        Shader._preCompileShader[id] = new ShaderCompile(vs, ps, nameMap, null);
+        let id: number = Shader.SHADERNAME2ID * nameID;
+        let obj = ShaderCompile.compile(vs, ps);
+        (<any>obj).nameMap = nameMap;
+        Shader._preCompileShader[id] = obj;
     }
 
     /**
@@ -84,8 +98,10 @@ export class Shader extends BaseShader {
      * @param	ps
      */
     static preCompile2D(nameID: number, mainID: number, vs: string, ps: string, nameMap: any): void {
-        var id: number = Shader.SHADERNAME2ID * nameID + mainID;
-        Shader._preCompileShader[id] = new ShaderCompile(vs, ps, nameMap, null);
+        let id: number = Shader.SHADERNAME2ID * nameID + mainID;
+        let obj = ShaderCompile.compile(vs, ps);
+        (<any>obj).nameMap = nameMap;
+        Shader._preCompileShader[id] = obj;
     }
 
     private _nameMap: any; //shader参数别名，语义

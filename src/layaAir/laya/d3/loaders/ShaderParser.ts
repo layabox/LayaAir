@@ -28,18 +28,13 @@ const shaderDataOBJ: Record<string, ShaderDataType> = {
 //TODO 格式改变
 export class ShaderParser {
 
-    static parse(data: string, url: string): Shader3D {
+    static parse(data: string, basePath?: string): Shader3D {
         let obj = ShaderParser.getShaderBlock(data);
         let cgmap = ShaderParser.getCGBlock(data);
         ShaderParser.bindCG(obj, cgmap);
-        let shader = Shader3D.parse(obj, url);
+        let shader = Shader3D.parse(obj, basePath);
         return shader;
     }
-
-    static GLSLPrase(name: string, data: string) {
-        Shader3D.addInclude(name, data);
-    }
-
 
     static compileToTree(sliceFlag: string[], data: string, sliceIndex: number): string[] {
         if (sliceIndex == sliceFlag.length)

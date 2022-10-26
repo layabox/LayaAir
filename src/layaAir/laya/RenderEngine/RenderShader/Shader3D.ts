@@ -170,7 +170,6 @@ export class Shader3D {
      * @param txt 文件内容
      */
     static addInclude(fileName: string, txt: string): void {
-        txt = txt.replace(ShaderCompile._clearCR, "");//CRLF风格需要先去掉“\r",否则切分字符会出错导致宏定义编译错误等
         ShaderCompile.addInclude(fileName, txt);
     }
 
@@ -220,17 +219,16 @@ export class Shader3D {
         return Shader3D._preCompileShader[name];
     }
 
-    static parse(data: IShaderObjStructor, url: string) {
+    static parse(data: IShaderObjStructor, basePath: string) {
         if (!data.name || !data.uniformMap)
             console.error("TODO");
         let shader = Shader3D.add(data.name, data.enableInstancing, data.supportReflectionProbe);
-        shader._abUrl = url;
         let subshader = new SubShader(data.attributeMap ? data.attributeMap : SubShader.DefaultAttributeMap, data.uniformMap, data.defaultValue);
         shader.addSubShader(subshader);
         let passArray = data.shaderPass;
         for (var i in passArray) {
             let pass = passArray[i] as IShaderpassStructor;
-            subshader.addShaderPass(pass.VS, pass.FS, pass.pipeline);
+            subshader._addShaderPass(ShaderCompile.compile(pass.VS, pass.FS, basePath), pass.pipeline);
         }
         return shader;
     }
@@ -243,8 +241,6 @@ export class Shader3D {
     _supportReflectionProbe: boolean = false;
     /**@internal */
     _subShaders: SubShader[] = [];
-    /**@internal 加载绝对路径*/
-    _abUrl: string;
 
     /**
      * 名字。

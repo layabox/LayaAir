@@ -2,6 +2,7 @@ import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { ShaderDataItem, ShaderDataType } from "../../RenderEngine/RenderShader/ShaderData";
 import { ShaderDefine } from "../../RenderEngine/RenderShader/ShaderDefine";
 import { UniformBufferParamsType, UnifromBufferData } from "../../RenderEngine/UniformBufferData";
+import { IShaderCompiledObj, ShaderCompile } from "../../webgl/utils/ShaderCompile";
 import { VertexMesh } from "../graphics/Vertex/VertexMesh";
 import { ShaderPass } from "./ShaderPass";
 
@@ -17,7 +18,7 @@ export type AttributeMapType = { [name: string]: [number, ShaderDataType] };
  */
 export class SubShader {
     public static DefaultShaderStateMap: any;
-    public static IncludeUniformMap:any;
+    public static IncludeUniformMap: any;
 
     /**
      * 注册glsl所用到的Uniform
@@ -26,12 +27,12 @@ export class SubShader {
      * @param uniformInfo 
      * @param defaultUniformData 
      */
-    public static regIncludeBindUnifrom(includeName:string,uniformMap:{ [name: string]: ShaderDataType },defaultValue:{[key:string]:any}){
-        let obj:any = {};
-        let data:any = obj[includeName] = {};
+    public static regIncludeBindUnifrom(includeName: string, uniformMap: { [name: string]: ShaderDataType }, defaultValue: { [key: string]: any }) {
+        let obj: any = {};
+        let data: any = obj[includeName] = {};
         data["uniformMap"] = uniformMap;
         data["defaultValue"] = defaultValue;
-        Object.assign(SubShader.IncludeUniformMap,obj);
+        Object.assign(SubShader.IncludeUniformMap, obj);
     }
 
     public static readonly DefaultAttributeMap: { [name: string]: [number, ShaderDataType] } = {
@@ -160,36 +161,36 @@ export class SubShader {
      * @param pipelineMode 渲染管线模式。 
      */
     addShaderPass(vs: string, ps: string, pipelineMode: string = "Forward", stateMap: { [key: string]: number } = SubShader.DefaultShaderStateMap): ShaderPass {
-        var shaderPass: ShaderPass = new ShaderPass(this, vs, ps, stateMap);
+        return this._addShaderPass(ShaderCompile.compile(vs, ps), pipelineMode, stateMap);
+    }
+
+    _addShaderPass(compiledObj: IShaderCompiledObj, pipelineMode: string = "Forward", stateMap: { [key: string]: number } = SubShader.DefaultShaderStateMap): ShaderPass {
+        var shaderPass: ShaderPass = new ShaderPass(this, compiledObj, stateMap);
         shaderPass._pipelineMode = pipelineMode;
         this._passes.push(shaderPass);
-        this._addIncludeUniform(shaderPass);
+        this._addIncludeUniform(compiledObj.includeNames);
         return shaderPass;
     }
 
-
-    private _addIncludeUniform(shaderpass:ShaderPass){
-        let includemap = shaderpass._includemap;
-        if(!includemap)
-            return;
-        includemap.forEach(element => {
-            if(SubShader.IncludeUniformMap[element]){
-                let includeBindInfo = SubShader.IncludeUniformMap[element];
+    private _addIncludeUniform(includemap: Set<string>) {
+        for (let ele of includemap) {
+            if (SubShader.IncludeUniformMap[ele]) {
+                let includeBindInfo = SubShader.IncludeUniformMap[ele];
                 let bindtypeMap = includeBindInfo["uniformMap"];
                 let bindDefaultValue = includeBindInfo["defaultValue"];
-                for(var i in bindtypeMap){
-                    if(!this._uniformTypeMap.has(i)){
-                        this._uniformTypeMap.set(i,bindtypeMap[i]);
+                for (var i in bindtypeMap) {
+                    if (!this._uniformTypeMap.has(i)) {
+                        this._uniformTypeMap.set(i, bindtypeMap[i]);
                         this._uniformMap[i] = bindtypeMap[i];
                     }
                 }
-                for(var i in bindDefaultValue){
-                    if(!this._uniformDefaultValue[i]){
+                for (var i in bindDefaultValue) {
+                    if (!this._uniformDefaultValue[i]) {
                         this._uniformDefaultValue[i] = bindDefaultValue[i];
                     }
                 }
             }
-        });
+        }
     }
 
 }

@@ -4,18 +4,22 @@ import { LayaGL } from "../../layagl/LayaGL";
 import { DefineDatas } from "../../RenderEngine/RenderShader/DefineDatas";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { WebGL } from "../WebGL";
-import { InlcudeFile } from "./InlcudeFile";
-import { ShaderCompile } from "./ShaderCompile";
+import { IShaderCompiledObj } from "./ShaderCompile";
 import { ShaderNode } from "./ShaderNode";
-import { URL } from "../../net/URL";
 
-export class ShaderCompileDefineBase extends ShaderCompile {
+export class ShaderCompileDefineBase {
     /** @internal */
     static _defineString: Array<string> = [];
     /** @internal */
     static _debugDefineString: string[] = [];
     /** @internal */
     static _debugDefineMask: number[] = [];
+    /** @internal */
+    public _VS: ShaderNode;
+    /** @internal */
+    public _PS: ShaderNode;
+    /** @internal */
+    _defs: Set<string>;
     /** @internal */
     _validDefine: DefineDatas = new DefineDatas();
     /** @internal */
@@ -27,14 +31,15 @@ export class ShaderCompileDefineBase extends ShaderCompile {
     /** @internal */
     protected _cacheSharders: { [key: number]: { [key: number]: { [key: number]: ShaderInstance } } } = {};
 
-
-    constructor(owner: any, vs: string, ps: string, name: string,) {
-        super(vs, ps, null, owner);
+    constructor(owner: any, name: string, compiledObj: IShaderCompiledObj) {
+        this._owner = owner;
         this.name = name;
-        for (var k in this.defs)
+        this._VS = compiledObj.vsNode;
+        this._PS = compiledObj.psNode;
+        this._defs = compiledObj.defs;
+        for (let k of compiledObj.defs)
             this._validDefine.add(Shader3D.getDefineByName(k));
     }
-
 
     /**
      * @internal
@@ -59,152 +64,9 @@ export class ShaderCompileDefineBase extends ShaderCompile {
         }
     }
 
-    protected _transIncludeName?(includename: string): string {
-        if (includename.charAt(0) == ".") {
-            let baseUrl = this._owner._owner._abUrl;
-            baseUrl = baseUrl.substring(0, baseUrl.lastIndexOf("/") + 1);
-            includename = URL._formatRelativePath(baseUrl + includename);
-        }
-        return includename;
-    }
-
     /**
-     * @private
+     * @internal
      */
-    protected _compileToTree(parent: ShaderNode, lines: any[], start: number, includefiles: any[], defs: any): void {
-        var node: ShaderNode, preNode: ShaderNode;
-        var text: string, name: string, fname: string;
-        var ofs: number, words: any[], noUseNode: ShaderNode;
-        var i: number, n: number, j: number;
-
-        for (i = start; i < lines.length; i++) {
-            text = lines[i];
-            if (text.length < 1) continue;
-            ofs = text.indexOf("//");
-            if (ofs === 0) continue;
-            if (ofs >= 0) text = text.substr(0, ofs);
-            node = noUseNode || new ShaderNode(includefiles);
-            noUseNode = null;
-            node.text = text;
-            node.noCompile = true;
-
-            if ((ofs = text.indexOf("#")) >= 0) {
-                name = "#";
-                for (j = ofs + 1, n = text.length; j < n; j++) {
-                    var c: string = text.charAt(j);
-                    if (c === ' ' || c === '\t' || c === '?') break;
-                    name += c;
-                }
-                node.name = name;
-                switch (name) {
-                    case "#ifdef":
-                    case "#ifndef":
-                        node.src = text;
-                        node.noCompile = text.match(/[!&|()=<>]/) != null;
-                        if (!node.noCompile) {
-                            words = text.replace(/^\s*/, '').split(/\s+/);
-                            node.setCondition(words[1], name === "#ifdef" ? ShaderCompile.IFDEF_YES : ShaderCompile.IFDEF_ELSE);
-                            node.text = node.text;
-                        } else {
-                            console.log("function():Boolean{return " + text.substr(ofs + node.name.length) + "}");
-                        }
-                        node.setParent(parent);
-                        parent = node;
-                        if (defs) {
-                            words = text.substr(j).split(ShaderCompile._splitToWordExps3);
-                            for (j = 0; j < words.length; j++) {
-                                text = words[j];
-                                text.length && (defs[text] = true);
-                            }
-                        }
-                        continue;
-                    case "#if":
-                    case "#elif":
-                        node.src = text;
-                        node.noCompile = true;
-                        if (name == "#elif") {
-                            parent = parent.parent;
-                            preNode = parent.childs[parent.childs.length - 1];
-                            //匹配"#ifdef"
-                            preNode.text = preNode.src;
-                            preNode.noCompile = true;
-                            preNode.condition = null;
-                        }
-                        node.setParent(parent);
-                        parent = node;
-
-                        if (defs) {
-                            words = text.substr(j).split(ShaderCompile._splitToWordExps3);
-                            for (j = 0; j < words.length; j++) {
-                                text = words[j];
-                                text.length && text != "defined" && (defs[text] = true);
-                            }
-                        }
-                        continue;
-                    case "#else":
-                        node.src = text;
-                        parent = parent.parent;
-                        preNode = parent.childs[parent.childs.length - 1];
-                        node.noCompile = preNode.noCompile;
-                        if (!node.noCompile) {
-                            node.condition = preNode.condition;
-                            node.conditionType = preNode.conditionType == ShaderCompile.IFDEF_YES ? ShaderCompile.IFDEF_ELSE : ShaderCompile.IFDEF_YES;
-                            //node.text =  node.text + " " + preNode.text + " " + node.conditionType;
-                        }
-                        //递归节点树
-                        node.setParent(parent);
-                        parent = node;
-                        continue;
-                    case "#endif":
-                        parent = parent.parent;
-                        preNode = parent.childs[parent.childs.length - 1];
-                        node.noCompile = preNode.noCompile;
-                        if (!node.noCompile) {
-                            node.text = node.text;
-                        }
-                        node.setParent(parent);
-                        continue;
-                    case "#include"://这里有问题,主要是空格
-                        words = ShaderCompile.splitToWords(text, null);
-                        let includeName = this._transIncludeName ? this._transIncludeName(words[1]) : words[1];
-                        var inlcudeFile: InlcudeFile = ShaderCompile.includes[includeName];
-                        if (!inlcudeFile) {
-                            throw "ShaderCompile error no this include file:" + includeName;
-                        }
-                        this._includemap.push(includeName);
-                        if ((ofs = words[0].indexOf("?")) < 0) {
-                            node.setParent(parent);
-                            text = inlcudeFile.getWith(words[2] == 'with' ? words[3] : null);
-                            this._compileToTree(node, text.split('\n'), 0, includefiles, defs);
-                            node.text = "";
-                            continue;
-                        }
-                        node.setCondition(words[0].substr(ofs + 1), ShaderCompile.IFDEF_YES);
-                        node.text = inlcudeFile.getWith(words[2] == 'with' ? words[3] : null);
-                        break;
-                    case "#import":
-                        words = ShaderCompile.splitToWords(text, null);
-                        fname = words[1];
-                        includefiles.push({ node: node, file: ShaderCompile.includes[fname], ofs: node.text.length });
-                        continue;
-                }
-            } else {
-                preNode = parent.childs[parent.childs.length - 1];
-                if (preNode && !preNode.name) {
-                    includefiles.length > 0 && ShaderCompile.splitToWords(text, preNode);
-                    noUseNode = node;
-                    preNode.text += "\n" + text;
-                    continue;
-                }
-                includefiles.length > 0 && ShaderCompile.splitToWords(text, node);
-            }
-            node.setParent(parent);
-        }
-    }
-
-    /**
- * @internal
- */
     withCompile(compileDefine: DefineDatas): ShaderInstance {
         var debugDefineString: string[] = ShaderCompileDefineBase._debugDefineString;
         var debugDefineMask: number[] = ShaderCompileDefineBase._debugDefineMask;
