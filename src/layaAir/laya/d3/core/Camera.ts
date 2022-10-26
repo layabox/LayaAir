@@ -137,8 +137,8 @@ export class Camera extends BaseCamera {
         camera._aftRenderMainPass(needShadowCasterPass);
         camera.renderTarget = recoverTexture;
         scene.recaculateCullCamera();
-        if(camera._internalRenderTexture)
-        (!camera._internalRenderTexture._inPool) && RenderTexture.recoverToPool(camera._internalRenderTexture);
+        if (camera._internalRenderTexture)
+            (!camera._internalRenderTexture._inPool) && RenderTexture.recoverToPool(camera._internalRenderTexture);
         return renderTexture;
     }
 
@@ -1336,7 +1336,7 @@ export class Camera extends BaseCamera {
      * @override
      */
     destroy(destroyChild: boolean = true): void {
-        (!this._internalRenderTexture._inPool) && RenderTexture.recoverToPool(this._internalRenderTexture); 
+        this._needInternalRenderTexture() && (!this._internalRenderTexture._inPool) && RenderTexture.recoverToPool(this._internalRenderTexture);
         this._offScreenRenderTexture = null;
         this.transform.off(Event.TRANSFORM_CHANGED, this, this._onTransformChanged);
         this._cameraEventCommandBuffer = {};
