@@ -16,6 +16,7 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
     /** @private */
     private static _currentActive: RenderTexture2D;
     static _clearColor: Color = new Color();
+    static _clearLinearColor:Color = new Color();
     private _lastRT: RenderTexture2D;
     private _lastWidth: number;
     private _lastHeight: number;
@@ -229,8 +230,9 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
         RenderTexture2D._clearColor.g = g;
         RenderTexture2D._clearColor.b = b;
         RenderTexture2D._clearColor.a = a;
+        RenderTexture2D._clearColor.toLinear(RenderTexture2D._clearLinearColor);
         //@ts-ignore
-        LayaGL.renderEngine.clearRenderTexture(RenderClearFlag.Color | RenderClearFlag.Depth, RenderTexture2D._clearColor, 1);
+        LayaGL.renderEngine.clearRenderTexture(RenderClearFlag.Color | RenderClearFlag.Depth, RenderTexture2D._clearLinearColor, 1);
     }
 
 
