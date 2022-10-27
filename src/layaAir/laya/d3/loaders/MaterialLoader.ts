@@ -41,24 +41,32 @@ class MaterialLoader implements IResourceLoader {
     }
 
     private load2(task: ILoadTask, data: any, urls: Array<any>): Promise<any> {
-        if (urls.length == 0)
-            return Promise.resolve(MaterialParser.parse(data));
+        if (urls.length == 0) {
+            let mat = MaterialParser.parse(data);
+            let obsoluteInst = <Material>task.obsoluteInst;
+            if (obsoluteInst)
+                mat = this.move(obsoluteInst, mat);
+            return Promise.resolve(mat);
+        }
 
         return task.loader.load(urls, task.options, task.progress.createCallback()).then(() => {
             let mat = MaterialParser.parse(data);
 
-            let oldMat: Material;
-            if (oldMat = <Material>task.obsoluteInst) {
-                oldMat.setShaderName(mat._shader.name);
-                oldMat._shaderValues.reset();
-                mat._shaderValues.cloneTo(oldMat._shaderValues);
-                oldMat.renderQueue = mat.renderQueue;
-                mat.destroy();
-                mat = oldMat;
-                mat.obsolute = false;
-            }
+            let obsoluteInst = <Material>task.obsoluteInst;
+            if (task.obsoluteInst)
+                mat = this.move(obsoluteInst, mat);
             return mat;
         });
+    }
+
+    private move(obsoluteInst: Material, mat: Material) {
+        obsoluteInst.setShaderName(mat._shader.name);
+        obsoluteInst._shaderValues.reset();
+        mat._shaderValues.cloneTo(obsoluteInst._shaderValues);
+        obsoluteInst.renderQueue = mat.renderQueue;
+        obsoluteInst.obsolute = false;
+        mat.destroy();
+        return obsoluteInst;
     }
 }
 
