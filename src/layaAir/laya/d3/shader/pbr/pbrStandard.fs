@@ -1,6 +1,7 @@
 #define SHADER_NAME PBRStandardFS
 
 #include "Color.glsl";
+#include "Math.glsl";
 
 #include "Scene.glsl";
 #include "Camera.glsl";
@@ -71,7 +72,7 @@ void initSurfaceInputs(inout SurfaceInputs inputs, const in PixelParams pixel)
 #endif // OCCLUSIONTEXTURE
 
 #ifdef EMISSION
-    inputs.emissionColor = u_EmissionColor.rgb*u_EmissionIntensity;
+    inputs.emissionColor = u_EmissionColor.rgb * u_EmissionIntensity;
     #ifdef EMISSIONTEXTURE
     vec4 emissionSampler = texture2D(u_EmissionTexture, uv);
 	#ifdef Gamma_u_EmissionTexture

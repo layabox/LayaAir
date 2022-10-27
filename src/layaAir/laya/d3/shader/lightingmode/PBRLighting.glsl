@@ -1,8 +1,6 @@
 #if !defined(PBRLighting_lib)
     #define PBRLighting_lib
 
-    #include "Math.glsl";
-
     #include "Lighting.glsl";
 
     // 精度
