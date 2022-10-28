@@ -46,7 +46,7 @@ export class ShurikenParticleRenderer extends BaseRender {
     stretchedBillboardLengthScale: number = 2;
 
     get particleSystem(): ShurikenParticleSystem {
-        return this._particleSystem
+        return this._particleSystem;
     }
 
     ///**排序模式。*/
