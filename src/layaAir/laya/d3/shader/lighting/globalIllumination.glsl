@@ -1,22 +1,23 @@
 #if !defined(globalIllumination_lib)
     #define globalIllumination_lib
 
-vec3 rotateByYAixs(in vec3 normal){
+vec3 rotateByYAixs(in vec3 normal)
+{
     float co = cos(u_GIRotate);
     float si = sin(u_GIRotate);
     float x = normal.x * co - normal.z * si;
     float z = normal.x * si + normal.z * co;
-    return vec3(x,normal.y,z);
+    return vec3(x, normal.y, z);
 }
 
-vec4 rotateByYAixs(in vec4 normal){
+vec4 rotateByYAixs(in vec4 normal)
+{
     float co = cos(u_GIRotate);
     float si = sin(u_GIRotate);
     float x = normal.x * co - normal.z * si;
     float z = normal.x * si + normal.z * co;
-    return vec4(x,normal.y,z,normal.w);
+    return vec4(x, normal.y, z, normal.w);
 }
-
 
     #ifdef GI_IBL
 
@@ -24,7 +25,6 @@ uniform vec3 u_IblSH[9];
 
 	#define IBL_ROUGHNESS_LEVEL 4.0
 uniform samplerCube u_IBLTex;
-
 
 // todo 格式
 vec3 diffuseIrradiance(in vec3 normal)
@@ -110,8 +110,8 @@ vec3 diffuseIrradiance(in vec3 normalWS)
 {
     // todo -x 坐标转换
     vec4 normal = vec4(-normalWS.x, normalWS.yz, 1.0);
-    
-    //TODO rotate y SceneConfig
+
+    // TODO rotate y SceneConfig
 
     normal = rotateByYAixs(normal);
 

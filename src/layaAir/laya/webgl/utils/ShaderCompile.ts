@@ -126,7 +126,7 @@ export class ShaderCompile {
                     if (inc.node.condition)
                         inc.node.text = text;
                     else {
-                        ShaderCompile._compileToTree(inc.node, text, result.defs, toLoad, URL.getPath(inc.name));
+                        ShaderCompile._compileToTree(inc.node, text, result.defs, includes, URL.getPath(inc.name));
                         inc.node.text = "";
                     }
                 }
@@ -256,17 +256,9 @@ export class ShaderCompile {
                     words = ShaderCompile.splitToWords(text, null);
                     let includeName: string = words[1];
                     let includeFile: IncludeFile;
-                    if (includeName.startsWith(".")) {
+                    if (includeName.startsWith("."))
                         includeName = URL.join(basePath, includeName);
-                        includeFile = ShaderCompile.includes[includeName];
-                    }
-                    else {
-                        includeFile = ShaderCompile.includes[includeName];
-                        if (!includeFile) {
-                            includeName = URL.join(basePath, includeName);
-                            includeFile = ShaderCompile.includes[includeName];
-                        }
-                    }
+                    includeFile = ShaderCompile.includes[includeName];
 
                     if (!includeFile && ShaderCompile.loadIncludeFileSync) {
                         ShaderCompile.loadIncludeFileSync(includeName);
