@@ -25,6 +25,7 @@ import { Event } from "../events/Event";
 import { Dragging } from "../utils/Dragging";
 import { URL } from "../net/URL";
 import { Scene } from "./Scene";
+import { RenderState2D } from "../webgl/utils/RenderState2D";
 
 
 /**在显示对象上按下后调度。
@@ -1204,8 +1205,11 @@ export class Sprite extends Node {
      * @param offsetX 
      * @param offsetY 
      */
-    drawToTexture(canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number, rt: RenderTexture2D | null = null): Texture | RenderTexture2D {
-        return Sprite.drawToTexture(this, this._renderType, canvasWidth, canvasHeight, offsetX, offsetY, rt);
+    drawToTexture(canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number, rt: RenderTexture2D | null = null,invertY:boolean = false): Texture | RenderTexture2D {
+        RenderState2D.InvertY = invertY;
+        let res =Sprite.drawToTexture(this, this._renderType, canvasWidth, canvasHeight, offsetX, offsetY, rt);
+        RenderState2D.InvertY = false;
+        return res;
     }
 
     /**

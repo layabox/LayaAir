@@ -129,6 +129,14 @@ export class Value2D {
             this.defines.remove(ShaderDefines2D.GAMMASPACE);
         }
 
+        if(RenderState2D.InvertY){
+            this.defines.addInt(ShaderDefines2D.INVERTY);
+        }else{
+            this.defines.remove(ShaderDefines2D.INVERTY);
+        }
+
+
+
         var sd: Shader2X = Shader.sharders[this.mainID | this.defines._value] || this._ShaderWithCompile();
 
         if (sd._shaderValueWidth !== renderstate2d.width || sd._shaderValueHeight !== renderstate2d.height) {

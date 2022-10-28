@@ -20,6 +20,8 @@ export class RenderState2D {
 
     static width: number = 0;
     static height: number = 0;
+
+    static InvertY:boolean = false;
     /* 不知道 有什么用，删掉先
     public static function getMatrArray():Array {
         return [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];

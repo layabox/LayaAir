@@ -246,7 +246,6 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
      */
     getData(x: number, y: number, width: number, height: number): ArrayBufferView {
         return LayaGL.textureContext.getRenderTextureData(this._renderTarget, x, y, width, height);
-
     }
     recycle(): void {
 

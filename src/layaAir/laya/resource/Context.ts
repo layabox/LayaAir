@@ -1850,25 +1850,6 @@ export class Context {
         //TEMP end
     }
 
-    /**
-     * 从setIBVB改为drawMesh
-     * type 参数不知道是干什么的，先删掉。offset好像跟attribute有关，删掉
-     * @param	x
-     * @param	y
-     * @param	ib
-     * @param	vb
-     * @param	numElement
-     * @param	mat
-     * @param	shader
-     * @param	shaderValues
-     * @param	startIndex
-     * @param	offset
-     */
-    //TODO:coverage
-    drawMesh(x: number, y: number, ib: IndexBuffer2D, vb: VertexBuffer2D, numElement: number, mat: Matrix, shader: Shader, shaderValues: Value2D, startIndex: number = 0): void {
-        ;
-    }
-
     addRenderObject(o: ISubmit): void {
         this._submits[this._submits._length++] = o;
     }

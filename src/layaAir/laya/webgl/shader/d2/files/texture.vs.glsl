@@ -58,4 +58,8 @@ void main() {
 		cliped=vec2( dot(clippos,clipMatDir.xy)/clipw/clipw, dot(clippos,clipMatDir.zw)/cliph/cliph);
 	}
 
+	#ifdef INVERTY
+		gl_Position.y = -gl_Position.y;
+	#endif
+
 }

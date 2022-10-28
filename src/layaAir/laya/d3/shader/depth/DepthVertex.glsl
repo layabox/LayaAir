@@ -2,6 +2,7 @@
     #define DepthVertex_lib
 
     #include "Scene.glsl";
+    #include "Camera.glsl";
     #include "Sprite3DVertex.glsl";
 
     #include "VertexCommon.glsl";
@@ -13,24 +14,21 @@
 uniform ShadowUniformBlock
 {
     vec4 u_ShadowBias; // x: depth bias, y: normal bias
-    mat4 u_ViewProjection;
     vec3 u_ShadowLightDirection;
 };
 	    #else // ENUNIFORMBLOCK
 uniform vec4 u_ShadowBias; // x: depth bias, y: normal bias
-uniform mat4 u_ViewProjection;
 		#ifdef SHADOW
 uniform vec3 u_ShadowLightDirection;
 		#endif // SHADOW
 	    #endif // ENUNIFORMBLOCK
 
 // 根据投影剧专重映射深度
-vec4 remapPositionZ(vec4 position)
-{
-    position.z = position.z * 2.0 - position.w;
-    return position;
-    return position;
-}
+//vec4 remapPositionZ(vec4 position)
+//{
+//    position.z = position.z * 2.0 - position.w;
+//    return position;
+//}
 
 vec3 applyShadowBias(vec3 positionWS, vec3 normalWS, vec3 lightDirection)
 {
@@ -73,15 +71,6 @@ vec4 DepthPositionCS(in vec3 positionWS, in vec3 normalWS)
 
     return positionCS;
 }
-    #ifndef DEPTHPASS
-vec3 getViewDirection(in vec3 positionWS)
-{
-    vec3 viewDirection = vec3(0.0);
-    #ifdef SHADOW
-    viewDirection = u_ShadowLightDirection;
-    #endif // SHADOW
-    return viewDirection;
-}
-    #endif
+
 
 #endif // DepthVertex_lib

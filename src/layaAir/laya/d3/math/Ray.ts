@@ -17,5 +17,16 @@ export class Ray {
 		this.origin = origin;
 		this.direction = direction;
 	}
+
+	/**
+	 * 射线上的某点
+	 * @param t 
+	 * @param out 
+	 */
+	at(t: number, out: Vector3) {
+		Vector3.scale(this.direction, t, out);
+		Vector3.add(this.origin, out, out);
+	}
+
 }
 
