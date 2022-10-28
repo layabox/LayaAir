@@ -1,7 +1,6 @@
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
 import { DirectionLight } from "laya/d3/core/light/DirectionLight";
-import { PBRSpecularMaterial } from "laya/d3/core/material/PBRSpecularMaterial";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Color } from "laya/d3/math/Color";
@@ -15,6 +14,7 @@ import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import { Script3D } from "laya/d3/component/Script3D";
+import { PBRStandardMaterial } from "laya/d3/core/material/PBRStandardMaterial";
 
 export class ScriptDemo {
     private _translate: Vector3 = new Vector3(0, 3, 3);
@@ -52,7 +52,7 @@ export class ScriptDemo {
         //设置模型的旋转
         box.transform.rotate(this._rotation2, false, false);
         //创建材质
-        var material: PBRSpecularMaterial = new PBRSpecularMaterial();
+        var material: PBRStandardMaterial = new PBRStandardMaterial();
         //加载模型的材质贴图
         Texture2D.load("res/threeDimen/layabox.png", Handler.create(this, function (text: Texture2D): void {
             material.albedoTexture = text;
@@ -96,7 +96,7 @@ class BoxControlScript extends Script3D {
 
     onStart(): void {
         //得到3D对象的材质
-        var material: PBRSpecularMaterial = (<PBRSpecularMaterial>this.box.meshRenderer.material);
+        var material: PBRStandardMaterial = (<PBRStandardMaterial>this.box.meshRenderer.material);
         //更改3D对象的材质反射率 （偏红）
         material.albedoColor = this._albedoColor;
     }

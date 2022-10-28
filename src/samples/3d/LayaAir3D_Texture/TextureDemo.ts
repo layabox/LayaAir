@@ -2,7 +2,7 @@ import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
 import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
-import { Material } from "laya/d3/core/material/Material";
+import { Material, MaterialRenderMode } from "laya/d3/core/material/Material";
 import { UnlitMaterial } from "laya/d3/core/material/UnlitMaterial";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Command } from "laya/d3/core/render/command/Command";
@@ -15,6 +15,7 @@ import { Vector3 } from "laya/d3/math/Vector3";
 import { Vector4 } from "laya/d3/math/Vector4";
 import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
 import { RenderTexture } from "laya/d3/resource/RenderTexture";
+import { Sprite } from "laya/display/Sprite";
 import { Stage } from "laya/display/Stage";
 import { Loader } from "laya/net/Loader";
 import { FilterMode } from "laya/RenderEngine/RenderEnum/FilterMode";
@@ -22,6 +23,8 @@ import { RenderTargetFormat } from "laya/RenderEngine/RenderEnum/RenderTargetFor
 import { WrapMode } from "laya/RenderEngine/RenderEnum/WrapMode";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 import { BaseTexture } from "laya/resource/BaseTexture";
+import { RenderTexture2D } from "laya/resource/RenderTexture2D";
+import { Texture } from "laya/resource/Texture";
 import { Texture2D } from "laya/resource/Texture2D";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
@@ -42,14 +45,12 @@ export class TextureDemo {
 		Stat.show();
 		Shader3D.debugMode = true;
 		this.loadResource();
-		
-		
-
 	}
 
 	loadResource(){
 		var resource: any[] = ["res/picture.shader",
-		"res/Stop.png"];
+		"res/apes/monkey3.png",
+		"res/apes/monkey2.png"];
 		Laya.loader.load(resource, Handler.create(this, this.createScene));
 	}
 
@@ -77,11 +78,21 @@ export class TextureDemo {
 		box.transform.localScale = new Vector3(3,3,3);
 		//var mat1: BlinnPhongMaterial = new BlinnPhongMaterial();
 		var mat1 =new UnlitMaterial();
-		let tex = Loader.getTexture2D("res/Stop.png");
-
-		 mat1.albedoTexture =tex;
+		var ape: Sprite = new Sprite();
+        ape.loadImage("res/apes/monkey3.png");
+		var t: Texture = Laya.loader.getRes("res/apes/monkey2.png");
+		var ape2: Sprite = new Sprite();
+		ape2.graphics.drawTexture(t, 0, 0);
+		ape2.pos(200, 0);
+		ape.addChild(ape2);
+		let rt = new RenderTexture2D(500,500,RenderTargetFormat.R8G8B8A8,RenderTargetFormat.None);
+		rt.clear(0,0,0,0);
+		ape.drawToTexture(ape.width,ape.height,0,0,rt,true);
+		Laya.stage.addChild(ape);
+		mat1.albedoTexture = rt;
 		//mat1.addDefine(Shader3D.getDefineByName("RGBM"));
 		box.meshRenderer.sharedMaterial = mat1;
+		mat1.materialRenderMode = MaterialRenderMode.RENDERMODE_TRANSPARENT;
 		// //漫反射贴图
 		// Texture2D.load("res/threeDimen/texture/layabox.png", Handler.create(this, function (texture: Texture2D): void {
 		// 	//在U方向上使用WRAPMODE_CLAMP

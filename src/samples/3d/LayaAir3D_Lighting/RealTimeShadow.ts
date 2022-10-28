@@ -36,8 +36,8 @@ class RotationScript extends Script {
 	rotation: boolean = true;
 
 	onUpdate(): void {
-		if (this.rotation)
-			(<DirectionLight>this.owner).transform.rotate(this.autoRotateSpeed, false);
+		// if (this.rotation)
+		// 	(<DirectionLight>this.owner).transform.rotate(this.autoRotateSpeed, false);
 	}
 }
 
