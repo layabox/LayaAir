@@ -45,6 +45,10 @@ export class ShurikenParticleRenderer extends BaseRender {
     /**拉伸广告牌模式长度缩放。*/
     stretchedBillboardLengthScale: number = 2;
 
+    get particleSystem(): ShurikenParticleSystem {
+        return this._particleSystem;
+    }
+
     ///**排序模式。*/
     //public var sortingMode:int;
 
