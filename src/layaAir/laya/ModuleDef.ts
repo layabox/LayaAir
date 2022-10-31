@@ -27,6 +27,7 @@ import { Animation2DNext } from "./components/Animation2DNext";
 import { Animation2DParm } from "./components/Animation2DParm";
 import { Animation2DCondition } from "./components/Animation2DCondition";
 import { Prefab } from "./resource/HierarchyResource";
+import { Widget } from "./components/Widget";
 
 import "./loaders/TextResourceLoader";
 import "./loaders/AtlasLoader";
@@ -40,6 +41,7 @@ let c = ClassUtils.regClass;
 c("Record", Object);
 c("Node", Node);
 c("Sprite", Sprite);
+c("Widget", Widget);
 c("Text", Text);
 c("Input", Input);
 c("AnimationBase", AnimationBase);

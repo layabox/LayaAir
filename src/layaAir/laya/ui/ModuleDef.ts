@@ -38,7 +38,6 @@ import { View } from "./View";
 import { ViewStack } from "./ViewStack";
 import { VScrollBar } from "./VScrollBar";
 import { VSlider } from "./VSlider";
-import { Widget } from "./Widget";
 import { WXOpenDataViewer } from "./WXOpenDataViewer";
 
 let c = ClassUtils.regClass;
@@ -79,7 +78,6 @@ c("View", View);
 c("ViewStack", ViewStack);
 c("VScrollBar", VScrollBar);
 c("VSlider", VSlider);
-c("Widget", Widget);
 c("UIComponent", UIComponent);
 c("UIEvent", UIEvent);
 

@@ -73,6 +73,7 @@ import { IRenderQueue } from "../../../RenderEngine/RenderInterface/RenderPipeli
 import { LayaEnv } from "../../../../LayaEnv";
 import { SceneRenderManager } from "./SceneRenderManager";
 import { VolumeManager } from "../../component/Volume/VolumeManager";
+import { Scene } from "../../../display/Scene";
 
 /**
  * 环境光模式
@@ -382,7 +383,18 @@ export class Scene3D extends Sprite implements ISubmit {
      */
     static load(url: string, complete: Handler): void {
         ILaya.loader.load(url).then((res: Prefab) => {
-            complete && complete.runWith([res?.createNodes()]);
+            if (complete) {
+                let ret: Scene3D;
+                if (res) {
+                    let scene = res.create();
+                    if (scene instanceof Scene)
+                        ret = scene._scene3D;
+                    else
+                        ret = <Scene3D>scene;
+                }
+                else
+                    complete.runWith([ret]);
+            }
         });
     }
 
@@ -1636,7 +1648,7 @@ export class Scene3D extends Sprite implements ISubmit {
                 Scene3D._blitOffset.setValue(camera.viewport.x / canvasWidth, camera.viewport.y / canvasHeight, camera.viewport.width / canvasWidth, camera.viewport.height / canvasHeight);
                 this.blitMainCanvans(Scene3D._blitTransRT, camera.normalizedViewport, camera);
             }
-            camera._needInternalRenderTexture()&&(!camera._internalRenderTexture._inPool) && RenderTexture.recoverToPool(camera._internalRenderTexture);
+            camera._needInternalRenderTexture() && (!camera._internalRenderTexture._inPool) && RenderTexture.recoverToPool(camera._internalRenderTexture);
         }
         Context.set2DRenderConfig();//还原2D配置
         return 1;

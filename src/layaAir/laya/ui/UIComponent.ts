@@ -1,4 +1,4 @@
-import { Widget } from "./Widget";
+import { Widget } from "../components/Widget";
 import { UIEvent } from "./UIEvent";
 import { UIUtils } from "./UIUtils";
 import { Node } from "../display/Node"
@@ -508,6 +508,7 @@ export class UIComponent extends Sprite {
         this.callLater(this._sizeChanged);
         super._childChanged(child);
     }
+
     /**
      * 重新排版
      */
@@ -516,5 +517,4 @@ export class UIComponent extends Sprite {
             this._widget.resetLayout();
         }
     }
-
 }

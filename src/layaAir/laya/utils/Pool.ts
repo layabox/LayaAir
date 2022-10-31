@@ -59,7 +59,7 @@ export class Pool {
         if (!className) {
             cla["_$gid"] = className = Pool._CLSID + "";
             Pool._CLSID++;
-            ClassUtils.regClass(cla.name,cla);
+            //ClassUtils.regClass(cla.name,cla);
         }
         return className;
     }
