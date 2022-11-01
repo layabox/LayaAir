@@ -73,6 +73,7 @@ import { IRenderQueue } from "../../../RenderEngine/RenderInterface/RenderPipeli
 import { LayaEnv } from "../../../../LayaEnv";
 import { SceneRenderManager } from "./SceneRenderManager";
 import { VolumeManager } from "../../component/Volume/VolumeManager";
+import { UI3DManager } from "../UI3D/UI3DManager";
 
 /**
  * 环境光模式
@@ -477,6 +478,8 @@ export class Scene3D extends Sprite implements ISubmit {
     _reflectionCubeHDRParams: Vector4 = new Vector4();
     /** @internal */
     _volumeManager: VolumeManager = new VolumeManager();
+    /**@internal */
+    _UI3DManager:UI3DManager = new UI3DManager();
     /**@internal */
     _sceneRenderManager: SceneRenderManager;
     /**@internal */
@@ -987,6 +990,8 @@ export class Scene3D extends Sprite implements ISubmit {
             this._volumeManager.reCaculateAllRenderObjects(this._sceneRenderManager.list);
         else
             this._volumeManager.handleMotionlist();
+
+        this._UI3DManager.update();
     }
 
     /**

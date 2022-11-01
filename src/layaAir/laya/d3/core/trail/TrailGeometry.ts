@@ -115,7 +115,7 @@ export class TrailGeometry extends GeometryElement {
 		var memorySize: number = vertexbuffer1Size + vertexbuffer2Size;
 		this._vertices1 = new Float32Array(vertexCount * this._floatCountPerVertices1);
 		this._vertices2 = new Float32Array(vertexCount * this._floatCountPerVertices2);
-		this._vertexBuffer1 = LayaGL.renderOBJCreate.createVertexBuffer3D(vertexbuffer1Size, BufferUsage.Static, false);
+		this._vertexBuffer1 = LayaGL.renderOBJCreate.createVertexBuffer3D(vertexbuffer1Size, BufferUsage.Dynamic, false);
 		this._vertexBuffer1.vertexDeclaration = vertexDeclaration1;
 		this._vertexBuffer2 = LayaGL.renderOBJCreate.createVertexBuffer3D(vertexbuffer2Size, BufferUsage.Dynamic, false);
 		this._vertexBuffer2.vertexDeclaration = vertexDeclaration2;
