@@ -685,7 +685,7 @@ export class Loader extends EventDispatcher {
     }
 
     static createNodes<T extends Node>(url: string): T {
-        return <T>(<Prefab>Loader.getRes(url))?.createNodes();
+        return <T>(<Prefab>Loader.getRes(url))?.create();
     }
 
     /**

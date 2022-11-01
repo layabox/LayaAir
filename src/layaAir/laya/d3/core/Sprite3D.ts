@@ -76,7 +76,7 @@ export class Sprite3D extends Node {
      */
     static load(url: string, complete: Handler): void {
         ILaya.loader.load(url).then((res: Prefab) => {
-            complete && complete.runWith([res?.createNodes()]);
+            complete && complete.runWith([res?.create()]);
         });
     }
 

@@ -18,17 +18,7 @@ export class PrefabImpl extends Prefab {
         this.data = data;
     }
 
-    createScene(options?: Record<string, any>, errors?: Array<any>): Array<Node> {
-        let ret = this.api.parse(this.data, options, errors);
-        if (Array.isArray(ret))
-            return ret;
-        else if (ret != null)
-            return [ret];
-        else
-            return null;
-    }
-
-    createNodes(options?: Record<string, any>, errors?: any[]): Node {
+    create(options?: Record<string, any>, errors?: any[]): Node {
         let ret = this.api.parse(this.data, options, errors);
         if (Array.isArray(ret)) {
             if (ret.length == 1) {

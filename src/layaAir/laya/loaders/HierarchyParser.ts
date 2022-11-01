@@ -1,17 +1,23 @@
 import { Component } from "../components/Component";
 import { Node } from "../display/Node";
+import { Scene } from "../display/Scene";
 import { Loader, ILoadURL } from "../net/Loader";
 import { URL } from "../net/URL";
 import { Prefab } from "../resource/HierarchyResource";
 import { ClassUtils } from "../utils/ClassUtils";
 import { SerializeUtil } from "./SerializeUtil";
 
+const errorList: Array<any> = [];
+
 export class HierarchyParser {
     public static parse(data: any, options?: Record<string, any>, errors?: Array<any>): Array<Node> {
+        errors = errors || errorList;
         let nodeMap: Record<string, Node> = {};
         let dataList: Array<any> = [];
         let allNodes: Array<Node> = [];
         let outNodes: Array<Node> = [];
+        let scene: Scene;
+
         let inPrefab = options && options.inPrefab;
         let prefabNodeDict: Map<Node, Record<string, Node>>;
         if (inPrefab)
@@ -34,7 +40,7 @@ export class HierarchyParser {
             }
         }
 
-        function createNode(nodeData: any, prefab: Node): Node {
+        function createNode(nodeData: any, prefab: Node, runtime?: any): Node {
             let node: Node;
             let pstr: string;
             if (pstr = nodeData._$override) { //prefab里的override节点
@@ -61,29 +67,28 @@ export class HierarchyParser {
                     if (res) {
                         if (!prefabNodeDict)
                             prefabNodeDict = new Map();
-                        node = res.createNodes({ inPrefab: true, prefabNodeDict: prefabNodeDict }, errors);
+                        node = res.create({ inPrefab: true, prefabNodeDict: prefabNodeDict }, errors);
                     }
                 }
                 else if (pstr = nodeData._$type) {
-                    let cls: any = ClassUtils.getClass(pstr);
+                    let cls: any = runtime ?? ClassUtils.getClass(pstr);
                     if (cls) {
                         try {
                             node = new cls();
                         }
                         catch (err: any) {
-                            if (errors)
-                                errors.push(err);
+                            errors.push(err);
                         }
                     }
                     else {
-                        if (errors)
-                            errors.push(new Error(`missing '${pstr}'`));
+                        errors.push(new Error(`unknown type '${pstr}'`));
                     }
                 }
 
                 if (node)
                     nodeMap[nodeData._$id] = node;
             }
+
             return node;
         }
 
@@ -129,12 +134,25 @@ export class HierarchyParser {
         if (data._$child)
             createChildren(data, null);
 
-        //兼容单节点入口模式
+        let runtime: any;
         if (data._$type) {
-            let node = createNode(data, null);
+            if (runtime = data._$runtime) {
+                if (runtime.startsWith("res://"))
+                    runtime = runtime.substring(6);
+                let cls = ClassUtils.getClass(runtime);
+                if (cls)
+                    runtime = cls;
+                else
+                    errors.push(new Error(`unknown runtime '${runtime}'`));
+            }
+
+            let node = createNode(data, null, runtime);
             if (node) {
                 dataList.push(data);
                 allNodes.push(node);
+
+                if (node instanceof Scene)
+                    scene = node;
             }
         }
 
@@ -174,7 +192,9 @@ export class HierarchyParser {
                     else {
                         for (let j = 0; j < num; j++) {
                             let n = outNodes[k - num + j];
-                            if (n)
+                            if (node === scene && n._is3D)
+                                scene._scene3D = <any>n;
+                            else
                                 node.addChild(n);
                         }
                     }
@@ -187,6 +207,7 @@ export class HierarchyParser {
         }
         outNodes.length = k;
         outNodes = outNodes.filter(n => n != null);
+        let topNode = outNodes[0];
 
         //加载所有组件
         let compInitList: Array<any> = [];
@@ -215,8 +236,7 @@ export class HierarchyParser {
                                 comp = node.addComponent(cls);
                             }
                             catch (err: any) {
-                                if (errors)
-                                    errors.push(err);
+                                errors.push(err);
                             }
                         }
                     }
@@ -233,6 +253,15 @@ export class HierarchyParser {
             let node = allNodes[i];
             if (node) {
                 SerializeUtil.decodeObj(nodeData, node, null, findNode, errors);
+
+                if (runtime && nodeData._$var && node.name) {
+                    try {
+                        (<any>topNode)[node.name] = node;
+                    }
+                    catch (err: any) {
+                        errors.push(err);
+                    }
+                }
             }
         }
 
@@ -242,8 +271,11 @@ export class HierarchyParser {
             SerializeUtil.decodeObj(compInitList[i], compInitList[i + 1], null, findNode, errors);
         }
 
-        if (inPrefab && prefabNodeDict && outNodes.length > 0) //记录下nodeMap，上层创建prefab时使用
-            prefabNodeDict.set(outNodes[0], nodeMap);
+        if (inPrefab && prefabNodeDict && topNode) //记录下nodeMap，上层创建prefab时使用
+            prefabNodeDict.set(topNode, nodeMap);
+
+        if (errors == errorList)
+            errorList.length = 0;
 
         return outNodes;
     }

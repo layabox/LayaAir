@@ -181,8 +181,6 @@ export class List extends Box implements IRender, IItem {
     totalPage: number = 0;
     /**禁用滚动条停止 */
     disableStopScroll: boolean = false;
-    /**@internal */
-    _$componentType: string = "List";
 
     /**@private */
     protected _content!: Box;
