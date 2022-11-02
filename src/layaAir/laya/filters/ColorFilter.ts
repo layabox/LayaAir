@@ -45,10 +45,10 @@ export class ColorFilter extends Filter implements IFilter {
 
     /**
      * 设置为变色滤镜
-     * @param red 红色增量,范围:0~1
-     * @param green 绿色增量,范围:0~1
-     * @param blue 蓝色增量,范围:0~1
-     * @param alpha alpha,范围:0~1
+     * @param red 红色系数,范围:0~1
+     * @param green 绿色系数,范围:0~1
+     * @param blue 蓝色系数,范围:0~1
+     * @param alpha alpha系数,范围:0~1
      */
     color(red: number = 0, green: number = 0, blue: number = 0, alpha: number = 1): ColorFilter {
         return this.setByMatrix([red, 0, 0, 0, 1, 0, green, 0, 0, 1, 0, 0, blue, 0, 1, 0, 0, 0, alpha, 0]);
@@ -239,18 +239,9 @@ export class ColorFilter extends Filter implements IFilter {
     }
 
     onAfterDeserialize() {
-        switch ((<any>this)._mode || 0) {
-            case 0:
-                this.adjustColor((<any>this)._brightness || 0, (<any>this)._contrast || 0, (<any>this)._saturation || 0, (<any>this)._hue || 0);
-                break;
-            case 1:
-                let arr: any[] = ColorUtils.create((<any>this)._color || "#FFFFFF").arrColor;
-                this.color(arr[0], arr[1], arr[2], arr[3]);
-                break;
-            case 2:
-                this.gray();
-                break;
-        }
+        let arr: any[] = ColorUtils.create((<any>this)._color || "#FFFFFF").arrColor;
+        this.color(arr[0], arr[1], arr[2], arr[3]);
+        this.adjustColor((<any>this)._brightness || 0, (<any>this)._contrast || 0, (<any>this)._saturation || 0, (<any>this)._hue || 0);
     }
 }
 

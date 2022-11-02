@@ -251,7 +251,7 @@ export class Graphics {
      */
     fillTexture(texture: Texture, x: number, y: number, width: number = 0, height: number = 0, type: string = "repeat", offset: Point | null = null): FillTextureCmd | null {
         if (texture && texture.bitmap)
-            return this._saveToCmd(FillTextureCmd.create.call(this, texture, x, y, width, height, type, offset || Point.EMPTY, {}));
+            return this._saveToCmd(FillTextureCmd.create.call(this, texture, x, y, width, height, type, offset || Point.EMPTY));
         else
             return null;
     }
