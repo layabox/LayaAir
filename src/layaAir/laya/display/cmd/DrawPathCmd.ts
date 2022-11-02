@@ -1,4 +1,5 @@
 import { Context } from "../../resource/Context"
+import { ClassUtils } from "../../utils/ClassUtils";
 import { Pool } from "../../utils/Pool"
 
 /**
@@ -61,3 +62,4 @@ export class DrawPathCmd {
 
 }
 
+ClassUtils.regClass("DrawPathCmd", DrawPathCmd);

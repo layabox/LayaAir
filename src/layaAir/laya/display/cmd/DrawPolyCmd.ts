@@ -1,4 +1,5 @@
 import { Context } from "../../resource/Context"
+import { ClassUtils } from "../../utils/ClassUtils";
 import { Pool } from "../../utils/Pool"
 
 /**
@@ -18,7 +19,7 @@ export class DrawPolyCmd {
     /**
      * 多边形的点集合。
      */
-    points: number[]|null;
+    points: number[] | null;
     /**
      * 填充颜色，或者填充绘图的渐变对象。
      */
@@ -33,20 +34,26 @@ export class DrawPolyCmd {
     lineWidth: number;
     /**@private */
     isConvexPolygon: boolean;
-    /**@private */
-    vid: number;
 
     /**@private */
-    static create(x: number, y: number, points: any[], fillColor: any, lineColor: any, lineWidth: number, isConvexPolygon: boolean, vid: number): DrawPolyCmd {
+    static create(x: number, y: number, points: any[], fillColor: any, lineColor: any, lineWidth: number): DrawPolyCmd {
         var cmd: DrawPolyCmd = Pool.getItemByClass("DrawPolyCmd", DrawPolyCmd);
-        cmd.x = x;
-        cmd.y = y;
+        var tIsConvexPolygon = false;
+        //这里加入多加形是否是凸边形
+        if (points.length > 6) {
+            tIsConvexPolygon = false;
+        } else {
+            tIsConvexPolygon = true;
+        }
+        var offset = (lineWidth >= 1 && lineColor) ? (lineWidth % 2 === 0 ? 0 : 0.5) : 0;
+        //TODO 非凸多边形需要缓存
+        cmd.x = x + offset;
+        cmd.y = y + offset;
         cmd.points = points;
         cmd.fillColor = fillColor;
         cmd.lineColor = lineColor;
         cmd.lineWidth = lineWidth;
-        cmd.isConvexPolygon = isConvexPolygon;
-        cmd.vid = vid;
+        cmd.isConvexPolygon = tIsConvexPolygon;
         return cmd;
     }
 
@@ -62,13 +69,13 @@ export class DrawPolyCmd {
 
     /**@private */
     run(context: Context, gx: number, gy: number): void {
-        this.points && context._drawPoly(this.x + gx, this.y + gy, this.points, this.fillColor, this.lineColor, this.lineWidth, this.isConvexPolygon, this.vid);
+        this.points && context._drawPoly(this.x + gx, this.y + gy, this.points, this.fillColor, this.lineColor, this.lineWidth, this.isConvexPolygon, 0);
     }
 
     /**@private */
     get cmdID(): string {
         return DrawPolyCmd.ID;
     }
-
 }
 
+ClassUtils.regClass("DrawPolyCmd", DrawPolyCmd);

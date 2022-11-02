@@ -33,6 +33,7 @@ export class NodeFlags {
     static ESCAPE_DRAWING_TO_TEXTURE = 0x1000;
     static DISABLE_INNER_CLIPPING = 0x2000;
     static DISABLE_OUTER_CLIPPING = 0x4000;
+    static DISABLE_VISIBILITY = 0x8000;
 }
 
 export class HideFlags {

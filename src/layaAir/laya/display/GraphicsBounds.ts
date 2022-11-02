@@ -20,7 +20,6 @@ import { GrahamScan } from "../maths/GrahamScan"
 import { Matrix } from "../maths/Matrix"
 import { Point } from "../maths/Point"
 import { Rectangle } from "../maths/Rectangle"
-import { Context } from "../resource/Context"
 import { Texture } from "../resource/Texture"
 import { Pool } from "../utils/Pool"
 import { Utils } from "../utils/Utils"
@@ -43,8 +42,6 @@ export class GraphicsBounds {
     private static _tempPoints: any[] = [];
     /**@private */
     private static _tempMatrixArrays: any[] = [];
-    /**@private */
-    private static _tempCmds: any[] = [];
     /**@private */
     private _temp: any[];
     /**@private */
@@ -112,14 +109,8 @@ export class GraphicsBounds {
         var cmds: any[] = this._graphics.cmds;
         var rst: any[];
         rst = this._temp || (this._temp = []);
-
         rst.length = 0;
-        if (!cmds && this._graphics._one != null) {
-            GraphicsBounds._tempCmds.length = 0;
-            GraphicsBounds._tempCmds.push(this._graphics._one);
-            cmds = GraphicsBounds._tempCmds;
-        }
-        if (!cmds) return rst;
+        if (cmds.length == 0) return rst;
 
         var matrixs: any[] = GraphicsBounds._tempMatrixArrays;
         matrixs.length = 0;

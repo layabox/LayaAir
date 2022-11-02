@@ -29,7 +29,9 @@ export class SpriteConst {
     /** @private */
     static ONECHILD: number = 0x1000;
     /** @private */
-    static CHILDS: number = 0x2000;
+    static HITAREA: number = 0x2000;
+    /** @private */
+    static CHILDS: number = 0x4000;
 
     /** @private */
     static REPAINT_NONE: number = 0;

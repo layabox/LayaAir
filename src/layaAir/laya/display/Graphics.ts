@@ -43,11 +43,9 @@ export class Graphics {
     /**@internal */
     _sp: Sprite | null = null;
     /**@internal */
-    _one: any = null;
-    /**@internal */
     _render: (sprite: Sprite, context: Context, x: number, y: number) => void = this._renderEmpty;
     /**@private */
-    private _cmds: any[] | null = null;
+    private _cmds: any[] = [];
     /**@private */
     protected _vectorgraphArray: any[] | null = null;
     /**@private */
@@ -97,34 +95,21 @@ export class Graphics {
     clear(recoverCmds: boolean = true): void {
         //TODO:内存回收all
         if (recoverCmds) {
-            var tCmd = this._one;
-            if (this._cmds) {
-                var i: number, len = this._cmds.length;
-                for (i = 0; i < len; i++) {
-                    tCmd = this._cmds[i];
-                    tCmd.recover();
-                }
-                //修复替换文本内容和颜色失效的bug
-                // this._cmds.length = 0;
-                this._cmds = null;
-            } else if (tCmd) {
-                tCmd.recover();
+            for (let i = 0, len = this._cmds.length; i < len; i++) {
+                this._cmds[i].recover();
             }
-        } else {
-            this._cmds = null;
         }
 
-        this._one = null;
+        this._cmds.length = 0;
         this._render = this._renderEmpty;
         this._clearData();
-        //_sp && (_sp._renderType &= ~SpriteConst.IMAGE);
         if (this._sp) {
             this._sp._renderType &= ~SpriteConst.GRAPHICS;
             this._sp._setRenderType(this._sp._renderType);
         }
         this._repaint();
         if (this._vectorgraphArray) {
-            for (i = 0, len = this._vectorgraphArray.length; i < len; i++) {
+            for (let i = 0, len = this._vectorgraphArray.length; i < len; i++) {
                 VectorGraphManager.getInstance().deleteShape(this._vectorgraphArray[i]);
             }
             this._vectorgraphArray.length = 0;
@@ -156,7 +141,7 @@ export class Graphics {
     /**@internal */
     //TODO:coverage
     _isOnlyOne(): boolean {
-        return !this._cmds || this._cmds.length === 0;
+        return this._cmds.length === 1;
     }
 
     /**
@@ -164,8 +149,7 @@ export class Graphics {
      * 命令流。存储了所有绘制命令。
      */
     get cmds(): any[] {
-        //TODO:单命令不对
-        return this._cmds as any[];
+        return this._cmds;
     }
 
     set cmds(value: any[]) {
@@ -174,7 +158,7 @@ export class Graphics {
             this._sp._setRenderType(this._sp._renderType);
         }
         this._cmds = value;
-        this._render = this._renderAll;
+        this._render = this._cmds.length === 1 ? this._renderOne : this._renderAll;
         this._repaint();
     }
 
@@ -207,37 +191,7 @@ export class Graphics {
      * @param height	（可选）高度。
      */
     drawImage(texture: Texture, x: number = 0, y: number = 0, width: number = 0, height: number = 0): DrawImageCmd | null {
-        if (!texture) return null;
-        if (!width) width = texture.sourceWidth;
-        if (!height) height = texture.sourceHeight;
-        if (texture.bitmap) {
-            var wRate = width / texture.sourceWidth;
-            var hRate = height / texture.sourceHeight;
-            width = texture.width * wRate;
-            height = texture.height * hRate;
-            if (width <= 0 || height <= 0) return null;
-
-            x += texture.offsetX * wRate;
-            y += texture.offsetY * hRate;
-        }
-
-        if (this._sp) {
-            this._sp._renderType |= SpriteConst.GRAPHICS;
-            this._sp._setRenderType(this._sp._renderType);
-        }
-
-        var args = DrawImageCmd.create.call(this, texture, x, y, width, height);
-
-        if (this._one == null) {
-            this._one = args;
-            this._render = this._renderOneImg;
-            //if(_sp)_sp._renderType |= SpriteConst.IMAGE;
-        } else {
-            this._saveToCmd(args);
-        }
-
-        this._repaint();
-        return args;
+        return this._saveToCmd(DrawImageCmd.create.call(this, texture, x, y, width, height));
     }
 
     /**
@@ -253,30 +207,7 @@ export class Graphics {
      * @param blendMode （可选）混合模式。
      */
     drawTexture(texture: Texture | null, x: number = 0, y: number = 0, width: number = 0, height: number = 0, matrix: Matrix | null = null, alpha: number = 1, color: string | null = null, blendMode: string | null = null, uv?: number[]): DrawTextureCmd | null {
-        if (!texture || alpha < 0.01) return null;
-        if (!texture.bitmap) return null;
-        if (!width) width = texture.sourceWidth;
-        if (!height) height = texture.sourceHeight;
-
-        var wRate = width / texture.sourceWidth;
-        var hRate = height / texture.sourceHeight;
-        width = texture.width * wRate;
-        height = texture.height * hRate;
-        if (width <= 0 || height <= 0) return null;
-
-        x += texture.offsetX * wRate;
-        y += texture.offsetY * hRate;
-
-        if (this._sp) {
-            this._sp._renderType |= SpriteConst.GRAPHICS;
-            this._sp._setRenderType(this._sp._renderType);
-        }
-
-        // canvas 模式不支持
-        var args: DrawTextureCmd = DrawTextureCmd.create.call(this, texture, x, y, width, height, matrix, alpha, color, blendMode, uv);
-        this._repaint();
-
-        return this._saveToCmd(args);
+        return this._saveToCmd(DrawTextureCmd.create.call(this, texture, x, y, width, height, matrix, alpha, color, blendMode, uv));
     }
 
     /**
@@ -334,15 +265,11 @@ export class Graphics {
             this._sp._renderType |= SpriteConst.GRAPHICS;
             this._sp._setRenderType(this._sp._renderType);
         }
-        if (this._one == null) {
-            this._one = cmd;
+        this._cmds.push(cmd);
+        if (this._cmds.length == 1)
             this._render = this._renderOne;
-        } else {
-            //_sp && (_sp._renderType &= ~SpriteConst.IMAGE);
+        else
             this._render = this._renderAll;
-            (this._cmds || (this._cmds = [])).length === 0 && this._cmds.push(this._one);
-            this._cmds.push(cmd);
-        }
         this._repaint();
         return cmd;
     }
@@ -465,7 +392,7 @@ export class Graphics {
     save(): SaveCmd {
         return this._saveToCmd(SaveCmd.create.call(this));
     }
- 
+
     /**
      * 返回之前保存过的路径状态和属性。
      */
@@ -483,17 +410,10 @@ export class Graphics {
         this._repaint();
         //todo 该函数现在加速器应该不对
         var cmds = this._cmds;
-        if (!cmds) {
-            if (this._one && this._isTextCmd(this._one)) {
-                this._one.text = text;
+        for (let i = cmds.length - 1; i > -1; i--) {
+            if (this._isTextCmd(cmds[i])) {
+                cmds[i].text = text;
                 return true;
-            }
-        } else {
-            for (var i = cmds.length - 1; i > -1; i--) {
-                if (this._isTextCmd(cmds[i])) {
-                    cmds[i].text = text;
-                    return true;
-                }
             }
         }
         return false;
@@ -512,16 +432,10 @@ export class Graphics {
      */
     replaceTextColor(color: string): void {
         this._repaint();
-        var cmds = this._cmds;
-        if (!cmds) {
-            if (this._one && this._isTextCmd(this._one)) {
-                this._setTextCmdColor(this._one, color);
-            }
-        } else {
-            for (var i = cmds.length - 1; i > -1; i--) {
-                if (this._isTextCmd(cmds[i])) {
-                    this._setTextCmdColor(cmds[i], color);
-                }
+        let cmds = this._cmds;
+        for (let i = cmds.length - 1; i > -1; i--) {
+            if (this._isTextCmd(cmds[i])) {
+                this._setTextCmdColor(cmds[i], color);
             }
         }
     }
@@ -569,8 +483,9 @@ export class Graphics {
      * @internal
      */
     _renderAll(sprite: Sprite, context: Context, x: number, y: number): void {
+        context.sprite = sprite;
         var cmds = this._cmds!;
-        for (var i = 0, n = cmds.length; i < n; i++) {
+        for (let i = 0, n = cmds.length; i < n; i++) {
             cmds[i].run(context, x, y);
         }
     }
@@ -580,15 +495,7 @@ export class Graphics {
      */
     _renderOne(sprite: Sprite, context: Context, x: number, y: number): void {
         context.sprite = sprite;
-        this._one.run(context, x, y);
-    }
-
-    /**
-     * @internal
-     */
-    _renderOneImg(sprite: Sprite, context: Context, x: number, y: number): void {
-        context.sprite = sprite;
-        this._one.run(context, x, y);
+        this._cmds[0].run(context, x, y);
     }
 
     /**
@@ -601,8 +508,7 @@ export class Graphics {
      * @param lineWidth	（可选）线条宽度。
      */
     drawLine(fromX: number, fromY: number, toX: number, toY: number, lineColor: string, lineWidth: number = 1): DrawLineCmd {
-        var offset = (lineWidth < 1 || lineWidth % 2 === 0) ? 0 : 0.5;
-        return this._saveToCmd(DrawLineCmd.create.call(this, fromX + offset, fromY + offset, toX + offset, toY + offset, lineColor, lineWidth, 0));
+        return this._saveToCmd(DrawLineCmd.create.call(this, fromX, fromY, toX, toY, lineColor, lineWidth));
     }
 
     /**
@@ -615,9 +521,7 @@ export class Graphics {
      */
     drawLines(x: number, y: number, points: any[], lineColor: any, lineWidth: number = 1): DrawLinesCmd | null {
         if (!points || points.length < 4) return null;
-        var offset = (lineWidth < 1 || lineWidth % 2 === 0) ? 0 : 0.5;
-        //TODO 线段需要缓存
-        return this._saveToCmd(DrawLinesCmd.create.call(this, x + offset, y + offset, points, lineColor, lineWidth, 0));
+        return this._saveToCmd(DrawLinesCmd.create.call(this, x, y, points, lineColor, lineWidth));
     }
 
     /**
@@ -643,9 +547,7 @@ export class Graphics {
      * @param lineWidth	（可选）边框宽度。
      */
     drawRect(x: number, y: number, width: number, height: number, fillColor: any, lineColor: any = null, lineWidth: number = 1): DrawRectCmd {
-        var offset = (lineWidth >= 1 && lineColor) ? lineWidth / 2 : 0;
-        var lineOffset = lineColor ? lineWidth : 0;
-        return this._saveToCmd(DrawRectCmd.create.call(this, x + offset, y + offset, width - lineOffset, height - lineOffset, fillColor, lineColor, lineWidth));
+        return this._saveToCmd(DrawRectCmd.create.call(this, x, y, width, height, fillColor, lineColor, lineWidth));
     }
 
     /**
@@ -658,8 +560,7 @@ export class Graphics {
      * @param lineWidth	（可选）边框宽度。
      */
     drawCircle(x: number, y: number, radius: number, fillColor: any, lineColor: any = null, lineWidth: number = 1): DrawCircleCmd {
-        var offset = (lineWidth >= 1 && lineColor) ? lineWidth / 2 : 0;
-        return this._saveToCmd(DrawCircleCmd.create.call(this, x, y, radius - offset, fillColor, lineColor, lineWidth, 0));
+        return this._saveToCmd(DrawCircleCmd.create.call(this, x, y, radius, fillColor, lineColor, lineWidth));
     }
 
     /**
@@ -674,10 +575,7 @@ export class Graphics {
      * @param lineWidth		（可选）边框宽度。
      */
     drawPie(x: number, y: number, radius: number, startAngle: number, endAngle: number, fillColor: any, lineColor: any = null, lineWidth: number = 1): DrawPieCmd {
-        var offset = (lineWidth >= 1 && lineColor) ? lineWidth / 2 : 0;
-        var lineOffset = lineColor ? lineWidth : 0;
-
-        return this._saveToCmd(DrawPieCmd.create.call(this, x + offset, y + offset, radius - lineOffset, Utils.toRadian(startAngle), Utils.toRadian(endAngle), fillColor, lineColor, lineWidth, 0));
+        return this._saveToCmd(DrawPieCmd.create.call(this, x, y, radius, Utils.toRadian(startAngle), Utils.toRadian(endAngle), fillColor, lineColor, lineWidth));
     }
 
     /**
@@ -690,16 +588,7 @@ export class Graphics {
      * @param lineWidth	（可选）边框宽度。
      */
     drawPoly(x: number, y: number, points: any[], fillColor: any, lineColor: any = null, lineWidth: number = 1): DrawPolyCmd {
-        var tIsConvexPolygon = false;
-        //这里加入多加形是否是凸边形
-        if (points.length > 6) {
-            tIsConvexPolygon = false;
-        } else {
-            tIsConvexPolygon = true;
-        }
-        var offset = (lineWidth >= 1 && lineColor) ? (lineWidth % 2 === 0 ? 0 : 0.5) : 0;
-        //TODO 非凸多边形需要缓存
-        return this._saveToCmd(DrawPolyCmd.create.call(this, x + offset, y + offset, points, fillColor, lineColor, lineWidth, tIsConvexPolygon, 0));
+        return this._saveToCmd(DrawPolyCmd.create.call(this, x, y, points, fillColor, lineColor, lineWidth));
     }
 
     /**

@@ -1,4 +1,3 @@
-import { Node } from "./Node";
 import { Sprite } from "./Sprite";
 import { Widget } from "../components/Widget";
 import { Event } from "../events/Event"
@@ -17,7 +16,7 @@ import { Scene3D } from "../d3/core/scene/Scene3D";
  */
 export class Scene extends Sprite {
     /**创建后，还未被销毁的场景列表，方便查看还未被销毁的场景列表，方便内存管理，本属性只读，请不要直接修改*/
-    static unDestroyedScenes: any[] = [];
+    static readonly unDestroyedScenes: Set<Scene> = new Set();
     /**获取根节点*/
     private static _root: Sprite;
     /**@private */
@@ -27,6 +26,7 @@ export class Scene extends Sprite {
     autoDestroyAtClosed: boolean = false;
     /**@internal */
     _idMap?: any;
+    _scene3D: Scene3D;
 
     /**@private 相对布局组件*/
     protected _widget: Widget;
@@ -39,7 +39,6 @@ export class Scene extends Sprite {
     private _timer: Timer;
     /**@private */
     private _viewCreated: boolean = false;
-    _scene3D: Scene3D;
 
     constructor(createChildren = true) {
         super();
@@ -47,7 +46,6 @@ export class Scene extends Sprite {
         this._timer = ILaya.timer;
         this._widget = Widget.EMPTY;
 
-        Scene.unDestroyedScenes.push(this);
         this._scene = this;
         if (createChildren)
             this.createChildren();
@@ -81,12 +79,14 @@ export class Scene extends Sprite {
      * @param path 场景地址。
      */
     loadScene(path: string): void {
+        Scene.unDestroyedScenes.add(this);
         let url: string = path.indexOf(".") > -1 ? path : path + ".scene";
         let content: Prefab = ILaya.loader.getRes(url);
         if (content) {
             if (!this._viewCreated) {
                 content.create({ root: this });
                 this._viewCreated = true;
+                Scene.unDestroyedScenes.add(this);
             }
         } else {
             this._setBit(NodeFlags.NOT_READY, true);
@@ -97,8 +97,10 @@ export class Scene extends Sprite {
                 if (!this._viewCreated) {
                     this.url = url;
                     Scene.hideLoadingPage();
+
                     content.create({ root: this });
                     this._viewCreated = true;
+                    Scene.unDestroyedScenes.add(this);
                 }
                 else
                     this._setBit(NodeFlags.NOT_READY, false);
@@ -183,13 +185,7 @@ export class Scene extends Sprite {
         }
 
         this._idMap = null;
-        var list: any[] = Scene.unDestroyedScenes;
-        for (var i: number = list.length - 1; i > -1; i--) {
-            if (list[i] === this) {
-                list.splice(i, 1);
-                return;
-            }
-        }
+        Scene.unDestroyedScenes.delete(this);
     }
 
     /**
@@ -514,14 +510,13 @@ export class Scene extends Sprite {
      * @param	name	如果name不为空，name必须相同才能关闭
      * @return	返回是否关闭成功，如果url找不到，则不成功
      */
-    static close(url: string, name: string = ""): boolean {
-        var flag: boolean = false;
-        var list: any[] = Scene.unDestroyedScenes;
-        for (var i: number = 0, n: number = list.length; i < n; i++) {
-            var scene: Scene = list[i];
-            if (scene && scene.parent && scene.url === url && scene.name == name) {
+    static close(url: string, name?: string): boolean {
+        let flag: boolean = false;
+        for (let scene of Scene.unDestroyedScenes) {
+            if (scene && scene.parent && scene.url === url && (name == null || scene.name == name)) {
                 scene.close();
                 flag = true;
+                break;
             }
         }
         return flag;
@@ -532,11 +527,13 @@ export class Scene extends Sprite {
      * 【注意】被关闭的场景，如果没有设置autoDestroyAtRemoved=true，则资源可能不能被回收，需要自己手动回收
      */
     static closeAll(): void {
-        var root: Sprite = Scene.root;
-        for (var i: number = 0, n: number = root.numChildren; i < n; i++) {
-            var scene: Node = root.getChildAt(0);
-            if (scene instanceof Scene) scene.close();
-            else scene.removeSelf();
+        let root: Sprite = Scene.root;
+        for (let i = 0, n = root.numChildren; i < n; i++) {
+            var scene = root.getChildAt(0);
+            if (scene instanceof Scene)
+                scene.close();
+            else
+                scene.removeSelf();
         }
     }
 
@@ -546,14 +543,13 @@ export class Scene extends Sprite {
      * @param	name	如果name不为空，name必须相同才能关闭
      * @return	返回是否销毁成功，如果url找不到，则不成功
      */
-    static destroy(url: string, name: string = ""): boolean {
-        var flag: boolean = false;
-        var list: any[] = [].concat(Scene.unDestroyedScenes);
-        for (var i: number = 0, n: number = list.length; i < n; i++) {
-            var scene: Scene = list[i];
-            if (scene.url === url && scene.name == name && !scene._destroyed) {
+    static destroy(url: string, name?: string): boolean {
+        let flag: boolean = false;
+        for (let scene of Scene.unDestroyedScenes) {
+            if (scene.url === url && (name == null || scene.name == name) && !scene._destroyed) {
                 scene.destroy();
                 flag = true;
+                break;
             }
         }
         return flag;

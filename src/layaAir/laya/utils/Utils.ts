@@ -44,6 +44,38 @@ export class Utils {
         return "#" + str;
     }
 
+    static fromStringColor(value: string): number {
+        if (value.indexOf("rgba(") >= 0 || value.indexOf("rgb(") >= 0) {
+            let tStr: string = value;
+            let beginI = tStr.indexOf("(");
+            let endI = tStr.indexOf(")");
+            tStr = tStr.substring(beginI + 1, endI);
+            let arr: any[] = tStr.split(",");
+            let len = arr.length;
+            for (let i = 0; i < len; i++) {
+                arr[i] = parseFloat(arr[i]);
+                if (i < 3) {
+                    arr[i] = Math.round(arr[i]);
+                }
+            }
+            if (arr.length == 4)
+                return arr[0] * 256 + arr[1] * 256 + arr[2] * 256 + Math.round(arr[3] * 255);
+            else
+                return arr[0] * 256 + arr[1] * 256 + arr[2];
+        } else {
+            value.charAt(0) === '#' && (value = value.substring(1));
+            let len = value.length;
+            if (len === 3 || len === 4) {
+                let temp: string = "";
+                for (let i = 0; i < len; i++) {
+                    temp += (value[i] + value[i]);
+                }
+                value = temp;
+            }
+            return parseInt(value, 16);
+        }
+    }
+
     /**获取一个全局唯一ID。*/
     static getGID(): number {
         return _gid++;

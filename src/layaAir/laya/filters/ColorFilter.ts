@@ -2,26 +2,27 @@ import { Filter } from "./Filter";
 import { IFilter } from "./IFilter";
 import { ColorUtils } from "../utils/ColorUtils"
 
+/**对比度列表*/
+const DELTA_INDEX: any[] = [0, 0.01, 0.02, 0.04, 0.05, 0.06, 0.07, 0.08, 0.1, 0.11, 0.12, 0.14, 0.15, 0.16, 0.17, 0.18, 0.20, 0.21, 0.22, 0.24, 0.25, 0.27, 0.28, 0.30, 0.32, 0.34, 0.36, 0.38, 0.40, 0.42, 0.44, 0.46, 0.48, 0.5, 0.53, 0.56, 0.59, 0.62, 0.65, 0.68, 0.71, 0.74, 0.77, 0.80, 0.83, 0.86, 0.89, 0.92, 0.95, 0.98, 1.0, 1.06, 1.12, 1.18, 1.24, 1.30, 1.36, 1.42, 1.48, 1.54, 1.60, 1.66, 1.72, 1.78, 1.84, 1.90, 1.96, 2.0, 2.12, 2.25, 2.37, 2.50, 2.62, 2.75, 2.87, 3.0, 3.2, 3.4, 3.6, 3.8, 4.0, 4.3, 4.7, 4.9, 5.0, 5.5, 6.0, 6.5, 6.8, 7.0, 7.3, 7.5, 7.8, 8.0, 8.4, 8.7, 9.0, 9.4, 9.6, 9.8, 10.0];
+/**灰色矩阵*/
+const GRAY_MATRIX: any[] = [0.3086, 0.6094, 0.082, 0, 0, 0.3086, 0.6094, 0.082, 0, 0, 0.3086, 0.6094, 0.082, 0, 0, 0, 0, 0, 1, 0];
+/**单位矩阵,表示什么效果都没有*/
+const IDENTITY_MATRIX: any[] = [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1];
+/**标准矩阵长度*/
+const LENGTH: number = 25;
+
 /**
  * <p><code>ColorFilter</code> 是颜色滤镜。使用 ColorFilter 类可以将 4 x 5 矩阵转换应用于输入图像上的每个像素的 RGBA 颜色和 Alpha 值，以生成具有一组新的 RGBA 颜色和 Alpha 值的结果。该类允许饱和度更改、色相旋转、亮度转 Alpha 以及各种其他效果。您可以将滤镜应用于任何显示对象（即，从 Sprite 类继承的对象）。</p>
  * <p>注意：对于 RGBA 值，最高有效字节代表红色通道值，其后的有效字节分别代表绿色、蓝色和 Alpha 通道值。</p>
  */
 export class ColorFilter extends Filter implements IFilter {
-    /**对比度列表*/
-    private static DELTA_INDEX: any[] = [0, 0.01, 0.02, 0.04, 0.05, 0.06, 0.07, 0.08, 0.1, 0.11, 0.12, 0.14, 0.15, 0.16, 0.17, 0.18, 0.20, 0.21, 0.22, 0.24, 0.25, 0.27, 0.28, 0.30, 0.32, 0.34, 0.36, 0.38, 0.40, 0.42, 0.44, 0.46, 0.48, 0.5, 0.53, 0.56, 0.59, 0.62, 0.65, 0.68, 0.71, 0.74, 0.77, 0.80, 0.83, 0.86, 0.89, 0.92, 0.95, 0.98, 1.0, 1.06, 1.12, 1.18, 1.24, 1.30, 1.36, 1.42, 1.48, 1.54, 1.60, 1.66, 1.72, 1.78, 1.84, 1.90, 1.96, 2.0, 2.12, 2.25, 2.37, 2.50, 2.62, 2.75, 2.87, 3.0, 3.2, 3.4, 3.6, 3.8, 4.0, 4.3, 4.7, 4.9, 5.0, 5.5, 6.0, 6.5, 6.8, 7.0, 7.3, 7.5, 7.8, 8.0, 8.4, 8.7, 9.0, 9.4, 9.6, 9.8, 10.0];
-    /**灰色矩阵*/
-    private static GRAY_MATRIX: any[] = [0.3086, 0.6094, 0.082, 0, 0, 0.3086, 0.6094, 0.082, 0, 0, 0.3086, 0.6094, 0.082, 0, 0, 0, 0, 0, 1, 0];
-    /**单位矩阵,表示什么效果都没有*/
-    private static IDENTITY_MATRIX: any[] = [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1];
-    /**标准矩阵长度*/
-    private static LENGTH: number = 25;
 
     /** @internal */
     _mat: Float32Array;
     /** @internal */
     _alpha: Float32Array;
     /**当前使用的矩阵*/
-    private _matrix: any[];
+    _matrix: any[];
 
     /**
      * 创建一个 <code>ColorFilter</code> 实例。
@@ -29,7 +30,7 @@ export class ColorFilter extends Filter implements IFilter {
      */
     constructor(mat: any[] = null) {
         super();
-        if (!mat) mat = this._copyMatrix(ColorFilter.IDENTITY_MATRIX);
+        if (!mat) mat = this._copyMatrix(IDENTITY_MATRIX);
         this._mat = new Float32Array(16);
         this._alpha = new Float32Array(4);
         this.setByMatrix(mat);
@@ -39,18 +40,18 @@ export class ColorFilter extends Filter implements IFilter {
      * 设置为灰色滤镜
      */
     gray(): ColorFilter {
-        return this.setByMatrix(ColorFilter.GRAY_MATRIX);
+        return this.setByMatrix(GRAY_MATRIX);
     }
 
     /**
      * 设置为变色滤镜
-     * @param red 红色增量,范围:0~255
-     * @param green 绿色增量,范围:0~255
-     * @param blue 蓝色增量,范围:0~255
+     * @param red 红色增量,范围:0~1
+     * @param green 绿色增量,范围:0~1
+     * @param blue 蓝色增量,范围:0~1
      * @param alpha alpha,范围:0~1
      */
     color(red: number = 0, green: number = 0, blue: number = 0, alpha: number = 1): ColorFilter {
-        return this.setByMatrix([1, 0, 0, 0, red, 0, 1, 0, 0, green, 0, 0, 1, 0, blue, 0, 0, 0, 1, alpha]);
+        return this.setByMatrix([red, 0, 0, 0, 1, 0, green, 0, 0, 1, 0, 0, blue, 0, 1, 0, 0, 0, alpha, 0]);
     }
 
     /**
@@ -131,9 +132,9 @@ export class ColorFilter extends Filter implements IFilter {
         } else {
             x = contrast % 1;
             if (x == 0) {
-                x = ColorFilter.DELTA_INDEX[contrast];
+                x = DELTA_INDEX[contrast];
             } else {
-                x = ColorFilter.DELTA_INDEX[(contrast << 0)] * (1 - x) + ColorFilter.DELTA_INDEX[(contrast << 0) + 1] * x;
+                x = DELTA_INDEX[(contrast << 0)] * (1 - x) + DELTA_INDEX[(contrast << 0) + 1] * x;
             }
             x = x * 127 + 127;
         }
@@ -179,7 +180,7 @@ export class ColorFilter extends Filter implements IFilter {
      * 重置成单位矩阵，去除滤镜效果
      */
     reset(): ColorFilter {
-        return this.setByMatrix(this._copyMatrix(ColorFilter.IDENTITY_MATRIX));
+        return this.setByMatrix(this._copyMatrix(IDENTITY_MATRIX));
     }
 
     /**
@@ -219,9 +220,9 @@ export class ColorFilter extends Filter implements IFilter {
      * @param matrix 需要调整的矩阵
      */
     private _fixMatrix(matrix: any[] = null): any[] {
-        if (matrix == null) return ColorFilter.IDENTITY_MATRIX;
-        if (matrix.length < ColorFilter.LENGTH) matrix = matrix.slice(0, matrix.length).concat(ColorFilter.IDENTITY_MATRIX.slice(matrix.length, ColorFilter.LENGTH));
-        else if (matrix.length > ColorFilter.LENGTH) matrix = matrix.slice(0, ColorFilter.LENGTH);
+        if (matrix == null) return IDENTITY_MATRIX;
+        if (matrix.length < LENGTH) matrix = matrix.slice(0, matrix.length).concat(IDENTITY_MATRIX.slice(matrix.length, LENGTH));
+        else if (matrix.length > LENGTH) matrix = matrix.slice(0, LENGTH);
         return matrix;
     }
 
@@ -229,12 +230,27 @@ export class ColorFilter extends Filter implements IFilter {
      * 复制矩阵
      */
     private _copyMatrix(matrix: any[]): any[] {
-        var len: number = ColorFilter.LENGTH;
+        var len: number = LENGTH;
         if (!this._matrix) this._matrix = [];
         for (var i: number = 0; i < len; i++) {
             this._matrix[i] = matrix[i];
         }
         return this._matrix;
+    }
+
+    onAfterDeserialize() {
+        switch ((<any>this)._mode || 0) {
+            case 0:
+                this.adjustColor((<any>this)._brightness || 0, (<any>this)._contrast || 0, (<any>this)._saturation || 0, (<any>this)._hue || 0);
+                break;
+            case 1:
+                let arr: any[] = ColorUtils.create((<any>this)._color || "#FFFFFF").arrColor;
+                this.color(arr[0], arr[1], arr[2], arr[3]);
+                break;
+            case 2:
+                this.gray();
+                break;
+        }
     }
 }
 

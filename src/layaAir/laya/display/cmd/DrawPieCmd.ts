@@ -33,21 +33,20 @@ export class DrawPieCmd {
      * （可选）边框宽度。
      */
     lineWidth: number;
-    /**@private */
-    vid: number;
 
     /**@private */
-    static create(x: number, y: number, radius: number, startAngle: number, endAngle: number, fillColor: any, lineColor: any, lineWidth: number, vid: number): DrawPieCmd {
+    static create(x: number, y: number, radius: number, startAngle: number, endAngle: number, fillColor: any, lineColor: any, lineWidth: number): DrawPieCmd {
         var cmd: DrawPieCmd = Pool.getItemByClass("DrawPieCmd", DrawPieCmd);
-        cmd.x = x;
-        cmd.y = y;
-        cmd.radius = radius;
+        var offset = (lineWidth >= 1 && lineColor) ? lineWidth / 2 : 0;
+        var lineOffset = lineColor ? lineWidth : 0;
+        cmd.x = x + offset;
+        cmd.y = y + offset;
+        cmd.radius = radius - lineOffset;
         cmd._startAngle = startAngle;
         cmd._endAngle = endAngle;
         cmd.fillColor = fillColor;
         cmd.lineColor = lineColor;
         cmd.lineWidth = lineWidth;
-        cmd.vid = vid;
         return cmd;
     }
 
@@ -62,7 +61,7 @@ export class DrawPieCmd {
 
     /**@private */
     run(context: Context, gx: number, gy: number): void {
-        context._drawPie(this.x + gx, this.y + gy, this.radius, this._startAngle, this._endAngle, this.fillColor, this.lineColor, this.lineWidth, this.vid);
+        context._drawPie(this.x + gx, this.y + gy, this.radius, this._startAngle, this._endAngle, this.fillColor, this.lineColor, this.lineWidth, 0);
     }
 
     /**@private */

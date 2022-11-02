@@ -11,7 +11,7 @@ export class DrawImageCmd {
     /**
      * 纹理。
      */
-    texture: Texture|null;
+    texture: Texture | null;
     /**
      * （可选）X轴偏移量。
      */
@@ -31,6 +31,20 @@ export class DrawImageCmd {
 
     /**@private */
     static create(texture: Texture, x: number, y: number, width: number, height: number): DrawImageCmd {
+        if (!texture) return null;
+        if (!width) width = texture.sourceWidth;
+        if (!height) height = texture.sourceHeight;
+        if (texture.bitmap) {
+            var wRate = width / texture.sourceWidth;
+            var hRate = height / texture.sourceHeight;
+            width = texture.width * wRate;
+            height = texture.height * hRate;
+            if (width <= 0 || height <= 0) return null;
+
+            x += texture.offsetX * wRate;
+            y += texture.offsetY * hRate;
+        }
+
         var cmd: DrawImageCmd = Pool.getItemByClass("DrawImageCmd", DrawImageCmd);
         cmd.texture = texture;
         texture._addReference();
@@ -52,8 +66,8 @@ export class DrawImageCmd {
 
     /**@private */
     run(context: Context, gx: number, gy: number): void {
-		if(this.texture)
-        	context.drawTexture(this.texture, this.x + gx, this.y + gy, this.width, this.height);
+        if (this.texture)
+            context.drawTexture(this.texture, this.x + gx, this.y + gy, this.width, this.height);
     }
 
     /**@private */

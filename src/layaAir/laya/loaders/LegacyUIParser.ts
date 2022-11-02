@@ -14,7 +14,8 @@ import { Handler } from "laya/utils/Handler";
 import { NodeFlags } from "../Const";
 import { PrefabImpl } from "../resource/PrefabImpl";
 import { Scene } from "../display/Scene";
-import { List } from "../ui/List";
+
+var _listClass: any;
 
 /**
  * @private 场景辅助类
@@ -142,7 +143,7 @@ export class LegacyUIParser {
 
         var child: any[] = uiView.child;
         if (child) {
-            var isList: boolean = comp instanceof List;
+            var isList: boolean = comp instanceof (_listClass || (_listClass = ClassUtils.getClass("List")));
             for (var i: number = 0, n: number = child.length; i < n; i++) {
                 var node: any = child[i];
                 if ('itemRender' in comp && (node.props.name == "render" || node.props.renderType === "render")) {

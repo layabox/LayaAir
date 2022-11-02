@@ -1,23 +1,20 @@
+import { LayaEnv } from "../../LayaEnv";
 import { Graphics } from "../display/Graphics"
+import { Sprite } from "../display/Sprite";
 import { Point } from "../maths/Point"
 import { Rectangle } from "../maths/Rectangle"
+import { ClassUtils } from "./ClassUtils";
+
+const _rect: Rectangle = new Rectangle();
+const _ptPoint: Point = new Point();
 
 /**
  * 鼠标点击区域，可以设置绘制一系列矢量图作为点击区域和非点击区域（目前只支持圆形，矩形，多边形）
  *
  */
 export class HitArea {
-
-    /**@private */
-    private static _cmds: any[] = [];
-    /**@private */
-    private static _rect: Rectangle = new Rectangle();
-    /**@private */
-    private static _ptPoint: Point = new Point();
-    /**@private */
-    private _hit: Graphics;
-    /**@private */
-    private _unHit: Graphics;
+    _hit: Graphics;
+    _unHit: Graphics;
 
     /**
      * 检测对象是否包含指定的点。
@@ -25,36 +22,30 @@ export class HitArea {
      * @param	y	点的 Y 轴坐标值（垂直位置）。
      * @return	如果包含指定的点，则值为 true；否则为 false。
      */
-    contains(x: number, y: number): boolean {
-        if (!HitArea._isHitGraphic(x, y, this.hit)) return false;
-        return !HitArea._isHitGraphic(x, y, this.unHit);
+    contains(x: number, y: number, sp: Sprite): boolean {
+        if (!HitArea._isHitGraphic(x, y, sp, this._hit))
+            return false;
+        return !HitArea._isHitGraphic(x, y, sp, this._unHit);
     }
 
     /**
      * @internal
      * 是否击中Graphic
      */
-    static _isHitGraphic(x: number, y: number, graphic: Graphics): boolean {
+    static _isHitGraphic(x: number, y: number, sp: Sprite, graphic: Graphics): boolean {
         if (!graphic) return false;
-        var cmds: any[] = graphic.cmds;
-        if (!cmds && graphic._one) {
-            cmds = HitArea._cmds;
-            cmds.length = 1;
-            cmds[0] = graphic._one;
-        }
-        if (!cmds) return false;
-        var i: number, len: number;
-        len = cmds.length;
-        var cmd: any;
-        for (i = 0; i < len; i++) {
-            cmd = cmds[i];
+        let cmds: any[] = graphic.cmds;
+        if (cmds.length == 0) return false;
+        let len = cmds.length;
+        for (let i = 0; i < len; i++) {
+            let cmd = cmds[i];
             if (!cmd) continue;
             switch (cmd.cmdID) {
                 case "Translate":
                     x -= cmd.tx;
                     y -= cmd.ty;
             }
-            if (HitArea._isHitCmd(x, y, cmd)) return true;
+            if (HitArea._isHitCmd(x, y, sp, cmd)) return true;
         }
         return false;
     }
@@ -63,20 +54,31 @@ export class HitArea {
      * @internal
      * 是否击中绘图指令
      */
-    static _isHitCmd(x: number, y: number, cmd: any): boolean {
+    static _isHitCmd(x: number, y: number, sp: Sprite, cmd: any): boolean {
         if (!cmd) return false;
         var rst: boolean = false;
         switch (cmd.cmdID) {
             case "DrawRect":
-                HitArea._rect.setTo(cmd.x, cmd.y, cmd.width, cmd.height);
-                rst = HitArea._rect.contains(x, y);
+                if (cmd.percent)
+                    _rect.setTo(cmd.x * sp.width, cmd.y * sp.height, cmd.width * sp.width, cmd.height * sp.height);
+                else
+                    _rect.setTo(cmd.x, cmd.y, cmd.width, cmd.height);
+                rst = _rect.contains(x, y);
                 break;
             case "DrawCircle":
+                let r = cmd.radius;
                 var d: number;
-                x -= cmd.x;
-                y -= cmd.y;
+                if (cmd.percent) {
+                    x -= cmd.x * sp.width;
+                    y -= cmd.y * sp.height;
+                    r *= sp.width;
+                }
+                else {
+                    x -= cmd.x;
+                    y -= cmd.y;
+                }
                 d = x * x + y * y;
-                rst = d < cmd.radius * cmd.radius;
+                rst = d < r * r;
                 break;
             case "DrawPoly":
                 x -= cmd.x;
@@ -92,7 +94,7 @@ export class HitArea {
      * 坐标是否在多边形内
      */
     static _ptInPolygon(x: number, y: number, areaPoints: any[]): boolean {
-        var p: Point = HitArea._ptPoint;
+        var p: Point = _ptPoint;
         p.setTo(x, y);
         // 交点个数
         var nCross: number = 0;
@@ -141,5 +143,21 @@ export class HitArea {
     set unHit(value: Graphics) {
         this._unHit = value;
     }
+
+    onAfterDeserialize() {
+        if (LayaEnv.isPlaying) {
+            if ((<any>this)._hitCmds) {
+                this.hit.cmds = (<any>this)._hitCmds;
+                delete (<any>this)._hitCmds;
+            }
+
+            if ((<any>this)._unHitCmds) {
+                this.unHit.cmds = (<any>this)._unHitCmds;
+                delete (<any>this)._unHitCmds;
+            }
+        }
+    }
 }
+
+ClassUtils.regClass("HitArea", HitArea);
 
