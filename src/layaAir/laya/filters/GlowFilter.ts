@@ -23,16 +23,16 @@ export class GlowFilter extends Filter {
     /**@internal */
     _blurInof2_native: Float32Array;
 
-	/**
-	 * 创建发光滤镜
-	 * @param	color	滤镜的颜色
-	 * @param	blur	边缘模糊的大小
-	 * @param	offX	X轴方向的偏移
-	 * @param	offY	Y轴方向的偏移
-	 */
+    /**
+     * 创建发光滤镜
+     * @param	color	滤镜的颜色
+     * @param	blur	边缘模糊的大小
+     * @param	offX	X轴方向的偏移
+     * @param	offY	Y轴方向的偏移
+     */
     constructor(color: string, blur: number = 4, offX: number = 6, offY: number = 6) {
         super();
-        this._color = new ColorUtils(color);
+        this._color = new ColorUtils(color || "#000");
         //限制最大效果为20
         this.blur = Math.min(blur, 20);
         this.offX = offX;
@@ -70,6 +70,16 @@ export class GlowFilter extends Filter {
     set offX(value: number) {
         this._elements[5] = value;
         this._sv_blurInfo1[2] = value;
+    }
+
+    /**@private */
+    get color(): string {
+        return this._color.strColor;
+    }
+
+    /**@private */
+    set color(value: string) {
+        this._color = new ColorUtils(value);
     }
 
     /**@private */

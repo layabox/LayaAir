@@ -1,3 +1,4 @@
+import { LayaEnv } from "../../LayaEnv";
 import { Graphics } from "../display/Graphics"
 import { Sprite } from "../display/Sprite";
 import { Point } from "../maths/Point"
@@ -144,14 +145,16 @@ export class HitArea {
     }
 
     onAfterDeserialize() {
-        if ((<any>this)._hitCmds) {
-            this.hit.cmds = (<any>this)._hitCmds;
-            delete (<any>this)._hitCmds;
-        }
+        if (LayaEnv.isPlaying) {
+            if ((<any>this)._hitCmds) {
+                this.hit.cmds = (<any>this)._hitCmds;
+                delete (<any>this)._hitCmds;
+            }
 
-        if ((<any>this)._unHitCmds) {
-            this.unHit.cmds = (<any>this)._unHitCmds;
-            delete (<any>this)._unHitCmds;
+            if ((<any>this)._unHitCmds) {
+                this.unHit.cmds = (<any>this)._unHitCmds;
+                delete (<any>this)._unHitCmds;
+            }
         }
     }
 }

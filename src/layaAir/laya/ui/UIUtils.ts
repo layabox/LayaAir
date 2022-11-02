@@ -1,6 +1,5 @@
 import { Sprite } from "../display/Sprite"
 import { ColorFilter } from "../filters/ColorFilter"
-import { IFilter } from "../filters/IFilter"
 import { Utils } from "../utils/Utils"
 import { WeakObject } from "../utils/WeakObject"
 
@@ -45,45 +44,21 @@ export class UIUtils {
 
     /**
      * 给指定的目标显示对象添加或移除灰度滤镜。
-     * @param	traget 目标显示对象。
+     * @param	target 目标显示对象。
      * @param	isGray 如果值true，则添加灰度滤镜，否则移除灰度滤镜。
      */
     //TODO:coverage
-    static gray(traget: Sprite, isGray: boolean = true): void {
+    static gray(target: Sprite, isGray: boolean = true): void {
+        let filters: any[] = target.filters || [];
+        let i = filters.indexOf(UIUtils.grayFilter);
         if (isGray) {
-            UIUtils.addFilter(traget, UIUtils.grayFilter);
-        } else {
-            UIUtils.clearFilter(traget, ColorFilter);
-        }
-    }
-
-    /**
-     * 给指定的目标显示对象添加滤镜。
-     * @param	target 目标显示对象。
-     * @param	filter 滤镜对象。
-     */
-    //TODO:coverage
-    static addFilter(target: Sprite, filter: IFilter): void {
-        var filters: any[] = target.filters || [];
-        filters.push(filter);
-        target.filters = filters;
-    }
-
-    /**
-     * 移除目标显示对象的指定类型滤镜。
-     * @param	target 目标显示对象。
-     * @param	filterType 滤镜类型。
-     */
-    //TODO:coverage
-    static clearFilter(target: Sprite, filterType: new () => any): void {
-        var filters: any[] = target.filters;
-        if (filters != null && filters.length > 0) {
-            for (var i: number = filters.length - 1; i > -1; i--) {
-                var filter: any = filters[i];
-                if (filter instanceof filterType) filters.splice(i, 1);
+            if (i == -1) {
+                filters.push(UIUtils.grayFilter);
+                target.filters = filters;
             }
-            target.filters = filters;
         }
+        else if (i != -1)
+            filters.splice(i, 1);
     }
 
     /**

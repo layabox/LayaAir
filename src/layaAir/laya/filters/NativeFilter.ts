@@ -4,14 +4,9 @@ import { Matrix } from "../maths/Matrix"
 import { Point } from "../maths/Point"
 import { Rectangle } from "../maths/Rectangle"
 import { RenderSprite } from "../renders/RenderSprite"
-import { Context } from "../resource/Context"
-import { RenderTexture2D } from "../resource/RenderTexture2D"
-import { Texture2D } from "../resource/Texture2D"
-import { WebGLRTMgr } from "../resource/WebGLRTMgr"
 import { BlendMode } from "../webgl/canvas/BlendMode"
 import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D"
 import { Value2D } from "../webgl/shader/d2/value/Value2D"
-import { SubmitCMD } from "../webgl/submit/SubmitCMD"
 import { ColorFilter } from "./ColorFilter";
 import { BlurFilter } from "./BlurFilter";
 import { LayaGL } from "../layagl/LayaGL";

@@ -1883,9 +1883,16 @@ export class Sprite extends Node {
 
     /**@internal */
     onAfterDeserialize() {
-        if ((<any>this)._gcmds) {
-            this.graphics.cmds = (<any>this)._gcmds;
-            delete (<any>this)._gcmds;
+        if (LayaEnv.isPlaying) {
+            if ((<any>this)._gcmds) {
+                this.graphics.cmds = (<any>this)._gcmds;
+                delete (<any>this)._gcmds;
+            }
+
+            if ((<any>this)._filters) {
+                this.filters = (<any>this)._filters;
+                delete (<any>this)._filters;
+            }
         }
     }
 }
