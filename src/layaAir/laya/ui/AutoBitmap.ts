@@ -1,6 +1,5 @@
 import { Graphics } from "../display/Graphics"
 import { Texture } from "../resource/Texture"
-import { Utils } from "../utils/Utils"
 import { ILaya } from "../../ILaya";
 import { Draw9GridTexture } from "../display/cmd/Draw9GridTexture";
 import { DrawTextureCmd } from "../display/cmd/DrawTextureCmd";
@@ -123,21 +122,10 @@ export class AutoBitmap extends Graphics {
             this._setChanged();
         } else {
             this._source = null;
-            //this.clear();     可能有其他graphic命令，不能直接clear
             if (this._drawGridCmd) {
-                // 去掉 this._drawGridCmd
-                if (this._one) {
-                    if (this._one == this._drawGridCmd) {
-                        this.clear();
-                    }
-                }
-                let cmds = this.cmds;
-                if (cmds && cmds.length > 0) {
-                    // 只处理第一个
-                    if (cmds[0] == this._drawGridCmd) {
-                        cmds.splice(0, 1);
-                    }
-                }
+                let i = this.cmds.indexOf(this._drawGridCmd);
+                if (i != -1)
+                    this.cmds.splice(i, 1);
             }
         }
     }
@@ -203,33 +191,17 @@ export class AutoBitmap extends Graphics {
      *  由于可能有其他的graphic命令，因此不能用原来的直接clear()的方法
      */
     private _setDrawGridCmd(newcmd: any) {
-        var source = this._source;
-        if (!source || !source.bitmap) {
+        let source = this._source;
+        if (!source || !source.bitmap)
             return;
-        }
 
-        //let newcmd = Draw9GridTexture.create(source, 0, 0, width, height, sizeGrid);
         let cmds = this.cmds;
-        if (!this._one && (!cmds || cmds.length <= 0)) {
-            // 如果没有，直接添加
-            this._saveToCmd(newcmd);
-        } else {
-            // 如果只有一个
-            let lastOne = this._one;
-            if (lastOne) {
-                if (lastOne == this._drawGridCmd) {
-                    // 如果one就是drawgrid，则替换
-                    this._one = newcmd;
-                } else {
-                    // 否则，就是两个命令
-                    this.clear();
-                    this._saveToCmd(newcmd);
-                    this._saveToCmd(lastOne);
-                }
-            } else {
-                // 本身就有多个命令，则把自己插入到第一个
-                cmds.splice(0, 0, newcmd);
-            }
+        let i = cmds.indexOf(this._drawGridCmd);
+        if (i != -1)
+            cmds[i] = newcmd;
+        else {
+            cmds.splice(0, 0, newcmd);
+            this.cmds = cmds;
         }
         this._drawGridCmd = newcmd;
     }

@@ -1,4 +1,5 @@
 import { Context } from "../../resource/Context"
+import { ClassUtils } from "../../utils/ClassUtils";
 import { Pool } from "../../utils/Pool"
 
 /**
@@ -18,7 +19,7 @@ export class DrawLinesCmd {
     /**
      * 线段的点集合。格式:[x1,y1,x2,y2,x3,y3...]。
      */
-    points: number[]|null;
+    points: number[] | null;
     /**
      * 线段颜色，或者填充绘图的渐变对象。
      */
@@ -27,18 +28,17 @@ export class DrawLinesCmd {
      * （可选）线段宽度。
      */
     lineWidth: number;
-    /**@private */
-    vid: number;
 
     /**@private */
-    static create(x: number, y: number, points: any[], lineColor: any, lineWidth: number, vid: number): DrawLinesCmd {
+    static create(x: number, y: number, points: any[], lineColor: any, lineWidth: number): DrawLinesCmd {
         var cmd: DrawLinesCmd = Pool.getItemByClass("DrawLinesCmd", DrawLinesCmd);
-        cmd.x = x;
-        cmd.y = y;
+        var offset = (lineWidth < 1 || lineWidth % 2 === 0) ? 0 : 0.5;
+        //TODO 线段需要缓存
+        cmd.x = x + offset;
+        cmd.y = y + offset;
         cmd.points = points;
         cmd.lineColor = lineColor;
         cmd.lineWidth = lineWidth;
-        cmd.vid = vid;
         return cmd;
     }
 
@@ -53,7 +53,7 @@ export class DrawLinesCmd {
 
     /**@private */
     run(context: Context, gx: number, gy: number): void {
-        this.points && context._drawLines(this.x + gx, this.y + gy, this.points, this.lineColor, this.lineWidth, this.vid);
+        this.points && context._drawLines(this.x + gx, this.y + gy, this.points, this.lineColor, this.lineWidth, 0);
     }
 
     /**@private */
@@ -63,3 +63,4 @@ export class DrawLinesCmd {
 
 }
 
+ClassUtils.regClass("DrawLinesCmd", DrawLinesCmd);

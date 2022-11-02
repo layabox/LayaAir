@@ -1933,12 +1933,13 @@ export class Context {
      * @param	dy
      */
     addPath(points: any[], close: boolean, convex: boolean, dx: number, dy: number): void {
-        var ci: number = 0;
-        for (var i: number = 0, sz: number = points.length / 2; i < sz; i++) {
-            var x1: number = points[ci] + dx, y1: number = points[ci + 1] + dy;
-            points[ci] = x1;
-            points[ci + 1] = y1;
-            ci += 2;
+        let sz = points.length;
+        for (let i = 0; i < sz - 1; i += 2) {
+            points[i] += dx;
+            points[i + 1] += dy;
+        }
+        if (close && sz > 5 && (points[sz - 2] != points[0] || points[sz - 1] != points[1])) {
+            points.push(points[0], points[1]);
         }
         this._getPath().push(points, convex);
     }

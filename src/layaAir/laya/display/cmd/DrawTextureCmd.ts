@@ -53,6 +53,20 @@ export class DrawTextureCmd {
 
     /**@private */
     static create(texture: Texture, x: number, y: number, width: number, height: number, matrix: Matrix|null, alpha: number, color: string|null, blendMode: string|null, uv?: number[]): DrawTextureCmd {
+        if (!texture || alpha < 0.01) return null;
+        if (!texture.bitmap) return null;
+        if (!width) width = texture.sourceWidth;
+        if (!height) height = texture.sourceHeight;
+
+        var wRate = width / texture.sourceWidth;
+        var hRate = height / texture.sourceHeight;
+        width = texture.width * wRate;
+        height = texture.height * hRate;
+        if (width <= 0 || height <= 0) return null;
+
+        x += texture.offsetX * wRate;
+        y += texture.offsetY * hRate;
+
         var cmd: DrawTextureCmd = Pool.getItemByClass("DrawTextureCmd", DrawTextureCmd);
         cmd.texture = texture;
         texture._addReference();
