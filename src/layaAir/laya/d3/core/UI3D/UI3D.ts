@@ -1,17 +1,18 @@
 import { Sprite } from "../../../display/Sprite";
+import { Event } from "../../../events/Event";
 import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTargetFormat";
+import { BaseTexture } from "../../../resource/BaseTexture";
 import { RenderTexture2D } from "../../../resource/RenderTexture2D";
 import { Matrix4x4 } from "../../math/Matrix4x4";
+import { Plane } from "../../math/Plane";
 import { Ray } from "../../math/Ray";
 import { Vector2 } from "../../math/Vector2";
-import { Mesh } from "../../resource/models/Mesh";
-import { PrimitiveMesh } from "../../resource/models/PrimitiveMesh";
+import { Vector3 } from "../../math/Vector3";
+import { Picker } from "../../utils/Picker";
 import { BlinnPhongMaterial } from "../material/BlinnPhongMaterial";
 import { Material } from "../material/Material";
-import { UnlitMaterial } from "../material/UnlitMaterial";
 import { BaseRender } from "../render/BaseRender";
 import { RenderElement } from "../render/RenderElement";
-import { SubMeshRenderElement } from "../render/SubMeshRenderElement";
 import { Scene3D } from "../scene/Scene3D";
 import { Sprite3D } from "../Sprite3D";
 import { UI3DGeometry } from "./UI3DGeometry";
@@ -20,6 +21,9 @@ import { UI3DGeometry } from "./UI3DGeometry";
  * <code>BaseCamera</code> 类用于创建摄像机的父类。
  */
 export class UI3D extends BaseRender {
+    static temp0: Vector3 = new Vector3();
+    static temp1: Vector3 = new Vector3();
+    static temp2: Vector3 = new Vector3();
     //功能,将2DUI显示到3D面板上 并检测射线
     /**@internal */
     private _uisprite: Sprite;
@@ -29,6 +33,8 @@ export class UI3D extends BaseRender {
     private _geometry: UI3DGeometry;
     /**@internal 2D是否需要重新绘制*/
     private _needUpdate: boolean;
+    /**@internal */
+    private _uiPlane: Plane;
 
     /**
      * 3D渲染的UI节点
@@ -71,8 +77,13 @@ export class UI3D extends BaseRender {
         return this._geometry.offset;
     }
 
+    get UIRender():BaseTexture{
+        return this._rendertexure2D;
+    }
+
     constructor() {
         super();
+        this._uiPlane = new Plane(new Vector3(), 0);
     }
 
     /**
@@ -126,19 +137,29 @@ export class UI3D extends BaseRender {
      * @returns 
      */
     _checkUIPos(ray: Ray) {
-        //TODO
+        let hitPoint = Picker.rayPlaneIntersection(ray, this._uiPlane);
+        return hitPoint;
+    }
 
+    _changePlane() {
+        let up = Vector3.Up;
+        let right = Vector3.ForwardLH;
+        let worldMat = (this.owner as Sprite3D).transform.worldMatrix;
+        
     }
 
     protected _onAdded(): void {
         super._onAdded();
         this._addRenderElement();
+        
+
     }
 
 
     protected _onDisable(): void {
         super._onDisable();
-        (this.owner.scene as Scene3D)._UI3DManager.add(this);
+        (this.owner.scene as Scene3D)._UI3DManager.remove(this);
+        (this.owner as Sprite3D).transform.off(Event.TRANSFORM_CHANGED,this,this._changePlane);
     }
 
     /**
@@ -146,7 +167,8 @@ export class UI3D extends BaseRender {
      */
     protected _onEnable(): void {
         super._onEnable();
-        (this.owner.scene as Scene3D)._UI3DManager.remove(this);
+        (this.owner.scene as Scene3D)._UI3DManager.add(this);
+        (this.owner as Sprite3D).transform.on(Event.TRANSFORM_CHANGED,this,this._changePlane);
     }
 
     /**
