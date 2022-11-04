@@ -272,10 +272,13 @@ export class Laya {
         );
         HTMLCanvas.prototype.getTexture = function (): Texture | RenderTexture2D {
             if (!this._texture) {
+                // @ts-ignore
                 this._texture = this.context._targets;
                 //遗留的奇怪代码，先注释掉
-                //this._texture.uv = RenderTexture2D.flipyuv;
-                //this._texture.bitmap = this._texture;
+                // @ts-ignore
+                this._texture.uv = RenderTexture2D.flipyuv;
+                // @ts-ignore
+                this._texture.bitmap = this._texture;
             }
             return this._texture;
         }

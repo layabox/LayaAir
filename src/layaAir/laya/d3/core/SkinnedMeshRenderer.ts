@@ -164,6 +164,9 @@ export class SkinnedMeshRenderer extends MeshRenderer {
                 this._skinnedMatrixCachesBufferForNative = new Int32Array(pathMarks.length * 3);
                 var j: number = 0;
                 for (var i: number = 0, n: number = pathMarks.length; i < n; i++) {
+                    if (!pathMarks[i]) {
+                        break;
+                    }
                     this._skinnedMatrixCachesBufferForNative[j] = pathMarks[i].subMeshIndex;
                     this._skinnedMatrixCachesBufferForNative[j + 1] = pathMarks[i].batchIndex;
                     this._skinnedMatrixCachesBufferForNative[j + 2] = pathMarks[i].batchBoneIndex;
