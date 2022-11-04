@@ -404,7 +404,7 @@ export class Scene3D extends Sprite implements ISubmit {
     /**ide配置文件使用 */
     _reflectionsResolution: string = "256";
     /**ide配置文件使用 */
-    _reflectionsIblSamples = 1024;
+    _reflectionsIblSamples = 128;
 
 
 
