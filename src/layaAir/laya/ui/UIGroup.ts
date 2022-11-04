@@ -1,5 +1,4 @@
 import { Box } from "./Box";
-import { IItem } from "./IItem";
 import { ISelect } from "./ISelect";
 import { Sprite } from "../display/Sprite"
 import { Event } from "../events/Event"
@@ -21,7 +20,7 @@ import { URL } from "../net/URL";
  * <p> <code>Group</code> 的默认项对象为 <code>Button</code> 类实例。
  * <code>Group</code> 是 <code>Tab</code> 和 <code>RadioGroup</code> 的基类。</p>
  */
-export class UIGroup extends Box implements IItem {
+export class UIGroup extends Box {
 
     /**
      * 改变 <code>Group</code> 的选择项时执行的处理器，(默认返回参数： 项索引（index:int）)。
@@ -95,25 +94,25 @@ export class UIGroup extends Box implements IItem {
      * 添加一个项对象，返回此项对象的索引id。
      *
      * @param item 需要添加的项对象。
-     * @param autoLayOut 是否自动布局，如果为true，会根据 <code>direction</code> 和 <code>space</code> 属性计算item的位置。
+     * @param autoLayout 是否自动布局，如果为true，会根据 <code>direction</code> 和 <code>space</code> 属性计算item的位置。
      * @return
      */
-    addItem(item: ISelect, autoLayOut: boolean = true): number {
-        var display: Sprite = (<Sprite>(item as any));
-        var index: number = this._items.length;
+    addItem(item: ISelect, autoLayout: boolean = true): number {
+        let display = (<Sprite>(item as any));
+        let index = this._items.length;
         display.name = "item" + index;
         this.addChild(display);
         this.initItems();
 
-        if (autoLayOut && index > 0) {
-            var preItem: Sprite = (<Sprite>(this._items[index - 1] as any));
+        if (autoLayout && index > 0) {
+            let preItem = (<Sprite>(this._items[index - 1] as any));
             if (this._direction == "horizontal") {
                 display.x = preItem._x + preItem.width + this._space;
             } else {
                 display.y = preItem._y + preItem.height + this._space;
             }
         } else {
-            if (autoLayOut) {
+            if (autoLayout) {
                 display.x = 0;
                 display.y = 0;
             }
@@ -124,17 +123,17 @@ export class UIGroup extends Box implements IItem {
     /**
      * 删除一个项对象。
      * @param item 需要删除的项对象。
-     * @param autoLayOut 是否自动布局，如果为true，会根据 <code>direction</code> 和 <code>space</code> 属性计算item的位置。
+     * @param autoLayout 是否自动布局，如果为true，会根据 <code>direction</code> 和 <code>space</code> 属性计算item的位置。
      */
-    delItem(item: ISelect, autoLayOut: boolean = true): void {
+    delItem(item: ISelect, autoLayout: boolean = true): void {
         var index: number = this._items.indexOf(item);
         if (index != -1) {
-            var display: Sprite = (<Sprite>(item as any));
+            let display: Sprite = (<Sprite>(item as any));
             this.removeChild(display);
-            for (var i: number = index + 1, n: number = this._items.length; i < n; i++) {
-                var child: Sprite = (<Sprite>(this._items[i] as any));
+            for (let i = index + 1, n = this._items.length; i < n; i++) {
+                let child = (<Sprite>(this._items[i] as any));
                 child.name = "item" + (i - 1);
-                if (autoLayOut) {
+                if (autoLayout) {
                     if (this._direction == "horizontal") {
                         child.x -= display.width + this._space;
                     } else {
@@ -144,20 +143,20 @@ export class UIGroup extends Box implements IItem {
             }
             this.initItems();
             if (this._selectedIndex > -1) {
-                var newIndex: number;
-                newIndex = this._selectedIndex < this._items.length ? this._selectedIndex : (this._selectedIndex - 1);
+                let newIndex = this._selectedIndex < this._items.length ? this._selectedIndex : (this._selectedIndex - 1);
                 this._selectedIndex = -1;
                 this.selectedIndex = newIndex;
             }
         }
     }
 
-    /**@internal */
+    /**@internal 3.0解析会调用 */
     onAfterDeserialize() {
-        this.initItems();
+        if (!this._labels)
+            this.initItems();
     }
 
-    /**@internal */
+    /**@internal 2.0解析会调用 */
     _afterInited(): void {
         this.initItems();
     }
@@ -168,9 +167,10 @@ export class UIGroup extends Box implements IItem {
     initItems(): void {
         this._items || (this._items = []);
         this._items.length = 0;
-        for (var i: number = 0; i < 10000; i++) {
-            var item: ISelect = (<ISelect>(this.getChildByName("item" + i) as any));
-            if (item == null) break;
+        for (let i = 0; i < 10000; i++) {
+            let item = <ISelect>this.getChildByName("item" + i);
+            if (item == null) 
+                break;
             this._items.push(item);
             item.selected = (i === this._selectedIndex);
             item.clickHandler = Handler.create(this, this.itemClick, [i], false);
@@ -245,13 +245,25 @@ export class UIGroup extends Box implements IItem {
     }
 
     set labels(value: string) {
+        if (value == "")
+            value = null;
         if (this._labels != value) {
             this._labels = value;
-            this.removeChildren();
+            let i = 0;
+            let n = this.numChildren;
+            while (i < n) {
+                let item = this.getChildAt(i);
+                if (item.hasHideFlag(HideFlags.HideAndDontSave) && item.name && item.name.startsWith("item")) {
+                    this.removeChildAt(i);
+                    n--;
+                }
+                else
+                    i++;
+            }
             this._setLabelChanged();
             if (this._labels) {
                 let a = this._labels.split(",");
-                for (let i: number = 0, n: number = a.length; i < n; i++) {
+                for (let i = 0, n = a.length; i < n; i++) {
                     let item = this.createItem(this._skin, a[i]);
                     item.name = "item" + i;
                     item.hideFlags = HideFlags.HideAndDontSave;
@@ -499,18 +511,14 @@ export class UIGroup extends Box implements IItem {
      * @inheritDoc 
      * @override
      */
-    set dataSource(value: any) {
+    set_dataSource(value: any) {
         this._dataSource = value;
-        if (typeof (value) == 'number' || typeof (value) == 'string') this.selectedIndex = parseInt(value as string);
-        else if (value instanceof Array) this.labels = ((<any[]>value)).join(",");
-        else super.dataSource = value;
-    }
-    /**
-     * @inheritDoc
-     * @override
-     */
-    get dataSource() {
-        return super.dataSource;
+        if (typeof (value) == 'number' || typeof (value) == 'string')
+            this.selectedIndex = parseInt(value as string);
+        else if (value instanceof Array)
+            this.labels = ((<any[]>value)).join(",");
+        else
+            super.set_dataSource(value);
     }
 
     /**@private */

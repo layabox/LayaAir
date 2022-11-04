@@ -7,6 +7,7 @@ import { ILaya } from "../../ILaya";
 export class ScaleBox extends Box {
     private _oldW: number = 0;
     private _oldH: number = 0;
+
     /**
      * @override
      */
@@ -22,9 +23,9 @@ export class ScaleBox extends Box {
     }
 
     private onResize(): void {
-        let stage = ILaya.stage;
         if (this.width > 0 && this.height > 0) {
-            var scale: number = Math.min(stage.width / this._oldW, stage.height / this._oldH);
+            let stage = ILaya.stage;
+            let scale = Math.min(stage.width / this._oldW, stage.height / this._oldH);
             super.width = stage.width;
             super.height = stage.height;
             this.scale(scale, scale);
@@ -33,29 +34,16 @@ export class ScaleBox extends Box {
     /**
      * @override
      */
-    set width(value: number) {
-        super.width = value;
+    set_width(value: number): void {
+        super.set_width(value);
         this._oldW = value;
     }
-    /**
-     * @inheritDoc
-     * @override
-     */
-    get width() {
-        return super.width;
-    }
+
     /**
      * @override
      */
-    set height(value: number) {
-        super.height = value;
+    set_height(value: number) {
+        super.set_height(value);
         this._oldH = value;
-    }
-    /**
-     * @inheritDoc
-     * @override
-     */
-    get height() {
-        return super.height;
     }
 }

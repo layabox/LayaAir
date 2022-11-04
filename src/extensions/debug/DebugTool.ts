@@ -634,7 +634,7 @@ import { Watcher } from "./tools/Watcher";
 			return DebugTool.counter.data;
 		}
 		
-		private static addCMDs(cmds:any[]):void {
+		private static addCMDs(cmds:ReadonlyArray<any>):void {
 			WalkTools.walkArr(cmds, DebugTool.addCMD);
 		}
 		

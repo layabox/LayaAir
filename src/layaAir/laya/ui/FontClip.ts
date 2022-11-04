@@ -44,7 +44,8 @@ export class FontClip extends Clip {
     * @override
     */
     protected createChildren(): void {
-        this._bitmap = new AutoBitmap();
+        super.createChildren();
+
         this.on(Event.LOADED, this, this._onClipLoaded);
     }
 
@@ -237,7 +238,6 @@ export class FontClip extends Clip {
     destroy(destroyChild: boolean = true): void {
         this._valueArr = null;
         this._indexMap = null;
-        this.graphics.clear(true);
         this.removeSelf();
         this.off(Event.LOADED, this, this._onClipLoaded);
         super.destroy(destroyChild);

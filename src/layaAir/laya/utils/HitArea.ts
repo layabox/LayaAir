@@ -34,7 +34,7 @@ export class HitArea {
      */
     static _isHitGraphic(x: number, y: number, sp: Sprite, graphic: Graphics): boolean {
         if (!graphic) return false;
-        let cmds: any[] = graphic.cmds;
+        let cmds = graphic.cmds;
         if (cmds.length == 0) return false;
         let len = cmds.length;
         for (let i = 0; i < len; i++) {

@@ -1,6 +1,4 @@
 import { Box } from "./Box";
-import { IRender } from "./IRender";
-import { IItem } from "./IItem";
 import { ScrollBar } from "./ScrollBar";
 import { VScrollBar } from "./VScrollBar";
 import { HScrollBar } from "./HScrollBar";
@@ -15,6 +13,7 @@ import { LegacyUIParser } from "../loaders/LegacyUIParser";
 import { HideFlags } from "../Const";
 import { HierarchyParser } from "../loaders/HierarchyParser";
 import { UIComponent } from "./UIComponent";
+import { ScrollType } from "./Styles";
 
 /**
  * 当对象的 <code>selectedIndex</code> 属性发生变化时调度。
@@ -167,7 +166,7 @@ import { UIComponent } from "./UIComponent";
  *     }
  * }
  */
-export class List extends Box implements IRender, IItem {
+export class List extends Box {
 
     /**改变 <code>List</code> 的选择项时执行的处理器，(默认返回参数： 项索引（index:int）)。*/
     selectHandler: Handler | null;
@@ -231,6 +230,10 @@ export class List extends Box implements IRender, IItem {
     /**@private */
     protected _elasticEnabled: boolean = false;
 
+    protected _scrollType: ScrollType = 0;
+    protected _vScrollBarSkin: string;
+    protected _hScrollBarSkin: string;
+
     /**
      * @inheritDoc 
      * @override
@@ -239,11 +242,9 @@ export class List extends Box implements IRender, IItem {
         this._content && this._content.destroy(destroyChild);
         this._scrollBar && this._scrollBar.destroy(destroyChild);
         super.destroy(destroyChild);
-        //@ts-ignore
         this._content = null;
         this._scrollBar = null;
         this._itemRender = null;
-        //@ts-ignore
         this._cells = null;
         this._array = null;
         this.selectHandler = this.renderHandler = this.mouseHandler = null;
@@ -271,6 +272,7 @@ export class List extends Box implements IRender, IItem {
             else this._scrollBar.off(Event.START, this, this.onScrollStart);
         }
     }
+
     /**
      * @inheritDoc 
      * @override
@@ -296,49 +298,97 @@ export class List extends Box implements IRender, IItem {
         return this._content;
     }
 
+    get scrollType() {
+        return this._scrollType;
+    }
+
+    set scrollType(value: ScrollType) {
+        this._scrollType = value;
+
+        if (this._scrollType == ScrollType.None) {
+            if (this._scrollBar) {
+                this._scrollBar.destroy();
+                this._scrollBar = null;
+                this._content.scrollRect = null;
+            }
+        }
+        else if (this._scrollType == ScrollType.Horizontal) {
+            if (this._scrollBar && !this._scrollBar.isVertical) {
+                this._scrollBar.skin = this._hScrollBarSkin;
+                return;
+            }
+
+            if (this._scrollBar) {
+                this._scrollBar.destroy();
+                this._scrollBar = null;
+            }
+
+            let scrollBar = new HScrollBar();
+            scrollBar.name = "scrollBar";
+            scrollBar.bottom = 0;
+            scrollBar.skin = this._hScrollBarSkin;
+            scrollBar.elasticDistance = this._elasticEnabled ? 200 : 0;
+            scrollBar.hideFlags = HideFlags.HideAndDontSave;
+            this.scrollBar = scrollBar;
+            this._setCellChanged();
+        }
+        else {
+            if (this._scrollBar && this._scrollBar.isVertical) {
+                this._scrollBar.skin = this._vScrollBarSkin;
+                return;
+            }
+
+            if (this._scrollBar) {
+                this._scrollBar.destroy();
+                this._scrollBar = null;
+            }
+
+            let scrollBar = new VScrollBar();
+            scrollBar.name = "scrollBar";
+            scrollBar.right = 0;
+            scrollBar.skin = this._vScrollBarSkin;
+            scrollBar.elasticDistance = this._elasticEnabled ? 200 : 0;
+            scrollBar.hideFlags = HideFlags.HideAndDontSave;
+            this.scrollBar = scrollBar;
+            this._setCellChanged();
+        }
+    }
+
     /**
      * 垂直方向滚动条皮肤。
      */
     get vScrollBarSkin(): string {
-        return (this._scrollBar instanceof VScrollBar) ? this._scrollBar.skin : null;
+        return this._vScrollBarSkin;
     }
 
     set vScrollBarSkin(value: string) {
-        this._removePreScrollBar();
-        let scrollBar = new VScrollBar();
-        scrollBar.name = "scrollBar";
-        scrollBar.right = 0;
-        scrollBar.skin = value;
-        scrollBar.elasticDistance = this._elasticEnabled ? 200 : 0;
-        scrollBar.hideFlags = HideFlags.HideAndDontSave;
-        this.scrollBar = scrollBar;
-        this.addChild(scrollBar);
-        this._setCellChanged();
-    }
+        if (value == "") value = null;
+        if (this._vScrollBarSkin != value) {
+            this._vScrollBarSkin = value;
+            if (this._scrollType == 0)
+                this.scrollType = ScrollType.Vertical;
+            else
+                this.scrollType = this._scrollType;
+        }
 
-    private _removePreScrollBar(): void {
-        let preNode = this.removeChildByName("scrollBar");
-        if (preNode) preNode.destroy(true);
     }
 
     /**
      * 水平方向滚动条皮肤。
      */
     get hScrollBarSkin(): string {
-        return (this._scrollBar instanceof HScrollBar) ? this._scrollBar.skin : null;
+        return this._hScrollBarSkin;
     }
 
     set hScrollBarSkin(value: string) {
-        this._removePreScrollBar();
-        let scrollBar = new HScrollBar();
-        scrollBar.name = "scrollBar";
-        scrollBar.bottom = 0;
-        scrollBar.skin = value;
-        scrollBar.elasticDistance = this._elasticEnabled ? 200 : 0;
-        scrollBar.hideFlags = HideFlags.HideAndDontSave;
-        this.scrollBar = scrollBar;
-        this.addChild(scrollBar);
-        this._setCellChanged();
+        if (value == "") value = null;
+        if (this._hScrollBarSkin != value) {
+            this._hScrollBarSkin = value;
+            if (this._scrollType == 0)
+                this.scrollType = ScrollType.Horizontal;
+            else
+                this.scrollType = this._scrollType;
+        }
     }
 
     /**
@@ -352,9 +402,11 @@ export class List extends Box implements IRender, IItem {
         if (this._scrollBar != value) {
             this._scrollBar = value;
             if (value) {
-                this._isVertical = this._scrollBar!.isVertical;
-                this.addChild(this._scrollBar!);
-                this._scrollBar!.on(Event.CHANGE, this, this.onScrollBarChange);
+                this._isVertical = this._scrollBar.isVertical;
+                this._scrollBar.target = this._content;
+                this._scrollBar.on(Event.CHANGE, this, this.onScrollBarChange);
+                this.addChild(this._scrollBar);
+                this._content.scrollRect = Rectangle.create();
             }
         }
     }
@@ -492,8 +544,12 @@ export class List extends Box implements IRender, IItem {
             this._cellSize = this._isVertical ? cellHeight : cellWidth;
             this._cellOffset = this._isVertical ? (cellHeight * Math.max(this._repeatY2, this._repeatY) - listHeight - this._spaceY) : (cellWidth * Math.max(this._repeatX2, this._repeatX) - listWidth - this._spaceX);
 
-            if (this._isVertical && this.vScrollBarSkin) this._scrollBar!.height = listHeight;
-            else if (!this._isVertical && this.hScrollBarSkin) this._scrollBar!.width = listWidth;
+            if (this._scrollBar) {
+                if (this._isVertical)
+                    this._scrollBar.height = listHeight;
+                else
+                    this._scrollBar.width = listWidth;
+            }
             this.setContentSize(listWidth, listHeight);
 
             //创建新单元格
@@ -644,9 +700,9 @@ export class List extends Box implements IRender, IItem {
         this._content.width = width;
         this._content.height = height;
         if (this._scrollBar || this._offset.x != 0 || this._offset.y != 0) {
-            this._content._style.scrollRect || (this._content.scrollRect = Rectangle.create());
-            this._content._style.scrollRect.setTo(-this._offset.x, -this._offset.y, width, height);
-            this._content.scrollRect = this._content.scrollRect;
+            let r = this._content.scrollRect;
+            r.setTo(-this._offset.x, -this._offset.y, width, height);
+            this._content.scrollRect = r;
         }
         this.event(Event.RESIZE);
     }
@@ -700,9 +756,6 @@ export class List extends Box implements IRender, IItem {
      * 滚动条的 <code>Event.CHANGE</code> 事件侦听处理函数。
      */
     protected onScrollBarChange(e: Event | null = null): void {
-        if (!this._content._style.scrollRect)
-            return;
-
         this.runCallLater(this.changeCells);
         let scrollValue = this._scrollBar!.value;
         let lineX = (this._isVertical ? this.repeatX : this.repeatY);
@@ -914,10 +967,8 @@ export class List extends Box implements IRender, IItem {
                 this._scrollBar.scrollSize = this._cellSize;
                 this._scrollBar.thumbPercent = numY / lineCount;
                 this._scrollBar.setScroll(0, (lineCount - numY) * this._cellSize + this._cellOffset, this._scrollBar.value);
-                this._scrollBar.target = this._content;
             } else {
                 this._scrollBar.setScroll(0, 0, 0);
-                this._scrollBar.target = this._content;
             }
         }
     }
@@ -974,19 +1025,16 @@ export class List extends Box implements IRender, IItem {
      * @inheritDoc 
      * @override
     */
-    set dataSource(value: any) {
+    set_dataSource(value: any) {
         this._dataSource = value;
-        if (typeof (value) == 'number' || typeof (value) == 'string') this.selectedIndex = parseInt(value as string);
-        else if (value instanceof Array) this.array = (<any[]>value)
-        else super.dataSource = value;
+        if (typeof (value) == 'number' || typeof (value) == 'string')
+            this.selectedIndex = parseInt(value as string);
+        else if (value instanceof Array)
+            this.array = (<any[]>value)
+        else
+            super.set_dataSource(value);
     }
-    /**
-     * @inheritDoc 
-     * @override
-     */
-    get dataSource() {
-        return super.dataSource;
-    }
+
 
     /**
      * 单元格集合。

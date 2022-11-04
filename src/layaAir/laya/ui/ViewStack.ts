@@ -1,4 +1,3 @@
-import { IItem } from "./IItem";
 /**
  * Morn UI Version 3.0 http://www.mornui.com/
  * Feedback yung http://weibo.com/newyung
@@ -11,7 +10,7 @@ import { Handler } from "../utils/Handler"
 /**
  * <code>ViewStack</code> 类用于视图堆栈类，用于视图的显示等设置处理。
  */
-export class ViewStack extends Box implements IItem {
+export class ViewStack extends Box {
     /**@private */
     protected _items: any[];
     /**@private */
@@ -143,7 +142,7 @@ export class ViewStack extends Box implements IItem {
      * @inheritDoc 
      * @override
     */
-    set dataSource(value: any) {
+    set_dataSource(value: any) {
         this._dataSource = value;
         if (typeof (value) == 'number' || typeof (value) == 'string') {
             this.selectedIndex = parseInt(value as string);
@@ -154,12 +153,5 @@ export class ViewStack extends Box implements IItem {
                 }
             }
         }
-    }
-    /**
-     * @inheritDoc
-     * @override
-     */
-    get dataSource() {
-        return super.dataSource;
     }
 }

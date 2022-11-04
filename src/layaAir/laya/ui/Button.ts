@@ -9,9 +9,7 @@ import { Texture } from "../resource/Texture"
 import { AutoBitmap } from "./AutoBitmap"
 import { UIUtils } from "./UIUtils"
 import { Handler } from "../utils/Handler"
-import { Utils } from "../utils/Utils"
 import { ILaya } from "../../ILaya";
-import { WeakObject } from "../utils/WeakObject";
 import { URL } from "../net/URL";
 
 /**
@@ -95,11 +93,6 @@ import { URL } from "../net/URL";
  */
 export class Button extends UIComponent implements ISelect {
     /**
-     * 按钮状态集。
-     */
-    protected static stateMap: any = { "mouseup": 0, "mouseover": 1, "mousedown": 2, "mouseout": 0 };
-
-    /**
      * 指定按钮按下时是否是切换按钮的显示状态。
      *
      * @example 以下示例代码，创建了一个 <code>Button</code> 实例，并设置为切换按钮。
@@ -170,10 +163,6 @@ export class Button extends UIComponent implements ISelect {
     toggle: boolean;
     /**
      * @private
-     */
-    protected _bitmap: AutoBitmap;
-    /**
-     * @private
      * 按钮上的文本。
      */
     protected _text: Text;
@@ -181,12 +170,12 @@ export class Button extends UIComponent implements ISelect {
      * @private
      * 按钮文本标签的颜色值。
      */
-    protected _labelColors: any[] = Styles.buttonLabelColors;
+    protected _labelColors: string[];
     /**
      * @private
      * 按钮文本标签描边的颜色值。
      */
-    protected _strokeColors: any[];
+    protected _strokeColors: string[];
     /**
      * @private
      * 按钮的状态值。
@@ -197,26 +186,24 @@ export class Button extends UIComponent implements ISelect {
      * 表示按钮的选中状态。
      */
     protected _selected: boolean;
-    /**
-     * @private
-     * 按钮的皮肤资源。
-     */
-    protected _skin: string;
+
+    protected _skins: string[];
+
     /**
      * @private
      * 指定此显示对象是否自动计算并改变大小等属性。
      */
-    protected _autoSize: boolean = true;        // 注意 由于构造函数执行顺序的区别，这里设置为true真的会导致ts的值为true，as的为false （as的 后调用super）
+    protected _autoSize: boolean = true;
     /**
      * @private
      * 按钮的状态数。
      */
-    protected _stateNum: number = Styles.buttonStateNum;
+    protected _stateNum: number;
     /**
      * @private
      * 源数据。
      */
-    protected _sources: any[];
+    protected _sources: Texture[];
     /**
      * @private
      * 按钮的点击事件函数。
@@ -234,7 +221,13 @@ export class Button extends UIComponent implements ISelect {
      */
     constructor(skin: string = null, label: string = "") {
         super();
-        this.skin = skin;
+        this._skins = [];
+        this._sources = [];
+        this._labelColors = Styles.buttonLabelColors;
+        this._stateNum = Styles.buttonStateNum;
+
+        if (skin)
+            this.skin = skin;
         this.label = label;
     }
 
@@ -244,9 +237,7 @@ export class Button extends UIComponent implements ISelect {
      */
     destroy(destroyChild: boolean = true): void {
         super.destroy(destroyChild);
-        this._bitmap && this._bitmap.destroy();
         this._text && this._text.destroy(destroyChild);
-        this._bitmap = null;
         this._text = null;
         this._clickHandler = null;
         this._labelColors = this._sources = this._strokeColors = null;
@@ -257,7 +248,8 @@ export class Button extends UIComponent implements ISelect {
      * @override
      */
     protected createChildren(): void {
-        this.graphics = this._bitmap = new AutoBitmap();
+        this.graphics = new AutoBitmap();
+        this._ownGraphics = true;
     }
 
     /**@private */
@@ -299,7 +291,7 @@ export class Button extends UIComponent implements ISelect {
             this._clickHandler && this._clickHandler.run();
             return;
         }
-        !this._selected && (this.state = Button.stateMap[e.type]);
+        !this._selected && (this.state = stateMap[e.type]);
     }
 
     /**
@@ -309,28 +301,57 @@ export class Button extends UIComponent implements ISelect {
      * @see #stateNum
      */
     get skin(): string {
-        return this._skin;
+        return this._skins[0];
     }
 
     set skin(value: string) {
-        if (this._skin != value) {
-            this._skin = value;
-            if (value) {
-                if (!Loader.getRes(value)) {
-                    let url = this._skinBaseUrl ? URL.formatURL(this._skin, this._skinBaseUrl) : this._skin;
-                    ILaya.loader.load(url, Handler.create(this, this._skinLoaded), null, Loader.IMAGE);
-                } else {
-                    this._skinLoaded();
-                }
-            } else {
+        if (value && this._skins.length == 1 && this._skins[0] == value || !value && this._skins.length == 0)
+            return;
+
+        this._skins.length = 0;
+        if (value) {
+            this._skins.push(value);
+            if (!Loader.getRes(value))
+                ILaya.loader.load(this._skinBaseUrl ? URL.formatURL(value, this._skinBaseUrl) : value, Handler.create(this, this._skinLoaded), null, Loader.IMAGE);
+            else
                 this._skinLoaded();
-            }
         }
+        else
+            this._skinLoaded();
+    }
+
+    /**
+     * <p>对象的皮肤资源地址。数组可以为1、2、3个元素，分别表达单态，两态和三态。</p>
+     */
+    get skins(): string[] {
+        return this._skins;
+    }
+
+    set skins(value: string[]) {
+        if (value == null)
+            this.skins.length == 0;
+        else
+            this._skins = value;
+        if (this._skins.length > 0) {
+            let toLoad: Array<any>;
+            for (let skin of this._skins) {
+                let url = this._skinBaseUrl ? URL.formatURL(skin, this._skinBaseUrl) : skin;
+                if (!Loader.getRes(skin)) {
+                    if (!toLoad) toLoad = [];
+                    toLoad.push(url);
+                }
+            }
+            if (!toLoad)
+                this._skinLoaded();
+            else
+                ILaya.loader.load(toLoad, Loader.IMAGE).then(() => this._skinLoaded());
+        }
+        else
+            this._skinLoaded();
     }
 
     protected _skinLoaded(): void {
-        if (this._skin)
-            this.callLater(this.changeClips);
+        this.callLater(this.changeClips);
         this._setStateChanged();
         this._sizeChanged();
         this.event(Event.LOADED);
@@ -360,7 +381,7 @@ export class Button extends UIComponent implements ISelect {
         }
         if (this._stateNum != value) {
             this._stateNum = value < 1 ? 1 : value > 3 ? 3 : value;
-            if (this._skin) {
+            if (this._skins.length > 0) {
                 this.callLater(this.changeClips);
                 this._setStateChanged();
             }
@@ -372,37 +393,45 @@ export class Button extends UIComponent implements ISelect {
      * 对象的资源切片发生改变。
      */
     protected changeClips(): void {
-        var img: Texture = Loader.getRes(this._skin);
-        if (!img) {
-            console.log("lose skin", this._skin);
-            return;
-        }
-        var width = img.sourceWidth;
-        var height = img.sourceHeight / this._stateNum;
-        var key = img.id + "-" + this._stateNum;
-        var clips: any[] = WeakObject.I.get(key);
-        if (!Utils.isOkTextureList(clips)) {
-            clips = null;
-        }
-        if (clips) this._sources = clips;
-        else {
-            this._sources = [];
+        this._sources.length = 0;
+        let width: number = 0, height: number = 0;
+
+        if (this._skins.length == 1) {
+            let img: Texture = Loader.getRes(this._skins[0]);
+            if (!img) {
+                console.log(`lose skin ${this._skins[0]}`);
+                return;
+            }
+
+            width = img.sourceWidth;
+            height = img.sourceHeight / this._stateNum;
+
             if (this._stateNum === 1) {
                 this._sources.push(img);
             } else {
-                for (var i: number = 0; i < this._stateNum; i++) {
-                    this._sources.push(Texture.createFromTexture(img, 0, height * i, width, height));
+                for (let i = 0; i < this._stateNum; i++) {
+                    this._sources.push(img.getCachedClip(0, height * i, width, height));
                 }
             }
-            WeakObject.I.set(key, this._sources);
+        }
+        else {
+            this._sources.length = 0;
+            for (let skin of this._skins) {
+                let img: Texture = Loader.getRes(skin);
+                if (img) {
+                    width = Math.max(width, img.sourceWidth);
+                    height = Math.max(height, img.sourceHeight);
+                    this._sources.push(img);
+                }
+            }
         }
 
         if (this._autoSize) {
-            this._bitmap.width = this._width || width;
-            this._bitmap.height = this._height || height;
+            this._graphics.width = this._width || width;
+            this._graphics.height = this._height || height;
             if (this._text) {
-                this._text.width = this._bitmap.width;
-                this._text.height = this._bitmap.height;
+                this._text.width = this._graphics.width;
+                this._text.height = this._graphics.height;
             }
         } else {
             this._text && (this._text.x = width);
@@ -414,11 +443,11 @@ export class Button extends UIComponent implements ISelect {
      * @override
      */
     protected measureWidth(): number {
-        if (this._skin)
+        if (this._skins.length > 0)
             this.runCallLater(this.changeClips);
-        if (this._autoSize) return this._bitmap.width;
+        if (this._autoSize) return this._graphics.width;
         this.runCallLater(this.changeState);
-        return this._bitmap.width + (this._text ? this._text.width : 0);
+        return this._graphics.width + (this._text ? this._text.width : 0);
     }
 
     /**
@@ -426,9 +455,9 @@ export class Button extends UIComponent implements ISelect {
      * @override
      */
     protected measureHeight(): number {
-        if (this._skin)
+        if (this._skins.length > 0)
             this.runCallLater(this.changeClips);
-        return this._text ? Math.max(this._bitmap.height, this._text.height) : this._bitmap.height;
+        return this._text ? Math.max(this._graphics.height, this._text.height) : this._graphics.height;
     }
 
     /**
@@ -486,10 +515,10 @@ export class Button extends UIComponent implements ISelect {
      */
     protected changeState(): void {
         this._stateChanged = false;
-        if (this._skin)
+        if (this._skins.length > 0)
             this.runCallLater(this.changeClips);
-        var index = this._state < this._stateNum ? this._state : this._stateNum - 1;
-        this._sources && (this._bitmap.source = this._sources[index]);
+        let index = this._state < this._sources.length ? this._state : this._sources.length - 1;
+        this._graphics.source = this._sources[index];
         if (this.label) {
             this._text.color = this._labelColors[index];
             if (this._strokeColors) this._text.strokeColor = this._strokeColors[index];
@@ -656,12 +685,15 @@ export class Button extends UIComponent implements ISelect {
      * @see laya.ui.AutoBitmap.sizeGrid
      */
     get sizeGrid(): string {
-        if (this._bitmap.sizeGrid) return this._bitmap.sizeGrid.join(",");
+        if (this._graphics.sizeGrid) return this._graphics.sizeGrid.join(",");
         return null;
     }
 
     set sizeGrid(value: string) {
-        this._bitmap.sizeGrid = UIUtils.fillArray(Styles.defaultSizeGrid, value, Number);
+        if (value)
+            this._graphics.sizeGrid = UIUtils.fillArray(Styles.defaultSizeGrid, value, Number);
+        else
+            this._graphics.sizeGrid = null;
     }
 
     /**
@@ -671,7 +703,7 @@ export class Button extends UIComponent implements ISelect {
     set width(value: number) {
         super.set_width(value);
         if (this._autoSize) {
-            this._bitmap.width = value;
+            this._graphics.width = value;
             this._text && (this._text.width = value);
         }
     }
@@ -690,7 +722,7 @@ export class Button extends UIComponent implements ISelect {
     set height(value: number) {
         super.set_height(value);
         if (this._autoSize) {
-            this._bitmap.height = value;
+            this._graphics.height = value;
             this._text && (this._text.height = value);
         }
     }
@@ -706,27 +738,25 @@ export class Button extends UIComponent implements ISelect {
      * @inheritDoc 
      * @override
      */
-    set dataSource(value: any) {
-        this._dataSource = value;
-        if (typeof (value) == 'number' || typeof (value) == 'string') this.label = value + "";
-        else super.set_dataSource(value);
-    }
-    /**
-     * @inheritDoc 
-     * @override
-     */
-    get dataSource(): any {
-        return super.get_dataSource();
+    set_dataSource(value: any) {
+        if (typeof (value) == 'number' || typeof (value) == 'string') {
+            this._dataSource = value;
+            this.label = value + "";
+        }
+        else
+            super.set_dataSource(value);
     }
 
     /**图标x,y偏移，格式：100,100*/
     get iconOffset(): string {
-        return this._bitmap._offset ? this._bitmap._offset.join(",") : null;
+        return this._graphics._offset ? this._graphics._offset.join(",") : null;
     }
 
     set iconOffset(value: string) {
-        if (value) this._bitmap._offset = UIUtils.fillArray([1, 1], value, Number);
-        else this._bitmap._offset = [];
+        if (value)
+            this._graphics._offset = UIUtils.fillArray([1, 1], value, Number);
+        else
+            this._graphics._offset = [];
     }
 
     /**@private */
@@ -736,4 +766,10 @@ export class Button extends UIComponent implements ISelect {
             this.callLater(this.changeState);
         }
     }
+}
+
+const stateMap: any = { "mouseup": 0, "mouseover": 1, "mousedown": 2, "mouseout": 0 };
+
+export interface Button {
+    _graphics: AutoBitmap;
 }

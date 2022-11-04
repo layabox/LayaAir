@@ -11,7 +11,6 @@ export class Radio extends Button {
     /**@private */
     protected _value: any;
 
-
     /**
      * 创建一个新的 <code>Radio</code> 类实例。 
      * @param skin 皮肤。
@@ -24,14 +23,6 @@ export class Radio extends Button {
         this._autoSize = false;
     }
 
-    /**
-     * @inheritDoc 
-     * @override
-     * */
-    destroy(destroyChild: boolean = true): void {
-        super.destroy(destroyChild);
-        this._value = null;
-    }
     /**
      * @override
      */
@@ -61,7 +52,6 @@ export class Radio extends Button {
     protected onClick(e: Event): void {
         this.selected = true;
     }
-
 
     /**
      * 获取或设置 <code>Radio</code> 关联的可选用户定义值。

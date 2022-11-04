@@ -9,7 +9,6 @@ import { Point } from "../maths/Point"
 import { Rectangle } from "../maths/Rectangle"
 import { Handler } from "../utils/Handler"
 import { Tween } from "../utils/Tween"
-import { IUI } from "./IUI";
 
 /**
  * <code>Dialog</code> 组件是一个弹出对话框，实现对话框弹出，拖动，模式窗口功能。
@@ -382,6 +381,3 @@ export class Dialog extends View {
         return Dialog.manager.closeByGroup(group);
     }
 }
-
-
-IUI.Dialog = Dialog;

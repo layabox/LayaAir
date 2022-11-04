@@ -153,12 +153,18 @@ export class ProgressBar extends UIComponent {
     */
     protected createChildren(): void {
         this._bg = new Image();
+        this._bg.left = 0;
+        this._bg.right = 0;
+        this._bg.top = 0;
+        this._bg.bottom = 0;
         this._bg.hideFlags = HideFlags.HideAndDontSave;
+        this.addChild(this._bg);
+
         this._bar = new Image();
         this._bar.hideFlags = HideFlags.HideAndDontSave;
-        this.addChild(this._bg);
+        this._bar.top = 0;
+        this._bar.bottom = 0;
         this.addChild(this._bar);
-        this._bar._bitmap.autoCacheCmd = false;
     }
 
     /**
@@ -185,7 +191,7 @@ export class ProgressBar extends UIComponent {
             return
         }
         this._bg.skin = this._skin;
-        this._bar.skin = this._skin.replace(".png", "$bar.png");
+        this._bar.skin = this._skin ? this._skin.replace(".png", "$bar.png") : null;
         this.callLater(this.changeValue);
         this._sizeChanged();
         this.event(Event.LOADED);
@@ -231,11 +237,11 @@ export class ProgressBar extends UIComponent {
      */
     protected changeValue(): void {
         if (this.sizeGrid) {
-            var grid: any[] = this.sizeGrid.split(",");
-            var left: number = Number(grid[3]);
-            var right: number = Number(grid[1]);
-            var max: number = this.width - left - right;
-            var sw: number = max * this._value;
+            let grid: any[] = this.sizeGrid.split(",");
+            let left: number = grid[3];
+            let right: number = grid[1];
+            let max: number = this.width - left - right;
+            let sw: number = max * this._value;
             this._bar.width = left + right + sw;
             this._bar.visible = this._bar.width > left + right;
         } else {
@@ -261,7 +267,6 @@ export class ProgressBar extends UIComponent {
      * <p>当前 <code>ProgressBar</code> 实例的进度条背景位图（ <code>Image</code> 实例）的有效缩放网格数据。</p>
      * <p>数据格式："上边距,右边距,下边距,左边距,是否重复填充(值为0：不重复填充，1：重复填充)"，以逗号分隔。
      * <ul><li>例如："4,4,4,4,1"</li></ul></p>
-     * @see laya.ui.AutoBitmap.sizeGrid
      */
     get sizeGrid(): string {
         return this._bg.sizeGrid;
@@ -275,50 +280,20 @@ export class ProgressBar extends UIComponent {
      * @inheritDoc 
      * @override
     */
-    set width(value: number) {
-        super.width = value;
-        this._bg.width = this._width;
+    set_width(value: number): void {
+        super.set_width(value);
         this.callLater(this.changeValue);
     }
-    /**
-     * @inheritDoc
-     * @override
-     */
-    get width() {
-        return super.width;
-    }
 
     /**
      * @inheritDoc 
      * @override
     */
-    set height(value: number) {
-        super.height = value;
-        this._bg.height = this._height;
-        this._bar.height = this._height;
-    }
-    /**
-     * @inheritDoc
-     * @override
-     */
-    get height() {
-        return super.height;
-    }
-
-    /**
-     * @inheritDoc 
-     * @override
-    */
-    set dataSource(value: any) {
+    set_dataSource(value: any): void {
         this._dataSource = value;
-        if (typeof (value) == 'number' || typeof (value) == 'string') this.value = Number(value);
-        else super.dataSource = value;
-    }
-    /**
-     * @inheritDoc
-     * @override
-     */
-    get dataSource() {
-        return super.dataSource;
+        if (typeof (value) == 'number' || typeof (value) == 'string')
+            this.value = Number(value);
+        else
+            super.set_dataSource(value);
     }
 }

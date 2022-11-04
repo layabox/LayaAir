@@ -55,7 +55,7 @@ import { Node } from "laya/display/Node"
 		     if(!target||target.numChildren<1) return;
 			 WalkTools.walkArr(DisControlTool.getAllChild(target),fun,_this);
 		}
-		 static walkArr(arr:any[],fun:Function,_this:any=null):void
+		 static walkArr(arr:ReadonlyArray<any>,fun:Function,_this:any=null):void
 		{
 			if(!arr) return;
 			var i:number;
