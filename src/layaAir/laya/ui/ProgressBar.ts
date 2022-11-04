@@ -237,11 +237,15 @@ export class ProgressBar extends UIComponent {
      */
     protected changeValue(): void {
         if (this.sizeGrid) {
-            let grid: any[] = this.sizeGrid.split(",");
-            let left: number = grid[3];
-            let right: number = grid[1];
-            let max: number = this.width - left - right;
-            let sw: number = max * this._value;
+            let grid = this.sizeGrid.split(",");
+            let left = parseInt(grid[3]);
+            if(isNaN(left))
+                left = 0;
+            let right = parseInt(grid[1]);
+            if(isNaN(right))
+                right = 0;
+            let max = this.width - left - right;
+            let sw = max * this._value;
             this._bar.width = left + right + sw;
             this._bar.visible = this._bar.width > left + right;
         } else {
