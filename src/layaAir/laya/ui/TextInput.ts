@@ -114,8 +114,6 @@ import { URL } from "../net/URL";
  */
 export class TextInput extends Label {
     /** @private */
-    protected _bg: AutoBitmap;
-    /** @private */
     protected _skin: string;
 
     /**
@@ -134,16 +132,6 @@ export class TextInput extends Label {
     */
     protected preinitialize(): void {
         this.mouseEnabled = true;
-    }
-
-    /**
-     * @inheritDoc 
-     * @override
-    */
-    destroy(destroyChild: boolean = true): void {
-        super.destroy(destroyChild);
-        this._bg && this._bg.destroy();
-        this._bg = null;
     }
 
     /**
@@ -199,17 +187,6 @@ export class TextInput extends Label {
     }
 
     /**
-     * 表示此对象包含的文本背景 <code>AutoBitmap</code> 组件实例。
-     */
-    get bg(): AutoBitmap {
-        return this._bg;
-    }
-
-    set bg(value: AutoBitmap) {
-        this.graphics = this._bg = value;
-    }
-
-    /**
      * @copy laya.ui.Image#skin
      */
     get skin(): string {
@@ -229,10 +206,13 @@ export class TextInput extends Label {
     }
 
     protected _skinLoaded(): void {
-        this._bg || (this.graphics = this._bg = new AutoBitmap());
-        this._bg.source = Loader.getRes(this._skin);
-        this._width && (this._bg.width = this._width);
-        this._height && (this._bg.height = this._height);
+        if (!this._graphics) {
+            this._graphics = new AutoBitmap();
+            this._ownGraphics = true;
+        }
+        this._graphics.source = Loader.getRes(this._skin);
+        this._width && (this._graphics.width = this._width);
+        this._height && (this._graphics.height = this._height);
         this._sizeChanged();
         this.event(Event.LOADED);
     }
@@ -244,12 +224,15 @@ export class TextInput extends Label {
      * @see laya.ui.AutoBitmap.sizeGrid
      */
     get sizeGrid(): string {
-        return this._bg && this._bg.sizeGrid ? this._bg.sizeGrid.join(",") : null;
+        return this._graphics && this._graphics.sizeGrid ? this._graphics.sizeGrid.join(",") : null;
     }
 
     set sizeGrid(value: string) {
-        this._bg || (this.graphics = this._bg = new AutoBitmap());
-        this._bg.sizeGrid = UIUtils.fillArray(Styles.defaultSizeGrid, value, Number);
+        this._graphics || (this.graphics = this._graphics = new AutoBitmap());
+        if (value)
+            this._graphics.sizeGrid = UIUtils.fillArray(Styles.defaultSizeGrid, value, Number);
+        else
+            this._graphics.sizeGrid = null;
     }
 
     /**
@@ -277,7 +260,7 @@ export class TextInput extends Label {
      */
     set width(value: number) {
         super.width = value;
-        this._bg && (this._bg.width = value);
+        this._graphics && (this._graphics.width = value);
     }
     /**
      * @inheritDoc 
@@ -293,7 +276,7 @@ export class TextInput extends Label {
      */
     set height(value: number) {
         super.height = value;
-        this._bg && (this._bg.height = value);
+        this._graphics && (this._graphics.height = value);
     }
     /**
      * @inheritDoc 
@@ -398,4 +381,8 @@ export class TextInput extends Label {
     setSelection(startIndex: number, endIndex: number): void {
         (<Input>this._tf).setSelection(startIndex, endIndex);
     }
+}
+
+export interface TextInput {
+    _graphics: AutoBitmap;
 }

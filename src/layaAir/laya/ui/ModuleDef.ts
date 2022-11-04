@@ -1,5 +1,4 @@
 import { ClassUtils } from "../utils/ClassUtils";
-import { AdvImage } from "./AdvImage";
 import { AutoBitmap } from "./AutoBitmap";
 import { Box } from "./Box";
 import { Button } from "./Button";
@@ -30,7 +29,6 @@ import { TextInput } from "./TextInput";
 import { TipManager } from "./TipManager";
 import { Tree } from "./Tree";
 import { UIComponent } from "./UIComponent";
-import { UIEvent } from "./UIEvent";
 import { UIGroup } from "./UIGroup";
 import { UIUtils } from "./UIUtils";
 import { VBox } from "./VBox";
@@ -41,7 +39,6 @@ import { VSlider } from "./VSlider";
 import { WXOpenDataViewer } from "./WXOpenDataViewer";
 
 let c = ClassUtils.regClass;
-c("AdvImage", AdvImage);
 c("AutoBitmap", AutoBitmap);
 c("Box", Box);
 c("Button", Button);
@@ -79,6 +76,5 @@ c("ViewStack", ViewStack);
 c("VScrollBar", VScrollBar);
 c("VSlider", VSlider);
 c("UIComponent", UIComponent);
-c("UIEvent", UIEvent);
 
 c("WXOpenDataViewer", WXOpenDataViewer);

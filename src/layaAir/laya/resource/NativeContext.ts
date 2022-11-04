@@ -83,6 +83,8 @@ export class NativeContext {
     private _tempRenderTexture2D: any;
     sprite: any = null;
     private _renderObject3DList: any[] = [];
+    /**@internal */
+    _tmpMatrix: Matrix = new Matrix();
     static __init__(): void {
     }
     constructor() {
@@ -181,7 +183,7 @@ export class NativeContext {
     clear(): void {
         //this._nativeObj.clear();
         this.add_i(CONTEXT2D_FUNCTION_ID.CLEAR);
-        this._nativeObj.flushCommand();   
+        this._nativeObj.flushCommand();
         this._renderObject3DList.length = 0;
     }
     /**
@@ -768,7 +770,8 @@ export class NativeContext {
         matrix: Matrix, alpha: number, color: ColorFilter, blendMode: string, colorNum: number = 0xffffffff): void {
         if (!this.checkTexture(tex)) {
             return;
-        }
+        } 
+        var m: Matrix = matrix ? matrix : this._tmpMatrix;
         /*if (blendMode != null || color != null) {
             this._nativeObj.save(); 
             //to do ColorFilter
@@ -778,7 +781,7 @@ export class NativeContext {
                 vertices, 
                 uvs, 
                 indices, 
-                matrix.a, matrix.b,matrix.c,matrix.d,matrix.tx,matrix.ty, alpha, colorNum);
+                m.a, m.b,m.c,m.d,m.tx,m.ty, alpha, colorNum);
             this._nativeObj.restore();
         }
         else {
@@ -787,9 +790,10 @@ export class NativeContext {
             vertices, 
             uvs, 
             indices, 
-            matrix.a, matrix.b,matrix.c,matrix.d,matrix.tx,matrix.ty, alpha, colorNum)
+            m.a, m.b,m.c,m.d,m.tx,m.ty, alpha, colorNum)
         }*/
 
+       
         if (blendMode != null || color != null) {
             this._nativeObj.save();
             //to do ColorFilter 
@@ -799,7 +803,7 @@ export class NativeContext {
                 vertices,
                 uvs,
                 indices,
-                matrix.a, matrix.b, matrix.c, matrix.d, matrix.tx, matrix.ty, alpha, colorNum);
+                m.a, m.b, m.c, m.d, m.tx, m.ty, alpha, colorNum);
             this._nativeObj.restore();
         }
         else {
@@ -808,13 +812,13 @@ export class NativeContext {
                 vertices,
                 uvs,
                 indices,
-                matrix.a, matrix.b, matrix.c, matrix.d, matrix.tx, matrix.ty, alpha, colorNum)
+                m.a, m.b, m.c, m.d, m.tx, m.ty, alpha, colorNum)
 
             this.add_iiifffffffff_ab_ab_ab(CONTEXT2D_FUNCTION_ID.DRAW_TRANGLES, (tex as any).bitmap._texture.id, colorNum
                 , x
                 , y
                 , alpha
-                , matrix.a, matrix.b, matrix.c, matrix.d, matrix.tx, matrix.ty
+                , m.a, m.b, m.c, m.d, m.tx, m.ty
                 , vertices
                 , uvs
                 , indices

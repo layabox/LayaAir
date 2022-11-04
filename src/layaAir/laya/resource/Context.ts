@@ -915,7 +915,7 @@ export class Context {
     }
 
     //TODO:coverage
-    fillTexture(texture: Texture, x: number, y: number, width: number, height: number, type: string, offset: Point, other: any): void {
+    fillTexture(texture: Texture, x: number, y: number, width: number, height: number, type: string, offset: Point): void {
         //test
         /*
         var aa = 95 / 274, bb = 136 / 341, cc = (95 + 41) / 274, dd = (136 + 48) / 341;

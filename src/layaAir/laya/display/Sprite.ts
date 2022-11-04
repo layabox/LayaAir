@@ -242,6 +242,8 @@ export class Sprite extends Node {
     /**@internal */
     _graphics: Graphics | null = null;
 
+    _ownGraphics: boolean = false;
+
     /**
      * <p>鼠标事件与此对象的碰撞检测是否可穿透。碰撞检测发生在鼠标事件的捕获阶段，此阶段引擎会从stage开始递归检测stage及其子对象，直到找到命中的目标对象或者未命中任何对象。</p>
      * <p>穿透表示鼠标事件发生的位置处于本对象绘图区域内时，才算命中，而与对象宽高和值为Rectangle对象的hitArea属性无关。如果sprite.hitArea值是HitArea对象，表示显式声明了此对象的鼠标事件响应区域，而忽略对象的宽高、mouseThrough属性。</p>
@@ -280,9 +282,7 @@ export class Sprite extends Node {
         this._cacheStyle = null;
         this._boundStyle = null;
         this._transform = null;
-        if (this._graphics && this._graphics.autoDestroy) {
-            this._graphics.destroy();
-        }
+        this._graphics && this._ownGraphics && this._graphics.destroy();
         this._graphics = null;
         this.texture = null;
     }
@@ -974,17 +974,13 @@ export class Sprite extends Node {
     get graphics(): Graphics {
         if (!this._graphics) {
             this.graphics = new Graphics();
-            this._graphics.autoDestroy = true;
+            this._ownGraphics = true;
         }
         return this._graphics;
     }
 
     /**@internal */
     _setGraphics(value: Graphics): void {
-    }
-
-    /**@internal */
-    _setGraphicsCallBack(): void {
     }
 
     set graphics(value: Graphics) {

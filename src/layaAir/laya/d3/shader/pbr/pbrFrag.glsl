@@ -26,7 +26,7 @@ void getPixelParams(inout PixelParams params)
 
     params.viewDir = normalize(u_CameraPos - params.positionWS);
     // todo NoV varying ?
-    params.NoV = max(dot(params.normalWS, params.viewDir), MIN_N_DOT_V);
+    params.NoV = max(abs(dot(params.normalWS, params.viewDir)), MIN_N_DOT_V);
 
     #ifdef NEEDTBN
     params.tangentWS = normalize(v_TangentWS);
@@ -125,6 +125,7 @@ vec3 PBRLighting(const in Surface surface, const in PixelParams pixel)
     #endif // SPOTLIGHT
 
     vec3 giColor = PBRGI(surface, info);
+
 
     return lightColor + giColor;
 }

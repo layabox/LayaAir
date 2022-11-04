@@ -37,14 +37,14 @@ vec3 PBRGI(const in Surface surface, const in PixelInfo info)
     #else // LIGHTMAP
 
     vec3 n = info.normalWS;
-    vec3 Fd = diffuseIrradiance(n) * surface.diffuseColor;
+    vec3 Fd = diffuseIrradiance(n) * surface.diffuseColor * surface.occlusion;
 
     #endif // LIGHTMAP
 
     // specular
     float perceptualRoughness = surface.perceptualRoughness;
     float NoV = info.NoV;
-    vec2 env = EnvBRDFApproxLazarov(perceptualRoughness, NoV);;
+    vec2 env = EnvBRDFApproxLazarov(perceptualRoughness, NoV);
     vec3 f0 = surface.f0;
     // todo f90 用 1.0 近似 f90
     float f90 = 1.0;
@@ -53,7 +53,7 @@ vec3 PBRGI(const in Surface surface, const in PixelInfo info)
     vec3 r = getReflectedVector(surface, info);
     vec3 indirectSpecular = specularIrradiance(r, perceptualRoughness);
 
-    vec3 Fr = indirectSpecular * specularColor;
+    vec3 Fr = indirectSpecular * specularColor * surface.occlusion;
 
     indirect = Fd + Fr;
 

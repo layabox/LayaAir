@@ -134,16 +134,6 @@ export class Label extends UIComponent {
     }
 
     /**
-     * @inheritDoc 
-     * @override
-    */
-    destroy(destroyChild: boolean = true): void {
-        super.destroy(destroyChild);
-        //@ts-ignore
-        this._tf = null;
-    }
-
-    /**
      * @override
      * @inheritDoc 
     */
@@ -399,17 +389,12 @@ export class Label extends UIComponent {
      * @inheritDoc 
      * @override
      */
-    set dataSource(value: any) {
+    set_dataSource(value: any) {
         this._dataSource = value;
-        if (typeof (value) == 'number' || typeof (value) == 'string') this.text = value + "";
-        else super.dataSource = value;
-    }
-    /**
-     * @inheritDoc 
-     * @override
-     */
-    get dataSource() {
-        return super.dataSource;
+        if (typeof (value) == 'number' || typeof (value) == 'string')
+            this.text = value + "";
+        else
+            super.set_dataSource(value);
     }
 
     /**

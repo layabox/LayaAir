@@ -2,7 +2,6 @@ import { UIComponent } from "./UIComponent";
 import { Button } from "./Button";
 import { List } from "./List";
 import { Styles } from "./Styles";
-import { Box } from "./Box";
 import { Label } from "./Label";
 import { UIUtils } from "./UIUtils";
 import { VScrollBar } from "./VScrollBar";
@@ -108,11 +107,11 @@ export class ComboBox extends UIComponent {
     /**
      * @private
      */
-    protected _itemColors: any[] = Styles.comboBoxItemColors;
+    protected _itemColors: string[];
     /**
      * @private
      */
-    protected _itemPadding: any[] = [3, 3, 3, 3];
+    protected _itemPadding: number[];
     /**
      * @private
      */
@@ -120,7 +119,7 @@ export class ComboBox extends UIComponent {
     /**
      * @private
      */
-    protected _labels: any[] = [];
+    protected _labels: string[] = [];
     /**
      * @private
      * 下拉提示文本
@@ -170,6 +169,10 @@ export class ComboBox extends UIComponent {
      */
     constructor(skin: string = null, labels: string = null) {
         super();
+
+        this._itemColors = Styles.comboBoxItemColors;
+        this._itemPadding = [3, 3, 3, 3];
+
         this.skin = skin;
         this.labels = labels;
     }
@@ -209,7 +212,9 @@ export class ComboBox extends UIComponent {
 
     private _createList(): void {
         this._list = new List();
-        if (this._scrollBarSkin) this._list.vScrollBarSkin = this._scrollBarSkin;
+        this._list.hideFlags = HideFlags.HideAndDontSave;
+        if (this._scrollBarSkin)
+            this._list.vScrollBarSkin = this._scrollBarSkin;
         this._setListEvent(this._list);
     }
 
@@ -235,9 +240,6 @@ export class ComboBox extends UIComponent {
         this.callLater(this.switchTo, [!this._isOpen]);
     }
 
-    /**
-     * @copy laya.ui.Button#skin
-     */
     get skin(): string {
         return this._button.skin;
     }
@@ -247,6 +249,15 @@ export class ComboBox extends UIComponent {
             this._button.skin = value;
             this._listChanged = true;
         }
+    }
+
+    get skins(): string[] {
+        return this._button.skins;
+    }
+
+    set skins(value: string[]) {
+        this._button.skins = value;
+        this._listChanged = true;
     }
 
     /**
@@ -375,9 +386,12 @@ export class ComboBox extends UIComponent {
     }
 
     set labels(value: string) {
-        if (this._labels.length > 0) this.selectedIndex = -1;
-        if (value) this._labels = value.split(",");
-        else this._labels.length = 0;
+        if (this._labels.length > 0)
+            this.selectedIndex = -1;
+        if (value)
+            this._labels = value.split(",");
+        else
+            this._labels.length = 0;
         this._itemChanged = true;
     }
 
@@ -391,14 +405,14 @@ export class ComboBox extends UIComponent {
         if (!this._isCustomList) {
             //填充背景
             var g: Graphics = this._list.graphics;
-            g.clear(true);
+            g.clear();
             g.drawRect(0, 0, this.width - 1, this._listHeight, this._itemColors[4], this._itemColors[3]);
         }
 
-        //填充数据			
-        var a: any[] = this._list.array || [];
+        //填充数据
+        let a: any[] = this._list.array || [];
         a.length = 0;
-        for (var i: number = 0, n: number = this._labels.length; i < n; i++) {
+        for (let i = 0, n = this._labels.length; i < n; i++) {
             a.push({ label: this._labels[i] });
         }
         this._list.height = this._listHeight;
@@ -422,8 +436,10 @@ export class ComboBox extends UIComponent {
         if (this._selectedIndex != value) {
             this._selectedIndex = value;
 
-            if (this._labels.length > 0) this.changeSelected();
-            else this.callLater(this.changeSelected);
+            if (this._labels.length > 0)
+                this.changeSelected();
+            else
+                this.callLater(this.changeSelected);
 
             this.event(Event.CHANGE, Event.EMPTY);
             this._selectHandler && this._selectHandler.runWith(this._selectedIndex);
@@ -484,7 +500,7 @@ export class ComboBox extends UIComponent {
     /**
      * 下拉列表项的高度
      */
-     get itemHeight(): number {
+    get itemHeight(): number {
         return this._itemHeight;
     }
     set itemHeight(value: number) {
@@ -497,7 +513,7 @@ export class ComboBox extends UIComponent {
      * <p><b>格式：</b>"悬停或被选中时背景颜色,悬停或被选中时标签颜色,标签颜色,边框颜色,背景颜色"</p>
      */
     get itemColors(): string {
-        return String(this._itemColors)
+        return this._itemColors.join(",");
     }
 
     set itemColors(value: string) {
@@ -629,18 +645,14 @@ export class ComboBox extends UIComponent {
      * @inheritDoc 
      * @override
     */
-    set dataSource(value: any) {
+    set_dataSource(value: any): void {
         this._dataSource = value;
-        if (typeof (value) == 'number' || typeof (value) == 'string') this.selectedIndex = parseInt(value as string);
-        else if (value instanceof Array) this.labels = ((<any[]>value)).join(",");
-        else super.dataSource = value;
-    }
-    /**
-     * @inheritDoc 
-     * @override
-     */
-    get dataSource() {
-        return super.dataSource;
+        if (typeof (value) == 'number' || typeof (value) == 'string')
+            this.selectedIndex = parseInt(value as string);
+        else if (value instanceof Array)
+            this.labels = ((<any[]>value)).join(",");
+        else
+            super.set_dataSource(value);
     }
 
     /**

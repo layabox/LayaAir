@@ -1,5 +1,4 @@
 import { Scene } from "../display/Scene"
-import { Event } from "../events/Event"
 import { UIComponent } from "./UIComponent"
 import { ILaya } from "../../ILaya";
 
@@ -29,39 +28,25 @@ export class View extends Scene {
         ILaya.loader.cacheRes(url, json);
     }
 
-    /** 
-     * @inheritDoc 
-     * @override
-    */
-    destroy(destroyChild: boolean = true): void {
-        this._watchMap = null;
-        super.destroy(destroyChild);
-    }
 
     /**@private */
     changeData(key: string): void {
-        var arr: any[] = this._watchMap[key];
+        let arr: any[] = this._watchMap[key];
         if (!arr) return;
-        for (var i: number = 0, n: number = arr.length; i < n; i++) {
-            var watcher: any = arr[i];
+        for (let i = 0, n = arr.length; i < n; i++) {
+            let watcher: any = arr[i];
             watcher.exe(this);
         }
     }
 
-    /**
-     * @implements
-     * laya.ui.UIComponent#dataSource
-     * */
-    get dataSource(): any {
-        return this._dataSource;
-    }
-
-    set dataSource(value: any) {
+    set_dataSource(value: any) {
         this._dataSource = value;
-        for (var name in value) {
-            var comp: any = this.getChildByName(name);
-            if (comp instanceof UIComponent) comp.dataSource = value[name];
-            else if (name in this && !((this as any)[name] instanceof Function)) (this as any)[name] = value[name];
+        for (let name in value) {
+            let comp = this.getChildByName(name);
+            if (comp instanceof UIComponent)
+                comp.dataSource = value[name];
+            else if (name in this && !((this as any)[name] instanceof Function))
+                (this as any)[name] = value[name];
         }
     }
 }

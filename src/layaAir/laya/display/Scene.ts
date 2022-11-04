@@ -20,7 +20,7 @@ export class Scene extends Sprite {
     /**获取根节点*/
     private static _root: Sprite;
     /**@private */
-    private static _loadPage: Scene;
+    private static _loadPage: Sprite;
 
     /**场景被关闭后，是否自动销毁（销毁节点和使用到的资源），默认为false*/
     autoDestroyAtClosed: boolean = false;
@@ -566,10 +566,8 @@ export class Scene extends Sprite {
      * 设置loading界面，引擎会在调用open方法后，延迟打开loading界面，在页面添加到舞台之后，关闭loading界面
      * @param	loadPage 	load界面实例
      */
-    static setLoadingPage(loadPage: Scene): void {
-        if (Scene._loadPage != loadPage) {
-            Scene._loadPage = loadPage;
-        }
+    static setLoadingPage(loadPage: Sprite): void {
+        Scene._loadPage = loadPage;
     }
 
     /**
@@ -587,11 +585,15 @@ export class Scene extends Sprite {
 
     private static _showLoading(param: any): void {
         ILaya.stage.addChild(Scene._loadPage);
-        Scene._loadPage.onOpened(param);
+        if (Scene._loadPage instanceof Scene)
+            Scene._loadPage.onOpened(param);
     }
 
     private static _hideLoading(): void {
-        Scene._loadPage.close();
+        if (Scene._loadPage instanceof Scene)
+            Scene._loadPage.close();
+        else
+            Scene._loadPage.removeSelf();
     }
 
     /**

@@ -13,7 +13,7 @@ export class DrawTextureCmd {
     /**
      * 纹理。
      */
-    texture: Texture|null;
+    texture: Texture | null;
     /**
      * （可选）X轴偏移量。
      */
@@ -33,7 +33,7 @@ export class DrawTextureCmd {
     /**
      * （可选）矩阵信息。
      */
-    matrix: Matrix|null;
+    matrix: Matrix | null;
     /**
      * （可选）透明度。
      */
@@ -41,28 +41,25 @@ export class DrawTextureCmd {
     /**
      * （可选）颜色滤镜。
      */
-    color: string|null;
+    color: string | null;
 
-    colorFlt: ColorFilter|null = null;
+    colorFlt: ColorFilter | null = null;
     /**
      * （可选）混合模式。
      */
-    blendMode: string|null;
+    blendMode: string | null;
 
-    uv: number[]|null = null;
+    uv: number[] | null = null;
 
     /**@private */
-    static create(texture: Texture, x: number, y: number, width: number, height: number, matrix: Matrix|null, alpha: number, color: string|null, blendMode: string|null, uv?: number[]): DrawTextureCmd {
-        if (!texture || alpha < 0.01) return null;
-        if (!texture.bitmap) return null;
+    static create(texture: Texture, x: number, y: number, width: number, height: number, matrix: Matrix | null, alpha: number, color: string | null, blendMode: string | null, uv?: number[]): DrawTextureCmd {
         if (!width) width = texture.sourceWidth;
         if (!height) height = texture.sourceHeight;
 
-        var wRate = width / texture.sourceWidth;
-        var hRate = height / texture.sourceHeight;
+        let wRate = width / texture.sourceWidth;
+        let hRate = height / texture.sourceHeight;
         width = texture.width * wRate;
         height = texture.height * hRate;
-        if (width <= 0 || height <= 0) return null;
 
         x += texture.offsetX * wRate;
         y += texture.offsetY * hRate;
@@ -78,7 +75,7 @@ export class DrawTextureCmd {
         cmd.alpha = alpha;
         cmd.color = color;
         cmd.blendMode = blendMode;
-        cmd.uv = uv==undefined?null:uv;
+        cmd.uv = uv || null;
         if (color) {
             cmd.colorFlt = new ColorFilter();
             cmd.colorFlt.setColor(color);
@@ -106,6 +103,5 @@ export class DrawTextureCmd {
     get cmdID(): string {
         return DrawTextureCmd.ID;
     }
-
 }
 

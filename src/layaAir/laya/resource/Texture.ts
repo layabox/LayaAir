@@ -46,6 +46,8 @@ export class Texture extends Resource {
     /** @private */
     scaleRate: number = 1;
 
+    clipCache: Map<string, Texture>;
+
     /**
      *  根据指定资源和坐标、宽高、偏移量等创建 <code>Texture</code> 对象。
      * @param	source 绘图资源 Texture2D 或者 Texture对象。
@@ -438,6 +440,24 @@ export class Texture extends Resource {
         this._bitmap = null;
         if (bit)
             bit._removeReference(this._referenceCount);
+    }
+
+    public getCachedClip(x: number, y: number, width: number, height: number): Texture {
+        let key = `${x}_${y}_${width}_${height}`;
+        if (!this.clipCache)
+            this.clipCache = new Map();
+
+        let tex = this.clipCache.get(key);
+        if (tex)
+            return tex;
+        tex = Texture.createFromTexture(this, x, y, width, height);
+
+        if (this.clipCache.size > 100)
+            this.clipCache.clear();
+
+        this.clipCache.set(key, tex);
+
+        return tex;
     }
 }
 

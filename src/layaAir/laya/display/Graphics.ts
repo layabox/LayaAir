@@ -3,7 +3,7 @@ import { GraphicsBounds } from "./GraphicsBounds";
 import { SpriteConst } from "./SpriteConst";
 import { AlphaCmd } from "./cmd/AlphaCmd"
 import { ClipRectCmd } from "./cmd/ClipRectCmd"
-import { Draw9GridTexture } from "./cmd/Draw9GridTexture"
+import { Draw9GridTextureCmd } from "./cmd/Draw9GridTextureCmd"
 import { DrawCircleCmd } from "./cmd/DrawCircleCmd"
 import { DrawCurvesCmd } from "./cmd/DrawCurvesCmd"
 import { DrawImageCmd } from "./cmd/DrawImageCmd"
@@ -50,8 +50,6 @@ export class Graphics {
     protected _vectorgraphArray: any[] | null = null;
     /**@private */
     private _graphicBounds: GraphicsBounds | null = null;
-    /**@private */
-    autoDestroy: boolean = false;
 
     constructor() {
         this._createData();
@@ -145,21 +143,61 @@ export class Graphics {
     }
 
     /**
-     * @private
      * 命令流。存储了所有绘制命令。
      */
-    get cmds(): any[] {
+    get cmds(): ReadonlyArray<any> {
         return this._cmds;
     }
 
-    set cmds(value: any[]) {
+    set cmds(value: any) {
         if (this._sp) {
             this._sp._renderType |= SpriteConst.GRAPHICS;
             this._sp._setRenderType(this._sp._renderType);
         }
+
         this._cmds = value;
-        this._render = this._cmds.length === 1 ? this._renderOne : this._renderAll;
+
+        let len = value.length;
+        this._render = len === 0 ? this._renderEmpty : (len === 1 ? this._renderOne : this._renderAll);
         this._repaint();
+    }
+
+    /**
+     * 保存到命令流。
+     */
+    addCmd(cmd: any): any {
+        if (cmd == null) {
+            console.warn("null cmd");
+            return;
+        }
+
+        if (this._sp) {
+            this._sp._renderType |= SpriteConst.GRAPHICS;
+            this._sp._setRenderType(this._sp._renderType);
+        }
+        this._cmds.push(cmd);
+        if (this._cmds.length == 1)
+            this._render = this._renderOne;
+        else
+            this._render = this._renderAll;
+        this._repaint();
+        return cmd;
+    }
+
+    removeCmd(cmd: any) {
+        let i = this.cmds.indexOf(cmd);
+        if (i != -1) {
+            this._cmds.splice(i, 1);
+
+            if (this._sp) {
+                this._sp._renderType |= SpriteConst.GRAPHICS;
+                this._sp._setRenderType(this._sp._renderType);
+            }
+
+            let len = this._cmds.length;
+            this._render = len === 0 ? this._renderEmpty : (len === 1 ? this._renderOne : this._renderAll);
+            this._repaint();
+        }
     }
 
     /**
@@ -191,7 +229,9 @@ export class Graphics {
      * @param height	（可选）高度。
      */
     drawImage(texture: Texture, x: number = 0, y: number = 0, width: number = 0, height: number = 0): DrawImageCmd | null {
-        return this._saveToCmd(DrawImageCmd.create.call(this, texture, x, y, width, height));
+        if (!texture) return null;
+        if (!texture.bitmap) return null;
+        return this.addCmd(DrawImageCmd.create(texture, x, y, width, height));
     }
 
     /**
@@ -207,7 +247,9 @@ export class Graphics {
      * @param blendMode （可选）混合模式。
      */
     drawTexture(texture: Texture | null, x: number = 0, y: number = 0, width: number = 0, height: number = 0, matrix: Matrix | null = null, alpha: number = 1, color: string | null = null, blendMode: string | null = null, uv?: number[]): DrawTextureCmd | null {
-        return this._saveToCmd(DrawTextureCmd.create.call(this, texture, x, y, width, height, matrix, alpha, color, blendMode, uv));
+        if (!texture || alpha < 0.01) return null;
+        if (!texture.bitmap) return null;
+        return this.addCmd(DrawTextureCmd.create(texture, x, y, width, height, matrix, alpha, color, blendMode, uv));
     }
 
     /**
@@ -217,7 +259,7 @@ export class Graphics {
      */
     drawTextures(texture: Texture, pos: any[]): DrawTexturesCmd | null {
         if (!texture) return null;
-        return this._saveToCmd(DrawTexturesCmd.create.call(this, texture, pos));
+        return this.addCmd(DrawTexturesCmd.create(texture, pos));
     }
 
     /**
@@ -235,7 +277,7 @@ export class Graphics {
      */
     drawTriangles(texture: Texture, x: number, y: number, vertices: Float32Array, uvs: Float32Array, indices: Uint16Array, matrix: Matrix | null = null,
         alpha: number = 1, color: string | null = null, blendMode: string | null = null, colorNum: number = 0xffffffff): DrawTrianglesCmd {
-        return this._saveToCmd(DrawTrianglesCmd.create.call(this, texture, x, y, vertices, uvs, indices, matrix, alpha, color, blendMode, colorNum));
+        return this.addCmd(DrawTrianglesCmd.create(texture, x, y, vertices, uvs, indices, matrix, alpha, color, blendMode, colorNum));
     }
 
     /**
@@ -251,27 +293,9 @@ export class Graphics {
      */
     fillTexture(texture: Texture, x: number, y: number, width: number = 0, height: number = 0, type: string = "repeat", offset: Point | null = null): FillTextureCmd | null {
         if (texture && texture.bitmap)
-            return this._saveToCmd(FillTextureCmd.create.call(this, texture, x, y, width, height, type, offset || Point.EMPTY, {}));
+            return this.addCmd(FillTextureCmd.create(texture, x, y, width, height, type, offset || Point.EMPTY));
         else
             return null;
-    }
-
-    /**
-     * @internal
-     * 保存到命令流。
-     */
-    _saveToCmd(cmd: any): any {
-        if (this._sp) {
-            this._sp._renderType |= SpriteConst.GRAPHICS;
-            this._sp._setRenderType(this._sp._renderType);
-        }
-        this._cmds.push(cmd);
-        if (this._cmds.length == 1)
-            this._render = this._renderOne;
-        else
-            this._render = this._renderAll;
-        this._repaint();
-        return cmd;
     }
 
     /**
@@ -282,7 +306,7 @@ export class Graphics {
      * @param height 高度。
      */
     clipRect(x: number, y: number, width: number, height: number): ClipRectCmd {
-        return this._saveToCmd(ClipRectCmd.create.call(this, x, y, width, height));
+        return this.addCmd(ClipRectCmd.create(x, y, width, height));
     }
 
     /**
@@ -295,7 +319,7 @@ export class Graphics {
      * @param textAlign 文本对齐方式，可选值："left"，"center"，"right"。
      */
     fillText(text: string, x: number, y: number, font: string, color: string, textAlign: string): FillTextCmd {
-        return this._saveToCmd(FillTextCmd.create.call(this, text, null, x, y, font || Config.defaultFontStr(), color, textAlign, 0, ""));
+        return this.addCmd(FillTextCmd.create(text, null, x, y, font || Config.defaultFontStr(), color, textAlign, 0, ""));
     }
 
     /**
@@ -311,17 +335,17 @@ export class Graphics {
      */
 
     fillBorderText(text: string, x: number, y: number, font: string, fillColor: string, textAlign: string, lineWidth: number, borderColor: string): FillTextCmd {
-        return this._saveToCmd(FillTextCmd.create.call(this, text, null, x, y, font || Config.defaultFontStr(), fillColor, textAlign, lineWidth, borderColor));
+        return this.addCmd(FillTextCmd.create(text, null, x, y, font || Config.defaultFontStr(), fillColor, textAlign, lineWidth, borderColor));
     }
 
     /*** @private */
     fillWords(words: any[], x: number, y: number, font: string, color: string): FillTextCmd {
-        return this._saveToCmd(FillTextCmd.create.call(this, null, words, x, y, font || Config.defaultFontStr(), color, '', 0, null));
+        return this.addCmd(FillTextCmd.create(null, words, x, y, font || Config.defaultFontStr(), color, '', 0, null));
     }
 
     /*** @private */
     fillBorderWords(words: any[], x: number, y: number, font: string, fillColor: string, borderColor: string, lineWidth: number): FillTextCmd {
-        return this._saveToCmd(FillTextCmd.create.call(this, null, words, x, y, font || Config.defaultFontStr(), fillColor, "", lineWidth, borderColor));
+        return this.addCmd(FillTextCmd.create(null, words, x, y, font || Config.defaultFontStr(), fillColor, "", lineWidth, borderColor));
     }
 
     /**
@@ -335,7 +359,7 @@ export class Graphics {
      * @param textAlign	文本对齐方式，可选值："left"，"center"，"right"。
      */
     strokeText(text: string, x: number, y: number, font: string, color: string, lineWidth: number, textAlign: string): FillTextCmd {
-        return this._saveToCmd(FillTextCmd.create.call(this, text, null, x, y, font || Config.defaultFontStr(), null, textAlign, lineWidth, color));
+        return this.addCmd(FillTextCmd.create(text, null, x, y, font || Config.defaultFontStr(), null, textAlign, lineWidth, color));
     }
 
     /**
@@ -343,7 +367,7 @@ export class Graphics {
      * @param value 透明度。
      */
     alpha(alpha: number): AlphaCmd {
-        return this._saveToCmd(AlphaCmd.create.call(this, alpha));
+        return this.addCmd(AlphaCmd.create(alpha));
     }
 
     /**
@@ -353,7 +377,7 @@ export class Graphics {
      * @param pivotY	（可选）垂直方向轴心点坐标。
      */
     transform(matrix: Matrix, pivotX: number = 0, pivotY: number = 0): TransformCmd {
-        return this._saveToCmd(TransformCmd.create.call(this, matrix, pivotX, pivotY));
+        return this.addCmd(TransformCmd.create(matrix, pivotX, pivotY));
     }
 
     /**
@@ -363,7 +387,7 @@ export class Graphics {
      * @param pivotY	（可选）垂直方向轴心点坐标。
      */
     rotate(angle: number, pivotX: number = 0, pivotY: number = 0): RotateCmd {
-        return this._saveToCmd(RotateCmd.create.call(this, angle, pivotX, pivotY));
+        return this.addCmd(RotateCmd.create(angle, pivotX, pivotY));
     }
 
     /**
@@ -374,7 +398,7 @@ export class Graphics {
      * @param pivotY	（可选）垂直方向轴心点坐标。
      */
     scale(scaleX: number, scaleY: number, pivotX: number = 0, pivotY: number = 0): ScaleCmd {
-        return this._saveToCmd(ScaleCmd.create.call(this, scaleX, scaleY, pivotX, pivotY));
+        return this.addCmd(ScaleCmd.create(scaleX, scaleY, pivotX, pivotY));
     }
 
     /**
@@ -383,21 +407,21 @@ export class Graphics {
      * @param y 添加到垂直坐标（y）上的值。
      */
     translate(tx: number, ty: number): TranslateCmd {
-        return this._saveToCmd(TranslateCmd.create.call(this, tx, ty));
+        return this.addCmd(TranslateCmd.create(tx, ty));
     }
 
     /**
      * 保存当前环境的状态。
      */
     save(): SaveCmd {
-        return this._saveToCmd(SaveCmd.create.call(this));
+        return this.addCmd(SaveCmd.create());
     }
 
     /**
      * 返回之前保存过的路径状态和属性。
      */
     restore(): RestoreCmd {
-        return this._saveToCmd(RestoreCmd.create.call(this));
+        return this.addCmd(RestoreCmd.create());
     }
 
     /**
@@ -508,7 +532,7 @@ export class Graphics {
      * @param lineWidth	（可选）线条宽度。
      */
     drawLine(fromX: number, fromY: number, toX: number, toY: number, lineColor: string, lineWidth: number = 1): DrawLineCmd {
-        return this._saveToCmd(DrawLineCmd.create.call(this, fromX, fromY, toX, toY, lineColor, lineWidth));
+        return this.addCmd(DrawLineCmd.create(fromX, fromY, toX, toY, lineColor, lineWidth));
     }
 
     /**
@@ -521,7 +545,7 @@ export class Graphics {
      */
     drawLines(x: number, y: number, points: any[], lineColor: any, lineWidth: number = 1): DrawLinesCmd | null {
         if (!points || points.length < 4) return null;
-        return this._saveToCmd(DrawLinesCmd.create.call(this, x, y, points, lineColor, lineWidth));
+        return this.addCmd(DrawLinesCmd.create(x, y, points, lineColor, lineWidth));
     }
 
     /**
@@ -533,7 +557,7 @@ export class Graphics {
      * @param lineWidth	（可选）线段宽度。
      */
     drawCurves(x: number, y: number, points: any[], lineColor: any, lineWidth: number = 1): DrawCurvesCmd {
-        return this._saveToCmd(DrawCurvesCmd.create.call(this, x, y, points, lineColor, lineWidth));
+        return this.addCmd(DrawCurvesCmd.create(x, y, points, lineColor, lineWidth));
     }
 
     /**
@@ -545,9 +569,10 @@ export class Graphics {
      * @param fillColor	填充颜色，或者填充绘图的渐变对象。
      * @param lineColor	（可选）边框颜色，或者填充绘图的渐变对象。
      * @param lineWidth	（可选）边框宽度。
+     * @param percent 位置和大小是否是百分比值。
      */
-    drawRect(x: number, y: number, width: number, height: number, fillColor: any, lineColor: any = null, lineWidth: number = 1): DrawRectCmd {
-        return this._saveToCmd(DrawRectCmd.create.call(this, x, y, width, height, fillColor, lineColor, lineWidth));
+    drawRect(x: number, y: number, width: number, height: number, fillColor: any, lineColor: any = null, lineWidth: number = 1, percent?: boolean): DrawRectCmd {
+        return this.addCmd(DrawRectCmd.create(x, y, width, height, fillColor, lineColor, lineWidth, percent));
     }
 
     /**
@@ -560,7 +585,7 @@ export class Graphics {
      * @param lineWidth	（可选）边框宽度。
      */
     drawCircle(x: number, y: number, radius: number, fillColor: any, lineColor: any = null, lineWidth: number = 1): DrawCircleCmd {
-        return this._saveToCmd(DrawCircleCmd.create.call(this, x, y, radius, fillColor, lineColor, lineWidth));
+        return this.addCmd(DrawCircleCmd.create(x, y, radius, fillColor, lineColor, lineWidth));
     }
 
     /**
@@ -575,7 +600,7 @@ export class Graphics {
      * @param lineWidth		（可选）边框宽度。
      */
     drawPie(x: number, y: number, radius: number, startAngle: number, endAngle: number, fillColor: any, lineColor: any = null, lineWidth: number = 1): DrawPieCmd {
-        return this._saveToCmd(DrawPieCmd.create.call(this, x, y, radius, Utils.toRadian(startAngle), Utils.toRadian(endAngle), fillColor, lineColor, lineWidth));
+        return this.addCmd(DrawPieCmd.create(x, y, radius, Utils.toRadian(startAngle), Utils.toRadian(endAngle), fillColor, lineColor, lineWidth));
     }
 
     /**
@@ -588,7 +613,7 @@ export class Graphics {
      * @param lineWidth	（可选）边框宽度。
      */
     drawPoly(x: number, y: number, points: any[], fillColor: any, lineColor: any = null, lineWidth: number = 1): DrawPolyCmd {
-        return this._saveToCmd(DrawPolyCmd.create.call(this, x, y, points, fillColor, lineColor, lineWidth));
+        return this.addCmd(DrawPolyCmd.create(x, y, points, fillColor, lineColor, lineWidth));
     }
 
     /**
@@ -600,7 +625,7 @@ export class Graphics {
      * @param pen	（可选）画笔定义，支持以下设置{strokeStyle,lineWidth,lineJoin:"bevel|round|miter",lineCap:"butt|round|square",miterLimit}。
      */
     drawPath(x: number, y: number, paths: any[], brush: any = null, pen: any = null): DrawPathCmd {
-        return this._saveToCmd(DrawPathCmd.create.call(this, x, y, paths, brush, pen));
+        return this.addCmd(DrawPathCmd.create(x, y, paths, brush, pen));
     }
 
     /**
@@ -614,6 +639,6 @@ export class Graphics {
      * @param	sizeGrid
      */
     draw9Grid(texture: Texture, x: number = 0, y: number = 0, width: number = 0, height: number = 0, sizeGrid: any[]): void {
-        this._saveToCmd(Draw9GridTexture.create(texture, x, y, width, height, sizeGrid));
+        this.addCmd(Draw9GridTextureCmd.create(texture, x, y, width, height, sizeGrid));
     }
 }

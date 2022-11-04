@@ -88,8 +88,6 @@ import { URL } from "../net/URL";
  * @see laya.ui.AutoBitmap
  */
 export class Image extends UIComponent {
-    /**@internal */
-    _bitmap: AutoBitmap;
     /**@private */
     protected _skin: string;
     /**@private */
@@ -105,16 +103,6 @@ export class Image extends UIComponent {
     }
 
     /**
-     * @inheritDoc 
-     * @override
-     */
-    destroy(destroyChild: boolean = true): void {
-        super.destroy(destroyChild);
-        this._bitmap && this._bitmap.destroy();
-        this._bitmap = null;
-    }
-
-    /**
      * 销毁对象并释放加载的皮肤资源。
      */
     dispose(): void {
@@ -127,8 +115,8 @@ export class Image extends UIComponent {
      * @override
      */
     protected createChildren(): void {
-        this.graphics = this._bitmap = new AutoBitmap();
-        this._bitmap.autoCacheCmd = false;
+        this.graphics = new AutoBitmap();
+        this._ownGraphics = true;
     }
 
     /**
@@ -141,21 +129,24 @@ export class Image extends UIComponent {
     }
 
     set skin(value: string) {
-        if (this._skin != value) {
-            this._skin = value;
-            if (value) {
-                let source = Loader.getRes(value);
-                if (source) {
-                    this.source = source;
-                    this.onCompResize();
-                } else {
-                    let url = this._skinBaseUrl ? URL.formatURL(this._skin, this._skinBaseUrl) : this._skin;
-                    ILaya.loader.load(url, 
-                        Handler.create(this, this.setSource, [this._skin]), null, Loader.IMAGE, 1, true, this._group);
-                }
+        if (value == "")
+            value = null;
+        if (this._skin === value)
+            return;
+
+        this._skin = value;
+        if (value) {
+            let source = Loader.getRes(value);
+            if (source) {
+                this.source = source;
+                this.onCompResize();
             } else {
-                this.source = null;
+                let url = this._skinBaseUrl ? URL.formatURL(this._skin, this._skinBaseUrl) : this._skin;
+                ILaya.loader.load(url,
+                    Handler.create(this, this.setSource, [this._skin]), null, Loader.IMAGE, 1, true, this._group);
             }
+        } else {
+            this.source = null;
         }
     }
 
@@ -163,12 +154,12 @@ export class Image extends UIComponent {
      * @copy laya.ui.AutoBitmap#source
      */
     get source(): Texture {
-        return this._bitmap.source;
+        return this._graphics.source;
     }
 
     set source(value: Texture) {
-        if (!this._bitmap) return;
-        this._bitmap.source = value;
+        if (!this._graphics) return;
+        this._graphics.source = value;
         this.event(Event.LOADED);
         this.repaint();
     }
@@ -184,15 +175,17 @@ export class Image extends UIComponent {
         if (value && this._skin) Loader.setGroup(this._skin, value);
         this._group = value;
     }
+
     /**
      * @private
      * 设置皮肤资源。
      */
-    protected setSource(url: string, img: any = null): void {
-        if (url === this._skin && img) {
-            this.source = img
-            this.onCompResize();
-        }
+    protected setSource(url: string, img: any): void {
+        if (url !== this._skin)
+            return;
+
+        this.source = img;
+        this.onCompResize();
     }
 
     /**
@@ -200,7 +193,7 @@ export class Image extends UIComponent {
      * @override
      */
     protected measureWidth(): number {
-        return this._bitmap.width;
+        return this._graphics.width;
     }
 
     /**
@@ -208,7 +201,7 @@ export class Image extends UIComponent {
      * @override
      */
     protected measureHeight(): number {
-        return this._bitmap.height;
+        return this._graphics.height;
     }
 
     /**
@@ -217,7 +210,7 @@ export class Image extends UIComponent {
      */
     set width(value: number) {
         super.width = value;
-        this._bitmap.width = value == 0 ? 0.0000001 : value;
+        this._graphics.width = value == 0 ? 0.0000001 : value;
     }
 
     /**
@@ -234,8 +227,9 @@ export class Image extends UIComponent {
      */
     set height(value: number) {
         super.height = value;
-        this._bitmap.height = value == 0 ? 0.0000001 : value;
+        this._graphics.height = value;
     }
+
     /**
      * @inheritDoc 
      * @override
@@ -251,28 +245,30 @@ export class Image extends UIComponent {
      * @see laya.ui.AutoBitmap#sizeGrid
      */
     get sizeGrid(): string {
-        if (this._bitmap.sizeGrid) return this._bitmap.sizeGrid.join(",");
+        if (this._graphics.sizeGrid) return this._graphics.sizeGrid.join(",");
         return null;
     }
 
     set sizeGrid(value: string) {
-        this._bitmap.sizeGrid = UIUtils.fillArray(Styles.defaultSizeGrid, value, Number);
+        if (value)
+            this._graphics.sizeGrid = UIUtils.fillArray(Styles.defaultSizeGrid, value, Number);
+        else
+            this._graphics.sizeGrid = null;
     }
 
     /**
      * @inheritDoc 
      * @override
      */
-    set dataSource(value: any) {
+    set_dataSource(value: any): void {
         this._dataSource = value;
-        if (typeof (value) == 'string') this.skin = value as string;
-        else super.dataSource = value;
+        if (typeof (value) == 'string')
+            this.skin = value as string;
+        else
+            super.set_dataSource(value);
     }
-    /**
-     * @inheritDoc 
-     * @override
-     */
-    get dataSource() {
-        return super.dataSource;
-    }
+}
+
+export interface Image {
+    _graphics: AutoBitmap;
 }
