@@ -94,7 +94,7 @@ export class Particle2D extends Sprite {
         this.customRenderEnable = true;//设置custom渲染
 
         //this.graphics._saveToCmd(Render.context._drawParticle, [_particleTemplate]);
-        this.graphics._saveToCmd(DrawParticleCmd.create((<ParticleTemplate2D>this._template)));
+        this.graphics.addCmd(DrawParticleCmd.create((<ParticleTemplate2D>this._template)));
         // canvas 不支持
         if (!this._emitter) {
             this._emitter = new Emitter2D(this._template);

@@ -2,6 +2,7 @@ import { ColorFilter } from "../../filters/ColorFilter"
 import { Matrix } from "../../maths/Matrix"
 import { Context } from "../../resource/Context"
 import { Texture } from "../../resource/Texture"
+import { ClassUtils } from "../../utils/ClassUtils"
 import { ColorUtils } from "../../utils/ColorUtils"
 import { Pool } from "../../utils/Pool"
 
@@ -14,7 +15,7 @@ export class DrawTrianglesCmd {
     /**
      * 纹理。
      */
-    texture: Texture|null;
+    texture: Texture | null;
     /**
      * X轴偏移量。
      */
@@ -38,7 +39,7 @@ export class DrawTrianglesCmd {
     /**
      * 缩放矩阵。
      */
-    matrix: Matrix|null;
+    matrix: Matrix | null;
     /**
      * alpha
      */
@@ -47,17 +48,17 @@ export class DrawTrianglesCmd {
     /**
      * blend模式
      */
-    blendMode: string|null;
+    blendMode: string | null;
     /**
      * 颜色变换
      */
     color: ColorFilter;
 
-    colorNum: number|null;
+    colorNum: number | null;
 
     /**@private */
-	static create(texture: Texture, x: number, y: number, vertices: Float32Array, uvs: Float32Array, indices: Uint16Array, 
-			matrix: Matrix|null, alpha: number, color: string|null, blendMode: string|null, colorNum: number|null): DrawTrianglesCmd {
+    static create(texture: Texture, x: number, y: number, vertices: Float32Array, uvs: Float32Array, indices: Uint16Array,
+        matrix: Matrix | null, alpha: number, color: string | null, blendMode: string | null, colorNum: number | null): DrawTrianglesCmd {
         var cmd: DrawTrianglesCmd = Pool.getItemByClass("DrawTrianglesCmd", DrawTrianglesCmd);
         cmd.texture = texture;
         cmd.x = x;
@@ -81,12 +82,12 @@ export class DrawTrianglesCmd {
      * 回收到对象池
      */
     recover(): void {
-		this.texture = null;
-		//@ts-ignore
-		this.vertices = null;
-		//@ts-ignore
-		this.uvs = null;
-		//@ts-ignore
+        this.texture = null;
+        //@ts-ignore
+        this.vertices = null;
+        //@ts-ignore
+        this.uvs = null;
+        //@ts-ignore
         this.indices = null;
         this.matrix = null;
         Pool.recover("DrawTrianglesCmd", this);
@@ -104,3 +105,4 @@ export class DrawTrianglesCmd {
 
 }
 
+ClassUtils.regClass("DrawTrianglesCmd", DrawTrianglesCmd);

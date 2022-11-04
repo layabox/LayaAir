@@ -915,7 +915,7 @@ export class Context {
     }
 
     //TODO:coverage
-    fillTexture(texture: Texture, x: number, y: number, width: number, height: number, type: string, offset: Point, other: any): void {
+    fillTexture(texture: Texture, x: number, y: number, width: number, height: number, type: string, offset: Point): void {
         //test
         /*
         var aa = 95 / 274, bb = 136 / 341, cc = (95 + 41) / 274, dd = (136 + 48) / 341;
@@ -1850,25 +1850,6 @@ export class Context {
         //TEMP end
     }
 
-    /**
-     * 从setIBVB改为drawMesh
-     * type 参数不知道是干什么的，先删掉。offset好像跟attribute有关，删掉
-     * @param	x
-     * @param	y
-     * @param	ib
-     * @param	vb
-     * @param	numElement
-     * @param	mat
-     * @param	shader
-     * @param	shaderValues
-     * @param	startIndex
-     * @param	offset
-     */
-    //TODO:coverage
-    drawMesh(x: number, y: number, ib: IndexBuffer2D, vb: VertexBuffer2D, numElement: number, mat: Matrix, shader: Shader, shaderValues: Value2D, startIndex: number = 0): void {
-        ;
-    }
-
     addRenderObject(o: ISubmit): void {
         this._submits[this._submits._length++] = o;
     }
@@ -1952,12 +1933,13 @@ export class Context {
      * @param	dy
      */
     addPath(points: any[], close: boolean, convex: boolean, dx: number, dy: number): void {
-        var ci: number = 0;
-        for (var i: number = 0, sz: number = points.length / 2; i < sz; i++) {
-            var x1: number = points[ci] + dx, y1: number = points[ci + 1] + dy;
-            points[ci] = x1;
-            points[ci + 1] = y1;
-            ci += 2;
+        let sz = points.length;
+        for (let i = 0; i < sz - 1; i += 2) {
+            points[i] += dx;
+            points[i + 1] += dy;
+        }
+        if (close && sz > 5 && (points[sz - 2] != points[0] || points[sz - 1] != points[1])) {
+            points.push(points[0], points[1]);
         }
         this._getPath().push(points, convex);
     }

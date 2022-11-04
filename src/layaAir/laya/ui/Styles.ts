@@ -55,3 +55,10 @@ export class Styles {
      */
     static scrollBarDelayTime: number = 500;
 }
+
+export enum ScrollType {
+    None,
+    Horizontal,
+    Vertical,
+    Both
+}

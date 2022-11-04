@@ -20,13 +20,12 @@ import { GrahamScan } from "../maths/GrahamScan"
 import { Matrix } from "../maths/Matrix"
 import { Point } from "../maths/Point"
 import { Rectangle } from "../maths/Rectangle"
-import { Context } from "../resource/Context"
 import { Texture } from "../resource/Texture"
 import { Pool } from "../utils/Pool"
 import { Utils } from "../utils/Utils"
 import { Graphics } from "./Graphics";
 import { DrawTrianglesCmd } from "./cmd/DrawTrianglesCmd";
-import { Draw9GridTexture } from "./cmd/Draw9GridTexture";
+import { Draw9GridTextureCmd } from "./cmd/Draw9GridTextureCmd";
 import { SaveCmd } from "./cmd/SaveCmd"
 
 /**
@@ -43,8 +42,6 @@ export class GraphicsBounds {
     private static _tempPoints: any[] = [];
     /**@private */
     private static _tempMatrixArrays: any[] = [];
-    /**@private */
-    private static _tempCmds: any[] = [];
     /**@private */
     private _temp: any[];
     /**@private */
@@ -109,17 +106,11 @@ export class GraphicsBounds {
     }
 
     private _getCmdPoints(realSize: boolean = false): any[] {
-        var cmds: any[] = this._graphics.cmds;
+        var cmds = this._graphics.cmds;
         var rst: any[];
         rst = this._temp || (this._temp = []);
-
         rst.length = 0;
-        if (!cmds && this._graphics._one != null) {
-            GraphicsBounds._tempCmds.length = 0;
-            GraphicsBounds._tempCmds.push(this._graphics._one);
-            cmds = GraphicsBounds._tempCmds;
-        }
-        if (!cmds) return rst;
+        if (cmds.length == 0) return rst;
 
         var matrixs: any[] = GraphicsBounds._tempMatrixArrays;
         matrixs.length = 0;
@@ -128,7 +119,7 @@ export class GraphicsBounds {
         var tempMatrix: Matrix = GraphicsBounds._tempMatrix;
         var cmd: any;
         var tex: Texture;
-        for (var i: number = 0, n: number = cmds.length; i < n; i++) {
+        for (let i = 0, n = cmds.length; i < n; i++) {
             cmd = cmds[i];
             switch (cmd.cmdID) {
                 case AlphaCmd.ID:
@@ -280,8 +271,8 @@ export class GraphicsBounds {
                 case DrawTrianglesCmd.ID:
                     GraphicsBounds._addPointArrToRst(rst, this._getTriAngBBXPoints((cmd as DrawTrianglesCmd).vertices), tMatrix);
                     break;
-                case Draw9GridTexture.ID:
-                    GraphicsBounds._addPointArrToRst(rst, this._getDraw9GridBBXPoints(cmd as Draw9GridTexture), tMatrix);
+                case Draw9GridTextureCmd.ID:
+                    GraphicsBounds._addPointArrToRst(rst, this._getDraw9GridBBXPoints(cmd as Draw9GridTextureCmd), tMatrix);
                     break;
             }
         }
@@ -392,7 +383,7 @@ export class GraphicsBounds {
         return [minx, miny, maxx, miny, maxx, maxy, minx, maxy];
     }
 
-    private _getDraw9GridBBXPoints(cmd: Draw9GridTexture) {
+    private _getDraw9GridBBXPoints(cmd: Draw9GridTextureCmd) {
         var minx = 0;
         var miny = 0;
         var maxx = cmd.width;

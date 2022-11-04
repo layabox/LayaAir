@@ -1,4 +1,4 @@
-import { Component } from "../components/Component"
+import { Component } from "./Component"
 import { HideFlags } from "../Const";
 import { Sprite } from "../display/Sprite"
 import { Event } from "../events/Event"

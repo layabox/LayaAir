@@ -65,7 +65,7 @@ export class ScrollBar extends UIComponent {
     disableDrag: boolean = false;
 
     /**@private */
-    protected _showButtons: boolean = UIConfig.showButtons;
+    protected _showButtons: boolean;
     /**@private */
     protected _scrollSize: number = 1;
     /**@private */
@@ -91,9 +91,9 @@ export class ScrollBar extends UIComponent {
     /**@private */
     protected _offsets: any[];
     /**@private */
-    protected _touchScrollEnable: boolean = UIConfig.touchScrollEnable;
+    protected _touchScrollEnable: boolean;
     /**@private */
-    protected _mouseWheelEnable: boolean = UIConfig.mouseWheelEnable;
+    protected _mouseWheelEnable: boolean;
 
     /**
      * 创建一个新的 <code>ScrollBar</code> 实例。
@@ -101,6 +101,11 @@ export class ScrollBar extends UIComponent {
      */
     constructor(skin: string = null) {
         super();
+
+        this._showButtons = UIConfig.showButtons;
+        this._touchScrollEnable = UIConfig.touchScrollEnable;
+        this._mouseWheelEnable = UIConfig.mouseWheelEnable;
+
         this.skin = skin;
         this.max = 1;
     }
@@ -121,6 +126,7 @@ export class ScrollBar extends UIComponent {
         this.changeHandler = null;
         this._offsets = null;
     }
+
     /**
      * @override
      */
@@ -137,6 +143,7 @@ export class ScrollBar extends UIComponent {
         this.downButton.hideFlags = HideFlags.HideAndDontSave;
         this.addChild(this.downButton);
     }
+
     /**
      * @override
      */
@@ -145,6 +152,7 @@ export class ScrollBar extends UIComponent {
         this.slider.tick = 0;
         this.slider.on(Event.CHANGE, this, this.onSliderChange);
         this.slider.setSlider(0, 0, 0);
+
         this.upButton.on(Event.MOUSE_DOWN, this, this.onButtonMouseDown);
         this.downButton.on(Event.MOUSE_DOWN, this, this.onButtonMouseDown);
     }
@@ -196,7 +204,8 @@ export class ScrollBar extends UIComponent {
     }
 
     set skin(value: string) {
-        if (value == " ") return;
+        if (value == "")
+            value = null;
         if (this._skin != value) {
             this._skin = value;
             if (this._skin && !Loader.getRes(this._skin)) {
@@ -226,11 +235,19 @@ export class ScrollBar extends UIComponent {
         this.upButton.visible = this._showButtons;
         this.downButton.visible = this._showButtons;
         if (this._showButtons) {
-            this.upButton.skin = this._skin.replace(".png", "$up.png");
-            this.downButton.skin = this._skin.replace(".png", "$down.png");
+            if (this._skin) {
+                this.upButton.skin = this._skin.replace(".png", "$up.png");
+                this.downButton.skin = this._skin.replace(".png", "$down.png");
+            }
+            else {
+                this.upButton.skin = null;
+                this.downButton.skin = null;
+            }
         }
-        if (this.slider.isVertical) this.slider.y = this._showButtons ? this.upButton.height : 0;
-        else this.slider.x = this._showButtons ? this.upButton.width : 0;
+        if (this.slider.isVertical)
+            this.slider.y = this._showButtons ? this.upButton.height : 0;
+        else
+            this.slider.x = this._showButtons ? this.upButton.width : 0;
         this.resetPositions();
         this.repaint();
     }
@@ -377,17 +394,12 @@ export class ScrollBar extends UIComponent {
      * @inheritDoc 
      * @override
      */
-    set dataSource(value: any) {
+    set_dataSource(value: any) {
         this._dataSource = value;
-        if (typeof (value) == 'number' || typeof (value) == 'string') this.value = Number(value);
-        else super.dataSource = value;
-    }
-    /**
-     * @inheritDoc
-     * @override
-     */
-    get dataSource() {
-        return super.dataSource;
+        if (typeof (value) == 'number' || typeof (value) == 'string')
+            this.value = Number(value);
+        else
+            super.set_dataSource(value);
     }
 
     /**获取或设置一个值，该值表示滑条长度比例，值为：（0-1）。 */

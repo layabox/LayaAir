@@ -445,7 +445,7 @@ export class InputManager {
                 if (!child._is3D
                     && !child._destroyed
                     && (editor && !child.hasHideFlag(HideFlags.HideInHierarchy) || child._mouseState > 1)
-                    && child._visible) {
+                    && (child._visible || child._getBit(NodeFlags.DISABLE_VISIBILITY))) {
                     let ret = this._getSpriteUnderPoint(child, x, y, editor);
                     if (ret)
                         return ret;
@@ -484,7 +484,7 @@ export class InputManager {
             //只有接受交互事件的，才进行处理
             if (!child._destroyed
                 && (editor && !child.hasHideFlag(HideFlags.HideInHierarchy) || child._mouseState > 1)
-                && child._visible) {
+                && (child._visible || child._getBit(NodeFlags.DISABLE_VISIBILITY))) {
                 let ret = this._getSpriteUnderPoint(child, x, y, editor);
                 if (ret)
                     return ret;
@@ -495,7 +495,7 @@ export class InputManager {
             let child = <Sprite>sp._extUIChild[i];
             if (!child._destroyed
                 && (editor && !child.hasHideFlag(HideFlags.HideInHierarchy) || child._mouseState > 1)
-                && child._visible) {
+                && (child._visible || child._getBit(NodeFlags.DISABLE_VISIBILITY))) {
                 let ret = this._getSpriteUnderPoint(child, x, y, editor);
                 if (ret)
                     return ret;
@@ -519,10 +519,16 @@ export class InputManager {
             y -= sp._style.scrollRect.y;
         }
         let hitArea: any = sp._style.hitArea;
-        if (hitArea && hitArea._hit) {
-            return hitArea.contains(x, y);
+        let mouseThrough = sp.mouseThrough;
+        if (!LayaEnv.isPlaying) {
+            hitArea = null;
+            mouseThrough = false;
         }
-        let mouseThrough = LayaEnv.isPlaying && sp.mouseThrough;
+
+        if (hitArea) {
+            return hitArea.contains(x, y, sp);
+        }
+
         if (sp.width > 0 && sp.height > 0 || mouseThrough || hitArea) {
             //判断是否在矩形区域内
             if (!mouseThrough)

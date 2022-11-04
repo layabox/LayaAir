@@ -1,5 +1,5 @@
-import { Node } from "./Node";
-import { Sprite } from "./Sprite"
+import { Sprite } from "./Sprite";
+import { Widget } from "../components/Widget";
 import { Event } from "../events/Event"
 import { Resource } from "../resource/Resource"
 import { Handler } from "../utils/Handler"
@@ -8,7 +8,6 @@ import { ILaya } from "../../ILaya";
 import { Prefab } from "../resource/HierarchyResource";
 import { LegacyUIParser } from "../loaders/LegacyUIParser";
 import { NodeFlags } from "../Const";
-import { ClassUtils } from "../utils/ClassUtils";
 import { Scene3D } from "../d3/core/scene/Scene3D";
 
 /**
@@ -17,31 +16,36 @@ import { Scene3D } from "../d3/core/scene/Scene3D";
  */
 export class Scene extends Sprite {
     /**创建后，还未被销毁的场景列表，方便查看还未被销毁的场景列表，方便内存管理，本属性只读，请不要直接修改*/
-    static unDestroyedScenes: any[] = [];
+    static readonly unDestroyedScenes: Set<Scene> = new Set();
     /**获取根节点*/
     private static _root: Sprite;
     /**@private */
-    private static _loadPage: Scene;
+    private static _loadPage: Sprite;
 
     /**场景被关闭后，是否自动销毁（销毁节点和使用到的资源），默认为false*/
     autoDestroyAtClosed: boolean = false;
     /**@internal */
     _idMap?: any;
-    /**@internal */
-    _$componentType: string = "Scene";
+    _scene3D: Scene3D;
+
+    /**@private 相对布局组件*/
+    protected _widget: Widget;
+    /**X锚点，值为0-1，设置anchorX值最终通过pivotX值来改变节点轴心点。*/
+    protected _anchorX: number = null;
+    /**Y锚点，值为0-1，设置anchorY值最终通过pivotY值来改变节点轴心点。*/
+    protected _anchorY: number = null;
 
     /**场景时钟*/
     private _timer: Timer;
     /**@private */
     private _viewCreated: boolean = false;
-    private _scene3D: Scene3D;
 
     constructor(createChildren = true) {
         super();
 
         this._timer = ILaya.timer;
+        this._widget = Widget.EMPTY;
 
-        Scene.unDestroyedScenes.push(this);
         this._scene = this;
         if (createChildren)
             this.createChildren();
@@ -75,12 +79,14 @@ export class Scene extends Sprite {
      * @param path 场景地址。
      */
     loadScene(path: string): void {
+        Scene.unDestroyedScenes.add(this);
         let url: string = path.indexOf(".") > -1 ? path : path + ".scene";
         let content: Prefab = ILaya.loader.getRes(url);
         if (content) {
             if (!this._viewCreated) {
-                content.createScene({ root: this });
+                content.create({ root: this });
                 this._viewCreated = true;
+                Scene.unDestroyedScenes.add(this);
             }
         } else {
             this._setBit(NodeFlags.NOT_READY, true);
@@ -91,8 +97,10 @@ export class Scene extends Sprite {
                 if (!this._viewCreated) {
                     this.url = url;
                     Scene.hideLoadingPage();
-                    content.createScene({ root: this });
+
+                    content.create({ root: this });
                     this._viewCreated = true;
+                    Scene.unDestroyedScenes.add(this);
                 }
                 else
                     this._setBit(NodeFlags.NOT_READY, false);
@@ -171,14 +179,13 @@ export class Scene extends Sprite {
      */
     destroy(destroyChild: boolean = true): void {
         super.destroy(destroyChild);
-        this._idMap = null;
-        var list: any[] = Scene.unDestroyedScenes;
-        for (var i: number = list.length - 1; i > -1; i--) {
-            if (list[i] === this) {
-                list.splice(i, 1);
-                return;
-            }
+        if (this._scene3D) {
+            this._scene3D.destroy();
+            this._scene3D = null;
         }
+
+        this._idMap = null;
+        Scene.unDestroyedScenes.delete(this);
     }
 
     /**
@@ -283,9 +290,137 @@ export class Scene extends Sprite {
         return this._scene3D;
     }
 
-    /**@private */
+    /**
+     * <p>从组件顶边到其内容区域顶边之间的垂直距离（以像素为单位）。</p>
+     */
+    get top(): number {
+        return this._widget.top;
+    }
+
+    set top(value: number) {
+        if (value != this._widget.top) {
+            this._getWidget().top = value;
+        }
+    }
+
+    /**
+     * <p>从组件底边到其内容区域底边之间的垂直距离（以像素为单位）。</p>
+     */
+    get bottom(): number {
+        return this._widget.bottom;
+    }
+
+    set bottom(value: number) {
+        if (value != this._widget.bottom) {
+            this._getWidget().bottom = value;
+        }
+    }
+
+    /**
+     * <p>从组件左边到其内容区域左边之间的水平距离（以像素为单位）。</p>
+     */
+    get left(): number {
+        return this._widget.left;
+    }
+
+    set left(value: number) {
+        if (value != this._widget.left) {
+            this._getWidget().left = value;
+        }
+    }
+
+    /**
+     * <p>从组件右边到其内容区域右边之间的水平距离（以像素为单位）。</p>
+     */
+    get right(): number {
+        return this._widget.right;
+    }
+
+    set right(value: number) {
+        if (value != this._widget.right) {
+            this._getWidget().right = value;
+        }
+    }
+
+    /**
+     * <p>在父容器中，此对象的水平方向中轴线与父容器的水平方向中心线的距离（以像素为单位）。</p>
+     */
+    get centerX(): number {
+        return this._widget.centerX;
+    }
+
+    set centerX(value: number) {
+        if (value != this._widget.centerX) {
+            this._getWidget().centerX = value;
+        }
+    }
+
+    /**
+     * <p>在父容器中，此对象的垂直方向中轴线与父容器的垂直方向中心线的距离（以像素为单位）。</p>
+     */
+    get centerY(): number {
+        return this._widget.centerY;
+    }
+
+    set centerY(value: number) {
+        if (value != this._widget.centerY) {
+            this._getWidget().centerY = value;
+        }
+    }
+
+    /**X锚点，值为0-1，设置anchorX值最终通过pivotX值来改变节点轴心点。*/
+    get anchorX(): number {
+        return this._anchorX;
+    }
+
+    set anchorX(value: number) {
+        if (this._anchorX != value) {
+            this._anchorX = value;
+            this.callLater(this._sizeChanged);
+        }
+    }
+
+    /**Y锚点，值为0-1，设置anchorY值最终通过pivotY值来改变节点轴心点。*/
+    get anchorY(): number {
+        return this._anchorY;
+    }
+
+    set anchorY(value: number) {
+        if (this._anchorY != value) {
+            this._anchorY = value
+            this.callLater(this._sizeChanged);
+        }
+    }
+
+    /**
+     * @private 
+     * @override
+    */
     protected _sizeChanged(): void {
+        if (this._anchorX != null) this.pivotX = this.anchorX * this.width;
+        if (this._anchorY != null) this.pivotY = this.anchorY * this.height;
         this.event(Event.RESIZE);
+        if (this._widget != Widget.EMPTY) {
+            this._widget.resetLayout();
+        }
+    }
+
+    /**
+     * 重新排版
+     */
+    freshLayout() {
+        if (this._widget != Widget.EMPTY) {
+            this._widget.resetLayout();
+        }
+    }
+
+    /**
+     * @private
+     * <p>获取对象的布局样式。请不要直接修改此对象</p>
+     */
+    private _getWidget(): Widget {
+        this._widget === Widget.EMPTY && (this._widget = this.addComponent(Widget));
+        return this._widget;
     }
 
     //////////////////////////////////////静态方法//////////////////////////////////////////
@@ -317,28 +452,25 @@ export class Scene extends Sprite {
         return ILaya.loader.load(url, null, value => {
             if (Scene._loadPage) Scene._loadPage.event("progress", value);
             progress && progress.runWith(value);
-        }).then(content => {
+        }).then((content: Prefab) => {
             if (!content) throw "Can not find scene:" + url;
-            let nodes: Array<Node> = (<Prefab>content).createScene();
+
             let scene: Scene;
-            if (nodes.length == 1 && (nodes[0] instanceof Scene)) {
-                scene = <Scene>nodes[0];
-            }
-            else {
+            let errors: Array<any> = [];
+            let ret = content.create(null, errors);
+            if (errors.length > 0)
+                console.warn(`Error loading ${url}: \n${errors}`);
+
+            if (ret instanceof Scene)
+                scene = ret;
+            else if (ret instanceof Scene3D) {
                 scene = new Scene();
-                let scene3DClass = ClassUtils.getClass("Scene3D");
-                let i: number;
-                if (scene3DClass && (i = nodes.findIndex(node => Object.getPrototypeOf(node).constructor === scene3DClass)) != -1) {
-                    let scene3D = <Scene3D>nodes[i];
-                    nodes.splice(i, 1);
-                    scene.addChildren(...nodes);
-                    scene._scene3D = scene3D;
-                    scene.mouseThrough = true;
-                }
-                else
-                    scene.addChildren(...nodes);
+                scene.left = scene.right = scene.top = scene.bottom = 0;
+                scene._scene3D = ret;
             }
-            scene.url = url;
+            else
+                throw "Not a scene:" + url;
+
             scene._viewCreated = true;
             Scene.hideLoadingPage();
             complete && complete.runWith(scene);
@@ -378,14 +510,13 @@ export class Scene extends Sprite {
      * @param	name	如果name不为空，name必须相同才能关闭
      * @return	返回是否关闭成功，如果url找不到，则不成功
      */
-    static close(url: string, name: string = ""): boolean {
-        var flag: boolean = false;
-        var list: any[] = Scene.unDestroyedScenes;
-        for (var i: number = 0, n: number = list.length; i < n; i++) {
-            var scene: Scene = list[i];
-            if (scene && scene.parent && scene.url === url && scene.name == name) {
+    static close(url: string, name?: string): boolean {
+        let flag: boolean = false;
+        for (let scene of Scene.unDestroyedScenes) {
+            if (scene && scene.parent && scene.url === url && (name == null || scene.name == name)) {
                 scene.close();
                 flag = true;
+                break;
             }
         }
         return flag;
@@ -396,11 +527,13 @@ export class Scene extends Sprite {
      * 【注意】被关闭的场景，如果没有设置autoDestroyAtRemoved=true，则资源可能不能被回收，需要自己手动回收
      */
     static closeAll(): void {
-        var root: Sprite = Scene.root;
-        for (var i: number = 0, n: number = root.numChildren; i < n; i++) {
-            var scene: Node = root.getChildAt(0);
-            if (scene instanceof Scene) scene.close();
-            else scene.removeSelf();
+        let root: Sprite = Scene.root;
+        for (let i = 0, n = root.numChildren; i < n; i++) {
+            var scene = root.getChildAt(0);
+            if (scene instanceof Scene)
+                scene.close();
+            else
+                scene.removeSelf();
         }
     }
 
@@ -410,14 +543,13 @@ export class Scene extends Sprite {
      * @param	name	如果name不为空，name必须相同才能关闭
      * @return	返回是否销毁成功，如果url找不到，则不成功
      */
-    static destroy(url: string, name: string = ""): boolean {
-        var flag: boolean = false;
-        var list: any[] = [].concat(Scene.unDestroyedScenes);
-        for (var i: number = 0, n: number = list.length; i < n; i++) {
-            var scene: Scene = list[i];
-            if (scene.url === url && scene.name == name && !scene._destroyed) {
+    static destroy(url: string, name?: string): boolean {
+        let flag: boolean = false;
+        for (let scene of Scene.unDestroyedScenes) {
+            if (scene.url === url && (name == null || scene.name == name) && !scene._destroyed) {
                 scene.destroy();
                 flag = true;
+                break;
             }
         }
         return flag;
@@ -434,10 +566,8 @@ export class Scene extends Sprite {
      * 设置loading界面，引擎会在调用open方法后，延迟打开loading界面，在页面添加到舞台之后，关闭loading界面
      * @param	loadPage 	load界面实例
      */
-    static setLoadingPage(loadPage: Scene): void {
-        if (Scene._loadPage != loadPage) {
-            Scene._loadPage = loadPage;
-        }
+    static setLoadingPage(loadPage: Sprite): void {
+        Scene._loadPage = loadPage;
     }
 
     /**
@@ -455,11 +585,15 @@ export class Scene extends Sprite {
 
     private static _showLoading(param: any): void {
         ILaya.stage.addChild(Scene._loadPage);
-        Scene._loadPage.onOpened(param);
+        if (Scene._loadPage instanceof Scene)
+            Scene._loadPage.onOpened(param);
     }
 
     private static _hideLoading(): void {
-        Scene._loadPage.close();
+        if (Scene._loadPage instanceof Scene)
+            Scene._loadPage.close();
+        else
+            Scene._loadPage.removeSelf();
     }
 
     /**

@@ -30,7 +30,9 @@ export enum MaterialRenderMode {
     /**渲染状态__加色法混合。*/
     RENDERMODE_ADDTIVE,
     /**渲染状态_透明混合。*/
-    RENDERMODE_ALPHABLENDED
+    RENDERMODE_ALPHABLENDED,
+    /**渲染状态_自定义 */
+    RENDERMODE_CUSTOME
 }
 
 /**
@@ -67,8 +69,7 @@ export class Material extends Resource implements IClone {
     /**@internal */
     static STENCIL_Op: number;
 
-    /**@internal */
-
+    
 
     /**材质级着色器宏定义,透明测试。*/
     static SHADERDEFINE_ALPHATEST: ShaderDefine;
@@ -102,7 +103,8 @@ export class Material extends Resource implements IClone {
         Material.STENCIL_Ref = Shader3D.propertyNameToID("s_StencilRef");
         Material.STENCIL_Op = Shader3D.propertyNameToID("s_StencilOp");
     }
-
+	/**@internal */
+ 	private _matRenderNode:MaterialRenderMode;
     /** @internal */
     _shader: Shader3D;
     /** @private */
@@ -306,10 +308,13 @@ export class Material extends Resource implements IClone {
         return shaderDefineArray;
     }
 
+   
+
     /**
      * 渲染模式。
      */
     set materialRenderMode(value: MaterialRenderMode) {
+        this._matRenderNode = value;
         switch (value) {
             case MaterialRenderMode.RENDERMODE_OPAQUE:
                 this.alphaTest = false;
@@ -362,6 +367,13 @@ export class Material extends Resource implements IClone {
             default:
                 throw new Error("UnlitMaterial : renderMode value error.");
         }
+    }
+
+    /**
+     * 获得材质渲染状态
+     */
+    get materialRenderMode(){
+        return this._matRenderNode;
     }
 
     /**

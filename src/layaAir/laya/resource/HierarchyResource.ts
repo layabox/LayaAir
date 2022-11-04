@@ -1,4 +1,5 @@
 import { Node } from "../display/Node";
+import { Scene } from "../display/Scene";
 import { LegacyUIParser } from "../loaders/LegacyUIParser";
 import { Resource } from "./Resource";
 
@@ -16,26 +17,14 @@ export class Prefab extends Resource {
         this._deps = [];
     }
 
-    createScene(options?: Record<string, any>, errors?: Array<any>): Array<Node> {
-        let ret = this.createNodes(options, errors);
-        if (ret)
-            return [ret];
-        else
-            return null;
-    }
-
-    createNodes(options?: Record<string, any>, errors?: Array<any>): Node {
-        return null;
-    }
-
     /**
-     * 通过预制创建实例，createNodes的简写
+     * 创建实例
      */
-    create(): any {
-        if (this.json)
+    create(options?: Record<string, any>, errors?: Array<any>): Node {
+        if (this.json) //兼容2.0
             return LegacyUIParser.createByData(null, this.json);
         else
-            return this.createNodes();
+            return null;
     }
 
     get deps(): ReadonlyArray<Resource> {

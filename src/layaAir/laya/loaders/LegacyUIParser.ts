@@ -13,6 +13,9 @@ import { WeakObject } from "../utils/WeakObject";
 import { Handler } from "laya/utils/Handler";
 import { NodeFlags } from "../Const";
 import { PrefabImpl } from "../resource/PrefabImpl";
+import { Scene } from "../display/Scene";
+
+var _listClass: any;
 
 /**
  * @private 场景辅助类
@@ -106,7 +109,7 @@ export class LegacyUIParser {
         }
 
         //设置页面穿透
-        if ((<any>root)._$componentType === "Scene" && root._width > 0 && uiView.props.hitTestPrior == null && !root.mouseThrough)
+        if ((root instanceof Scene) && root._width > 0 && uiView.props.hitTestPrior == null && !root.mouseThrough)
             root.hitTestPrior = true;
 
         //设置组件
@@ -140,7 +143,7 @@ export class LegacyUIParser {
 
         var child: any[] = uiView.child;
         if (child) {
-            var isList: boolean = (<any>comp)["_$componentType"] == "List";
+            var isList: boolean = comp instanceof (_listClass || (_listClass = ClassUtils.getClass("List")));
             for (var i: number = 0, n: number = child.length; i < n; i++) {
                 var node: any = child[i];
                 if ('itemRender' in comp && (node.props.name == "render" || node.props.renderType === "render")) {

@@ -1,4 +1,3 @@
-import { LayaGL } from "../../layagl/LayaGL";
 import { Vector3 } from "./Vector3";
 
 /**
@@ -67,7 +66,7 @@ export class Plane {
 		normal.x = x;
 		normal.y = y;
 		normal.z = z;
-
+		out.normal = normal.normalize();
 		out.distance = -((x * point0.x) + (y * point0.y) + (z * point0.z));
 	}
 

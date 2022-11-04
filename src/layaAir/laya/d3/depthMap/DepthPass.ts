@@ -135,13 +135,6 @@ export class DepthPass {
                 context.pipelineMode = "ShadowCaster";
                 shaderValues.addDefine(DepthPass.DEPTHPASS);
                 shaderValues.setVector(DepthPass.DEFINE_SHADOW_BIAS, DepthPass.SHADOW_BIAS);
-                //if (this._castDepthData) {
-                // this._castDepthData._setData(DepthPass.DEFINE_SHADOW_BIAS, DepthPass.SHADOW_BIAS);
-                // this._castDepthData._setData(BaseCamera.VIEWPROJECTMATRIX, context.projectionViewMatrix);
-                // this._castDepthData.setVector3("u_ShadowLightDirection", Vector3._ZERO);
-                //this._castDepthUBO && this._castDepthUBO.setDataByUniformBufferData(this._castDepthData);
-                //shaderValues.setValueData(DepthPass.SHADOWUNIFORMBLOCK, this._castDepthUBO)
-                //}
                 var offsetX: number = this._viewPort.x;
                 var offsetY: number = this._viewPort.y;
                 this._depthTexture._start();

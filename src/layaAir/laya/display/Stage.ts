@@ -240,7 +240,7 @@ export class Stage extends Sprite {
             if (this._isInputting()) return;
 
             // Safari横屏工具栏偏移
-            if (Browser.onSafari && !Browser.onChrome)
+            if (Browser.onSafari)
                 this._safariOffsetY = (Browser.window.__innerHeight || Browser.document.body.clientHeight || Browser.document.documentElement.clientHeight) - Browser.window.innerHeight;
 
             if (this.screenAdaptationEnabled) {
@@ -501,6 +501,98 @@ export class Stage extends Sprite {
 
         this.event(Event.RESIZE);
     }
+
+    /**
+     * 屏幕旋转用layaverse 需要
+     * @param screenWidth 
+     * @param screenHeight 
+     * @param _screenMode 
+     * @returns 
+     */
+    setScreenSizeForScene(screenWidth: number, screenHeight: number, _screenMode: string) {
+		//计算是否旋转
+		var rotation: boolean = false;
+		if (/**this.*/_screenMode !== Stage.SCREEN_NONE) {
+			var screenType: string = screenWidth / screenHeight < 1 ? Stage.SCREEN_VERTICAL : Stage.SCREEN_HORIZONTAL;
+			rotation = screenType !== /**this.*/_screenMode;
+			if (rotation) {
+				//宽高互换
+				var temp: number = screenHeight;
+				screenHeight = screenWidth;
+				screenWidth = temp;
+			}
+		}
+		this.canvasRotation = rotation;
+
+		var canvas: HTMLCanvas = Render._mainCanvas;
+		var canvasStyle: any = canvas.source.style;
+		var mat: Matrix = this._canvasTransform/**add */.clone().identity();
+		var scaleMode: string = this._scaleMode;
+		var scaleX: number = screenWidth / this.designWidth
+		var scaleY: number = screenHeight / this.designHeight;
+		var canvasWidth: number = this.useRetinalCanvas ? screenWidth : this.designWidth;
+		var canvasHeight: number = this.useRetinalCanvas ? screenHeight : this.designHeight;
+		var realWidth: number = screenWidth;
+		var realHeight: number = screenHeight;
+		var pixelRatio: number = Browser.pixelRatio;
+		let /**this.*/_width = this.designWidth;
+		let /**this.*/_height = this.designHeight;
+
+		//处理缩放模式
+		switch (scaleMode) {
+			case Stage.SCALE_NOSCALE:
+				scaleX = scaleY = 1;
+				realWidth = this.designWidth;
+				realHeight = this.designHeight;
+				break;
+			case Stage.SCALE_SHOWALL:
+				scaleX = scaleY = Math.min(scaleX, scaleY);
+				canvasWidth = realWidth = Math.round(this.designWidth * scaleX);
+				canvasHeight = realHeight = Math.round(this.designHeight * scaleY);
+				break;
+			case Stage.SCALE_NOBORDER:
+				scaleX = scaleY = Math.max(scaleX, scaleY);
+				realWidth = Math.round(this.designWidth * scaleX);
+				realHeight = Math.round(this.designHeight * scaleY);
+				break;
+			case Stage.SCALE_FULL:
+				scaleX = scaleY = 1;
+				/**this.*/_width = canvasWidth = screenWidth;
+				/**this.*/_height = canvasHeight = screenHeight;
+				break;
+			case Stage.SCALE_FIXED_WIDTH:
+				scaleY = scaleX;
+				/**this.*/_height = canvasHeight = Math.round(screenHeight / scaleX);
+				break;
+			case Stage.SCALE_FIXED_HEIGHT:
+				scaleX = scaleY;
+				/**this.*/_width = canvasWidth = Math.round(screenWidth / scaleY);
+				break;
+			case Stage.SCALE_FIXED_AUTO:
+				if ((screenWidth / screenHeight) < (this.designWidth / this.designHeight)) {
+					scaleY = scaleX;
+					/**this.*/_height = canvasHeight = Math.round(screenHeight / scaleX);
+				} else {
+					scaleX = scaleY;
+					/**this.*/_width = canvasWidth = Math.round(screenWidth / scaleY);
+				}
+				break;
+		}
+
+		if (this.useRetinalCanvas) {
+			realWidth =  canvasWidth = screenWidth;
+			realHeight = canvasHeight = screenHeight;
+		}
+
+		return {
+			stageWidth: _width,
+			stageHeight: _height,
+			canvasWidth:canvasWidth,
+			canvasHeight:canvasHeight,
+			scaleX: scaleX / (realWidth / canvasWidth),
+			scaleY: scaleY / (realHeight / canvasHeight),
+		}
+	}
 
     /**@private */
     private _formatData(value: number): number {

@@ -14,15 +14,17 @@ import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import Client from "../../Client";
 import { CameraMoveScript } from "../common/CameraMoveScript";
+import { ColorAdjustment } from "./ColorAdjustment";
+import { Vignette } from "./Vignette";
 
 export class PostProcessBloom {
 	camera: Camera = null;
 
 	/**实例类型*/
-	private btype:any = "PostProcessBloom";
+	private btype: any = "PostProcessBloom";
 	/**场景内按钮类型*/
-	private stype:any = 0;
-	private button:Button;
+	private stype: any = 0;
+	private button: Button;
 	/**
 	 *@private
 	 */
@@ -32,6 +34,16 @@ export class PostProcessBloom {
 		Stat.show();
 		Laya.stage.scaleMode = Stage.SCALE_FULL;
 		Laya.stage.screenMode = Stage.SCREEN_NONE;
+		this.PreloadingRes();
+	}
+	//批量预加载方式
+	PreloadingRes() {
+		//预加载所有资源
+		var resource: any[] = ["res/test.glsl","res/ColorAdjustment.shader","res/html/Vignette.shader",];
+		Laya.loader.load(resource, Handler.create(this, this.sceneload));
+	}
+
+	sceneload() {
 		//加载场景
 		Scene3D.load("res/threeDimen/scene/LayaScene_BloomScene/Conventional/BloomScene.ls", Handler.create(this, function (scene: Scene3D): void {
 			Laya.stage.addChild(scene);
@@ -43,7 +55,14 @@ export class PostProcessBloom {
 			var postProcess: PostProcess = new PostProcess();
 			//增加后期处理泛光效果
 			var bloom: BloomEffect = new BloomEffect();
-			postProcess.addEffect(bloom);
+			var colorAdjustment = new ColorAdjustment();
+			var vignette = new Vignette();
+
+			postProcess.addEffect(vignette);
+				//postProcess.addEffect(vignette);
+			// postProcess.addEffect(bloom);
+		
+		
 			this.camera.postProcess = postProcess;
 			this.camera.enableHDR = true;
 			//设置泛光参数
@@ -81,17 +100,17 @@ export class PostProcessBloom {
 		}));
 	}
 
-	stypeFun0(label:string = "关闭HDR"): void {
+	stypeFun0(label: string = "关闭HDR"): void {
 		var enableHDR: boolean = this.camera.enableHDR;
 		if (enableHDR) {
 			this.button.label = "开启HDR";
-		} else{
+		} else {
 			this.button.label = "关闭HDR";
 		}
 		this.camera.enableHDR = !enableHDR;
 
 		label = this.button.label;
-		Client.instance.send({type:"next",btype:this.btype,stype:0,value:label});
-	}	
+		Client.instance.send({ type: "next", btype: this.btype, stype: 0, value: label });
+	}
 }
 

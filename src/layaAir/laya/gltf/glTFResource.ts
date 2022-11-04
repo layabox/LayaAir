@@ -188,7 +188,7 @@ export class glTFResource extends Prefab {
         });
     }
 
-    public createNodes(): Node {
+    public create(): Node {
         let data = this._data;
 
         this._scenes.length = 0;

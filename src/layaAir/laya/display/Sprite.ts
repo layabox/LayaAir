@@ -25,7 +25,8 @@ import { Event } from "../events/Event";
 import { Dragging } from "../utils/Dragging";
 import { URL } from "../net/URL";
 import { Scene } from "./Scene";
-
+import { RenderState2D } from "../webgl/utils/RenderState2D";
+import { LayaEnv } from "../../LayaEnv";
 
 /**在显示对象上按下后调度。
  * @eventType Event.MOUSE_DOWN
@@ -241,6 +242,8 @@ export class Sprite extends Node {
     /**@internal */
     _graphics: Graphics | null = null;
 
+    _ownGraphics: boolean = false;
+
     /**
      * <p>鼠标事件与此对象的碰撞检测是否可穿透。碰撞检测发生在鼠标事件的捕获阶段，此阶段引擎会从stage开始递归检测stage及其子对象，直到找到命中的目标对象或者未命中任何对象。</p>
      * <p>穿透表示鼠标事件发生的位置处于本对象绘图区域内时，才算命中，而与对象宽高和值为Rectangle对象的hitArea属性无关。如果sprite.hitArea值是HitArea对象，表示显式声明了此对象的鼠标事件响应区域，而忽略对象的宽高、mouseThrough属性。</p>
@@ -279,9 +282,7 @@ export class Sprite extends Node {
         this._cacheStyle = null;
         this._boundStyle = null;
         this._transform = null;
-        if (this._graphics && this._graphics.autoDestroy) {
-            this._graphics.destroy();
-        }
+        this._graphics && this._ownGraphics && this._graphics.destroy();
         this._graphics = null;
         this.texture = null;
     }
@@ -333,7 +334,7 @@ export class Sprite extends Node {
      * webgl下命令缓存模式缺点：只会减少节点遍历及命令组织，不会减少drawcall数，性能中等。优点：没有额外内存开销，无需renderTarget支持。
      */
     get cacheAs(): string {
-        return this._cacheStyle.cacheAs;
+        return this._cacheStyle.userSetCache;
     }
 
     /**@internal */
@@ -343,9 +344,11 @@ export class Sprite extends Node {
 
     set cacheAs(value: string) {
         if (value === this._cacheStyle.userSetCache) return;
+
+        this._getCacheStyle().userSetCache = value;
+
         if (this.mask && value === 'normal') return;
         this._setCacheAs(value);
-        this._getCacheStyle().userSetCache = value;
         this._checkCanvasEnable();
         this.repaint();
     }
@@ -545,12 +548,6 @@ export class Sprite extends Node {
         if (this._boundStyle && this._boundStyle.userBounds) return this._boundStyle.userBounds;
         if (!this._graphics && this._children.length === 0 && !this._texture)
             return Rectangle.TEMP.setTo(0, 0, this.width, this.height); // 如果没有graphics则取对象指定的大小。原来是0000
-        //if (_renderType === (SpriteConst.IMAGE | SpriteConst.GRAPHICS)) {
-        //_getBoundsStyle();
-        //if (!_boundStyle.bounds) _boundStyle.bounds = Rectangle.create();
-        //var tDrawCmd:Array = _graphics._one;
-        //return _boundStyle.bounds.setTo(tDrawCmd[1], tDrawCmd[2], tDrawCmd[3], tDrawCmd[4]);
-        //}
         return this._getBoundsStyle().bounds = Rectangle._getWrapRec(this._getBoundPointsM(false));
     }
 
@@ -977,17 +974,13 @@ export class Sprite extends Node {
     get graphics(): Graphics {
         if (!this._graphics) {
             this.graphics = new Graphics();
-            this._graphics.autoDestroy = true;
+            this._ownGraphics = true;
         }
         return this._graphics;
     }
 
     /**@internal */
     _setGraphics(value: Graphics): void {
-    }
-
-    /**@internal */
-    _setGraphicsCallBack(): void {
     }
 
     set graphics(value: Graphics) {
@@ -1204,8 +1197,11 @@ export class Sprite extends Node {
      * @param offsetX 
      * @param offsetY 
      */
-    drawToTexture(canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number, rt: RenderTexture2D | null = null): Texture | RenderTexture2D {
-        return Sprite.drawToTexture(this, this._renderType, canvasWidth, canvasHeight, offsetX, offsetY, rt);
+    drawToTexture(canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number, rt: RenderTexture2D | null = null, invertY: boolean = false): Texture | RenderTexture2D {
+        RenderState2D.InvertY = invertY;
+        let res = Sprite.drawToTexture(this, this._renderType, canvasWidth, canvasHeight, offsetX, offsetY, rt);
+        RenderState2D.InvertY = false;
+        return res;
     }
 
     /**
@@ -1638,20 +1634,25 @@ export class Sprite extends Node {
     }
 
     set mask(value: Sprite) {
-        if (value && this.mask && this.mask._cacheStyle.maskParent) return;
+        if (value && this.mask == value && value._cacheStyle.maskParent == this)
+            return;
+
+        if (this.mask)
+            this.mask._getCacheStyle().maskParent = null;
+
         this._getCacheStyle().mask = value;
         this._setMask(value);
         this._checkCanvasEnable();
+
         if (value) {
             value._getCacheStyle().maskParent = this;
-        } else {
-            if (this.mask) {
-                this.mask._getCacheStyle().maskParent = null;
-            }
+            this._renderType |= SpriteConst.MASK;
         }
-        this._renderType |= SpriteConst.MASK;
+        else
+            this._renderType &= ~SpriteConst.MASK;
+
         this._setRenderType(this._renderType);
-        this.parentRepaint(SpriteConst.REPAINT_ALL);
+        this.repaint();
     }
 
     /**
@@ -1874,5 +1875,20 @@ export class Sprite extends Node {
 
     get drawCallOptimize(): boolean {
         return this._getBit(NodeFlags.DRAWCALL_OPTIMIZE);
+    }
+
+    /**@internal */
+    onAfterDeserialize() {
+        if (LayaEnv.isPlaying) {
+            if ((<any>this)._gcmds) {
+                this.graphics.cmds = (<any>this)._gcmds;
+                delete (<any>this)._gcmds;
+            }
+
+            if ((<any>this)._filters) {
+                this.filters = (<any>this)._filters;
+                delete (<any>this)._filters;
+            }
+        }
     }
 }

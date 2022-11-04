@@ -1,5 +1,6 @@
 import { Filter } from "./Filter";
 import { BlurFilterGLRender } from "./BlurFilterGLRender";
+
 /**
  * 模糊滤镜
  */
@@ -10,6 +11,7 @@ export class BlurFilter extends Filter {
     strength_sig2_2sig2_gauss1: any[] = [];//给shader用的。避免创建对象
     strength_sig2_native: Float32Array;//给native用的
     renderFunc: any;//
+
     /**
      * 模糊滤镜
      * @param	strength	模糊滤镜的强度值

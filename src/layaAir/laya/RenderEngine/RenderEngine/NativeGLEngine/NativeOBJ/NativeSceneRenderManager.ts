@@ -20,10 +20,10 @@ export class NativeSceneRenderManager implements ISceneRenderManager {
     }
 
     set list(value) {
-        this._renders.clear();
         this._customCullList.elements = [];
         this._customCullList.length = 0;
-        this._nativeObj.clear();
+        this._nativeObj.clear();  
+        this._renders.clear();
         for (let i = 0, len = value.length; i < len; i++) {
             this.addRenderObject((value.elements[i] as BaseRender));
         }
@@ -43,7 +43,6 @@ export class NativeSceneRenderManager implements ISceneRenderManager {
 
     removeRenderObject(object: BaseRender): void {
         
-        this._renders.remove(object);
         if (!object._customCull && object.renderNode.geometryBounds) {
             this._nativeObj.removeRenderObject((object.renderNode as any)._nativeObj);
         }
@@ -56,6 +55,7 @@ export class NativeSceneRenderManager implements ISceneRenderManager {
                 elements[index] = elements[this._customCullList.length];
             }
         }
+        this._renders.remove(object);
     }
 
     removeMotionObject(object: BaseRender): void {
@@ -99,8 +99,8 @@ export class NativeSceneRenderManager implements ISceneRenderManager {
     }
 
     destroy(): void {
+        this._nativeObj.destroy(); 
         this._renders.destroy();
-        this._nativeObj.destroy();
         //Destroy
         this._customUpdateList.destroy();
         this._customCullList.destroy();

@@ -1,4 +1,5 @@
 import { Context } from "../../resource/Context"
+import { ClassUtils } from "../../utils/ClassUtils";
 import { Pool } from "../../utils/Pool"
 
 /**
@@ -36,16 +37,24 @@ export class DrawRectCmd {
      */
     lineWidth: number;
 
+    /**
+     * 位置和大小是否是百分比
+     */
+    percent: boolean;
+
     /**@private */
-    static create(x: number, y: number, width: number, height: number, fillColor: any, lineColor: any, lineWidth: number): DrawRectCmd {
+    static create(x: number, y: number, width: number, height: number, fillColor: any, lineColor: any, lineWidth: number, percent?: boolean): DrawRectCmd {
         var cmd: DrawRectCmd = Pool.getItemByClass("DrawRectCmd", DrawRectCmd);
-        cmd.x = x;
-        cmd.y = y;
-        cmd.width = width;
-        cmd.height = height;
+        var offset = (lineWidth >= 1 && lineColor) ? lineWidth / 2 : 0;
+        var lineOffset = lineColor ? lineWidth : 0;
+        cmd.x = x + offset;
+        cmd.y = y + offset;
+        cmd.width = width - lineOffset;
+        cmd.height = height - lineOffset;
         cmd.fillColor = fillColor;
         cmd.lineColor = lineColor;
         cmd.lineWidth = lineWidth;
+        cmd.percent = percent;
         return cmd;
     }
 
@@ -60,13 +69,20 @@ export class DrawRectCmd {
 
     /**@private */
     run(context: Context, gx: number, gy: number): void {
-        context.drawRect(this.x + gx, this.y + gy, this.width, this.height, this.fillColor, this.lineColor, this.lineWidth);
+        if (this.percent && context.sprite) {
+            let w = context.sprite.width;
+            let h = context.sprite.height;
+            context.drawRect(this.x * w + gx, this.y * h + gy, this.width * w, this.height * h, this.fillColor, this.lineColor, this.lineWidth);
+        }
+        else
+            context.drawRect(this.x + gx, this.y + gy, this.width, this.height, this.fillColor, this.lineColor, this.lineWidth);
     }
 
     /**@private */
     get cmdID(): string {
         return DrawRectCmd.ID;
     }
-
 }
+
+ClassUtils.regClass("DrawRectCmd", DrawRectCmd);
 

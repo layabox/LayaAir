@@ -1,4 +1,5 @@
 import { Context } from "../../resource/Context"
+import { ClassUtils } from "../../utils/ClassUtils";
 import { Pool } from "../../utils/Pool"
 
 /**
@@ -31,19 +32,22 @@ export class DrawCircleCmd {
      * （可选）边框宽度。
      */
     lineWidth: number;
-    /**@private */
-    vid: number;
+
+    /**
+     * 位置和大小是否是百分比
+     */
+    percent: boolean;
 
     /**@private */
-    static create(x: number, y: number, radius: number, fillColor: any, lineColor: any, lineWidth: number, vid: number): DrawCircleCmd {
+    static create(x: number, y: number, radius: number, fillColor: any, lineColor: any, lineWidth: number): DrawCircleCmd {
         var cmd: DrawCircleCmd = Pool.getItemByClass("DrawCircleCmd", DrawCircleCmd);
+        var offset = (lineWidth >= 1 && lineColor) ? lineWidth / 2 : 0;
         cmd.x = x;
         cmd.y = y;
-        cmd.radius = radius;
+        cmd.radius = radius - offset;
         cmd.fillColor = fillColor;
         cmd.lineColor = lineColor;
         cmd.lineWidth = lineWidth;
-        cmd.vid = vid;
         return cmd;
     }
 
@@ -58,13 +62,19 @@ export class DrawCircleCmd {
 
     /**@private */
     run(context: Context, gx: number, gy: number): void {
-        context._drawCircle(this.x + gx, this.y + gy, this.radius, this.fillColor, this.lineColor, this.lineWidth, this.vid);
+        if (this.percent && context.sprite) {
+            let w = context.sprite.width;
+            let h = context.sprite.height;
+            context._drawCircle(this.x * w + gx, this.y * h + gy, this.radius * w, this.fillColor, this.lineColor, this.lineWidth, 0);
+        }
+        else
+            context._drawCircle(this.x + gx, this.y + gy, this.radius, this.fillColor, this.lineColor, this.lineWidth, 0);
     }
 
     /**@private */
     get cmdID(): string {
         return DrawCircleCmd.ID;
     }
-
 }
 
+ClassUtils.regClass("DrawCircleCmd", DrawCircleCmd);

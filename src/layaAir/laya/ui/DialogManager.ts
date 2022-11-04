@@ -8,7 +8,6 @@ import { UIComponent } from "./UIComponent"
 import { Ease } from "../utils/Ease"
 import { Handler } from "../utils/Handler"
 import { Tween } from "../utils/Tween"
-import { IUI } from "./IUI";
 import { ILaya } from "../../ILaya";
 
 /**打开任意窗口后调度。
@@ -63,7 +62,7 @@ export class DialogManager extends Sprite {
 
     private _closeOnSide(): void {
         var dialog: Dialog = (<Dialog>this.getChildAt(this.numChildren - 1));
-        if (dialog instanceof IUI.Dialog) dialog.close("side");
+        if (dialog instanceof Dialog) dialog.close("side");
     }
 
     /**设置锁定界面，如果为空则什么都不显示*/

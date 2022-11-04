@@ -253,15 +253,17 @@ export class Slider extends UIComponent {
 
     protected _skinLoaded(): void {
         this._bg.skin = this._skin;
-        this._bar.skin = this._skin.replace(".png", "$bar.png");
-        var progressSkin: string = this._skin.replace(".png", "$progress.png");
-        if (Loader.getRes(progressSkin)) {
-            if (!this._progress) {
-                this.addChild(this._progress = new Image());
-                this._progress.sizeGrid = this._bar.sizeGrid;
-                this.setChildIndex(this._progress, 1);
+        this._bar.skin = this._skin ? this._skin.replace(".png", "$bar.png") : null;
+        if (this._skin) {
+            let progressSkin: string = this._skin.replace(".png", "$progress.png");
+            if (Loader.getRes(progressSkin)) {
+                if (!this._progress) {
+                    this.addChild(this._progress = new Image());
+                    this._progress.sizeGrid = this._bar.sizeGrid;
+                    this.setChildIndex(this._progress, 1);
+                }
+                this._progress.skin = progressSkin;
             }
-            this._progress.skin = progressSkin;
         }
         this.setBarPoint();
         this.callLater(this.changeValue);
@@ -307,7 +309,6 @@ export class Slider extends UIComponent {
      * <p>当前实例的背景图（ <code>Image</code> ）和滑块按钮（ <code>Button</code> ）实例的有效缩放网格数据。</p>
      * <p>数据格式："上边距,右边距,下边距,左边距,是否重复填充(值为0：不重复填充，1：重复填充)"，以逗号分隔。
      * <ul><li>例如："4,4,4,4,1"</li></ul></p>
-     * @see laya.ui.AutoBitmap.sizeGrid
      */
     get sizeGrid(): string {
         return this._bg.sizeGrid;
@@ -362,7 +363,7 @@ export class Slider extends UIComponent {
             //当设置的最小值大于最大值的时候，滑动条会反向处理，滑动条限制也应反向处理。
             this._value = this._value > this._min ? this._min : this._value < this._max ? this._max : this._value;
         }
-        
+
         var num: number = this._max - this._min;
         if (num === 0) num = 1;
         if (this.isVertical) {
@@ -451,17 +452,12 @@ export class Slider extends UIComponent {
      * @inheritDoc 
      * @override
      */
-    set dataSource(value: any) {
+    set_dataSource(value: any) {
         this._dataSource = value;
-        if (typeof (value) == 'number' || typeof (value) == 'string') this.value = Number(value);
-        else super.dataSource = value;
-    }
-    /**
-     * @inheritDoc
-     * @override
-     */
-    get dataSource() {
-        return super.dataSource;
+        if (typeof (value) == 'number' || typeof (value) == 'string')
+            this.value = Number(value);
+        else
+            super.set_dataSource(value);
     }
 
     /**

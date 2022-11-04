@@ -119,17 +119,13 @@ export class CheckBox extends Button {
      * @inheritDoc 
      * @override
      */
-    set dataSource(value: any) {
+    set_dataSource(value: any) {
         this._dataSource = value;
-        if (value instanceof Boolean) this.selected = value as boolean;
-        else if (typeof (value) == 'string') this.selected = value === "true";
-        else super.dataSource = value;
-    }
-    /**
-     * @inheritDoc 
-     * @override
-     */
-    get dataSource() {
-        return super.dataSource;
+        if (value instanceof Boolean)
+            this.selected = value as boolean;
+        else if (typeof (value) == 'string')
+            this.selected = value === "true";
+        else
+            super.set_dataSource(value);
     }
 }

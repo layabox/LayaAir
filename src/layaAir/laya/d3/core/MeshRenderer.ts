@@ -139,6 +139,10 @@ export class MeshRenderer extends BaseRender {
             }
 
         } else if (!mesh) {
+            this._renderElements.forEach
+            this._renderElements.forEach(element => {
+                element.destroy();
+            });
             this._renderElements.length = 0;
             this._mesh = null;
             this._changeVertexDefine(null);

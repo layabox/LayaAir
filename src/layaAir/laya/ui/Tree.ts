@@ -1,5 +1,4 @@
 import { Box } from "./Box";
-import { IRender } from "./IRender";
 import { List } from "./List";
 import { ScrollBar } from "./ScrollBar";
 import { Clip } from "./Clip";
@@ -239,7 +238,7 @@ interface ITreeDataSource {
  *     }
  * }
  */
-export class Tree extends Box implements IRender {
+export class Tree extends Box {
     /**@private */
     protected _list: List;
     /**@private */
@@ -581,17 +580,10 @@ export class Tree extends Box implements IRender {
      * @inheritDoc 
      * @override
      */
-    set dataSource(value: any) {
+    set_dataSource(value: any) {
         this._dataSource = value;
         //if (value is XmlDom) xml = value as XmlDom;
-        super.dataSource = value;
-    }
-    /**
-     * @inheritDoc 
-     * @override 
-     */
-    get dataSource() {
-        return super.dataSource;
+        super.set_dataSource(value);
     }
 
     /**

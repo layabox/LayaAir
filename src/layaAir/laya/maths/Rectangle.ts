@@ -79,7 +79,7 @@ export class Rectangle {
 	 */
     recover(): void {
         if (this == Rectangle.TEMP || this == Rectangle.EMPTY) {
-            console.log("recover Temp or Empty:", this);
+            //console.log("recover Temp or Empty:", this);
             return;
         }
         Pool.recover("Rectangle", this.reset());

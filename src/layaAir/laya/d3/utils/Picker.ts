@@ -1,4 +1,5 @@
 import { Matrix4x4 } from "../math/Matrix4x4"
+import { Plane } from "../math/Plane"
 	import { Ray } from "../math/Ray"
 	import { Vector2 } from "../math/Vector2"
 	import { Vector3 } from "../math/Vector3"
@@ -134,6 +135,25 @@ import { Matrix4x4 } from "../math/Matrix4x4"
 			return result;
 		}
 	
+		/**
+		 * 检测射线和平面的交点
+		 * @param ray 
+		 * @param plane 
+		 * @returns 
+		 */
+		static rayPlaneIntersection(ray:Ray,plane:Plane):Vector3{
+			let point = new Vector3();
+			let ddotn =Vector3.dot(ray.direction.normalize(),plane.normal.normalize());
+			if(ddotn==0){
+				return null;
+			}
+			
+			let t=(plane.distance -Vector3.dot(ray.origin,plane.normal))/ddotn;
+			if(t<0)
+				return null;
+			ray.at(t,point);
+			return point;
+		}
 	}
 
 

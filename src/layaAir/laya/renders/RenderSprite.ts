@@ -21,7 +21,6 @@ import { Value2D } from "../webgl/shader/d2/value/Value2D";
 import { SubmitCMD } from "../webgl/submit/SubmitCMD";
 import { LayaGLQuickRunner } from "./LayaGLQuickRunner";
 import { ILaya } from "../../ILaya";
-import { RenderStateContext } from "../RenderEngine/RenderStateContext";
 import { NativeFilter } from "../filters/NativeFilter";
 import { LayaEnv } from "../../LayaEnv";
 
@@ -84,20 +83,6 @@ export class RenderSprite {
             RenderSprite.renders[i] = initRender;
 
         RenderSprite.renders[0] = new RenderSprite(0, null);
-
-        function _initSame(value: any[], o: RenderSprite): void {
-            var n: number = 0;
-            for (var i: number = 0; i < value.length; i++) {
-                n |= value[i];
-                RenderSprite.renders[n] = o;
-            }
-        }
-
-        //_initSame([SpriteConst.IMAGE, SpriteConst.GRAPHICS, SpriteConst.TRANSFORM, SpriteConst.ALPHA], RunDriver.createRenderSprite(SpriteConst.IMAGE, null));
-        //
-        //renders[SpriteConst.IMAGE | SpriteConst.GRAPHICS] = RunDriver.createRenderSprite(SpriteConst.IMAGE | SpriteConst.GRAPHICS, null);
-        //
-        //renders[SpriteConst.IMAGE | SpriteConst.TRANSFORM | SpriteConst.GRAPHICS] = RunDriver.createRenderSprite(SpriteConst.IMAGE | SpriteConst.TRANSFORM | SpriteConst.GRAPHICS, null);
     }
 
     private static _initRenderFun(sprite: Sprite, context: Context, x: number, y: number): void {
@@ -118,8 +103,6 @@ export class RenderSprite {
         return rst as RenderSprite;
     }
 
-
-
     constructor(type: number, next: RenderSprite | null) {
 
         if (LayaGLQuickRunner.map[type]) {
@@ -132,9 +115,6 @@ export class RenderSprite {
             case 0:
                 this._fun = this._no;
                 return;
-            //case SpriteConst.IMAGE: 
-            //_fun = this._image;
-            //return;
             case SpriteConst.ALPHA:
                 this._fun = this._alpha;
                 return;
@@ -173,12 +153,6 @@ export class RenderSprite {
             case SpriteConst.TEXTURE:
                 this._fun = this._texture;
                 return;
-            //case SpriteConst.IMAGE | SpriteConst.GRAPHICS: 
-            //_fun = this._image2;
-            //return;
-            //case SpriteConst.IMAGE | SpriteConst.TRANSFORM | SpriteConst.GRAPHICS: 
-            //_fun = this._image2;
-            //return;
             case SpriteConst.FILTERS:
                 if (LayaEnv.isConch && !(window as any).conchConfig.conchWebGL) {
                     this._fun = NativeFilter._filter;
@@ -186,6 +160,9 @@ export class RenderSprite {
                 else {
                     this._fun = Filter._filter;
                 }
+                return;
+            case SpriteConst.HITAREA:
+                this._fun = this._hitarea;
                 return;
             case RenderSprite.INIT:
                 this._fun = RenderSprite._initRenderFun;
@@ -240,22 +217,6 @@ export class RenderSprite {
         context.restore();
     }
 
-    /*
-    public function _mask(sprite:Sprite, context:Context, x:Number, y:Number):void {
-        var next:RenderSprite = this._next;
-        next._fun.call(next, sprite, context, x, y);
-        var mask:Sprite = sprite.mask;
-        if (mask) {
-            context.globalCompositeOperation = "destination-in";
-            if (mask.numChildren > 0 || !mask.graphics._isOnlyOne()) {
-                mask.cacheAs = "bitmap";
-            }
-            mask.render(context, x - sprite._style.pivotX, y - sprite._style.pivotY);
-        }
-        context.globalCompositeOperation = "source-over";
-    }
-    */
-
     /**@internal */
     _texture(sprite: Sprite, context: Context, x: number, y: number): void {
         var tex: Texture = sprite.texture;
@@ -288,22 +249,26 @@ export class RenderSprite {
             next._fun.call(next, sprite, context, x, y);
     }
 
-    /**@internal */
-    _image(sprite: Sprite, context: Context, x: number, y: number): void {
-        var style: SpriteStyle = sprite._style;
-        context.drawTexture2(x, y, style.pivotX, style.pivotY, sprite.transform, sprite._graphics._one);
-    }
-
-    /**@internal */
-    _image2(sprite: Sprite, context: Context, x: number, y: number): void {
-        var style: SpriteStyle = sprite._style;
-        context.drawTexture2(x, y, style.pivotX, style.pivotY, sprite.transform, sprite._graphics._one);
+    /**@internal IDE only*/
+    _hitarea(sprite: Sprite, context: Context, x: number, y: number): void {
+        if (!context._drawingToTexture && sprite.hitArea) {
+            var style = sprite._style;
+            var g = sprite.hitArea._hit;
+            var temp: number = context.globalAlpha;
+            context.globalAlpha *= 0.5;
+            g && g._render(sprite, context, x - style.pivotX, y - style.pivotY);
+            g = sprite.hitArea._unHit;
+            g && g._render(sprite, context, x - style.pivotX, y - style.pivotY);
+            context.globalAlpha = temp;
+        }
+        var next = this._next;
+        if (next != RenderSprite.NORENDER)
+            next._fun.call(next, sprite, context, x, y);
     }
 
     /**@internal */
     //TODO:coverage
     _alpha(sprite: Sprite, context: Context, x: number, y: number): void {
-
         var style: SpriteStyle = sprite._style;
         var alpha: number;
         if ((alpha = style.alpha) > 0.01 || sprite._needRepaint()) {
@@ -349,7 +314,9 @@ export class RenderSprite {
 
             for (let i = 0; i < n; ++i) {
                 let ele = childs[i];
-                if ((!drawingToTexture || !ele._getBit(NodeFlags.ESCAPE_DRAWING_TO_TEXTURE)) && ele._visible && ((_x = ele._x) < right && (_x + ele.width) > left && (_y = ele._y) < bottom && (_y + ele.height) > top)) {
+                if ((!drawingToTexture || !ele._getBit(NodeFlags.ESCAPE_DRAWING_TO_TEXTURE))
+                    && (ele._visible || ele._getBit(NodeFlags.DISABLE_VISIBILITY))
+                    && ((_x = ele._x) < right && (_x + ele.width) > left && (_y = ele._y) < bottom && (_y + ele.height) > top)) {
                     if (ele._getBit(NodeFlags.DISABLE_OUTER_CLIPPING))
                         context.clipRect(0, 0, 1, 1, true);
 
@@ -359,7 +326,8 @@ export class RenderSprite {
         } else {
             for (let i = 0; i < n; ++i) {
                 let ele = childs[i];
-                if ((!drawingToTexture || !ele._getBit(NodeFlags.ESCAPE_DRAWING_TO_TEXTURE)) && ele._visible) {
+                if ((!drawingToTexture || !ele._getBit(NodeFlags.ESCAPE_DRAWING_TO_TEXTURE))
+                    && (ele._visible || ele._getBit(NodeFlags.DISABLE_VISIBILITY))) {
                     if (ele._getBit(NodeFlags.DISABLE_OUTER_CLIPPING))
                         context.clipRect(0, 0, 1, 1, true);
 
@@ -667,7 +635,8 @@ export class RenderSprite {
         }
 
     }
-    static tempUV: any[] = new Array(8);
+
+    //static tempUV: any[] = new Array(8);
     static tmpTarget(ctx: Context, rt: RenderTexture2D, w: number, h: number): void {
         rt.start();
         rt.clear(0, 0, 0, 0);
@@ -678,9 +647,7 @@ export class RenderSprite {
     }
 
     static setBlendMode(blendMode: string): void {
-
         BlendMode.targetFns[BlendMode.TOINT[blendMode]]();
     }
-
 }
 

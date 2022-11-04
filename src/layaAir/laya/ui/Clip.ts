@@ -7,8 +7,6 @@ import { Event } from "../events/Event"
 import { Loader } from "../net/Loader"
 import { Texture } from "../resource/Texture"
 import { Handler } from "../utils/Handler"
-import { Utils } from "../utils/Utils"
-import { WeakObject } from "../utils/WeakObject"
 import { ILaya } from "../../ILaya";
 import { URL } from "../net/URL";
 
@@ -122,9 +120,7 @@ import { URL } from "../net/URL";
  */
 export class Clip extends UIComponent {
     /**@private */
-    protected _sources: any[];
-    /**@private */
-    protected _bitmap: AutoBitmap;
+    protected _sources: Texture[];
     /**@private */
     protected _skin: string;
     /**@private */
@@ -160,36 +156,20 @@ export class Clip extends UIComponent {
      */
     constructor(url: string = null, clipX: number = 1, clipY: number = 1) {
         super();
+
+        this._sources = [];
         this._clipX = clipX;
         this._clipY = clipY;
         this.skin = url;
     }
 
     /**
-     * @inheritDoc 
-     * @override
-     */
-	destroy(destroyChild: boolean = true): void {
-        super.destroy(true);
-        this._bitmap && this._bitmap.destroy();
-        this._bitmap = null;
-        this._sources = null;
-    }
-
-    /**
-     * 销毁对象并释放加载的皮肤资源。
-     */
-    dispose(): void {
-        this.destroy(true);
-        ILaya.loader.clearRes(this._skin);
-    }
-
-    /**
      * @inheritDoc
      * @override 
      */
-	protected createChildren(): void {
-        this.graphics = this._bitmap = new AutoBitmap();
+    protected createChildren(): void {
+        this.graphics = new AutoBitmap();
+        this._ownGraphics = true;
     }
 
     /**@private	 @override*/
@@ -220,7 +200,7 @@ export class Clip extends UIComponent {
                     this._skinLoaded();
                 }
             } else {
-                this._bitmap.source = null;
+                this._graphics.source = null;
             }
         }
     }
@@ -282,7 +262,8 @@ export class Clip extends UIComponent {
     protected changeClip(): void {
         this._clipChanged = false;
         if (!this._skin || this._destroyed) return;
-        var img: any = Loader.getRes(this._skin);
+
+        let img: any = Loader.getRes(this._skin);
         if (img) {
             this.loadComplete(this._skin, img);
         } else {
@@ -298,40 +279,34 @@ export class Clip extends UIComponent {
      * @param img 纹理。
      */
     protected loadComplete(url: string, img: Texture): void {
-        if (url === this._skin && img) {
+        if (url !== this._skin)
+            return;
+
+        this._sources.length = 0;
+        if (img) {
             var w: number = this._clipWidth || Math.ceil(img.sourceWidth / this._clipX);
             var h: number = this._clipHeight || Math.ceil(img.sourceHeight / this._clipY);
 
-            var key: string = this._skin + w + h;
-            var clips: any[] = WeakObject.I.get(key);
-            if (!Utils.isOkTextureList(clips)) {
-                clips = null;
-            }
-            if (clips) this._sources = clips;
-            else {
-                this._sources = [];
-                for (var i: number = 0; i < this._clipY; i++) {
-                    for (var j: number = 0; j < this._clipX; j++) {
-                        this._sources.push(Texture.createFromTexture(img, w * j, h * i, w, h));
-                    }
+            for (let i = 0; i < this._clipY; i++) {
+                for (let j = 0; j < this._clipX; j++) {
+                    this._sources.push(img.getCachedClip(w * j, h * i, w, h));
                 }
-                WeakObject.I.set(key, this._sources);
             }
-
-            this.index = this._index;
-            this.event(Event.LOADED);
-            this.onCompResize();
         }
+
+        this.index = this._index;
+        this.event(Event.LOADED);
+        this.onCompResize();
     }
 
     /**
      * 源数据。
      */
-    get sources(): any[] {
+    get sources(): Texture[] {
         return this._sources;
     }
 
-    set sources(value: any[]) {
+    set sources(value: Texture[]) {
         this._sources = value;
         this.index = this._index;
         this.event(Event.LOADED);
@@ -353,9 +328,9 @@ export class Clip extends UIComponent {
      * @inheritDoc 
      * @override
      */
-	set width(value: number) {
+    set width(value: number) {
         super.width = value;
-        this._bitmap.width = value;
+        this._graphics.width = value;
     }
     /**
      * @inheritDoc 
@@ -369,9 +344,9 @@ export class Clip extends UIComponent {
      * @inheritDoc 
      * @override
      */
-	set height(value: number) {
+    set height(value: number) {
         super.height = value;
-        this._bitmap.height = value;
+        this._graphics.height = value;
     }
     /**
      * @inheritDoc 
@@ -385,18 +360,18 @@ export class Clip extends UIComponent {
      * @inheritDoc 
      * @override
      */
-	protected measureWidth(): number {
+    protected measureWidth(): number {
         this.runCallLater(this.changeClip);
-        return this._bitmap.width;
+        return this._graphics.width;
     }
 
     /**
      * @inheritDoc 
      * @override
      */
-	protected measureHeight(): number {
+    protected measureHeight(): number {
         this.runCallLater(this.changeClip);
-        return this._bitmap.height;
+        return this._graphics.height;
     }
 
     /**
@@ -406,12 +381,15 @@ export class Clip extends UIComponent {
      * @see laya.ui.AutoBitmap.sizeGrid
      */
     get sizeGrid(): string {
-        if (this._bitmap.sizeGrid) return this._bitmap.sizeGrid.join(",");
+        if (this._graphics.sizeGrid) return this._graphics.sizeGrid.join(",");
         return null;
     }
 
     set sizeGrid(value: string) {
-        this._bitmap.sizeGrid = UIUtils.fillArray(Styles.defaultSizeGrid, value, Number);
+        if (value)
+            this._graphics.sizeGrid = UIUtils.fillArray(Styles.defaultSizeGrid, value, Number);
+        else
+            this._graphics.sizeGrid = null;
     }
 
     /**
@@ -423,7 +401,7 @@ export class Clip extends UIComponent {
 
     set index(value: number) {
         this._index = value;
-        this._bitmap && this._sources && (this._bitmap.source = this._sources[value]);
+        this._graphics && (this._graphics.source = this._sources[value]);
         this.event(Event.CHANGE);
     }
 
@@ -432,7 +410,7 @@ export class Clip extends UIComponent {
      */
     get total(): number {
         this.runCallLater(this.changeClip);
-        return this._sources ? this._sources.length : 0;
+        return this._sources.length;
     }
 
     /**
@@ -498,10 +476,12 @@ export class Clip extends UIComponent {
      * @private
      */
     protected _loop(): void {
-        if (this._visible && this._sources) {
+        if (this._visible) {
             this._index++;
-            if (this._toIndex > -1 && this._index >= this._toIndex) this.stop();
-            else if (this._index >= this._sources.length) this._index = 0;
+            if (this._toIndex > -1 && this._index >= this._toIndex)
+                this.stop();
+            else if (this._index >= this._sources.length)
+                this._index = 0;
             this.index = this._index;
         }
     }
@@ -519,24 +499,12 @@ export class Clip extends UIComponent {
      * @inheritDoc 
      * @override
      */
-    set dataSource(value: any) {
+    set_dataSource(value: any): void {
         this._dataSource = value;
-        if (typeof (value) == 'number' || typeof (value) == 'string') this.index = parseInt(value as string);
-        else super.dataSource = value;
-    }
-    /**
-     * @inheritDoc 
-     * @override
-     */
-    get dataSource() {
-        return super.dataSource;
-    }
-
-    /**
-     * <code>AutoBitmap</code> 位图实例。
-     */
-    get bitmap(): AutoBitmap {
-        return this._bitmap;
+        if (typeof (value) == 'number' || typeof (value) == 'string')
+            this.index = parseInt(value as string);
+        else
+            super.set_dataSource(value);
     }
 
     /**@private */
@@ -546,4 +514,8 @@ export class Clip extends UIComponent {
             this.callLater(this.changeClip);
         }
     }
+}
+
+export interface Clip {
+    _graphics: AutoBitmap;
 }

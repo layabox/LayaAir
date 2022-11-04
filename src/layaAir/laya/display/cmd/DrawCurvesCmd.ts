@@ -1,4 +1,5 @@
 import { Context } from "../../resource/Context"
+import { ClassUtils } from "../../utils/ClassUtils";
 import { Pool } from "../../utils/Pool"
 
 /**
@@ -18,7 +19,7 @@ export class DrawCurvesCmd {
     /**
      * 线段的点集合，格式[controlX, controlY, anchorX, anchorY...]。
      */
-    points: number[]|null;
+    points: number[] | null;
     /**
      * 线段颜色，或者填充绘图的渐变对象。
      */
@@ -50,8 +51,8 @@ export class DrawCurvesCmd {
 
     /**@private */
     run(context: Context, gx: number, gy: number): void {
-		if(this.points)
-        	context.drawCurves(this.x + gx, this.y + gy, this.points, this.lineColor, this.lineWidth);
+        if (this.points)
+            context.drawCurves(this.x + gx, this.y + gy, this.points, this.lineColor, this.lineWidth);
     }
 
     /**@private */
@@ -61,3 +62,4 @@ export class DrawCurvesCmd {
 
 }
 
+ClassUtils.regClass("DrawCurvesCmd", DrawCurvesCmd);

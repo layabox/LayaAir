@@ -108,10 +108,11 @@ export class ShadowCasterPass {
      * @returns 
      */
     static createDepthCasterUniformBlock(): UnifromBufferData {
+
         if (!ShadowCasterPass.DepthCasterUBOData) {
             let uniformpara = new Map<number, UniformBufferParamsType>();
             uniformpara.set(Shader3D.propertyNameToID("u_ShadowBias"), UniformBufferParamsType.Vector4);
-            uniformpara.set(Shader3D.propertyNameToID("u_ViewProjection"), UniformBufferParamsType.Matrix4x4);
+            //uniformpara.set(Shader3D.propertyNameToID("u_ViewProjection"), UniformBufferParamsType.Matrix4x4);
             uniformpara.set(Shader3D.propertyNameToID("u_ShadowLightDirection"), UniformBufferParamsType.Vector3);
             ShadowCasterPass.DepthCasterUBOData = new UnifromBufferData(uniformpara);
         }
@@ -158,6 +159,10 @@ export class ShadowCasterPass {
     /** @internal */
     _castDepthBufferData: UnifromBufferData;
     _castDepthBufferOBJ: UniformBufferObject;
+
+    _castDepthCameraBufferData: UnifromBufferData;
+    _castDepthCameraBufferOBJ: UniformBufferObject;
+
     constructor() {
         this._shadowSpotData.cameraCullInfo.boundFrustum = new BoundFrustum(new Matrix4x4());
         if (Config3D._uniformBlock) {
@@ -166,7 +171,14 @@ export class ShadowCasterPass {
             if (!this._castDepthBufferOBJ) {
                 this._castDepthBufferOBJ = UniformBufferObject.create(UniformBufferObject.UBONAME_SHADOW, BufferUsage.Dynamic, this._castDepthBufferData.getbyteLength(), true);
             }
+            BaseCamera.createCameraUniformBlock();
+            this._castDepthCameraBufferData = BaseCamera.CameraUBOData.clone();
+            this._castDepthCameraBufferOBJ = UniformBufferObject.getBuffer(UniformBufferObject.UBONAME_CAMERA, 1);
+            if (!this._castDepthCameraBufferOBJ) {
+                this._castDepthCameraBufferOBJ = UniformBufferObject.create(UniformBufferObject.UBONAME_CAMERA, BufferUsage.Dynamic, this._castDepthCameraBufferData.getbyteLength(), false);
+            }
         }
+
     }
 
     /**
@@ -195,6 +207,11 @@ export class ShadowCasterPass {
                 break;
         }
         var cameraSV: ShaderData = shadowSliceData.cameraShaderValue;//TODO:should optimization with shader upload.
+        if (this._castDepthCameraBufferOBJ) {
+            cameraSV._addCheckUBO(UniformBufferObject.UBONAME_CAMERA, this._castDepthCameraBufferOBJ, this._castDepthCameraBufferData);
+            cameraSV.setUniformBuffer(BaseCamera.CAMERAUNIFORMBLOCK, this._castDepthCameraBufferOBJ);
+        }
+
         cameraSV.setMatrix4x4(BaseCamera.VIEWMATRIX, shadowSliceData.viewMatrix);
         cameraSV.setMatrix4x4(BaseCamera.PROJECTMATRIX, shadowSliceData.projectionMatrix);
         cameraSV.setMatrix4x4(BaseCamera.VIEWPROJECTMATRIX, shadowSliceData.viewProjectMatrix);
@@ -355,7 +372,6 @@ export class ShadowCasterPass {
                 throw ("There is no shadow of this type")
                 break;
         }
-
     }
 
     /**
@@ -365,7 +381,7 @@ export class ShadowCasterPass {
      * @param scene 3DScene场景
      * @param lightType 阴影类型
      */
-    render(context: RenderContext3D, scene: Scene3D, lightType: ShadowLightType,camera:Camera): void {
+    render(context: RenderContext3D, scene: Scene3D, lightType: ShadowLightType, camera: Camera): void {
         switch (lightType) {
             case ShadowLightType.DirectionLight:
                 var shaderValues: ShaderData = scene._shaderValues;
@@ -388,7 +404,7 @@ export class ShadowCasterPass {
                     scene._directLightShadowCull(shadowCullInfo, context);
                     context.cameraShaderValue = sliceData.cameraShaderValue;
                     Camera._updateMark++;
-                    
+
                     var resolution: number = sliceData.resolution;
                     var offsetX: number = sliceData.offsetX;
                     var offsetY: number = sliceData.offsetY;
@@ -402,7 +418,7 @@ export class ShadowCasterPass {
                         ShadowCasterPass._tempVector4.setValue(offsetX + 1, offsetY + 1, resolution - 2, resolution - 2);
                         context.viewport = Viewport._tempViewport;
                         context.scissor = ShadowCasterPass._tempVector4;
-                        Stat.depthCastDrawCall +=scene._opaqueQueue.renderQueue(context);//阴影均为非透明队列
+                        Stat.depthCastDrawCall += scene._opaqueQueue.renderQueue(context);//阴影均为非透明队列
                     }
                     camera._applyCasterPassCommandBuffer(context);
                 }
@@ -457,7 +473,6 @@ export class ShadowCasterPass {
         this._shadowDirectLightMap = null;
         this._shadowSpotLightMap = null;
         this._light = null;
-
     }
 }
 

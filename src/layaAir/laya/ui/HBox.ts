@@ -2,8 +2,8 @@ import { LayoutBox } from "./LayoutBox";
 import { UIComponent } from "./UIComponent";
 
 /**
-	 * <code>HBox</code> 是一个水平布局容器类。
-	 */
+ * <code>HBox</code> 是一个水平布局容器类。
+ */
 export class HBox extends LayoutBox {
     /**
      * 无对齐。
@@ -26,14 +26,14 @@ export class HBox extends LayoutBox {
      * @inheritDoc	
      * @override
      */
-	protected sortItem(items: any[]): void {
+    protected sortItem(items: any[]): void {
         if (items) items.sort(function (a: any, b: any): number { return a.x - b.x; });
     }
     /**
      * @inheritDoc	
      * @override
      */
-	set height(value: number) {
+    set height(value: number) {
         if (this._height != value) {
             super.height = value;
             this.callLater(this.changeItems);
@@ -51,21 +51,21 @@ export class HBox extends LayoutBox {
      * @inheritDoc	
      * @override
      */
-	protected changeItems(): void {
+    protected changeItems(): void {
         this._itemChanged = false;
         var items: any[] = [];
         var maxHeight = 0;
-        for (var i = 0, n = this.numChildren; i < n; i++) {
-            var item = (<UIComponent>this.getChildAt(i));
+        for (let i = 0, n = this.numChildren; i < n; i++) {
+            let item = (<UIComponent>this.getChildAt(i));
             if (item) {
                 items.push(item);
                 maxHeight = this._height ? this._height : Math.max(maxHeight, item.height * item.scaleY);
             }
         }
         this.sortItem(items);
-        var left = 0;
-        for (i = 0, n = items.length; i < n; i++) {
-            item = items[i];
+        let left = 0;
+        for (let i = 0, n = items.length; i < n; i++) {
+            let item = items[i];
             item.x = left;
             left += item.width * item.scaleX + this._space;
             if (this._align == HBox.TOP) {

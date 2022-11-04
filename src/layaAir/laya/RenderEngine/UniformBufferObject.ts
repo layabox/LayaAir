@@ -39,15 +39,6 @@ export class UniformBufferObject extends Buffer {
     }
 
     /**
-     * BlockName is Engine default
-     * @param blockName block name
-     * @returns 
-     */
-    static isCommon(blockName: string): boolean {
-        return UniformBufferObject.commonMap.indexOf(blockName) != -1;
-    }
-
-    /**
      * get Uniform Buffer by name
      * @param name Uniform block name(must pitch Shader)
      * @returns 

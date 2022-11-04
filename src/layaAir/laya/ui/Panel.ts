@@ -7,6 +7,7 @@ import { Sprite } from "../display/Sprite"
 import { Event } from "../events/Event"
 import { Rectangle } from "../maths/Rectangle"
 import { HideFlags } from "../Const";
+import { ScrollType } from "./Styles";
 
 /**
  * <code>Panel</code> 是一个面板容器类。
@@ -24,6 +25,10 @@ export class Panel extends Box {
     protected _usedCache: string = null;
     /**@private */
     protected _elasticEnabled: boolean = false;
+
+    protected _scrollType: ScrollType = 0;
+    protected _vScrollBarSkin: string;
+    protected _hScrollBarSkin: string;
 
     /**
      * 创建一个新的 <code>Panel</code> 类实例。
@@ -137,16 +142,12 @@ export class Panel extends Box {
         var showHeight = hShow ? this._height - hscroll.height : this._height;
 
         if (vscroll) {
-            vscroll.x = this._width - vscroll.width;
-            vscroll.y = 0;
             vscroll.height = this._height - (hShow ? hscroll.height : 0);
             vscroll.scrollSize = Math.max(this._height * 0.033, 1);
             vscroll.thumbPercent = showHeight / contentH;
             vscroll.setScroll(0, contentH - showHeight, vscroll.value);
         }
         if (hscroll) {
-            hscroll.x = 0;
-            hscroll.y = this._height - hscroll.height;
             hscroll.width = this._width - (vShow ? vscroll.width : 0);
             hscroll.scrollSize = Math.max(this._width * 0.033, 1);
             hscroll.thumbPercent = showWidth / contentW;
@@ -178,9 +179,9 @@ export class Panel extends Box {
      * 获取内容高度（以像素为单位）。
      */
     get contentHeight(): number {
-        var max = 0;
-        for (var i = this._content.numChildren - 1; i > -1; i--) {
-            var comp = <Sprite>this._content.getChildAt(i);
+        let max = 0;
+        for (let i = this._content.numChildren - 1; i > -1; i--) {
+            let comp = <Sprite>this._content.getChildAt(i);
             max = Math.max(comp._y + comp.height * comp.scaleY - comp.pivotY, max);
         }
         return max;
@@ -193,7 +194,7 @@ export class Panel extends Box {
      * @param height 高度。
      */
     private setContentSize(width: number, height: number): void {
-        var content = this._content;
+        let content = this._content;
         content.width = width;
         content.height = height;
         content._style.scrollRect || (content.scrollRect = Rectangle.create());
@@ -227,40 +228,119 @@ export class Panel extends Box {
         return super.height;
     }
 
+    get scrollType() {
+        return this._scrollType;
+    }
+
+    set scrollType(value: ScrollType) {
+        this._scrollType = value;
+
+        if (this._scrollType == ScrollType.None) {
+            if (this._hScrollBar) {
+                this._hScrollBar.destroy();
+                this._hScrollBar = null;
+            }
+            if (this._vScrollBar) {
+                this._vScrollBar.destroy();
+                this._vScrollBar = null;
+            }
+        }
+        else if (this._scrollType == ScrollType.Horizontal) {
+            if (this._vScrollBar) {
+                this._vScrollBar.destroy();
+                this._vScrollBar = null;
+            }
+
+            if (this._hScrollBar)
+                this._hScrollBar.skin = this._hScrollBarSkin;
+            else
+                this.createHScrollBar();
+        }
+        else if (this._scrollType == ScrollType.Vertical) {
+            if (this._hScrollBar) {
+                this._hScrollBar.destroy();
+                this._hScrollBar = null;
+            }
+
+            if (this._vScrollBar)
+                this._vScrollBar.skin = this._vScrollBarSkin;
+            else
+                this.createVScrollBar();
+        }
+        else { //both
+            if (this._hScrollBar)
+                this._hScrollBar.skin = this._hScrollBarSkin;
+            else
+                this.createHScrollBar();
+            if (this._vScrollBar)
+                this._vScrollBar.skin = this._vScrollBarSkin;
+            else
+                this.createVScrollBar();
+        }
+    }
+
+    private createHScrollBar() {
+        let scrollBar = this._hScrollBar = new HScrollBar();
+        scrollBar.hideFlags = HideFlags.HideAndDontSave;
+        scrollBar.on(Event.CHANGE, this, this.onScrollBarChange, [scrollBar]);
+        scrollBar.target = this._content;
+        scrollBar.elasticDistance = this._elasticEnabled ? 200 : 0;
+        scrollBar.bottom = 0;
+        scrollBar.skin = this._hScrollBarSkin;
+        super.addChild(scrollBar);
+        this._setScrollChanged();
+    }
+
+    private createVScrollBar() {
+        let scrollBar = this._vScrollBar = new VScrollBar();
+        scrollBar.hideFlags = HideFlags.HideAndDontSave;
+        scrollBar.on(Event.CHANGE, this, this.onScrollBarChange, [scrollBar]);
+        scrollBar.target = this._content;
+        scrollBar.elasticDistance = this._elasticEnabled ? 200 : 0;
+        scrollBar.right = 0;
+        scrollBar.skin = this._vScrollBarSkin;
+        super.addChild(scrollBar);
+        this._setScrollChanged();
+    }
+
     /**
      * 垂直方向滚动条皮肤。
      */
     get vScrollBarSkin(): string {
-        return this._vScrollBar ? this._vScrollBar.skin : null;
+        return this._vScrollBarSkin;
     }
 
     set vScrollBarSkin(value: string) {
-        if (this._vScrollBar == null) {
-            super.addChild(this._vScrollBar = new VScrollBar());
-            this._vScrollBar.on(Event.CHANGE, this, this.onScrollBarChange, [this._vScrollBar]);
-            this._vScrollBar.target = this._content;
-            this._vScrollBar.elasticDistance = this._elasticEnabled ? 200 : 0;
-            this._setScrollChanged();
+        if (value == "") value = null;
+        if (this._vScrollBarSkin != value) {
+            this._vScrollBarSkin = value;
+            if (this._scrollType == 0)
+                this.scrollType = ScrollType.Vertical;
+            else if (this._scrollType == ScrollType.Horizontal)
+                this.scrollType = ScrollType.Both;
+            else
+                this.scrollType = this._scrollType;
         }
-        this._vScrollBar.skin = value;
+
     }
 
     /**
      * 水平方向滚动条皮肤。
      */
     get hScrollBarSkin(): string {
-        return this._hScrollBar ? this._hScrollBar.skin : null;
+        return this._hScrollBarSkin;
     }
 
     set hScrollBarSkin(value: string) {
-        if (this._hScrollBar == null) {
-            super.addChild(this._hScrollBar = new HScrollBar());
-            this._hScrollBar.on(Event.CHANGE, this, this.onScrollBarChange, [this._hScrollBar]);
-            this._hScrollBar.target = this._content;
-            this._hScrollBar.elasticDistance = this._elasticEnabled ? 200 : 0;
-            this._setScrollChanged();
+        if (value == "") value = null;
+        if (this._hScrollBarSkin != value) {
+            this._hScrollBarSkin = value;
+            if (this._scrollType == 0)
+                this.scrollType = ScrollType.Horizontal;
+            else if (this._scrollType == ScrollType.Vertical)
+                this.scrollType = ScrollType.Both;
+            this.scrollType = this._scrollType;
         }
-        this._hScrollBar.skin = value;
     }
 
     /**
