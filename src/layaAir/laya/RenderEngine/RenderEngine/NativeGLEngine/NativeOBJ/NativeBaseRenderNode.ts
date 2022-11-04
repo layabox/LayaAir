@@ -8,6 +8,7 @@ export class NativeBaseRenderNode implements IBaseRenderNode {
     private _nativeObj: any;
     private _bounds: Bounds = null;
     private _geometryBounds: Bounds = null;
+    private _transform: Transform3D = null;
     constructor() {
         this._nativeObj = new (window as any).conchRenderNode();
     }
@@ -17,8 +18,13 @@ export class NativeBaseRenderNode implements IBaseRenderNode {
     get boundsChange(): boolean {
         return this._nativeObj.boundsChange;
     }
+
     set layer(value: number) {
         this._nativeObj.layer = value;
+    }
+
+    get layer(): number {
+        return this._nativeObj.layer;
     }
 
     get renderId(): number {
@@ -60,12 +66,13 @@ export class NativeBaseRenderNode implements IBaseRenderNode {
     }
 
     get transform(): Transform3D {
-        return null;
+        return this._transform;
     }
     set transform(value: Transform3D) {
+        this._transform = value;
         this._nativeObj.transform = value ? (value as any)._nativeObj : null;
     }
-
+    
     get owner(): BaseRender | null {
         return this._nativeObj.owner;
     }
@@ -88,7 +95,6 @@ export class NativeBaseRenderNode implements IBaseRenderNode {
     set renderbitFlag(value: number | null) {
         this._nativeObj.renderbitFlag = value;
     }
-
     get staticMask(): number {
         return this._nativeObj.staticMask;
     }
