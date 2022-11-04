@@ -65,7 +65,7 @@ export class CapsuleColliderShape extends ColliderShape {
 	 * @param 高(包含半径)。
 	 * @param orientation 胶囊体方向。
 	 */
-	constructor(radius: number = 0.5, length: number = 1.25, orientation: number = ColliderShape.SHAPEORIENTATION_UPY) {
+	constructor(radius: number = 0.5, length: number = 2, orientation: number = ColliderShape.SHAPEORIENTATION_UPY) {
 
 		super();
 		this._radius = radius;
