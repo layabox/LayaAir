@@ -193,9 +193,6 @@ export class HTMLCanvas extends Resource {
         if (this._source) {
             if (LayaEnv.isConch) {
                 var win: any = window as any;
-                if (win.conchConfig.threadMode == 2) {
-                    throw "native 2 thread mode use toBase64Async";
-                }
                 var width: number = this._ctx._targets.sourceWidth;
                 var height: number = this._ctx._targets.sourceHeight;
                 var data: any = this._ctx._targets.getData(0, 0, width, height);
