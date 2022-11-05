@@ -373,7 +373,7 @@ gulp.task("buildJs", async () => {
 gulp.task("copyJsLibs", async () => {
     return gulp.src([
         './src/layaAir/jsLibs/laya.physics3D.wasm.wasm', './src/layaAir/jsLibs/*.js',
-        '!./src/layaAir/jsLibs/{box2d.js,cannon.js,laya.physics3D.js,laya.physics3D.wasm.js,laya.physics3D.wasm-wx.js}'])
+        '!./src/layaAir/jsLibs/{box2d.js,cannon.js,laya.physics3D.wasm.js,laya.physics3D.wasm-wx.js}'])
         .pipe(gulp.dest('./build/libs'));
 });
 
@@ -415,17 +415,27 @@ gulp.task('concatBulletPhysics.wasm-wx', () => {
 });
 
 //合并 laya.bullet.js 和 laya.physics3D.js
-gulp.task('concatBulletPhysics', () => {
-    return gulp.src([
-        './src/layaAir/jsLibs/laya.physics3D.js',
-        './build/libs/laya.bullet.js'])
-        .pipe(concat('laya.physics3D.js'))
-        .pipe(gulp.dest('./build/libs/')).on("end", () => {
-            fs.unlinkSync('./build/libs/laya.bullet.js');
-            if (fs.existsSync('./build/libs/laya.bullet.js.map'))
-                fs.unlinkSync('./build/libs/laya.bullet.js.map');
-        });
-});
+// gulp.task('concatBulletPhysics', () => {
+//     return gulp.src([
+//         './src/layaAir/jsLibs/laya.physics3D.js',
+//         './build/libs/laya.bullet.js'])
+//         .pipe(concat('laya.physics3D.js'))
+//         .pipe(gulp.dest('./build/libs/')).on("end", () => {
+//             fs.unlinkSync('./build/libs/laya.bullet.js');
+//             if (fs.existsSync('./build/libs/laya.bullet.js.map'))
+//                 fs.unlinkSync('./build/libs/laya.bullet.js.map');
+//         });
+// });
+// gulp.task('concatBulletPhysics', () => {
+//     return gulp.src([
+//         './src/layaAir/jsLibs/laya.physics3D.js'])
+//         .pipe(concat('laya.physics3D.js'))
+//         .pipe(gulp.dest('./build/libs/')).on("end", () => {
+//             fs.unlinkSync('./build/libs/laya.bullet.js');
+//             if (fs.existsSync('./build/libs/laya.bullet.js.map'))
+//                 fs.unlinkSync('./build/libs/laya.bullet.js.map');
+//         });
+// });
 
 gulp.task("compressJs", () => {
     // 修改laya.physics3D.wasm-wx.js 里的路径
@@ -681,5 +691,6 @@ gulp.task('publishToIDE', () => {
 
 gulp.task('build',
     gulp.series('compile', 'buildJs', 'copyJsLibs',
-        'concatBox2dPhysics', 'concatCannonPhysics', 'concatBulletPhysics.wasm', 'concatBulletPhysics.wasm-wx', 'concatBulletPhysics',
+        'concatBox2dPhysics',
+		// 'concatCannonPhysics', 'concatBulletPhysics.wasm', 'concatBulletPhysics.wasm-wx', 'concatBulletPhysics',
         'genDts'));
