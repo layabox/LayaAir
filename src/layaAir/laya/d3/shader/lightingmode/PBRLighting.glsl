@@ -105,8 +105,8 @@ void initLightParams(inout LightParams params, const in PixelInfo pixel, const i
 
 vec3 diffuseLobe(in Surface surface, const in PixelInfo pixel, const in LightParams lightParams)
 {
-    // return surface.diffuseColor * diffuse();
-    return surface.diffuseColor * Fd_Burley(surface.roughness, pixel.NoV, lightParams.NoL, lightParams.LoH);
+    return surface.diffuseColor * diffuse();
+    // return surface.diffuseColor * Fd_Burley(surface.roughness, pixel.NoV, lightParams.NoL, lightParams.LoH);
 }
 
 vec3 specularLobe(const in Surface surface, const in PixelInfo pixel, const in LightParams lightParams)
