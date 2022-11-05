@@ -30,6 +30,10 @@ export class VideoTexture extends BaseTexture {
     private _listeningEvents: Record<string, (evt: Event) => void>;
     private immediatelyPlay:boolean;
     /**
+     * 是否开发者自己调用Render
+     */
+    private _frameRender:boolean = true;
+    /**
      * 创建VideoTexture对象，
      */
     constructor() {
@@ -125,6 +129,8 @@ export class VideoTexture extends BaseTexture {
             this.appendSource(url);
     }
 
+    
+
     private appendSource(source: string): void {
         var sourceElement: HTMLSourceElement = ILaya.Browser.createElement("source");
         sourceElement.src = URL.postFormatURL(URL.formatURL(source));
@@ -135,7 +141,7 @@ export class VideoTexture extends BaseTexture {
     /**
      * @internal
      */
-    private render() {
+    render() {
         if (this.element.readyState == 0)
             return;
 
@@ -144,7 +150,23 @@ export class VideoTexture extends BaseTexture {
         this.onRender.invoke();
     }
 
+    /**
+     * 是否每一帧都渲染
+     */
+    set frameRender(value:boolean){
+        if(this._frameRender&&!value){
+            ILaya.timer.clear(this, this.render);
+        }
+        if(!this._frameRender&&value){
+            ILaya.timer.frameLoop(1, this, this.render);
+        }
+        this._frameRender = value;
+        
+    }
 
+    get frameRender(){
+        return this._frameRender;
+    }
 
 
     /**
@@ -155,7 +177,9 @@ export class VideoTexture extends BaseTexture {
             this.immediatelyPlay = true;
         } else {
             this.element.play();
-            ILaya.timer.frameLoop(1, this, this.render);
+            if(this._frameRender){
+                ILaya.timer.frameLoop(1, this, this.render);
+            }
         }
 
     }
@@ -173,7 +197,10 @@ export class VideoTexture extends BaseTexture {
      */
     pause() {
         this.element.pause();
-        ILaya.timer.clear(this, this.render);
+        if(this._frameRender){
+            ILaya.timer.clear(this, this.render);
+        }
+        
     }
 
     /**

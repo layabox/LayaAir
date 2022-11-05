@@ -8,6 +8,7 @@ import { ColliderShape } from "./shape/ColliderShape";
 import { ConstraintComponent } from "./constraints/ConstraintComponent";
 import { ILaya3D } from "../../../ILaya3D";
 import { Quaternion } from "../math/Quaternion";
+import { MeshColliderShape } from "./shape/MeshColliderShape";
 
 /**
  * <code>Rigidbody3D</code> 类用于创建刚体碰撞器。
@@ -112,27 +113,27 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
         (this._isKinematic) || (this._updateMass(value));
     }
 
-    /**
-     * 设置禁止
-     */
-    set disableSimulation(b: boolean) {
-        var bt: any = ILaya3D.Physics3D._bullet;
-        let curstate = bt.btCollisionObject_getActivationState(this._btColliderObject);
-        if (b) {
-            bt.btCollisionObject_forceActivationState(this._btColliderObject, PhysicsComponent.ACTIVATIONSTATE_DISABLE_SIMULATION);
-        } else {
-            if (curstate != PhysicsComponent.ACTIVATIONSTATE_DISABLE_SIMULATION) {
-                // 本身就没有禁止，则不改
-            } else {
-                bt.btCollisionObject_forceActivationState(this._btColliderObject, PhysicsComponent.ACTIVATIONSTATE_ACTIVE_TAG);
-            }
-        }
-    }
+    // /**
+    //  * 设置禁止
+    //  */
+    // set disableSimulation(b: boolean) {
+    //     var bt: any = ILaya3D.Physics3D._bullet;
+    //     let curstate = bt.btCollisionObject_getActivationState(this._btColliderObject);
+    //     if (b) {
+    //         bt.btCollisionObject_forceActivationState(this._btColliderObject, PhysicsComponent.ACTIVATIONSTATE_DISABLE_SIMULATION);
+    //     } else {
+    //         if (curstate != PhysicsComponent.ACTIVATIONSTATE_DISABLE_SIMULATION) {
+    //             // 本身就没有禁止，则不改
+    //         } else {
+    //             bt.btCollisionObject_forceActivationState(this._btColliderObject, PhysicsComponent.ACTIVATIONSTATE_ACTIVE_TAG);
+    //         }
+    //     }
+    // }
 
-    get disableSimulation(): boolean {
-        //TODO
-        return false;
-    }
+    // get disableSimulation(): boolean {
+    //     //TODO
+    //     return false;
+    // }
     /**
     * 获得碰撞标记
     * @returns 
@@ -438,7 +439,7 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
      * @internal
      */
     private _updateMass(mass: number): void {
-        if (this._btColliderObject && this._colliderShape) {
+        if (this._btColliderObject && this._colliderShape && this._colliderShape._btShape) {
             var bt: any = ILaya3D.Physics3D._bullet;
             bt.btCollisionShape_calculateLocalInertia(this._colliderShape._btShape, mass, Rigidbody3D._btInertia);
             bt.btRigidBody_setMassProps(this._btColliderObject, mass, Rigidbody3D._btInertia);
@@ -530,6 +531,17 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
         this._linearFactor = null;
         this._angularFactor = null;
     }
+
+    set colliderShape(value: ColliderShape) {
+        
+        if(value instanceof MeshColliderShape){
+            value = null;    
+            console.error("RigidBody3D is not support MeshColliderShape");
+        }
+        
+        super.colliderShape = value;
+    }
+
 
     /**
      * @inheritDoc
