@@ -129,6 +129,10 @@ export class HTMLDivElement extends Sprite {
         return this._element.style;
     }
 
+    get innerHTML() {
+        return this._innerHTML;
+    }
+
     /**
      * 设置标签内容
      */
@@ -150,7 +154,7 @@ export class HTMLDivElement extends Sprite {
         this._element.width = value;
     }
 
-    get width():number {
+    get width(): number {
         return this._element.width;
     }
 
@@ -158,7 +162,7 @@ export class HTMLDivElement extends Sprite {
         this._element.height = value;
     }
 
-    get height():number {
+    get height(): number {
         return this._element.height;
     }
 

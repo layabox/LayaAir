@@ -3,7 +3,8 @@ import { UIComponent } from "./UIComponent"
 import { ILaya } from "../../ILaya";
 
 /**
- * <code>View</code> 是一个视图类，2.0开始，更改继承至Scene类，相对于Scene，增加相对布局功能。
+ * <code>View</code> 是一个视图类
+ * 在2.0里，View继承自Scene类，但这是不合理的，Scene是一个2D+3D的大概念。所以在3.0里请忽略这个继承。
  */
 export class View extends Scene {
     /**@private 兼容老版本*/
@@ -15,6 +16,10 @@ export class View extends Scene {
 
     constructor() {
         super(false);   // 先不要createChildren 因为 this._widget还没有赋值
+
+        //3.0里View并不是Scene
+        this._scene = null;
+
         this.createChildren();
     }
 

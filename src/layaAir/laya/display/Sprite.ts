@@ -1877,8 +1877,9 @@ export class Sprite extends Node {
         return this._getBit(NodeFlags.DRAWCALL_OPTIMIZE);
     }
 
-    /**@internal */
     onAfterDeserialize() {
+        super.onAfterDeserialize();
+
         if (LayaEnv.isPlaying) {
             if ((<any>this)._gcmds) {
                 this.graphics.cmds = (<any>this)._gcmds;

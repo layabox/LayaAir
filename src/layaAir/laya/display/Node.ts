@@ -997,6 +997,11 @@ export class Node extends EventDispatcher {
     get timer(): Timer {
         return this._scene ? this._scene.timer : ILaya.timer;
     }
+
+    /**
+     * 反序列化后会调用
+     */
+    onAfterDeserialize() { }
 }
 
 export interface INodeExtra { }

@@ -562,6 +562,8 @@ export class List extends Box {
                 this.array = this._array;
                 this.runCallLater(this.renderItems);
             }
+            else
+                this.changeSelectStatus();
         }
     }
 
@@ -622,10 +624,14 @@ export class List extends Box {
         if (typeof (this._itemRender) == "function") {//TODO:
             box = new this._itemRender();
         } else {
-            if (this._itemRender._$type)
+            if (this._itemRender._$type || this._itemRender._$prefab)
                 box = <UIComponent>HierarchyParser.parse(this._itemRender)[0];
             else
                 box = LegacyUIParser.createComp(this._itemRender, null, null, arr);
+            if (!box) {
+                console.warn("cannot create item");
+                box = new Box();
+            }
         }
         box.hideFlags = HideFlags.HideAndDontSave;
 
@@ -659,8 +665,8 @@ export class List extends Box {
         this._cells.push(cell);
     }
 
-    /**@internal */
     onAfterDeserialize() {
+        super.onAfterDeserialize();
         this.initItems();
     }
 
@@ -701,6 +707,8 @@ export class List extends Box {
         this._content.height = height;
         if (this._scrollBar || this._offset.x != 0 || this._offset.y != 0) {
             let r = this._content.scrollRect;
+            if (!r)
+                r = Rectangle.create();
             r.setTo(-this._offset.x, -this._offset.y, width, height);
             this._content.scrollRect = r;
         }
@@ -905,13 +913,16 @@ export class List extends Box {
      * @param index 单元格索引。
      */
     protected renderItem(cell: UIComponent, index: number): void {
-        if (this._array && index >= 0 && index < this._array.length) {
+        if (!this._array || index >= 0 && index < this._array.length) {
             cell.visible = true;
 
-            if ((cell as any)["_$bindData"]) {
-                cell["_dataSource"] = this._array[index];
-                this._bindData(cell, this._array[index]);
-            } else cell.dataSource = this._array[index];
+            if (this._array) {
+                if ((cell as any)["_$bindData"]) {
+                    cell["_dataSource"] = this._array[index];
+                    this._bindData(cell, this._array[index]);
+                } else
+                    cell.dataSource = this._array[index];
+            }
 
             if (!this.cacheContent) {
                 //TODO:

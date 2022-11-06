@@ -9,6 +9,7 @@ import { HTMLBrElement } from "../dom/HTMLBrElement";
 import { HTMLStyleElement } from "../dom/HTMLStyleElement";
 import { HTMLLinkElement } from "../dom/HTMLLinkElement";
 import { HTMLImageElement } from "../dom/HTMLImageElement";
+import { LayaEnv } from "../../../LayaEnv";
 /**
  * @private
  */
@@ -51,13 +52,19 @@ export class HTMLParse {
         xmlString = xmlString.replace(/<br>/g, "<br/>");
         xmlString = "<root>" + xmlString + "</root>";
         xmlString = xmlString.replace(HTMLParse.spacePattern, HTMLParse.char255);
-        var xml: any = Utils.parseXMLFromString(xmlString);
-        /*if (xml.firstChild.innerHTML.indexOf("<parsererror ") == 0)
-           {
-           throw new Error("HTML parsererror:" + xmlString);
-           return;
-           }*/
-        HTMLParse._parseXML(ower, xml.childNodes[0].childNodes, url);
+        try {
+            var xml: any = Utils.parseXMLFromString(xmlString);
+            /*if (xml.firstChild.innerHTML.indexOf("<parsererror ") == 0)
+            {
+            throw new Error("HTML parsererror:" + xmlString);
+            return;
+            }*/
+            HTMLParse._parseXML(ower, xml.childNodes[0].childNodes, url);
+        }
+        catch (err: any) {
+            if (LayaEnv.isPlaying)
+                console.error(err);
+        }
     }
 
     /**
@@ -139,51 +146,51 @@ export class HTMLParse {
             }
         }
     }
-	/*
-	   //实体字符替换
-	   private static const Entities:Object =
-	   {
-	   "&nbsp;"  : " ",
-	   "&#160;"  : " ",
-	   "&lt;"    : "<",
-	   "&#60;"   : "<",
-	   "&gt;"    : ">",
-	   "&#62;"   : ">",
-	   "&amp;"   : "&",
-	   "&amp;"   : "&",
-	   "&quot;"  : "\"",
-	   "&#34;"   : "\"",
-	   "&apos;"  : "'",
-	   "&#39;"   : "'",
-	   "&cent;"  : "￠",
-	   "&#162;"  : "￠",
-	   "&pound;" : "£",
-	   "&#163;"  : "£",
-	   "&yen;"   : "¥",
-	   "&#165;"  : "¥",
-	   "&euro;"  : "€",
-	   "&#8364;" : "€",
-	   "&sect;"  : "§",
-	   "&#167;"  : "§",
-	   "&copy;"  : "©",
-	   "&#169;"  : "©",
-	   "&reg;"   : "®",
-	   "&#174;"  : "®",
-	   "&trade;" : "™",
-	   "&#8482;" : "™",
-	   "&times;" : "×",
-	   "&#215;"  : "×",
-	   "&divide;": "÷",
-	   "&#247;"  : "÷"
-	   };
+    /*
+       //实体字符替换
+       private static const Entities:Object =
+       {
+       "&nbsp;"  : " ",
+       "&#160;"  : " ",
+       "&lt;"    : "<",
+       "&#60;"   : "<",
+       "&gt;"    : ">",
+       "&#62;"   : ">",
+       "&amp;"   : "&",
+       "&amp;"   : "&",
+       "&quot;"  : "\"",
+       "&#34;"   : "\"",
+       "&apos;"  : "'",
+       "&#39;"   : "'",
+       "&cent;"  : "￠",
+       "&#162;"  : "￠",
+       "&pound;" : "£",
+       "&#163;"  : "£",
+       "&yen;"   : "¥",
+       "&#165;"  : "¥",
+       "&euro;"  : "€",
+       "&#8364;" : "€",
+       "&sect;"  : "§",
+       "&#167;"  : "§",
+       "&copy;"  : "©",
+       "&#169;"  : "©",
+       "&reg;"   : "®",
+       "&#174;"  : "®",
+       "&trade;" : "™",
+       "&#8482;" : "™",
+       "&times;" : "×",
+       "&#215;"  : "×",
+       "&divide;": "÷",
+       "&#247;"  : "÷"
+       };
 	
-	   public static function decodeFromEntities(str:String):String
-	   {
-	   return str.replace(/\&#?\w{2,6};/g, function(... args):String
-	   {
-	   return Entities[args[0]];
-	   });
-	   }*/
+       public static function decodeFromEntities(str:String):String
+       {
+       return str.replace(/\&#?\w{2,6};/g, function(... args):String
+       {
+       return Entities[args[0]];
+       });
+       }*/
 }
 
 IHtml.HTMLParse = HTMLParse;

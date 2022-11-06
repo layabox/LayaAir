@@ -476,14 +476,14 @@ export class InputManager {
         //优先判断父对象
         //默认情况下，hitTestPrior=mouseThrough=false，也就是优先check子对象
         //$NEXTBIG:下个重大版本将sp.mouseThrough从此逻辑中去除，从而使得sp.mouseThrough只负责目标对象的穿透
-        if (!editor && sp.hitTestPrior && !sp.mouseThrough && !this.hitTest(sp, x, y)) {
+        if (!editor && sp.hitTestPrior && !sp.mouseThrough && !this.hitTest(sp, x, y, editor)) {
             return null;
         }
         for (let i = sp._children.length - 1; i > -1; i--) {
             let child = <Sprite>sp._children[i];
             //只有接受交互事件的，才进行处理
             if (!child._destroyed
-                && (editor && !child.hasHideFlag(HideFlags.HideInHierarchy) || child._mouseState > 1)
+                && (editor ? (!child.hasHideFlag(HideFlags.HideInHierarchy) || child.mouseThrough) : child._mouseState > 1)
                 && (child._visible || child._getBit(NodeFlags.DISABLE_VISIBILITY))) {
                 let ret = this._getSpriteUnderPoint(child, x, y, editor);
                 if (ret)
@@ -494,7 +494,7 @@ export class InputManager {
         for (let i = sp._extUIChild.length - 1; i >= 0; i--) {
             let child = <Sprite>sp._extUIChild[i];
             if (!child._destroyed
-                && (editor && !child.hasHideFlag(HideFlags.HideInHierarchy) || child._mouseState > 1)
+                && (editor ? (!child.hasHideFlag(HideFlags.HideInHierarchy) || child.mouseThrough) : child._mouseState > 1)
                 && (child._visible || child._getBit(NodeFlags.DISABLE_VISIBILITY))) {
                 let ret = this._getSpriteUnderPoint(child, x, y, editor);
                 if (ret)
@@ -502,17 +502,23 @@ export class InputManager {
             }
         }
 
-        //避免重复进行碰撞检测，考虑了判断条件的命中率。
-        let isHit: boolean = (LayaEnv.isPlaying && sp.hitTestPrior && !sp.mouseThrough) ? true : this.hitTest(sp, x, y);
+        if (editor) {
+            if (!sp.hasHideFlag(HideFlags.HideInHierarchy) && this.hitTest(sp, x, y, editor))
+                return sp;
+        }
+        else {
+            if (sp.hitTestPrior && !sp.mouseThrough || this.hitTest(sp, x, y, editor))
+                return sp;
+        }
 
-        return isHit ? sp : null;
+        return null;
     }
 
     getSprite3DUnderPoint(x: number, y: number): Node {
         return null;
     }
 
-    hitTest(sp: Sprite, x: number, y: number): boolean {
+    hitTest(sp: Sprite, x: number, y: number, editor?: boolean): boolean {
         let isHit: boolean = false;
         if (sp.scrollRect) {
             x -= sp._style.scrollRect.x;
@@ -520,7 +526,7 @@ export class InputManager {
         }
         let hitArea: any = sp._style.hitArea;
         let mouseThrough = sp.mouseThrough;
-        if (!LayaEnv.isPlaying) {
+        if (editor) {
             hitArea = null;
             mouseThrough = false;
         }
