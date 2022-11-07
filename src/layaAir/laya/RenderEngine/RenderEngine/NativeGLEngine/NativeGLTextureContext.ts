@@ -117,7 +117,7 @@ export class NativeGLTextureContext extends NativeGLObject implements ITextureCo
     }
 
     updateVideoTexture(texture: InternalTexture, video: HTMLVideoElement, premultiplyAlpha: boolean, invertY: boolean): void {
-        throw new Error("updateVideoTexture Method not implemented.");
+        this._native.updateVideoTexture(texture, (video as any)._nativeObj.conchImgId , premultiplyAlpha, invertY);
     }
 
     getRenderTextureData(internalTex: InternalRenderTarget, x: number, y: number, width: number, height: number): ArrayBufferView{
