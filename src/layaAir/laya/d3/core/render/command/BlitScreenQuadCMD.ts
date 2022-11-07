@@ -141,4 +141,13 @@ export class BlitScreenQuadCMD extends Command {
 		this._shaderData = null;
 		super.recover();
 	}
+
+	destroy(): void {
+		this._source = null;
+		this._dest = null;
+		this._offsetScale = null;
+		this._shader = null;
+		this._shaderData = null;
+		this._renderElement.destroy();
+	}
 }

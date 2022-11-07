@@ -116,7 +116,7 @@ export class DrawMeshInstancedCMD extends Command {
             return;
         BaseRender.changeVertexDefine(this._mesh, value, this._render._shaderValues);
         this._mesh = value;
-        if(!this._mesh)
+        if (!this._mesh)
             return;
         let submeshs = this._mesh._subMeshes;
         if (this._subMeshIndex == -1) {
@@ -263,6 +263,19 @@ export class DrawMeshInstancedCMD extends Command {
         this._instanceGeometryArray = [];
         this.mesh = null;
 
+    }
+
+    destroy(): void {
+        super.destroy();
+        this._material && this._material._removeReference(1);
+        this._material = null;
+        this._instanceBufferState.destroy();
+        this._instanceBufferState = null;
+        delete this._instanceRenderElementArray;
+        this._instanceRenderElementArray = [];
+        delete this._instanceGeometryArray;
+        this._instanceGeometryArray = [];
+        this.mesh = null;
     }
 
 }
