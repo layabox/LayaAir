@@ -444,6 +444,9 @@ export class Camera extends BaseCamera {
         return this._msaa;
     }
 
+    /**
+     * 空间抗锯齿
+     */
     set fxaa(value: boolean) {
         this._fxaa = value;
     }
