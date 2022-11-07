@@ -34,7 +34,7 @@ import "./loaders/AtlasLoader";
 import "./loaders/HierarchyLoader";
 import "./loaders/TextureLoader";
 import "./loaders/AnimationClip2DLoader";
-import { FloatKeyframe } from "./d3/core/FloatKeyframe";
+import "./loaders/NullLoader";
 
 let c = ClassUtils.regClass;
 
@@ -69,5 +69,3 @@ c("AnimationClip2D", AnimationClip2D);
 c("Animation2DNext", Animation2DNext);
 c("Animation2DParm", Animation2DParm);
 c("Animation2DCondition", Animation2DCondition);
-
-c("FloatKeyframe", FloatKeyframe);
