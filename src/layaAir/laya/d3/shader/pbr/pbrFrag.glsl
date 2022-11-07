@@ -93,6 +93,10 @@ vec3 PBRLighting(const in Surface surface, const in PixelParams pixel)
 	    if (i >= DirectionCount)
 		break;
 	    DirectionLight directionLight = getDirectionLight(i, pixel.positionWS);
+        if (directionLight.lightMode == LightMode_Mix)
+		{
+		    continue;
+		}
 	    Light light = getLight(directionLight);
 	    lightColor += PBRLighting(surface, info, light) * light.attenuation;
 	}
@@ -108,6 +112,10 @@ vec3 PBRLighting(const in Surface surface, const in PixelParams pixel)
 	    if (i >= clusterInfo.x)
 		break;
 	    PointLight pointLight = getPointLight(i, clusterInfo, pixel.positionWS);
+        if (pointLight.lightMode == LightMode_Mix)
+		{
+		    continue;
+		}
 	    Light light = getLight(pointLight, pixel.normalWS, pixel.positionWS);
 	    lightColor += PBRLighting(surface, info, light) * light.attenuation;
 	}
@@ -119,6 +127,10 @@ vec3 PBRLighting(const in Surface surface, const in PixelParams pixel)
 	    if (i >= clusterInfo.y)
 		break;
 	    SpotLight spotLight = getSpotLight(i, clusterInfo, pixel.positionWS);
+        if (spotLight.lightMode == LightMode_Mix)
+		{
+		    continue;
+		}
 	    Light light = getLight(spotLight, pixel.normalWS, pixel.positionWS);
 	    lightColor += PBRLighting(surface, info, light) * light.attenuation;
 	}
