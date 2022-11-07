@@ -150,8 +150,8 @@ export class UIGroup extends Box {
         }
     }
 
-    /**@internal 3.0解析会调用 */
     onAfterDeserialize() {
+        super.onAfterDeserialize();
         if (!this._labels)
             this.initItems();
     }

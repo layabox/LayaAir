@@ -47,8 +47,8 @@ export class ViewStack extends Box {
         this.initItems();
     }
 
-    /**@internal */
     onAfterDeserialize() {
+        super.onAfterDeserialize();
         this.initItems();
     }
 

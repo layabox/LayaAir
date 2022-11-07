@@ -63,7 +63,7 @@ export class HierarchyParser {
             }
             else {
                 if (pstr = nodeData._$prefab) { //prefab根节点
-                    let res = <Prefab>Loader.getRes(pstr, Loader.HIERARCHY);
+                    let res = <Prefab>Loader.getRes(URL.getResURLByUUID(pstr), Loader.HIERARCHY);
                     if (res) {
                         if (!prefabNodeDict)
                             prefabNodeDict = new Map();
@@ -130,12 +130,8 @@ export class HierarchyParser {
                 return map[idPath];
         }
 
-        //创建所有节点对象，反向，先生成父再生成子，预制体需要这样
-        if (data._$child)
-            createChildren(data, null);
-
         let runtime: any;
-        if (data._$type) {
+        if (data._$type || data._$prefab) {
             if (runtime = data._$runtime) {
                 if (runtime.startsWith("res://"))
                     runtime = runtime.substring(6);
@@ -148,12 +144,19 @@ export class HierarchyParser {
 
             let node = createNode(data, null, runtime);
             if (node) {
+                if (data._$child)
+                    createChildren(data, data._$prefab ? node : null);
+
                 dataList.push(data);
                 allNodes.push(node);
 
                 if (node instanceof Scene)
                     scene = node;
             }
+        }
+        else {
+            if (data._$child)
+                createChildren(data, null);
         }
 
         let cnt = dataList.length;
@@ -192,10 +195,12 @@ export class HierarchyParser {
                     else {
                         for (let j = 0; j < num; j++) {
                             let n = outNodes[k - num + j];
-                            if (node === scene && n._is3D)
-                                scene._scene3D = <any>n;
-                            else
-                                node.addChild(n);
+                            if (n) {
+                                if (node === scene && n._is3D)
+                                    scene._scene3D = <any>n;
+                                else
+                                    node.addChild(n);
+                            }
                         }
                     }
                 }
@@ -289,11 +294,14 @@ export class HierarchyParser {
                 return "";
             let url2 = test[url];
             if (url2 === undefined) {
-                if (url.length >= 36 && url.charCodeAt(8) === 45 && url.charCodeAt(13) === 45) //uuid xxxxxxxx-xxxx-...
-                    url2 = "res://" + url;
-                else
+                if (url.length >= 36 && url.charCodeAt(8) === 45 && url.charCodeAt(13) === 45) { //uuid xxxxxxxx-xxxx-...
+                    innerUrls.push({ url: "res://" + url, type: type });
+                    url2 = url;
+                }
+                else {
                     url2 = URL.join(basePath, url);
-                innerUrls.push({ url: url2, type: type });
+                    innerUrls.push({ url: url2, type: type });
+                }
                 test[url] = url2;
             }
             return url2;

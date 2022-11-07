@@ -278,6 +278,10 @@ export class Tree extends Box {
     protected createChildren(): void {
         this._list = new List();
         this._list.hideFlags = HideFlags.HideAndDontSave;
+        this._list.left = 0;
+        this._list.right = 0;
+        this._list.top = 0;
+        this._list.bottom = 0;
         this.addChild(this._list);
         this._list.renderHandler = Handler.create(this, this.renderItem, null, false);
         this._list.repeatX = 1;
@@ -434,39 +438,6 @@ export class Tree extends Box {
 
     set selectedItem(value: any) {
         this._list.selectedItem = value;
-    }
-
-    /**
-     * @inheritDoc
-     * @override
-     */
-    set width(value: number) {
-        super.width = value;
-        this._list.width = value;
-    }
-    /**
-     * @inheritDoc 
-     * @override
-     */
-    get width() {
-        return super.width;
-    }
-
-    /**
-     * @inheritDoc 
-     * @override
-     */
-    set height(value: number) {
-        super.height = value;
-        this._list.height = value;
-    }
-
-    /**
-     * @inheritDoc 
-     * @override
-     */
-    get height() {
-        return super.height;
     }
 
     /**

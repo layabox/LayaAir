@@ -76,16 +76,6 @@ import { TextureCube } from "./resource/TextureCube";
 import { DirectionLightCom } from "./core/light/DirectionLightCom";
 import { PointLightCom } from "./core/light/PointLightCom";
 import { SpotLightCom } from "./core/light/SpotLightCom";
-
-import "./loaders/AnimationClipLoader";
-import "./loaders/CubemapLoader";
-import "./loaders/MaterialLoader";
-import "./loaders/MeshLoader";
-import "./loaders/HierarchyParserV2";
-import "./loaders/AvatarMaskLoader";
-import "./loaders/ShaderLoader";
-import "./loaders/GLSLLoader";
-
 import { Bounds } from "./math/Bounds";
 import { ReflectionProbe } from "./component/Volume/reflectionProbe/ReflectionProbe";
 import { AreaLightCom } from "./core/light/AreaLightCom";
@@ -98,6 +88,16 @@ import { MeshColliderShape } from "./physics/shape/MeshColliderShape";
 import { LODGroup, LODInfo } from "./component/LODGroup";
 import { PixelLineData } from "./core/pixelLine/PixelLineData";
 import { PixelLineRenderer } from "./core/pixelLine/PixelLineRenderer";
+import { FloatKeyframe } from "./core/FloatKeyframe";
+
+import "./loaders/AnimationClipLoader";
+import "./loaders/CubemapLoader";
+import "./loaders/MaterialLoader";
+import "./loaders/MeshLoader";
+import "./loaders/HierarchyParserV2";
+import "./loaders/AvatarMaskLoader";
+import "./loaders/ShaderLoader";
+import "./loaders/GLSLLoader";
 
 let c = ClassUtils.regClass;
 c("Sprite3D", Sprite3D);
@@ -141,6 +141,7 @@ c("Bounds", Bounds);
 c("BoundBox", BoundBox);
 c("TextureCube", TextureCube);
 c("Mesh", Mesh);
+c("FloatKeyframe", FloatKeyframe);
 
 c("Animator", Animator);
 c("AnimatorControllerLayer", AnimatorControllerLayer);
@@ -203,4 +204,4 @@ c("CapsuleColliderShape", CapsuleColliderShape);
 c("ConeColliderShape", ConeColliderShape);
 c("CylinderColliderShape", CylinderColliderShape);
 c("SphereColliderShape", SphereColliderShape);
-c("MeshColliderShape",MeshColliderShape);
+c("MeshColliderShape", MeshColliderShape);

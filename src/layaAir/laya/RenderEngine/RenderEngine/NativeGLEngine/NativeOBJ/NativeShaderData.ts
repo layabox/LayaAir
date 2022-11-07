@@ -1,3 +1,4 @@
+import { Texture } from "laya/resource/Texture";
 import { Color } from "../../../../d3/math/Color";
 import { Matrix4x4 } from "../../../../d3/math/Matrix4x4";
 import { Quaternion } from "../../../../d3/math/Quaternion";
@@ -161,10 +162,18 @@ export class NativeShaderData extends ShaderData implements INativeUploadNode {
 
     compressTexture(index: number, memoryBlock: UploadMemory, stride: number): number {
         //console.log("..index " + index + " NativeShaderDataType.Texture " + NativeShaderDataType.Texture + "stride " + stride);
-        var value: BaseTexture = this._data[index];
+        var value: any = this._data[index];
         memoryBlock.int32Array[stride] = index;
         memoryBlock.int32Array[stride + 1] = NativeShaderDataType.Texture;
-        memoryBlock.int32Array[stride + 2] = (value && value._texture) ? (value._texture as any).id : (Texture2D.erroTextur._texture as any).id;
+        if (value && value instanceof Texture) {
+            memoryBlock.int32Array[stride + 2] = (value.bitmap._texture as any).id;
+        }
+        else if (value && value._texture) {
+            memoryBlock.int32Array[stride + 2] = (value._texture as any).id;
+        }
+        else {
+            memoryBlock.int32Array[stride + 2] = (Texture2D.erroTextur._texture as any).id;
+        }
         return 3;
     }
 

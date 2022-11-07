@@ -1,6 +1,7 @@
 import { ILaya } from "../../ILaya";
 import { Node } from "../display/Node";
 import { Loader } from "../net/Loader";
+import { URL } from "../net/URL";
 import { ClassUtils } from "../utils/ClassUtils";
 
 export const TypedArrayClasses: Record<string, any> = {
@@ -40,9 +41,7 @@ export class SerializeUtil {
         }
         else if (typeof (data) === "object") {
             if (data._$uuid != null) {
-                let url: string = data._$uuid;
-                if (url.length >= 36 && url.charCodeAt(8) === 45 && url.charCodeAt(13) === 45) //uuid xxxxxxxx-xxxx-...
-                    url = "res://" + url;
+                let url = URL.getResURLByUUID(data._$uuid);
                 return ILaya.loader.getRes(url, SerializeUtil.getLoadTypeByEngineType(data._$type));
             }
 

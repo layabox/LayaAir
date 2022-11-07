@@ -136,6 +136,13 @@ export class URL {
         return parts.join('/');
     }
 
+    static getResURLByUUID(url: string): string {
+        if (url.length >= 36 && url.charCodeAt(8) === 45 && url.charCodeAt(13) === 45) //uuid xxxxxxxx-xxxx-...
+            return "res://" + url;
+        else
+            return url;
+    }
+
     /**
     * 组合相对路径并格式化
     * @param base
