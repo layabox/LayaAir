@@ -532,15 +532,19 @@ export class Rigidbody3D extends PhysicsTriggerComponent {
     }
 
     set colliderShape(value: ColliderShape) {
-        
-        if(value instanceof MeshColliderShape){
-            value = null;    
+        if (value instanceof MeshColliderShape) {
+            value = null;
             console.error("RigidBody3D is not support MeshColliderShape");
         }
-        
         super.colliderShape = value;
     }
 
+    /**
+    * 碰撞形状。
+    */
+    get colliderShape(): ColliderShape {
+        return this._colliderShape;
+    }
 
     /**
      * @inheritDoc
