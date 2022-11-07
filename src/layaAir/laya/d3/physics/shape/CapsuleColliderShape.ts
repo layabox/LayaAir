@@ -103,10 +103,10 @@ export class CapsuleColliderShape extends ColliderShape {
 				this._btShape = bt.btCapsuleShapeX_create(this._radius, this._length - this._radius * 2);
 				break;
 			case ColliderShape.SHAPEORIENTATION_UPY:
-				this._btShape = bt.btCapsuleShape_create(this._radius, length - this._radius * 2);
+				this._btShape = bt.btCapsuleShape_create(this._radius, this._length - this._radius * 2);
 				break;
 			case ColliderShape.SHAPEORIENTATION_UPZ:
-				this._btShape = bt.btCapsuleShapeZ_create(this._radius, length - this._radius * 2);
+				this._btShape = bt.btCapsuleShapeZ_create(this._radius, this._length - this._radius * 2);
 				break;
 			default:
 				throw "CapsuleColliderShape:unknown orientation.";
