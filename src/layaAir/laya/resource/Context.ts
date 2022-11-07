@@ -586,6 +586,11 @@ export class Context {
             this._targets && this._targets.destroy();//用回收么？可能没什么重复利用的价值
             this._targets = null;
         }
+        if (this.defTexture) {
+            this.defTexture.bitmap && this.defTexture.bitmap.destroy();
+            this.defTexture.destroy();
+        }
+
     }
 
     clear(): void {

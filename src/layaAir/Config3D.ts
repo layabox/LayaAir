@@ -23,25 +23,25 @@ export class Config3D {
     /**@internal */
     static _uniformBlock: boolean;
 
-    /** 是否开启八叉树裁剪。*/
-    static octreeCulling: boolean = false;
-    /** 八叉树初始化尺寸。*/
-    static octreeInitialSize: number = 64.0;
-    /** 八叉树初始化中心。*/
-    static octreeInitialCenter: Vector3 = new Vector3(0, 0, 0);
-    /** 八叉树最小尺寸。*/
-    static octreeMinNodeSize: number = 2.0;
-    /** 八叉树松散值。*/
-    static octreeLooseness: number = 1.25;
+    // /** 是否开启八叉树裁剪。*/
+    // static octreeCulling: boolean = false;
+    // /** 八叉树初始化尺寸。*/
+    // static octreeInitialSize: number = 64.0;
+    // /** 八叉树初始化中心。*/
+    // static octreeInitialCenter: Vector3 = new Vector3(0, 0, 0);
+    // /** 八叉树最小尺寸。*/
+    // static octreeMinNodeSize: number = 2.0;
+    // /** 八叉树松散值。*/
+    // static octreeLooseness: number = 1.25;
     /** 
-     * 是否开启视锥裁剪调试。
-     * 如果开启八叉树裁剪,使用红色绘制高层次八叉树节点包围盒,使用蓝色绘制低层次八叉节点包围盒,精灵包围盒和八叉树节点包围盒颜色一致,但Alpha为非透明。如果视锥完全包含八叉树节点,八叉树节点包围盒和精灵包围盒变为蓝色,同样精灵包围盒的Alpha为非透明。
-     * 如果不开启八叉树裁剪,使用绿色像素线绘制精灵包围盒。
-     */
+    //  * 是否开启视锥裁剪调试。
+    //  * 如果开启八叉树裁剪,使用红色绘制高层次八叉树节点包围盒,使用蓝色绘制低层次八叉节点包围盒,精灵包围盒和八叉树节点包围盒颜色一致,但Alpha为非透明。如果视锥完全包含八叉树节点,八叉树节点包围盒和精灵包围盒变为蓝色,同样精灵包围盒的Alpha为非透明。
+    //  * 如果不开启八叉树裁剪,使用绿色像素线绘制精灵包围盒。
+    //  */
     static debugFrustumCulling: boolean = false;
 
     /** PBR材质渲染质量。*/
-    static pbrRenderQuality: PBRRenderQuality = PBRRenderQuality.High;
+    //static pbrRenderQuality: PBRRenderQuality = PBRRenderQuality.High;
 
     /**@internal 设置分辨率宽度*/
     static _resoluWidth: number = -1;

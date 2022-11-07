@@ -11,7 +11,6 @@ import { Transform3D } from "../../Transform3D";
 import { Command } from "./Command";
 import { CommandBuffer } from "./CommandBuffer";
 import { MaterialInstancePropertyBlock } from "./MaterialInstancePropertyBlock";
-
 import { RenderElement } from "../RenderElement";
 import { MeshInstanceGeometry } from "../../../graphics/MeshInstanceGeometry";
 import { RenderContext3D } from "../RenderContext3D";
