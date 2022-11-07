@@ -29,7 +29,8 @@ export enum DepthTextureMode {
     /**生成深度+法线贴图 */
     DepthNormals = 2,
     /**是否应渲染运动矢量  TODO*/
-    MotionVectors = 4
+    DepthAndDepthNormals = 3,
+    MotionVectors = 4,
 }
 /**
  * <code>ShadowCasterPass</code> 类用于实现阴影渲染管线

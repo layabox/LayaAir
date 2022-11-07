@@ -327,7 +327,7 @@ export class Camera extends BaseCamera {
     /**@internal */
     private _fxaa: boolean;
     /** @internal*/
-    private _depthTextureMode: number;
+    private _depthTextureMode: DepthTextureMode;
     /** @internal */
     _offScreenRenderTexture: RenderTexture = null;
     /** @internal */
@@ -594,10 +594,10 @@ export class Camera extends BaseCamera {
     /**
      * 深度贴图模式
      */
-    get depthTextureMode(): number {
+    get depthTextureMode(): DepthTextureMode {
         return this._depthTextureMode;
     }
-    set depthTextureMode(value: number) {
+    set depthTextureMode(value: DepthTextureMode) {
         this._depthTextureMode = value;
     }
 
@@ -661,7 +661,7 @@ export class Camera extends BaseCamera {
         this._rayViewport = new Viewport(0, 0, 0, 0);
         this._aspectRatio = aspectRatio;
         this._boundFrustum = new BoundFrustum(new Matrix4x4());
-
+        this._depthTextureMode = 0;
         this._calculateProjectionMatrix();
         ILaya.stage.on(Event.RESIZE, this, this._onScreenSizeChanged);
         this.transform.on(Event.TRANSFORM_CHANGED, this, this._onTransformChanged);
