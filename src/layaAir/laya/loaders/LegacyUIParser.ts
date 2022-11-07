@@ -14,9 +14,9 @@ import { Handler } from "laya/utils/Handler";
 import { NodeFlags } from "../Const";
 import { PrefabImpl } from "../resource/PrefabImpl";
 import { Scene } from "../display/Scene";
-// import { View } from "../ui/View";
 
 var _listClass: any;
+var _viewClass: any;
 
 /**
  * @private 场景辅助类
@@ -295,8 +295,8 @@ export class LegacyUIParser {
         }
 
         let ret = new compClass();
-        // if (ret instanceof View) //3.0取消了View的_scene属性，因为它不应该是一个scene。但兼容2.0的代码，这里补回去
-        //     ret._scene = ret;
+        if (ret instanceof (_viewClass || (_viewClass = ClassUtils.getClass("View")))) //3.0取消了View的_scene属性，因为它不应该是一个scene。但兼容2.0的代码，这里补回去
+            (<any>ret)._scene = ret;
         return ret;
     }
 
