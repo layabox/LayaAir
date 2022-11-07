@@ -339,7 +339,7 @@ export class CharacterController extends PhysicsComponent {
             Utils3D._convertToBulletVec3(velocity, btVelocity);
             bt.btKinematicCharacterController_jump(this._btKinematicCharacter, btVelocity);
         } else {
-            bt.btVector3_setValue(btVelocity, 0, 0, 0);
+            bt.btVector3_setValue(btVelocity, 0, this._jumpSpeed, 0);
             bt.btKinematicCharacterController_jump(this._btKinematicCharacter, btVelocity);
         }
     }
