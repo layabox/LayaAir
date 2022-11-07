@@ -5,7 +5,7 @@ window.Physics3D = function (initialMemory, interactive) {
   var mem;
   return new Promise((resolve) => {
     mem = new WebAssembly.Memory({ initial: initialMemory });
-    fetch("laya.physics3D.wasm.wasm").then((response) => {
+    fetch("libs/laya.physics3D.wasm.wasm").then((response) => {
       response.arrayBuffer().then((buffer) => {
 
         WebAssembly.instantiate(buffer, {

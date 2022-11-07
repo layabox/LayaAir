@@ -373,7 +373,7 @@ gulp.task("buildJs", async () => {
 gulp.task("copyJsLibs", async () => {
     return gulp.src([
         './src/layaAir/jsLibs/laya.physics3D.wasm.wasm', './src/layaAir/jsLibs/*.js',
-        '!./src/layaAir/jsLibs/{box2d.js,cannon.js,laya.physics3D.wasm.js,laya.physics3D.wasm-wx.js}'])
+        '!./src/layaAir/jsLibs/{box2d.js,cannon.js}'])
         .pipe(gulp.dest('./build/libs'));
 });
 
