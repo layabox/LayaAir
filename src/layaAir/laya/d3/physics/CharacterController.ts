@@ -7,6 +7,7 @@ import { Component } from "../../components/Component";
 import { ILaya3D } from "../../../ILaya3D";
 import { Quaternion } from "../math/Quaternion";
 import { Rigidbody3D } from "./Rigidbody3D";
+import { MeshColliderShape } from "./shape/MeshColliderShape";
 
 /**
  * <code>CharacterController</code> 类用于创建角色控制器。
@@ -54,6 +55,22 @@ export class CharacterController extends PhysicsComponent {
 
     /**@internal */
     protected _pushForce = 1;
+
+
+    set colliderShape(value: ColliderShape) {
+        if (value instanceof MeshColliderShape) {
+            value = null;
+            console.error("RigidBody3D is not support MeshColliderShape");
+        }
+        super.colliderShape = value;
+    }
+
+    /**
+    * 碰撞形状。
+    */
+    get colliderShape(): ColliderShape {
+        return this._colliderShape;
+    }
 
     /**
      * 角色降落速度。
@@ -225,7 +242,7 @@ export class CharacterController extends PhysicsComponent {
         (this._colliderShape) && (this._constructCharacter());
         super._onAdded();
     }
-    
+
     protected _onDestroy() {
         ILaya3D.Physics3D._bullet.btKinematicCharacterController_destroy(this._btKinematicCharacter);
         super._onDestroy();
@@ -343,10 +360,10 @@ export class CharacterController extends PhysicsComponent {
             bt.btKinematicCharacterController_jump(this._btKinematicCharacter, btVelocity);
         }
     }
-	
-	get btColliderObject():number{
-		return this._btColliderObject;
-	}		
+
+    get btColliderObject(): number {
+        return this._btColliderObject;
+    }
 
     /**
      * @inheritDoc
