@@ -14,7 +14,10 @@ export class Config {
      * 限制fps 
      */
     static FPS = 60;
-
+    /**
+     * 是否使用视网膜模式，在iOS上面可能会创建更大的RT，来达到更佳的效果
+     */
+    static useRetinalCanvas: boolean = false;
 
     //-------------2D设置---------------------
     /**
@@ -26,10 +29,7 @@ export class Config {
        * 当使用webGL渲染2d的时候，每次创建vb是否直接分配足够64k个顶点的缓存。这样可以提高效率。
        */
     static webGL2D_MeshAllocMaxMem: boolean = true;
-    /**
-     * 是否使用视网膜模式，在iOS上面可能会创建更大的RT，来达到更佳的效果
-     */
-    static useRetinalCanvas: boolean = false;
+
     /*
      *默认文本大小，默认为12
      */
