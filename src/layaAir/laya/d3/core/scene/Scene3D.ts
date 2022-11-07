@@ -491,7 +491,7 @@ export class Scene3D extends Sprite implements ISubmit {
     /** @internal */
     _volumeManager: VolumeManager = new VolumeManager();
     /**@internal */
-    _UI3DManager:UI3DManager = new UI3DManager();
+    _UI3DManager: UI3DManager = new UI3DManager();
     /**@internal */
     _sceneRenderManager: SceneRenderManager;
     /**@internal */
@@ -604,16 +604,19 @@ export class Scene3D extends Sprite implements ISubmit {
                 case AmbientMode.SolidColor:
                     this._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_GI_LEGACYIBL);
                     this._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_GI_IBL);
-                    this.ambientSH = this.ambientSH;
-                    this.iblTex = this.iblTex;
-                    this.iblTexRGBD = this.iblTexRGBD;
                     break;
                 case AmbientMode.SphericalHarmonics:
-                    this._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_GI_LEGACYIBL);
-                    this._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_GI_IBL);
-                    let sh = this.ambientSphericalHarmonics || SphericalHarmonicsL2._default;
-                    let intensity = this.ambientSphericalHarmonicsIntensity;
-                    this._applySHCoefficients(sh, Math.pow(intensity, 2.2));
+                    if (this._ambientSH) {
+                        this._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_GI_IBL);
+                        this._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_GI_LEGACYIBL);
+                    }
+                    else {
+                        this._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_GI_LEGACYIBL);
+                        this._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_GI_IBL);
+                        let sh = this.ambientSphericalHarmonics || SphericalHarmonicsL2._default;
+                        let intensity = this.ambientSphericalHarmonicsIntensity;
+                        this._applySHCoefficients(sh, Math.pow(intensity, 2.2));
+                    }
                     break;
                 case AmbientMode.TripleColor:
                     this._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_GI_LEGACYIBL);
