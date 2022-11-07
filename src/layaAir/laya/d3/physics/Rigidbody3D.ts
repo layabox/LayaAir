@@ -5,7 +5,6 @@ import { Utils3D } from "../utils/Utils3D";
 import { PhysicsComponent } from "./PhysicsComponent";
 import { PhysicsTriggerComponent } from "./PhysicsTriggerComponent";
 import { ColliderShape } from "./shape/ColliderShape";
-import { ConstraintComponent } from "./constraints/ConstraintComponent";
 import { ILaya3D } from "../../../ILaya3D";
 import { Quaternion } from "../math/Quaternion";
 import { MeshColliderShape } from "./shape/MeshColliderShape";

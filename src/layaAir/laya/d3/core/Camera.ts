@@ -1339,6 +1339,7 @@ export class Camera extends BaseCamera {
         this._needInternalRenderTexture() && (!this._internalRenderTexture._inPool) && RenderTexture.recoverToPool(this._internalRenderTexture);
         this._offScreenRenderTexture = null;
         this.transform.off(Event.TRANSFORM_CHANGED, this, this._onTransformChanged);
+        ILaya.stage.off(Event.RESIZE, this, this._onScreenSizeChanged);
         this._cameraEventCommandBuffer = {};
         this._shaderValues.destroy();
         if (RenderContext3D._instance.camera == this) {

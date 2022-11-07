@@ -70,4 +70,11 @@ export class MaterialInstanceProperty{
 		this._vertexBuffer.orphanStorage();
 		this._vertexBuffer.setData(instanceData.buffer,0,0,drawNums*4*stride);
 	}
+
+	destroy(){
+		delete this._value;
+		delete this._instanceData;
+		this._vertexDeclaration = null;
+		this._vertexBuffer.destroy();
+	}
 }

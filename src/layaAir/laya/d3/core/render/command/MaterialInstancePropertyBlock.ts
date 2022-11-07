@@ -148,6 +148,9 @@ export class MaterialInstancePropertyBlock{
 	}
 
 	clear(){
+		for(var i in this._propertyMap){
+			this._propertyMap[i].destroy();
+		}
 		this._propertyMap = {};
 	}
 
