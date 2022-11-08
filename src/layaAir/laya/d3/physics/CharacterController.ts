@@ -60,7 +60,7 @@ export class CharacterController extends PhysicsComponent {
     set colliderShape(value: ColliderShape) {
         if (value instanceof MeshColliderShape) {
             value = null;
-            console.error("RigidBody3D is not support MeshColliderShape");
+            console.error("CharacterController is not support MeshColliderShape");
         }
         super.colliderShape = value;
     }
