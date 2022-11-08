@@ -425,7 +425,7 @@ export class Texture extends Resource {
     }
 
     public get obsolute(): boolean {
-        return this._obsolute || !this._bitmap || this._bitmap.destroyed;
+        return this._obsolute || !this._bitmap || this._bitmap.destroyed || this._bitmap.obsolute;
     }
 
     public set obsolute(value: boolean) {

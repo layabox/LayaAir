@@ -1,3 +1,4 @@
+import { LayaEnv } from "../../LayaEnv";
 import { Node } from "../display/Node";
 import { Scene } from "../display/Scene";
 import { LegacyUIParser } from "../loaders/LegacyUIParser";
@@ -36,8 +37,7 @@ export class Prefab extends Resource {
             res._addReference();
             this._deps.push(res);
 
-
-            if (res instanceof Prefab)
+            if (!LayaEnv.isPlaying && (res instanceof Prefab))
                 res.on("obsolute", this, this.onDepObsolute);
         }
     }
@@ -48,7 +48,7 @@ export class Prefab extends Resource {
                 res._addReference();
                 this._deps.push(res);
 
-                if (res instanceof Prefab)
+                if (!LayaEnv.isPlaying && (res instanceof Prefab))
                     res.on("obsolute", this, this.onDepObsolute);
             }
         }
@@ -58,7 +58,7 @@ export class Prefab extends Resource {
         for (let res of this._deps) {
             res._removeReference();
 
-            if (res instanceof Prefab)
+            if (!LayaEnv.isPlaying && (res instanceof Prefab))
                 res.off("obsolute", this, this.onDepObsolute);
         }
     }
@@ -70,7 +70,7 @@ export class Prefab extends Resource {
     public set obsolute(value: boolean) {
         if (this._obsolute != value) {
             this._obsolute = value;
-            if (value)
+            if (value && !LayaEnv.isPlaying)
                 this.event("obsolute");
         }
     }
