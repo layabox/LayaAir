@@ -393,8 +393,7 @@ export class Scene3D extends Sprite implements ISubmit {
                     else
                         ret = <Scene3D>scene;
                 }
-                else
-                    complete.runWith([ret]);
+                complete.runWith([ret]);     
             }
         });
     }
@@ -467,6 +466,8 @@ export class Scene3D extends Sprite implements ISubmit {
     _mainPointLight: PointLightCom;//TODO
     /** @internal */
     _physicsSimulation: PhysicsSimulation;
+    /**@internal */
+    _physicsdisableSimulation:boolean = false;
     /** @internal */
     _cannonPhysicsSimulation: CannonPhysicsSimulation;
     /** @internal 只读,不允许修改。*/
