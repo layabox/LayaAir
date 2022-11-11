@@ -53,13 +53,11 @@ export class LODInfo {
     addNode(node: Sprite3D) {
         let ren = node;
         if (ren._isRenderNode > 0) {
-            let components = ren.renderComponent as BaseRender[];
-            //this._renders = this._renders.concat(components);
-            components.forEach(value => {
-                if (this._renders.indexOf(value) == -1) {
-                    this._renders.push(value);
-                }
-            });
+            let components = ren.components;
+            for (let comp of components) {
+                if ((comp instanceof BaseRender) && this._renders.indexOf(comp) == -1)
+                    this._renders.push(comp);
+            }
             this._group && node.transform.on(Event.TRANSFORM_CHANGED, this._group._updateRecaculateFlag);
         }
         for (var i = 0, n = node.numChildren; i < n; i++) {
@@ -74,15 +72,15 @@ export class LODInfo {
     removeNode(node: Sprite3D) {
         let ren = node;
         if (ren._isRenderNode > 0) {
-            let components = ren.renderComponent as BaseRender[];
-            components.forEach(element => {
-                let index = this._renders.indexOf(element);
-                if (index != -1) {
+            let components = ren.components;
+            let index: number;
+            for (let comp of components) {
+                if ((comp instanceof BaseRender) && (index = this._renders.indexOf(comp)) == -1) {
                     this._renders.splice(index, 1);
-                    element.setRenderbitFlag(BaseRender.RenderBitFlag_CullFlag, false);
+                    comp.setRenderbitFlag(BaseRender.RenderBitFlag_CullFlag, false);
                     this._group && node.transform.off(Event.TRANSFORM_CHANGED, this._group._updateRecaculateFlag);
                 }
-            })
+            }
         }
         for (var i = 0, n = node.numChildren; i < n; i++) {
             this.removeNode(node.getChildAt(i) as Sprite3D);

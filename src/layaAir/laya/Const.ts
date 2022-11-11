@@ -34,6 +34,8 @@ export class NodeFlags {
     static DISABLE_INNER_CLIPPING = 0x2000;
     static DISABLE_OUTER_CLIPPING = 0x4000;
     static DISABLE_VISIBILITY = 0x8000;
+    static HIDE_BY_EDITOR = 0x10000;
+    static LOCK_BY_EDITOR = 0x20000;
 }
 
 export class HideFlags {

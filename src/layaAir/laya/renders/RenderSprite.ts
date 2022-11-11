@@ -219,20 +219,22 @@ export class RenderSprite {
 
     /**@internal */
     _texture(sprite: Sprite, context: Context, x: number, y: number): void {
-        var tex: Texture = sprite.texture;
-        if (tex._getSource()) {
-            var width: number = sprite._width || tex.sourceWidth;
-            var height: number = sprite._height || tex.sourceHeight;
-            var wRate: number = width / tex.sourceWidth;
-            var hRate: number = height / tex.sourceHeight;
-            width = tex.width * wRate;
-            height = tex.height * hRate;
-            if (width <= 0 || height <= 0) return;
+        if (!sprite._getBit(NodeFlags.HIDE_BY_EDITOR)) {
+            var tex: Texture = sprite.texture;
+            if (tex._getSource()) {
+                var width: number = sprite._width || tex.sourceWidth;
+                var height: number = sprite._height || tex.sourceHeight;
+                var wRate: number = width / tex.sourceWidth;
+                var hRate: number = height / tex.sourceHeight;
+                width = tex.width * wRate;
+                height = tex.height * hRate;
+                if (width <= 0 || height <= 0) return;
 
-            var px = x - sprite.pivotX + tex.offsetX * wRate;
-            var py = y - sprite.pivotY + tex.offsetY * hRate;
+                var px = x - sprite.pivotX + tex.offsetX * wRate;
+                var py = y - sprite.pivotY + tex.offsetY * hRate;
 
-            context.drawTexture(tex, px, py, width, height);
+                context.drawTexture(tex, px, py, width, height);
+            }
         }
         var next: RenderSprite = this._next;
         if (next != RenderSprite.NORENDER)
@@ -241,9 +243,11 @@ export class RenderSprite {
 
     /**@internal */
     _graphics(sprite: Sprite, context: Context, x: number, y: number): void {
-        var style = sprite._style;
-        var g = sprite._graphics;
-        g && g._render(sprite, context, x - style.pivotX, y - style.pivotY);
+        if (!sprite._getBit(NodeFlags.HIDE_BY_EDITOR)) {
+            var style = sprite._style;
+            var g = sprite._graphics;
+            g && g._render(sprite, context, x - style.pivotX, y - style.pivotY);
+        }
         var next = this._next;
         if (next != RenderSprite.NORENDER)
             next._fun.call(next, sprite, context, x, y);
@@ -303,36 +307,32 @@ export class RenderSprite {
         y = y - sprite.pivotY;
         let textLastRender: boolean = sprite._getBit(NodeFlags.DRAWCALL_OPTIMIZE) && context.drawCallOptimize(true);
         let drawingToTexture = context._drawingToTexture;
+        let rect: Rectangle;
+        let left: number, top: number, right: number, bottom: number, _x: number, _y: number;
 
         if (style.viewport) {
-            let rect: Rectangle = style.viewport;
-            let left: number = rect.x;
-            let top: number = rect.y;
-            let right: number = rect.right;
-            let bottom: number = rect.bottom;
-            let _x: number, _y: number;
+            rect = style.viewport;
+            left = rect.x;
+            top = rect.y;
+            right = rect.right;
+            bottom = rect.bottom;
+        }
 
-            for (let i = 0; i < n; ++i) {
-                let ele = childs[i];
-                if ((!drawingToTexture || !ele._getBit(NodeFlags.ESCAPE_DRAWING_TO_TEXTURE))
-                    && (ele._visible || ele._getBit(NodeFlags.DISABLE_VISIBILITY))
-                    && ((_x = ele._x) < right && (_x + ele.width) > left && (_y = ele._y) < bottom && (_y + ele.height) > top)) {
-                    if (ele._getBit(NodeFlags.DISABLE_OUTER_CLIPPING))
-                        context.clipRect(0, 0, 1, 1, true);
+        for (let i = 0; i < n; ++i) {
+            let ele = childs[i];
+            let visFlag: boolean;
+            if (drawingToTexture)
+                visFlag = ele._visible && !ele._getBit(NodeFlags.ESCAPE_DRAWING_TO_TEXTURE);
+            else
+                visFlag = ele._visible || ele._getBit(NodeFlags.DISABLE_VISIBILITY);
+            if (rect && ((_x = ele._x) >= right || (_x + ele.width) <= left || (_y = ele._y) >= bottom || (_y + ele.height) <= top))
+                visFlag = false;
 
-                    ele.render(context, x, y);
-                }
-            }
-        } else {
-            for (let i = 0; i < n; ++i) {
-                let ele = childs[i];
-                if ((!drawingToTexture || !ele._getBit(NodeFlags.ESCAPE_DRAWING_TO_TEXTURE))
-                    && (ele._visible || ele._getBit(NodeFlags.DISABLE_VISIBILITY))) {
-                    if (ele._getBit(NodeFlags.DISABLE_OUTER_CLIPPING))
-                        context.clipRect(0, 0, 1, 1, true);
+            if (visFlag) {
+                if (ele._getBit(NodeFlags.DISABLE_OUTER_CLIPPING))
+                    context.clipRect(0, 0, 1, 1, true);
 
-                    ele.render(context, x, y);
-                }
+                ele.render(context, x, y);
             }
         }
         textLastRender && context.drawCallOptimize(false);

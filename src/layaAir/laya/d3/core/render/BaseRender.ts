@@ -28,6 +28,7 @@ import { ReflectionProbe, ReflectionProbeMode } from "../../component/Volume/ref
 import { VertexMesh } from "../../graphics/Vertex/VertexMesh";
 import { Mesh } from "../../resource/models/Mesh";
 import { ShaderDefine } from "../../../RenderEngine/RenderShader/ShaderDefine";
+import { NodeFlags } from "../../../Const";
 
 
 /**
@@ -38,6 +39,8 @@ export class BaseRender extends Component implements ISingletonElement {
     public static RenderBitFlag_CullFlag = 1;
     /**@internal */
     public static RenderBitFlag_Batch = 2;
+    /**@internal */
+    public static RenderBitFlag_Editor = 4;
     /** @internal */
     static _meshVerticeDefine: Array<ShaderDefine> = [];
 
@@ -150,21 +153,21 @@ export class BaseRender extends Component implements ISingletonElement {
     /**@internal 是否自定义了needRender*/
     _customCull: boolean;
     /**@internal 可以根据不同的值来设置*/
-	_ratioIgnor: number = 0.005;//TODO
+    _ratioIgnor: number = 0.005;//TODO
     /**@internal 如果这个值不是0,说明有一些条件使他不能加入渲染队列，例如如果是1，证明此节点被lod淘汰*/
     private _volume: Volume;
     /**
-	 * DistanceVolumCull
-	 * 根据距离和包围盒进行裁剪，越大越容易被裁
-	 */
-	set ratioIgnor(value: number) {
-		this._ratioIgnor = value;
-	}
+     * DistanceVolumCull
+     * 根据距离和包围盒进行裁剪，越大越容易被裁
+     */
+    set ratioIgnor(value: number) {
+        this._ratioIgnor = value;
+    }
 
-	get ratioIgnor(): number {
-		return this._ratioIgnor;
-	}
-   
+    get ratioIgnor(): number {
+        return this._ratioIgnor;
+    }
+
     get renderbitFlag() {
         return this._rendernode.renderbitFlag;
     }
@@ -472,14 +475,14 @@ export class BaseRender extends Component implements ISingletonElement {
         this._rendernode.layer = layer;
     }
 
-    private _changeStaticMask(staticmask:number){
+    private _changeStaticMask(staticmask: number) {
         this._rendernode.staticMask = staticmask;
     }
 
     protected _onAdded(): void {
         this._transform = (this.owner as Sprite3D).transform;
         (this.owner as Sprite3D)._isRenderNode++;
-        (this.owner as Sprite3D)._addRenderComponent(this);
+        this.setRenderbitFlag(BaseRender.RenderBitFlag_Editor, this.owner._getBit(NodeFlags.HIDE_BY_EDITOR));
         this._rendernode.transform = this._transform;
         this._changeLayer((this.owner as Sprite3D).layer);
         this._changeStaticMask((this.owner as Sprite3D)._isStatic);
@@ -671,10 +674,8 @@ export class BaseRender extends Component implements ISingletonElement {
     }
 
     protected _onDestroy() {
-        if (this.owner as Sprite3D) {
+        if (this.owner as Sprite3D)
             (this.owner as Sprite3D)._isRenderNode--;
-            (this.owner as Sprite3D)._removeRenderComponent(this);
-        }
         (this._motionIndexList !== -1) && (this._scene._sceneRenderManager.removeMotionObject(this));
         (this._scene) && this._scene.sceneRenderableManager.removeRenderObject(this);
         var i: number = 0, n: number = 0;

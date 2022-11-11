@@ -12,8 +12,8 @@ import { ILaya } from "../../../ILaya";
 import { CommandUniformMap } from "../../RenderEngine/CommandUniformMap";
 import { NodeFlags } from "../../Const";
 import { Event } from "../../events/Event";
-import { Component } from "../../components/Component";
 import { Scene3D } from "./scene/Scene3D";
+import { BaseRender } from "./render/BaseRender";
 
 /**
  * @internal
@@ -91,9 +91,6 @@ export class Sprite3D extends Node {
     _transform: Transform3D;
     /**@internal 0表示不是渲染节点*/
     _isRenderNode: number = 0;
-    /**@internal */
-    _renderComponent: Component[];
-
 
     /**
      * 唯一标识ID。
@@ -140,28 +137,18 @@ export class Sprite3D extends Node {
         return this._transform;
     }
 
-    get renderComponent() {
-        return this._renderComponent;
-    }
-
     get scene(): Scene3D {
         return <Scene3D>this._scene;
     }
 
-    _addRenderComponent(com: Component) {
-        if (!this._renderComponent)
-            this._renderComponent = [];
-        let index = this._renderComponent.indexOf(com);
-        if (index == -1)
-            this._renderComponent.push(com);
-    }
-
-    _removeRenderComponent(com: Component) {
-        if (!this._renderComponent)
-            return;
-        let index = this._renderComponent.indexOf(com);
-        if (index != -1) {
-            this._renderComponent.splice(index, 1);
+    /**@internal */
+    protected _editorBitChanged() {
+        if (this._isRenderNode) {
+            let flag = this._getBit(NodeFlags.HIDE_BY_EDITOR);
+            for (let comp of this._components) {
+                if (comp instanceof BaseRender)
+                    comp.setRenderbitFlag(BaseRender.RenderBitFlag_Editor, flag);
+            }
         }
     }
 

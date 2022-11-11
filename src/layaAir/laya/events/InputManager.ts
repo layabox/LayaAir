@@ -484,7 +484,8 @@ export class InputManager {
             //只有接受交互事件的，才进行处理
             if (!child._destroyed
                 && (editor ? (!child.hasHideFlag(HideFlags.HideInHierarchy) || child.mouseThrough) : child._mouseState > 1)
-                && (child._visible || child._getBit(NodeFlags.DISABLE_VISIBILITY))) {
+                && (child._visible || child._getBit(NodeFlags.DISABLE_VISIBILITY)
+                    && !child._getBit(NodeFlags.HIDE_BY_EDITOR))) {
                 let ret = this._getSpriteUnderPoint(child, x, y, editor);
                 if (ret)
                     return ret;
@@ -503,7 +504,9 @@ export class InputManager {
         }
 
         if (editor) {
-            if (!sp.hasHideFlag(HideFlags.HideInHierarchy) && this.hitTest(sp, x, y, editor))
+            if (!sp._getBit(NodeFlags.LOCK_BY_EDITOR)
+                && !sp.hasHideFlag(HideFlags.HideInHierarchy)
+                && this.hitTest(sp, x, y, editor))
                 return sp;
         }
         else {

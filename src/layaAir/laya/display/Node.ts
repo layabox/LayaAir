@@ -111,6 +111,10 @@ export class Node extends EventDispatcher {
         }
         if (value) this._bits |= type;
         else this._bits &= ~type;
+
+        if (type === NodeFlags.HIDE_BY_EDITOR) {
+            this._editorBitChanged();
+        }
     }
 
     /**@internal */
@@ -133,6 +137,10 @@ export class Node extends EventDispatcher {
             ele._setBit(type, true);
             ele = ele._parent;
         }
+    }
+
+    /**@internal */
+    protected _editorBitChanged() {
     }
 
     protected onStartListeningToType(type: string) {
