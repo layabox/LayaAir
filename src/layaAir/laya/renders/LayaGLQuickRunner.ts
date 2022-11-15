@@ -67,16 +67,17 @@ export class LayaGLQuickRunner {
         context.saveTransform(LayaGLQuickRunner.curMat);
         context.transformByMatrix(sprite.transform, x, y);
 
-        var width:number = sprite._width || tex.sourceWidth;
-        var height:number = sprite._height || tex.sourceHeight;
-        var wRate:number = width / tex.sourceWidth;
-        var hRate:number = height / tex.sourceHeight;
+        var width: number = sprite._width || tex.sourceWidth;
+        var height: number = sprite._height || tex.sourceHeight;
+        var wRate: number = width / tex.sourceWidth;
+        var hRate: number = height / tex.sourceHeight;
         width = tex.width * wRate;
         height = tex.height * hRate;
         if (width <= 0 || height <= 0) return null;
         var px: number = -sprite.pivotX + tex.offsetX * wRate;
         var py: number = -sprite.pivotY + tex.offsetY * hRate;
-        context.drawTexture(tex, px, py, width, height);
+        if (!sprite._getBit(NodeFlags.HIDE_BY_EDITOR))
+            context.drawTexture(tex, px, py, width, height);
 
         context.restoreTransform(LayaGLQuickRunner.curMat);
 
@@ -132,7 +133,8 @@ export class LayaGLQuickRunner {
             if (width <= 0 || height <= 0) return null;
             var px: number = x - style.pivotX + tex.offsetX * wRate;
             var py: number = y - style.pivotY + tex.offsetY * hRate;
-            context.drawTexture(tex, px, py, width, height);
+            if (!sprite._getBit(NodeFlags.HIDE_BY_EDITOR))
+                context.drawTexture(tex, px, py, width, height);
             context.globalAlpha = temp;
         }
     }
@@ -156,7 +158,8 @@ export class LayaGLQuickRunner {
             if (width <= 0 || height <= 0) return null;
             var px: number = -style.pivotX + tex.offsetX * wRate;
             var py: number = -style.pivotY + tex.offsetY * hRate;
-            context.drawTexture(tex, px, py, width, height);
+            if (!sprite._getBit(NodeFlags.HIDE_BY_EDITOR))
+                context.drawTexture(tex, px, py, width, height);
             context.restoreTransform(LayaGLQuickRunner.curMat);
 
             context.globalAlpha = temp;
@@ -172,7 +175,8 @@ export class LayaGLQuickRunner {
 
             context.saveTransform(LayaGLQuickRunner.curMat);
             context.transformByMatrix(sprite.transform, x, y);
-            sprite._graphics && sprite._graphics._render(sprite, context, -style.pivotX, -style.pivotY);
+            if (!sprite._getBit(NodeFlags.HIDE_BY_EDITOR))
+                sprite._graphics && sprite._graphics._render(sprite, context, -style.pivotX, -style.pivotY);
             context.restoreTransform(LayaGLQuickRunner.curMat);
 
             context.globalAlpha = temp;
@@ -185,7 +189,8 @@ export class LayaGLQuickRunner {
         if ((alpha = style.alpha) > 0.01 || sprite._needRepaint()) {
             var temp: number = context.globalAlpha;
             context.globalAlpha *= alpha;
-            sprite._graphics && sprite._graphics._render(sprite, context, x - style.pivotX, y - style.pivotY);
+            if (!sprite._getBit(NodeFlags.HIDE_BY_EDITOR))
+                sprite._graphics && sprite._graphics._render(sprite, context, x - style.pivotX, y - style.pivotY);
             context.globalAlpha = temp;
         }
     }
@@ -202,7 +207,8 @@ export class LayaGLQuickRunner {
         //if (transform) {
         context.saveTransform(LayaGLQuickRunner.curMat);
         context.transformByMatrix(sprite.transform, x, y);
-        sprite._graphics && sprite._graphics._render(sprite, context, -style.pivotX, -style.pivotY);
+        if (!sprite._getBit(NodeFlags.HIDE_BY_EDITOR))
+            sprite._graphics && sprite._graphics._render(sprite, context, -style.pivotX, -style.pivotY);
         context.restoreTransform(LayaGLQuickRunner.curMat);
         //}else {
         //sprite._graphics && sprite._graphics._render(sprite, context, -style.pivotX, -style.pivotY);
@@ -212,6 +218,7 @@ export class LayaGLQuickRunner {
     static transform_drawNodes(sprite: Sprite, context: Context, x: number, y: number): void {
         //var transform:Matrix = sprite.transform;
         var textLastRender: boolean = sprite._getBit(NodeFlags.DRAWCALL_OPTIMIZE) && context.drawCallOptimize(true);
+        let drawingToTexture = context._drawingToTexture;
 
         var style: SpriteStyle = sprite._style;
         context.saveTransform(LayaGLQuickRunner.curMat);
@@ -223,23 +230,30 @@ export class LayaGLQuickRunner {
         x = -style.pivotX;
         y = -style.pivotY;
 
-        var childs: any[] = sprite._children, n: number = childs.length, ele: any;
-        if (style.viewport) {
-            var rect: Rectangle = style.viewport;
-            var left: number = rect.x;
-            var top: number = rect.y;
-            var right: number = rect.right;
-            var bottom: number = rect.bottom;
-            var _x: number, _y: number;
+        var childs: any[] = sprite._children, n: number = childs.length;
+        let rect: Rectangle;
+        let left: number, top: number, right: number, bottom: number, _x: number, _y: number;
 
-            for (i = 0; i < n; ++i) {
-                if ((ele = (<Sprite>childs[i]))._visible && ((_x = ele._x) < right && (_x + ele.width) > left && (_y = ele._y) < bottom && (_y + ele.height) > top)) {
-                    ele.render(context, x, y);
-                }
-            }
-        } else {
-            for (var i: number = 0; i < n; ++i)
-                (ele = ((<Sprite>childs[i])))._visible && ele.render(context, x, y);
+        if (style.viewport) {
+            rect = style.viewport;
+            left = rect.x;
+            top = rect.y;
+            right = rect.right;
+            bottom = rect.bottom;
+        }
+
+        for (let i = 0; i < n; ++i) {
+            let ele = childs[i];
+            let visFlag: boolean;
+            if (drawingToTexture)
+                visFlag = ele._visible && !ele._getBit(NodeFlags.ESCAPE_DRAWING_TO_TEXTURE);
+            else
+                visFlag = ele._visible || ele._getBit(NodeFlags.DISABLE_VISIBILITY);
+            if (rect && ((_x = ele._x) >= right || (_x + ele.width) <= left || (_y = ele._y) >= bottom || (_y + ele.height) <= top))
+                visFlag = false;
+
+            if (visFlag)
+                ele.render(context, x, y);
         }
 
         context.restoreTransform(LayaGLQuickRunner.curMat);
@@ -249,29 +263,39 @@ export class LayaGLQuickRunner {
     static drawLayaGL_drawNodes(sprite: Sprite, context: Context, x: number, y: number): void {
 
         var textLastRender: boolean = sprite._getBit(NodeFlags.DRAWCALL_OPTIMIZE) && context.drawCallOptimize(true);
+        let drawingToTexture = context._drawingToTexture;
 
         var style: SpriteStyle = sprite._style;
         x = x - style.pivotX;
         y = y - style.pivotY;
-        sprite._graphics && sprite._graphics._render(sprite, context, x, y);
+        if (!sprite._getBit(NodeFlags.HIDE_BY_EDITOR))
+            sprite._graphics && sprite._graphics._render(sprite, context, x, y);
 
-        var childs: any[] = sprite._children, n: number = childs.length, ele: any;
+        var childs: any[] = sprite._children, n: number = childs.length;
+        let rect: Rectangle;
+        let left: number, top: number, right: number, bottom: number, _x: number, _y: number;
+
         if (style.viewport) {
-            var rect: Rectangle = style.viewport;
-            var left: number = rect.x;
-            var top: number = rect.y;
-            var right: number = rect.right;
-            var bottom: number = rect.bottom;
-            var _x: number, _y: number;
+            rect = style.viewport;
+            left = rect.x;
+            top = rect.y;
+            right = rect.right;
+            bottom = rect.bottom;
+        }
 
-            for (i = 0; i < n; ++i) {
-                if ((ele = (<Sprite>childs[i]))._visible && ((_x = ele._x) < right && (_x + ele.width) > left && (_y = ele._y) < bottom && (_y + ele.height) > top)) {
-                    ele.render(context, x, y);
-                }
-            }
-        } else {
-            for (var i: number = 0; i < n; ++i)
-                (ele = ((<Sprite>childs[i])))._visible && ele.render(context, x, y);
+        for (let i = 0; i < n; ++i) {
+            let ele = childs[i];
+            let visFlag: boolean;
+            if (drawingToTexture)
+                visFlag = ele._visible && !ele._getBit(NodeFlags.ESCAPE_DRAWING_TO_TEXTURE);
+            else
+                visFlag = ele._visible || ele._getBit(NodeFlags.DISABLE_VISIBILITY);
+            if (rect && ((_x = ele._x) >= right || (_x + ele.width) <= left || (_y = ele._y) >= bottom || (_y + ele.height) <= top))
+                visFlag = false;
+
+            if (visFlag)
+                ele.render(context, x, y);
+
         }
 
         textLastRender && context.drawCallOptimize(false);

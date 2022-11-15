@@ -28,6 +28,7 @@ import { ReflectionProbe, ReflectionProbeMode } from "../../component/Volume/ref
 import { VertexMesh } from "../../graphics/Vertex/VertexMesh";
 import { Mesh } from "../../resource/models/Mesh";
 import { ShaderDefine } from "../../../RenderEngine/RenderShader/ShaderDefine";
+import { NodeFlags } from "../../../Const";
 import { Sprite3DRenderDeclaration } from "./Sprite3DRenderDeclaration";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 
@@ -40,6 +41,8 @@ export class BaseRender extends Component implements ISingletonElement {
     public static RenderBitFlag_CullFlag = 1;
     /**@internal */
     public static RenderBitFlag_Batch = 2;
+    /**@internal */
+    public static RenderBitFlag_Editor = 4;
     /** @internal */
     static _meshVerticeDefine: Array<ShaderDefine> = [];
 
@@ -475,7 +478,7 @@ export class BaseRender extends Component implements ISingletonElement {
     protected _onAdded(): void {
         this._transform = (this.owner as Sprite3D).transform;
         (this.owner as Sprite3D)._isRenderNode++;
-        (this.owner as Sprite3D)._addRenderComponent(this);
+        this.setRenderbitFlag(BaseRender.RenderBitFlag_Editor, this.owner._getBit(NodeFlags.HIDE_BY_EDITOR));
         this._rendernode.transform = this._transform;
         this._changeLayer((this.owner as Sprite3D).layer);
         this._changeStaticMask((this.owner as Sprite3D)._isStatic);
@@ -679,10 +682,8 @@ export class BaseRender extends Component implements ISingletonElement {
     }
 
     protected _onDestroy() {
-        if (this.owner as Sprite3D) {
+        if (this.owner as Sprite3D)
             (this.owner as Sprite3D)._isRenderNode--;
-            (this.owner as Sprite3D)._removeRenderComponent(this);
-        }
         (this._motionIndexList !== -1) && (this._scene._sceneRenderManager.removeMotionObject(this));
         (this._scene) && this._scene.sceneRenderableManager.removeRenderObject(this);
         var i: number = 0, n: number = 0;
