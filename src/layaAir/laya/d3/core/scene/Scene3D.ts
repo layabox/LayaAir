@@ -10,7 +10,7 @@ import { Timer } from "../../../utils/Timer";
 import { ISubmit } from "../../../webgl/submit/ISubmit";
 import { SubmitKey } from "../../../webgl/submit/SubmitKey";
 import { Cluster } from "../../graphics/renderPath/Cluster";
-import { SphericalHarmonicsL2, SphericalHarmonicsL2Generater } from "../../graphics/SphericalHarmonicsL2";
+import { SphericalHarmonicsL2 } from "../../graphics/SphericalHarmonicsL2";
 import { Vector3 } from "../../math/Vector3";
 import { Vector4 } from "../../math/Vector4";
 import { Viewport } from "../../math/Viewport";
@@ -25,10 +25,6 @@ import { Utils3D } from "../../utils/Utils3D";
 import { BaseCamera } from "../BaseCamera";
 import { Camera, CameraClearFlags } from "../Camera";
 import { AlternateLightQueue, LightQueue } from "../light/LightQueue";
-import { Material } from "../material/Material";
-import { RenderState } from "../material/RenderState";
-import { PixelLineMaterial } from "../pixelLine/PixelLineMaterial";
-import { PixelLineSprite3D } from "../pixelLine/PixelLineSprite3D";
 import { BaseRender } from "../render/BaseRender";
 import { RenderContext3D } from "../render/RenderContext3D";
 import { RenderElement } from "../render/RenderElement";
@@ -421,8 +417,6 @@ export class Scene3D extends Sprite implements ISubmit {
     currentCreationLayer: number = Math.pow(2, 0);
     /** 是否启用灯光。*/
     enableLight: boolean = true;
-    /** @internal */
-    _debugTool: PixelLineSprite3D;
 
     /** @internal */
     _nativeObj: any;
@@ -682,17 +676,17 @@ export class Scene3D extends Sprite implements ISubmit {
         // if (Scene3D.octreeCulling)
         // 	this._octree = new BoundsOctree(Scene3D.octreeInitialSize, Scene3D.octreeInitialCenter, Scene3D.octreeMinNodeSize, Scene3D.octreeLooseness);
         if (Config3D.debugFrustumCulling) {
-            this._debugTool = new PixelLineSprite3D();
-            var lineMaterial: PixelLineMaterial = new PixelLineMaterial();
-            lineMaterial.renderQueue = Material.RENDERQUEUE_TRANSPARENT;
-            lineMaterial.alphaTest = false;
-            lineMaterial.depthWrite = false;
-            lineMaterial.cull = RenderState.CULL_BACK;
-            lineMaterial.blend = RenderState.BLEND_ENABLE_ALL;
-            lineMaterial.blendSrc = RenderState.BLENDPARAM_SRC_ALPHA;
-            lineMaterial.blendDst = RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA;
-            lineMaterial.depthTest = RenderState.DEPTHTEST_LESS;
-            this._debugTool.pixelLineRenderer.sharedMaterial = lineMaterial;
+            // this._debugTool = new PixelLineSprite3D();
+            // var lineMaterial: PixelLineMaterial = new PixelLineMaterial();
+            // lineMaterial.renderQueue = Material.RENDERQUEUE_TRANSPARENT;
+            // lineMaterial.alphaTest = false;
+            // lineMaterial.depthWrite = false;
+            // lineMaterial.cull = RenderState.CULL_BACK;
+            // lineMaterial.blend = RenderState.BLEND_ENABLE_ALL;
+            // lineMaterial.blendSrc = RenderState.BLENDPARAM_SRC_ALPHA;
+            // lineMaterial.blendDst = RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA;
+            // lineMaterial.depthTest = RenderState.DEPTHTEST_LESS;
+            // this._debugTool.pixelLineRenderer.sharedMaterial = lineMaterial;
         }
 
         this._volumeManager = new VolumeManager();
@@ -1163,10 +1157,10 @@ export class Scene3D extends Sprite implements ISubmit {
             case Scene3D.SCENERENDERFLAG_RENDERTRANSPARENT:
                 Stat.transDrawCall += this._transparentQueue.renderQueue(context);
                 if (Config3D.debugFrustumCulling) {
-                    var renderElements: RenderElement[] = this._debugTool._render._renderElements;
-                    for (var i: number = 0, n: number = renderElements.length; i < n; i++) {
-                        context.drawRenderElement(renderElements[i]);
-                    }
+                    // var renderElements: RenderElement[] = this._debugTool._render._renderElements;
+                    // for (var i: number = 0, n: number = renderElements.length; i < n; i++) {
+                    //     context.drawRenderElement(renderElements[i]);
+                    // }
                 }
                 break;
         }
