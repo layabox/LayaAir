@@ -37,7 +37,7 @@ vec3 PBRGI(const in Surface surface, const in PixelInfo info)
     #else // LIGHTMAP
 
     vec3 n = info.normalWS;
-    vec3 Fd = diffuseIrradiance(n) * surface.diffuseColor * surface.occlusion;
+    vec3 Fd = diffuseIrradiance(n) * surface.diffuseColor * surface.occlusion * u_AmbientIntensity;
 
     #endif // LIGHTMAP
 
@@ -51,7 +51,7 @@ vec3 PBRGI(const in Surface surface, const in PixelInfo info)
     vec3 specularColor = f0 * env.x + f90 * env.y;
 
     vec3 r = getReflectedVector(surface, info);
-    vec3 indirectSpecular = specularIrradiance(r, perceptualRoughness);
+    vec3 indirectSpecular = specularIrradiance(r, perceptualRoughness) * u_ReflectionIntensity;
 
     vec3 Fr = indirectSpecular * specularColor * surface.occlusion;
 

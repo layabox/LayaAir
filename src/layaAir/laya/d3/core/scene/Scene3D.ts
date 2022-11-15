@@ -75,6 +75,7 @@ import { SceneRenderManager } from "./SceneRenderManager";
 import { VolumeManager } from "../../component/Volume/VolumeManager";
 import { UI3DManager } from "../UI3D/UI3DManager";
 import { Scene } from "../../../display/Scene";
+import { ReflectionProbe } from "../../component/Volume/reflectionProbe/ReflectionProbe";
 
 /**
  * 环境光模式
@@ -128,26 +129,11 @@ export class Scene3D extends Sprite implements ISubmit {
     static SUNLIGHTDIRECTION: number;
     /** @internal */
     static SUNLIGHTDIRCOLOR: number;
-    /** @internal */
-    static AMBIENTSHAR: number;
-    /** @internal */
-    static AMBIENTSHAG: number;
-    /** @internal */
-    static AMBIENTSHAB: number;
-    /** @internal */
-    static AMBIENTSHBR: number;
-    /** @internal */
-    static AMBIENTSHBG: number;
-    /** @internal */
-    static AMBIENTSHBB: number;
-    /** @internal */
-    static AMBIENTSHC: number;
+
     /** @internal */
     static AMBIENTCOLOR: number;
-    /** @internal */
-    static AMBIENTSH: number;
-    /** @internal */
-    static IBLTEX: number;
+
+
 
     /** @internal */
     static TIME: number;
@@ -190,7 +176,9 @@ export class Scene3D extends Sprite implements ISubmit {
     static __updateMark: number = 0;
     /** @internal*/
     static _blitTransRT: RenderTexture;
+    /**@internal */
     static _blitOffset: Vector4 = new Vector4();
+    /**@internal */
     static mainCavansViewPort: Viewport = new Viewport(0, 0, 1, 1);
 
     /**
@@ -216,9 +204,7 @@ export class Scene3D extends Sprite implements ISubmit {
         Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_CASCADE = Shader3D.getDefineByName("SHADOW_CASCADE");
         Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SOFT_SHADOW_LOW = Shader3D.getDefineByName("SHADOW_SOFT_SHADOW_LOW");
         Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SOFT_SHADOW_HIGH = Shader3D.getDefineByName("SHADOW_SOFT_SHADOW_HIGH");
-        Scene3DShaderDeclaration.SHADERDEFINE_GI_IBL = Shader3D.getDefineByName("GI_IBL");
-        Scene3DShaderDeclaration.SHADERDEFINE_IBL_RGBD = Shader3D.getDefineByName("IBL_RGBD");
-        Scene3DShaderDeclaration.SHADERDEFINE_GI_LEGACYIBL = Shader3D.getDefineByName("GI_LEGACYIBL");
+
         Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SPOT = Shader3D.getDefineByName("SHADOW_SPOT");
         Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SPOT_SOFT_SHADOW_LOW = Shader3D.getDefineByName("SHADOW_SPOT_SOFT_SHADOW_LOW");
         Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SPOT_SOFT_SHADOW_HIGH = Shader3D.getDefineByName("SHADOW_SPOT_SOFT_SHADOW_HIGH");
@@ -231,9 +217,7 @@ export class Scene3D extends Sprite implements ISubmit {
         Scene3D.CLUSTERBUFFER = Shader3D.propertyNameToID("u_LightClusterBuffer");
         Scene3D.TIME = Shader3D.propertyNameToID("u_Time");
         Scene3D.GIRotate = Shader3D.propertyNameToID("u_GIRotate");
-        Scene3D.IBLTEX = Shader3D.propertyNameToID("u_IBLTex");
         Scene3D.SCENEUNIFORMBLOCK = Shader3D.propertyNameToID(UniformBufferObject.UBONAME_SCENE);
-
 
         let sceneUniformMap: CommandUniformMap = Scene3D.sceneUniformMap = LayaGL.renderOBJCreate.createGlobalUniformMap("Scene3D");
         sceneUniformMap.addShaderUniform(Scene3D.FOGCOLOR, "u_FogColor");
@@ -244,39 +228,7 @@ export class Scene3D extends Sprite implements ISubmit {
         sceneUniformMap.addShaderUniform(Scene3D.CLUSTERBUFFER, "u_LightClusterBuffer");
         sceneUniformMap.addShaderUniform(Scene3D.TIME, "u_Time");
         sceneUniformMap.addShaderUniform(Scene3D.GIRotate, "u_GIRotate")
-        sceneUniformMap.addShaderUniform(Scene3D.IBLTEX, "u_IBLTex");
         sceneUniformMap.addShaderUniform(Scene3D.SCENEUNIFORMBLOCK, UniformBufferObject.UBONAME_SCENE);
-
-        // todo 移动出 scene
-        Scene3D.AMBIENTCOLOR = Shader3D.propertyNameToID("u_AmbientColor");
-        sceneUniformMap.addShaderUniform(Scene3D.AMBIENTCOLOR, "u_AmbientColor");
-
-        // legacy sh
-        Scene3D.AMBIENTSHAR = Shader3D.propertyNameToID("u_AmbientSHAr");
-        sceneUniformMap.addShaderUniform(Scene3D.AMBIENTSHAR, "u_AmbientSHAr");
-
-        Scene3D.AMBIENTSHAG = Shader3D.propertyNameToID("u_AmbientSHAg");
-        sceneUniformMap.addShaderUniform(Scene3D.AMBIENTSHAG, "u_AmbientSHAg");
-
-        Scene3D.AMBIENTSHAB = Shader3D.propertyNameToID("u_AmbientSHAb");
-        sceneUniformMap.addShaderUniform(Scene3D.AMBIENTSHAB, "u_AmbientSHAb");
-
-        Scene3D.AMBIENTSHBR = Shader3D.propertyNameToID("u_AmbientSHBr");
-        sceneUniformMap.addShaderUniform(Scene3D.AMBIENTSHBR, "u_AmbientSHBr");
-
-        Scene3D.AMBIENTSHBG = Shader3D.propertyNameToID("u_AmbientSHBg");
-        sceneUniformMap.addShaderUniform(Scene3D.AMBIENTSHBG, "u_AmbientSHBg");
-
-        Scene3D.AMBIENTSHBB = Shader3D.propertyNameToID("u_AmbientSHBb");
-        sceneUniformMap.addShaderUniform(Scene3D.AMBIENTSHBB, "u_AmbientSHBb");
-
-        Scene3D.AMBIENTSHC = Shader3D.propertyNameToID("u_AmbientSHC");
-        sceneUniformMap.addShaderUniform(Scene3D.AMBIENTSHC, "u_AmbientSHC");
-
-        // sh 
-        Scene3D.AMBIENTSH = Shader3D.propertyNameToID("u_IblSH");
-        sceneUniformMap.addShaderUniform(Scene3D.AMBIENTSH, "u_IblSH");
-
     }
 
     /**
@@ -360,16 +312,6 @@ export class Scene3D extends Sprite implements ISubmit {
         if (Config3D._uniformBlock)
             configShaderValue.add(Shader3D.SHADERDEFINE_ENUNIFORMBLOCK);
 
-        // switch (config.pbrRenderQuality) {
-        // 	case PBRRenderQuality.High:
-        // 		configShaderValue.add(PBRMaterial.SHADERDEFINE_LAYA_PBR_BRDF_HIGH)
-        // 		break;
-        // 	case PBRRenderQuality.Low:
-        // 		configShaderValue.add(PBRMaterial.SHADERDEFINE_LAYA_PBR_BRDF_LOW)
-        // 		break;
-        // 	default:
-        // 		throw "Scene3D:unknown shader quality.";
-        // }
         if (Config3D.useCannonPhysics) {
             Physics3D._cannon && (Scene3D.cannonPhysicsSettings = new CannonPhysicsSettings());
         } else {
@@ -393,7 +335,7 @@ export class Scene3D extends Sprite implements ISubmit {
                     else
                         ret = <Scene3D>scene;
                 }
-                complete.runWith([ret]);     
+                complete.runWith([ret]);
             }
         });
     }
@@ -429,28 +371,7 @@ export class Scene3D extends Sprite implements ISubmit {
     private _timer: Timer;
     /** @internal */
     private _time: number = 0;
-    /** @internal */
-    private _shCoefficients: Vector4[] = new Array(7);
-    /** @internal */
-    private _ambientMode: AmbientMode = AmbientMode.SolidColor;
-    /** @internal */
-    private _ambientSphericalHarmonics: SphericalHarmonicsL2 = new SphericalHarmonicsL2();
-    /** @internal */
-    private _ambientSphericalHarmonicsIntensity: number = 1.0;
-    /** @internal */
-    private _ambientSkyColor: Vector3 = new Vector3();
-    /** @internal */
-    private _ambientEquatorColor: Vector3 = new Vector3();
-    /** @internal */
-    private _ambientGroundColor: Vector3 = new Vector3();
-    /** @internal */
-    private _ambientTripleColorSphericalHarmonics: SphericalHarmonicsL2;
-    /** @internal */
-    private _reflection: TextureCube;
-    /** @internal */
-    private _reflectionDecodeFormat: TextureDecodeFormat = TextureDecodeFormat.Normal;
-    /** @internal */
-    private _reflectionIntensity: number = 1.0;
+    private _sceneReflectionProb: ReflectionProbe;
 
     /**@internal */
     _sunColor: Color = new Color(1.0, 1.0, 1.0);
@@ -467,7 +388,7 @@ export class Scene3D extends Sprite implements ISubmit {
     /** @internal */
     _physicsSimulation: PhysicsSimulation;
     /**@internal */
-    _physicsdisableSimulation:boolean = false;
+    _physicsdisableSimulation: boolean = false;
     /** @internal */
     _cannonPhysicsSimulation: CannonPhysicsSimulation;
     /** @internal 只读,不允许修改。*/
@@ -487,10 +408,9 @@ export class Scene3D extends Sprite implements ISubmit {
     _transparentQueue: IRenderQueue = LayaGL.renderOBJCreate.createBaseRenderQueue(true);
     /** @internal */
     _cameraPool: BaseCamera[] = [];
-    /**	@internal */
-    _reflectionCubeHDRParams: Vector4 = new Vector4();
+
     /** @internal */
-    _volumeManager: VolumeManager = new VolumeManager();
+    _volumeManager: VolumeManager;
     /**@internal */
     _UI3DManager: UI3DManager = new UI3DManager();
     /**@internal */
@@ -596,202 +516,60 @@ export class Scene3D extends Sprite implements ISubmit {
      * 如果值为AmbientMode.SolidColor一般使用ambientColor作为环境光源，如果值为如果值为AmbientMode.SphericalHarmonics一般使用ambientSphericalHarmonics作为环境光源。
      */
     get ambientMode(): AmbientMode {
-        return this._ambientMode;
+        return this._sceneReflectionProb.ambientMode;
     }
 
     set ambientMode(value: AmbientMode) {
-        if (this._ambientMode !== value) {
-            switch (value) {
-                case AmbientMode.SolidColor:
-                    this._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_GI_LEGACYIBL);
-                    this._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_GI_IBL);
-                    break;
-                case AmbientMode.SphericalHarmonics:
-                    if (this._ambientSH) {
-                        this._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_GI_IBL);
-                        this._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_GI_LEGACYIBL);
-                    }
-                    else {
-                        this._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_GI_LEGACYIBL);
-                        this._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_GI_IBL);
-                        let sh = this.ambientSphericalHarmonics || SphericalHarmonicsL2._default;
-                        let intensity = this.ambientSphericalHarmonicsIntensity;
-                        this._applySHCoefficients(sh, Math.pow(intensity, 2.2));
-                    }
-                    break;
-                case AmbientMode.TripleColor:
-                    this._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_GI_LEGACYIBL);
-                    this._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_GI_IBL);
-                    let gradientSH = this._ambientTripleColorSphericalHarmonics || SphericalHarmonicsL2._default;
-                    this._applySHCoefficients(gradientSH, 1.0);
-                    break;
-                default:
-                    throw "Scene3D: unknown ambientMode.";
-            }
-            this._ambientMode = value;
-        }
+        this._sceneReflectionProb.ambientMode = value;
+    }
+
+    get sceneReflectionProb(): ReflectionProbe{
+        return this._sceneReflectionProb;
+    }
+
+    set sceneReflectionProb(value:ReflectionProbe){
+        this._sceneReflectionProb = value;        
     }
 
     /**
      * 固定颜色环境光。
      */
     get ambientColor(): Color {
-        return this._shaderValues.getColor(Scene3D.AMBIENTCOLOR);
+        return this._sceneReflectionProb.ambientColor;
     }
 
     set ambientColor(value: Color) {
-        this._shaderValues.setColor(Scene3D.AMBIENTCOLOR, value);
+       this._sceneReflectionProb.ambientColor = value;
     }
 
     /**
-     * 天空环境光颜色
-     */
-    get ambientSkyColor(): Vector3 {
-        return this._ambientSkyColor;
-    }
-
-    /**
-     * 地平线环境光颜色
-     */
-    get ambientEquatorColor(): Vector3 {
-        return this._ambientEquatorColor;
-    }
-
-    /**
-     * 地面环境光颜色
-     */
-    get ambientGroundColor(): Vector3 {
-        return this._ambientGroundColor;
-    }
-
-    /**
-     * @deprecated
-     * 球谐环境光,修改后必须重新赋值。
-     * use scene.ambientSH
-     */
-    get ambientSphericalHarmonics(): SphericalHarmonicsL2 {
-        return this._ambientSphericalHarmonics;
-    }
-
-    /**
-     * @deprecated
-     * use scene.ambientSH
-     */
-    set ambientSphericalHarmonics(value: SphericalHarmonicsL2) {
-        var originalSH: SphericalHarmonicsL2 = value || SphericalHarmonicsL2._default;
-        this._applySHCoefficients(originalSH, Math.pow(this._ambientSphericalHarmonicsIntensity, 2.2));//Gamma to Linear,I prefer use 'Color.gammaToLinearSpace',but must same with Unity now.
-        if (this._ambientSphericalHarmonics != value)
-            value.cloneTo(this._ambientSphericalHarmonics);
-    }
-
-    // todo
-    private _ambientSH: Float32Array;
-    /**
-     * todo ambient sh
+     * ambient sh
      */
     public get ambientSH(): Float32Array {
-        return this._ambientSH;
+        return this._sceneReflectionProb.ambientSH;
     }
     public set ambientSH(value: Float32Array) {
-        this._ambientSH = value;
-        this._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_GI_IBL);
-        this._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_GI_LEGACYIBL);
-        this._shaderValues.setBuffer(Scene3D.AMBIENTSH, value);
+        this._sceneReflectionProb.ambientSH = value;
     }
-
+    /**
+     * ambient iblTexture
+     */
     public get iblTex(): TextureCube {
-        return <TextureCube>this._shaderValues.getTexture(Scene3D.IBLTEX);
+        this._sceneReflectionProb.iblTex;
+        return null;
     }
     public set iblTex(value: TextureCube) {
-        value = value || TextureCube.blackTexture;
-        this._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_GI_IBL);
-        this._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_GI_LEGACYIBL);
-        this._shaderValues.setTexture(Scene3D.IBLTEX, value);
+        this._sceneReflectionProb.iblTex = value
     }
 
-    private _iblTexRGBD: boolean;
+    /**
+     * ambient rgbd compress
+     */
     public get iblTexRGBD(): boolean {
-        return this._iblTexRGBD;
+        return this._sceneReflectionProb.iblTexRGBD;
     }
     public set iblTexRGBD(value: boolean) {
-        this._iblTexRGBD = value;
-        if (value) {
-            this._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_IBL_RGBD);
-        }
-        else {
-            this._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_IBL_RGBD);
-        }
-    }
-
-    /**
-     * 环境球谐强度。
-     * @deprecated
-     */
-    get ambientSphericalHarmonicsIntensity(): number {
-        return this._ambientSphericalHarmonicsIntensity;
-    }
-
-    set ambientSphericalHarmonicsIntensity(value: number) {
-        value = Math.max(Math.min(value, 8.0), 0.0);
-        if (this.ambientMode == AmbientMode.SphericalHarmonics && this._ambientSphericalHarmonicsIntensity !== value) {
-            var originalSH: SphericalHarmonicsL2 = this._ambientSphericalHarmonics || SphericalHarmonicsL2._default;
-            this._applySHCoefficients(originalSH, Math.pow(value, 2.2));//Gamma to Linear,I prefer use 'Color.gammaToLinearSpace',but must same with Unity now.
-        }
-        this._ambientSphericalHarmonicsIntensity = value;
-    }
-
-    /**
-     * 反射立方体纹理。
-     * @deprecated
-     */
-    get reflection(): TextureCube {
-        return this._reflection;
-    }
-
-    set reflection(value: TextureCube) {
-        value = value ? value : TextureCube.blackTexture;
-        if (this._reflection != value) {
-            this._reflection && this._reflection._removeReference();
-            value._addReference();
-            this._volumeManager.reflectionProbeManager.sceneReflectionProbe = value;
-            this._reflection = value
-            this._volumeManager.reflectionProbeManager._needUpdateAllRender = true;
-        }
-    }
-
-    /**
-     * 反射立方体纹理解码格式。
-     * @deprecated
-     */
-    get reflectionDecodingFormat(): TextureDecodeFormat {
-        return this._reflectionDecodeFormat;
-    }
-
-    set reflectionDecodingFormat(value: TextureDecodeFormat) {
-        if (this._reflectionDecodeFormat != value) {
-            this._reflectionDecodeFormat = value;
-            this._reflectionCubeHDRParams.x = this._reflectionIntensity;
-            if (this._reflectionDecodeFormat == TextureDecodeFormat.RGBM)
-                this._reflectionCubeHDRParams.x *= 5.0;//5.0 is RGBM param
-            this._volumeManager.reflectionProbeManager.sceneReflectionCubeHDRParam = this._reflectionCubeHDRParams;
-        }
-    }
-
-    /**
-     * 反射强度。
-     * @deprecated
-     */
-    get reflectionIntensity(): number {
-        return this._reflectionIntensity;
-    }
-
-    set reflectionIntensity(value: number) {
-        value = Math.max(Math.min(value, 1.0), 0.0);
-        this._reflectionCubeHDRParams.x = value;
-        if (this._reflectionDecodeFormat == TextureDecodeFormat.RGBM)
-            this._reflectionCubeHDRParams.x *= 5.0;//5.0 is RGBM param
-        this._reflectionIntensity = value;
-        this._volumeManager.reflectionProbeManager.sceneReflectionCubeHDRParam = this._reflectionCubeHDRParams;
+        this._sceneReflectionProb.iblTexRGBD = value;
     }
 
     /**
@@ -894,13 +672,9 @@ export class Scene3D extends Sprite implements ISubmit {
         this.fogStart = 300;
         this.fogRange = 1000;
         this.fogColor = new Color(0.7, 0.7, 0.7);
-        this.ambientColor = new Color(0.212, 0.227, 0.259);
+        
         this.GIRotate = 0;
-        this.reflectionIntensity = 1.0;
-        this.reflection = TextureCube.blackTexture;
-        for (var i: number = 0; i < 7; i++)
-            this._shCoefficients[i] = new Vector4();
-        this._volumeManager.reflectionProbeManager.sceneReflectionCubeHDRParam = this._reflectionCubeHDRParams;
+     
         this._scene = this;
         this._sceneRenderManager = new SceneRenderManager();
         this._cullPass = LayaGL.renderOBJCreate.createCullPass();
@@ -920,45 +694,17 @@ export class Scene3D extends Sprite implements ISubmit {
             lineMaterial.depthTest = RenderState.DEPTHTEST_LESS;
             this._debugTool.pixelLineRenderer.sharedMaterial = lineMaterial;
         }
+
+        this._volumeManager = new VolumeManager();
+        this._UI3DManager = new UI3DManager();
+        this._sceneReflectionProb = this._volumeManager.reflectionProbeManager.sceneReflectionProbe;
+
+        this._sceneReflectionProb.reflectionIntensity = 1.0;
+        this.ambientColor = new Color(0.212, 0.227, 0.259);
     }
 
-    /**
-     * @internal
-     */
-    private _applySHCoefficients(originalSH: SphericalHarmonicsL2, intensity: number): void {
-        var optSH: Vector4[] = this._shCoefficients;
-        for (var i = 0; i < 3; i++) {
-            var shaderSHA: Vector4 = optSH[i];
-            var shaderSHB: Vector4 = optSH[i + 3];
-            shaderSHA.setValue(originalSH.getCoefficient(i, 3) * intensity, originalSH.getCoefficient(i, 1) * intensity, originalSH.getCoefficient(i, 2) * intensity, (originalSH.getCoefficient(i, 0) - originalSH.getCoefficient(i, 6)) * intensity);
-            shaderSHB.setValue(originalSH.getCoefficient(i, 4) * intensity, originalSH.getCoefficient(i, 5) * intensity, originalSH.getCoefficient(i, 6) * 3 * intensity, originalSH.getCoefficient(i, 7) * intensity);// Quadratic polynomials 
-        }
-        optSH[6].setValue(originalSH.getCoefficient(0, 8) * intensity, originalSH.getCoefficient(1, 8) * intensity, originalSH.getCoefficient(2, 8) * intensity, 1);// Final quadratic polynomial
 
-        this._shaderValues.setVector(Scene3D.AMBIENTSHAR, optSH[0]);
-        this._shaderValues.setVector(Scene3D.AMBIENTSHAG, optSH[1]);
-        this._shaderValues.setVector(Scene3D.AMBIENTSHAB, optSH[2]);
-        this._shaderValues.setVector(Scene3D.AMBIENTSHBR, optSH[3]);
-        this._shaderValues.setVector(Scene3D.AMBIENTSHBG, optSH[4]);
-        this._shaderValues.setVector(Scene3D.AMBIENTSHBB, optSH[5]);
-        this._shaderValues.setVector(Scene3D.AMBIENTSHC, optSH[6]);
-    }
 
-    /**
-     * 设置 天空， 地平线， 地面 环境光颜色
-     */
-    public setGradientAmbient(skyColor: Vector3, equatorColor: Vector3, groundColor: Vector3) {
-        this._ambientSkyColor = skyColor;
-        this._ambientEquatorColor = equatorColor;
-        this._ambientGroundColor = groundColor;
-
-        let gradientSH = SphericalHarmonicsL2Generater.CalGradientSH(skyColor, equatorColor, groundColor, true);
-        this._ambientTripleColorSphericalHarmonics = gradientSH;
-
-        if (this.ambientMode == AmbientMode.TripleColor) {
-            this._applySHCoefficients(gradientSH, 1.0);
-        }
-    }
 
     /**
      *@internal
@@ -969,28 +715,31 @@ export class Scene3D extends Sprite implements ISubmit {
         this._shaderValues.setNumber(Scene3D.TIME, this._time);
         //Physics
         let simulation: PhysicsSimulation = this._physicsSimulation;
-        if (Physics3D._enablePhysics && !PhysicsSimulation.disableSimulation && !Config3D.useCannonPhysics) {
-            simulation._updatePhysicsTransformFromRender();
-            PhysicsComponent._addUpdateList = false;//物理模拟器会触发_updateTransformComponent函数,不加入更新队列
-            //simulate physics
-            simulation._simulate(delta);
-            //update character sprite3D transforms from physics engine simulation
-            simulation._updateCharacters();
-            PhysicsComponent._addUpdateList = true;
-            //handle frame contacts
-            simulation._updateCollisions();
-            //send contact events
-            simulation.dispatchCollideEvent();
+        if (LayaEnv.isPlaying) {
+            if (Physics3D._enablePhysics && !PhysicsSimulation.disableSimulation && !Config3D.useCannonPhysics) {
+                simulation._updatePhysicsTransformFromRender();
+                PhysicsComponent._addUpdateList = false;//物理模拟器会触发_updateTransformComponent函数,不加入更新队列
+                //simulate physics
+                simulation._simulate(delta);
+                //update character sprite3D transforms from physics engine simulation
+                simulation._updateCharacters();
+                PhysicsComponent._addUpdateList = true;
+                //handle frame contacts
+                simulation._updateCollisions();
+                //send contact events
+                simulation.dispatchCollideEvent();
+            }
+            if (Physics3D._cannon && Config3D.useCannonPhysics) {
+                var cannonSimulation: CannonPhysicsSimulation = this._cannonPhysicsSimulation;
+                cannonSimulation._updatePhysicsTransformFromRender();
+                CannonPhysicsComponent._addUpdateList = false;
+                cannonSimulation._simulate(delta);
+                CannonPhysicsComponent._addUpdateList = true;
+                cannonSimulation._updateCollisions();
+                cannonSimulation.dispatchCollideEvent();
+            }
         }
-        if (Physics3D._cannon && Config3D.useCannonPhysics) {
-            var cannonSimulation: CannonPhysicsSimulation = this._cannonPhysicsSimulation;
-            cannonSimulation._updatePhysicsTransformFromRender();
-            CannonPhysicsComponent._addUpdateList = false;
-            cannonSimulation._simulate(delta);
-            CannonPhysicsComponent._addUpdateList = true;
-            cannonSimulation._updateCollisions();
-            cannonSimulation.dispatchCollideEvent();
-        }
+
 
         this._componentDriver.callStart();
         this._componentDriver.callUpdate();
@@ -1483,35 +1232,38 @@ export class Scene3D extends Sprite implements ISubmit {
         if (ambientModeData == AmbientMode.TripleColor) {
             // 三颜色
             let ambientSkyColor: number[] = data.ambientSkyColor;
-            this._ambientSkyColor.fromArray(ambientSkyColor);
+            let tempV3sky = new Vector3();
+            tempV3sky.fromArray(ambientSkyColor);
 
             let ambientEquatorColor: number[] = data.ambientEquatorColor;
-            this._ambientEquatorColor.fromArray(ambientEquatorColor);
+            let tempV3Equaltor = new Vector3();
+            tempV3Equaltor.fromArray(ambientEquatorColor);
 
             let ambientGroundColor: number[] = data.ambientGroundColor;
-            this._ambientGroundColor.fromArray(ambientGroundColor);
+            let tempV3Ground = new Vector3();
+            tempV3Ground.fromArray(ambientGroundColor);
 
-            this.setGradientAmbient(this._ambientSkyColor, this._ambientEquatorColor, this._ambientGroundColor);
+            this._sceneReflectionProb.setGradientAmbient(tempV3sky, tempV3Equaltor, tempV3Ground);
         }
         // skybox
         var ambientSphericalHarmonicsData: Array<number> = data.ambientSphericalHarmonics;
         if (ambientSphericalHarmonicsData) {
-            var ambientSH: SphericalHarmonicsL2 = this.ambientSphericalHarmonics;
+            var ambientSH: SphericalHarmonicsL2 = new SphericalHarmonicsL2();
             for (var i: number = 0; i < 3; i++) {
                 var off: number = i * 9;
                 ambientSH.setCoefficients(i, ambientSphericalHarmonicsData[off], ambientSphericalHarmonicsData[off + 1], ambientSphericalHarmonicsData[off + 2], ambientSphericalHarmonicsData[off + 3], ambientSphericalHarmonicsData[off + 4], ambientSphericalHarmonicsData[off + 5], ambientSphericalHarmonicsData[off + 6], ambientSphericalHarmonicsData[off + 7], ambientSphericalHarmonicsData[off + 8]);
             }
-            this.ambientSphericalHarmonics = ambientSH;
+            this._sceneReflectionProb.ambientSphericalHarmonics = ambientSH;
         }
         (ambientModeData != undefined) && (this.ambientMode = ambientModeData);
         var reflectionData: string = data.reflection;
-        (reflectionData != undefined) && (this.reflection = Loader.getRes(reflectionData));
+        (reflectionData != undefined) && (this._sceneReflectionProb.reflectionTexture= Loader.getRes(reflectionData));
         var reflectionDecodingFormatData: number = data.reflectionDecodingFormat;
-        (reflectionDecodingFormatData != undefined) && (this.reflectionDecodingFormat = reflectionDecodingFormatData);
+        (reflectionDecodingFormatData != undefined) && (this._sceneReflectionProb.reflectionDecodingFormat = reflectionDecodingFormatData);
         var ambientSphericalHarmonicsIntensityData: number = data.ambientSphericalHarmonicsIntensity;
-        (ambientSphericalHarmonicsIntensityData != undefined) && (this.ambientSphericalHarmonicsIntensity = ambientSphericalHarmonicsIntensityData);
+        (ambientSphericalHarmonicsIntensityData != undefined) && (this._sceneReflectionProb.ambientIntensity = ambientSphericalHarmonicsIntensityData);
         var reflectionIntensityData: number = data.reflectionIntensity;
-        (reflectionIntensityData != undefined) && (this.reflectionIntensity = reflectionIntensityData);
+        (reflectionIntensityData != undefined) && (this._sceneReflectionProb.reflectionIntensity = reflectionIntensityData);
     }
 
     /**
@@ -1549,21 +1301,6 @@ export class Scene3D extends Sprite implements ISubmit {
             return this._transparentQueue;
     }
 
-    // /**
-    //  * @internal
-    //  */
-    // _setShaderValue(index: number, value: any) {
-    // 	if (this._sceneUniformData && this._sceneUniformData._has(index))
-    // 		this._sceneUniformData._setData(index, value);
-    // 	this._shaderValues.setShaderData(index, value);
-    // }
-
-    // /**
-    //  * @internal
-    //  */
-    // _getShaderValue(index: number): any {
-    // 	return this._shaderValues.getValueData(index);
-    // }
     /**
      * @internal
      */
@@ -1598,8 +1335,8 @@ export class Scene3D extends Sprite implements ISubmit {
         this._cameraPool = null;
         // this._octree = null;
         this._physicsSimulation && this._physicsSimulation._destroy();
-        this._reflection._removeReference();
-        this._reflection = null;
+        // this._reflection._removeReference();
+        // this._reflection = null;
         var maps: Lightmap[] = this._lightmaps;
         if (maps) {
             for (var i: number = 0, n: number = maps.length; i < n; i++) {
@@ -1710,42 +1447,7 @@ export class Scene3D extends Sprite implements ISubmit {
         this._shaderValues.setShaderData(shaderOffset, type, value);
     }
     //--------------------------------------------------------deprecated------------------------------------------------------------------------
-    /**
-     * @deprecated
-     */
-    get customReflection(): TextureCube {
-        return this._reflection;
-    }
-
-    set customReflection(value: TextureCube) {
-        if (!value) {
-            this._reflection && this._reflection._removeReference();
-            return;
-        } else {
-            if (this._reflection != value) {
-                this._reflection && this._reflection._removeReference();
-                value._addReference();
-                this._volumeManager.reflectionProbeManager.sceneReflectionProbe = value;
-                this._reflection = value;
-            }
-        }
-    }
-
-    /** @internal */
-    private _reflectionMode: number = 0;
-
-    /**
-     * @deprecated
-     */
-    get reflectionMode(): number {
-        return this._reflectionMode;
-    }
-
-    set reflectionMode(value: number) {
-        this._reflectionMode = value;
-
-    }
-
+    
     /**
      * @deprecated
      * 设置光照贴图。
@@ -1781,4 +1483,6 @@ export class Scene3D extends Sprite implements ISubmit {
         }
         return lightmapColors;//slice()防止修改数组内容
     }
+
+
 }

@@ -27,10 +27,5 @@ export class Scene3DShaderDeclaration {
 	static SHADERDEFINE_SHADOW_SPOT_SOFT_SHADOW_LOW: ShaderDefine;
 	/**@internal */
 	static SHADERDEFINE_SHADOW_SPOT_SOFT_SHADOW_HIGH: ShaderDefine;
-	/**@internal */
-	static SHADERDEFINE_GI_LEGACYIBL: ShaderDefine;
-	/**@internal */
-	static SHADERDEFINE_GI_IBL: ShaderDefine;
-	/**@internal */
-	static SHADERDEFINE_IBL_RGBD: ShaderDefine;
+
 }

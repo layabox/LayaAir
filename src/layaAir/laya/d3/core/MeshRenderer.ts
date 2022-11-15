@@ -18,6 +18,7 @@ import { SubMesh } from "../resource/models/SubMesh"
 import { VertexElement } from "../graphics/VertexElement"
 import { VertexMesh } from "../graphics/Vertex/VertexMesh"
 import { ShaderData, ShaderDataType } from "../../RenderEngine/RenderShader/ShaderData"
+import { Scene3D } from "./scene/Scene3D"
 
 /**
  * <code>MeshRenderer</code> 类用于网格渲染器。
@@ -39,7 +40,6 @@ export class MeshRenderer extends BaseRender {
         MeshSprite3DShaderDeclaration.SHADERDEFINE_UV1 = Shader3D.getDefineByName("UV1");
         MeshSprite3DShaderDeclaration.SHADERDEFINE_TANGENT = Shader3D.getDefineByName("TANGENT");
         MeshSprite3DShaderDeclaration.SHADERDEFINE_GPU_INSTANCE = Shader3D.getDefineByName("GPU_INSTANCE");
-        MeshSprite3DShaderDeclaration.SHADERDEFINE_SPECCUBE_BOX_PROJECTION = Shader3D.getDefineByName("SPECCUBE_BOX_PROJECTION");
     }
 
 
@@ -225,6 +225,7 @@ export class MeshRenderer extends BaseRender {
      */
     _renderUpdate(context: RenderContext3D, transform: Transform3D): void {
         this._applyLightMapParams();
+        this._applyReflection();
         var element: SubMeshRenderElement = <SubMeshRenderElement>context.renderElement;
         switch (element.renderType) {
             case RenderElement.RENDERTYPE_NORMAL:

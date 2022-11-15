@@ -83,6 +83,16 @@ export class CompoundColliderShape extends ColliderShape {
 		bt.btCompoundShape_updateChildTransform(this._btShape, shape._indexInCompound, btTransform, true);
 	}
 
+	public set shapes(value:ColliderShape[]){
+		for(var i = 0;i<value.length;i++){
+			this.addChildShape(value[i]);
+		}
+	}
+
+	public get shapes():ColliderShape[]{
+		return this._childColliderShapes;
+	}
+
 	/**
 	 * 添加子碰撞器形状。
 	 * @param	shape 子碰撞器形状。

@@ -28,6 +28,8 @@ import { ReflectionProbe, ReflectionProbeMode } from "../../component/Volume/ref
 import { VertexMesh } from "../../graphics/Vertex/VertexMesh";
 import { Mesh } from "../../resource/models/Mesh";
 import { ShaderDefine } from "../../../RenderEngine/RenderShader/ShaderDefine";
+import { Sprite3DRenderDeclaration } from "./Sprite3DRenderDeclaration";
+import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 
 
 /**
@@ -60,6 +62,7 @@ export class BaseRender extends Component implements ISingletonElement {
      * BaseRender Init
      */
     static __init__() {
+        BaseRender.shaderValueInit();
         // if (Config3D._config._uniformBlock)
         // 	BaseRender.initRenderableLargeUniformBlock();
     }
@@ -111,6 +114,13 @@ export class BaseRender extends Component implements ISingletonElement {
         }
     }
 
+    static shaderValueInit() {
+        Sprite3DRenderDeclaration.SHADERDEFINE_GI_LEGACYIBL = Shader3D.getDefineByName("GI_LEGACYIBL");
+        Sprite3DRenderDeclaration.SHADERDEFINE_GI_IBL = Shader3D.getDefineByName("GI_IBL");
+        Sprite3DRenderDeclaration.SHADERDEFINE_IBL_RGBD = Shader3D.getDefineByName("IBL_RGBD");
+        Sprite3DRenderDeclaration.SHADERDEFINE_SPECCUBE_BOX_PROJECTION = Shader3D.getDefineByName("SPECCUBE_BOX_PROJECTION");
+    }
+
     /** @internal */
     private _lightmapScaleOffset: Vector4 = new Vector4(1, 1, 0, 0);
     /** @internal */
@@ -130,7 +140,7 @@ export class BaseRender extends Component implements ISingletonElement {
     /** @internal 是否需要反射探针*/
     _probReflection: ReflectionProbe;
     /** @internal 材质是否支持反射探针*/
-    _surportReflectionProbe: boolean;
+    _surportReflectionProbe: boolean = false;
     /** @internal 设置是反射探针模式 off  simple */
     _reflectionMode: number = ReflectionProbeMode.simple;
     /** @internal */
@@ -150,21 +160,21 @@ export class BaseRender extends Component implements ISingletonElement {
     /**@internal 是否自定义了needRender*/
     _customCull: boolean;
     /**@internal 可以根据不同的值来设置*/
-	_ratioIgnor: number = 0.005;//TODO
+    _ratioIgnor: number = 0.005;//TODO
     /**@internal 如果这个值不是0,说明有一些条件使他不能加入渲染队列，例如如果是1，证明此节点被lod淘汰*/
     private _volume: Volume;
     /**
-	 * DistanceVolumCull
-	 * 根据距离和包围盒进行裁剪，越大越容易被裁
-	 */
-	set ratioIgnor(value: number) {
-		this._ratioIgnor = value;
-	}
+     * DistanceVolumCull
+     * 根据距离和包围盒进行裁剪，越大越容易被裁
+     */
+    set ratioIgnor(value: number) {
+        this._ratioIgnor = value;
+    }
 
-	get ratioIgnor(): number {
-		return this._ratioIgnor;
-	}
-   
+    get ratioIgnor(): number {
+        return this._ratioIgnor;
+    }
+
     get renderbitFlag() {
         return this._rendernode.renderbitFlag;
     }
@@ -414,30 +424,16 @@ export class BaseRender extends Component implements ISingletonElement {
      * 设置反射球
      */
     set probReflection(voluemProbe: ReflectionProbe) {
-        this._probReflection = voluemProbe;
-        //更新反射探针
-        if (!this._probReflection)
+        if (this._probReflection == voluemProbe)
             return;
+        this._probReflection = voluemProbe;
         if (this._reflectionMode == ReflectionProbeMode.off) {
-            this._shaderValues.removeDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_SPECCUBE_BOX_PROJECTION);
-            this._setShaderValue(RenderableSprite3D.REFLECTIONCUBE_HDR_PARAMS, ShaderDataType.Vector4, ReflectionProbe.defaultTextureHDRDecodeValues);
-            this._setShaderValue(RenderableSprite3D.REFLECTIONTEXTURE, ShaderDataType.TextureCube, TextureCube.blackTexture);
+            this._shaderValues.removeDefine(Sprite3DRenderDeclaration.SHADERDEFINE_SPECCUBE_BOX_PROJECTION);
+            this._shaderValues.addDefine(Sprite3DRenderDeclaration.SHADERDEFINE_GI_IBL);
+            this._setShaderValue(RenderableSprite3D.IBLTEX, ShaderDataType.TextureCube, TextureCube.blackTexture);
+        } else {
+            this._probReflection.applyReflectionShaderData(this._shaderValues);
         }
-        else {
-            if (!this._probReflection.boxProjection) {
-                this._shaderValues.removeDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_SPECCUBE_BOX_PROJECTION);
-
-            }
-            else {
-                this._shaderValues.addDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_SPECCUBE_BOX_PROJECTION);
-                this._setShaderValue(RenderableSprite3D.REFLECTIONCUBE_PROBEPOSITION, ShaderDataType.Vector3, this._probReflection.probePosition);
-                this._setShaderValue(RenderableSprite3D.REFLECTIONCUBE_PROBEBOXMAX, ShaderDataType.Vector3, this._probReflection.boundsMax);
-                this._setShaderValue(RenderableSprite3D.REFLECTIONCUBE_PROBEBOXMIN, ShaderDataType.Vector3, this._probReflection.boundsMin);
-            }
-            this._setShaderValue(RenderableSprite3D.REFLECTIONTEXTURE, ShaderDataType.TextureCube, this._probReflection.reflectionTexture);
-            this._setShaderValue(RenderableSprite3D.REFLECTIONCUBE_HDR_PARAMS, ShaderDataType.Vector4, this._probReflection.reflectionHDRParams);
-        }
-        this._subUniformBufferData && (this._subUniformBufferData._needUpdate = true);
     }
 
 
@@ -472,7 +468,7 @@ export class BaseRender extends Component implements ISingletonElement {
         this._rendernode.layer = layer;
     }
 
-    private _changeStaticMask(staticmask:number){
+    private _changeStaticMask(staticmask: number) {
         this._rendernode.staticMask = staticmask;
     }
 
@@ -533,12 +529,15 @@ export class BaseRender extends Component implements ISingletonElement {
      * @internal
      */
     private _isSupportReflection() {
+        let pre = this._surportReflectionProbe;
         this._surportReflectionProbe = false;
         var sharedMats: Material[] = this._sharedMaterials;
         for (var i: number = 0, n: number = sharedMats.length; i < n; i++) {
             var mat: Material = sharedMats[i];
             this._surportReflectionProbe ||= (this._surportReflectionProbe || (mat && mat._shader._supportReflectionProbe));//TODO：最后一个判断是否合理
         }
+        if(!pre&&this._surportReflectionProbe)//如果变成支持Reflection
+            this._addReflectionProbeUpdate();
     }
 
     /**
@@ -610,12 +609,21 @@ export class BaseRender extends Component implements ISingletonElement {
             shaderValues.removeDefine(RenderableSprite3D.SHADERDEFINE_LIGHTMAP_DIRECTIONAL);
         }
     }
+
+    _applyReflection(){
+        if(!this._probReflection) return;
+        if(this._probReflection._updateMark = Scene3D._updateMark){
+            this._probReflection.applyReflectionShaderData(this._shaderValues)
+        }
+    }
+
     /**
      * @internal
      */
     _setBelongScene(scene: Scene3D): void {
         this._scene = scene;
         this._onWorldMatNeedChange(1);
+        this._isSupportReflection();
         Stat.renderNode++;
         if (false) {
             this._subUniformBufferData = BaseRender._transLargeUbO.create();

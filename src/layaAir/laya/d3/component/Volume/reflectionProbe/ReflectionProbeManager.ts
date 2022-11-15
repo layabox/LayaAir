@@ -34,17 +34,13 @@ export class ReflectionProbeManager implements IVolumeManager {
     /**
      * Scene Reflection
      */
-    set sceneReflectionProbe(value: TextureCube) {
-        this._sceneReflectionProbe.reflectionTexture = value;
+    set sceneReflectionProbe(value: ReflectionProbe) {
+        this._sceneReflectionProbe = value;
         this._needUpdateAllRender = true;//update Reflection
     }
 
-    /**
-     * Scene Reflection HDR
-     */
-    set sceneReflectionCubeHDRParam(value: Vector4) {
-        this._sceneReflectionProbe.reflectionHDRParams = value;
-        this._needUpdateAllRender = true;//update reflection
+    get sceneReflectionProbe():ReflectionProbe{
+        return this._sceneReflectionProbe;
     }
 
     /**

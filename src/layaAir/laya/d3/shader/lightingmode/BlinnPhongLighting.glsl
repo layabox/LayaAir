@@ -66,7 +66,7 @@ vec3 BlinnPhongGI(const in Surface surface, const in PixelInfo info)
     #else // LIGHTMAP
 
     vec3 n = info.normalWS;
-    indirect = diffuseIrradiance(n) * surface.diffuseColor;
+    indirect = diffuseIrradiance(n) * surface.diffuseColor * u_AmbientIntensity;
 
     #endif // LIGHTMAP
 

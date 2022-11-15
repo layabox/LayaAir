@@ -827,6 +827,7 @@ export class Mesh extends Resource implements IClone {
         destMesh._skinnedMatrixCaches.length = cacheLength;
         for (i = 0; i < cacheLength; i++) {
             var skinnedCache: skinnedMatrixCache = this._skinnedMatrixCaches[i];
+            if(skinnedCache)
             destMesh._skinnedMatrixCaches[i] = new skinnedMatrixCache(skinnedCache.subMeshIndex, skinnedCache.batchIndex, skinnedCache.batchBoneIndex);
         }
 

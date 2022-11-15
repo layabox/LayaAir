@@ -55,6 +55,7 @@ export class ShaderParser {
         let index = value.indexOf("\n");
         value = value.slice(0, index).replace("\r", "");
         value = value.slice(0, index).replace(" ", "");
+        value = value.trim();
         return value;
     }
 

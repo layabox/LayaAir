@@ -65,6 +65,10 @@ export class Volume extends Component {
         this._bounds = value;
     }
 
+    get bounds(): Bounds {
+        return this._bounds;
+    }
+
     get boundsMax(): Vector3 {
         return this._bounds.getMax();
     }

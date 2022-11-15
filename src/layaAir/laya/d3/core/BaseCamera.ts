@@ -194,7 +194,7 @@ export class BaseCamera extends Sprite3D {
         value.toLinear(this._linearClearColor);
     }
     /** 可视层位标记遮罩值,支持混合 例:cullingMask=Math.pow(2,0)|Math.pow(2,1)为第0层和第1层可见。*/
-    cullingMask: number;
+    private _cullingMask: number;
 
     /**
      * @internal
@@ -284,6 +284,14 @@ export class BaseCamera extends Sprite3D {
     set orthographicVerticalSize(vaule: number) {
         this._orthographicVerticalSize = vaule;
         this._calculateProjectionMatrix();
+    }
+
+    get cullingMask(){
+        return this._cullingMask;
+    }
+
+    set cullingMask(value:number){
+        this._cullingMask = value;
     }
 
     /**

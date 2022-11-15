@@ -1,5 +1,3 @@
-
-import { Loader } from "../../../../net/Loader";
 import { TextureDecodeFormat } from "../../../../RenderEngine/RenderEnum/TextureDecodeFormat";
 import { Sprite3D } from "../../../core/Sprite3D";
 import { Bounds } from "../../../math/Bounds";
@@ -7,8 +5,13 @@ import { Vector3 } from "../../../math/Vector3";
 import { Vector4 } from "../../../math/Vector4";
 import { TextureCube } from "../../../resource/TextureCube";
 import { Volume } from "../Volume";
-import { Event } from "../../../../events/Event";
 import { VolumeManager } from "../VolumeManager";
+import { SphericalHarmonicsL2, SphericalHarmonicsL2Generater } from "../../../graphics/SphericalHarmonicsL2";
+import { Color } from "../../../math/Color";
+import { AmbientMode, Scene3D } from "../../../core/scene/Scene3D";
+import { ShaderData, ShaderDataType } from "../../../../RenderEngine/RenderShader/ShaderData";
+import { RenderableSprite3D } from "../../../core/RenderableSprite3D";
+import { Sprite3DRenderDeclaration } from "../../../core/render/Sprite3DRenderDeclaration";
 
 /**
  * 反射探针模式
@@ -34,26 +37,39 @@ export class ReflectionProbe extends Volume {
 	protected _bounds: Bounds;
 	/** 探针重要度 */
 	protected _importance: number;
-	/** 反射探针图片 */
-	private _reflectionTexture: TextureCube;
-	/** 包围盒大小 */
-	private _size: Vector3 = new Vector3();
-	/** 包围盒偏移 */
-	private _offset: Vector3 = new Vector3();
-	/** 反射强度 */
-	private _intensity: number;
-	/** 反射参数 */
-	private _reflectionHDRParams: Vector4 = new Vector4();
-	/** 反射探针解码格式 */
-	private _reflectionDecodeFormat: TextureDecodeFormat = TextureDecodeFormat.Normal;
+
+	// /** 包围盒大小 */
+	// private _size: Vector3 = new Vector3();
+	// /** 包围盒偏移 */
+	// private _offset: Vector3 = new Vector3();
+	/**漫反射顔色 */
+	private _ambientColor: Color = new Color();
+	/**漫反射SH */
+	private _ambientSH: Float32Array;
+	/**漫反射强度 */
+	private _ambientIntensity: number;
+	/**ibl反射 */
+	private _iblTex: TextureCube;
+	/**ibl是否压缩 */
+	private _iblTexRGBD: boolean;
+	/**反射强度 */
+	private _reflectionIntensity: number;
+	/** @internal */
+	private _ambientMode: AmbientMode = AmbientMode.SolidColor;
+
 	/** 是否是场景探针 */
 	_isScene: boolean = false;
+	/**修改了值，需要更新shader，需要和updateMask对应 */
+	_updateMark: number;
 
 	constructor() {
 		super();
 		this._importance = 0;
 		this._type = VolumeManager.ReflectionProbeVolumeType;
+		this._ambientIntensity = 1.0;
+		this._reflectionIntensity = 1.0;
 	}
+
 
 	/**
 	 * 是否开启正交反射。
@@ -63,6 +79,9 @@ export class ReflectionProbe extends Volume {
 	}
 
 	set boxProjection(value: boolean) {
+		if (value != this._boxProjection) {
+			this._updateMark = Scene3D._updateMark;
+		}
 		this._boxProjection = value;
 	}
 
@@ -78,30 +97,30 @@ export class ReflectionProbe extends Volume {
 	}
 
 	/**
-	 * 设置反射探针资源
+	 * 设置环境漫反射的强度
 	 */
-	get intensity(): number {
-		return this._intensity;
+	get ambientIntensity(): number {
+		return this._ambientIntensity;
 	}
 
-	set intensity(value: number) {
-		value = Math.max(Math.min(value, 1.0), 0.0);
-		this._reflectionHDRParams.x = value;
-		if (this._reflectionDecodeFormat == TextureDecodeFormat.RGBM)
-			this._reflectionHDRParams.x *= 5.0;//5.0 is RGBM param
-		this._intensity = value;
+	set ambientIntensity(value: number) {
+		if (value == this._ambientIntensity) return;
+		this._ambientIntensity = value;
+		this._updateMark = Scene3D._updateMark;
 	}
 
 	/**
-	 * 设置反射贴图
+	 * 设置反射探针强度
 	 */
-	get reflectionTexture() {
-		return this._reflectionTexture;
+	get reflectionIntensity(): number {
+		return this._reflectionIntensity;
 	}
 
-	set reflectionTexture(value: TextureCube) {
-		this._reflectionTexture = value;
-		this._reflectionTexture._addReference();
+	set reflectionIntensity(value: number) {
+		if (value == this._reflectionIntensity) return;
+		value = Math.max(value, 0.0);
+		this._reflectionIntensity = value
+		this._updateMark = Scene3D._updateMark;
 	}
 
 	/**
@@ -112,6 +131,7 @@ export class ReflectionProbe extends Volume {
 	}
 
 	/**
+	 * 包围盒
 	 * @internal
 	 */
 	set bounds(value: Bounds) {
@@ -122,26 +142,152 @@ export class ReflectionProbe extends Volume {
 		return this._bounds.getMax();
 	}
 
+	/**
+	 * 包围盒 max
+	 */
+	set boundsMax(value: Vector3) {
+		this._bounds.setMax(value);
+		if (this.boxProjection)
+			this._updateMark = Scene3D._updateMark;
+	}
+
+	/**
+	 * 包围盒 min
+	 */
+	set boundsMin(value: Vector3) {
+		this._bounds.setMin(value);
+		if (this.boxProjection)
+			this._updateMark = Scene3D._updateMark;
+	}
 	get boundsMin(): Vector3 {
 		return this._bounds.getMin();
 	}
 
+	/**
+	 * probe 位置
+	 */
 	get probePosition(): Vector3 {
 		return (this.owner as Sprite3D).transform.position;
 	}
 
 	/**
-	 * 反射参数
+	 * 漫反射颜色
 	 */
-	get reflectionHDRParams(): Vector4 {
-		return this._reflectionHDRParams;
+	public get ambientColor(): Color {
+		return this._ambientColor;
+	}
+	public set ambientColor(value: Color) {
+		value && value.cloneTo(this._ambientColor);
+		if (this.ambientMode == AmbientMode.SolidColor)
+			this._updateMark = Scene3D._updateMark;
 	}
 
 	/**
-	 * @internal
+	 * 漫反射颜色 sh
 	 */
-	set reflectionHDRParams(value: Vector4) {
-		this._reflectionHDRParams = value;
+	public get ambientSH(): Float32Array {
+		return this._ambientSH;
+	}
+
+	public set ambientSH(value: Float32Array) {
+		if (this.ambientMode == AmbientMode.SphericalHarmonics)
+			this._updateMark = Scene3D._updateMark;
+		this._ambientSH = value;
+	}
+
+	/**
+	* 环境光模式。
+	* 如果值为AmbientMode.SolidColor一般使用ambientColor作为环境光源，如果值为如果值为AmbientMode.SphericalHarmonics一般使用ambientSphericalHarmonics作为环境光源。
+	*/
+	get ambientMode(): AmbientMode {
+		return this._ambientMode;
+	}
+
+	set ambientMode(value: AmbientMode) {
+		if (value == this.ambientMode) return;
+		this._ambientMode = value;
+		if (!this.ambientSH) {
+			if (value == AmbientMode.SphericalHarmonics) {
+				this._ambientSphericalHarmonics&&this._applySHCoefficients(this._ambientSphericalHarmonics, 2.2);
+			} else if (value == AmbientMode.TripleColor) {
+				this._ambientTripleColorSphericalHarmonics&&this._applySHCoefficients(this._ambientTripleColorSphericalHarmonics, 1.0);
+			}
+		}
+		this._updateMark = Scene3D._updateMark;
+
+	}
+
+	/**
+	 * Image base Light
+	 */
+	public get iblTex(): TextureCube {
+		return this._iblTex;
+	}
+
+	public set iblTex(value: TextureCube) {
+		if (this.iblTex == value) return;
+		if (this.iblTex) this.iblTex._removeReference();
+		this._iblTex = value;
+		this._iblTex._addReference();
+		this._updateMark = Scene3D._updateMark;
+	}
+
+	/**
+	 * Image base Light Compress by RGBD
+	 */
+	public get iblTexRGBD(): boolean {
+		return this._iblTexRGBD;
+	}
+
+	public set iblTexRGBD(value: boolean) {
+		if (value == this._iblTexRGBD)
+			return;
+		this._iblTexRGBD = value;
+		this._updateMark = Scene3D._updateMark;
+	}
+
+	applyReflectionShaderData(shaderData: ShaderData) {
+		//boxProjection
+		if (!this.boxProjection) {
+			shaderData.removeDefine(Sprite3DRenderDeclaration.SHADERDEFINE_SPECCUBE_BOX_PROJECTION);
+		} else {
+			shaderData.addDefine(Sprite3DRenderDeclaration.SHADERDEFINE_SPECCUBE_BOX_PROJECTION);
+			shaderData.setShaderData(RenderableSprite3D.REFLECTIONCUBE_PROBEPOSITION, ShaderDataType.Vector3, this.probePosition);
+			shaderData.setShaderData(RenderableSprite3D.REFLECTIONCUBE_PROBEBOXMAX, ShaderDataType.Vector3, this.boundsMax);
+			shaderData.setShaderData(RenderableSprite3D.REFLECTIONCUBE_PROBEBOXMIN, ShaderDataType.Vector3, this.boundsMin);
+
+		}
+		if (this.ambientMode == AmbientMode.SolidColor) {
+			shaderData.removeDefine(Sprite3DRenderDeclaration.SHADERDEFINE_GI_LEGACYIBL);
+			shaderData.removeDefine(Sprite3DRenderDeclaration.SHADERDEFINE_GI_IBL);
+			shaderData.setColor(RenderableSprite3D.AMBIENTCOLOR, this.ambientColor);
+		} else if (this.iblTex&&this.ambientSH) {
+			shaderData.addDefine(Sprite3DRenderDeclaration.SHADERDEFINE_GI_IBL);
+			shaderData.removeDefine(Sprite3DRenderDeclaration.SHADERDEFINE_GI_LEGACYIBL);
+			this.iblTex && shaderData.setTexture(RenderableSprite3D.IBLTEX, this.iblTex);
+			this.iblTexRGBD ? shaderData.addDefine(Sprite3DRenderDeclaration.SHADERDEFINE_IBL_RGBD) : shaderData.removeDefine(Sprite3DRenderDeclaration.SHADERDEFINE_IBL_RGBD);
+			this.ambientSH && shaderData.setBuffer(RenderableSprite3D.AMBIENTSH, this.ambientSH);
+		} else{//Legency
+			shaderData.removeDefine(Sprite3DRenderDeclaration.SHADERDEFINE_GI_IBL);
+			shaderData.addDefine(Sprite3DRenderDeclaration.SHADERDEFINE_GI_LEGACYIBL);
+			if (this._reflectionTexture){
+				shaderData.setShaderData(RenderableSprite3D.REFLECTIONTEXTURE, ShaderDataType.TextureCube, this.reflectionTexture);
+				shaderData.setShaderData(RenderableSprite3D.REFLECTIONCUBE_HDR_PARAMS, ShaderDataType.Vector4, this.reflectionHDRParams);
+			}
+			
+			if (this._shCoefficients){
+				shaderData.setVector(RenderableSprite3D.AMBIENTSHAR, this._shCoefficients[0]);
+				shaderData.setVector(RenderableSprite3D.AMBIENTSHAG, this._shCoefficients[1]);
+				shaderData.setVector(RenderableSprite3D.AMBIENTSHAB, this._shCoefficients[2]);
+				shaderData.setVector(RenderableSprite3D.AMBIENTSHBR, this._shCoefficients[3]);
+				shaderData.setVector(RenderableSprite3D.AMBIENTSHBG, this._shCoefficients[4]);
+				shaderData.setVector(RenderableSprite3D.AMBIENTSHBB, this._shCoefficients[5]);
+				shaderData.setVector(RenderableSprite3D.AMBIENTSHC, this._shCoefficients[6]);
+			}
+			
+		}
+		shaderData.setNumber(RenderableSprite3D.AMBIENTINTENSITY,this.ambientIntensity);
+		shaderData.setNumber(RenderableSprite3D.REFLECTIONINTENSITY,this.reflectionIntensity);
 	}
 
 	/**
@@ -150,6 +296,7 @@ export class ReflectionProbe extends Volume {
 	*/
 	protected _onEnable(): void {
 		super._onEnable();
+		this._updateMark = Scene3D._updateMark;
 	}
 
 	/**
@@ -162,70 +309,10 @@ export class ReflectionProbe extends Volume {
 
 	/**
 	 * @inheritDoc
-	 * @internal
-	 * @override
-	 */
-	_parse(data: any, spriteMap: any): void {
-		// super._parse(data, spriteMap);
-		// this._boxProjection = data.boxProjection;
-		// this._importance = data.importance;
-
-		// this._reflectionTexture = Loader.getRes(data.reflection);
-		// var position: Vector3 = (this.owner as Sprite3D).transform.position;
-		// this._size.fromArray(data.boxSize);
-		// Vector3.scale(this._size, 0.5, ReflectionProbe.TEMPVECTOR3);
-		// this._offset.fromArray(data.boxOffset);
-		// var min: Vector3 = new Vector3();
-		// var max: Vector3 = new Vector3();
-		// Vector3.add(position, ReflectionProbe.TEMPVECTOR3, max);
-		// Vector3.add(max, this._offset, max);
-		// Vector3.subtract(position, ReflectionProbe.TEMPVECTOR3, min);
-		// Vector3.add(min, this._offset, min);
-		// this._reflectionDecodeFormat = data.reflectionDecodingFormat;
-		// this.intensity = data.intensity;
-		// if (!this._bounds) this.bounds = new Bounds(min, max);
-		// else {
-		// 	this._bounds.setMin(min);
-		// 	this._bounds.setMax(max);
-		// }
-
-	}
-
-
-
-
-	// /**
-	//  * @inheritDoc
-	//  * @override
-	//  */
-	// protected _onActive(): void {
-	// 	super._onActive();
-	// 	if (this._reflectionTexture)
-	// 		(this.scene as Scene3D)._reflectionProbeManager.add(this);
-	// }
-
-	// /**
-	//  * @inheritDoc
-	//  * @override
-	//  */
-	// protected _onInActive(): void {
-	// 	super._onInActive();
-	// 	if (this.reflectionTexture)
-	// 		(this.scene as Scene3D)._reflectionProbeManager.remove(this);
-	// }
-
-
-	/**
-	 * @inheritDoc
 	 * @override
 	 */
 	protected _onDestroy() {
-		// if (this._destroyed)
-		// 	return;
-		// super.destroy(destroyChild);
-		// this._reflectionTexture && this._reflectionTexture._removeReference();
-		// this._reflectionTexture = null;
-		// this._bounds = null;
+
 	}
 
 	/**
@@ -234,18 +321,182 @@ export class ReflectionProbe extends Volume {
 	 * @internal
 	 */
 	_cloneTo(dest: ReflectionProbe): void {
-		// var dest: ReflectionProbe = (<ReflectionProbe>destObject);
-		// dest.bounds = this.bounds;
-		// dest.boxProjection = this.boxProjection;
-		// dest.importance = this.importance;
-		// //图片不克隆，需要重新烘培
-		// dest._size = this._size;
-		// dest._offset = this._offset;
-		// dest.intensity = this.intensity;
-		// dest.reflectionHDRParams = this.reflectionHDRParams;
-		// super._cloneTo(destObject, srcRoot, dstRoot);//父类函数在最后,组件应该最后赋值，否则获取材质默认值等相关函数会有问题
+		//TODO
 	}
 
+
+
+	//----------------------------------------deprecated--------------------------------------------
+	/**
+	 * @deprecated
+	 *  反射探针图片 */
+	private _reflectionTexture: TextureCube;
+	/**
+	 * @deprecated
+	 *  反射参数 
+	 */
+	private _reflectionHDRParams: Vector4 = new Vector4();
+	/**
+	 * @deprecated 反射探针解码格式 
+	 */
+	private _reflectionDecodeFormat: TextureDecodeFormat = TextureDecodeFormat.Normal;
+	/**
+	 * @deprecated
+	 *  @internal 
+	 */
+	private _ambientSphericalHarmonics: SphericalHarmonicsL2;
+	/**
+	 * 三颜色
+	 * @deprecated
+	 *  @internal 
+	 */
+	private _ambientTripleColorSphericalHarmonics: SphericalHarmonicsL2;
+	/**
+	 * @deprecated
+	 *  @internal 
+	 */
+	private _shCoefficients: Vector4[];
+	/**
+	 * @deprecated
+	 *  @internal 
+	 */
+	private _ambientSkyColor: Vector3 = new Vector3();
+	/**
+	 * @deprecated
+	 *  @internal 
+	 */
+	private _ambientEquatorColor: Vector3 = new Vector3();
+	/**
+	 * @deprecated
+	 *  @internal 
+	 */
+	private _ambientGroundColor: Vector3 = new Vector3();
+
+	/**
+	 * @deprecated
+	 * 设置反射贴图
+	 */
+	get reflectionTexture() {
+		return this._reflectionTexture;
+	}
+
+	set reflectionTexture(value: TextureCube) {
+		if (this._reflectionTexture == value) return;
+		if (this._reflectionTexture) this.iblTex._removeReference();
+		this._reflectionTexture = value
+		this._reflectionTexture._addReference();
+		this._updateMark = Scene3D._updateMark;
+	}
+
+	/**
+	* @deprecated
+	*/
+	get customReflection(): TextureCube {
+		return this.reflectionTexture;
+	}
+
+	set customReflection(value: TextureCube) {
+		this.reflectionTexture = value;
+	}
+
+	/**
+	 * @deprecated
+	 * 反射参数
+	 */
+	get reflectionHDRParams(): Vector4 {
+		return this._reflectionHDRParams;
+	}
+
+	/**
+	 * @deprecated
+	 * @internal
+	 */
+	set reflectionHDRParams(value: Vector4) {
+		this._reflectionHDRParams = value;
+		this._updateMark = Scene3D._updateMark;
+	}
+
+	/**
+	 * 反射立方体纹理解码格式。
+	 * @deprecated
+	 */
+	get reflectionDecodingFormat(): TextureDecodeFormat {
+		return this._reflectionDecodeFormat;
+	}
+
+	set reflectionDecodingFormat(value: TextureDecodeFormat) {
+		if (this._reflectionDecodeFormat != value) {
+			this._reflectionDecodeFormat = value;
+			if (this._reflectionDecodeFormat == TextureDecodeFormat.RGBM)
+				this._reflectionHDRParams.x = 5.0;//5.0 is RGBM param
+			this._updateMark = Scene3D._updateMark;
+		}
+	}
+
+	/**
+	* @deprecated
+	* 球谐环境光,修改后必须重新赋值。
+	* use scene.ambientSH
+	*/
+	get ambientSphericalHarmonics(): SphericalHarmonicsL2 {
+		return this._ambientSphericalHarmonics;
+	}
+
+	/**
+	 * @deprecated
+	 * use scene.ambientSH
+	 */
+	set ambientSphericalHarmonics(value: SphericalHarmonicsL2) {
+		var originalSH: SphericalHarmonicsL2 = value || SphericalHarmonicsL2._default;
+
+		if (!this._ambientSphericalHarmonics) {
+			this._ambientSphericalHarmonics = new SphericalHarmonicsL2();
+		}
+		if (this._ambientSphericalHarmonics != value)
+			value.cloneTo(this._ambientSphericalHarmonics);
+		if (this.ambientMode == AmbientMode.TripleColor)
+			this._applySHCoefficients(originalSH, 2.2);//Gamma to Linear,I prefer use 'Color.gammaToLinearSpace',but must same with Unity now.
+		this._updateMark = Scene3D._updateMark;
+	}
+
+
+	/**
+	 * @deprecated
+	 * @internal
+	 */
+	private _applySHCoefficients(originalSH: SphericalHarmonicsL2, intensity: number): void {
+		if (!this._shCoefficients) {
+			this._shCoefficients = new Array(7);
+			for (var i: number = 0; i < 7; i++)
+				this._shCoefficients[i] = new Vector4();
+		}
+		var optSH: Vector4[] = this._shCoefficients;
+		for (var i = 0; i < 3; i++) {
+			var shaderSHA: Vector4 = optSH[i];
+			var shaderSHB: Vector4 = optSH[i + 3];
+			shaderSHA.setValue(originalSH.getCoefficient(i, 3) * intensity, originalSH.getCoefficient(i, 1) * intensity, originalSH.getCoefficient(i, 2) * intensity, (originalSH.getCoefficient(i, 0) - originalSH.getCoefficient(i, 6)) * intensity);
+			shaderSHB.setValue(originalSH.getCoefficient(i, 4) * intensity, originalSH.getCoefficient(i, 5) * intensity, originalSH.getCoefficient(i, 6) * 3 * intensity, originalSH.getCoefficient(i, 7) * intensity);// Quadratic polynomials 
+		}
+		optSH[6].setValue(originalSH.getCoefficient(0, 8) * intensity, originalSH.getCoefficient(1, 8) * intensity, originalSH.getCoefficient(2, 8) * intensity, 1);// Final quadratic polynomial
+	}
+
+	/**
+   * @deprecated
+   * 设置 天空， 地平线， 地面 环境光颜色
+   */
+	public setGradientAmbient(skyColor: Vector3, equatorColor: Vector3, groundColor: Vector3) {
+		this._ambientSkyColor = skyColor;
+		this._ambientEquatorColor = equatorColor;
+		this._ambientGroundColor = groundColor;
+
+		let gradientSH = SphericalHarmonicsL2Generater.CalGradientSH(this._ambientSkyColor, this._ambientEquatorColor, this._ambientGroundColor, true);
+		this._ambientTripleColorSphericalHarmonics = gradientSH;
+
+		if (this.ambientMode == AmbientMode.TripleColor) {
+			this._applySHCoefficients(gradientSH, 2.2);
+		}
+		this._updateMark = Scene3D._updateMark;
+	}
 }
 
 

@@ -18,6 +18,8 @@ vec4 rotateByYAixs(in vec4 normal)
     float z = normal.x * si + normal.z * co;
     return vec4(x, normal.y, z, normal.w);
 }
+uniform float u_AmbientIntensity;
+uniform float u_ReflectionIntensity;
 
     #ifdef GI_IBL
 

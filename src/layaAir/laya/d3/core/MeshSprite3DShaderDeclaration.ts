@@ -14,6 +14,5 @@ export class MeshSprite3DShaderDeclaration {
 	static SHADERDEFINE_TANGENT: ShaderDefine;
 	/**instance调用宏 */
 	static SHADERDEFINE_GPU_INSTANCE: ShaderDefine;
-	/**盒子反射宏 */
-	static SHADERDEFINE_SPECCUBE_BOX_PROJECTION: ShaderDefine;
+	
 }
