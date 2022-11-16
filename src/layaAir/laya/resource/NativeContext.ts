@@ -310,8 +310,8 @@ export class NativeContext {
             this._nativeObj.drawTexture((tex as any).bitmap._texture.id, x + tx, y + ty, width || tex.width, height|| tex.height, uv || (tex as any).uv);
         }
         this._nativeObj.restore();*/
-        this.add_i(CONTEXT2D_FUNCTION_ID.SAVE);
-        this.add_if(CONTEXT2D_FUNCTION_ID.ALPHA, alpha);
+        this.save();
+        this.alpha(alpha);
         var uvs: any = uv || (tex as any).uv;
         if (transform) {
             this.add_iffffff(CONTEXT2D_FUNCTION_ID.TRANSFORM, transform.a, transform.b, transform.c, transform.d, transform.tx + tx, transform.ty + ty);
@@ -336,7 +336,7 @@ export class NativeContext {
                 , uvs[6]
                 , uvs[7]);
         }
-        this.add_i(CONTEXT2D_FUNCTION_ID.RESTORE);
+        this.restore();
     }
 
     drawTextureWithSizeGrid(tex: Texture, tx: number, ty: number, width: number, height: number, sizeGrid: any[], gx: number, gy: number): void {
@@ -382,8 +382,8 @@ export class NativeContext {
         this._nativeObj.drawTexture((tex as any).bitmap._texture.id, x, y, width || tex.width, height || tex.height, uv || (tex as any).uv);
         this._nativeObj.restore();*/
 
-        this.add_i(CONTEXT2D_FUNCTION_ID.SAVE);
-        this.add_if(CONTEXT2D_FUNCTION_ID.ALPHA, alpha);
+        this.save();
+        this.alpha(alpha);
         if (transform) {
             this.add_iffffff(CONTEXT2D_FUNCTION_ID.TRANSFORM, transform.a, transform.b, transform.c, transform.d, transform.tx, transform.ty);
         }
@@ -397,7 +397,7 @@ export class NativeContext {
             , uvs[5]
             , uvs[6]
             , uvs[7]);
-        this.add_i(CONTEXT2D_FUNCTION_ID.RESTORE);
+            this.restore();
 
     }
     translate(x: number, y: number): void {
