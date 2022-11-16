@@ -98,6 +98,7 @@ import "./loaders/HierarchyParserV2";
 import "./loaders/AvatarMaskLoader";
 import "./loaders/ShaderLoader";
 import "./loaders/GLSLLoader";
+import { CompoundColliderShape } from "./physics/shape/CompoundColliderShape";
 
 let c = ClassUtils.regClass;
 c("Sprite3D", Sprite3D);
@@ -205,3 +206,4 @@ c("ConeColliderShape", ConeColliderShape);
 c("CylinderColliderShape", CylinderColliderShape);
 c("SphereColliderShape", SphereColliderShape);
 c("MeshColliderShape", MeshColliderShape);
+c("CompoundColliderShape",CompoundColliderShape);
