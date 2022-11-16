@@ -168,20 +168,6 @@ export class ColliderShape implements IClone {
 	}
 
 	/**
-	 * @internal
-	 */
-	_addReference(): void {
-		this._referenceCount++;
-	}
-
-	/**
-	 * @internal
-	 */
-	_removeReference(): void {
-		this._referenceCount--;
-	}
-
-	/**
 	 * 更新本地偏移,如果修改LocalOffset或LocalRotation需要调用。
 	 */
 	updateLocalTransformations(): void {//TODO:是否需要优化

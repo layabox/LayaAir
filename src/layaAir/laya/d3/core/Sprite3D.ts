@@ -13,7 +13,7 @@ import { CommandUniformMap } from "../../RenderEngine/CommandUniformMap";
 import { NodeFlags } from "../../Const";
 import { Event } from "../../events/Event";
 import { Scene3D } from "./scene/Scene3D";
-import { BaseRender } from "./render/BaseRender";
+import { ILaya3D } from "../../../ILaya3D";
 
 /**
  * @internal
@@ -146,8 +146,8 @@ export class Sprite3D extends Node {
         if (this._isRenderNode) {
             let flag = this._getBit(NodeFlags.HIDE_BY_EDITOR);
             for (let comp of this._components) {
-                if (comp instanceof BaseRender)
-                    comp.setRenderbitFlag(BaseRender.RenderBitFlag_Editor, flag);
+                if (comp instanceof ILaya3D.BaseRender)
+                    comp.setRenderbitFlag(ILaya3D.BaseRender.RenderBitFlag_Editor, flag);
             }
         }
     }

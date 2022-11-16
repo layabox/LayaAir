@@ -33,6 +33,8 @@ export class VideoTexture extends BaseTexture {
      * 是否开发者自己调用Render
      */
     private _frameRender:boolean = true;
+    /**避免重复的加载 */
+    private _isLoaded:boolean = false;
     /**
      * 创建VideoTexture对象，
      */
@@ -93,6 +95,9 @@ export class VideoTexture extends BaseTexture {
     }
 
     loadedmetadata(){
+        if(this._isLoaded)
+            return;
+        //flag only TODO
         this._width = this.element.videoWidth;
         this.height = this.element.videoHeight;
         this._texture = LayaGL.textureContext.createTextureInternal(this._dimension, this.element.videoWidth, this.element.videoHeight, TextureFormat.R8G8B8, false, true);
@@ -103,6 +108,7 @@ export class VideoTexture extends BaseTexture {
         if (this.immediatelyPlay) {
             this.play();
         }
+        this._isLoaded = true;
     }
 
     get source(): string {

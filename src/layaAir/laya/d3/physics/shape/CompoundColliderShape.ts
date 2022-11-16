@@ -49,24 +49,6 @@ export class CompoundColliderShape extends ColliderShape {
 	}
 
 	/**
-	 * @inheritDoc
-	 * @override
-	 * @internal
-	 */
-	_addReference(): void {
-		//TODO:
-	}
-
-	/**
-	 * @inheritDoc
-	 * @override
-	 * @internal
-	 */
-	_removeReference(): void {
-		//TODO:
-	}
-
-	/**
 	 * @internal
 	 */
 	_updateChildTransform(shape: ColliderShape): void {
@@ -83,13 +65,21 @@ export class CompoundColliderShape extends ColliderShape {
 		bt.btCompoundShape_updateChildTransform(this._btShape, shape._indexInCompound, btTransform, true);
 	}
 
-	public set shapes(value:ColliderShape[]){
-		for(var i = 0;i<value.length;i++){
+
+	/**
+	 * 设置物理shape数组
+	 */
+	public set shapes(value: ColliderShape[]) {
+		for (var i = 0; i < this._childColliderShapes.length; i++) {
+			this.removeChildShape(this._childColliderShapes[i]);
+		}
+
+		for (var i = 0; i < value.length; i++) {
 			this.addChildShape(value[i]);
 		}
 	}
 
-	public get shapes():ColliderShape[]{
+	public get shapes(): ColliderShape[] {
 		return this._childColliderShapes;
 	}
 
