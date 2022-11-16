@@ -521,6 +521,9 @@ export class Scene3D extends Sprite implements ISubmit {
         return this._sceneReflectionProb;
     }
 
+    /**
+     * @internal
+     */
     set sceneReflectionProb(value:ReflectionProbe){
         this._sceneReflectionProb = value;        
     }
@@ -549,8 +552,8 @@ export class Scene3D extends Sprite implements ISubmit {
      * ambient iblTexture
      */
     public get iblTex(): TextureCube {
-        this._sceneReflectionProb.iblTex;
-        return null;
+        return this._sceneReflectionProb.iblTex;
+        
     }
     public set iblTex(value: TextureCube) {
         this._sceneReflectionProb.iblTex = value
@@ -691,7 +694,7 @@ export class Scene3D extends Sprite implements ISubmit {
 
         this._volumeManager = new VolumeManager();
         this._UI3DManager = new UI3DManager();
-        this._sceneReflectionProb = this._volumeManager.reflectionProbeManager.sceneReflectionProbe;
+        this.sceneReflectionProb = this._volumeManager.reflectionProbeManager.sceneReflectionProbe;
 
         this._sceneReflectionProb.reflectionIntensity = 1.0;
         this.ambientColor = new Color(0.212, 0.227, 0.259);

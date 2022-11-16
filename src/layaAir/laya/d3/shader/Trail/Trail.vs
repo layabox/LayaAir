@@ -2,14 +2,6 @@
 
 #include "Camera.glsl";
 
-// attribute
-//  attribute vec3 a_Position;
-//  attribute vec3 a_OffsetVector;
-//  attribute vec4 a_Color;
-//  attribute float a_Texcoord0X;
-//  attribute float a_Texcoord0Y;
-//  attribute float a_BirthTime;
-
 // Sprite uniform
 uniform float u_CurTime;
 uniform float u_LifeTime;
