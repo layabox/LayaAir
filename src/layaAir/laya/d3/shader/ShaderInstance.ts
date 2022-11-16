@@ -200,26 +200,42 @@ export class ShaderInstance {
 				var blendEquation: any = this._getRenderState(datas, Shader3D.RENDER_STATE_BLEND_EQUATION);
 				var srcBlend: any = this._getRenderState(datas, Shader3D.RENDER_STATE_BLEND_SRC);
 				var dstBlend: any = this._getRenderState(datas, Shader3D.RENDER_STATE_BLEND_DST);
-				blendEquation == null && (blendEquation = renderState.blendEquation);
-				srcBlend == null && (srcBlend = renderState.srcBlend);
-				dstBlend == null && (dstBlend = renderState.dstBlend);
+				if (!(<ShaderPass>this._shaderPass).statefirst) {
+					blendEquation == null && (blendEquation = renderState.blendEquation);
+					srcBlend == null && (srcBlend = renderState.srcBlend);
+					dstBlend == null && (dstBlend = renderState.dstBlend);
+				} else {
+					renderState.blendEquation != null ? blendEquation = renderState.blendEquation : 0;
+					renderState.srcBlend != null ? srcBlend = renderState.srcBlend : 0;
+					renderState.dstBlend != null ? dstBlend = renderState.dstBlend : 0;
+				}
 				RenderStateContext.setBlend(true);
 				RenderStateContext.setBlendEquation(blendEquation);
 				RenderStateContext.setBlendFunc(srcBlend, dstBlend);
 				break;
 			case RenderState.BLEND_ENABLE_SEPERATE:
+
 				var blendEquationRGB: any = this._getRenderState(datas, Shader3D.RENDER_STATE_BLEND_EQUATION_RGB);
 				var blendEquationAlpha: any = this._getRenderState(datas, Shader3D.RENDER_STATE_BLEND_EQUATION_ALPHA);
 				var srcRGB: any = this._getRenderState(datas, Shader3D.RENDER_STATE_BLEND_SRC_RGB);
 				var dstRGB: any = this._getRenderState(datas, Shader3D.RENDER_STATE_BLEND_DST_RGB);
 				var srcAlpha: any = this._getRenderState(datas, Shader3D.RENDER_STATE_BLEND_SRC_ALPHA);
 				var dstAlpha: any = this._getRenderState(datas, Shader3D.RENDER_STATE_BLEND_DST_ALPHA);
-				blendEquationRGB == null && (blendEquationRGB = renderState.blendEquationRGB);
-				blendEquationAlpha == null && (blendEquationAlpha = renderState.blendEquationAlpha);
-				srcRGB == null && (srcRGB = renderState.srcBlendRGB);
-				dstRGB == null && (dstRGB = renderState.dstBlendRGB);
-				srcAlpha == null && (srcAlpha = renderState.srcBlendAlpha);
-				dstAlpha == null && (dstAlpha = renderState.dstBlendAlpha);
+				if (!(<ShaderPass>this._shaderPass).statefirst) {
+					blendEquationRGB == null && (blendEquationRGB = renderState.blendEquationRGB);
+					blendEquationAlpha == null && (blendEquationAlpha = renderState.blendEquationAlpha);
+					srcRGB == null && (srcRGB = renderState.srcBlendRGB);
+					dstRGB == null && (dstRGB = renderState.dstBlendRGB);
+					srcAlpha == null && (srcAlpha = renderState.srcBlendAlpha);
+					dstAlpha == null && (dstAlpha = renderState.dstBlendAlpha);
+				} else {
+					renderState.blendEquationRGB != null ? blendEquationRGB= renderState.blendEquationRGB:0;
+					renderState.blendEquationAlpha != null ? blendEquationAlpha = renderState.blendEquationAlpha:0;
+					renderState.srcBlendRGB != null ? srcRGB = renderState.srcBlendRGB:0;
+					renderState.dstBlendRGB != null ? dstRGB = renderState.dstBlendRGB:0;
+					renderState.srcBlendAlpha != null ? srcAlpha = renderState.srcBlendAlpha:0;
+					renderState.dstBlendAlpha != null ? dstAlpha = renderState.dstBlendAlpha:0;
+				}
 				RenderStateContext.setBlend(true);
 				RenderStateContext.setBlendEquationSeparate(blendEquationRGB, blendEquationAlpha);
 				RenderStateContext.setBlendFuncSeperate(srcRGB, dstRGB, srcAlpha, dstAlpha);
