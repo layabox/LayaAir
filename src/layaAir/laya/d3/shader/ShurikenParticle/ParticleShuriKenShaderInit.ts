@@ -7,7 +7,6 @@ import { SubShader } from "../SubShader";
 import ShurikenVS from "./particleShuriKen.vs";
 import ShurikenFS from "./particleShuriKen.fs";
 import MathGradient from "./MathGradient.glsl";
-import ParticleVertex from "./particleShurieKenVertex.glsl";
 import ParticleSpriteVS from "./particleShuriKenSpriteVS.glsl";
 /**
  * ParticleShuriKen Shader init
@@ -16,7 +15,6 @@ export class ParticleShuriKenShaderInit{
     static init(){
         
         Shader3D.addInclude("MathGradient.glsl", MathGradient);
-        Shader3D.addInclude("particleShurieKenVertex.glsl", ParticleVertex);
         Shader3D.addInclude("particleShuriKenSpriteVS.glsl", ParticleSpriteVS);
 
         let attributeMap: { [name: string]: [number, ShaderDataType] } = {
