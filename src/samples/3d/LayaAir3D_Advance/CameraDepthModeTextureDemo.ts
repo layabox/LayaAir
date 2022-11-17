@@ -18,17 +18,17 @@ import { DepthNormalsMaterial } from "./DepthNormalShader/DepthNormalsMaterial";
  * 示例用来展示获得的深度、深度法线贴图
  * @author miner 
  */
-export class CameraDepthModeTextureDemo{
-    private scene:Scene3D;
-    private depthPlane:MeshSprite3D;
-    private depthNormalPlane:MeshSprite3D;
-    constructor(){
+export class CameraDepthModeTextureDemo {
+    private scene: Scene3D;
+    private depthPlane: MeshSprite3D;
+    private depthNormalPlane: MeshSprite3D;
+    constructor() {
         //初始化引擎
-		Laya3D.init(0, 0);
-		Laya.stage.scaleMode = Stage.SCALE_FULL;
-		Laya.stage.screenMode = Stage.SCREEN_NONE;
-		//显示性能面板
-		Stat.show();
+        Laya3D.init(0, 0);
+        Laya.stage.scaleMode = Stage.SCALE_FULL;
+        Laya.stage.screenMode = Stage.SCREEN_NONE;
+        //显示性能面板
+        Stat.show();
         Shader3D.debugMode = true;
         DepthMaterial.init();
         DepthNormalsMaterial.init();
@@ -36,31 +36,31 @@ export class CameraDepthModeTextureDemo{
     }
 
     //批量预加载方式
-	PreloadingRes() {
-		//预加载所有资源
+    PreloadingRes() {
+        //预加载所有资源
         var resource: any[] = ["res/threeDimen/LayaScene_depthNormalScene/Conventional/depthNormalPlane.lh",
-        "res/threeDimen/LayaScene_depthNormalScene/Conventional/depthPlane.lh",
-        "res/threeDimen/LayaScene_depthNormalScene/Conventional/depthscene.lh",
-        "res/threeDimen/LayaScene_depthNormalScene/Conventional/Main Camera.lh",
-        "res/threeDimen/LayaScene_depthNormalScene/Conventional/Assets/Scenes/depthNormalSceneGIReflection.ltcb.ls"
-		];
-		Laya.loader.load(resource, Handler.create(this, this.onPreLoadFinish));
+            "res/threeDimen/LayaScene_depthNormalScene/Conventional/depthPlane.lh",
+            "res/threeDimen/LayaScene_depthNormalScene/Conventional/depthscene.lh",
+            "res/threeDimen/LayaScene_depthNormalScene/Conventional/Main Camera.lh",
+            "res/threeDimen/LayaScene_depthNormalScene/Conventional/Assets/Scenes/depthNormalSceneGIReflection.ltcb.ls"
+        ];
+        Laya.loader.load(resource, Handler.create(this, this.onPreLoadFinish));
     }
-    
-    onPreLoadFinish(){
+
+    onPreLoadFinish() {
         this.scene = Laya.stage.addChild(new Scene3D()) as Scene3D;
-        this.scene.ambientColor = new Color(0.858,0.858,0.858);
-        this.scene.reflection = Loader.getRes("res/threeDimen/LayaScene_depthNormalScene/Conventional/Assets/Scenes/depthNormalSceneGIReflection.ltcb.ls") as TextureCube;
-        this.scene.reflectionDecodingFormat  = 1;
-        this.scene.reflectionIntensity = 1;
-        this.depthNormalPlane =this.scene.addChild(Loader.createNodes("res/threeDimen/LayaScene_depthNormalScene/Conventional/depthNormalPlane.lh"))as MeshSprite3D;
+        this.scene.ambientColor = new Color(0.858, 0.858, 0.858);
+        this.scene.sceneReflectionProb.reflectionTexture = Loader.getRes("res/threeDimen/LayaScene_depthNormalScene/Conventional/Assets/Scenes/depthNormalSceneGIReflection.ltcb.ls") as TextureCube;
+        this.scene.sceneReflectionProb.reflectionDecodingFormat = 1;
+        this.scene.sceneReflectionProb.reflectionIntensity = 1;
+        this.depthNormalPlane = this.scene.addChild(Loader.createNodes("res/threeDimen/LayaScene_depthNormalScene/Conventional/depthNormalPlane.lh")) as MeshSprite3D;
         this.depthPlane = this.scene.addChild(Loader.createNodes("res/threeDimen/LayaScene_depthNormalScene/Conventional/depthPlane.lh")) as MeshSprite3D;
-        this.scene.addChild(Loader.createNodes("res/threeDimen/LayaScene_depthNormalScene/Conventional/depthscene.lh")) ;
+        this.scene.addChild(Loader.createNodes("res/threeDimen/LayaScene_depthNormalScene/Conventional/depthscene.lh"));
         var camera = this.scene.addChild(Loader.createNodes("res/threeDimen/LayaScene_depthNormalScene/Conventional/Main Camera.lh")) as Camera;
-        camera.depthTextureMode|=DepthTextureMode.Depth;
+        camera.depthTextureMode |= DepthTextureMode.Depth;
         this.depthPlane.meshRenderer.sharedMaterial = new DepthMaterial();
 
-        camera.depthTextureMode|=DepthTextureMode.DepthNormals;
+        camera.depthTextureMode |= DepthTextureMode.DepthNormals;
         this.depthNormalPlane.meshRenderer.sharedMaterial = new DepthNormalsMaterial();
     }
 }
