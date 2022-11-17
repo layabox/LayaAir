@@ -232,13 +232,6 @@ export class ShaderInstance {
 					renderState.dstBlendAlpha != null ? dstAlpha = renderState.dstBlendAlpha : 0;
 				}
 				else {
-					// blendEquationRGB == null ? blendEquationRGB = RenderState.Default.blendEquationRGB : 0;
-					// blendEquationAlpha == null ? blendEquationAlpha = RenderState.Default.blendEquationAlpha : 0;
-					// srcRGB == null ? srcRGB = RenderState.Default.srcBlendRGB : 0;
-					// dstRGB == null ? dstRGB = RenderState.Default.dstBlendRGB : 0;
-					// dstAlpha == null ? srcAlpha = RenderState.Default.srcBlendAlpha : 0;
-					// dstAlpha == null ? dstAlpha = RenderState.Default.dstBlendAlpha : 0;
-
 					blendEquationRGB = blendEquationRGB ?? renderState.blendEquationRGB;
 					blendEquationAlpha = blendEquationAlpha ?? renderState.blendEquationAlpha;
 					srcRGB = srcRGB ?? renderState.srcBlendRGB;
