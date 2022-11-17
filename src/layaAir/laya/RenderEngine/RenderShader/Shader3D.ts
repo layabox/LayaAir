@@ -1,3 +1,4 @@
+import { Scene3D } from "../../d3/core/scene/Scene3D";
 import { ShaderPass } from "../../d3/shader/ShaderPass";
 import { SubShader } from "../../d3/shader/SubShader";
 import { LayaGL } from "../../layagl/LayaGL";
@@ -191,6 +192,7 @@ export class Shader3D {
                     compileDefineDatas.clear();
                     for (var i: number = 0, n: number = defineNames.length; i < n; i++)
                         compileDefineDatas.add(Shader3D.getDefineByName(defineNames[i]));
+                    compileDefineDatas.addDefineDatas(Scene3D._configDefineValues);
                     pass.withCompile(compileDefineDatas);
                 } else {
                     console.warn("Shader3D: unknown passIndex.");

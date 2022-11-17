@@ -1,27 +1,28 @@
-import { Component } from "../../components/Component";
-import { NodeFlags } from "../../Const";
-import { Loader } from "../../net/Loader";
-import { Stat } from "../../utils/Stat";
-import { AnimationClip } from "../animation/AnimationClip";
-import { AnimationEvent } from "../animation/AnimationEvent";
-import { AnimatorStateScript } from "../animation/AnimatorStateScript";
-import { KeyframeNode } from "../animation/KeyframeNode";
-import { KeyframeNodeList } from "../animation/KeyframeNodeList";
-import { Material } from "../core/material/Material";
-import { RenderableSprite3D } from "../core/RenderableSprite3D";
-import { Sprite3D } from "../core/Sprite3D";
-import { Color } from "../math/Color";
-import { Quaternion } from "../math/Quaternion";
-import { Vector2 } from "../math/Vector2";
-import { Vector3 } from "../math/Vector3";
-import { Vector4 } from "../math/Vector4";
-import { Utils3D } from "../utils/Utils3D";
+
+import { Component } from "../../../components/Component";
+import { NodeFlags } from "../../../Const";
+import { Loader } from "../../../net/Loader";
+import { Stat } from "../../../utils/Stat";
+import { AnimationClip } from "../../animation/AnimationClip";
+import { AnimatorStateScript } from "../../animation/AnimatorStateScript";
+import { KeyframeNode } from "../../animation/KeyframeNode";
+import { KeyframeNodeList } from "../../animation/KeyframeNodeList";
+import { Material } from "../../core/material/Material";
+import { RenderableSprite3D } from "../../core/RenderableSprite3D";
+import { Sprite3D } from "../../core/Sprite3D";
+import { Color } from "../../math/Color";
+import { Quaternion } from "../../math/Quaternion";
+import { Vector2 } from "../../math/Vector2";
+import { Vector3 } from "../../math/Vector3";
+import { Vector4 } from "../../math/Vector4";
+import { Utils3D } from "../../utils/Utils3D";
 import { AnimatorControllerLayer } from "./AnimatorControllerLayer";
 import { AnimatorPlayState } from "./AnimatorPlayState";
 import { AnimatorResource } from "./AnimatorResource";
 import { AnimatorState } from "./AnimatorState";
 import { AvatarMask } from "./AvatarMask";
 import { KeyframeNodeOwner, KeyFrameValueType } from "./KeyframeNodeOwner";
+import { AnimationEvent } from "../../animation/AnimationEvent";
 
 /**
  * 动画更新模式

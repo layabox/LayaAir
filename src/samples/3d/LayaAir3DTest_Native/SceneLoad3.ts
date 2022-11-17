@@ -1,5 +1,5 @@
 import { Laya } from "Laya";
-import { Animator } from "laya/d3/component/Animator";
+import { Animator } from "laya/d3/component/Animator/Animator";
 import { Camera, CameraClearFlags } from "laya/d3/core/Camera";
 import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";

@@ -1,5 +1,5 @@
 import { IResourceLoader, ILoadTask, Loader } from "../../net/Loader";
-import { AvatarMask } from "../component/AvatarMask";
+import { AvatarMask } from "../component/Animator/AvatarMask";
 
 class AvatarMaskLoader implements IResourceLoader {
     load(task: ILoadTask) {

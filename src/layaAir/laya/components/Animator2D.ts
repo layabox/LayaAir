@@ -1,5 +1,4 @@
 
-import { AnimatorUpdateMode } from "../d3/component/Animator";
 import { Stat } from "../utils/Stat";
 import { AnimatorControllerLayer2D } from "./AnimatorControllerLayer2D";
 import { AnimatorPlayState2D } from "./AnimatorPlayState2D";
@@ -9,6 +8,7 @@ import { KeyframeNode2D } from "./KeyframeNode2D";
 import { Node } from "../../laya/display/Node";
 import { ClassUtils } from "../utils/ClassUtils";
 import { Animation2DParm } from "./Animation2DParm";
+import { AnimatorUpdateMode } from "../d3/component/Animator/Animator";
 
 export class Animator2D extends Component {
     private _speed = 1;

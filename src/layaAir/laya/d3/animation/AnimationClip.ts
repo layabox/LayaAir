@@ -12,14 +12,14 @@ import { Resource } from "../../resource/Resource"
 import { Byte } from "../../utils/Byte"
 import { Handler } from "../../utils/Handler"
 import { ILaya } from "../../../ILaya";
-import { AvatarMask } from "../component/AvatarMask";
 import { WeightedMode } from "../core/Keyframe";
 import { Loader } from "../../net/Loader";
 import { Vector4 } from "../math/Vector4";
 import { Vector2Keyframe } from "../core/Vector2Keyframe";
 import { Vector2 } from "../math/Vector2";
 import { Vector4Keyframe } from "../core/Vector4Keyframe";
-import { KeyFrameValueType } from "../component/KeyframeNodeOwner";
+import { AvatarMask } from "../component/Animator/AvatarMask";
+import { KeyFrameValueType } from "../component/Animator/KeyframeNodeOwner";
 
 /**
  * <code>AnimationClip</code> 类用于动画片段资源。

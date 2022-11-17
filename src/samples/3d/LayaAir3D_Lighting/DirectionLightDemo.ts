@@ -1,6 +1,6 @@
 import { Laya } from "Laya";
-import { Animator } from "laya/d3/component/Animator";
-import { AnimatorState } from "laya/d3/component/AnimatorState";
+import { Animator } from "laya/d3/component/Animator/Animator";
+import { AnimatorState } from "laya/d3/component/Animator/AnimatorState";
 import { Camera } from "laya/d3/core/Camera";
 import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";

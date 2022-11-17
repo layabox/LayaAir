@@ -6,10 +6,10 @@ import { Stage } from "laya/display/Stage";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
-import { Animator } from "laya/d3/component/Animator";
 import { SimpleSkinnedMeshSprite3D } from "laya/d3/core/SimpleSkinnedMeshSprite3D";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 import { Color } from "laya/d3/math/Color";
+import { Animator } from "laya/d3/component/Animator/Animator";
 
 export class SimpleSkinAnimationInstance {
 	private animatorName:string[] = ["run","chongci","dead","xuli","stand"];

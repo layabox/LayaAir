@@ -1,6 +1,4 @@
 import { Laya } from "Laya";
-import { Animator } from "laya/d3/component/Animator";
-import { AnimatorState } from "laya/d3/component/AnimatorState";
 import { Camera } from "laya/d3/core/Camera";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
@@ -20,6 +18,8 @@ import { Tween } from "laya/utils/Tween";
 import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { Vector2 } from "laya/d3/math/Vector2";
+import { Animator } from "laya/d3/component/Animator/Animator";
+import { AnimatorState } from "laya/d3/component/Animator/AnimatorState";
 
 /**
  * Based upon https://github.com/bgrins/javascript-astar

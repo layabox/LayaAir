@@ -1,13 +1,14 @@
-import { AnimationClip } from "../animation/AnimationClip";
-import { AnimatorStateScript } from "../animation/AnimatorStateScript";
-import { IClone } from "../../utils/IClone";
+import { EventDispatcher } from "../../../events/EventDispatcher";
+import { IClone } from "../../../utils/IClone";
+import { AnimationClip } from "../../animation/AnimationClip";
+import { AnimatorStateScript } from "../../animation/AnimatorStateScript";
+import { KeyframeNodeList } from "../../animation/KeyframeNodeList";
+import { Quaternion } from "../../math/Quaternion";
+import { Vector2 } from "../../math/Vector2";
+import { Vector3 } from "../../math/Vector3";
+import { Vector4 } from "../../math/Vector4";
 import { KeyframeNodeOwner, KeyFrameValueType } from "./KeyframeNodeOwner";
-import { Quaternion } from "../math/Quaternion";
-import { Vector3 } from "../math/Vector3";
-import { KeyframeNodeList } from "../animation/KeyframeNodeList";
-import { Vector2 } from "../math/Vector2";
-import { Vector4 } from "../math/Vector4";
-import { EventDispatcher } from "../../events/EventDispatcher";
+
 
 /**
  * <code>AnimatorState</code> 类用于创建动作状态。

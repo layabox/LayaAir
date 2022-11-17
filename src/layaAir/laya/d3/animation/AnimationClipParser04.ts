@@ -10,10 +10,10 @@ import { Vector4 } from "../math/Vector4"
 import { AnimationClip } from "./AnimationClip";
 import { Byte } from "../../utils/Byte";
 import { HalfFloatUtils } from "../../utils/HalfFloatUtils";
-import { KeyFrameValueType } from "../component/KeyframeNodeOwner";
 import { Vector2 } from "../math/Vector2";
 import { Vector2Keyframe } from "../core/Vector2Keyframe";
 import { Vector4Keyframe } from "../core/Vector4Keyframe";
+import { KeyFrameValueType } from "../component/Animator/KeyframeNodeOwner";
 
 /**
  * @internal

@@ -1,5 +1,6 @@
-import { Vector3 } from "../math/Vector3";
-import { Quaternion } from "../math/Quaternion";
+import { Quaternion } from "../../math/Quaternion";
+import { Vector3 } from "../../math/Vector3";
+
 
 export enum KeyFrameValueType {
 	Float = 0,

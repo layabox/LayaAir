@@ -1,6 +1,6 @@
 import { Laya } from "Laya";
 import { Script } from "laya/components/Script";
-import { Animator } from "laya/d3/component/Animator";
+import { Animator } from "laya/d3/component/Animator/Animator";
 import { Camera } from "laya/d3/core/Camera";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Sprite3D } from "laya/d3/core/Sprite3D";

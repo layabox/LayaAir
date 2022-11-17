@@ -1,4 +1,4 @@
-import { KeyFrameValueType } from "../component/KeyframeNodeOwner";
+import { KeyFrameValueType } from "../component/Animator/KeyframeNodeOwner";
 import { Keyframe } from "../core/Keyframe"
 
 /**

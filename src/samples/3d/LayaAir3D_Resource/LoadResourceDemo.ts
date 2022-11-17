@@ -1,7 +1,5 @@
 import { Laya } from "Laya";
 import { AnimationClip } from "laya/d3/animation/AnimationClip";
-import { Animator } from "laya/d3/component/Animator";
-import { AnimatorState } from "laya/d3/component/AnimatorState";
 import { Camera, CameraClearFlags } from "laya/d3/core/Camera";
 import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
@@ -15,7 +13,6 @@ import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
 import { SkyBox } from "laya/d3/resource/models/SkyBox";
 import { SkyRenderer } from "laya/d3/resource/models/SkyRenderer";
 import { Stage } from "laya/display/Stage";
-import { Loader } from "laya/net/Loader";
 import { Texture2D } from "laya/resource/Texture2D";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
@@ -24,6 +21,8 @@ import { CameraMoveScript } from "../common/CameraMoveScript";
 import { Material } from "laya/d3/core/material/Material";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 import { Color } from "laya/d3/math/Color";
+import { Animator } from "laya/d3/component/Animator/Animator";
+import { AnimatorState } from "laya/d3/component/Animator/AnimatorState";
 
 /**
  * ...

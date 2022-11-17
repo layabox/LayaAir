@@ -1,9 +1,5 @@
 import { ClassUtils } from "../utils/ClassUtils";
 import { AnimationClip } from "./animation/AnimationClip";
-import { Animator } from "./component/Animator";
-import { AnimatorControllerLayer } from "./component/AnimatorControllerLayer";
-import { AnimatorState } from "./component/AnimatorState";
-import { AvatarMask } from "./component/AvatarMask";
 import { Sprite3D } from "./core/Sprite3D";
 import { Camera } from "./core/Camera";
 import { Gradient } from "./core/Gradient";
@@ -99,6 +95,10 @@ import "./loaders/AvatarMaskLoader";
 import "./loaders/ShaderLoader";
 import "./loaders/GLSLLoader";
 import { CompoundColliderShape } from "./physics/shape/CompoundColliderShape";
+import { Animator } from "./component/Animator/Animator";
+import { AnimatorControllerLayer } from "./component/Animator/AnimatorControllerLayer";
+import { AnimatorState } from "./component/Animator/AnimatorState";
+import { AvatarMask } from "./component/Animator/AvatarMask";
 
 let c = ClassUtils.regClass;
 c("Sprite3D", Sprite3D);

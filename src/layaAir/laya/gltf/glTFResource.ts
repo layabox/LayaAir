@@ -10,9 +10,7 @@ import { Mesh, skinnedMatrixCache } from "../d3/resource/models/Mesh";
 import { AnimationClip } from "../d3/animation/AnimationClip";
 import { KeyframeNode } from "../d3/animation/KeyframeNode";
 import { KeyframeNodeList } from "../d3/animation/KeyframeNodeList";
-import { Animator } from "../d3/component/Animator";
-import { AnimatorControllerLayer } from "../d3/component/AnimatorControllerLayer";
-import { AnimatorState } from "../d3/component/AnimatorState";
+
 import { MeshSprite3D } from "../d3/core/MeshSprite3D";
 import { QuaternionKeyframe } from "../d3/core/QuaternionKeyframe";
 import { SkinnedMeshRenderer } from "../d3/core/SkinnedMeshRenderer";
@@ -39,6 +37,9 @@ import { BufferUsage } from "../RenderEngine/RenderEnum/BufferTargetType";
 import { IndexFormat } from "../RenderEngine/RenderEnum/IndexFormat";
 import { Base64Tool } from "../utils/Base64Tool";
 import { HDREncodeFormat } from "../RenderEngine/RenderEnum/HDREncodeFormat";
+import { AnimatorControllerLayer } from "../d3/component/Animator/AnimatorControllerLayer";
+import { AnimatorState } from "../d3/component/Animator/AnimatorState";
+import { Animator } from "../d3/component/Animator/Animator";
 
 const maxSubBoneCount = 24;
 

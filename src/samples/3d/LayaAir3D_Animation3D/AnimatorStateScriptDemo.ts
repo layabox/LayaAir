@@ -1,6 +1,4 @@
 import { Laya } from "Laya";
-import { Animator } from "laya/d3/component/Animator";
-import { AnimatorState } from "laya/d3/component/AnimatorState";
 import { Camera } from "laya/d3/core/Camera";
 import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
@@ -21,6 +19,8 @@ import { AnimatorStateScriptTest } from "../common/AnimatorStateScriptTest";
 import Client from "../../Client";
 import { Utils } from "laya/utils/Utils";
 import { Color } from "laya/d3/math/Color";
+import { Animator } from "laya/d3/component/Animator/Animator";
+import { AnimatorState } from "laya/d3/component/Animator/AnimatorState";
 
 /**
  * ...

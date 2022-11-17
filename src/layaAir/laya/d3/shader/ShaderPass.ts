@@ -236,8 +236,9 @@ ${uniformglsl}`;
         if (Shader3D.debugMode) {
             var defStr: string = "";
             var defMask: string = "";
-            for (var i: number = 0, n: number = debugMaskLength; i < n; i++)
+            for (var i: number = 0, n: number = debugMaskLength; i < n; i++){
                 (i == n - 1) ? defMask += debugDefineMask[i] : defMask += debugDefineMask[i] + ",";
+            }
             for (var i: number = 0, n: number = debugDefineString.length; i < n; i++)
                 (i == n - 1) ? defStr += debugDefineString[i] : defStr += debugDefineString[i] + ",";
             console.log("%cLayaAir: Shader Compile Information---ShaderName:" + this._owner._owner._name + " SubShaderIndex:" + this._owner._owner._subShaders.indexOf(this._owner) + " PassIndex:" + this._owner._passes.indexOf(this) + " DefineMask:[" + defMask + "]" + " DefineNames:[" + defStr + "]", "color:green");
