@@ -1,12 +1,10 @@
-import { IClone } from "../../../utils/IClone"
-import { Vector4 } from "../../math/Vector4"
-import { Vector3 } from "../../math/Vector3";
-import { CullMode } from "../../../RenderEngine/RenderEnum/CullMode";
-import { BlendType } from "../../../RenderEngine/RenderEnum/BlendType";
-import { BlendFactor } from "../../../RenderEngine/RenderEnum/BlendFactor";
 import { BlendEquationSeparate } from "../../../RenderEngine/RenderEnum/BlendEquationSeparate";
+import { BlendFactor } from "../../../RenderEngine/RenderEnum/BlendFactor";
+import { BlendType } from "../../../RenderEngine/RenderEnum/BlendType";
 import { CompareFunction } from "../../../RenderEngine/RenderEnum/CompareFunction";
+import { CullMode } from "../../../RenderEngine/RenderEnum/CullMode";
 import { StencilOperation } from "../../../RenderEngine/RenderEnum/StencilOperation";
+import { Vector3 } from "../../math/Vector3";
 
 
 /**
@@ -117,7 +115,11 @@ export class RenderState {
 	/**递减当前模板缓冲去的值，小于0时会循环*/
 	static STENCILOP_DECR_WRAP: number = StencilOperation.DecrementWrap;
 	/**按位反转当前的模板缓冲区的值*/
-	static STENCILOP_INVERT: number = StencilOperation.Invert;;
+	static STENCILOP_INVERT: number = StencilOperation.Invert;
+
+	/** @internal */
+	static readonly Default: Readonly<RenderState> = new RenderState();
+
 	/**渲染剔除状态。*/
 	cull: number;
 	/**透明混合。*/
@@ -134,8 +136,6 @@ export class RenderState {
 	srcBlendAlpha: number;
 	/**Alpha目标混合参数,在blend为BLEND_ENABLE_SEPERATE时生效。*/
 	dstBlendAlpha: number;
-	/**混合常量颜色。*/
-	blendConstColor: Vector4;
 	/**混合方程。*/
 	blendEquation: number;
 	/**RGB混合方程。*/
@@ -167,7 +167,6 @@ export class RenderState {
 		this.dstBlendRGB = RenderState.BLENDPARAM_ZERO;
 		this.srcBlendAlpha = RenderState.BLENDPARAM_ONE;
 		this.dstBlendAlpha = RenderState.BLENDPARAM_ZERO;
-		this.blendConstColor = new Vector4(1, 1, 1, 1);
 		this.blendEquation = RenderState.BLENDEQUATION_ADD;
 		this.blendEquationRGB = RenderState.BLENDEQUATION_ADD;
 		this.blendEquationAlpha = RenderState.BLENDEQUATION_ADD;
@@ -177,6 +176,29 @@ export class RenderState {
 		this.stencilTest = RenderState.STENCILTEST_OFF;
 		this.stencilWrite = false;
 		this.stencilOp = new Vector3(RenderState.STENCILOP_KEEP, RenderState.STENCILOP_KEEP, RenderState.STENCILOP_REPLACE);
+	}
+
+	/**
+	 * @internal
+	 */
+	setNull() {
+		this.cull = null;
+		this.blend = null;
+		this.srcBlend = null;
+		this.dstBlend = null;
+		this.srcBlendRGB = null;
+		this.dstBlendRGB = null;
+		this.srcBlendAlpha = null;
+		this.dstBlendAlpha = null;
+		this.blendEquation = null;
+		this.blendEquationRGB = null;
+		this.blendEquationAlpha = null;
+		this.depthTest = null;
+		this.depthWrite = null;
+		this.stencilRef = null;
+		this.stencilTest = null;
+		this.stencilWrite = null;
+		this.stencilOp = null;
 	}
 
 

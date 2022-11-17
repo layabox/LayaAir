@@ -1,6 +1,5 @@
 import { CommandEncoder } from "../../layagl/CommandEncoder";
 import { LayaGL } from "../../layagl/LayaGL";
-import { CommandUniformMap } from "../../RenderEngine/CommandUniformMap";
 import { CullMode } from "../../RenderEngine/RenderEnum/CullMode";
 import { RenderStateType } from "../../RenderEngine/RenderEnum/RenderStateType";
 import { IRenderShaderInstance } from "../../RenderEngine/RenderInterface/IRenderShaderInstance";
@@ -9,10 +8,10 @@ import { ShaderData, ShaderDataType } from "../../RenderEngine/RenderShader/Shad
 import { ShaderVariable } from "../../RenderEngine/RenderShader/ShaderVariable";
 import { RenderStateCommand } from "../../RenderEngine/RenderStateCommand";
 import { RenderStateContext } from "../../RenderEngine/RenderStateContext";
-import { Stat } from "../../utils/Stat";
 import { ShaderCompileDefineBase } from "../../webgl/utils/ShaderCompileDefineBase";
 import { RenderState } from "../core/material/RenderState";
 import { ShaderPass } from "./ShaderPass";
+import { SubShader } from "./SubShader";
 
 /**
  * @internal
@@ -34,8 +33,6 @@ export class ShaderInstance {
 	_materialUniformParamsMap: CommandEncoder;
 	/**@internal */
 	private _customUniformParamsMap: any[] = [];
-	/**@internal */
-	private _stateParamsMap: any[] = [];
 
 	/**@internal */
 	_uploadMark: number = -1;
@@ -100,9 +97,6 @@ export class ShaderInstance {
 				this._materialUniformParamsMap.addShaderUniform(one);
 			}
 		}
-		var stateMap: { [key: string]: number } = (<ShaderPass>this._shaderPass)._stateMap;
-		for (var s in stateMap)
-			this._stateParamsMap[stateMap[s]] = Shader3D.propertyNameToID(s);
 	}
 
 
@@ -120,7 +114,6 @@ export class ShaderInstance {
 		this._spriteUniformParamsMap = null;
 		this._materialUniformParamsMap = null
 		this._customUniformParamsMap = null;
-		this._stateParamsMap = null;
 
 		this._uploadMaterial = null;
 		this._uploadRender = null;
@@ -135,11 +128,8 @@ export class ShaderInstance {
 	 * @internal
 	 */
 	private _getRenderState(shaderDatas: any, stateIndex: number): any {
-		var stateID: any = this._stateParamsMap[stateIndex];
-		if (stateID == null)
-			return null;
-		else
-			return shaderDatas[stateID];
+		var stateID: any = SubShader.StateParamsMap[stateIndex];
+		return shaderDatas[stateID];
 	}
 
 	bind() {
@@ -157,7 +147,6 @@ export class ShaderInstance {
 		var renderState: RenderState = (<ShaderPass>this._shaderPass).renderState;
 		var datas: any = shaderDatas.getData();
 
-
 		var depthWrite: any = this._getRenderState(datas, Shader3D.RENDER_STATE_DEPTH_WRITE);
 		var depthTest: any = this._getRenderState(datas, Shader3D.RENDER_STATE_DEPTH_TEST);
 		var blend: any = this._getRenderState(datas, Shader3D.RENDER_STATE_BLEND);
@@ -165,15 +154,7 @@ export class ShaderInstance {
 		var stencilTest: any = this._getRenderState(datas, Shader3D.RENDER_STATE_STENCIL_TEST);
 		var stencilWrite: any = this._getRenderState(datas, Shader3D.RENDER_STATE_STENCIL_WRITE);
 		var stencilOp: any = this._getRenderState(datas, Shader3D.RENDER_STATE_STENCIL_OP);
-		if (!(<ShaderPass>this._shaderPass).statefirst) {
-			depthWrite == null && (depthWrite = renderState.depthWrite);
-			depthTest == null && (depthTest = renderState.depthTest);
-			blend == null && (blend = renderState.blend);
-			stencilRef == null && (stencilRef = renderState.stencilRef);
-			stencilTest == null && (stencilTest = renderState.stencilTest);
-			stencilWrite == null && (stencilTest = renderState.stencilWrite);
-			stencilOp == null && (stencilOp = renderState.stencilOp);
-		} else {
+		if ((<ShaderPass>this._shaderPass).statefirst) {
 			renderState.depthWrite != null ? depthWrite = renderState.depthWrite : 0;
 			renderState.depthTest != null ? depthTest = renderState.depthTest : 0;
 			renderState.blend != null ? blend = renderState.blend : 0;
@@ -182,7 +163,23 @@ export class ShaderInstance {
 			renderState.stencilWrite != null ? stencilWrite = renderState.stencilWrite : 0;
 			renderState.stencilOp != null ? stencilOp = renderState.stencilOp : 0;
 		}
+		else {
+			depthWrite = depthWrite ?? renderState.depthWrite;
+			depthTest = depthTest ?? renderState.depthTest;
+			blend = blend ?? renderState.blend;
+			stencilRef = stencilRef ?? renderState.stencilRef;
+			stencilTest = stencilTest ?? renderState.stencilTest;
+			stencilWrite = stencilWrite ?? renderState.stencilWrite;
+			stencilOp = stencilOp ?? renderState.stencilOp;
+		}
 
+		depthWrite = depthWrite ?? RenderState.Default.depthWrite;
+		depthTest = depthTest ?? RenderState.Default.depthTest;
+		blend = blend ?? RenderState.Default.blend;
+		stencilRef = stencilRef ?? RenderState.Default.stencilRef;
+		stencilTest = stencilTest ?? RenderState.Default.stencilTest;
+		stencilWrite = stencilWrite ?? RenderState.Default.stencilWrite;
+		stencilOp = stencilOp ?? RenderState.Default.stencilOp;
 
 		RenderStateContext.setDepthMask(depthWrite);
 		if (depthTest === RenderState.DEPTHTEST_OFF)
@@ -200,15 +197,20 @@ export class ShaderInstance {
 				var blendEquation: any = this._getRenderState(datas, Shader3D.RENDER_STATE_BLEND_EQUATION);
 				var srcBlend: any = this._getRenderState(datas, Shader3D.RENDER_STATE_BLEND_SRC);
 				var dstBlend: any = this._getRenderState(datas, Shader3D.RENDER_STATE_BLEND_DST);
-				if (!(<ShaderPass>this._shaderPass).statefirst) {
-					blendEquation == null && (blendEquation = renderState.blendEquation);
-					srcBlend == null && (srcBlend = renderState.srcBlend);
-					dstBlend == null && (dstBlend = renderState.dstBlend);
-				} else {
+				if ((<ShaderPass>this._shaderPass).statefirst) {
 					renderState.blendEquation != null ? blendEquation = renderState.blendEquation : 0;
 					renderState.srcBlend != null ? srcBlend = renderState.srcBlend : 0;
 					renderState.dstBlend != null ? dstBlend = renderState.dstBlend : 0;
 				}
+				else {
+					blendEquation = blendEquation ?? renderState.blendEquation;
+					srcBlend = srcBlend ?? renderState.srcBlend;
+					dstBlend = dstBlend ?? renderState.dstBlend;
+				}
+				blendEquation = blendEquation ?? RenderState.Default.blendEquation;
+				srcBlend = srcBlend ?? RenderState.Default.srcBlend;
+				dstBlend = dstBlend ?? RenderState.Default.dstBlend;
+
 				RenderStateContext.setBlend(true);
 				RenderStateContext.setBlendEquation(blendEquation);
 				RenderStateContext.setBlendFunc(srcBlend, dstBlend);
@@ -221,21 +223,37 @@ export class ShaderInstance {
 				var dstRGB: any = this._getRenderState(datas, Shader3D.RENDER_STATE_BLEND_DST_RGB);
 				var srcAlpha: any = this._getRenderState(datas, Shader3D.RENDER_STATE_BLEND_SRC_ALPHA);
 				var dstAlpha: any = this._getRenderState(datas, Shader3D.RENDER_STATE_BLEND_DST_ALPHA);
-				if (!(<ShaderPass>this._shaderPass).statefirst) {
-					blendEquationRGB == null && (blendEquationRGB = renderState.blendEquationRGB);
-					blendEquationAlpha == null && (blendEquationAlpha = renderState.blendEquationAlpha);
-					srcRGB == null && (srcRGB = renderState.srcBlendRGB);
-					dstRGB == null && (dstRGB = renderState.dstBlendRGB);
-					srcAlpha == null && (srcAlpha = renderState.srcBlendAlpha);
-					dstAlpha == null && (dstAlpha = renderState.dstBlendAlpha);
-				} else {
-					renderState.blendEquationRGB != null ? blendEquationRGB= renderState.blendEquationRGB:0;
-					renderState.blendEquationAlpha != null ? blendEquationAlpha = renderState.blendEquationAlpha:0;
-					renderState.srcBlendRGB != null ? srcRGB = renderState.srcBlendRGB:0;
-					renderState.dstBlendRGB != null ? dstRGB = renderState.dstBlendRGB:0;
-					renderState.srcBlendAlpha != null ? srcAlpha = renderState.srcBlendAlpha:0;
-					renderState.dstBlendAlpha != null ? dstAlpha = renderState.dstBlendAlpha:0;
+				if ((<ShaderPass>this._shaderPass).statefirst) {
+					renderState.blendEquationRGB != null ? blendEquationRGB = renderState.blendEquationRGB : 0;
+					renderState.blendEquationAlpha != null ? blendEquationAlpha = renderState.blendEquationAlpha : 0;
+					renderState.srcBlendRGB != null ? srcRGB = renderState.srcBlendRGB : 0;
+					renderState.dstBlendRGB != null ? dstRGB = renderState.dstBlendRGB : 0;
+					renderState.srcBlendAlpha != null ? srcAlpha = renderState.srcBlendAlpha : 0;
+					renderState.dstBlendAlpha != null ? dstAlpha = renderState.dstBlendAlpha : 0;
 				}
+				else {
+					// blendEquationRGB == null ? blendEquationRGB = RenderState.Default.blendEquationRGB : 0;
+					// blendEquationAlpha == null ? blendEquationAlpha = RenderState.Default.blendEquationAlpha : 0;
+					// srcRGB == null ? srcRGB = RenderState.Default.srcBlendRGB : 0;
+					// dstRGB == null ? dstRGB = RenderState.Default.dstBlendRGB : 0;
+					// dstAlpha == null ? srcAlpha = RenderState.Default.srcBlendAlpha : 0;
+					// dstAlpha == null ? dstAlpha = RenderState.Default.dstBlendAlpha : 0;
+
+					blendEquationRGB = blendEquationRGB ?? renderState.blendEquationRGB;
+					blendEquationAlpha = blendEquationAlpha ?? renderState.blendEquationAlpha;
+					srcRGB = srcRGB ?? renderState.srcBlendRGB;
+					dstRGB = dstRGB ?? renderState.dstBlendRGB;
+					srcAlpha = srcAlpha ?? renderState.srcBlendAlpha;
+					dstAlpha = dstAlpha ?? renderState.dstBlendAlpha;
+				}
+
+				blendEquationRGB = blendEquationRGB ?? RenderState.Default.blendEquationRGB;
+				blendEquationAlpha = blendEquationAlpha ?? RenderState.Default.blendEquationAlpha;
+				srcRGB = srcRGB ?? RenderState.Default.srcBlendRGB;
+				dstRGB = dstRGB ?? RenderState.Default.dstBlendRGB;
+				srcAlpha = srcAlpha ?? RenderState.Default.srcBlendAlpha;
+				dstAlpha = dstAlpha ?? RenderState.Default.dstBlendAlpha;
+
 				RenderStateContext.setBlend(true);
 				RenderStateContext.setBlendEquationSeparate(blendEquationRGB, blendEquationAlpha);
 				RenderStateContext.setBlendFuncSeperate(srcRGB, dstRGB, srcAlpha, dstAlpha);
@@ -265,11 +283,14 @@ export class ShaderInstance {
 		var renderState: RenderState = (<ShaderPass>this._shaderPass).renderState;
 		var datas: any = shaderDatas.getData();
 		var cull: any = this._getRenderState(datas, Shader3D.RENDER_STATE_CULL);
-		if (!(<ShaderPass>this._shaderPass).statefirst)
-			cull == null && (cull = renderState.cull);
-		else {
+		if ((<ShaderPass>this._shaderPass).statefirst) {
 			renderState.cull ? cull = renderState.cull : 0;
 		}
+		else {
+			cull = cull ?? RenderState.Default.blend;
+		}
+
+		cull = cull ?? RenderState.Default.blend;
 
 		var forntFace: number;
 		switch (cull) {

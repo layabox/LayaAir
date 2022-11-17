@@ -57,6 +57,20 @@ export class Material extends Resource implements IClone {
     /**@internal */
     static BLEND_DST: number;
     /**@internal */
+    static BLEND_SRC_RGB: number;
+    /**@internal */
+    static BLEND_DST_RGB: number;
+    /**@internal */
+    static BLEND_SRC_ALPHA: number;
+    /**@internal */
+    static BLEND_DST_ALPHA: number;
+    /**@internal */
+    static BLEND_EQUATION: number;
+    /**@internal */
+    static BLEND_EQUATION_RGB: number;
+    /**@internal */
+    static BLEND_EQUATION_ALPHA: number;
+    /**@internal */
     static DEPTH_TEST: number;
     /**@internal */
     static DEPTH_WRITE: number;
@@ -69,7 +83,7 @@ export class Material extends Resource implements IClone {
     /**@internal */
     static STENCIL_Op: number;
 
-    
+
 
     /**材质级着色器宏定义,透明测试。*/
     static SHADERDEFINE_ALPHATEST: ShaderDefine;
@@ -96,15 +110,22 @@ export class Material extends Resource implements IClone {
         Material.BLEND = Shader3D.propertyNameToID("s_Blend");
         Material.BLEND_SRC = Shader3D.propertyNameToID("s_BlendSrc");
         Material.BLEND_DST = Shader3D.propertyNameToID("s_BlendDst");
+        Material.BLEND_SRC_RGB = Shader3D.propertyNameToID("s_BlendSrcRGB");
+        Material.BLEND_DST_RGB = Shader3D.propertyNameToID("s_BlendDstRGB");
+        Material.BLEND_SRC_ALPHA = Shader3D.propertyNameToID("s_BlendSrcAlpha");
+        Material.BLEND_DST_ALPHA = Shader3D.propertyNameToID("s_BlendDstAlpha");
+        Material.BLEND_EQUATION = Shader3D.propertyNameToID("s_BlendEquation");
+        Material.BLEND_EQUATION_RGB = Shader3D.propertyNameToID("s_BlendEquationRGB");
+        Material.BLEND_EQUATION_ALPHA = Shader3D.propertyNameToID("s_BlendEquationAlpha");
         Material.DEPTH_TEST = Shader3D.propertyNameToID("s_DepthTest");
         Material.DEPTH_WRITE = Shader3D.propertyNameToID("s_DepthWrite");
+        Material.STENCIL_Ref = Shader3D.propertyNameToID("s_StencilRef");
         Material.STENCIL_TEST = Shader3D.propertyNameToID("s_StencilTest");
         Material.STENCIL_WRITE = Shader3D.propertyNameToID("s_StencilWrite");
-        Material.STENCIL_Ref = Shader3D.propertyNameToID("s_StencilRef");
         Material.STENCIL_Op = Shader3D.propertyNameToID("s_StencilOp");
     }
-	/**@internal */
- 	private _matRenderNode:MaterialRenderMode;
+    /**@internal */
+    private _matRenderNode: MaterialRenderMode;
     /** @internal */
     _shader: Shader3D;
     /** @private */
@@ -230,6 +251,76 @@ export class Material extends Resource implements IClone {
     }
 
     /**
+     * 混合目标 alpha
+     */
+    public get blendSrcAlpha(): number {
+        return this._shaderValues.getInt(Material.BLEND_SRC_ALPHA);
+    }
+    public set blendSrcAlpha(value: number) {
+        this._shaderValues.setInt(Material.BLEND_SRC_ALPHA, value);
+    }
+
+    /**
+     * 混合原 RGB
+     */
+    public get blendSrcRGB(): number {
+        return this._shaderValues.getInt(Material.BLEND_SRC_RGB);
+    }
+    /**
+     * 混合原 RGB
+     */
+    public set blendSrcRGB(value: number) {
+        this._shaderValues.setInt(Material.BLEND_SRC_RGB, value);
+    }
+
+    public get blendDstRGB(): number {
+        return this._shaderValues.getInt(Material.BLEND_DST_RGB);
+    }
+    public set blendDstRGB(value: number) {
+        this._shaderValues.setInt(Material.BLEND_DST_RGB, value);
+    }
+
+    /**
+     * 混合目标 alpha
+     */
+    public get blendDstAlpha(): number {
+        return this._shaderValues.getInt(Material.BLEND_DST_ALPHA);
+    }
+    public set blendDstAlpha(value: number) {
+        this._shaderValues.setInt(Material.BLEND_DST_ALPHA, value);
+    }
+
+    /**
+     * 混合方程
+     */
+    public get blendEquation(): number {
+        return this._shaderValues.getInt(Material.BLEND_EQUATION);
+    }
+    public set blendEquation(value: number) {
+        this._shaderValues.setInt(Material.BLEND_EQUATION, value);
+    }
+
+    /**
+     * 混合方式 RGB
+     */
+    public get blendEquationRGB(): number {
+        return this._shaderValues.getInt(Material.BLEND_EQUATION_RGB);
+    }
+    public set blendEquationRGB(value: number) {
+        this._shaderValues.setInt(Material.BLEND_EQUATION_RGB, value);
+    }
+
+    /**
+     * 混合方式 Alpha
+     */
+    public get blendEquationAlpha(): number {
+        return this._shaderValues.getInt(Material.BLEND_EQUATION_ALPHA);
+    }
+    public set blendEquationAlpha(value: number) {
+        this._shaderValues.setInt(Material.BLEND_EQUATION_ALPHA, value);
+    }
+
+    /**
      * 深度测试方式。
      */
     get depthTest(): number {
@@ -308,7 +399,7 @@ export class Material extends Resource implements IClone {
         return shaderDefineArray;
     }
 
-   
+
 
     /**
      * 渲染模式。
@@ -372,7 +463,7 @@ export class Material extends Resource implements IClone {
     /**
      * 获得材质渲染状态
      */
-    get materialRenderMode(){
+    get materialRenderMode() {
         return this._matRenderNode;
     }
 
@@ -384,7 +475,23 @@ export class Material extends Resource implements IClone {
         this._shaderValues = LayaGL.renderOBJCreate.createShaderData(this);
         this.renderQueue = Material.RENDERQUEUE_OPAQUE;
         this.alphaTest = false;
-        this.cull = CullMode.Back;
+        this.cull = RenderState.CULL_BACK;
+        this.blend = RenderState.BLEND_DISABLE;
+        this.blendSrc = RenderState.BLENDPARAM_ONE;
+        this.blendDst = RenderState.BLENDPARAM_ZERO;
+        this.blendSrcRGB = RenderState.BLENDPARAM_ONE;
+        this.blendDstRGB = RenderState.BLENDPARAM_ZERO;
+        this.blendSrcAlpha = RenderState.BLENDPARAM_ONE;
+        this.blendDstAlpha = RenderState.BLENDPARAM_ZERO;
+        this.blendEquation = RenderState.BLENDEQUATION_ADD;
+        this.blendEquationRGB = RenderState.BLENDEQUATION_ADD;
+        this.blendEquationAlpha = RenderState.BLENDEQUATION_ADD;
+        this.depthTest = RenderState.DEPTHTEST_LEQUAL;
+        this.depthWrite = true;
+        this.stencilRef = 1;
+        this.stencilTest = RenderState.STENCILTEST_OFF;
+        this.stencilWrite = false;
+        this.stencilOp = new Vector3(RenderState.STENCILOP_KEEP, RenderState.STENCILOP_KEEP, RenderState.STENCILOP_REPLACE);
         this.destoryedImmediately = false;
     }
 
@@ -740,11 +847,11 @@ export class Material extends Resource implements IClone {
         return this._shaderValues._defineDatas;
     }
 
-    oldparseEndEvent(){
+    oldparseEndEvent() {
         //TODO
     }
 
-    
+
 }
 
 

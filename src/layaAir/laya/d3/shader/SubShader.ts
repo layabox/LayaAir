@@ -17,8 +17,12 @@ export type AttributeMapType = { [name: string]: [number, ShaderDataType] };
  * <code>SubShader</code> 类用于创建SubShader。
  */
 export class SubShader {
-    public static DefaultShaderStateMap: any;
     public static IncludeUniformMap: any;
+
+    /**
+     * @internal
+     */
+    public static StateParamsMap: { [stateID: number]: number };
 
     /**
      * 注册glsl所用到的Uniform
@@ -49,18 +53,30 @@ export class SubShader {
     }
 
     static __init__() {
-        SubShader.DefaultShaderStateMap = {
+        let DefaultShaderStateMap: { [s: string]: number } = {
             's_Cull': Shader3D.RENDER_STATE_CULL,
             's_Blend': Shader3D.RENDER_STATE_BLEND,
             's_BlendSrc': Shader3D.RENDER_STATE_BLEND_SRC,
             's_BlendDst': Shader3D.RENDER_STATE_BLEND_DST,
+            's_BlendSrcRGB': Shader3D.RENDER_STATE_BLEND_SRC_RGB,
+            's_BlendDstRGB': Shader3D.RENDER_STATE_BLEND_DST_RGB,
+            's_BlendSrcAlpha': Shader3D.RENDER_STATE_BLEND_SRC_ALPHA,
+            's_BlendDstAlpha': Shader3D.RENDER_STATE_BLEND_DST_ALPHA,
+            's_BlendEquation': Shader3D.RENDER_STATE_BLEND_EQUATION,
+            's_BlendEquationRGB': Shader3D.RENDER_STATE_BLEND_EQUATION_RGB,
+            's_BlendEquationAlpha': Shader3D.RENDER_STATE_BLEND_EQUATION_ALPHA,
             's_DepthTest': Shader3D.RENDER_STATE_DEPTH_TEST,
             's_DepthWrite': Shader3D.RENDER_STATE_DEPTH_WRITE,
+            's_StencilRef': Shader3D.RENDER_STATE_STENCIL_REF,
             's_StencilTest': Shader3D.RENDER_STATE_STENCIL_TEST,
             's_StencilWrite': Shader3D.RENDER_STATE_STENCIL_WRITE,
-            's_StencilRef': Shader3D.RENDER_STATE_STENCIL_REF,
             's_StencilOp': Shader3D.RENDER_STATE_STENCIL_OP
         }
+        this.StateParamsMap = {};
+        for (let s in DefaultShaderStateMap) {
+            this.StateParamsMap[DefaultShaderStateMap[s]] = Shader3D.propertyNameToID(s);
+        }
+
         SubShader.IncludeUniformMap = {};
     }
 
@@ -160,12 +176,12 @@ export class SubShader {
      * @param stateMap 
      * @param pipelineMode 渲染管线模式。 
      */
-    addShaderPass(vs: string, ps: string, pipelineMode: string = "Forward", stateMap: { [key: string]: number } = SubShader.DefaultShaderStateMap): ShaderPass {
-        return this._addShaderPass(ShaderCompile.compile(vs, ps), pipelineMode, stateMap);
+    addShaderPass(vs: string, ps: string, pipelineMode: string = "Forward"): ShaderPass {
+        return this._addShaderPass(ShaderCompile.compile(vs, ps), pipelineMode);
     }
 
-    _addShaderPass(compiledObj: IShaderCompiledObj, pipelineMode: string = "Forward", stateMap: { [key: string]: number } = SubShader.DefaultShaderStateMap): ShaderPass {
-        var shaderPass: ShaderPass = new ShaderPass(this, compiledObj, stateMap);
+    _addShaderPass(compiledObj: IShaderCompiledObj, pipelineMode: string = "Forward"): ShaderPass {
+        var shaderPass: ShaderPass = new ShaderPass(this, compiledObj);
         shaderPass._pipelineMode = pipelineMode;
         this._passes.push(shaderPass);
         this._addIncludeUniform(compiledObj.includeNames);

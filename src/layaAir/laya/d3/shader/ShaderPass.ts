@@ -25,14 +25,12 @@ export class ShaderPass extends ShaderCompileDefineBase {
     /** @internal */
     private static _debugDefineMasks: number[] = [];
     /** @internal */
-    _stateMap: { [key: string]: number };
-    /** @internal */
     private _renderState: RenderState;
     /** @internal */
     _tags: any = {};
     /** @internal */
     _pipelineMode: string;
-    /**设置这个参数，会优先ShaderPass设置的渲染状态 */
+    /** 优先 ShaderPass 渲染状态 */
     statefirst: boolean = false;
 
     /**
@@ -42,10 +40,10 @@ export class ShaderPass extends ShaderCompileDefineBase {
         return this._renderState;
     }
 
-    constructor(owner: SubShader, compiledObj: IShaderCompiledObj, stateMap: { [key: string]: number }) {
+    constructor(owner: SubShader, compiledObj: IShaderCompiledObj) {
         super(owner, null, compiledObj);
-        this._stateMap = stateMap;
         this._renderState = LayaGL.renderOBJCreate.createRenderState();
+        this._renderState.setNull();
     }
 
     /**
