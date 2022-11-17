@@ -34,7 +34,7 @@ export class EnvironmentalReflection {
 		var scene: Scene3D = new Scene3D();
 		Laya.stage.addChild(scene);
 		//设置场景的反射模式(全局有效)
-		scene.reflectionIntensity = 1.0;
+		scene.sceneReflectionProb.reflectionIntensity = 1.0;
 		//初始化照相机
 		var camera: Camera = <Camera>scene.addChild(new Camera(0, 0.1, 100));
 		camera.transform.translate(new Vector3(0, 2, 3));
@@ -53,7 +53,7 @@ export class EnvironmentalReflection {
 			//设置天空盒材质
 			skyRenderer.material = mat;
 			//设置场景的反射贴图
-			scene.reflection = mat.textureCube;
+			scene.sceneReflectionProb.reflectionTexture = mat.textureCube;
 			//设置曝光强度
 			mat.exposure = 0.6 + 1;
 		}));
