@@ -725,6 +725,7 @@ export class Transform3D extends EventDispatcher {
 			} else {
 				Vector3.subtract(this.localPosition, target, Transform3D._tempVector30);
 				Quaternion.rotationLookAt(Transform3D._tempVector30, up, this.localRotation);
+				this._localRotation.invert(this._localRotation);
 			}
 
 			this.localRotation = this._localRotation;
@@ -739,6 +740,7 @@ export class Transform3D extends EventDispatcher {
 			} else {
 				Vector3.subtract(this.position, target, Transform3D._tempVector30);
 				Quaternion.rotationLookAt(Transform3D._tempVector30, up, this._rotation);
+				this._rotation.invert(this._rotation);
 			}
 			this.rotation = this._rotation;
 		}
