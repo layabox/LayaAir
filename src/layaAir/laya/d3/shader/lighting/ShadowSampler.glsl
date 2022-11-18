@@ -32,7 +32,12 @@ varying vec4 v_ShadowCoord;
 TEXTURE2D_SHADOW(u_ShadowMap);
 uniform vec4 u_ShadowMapSize;
 
+#ifdef SHADOW_CASCADE
 const int c_MaxCascadeCount = 4;
+#else //SHADOW_CASCADE
+const int c_MaxCascadeCount = 1;
+#endif//SHADOW_CASCADE
+
 uniform mat4 u_ShadowMatrices[c_MaxCascadeCount];
 uniform vec4 u_ShadowSplitSpheres[c_MaxCascadeCount];
 	#endif // SHADOW
@@ -85,6 +90,7 @@ float sampleShdowMapFiltered9(TEXTURE2D_SHADOW_PARAM(shadowMap), vec3 shadowCoor
     // 计算平行光阴影
     #if defined(CALCULATE_SHADOWS)
 
+#ifdef SHADOW_CASCADE
 // 平行光阴影级联索引
 mediump int computeCascadeIndex(in vec3 positionWS)
 {
@@ -103,6 +109,7 @@ mediump int computeCascadeIndex(in vec3 positionWS)
     mediump int index = 4 - int(dot(comparison, indexCoefficient));
     return index;
 }
+#endif
 
 // 平行光阴影坐标
 vec4 getShadowCoord(in vec3 positionWS)

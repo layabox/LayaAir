@@ -539,6 +539,29 @@ export class Scene3D extends Sprite implements ISubmit {
        this._sceneReflectionProb.ambientColor = value;
     }
 
+    
+	/**
+	 * 设置环境漫反射的强度
+	 */
+	get ambientIntensity(): number {
+		return this._sceneReflectionProb.ambientIntensity;
+	}
+
+	set ambientIntensity(value: number) {
+		this._sceneReflectionProb.ambientIntensity = value;
+	}
+
+	/**
+	 * 设置反射探针强度
+	 */
+	get reflectionIntensity(): number {
+		return this._sceneReflectionProb.reflectionIntensity;
+	}
+
+	set reflectionIntensity(value: number) {
+		this._sceneReflectionProb.reflectionIntensity = value;
+	}
+
     /**
      * ambient sh
      */

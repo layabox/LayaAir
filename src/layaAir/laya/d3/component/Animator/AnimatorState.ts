@@ -7,9 +7,10 @@ import { Quaternion } from "../../math/Quaternion";
 import { Vector2 } from "../../math/Vector2";
 import { Vector3 } from "../../math/Vector3";
 import { Vector4 } from "../../math/Vector4";
+import { AnimatorTransition } from "./AnimatorTransition";
 import { KeyframeNodeOwner, KeyFrameValueType } from "./KeyframeNodeOwner";
 
-
+type AnimatorParams = { [key: number]: number | boolean };
 /**
  * <code>AnimatorState</code> 类用于创建动作状态。
  */
@@ -34,6 +35,12 @@ export class AnimatorState extends EventDispatcher implements IClone {
     _realtimeDatas: Array<number | Vector3 | Quaternion> = [];
     /** @internal */
     _scripts: AnimatorStateScript[] | null = null;
+    /**@internal 过渡列表*/
+    _transitions:AnimatorTransition[] = [];
+    /**@internal 优先过渡列表only play this transition */
+    _soloTransitions:AnimatorTransition[] = [];
+    
+    
 
     /**名称。*/
     name: string;
@@ -93,12 +100,39 @@ export class AnimatorState extends EventDispatcher implements IClone {
     }
 
     /**
+     * IDE
+     */
+    get transitions(){
+        return this._transitions;
+    }
+
+    set transitions(value:AnimatorTransition[]){
+        this._transitions = value;
+    }
+
+    /**
+     * IDE
+     */
+    get soloTransitions(){
+        return this._soloTransitions;
+    }
+
+    set soloTransitions(value:AnimatorTransition[]){
+        this._soloTransitions = value
+    }
+
+
+
+    /**
      * 创建一个 <code>AnimatorState</code> 实例。
      */
     constructor() {
         super();
     }
 
+    /**
+     * @internal
+     */
     _eventStart() {
         this.event(AnimatorState.EVENT_OnStateEnter);
         if (this._scripts) {
@@ -107,6 +141,9 @@ export class AnimatorState extends EventDispatcher implements IClone {
         }
     }
 
+    /**
+     * @internal
+     */
     _eventExit() {
         this.event(AnimatorState.EVENT_OnStateExit);
         if (this._scripts) {
@@ -116,6 +153,9 @@ export class AnimatorState extends EventDispatcher implements IClone {
         }
     }
 
+    /**
+     * @internal
+     */
     _eventStateUpdate(value: number) {
         this.event(AnimatorState.EVENT_OnStateUpdate, value);
         if (this._scripts) {
@@ -124,6 +164,34 @@ export class AnimatorState extends EventDispatcher implements IClone {
         }
     }
 
+    /**
+     * 派发过渡事件
+     * @internal
+     * @param normalizeTime 
+     * @param paramsMap 
+     */
+    _eventtransition(normalizeTime:number,paramsMap:AnimatorParams):AnimatorTransition{
+        let soloNums = this._soloTransitions.length;
+        if(soloNums>0){
+            for(var i = 0;i<soloNums;i++){
+                if(this._soloTransitions[i].check(normalizeTime,paramsMap))
+                    return this._soloTransitions[i];
+            }
+            return null;
+        }
+        let transNums = this._transitions.length;
+        for(var i = 0;i<transNums;i++){
+            if(this._transitions[i].check(normalizeTime,paramsMap))
+                return this._transitions[i];
+        }
+        return null;
+    }
+
+    
+
+    /**
+     * @internal
+     */
     _getReferenceCount(): number {
         return this._referenceCount;
     }
