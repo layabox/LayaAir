@@ -28,10 +28,13 @@ export class NativeShaderInstance/* extends ShaderInstance */ {
 			pConchAttributeMap.setAttributeValue(k, attributeMap[k][0]);
 		}
 
-		var stateMap: { [key: string]: number } = (<ShaderPass>shaderPass)._stateMap;
-		for (var s in stateMap) {
-			pConchAttributeMap.setStateValue(stateMap[s], Shader3D.propertyNameToID(s));
-		}
+		/**
+		 * todo: shaderpass 删除了 stateMap 报错 
+		 */
+		// var stateMap: { [key: string]: number } = (<ShaderPass>shaderPass)._stateMap;
+		// for (var s in stateMap) {
+		// 	pConchAttributeMap.setStateValue(stateMap[s], Shader3D.propertyNameToID(s));
+		// }
 		var renderState: any = (<ShaderPass>shaderPass).renderState;
 		this._nativeObj = new (window as any).conchShaderInstance((LayaGL.renderEngine as any)._nativeObj, vs, ps, pConchAttributeMap, renderState._nativeObj);
 	}

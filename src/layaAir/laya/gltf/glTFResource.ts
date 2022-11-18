@@ -183,9 +183,16 @@ export class glTFResource extends Prefab {
             }
         });
 
-        this._pendingOps.unshift(promise);
-        return Promise.all(this._pendingOps).then(() => {
-            this._idCounter = null;
+        return promise.then(() => {
+            if (this._pendingOps.length > 0) {
+                return Promise.all(this._pendingOps).then(() => {
+                    this._idCounter = null;
+                });
+            }
+            else {
+                this._idCounter = null;
+                return Promise.resolve();
+            }
         });
     }
 
@@ -499,7 +506,7 @@ export class glTFResource extends Prefab {
             wrapModeV: this.getTextureWrapMode(glTFSampler.wrapT),
             // todo aniso值 设置 默认值 ?
             anisoLevel: 16,
-            hdrEncodeFormat:HDREncodeFormat.NONE
+            hdrEncodeFormat: HDREncodeFormat.NONE
         };
         return propertyParams;
     }
