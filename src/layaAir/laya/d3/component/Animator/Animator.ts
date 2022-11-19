@@ -25,8 +25,9 @@ import { KeyframeNodeOwner, KeyFrameValueType } from "./KeyframeNodeOwner";
 import { AnimationEvent } from "../../animation/AnimationEvent";
 import { AnimatorStateCondition } from "./AnimatorStateCondition";
 import { AnimatorTransition } from "./AnimatorTransition";
+import { AnimatorController } from "./AnimatorController";
 
-type AnimatorParams = { [key: number]: number | boolean };
+export type AnimatorParams = { [key: number]: number | boolean };
 
 /**
  * 动画更新模式
@@ -97,6 +98,20 @@ export class Animator extends Component {
     /**@internal	[NATIVE]*/
     _animationNodeParentIndices: Int16Array;
 
+
+
+    _controller: AnimatorController;
+
+
+    set controller(val: AnimatorController) {
+        this._controller = val;
+    }
+    get controller() {
+        return this._controller;
+    }
+
+
+
     /**
      * 动画的播放速度,1.0为正常播放速度。
      */
@@ -108,6 +123,10 @@ export class Animator extends Component {
     set speed(value: number) {
         this._speed = value;
     }
+
+
+
+
 
     /**
      * 设置更新模式
@@ -126,7 +145,7 @@ export class Animator extends Component {
     get controllerLayerCount(): number {
         return this._controllerLayers.length;
     }
-    
+
     /**
      * 状态机参数map
      */
@@ -262,7 +281,7 @@ export class Animator extends Component {
     /**
      * @internal
      */
-    private _updatePlayer(animatorState: AnimatorState, playState: AnimatorPlayState, elapsedTime: number, islooping: boolean,layerIndex:number): void {
+    private _updatePlayer(animatorState: AnimatorState, playState: AnimatorPlayState, elapsedTime: number, islooping: boolean, layerIndex: number): void {
         var clipDuration: number = animatorState._clip!._duration * (animatorState.clipEnd - animatorState.clipStart);
         var lastElapsedTime: number = playState._elapsedTime;
         var elapsedPlaybackTime: number = lastElapsedTime + elapsedTime;
@@ -279,21 +298,21 @@ export class Animator extends Component {
             playState._normalizedPlayTime = 1.0;
             return;
         }
-        
+
         animatorState._eventStateUpdate(playState._normalizedPlayTime);
-        this._applyTransition(layerIndex,animatorState._eventtransition(playState._normalizedPlayTime,this.animatorParams)) ;
+        this._applyTransition(layerIndex, animatorState._eventtransition(playState._normalizedPlayTime, this.animatorParams));
     }
-    
+
     /**
      * 启用过渡
      * @param layerindex 
      * @param transition 
      * @returns 
      */
-    private _applyTransition(layerindex:number,transition:AnimatorTransition){
-        if(!transition)
+    private _applyTransition(layerindex: number, transition: AnimatorTransition) {
+        if (!transition)
             return;
-        this.crossFade(transition.destState.name,transition.transduration,layerindex,transition.transstartoffset);
+        this.crossFade(transition.destState.name, transition.transduration, layerindex, transition.transstartoffset);
     }
 
     /**
@@ -1249,7 +1268,7 @@ export class Animator extends Component {
                     var clip: AnimationClip = animatorState._clip!;
                     var speed: number = this._speed * animatorState.speed;
                     var finish: boolean = playStateInfo._finish;//提前取出finish,防止最后一帧跳过
-                    finish || this._updatePlayer(animatorState, playStateInfo, delta * speed, clip.islooping,i);
+                    finish || this._updatePlayer(animatorState, playStateInfo, delta * speed, clip.islooping, i);
                     if (needRender) {
                         var addtive: boolean = controllerLayer.blendingMode !== AnimatorControllerLayer.BLENDINGMODE_OVERRIDE;
                         this._updateClipDatas(animatorState, addtive, playStateInfo, controllerLayer.avatarMask);//clipDatas为逐动画文件,防止两个使用同一动画文件的Animator数据错乱,即使动画停止也要updateClipDatas
@@ -1268,7 +1287,7 @@ export class Animator extends Component {
                     var crossClipDuration: number = crossClip._duration - startPlayTime;
                     var crossScale: number = crossDuratuion > crossClipDuration ? crossClipDuration / crossDuratuion : 1.0;//如果过度时间大于过度动作时间,则减慢速度
                     var crossSpeed: number = this._speed * crossState.speed;
-                    this._updatePlayer(crossState, crossPlayStateInfo, delta * crossScale * crossSpeed, crossClip.islooping,i);
+                    this._updatePlayer(crossState, crossPlayStateInfo, delta * crossScale * crossSpeed, crossClip.islooping, i);
                     var crossWeight: number = ((crossPlayStateInfo._elapsedTime - startPlayTime) / crossScale) / crossDuratuion;
                     var needUpdateFinishcurrentState = false;
                     if (crossWeight >= 1.0) {
@@ -1284,7 +1303,7 @@ export class Animator extends Component {
                         if (!playStateInfo._finish) {
                             speed = this._speed * animatorState.speed;
                             needUpdateFinishcurrentState = true;
-                            this._updatePlayer(animatorState, playStateInfo, delta * speed, clip.islooping,i);
+                            this._updatePlayer(animatorState, playStateInfo, delta * speed, clip.islooping, i);
                             if (needRender)
                                 this._updateClipDatas(animatorState, addtive, playStateInfo, controllerLayer.avatarMask);
                         }
@@ -1308,7 +1327,7 @@ export class Animator extends Component {
                     crossClipDuration = crossClip._duration - startPlayTime;
                     crossScale = crossDuratuion > crossClipDuration ? crossClipDuration / crossDuratuion : 1.0;//如果过度时间大于过度动作时间,则减慢速度
                     crossSpeed = this._speed * crossState.speed;
-                    this._updatePlayer(crossState, crossPlayStateInfo, delta * crossScale * crossSpeed, crossClip.islooping,i);
+                    this._updatePlayer(crossState, crossPlayStateInfo, delta * crossScale * crossSpeed, crossClip.islooping, i);
                     if (needRender) {
                         crossWeight = ((crossPlayStateInfo._elapsedTime - startPlayTime) / crossScale) / crossDuratuion;
                         if (crossWeight >= 1.0) {
