@@ -120,6 +120,7 @@ export class ReflectionProbe extends Volume {
 		this._updateMark = Scene3D._updateMark;
 	}
 
+
 	/**
 	 * 获得反射探针的包围盒
 	 */
@@ -144,7 +145,7 @@ export class ReflectionProbe extends Volume {
 	 * 包围盒 min
 	 */
 	set boundsMin(value: Vector3) {
-		super.boundsMax = value;
+		super.boundsMin = value;
 		if (this.boxProjection)
 			this._updateMark = Scene3D._updateMark;
 	}
