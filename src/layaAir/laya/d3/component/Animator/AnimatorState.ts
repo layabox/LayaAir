@@ -7,10 +7,10 @@ import { Quaternion } from "../../math/Quaternion";
 import { Vector2 } from "../../math/Vector2";
 import { Vector3 } from "../../math/Vector3";
 import { Vector4 } from "../../math/Vector4";
+import { AnimatorParams } from "./Animator";
 import { AnimatorTransition } from "./AnimatorTransition";
 import { KeyframeNodeOwner, KeyFrameValueType } from "./KeyframeNodeOwner";
 
-type AnimatorParams = { [key: number]: number | boolean };
 /**
  * <code>AnimatorState</code> 类用于创建动作状态。
  */
@@ -36,11 +36,11 @@ export class AnimatorState extends EventDispatcher implements IClone {
     /** @internal */
     _scripts: AnimatorStateScript[] | null = null;
     /**@internal 过渡列表*/
-    _transitions:AnimatorTransition[] = [];
+    _transitions: AnimatorTransition[] = [];
     /**@internal 优先过渡列表only play this transition */
-    _soloTransitions:AnimatorTransition[] = [];
-    
-    
+    _soloTransitions: AnimatorTransition[] = [];
+
+
 
     /**名称。*/
     name: string;
@@ -102,22 +102,22 @@ export class AnimatorState extends EventDispatcher implements IClone {
     /**
      * IDE
      */
-    get transitions(){
+    get transitions() {
         return this._transitions;
     }
 
-    set transitions(value:AnimatorTransition[]){
+    set transitions(value: AnimatorTransition[]) {
         this._transitions = value;
     }
 
     /**
      * IDE
      */
-    get soloTransitions(){
+    get soloTransitions() {
         return this._soloTransitions;
     }
 
-    set soloTransitions(value:AnimatorTransition[]){
+    set soloTransitions(value: AnimatorTransition[]) {
         this._soloTransitions = value
     }
 
@@ -170,24 +170,24 @@ export class AnimatorState extends EventDispatcher implements IClone {
      * @param normalizeTime 
      * @param paramsMap 
      */
-    _eventtransition(normalizeTime:number,paramsMap:AnimatorParams):AnimatorTransition{
+    _eventtransition(normalizeTime: number, paramsMap: AnimatorParams): AnimatorTransition {
         let soloNums = this._soloTransitions.length;
-        if(soloNums>0){
-            for(var i = 0;i<soloNums;i++){
-                if(this._soloTransitions[i].check(normalizeTime,paramsMap))
+        if (soloNums > 0) {
+            for (var i = 0; i < soloNums; i++) {
+                if (this._soloTransitions[i].check(normalizeTime, paramsMap))
                     return this._soloTransitions[i];
             }
             return null;
         }
         let transNums = this._transitions.length;
-        for(var i = 0;i<transNums;i++){
-            if(this._transitions[i].check(normalizeTime,paramsMap))
+        for (var i = 0; i < transNums; i++) {
+            if (this._transitions[i].check(normalizeTime, paramsMap))
                 return this._transitions[i];
         }
         return null;
     }
 
-    
+
 
     /**
      * @internal
