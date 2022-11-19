@@ -63,8 +63,8 @@ export class ReflectionProbe extends Volume {
 		this._type = VolumeManager.ReflectionProbeVolumeType;
 		this._ambientIntensity = 1.0;
 		this._reflectionIntensity = 1.0;
-		this.boundsMax = new Vector3(5,5,5);
-		this.boundsMin = new Vector3(-5,-5,-5);
+		this.boundsMax = new Vector3(5, 5, 5);
+		this.boundsMin = new Vector3(-5, -5, -5);
 	}
 
 
@@ -139,8 +139,6 @@ export class ReflectionProbe extends Volume {
 	get boundsMax(): Vector3 {
 		return this._primitiveBounds.getMax();
 	}
-
-
 
 	/**
 	 * 包围盒 min
