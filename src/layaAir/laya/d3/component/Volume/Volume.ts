@@ -149,7 +149,7 @@ export class Volume extends Component {
     }
 
     _reCaculateBoundBox() {
-        this._primitiveBounds._tranform((this.owner as Sprite3D).transform.worldMatrix, this._bounds);
+        this.owner&& this._primitiveBounds._tranform((this.owner as Sprite3D).transform.worldMatrix, this._bounds);
     }
 
     /**
