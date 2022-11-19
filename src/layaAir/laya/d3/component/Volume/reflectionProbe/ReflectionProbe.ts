@@ -37,11 +37,6 @@ export class ReflectionProbe extends Volume {
 	protected _bounds: Bounds;
 	/** 探针重要度 */
 	protected _importance: number;
-
-	// /** 包围盒大小 */
-	// private _size: Vector3 = new Vector3();
-	// /** 包围盒偏移 */
-	// private _offset: Vector3 = new Vector3();
 	/**漫反射顔色 */
 	private _ambientColor: Color = new Color();
 	/**漫反射SH */
@@ -68,6 +63,8 @@ export class ReflectionProbe extends Volume {
 		this._type = VolumeManager.ReflectionProbeVolumeType;
 		this._ambientIntensity = 1.0;
 		this._reflectionIntensity = 1.0;
+		this.boundsMax = new Vector3(5,5,5);
+		this.boundsMin = new Vector3(-5,-5,-5);
 	}
 
 
@@ -131,36 +128,31 @@ export class ReflectionProbe extends Volume {
 	}
 
 	/**
-	 * 包围盒
-	 * @internal
-	 */
-	set bounds(value: Bounds) {
-		this._bounds = value;
-	}
-
-	get boundsMax(): Vector3 {
-		return this._bounds.getMax();
-	}
-
-	/**
 	 * 包围盒 max
 	 */
 	set boundsMax(value: Vector3) {
-		this._bounds.setMax(value);
+		super.boundsMax = value;
 		if (this.boxProjection)
 			this._updateMark = Scene3D._updateMark;
 	}
+
+	get boundsMax(): Vector3 {
+		return this._primitiveBounds.getMax();
+	}
+
+
 
 	/**
 	 * 包围盒 min
 	 */
 	set boundsMin(value: Vector3) {
-		this._bounds.setMin(value);
+		super.boundsMax = value;
 		if (this.boxProjection)
 			this._updateMark = Scene3D._updateMark;
 	}
+
 	get boundsMin(): Vector3 {
-		return this._bounds.getMin();
+		return this._primitiveBounds.getMin();
 	}
 
 	/**
@@ -208,9 +200,9 @@ export class ReflectionProbe extends Volume {
 		this._ambientMode = value;
 		if (!this.ambientSH) {
 			if (value == AmbientMode.SphericalHarmonics) {
-				this._ambientSphericalHarmonics&&this._applySHCoefficients(this._ambientSphericalHarmonics, 2.2);
+				this._ambientSphericalHarmonics && this._applySHCoefficients(this._ambientSphericalHarmonics, 2.2);
 			} else if (value == AmbientMode.TripleColor) {
-				this._ambientTripleColorSphericalHarmonics&&this._applySHCoefficients(this._ambientTripleColorSphericalHarmonics, 1.0);
+				this._ambientTripleColorSphericalHarmonics && this._applySHCoefficients(this._ambientTripleColorSphericalHarmonics, 1.0);
 			}
 		}
 		this._updateMark = Scene3D._updateMark;
@@ -253,29 +245,29 @@ export class ReflectionProbe extends Volume {
 		} else {
 			shaderData.addDefine(Sprite3DRenderDeclaration.SHADERDEFINE_SPECCUBE_BOX_PROJECTION);
 			shaderData.setShaderData(RenderableSprite3D.REFLECTIONCUBE_PROBEPOSITION, ShaderDataType.Vector3, this.probePosition);
-			shaderData.setShaderData(RenderableSprite3D.REFLECTIONCUBE_PROBEBOXMAX, ShaderDataType.Vector3, this.boundsMax);
-			shaderData.setShaderData(RenderableSprite3D.REFLECTIONCUBE_PROBEBOXMIN, ShaderDataType.Vector3, this.boundsMin);
+			shaderData.setShaderData(RenderableSprite3D.REFLECTIONCUBE_PROBEBOXMAX, ShaderDataType.Vector3, this._bounds.getMax());
+			shaderData.setShaderData(RenderableSprite3D.REFLECTIONCUBE_PROBEBOXMIN, ShaderDataType.Vector3, this._bounds.getMin());
 
 		}
 		if (this.ambientMode == AmbientMode.SolidColor) {
 			shaderData.removeDefine(Sprite3DRenderDeclaration.SHADERDEFINE_GI_LEGACYIBL);
 			shaderData.removeDefine(Sprite3DRenderDeclaration.SHADERDEFINE_GI_IBL);
 			shaderData.setColor(RenderableSprite3D.AMBIENTCOLOR, this.ambientColor);
-		} else if (this.iblTex&&this.ambientSH) {
+		} else if (this.iblTex && this.ambientSH) {
 			shaderData.addDefine(Sprite3DRenderDeclaration.SHADERDEFINE_GI_IBL);
 			shaderData.removeDefine(Sprite3DRenderDeclaration.SHADERDEFINE_GI_LEGACYIBL);
 			this.iblTex && shaderData.setTexture(RenderableSprite3D.IBLTEX, this.iblTex);
 			this.iblTexRGBD ? shaderData.addDefine(Sprite3DRenderDeclaration.SHADERDEFINE_IBL_RGBD) : shaderData.removeDefine(Sprite3DRenderDeclaration.SHADERDEFINE_IBL_RGBD);
 			this.ambientSH && shaderData.setBuffer(RenderableSprite3D.AMBIENTSH, this.ambientSH);
-		} else{//Legency
+		} else {//Legency
 			shaderData.removeDefine(Sprite3DRenderDeclaration.SHADERDEFINE_GI_IBL);
 			shaderData.addDefine(Sprite3DRenderDeclaration.SHADERDEFINE_GI_LEGACYIBL);
-			if (this._reflectionTexture){
+			if (this._reflectionTexture) {
 				shaderData.setShaderData(RenderableSprite3D.REFLECTIONTEXTURE, ShaderDataType.TextureCube, this.reflectionTexture);
 				shaderData.setShaderData(RenderableSprite3D.REFLECTIONCUBE_HDR_PARAMS, ShaderDataType.Vector4, this.reflectionHDRParams);
 			}
-			
-			if (this._shCoefficients){
+
+			if (this._shCoefficients) {
 				shaderData.setVector(RenderableSprite3D.AMBIENTSHAR, this._shCoefficients[0]);
 				shaderData.setVector(RenderableSprite3D.AMBIENTSHAG, this._shCoefficients[1]);
 				shaderData.setVector(RenderableSprite3D.AMBIENTSHAB, this._shCoefficients[2]);
@@ -284,10 +276,10 @@ export class ReflectionProbe extends Volume {
 				shaderData.setVector(RenderableSprite3D.AMBIENTSHBB, this._shCoefficients[5]);
 				shaderData.setVector(RenderableSprite3D.AMBIENTSHC, this._shCoefficients[6]);
 			}
-			
+
 		}
-		shaderData.setNumber(RenderableSprite3D.AMBIENTINTENSITY,this.ambientIntensity);
-		shaderData.setNumber(RenderableSprite3D.REFLECTIONINTENSITY,this.reflectionIntensity);
+		shaderData.setNumber(RenderableSprite3D.AMBIENTINTENSITY, this.ambientIntensity);
+		shaderData.setNumber(RenderableSprite3D.REFLECTIONINTENSITY, this.reflectionIntensity);
 	}
 
 	/**
