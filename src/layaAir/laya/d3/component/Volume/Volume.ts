@@ -111,7 +111,7 @@ export class Volume extends Component {
      * @override
      */
     protected _onEnable(): void {
-        (this.owner as Sprite3D).transform.on(Event.TRANSFORM_CHANGED, this._VolumeChange);
+        (this.owner as Sprite3D).transform.on(Event.TRANSFORM_CHANGED, this, this._VolumeChange);
         this._volumeManager = ((this.owner as Sprite3D).scene as Scene3D)._volumeManager;
         this._volumeManager.add(this);
         this._reCaculateBoundBox();
@@ -122,7 +122,7 @@ export class Volume extends Component {
      * @override
      */
     protected _onDisable(): void {
-        (this.owner as Sprite3D).transform.off(Event.TRANSFORM_CHANGED, this._VolumeChange);
+        (this.owner as Sprite3D).transform.off(Event.TRANSFORM_CHANGED, this, this._VolumeChange);
         this._volumeManager.remove(this);
     }
 
@@ -151,7 +151,7 @@ export class Volume extends Component {
     }
 
     _reCaculateBoundBox() {
-        this.owner&& this._primitiveBounds._tranform((this.owner as Sprite3D).transform.worldMatrix, this._bounds);
+        this.owner && this._primitiveBounds._tranform((this.owner as Sprite3D).transform.worldMatrix, this._bounds);
     }
 
     /**
