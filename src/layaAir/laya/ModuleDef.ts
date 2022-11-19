@@ -34,7 +34,10 @@ import "./loaders/AtlasLoader";
 import "./loaders/HierarchyLoader";
 import "./loaders/TextureLoader";
 import "./loaders/AnimationClip2DLoader";
+import "./loaders/AnimationControllerLoader";
 import "./loaders/NullLoader";
+import { AnimatorController } from "./d3/component/Animator/AnimatorController";
+import { AnimatorController2D } from "./components/AnimatorController2D";
 
 let c = ClassUtils.regClass;
 
@@ -66,6 +69,8 @@ c("Animator2D", Animator2D);
 c("AnimatorControllerLayer2D", AnimatorControllerLayer2D);
 c("AnimatorState2D", AnimatorState2D);
 c("AnimationClip2D", AnimationClip2D);
+c("AnimatorController", AnimatorController);
+c("AnimatorController2D", AnimatorController2D);
 c("Animation2DNext", Animation2DNext);
 c("Animation2DParm", Animation2DParm);
 c("Animation2DCondition", Animation2DCondition);
