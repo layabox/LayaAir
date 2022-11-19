@@ -53,6 +53,7 @@ export class Volume extends Component {
         this._bounds = new Bounds();
         this._primitiveBounds = new Bounds();
         this._importance = 0;
+        this.runInEditor = true;
     }
 
     /**
