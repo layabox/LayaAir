@@ -79,7 +79,7 @@ export class Stage extends Sprite {
     static SCALE_FIXED_AUTO: string = "fixedauto";
 
     static SCALE_FIXED_AUTO_LAYAME: string = "fixedauto_layame";
-
+    static SCALE_FIXED_AUTO_LAYAVERSE: string = "fixedauto_layaverse";
 
     /**画布水平居左对齐。*/
     static ALIGN_LEFT: string = "left";
@@ -426,6 +426,18 @@ export class Stage extends Sprite {
                     this._height = canvasHeight = Math.round(screenHeight / scaleX);
                 } else {
                     scaleX = screenHeight / this.designWidth;
+                    scaleY = scaleX;
+                    this._width = canvasWidth = Math.round(screenWidth / scaleX);
+                    this._height = canvasHeight = Math.round(screenHeight / scaleY);
+                }
+                break;
+            case Stage.SCALE_FIXED_AUTO_LAYAVERSE:
+                if (screenWidth > screenHeight) {
+                    scaleX = scaleY;
+                    this._width = canvasWidth = Math.round(screenWidth / scaleY);
+                }
+                else {
+                    scaleX = screenWidth / this.designHeight;
                     scaleY = scaleX;
                     this._width = canvasWidth = Math.round(screenWidth / scaleX);
                     this._height = canvasHeight = Math.round(screenHeight / scaleY);
