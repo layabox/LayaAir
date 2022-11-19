@@ -141,17 +141,6 @@ export class Sprite3D extends Node {
         return <Scene3D>this._scene;
     }
 
-    /**@internal */
-    protected _editorBitChanged() {
-        if (this._isRenderNode) {
-            let flag = this._getBit(NodeFlags.HIDE_BY_EDITOR);
-            for (let comp of this._components) {
-                if (comp instanceof ILaya3D.BaseRender)
-                    comp.setRenderbitFlag(ILaya3D.BaseRender.RenderBitFlag_Editor, flag);
-            }
-        }
-    }
-
     /**
      * 创建一个 <code>Sprite3D</code> 实例。
      * @param name 精灵名称。
