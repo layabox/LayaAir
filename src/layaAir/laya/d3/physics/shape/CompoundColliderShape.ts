@@ -68,9 +68,10 @@ export class CompoundColliderShape extends ColliderShape {
 
 	/**
 	 * 设置物理shape数组
+	 * IDE
 	 */
 	public set shapes(value: ColliderShape[]) {
-		for (var i = 0; i < this._childColliderShapes.length; i++) {
+		for (var i = this._childColliderShapes.length - 1; i >= 0; i--) {
 			this.removeChildShape(this._childColliderShapes[i]);
 		}
 

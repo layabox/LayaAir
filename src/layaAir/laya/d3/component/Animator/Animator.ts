@@ -23,6 +23,10 @@ import { AnimatorState } from "./AnimatorState";
 import { AvatarMask } from "./AvatarMask";
 import { KeyframeNodeOwner, KeyFrameValueType } from "./KeyframeNodeOwner";
 import { AnimationEvent } from "../../animation/AnimationEvent";
+import { AnimatorStateCondition } from "./AnimatorStateCondition";
+import { AnimatorTransition } from "./AnimatorTransition";
+
+type AnimatorParams = { [key: number]: number | boolean };
 
 /**
  * 动画更新模式
@@ -43,7 +47,7 @@ export class Animator extends Component {
     /**@internal */
     private static _tempVector31: Vector3 = new Vector3();
     /**@internal */
-    private static _tempColor:Color = new Color();
+    private static _tempColor: Color = new Color();
     /**@internal */
     private static _tempQuaternion1: Quaternion = new Quaternion();
 
@@ -66,6 +70,8 @@ export class Animator extends Component {
     private _updateMode: AnimatorUpdateMode = AnimatorUpdateMode.Normal;
     /**@internal 降低更新频率调整值*/
     private _lowUpdateDelty: number = 20;
+    /**@internal */
+    private _animatorParams: AnimatorParams = {};
     // /**@internal */
     // _linkSprites: any;
     /**@internal	*/
@@ -110,6 +116,9 @@ export class Animator extends Component {
         this._updateMode = value;
     }
 
+    /**
+     * 低更新模式
+     */
     set lowUpdateDelty(value: number) {
         this._lowUpdateDelty = value;
     }
@@ -117,6 +126,19 @@ export class Animator extends Component {
     get controllerLayerCount(): number {
         return this._controllerLayers.length;
     }
+    
+    /**
+     * 状态机参数map
+     */
+    set animatorParams(values: AnimatorParams) {
+        this._animatorParams = values;
+    }
+
+    get animatorParams() {
+        return this._animatorParams;
+    }
+
+
 
     /**
      * 创建一个 <code>Animation</code> 实例。
@@ -240,7 +262,7 @@ export class Animator extends Component {
     /**
      * @internal
      */
-    private _updatePlayer(animatorState: AnimatorState, playState: AnimatorPlayState, elapsedTime: number, islooping: boolean): void {
+    private _updatePlayer(animatorState: AnimatorState, playState: AnimatorPlayState, elapsedTime: number, islooping: boolean,layerIndex:number): void {
         var clipDuration: number = animatorState._clip!._duration * (animatorState.clipEnd - animatorState.clipStart);
         var lastElapsedTime: number = playState._elapsedTime;
         var elapsedPlaybackTime: number = lastElapsedTime + elapsedTime;
@@ -257,8 +279,21 @@ export class Animator extends Component {
             playState._normalizedPlayTime = 1.0;
             return;
         }
+        
         animatorState._eventStateUpdate(playState._normalizedPlayTime);
-
+        this._applyTransition(layerIndex,animatorState._eventtransition(playState._normalizedPlayTime,this.animatorParams)) ;
+    }
+    
+    /**
+     * 启用过渡
+     * @param layerindex 
+     * @param transition 
+     * @returns 
+     */
+    private _applyTransition(layerindex:number,transition:AnimatorTransition){
+        if(!transition)
+            return;
+        this.crossFade(transition.destState.name,transition.transduration,layerindex,transition.transstartoffset);
     }
 
     /**
@@ -957,7 +992,7 @@ export class Animator extends Component {
                             //pro && this._applyFloat(pro, proPat[m], nodeOwner, additive, weight, isFirstLayer, <number>realtimeDatas[i]);
                             let lastpro = proPat[m];
                             if (!nodeOwner.isMaterial) {
-                                pro && (pro[lastpro] =nodeOwner.defaultValue);
+                                pro && (pro[lastpro] = nodeOwner.defaultValue);
                             } else {
                                 pro && (pro as Material).setFloat(lastpro, nodeOwner.defaultValue);
                             }
@@ -1214,7 +1249,7 @@ export class Animator extends Component {
                     var clip: AnimationClip = animatorState._clip!;
                     var speed: number = this._speed * animatorState.speed;
                     var finish: boolean = playStateInfo._finish;//提前取出finish,防止最后一帧跳过
-                    finish || this._updatePlayer(animatorState, playStateInfo, delta * speed, clip.islooping);
+                    finish || this._updatePlayer(animatorState, playStateInfo, delta * speed, clip.islooping,i);
                     if (needRender) {
                         var addtive: boolean = controllerLayer.blendingMode !== AnimatorControllerLayer.BLENDINGMODE_OVERRIDE;
                         this._updateClipDatas(animatorState, addtive, playStateInfo, controllerLayer.avatarMask);//clipDatas为逐动画文件,防止两个使用同一动画文件的Animator数据错乱,即使动画停止也要updateClipDatas
@@ -1233,7 +1268,7 @@ export class Animator extends Component {
                     var crossClipDuration: number = crossClip._duration - startPlayTime;
                     var crossScale: number = crossDuratuion > crossClipDuration ? crossClipDuration / crossDuratuion : 1.0;//如果过度时间大于过度动作时间,则减慢速度
                     var crossSpeed: number = this._speed * crossState.speed;
-                    this._updatePlayer(crossState, crossPlayStateInfo, delta * crossScale * crossSpeed, crossClip.islooping);
+                    this._updatePlayer(crossState, crossPlayStateInfo, delta * crossScale * crossSpeed, crossClip.islooping,i);
                     var crossWeight: number = ((crossPlayStateInfo._elapsedTime - startPlayTime) / crossScale) / crossDuratuion;
                     var needUpdateFinishcurrentState = false;
                     if (crossWeight >= 1.0) {
@@ -1249,7 +1284,7 @@ export class Animator extends Component {
                         if (!playStateInfo._finish) {
                             speed = this._speed * animatorState.speed;
                             needUpdateFinishcurrentState = true;
-                            this._updatePlayer(animatorState, playStateInfo, delta * speed, clip.islooping);
+                            this._updatePlayer(animatorState, playStateInfo, delta * speed, clip.islooping,i);
                             if (needRender)
                                 this._updateClipDatas(animatorState, addtive, playStateInfo, controllerLayer.avatarMask);
                         }
@@ -1273,7 +1308,7 @@ export class Animator extends Component {
                     crossClipDuration = crossClip._duration - startPlayTime;
                     crossScale = crossDuratuion > crossClipDuration ? crossClipDuration / crossDuratuion : 1.0;//如果过度时间大于过度动作时间,则减慢速度
                     crossSpeed = this._speed * crossState.speed;
-                    this._updatePlayer(crossState, crossPlayStateInfo, delta * crossScale * crossSpeed, crossClip.islooping);
+                    this._updatePlayer(crossState, crossPlayStateInfo, delta * crossScale * crossSpeed, crossClip.islooping,i);
                     if (needRender) {
                         crossWeight = ((crossPlayStateInfo._elapsedTime - startPlayTime) / crossScale) / crossDuratuion;
                         if (crossWeight >= 1.0) {
@@ -1543,6 +1578,67 @@ export class Animator extends Component {
             console.warn("Invalid layerIndex " + layerIndex + ".");
         }
     }
+
+    /**
+     * set params value
+     * @param name 
+     */
+    setParamsTrigger(name: number): void;
+    setParamsTrigger(name: string): void;
+    setParamsTrigger(name: string | number) {
+        let id;
+        if (typeof name == "number")
+            id = name;
+        else
+            id = AnimatorStateCondition.conditionNameToID(name);
+        this._animatorParams[id] = true;
+    }
+
+    /**
+     * set params value
+     * @param name 
+     */
+    setParamsNumber(name: number, value: number): void;
+    setParamsNumber(name: string, value: number): void;
+    setParamsNumber(name: string | number, value: number) {
+        let id;
+        if (typeof name == "number")
+            id = name;
+        else
+            id = AnimatorStateCondition.conditionNameToID(name);
+        this._animatorParams[id] = value;
+    }
+
+    /**
+     * set params value
+     * @param name 
+     */
+    setParamsBool(name: number, value: boolean): void;
+    setParamsBool(name: string, value: boolean): void;
+    setParamsBool(name: string | number, value: boolean) {
+        let id;
+        if (typeof name == "number")
+            id = name;
+        else
+            id = AnimatorStateCondition.conditionNameToID(name);
+        this._animatorParams[id] = value;
+    }
+
+    /**
+     * get params value
+     * @param name 
+     */
+    getParamsvalue(name: number): number | boolean;
+    getParamsvalue(name: string): number | boolean;
+    getParamsvalue(name: string | number): number | boolean {
+        let id;
+        if (typeof name == "number")
+            id = name;
+        else
+            id = AnimatorStateCondition.conditionNameToID(name);
+        return this._animatorParams[id];
+    }
+
 
     /**
      * @deprecated 请使用animator.getControllerLayer(layerIndex).getCurrentPlayState()替换。use animator.getControllerLayer(layerIndex).getCurrentPlayState() instead

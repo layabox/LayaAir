@@ -28,5 +28,4 @@ export class PBRShaderLib {
         PBRDefaultDFG.DefaultDfgTexture();
         SubShader.regIncludeBindUnifrom("PBRGI.glsl",{"u_IBLDGF": ShaderDataType.Texture2D},{"u_IBLDGF": PBRDefaultDFG.defaultDFG});
     }
-
 }

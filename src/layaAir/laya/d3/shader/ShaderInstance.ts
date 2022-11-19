@@ -277,7 +277,7 @@ export class ShaderInstance {
 		var datas: any = shaderDatas.getData();
 		var cull: any = this._getRenderState(datas, Shader3D.RENDER_STATE_CULL);
 		if ((<ShaderPass>this._shaderPass).statefirst) {
-			renderState.cull ? cull = renderState.cull : 0;
+			renderState.cull != null ? cull = renderState.cull : 0;
 		}
 		else {
 			cull = cull ?? RenderState.Default.blend;
