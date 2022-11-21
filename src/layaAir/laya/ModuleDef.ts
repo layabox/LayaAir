@@ -28,6 +28,9 @@ import { Animation2DParm } from "./components/Animation2DParm";
 import { Animation2DCondition } from "./components/Animation2DCondition";
 import { Prefab } from "./resource/HierarchyResource";
 import { Widget } from "./components/Widget";
+import { AnimatorController } from "./d3/component/Animator/AnimatorController";
+import { AnimatorController2D } from "./components/AnimatorController2D";
+import { RenderTexture } from "./d3/resource/RenderTexture";
 
 import "./loaders/TextResourceLoader";
 import "./loaders/AtlasLoader";
@@ -36,8 +39,6 @@ import "./loaders/TextureLoader";
 import "./loaders/AnimationClip2DLoader";
 import "./loaders/AnimationControllerLoader";
 import "./loaders/NullLoader";
-import { AnimatorController } from "./d3/component/Animator/AnimatorController";
-import { AnimatorController2D } from "./components/AnimatorController2D";
 
 let c = ClassUtils.regClass;
 
@@ -63,6 +64,7 @@ c("Point", Point);
 c("Rectangle", Rectangle);
 c("Texture", Texture);
 c("Texture2D", Texture2D);
+c("RenderTexture", RenderTexture);
 c("Prefab", Prefab);
 
 c("Animator2D", Animator2D);

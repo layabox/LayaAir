@@ -10,6 +10,7 @@ import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
 import { Browser } from "../utils/Browser";
 import { AssetDb } from "../resource/AssetDb";
 import { Resource } from "../resource/Resource";
+import { RenderTexture } from "../d3/resource/RenderTexture";
 
 const metaFetchingOptions = { noRetry: true, silent: true };
 
@@ -169,7 +170,20 @@ class TextureLoader implements IResourceLoader {
     }
 }
 
+class RenderTextureLoader implements IResourceLoader {
+    load(task: ILoadTask) {
+        return task.loader.fetch(task.url, "json", task.progress.createCallback(), task.options).then(data => {
+            if (!data)
+                return null;
+
+            return new RenderTexture(data.width, data.height, data.colorFormat, data.depthFormat,
+                data.generateMipmap, data.multiSamples, false, data.sRGB);
+        });
+    }
+}
+
 const compressedFormats = ["ktx", "pvr", "dds", "hdr", "lanit.ls"];
 
 Loader.registerLoader(["png", "jpg", "jpeg", ...compressedFormats], TextureLoader, Loader.IMAGE);
 Loader.registerLoader([], Texture2DLoader, Loader.TEXTURE2D);
+Loader.registerLoader(["rendertexture"], RenderTextureLoader);
