@@ -10,24 +10,7 @@ import "laya/gltf/glTFLoader";
 
 import { Resource } from "laya/resource/Resource";
 import { Main } from "./Main";
-import { IDEMain } from "./IDEMain";
-import { TextureDemo } from "./3d/LayaAir3D_Texture/TextureDemo";
-import { Sprite_DisplayImage } from "./2d/Sprite_DisplayImage";
-import { Sprite3DLoad } from "./3d/LayaAir3D_Sprite3D/Sprite3DLoad";
-import { Sky_Procedural } from "./3d/LayaAir3D_Sky/Sky_Procedural";
-import { PBRMaterialDemo } from "./3d/LayaAir3D_Material/PBRMaterialDemo";
-import { Sky_SkyBox } from "./3d/LayaAir3D_Sky/Sky_SkyBox";
-import { Secne3DPlayer2D } from "./3d/LayaAir3D_Advance/Secne3DPlayer2D";
-import { Scene2DPlayer3D } from "./3d/LayaAir3D_Advance/Scene2DPlayer3D";
-import { PhysicsWorld_Character } from "./3d/LayaAir3D_Physics3D/PhysicsWorld_Character";
-import { LoadResourceDemo } from "./3d/LayaAir3D_Resource/LoadResourceDemo";
-import { AnimatorStateScriptDemo } from "./3d/LayaAir3D_Animation3D/AnimatorStateScriptDemo";
-import { PostProcessBloom } from "./3d/LayaAir3D_PostProcess/PostProcessBloom";
-import { RealTimeShadow } from "./3d/LayaAir3D_Lighting/RealTimeShadow";
-import { SpotLightShadowMap } from "./3d/LayaAir3D_Lighting/SpotLightShadowMap";
 
 Resource.DEBUG = true;
 
-//new IDEMain();
-
-new RealTimeShadow();
+new Main(false);
