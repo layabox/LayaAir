@@ -1,3 +1,4 @@
+import { Rectangle } from "../../maths/Rectangle";
 import { Context } from "../../resource/Context"
 import { ClassUtils } from "../../utils/ClassUtils";
 import { Pool } from "../../utils/Pool"
@@ -81,6 +82,10 @@ export class DrawRectCmd {
     /**@private */
     get cmdID(): string {
         return DrawRectCmd.ID;
+    }
+
+    getBoundPoints(sp?: { width: number, height?: number }): number[] {
+        return Rectangle._getBoundPointS(this.x, this.y, this.width, this.height, this.percent ? sp : null)
     }
 }
 

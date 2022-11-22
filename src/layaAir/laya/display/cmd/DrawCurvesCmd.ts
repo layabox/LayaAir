@@ -1,3 +1,4 @@
+import { Bezier } from "../../maths/Bezier";
 import { Context } from "../../resource/Context"
 import { ClassUtils } from "../../utils/ClassUtils";
 import { Pool } from "../../utils/Pool"
@@ -60,6 +61,9 @@ export class DrawCurvesCmd {
         return DrawCurvesCmd.ID;
     }
 
+    getBoundPoints(sp?: { width: number, height?: number }): number[] {
+        return Bezier.I.getBezierPoints(this.points);
+    }
 }
 
 ClassUtils.regClass("DrawCurvesCmd", DrawCurvesCmd);

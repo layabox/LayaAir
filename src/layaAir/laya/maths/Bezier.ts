@@ -1,8 +1,9 @@
 import { Point } from "./Point";
+
 /**
-	 * @private
-	 * 计算贝塞尔曲线的工具类。
-	 */
+ * @private
+ * 计算贝塞尔曲线的工具类。
+ */
 export class Bezier {
 
     /**

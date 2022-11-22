@@ -103,6 +103,25 @@ export class DrawTrianglesCmd {
         return DrawTrianglesCmd.ID;
     }
 
+    getBoundPoints(sp?: { width: number, height?: number }): number[] {
+        let vert = this.vertices;
+        var vnum = vert.length;
+        if (vnum < 2) return [];
+        var minx = vert[0];
+        var miny = vert[1];
+        var maxx = minx;
+        var maxy = miny;
+        for (var i = 2; i < vnum;) {
+            var cx = vert[i++];
+            var cy = vert[i++];
+            if (minx > cx) minx = cx;
+            if (miny > cy) miny = cy;
+            if (maxx < cx) maxx = cx;
+            if (maxy < cy) maxy = cy;
+        }
+
+        return [minx, miny, maxx, miny, maxx, maxy, minx, maxy];
+    }
 }
 
 ClassUtils.regClass("DrawTrianglesCmd", DrawTrianglesCmd);

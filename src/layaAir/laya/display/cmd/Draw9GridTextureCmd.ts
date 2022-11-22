@@ -79,7 +79,19 @@ export class Draw9GridTextureCmd {
         return Draw9GridTextureCmd.ID;
     }
 
-    constructor() {
+    getBoundPoints(sp?: { width: number, height?: number }): number[] {
+        let minx = this.x;
+        let miny = this.y;
+        let maxx = this.width;
+        let maxy = this.height;
+        if (this.percent) {
+            minx *= sp.width;
+            miny *= sp.height;
+            maxx *= sp.width;
+            maxy *= sp.height;
+        }
+
+        return [minx, miny, maxx, miny, maxx, maxy, minx, maxy];
     }
 }
 

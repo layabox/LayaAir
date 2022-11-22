@@ -1,8 +1,9 @@
 import { Point } from "../../maths/Point"
+import { Rectangle } from "../../maths/Rectangle";
 import { Context } from "../../resource/Context"
 import { Texture } from "../../resource/Texture"
 import { ClassUtils } from "../../utils/ClassUtils";
-import { Pool } from "../../utils/Pool"
+import { Pool } from "../../utils/Pool";
 
 /**
  * 填充贴图
@@ -84,6 +85,12 @@ export class FillTextureCmd {
         return FillTextureCmd.ID;
     }
 
+    getBoundPoints(sp?: { width: number, height?: number }): number[] {
+        if (this.width && this.height)
+            return Rectangle._getBoundPointS(this.x, this.y, this.width, this.height, this.percent ? sp : null);
+        else
+            return Rectangle._getBoundPointS(this.x, this.y, this.texture.width, this.texture.height);
+    }
 }
 
 ClassUtils.regClass("FillTextureCmd", FillTextureCmd);

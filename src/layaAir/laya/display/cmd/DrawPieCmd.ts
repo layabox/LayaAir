@@ -1,4 +1,5 @@
 import { Context } from "../../resource/Context"
+import { ClassUtils } from "../../utils/ClassUtils";
 import { Pool } from "../../utils/Pool"
 
 /**
@@ -19,8 +20,10 @@ export class DrawPieCmd {
      * 扇形半径。
      */
     radius: number;
+    
     private _startAngle: number;
     private _endAngle: number;
+
     /**
      * 填充颜色，或者填充绘图的渐变对象。
      */
@@ -90,5 +93,51 @@ export class DrawPieCmd {
     set endAngle(value: number) {
         this._endAngle = value * Math.PI / 180;
     }
+
+    getBoundPoints(sp?: { width: number, height?: number }): number[] {
+        let rst: any[] = _tempPoints;
+        _tempPoints.length = 0;
+        let k: number = Math.PI / 180;
+        let d1: number = this.endAngle - this.startAngle;
+        let x = this.x, y = this.y, radius = this.radius;
+        if (d1 >= 360 || d1 <= -360) {
+            // 如果满了一圈了
+            rst.push(x - radius, y - radius);
+            rst.push(x + radius, y - radius);
+            rst.push(x + radius, y + radius);
+            rst.push(x - radius, y + radius);
+            return rst;
+        }
+        // 
+        rst.push(x, y);	// 中心
+
+        var delta: number = d1 % 360;
+        if (delta < 0) delta += 360;
+
+        // 一定增加，且在360以内的end
+        var end1: number = this.startAngle + delta;
+
+        // 转成弧度
+        var st: number = this.startAngle * k;
+        var ed: number = end1 * k;
+
+        // 起点
+        rst.push(x + radius * Math.cos(st), y + radius * Math.sin(st));
+        // 终点
+        rst.push(x + radius * Math.cos(ed), y + radius * Math.sin(ed));
+
+        // 圆形的四个边界点
+        // 按照90度对齐，看看会经历几个90度
+        var s1: number = Math.ceil(this.startAngle / 90) * 90;	//开始的。start的下一个90度
+        var s2: number = Math.floor(end1 / 90) * 90;		//结束。end的上一个90度
+        for (var cs: number = s1; cs <= s2; cs += 90) {
+            var csr: number = cs * k;
+            rst.push(x + radius * Math.cos(csr), y + radius * Math.sin(csr));
+        }
+        return rst;
+    }
 }
 
+const _tempPoints: any[] = [];
+
+ClassUtils.regClass("DrawPieCmd", DrawPieCmd);

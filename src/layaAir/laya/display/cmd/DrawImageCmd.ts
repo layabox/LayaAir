@@ -31,7 +31,6 @@ export class DrawImageCmd {
 
     /**@private */
     static create(texture: Texture, x: number, y: number, width: number, height: number): DrawImageCmd {
-        if (!texture) return null;
         if (!width) width = texture.sourceWidth;
         if (!height) height = texture.sourceHeight;
         if (texture.bitmap) {

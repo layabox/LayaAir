@@ -325,8 +325,12 @@ export class RenderSprite {
                 visFlag = ele._visible && !ele._getBit(NodeFlags.ESCAPE_DRAWING_TO_TEXTURE);
             else
                 visFlag = ele._visible || ele._getBit(NodeFlags.DISABLE_VISIBILITY);
-            if (rect && ((_x = ele._x) >= right || (_x + ele.width) <= left || (_y = ele._y) >= bottom || (_y + ele.height) <= top))
-                visFlag = false;
+            if (visFlag) {
+                if (rect && ((_x = ele._x) >= right || (_x + ele.width) <= left || (_y = ele._y) >= bottom || (_y + ele.height) <= top))
+                    visFlag = false;
+                else if (sprite._cacheStyle.mask == ele && !ele._getBit(NodeFlags.DISABLE_VISIBILITY))
+                    visFlag = false;
+            }
 
             if (visFlag) {
                 if (ele._getBit(NodeFlags.DISABLE_OUTER_CLIPPING))
@@ -344,7 +348,7 @@ export class RenderSprite {
         var _cacheStyle: CacheStyle = sprite._cacheStyle;
         var _next: RenderSprite = this._next;
 
-        if (!_cacheStyle.enableCanvasRender) {
+        if (!_cacheStyle.enableCanvasRender || !context._drawingToTexture && _cacheStyle.mask && _cacheStyle.mask._getBit(NodeFlags.DISABLE_VISIBILITY)) {
             _next._fun.call(_next, sprite, context, x, y);
             return;
         }
@@ -502,7 +506,7 @@ export class RenderSprite {
         var mask: Sprite = sprite.mask;
         var submitCMD: SubmitCMD;
         var ctx: Context = (<Context>context);
-        if (mask) {
+        if (mask && (!mask._getBit(NodeFlags.DISABLE_VISIBILITY) || context._drawingToTexture)) {
             ctx.save();
             var preBlendMode: string = ctx.globalCompositeOperation;
             var tRect: Rectangle = new Rectangle();

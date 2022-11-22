@@ -1,3 +1,4 @@
+import { Rectangle } from "../../maths/Rectangle";
 import { Context } from "../../resource/Context"
 import { ClassUtils } from "../../utils/ClassUtils";
 import { Pool } from "../../utils/Pool"
@@ -74,6 +75,10 @@ export class DrawCircleCmd {
     /**@private */
     get cmdID(): string {
         return DrawCircleCmd.ID;
+    }
+
+    getBoundPoints(sp?: { width: number, height?: number }): number[] {
+        return Rectangle._getBoundPointS(this.x - this.radius, this.y - this.radius, this.radius + this.radius, this.radius + this.radius, this.percent ? sp : null);
     }
 }
 
