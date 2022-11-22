@@ -56,6 +56,7 @@ export class NativeSceneRenderManager implements ISceneRenderManager {
             }
         }
         this._renders.remove(object);
+        this.removeMotionObject(object);
     }
 
     removeMotionObject(object: BaseRender): void {
