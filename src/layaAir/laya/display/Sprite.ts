@@ -1329,21 +1329,13 @@ export class Sprite extends Node {
         return this._cacheStyle.filters;
     }
 
-    /**@internal */
-    _setColorFilter(value: any): void { }
-
     set filters(value: any[]) {
         value && value.length === 0 && (value = null);
-        //if (this._cacheStyle.filters == value) return;
         this._getCacheStyle().filters = value ? value.slice() : null;
-        if (value && value.length) {
-            //temp TODO 
-            this._setColorFilter(value[0]);
+        if (value)
             this._renderType |= SpriteConst.FILTERS;
-        } else {
-            this._setColorFilter(null);
+        else
             this._renderType &= ~SpriteConst.FILTERS;
-        }
         this._setRenderType(this._renderType);
 
         if (value && value.length > 0) {

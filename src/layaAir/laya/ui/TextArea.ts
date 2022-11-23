@@ -1,8 +1,9 @@
 import { TextInput } from "./TextInput";
 import { VScrollBar } from "./VScrollBar";
 import { HScrollBar } from "./HScrollBar";
-import { Styles } from "./Styles";
+import { ScrollType, Styles } from "./Styles";
 import { Event } from "../events/Event"
+import { HideFlags } from "../Const";
 
 /**
  * <code>TextArea</code> 类用于创建显示对象以显示和输入文本。
@@ -84,6 +85,9 @@ import { Event } from "../events/Event"
  * }
  */
 export class TextArea extends TextInput {
+    protected _scrollType: ScrollType = 0;
+    protected _vScrollBarSkin: string;
+    protected _hScrollBarSkin: string;
     /**@private */
     protected _vScrollBar: VScrollBar;
     /**@private */
@@ -125,7 +129,7 @@ export class TextArea extends TextInput {
     /**
      * @override
      */
-	set width(value: number) {
+    set width(value: number) {
         super.width = value;
         this.callLater(this.changeScroll);
     }
@@ -139,7 +143,7 @@ export class TextArea extends TextInput {
     /**
      * @override
      */
-	set height(value: number) {
+    set height(value: number) {
         super.height = value;
         this.callLater(this.changeScroll);
     }
@@ -151,35 +155,114 @@ export class TextArea extends TextInput {
         return super.height;
     }
 
-    /**垂直滚动条皮肤*/
+    get scrollType() {
+        return this._scrollType;
+    }
+
+    set scrollType(value: ScrollType) {
+        this._scrollType = value;
+
+        if (this._scrollType == ScrollType.None) {
+            if (this._hScrollBar) {
+                this._hScrollBar.destroy();
+                this._hScrollBar = null;
+            }
+            if (this._vScrollBar) {
+                this._vScrollBar.destroy();
+                this._vScrollBar = null;
+            }
+        }
+        else if (this._scrollType == ScrollType.Horizontal) {
+            if (this._vScrollBar) {
+                this._vScrollBar.destroy();
+                this._vScrollBar = null;
+            }
+
+            if (this._hScrollBar)
+                this._hScrollBar.skin = this._hScrollBarSkin;
+            else
+                this.createHScrollBar();
+        }
+        else if (this._scrollType == ScrollType.Vertical) {
+            if (this._hScrollBar) {
+                this._hScrollBar.destroy();
+                this._hScrollBar = null;
+            }
+
+            if (this._vScrollBar)
+                this._vScrollBar.skin = this._vScrollBarSkin;
+            else
+                this.createVScrollBar();
+        }
+        else { //both
+            if (this._hScrollBar)
+                this._hScrollBar.skin = this._hScrollBarSkin;
+            else
+                this.createHScrollBar();
+            if (this._vScrollBar)
+                this._vScrollBar.skin = this._vScrollBarSkin;
+            else
+                this.createVScrollBar();
+        }
+    }
+
+    private createHScrollBar() {
+        this._hScrollBar = new HScrollBar();
+        this._hScrollBar.hideFlags = HideFlags.HideAndDontSave;
+        this.addChild(this._hScrollBar);
+        this._hScrollBar.on(Event.CHANGE, this, this.onHBarChanged);
+        this._hScrollBar.mouseWheelEnable = false;
+        this._hScrollBar.target = this._tf;
+        this.callLater(this.changeScroll);
+    }
+
+    private createVScrollBar() {
+        this._vScrollBar = new VScrollBar()
+        this._vScrollBar.hideFlags = HideFlags.HideAndDontSave;
+        this.addChild(this._vScrollBar);
+        this._vScrollBar.on(Event.CHANGE, this, this.onVBarChanged);
+        this._vScrollBar.target = this._tf;
+        this.callLater(this.changeScroll);
+    }
+
+    /**
+     * 垂直方向滚动条皮肤。
+     */
     get vScrollBarSkin(): string {
-        return this._vScrollBar ? this._vScrollBar.skin : null;
+        return this._vScrollBarSkin;
     }
 
     set vScrollBarSkin(value: string) {
-        if (this._vScrollBar == null) {
-            this.addChild(this._vScrollBar = new VScrollBar());
-            this._vScrollBar.on(Event.CHANGE, this, this.onVBarChanged);
-            this._vScrollBar.target = this._tf;
-            this.callLater(this.changeScroll);
+        if (value == "") value = null;
+        if (this._vScrollBarSkin != value) {
+            this._vScrollBarSkin = value;
+            if (this._scrollType == 0)
+                this.scrollType = ScrollType.Vertical;
+            else if (this._scrollType == ScrollType.Horizontal)
+                this.scrollType = ScrollType.Both;
+            else
+                this.scrollType = this._scrollType;
         }
-        this._vScrollBar.skin = value;
+
     }
 
-    /**水平滚动条皮肤*/
+    /**
+     * 水平方向滚动条皮肤。
+     */
     get hScrollBarSkin(): string {
-        return this._hScrollBar ? this._hScrollBar.skin : null;
+        return this._hScrollBarSkin;
     }
 
     set hScrollBarSkin(value: string) {
-        if (this._hScrollBar == null) {
-            this.addChild(this._hScrollBar = new HScrollBar());
-            this._hScrollBar.on(Event.CHANGE, this, this.onHBarChanged);
-            this._hScrollBar.mouseWheelEnable = false;
-            this._hScrollBar.target = this._tf;
-            this.callLater(this.changeScroll);
+        if (value == "") value = null;
+        if (this._hScrollBarSkin != value) {
+            this._hScrollBarSkin = value;
+            if (this._scrollType == 0)
+                this.scrollType = ScrollType.Horizontal;
+            else if (this._scrollType == ScrollType.Vertical)
+                this.scrollType = ScrollType.Both;
+            this.scrollType = this._scrollType;
         }
-        this._hScrollBar.skin = value;
     }
 
     protected onVBarChanged(e: Event): void {

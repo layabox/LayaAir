@@ -1,6 +1,5 @@
 import { Event } from "../events/Event"
 import { Texture } from "../resource/Texture"
-import { AutoBitmap } from "./AutoBitmap"
 import { Clip } from "./Clip"
 
 /**
@@ -14,7 +13,7 @@ export class FontClip extends Clip {
     /**数值*/
     protected _valueArr: string = '';
     /**文字内容数组**/
-    protected _indexMap: any = null;
+    protected _indexMap: Record<string, number> = null;
     /**位图字体内容**/
     protected _sheet: string = null;
     /**@private */
@@ -41,19 +40,21 @@ export class FontClip extends Clip {
     }
 
     /**
-    * @override
-    */
-    protected createChildren(): void {
-        super.createChildren();
-
-        this.on(Event.LOADED, this, this._onClipLoaded);
-    }
-
-    /**
      * 资源加载完毕
      */
-    private _onClipLoaded(): void {
+     protected loadComplete(url: string, img: Texture): void {
+        super.loadComplete(url, img);
         this.callLater(this.changeValue);
+    }
+
+    
+    get index(): number {
+        return this._index;
+    }
+
+    set index(value: number) {
+        this._index = value;
+        ////屏蔽Clip类操作
     }
 
     /**
@@ -142,13 +143,12 @@ export class FontClip extends Clip {
         return this._align;
     }
 
-
     /**渲染数值*/
     protected changeValue(): void {
         if (!this._sources) return;
         if (!this._valueArr) return;
         this.graphics.clear(true);
-        var texture: Texture;
+        let texture: Texture;
         texture = this._sources[0];
         if (!texture) return;
         var isHorizontal: boolean = (this._direction === "horizontal");
@@ -159,7 +159,7 @@ export class FontClip extends Clip {
             this._wordsW = texture.sourceWidth;
             this._wordsH = (texture.sourceHeight + this.spaceY) * this._valueArr.length;
         }
-        var dX: number = 0;
+        let dX: number = 0;
         if (this._width) {
             switch (this._align) {
                 case "center":
@@ -173,15 +173,19 @@ export class FontClip extends Clip {
             }
         }
 
-        for (var i: number = 0, sz: number = this._valueArr.length; i < sz; i++) {
-            var index: number = this._indexMap[this._valueArr.charAt(i)];
-            if (!this.sources[index]) continue;
-            texture = this.sources[index];
-            if (isHorizontal) this.graphics.drawImage(texture, dX + i * (texture.sourceWidth + this.spaceX), 0, texture.sourceWidth, texture.sourceHeight);
-            else this.graphics.drawImage(texture, 0 + dX, i * (texture.sourceHeight + this.spaceY), texture.sourceWidth, texture.sourceHeight);
-        }
-        if (!this._width) {
+        for (let i = 0, sz = this._valueArr.length; i < sz; i++) {
+            let index = this._indexMap[this._valueArr.charAt(i)];
+            texture = this._sources[index];
+            if (!texture)
+                continue;
 
+            if (isHorizontal)
+                this.graphics.drawImage(texture, dX + i * (texture.sourceWidth + this.spaceX), 0, texture.sourceWidth, texture.sourceHeight);
+            else
+                this.graphics.drawImage(texture, 0 + dX, i * (texture.sourceHeight + this.spaceY), texture.sourceWidth, texture.sourceHeight);
+        }
+
+        if (!this._width) {
             this._widget.resetLayoutX();
             this.callLater(this._sizeChanged);
         }
@@ -238,8 +242,8 @@ export class FontClip extends Clip {
     destroy(destroyChild: boolean = true): void {
         this._valueArr = null;
         this._indexMap = null;
-        this.removeSelf();
-        this.off(Event.LOADED, this, this._onClipLoaded);
+        this.graphics.clear(true);
+
         super.destroy(destroyChild);
     }
 }

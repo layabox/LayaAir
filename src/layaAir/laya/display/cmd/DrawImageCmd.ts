@@ -38,7 +38,6 @@ export class DrawImageCmd {
             var hRate = height / texture.sourceHeight;
             width = texture.width * wRate;
             height = texture.height * hRate;
-            if (width <= 0 || height <= 0) return null;
 
             x += texture.offsetX * wRate;
             y += texture.offsetY * hRate;

@@ -57,8 +57,10 @@ export class UIUtils {
                 target.filters = filters;
             }
         }
-        else if (i != -1)
+        else if (i != -1) {
             filters.splice(i, 1);
+            target.filters = filters;
+        }
     }
 
     /**
