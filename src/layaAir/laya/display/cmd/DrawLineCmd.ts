@@ -75,6 +75,30 @@ export class DrawLineCmd {
         return DrawLineCmd.ID;
     }
 
+    getBoundPoints(sp?: { width: number, height?: number }): number[] {
+        _tempPoints.length = 0;
+        let lineWidth: number;
+        lineWidth = this.lineWidth * 0.5;
+
+        let fromX = this.fromX, fromY = this.fromY, toX = this.toX, toY = this.toY;
+        if (this.percent) {
+            fromX *= sp.width;
+            fromY *= sp.height;
+            toX *= sp.width;
+            toY *= sp.height;
+        }
+
+        if (fromX == toX) {
+            _tempPoints.push(fromX + lineWidth, fromY, toX + lineWidth, toY, fromX - lineWidth, fromY, toX - lineWidth, toY);
+        } else if (fromY == toY) {
+            _tempPoints.push(fromX, fromY + lineWidth, toX, toY + lineWidth, fromX, fromY - lineWidth, toX, toY - lineWidth);
+        } else {
+            _tempPoints.push(fromX, fromY, toX, toY);
+        }
+
+        return _tempPoints;
+    }
 }
+const _tempPoints: any[] = [];
 
 ClassUtils.regClass("DrawLineCmd", DrawLineCmd);

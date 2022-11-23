@@ -19,7 +19,7 @@ export class DrawPathCmd {
     /**
      * 路径集合，路径支持以下格式：[["moveTo",x,y],["lineTo",x,y],["arcTo",x1,y1,x2,y2,r],["closePath"]]。
      */
-    paths: any[]|null;
+    paths: any[] | null;
     /**
      * （可选）刷子定义，支持以下设置{fillStyle:"#FF0000"}。
      */
@@ -60,6 +60,24 @@ export class DrawPathCmd {
         return DrawPathCmd.ID;
     }
 
+    getBoundPoints(sp?: { width: number, height?: number }): number[] {
+        let rst: any[] = _tempPoints;
+        rst.length = 0;
+        let paths = this.paths;
+        let len = paths.length;
+        for (let i = 0; i < len; i++) {
+            let tCMD = paths[i];
+            if (tCMD.length > 1) {
+                rst.push(tCMD[1], tCMD[2]);
+                if (tCMD.length > 3) {
+                    rst.push(tCMD[3], tCMD[4]);
+                }
+            }
+        }
+        return rst;
+    }
 }
+
+const _tempPoints: any[] = [];
 
 ClassUtils.regClass("DrawPathCmd", DrawPathCmd);

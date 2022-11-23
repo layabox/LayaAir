@@ -104,6 +104,7 @@ import { Physics_CollisionEvent } from "../2d/Physics_CollisionEvent";
 import { Utils } from "laya/utils/Utils";
 import Client from "../Client";
 import { UI_FontClip } from "../2d/UI_FontClip";
+import { ScrollType } from "laya/ui/Styles";
 
 /**
  * 首页View 
@@ -236,7 +237,7 @@ export class IndexView2D extends IndexViewUI {
 		this.bigComBox.labels = lables;
 		this.bigComBox.selectedIndex = 0;
 		this.bigComBox.visibleNum = 5;//_comboxBigArr.length;
-		this.bigComBox.list.vScrollBarSkin = "";
+		this.bigComBox.list.scrollType = ScrollType.Vertical;
 		this.bigComBox.autoSize = false;
 		this.bigComBox.list.selectEnable = true;
 		this.bigComBox.width = 230;
@@ -250,7 +251,7 @@ export class IndexView2D extends IndexViewUI {
 		this.smallComBox.selectedIndex = 0;
 		//默认显示第一项
 		//onSmallBoxSelectHandler(0);
-		this.smallComBox.list.vScrollBarSkin = "";
+		this.smallComBox.list.scrollType = ScrollType.Vertical;
 		this.smallComBox.visibleNum = 5;//_comboBoxSpriteArr.length;
 		this.smallComBox.list.selectEnable = true;
 		this.smallComBox.width = 260;

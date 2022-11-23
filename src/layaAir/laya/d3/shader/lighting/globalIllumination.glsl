@@ -173,4 +173,24 @@ vec3 getBakedLightmapColor(in vec2 lightmapUV)
 }
     #endif // LIGHTMAP
 
+#ifdef SPECCUBE_BOX_PROJECTION
+
+uniform vec3 u_SpecCubeProbePosition;
+uniform vec3 u_SpecCubeBoxMax;
+uniform vec3 u_SpecCubeBoxMin;
+
+vec3 getBoxProjectionReflectedVector(vec3 r, vec3 positionWS, vec3 boxCenter, vec3 boxMin, vec3 boxMax)
+{
+    vec3 nr = normalize(r);
+    vec3 rbmax = boxMax - positionWS;
+    vec3 rbmin = boxMin - positionWS;
+    vec3 select = step(vec3(0.0), r);
+    vec3 rbminmax = mix(rbmin, rbmax, select) / nr;
+    float scalar = vecmin(rbminmax);
+    vec3 boxr = nr * scalar + positionWS - boxCenter;
+    return boxr;
+}
+
+#endif // SPECCUBE_BOX_PROJECTION
+
 #endif // globalIllumination_lib
