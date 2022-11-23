@@ -51,6 +51,11 @@ vec3 PBRGI(const in Surface surface, const in PixelInfo info)
     vec3 specularColor = f0 * env.x + f90 * env.y;
 
     vec3 r = getReflectedVector(surface, info);
+
+    #ifdef SPECCUBE_BOX_PROJECTION
+    r = getBoxProjectionReflectedVector(r, info.positionWS, u_SpecCubeProbePosition, u_SpecCubeBoxMin, u_SpecCubeBoxMax);
+    #endif // SPECCUBE_BOX_PROJECTION
+
     vec3 indirectSpecular = specularIrradiance(r, perceptualRoughness) * u_ReflectionIntensity;
 
     vec3 Fr = indirectSpecular * specularColor * surface.occlusion;

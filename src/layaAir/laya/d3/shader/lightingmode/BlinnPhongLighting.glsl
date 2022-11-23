@@ -5,6 +5,7 @@
     #include "globalIllumination.glsl";
 
 struct PixelInfo {
+    vec3 positionWS;
     vec3 normalWS;
     vec3 viewDir;
 

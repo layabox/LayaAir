@@ -45,6 +45,7 @@ void getPixelParams(inout PixelParams params)
 
 void getPixelInfo(inout PixelInfo info, const in PixelParams pixel)
 {
+    info.positionWS = pixel.positionWS;
     info.normalWS = pixel.normalWS;
     info.viewDir = pixel.viewDir;
 
