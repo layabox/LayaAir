@@ -27,6 +27,10 @@ export class Config3D {
      */
     static customResolution: boolean = false;
     /**
+     *  设置最大RendertexturePool缓存的值
+     */
+    static defaultCacheRTMemory:number = 256;
+    /**
      * 默认物理功能初始化内存，单位为M。
      */
     static defaultPhysicsMemory: number = 16;

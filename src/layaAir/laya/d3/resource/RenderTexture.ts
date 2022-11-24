@@ -1,3 +1,4 @@
+import { Config3D } from "../../../Config3D";
 import { LayaGL } from "../../layagl/LayaGL";
 import { RenderTargetFormat } from "../../RenderEngine/RenderEnum/RenderTargetFormat";
 import { TextureDimension } from "../../RenderEngine/RenderEnum/TextureDimension";
@@ -16,6 +17,7 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
     }
 
     private static _pool: RenderTexture[] = [];
+    private static _poolMemory:number = 0;
 
     /**
      * 创建一个RenderTexture
@@ -43,6 +45,7 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
                 let end = RenderTexture._pool[n - 1];
                 RenderTexture._pool[index] = end;
                 RenderTexture._pool.length -= 1;
+                RenderTexture._poolMemory-=(rt._renderTarget.gpuMemory/1024/1024);
                 return rt;
             }
         }
@@ -55,9 +58,20 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
     static recoverToPool(rt: RenderTexture): void {
         if (rt._inPool || rt.destroyed)
             return;
-
         RenderTexture._pool.push(rt);
+        RenderTexture._poolMemory+= (rt._renderTarget.gpuMemory/1024/1024);
         rt._inPool = true;
+    }
+
+    static clearPool(){
+        if(RenderTexture._poolMemory<Config3D.defaultCacheRTMemory){
+            return;
+        }
+        for(var i in RenderTexture._pool){
+            RenderTexture._pool[i].destroy();
+        }
+        RenderTexture._pool = [];
+        RenderTexture._poolMemory = 0;
     }
 
     /** @internal 最后绑定到主画布上的结果 此值可能为null*/

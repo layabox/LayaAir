@@ -16,5 +16,7 @@ export interface InternalRenderTarget {
     colorFormat: RenderTargetFormat;
     depthStencilFormat: RenderTargetFormat;
 
+    gpuMemory:number;
+
     dispose(): void;
 }

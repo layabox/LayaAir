@@ -1417,6 +1417,7 @@ export class Scene3D extends Sprite implements ISubmit {
             camera._needInternalRenderTexture() && (!camera._internalRenderTexture._inPool) && RenderTexture.recoverToPool(camera._internalRenderTexture);
         }
         Context.set2DRenderConfig();//还原2D配置
+        RenderTexture.clearPool();
         return 1;
     }
 
