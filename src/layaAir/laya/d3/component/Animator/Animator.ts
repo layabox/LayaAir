@@ -105,6 +105,10 @@ export class Animator extends Component {
 
     set controller(val: AnimatorController) {
         this._controller = val;
+        if (this._controller) {
+            this._controller.updateTo(this);
+        }
+
     }
     get controller() {
         return this._controller;
@@ -1126,7 +1130,7 @@ export class Animator extends Component {
     /** @internal */
     onAfterDeserialize(): void {
         let arr = (<any>this).controllerLayers;
-        if (!arr)
+        if (!arr || null != this.controller)
             return;
         delete (<any>this).controllerLayers;
         this._controllerLayers.length = 0;
