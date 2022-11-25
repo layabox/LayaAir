@@ -134,7 +134,7 @@ export class AnimatorController extends Resource {
 
 
                         }
-                        ats.push(ato);
+                        ats.unshift(ato);
 
                     }
                     idCatch[obj.id].soloTransitions = ats;

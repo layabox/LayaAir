@@ -9,6 +9,7 @@ import { Node } from "../../laya/display/Node";
 import { ClassUtils } from "../utils/ClassUtils";
 import { Animation2DParm } from "./Animation2DParm";
 import { AnimatorUpdateMode } from "../d3/component/Animator/Animator";
+import { AnimatorController2D } from "./AnimatorController2D";
 
 export class Animator2D extends Component {
     private _speed = 1;
@@ -25,11 +26,24 @@ export class Animator2D extends Component {
 
     _parametersNameMap: Record<string, Animation2DParm>;
 
+    _controller: AnimatorController2D;
+
 
     constructor() {
         super();
         this._controllerLayers = [];
         this._parameters = {};
+    }
+
+
+    set controller(val: AnimatorController2D) {
+        this._controller = val;
+        if (val) {
+            val.updateTo(this);
+        }
+    }
+    get controller() {
+        return this._controller;
     }
 
     set parameters(val: Record<number, Animation2DParm>) {
@@ -402,7 +416,7 @@ export class Animator2D extends Component {
     /** @internal */
     onAfterDeserialize(): void {
         let arr = (<any>this).controllerLayers;
-        if (!arr)
+        if (!arr || null != this.controller)
             return;
         delete (<any>this).controllerLayers;
         this._controllerLayers.length = 0;
