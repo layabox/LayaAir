@@ -180,15 +180,15 @@ export class AnimatorTransition {
         if (this._mute) {
             return false;
         }
-        if (this._exitByTime && normalizeTime > this._exitTime) {
+        if (this._exitByTime && normalizeTime < this._exitTime) {
             return false;
         }
         for (var i = 0; i < this._conditions.length; i++) {
             let con = this._conditions[i];
-            let out = con.checkState(con.id);
+            let out = con.checkState(paramsMap[con.id]);
             if (out) {
                 if (con.type == AniStateConditionType.Trigger)
-                    paramsMap[i] = false;
+                    paramsMap[con.id] = false;
                 return true;
             }
         }

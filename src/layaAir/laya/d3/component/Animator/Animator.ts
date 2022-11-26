@@ -962,6 +962,9 @@ export class Animator extends Component {
                 var destIndex: number = destDataIndices[i];
                 var srcValue: any = srcIndex !== -1 ? srcRealtimeDatas[srcIndex] : destNodeOwners[destIndex].defaultValue;
                 var desValue: any = destIndex !== -1 ? destRealtimeDatas[destIndex] : srcNodeOwners[srcIndex].defaultValue;
+                if(!desValue){
+                    desValue = srcNodeOwners[srcIndex].defaultValue;
+                }
                 if (!controllerLayer.avatarMask || controllerLayer.avatarMask.getTransformActive(nodeOwner.nodePath)) {
                     this._applyCrossData(nodeOwner, additive, weight, isFirstLayer, srcValue, desValue, crossWeight);
                 }
@@ -986,7 +989,12 @@ export class Animator extends Component {
             if (nodeOwner) {
                 var destIndex: number = destDataIndices[i];
                 var srcValue: any = nodeOwner.crossFixedValue;
-                var desValue: any = destIndex !== -1 ? destRealtimeDatas[destIndex] : nodeOwner.defaultValue;
+                var desValue;
+                if (destIndex == -1 || !destRealtimeDatas[destIndex]) {
+                    desValue = nodeOwner.defaultValue;
+                } else {
+                    desValue = destRealtimeDatas[destIndex];
+                }
                 this._applyCrossData(nodeOwner, additive, weight, isFirstLayer, srcValue, desValue, crossWeight);
             }
         }
