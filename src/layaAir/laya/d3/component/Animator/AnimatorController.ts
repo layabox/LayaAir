@@ -72,7 +72,9 @@ export class AnimatorController extends Resource {
                     }
                     a.setParamsNumber(p.name, val);
                 } else if (AniParmType.Trigger == p.type) {
-                    a.setParamsTrigger(p.name);
+                    if (p.val) {
+                        a.setParamsTrigger(p.name);
+                    }
                 }
             }
         }
