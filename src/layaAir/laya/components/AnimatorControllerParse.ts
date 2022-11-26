@@ -53,6 +53,7 @@ export interface TypeAnimatorTransition {
     id: string,
     name?: string,
     mute?: boolean,
+    solo?: boolean,
     exitTime?: number,
     transstartoffset?: number,
     conditions?: TypeAnimatorConditions[],

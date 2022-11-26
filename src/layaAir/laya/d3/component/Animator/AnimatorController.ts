@@ -126,13 +126,16 @@ export class AnimatorController extends Resource {
                 if (soloTransitions && idCatch[obj.id]) {
 
                     let ats: AnimatorTransition[] = [];
+                    let sts: AnimatorTransition[] = [];
 
                     for (let j = soloTransitions.length - 1; j >= 0; j--) {
                         let o = soloTransitions[j];
                         let ato = new AnimatorTransition();
 
                         for (let k in o) {
-                            if ("id" == k) {
+                            if ("solo" == k) {
+
+                            } else if ("id" == k) {
                                 if (idCatch[o.id]) {
                                     ato.destState = idCatch[o.id];
                                 }
@@ -143,13 +146,15 @@ export class AnimatorController extends Resource {
                             } else {
                                 (ato as any)[k] = (o as any)[k];
                             }
-
-
                         }
-                        ats.unshift(ato);
-
+                        if (o.solo) {
+                            sts.unshift(ato);
+                        } else {
+                            ats.unshift(ato);
+                        }
                     }
-                    idCatch[obj.id].soloTransitions = ats;
+                    idCatch[obj.id].transitions = ats;
+                    idCatch[obj.id].soloTransitions = sts;
                 }
 
 
