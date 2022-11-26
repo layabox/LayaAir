@@ -3,7 +3,7 @@ import { Resource } from "../../../resource/Resource";
 import { Animator } from "./Animator";
 import { AnimatorControllerLayer } from "./AnimatorControllerLayer";
 import { AnimatorState } from "./AnimatorState";
-import { AnimatorStateBoolCondition, AnimatorStateCondition, AnimatorStateNumberCondition } from "./AnimatorStateCondition";
+import { AnimatorStateBoolCondition, AnimatorStateCondition, AnimatorStateNumberCondition, AnimatorStateTriggerCondition } from "./AnimatorStateCondition";
 import { AnimatorTransition } from "./AnimatorTransition";
 
 export class AnimatorController extends Resource {
@@ -71,6 +71,8 @@ export class AnimatorController extends Resource {
                         val = 0;
                     }
                     a.setParamsNumber(p.name, val);
+                } else if (AniParmType.Trigger == p.type) {
+                    a.setParamsTrigger(p.name);
                 }
             }
         }
@@ -188,8 +190,9 @@ export class AnimatorController extends Resource {
                 n.numberValue = Number(o.checkValue);
                 n.compareFlag = o.type;
                 c = n;
-            } else {
-                //TODO
+            } else if (parm.type == AniParmType.Trigger) {
+                let t = new AnimatorStateTriggerCondition(o.name);
+                c = t;
             }
 
 

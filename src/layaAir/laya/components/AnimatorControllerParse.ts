@@ -26,6 +26,7 @@ export interface TypeAnimatorLayer {
 export enum AniParmType {
     Float,
     Bool,
+    Trigger,
 }
 
 export interface TypeAnimatorState {
