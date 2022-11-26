@@ -186,4 +186,4 @@ const compressedFormats = ["ktx", "pvr", "dds", "hdr", "lanit.ls"];
 
 Loader.registerLoader(["png", "jpg", "jpeg", ...compressedFormats], TextureLoader, Loader.IMAGE);
 Loader.registerLoader([], Texture2DLoader, Loader.TEXTURE2D);
-Loader.registerLoader(["rendertexture"], RenderTextureLoader);
+Loader.registerLoader(["rendertexture"], RenderTextureLoader, Loader.TEXTURE2D);
