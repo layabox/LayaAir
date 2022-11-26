@@ -8,7 +8,6 @@ import { AnimatorTransition } from "./AnimatorTransition";
 
 export class AnimatorController extends Resource {
     data: TypeAnimatorControllerData;
-    controllerLayer: AnimatorControllerLayer[];
     clipsID: string[];
     constructor(data: any) {
         super();
@@ -19,41 +18,46 @@ export class AnimatorController extends Resource {
         this.clipsID = obj.clipsID;
     }
 
-    private initLayers() {
-        if (null == this.controllerLayer) {
-            let layers = this.data.controllerLayers;
+    private getLayers() {
+        let layers = this.data.controllerLayers;
 
 
 
-            let lArr: AnimatorControllerLayer[] = [];
+        let lArr: AnimatorControllerLayer[] = [];
 
-            for (let i = layers.length - 1; i >= 0; i--) {
-                let l = layers[i];
-                let acl = new AnimatorControllerLayer(l.name);
-                lArr.unshift(acl);
+        for (let i = layers.length - 1; i >= 0; i--) {
+            let l = layers[i];
+            let acl = new AnimatorControllerLayer(l.name);
+            lArr.unshift(acl);
 
 
-                for (let k in l) {
-                    if ("name" == k || "states" == k || null == (l as any)[k]) {
-                        continue;
-                    }
-                    try {
-                        (acl as any)[k] = (l as any)[k];
-                    } catch (err: *) { }
+            for (let k in l) {
+                if ("name" == k || "states" == k || null == (l as any)[k]) {
+                    continue;
                 }
-                this.getState(l.states, acl, this.data);
-
+                try {
+                    (acl as any)[k] = (l as any)[k];
+                } catch (err: *) { }
             }
-            this.controllerLayer = lArr;
+            this.getState(l.states, acl, this.data);
+
         }
+        return lArr;
     }
 
 
     updateTo(a: Animator) {
-        this.initLayers();
-        (a as any)._controllerLayers.length = 0;
-        for (let i = 0, len = this.controllerLayer.length; i < len; i++) {
-            a.addControllerLayer(this.controllerLayer[i]);
+        let currLayer = (a as any)._controllerLayers;
+
+        for (let i = 0, len = currLayer.length; i < len; i++) {
+            currLayer[i]._removeReference();
+        }
+        currLayer.length = 0;
+
+        let layers = this.getLayers();
+
+        for (let i = 0, len = layers.length; i < len; i++) {
+            a.addControllerLayer(layers[i]);
         }
         let parms = this.data.animatorParams;
         if (parms) {
@@ -80,6 +84,12 @@ export class AnimatorController extends Resource {
             let idCatch: Record<string, AnimatorState> = {};
             for (let i = states.length - 1; i >= 0; i--) {
                 let obj = states[i];
+
+                if (0 > Number(obj.id)) {
+                    continue;
+                }
+
+
                 let state = new AnimatorState();
                 idCatch[obj.id] = state;
 

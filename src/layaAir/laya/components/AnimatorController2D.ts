@@ -7,7 +7,7 @@ import { AnimatorState2D } from "./AnimatorState2D";
 
 export class AnimatorController2D extends Resource {
     data: TypeAnimatorControllerData;
-    controllerLayer: AnimatorControllerLayer2D[];
+    //controllerLayer: AnimatorControllerLayer2D[];
     clipsID: string[];
     constructor(data: any) {
         super();
@@ -17,33 +17,31 @@ export class AnimatorController2D extends Resource {
         this.data = obj.ret;
         this.clipsID = obj.clipsID;
     }
-    private initLayers() {
-        if (null == this.controllerLayer) {
-            let layers = this.data.controllerLayers;
+    private getLayers() {
+        let layers = this.data.controllerLayers;
 
 
 
-            let lArr: AnimatorControllerLayer2D[] = [];
+        let lArr: AnimatorControllerLayer2D[] = [];
 
-            for (let i = layers.length - 1; i >= 0; i--) {
-                let l = layers[i];
-                let acl = new AnimatorControllerLayer2D(l.name);
-                lArr.unshift(acl);
+        for (let i = layers.length - 1; i >= 0; i--) {
+            let l = layers[i];
+            let acl = new AnimatorControllerLayer2D(l.name);
+            lArr.unshift(acl);
 
 
-                for (let k in l) {
-                    if ("name" == k || "states" == k || null == (l as any)[k]) {
-                        continue;
-                    }
-                    try {
-                        (acl as any)[k] = (l as any)[k];
-                    } catch (err: *) { }
+            for (let k in l) {
+                if ("name" == k || "states" == k || null == (l as any)[k]) {
+                    continue;
                 }
-                this.getState(l.states, acl, this.data);
-
+                try {
+                    (acl as any)[k] = (l as any)[k];
+                } catch (err: *) { }
             }
-            this.controllerLayer = lArr;
+            this.getState(l.states, acl, this.data);
+
         }
+        return lArr;
     }
 
 
@@ -53,6 +51,9 @@ export class AnimatorController2D extends Resource {
             let idCatch: Record<string, AnimatorState2D> = {};
             for (let i = states.length - 1; i >= 0; i--) {
                 let obj = states[i];
+                if (0 > Number(obj.id)) {
+                    continue;
+                }
                 let state = new AnimatorState2D();
                 idCatch[obj.id] = state;
 
@@ -127,10 +128,16 @@ export class AnimatorController2D extends Resource {
     }
 
     updateTo(a: Animator2D) {
-        this.initLayers();
-        (a as any)._controllerLayers.length = 0;
-        for (let i = 0, len = this.controllerLayer.length; i < len; i++) {
-            a.addControllerLayer(this.controllerLayer[i]);
+        let currLayer = (a as any)._controllerLayers;
+
+        for (let i = 0, len = currLayer.length; i < len; i++) {
+            currLayer[i].destroy();
+        }
+        currLayer.length = 0;
+
+        let layers = this.getLayers();
+        for (let i = 0, len = layers.length; i < len; i++) {
+            a.addControllerLayer(layers[i]);
         }
     }
 }

@@ -70,7 +70,8 @@ export enum AniStateConditionNumberCompressType {
 
 export class AnimatorControllerParse {
     static parse(data: TypeAnimatorControllerData) {
-        let ret: TypeAnimatorControllerData = JSON.parse(JSON.stringify(data));
+        //let ret: TypeAnimatorControllerData = JSON.parse(JSON.stringify(data));
+        let ret = data;
         let layers = ret.controllerLayers;
         if (null == layers) {
             layers = [];
