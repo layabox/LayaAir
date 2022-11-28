@@ -1,32 +1,34 @@
-import { PostProcessEffect } from "./PostProcessEffect";
-import { PostProcessRenderContext } from "./PostProcessRenderContext";
-import { PostProcess } from "../../component/PostProcess"
-import { CommandBuffer } from "./command/CommandBuffer"
-import { Color } from "../../math/Color"
-import { Vector4 } from "../../math/Vector4"
-import { Viewport } from "../../math/Viewport"
-import { Texture2D } from "../../../resource/Texture2D"
-import { RenderTexture } from "../../resource/RenderTexture";
-import { FilterMode } from "../../../RenderEngine/RenderEnum/FilterMode";
-import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTargetFormat";
-import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
-import { ShaderData, ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData";
-import { LayaGL } from "../../../layagl/LayaGL";
-import { VertexMesh } from "../../graphics/Vertex/VertexMesh";
-import { SubShader } from "../../shader/SubShader";
-import { RenderState } from "../material/RenderState";
-import BloomVS from "../../shader/files/postProcess/Bloom.vs";
-import BloomDownsample13PS from "../../shader/files/postProcess/BloomDownsample13.fs";
-import BloomDownsample4PS from "../../shader/files/postProcess/BloomDownsample4.fs";
-import BloomPrefilter13PS from "../../shader/files/postProcess/BloomPrefilter13.fs";
-import BloomPrefilter4PS from "../../shader/files/postProcess/BloomPrefilter4.fs";
-import BloomUpsampleBoxPS from "../../shader/files/postProcess/BloomUpsampleBox.fs";
-import BloomUpsampleTentPS from "../../shader/files/postProcess/BloomUpsampleTent.fs";
-import SamplingGLSL from "../../shader/files/postProcess/Sampling.glsl";
-import StdLibGLSL from "../../shader/files/postProcess/StdLib.glsl";
-import ColorsGLSL from "../../shader/files/postProcess/Colors.glsl";
-import CompositePS from "../../shader/files/postProcess/Composite.fs";
-import CompositeVS from "../../shader/files/postProcess/Composite.vs";
+
+import BloomVS from "../../../shader/files/postProcess/Bloom/Bloom.vs";
+import BloomDownsample13PS from "../../../shader/files/postProcess/Bloom/BloomDownsample13.fs";
+import BloomDownsample4PS from "../../../shader/files/postProcess/Bloom/BloomDownsample4.fs";
+import BloomPrefilter13PS from "../../../shader/files/postProcess/Bloom/BloomPrefilter13.fs";
+import BloomPrefilter4PS from "../../../shader/files/postProcess/Bloom/BloomPrefilter4.fs";
+import BloomUpsampleBoxPS from "../../../shader/files/postProcess/Bloom/BloomUpsampleBox.fs";
+import BloomUpsampleTentPS from "../../../shader/files/postProcess/Bloom/BloomUpsampleTent.fs";
+import CompositePS from "../../../shader/files/postProcess/Bloom/Composite.fs";
+import CompositeVS from "../../../shader/files/postProcess/Bloom/Composite.vs";
+import SamplingGLSL from "../../../shader/files/postProcess/Sampling.glsl";
+import StdLibGLSL from "../../../shader/files/postProcess/StdLib.glsl";
+import ColorsGLSL from "../../../shader/files/postProcess/Colors.glsl";
+import { LayaGL } from "../../../../layagl/LayaGL";
+import { FilterMode } from "../../../../RenderEngine/RenderEnum/FilterMode";
+import { RenderTargetFormat } from "../../../../RenderEngine/RenderEnum/RenderTargetFormat";
+import { Shader3D } from "../../../../RenderEngine/RenderShader/Shader3D";
+import { ShaderDataType, ShaderData } from "../../../../RenderEngine/RenderShader/ShaderData";
+import { Texture2D } from "../../../../resource/Texture2D";
+import { PostProcess } from "../../../component/PostProcess";
+import { VertexMesh } from "../../../graphics/Vertex/VertexMesh";
+import { Color } from "../../../math/Color";
+import { Vector4 } from "../../../math/Vector4";
+import { Viewport } from "../../../math/Viewport";
+import { RenderTexture } from "../../../resource/RenderTexture";
+import { SubShader } from "../../../shader/SubShader";
+import { RenderState } from "../../material/RenderState";
+import { CommandBuffer } from "../command/CommandBuffer";
+import { PostProcessEffect } from "../PostProcessEffect";
+import { PostProcessRenderContext } from "../PostProcessRenderContext";
+import { BaseTexture } from "../../../../resource/BaseTexture";
 
 /**
  * <code>BloomEffect</code> 类用于创建泛光效果。
@@ -61,6 +63,9 @@ export class BloomEffect extends PostProcessEffect {
 	/**@internal */
 	private static MAXPYRAMIDSIZE: number = 16; // Just to make sure we handle 64k screens... Future-proof!
 
+	/**
+	 * bloom resource init
+	 */
 	static init() {
 		Shader3D.addInclude("StdLib.glsl", StdLibGLSL);
 		Shader3D.addInclude("Colors.glsl", ColorsGLSL);
@@ -134,7 +139,8 @@ export class BloomEffect extends PostProcessEffect {
 		renderState.depthWrite = false;
 		renderState.cull = RenderState.CULL_NONE;
 		renderState.blend = RenderState.BLEND_DISABLE;
-		this.CompositeInit();
+		BloomEffect.CompositeInit();
+		BloomEffect.__initDefine__();
 	}
 
 	static CompositeInit() {
@@ -205,14 +211,63 @@ export class BloomEffect extends PostProcessEffect {
 	/**@internal */
 	private _dirtTileOffset: Vector4 = new Vector4();
 
-	/**限制泛光像素的数量,该值在伽马空间。*/
-	clamp: number = 65472.0;
+	/**@internal*/
+	private _clamp: number = 65472.0;
+
 	/**泛光颜色。*/
-	color: Color = new Color(1.0, 1.0, 1.0, 1.0);
+	private _color: Color = new Color(1.0, 1.0, 1.0, 1.0);
+
 	/**是否开启快速模式。该模式通过降低质量来提升性能。*/
-	fastMode: boolean = false;
+	private _fastMode: boolean = false;
+
 	/**镜头污渍纹路,用于为泛光特效增加污渍灰尘效果*/
-	dirtTexture: Texture2D = null;
+	private _dirtTexture: BaseTexture = null;
+
+	/**
+	 * 泛光像素的数量,该值在伽马空间
+	 */
+	get clamp(): number {
+		return this._clamp;
+	}
+
+	set clamp(value: number) {
+		this._clamp = value;
+	}
+
+	/**
+	 * 泛光颜色。
+	 */
+	get color(): Color {
+		return this._color;
+	}
+
+	set color(value: Color) {
+		this._color = value;
+	}
+
+	/**
+	 * 快速模式
+	 */
+	get fastMode(): boolean {
+		return this._fastMode;
+	}
+
+	set fastMode(value: boolean) {
+		this._fastMode = value;
+	}
+
+	/**
+	 * 脏迹贴图
+	 */
+	get dirtTexture() {
+		return this._dirtTexture;
+	}
+
+	set dirtTexture(value: BaseTexture) {
+		this._dirtTexture && this._dirtTexture._removeReference(1);
+		this._dirtTexture = value;
+		this._dirtTexture && this._dirtTexture._addReference(1);
+	}
 
 	/**
 	 * 获取泛光过滤器强度,最小值为0。
@@ -315,9 +370,35 @@ export class BloomEffect extends PostProcessEffect {
 	 */
 	constructor() {
 		super();
-		BloomEffect.__initDefine__();
+		this.singleton = true;
+	}
+
+	/**
+	 * 添加到后期处理栈时,会调用
+	 */
+	effectInit() {
+		super.effectInit();
 		this._shader = Shader3D.find("PostProcessBloom");
 		this._pyramid = new Array(BloomEffect.MAXPYRAMIDSIZE * 2);
+	}
+
+	/**
+	 * 根据后期处理设置cameraDepthTextureMode
+	 * @inheritDoc
+	 * @override
+	 * @returns 
+	 */
+	getCameraDepthTextureModeFlag() {
+		return 0;
+	}
+
+	/**
+	 * 释放Effect
+	 */
+	release() {
+		super.release();
+		this._shader = null;
+		this._pyramid = [];
 	}
 
 	/**
@@ -405,9 +486,9 @@ export class BloomEffect extends PostProcessEffect {
 
 		//镜头污渍
 		//需要保证污渍纹理不变型
-		var dirtTexture: Texture2D = this.dirtTexture ? this.dirtTexture : Texture2D.blackTexture;
+		var usedirtTexture = this._dirtTexture ? this._dirtTexture : Texture2D.blackTexture;
 
-		var dirtRatio: number = dirtTexture.width / dirtTexture.height;
+		var dirtRatio: number = usedirtTexture.width / usedirtTexture.height;
 		var screenRatio: number = viewport.width / viewport.height;
 		var dirtTileOffset: Vector4 = this._dirtTileOffset;
 		if (dirtRatio > screenRatio)
@@ -427,7 +508,7 @@ export class BloomEffect extends PostProcessEffect {
 		compositeShaderData.setVector(PostProcess.SHADERVALUE_BLOOM_DIRTTILEOFFSET, dirtTileOffset);
 		compositeShaderData.setVector(PostProcess.SHADERVALUE_BLOOM_SETTINGS, shaderSettings);
 		compositeShaderData.setVector(PostProcess.SHADERVALUE_BLOOM_COLOR, new Vector4(linearColor.r, linearColor.g, linearColor.b, linearColor.a));//TODO:需要Color支持
-		compositeShaderData.setTexture(PostProcess.SHADERVALUE_BLOOM_DIRTTEX, dirtTexture);
+		compositeShaderData.setTexture(PostProcess.SHADERVALUE_BLOOM_DIRTTEX, usedirtTexture);
 		compositeShaderData.setTexture(PostProcess.SHADERVALUE_BLOOMTEX, lastUpTexture);
 		compositeShaderData.setVector(PostProcess.SHADERVALUE_BLOOMTEX_TEXELSIZE, this._bloomTextureTexelSize);
 

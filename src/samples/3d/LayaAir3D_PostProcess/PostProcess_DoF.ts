@@ -7,10 +7,10 @@ import { Camera } from "laya/d3/core/Camera";
 import { CameraMoveScript } from "../../3d/common/CameraMoveScript";
 import { PostProcess } from "laya/d3/component/PostProcess";
 import { DepthTextureMode } from "laya/d3/depthMap/DepthPass";
-import { GaussianDoF } from "./PostProcess_DoF/GaussianDoF";
 import { Handler } from "laya/utils/Handler";
 import { Loader } from "laya/net/Loader";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
+import { GaussianDoF } from "laya/d3/core/render/PostEffect/GaussianDoF";
 
 export class PostProcessDoF {
 

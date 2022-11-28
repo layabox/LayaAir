@@ -62,7 +62,9 @@ import { SkyRenderer } from "./laya/d3/resource/models/SkyRenderer";
 import { CannonPhysicsSettings } from "./laya/d3/physicsCannon/CannonPhysicsSettings";
 import { SubShader } from "./laya/d3/shader/SubShader";
 import { SkyPanoramicMaterial } from "./laya/d3/core/material/SkyPanoramicMaterial";
-import { BloomEffect } from "./laya/d3/core/render/BloomEffect";
+import { BloomEffect } from "./laya/d3/core/render/PostEffect/BloomEffect";
+import { ScalableAO } from "./laya/d3/core/render/PostEffect/ScalableAO";
+import { GaussianDoF } from "./laya/d3/core/render/PostEffect/GaussianDoF";
 
 /**
  * <code>Laya3D</code> 类用于初始化3D设置。
@@ -144,8 +146,9 @@ export class Laya3D {
         PBRStandardMaterial.__init__();
         SkyPanoramicMaterial.__init__();
         BloomEffect.init();
-        // PBRSpecularMaterial.__init__();
-        // SkyPanoramicMaterial.__init__();
+        ScalableAO.init();
+        GaussianDoF.init();
+
         Mesh.__init__();
         PrimitiveMesh.__init__();
         Sprite3D.__init__();

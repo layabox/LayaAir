@@ -17,10 +17,10 @@ import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
-import { ScalableAO } from "./PostProcess_AO/ScalableAO";
 import { Event } from "laya/events/Event";
 import Client from "../../Client";
 import { Color } from "laya/d3/math/Color";
+import { ScalableAO } from "laya/d3/core/render/PostEffect/ScalableAO";
 
 export class ProstProcess_AO {
     scene: Scene3D;
@@ -130,8 +130,8 @@ export class ProstProcess_AO {
         this.postProcess = postProcess;
         let ao: ScalableAO = new ScalableAO();
         ao.radius = 0.15;
-        ao.aoColor = new Vector3(0.0, 0.0, 0.0);
-        ao.instance = 0.5;
+        ao.aoColor = new Color(0.0, 0.0, 0.0,0.0);
+        ao.intensity = 0.5;
         postProcess.addEffect(ao);
     }
 

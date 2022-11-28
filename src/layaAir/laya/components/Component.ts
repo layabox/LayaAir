@@ -209,7 +209,6 @@ export class Component {
             }
         } else if (this._enableState) {
             this._enableState = false;
-
             if (LayaEnv.isPlaying || this.runInEditor) {
                 let driver = (this.owner._is3D && this.owner._scene)?._componentDriver || ILaya.stage._componentDriver;
                 driver.remove(this);

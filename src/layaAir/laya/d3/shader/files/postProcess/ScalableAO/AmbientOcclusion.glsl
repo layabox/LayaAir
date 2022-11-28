@@ -13,9 +13,23 @@ const float kBeta = 0.002;
 // varying
 varying vec2 v_Texcoord0;
 
-// params
+#if defined(AO_High)
+	#define SAMPLE_COUNT 12
+#elif defined(AO_MEDIUM)
+	#define SAMPLE_COUNT 8
+#else
+	#define SAMPLE_COUNT 4
+#endif
+
+#ifdef AOLOWEST
 #define SAMPLE_COUNT 8
-// todo uniform setting
+#endif
+
+#ifdef AOLOWEST
+#define SAMPLE_COUNT 8
+#endif
+
+
 #define INTENSITY u_AOParams.x
 #define RADIUS u_AOParams.y
 #define DOWNSAMPLE u_AOParams.z
