@@ -140,13 +140,56 @@ export class AnimatorController extends Resource {
                         acl.defaultState = idCatch[obj.soloTransitions[0].id];
                         continue;
                     }
+                } else if ("-2" == obj.id) {
+                    let transitions = obj.soloTransitions;
+                    if (transitions) {
+                        for (let j = transitions.length - 1; j >= 0; j--) {
+                            let o = transitions[j];
+                            let destState = idCatch[o.id];
+                            if (destState) {
+                                for (let idk in idCatch) {
+                                    let state = idCatch[idk];
+                                    let ato = new AnimatorTransition();
+                                    ato.destState = destState;
+                                    if (o.conditions) {
+                                        this.addConditions(o.conditions, ato, data);
+                                    }
+
+                                    for (let k in o) {
+                                        if ("solo" == k || "id" == k || "conditions" == k) {
+                                            continue;
+                                        } else {
+                                            (ato as any)[k] = (o as any)[k];
+                                        }
+                                    }
+
+                                    if (o.solo) {
+                                        state.soloTransitions.unshift(ato);
+                                    } else {
+                                        state.transitions.unshift(ato);
+                                    }
+
+
+
+
+                                }
+                            }
+
+                        }
+                    }
+
+
+
+                    continue;
                 }
 
                 let soloTransitions = obj.soloTransitions;
                 if (soloTransitions && idCatch[obj.id]) {
 
-                    let ats: AnimatorTransition[] = [];
-                    let sts: AnimatorTransition[] = [];
+                    let ats: AnimatorTransition[] = idCatch[obj.id].transitions;
+                    let sts: AnimatorTransition[] = idCatch[obj.id].soloTransitions;
+
+
 
                     for (let j = soloTransitions.length - 1; j >= 0; j--) {
                         let o = soloTransitions[j];
@@ -173,8 +216,6 @@ export class AnimatorController extends Resource {
                             ats.unshift(ato);
                         }
                     }
-                    idCatch[obj.id].transitions = ats;
-                    idCatch[obj.id].soloTransitions = sts;
                 }
 
 
