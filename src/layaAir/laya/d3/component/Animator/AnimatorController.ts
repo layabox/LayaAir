@@ -1,5 +1,6 @@
 import { AnimatorControllerParse, AniParmType, TypeAnimatorConditions, TypeAnimatorControllerData, TypeAnimatorParams, TypeAnimatorState } from "../../../components/AnimatorControllerParse";
 import { Resource } from "../../../resource/Resource";
+import { ClassUtils } from "../../../utils/ClassUtils";
 import { Animator } from "./Animator";
 import { AnimatorControllerLayer } from "./AnimatorControllerLayer";
 import { AnimatorState } from "./AnimatorState";
@@ -99,7 +100,24 @@ export class AnimatorController extends Resource {
 
                 for (let k in obj) {
                     try {
-                        if ("soloTransitions" == k) {
+                        if ("scripts" == k) {
+                            let scripts: string[] = obj[k];
+                            if (scripts && Array.isArray(scripts)) {
+                                for (let k = scripts.length - 1; k >= 0; k--) {
+                                    let uuid = scripts[k];
+                                    let c = ClassUtils.getClass(uuid);
+                                    if (c) {
+                                        state.addScript(c);
+                                    }
+
+                                }
+
+
+
+                            }
+
+                            continue;
+                        } else if ("soloTransitions" == k) {
                             continue;
                         } else if (null != (obj as any)[k]) {
                             (state as any)[k] = (obj as any)[k];

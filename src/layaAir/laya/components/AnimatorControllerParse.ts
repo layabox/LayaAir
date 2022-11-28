@@ -17,6 +17,7 @@ export interface TypeAnimatorLayer {
     blendingMode: number,
     states: TypeAnimatorState[],
     playOnWake: boolean,
+    defaultWeight: number,
 
     stageX?: number,
     stageY?: number,
@@ -48,6 +49,8 @@ export interface TypeAnimatorState {
     stageX?: number,
     stageY?: number,
     stageScale?: number,
+
+    scripts?: string[],
 }
 export interface TypeAnimatorTransition {
     id: string,
@@ -55,7 +58,9 @@ export interface TypeAnimatorTransition {
     mute?: boolean,
     solo?: boolean,
     exitTime?: number,
+    transduration?: number,
     transstartoffset?: number,
+    exitByTime?: boolean,
     conditions?: TypeAnimatorConditions[],
 }
 export interface TypeAnimatorConditions {
@@ -102,7 +107,7 @@ export class AnimatorControllerParse {
                     //TODO any
                 } else if ("-3" == state.id) {
                     //TODO exit
-                } else if (null == state.clip) {
+                } else if (null == state.clip || null == state.clip._$uuid || "" == state.clip._$uuid) {
                     states.splice(j, 1);
                 } else {
 
