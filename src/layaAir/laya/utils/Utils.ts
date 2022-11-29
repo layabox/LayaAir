@@ -230,8 +230,13 @@ export class Utils {
         let i = path.lastIndexOf(".");
         if (newExt.length > 0)
             newExt = "." + newExt;
-        if (i != -1)
-            return path.substring(0, i) + newExt;
+        if (i != -1) {
+            let j = path.indexOf("?", i);
+            if (j != -1)
+                return path.substring(0, i) + newExt + path.substring(j);
+            else
+                return path.substring(0, i) + newExt;
+        }
         else
             return path + newExt;
     }

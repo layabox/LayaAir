@@ -177,21 +177,29 @@ export class ProgressBar extends UIComponent {
     set skin(value: string) {
         if (this._skin != value) {
             this._skin = value;
-            if (this._skin && !Loader.getRes(this._skin)) {
-                let url = this._skinBaseUrl ? URL.formatURL(this._skin, this._skinBaseUrl) : this._skin;
-                ILaya.loader.load(url, Handler.create(this, this._skinLoaded), null, Loader.IMAGE);
-            } else {
-                this._skinLoaded();
+
+            if (this._skin) {
+                let url = this._skinBaseUrl ? URL.formatURL(this._skin, this._skinBaseUrl) : URL.formatURL(this._skin);
+
+                this._bg.skin = this._skin;
+                this._bar.skin = url.replace(".png", "$bar.png");
+
+                if (!Loader.getRes(this._skin))
+                    ILaya.loader.load(url, Handler.create(this, this._skinLoaded), null, Loader.IMAGE);
+                else
+                    this._skinLoaded();
+            }
+            else {
+                this._bg.skin = null;
+                this._bar.skin = null;
             }
         }
     }
 
     protected _skinLoaded(): void {
-        if (this._destroyed) {
-            return
-        }
-        this._bg.skin = this._skin;
-        this._bar.skin = this._skin ? this._skin.replace(".png", "$bar.png") : null;
+        if (this._destroyed)
+            return;
+
         this.callLater(this.changeValue);
         this._sizeChanged();
         this.event(Event.LOADED);
@@ -239,10 +247,10 @@ export class ProgressBar extends UIComponent {
         if (this.sizeGrid) {
             let grid = this.sizeGrid.split(",");
             let left = parseInt(grid[3]);
-            if(isNaN(left))
+            if (isNaN(left))
                 left = 0;
             let right = parseInt(grid[1]);
-            if(isNaN(right))
+            if (isNaN(right))
                 right = 0;
             let max = this.width - left - right;
             let sw = max * this._value;
