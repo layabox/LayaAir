@@ -383,6 +383,8 @@ export class Animator2D extends Component {
         playState._elapsedTime = elapsedTime;
         var normalizedTime = elapsedTime / clipDuration;
 
+        let absTime = playState._playAllTime / clipDuration;
+
 
 
         //总播放次数
@@ -406,12 +408,16 @@ export class Animator2D extends Component {
         let ret = this._applyTransition(layerIndex, animatorState._eventtransition(playState._normalizedPlayTime, this.parameters, isReplay));
 
         if (!ret && isReplay) {
-            if (0 < loop && loop <= normalizedTime) {
+            if (0 < loop && loop <= absTime) {
                 playState._finish = true;
 
-                playState._elapsedTime = clipDuration;
-                playState._normalizedPlayTime = 1;
-
+                if (0 > elapsedTime) {
+                    playState._elapsedTime = animatorState.clipStart;
+                    playState._normalizedPlayTime = animatorState.clipStart;
+                } else {
+                    playState._elapsedTime = animatorState.clipEnd;
+                    playState._normalizedPlayTime = animatorState.clipEnd;
+                }
                 animatorState._eventExit();
                 return;
             }
