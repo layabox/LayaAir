@@ -1,4 +1,4 @@
-import { RenderTargetFormat } from "laya/RenderEngine/RenderEnum/RenderTargetFormat";
+import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
 import { Const } from "../Const";
 import { BufferState } from "../d3/core/BufferState";
 import { RenderTexture } from "../d3/resource/RenderTexture";

@@ -10,7 +10,7 @@ import { Value2D } from "../webgl/shader/d2/value/Value2D"
 import { ColorFilter } from "./ColorFilter";
 import { BlurFilter } from "./BlurFilter";
 import { LayaGL } from "../layagl/LayaGL";
-import { RenderTargetFormat } from "laya/RenderEngine/RenderEnum/RenderTargetFormat";
+import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
 
 /**
  * <code>Filter</code> 是滤镜基类。
