@@ -1,12 +1,16 @@
 import { IClone } from "../utils/IClone";
 import { AnimatorPlayState2D } from "./AnimatorPlayState2D";
 import { AnimatorState2D } from "./AnimatorState2D";
+import { KeyframeNodeOwner2D } from "./KeyframeNodeOwner2D";
 
 export class AnimatorControllerLayer2D implements IClone {
     /**混合模式_覆盖。 */
     static BLENDINGMODE_OVERRIDE: number = 0;
     /**混合模式_叠加。 */
     static BLENDINGMODE_ADDTIVE: number = 1;
+
+    
+    _crossMark: number = 0;
 
     /**层的名字 */
     name: string;
@@ -18,6 +22,19 @@ export class AnimatorControllerLayer2D implements IClone {
     _crossPlayStateInfo: AnimatorPlayState2D | null = new AnimatorPlayState2D();
     /** 默认权重。*/
     defaultWeight = 1.0;
+
+    /**@internal */
+    _crossNodesOwnersCount: number = 0;
+    /**@internal */
+    _crossNodesOwners: KeyframeNodeOwner2D[] = [];
+    /**@internal */
+    _crossNodesOwnersIndicesMap: any = {};
+    /**@internal */
+    _srcCrossClipNodeIndices: number[] = [];
+    /**@internal */
+    _destCrossClipNodeIndices: number[] = [];
+
+
 
     /** 混合模式。*/
     blendingMode = AnimatorControllerLayer2D.BLENDINGMODE_OVERRIDE;

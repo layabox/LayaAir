@@ -10,6 +10,9 @@ import { ClassUtils } from "../utils/ClassUtils";
 import { Animation2DParm } from "./Animation2DParm";
 import { AnimatorUpdateMode } from "../d3/component/Animator/Animator";
 import { AnimatorController2D } from "./AnimatorController2D";
+import { AniParmType } from "./AnimatorControllerParse";
+import { AnimatorTransition2D } from "./AnimatorTransition2D";
+import { KeyframeNodeOwner2D } from "./KeyframeNodeOwner2D";
 
 export class Animator2D extends Component {
     private _speed = 1;
@@ -22,9 +25,8 @@ export class Animator2D extends Component {
 
     private _isPlaying = true;
 
-    _parameters: Record<number, Animation2DParm>;
+    _parameters: Record<string, Animation2DParm>;
 
-    _parametersNameMap: Record<string, Animation2DParm>;
 
     _controller: AnimatorController2D;
 
@@ -46,18 +48,8 @@ export class Animator2D extends Component {
         return this._controller;
     }
 
-    set parameters(val: Record<number, Animation2DParm>) {
+    set parameters(val: Record<string, Animation2DParm>) {
         this._parameters = val;
-        this._parametersNameMap = {};
-        if (val) {
-            for (var k in val) {
-                var o = val[k];
-                this._parametersNameMap[o.name] = o;
-            }
-        }
-
-
-
     }
     get parameters() {
         return this._parameters;
@@ -71,7 +63,7 @@ export class Animator2D extends Component {
     get speed() {
         return this._speed;
     }
-    play(name?: string, layerIndex = 0) {
+    play(name?: string, layerIndex = 0, normalizedTime: number = Number.NEGATIVE_INFINITY) {
         this._isPlaying = true;
         var controllerLayer = this._controllerLayers[layerIndex];
         if (controllerLayer) {
@@ -82,21 +74,58 @@ export class Animator2D extends Component {
             var playStateInfo = controllerLayer._playStateInfo!;
             var curPlayState = playStateInfo._currentState!;
             var animatorState = name ? controllerLayer.getStateByName(name) : defaultState;
+
+            if (!animatorState._clip)
+                return;
+
+
+
             var clipDuration = animatorState._clip!._duration;
             var calclipduration = animatorState._clip!._duration * (animatorState.clipEnd - animatorState.clipStart);
 
-            this.resetDefOwerVal();
-            playStateInfo._resetPlayState(0.0, calclipduration);
-            if (curPlayState != animatorState) {
+            // this.resetDefOwerVal();
+            // playStateInfo._resetPlayState(0.0, calclipduration);
+            // if (curPlayState != animatorState) {
+            //     playStateInfo._currentState = animatorState;
+            // }
+            // controllerLayer._playType = 0;
+
+
+
+            if (curPlayState !== animatorState) {
+                if (normalizedTime !== Number.NEGATIVE_INFINITY)
+                    playStateInfo._resetPlayState(clipDuration * normalizedTime, calclipduration);
+                else
+                    playStateInfo._resetPlayState(0.0, calclipduration);
+                (curPlayState !== null && curPlayState !== animatorState) && (this._revertDefaultKeyframeNodes(curPlayState));
+                controllerLayer._playType = 0;
                 playStateInfo._currentState = animatorState;
+            } else {
+                if (normalizedTime !== Number.NEGATIVE_INFINITY) {
+                    playStateInfo._resetPlayState(clipDuration * normalizedTime, calclipduration);
+                    controllerLayer._playType = 0;
+                }
             }
-            controllerLayer._playType = 0;
+            animatorState._eventStart();
+
+
+
+
+
+
         }
         var scripts = animatorState._scripts!;
         if (scripts) {
             for (var i = 0, n = scripts.length; i < n; i++)
                 scripts[i].onStateEnter();
         }
+    }
+
+    /**
+     * @internal
+     */
+    private _revertDefaultKeyframeNodes(clipStateInfo: AnimatorState2D): void {
+        //TODO...
     }
 
     stop() {
@@ -142,18 +171,16 @@ export class Animator2D extends Component {
                         }
                     }
 
+                    let dir = 1;
+                    if (!playStateInfo._frontPlay) {
+                        dir = -1;
+                    }
 
-                    finish || this._updatePlayer(animatorState, playStateInfo, delta * speed, loop);
+
+                    finish || this._updatePlayer(animatorState, playStateInfo, delta * speed * dir, loop, i);
                     if (needRender) {
                         this._updateClipDatas(animatorState, addtive, playStateInfo);
                         this._setClipDatasToNode(animatorState, addtive, controllerLayer.defaultWeight, i == 0, controllerLayer);//多层动画混合时即使动画停止也要设置数据
-                    }
-
-                    if (finish) {
-                        var next = playStateInfo.checkPlayNext();
-                        if (next) {
-                            this.play(next.name, i);
-                        }
                     }
 
 
@@ -175,6 +202,16 @@ export class Animator2D extends Component {
             this.stop();
         }
     }
+
+
+
+
+
+
+
+
+
+
 
     /**
      * 添加控制器层。
@@ -320,79 +357,164 @@ export class Animator2D extends Component {
 
         var curPlayTime = animatorState.clipStart * clipDuration + playStateInfo._normalizedPlayTime * playStateInfo._duration;
         var currentFrameIndices = animatorState._currentFrameIndices;
-        var frontPlay = playStateInfo._frontPlay;
+        //var frontPlay = playStateInfo._frontPlay;
+        let frontPlay = true;
         clip!._evaluateClipDatasRealTime(curPlayTime, currentFrameIndices, addtive, frontPlay, animatorState._realtimeDatas);
     }
 
 
-    private _updatePlayer(animatorState: AnimatorState2D, playState: AnimatorPlayState2D, elapsedTime: number, loop: number): void {
+    private _updatePlayer(animatorState: AnimatorState2D, playState: AnimatorPlayState2D, elapsedTime: number, loop: number, layerIndex: number): void {
 
+        let isReplay = false;
         var clipDuration = animatorState._clip!._duration * (animatorState.clipEnd - animatorState.clipStart);
+
+
         var lastElapsedTime = playState._elapsedTime;
-        var elapsedTime = lastElapsedTime + elapsedTime;
+
+        let pAllTime = playState._playAllTime;
+
+        playState._playAllTime += Math.abs(elapsedTime);
+
+
+        //动画播放总时间
+        elapsedTime = lastElapsedTime + elapsedTime;
+        //动画播放的上次总时间
         playState._lastElapsedTime = lastElapsedTime;
         playState._elapsedTime = elapsedTime;
-        var normalizedTime = elapsedTime / clipDuration;//TODO:时候可以都统一为归一化时间
+        var normalizedTime = elapsedTime / clipDuration;
+
+
+
+        //总播放次数
+        let pTime = playState._playAllTime / clipDuration;
+
+        if (Math.floor(pAllTime / clipDuration) < Math.floor(pTime)) {
+            isReplay = true;
+        }
+
+
+
+
         var playTime = normalizedTime % 1.0;
         playState._normalizedPlayTime = playTime < 0 ? playTime + 1.0 : playTime;
         playState._duration = clipDuration;
 
-        var isPlayFin = false;
 
-        if (elapsedTime >= clipDuration) {
-            if (animatorState.yoyo) {
-                if (!playState._frontPlay) {
-                    if (elapsedTime >= clipDuration * 2) {
-                        playState._elapsedTime = 0;
-                        playState._normalizedPlayTime = 0;
-                        playState._frontPlay = true;
-                        playState._playNum += 1;
-                        isPlayFin = true;
-                    }
-                } else {
-                    playState._frontPlay = false;
-                    if (!playState._frontPlay) {
-                        playState._elapsedTime = clipDuration;
-                        playState._normalizedPlayTime = 1;
-                    }
-                }
 
-            } else {
-                playState._playNum += 1;
-                isPlayFin = true;
+
+        animatorState._eventStateUpdate(playState._normalizedPlayTime);
+        let ret = this._applyTransition(layerIndex, animatorState._eventtransition(playState._normalizedPlayTime, this.parameters, isReplay));
+
+        if (!ret && isReplay) {
+            if (0 < loop && loop <= normalizedTime) {
+                playState._finish = true;
+
                 playState._elapsedTime = clipDuration;
                 playState._normalizedPlayTime = 1;
+
+                animatorState._eventExit();
+                return;
+            }
+        } else if (ret) {
+            //是否应该先exit？
+            animatorState._eventExit();
+        }
+
+
+
+        // var isPlayFin = false;
+
+        // if (elapsedTime >= clipDuration) {
+        //     if (animatorState.yoyo) {
+        //         if (!playState._frontPlay) {
+        //             if (elapsedTime >= clipDuration * 2) {
+        //                 playState._elapsedTime = 0;
+        //                 playState._normalizedPlayTime = 0;
+        //                 playState._frontPlay = true;
+        //                 playState._playNum += 1;
+        //                 isPlayFin = true;
+        //             }
+        //         } else {
+        //             playState._frontPlay = false;
+        //             if (!playState._frontPlay) {
+        //                 playState._elapsedTime = clipDuration;
+        //                 playState._normalizedPlayTime = 1;
+        //             }
+        //         }
+
+        //     } else {
+        //         playState._playNum += 1;
+        //         isPlayFin = true;
+        //         playState._elapsedTime = clipDuration;
+        //         playState._normalizedPlayTime = 1;
+        //     }
+        // }
+
+        // if (!playState._frontPlay && playState._elapsedTime != clipDuration) {
+        //     playState._normalizedPlayTime = 1 - playState._normalizedPlayTime;
+        // }
+
+
+        // if (isPlayFin) {
+        //     if (0 != loop && playState._playNum >= loop) {
+        //         playState._finish = true;
+        //     } else {
+        //         playState._elapsedTime = 0;
+        //         playState._normalizedPlayTime = 0;
+        //     }
+
+        // }
+        // var scripts = animatorState._scripts;
+        // if (scripts) {
+        //     for (var i = 0, n = scripts.length; i < n; i++) {
+        //         if (isPlayFin) {
+        //             scripts[i].onStateExit();
+        //         } else {
+        //             scripts[i].onStateUpdate();
+        //         }
+        //     }
+        // }
+
+
+
+
+    }
+
+    /**
+     * 启用过渡
+     * @param layerindex 
+     * @param transition 
+     * @returns 
+     */
+    private _applyTransition(layerindex: number, transition: AnimatorTransition2D) {
+        if (!transition)
+            return false;
+        return this.crossFade(transition.destState.name, transition.transduration, layerindex, transition.transstartoffset);
+    }
+
+
+    /**
+     * 在当前动画状态和目标动画状态之间进行融合过渡播放。
+     * @param	name 目标动画状态。
+     * @param	transitionDuration 过渡时间,该值为当前动画状态的归一化时间，值在0.0~1.0之间。
+     * @param	layerIndex 层索引。
+     * @param	normalizedTime 归一化的播放起始时间。
+     */
+    crossFade(name: string, transitionDuration: number, layerIndex: number = 0, normalizedTime: number = Number.NEGATIVE_INFINITY) {
+        var controllerLayer = this._controllerLayers[layerIndex];
+        if (controllerLayer) {
+            var destAnimatorState = controllerLayer.getStateByName(name);
+            if (destAnimatorState) {
+
+                this.play(name, layerIndex, normalizedTime);
+                return true;
+
+            }
+            else {
+                console.warn("Invalid layerIndex " + layerIndex + ".");
             }
         }
-
-        if (!playState._frontPlay && playState._elapsedTime != clipDuration) {
-            playState._normalizedPlayTime = 1 - playState._normalizedPlayTime;
-        }
-
-
-        if (isPlayFin) {
-            if (0 != loop && playState._playNum >= loop) {
-                playState._finish = true;
-            } else {
-                playState._elapsedTime = 0;
-                playState._normalizedPlayTime = 0;
-            }
-
-        }
-        var scripts = animatorState._scripts;
-        if (scripts) {
-            for (var i = 0, n = scripts.length; i < n; i++) {
-                if (isPlayFin) {
-                    scripts[i].onStateExit();
-                } else {
-                    scripts[i].onStateUpdate();
-                }
-            }
-        }
-
-
-
-
+        return false;
     }
 
 
@@ -439,6 +561,25 @@ export class Animator2D extends Component {
         var controllerLayer = this._controllerLayers[layerIndex];
         return controllerLayer.defaultState;
     }
+
+    setParamsTrigger(name: string) {
+        this._parameters[name] = { name: name, type: AniParmType.Trigger, value: true };
+    }
+    setParamsNumber(name: string, value: number) {
+        this._parameters[name] = { name: name, type: AniParmType.Float, value: value };
+    }
+    setParamsBool(name: string, value: boolean) {
+        this._parameters[name] = { name: name, type: AniParmType.Float, value: value };
+    }
+    getParamsvalue(name: number) {
+        let parm = this._parameters[name];
+        if (parm) {
+            return parm.value;
+        }
+        return null;
+    }
+
+
 
     onDestroy() {
         for (var i = 0, n = this._controllerLayers.length; i < n; i++)

@@ -111,9 +111,6 @@ export class AnimatorController extends Resource {
                                     }
 
                                 }
-
-
-
                             }
 
                             continue;

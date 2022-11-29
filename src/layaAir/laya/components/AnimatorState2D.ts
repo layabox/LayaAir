@@ -1,9 +1,17 @@
+import { AnimatorStateScript } from "../d3/animation/AnimatorStateScript";
+import { EventDispatcher } from "../events/EventDispatcher";
 import { IClone } from "../utils/IClone";
 import { Animation2DNext } from "./Animation2DNext";
+import { Animation2DParm } from "./Animation2DParm";
 import { AnimationClip2D } from "./AnimationClip2D";
 import { AnimatorState2DScript } from "./AnimatorState2DScript"
+import { AnimatorTransition2D } from "./AnimatorTransition2D";
+import { KeyframeNodeOwner2D } from "./KeyframeNodeOwner2D";
 
-export class AnimatorState2D implements IClone {
+export class AnimatorState2D extends EventDispatcher implements IClone {
+    static EVENT_OnStateEnter = "OnStartEnter";
+    static EVENT_OnStateUpdate = "OnStateUpdate";
+    static EVENT_OnStateExit = "OnStateExit";
     /** @internal */
     private _referenceCount = 0;
 
@@ -11,6 +19,8 @@ export class AnimatorState2D implements IClone {
     _clip: AnimationClip2D | null = null;
 
     _currentFrameIndices: Int16Array | null = null;
+
+
 
     /**名称。*/
     name: string;
@@ -27,10 +37,16 @@ export class AnimatorState2D implements IClone {
     yoyo = false;
 
 
-    nexts: Animation2DNext[];
+    //nexts: Animation2DNext[];
 
 
-    _scripts: AnimatorState2DScript[] | null = null;
+    /**@internal 过渡列表*/
+    transitions: AnimatorTransition2D[] = [];
+    /**@internal 优先过渡列表only play this transition */
+    soloTransitions: AnimatorTransition2D[] = [];
+
+
+    _scripts: AnimatorStateScript[] | null = null;
 
 
 
@@ -43,6 +59,61 @@ export class AnimatorState2D implements IClone {
     get clip(): AnimationClip2D | null {
         return this._clip;
     }
+    /**
+     * @internal
+     */
+    _eventStateUpdate(value: number) {
+        this.event(AnimatorState2D.EVENT_OnStateUpdate, value);
+        if (this._scripts) {
+            for (var i = 0, n = this._scripts.length; i < n; i++)
+                this._scripts[i].onStateUpdate(value);
+        }
+    }
+
+    /**
+     * @internal
+     */
+    _eventStart() {
+        this.event(AnimatorState2D.EVENT_OnStateEnter);
+        if (this._scripts) {
+            for (var i: number = 0, n: number = this._scripts.length; i < n; i++)
+                this._scripts[i].onStateEnter();
+        }
+    }
+    /**
+     * @internal
+     */
+    _eventExit() {
+        this.event(AnimatorState2D.EVENT_OnStateExit);
+        if (this._scripts) {
+            for (let i = 0, n = this._scripts.length; i < n; i++) {
+                this._scripts[i].onStateExit();
+            }
+        }
+    }
+
+    /**
+     * 派发过渡事件
+     * @internal
+     * @param normalizeTime 
+     * @param paramsMap 
+     */
+    _eventtransition(normalizeTime: number, paramsMap: Record<string, Animation2DParm>, isReplay: boolean): AnimatorTransition2D {
+        let soloNums = this.soloTransitions.length;
+        if (soloNums > 0) {
+            for (var i = 0; i < soloNums; i++) {
+                if (this.soloTransitions[i].check(normalizeTime, paramsMap, isReplay))
+                    return this.soloTransitions[i];
+            }
+            return null;
+        }
+        let transNums = this.transitions.length;
+        for (var i = 0; i < transNums; i++) {
+            if (this.transitions[i].check(normalizeTime, paramsMap, isReplay))
+                return this.transitions[i];
+        }
+        return null;
+    }
 
     clone() {
         var dest: AnimatorState2D = new AnimatorState2D();
@@ -54,6 +125,55 @@ export class AnimatorState2D implements IClone {
         dest.name = this.name;
         dest.speed = this.speed;
         dest.clip = this._clip;
+    }
+
+    /**
+  * 添加脚本。
+  * @param	type  组件类型。
+  * @return 脚本。
+  *
+  */
+    addScript(type: typeof AnimatorStateScript): AnimatorStateScript {
+        var script: AnimatorStateScript = new type();
+        this._scripts = this._scripts || [];
+        this._scripts.push(script);
+        return script;
+    }
+
+    /**
+     * 获取脚本。
+     * @param	type  组件类型。
+     * @return 脚本。
+     *
+     */
+    getScript(type: typeof AnimatorStateScript): AnimatorStateScript | null {
+        if (this._scripts) {
+            for (var i: number = 0, n: number = this._scripts.length; i < n; i++) {
+                var script: AnimatorStateScript = this._scripts[i];
+                if (script instanceof type)
+                    return script;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 获取脚本集合。
+     * @param	type  组件类型。
+     * @return 脚本集合。
+     */
+    getScripts(type: typeof AnimatorStateScript): AnimatorStateScript[] | null {
+        var coms: AnimatorStateScript[] | null = null;
+        if (this._scripts) {
+            for (var i: number = 0, n: number = this._scripts.length; i < n; i++) {
+                var script: AnimatorStateScript = this._scripts[i];
+                if (script instanceof type) {
+                    coms = coms || [];
+                    coms.push(script);
+                }
+            }
+        }
+        return coms;
     }
 
     set clip(value: AnimationClip2D | null) {
@@ -98,7 +218,7 @@ export class AnimatorState2D implements IClone {
         this._clip = null;
         this._currentFrameIndices = null;
         this._scripts = null;
-        this.nexts = null;
+        //this.nexts = null;
         this._realtimeDatas.length = 0;
     }
 
