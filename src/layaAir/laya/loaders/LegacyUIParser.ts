@@ -14,6 +14,7 @@ import { Handler } from "laya/utils/Handler";
 import { NodeFlags } from "../Const";
 import { PrefabImpl } from "../resource/PrefabImpl";
 import { Scene } from "../display/Scene";
+import { LayaEnv } from "../../LayaEnv";
 
 var _listClass: any;
 var _viewClass: any;
@@ -34,7 +35,7 @@ export class LegacyUIParser {
     static parse(data: any, options: any) {
         let root: Sprite = options?.root;
         if (!root) {
-            let runtime: string = data.props.runtime ? data.props.runtime : data.type;
+            let runtime: string = (LayaEnv.isPlaying && data.props.runtime) ? data.props.runtime : data.type;
             let clas = ClassUtils.getClass(runtime);
 
             if (data.props.renderType == "instance")
@@ -281,7 +282,7 @@ export class LegacyUIParser {
                 return LegacyUIParser.createByData(null, json.props.pageData);
             }
         }
-        var runtime: string = (json.props && json.props.runtime) || json.type;
+        var runtime: string = LayaEnv.isPlaying ? ((json.props && json.props.runtime) || json.type) : json.type;
         var compClass = ClassUtils.getClass(runtime);
         if (!compClass) throw "Can not find class " + runtime;
         if (json.type === "Script" && compClass.prototype._doAwake) {
@@ -382,7 +383,7 @@ export class LegacyUIParser {
         var props: any = json.props;
 
         if (!node) {
-            node = instanceHandler ? instanceHandler.runWith(json) : ClassUtils.getInstance(props.runtime || json.type);
+            node = instanceHandler ? instanceHandler.runWith(json) : ClassUtils.getInstance(LayaEnv.isPlaying ? (props.runtime || json.type) : json.type);
             if (!node) return null;
         }
 
