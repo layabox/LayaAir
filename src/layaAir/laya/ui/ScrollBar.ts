@@ -206,22 +206,34 @@ export class ScrollBar extends UIComponent {
     set skin(value: string) {
         if (value == "")
             value = null;
+
         if (this._skin != value) {
             this._skin = value;
-            if (this._skin && !Loader.getRes(this._skin)) {
-                let url = this._skinBaseUrl ? URL.formatURL(this._skin, this._skinBaseUrl) : this._skin;
-                ILaya.loader.load([url, url.replace(".png", "$up.png"), url.replace(".png", "$down.png"), url.replace(".png", "$bar.png")], Handler.create(this, this._skinLoaded), null, Loader.IMAGE);
-            } else {
-                this._skinLoaded();
+
+            if (this._skin) {
+                let url = this._skinBaseUrl ? URL.formatURL(this._skin, this._skinBaseUrl) : URL.formatURL(this._skin);
+
+                this.slider.skin = this._skin;
+                this.upButton.skin = url.replace(".png", "$up.png");
+                this.downButton.skin = url.replace(".png", "$down.png");
+
+                if (!Loader.getRes(this._skin))
+                    ILaya.loader.load([url, this.upButton.skin, this.downButton.skin, url.replace(".png", "$bar.png")], Handler.create(this, this._skinLoaded), null, Loader.IMAGE);
+                else
+                    this._skinLoaded();
+            }
+            else {
+                this.slider.skin = null;
+                this.upButton.skin = null;
+                this.downButton.skin = null;
             }
         }
     }
 
     protected _skinLoaded(): void {
-        if (this._destroyed) {
-            return
-        }
-        this.slider.skin = this._skin;
+        if (this._destroyed)
+            return;
+
         this.callLater(this.changeScrollBar);
         this._sizeChanged();
         this.event(Event.LOADED);
@@ -234,16 +246,6 @@ export class ScrollBar extends UIComponent {
     protected changeScrollBar(): void {
         this.upButton.visible = this._showButtons;
         this.downButton.visible = this._showButtons;
-        if (this._showButtons) {
-            if (this._skin) {
-                this.upButton.skin = this._skin.replace(".png", "$up.png");
-                this.downButton.skin = this._skin.replace(".png", "$down.png");
-            }
-            else {
-                this.upButton.skin = null;
-                this.downButton.skin = null;
-            }
-        }
         if (this.slider.isVertical)
             this.slider.y = this._showButtons ? this.upButton.height : 0;
         else

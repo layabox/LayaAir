@@ -1,4 +1,4 @@
-import { Texture } from "laya/resource/Texture";
+import { Texture } from "../../../../resource/Texture";
 import { Color } from "../../../../d3/math/Color";
 import { Matrix4x4 } from "../../../../d3/math/Matrix4x4";
 import { Quaternion } from "../../../../d3/math/Quaternion";

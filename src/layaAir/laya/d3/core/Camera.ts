@@ -597,6 +597,7 @@ export class Camera extends BaseCamera {
     get depthTextureMode(): DepthTextureMode {
         return this._depthTextureMode;
     }
+
     set depthTextureMode(value: DepthTextureMode) {
         this._depthTextureMode = value;
     }
@@ -1149,6 +1150,9 @@ export class Camera extends BaseCamera {
      */
     _renderDepthMode(context: RenderContext3D) {
         var cameraDepthMode = this._depthTextureMode;
+        if(this._postProcess&&this._postProcess.enable){
+            cameraDepthMode|=this._postProcess.cameraDepthTextureMode;
+        }
         if ((cameraDepthMode & DepthTextureMode.Depth) != 0) {
             // todo
             if (!this.canblitDepth || !this._internalRenderTexture.depthStencilTexture) {

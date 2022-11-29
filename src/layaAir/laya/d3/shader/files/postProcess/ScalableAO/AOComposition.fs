@@ -59,9 +59,8 @@ void main() {
     vec2 delty = u_MainTex_TexelSize.xy;
     float ao = BlurSmall(u_compositionAoTexture,uv,delty);
     vec4 albedo = texture2D(u_MainTex,uv);
-    vec4 aocolor = vec4(ao*u_AOColor,ao);
-    //albedo.rgb = ao*u_AOColor*albedo.rgb;
-    albedo.rgb = albedo.rgb*(1.0-ao)+ao*u_AOColor*ao;
+    vec4 aocolor = vec4(ao*u_AOColor.rgb,ao);
+    albedo.rgb = albedo.rgb*(1.0-ao)+ao*u_AOColor.rgb*ao;
     gl_FragColor = albedo;
 
 

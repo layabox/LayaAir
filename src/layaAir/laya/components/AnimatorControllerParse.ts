@@ -75,6 +75,15 @@ export enum AniStateConditionNumberCompressType {
     Greater
 }
 
+/**
+ * 动画状态条件类型
+ */
+ export enum AniStateConditionType {
+    Number,
+    Bool,
+    Trigger
+}
+
 export class AnimatorControllerParse {
     static parse(data: TypeAnimatorControllerData) {
         //let ret: TypeAnimatorControllerData = JSON.parse(JSON.stringify(data));

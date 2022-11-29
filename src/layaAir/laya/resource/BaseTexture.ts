@@ -127,7 +127,8 @@ export class BaseTexture extends Resource {
         return this._texture.maxMipmapLevel;
     }
 
-    protected _gammaSpace: boolean = false;
+    /**@internal */
+    _gammaSpace: boolean = false;
     // todo
     public get gammaSpace(): boolean {
         // return this._gammaSpace;

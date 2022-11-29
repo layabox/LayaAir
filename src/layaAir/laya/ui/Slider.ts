@@ -242,25 +242,35 @@ export class Slider extends UIComponent {
     set skin(value: string) {
         if (this._skin != value) {
             this._skin = value;
-            if (this._skin && !Loader.getRes(this._skin)) {
-                let url = this._skinBaseUrl ? URL.formatURL(this._skin, this._skinBaseUrl) : this._skin;
-                ILaya.loader.load([url, url.replace(".png", "$bar.png")], Handler.create(this, this._skinLoaded), null, Loader.IMAGE);
-            } else {
-                this._skinLoaded();
+
+            if (this._skin) {
+                let url = this._skinBaseUrl ? URL.formatURL(this._skin, this._skinBaseUrl) : URL.formatURL(this._skin);
+
+                this._bg.skin = this._skin;
+                this._bar.skin = url.replace(".png", "$bar.png");
+
+                if (!Loader.getRes(this._skin))
+                    ILaya.loader.load([url, this._bar.skin], Handler.create(this, this._skinLoaded), null, Loader.IMAGE);
+                else
+                    this._skinLoaded();
+            }
+            else {
+                this._bg.skin = null;
+                this._bar.skin = null;
             }
         }
     }
 
     protected _skinLoaded(): void {
-        this._bg.skin = this._skin;
-        this._bar.skin = this._skin ? this._skin.replace(".png", "$bar.png") : null;
         if (this._skin) {
-            let progressSkin: string = this._skin.replace(".png", "$progress.png");
+            let url = this._skinBaseUrl ? URL.formatURL(this._skin, this._skinBaseUrl) : URL.formatURL(this._skin);
+            let progressSkin = url.replace(".png", "$progress.png");
             if (Loader.getRes(progressSkin)) {
                 if (!this._progress) {
-                    this.addChild(this._progress = new Image());
+                    this._progress = new Image();
+                    this._progress.hideFlags = HideFlags.HideAndDontSave;
                     this._progress.sizeGrid = this._bar.sizeGrid;
-                    this.setChildIndex(this._progress, 1);
+                    this.addChildAt(this._progress, 1);
                 }
                 this._progress.skin = progressSkin;
             }

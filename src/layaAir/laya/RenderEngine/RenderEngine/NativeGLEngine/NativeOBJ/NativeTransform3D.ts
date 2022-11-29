@@ -4,7 +4,7 @@ import { Vector3 } from "../../../../d3/math/Vector3";
 import { Sprite3D } from "../../../../d3/core/Sprite3D";
 import { Transform3D } from "../../../../d3/core/Transform3D";
 import { NativeMemory } from "../CommonMemory/NativeMemory";
-import { EventDispatcher } from "laya/events/EventDispatcher";
+import { EventDispatcher } from "../../../../events/EventDispatcher";
 /**
  * <code>Transform3D</code> 类用于实现3D变换。
  */

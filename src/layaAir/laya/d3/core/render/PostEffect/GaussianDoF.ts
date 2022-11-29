@@ -1,28 +1,30 @@
-import { Camera } from "laya/d3/core/Camera";
-import { CommandBuffer } from "laya/d3/core/render/command/CommandBuffer";
-import { PostProcessEffect } from "laya/d3/core/render/PostProcessEffect";
-import { PostProcessRenderContext } from "laya/d3/core/render/PostProcessRenderContext";
-import { VertexMesh } from "laya/d3/graphics/Vertex/VertexMesh";
-import { Viewport } from "laya/d3/math/Viewport";
-import { RenderTexture } from "laya/d3/resource/RenderTexture";
-import { ShaderPass } from "laya/d3/shader/ShaderPass";
-import { SubShader } from "laya/d3/shader/SubShader";
-import { Vector4 } from "laya/d3/math/Vector4";
-import { Vector3 } from "laya/d3/math/Vector3";
-import FullScreenVert from "./Shader/FullScreenVert.vs";
-import CoCFS from "./Shader/CoC.fs";
-import PrefilterFS from "./Shader/Prefilter.fs";
-import BlurVFS from "./Shader/BlurV.fs";
-import BlurHFS from "./Shader/BlurH.fs";
-import CompositeFS from "./Shader/Composite.fs";
-import { FilterMode } from "laya/RenderEngine/RenderEnum/FilterMode";
-import { RenderTargetFormat } from "laya/RenderEngine/RenderEnum/RenderTargetFormat";
-import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
-import { ShaderData, ShaderDataType } from "laya/RenderEngine/RenderShader/ShaderData";
-import { ShaderDefine } from "laya/RenderEngine/RenderShader/ShaderDefine";
-import { LayaGL } from "laya/layagl/LayaGL";
+import FullScreenVert from "../../../shader/files/postProcess/GaussianDoF/FullScreenVert.vs";
+import CoCFS from "../../../shader/files/postProcess/GaussianDoF/CoC.fs";
+import PrefilterFS from "../../../shader/files/postProcess/GaussianDoF/Prefilter.fs";
+import BlurVFS from "../../../shader/files/postProcess/GaussianDoF/BlurV.fs";
+import BlurHFS from "../../../shader/files/postProcess/GaussianDoF/BlurH.fs";
+import CompositeFS from "../../../shader/files/postProcess/GaussianDoF/Composite.fs";
+import { Camera } from "../../../core/Camera";
+import { CommandBuffer } from "../../../core/render/command/CommandBuffer";
+import { PostProcessEffect } from "../../../core/render/PostProcessEffect";
+import { PostProcessRenderContext } from "../../../core/render/PostProcessRenderContext";
+import { VertexMesh } from "../../../graphics/Vertex/VertexMesh";
+import { Viewport } from "../../../math/Viewport";
+import { RenderTexture } from "../../../resource/RenderTexture";
+import { ShaderPass } from "../../../shader/ShaderPass";
+import { SubShader } from "../../../shader/SubShader";
+import { Vector4 } from "../../../math/Vector4";
+import { Vector3 } from "../../../math/Vector3";
+import { FilterMode } from "../../../../RenderEngine/RenderEnum/FilterMode";
+import { RenderTargetFormat } from "../../../../RenderEngine/RenderEnum/RenderTargetFormat";
+import { Shader3D } from "../../../../RenderEngine/RenderShader/Shader3D";
+import { ShaderData, ShaderDataType } from "../../../../RenderEngine/RenderShader/ShaderData";
+import { ShaderDefine } from "../../../../RenderEngine/RenderShader/ShaderDefine";
+import { LayaGL } from "../../../../layagl/LayaGL";
+import { DepthTextureMode } from "../../../depthMap/DepthPass";
 
 /**
+ *  <code>BloomEffect</code> 类用于创建环境光遮罩效果。
  *  Gaussian DoF
  *  * 只支持 远景模糊
  *  - start: 开始远景模糊的深度
@@ -30,27 +32,37 @@ import { LayaGL } from "laya/layagl/LayaGL";
  *  - maxRadius: 远景模糊最大半径
  */
 export class GaussianDoF extends PostProcessEffect {
-
-    private _shader: Shader3D;
-
-    private _shaderData: ShaderData;
-
-    private _zBufferParams: Vector4;
-    private _sourceSize: Vector4;
-    private _dowmSampleScale: Vector4;
-
+    /**@internal */
     static SOURCESIZE: number;
-    static ZBUFFERPARAMS: number;
-    static COCPARAMS: number;
-    static DEPTHTEXTURE: number;
-    static NORMALDEPTHTEXTURE: number;
-    static FULLCOCTEXTURE: number;
-    static DOWNSAMPLESCALE: number;
-    static BLURCOCTEXTURE: number;
 
+    /**@internal */
+    static ZBUFFERPARAMS: number;
+
+    /**@internal */
+    static COCPARAMS: number;
+
+    /**@internal */
+    static DEPTHTEXTURE: number;
+    
+    /**@internal */
+    static NORMALDEPTHTEXTURE: number;
+    
+    /**@internal */
+    static FULLCOCTEXTURE: number;
+    
+    /**@internal */
+    static DOWNSAMPLESCALE: number;
+    
+    /**@internal */
+    static BLURCOCTEXTURE: number;
+    
+    /**@internal */
     static SHADERDEFINE_DEPTHNORMALTEXTURE: ShaderDefine;
 
-    static __init__() {
+    /**
+     * GaussianDOF resource init
+     */
+    static init() {
         GaussianDoF.SOURCESIZE = Shader3D.propertyNameToID("u_SourceSize");
         GaussianDoF.ZBUFFERPARAMS = Shader3D.propertyNameToID("u_ZBufferParams");
         GaussianDoF.COCPARAMS = Shader3D.propertyNameToID("u_CoCParams");
@@ -87,7 +99,7 @@ export class GaussianDoF extends PostProcessEffect {
          */
         let cocSubShader: SubShader = new SubShader(attributeMap, uniformMap);
         shader.addSubShader(cocSubShader);
-        let cocPass: ShaderPass = cocSubShader.addShaderPass(FullScreenVert, CoCFS);
+        cocSubShader.addShaderPass(FullScreenVert, CoCFS);
 
         /**
          * Prefilter pass
@@ -95,7 +107,7 @@ export class GaussianDoF extends PostProcessEffect {
          */
         let prefilterSubShader: SubShader = new SubShader(attributeMap, uniformMap);
         shader.addSubShader(prefilterSubShader);
-        let prefilterPass: ShaderPass = prefilterSubShader.addShaderPass(FullScreenVert, PrefilterFS);
+        prefilterSubShader.addShaderPass(FullScreenVert, PrefilterFS);
 
         // blur
         /**
@@ -103,26 +115,43 @@ export class GaussianDoF extends PostProcessEffect {
          */
         let blurHSubShader: SubShader = new SubShader(attributeMap, uniformMap);
         shader.addSubShader(blurHSubShader);
-        let blurHPass: ShaderPass = blurHSubShader.addShaderPass(FullScreenVert, BlurHFS);
+        blurHSubShader.addShaderPass(FullScreenVert, BlurHFS);
 
         /**
          * blurV pass
          */
         let blurVSubShader: SubShader = new SubShader(attributeMap, uniformMap);
         shader.addSubShader(blurVSubShader);
-        let blurVPass: ShaderPass = blurVSubShader.addShaderPass(FullScreenVert, BlurVFS);
+        blurVSubShader.addShaderPass(FullScreenVert, BlurVFS);
 
         /**
          * Composite pass
          */
         let compositeSubShader: SubShader = new SubShader(attributeMap, uniformMap);
         shader.addSubShader(compositeSubShader);
-        let compositePass: ShaderPass = compositeSubShader.addShaderPass(FullScreenVert, CompositeFS);
+        compositeSubShader.addShaderPass(FullScreenVert, CompositeFS);
 
     }
 
+    /**@internal */
+    private _shader: Shader3D;
+
+    /**@internal */
+    private _shaderData: ShaderData;
+
+    /**@internal */
+    private _zBufferParams: Vector4;
+
+    /**@internal */
+    private _sourceSize: Vector4;
+
+    /**@internal */
+    private _dowmSampleScale: Vector4;
+
+    /**
+     * 实例化一个高斯DOF效果类
+     */
     constructor() {
-        GaussianDoF.__init__();
         super();
         this._shader = Shader3D.find("GaussianDoF");
         this._shaderData = LayaGL.renderOBJCreate.createShaderData(null);
@@ -132,6 +161,9 @@ export class GaussianDoF extends PostProcessEffect {
         this._dowmSampleScale = new Vector4();
     }
 
+    /**
+     * 开始远景模糊的深度
+     */
     set farStart(value: number) {
         let cocParams: Vector3 = this._shaderData.getVector3(GaussianDoF.COCPARAMS);
         cocParams.x = value;
@@ -142,6 +174,9 @@ export class GaussianDoF extends PostProcessEffect {
         return this._shaderData.getVector3(GaussianDoF.COCPARAMS).x;
     }
 
+    /**
+     * 达到最大模糊半径的远景深度
+     */
     set farEnd(value: number) {
         let cocParams: Vector3 = this._shaderData.getVector3(GaussianDoF.COCPARAMS);
         cocParams.y = Math.max(cocParams.x, value);
@@ -152,6 +187,9 @@ export class GaussianDoF extends PostProcessEffect {
         return this._shaderData.getVector3(GaussianDoF.COCPARAMS).y;
     }
 
+    /**
+     * 最大模糊半径
+     */
     set maxRadius(value: number) {
         let cocParams: Vector3 = this._shaderData.getVector3(GaussianDoF.COCPARAMS);
         cocParams.z = Math.min(value, 2);
@@ -162,25 +200,30 @@ export class GaussianDoF extends PostProcessEffect {
         return this._shaderData.getVector3(GaussianDoF.COCPARAMS).z;
     }
 
-    setupShaderValue(context: PostProcessRenderContext): void {
-        let camera: Camera = context.camera;
-        let source: RenderTexture = context.source;
+    /**
+     * @override
+     */
+    getCameraDepthTextureModeFlag() {
+        return DepthTextureMode.Depth;
+    }
 
+    private _setupShaderValue(context: PostProcessRenderContext): void {
+        let camera: Camera = context.camera;
         this._dowmSampleScale.setValue(0.5, 0.5, 2.0, 2.0);
         this._shaderData.setVector(GaussianDoF.DOWNSAMPLESCALE, this._dowmSampleScale);
-
         let far = camera.farPlane;
         let near = camera.nearPlane;
         this._zBufferParams.setValue(1.0 - far / near, far / near, (near - far) / (near * far), 1 / near);
         this._shaderData.setVector(GaussianDoF.ZBUFFERPARAMS, this._zBufferParams);
     }
 
+    /**
+    * @override
+    * @param context 
+    */
     render(context: PostProcessRenderContext): void {
         let cmd: CommandBuffer = context.command;
-        let viewport: Viewport = context.camera.viewport;
-        let camera: Camera = context.camera;
-
-        this.setupShaderValue(context);
+        this._setupShaderValue(context);
 
         let source: RenderTexture = context.source;
 
@@ -222,5 +265,4 @@ export class GaussianDoF extends PostProcessEffect {
         RenderTexture.recoverToPool(blurVTex);
         context.deferredReleaseTextures.push(finalTex);
     }
-
 }

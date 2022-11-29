@@ -11,7 +11,7 @@ import { Utils } from "../utils/Utils";
  */
 export class URL {
     /**URL地址版本映射表，比如{"aaa/bb.png":99,"aaa/bb.png":12}，默认情况下，通过formatURL格式化后，会自动生成为"aaa/bb.png?v=99"的一个地址*/
-    static version: any = {};
+    static version: Record<string, number | string> = {};
 
     /**基础路径。如果不设置，默认为当前网页的路径。最终地址将被格式化为 basePath+相对URL地址，*/
     static basePath: string = "";
@@ -45,10 +45,12 @@ export class URL {
 
     /** 自定义URL格式化的方式。例如： customFormat = function(url:String):String{} */
     static customFormat: Function = function (url: string): string {
-        var ver: string = URL.version[url];
-        if (!((<any>window)).conch && ver) {
-            if (url.indexOf("?") != -1)
-                url += "&v=" + ver;
+        let ver = URL.version[url];
+        if (!((<any>window)).conch && ver != null) {
+            if (url.indexOf("?") != -1) {
+                if (url.indexOf("&v=") == -1 && url.indexOf("?v=") == -1)
+                    url += "&v=" + ver;
+            }
             else
                 url += "?v=" + ver;
         }
@@ -73,15 +75,15 @@ export class URL {
             url = url2;
         }
 
-        if (url.indexOf(":") == -1) {
+        let char1 = url.charCodeAt(0);
+        if (url.indexOf(":") == -1 && char1 !== 47) { //已经format过
             //自定义路径格式化
             if (URL.customFormat != null)
                 url = URL.customFormat(url);
 
-            let char1 = url.charCodeAt(0);
             if (char1 === 126) // ~
                 url = URL.join(URL.rootPath, url.substring(2));
-            else if (char1 !== 47) // /
+            else
                 url = URL.join(base != null ? base : URL.basePath, url);
         }
 
@@ -89,7 +91,7 @@ export class URL {
     }
 
     /**
-     * 处理扩展名的自动转换，调用URL.customFormat(通常作用是添加上版本号）。
+     * 处理扩展名的自动转换
      * @param url 地址。
      * @return 格式化处理后的地址。
      */
@@ -98,7 +100,7 @@ export class URL {
             let extold = Utils.getFileExtension(url);
             let ext = URL.overrideFileExts[extold];
             if (ext != null)
-                url = url.substring(0, url.length - extold.length) + ext;
+                Utils.replaceFileExtension(url, ext);
         }
 
         return url;

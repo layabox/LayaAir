@@ -1,19 +1,4 @@
-
-/**
- * 动画状态条件类型
- */
-export enum AniStateConditionType {
-    Number,
-    Bool,
-    Trigger
-}
-/**
- * number比较类型
- */
-export enum AniStateConditionNumberCompressType {
-    Less,
-    Greater
-}
+import { AniStateConditionType, AniStateConditionNumberCompressType } from "../../../components/AnimatorControllerParse";
 
 export class AnimatorStateCondition {
     /**
