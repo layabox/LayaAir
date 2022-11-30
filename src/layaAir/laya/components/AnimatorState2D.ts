@@ -6,7 +6,6 @@ import { Animation2DParm } from "./Animation2DParm";
 import { AnimationClip2D } from "./AnimationClip2D";
 import { AnimatorState2DScript } from "./AnimatorState2DScript"
 import { AnimatorTransition2D } from "./AnimatorTransition2D";
-import { KeyframeNodeOwner2D } from "./KeyframeNodeOwner2D";
 
 export class AnimatorState2D extends EventDispatcher implements IClone {
     static EVENT_OnStateEnter = "OnStartEnter";

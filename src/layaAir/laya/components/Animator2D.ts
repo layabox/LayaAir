@@ -12,7 +12,6 @@ import { AnimatorUpdateMode } from "../d3/component/Animator/Animator";
 import { AnimatorController2D } from "./AnimatorController2D";
 import { AniParmType } from "./AnimatorControllerParse";
 import { AnimatorTransition2D } from "./AnimatorTransition2D";
-import { KeyframeNodeOwner2D } from "./KeyframeNodeOwner2D";
 
 export class Animator2D extends Component {
     private _speed = 1;

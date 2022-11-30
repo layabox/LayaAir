@@ -1,7 +1,6 @@
 import { IClone } from "../utils/IClone";
 import { AnimatorPlayState2D } from "./AnimatorPlayState2D";
 import { AnimatorState2D } from "./AnimatorState2D";
-import { KeyframeNodeOwner2D } from "./KeyframeNodeOwner2D";
 
 export class AnimatorControllerLayer2D implements IClone {
     /**混合模式_覆盖。 */
@@ -25,8 +24,6 @@ export class AnimatorControllerLayer2D implements IClone {
 
     /**@internal */
     _crossNodesOwnersCount: number = 0;
-    /**@internal */
-    _crossNodesOwners: KeyframeNodeOwner2D[] = [];
     /**@internal */
     _crossNodesOwnersIndicesMap: any = {};
     /**@internal */
