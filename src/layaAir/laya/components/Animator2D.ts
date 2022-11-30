@@ -368,6 +368,7 @@ export class Animator2D extends Component {
         var clipDuration = animatorState._clip!._duration * (animatorState.clipEnd - animatorState.clipStart);
 
 
+
         var lastElapsedTime = playState._elapsedTime;
 
         let pAllTime = playState._playAllTime;
@@ -382,14 +383,19 @@ export class Animator2D extends Component {
         playState._elapsedTime = elapsedTime;
         var normalizedTime = elapsedTime / clipDuration;
 
-        let absTime = playState._playAllTime / clipDuration;
 
+
+
+        let scale = 1;
+        if (animatorState.yoyo) {
+            scale = 2;
+        }
 
 
         //总播放次数
-        let pTime = playState._playAllTime / clipDuration;
+        let pTime = playState._playAllTime / (clipDuration * scale);
 
-        if (Math.floor(pAllTime / clipDuration) < Math.floor(pTime)) {
+        if (Math.floor(pAllTime / (clipDuration * scale)) < Math.floor(pTime)) {
             isReplay = true;
         }
 
@@ -397,25 +403,79 @@ export class Animator2D extends Component {
 
 
         var playTime = normalizedTime % 1.0;
-        playState._normalizedPlayTime = playTime < 0 ? playTime + 1.0 : playTime;
+        let normalizedPlayTime = playTime < 0 ? playTime + 1.0 : playTime;
+        playState._normalizedPlayTime = normalizedPlayTime;
         playState._duration = clipDuration;
 
 
 
+        if (1 != scale) {
+            normalizedTime = playState._playAllTime / (clipDuration * scale);
+            playTime = normalizedTime % 1.0;
+            normalizedPlayTime = playTime < 0 ? playTime + 1.0 : playTime;
 
-        animatorState._eventStateUpdate(playState._normalizedPlayTime);
-        let ret = this._applyTransition(layerIndex, animatorState._eventtransition(playState._normalizedPlayTime, this.parameters, isReplay));
+            if (animatorState.yoyo) {
+                if (0.5 > normalizedPlayTime) {
+                    if (!playState._frontPlay) {
+                        if (0 > animatorState.speed) {
+                            playState._elapsedTime = animatorState.clipEnd;
+                            playState._normalizedPlayTime = animatorState.clipEnd;
+                        } else {
+                            playState._elapsedTime = animatorState.clipStart;
+                            playState._normalizedPlayTime = animatorState.clipStart;
+
+                        }
+
+
+
+                        playState._frontPlay = true;
+                    }
+                } else {
+                    if (playState._frontPlay) {
+                        playState._frontPlay = false;
+                        if (0 > animatorState.speed) {
+                            playState._elapsedTime = animatorState.clipStart;
+                            playState._normalizedPlayTime = animatorState.clipStart;
+                        } else {
+                            playState._elapsedTime = animatorState.clipEnd;
+                            playState._normalizedPlayTime = animatorState.clipEnd;
+                        }
+
+
+
+                    }
+                }
+            }
+        }
+
+
+
+
+
+        animatorState._eventStateUpdate(normalizedPlayTime);
+        let ret = this._applyTransition(layerIndex, animatorState._eventtransition(normalizedPlayTime, this.parameters, isReplay));
 
         if (!ret && isReplay) {
+            let absTime = playState._playAllTime / (clipDuration * scale);
             if (0 < loop && loop <= absTime) {
                 playState._finish = true;
 
-                if (0 > elapsedTime) {
-                    playState._elapsedTime = animatorState.clipStart;
-                    playState._normalizedPlayTime = animatorState.clipStart;
+                if (0 > animatorState.speed) {
+                    if (animatorState.yoyo) {
+                        playState._elapsedTime = animatorState.clipEnd;
+                        playState._normalizedPlayTime = animatorState.clipEnd;
+                    } else {
+                        playState._elapsedTime = animatorState.clipStart;
+                        playState._normalizedPlayTime = animatorState.clipStart;
+                    }
                 } else {
-                    playState._elapsedTime = animatorState.clipEnd;
-                    playState._normalizedPlayTime = animatorState.clipEnd;
+                    if (animatorState.yoyo) {
+                        playState._elapsedTime = animatorState.clipStart;
+                        playState._normalizedPlayTime = animatorState.clipStart;
+                    } else {
+                        playState._elapsedTime = animatorState.clipEnd;
+                        playState._normalizedPlayTime = animatorState.clipEnd;
+                    }
                 }
                 animatorState._eventExit();
                 return;
