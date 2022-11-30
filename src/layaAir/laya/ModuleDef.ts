@@ -39,6 +39,10 @@ import "./loaders/TextureLoader";
 import "./loaders/AnimationClip2DLoader";
 import "./loaders/AnimationControllerLoader";
 import "./loaders/NullLoader";
+import { PostProcess } from "./d3/component/PostProcess";
+import { ScalableAO } from "./d3/core/render/PostEffect/ScalableAO";
+import { GaussianDoF } from "./d3/core/render/PostEffect/GaussianDoF";
+import { BloomEffect } from "./d3/core/render/PostEffect/BloomEffect";
 
 let c = ClassUtils.regClass;
 
@@ -53,6 +57,12 @@ c("Animation", Animation);
 c("FrameAnimation", FrameAnimation);
 c("EffectAnimation", EffectAnimation);
 c("SoundNode", SoundNode);
+c("PostProcess", PostProcess);
+
+c("ScalableAO", ScalableAO);
+c("GaussianDoF", GaussianDoF);
+c("BloomEffect", BloomEffect);
+
 c("Scene", Scene);
 c("Stage", Stage);
 c("Component", Component);
