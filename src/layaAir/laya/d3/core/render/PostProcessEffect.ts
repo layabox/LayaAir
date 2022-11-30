@@ -73,7 +73,6 @@ export class PostProcessEffect {
 	render(context: PostProcessRenderContext): void {
 
 	}
-
 }
 
 

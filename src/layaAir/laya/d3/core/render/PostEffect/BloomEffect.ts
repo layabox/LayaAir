@@ -212,10 +212,10 @@ export class BloomEffect extends PostProcessEffect {
 	private _dirtTileOffset: Vector4 = new Vector4();
 
 	/**@internal*/
-	private _clamp: number = 65472.0;
+	private _clamp: number;
 
 	/**泛光颜色。*/
-	private _color: Color = new Color(1.0, 1.0, 1.0, 1.0);
+	private _color: Color;
 
 	/**是否开启快速模式。该模式通过降低质量来提升性能。*/
 	private _fastMode: boolean = false;
@@ -334,7 +334,7 @@ export class BloomEffect extends PostProcessEffect {
 	}
 
 	/**
-	 * 获取形变比,通过扭曲泛光产生视觉上形变,负值为垂直扭曲,正值为水平扭曲。
+	 * 获取形变比,通过扭曲泛光产生视觉上形变,负值为垂直扭曲,正值为水平扭曲。-1 - 1
 	 * @return 形变比。
 	 */
 	get anamorphicRatio(): number {
@@ -342,7 +342,7 @@ export class BloomEffect extends PostProcessEffect {
 	}
 
 	/**
-	 * 设置形变比,通过扭曲泛光产生视觉上形变,负值为垂直扭曲,正值为水平扭曲。
+	 * 设置形变比,通过扭曲泛光产生视觉上形变,负值为垂直扭曲,正值为水平扭曲。-1 - 1
 	 * @param value 形变比。
 	 */
 	set anamorphicRatio(value: number) {
@@ -358,7 +358,7 @@ export class BloomEffect extends PostProcessEffect {
 	}
 
 	/**
-	 * 设置污渍强度。
+	 * 设置污渍强度。0-1
 	 * @param value 污渍强度。
 	 */
 	set dirtIntensity(value: number) {
@@ -371,6 +371,15 @@ export class BloomEffect extends PostProcessEffect {
 	constructor() {
 		super();
 		this.singleton = true;
+		this.active = true;
+		this.intensity = 1.0;
+		this.threshold = 1.0;
+		this.softKnee = 0.5;
+		this.clamp = 65472;
+		this.diffusion = 7;
+		this.anamorphicRatio = 0;
+		this.color = new Color(1.0,1.0,1.0,1.0);
+
 	}
 
 	/**

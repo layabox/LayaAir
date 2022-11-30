@@ -1082,10 +1082,10 @@ export class Camera extends BaseCamera {
         if (this._cameraUniformData) {//需要在Depth之前更新数据
             this._cameraUniformUBO && this._cameraUniformUBO.setDataByUniformBufferData(this._cameraUniformData);
         }
-        if (this.depthTextureMode != 0) {
-            //TODO:是否可以不多次
-            this._renderDepthMode(context);
-        }
+        // if (this.depthTextureMode != 0) {
+        //     //TODO:是否可以不多次
+        this._renderDepthMode(context);
+        // }
 
         // todo layame temp
         (renderTex) && (renderTex._start());
@@ -1150,8 +1150,8 @@ export class Camera extends BaseCamera {
      */
     _renderDepthMode(context: RenderContext3D) {
         var cameraDepthMode = this._depthTextureMode;
-        if(this._postProcess&&this._postProcess.enable){
-            cameraDepthMode|=this._postProcess.cameraDepthTextureMode;
+        if (this._postProcess && this._postProcess.enable) {
+            cameraDepthMode |= this._postProcess.cameraDepthTextureMode;
         }
         if ((cameraDepthMode & DepthTextureMode.Depth) != 0) {
             // todo

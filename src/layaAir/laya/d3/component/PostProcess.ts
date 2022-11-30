@@ -105,6 +105,7 @@ export class PostProcess {
 		this._context = new PostProcessRenderContext();
 		this._context.compositeShaderData = this._compositeShaderData;
 		this._context.command = new CommandBuffer();
+		this._depthtextureFlag = 0;
 	}
 
 	/**
@@ -221,6 +222,7 @@ export class PostProcess {
 			return;
 		}
 		this._effects.push(effect);
+		this.recaculateCameraFlag();
 		effect.effectInit();
 	}
 
