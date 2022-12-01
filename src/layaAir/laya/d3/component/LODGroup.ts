@@ -16,6 +16,8 @@ export class LODInfo {
     _mincullRate: number;//裁剪比例 0-1
     /**@internal */
     _renders: BaseRender[];//此LOD显示的渲染节点
+    //TODO 不需要缓存节点  需要商量
+    _cachSprite3D: Sprite3D[];
     /**@internal */
     private _group: LODGroup;
 
@@ -42,15 +44,28 @@ export class LODInfo {
         }
         this._group = value;
         this._renders.forEach(element => {
-            (element.owner as Sprite3D).transform.on(Event.TRANSFORM_CHANGED, this._group._updateRecaculateFlag);
+            (element.owner as Sprite3D).transform.on(Event.TRANSFORM_CHANGED, this._group, this._group._updateRecaculateFlag);
         })
-
     }
+
+    set renders(value: Sprite3D[]) {
+        this._cachSprite3D = value;
+        for (var i = 0, n = value.length; i < n; i++) {
+            this.addNode(value[i]);
+        }
+    }
+
+    get renders(): Sprite3D[] {
+        return this._cachSprite3D;
+    }
+
     /**
      * 在lodInfo中增加渲染节点
      * @param node 
      */
     addNode(node: Sprite3D) {
+        if (!node)
+            return;
         let ren = node;
         if (ren._isRenderNode > 0) {
             let components = ren.components;
@@ -58,7 +73,7 @@ export class LODInfo {
                 if ((comp instanceof BaseRender) && this._renders.indexOf(comp) == -1)
                     this._renders.push(comp);
             }
-            this._group && node.transform.on(Event.TRANSFORM_CHANGED, this._group._updateRecaculateFlag);
+            this._group && node.transform.on(Event.TRANSFORM_CHANGED,this._group, this._group._updateRecaculateFlag);
         }
         for (var i = 0, n = node.numChildren; i < n; i++) {
             this.addNode(node.getChildAt(i) as Sprite3D);
@@ -167,11 +182,12 @@ export class LODGroup extends Component {
         this._needcaculateBounds = true;
     }
 
+
     /**
      * get LODInfo 数组
      * @returns 
      */
-    getLODs(): LODInfo[] {
+    get lods(): LODInfo[] {
         return this._lods;
     }
 
@@ -179,7 +195,7 @@ export class LODGroup extends Component {
      * 设置 LODInfo 数组
      * @param data 
      */
-    setLODs(data: LODInfo[]) {
+    set lods(data: LODInfo[]) {
         this._lods = data;
         this._lods.forEach((element, index) => {
             element.group = this;
@@ -227,10 +243,10 @@ export class LODGroup extends Component {
         let cameraFrustum = checkCamera.boundFrustum;
         Vector3.subtract(this._lodPosition, checkCamera.transform.position, tempVec);
         //大于farplane,或者不在视锥内.不做lod操作
-        if (tempVec.lengthSquared() > checkCamera.farPlane || cameraFrustum.containsPoint(this._lodPosition) == 0) {
+        let length = tempVec.length();
+        if (length > checkCamera.farPlane || cameraFrustum.containsPoint(this._lodPosition) == 0) {
             return;
         }
-        let length = tempVec.length();
         checkCamera.transform.worldMatrix.getForward(tempVec1);
         Vector3.normalize(tempVec, tempVec);
         Vector3.normalize(tempVec1, tempVec1);
@@ -331,6 +347,6 @@ export class LODGroup extends Component {
                     cloneLOD.addNode(node);
             });
         }
-        lodGroup.setLODs(lodArray);
+        lodGroup.lods = lodArray;
     }
 }

@@ -83,6 +83,13 @@ float pow5(float x)
     return x2 * x2 * x;
 }
 
+const float INVERT_LOG10 = 0.43429448190325176;
+
+float log10(float x)
+{
+    return log(x) * INVERT_LOG10;
+}
+
 float vecmax(const vec2 v)
 {
     return max(v.x, v.y);
