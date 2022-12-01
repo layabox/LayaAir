@@ -39,6 +39,7 @@ import { SkyBoxShaderInit } from "./sky/SkyBoxShaderInit";
 import { ParticleShuriKenShaderInit } from "./ShurikenParticle/ParticleShuriKenShaderInit";
 import { SkyProceduralShaderInit } from "./sky/SkyProceduralShaderInit";
 import { SkyPanoramicShaderInit } from "./sky/SkyPanoramicShaderInit";
+import { ACESShaderLib } from "./postprocess/ACES/ACESShaderLib";
 
 /**
  * @internal
@@ -91,6 +92,7 @@ export class ShaderInit3D {
 
 		// lib
 		PBRShaderLib.init();
+		ACESShaderLib.init();
 
 		// shader init
 		BlitScreenShaderInit.init();
