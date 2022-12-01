@@ -12,6 +12,7 @@ import { AnimatorUpdateMode } from "../d3/component/Animator/Animator";
 import { AnimatorController2D } from "./AnimatorController2D";
 import { AniParmType } from "./AnimatorControllerParse";
 import { AnimatorTransition2D } from "./AnimatorTransition2D";
+import { Animation2DEvent } from "./Animation2DEvent";
 
 export class Animator2D extends Component {
     private _speed = 1;
@@ -180,16 +181,19 @@ export class Animator2D extends Component {
                     if (needRender) {
                         this._updateClipDatas(animatorState, addtive, playStateInfo);
                         this._setClipDatasToNode(animatorState, addtive, controllerLayer.defaultWeight, i == 0, controllerLayer);//多层动画混合时即使动画停止也要设置数据
+                        finish || this._updateEventScript(animatorState, playStateInfo)
                     }
-
-
-
-
+                    finish || this._updateStateFinish(animatorState, playStateInfo);
                     break;
             }
 
         }
 
+    }
+    private _updateStateFinish(animatorState: AnimatorState2D, playState: AnimatorPlayState2D): void {
+        if (playState._finish) {
+            animatorState._eventExit();//派发播放完成的事件
+        }
     }
     set debug(b: boolean) {
         this._isPlaying = b;
@@ -477,12 +481,9 @@ export class Animator2D extends Component {
                         playState._normalizedPlayTime = animatorState.clipEnd;
                     }
                 }
-                animatorState._eventExit();
                 return;
             }
         } else if (ret) {
-            //是否应该先exit？
-            animatorState._eventExit();
         }
 
 
@@ -544,6 +545,80 @@ export class Animator2D extends Component {
 
 
     }
+
+    private _updateEventScript(stateInfo: AnimatorState2D, playStateInfo: AnimatorPlayState2D): void {
+        let clip = stateInfo._clip;
+        let events = clip!._animationEvents;
+
+        let clipDuration = clip!._duration;
+        let elapsedTime = playStateInfo._elapsedTime;
+        let time = elapsedTime % clipDuration;
+        let loopCount = Math.abs(Math.floor(elapsedTime / clipDuration) - Math.floor(playStateInfo._lastElapsedTime / clipDuration));//backPlay可能为负数
+
+        let frontPlay = playStateInfo._elapsedTime >= playStateInfo._lastElapsedTime;
+        if (playStateInfo._lastIsFront !== frontPlay) {
+            if (frontPlay)
+                playStateInfo._playEventIndex++;
+            else
+                playStateInfo._playEventIndex--;
+            playStateInfo._lastIsFront = frontPlay;
+        }
+        let preEventIndex = playStateInfo._playEventIndex;
+        if (frontPlay) {
+            let newEventIndex = this._eventScript(events, playStateInfo._playEventIndex, loopCount > 0 ? clipDuration : time, true);
+            (preEventIndex === playStateInfo._playEventIndex) && (playStateInfo._playEventIndex = newEventIndex);//这里打个补丁，在event中调用Play 需要重置eventindex，不能直接赋值
+            for (let i = 0, n = loopCount - 1; i < n; i++)
+                this._eventScript(events, 0, clipDuration, true);
+            (loopCount > 0 && time > 0) && (playStateInfo._playEventIndex = this._eventScript(events, 0, time, true));//if need cross loop,'time' must large than 0
+        } else {
+            let newEventIndex = this._eventScript(events, playStateInfo._playEventIndex, loopCount > 0 ? 0 : time, false);
+            (preEventIndex === playStateInfo._playEventIndex) && (playStateInfo._playEventIndex = newEventIndex);//这里打个补丁，在event中调用Play 需要重置eventindex，不能直接赋值
+            let eventIndex = events.length - 1;
+            for (let i = 0, n = loopCount - 1; i < n; i++)
+                this._eventScript(events, eventIndex, 0, false);
+            (loopCount > 0 && time > 0) && (playStateInfo._playEventIndex = this._eventScript(events, eventIndex, time, false));//if need cross loop,'time' must large than 0
+        }
+
+    }
+    /**
+     * @internal
+     */
+    private _eventScript(events: Animation2DEvent[], eventIndex: number, endTime: number, front: boolean): number {
+        let scripts = this.owner.components;
+        if (front) {
+            for (let n = events.length; eventIndex < n; eventIndex++) {
+                let event = events[eventIndex];
+                if (event.time <= endTime) {
+                    for (let j = 0, m = scripts.length; j < m; j++) {
+                        let script = scripts[j];
+                        if (script._isScript()) {
+                            let fun: Function = (script as any)[event.eventName];
+                            (fun) && (fun.apply(script, event.params));
+                        }
+                    }
+                } else {
+                    break;
+                }
+            }
+        } else {
+            for (; eventIndex >= 0; eventIndex--) {
+                let event = events[eventIndex];
+                if (event.time >= endTime) {
+                    for (let j = 0, m = scripts.length; j < m; j++) {
+                        let script = scripts[j];
+                        if (script._isScript()) {
+                            let fun = (script as any)[event.eventName];
+                            (fun) && (fun.apply(script, event.params));
+                        }
+                    }
+                } else {
+                    break;
+                }
+            }
+        }
+        return eventIndex;
+    }
+
 
     /**
      * 启用过渡
