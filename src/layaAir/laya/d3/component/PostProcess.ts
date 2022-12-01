@@ -259,7 +259,7 @@ export class PostProcess {
 	 */
 	clearEffect(): void {
 		let i = this.effects.length - 1;
-		for (; i >= 0; i++) {
+		for (; i >= 0; i--) {
 			this.removeEffect(this.effects[i]);
 		}
 	}
