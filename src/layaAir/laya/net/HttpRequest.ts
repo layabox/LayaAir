@@ -54,27 +54,29 @@ export class HttpRequest extends EventDispatcher {
             url = HttpRequest._urlEncode(url);
         }
         this._url = url;
+
         let http = this._http;
-        //临时，因为微信不支持以下文件格式
         http.open(method, url, true);
-        let isJson = false;
+
         if (headers) {
             for (let i: number = 0; i < headers.length; i++) {
                 http.setRequestHeader(headers[i++], headers[i]);
             }
-        } else {
-            if (!data || typeof (data) == 'string') {
-                if (!(<any>window).conch) {
-                    http.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-                }
-            }
-			else{
-                http.setRequestHeader("Content-Type", "application/json");
-                if (!(data instanceof ArrayBuffer) && typeof data !== "string") {
-                    isJson = true;
-                }
-			}
         }
+
+        if (data) {
+            if (typeof (data) == 'string') {
+                http.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            }
+            else {
+                http.setRequestHeader("Content-Type", "application/json");
+                if (!(data instanceof ArrayBuffer))
+                    data = JSON.stringify(data);
+            }
+        }
+        else if (Browser.onBLMiniGame && Browser.onAndroid)
+            data = {};
+
         let restype: XMLHttpRequestResponseType = responseType !== "arraybuffer" ? "text" : "arraybuffer";
         http.responseType = restype;
         if ((http as any).dataType) {//for Ali
@@ -92,8 +94,8 @@ export class HttpRequest extends EventDispatcher {
         http.onload = (e: any) => {
             this._onLoad(e);
         }
-        if (Browser.onBLMiniGame && Browser.onAndroid && !data) data = {};
-        http.send(isJson ? JSON.stringify(data) : data);
+
+        http.send(data);
     }
 
     /**

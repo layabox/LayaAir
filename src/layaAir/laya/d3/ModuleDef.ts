@@ -85,6 +85,11 @@ import { LODGroup, LODInfo } from "./component/LODGroup";
 import { PixelLineData } from "./core/pixelLine/PixelLineData";
 import { PixelLineRenderer } from "./core/pixelLine/PixelLineRenderer";
 import { FloatKeyframe } from "./core/FloatKeyframe";
+import { CompoundColliderShape } from "./physics/shape/CompoundColliderShape";
+import { Animator } from "./component/Animator/Animator";
+import { AnimatorControllerLayer } from "./component/Animator/AnimatorControllerLayer";
+import { AnimatorState } from "./component/Animator/AnimatorState";
+import { AvatarMask } from "./component/Animator/AvatarMask";
 
 import "./loaders/AnimationClipLoader";
 import "./loaders/CubemapLoader";
@@ -94,11 +99,10 @@ import "./loaders/HierarchyParserV2";
 import "./loaders/AvatarMaskLoader";
 import "./loaders/ShaderLoader";
 import "./loaders/GLSLLoader";
-import { CompoundColliderShape } from "./physics/shape/CompoundColliderShape";
-import { Animator } from "./component/Animator/Animator";
-import { AnimatorControllerLayer } from "./component/Animator/AnimatorControllerLayer";
-import { AnimatorState } from "./component/Animator/AnimatorState";
-import { AvatarMask } from "./component/Animator/AvatarMask";
+import { PostProcessEffect } from "./core/render/PostProcessEffect";
+import { BloomEffect } from "./core/render/PostEffect/BloomEffect";
+import { GaussianDoF } from "./core/render/PostEffect/GaussianDoF";
+import { ScalableAO } from "./core/render/PostEffect/ScalableAO";
 
 let c = ClassUtils.regClass;
 c("Sprite3D", Sprite3D);
@@ -206,4 +210,9 @@ c("ConeColliderShape", ConeColliderShape);
 c("CylinderColliderShape", CylinderColliderShape);
 c("SphereColliderShape", SphereColliderShape);
 c("MeshColliderShape", MeshColliderShape);
-c("CompoundColliderShape",CompoundColliderShape);
+c("CompoundColliderShape", CompoundColliderShape);
+
+c("PostProcessEffect", PostProcessEffect);
+c("BloomEffect", BloomEffect);
+c("GaussianDoF", GaussianDoF);
+c("ScalableAO", ScalableAO);
