@@ -41,22 +41,25 @@ export class BatchProgress implements IBatchProgress {
     }
 
     update(index: number, value: number) {
-        this._items[index] = Math.max(0, Math.min(value, 1));
+        if (index != -1) {
+            this._items[index] = Math.max(0, Math.min(value, 1));
 
-        let np = 0;
-        let col = this._items;
-        let ws = this._weights;
-        let perc = 1 / col.length;
-        for (let i = 0; i < col.length; i++) {
-            let p = col[i];
-            let w = ws[i];
-            if (p != null)
-                np += p * (w != null ? w : perc);
+            let np = 0;
+            let col = this._items;
+            let ws = this._weights;
+            let perc = 1 / col.length;
+            for (let i = 0; i < col.length; i++) {
+                let p = col[i];
+                let w = ws[i];
+                if (p != null)
+                    np += p * (w != null ? w : perc);
+            }
+            value = np;
         }
 
-        if (np > this._progress) {
-            this._progress = np;
-            this._callback(np);
+        if (value > this._progress) {
+            this._progress = value;
+            this._callback(value);
         }
     }
 }

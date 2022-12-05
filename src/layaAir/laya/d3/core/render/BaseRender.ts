@@ -31,6 +31,7 @@ import { ShaderDefine } from "../../../RenderEngine/RenderShader/ShaderDefine";
 import { NodeFlags } from "../../../Const";
 import { Sprite3DRenderDeclaration } from "./Sprite3DRenderDeclaration";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
+import { BatchRender } from "../../component/Volume/BatchVolume/BatchRender";
 
 
 /**
@@ -152,8 +153,8 @@ export class BaseRender extends Component implements ISingletonElement {
     _renderElements: RenderElement[];
     /** @internal */
     _updateRenderType: number = -1;
-    /** @internal */
-    _staticBatch: GeometryElement = null;
+    // /** @internal */
+    // _staticBatch: GeometryElement = null;
     /**排序矫正值。*/
     sortingFudge: number;
     /**@internal */
@@ -164,6 +165,10 @@ export class BaseRender extends Component implements ISingletonElement {
     _customCull: boolean;
     /**@internal 可以根据不同的值来设置*/
     _ratioIgnor: number = 0.005;//TODO
+    /**@internal TODO*/
+    private _LOD:number = 0;
+    /**@internal TODO*/
+    private _batchRender:BatchRender;
     /**@internal 如果这个值不是0,说明有一些条件使他不能加入渲染队列，例如如果是1，证明此节点被lod淘汰*/
     private _volume: Volume;
     /**

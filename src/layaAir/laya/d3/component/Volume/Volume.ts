@@ -44,7 +44,6 @@ export class Volume extends Component {
     /** 重要性 */
     protected _importance: number;
 
-
     /**
      * 创建一个<code>Volume</code>实例
      */

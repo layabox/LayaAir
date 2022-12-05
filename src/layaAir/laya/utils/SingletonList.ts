@@ -38,6 +38,13 @@ export class SingletonList<T> {
         this.length++;
     }
 
+    indexof(element:T){
+        let index = this.elements.indexOf(element);
+        if(index!=-1&&index<this.length)
+            return index;
+        return -1;
+    }
+
     /**
      * @internal
      * @param element 

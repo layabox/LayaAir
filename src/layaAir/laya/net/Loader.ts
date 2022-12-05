@@ -404,6 +404,8 @@ export class Loader extends EventDispatcher {
             if (task.options.cache == null || task.options.cache)
                 Loader._cacheRes(formattedUrl, content, typeId, main);
 
+            task.progress.update(-1, 1);
+
             //console.log("Loaded " + url);
             task.onComplete.invoke(content);
             return content;
@@ -547,6 +549,9 @@ export class Loader extends EventDispatcher {
             if (this._downloadings.size < this.maxLoader && this._queue.length > 0)
                 this.download(this._queue.shift());
 
+            if (item.onProgress)
+                item.onProgress(1);
+
             item.onComplete(content);
         }
         else if (item.retryCnt != -1 && item.retryCnt < this.retryNum) {
@@ -557,6 +562,8 @@ export class Loader extends EventDispatcher {
         }
         else {
             !item.silent && Loader.warn(item.url);
+            if (item.onProgress)
+                item.onProgress(1);
 
             if (this._downloadings.size < this.maxLoader && this._queue.length > 0)
                 this.download(this._queue.shift());
