@@ -1,3 +1,4 @@
+import { SingletonList } from "../../../../utils/SingletonList";
 import { BaseRender, RenderBitFlag } from "../../../core/render/BaseRender";
 import { BatchMark } from "../../../core/render/BatchMark";
 import { InstanceRenderElement } from "../../../core/render/InstanceRenderElement";
@@ -152,6 +153,9 @@ export class StaticInstanceBatchRender extends BatchRender {
      * @param renderNodes 
      */
     addList(renderNodes: BaseRender[]) {
+        if (!this._batchList) {
+            this._batchList = new SingletonList<BaseRender>();
+        }
         let renders: BaseRender[] = [];
         for (var i = 0; i < renderNodes.length; i++) {
             let baseRender = renderNodes[i];
@@ -196,7 +200,7 @@ export class StaticInstanceBatchRender extends BatchRender {
         }
         render._batchRender = this;
         render.setRenderbitFlag(RenderBitFlag.RenderBitFlag_InstanceBatch, true);
-        
+
     }
 
     /**
@@ -273,11 +277,11 @@ export class StaticInstanceBatchRender extends BatchRender {
     }
 
     onPreRender() {
-        if(this.checkLOD){
+        if (this.checkLOD) {
             this._changeLOD();
         }
     }
-    
+
 
     /**
      * 重新计算包围盒

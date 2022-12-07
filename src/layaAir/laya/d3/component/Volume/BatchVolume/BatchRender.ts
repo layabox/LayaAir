@@ -6,12 +6,8 @@ import { BaseRender, RenderBitFlag } from "../../../core/render/BaseRender";
 export class BatchRender extends BaseRender {
     /**@internal */
     protected _checkLOD: boolean;
-
     protected _lodCount: number;
-
-    protected _lodRateArray: Float32Array;
-
-
+    protected _lodRateArray: number[];
     protected _batchList: SingletonList<BaseRender>;
     protected _batchbit: RenderBitFlag;
     protected _RenderBitFlag: RenderBitFlag;
@@ -32,11 +28,11 @@ export class BatchRender extends BaseRender {
     }
 
     /**
-     * 
+     * lod裁剪过滤
      */
-    set lodRateArray(value: Float32Array) {
-        this._lodRateArray = new Float32Array(value);
-        this._lodRateArray.sort();
+    set lodCullRateArray(value: number[]) {
+        value.sort((a, b) => a - b);
+        this._lodRateArray = value;
     }
 
     get lodRateArray() {
@@ -53,15 +49,20 @@ export class BatchRender extends BaseRender {
 
     protected _onEnable(): void {
         super._onEnable();
-        for (let i = 0, n = this._batchList.length; i < n; i++) {
-            this._batchList.elements[i].setRenderbitFlag(this._RenderBitFlag, true);
+        if (this._batchList) {
+            for (let i = 0, n = this._batchList.length; i < n; i++) {
+                this._batchList.elements[i].setRenderbitFlag(this._RenderBitFlag, true);
+            }
         }
+
     }
 
     protected _onDisable(): void {
         super._onDisable();
-        for (let i = 0, n = this._batchList.length; i < n; i++) {
-            this._batchList.elements[i].setRenderbitFlag(this._RenderBitFlag, false);
+        if (this._batchList) {
+            for (let i = 0, n = this._batchList.length; i < n; i++) {
+                this._batchList.elements[i].setRenderbitFlag(this._RenderBitFlag, false);
+            }
         }
     }
 
