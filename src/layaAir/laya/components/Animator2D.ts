@@ -180,7 +180,7 @@ export class Animator2D extends Component {
                     finish || this._updatePlayer(animatorState, playStateInfo, delta * speed * dir, loop, i);
                     if (needRender) {
                         this._updateClipDatas(animatorState, addtive, playStateInfo);
-                        this._setClipDatasToNode(animatorState, addtive, controllerLayer.defaultWeight, i == 0, controllerLayer);//多层动画混合时即使动画停止也要设置数据
+                        finish || this._setClipDatasToNode(animatorState, addtive, controllerLayer.defaultWeight, i == 0, controllerLayer);
                         finish || this._updateEventScript(animatorState, playStateInfo)
                     }
                     finish || this._updateStateFinish(animatorState, playStateInfo);
