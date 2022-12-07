@@ -5,7 +5,7 @@ import { Animation2DNext } from "./Animation2DNext";
 import { Animation2DParm } from "./Animation2DParm";
 import { Animator2D } from "./Animator2D";
 import { AnimatorControllerLayer2D } from "./AnimatorControllerLayer2D";
-import { AnimatorControllerParse, AniParmType, TypeAnimatorConditions, TypeAnimatorControllerData, TypeAnimatorParams, TypeAnimatorState } from "./AnimatorControllerParse";
+import { AnimatorControllerParse, AniParmType, TypeAnimatorConditions, TypeAnimatorControllerData, TypeAnimatorParams, TypeAnimatorState, TypeAnimatorTransition } from "./AnimatorControllerParse";
 import { AnimatorState2D } from "./AnimatorState2D";
 import { AnimatorTransition2D } from "./AnimatorTransition2D";
 
@@ -48,140 +48,282 @@ export class AnimatorController2D extends Resource {
         return lArr;
     }
 
+    private createState(states: TypeAnimatorState[], idCatch: Record<string, AnimatorState2D>, acl: AnimatorControllerLayer2D) {
+        if (!states) return null;
+        let ret: Record<string, AnimatorState2D> = {};
+        let defID: string = null;
+        for (let i = states.length - 1; i >= 0; i--) {
+            let obj = states[i];
+
+            let childStates = obj.states;
+
+            if (childStates) {
+                let groupRet = this.createState(childStates, idCatch, acl);
+
+                if (groupRet) {
+                    idCatch[obj.id] = groupRet.states[groupRet.id];
+                }
+
+
+                continue;
+            }
+
+
+
+
+
+            if (0 > Number(obj.id)) {
+                if ("-1" == obj.id) {
+                    let transitions = obj.soloTransitions;
+                    if (transitions && 0 < transitions.length) {
+                        defID = transitions[0].id;
+                    }
+                }
+
+
+                continue;
+            }
+
+
+            let state = new AnimatorState2D();
+            idCatch[obj.id] = state;
+
+            ret[obj.id] = state;
+
+            for (let k in obj) {
+                try {
+                    if ("scripts" == k) {
+                        let scripts: string[] = obj[k];
+                        if (scripts && Array.isArray(scripts)) {
+                            for (let k = scripts.length - 1; k >= 0; k--) {
+                                let uuid = scripts[k];
+                                let c = ClassUtils.getClass(uuid);
+                                if (c) {
+                                    state.addScript(c);
+                                }
+                            }
+                        }
+                        continue;
+                    } else if ("soloTransitions" == k) {
+                        continue;
+                    } else if (null != (obj as any)[k]) {
+                        (state as any)[k] = (obj as any)[k];
+                    }
+                } catch (err: *) { }
+            }
+
+            acl.addState(state);
+        }
+        return { id: defID, states: ret };
+    }
+
 
     private getState(states: TypeAnimatorState[], acl: AnimatorControllerLayer2D, data: TypeAnimatorControllerData) {
         //let ret:
         if (states) {
             let idCatch: Record<string, AnimatorState2D> = {};
-            for (let i = states.length - 1; i >= 0; i--) {
-                let obj = states[i];
-                if (0 > Number(obj.id)) {
-                    continue;
-                }
-                let state = new AnimatorState2D();
-                idCatch[obj.id] = state;
+            this.createState(states, idCatch, acl);
+            this.setTransitions(states, idCatch, acl, data);
+        }
+    }
 
-                for (let k in obj) {
-                    try {
-                        if ("scripts" == k) {
-                            let scripts: string[] = obj[k];
-                            if (scripts && Array.isArray(scripts)) {
-                                for (let k = scripts.length - 1; k >= 0; k--) {
-                                    let uuid = scripts[k];
-                                    let c = ClassUtils.getClass(uuid);
-                                    if (c) {
-                                        state.addScript(c);
-                                    }
+    private setExitTransition(exitRet: Record<string, TypeAnimatorTransition[]>, transitions: TypeAnimatorTransition[], idCatch: Record<string, AnimatorState2D>, data: TypeAnimatorControllerData, pExitRet: Record<string, TypeAnimatorTransition[]>) {
+        for (let id in exitRet) {
+            let state = idCatch[id];
+            if (state) {
 
-                                }
+                let ats: AnimatorTransition2D[] = state.transitions;
+                let sts: AnimatorTransition2D[] = state.soloTransitions;
 
-
-
-                            }
-
-                            continue;
-                        } else if ("soloTransitions" == k) {
-                            continue;
-                        } else if (null != (obj as any)[k]) {
-                            (state as any)[k] = (obj as any)[k];
+                let linArr = exitRet[id];
+                for (let i = transitions.length - 1; i >= 0; i--) {
+                    let t = transitions[i];
+                    if ("-3" == t.id) {
+                        if (null == pExitRet[id]) {
+                            pExitRet[id] = [];
                         }
-                    } catch (err: *) { }
-                }
-
-                acl.addState(state);
-            }
-
-            for (let i = states.length - 1; i >= 0; i--) {
-                let obj = states[i];
-
-                if ("-1" == obj.id) {
-                    if (obj.soloTransitions && 0 < obj.soloTransitions.length) {
-                        acl.defaultState = idCatch[obj.soloTransitions[0].id];
+                        pExitRet[id].push(t);
                         continue;
                     }
-                }else if ("-2" == obj.id) {
-                    let transitions = obj.soloTransitions;
-                    if (transitions) {
-                        for (let j = transitions.length - 1; j >= 0; j--) {
-                            let o = transitions[j];
-                            let destState = idCatch[o.id];
-                            if (destState) {
-                                for (let idk in idCatch) {
-                                    let state = idCatch[idk];
-                                    let ato = new AnimatorTransition2D();
-                                    ato.destState = destState;
-                                    if (o.conditions) {
-                                        this.addConditions(o.conditions, ato, data);
-                                    }
-
-                                    for (let k in o) {
-                                        if ("solo" == k || "id" == k || "conditions" == k) {
-                                            continue;
-                                        } else {
-                                            (ato as any)[k] = (o as any)[k];
-                                        }
-                                    }
-
-                                    if (o.solo) {
-                                        state.soloTransitions.unshift(ato);
-                                    } else {
-                                        state.transitions.unshift(ato);
-                                    }
 
 
-
-
-                                }
-                            }
-
-                        }
-                    }
-
-
-
-                    continue;
-                }
-
-                let soloTransitions = obj.soloTransitions;
-                if (soloTransitions && idCatch[obj.id]) {
-
-                    let transitions = idCatch[obj.id].transitions;
-                    let sTransitions = idCatch[obj.id].soloTransitions;
-
-                    // let ats: AnimatorTransition2D[] = [];
-
-                    for (let j = soloTransitions.length - 1; j >= 0; j--) {
-                        let o = soloTransitions[j];
-                        if (null == idCatch[o.id]) continue;
+                    for (let j = linArr.length - 1; j >= 0; j--) {
+                        let t2 = linArr[j];
 
 
                         let ato = new AnimatorTransition2D();
-                        ato.destState = idCatch[o.id];
+                        ato.destState = idCatch[t.id];
 
-                        if (o.conditions) {
-                            this.addConditions(o.conditions, ato, data);
+                        if (t.conditions) {
+                            this.addConditions(t.conditions, ato, data);
                         }
 
-                        for (let k in o) {
+                        if (t2.conditions) {
+                            this.addConditions(t2.conditions, ato, data);
+                        }
+
+
+                        for (let k in t) {
                             if ("solo" == k || "id" == k || "conditions" == k) {
                                 continue;
                             } else {
-                                (ato as any)[k] = (o as any)[k];
+                                (ato as any)[k] = (t as any)[k];
                             }
                         }
-                        if (o.solo) {
-                            sTransitions.unshift(ato);
+
+                        if (t.solo) {
+                            sts.unshift(ato);
                         } else {
-                            transitions.unshift(ato);
+                            ats.unshift(ato);
                         }
+
+
 
                     }
                 }
+
+
+
 
 
             }
         }
     }
+    private setTransitions(states: TypeAnimatorState[], idCatch: Record<string, AnimatorState2D>, acl: AnimatorControllerLayer2D, data: TypeAnimatorControllerData, pState?: TypeAnimatorState) {
+        if (!states) return null;
+
+        let exitRet: Record<string, TypeAnimatorTransition[]> = {};
+
+        for (let i = states.length - 1; i >= 0; i--) {
+            let obj = states[i];
+
+            if (obj.states) {
+                let exitTransition = this.setTransitions(obj.states, idCatch, acl, data, obj);
+                if (exitTransition) {
+                    let transitions = obj.soloTransitions;
+                    if (transitions) {
+                        this.setExitTransition(exitTransition, transitions, idCatch, data, exitRet);
+                    }
+                }
+            }
+        }
+
+
+        for (let i = states.length - 1; i >= 0; i--) {
+            let obj = states[i];
+
+            if (obj.states) {
+                continue;
+            }
+
+
+
+
+            if ("-1" == obj.id) {
+                if (obj.soloTransitions && 0 < obj.soloTransitions.length) {
+                    if (null == pState) {
+                        acl.defaultState = idCatch[obj.soloTransitions[0].id];
+                    } else {
+                        idCatch[pState.id] = idCatch[obj.soloTransitions[0].id];
+                    }
+                    continue;
+                }
+            } else if ("-2" == obj.id) {
+                let transitions = obj.soloTransitions;
+                if (transitions) {
+                    for (let j = transitions.length - 1; j >= 0; j--) {
+                        let o = transitions[j];
+                        let destState = idCatch[o.id];
+                        if (destState) {
+                            for (let idk in idCatch) {
+                                let state = idCatch[idk];
+                                let ato = new AnimatorTransition2D();
+                                ato.destState = destState;
+                                if (o.conditions) {
+                                    this.addConditions(o.conditions, ato, data);
+                                }
+
+                                for (let k in o) {
+                                    if ("solo" == k || "id" == k || "conditions" == k) {
+                                        continue;
+                                    } else {
+                                        (ato as any)[k] = (o as any)[k];
+                                    }
+                                }
+
+                                if (o.solo) {
+                                    state.soloTransitions.unshift(ato);
+                                } else {
+                                    state.transitions.unshift(ato);
+                                }
+
+
+
+
+                            }
+                        }
+
+                    }
+                }
+                continue;
+            } else if ("-3" == obj.id) {
+                continue;
+            }
+
+            let soloTransitions = obj.soloTransitions;
+            if (soloTransitions && idCatch[obj.id]) {
+
+                let ats: AnimatorTransition2D[] = idCatch[obj.id].transitions;
+                let sts: AnimatorTransition2D[] = idCatch[obj.id].soloTransitions;
+
+
+
+                for (let j = soloTransitions.length - 1; j >= 0; j--) {
+                    let o = soloTransitions[j];
+                    if ("-3" == o.id) {
+                        if (null == exitRet[obj.id]) {
+                            exitRet[obj.id] = [];
+                        }
+                        exitRet[obj.id].push(o);
+                        continue;
+                    }
+
+                    let ato = new AnimatorTransition2D();
+
+                    if (idCatch[o.id]) {
+                        ato.destState = idCatch[o.id];
+                    }
+                    if (o.conditions) {
+                        this.addConditions(o.conditions, ato, data);
+                    }
+
+
+                    for (let k in o) {
+                        if ("solo" == k || "id" == k || "conditions" == k) {
+                            continue;
+                        } else {
+                            (ato as any)[k] = (o as any)[k];
+                        }
+                    }
+                    if (o.solo) {
+                        sts.unshift(ato);
+                    } else {
+                        ats.unshift(ato);
+                    }
+                }
+            }
+
+
+        }
+
+        return exitRet;
+    }
+
+
+
+
+
+
     private addConditions(arr: TypeAnimatorConditions[], ato: AnimatorTransition2D, data: TypeAnimatorControllerData) {
         let parms = data.animatorParams;
         if (null == parms || 0 == parms.length) return;
