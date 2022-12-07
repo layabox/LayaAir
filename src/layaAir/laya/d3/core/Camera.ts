@@ -137,6 +137,7 @@ export class Camera extends BaseCamera {
         camera._aftRenderMainPass(needShadowCasterPass);
         camera.renderTarget = recoverTexture;
         scene.recaculateCullCamera();
+        scene._componentDriver.callPostRender();
         if (camera._internalRenderTexture)
             (!camera._internalRenderTexture._inPool) && RenderTexture.recoverToPool(camera._internalRenderTexture);
         return renderTexture;
@@ -1254,7 +1255,7 @@ export class Camera extends BaseCamera {
         this._preRenderMainPass(context, scene, needInternalRT, viewport);
         this._renderMainPass(context, viewport, scene, shader, replacementTag, needInternalRT);
         this._aftRenderMainPass(needShadowCasterPass);
-
+        scene._componentDriver.callPostRender();
     }
 
 
@@ -1371,9 +1372,6 @@ export class Camera extends BaseCamera {
             this._addCasterShadowCommandBuffer(commandBuffer);
         }
     }
-
-
-
 
     /**
      * 移除camera渲染节点渲染缓存

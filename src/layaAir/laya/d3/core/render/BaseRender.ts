@@ -33,17 +33,18 @@ import { Sprite3DRenderDeclaration } from "./Sprite3DRenderDeclaration";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { BatchRender } from "../../component/Volume/BatchVolume/BatchRender";
 
-
+export enum RenderBitFlag{
+    RenderBitFlag_CullFlag = 1<<0,
+    RenderBitFlag_Batch = 1<<1,
+    RenderBitFlag_Editor = 1<<2,
+    RenderBitFlag_InstanceBatch = 1<<3,
+    RenderBitFlag_VertexMergeBatch = 1<<4,
+    
+}
 /**
  * <code>Render</code> 类用于渲染器的父类，抽象类不允许实例。
  */
 export class BaseRender extends Component implements ISingletonElement {
-    /**@internal */
-    public static RenderBitFlag_CullFlag = 1;
-    /**@internal */
-    public static RenderBitFlag_Batch = 2;
-    /**@internal */
-    public static RenderBitFlag_Editor = 4;
     /** @internal */
     static _meshVerticeDefine: Array<ShaderDefine> = [];
 
@@ -169,6 +170,7 @@ export class BaseRender extends Component implements ISingletonElement {
     private _LOD:number = 0;
     /**@internal TODO*/
     private _batchRender:BatchRender;
+    _batchElement:RenderElement;
     /**@internal 如果这个值不是0,说明有一些条件使他不能加入渲染队列，例如如果是1，证明此节点被lod淘汰*/
     private _volume: Volume;
     /**
@@ -483,7 +485,7 @@ export class BaseRender extends Component implements ISingletonElement {
     protected _onAdded(): void {
         this._transform = (this.owner as Sprite3D).transform;
         (this.owner as Sprite3D)._isRenderNode++;
-        this.setRenderbitFlag(BaseRender.RenderBitFlag_Editor, this.owner._getBit(NodeFlags.HIDE_BY_EDITOR));
+        this.setRenderbitFlag(RenderBitFlag.RenderBitFlag_Editor, this.owner._getBit(NodeFlags.HIDE_BY_EDITOR));
         this._rendernode.transform = this._transform;
         this._changeLayer((this.owner as Sprite3D).layer);
         this._changeStaticMask((this.owner as Sprite3D)._isStatic);

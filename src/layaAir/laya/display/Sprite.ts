@@ -1817,6 +1817,7 @@ export class Sprite extends Node {
         }
     }
 
+
     /**
      * <p>视口大小，视口外的子对象，将不被渲染(如果想实现裁剪效果，请使用srollRect)，合理使用能提高渲染性能。比如由一个个小图片拼成的地图块，viewport外面的小图片将不渲染</p>
      * <p>srollRect和viewport的区别：<br/>

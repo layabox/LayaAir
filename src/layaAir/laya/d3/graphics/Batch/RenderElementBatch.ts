@@ -19,6 +19,9 @@ export class RenderElementBatch {
         this._recoverList = new SingletonList();
     }
 
+    /**
+     * after batchRender
+     */
     recoverData() {
         let elements = this._recoverList.elements;
         for (let i = 0, n = this._recoverList.length; i < n; i++) {
@@ -28,6 +31,10 @@ export class RenderElementBatch {
         this._recoverList.length = 0;
     }
 
+    /**
+     * BatchData
+     * @param elements 
+     */
     batch(elements: SingletonList<RenderElement>) {
         let len = elements.length;
         elements.length = 0;

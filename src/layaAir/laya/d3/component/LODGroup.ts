@@ -1,7 +1,7 @@
 import { Component } from "../../components/Component";
 import { LayaGL } from "../../layagl/LayaGL";
 import { Camera } from "../core/Camera";
-import { BaseRender } from "../core/render/BaseRender";
+import { BaseRender, RenderBitFlag } from "../core/render/BaseRender";
 import { Scene3D } from "../core/scene/Scene3D";
 import { Sprite3D } from "../core/Sprite3D";
 import { Bounds } from "../math/Bounds";
@@ -92,7 +92,7 @@ export class LODInfo {
             for (let comp of components) {
                 if ((comp instanceof BaseRender) && (index = this._renders.indexOf(comp)) == -1) {
                     this._renders.splice(index, 1);
-                    comp.setRenderbitFlag(BaseRender.RenderBitFlag_CullFlag, false);
+                    comp.setRenderbitFlag(RenderBitFlag.RenderBitFlag_CullFlag, false);
                     this._group && node.transform.off(Event.TRANSFORM_CHANGED, this._group._updateRecaculateFlag);
                 }
             }
@@ -107,7 +107,7 @@ export class LODInfo {
      */
     removeAllRender() {
         this._renders.forEach(element => {
-            element.setRenderbitFlag(BaseRender.RenderBitFlag_CullFlag, false);
+            element.setRenderbitFlag(RenderBitFlag.RenderBitFlag_CullFlag, false);
         })
     }
 }
@@ -282,7 +282,6 @@ export class LODGroup extends Component {
         }
     }
 
-
     /**
      * 设置某一级LOD显示
      * @param index 
@@ -290,7 +289,7 @@ export class LODGroup extends Component {
     private _setLODvisible(index: number): void {
         let lod = this._lods[index];
         lod._renders.forEach(element => {
-            element.setRenderbitFlag(BaseRender.RenderBitFlag_CullFlag, false);
+            element.setRenderbitFlag(RenderBitFlag.RenderBitFlag_CullFlag, false);
         });
     }
 
@@ -301,7 +300,7 @@ export class LODGroup extends Component {
     private _setLODinvisible(index: number) {
         let lod = this._lods[index];
         lod._renders.forEach(element => {
-            element.setRenderbitFlag(BaseRender.RenderBitFlag_CullFlag, true);
+            element.setRenderbitFlag(RenderBitFlag.RenderBitFlag_CullFlag, true);
         });
     }
 

@@ -35,6 +35,8 @@ export class InstanceRenderElement extends RenderElement {
     _instanceBatchElementList: SingletonList<RenderElement>
     /**@internal */
     _isInPool: boolean;
+    /**判断是否需要更新数据 */
+    _isUpdataData: boolean;
     /**@internal recover renderData*/
     private oriRendertype: number;
 
@@ -43,6 +45,7 @@ export class InstanceRenderElement extends RenderElement {
         super();
         this.setGeometry(new MeshInstanceGeometry(null));
         this._instanceBatchElementList = new SingletonList();
+        this._isUpdataData = true;
     }
 
     /**
@@ -79,7 +82,6 @@ export class InstanceRenderElement extends RenderElement {
 
 
     _renderUpdatePre(context: RenderContext3D) {
-
         var sceneMark: number = ILaya3D.Scene3D._updateMark;
         var transform: Transform3D = this.transform;
         context.renderElement = this;
@@ -88,27 +90,24 @@ export class InstanceRenderElement extends RenderElement {
         if (modelDataRender) {
             this.render._renderUpdate(context, transform);
             this.render._sceneUpdateMark = sceneMark;
-            //Update Instance Data
-
         }
         //camera
         var updateMark: number = Camera._updateMark;
-        //var updateRender: boolean = (!!this.render) ? (updateMark !== this.render._updateMark || this.renderType !== this.render._updateRenderType) : false;
         if (true) {//此处处理更新为裁剪和合并后的，可避免浪费
             this.render._renderUpdateWithCamera(context, transform);
             this.oriRendertype = this.render._updateRenderType
             this.render._updateMark = updateMark;
             this.render._updateRenderType = this.renderType;
-
-            let mesh = (this._geometry as MeshInstanceGeometry).subMesh._mesh;
-            this.updateInstanceData(mesh);
+            if (this._isUpdataData) {
+                let mesh = (this._geometry as MeshInstanceGeometry).subMesh._mesh;
+                this.updateInstanceData(mesh);
+            }
         }
 
         const subUbo = (!!this.render) ? this.render._subUniformBufferData : false;
         if (subUbo) {
             subUbo._needUpdate && BaseRender._transLargeUbO.updateSubData(subUbo);
         }
-        //context.shader = this._renderElementOBJ._subShader;
         this._renderElementOBJ._isRender = this._geometry._prepareRender(context);
         this._geometry._updateRenderParams(context);
         this.compileShader(context._contextOBJ);

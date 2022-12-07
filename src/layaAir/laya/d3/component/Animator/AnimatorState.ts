@@ -39,7 +39,7 @@ export class AnimatorState extends EventDispatcher implements IClone {
     _transitions: AnimatorTransition[] = [];
     /**@internal 优先过渡列表only play this transition */
     _soloTransitions: AnimatorTransition[] = [];
-
+    
 
 
     /**名称。*/

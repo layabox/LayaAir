@@ -3,6 +3,7 @@ import { AnimatorState } from "./AnimatorState";
 import { AnimatorStateCondition } from "./AnimatorStateCondition";
 
 export class AnimatorTransition {
+    
     /**
      * @internal
      */
@@ -181,16 +182,21 @@ export class AnimatorTransition {
         if (this._mute) {
             return false;
         }
-        if (this._exitByTime && normalizeTime < this._exitTime) {
-            return false;
-        }
-        for (var i = 0; i < this._conditions.length; i++) {
-            let con = this._conditions[i];
-            let out = con.checkState(paramsMap[con.id]);
-            if (out) {
-                if (con.type == AniStateConditionType.Trigger)
-                    paramsMap[con.id] = false;
+        if (this._conditions.length == 0) {
+            if(normalizeTime>this._exitTime)
                 return true;
+        } else {
+            if (this._exitByTime && normalizeTime < this._exitTime) {
+                return false;
+            }
+            for (var i = 0; i < this._conditions.length; i++) {
+                let con = this._conditions[i];
+                let out = con.checkState(paramsMap[con.id]);
+                if (out) {
+                    if (con.type == AniStateConditionType.Trigger)
+                        paramsMap[con.id] = false;
+                    return true;
+                }
             }
         }
         return false;

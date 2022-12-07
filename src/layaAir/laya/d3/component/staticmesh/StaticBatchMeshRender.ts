@@ -2,7 +2,7 @@ import { ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData";
 import { ShaderDefine } from "../../../RenderEngine/RenderShader/ShaderDefine";
 import { MeshFilter } from "../../core/MeshFilter";
 import { MeshSprite3DShaderDeclaration } from "../../core/MeshSprite3DShaderDeclaration";
-import { BaseRender } from "../../core/render/BaseRender";
+import { BaseRender, RenderBitFlag } from "../../core/render/BaseRender";
 import { RenderContext3D } from "../../core/render/RenderContext3D";
 import { Sprite3D } from "../../core/Sprite3D";
 import { Transform3D } from "../../core/Transform3D";
@@ -132,7 +132,7 @@ export class StaticBatchMeshRender extends BaseRender {
     onEnable() {
         super.onEnable();
         this.mergeInfo.renders.forEach(render => {
-            render.setRenderbitFlag(BaseRender.RenderBitFlag_Batch, true);
+            render.setRenderbitFlag(RenderBitFlag.RenderBitFlag_Batch, true);
         });
 
     }
@@ -140,7 +140,7 @@ export class StaticBatchMeshRender extends BaseRender {
     onDisable() {
         super.onDisable();
         this.mergeInfo.renders.forEach(render => {
-            render.setRenderbitFlag(BaseRender.RenderBitFlag_Batch, false);
+            render.setRenderbitFlag(RenderBitFlag.RenderBitFlag_Batch, false);
         });
     }
 

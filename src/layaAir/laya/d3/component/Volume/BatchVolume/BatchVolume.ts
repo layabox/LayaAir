@@ -3,6 +3,8 @@ import { BaseRender } from "../../../core/render/BaseRender";
 import { StaticFlag } from "../../../core/Sprite3D";
 import { Volume } from "../Volume";
 import { BatchRender } from "./BatchRender";
+import { StaticInstanceBatchRender } from "./StaticInstanceBatchRender";
+import { StatiVertexMergeBatchRender } from "./StatiVertexMergeBatchRender";
 
 /**
  * 类用来描述一个可合并渲染节点的体积
@@ -22,7 +24,7 @@ export class StaticBatchVolume extends Volume {
     private _enableInstanceBatch: boolean;
 
     /**@internal 内置静态物体Instance合批 */
-    private _instanceBatchRender: BatchRender;
+    private _instanceBatchRender: StaticInstanceBatchRender;
 
     //Instance Batch config
     //多少个实例  适合组成Instance合批
@@ -32,7 +34,7 @@ export class StaticBatchVolume extends Volume {
     private _enableStaticMergeBatch: boolean;
 
     /**@internal 顶点静态合批*/
-    private _vertexMergeBatchRender: BatchRender;
+    private _vertexMergeBatchRender: StatiVertexMergeBatchRender;
 
     //CustomBatch自定义的batch流程
     private _enableCustomBatch: boolean;
@@ -163,11 +165,13 @@ export class StaticBatchVolume extends Volume {
             this._getBatchList(instanceList, vertexMergeList);
             if (this._enableInstanceBatch) {
                 this._instanceBatchRender._clear();
-                this._instanceBatchRender._addList(instanceList);
+                this._instanceBatchRender.addList(instanceList);
+                this._instanceBatchRender.reBatch();
             }
             if (this._enableStaticMergeBatch) {
                 this._vertexMergeBatchRender._clear();
                 this._vertexMergeBatchRender._addList(instanceList);
+                this._vertexMergeBatchRender.reBatch();
             }
         }
     }
@@ -176,8 +180,4 @@ export class StaticBatchVolume extends Volume {
     private _getBatchList(instanceBatchList: BaseRender[], vertexBatchList: BaseRender[]) {
         //TODO  根据规则  分析_cacheRender里面的值
     }
-
-
-
-
 }
