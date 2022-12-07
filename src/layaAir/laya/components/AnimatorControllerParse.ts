@@ -154,7 +154,7 @@ export class AnimatorControllerParse {
             }
         }
         let ret: { states: TypeAnimatorState[], enterName: string } = null;
-        if (clipState) {
+        if (clipState && enterState) {
             let defName = this.checkDefault(enterState, clipState);
             if (null != defName) {
                 ret = { states: clipState, enterName: defName };
