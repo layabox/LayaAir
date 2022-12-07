@@ -46,7 +46,7 @@ export class RenderElement {
     protected _subShader: SubShader;
     /**@internal */
     _subShaderIndex: number = 0;
-
+    _batchElement:RenderElement;
 
 
     /** @internal */

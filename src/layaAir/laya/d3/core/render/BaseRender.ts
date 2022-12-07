@@ -169,8 +169,7 @@ export class BaseRender extends Component implements ISingletonElement {
     /**@internal TODO*/
     private _LOD:number = 0;
     /**@internal TODO*/
-    private _batchRender:BatchRender;
-    _batchElement:RenderElement;
+    _batchRender:BatchRender;
     /**@internal 如果这个值不是0,说明有一些条件使他不能加入渲染队列，例如如果是1，证明此节点被lod淘汰*/
     private _volume: Volume;
     /**
@@ -558,6 +557,7 @@ export class BaseRender extends Component implements ISingletonElement {
         this.boundsChange = true;
         this._addReflectionProbeUpdate();
         this._subUniformBufferData && (this._subUniformBufferData._needUpdate = true);
+        this._batchRender&&this._batchRender._updateOneRender(this);
     }
 
     /**
@@ -634,6 +634,7 @@ export class BaseRender extends Component implements ISingletonElement {
         this._scene = scene;
         this._onWorldMatNeedChange(1);
         this._isSupportReflection();
+        this._batchRender && this._batchRender._batchOneRender(this);
         Stat.renderNode++;
         if (false) {
             this._subUniformBufferData = BaseRender._transLargeUbO.create();
@@ -651,6 +652,9 @@ export class BaseRender extends Component implements ISingletonElement {
     _setUnBelongScene() {
         Stat.renderNode--;
         this._scene._volumeManager.removeMotionObject(this);
+        let batch = this._batchRender;
+        this._batchRender && this._batchRender._removeOneRender(this);
+        this._batchRender = batch;
         if (false) {
             this._subUniformBufferData && BaseRender._transLargeUbO.recover(this._subUniformBufferData);
             this._subUniformBufferData = null;
@@ -709,6 +713,7 @@ export class BaseRender extends Component implements ISingletonElement {
         this._shaderValues.destroy();
         this._shaderValues = null;
         this._transform = null;
+        this._batchRender = null;
         if (this._subUniformBufferData) {
             BaseRender._transLargeUbO.recover(this._subUniformBufferData);
             this._subUniformBufferData = null;

@@ -204,7 +204,7 @@ export class DepthPass {
      * @internal
      */
     cleanUp(): void {
-        this._depthTexture && RenderTexture.recoverToPool(this._depthTexture);
+        (this._depthTexture instanceof RenderTexture)&& this._depthTexture && RenderTexture.recoverToPool(this._depthTexture);
         this._depthNormalsTexture && RenderTexture.recoverToPool(this._depthNormalsTexture);
         this._depthTexture = null;
         this._depthNormalsTexture = null;

@@ -101,7 +101,7 @@ export class StaticInstanceBatchRender extends BatchRender {
             list.add(element);
             instanceelement._isUpdataData = true;
             this._updateChangeElement.push(instanceelement);
-            this._batchElement = instanceelement;
+            element._batchElement = instanceelement;
         }
     }
 
@@ -115,7 +115,7 @@ export class StaticInstanceBatchRender extends BatchRender {
         var insBatchMarks = this._batchManager.getInstanceBatchOpaquaMark(element.render.receiveShadow, element.material.id, element._geometry._id, element.transform ? element.transform._isFrontFaceInvert : false, element.render._probReflection ? element.render._probReflection.id : -1);
         if (insBatchMarks.indexInList == -1)
             return;
-        let instanceelement: InstanceRenderElement = render._batchElement as InstanceRenderElement;
+        let instanceelement: InstanceRenderElement = element._batchElement as InstanceRenderElement;
         if (!instanceelement || this._renderElements.indexOf(instanceelement) == -1) {
             return;
         }
@@ -124,7 +124,7 @@ export class StaticInstanceBatchRender extends BatchRender {
             list.remove(element);
             instanceelement._isUpdataData = true;
             this._updateChangeElement.push(instanceelement);
-            render._batchElement = null;
+            element._batchElement = null;
         }
     }
 
@@ -135,7 +135,7 @@ export class StaticInstanceBatchRender extends BatchRender {
      * @returns 
      */
     private _updateOneElement(element: RenderElement, render: BaseRender) {
-        let instanceelement: InstanceRenderElement = render._batchElement as InstanceRenderElement;
+        let instanceelement: InstanceRenderElement = element._batchElement as InstanceRenderElement;
         if (!instanceelement || this._renderElements.indexOf(instanceelement) == -1) {
             return;
         }
@@ -194,7 +194,9 @@ export class StaticInstanceBatchRender extends BatchRender {
             let renderelement = elements[i];
             this._batchOneElement(renderelement, render);
         }
+        render._batchRender = this;
         render.setRenderbitFlag(RenderBitFlag.RenderBitFlag_InstanceBatch, true);
+        
     }
 
     /**
@@ -212,6 +214,7 @@ export class StaticInstanceBatchRender extends BatchRender {
                 let renderelement = elements[i];
                 this._removeOneElement(renderelement, render);
             }
+            render._batchRender = null;
             render.setRenderbitFlag(RenderBitFlag.RenderBitFlag_InstanceBatch, false);
         }
     }
