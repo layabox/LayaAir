@@ -18,7 +18,6 @@ export class StaticInstanceBatchRender extends BatchRender {
     private _insElementMarksArray: InstanceRenderElement[] = [];
     private _instanceBatchminNums: number = 10;
     private _updateChangeElement: InstanceRenderElement[] = [];
-    
 
     /**
      * 创建一个 <code>StaticInstanceBatchRender</code> 实例。
@@ -37,7 +36,7 @@ export class StaticInstanceBatchRender extends BatchRender {
         let elements = render._renderElements;
         for (var i = 0, n = elements.length; i < n; i++) {
             let element = elements[i];
-            if (!element.renderSubShader._owner._enableInstancing || element.render.lightmapIndex > 0) {
+            if (!element.material._shader._enableInstancing || element.render.lightmapIndex > 0) {
                 return false;
             }
         }
@@ -52,7 +51,7 @@ export class StaticInstanceBatchRender extends BatchRender {
         for (var i = 0, n = elements.length; i < n; i++) {
             let element = elements[i];
             var insBatchMarks = this._batchManager.getInstanceBatchOpaquaMark(element.render.receiveShadow, element.material.id, element._geometry._id, element.transform ? element.transform._isFrontFaceInvert : false, element.render._probReflection ? element.render._probReflection.id : -1);
-            if (this._insBatchMarksNums[insBatchMarks.indexInList] < this._instanceBatchminNums || element.material.renderQueue < 3000) {
+            if (this._insBatchMarksNums[insBatchMarks.indexInList] < this._instanceBatchminNums || element.material.renderQueue >= 3000) {
                 return false;
             }
         }
@@ -96,7 +95,7 @@ export class StaticInstanceBatchRender extends BatchRender {
         //TODO LOD
         let instanceelement: InstanceRenderElement = this._insElementMarksArray[insBatchMarks.indexInList];
         if (!instanceelement) {
-            instanceelement = this._createInstanceElement(instanceelement, render, insBatchMarks);
+            instanceelement = this._createInstanceElement(element, render, insBatchMarks);
         }
         let list = instanceelement._instanceBatchElementList;
         if(list.length== InstanceRenderElement.maxInstanceCount){
