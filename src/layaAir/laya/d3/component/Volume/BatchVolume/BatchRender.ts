@@ -1,5 +1,6 @@
 import { SingletonList } from "../../../../utils/SingletonList";
 import { BaseRender, RenderBitFlag } from "../../../core/render/BaseRender";
+import { InstanceRenderElement } from "../../../core/render/InstanceRenderElement";
 /**
  * 类用来描述合批的渲染节点
  */
@@ -11,11 +12,16 @@ export class BatchRender extends BaseRender {
     protected _batchList: SingletonList<BaseRender>;
     protected _batchbit: RenderBitFlag;
     protected _RenderBitFlag: RenderBitFlag;
+    protected _lodInstanceRenderElement: InstanceRenderElement[][];
 
+    /**
+     * 创建一个 <code>BatchRender</code> 实例。
+     */
     constructor() {
         super();
         this._RenderBitFlag = RenderBitFlag.RenderBitFlag_Batch;
     }
+    
     /**
      * 是否根据lod来合批
      */
@@ -31,12 +37,22 @@ export class BatchRender extends BaseRender {
      * lod裁剪过滤
      */
     set lodCullRateArray(value: number[]) {
+        if (this._checkLOD) {
+            return;
+        }
+        if (!this._lodRateArray) {
+            this._lodInstanceRenderElement = [];
+        }
         value.sort((a, b) => a - b);
         this._lodRateArray = value;
     }
 
-    get lodRateArray() {
+    get lodCullRateArray() {
         return this._lodRateArray;
+    }
+
+    protected _changeLODCount(value: number) {
+        
     }
 
 
@@ -118,8 +134,6 @@ export class BatchRender extends BaseRender {
             this._batchOneRender(render);
         }
     }
-
-
 
     /**
      * Restoring the Batch Render State

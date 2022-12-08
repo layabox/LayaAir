@@ -18,6 +18,7 @@ export class StaticInstanceBatchRender extends BatchRender {
     private _insElementMarksArray: InstanceRenderElement[] = [];
     private _instanceBatchminNums: number = 10;
     private _updateChangeElement: InstanceRenderElement[] = [];
+    
 
     /**
      * 创建一个 <code>StaticInstanceBatchRender</code> 实例。
@@ -98,6 +99,11 @@ export class StaticInstanceBatchRender extends BatchRender {
             instanceelement = this._createInstanceElement(instanceelement, render, insBatchMarks);
         }
         let list = instanceelement._instanceBatchElementList;
+        if(list.length== InstanceRenderElement.maxInstanceCount){
+            this._insBatchMarksNums.push(this._insBatchMarksNums[insBatchMarks.indexInList]);
+            insBatchMarks.indexInList = this._insBatchMarksNums.length-1;
+            instanceelement = this._createInstanceElement(instanceelement, render, insBatchMarks);
+        }
         if (list.indexof(element) == -1) {
             list.add(element);
             instanceelement._isUpdataData = true;
