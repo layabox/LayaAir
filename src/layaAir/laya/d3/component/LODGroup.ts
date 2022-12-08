@@ -19,6 +19,8 @@ export class LODInfo {
     //TODO 不需要缓存节点  需要商量
     _cachSprite3D: Sprite3D[];
     /**@internal */
+    _lodIndex:number;
+    /**@internal */
     private _group: LODGroup;
 
     constructor(mincullRate: number) {
@@ -40,11 +42,13 @@ export class LODInfo {
         if (this._group) {//remove old event
             this._renders.forEach(element => {
                 (element.owner as Sprite3D).transform.off(Event.TRANSFORM_CHANGED, this._group._updateRecaculateFlag);
+                element._LOD = -1;
             })
         }
         this._group = value;
         this._renders.forEach(element => {
             (element.owner as Sprite3D).transform.on(Event.TRANSFORM_CHANGED, this._group, this._group._updateRecaculateFlag);
+            element._LOD = this._lodIndex;
         })
     }
 
@@ -143,6 +147,8 @@ export class LODGroup extends Component {
 
     private _visialIndex = -1;
 
+    
+
     constructor() {
         super();
         this._bounds = new Bounds();
@@ -199,6 +205,7 @@ export class LODGroup extends Component {
         this._lods = data;
         this._lods.forEach((element, index) => {
             element.group = this;
+            element._lodIndex = index;
             this._setLODinvisible(index);
         });
         this._updateRecaculateFlag();

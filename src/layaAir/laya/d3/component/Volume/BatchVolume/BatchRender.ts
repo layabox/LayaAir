@@ -1,6 +1,11 @@
 import { SingletonList } from "../../../../utils/SingletonList";
+import { Camera } from "../../../core/Camera";
 import { BaseRender, RenderBitFlag } from "../../../core/render/BaseRender";
 import { InstanceRenderElement } from "../../../core/render/InstanceRenderElement";
+import { Scene3D } from "../../../core/scene/Scene3D";
+import { Vector3 } from "../../../math/Vector3";
+const tempVec = new Vector3();
+const tempVec1 = new Vector3();
 /**
  * 类用来描述合批的渲染节点
  */
@@ -13,7 +18,9 @@ export class BatchRender extends BaseRender {
     protected _batchbit: RenderBitFlag;
     protected _RenderBitFlag: RenderBitFlag;
     protected _lodInstanceRenderElement: InstanceRenderElement[][] = [];
-    private _cacheLod:number;
+    protected _lodsize: number;
+    private _cacheLod: number;
+
     /**
      * 创建一个 <code>BatchRender</code> 实例。
      */
@@ -78,17 +85,41 @@ export class BatchRender extends BaseRender {
     /**
      * 根据lod的改变
      */
-    protected _changeLOD(lod:number) {
-        if(this._cacheLod==lod){
+    protected _changeLOD(lod: number) {
+        if (this._cacheLod == lod) {
             return;
         }
-        if(lod==this._lodRateArray.length){
+        if (lod == this._lodRateArray.length) {
             this._renderElements = this._lodInstanceRenderElement[-1];
         }
         this._renderElements = this._lodInstanceRenderElement[lod];
-        if(this._lodInstanceRenderElement[lod]){
-            this._renderElements|| (this._renderElements = []);
+        if (this._lodInstanceRenderElement[lod]) {
+            this._renderElements || (this._renderElements = []);
             this._renderElements = this._renderElements.concat(this._lodInstanceRenderElement[-1]);
+        }
+    }
+
+    onPreRender() {
+        if (!this.checkLOD || !this._lodRateArray || this._lodRateArray.length < 1) {
+            this._changeLOD(0);
+        } else {
+            let checkCamera = (this.owner.scene as Scene3D).cullInfoCamera as Camera;
+            let maxYDistance = checkCamera.maxlocalYDistance;
+            let cameraFrustum = checkCamera.boundFrustum;
+            Vector3.subtract(this._bounds.getCenter(), checkCamera.transform.position, tempVec);
+            //大于farplane,或者不在视锥内.不做lod操作
+            let length = tempVec.length();
+            checkCamera.transform.worldMatrix.getForward(tempVec1);
+            Vector3.normalize(tempVec, tempVec);
+            Vector3.normalize(tempVec1, tempVec1);
+            let rateYDistance = length * Vector3.dot(tempVec, tempVec1) / checkCamera.farPlane * maxYDistance;
+            let rate = (this._lodsize / rateYDistance);
+            for (let i = 0; i < this._lodRateArray.length; i++) {
+                if (rate < this._lodRateArray[i])
+                    continue;
+                this._changeLOD(i);
+                break;
+            }
         }
     }
 
