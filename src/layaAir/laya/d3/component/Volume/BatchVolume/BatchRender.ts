@@ -32,7 +32,7 @@ export class BatchRender extends BaseRender {
     /**
      * 是否根据lod来合批
      */
-    get chekckLOD() {
+    get checkLOD() {
         return this._checkLOD;
     }
 
@@ -57,9 +57,13 @@ export class BatchRender extends BaseRender {
 
 
     /**
+     * Overrid it
      *  是否满足batch条件
      */
     protected _canBatch(render: BaseRender): boolean {
+        if(render._batchRender){
+            return false;
+        }
         return false;
     }
 
@@ -126,8 +130,9 @@ export class BatchRender extends BaseRender {
     /**
      * @param render 
      */
-    _batchOneRender(render: BaseRender) {
+    _batchOneRender(render: BaseRender):boolean {
         //TODO
+        return false
     }
 
     /**
@@ -173,10 +178,16 @@ export class BatchRender extends BaseRender {
      * Restoring the Batch Render State
      */
     _restorRenderNode() {
-
+        for (let i = 0, n = this._batchList.length; i < n; i++) {
+            this._removeOneRender(this._batchList.elements[i]);
+        }
     }
 
     _clear() {
-
+        this._restorRenderNode();
+        this._renderElements = [];
+        this._batchList.destroy();
+        this._batchList = new SingletonList<BaseRender>();
+        this._lodInstanceRenderElement = null;
     }
 }
