@@ -279,9 +279,6 @@ export class StaticInstanceBatchRender extends BatchRender {
         }
     }
 
-    
-
-
     /**
      * 重新计算包围盒
      */

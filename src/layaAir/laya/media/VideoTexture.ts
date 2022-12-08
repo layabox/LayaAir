@@ -32,15 +32,17 @@ export class VideoTexture extends BaseTexture {
     /**
      * 是否开发者自己调用Render
      */
-    private _frameRender:boolean = true;
+    private _frameRender:boolean;
     /**避免重复的加载 */
-    private _isLoaded:boolean = false;
+    private _isLoaded:boolean;
     /**
      * 创建VideoTexture对象，
      */
     constructor() {
         let ele: HTMLVideoElement = ILaya.Browser.createElement("video");
         super(ele.videoWidth, ele.videoHeight, RenderTargetFormat.R8G8B8);
+        this._frameRender=true;
+        this._isLoaded=false;
         this.immediatelyPlay=false;
         this.element = ele;
 

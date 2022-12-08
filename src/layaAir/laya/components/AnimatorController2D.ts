@@ -40,7 +40,7 @@ export class AnimatorController2D extends Resource {
                 }
                 try {
                     (acl as any)[k] = (l as any)[k];
-                } catch (err: *) { }
+                } catch (err: any) { }
             }
             this.getState(l.states, acl, this.data);
 
@@ -109,7 +109,7 @@ export class AnimatorController2D extends Resource {
                     } else if (null != (obj as any)[k]) {
                         (state as any)[k] = (obj as any)[k];
                     }
-                } catch (err: *) { }
+                } catch (err: any) { }
             }
 
             acl.addState(state);

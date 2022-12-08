@@ -145,11 +145,11 @@ export class Graphics {
     /**
      * 命令流。存储了所有绘制命令。
      */
-    get cmds(): ReadonlyArray<any> {
+    get cmds() {
         return this._cmds;
     }
 
-    set cmds(value: any) {
+    set cmds(value) {
         if (this._sp) {
             this._sp._renderType |= SpriteConst.GRAPHICS;
             this._sp._setRenderType(this._sp._renderType);
