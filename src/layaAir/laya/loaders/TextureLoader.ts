@@ -129,6 +129,25 @@ class Texture2DLoader implements IResourceLoader {
     }
 }
 
+class RenderTextureLoader implements IResourceLoader {
+    load(task: ILoadTask) {
+        return task.loader.fetch(task.url, "json", task.progress.createCallback(), task.options).then(data => {
+            if (!data)
+                return null;
+
+            let obsoluteInst = <RenderTexture>task.obsoluteInst;
+            if (obsoluteInst) {
+                obsoluteInst.recreate(data.width, data.height, data.colorFormat, data.depthFormat,
+                    data.generateMipmap, data.multiSamples, false, data.sRGB);
+                return obsoluteInst;
+            }
+            else
+                return new RenderTexture(data.width, data.height, data.colorFormat, data.depthFormat,
+                    data.generateMipmap, data.multiSamples, false, data.sRGB);
+        });
+    }
+}
+
 const propertyParams2d: TexturePropertyParams = { premultiplyAlpha: true };
 const constructParams2d: TextureConstructParams = [null, null, TextureFormat.R8G8B8A8, false, false, true];
 
@@ -170,20 +189,8 @@ class TextureLoader implements IResourceLoader {
     }
 }
 
-class RenderTextureLoader implements IResourceLoader {
-    load(task: ILoadTask) {
-        return task.loader.fetch(task.url, "json", task.progress.createCallback(), task.options).then(data => {
-            if (!data)
-                return null;
-
-            return new RenderTexture(data.width, data.height, data.colorFormat, data.depthFormat,
-                data.generateMipmap, data.multiSamples, false, data.sRGB);
-        });
-    }
-}
-
 const compressedFormats = ["ktx", "pvr", "dds", "hdr", "lanit.ls"];
 
-Loader.registerLoader(["png", "jpg", "jpeg", ...compressedFormats], TextureLoader, Loader.IMAGE);
+Loader.registerLoader(["png", "jpg", "jpeg", "rendertexture", ...compressedFormats], TextureLoader, Loader.IMAGE);
 Loader.registerLoader([], Texture2DLoader, Loader.TEXTURE2D);
 Loader.registerLoader(["rendertexture"], RenderTextureLoader, Loader.TEXTURE2D);

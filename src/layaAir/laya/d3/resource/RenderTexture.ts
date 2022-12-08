@@ -2,6 +2,7 @@ import { Config3D } from "../../../Config3D";
 import { LayaGL } from "../../layagl/LayaGL";
 import { RenderTargetFormat } from "../../RenderEngine/RenderEnum/RenderTargetFormat";
 import { TextureDimension } from "../../RenderEngine/RenderEnum/TextureDimension";
+import { TextureFormat } from "../../RenderEngine/RenderEnum/TextureFormat";
 import { InternalRenderTarget } from "../../RenderEngine/RenderInterface/InternalRenderTarget";
 import { IRenderTarget } from "../../RenderEngine/RenderInterface/IRenderTarget";
 import { BaseTexture } from "../../resource/BaseTexture";
@@ -17,7 +18,7 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
     }
 
     private static _pool: RenderTexture[] = [];
-    private static _poolMemory:number = 0;
+    private static _poolMemory: number = 0;
 
     /**
      * 创建一个RenderTexture
@@ -45,7 +46,7 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
                 let end = RenderTexture._pool[n - 1];
                 RenderTexture._pool[index] = end;
                 RenderTexture._pool.length -= 1;
-                RenderTexture._poolMemory-=(rt._renderTarget.gpuMemory/1024/1024);
+                RenderTexture._poolMemory -= (rt._renderTarget.gpuMemory / 1024 / 1024);
                 return rt;
             }
         }
@@ -59,15 +60,15 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
         if (rt._inPool || rt.destroyed)
             return;
         RenderTexture._pool.push(rt);
-        RenderTexture._poolMemory+= (rt._renderTarget.gpuMemory/1024/1024);
+        RenderTexture._poolMemory += (rt._renderTarget.gpuMemory / 1024 / 1024);
         rt._inPool = true;
     }
 
-    static clearPool(){
-        if(RenderTexture._poolMemory<Config3D.defaultCacheRTMemory){
+    static clearPool() {
+        if (RenderTexture._poolMemory < Config3D.defaultCacheRTMemory) {
             return;
         }
-        for(var i in RenderTexture._pool){
+        for (var i in RenderTexture._pool) {
             RenderTexture._pool[i].destroy();
         }
         RenderTexture._pool = [];
@@ -127,7 +128,6 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
 
     _generateMipmap: boolean;
 
-    protected _colorFormat: RenderTargetFormat;
     get colorFormat(): RenderTargetFormat {
         return this._renderTarget.colorFormat;
     }
@@ -169,7 +169,6 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
 
         this._gammaSpace = sRGB;
 
-        this._colorFormat = colorFormat;
         this._depthStencilFormat = (depthFormat == null ? RenderTargetFormat.None : depthFormat);
 
         this._generateMipmap = generateMipmap;
@@ -182,13 +181,33 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
 
     _createRenderTarget() {
         this._dimension = TextureDimension.Tex2D;
-        this._renderTarget = LayaGL.textureContext.createRenderTargetInternal(this.width, this.height, this._colorFormat, this._depthStencilFormat, this._generateMipmap, this._gammaSpace, this._multiSamples);
+        this._renderTarget = LayaGL.textureContext.createRenderTargetInternal(this.width, this.height, <RenderTargetFormat><any>this._format, this._depthStencilFormat, this._generateMipmap, this._gammaSpace, this._multiSamples);
 
         // rt 格式 宽高可能不支持
         this._generateMipmap = this._renderTarget._generateMipmap;
         this._texture = this._renderTarget._textures[0];
 
         this.generateDepthTexture = this._generateDepthTexture;
+    }
+
+    //@internal
+    recreate(width: number, height: number, colorFormat: RenderTargetFormat, depthFormat: RenderTargetFormat, generateMipmap: boolean = false, multiSamples: number = 1, generateDepthTexture: boolean = false, sRGB: boolean = false) {
+        this._width = width;
+        this._height = height;
+        this._format = <TextureFormat><any>colorFormat;
+
+        this._gammaSpace = sRGB;
+
+        this._depthStencilFormat = (depthFormat == null ? RenderTargetFormat.None : depthFormat);
+
+        this._generateMipmap = generateMipmap;
+        this._multiSamples = multiSamples;
+        this._generateDepthTexture = generateDepthTexture;
+
+        this._disposeResource();
+
+        // todo format 
+        this._createRenderTarget();
     }
 
     _start() {

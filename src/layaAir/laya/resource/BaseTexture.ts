@@ -50,7 +50,7 @@ export class BaseTexture extends Resource {
         return this._dimension;
     }
 
-    private _format: TextureFormat;
+    protected _format: TextureFormat;
     public get format(): TextureFormat {
         return this._format;
     }

@@ -605,7 +605,7 @@ export class Loader extends EventDispatcher {
                 }
             }
             else { //扩展名没有注册的情况
-                main = false;
+                main = type != Loader.TEXTURE2D;
                 loaderType = typeEntry.loaderType;
             }
         }
