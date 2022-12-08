@@ -15,6 +15,18 @@ class AtlasLoader implements IResourceLoader {
             if (data.meta && data.meta.image) {
                 //带图片信息的类型
                 let pics: Array<string> = data.meta.image.split(",");
+
+                //如果图集带了版本号，需要将图集中包含的图片也需要追加版本号，以此解决浏览器缓存的问题
+                if (task.url.indexOf(".atlas?") != -1) {
+                    let temp = task.url.split('.atlas?');
+                    if (temp && temp.length == 2) {
+                        let len = pics.length;
+                        for (let i = 0; i < len; i++) {
+                            pics[i] += "?" + temp[1];
+                        }
+                    }
+                }
+
                 let split: string = task.url.indexOf("/") >= 0 ? "/" : "\\";
                 let idx: number = task.url.lastIndexOf(split);
                 let folderPath: string = idx >= 0 ? task.url.substring(0, idx + 1) : "";
