@@ -167,7 +167,7 @@ export class BaseRender extends Component implements ISingletonElement {
     /**@internal 可以根据不同的值来设置*/
     _ratioIgnor: number = 0.005;//TODO
     /**@internal TODO*/
-    private _LOD:number = 0;
+    _LOD:number = -1;
     /**@internal TODO*/
     _batchRender:BatchRender;
     /**@internal 如果这个值不是0,说明有一些条件使他不能加入渲染队列，例如如果是1，证明此节点被lod淘汰*/
