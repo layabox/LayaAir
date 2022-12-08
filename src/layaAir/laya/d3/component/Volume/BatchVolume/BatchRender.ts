@@ -89,14 +89,14 @@ export class BatchRender extends BaseRender {
         if (this._cacheLod == lod) {
             return;
         }
-        if (lod == this._lodRateArray.length) {
-            this._renderElements = this._lodInstanceRenderElement[-1];
-        }
         this._renderElements = this._lodInstanceRenderElement[lod];
-        if (this._lodInstanceRenderElement[lod]) {
+        if (this._lodInstanceRenderElement[lod]&&lod!=-1) {
             this._renderElements || (this._renderElements = []);
             this._renderElements = this._renderElements.concat(this._lodInstanceRenderElement[-1]);
+        }else{
+                this._renderElements = this._lodInstanceRenderElement[-1];
         }
+        
     }
 
     onPreRender() {
