@@ -12,8 +12,8 @@ export class BatchRender extends BaseRender {
     protected _batchList: SingletonList<BaseRender>;
     protected _batchbit: RenderBitFlag;
     protected _RenderBitFlag: RenderBitFlag;
-    protected _lodInstanceRenderElement: InstanceRenderElement[][];
-
+    protected _lodInstanceRenderElement: InstanceRenderElement[][] = [];
+    private _cacheLod:number;
     /**
      * 创建一个 <code>BatchRender</code> 实例。
      */
@@ -21,7 +21,7 @@ export class BatchRender extends BaseRender {
         super();
         this._RenderBitFlag = RenderBitFlag.RenderBitFlag_Batch;
     }
-    
+
     /**
      * 是否根据lod来合批
      */
@@ -37,11 +37,8 @@ export class BatchRender extends BaseRender {
      * lod裁剪过滤
      */
     set lodCullRateArray(value: number[]) {
-        if (this._checkLOD) {
+        if (!this._checkLOD) {
             return;
-        }
-        if (!this._lodRateArray) {
-            this._lodInstanceRenderElement = [];
         }
         value.sort((a, b) => a - b);
         this._lodRateArray = value;
@@ -49,10 +46,6 @@ export class BatchRender extends BaseRender {
 
     get lodCullRateArray() {
         return this._lodRateArray;
-    }
-
-    protected _changeLODCount(value: number) {
-        
     }
 
 
@@ -85,29 +78,39 @@ export class BatchRender extends BaseRender {
     /**
      * 根据lod的改变
      */
-    protected _changeLOD() {
-        //TODO
+    protected _changeLOD(lod:number) {
+        if(this._cacheLod==lod){
+            return;
+        }
+        if(lod==this._lodRateArray.length){
+            this._renderElements = this._lodInstanceRenderElement[-1];
+        }
+        this._renderElements = this._lodInstanceRenderElement[lod];
+        if(this._lodInstanceRenderElement[lod]){
+            this._renderElements|| (this._renderElements = []);
+            this._renderElements = this._renderElements.concat(this._lodInstanceRenderElement[-1]);
+        }
     }
 
     /**
      * @param render 
      */
     _batchOneRender(render: BaseRender) {
-
+        //TODO
     }
 
     /**
      * @param render 
      */
     _removeOneRender(render: BaseRender) {
-
+        //TODO
     }
 
     /**
      * @param render 
      */
     _updateOneRender(render: BaseRender) {
-
+        //TODO
     }
 
     /**

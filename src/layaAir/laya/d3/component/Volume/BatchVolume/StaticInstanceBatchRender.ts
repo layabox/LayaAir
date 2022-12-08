@@ -1,14 +1,18 @@
 import { SingletonList } from "../../../../utils/SingletonList";
+import { Camera } from "../../../core/Camera";
 import { BaseRender, RenderBitFlag } from "../../../core/render/BaseRender";
 import { BatchMark } from "../../../core/render/BatchMark";
 import { InstanceRenderElement } from "../../../core/render/InstanceRenderElement";
 import { RenderElement } from "../../../core/render/RenderElement";
+import { Scene3D } from "../../../core/scene/Scene3D";
 import { InstanceBatchManager } from "../../../graphics/Batch/InstanceBatchManager";
 import { MeshInstanceGeometry } from "../../../graphics/MeshInstanceGeometry";
 import { Bounds } from "../../../math/Bounds";
+import { Vector3 } from "../../../math/Vector3";
 import { SubMesh } from "../../../resource/models/SubMesh";
 import { BatchRender } from "./BatchRender";
-
+const tempVec = new Vector3();
+const tempVec1 = new Vector3();
 /**
  * <code>StaticInstanceBatchRender</code> 类用于创建动作状态。
  */
@@ -18,7 +22,7 @@ export class StaticInstanceBatchRender extends BatchRender {
     private _insElementMarksArray: InstanceRenderElement[] = [];
     private _instanceBatchminNums: number = 10;
     private _updateChangeElement: InstanceRenderElement[] = [];
-
+    private _lodsize:number;
     /**
      * 创建一个 <code>StaticInstanceBatchRender</code> 实例。
      */
@@ -59,13 +63,6 @@ export class StaticInstanceBatchRender extends BatchRender {
     }
 
     /**
-     * 根据lod的改变
-     */
-    protected _changeLOD() {
-        //TODO
-    }
-
-    /**
      * 计算Instance合并数量
      * @param render 
      */
@@ -98,10 +95,10 @@ export class StaticInstanceBatchRender extends BatchRender {
             instanceelement = this._createInstanceElement(element, render, insBatchMarks);
         }
         let list = instanceelement._instanceBatchElementList;
-        if(list.length== InstanceRenderElement.maxInstanceCount){
+        if (list.length == InstanceRenderElement.maxInstanceCount) {
             this._insBatchMarksNums.push(this._insBatchMarksNums[insBatchMarks.indexInList]);
-            insBatchMarks.indexInList = this._insBatchMarksNums.length-1;
-            instanceelement = this._createInstanceElement(instanceelement, render, insBatchMarks);
+            insBatchMarks.indexInList = this._insBatchMarksNums.length - 1;
+            instanceelement = this._createInstanceElement(element, render, insBatchMarks);
         }
         if (list.indexof(element) == -1) {
             list.add(element);
@@ -267,7 +264,12 @@ export class StaticInstanceBatchRender extends BatchRender {
         list.add(element);
         this._insElementMarksArray[batchMark.indexInList] = instanceRenderElement;
         batchMark.batched = true;
-        this._renderElements.push(instanceRenderElement);
+        if (this._checkLOD) {
+            if (!this._lodInstanceRenderElement[render._LOD]) {
+                this._lodInstanceRenderElement[render._LOD] = [];
+            }
+            this._lodInstanceRenderElement[render._LOD].push(instanceRenderElement);
+        }
         return instanceRenderElement;
     }
 
@@ -282,8 +284,26 @@ export class StaticInstanceBatchRender extends BatchRender {
     }
 
     onPreRender() {
-        if (this.checkLOD) {
-            this._changeLOD();
+        if (!this.checkLOD || !this._lodRateArray || this._lodRateArray.length < 1) {
+            this._changeLOD(0);
+        } else {
+            let checkCamera = (this.owner.scene as Scene3D).cullInfoCamera as Camera;
+            let maxYDistance = checkCamera.maxlocalYDistance;
+            let cameraFrustum = checkCamera.boundFrustum;
+            Vector3.subtract(this._bounds.getCenter(), checkCamera.transform.position, tempVec);
+            //大于farplane,或者不在视锥内.不做lod操作
+            let length = tempVec.length();
+            checkCamera.transform.worldMatrix.getForward(tempVec1);
+            Vector3.normalize(tempVec, tempVec);
+            Vector3.normalize(tempVec1, tempVec1);
+            let rateYDistance = length * Vector3.dot(tempVec, tempVec1) / checkCamera.farPlane * maxYDistance;
+            let rate = (this._lodsize / rateYDistance);
+            for(let i = 0;i<this._lodRateArray.length;i++){
+                if(rate<this._lodRateArray[i])
+                    continue;
+                this._changeLOD(i);
+                break;
+            }
         }
     }
 
@@ -300,6 +320,8 @@ export class StaticInstanceBatchRender extends BatchRender {
                 Bounds.merge(bound, this._batchList.elements[i].bounds, bound);
             }
         }
+        let extend = this._bounds.getExtent();
+        this._lodsize = 2 * Math.max(extend.x, extend.y, extend.z);
         return this._bounds;
     }
 
