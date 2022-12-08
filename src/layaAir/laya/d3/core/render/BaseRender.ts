@@ -154,8 +154,6 @@ export class BaseRender extends Component implements ISingletonElement {
     _renderElements: RenderElement[];
     /** @internal */
     _updateRenderType: number = -1;
-    // /** @internal */
-    // _staticBatch: GeometryElement = null;
     /**排序矫正值。*/
     sortingFudge: number;
     /**@internal */
