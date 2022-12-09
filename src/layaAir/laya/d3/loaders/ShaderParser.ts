@@ -187,6 +187,8 @@ export class ShaderParser {
                     tex = Texture2D.blackTexture;
                 else if (data == "gray")
                     tex = Texture2D.grayTexture;
+                else if (data == "normal")
+                    tex = Texture2D.normalTexture;
                 return tex;
             case ShaderDataType.TextureCube:
                 let texcube = TextureCube.grayTexture;
