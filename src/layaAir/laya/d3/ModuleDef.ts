@@ -90,6 +90,12 @@ import { Animator } from "./component/Animator/Animator";
 import { AnimatorControllerLayer } from "./component/Animator/AnimatorControllerLayer";
 import { AnimatorState } from "./component/Animator/AnimatorState";
 import { AvatarMask } from "./component/Animator/AvatarMask";
+import { PostProcess } from "./component/PostProcess";
+import { PostProcessEffect } from "./core/render/PostProcessEffect";
+import { BloomEffect } from "./core/render/PostEffect/BloomEffect";
+import { GaussianDoF } from "./core/render/PostEffect/GaussianDoF";
+import { ScalableAO } from "./core/render/PostEffect/ScalableAO";
+import { AnimatorController } from "./component/Animator/AnimatorController";
 
 import "./loaders/AnimationClipLoader";
 import "./loaders/CubemapLoader";
@@ -99,10 +105,6 @@ import "./loaders/HierarchyParserV2";
 import "./loaders/AvatarMaskLoader";
 import "./loaders/ShaderLoader";
 import "./loaders/GLSLLoader";
-import { PostProcessEffect } from "./core/render/PostProcessEffect";
-import { BloomEffect } from "./core/render/PostEffect/BloomEffect";
-import { GaussianDoF } from "./core/render/PostEffect/GaussianDoF";
-import { ScalableAO } from "./core/render/PostEffect/ScalableAO";
 
 let c = ClassUtils.regClass;
 c("Sprite3D", Sprite3D);
@@ -149,6 +151,7 @@ c("Mesh", Mesh);
 c("FloatKeyframe", FloatKeyframe);
 
 c("Animator", Animator);
+c("AnimatorController", AnimatorController);
 c("AnimatorControllerLayer", AnimatorControllerLayer);
 c("AnimatorState", AnimatorState);
 c("AnimationClip", AnimationClip);
@@ -212,6 +215,7 @@ c("SphereColliderShape", SphereColliderShape);
 c("MeshColliderShape", MeshColliderShape);
 c("CompoundColliderShape", CompoundColliderShape);
 
+c("PostProcess", PostProcess);
 c("PostProcessEffect", PostProcessEffect);
 c("BloomEffect", BloomEffect);
 c("GaussianDoF", GaussianDoF);

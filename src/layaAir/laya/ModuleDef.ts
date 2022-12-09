@@ -28,7 +28,6 @@ import { Animation2DParm } from "./components/Animation2DParm";
 import { Animation2DCondition } from "./components/Animation2DCondition";
 import { Prefab } from "./resource/HierarchyResource";
 import { Widget } from "./components/Widget";
-import { AnimatorController } from "./d3/component/Animator/AnimatorController";
 import { AnimatorController2D } from "./components/AnimatorController2D";
 import { RenderTexture } from "./d3/resource/RenderTexture";
 
@@ -39,10 +38,6 @@ import "./loaders/TextureLoader";
 import "./loaders/AnimationClip2DLoader";
 import "./loaders/AnimationControllerLoader";
 import "./loaders/NullLoader";
-import { PostProcess } from "./d3/component/PostProcess";
-import { ScalableAO } from "./d3/core/render/PostEffect/ScalableAO";
-import { GaussianDoF } from "./d3/core/render/PostEffect/GaussianDoF";
-import { BloomEffect } from "./d3/core/render/PostEffect/BloomEffect";
 
 let c = ClassUtils.regClass;
 
@@ -57,11 +52,6 @@ c("Animation", Animation);
 c("FrameAnimation", FrameAnimation);
 c("EffectAnimation", EffectAnimation);
 c("SoundNode", SoundNode);
-c("PostProcess", PostProcess);
-
-c("ScalableAO", ScalableAO);
-c("GaussianDoF", GaussianDoF);
-c("BloomEffect", BloomEffect);
 
 c("Scene", Scene);
 c("Stage", Stage);
@@ -81,7 +71,6 @@ c("Animator2D", Animator2D);
 c("AnimatorControllerLayer2D", AnimatorControllerLayer2D);
 c("AnimatorState2D", AnimatorState2D);
 c("AnimationClip2D", AnimationClip2D);
-c("AnimatorController", AnimatorController);
 c("AnimatorController2D", AnimatorController2D);
 c("Animation2DNext", Animation2DNext);
 c("Animation2DParm", Animation2DParm);
