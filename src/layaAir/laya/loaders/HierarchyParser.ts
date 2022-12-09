@@ -1,6 +1,7 @@
 import { Component } from "../components/Component";
 import { Node } from "../display/Node";
 import { Scene } from "../display/Scene";
+import { Sprite } from "../display/Sprite";
 import { Loader, ILoadURL } from "../net/Loader";
 import { URL } from "../net/URL";
 import { Prefab } from "../resource/HierarchyResource";
@@ -18,10 +19,15 @@ export class HierarchyParser {
         let outNodes: Array<Node> = [];
         let scene: Scene;
 
-        let inPrefab = options && options.inPrefab;
+        let inPrefab: boolean;
         let prefabNodeDict: Map<Node, Record<string, Node>>;
-        if (inPrefab)
-            prefabNodeDict = options.prefabNodeDict;
+        let skinBaseUrl: string;
+        if (options) {
+            inPrefab = options.inPrefab;
+            if (inPrefab)
+                prefabNodeDict = options.prefabNodeDict;
+            skinBaseUrl = options.skinBaseUrl;
+        }
 
         function createChildren(data: any, prefab: Node) {
             for (let child of data._$child) {
@@ -257,6 +263,9 @@ export class HierarchyParser {
             let nodeData = dataList[i];
             let node = allNodes[i];
             if (node) {
+                if (skinBaseUrl != null && (node instanceof Sprite))
+                    node._skinBaseUrl = skinBaseUrl;
+
                 SerializeUtil.decodeObj(nodeData, node, null, findNode, errors);
 
                 if (runtime && nodeData._$var && node.name) {
