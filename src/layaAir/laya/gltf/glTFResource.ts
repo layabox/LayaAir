@@ -111,12 +111,33 @@ export class glTFResource extends Prefab {
             //load textuers
             if (data.textures) {
                 let promises: Array<Promise<Texture2D>> = [];
-                for (let tex of data.textures) {
+
+                let sRGBTex = new Array<boolean>(data.textures.length).fill(false);
+
+                if (data.materials) {
+                    for (let glTFMaterial of data.materials) {
+                        if (glTFMaterial.pbrMetallicRoughness)
+                        {
+                            if (glTFMaterial.pbrMetallicRoughness.baseColorTexture)
+                            {
+                                let index = glTFMaterial.pbrMetallicRoughness.baseColorTexture.index;
+                                sRGBTex[index] = true;
+                            }
+                        }
+                        if (glTFMaterial.emissiveTexture) {
+                            let index = glTFMaterial.emissiveTexture.index;
+                            sRGBTex[index] = true;
+                        }
+                    }
+                }
+
+                for (let index = 0; index < data.textures.length; index++) {
+                    let tex = data.textures[index];
                     let imgSource = tex.source;
                     let glTFImg = data.images[imgSource];
                     let samplerSource = tex.sampler;
                     let glTFSampler = data.samplers ? data.samplers[samplerSource] : undefined;
-                    let constructParams = this.getTextureConstructParams(glTFImg, glTFSampler);
+                    let constructParams = this.getTextureConstructParams(glTFImg, glTFSampler, sRGBTex[index]);
                     let propertyParams = this.getTexturePropertyParams(glTFSampler);
 
                     if (glTFImg.bufferView != null) {
@@ -130,7 +151,7 @@ export class glTFResource extends Prefab {
                     else
                         promises.push(this.loadTexture(URL.join(basePath, glTFImg.uri), constructParams, propertyParams, progress));
                 }
-
+                sRGBTex = null;
                 return Promise.all(promises).then(textures => {
                     textures = textures.filter(tex => tex);
                     this._textures.push(...textures);
@@ -421,8 +442,8 @@ export class glTFResource extends Prefab {
      */
     private getTextureMipmap(glTFSampler: glTF.glTFSampler): boolean {
         if (glTFSampler)
-            return glTFSampler.minFilter === glTF.glTFTextureMinFilter.LINEAR ||
-                glTFSampler.minFilter === glTF.glTFTextureMinFilter.NEAREST;
+            return glTFSampler.minFilter != glTF.glTFTextureMinFilter.LINEAR &&
+                glTFSampler.minFilter != glTF.glTFTextureMinFilter.NEAREST;
         else
             return true;
     }
@@ -479,13 +500,15 @@ export class glTFResource extends Prefab {
     * @param glTFImage 
     * @param glTFSampler 
     */
-    private getTextureConstructParams(glTFImage: glTF.glTFImage, glTFSampler: glTF.glTFSampler): ConstructorParameters<typeof Texture2D> {
+    private getTextureConstructParams(glTFImage: glTF.glTFImage, glTFSampler: glTF.glTFSampler, sRGB: boolean): ConstructorParameters<typeof Texture2D> {
         let constructParams: ConstructorParameters<typeof Texture2D> = [
             0, // width
             0, // height
             this.getTextureFormat(glTFImage), // format
             this.getTextureMipmap(glTFSampler),  // mipmap
-            true //can read
+            true, //can read
+            sRGB // sRGB
+
         ];
         return constructParams;
     }
