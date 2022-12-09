@@ -17,7 +17,7 @@ export class BatchRender extends BaseRender {
     protected _batchList: SingletonList<BaseRender>;
     protected _batchbit: RenderBitFlag;
     protected _RenderBitFlag: RenderBitFlag;
-    protected _lodInstanceRenderElement: InstanceRenderElement[][] = [];
+    protected _lodInstanceRenderElement: { [key: number]: InstanceRenderElement[] } = {};
     protected _lodsize: number;
     private _cacheLod: number;
 
@@ -27,6 +27,8 @@ export class BatchRender extends BaseRender {
     constructor() {
         super();
         this._RenderBitFlag = RenderBitFlag.RenderBitFlag_Batch;
+        this._renderElements = [];
+        this._lodInstanceRenderElement[-1] = [];
     }
 
     /**
@@ -47,7 +49,7 @@ export class BatchRender extends BaseRender {
         if (!this._checkLOD) {
             return;
         }
-        value.sort((a, b) => a - b);
+        value.sort((a, b) => b - a);
         this._lodRateArray = value;
     }
 
@@ -61,7 +63,7 @@ export class BatchRender extends BaseRender {
      *  是否满足batch条件
      */
     protected _canBatch(render: BaseRender): boolean {
-        if(render._batchRender){
+        if (render._batchRender) {
             return false;
         }
         return false;
@@ -74,7 +76,6 @@ export class BatchRender extends BaseRender {
                 this._batchList.elements[i].setRenderbitFlag(this._RenderBitFlag, true);
             }
         }
-
     }
 
     protected _onDisable(): void {
@@ -94,13 +95,13 @@ export class BatchRender extends BaseRender {
             return;
         }
         this._renderElements = this._lodInstanceRenderElement[lod];
-        if (this._lodInstanceRenderElement[lod]&&lod!=-1) {
+        if (this._lodInstanceRenderElement[lod] && lod != -1) {
             this._renderElements || (this._renderElements = []);
             this._renderElements = this._renderElements.concat(this._lodInstanceRenderElement[-1]);
-        }else{
-                this._renderElements = this._lodInstanceRenderElement[-1];
+        } else {
+            this._renderElements = this._lodInstanceRenderElement[-1];
         }
-        
+
     }
 
     onPreRender() {
@@ -130,7 +131,7 @@ export class BatchRender extends BaseRender {
     /**
      * @param render 
      */
-    _batchOneRender(render: BaseRender):boolean {
+    _batchOneRender(render: BaseRender): boolean {
         //TODO
         return false
     }

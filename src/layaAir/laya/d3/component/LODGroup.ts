@@ -19,13 +19,14 @@ export class LODInfo {
     //TODO 不需要缓存节点  需要商量
     _cachSprite3D: Sprite3D[];
     /**@internal */
-    _lodIndex:number;
+    _lodIndex: number;
     /**@internal */
     private _group: LODGroup;
 
     constructor(mincullRate: number) {
         this._mincullRate = mincullRate;
         this._renders = [];
+        this._cachSprite3D = []
     }
 
     set mincullRate(value: number) {
@@ -40,16 +41,22 @@ export class LODInfo {
         if (value == this._group)
             return;
         if (this._group) {//remove old event
-            this._renders.forEach(element => {
+            // this._renders.forEach(element => {
+            //     (element.owner as Sprite3D).transform.off(Event.TRANSFORM_CHANGED, this._group._updateRecaculateFlag);
+            //     element._LOD = -1;
+            // })
+            for (let i = 0, n = this._renders.length; i < n; i++) {
+                let element = this._renders[i];
                 (element.owner as Sprite3D).transform.off(Event.TRANSFORM_CHANGED, this._group._updateRecaculateFlag);
                 element._LOD = -1;
-            })
+            }
         }
         this._group = value;
-        this._renders.forEach(element => {
+        for (let i = 0, n = this._renders.length; i < n; i++) {
+            let element = this._renders[i];
             (element.owner as Sprite3D).transform.on(Event.TRANSFORM_CHANGED, this._group, this._group._updateRecaculateFlag);
             element._LOD = this._lodIndex;
-        })
+        }
     }
 
     set renders(value: Sprite3D[]) {
@@ -77,7 +84,7 @@ export class LODInfo {
                 if ((comp instanceof BaseRender) && this._renders.indexOf(comp) == -1)
                     this._renders.push(comp);
             }
-            this._group && node.transform.on(Event.TRANSFORM_CHANGED,this._group, this._group._updateRecaculateFlag);
+            this._group && node.transform.on(Event.TRANSFORM_CHANGED, this._group, this._group._updateRecaculateFlag);
         }
         for (var i = 0, n = node.numChildren; i < n; i++) {
             this.addNode(node.getChildAt(i) as Sprite3D);
@@ -147,7 +154,7 @@ export class LODGroup extends Component {
 
     private _visialIndex = -1;
 
-    
+
 
     constructor() {
         super();
@@ -203,11 +210,12 @@ export class LODGroup extends Component {
      */
     set lods(data: LODInfo[]) {
         this._lods = data;
-        this._lods.forEach((element, index) => {
+        for (var i = 0, n = this._lods.length; i < n; i++) {
+            let element = this._lods[i]
+            element._lodIndex = i;
             element.group = this;
-            element._lodIndex = index;
-            this._setLODinvisible(index);
-        });
+            this._setLODinvisible(i);
+        }
         this._updateRecaculateFlag();
         this._visialIndex = -1;
         //this.recalculateBounds();
@@ -295,9 +303,9 @@ export class LODGroup extends Component {
      */
     private _setLODvisible(index: number): void {
         let lod = this._lods[index];
-        lod._renders.forEach(element => {
-            element.setRenderbitFlag(RenderBitFlag.RenderBitFlag_CullFlag, false);
-        });
+        for (var i = 0, n = lod._renders.length; i < n; i++) {
+            lod._renders[i].setRenderbitFlag(RenderBitFlag.RenderBitFlag_CullFlag, false);
+        }
     }
 
     /**
@@ -306,9 +314,9 @@ export class LODGroup extends Component {
      */
     private _setLODinvisible(index: number) {
         let lod = this._lods[index];
-        lod._renders.forEach(element => {
-            element.setRenderbitFlag(RenderBitFlag.RenderBitFlag_CullFlag, true);
-        });
+        for (var i = 0, n = lod._renders.length; i < n; i++) {
+            lod._renders[i].setRenderbitFlag(RenderBitFlag.RenderBitFlag_CullFlag, true);
+        }
     }
 
     //只保留同级或者低级关联节点
