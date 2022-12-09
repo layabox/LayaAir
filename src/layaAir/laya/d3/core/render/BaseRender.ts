@@ -32,13 +32,13 @@ import { Sprite3DRenderDeclaration } from "./Sprite3DRenderDeclaration";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { BatchRender } from "../../component/Volume/BatchVolume/BatchRender";
 
-export enum RenderBitFlag{
-    RenderBitFlag_CullFlag = 1<<0,
-    RenderBitFlag_Batch = 1<<1,
-    RenderBitFlag_Editor = 1<<2,
-    RenderBitFlag_InstanceBatch = 1<<3,
-    RenderBitFlag_VertexMergeBatch = 1<<4,
-    
+export enum RenderBitFlag {
+    RenderBitFlag_CullFlag = 1 << 0,
+    RenderBitFlag_Batch = 1 << 1,
+    RenderBitFlag_Editor = 1 << 2,
+    RenderBitFlag_InstanceBatch = 1 << 3,
+    RenderBitFlag_VertexMergeBatch = 1 << 4,
+
 }
 /**
  * <code>Render</code> 类用于渲染器的父类，抽象类不允许实例。
@@ -164,9 +164,9 @@ export class BaseRender extends Component implements ISingletonElement {
     /**@internal 可以根据不同的值来设置*/
     _ratioIgnor: number = 0.005;//TODO
     /**@internal TODO*/
-    _LOD:number = -1;
+    _LOD: number = -1;
     /**@internal TODO*/
-    _batchRender:BatchRender;
+    _batchRender: BatchRender;
     /**@internal 如果这个值不是0,说明有一些条件使他不能加入渲染队列，例如如果是1，证明此节点被lod淘汰*/
     private _volume: Volume;
     /**
@@ -542,7 +542,7 @@ export class BaseRender extends Component implements ISingletonElement {
             var mat: Material = sharedMats[i];
             this._surportReflectionProbe ||= (this._surportReflectionProbe || (mat && mat._shader._supportReflectionProbe));//TODO：最后一个判断是否合理
         }
-        if(!pre&&this._surportReflectionProbe)//如果变成支持Reflection
+        if (!pre && this._surportReflectionProbe)//如果变成支持Reflection
             this._addReflectionProbeUpdate();
     }
 
@@ -554,7 +554,7 @@ export class BaseRender extends Component implements ISingletonElement {
         this.boundsChange = true;
         this._addReflectionProbeUpdate();
         this._subUniformBufferData && (this._subUniformBufferData._needUpdate = true);
-        this._batchRender&&this._batchRender._updateOneRender(this);
+        this._batchRender && this._batchRender._updateOneRender(this);
     }
 
     /**
@@ -617,9 +617,9 @@ export class BaseRender extends Component implements ISingletonElement {
         }
     }
 
-    _applyReflection(){
-        if(!this._probReflection) return;
-        if(this._probReflection._updateMark = Scene3D._updateMark){
+    _applyReflection() {
+        if (!this._probReflection) return;
+        if (this._probReflection._updateMark = Scene3D._updateMark) {
             this._probReflection.applyReflectionShaderData(this._shaderValues)
         }
     }

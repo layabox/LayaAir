@@ -91,11 +91,12 @@ export class StaticInstanceBatchRender extends BatchRender {
             this._insBatchMarksNums.push(this._insBatchMarksNums[insBatchMarks.indexInList]);
             insBatchMarks.indexInList = this._insBatchMarksNums.length - 1;
             instanceelement = this._createInstanceElement(element, render, insBatchMarks);
+            list = instanceelement._instanceBatchElementList;
         }
         if (list.indexof(element) == -1) {
             list.add(element);
             instanceelement._isUpdataData = true;
-            this._updateChangeElement.push(instanceelement);
+            (this._updateChangeElement.indexOf(instanceelement)==-1)&&this._updateChangeElement.push(instanceelement);
             element._batchElement = instanceelement;
         }
     }
@@ -118,7 +119,7 @@ export class StaticInstanceBatchRender extends BatchRender {
         if (list.indexof(element) != -1) {
             list.remove(element);
             instanceelement._isUpdataData = true;
-            this._updateChangeElement.push(instanceelement);
+            (this._updateChangeElement.indexOf(instanceelement)==-1)&&this._updateChangeElement.push(instanceelement);
             element._batchElement = null;
         }
     }
@@ -137,7 +138,7 @@ export class StaticInstanceBatchRender extends BatchRender {
         let list = instanceelement._instanceBatchElementList;
         if (list.indexof(element) != -1) {
             instanceelement._isUpdataData = true;
-            this._updateChangeElement.push(instanceelement);
+            (this._updateChangeElement.indexOf(instanceelement)==-1)&&this._updateChangeElement.push(instanceelement);
         }
     }
 
