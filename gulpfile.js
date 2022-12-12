@@ -210,6 +210,25 @@ const ignoredCirclarDependencies = new Set([
     "WebAudioSound -> WebAudioSoundChannel -> WebAudioSound",
     "SoundManager -> WebAudioSound -> SoundManager",
     "ColliderBase -> RigidBody -> ColliderBase",
+    "ReflectionProbe -> VolumeManager -> ReflectionProbeManager -> ReflectionProbe",
+    "SkyRenderer -> BaseRender -> ReflectionProbe -> Scene3D -> SkyRenderer",
+    "BaseCamera -> SkyRenderer -> BaseRender -> ReflectionProbe -> Scene3D -> BaseCamera",
+    "Camera -> BaseCamera -> SkyRenderer -> BaseRender -> ReflectionProbe -> Scene3D -> Camera",
+    "BaseCamera -> SkyRenderer -> BaseRender -> ReflectionProbe -> Scene3D -> ShadowCasterPass -> BaseCamera",
+    "Camera -> BaseCamera -> SkyRenderer -> BaseRender -> ReflectionProbe -> Scene3D -> ShadowCasterPass -> Camera",
+    "BaseRender -> ReflectionProbe -> Scene3D -> BlitFrameBufferCMD -> RenderElement -> BaseRender",
+    "Camera -> BaseCamera -> SkyRenderer -> BaseRender -> ReflectionProbe -> Scene3D -> BlitFrameBufferCMD -> RenderElement -> Camera",
+    "Camera -> BaseCamera -> SkyRenderer -> BaseRender -> ReflectionProbe -> Scene3D -> Input3D -> Camera",
+    "LegacyUIParser -> PrefabImpl -> HierarchyResource -> LegacyUIParser",
+    "Scene -> LegacyUIParser -> Scene",
+    "InstanceRenderElement -> Mesh -> InstanceRenderElement",
+    "WebXRCamera -> WebXRExperienceHelper -> WebXRCameraManager -> WebXRCamera",
+    "WebXRExperienceHelper -> WebXRCameraManager -> WebXRRenderTexture -> WebXRExperienceHelper",
+    "Camera -> Scene3D -> Input3D -> Camera",
+    "Dialog -> DialogManager -> Dialog",
+    "Camera -> BaseCamera -> SkyRenderer -> RenderElement -> Camera",
+    "Camera -> Scene3D -> Camera",
+    "Camera -> Scene3D -> ShadowCasterPass -> Camera"
 ]);
 
 const onwarn = warning => {
@@ -692,5 +711,5 @@ gulp.task('publishToIDE', () => {
 gulp.task('build',
     gulp.series('compile', 'buildJs', 'copyJsLibs',
         'concatBox2dPhysics',
-		// 'concatCannonPhysics', 'concatBulletPhysics.wasm', 'concatBulletPhysics.wasm-wx', 'concatBulletPhysics',
+        // 'concatCannonPhysics', 'concatBulletPhysics.wasm', 'concatBulletPhysics.wasm-wx', 'concatBulletPhysics',
         'genDts'));
