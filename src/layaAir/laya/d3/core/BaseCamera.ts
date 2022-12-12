@@ -98,7 +98,7 @@ export class BaseCamera extends Sprite3D {
         BaseCamera.PROJECTION_PARAMS = Shader3D.propertyNameToID("u_ProjectionParams");
         BaseCamera.DEPTHTEXTURE = Shader3D.propertyNameToID("u_CameraDepthTexture");
         BaseCamera.DEPTHNORMALSTEXTURE = Shader3D.propertyNameToID("u_CameraDepthNormalsTexture");
-        BaseCamera.OPAQUETEXTURE = Shader3D.propertyNameToID("u_cameraOpaqueTexture");
+        BaseCamera.OPAQUETEXTURE = Shader3D.propertyNameToID("u_CameraOpaqueTexture");
         BaseCamera.DEPTHZBUFFERPARAMS = Shader3D.propertyNameToID("u_ZBufferParams");
         BaseCamera.CAMERAUNIFORMBLOCK = Shader3D.propertyNameToID(UniformBufferObject.UBONAME_CAMERA);
 
@@ -112,7 +112,7 @@ export class BaseCamera extends Sprite3D {
         camerauniformMap.addShaderUniform(BaseCamera.PROJECTION_PARAMS, "u_ProjectionParams");
         camerauniformMap.addShaderUniform(BaseCamera.DEPTHTEXTURE, "u_CameraDepthTexture");
         camerauniformMap.addShaderUniform(BaseCamera.DEPTHNORMALSTEXTURE, "u_CameraDepthNormalsTexture");
-        camerauniformMap.addShaderUniform(BaseCamera.OPAQUETEXTURE, "u_cameraOpaqueTexture");
+        camerauniformMap.addShaderUniform(BaseCamera.OPAQUETEXTURE, "u_CameraOpaqueTexture");
         camerauniformMap.addShaderUniform(BaseCamera.DEPTHZBUFFERPARAMS, "u_ZBufferParams");
         camerauniformMap.addShaderUniform(BaseCamera.CAMERAUNIFORMBLOCK, UniformBufferObject.UBONAME_CAMERA);
     }
