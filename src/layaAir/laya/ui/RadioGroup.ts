@@ -87,6 +87,11 @@ export class RadioGroup extends UIGroup {
      * @override
     */
     protected createItem(skin: string, label: string): Sprite {
-        return new Radio(skin, label);
+        let btn = new Radio();
+        btn._skinBaseUrl = this._skinBaseUrl;
+        if (skin)
+            btn.skin = skin;
+        btn.label = label;
+        return btn;
     }
 }

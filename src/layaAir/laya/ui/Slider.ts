@@ -249,7 +249,7 @@ export class Slider extends UIComponent {
                 this._bg.skin = this._skin;
                 this._bar.skin = url.replace(".png", "$bar.png");
 
-                if (!Loader.getRes(this._skin))
+                if (!Loader.getRes(url))
                     ILaya.loader.load([url, this._bar.skin], Handler.create(this, this._skinLoaded), null, Loader.IMAGE);
                 else
                     this._skinLoaded();

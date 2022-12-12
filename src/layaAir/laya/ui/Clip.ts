@@ -263,11 +263,12 @@ export class Clip extends UIComponent {
         this._clipChanged = false;
         if (!this._skin || this._destroyed) return;
 
-        let img: any = Loader.getRes(this._skin);
+        let url = this._skinBaseUrl ? URL.formatURL(this._skin, this._skinBaseUrl) : this._skin;
+
+        let img: any = Loader.getRes(url);
         if (img) {
             this.loadComplete(this._skin, img);
         } else {
-            let url = this._skinBaseUrl ? URL.formatURL(this._skin, this._skinBaseUrl) : this._skin;
             ILaya.loader.load(url, Handler.create(this, this.loadComplete, [this._skin]), null, Loader.IMAGE);
         }
     }

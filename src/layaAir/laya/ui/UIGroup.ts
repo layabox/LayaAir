@@ -169,7 +169,7 @@ export class UIGroup extends Box {
         this._items.length = 0;
         for (let i = 0; i < 10000; i++) {
             let item = <ISelect>this.getChildByName("item" + i);
-            if (item == null) 
+            if (item == null)
                 break;
             this._items.push(item);
             item.selected = (i === this._selectedIndex);
@@ -223,11 +223,12 @@ export class UIGroup extends Box {
     set skin(value: string) {
         if (this._skin != value) {
             this._skin = value;
-            if (this._skin && !Loader.getRes(this._skin)) {
+            if (this._skin) {
                 let url = this._skinBaseUrl ? URL.formatURL(this._skin, this._skinBaseUrl) : this._skin;
-                ILaya.loader.load(url, Handler.create(this, this._skinLoaded), null, Loader.IMAGE);
-            } else {
-                this._skinLoaded();
+                if (!Loader.getRes(url))
+                    ILaya.loader.load(url, Handler.create(this, this._skinLoaded), null, Loader.IMAGE);
+                else
+                    this._skinLoaded();
             }
         }
     }
