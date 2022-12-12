@@ -6,7 +6,7 @@ import { Stat } from "../../../../utils/Stat";
 import { Vector4 } from "../../../math/Vector4";
 import { Viewport } from "../../../math/Viewport";
 import { RenderTexture } from "../../../resource/RenderTexture";
-import { Camera } from "../../Camera";
+import { ILaya3D } from "../../../../../ILaya3D";
 import { Transform3D } from "../../Transform3D";
 import { RenderContext3D } from "../RenderContext3D";
 import { RenderElement } from "../RenderElement";
@@ -109,7 +109,7 @@ export class BlitScreenQuadCMD extends Command {
 			context.changeViewport(0, 0, dest.width, dest.height);
 			context.changeScissor(0, 0, dest.width, dest.height);
 		} else {
-			let camera: Camera = this._commandBuffer._camera;
+			let camera = this._commandBuffer._camera;
 			let viewport: Viewport = camera.viewport;
 			let vpH = viewport.height;
 			let vpY = RenderContext3D.clientHeight - viewport.y - vpH;
@@ -121,7 +121,7 @@ export class BlitScreenQuadCMD extends Command {
 		this._sourceTexelSize.setValue(1.0 / source.width, 1.0 / source.height, source.width, source.height);
 		shaderData.setVector(Command.MAINTEXTURE_TEXELSIZE_ID, this._sourceTexelSize);
 		context.destTarget = dest;
-		context._contextOBJ.applyContext(Camera._updateMark);
+		context._contextOBJ.applyContext(ILaya3D.Camera._updateMark);
 		// ScreenQuad.instance.invertY = dest ? dest._isCameraTarget : false;
 		ScreenQuad.instance.invertY = context.invertY;
 		context.drawRenderElement(this._renderElement);

@@ -16,6 +16,7 @@ import { Viewport } from "../math/Viewport";
 import { RenderClearFlag } from "../../RenderEngine/RenderEnum/RenderClearFlag";
 import { BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
 import { Stat } from "../../utils/Stat";
+import { DepthCasterData } from "./DepthCasterData";
 
 
 /**
@@ -90,7 +91,7 @@ export class DepthPass {
 
     constructor() {
         if (Config3D._uniformBlock) {
-            this._castDepthData = ShadowCasterPass.createDepthCasterUniformBlock();
+            this._castDepthData = DepthCasterData.createDepthCasterUniformBlock();
             this._castDepthUBO = UniformBufferObject.getBuffer(UniformBufferObject.UBONAME_SHADOW, 0);
             if (!this._castDepthUBO) {
                 this._castDepthUBO = UniformBufferObject.create(UniformBufferObject.UBONAME_SHADOW, BufferUsage.Dynamic, this._castDepthData.getbyteLength(), true);

@@ -6,13 +6,13 @@ import { Transform3D } from "../Transform3D"
 import { Material } from "../material/Material"
 import { SubShader } from "../../shader/SubShader"
 import { IRenderElement } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderElement"
-import { Scene3D } from "../scene/Scene3D"
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D"
 import { ShaderPass } from "../../shader/ShaderPass"
 import { DefineDatas } from "../../../RenderEngine/RenderShader/DefineDatas"
 import { ShaderInstance } from "../../shader/ShaderInstance"
 import { LayaGL } from "../../../layagl/LayaGL"
 import { IRenderContext3D } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderContext3D"
+import { ILaya3D } from "../../../../ILaya3D"
 
 /**
  * <code>RenderElement</code> 类用于实现渲染元素。
@@ -46,7 +46,7 @@ export class RenderElement {
     protected _subShader: SubShader;
     /**@internal */
     _subShaderIndex: number = 0;
-    _batchElement:RenderElement;
+    _batchElement: RenderElement;
 
 
     /** @internal */
@@ -160,7 +160,7 @@ export class RenderElement {
             if (context.sceneShaderData) {
                 context.sceneShaderData._defineDatas.cloneTo(comDef);
             } else {
-                Scene3D._configDefineValues.cloneTo(comDef);
+                Shader3D._configDefineValues.cloneTo(comDef);
             }
             context.cameraShaderData && comDef.addDefineDatas(context.cameraShaderData._defineDatas);
             this.render && comDef.addDefineDatas(this.render._shaderValues._defineDatas);
@@ -203,7 +203,7 @@ export class RenderElement {
     /**
      * @internal
      */
-    _update(scene: Scene3D, context: RenderContext3D, customShader: Shader3D, replacementTag: string, subshaderIndex: number = 0): void {
+    _update(scene: any, context: RenderContext3D, customShader: Shader3D, replacementTag: string, subshaderIndex: number = 0): void {
         if (this.material) {//材质可能为空
             this._convertSubShader(customShader, replacementTag, subshaderIndex);
             if (!this.renderSubShader)
@@ -218,7 +218,7 @@ export class RenderElement {
 
     _renderUpdatePre(context: RenderContext3D) {
 
-        var sceneMark: number = Scene3D._updateMark;
+        var sceneMark: number = ILaya3D.Scene3D._updateMark;
         var transform: Transform3D = this.transform;
         context.renderElement = this;
         //model local

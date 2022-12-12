@@ -1,4 +1,3 @@
-import { Scene3D } from "../../d3/core/scene/Scene3D";
 import { ShaderPass } from "../../d3/shader/ShaderPass";
 import { SubShader } from "../../d3/shader/SubShader";
 import { LayaGL } from "../../layagl/LayaGL";
@@ -29,7 +28,7 @@ export interface IShaderpassStructor {
  * <code>Shader3D</code> 类用于创建Shader3D。
  */
 export class Shader3D {
-
+    static _configDefineValues = new DefineDatas();
     /**@internal */
     private static _compileDefineDatas: DefineDatas = new DefineDatas();
     /**渲染状态_剔除。*/
@@ -192,7 +191,7 @@ export class Shader3D {
                     compileDefineDatas.clear();
                     for (var i: number = 0, n: number = defineNames.length; i < n; i++)
                         compileDefineDatas.add(Shader3D.getDefineByName(defineNames[i]));
-                    compileDefineDatas.addDefineDatas(Scene3D._configDefineValues);
+                    compileDefineDatas.addDefineDatas(Shader3D._configDefineValues);
                     pass.withCompile(compileDefineDatas);
                 } else {
                     console.warn("Shader3D: unknown passIndex.");

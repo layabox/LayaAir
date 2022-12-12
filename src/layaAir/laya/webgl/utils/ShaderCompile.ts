@@ -159,7 +159,7 @@ export class ShaderCompile {
                 preNode = parent.childs[parent.childs.length - 1];
                 let includefiles = parent.includefiles;
                 if (preNode && !preNode.name) {
-                    includefiles.length > 0 && ShaderCompile.splitToWords(text, preNode);
+                    includefiles.length > 0 && IncludeFile.splitToWords(text, preNode);
                     preNode.text += "\n" + text;
                     continue;
                 }
@@ -167,7 +167,7 @@ export class ShaderCompile {
                 node = new ShaderNode(includefiles);
                 node.text = text;
                 node.noCompile = true;
-                includefiles.length > 0 && ShaderCompile.splitToWords(text, node);
+                includefiles.length > 0 && IncludeFile.splitToWords(text, node);
                 node.setParent(parent);
                 continue;
             }
@@ -253,7 +253,7 @@ export class ShaderCompile {
                     break;
 
                 case "#include"://这里有问题,主要是空格
-                    words = ShaderCompile.splitToWords(text, null);
+                    words = IncludeFile.splitToWords(text, null);
                     let includeName: string = words[1];
                     let includeFile: IncludeFile;
                     if (includeName.startsWith("."))
@@ -285,7 +285,7 @@ export class ShaderCompile {
                     break;
 
                 case "#import":
-                    words = ShaderCompile.splitToWords(text, null);
+                    words = IncludeFile.splitToWords(text, null);
                     fname = words[1];
                     node.includefiles.push({ node: node, file: ShaderCompile.includes[fname], ofs: node.text.length });
                     break;
@@ -295,50 +295,6 @@ export class ShaderCompile {
                     break;
             }
         }
-    }
-
-    static splitToWords(str: string, block: ShaderNode): any[] {//这里要修改
-        var out: any[] = [];
-        /*
-           var words:Array = str.split(_splitToWordExps);
-           trace(str);
-           trace(words);
-         */
-        var c: string;
-        var ofs: number = -1;
-        var word: string;
-        for (var i: number = 0, n: number = str.length; i < n; i++) {
-            c = str.charAt(i);
-            if (" \t=+-*/&%!<>()'\",;".indexOf(c) >= 0) {
-                if (ofs >= 0 && (i - ofs) > 1) {
-                    word = str.substr(ofs, i - ofs);
-                    out.push(word);
-                }
-                if (c == '"' || c == "'") {
-                    var ofs2: number = str.indexOf(c, i + 1);
-                    if (ofs2 < 0) {
-                        throw "Sharder err:" + str;
-                    }
-                    out.push(str.substr(i + 1, ofs2 - i - 1));
-                    i = ofs2;
-                    ofs = -1;
-                    continue;
-                }
-                if (c == '(' && block && out.length > 0) {
-                    word = out[out.length - 1] + ";";
-                    if ("vec4;main;".indexOf(word) < 0)
-                        block.useFuns += word;
-                }
-                ofs = -1;
-                continue;
-            }
-            if (ofs < 0) ofs = i;
-        }
-        if (ofs < n && (n - ofs) > 1) {
-            word = str.substr(ofs, n - ofs);
-            out.push(word);
-        }
-        return out;
     }
 }
 
