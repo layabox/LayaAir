@@ -28,18 +28,22 @@ export class NativeGLTextureContext extends NativeGLObject implements ITextureCo
     }
 
     setTextureImageData(texture: InternalTexture, source: HTMLImageElement | HTMLCanvasElement | ImageBitmap, premultiplyAlpha: boolean, invertY: boolean) {
-        this._native.setTextureImageData(texture, (source as any)._nativeObj.conchImgId , premultiplyAlpha, invertY);
+        this._native.setTextureImageData(texture, (source as any)._nativeObj.conchImgId, premultiplyAlpha, invertY);
     }
 
     setTexturePixelsData(texture: InternalTexture, source: ArrayBufferView, premultiplyAlpha: boolean, invertY: boolean) {
-        this._native.setTexturePixelsData(texture, source , premultiplyAlpha, invertY);
+        this._native.setTexturePixelsData(texture, source, premultiplyAlpha, invertY);
+    }
+
+    initVideoTextureData(texture: InternalTexture): void{
+        //TODO
     }
 
     setTextureSubPixelsData(texture: InternalTexture, source: ArrayBufferView, mipmapLevel: number, generateMipmap: boolean, xOffset: number, yOffset: number, width: number, height: number, premultiplyAlpha: boolean, invertY: boolean): void {
         this._native.setTextureSubPixelsData(texture, source, mipmapLevel, generateMipmap, xOffset, yOffset, width, height, premultiplyAlpha, invertY);
     }
 
-  setTextureHDRData(texture: InternalTexture, hdrInfo: HDRTextureInfo): void {
+    setTextureHDRData(texture: InternalTexture, hdrInfo: HDRTextureInfo): void {
         let sourceData = hdrInfo.readScanLine();
 
         this.setTexturePixelsData(texture, sourceData, false, false);
@@ -84,7 +88,7 @@ export class NativeGLTextureContext extends NativeGLObject implements ITextureCo
         this._native.bindRenderTarget(renderTarget);
     }
 
-    bindoutScreenTarget():void{
+    bindoutScreenTarget(): void {
         this._native.bindoutScreenTarget();
     }
 
@@ -97,7 +101,7 @@ export class NativeGLTextureContext extends NativeGLObject implements ITextureCo
     }
 
     createRenderTargetInternal(width: number, height: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number): InternalRenderTarget {
-        return  this._native.createRenderTargetInternal(width, height, colorFormat, depthStencilFormat ? depthStencilFormat : RenderTargetFormat.None, generateMipmap, sRGB, multiSamples);
+        return this._native.createRenderTargetInternal(width, height, colorFormat, depthStencilFormat ? depthStencilFormat : RenderTargetFormat.None, generateMipmap, sRGB, multiSamples);
     }
 
     createRenderTargetCubeInternal(size: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number): InternalRenderTarget {
@@ -117,10 +121,10 @@ export class NativeGLTextureContext extends NativeGLObject implements ITextureCo
     }
 
     updateVideoTexture(texture: InternalTexture, video: HTMLVideoElement, premultiplyAlpha: boolean, invertY: boolean): void {
-        this._native.updateVideoTexture(texture, (video as any)._nativeObj.conchImgId , premultiplyAlpha, invertY);
+        this._native.updateVideoTexture(texture, (video as any)._nativeObj.conchImgId, premultiplyAlpha, invertY);
     }
 
-    getRenderTextureData(internalTex: InternalRenderTarget, x: number, y: number, width: number, height: number): ArrayBufferView{
+    getRenderTextureData(internalTex: InternalRenderTarget, x: number, y: number, width: number, height: number): ArrayBufferView {
         return this._native.getRenderTextureData(internalTex, x, y, width, height);
     }
 }

@@ -26,6 +26,8 @@ export interface ITextureContext {
 
     setTexturePixelsData(texture: InternalTexture, source: ArrayBufferView, premultiplyAlpha: boolean, invertY: boolean): void;
 
+    initVideoTextureData(texture: InternalTexture): void;
+
     setTextureSubPixelsData(texture: InternalTexture, source: ArrayBufferView, mipmapLevel: number, generateMipmap: boolean, xOffset: number, yOffset: number, width: number, height: number, premultiplyAlpha: boolean, invertY: boolean): void;
 
     setTextureDDSData(texture: InternalTexture, ddsInfo: DDSTextureInfo): void;
@@ -55,7 +57,7 @@ export interface ITextureContext {
     setupRendertargetTextureAttachment(renderTarget: InternalRenderTarget, texture: InternalTexture): void;
 
     bindRenderTarget(renderTarget: InternalRenderTarget): void;
-    bindoutScreenTarget():void;
+    bindoutScreenTarget(): void;
     unbindRenderTarget(renderTarget: InternalRenderTarget): void;
 
     readRenderTargetPixelData(renderTarget: InternalRenderTarget, xOffset: number, yOffset: number, width: number, height: number, out: ArrayBufferView): ArrayBufferView;

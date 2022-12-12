@@ -14,6 +14,7 @@ import { Event } from "laya/events/Event";
 
 export class VideoPlayIn3DWorld {
     private videoPlane: MeshSprite3D;
+    private isoneVideo:boolean = false
     constructor() {
         //初始化引擎
         Laya3D.init(0, 0);
@@ -41,13 +42,17 @@ export class VideoPlayIn3DWorld {
     }
 
     private createVideo(url: string): void {
-        var videoTexture = new VideoTexture();
-        videoTexture.source = url;
-        videoTexture.play();
-        videoTexture.loop = true;
-
-        let mat = new UnlitMaterial();
-        mat.albedoTexture = videoTexture;
-        this.videoPlane.meshRenderer.sharedMaterial = mat;
+        if(!this.isoneVideo){
+            var videoTexture = new VideoTexture();
+            videoTexture.source = url;
+            videoTexture.play();
+            videoTexture.loop = true;
+    
+            let mat = new UnlitMaterial();
+            mat.albedoTexture = videoTexture;
+            this.videoPlane.meshRenderer.sharedMaterial = mat;
+            this.isoneVideo = true;
+        }
+        
     }
 }
