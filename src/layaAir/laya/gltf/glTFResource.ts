@@ -506,7 +506,7 @@ export class glTFResource extends Prefab {
             0, // height
             this.getTextureFormat(glTFImage), // format
             this.getTextureMipmap(glTFSampler),  // mipmap
-            true, //can read
+            !sRGB, //can read
             sRGB // sRGB
 
         ];
