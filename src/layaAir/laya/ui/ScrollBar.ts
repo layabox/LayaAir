@@ -217,7 +217,7 @@ export class ScrollBar extends UIComponent {
                 this.upButton.skin = url.replace(".png", "$up.png");
                 this.downButton.skin = url.replace(".png", "$down.png");
 
-                if (!Loader.getRes(this._skin))
+                if (!Loader.getRes(url))
                     ILaya.loader.load([url, this.upButton.skin, this.downButton.skin, url.replace(".png", "$bar.png")], Handler.create(this, this._skinLoaded), null, Loader.IMAGE);
                 else
                     this._skinLoaded();

@@ -196,21 +196,24 @@ export class TextInput extends Label {
     set skin(value: string) {
         if (this._skin != value) {
             this._skin = value;
-            if (this._skin && !Loader.getRes(this._skin)) {
+
+            if (this._skin) {
                 let url = this._skinBaseUrl ? URL.formatURL(this._skin, this._skinBaseUrl) : this._skin;
-                ILaya.loader.load(url, Handler.create(this, this._skinLoaded), null, Loader.IMAGE);
-            } else {
-                this._skinLoaded();
+                let source = Loader.getRes(url);
+                if (!source)
+                    ILaya.loader.load(url, Handler.create(this, this._skinLoaded), null, Loader.IMAGE);
+                else
+                    this._skinLoaded(source);
             }
         }
     }
 
-    protected _skinLoaded(): void {
+    protected _skinLoaded(source: any): void {
         if (!this._graphics) {
             this._graphics = new AutoBitmap();
             this._ownGraphics = true;
         }
-        this._graphics.source = Loader.getRes(this._skin);
+        this._graphics.source = source;
         this._width && (this._graphics.width = this._width);
         this._height && (this._graphics.height = this._height);
         this._sizeChanged();

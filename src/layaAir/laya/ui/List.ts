@@ -623,9 +623,10 @@ export class List extends Box {
         let box: UIComponent;
         if (typeof (this._itemRender) == "function") {//TODO:
             box = new this._itemRender();
+            box._skinBaseUrl = this._skinBaseUrl;
         } else {
             if (this._itemRender._$type || this._itemRender._$prefab)
-                box = <UIComponent>HierarchyParser.parse(this._itemRender)[0];
+                box = <UIComponent>HierarchyParser.parse(this._itemRender, { skinBaseUrl: this._skinBaseUrl })[0];
             else
                 box = LegacyUIParser.createComp(this._itemRender, null, null, arr);
             if (!box) {
