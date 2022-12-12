@@ -563,7 +563,9 @@ export class glTFResource extends Prefab {
         if (glTFMaterial.pbrMetallicRoughness) {
             let pbrMetallicRoughness = glTFMaterial.pbrMetallicRoughness;
             if (pbrMetallicRoughness.baseColorFactor) {
-                layaPBRMaterial.albedoColor.fromArray(pbrMetallicRoughness.baseColorFactor);
+                let color = layaPBRMaterial.albedoColor;
+                color.fromArray(pbrMetallicRoughness.baseColorFactor);
+                layaPBRMaterial.albedoColor = color;
             }
 
             if (pbrMetallicRoughness.baseColorTexture) {
@@ -614,9 +616,11 @@ export class glTFResource extends Prefab {
         }
 
         if (glTFMaterial.emissiveFactor) {
-            layaPBRMaterial.emissionColor.fromArray(glTFMaterial.emissiveFactor);
-            layaPBRMaterial.emissionColor.a = 1.0;
             layaPBRMaterial.enableEmission = true;
+            let color = layaPBRMaterial.emissionColor;
+            color.fromArray(glTFMaterial.emissiveFactor);
+            color.a = 1.0;
+            layaPBRMaterial.emissionColor = color;
         }
 
         let renderMode: glTF.glTFMaterialAlphaMode = glTFMaterial.alphaMode || glTF.glTFMaterialAlphaMode.OPAQUE;
