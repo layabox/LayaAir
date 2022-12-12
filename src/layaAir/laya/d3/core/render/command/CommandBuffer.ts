@@ -58,10 +58,17 @@ export class CommandBuffer {
 	get casterShadow(){
 		return this._shadow;
 	}
+	
+	set context(value:RenderContext3D){
+		this._context = value;
+	}
+
+	get context(){
+		return this._context;
+	}
 
 	/**
 	 * 调用所有渲染指令
-	 *@internal
 	 */
 	_apply(): void {
 		for (var i: number = 0, n: number = this._commands.length; i < n; i++)

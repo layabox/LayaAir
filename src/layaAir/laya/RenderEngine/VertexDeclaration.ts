@@ -79,7 +79,7 @@ export class VertexDeclaration {
     }
 
     /**
-     * @internal
+     * get vertexElement by usage
      */
     getVertexElementByUsage(usage: number): VertexElement {
         return this._vertexElementsDic[usage];
