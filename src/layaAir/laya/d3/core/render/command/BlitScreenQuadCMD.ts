@@ -13,6 +13,7 @@ import { RenderElement } from "../RenderElement";
 import { ScreenQuad } from "../ScreenQuad";
 import { Command } from "./Command";
 import { CommandBuffer } from "./CommandBuffer";
+import { Camera } from "../../Camera";
 
 export class BlitScreenQuadCMD extends Command {
 	/**@internal */
@@ -121,7 +122,7 @@ export class BlitScreenQuadCMD extends Command {
 		this._sourceTexelSize.setValue(1.0 / source.width, 1.0 / source.height, source.width, source.height);
 		shaderData.setVector(Command.MAINTEXTURE_TEXELSIZE_ID, this._sourceTexelSize);
 		context.destTarget = dest;
-		context._contextOBJ.applyContext(ILaya3D.Camera._updateMark);
+		context._contextOBJ.applyContext(Camera._updateMark);
 		// ScreenQuad.instance.invertY = dest ? dest._isCameraTarget : false;
 		ScreenQuad.instance.invertY = context.invertY;
 		context.drawRenderElement(this._renderElement);

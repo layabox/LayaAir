@@ -3,6 +3,7 @@ import { LayaGL } from "../../../layagl/LayaGL";
 import { CompareFunction } from "../../../RenderEngine/RenderEnum/CompareFunction";
 import { CullMode } from "../../../RenderEngine/RenderEnum/CullMode";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
+import { Camera } from "../../core/Camera";
 import { GeometryElement } from "../../core/GeometryElement";
 import { Material } from "../../core/material/Material";
 import { BaseRender } from "../../core/render/BaseRender";
@@ -161,7 +162,7 @@ export class SkyRenderer {
                 camera._applyViewProject(context, viewMatrix, projectionMatrix);//TODO:优化 不应设置给Camera直接提交
             }
 
-            context._contextOBJ.applyContext(ILaya3D.Camera._updateMark);
+            context._contextOBJ.applyContext(Camera._updateMark);
             context.drawRenderElement(this._renderElement);
             camera._applyViewProject(context, camera.viewMatrix, camera.projectionMatrix);
         }

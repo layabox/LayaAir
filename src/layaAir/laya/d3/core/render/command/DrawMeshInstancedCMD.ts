@@ -17,6 +17,7 @@ import { RenderContext3D } from "../RenderContext3D";
 import { BaseRender } from "../../../core/render/BaseRender";
 import { MeshSprite3DShaderDeclaration } from "../../MeshSprite3DShaderDeclaration";
 import { ILaya3D } from "../../../../../ILaya3D";
+import { Camera } from "../../Camera";
 
 
 export class DrawMeshInstancedCMD extends Command {
@@ -225,7 +226,7 @@ export class DrawMeshInstancedCMD extends Command {
     run(): void {
         //update blockData
         let context = RenderContext3D._instance;
-        context._contextOBJ.applyContext(ILaya3D.Camera._updateMark);
+        context._contextOBJ.applyContext(Camera._updateMark);
         let propertyMap = this._instanceProperty._propertyMap;
         for (let i in propertyMap) {
             //更新自定义Instancebuffer

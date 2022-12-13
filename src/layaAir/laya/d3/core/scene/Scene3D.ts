@@ -41,7 +41,6 @@ import { Sprite3D } from "../Sprite3D";
 import { PointLightCom } from "../light/PointLightCom";
 import { SpotLightCom } from "../light/SpotLightCom";
 import { RenderTexture } from "../../resource/RenderTexture";
-import { TextureDecodeFormat } from "../../../RenderEngine/RenderEnum/TextureDecodeFormat";
 import { FilterMode } from "../../../RenderEngine/RenderEnum/FilterMode";
 import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
 import { DefineDatas } from "../../../RenderEngine/RenderShader/DefineDatas";

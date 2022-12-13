@@ -1,6 +1,6 @@
 
 import { Laya } from "Laya";
-import { AmbientMode, Scene3D } from "laya/d3/core/scene/Scene3D";
+import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
 import { Vector3 } from "laya/d3/math/Vector3";
 import { Stage } from "laya/display/Stage";
@@ -10,6 +10,7 @@ import { Handler } from "laya/utils/Handler";
 import { Laya3D } from "Laya3D";
 import { Browser } from "laya/utils/Browser";
 import { Script } from "laya/components/Script";
+import { AmbientMode } from "laya/d3/core/scene/AmbientMode";
 
 /**
  * model rotation script.

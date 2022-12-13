@@ -1,4 +1,5 @@
 import { ILaya3D } from "../../../../../ILaya3D";
+import { Camera } from "../../Camera";
 import { Material } from "../../material/Material";
 import { BaseRender } from "../BaseRender";
 import { RenderContext3D } from "../RenderContext3D";
@@ -61,7 +62,7 @@ export class DrawRenderCMD extends Command {
             throw "This render command material cannot be empty";
         this.setContext(this._commandBuffer._context);
         var context = this._context;
-        context._contextOBJ.applyContext(ILaya3D.Camera._updateMark);
+        context._contextOBJ.applyContext(Camera._updateMark);
         var renderElements = this._render._renderElements;
         for (var i: number = 0, n = renderElements.length; i < n; i++) {
             var renderelement = renderElements[i];
