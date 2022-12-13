@@ -9,28 +9,30 @@ class AtlasLoader implements IResourceLoader {
             if (!data)
                 return null;
 
-            //如果图集带了版本号，需要将图集中包含的图片也需要追加版本号，以此解决浏览器缓存的问题
-            let baseUrl: string;
-            let i = task.url.lastIndexOf("/");
-            if (i != -1)
-                baseUrl = task.url.substring(0, i + 1);
-
             let toloadPics: Array<Promise<Texture>> = [];
             if (data.meta && data.meta.image) {
+                let folderPath: string = "";
+                let i = task.url.lastIndexOf("/");
+                if (i != -1)
+                    folderPath = task.url.substring(0, i + 1);
+
+                //如果图集带了版本号，需要将图集中包含的图片也需要追加版本号，以此解决浏览器缓存的问题
                 let query: string = "";
-                let i = task.url.lastIndexOf("?");
+                i = task.url.lastIndexOf("?");
                 if (i != -1)
                     query = task.url.substring(i);
 
                 //带图片信息的类型
                 let pics: Array<string> = data.meta.image.split(",");
                 for (let pic of pics)
-                    toloadPics.push(task.loader.load(baseUrl + pic + query, null, task.progress.createCallback()));
+                    toloadPics.push(task.loader.load(folderPath + pic + query, null, task.progress.createCallback()));
             } else {  //不带图片信息
                 toloadPics.push(task.loader.load(Utils.replaceFileExtension(task.url, "png"), null, task.progress.createCallback()));
             }
 
             return Promise.all(toloadPics).then(pics => {
+                let baseUrl = task.options.baseUrl || "";
+
                 let frames: any = data.frames;
                 let directory: string = (data.meta && data.meta.prefix) ? data.meta.prefix : task.url.substring(0, task.url.lastIndexOf(".")) + "/";
                 let subTextures: Array<Texture> = [];
