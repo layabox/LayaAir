@@ -125,6 +125,7 @@ export class Laya3D {
         ILaya3D.Scene3D = Scene3D;
         ILaya3D.Laya3D = Laya3D;
         ILaya3D.Physics3D = Physics3D;
+        ILaya3D.Camera = Camera;
 
         if (Config3D.useCannonPhysics)
             Physics3D.__cannoninit__();
