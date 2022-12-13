@@ -2547,10 +2547,10 @@ export class Context {
         var repeat: boolean = sizeGrid[4];
         var needClip: boolean = false;
 
-        if (width == w) {
+        if (width == tex.width) {
             left = right = 0;
         }
-        if (height == h) {
+        if (height == tex.height) {
             top = bottom = 0;
         }
 
