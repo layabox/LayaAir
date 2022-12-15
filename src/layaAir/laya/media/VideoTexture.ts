@@ -118,11 +118,12 @@ export class VideoTexture extends BaseTexture {
         //flag only TODO
         this._width = this.element.videoWidth;
         this.height = this.element.videoHeight;
-        this._texture = LayaGL.textureContext.createTextureInternal(this._dimension, this.element.videoWidth, this.element.videoHeight, TextureFormat.R8G8B8, false, true);
+        this._texture = LayaGL.textureContext.createTextureInternal(this._dimension, this.element.videoWidth, this.element.videoHeight, TextureFormat.R8G8B8, false, false);
         this.wrapModeU = WrapMode.Clamp;
         this.wrapModeV = WrapMode.Clamp;
         this.filterMode = FilterMode.Bilinear;
         LayaGL.textureContext.initVideoTextureData(this._texture);
+        this._texture.gammaCorrection = 2.2;//这里使用srgb会变得特别的卡，所以srgb的转换放入Shader中进行
         if (this.immediatelyPlay) {
             this.play();
         }
@@ -134,7 +135,7 @@ export class VideoTexture extends BaseTexture {
     }
 
     get gammaCorrection() {
-        return 1;
+        return 2.2;
     }
 
     /**
