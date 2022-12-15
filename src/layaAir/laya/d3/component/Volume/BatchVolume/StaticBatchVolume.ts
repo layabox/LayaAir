@@ -147,9 +147,10 @@ export class StaticBatchVolume extends Volume {
         this._enableStaticVertexMergeBatch = false;
         this._cacheRender = new SingletonList<BaseRender>();
         this._batchRender = new SingletonList<BaseRender>();
+        this._enableCustomBatch = false;
     }
 
-    /**
+    /**     
      * Restoring the Batch Render State
      */
     private _restorRenderNode() {

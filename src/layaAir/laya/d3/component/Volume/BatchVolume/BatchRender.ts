@@ -29,6 +29,7 @@ export class BatchRender extends BaseRender {
         this._RenderBitFlag = RenderBitFlag.RenderBitFlag_Batch;
         this._renderElements = [];
         this._lodInstanceRenderElement[-1] = [];
+        this._batchList = new SingletonList<BaseRender>();
     }
 
     /**
