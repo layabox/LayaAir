@@ -1401,8 +1401,8 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
         this._engine._bindTexture(texture.target, texture.resource);
         // todo 用 sub 会慢
-        gl.texSubImage2D(target, 0, 0, 0, format, type, video);
-        //gl.texImage2D(target, 0, internalFormat, format, type, video);
+        //gl.texSubImage2D(target, 0, 0, 0, format, type, video);
+        gl.texImage2D(target, 0, internalFormat, format, type, video);
 
         this._engine._bindTexture(texture.target, null);
 

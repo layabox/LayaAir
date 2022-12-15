@@ -105,6 +105,7 @@ import "./loaders/HierarchyParserV2";
 import "./loaders/AvatarMaskLoader";
 import "./loaders/ShaderLoader";
 import "./loaders/GLSLLoader";
+import { StaticBatchVolume } from "./component/Volume/BatchVolume/StaticBatchVolume";
 
 let c = ClassUtils.regClass;
 c("Sprite3D", Sprite3D);
@@ -137,6 +138,7 @@ c("Gradient", Gradient);
 c("Transform3D", Transform3D);
 c("Lightmap", Lightmap);
 c("ReflectionProbe", ReflectionProbe);
+c("StaticBatchVolume",StaticBatchVolume);
 c("SphericalHarmonicsL2", SphericalHarmonicsL2);
 c("Vector2", Vector2);
 c("Vector3", Vector3);
