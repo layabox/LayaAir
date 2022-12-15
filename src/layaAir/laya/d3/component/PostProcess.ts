@@ -201,7 +201,7 @@ export class PostProcess {
 		camera!._screenOffsetScale.setValue(viewport.x / canvasWidth, viewport.y / canvasHeight, viewport.width / canvasWidth, viewport.height / canvasHeight);
 
 		if (dest)
-			this._context!.command!.blitScreenTriangle(screenTexture, dest, camera!._screenOffsetScale, this._compositeShader, this._compositeShaderData, 0);
+			this._context!.command!.blitScreenTriangle(cameraTarget, dest, camera!._screenOffsetScale, this._compositeShader, this._compositeShaderData, 0);
 
 		//释放临时纹理
 		RenderTexture.recoverToPool(screenTexture);
