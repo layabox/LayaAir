@@ -262,6 +262,10 @@ export class StaticBatchVolume extends Volume {
         }
     }
 
+    onStart(){
+        this.reBatch();
+    }
+
     /**
      * 重新合批,将清理前面状态
      * 必要时需要手动调用,根据Volume里面的值,进行合批
