@@ -6,17 +6,11 @@ import { ILoadURL } from "../net/Loader";
 import { SpineTexture } from "./SpineTexture";
 import { IBatchProgress } from "../net/BatchProgress";
 
-export enum SpineVersion {
-    v3_7,
-    v3_8,
-    v4_0,
-}
-
 /**
  * Spine动画模板基类
  */
 export class SpineTemplet extends Resource {
-    public static RuntimeVersion: SpineVersion = SpineVersion.v3_8;
+    public static RuntimeVersion: string = "3.8";
 
     public skeletonData: spine.SkeletonData;
 
@@ -46,7 +40,7 @@ export class SpineTemplet extends Resource {
         this._basePath = URL.getPath(createURL);
         let version = this.getRuntimeVersion(desc);
         let parseAtlas;
-        if (version == SpineVersion.v4_0)
+        if (version == "4.0")
             parseAtlas = this.parseAtlas4;
         else
             parseAtlas = this.parseAtlas3;
@@ -63,7 +57,7 @@ export class SpineTemplet extends Resource {
         });
     }
 
-    private getRuntimeVersion(desc: string | ArrayBuffer): SpineVersion {
+    private getRuntimeVersion(desc: string | ArrayBuffer): string {
         this._ns = spine;
         return SpineTemplet.RuntimeVersion;
     }
