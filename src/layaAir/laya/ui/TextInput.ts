@@ -139,6 +139,8 @@ export class TextInput extends Label {
      * @override 
     */
     protected createChildren(): void {
+        this.graphics = new AutoBitmap();
+
         this._tf = new Input();
         this._tf.hideFlags = HideFlags.HideAndDontSave;
         this.addChild(this._tf);
@@ -209,13 +211,7 @@ export class TextInput extends Label {
     }
 
     protected _skinLoaded(source: any): void {
-        if (!this._graphics) {
-            this._graphics = new AutoBitmap();
-            this._ownGraphics = true;
-        }
         this._graphics.source = source;
-        this._width && (this._graphics.width = this._width);
-        this._height && (this._graphics.height = this._height);
         this._sizeChanged();
         this.event(Event.LOADED);
     }
@@ -231,7 +227,6 @@ export class TextInput extends Label {
     }
 
     set sizeGrid(value: string) {
-        this._graphics || (this.graphics = this._graphics = new AutoBitmap());
         if (value)
             this._graphics.sizeGrid = UIUtils.fillArray(Styles.defaultSizeGrid, value, Number);
         else

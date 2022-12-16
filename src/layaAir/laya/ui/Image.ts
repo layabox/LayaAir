@@ -116,7 +116,6 @@ export class Image extends UIComponent {
      */
     protected createChildren(): void {
         this.graphics = new AutoBitmap();
-        this._ownGraphics = true;
     }
 
     /**

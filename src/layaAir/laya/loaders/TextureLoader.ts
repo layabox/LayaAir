@@ -11,11 +11,31 @@ import { Browser } from "../utils/Browser";
 import { AssetDb } from "../resource/AssetDb";
 import { Resource } from "../resource/Resource";
 import { RenderTexture } from "../d3/resource/RenderTexture";
+import { Utils } from "../utils/Utils";
 
 const metaFetchingOptions = { noRetry: true, silent: true };
 
+var internalResources: Record<string, Texture2D>;
+
 class Texture2DLoader implements IResourceLoader {
+    constructor() {
+        if (!internalResources) {
+            internalResources = {
+                "WhiteTexture.png": Texture2D.whiteTexture,
+                "BlackTexture.png": Texture2D.blackTexture,
+                "GrayTexture.png": Texture2D.grayTexture,
+                "NormalTexture.png": Texture2D.normalTexture,
+            };
+        }
+    }
+
     load(task: ILoadTask) {
+        if (task.url.indexOf("internal/") != -1) {
+            let tex = internalResources[Utils.getBaseName(task.url)];
+            if (tex)
+                return Promise.resolve(tex);
+        }
+
         let meta = AssetDb.inst.getMeta(task.url, task.uuid);
         let metaUrl = typeof (meta) === "string" ? meta : (task.options.hasMeta ? (task.url + ".json") : null);
         if (metaUrl)

@@ -17,7 +17,7 @@ export class BaseTexture extends Resource {
      */
     _texture: InternalTexture;
     /**@internal */
-    hdrEncodeFormat:HDREncodeFormat;
+    hdrEncodeFormat: HDREncodeFormat;
     /**@private */
     protected _width: number;
     /**@private */

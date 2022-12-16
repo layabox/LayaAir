@@ -197,6 +197,19 @@ export class Utils {
     }
 
     /**
+     * 获得路径中的文件名（包含扩展名）
+     */
+    static getBaseName(path: string): string {
+        let i = path.lastIndexOf("/");
+        if (i != -1)
+            path = path.substring(i + 1);
+        i = path.indexOf("?");
+        if (i != -1)
+            path = path.substring(0, i);
+        return path;
+    }
+
+    /**
      * 获取文件名的扩展名，并转换为小写字母。例如"1.abc"将返回abc。
      */
     static getFileExtension(path: string): string {
