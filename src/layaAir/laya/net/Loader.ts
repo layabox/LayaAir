@@ -357,7 +357,7 @@ export class Loader extends EventDispatcher {
             return new Promise((resolve) => task.onComplete.add(resolve));
         }
 
-        let atlasInfo = AtlasInfoManager.getFileLoadPath(url);
+        let atlasInfo = AtlasInfoManager.getFileLoadPath(formattedUrl);
         if (atlasInfo) {
             return this.load(atlasInfo.url, { type: Loader.ATLAS, baseUrl: atlasInfo.baseUrl }).then(() => {
                 return Loader.getRes(url, type);

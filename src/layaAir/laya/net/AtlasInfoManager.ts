@@ -1,5 +1,6 @@
 import { Handler } from "../utils/Handler";
 import { ILaya } from "./../../ILaya";
+import { URL } from "./URL";
 
 /**
  * @private
@@ -13,18 +14,22 @@ export class AtlasInfoManager {
             if (!data)
                 return;
 
-            for (let tKey in data) {
-                let tArr = data[tKey];
-                let tPrefix = tArr[0];
-                tArr = tArr[1];
-                let len = tArr.length;
-                let entry = { url: tKey };
-                for (let i = 0; i < len; i++) {
-                    AtlasInfoManager._fileLoadDic[tPrefix + tArr[i]] = entry;
-                }
-            }
+            AtlasInfoManager.addToDict(data);
             callback && callback.run();
         });
+    }
+
+    static addToDict(data: any) {
+        for (let tKey in data) {
+            let tArr = data[tKey];
+            let tPrefix = URL.formatURL(tArr[0]);
+            tArr = tArr[1];
+            let len = tArr.length;
+            let entry = { url: tKey };
+            for (let i = 0; i < len; i++) {
+                AtlasInfoManager._fileLoadDic[tPrefix + tArr[i]] = entry;
+            }
+        }
     }
 
     static getFileLoadPath(file: string): { url: string, baseUrl?: string } {
