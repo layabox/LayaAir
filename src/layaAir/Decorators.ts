@@ -52,13 +52,9 @@ export interface PropertyDescriptor {
     options?: Record<string, any>;
 }
 
-export function regClass(className?: string): any {
-    return function (constructor: Function) {
-        if (className)
-            ClassUtils.regClass(className, constructor);
-    };
-}
+function dummy() { }
 
-export function runInEditor(constructor: Function): void {}
-export function menu(name: string): any {}
-export function property(info?: string | Partial<PropertyDescriptor>): any {}
+export function regClass(): any { return dummy; }
+export function runInEditor(constructor: Function): void { }
+export function menu(name: string): any { return dummy; }
+export function property(info?: string | Partial<PropertyDescriptor>): any { return dummy; }
