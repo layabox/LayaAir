@@ -1,6 +1,6 @@
 import { LayaGL } from "../../../layagl/LayaGL";
 import { ISceneRenderManager } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/ISceneRenderManager";
-import { SimpleSingletonList } from "../../../utils/SimpleSingletonList";
+import { SingletonList } from "../../../utils/SingletonList";
 import { BaseRender } from "../render/BaseRender";
 
 export class SceneRenderManager {
@@ -12,11 +12,11 @@ export class SceneRenderManager {
     /**
      * get RenderList
      */
-    get list(): SimpleSingletonList<BaseRender> {
+    get list(): SingletonList<BaseRender> {
         return this._sceneManagerOBJ.list;
     }
 
-    set list(value: SimpleSingletonList<BaseRender>) {
+    set list(value: SingletonList<BaseRender>) {
         this._sceneManagerOBJ.list = value;
     }
 

@@ -20,7 +20,6 @@ import { IBaseRenderNode } from "../../../RenderEngine/RenderInterface/RenderPip
 import { SubUniformBufferData } from "../../../RenderEngine/SubUniformBufferData";
 import { Stat } from "../../../utils/Stat";
 import { Bounds } from "../../math/Bounds";
-import { ISingletonElement } from "../../../utils/SimpleSingletonList";
 import { Volume } from "../../component/Volume/Volume";
 import { ReflectionProbe, ReflectionProbeMode } from "../../component/Volume/reflectionProbe/ReflectionProbe";
 import { VertexMesh } from "../../graphics/Vertex/VertexMesh";
@@ -31,6 +30,7 @@ import { Sprite3DRenderDeclaration } from "./Sprite3DRenderDeclaration";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { BatchRender } from "../../component/Volume/BatchVolume/BatchRender";
 import { ILaya3D } from "../../../../ILaya3D";
+import { IBoundsCell } from "../../math/IBoundsCell";
 
 export enum RenderBitFlag {
     RenderBitFlag_CullFlag = 1 << 0,
@@ -43,7 +43,7 @@ export enum RenderBitFlag {
 /**
  * <code>Render</code> 类用于渲染器的父类，抽象类不允许实例。
  */
-export class BaseRender extends Component implements ISingletonElement {
+export class BaseRender extends Component implements IBoundsCell {
     /** @internal */
     static _meshVerticeDefine: Array<ShaderDefine> = [];
 
@@ -58,9 +58,6 @@ export class BaseRender extends Component implements ISingletonElement {
 
     /**@internal */
     static _transLargeUbO: TransLargeUBOUtils;
-
-    /** @internal*/
-    _indexInList: number = -1; //ISingletonElement
 
     /**
      * BaseRender Init

@@ -404,7 +404,7 @@ export class BoundFrustum implements IClone {
 	 * @param  box  包围盒。
 	 * @returns 包涵:1,相交:2,不相交:0
 	 */
-	containsBoundBox(box: BoundBox): number {
+	containsBoundBox(box: BoundBox|Bounds): number {
 		var p: Vector3 = BoundFrustum._tempV30, n: Vector3 = BoundFrustum._tempV31;
 		var boxMin: Vector3 = box.min;
 		var boxMax: Vector3 = box.max;

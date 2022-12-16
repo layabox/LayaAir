@@ -1,26 +1,46 @@
 import { ISceneRenderManager } from "../../../../RenderEngine/RenderInterface/RenderPipelineInterface/ISceneRenderManager";
+import { SingletonList } from "../../../../utils/SingletonList";
 import { BaseRender } from "../../render/BaseRender";
 import { SceneRenderManager } from "../SceneRenderManager";
+import { BVHRenderSpatial } from "./BVHRenderSpatial";
 
 export class BVHSceneRenderManager extends SceneRenderManager {
+    /**@internal */
     protected _sceneManagerOBJ: ISceneRenderManager;
+    /**@internal */
+    private _bvhRenderSpatial: BVHRenderSpatial;
+
+    private _allRenderList:SingletonList<BaseRender>;
+
+    /**
+     * 实例化
+     */
     constructor() {
         super();
+        this._bvhRenderSpatial = new BVHRenderSpatial();
+        this._allRenderList = new SingletonList<BaseRender>();
     }
 
     /**
-     * 是否是静态
-     * @returns 
-     */
-    isStatic(): boolean {
-        return false;
+    * get RenderList
+    */
+    get list(): SingletonList<BaseRender> {
+        return this._allRenderList;
     }
 
-    /**
-     * 是否适合BVH节点
-     */
-    isSuitableBVH(): boolean {
-        return false;
+    set list(value: SingletonList<BaseRender>) {
+        for(let i = 0,n = value.length;i<n;i++){
+            let render = value.elements[i];
+            this.addRenderObject(render);
+        }
+    }
+
+    get bvhSpatial(){
+        return this._bvhRenderSpatial;
+    }
+
+    get otherList(){
+        return this._sceneManagerOBJ.list;
     }
 
     /**
@@ -28,7 +48,10 @@ export class BVHSceneRenderManager extends SceneRenderManager {
      * @param object 
      */
     addRenderObject(object: BaseRender): void {
-        this._sceneManagerOBJ.addRenderObject(object);
+        if (!this._bvhRenderSpatial.addOne(object)) {
+            this._sceneManagerOBJ.addRenderObject(object);
+        }
+        this._allRenderList.add(object);
     }
 
     /**
@@ -36,7 +59,9 @@ export class BVHSceneRenderManager extends SceneRenderManager {
      * @param object 
      */
     removeRenderObject(object: BaseRender): void {
-        this._sceneManagerOBJ.removeRenderObject(object);
+        if (!this._bvhRenderSpatial.removeOne(object))
+            this._sceneManagerOBJ.removeRenderObject(object);
+        this._allRenderList.remove(object);
     }
 
     /**
@@ -51,7 +76,9 @@ export class BVHSceneRenderManager extends SceneRenderManager {
      * update All Motion Render Data
      */
     updateMotionObjects(): void {
+        this._bvhRenderSpatial.update();
         this._sceneManagerOBJ.updateMotionObjects();
+
     }
 
     /**
@@ -59,7 +86,11 @@ export class BVHSceneRenderManager extends SceneRenderManager {
      * @param object 
      */
     addMotionObject(object: BaseRender): void {
-        this._sceneManagerOBJ.addMotionObject(object);
+        if (this._bvhRenderSpatial.cellLegal(object)) {
+            this._bvhRenderSpatial.motionOne(object);
+        } else {
+            this._sceneManagerOBJ.addMotionObject(object);
+        }
     }
 
     /**
@@ -67,5 +98,7 @@ export class BVHSceneRenderManager extends SceneRenderManager {
      */
     destroy(): void {
         this._sceneManagerOBJ.destroy();
+        this._bvhRenderSpatial.destroy();
+        this._allRenderList .destroy();
     }
 }

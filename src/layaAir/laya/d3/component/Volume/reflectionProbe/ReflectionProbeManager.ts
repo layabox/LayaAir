@@ -1,4 +1,3 @@
-import { SimpleSingletonList } from "../../../../utils/SimpleSingletonList";
 import { SingletonList } from "../../../../utils/SingletonList";
 import { BaseRender } from "../../../core/render/BaseRender";
 import { Bounds } from "../../../math/Bounds";
@@ -111,7 +110,7 @@ export class ReflectionProbeManager implements IVolumeManager {
      * 更新传入所有渲染器反射探针
      * @param 渲染器列表
      */
-    reCaculateAllRenderObjects(baseRenders: SimpleSingletonList<BaseRender>) {
+    reCaculateAllRenderObjects(baseRenders: SingletonList<BaseRender>) {
         var elements = baseRenders.elements;
         let render: BaseRender;
         for (var i: number = 0, n: number = baseRenders.length; i < n; i++) {

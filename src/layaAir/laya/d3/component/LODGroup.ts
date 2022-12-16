@@ -8,6 +8,7 @@ import { Bounds } from "../math/Bounds";
 import { Vector3 } from "../math/Vector3";
 import { Event } from "../../events/Event";
 import { Utils3D } from "../utils/Utils3D";
+import { IBoundsCell } from "../math/IBoundsCell";
 
 const tempVec = new Vector3();
 const tempVec1 = new Vector3();
@@ -123,7 +124,7 @@ export class LODInfo {
     }
 }
 
-export class LODGroup extends Component {
+export class LODGroup extends Component implements IBoundsCell {
 
     /**
      * 是否需要重新计算_lodBoundsRadius，和_bounds
@@ -220,6 +221,11 @@ export class LODGroup extends Component {
         this._visialIndex = -1;
         //this.recalculateBounds();
         this._lodCount = this._lods.length;
+    }
+
+    get bounds(){
+        this.recalculateBounds();
+        return this._bounds;
     }
 
     /**
