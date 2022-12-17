@@ -34,7 +34,7 @@ class AtlasLoader implements IResourceLoader {
                 let baseUrl = task.options.baseUrl || "";
 
                 let frames: any = data.frames;
-                let directory: string = (data.meta && data.meta.prefix) ? data.meta.prefix : task.url.substring(0, task.url.lastIndexOf(".")) + "/";
+                let directory: string = (data.meta && data.meta.prefix != null) ? data.meta.prefix : task.url.substring(0, task.url.lastIndexOf(".")) + "/";
                 let subTextures: Array<Texture> = [];
 
                 let scaleRate: number = 1;

@@ -64,7 +64,8 @@ export class URL {
      * @return 格式化处理后的地址。
      */
     static formatURL(url: string, base?: string): string {
-        if (!url) return "null path";
+        if (!url)
+            return base || URL.basePath || "";
 
         if (url.startsWith("res://")) {
             let uuid = url.substring(6);
