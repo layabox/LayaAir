@@ -284,8 +284,7 @@ export class BVHSpatialBox<T> {
             return;
         }
 
-        let v1 = BVHSpatialBox._tempV3;
-        v1 = this._bounds.getExtent(); //获取包围盒轮廓
+        let v1 = this._bounds.getExtent(); //获取包围盒轮廓
 
         if ((this._config.max_SpatialCount > this._cellCount && this._config.limit_size >= 2 * Math.max(v1.x, v1.y, v1.z)) || this._cellCount <= 1)
             return;
