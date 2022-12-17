@@ -116,7 +116,7 @@ export class BVHSpatialBox<T> {
      * @param config 
      */
     constructor(bvhmanager: BVHSpatialManager, config: BVHSpatialConfig) {
-        this._bounds = new Bounds();
+        this._bounds = new Bounds(new Vector3(Number.MIN_VALUE, Number.MIN_VALUE, Number.MIN_VALUE), new Vector3(-Number.MIN_VALUE, -Number.MIN_VALUE, -Number.MIN_VALUE));
         this._cellList = [];
         this._cellCount = 0;
         this._bvhmanager = bvhmanager;
@@ -279,15 +279,15 @@ export class BVHSpatialBox<T> {
      */
     splitBox() {
         if (!this.isContentBox()) {
-            this._children0.splitBox();
-            this._children1.splitBox();
+            this._children0 && this._children0.splitBox();
+            this._children0 && this._children1.splitBox();
             return;
         }
 
         let v1 = BVHSpatialBox._tempV3;
         v1 = this._bounds.getExtent(); //获取包围盒轮廓
 
-        if (this._config.max_SpatialCount > this._cellCount && this._config.limit_size >= 2 * Math.max(v1.x, v1.y, v1.z))
+        if ((this._config.max_SpatialCount > this._cellCount && this._config.limit_size >= 2 * Math.max(v1.x, v1.y, v1.z)) || this._cellCount <= 1)
             return;
 
         //sort方向尺寸大为分割方向
@@ -314,18 +314,18 @@ export class BVHSpatialBox<T> {
         for (let i = 0; i < mid; i++) { //前一半逻辑对象放入第一个子空间中
             const cell = this._cellList[i];
             this._children0.fillCell(cell);
-            Bounds.merge(this._children0._bounds,cell.bounds,this._children0._bounds);
+            Bounds.merge(this._children0._bounds, cell.bounds, this._children0._bounds);
         }
         this._children0._boundchanged = false;
         this._children0.splitBox();
 
         this._children1 = this._creatChildNode();
         this._children1.parent = this;
-        
+
         for (let i = mid; i < this._cellCount; i++) { //后一半逻辑对象放入第二个子空间中
             const cell = this._cellList[i];
             this._children1.fillCell(cell);
-            Bounds.merge(this._children1._bounds,cell.bounds,this._children1._bounds);
+            Bounds.merge(this._children1._bounds, cell.bounds, this._children1._bounds);
         }
         this._children1._boundchanged = false;
         this._children1.splitBox();
