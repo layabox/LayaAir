@@ -13,7 +13,8 @@
         "watchSamples": "cd ./src/samples && tsc -b --force --watch",
         "clean": "rimraf ./bin/tsc",
         "copyShaders": "copyfiles -u 1 ./src/**/*.{glsl,vs,fs} ./bin/tsc/",
-        "toIDE": "gulp build && gulp publishToIDE"
+        "toIDE": "gulp buildAndCompress && gulp publishToIDE",
+        "toIDEFast": "gulp build && gulp publishToIDE"
     },
     "author": "Layabox Inc.",
     "license": "SEE LICENSE IN LICENSE.md",
