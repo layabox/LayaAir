@@ -7,18 +7,18 @@ import { BVHSpatialBox } from "./BVHSpatialBox";
  */
 export class BVHSpatialManager {
     /**@internal */
-    bvhManager:Map<number,BVHSpatialBox<IBoundsCell>>;
+    bvhManager: Map<number, BVHSpatialBox<IBoundsCell>>;
 
     /**@internal */
-    cellCount:number = 0;
+    cellCount: number = 0;
 
     /**@internal */
-    updateBVHBoxList:SingletonList<BVHSpatialBox<IBoundsCell>>;
+    updateBVHBoxList: SingletonList<BVHSpatialBox<IBoundsCell>>;
 
     /**
      * 实例化BVHSpatialManager
      */
-    constructor(){
+    constructor() {
         this.bvhManager = new Map();
         this.updateBVHBoxList = new SingletonList<BVHSpatialBox<IBoundsCell>>();
     }
@@ -26,7 +26,7 @@ export class BVHSpatialManager {
     /**
      * clear
      */
-    clear(){
+    clear() {
         this.cellCount = 0;
         this.updateBVHBoxList.clear();
     }
@@ -34,7 +34,7 @@ export class BVHSpatialManager {
     /**
      * destroy
      */
-    destroy(){
+    destroy() {
         this.bvhManager = null;
         this.updateBVHBoxList.destroy();
     }
@@ -43,11 +43,11 @@ export class BVHSpatialManager {
 /**
  * BVHConfig
  */
-export class BVHSpatialConfig{
+export class BVHSpatialConfig {
     /**@internal 一个BVH节点最大的cell数，超过这个数会分离*/
     public max_SpatialCount = 7;
     /**@internal 最大BVH节点的大小*/
     public limit_size = 32;
     /**@internal 最小cellbuild数，如果小于这个数，不会BVH构建*/
-    public Min_BVH_Build_Nums:10;
+    public Min_BVH_Build_Nums = 10;
 }

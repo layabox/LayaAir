@@ -486,8 +486,6 @@ export class BaseRender extends Component implements IBoundsCell {
 
     protected _onEnable(): void {
         super._onEnable();
-        this.owner.scene._addRenderObject(this);
-        this._setBelongScene(this.owner.scene);
         if (this.owner) {
             (this.owner as Sprite3D).transform.on(Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange);//如果为合并BaseRender,owner可能为空
             (this.owner as Sprite3D).on(Event.LAYERCHANGE, this, this._changeLayer);
@@ -495,16 +493,18 @@ export class BaseRender extends Component implements IBoundsCell {
             this._changeLayer((this.owner as Sprite3D).layer);
             this._changeStaticMask((this.owner as Sprite3D)._isStatic);
         }
+        this.owner.scene._addRenderObject(this);
+        this._setBelongScene(this.owner.scene);
     }
 
     protected _onDisable(): void {
-        this.owner.scene._removeRenderObject(this);
-        this._setUnBelongScene();
         if (this.owner) {
             (this.owner as Sprite3D).transform.off(Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange);//如果为合并BaseRender,owner可能为空
             (this.owner as Sprite3D).off(Event.LAYERCHANGE, this, this._changeLayer);
             (this.owner as Sprite3D).off(Event.staticMask, this, this._changeStaticMask);
         }
+        this.owner.scene._removeRenderObject(this);
+        this._setUnBelongScene();
         this.volume = null;
     }
 
@@ -616,7 +616,7 @@ export class BaseRender extends Component implements IBoundsCell {
 
     _applyReflection() {
         if (!this._probReflection) return;
-        if (this._probReflection._updateMark =ILaya3D.Scene3D._updateMark) {
+        if (this._probReflection._updateMark = ILaya3D.Scene3D._updateMark) {
             this._probReflection.applyReflectionShaderData(this._shaderValues)
         }
     }

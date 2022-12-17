@@ -354,8 +354,8 @@ export class BVHSpatialBox<T> {
                 out.add(this._cellList[i]);
             }
         } else {
-            this._children0.traverseBoundsCell(out);
-            this._children1.traverseBoundsCell(out);
+            this._children0 && this._children0.traverseBoundsCell(out);
+            this._children1 && this._children1.traverseBoundsCell(out);
         }
     }
 
