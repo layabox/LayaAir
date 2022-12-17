@@ -149,6 +149,7 @@ export class BVHSpatial {
                 this._BVHSpatialBox.recaculateBox();
                 this._BVHSpatialBox.splitBox();//build
                 this._BVHManager.updateBVHBoxList.remove(this._BVHSpatialBox);
+                this._isBuild==true;
             }
             this._BVHManager.updateBVHBoxList.length = 0;
         } else {
