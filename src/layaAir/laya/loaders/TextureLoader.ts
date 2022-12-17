@@ -120,7 +120,7 @@ class Texture2DLoader implements IResourceLoader {
                 if (obsoluteInst && Object.getPrototypeOf(obsoluteInst) == Object.getPrototypeOf(tex))
                     tex = this.move(obsoluteInst, tex);
 
-                if (null != propertyParams.hdrEncodeFormat && tex)
+                if (propertyParams && propertyParams.hdrEncodeFormat)
                     tex.hdrEncodeFormat = propertyParams.hdrEncodeFormat;
                 return tex;
             });

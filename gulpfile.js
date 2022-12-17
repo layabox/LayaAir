@@ -462,14 +462,15 @@ gulp.task("compressJs", () => {
         var stream = new Stream.Transform({ objectMode: true });
         stream._transform = function (originalFile, unused, callback) {
             let fPath = originalFile.path;
-            if (fPath.indexOf('laya.physics3D.wasm-wx.js') >= 0) {
+            if (fPath.indexOf('laya.physics3D.wasm-wx.js') >= 0 || fPath.indexOf('laya.physics3D.wasm.js') >= 0) {
                 var stringData = String(originalFile.contents);
                 stringData = stringData.replace('libs/laya.physics3D.wasm.wasm', 'libs/min/laya.physics3D.wasm.wasm');
                 var file = originalFile.clone({ contents: false });
                 var finalBinaryData = Buffer.from(stringData);
                 file.contents = finalBinaryData;
                 callback(null, file);
-            } else {
+            }
+            else {
                 callback(null, originalFile);
             }
         };
@@ -704,6 +705,7 @@ gulp.task('publishToIDE', () => {
         proj.src().pipe(proj()).dts.pipe(gulp.dest("./build/temp")).on("end", genDts),
 
         gulp.src(['./build/libs/*.js', './build/libs/*.wasm', './build/libs/*.js.map']).pipe(gulp.dest(path.join(idePath, 'bin/engine/libs'))),
+        gulp.src(['./build/libs/min/*.js', './build/libs/min/*.wasm', './build/libs/min/*.js.map']).pipe(gulp.dest(path.join(idePath, 'bin/engine/libs/min'))),
         gulp.src(['./build/types/*.d.ts']).pipe(gulp.dest(path.join(idePath, 'bin/engine/types')))
     );
 });
@@ -713,3 +715,5 @@ gulp.task('build',
         'concatBox2dPhysics',
         // 'concatCannonPhysics', 'concatBulletPhysics.wasm', 'concatBulletPhysics.wasm-wx', 'concatBulletPhysics',
         'genDts'));
+
+gulp.task('buildAndCompress', gulp.series(gulp.series('build', 'compressJs')));
