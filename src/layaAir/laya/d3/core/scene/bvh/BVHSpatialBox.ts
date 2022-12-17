@@ -314,15 +314,20 @@ export class BVHSpatialBox<T> {
         for (let i = 0; i < mid; i++) { //前一半逻辑对象放入第一个子空间中
             const cell = this._cellList[i];
             this._children0.fillCell(cell);
+            Bounds.merge(this._children0._bounds,cell.bounds,this._children0._bounds);
         }
+        this._children0._boundchanged = false;
         this._children0.splitBox();
 
         this._children1 = this._creatChildNode();
         this._children1.parent = this;
+        
         for (let i = mid; i < this._cellCount; i++) { //后一半逻辑对象放入第二个子空间中
             const cell = this._cellList[i];
             this._children1.fillCell(cell);
+            Bounds.merge(this._children1._bounds,cell.bounds,this._children1._bounds);
         }
+        this._children1._boundchanged = false;
         this._children1.splitBox();
 
         this._clearList();
