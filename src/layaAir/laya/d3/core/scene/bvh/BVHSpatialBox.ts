@@ -280,7 +280,7 @@ export class BVHSpatialBox<T> {
     splitBox() {
         if (!this.isContentBox()) {
             this._children0 && this._children0.splitBox();
-            this._children0 && this._children1.splitBox();
+            this._children1 && this._children1.splitBox();
             return;
         }
 
