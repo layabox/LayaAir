@@ -116,7 +116,7 @@ export class BVHSpatialBox<T> {
      * @param config 
      */
     constructor(bvhmanager: BVHSpatialManager, config: BVHSpatialConfig) {
-        this._bounds = new Bounds(new Vector3(Number.MIN_VALUE, Number.MIN_VALUE, Number.MIN_VALUE), new Vector3(-Number.MIN_VALUE, -Number.MIN_VALUE, -Number.MIN_VALUE));
+        this._bounds = new Bounds(new Vector3(Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE), new Vector3(-Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE));
         this._cellList = [];
         this._cellCount = 0;
         this._bvhmanager = bvhmanager;
@@ -188,7 +188,7 @@ export class BVHSpatialBox<T> {
      * @returns 
      */
     private _isFloatMax(x: number, y: number) {
-        return Math.abs(x - y) > 0.0001;
+        return (x > y) && Math.abs(x - y) > 0.0001;//x>y 切
     }
 
     /**
@@ -202,7 +202,7 @@ export class BVHSpatialBox<T> {
         //如果cell 包围盒在box包围盒中间,则不影响包围盒改变
         if (this._isFloatMax(cellMin.x, boxMin.x) && this._isFloatMax(cellMin.y, boxMin.y) && this._isFloatMax(cellMin.z, boxMin.z) &&
             this._isFloatMax(boxMax.x, cellMax.x) && this._isFloatMax(boxMax.y, cellMax.y) && this._isFloatMax(boxMax.z, cellMax.z)) {
-            return false
+            return false;
         }
         return true;
     }

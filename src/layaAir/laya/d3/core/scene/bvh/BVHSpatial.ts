@@ -111,7 +111,11 @@ export class BVHSpatial {
         if(this._BVHManager.updateBVHBoxList.length>0){
             this.update();
         }
-        this._BVHSpatialBox.getItemByCameraCullInfo(cameraCullInfo, out);
+        if(this._isBuild){
+            this._BVHSpatialBox.getItemByCameraCullInfo(cameraCullInfo, out);
+        }else{
+            this._BVHSpatialBox.traverseBoundsCell(out);
+        }
     }
 
     /**
@@ -124,7 +128,12 @@ export class BVHSpatial {
         if(this._BVHManager.updateBVHBoxList.length>0){
             this.update();
         }
-        this._BVHSpatialBox.getItemByFrustum(frustum, out);
+        if(this._isBuild){
+            this._BVHSpatialBox.getItemByFrustum(frustum, out);
+        }else{
+            this._BVHSpatialBox.traverseBoundsCell(out);
+        }
+        
     }
 
     /**
@@ -137,7 +146,11 @@ export class BVHSpatial {
         if(this._BVHManager.updateBVHBoxList.length>0){
             this.update();
         }
-        this._BVHSpatialBox.getItemBySCI(sci, out);
+        if(this._isBuild){
+            this._BVHSpatialBox.getItemBySCI(sci, out);
+        }else{
+            this._BVHSpatialBox.traverseBoundsCell(out);
+        }
     }
 
     /**
