@@ -96,7 +96,8 @@ import { BloomEffect } from "./core/render/PostEffect/BloomEffect";
 import { GaussianDoF } from "./core/render/PostEffect/GaussianDoF";
 import { ScalableAO } from "./core/render/PostEffect/ScalableAO";
 import { AnimatorController } from "./component/Animator/AnimatorController";
-
+import { StaticBatchVolume } from "./component/Volume/BatchVolume/StaticBatchVolume";
+import { StaticInstanceBatchRender } from "./component/Volume/BatchVolume/StaticInstanceBatchRender";
 import "./loaders/AnimationClipLoader";
 import "./loaders/CubemapLoader";
 import "./loaders/MaterialLoader";
@@ -105,7 +106,7 @@ import "./loaders/HierarchyParserV2";
 import "./loaders/AvatarMaskLoader";
 import "./loaders/ShaderLoader";
 import "./loaders/GLSLLoader";
-import { StaticBatchVolume } from "./component/Volume/BatchVolume/StaticBatchVolume";
+
 
 let c = ClassUtils.regClass;
 c("Sprite3D", Sprite3D);
@@ -139,6 +140,7 @@ c("Transform3D", Transform3D);
 c("Lightmap", Lightmap);
 c("ReflectionProbe", ReflectionProbe);
 c("StaticBatchVolume",StaticBatchVolume);
+c("StaticInstanceBatchRender",StaticInstanceBatchRender);
 c("SphericalHarmonicsL2", SphericalHarmonicsL2);
 c("Vector2", Vector2);
 c("Vector3", Vector3);

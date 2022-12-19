@@ -39,6 +39,24 @@ export class StaticBatchVolume extends Volume {
     /**@internal */
     private _customBatchs: BatchRender[] = [];
 
+
+    private _getStaticInstanceBatchRender():StaticInstanceBatchRender{
+        let render =(this.owner as Sprite3D).getComponent(StaticInstanceBatchRender);
+        if(!render){
+            render = (this.owner as Sprite3D).addComponent(StaticInstanceBatchRender) as StaticInstanceBatchRender;
+        }
+        return render;
+        
+    }
+
+    private _getStatiVertexMergeBatchRender():StatiVertexMergeBatchRender{
+        let render =(this.owner as Sprite3D).getComponent(StatiVertexMergeBatchRender);
+        if(!render){
+            render = (this.owner as Sprite3D).addComponent(StatiVertexMergeBatchRender) as StatiVertexMergeBatchRender;
+        }
+        return render;
+    }
+
     /**
      * 合批是否考虑LOD
      */
@@ -70,7 +88,7 @@ export class StaticBatchVolume extends Volume {
 
     set enableStaticInstanceBatchRender(value: boolean) {
         if (!this._instanceBatchRender && value) {
-            this._instanceBatchRender = (this.owner as Sprite3D).addComponent(StaticInstanceBatchRender) as StaticInstanceBatchRender;
+            this._instanceBatchRender =this._getStaticInstanceBatchRender();
         }
         if (value == this._enableStaticInstanceBatch)
             return;
@@ -91,7 +109,7 @@ export class StaticBatchVolume extends Volume {
 
     set enableMergeBatchRender(value: boolean) {
         if (!this._vertexMergeBatchRender && value) {
-            this._vertexMergeBatchRender = (this.owner as Sprite3D).addComponent(StatiVertexMergeBatchRender) as StatiVertexMergeBatchRender;
+            this._vertexMergeBatchRender = this._getStatiVertexMergeBatchRender();
         }
         if (value == this._enableStaticVertexMergeBatch)
             return;
