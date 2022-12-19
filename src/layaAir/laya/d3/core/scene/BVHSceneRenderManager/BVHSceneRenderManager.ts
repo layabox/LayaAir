@@ -1,6 +1,7 @@
 import { ISceneRenderManager } from "../../../../RenderEngine/RenderInterface/RenderPipelineInterface/ISceneRenderManager";
 import { SingletonList } from "../../../../utils/SingletonList";
 import { BaseRender } from "../../render/BaseRender";
+import { BVHSpatialConfig } from "../bvh/SpatialManager";
 import { SceneRenderManager } from "../SceneRenderManager";
 import { BVHRenderSpatial } from "./BVHRenderSpatial";
 
@@ -15,9 +16,9 @@ export class BVHSceneRenderManager extends SceneRenderManager {
     /**
      * 实例化
      */
-    constructor() {
+    constructor(bvhConfig:BVHSpatialConfig = null) {
         super();
-        this._bvhRenderSpatial = new BVHRenderSpatial();
+        this._bvhRenderSpatial = new BVHRenderSpatial(bvhConfig);
         this._allRenderList = new SingletonList<BaseRender>();
     }
 

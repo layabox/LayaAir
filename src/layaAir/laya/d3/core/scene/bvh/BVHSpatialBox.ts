@@ -188,7 +188,7 @@ export class BVHSpatialBox<T> {
      * @returns 
      */
     private _isFloatMax(x: number, y: number) {
-        return (x > y) && Math.abs(x - y) > 0.0001;//x>y 切
+        return x - y > 0.0001;//x>y 切
     }
 
     /**
@@ -256,7 +256,7 @@ export class BVHSpatialBox<T> {
      * @returns 
      */
     addCell(cell: IBoundsCell) {
-        if (!this._isRepeat(cell)) {
+        if (this._isRepeat(cell)) {
             return;
         }
         this._addOneCell(cell);

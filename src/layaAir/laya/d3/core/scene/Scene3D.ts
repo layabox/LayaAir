@@ -71,6 +71,9 @@ import { UI3DManager } from "../UI3D/UI3DManager";
 import { Scene } from "../../../display/Scene";
 import { ReflectionProbe } from "../../component/Volume/reflectionProbe/ReflectionProbe";
 import { AmbientMode } from "./AmbientMode";
+import { BVHSpatialConfig } from "./bvh/SpatialManager";
+import { BVHSceneRenderManager } from "./BVHSceneRenderManager/BVHSceneRenderManager";
+import { BVHCullPass } from "./BVHSceneRenderManager/BVHCullPass";
 
 
 /**
@@ -681,8 +684,19 @@ export class Scene3D extends Sprite implements ISubmit {
         this.GIRotate = 0;
      
         this._scene = this;
-        this._sceneRenderManager = new SceneRenderManager();
-        this._cullPass = LayaGL.renderOBJCreate.createCullPass();
+        if(Config3D.useBVHCull){
+          let bvhConfig = new BVHSpatialConfig();
+          bvhConfig.Min_BVH_Build_Nums = Config3D.BVH_Min_Build_nums;
+          bvhConfig.limit_size = Config3D.BVH_limit_size;
+          bvhConfig.max_SpatialCount = Config3D.BVH_max_SpatialCount;
+          this._sceneRenderManager = new BVHSceneRenderManager(bvhConfig);
+          this._cullPass = new BVHCullPass();
+        }else{
+            this._sceneRenderManager = new SceneRenderManager();
+            this._cullPass = LayaGL.renderOBJCreate.createCullPass();
+        }
+        
+        //this._cullPass = LayaGL.renderOBJCreate.createCullPass();
 
         // if (Scene3D.octreeCulling)
         // 	this._octree = new BoundsOctree(Scene3D.octreeInitialSize, Scene3D.octreeInitialCenter, Scene3D.octreeMinNodeSize, Scene3D.octreeLooseness);

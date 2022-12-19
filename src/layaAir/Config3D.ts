@@ -29,7 +29,7 @@ export class Config3D {
     /**
      *  设置最大RendertexturePool缓存的值
      */
-    static defaultCacheRTMemory:number = 256;
+    static defaultCacheRTMemory: number = 256;
     /**
      * 默认物理功能初始化内存，单位为M。
      */
@@ -59,6 +59,17 @@ export class Config3D {
 
     /** 是否使用CANNONJS物理引擎  TODO delete*/
     static useCannonPhysics: boolean = false;
+
+    /**BVHRenderConfig */
+    /**是否使用BVH裁剪 */
+    static useBVHCull: boolean = false;
+    /**一个BVH节点最大的cell数，超过这个数会分离 */
+    static BVH_max_SpatialCount = 7;
+    /**最大BVH节点的大小 */
+    static BVH_limit_size = 32;
+    /**最小cellbuild数，如果小于这个数，不会BVH构建 */
+    static BVH_Min_Build_nums = 10
+
 
     //----引擎内部使用,不暴露给开发者----
     /**@internal */
