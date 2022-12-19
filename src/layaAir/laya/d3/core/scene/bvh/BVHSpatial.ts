@@ -108,12 +108,12 @@ export class BVHSpatial {
     * @param out 输出逻辑对象组
     */
     getItemByCameraCullInfo(cameraCullInfo: ICameraCullInfo, out: SingletonList<IBoundsCell>) {
-        if(this._BVHManager.updateBVHBoxList.length>0){
+        if (this._BVHManager.updateBVHBoxList.length > 0) {
             this.update();
         }
-        if(this._isBuild){
+        if (this._isBuild) {
             this._BVHSpatialBox.getItemByCameraCullInfo(cameraCullInfo, out);
-        }else{
+        } else {
             this._BVHSpatialBox.traverseBoundsCell(out);
         }
     }
@@ -125,15 +125,15 @@ export class BVHSpatial {
      * @param out 输出逻辑对象组
      */
     getItemByFrustum(frustum: BoundFrustum, out: SingletonList<IBoundsCell>) {
-        if(this._BVHManager.updateBVHBoxList.length>0){
+        if (this._BVHManager.updateBVHBoxList.length > 0) {
             this.update();
         }
-        if(this._isBuild){
+        if (this._isBuild) {
             this._BVHSpatialBox.getItemByFrustum(frustum, out);
-        }else{
+        } else {
             this._BVHSpatialBox.traverseBoundsCell(out);
         }
-        
+
     }
 
     /**
@@ -143,12 +143,12 @@ export class BVHSpatial {
      * @param out 
      */
     getItemBySCI(sci: IShadowCullInfo, out: SingletonList<IBoundsCell>) {
-        if(this._BVHManager.updateBVHBoxList.length>0){
+        if (this._BVHManager.updateBVHBoxList.length > 0) {
             this.update();
         }
-        if(this._isBuild){
+        if (this._isBuild) {
             this._BVHSpatialBox.getItemBySCI(sci, out);
-        }else{
+        } else {
             this._BVHSpatialBox.traverseBoundsCell(out);
         }
     }
@@ -162,7 +162,7 @@ export class BVHSpatial {
                 this._BVHSpatialBox.recaculateBox();
                 this._BVHSpatialBox.splitBox();//build
                 this._BVHManager.updateBVHBoxList.remove(this._BVHSpatialBox);
-                this._isBuild==true;
+                this._isBuild = true;
             }
             this._BVHManager.updateBVHBoxList.length = 0;
         } else {
