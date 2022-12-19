@@ -19,6 +19,24 @@ export class AssetDb {
         return null;
     }
 
+    resolveURL(url: string, onResolve: (url: string) => void) {
+        if (url.startsWith("res://")) {
+            let uuid = url.substring(6);
+            url = this.UUID_to_URL(uuid);
+            if (url) {
+                onResolve(url);
+                return;
+            }
+
+            let promise = AssetDb.inst.UUID_to_URL_async(uuid);
+            if (promise) {
+                promise.then(onResolve);
+                return;
+            }
+        }
+        onResolve(url);
+    }
+
     shaderName_to_URL(shaderName: string): string {
         return this.shaderNameMap[shaderName];
     }

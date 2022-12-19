@@ -6,6 +6,7 @@ import { Handler } from "../utils/Handler"
 import { ILaya } from "../../ILaya";
 import { HideFlags } from "../Const"
 import { URL } from "../net/URL"
+import { AssetDb } from "../resource/AssetDb"
 
 /**
  * 值发生改变后调度。
@@ -179,15 +180,10 @@ export class ProgressBar extends UIComponent {
             this._skin = value;
 
             if (this._skin) {
-                let url = this._skinBaseUrl ? URL.formatURL(this._skin, this._skinBaseUrl) : URL.formatURL(this._skin);
-
-                this._bg.skin = this._skin;
-                this._bar.skin = url.replace(".png", "$bar.png");
-
-                if (!Loader.getRes(url))
-                    ILaya.loader.load(url, Handler.create(this, this._skinLoaded), null, Loader.IMAGE);
-                else
-                    this._skinLoaded();
+                let url = this._skinBaseUrl ? URL.formatURL(this._skin, this._skinBaseUrl) : this._skin;
+                AssetDb.inst.resolveURL(url, url => {
+                    ILaya.loader.load([url.replace(".png", "$bar.png")], Handler.create(this, this._skinLoaded, [url]), null, Loader.IMAGE);
+                });
             }
             else {
                 this._bg.skin = null;
@@ -196,9 +192,12 @@ export class ProgressBar extends UIComponent {
         }
     }
 
-    protected _skinLoaded(): void {
+    protected _skinLoaded(url: string): void {
         if (this._destroyed)
             return;
+
+        this._bg.skin = url;
+        this._bar.skin = url.replace(".png", "$bar.png");
 
         this.callLater(this.changeValue);
         this._sizeChanged();
