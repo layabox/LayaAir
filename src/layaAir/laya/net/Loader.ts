@@ -44,7 +44,7 @@ export interface ILoadOptions {
     constructParams?: TextureConstructParams;
     propertyParams?: TexturePropertyParams;
     blob?: ArrayBuffer;
-    hasMeta?: boolean;
+    noMetaFile?: boolean;
     [key: string]: any;
 }
 

@@ -7,6 +7,9 @@ export class AssetDb {
     shaderNameMap: Record<string, string> = {};
     metaMap: Record<string, any> = {};
 
+    /** 是否下载图片的描述信息 */
+    enableImageMetaFile: boolean = false;
+
     UUID_to_URL(uuid: string): string {
         return this.uuidMap[uuid];
     }
@@ -47,7 +50,13 @@ export class AssetDb {
     }
 
     getMeta(url: string, uuid: string): any {
-        return this.metaMap[uuid];
+        let meta = this.metaMap[url];
+        if (meta)
+            return meta;
+        else if (this.enableImageMetaFile)
+            return url + ".json";
+        else
+            return null;
     }
 
     getSubAssetURL(url: string, uuid: string, subAssetName: string, subAssetExt: string): string {

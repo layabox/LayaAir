@@ -37,12 +37,13 @@ class Texture2DLoader implements IResourceLoader {
         }
 
         let meta = AssetDb.inst.getMeta(task.url, task.uuid);
-        let metaUrl = typeof (meta) === "string" ? meta : (task.options.hasMeta ? (task.url + ".json") : null);
-        if (metaUrl)
-            return task.loader.fetch(metaUrl, "json", task.progress.createCallback(0.1), metaFetchingOptions)
+        if (!meta || typeof (meta) === "object")
+            return this.load2(task, meta);
+        else if (!task.options.noMetaFile)
+            return task.loader.fetch(meta, "json", task.progress.createCallback(0.1), metaFetchingOptions)
                 .then(meta => this.load2(task, meta));
         else
-            return this.load2(task, meta);
+            return this.load2(task, null);
     }
 
     protected load2(task: ILoadTask, meta: any) {
@@ -52,7 +53,7 @@ class Texture2DLoader implements IResourceLoader {
         let url = task.url;
         if (meta) {
             let platform = Browser.platform;
-            let fileIndex = meta.platforms[platform];
+            let fileIndex = meta.platforms?.[platform] || 0;
             let fileInfo = meta.files[fileIndex];
             if (fileInfo.file) {
                 url = AssetDb.inst.getSubAssetURL(url, task.uuid, fileInfo.file, fileInfo.ext);
