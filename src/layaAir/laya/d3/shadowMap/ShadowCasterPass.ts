@@ -31,6 +31,7 @@ import { FrustumCulling } from "../graphics/FrustumCulling";
 import { BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
 import { Stat } from "../../utils/Stat";
 import { ShadowLightType } from "./ShadowLightType";
+import { DepthCasterData } from "../depthMap/DepthCasterData";
 
 /**
  * @internal
@@ -101,24 +102,7 @@ export class ShadowCasterPass {
         sceneUniformMap.addShaderUniform(Shader3D.propertyNameToID(UniformBufferObject.UBONAME_SHADOW), UniformBufferObject.UBONAME_SHADOW);
     }
 
-    static DepthCasterUBOData: UnifromBufferData;
-    /**
-     * create DepthCaster UniformBuffer
-     * @internal
-     * @returns 
-     */
-    static createDepthCasterUniformBlock(): UnifromBufferData {
-
-        if (!ShadowCasterPass.DepthCasterUBOData) {
-            let uniformpara = new Map<number, UniformBufferParamsType>();
-            uniformpara.set(Shader3D.propertyNameToID("u_ShadowBias"), UniformBufferParamsType.Vector4);
-            //uniformpara.set(Shader3D.propertyNameToID("u_ViewProjection"), UniformBufferParamsType.Matrix4x4);
-            uniformpara.set(Shader3D.propertyNameToID("u_ShadowLightDirection"), UniformBufferParamsType.Vector3);
-            ShadowCasterPass.DepthCasterUBOData = new UnifromBufferData(uniformpara);
-        }
-
-        return ShadowCasterPass.DepthCasterUBOData;
-    }
+  
 
     /** @internal */
     private _shadowBias: Vector4 = new Vector4();
@@ -166,7 +150,7 @@ export class ShadowCasterPass {
     constructor() {
         this._shadowSpotData.cameraCullInfo.boundFrustum = new BoundFrustum(new Matrix4x4());
         if (Config3D._uniformBlock) {
-            this._castDepthBufferData = ShadowCasterPass.createDepthCasterUniformBlock();
+            this._castDepthBufferData = DepthCasterData.createDepthCasterUniformBlock();
             this._castDepthBufferOBJ = UniformBufferObject.getBuffer(UniformBufferObject.UBONAME_SHADOW, 0);
             if (!this._castDepthBufferOBJ) {
                 this._castDepthBufferOBJ = UniformBufferObject.create(UniformBufferObject.UBONAME_SHADOW, BufferUsage.Dynamic, this._castDepthBufferData.getbyteLength(), true);

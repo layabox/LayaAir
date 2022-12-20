@@ -12,8 +12,9 @@ import { Shader3D } from "../../../../RenderEngine/RenderShader/Shader3D";
 import { ShaderData } from "../../../../RenderEngine/RenderShader/ShaderData";
 import { RenderElement } from "../RenderElement";
 import { Transform3D } from "../../Transform3D";
-import { Camera } from "../../Camera";
 import { ShaderDefine } from "../../../../RenderEngine/RenderShader/ShaderDefine";
+import { ILaya3D } from "../../../../../ILaya3D";
+import { Camera } from "../../Camera";
 
 
 /**

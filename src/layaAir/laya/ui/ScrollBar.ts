@@ -13,6 +13,7 @@ import { Tween } from "../utils/Tween"
 import { ILaya } from "../../ILaya";
 import { HideFlags } from "../Const";
 import { URL } from "../net/URL";
+import { AssetDb } from "../resource/AssetDb";
 
 /**
  * 滚动条滑块位置发生变化后调度。
@@ -211,16 +212,14 @@ export class ScrollBar extends UIComponent {
             this._skin = value;
 
             if (this._skin) {
-                let url = this._skinBaseUrl ? URL.formatURL(this._skin, this._skinBaseUrl) : URL.formatURL(this._skin);
-
-                this.slider.skin = this._skin;
-                this.upButton.skin = url.replace(".png", "$up.png");
-                this.downButton.skin = url.replace(".png", "$down.png");
-
-                if (!Loader.getRes(this._skin))
-                    ILaya.loader.load([url, this.upButton.skin, this.downButton.skin, url.replace(".png", "$bar.png")], Handler.create(this, this._skinLoaded), null, Loader.IMAGE);
-                else
-                    this._skinLoaded();
+                let url = this._skinBaseUrl ? URL.formatURL(this._skin, this._skinBaseUrl) : this._skin;
+                AssetDb.inst.resolveURL(url, url => {
+                    ILaya.loader.load([url,
+                        url.replace(".png", "$up.png"),
+                        url.replace(".png", "$down.png"),
+                        url.replace(".png", "$bar.png")],
+                        Handler.create(this, this._skinLoaded, [url]), null, Loader.IMAGE);
+                });
             }
             else {
                 this.slider.skin = null;
@@ -230,9 +229,13 @@ export class ScrollBar extends UIComponent {
         }
     }
 
-    protected _skinLoaded(): void {
+    protected _skinLoaded(url: string): void {
         if (this._destroyed)
             return;
+
+        this.slider.skin = url;
+        this.upButton.skin = url.replace(".png", "$up.png");
+        this.downButton.skin = url.replace(".png", "$down.png");
 
         this.callLater(this.changeScrollBar);
         this._sizeChanged();

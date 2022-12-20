@@ -35,6 +35,7 @@ export class VideoTexture extends BaseTexture {
     private _frameRender:boolean;
     /**避免重复的加载 */
     private _isLoaded:boolean;
+    _needUpdate:boolean = false;
     /**
      * 创建VideoTexture对象，
      */
@@ -90,10 +91,25 @@ export class VideoTexture extends BaseTexture {
         ele.addEventListener("loadedmetadata", () => {
             this.loadedmetadata();
         });
+        const scope = this;
+        function updateVideo() {
+            scope._needUpdate = true;
+			ele.requestVideoFrameCallback( updateVideo );
+
+		}
+		if ( 'requestVideoFrameCallback' in ele ) {
+			ele.requestVideoFrameCallback( updateVideo );
+		}
         //ios微信浏览器环境下默认不触发loadedmetadata，在主动调用play方法的时候才会触发loadedmetadata事件
         if(ILaya.Browser.onWeiXin){
             this.loadedmetadata();
         }
+    }
+
+
+
+    private isNeedUpdate(){
+        return this._needUpdate;
     }
 
     loadedmetadata(){
@@ -102,11 +118,12 @@ export class VideoTexture extends BaseTexture {
         //flag only TODO
         this._width = this.element.videoWidth;
         this.height = this.element.videoHeight;
-        this._texture = LayaGL.textureContext.createTextureInternal(this._dimension, this.element.videoWidth, this.element.videoHeight, TextureFormat.R8G8B8, false, true);
+        this._texture = LayaGL.textureContext.createTextureInternal(this._dimension, this.element.videoWidth, this.element.videoHeight, TextureFormat.R8G8B8, false, false);
         this.wrapModeU = WrapMode.Clamp;
         this.wrapModeV = WrapMode.Clamp;
         this.filterMode = FilterMode.Bilinear;
-        LayaGL.textureContext.setTexturePixelsData(this._texture, null, false, false);
+        LayaGL.textureContext.initVideoTextureData(this._texture);
+        this._texture.gammaCorrection = 2.2;//这里使用srgb会变得特别的卡，所以srgb的转换放入Shader中进行
         if (this.immediatelyPlay) {
             this.play();
         }
@@ -118,7 +135,7 @@ export class VideoTexture extends BaseTexture {
     }
 
     get gammaCorrection() {
-        return 1;
+        return 2.2;
     }
 
     /**
@@ -150,12 +167,15 @@ export class VideoTexture extends BaseTexture {
      * @internal
      */
     render() {
+        
         if (this.element.readyState == 0)
             return;
-
-        LayaGL.textureContext.updateVideoTexture(this._texture, this.element, false, false);
-
-        this.onRender.invoke();
+        if(this.isNeedUpdate()){
+            LayaGL.textureContext.updateVideoTexture(this._texture, this.element, false, false);
+            this.onRender.invoke();
+            this._needUpdate = false;
+        }
+        
     }
 
     /**
@@ -169,7 +189,6 @@ export class VideoTexture extends BaseTexture {
             ILaya.timer.frameLoop(1, this, this.render);
         }
         this._frameRender = value;
-        
     }
 
     get frameRender(){

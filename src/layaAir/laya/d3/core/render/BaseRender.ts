@@ -3,7 +3,6 @@ import { RenderContext3D } from "./RenderContext3D";
 import { RenderableSprite3D } from "../RenderableSprite3D"
 import { Transform3D } from "../Transform3D"
 import { Material } from "../material/Material"
-import { Scene3D } from "../scene/Scene3D"
 import { BoundFrustum } from "../../math/BoundFrustum"
 import { Vector3 } from "../../math/Vector3"
 import { Vector4 } from "../../math/Vector4"
@@ -21,7 +20,6 @@ import { IBaseRenderNode } from "../../../RenderEngine/RenderInterface/RenderPip
 import { SubUniformBufferData } from "../../../RenderEngine/SubUniformBufferData";
 import { Stat } from "../../../utils/Stat";
 import { Bounds } from "../../math/Bounds";
-import { ISingletonElement } from "../../../utils/SimpleSingletonList";
 import { Volume } from "../../component/Volume/Volume";
 import { ReflectionProbe, ReflectionProbeMode } from "../../component/Volume/reflectionProbe/ReflectionProbe";
 import { VertexMesh } from "../../graphics/Vertex/VertexMesh";
@@ -31,6 +29,8 @@ import { NodeFlags } from "../../../Const";
 import { Sprite3DRenderDeclaration } from "./Sprite3DRenderDeclaration";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { BatchRender } from "../../component/Volume/BatchVolume/BatchRender";
+import { ILaya3D } from "../../../../ILaya3D";
+import { IBoundsCell } from "../../math/IBoundsCell";
 
 export enum RenderBitFlag {
     RenderBitFlag_CullFlag = 1 << 0,
@@ -43,7 +43,7 @@ export enum RenderBitFlag {
 /**
  * <code>Render</code> 类用于渲染器的父类，抽象类不允许实例。
  */
-export class BaseRender extends Component implements ISingletonElement {
+export class BaseRender extends Component implements IBoundsCell {
     /** @internal */
     static _meshVerticeDefine: Array<ShaderDefine> = [];
 
@@ -58,9 +58,6 @@ export class BaseRender extends Component implements ISingletonElement {
 
     /**@internal */
     static _transLargeUbO: TransLargeUBOUtils;
-
-    /** @internal*/
-    _indexInList: number = -1; //ISingletonElement
 
     /**
      * BaseRender Init
@@ -136,7 +133,7 @@ export class BaseRender extends Component implements ISingletonElement {
     /** @internal TODO*/
     _supportOctree: boolean = true;
     /** @internal TODO*/
-    _scene: Scene3D;
+    _scene: any;//Scene3D
     /** @internal */
     _sceneUpdateMark: number = -1;
     /** @internal 属于相机的标记*/
@@ -489,8 +486,6 @@ export class BaseRender extends Component implements ISingletonElement {
 
     protected _onEnable(): void {
         super._onEnable();
-        (this.owner.scene as Scene3D)._addRenderObject(this);
-        this._setBelongScene(this.owner.scene);
         if (this.owner) {
             (this.owner as Sprite3D).transform.on(Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange);//如果为合并BaseRender,owner可能为空
             (this.owner as Sprite3D).on(Event.LAYERCHANGE, this, this._changeLayer);
@@ -498,16 +493,18 @@ export class BaseRender extends Component implements ISingletonElement {
             this._changeLayer((this.owner as Sprite3D).layer);
             this._changeStaticMask((this.owner as Sprite3D)._isStatic);
         }
+        this.owner.scene._addRenderObject(this);
+        this._setBelongScene(this.owner.scene);
     }
 
     protected _onDisable(): void {
-        (this.owner.scene as Scene3D)._removeRenderObject(this);
-        this._setUnBelongScene();
         if (this.owner) {
             (this.owner as Sprite3D).transform.off(Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange);//如果为合并BaseRender,owner可能为空
             (this.owner as Sprite3D).off(Event.LAYERCHANGE, this, this._changeLayer);
             (this.owner as Sprite3D).off(Event.staticMask, this, this._changeStaticMask);
         }
+        this.owner.scene._removeRenderObject(this);
+        this._setUnBelongScene();
         this.volume = null;
     }
 
@@ -619,7 +616,7 @@ export class BaseRender extends Component implements ISingletonElement {
 
     _applyReflection() {
         if (!this._probReflection) return;
-        if (this._probReflection._updateMark = Scene3D._updateMark) {
+        if (this._probReflection._updateMark = ILaya3D.Scene3D._updateMark) {
             this._probReflection.applyReflectionShaderData(this._shaderValues)
         }
     }
@@ -627,7 +624,7 @@ export class BaseRender extends Component implements ISingletonElement {
     /**
      * @internal
      */
-    _setBelongScene(scene: Scene3D): void {
+    _setBelongScene(scene: any): void {
         this._scene = scene;
         this._onWorldMatNeedChange(1);
         this._isSupportReflection();

@@ -16,6 +16,7 @@ import { MeshInstanceGeometry } from "../../../graphics/MeshInstanceGeometry";
 import { RenderContext3D } from "../RenderContext3D";
 import { BaseRender } from "../../../core/render/BaseRender";
 import { MeshSprite3DShaderDeclaration } from "../../MeshSprite3DShaderDeclaration";
+import { ILaya3D } from "../../../../../ILaya3D";
 import { Camera } from "../../Camera";
 
 

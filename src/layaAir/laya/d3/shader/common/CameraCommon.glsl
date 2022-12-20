@@ -29,6 +29,7 @@ uniform vec3 u_CameraPos;
 uniform highp sampler2D u_CameraDepthTexture;
 uniform vec4 u_ZBufferParams; //(1.0 - far / near, far / near, (near - far) / (near * far), 1 / near)
 uniform mediump sampler2D u_CameraDepthNormalsTexture;
+uniform mediump sampler2D u_CameraOpaqueTexture;
 
 vec4 getPositionCS(in vec3 positionWS)
 {

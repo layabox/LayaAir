@@ -8,6 +8,7 @@ import { RenderElement } from "../RenderElement";
 import { Transform3D } from "../../Transform3D";
 import { LayaGL } from "../../../../layagl/LayaGL";
 import { RenderContext3D } from "../RenderContext3D";
+import { ILaya3D } from "../../../../../ILaya3D";
 import { Camera } from "../../Camera";
 /**
  * @internal

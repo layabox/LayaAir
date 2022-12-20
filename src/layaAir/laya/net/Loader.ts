@@ -44,7 +44,7 @@ export interface ILoadOptions {
     constructParams?: TextureConstructParams;
     propertyParams?: TexturePropertyParams;
     blob?: ArrayBuffer;
-    hasMeta?: boolean;
+    noMetaFile?: boolean;
     [key: string]: any;
 }
 
@@ -357,9 +357,9 @@ export class Loader extends EventDispatcher {
             return new Promise((resolve) => task.onComplete.add(resolve));
         }
 
-        let atlasUrl = AtlasInfoManager.getFileLoadPath(url);
-        if (atlasUrl) {
-            return this.load(atlasUrl, Loader.ATLAS).then(() => {
+        let atlasInfo = AtlasInfoManager.getFileLoadPath(formattedUrl);
+        if (atlasInfo) {
+            return this.load(atlasInfo.url, { type: Loader.ATLAS, baseUrl: atlasInfo.baseUrl }).then(() => {
                 return Loader.getRes(url, type);
             });
         }
@@ -446,31 +446,12 @@ export class Loader extends EventDispatcher {
         if (options.silent)
             task.silent = true;
 
-        if (url.startsWith("res://")) {
-            let uuid = url.substring(6);
-            url = AssetDb.inst.UUID_to_URL(uuid);
-            if (!url) {
-                let promise = AssetDb.inst.UUID_to_URL_async(uuid);
-                if (!promise)
-                    return Promise.resolve(null);
-
-                return promise.then(url => {
-                    if (url)
-                        return new Promise((resolve) => {
-                            task.url = URL.formatURL(url);
-                            task.onComplete = resolve;
-                            this.queueToDownload(task);
-                        });
-                    else
-                        return null;
-                });
-            }
-        }
-
         return new Promise((resolve) => {
-            task.url = URL.formatURL(url);
-            task.onComplete = resolve;
-            this.queueToDownload(task);
+            AssetDb.inst.resolveURL(url, url => {
+                task.url = URL.formatURL(url);
+                task.onComplete = resolve;
+                this.queueToDownload(task);
+            });
         });
     }
 

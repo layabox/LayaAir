@@ -139,6 +139,8 @@ export class TextInput extends Label {
      * @override 
     */
     protected createChildren(): void {
+        this.graphics = new AutoBitmap();
+
         this._tf = new Input();
         this._tf.hideFlags = HideFlags.HideAndDontSave;
         this.addChild(this._tf);
@@ -196,23 +198,20 @@ export class TextInput extends Label {
     set skin(value: string) {
         if (this._skin != value) {
             this._skin = value;
-            if (this._skin && !Loader.getRes(this._skin)) {
+
+            if (this._skin) {
                 let url = this._skinBaseUrl ? URL.formatURL(this._skin, this._skinBaseUrl) : this._skin;
-                ILaya.loader.load(url, Handler.create(this, this._skinLoaded), null, Loader.IMAGE);
-            } else {
-                this._skinLoaded();
+                let source = Loader.getRes(url);
+                if (!source)
+                    ILaya.loader.load(url, Handler.create(this, this._skinLoaded), null, Loader.IMAGE);
+                else
+                    this._skinLoaded(source);
             }
         }
     }
 
-    protected _skinLoaded(): void {
-        if (!this._graphics) {
-            this._graphics = new AutoBitmap();
-            this._ownGraphics = true;
-        }
-        this._graphics.source = Loader.getRes(this._skin);
-        this._width && (this._graphics.width = this._width);
-        this._height && (this._graphics.height = this._height);
+    protected _skinLoaded(source: any): void {
+        this._graphics.source = source;
         this._sizeChanged();
         this.event(Event.LOADED);
     }
@@ -228,7 +227,6 @@ export class TextInput extends Label {
     }
 
     set sizeGrid(value: string) {
-        this._graphics || (this.graphics = this._graphics = new AutoBitmap());
         if (value)
             this._graphics.sizeGrid = UIUtils.fillArray(Styles.defaultSizeGrid, value, Number);
         else

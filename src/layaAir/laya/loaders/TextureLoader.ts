@@ -11,18 +11,39 @@ import { Browser } from "../utils/Browser";
 import { AssetDb } from "../resource/AssetDb";
 import { Resource } from "../resource/Resource";
 import { RenderTexture } from "../d3/resource/RenderTexture";
+import { Utils } from "../utils/Utils";
 
 const metaFetchingOptions = { noRetry: true, silent: true };
 
+var internalResources: Record<string, Texture2D>;
+
 class Texture2DLoader implements IResourceLoader {
+    constructor() {
+        if (!internalResources) {
+            internalResources = {
+                "WhiteTexture.png": Texture2D.whiteTexture,
+                "BlackTexture.png": Texture2D.blackTexture,
+                "GrayTexture.png": Texture2D.grayTexture,
+                "NormalTexture.png": Texture2D.normalTexture,
+            };
+        }
+    }
+
     load(task: ILoadTask) {
+        if (task.url.indexOf("internal/") != -1) {
+            let tex = internalResources[Utils.getBaseName(task.url)];
+            if (tex)
+                return Promise.resolve(tex);
+        }
+
         let meta = AssetDb.inst.getMeta(task.url, task.uuid);
-        let metaUrl = typeof (meta) === "string" ? meta : (task.options.hasMeta ? (task.url + ".json") : null);
-        if (metaUrl)
-            return task.loader.fetch(metaUrl, "json", task.progress.createCallback(0.1), metaFetchingOptions)
+        if (!meta || typeof (meta) === "object")
+            return this.load2(task, meta);
+        else if (!task.options.noMetaFile)
+            return task.loader.fetch(meta, "json", task.progress.createCallback(0.1), metaFetchingOptions)
                 .then(meta => this.load2(task, meta));
         else
-            return this.load2(task, meta);
+            return this.load2(task, null);
     }
 
     protected load2(task: ILoadTask, meta: any) {
@@ -32,7 +53,7 @@ class Texture2DLoader implements IResourceLoader {
         let url = task.url;
         if (meta) {
             let platform = Browser.platform;
-            let fileIndex = meta.platforms[platform];
+            let fileIndex = meta.platforms?.[platform] || 0;
             let fileInfo = meta.files[fileIndex];
             if (fileInfo.file) {
                 url = AssetDb.inst.getSubAssetURL(url, task.uuid, fileInfo.file, fileInfo.ext);
@@ -100,7 +121,7 @@ class Texture2DLoader implements IResourceLoader {
                 if (obsoluteInst && Object.getPrototypeOf(obsoluteInst) == Object.getPrototypeOf(tex))
                     tex = this.move(obsoluteInst, tex);
 
-                if (null != propertyParams.hdrEncodeFormat && tex)
+                if (propertyParams && propertyParams.hdrEncodeFormat)
                     tex.hdrEncodeFormat = propertyParams.hdrEncodeFormat;
                 return tex;
             });

@@ -2,11 +2,11 @@ import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
 import { PBRStandardMaterial } from "laya/d3/core/material/PBRStandardMaterial";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
-import { Scene3D, AmbientMode } from "laya/d3/core/scene/Scene3D";
+import { AmbientMode } from "laya/d3/core/scene/AmbientMode";
+import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
 import { Color } from "laya/d3/math/Color";
 import { Vector3 } from "laya/d3/math/Vector3";
-import { Vector4 } from "laya/d3/math/Vector4";
 import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
 import { Stage } from "laya/display/Stage";
 import { Button } from "laya/ui/Button";
@@ -20,13 +20,13 @@ import { CameraMoveScript } from "../common/CameraMoveScript";
  */
 export class GriendSkyAmbientDemo {
     private sprite3D: Sprite3D;
-	private lineSprite3D: Sprite3D;
+    private lineSprite3D: Sprite3D;
 
-	/**实例类型*/
-	private btype:any = "CustomMesh";
-	/**场景内按钮类型*/
-	private stype:any = 0;
-	private changeActionButton:Button; 
+    /**实例类型*/
+    private btype: any = "CustomMesh";
+    /**场景内按钮类型*/
+    private stype: any = 0;
+    private changeActionButton: Button;
     private curStateIndex: number = 0;
     constructor() {
         /**实例类型*/
@@ -45,7 +45,7 @@ export class GriendSkyAmbientDemo {
         camera.addComponent(CameraMoveScript);
         camera.clearColor = new Color(0.2, 0.2, 0.2, 1.0);
         camera.msaa = true;
-        scene.ambientColor =new Color(1.0, 0.2, 0.2, 1.0);
+        scene.ambientColor = new Color(1.0, 0.2, 0.2, 1.0);
         scene.ambientMode = AmbientMode.SolidColor;
         //天空颜色
         let skyAmbientColor = new Vector3(0.56, 0.89, 1);
@@ -75,14 +75,14 @@ export class GriendSkyAmbientDemo {
         // //胶囊体
         // var capsule = this.sprite3D.addChild(new MeshSprite3D(PrimitiveMesh.createCapsule(0.25, 1, 10, 20))) as MeshSprite3D;
         // capsule.transform.position = new Vector3(-1.0, 0.5, 0.6);
-        
+
         // //圆锥体
         // var cone = this.sprite3D.addChild(new MeshSprite3D(PrimitiveMesh.createCone(0.25, 0.75))) as MeshSprite3D;
         // cone.transform.position = new Vector3(-2.0, 0.375, 0.6);
-        
+
         // //平面
         // var plane = this.sprite3D.addChild(new MeshSprite3D(PrimitiveMesh.createPlane(6, 6, 10, 10)));
-        
+
     }
-   
+
 }

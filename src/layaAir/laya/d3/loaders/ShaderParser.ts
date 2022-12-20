@@ -9,8 +9,8 @@ import { Vector4 } from "../math/Vector4";
 import { TextureCube } from "../resource/TextureCube";
 import { ParseJSON } from "../utils/ParseJSON";
 
-const CGBlock: string[] = ["CG Start", "CG End"];
-const split: string[] = ["#defineCG", "#endCG"];
+const CGBlock: string[] = ["GLSL Start", "GLSL End"];
+const split: string[] = ["#defineGLSL", "#endGLSL"];
 const shaderBlock: string[] = ["Shader3D Start", "Shader3D End"];
 const shaderDataOBJ: Record<string, ShaderDataType> = {
     "Color": ShaderDataType.Color,

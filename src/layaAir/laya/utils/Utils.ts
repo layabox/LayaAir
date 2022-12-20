@@ -45,23 +45,27 @@ export class Utils {
     }
 
     static fromStringColor(value: string): number {
+        if (!value)
+            return 0;
+
         if (value.indexOf("rgba(") >= 0 || value.indexOf("rgb(") >= 0) {
-            let tStr: string = value;
-            let beginI = tStr.indexOf("(");
-            let endI = tStr.indexOf(")");
-            tStr = tStr.substring(beginI + 1, endI);
-            let arr: any[] = tStr.split(",");
+            let p1 = value.indexOf("(");
+            let p2 = value.indexOf(")");
+            if (p1 == -1 || p2 == -1)
+                return 0;
+
+            value = value.substring(p1 + 1, p2);
+            let arr: any[] = value.split(",");
             let len = arr.length;
             for (let i = 0; i < len; i++) {
                 arr[i] = parseFloat(arr[i]);
-                if (i < 3) {
-                    arr[i] = Math.round(arr[i]);
-                }
+                if (isNaN(arr[i]))
+                    arr[i] = 0;
             }
             if (arr.length == 4)
-                return arr[0] * 256 + arr[1] * 256 + arr[2] * 256 + Math.round(arr[3] * 255);
+                return (arr[0] << 24) + (arr[1] << 16) + (arr[2] << 8) + Math.round(arr[3] * 255);
             else
-                return arr[0] * 256 + arr[1] * 256 + arr[2];
+                return (arr[0] << 16) + (arr[1] << 8) + arr[2];
         } else {
             value.charAt(0) === '#' && (value = value.substring(1));
             let len = value.length;
@@ -194,6 +198,19 @@ export class Utils {
         var result: any = parseInt(str, radix);
         if (isNaN(result)) return 0;
         return result;
+    }
+
+    /**
+     * 获得路径中的文件名（包含扩展名）
+     */
+    static getBaseName(path: string): string {
+        let i = path.lastIndexOf("/");
+        if (i != -1)
+            path = path.substring(i + 1);
+        i = path.indexOf("?");
+        if (i != -1)
+            path = path.substring(0, i);
+        return path;
     }
 
     /**

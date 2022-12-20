@@ -5,9 +5,18 @@
 	precision mediump float;
 	precision mediump int;
 #endif
+#define SHADER_NAME EDGE_FS
 
-#include "LayaComInput.glsl";
 #include "Lighting.glsl";
+#include "Camera.glsl";
+// #include "Color.glsl";
+
+#include "Scene.glsl";
+// #include "SceneFog.glsl";
+#include "globalIllumination.glsl";
+// #include "Camera.glsl";
+// #include "Lighting.glsl";
+// #include "BlinnPhongFrag.glsl";
 
 varying vec2 v_Texcoord;
 uniform sampler2D u_texture;
@@ -15,20 +24,17 @@ uniform vec3 u_marginalColor;
 
 varying vec3 v_Normal;
 
-uniform DirectionLight u_SunLight;
+// uniform DirectionLight u_SunLight;
 varying vec3 v_PositionWorld;
 
 void main()
 {
-
-	
-	gl_FragColor=texture2D(u_texture,v_Texcoord);
-	
+	gl_FragColor=texture2D(u_texture, v_Texcoord);
+	vec3 ambientCol = diffuseIrradiance(v_Normal);
 	vec3 normal=normalize(v_Normal);
-	vec3 toEyeDir = normalize(u_CameraPos-v_PositionWorld);
+	vec3 toEyeDir = normalize(getViewDirection(v_PositionWorld));
 	float Rim = 1.0 - max(0.0,dot(toEyeDir, normal));
-
-	vec3 lightColor = u_SunLight_color;
+	vec3 lightColor = ambientCol;
 	vec3 Emissive = 2.0 * lightColor * u_marginalColor * pow(Rim,3.0);  
 	
 	gl_FragColor = texture2D(u_texture, v_Texcoord) + vec4(Emissive,1.0);

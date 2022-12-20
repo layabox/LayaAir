@@ -8,10 +8,12 @@ import { Volume } from "../Volume";
 import { VolumeManager } from "../VolumeManager";
 import { SphericalHarmonicsL2, SphericalHarmonicsL2Generater } from "../../../graphics/SphericalHarmonicsL2";
 import { Color } from "../../../math/Color";
-import { AmbientMode, Scene3D } from "../../../core/scene/Scene3D";
 import { ShaderData, ShaderDataType } from "../../../../RenderEngine/RenderShader/ShaderData";
 import { RenderableSprite3D } from "../../../core/RenderableSprite3D";
 import { Sprite3DRenderDeclaration } from "../../../core/render/Sprite3DRenderDeclaration";
+import { ILaya3D } from "../../../../../ILaya3D";
+import { AmbientMode } from "../../../core/scene/AmbientMode";
+
 
 /**
  * 反射探针模式
@@ -77,7 +79,7 @@ export class ReflectionProbe extends Volume {
 
 	set boxProjection(value: boolean) {
 		if (value != this._boxProjection) {
-			this._updateMark = Scene3D._updateMark;
+			this._updateMark = ILaya3D.Scene3D._updateMark;
 		}
 		this._boxProjection = value;
 	}
@@ -103,7 +105,7 @@ export class ReflectionProbe extends Volume {
 	set ambientIntensity(value: number) {
 		if (value == this._ambientIntensity) return;
 		this._ambientIntensity = value;
-		this._updateMark = Scene3D._updateMark;
+		this._updateMark = ILaya3D.Scene3D._updateMark;
 	}
 
 	/**
@@ -117,7 +119,7 @@ export class ReflectionProbe extends Volume {
 		if (value == this._reflectionIntensity) return;
 		value = Math.max(value, 0.0);
 		this._reflectionIntensity = value
-		this._updateMark = Scene3D._updateMark;
+		this._updateMark = ILaya3D.Scene3D._updateMark;
 	}
 
 
@@ -134,7 +136,7 @@ export class ReflectionProbe extends Volume {
 	set boundsMax(value: Vector3) {
 		super.boundsMax = value;
 		if (this.boxProjection)
-			this._updateMark = Scene3D._updateMark;
+			this._updateMark = ILaya3D.Scene3D._updateMark;
 	}
 
 	get boundsMax(): Vector3 {
@@ -147,7 +149,7 @@ export class ReflectionProbe extends Volume {
 	set boundsMin(value: Vector3) {
 		super.boundsMin = value;
 		if (this.boxProjection)
-			this._updateMark = Scene3D._updateMark;
+			this._updateMark = ILaya3D.Scene3D._updateMark;
 	}
 
 	get boundsMin(): Vector3 {
@@ -170,7 +172,7 @@ export class ReflectionProbe extends Volume {
 	public set ambientColor(value: Color) {
 		value && value.cloneTo(this._ambientColor);
 		if (this.ambientMode == AmbientMode.SolidColor)
-			this._updateMark = Scene3D._updateMark;
+			this._updateMark = ILaya3D.Scene3D._updateMark;
 	}
 
 	/**
@@ -182,7 +184,7 @@ export class ReflectionProbe extends Volume {
 
 	public set ambientSH(value: Float32Array) {
 		if (this.ambientMode == AmbientMode.SphericalHarmonics)
-			this._updateMark = Scene3D._updateMark;
+			this._updateMark = ILaya3D.Scene3D._updateMark;
 		this._ambientSH = value;
 	}
 
@@ -204,7 +206,7 @@ export class ReflectionProbe extends Volume {
 				this._ambientTripleColorSphericalHarmonics && this._applySHCoefficients(this._ambientTripleColorSphericalHarmonics, 1.0);
 			}
 		}
-		this._updateMark = Scene3D._updateMark;
+		this._updateMark = ILaya3D.Scene3D._updateMark;
 
 	}
 
@@ -220,7 +222,7 @@ export class ReflectionProbe extends Volume {
 		if (this.iblTex) this.iblTex._removeReference();
 		this._iblTex = value;
 		this._iblTex._addReference();
-		this._updateMark = Scene3D._updateMark;
+		this._updateMark = ILaya3D.Scene3D._updateMark;
 	}
 
 	/**
@@ -234,7 +236,7 @@ export class ReflectionProbe extends Volume {
 		if (value == this._iblTexRGBD)
 			return;
 		this._iblTexRGBD = value;
-		this._updateMark = Scene3D._updateMark;
+		this._updateMark = ILaya3D.Scene3D._updateMark;
 	}
 
 	applyReflectionShaderData(shaderData: ShaderData) {
@@ -287,7 +289,7 @@ export class ReflectionProbe extends Volume {
 	*/
 	protected _onEnable(): void {
 		super._onEnable();
-		this._updateMark = Scene3D._updateMark;
+		this._updateMark = ILaya3D.Scene3D._updateMark;
 	}
 
 	/**
@@ -376,7 +378,7 @@ export class ReflectionProbe extends Volume {
 		if (this._reflectionTexture) this.iblTex._removeReference();
 		this._reflectionTexture = value
 		this._reflectionTexture._addReference();
-		this._updateMark = Scene3D._updateMark;
+		this._updateMark = ILaya3D.Scene3D._updateMark;
 	}
 
 	/**
@@ -404,7 +406,7 @@ export class ReflectionProbe extends Volume {
 	 */
 	set reflectionHDRParams(value: Vector4) {
 		this._reflectionHDRParams = value;
-		this._updateMark = Scene3D._updateMark;
+		this._updateMark = ILaya3D.Scene3D._updateMark;
 	}
 
 	/**
@@ -420,7 +422,7 @@ export class ReflectionProbe extends Volume {
 			this._reflectionDecodeFormat = value;
 			if (this._reflectionDecodeFormat == TextureDecodeFormat.RGBM)
 				this._reflectionHDRParams.x = 5.0;//5.0 is RGBM param
-			this._updateMark = Scene3D._updateMark;
+			this._updateMark = ILaya3D.Scene3D._updateMark;
 		}
 	}
 
@@ -447,7 +449,7 @@ export class ReflectionProbe extends Volume {
 			value.cloneTo(this._ambientSphericalHarmonics);
 		if (this.ambientMode == AmbientMode.TripleColor)
 			this._applySHCoefficients(originalSH, 2.2);//Gamma to Linear,I prefer use 'Color.gammaToLinearSpace',but must same with Unity now.
-		this._updateMark = Scene3D._updateMark;
+		this._updateMark = ILaya3D.Scene3D._updateMark;
 	}
 
 
@@ -486,7 +488,7 @@ export class ReflectionProbe extends Volume {
 		if (this.ambientMode == AmbientMode.TripleColor) {
 			this._applySHCoefficients(gradientSH, 2.2);
 		}
-		this._updateMark = Scene3D._updateMark;
+		this._updateMark = ILaya3D.Scene3D._updateMark;
 	}
 }
 

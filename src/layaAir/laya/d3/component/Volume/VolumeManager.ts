@@ -1,4 +1,3 @@
-import { SimpleSingletonList } from "../../../utils/SimpleSingletonList";
 import { SingletonList } from "../../../utils/SingletonList";
 import { BaseRender } from "../../core/render/BaseRender";
 import { Bounds } from "../../math/Bounds";
@@ -124,7 +123,7 @@ export class VolumeManager implements IVolumeManager {
     /**
      * 重新更新所有Volume的信息
      */
-    reCaculateAllRenderObjects(baseRenders: SimpleSingletonList<BaseRender>) {
+    reCaculateAllRenderObjects(baseRenders: SingletonList<BaseRender>) {
         if (this._needUpdateAllRender) {
             var elements = baseRenders.elements;
             for (var i: number = 0, n: number = baseRenders.length; i < n; i++) {

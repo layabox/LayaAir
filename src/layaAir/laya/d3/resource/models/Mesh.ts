@@ -356,8 +356,8 @@ export class Mesh extends Resource implements IClone {
         for (var i: number = 0, n: number = this._subMeshes.length; i < n; i++)
             this._subMeshes[i].destroy();
         this._btTriangleMesh && Physics3D._bullet.btStridingMeshInterface_destroy(this._btTriangleMesh);
-        this._vertexBuffer.destroy();
-        this._indexBuffer.destroy();
+        this._vertexBuffer && this._vertexBuffer.destroy();
+        this._indexBuffer && this._indexBuffer.destroy();
         this._bufferState.destroy();
         this._instanceBufferState && this._instanceBufferState.destroy();
         this._instanceWorldVertexBuffer && this._instanceWorldVertexBuffer.destroy();
@@ -827,8 +827,8 @@ export class Mesh extends Resource implements IClone {
         destMesh._skinnedMatrixCaches.length = cacheLength;
         for (i = 0; i < cacheLength; i++) {
             var skinnedCache: skinnedMatrixCache = this._skinnedMatrixCaches[i];
-            if(skinnedCache)
-            destMesh._skinnedMatrixCaches[i] = new skinnedMatrixCache(skinnedCache.subMeshIndex, skinnedCache.batchIndex, skinnedCache.batchBoneIndex);
+            if (skinnedCache)
+                destMesh._skinnedMatrixCaches[i] = new skinnedMatrixCache(skinnedCache.subMeshIndex, skinnedCache.batchIndex, skinnedCache.batchBoneIndex);
         }
 
         for (i = 0; i < this.subMeshCount; i++) {

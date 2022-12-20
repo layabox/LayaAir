@@ -1,5 +1,4 @@
 import { LayaGL } from "../../layagl/LayaGL";
-import { Stat } from "../../utils/Stat";
 import { GeometryElement } from "../core/GeometryElement";
 import { RenderContext3D } from "../core/render/RenderContext3D";
 import { SubMeshRenderElement } from "../core/render/SubMeshRenderElement";

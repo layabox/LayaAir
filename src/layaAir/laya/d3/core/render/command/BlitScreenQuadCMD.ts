@@ -6,13 +6,14 @@ import { Stat } from "../../../../utils/Stat";
 import { Vector4 } from "../../../math/Vector4";
 import { Viewport } from "../../../math/Viewport";
 import { RenderTexture } from "../../../resource/RenderTexture";
-import { Camera } from "../../Camera";
+import { ILaya3D } from "../../../../../ILaya3D";
 import { Transform3D } from "../../Transform3D";
 import { RenderContext3D } from "../RenderContext3D";
 import { RenderElement } from "../RenderElement";
 import { ScreenQuad } from "../ScreenQuad";
 import { Command } from "./Command";
 import { CommandBuffer } from "./CommandBuffer";
+import { Camera } from "../../Camera";
 
 export class BlitScreenQuadCMD extends Command {
 	/**@internal */
@@ -109,7 +110,7 @@ export class BlitScreenQuadCMD extends Command {
 			context.changeViewport(0, 0, dest.width, dest.height);
 			context.changeScissor(0, 0, dest.width, dest.height);
 		} else {
-			let camera: Camera = this._commandBuffer._camera;
+			let camera = this._commandBuffer._camera;
 			let viewport: Viewport = camera.viewport;
 			let vpH = viewport.height;
 			let vpY = RenderContext3D.clientHeight - viewport.y - vpH;

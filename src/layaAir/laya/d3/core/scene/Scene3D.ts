@@ -25,7 +25,6 @@ import { Utils3D } from "../../utils/Utils3D";
 import { BaseCamera } from "../BaseCamera";
 import { Camera, CameraClearFlags } from "../Camera";
 import { AlternateLightQueue, LightQueue } from "../light/LightQueue";
-import { BaseRender } from "../render/BaseRender";
 import { RenderContext3D } from "../render/RenderContext3D";
 import { RenderElement } from "../render/RenderElement";
 import { Lightmap } from "./Lightmap";
@@ -42,7 +41,6 @@ import { Sprite3D } from "../Sprite3D";
 import { PointLightCom } from "../light/PointLightCom";
 import { SpotLightCom } from "../light/SpotLightCom";
 import { RenderTexture } from "../../resource/RenderTexture";
-import { TextureDecodeFormat } from "../../../RenderEngine/RenderEnum/TextureDecodeFormat";
 import { FilterMode } from "../../../RenderEngine/RenderEnum/FilterMode";
 import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
 import { DefineDatas } from "../../../RenderEngine/RenderShader/DefineDatas";
@@ -72,18 +70,11 @@ import { VolumeManager } from "../../component/Volume/VolumeManager";
 import { UI3DManager } from "../UI3D/UI3DManager";
 import { Scene } from "../../../display/Scene";
 import { ReflectionProbe } from "../../component/Volume/reflectionProbe/ReflectionProbe";
+import { AmbientMode } from "./AmbientMode";
+import { BVHSpatialConfig } from "./bvh/SpatialManager";
+import { BVHSceneRenderManager } from "./BVHSceneRenderManager/BVHSceneRenderManager";
+import { BVHCullPass } from "./BVHSceneRenderManager/BVHCullPass";
 
-/**
- * 环境光模式
- */
-export enum AmbientMode {
-    /** 固定颜色。*/
-    SolidColor,
-    /** 球谐光照, 通过天空盒生成的球谐数据。 */
-    SphericalHarmonics,
-    /** 分别设置天空, 地平线, 地面的环境光颜色 */
-    TripleColor
-}
 
 /**
  * 用于实现3D场景。
@@ -165,9 +156,6 @@ export class Scene3D extends Sprite implements ISubmit {
     /** @internal */
     static SPOTLIGHTCOLOR: number;
     //------------------legacy lighting-------------------------------
-    /** @internal */
-    static _configDefineValues: DefineDatas = new DefineDatas();
-
     /** @internal 场景更新标记*/
     static __updateMark: number = 0;
     /** @internal*/
@@ -293,7 +281,7 @@ export class Scene3D extends Sprite implements ISubmit {
             Scene3D._lightPixles = new Float32Array(maxLightCount * width * 4);
         }
         Scene3D.shaderValueInit();
-        var configShaderValue: DefineDatas = Scene3D._configDefineValues;
+        var configShaderValue: DefineDatas = Shader3D._configDefineValues;
         if (!Config3D._multiLighting) {
             (configShaderValue.add(Shader3D.SHADERDEFINE_LEGACYSINGALLIGHTING));
             Scene3D.legacyLightingValueInit()
@@ -671,7 +659,7 @@ export class Scene3D extends Sprite implements ISubmit {
             this._cannonPhysicsSimulation = new CannonPhysicsSimulation(Scene3D.cannonPhysicsSettings);
         }
         this._shaderValues = LayaGL.renderOBJCreate.createShaderData(null);
-        this._shaderValues._defineDatas.addDefineDatas(Scene3D._configDefineValues);
+        this._shaderValues._defineDatas.addDefineDatas(Shader3D._configDefineValues);
         if (Config3D._uniformBlock) {
             //SceneUniformBlock
             this._sceneUniformObj = UniformBufferObject.getBuffer(UniformBufferObject.UBONAME_SCENE, 0);
@@ -696,8 +684,19 @@ export class Scene3D extends Sprite implements ISubmit {
         this.GIRotate = 0;
      
         this._scene = this;
-        this._sceneRenderManager = new SceneRenderManager();
-        this._cullPass = LayaGL.renderOBJCreate.createCullPass();
+        if(Config3D.useBVHCull){
+          let bvhConfig = new BVHSpatialConfig();
+          bvhConfig.Min_BVH_Build_Nums = Config3D.BVH_Min_Build_nums;
+          bvhConfig.limit_size = Config3D.BVH_limit_size;
+          bvhConfig.max_SpatialCount = Config3D.BVH_max_SpatialCount;
+          this._sceneRenderManager = new BVHSceneRenderManager(bvhConfig);
+          this._cullPass = new BVHCullPass();
+        }else{
+            this._sceneRenderManager = new SceneRenderManager();
+            this._cullPass = LayaGL.renderOBJCreate.createCullPass();
+        }
+        
+        //this._cullPass = LayaGL.renderOBJCreate.createCullPass();
 
         // if (Scene3D.octreeCulling)
         // 	this._octree = new BoundsOctree(Scene3D.octreeInitialSize, Scene3D.octreeInitialCenter, Scene3D.octreeMinNodeSize, Scene3D.octreeLooseness);
@@ -1076,7 +1075,7 @@ export class Scene3D extends Sprite implements ISubmit {
         let list = this._cullPass.cullList;
         let element = list.elements;
         for (let i: number = 0; i < list.length; i++) {
-            let render: BaseRender = element[i];
+            let render = element[i];
             render.distanceForSort = Vector3.distance(render.bounds.getCenter(), cameraPos);//TODO:合并计算浪费,或者合并后取平均值
             var elements: RenderElement[] = render._renderElements;
             for (var j: number = 0, m: number = elements.length; j < m; j++)
@@ -1091,7 +1090,7 @@ export class Scene3D extends Sprite implements ISubmit {
         let list = this._cullPass.cullList;
         let element = list.elements;
         for (let i: number = 0; i < list.length; i++) {
-            let render: BaseRender = element[i];
+            let render = element[i];
             render.distanceForSort = Vector3.distance(render.bounds.getCenter(), position);//TODO:合并计算浪费,或者合并后取平均值
             var elements: RenderElement[] = render._renderElements;
             for (var j: number = 0, m: number = elements.length; j < m; j++)
@@ -1105,7 +1104,7 @@ export class Scene3D extends Sprite implements ISubmit {
         let list = this._cullPass.cullList;
         let element = list.elements;
         for (var i: number = 0, n: number = list.length; i < n; i++) {
-            var render: BaseRender = element[i];
+            var render = element[i];
             render.distanceForSort = Vector3.distance(render.bounds.getCenter(), cameraCullInfo.position);
             var elements: RenderElement[] = render._renderElements;
             for (var j: number = 0, m: number = elements.length; j < m; j++)
@@ -1289,7 +1288,7 @@ export class Scene3D extends Sprite implements ISubmit {
     /**
      * @internal
      */
-    _addRenderObject(render: BaseRender): void {
+    _addRenderObject(render: any): void {
         // if (this._octree && render._supportOctree) {
         // 	this._octree.addRender(render);
         // } else {
@@ -1302,7 +1301,7 @@ export class Scene3D extends Sprite implements ISubmit {
     /**
      * @internal
      */
-    _removeRenderObject(render: BaseRender): void {
+    _removeRenderObject(render: any): void {
         // if (this._octree && render._supportOctree) {
         // 	this._octree.removeRender(render);
         // } else {

@@ -1,4 +1,3 @@
-import { SimpleSingletonList } from "../../../utils/SimpleSingletonList";
 import { SingletonList } from "../../../utils/SingletonList";
 import { BaseRender } from "../../core/render/BaseRender";
 import { Bounds } from "../../math/Bounds";
@@ -15,6 +14,6 @@ export interface IVolumeManager {
     remove(volume: Volume): void;
     _updateRenderObject(baseRender: BaseRender): void;
     handleMotionlist(motionObjects: SingletonList<BaseRender>): void;
-    reCaculateAllRenderObjects(baseRenders: SimpleSingletonList<BaseRender>): void;
+    reCaculateAllRenderObjects(baseRenders: SingletonList<BaseRender>): void;
     destroy(): void;
 }

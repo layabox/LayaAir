@@ -1,8 +1,7 @@
+import { ILaya3D } from "../../../../ILaya3D";
 import { LayaGL } from "../../../layagl/LayaGL";
-import { CommandUniformMap } from "../../../RenderEngine/CommandUniformMap";
 import { CompareFunction } from "../../../RenderEngine/RenderEnum/CompareFunction";
 import { CullMode } from "../../../RenderEngine/RenderEnum/CullMode";
-import { DefineDatas } from "../../../RenderEngine/RenderShader/DefineDatas";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { Camera } from "../../core/Camera";
 import { GeometryElement } from "../../core/GeometryElement";
@@ -119,7 +118,7 @@ export class SkyRenderer {
      */
     _render(context: RenderContext3D): void {
         if (this._material && this._mesh) {
-            var camera: Camera = context.camera;
+            var camera= context.camera;
             var scene: Scene3D = context.scene;
             var projectionMatrix: Matrix4x4 = SkyRenderer._tempMatrix1;
             if (camera.orthographic)
@@ -158,9 +157,9 @@ export class SkyRenderer {
             projectionMatrix.elements[11] = -1.0;
             projectionMatrix.elements[14] = -0;//znear无穷小
             if ((camera as any).isWebXR) {
-                (<Camera>camera)._applyViewProject(context, viewMatrix, camera.projectionMatrix);//TODO:优化 不应设置给Camera直接提交
+                camera._applyViewProject(context, viewMatrix, camera.projectionMatrix);//TODO:优化 不应设置给Camera直接提交
             } else {
-                (<Camera>camera)._applyViewProject(context, viewMatrix, projectionMatrix);//TODO:优化 不应设置给Camera直接提交
+                camera._applyViewProject(context, viewMatrix, projectionMatrix);//TODO:优化 不应设置给Camera直接提交
             }
 
             context._contextOBJ.applyContext(Camera._updateMark);

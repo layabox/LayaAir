@@ -8,7 +8,7 @@ import { ILaya } from "../../ILaya";
 import { Prefab } from "../resource/HierarchyResource";
 import { LegacyUIParser } from "../loaders/LegacyUIParser";
 import { NodeFlags } from "../Const";
-import { Scene3D } from "../d3/core/scene/Scene3D";
+import { ILaya3D } from "../../ILaya3D";
 
 /**
  * 场景类，负责场景创建，加载，销毁等功能
@@ -26,7 +26,7 @@ export class Scene extends Sprite {
     autoDestroyAtClosed: boolean = false;
     /**@internal */
     _idMap?: any;
-    _scene3D: Scene3D;
+    _scene3D:any;
 
     /**@private 相对布局组件*/
     protected _widget: Widget;
@@ -286,7 +286,7 @@ export class Scene extends Sprite {
         this._timer = value;
     }
 
-    get scene3D(): Scene3D {
+    get scene3D() {
         return this._scene3D;
     }
 
@@ -463,7 +463,7 @@ export class Scene extends Sprite {
 
             if (ret instanceof Scene)
                 scene = ret;
-            else if (ret instanceof Scene3D) {
+            else if (ret instanceof ILaya3D.Scene3D) {
                 scene = new Scene();
                 scene.left = scene.right = scene.top = scene.bottom = 0;
                 scene._scene3D = ret;

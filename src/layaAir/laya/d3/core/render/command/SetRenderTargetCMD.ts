@@ -1,8 +1,7 @@
 import { Command } from "./Command";
-import { LayaGL } from "../../../../layagl/LayaGL";
 import { RenderTexture } from "../../../resource/RenderTexture";
-import { Context } from "../../../../resource/Context";
 import { RenderContext3D } from "../RenderContext3D";
+import { ILaya3D } from "../../../../../ILaya3D";
 import { Camera } from "../../Camera";
 
 /**

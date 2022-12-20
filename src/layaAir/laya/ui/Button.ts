@@ -249,7 +249,6 @@ export class Button extends UIComponent implements ISelect {
      */
     protected createChildren(): void {
         this.graphics = new AutoBitmap();
-        this._ownGraphics = true;
     }
 
     /**@private */
@@ -310,9 +309,11 @@ export class Button extends UIComponent implements ISelect {
 
         this._skins.length = 0;
         if (value) {
+            let url = this._skinBaseUrl ? URL.formatURL(value, this._skinBaseUrl) : value;
+
             this._skins.push(value);
-            if (!Loader.getRes(value))
-                ILaya.loader.load(this._skinBaseUrl ? URL.formatURL(value, this._skinBaseUrl) : value, Handler.create(this, this._skinLoaded), null, Loader.IMAGE);
+            if (!Loader.getRes(url))
+                ILaya.loader.load(url, Handler.create(this, this._skinLoaded), null, Loader.IMAGE);
             else
                 this._skinLoaded();
         }

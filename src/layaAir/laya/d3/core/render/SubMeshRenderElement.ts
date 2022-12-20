@@ -1,10 +1,11 @@
+import { RenderElement } from "./RenderElement";
 import { Event } from "../../../events/Event";
 import { SubMesh } from "../../resource/models/SubMesh";
 import { GeometryElement } from "../GeometryElement";
 import { Transform3D } from "../Transform3D";
-import { RenderElement } from "./RenderElement";
 import { SingletonList } from "../../../utils/SingletonList";
 import { VertexDeclaration } from "../../../RenderEngine/VertexDeclaration";
+
 
 /**
  * @internal

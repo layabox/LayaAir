@@ -8,10 +8,29 @@ import { WrapMode } from "../../RenderEngine/RenderEnum/WrapMode";
 import { AssetDb } from "../../resource/AssetDb";
 import { Resource } from "../../resource/Resource";
 import { Byte } from "../../utils/Byte";
+import { Utils } from "../../utils/Utils";
 import { TextureCube } from "../resource/TextureCube";
 
+var internalResources: Record<string, TextureCube>;
+
 class CubemapLoader implements IResourceLoader {
+    constructor() {
+        if (!internalResources) {
+            internalResources = {
+                "WhiteTextureCube.ltc": TextureCube.whiteTexture,
+                "BlackTextureCube.ltc": TextureCube.blackTexture,
+                "GrayTextureCube.ltc": TextureCube.grayTexture,
+            };
+        }
+    }
+
     load(task: ILoadTask) {
+        if (task.url.indexOf("internal/") != -1) {
+            let tex = internalResources[Utils.getBaseName(task.url)];
+            if (tex)
+                return Promise.resolve(tex);
+        }
+
         if (task.ext == "ktx" || task.ext == "cubemap") {
             let url = task.url;
             if (task.ext == "cubemap")

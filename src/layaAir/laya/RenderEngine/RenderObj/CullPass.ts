@@ -12,7 +12,7 @@ import { Sprite3D } from "../../d3/core/Sprite3D";
 import { Vector3 } from "../../d3/math/Vector3";
 
 export class CullPassBase implements ICullPass {
-    private _cullList: SingletonList<BaseRender> = new SingletonList();
+    protected _cullList: SingletonList<BaseRender> = new SingletonList();
 
     get cullList(): SingletonList<BaseRender> {
         return this._cullList;

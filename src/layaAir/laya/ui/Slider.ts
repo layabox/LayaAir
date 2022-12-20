@@ -9,6 +9,7 @@ import { Handler } from "../utils/Handler"
 import { ILaya } from "../../ILaya";
 import { HideFlags } from "../Const";
 import { URL } from "../net/URL";
+import { AssetDb } from "../resource/AssetDb";
 
 /**
  * 移动滑块位置时调度。
@@ -244,37 +245,35 @@ export class Slider extends UIComponent {
             this._skin = value;
 
             if (this._skin) {
-                let url = this._skinBaseUrl ? URL.formatURL(this._skin, this._skinBaseUrl) : URL.formatURL(this._skin);
-
-                this._bg.skin = this._skin;
-                this._bar.skin = url.replace(".png", "$bar.png");
-
-                if (!Loader.getRes(this._skin))
-                    ILaya.loader.load([url, this._bar.skin], Handler.create(this, this._skinLoaded), null, Loader.IMAGE);
-                else
-                    this._skinLoaded();
+                let url = this._skinBaseUrl ? URL.formatURL(this._skin, this._skinBaseUrl) : this._skin;
+                AssetDb.inst.resolveURL(url, url => {
+                    ILaya.loader.load([url, url.replace(".png", "$bar.png")], Handler.create(this, this._skinLoaded, [url]), null, Loader.IMAGE);
+                });
             }
             else {
                 this._bg.skin = null;
                 this._bar.skin = null;
+                if (this._progress)
+                    this._progress.skin = null;
             }
         }
     }
 
-    protected _skinLoaded(): void {
-        if (this._skin) {
-            let url = this._skinBaseUrl ? URL.formatURL(this._skin, this._skinBaseUrl) : URL.formatURL(this._skin);
-            let progressSkin = url.replace(".png", "$progress.png");
-            if (Loader.getRes(progressSkin)) {
-                if (!this._progress) {
-                    this._progress = new Image();
-                    this._progress.hideFlags = HideFlags.HideAndDontSave;
-                    this._progress.sizeGrid = this._bar.sizeGrid;
-                    this.addChildAt(this._progress, 1);
-                }
-                this._progress.skin = progressSkin;
+    protected _skinLoaded(url: string): void {
+        this._bg.skin = url;
+        this._bar.skin = url.replace(".png", "$bar.png");
+
+        let progressSkin = url.replace(".png", "$progress.png");
+        if (Loader.getRes(progressSkin)) {
+            if (!this._progress) {
+                this._progress = new Image();
+                this._progress.hideFlags = HideFlags.HideAndDontSave;
+                this._progress.sizeGrid = this._bar.sizeGrid;
+                this.addChildAt(this._progress, 1);
             }
+            this._progress.skin = progressSkin;
         }
+
         this.setBarPoint();
         this.callLater(this.changeValue);
         this._sizeChanged();

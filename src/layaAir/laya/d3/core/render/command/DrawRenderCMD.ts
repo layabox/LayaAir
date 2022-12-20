@@ -1,5 +1,4 @@
-import { IRenderElement } from "../../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderElement";
-import { DefineDatas } from "../../../../RenderEngine/RenderShader/DefineDatas";
+import { ILaya3D } from "../../../../../ILaya3D";
 import { Camera } from "../../Camera";
 import { Material } from "../../material/Material";
 import { BaseRender } from "../BaseRender";

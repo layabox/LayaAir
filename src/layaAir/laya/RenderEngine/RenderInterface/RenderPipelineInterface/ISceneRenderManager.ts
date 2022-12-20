@@ -1,12 +1,12 @@
-import { SimpleSingletonList } from "../../../utils/SimpleSingletonList";
 import { BaseRender } from "../../../d3/core/render/BaseRender";
+import { SingletonList } from "../../../utils/SingletonList";
 
 /**
  * 可替换的SceneManager
  */
 export interface ISceneRenderManager {
 
-    list: SimpleSingletonList<BaseRender>;
+    list: SingletonList<BaseRender>;
 
     /**
      * add one BaseRender

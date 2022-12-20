@@ -1,7 +1,6 @@
 import { Scene3D } from "./laya/d3/core/scene/Scene3D";
 import { Laya3D } from "./Laya3D";
 import { Physics3D } from "./laya/d3/Physics3D";
-import { BaseRender } from "./laya/d3/core/render/BaseRender";
 
 /**
  * @internal

@@ -596,6 +596,23 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
     }
 
+    initVideoTextureData(texture: WebGLInternalTex){
+        let target = texture.target;
+        let internalFormat = texture.internalFormat;
+        let format = texture.format;
+        let type = texture.type;
+        let width = texture.width;
+        let height = texture.height;
+        let gl = texture._gl;
+        this._engine._bindTexture(texture.target, texture.resource);
+        gl.texImage2D(target, 0, texture.internalFormat, width, height, 0, format, type, null);
+        texture.gpuMemory = this.getGLtexMemory(texture);
+        if (texture.mipmap) {
+            gl.generateMipmap(texture.target);
+        }
+        this._engine._bindTexture(texture.target, null);
+    }
+
     setTexturePixelsData(texture: WebGLInternalTex, source: ArrayBufferView, premultiplyAlpha: boolean, invertY: boolean) {
         // todo check pixels size
 
@@ -1384,8 +1401,8 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
         this._engine._bindTexture(texture.target, texture.resource);
         // todo 用 sub 会慢
-        gl.texSubImage2D(target, 0, 0, 0, format, type, video);
-        //gl.texImage2D(target, 0, internalFormat, format, type, video);
+        //gl.texSubImage2D(target, 0, 0, 0, format, type, video);
+        gl.texImage2D(target, 0, internalFormat, format, type, video);
 
         this._engine._bindTexture(texture.target, null);
 

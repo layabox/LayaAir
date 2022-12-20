@@ -116,7 +116,6 @@ export class Image extends UIComponent {
      */
     protected createChildren(): void {
         this.graphics = new AutoBitmap();
-        this._ownGraphics = true;
     }
 
     /**
@@ -136,12 +135,12 @@ export class Image extends UIComponent {
 
         this._skin = value;
         if (value) {
-            let source = Loader.getRes(value);
+            let url = this._skinBaseUrl ? URL.formatURL(this._skin, this._skinBaseUrl) : this._skin;
+            let source = Loader.getRes(url);
             if (source) {
                 this.source = source;
                 this.onCompResize();
             } else {
-                let url = this._skinBaseUrl ? URL.formatURL(this._skin, this._skinBaseUrl) : this._skin;
                 ILaya.loader.load(url,
                     Handler.create(this, this.setSource, [this._skin]), null, Loader.IMAGE, 1, true, this._group);
             }

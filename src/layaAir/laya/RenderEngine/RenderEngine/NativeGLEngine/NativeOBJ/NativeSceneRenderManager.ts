@@ -1,11 +1,11 @@
-import { SimpleSingletonList } from "../../../../utils/SimpleSingletonList";
+
 import { SingletonList } from "../../../../utils/SingletonList";
 import { BaseRender } from "../../../../d3/core/render/BaseRender";
 import { ISceneRenderManager } from "../../../RenderInterface/RenderPipelineInterface/ISceneRenderManager";
 
 export class NativeSceneRenderManager implements ISceneRenderManager {
     /** @internal */
-    _renders: SimpleSingletonList<BaseRender> = new SimpleSingletonList();
+    _renders: SingletonList<BaseRender> = new SingletonList();
     //自定义更新的Bounds渲染节点
     _customUpdateList: SingletonList<BaseRender> = new SingletonList();
     //自定义裁剪的渲染节点

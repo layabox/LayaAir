@@ -1,9 +1,6 @@
 import { LayaGL } from "../../../layagl/LayaGL";
-import { Stat } from "../../../utils/Stat";
 import { GeometryElement } from "../../core/GeometryElement";
 import { RenderContext3D } from "../../core/render/RenderContext3D";
-import { SkinnedMeshRenderer } from "../../core/SkinnedMeshRenderer";
-import { SkinnedMeshSprite3D } from "../../core/SkinnedMeshSprite3D";
 import { IndexBuffer3D } from "../../graphics/IndexBuffer3D";
 import { VertexBuffer3D } from "../../graphics/VertexBuffer3D";
 import { Mesh } from "./Mesh";
@@ -11,6 +8,7 @@ import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
 import { MeshTopology } from "../../../RenderEngine/RenderEnum/RenderPologyMode";
 import { DrawType } from "../../../RenderEngine/RenderEnum/DrawType";
 import { IndexFormat } from "../../../RenderEngine/RenderEnum/IndexFormat";
+import { SkinnedMeshRenderer } from "../../core/SkinnedMeshRenderer";
 
 
 /**
@@ -112,7 +110,7 @@ export class SubMesh extends GeometryElement {
 	_updateRenderParams(state: RenderContext3D): void {
 		var mesh: Mesh = this._mesh;
 
-		var skinnedDatas: any[] = (state.renderElement && !!(<SkinnedMeshRenderer>state.renderElement.render)) ? (<SkinnedMeshRenderer>state.renderElement.render)._skinnedData : null;
+		var skinnedDatas: any[] = (state.renderElement && !!(state.renderElement.render)) ? (<SkinnedMeshRenderer>state.renderElement.render)._skinnedData : null;
 		var byteCount: number;
 		switch (mesh.indexFormat) {
 			case IndexFormat.UInt32:
