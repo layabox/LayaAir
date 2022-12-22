@@ -2,6 +2,7 @@ import { AnimatorController2D } from "../components/AnimatorController2D";
 import { TypeAnimatorState } from "../components/AnimatorControllerParse";
 import { AnimatorController } from "../d3/component/Animator/AnimatorController";
 import { ILoadTask, IResourceLoader, Loader } from "../net/Loader";
+import { URL } from "../net/URL";
 
 class AnimationControllerLoader implements IResourceLoader {
     load(task: ILoadTask) {
@@ -27,9 +28,14 @@ class AnimationControllerLoader implements IResourceLoader {
     loadStates(states: TypeAnimatorState[], promises: Array<any>, task: ILoadTask) {
         for (let j = states.length - 1; j >= 0; j--) {
             if (states[j].clip && states[j].clip._$uuid) {
-                promises.push(task.loader.load("res://" + states[j].clip._$uuid).then(res => {
+                let url = URL.getResURLByUUID(states[j].clip._$uuid);
+                promises.push(task.loader.load(url).then(res => {
                     states[j].clip = res;
                 }));
+
+                // promises.push(task.loader.load("res://" + states[j].clip._$uuid).then(res => {
+                //     states[j].clip = res;
+                // }));
             }
 
             if (states[j].states) {
