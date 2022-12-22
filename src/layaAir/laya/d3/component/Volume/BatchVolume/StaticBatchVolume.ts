@@ -281,6 +281,11 @@ export class StaticBatchVolume extends Volume {
         }
     }
 
+    _VolumeChange(){
+        super._VolumeChange();
+        this._cacheRender.clear();
+    }
+
     onStart(){
         this.reBatch();
     }
