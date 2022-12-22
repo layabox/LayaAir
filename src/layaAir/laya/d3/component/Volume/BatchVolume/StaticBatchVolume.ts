@@ -287,14 +287,11 @@ export class StaticBatchVolume extends Volume {
     _VolumeChange() {
         super._VolumeChange();
         this._cacheRender.clear();
-
     }
 
     onStart() {
         this.reBatch();
     }
-
-
 
     /**
      * 重新合批,将清理前面状态
