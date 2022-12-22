@@ -7,7 +7,7 @@
 ## 如何使用源码
 安装依赖
 npm install
-编译
+编译aa
 npm run start
 build
 npm run build
