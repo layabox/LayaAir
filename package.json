@@ -18,8 +18,9 @@
     },
     "author": "Layabox Inc.",
     "license": "SEE LICENSE IN LICENSE.md",
-    "dependencies": {},
     "devDependencies": {
+        "@commitlint/cli": "^17.3.0",
+        "@commitlint/config-conventional": "^17.3.0",
         "chokidar": "^3.5.1",
         "copy-and-watch": "^0.1.6",
         "copyfiles": "^2.4.1",
@@ -32,6 +33,7 @@
         "gulp-sourcemaps": "^3.0.0",
         "gulp-typescript": "^6.0.0-alpha.1",
         "gulp-uglify-es": "^2.0.0",
+        "husky": "^8.0.2",
         "iconv-lite": "^0.5.0",
         "matched": "^4.0.0",
         "merge2": "^1.4.1",
