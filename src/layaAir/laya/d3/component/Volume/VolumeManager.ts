@@ -82,27 +82,19 @@ export class VolumeManager implements IVolumeManager {
      * @param baseRender 
      */
     _updateRenderObject(baseRender: BaseRender): void {
-        var elements: Volume[] = this._volumeList.elements;
+        let elements: Volume[] = this._volumeList.elements;
 
-        var renderBounds: Bounds = baseRender.bounds;
-        var mainVolume: Volume;
-        var maxOverlap: number = 0;
-        var overlop;
+        let renderBounds: Bounds = baseRender.bounds;
+        let center = renderBounds.getCenter();
+        let mainVolume: Volume;
         for (var i: number = 0, n: number = this._volumeList.length; i < n; i++) {
-            //检测周围盒子 优化TODO
-            var volume = elements[i];
-            if (!mainVolume) {
-                overlop = renderBounds.calculateBoundsintersection(volume.bounds);
-                if (overlop < maxOverlap) continue;
-            } else {
-                if (mainVolume.importance > volume.importance) continue;//重要性判断
-                overlop = renderBounds.calculateBoundsintersection(volume.bounds);
-                if (overlop < maxOverlap && mainVolume.importance == volume.importance) continue;
+            let volume = elements[i];
+            let bounds = volume.bounds;
+            if(Bounds.containPoint(bounds,center)){
+                mainVolume = volume;
+                continue;
             }
-            mainVolume = volume;
-            maxOverlap = overlop;
         }
-
         baseRender.volume = mainVolume;
     }
     /**

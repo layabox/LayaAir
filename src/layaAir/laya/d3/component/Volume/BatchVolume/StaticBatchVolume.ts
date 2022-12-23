@@ -40,18 +40,18 @@ export class StaticBatchVolume extends Volume {
     private _customBatchs: BatchRender[] = [];
 
 
-    private _getStaticInstanceBatchRender():StaticInstanceBatchRender{
-        let render =(this.owner as Sprite3D).getComponent(StaticInstanceBatchRender);
-        if(!render){
+    private _getStaticInstanceBatchRender(): StaticInstanceBatchRender {
+        let render = (this.owner as Sprite3D).getComponent(StaticInstanceBatchRender);
+        if (!render) {
             render = (this.owner as Sprite3D).addComponent(StaticInstanceBatchRender) as StaticInstanceBatchRender;
         }
         return render;
-        
+
     }
 
-    private _getStatiVertexMergeBatchRender():StatiVertexMergeBatchRender{
-        let render =(this.owner as Sprite3D).getComponent(StatiVertexMergeBatchRender);
-        if(!render){
+    private _getStatiVertexMergeBatchRender(): StatiVertexMergeBatchRender {
+        let render = (this.owner as Sprite3D).getComponent(StatiVertexMergeBatchRender);
+        if (!render) {
             render = (this.owner as Sprite3D).addComponent(StatiVertexMergeBatchRender) as StatiVertexMergeBatchRender;
         }
         return render;
@@ -88,7 +88,7 @@ export class StaticBatchVolume extends Volume {
 
     set enableStaticInstanceBatchRender(value: boolean) {
         if (!this._instanceBatchRender && value) {
-            this._instanceBatchRender =this._getStaticInstanceBatchRender();
+            this._instanceBatchRender = this._getStaticInstanceBatchRender();
         }
         if (value == this._enableStaticInstanceBatch)
             return;
@@ -281,12 +281,15 @@ export class StaticBatchVolume extends Volume {
         }
     }
 
-    _VolumeChange(){
+    /**
+     * Volume change
+     */
+    _VolumeChange() {
         super._VolumeChange();
         this._cacheRender.clear();
     }
 
-    onStart(){
+    onStart() {
         this.reBatch();
     }
 

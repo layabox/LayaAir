@@ -144,6 +144,9 @@ export class Volume extends Component {
     _motionInVolume?(renderNode: BaseRender): void;
 
 
+    /**
+     * Volume change
+     */
     _VolumeChange() {
         this._volumeManager._needUpdateAllRender = true;
         this._reCaculateBoundBox();
