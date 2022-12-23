@@ -42,7 +42,6 @@ import { BlinnPhong_SpecularMap } from "../3d/LayaAir3D_Material/BlinnPhong_Spec
 import { EffectMaterialDemo } from "../3d/LayaAir3D_Material/EffectMaterialDemo";
 import { MaterialDemo } from "../3d/LayaAir3D_Material/MaterialDemo";
 import { UnlitMaterialDemo } from "../3d/LayaAir3D_Material/UnlitMaterialDemo";
-import { WaterPrimaryMaterialDemo } from "../3d/LayaAir3D_Material/WaterPrimaryMaterialDemo";
 import { ChangeMesh } from "../3d/LayaAir3D_Mesh/ChangeMesh";
 import { CustomMesh } from "../3d/LayaAir3D_Mesh/CustomMesh";
 import { MeshLoad } from "../3d/LayaAir3D_Mesh/MeshLoad";
@@ -88,7 +87,6 @@ import { TrailDemo } from "../3d/LayaAir3D_Trail/TrailDemo";
 import { TrailRender } from "../3d/LayaAir3D_Trail/TrailRender";
 import { IndexViewUI } from "../ui/IndexViewUI";
 import { PostProcessBloom } from "../3d/LayaAir3D_PostProcess/PostProcessBloom";
-import { AStarFindPath } from "../3d/LayaAir3D_Advance/AStarFindPath";
 import { MultiLight } from "../3d/LayaAir3D_Lighting/MultiLight";
 import { PBRMaterialDemo } from "../3d/LayaAir3D_Material/PBRMaterialDemo";
 import { DamagedHelmetModelShow } from "../3d/LayaAir3D_Demo/DamagedHelmetModelShow";
