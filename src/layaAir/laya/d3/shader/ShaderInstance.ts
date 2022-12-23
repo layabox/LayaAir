@@ -277,13 +277,11 @@ export class ShaderInstance {
 		var datas: any = shaderDatas.getData();
 		var cull: any = this._getRenderState(datas, Shader3D.RENDER_STATE_CULL);
 		if ((<ShaderPass>this._shaderPass).statefirst) {
-			renderState.cull != null ? cull = renderState.cull : 0;
+			cull = renderState.cull ?? RenderState.Default.cull;
 		}
 		else {
-			cull = cull ?? RenderState.Default.blend;
+			cull = cull ?? RenderState.Default.cull;
 		}
-
-		cull = cull ?? RenderState.Default.blend;
 
 		var forntFace: number;
 		switch (cull) {
