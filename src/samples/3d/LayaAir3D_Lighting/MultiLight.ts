@@ -40,8 +40,6 @@ class LightMoveScript extends Script {
 export class MultiLight {
 
 	constructor() {
-		// Config3D.maxLightCount = 16;
-		Config3D.useCannonPhysics = false;
 		Laya3D.init(0, 0);
 		Laya.stage.scaleMode = Stage.SCALE_FULL;
 		Laya.stage.screenMode = Stage.SCREEN_NONE;

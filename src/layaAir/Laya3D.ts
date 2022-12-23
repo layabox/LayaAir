@@ -59,7 +59,6 @@ import { RenderCapable } from "./laya/RenderEngine/RenderEnum/RenderCapable";
 import { Shader3D } from "./laya/RenderEngine/RenderShader/Shader3D";
 import { BlitFrameBufferCMD } from "./laya/d3/core/render/command/BlitFrameBufferCMD";
 import { SkyRenderer } from "./laya/d3/resource/models/SkyRenderer";
-import { CannonPhysicsSettings } from "./laya/d3/physicsCannon/CannonPhysicsSettings";
 import { SubShader } from "./laya/d3/shader/SubShader";
 import { SkyPanoramicMaterial } from "./laya/d3/core/material/SkyPanoramicMaterial";
 import { BloomEffect } from "./laya/d3/core/render/PostEffect/BloomEffect";
@@ -125,9 +124,6 @@ export class Laya3D {
         ILaya3D.Scene3D = Scene3D;
         ILaya3D.Laya3D = Laya3D;
         ILaya3D.Physics3D = Physics3D;
-
-        if (Config3D.useCannonPhysics)
-            Physics3D.__cannoninit__();
 
         Physics3D.__bulletinit__();
         SubShader.__init__();
@@ -236,7 +232,7 @@ export class Laya3D {
         Laya3D._isInit = true;
 
         var physics3D: Function = (window as any).Physics3D;
-        if (physics3D == null || Config3D.useCannonPhysics) {
+        if (physics3D == null) {
             Physics3D._enablePhysics = false;
             Laya3D.__init__(width, height);
             complete && complete.run();
@@ -248,13 +244,6 @@ export class Laya3D {
                 complete && complete.run();
             });
         }
-    }
-
-    static useCannonPhysics() {
-        Config3D.useCannonPhysics = true;
-        Physics3D.__cannoninit__();
-        if (!Scene3D.cannonPhysicsSettings)
-            Scene3D.cannonPhysicsSettings = new CannonPhysicsSettings();
     }
 }
 

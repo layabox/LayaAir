@@ -13,7 +13,6 @@ import { Rigidbody3D } from "laya/d3/physics/Rigidbody3D";
 import { FixedConstraint } from "laya/d3/physics/constraints/FixedConstraint";
 import { BoxColliderShape } from "laya/d3/physics/shape/BoxColliderShape";
 import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
-import { Config3D } from "Config3D";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
 import { Color } from "laya/d3/math/Color";
 import { Script } from "laya/components/Script";
@@ -23,7 +22,6 @@ export class PhysicsWorld_ConstraintFixedJoint {
 	private scene: Scene3D;
 	private camera: Camera;
 	constructor() {
-		Config3D.useCannonPhysics = false;
 		Laya3D.init(0, 0, null, Handler.create(this, () => {
 			Laya.stage.scaleMode = Stage.SCALE_FULL;
 			Laya.stage.screenMode = Stage.SCREEN_NONE;

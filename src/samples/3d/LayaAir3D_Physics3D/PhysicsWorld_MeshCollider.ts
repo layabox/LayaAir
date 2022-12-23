@@ -29,12 +29,10 @@ import { Color } from "laya/d3/math/Color";
 export class PhysicsWorld_MeshCollider {
 
 	private scene: Scene3D;
-	private tmpVector: Vector3 = new Vector3(0, 0, 0);
 	private mat1: BlinnPhongMaterial;
 	private mat2: BlinnPhongMaterial;
 	private mat3: BlinnPhongMaterial;
 	constructor() {
-		Config3D.useCannonPhysics = false;
 		Laya3D.init(0, 0, null, Handler.create(null, () => {
 			Laya.stage.scaleMode = Stage.SCALE_FULL;
 			Laya.stage.screenMode = Stage.SCREEN_NONE;

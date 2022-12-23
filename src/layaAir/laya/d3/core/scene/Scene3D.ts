@@ -30,9 +30,6 @@ import { RenderElement } from "../render/RenderElement";
 import { Lightmap } from "./Lightmap";
 import { Scene3DShaderDeclaration } from "./Scene3DShaderDeclaration";
 import { ShadowCasterPass } from "../../shadowMap/ShadowCasterPass";
-import { CannonPhysicsSimulation } from "../../physicsCannon/CannonPhysicsSimulation";
-import { CannonPhysicsSettings } from "../../physicsCannon/CannonPhysicsSettings";
-import { CannonPhysicsComponent } from "../../physicsCannon/CannonPhysicsComponent";
 import { Physics3D } from "../../Physics3D";
 import { BaseTexture } from "../../../resource/BaseTexture";
 import { BlitFrameBufferCMD } from "../render/command/BlitFrameBufferCMD";
@@ -88,8 +85,6 @@ export class Scene3D extends Sprite implements ISubmit {
     static _shadowCasterPass: ShadowCasterPass;
     /**@internal */
     static physicsSettings: PhysicsSettings;
-    /**@internal */
-    static cannonPhysicsSettings: CannonPhysicsSettings;
     /** reflection mode */
     static REFLECTIONMODE_SKYBOX: number = 0;
     static REFLECTIONMODE_CUSTOM: number = 1;
@@ -296,11 +291,7 @@ export class Scene3D extends Sprite implements ISubmit {
         if (Config3D._uniformBlock)
             configShaderValue.add(Shader3D.SHADERDEFINE_ENUNIFORMBLOCK);
 
-        if (Config3D.useCannonPhysics) {
-            Physics3D._cannon && (Scene3D.cannonPhysicsSettings = new CannonPhysicsSettings());
-        } else {
-            Physics3D._bullet && (Scene3D.physicsSettings = new PhysicsSettings());
-        }
+        Physics3D._bullet && (Scene3D.physicsSettings = new PhysicsSettings());
     }
 
     /**
@@ -373,8 +364,6 @@ export class Scene3D extends Sprite implements ISubmit {
     _physicsSimulation: PhysicsSimulation;
     /**@internal */
     _physicsdisableSimulation: boolean = false;
-    /** @internal */
-    _cannonPhysicsSimulation: CannonPhysicsSimulation;
     /** @internal 只读,不允许修改。*/
     _collsionTestList: number[] = [];
     /** @internal */
@@ -594,10 +583,6 @@ export class Scene3D extends Sprite implements ISubmit {
         return this._physicsSimulation;
     }
 
-    get cannonPhysicsSimulation(): CannonPhysicsSimulation {
-        return this._cannonPhysicsSimulation;
-    }
-
     /**
      * 场景时钟。
      * @override
@@ -653,11 +638,9 @@ export class Scene3D extends Sprite implements ISubmit {
         if (LayaEnv.isConch && !(window as any).conchConfig.conchWebGL) {
             this._nativeObj = new (window as any).conchSubmitScene3D(this.renderSubmit.bind(this));
         }
-        if (!Config3D.useCannonPhysics && Physics3D._bullet)
+        if (Physics3D._bullet)
             this._physicsSimulation = new PhysicsSimulation(Scene3D.physicsSettings);
-        else if (Physics3D._cannon) {
-            this._cannonPhysicsSimulation = new CannonPhysicsSimulation(Scene3D.cannonPhysicsSettings);
-        }
+
         this._shaderValues = LayaGL.renderOBJCreate.createShaderData(null);
         this._shaderValues._defineDatas.addDefineDatas(Shader3D._configDefineValues);
         if (Config3D._uniformBlock) {
@@ -735,7 +718,7 @@ export class Scene3D extends Sprite implements ISubmit {
         //Physics
         let simulation: PhysicsSimulation = this._physicsSimulation;
         if (LayaEnv.isPlaying) {
-            if (Physics3D._enablePhysics && !PhysicsSimulation.disableSimulation && !Config3D.useCannonPhysics) {
+            if (Physics3D._enablePhysics && !PhysicsSimulation.disableSimulation) {
                 simulation._updatePhysicsTransformFromRender();
                 PhysicsComponent._addUpdateList = false;//物理模拟器会触发_updateTransformComponent函数,不加入更新队列
                 //simulate physics
@@ -747,15 +730,6 @@ export class Scene3D extends Sprite implements ISubmit {
                 simulation._updateCollisions();
                 //send contact events
                 simulation.dispatchCollideEvent();
-            }
-            if (Physics3D._cannon && Config3D.useCannonPhysics) {
-                var cannonSimulation: CannonPhysicsSimulation = this._cannonPhysicsSimulation;
-                cannonSimulation._updatePhysicsTransformFromRender();
-                CannonPhysicsComponent._addUpdateList = false;
-                cannonSimulation._simulate(delta);
-                CannonPhysicsComponent._addUpdateList = true;
-                cannonSimulation._updateCollisions();
-                cannonSimulation.dispatchCollideEvent();
             }
         }
 

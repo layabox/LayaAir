@@ -45,7 +45,6 @@ export class PhysicsWorld_TriggerAndCollisionEvent {
 
 	constructor() {
 		//初始化引擎
-		Config3D.useCannonPhysics = false;
 		Laya3D.init(0, 0, null, Handler.create(null, () => {
 			Laya.stage.scaleMode = Stage.SCALE_FULL;
 			Laya.stage.screenMode = Stage.SCREEN_NONE;

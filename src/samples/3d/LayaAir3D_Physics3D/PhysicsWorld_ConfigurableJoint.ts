@@ -17,7 +17,6 @@ import { Texture2D } from "laya/resource/Texture2D";
 import { SphereColliderShape } from "laya/d3/physics/shape/SphereColliderShape";
 import { ConfigurableConstraint } from "laya/d3/physics/constraints/ConfigurableConstraint";
 import { CameraMoveScript } from "../common/CameraMoveScript";
-import { Config3D } from "Config3D";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 import { Color } from "laya/d3/math/Color";
 import { Matrix4x4 } from "laya/d3/math/Matrix4x4";
@@ -28,7 +27,6 @@ export class PhysicsWorld_ConfigurableJoint {
 	private scene: Scene3D;
 	private camera: Camera;
 	constructor() {
-		Config3D.useCannonPhysics = false;
 		Laya3D.init(0, 0, null, Handler.create(this, () => {
 			Laya.stage.scaleMode = Stage.SCALE_FULL;
 			Laya.stage.screenMode = Stage.SCREEN_NONE;

@@ -93,10 +93,6 @@ import { DamagedHelmetModelShow } from "../3d/LayaAir3D_Demo/DamagedHelmetModelS
 import { CerberusModelShow } from "../3d/LayaAir3D_Demo/CerberusModelShow";
 import { PhysicsWorld_ConstraintFixedJoint } from "../3d/LayaAir3D_Physics3D/PhysicsWorld_ConstraintFixedJoint";
 import { PhysicsWorld_ConfigurableJoint } from "../3d/LayaAir3D_Physics3D/PhysicsWorld_ConfigurableJoint";
-import { CannonPhysicsWorld_BaseCollider } from "../3d/LayaAir3D_CannonPhysics3D/CannonPhysicsWorld_BaseCollider";
-import { CannonPhysicsWorld_ColliderEvent } from "../3d/LayaAir3D_CannonPhysics3D/CannonPhysicsWorld_ColliderEvent";
-import { CannonPhysicsWorld_PhysicsProperty } from "../3d/LayaAir3D_CannonPhysics3D/CannonPhysicsWorld_PhysicsProperty";
-import { CannonPhysicsWorld_RayCheck } from "../3d/LayaAir3D_CannonPhysics3D/CannonPhysicsWorld_RayCheck";
 import { Config3D } from "Config3D";
 import { SpotLightShadowMap } from "../3d/LayaAir3D_Lighting/SpotLightShadowMap";
 import { VideoPlayIn3DWorld } from "../3d/LayaAir3D_Advance/VideoPlayIn3DWorld";
@@ -179,9 +175,6 @@ export class IndexView3D extends IndexViewUI {
 
 	private _physicsClsArr: any[] = [PhysicsWorld_BaseCollider, PhysicsWorld_BuildingBlocks, PhysicsWorld_Character, PhysicsWorld_CollisionFiflter, PhysicsWorld_CompoundCollider, PhysicsWorld_ContinueCollisionDetection, PhysicsWorld_Kinematic, PhysicsWorld_MeshCollider, PhysicsWorld_RayShapeCast, PhysicsWorld_TriggerAndCollisionEvent, PhysicsWorld_ConstraintFixedJoint, PhysicsWorld_ConfigurableJoint];
 	private _physicslArr: any[] = ['PhysicsWorld_BaseCollider', 'PhysicsWorld_BuildingBlocks', 'PhysicsWorld_Character', 'PhysicsWorld_CollisionFiflter', 'PhysicsWorld_CompoundCollider', 'PhysicsWorld_ContinueCollisionDetection', 'PhysicsWorld_Kinematic', 'PhysicsWorld_MeshCollider', 'PhysicsWorld_RayShapeCast', 'PhysicsWorld_TriggerAndCollisionEvent', 'PhysicsWorld_ConstraintFixedJoint', 'PhysicsWorld_ConfigurableJoint'];
-
-	private _cannonPhysicsClsArr: any[] = [CannonPhysicsWorld_BaseCollider, CannonPhysicsWorld_ColliderEvent, CannonPhysicsWorld_PhysicsProperty, CannonPhysicsWorld_RayCheck, ];
-	private _cannonPhysicslArr: any[] = ['CannonPhysicsWorld_BaseCollider', 'CannonPhysicsWorld_ColliderEvent', 'CannonPhysicsWorld_PhysicsProperty', 'CannonPhysicsWorld_RayCheck'];
 
 	//LoadResourceDemo需要换一下示例，LoadGltfResource需要谷主查一下
 
@@ -344,7 +337,6 @@ export class IndexView3D extends IndexViewUI {
 		else {
 
 			var _comboxBigArr2: any[] = ['Resource', 'Scene3D', 'Camera', 'Lighting', 'Sprite3D', 'Mesh', 'Material', 'Texture', 'Animation3D', 'Physics3D','CannonPhysics3D', 'MouseLnteraction', 'Script', 'Sky', 'Particle3D', 'Trail', 'Shader', 'Performance', 'Advance', 'Demo','PostProcess','WebXR'];
-			Config3D.useCannonPhysics = false;
 			switch (this._bigIndex) {
 				case 0:
 					this._oldView = new this._resourceClsArr[index];
@@ -387,50 +379,46 @@ export class IndexView3D extends IndexViewUI {
 					this.b_length = this._physicsClsArr.length - 1;
 					break;
 				case 10:
-					this._oldView = new this._cannonPhysicsClsArr[index];
-					this.b_length = this._cannonPhysicsClsArr.length - 1;
-					break;
-				case 11:
 					this._oldView = new this._mouseLnteractionClsArr[index];
 					this.b_length = this._mouseLnteractionClsArr.length - 1;
 					break;
-				case 12:
+				case 11:
 					this._oldView = new this._scriptClsArr[index];
 					this.b_length = this._scriptClsArr.length - 1;
 					break;
-				case 13:
+				case 12:
 					this._oldView = new this._skyClsArr[index];
 					this.b_length = this._skyClsArr.length - 1;
 					break;
-				case 14:
+				case 13:
 					this._oldView = new this._particleClsArr[index];
 					this.b_length = this._particleClsArr.length - 1;
 					break;
-				case 15:
+				case 14:
 					this._oldView = new this._trailClsArr[index];
 					this.b_length = this._trailClsArr.length - 1;
 					break;
-				case 16:
+				case 15:
 					this._oldView = new this._shaderClsArr[index];
 					this.b_length = this._shaderClsArr.length - 1;
 					break;
-				case 17:
+				case 16:
 					this._oldView = new this._performanceClsArr[index];
 					this.b_length = this._performanceClsArr.length - 1;
 					break;
-				case 18:
+				case 17:
 					this._oldView = new this._advanceClsArr[index];
 					this.b_length = this._advanceClsArr.length - 1;
 					break;
-				case 19:
+				case 18:
 					this._oldView = new this._demoClsArr[index];
 					this.b_length = this._demoClsArr.length - 1;
 					break;
-				case 20:
+				case 19:
 					this._oldView = new this._postProcessClsArr[index];
 					this.b_length = this._postProcessClsArr.length-1;
 					break;
-				case 21:
+				case 20:
 					this._oldView = new this._webXRClsArr[index];
 					this.b_length = this._webXRClsArr.length-1;
 					break;
@@ -520,44 +508,38 @@ export class IndexView3D extends IndexViewUI {
 					labelStr = this._physicslArr.toString();
 					break;
 				case 10:
-					labelStr = this._cannonPhysicslArr.toString();
-					break;
-				case 11:
 					labelStr = this._mouseLnteractionArr.toString();
 					break;
-				case 12:
+				case 11:
 					labelStr = this._scriptArr.toString();
 					break;
-				case 13:
+				case 12:
 					labelStr = this._skyArr.toString();
 					break;
-				case 14:
+				case 13:
 					labelStr = this._particleArr.toString();
 					break;
-				case 15:
+				case 14:
 					labelStr = this._trailArr.toString();
 					break;
-				case 16:
+				case 15:
 					labelStr = this._shaderArr.toString();
 					break;
-				case 17:
+				case 16:
 					labelStr = this._performanceArr.toString();
 					break;
-				case 18:
+				case 17:
 					labelStr = this._advanceArr.toString();
 					break;
-				case 19:
+				case 18:
 					labelStr = this._demoArr.toString();
 					break;
-				case 20:
+				case 19:
 					labelStr = this._postProcessArr.toString();
 					break;
-				case 21:
+				case 20:
 					labelStr = this._WebXRArr.toString();
 					break;
-				// case 19: //advanced
-				// 	labelStr = this._testPerformanceArr.toString();
-				// 	break;
 				default:
 					break;
 			}

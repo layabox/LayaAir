@@ -57,9 +57,6 @@ export class Config3D {
         Config3D._resoluHeight = height;
     }
 
-    /** 是否使用CANNONJS物理引擎  TODO delete*/
-    static useCannonPhysics: boolean = false;
-
     /**BVHRenderConfig */
     /**是否使用BVH裁剪 */
     static useBVHCull: boolean = false;
