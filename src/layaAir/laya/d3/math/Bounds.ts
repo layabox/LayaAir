@@ -20,6 +20,23 @@ export class Bounds implements IClone {
         out.min = out.min;
         out.max = out.max;
     }
+
+    /**
+     * 包围盒是否包含点
+     * @param box 
+     * @param point 
+     * @returns 
+     */
+    static containPoint(box: Bounds, point: Vector3): boolean {
+        let max = box.getMax();
+        let min = box.getMin();
+        if (point.x > max.x || point.x < min.x) return false;
+        if (point.y > max.y || point.y < min.y) return false;
+        if (point.z > max.z || point.z < min.z) return false;
+        return true;
+    }
+
+
     /**@internal */
     static _UPDATE_MIN: number = 0x01;
     /**@internal */
