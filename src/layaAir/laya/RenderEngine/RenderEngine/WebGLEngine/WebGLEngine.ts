@@ -1,7 +1,7 @@
 import { LayaEnv } from "../../../../LayaEnv";
-import { Color } from "../../../d3/math/Color";
-import { Vector4 } from "../../../d3/math/Vector4";
 import { CommandEncoder } from "../../../layagl/CommandEncoder";
+import { Color } from "../../../maths/Color";
+import { Vector4 } from "../../../maths/Vector4";
 import { BaseTexture } from "../../../resource/BaseTexture";
 import { BufferTargetType, BufferUsage } from "../../RenderEnum/BufferTargetType";
 import { RenderCapable } from "../../RenderEnum/RenderCapable";
@@ -16,7 +16,6 @@ import { IRenderOBJCreate } from "../../RenderInterface/IRenderOBJCreate";
 import { IRenderShaderInstance } from "../../RenderInterface/IRenderShaderInstance";
 import { IRenderVertexState } from "../../RenderInterface/IRenderVertexState";
 import { ITextureContext } from "../../RenderInterface/ITextureContext";
-import { RenderOBJCreateUtil } from "../../RenderObj/RenderOBJCreateUtil";
 import { ShaderDataType } from "../../RenderShader/ShaderData";
 import { ShaderVariable } from "../../RenderShader/ShaderVariable";
 import { RenderStateCommand } from "../../RenderStateCommand";
@@ -50,6 +49,8 @@ export class WebGLEngine implements IRenderEngine {
     private _propertyNameMap: any = {};
     /**@internal */
     private _propertyNameCounter: number = 0;
+    /**@internal */
+    _renderOBJCreateContext:IRenderOBJCreate;
 
     /**@internal */
     _IDCounter: number = 0;
@@ -409,7 +410,7 @@ export class WebGLEngine implements IRenderEngine {
     }
 
     getCreateRenderOBJContext(): IRenderOBJCreate {
-        return new RenderOBJCreateUtil();
+        return this._renderOBJCreateContext;
     }
 
     // //TODO:
@@ -466,6 +467,10 @@ export class WebGLEngine implements IRenderEngine {
         if (one && data != null)
             shaderCall += one.fun.call(one.caller, one, data);
         return shaderCall;
+    }
+
+    createRenderStateComand():RenderStateCommand{
+        return new RenderStateCommand();
     }
 
 }

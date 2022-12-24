@@ -1,12 +1,11 @@
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
-import { AttributeMapType, SubShader } from "../SubShader";
 import { ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData";
-import { VertexMesh } from "../../graphics/Vertex/VertexMesh";
-
 import SkyboxVS from "./SkyBox.vs";
 import SkyboxFS from "./SkyBox.fs";
-import { Color } from "../../math/Color";
-import { RenderState } from "../../core/material/RenderState";
+import { Color } from "../../../maths/Color";
+import { AttributeMapType, SubShader } from "../../../RenderEngine/RenderShader/SubShader";
+import { RenderState } from "../../../RenderEngine/RenderShader/RenderState";
+import { VertexMesh } from "../../../RenderEngine/RenderShader/VertexMesh";
 
 export class SkyBoxShaderInit {
 

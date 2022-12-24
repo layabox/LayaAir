@@ -1,9 +1,9 @@
 import { VertexShuriKenParticle } from "./VertexShuriKenParticle";
-import { VertexElement } from "../VertexElement"
-import { VertexElementFormat } from "../VertexElementFormat"
-import { Vector3 } from "../../math/Vector3"
-import { Vector4 } from "../../math/Vector4"
 import { VertexDeclaration } from "../../../RenderEngine/VertexDeclaration";
+import { Vector3 } from "../../../maths/Vector3";
+import { Vector4 } from "../../../maths/Vector4";
+import { VertexElementFormat } from "../../../renders/VertexElementFormat";
+import { VertexElement } from "../../../renders/VertexElement";
 
 /**
  * @internal

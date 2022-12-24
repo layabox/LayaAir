@@ -1,13 +1,7 @@
 import { PostProcessEffect } from "laya/d3/core/render/PostProcessEffect";
-import { VertexMesh } from "laya/d3/graphics/Vertex/VertexMesh";
 import { PostProcessRenderContext } from "laya/d3/core/render/PostProcessRenderContext";
-import { SubShader } from "laya/d3/shader/SubShader";
-import { RenderState } from "laya/d3/core/material/RenderState";
-import { ShaderPass } from "laya/d3/shader/ShaderPass";
 import { CommandBuffer } from "laya/d3/core/render/command/CommandBuffer";
 import { Viewport } from "laya/d3/math/Viewport";
-import { RenderTexture } from "laya/d3/resource/RenderTexture";
-import { Vector4 } from "laya/d3/math/Vector4";
 import BlurVS from "./Blur.vs";
 import BlurHorizentalFS from "./BlurHorizontal.fs";
 import BlurVerticalFS from "./BlurVertical.fs";
@@ -22,6 +16,12 @@ import { RenderTargetFormat } from "laya/RenderEngine/RenderEnum/RenderTargetFor
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 import { ShaderData, ShaderDataType } from "laya/RenderEngine/RenderShader/ShaderData";
 import { LayaGL } from "laya/layagl/LayaGL";
+import { Vector4 } from "laya/maths/Vector4";
+import { RenderTexture } from "laya/resource/RenderTexture";
+import { RenderState } from "laya/RenderEngine/RenderShader/RenderState";
+import { ShaderPass } from "laya/RenderEngine/RenderShader/ShaderPass";
+import { SubShader } from "laya/RenderEngine/RenderShader/SubShader";
+import { VertexMesh } from "laya/RenderEngine/RenderShader/VertexMesh";
 export class BlurEffect extends PostProcessEffect {
 
     static BLUR_TYPE_GaussianBlur: number = 0;

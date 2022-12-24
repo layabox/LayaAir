@@ -1,7 +1,7 @@
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
 import { ColliderShape } from "./ColliderShape";
 import { ILaya3D } from "../../../../ILaya3D";
+import { Quaternion } from "../../../maths/Quaternion";
+import { Vector3 } from "../../../maths/Vector3";
 
 /**
  * <code>CompoundColliderShape</code> 类用于创建组合碰撞器。

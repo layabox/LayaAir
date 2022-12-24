@@ -17,7 +17,7 @@
  *  
  */
 
-import { Vector4 } from "../d3/math/Vector4";
+import { Vector4 } from "../maths/Vector4";
 import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
 import { Texture2D } from "../resource/Texture2D";
 

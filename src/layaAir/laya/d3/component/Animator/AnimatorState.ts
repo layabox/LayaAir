@@ -1,12 +1,12 @@
 import { EventDispatcher } from "../../../events/EventDispatcher";
+import { Quaternion } from "../../../maths/Quaternion";
+import { Vector2 } from "../../../maths/Vector2";
+import { Vector3 } from "../../../maths/Vector3";
+import { Vector4 } from "../../../maths/Vector4";
 import { IClone } from "../../../utils/IClone";
 import { AnimationClip } from "../../animation/AnimationClip";
 import { AnimatorStateScript } from "../../animation/AnimatorStateScript";
 import { KeyframeNodeList } from "../../animation/KeyframeNodeList";
-import { Quaternion } from "../../math/Quaternion";
-import { Vector2 } from "../../math/Vector2";
-import { Vector3 } from "../../math/Vector3";
-import { Vector4 } from "../../math/Vector4";
 import { AnimatorParams } from "./Animator";
 import { AnimatorTransition } from "./AnimatorTransition";
 import { KeyframeNodeOwner, KeyFrameValueType } from "./KeyframeNodeOwner";

@@ -1,6 +1,4 @@
-import { Quaternion } from "../math/Quaternion";
 import { Ray } from "../math/Ray";
-import { Vector3 } from "../math/Vector3";
 import { Physics3DUtils } from "../utils/Physics3DUtils";
 import { CharacterController } from "./CharacterController";
 import { PhysicsUpdateList } from "./PhysicsUpdateList";
@@ -19,6 +17,8 @@ import { ILaya3D } from "../../../ILaya3D";
 import { RaycastVehicle } from "./RaycastVehicle";
 import { NodeFlags } from "../../Const";
 import { Event } from "../../events/Event";
+import { Quaternion } from "../../maths/Quaternion";
+import { Vector3 } from "../../maths/Vector3";
 
 /**
  * <code>Simulation</code> 类用于创建物理模拟器。

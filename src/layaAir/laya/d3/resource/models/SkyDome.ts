@@ -1,4 +1,3 @@
-import { BufferState } from "../../core/BufferState"
 import { VertexPositionTexture0 } from "../../graphics/Vertex/VertexPositionTexture0"
 import { LayaGL } from "../../../layagl/LayaGL"
 import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
@@ -8,6 +7,7 @@ import { GeometryElement } from "../../core/GeometryElement";
 import { DrawType } from "../../../RenderEngine/RenderEnum/DrawType";
 import { RenderContext3D } from "../../core/render/RenderContext3D";
 import { IndexFormat } from "../../../RenderEngine/RenderEnum/IndexFormat";
+import { BufferState } from "../../../webgl/utils/BufferState";
 
 /**
  * <code>SkyDome</code> 类用于创建天空盒。

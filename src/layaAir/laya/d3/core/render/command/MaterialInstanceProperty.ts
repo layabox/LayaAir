@@ -1,10 +1,10 @@
 import { LayaGL } from "../../../../layagl/LayaGL";
+import { Vector2 } from "../../../../maths/Vector2";
+import { Vector3 } from "../../../../maths/Vector3";
+import { Vector4 } from "../../../../maths/Vector4";
 import { BufferUsage } from "../../../../RenderEngine/RenderEnum/BufferTargetType";
 import { VertexDeclaration } from "../../../../RenderEngine/VertexDeclaration";
 import { VertexBuffer3D } from "../../../graphics/VertexBuffer3D";
-import { Vector2 } from "../../../math/Vector2";
-import { Vector3 } from "../../../math/Vector3";
-import { Vector4 } from "../../../math/Vector4";
 import { DrawMeshInstancedCMD } from "./DrawMeshInstancedCMD";
 
 /**

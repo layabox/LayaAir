@@ -1,18 +1,10 @@
 import { PostProcessEffect } from "laya/d3/core/render/PostProcessEffect";
 import { PostProcessRenderContext } from "laya/d3/core/render/PostProcessRenderContext";
-import { VertexMesh } from "laya/d3/graphics/Vertex/VertexMesh";
-import { SubShader } from "laya/d3/shader/SubShader";
-import { ShaderPass } from "laya/d3/shader/ShaderPass";
-
 import EdgeEffectVS from "./shader/EdgeEffectVS.vs";
 import EdgeEffectFS from "./shader/EdgeEffectFS.fs";
-
 import { CommandBuffer } from "laya/d3/core/render/command/CommandBuffer";
 import { Viewport } from "laya/d3/math/Viewport";
-import { RenderTexture } from "laya/d3/resource/RenderTexture";
 import { Camera } from "laya/d3/core/Camera";
-import { Vector4 } from "laya/d3/math/Vector4";
-import { Vector3 } from "laya/d3/math/Vector3";
 import { DepthTextureMode } from "laya/d3/depthMap/DepthPass";
 import { FilterMode } from "laya/RenderEngine/RenderEnum/FilterMode";
 import { RenderTargetFormat } from "laya/RenderEngine/RenderEnum/RenderTargetFormat";
@@ -20,6 +12,12 @@ import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 import { ShaderData, ShaderDataType } from "laya/RenderEngine/RenderShader/ShaderData";
 import { ShaderDefine } from "laya/RenderEngine/RenderShader/ShaderDefine";
 import { LayaGL } from "laya/layagl/LayaGL";
+import { Vector3 } from "laya/maths/Vector3";
+import { Vector4 } from "laya/maths/Vector4";
+import { RenderTexture } from "laya/resource/RenderTexture";
+import { SubShader } from "laya/RenderEngine/RenderShader/SubShader";
+import { ShaderPass } from "laya/RenderEngine/RenderShader/ShaderPass";
+import { VertexMesh } from "laya/RenderEngine/RenderShader/VertexMesh";
 
 export enum EdgeMode {
     ColorEdge = 0,

@@ -2,7 +2,6 @@ import { Sprite3D } from "../Sprite3D"
 import { Transform3D } from "../Transform3D"
 import { BaseRender } from "../render/BaseRender"
 import { RenderContext3D } from "../render/RenderContext3D"
-import { Matrix4x4 } from "../../math/Matrix4x4"
 import { TrailFilter } from "./TrailFilter";
 import { FloatKeyframe } from "../FloatKeyframe";
 import { Gradient } from "../Gradient";
@@ -10,6 +9,7 @@ import { Component } from "../../../components/Component";
 import { Bounds } from "../../math/Bounds";
 import { TrailTextureMode } from "../TrailTextureMode"
 import { TrailAlignment } from "./TrailAlignment"
+import { Matrix4x4 } from "../../../maths/Matrix4x4";
 
 /**
  * <code>TrailRenderer</code> 类用于创建拖尾渲染器。

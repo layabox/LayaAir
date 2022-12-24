@@ -1,6 +1,5 @@
-import { Vector3 } from "./laya/d3/math/Vector3"
-import { PBRRenderQuality } from "./laya/d3/core/material/PBRRenderQuality";
 import { Config } from "./Config";
+import { Vector3 } from "./laya/maths/Vector3";
 
 /**
  * <code>Config3D</code> 类用于创建3D初始化配置。

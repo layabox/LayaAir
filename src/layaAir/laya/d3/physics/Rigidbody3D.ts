@@ -1,13 +1,13 @@
 import { Component } from "../../components/Component";
-import { Vector3 } from "../math/Vector3";
 import { Physics3DUtils } from "../utils/Physics3DUtils";
 import { Utils3D } from "../utils/Utils3D";
 import { PhysicsComponent } from "./PhysicsComponent";
 import { PhysicsTriggerComponent } from "./PhysicsTriggerComponent";
 import { ColliderShape } from "./shape/ColliderShape";
 import { ILaya3D } from "../../../ILaya3D";
-import { Quaternion } from "../math/Quaternion";
 import { MeshColliderShape } from "./shape/MeshColliderShape";
+import { Quaternion } from "../../maths/Quaternion";
+import { Vector3 } from "../../maths/Vector3";
 
 /**
  * <code>Rigidbody3D</code> 类用于创建刚体碰撞器。

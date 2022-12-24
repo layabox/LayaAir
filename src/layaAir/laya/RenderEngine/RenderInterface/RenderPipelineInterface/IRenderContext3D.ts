@@ -1,5 +1,5 @@
-import { Vector4 } from "../../../d3/math/Vector4";
 import { Viewport } from "../../../d3/math/Viewport";
+import { Vector4 } from "../../../maths/Vector4";
 import { ShaderData } from "../../RenderShader/ShaderData";
 import { IRenderTarget } from "../IRenderTarget";
 import { IRenderElement } from "./IRenderElement";

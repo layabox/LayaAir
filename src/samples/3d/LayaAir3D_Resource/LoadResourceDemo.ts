@@ -6,8 +6,6 @@ import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
-import { Quaternion } from "laya/d3/math/Quaternion";
-import { Vector3 } from "laya/d3/math/Vector3";
 import { Mesh } from "laya/d3/resource/models/Mesh";
 import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
 import { SkyBox } from "laya/d3/resource/models/SkyBox";
@@ -20,9 +18,11 @@ import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { Material } from "laya/d3/core/material/Material";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
-import { Color } from "laya/d3/math/Color";
 import { Animator } from "laya/d3/component/Animator/Animator";
 import { AnimatorState } from "laya/d3/component/Animator/AnimatorState";
+import { Color } from "laya/maths/Color";
+import { Quaternion } from "laya/maths/Quaternion";
+import { Vector3 } from "laya/maths/Vector3";
 
 /**
  * ...

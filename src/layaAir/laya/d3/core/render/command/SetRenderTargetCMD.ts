@@ -1,8 +1,7 @@
 import { Command } from "./Command";
-import { RenderTexture } from "../../../resource/RenderTexture";
 import { RenderContext3D } from "../RenderContext3D";
-import { ILaya3D } from "../../../../../ILaya3D";
 import { Camera } from "../../Camera";
+import { RenderTexture } from "../../../../resource/RenderTexture";
 
 /**
  * @internal

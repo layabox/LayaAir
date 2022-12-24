@@ -1,5 +1,5 @@
 import { BoundBox } from "laya/d3/math/BoundBox";
-import { Vector3 } from "laya/d3/math/Vector3";
+import { Vector3 } from "laya/maths/Vector3";
 
 /**
  * 草皮块

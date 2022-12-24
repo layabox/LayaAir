@@ -1,8 +1,8 @@
-import { ShaderInstance } from "../../d3/shader/ShaderInstance";
-import { SubShader } from "../../d3/shader/SubShader";
 import { LayaGL } from "../../layagl/LayaGL";
 import { DefineDatas } from "../../RenderEngine/RenderShader/DefineDatas";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
+import { ShaderInstance } from "../../RenderEngine/RenderShader/ShaderInstance";
+import { SubShader } from "../../RenderEngine/RenderShader/SubShader";
 import { WebGL } from "../WebGL";
 import { IShaderCompiledObj } from "./ShaderCompile";
 import { ShaderNode } from "./ShaderNode";

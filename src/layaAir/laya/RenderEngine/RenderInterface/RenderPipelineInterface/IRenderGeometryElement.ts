@@ -1,5 +1,5 @@
 import { SingletonList } from "../../../utils/SingletonList";
-import { BufferState } from "../../../d3/core/BufferState";
+import { BufferState } from "../../../webgl/utils/BufferState";
 import { DrawType } from "../../RenderEnum/DrawType";
 import { IndexFormat } from "../../RenderEnum/IndexFormat";
 import { MeshTopology } from "../../RenderEnum/RenderPologyMode";

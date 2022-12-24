@@ -10,10 +10,10 @@ import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
-import { Matrix4x4 } from "laya/d3/math/Matrix4x4";
 import { BlurEffect } from "./BlurShader/BlurEffect";
 import Client from "../../Client";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
+import { Matrix4x4 } from "laya/maths/Matrix4x4";
 
 export class PostProcess_Blur {
 	/**实例类型*/

@@ -1,5 +1,5 @@
 import { EventDispatcher } from "../../../events/EventDispatcher";
-import { Vector2 } from "../../math/Vector2";
+import { Vector2 } from "../../../maths/Vector2";
 
 /**
  * 类用来描述gamepad Axis

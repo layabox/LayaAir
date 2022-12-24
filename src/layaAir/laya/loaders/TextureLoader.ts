@@ -10,8 +10,8 @@ import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
 import { Browser } from "../utils/Browser";
 import { AssetDb } from "../resource/AssetDb";
 import { Resource } from "../resource/Resource";
-import { RenderTexture } from "../d3/resource/RenderTexture";
 import { Utils } from "../utils/Utils";
+import { RenderTexture } from "../resource/RenderTexture";
 
 const metaFetchingOptions = { noRetry: true, silent: true };
 

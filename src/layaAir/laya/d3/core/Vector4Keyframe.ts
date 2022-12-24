@@ -1,4 +1,4 @@
-import { Vector4 } from "../math/Vector4";
+import { Vector4 } from "../../maths/Vector4";
 import { Keyframe, WeightedMode } from "./Keyframe";
 
 

@@ -1,12 +1,9 @@
 import { Texture2D } from "../../../resource/Texture2D";
-import { Vector4 } from "../../math/Vector4";
-import SkyPanoramicFS from "../../shader/files/SkyPanoramic.fs";
-import SkyPanoramicVS from "../../shader/files/SkyPanoramic.vs";
-import { SubShader } from "../../shader/SubShader";
 import { Material } from "./Material";
 import { TextureDecodeFormat } from "../../../RenderEngine/RenderEnum/TextureDecodeFormat";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
-import { Color } from "../../math/Color";
+import { Color } from "../../../maths/Color";
+import { Vector4 } from "../../../maths/Vector4";
 
 /**
  * <code>SkyPanoramicMaterial</code> 类用于实现SkyPanoramicMaterial材质。

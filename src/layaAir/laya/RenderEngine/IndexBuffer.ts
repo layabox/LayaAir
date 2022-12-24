@@ -1,7 +1,7 @@
 import { BufferTargetType, BufferUsage } from "./RenderEnum/BufferTargetType";
 import { IndexFormat } from "./RenderEnum/IndexFormat";
 import { Buffer } from "./Buffer";
-import { BufferState } from "../d3/core/BufferState";
+import { BufferState } from "../webgl/utils/BufferState";
 
 export class IndexBuffer extends Buffer {
     /** @internal */

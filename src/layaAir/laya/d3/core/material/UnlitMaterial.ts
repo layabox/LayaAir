@@ -1,17 +1,10 @@
-import { LayaGL } from "../../../layagl/LayaGL";
-import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
-import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
+import { Color } from "../../../maths/Color";
+import { Vector4 } from "../../../maths/Vector4";
+import { RenderState } from "../../../RenderEngine/RenderShader/RenderState";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
-import { ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData";
 import { ShaderDefine } from "../../../RenderEngine/RenderShader/ShaderDefine";
-import { UniformBufferParamsType, UnifromBufferData } from "../../../RenderEngine/UniformBufferData";
-import { UniformBufferObject } from "../../../RenderEngine/UniformBufferObject";
 import { BaseTexture } from "../../../resource/BaseTexture";
-import { Color } from "../../math/Color";
-import { Vector4 } from "../../math/Vector4";
-
 import { Material } from "./Material";
-import { RenderState } from "./RenderState";
 
 /**
  * <code>UnlitMaterial</code> 类用于实现不受光照影响的材质。

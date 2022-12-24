@@ -47,7 +47,14 @@ const packsDef = [
             './layaAir/laya/system/**/*.*',
             './layaAir/laya/utils/**/*.*',
             './layaAir/laya/webgl/**/*.*',
+            './layaAir/Config3D.ts',
 
+           
+        ],
+    },
+    {
+        'libName': "d3",
+        'input': [
             './layaAir/laya/d3/animation/**/*.*',
             './layaAir/laya/d3/component/**/*.*',
             './layaAir/laya/d3/core/**/*.*',
@@ -66,17 +73,10 @@ const packsDef = [
             './layaAir/laya/d3/Touch.ts',
             './layaAir/laya/d3/Physics3D.ts',
             './layaAir/laya/d3/ModuleDef.ts',
-            './layaAir/Config3D.ts',
+            './layaAir/laya/d3/RenderObjs/**/*.*',
             './layaAir/ILaya3D.ts',
             './layaAir/Laya3D.ts',
-
-            './layaAir/laya/d3/physicsCannon/**/*.*',
             './layaAir/laya/d3/physics/**/*.*',
-        ],
-    },
-    {
-        'libName': "d3",
-        'input': [
             // './layaAir/laya/d3/animation/**/*.*',
             // './layaAir/laya/d3/component/**/*.*',
             // './layaAir/laya/d3/core/**/*.*',
@@ -104,12 +104,6 @@ const packsDef = [
         'libName': "gltf",
         'input': [
             './layaAir/laya/gltf/**/*.*',
-        ],
-    },
-    {
-        'libName': "cannonPhysics",
-        'input': [
-            //'./layaAir/laya/d3/physicsCannon/**/*.*',
         ],
     },
     {

@@ -1,7 +1,7 @@
+import { Color } from "../../../maths/Color";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { ShaderDefine } from "../../../RenderEngine/RenderShader/ShaderDefine";
-import { Color } from "../../math/Color";
-import { Vector4 } from "../../math/Vector4";
+
 import { Material } from "./Material";
 
 /**

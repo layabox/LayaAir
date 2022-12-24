@@ -1,7 +1,7 @@
-import { AnimatorStateCondition } from "../d3/component/Animator/AnimatorStateCondition";
 import { Animation2DParm } from "./Animation2DParm";
 import { AniStateConditionType } from "./AnimatorControllerParse";
 import { AnimatorState2D } from "./AnimatorState2D";
+import { AnimatorStateCondition } from "./AnimatorStateCondition";
 
 export class AnimatorTransition2D {
     mute: boolean;

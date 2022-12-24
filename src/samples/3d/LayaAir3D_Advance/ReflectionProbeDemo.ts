@@ -6,9 +6,7 @@ import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import { PixelLineSprite3D } from "laya/d3/core/pixelLine/PixelLineSprite3D";
-import { Utils3D } from "laya/d3/utils/Utils3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
-import { Color } from "laya/d3/math/Color";
 
 export class ReflectionProbeDemo {
 	constructor() {

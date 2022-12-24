@@ -1,5 +1,5 @@
-import { Vector3 } from "./Vector3";
-import { Matrix4x4 } from "./Matrix4x4";
+import { Matrix4x4 } from "../../maths/Matrix4x4";
+import { Vector3 } from "../../maths/Vector3";
 import { IClone } from "../../utils/IClone"
 
 /**

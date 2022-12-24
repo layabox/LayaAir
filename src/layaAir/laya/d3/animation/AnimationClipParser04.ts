@@ -4,16 +4,16 @@ import { AnimationEvent } from "./AnimationEvent";
 import { FloatKeyframe } from "../core/FloatKeyframe"
 import { QuaternionKeyframe } from "../core/QuaternionKeyframe"
 import { Vector3Keyframe } from "../core/Vector3Keyframe"
-import { Quaternion } from "../math/Quaternion"
-import { Vector3 } from "../math/Vector3"
-import { Vector4 } from "../math/Vector4"
 import { AnimationClip } from "./AnimationClip";
 import { Byte } from "../../utils/Byte";
 import { HalfFloatUtils } from "../../utils/HalfFloatUtils";
-import { Vector2 } from "../math/Vector2";
 import { Vector2Keyframe } from "../core/Vector2Keyframe";
 import { Vector4Keyframe } from "../core/Vector4Keyframe";
 import { KeyFrameValueType } from "../component/Animator/KeyframeNodeOwner";
+import { Quaternion } from "../../maths/Quaternion";
+import { Vector2 } from "../../maths/Vector2";
+import { Vector3 } from "../../maths/Vector3";
+import { Vector4 } from "../../maths/Vector4";
 
 /**
  * @internal

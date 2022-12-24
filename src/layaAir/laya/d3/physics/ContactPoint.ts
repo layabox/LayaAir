@@ -1,5 +1,5 @@
+import { Vector3 } from "../../maths/Vector3";
 import { PhysicsComponent } from "./PhysicsComponent"
-import { Vector3 } from "../math/Vector3"
 
 /**
  * <code>ContactPoint</code> 类用于创建物理碰撞信息。

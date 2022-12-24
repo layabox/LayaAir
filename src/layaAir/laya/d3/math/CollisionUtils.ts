@@ -1,10 +1,10 @@
-import { Vector3 } from "./Vector3";
 import { Plane } from "./Plane";
 import { BoundBox } from "./BoundBox";
 import { BoundSphere } from "./BoundSphere";
 import { Ray } from "./Ray";
-import { MathUtils3D } from "./MathUtils3D";
 import { ContainmentType } from "./ContainmentType";
+import { MathUtils3D } from "../../maths/MathUtils3D";
+import { Vector3 } from "../../maths/Vector3";
 /**
      * <code>Collision</code> 类用于检测碰撞。
      */

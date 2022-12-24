@@ -1,9 +1,8 @@
 import { ConstraintComponent } from "./ConstraintComponent";
-import { Scene3D } from "../../core/scene/Scene3D";
-import { Vector3 } from "../../math/Vector3";
 import { Rigidbody3D } from "../Rigidbody3D";
 import { Sprite3D } from "../../core/Sprite3D";
 import { Physics3D } from "../../Physics3D";
+import { Vector3 } from "../../../maths/Vector3";
 
 /**
  * <code>ConfigurableConstraint</code>类用于可设置的约束组件

@@ -1,15 +1,15 @@
 import { Laya } from "Laya";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
-import { Vector3 } from "laya/d3/math/Vector3";
 import { Stage } from "laya/display/Stage";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import { SimpleSkinnedMeshSprite3D } from "laya/d3/core/SimpleSkinnedMeshSprite3D";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
-import { Color } from "laya/d3/math/Color";
 import { Animator } from "laya/d3/component/Animator/Animator";
+import { Color } from "laya/maths/Color";
+import { Vector3 } from "laya/maths/Vector3";
 
 export class SimpleSkinAnimationInstance {
 	private animatorName:string[] = ["run","chongci","dead","xuli","stand"];

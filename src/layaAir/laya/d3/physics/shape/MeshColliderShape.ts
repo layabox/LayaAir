@@ -1,7 +1,7 @@
-import { Vector3 } from "../../math/Vector3";
 import { Mesh } from "../../resource/models/Mesh";
 import { ColliderShape } from "./ColliderShape";
 import { ILaya3D } from "../../../../ILaya3D";
+import { Vector3 } from "../../../maths/Vector3";
 
 /**
  * <code>MeshColliderShape</code> 类用于创建网格碰撞器。

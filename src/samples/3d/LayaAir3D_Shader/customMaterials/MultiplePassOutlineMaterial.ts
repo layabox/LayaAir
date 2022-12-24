@@ -1,12 +1,11 @@
 import { Material } from "laya/d3/core/material/Material";
-import { RenderState } from "laya/d3/core/material/RenderState";
-import { Color } from "laya/d3/math/Color";
-import { Vector4 } from "laya/d3/math/Vector4";
-import { ShaderPass } from "laya/d3/shader/ShaderPass";
-import { SubShader } from "laya/d3/shader/SubShader";
+import { Color } from "laya/maths/Color";
+import { RenderState } from "laya/RenderEngine/RenderShader/RenderState";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 import { ShaderDataType } from "laya/RenderEngine/RenderShader/ShaderData";
 import { ShaderDefine } from "laya/RenderEngine/RenderShader/ShaderDefine";
+import { ShaderPass } from "laya/RenderEngine/RenderShader/ShaderPass";
+import { SubShader } from "laya/RenderEngine/RenderShader/SubShader";
 import { BaseTexture } from "laya/resource/BaseTexture";
 import OutlineFS from "../customShader/outline.fs";
 import OutlineVS from "../customShader/outline.vs";

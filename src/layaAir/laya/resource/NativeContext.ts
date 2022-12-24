@@ -1,7 +1,5 @@
 import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
 import { Const } from "../Const";
-import { BufferState } from "../d3/core/BufferState";
-import { RenderTexture } from "../d3/resource/RenderTexture";
 import { ColorFilter } from "../filters/ColorFilter";
 import { LayaGL } from "../layagl/LayaGL";
 import { Matrix } from "../maths/Matrix";
@@ -18,11 +16,11 @@ import { BlendMode } from "../webgl/canvas/BlendMode";
 import { NativeWebGLCacheAsNormalCanvas } from "../webgl/canvas/NativeWebGLCacheAsNormalCanvas";
 import { Value2D } from "../webgl/shader/d2/value/Value2D";
 import { ISubmit } from "../webgl/submit/ISubmit";
-import { RenderState2D } from "../webgl/utils/RenderState2D";
 import { HTMLCanvas } from "./HTMLCanvas";
-import { NativeRenderTexture2D } from "./NativeRenderTexture2D";
 import { RenderTexture2D } from "./RenderTexture2D";
 import { Texture } from "./Texture";
+import { BufferState } from "../webgl/utils/BufferState";
+import { RenderTexture } from "./RenderTexture";
 
 enum CONTEXT2D_FUNCTION_ID {
     SIZE = 0,

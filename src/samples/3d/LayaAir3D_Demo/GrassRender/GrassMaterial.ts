@@ -1,20 +1,17 @@
-import { VertexMesh } from "laya/d3/graphics/Vertex/VertexMesh";
-import { ShaderPass } from "laya/d3/shader/ShaderPass";
-import { SubShader } from "laya/d3/shader/SubShader";
-
 import UnityGrassVS from "./shader/GrassShaderVS.vs";
 import UnityGrassFS from "./shader/GrassShaderFS.fs";
 import { Material } from "laya/d3/core/material/Material";
-import { RenderState } from "laya/d3/core/material/RenderState";
-import { Vector2 } from "laya/d3/math/Vector2";
-import { Vector3 } from "laya/d3/math/Vector3";
-import { Vector4 } from "laya/d3/math/Vector4";
 import { BaseTexture } from "laya/resource/BaseTexture";
-import value from "*.glsl";
 import { Loader } from "laya/net/Loader";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 import { ShaderDataType } from "laya/RenderEngine/RenderShader/ShaderData";
-import { Shader } from "laya/webgl/shader/Shader";
+import { Vector2 } from "laya/maths/Vector2";
+import { Vector3 } from "laya/maths/Vector3";
+import { Vector4 } from "laya/maths/Vector4";
+import { RenderState } from "laya/RenderEngine/RenderShader/RenderState";
+import { ShaderPass } from "laya/RenderEngine/RenderShader/ShaderPass";
+import { SubShader } from "laya/RenderEngine/RenderShader/SubShader";
+import { VertexMesh } from "laya/RenderEngine/RenderShader/VertexMesh";
 
 export class GrassMaterial extends Material {
     static hasInited: boolean = false;

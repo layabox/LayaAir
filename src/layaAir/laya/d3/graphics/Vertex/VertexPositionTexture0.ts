@@ -1,10 +1,10 @@
-import { VertexMesh } from "./VertexMesh";
 import { IVertex } from "../IVertex"
-import { VertexElement } from "../VertexElement"
-import { VertexElementFormat } from "../VertexElementFormat"
-import { Vector2 } from "../../math/Vector2"
-import { Vector3 } from "../../math/Vector3"
 import { VertexDeclaration } from "../../../RenderEngine/VertexDeclaration";
+import { Vector2 } from "../../../maths/Vector2";
+import { Vector3 } from "../../../maths/Vector3";
+import { VertexElementFormat } from "../../../renders/VertexElementFormat";
+import { VertexElement } from "../../../renders/VertexElement";
+import { VertexMesh } from "../../../RenderEngine/RenderShader/VertexMesh";
 
 /**
  * @internal

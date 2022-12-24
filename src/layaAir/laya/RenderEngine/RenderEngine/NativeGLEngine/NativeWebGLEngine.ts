@@ -1,5 +1,3 @@
-import { Color } from "../../../d3/math/Color";
-import { Vector4 } from "../../../d3/math/Vector4";
 import { CommandEncoder } from "../../../layagl/CommandEncoder";
 import { BaseTexture } from "../../../resource/BaseTexture";
 import { BufferTargetType, BufferUsage } from "../../RenderEnum/BufferTargetType";
@@ -13,8 +11,6 @@ import { IRenderEngine } from "../../RenderInterface/IRenderEngine";
 import { IRenderShaderInstance } from "../../RenderInterface/IRenderShaderInstance";
 import { IRenderVertexState } from "../../RenderInterface/IRenderVertexState";
 import { ITextureContext } from "../../RenderInterface/ITextureContext";
-import { Shader3D } from "../../RenderShader/Shader3D";
-import { ShaderVariable } from "../../RenderShader/ShaderVariable";
 import { RenderStateCommand } from "../../RenderStateCommand";
 import { NativeGL2TextureContext } from "./NativeGL2TextureContext";
 import { WebGLMode } from "../WebGLEngine/GLEnum/WebGLMode";
@@ -23,11 +19,11 @@ import { NativeGLTextureContext } from "./NativeGLTextureContext";
 import { NativeGLVertexState } from "./NativeGLVertexState";
 import { WebGlConfig } from "../WebGLEngine/WebGLConfig";
 import { IRenderOBJCreate } from "../../RenderInterface/IRenderOBJCreate";
-import { NativeRenderOBJCreateUtil } from "./NativeOBJ/NativeRenderOBJCreateUtil";
 import { NativeGLRenderDrawContext } from "./NativeGLRenderDrawContext";
-import { RenderTextureCube } from "../../../d3/resource/RenderTextureCube";
 import { ShaderDataType } from "../../RenderShader/ShaderData";
 import { RenderStatisticsInfo } from "../../RenderEnum/RenderStatInfo";
+import { Color } from "../../../maths/Color";
+import { NativeRenderStateCommand } from "../../../d3/RenderObjs/NativeOBJ/NativeRenderStateCommand";
 
 
 /**
@@ -48,6 +44,9 @@ export class NativeWebGLEngine implements IRenderEngine {
 
   private _GL2DRenderContext: NativeGLRender2DContext;
 
+  /**@internal */
+  _renderOBJCreateContext:IRenderOBJCreate;
+
   _nativeObj: any;
 
   /**@internal */
@@ -55,6 +54,9 @@ export class NativeWebGLEngine implements IRenderEngine {
 
   constructor(config: WebGlConfig, webglMode: WebGLMode = WebGLMode.Auto) {
     this._nativeObj = new (window as any).conchWebGLEngine(webglMode);
+  }
+  createRenderStateComand(): RenderStateCommand {
+    return new NativeRenderStateCommand();
   }
   getUBOPointer(name: string): number {
     return this._nativeObj.getUBOPointer(name);
@@ -184,7 +186,7 @@ export class NativeWebGLEngine implements IRenderEngine {
   }
 
   getCreateRenderOBJContext(): IRenderOBJCreate {
-    return new NativeRenderOBJCreateUtil();
+    return this._renderOBJCreateContext;
   }
 
   propertyNameToID(name: string): number {

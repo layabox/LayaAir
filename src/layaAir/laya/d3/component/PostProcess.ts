@@ -6,13 +6,13 @@ import { PostProcessEffect } from "../core/render/PostProcessEffect"
 import { PostProcessRenderContext } from "../core/render/PostProcessRenderContext"
 import { Viewport } from "../math/Viewport"
 import { RenderContext3D } from "../core/render/RenderContext3D"
-import { RenderTexture } from "../resource/RenderTexture"
 import { ShaderDefine } from "../../RenderEngine/RenderShader/ShaderDefine"
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D"
 import { ShaderData } from "../../RenderEngine/RenderShader/ShaderData"
 import { LayaGL } from "../../layagl/LayaGL"
 import { RenderTargetFormat } from "../../RenderEngine/RenderEnum/RenderTargetFormat"
 import { DepthTextureMode } from "../depthMap/DepthPass"
+import { RenderTexture } from "../../resource/RenderTexture"
 
 /**
  * <code>PostProcess</code> 类用于创建后期处理组件。

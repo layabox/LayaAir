@@ -1,13 +1,11 @@
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
-import { VertexMesh } from "../../graphics/Vertex/VertexMesh";
-import { SubShader } from "../SubShader";
-
-import { RenderState } from "../../core/material/RenderState";
 import { ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData";
-
 import BlitVS from "./BlitScreen.vs";
 import BlitFS from "./BlitScreen.fs";
 import FXAA from "./FastApproximateAntiAliasing.glsl";
+import { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
+import { RenderState } from "../../../RenderEngine/RenderShader/RenderState";
+import { VertexMesh } from "../../../RenderEngine/RenderShader/VertexMesh";
 
 export class BlitScreenShaderInit {
 

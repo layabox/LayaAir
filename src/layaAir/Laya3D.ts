@@ -26,7 +26,6 @@ import { TrailSprite3D } from "./laya/d3/core/trail/TrailSprite3D";
 import { VertexTrail } from "./laya/d3/core/trail/VertexTrail";
 import { FrustumCulling } from "./laya/d3/graphics/FrustumCulling";
 import { SubMeshInstanceBatch } from "./laya/d3/graphics/SubMeshInstanceBatch";
-import { VertexMesh } from "./laya/d3/graphics/Vertex/VertexMesh";
 import { VertexPositionTerrain } from "./laya/d3/graphics/Vertex/VertexPositionTerrain";
 import { VertexPositionTexture0 } from "./laya/d3/graphics/Vertex/VertexPositionTexture0";
 import { VertexShurikenParticleBillboard } from "./laya/d3/graphics/Vertex/VertexShurikenParticleBillboard";
@@ -56,14 +55,18 @@ import { BaseRender } from "./laya/d3/core/render/BaseRender";
 import { TrailFilter } from "./laya/d3/core/trail/TrailFilter";
 import { DepthPass } from "./laya/d3/depthMap/DepthPass";
 import { RenderCapable } from "./laya/RenderEngine/RenderEnum/RenderCapable";
-import { Shader3D } from "./laya/RenderEngine/RenderShader/Shader3D";
 import { BlitFrameBufferCMD } from "./laya/d3/core/render/command/BlitFrameBufferCMD";
 import { SkyRenderer } from "./laya/d3/resource/models/SkyRenderer";
-import { SubShader } from "./laya/d3/shader/SubShader";
 import { SkyPanoramicMaterial } from "./laya/d3/core/material/SkyPanoramicMaterial";
 import { BloomEffect } from "./laya/d3/core/render/PostEffect/BloomEffect";
 import { ScalableAO } from "./laya/d3/core/render/PostEffect/ScalableAO";
 import { GaussianDoF } from "./laya/d3/core/render/PostEffect/GaussianDoF";
+import { LayaEnv } from "./LayaEnv";
+import { SkinnedMeshRenderer } from "./laya/d3/core/SkinnedMeshRenderer";
+import { RenderOBJCreateUtil } from "./laya/d3/RenderObjs/RenderObj/RenderOBJCreateUtil";
+import { NativeRenderOBJCreateUtil } from "./laya/d3/RenderObjs/NativeOBJ/NativeRenderOBJCreateUtil";
+import { SubShader } from "./laya/RenderEngine/RenderShader/SubShader";
+import { VertexMesh } from "./laya/RenderEngine/RenderShader/VertexMesh";
 
 /**
  * <code>Laya3D</code> 类用于初始化3D设置。
@@ -101,7 +104,11 @@ export class Laya3D {
         RunDriver.changeWebGLSize = Laya3D._changeWebGLSize;
         Render.is3DMode = true;
         Laya.init(width, height);
-
+        Laya3D.createRenderObjInit();
+        if (LayaEnv.isConch && !(window as any).conchConfig.conchWebGL) {
+            var skinnedMeshRender: any = SkinnedMeshRenderer;
+            skinnedMeshRender.prototype._computeSkinnedData = skinnedMeshRender.prototype._computeSkinnedDataForNative;
+        }
         Config3D._multiLighting = Config3D.enableMultiLight && LayaGL.renderEngine.getCapable(RenderCapable.TextureFormat_R32G32B32A32);
         Config3D._uniformBlock = Config3D.enableUniformBufferObject && LayaGL.renderEngine.getCapable(RenderCapable.UnifromBufferObject);
 
@@ -230,7 +237,7 @@ export class Laya3D {
             return;
         }
         Laya3D._isInit = true;
-
+        
         var physics3D: Function = (window as any).Physics3D;
         if (physics3D == null) {
             Physics3D._enablePhysics = false;
@@ -244,6 +251,17 @@ export class Laya3D {
                 complete && complete.run();
             });
         }
+    }
+
+    static createRenderObjInit(){
+        if(LayaEnv.isConch && !(window as any).conchConfig.conchWebGL){
+            LayaGL.renderEngine._renderOBJCreateContext = new NativeRenderOBJCreateUtil();
+            LayaGL.renderOBJCreate = LayaGL.renderEngine.getCreateRenderOBJContext();
+        }else{
+            LayaGL.renderEngine._renderOBJCreateContext = new RenderOBJCreateUtil();
+            LayaGL.renderOBJCreate = LayaGL.renderEngine.getCreateRenderOBJContext();
+        }
+        
     }
 }
 

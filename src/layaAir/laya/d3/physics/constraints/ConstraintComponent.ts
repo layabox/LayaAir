@@ -1,11 +1,10 @@
 import { Component } from "../../../components/Component";
 import { Rigidbody3D } from "../Rigidbody3D";
 import { PhysicsSimulation } from "../PhysicsSimulation";
-import { Vector3 } from "../../math/Vector3";
 import { Physics3D } from "../../Physics3D";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
-import { Quaternion } from "laya/d3/math/Quaternion";
+import { Vector3 } from "../../../maths/Vector3";
 
 /**
  * <code>ConstraintComponent</code> 类用于创建约束的父类。

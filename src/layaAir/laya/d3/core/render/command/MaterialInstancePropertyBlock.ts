@@ -1,9 +1,9 @@
+import { Vector2 } from "../../../../maths/Vector2";
+import { Vector3 } from "../../../../maths/Vector3";
+import { Vector4 } from "../../../../maths/Vector4";
 import { VertexDeclaration } from "../../../../RenderEngine/VertexDeclaration";
-import { VertexElement } from "../../../graphics/VertexElement";
-import { VertexElementFormat } from "../../../graphics/VertexElementFormat";
-import { Vector2 } from "../../../math/Vector2";
-import { Vector3 } from "../../../math/Vector3";
-import { Vector4 } from "../../../math/Vector4";
+import { VertexElement } from "../../../../renders/VertexElement";
+import { VertexElementFormat } from "../../../../renders/VertexElementFormat";
 import { MaterialInstanceProperty } from "./MaterialInstanceProperty";
 
 export enum InstanceLocation{

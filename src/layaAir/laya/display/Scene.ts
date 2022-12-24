@@ -8,7 +8,6 @@ import { ILaya } from "../../ILaya";
 import { Prefab } from "../resource/HierarchyResource";
 import { LegacyUIParser } from "../loaders/LegacyUIParser";
 import { NodeFlags } from "../Const";
-import { ILaya3D } from "../../ILaya3D";
 
 /**
  * 场景类，负责场景创建，加载，销毁等功能
@@ -463,7 +462,7 @@ export class Scene extends Sprite {
 
             if (ret instanceof Scene)
                 scene = ret;
-            else if (ret instanceof ILaya3D.Scene3D) {
+            else if (ret._is3D) {
                 scene = new Scene();
                 scene.left = scene.right = scene.top = scene.bottom = 0;
                 scene._scene3D = ret;

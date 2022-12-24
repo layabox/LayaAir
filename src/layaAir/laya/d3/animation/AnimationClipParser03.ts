@@ -4,11 +4,11 @@ import { AnimationEvent } from "./AnimationEvent";
 import { FloatKeyframe } from "../core/FloatKeyframe"
 import { QuaternionKeyframe } from "../core/QuaternionKeyframe"
 import { Vector3Keyframe } from "../core/Vector3Keyframe"
-import { Quaternion } from "../math/Quaternion"
-import { Vector3 } from "../math/Vector3"
-import { Vector4 } from "../math/Vector4"
 import { Byte } from "../../utils/Byte"
 import { AnimationClip } from "./AnimationClip";
+import { Quaternion } from "../../maths/Quaternion";
+import { Vector3 } from "../../maths/Vector3";
+import { Vector4 } from "../../maths/Vector4";
 
 /**
  * @internal

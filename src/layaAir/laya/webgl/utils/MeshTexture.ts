@@ -1,7 +1,7 @@
-import { VertexElement } from "../../d3/graphics/VertexElement";
-import { VertexElementFormat } from "../../d3/graphics/VertexElementFormat";
 import { Matrix } from "../../maths/Matrix";
 import { VertexDeclaration } from "../../RenderEngine/VertexDeclaration";
+import { VertexElement } from "../../renders/VertexElement";
+import { VertexElementFormat } from "../../renders/VertexElementFormat";
 import { IndexBuffer2D } from "./IndexBuffer2D";
 import { Mesh2D } from "./Mesh2D";
 import { VertexBuffer2D } from "./VertexBuffer2D";

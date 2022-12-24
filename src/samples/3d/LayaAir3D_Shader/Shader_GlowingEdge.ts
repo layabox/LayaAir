@@ -5,10 +5,7 @@ import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { SkinnedMeshSprite3D } from "laya/d3/core/SkinnedMeshSprite3D";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
-import { Vector3 } from "laya/d3/math/Vector3";
 import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
-import { ShaderPass } from "laya/d3/shader/ShaderPass";
-import { SubShader } from "laya/d3/shader/SubShader";
 import { Stage } from "laya/display/Stage";
 import { Texture2D } from "laya/resource/Texture2D";
 import { Handler } from "laya/utils/Handler";
@@ -20,7 +17,10 @@ import GlowingEdgeShaderVS from "./customShader/glowingEdgeShader.vs";
 import { GlowingEdgeMaterial } from "./customMaterials/GlowingEdgeMaterial";
 import { Material } from "laya/d3/core/material/Material";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
-import { Color } from "laya/d3/math/Color";
+import { Color } from "laya/maths/Color";
+import { Vector3 } from "laya/maths/Vector3";
+import { ShaderPass } from "laya/RenderEngine/RenderShader/ShaderPass";
+import { SubShader } from "laya/RenderEngine/RenderShader/SubShader";
 
 
 

@@ -1,10 +1,10 @@
-import { ShaderPass } from "../../d3/shader/ShaderPass";
-import { SubShader } from "../../d3/shader/SubShader";
 import { LayaGL } from "../../layagl/LayaGL";
 import { ShaderCompile } from "../../webgl/utils/ShaderCompile";
 import { DefineDatas } from "./DefineDatas";
 import { ShaderDefine } from "./ShaderDefine";
+import { ShaderPass } from "./ShaderPass";
 import { ShaderVariant, ShaderVariantCollection } from "./ShaderVariantCollection";
+import { SubShader } from "./SubShader";
 
 export interface IShaderObjStructor {
     name: string,

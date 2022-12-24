@@ -5,7 +5,6 @@ import { Camera, CameraClearFlags } from "laya/d3/core/Camera";
 import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
-import { Vector3 } from "laya/d3/math/Vector3";
 import { Stage } from "laya/display/Stage";
 import { Box } from "laya/ui/Box";
 import { Button } from "laya/ui/Button";
@@ -19,6 +18,7 @@ import { Laya3D } from "Laya3D";
 import { UIConfig } from "UIConfig";
 import { Event } from "laya/events/Event";
 import { Laya } from "Laya";
+import { Vector3 } from "laya/maths/Vector3";
 
 export class Draw3DParticleby3DUI{
 

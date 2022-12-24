@@ -1,8 +1,8 @@
 import { LayaGL } from "../../layagl/LayaGL";
+import { Matrix4x4 } from "../../maths/Matrix4x4";
+import { Vector3 } from "../../maths/Vector3";
 import { IClone } from "../../utils/IClone";
 import { BoundBox } from "./BoundBox";
-import { Matrix4x4 } from "./Matrix4x4";
-import { Vector3 } from "./Vector3";
 
 /**
  * <code>Bounds</code> 类用于创建包围体。

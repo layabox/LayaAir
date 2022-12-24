@@ -60,11 +60,6 @@ import { TrailSprite3D } from "./core/trail/TrailSprite3D";
 import { Transform3D } from "./core/Transform3D";
 import { SphericalHarmonicsL2 } from "./graphics/SphericalHarmonicsL2";
 import { BoundBox } from "./math/BoundBox";
-import { Color } from "./math/Color";
-import { Quaternion } from "./math/Quaternion";
-import { Vector2 } from "./math/Vector2";
-import { Vector3 } from "./math/Vector3";
-import { Vector4 } from "./math/Vector4";
 import { Viewport } from "./math/Viewport";
 import { Mesh } from "./resource/models/Mesh";
 import { SkyRenderer } from "./resource/models/SkyRenderer";
@@ -98,6 +93,7 @@ import { ScalableAO } from "./core/render/PostEffect/ScalableAO";
 import { AnimatorController } from "./component/Animator/AnimatorController";
 import { StaticBatchVolume } from "./component/Volume/BatchVolume/StaticBatchVolume";
 import { StaticInstanceBatchRender } from "./component/Volume/BatchVolume/StaticInstanceBatchRender";
+import { RenderTexture } from "../resource/RenderTexture";
 import "./loaders/AnimationClipLoader";
 import "./loaders/CubemapLoader";
 import "./loaders/MaterialLoader";
@@ -106,6 +102,8 @@ import "./loaders/HierarchyParserV2";
 import "./loaders/AvatarMaskLoader";
 import "./loaders/ShaderLoader";
 import "./loaders/GLSLLoader";
+import "./loaders/AnimationControllerLoader";
+
 
 
 let c = ClassUtils.regClass;
@@ -142,18 +140,13 @@ c("ReflectionProbe", ReflectionProbe);
 c("StaticBatchVolume",StaticBatchVolume);
 c("StaticInstanceBatchRender",StaticInstanceBatchRender);
 c("SphericalHarmonicsL2", SphericalHarmonicsL2);
-c("Vector2", Vector2);
-c("Vector3", Vector3);
-c("Vector4", Vector4);
-c("Quaternion", Quaternion);
-c("Color", Color);
 c("Viewport", Viewport);
 c("Bounds", Bounds);
 c("BoundBox", BoundBox);
 c("TextureCube", TextureCube);
 c("Mesh", Mesh);
 c("FloatKeyframe", FloatKeyframe);
-
+c("RenderTexture", RenderTexture);
 c("Animator", Animator);
 c("AnimatorController", AnimatorController);
 c("AnimatorControllerLayer", AnimatorControllerLayer);

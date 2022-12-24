@@ -1,11 +1,11 @@
 import { ICameraCullInfo } from "../../../../RenderEngine/RenderInterface/RenderPipelineInterface/ICameraCullInfo";
 import { ISceneRenderManager } from "../../../../RenderEngine/RenderInterface/RenderPipelineInterface/ISceneRenderManager";
 import { IShadowCullInfo } from "../../../../RenderEngine/RenderInterface/RenderPipelineInterface/IShadowCullInfo";
-import { CullPassBase } from "../../../../RenderEngine/RenderObj/CullPass";
 import { SingletonList } from "../../../../utils/SingletonList";
 import { Stat } from "../../../../utils/Stat";
 import { FrustumCulling } from "../../../graphics/FrustumCulling";
 import { BoundFrustum } from "../../../math/BoundFrustum";
+import { CullPassBase } from "../../../RenderObjs/RenderObj/CullPass";
 import { BaseRender } from "../../render/BaseRender";
 import { RenderContext3D } from "../../render/RenderContext3D";
 import { BVHSceneRenderManager } from "./BVHSceneRenderManager";

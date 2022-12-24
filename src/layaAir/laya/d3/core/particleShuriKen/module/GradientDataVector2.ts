@@ -1,5 +1,5 @@
+import { Vector2 } from "../../../../maths/Vector2";
 import { IClone } from "../../../../utils/IClone"
-import { Vector2 } from "../../../math/Vector2"
 
 /**
  * <code>GradientDataVector2</code> 类用于创建二维向量渐变。

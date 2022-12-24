@@ -4,7 +4,6 @@ import { Camera } from "laya/d3/core/Camera"
 import { Sprite3D } from "laya/d3/core/Sprite3D"
 import { DirectionLight } from "laya/d3/core/light/DirectionLight"
 import { Scene3D } from "laya/d3/core/scene/Scene3D"
-import { Vector3 } from "laya/d3/math/Vector3"
 import { Stage } from "laya/display/Stage"
 import { Text } from "laya/display/Text"
 import { Loader } from "laya/net/Loader"
@@ -71,10 +70,11 @@ export class MultiTouch {
 }
 
 
-import { Vector2 } from "laya/d3/math/Vector2"
-import { Color } from "laya/d3/math/Color";
 import { Script } from "laya/components/Script";
 import { InputManager } from "laya/events/InputManager";
+import { Color } from "laya/maths/Color";
+import { Vector2 } from "laya/maths/Vector2";
+import { Vector3 } from "laya/maths/Vector3";
 
 class MonkeyScript extends Script {
 

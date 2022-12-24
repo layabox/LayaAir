@@ -1,6 +1,6 @@
 import { ColliderShape } from "./ColliderShape";
-import { Vector3 } from "../../math/Vector3"
 import { ILaya3D } from "../../../../ILaya3D";
+import { Vector3 } from "../../../maths/Vector3";
 
 /**
  * <code>StaticPlaneColliderShape</code> 类用于创建静态平面碰撞器。

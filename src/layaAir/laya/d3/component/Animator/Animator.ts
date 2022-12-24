@@ -10,11 +10,6 @@ import { KeyframeNodeList } from "../../animation/KeyframeNodeList";
 import { Material } from "../../core/material/Material";
 import { RenderableSprite3D } from "../../core/RenderableSprite3D";
 import { Sprite3D } from "../../core/Sprite3D";
-import { Color } from "../../math/Color";
-import { Quaternion } from "../../math/Quaternion";
-import { Vector2 } from "../../math/Vector2";
-import { Vector3 } from "../../math/Vector3";
-import { Vector4 } from "../../math/Vector4";
 import { Utils3D } from "../../utils/Utils3D";
 import { AnimatorControllerLayer } from "./AnimatorControllerLayer";
 import { AnimatorPlayState } from "./AnimatorPlayState";
@@ -23,23 +18,18 @@ import { AnimatorState } from "./AnimatorState";
 import { AvatarMask } from "./AvatarMask";
 import { KeyframeNodeOwner, KeyFrameValueType } from "./KeyframeNodeOwner";
 import { AnimationEvent } from "../../animation/AnimationEvent";
-import { AnimatorStateCondition } from "./AnimatorStateCondition";
 import { AnimatorTransition } from "./AnimatorTransition";
 import { AnimatorController } from "./AnimatorController";
+import { Color } from "../../../maths/Color";
+import { Quaternion } from "../../../maths/Quaternion";
+import { Vector2 } from "../../../maths/Vector2";
+import { Vector3 } from "../../../maths/Vector3";
+import { Vector4 } from "../../../maths/Vector4";
+import { AnimatorUpdateMode } from "../../../components/AnimatorUpdateMode";
+import { AnimatorStateCondition } from "../../../components/AnimatorStateCondition";
 
 export type AnimatorParams = { [key: number]: number | boolean };
 
-/**
- * 动画更新模式
- */
-export enum AnimatorUpdateMode {
-    /**正常更新。*/
-    Normal = 0,
-    /**低频率更新 */
-    LowFrame = 1,
-    /**不更新 */
-    UnScaleTime = 2
-}
 
 /**
  * <code>Animator</code> 类用于创建动画组件。

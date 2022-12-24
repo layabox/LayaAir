@@ -1,13 +1,12 @@
 import { LayaGL } from "../../../layagl/LayaGL";
+import { Color } from "../../../maths/Color";
+import { Vector3 } from "../../../maths/Vector3";
 import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { DrawType } from "../../../RenderEngine/RenderEnum/DrawType";
 import { MeshTopology } from "../../../RenderEngine/RenderEnum/RenderPologyMode";
-import { Stat } from "../../../utils/Stat";
+import { BufferState } from "../../../webgl/utils/BufferState";
 import { VertexBuffer3D } from "../../graphics/VertexBuffer3D";
 import { Bounds } from "../../math/Bounds";
-import { Color } from "../../math/Color";
-import { Vector3 } from "../../math/Vector3";
-import { BufferState } from "../BufferState";
 import { GeometryElement } from "../GeometryElement";
 import { RenderContext3D } from "../render/RenderContext3D";
 import { PixelLineData } from "./PixelLineData";

@@ -1,5 +1,5 @@
-import { Color } from "../../math/Color"
-import { Vector3 } from "../../math/Vector3"
+import { Color } from "../../../maths/Color";
+import { Vector3 } from "../../../maths/Vector3";
 
 /**
  * <code>PixelLineData</code> 类用于表示线数据。

@@ -4,14 +4,14 @@ import { DefineDatas } from "./DefineDatas";
 import { ShaderDefine } from "./ShaderDefine";
 import { Texture2D } from "../../resource/Texture2D";
 import { IClone } from "../../utils/IClone";
-import { Matrix4x4 } from "../../d3/math/Matrix4x4";
-import { Vector2 } from "../../d3/math/Vector2";
-import { Vector3 } from "../../d3/math/Vector3";
-import { Vector4 } from "../../d3/math/Vector4";
-import { Color } from "../../d3/math/Color";
 import { UniformBufferObject } from "../UniformBufferObject";
 import { UniformBufferParamsType, UnifromBufferData } from "../UniformBufferData";
-import { Quaternion } from "../../d3/math/Quaternion";
+import { Color } from "../../maths/Color";
+import { Matrix4x4 } from "../../maths/Matrix4x4";
+import { Quaternion } from "../../maths/Quaternion";
+import { Vector2 } from "../../maths/Vector2";
+import { Vector3 } from "../../maths/Vector3";
+import { Vector4 } from "../../maths/Vector4";
 
 export enum ShaderDataType {
 	Int,

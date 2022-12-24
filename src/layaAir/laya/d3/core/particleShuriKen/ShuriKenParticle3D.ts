@@ -1,10 +1,10 @@
 import { Node } from "../../../display/Node";
+import { Color } from "../../../maths/Color";
+import { Vector2 } from "../../../maths/Vector2";
+import { Vector3 } from "../../../maths/Vector3";
+import { Vector4 } from "../../../maths/Vector4";
 import { Loader } from "../../../net/Loader";
 import { Texture } from "../../../resource/Texture";
-import { Color } from "../../math/Color";
-import { Vector2 } from "../../math/Vector2";
-import { Vector3 } from "../../math/Vector3";
-import { Vector4 } from "../../math/Vector4";
 import { Gradient } from "../Gradient";
 import { RenderableSprite3D } from "../RenderableSprite3D";
 import { Sprite3D } from "../Sprite3D";

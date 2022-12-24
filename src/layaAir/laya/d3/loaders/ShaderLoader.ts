@@ -1,9 +1,9 @@
 import { ILoadTask, IResourceLoader, Loader } from "../../net/Loader";
 import { URL } from "../../net/URL";
 import { IShaderpassStructor, Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
+import { SubShader } from "../../RenderEngine/RenderShader/SubShader";
 import { AssetDb } from "../../resource/AssetDb";
 import { ShaderCompile } from "../../webgl/utils/ShaderCompile";
-import { SubShader } from "../shader/SubShader";
 import { ShaderParser } from "./ShaderParser";
 
 class ShaderLoader implements IResourceLoader {

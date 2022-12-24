@@ -2,11 +2,11 @@ import { RenderableSprite3D } from "./RenderableSprite3D";
 import { MeshFilter } from "./MeshFilter";
 import { MeshRenderer } from "./MeshRenderer";
 import { Material } from "./material/Material";
-import { Vector4 } from "../math/Vector4"
 import { Mesh } from "../resource/models/Mesh"
 import { Node } from "../../display/Node"
 import { Loader } from "../../net/Loader";
 import { Sprite3D } from "./Sprite3D";
+import { Vector4 } from "../../maths/Vector4";
 
 /**
  * <code>MeshSprite3D</code> 类用于创建网格。

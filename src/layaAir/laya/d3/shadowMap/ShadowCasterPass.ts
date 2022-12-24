@@ -7,20 +7,15 @@ import { ShadowMapFormat, ShadowUtils } from "../core/light/ShadowUtils";
 import { RenderContext3D } from "../core/render/RenderContext3D";
 import { Scene3D } from "../core/scene/Scene3D";
 import { Scene3DShaderDeclaration } from "../core/scene/Scene3DShaderDeclaration";
-import { MathUtils3D } from "../math/MathUtils3D";
-import { Matrix4x4 } from "../math/Matrix4x4";
 import { Plane } from "../math/Plane";
-import { Vector3 } from "../math/Vector3";
-import { Vector4 } from "../math/Vector4";
 import { Light, LightType } from "../core/light/Light";
 import { DirectionLightCom } from "../core/light/DirectionLightCom";
 import { Sprite3D } from "../core/Sprite3D";
 import { SpotLightCom } from "../core/light/SpotLightCom";
-import { RenderTexture } from "../resource/RenderTexture";
 import { Config3D } from "../../../Config3D";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { ShaderData } from "../../RenderEngine/RenderShader/ShaderData";
-import { UnifromBufferData, UniformBufferParamsType } from "../../RenderEngine/UniformBufferData";
+import { UnifromBufferData } from "../../RenderEngine/UniformBufferData";
 import { UniformBufferObject } from "../../RenderEngine/UniformBufferObject";
 import { BoundFrustum } from "../math/BoundFrustum";
 import { ShadowSliceData, ShadowSpotData } from "./ShadowSliceData";
@@ -32,6 +27,11 @@ import { BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
 import { Stat } from "../../utils/Stat";
 import { ShadowLightType } from "./ShadowLightType";
 import { DepthCasterData } from "../depthMap/DepthCasterData";
+import { MathUtils3D } from "../../maths/MathUtils3D";
+import { Matrix4x4 } from "../../maths/Matrix4x4";
+import { Vector3 } from "../../maths/Vector3";
+import { Vector4 } from "../../maths/Vector4";
+import { RenderTexture } from "../../resource/RenderTexture";
 
 /**
  * @internal

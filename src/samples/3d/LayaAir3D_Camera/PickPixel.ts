@@ -2,8 +2,6 @@ import { Laya } from "Laya";
 import { Camera, CameraClearFlags } from "laya/d3/core/Camera";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Ray } from "laya/d3/math/Ray";
-import { Vector3 } from "laya/d3/math/Vector3";
-import { RenderTexture } from "laya/d3/resource/RenderTexture";
 import { Stage } from "laya/display/Stage";
 import { Text } from "laya/display/Text";
 import { Event } from "laya/events/Event";
@@ -18,6 +16,8 @@ import { Config } from "Config";
 import { Sprite } from "laya/display/Sprite";
 import Client from "../../Client";
 import { RenderTargetFormat } from "laya/RenderEngine/RenderEnum/RenderTargetFormat";
+import { Vector3 } from "laya/maths/Vector3";
+import { RenderTexture } from "laya/resource/RenderTexture";
 
 export class PickPixel {
 	private isPick: boolean = false;

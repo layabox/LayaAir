@@ -1,10 +1,10 @@
 import { AnimatorControllerParse, AniParmType, TypeAnimatorConditions, TypeAnimatorControllerData, TypeAnimatorParams, TypeAnimatorState, TypeAnimatorTransition } from "../../../components/AnimatorControllerParse";
+import { AnimatorStateCondition, AnimatorStateBoolCondition, AnimatorStateNumberCondition, AnimatorStateTriggerCondition } from "../../../components/AnimatorStateCondition";
 import { Resource } from "../../../resource/Resource";
 import { ClassUtils } from "../../../utils/ClassUtils";
 import { Animator } from "./Animator";
 import { AnimatorControllerLayer } from "./AnimatorControllerLayer";
 import { AnimatorState } from "./AnimatorState";
-import { AnimatorStateBoolCondition, AnimatorStateCondition, AnimatorStateNumberCondition, AnimatorStateTriggerCondition } from "./AnimatorStateCondition";
 import { AnimatorTransition } from "./AnimatorTransition";
 
 export class AnimatorController extends Resource {

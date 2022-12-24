@@ -18,17 +18,17 @@ import { Shader3D } from "../../../../RenderEngine/RenderShader/Shader3D";
 import { ShaderDataType, ShaderData } from "../../../../RenderEngine/RenderShader/ShaderData";
 import { Texture2D } from "../../../../resource/Texture2D";
 import { PostProcess } from "../../../component/PostProcess";
-import { VertexMesh } from "../../../graphics/Vertex/VertexMesh";
-import { Color } from "../../../math/Color";
-import { Vector4 } from "../../../math/Vector4";
 import { Viewport } from "../../../math/Viewport";
-import { RenderTexture } from "../../../resource/RenderTexture";
-import { SubShader } from "../../../shader/SubShader";
-import { RenderState } from "../../material/RenderState";
 import { CommandBuffer } from "../command/CommandBuffer";
 import { PostProcessEffect } from "../PostProcessEffect";
 import { PostProcessRenderContext } from "../PostProcessRenderContext";
 import { BaseTexture } from "../../../../resource/BaseTexture";
+import { Color } from "../../../../maths/Color";
+import { Vector4 } from "../../../../maths/Vector4";
+import { RenderTexture } from "../../../../resource/RenderTexture";
+import { RenderState } from "../../../../RenderEngine/RenderShader/RenderState";
+import { SubShader } from "../../../../RenderEngine/RenderShader/SubShader";
+import { VertexMesh } from "../../../../RenderEngine/RenderShader/VertexMesh";
 
 /**
  * <code>BloomEffect</code> 类用于创建泛光效果。

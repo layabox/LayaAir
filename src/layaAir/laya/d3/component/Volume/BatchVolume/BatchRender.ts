@@ -1,9 +1,9 @@
+import { Vector3 } from "../../../../maths/Vector3";
 import { SingletonList } from "../../../../utils/SingletonList";
 import { Camera } from "../../../core/Camera";
 import { BaseRender, RenderBitFlag } from "../../../core/render/BaseRender";
 import { InstanceRenderElement } from "../../../core/render/InstanceRenderElement";
 import { Scene3D } from "../../../core/scene/Scene3D";
-import { Vector3 } from "../../../math/Vector3";
 const tempVec = new Vector3();
 const tempVec1 = new Vector3();
 /**

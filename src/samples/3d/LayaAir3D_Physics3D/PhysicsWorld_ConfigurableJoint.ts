@@ -5,21 +5,21 @@ import { Handler } from "laya/utils/Handler";
 import { Stage } from "laya/display/Stage";
 import { Stat } from "laya/utils/Stat";
 import { Camera } from "laya/d3/core/Camera";
-import { Vector3 } from "laya/d3/math/Vector3";
 import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Rigidbody3D } from "laya/d3/physics/Rigidbody3D";
 import { BoxColliderShape } from "laya/d3/physics/shape/BoxColliderShape";
 import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
-import { Vector4 } from "laya/d3/math/Vector4";
 import { Texture2D } from "laya/resource/Texture2D";
 import { SphereColliderShape } from "laya/d3/physics/shape/SphereColliderShape";
 import { ConfigurableConstraint } from "laya/d3/physics/constraints/ConfigurableConstraint";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
-import { Color } from "laya/d3/math/Color";
-import { Matrix4x4 } from "laya/d3/math/Matrix4x4";
+import { Color } from "laya/maths/Color";
+import { Matrix4x4 } from "laya/maths/Matrix4x4";
+import { Vector3 } from "laya/maths/Vector3";
+import { Vector4 } from "laya/maths/Vector4";
 
 
 

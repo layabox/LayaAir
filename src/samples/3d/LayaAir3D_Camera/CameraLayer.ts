@@ -4,16 +4,15 @@ import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
-import { Quaternion } from "laya/d3/math/Quaternion";
-import { Vector3 } from "laya/d3/math/Vector3";
 import { Stage } from "laya/display/Stage";
 import { Event } from "laya/events/Event";
+import { Quaternion } from "laya/maths/Quaternion";
+import { Vector3 } from "laya/maths/Vector3";
 import { Loader } from "laya/net/Loader";
 import { Button } from "laya/ui/Button";
 import { Browser } from "laya/utils/Browser";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
-import { Utils } from "laya/utils/Utils";
 import { Laya3D } from "Laya3D";
 import Client from "../../Client";
 import { CameraMoveScript } from "../common/CameraMoveScript";
@@ -23,7 +22,6 @@ import { CameraMoveScript } from "../common/CameraMoveScript";
  */
 export class CameraLayer {
 	private _scene: Scene3D;
-	private changeActionButton: Button;
 	private layerIndex: number;
 	private camera: Camera;
 	private _translate: Vector3 = new Vector3(0, 0.7, 3);

@@ -1,11 +1,11 @@
 import { Material } from "laya/d3/core/material/Material";
-import { RenderState } from "laya/d3/core/material/RenderState";
-import { VertexMesh } from "laya/d3/graphics/Vertex/VertexMesh";
-import { SubShader } from "laya/d3/shader/SubShader";
 import CustomInstanceVS from "./customInstance.vs";
 import CustomInstanceFS from "./customInstance.fs";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 import { ShaderDataType } from "laya/RenderEngine/RenderShader/ShaderData";
+import { RenderState } from "laya/RenderEngine/RenderShader/RenderState";
+import { SubShader } from "laya/RenderEngine/RenderShader/SubShader";
+import { VertexMesh } from "laya/RenderEngine/RenderShader/VertexMesh";
 
 export class CustomInstanceMaterial extends Material{
     

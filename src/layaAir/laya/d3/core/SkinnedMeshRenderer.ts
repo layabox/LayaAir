@@ -1,7 +1,5 @@
 import { Event } from "../../events/Event";
 import { Stat } from "../../utils/Stat";
-import { Matrix4x4 } from "../math/Matrix4x4";
-import { Vector3 } from "../math/Vector3";
 import { Mesh, skinnedMatrixCache } from "../resource/models/Mesh";
 import { SubMesh } from "../resource/models/SubMesh";
 import { Utils3D } from "../utils/Utils3D";
@@ -9,21 +7,19 @@ import { MeshRenderer } from "./MeshRenderer";
 import { Sprite3D } from "./Sprite3D";
 import { Transform3D } from "./Transform3D";
 import { RenderContext3D } from "./render/RenderContext3D";
-import { RenderElement } from "./render/RenderElement";
 import { SkinnedMeshSprite3DShaderDeclaration } from "./SkinnedMeshSprite3DShaderDeclaration";
 import { Component } from "../../components/Component";
-import { LayaGL } from "../../layagl/LayaGL";
 import { SkinRenderElement } from "./render/SkinRenderElement";
 import { Material } from "./material/Material";
 import { BlinnPhongMaterial } from "./material/BlinnPhongMaterial";
 import { Scene3D } from "./scene/Scene3D";
 import { Bounds } from "../math/Bounds";
+import { Matrix4x4 } from "../../maths/Matrix4x4";
+import { Vector3 } from "../../maths/Vector3";
 /**
  * <code>SkinMeshRenderer</code> 类用于蒙皮渲染器。
  */
 export class SkinnedMeshRenderer extends MeshRenderer {
-    /**@internal */
-    private static _tempMatrix4x4: Matrix4x4 = new Matrix4x4();
 
     /**@internal */
     protected _cacheMesh: Mesh;

@@ -11,20 +11,20 @@ import { WrapMode } from "../../../../RenderEngine/RenderEnum/WrapMode";
 import { Shader3D } from "../../../../RenderEngine/RenderShader/Shader3D";
 import { ShaderDataType, ShaderData } from "../../../../RenderEngine/RenderShader/ShaderData";
 import { DepthTextureMode } from "../../../depthMap/DepthPass";
-import { VertexMesh } from "../../../graphics/Vertex/VertexMesh";
-import { Vector2 } from "../../../math/Vector2";
-import { Vector3 } from "../../../math/Vector3";
 import { Viewport } from "../../../math/Viewport";
-import { RenderTexture } from "../../../resource/RenderTexture";
-import { SubShader } from "../../../shader/SubShader";
 import { Camera } from "../../Camera";
 import { CommandBuffer } from "../command/CommandBuffer";
 import { PostProcessEffect } from "../PostProcessEffect";
 import { PostProcessRenderContext } from "../PostProcessRenderContext";
 import { BaseCamera } from "../../BaseCamera";
-import { Vector4 } from "../../../math/Vector4";
-import { Color } from "../../../math/Color";
 import { ShaderDefine } from "../../../../RenderEngine/RenderShader/ShaderDefine";
+import { Color } from "../../../../maths/Color";
+import { Vector2 } from "../../../../maths/Vector2";
+import { Vector3 } from "../../../../maths/Vector3";
+import { Vector4 } from "../../../../maths/Vector4";
+import { RenderTexture } from "../../../../resource/RenderTexture";
+import { SubShader } from "../../../../RenderEngine/RenderShader/SubShader";
+import { VertexMesh } from "../../../../RenderEngine/RenderShader/VertexMesh";
 export enum AOQUALITY{
     High,
     MEDIUM,

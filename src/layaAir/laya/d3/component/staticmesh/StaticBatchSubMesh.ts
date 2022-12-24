@@ -1,9 +1,9 @@
+import { Vector3 } from "../../../maths/Vector3";
 import { DrawType } from "../../../RenderEngine/RenderEnum/DrawType";
 import { MeshTopology } from "../../../RenderEngine/RenderEnum/RenderPologyMode";
 import { GeometryElement } from "../../core/GeometryElement";
 import { RenderContext3D } from "../../core/render/RenderContext3D";
 import { Bounds } from "../../math/Bounds";
-import { Vector3 } from "../../math/Vector3";
 
 
 

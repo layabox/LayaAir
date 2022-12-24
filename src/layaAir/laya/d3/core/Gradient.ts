@@ -1,7 +1,7 @@
-import { Color } from "../math/Color";
-import { Vector4 } from "../math/Vector4";
 import { GradientMode } from "./GradientMode";
 import { IClone } from "../../utils/IClone";
+import { Color } from "../../maths/Color";
+import { Vector4 } from "../../maths/Vector4";
 
 
 /**

@@ -1,15 +1,14 @@
 import { Camera, CameraClearFlags } from "../Camera";
 import { Sprite3D } from "../Sprite3D";
 import { Ray } from "../../math/Ray";
-import { Vector2 } from "../../math/Vector2";
-import { Vector3 } from "../../math/Vector3";
 import { Viewport } from "../../math/Viewport";
 import { HitResult } from "../../physics/HitResult";
 import { Config3D } from "../../../../Config3D";
-import { Physics3D } from "../../Physics3D";
 import { InputManager } from "../../../events/InputManager";
 import { Node } from "../../../display/Node";
 import { Scene3D } from "./Scene3D";
+import { Vector2 } from "../../../maths/Vector2";
+import { Vector3 } from "../../../maths/Vector3";
 
 const _vec2 = new Vector2();
 const _ray = new Ray(new Vector3(), new Vector3());

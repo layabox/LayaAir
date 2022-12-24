@@ -2,21 +2,20 @@ import { Config3D } from "../../../Config3D";
 import { LayaGL } from "../../layagl/LayaGL";
 import { Camera } from "../core/Camera";
 import { RenderContext3D } from "../core/render/RenderContext3D";
-import { ShadowCasterPass } from "../shadowMap/ShadowCasterPass";
-import { RenderTexture } from "../resource/RenderTexture";
 import { RenderTargetFormat } from "../../RenderEngine/RenderEnum/RenderTargetFormat";
-import { Color } from "../math/Color";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { ShaderData } from "../../RenderEngine/RenderShader/ShaderData";
 import { ShaderDefine } from "../../RenderEngine/RenderShader/ShaderDefine";
 import { UnifromBufferData } from "../../RenderEngine/UniformBufferData";
 import { UniformBufferObject } from "../../RenderEngine/UniformBufferObject";
-import { Vector4 } from "../math/Vector4";
 import { Viewport } from "../math/Viewport";
 import { RenderClearFlag } from "../../RenderEngine/RenderEnum/RenderClearFlag";
 import { BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
 import { Stat } from "../../utils/Stat";
 import { DepthCasterData } from "./DepthCasterData";
+import { Color } from "../../maths/Color";
+import { Vector4 } from "../../maths/Vector4";
+import { RenderTexture } from "../../resource/RenderTexture";
 
 
 /**

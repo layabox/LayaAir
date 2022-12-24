@@ -29,15 +29,19 @@ import { Animation2DCondition } from "./components/Animation2DCondition";
 import { Prefab } from "./resource/HierarchyResource";
 import { Widget } from "./components/Widget";
 import { AnimatorController2D } from "./components/AnimatorController2D";
-import { RenderTexture } from "./d3/resource/RenderTexture";
+import { Vector2 } from "./maths/Vector2";
+import { Vector3 } from "./maths/Vector3";
+import { Vector4 } from "./maths/Vector4";
+import { Quaternion } from "./maths/Quaternion";
+import { Color } from "./maths/Color";
 
 import "./loaders/TextResourceLoader";
 import "./loaders/AtlasLoader";
 import "./loaders/HierarchyLoader";
 import "./loaders/TextureLoader";
 import "./loaders/AnimationClip2DLoader";
-import "./loaders/AnimationControllerLoader";
 import "./loaders/NullLoader";
+
 
 let c = ClassUtils.regClass;
 
@@ -64,7 +68,7 @@ c("Point", Point);
 c("Rectangle", Rectangle);
 c("Texture", Texture);
 c("Texture2D", Texture2D);
-c("RenderTexture", RenderTexture);
+
 c("Prefab", Prefab);
 
 c("Animator2D", Animator2D);
@@ -75,3 +79,9 @@ c("AnimatorController2D", AnimatorController2D);
 c("Animation2DNext", Animation2DNext);
 c("Animation2DParm", Animation2DParm);
 c("Animation2DCondition", Animation2DCondition);
+
+c("Vector2", Vector2);
+c("Vector3", Vector3);
+c("Vector4", Vector4);
+c("Quaternion", Quaternion);
+c("Color", Color);

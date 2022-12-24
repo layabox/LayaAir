@@ -8,13 +8,6 @@ import { Camera } from "../../../core/Camera";
 import { CommandBuffer } from "../../../core/render/command/CommandBuffer";
 import { PostProcessEffect } from "../../../core/render/PostProcessEffect";
 import { PostProcessRenderContext } from "../../../core/render/PostProcessRenderContext";
-import { VertexMesh } from "../../../graphics/Vertex/VertexMesh";
-import { Viewport } from "../../../math/Viewport";
-import { RenderTexture } from "../../../resource/RenderTexture";
-import { ShaderPass } from "../../../shader/ShaderPass";
-import { SubShader } from "../../../shader/SubShader";
-import { Vector4 } from "../../../math/Vector4";
-import { Vector3 } from "../../../math/Vector3";
 import { FilterMode } from "../../../../RenderEngine/RenderEnum/FilterMode";
 import { RenderTargetFormat } from "../../../../RenderEngine/RenderEnum/RenderTargetFormat";
 import { Shader3D } from "../../../../RenderEngine/RenderShader/Shader3D";
@@ -22,6 +15,11 @@ import { ShaderData, ShaderDataType } from "../../../../RenderEngine/RenderShade
 import { ShaderDefine } from "../../../../RenderEngine/RenderShader/ShaderDefine";
 import { LayaGL } from "../../../../layagl/LayaGL";
 import { DepthTextureMode } from "../../../depthMap/DepthPass";
+import { Vector3 } from "../../../../maths/Vector3";
+import { Vector4 } from "../../../../maths/Vector4";
+import { RenderTexture } from "../../../../resource/RenderTexture";
+import { SubShader } from "../../../../RenderEngine/RenderShader/SubShader";
+import { VertexMesh } from "../../../../RenderEngine/RenderShader/VertexMesh";
 
 /**
  *  <code>BloomEffect</code> 类用于创建环境光遮罩效果。

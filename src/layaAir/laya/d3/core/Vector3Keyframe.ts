@@ -1,5 +1,5 @@
+import { Vector3 } from "../../maths/Vector3";
 import { Keyframe, WeightedMode } from "./Keyframe";
-import { Vector3 } from "../math/Vector3"
 
 /**
  * <code>Vector3Keyframe</code> 类用于创建三维向量关键帧实例。

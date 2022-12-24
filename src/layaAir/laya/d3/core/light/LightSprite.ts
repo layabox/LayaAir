@@ -1,12 +1,9 @@
-import { Config3D } from "../../../../Config3D";
 import { Node } from "../../../display/Node";
-import { Vector3 } from "../../math/Vector3";
-import { Scene3D } from "../scene/Scene3D";
 import { Sprite3D } from "../Sprite3D";
 import { ShadowMode } from "./ShadowMode";
-import { Matrix4x4 } from "../../math/Matrix4x4";
 import { Light, LightMode } from "./Light";
-import { Color } from "../../math/Color";
+import { Color } from "../../../maths/Color";
+import { Matrix4x4 } from "../../../maths/Matrix4x4";
 
 /**
  * <code>LightSprite</code> 类用于创建灯光的父类。

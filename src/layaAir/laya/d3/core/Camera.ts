@@ -9,14 +9,9 @@ import { PostProcess } from "../component/PostProcess";
 import { DepthPass, DepthTextureMode } from "../depthMap/DepthPass";
 import { Cluster } from "../graphics/renderPath/Cluster";
 import { BoundFrustum } from "../math/BoundFrustum";
-import { Matrix4x4 } from "../math/Matrix4x4";
 import { Ray } from "../math/Ray";
-import { Vector2 } from "../math/Vector2";
-import { Vector3 } from "../math/Vector3";
-import { Vector4 } from "../math/Vector4";
 import { Viewport } from "../math/Viewport";
 import { Picker } from "../utils/Picker";
-import { RenderTexture } from "../resource/RenderTexture";
 import { BaseCamera } from "./BaseCamera";
 import { DirectionLightCom } from "./light/DirectionLightCom";
 import { ShadowMode } from "./light/ShadowMode";
@@ -36,7 +31,12 @@ import { ShadowLightType } from "../shadowMap/ShadowLightType";
 import { TextureCube } from "../resource/TextureCube";
 import { TextureFormat } from "../../RenderEngine/RenderEnum/TextureFormat";
 import { Texture2D } from "../../resource/Texture2D";
-import { Quaternion } from "../math/Quaternion";
+import { Matrix4x4 } from "../../maths/Matrix4x4";
+import { Quaternion } from "../../maths/Quaternion";
+import { Vector2 } from "../../maths/Vector2";
+import { Vector3 } from "../../maths/Vector3";
+import { Vector4 } from "../../maths/Vector4";
+import { RenderTexture } from "../../resource/RenderTexture";
 
 /**
  * 相机清除标记。

@@ -1,6 +1,5 @@
-import { LayaGL } from "../../../layagl/LayaGL";
 import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTargetFormat";
-import { RenderTexture } from "../../resource/RenderTexture";
+import { RenderTexture } from "../../../resource/RenderTexture";
 import { WebXRExperienceHelper } from "./WebXRExperienceHelper";
 
 

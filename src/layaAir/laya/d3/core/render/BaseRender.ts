@@ -4,13 +4,10 @@ import { RenderableSprite3D } from "../RenderableSprite3D"
 import { Transform3D } from "../Transform3D"
 import { Material } from "../material/Material"
 import { BoundFrustum } from "../../math/BoundFrustum"
-import { Vector3 } from "../../math/Vector3"
-import { Vector4 } from "../../math/Vector4"
 import { Event } from "../../../events/Event"
 import { Lightmap } from "../scene/Lightmap";
 import { MeshSprite3DShaderDeclaration } from "../../../d3/core/MeshSprite3DShaderDeclaration";
 import { TextureCube } from "../../resource/TextureCube";
-import { Matrix4x4 } from "../../math/Matrix4x4";
 import { Component } from "../../../components/Component";
 import { Sprite3D } from "../Sprite3D";
 import { ShaderData, ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData";
@@ -22,7 +19,6 @@ import { Stat } from "../../../utils/Stat";
 import { Bounds } from "../../math/Bounds";
 import { Volume } from "../../component/Volume/Volume";
 import { ReflectionProbe, ReflectionProbeMode } from "../../component/Volume/reflectionProbe/ReflectionProbe";
-import { VertexMesh } from "../../graphics/Vertex/VertexMesh";
 import { Mesh } from "../../resource/models/Mesh";
 import { ShaderDefine } from "../../../RenderEngine/RenderShader/ShaderDefine";
 import { NodeFlags } from "../../../Const";
@@ -31,6 +27,10 @@ import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { BatchRender } from "../../component/Volume/BatchVolume/BatchRender";
 import { ILaya3D } from "../../../../ILaya3D";
 import { IBoundsCell } from "../../math/IBoundsCell";
+import { Matrix4x4 } from "../../../maths/Matrix4x4";
+import { Vector3 } from "../../../maths/Vector3";
+import { Vector4 } from "../../../maths/Vector4";
+import { VertexMesh } from "../../../RenderEngine/RenderShader/VertexMesh";
 
 export enum RenderBitFlag {
     RenderBitFlag_CullFlag = 1 << 0,

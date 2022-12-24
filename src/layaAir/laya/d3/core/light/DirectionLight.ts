@@ -1,9 +1,9 @@
-import { Vector3 } from "../../math/Vector3";
 import { ShadowCascadesMode } from "./ShadowCascadesMode";
 import { Node } from "../../../display/Node";
 import { DirectionLightCom } from "./DirectionLightCom";
 import { LightSprite } from "./LightSprite";
 import { Sprite3D } from "../Sprite3D";
+import { Vector3 } from "../../../maths/Vector3";
 
 /**
  * <code>DirectionLight</code> 类用于创建平行光。

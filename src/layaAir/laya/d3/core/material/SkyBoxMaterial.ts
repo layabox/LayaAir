@@ -1,6 +1,5 @@
+import { Color } from "../../../maths/Color";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
-import { Color } from "../../math/Color";
-import { Vector4 } from "../../math/Vector4";
 import { TextureCube } from "../../resource/TextureCube";
 import { Material } from "./Material";
 

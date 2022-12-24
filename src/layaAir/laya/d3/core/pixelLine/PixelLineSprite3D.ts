@@ -2,11 +2,11 @@ import { PixelLineFilter } from "./PixelLineFilter";
 import { PixelLineRenderer } from "./PixelLineRenderer";
 import { PixelLineData } from "./PixelLineData";
 import { RenderableSprite3D } from "../RenderableSprite3D"
-import { Color } from "../../math/Color"
-import { Vector3 } from "../../math/Vector3"
 import { Node } from "../../../display/Node"
 import { Sprite3D } from "../Sprite3D";
 import { UnlitMaterial } from "../material/UnlitMaterial";
+import { Color } from "../../../maths/Color";
+import { Vector3 } from "../../../maths/Vector3";
 
 /**
  * <code>PixelLineSprite3D</code> 类用于像素线渲染精灵。

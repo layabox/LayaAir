@@ -1,11 +1,10 @@
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { PixelLineSprite3D } from "laya/d3/core/pixelLine/PixelLineSprite3D";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
-import { BoundBox } from "laya/d3/math/BoundBox";
-import { Color } from "laya/d3/math/Color";
-import { Vector3 } from "laya/d3/math/Vector3";
 import { Mesh } from "laya/d3/resource/models/Mesh";
 import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
+import { Color } from "laya/maths/Color";
+import { Vector3 } from "laya/maths/Vector3";
 
 /**
  * ...

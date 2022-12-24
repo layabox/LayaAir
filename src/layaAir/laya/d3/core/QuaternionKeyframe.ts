@@ -1,6 +1,6 @@
+import { Quaternion } from "../../maths/Quaternion";
+import { Vector4 } from "../../maths/Vector4";
 import { Keyframe } from "./Keyframe";
-import { Quaternion } from "../math/Quaternion"
-import { Vector4 } from "../math/Vector4"
 
 /**
  * <code>QuaternionKeyframe</code> 类用于创建四元数关键帧实例。

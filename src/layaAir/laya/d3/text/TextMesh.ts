@@ -1,4 +1,5 @@
-import { Color } from "../math/Color"
+import { Color } from "../../maths/Color";
+
 	
 	/**
 	 * <code>TextMesh</code> 类用于创建文本网格。

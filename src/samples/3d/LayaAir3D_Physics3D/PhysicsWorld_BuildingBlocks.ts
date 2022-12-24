@@ -6,9 +6,6 @@ import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
 import { Ray } from "laya/d3/math/Ray";
-import { Vector2 } from "laya/d3/math/Vector2";
-import { Vector3 } from "laya/d3/math/Vector3";
-import { Vector4 } from "laya/d3/math/Vector4";
 import { HitResult } from "laya/d3/physics/HitResult";
 import { PhysicsCollider } from "laya/d3/physics/PhysicsCollider";
 import { Rigidbody3D } from "laya/d3/physics/Rigidbody3D";
@@ -17,13 +14,15 @@ import { Mesh } from "laya/d3/resource/models/Mesh";
 import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
 import { Stage } from "laya/display/Stage";
 import { Event } from "laya/events/Event";
+import { Color } from "laya/maths/Color";
+import { Matrix4x4 } from "laya/maths/Matrix4x4";
+import { Vector2 } from "laya/maths/Vector2";
+import { Vector3 } from "laya/maths/Vector3";
+import { Vector4 } from "laya/maths/Vector4";
 import { Texture2D } from "laya/resource/Texture2D";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
-import { Config3D } from "Config3D";
-import { Color } from "laya/d3/math/Color";
-import { Matrix4x4 } from "laya/d3/math/Matrix4x4";
 
 export class PhysicsWorld_BuildingBlocks {
 	private scene: Scene3D;

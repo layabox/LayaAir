@@ -1,13 +1,13 @@
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
-import { ShaderData, ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData";
-import { VertexMesh } from "../../graphics/Vertex/VertexMesh";
-import { Color } from "../../math/Color";
-import { AttributeMapType, SubShader } from "../SubShader";
+import { ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData";
 import SkyPanoramicVS from "./SkyPanoramic.vs";
 import SkyPanoramicFS from "./SkyPanoramic.fs";
 import { Texture2D } from "../../../resource/Texture2D";
-import { Vector4 } from "../../math/Vector4";
-import { RenderState } from "../../core/material/RenderState";
+import { Color } from "../../../maths/Color";
+import { Vector4 } from "../../../maths/Vector4";
+import { RenderState } from "../../../RenderEngine/RenderShader/RenderState";
+import { AttributeMapType, SubShader } from "../../../RenderEngine/RenderShader/SubShader";
+import { VertexMesh } from "../../../RenderEngine/RenderShader/VertexMesh";
 
 export class SkyPanoramicShaderInit {
     static init() {

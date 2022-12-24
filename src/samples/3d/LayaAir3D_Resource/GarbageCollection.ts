@@ -2,16 +2,15 @@ import { Laya } from "Laya";
 import { Laya3D } from "Laya3D";
 import { Camera } from "laya/d3/core/Camera";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
-import { Vector3 } from "laya/d3/math/Vector3";
 import { Stage } from "laya/display/Stage";
 import { Event } from "laya/events/Event";
 import { Resource } from "laya/resource/Resource";
 import { Button } from "laya/ui/Button";
-import { Browser } from "laya/utils/Browser";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import Client from "../../Client";
 import { CameraMoveScript } from "../common/CameraMoveScript";
+import { Vector3 } from "laya/maths/Vector3";
 
 /**
  * ...

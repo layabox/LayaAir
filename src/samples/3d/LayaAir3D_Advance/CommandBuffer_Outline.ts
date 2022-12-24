@@ -2,14 +2,12 @@ import { Laya } from "Laya";
 import { Camera, CameraEventFlags } from "laya/d3/core/Camera";
 import { CommandBuffer } from "laya/d3/core/render/command/CommandBuffer";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
-import { Vector4 } from "laya/d3/math/Vector4";
 import { Stage } from "laya/display/Stage";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import { UnlitMaterial } from "laya/d3/core/material/UnlitMaterial";
 import { Viewport } from "laya/d3/math/Viewport";
-import { RenderTexture } from "laya/d3/resource/RenderTexture";
 import { Material } from "laya/d3/core/material/Material";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { ShuriKenParticle3D } from "laya/d3/core/particleShuriKen/ShuriKenParticle3D";
@@ -24,8 +22,10 @@ import { Event } from "laya/events/Event";
 import Client from "../../Client";
 import { FilterMode } from "laya/RenderEngine/RenderEnum/FilterMode";
 import { RenderTargetFormat } from "laya/RenderEngine/RenderEnum/RenderTargetFormat";
-import { Color } from "laya/d3/math/Color";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
+import { Color } from "laya/maths/Color";
+import { Vector4 } from "laya/maths/Vector4";
+import { RenderTexture } from "laya/resource/RenderTexture";
 
 export class CommandBuffer_Outline {
 	private commandBuffer: CommandBuffer;

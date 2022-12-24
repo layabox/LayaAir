@@ -6,9 +6,6 @@ import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
 import { Transform3D } from "laya/d3/core/Transform3D";
-import { Matrix4x4 } from "laya/d3/math/Matrix4x4";
-import { Vector3 } from "laya/d3/math/Vector3";
-import { Vector4 } from "laya/d3/math/Vector4";
 import { PhysicsCollider } from "laya/d3/physics/PhysicsCollider";
 import { Rigidbody3D } from "laya/d3/physics/Rigidbody3D";
 import { BoxColliderShape } from "laya/d3/physics/shape/BoxColliderShape";
@@ -17,12 +14,14 @@ import { SphereColliderShape } from "laya/d3/physics/shape/SphereColliderShape";
 import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
 import { Stage } from "laya/display/Stage";
 import { InputManager } from "laya/events/InputManager";
+import { Color } from "laya/maths/Color";
+import { Matrix4x4 } from "laya/maths/Matrix4x4";
+import { Vector3 } from "laya/maths/Vector3";
+import { Vector4 } from "laya/maths/Vector4";
 import { Texture2D } from "laya/resource/Texture2D";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
-import { Config3D } from "Config3D";
-import { Color } from "laya/d3/math/Color";
 
 export class PhysicsWorld_Kinematic {
 

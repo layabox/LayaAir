@@ -1,5 +1,5 @@
+import { Vector3 } from "../../maths/Vector3";
 import { PhysicsComponent } from "./PhysicsComponent"
-import { Vector3 } from "../math/Vector3"
 
 /**
  * <code>HitResult</code> 类用于实现射线检测或形状扫描的结果。

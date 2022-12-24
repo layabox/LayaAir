@@ -4,10 +4,10 @@ import { FloatKeyframe } from "../FloatKeyframe"
 import { Gradient } from "../Gradient"
 import { RenderableSprite3D } from "../RenderableSprite3D"
 import { Material } from "../material/Material"
-import { Color } from "../../math/Color"
 import { Node } from "../../../display/Node"
 import { Loader } from "../../../net/Loader"
 import { Sprite3D } from "../Sprite3D";
+import { Color } from "../../../maths/Color";
 
 /**
  * <code>TrailSprite3D</code> 类用于创建拖尾渲染精灵。

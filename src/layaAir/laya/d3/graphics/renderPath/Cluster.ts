@@ -1,4 +1,7 @@
 import { Config3D } from "../../../../Config3D";
+import { Matrix4x4 } from "../../../maths/Matrix4x4";
+import { Vector2 } from "../../../maths/Vector2";
+import { Vector3 } from "../../../maths/Vector3";
 import { Texture2D } from "../../../resource/Texture2D";
 import { Camera } from "../../core/Camera";
 import { LightQueue } from "../../core/light/LightQueue";
@@ -6,9 +9,7 @@ import { PointLightCom } from "../../core/light/PointLightCom";
 import { SpotLightCom } from "../../core/light/SpotLightCom";
 import { Scene3D } from "../../core/scene/Scene3D";
 import { Sprite3D } from "../../core/Sprite3D";
-import { Matrix4x4 } from "../../math/Matrix4x4";
-import { Vector2 } from "../../math/Vector2";
-import { Vector3 } from "../../math/Vector3";
+
 import { Utils3D } from "../../utils/Utils3D";
 
 /**

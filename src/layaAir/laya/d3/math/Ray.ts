@@ -1,4 +1,5 @@
-import { Vector3 } from "./Vector3";
+import { Vector3 } from "../../maths/Vector3";
+
 /**
 	 * <code>Ray</code> 类用于创建射线。
 	 */

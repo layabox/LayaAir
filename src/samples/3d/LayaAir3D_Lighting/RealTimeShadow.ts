@@ -9,7 +9,6 @@ import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { SkinnedMeshSprite3D } from "laya/d3/core/SkinnedMeshSprite3D";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
 import { Transform3D } from "laya/d3/core/Transform3D";
-import { Vector3 } from "laya/d3/math/Vector3";
 import { Mesh } from "laya/d3/resource/models/Mesh";
 import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
 import { Stage } from "laya/display/Stage";
@@ -23,8 +22,9 @@ import { CameraMoveScript } from "../common/CameraMoveScript";
 import { Stat } from "laya/utils/Stat";
 import Client from "../../Client";
 import { SkinnedMeshRenderer } from "laya/d3/core/SkinnedMeshRenderer";
-import { Color } from "laya/d3/math/Color";
 import { Script } from "laya/components/Script";
+import { Color } from "laya/maths/Color";
+import { Vector3 } from "laya/maths/Vector3";
 
 /**
  * Light rotation script.

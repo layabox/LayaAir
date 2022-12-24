@@ -1,9 +1,9 @@
 import { Material } from "laya/d3/core/material/Material";
-import { RenderState } from "laya/d3/core/material/RenderState";
-import { SubShader } from "laya/d3/shader/SubShader";
 import DepthNormalVS from "../DepthNormalShader/DepthNormalsTextureTest.vs";
 import DepthNormalFS from "../DepthNormalShader/DepthNormalsTextureTest.fs";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
+import { RenderState } from "laya/RenderEngine/RenderShader/RenderState";
+import { SubShader } from "laya/RenderEngine/RenderShader/SubShader";
 
 export class DepthNormalsMaterial extends Material{
     static init(){

@@ -11,8 +11,6 @@ import { ISubmit } from "../../../webgl/submit/ISubmit";
 import { SubmitKey } from "../../../webgl/submit/SubmitKey";
 import { Cluster } from "../../graphics/renderPath/Cluster";
 import { SphericalHarmonicsL2 } from "../../graphics/SphericalHarmonicsL2";
-import { Vector3 } from "../../math/Vector3";
-import { Vector4 } from "../../math/Vector4";
 import { Viewport } from "../../math/Viewport";
 import { PhysicsComponent } from "../../physics/PhysicsComponent";
 import { PhysicsSettings } from "../../physics/PhysicsSettings";
@@ -37,7 +35,6 @@ import { DirectionLightCom } from "../light/DirectionLightCom";
 import { Sprite3D } from "../Sprite3D";
 import { PointLightCom } from "../light/PointLightCom";
 import { SpotLightCom } from "../light/SpotLightCom";
-import { RenderTexture } from "../../resource/RenderTexture";
 import { FilterMode } from "../../../RenderEngine/RenderEnum/FilterMode";
 import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
 import { DefineDatas } from "../../../RenderEngine/RenderShader/DefineDatas";
@@ -53,13 +50,10 @@ import { IShadowCullInfo } from "../../../RenderEngine/RenderInterface/RenderPip
 import { ICameraCullInfo } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/ICameraCullInfo";
 import { WebGL } from "../../../webgl/WebGL";
 import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
-import { BufferState } from "../BufferState";
-import { Color } from "../../math/Color";
 import { Prefab } from "../../../resource/HierarchyResource";
 import { Stat } from "../../../utils/Stat";
 import { CommandUniformMap } from "../../../RenderEngine/CommandUniformMap";
 import { ComponentDriver } from "../../../components/ComponentDriver";
-import "./Input3D";
 import { IRenderQueue } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderQueue";
 import { LayaEnv } from "../../../../LayaEnv";
 import { SceneRenderManager } from "./SceneRenderManager";
@@ -71,6 +65,11 @@ import { AmbientMode } from "./AmbientMode";
 import { BVHSpatialConfig } from "./bvh/SpatialManager";
 import { BVHSceneRenderManager } from "./BVHSceneRenderManager/BVHSceneRenderManager";
 import { BVHCullPass } from "./BVHSceneRenderManager/BVHCullPass";
+import { Color } from "../../../maths/Color";
+import { Vector3 } from "../../../maths/Vector3";
+import { Vector4 } from "../../../maths/Vector4";
+import { BufferState } from "../../../webgl/utils/BufferState";
+import { RenderTexture } from "../../../resource/RenderTexture";
 
 
 /**

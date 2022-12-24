@@ -1,13 +1,13 @@
 import { Sprite } from "../../../display/Sprite";
 import { Event } from "../../../events/Event";
+import { Matrix4x4 } from "../../../maths/Matrix4x4";
+import { Vector2 } from "../../../maths/Vector2";
+import { Vector3 } from "../../../maths/Vector3";
 import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTargetFormat";
 import { BaseTexture } from "../../../resource/BaseTexture";
 import { RenderTexture2D } from "../../../resource/RenderTexture2D";
-import { Matrix4x4 } from "../../math/Matrix4x4";
 import { Plane } from "../../math/Plane";
 import { Ray } from "../../math/Ray";
-import { Vector2 } from "../../math/Vector2";
-import { Vector3 } from "../../math/Vector3";
 import { Picker } from "../../utils/Picker";
 import { BlinnPhongMaterial } from "../material/BlinnPhongMaterial";
 import { Material } from "../material/Material";

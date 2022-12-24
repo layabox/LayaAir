@@ -1,9 +1,8 @@
 import { Component } from "../../../components/Component";
-import { Node } from "../../../display/Node";
+import { Color } from "../../../maths/Color";
+import { Matrix4x4 } from "../../../maths/Matrix4x4";
+import { Vector3 } from "../../../maths/Vector3";
 import { ShaderData } from "../../../RenderEngine/RenderShader/ShaderData";
-import { Color } from "../../math/Color";
-import { Matrix4x4 } from "../../math/Matrix4x4";
-import { Vector3 } from "../../math/Vector3";
 import { Material } from "../material/Material";
 import { MeshSprite3DShaderDeclaration } from "../MeshSprite3DShaderDeclaration";
 import { BaseRender } from "../render/BaseRender";

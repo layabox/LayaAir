@@ -3,11 +3,11 @@ import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { DrawType } from "../../../RenderEngine/RenderEnum/DrawType";
 import { IndexFormat } from "../../../RenderEngine/RenderEnum/IndexFormat";
 import { MeshTopology } from "../../../RenderEngine/RenderEnum/RenderPologyMode";
+import { VertexMesh } from "../../../RenderEngine/RenderShader/VertexMesh";
 import { VertexDeclaration } from "../../../RenderEngine/VertexDeclaration";
-import { BufferState } from "../../core/BufferState";
+import { BufferState } from "../../../webgl/utils/BufferState";
 import { GeometryElement } from "../../core/GeometryElement";
 import { RenderContext3D } from "../../core/render/RenderContext3D";
-import { VertexMesh } from "../../graphics/Vertex/VertexMesh";
 
 
 /**

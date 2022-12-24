@@ -1,4 +1,4 @@
-import { Vector3 } from "./Vector3";
+import { Vector3 } from "../../maths/Vector3";
 
 /**
  * 平面。

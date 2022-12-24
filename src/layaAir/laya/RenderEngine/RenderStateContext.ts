@@ -32,20 +32,20 @@ export class RenderStateContext {
     static blendFuncSeperateArray = new Array(4);
     static stencilOpArray = new Array<number>(3);
     static __init__() {
-        RenderStateContext.DepthTestCMD = LayaGL.renderOBJCreate.createRenderStateComand();
-        RenderStateContext.DepthMaskCMD = LayaGL.renderOBJCreate.createRenderStateComand();
-        RenderStateContext.DepthFuncCMD = LayaGL.renderOBJCreate.createRenderStateComand();
-        RenderStateContext.StencilTestCMD = LayaGL.renderOBJCreate.createRenderStateComand();
-        RenderStateContext.StencilMaskCMD = LayaGL.renderOBJCreate.createRenderStateComand();
-        RenderStateContext.StencilFuncCMD = LayaGL.renderOBJCreate.createRenderStateComand();
-        RenderStateContext.stencilOpCMD = LayaGL.renderOBJCreate.createRenderStateComand();
-        RenderStateContext.BlendCMD = LayaGL.renderOBJCreate.createRenderStateComand();
-        RenderStateContext.BlendEquationCMD = LayaGL.renderOBJCreate.createRenderStateComand();
-        RenderStateContext.BlendEquationSeparateCMD = LayaGL.renderOBJCreate.createRenderStateComand();
-        RenderStateContext.BlendFuncCMD = LayaGL.renderOBJCreate.createRenderStateComand();
-        RenderStateContext.BlendFuncSeperateCMD = LayaGL.renderOBJCreate.createRenderStateComand();
-        RenderStateContext.CullFaceCMD = LayaGL.renderOBJCreate.createRenderStateComand();
-        RenderStateContext.FrontFaceCMD = LayaGL.renderOBJCreate.createRenderStateComand();
+        RenderStateContext.DepthTestCMD = LayaGL.renderEngine.createRenderStateComand();
+        RenderStateContext.DepthMaskCMD = LayaGL.renderEngine.createRenderStateComand();
+        RenderStateContext.DepthFuncCMD = LayaGL.renderEngine.createRenderStateComand();
+        RenderStateContext.StencilTestCMD = LayaGL.renderEngine.createRenderStateComand();
+        RenderStateContext.StencilMaskCMD = LayaGL.renderEngine.createRenderStateComand();
+        RenderStateContext.StencilFuncCMD = LayaGL.renderEngine.createRenderStateComand();
+        RenderStateContext.stencilOpCMD = LayaGL.renderEngine.createRenderStateComand();
+        RenderStateContext.BlendCMD = LayaGL.renderEngine.createRenderStateComand();
+        RenderStateContext.BlendEquationCMD = LayaGL.renderEngine.createRenderStateComand();
+        RenderStateContext.BlendEquationSeparateCMD = LayaGL.renderEngine.createRenderStateComand();
+        RenderStateContext.BlendFuncCMD = LayaGL.renderEngine.createRenderStateComand();
+        RenderStateContext.BlendFuncSeperateCMD = LayaGL.renderEngine.createRenderStateComand();
+        RenderStateContext.CullFaceCMD = LayaGL.renderEngine.createRenderStateComand();
+        RenderStateContext.FrontFaceCMD = LayaGL.renderEngine.createRenderStateComand();
     }
     /**
      * @internal

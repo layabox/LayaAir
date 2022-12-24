@@ -1,7 +1,7 @@
+import { Color } from "../../../maths/Color";
+import { Vector3 } from "../../../maths/Vector3";
 import { PixelLineSprite3D } from "../../core/pixelLine/PixelLineSprite3D";
 import { Sprite3D } from "../../core/Sprite3D";
-import { Color } from "../../math/Color";
-import { Vector3 } from "../../math/Vector3";
 import { WebXRCameraManager } from "./WebXRCameraManager";
 import { WebXRInput } from "./WebXRInput";
 import { WebXRSessionManager } from "./WebXRSessionManager";

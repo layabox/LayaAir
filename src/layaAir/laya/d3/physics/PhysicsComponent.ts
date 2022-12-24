@@ -5,9 +5,6 @@ import { Loader } from "../../net/Loader";
 import { Scene3D } from "../core/scene/Scene3D";
 import { Sprite3D } from "../core/Sprite3D";
 import { Transform3D } from "../core/Transform3D";
-import { Matrix4x4 } from "../math/Matrix4x4";
-import { Quaternion } from "../math/Quaternion";
-import { Vector3 } from "../math/Vector3";
 import { Physics3DUtils } from "../utils/Physics3DUtils";
 import { PhysicsSimulation } from "./PhysicsSimulation";
 import { BoxColliderShape } from "./shape/BoxColliderShape";
@@ -19,6 +16,9 @@ import { CylinderColliderShape } from "./shape/CylinderColliderShape";
 import { MeshColliderShape } from "./shape/MeshColliderShape";
 import { SphereColliderShape } from "./shape/SphereColliderShape";
 import { ILaya3D } from "../../../ILaya3D";
+import { Matrix4x4 } from "../../maths/Matrix4x4";
+import { Quaternion } from "../../maths/Quaternion";
+import { Vector3 } from "../../maths/Vector3";
 
 /**
  * <code>PhysicsComponent</code> 类用于创建物理组件的父类。

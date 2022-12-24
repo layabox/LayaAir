@@ -1,12 +1,13 @@
-import { AnimatorStateBoolCondition, AnimatorStateCondition, AnimatorStateNumberCondition, AnimatorStateTriggerCondition } from "../d3/component/Animator/AnimatorStateCondition";
+
+
 import { Resource } from "../resource/Resource";
 import { ClassUtils } from "../utils/ClassUtils";
-import { Animation2DNext } from "./Animation2DNext";
 import { Animation2DParm } from "./Animation2DParm";
 import { Animator2D } from "./Animator2D";
 import { AnimatorControllerLayer2D } from "./AnimatorControllerLayer2D";
 import { AnimatorControllerParse, AniParmType, TypeAnimatorConditions, TypeAnimatorControllerData, TypeAnimatorParams, TypeAnimatorState, TypeAnimatorTransition } from "./AnimatorControllerParse";
 import { AnimatorState2D } from "./AnimatorState2D";
+import { AnimatorStateCondition, AnimatorStateBoolCondition, AnimatorStateNumberCondition, AnimatorStateTriggerCondition } from "./AnimatorStateCondition";
 import { AnimatorTransition2D } from "./AnimatorTransition2D";
 
 export class AnimatorController2D extends Resource {

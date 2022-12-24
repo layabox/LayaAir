@@ -1,11 +1,11 @@
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData";
-import { VertexMesh } from "../../graphics/Vertex/VertexMesh";
-import { Color } from "../../math/Color";
-import { AttributeMapType, SubShader } from "../SubShader";
 import SkyProceduralVS from "./SkyProceduralShader.vs";
 import SkyProceduralFS from "./SkyProceduralShader.fs";
-import { RenderState } from "../../core/material/RenderState";
+import { Color } from "../../../maths/Color";
+import { RenderState } from "../../../RenderEngine/RenderShader/RenderState";
+import { AttributeMapType, SubShader } from "../../../RenderEngine/RenderShader/SubShader";
+import { VertexMesh } from "../../../RenderEngine/RenderShader/VertexMesh";
 
 export class SkyProceduralShaderInit {
     static init() {

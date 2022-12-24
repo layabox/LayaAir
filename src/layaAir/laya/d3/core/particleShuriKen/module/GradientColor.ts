@@ -1,6 +1,6 @@
 import { Gradient } from "../../Gradient"
 import { IClone } from "../../../../utils/IClone"
-import { Vector4 } from "../../../math/Vector4"
+import { Vector4 } from "../../../../maths/Vector4";
 
 /**
  * <code>GradientColor</code> 类用于创建渐变颜色。

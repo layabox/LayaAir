@@ -4,13 +4,9 @@ import { BlitScreenQuadCMD } from "./BlitScreenQuadCMD";
 import { SetRenderTargetCMD } from "./SetRenderTargetCMD";
 import { Command } from "./Command";
 import { BaseTexture } from "../../../../resource/BaseTexture";
-import { Vector4 } from "../../../math/Vector4";
 import { Mesh } from "../../../resource/models/Mesh";
-import { Matrix4x4 } from "../../../math/Matrix4x4";
 import { Material } from "../../material/Material";
 import { SetShaderDataCMD } from "./SetShaderDataCMD";
-import { Vector3 } from "../../../math/Vector3";
-import { Vector2 } from "../../../math/Vector2";
 import { DrawMeshCMD } from "./DrawMeshCMD";
 import { RenderContext3D } from "../RenderContext3D";
 import { ClearRenderTextureCMD } from "./ClearRenderTextureCMD";
@@ -20,12 +16,16 @@ import { SetGlobalShaderDataCMD } from "./SetGlobalShaderDataCMD";
 import { DrawMeshInstancedCMD } from "./DrawMeshInstancedCMD";
 import { MaterialInstancePropertyBlock } from "./MaterialInstancePropertyBlock";
 import { LayaGL } from "../../../../layagl/LayaGL";
-import { RenderTexture } from "../../../resource/RenderTexture";
 import { RenderCapable } from "../../../../RenderEngine/RenderEnum/RenderCapable";
-import { Color } from "../../../math/Color";
 import { Shader3D } from "../../../../RenderEngine/RenderShader/Shader3D";
 import { ShaderData, ShaderDataType } from "../../../../RenderEngine/RenderShader/ShaderData";
 import { Stat } from "../../../../utils/Stat";
+import { Color } from "../../../../maths/Color";
+import { Matrix4x4 } from "../../../../maths/Matrix4x4";
+import { Vector2 } from "../../../../maths/Vector2";
+import { Vector3 } from "../../../../maths/Vector3";
+import { Vector4 } from "../../../../maths/Vector4";
+import { RenderTexture } from "../../../../resource/RenderTexture";
 
 /**
  * <code>CommandBuffer</code> 类用于创建命令流。

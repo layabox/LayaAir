@@ -1,5 +1,5 @@
 import { ILaya3D } from "../../../ILaya3D";
-import { Vector3 } from "../math/Vector3";
+import { Vector3 } from "../../maths/Vector3";
 import { RaycastWheel } from "./RaycastWheel";
 
 export class btVehicleTuning {

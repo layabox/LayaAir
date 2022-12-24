@@ -1,11 +1,8 @@
 import { LayaGL } from "../../../../layagl/LayaGL";
 import { BufferUsage } from "../../../../RenderEngine/RenderEnum/BufferTargetType";
 import { VertexBuffer } from "../../../../RenderEngine/VertexBuffer";
-import { VertexMesh } from "../../../graphics/Vertex/VertexMesh";
 import { VertexBuffer3D } from "../../../graphics/VertexBuffer3D";
-import { Matrix4x4 } from "../../../math/Matrix4x4";
 import { Mesh } from "../../../resource/models/Mesh";
-import { BufferState } from "../../BufferState";
 import { Material } from "../../material/Material";
 import { Transform3D } from "../../Transform3D";
 import { Command } from "./Command";
@@ -16,8 +13,10 @@ import { MeshInstanceGeometry } from "../../../graphics/MeshInstanceGeometry";
 import { RenderContext3D } from "../RenderContext3D";
 import { BaseRender } from "../../../core/render/BaseRender";
 import { MeshSprite3DShaderDeclaration } from "../../MeshSprite3DShaderDeclaration";
-import { ILaya3D } from "../../../../../ILaya3D";
 import { Camera } from "../../Camera";
+import { Matrix4x4 } from "../../../../maths/Matrix4x4";
+import { BufferState } from "../../../../webgl/utils/BufferState";
+import { VertexMesh } from "../../../../RenderEngine/RenderShader/VertexMesh";
 
 
 export class DrawMeshInstancedCMD extends Command {

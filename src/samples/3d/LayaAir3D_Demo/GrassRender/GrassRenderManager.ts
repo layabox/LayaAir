@@ -1,5 +1,5 @@
 import { Camera } from "laya/d3/core/Camera";
-import { Vector3 } from "laya/d3/math/Vector3";
+import { Vector3 } from "laya/maths/Vector3";
 import { GrassCellInfo } from "./GrassCellInfo";
 import { GlassRender } from "./GrassRender";
 

@@ -1,7 +1,7 @@
 import { VertexDeclaration } from "../../../RenderEngine/VertexDeclaration";
+import { VertexElement } from "../../../renders/VertexElement";
+import { VertexElementFormat } from "../../../renders/VertexElementFormat";
 import { IVertex } from "../../graphics/IVertex"
-import { VertexElement } from "../../graphics/VertexElement"
-import { VertexElementFormat } from "../../graphics/VertexElementFormat"
 /**
  * <code>VertexTrail</code> 类用于创建拖尾顶点结构。
  */

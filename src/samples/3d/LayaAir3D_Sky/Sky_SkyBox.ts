@@ -2,8 +2,6 @@ import { Laya } from "Laya";
 import { Camera, CameraClearFlags } from "laya/d3/core/Camera";
 import { SkyBoxMaterial } from "laya/d3/core/material/SkyBoxMaterial";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
-import { Vector3 } from "laya/d3/math/Vector3";
-import { SkyBox } from "laya/d3/resource/models/SkyBox";
 import { SkyRenderer } from "laya/d3/resource/models/SkyRenderer";
 import { Stage } from "laya/display/Stage";
 import { Handler } from "laya/utils/Handler";
@@ -13,9 +11,8 @@ import { Material } from "laya/d3/core/material/Material";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { Event } from "laya/events/Event";
 import { SkyDome } from "laya/d3/resource/models/SkyDome";
-import { SkyProceduralMaterial } from "laya/d3/core/material/SkyProceduralMaterial";
-import { Vector4 } from "laya/d3/math/Vector4";
-import { Color } from "laya/d3/math/Color";
+import { Color } from "laya/maths/Color";
+import { Vector3 } from "laya/maths/Vector3";
 
 export class Sky_SkyBox {
 	public camerad:Camera;

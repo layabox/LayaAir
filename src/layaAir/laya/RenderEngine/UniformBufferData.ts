@@ -1,10 +1,9 @@
-import { Color } from "../d3/math/Color";
-import { Matrix4x4 } from "../d3/math/Matrix4x4";
-import { Vector2 } from "../d3/math/Vector2";
-import { Vector3 } from "../d3/math/Vector3";
-import { Vector4 } from "../d3/math/Vector4";
+import { Color } from "../maths/Color";
+import { Matrix4x4 } from "../maths/Matrix4x4";
+import { Vector2 } from "../maths/Vector2";
+import { Vector3 } from "../maths/Vector3";
+import { Vector4 } from "../maths/Vector4";
 import { Shader3D } from "./RenderShader/Shader3D";
-import { ShaderDataType } from "./RenderShader/ShaderData";
 
 /**
  *描述UniformBuffer参数类型

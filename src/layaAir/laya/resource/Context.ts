@@ -1,5 +1,4 @@
 import { ILaya } from "../../ILaya";
-import { Color } from "../d3/math/Color";
 import { Sprite } from "../display/Sprite";
 import { ColorFilter } from "../filters/ColorFilter";
 import { LayaGL } from "../layagl/LayaGL";
@@ -33,7 +32,6 @@ import { Shader2D } from "../webgl/shader/d2/Shader2D";
 import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
 import { SkinMeshBuffer } from "../webgl/shader/d2/skinAnishader/SkinMeshBuffer";
 import { Value2D } from "../webgl/shader/d2/value/Value2D";
-import { Shader } from "../webgl/shader/Shader";
 import { BasePoly } from "../webgl/shapes/BasePoly";
 import { Earcut } from "../webgl/shapes/Earcut";
 import { ISubmit } from "../webgl/submit/ISubmit";
@@ -47,20 +45,19 @@ import { SubmitTexture } from "../webgl/submit/SubmitTexture";
 import { CharRenderInfo } from "../webgl/text/CharRenderInfo";
 import { CharSubmitCache } from "../webgl/text/CharSubmitCache";
 import { TextRender } from "../webgl/text/TextRender";
-import { IndexBuffer2D } from "../webgl/utils/IndexBuffer2D";
 import { Mesh2D } from "../webgl/utils/Mesh2D";
 import { MeshQuadTexture } from "../webgl/utils/MeshQuadTexture";
 import { MeshTexture } from "../webgl/utils/MeshTexture";
 import { MeshVG } from "../webgl/utils/MeshVG";
 import { RenderState2D } from "../webgl/utils/RenderState2D";
-import { VertexBuffer2D } from "../webgl/utils/VertexBuffer2D";
 import { HTMLCanvas } from "./HTMLCanvas";
 import { RenderTexture2D } from "./RenderTexture2D";
 import { Texture } from "./Texture";
 import { Texture2D } from "./Texture2D";
 import { NativeContext } from "./NativeContext";
-import { RenderTexture } from "../d3/resource/RenderTexture";
 import { Const } from "../Const";
+import { Color } from "../maths/Color";
+import { RenderTexture } from "./RenderTexture";
 
 const defaultClipMatrix = new Matrix(Const.MAX_CLIP_SIZE, 0, 0, Const.MAX_CLIP_SIZE, 0, 0);
 

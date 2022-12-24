@@ -1,8 +1,6 @@
 
 import { IndexBuffer3D } from "../graphics/IndexBuffer3D"
-import { VertexMesh } from "../graphics/Vertex/VertexMesh"
 import { VertexBuffer3D } from "../graphics/VertexBuffer3D"
-import { Matrix4x4 } from "../math/Matrix4x4"
 import { Mesh, skinnedMatrixCache } from "../resource/models/Mesh"
 import { SubMesh } from "../resource/models/SubMesh"
 import { Byte } from "../../utils/Byte"
@@ -10,6 +8,8 @@ import { LayaGL } from "../../layagl/LayaGL";
 import { BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType"
 import { VertexDeclaration } from "../../RenderEngine/VertexDeclaration"
 import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat"
+import { Matrix4x4 } from "../../maths/Matrix4x4"
+import { VertexMesh } from "../../RenderEngine/RenderShader/VertexMesh"
 
 /**
  * @internal

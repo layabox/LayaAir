@@ -1,13 +1,12 @@
-import { Vector3 } from "./Vector3";
-import { Matrix4x4 } from "./Matrix4x4";
 import { Plane } from "./Plane";
 import { CollisionUtils } from "./CollisionUtils";
 import { ContainmentType } from "./ContainmentType";
 import { BoundBox } from "./BoundBox";
 import { BoundSphere } from "./BoundSphere";
-import { LayaGL } from "../../layagl/LayaGL";
 import { IClone } from "../../utils/IClone";
 import { Bounds } from "./Bounds";
+import { Matrix4x4 } from "../../maths/Matrix4x4";
+import { Vector3 } from "../../maths/Vector3";
 
 /**
  * 锥体角点。

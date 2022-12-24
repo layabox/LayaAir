@@ -1,5 +1,5 @@
 import { Component } from "../../../components/Component";
-import { Vector2 } from "../../math/Vector2";
+import { Vector2 } from "../../../maths/Vector2";
 import { Light, LightMode, LightType } from "./Light";
 export enum AreaShape {
     rectangle,

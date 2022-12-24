@@ -1,13 +1,11 @@
 import { Laya } from "Laya";
 import { Camera, CameraEventFlags } from "laya/d3/core/Camera";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
-import { Vector4 } from "laya/d3/math/Vector4";
 import { Stage } from "laya/display/Stage";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import { CommandBuffer } from "laya/d3/core/render/command/CommandBuffer";
-import { RenderTexture } from "laya/d3/resource/RenderTexture";
 import { Viewport } from "laya/d3/math/Viewport";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { PBRStandardMaterial } from "laya/d3/core/material/PBRStandardMaterial";
@@ -19,6 +17,8 @@ import { RenderTargetFormat } from "laya/RenderEngine/RenderEnum/RenderTargetFor
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 import { ShaderData } from "laya/RenderEngine/RenderShader/ShaderData";
 import { LayaGL } from "laya/layagl/LayaGL";
+import { Vector4 } from "laya/maths/Vector4";
+import { RenderTexture } from "laya/resource/RenderTexture";
 
 export class CommandBuffer_BlurryGlass {
 	mat: GlassWithoutGrabMaterial;

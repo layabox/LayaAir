@@ -1,11 +1,11 @@
 import { Event } from "../../events/Event";
 import { EventDispatcher } from "../../events/EventDispatcher";
-import { MathUtils3D } from "../math/MathUtils3D";
-import { Matrix4x4 } from "../math/Matrix4x4";
-import { Quaternion } from "../math/Quaternion";
-import { Vector3 } from "../math/Vector3";
+import { MathUtils3D } from "../../maths/MathUtils3D";
+import { Matrix3x3 } from "../../maths/Matrix3x3";
+import { Matrix4x4 } from "../../maths/Matrix4x4";
+import { Quaternion } from "../../maths/Quaternion";
+import { Vector3 } from "../../maths/Vector3";
 import { Sprite3D } from "./Sprite3D";
-import { Matrix3x3 } from "../math/Matrix3x3";
 
 /**
  * <code>Transform3D</code> 类用于实现3D变换。

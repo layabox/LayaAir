@@ -10,11 +10,7 @@ import { PixelLineSprite3D } from "laya/d3/core/pixelLine/PixelLineSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
 import { Transform3D } from "laya/d3/core/Transform3D";
-import { Color } from "laya/d3/math/Color";
-import { Matrix4x4 } from "laya/d3/math/Matrix4x4";
 import { Ray } from "laya/d3/math/Ray";
-import { Vector3 } from "laya/d3/math/Vector3";
-import { Vector4 } from "laya/d3/math/Vector4";
 import { HitResult } from "laya/d3/physics/HitResult";
 import { PhysicsCollider } from "laya/d3/physics/PhysicsCollider";
 import { Rigidbody3D } from "laya/d3/physics/Rigidbody3D";
@@ -30,9 +26,11 @@ import { Browser } from "laya/utils/Browser";
 import { Handler } from "laya/utils/Handler";
 
 import { CameraMoveScript } from "../common/CameraMoveScript";
-import { Config3D } from "Config3D";
 import Client from "../../Client";
-import { Utils } from "laya/utils/Utils";
+import { Color } from "laya/maths/Color";
+import { Matrix4x4 } from "laya/maths/Matrix4x4";
+import { Vector3 } from "laya/maths/Vector3";
+import { Vector4 } from "laya/maths/Vector4";
 
 export class PhysicsWorld_RayShapeCast {
 	//声明一些使用到的全局变量

@@ -1,5 +1,5 @@
-import { VertexElement } from "../d3/graphics/VertexElement";
-import { VertexElementFormat } from "../d3/graphics/VertexElementFormat";
+import { VertexElement } from "../renders/VertexElement";
+import { VertexElementFormat } from "../renders/VertexElementFormat";
 
 /**
  * <code>VertexDeclaration</code> 类用于生成顶点声明。

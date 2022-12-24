@@ -1,6 +1,6 @@
-import { VertexElement } from "../../d3/graphics/VertexElement";
-import { VertexElementFormat } from "../../d3/graphics/VertexElementFormat";
 import { VertexDeclaration } from "../../RenderEngine/VertexDeclaration";
+import { VertexElement } from "../../renders/VertexElement";
+import { VertexElementFormat } from "../../renders/VertexElementFormat";
 import { Context } from "../../resource/Context";
 import { Mesh2D } from "./Mesh2D";
 

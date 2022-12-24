@@ -1,8 +1,8 @@
+import { Vector2 } from "../../../../../maths/Vector2";
+import { Vector3 } from "../../../../../maths/Vector3";
 import { IClone } from "../../../../../utils/IClone"
 import { BoundBox } from "../../../../math/BoundBox"
 import { Rand } from "../../../../math/Rand"
-import { Vector2 } from "../../../../math/Vector2"
-import { Vector3 } from "../../../../math/Vector3"
 
 export enum ParticleSystemShapeType {
 	/**盒体 */

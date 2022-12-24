@@ -1,14 +1,14 @@
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Camera } from "laya/d3/core/Camera";
-import { Vector3 } from "laya/d3/math/Vector3";
-import { Matrix4x4 } from "laya/d3/math/Matrix4x4";
-import { RenderTexture } from "laya/d3/resource/RenderTexture";
 import { UnlitMaterial } from "laya/d3/core/material/UnlitMaterial";
-import { Vector4 } from "laya/d3/math/Vector4";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { RenderTargetFormat } from "laya/RenderEngine/RenderEnum/RenderTargetFormat";
-import { Color } from "laya/d3/math/Color";
 import { Script } from "laya/components/Script";
+import { Color } from "laya/maths/Color";
+import { Matrix4x4 } from "laya/maths/Matrix4x4";
+import { Vector3 } from "laya/maths/Vector3";
+import { Vector4 } from "laya/maths/Vector4";
+import { RenderTexture } from "laya/resource/RenderTexture";
 
 export class ChinarMirrorPlane extends Script {
 

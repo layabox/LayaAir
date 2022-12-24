@@ -1,11 +1,7 @@
 import { Laya } from "Laya";
 import { Camera, CameraClearFlags } from "laya/d3/core/Camera";
-import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { SkyPanoramicMaterial } from "laya/d3/core/material/SkyPanoramicMaterial";
-import { SkyProceduralMaterial } from "laya/d3/core/material/SkyProceduralMaterial";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
-import { Matrix4x4 } from "laya/d3/math/Matrix4x4";
-import { Vector3 } from "laya/d3/math/Vector3";
 import { SkyDome } from "laya/d3/resource/models/SkyDome";
 import { SkyRenderer } from "laya/d3/resource/models/SkyRenderer";
 import { Stage } from "laya/display/Stage";

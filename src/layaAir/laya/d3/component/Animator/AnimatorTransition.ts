@@ -1,6 +1,6 @@
 import { AniStateConditionType } from "../../../components/AnimatorControllerParse";
+import { AnimatorStateCondition } from "../../../components/AnimatorStateCondition";
 import { AnimatorState } from "./AnimatorState";
-import { AnimatorStateCondition } from "./AnimatorStateCondition";
 
 export class AnimatorTransition {
     

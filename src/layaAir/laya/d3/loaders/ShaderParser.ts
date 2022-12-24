@@ -1,11 +1,11 @@
+import { Color } from "../../maths/Color";
+import { Matrix4x4 } from "../../maths/Matrix4x4";
+import { Vector2 } from "../../maths/Vector2";
+import { Vector3 } from "../../maths/Vector3";
+import { Vector4 } from "../../maths/Vector4";
 import { IShaderObjStructor, IShaderpassStructor, Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { ShaderDataType } from "../../RenderEngine/RenderShader/ShaderData";
 import { Texture2D } from "../../resource/Texture2D";
-import { Color } from "../math/Color";
-import { Matrix4x4 } from "../math/Matrix4x4";
-import { Vector2 } from "../math/Vector2";
-import { Vector3 } from "../math/Vector3";
-import { Vector4 } from "../math/Vector4";
 import { TextureCube } from "../resource/TextureCube";
 import { ParseJSON } from "../utils/ParseJSON";
 

@@ -1,5 +1,5 @@
 import { BoundFrustum } from "../../../d3/math/BoundFrustum";
-import { Vector3 } from "../../../d3/math/Vector3";
+import { Vector3 } from "../../../maths/Vector3";
 
 export interface ICameraCullInfo {
 	/**位置 */

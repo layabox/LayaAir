@@ -1,7 +1,7 @@
 import { EventDispatcher } from "../../../events/EventDispatcher";
-import { Quaternion } from "../../math/Quaternion";
+import { Quaternion } from "../../../maths/Quaternion";
+import { Vector3 } from "../../../maths/Vector3";
 import { Ray } from "../../math/Ray";
-import { Vector3 } from "../../math/Vector3";
 import { ButtonGamepad, AxiGamepad } from "./WebXRGamepad";
 
 

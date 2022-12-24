@@ -5,7 +5,6 @@ import { Stage } from "laya/display/Stage";
 import { Stat } from "laya/utils/Stat";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Camera } from "laya/d3/core/Camera";
-import { Vector3 } from "laya/d3/math/Vector3";
 import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Transform3D } from "laya/d3/core/Transform3D";
@@ -14,9 +13,10 @@ import { FixedConstraint } from "laya/d3/physics/constraints/FixedConstraint";
 import { BoxColliderShape } from "laya/d3/physics/shape/BoxColliderShape";
 import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
-import { Color } from "laya/d3/math/Color";
 import { Script } from "laya/components/Script";
-import { Matrix4x4 } from "laya/d3/math/Matrix4x4";
+import { Color } from "laya/maths/Color";
+import { Matrix4x4 } from "laya/maths/Matrix4x4";
+import { Vector3 } from "laya/maths/Vector3";
 
 export class PhysicsWorld_ConstraintFixedJoint {
 	private scene: Scene3D;

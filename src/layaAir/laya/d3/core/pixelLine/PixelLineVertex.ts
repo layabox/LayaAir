@@ -1,7 +1,7 @@
+import { VertexMesh } from "../../../RenderEngine/RenderShader/VertexMesh";
 import { VertexDeclaration } from "../../../RenderEngine/VertexDeclaration";
-import { VertexMesh } from "../../graphics/Vertex/VertexMesh"
-import { VertexElement } from "../../graphics/VertexElement"
-import { VertexElementFormat } from "../../graphics/VertexElementFormat"
+import { VertexElement } from "../../../renders/VertexElement";
+import { VertexElementFormat } from "../../../renders/VertexElementFormat";
 /**
  * @internal
  * @author 

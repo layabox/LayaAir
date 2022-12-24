@@ -1,7 +1,5 @@
 import { Node } from "../../display/Node";
 import { Loader } from "../../net/Loader";
-import { Vector3 } from "../math/Vector3";
-import { Vector4 } from "../math/Vector4";
 import { Mesh } from "../resource/models/Mesh";
 import { MeshFilter } from "./MeshFilter";
 import { RenderableSprite3D } from "./RenderableSprite3D";
@@ -10,8 +8,9 @@ import { Material } from "./material/Material";
 import { SimpleSkinnedMeshRenderer } from "./SimpleSkinnedMeshRenderer";
 import { Texture2D } from "../../resource/Texture2D";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
-import { CommandUniformMap } from "../../RenderEngine/CommandUniformMap";
 import { LayaGL } from "../../layagl/LayaGL";
+import { Vector3 } from "../../maths/Vector3";
+import { Vector4 } from "../../maths/Vector4";
 
 
 

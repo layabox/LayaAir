@@ -1,7 +1,6 @@
 import { ILaya } from "./../../ILaya";
 import { Config } from "./../../Config";
 import { LayaGL } from "../layagl/LayaGL";
-import { VertexElementFormat } from "../d3/graphics/VertexElementFormat";
 import { WebGLMode } from "../RenderEngine/RenderEngine/WebGLEngine/GLEnum/WebGLMode";
 import { WebGlConfig } from "../RenderEngine/RenderEngine/WebGLEngine/WebGLConfig";
 import { RenderStateContext } from "../RenderEngine/RenderStateContext";
@@ -17,7 +16,7 @@ import { IRenderEngine } from "../RenderEngine/RenderInterface/IRenderEngine";
 import { WebGLEngine } from "../RenderEngine/RenderEngine/WebGLEngine/WebGLEngine";
 import { NativeWebGLEngine } from "../RenderEngine/RenderEngine/NativeGLEngine/NativeWebGLEngine";
 import { LayaEnv } from "../../LayaEnv";
-import { SkinnedMeshRenderer } from "../d3/core/SkinnedMeshRenderer";
+import { VertexElementFormat } from "./VertexElementFormat";
 
 /**
  * <code>Render</code> 是渲染管理类。它是一个单例，可以使用 Laya.render 访问。
@@ -145,8 +144,6 @@ export class Render {
         let engine: IRenderEngine;
         if (!Render.customRenderEngine) {
             if (LayaEnv.isConch && !(window as any).conchConfig.conchWebGL) {
-                var skinnedMeshRender: any = SkinnedMeshRenderer;
-                skinnedMeshRender.prototype._computeSkinnedData = skinnedMeshRender.prototype._computeSkinnedDataForNative;
                 engine = new NativeWebGLEngine(glConfig, webglMode);
                 engine.initRenderEngine(Render._mainCanvas.source);
                 WebGL._isWebGL2 = engine.isWebGL2;
@@ -178,7 +175,7 @@ export class Render {
         LayaGL.textureContext = engine.getTextureContext();
         LayaGL.renderDrawContext = engine.getDrawContext();
         LayaGL.render2DContext = engine.get2DRenderContext();
-        LayaGL.renderOBJCreate = engine.getCreateRenderOBJContext();
+        //LayaGL.renderOBJCreate = engine.getCreateRenderOBJContext();
 
         canvas.size(w, h);	//在ctx之后调用。
         VertexElementFormat.__init__();

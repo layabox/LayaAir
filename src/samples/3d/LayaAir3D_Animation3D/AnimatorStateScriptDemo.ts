@@ -3,8 +3,6 @@ import { Camera } from "laya/d3/core/Camera";
 import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
-import { Matrix4x4 } from "laya/d3/math/Matrix4x4";
-import { Vector3 } from "laya/d3/math/Vector3";
 import { Stage } from "laya/display/Stage";
 import { Text } from "laya/display/Text";
 import { Event } from "laya/events/Event";
@@ -17,10 +15,11 @@ import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { AnimatorStateScriptTest } from "../common/AnimatorStateScriptTest";
 import Client from "../../Client";
-import { Utils } from "laya/utils/Utils";
-import { Color } from "laya/d3/math/Color";
 import { Animator } from "laya/d3/component/Animator/Animator";
 import { AnimatorState } from "laya/d3/component/Animator/AnimatorState";
+import { Color } from "laya/maths/Color";
+import { Matrix4x4 } from "laya/maths/Matrix4x4";
+import { Vector3 } from "laya/maths/Vector3";
 
 /**
  * ...

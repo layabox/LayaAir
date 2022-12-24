@@ -5,13 +5,13 @@ import { Camera } from "laya/d3/core/Camera"
 import { Sprite3D } from "laya/d3/core/Sprite3D"
 import { DirectionLight } from "laya/d3/core/light/DirectionLight"
 import { Scene3D } from "laya/d3/core/scene/Scene3D"
-import { Matrix4x4 } from "laya/d3/math/Matrix4x4"
-import { Vector3 } from "laya/d3/math/Vector3"
 import { Stage } from "laya/display/Stage"
 import { Button } from "laya/ui/Button"
 import { Handler } from "laya/utils/Handler"
 import { Stat } from "laya/utils/Stat"
 import { Animator } from "laya/d3/component/Animator/Animator";
+import { Matrix4x4 } from "laya/maths/Matrix4x4";
+import { Vector3 } from "laya/maths/Vector3";
 
 /**
  * ...

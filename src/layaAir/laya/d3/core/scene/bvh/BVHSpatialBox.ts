@@ -1,3 +1,4 @@
+import { Vector3 } from "../../../../maths/Vector3";
 import { ICameraCullInfo } from "../../../../RenderEngine/RenderInterface/RenderPipelineInterface/ICameraCullInfo";
 import { IShadowCullInfo } from "../../../../RenderEngine/RenderInterface/RenderPipelineInterface/IShadowCullInfo";
 import { SingletonList } from "../../../../utils/SingletonList";
@@ -7,7 +8,6 @@ import { CollisionUtils } from "../../../math/CollisionUtils";
 import { ContainmentType } from "../../../math/ContainmentType";
 import { IBoundsCell } from "../../../math/IBoundsCell";
 import { Plane } from "../../../math/Plane";
-import { Vector3 } from "../../../math/Vector3";
 import { BVHSpatialConfig, BVHSpatialManager } from "./SpatialManager";
 
 /**

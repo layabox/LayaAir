@@ -1,3 +1,7 @@
+import { Color } from "../../maths/Color";
+import { Vector2 } from "../../maths/Vector2";
+import { Vector3 } from "../../maths/Vector3";
+import { Vector4 } from "../../maths/Vector4";
 import { ILoadURL, Loader } from "../../net/Loader";
 import { URL } from "../../net/URL";
 import { BlendEquationSeparate } from "../../RenderEngine/RenderEnum/BlendEquationSeparate";
@@ -7,10 +11,6 @@ import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { ShaderDefine } from "../../RenderEngine/RenderShader/ShaderDefine";
 import { ClassUtils } from "../../utils/ClassUtils";
 import { Material } from "../core/material/Material";
-import { Color } from "../math/Color";
-import { Vector2 } from "../math/Vector2";
-import { Vector3 } from "../math/Vector3";
-import { Vector4 } from "../math/Vector4";
 
 export class MaterialParser {
 

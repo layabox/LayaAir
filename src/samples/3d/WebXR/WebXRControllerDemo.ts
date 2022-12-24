@@ -1,6 +1,5 @@
 import { Camera } from "laya/d3/core/Camera";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
-import { Vector3 } from "laya/d3/math/Vector3";
 import { Stage } from "laya/display/Stage";
 import { Button } from "laya/ui/Button";
 import { Browser } from "laya/utils/Browser";
@@ -11,7 +10,6 @@ import { CameraMoveScript } from "../common/CameraMoveScript";
 import { Event } from "laya/events/Event";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
 import { PixelLineSprite3D } from "laya/d3/core/pixelLine/PixelLineSprite3D";
-import { Vector2 } from "laya/d3/math/Vector2";
 import { WebXRCameraInfo, WebXRExperienceHelper } from "laya/d3/WebXR/core/WebXRExperienceHelper";
 import { WebXRInputManager } from "laya/d3/WebXR/core/WebXRInputManager";
 import { WebXRInput } from "laya/d3/WebXR/core/WebXRInput";
@@ -19,7 +17,9 @@ import { AxiGamepad, ButtonGamepad } from "laya/d3/WebXR/core/WebXRGamepad";
 import { Laya } from "Laya";
 import { Loader } from "laya/net/Loader";
 import { HitResult } from "laya/d3/physics/HitResult";
-import { Color } from "laya/d3/math/Color";
+import { Color } from "laya/maths/Color";
+import { Vector2 } from "laya/maths/Vector2";
+import { Vector3 } from "laya/maths/Vector3";
 
 export class WebXRControllerDemo {
 	public camera: Camera;

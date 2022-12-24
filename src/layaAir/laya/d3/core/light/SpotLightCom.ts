@@ -1,7 +1,7 @@
-import { Vector3 } from "../../math/Vector3";
 import { Scene3D } from "../scene/Scene3D";
 import { Light, LightType } from "./Light";
 import { Component } from "../../../components/Component";
+import { Vector3 } from "../../../maths/Vector3";
 
 /**
  * <code>SpotLight</code> 类用于创建聚光。

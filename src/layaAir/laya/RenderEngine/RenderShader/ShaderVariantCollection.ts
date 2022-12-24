@@ -1,8 +1,7 @@
-import { ILaya3D } from "../../../ILaya3D";
-import { ShaderPass } from "../../d3/shader/ShaderPass";
-import { SubShader } from "../../d3/shader/SubShader";
 import { DefineDatas } from "./DefineDatas";
 import { Shader3D } from "./Shader3D";
+import { ShaderPass } from "./ShaderPass";
+import { SubShader } from "./SubShader";
 
 /**
  * 着色器变种。

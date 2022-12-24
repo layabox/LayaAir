@@ -1,14 +1,14 @@
 import { IndexBuffer3D } from "../../graphics/IndexBuffer3D";
-import { VertexMesh } from "../../graphics/Vertex/VertexMesh";
 import { VertexBuffer3D } from "../../graphics/VertexBuffer3D";
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
 import { Mesh } from "./Mesh";
 import { SubMesh } from "./SubMesh";
 import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { VertexDeclaration } from "../../../RenderEngine/VertexDeclaration";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { IndexFormat } from "../../../RenderEngine/RenderEnum/IndexFormat";
+import { Quaternion } from "../../../maths/Quaternion";
+import { Vector3 } from "../../../maths/Vector3";
+import { VertexMesh } from "../../../RenderEngine/RenderShader/VertexMesh";
 
 /**
  * <code>PrimitiveMesh</code> 类用于创建简单网格。

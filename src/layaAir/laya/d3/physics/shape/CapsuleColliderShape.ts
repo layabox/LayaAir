@@ -1,7 +1,7 @@
-import { Vector3 } from "../../math/Vector3";
 import { ColliderShape } from "./ColliderShape";
 import { ILaya3D } from "../../../../ILaya3D";
 import { LayaEnv } from "../../../../LayaEnv";
+import { Vector3 } from "../../../maths/Vector3";
 
 /**
  * <code>CapsuleColliderShape</code> 类用于创建胶囊形状碰撞器。

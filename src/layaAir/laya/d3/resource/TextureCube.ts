@@ -4,7 +4,6 @@ import { KTXTextureInfo } from "../../RenderEngine/KTXTextureInfo";
 import { TextureDimension } from "../../RenderEngine/RenderEnum/TextureDimension";
 import { TextureFormat } from "../../RenderEngine/RenderEnum/TextureFormat";
 import { BaseTexture } from "../../resource/BaseTexture";
-import { TextureConstructParams, TexturePropertyParams } from "../../resource/Texture2D";
 
 export enum TextureCubeFace {
     /**+x */

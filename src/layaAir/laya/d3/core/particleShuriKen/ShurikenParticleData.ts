@@ -1,8 +1,8 @@
 import { MathUtil } from "../../../maths/MathUtil";
+import { Vector2 } from "../../../maths/Vector2";
+import { Vector3 } from "../../../maths/Vector3";
+import { Vector4 } from "../../../maths/Vector4";
 import { Rand } from "../../math/Rand";
-import { Vector2 } from "../../math/Vector2";
-import { Vector3 } from "../../math/Vector3";
-import { Vector4 } from "../../math/Vector4";
 import { ColorOverLifetime } from "./module/ColorOverLifetime";
 import { FrameOverTime } from "./module/FrameOverTime";
 import { GradientColor } from "./module/GradientColor";

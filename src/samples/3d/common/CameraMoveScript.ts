@@ -3,10 +3,10 @@ import { Script } from "laya/components/Script";
 import { BaseCamera } from "laya/d3/core/BaseCamera";
 import { Camera } from "laya/d3/core/Camera";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
-import { Quaternion } from "laya/d3/math/Quaternion";
-import { Vector3 } from "laya/d3/math/Vector3";
 import { Event } from "laya/events/Event";
 import { InputManager } from "laya/events/InputManager";
+import { Quaternion } from "laya/maths/Quaternion";
+import { Vector3 } from "laya/maths/Vector3";
 
 /**
  * ...

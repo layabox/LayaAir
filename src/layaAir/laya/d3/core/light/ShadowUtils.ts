@@ -1,11 +1,7 @@
 import { LayaGL } from "../../../layagl/LayaGL";
 import { BoundFrustum, FrustumCorner } from "../../math/BoundFrustum";
 import { BoundSphere } from "../../math/BoundSphere";
-import { MathUtils3D } from "../../math/MathUtils3D";
-import { Matrix4x4 } from "../../math/Matrix4x4";
 import { Plane } from "../../math/Plane";
-import { Vector3 } from "../../math/Vector3";
-import { Vector4 } from "../../math/Vector4";
 import { ShadowSliceData, ShadowSpotData } from "../../shadowMap/ShadowSliceData";
 import { Utils3D } from "../../utils/Utils3D";
 import { ShadowCascadesMode } from "./ShadowCascadesMode";
@@ -14,12 +10,16 @@ import { Light, LightType } from "./Light";
 import { SpotLightCom } from "./SpotLightCom";
 import { Sprite3D } from "../Sprite3D";
 import { DirectionLightCom } from "./DirectionLightCom";
-import { RenderTexture } from "../../resource/RenderTexture";
-import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTargetFormat";
 import { FilterMode } from "../../../RenderEngine/RenderEnum/FilterMode";
 import { WrapMode } from "../../../RenderEngine/RenderEnum/WrapMode";
 import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
 import { TextureCompareMode } from "../../../RenderEngine/RenderEnum/TextureCompareMode";
+import { MathUtils3D } from "../../../maths/MathUtils3D";
+import { Matrix4x4 } from "../../../maths/Matrix4x4";
+import { Vector3 } from "../../../maths/Vector3";
+import { Vector4 } from "../../../maths/Vector4";
+import { RenderTexture } from "../../../resource/RenderTexture";
+import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTargetFormat";
 
 /**
  * @internal

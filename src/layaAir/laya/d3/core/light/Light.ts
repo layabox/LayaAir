@@ -1,11 +1,11 @@
 import { Config3D } from "../../../../Config3D";
-import { Vector3 } from "../../math/Vector3";
 import { Scene3D } from "../scene/Scene3D";
 import { Sprite3D } from "../Sprite3D";
 import { ShadowMode } from "./ShadowMode";
-import { Matrix4x4 } from "../../math/Matrix4x4";
 import { Component } from "../../../components/Component";
-import { Color } from "../../math/Color";
+import { Color } from "../../../maths/Color";
+import { Matrix4x4 } from "../../../maths/Matrix4x4";
+import { Vector3 } from "../../../maths/Vector3";
 
 
 /**

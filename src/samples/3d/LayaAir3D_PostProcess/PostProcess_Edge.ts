@@ -5,12 +5,10 @@ import { Stat } from "laya/utils/Stat";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Handler } from "laya/utils/Handler";
 import { Camera } from "laya/d3/core/Camera";
-import { Vector3 } from "laya/d3/math/Vector3";
 import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { CameraMoveScript } from "../../3d/common/CameraMoveScript";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
-import { Quaternion } from "laya/d3/math/Quaternion";
 import { PostProcess } from "laya/d3/component/PostProcess";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
 import { Loader } from "laya/net/Loader";
@@ -21,8 +19,10 @@ import { EdgeEffect, EdgeMode } from "./PostProcess_Edge/EdgeEffect";
 import { Browser } from "laya/utils/Browser";
 import { Event } from "laya/events/Event";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
-import { Color } from "laya/d3/math/Color";
-import { Matrix4x4 } from "laya/d3/math/Matrix4x4";
+import { Color } from "laya/maths/Color";
+import { Matrix4x4 } from "laya/maths/Matrix4x4";
+import { Quaternion } from "laya/maths/Quaternion";
+import { Vector3 } from "laya/maths/Vector3";
 
 export class PostProcess_Edge {
 

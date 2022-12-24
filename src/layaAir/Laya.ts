@@ -34,9 +34,8 @@ import { MeshTexture } from "./laya/webgl/utils/MeshTexture";
 import { WeakObject } from "./laya/utils/WeakObject";
 import { RenderStateContext } from "./laya/RenderEngine/RenderStateContext";
 import { RenderClearFlag } from "./laya/RenderEngine/RenderEnum/RenderClearFlag";
-import { Color } from "./laya/d3/math/Color";
 import { LayaEnv } from "./LayaEnv";
-
+import { Color } from "./laya/maths/Color";
 /**
  * <code>Laya</code> 是全局对象的引用入口集。
  * Laya类引用了一些常用的全局对象，比如Laya.stage：舞台，Laya.timer：时间管理器，Laya.loader：加载管理器，使用时注意大小写。

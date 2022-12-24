@@ -6,23 +6,23 @@ import { IndexFormat } from "../../../RenderEngine/RenderEnum/IndexFormat";
 import { VertexDeclaration } from "../../../RenderEngine/VertexDeclaration";
 import { Resource } from "../../../resource/Resource";
 import { Handler } from "../../../utils/Handler";
-import { BufferState } from "../../core/BufferState";
 import { IClone } from "../../../utils/IClone";
 import { InstanceRenderElement } from "../../core/render/InstanceRenderElement";
 import { IndexBuffer3D } from "../../graphics/IndexBuffer3D";
-import { VertexMesh } from "../../graphics/Vertex/VertexMesh";
 import { VertexBuffer3D } from "../../graphics/VertexBuffer3D";
-import { VertexElement } from "../../graphics/VertexElement";
-import { VertexElementFormat } from "../../graphics/VertexElementFormat";
 import { Bounds } from "../../math/Bounds";
-import { Color } from "../../math/Color";
-import { Matrix4x4 } from "../../math/Matrix4x4";
-import { Vector2 } from "../../math/Vector2";
-import { Vector3 } from "../../math/Vector3";
-import { Vector4 } from "../../math/Vector4";
 import { Physics3D } from "../../Physics3D";
 import { Utils3D } from "../../utils/Utils3D";
 import { SubMesh } from "./SubMesh";
+import { Color } from "../../../maths/Color";
+import { Matrix4x4 } from "../../../maths/Matrix4x4";
+import { Vector2 } from "../../../maths/Vector2";
+import { Vector3 } from "../../../maths/Vector3";
+import { Vector4 } from "../../../maths/Vector4";
+import { VertexElementFormat } from "../../../renders/VertexElementFormat";
+import { VertexElement } from "../../../renders/VertexElement";
+import { BufferState } from "../../../webgl/utils/BufferState";
+import { VertexMesh } from "../../../RenderEngine/RenderShader/VertexMesh";
 /**
  * @internal
  */

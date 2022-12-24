@@ -5,15 +5,16 @@ import { Stat } from "laya/utils/Stat";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Handler } from "laya/utils/Handler";
 import { Camera } from "laya/d3/core/Camera";
-import { Vector3 } from "laya/d3/math/Vector3";
 import { DirectionLight } from "laya/d3/core/light/DirectionLight";
-import { Matrix4x4 } from "laya/d3/math/Matrix4x4";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { Loader } from "laya/net/Loader";
 import { TextureCube } from "laya/d3/resource/TextureCube";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
-import { Color } from "laya/d3/math/Color";
+import { Color } from "laya/maths/Color";
+import { Matrix4x4 } from "laya/maths/Matrix4x4";
+import { Vector3 } from "laya/maths/Vector3";
+
 
 export class LoadGltfResource {
 

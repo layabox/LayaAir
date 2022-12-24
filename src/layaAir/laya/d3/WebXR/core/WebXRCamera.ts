@@ -5,12 +5,12 @@ import { RenderContext3D } from "../../core/render/RenderContext3D";
 import { Scene3D } from "../../core/scene/Scene3D";
 import { Cluster } from "../../graphics/renderPath/Cluster";
 import { Viewport } from "../../math/Viewport";
-import { RenderTexture } from "../../resource/RenderTexture";
 import { WebXRCameraManager } from "./WebXRCameraManager";
 import { WebXRRenderTexture } from "./WebXRRenderTexture";
 import { RenderStateContext } from "../../../RenderEngine/RenderStateContext";
 import { WebXRExperienceHelper } from "./WebXRExperienceHelper";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
+import { RenderTexture } from "../../../resource/RenderTexture";
 
 
 /**
@@ -147,8 +147,8 @@ export class WebXRCamera extends Camera {
 			this._renderDepthMode(context);
 		}
 		(renderTex) && (renderTex._start());
-		if ((renderTex as WebXRRenderTexture).frameLoop != Scene3D._updateMark) {
-			(renderTex as WebXRRenderTexture).frameLoop = Scene3D._updateMark;
+		if ((renderTex as any).frameLoop != Scene3D._updateMark) {
+			(renderTex as any).frameLoop = Scene3D._updateMark;
 			//scene._clear(gl, context);
 			this.clear(gl);
 		}

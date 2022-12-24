@@ -1,8 +1,5 @@
 import { Node } from "../../display/Node";
 import { Handler } from "../../utils/Handler";
-import { Matrix4x4 } from "../math/Matrix4x4";
-import { Quaternion } from "../math/Quaternion";
-import { Vector3 } from "../math/Vector3";
 import { Transform3D } from "./Transform3D";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { LayaGL } from "../../layagl/LayaGL";
@@ -13,7 +10,9 @@ import { CommandUniformMap } from "../../RenderEngine/CommandUniformMap";
 import { NodeFlags } from "../../Const";
 import { Event } from "../../events/Event";
 import { Scene3D } from "./scene/Scene3D";
-import { ILaya3D } from "../../../ILaya3D";
+import { Matrix4x4 } from "../../maths/Matrix4x4";
+import { Quaternion } from "../../maths/Quaternion";
+import { Vector3 } from "../../maths/Vector3";
 
 /**
  * @internal

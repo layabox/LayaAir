@@ -8,11 +8,11 @@ import { KeyframeNode2D } from "./KeyframeNode2D";
 import { Node } from "../../laya/display/Node";
 import { ClassUtils } from "../utils/ClassUtils";
 import { Animation2DParm } from "./Animation2DParm";
-import { AnimatorUpdateMode } from "../d3/component/Animator/Animator";
 import { AnimatorController2D } from "./AnimatorController2D";
 import { AniParmType } from "./AnimatorControllerParse";
 import { AnimatorTransition2D } from "./AnimatorTransition2D";
 import { Animation2DEvent } from "./Animation2DEvent";
+import { AnimatorUpdateMode } from "./AnimatorUpdateMode";
 
 export class Animator2D extends Component {
     private _speed = 1;

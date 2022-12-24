@@ -5,8 +5,6 @@ import { AnimationEvent } from "./AnimationEvent";
 import { FloatKeyframe } from "../core/FloatKeyframe"
 import { QuaternionKeyframe } from "../core/QuaternionKeyframe"
 import { Vector3Keyframe } from "../core/Vector3Keyframe"
-import { Quaternion } from "../math/Quaternion"
-import { Vector3 } from "../math/Vector3"
 import { Utils3D } from "../utils/Utils3D"
 import { Resource } from "../../resource/Resource"
 import { Byte } from "../../utils/Byte"
@@ -14,12 +12,14 @@ import { Handler } from "../../utils/Handler"
 import { ILaya } from "../../../ILaya";
 import { WeightedMode } from "../core/Keyframe";
 import { Loader } from "../../net/Loader";
-import { Vector4 } from "../math/Vector4";
 import { Vector2Keyframe } from "../core/Vector2Keyframe";
-import { Vector2 } from "../math/Vector2";
 import { Vector4Keyframe } from "../core/Vector4Keyframe";
 import { AvatarMask } from "../component/Animator/AvatarMask";
 import { KeyFrameValueType } from "../component/Animator/KeyframeNodeOwner";
+import { Quaternion } from "../../maths/Quaternion";
+import { Vector2 } from "../../maths/Vector2";
+import { Vector3 } from "../../maths/Vector3";
+import { Vector4 } from "../../maths/Vector4";
 
 /**
  * <code>AnimationClip</code> 类用于动画片段资源。

@@ -1,10 +1,8 @@
 import { Laya } from "Laya";
-import { BaseCamera } from "laya/d3/core/BaseCamera";
 import { Camera, CameraClearFlags } from "laya/d3/core/Camera";
 import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
-import { Vector3 } from "laya/d3/math/Vector3";
 import { Stage } from "laya/display/Stage";
 import { InputManager } from "laya/events/InputManager";
 import { Image } from "laya/ui/Image";
@@ -12,6 +10,7 @@ import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import { Transform3D } from "laya/d3/core/Transform3D";
+import { Vector3 } from "laya/maths/Vector3";
 
 export class Scene2DPlayer3D {
 
@@ -19,8 +18,6 @@ export class Scene2DPlayer3D {
 	 * (pos.x pos.y) 屏幕位置
 	 *  pos.z 深度取值范围(-1,1);
 	 * */
-	private _pos: Vector3 = new Vector3(310, 500, 0);
-	private _translate: Vector3 = new Vector3(0, 0, 0);
 	private _translate2: Vector3 = new Vector3(5, -10, 1);
 	private _translate3: Vector3 = new Vector3(0, 0, -0.2);
 	private _translate4: Vector3 = new Vector3(0, 0, 0.2);

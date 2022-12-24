@@ -5,9 +5,6 @@ import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
-import { Matrix4x4 } from "laya/d3/math/Matrix4x4";
-import { Vector3 } from "laya/d3/math/Vector3";
-import { Vector4 } from "laya/d3/math/Vector4";
 import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
 import { Stage } from "laya/display/Stage";
 import { HalfFloatUtils } from "laya/utils/HalfFloatUtils";
@@ -17,7 +14,9 @@ import { Texture2D } from "laya/resource/Texture2D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { FilterMode } from "laya/RenderEngine/RenderEnum/FilterMode";
 import { TextureFormat } from "laya/RenderEngine/RenderEnum/TextureFormat";
-import { Color } from "laya/d3/math/Color";
+import { Color } from "laya/maths/Color";
+import { Matrix4x4 } from "laya/maths/Matrix4x4";
+import { Vector3 } from "laya/maths/Vector3";
 
 export class HalfFloatTexture {
     private sprite3D: Sprite3D;

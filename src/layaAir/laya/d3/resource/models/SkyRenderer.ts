@@ -1,5 +1,7 @@
 import { ILaya3D } from "../../../../ILaya3D";
 import { LayaGL } from "../../../layagl/LayaGL";
+import { Matrix4x4 } from "../../../maths/Matrix4x4";
+import { Vector3 } from "../../../maths/Vector3";
 import { CompareFunction } from "../../../RenderEngine/RenderEnum/CompareFunction";
 import { CullMode } from "../../../RenderEngine/RenderEnum/CullMode";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
@@ -10,8 +12,6 @@ import { BaseRender } from "../../core/render/BaseRender";
 import { RenderContext3D } from "../../core/render/RenderContext3D";
 import { RenderElement } from "../../core/render/RenderElement";
 import { Scene3D } from "../../core/scene/Scene3D";
-import { Matrix4x4 } from "../../math/Matrix4x4";
-import { Vector3 } from "../../math/Vector3";
 import { SkyBox } from "./SkyBox";
 import { SkyDome } from "./SkyDome";
 

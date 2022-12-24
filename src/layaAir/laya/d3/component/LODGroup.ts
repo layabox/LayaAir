@@ -1,14 +1,13 @@
 import { Component } from "../../components/Component";
-import { LayaGL } from "../../layagl/LayaGL";
 import { Camera } from "../core/Camera";
 import { BaseRender, RenderBitFlag } from "../core/render/BaseRender";
 import { Scene3D } from "../core/scene/Scene3D";
 import { Sprite3D } from "../core/Sprite3D";
 import { Bounds } from "../math/Bounds";
-import { Vector3 } from "../math/Vector3";
 import { Event } from "../../events/Event";
 import { Utils3D } from "../utils/Utils3D";
 import { IBoundsCell } from "../math/IBoundsCell";
+import { Vector3 } from "../../maths/Vector3";
 
 const tempVec = new Vector3();
 const tempVec1 = new Vector3();

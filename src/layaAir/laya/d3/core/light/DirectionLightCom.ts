@@ -1,7 +1,7 @@
-import { Vector3 } from "../../math/Vector3";
 import { Scene3D } from "../scene/Scene3D";
 import { ShadowCascadesMode } from "./ShadowCascadesMode";
 import { Light, LightType } from "./Light";
+import { Vector3 } from "../../../maths/Vector3";
 
 
 /**

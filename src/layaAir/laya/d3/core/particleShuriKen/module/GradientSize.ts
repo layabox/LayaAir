@@ -1,6 +1,6 @@
 import { GradientDataNumber } from "./GradientDataNumber";
 import { IClone } from "../../../../utils/IClone"
-import { Vector3 } from "../../../math/Vector3"
+import { Vector3 } from "../../../../maths/Vector3";
 
 /**
  * <code>GradientSize</code> 类用于创建渐变尺寸。

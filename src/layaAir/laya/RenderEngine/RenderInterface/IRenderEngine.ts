@@ -1,6 +1,5 @@
-import { Color } from "../../d3/math/Color";
-import { RenderTexture } from "../../d3/resource/RenderTexture";
 import { CommandEncoder } from "../../layagl/CommandEncoder";
+import { Color } from "../../maths/Color";
 import { BaseTexture } from "../../resource/BaseTexture";
 import { BufferTargetType, BufferUsage } from "../RenderEnum/BufferTargetType";
 import { RenderCapable } from "../RenderEnum/RenderCapable";
@@ -21,6 +20,7 @@ export interface IRenderEngine {
     gl: any;
     isWebGL2: boolean;
     _isShaderDebugMode: boolean;
+    _renderOBJCreateContext:IRenderOBJCreate;
     initRenderEngine(canvas: any): void;
 
     applyRenderStateCMD(cmd: RenderStateCommand): void;
@@ -46,7 +46,7 @@ export interface IRenderEngine {
 
     uploadUniforms(shader: IRenderShaderInstance, commandEncoder: CommandEncoder, shaderData: any, uploadUnTexture: boolean): number;
     uploadCustomUniforms(shader: IRenderShaderInstance, custom: any[], index: number, data: any): number;
-
+    createRenderStateComand():RenderStateCommand;
     createShaderInstance(vs: string, ps: string, attributeMap: { [name: string]: [number, ShaderDataType] }): IRenderShaderInstance
     createBuffer(targetType: BufferTargetType, bufferUsageType: BufferUsage): IRenderBuffer;
     createVertexState(): IRenderVertexState;

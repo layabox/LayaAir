@@ -4,11 +4,11 @@ import { RenderContext3D } from "../core/render/RenderContext3D";
 import { SubMeshRenderElement } from "../core/render/SubMeshRenderElement";
 import { SubMesh } from "../resource/models/SubMesh";
 import { VertexBuffer3D } from "./VertexBuffer3D";
-import { VertexMesh } from "./Vertex/VertexMesh";
 import { BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
 import { MeshTopology } from "../../RenderEngine/RenderEnum/RenderPologyMode";
 import { DrawType } from "../../RenderEngine/RenderEnum/DrawType";
 import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
+import { VertexMesh } from "../../RenderEngine/RenderShader/VertexMesh";
 
 /**
  * 是否要删除

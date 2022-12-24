@@ -1,6 +1,6 @@
-import { BufferState } from "../../d3/core/BufferState";
 import { BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
 import { Config } from "./../../../Config";
+import { BufferState } from "./BufferState";
 import { IndexBuffer2D } from "./IndexBuffer2D";
 import { VertexBuffer2D } from "./VertexBuffer2D";
 

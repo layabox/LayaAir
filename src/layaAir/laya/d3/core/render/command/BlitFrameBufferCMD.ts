@@ -1,10 +1,6 @@
 import { LayaGL } from "../../../../layagl/LayaGL";
 import { BaseTexture } from "../../../../resource/BaseTexture";
-import { Vector4 } from "../../../math/Vector4";
 import { Viewport } from "../../../math/Viewport";
-import { ShaderPass } from "../../../shader/ShaderPass";
-import { SubShader } from "../../../shader/SubShader";
-import { RenderTexture } from "../../../resource/RenderTexture";
 import { RenderContext3D } from "../RenderContext3D";
 import { ScreenQuad } from "../ScreenQuad";
 import { Command } from "./Command";
@@ -13,8 +9,11 @@ import { ShaderData } from "../../../../RenderEngine/RenderShader/ShaderData";
 import { RenderElement } from "../RenderElement";
 import { Transform3D } from "../../Transform3D";
 import { ShaderDefine } from "../../../../RenderEngine/RenderShader/ShaderDefine";
-import { ILaya3D } from "../../../../../ILaya3D";
 import { Camera } from "../../Camera";
+import { Vector4 } from "../../../../maths/Vector4";
+import { RenderTexture } from "../../../../resource/RenderTexture";
+import { ShaderPass } from "../../../../RenderEngine/RenderShader/ShaderPass";
+import { SubShader } from "../../../../RenderEngine/RenderShader/SubShader";
 
 
 /**

@@ -1,10 +1,8 @@
 import { Node } from "../../display/Node";
-import { Vector4 } from "../math/Vector4";
 import { Sprite3D } from "./Sprite3D";
 import { BaseRender } from "./render/BaseRender";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { ShaderDefine } from "../../RenderEngine/RenderShader/ShaderDefine";
-import { CommandUniformMap } from "../../RenderEngine/CommandUniformMap";
 import { LayaGL } from "../../layagl/LayaGL";
 
 /**

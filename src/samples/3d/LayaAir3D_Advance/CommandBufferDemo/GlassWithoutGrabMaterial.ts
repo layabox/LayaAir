@@ -1,13 +1,13 @@
-import { VertexMesh } from "laya/d3/graphics/Vertex/VertexMesh";
-import { SubShader } from "laya/d3/shader/SubShader";
 import { Material } from "laya/d3/core/material/Material";
 import GlassShaderVS from "./GlassShader.vs";
 import GlassShaderFS from "./GlassShader.fs";
-import { RenderState } from "laya/d3/core/material/RenderState";
-import { Vector4 } from "laya/d3/math/Vector4";
 import { BaseTexture } from "laya/resource/BaseTexture";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 import { ShaderDataType } from "laya/RenderEngine/RenderShader/ShaderData";
+import { Vector4 } from "laya/maths/Vector4";
+import { RenderState } from "laya/RenderEngine/RenderShader/RenderState";
+import { SubShader } from "laya/RenderEngine/RenderShader/SubShader";
+import { VertexMesh } from "laya/RenderEngine/RenderShader/VertexMesh";
 
 export class GlassWithoutGrabMaterial extends Material {
     /** tintTexure */

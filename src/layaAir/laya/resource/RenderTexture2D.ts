@@ -6,9 +6,9 @@ import { RenderState2D } from "../webgl/utils/RenderState2D"
 import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
 import { InternalRenderTarget } from "../RenderEngine/RenderInterface/InternalRenderTarget";
 import { IRenderTarget } from "../RenderEngine/RenderInterface/IRenderTarget";
-import { Color } from "../d3/math/Color";
 import { RenderClearFlag } from "../RenderEngine/RenderEnum/RenderClearFlag";
 import { NativeRenderTexture2D } from "./NativeRenderTexture2D";
+import { Color } from "../maths/Color";
 /**
  * <code>RenderTexture</code> 类用于创建渲染目标。
  */

@@ -4,15 +4,15 @@ import { Camera } from "../Camera"
 import { GeometryElement } from "../GeometryElement"
 import { Transform3D } from "../Transform3D"
 import { Material } from "../material/Material"
-import { SubShader } from "../../shader/SubShader"
 import { IRenderElement } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderElement"
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D"
-import { ShaderPass } from "../../shader/ShaderPass"
 import { DefineDatas } from "../../../RenderEngine/RenderShader/DefineDatas"
-import { ShaderInstance } from "../../shader/ShaderInstance"
 import { LayaGL } from "../../../layagl/LayaGL"
 import { IRenderContext3D } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderContext3D"
 import { ILaya3D } from "../../../../ILaya3D"
+import { ShaderInstance } from "../../../RenderEngine/RenderShader/ShaderInstance"
+import { ShaderPass } from "../../../RenderEngine/RenderShader/ShaderPass"
+import { SubShader } from "../../../RenderEngine/RenderShader/SubShader"
 
 /**
  * <code>RenderElement</code> 类用于实现渲染元素。

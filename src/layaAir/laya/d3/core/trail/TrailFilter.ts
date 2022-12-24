@@ -1,5 +1,3 @@
-import { Color } from "../../math/Color";
-import { Vector3 } from "../../math/Vector3";
 import { Camera } from "../Camera";
 import { FloatKeyframe } from "../FloatKeyframe";
 import { GeometryElement } from "../GeometryElement";
@@ -16,6 +14,8 @@ import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { TrailAlignment } from "./TrailAlignment";
 import { TrailTextureMode } from "../TrailTextureMode";
+import { Color } from "../../../maths/Color";
+import { Vector3 } from "../../../maths/Vector3";
 
 
 /**

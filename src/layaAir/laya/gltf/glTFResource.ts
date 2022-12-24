@@ -4,7 +4,6 @@ import { Texture2D, TextureConstructParams, TexturePropertyParams } from "../res
 import { URL } from "../net/URL";
 import { PBRStandardMaterial } from "../d3/core/material/PBRStandardMaterial";
 import { PBRRenderMode } from "../d3/core/material/PBRMaterial";
-import { RenderState } from "../d3/core/material/RenderState";
 import { glTFTextureEditor } from "./glTFTextureEditor";
 import { Mesh, skinnedMatrixCache } from "../d3/resource/models/Mesh";
 import { AnimationClip } from "../d3/animation/AnimationClip";
@@ -18,12 +17,7 @@ import { SkinnedMeshSprite3D } from "../d3/core/SkinnedMeshSprite3D";
 import { Sprite3D } from "../d3/core/Sprite3D";
 import { Vector3Keyframe } from "../d3/core/Vector3Keyframe";
 import { IndexBuffer3D } from "../d3/graphics/IndexBuffer3D";
-import { VertexMesh } from "../d3/graphics/Vertex/VertexMesh";
 import { VertexBuffer3D } from "../d3/graphics/VertexBuffer3D";
-import { Matrix4x4 } from "../d3/math/Matrix4x4";
-import { Quaternion } from "../d3/math/Quaternion";
-import { Vector3 } from "../d3/math/Vector3";
-import { Vector4 } from "../d3/math/Vector4";
 import { SubMesh } from "../d3/resource/models/SubMesh";
 import { LayaGL } from "../layagl/LayaGL";
 import { Handler } from "../utils/Handler";
@@ -40,6 +34,12 @@ import { HDREncodeFormat } from "../RenderEngine/RenderEnum/HDREncodeFormat";
 import { AnimatorControllerLayer } from "../d3/component/Animator/AnimatorControllerLayer";
 import { AnimatorState } from "../d3/component/Animator/AnimatorState";
 import { Animator } from "../d3/component/Animator/Animator";
+import { Matrix4x4 } from "../maths/Matrix4x4";
+import { Quaternion } from "../maths/Quaternion";
+import { Vector3 } from "../maths/Vector3";
+import { Vector4 } from "../maths/Vector4";
+import { RenderState } from "../RenderEngine/RenderShader/RenderState";
+import { VertexMesh } from "../RenderEngine/RenderShader/VertexMesh";
 
 const maxSubBoneCount = 24;
 

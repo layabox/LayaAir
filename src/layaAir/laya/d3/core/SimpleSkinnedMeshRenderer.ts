@@ -6,13 +6,13 @@ import { SubMeshRenderElement } from "./render/SubMeshRenderElement";
 import { Sprite3D } from "./Sprite3D";
 import { RenderElement } from "./render/RenderElement";
 import { SkinnedMeshSprite3DShaderDeclaration } from "./SkinnedMeshSprite3DShaderDeclaration";
-import { Matrix4x4 } from "../math/Matrix4x4";
 import { Mesh } from "../resource/models/Mesh";
 import { Texture2D } from "../../resource/Texture2D";
-import { Vector4 } from "../math/Vector4";
-import { Vector2 } from "../math/Vector2";
 import { Component } from "../../components/Component";
 import { ShaderDataType } from "../../RenderEngine/RenderShader/ShaderData";
+import { Matrix4x4 } from "../../maths/Matrix4x4";
+import { Vector2 } from "../../maths/Vector2";
+import { Vector4 } from "../../maths/Vector4";
 
 export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
     /**@internal 解决循环引用 */

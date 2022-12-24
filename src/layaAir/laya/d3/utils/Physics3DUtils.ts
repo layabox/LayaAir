@@ -1,4 +1,4 @@
-import { Vector3 } from "../math/Vector3"
+import { Vector3 } from "../../maths/Vector3";
 import { PhysicsComponent } from "../physics/PhysicsComponent"
 
 	

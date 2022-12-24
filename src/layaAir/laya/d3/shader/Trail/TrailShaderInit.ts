@@ -1,11 +1,11 @@
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D"
 import { ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData"
 import { VertexTrail } from "../../core/trail/VertexTrail";
-import { SubShader } from "../SubShader";
 import TrailVS from "./Trail.vs";
 import TrailFS from "./Trail.fs";
-import { Vector4 } from "../../math/Vector4";
-import { Color } from "../../math/Color";
+import { Color } from "../../../maths/Color";
+import { Vector4 } from "../../../maths/Vector4";
+import { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
 export class TrailShaderInit {
     static init() {
         let attributeMap: { [name: string]: [number, ShaderDataType] } = {

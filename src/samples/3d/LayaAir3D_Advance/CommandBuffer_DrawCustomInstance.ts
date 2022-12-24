@@ -5,10 +5,6 @@ import { CommandBuffer } from "laya/d3/core/render/command/CommandBuffer";
 import { DrawMeshInstancedCMD } from "laya/d3/core/render/command/DrawMeshInstancedCMD";
 import { InstanceLocation, MaterialInstancePropertyBlock } from "laya/d3/core/render/command/MaterialInstancePropertyBlock";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
-import { Matrix4x4 } from "laya/d3/math/Matrix4x4";
-import { Quaternion } from "laya/d3/math/Quaternion";
-import { Vector3 } from "laya/d3/math/Vector3";
-import { Vector4 } from "laya/d3/math/Vector4";
 import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
 import { Stage } from "laya/display/Stage";
 import { Button } from "laya/ui/Button";
@@ -19,10 +15,13 @@ import { Laya3D } from "Laya3D";
 import { Event } from "laya/events/Event";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { CustomInstanceMaterial } from "./DrawCustomInstanceDemo/CustomInstanceMaterial";
-import { Utils } from "laya/utils/Utils";
 import Client from "../../Client";
-import { Color } from "laya/d3/math/Color";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
+import { Color } from "laya/maths/Color";
+import { Matrix4x4 } from "laya/maths/Matrix4x4";
+import { Quaternion } from "laya/maths/Quaternion";
+import { Vector3 } from "laya/maths/Vector3";
+import { Vector4 } from "laya/maths/Vector4";
 
 export class CommandBuffer_DrawCustomInstance{
     mat:CustomInstanceMaterial;

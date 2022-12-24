@@ -1,8 +1,8 @@
 import { ILaya } from "../../../ILaya";
 import { ILaya3D } from "../../../ILaya3D";
-import { Matrix4x4 } from "../math/Matrix4x4";
-import { Quaternion } from "../math/Quaternion";
-import { Vector3 } from "../math/Vector3";
+import { Matrix4x4 } from "../../maths/Matrix4x4";
+import { Quaternion } from "../../maths/Quaternion";
+import { Vector3 } from "../../maths/Vector3";
 
 export class RaycastWheel {
     btWheelPtr: number;

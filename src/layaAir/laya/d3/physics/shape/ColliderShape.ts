@@ -1,10 +1,10 @@
 import { IClone } from "../../../utils/IClone";
-import { Matrix4x4 } from "../../math/Matrix4x4";
-import { Quaternion } from "../../math/Quaternion";
-import { Vector3 } from "../../math/Vector3";
 import { PhysicsComponent } from "../PhysicsComponent";
 import { CompoundColliderShape } from "./CompoundColliderShape";
 import { ILaya3D } from "../../../../ILaya3D";
+import { Matrix4x4 } from "../../../maths/Matrix4x4";
+import { Quaternion } from "../../../maths/Quaternion";
+import { Vector3 } from "../../../maths/Vector3";
 
 /**
  * <code>ColliderShape</code> 类用于创建形状碰撞器的父类，该类为抽象类。

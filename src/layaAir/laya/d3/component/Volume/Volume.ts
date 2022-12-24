@@ -2,10 +2,10 @@ import { Component } from "../../../components/Component";
 import { BaseRender } from "../../core/render/BaseRender";
 import { Sprite3D } from "../../core/Sprite3D";
 import { Bounds } from "../../math/Bounds";
-import { Vector3 } from "../../math/Vector3";
 import { VolumeManager } from "./VolumeManager";
 import { Event } from "../../../events/Event";
 import { Scene3D } from "../../core/scene/Scene3D";
+import { Vector3 } from "../../../maths/Vector3";
 
 export enum volumeIntersectType {
     /**包含 */

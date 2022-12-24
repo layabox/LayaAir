@@ -1,4 +1,3 @@
-import { Matrix4x4 } from "../math/Matrix4x4"
 import { Mesh } from "../resource/models/Mesh"
 import { Material } from "./material/Material"
 import { BlinnPhongMaterial } from "./material/BlinnPhongMaterial"
@@ -15,10 +14,10 @@ import { Component } from "../../components/Component"
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D"
 import { ShaderDefine } from "../../RenderEngine/RenderShader/ShaderDefine"
 import { SubMesh } from "../resource/models/SubMesh"
-import { VertexElement } from "../graphics/VertexElement"
-import { VertexMesh } from "../graphics/Vertex/VertexMesh"
 import { ShaderData, ShaderDataType } from "../../RenderEngine/RenderShader/ShaderData"
-import { Scene3D } from "./scene/Scene3D"
+import { Matrix4x4 } from "../../maths/Matrix4x4"
+import { VertexElement } from "../../renders/VertexElement"
+import { VertexMesh } from "../../RenderEngine/RenderShader/VertexMesh"
 
 /**
  * <code>MeshRenderer</code> 类用于网格渲染器。

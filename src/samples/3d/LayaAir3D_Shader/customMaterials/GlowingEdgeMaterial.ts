@@ -1,5 +1,5 @@
 import { Material } from "laya/d3/core/material/Material";
-import { Vector3 } from "laya/d3/math/Vector3";
+import { Vector3 } from "laya/maths/Vector3";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 import { BaseTexture } from "laya/resource/BaseTexture";
 
