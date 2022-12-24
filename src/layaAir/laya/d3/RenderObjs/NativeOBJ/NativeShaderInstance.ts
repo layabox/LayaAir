@@ -2,6 +2,7 @@ import { CommandEncoder } from "../../../layagl/CommandEncoder";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { ShaderDataType, ShaderData } from "../../../RenderEngine/RenderShader/ShaderData";
 import { ShaderPass } from "../../../RenderEngine/RenderShader/ShaderPass";
+import { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
 import { ShaderCompileDefineBase } from "../../../webgl/utils/ShaderCompileDefineBase";
 
 
@@ -20,20 +21,22 @@ export class NativeShaderInstance/* extends ShaderInstance */ {
 
 	_nativeObj: any;
 
+	/**@internal */
+	private _shaderPass: ShaderCompileDefineBase | ShaderPass;
+
 	constructor(vs: string, ps: string, attributeMap: { [name: string]: [number, ShaderDataType] }, shaderPass: ShaderCompileDefineBase) {
 		//super(vs, ps, attributeMap, shaderPass);
+		this._shaderPass = shaderPass;
 		var pConchAttributeMap: any = new (window as any).conchAttributeMap();
 		for (var k in attributeMap) {
 			pConchAttributeMap.setAttributeValue(k, attributeMap[k][0]);
 		}
 
-		/**
-		 * todo: shaderpass 删除了 stateMap 报错 
-		 */
-		// var stateMap: { [key: string]: number } = (<ShaderPass>shaderPass)._stateMap;
-		// for (var s in stateMap) {
-		// 	pConchAttributeMap.setStateValue(stateMap[s], Shader3D.propertyNameToID(s));
-		// }
+		var stateMap: { [stateID: number]: number } = SubShader.StateParamsMap;
+		for (var s in stateMap) {
+			pConchAttributeMap.setStateValue(s, stateMap[s]);
+		}
+		pConchAttributeMap.statefirst = (<ShaderPass>this._shaderPass).statefirst;
 		var renderState: any = (<ShaderPass>shaderPass).renderState;
 		this._nativeObj = new (window as any).conchShaderInstance((LayaGL.renderEngine as any)._nativeObj, vs, ps, pConchAttributeMap, renderState._nativeObj);
 	}
