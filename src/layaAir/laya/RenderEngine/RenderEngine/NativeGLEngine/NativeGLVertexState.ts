@@ -48,12 +48,16 @@ export class NativeGLVertexState extends NativeGLObject implements IRenderVertex
         if(indexBuffer==null){
             return;
         }
+        this._bindedIndexBuffer = indexBuffer;
         this._nativeObj.applyIndexBuffer((indexBuffer as any)._conchIndexBuffer3D);
     }
     /**
      * @internal
      */
     destroy() {
+        this._vertexBuffers = null;
+        this._nativeVertexBuffers=[];
+        this._bindedIndexBuffer = null;
         super.destroy();
         this._nativeObj.destroy()
     }

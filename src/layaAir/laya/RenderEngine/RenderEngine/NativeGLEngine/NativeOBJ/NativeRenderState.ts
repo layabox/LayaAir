@@ -59,10 +59,6 @@ export class NativeRenderState {
 	get dstBlendAlpha(): number {
 		return this._nativeObj.dstBlendAlpha;
 	}
-
-	set blendConstColor(color: Vector4) {
-		this._nativeObj.setBlendConstColor(color.x, color.y, color.z, color.w);
-	}
 	
 	set blendEquation(value: number) {
 		this._nativeObj.blendEquation = value;
@@ -122,6 +118,10 @@ export class NativeRenderState {
 
 	set stencilOp(value: Vector3) {
 		this._nativeObj.setStencilOp(value.x, value.y, value.z);
+	}
+	setNull():void
+	{
+
 	}
 	constructor() {
 		this._nativeObj = new (window as any).conchRenderState();
