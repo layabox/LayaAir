@@ -279,9 +279,9 @@ export class StaticInstanceBatchRender extends BatchRender {
      */
     _clear() {
         this._restorRenderNode();
-        for (let i = 0, n = this._insElementMarksArray.length; i < n; i++) {
-            this._insElementMarksArray && this._insElementMarksArray[i].destroy();
-        }
+        this._insElementMarksArray.forEach(element => {
+            element && element.destroy();
+        });
         this._insElementMarksArray = [];
         this._updateChangeElement = [];
         this._insBatchMarksNums = [];
