@@ -493,15 +493,15 @@ export class Scene3D extends Sprite implements ISubmit {
         this._sceneReflectionProb.ambientMode = value;
     }
 
-    get sceneReflectionProb(): ReflectionProbe{
+    get sceneReflectionProb(): ReflectionProbe {
         return this._sceneReflectionProb;
     }
 
     /**
      * @internal
      */
-    set sceneReflectionProb(value:ReflectionProbe){
-        this._sceneReflectionProb = value;        
+    set sceneReflectionProb(value: ReflectionProbe) {
+        this._sceneReflectionProb = value;
     }
 
     /**
@@ -512,31 +512,31 @@ export class Scene3D extends Sprite implements ISubmit {
     }
 
     set ambientColor(value: Color) {
-       this._sceneReflectionProb.ambientColor = value;
+        this._sceneReflectionProb.ambientColor = value;
     }
 
-    
-	/**
-	 * 设置环境漫反射的强度
-	 */
-	get ambientIntensity(): number {
-		return this._sceneReflectionProb.ambientIntensity;
-	}
 
-	set ambientIntensity(value: number) {
-		this._sceneReflectionProb.ambientIntensity = value;
-	}
+    /**
+     * 设置环境漫反射的强度
+     */
+    get ambientIntensity(): number {
+        return this._sceneReflectionProb.ambientIntensity;
+    }
 
-	/**
-	 * 设置反射探针强度
-	 */
-	get reflectionIntensity(): number {
-		return this._sceneReflectionProb.reflectionIntensity;
-	}
+    set ambientIntensity(value: number) {
+        this._sceneReflectionProb.ambientIntensity = value;
+    }
 
-	set reflectionIntensity(value: number) {
-		this._sceneReflectionProb.reflectionIntensity = value;
-	}
+    /**
+     * 设置反射探针强度
+     */
+    get reflectionIntensity(): number {
+        return this._sceneReflectionProb.reflectionIntensity;
+    }
+
+    set reflectionIntensity(value: number) {
+        this._sceneReflectionProb.reflectionIntensity = value;
+    }
 
     /**
      * ambient sh
@@ -552,7 +552,7 @@ export class Scene3D extends Sprite implements ISubmit {
      */
     public get iblTex(): TextureCube {
         return this._sceneReflectionProb.iblTex;
-        
+
     }
     public set iblTex(value: TextureCube) {
         this._sceneReflectionProb.iblTex = value
@@ -662,22 +662,22 @@ export class Scene3D extends Sprite implements ISubmit {
         this.fogStart = 300;
         this.fogRange = 1000;
         this.fogColor = new Color(0.7, 0.7, 0.7);
-        
+
         this.GIRotate = 0;
-     
+
         this._scene = this;
-        if(Config3D.useBVHCull){
-          let bvhConfig = new BVHSpatialConfig();
-          bvhConfig.Min_BVH_Build_Nums = Config3D.BVH_Min_Build_nums;
-          bvhConfig.limit_size = Config3D.BVH_limit_size;
-          bvhConfig.max_SpatialCount = Config3D.BVH_max_SpatialCount;
-          this._sceneRenderManager = new BVHSceneRenderManager(bvhConfig);
-          this._cullPass = new BVHCullPass();
-        }else{
+        if (Config3D.useBVHCull) {
+            let bvhConfig = new BVHSpatialConfig();
+            bvhConfig.Min_BVH_Build_Nums = Config3D.BVH_Min_Build_nums;
+            bvhConfig.limit_size = Config3D.BVH_limit_size;
+            bvhConfig.max_SpatialCount = Config3D.BVH_max_SpatialCount;
+            this._sceneRenderManager = new BVHSceneRenderManager(bvhConfig);
+            this._cullPass = new BVHCullPass();
+        } else {
             this._sceneRenderManager = new SceneRenderManager();
             this._cullPass = LayaGL.renderOBJCreate.createCullPass();
         }
-        
+
         //this._cullPass = LayaGL.renderOBJCreate.createCullPass();
 
         // if (Scene3D.octreeCulling)
@@ -732,21 +732,18 @@ export class Scene3D extends Sprite implements ISubmit {
             }
         }
 
+        if (this._volumeManager.needreCaculateAllRenderObjects())
+            this._volumeManager.reCaculateAllRenderObjects(this._sceneRenderManager.list);
+        else
+            this._volumeManager.handleMotionlist();
 
         this._componentDriver.callStart();
         this._componentDriver.callUpdate();
-
-
 
         this._componentDriver.callLateUpdate();
         this._componentDriver.callDestroy();
 
         this._sceneRenderManager.updateMotionObjects();
-
-        if (this._volumeManager.needreCaculateAllRenderObjects())
-            this._volumeManager.reCaculateAllRenderObjects(this._sceneRenderManager.list);
-        else
-            this._volumeManager.handleMotionlist();
 
         this._UI3DManager.update();
     }
@@ -1249,7 +1246,7 @@ export class Scene3D extends Sprite implements ISubmit {
         }
         (ambientModeData != undefined) && (this.ambientMode = ambientModeData);
         var reflectionData: string = data.reflection;
-        (reflectionData != undefined) && (this._sceneReflectionProb.reflectionTexture= Loader.getRes(reflectionData));
+        (reflectionData != undefined) && (this._sceneReflectionProb.reflectionTexture = Loader.getRes(reflectionData));
         var reflectionDecodingFormatData: number = data.reflectionDecodingFormat;
         (reflectionDecodingFormatData != undefined) && (this._sceneReflectionProb.reflectionDecodingFormat = reflectionDecodingFormatData);
         var ambientSphericalHarmonicsIntensityData: number = data.ambientSphericalHarmonicsIntensity;
@@ -1440,7 +1437,7 @@ export class Scene3D extends Sprite implements ISubmit {
         this._shaderValues.setShaderData(shaderOffset, type, value);
     }
     //--------------------------------------------------------deprecated------------------------------------------------------------------------
-    
+
     /**
      * @deprecated
      * 设置光照贴图。
