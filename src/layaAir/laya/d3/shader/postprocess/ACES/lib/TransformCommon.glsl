@@ -1,5 +1,5 @@
 #if !defined(TransformCommon_lib)
-#define TransformCommon_lib
+    #define TransformCommon_lib
 
 const float TINY = 1e-10;
 
@@ -38,6 +38,46 @@ const mat3 XYZ_to_AP1_MAT = mat3(
     vec3(-0.2364246952, 0.0167563477, 0.9883948585));
 
 const vec3 AP1_RGB2Y = vec3(0.2722287168, 0.6740817658, 0.0536895174);
+
+float ACES_to_ACEScc(float x)
+{
+    // if (x <= 0.0)
+    // return -0.35828683;
+    // else if (x < pow(2.0, -15.0))
+    // return (log2(pow(2.0, -16.0) + x * 0.5) + 9.72) / 17.52;
+    // else
+    // return (log2(x) + 9.72) / 17.52;
+
+    return (x < 0.00003051757) ? (log2(0.00001525878 + x * 0.5) + 9.72) / 17.52 : (log2(x) + 9.72) / 17.52;
+}
+
+vec3 ACES_to_ACEScc(vec3 x)
+{
+    x = clamp(x, vec3(0.0), vec3(MEDIUMP_FLT_MAX));
+    x.x = ACES_to_ACEScc(x.x);
+    x.y = ACES_to_ACEScc(x.y);
+    x.z = ACES_to_ACEScc(x.z);
+
+    return x;
+}
+
+float ACEScc_to_ACES(float x)
+{
+    if (x < -0.3013698630)
+	return (pow(2.0, x * 17.52 - 9.72) - pow(2.0, -16.0)) * 2.0;
+    else if (x < (log2(MEDIUMP_FLT_MAX) + 9.72) / 17.52)
+	return pow(2.0, x * 17.52 - 9.72);
+    else
+	return MEDIUMP_FLT_MAX;
+}
+
+vec3 ACEScc_to_ACES(vec3 x)
+{
+    x.x = ACEScc_to_ACES(x.x);
+    x.y = ACEScc_to_ACES(x.y);
+    x.z = ACEScc_to_ACES(x.z);
+    return x;
+}
 
 float rgb_2_saturation(vec3 rgb)
 {
