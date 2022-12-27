@@ -23,7 +23,7 @@ import { NativeGLRenderDrawContext } from "./NativeGLRenderDrawContext";
 import { ShaderDataType } from "../../RenderShader/ShaderData";
 import { RenderStatisticsInfo } from "../../RenderEnum/RenderStatInfo";
 import { Color } from "../../../maths/Color";
-import { NativeRenderStateCommand } from "../../../d3/RenderObjs/NativeOBJ/NativeRenderStateCommand";
+import { NativeRenderStateCommand } from "./NativeRenderStateCommand";
 
 
 /**

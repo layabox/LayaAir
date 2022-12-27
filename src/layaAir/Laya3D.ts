@@ -67,6 +67,7 @@ import { RenderOBJCreateUtil } from "./laya/d3/RenderObjs/RenderObj/RenderOBJCre
 import { NativeRenderOBJCreateUtil } from "./laya/d3/RenderObjs/NativeOBJ/NativeRenderOBJCreateUtil";
 import { SubShader } from "./laya/RenderEngine/RenderShader/SubShader";
 import { VertexMesh } from "./laya/RenderEngine/RenderShader/VertexMesh";
+import { RenderTexture } from "./laya/resource/RenderTexture";
 
 /**
  * <code>Laya3D</code> 类用于初始化3D设置。
@@ -104,6 +105,7 @@ export class Laya3D {
         RunDriver.changeWebGLSize = Laya3D._changeWebGLSize;
         Render.is3DMode = true;
         Laya.init(width, height);
+        
         Laya3D.createRenderObjInit();
         if (LayaEnv.isConch && !(window as any).conchConfig.conchWebGL) {
             var skinnedMeshRender: any = SkinnedMeshRenderer;
@@ -173,6 +175,7 @@ export class Laya3D {
         Camera.__init__();
         ShadowUtils.init();
         RenderContext3D.__init__();
+        RenderTexture.configRenderContextInstance(RenderContext3D._instance);
         Material.__initDefine__();
         BlinnPhongMaterial.__initDefine__();
         // PBRStandardMaterial.__initDefine__();

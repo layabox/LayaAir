@@ -1,5 +1,4 @@
 import { Config3D } from "../../Config3D";
-import { RenderContext3D } from "../d3/core/render/RenderContext3D";
 import { LayaGL } from "../layagl/LayaGL";
 import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
 import { TextureDimension } from "../RenderEngine/RenderEnum/TextureDimension";
@@ -17,15 +16,20 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
         return RenderTexture._currentActive;
     }
 
+    private static _configInstance:any = {};
+    static configRenderContextInstance(value:any){
+        RenderTexture._configInstance = value;
+    }
+
     private static _pool: RenderTexture[] = [];
     private static _poolMemory: number = 0;
 
     /**
      * 创建一个RenderTexture
-     * @param width 
-     * @param height 
-     * @param colorFormat 
-     * @param depthFormat 
+     * @param width
+     * @param height
+     * @param colorFormat
+     * @param depthFormat
      * @param mipmap 
      * @param multiSamples 
      * @param depthTexture 
@@ -211,7 +215,7 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
     }
 
     _start() {
-        RenderContext3D._instance.invertY = this._isCameraTarget;
+        RenderTexture._configInstance.invertY = this._isCameraTarget;
         if (RenderTexture._currentActive != this) {
             RenderTexture._currentActive && RenderTexture._currentActive._end();
             RenderTexture._currentActive = this;
@@ -223,7 +227,7 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
         RenderTexture._currentActive = null;
 
         LayaGL.textureContext.unbindRenderTarget(this._renderTarget);
-        (this._isCameraTarget) && (RenderContext3D._instance.invertY = false);
+        (this._isCameraTarget) && (RenderTexture._configInstance.invertY = false);
     }
 
     getData(xOffset: number, yOffset: number, width: number, height: number, out: Uint8Array | Float32Array): Uint8Array | Float32Array {

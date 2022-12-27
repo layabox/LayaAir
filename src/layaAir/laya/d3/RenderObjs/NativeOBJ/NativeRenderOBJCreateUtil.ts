@@ -1,4 +1,5 @@
 import { Vector3 } from "../../../maths/Vector3";
+import { NativeRenderStateCommand } from "../../../RenderEngine/RenderEngine/NativeGLEngine/NativeRenderStateCommand";
 import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { DrawType } from "../../../RenderEngine/RenderEnum/DrawType";
 import { IndexFormat } from "../../../RenderEngine/RenderEnum/IndexFormat";
@@ -34,7 +35,6 @@ import { NativeRenderContext3DOBJ } from "./NativeRenderContext3DOBJ";
 import { NativeRenderElementOBJ } from "./NativeRenderElementOBJ";
 import { NativeRenderGeometryElementOBJ } from "./NativeRenderGeometryElementOBJ";
 import { NativeRenderState } from "./NativeRenderState";
-import { NativeRenderStateCommand } from "./NativeRenderStateCommand";
 import { NativeSceneRenderManager } from "./NativeSceneRenderManager";
 import { NativeShaderData } from "./NativeShaderData";
 import { NativeShaderInstance } from "./NativeShaderInstance";
