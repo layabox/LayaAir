@@ -226,9 +226,11 @@ export class MeshRenderer extends BaseRender {
         this._applyLightMapParams();
         this._applyReflection();
         var element: SubMeshRenderElement = <SubMeshRenderElement>context.renderElement;
-        switch (element.renderType) {
+        this._setShaderValue(Sprite3D.WORLDMATRIX, ShaderDataType.Matrix4x4, transform ? transform.worldMatrix : this._transform.worldMatrix);
+        return;
+        switch (0) {
             case RenderElement.RENDERTYPE_NORMAL:
-                this._setShaderValue(Sprite3D.WORLDMATRIX, ShaderDataType.Matrix4x4, transform.worldMatrix);
+                transform && this._setShaderValue(Sprite3D.WORLDMATRIX, ShaderDataType.Matrix4x4, transform.worldMatrix);
                 break;
             case RenderElement.RENDERTYPE_STATICBATCH:
                 if (transform)
