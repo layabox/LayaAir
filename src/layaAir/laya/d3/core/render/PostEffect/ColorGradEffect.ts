@@ -81,7 +81,7 @@ export class ColorGradEffect extends PostProcessEffect {
 
 	private _LUTShader: Shader3D;
 	private _lutShaderData: ShaderData;
-	private _blitlutParams: Vector3;
+	private _blitlutParams: Vector4;
 
 	/**color Tone */
 	/**@internal */
@@ -507,7 +507,7 @@ export class ColorGradEffect extends PostProcessEffect {
 		this.active = true;
 		this._needBuildLUT = true;
 		this._toneMapping = ToneMappingType.None;
-		this._blitlutParams = new Vector3();
+		this._blitlutParams = new Vector4();
 		this._lutShaderData = new ShaderData();
 		this.lutSize = 32;
 		this._lutCommond = new CommandBuffer();
@@ -645,10 +645,10 @@ export class ColorGradEffect extends PostProcessEffect {
 		let cmd: CommandBuffer = context.command;
 		let source: RenderTexture = context.indirectTarget;
 		if (true) {
-			this._blitlutParams.set(1 / this._lutTex.width, 1 / this._lutTex.height, this._lutTex.height - 1);
+			this._blitlutParams.setValue(1 / this._lutTex.width, 1 / this._lutTex.height, this._lutTex.height - 1,this.enableColorAdjust?this._postExposure:1);
 			this._lutBuilderMat.removeDefine(ColorGradEffect.SHADERDEFINE_CUSTOMLUT);
 			this._lutShaderData.setTexture(ColorGradEffect.SHADERVALUE_LUT, this._lutTex);
-			this._lutShaderData.setVector3(ColorGradEffect.SHADERVALUE_LUTPARAMS, this._blitlutParams);
+			this._lutShaderData.setVector(ColorGradEffect.SHADERVALUE_LUTPARAMS, this._blitlutParams);
 		}
 		else {
 			//TODO:CustomLUT

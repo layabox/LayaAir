@@ -6,7 +6,7 @@
 #include "LUT.glsl";
 
 uniform sampler2D u_Lut;
-uniform vec3 u_LutParams;
+uniform vec4 u_LutParams;//w postExposure
 
     #ifdef CUSTOMLUT
 uniform sampler2D u_CustomLut;
@@ -20,6 +20,7 @@ void main()
     gl_FragColor = texture2D(u_MainTex, v_Texcoord0);
     vec3 color = gl_FragColor.rgb;
     // gl_FragColor.rgb = applyLut(color, 1.0, u_Lut, u_LutParams);
+    color *= u_LutParams.w;
     color = applyLut(u_Lut, linearToLogC(color), u_LutParams);
 
     #ifdef CUSTOMLUT
