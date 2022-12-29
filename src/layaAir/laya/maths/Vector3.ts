@@ -341,6 +341,15 @@ export class Vector3 implements IClone {
     }
 
     /**
+     * 求四维向量是否相等
+     * @param value 
+     * @returns 
+     */
+    equal(value: Vector3) {
+        return Vector3.equals(this, value);
+    }
+
+    /**
      * 设置xyz值。
      * @param	x X值。
      * @param	y Y值。

@@ -166,6 +166,15 @@ export class Vector4 implements IClone {
     }
 
     /**
+     * 求四维向量是否相等
+     * @param value 
+     * @returns 
+     */
+    equal(value:Vector4){
+        return Vector4.equals(this,value);
+    }
+
+    /**
      * 求四维向量的长度。
      * @return  长度。
      */
