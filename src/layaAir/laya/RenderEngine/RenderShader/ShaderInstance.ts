@@ -282,7 +282,7 @@ export class ShaderInstance {
 		else {
 			cull = cull ?? RenderState.Default.cull;
 		}
-
+		
 		var forntFace: number;
 		switch (cull) {
 			case RenderState.CULL_NONE:

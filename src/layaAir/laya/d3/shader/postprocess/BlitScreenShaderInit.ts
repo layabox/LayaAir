@@ -41,6 +41,7 @@ export class BlitScreenShaderInit {
         blitState.depthWrite = false;
         blitState.cull = RenderState.CULL_NONE;
         blitState.blend = RenderState.BLEND_DISABLE;
+        blitPass.statefirst = true;
 
         this.lutBuilderInit();
     }
@@ -66,6 +67,7 @@ export class BlitScreenShaderInit {
         pass.renderState.depthWrite = false;
         pass.renderState.cull = RenderState.CULL_NONE;
         pass.renderState.blend = RenderState.BLEND_DISABLE;
+        pass.statefirst = true;
     }
 
 }
