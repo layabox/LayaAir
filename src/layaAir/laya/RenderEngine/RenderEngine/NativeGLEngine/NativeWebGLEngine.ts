@@ -55,6 +55,7 @@ export class NativeWebGLEngine implements IRenderEngine {
   constructor(config: WebGlConfig, webglMode: WebGLMode = WebGLMode.Auto) {
     this._nativeObj = new (window as any).conchWebGLEngine(webglMode);
   }
+  
   createRenderStateComand(): RenderStateCommand {
     return new NativeRenderStateCommand();
   }

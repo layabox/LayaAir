@@ -200,7 +200,7 @@ export class NativeContext {
     static set2DRenderConfig(): void {
        
         if (!NativeContext.const2DRenderCMD) {
-            const cmd = NativeContext.const2DRenderCMD = LayaGL.renderOBJCreate.createRenderStateComand();
+            const cmd = NativeContext.const2DRenderCMD = LayaGL.renderEngine.createRenderStateComand();
             cmd.addCMD(RenderStateType.BlendType, true);
             //WebGLContext.setBlendEquation(gl, gl.FUNC_ADD);
             cmd.addCMD(RenderStateType.BlendEquation, BlendEquationSeparate.ADD);
