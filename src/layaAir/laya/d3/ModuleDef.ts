@@ -94,6 +94,7 @@ import { AnimatorController } from "./component/Animator/AnimatorController";
 import { StaticBatchVolume } from "./component/Volume/BatchVolume/StaticBatchVolume";
 import { StaticInstanceBatchRender } from "./component/Volume/BatchVolume/StaticInstanceBatchRender";
 import { RenderTexture } from "../resource/RenderTexture";
+import { ColorGradEffect } from "./core/render/PostEffect/ColorGradEffect";
 import "./loaders/AnimationClipLoader";
 import "./loaders/CubemapLoader";
 import "./loaders/MaterialLoader";
@@ -103,6 +104,7 @@ import "./loaders/AvatarMaskLoader";
 import "./loaders/ShaderLoader";
 import "./loaders/GLSLLoader";
 import "./loaders/AnimationControllerLoader";
+
 
 
 
@@ -217,3 +219,4 @@ c("PostProcessEffect", PostProcessEffect);
 c("BloomEffect", BloomEffect);
 c("GaussianDoF", GaussianDoF);
 c("ScalableAO", ScalableAO);
+c("ColorGradEffect",ColorGradEffect);

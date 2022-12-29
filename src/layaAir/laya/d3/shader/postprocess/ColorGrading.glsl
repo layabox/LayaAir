@@ -54,6 +54,38 @@ vec3 logCToLinear(vec3 x)
     return linear;
 }
 
+// Hue, Saturation, Value
+// Ranges:
+//  Hue [0.0, 1.0]
+//  Sat [0.0, 1.0]
+//  Lum [0.0, HALF_MAX]
+vec3 RgbToHsv(vec3 c)
+{
+    const vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
+    vec4 p = mix(vec4(c.bg, K.wz), vec4(c.gb, K.xy), step(c.b, c.g));
+    vec4 q = mix(vec4(p.xyw, c.r), vec4(c.r, p.yzx), step(p.x, c.r));
+    float d = q.x - min(q.w, q.y);
+    const float e = 1.0e-4;
+    return vec3(abs(q.z + (q.w - q.y) / (6.0 * d + e)), d / (q.x + e), q.x);
+}
+
+vec3 HsvToRgb(vec3 c)
+{
+    const vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
+    vec3 p = abs(fract(vec3(c.x) + K.xyz) * 6.0 - K.www);
+    return c.z * mix(vec3(K.x) , saturate(p - vec3(K.x)), c.y);
+}
+
+float RotateHue(float value, float low, float hi)
+{
+    return (value < low)
+            ? value + hi
+            : (value > hi)
+                ? value - hi
+                : value;
+}
+
+
 const mat3 Linear_to_LMS_MAT = mat3(
     vec3(3.90405e-1, 7.08416e-2, 2.31082e-2),
     vec3(5.49941e-1, 9.63172e-1, 1.28021e-1),
@@ -81,6 +113,10 @@ uniform vec4 u_Limits;
 uniform vec3 u_Lift;
 uniform vec3 u_Gamma;
 uniform vec3 u_Gain;
+
+//color adjusted
+uniform vec4 u_ColorFilter;
+uniform vec4 u_HueSatCon;
 
 float luminance(in vec3 color)
 {
@@ -114,6 +150,9 @@ vec3 colorGrade(in vec3 color)
     color = sRGB_to_AP1_MAT * color;
     #endif // ACES
 
+    // Color filter is just an unclipped multiplier
+    color = color * u_ColorFilter.rgb;
+
     color = max(vec3(0.0), color);
 
     // split toning
@@ -136,7 +175,18 @@ vec3 colorGrade(in vec3 color)
     // Lift, gamma, gain
     color = color * u_Gain.xyz + u_Lift.xyz;
     color = sign(color) * pow(abs(color), u_Gamma.xyz);
+    
+    // HSV operations
+    vec3 hsv = RgbToHsv(color);
+    // Hue Shift & Hue Vs Hue
+    float hue = hsv.x + u_HueSatCon.x;
+    hsv.x = RotateHue(hsv.x, 0.0, 1.0);
+    color = HsvToRgb(hsv);
 
+    // Global saturation
+    luma = luminance(color);
+    color = vec3(luma) + (vec3(u_HueSatCon.y)) * (color - vec3(luma));
+    
     return color;
 }
 

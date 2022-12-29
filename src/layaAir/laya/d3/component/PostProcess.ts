@@ -13,6 +13,7 @@ import { LayaGL } from "../../layagl/LayaGL"
 import { RenderTargetFormat } from "../../RenderEngine/RenderEnum/RenderTargetFormat"
 import { DepthTextureMode } from "../depthMap/DepthPass"
 import { RenderTexture } from "../../resource/RenderTexture"
+import { ColorGradEffect } from "../core/render/PostEffect/ColorGradEffect"
 
 /**
  * <code>PostProcess</code> 类用于创建后期处理组件。
@@ -83,6 +84,10 @@ export class PostProcess {
 
     /**@internal */
     private _depthtextureFlag: DepthTextureMode;
+    /**@internal 调色Effect*/
+    private _ColorGradEffect:ColorGradEffect;
+    /**@internal 是否开启调色Effect*/
+    private _enableColorGrad:boolean = false;
 
     /**@internal */
     _context: PostProcessRenderContext | null = null;
@@ -150,6 +155,32 @@ export class PostProcess {
         return this._depthtextureFlag;
     }
 
+    
+    /**
+     * 开启调色Effect
+     */
+    set enableColorTone(value:boolean){
+        if(value==this._enableColorGrad)
+            return;
+        if(value){
+            if(!this._ColorGradEffect) this._ColorGradEffect = new ColorGradEffect();
+            this.addEffect(this._ColorGradEffect);
+        }else{
+            this.removeEffect(this._ColorGradEffect);
+        }
+        this._enableColorGrad = value;
+    }
+
+    get enableColorGrad(){
+        return this._enableColorGrad;
+    }
+
+    get colorGradEffect(){
+        return this._enableColorGrad;
+    }
+
+
+
     /**
      *@internal
      */
@@ -175,9 +206,11 @@ export class PostProcess {
         this._context!.compositeShaderData!.clearDefine();
 
         this._context.command.blitScreenTriangle(cameraTarget, screenTexture);
-
+        
         this._context!.compositeShaderData!.setTexture(PostProcess.SHADERVALUE_AUTOEXPOSURETEX, Texture2D.whiteTexture);//TODO:
-
+        if(this.enableColorTone){
+            this._ColorGradEffect._buildLUT();
+        }
         for (var i: number = 0, n: number = this._effects.length; i < n; i++) {
             if (this._effects[i].active) {
                 this._effects[i].render(this._context!);
@@ -222,7 +255,12 @@ export class PostProcess {
             console.error("无法增加已经存在的Effect");
             return;
         }
-        this._effects.push(effect);
+        if(!this.enableColorTone||effect instanceof ColorGradEffect){
+            this._effects.push(effect);
+        }else{
+            this._effects.splice(this._effects.length-1,0,effect);
+        }
+        
         this.recaculateCameraFlag();
         effect.effectInit();
     }

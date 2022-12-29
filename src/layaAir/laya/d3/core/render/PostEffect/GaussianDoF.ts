@@ -255,7 +255,7 @@ export class GaussianDoF extends PostProcessEffect {
         this._shaderData.setTexture(GaussianDoF.BLURCOCTEXTURE, blurVTex);
         let finalTex: RenderTexture = RenderTexture.createFromPool(source.width, source.height, source.colorFormat, source.depthStencilFormat, false, 1);
         cmd.blitScreenTriangle(source, context.destination, null, this._shader, this._shaderData, 4);
-        context.source = finalTex;
+        //context.source = finalTex;
         // recover render texture
         RenderTexture.recoverToPool(fullCoC);
         RenderTexture.recoverToPool(prefilterTex);

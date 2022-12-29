@@ -68,6 +68,7 @@ import { NativeRenderOBJCreateUtil } from "./laya/d3/RenderObjs/NativeOBJ/Native
 import { SubShader } from "./laya/RenderEngine/RenderShader/SubShader";
 import { VertexMesh } from "./laya/RenderEngine/RenderShader/VertexMesh";
 import { RenderTexture } from "./laya/resource/RenderTexture";
+import { ColorGradEffect } from "./laya/d3/core/render/PostEffect/ColorGradEffect";
 
 /**
  * <code>Laya3D</code> 类用于初始化3D设置。
@@ -153,6 +154,7 @@ export class Laya3D {
         BloomEffect.init();
         ScalableAO.init();
         GaussianDoF.init();
+        ColorGradEffect.init();
 
         Mesh.__init__();
         PrimitiveMesh.__init__();
