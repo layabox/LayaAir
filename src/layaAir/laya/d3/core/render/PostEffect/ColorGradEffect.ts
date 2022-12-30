@@ -307,11 +307,11 @@ export class ColorGradEffect extends PostProcessEffect {
 
 
 	//lift gamma gain
-	public get enableLigtGammaGain() {
+	public get enableLiftGammaGain() {
 		return this._enableLiftGammaGain;
 	}
 
-	public set enableLigtGammaGain(value: boolean) {
+	public set enableLiftGammaGain(value: boolean) {
 		this._needBuildLUT = true;
 		this._enableLiftGammaGain = value;
 	}
