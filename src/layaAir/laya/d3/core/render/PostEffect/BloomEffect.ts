@@ -385,8 +385,8 @@ export class BloomEffect extends PostProcessEffect {
 	/**
 	 * 添加到后期处理栈时,会调用
 	 */
-	effectInit() {
-		super.effectInit();
+	effectInit(postprocess:PostProcess) {
+		super.effectInit(postprocess);
 		this._shader = Shader3D.find("PostProcessBloom");
 		this._pyramid = new Array(BloomEffect.MAXPYRAMIDSIZE * 2);
 	}
@@ -404,8 +404,8 @@ export class BloomEffect extends PostProcessEffect {
 	/**
 	 * 释放Effect
 	 */
-	release() {
-		super.release();
+	release(postprocess:PostProcess) {
+		super.release(postprocess);
 		this._shader = null;
 		this._pyramid = [];
 	}

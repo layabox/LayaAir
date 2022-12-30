@@ -19,6 +19,7 @@ import { RenderState } from "../../../../RenderEngine/RenderShader/RenderState";
 import { Texture2D } from "../../../../resource/Texture2D";
 import { RenderContext3D } from "../RenderContext3D";
 import { Color } from "../../../../maths/Color";
+import { PostProcess } from "../../../component/PostProcess";
 
 export enum ToneMappingType {
 	None,
@@ -620,10 +621,11 @@ export class ColorGradEffect extends PostProcessEffect {
 	/**
 	 * 添加到后期处理栈时,会调用
 	 */
-	effectInit() {
-		super.effectInit();
+	effectInit(postprocess:PostProcess) {
+		super.effectInit(postprocess);
 		this._lutBuilderMat.setShaderName("LUTBuilder");
 		this._LUTShader = Shader3D.find("blitLUTShader");
+		postprocess.enableColorGrad = true;
 		// this._shader = Shader3D.find("PostProcessBloom");
 		// this._pyramid = new Array(BloomEffect.MAXPYRAMIDSIZE * 2);
 	}
@@ -631,8 +633,9 @@ export class ColorGradEffect extends PostProcessEffect {
 	/**
 	 * 释放Effect
 	 */
-	release() {
-		super.release();
+	release(postprocess:PostProcess) {
+		super.release(postprocess);
+		postprocess.enableColorGrad = false;
 
 	}
 

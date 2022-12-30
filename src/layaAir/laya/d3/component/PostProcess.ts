@@ -262,7 +262,7 @@ export class PostProcess {
         }
         
         this.recaculateCameraFlag();
-        effect.effectInit();
+        effect.effectInit(this);
     }
 
     /**
@@ -288,7 +288,7 @@ export class PostProcess {
         var index: number = this._effects.indexOf(effect);
         if (index !== -1) {
             this._effects.splice(index, 1);
-            effect.release();
+            effect.release(this);
             this.recaculateCameraFlag();
         }
     }

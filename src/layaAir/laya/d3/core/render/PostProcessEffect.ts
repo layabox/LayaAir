@@ -1,3 +1,4 @@
+import { PostProcess } from "../../component/PostProcess";
 import { PostProcessRenderContext } from "./PostProcessRenderContext";
 /**
 	 * <code>PostProcessEffect</code> 类用于创建后期处理渲染效果。
@@ -54,7 +55,7 @@ export class PostProcessEffect {
 	 * @inheritDoc
 	 * @override
 	 */
-	effectInit() {
+	effectInit(postprocess:PostProcess) {
 		return;
 	}
 
@@ -63,7 +64,8 @@ export class PostProcessEffect {
 	 * @inheritDoc
 	 * @override
 	 */
-	release(){
+	release(postprocess:PostProcess){
+		
 	}
 
 	/**
