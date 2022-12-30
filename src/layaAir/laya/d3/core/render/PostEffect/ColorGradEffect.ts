@@ -94,7 +94,7 @@ export class ColorGradEffect extends PostProcessEffect {
 	private _enableSplitTone: boolean = false;
 	private _splitShadow: Vector3 = new Vector3(0.5, 0.5, 0.5);
 	private _splitBalance: number = 0;//-1-1
-	private _splitHeighlights: Vector3 = new Vector3(0.5, 0.5, 0.5);
+	private _splithighlights: Vector3 = new Vector3(0.5, 0.5, 0.5);
 	private _u_SplitShadow: Vector4 = new Vector4(0,0,0);
 
 	// shadows, midtones, highlights
@@ -182,16 +182,16 @@ export class ColorGradEffect extends PostProcessEffect {
 	}
 
 	/**
-	 * split heightLight
+	 * split hightLight
 	 */
-	public get splitHeighlights(): Vector3 {
-		return this._splitHeighlights;
+	public get splithighlights(): Vector3 {
+		return this._splithighlights;
 	}
-	public set splitHeighlights(value: Vector3) {
-		if (this._splitHeighlights.equal(value))
+	public set splithighlights(value: Vector3) {
+		if (this._splithighlights.equal(value))
 			return;
 		this._needBuildLUT = true;
-		value.cloneTo(this._splitHeighlights);
+		value.cloneTo(this._splithighlights);
 	}
 
 	/**
@@ -536,7 +536,7 @@ export class ColorGradEffect extends PostProcessEffect {
 
 	private default_balance = new Vector3(1,1,1);
 	private default_splitShadow = new Vector4(0.5,0.5,0.5,0.0);
-	private default_splitHeighlights = new Vector3(0.5,0.5,0.5);
+	private default_splithighlights = new Vector3(0.5,0.5,0.5);
 	private default_shadow = new Vector3(1,1,1);
 	private default_midtones = new Vector3(1,1,1);
 	private default_highlight = new Vector3(1,1,1);
@@ -568,10 +568,10 @@ export class ColorGradEffect extends PostProcessEffect {
 		if(this.enableSplitTone){
 			this._u_SplitShadow.setValue(this._splitShadow.x,this._splitShadow.y,this._splitShadow.z,this.splitBalance);
 			this._lutBuilderMat.setVector4("u_SplitShadows", this._u_SplitShadow);
-			this._lutBuilderMat.setVector3("u_SplitHeighlights", this._splitHeighlights);
+			this._lutBuilderMat.setVector3("u_Splithighlights", this._splithighlights);
 		}else{
 			this._lutBuilderMat.setVector4("u_SplitShadows", this.default_splitShadow);
-			this._lutBuilderMat.setVector3("u_SplitHeighlights", this.default_splitHeighlights);
+			this._lutBuilderMat.setVector3("u_Splithighlights", this.default_splithighlights);
 		}
 
 		if(this.enableSMH){

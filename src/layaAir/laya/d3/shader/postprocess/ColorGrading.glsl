@@ -101,7 +101,7 @@ uniform vec3 u_ColorBalance;
 
 // split toning
 uniform vec4 u_SplitShadows;
-uniform vec3 u_SplitHeighlights;
+uniform vec3 u_Splithighlights;
 
 // shadows, midtones, highlights
 uniform vec3 u_Shadows;
@@ -160,7 +160,7 @@ vec3 colorGrade(in vec3 color)
     vec3 gamma = linearToGamma(color);
     float splitLuma = saturate(luminance(color)) + balance;
     vec3 splitShadows = mix(vec3(0.5, 0.5, 0.5), u_SplitShadows.xyz, 1.0 - splitLuma);
-    vec3 splitHeighlights = mix(vec3(0.5, 0.5, 0.5), u_SplitHeighlights.xyz, splitLuma);
+    vec3 splitHeighlights = mix(vec3(0.5, 0.5, 0.5), u_Splithighlights.xyz, splitLuma);
     gamma = softlight(gamma, splitShadows);
     gamma = softlight(gamma, splitHeighlights);
     color = gammaToLinear(gamma);
