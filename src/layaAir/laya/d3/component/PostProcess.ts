@@ -159,7 +159,7 @@ export class PostProcess {
     /**
      * 开启调色Effect
      */
-    set enableColorTone(value:boolean){
+    set enableColorGrad(value:boolean){
         if(value==this._enableColorGrad)
             return;
         if(value){
@@ -208,7 +208,7 @@ export class PostProcess {
         this._context.command.blitScreenTriangle(cameraTarget, screenTexture);
         
         this._context!.compositeShaderData!.setTexture(PostProcess.SHADERVALUE_AUTOEXPOSURETEX, Texture2D.whiteTexture);//TODO:
-        if(this.enableColorTone){
+        if(this.enableColorGrad){
             this._ColorGradEffect._buildLUT();
         }
         for (var i: number = 0, n: number = this._effects.length; i < n; i++) {
@@ -255,7 +255,7 @@ export class PostProcess {
             console.error("无法增加已经存在的Effect");
             return;
         }
-        if(!this.enableColorTone||effect instanceof ColorGradEffect){
+        if(!this.enableColorGrad||effect instanceof ColorGradEffect){
             this._effects.push(effect);
         }else{
             this._effects.splice(this._effects.length-1,0,effect);
