@@ -190,6 +190,8 @@ export class BatchRender extends BaseRender {
         this._renderElements = [];
         this._batchList.destroy();
         this._batchList = new SingletonList<BaseRender>();
-        this._lodInstanceRenderElement = null;
+        this._lodInstanceRenderElement = {};
+        this._lodInstanceRenderElement[-1] = [];
+
     }
 }

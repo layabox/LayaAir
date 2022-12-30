@@ -278,16 +278,14 @@ export class StaticInstanceBatchRender extends BatchRender {
      * 清理所有渲染
      */
     _clear() {
-        this._restorRenderNode();
+        super._clear();
         this._insElementMarksArray.forEach(element => {
             element && element.destroy();
         });
+        
         this._insElementMarksArray = [];
         this._updateChangeElement = [];
         this._insBatchMarksNums = [];
-        this._renderElements = [];
-        this._batchList.destroy();
-        this._batchList = new SingletonList<BaseRender>();
     }
 
 
@@ -329,7 +327,6 @@ export class StaticInstanceBatchRender extends BatchRender {
             }
         }
     }
-
     /**
      * 根据_batchList合批
      */
