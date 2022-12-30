@@ -43,6 +43,16 @@ export class BlitScreenShaderInit {
         blitState.blend = RenderState.BLEND_DISABLE;
         blitPass.statefirst = true;
 
+        let blitPassTrans = subShader.addShaderPass(BlitVS, BlitFS);
+        blitState = blitPassTrans.renderState;
+        blitState.depthTest = RenderState.DEPTHTEST_ALWAYS;
+        blitState.depthWrite = false;
+        blitState.cull = RenderState.CULL_NONE;
+        blitState.blend = RenderState.BLEND_ENABLE_ALL;
+        blitState.srcBlend = RenderState.BLENDPARAM_SRC_ALPHA;
+        blitState.dstBlend = RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA;
+        blitPass.statefirst = true;
+
         this.lutBuilderInit();
     }
 
