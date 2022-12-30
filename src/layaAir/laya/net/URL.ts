@@ -222,4 +222,5 @@ export class URL {
     }
 }
 
-URL.rootPath = URL.basePath = URL.getPath(location.protocol + "//" + location.host + location.pathname);
+URL.rootPath = URL.basePath = (location && location.protocol != undefined) ? URL.getPath(location.protocol + "//" + location.host + location.pathname) : "";
+// URL.rootPath = URL.basePath = URL.getPath(location.protocol + "//" + location.host + location.pathname);
