@@ -793,33 +793,30 @@ export class NativeContext {
 
        
         if (blendMode != null || color != null) {
-            this._nativeObj.save();
+
+            this.add_i(CONTEXT2D_FUNCTION_ID.SAVE);
             //to do ColorFilter 
             this.add_i_String(CONTEXT2D_FUNCTION_ID.SET_GLOBAL_COMPOSITE_OPERTAION, blendMode);
-            this._nativeObj.drawTriangles((tex as any).bitmap._texture.id,
-                x, y,
-                vertices,
-                uvs,
-                indices,
-                m.a, m.b, m.c, m.d, m.tx, m.ty, alpha, colorNum);
-            this._nativeObj.restore();
-        }
-        else {
-            this._nativeObj.drawTriangles((tex as any).bitmap._texture.id,
-                x, y,
-                vertices,
-                uvs,
-                indices,
-                m.a, m.b, m.c, m.d, m.tx, m.ty, alpha, colorNum)
-
             this.add_iiifffffffff_ab_ab_ab(CONTEXT2D_FUNCTION_ID.DRAW_TRANGLES, (tex as any).bitmap._texture.id, colorNum
                 , x
                 , y
                 , alpha
                 , m.a, m.b, m.c, m.d, m.tx, m.ty
-                , vertices
-                , uvs
-                , indices
+                , (vertices instanceof Array) ? Float32Array.from(vertices) : vertices
+                , (uvs instanceof Array) ? Float32Array.from(uvs) : uvs
+                , (indices instanceof Array) ? Uint16Array.from(indices) : indices
+            );
+            this.add_i(CONTEXT2D_FUNCTION_ID.RESTORE);
+        }
+        else {
+            this.add_iiifffffffff_ab_ab_ab(CONTEXT2D_FUNCTION_ID.DRAW_TRANGLES, (tex as any).bitmap._texture.id, colorNum
+                , x
+                , y
+                , alpha
+                , m.a, m.b, m.c, m.d, m.tx, m.ty
+                , (vertices instanceof Array) ? Float32Array.from(vertices) : vertices
+                , (uvs instanceof Array) ? Float32Array.from(uvs) : uvs
+                , (indices instanceof Array) ? Uint16Array.from(indices) : indices
             );
         }
     }
