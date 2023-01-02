@@ -4,6 +4,8 @@ import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetForma
 import { InternalRenderTarget } from "../RenderEngine/RenderInterface/InternalRenderTarget";
 import { IRenderTarget } from "../RenderEngine/RenderInterface/IRenderTarget";
 import { Color } from "../maths/Color";
+import { LayaGL } from "../layagl/LayaGL";
+import { InternalTexture } from "../RenderEngine/RenderInterface/InternalTexture";
 
 /**
  * <code>RenderTexture</code> 类用于创建渲染目标。
@@ -98,14 +100,14 @@ export class NativeRenderTexture2D extends BaseTexture implements IRenderTarget 
      * @param depthStencilFormat 深度格式。
      * 创建一个 <code>RenderTexture</code> 实例。
      */
-    constructor(width: number, height: number, format: number = RenderTargetFormat.R8G8B8, depthStencilFormat: number = RenderTargetFormat.DEPTH_16) {//TODO:待老郭清理
+    constructor(width: number, height: number, format: number = RenderTargetFormat.R8G8B8, depthStencilFormat: number = RenderTargetFormat.DEPTH_16, create: boolean = true ) {//TODO:待老郭清理
 
         super(width, height, format);
         this._colorFormat = format;
         this._depthStencilFormat = depthStencilFormat;
-        //if (width != 0 && height != 0) {
-        //    this._create();
-        //}
+        if (width != 0 && height != 0 && create) {
+            this._create();
+        }
         this.lock = true;
     }
 
@@ -129,9 +131,8 @@ export class NativeRenderTexture2D extends BaseTexture implements IRenderTarget 
     }
     _create() {
         // todo  mipmap
-        //this._renderTarget = LayaGL.textureContext.createRenderTargetInternal(this.width, this.height, this._colorFormat, this.depthStencilFormat, false, true, 1);
-
-        //this._texture = this._renderTarget._textures[0];
+        this._nativeObj = new (window as any).conchRenderTexture2D((LayaGL.renderEngine as any)._nativeObj, this.width, this.height, this._colorFormat, this.depthStencilFormat);
+        this._texture = this._nativeObj._renderTarget._textures[0];
     }
 
 

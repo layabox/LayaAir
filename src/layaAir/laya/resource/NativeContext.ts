@@ -21,6 +21,7 @@ import { RenderTexture2D } from "./RenderTexture2D";
 import { Texture } from "./Texture";
 import { BufferState } from "../webgl/utils/BufferState";
 import { RenderTexture } from "./RenderTexture";
+import { NativeRenderTexture2D } from "./NativeRenderTexture2D";
 
 enum CONTEXT2D_FUNCTION_ID {
     SIZE = 0,
@@ -88,7 +89,7 @@ export class NativeContext {
     constructor() {
         this._nativeObj = new (window as any)._conchContext((LayaGL.renderEngine as any)._nativeObj);
         this._byteLen = 1024 * 512;
-        this._tempRenderTexture2D = new RenderTexture2D(0, 0, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.None);
+        this._tempRenderTexture2D = new NativeRenderTexture2D(0, 0, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.None, false);
         this._init(false);
     }
     _init(isSyncToRenderThread: boolean): void {
@@ -150,7 +151,10 @@ export class NativeContext {
         return this._nativeObj.isMain;
     }
     set _targets(target: RenderTexture2D) {
-        throw new Error("Method not implemented.");
+        if (target) {
+            this._nativeObj.flushCommand();
+            this._nativeObj._target = (target as any)._nativeObj;
+        }
     }
     get _targets(): RenderTexture2D {
         this._nativeObj.flushCommand();
