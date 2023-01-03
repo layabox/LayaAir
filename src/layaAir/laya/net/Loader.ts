@@ -413,12 +413,13 @@ export class Loader extends EventDispatcher {
             !options.silent && Loader.warn(url, error);
             task.onComplete.invoke(null);
             return null;
-        }).finally(() => {
+        }).then((result: any) => {
             this._loadings.delete(loadingKey);
             task.reset();
             loadTaskPool.push(task);
             if (this._loadings.size == 0)
                 this.event(Event.COMPLETE);
+            return result;
         });
     }
 
