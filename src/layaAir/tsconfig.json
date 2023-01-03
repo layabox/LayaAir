@@ -20,6 +20,7 @@
         //"noUnusedParameters": true /* Report errors on unused parameters. */,
     },
     "include":[
+        "./**/*",
         "../node_modules/@webgpu/types"
     ]
 }
