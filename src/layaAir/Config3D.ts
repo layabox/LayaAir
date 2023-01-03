@@ -58,7 +58,7 @@ export class Config3D {
 
     /**BVHRenderConfig */
     /**是否使用BVH裁剪 */
-    static useBVHCull: boolean = false;
+    static useBVHCull: boolean = true;
     /**一个BVH节点最大的cell数，超过这个数会分离 */
     static BVH_max_SpatialCount = 7;
     /**最大BVH节点的大小 */
