@@ -792,41 +792,8 @@ export class GLTextureContext extends GLObject implements ITextureContext {
     }
 
     setTextureHDRData(texture: WebGLInternalTex, hdrInfo: HDRTextureInfo): void {
-        //todo?
-        let premultiplyAlpha = false;
-        let invertY = false;
-
-        let target = texture.target;
-        let internalFormat = texture.internalFormat;
-        let format = texture.format;
-        let type = texture.type;
-        let mipmapCount = texture.mipmapCount;
-        // todo texture size 与 ddsInfo size
-        let width = texture.width;
-        let height = texture.height;
-
-        // let hdrPixelData = hdrInfo.get_32_bit_rle_rgbe();
         let hdrPixelData = hdrInfo.readScanLine();
-
-        let fourSize = width % 4 == 0 && height % 4 == 0;
-        let gl = texture._gl;
-        premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
-        invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-        fourSize || gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
-
-        this._engine._bindTexture(texture.target, texture.resource);
-
-        gl.texImage2D(target, 0, internalFormat, width, height, 0, format, type, hdrPixelData);
-        texture.gpuMemory = this.getGLtexMemory(texture);
-        if (mipmapCount > 1) {
-            gl.generateMipmap(target);
-        }
-
-        this._engine._bindTexture(texture.target, null);
-
-        premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
-        invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
-        fourSize || gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);
+        this.setTexturePixelsData(texture, hdrPixelData, false, false);
     }
 
     setCubeImageData(texture: WebGLInternalTex, sources: (HTMLImageElement | HTMLCanvasElement | ImageBitmap)[], premultiplyAlpha: boolean, invertY: boolean) {
