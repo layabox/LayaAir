@@ -5,7 +5,6 @@
         "baseUrl": "../layaAir",
         "outDir": "../../bin/tsc/samples",
         "skipLibCheck": true,
-        "typeRoots": [ "../../node_modules/@webgpu/types", "../../node_modules/@types"]
     },
     "references": [
         {
@@ -17,6 +16,7 @@
     ],
     "include": [
         "./**/*",
-        "../layaAir/tslibs"
+        "../layaAir/tslibs",
+        "../../node_modules/@webgpu/types"
     ]
 }
