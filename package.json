@@ -54,5 +54,9 @@
     },
     "bugs": {
         "url": "https://ask.layabox.com/"
+    },
+    "dependencies": {
+        "@webgpu/types": "^0.1.23",
+        "webgpu": "^0.1.16"
     }
 }

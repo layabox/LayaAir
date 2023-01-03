@@ -260,7 +260,8 @@ gulp.task('compileLayaAir', () => {
         gulp.src([
             './src/layaAir/**/*.vs',
             './src/layaAir/**/*.fs',
-            './src/layaAir/**/*.glsl'], { base: "src" })
+            './src/layaAir/**/*.glsl',
+            './src/layaAir/**/*.wgsl'], { base: "src" })
             .pipe(gulp.dest(tscOutPath))
     );
 });
