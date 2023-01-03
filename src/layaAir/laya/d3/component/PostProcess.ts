@@ -85,9 +85,9 @@ export class PostProcess {
     /**@internal */
     private _depthtextureFlag: DepthTextureMode;
     /**@internal 调色Effect*/
-    private _ColorGradEffect:ColorGradEffect;
+    _ColorGradEffect:ColorGradEffect;
     /**@internal 是否开启调色Effect*/
-    private _enableColorGrad:boolean = false;
+    _enableColorGrad:boolean = false;
 
     /**@internal */
     _context: PostProcessRenderContext | null = null;
@@ -156,28 +156,28 @@ export class PostProcess {
     }
 
     
-    /**
-     * 开启调色Effect
-     */
-    set enableColorGrad(value:boolean){
-        if(value==this._enableColorGrad)
-            return;
-        if(value){
-            if(!this._ColorGradEffect) this._ColorGradEffect = new ColorGradEffect();
-            this.addEffect(this._ColorGradEffect);
-        }else{
-            this.removeEffect(this._ColorGradEffect);
-        }
-        this._enableColorGrad = value;
-    }
+    // /**
+    //  * 开启调色Effect
+    //  */
+    // set enableColorGrad(value:boolean){
+    //     if(value==this._enableColorGrad)
+    //         return;
+    //     // if(value){
+    //     //     if(!this._ColorGradEffect) this._ColorGradEffect = new ColorGradEffect();
+    //     //     this.addEffect(this._ColorGradEffect);
+    //     // }else{
+    //     //     this.removeEffect(this._ColorGradEffect);
+    //     // }
+    //     this._enableColorGrad = value;
+    // }
 
-    get enableColorGrad(){
-        return this._enableColorGrad;
-    }
+    
+    // _enableColorGrad;
+    
 
-    get colorGradEffect(){
-        return this._enableColorGrad;
-    }
+    // get colorGradEffect(){
+    //     return this._enableColorGrad;
+    // }
 
 
 
@@ -208,7 +208,7 @@ export class PostProcess {
         this._context.command.blitScreenTriangle(cameraTarget, screenTexture);
         
         this._context!.compositeShaderData!.setTexture(PostProcess.SHADERVALUE_AUTOEXPOSURETEX, Texture2D.whiteTexture);//TODO:
-        if(this.enableColorGrad){
+        if(this._enableColorGrad){
             this._ColorGradEffect._buildLUT();
         }
         for (var i: number = 0, n: number = this._effects.length; i < n; i++) {
@@ -255,7 +255,7 @@ export class PostProcess {
             console.error("无法增加已经存在的Effect");
             return;
         }
-        if(!this.enableColorGrad||effect instanceof ColorGradEffect){
+        if(!this._enableColorGrad||effect instanceof ColorGradEffect){
             this._effects.push(effect);
         }else{
             this._effects.splice(this._effects.length-1,0,effect);

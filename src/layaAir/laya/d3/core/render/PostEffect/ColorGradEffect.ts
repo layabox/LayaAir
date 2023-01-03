@@ -625,7 +625,8 @@ export class ColorGradEffect extends PostProcessEffect {
 		super.effectInit(postprocess);
 		this._lutBuilderMat.setShaderName("LUTBuilder");
 		this._LUTShader = Shader3D.find("blitLUTShader");
-		postprocess.enableColorGrad = true;
+		postprocess._enableColorGrad = true;
+		postprocess._ColorGradEffect = this;
 		// this._shader = Shader3D.find("PostProcessBloom");
 		// this._pyramid = new Array(BloomEffect.MAXPYRAMIDSIZE * 2);
 	}
@@ -635,7 +636,8 @@ export class ColorGradEffect extends PostProcessEffect {
 	 */
 	release(postprocess:PostProcess) {
 		super.release(postprocess);
-		postprocess.enableColorGrad = false;
+		postprocess._enableColorGrad = false;
+		postprocess._ColorGradEffect = null;
 
 	}
 
