@@ -221,6 +221,8 @@ export class URL {
             URL.overrideExtension(["scene3d", "scene", "taa", "prefab"], "json");
     }
 }
-
-URL.rootPath = URL.basePath = (location && location.protocol != undefined) ? URL.getPath(location.protocol + "//" + location.host + location.pathname) : "";
+//xiaomi 没有location
+//Vivo location.protocol是""
+//微信真机 location.protocol是undefined
+URL.rootPath = URL.basePath = (location && location.protocol != undefined && location.protocol != "") ? URL.getPath(location.protocol + "//" + location.host + location.pathname) : "";
 // URL.rootPath = URL.basePath = URL.getPath(location.protocol + "//" + location.host + location.pathname);
