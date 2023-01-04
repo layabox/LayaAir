@@ -1,5 +1,4 @@
 import { DrawType } from "../../RenderEngine/RenderEnum/DrawType";
-import { MeshTopology } from "../../RenderEngine/RenderEnum/RenderPologyMode";
 import { GeometryElement } from "../core/GeometryElement";
 import { RenderContext3D } from "../core/render/RenderContext3D";
 import { SubMesh } from "../resource/models/SubMesh";
@@ -7,7 +6,7 @@ import { SubMesh } from "../resource/models/SubMesh";
 export class MeshInstanceGeometry extends GeometryElement {
     private _subMesh:SubMesh;
     constructor(subMesh: SubMesh) {
-        super(MeshTopology.Triangles, DrawType.DrawElementInstance);
+        super(subMesh._geometryElementOBj.mode, DrawType.DrawElementInstance);
         this._subMesh = subMesh;
         if(subMesh)
         this.indexFormat = subMesh._mesh.indexFormat;
@@ -17,6 +16,7 @@ export class MeshInstanceGeometry extends GeometryElement {
         this._subMesh = value;
         if(value)
         this.indexFormat = value._mesh.indexFormat;
+        this.mode = value._geometryElementOBj.mode;
     }
 
     get subMesh():SubMesh{
