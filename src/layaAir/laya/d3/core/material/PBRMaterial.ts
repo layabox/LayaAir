@@ -48,6 +48,12 @@ export class PBRMaterial extends Material {
     static SHADERDEFINE_ANISOTROPY: ShaderDefine;
 
     /**@internal */
+    static SHADERDEFINE_DETAILALBEDO: ShaderDefine;
+    /**@internal */
+    static SHADERDEFINE_DETAILNORMAL: ShaderDefine;
+
+
+    /**@internal */
     static SHADERDEFINE_TANGENTTEXTURE: ShaderDefine;
 
     /** @internal */
@@ -84,11 +90,20 @@ export class PBRMaterial extends Material {
     /** @internal */
     static EMISSIONCOLOR: number;
     /**@internal */
-    static EMISSIONIntensity:number
+    static EMISSIONIntensity: number
     /** @internal */
     static ANISOTROPY: number;
     /** @internal */
     static TANGENTTEXTURE: number;
+    //Detail
+    /** @internal */
+    static DETAILALBEDOTEXTURE: number;
+    /**@internal */
+    static DETAILNORMALTEXTURE: number;
+    /**@internal */
+    static DETAILTILLINGOFFSET: number;
+    /**@internal */
+    static DETAILNORMALSCALE: number;
 
     /** 渲染质量。*/
     static renderQuality: PBRRenderQuality = PBRRenderQuality.High;
@@ -108,6 +123,11 @@ export class PBRMaterial extends Material {
         PBRMaterial.SHADERDEFINE_TRANSPARENTBLEND = Shader3D.getDefineByName("TRANSPARENTBLEND");
         PBRMaterial.SHADERDEFINE_LAYA_PBR_BRDF_HIGH = Shader3D.getDefineByName("LAYA_PBR_BRDF_HIGH");
         PBRMaterial.SHADERDEFINE_LAYA_PBR_BRDF_LOW = Shader3D.getDefineByName("LAYA_PBR_BRDF_LOW");
+        //Detail
+        PBRMaterial.SHADERDEFINE_DETAILALBEDO = Shader3D.getDefineByName("DETAILTEXTURE");
+        PBRMaterial.SHADERDEFINE_DETAILNORMAL = Shader3D.getDefineByName("DETAILNORMAL");
+
+
 
         PBRMaterial.ALBEDOTEXTURE = Shader3D.propertyNameToID("u_AlbedoTexture");
         PBRMaterial.ALBEDOCOLOR = Shader3D.propertyNameToID("u_AlbedoColor");
@@ -125,6 +145,11 @@ export class PBRMaterial extends Material {
         PBRMaterial.EMISSIONIntensity = Shader3D.propertyNameToID("u_EmissionIntensity");
         PBRMaterial.ANISOTROPY = Shader3D.propertyNameToID("u_Anisotropy");
         PBRMaterial.TANGENTTEXTURE = Shader3D.propertyNameToID("u_TangentTexture");
+        //Detail
+        PBRMaterial.DETAILALBEDOTEXTURE = Shader3D.propertyNameToID("u_DetailAlbedoTexture");
+        PBRMaterial.DETAILNORMALTEXTURE = Shader3D.propertyNameToID("u_DetailNormalTexture");
+        PBRMaterial.DETAILTILLINGOFFSET = Shader3D.propertyNameToID("u_DetailTillingOffset");
+        PBRMaterial.DETAILNORMALSCALE = Shader3D.propertyNameToID("u_DetailNormalScale");
     }
 
 
@@ -154,6 +179,8 @@ export class PBRMaterial extends Material {
 
         this._shaderValues.setTexture(PBRMaterial.ALBEDOTEXTURE, value);
     }
+
+
 
     /**
      * 法线贴图。
@@ -286,12 +313,12 @@ export class PBRMaterial extends Material {
         this._shaderValues.setColor(PBRMaterial.EMISSIONCOLOR, value);
     }
 
-    set emissionIntensity(value:number){
+    set emissionIntensity(value: number) {
         //u_EmissionIntensity
-        this._shaderValues.setNumber(PBRMaterial.EMISSIONIntensity,value);
+        this._shaderValues.setNumber(PBRMaterial.EMISSIONIntensity, value);
     }
 
-    get emissionIntensity(){
+    get emissionIntensity() {
         return this._shaderValues.getNumber(PBRMaterial.EMISSIONIntensity);
     }
 
@@ -326,6 +353,68 @@ export class PBRMaterial extends Material {
             this._shaderValues.getVector(PBRMaterial.TILINGOFFSET).setValue(1.0, 1.0, 0.0, 0.0);
         }
     }
+
+
+    /**
+     * 自发光贴图。
+     */
+    get detailAlbedoTexture(): BaseTexture {
+        return this._shaderValues.getTexture(PBRMaterial.DETAILALBEDOTEXTURE);
+    }
+
+    set detailAlbedoTexture(value: BaseTexture) {
+        if (value)
+            this._shaderValues.addDefine(PBRMaterial.SHADERDEFINE_DETAILALBEDO);
+        else
+            this._shaderValues.removeDefine(PBRMaterial.SHADERDEFINE_DETAILALBEDO);
+
+        this._shaderValues.setTexture(PBRMaterial.DETAILALBEDOTEXTURE, value);
+    }
+
+
+    /**
+     * 自发光贴图。
+     */
+    get detailNormalTexture(): BaseTexture {
+        return this._shaderValues.getTexture(PBRMaterial.DETAILNORMALTEXTURE);
+    }
+
+    set detailNormalTexture(value: BaseTexture) {
+        if (value)
+            this._shaderValues.addDefine(PBRMaterial.SHADERDEFINE_DETAILNORMAL);
+        else
+            this._shaderValues.removeDefine(PBRMaterial.SHADERDEFINE_DETAILNORMAL);
+
+        this._shaderValues.setTexture(PBRMaterial.DETAILNORMALTEXTURE, value);
+    }
+
+    /**
+    * 纹理平铺和偏移。
+    */
+    get detailTilingOffset(): Vector4 {
+        return (<Vector4>this._shaderValues.getVector(PBRMaterial.DETAILTILLINGOFFSET));
+    }
+
+    set detailTilingOffset(value: Vector4) {
+        if (value) {
+            this._shaderValues.setVector(PBRMaterial.DETAILTILLINGOFFSET, value);
+        }
+        else {
+            this._shaderValues.getVector(PBRMaterial.DETAILTILLINGOFFSET).setValue(1.0, 1.0, 0.0, 0.0);
+        }
+    }
+
+    /**
+    * 法线贴图缩放系数。
+    */
+    get detailNormalScale(): number {
+        return this._shaderValues.getNumber(PBRMaterial.DETAILNORMALSCALE);
+    }
+
+    set detailNormalScale(value: number) {
+        this._shaderValues.setNumber(PBRMaterial.DETAILNORMALSCALE, value);
+    }
+
 
 
 

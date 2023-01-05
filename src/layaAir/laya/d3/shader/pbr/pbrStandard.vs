@@ -8,6 +8,10 @@
 
 #include "PBRVertex.glsl";
 
+#if defined(DETAILTEXTURE)||defined(DETAILNORMAL)
+    varying vec2 v_DetailUV;
+#endif
+
 void main()
 {
     Vertex vertex;
@@ -15,6 +19,15 @@ void main()
 
     PixelParams pixel;
     initPixelParams(pixel, vertex);
+
+    #if defined(DETAILTEXTURE)||defined(DETAILNORMAL)
+        #ifdef UV
+            v_DetailUV = transformUV(vertex.texCoord0, u_DetailTillingOffset);
+        #else // UV
+            v_DetailUV = vec2(0.0);
+        #endif
+    #endif
+
 
     gl_Position = getPositionCS(pixel.positionWS);
 

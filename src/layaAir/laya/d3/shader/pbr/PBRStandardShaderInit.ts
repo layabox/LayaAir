@@ -34,13 +34,20 @@ export class PBRStandardShaderInit {
             "u_EmissionTexture": ShaderDataType.Texture2D,
             "u_MetallicGlossTexture": ShaderDataType.Texture2D,
             "u_Anisotropy": ShaderDataType.Float,
-            "u_TangentTexture": ShaderDataType.Texture2D
+            "u_TangentTexture": ShaderDataType.Texture2D,
+            //detail 
+            "u_DetailAlbedoTexture":ShaderDataType.Texture2D,
+            "u_DetailNormalTexture":ShaderDataType.Texture2D,
+            "u_DetailNormalScale":ShaderDataType.Float,
+            "u_DetailTillingOffset":ShaderDataType.Vector4
         };
 
         let defaultValue = {
             "u_AlbedoColor": Color.WHITE,
             "u_TilingOffset": new Vector4(1, 1, 0, 0),
+            "u_DetailTillingOffset":new Vector4(1,1,0,0),
             "u_NormalScale": 1,
+            "u_DetailNormalScale":1,
             "u_Metallic": 0,
             "u_Smoothness": 0.5,
             "u_SmoothnessScale": 1,

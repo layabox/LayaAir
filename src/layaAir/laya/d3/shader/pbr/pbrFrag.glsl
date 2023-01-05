@@ -9,7 +9,7 @@ void getPixelParams(inout PixelParams params)
 {
     params.positionWS = v_PositionWS;
     params.normalWS = normalize(v_NormalWS);
-
+    params.normalTS = vec3(0.0,0.0,1.0);
     #ifdef UV
     params.uv0 = v_Texcoord0;
     #endif // UV
@@ -32,11 +32,13 @@ void getPixelParams(inout PixelParams params)
     params.tangentWS = normalize(v_TangentWS);
     params.biNormalWS = normalize(v_BiNormalWS);
     mat3 TBN = mat3(params.tangentWS, params.biNormalWS, params.normalWS);
-
+    params.TBN = TBN;
+    
 	#ifdef NORMALTEXTURE
     vec3 normalSampler = texture2D(u_NormalTexture, params.uv0).rgb;
     normalSampler = normalize(normalSampler * 2.0 - 1.0);
     normalSampler.y *= -1.0;
+    params.normalTS = normalSampler;
     params.normalWS = normalize(TBN * normalSampler);
 	// params.normalWS = normalize(TBN * normalSampler);
 	#endif // NORMALTEXTURE

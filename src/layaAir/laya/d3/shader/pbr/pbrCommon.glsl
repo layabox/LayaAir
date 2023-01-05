@@ -28,6 +28,7 @@ varying vec4 v_VertexColor;
 struct PixelParams {
     vec3 positionWS;
     vec3 normalWS;
+    vec3 normalTS;
 
     #ifdef UV
     vec2 uv0;
@@ -42,7 +43,7 @@ struct PixelParams {
     #ifdef NEEDTBN
     vec3 tangentWS;
     vec3 biNormalWS;
-
+    mat3 TBN;
 	#ifdef ANISOTROPIC
     float ToV;
     float BoV;

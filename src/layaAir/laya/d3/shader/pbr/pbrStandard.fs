@@ -8,6 +8,21 @@
 
 #include "PBRMetallicFrag.glsl"
 
+#if defined(DETAILTEXTURE)|| defined(DETAILNORMAL)
+    varying vec2 v_DetailUV;
+    #define ColorSpaceDouble vec3(4.59479380, 4.59479380, 4.59479380);
+    vec3 BlendNormals(vec3 n1, vec3 n2)
+    {
+        return normalize(vec3(n1.xy + n2.xy, n1.z*n2.z));
+    }
+    vec3 normalScale(vec3 normal,float scale){
+        normal.xy *= scale;    
+        normal.z = sqrt(1.0 - clamp(dot(normal.xy, normal.xy),0.0,1.0));
+        return normal;
+    }
+#endif
+
+
 void initSurfaceInputs(inout SurfaceInputs inputs, const in PixelParams pixel)
 {
 
@@ -26,9 +41,33 @@ void initSurfaceInputs(inout SurfaceInputs inputs, const in PixelParams pixel)
     albedoSampler = gammaToLinear(albedoSampler);
     #endif // Gamma_u_AlbedoTexture
 
+    //Detail Albedo
+    #ifdef DETAILTEXTURE
+        vec4 detailSampler = texture2D(u_DetailAlbedoTexture,v_DetailUV);
+        #ifdef Gamma_u_DetailAlbedoTexture
+            detailSampler = gammaToLinear(detailSampler);
+        #endif // Gamma_u_DetailAlbedoTexture
+          albedoSampler.rgb *= detailAlbedo.rgb * ColorSpaceDouble.rgb;
+    #endif
+
     inputs.diffuseColor *= albedoSampler.rgb;
     inputs.alpha *= albedoSampler.a;
 #endif // ALBEDOTEXTURE
+
+#ifdef NORMALTEXTURE
+    vec3 normalTS = pixel.normalTS;
+    pixel.normalTS =normalScale(normalTS,u_NormalScale) ;
+    pixel.normalWS = normalize(pixel.TBN * normalTS);
+#endif
+
+#ifdef DETAILNORMAL
+    vec3 detailnormalSampler = texture2D(u_DetailNormalTexture, v_DetailUV).rgb;
+    detailnormalSampler = normalize(detailnormalSampler * 2.0 - 1.0);
+    detailnormalSampler.y *= -1.0;
+    detailnormalSampler = normalScale(detailnormalSampler,u_DetailNormalScale);
+    pixel.normalTS = BlendNormals(pixel.normalTS,detailnormalSampler);
+    pixel.normalWS = normalize(pixel.TBN * pixel.normalTS);
+#endif
 
     inputs.metallic = u_Metallic;
     inputs.smoothness = u_Smoothness;
