@@ -421,7 +421,7 @@ export class Node extends EventDispatcher {
      * 子对象数量。
      */
     get numChildren(): number {
-        return this._children.length;
+        return this._children?this._children.length:0;
     }
 
     /**父节点。*/
