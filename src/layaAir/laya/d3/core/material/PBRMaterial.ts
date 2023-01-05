@@ -192,14 +192,11 @@ export class PBRMaterial extends Material {
     set normalTexture(value: BaseTexture) {
         if (value) {
             this._shaderValues.addDefine(PBRMaterial.SHADERDEFINE_NORMALTEXTURE);
-            this._shaderValues.addDefine(Shader3D.getDefineByName("NEEDTBN"));
         } else {
             this._shaderValues.removeDefine(PBRMaterial.SHADERDEFINE_NORMALTEXTURE);
-            if (this.materialType != PBRMaterialType.Anisotropy) {
-                this._shaderValues.removeDefine(Shader3D.getDefineByName("NEEDTBN"));
-            }
         }
         this._shaderValues.setTexture(PBRMaterial.NORMALTEXTURE, value);
+        this.resetNeedTBN();
     }
 
     /**
@@ -384,8 +381,8 @@ export class PBRMaterial extends Material {
             this._shaderValues.addDefine(PBRMaterial.SHADERDEFINE_DETAILNORMAL);
         else
             this._shaderValues.removeDefine(PBRMaterial.SHADERDEFINE_DETAILNORMAL);
-
         this._shaderValues.setTexture(PBRMaterial.DETAILNORMALTEXTURE, value);
+        this.resetNeedTBN();
     }
 
     /**
@@ -468,6 +465,14 @@ export class PBRMaterial extends Material {
         }
     }
 
+    private resetNeedTBN(){
+        if(!!this.normalTexture || !!this.detailNormalTexture || this.materialType==PBRMaterialType.Anisotropy){
+            this._shaderValues.addDefine(Shader3D.getDefineByName("NEEDTBN"));
+        }else{
+            this._shaderValues.removeDefine(Shader3D.getDefineByName("NEEDTBN"));
+        }
+    }
+
     public get anisotropy(): number {
         return this.getFloatByIndex(PBRMaterial.ANISOTROPY);
     }
@@ -497,18 +502,17 @@ export class PBRMaterial extends Material {
         switch (value) {
             case PBRMaterialType.Standard:
                 this.removeDefine(PBRMaterial.SHADERDEFINE_ANISOTROPY);
-                if (!this.normalTexture) {
-                    this.removeDefine(Shader3D.getDefineByName("NEEDTBN"));
-                }
+                
                 break;
             case PBRMaterialType.Anisotropy:
                 this.addDefine(PBRMaterial.SHADERDEFINE_ANISOTROPY);
-                this.addDefine(Shader3D.getDefineByName("NEEDTBN"));
+                
                 break;
             default:
                 break;
         }
         this._materialType = value;
+        this.resetNeedTBN();
     }
 
     constructor() {
