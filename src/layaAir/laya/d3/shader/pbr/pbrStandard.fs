@@ -15,6 +15,10 @@
     {
         return normalize(vec3(n1.xy + n2.xy, n1.z*n2.z));
     }
+    
+#endif
+
+#if defined(DETAILNORMAL)||defined(NORMALTEXTURE)
     vec3 normalScale(vec3 normal,float scale){
         normal.xy *= scale;    
         normal.z = sqrt(1.0 - clamp(dot(normal.xy, normal.xy),0.0,1.0));
@@ -22,8 +26,7 @@
     }
 #endif
 
-
-void initSurfaceInputs(inout SurfaceInputs inputs, const in PixelParams pixel)
+void initSurfaceInputs(inout SurfaceInputs inputs,in PixelParams pixel)
 {
 
 #ifdef UV
