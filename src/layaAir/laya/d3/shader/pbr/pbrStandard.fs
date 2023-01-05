@@ -51,19 +51,19 @@ void initSurfaceInputs(inout SurfaceInputs inputs,inout PixelParams pixel)
     #ifdef Gamma_u_AlbedoTexture
     albedoSampler = gammaToLinear(albedoSampler);
     #endif // Gamma_u_AlbedoTexture
-
-    //Detail Albedo
-    #ifdef DETAILTEXTURE
-        vec4 detailSampler = texture2D(u_DetailAlbedoTexture,v_DetailUV);
-        #ifdef Gamma_u_DetailAlbedoTexture
-            detailSampler = gammaToLinear(detailSampler);
-        #endif // Gamma_u_DetailAlbedoTexture
-          albedoSampler.rgb *= detailAlbedo.rgb * ColorSpaceDouble.rgb;
-    #endif
-
     inputs.diffuseColor *= albedoSampler.rgb;
     inputs.alpha *= albedoSampler.a;
 #endif // ALBEDOTEXTURE
+
+//Detail Albedo
+#ifdef DETAILTEXTURE
+    vec3 detailSampler = texture2D(u_DetailAlbedoTexture,v_DetailUV).rgb;
+    #ifdef Gamma_u_DetailAlbedoTexture
+        detailSampler = gammaToLinear(detailSampler);
+    #endif // Gamma_u_DetailAlbedoTexture
+        detailSampler *= ColorSpaceDouble;
+        inputs.diffuseColor *=detailSampler;
+#endif
 
 #ifdef NORMALTEXTURE
     vec3 normalTS = pixel.normalTS;
