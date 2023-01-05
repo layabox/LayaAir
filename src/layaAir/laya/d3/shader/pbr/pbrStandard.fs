@@ -26,7 +26,7 @@
     }
 #endif
 
-void initSurfaceInputs(inout SurfaceInputs inputs,in PixelParams pixel)
+void initSurfaceInputs(inout SurfaceInputs inputs,inout PixelParams pixel)
 {
 
 #ifdef UV
@@ -68,7 +68,7 @@ void initSurfaceInputs(inout SurfaceInputs inputs,in PixelParams pixel)
 #ifdef NORMALTEXTURE
     vec3 normalTS = pixel.normalTS;
     pixel.normalTS =normalScale(normalTS,u_NormalScale) ;
-    pixel.normalWS = normalize(pixel.TBN * normalTS);
+    pixel.normalWS = normalize(pixel.TBN * pixel.normalTS);
 #endif
 
 #ifdef DETAILNORMAL
@@ -145,6 +145,5 @@ void main()
     initSurfaceInputs(inputs, pixel);
 
     vec4 surfaceColor = PBR_Metallic_Flow(inputs, pixel);
-
     gl_FragColor = surfaceColor;
 }
