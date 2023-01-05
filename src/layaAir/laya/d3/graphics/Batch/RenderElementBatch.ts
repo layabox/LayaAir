@@ -85,6 +85,7 @@ export class RenderElementBatch {
                             list.add(element);
                             elementArray[insBatchIndex] = instanceRenderElement;
                             insBatchMarks.batched = true;
+                            instanceRenderElement._isUpdataData = true;
                         }
                     } else {
                         insBatchMarks.updateMark = insManager.updateCountMark;

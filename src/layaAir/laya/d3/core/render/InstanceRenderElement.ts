@@ -101,6 +101,7 @@ export class InstanceRenderElement extends RenderElement {
             if (this._isUpdataData) {
                 let mesh = (this._geometry as MeshInstanceGeometry).subMesh._mesh;
                 this.updateInstanceData(mesh);
+                this._isUpdataData = false;
             }
         }
 

@@ -289,16 +289,6 @@ export class StaticInstanceBatchRender extends BatchRender {
     }
 
 
-    /**
-     * @override
-     * 渲染之后执行
-     */
-    callPostRender() {
-        //返回
-        for (let i = 0, n = this._updateChangeElement.length; i < n; i++) {
-            this._updateChangeElement[i]._isUpdataData = false;
-        }
-    }
 
     /**
     * 合批队列传入
