@@ -52,6 +52,8 @@ export class PBRMaterial extends Material {
     /**@internal */
     static SHADERDEFINE_DETAILNORMAL: ShaderDefine;
 
+    /** @internal */
+    static SHADERDEFINE_ENABLEVERTEXCOLOR: ShaderDefine;
 
     /**@internal */
     static SHADERDEFINE_TANGENTTEXTURE: ShaderDefine;
@@ -126,6 +128,8 @@ export class PBRMaterial extends Material {
         //Detail
         PBRMaterial.SHADERDEFINE_DETAILALBEDO = Shader3D.getDefineByName("DETAILTEXTURE");
         PBRMaterial.SHADERDEFINE_DETAILNORMAL = Shader3D.getDefineByName("DETAILNORMAL");
+
+        PBRMaterial.SHADERDEFINE_ENABLEVERTEXCOLOR = Shader3D.getDefineByName("ENABLEVERTEXCOLOR");
 
 
 
@@ -283,6 +287,20 @@ export class PBRMaterial extends Material {
 
     set smoothnessTextureScale(value: number) {
         this._shaderValues.setNumber(PBRMaterial.SMOOTHNESSSCALE, Math.max(0.0, Math.min(1.0, value)));
+    }
+
+    /**
+      * 是否支持顶点色。
+      */
+    get enableVertexColor(): boolean {
+        return this.hasDefine(PBRMaterial.SHADERDEFINE_ENABLEVERTEXCOLOR);
+    }
+
+    set enableVertexColor(value: boolean) {
+        if (value)
+            this.addDefine(PBRMaterial.SHADERDEFINE_ENABLEVERTEXCOLOR);
+        else
+            this.removeDefine(PBRMaterial.SHADERDEFINE_ENABLEVERTEXCOLOR);
     }
 
     /**
@@ -465,10 +483,10 @@ export class PBRMaterial extends Material {
         }
     }
 
-    private resetNeedTBN(){
-        if(!!this.normalTexture || !!this.detailNormalTexture || this.materialType==PBRMaterialType.Anisotropy){
+    private resetNeedTBN() {
+        if (!!this.normalTexture || !!this.detailNormalTexture || this.materialType == PBRMaterialType.Anisotropy) {
             this._shaderValues.addDefine(Shader3D.getDefineByName("NEEDTBN"));
-        }else{
+        } else {
             this._shaderValues.removeDefine(Shader3D.getDefineByName("NEEDTBN"));
         }
     }
@@ -502,11 +520,11 @@ export class PBRMaterial extends Material {
         switch (value) {
             case PBRMaterialType.Standard:
                 this.removeDefine(PBRMaterial.SHADERDEFINE_ANISOTROPY);
-                
+
                 break;
             case PBRMaterialType.Anisotropy:
                 this.addDefine(PBRMaterial.SHADERDEFINE_ANISOTROPY);
-                
+
                 break;
             default:
                 break;

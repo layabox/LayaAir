@@ -33,6 +33,14 @@ void initSurfaceInputs(inout SurfaceInputs inputs, const in PixelParams pixel)
 #endif // UV
     inputs.diffuseColor = u_AlbedoColor.rgb;
     inputs.alpha = u_AlbedoColor.a;
+
+#ifdef COLOR
+    #ifdef ENABLEVERTEXCOLOR
+    inputs.diffuseColor *= pixel.vertexColor.xyz;
+    inputs.alpha *= pixel.vertexColor.a;
+    #endif // ENABLEVERTEXCOLOR
+#endif // COLOR
+
     inputs.alphaTest = u_AlphaTestValue;
 
 #ifdef ALBEDOTEXTURE
