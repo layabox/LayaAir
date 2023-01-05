@@ -485,8 +485,8 @@ export class BVHSpatialBox<T> {
         if (this.isContentBox()) {
             this._cellList = null;
         } else {
-            this._children0.destroy();
-            this._children1.destroy();
+            this._children0 && this._children0.destroy();
+            this._children1 && this._children1.destroy();
             this._children0 = null;
             this._children1 = null;
         }
