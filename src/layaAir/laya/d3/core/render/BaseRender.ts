@@ -33,11 +33,11 @@ import { Vector4 } from "../../../maths/Vector4";
 import { VertexMesh } from "../../../RenderEngine/RenderShader/VertexMesh";
 
 export enum RenderBitFlag {
-    RenderBitFlag_CullFlag = 1 << 0,
-    RenderBitFlag_Batch = 1 << 1,
-    RenderBitFlag_Editor = 1 << 2,
-    RenderBitFlag_InstanceBatch = 1 << 3,
-    RenderBitFlag_VertexMergeBatch = 1 << 4,
+    RenderBitFlag_CullFlag = 0,
+    RenderBitFlag_Batch = 1,
+    RenderBitFlag_Editor = 2,
+    RenderBitFlag_InstanceBatch = 3,
+    RenderBitFlag_VertexMergeBatch = 4,
 
 }
 /**
