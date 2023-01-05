@@ -1,6 +1,5 @@
 import { Texture2D } from "../../../resource/Texture2D";
 import { Material } from "./Material";
-import { TextureDecodeFormat } from "../../../RenderEngine/RenderEnum/TextureDecodeFormat";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { Color } from "../../../maths/Color";
 import { Vector4 } from "../../../maths/Vector4";
@@ -24,18 +23,7 @@ export class SkyPanoramicMaterial extends Material {
         SkyPanoramicMaterial.EXPOSURE = Shader3D.propertyNameToID("u_Exposure");
         SkyPanoramicMaterial.ROTATION = Shader3D.propertyNameToID("u_Rotation");
         SkyPanoramicMaterial.TEXTURE = Shader3D.propertyNameToID("u_Texture");
-        SkyPanoramicMaterial.TEXTURE_HDR_PARAMS = Shader3D.propertyNameToID("u_TextureHDRParams");
-
-        // var shader: Shader3D = Shader3D.add("SkyPanoramic");
-        // var subShader: SubShader = new SubShader();
-        // shader.addSubShader(subShader);
-        // subShader.addShaderPass(SkyPanoramicVS, SkyPanoramicFS);
     }
-
-    /** @internal */
-    private _exposure: number = 1.0;
-    /** @internal */
-    private _textureDecodeFormat: TextureDecodeFormat = TextureDecodeFormat.Normal;
     /** @internal */
     private _textureHDRParams: Vector4 = new Vector4(1.0, 0.0, 0.0, 1.0);
 
@@ -54,18 +42,11 @@ export class SkyPanoramicMaterial extends Material {
      * 曝光强度。
      */
     get exposure(): number {
-        return this._exposure;
+        return this.getFloatByIndex(SkyPanoramicMaterial.EXPOSURE);
     }
 
     set exposure(value: number) {
-        if (this._exposure !== value) {
-            this._exposure = value;
-            if (this._textureDecodeFormat == TextureDecodeFormat.RGBM)
-                this._textureHDRParams.x = value * 5.0 /**BaseTexture._rgbmRange */;
-            else
-                this._textureHDRParams.x = value;
-        }
-        this.setVector4ByIndex(SkyPanoramicMaterial.TEXTURE_HDR_PARAMS, this._textureHDRParams);
+        this.setFloatByIndex(SkyPanoramicMaterial.EXPOSURE, value);
     }
 
     /**
@@ -91,24 +72,6 @@ export class SkyPanoramicMaterial extends Material {
     }
 
     /**
-     * 全景天空纹理解码格式。
-     */
-    get panoramicTextureDecodeFormat(): TextureDecodeFormat {
-        return this._textureDecodeFormat;
-    }
-
-    set panoramicTextureDecodeFormat(value: TextureDecodeFormat) {
-        if (this._textureDecodeFormat !== value) {
-            this._textureDecodeFormat = value;
-            if (value == TextureDecodeFormat.RGBM)
-                this._textureHDRParams.x = this._exposure * 5.0/**BaseTexture._rgbmRange */;
-            else
-                this._textureHDRParams.x = this._exposure;
-        }
-        this.setVector4ByIndex(SkyPanoramicMaterial.TEXTURE_HDR_PARAMS, this._textureHDRParams);
-    }
-
-    /**
      * 创建一个 <code>SkyPanoramicMaterial</code> 实例。
      */
     constructor() {
@@ -117,5 +80,6 @@ export class SkyPanoramicMaterial extends Material {
         this.setColorByIndex(SkyPanoramicMaterial.TINTCOLOR, new Color(0.5, 0.5, 0.5, 0.5));
         this.setFloatByIndex(SkyPanoramicMaterial.ROTATION, 0.0);
         this.setVector4ByIndex(SkyPanoramicMaterial.TEXTURE_HDR_PARAMS, this._textureHDRParams);
+        this.exposure = 1.3;
     }
 }

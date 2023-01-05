@@ -17,14 +17,14 @@ export class SkyPanoramicShaderInit {
 
         let uniformMap = {
             'u_TintColor': ShaderDataType.Color,
-            'u_TextureHDRParams': ShaderDataType.Vector4,
             'u_Rotation': ShaderDataType.Float,
-            'u_Texture': ShaderDataType.Texture2D
+            'u_Texture': ShaderDataType.Texture2D,
+            'u_Exposure':ShaderDataType.Float,
         };
 
         let defaultValue = {
             'u_TintColor': new Color(0.5,0.5,0.5,1.0),
-            'u_TextureHDRParams': new Vector4(1.0, 0.0, 0.0, 1.0),
+            'u_Exposure': 1.3,
             'u_Rotation': 0,
             'u_Texture': Texture2D.grayTexture,
         };

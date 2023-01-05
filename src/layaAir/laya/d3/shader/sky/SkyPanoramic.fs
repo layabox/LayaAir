@@ -1,11 +1,6 @@
 #define SHADER_NAME SkyPanoramicVS
 
 #define PI 3.14159265359
-//#include "Lighting.glsl";
-
-// uniform sampler2D u_Texture;
-// uniform vec4 u_TextureHDRParams;
-// uniform vec4 u_TintColor;
 
 varying vec3 v_Texcoord;
 varying vec2 v_Image180ScaleAndCutoff;
@@ -30,7 +25,8 @@ void main()
     tc = (tc + v_Layout3DScaleAndOffset.xy) * v_Layout3DScaleAndOffset.zw;
 
     mediump vec4 tex = texture2D(u_Texture, tc);
-    mediump vec3 c = tex.xyz; // TODO RGBD
-    c = c * u_TintColor.rgb * c_ColorSpace.rgb; // TODO??
+    mediump vec3 c = tex.xyz;
+    c = c * u_TintColor.rgb * c_ColorSpace.rgb;
+    c *= u_Exposure;
     gl_FragColor = vec4(c, 1.0);
 }
