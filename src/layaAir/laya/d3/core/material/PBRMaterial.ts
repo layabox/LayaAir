@@ -356,7 +356,7 @@ export class PBRMaterial extends Material {
 
 
     /**
-     * 自发光贴图。
+     * 细节贴图。
      */
     get detailAlbedoTexture(): BaseTexture {
         return this._shaderValues.getTexture(PBRMaterial.DETAILALBEDOTEXTURE);
@@ -373,7 +373,7 @@ export class PBRMaterial extends Material {
 
 
     /**
-     * 自发光贴图。
+     * 细节法线贴图。
      */
     get detailNormalTexture(): BaseTexture {
         return this._shaderValues.getTexture(PBRMaterial.DETAILNORMALTEXTURE);
@@ -389,7 +389,7 @@ export class PBRMaterial extends Material {
     }
 
     /**
-    * 纹理平铺和偏移。
+    * 细节图纹理平铺和偏移。
     */
     get detailTilingOffset(): Vector4 {
         return (<Vector4>this._shaderValues.getVector(PBRMaterial.DETAILTILLINGOFFSET));
@@ -405,7 +405,7 @@ export class PBRMaterial extends Material {
     }
 
     /**
-    * 法线贴图缩放系数。
+    * 细节法线贴图缩放系数。
     */
     get detailNormalScale(): number {
         return this._shaderValues.getNumber(PBRMaterial.DETAILNORMALSCALE);
