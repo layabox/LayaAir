@@ -24,6 +24,7 @@ export const enum VideoType {
  * <code>VideoTexture</code> 多媒体纹理
  */
 export class VideoTexture extends BaseTexture {
+    public static VideoTextureEvent:string = "video_loadEnd";
     public readonly element: HTMLVideoElement;
     public readonly onRender: Delegate;
 
@@ -34,8 +35,8 @@ export class VideoTexture extends BaseTexture {
      * 是否开发者自己调用Render
      */
     private _frameRender: boolean;
-    /**避免重复的加载 */
-    private _isLoaded: boolean;
+    /** @inernal 避免重复的加载 */
+    _isLoaded: boolean;
     _needUpdate: boolean = false;
     /**
      * 创建VideoTexture对象，
@@ -107,8 +108,6 @@ export class VideoTexture extends BaseTexture {
         }
     }
 
-
-
     private isNeedUpdate() {
         return this._needUpdate;
     }
@@ -129,6 +128,7 @@ export class VideoTexture extends BaseTexture {
             this.play();
         }
         this._isLoaded = true;
+        this.event(VideoTexture.VideoTextureEvent,this);
     }
 
     get source(): string {
@@ -178,7 +178,6 @@ export class VideoTexture extends BaseTexture {
             this.onRender.invoke();
             this._needUpdate = false;
         }
-
     }
 
     /**
