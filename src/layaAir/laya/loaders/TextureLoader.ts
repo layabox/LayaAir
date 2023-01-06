@@ -173,21 +173,9 @@ class RenderTextureLoader implements IResourceLoader {
 
 class VideoTextureLoader implements IResourceLoader {
     load(task: ILoadTask) {
-        return task.loader.fetch(task.url, "json", task.progress.createCallback(), task.options).then(data => {
-            if (!data)
-                return null;
-
-            let obsoluteInst = <VideoTexture>task.obsoluteInst;
-            if (obsoluteInst) {
-                obsoluteInst.source = data.source;
-                return obsoluteInst;
-            }
-            else {
-                let inst = new VideoTexture();
-                inst.source = data.source;
-                return inst;
-            }
-        });
+        let inst = <VideoTexture>task.obsoluteInst || new VideoTexture();
+        inst.source = task.url;
+        return Promise.resolve(inst);
     }
 }
 
@@ -233,8 +221,9 @@ class TextureLoader implements IResourceLoader {
 }
 
 const compressedFormats = ["ktx", "pvr", "dds", "hdr", "lanit.ls"];
+const videoFormats = ["mp4", "webm", "ogg"];
 
-Loader.registerLoader(["png", "jpg", "jpeg", "rendertexture", "videotexture", ...compressedFormats], TextureLoader, Loader.IMAGE);
+Loader.registerLoader(["png", "jpg", "jpeg", "rendertexture", ...videoFormats, ...compressedFormats], TextureLoader, Loader.IMAGE);
 Loader.registerLoader([], Texture2DLoader, Loader.TEXTURE2D);
 Loader.registerLoader(["rendertexture"], RenderTextureLoader, Loader.TEXTURE2D);
-Loader.registerLoader(["videotexture"], VideoTextureLoader, Loader.TEXTURE2D);
+Loader.registerLoader(videoFormats, VideoTextureLoader, Loader.TEXTURE2D);
