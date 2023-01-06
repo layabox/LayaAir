@@ -7,6 +7,7 @@ import { Browser } from "../../utils/Browser"
 import { Pool } from "../../utils/Pool"
 import { LayaEnv } from "../../../LayaEnv";
 import { SoundManager } from "../SoundManager";
+import { AssetDb } from "../../resource/AssetDb";
 
 /**
  * @private
@@ -72,14 +73,13 @@ export class AudioSound extends EventDispatcher {
      *
      */
     load(url: string): void {
-        url = URL.postFormatURL(URL.formatURL(url));
         this.url = url;
         var ad: HTMLAudioElement;
         if (url == SoundManager._bgMusic) {
             AudioSound._initMusicAudio();
             ad = AudioSound._musicAudio;
-            if (ad.src != url) {
-                delete AudioSound._audioCache[ad.src];
+            if ((<any>ad).originalUrl != url) {
+                delete AudioSound._audioCache[(<any>ad).originalUrl];
                 ad = null;
             }
         } else {
@@ -97,8 +97,11 @@ export class AudioSound extends EventDispatcher {
                 ad = (<HTMLAudioElement>Browser.createElement("audio"));
             }
             AudioSound._audioCache[url] = ad;
-            ad.src = url;
+            AssetDb.inst.resolveURL(url, url => {
+                ad.src = URL.postFormatURL(URL.formatURL(url));
+            });
         }
+        (<any>ad).originalUrl = url;
 
         ad.addEventListener("canplaythrough", onLoaded);
         ad.addEventListener("error", onErr);
@@ -138,12 +141,14 @@ export class AudioSound extends EventDispatcher {
      */
     play(startTime: number = 0, loops: number = 0): SoundChannel {
         //trace("playAudioSound");
-        if (!this.url) return null;
+        if (!this.url)
+            return null;
+
         var ad: HTMLAudioElement;
         if (this.url == SoundManager._bgMusic) {
             ad = AudioSound._musicAudio;
-            if (ad.src != "" && ad.src != this.url) {  //@fix 清除上一次记录 防止它释放时把音乐暂停了
-                delete AudioSound._audioCache[ad.src];
+            if (ad.src != "" && (<any>ad).originalUrl != this.url) {  //@fix 清除上一次记录 防止它释放时把音乐暂停了
+                delete AudioSound._audioCache[(<any>ad).originalUrl];
                 AudioSound._audioCache[this.url] = ad;
             }
         } else {
@@ -158,18 +163,24 @@ export class AudioSound extends EventDispatcher {
         if (LayaEnv.isConch) {
             if (!tAd) {
                 tAd = (<HTMLAudioElement>Browser.createElement("audio"));
-                tAd.src = this.url;
+                AssetDb.inst.resolveURL(this.url, url => {
+                    tAd.src = URL.postFormatURL(URL.formatURL(url));
+                });
             }
         }
         else {
             if (this.url == SoundManager._bgMusic) {
                 AudioSound._initMusicAudio();
                 tAd = AudioSound._musicAudio;
-                tAd.src = this.url;
+                AssetDb.inst.resolveURL(this.url, url => {
+                    tAd.src = URL.postFormatURL(URL.formatURL(url));
+                });
             } else {
                 tAd = tAd ? tAd : ad.cloneNode(true) as HTMLAudioElement;
             }
         }
+        (<any>tAd).originalUrl = this.url;
+
         var channel: AudioSoundChannel = new AudioSoundChannel(tAd);
         channel.url = this.url;
         channel.loops = loops;
@@ -189,7 +200,6 @@ export class AudioSound extends EventDispatcher {
             return 0;
         return ad.duration;
     }
-
 }
 
 

@@ -103,8 +103,7 @@ export class SoundManager {
      * @param channel <code>SoundChannel</code> 对象。
      */
     static removeChannel(channel: SoundChannel): void {
-        var i: number;
-        for (i = SoundManager._channels.length - 1; i >= 0; i--) {
+        for (let i = SoundManager._channels.length - 1; i >= 0; i--) {
             if (SoundManager._channels[i] == channel) {
                 SoundManager._channels.splice(i, 1);
             }
@@ -122,10 +121,9 @@ export class SoundManager {
 
     /**@private */
     private static _checkDisposeSound(): void {
-        var key: string;
-        var tTime: number = ILaya.Browser.now();
-        var hasCheck: boolean = false;
-        for (key in SoundManager._lastSoundUsedTimeDic) {
+        let tTime: number = ILaya.Browser.now();
+        let hasCheck: boolean = false;
+        for (let key in SoundManager._lastSoundUsedTimeDic) {
             if (tTime - SoundManager._lastSoundUsedTimeDic[key] > 30000) {
                 delete SoundManager._lastSoundUsedTimeDic[key];
                 SoundManager.disposeSoundIfNotUsed(key);
@@ -141,8 +139,7 @@ export class SoundManager {
 
     /**@private */
     static disposeSoundIfNotUsed(url: string): void {
-        var i: number;
-        for (i = SoundManager._channels.length - 1; i >= 0; i--) {
+        for (let i = SoundManager._channels.length - 1; i >= 0; i--) {
             if (SoundManager._channels[i].url == url) {
                 return;
             }
@@ -308,13 +305,12 @@ export class SoundManager {
         if (!SoundManager._isActive || !url) return null;
         if (SoundManager._muted) return null;
         SoundManager._recoverWebAudio();
-        url = URL.postFormatURL(URL.formatURL(url));
         if (url == SoundManager._bgMusic) {
             if (SoundManager._musicMuted) return null;
         } else {
             if (SoundManager._soundMuted) return null;
         }
-        var tSound: Sound;
+        let tSound: Sound;
         if (!Browser._isMiniGame) {
             tSound = SoundManager._soundCache[url];
         }
@@ -326,8 +322,7 @@ export class SoundManager {
                 SoundManager._soundCache[url] = tSound;
             }
         }
-        var channel: SoundChannel;
-        channel = tSound.play(startTime, loops);
+        let channel = tSound.play(startTime, loops);
         if (!channel) return null;
         channel.url = url;
         channel.volume = (url == SoundManager._bgMusic) ? SoundManager.musicVolume : SoundManager.soundVolume;
@@ -340,7 +335,7 @@ export class SoundManager {
      * @param url	声音播放地址。
      */
     static destroySound(url: string): void {
-        var tSound = SoundManager._soundCache[url];
+        let tSound = SoundManager._soundCache[url];
         if (tSound) {
             delete SoundManager._soundCache[url];
             tSound.dispose();
@@ -356,7 +351,6 @@ export class SoundManager {
      * @return SoundChannel对象，通过此对象可以对声音进行控制，以及获取声音信息。
      */
     static playMusic(url: string, loops: number = 0, complete: Handler = null, startTime: number = 0): SoundChannel {
-        url = URL.postFormatURL(URL.formatURL(url));
         SoundManager._bgMusic = url;
         if (SoundManager._musicChannel) SoundManager._musicChannel.stop();
         return SoundManager._musicChannel = SoundManager.playSound(url, loops, complete, SoundManager._musicClass, startTime);
@@ -367,11 +361,8 @@ export class SoundManager {
      * @param url  声音文件地址。
      */
     static stopSound(url: string): void {
-        url = URL.postFormatURL(URL.formatURL(url));
-        var i: number;
-        var channel: SoundChannel;
-        for (i = SoundManager._channels.length - 1; i >= 0; i--) {
-            channel = SoundManager._channels[i];
+        for (let i = SoundManager._channels.length - 1; i >= 0; i--) {
+            let channel = SoundManager._channels[i];
             if (channel.url == url) {
                 channel.stop();
             }
@@ -395,10 +386,8 @@ export class SoundManager {
      * 停止播放所有音效（不包括背景音乐）。
      */
     static stopAllSound(): void {
-        var i: number;
-        var channel: SoundChannel;
-        for (i = SoundManager._channels.length - 1; i >= 0; i--) {
-            channel = SoundManager._channels[i];
+        for (let i = SoundManager._channels.length - 1; i >= 0; i--) {
+            let channel = SoundManager._channels[i];
             if (channel.url != SoundManager._bgMusic) {
                 channel.stop();
             }
@@ -421,14 +410,11 @@ export class SoundManager {
      */
     static setSoundVolume(volume: number, url: string = null): void {
         if (url) {
-            url = URL.postFormatURL(URL.formatURL(url));
             SoundManager._setVolume(url, volume);
         } else {
             SoundManager.soundVolume = volume;
-            var i: number;
-            var channel: SoundChannel;
-            for (i = SoundManager._channels.length - 1; i >= 0; i--) {
-                channel = SoundManager._channels[i];
+            for (let i = SoundManager._channels.length - 1; i >= 0; i--) {
+                let channel = SoundManager._channels[i];
                 if (channel.url != SoundManager._bgMusic) {
                     channel.volume = volume;
                 }
@@ -451,11 +437,8 @@ export class SoundManager {
      * @param volume	音量。初始值为1。
      */
     private static _setVolume(url: string, volume: number): void {
-        url = URL.postFormatURL(URL.formatURL(url));
-        var i: number;
-        var channel: SoundChannel;
-        for (i = SoundManager._channels.length - 1; i >= 0; i--) {
-            channel = SoundManager._channels[i];
+        for (let i = SoundManager._channels.length - 1; i >= 0; i--) {
+            let channel = SoundManager._channels[i];
             if (channel.url == url) {
                 channel.volume = volume;
             }
