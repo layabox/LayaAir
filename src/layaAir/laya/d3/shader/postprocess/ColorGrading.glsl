@@ -159,7 +159,7 @@ vec3 colorGrade(in vec3 color)
     #ifdef ACES
         color = sRGB_to_AP1_MAT * colorLog;
     #else
-        color = logCToLinear(color);
+        color = logCToLinear(colorLog);
     #endif // ACES
 
     // Color filter is just an unclipped multiplier
