@@ -452,5 +452,20 @@ export class Browser {
         Browser.__init__();
         return Browser._document;
     }
+
+    /**
+     * 获得URL参数值
+     * @param	name 参数名称
+     * @return	参数值
+     */
+    static getQueryString(name: string): string {
+        if (Browser.onMiniGame) return null;
+        if (!window.location || !window.location.search)
+            return null;
+        var reg: RegExp = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+        var r: any = window.location.search.substring(1).match(reg);
+        if (r != null) return unescape(r[2]);
+        return null;
+    }
 }
 

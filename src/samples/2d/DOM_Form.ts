@@ -5,7 +5,7 @@ import { Text } from "laya/display/Text";
 import { Event } from "laya/events/Event";
 import { Render } from "laya/renders/Render";
 import { Browser } from "laya/utils/Browser";
-import { Utils } from "laya/utils/Utils";
+import { SpriteUtils } from "laya/utils/SpriteUtils";
 import { Main } from "./../Main";
 
 /**
@@ -74,7 +74,7 @@ export class DOM_Form {
 		var dom: any;
 		for (var i = 0; i < arguments.length; i++) {
 			dom = arguments[i];
-			Utils.fitDOMElementInArea(dom, this.form, 100, i * (this.rowSpacing + this.rowHeight), 150, this.rowHeight);
+			SpriteUtils.fitDOMElementInArea(dom, this.form, 100, i * (this.rowSpacing + this.rowHeight), 150, this.rowHeight);
 		}
 	}
 }

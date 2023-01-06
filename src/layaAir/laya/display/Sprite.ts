@@ -27,6 +27,7 @@ import { URL } from "../net/URL";
 import { Scene } from "./Scene";
 import { RenderState2D } from "../webgl/utils/RenderState2D";
 import { LayaEnv } from "../../LayaEnv";
+import { SpriteUtils } from "../utils/SpriteUtils";
 
 /**在显示对象上按下后调度。
  * @eventType Event.MOUSE_DOWN
@@ -297,7 +298,7 @@ export class Sprite extends Node {
 
     /**根据zOrder进行重新排序。*/
     updateZOrder(): void {
-        Utils.updateOrder(this._children) && this.repaint();
+        SpriteUtils.updateOrder(this._children) && this.repaint();
     }
 
     /**

@@ -121,6 +121,7 @@ import { StencilDemo } from "../3d/LayaAir3D_Material/StencilDemo";
 import { WebXRStart } from "../3d/WebXR/WebXRStart";
 import { WebXRControllerDemo } from "../3d/WebXR/WebXRControllerDemo";
 import { GriendSkyAmbientDemo } from "../3d/LayaAir3D_Scene3D/GriendSkyAmbientDemo";
+import { Browser } from "laya/utils/Browser";
 
 export class IndexView3D extends IndexViewUI {
 
@@ -237,7 +238,7 @@ export class IndexView3D extends IndexViewUI {
 			this.switchFunc(this.a_length, smallType);
 		}else
 		{
-			var isMaster:any = parseInt(Utils.getQueryString("isMaster"))||0;
+			var isMaster:any = parseInt(Browser.getQueryString("isMaster"))||0;
 			if(isMaster)return;
 			//示例内单独小类型切换
 			this._oldView && this._oldView['stypeFun'+data.stype] && this._oldView['stypeFun'+data.stype](data.value);
@@ -286,7 +287,7 @@ export class IndexView3D extends IndexViewUI {
 	private i: number = 0;
 	private nextBtn(): void {
 		//_bigIndex += 1;
-		var isMaster:any = Utils.getQueryString("isMaster");
+		var isMaster:any = Browser.getQueryString("isMaster");
 		var i_length:number;
 		this.a_length = this._bigIndex;
 		if (this.smallComBox.selectedIndex == this.b_length)
@@ -318,7 +319,7 @@ export class IndexView3D extends IndexViewUI {
 		if (this.btnOn && this.m_length != 0) {
 			return;
 		}
-		var isMaster:any = parseInt(Utils.getQueryString("isMaster"))||0;
+		var isMaster:any = parseInt(Browser.getQueryString("isMaster"))||0;
 		if(Main.isOpenSocket && !this.btnOn && isMaster)
 		{
 			this.onDirectSwitch();
@@ -468,7 +469,7 @@ export class IndexView3D extends IndexViewUI {
 
 	private onBigComBoxSelectHandler(index: number, smallIndex: number = 0,isAutoSwitch:boolean = false): void {
 		if(this._bigIndex!=index){
-			var isMaster:any = parseInt(Utils.getQueryString("isMaster"))||0;
+			var isMaster:any = parseInt(Browser.getQueryString("isMaster"))||0;
 			if(Main.isOpenSocket && !isAutoSwitch && isMaster)
 			{
 				this.onDirectSwitch();

@@ -1,12 +1,12 @@
 import { Text } from "./Text";
 import { Event } from "../events/Event"
 import { Matrix } from "../maths/Matrix"
-import { Utils } from "../utils/Utils"
 import { ILaya } from "../../ILaya";
 import { LayaEnv } from "../../LayaEnv";
 import { InputManager } from "../events/InputManager";
 import { Render } from "../renders/Render";
 import { Config } from "../../Config";
+import { SpriteUtils } from "../utils/SpriteUtils";
 
 /**
  * 用户输入一个或多个文本字符时后调度。
@@ -256,7 +256,7 @@ export class Input extends Text {
      */
     private _syncInputTransform(): void {
         var inputElement = this.nativeInput;
-        var transform = Utils.getTransformRelativeToWindow(this, this.padding[3], this.padding[0]);
+        var transform = SpriteUtils.getTransformRelativeToWindow(this, this.padding[3], this.padding[0]);
         var inputWid = this._width - this.padding[1] - this.padding[3];
         var inputHei = this._height - this.padding[0] - this.padding[2];
         if (LayaEnv.isConch && !Input.isAppUseNewInput) {

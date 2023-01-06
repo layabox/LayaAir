@@ -1,6 +1,6 @@
 import { Laya } from "Laya";
 import { Socket } from "laya/net/Socket";
-import { Utils } from "laya/utils/Utils";
+import { Browser } from "laya/utils/Browser";
 
 /**
 * socket客户端
@@ -52,7 +52,7 @@ export default class Client {
      */
     send(data)
     {
-        var isMaster:any = parseInt(Utils.getQueryString("isMaster"))||0;
+        var isMaster:any = parseInt(Browser.getQueryString("isMaster"))||0;
         if(!isMaster)return;
         if(this.socket)
         {
