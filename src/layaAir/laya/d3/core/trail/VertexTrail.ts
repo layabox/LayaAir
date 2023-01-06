@@ -4,13 +4,20 @@ import { VertexElementFormat } from "../../../renders/VertexElementFormat";
 import { IVertex } from "../../graphics/IVertex"
 /**
  * <code>VertexTrail</code> 类用于创建拖尾顶点结构。
+ * @internal
  */
 export class VertexTrail implements IVertex {
+	/**@internal */
 	static TRAIL_POSITION0: number = 0;
+	/**@internal */
 	static TRAIL_OFFSETVECTOR: number = 1;
+	/**@internal */
 	static TRAIL_TIME0: number = 2;
+	/**@internal */
 	static TRAIL_TEXTURECOORDINATE0Y: number = 3;
+	/**@internal */
 	static TRAIL_TEXTURECOORDINATE0X: number = 4;
+	/**@internal */
 	static TRAIL_COLOR: number = 5;
 
 	/**@internal */
@@ -18,10 +25,16 @@ export class VertexTrail implements IVertex {
 	/**@internal */
 	private static _vertexDeclaration2: VertexDeclaration;
 
+	/**
+	 * @internal
+	 */
 	static get vertexDeclaration1(): VertexDeclaration {
 		return VertexTrail._vertexDeclaration1;
 	}
 
+	/**
+	 * @internal
+	 */
 	static get vertexDeclaration2(): VertexDeclaration {
 		return VertexTrail._vertexDeclaration2;
 	}

@@ -2,7 +2,9 @@ import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { SubUniformBufferData } from "../../RenderEngine/SubUniformBufferData";
 import { UniformBufferParamsType } from "../../RenderEngine/UniformBufferData";
 import { UniformBufferObject } from "../../RenderEngine/UniformBufferObject";
-
+/**
+ * @internal
+ */
 export class TransLargeUBOUtils {
     static configStartLength: number = 1024;
 

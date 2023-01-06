@@ -41,19 +41,19 @@ export class GaussianDoF extends PostProcessEffect {
 
     /**@internal */
     static DEPTHTEXTURE: number;
-    
+
     /**@internal */
     static NORMALDEPTHTEXTURE: number;
-    
+
     /**@internal */
     static FULLCOCTEXTURE: number;
-    
+
     /**@internal */
     static DOWNSAMPLESCALE: number;
-    
+
     /**@internal */
     static BLURCOCTEXTURE: number;
-    
+
     /**@internal */
     static SHADERDEFINE_DEPTHNORMALTEXTURE: ShaderDefine;
 
@@ -199,12 +199,9 @@ export class GaussianDoF extends PostProcessEffect {
     }
 
     /**
-     * @override
+     * @internal
+     * @param context 
      */
-    getCameraDepthTextureModeFlag() {
-        return DepthTextureMode.Depth;
-    }
-
     private _setupShaderValue(context: PostProcessRenderContext): void {
         let camera: Camera = context.camera;
         this._dowmSampleScale.setValue(0.5, 0.5, 2.0, 2.0);
@@ -213,6 +210,15 @@ export class GaussianDoF extends PostProcessEffect {
         let near = camera.nearPlane;
         this._zBufferParams.setValue(1.0 - far / near, far / near, (near - far) / (near * far), 1 / near);
         this._shaderData.setVector(GaussianDoF.ZBUFFERPARAMS, this._zBufferParams);
+    }
+
+
+    /**
+     * @internal
+     * @override
+     */
+    getCameraDepthTextureModeFlag() {
+        return DepthTextureMode.Depth;
     }
 
     /**

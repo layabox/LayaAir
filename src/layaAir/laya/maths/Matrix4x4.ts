@@ -119,41 +119,6 @@ export class Matrix4x4 implements IClone {
         resultE[10] = zz + (cos * (1.0 - zz));
     }
 
-    setRotation(rotation: Quaternion): void {
-        var rotationX: number = rotation.x;
-        var rotationY: number = rotation.y;
-        var rotationZ: number = rotation.z;
-        var rotationW: number = rotation.w;
-
-        var xx: number = rotationX * rotationX;
-        var yy: number = rotationY * rotationY;
-        var zz: number = rotationZ * rotationZ;
-        var xy: number = rotationX * rotationY;
-        var zw: number = rotationZ * rotationW;
-        var zx: number = rotationZ * rotationX;
-        var yw: number = rotationY * rotationW;
-        var yz: number = rotationY * rotationZ;
-        var xw: number = rotationX * rotationW;
-
-        var e: Float32Array = this.elements;
-        e[0] = 1.0 - (2.0 * (yy + zz));
-        e[1] = 2.0 * (xy + zw);
-        e[2] = 2.0 * (zx - yw);
-        e[4] = 2.0 * (xy - zw);
-        e[5] = 1.0 - (2.0 * (zz + xx));
-        e[6] = 2.0 * (yz + xw);
-        e[8] = 2.0 * (zx + yw);
-        e[9] = 2.0 * (yz - xw);
-        e[10] = 1.0 - (2.0 * (yy + xx));
-    }
-
-    setPosition(position: Vector3): void {
-        var e: Float32Array = this.elements;
-        e[12] = position.x;
-        e[13] = position.y;
-        e[14] = position.z;
-    }
-
     /**
      * 通过四元数创建旋转矩阵。
      * @param	rotation 旋转四元数。
@@ -466,6 +431,12 @@ export class Matrix4x4 implements IClone {
         e[15] = m44;
     }
 
+    /**
+     * @internal
+     * @param row 
+     * @param column 
+     * @returns 
+     */
     getElementByRowColumn(row: number, column: number): number {
         if (row < 0 || row > 3)
             throw new Error("row Rows and columns for matrices run from 0 to 3, inclusive.");
@@ -475,6 +446,12 @@ export class Matrix4x4 implements IClone {
         return this.elements[(row * 4) + column];
     }
 
+    /**
+     * @internal
+     * @param row 
+     * @param column 
+     * @param value 
+     */
     setElementByRowColumn(row: number, column: number, value: number): void {
         if (row < 0 || row > 3)
             throw new Error("row Rows and columns for matrices run from 0 to 3, inclusive.");
@@ -483,6 +460,50 @@ export class Matrix4x4 implements IClone {
 
         this.elements[(row * 4) + column] = value;
     }
+
+       /**
+     * 四元数生成矩阵
+     * @param rotation 
+     */
+       setRotation(rotation: Quaternion): void {
+        var rotationX: number = rotation.x;
+        var rotationY: number = rotation.y;
+        var rotationZ: number = rotation.z;
+        var rotationW: number = rotation.w;
+
+        var xx: number = rotationX * rotationX;
+        var yy: number = rotationY * rotationY;
+        var zz: number = rotationZ * rotationZ;
+        var xy: number = rotationX * rotationY;
+        var zw: number = rotationZ * rotationW;
+        var zx: number = rotationZ * rotationX;
+        var yw: number = rotationY * rotationW;
+        var yz: number = rotationY * rotationZ;
+        var xw: number = rotationX * rotationW;
+
+        var e: Float32Array = this.elements;
+        e[0] = 1.0 - (2.0 * (yy + zz));
+        e[1] = 2.0 * (xy + zw);
+        e[2] = 2.0 * (zx - yw);
+        e[4] = 2.0 * (xy - zw);
+        e[5] = 1.0 - (2.0 * (zz + xx));
+        e[6] = 2.0 * (yz + xw);
+        e[8] = 2.0 * (zx + yw);
+        e[9] = 2.0 * (yz - xw);
+        e[10] = 1.0 - (2.0 * (yy + xx));
+    }
+
+    /**
+     * 位置
+     * @param position 
+     */
+    setPosition(position: Vector3): void {
+        var e: Float32Array = this.elements;
+        e[12] = position.x;
+        e[13] = position.y;
+        e[14] = position.z;
+    }
+
 
     /**
      * 判断两个4x4矩阵的值是否相等。
@@ -740,7 +761,9 @@ export class Matrix4x4 implements IClone {
         mate[15] = 1.0;
     }
 
-    /**设置矩阵为单位矩阵*/
+    /**
+     * 归一化
+     */
     identity(): void {
         /*
         var e: Float32Array = this.elements;
@@ -782,6 +805,10 @@ export class Matrix4x4 implements IClone {
         }*/
     }
 
+    /**
+     * 克隆
+     * @param destObject 
+     */
     cloneByArray(destObject: Float32Array) {
         this.elements.set(destObject);
     }

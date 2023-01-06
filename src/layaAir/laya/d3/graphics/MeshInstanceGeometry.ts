@@ -4,6 +4,9 @@ import { GeometryElement } from "../core/GeometryElement";
 import { RenderContext3D } from "../core/render/RenderContext3D";
 import { SubMesh } from "../resource/models/SubMesh";
 
+/**
+ * @internal
+ */
 export class MeshInstanceGeometry extends GeometryElement {
     private _subMesh:SubMesh;
     constructor(subMesh: SubMesh) {

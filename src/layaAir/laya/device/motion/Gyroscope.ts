@@ -26,11 +26,19 @@ export class Gyroscope extends EventDispatcher {
      * Gyroscope的唯一引用。
      */
     private static _instance: Gyroscope;
+    
+    /**
+     * 获得默认值
+     */
     static get instance(): Gyroscope {
         Gyroscope._instance = Gyroscope._instance || new Gyroscope(0);
         return Gyroscope._instance;
     }
 
+    /**
+     * 实例化一个Gyroscope
+     * @param singleton 
+     */
     constructor(singleton: number) {
         super();
         this.onDeviceOrientationChange = this.onDeviceOrientationChange.bind(this);

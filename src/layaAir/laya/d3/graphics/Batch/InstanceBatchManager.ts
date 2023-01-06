@@ -1,5 +1,7 @@
 import { BatchMark } from "../../core/render/BatchMark";
-
+/**
+ * @internal
+ */
 export class InstanceBatchManager {
     /** @internal */
     static instance = new InstanceBatchManager();

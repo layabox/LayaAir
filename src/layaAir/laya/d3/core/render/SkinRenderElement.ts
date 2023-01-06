@@ -3,7 +3,9 @@ import { IRenderContext3D } from "../../../RenderEngine/RenderInterface/RenderPi
 import { SkinRenderElementOBJ } from "../../RenderObjs/RenderObj/SkinRenderElementOBJ";
 import { SkinnedMeshRenderer } from "../SkinnedMeshRenderer";
 import { RenderElement } from "./RenderElement"
-
+/**
+ * @internal
+ */
 export class SkinRenderElement extends RenderElement{
 	/**
 	 * 可提交底层的渲染节点

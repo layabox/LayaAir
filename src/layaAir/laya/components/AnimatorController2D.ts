@@ -1,5 +1,3 @@
-
-
 import { Resource } from "../resource/Resource";
 import { ClassUtils } from "../utils/ClassUtils";
 import { Animation2DParm } from "./Animation2DParm";
@@ -10,25 +8,38 @@ import { AnimatorState2D } from "./AnimatorState2D";
 import { AnimatorStateCondition, AnimatorStateBoolCondition, AnimatorStateNumberCondition, AnimatorStateTriggerCondition } from "./AnimatorStateCondition";
 import { AnimatorTransition2D } from "./AnimatorTransition2D";
 
+/**
+ * <code>2D动画控制器<code/>
+ */
 export class AnimatorController2D extends Resource {
+    /**
+     * @internal
+     */
     data: TypeAnimatorControllerData;
-    //controllerLayer: AnimatorControllerLayer2D[];
+    
+    /**
+     * @internal
+     */
     clipsID: string[];
+
+    /**
+     * 实例化2D动画控制器
+     * @param data 
+     */
     constructor(data: any) {
         super();
         let obj = AnimatorControllerParse.parse(data);
-
-
         this.data = obj.ret;
         this.clipsID = obj.clipsID;
     }
+    
+    /**
+     * @internal
+     * @returns 
+     */
     private getLayers() {
         let layers = this.data.controllerLayers;
-
-
-
         let lArr: AnimatorControllerLayer2D[] = [];
-
         for (let i = layers.length - 1; i >= 0; i--) {
             let l = layers[i];
             let acl = new AnimatorControllerLayer2D(l.name);
@@ -49,29 +60,27 @@ export class AnimatorController2D extends Resource {
         return lArr;
     }
 
+    /**
+     * @internal
+     * @param states 
+     * @param idCatch 
+     * @param acl 
+     * @returns 
+     */
     private createState(states: TypeAnimatorState[], idCatch: Record<string, AnimatorState2D>, acl: AnimatorControllerLayer2D) {
         if (!states) return null;
         let ret: Record<string, AnimatorState2D> = {};
         let defID: string = null;
         for (let i = states.length - 1; i >= 0; i--) {
             let obj = states[i];
-
             let childStates = obj.states;
-
             if (childStates) {
                 let groupRet = this.createState(childStates, idCatch, acl);
-
                 if (groupRet) {
                     idCatch[obj.id] = groupRet.states[groupRet.id];
                 }
-
-
                 continue;
             }
-
-
-
-
 
             if (0 > Number(obj.id)) {
                 if ("-1" == obj.id) {
@@ -80,17 +89,12 @@ export class AnimatorController2D extends Resource {
                         defID = transitions[0].id;
                     }
                 }
-
-
                 continue;
             }
 
-
             let state = new AnimatorState2D();
             idCatch[obj.id] = state;
-
             ret[obj.id] = state;
-
             for (let k in obj) {
                 try {
                     if ("scripts" == k) {
@@ -118,7 +122,12 @@ export class AnimatorController2D extends Resource {
         return { id: defID, states: ret };
     }
 
-
+    /**
+     * @internal
+     * @param states 
+     * @param acl 
+     * @param data 
+     */
     private getState(states: TypeAnimatorState[], acl: AnimatorControllerLayer2D, data: TypeAnimatorControllerData) {
         //let ret:
         if (states) {
@@ -128,6 +137,14 @@ export class AnimatorController2D extends Resource {
         }
     }
 
+    /**
+     * @internal
+     * @param exitRet 
+     * @param transitions 
+     * @param idCatch 
+     * @param data 
+     * @param pExitRet 
+     */
     private setExitTransition(exitRet: Record<string, TypeAnimatorTransition[]>, transitions: TypeAnimatorTransition[], idCatch: Record<string, AnimatorState2D>, data: TypeAnimatorControllerData, pExitRet: Record<string, TypeAnimatorTransition[]>) {
         for (let id in exitRet) {
             let state = idCatch[id];
@@ -190,6 +207,16 @@ export class AnimatorController2D extends Resource {
             }
         }
     }
+
+    /**
+     * @internal
+     * @param states 
+     * @param idCatch 
+     * @param acl 
+     * @param data 
+     * @param pState 
+     * @returns 
+     */
     private setTransitions(states: TypeAnimatorState[], idCatch: Record<string, AnimatorState2D>, acl: AnimatorControllerLayer2D, data: TypeAnimatorControllerData, pState?: TypeAnimatorState) {
         if (!states) return null;
 
@@ -320,11 +347,13 @@ export class AnimatorController2D extends Resource {
         return exitRet;
     }
 
-
-
-
-
-
+    /**
+     * @internal
+     * @param arr 
+     * @param ato 
+     * @param data 
+     * @returns 
+     */
     private addConditions(arr: TypeAnimatorConditions[], ato: AnimatorTransition2D, data: TypeAnimatorControllerData) {
         let parms = data.animatorParams;
         if (null == parms || 0 == parms.length) return;
@@ -360,6 +389,10 @@ export class AnimatorController2D extends Resource {
         }
     }
 
+    /**
+     * @internal
+     * @param a 
+     */
     updateTo(a: Animator2D) {
         let currLayer = (a as any)._controllerLayers;
 

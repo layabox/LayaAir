@@ -36,19 +36,26 @@ export class StaticBatchVolume extends Volume {
 
     /**@internal CustomBatch自定义的batch流程*/
     private _enableCustomBatch: boolean;
+
     /**@internal */
     private _customBatchs: BatchRender[] = [];
 
-
+    /**
+     * @internal
+     * @returns 
+     */
     private _getStaticInstanceBatchRender(): StaticInstanceBatchRender {
         let render = (this.owner as Sprite3D).getComponent(StaticInstanceBatchRender);
         if (!render) {
             render = (this.owner as Sprite3D).addComponent(StaticInstanceBatchRender) as StaticInstanceBatchRender;
         }
         return render;
-
     }
 
+    /**
+     * @internal
+     * @returns 
+     */
     private _getStatiVertexMergeBatchRender(): StatiVertexMergeBatchRender {
         let render = (this.owner as Sprite3D).getComponent(StatiVertexMergeBatchRender);
         if (!render) {
@@ -282,6 +289,7 @@ export class StaticBatchVolume extends Volume {
     }
 
     /**
+     * @internal
      * Volume change
      */
     _VolumeChange() {
@@ -289,6 +297,9 @@ export class StaticBatchVolume extends Volume {
         this._cacheRender.clear();
     }
 
+    /**
+     * @internal
+     */
     onStart() {
         this.reBatch();
     }

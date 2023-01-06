@@ -2,6 +2,9 @@
 import { ShaderDataType } from "../../RenderEngine/RenderShader/ShaderData";
 import { UniformMapType } from "./SubShader";
 
+/**
+ * @internal
+ */
 export class GLSLCodeGenerator {
 
     static glslAttributeString(attributeMap: { [name: string]: [number, ShaderDataType] }) {

@@ -2,6 +2,9 @@ import { MeshRenderer } from "laya/d3/core/MeshRenderer";
 import { StaticBatchMeshRender } from "./StaticBatchMeshRender";
 import { StaticMeshMergeInfo } from "./StaticMeshMergeInfo";
 
+/**
+ * @internal
+ */
 export class StaticMeshBatchManager {
 
     private meshVertexDecSet: Set<StaticMeshMergeInfo>;
@@ -9,9 +12,12 @@ export class StaticMeshBatchManager {
     constructor() {
         this.meshVertexDecSet = new Set();
     }
-
+    /**
+     * 合并
+     * @param renders 
+     * @returns 
+     */
     combine(renders: MeshRenderer[]) {
-
         // todo 检测方式
         for (const render of renders) {
             let haveMatch = false;
@@ -35,7 +41,7 @@ export class StaticMeshBatchManager {
         this.meshVertexDecSet.clear();
         return staticRenders;
     }
-
+    
     merge(info: StaticMeshMergeInfo) {
         let staticMeshRender = StaticBatchMeshRender.create(info);
         return staticMeshRender;

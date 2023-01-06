@@ -10,14 +10,23 @@ import { BaseRender } from "../../render/BaseRender";
 import { RenderContext3D } from "../../render/RenderContext3D";
 import { BVHSceneRenderManager } from "./BVHSceneRenderManager";
 
-
+/**
+ * 类实现BVH架构的裁剪Pass
+ */
 export class BVHCullPass extends CullPassBase {
     protected _cullList: SingletonList<BaseRender> = new SingletonList();
-    //protected _cullPass:
+    /**
+     * 获得裁剪队列
+     */
     get cullList(): SingletonList<BaseRender> {
         return this._cullList;
     }
 
+    /**
+     * 基于相机视锥裁剪
+     * @param cameraCullInfo 
+     * @param renderManager 
+     */
     cullByCameraCullInfo(cameraCullInfo: ICameraCullInfo, renderManager: BVHSceneRenderManager): void {
         this._cullList.length = 0;
         //BVH
@@ -43,6 +52,11 @@ export class BVHCullPass extends CullPassBase {
         }
     }
 
+    /**
+     * 基于阴影视锥裁剪
+     * @param cullInfo 
+     * @param renderManager 
+     */
     cullByShadowCullInfo(cullInfo: IShadowCullInfo, renderManager: BVHSceneRenderManager): void {
         this._cullList.length = 0;
         //BVH
@@ -61,6 +75,11 @@ export class BVHCullPass extends CullPassBase {
         }
     }
 
+    /**
+     * 基于Spot视锥的裁剪
+     * @param cameraCullInfo 
+     * @param renderManager 
+     */
     cullingSpotShadow(cameraCullInfo: ICameraCullInfo, renderManager: ISceneRenderManager): void {
         //TODO
     }

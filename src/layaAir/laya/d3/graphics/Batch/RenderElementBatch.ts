@@ -9,6 +9,9 @@ import { MeshInstanceGeometry } from "../MeshInstanceGeometry";
 import { SubMesh } from "../../resource/models/SubMesh";
 import { Config3D } from "../../../../Config3D";
 
+/**
+ * @internal
+ */
 export class RenderElementBatch {
     static instance: RenderElementBatch;
     private _instanceBatchManager: InstanceBatchManager;

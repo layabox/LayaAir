@@ -15,39 +15,56 @@ import { KeyframeNodeOwner, KeyFrameValueType } from "./KeyframeNodeOwner";
  * <code>AnimatorState</code> 类用于创建动作状态。
  */
 export class AnimatorState extends EventDispatcher implements IClone {
+    /**
+     * 动画事件 开始时调用
+     */
     static EVENT_OnStateEnter = "OnStartEnter";
+    /**
+     * 动画事件 更新时调用
+     */
     static EVENT_OnStateUpdate = "OnStateUpdate";
+    /**
+     * 动画事件 离开时调用
+     */
     static EVENT_OnStateExit = "OnStateExit";
+    
     /** @internal */
     private _referenceCount: number = 0;
 
     /** @internal */
     _clip: AnimationClip | null = null;
+    
     /** @internal */
     _nodeOwners: KeyframeNodeOwner[] = [];//TODO:提出去
+    
     /** @internal */
     _currentFrameIndices: Int16Array | null = null;
+    
     /**
      * @internal
      * to avoid data confused,must put realtime datas in animatorState,can't be in animationClip,
      * for example use crossFade() with different animatorState but the sample clip source.
      */
     _realtimeDatas: Array<number | Vector3 | Quaternion> = [];
+    
     /** @internal */
     _scripts: AnimatorStateScript[] | null = null;
+    
     /**@internal 过渡列表*/
     _transitions: AnimatorTransition[] = [];
+    
     /**@internal 优先过渡列表only play this transition */
     _soloTransitions: AnimatorTransition[] = [];
-    
-
 
     /**名称。*/
     name: string;
+    
     /**动画播放速度,1.0为正常播放速度。*/
     speed: number = 1.0;
+    
     /**动作播放起始时间。*/
     clipStart: number = 0.0;
+    
     /**动作播放结束时间。*/
     clipEnd: number = 1.0;
 
@@ -196,16 +213,27 @@ export class AnimatorState extends EventDispatcher implements IClone {
         return this._referenceCount;
     }
 
+    /**
+     * @internal
+     * @param count 
+     */
     _addReference(count: number = 1): void {
         (this._clip) && (this._clip._addReference(count));
         this._referenceCount += count;
     }
 
+    /**
+     * @internal
+     * @param count 
+     */
     _removeReference(count: number = 1): void {
         (this._clip) && (this._clip._removeReference(count));
         this._referenceCount -= count;
     }
 
+    /**
+     * @internal
+     */
     _clearReference(): void {
         this._removeReference(-this._referenceCount);
     }

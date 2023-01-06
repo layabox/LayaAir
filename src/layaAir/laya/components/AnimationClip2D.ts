@@ -7,24 +7,12 @@ import { Resource } from "../resource/Resource";
 import { Byte } from "../utils/Byte";
 
 export class AnimationClip2D extends Resource {
-    _frameRate: number;
-    /**是否循环。*/
-    islooping: boolean;
-    _duration: number;
-    _animationEvents: Animation2DEvent[];
 
-    _nodesDic: Record<string, KeyframeNode2D>;
-    _nodesMap: Record<string, KeyframeNode2D[]>;
-    _nodes: KeyframeNodeList2D | null = new KeyframeNodeList2D();
-
-
-    constructor() {
-        super();
-        this._animationEvents = [];
-    }
-    duration() {
-        return this._duration;
-    }
+    /**
+     * @internal
+     * @param data 
+     * @returns 
+     */
     static _parse(data: ArrayBuffer): AnimationClip2D {
         var clip = new AnimationClip2D();
         var reader = new Byte(data);
@@ -39,7 +27,218 @@ export class AnimationClip2D extends Resource {
         return clip;
     }
 
+    /**
+     * 动画补帧函数
+     */
+    static tween = {
+        Linear: function (t: number, b: number, c: number, d: number): number { return c * t / d + b; },
+        Quad_EaseIn: function (t: number, b: number, c: number, d: number): number {
+            return c * (t /= d) * t + b;
+        },
+        Quad_EaseOut: function (t: number, b: number, c: number, d: number): number {
+            return -c * (t /= d) * (t - 2) + b;
+        },
+        Quad_EaseInOut: function (t: number, b: number, c: number, d: number): number {
+            if ((t /= d / 2) < 1) return c / 2 * t * t + b;
+            return -c / 2 * ((--t) * (t - 2) - 1) + b;
+        },
 
+        Cubic_EaseIn: function (t: number, b: number, c: number, d: number): number {
+            return c * (t /= d) * t * t + b;
+        },
+        Cubic_EaseOut: function (t: number, b: number, c: number, d: number): number {
+            return c * ((t = t / d - 1) * t * t + 1) + b;
+        },
+        Cubic_EaseInOut: function (t: number, b: number, c: number, d: number): number {
+            if ((t /= d / 2) < 1) return c / 2 * t * t * t + b;
+            return c / 2 * ((t -= 2) * t * t + 2) + b;
+        },
+
+        Quart_EaseIn: function (t: number, b: number, c: number, d: number): number {
+            return c * (t /= d) * t * t * t + b;
+        },
+        Quart_EaseOut: function (t: number, b: number, c: number, d: number): number {
+            return -c * ((t = t / d - 1) * t * t * t - 1) + b;
+        },
+        Quart_EaseInOut: function (t: number, b: number, c: number, d: number): number {
+            if ((t /= d / 2) < 1) return c / 2 * t * t * t * t + b;
+            return -c / 2 * ((t -= 2) * t * t * t - 2) + b;
+        },
+
+        Quint_EaseIn: function (t: number, b: number, c: number, d: number): number {
+            return c * (t /= d) * t * t * t * t + b;
+        },
+        Quint_EaseOut: function (t: number, b: number, c: number, d: number): number {
+            return c * ((t = t / d - 1) * t * t * t * t + 1) + b;
+        },
+        Quint_EaseInOut: function (t: number, b: number, c: number, d: number): number {
+            if ((t /= d / 2) < 1) return c / 2 * t * t * t * t * t + b;
+            return c / 2 * ((t -= 2) * t * t * t * t + 2) + b;
+        },
+
+        Sine_EaseIn: function (t: number, b: number, c: number, d: number): number {
+            return -c * Math.cos(t / d * (Math.PI / 2)) + c + b;
+        },
+        Sine_EaseOut: function (t: number, b: number, c: number, d: number): number {
+            return c * Math.sin(t / d * (Math.PI / 2)) + b;
+        },
+        Sine_EaseInOut: function (t: number, b: number, c: number, d: number): number {
+            return -c / 2 * (Math.cos(Math.PI * t / d) - 1) + b;
+        },
+
+        Expo_EaseIn: function (t: number, b: number, c: number, d: number): number {
+            return (t == 0) ? b : c * Math.pow(2, 10 * (t / d - 1)) + b;
+        },
+        Expo_EaseOut: function (t: number, b: number, c: number, d: number): number {
+            return (t == d) ? b + c : c * (-Math.pow(2, -10 * t / d) + 1) + b;
+        },
+        Expo_EaseInOut: function (t: number, b: number, c: number, d: number): number {
+            if (t == 0) return b;
+            if (t == d) return b + c;
+            if ((t /= d / 2) < 1) return c / 2 * Math.pow(2, 10 * (t - 1)) + b;
+            return c / 2 * (-Math.pow(2, -10 * --t) + 2) + b;
+        },
+
+        Circ_EaseIn: function (t: number, b: number, c: number, d: number): number {
+            return -c * (Math.sqrt(1 - (t /= d) * t) - 1) + b;
+        },
+        Circ_EaseOut: function (t: number, b: number, c: number, d: number): number {
+            return c * Math.sqrt(1 - (t = t / d - 1) * t) + b;
+        },
+        Circ_EaseInOut: function (t: number, b: number, c: number, d: number): number {
+            if ((t /= d / 2) < 1) return -c / 2 * (Math.sqrt(1 - t * t) - 1) + b;
+            return c / 2 * (Math.sqrt(1 - (t -= 2) * t) + 1) + b;
+        },
+
+        Elastic_EaseIn: function (t: number, b: number, c: number, d: number, a: number, p: number): number {
+            if (t == 0) return b; if ((t /= d) == 1) return b + c; if (!p) p = d * .3;
+            if (!a || a < Math.abs(c)) { a = c; var s = p / 4; }
+            else var s = p / (2 * Math.PI) * Math.asin(c / a);
+            return -(a * Math.pow(2, 10 * (t -= 1)) * Math.sin((t * d - s) * (2 * Math.PI) / p)) + b;
+        },
+        Elastic_EaseOut: function (t: number, b: number, c: number, d: number, a: number, p: number): number {
+            if (t == 0) return b; if ((t /= d) == 1) return b + c; if (!p) p = d * .3;
+            if (!a || a < Math.abs(c)) { a = c; var s = p / 4; }
+            else var s = p / (2 * Math.PI) * Math.asin(c / a);
+            return (a * Math.pow(2, -10 * t) * Math.sin((t * d - s) * (2 * Math.PI) / p) + c + b);
+        },
+        Elastic_EaseInOut: function (t: number, b: number, c: number, d: number, a: number, p: number): number {
+            if (t == 0) return b; if ((t /= d / 2) == 2) return b + c; if (!p) p = d * (.3 * 1.5);
+            if (!a || a < Math.abs(c)) { a = c; var s = p / 4; }
+            else var s = p / (2 * Math.PI) * Math.asin(c / a);
+            if (t < 1) return -.5 * (a * Math.pow(2, 10 * (t -= 1)) * Math.sin((t * d - s) * (2 * Math.PI) / p)) + b;
+            return a * Math.pow(2, -10 * (t -= 1)) * Math.sin((t * d - s) * (2 * Math.PI) / p) * .5 + c + b;
+        },
+
+        Back_EaseIn: function (t: number, b: number, c: number, d: number, s: number = undefined): number {
+            if (s == undefined) s = 1.70158;
+            return c * (t /= d) * t * ((s + 1) * t - s) + b;
+        },
+        Back_EaseOut: function (t: number, b: number, c: number, d: number, s: number = undefined): number {
+            if (s == undefined) s = 1.70158;
+            return c * ((t = t / d - 1) * t * ((s + 1) * t + s) + 1) + b;
+        },
+        Back_EaseInOut: function (t: number, b: number, c: number, d: number, s: number = undefined): number {
+            if (s == undefined) s = 1.70158;
+            if ((t /= d / 2) < 1) return c / 2 * (t * t * (((s *= (1.525)) + 1) * t - s)) + b;
+            return c / 2 * ((t -= 2) * t * (((s *= (1.525)) + 1) * t + s) + 2) + b;
+        },
+
+        Bounce_EaseIn: function (t: number, b: number, c: number, d: number): number {
+            return c - AnimationClip2D.tween.Bounce_EaseOut(d - t, 0, c, d) + b;
+        },
+        Bounce_EaseOut: function (t: number, b: number, c: number, d: number): number {
+            if ((t /= d) < (1 / 2.75)) {
+                return c * (7.5625 * t * t) + b;
+            } else if (t < (2 / 2.75)) {
+                return c * (7.5625 * (t -= (1.5 / 2.75)) * t + .75) + b;
+            } else if (t < (2.5 / 2.75)) {
+                return c * (7.5625 * (t -= (2.25 / 2.75)) * t + .9375) + b;
+            } else {
+                return c * (7.5625 * (t -= (2.625 / 2.75)) * t + .984375) + b;
+            }
+        },
+        Bounce_EaseInOut: function (t: number, b: number, c: number, d: number): number {
+            if (t < d / 2) return AnimationClip2D.tween.Bounce_EaseIn(t * 2, 0, c, d) * .5 + b;
+            else return AnimationClip2D.tween.Bounce_EaseOut(t * 2 - d, 0, c, d) * .5 + c * .5 + b;
+        },
+
+        hermiteInterpolate: function (outTangent: number, inTangent: number, startValue: number, endValue: number, t: number, dur: number): number {
+            if (Math.abs(outTangent) == Infinity || Math.abs(inTangent) == Infinity) {
+                if (0 > outTangent || 0 < inTangent) return startValue;
+                return startValue;
+            }
+            var t2 = t * t;
+            var t3 = t2 * t;
+            var a = 2.0 * t3 - 3.0 * t2 + 1.0;
+            var b = t3 - 2.0 * t2 + t;
+            var c = t3 - t2;
+            var d = -2.0 * t3 + 3.0 * t2;
+            return a * startValue + b * outTangent * dur + c * inTangent * dur + d * endValue;
+        }
+    }
+
+    /**
+     * @internal
+     */
+    _frameRate: number;
+
+    /**
+     * @internal
+     */
+    _duration: number;
+
+    /**
+     * @internal
+     */
+    _animationEvents: Animation2DEvent[];
+
+    /**
+     * @internal
+     */
+    _nodesDic: Record<string, KeyframeNode2D>;
+
+    /**
+     * @internal
+     */
+    _nodesMap: Record<string, KeyframeNode2D[]>;
+
+    /**
+     * @internal
+     */
+    _nodes: KeyframeNodeList2D | null = new KeyframeNodeList2D();
+
+    /**
+     * 是否循环
+     */
+    islooping: boolean;
+
+    /**
+     * 实例化一个2D动画clip类
+     */
+    constructor() {
+        super();
+        this._animationEvents = [];
+    }
+
+    /**
+     * 动画时长
+     * @returns 
+     */
+    duration() {
+        return this._duration;
+    }
+
+
+
+    /**
+     * @internal
+     * @param playCurTime 
+     * @param realTimeCurrentFrameIndexes 
+     * @param addtive 
+     * @param frontPlay 
+     * @param outDatas 
+     */
     _evaluateClipDatasRealTime(playCurTime: number, realTimeCurrentFrameIndexes: Int16Array, addtive: boolean, frontPlay: boolean, outDatas: Array<number | string | boolean>) {
         var nodes = this._nodes;
         for (var i = 0, n = nodes.count; i < n; i++) {
@@ -106,178 +305,18 @@ export class AnimationClip2D extends Resource {
 
         }
     }
-    static tween = {
-        Linear: function (t: number, b: number, c: number, d: number): number { return c * t / d + b; },
-        Quad_EaseIn: function (t: number, b: number, c: number, d: number): number {
-            return c * (t /= d) * t + b;
-        },
-        Quad_EaseOut: function (t: number, b: number, c: number, d: number): number {
-            return -c * (t /= d) * (t - 2) + b;
-        },
-        Quad_EaseInOut: function (t: number, b: number, c: number, d: number): number {
-            if ((t /= d / 2) < 1) return c / 2 * t * t + b;
-            return -c / 2 * ((--t) * (t - 2) - 1) + b;
-        },
 
-
-
-        Cubic_EaseIn: function (t: number, b: number, c: number, d: number): number {
-            return c * (t /= d) * t * t + b;
-        },
-        Cubic_EaseOut: function (t: number, b: number, c: number, d: number): number {
-            return c * ((t = t / d - 1) * t * t + 1) + b;
-        },
-        Cubic_EaseInOut: function (t: number, b: number, c: number, d: number): number {
-            if ((t /= d / 2) < 1) return c / 2 * t * t * t + b;
-            return c / 2 * ((t -= 2) * t * t + 2) + b;
-        },
-
-
-
-        Quart_EaseIn: function (t: number, b: number, c: number, d: number): number {
-            return c * (t /= d) * t * t * t + b;
-        },
-        Quart_EaseOut: function (t: number, b: number, c: number, d: number): number {
-            return -c * ((t = t / d - 1) * t * t * t - 1) + b;
-        },
-        Quart_EaseInOut: function (t: number, b: number, c: number, d: number): number {
-            if ((t /= d / 2) < 1) return c / 2 * t * t * t * t + b;
-            return -c / 2 * ((t -= 2) * t * t * t - 2) + b;
-        },
-
-
-
-        Quint_EaseIn: function (t: number, b: number, c: number, d: number): number {
-            return c * (t /= d) * t * t * t * t + b;
-        },
-        Quint_EaseOut: function (t: number, b: number, c: number, d: number): number {
-            return c * ((t = t / d - 1) * t * t * t * t + 1) + b;
-        },
-        Quint_EaseInOut: function (t: number, b: number, c: number, d: number): number {
-            if ((t /= d / 2) < 1) return c / 2 * t * t * t * t * t + b;
-            return c / 2 * ((t -= 2) * t * t * t * t + 2) + b;
-        },
-
-
-
-        Sine_EaseIn: function (t: number, b: number, c: number, d: number): number {
-            return -c * Math.cos(t / d * (Math.PI / 2)) + c + b;
-        },
-        Sine_EaseOut: function (t: number, b: number, c: number, d: number): number {
-            return c * Math.sin(t / d * (Math.PI / 2)) + b;
-        },
-        Sine_EaseInOut: function (t: number, b: number, c: number, d: number): number {
-            return -c / 2 * (Math.cos(Math.PI * t / d) - 1) + b;
-        },
-
-
-
-        Expo_EaseIn: function (t: number, b: number, c: number, d: number): number {
-            return (t == 0) ? b : c * Math.pow(2, 10 * (t / d - 1)) + b;
-        },
-        Expo_EaseOut: function (t: number, b: number, c: number, d: number): number {
-            return (t == d) ? b + c : c * (-Math.pow(2, -10 * t / d) + 1) + b;
-        },
-        Expo_EaseInOut: function (t: number, b: number, c: number, d: number): number {
-            if (t == 0) return b;
-            if (t == d) return b + c;
-            if ((t /= d / 2) < 1) return c / 2 * Math.pow(2, 10 * (t - 1)) + b;
-            return c / 2 * (-Math.pow(2, -10 * --t) + 2) + b;
-        },
-
-
-
-        Circ_EaseIn: function (t: number, b: number, c: number, d: number): number {
-            return -c * (Math.sqrt(1 - (t /= d) * t) - 1) + b;
-        },
-        Circ_EaseOut: function (t: number, b: number, c: number, d: number): number {
-            return c * Math.sqrt(1 - (t = t / d - 1) * t) + b;
-        },
-        Circ_EaseInOut: function (t: number, b: number, c: number, d: number): number {
-            if ((t /= d / 2) < 1) return -c / 2 * (Math.sqrt(1 - t * t) - 1) + b;
-            return c / 2 * (Math.sqrt(1 - (t -= 2) * t) + 1) + b;
-        },
-
-
-
-        Elastic_EaseIn: function (t: number, b: number, c: number, d: number, a: number, p: number): number {
-            if (t == 0) return b; if ((t /= d) == 1) return b + c; if (!p) p = d * .3;
-            if (!a || a < Math.abs(c)) { a = c; var s = p / 4; }
-            else var s = p / (2 * Math.PI) * Math.asin(c / a);
-            return -(a * Math.pow(2, 10 * (t -= 1)) * Math.sin((t * d - s) * (2 * Math.PI) / p)) + b;
-        },
-        Elastic_EaseOut: function (t: number, b: number, c: number, d: number, a: number, p: number): number {
-            if (t == 0) return b; if ((t /= d) == 1) return b + c; if (!p) p = d * .3;
-            if (!a || a < Math.abs(c)) { a = c; var s = p / 4; }
-            else var s = p / (2 * Math.PI) * Math.asin(c / a);
-            return (a * Math.pow(2, -10 * t) * Math.sin((t * d - s) * (2 * Math.PI) / p) + c + b);
-        },
-        Elastic_EaseInOut: function (t: number, b: number, c: number, d: number, a: number, p: number): number {
-            if (t == 0) return b; if ((t /= d / 2) == 2) return b + c; if (!p) p = d * (.3 * 1.5);
-            if (!a || a < Math.abs(c)) { a = c; var s = p / 4; }
-            else var s = p / (2 * Math.PI) * Math.asin(c / a);
-            if (t < 1) return -.5 * (a * Math.pow(2, 10 * (t -= 1)) * Math.sin((t * d - s) * (2 * Math.PI) / p)) + b;
-            return a * Math.pow(2, -10 * (t -= 1)) * Math.sin((t * d - s) * (2 * Math.PI) / p) * .5 + c + b;
-        },
-
-
-
-        Back_EaseIn: function (t: number, b: number, c: number, d: number, s: number = undefined): number {
-            if (s == undefined) s = 1.70158;
-            return c * (t /= d) * t * ((s + 1) * t - s) + b;
-        },
-        Back_EaseOut: function (t: number, b: number, c: number, d: number, s: number = undefined): number {
-            if (s == undefined) s = 1.70158;
-            return c * ((t = t / d - 1) * t * ((s + 1) * t + s) + 1) + b;
-        },
-        Back_EaseInOut: function (t: number, b: number, c: number, d: number, s: number = undefined): number {
-            if (s == undefined) s = 1.70158;
-            if ((t /= d / 2) < 1) return c / 2 * (t * t * (((s *= (1.525)) + 1) * t - s)) + b;
-            return c / 2 * ((t -= 2) * t * (((s *= (1.525)) + 1) * t + s) + 2) + b;
-        },
-
-
-
-        Bounce_EaseIn: function (t: number, b: number, c: number, d: number): number {
-            return c - AnimationClip2D.tween.Bounce_EaseOut(d - t, 0, c, d) + b;
-        },
-        Bounce_EaseOut: function (t: number, b: number, c: number, d: number): number {
-            if ((t /= d) < (1 / 2.75)) {
-                return c * (7.5625 * t * t) + b;
-            } else if (t < (2 / 2.75)) {
-                return c * (7.5625 * (t -= (1.5 / 2.75)) * t + .75) + b;
-            } else if (t < (2.5 / 2.75)) {
-                return c * (7.5625 * (t -= (2.25 / 2.75)) * t + .9375) + b;
-            } else {
-                return c * (7.5625 * (t -= (2.625 / 2.75)) * t + .984375) + b;
-            }
-        },
-        Bounce_EaseInOut: function (t: number, b: number, c: number, d: number): number {
-            if (t < d / 2) return AnimationClip2D.tween.Bounce_EaseIn(t * 2, 0, c, d) * .5 + b;
-            else return AnimationClip2D.tween.Bounce_EaseOut(t * 2 - d, 0, c, d) * .5 + c * .5 + b;
-        },
-
-
-        hermiteInterpolate: function (outTangent: number, inTangent: number, startValue: number, endValue: number, t: number, dur: number): number {
-            if (Math.abs(outTangent) == Infinity || Math.abs(inTangent) == Infinity) {
-                if (0 > outTangent || 0 < inTangent) return startValue;
-                return startValue;
-            }
-            var t2 = t * t;
-            var t3 = t2 * t;
-            var a = 2.0 * t3 - 3.0 * t2 + 1.0;
-            var b = t3 - 2.0 * t2 + t;
-            var c = t3 - t2;
-            var d = -2.0 * t3 + 3.0 * t2;
-            return a * startValue + b * outTangent * dur + c * inTangent * dur + d * endValue;
-        }
-    }
-
+    /**
+     * @internal
+     * @param frame 
+     * @param nextFrame 
+     * @param t 
+     * @param dur 
+     * @returns 
+     */
     private _getTweenVal(frame: Keyframe2D, nextFrame: Keyframe2D, t: number, dur: number) {
         var start = frame.data;
         var end = nextFrame.data;
-
-
 
         if ("number" != typeof start.val || "number" != typeof end.val) {
             return start.val;
@@ -285,9 +324,6 @@ export class AnimationClip2D extends Resource {
         var tweenFun = (AnimationClip2D.tween as any)[start.tweenType];
         var poval = start.val as number;
         var oval = end.val as number;
-
-
-
 
         //var t = (x - s.cx) / (e.cx - s.cx);
         if (null != tweenFun) {
@@ -329,9 +365,6 @@ export class AnimationClip2D extends Resource {
             }
         }
 
-
-
-
         var tnum: number;
         if ((!start.tweenInfo && !end.tweenInfo) || (Keyframe2D.defaultWeight == inWeight && Keyframe2D.defaultWeight == outWeight)) {
             //var dur = nextFrameTime - startFrameTime;
@@ -342,6 +375,41 @@ export class AnimationClip2D extends Resource {
         return tnum;
     }
 
+    /**
+     * @internal
+     * @param time 
+     * @returns 
+     */
+    private _binarySearchEventIndex(time: number): number {
+        var start = 0;
+        var end = this._animationEvents.length - 1;
+        var mid;
+        while (start <= end) {
+            mid = (start + end) >> 1;
+            var midValue = this._animationEvents[mid].time;
+            if (midValue == time)
+                return mid;
+            else if (midValue > time)
+                end = mid - 1;
+            else
+                start = mid + 1;
+        }
+        return start;
+    }
+
+    /**
+     * hermite插值算法
+     * @param frameValue 上一帧值
+     * @param frametime 上一帧事件
+     * @param frameOutWeight 上一帧权重
+     * @param frameOutTangent 上一帧切线
+     * @param nextframeValue 下一帧值
+     * @param nextframetime 下一帧时间
+     * @param nextframeInweight 下一帧权重
+     * @param nextframeIntangent 下一帧切线
+     * @param time 时间
+     * @returns 
+     */
     hermiteCurveSplineWeight(frameValue: number, frametime: number, frameOutWeight: number, frameOutTangent: number, nextframeValue: number, nextframetime: number, nextframeInweight: number, nextframeIntangent: number, time: number) {
         let Eps = 2.22e-16;
 
@@ -406,21 +474,7 @@ export class AnimationClip2D extends Resource {
         var index = this._binarySearchEventIndex(event.time);
         this._animationEvents.splice(index, 0, event);
     }
-    private _binarySearchEventIndex(time: number): number {
-        var start = 0;
-        var end = this._animationEvents.length - 1;
-        var mid;
-        while (start <= end) {
-            mid = (start + end) >> 1;
-            var midValue = this._animationEvents[mid].time;
-            if (midValue == time)
-                return mid;
-            else if (midValue > time)
-                end = mid - 1;
-            else
-                start = mid + 1;
-        }
-        return start;
-    }
+
+
 
 }

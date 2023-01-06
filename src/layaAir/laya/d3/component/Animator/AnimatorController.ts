@@ -7,6 +7,9 @@ import { AnimatorControllerLayer } from "./AnimatorControllerLayer";
 import { AnimatorState } from "./AnimatorState";
 import { AnimatorTransition } from "./AnimatorTransition";
 
+/**
+ * @internal
+ */
 export class AnimatorController extends Resource {
     data: TypeAnimatorControllerData;
     clipsID: string[];

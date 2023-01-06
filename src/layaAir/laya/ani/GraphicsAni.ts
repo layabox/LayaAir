@@ -2,7 +2,7 @@ import { SkinMeshForGraphic } from "./bone/canvasmesh/SkinMeshForGraphic"
 import { Matrix } from "../maths/Matrix";
 import { Graphics } from "../display/Graphics";
 /**
- * 动画
+ * Graphic动画
  */
 export class GraphicsAni extends Graphics {
 
@@ -17,14 +17,17 @@ export class GraphicsAni extends Graphics {
 	}
 
 	private static _caches: any[] = [];
-	//TODO:coverage
+	/**
+	 * 获取一个GraphicsAni
+	 * @returns 
+	 */
 	static create(): GraphicsAni {
 		var rs: GraphicsAni = GraphicsAni._caches.pop();
 		return rs || new GraphicsAni();
 	}
 
 	/**
-	 * 回收清理
+	 * 回收清理GraphicAni
 	 * @param graphics 
 	 */
 	//TODO:coverage

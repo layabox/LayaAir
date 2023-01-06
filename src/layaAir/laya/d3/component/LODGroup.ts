@@ -12,23 +12,38 @@ import { Vector3 } from "../../maths/Vector3";
 const tempVec = new Vector3();
 const tempVec1 = new Vector3();
 
+/**
+ * 此类描述Lod数据
+ */
 export class LODInfo {
+    /**@internal */
     _mincullRate: number;//裁剪比例 0-1
+
     /**@internal */
     _renders: BaseRender[];//此LOD显示的渲染节点
-    //TODO 不需要缓存节点  需要商量
+
+    /**@internal */
     _cachSprite3D: Sprite3D[];
+
     /**@internal */
     _lodIndex: number;
+
     /**@internal */
     private _group: LODGroup;
 
+    /**
+     * 实例化一个LODInfo
+     * @param mincullRate 
+     */
     constructor(mincullRate: number) {
         this._mincullRate = mincullRate;
         this._renders = [];
         this._cachSprite3D = []
     }
 
+    /**
+     * 设置最小通过率
+     */
     set mincullRate(value: number) {
         this._mincullRate = value;
     }
@@ -37,6 +52,10 @@ export class LODInfo {
         return this._mincullRate;
     }
 
+    /**
+     * @internal
+     * 设置LODGroup
+     */
     set group(value: LODGroup) {
         if (value == this._group)
             return;
@@ -59,6 +78,9 @@ export class LODInfo {
         }
     }
 
+    /**
+     * 设置LODInfo的节点信息
+     */
     set renders(value: Sprite3D[]) {
         this._cachSprite3D = value;
         for (var i = 0, n = value.length; i < n; i++) {
@@ -123,6 +145,9 @@ export class LODInfo {
     }
 }
 
+/**
+ * <code>SpotLight</code> 类用于构建LOD组件
+ */
 export class LODGroup extends Component implements IBoundsCell {
 
     /**
@@ -136,7 +161,11 @@ export class LODGroup extends Component implements IBoundsCell {
      */
     private _bounds: Bounds;
 
+    /**
+     * size
+     */
     private _size: number;
+
     /**
      * 包围盒中心位置
      */
@@ -152,10 +181,15 @@ export class LODGroup extends Component implements IBoundsCell {
      */
     private _lods: LODInfo[] = [];
 
+    /**
+     * 显示节点
+     */
     private _visialIndex = -1;
 
 
-
+    /**
+     * 实例化一个LODGroup
+     */
     constructor() {
         super();
         this._bounds = new Bounds();
@@ -163,43 +197,10 @@ export class LODGroup extends Component implements IBoundsCell {
         this.runInEditor = true;
     }
 
-    protected _onEnable(): void {
-        super._onEnable();
-        //this.onPreRender();
-    }
-
-    protected _onDisable(): void {
-        super._onDisable();
-        this._lods.forEach(element => {
-            element.removeAllRender();
-        })
-    }
-
     /**
-    * @internal
-    * 删除
+    * get LODInfo 数组
+    * @returns 
     */
-    onDestroy() {
-        this._lods.forEach(element => {
-            let renderarray = element._renders;
-            for (var i = 0; i < renderarray.length; i++) {
-                element.removeNode(renderarray[i].owner as Sprite3D);
-            }
-        })
-    }
-
-    /**
-    * @internal
-    */
-    _updateRecaculateFlag() {
-        this._needcaculateBounds = true;
-    }
-
-
-    /**
-     * get LODInfo 数组
-     * @returns 
-     */
     get lods(): LODInfo[] {
         return this._lods;
     }
@@ -222,60 +223,37 @@ export class LODGroup extends Component implements IBoundsCell {
         this._lodCount = this._lods.length;
     }
 
-    get bounds(){
+    /**
+     * 获得LOD包围盒
+     */
+    get bounds() {
         this.recalculateBounds();
         return this._bounds;
     }
 
     /**
-     * 重新计算包围盒
+     * @internal
      */
-    recalculateBounds() {
-        if (!this._needcaculateBounds) {
-            return;
-        }
-        let firstBounds = true;
-        for (let i = 0, n = this._lods.length; i < n; i++) {
-            let lod = this._lods[i];
-            lod._renders.forEach(element => {
-                if (firstBounds) {
-                    element.bounds.cloneTo(this._bounds);
-                    firstBounds = false;
-                }
-                else
-                    Bounds.merge(this._bounds, element.bounds, this._bounds);
-            });
-        }
-        this._lodPosition = this._bounds.getCenter();
-        let extend = this._bounds.getExtent();
-        this._size = 2 * Math.max(extend.x, extend.y, extend.z);
-        this._needcaculateBounds = false;
+    protected _onEnable(): void {
+        super._onEnable();
+        //this.onPreRender();
     }
 
     /**
-     * 渲染之前的更新
+     * @internal
      */
-    onPreRender() {
-        this.recalculateBounds();
-        //查看相机的距离
-        let checkCamera = (this.owner.scene as Scene3D).cullInfoCamera as Camera;
-        let maxYDistance = checkCamera.maxlocalYDistance;
-        let cameraFrustum = checkCamera.boundFrustum;
-        Vector3.subtract(this._lodPosition, checkCamera.transform.position, tempVec);
-        //大于farplane,或者不在视锥内.不做lod操作
-        let length = tempVec.length();
-        if (length > checkCamera.farPlane || cameraFrustum.containsPoint(this._lodPosition) == 0) {
-            return;
-        }
-        checkCamera.transform.worldMatrix.getForward(tempVec1);
-        Vector3.normalize(tempVec, tempVec);
-        Vector3.normalize(tempVec1, tempVec1);
-        let rateYDistance = length * Vector3.dot(tempVec, tempVec1) / checkCamera.farPlane * maxYDistance;
-
-        let rate = (this._size / rateYDistance);
-        this._applyVisibleRate(rate);
+    protected _onDisable(): void {
+        super._onDisable();
+        this._lods.forEach(element => {
+            element.removeAllRender();
+        })
     }
 
+    /**
+     * 设置显示隐藏组
+     * @param rate 
+     * @returns 
+     */
     private _applyVisibleRate(rate: number) {
         for (var i = 0; i < this._lodCount; i++) {
             let lod = this._lods[i];
@@ -324,7 +302,30 @@ export class LODGroup extends Component implements IBoundsCell {
         }
     }
 
-    //只保留同级或者低级关联节点
+    /**
+     * @internal
+     * 删除
+     */
+    onDestroy() {
+        this._lods.forEach(element => {
+            let renderarray = element._renders;
+            for (var i = 0; i < renderarray.length; i++) {
+                element.removeNode(renderarray[i].owner as Sprite3D);
+            }
+        })
+    }
+
+    /**
+     * @internal
+     */
+    _updateRecaculateFlag() {
+        this._needcaculateBounds = true;
+    }
+
+    /**
+     * @internal
+     * @param lodGroup 
+     */
     _cloneTo(lodGroup: LODGroup) {
         super._cloneTo(lodGroup);
         //get common parent
@@ -367,5 +368,56 @@ export class LODGroup extends Component implements IBoundsCell {
             });
         }
         lodGroup.lods = lodArray;
+    }
+
+    /**
+     * @internal
+     * 重新计算包围盒
+     */
+    recalculateBounds() {
+        if (!this._needcaculateBounds) {
+            return;
+        }
+        let firstBounds = true;
+        for (let i = 0, n = this._lods.length; i < n; i++) {
+            let lod = this._lods[i];
+            lod._renders.forEach(element => {
+                if (firstBounds) {
+                    element.bounds.cloneTo(this._bounds);
+                    firstBounds = false;
+                }
+                else
+                    Bounds.merge(this._bounds, element.bounds, this._bounds);
+            });
+        }
+        this._lodPosition = this._bounds.getCenter();
+        let extend = this._bounds.getExtent();
+        this._size = 2 * Math.max(extend.x, extend.y, extend.z);
+        this._needcaculateBounds = false;
+    }
+
+    /**
+     * @internal
+     * 渲染之前的更新
+     */
+    onPreRender() {
+        this.recalculateBounds();
+        //查看相机的距离
+        let checkCamera = (this.owner.scene as Scene3D).cullInfoCamera as Camera;
+        let maxYDistance = checkCamera.maxlocalYDistance;
+        let cameraFrustum = checkCamera.boundFrustum;
+        Vector3.subtract(this._lodPosition, checkCamera.transform.position, tempVec);
+        //大于farplane,或者不在视锥内.不做lod操作
+        let length = tempVec.length();
+        if (length > checkCamera.farPlane || cameraFrustum.containsPoint(this._lodPosition) == 0) {
+            return;
+        }
+        checkCamera.transform.worldMatrix.getForward(tempVec1);
+        Vector3.normalize(tempVec, tempVec);
+        Vector3.normalize(tempVec1, tempVec1);
+        let rateYDistance = length * Vector3.dot(tempVec, tempVec1) / checkCamera.farPlane * maxYDistance;
+
+        let rate = (this._size / rateYDistance);
+        this._applyVisibleRate(rate);
     }
 }

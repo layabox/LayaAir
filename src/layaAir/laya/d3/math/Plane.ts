@@ -4,14 +4,16 @@ import { Vector3 } from "../../maths/Vector3";
  * 平面。
  */
 export class Plane {
-	/**平面的向量*/
-	_normal: Vector3;
-	/**平面到坐标系原点的距离*/
-	_distance: number;
 	/**平面与其他几何体相交类型*/
 	static PlaneIntersectionType_Back: number = 0;
 	static PlaneIntersectionType_Front: number = 1;
 	static PlaneIntersectionType_Intersecting: number = 2;
+	
+	/**@internal 平面的向量*/
+	_normal: Vector3;
+	
+	/**@internal 平面到坐标系原点的距离*/
+	_distance: number;
 
 	/**
 	 * 创建一个 <code>Plane</code> 实例。
@@ -23,7 +25,9 @@ export class Plane {
 		this._distance = d;//this.distance = d;
 	}
 
-
+	/**
+	 * 平面法线
+	 */
 	set normal(value: Vector3) {
 		value.cloneTo(this._normal);
 	}
@@ -32,6 +36,9 @@ export class Plane {
 		return this._normal;
 	}
 
+	/**
+	 * 平面距离
+	 */
 	set distance(value: number) {
 		this._distance = value;
 	}

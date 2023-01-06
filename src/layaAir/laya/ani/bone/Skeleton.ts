@@ -178,6 +178,9 @@ export class Skeleton extends Sprite {
         return this._player;
     }
 
+    /**
+     * 皮肤名字
+     */
     get skinName(): string {
         return this._skinName;
     }
@@ -188,6 +191,9 @@ export class Skeleton extends Sprite {
             this.showSkinByName(value);
     }
 
+    /**
+     * 动画名字
+     */
     get animationName(): string {
         return this._animationName;
     }
@@ -198,6 +204,9 @@ export class Skeleton extends Sprite {
             this.play(value, this._loop, true);
     }
 
+    /**
+     * 是否循环
+     */
     get loop(): boolean {
         return this._loop;
     }
@@ -216,9 +225,6 @@ export class Skeleton extends Sprite {
         return this._templet;
     }
 
-    /**
-     * 
-     */
     set templet(value: Templet) {
         this.init(value);
     }
@@ -249,6 +255,9 @@ export class Skeleton extends Sprite {
             this.templet = null;
     }
 
+    /**
+     * 动画类型
+     */
     get aniMode(): number {
         return this._aniMode;
     }
@@ -1136,6 +1145,9 @@ export class Skeleton extends Sprite {
         this._graphicsCache[aniIndex][frameIndex] = graphics;
     }
 
+    /**
+     * @internal
+     */
     private reset() {
         this._templet._removeReference();
         this._templet = null;

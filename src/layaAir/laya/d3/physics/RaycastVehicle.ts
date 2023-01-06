@@ -1,7 +1,9 @@
 import { ILaya3D } from "../../../ILaya3D";
 import { Vector3 } from "../../maths/Vector3";
 import { RaycastWheel } from "./RaycastWheel";
-
+/**
+ * @internal
+ */
 export class btVehicleTuning {
     suspensionStiffness = 15.88;
     suspensionCompression = 0.83;
@@ -11,14 +13,16 @@ export class btVehicleTuning {
     maxSuspensionForce = 6000;
 }
 
+/**
+ * @internal
+ */
 export class btWheelInfo {
     btPointer: number;
 }
 
-class btWheelInfoBuff{
-
-}
-
+/**
+ * @internal
+ */
 export class RaycastVehicle {
     userdata: any;
     btVehiclePtr: number;

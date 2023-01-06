@@ -16,6 +16,9 @@ MeshRenderer.prototype.getMesh = function () {
     return this._mesh;
 }
 
+/**
+ * @internal
+ */
 export class StaticMeshMergeInfo {
 
     static create(render: MeshRenderer) {

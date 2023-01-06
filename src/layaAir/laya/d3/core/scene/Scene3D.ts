@@ -114,8 +114,6 @@ export class Scene3D extends Sprite implements ISubmit {
     /** @internal */
     static AMBIENTCOLOR: number;
 
-
-
     /** @internal */
     static TIME: number;
     /**@internal */
@@ -401,14 +399,8 @@ export class Scene3D extends Sprite implements ISubmit {
      * set SceneRenderableManager
      */
     set sceneRenderableManager(manager: SceneRenderManager) {
-        // this._octree = manager;
         manager.list = this._sceneRenderManager.list;
         this._sceneRenderManager = manager;
-        // for (let i = 0, n = this._renders.length; i < n; i++) {
-        // 	let render = <BaseRender>this._renders.elements[i];
-        // 	this._renders.remove(render);
-        // 	this._addRenderObject(render);
-        // }
     }
 
     get sceneRenderableManager(): SceneRenderManager {
@@ -703,9 +695,6 @@ export class Scene3D extends Sprite implements ISubmit {
         this._sceneReflectionProb.reflectionIntensity = 1.0;
         this.ambientColor = new Color(0.212, 0.227, 0.259);
     }
-
-
-
 
     /**
      *@internal
@@ -1053,6 +1042,11 @@ export class Scene3D extends Sprite implements ISubmit {
         }
     }
 
+    /**
+     * @internal
+     * @param cullInfo 
+     * @param context 
+     */
     _directLightShadowCull(cullInfo: IShadowCullInfo, context: RenderContext3D) {
         this._clearRenderQueue();
         const position: Vector3 = cullInfo.position;
@@ -1068,6 +1062,11 @@ export class Scene3D extends Sprite implements ISubmit {
         }
     }
 
+    /**
+     * @internal
+     * @param cameraCullInfo 
+     * @param context 
+     */
     _sportLightShadowCull(cameraCullInfo: ICameraCullInfo, context: RenderContext3D) {
         this._clearRenderQueue();
         this._cullPass.cullingSpotShadow(cameraCullInfo, this.sceneRenderableManager);
@@ -1390,6 +1389,13 @@ export class Scene3D extends Sprite implements ISubmit {
         return 1;
     }
 
+    /**
+     * @internal
+     * @param source 
+     * @param normalizeViewPort 
+     * @param camera 
+     * @returns 
+     */
     blitMainCanvans(source: BaseTexture, normalizeViewPort: Viewport, camera: Camera) {
         if (!source)
             return;

@@ -107,7 +107,7 @@ export class BVHSpatialBox<T> {
     protected _config: BVHSpatialConfig;
     /**BVH管理 */
     protected _bvhmanager: BVHSpatialManager;
-    /**包围盒标记 */
+    /**@internal 包围盒标记 */
     _boundchanged: boolean;
 
     /**
@@ -463,7 +463,7 @@ export class BVHSpatialBox<T> {
     }
 
     /**
-     * 
+     * 是否是根节点
      * @returns 
      */
     isRoot(): boolean {
@@ -471,7 +471,7 @@ export class BVHSpatialBox<T> {
     }
 
     /**
-     * 
+     * 是否是叶节点
      * @returns 
      */
     isContentBox(): boolean {

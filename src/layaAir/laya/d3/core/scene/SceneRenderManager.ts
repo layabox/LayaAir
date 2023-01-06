@@ -3,8 +3,16 @@ import { ISceneRenderManager } from "../../../RenderEngine/RenderInterface/Rende
 import { SingletonList } from "../../../utils/SingletonList";
 import { BaseRender } from "../render/BaseRender";
 
+/**
+ * <code>类用来实现场景渲染节点管理<code/>
+ */
 export class SceneRenderManager {
+    /**@internal */
     protected _sceneManagerOBJ: ISceneRenderManager;
+    
+    /**
+     * 实例化一个场景管理节点
+     */
     constructor() {
         this._sceneManagerOBJ = LayaGL.renderOBJCreate.createSceneRenderManager();
     }

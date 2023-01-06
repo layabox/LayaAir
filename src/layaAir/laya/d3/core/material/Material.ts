@@ -81,9 +81,6 @@ export class Material extends Resource implements IClone {
     static STENCIL_Ref: number;
     /**@internal */
     static STENCIL_Op: number;
-
-
-
     /**材质级着色器宏定义,透明测试。*/
     static SHADERDEFINE_ALPHATEST: ShaderDefine;
     static SHADERDEFINE_MAINTEXTURE: ShaderDefine;
@@ -123,6 +120,7 @@ export class Material extends Resource implements IClone {
         Material.STENCIL_WRITE = Shader3D.propertyNameToID("s_StencilWrite");
         Material.STENCIL_Op = Shader3D.propertyNameToID("s_StencilOp");
     }
+
     /**@internal */
     private _matRenderNode: MaterialRenderMode;
     /** @internal */
@@ -131,8 +129,6 @@ export class Material extends Resource implements IClone {
     _shaderValues: ShaderData | null;//TODO:剥离贴图ShaderValue
     /** 所属渲染队列. */
     renderQueue: number;
-
-
 
     /**
      * 着色器数据。
@@ -398,8 +394,6 @@ export class Material extends Resource implements IClone {
         return shaderDefineArray;
     }
 
-
-
     /**
      * 渲染模式。
      */
@@ -494,11 +488,14 @@ export class Material extends Resource implements IClone {
         this.destoryedImmediately = false;
     }
 
-    //根据绑定的shader 缓存一些特殊的数据
+    /**
+     * @internal
+     * @param shader 
+     * @returns 
+     */
     private _bindShaderInfo(shader: Shader3D) {
         //update UBOData by Shader
         let subShader = shader.getSubShaderAt(0);//TODO	
-
         // ubo
         let shaderUBODatas = subShader._uniformBufferDataMap;
         if (!shaderUBODatas)
@@ -508,20 +505,13 @@ export class Material extends Resource implements IClone {
             let uboData = shaderUBODatas.get(key).clone();
             //create UBO
             let ubo = UniformBufferObject.create(key, BufferUsage.Dynamic, uboData.getbyteLength(), false);
-            //ubo.setDataByUniformBufferData(uboData);
             this._shaderValues.setUniformBuffer(Shader3D.propertyNameToID(key), ubo);
             this._shaderValues._addCheckUBO(key, ubo, uboData);
-            // this._shaderValues.uniformBufferDatas.set(key, ubo);
-
-            // uboData._uniformParamsState.forEach((value: UniformBufferParamsType, id: number) => {
-            //     this._shaderValues.uniformBuffersMap.set(id, ubo);
-            // });
         }
-
-
     }
 
     /**
+     * @internal
      * 清除UBO
      * @returns 
      */
@@ -549,9 +539,9 @@ export class Material extends Resource implements IClone {
     }
 
 
-    //
+    
     /**
-     *get all material uniform property 
+     * get all material uniform property 
      * @returns 
      */
     effectiveProperty() {
@@ -600,201 +590,425 @@ export class Material extends Resource implements IClone {
         });
     }
 
+    /**
+     * 获得bool属性值
+     * @param uniformIndex 属性索引
+     * @returns 
+     */
     getBoolByIndex(uniformIndex: number): boolean {
         return this.shaderData.getBool(uniformIndex);
     }
 
+    
+    /**
+     * 设置bool值
+     * @param uniformIndex 属性索引
+     * @param value 值
+     */
     setBoolByIndex(uniformIndex: number, value: boolean) {
         this.shaderData.setBool(uniformIndex, value);
     }
 
+    /**
+     * 活得bool值
+     * @param name 属性名称
+     * @returns 
+     */
     getBool(name: string): boolean {
         let uniformIndex = Shader3D.propertyNameToID(name);
         return this.getBoolByIndex(uniformIndex);
     }
 
+    /**
+     * 设置bool值
+     * @param name 属性名称
+     * @param value 值
+     */
     setBool(name: string, value: boolean) {
         let uniformIndex = Shader3D.propertyNameToID(name);
         this.setBoolByIndex(uniformIndex, value);
     }
 
+    /**
+     * 获得Float值
+     * @param uniformIndex 属性索引
+     * @returns 
+     */
     getFloatByIndex(uniformIndex: number): number {
         return this.shaderData.getNumber(uniformIndex);
     }
 
+    /**
+     * 设置Float值
+     * @param uniformIndex 属性索引
+     * @param value 值
+     */
     setFloatByIndex(uniformIndex: number, value: number) {
         this.shaderData.setNumber(uniformIndex, value);
     }
 
+    /**
+     * 获得Float值
+     * @param name 属性名称
+     * @returns 
+     */
     getFloat(name: string): number {
         let uniformIndex = Shader3D.propertyNameToID(name);
         return this.getFloatByIndex(uniformIndex);
     }
 
+    /**
+     * 设置Float值
+     * @param name 属性名称
+     * @param value 值
+     */
     setFloat(name: string, value: number) {
         let uniformIndex = Shader3D.propertyNameToID(name);
         this.setFloatByIndex(uniformIndex, value);
     }
 
+    /**
+     * 获得Int值
+     * @param uniformIndex 属性索引
+     * @returns 
+     */
     getIntByIndex(uniformIndex: number): number {
         return this.shaderData.getInt(uniformIndex);
     }
 
+    /**
+     * 设置Int值
+     * @param uniformIndex 属性索引
+     * @param value 值
+     */
     setIntByIndex(uniformIndex: number, value: number) {
         this.shaderData.setInt(uniformIndex, value);
     }
 
+    /**
+     * 获得Int值
+     * @param name 属性名称
+     * @returns 
+     */
     getInt(name: string): number {
         let uniformIndex = Shader3D.propertyNameToID(name);
         return this.getIntByIndex(uniformIndex);
     }
 
+    /**
+     * 设置Int值
+     * @param name 属性名称
+     * @param value 值
+     */
     setInt(name: string, value: number) {
         let uniformIndex = Shader3D.propertyNameToID(name);
         this.setIntByIndex(uniformIndex, value);
     }
 
+    /**
+     * 获得Vector2
+     * @param uniformIndex 属性索引
+     * @returns 
+     */
     getVector2ByIndex(uniformIndex: number): Vector2 {
         return this.shaderData.getVector2(uniformIndex);
     }
 
+    /**
+     * 设置Vector2
+     * @param uniformIndex 属性索引
+     * @param value 值
+     */
     setVector2ByIndex(uniformIndex: number, value: Vector2) {
         this.shaderData.setVector2(uniformIndex, value);
     }
 
+    /**
+     * 获得Vector2
+     * @param name 属性名称
+     * @returns 
+     */
     getVector2(name: string): Vector2 {
         let uniformIndex = Shader3D.propertyNameToID(name);
         return this.getVector2ByIndex(uniformIndex);
     }
 
+    /**
+     * 设置Vector2
+     * @param name 属性名称
+     * @param value 值
+     */
     setVector2(name: string, value: Vector2) {
         let uniformIndex = Shader3D.propertyNameToID(name);
         this.setVector2ByIndex(uniformIndex, value);
     }
 
-
+    /**
+     * 获得Vector3
+     * @param uniformIndex 属性索引
+     * @returns 
+     */
     getVector3ByIndex(uniformIndex: number): Vector3 {
         return this.shaderData.getVector3(uniformIndex);
     }
 
+    /**
+     * 设置Vector3
+     * @param uniformIndex 属性索引
+     * @param value 值
+     */
     setVector3ByIndex(uniformIndex: number, value: Vector3) {
         this.shaderData.setVector3(uniformIndex, value);
     }
 
+    /**
+     * 获得Vector3
+     * @param name 属性名称
+     * @returns 
+     */
     getVector3(name: string) {
         let uniformIndex = Shader3D.propertyNameToID(name);
         return this.getVector3ByIndex(uniformIndex);
     }
 
+    /**
+     * 设置Vector3
+     * @param name 属性名称
+     * @param value 值
+     */
     setVector3(name: string, value: Vector3) {
         let uniformIndex = Shader3D.propertyNameToID(name);
         this.setVector3ByIndex(uniformIndex, value);
     }
 
+    /**
+     * 获得Vector4
+     * @param uniformIndex 属性索引
+     * @param value 值
+     */
     setVector4ByIndex(uniformIndex: number, value: Vector4) {
         this.shaderData.setVector(uniformIndex, value);
     }
 
+    /**
+     * 设置Vector4
+     * @param uniformIndex 属性索引
+     * @returns 
+     */
     getVector4ByIndex(uniformIndex: number): Vector4 {
         return this.shaderData.getVector(uniformIndex);
     }
 
+    /**
+     * 设置Vector4
+     * @param name 属性名称
+     * @param value 值
+     */
     setVector4(name: string, value: Vector4) {
         let uniformIndex = Shader3D.propertyNameToID(name);
         this.setVector4ByIndex(uniformIndex, value);
     }
 
+    /**
+     * 获得Vector4
+     * @param name 属性名称
+     * @returns 
+     */
     getVector4(name: string) {
         let uniformIndex = Shader3D.propertyNameToID(name);
         return this.getVector4ByIndex(uniformIndex);
     }
 
+    /**
+     * 获得Color
+     * @param uniformIndex 属性索引
+     * @returns 
+     */
     getColorByIndex(uniformIndex: number): Color {
         return this.shaderData.getColor(uniformIndex);
     }
 
+    /**
+     * 设置Color
+     * @param uniformIndex 属性索引
+     * @param value 值
+     */
     setColorByIndex(uniformIndex: number, value: Color) {
         this.shaderData.setColor(uniformIndex, value);
     }
 
+    /**
+     * 获得Color
+     * @param name 属性名称
+     * @returns 
+     */
     getColor(name: string): Color {
         let uniformIndex = Shader3D.propertyNameToID(name);
         return this.shaderData.getColor(uniformIndex);
     }
 
+    /**
+     * 设置Color
+     * @param name 属性名称
+     * @param value 值
+     */
     setColor(name: string, value: Color) {
         let uniformIndex = Shader3D.propertyNameToID(name);
         this.setColorByIndex(uniformIndex, value);
     }
 
+    /**
+     * 获得Matrix4x4
+     * @param uniformIndex 属性索引
+     * @returns 
+     */
     getMatrix4x4ByIndex(uniformIndex: number): Matrix4x4 {
         return this.shaderData.getMatrix4x4(uniformIndex);
     }
-
+    
+    /**
+     * 设置Matrix4x4
+     * @param uniformIndex 属性索引
+     * @param value 值
+     */
     setMatrix4x4ByIndex(uniformIndex: number, value: Matrix4x4) {
         this.shaderData.setMatrix4x4(uniformIndex, value);
     }
 
+    /**
+     * 获得Matrix4x4
+     * @param name 属性名称
+     * @returns 
+     */
     getMatrix4x4(name: string): Matrix4x4 {
         let uniformIndex = Shader3D.propertyNameToID(name);
         return this.getMatrix4x4ByIndex(uniformIndex);
     }
 
+    /**
+     * 设置Matrix4x4
+     * @param name 属性名称
+     * @param value 值
+     */
     setMatrix4x4(name: string, value: Matrix4x4) {
         let uniformIndex = Shader3D.propertyNameToID(name);
         this.setMatrix4x4ByIndex(uniformIndex, value);
     }
 
+    /**
+     * 设置纹理
+     * @param uniformIndex 属性索引
+     * @param texture 
+     */
     setTextureByIndex(uniformIndex: number, texture: BaseTexture) {
         this.shaderData.setTexture(uniformIndex, texture);
     }
 
+    /**
+     * 获得纹理
+     * @param uniformIndex 属性索引
+     * @returns 
+     */
     getTextureByIndex(uniformIndex: number) {
         return this.shaderData.getTexture(uniformIndex);
     }
 
+    /**
+     * 设置纹理
+     * @param name 属性名称
+     * @param texture 
+     */
     setTexture(name: string, texture: BaseTexture) {
         let uniformIndex = Shader3D.propertyNameToID(name);
         this.setTextureByIndex(uniformIndex, texture);
     }
 
+    /**
+     * 获得纹理
+     * @param name 属性名称
+     * @returns 
+     */
     getTexture(name: string): BaseTexture {
         let uniformIndex = Shader3D.propertyNameToID(name);
         return this.getTextureByIndex(uniformIndex);
     }
 
+    /**
+     * 获得Buffer
+     * @param uniformIndex 属性索引
+     * @returns 
+     */
     getBufferByIndex(uniformIndex: number): Float32Array {
         return this.shaderData.getBuffer(uniformIndex);
     }
 
+    /**
+     * 设置Buffer
+     * @param uniformIndex 属性索引
+     * @param value 值
+     */
     setBufferByIndex(uniformIndex: number, value: Float32Array) {
         this.shaderData.setBuffer(uniformIndex, value);
     }
 
+    /**
+     * 获得Buffer
+     * @param name 属性名称
+     * @returns 
+     */
     getBuffer(name: string): Float32Array {
         let uniformIndex = Shader3D.propertyNameToID(name);
         return this.getBufferByIndex(uniformIndex);
     }
 
+    /**
+     * 设置Buffer
+     * @param name 属性名称
+     * @param value 值
+     */
     setBuffer(name: string, value: Float32Array) {
         let uniformIndex = Shader3D.propertyNameToID(name);
         this.setBufferByIndex(uniformIndex, value);
     }
 
+    /**
+     * 设置ShaderData的属性值
+     * @param uniformIndex 属性索引
+     * @param type 值类型
+     * @param value 值
+     */
     setShaderDataByIndex(uniformIndex: number, type: ShaderDataType, value: ShaderDataItem) {
         this.shaderData.setShaderData(uniformIndex, type, value);
     }
 
+    /**
+     * 设置ShaderData的属性值
+     * @param name 属性名称
+     * @param type 值类型
+     * @param value 值
+     */
     setShaderData(name: string, type: ShaderDataType, value: ShaderDataItem) {
         let uniformIndex = Shader3D.propertyNameToID(name);
         this.setShaderDataByIndex(uniformIndex, type, value);
     }
 
+    /**
+     * 获得ShaderData的属性值
+     * @param name 属性名称
+     * @param type 值类型
+     * @returns 
+     */
     getShaderData(name: string, type: ShaderDataType): ShaderDataItem {
         let uniformIndex = Shader3D.propertyNameToID(name);
         return this.getShaderDataByIndex(uniformIndex, type);
     }
 
+    /**
+     * 获得ShaderData的属性值
+     * @param uniformIndex 属性索引
+     * @param type 值类型
+     * @returns 
+     */
     getShaderDataByIndex(uniformIndex: number, type: ShaderDataType): ShaderDataItem {
         return this._shaderValues.getShaderData(uniformIndex, type);
     }
@@ -846,11 +1060,12 @@ export class Material extends Resource implements IClone {
         return this._shaderValues._defineDatas;
     }
 
+    /**
+     * override it
+     */
     oldparseEndEvent() {
         //TODO
     }
-
-
 }
 
 

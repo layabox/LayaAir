@@ -11,7 +11,7 @@ export class MeshColliderShape extends ColliderShape {
 	private _mesh: Mesh = null;
 	/** @internal */
 	private _convex: boolean = false;
-
+	/** @internal */
 	private _physicMesh:any;
 
 	/**

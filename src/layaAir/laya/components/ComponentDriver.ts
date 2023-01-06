@@ -8,7 +8,10 @@ export class ComponentDriver {
 
     private _toStarts: Set<Component> = new Set();
     readonly _toDestroys: Set<Component> = new Set();
-
+    /**
+     * @internal
+     * 调用组件Onstart
+     */
     callStart() {
         for (let ele of this._toStarts) {
             if (ele._status == 2) {
@@ -24,7 +27,10 @@ export class ComponentDriver {
         }
         this._toStarts.clear();
     }
-
+    /**
+     * @internal
+     * 调用组件OnUpdate
+     */
     callUpdate() {
         for (let ele of this._onUpdates) {
             if (ele._status == 3) {
@@ -38,6 +44,10 @@ export class ComponentDriver {
         }
     }
 
+    /**
+     * @internal
+     * 调用组件LayeUpdate
+     */
     callLateUpdate() {
         for (let ele of this._onLateUpdates) {
             if (ele._status == 3) {
@@ -51,6 +61,10 @@ export class ComponentDriver {
         }
     }
 
+    /**
+     * @internal
+     * 调用组件onPreRender
+     */
     callPreRender() {
         for (let ele of this._onPreRenders) {
             if (ele._status == 3) {
@@ -64,6 +78,10 @@ export class ComponentDriver {
         }
     }
 
+    /**
+     * @internal
+     * 调用组件onPostRender
+     */
     callPostRender() {
         for (let ele of this._onPostRenders) {
             if (ele._status == 3) {
@@ -77,6 +95,10 @@ export class ComponentDriver {
         }
     }
 
+    /**
+     * @internal
+     * 调用销毁
+     */
     callDestroy(): void {
         for (let ele of this._toDestroys) {
             try {
@@ -89,6 +111,11 @@ export class ComponentDriver {
         this._toDestroys.clear();
     }
 
+    /**
+     * @internal
+     * 添加一个组件
+     * @param comp 组件
+     */
     add(comp: Component) {
         if (comp._status == 1) {
             if (comp.onStart) {
@@ -110,6 +137,11 @@ export class ComponentDriver {
             this._onPostRenders.add(comp);
     }
 
+    /**
+     * @internal
+     * 移除一个组件
+     * @param comp 组件
+     */
     remove(comp: Component) {
         if (comp._status == 2) //starting
             comp._status = 1; //cancel start
@@ -125,6 +157,10 @@ export class ComponentDriver {
             this._onPostRenders.delete(comp);
     }
 
+    /**
+     * @internal
+     * 删除组件Driver
+     */
     destroy() {
         //TODO:
     }

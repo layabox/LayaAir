@@ -1,4 +1,3 @@
-import { Animation2DNext } from "./Animation2DNext";
 import { AnimatorState2D } from "./AnimatorState2D";
 
 export class AnimatorPlayState2D {

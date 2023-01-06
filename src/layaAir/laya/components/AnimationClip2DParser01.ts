@@ -4,19 +4,36 @@ import { Keyframe2D } from "./KeyFrame2D";
 import { Animation2DEvent } from "./Animation2DEvent";
 import { Byte } from "../utils/Byte";
 
+/**
+ * <code>AnimationClip2DParse01</code>
+ * AnimationClip资源解析
+ */
 export class AnimationClip2DParse01 {
+    
+    /**@internal */
     private static _clip: AnimationClip2D | null;
+    /**@internal */
     private static _reader: Byte | null;
+    /**@internal */
     private static _version: string | null;
+    /**@internal */
     private static _strings: string[] = [];
+    /**@internal */
     private static _DATA = { offset: 0, size: 0 };
+    /**@internal */
     private static _BLOCK: { count: number, blockStarts?: number[], blockLengths?: number[] } = { count: 0 };
 
+    /**
+     * @internal
+     */
     private static READ_DATA() {
         this._DATA.offset = this._reader!.getUint32();
         this._DATA.size = this._reader!.getUint32();
     }
 
+    /**
+     * @internal
+     */
     private static READ_BLOCK() {
         var count = this._BLOCK.count = this._reader!.getUint16();
         var blockStarts: number[] = this._BLOCK.blockStarts = [];
@@ -26,6 +43,10 @@ export class AnimationClip2DParse01 {
             blockLengths.push(this._reader!.getUint32());
         }
     }
+    
+    /**
+     * @internal
+     */
     private static READ_STRINGS() {
         var offset = this._reader!.getUint32();
         var count = this._reader!.getUint16();
@@ -37,6 +58,12 @@ export class AnimationClip2DParse01 {
         this._reader!.pos = prePos;
     }
 
+    /**
+     * @internal
+     * @param clip 
+     * @param reader 
+     * @param version 
+     */
     static parse(clip: AnimationClip2D, reader: Byte, version: string) {
         this._clip = clip;
         this._reader = reader;
@@ -44,7 +71,6 @@ export class AnimationClip2DParse01 {
         this.READ_DATA();
         this.READ_BLOCK();
         this.READ_STRINGS();
-
 
         for (var i = 0, n = this._BLOCK.count; i < n; i++) {
             var index = reader.getUint16();
@@ -57,18 +83,26 @@ export class AnimationClip2DParse01 {
                 fn.call(this);
         }
 
-
-
         this._version = null;
         this._reader = null;
         this._clip = null;
         this._strings.length = 0;
 
     }
+
+    /**
+     * @internal
+     * @param second 
+     * @param fps 
+     * @returns 
+     */
     private static timeToFrame(second: number, fps: number): number {
         return Math.round(second * fps);
     }
 
+    /**
+     * @internal
+     */
     static READ_ANIMATIONS2D(): void {
         var i: number, j: number;
 
@@ -82,7 +116,6 @@ export class AnimationClip2DParse01 {
         for (i = 0; i < numCount; i++) {
             numList[i] = reader.getFloat32();
         }
-
 
         var clipDur = clip._duration = numList[reader.getInt16()];
         clip.islooping = !!reader.getByte();

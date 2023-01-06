@@ -25,9 +25,16 @@ import { Vector4 } from "../../../../maths/Vector4";
 import { RenderTexture } from "../../../../resource/RenderTexture";
 import { SubShader } from "../../../../RenderEngine/RenderShader/SubShader";
 import { VertexMesh } from "../../../../RenderEngine/RenderShader/VertexMesh";
+
+/**
+ * AO质量
+ */
 export enum AOQUALITY{
+    /**高 */
     High,
+    /**中 */
     MEDIUM,
+    /**低 */
     LOWEST
 }
 
@@ -182,6 +189,9 @@ export class ScalableAO extends PostProcessEffect {
         return this._aoParams.y;
     }
 
+    /**
+     * ao质量
+     */
     get aoQuality(){
         return this._aoQuality;
     }
