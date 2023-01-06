@@ -161,7 +161,9 @@ export class Texture extends Resource {
         return tex;
     }
 
-
+    /**
+     * uv
+     */
     get uv(): ArrayLike<number> {
         return this._uv;
     }
@@ -297,6 +299,14 @@ export class Texture extends Resource {
         });
     }
 
+    /**
+     * 获得像素数据
+     * @param x x
+     * @param y y
+     * @param width 宽
+     * @param height 高
+     * @returns 
+     */
     getTexturePixels(x: number, y: number, width: number, height: number): Uint8Array {
         var st: number, dst: number, i: number;
         var tex2d = this.bitmap;
@@ -424,6 +434,9 @@ export class Texture extends Resource {
         return !this._destroyed && this._bitmap && !this._bitmap.destroyed;
     }
 
+    /**
+     * obsolute
+     */
     public get obsolute(): boolean {
         return this._obsolute || !this._bitmap || this._bitmap.destroyed || this._bitmap.obsolute;
     }
@@ -442,6 +455,14 @@ export class Texture extends Resource {
             bit._removeReference(this._referenceCount);
     }
 
+    /**
+     * 获得clip贴图
+     * @param x x
+     * @param y y
+     * @param width 宽
+     * @param height 高
+     * @returns 
+     */
     public getCachedClip(x: number, y: number, width: number, height: number): Texture {
         let key = `${x}_${y}_${width}_${height}`;
         if (!this.clipCache)

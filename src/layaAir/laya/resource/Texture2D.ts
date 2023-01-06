@@ -43,6 +43,9 @@ export class Texture2D extends BaseTexture {
     /**错误纹理 */
     static erroTextur: Texture2D = null;
 
+    /**
+     * @internal
+     */
     static __init__() {
         var pixels: Uint8Array = new Uint8Array(3);
         pixels[0] = 128;
@@ -85,7 +88,13 @@ export class Texture2D extends BaseTexture {
     }
 
 
-    // todo  用支持 float 的texture 格式代替
+    /**
+     * @internal
+     * @param data 
+     * @param propertyParams 
+     * @param constructParams 
+     * @returns 
+     */
     static _SimpleAnimatorTextureParse(data: ArrayBuffer, propertyParams: TexturePropertyParams = null, constructParams: TextureConstructParams = null) {
         var byte: Byte = new Byte(data);
         var version: String = byte.readUTFString();
@@ -134,6 +143,13 @@ export class Texture2D extends BaseTexture {
         return texture;
     }
 
+    /**
+     * @internal
+     * @param imageSource 
+     * @param propertyParams 
+     * @param constructParams 
+     * @returns 
+     */
     static _parseImage(imageSource: any, propertyParams: TexturePropertyParams = null, constructParams: TextureConstructParams = null): Texture2D {
 
         let format = constructParams ? constructParams[2] : TextureFormat.R8G8B8A8;
@@ -165,6 +181,13 @@ export class Texture2D extends BaseTexture {
         return texture;
     }
 
+    /**
+     * @internal
+     * @param data 
+     * @param propertyParams 
+     * @param constructParams 
+     * @returns 
+     */
     static _parseDDS(data: ArrayBuffer, propertyParams: TexturePropertyParams = null, constructParams: TextureConstructParams = null) {
 
         let ddsInfo = DDSTextureInfo.getDDSTextureInfo(data);
@@ -178,6 +201,13 @@ export class Texture2D extends BaseTexture {
         return texture;
     }
 
+    /**
+     * @internal
+     * @param data 
+     * @param propertyParams 
+     * @param constructParams 
+     * @returns 
+     */
     static _parseKTX(data: ArrayBuffer, propertyParams: TexturePropertyParams = null, constructParams: TextureConstructParams = null) {
         let ktxInfo = KTXTextureInfo.getKTXTextureInfo(data);
 
@@ -189,17 +219,40 @@ export class Texture2D extends BaseTexture {
         return texture;
     }
 
+    /**
+     * @internal
+     * @param data 
+     * @param propertyParams 
+     * @param constructParams 
+     */
     static _parsePVR(data: ArrayBuffer, propertyParams: TexturePropertyParams = null, constructParams: TextureConstructParams = null): Texture2D {
         throw "pvr !";
     }
 
+    /**
+     * 加载纹理
+     * @param url 路径
+     * @param complete 处理时间
+     */
     static load(url: string, complete: Handler): void {
         ILaya.loader.load(url, complete, null, ILaya.Loader.TEXTURE2D);
     }
 
+    /**@internal */
     _canRead: boolean = false;
+    /**@internal */
     _pixels: Uint8Array;
 
+    /**
+     * 实例化2D纹理
+     * @param width 
+     * @param height 
+     * @param format 
+     * @param mipmap 
+     * @param canRead 
+     * @param sRGB 
+     * @returns 
+     */
     constructor(width: number, height: number, format: TextureFormat, mipmap: boolean = true, canRead: boolean, sRGB: boolean = false) {
         super(width, height, format);
         this._dimension = TextureDimension.Tex2D;
@@ -209,41 +262,84 @@ export class Texture2D extends BaseTexture {
         return;
     }
 
+    /**
+     * 设置Image数据
+     * @param source Image原始数据
+     * @param premultiplyAlpha 是否预乘法
+     * @param invertY 
+     */
     setImageData(source: HTMLImageElement | HTMLCanvasElement | ImageBitmap, premultiplyAlpha: boolean, invertY: boolean) {
         let texture = this._texture;
         LayaGL.textureContext.setTextureImageData(texture, source, premultiplyAlpha, invertY);
     }
 
+    /**
+     * 设置像素数据
+     * @param source 
+     * @param premultiplyAlpha 
+     * @param invertY 
+     */
     setPixelsData(source: ArrayBufferView, premultiplyAlpha: boolean, invertY: boolean) {
         let texture = this._texture;
         LayaGL.textureContext.setTexturePixelsData(texture, source, premultiplyAlpha, invertY);
     }
 
+    /**
+     * 设置像素值
+     * @param xOffset offset X
+     * @param yOffset offset Y
+     * @param width 宽
+     * @param height 高
+     * @param pixels 像素
+     * @param mipmapLevel mipmap等级
+     * @param generateMipmap 生成mipmap
+     * @param premultiplyAlpha 预乘
+     * @param invertY 翻转Y
+     */
     setSubPixelsData(xOffset: number, yOffset: number, width: number, height: number, pixels: ArrayBufferView, mipmapLevel: number, generateMipmap: boolean, premultiplyAlpha: boolean, invertY: boolean) {
         let texture = this._texture;
         LayaGL.textureContext.setTextureSubPixelsData(texture, pixels, mipmapLevel, generateMipmap, xOffset, yOffset, width, height, premultiplyAlpha, invertY);
     }
 
+    /**
+     * 设置dds数据
+     * @param ddsInfo 
+     */
     setDDSData(ddsInfo: DDSTextureInfo) {
         let texture = this._texture;
         LayaGL.textureContext.setTextureDDSData(texture, ddsInfo);
     }
 
+    /**
+     * 设置ktx数据
+     * @param ktxInfo 
+     */
     setKTXData(ktxInfo: KTXTextureInfo) {
         let texture = this._texture;
         LayaGL.textureContext.setTextureKTXData(texture, ktxInfo);
     }
 
+    /**
+     * 设置HDR数据
+     * @param hdrInfo 
+     */
     setHDRData(hdrInfo: HDRTextureInfo) {
         let texture = this._texture;
         LayaGL.textureContext.setTextureHDRData(texture, hdrInfo);
     }
 
+    /**
+     * 默认贴图
+     */
     get defaultTexture(): BaseTexture {
         return Texture2D.grayTexture;
     }
 
-    // TODO  去掉
+    /**
+     * 
+     * 获得像素
+     * @returns 
+     */
     getPixels() {
         if (this._canRead && this._pixels) {
             return this._pixels;
@@ -253,6 +349,10 @@ export class Texture2D extends BaseTexture {
         }
     }
 
+    /**
+     * @internal
+     * @param propertyParams 
+     */
     private setProperties(propertyParams: TexturePropertyParams) {
         if (propertyParams) {
             if (propertyParams.wrapModeU != null) this.wrapModeU = propertyParams.wrapModeU;

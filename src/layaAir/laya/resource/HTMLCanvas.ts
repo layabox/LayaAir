@@ -204,7 +204,13 @@ export class HTMLCanvas extends Resource {
         }
         return null;
     }
-    //native多线程
+
+    /**
+     * native多线程转图片
+     * @param type 
+     * @param encoderOptions 
+     * @param callBack 
+     */
     toBase64Async(type: string, encoderOptions: number, callBack: Function): void {
         var width: number = this._ctx._targets.sourceWidth;
         var height: number = this._ctx._targets.sourceHeight;

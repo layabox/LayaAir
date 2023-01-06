@@ -22,7 +22,9 @@ import { Texture } from "./Texture";
 import { BufferState } from "../webgl/utils/BufferState";
 import { RenderTexture } from "./RenderTexture";
 import { NativeRenderTexture2D } from "./NativeRenderTexture2D";
-
+/**
+ * @internal
+ */
 enum CONTEXT2D_FUNCTION_ID {
     SIZE = 0,
     CLEAR,
@@ -62,6 +64,9 @@ enum CONTEXT2D_FUNCTION_ID {
     FILL_WORDS,
 }
 
+/**
+ * @internal
+ */
 export class NativeContext {
     public static readonly ARRAY_BUFFER_TYPE_DATA = 0;          //创建ArrayBuffer时的类型为Data
     public static readonly ARRAY_BUFFER_TYPE_CMD = 1;           //创建ArrayBuffer时的类型为Command

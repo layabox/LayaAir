@@ -24,8 +24,13 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
     //为push,pop 用的。以后和上面只保留一份。
     //由于可能递归，所以不能简单的用save，restore
     private static rtStack: any[] = [];//rt:RenderTexture，w:int，h:int
-
+    /**
+     * 默认uv
+     */
     static defuv: any[] = [0, 0, 1, 0, 1, 1, 0, 1];
+    /**
+     * 默认翻转uv
+     */
     static flipyuv: any[] = [0, 1, 1, 1, 1, 0, 0, 0];
     /**
      * 获取当前激活的Rendertexture
@@ -36,7 +41,7 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
 
     /** @private */
     private _depthStencilFormat: number;
-
+    /** @private */
     private _colorFormat: RenderTargetFormat;
 
     /**@internal */
@@ -58,6 +63,10 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
         return Texture2D.grayTexture;
     }
 
+    /**
+     * RenderTexture2D是否准备好
+     * @returns 
+     */
     getIsReady(): boolean {
         return true;
     }
@@ -89,10 +98,11 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
     get offsetY(): number {
         return 0;
     }
-
+    /**深度模板纹理 */
     depthStencilTexture: BaseTexture;
-
+    /**@internal 内部RT */
     _renderTarget: InternalRenderTarget;
+    /**是否是CameraTarget */
     _isCameraTarget: boolean;
 
 
@@ -114,24 +124,40 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
         this.lock = true;
     }
 
+    /**是否是RTCube */
     get isCube(): boolean {
         return this._renderTarget._isCube;
     }
 
+    /**采样 */
     get samples(): number {
         return this._renderTarget._samples;
     }
 
+    /**
+     * 是否生成Mipmap
+     */
     get generateMipmap(): boolean {
         return this._renderTarget._generateMipmap;
     }
 
+    /**
+     * @internal
+     */
     _start(): void {
         throw new Error("Method not implemented.");
     }
+
+    /**
+     * @internal
+     */
     _end(): void {
         throw new Error("Method not implemented.");
     }
+    
+    /**
+     * @internal
+     */
     _create() {
         // todo  mipmap
         this._renderTarget = LayaGL.textureContext.createRenderTargetInternal(this.width, this.height, this._colorFormat, this.depthStencilFormat, false, true, 1);
@@ -220,10 +246,15 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
         BaseShader.activeShader = null;
         //} else 
         //	gl.viewport(0, 0, Laya.stage.width, Laya.stage.height);
-
     }
 
-    
+    /**
+     * 清理RT
+     * @param r 
+     * @param g 
+     * @param b 
+     * @param a 
+     */
     clear(r: number = 0.0, g: number = 0.0, b: number = 0.0, a: number = 1.0): void {
 
         RenderTexture2D._clearColor.r = r;
@@ -234,7 +265,6 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
         //@ts-ignore
         LayaGL.renderEngine.clearRenderTexture(RenderClearFlag.Color | RenderClearFlag.Depth, RenderTexture2D._clearLinearColor, 1);
     }
-
 
     /**
      * 获得像素数据。
@@ -247,6 +277,10 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
     getData(x: number, y: number, width: number, height: number): ArrayBufferView {
         return LayaGL.textureContext.getRenderTextureData(this._renderTarget, x, y, width, height);
     }
+    
+    /**
+     * @internal
+     */
     recycle(): void {
 
     }

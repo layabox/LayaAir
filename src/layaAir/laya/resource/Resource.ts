@@ -14,7 +14,7 @@ export class Resource extends EventDispatcher {
     private static _cpuMemory: number = 0;
     /** @private 以字节为单位。*/
     private static _gpuMemory: number = 0;
-
+    /**是否开启debug模式 */
     static DEBUG: boolean = false;
 
     /**
@@ -168,6 +168,8 @@ export class Resource extends EventDispatcher {
     }
 
     /**
+     * @internal
+     * 资源占用CPU资源
      */
     _setCPUMemory(value: number): void {
         var offsetValue: number = value - this._cpuMemory;
@@ -176,6 +178,8 @@ export class Resource extends EventDispatcher {
     }
 
     /**
+     * @internal
+     * 资源占用GPU资源
      */
     _setGPUMemory(value: number): void {
         var offsetValue: number = value - this._gpuMemory;
@@ -184,6 +188,8 @@ export class Resource extends EventDispatcher {
     }
 
     /**
+     * @internal
+     * 设置资源url
      */
     _setCreateURL(url: string, uuid?: string): void {
         this.url = url;
@@ -199,13 +205,14 @@ export class Resource extends EventDispatcher {
     }
 
     /**
+     * @internal
      */
     _addReference(count: number = 1): void {
         this._referenceCount += count;
     }
 
     /**
-     * 
+     * @internal
      */
     _removeReference(count: number = 1): void {
         this._referenceCount -= count;
@@ -216,22 +223,26 @@ export class Resource extends EventDispatcher {
     }
 
     /**
+     * 清除引用
      */
     _clearReference(): void {
         this._referenceCount = 0;
     }
 
     /**
+     * @internal
      */
     protected _recoverResource(): void {
     }
 
     /**
+     * @internal
      */
     protected _disposeResource(): void {
     }
 
     /**
+     * @internal
      */
     protected _activeResource(): void {
 

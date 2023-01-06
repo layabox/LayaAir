@@ -46,15 +46,25 @@ export class BaseTexture extends Resource {
     }
 
     protected _dimension: TextureDimension;
+
+    /**
+     * 纹理几何属性
+     */
     public get dimension(): TextureDimension {
         return this._dimension;
     }
 
     protected _format: TextureFormat;
+    /**
+     * 纹理格式
+     */
     public get format(): TextureFormat {
         return this._format;
     }
 
+    /**
+     * 是否生成mipmap
+     */
     public get mipmap(): boolean {
         return this._texture.mipmap;
     }
@@ -63,6 +73,9 @@ export class BaseTexture extends Resource {
         return this._texture.mipmapCount;
     }
 
+    /**
+     * 各向异性值
+     */
     public get anisoLevel(): number {
         return this._texture.anisoLevel;
     }
@@ -70,6 +83,9 @@ export class BaseTexture extends Resource {
         this._texture.anisoLevel = value;
     }
 
+    /**
+     * 采样过滤模式
+     */
     public get filterMode(): FilterMode {
         return this._texture.filterMode;
     }
@@ -77,6 +93,9 @@ export class BaseTexture extends Resource {
         this._texture.filterMode = value;
     }
 
+    /**
+     * U方向采样模式
+     */
     public get wrapModeU(): WrapMode {
         return this._texture.wrapU;
     }
@@ -84,6 +103,9 @@ export class BaseTexture extends Resource {
         this._texture.wrapU = value;
     }
 
+    /**
+     * V方向采样模式
+     */
     public get wrapModeV(): WrapMode {
         return this._texture.wrapV;
     }
@@ -91,6 +113,9 @@ export class BaseTexture extends Resource {
         this._texture.wrapV = value;
     }
 
+    /**
+     * W方向采样模式
+     */
     public get wrapModeW(): WrapMode {
         return this._texture.wrapW;
     }
@@ -98,6 +123,9 @@ export class BaseTexture extends Resource {
         this._texture.wrapW = value;
     }
 
+    /**
+     * 贴图压缩格式
+     */
     public get compareMode(): TextureCompareMode {
         return this._texture.compareMode;
     }
@@ -106,11 +134,18 @@ export class BaseTexture extends Resource {
         this._texture.compareMode = LayaGL.textureContext.setTextureCompareMode(this._texture, value);
     }
 
-    /**如果是1.0  texture2D直接采样就是linear */
+
+    /**
+     * gamma矫正值
+     * 如果是1.0  texture2D直接采样就是linear 
+     */
     public get gammaCorrection(): number {
         return this._texture.gammaCorrection;
     }
 
+    /**
+     * mipmap起始等级
+     */
     public set baseMipmapLevel(value: number) {
         this._texture.baseMipmapLevel = value;
     }
@@ -119,6 +154,9 @@ export class BaseTexture extends Resource {
         return this._texture.baseMipmapLevel;
     }
 
+    /**
+     * 最大Mipmap等级
+     */
     public set maxMipmapLevel(value: number) {
         this._texture.maxMipmapLevel = value;
     }
@@ -135,6 +173,12 @@ export class BaseTexture extends Resource {
         return this._texture.useSRGBLoad || this._texture.gammaCorrection > 1;
     }
 
+    /**
+     * 实例化一个纹理
+     * @param width 长
+     * @param height 宽
+     * @param format 格式
+     */
     constructor(width: number, height: number, format: number) {
         super();
         this._width = width;
@@ -212,10 +256,17 @@ export class BaseTexture extends Resource {
         }
     }
 
+    /**
+     * @internal
+     * @returns 
+     */
     _getSource() {
         return this._texture.resource;
     }
 
+    /**
+     * 默认贴图
+     */
     get defaultTexture(): BaseTexture {
         throw "defaulte"
     }
