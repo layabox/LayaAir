@@ -23,7 +23,7 @@ export class VideoNode extends Sprite {
     constructor() {
         super();
 
-        this._internalTex = new Texture();
+        this.texture = this._internalTex = new Texture();
 
         if (LayaEnv.isPlaying && ILaya.Browser.onMobile) {
             let func = () => {
@@ -51,14 +51,15 @@ export class VideoNode extends Sprite {
     set videoTexture(value: VideoTexture) {
         if (this._videoTexture) {
             this._videoTexture._removeReference();
-            this._videoTexture.onRender.remove(this.renderCanvas, this);
+            this._videoTexture.off(VideoTexture.META_LOADED, this, this.onVideoMetaLoaded);
         }
 
         this._videoTexture = value;
         if (value) {
             this._videoTexture._addReference();
-            this._videoTexture.onRender.add(this.renderCanvas, this);
-            this._internalTex.setTo(this._videoTexture);
+            this._videoTexture.on(VideoTexture.META_LOADED, this, this.onVideoMetaLoaded);
+            if (this._videoTexture._isLoaded)
+                this._internalTex.setTo(this._videoTexture);
         }
         else {
             this._internalTex.setTo(null);
@@ -133,10 +134,8 @@ export class VideoNode extends Sprite {
         return this._videoTexture.canPlayType(type);
     }
 
-    private renderCanvas(): void {
-        this.graphics.clear();
-        if (this._internalTex.bitmap)
-            this.graphics.drawTexture(this._internalTex, 0, 0, this.width, this.height);
+    private onVideoMetaLoaded(): void {
+        this._internalTex.setTo(this._videoTexture);
     }
 
     /**
@@ -167,7 +166,6 @@ export class VideoNode extends Sprite {
             return;
 
         this._videoTexture.currentTime = value;
-        this.renderCanvas();
     }
 
     /**
@@ -354,8 +352,6 @@ export class VideoNode extends Sprite {
         else {
             this._videoTexture.element.width = this.width / ILaya.Browser.pixelRatio;
         }
-
-        if (this.paused) this.renderCanvas();
     }
 
     /**
@@ -374,8 +370,6 @@ export class VideoNode extends Sprite {
         else {
             this._videoTexture.element.height = this.height / ILaya.Browser.pixelRatio;
         }
-
-        if (this.paused) this.renderCanvas();
     }
 
     /**
