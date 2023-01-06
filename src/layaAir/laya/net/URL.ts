@@ -1,3 +1,4 @@
+import { LayaEnv } from "../../LayaEnv";
 import { AssetDb } from "../resource/AssetDb";
 import { Utils } from "../utils/Utils";
 
@@ -26,6 +27,16 @@ export class URL {
 
     private static overrideFileExts: Record<string, string> = {};
     private static hasExtOverrides: boolean;
+
+    static __init__() {
+        //xiaomi 没有location
+        //Vivo location.protocol是""
+        //微信真机 location.protocol是undefined
+        URL.rootPath = URL.basePath = (location && location.protocol != undefined && location.protocol != "") ? URL.getPath(location.protocol + "//" + location.host + location.pathname) : "";
+
+        if (LayaEnv.isPlaying && !LayaEnv.isPreview)
+            this.overrideExtension(["rendertexture", "videotexture"], "rt.json");
+    }
 
     /**创建一个新的 <code>URL</code> 实例。*/
     constructor(url: string) {
@@ -101,7 +112,7 @@ export class URL {
             let extold = Utils.getFileExtension(url);
             let ext = URL.overrideFileExts[extold];
             if (ext != null)
-                Utils.replaceFileExtension(url, ext);
+                url = Utils.replaceFileExtension(url, ext);
         }
 
         return url;
@@ -221,8 +232,3 @@ export class URL {
             URL.overrideExtension(["scene3d", "scene", "taa", "prefab"], "json");
     }
 }
-//xiaomi 没有location
-//Vivo location.protocol是""
-//微信真机 location.protocol是undefined
-URL.rootPath = URL.basePath = (location && location.protocol != undefined && location.protocol != "") ? URL.getPath(location.protocol + "//" + location.host + location.pathname) : "";
-// URL.rootPath = URL.basePath = URL.getPath(location.protocol + "//" + location.host + location.pathname);

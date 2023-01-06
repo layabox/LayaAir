@@ -127,6 +127,7 @@ export class SerializeUtil {
         switch (type) {
             case "Texture2D":
             case "RenderTexture":
+            case "VideoTexture":
                 return Loader.TEXTURE2D;
             case "TextureCube":
                 return Loader.TEXTURECUBE;

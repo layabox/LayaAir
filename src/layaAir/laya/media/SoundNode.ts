@@ -5,13 +5,13 @@ import { Event } from "../events/Event"
 import { Handler } from "../utils/Handler"
 
 /**
- * @private
  */
 export class SoundNode extends Sprite {
     private _channel: SoundChannel;
     private _tar: Sprite;
     private _playEvents: string;
     private _stopEvents: string;
+    private _source: string;
 
     constructor() {
         super();
@@ -20,9 +20,18 @@ export class SoundNode extends Sprite {
         this.on(Event.REMOVED, this, this._onParentChange);
     }
 
+    get source() {
+        return this._source;
+    }
+
+    set source(value: string) {
+        this._source = value;
+        if (!value)
+            this.stop();
+    }
+
     /**@private */
     private _onParentChange(): void {
-
         this.target = (<Sprite>this.parent);
     }
 
@@ -36,9 +45,9 @@ export class SoundNode extends Sprite {
         if (isNaN(loops)) {
             loops = 1;
         }
-        if (!this.url) return;
+        if (!this._source) return;
         this.stop();
-        this._channel = SoundManager.playSound(this.url, loops, complete);
+        this._channel = SoundManager.playSound(this._source, loops, complete);
     }
 
     /**

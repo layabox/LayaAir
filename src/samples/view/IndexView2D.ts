@@ -105,6 +105,7 @@ import { Utils } from "laya/utils/Utils";
 import Client from "../Client";
 import { UI_FontClip } from "../2d/UI_FontClip";
 import { ScrollType } from "laya/ui/Styles";
+import { Browser } from "laya/utils/Browser";
 
 /**
  * 首页View 
@@ -271,7 +272,7 @@ export class IndexView2D extends IndexViewUI {
 
 	private nextBtn(): void {
 		//_bigIndex += 1;
-		var isMaster: any = Utils.getQueryString("isMaster");
+		var isMaster: any = Browser.getQueryString("isMaster");
 
 		var i_length: number;
 		this.a_length = this._bigIndex;
@@ -309,7 +310,7 @@ export class IndexView2D extends IndexViewUI {
 			this.switchFunc(this.a_length, smallType);
 		}
 		else {
-			var isMaster: any = parseInt(Utils.getQueryString("isMaster")) || 0;
+			var isMaster: any = parseInt(Browser.getQueryString("isMaster")) || 0;
 			if (isMaster) return;
 			//示例内单独小类型切换
 			this._oldView && this._oldView['stypeFun' + data.stype] && this._oldView['stypeFun' + data.stype](data.value);
@@ -350,7 +351,7 @@ export class IndexView2D extends IndexViewUI {
 		if (this.btnOn && this.m_length != 0) {
 			return;
 		}
-		var isMaster: any = parseInt(Utils.getQueryString("isMaster")) || 0;
+		var isMaster: any = parseInt(Browser.getQueryString("isMaster")) || 0;
 		if (Main.isOpenSocket && !this.btnOn && isMaster) {
 			this.onDirectSwitch();
 		}
@@ -458,7 +459,7 @@ export class IndexView2D extends IndexViewUI {
 
 	private onBigComBoxSelectHandler(index: number, smallIndex: number = 0, isAutoSwitch: boolean = false): void {
 		if (this._bigIndex != index) {
-			var isMaster: any = parseInt(Utils.getQueryString("isMaster")) || 0;
+			var isMaster: any = parseInt(Browser.getQueryString("isMaster")) || 0;
 			if (Main.isOpenSocket && !isAutoSwitch && isMaster) {
 				this.onDirectSwitch();
 				return;

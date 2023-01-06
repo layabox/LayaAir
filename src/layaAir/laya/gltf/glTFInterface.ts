@@ -1,4 +1,7 @@
 
+/**
+ * @internal
+ */
 export const enum glTFAccessorComponentType {
     /** Byte */
     BYTE = 5120,
@@ -14,6 +17,9 @@ export const enum glTFAccessorComponentType {
     FLOAT = 5126
 }
 
+/**
+ * @internal
+ */
 export const enum glTFAccessorType {
     /** Scalar */
     SCALAR = "SCALAR",
@@ -31,6 +37,9 @@ export const enum glTFAccessorType {
     MAT4 = "MAT4"
 }
 
+/**
+ * @internal
+ */
 export const enum glTFAnimationChannelTargetPath {
     /** Translation */
     TRANSLATION = "translation",
@@ -42,6 +51,9 @@ export const enum glTFAnimationChannelTargetPath {
     WEIGHTS = "weights"
 }
 
+/**
+ * @internal
+ */
 export const enum glTFAnimationSamplerInterpolation {
     /** The animated values are linearly interpolated between keyframes */
     LINEAR = "LINEAR",
@@ -51,6 +63,9 @@ export const enum glTFAnimationSamplerInterpolation {
     CUBICSPLINE = "CUBICSPLINE"
 }
 
+/**
+ * @internal
+ */
 export const enum glTFCameraType {
     /** A perspective camera containing properties to create a perspective projection matrix  */
     PERSPECTIVE = "perspective",
@@ -58,6 +73,9 @@ export const enum glTFCameraType {
     ORTHOGRAPHIC = "orthographic"
 }
 
+/**
+ * @internal
+ */
 export const enum glTFImageMimeType {
     /**  JPEG Mime-type */
     JPEG = "image/jpeg",
@@ -65,6 +83,9 @@ export const enum glTFImageMimeType {
     PNG = "image/png"
 }
 
+/**
+ * @internal
+ */
 export const enum glTFMaterialAlphaMode {
     /**  The alpha value is ignored and the rendered output is fully opaque */
     OPAQUE = "OPAQUE",
@@ -75,6 +96,7 @@ export const enum glTFMaterialAlphaMode {
 }
 
 /**
+ * @internal
  * The type of the primitives to render
  */
 export const enum glTFMeshPrimitiveMode {
@@ -95,6 +117,7 @@ export const enum glTFMeshPrimitiveMode {
 }
 
 /**
+ * @internal
  * Magnification filter.  Valid values correspond to WebGL enums: 9728 (NEAREST) and 9729 (LINEAR)
  */
 export const enum glTFTextureMagFilter {
@@ -105,6 +128,7 @@ export const enum glTFTextureMagFilter {
 }
 
 /**
+ * @internal
  * Minification filter.  All valid values correspond to WebGL enums
  */
 export const enum glTFTextureMinFilter {
@@ -123,6 +147,7 @@ export const enum glTFTextureMinFilter {
 }
 
 /**
+ * @internal
  * S (U) wrapping mode.  All valid values correspond to WebGL enums
  */
 export const enum glTFTextureWrapMode {
@@ -135,6 +160,7 @@ export const enum glTFTextureWrapMode {
 }
 
 /**
+ * @internal
  * glTF Node Property
  */
 export interface glTFNodeProperty {
@@ -146,11 +172,17 @@ export interface glTFNodeProperty {
     extras?: any;
 }
 
+/**
+ * @internal
+ */
 export interface glTFChildNodeProperty {
     /** The user-defined name of this object. */
     name?: string;
 }
 
+/**
+ * @internal
+ */
 export interface glTFAccessorSparseIndeces extends glTFNodeProperty {
     /** The index of the bufferView with sparse indices. Referenced bufferView can't have ARRAY_BUFFER or ELEMENT_ARRAY_BUFFER target */
     bufferView: number;
@@ -160,6 +192,9 @@ export interface glTFAccessorSparseIndeces extends glTFNodeProperty {
     componentType: glTFAccessorComponentType;
 }
 
+/**
+ * @internal
+ */
 export interface glTFAccessorSparseValues extends glTFNodeProperty {
     /**  The index of the bufferView with sparse values. Referenced bufferView can't have ARRAY_BUFFER or ELEMENT_ARRAY_BUFFER target */
     bufferView: number;
@@ -167,6 +202,9 @@ export interface glTFAccessorSparseValues extends glTFNodeProperty {
     byteOffset?: number;
 }
 
+/**
+ * @internal
+ */
 export interface glTFAccessorSparse extends glTFNodeProperty {
     /** Number of entries stored in the sparse array. */
     count: number;
@@ -177,6 +215,7 @@ export interface glTFAccessorSparse extends glTFNodeProperty {
 }
 
 /**
+ * @internal
  * Indices of those attributes that deviate from their initialization value
  */
 export interface glTFAccessor extends glTFNodeProperty {
@@ -201,6 +240,7 @@ export interface glTFAccessor extends glTFNodeProperty {
 }
 
 /**
+ * @internal
  * The index of the node and TRS property that an animation channel targets
  */
 export interface glTFAnimationChannelTarget extends glTFNodeProperty {
@@ -211,6 +251,7 @@ export interface glTFAnimationChannelTarget extends glTFNodeProperty {
 }
 
 /**
+ * @internal
  * Targets an animation's sampler at a node's property
  */
 export interface glTFAnimationChannel extends glTFNodeProperty {
@@ -221,6 +262,7 @@ export interface glTFAnimationChannel extends glTFNodeProperty {
 }
 
 /**
+ * @internal
  * Combines input and output accessors with an interpolation algorithm to define a keyframe graph (but not its target)
  */
 export interface glTFAnimationSampler extends glTFNodeProperty {
@@ -233,6 +275,7 @@ export interface glTFAnimationSampler extends glTFNodeProperty {
 }
 
 /**
+ * @internal
  * A keyframe animation.
  */
 export interface glTFAnimation extends glTFNodeProperty, glTFChildNodeProperty {
@@ -243,6 +286,7 @@ export interface glTFAnimation extends glTFNodeProperty, glTFChildNodeProperty {
 }
 
 /**
+ * @internal
  * Metadata about the glTF asset
  */
 export interface glTFAsset extends glTFChildNodeProperty {
@@ -257,6 +301,7 @@ export interface glTFAsset extends glTFChildNodeProperty {
 }
 
 /**
+ * @internal
  * A buffer points to binary geometry, animation, or skins
  */
 export interface glTFBuffer extends glTFChildNodeProperty, glTFNodeProperty {
@@ -267,6 +312,7 @@ export interface glTFBuffer extends glTFChildNodeProperty, glTFNodeProperty {
 }
 
 /**
+ * @internal
  * A view into a buffer generally representing a subset of the buffer
  */
 export interface glTFBufferView extends glTFChildNodeProperty, glTFNodeProperty {
@@ -281,6 +327,7 @@ export interface glTFBufferView extends glTFChildNodeProperty, glTFNodeProperty 
 }
 
 /**
+ * @internal
  * An orthographic camera containing properties to create an orthographic projection matrix
  */
 export interface glTFCameraOrthographic extends glTFNodeProperty {
@@ -295,6 +342,7 @@ export interface glTFCameraOrthographic extends glTFNodeProperty {
 }
 
 /**
+ * @internal
  * A perspective camera containing properties to create a perspective projection matrix
  */
 export interface glTFCameraPerspective extends glTFNodeProperty {
@@ -309,6 +357,7 @@ export interface glTFCameraPerspective extends glTFNodeProperty {
 }
 
 /**
+ * @internal
  * A camera's projection.  A node can reference a camera to apply a transform to place the camera in the scene
  */
 export interface glTFCamera extends glTFChildNodeProperty, glTFNodeProperty {
@@ -321,6 +370,7 @@ export interface glTFCamera extends glTFChildNodeProperty, glTFNodeProperty {
 }
 
 /**
+ * @internal
  * Image data used to create a texture. Image can be referenced by URI or bufferView index. mimeType is required in the latter case
  */
 export interface glTFImage extends glTFChildNodeProperty, glTFNodeProperty {
@@ -339,6 +389,7 @@ export interface glTFImage extends glTFChildNodeProperty, glTFNodeProperty {
 }
 
 /**
+ * @internal
  * Reference to a texture
  */
 export interface glTFTextureInfo extends glTFNodeProperty {
@@ -349,6 +400,7 @@ export interface glTFTextureInfo extends glTFNodeProperty {
 }
 
 /**
+ * @internal
  * A set of parameter values that are used to define the metallic-roughness material model from Physically-Based Rendering (PBR) methodology
  */
 export interface glTFMaterialPbrMetallicRoughness extends glTFNodeProperty {
@@ -365,6 +417,7 @@ export interface glTFMaterialPbrMetallicRoughness extends glTFNodeProperty {
 }
 
 /**
+ * @internal
  * Material Normal Texture Info
  */
 export interface glTFMaterialNormalTextureInfo extends glTFTextureInfo {
@@ -373,6 +426,7 @@ export interface glTFMaterialNormalTextureInfo extends glTFTextureInfo {
 }
 
 /**
+ * @internal
  * Material Occlusion Texture Info
  */
 export interface glTFMaterialOcclusionTextureInfo extends glTFTextureInfo {
@@ -383,6 +437,7 @@ export interface glTFMaterialOcclusionTextureInfo extends glTFTextureInfo {
 }
 
 /**
+ * @internal
  * The material appearance of a primitive
  */
 export interface glTFMaterial extends glTFChildNodeProperty, glTFNodeProperty {
@@ -405,6 +460,7 @@ export interface glTFMaterial extends glTFChildNodeProperty, glTFNodeProperty {
 }
 
 /**
+ * @internal
  * Geometry to be rendered with the given material
  */
 export interface glTFMeshPrimitive extends glTFNodeProperty {
@@ -435,6 +491,7 @@ export interface glTFMeshPrimitive extends glTFNodeProperty {
 }
 
 /**
+ * @internal
  * A set of primitives to be rendered.  A node can contain one mesh.  A node's transform places the mesh in the scene
  */
 export interface glTFMesh extends glTFChildNodeProperty, glTFNodeProperty {
@@ -445,6 +502,7 @@ export interface glTFMesh extends glTFChildNodeProperty, glTFNodeProperty {
 }
 
 /**
+ * @internal
  * A node in the node hierarchy
  */
 export interface glTFNode extends glTFChildNodeProperty, glTFNodeProperty {
@@ -469,6 +527,7 @@ export interface glTFNode extends glTFChildNodeProperty, glTFNodeProperty {
 }
 
 /**
+ * @internal
  * Texture sampler properties for filtering and wrapping modes
  */
 export interface glTFSampler extends glTFChildNodeProperty, glTFNodeProperty {
@@ -483,6 +542,7 @@ export interface glTFSampler extends glTFChildNodeProperty, glTFNodeProperty {
 }
 
 /**
+ * @internal
  * The root nodes of a scene
  */
 export interface glTFScene extends glTFChildNodeProperty, glTFNodeProperty {
@@ -491,6 +551,7 @@ export interface glTFScene extends glTFChildNodeProperty, glTFNodeProperty {
 }
 
 /**
+ * @internal
  * Joints and matrices defining a skin
  */
 export interface glTFSkin extends glTFChildNodeProperty, glTFNodeProperty {
@@ -503,6 +564,7 @@ export interface glTFSkin extends glTFChildNodeProperty, glTFNodeProperty {
 }
 
 /**
+ * @internal
  * A texture and its sampler
  */
 export interface glTFTexture extends glTFChildNodeProperty, glTFNodeProperty {
@@ -512,6 +574,9 @@ export interface glTFTexture extends glTFChildNodeProperty, glTFNodeProperty {
     source: number;
 }
 
+/**
+ * @internal
+ */
 export interface glTF extends glTFNodeProperty {
     /** An array of accessors. An accessor is a typed view into a bufferView */
     accessors?: glTFAccessor[];

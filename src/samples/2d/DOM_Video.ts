@@ -4,7 +4,7 @@ import { Stage } from "laya/display/Stage";
 import { Event } from "laya/events/Event";
 import { Render } from "laya/renders/Render";
 import { Browser } from "laya/utils/Browser";
-import { Utils } from "laya/utils/Utils";
+import { SpriteUtils } from "laya/utils/SpriteUtils";
 import { Main } from "./../Main";
 /**
  * ...
@@ -41,7 +41,7 @@ export class DOM_Video {
 		reference.graphics.drawRect(0, 0, reference.width, reference.height, "#CCCCCC");
 
 		// 每次舞台尺寸变更时，都会调用Utils.fitDOMElementInArea设置Video的位置，对齐的位置和refence重合
-		Laya.stage.on(Event.RESIZE, this, Utils.fitDOMElementInArea, [videoElement, reference, 0, 0, reference.width, reference.height]);
+		Laya.stage.on(Event.RESIZE, this, SpriteUtils.fitDOMElementInArea, [videoElement, reference, 0, 0, reference.width, reference.height]);
 	}
 
 }

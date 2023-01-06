@@ -49,7 +49,7 @@ const packsDef = [
             './layaAir/laya/webgl/**/*.*',
             './layaAir/Config3D.ts',
 
-           
+
         ],
     },
     {
@@ -180,63 +180,20 @@ const packsDef = [
     并非所有循环引用都会引起加载问题，如果两个模块只是使用对方的类型声明，没有使用继承/构造行为，是允许的。
     这里忽略这类情况。
 */
-const ignoredCirclarDependencies = new Set([
-    "Shader -> ShaderCompile -> Shader",
-    "ShaderCompile -> InlcudeFile -> ShaderCompile",
-    "ShaderCompile -> ShaderNode -> ShaderCompile",
-    "Shader3D -> SubShader -> ShaderPass -> ShaderCompileDefineBase -> Shader3D",
-    "Shader3D -> SubShader -> ShaderPass -> Shader3D",
-    "Shader3D -> SubShader -> ShaderPass -> ShaderVariantCollection -> Shader3D",
-    "Shader3D -> SubShader -> Shader3D",
-    "Shader3D -> SubShader -> UniformBufferData -> Shader3D",
-    "ShaderCompile -> InlcudeFile -> ShaderCompile",
-    "TextAtlas -> TextTexture -> TextAtlas",
-    "TextRender -> TextAtlas -> TextTexture -> TextRender",
-    "TextRender -> TextAtlas -> TextRender",
-    "Sprite -> Context -> TextRender -> Sprite",
-    "Matrix4x4 -> Quaternion -> Matrix4x4",
-    "MeshRenderer -> MeshFilter -> MeshRenderer",
-    "CallLater -> Timer -> CallLater",
-    "SoundManager -> AudioSound -> AudioSoundChannel -> SoundManager",
-    "AudioSound -> AudioSoundChannel -> AudioSound",
-    "SoundManager -> AudioSound -> SoundManager",
-    "SoundManager -> WebAudioSound -> WebAudioSoundChannel -> SoundManager",
-    "WebAudioSound -> WebAudioSoundChannel -> WebAudioSound",
-    "SoundManager -> WebAudioSound -> SoundManager",
-    "ColliderBase -> RigidBody -> ColliderBase",
-    "ReflectionProbe -> VolumeManager -> ReflectionProbeManager -> ReflectionProbe",
-    "SkyRenderer -> BaseRender -> ReflectionProbe -> Scene3D -> SkyRenderer",
-    "BaseCamera -> SkyRenderer -> BaseRender -> ReflectionProbe -> Scene3D -> BaseCamera",
-    "Camera -> BaseCamera -> SkyRenderer -> BaseRender -> ReflectionProbe -> Scene3D -> Camera",
-    "BaseCamera -> SkyRenderer -> BaseRender -> ReflectionProbe -> Scene3D -> ShadowCasterPass -> BaseCamera",
-    "Camera -> BaseCamera -> SkyRenderer -> BaseRender -> ReflectionProbe -> Scene3D -> ShadowCasterPass -> Camera",
-    "BaseRender -> ReflectionProbe -> Scene3D -> BlitFrameBufferCMD -> RenderElement -> BaseRender",
-    "Camera -> BaseCamera -> SkyRenderer -> BaseRender -> ReflectionProbe -> Scene3D -> BlitFrameBufferCMD -> RenderElement -> Camera",
-    "Camera -> BaseCamera -> SkyRenderer -> BaseRender -> ReflectionProbe -> Scene3D -> Input3D -> Camera",
-    "LegacyUIParser -> PrefabImpl -> HierarchyResource -> LegacyUIParser",
-    "Scene -> LegacyUIParser -> Scene",
-    "InstanceRenderElement -> Mesh -> InstanceRenderElement",
-    "WebXRCamera -> WebXRExperienceHelper -> WebXRCameraManager -> WebXRCamera",
-    "WebXRExperienceHelper -> WebXRCameraManager -> WebXRRenderTexture -> WebXRExperienceHelper",
-    "Camera -> Scene3D -> Input3D -> Camera",
-    "Dialog -> DialogManager -> Dialog",
-    "Camera -> BaseCamera -> SkyRenderer -> RenderElement -> Camera",
-    "Camera -> Scene3D -> Camera",
-    "Camera -> Scene3D -> ShadowCasterPass -> Camera"
-]);
+const ignoreCirclarDependencyWarnings = true;
 
 const onwarn = warning => {
     let msg = warning.message;
     if (warning.code === 'CIRCULAR_DEPENDENCY') {
+        if (ignoreCirclarDependencyWarnings)
+            return;
+
         let arr = msg.split("->");
         arr = arr.map(e => {
             e = e.trim();
             return path.basename(e, path.extname(e));
         });
         msg = arr.join(" -> ");
-        if (ignoredCirclarDependencies.has(msg))
-            return;
-
         msg = "(C_D) " + msg;
     }
 

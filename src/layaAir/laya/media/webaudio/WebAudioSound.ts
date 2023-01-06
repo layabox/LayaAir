@@ -4,6 +4,7 @@ import { EventDispatcher } from "../../events/EventDispatcher"
 import { SoundChannel } from "../SoundChannel"
 import { URL } from "../../net/URL"
 import { SoundManager } from "../SoundManager";
+import { AssetDb } from "../../resource/AssetDb";
 
 /**
  * @private
@@ -159,7 +160,6 @@ export class WebAudioSound extends EventDispatcher {
      */
     load(url: string): void {
         var me: WebAudioSound = this;
-        url = URL.postFormatURL(URL.formatURL(url));
         this.url = url;
 
         this.audioBuffer = WebAudioSound._dataCache[url];
@@ -174,22 +174,25 @@ export class WebAudioSound extends EventDispatcher {
         }
         WebAudioSound.__loadingSound[url] = true;
 
-        var request: any = new XMLHttpRequest();
-        request.open("GET", url, true);
-        request.responseType = "arraybuffer";
-        request.onload = function (): void {
-            if (me._disposed) {
-                me._removeLoadEvents();
-                return;
+        AssetDb.inst.resolveURL(this.url, url => {
+            let formatedUrl = URL.postFormatURL(URL.formatURL(url));
+            var request: any = new XMLHttpRequest();
+            request.open("GET", formatedUrl, true);
+            request.responseType = "arraybuffer";
+            request.onload = function (): void {
+                if (me._disposed) {
+                    me._removeLoadEvents();
+                    return;
+                }
+                me.data = request.response;
+                WebAudioSound.buffs.push({ "buffer": me.data, "url": me.url });
+                WebAudioSound.decode();
+            };
+            request.onerror = function (e: any): void {
+                me._err();
             }
-            me.data = request.response;
-            WebAudioSound.buffs.push({ "buffer": me.data, "url": me.url });
-            WebAudioSound.decode();
-        };
-        request.onerror = function (e: any): void {
-            me._err();
-        }
-        request.send();
+            request.send();
+        });
     }
 
     private _err(): void {

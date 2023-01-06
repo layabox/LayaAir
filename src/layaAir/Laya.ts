@@ -36,6 +36,10 @@ import { RenderStateContext } from "./laya/RenderEngine/RenderStateContext";
 import { RenderClearFlag } from "./laya/RenderEngine/RenderEnum/RenderClearFlag";
 import { LayaEnv } from "./LayaEnv";
 import { Color } from "./laya/maths/Color";
+import { URL } from "./laya/net/URL";
+
+var _isinit = false;
+
 /**
  * <code>Laya</code> 是全局对象的引用入口集。
  * Laya类引用了一些常用的全局对象，比如Laya.stage：舞台，Laya.timer：时间管理器，Laya.loader：加载管理器，使用时注意大小写。
@@ -57,8 +61,6 @@ export class Laya {
 
     /**@private Render 类的引用。*/
     static render: Render;
-    /**@internal */
-    private static _isinit: boolean = false;
     /**是否是微信小游戏子域，默认为false**/
     static isWXOpenDataContext: boolean = false;
     /**微信小游戏是否需要在主域中自动将加载的文本数据自动传递到子域，默认 false**/
@@ -74,10 +76,12 @@ export class Laya {
      * @return	返回原生canvas引用，方便对canvas属性进行修改
      */
     static init(width: number, height: number, ...plugins: any[]): any {
-        if (Laya._isinit) return;
-        Laya._isinit = true;
+        if (_isinit) return;
+        _isinit = true;
+
         ArrayBuffer.prototype.slice || (ArrayBuffer.prototype.slice = Laya._arrayBufferSlice);
         Browser.__init__();
+        URL.__init__();
 
         // 创建主画布
         //这个其实在Render中感觉更合理，但是runtime要求第一个canvas是主画布，所以必须在下面的那个离线画布之前
