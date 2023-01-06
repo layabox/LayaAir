@@ -43,6 +43,9 @@ import { VertexMesh } from "../RenderEngine/RenderShader/VertexMesh";
 
 const maxSubBoneCount = 24;
 
+/**
+ * @internal
+ */
 export class glTFResource extends Prefab {
     protected _data: glTF.glTF;
     protected _buffers: Record<string, ArrayBuffer>;
@@ -74,6 +77,13 @@ export class glTFResource extends Prefab {
         this._nodes = [];
     }
 
+    /**
+     * @internal
+     * @param data 
+     * @param createURL 
+     * @param progress 
+     * @returns 
+     */
     _parse(data: glTF.glTF, createURL: string, progress?: IBatchProgress): Promise<void> {
         this._data = data;
         if (!data.asset || data.asset.version !== "2.0") {
