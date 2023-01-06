@@ -150,7 +150,7 @@ vec3 colorGrade(in vec3 color)
     #ifdef ACES
         vec3 colorLog = ACES_to_ACEScc(sRGB_to_AP0_MAT * color);
     #else
-        vec3 colorLog = LinearToLogC(color);
+        vec3 colorLog = linearToLogC(color);
     #endif
     
     colorLog = (colorLog - vec3(ACEScc_MIDGRAY)) * u_HueSatCon.z + vec3(ACEScc_MIDGRAY);
