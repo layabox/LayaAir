@@ -26,9 +26,12 @@ class AnimationControllerLoader implements IResourceLoader {
 
 
     loadStates(states: TypeAnimatorState[], promises: Array<any>, task: ILoadTask) {
+        let basePath = URL.getPath(task.url);
         for (let j = states.length - 1; j >= 0; j--) {
             if (states[j].clip && states[j].clip._$uuid) {
                 let url = URL.getResURLByUUID(states[j].clip._$uuid);
+                if (!url.startsWith("res://"))
+                    url = URL.join(basePath, url);
                 promises.push(task.loader.load(url).then(res => {
                     states[j].clip = res;
                 }));
