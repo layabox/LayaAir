@@ -11,6 +11,7 @@ import { FilterMode } from "../RenderEngine/RenderEnum/FilterMode";
 import { WrapMode } from "../RenderEngine/RenderEnum/WrapMode";
 import { LayaEnv } from "../../LayaEnv";
 import { Texture2D } from "../resource/Texture2D";
+import { AssetDb } from "../resource/AssetDb";
 
 export const enum VideoType {
     MP4 = 1,
@@ -28,23 +29,23 @@ export class VideoTexture extends BaseTexture {
 
     private _source: string;
     private _listeningEvents: Record<string, (evt: Event) => void>;
-    private immediatelyPlay:boolean;
+    private immediatelyPlay: boolean;
     /**
      * 是否开发者自己调用Render
      */
-    private _frameRender:boolean;
+    private _frameRender: boolean;
     /**避免重复的加载 */
-    private _isLoaded:boolean;
-    _needUpdate:boolean = false;
+    private _isLoaded: boolean;
+    _needUpdate: boolean = false;
     /**
      * 创建VideoTexture对象，
      */
     constructor() {
         let ele: HTMLVideoElement = ILaya.Browser.createElement("video");
         super(ele.videoWidth, ele.videoHeight, RenderTargetFormat.R8G8B8);
-        this._frameRender=true;
-        this._isLoaded=false;
-        this.immediatelyPlay=false;
+        this._frameRender = true;
+        this._isLoaded = false;
+        this.immediatelyPlay = false;
         this.element = ele;
 
         this.onRender = new Delegate();
@@ -94,30 +95,30 @@ export class VideoTexture extends BaseTexture {
         const scope = this;
         function updateVideo() {
             scope._needUpdate = true;
-			ele.requestVideoFrameCallback( updateVideo );
+            ele.requestVideoFrameCallback(updateVideo);
 
-		}
-		if ( 'requestVideoFrameCallback' in ele ) {
-			ele.requestVideoFrameCallback( updateVideo );
-		}
+        }
+        if ('requestVideoFrameCallback' in ele) {
+            ele.requestVideoFrameCallback(updateVideo);
+        }
         //ios微信浏览器环境下默认不触发loadedmetadata，在主动调用play方法的时候才会触发loadedmetadata事件
-        if(ILaya.Browser.onWeiXin){
+        if (ILaya.Browser.onWeiXin) {
             this.loadedmetadata();
         }
     }
 
 
 
-    private isNeedUpdate(){
+    private isNeedUpdate() {
         return this._needUpdate;
     }
 
-    loadedmetadata(){
-        if(this._isLoaded)
+    loadedmetadata() {
+        if (this._isLoaded)
             return;
         //flag only TODO
         this._width = this.element.videoWidth;
-        this.height = this.element.videoHeight;
+        this._height = this.element.videoHeight;
         this._texture = LayaGL.textureContext.createTextureInternal(this._dimension, this.element.videoWidth, this.element.videoHeight, TextureFormat.R8G8B8, false, false);
         this.wrapModeU = WrapMode.Clamp;
         this.wrapModeV = WrapMode.Clamp;
@@ -143,18 +144,20 @@ export class VideoTexture extends BaseTexture {
     * @param url 播放源路径
     */
     set source(url: string) {
-        while (this.element.childElementCount)
-            this.element.firstChild.remove();
-        if(!url){
+        this._source = url;
+        if (!url)
             return;
-        }
-        if (url.startsWith("blob:"))
-            this.element.src = url;
-        else
-            this.appendSource(url);
-    }
 
-    
+        AssetDb.inst.resolveURL(url, url => {
+            while (this.element.childElementCount)
+                this.element.firstChild.remove();
+
+            if (url.startsWith("blob:"))
+                this.element.src = url;
+            else
+                this.appendSource(url);
+        });
+    }
 
     private appendSource(source: string): void {
         var sourceElement: HTMLSourceElement = ILaya.Browser.createElement("source");
@@ -167,31 +170,31 @@ export class VideoTexture extends BaseTexture {
      * @internal
      */
     render() {
-        
+
         if (this.element.readyState == 0)
             return;
-        if(this.isNeedUpdate()){
+        if (this.isNeedUpdate()) {
             LayaGL.textureContext.updateVideoTexture(this._texture, this.element, false, false);
             this.onRender.invoke();
             this._needUpdate = false;
         }
-        
+
     }
 
     /**
      * 是否每一帧都渲染
      */
-    set frameRender(value:boolean){
-        if(this._frameRender&&!value){
+    set frameRender(value: boolean) {
+        if (this._frameRender && !value) {
             ILaya.timer.clear(this, this.render);
         }
-        if(!this._frameRender&&value){
+        if (!this._frameRender && value) {
             ILaya.timer.frameLoop(1, this, this.render);
         }
         this._frameRender = value;
     }
 
-    get frameRender(){
+    get frameRender() {
         return this._frameRender;
     }
 
@@ -204,7 +207,7 @@ export class VideoTexture extends BaseTexture {
             this.immediatelyPlay = true;
         } else {
             this.element.play();
-            if(this._frameRender){
+            if (this._frameRender) {
                 ILaya.timer.frameLoop(1, this, this.render);
             }
         }
@@ -224,10 +227,10 @@ export class VideoTexture extends BaseTexture {
      */
     pause() {
         this.element.pause();
-        if(this._frameRender){
+        if (this._frameRender) {
             ILaya.timer.clear(this, this.render);
         }
-        
+
     }
 
     /**

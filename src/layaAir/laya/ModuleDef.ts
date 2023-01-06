@@ -17,6 +17,7 @@ import { GlowFilter } from "./filters/GlowFilter";
 import { Point } from "./maths/Point";
 import { Rectangle } from "./maths/Rectangle";
 import { SoundNode } from "./media/SoundNode";
+import { VideoNode } from "./media/VideoNode";
 import { Texture } from "./resource/Texture";
 import { Texture2D } from "./resource/Texture2D";
 import { Animator2D } from "./components/Animator2D";
@@ -56,6 +57,7 @@ c("Animation", Animation);
 c("FrameAnimation", FrameAnimation);
 c("EffectAnimation", EffectAnimation);
 c("SoundNode", SoundNode);
+c("VideoNode", VideoNode);
 
 c("Scene", Scene);
 c("Stage", Stage);

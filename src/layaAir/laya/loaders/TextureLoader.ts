@@ -12,6 +12,7 @@ import { AssetDb } from "../resource/AssetDb";
 import { Resource } from "../resource/Resource";
 import { Utils } from "../utils/Utils";
 import { RenderTexture } from "../resource/RenderTexture";
+import { VideoTexture } from "../media/VideoTexture";
 
 const metaFetchingOptions = { noRetry: true, silent: true };
 
@@ -169,6 +170,27 @@ class RenderTextureLoader implements IResourceLoader {
     }
 }
 
+
+class VideoTextureLoader implements IResourceLoader {
+    load(task: ILoadTask) {
+        return task.loader.fetch(task.url, "json", task.progress.createCallback(), task.options).then(data => {
+            if (!data)
+                return null;
+
+            let obsoluteInst = <VideoTexture>task.obsoluteInst;
+            if (obsoluteInst) {
+                obsoluteInst.source = data.source;
+                return obsoluteInst;
+            }
+            else {
+                let inst = new VideoTexture();
+                inst.source = data.source;
+                return inst;
+            }
+        });
+    }
+}
+
 const propertyParams2d: TexturePropertyParams = { premultiplyAlpha: true };
 const constructParams2d: TextureConstructParams = [null, null, TextureFormat.R8G8B8A8, false, false, true];
 
@@ -212,6 +234,7 @@ class TextureLoader implements IResourceLoader {
 
 const compressedFormats = ["ktx", "pvr", "dds", "hdr", "lanit.ls"];
 
-Loader.registerLoader(["png", "jpg", "jpeg", "rendertexture", ...compressedFormats], TextureLoader, Loader.IMAGE);
+Loader.registerLoader(["png", "jpg", "jpeg", "rendertexture", "videotexture", ...compressedFormats], TextureLoader, Loader.IMAGE);
 Loader.registerLoader([], Texture2DLoader, Loader.TEXTURE2D);
 Loader.registerLoader(["rendertexture"], RenderTextureLoader, Loader.TEXTURE2D);
+Loader.registerLoader(["videotexture"], VideoTextureLoader, Loader.TEXTURE2D);
