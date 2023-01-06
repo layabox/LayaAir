@@ -146,8 +146,20 @@ vec3 colorGrade(in vec3 color)
     colorLMS *= u_ColorBalance.xyz;
     color = LMS_to_Linear_MAT * colorLMS;
 
+    // Do contrast in log after white balance
     #ifdef ACES
-    color = sRGB_to_AP1_MAT * color;
+        vec3 colorLog = ACES_to_ACEScc(sRGB_to_AP0_MAT * color);
+    #else
+        vec3 colorLog = LinearToLogC(color);
+    #endif
+    
+    colorLog = (colorLog - vec3(ACEScc_MIDGRAY)) * u_HueSatCon.z + vec3(ACEScc_MIDGRAY);
+
+
+    #ifdef ACES
+        color = sRGB_to_AP1_MAT * colorLog;
+    #else
+        color = logCToLinear(color);
     #endif // ACES
 
     // Color filter is just an unclipped multiplier
