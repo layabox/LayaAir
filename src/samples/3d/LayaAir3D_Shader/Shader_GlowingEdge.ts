@@ -53,6 +53,7 @@ export class Shader_GlowingEdge {
 		var directionLight: DirectionLight = new DirectionLight();
 		scene.addChild(directionLight);
 		directionLight.color = new Color(1, 1, 1, 1);
+		scene.ambientColor = new Color(1.0, 0.0, 0.0);
 
 		//加载精灵
 		Sprite3D.load("res/threeDimen/skinModel/dude/dude.lh", Handler.create(this, function (dude: Sprite3D): void {
@@ -115,7 +116,7 @@ export class Shader_GlowingEdge {
 	//初始化shader
 	private initShader(): void {
 		//创建自定义shader
-		var glowingEdgeShader: Shader3D = Shader3D.add("GlowingEdgeMaterial");
+		var glowingEdgeShader: Shader3D = Shader3D.add("GlowingEdgeMaterial", true, true);
 		//为当前自定义的shader添加SubShader
 		var subShader: SubShader = new SubShader();
 		glowingEdgeShader.addSubShader(subShader);

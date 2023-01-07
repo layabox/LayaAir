@@ -75,7 +75,7 @@ export class TransformDemo {
 		//设置缩放
 		var staticMonkeyTransform: Transform3D = staticLayaMonkey.transform;
 		var staticMonkeyScale: Vector3 = staticMonkeyTransform.localScale;
-		staticMonkeyScale.setValue(0.3, 0.3, 0.3);
+		staticMonkeyScale.setValue(1.5, 1.5, 1.5);
 		staticMonkeyTransform.localScale = staticMonkeyScale;
 
 		//克隆sprite3d
@@ -98,8 +98,8 @@ export class TransformDemo {
 		this.clone2Transform.rotate(this._rotate1, false, false);
 		//缩放
 		var scale: Vector3 = this.clone3Transform.localScale;
-		scale.setValue(0.1, 0.1, 0.1);
-		this.clone3Transform.localScale = scale;
+		scale.setValue(1.2, 1.2, 1.2);
+		this.layaMonkey_clone3.transform.localScale = scale;
 
 		staticLayaMonkey.destroy();
 
@@ -116,7 +116,7 @@ export class TransformDemo {
 
 		this.clone2Transform.rotate(this._rotate, false, false);
 
-		this._scale.x = this._scale.y = this._scale.z = Math.abs(this.scaleValue) / 5;
+		this._scale.x = this._scale.y = this._scale.z = Math.abs(this.scaleValue);
 		this.clone3Transform.localScale = this._scale;
 	}
 

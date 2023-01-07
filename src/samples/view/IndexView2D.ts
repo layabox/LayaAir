@@ -120,8 +120,8 @@ export class IndexView2D extends IndexViewUI {
 	private m_length: number;
 
 	//---------------------------------------------------------------------------------2D------------开始---------------------------------------------
-
-	private _comboxBigArr: any[] = ['Sprite', '动画', '骨骼动画', '混合模式', '区块地图', '滤镜', '粒子', '音频', '文本', 'UI', '计时器', '缓动', '鼠标交互', '屏幕适配', '网络和格式', '调试', '性能测试', 'IDE', '物理'];
+	// 'IDE'去掉
+	private _comboxBigArr: any[] = ['Sprite', '动画', '骨骼动画', '混合模式', '区块地图', '滤镜', '粒子', '音频', '文本', 'UI', '计时器', '缓动', '鼠标交互', '屏幕适配', '网络和格式', '调试', '性能测试', '物理'];
 	/************************sprite-start***************************/
 	private _comboBoxSpriteClsArr: any[] = [Sprite_DisplayImage, Sprite_Container, Sprite_RoateAndScale, Sprite_DrawPath, Sprite_MagnifyingGlass, Sprite_DrawShapes, Sprite_Cache, Sprite_NodeControl, Sprite_Pivot, Sprite_SwitchTexture, Sprite_ScreenShot];
 	private _comboBoxSpriteArr: any[] = ['显示图片', '容器', '旋转缩放', '根据数据绘制路径', '遮罩-放大镜', '绘制各种形状', '缓存为静态图像', '节点控制', '轴中心', '切换纹理', '截图'];
@@ -432,14 +432,14 @@ export class IndexView2D extends IndexViewUI {
 					this._oldView = new this._comboBoxPerformanceTestClsArr[index](this.Main);
 					this.b_length = this._comboBoxPerformanceTestClsArr.length - 1;
 					break;
-				case 17://IDE
-					this._oldView = new this._comboBoxIDEClsArr[index](this.Main);
-					this.b_length = this._comboBoxIDEClsArr.length - 1;
-					break;
-				case 18: // Physics
+				case 17:// Physics
 					this._oldView = new this._comboBoxPhysicsClsArr[index](this.Main);
 					this.b_length = this._comboBoxPhysicsClsArr.length - 1;
 					break;
+				case 18://IDE
+				// this._oldView = new this._comboBoxIDEClsArr[index](this.Main);
+				// this.b_length = this._comboBoxIDEClsArr.length - 1;
+				// break;
 				default:
 					break;
 			}
@@ -518,12 +518,12 @@ export class IndexView2D extends IndexViewUI {
 				case 16://PerformanceTest
 					labelStr = this._comboBoxPerformanceTestArr.toString();
 					break;
-				case 17://IDE
-					labelStr = this._comboBoxIDEArr.toString();
-					break;
-				case 18://Physics
+				case 17://Physics
 					labelStr = this._comboBoxPhysicsArr.toString();
 					break;
+				// case 18://IDE
+				// 	labelStr = this._comboBoxIDEArr.toString();
+				// 	break;
 			}
 			this.smallComBox.labels = labelStr;
 		}

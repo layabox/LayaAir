@@ -105,7 +105,7 @@ export class PickPixel {
 		//选择渲染目标为纹理
 		var stageHeight: number = Laya.stage.height;
 		var stageWidth: number = Laya.stage.width;
-		this.renderTargetCamera.renderTarget = RenderTexture.createFromPool(stageWidth, stageHeight, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.DEPTH_16, false, 1);
+		this.renderTargetCamera.renderTarget = RenderTexture.createFromPool(stageWidth, stageHeight, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.DEPTH_16, false, 1, false, true);
 		//渲染顺序
 		this.renderTargetCamera.renderingOrder = -1;
 		//相机添加视角控制组件(脚本)

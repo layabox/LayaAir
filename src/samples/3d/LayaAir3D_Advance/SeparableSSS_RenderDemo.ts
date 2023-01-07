@@ -28,6 +28,7 @@ import { Color } from "laya/maths/Color";
 import { Vector2 } from "laya/maths/Vector2";
 import { Vector4 } from "laya/maths/Vector4";
 import { RenderTexture } from "laya/resource/RenderTexture";
+import { DepthTextureMode } from "laya/d3/depthMap/DepthPass";
 
 export class SeparableSSS_RenderDemo {
     scene: Scene3D;
@@ -79,6 +80,7 @@ export class SeparableSSS_RenderDemo {
         Laya.stage.addChild(this.scene);
         //获取场景中的相机
         this.mainCamera = (<Camera>this.scene.getChildByName("Main Camera"));
+        this.mainCamera.depthTextureMode = DepthTextureMode.Depth;
         this.mainCamera.addComponent(CameraMoveScript);
 
 
@@ -111,39 +113,39 @@ export class SeparableSSS_RenderDemo {
         //在延迟渲染管线中  可以一下把三张图直接搞出来
         //在我们前向渲染管线中  多浪费了几次drawMesh的性能
         //深度贴图
-        let depthTexture = RenderTexture.createFromPool(viewPort.width, viewPort.height, RenderTargetFormat.DEPTH_16, RenderTargetFormat.None, false, 1);
+        let depthTexture = RenderTexture.createFromPool(viewPort.width, viewPort.height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.DEPTH_16, false, 1, true, true);
         buf.setRenderTarget(depthTexture);
         buf.clearRenderTarget(true, true, new Color(0.5, 0.5, 0.5, 1.0));
-        buf.drawMesh(character, this.blinnphongCharacter.transform.worldMatrix, this.characterBlinnphongMaterial, 0, 0);
+        buf.drawMesh(character, this.blinnphongCharacter.transform.worldMatrix, this.characterBlinnphongMaterial, 0,0);
+        depthTexture = depthTexture.depthStencilTexture as RenderTexture;
         //将漫反射和高光分别画到两个RenderTexture
         //漫反射颜色
-        let diffuseRenderTexture = RenderTexture.createFromPool(viewPort.width, viewPort.height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.DEPTH_16, false, 1);
+        let diffuseRenderTexture = RenderTexture.createFromPool(viewPort.width, viewPort.height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.DEPTH_16, false, 1, true, true);
         buf.setRenderTarget(diffuseRenderTexture);
         buf.clearRenderTarget(true, true, new Color(0.5, 0.5, 0.5, 1.0));
         //@ts-ignore
-        buf.setShaderDataVector(this.characterBlinnphongMaterial.shaderData, BlinnPhongMaterial.ALBEDOCOLOR, oriColor);
+        buf.setShaderDataColor(this.characterBlinnphongMaterial.shaderData, BlinnPhongMaterial.ALBEDOCOLOR, oriColor);
         //@ts-ignore
-        buf.setShaderDataVector(this.characterBlinnphongMaterial.shaderData, BlinnPhongMaterial.MATERIALSPECULAR, new Vector4(0.0, 0.0, 0.0, 0.0));
+        buf.setShaderDataColor(this.characterBlinnphongMaterial.shaderData, BlinnPhongMaterial.MATERIALSPECULAR, new Color(0.0, 0.0, 0.0, 0.0));
         buf.drawMesh(character, this.blinnphongCharacter.transform.worldMatrix, this.characterBlinnphongMaterial, 0, 0);
         // //高光颜色
-        let specRrenderTexture = RenderTexture.createFromPool(viewPort.width, viewPort.height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.DEPTH_16, false, 1);
+        let specRrenderTexture = RenderTexture.createFromPool(viewPort.width, viewPort.height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.DEPTH_16, false, 1, true, true);
         buf.setRenderTarget(specRrenderTexture);
         buf.clearRenderTarget(true, true, new Color(1.0, 0.0, 0.0, 0.0));
         //@ts-ignore
-        buf.setShaderDataVector(this.characterBlinnphongMaterial.shaderData, BlinnPhongMaterial.MATERIALSPECULAR, oriSpec);
-        //@ts-ignore
-        buf.setShaderDataVector(this.characterBlinnphongMaterial.shaderData, BlinnPhongMaterial.ALBEDOCOLOR, new Vector4(0.0, 0.0, 0.0, 0.0));
+        buf.setShaderDataColor(this.characterBlinnphongMaterial.shaderData, BlinnPhongMaterial.MATERIALSPECULAR, oriSpec);
+        // @ts-ignore
+        buf.setShaderDataColor(this.characterBlinnphongMaterial.shaderData, BlinnPhongMaterial.ALBEDOCOLOR, new Color(0.0, 0.0, 0.0, 0.0));
         buf.drawMesh(character, this.blinnphongCharacter.transform.worldMatrix, this.characterBlinnphongMaterial, 0, 0);
-        //buf.blitScreenQuad(specRrenderTexture,null);
-
-        //拿到三张图片后，对diffuse贴图进行高斯核模糊
+        // // 拿到三张图片后，对diffuse贴图进行高斯核模糊
         buf.setShaderDataTexture(this.sssssBlitMaterail.shaderData, SeparableSSS_BlitMaterial.SHADERVALUE_DEPTHTEX, depthTexture);
-        let blurRenderTexture = RenderTexture.createFromPool(viewPort.width, viewPort.height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.None, false, 1);
+        let blurRenderTexture = RenderTexture.createFromPool(viewPort.width, viewPort.height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.None, false, 1, false, true);
         buf.setShaderDataVector2(this.sssssBlitMaterail.shaderData, SeparableSSS_BlitMaterial.SHADERVALUE_BLURDIR, new Vector2(10.0, 0.0));
         buf.blitScreenQuadByMaterial(diffuseRenderTexture, blurRenderTexture, new Vector4(0, 0, 1.0, 1.0), this.sssssBlitMaterail, 0);
         buf.setShaderDataVector2(this.sssssBlitMaterail.shaderData, SeparableSSS_BlitMaterial.SHADERVALUE_BLURDIR, new Vector2(0.0, 10.0));
         buf.blitScreenQuadByMaterial(blurRenderTexture, diffuseRenderTexture, new Vector4(0.0, 0.0, 0.0, 0.0), this.sssssBlitMaterail, 0);
-
+        
+        // buf.blitScreenQuad(diffuseRenderTexture, null);
 
         buf.setGlobalTexture(Shader3D.propertyNameToID("sssssDiffuseTexture"), diffuseRenderTexture);
         this.sssssRenderMaterial.shaderData.setTexture(Shader3D.propertyNameToID("sssssSpecularTexture"), specRrenderTexture);

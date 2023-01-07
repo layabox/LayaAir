@@ -92,7 +92,8 @@ export class MultiplePassOutlineMaterial extends Material {
 		var subShader: SubShader = new SubShader(SubShader.DefaultAttributeMap, uniformMap);
 		customShader.addSubShader(subShader);
 		var pass1: ShaderPass = subShader.addShaderPass(OutlineVS, OutlineFS);
-		 pass1.renderState.cull = RenderState.CULL_FRONT;
+		pass1.renderState.cull = RenderState.CULL_FRONT;
+		pass1.statefirst = true;
 		subShader.addShaderPass(Outline02VS, Outline02FS);
 	}
 

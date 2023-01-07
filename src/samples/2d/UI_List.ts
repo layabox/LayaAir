@@ -7,6 +7,7 @@ import { List } from "laya/ui/List";
 import { Handler } from "laya/utils/Handler";
 import { WebGL } from "laya/webgl/WebGL";
 import { Main } from "./../Main";
+import { ScrollType } from "laya/ui/Styles";
 
 export class UI_List {
 	Main: typeof Main = null;
@@ -37,6 +38,7 @@ export class UI_List {
 
 		// 使用但隐藏滚动条
 		list.vScrollBarSkin = "";
+		list.scrollType = ScrollType.Vertical;
 		list.scrollBar.elasticBackTime = 0;
 		list.scrollBar.elasticDistance = 0;
 		list.selectEnable = true;

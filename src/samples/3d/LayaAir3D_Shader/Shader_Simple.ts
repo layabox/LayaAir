@@ -39,7 +39,7 @@ export class Shader_Simple {
 		var camera: Camera = (<Camera>(scene.addChild(new Camera(0, 0.1, 100))));
 		camera.transform.translate(new Vector3(0, 0.5, 1.5));
 		camera.addComponent(CameraMoveScript);
-		camera.clearColor = new Color(1.0, 1.0, 1.0, 1.0);
+		camera.clearColor = new Color(0.207, 0.269, 0.383, 1.0);
 		Mesh.load("res/threeDimen/skinModel/LayaMonkey/Assets/LayaMonkey/LayaMonkey-LayaMonkey.lm", Handler.create(this, function (mesh: Mesh): void {
 			var layaMonkey: MeshSprite3D = (<MeshSprite3D>scene.addChild(new MeshSprite3D(mesh)));
 			layaMonkey.transform.localScale = new Vector3(0.3, 0.3, 0.3);
