@@ -112,8 +112,15 @@ export class ShaderParser {
         if (attributemap) {
             let indexofAttribute = 0;
             for (let i in attributemap) {
-                attributemap[i] = [indexofAttribute, ShaderParser.getShaderDataType(attributemap[i])];
-                indexofAttribute++;
+                //TODO  这里的格式要重新理 "name":type or "name":[type,custom Attribute Location]
+                if(attributemap[i] instanceof Array){
+                    let dataArray = attributemap[i];
+                    attributemap[i] = [dataArray[1],ShaderParser.getShaderDataType(dataArray[0])];
+                }else{
+                    attributemap[i] = [indexofAttribute, ShaderParser.getShaderDataType(attributemap[i])];
+                    indexofAttribute++;
+                }
+                
             }
         }
         //uniform map trans
