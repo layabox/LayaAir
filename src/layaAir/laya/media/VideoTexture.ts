@@ -12,6 +12,7 @@ import { WrapMode } from "../RenderEngine/RenderEnum/WrapMode";
 import { LayaEnv } from "../../LayaEnv";
 import { Texture2D } from "../resource/Texture2D";
 import { AssetDb } from "../resource/AssetDb";
+import { Event as LayaEvent } from "../events/Event";
 
 export const enum VideoType {
     MP4 = 1,
@@ -24,9 +25,7 @@ export const enum VideoType {
  * <code>VideoTexture</code> 多媒体纹理
  */
 export class VideoTexture extends BaseTexture {
-    public static VideoTextureEvent:string = "video_loadEnd";
     public readonly element: HTMLVideoElement;
-    public readonly onRender: Delegate;
 
     private _source: string;
     private _listeningEvents: Record<string, (evt: Event) => void>;
@@ -49,7 +48,6 @@ export class VideoTexture extends BaseTexture {
         this.immediatelyPlay = false;
         this.element = ele;
 
-        this.onRender = new Delegate();
         this._listeningEvents = {};
 
         this._dimension = TextureDimension.Tex2D;
@@ -128,7 +126,7 @@ export class VideoTexture extends BaseTexture {
             this.play();
         }
         this._isLoaded = true;
-        this.event(VideoTexture.VideoTextureEvent,this);
+        this.event(LayaEvent.READY, this);
     }
 
     get source(): string {
@@ -175,7 +173,6 @@ export class VideoTexture extends BaseTexture {
             return;
         if (this.isNeedUpdate()) {
             LayaGL.textureContext.updateVideoTexture(this._texture, this.element, false, false);
-            this.onRender.invoke();
             this._needUpdate = false;
         }
     }

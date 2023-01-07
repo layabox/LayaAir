@@ -303,16 +303,17 @@ export class HierarchyParser {
                 return "";
             let entry = test[url];
             if (entry === undefined) {
+                let url2: string;
                 if (url.length >= 36 && url.charCodeAt(8) === 45 && url.charCodeAt(13) === 45) //uuid xxxxxxxx-xxxx-...
-                    url = "res://" + url;
+                    url2 = "res://" + url;
                 else
-                    url = URL.join(basePath, url);
-                innerUrls.push({ url, type });
-                test[url] = entry = [url, type];
+                    url2 = URL.join(basePath, url);
+                innerUrls.push({ url: url2, type: type });
+                test[url] = entry = [url2, type];
             }
             else if (entry.indexOf(type) == -1) {
                 entry.push(type);
-                innerUrls.push({ url: entry[0], type });
+                innerUrls.push({ url: entry[0], type: type });
             }
             return entry[0];
         }

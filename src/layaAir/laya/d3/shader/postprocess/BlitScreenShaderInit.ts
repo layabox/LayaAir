@@ -36,14 +36,18 @@ export class BlitScreenShaderInit {
         let subShader = new SubShader(attributeMap, uniformMap);
         shader.addSubShader(subShader);
         let blitPass = subShader.addShaderPass(BlitVS, BlitFS);
+        blitPass.statefirst = true;
         let blitState = blitPass.renderState;
         blitState.depthTest = RenderState.DEPTHTEST_ALWAYS;
         blitState.depthWrite = false;
         blitState.cull = RenderState.CULL_NONE;
         blitState.blend = RenderState.BLEND_DISABLE;
-        blitPass.statefirst = true;
 
-        let blitPassTrans = subShader.addShaderPass(BlitVS, BlitFS);
+        let transparentShader = Shader3D.add("BlitScreen_Transparnet");
+        let transparentSubShader = new SubShader(attributeMap, uniformMap);
+        transparentShader.addSubShader(transparentSubShader);
+        let blitPassTrans = transparentSubShader.addShaderPass(BlitVS, BlitFS);
+        blitPass.statefirst = true;
         blitState = blitPassTrans.renderState;
         blitState.depthTest = RenderState.DEPTHTEST_ALWAYS;
         blitState.depthWrite = false;
@@ -51,7 +55,6 @@ export class BlitScreenShaderInit {
         blitState.blend = RenderState.BLEND_ENABLE_ALL;
         blitState.srcBlend = RenderState.BLENDPARAM_SRC_ALPHA;
         blitState.dstBlend = RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA;
-        blitPass.statefirst = true;
 
         this.lutBuilderInit();
     }
