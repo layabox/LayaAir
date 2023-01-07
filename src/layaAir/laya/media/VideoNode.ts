@@ -5,6 +5,7 @@ import { Browser } from "../utils/Browser";
 import { VideoTexture } from "./VideoTexture";
 import { LayaEnv } from "../../LayaEnv";
 import { SpriteUtils } from "../utils/SpriteUtils";
+import { Event } from "../events/Event";
 
 /**
  * <code>VideoNode</code>将视频显示到Canvas上。<code>Video</code>可能不会在所有浏览器有效。
@@ -51,13 +52,13 @@ export class VideoNode extends Sprite {
     set videoTexture(value: VideoTexture) {
         if (this._videoTexture) {
             this._videoTexture._removeReference();
-            this._videoTexture.off(VideoTexture.META_LOADED, this, this.onVideoMetaLoaded);
+            this._videoTexture.off(Event.READY, this, this.onVideoMetaLoaded);
         }
 
         this._videoTexture = value;
         if (value) {
             this._videoTexture._addReference();
-            this._videoTexture.on(VideoTexture.META_LOADED, this, this.onVideoMetaLoaded);
+            this._videoTexture.on(Event.READY, this, this.onVideoMetaLoaded);
             if (this._videoTexture._isLoaded)
                 this._internalTex.setTo(this._videoTexture);
         }
