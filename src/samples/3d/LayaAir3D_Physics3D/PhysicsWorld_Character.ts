@@ -109,23 +109,22 @@ export class PhysicsWorld_Character {
 		//加载精灵
 		Sprite3D.load("res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh", Handler.create(this, function (monkey: Sprite3D): void {
 			this.scene.addChild(monkey);
-			console.log("add monkey");
+			monkey.transform.position = new Vector3(0.0, 0.0, 0.0);
 			//设置精灵的缩放
-			monkey.transform.localScale = new Vector3(10, 10, 10);
+			(monkey.getChildAt(0) as Sprite3D).transform.localScale = new Vector3(1, 1, 1);
 			//为精灵添加角色控制器
 			var character: CharacterController = monkey.addComponent(CharacterController);
-			character.fallSpeed = 0.0;
-			character.gravity = new Vector3(0, 0, 0);
 			//创建胶囊碰撞器
-			var sphereShape: CapsuleColliderShape = new CapsuleColliderShape(0.1, 0.4);
+			var sphereShape: CapsuleColliderShape = new CapsuleColliderShape(1.0, 4.0);
 			//设置Shape的本地偏移
 			var localOffset: Vector3 = sphereShape.localOffset;
-			localOffset.setValue(0, -0.2, 0);
+			localOffset.setValue(0, 2.0, 0);
 			sphereShape.localOffset = localOffset;
 			//设置角色控制器的碰撞形状
 			character.colliderShape = sphereShape;
-			_this.kinematicSphere = monkey;
+			_this.kinematicSphere = monkey as Sprite3D;
 			Laya.timer.frameLoop(1, _this, this.onKeyDown);
+
 		}))
 
 	}
