@@ -167,7 +167,7 @@ export class StaticBatchVolume extends Volume {
      */
     constructor() {
         super();
-        this.checkLOD = false;
+        this.checkLOD = true;
         this._enableStaticInstanceBatch = false;
         this._enableStaticVertexMergeBatch = false;
         this._cacheRender = new SingletonList<BaseRender>();
