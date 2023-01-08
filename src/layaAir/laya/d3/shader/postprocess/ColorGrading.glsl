@@ -157,7 +157,8 @@ vec3 colorGrade(in vec3 color)
 
 
     #ifdef ACES
-        color = sRGB_to_AP1_MAT * colorLog;
+        //colorLinear = ACES_to_ACEScg(ACEScc_to_ACES(colorLog));
+        color = AP0_to_AP1_MAT * ACEScc_to_ACES(colorLog);
     #else
         color = logCToLinear(colorLog);
     #endif // ACES
