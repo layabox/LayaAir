@@ -334,16 +334,20 @@ export class Loader extends EventDispatcher {
 
         let obsoluteRes: Resource;
         if (options.cache == null || options.cache) {
-            let cacheRes = Loader.getRes(formattedUrl, type);
-            if (cacheRes) {
-                if (!(cacheRes instanceof Resource))
-                    return Promise.resolve(cacheRes);
+            let cacheRes = Loader._getRes(formattedUrl, type);
+            if (cacheRes !== undefined) {
+                if (cacheRes == null)
+                    return Promise.resolve(null);
+                else {
+                    if (!(cacheRes instanceof Resource))
+                        return Promise.resolve(cacheRes);
 
-                if (cacheRes.obsolute)
-                    obsoluteRes = cacheRes;
+                    if (cacheRes.obsolute)
+                        obsoluteRes = cacheRes;
 
-                if (!obsoluteRes && (!cacheRes.uuid || !uuid || uuid == cacheRes.uuid))
-                    return Promise.resolve(cacheRes);
+                    if (!obsoluteRes && (!cacheRes.uuid || !uuid || uuid == cacheRes.uuid))
+                        return Promise.resolve(cacheRes);
+                }
             }
         }
 
@@ -411,6 +415,10 @@ export class Loader extends EventDispatcher {
             return content;
         }).catch(error => {
             !options.silent && Loader.warn(url, error);
+
+            if (task.options.cache == null || task.options.cache)
+                Loader._cacheRes(formattedUrl, null, typeId, main);
+
             task.onComplete.invoke(null);
             return null;
         }).then((result: any) => {
@@ -617,15 +625,20 @@ export class Loader extends EventDispatcher {
      */
     static getRes(url: string, type?: string): any {
         url = URL.formatURL(url);
+        let ret = Loader._getRes(url, type);
+        return ret || null;
+    }
+
+    private static _getRes(url: string, type?: string): any {
         let resArr = Loader.loadedMap[url];
         if (!resArr)
-            return null;
+            return undefined;
 
         let ret: any;
         if (type) {
             let typeEntry = <TypeMapEntry>Loader.typeMap[type];
             if (!typeEntry)
-                return null;
+                return undefined;
 
             if (resArr.length == 2) { //优化，大部分情况都是只有主资源，也就是两个元素
                 if (resArr[0] == typeEntry.typeId)
@@ -641,7 +654,7 @@ export class Loader extends EventDispatcher {
             ret = resArr[1]; //主资源
 
         if ((ret instanceof Resource) && ret.destroyed)
-            return null;
+            return undefined;
         else
             return ret;
     }
