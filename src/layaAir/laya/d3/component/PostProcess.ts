@@ -85,9 +85,9 @@ export class PostProcess {
     /**@internal */
     private _depthtextureFlag: DepthTextureMode;
     /**@internal 调色Effect*/
-    _ColorGradEffect:ColorGradEffect;
+    _ColorGradEffect: ColorGradEffect;
     /**@internal 是否开启调色Effect*/
-    _enableColorGrad:boolean = false;
+    _enableColorGrad: boolean = false;
 
     /**@internal */
     _context: PostProcessRenderContext | null = null;
@@ -155,7 +155,7 @@ export class PostProcess {
         return this._depthtextureFlag;
     }
 
-    
+
     // /**
     //  * 开启调色Effect
     //  */
@@ -171,9 +171,9 @@ export class PostProcess {
     //     this._enableColorGrad = value;
     // }
 
-    
+
     // _enableColorGrad;
-    
+
 
     // get colorGradEffect(){
     //     return this._enableColorGrad;
@@ -206,9 +206,9 @@ export class PostProcess {
         this._context!.compositeShaderData!.clearDefine();
 
         this._context.command.blitScreenTriangle(cameraTarget, screenTexture);
-        
+
         this._context!.compositeShaderData!.setTexture(PostProcess.SHADERVALUE_AUTOEXPOSURETEX, Texture2D.whiteTexture);//TODO:
-        if(this._enableColorGrad){
+        if (this._enableColorGrad) {
             this._ColorGradEffect._buildLUT();
         }
         for (var i: number = 0, n: number = this._effects.length; i < n; i++) {
@@ -234,8 +234,10 @@ export class PostProcess {
         var canvasWidth: number = camera!._getCanvasWidth(), canvasHeight: number = camera!._getCanvasHeight();
         camera!._screenOffsetScale.setValue(viewport.x / canvasWidth, viewport.y / canvasHeight, viewport.width / canvasWidth, viewport.height / canvasHeight);
 
-        if (dest)
-            this._context!.command!.blitScreenTriangle(cameraTarget, dest, camera!._screenOffsetScale, this._compositeShader, this._compositeShaderData, 0);
+        if (dest) {
+            this._context!.command!.blitScreenTriangle(cameraTarget, dest, camera!._screenOffsetScale,null, this._compositeShaderData, 0);
+        }
+
 
         //释放临时纹理
         RenderTexture.recoverToPool(screenTexture);
@@ -255,12 +257,12 @@ export class PostProcess {
             console.error("无法增加已经存在的Effect");
             return;
         }
-        if(!this._enableColorGrad||effect instanceof ColorGradEffect){
+        if (!this._enableColorGrad || effect instanceof ColorGradEffect) {
             this._effects.push(effect);
-        }else{
-            this._effects.splice(this._effects.length-1,0,effect);
+        } else {
+            this._effects.splice(this._effects.length - 1, 0, effect);
         }
-        
+
         this.recaculateCameraFlag();
         effect.effectInit(this);
     }

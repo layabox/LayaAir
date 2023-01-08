@@ -1068,6 +1068,8 @@ export class Camera extends BaseCamera {
         var renderTex: RenderTexture = this._getRenderTexture();//如果有临时renderTexture则画到临时renderTexture,最后再画到屏幕或者离屏画布,如果无临时renderTexture则直接画到屏幕或离屏画布
         if (renderTex && renderTex._isCameraTarget)//保证反转Y状态正确
             context.invertY = true;
+        else
+            context.invertY = false;
         context.viewport = viewport;
         //设置context的渲染目标
         context.destTarget = renderTex;

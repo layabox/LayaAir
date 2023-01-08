@@ -760,7 +760,7 @@ export class Utils3D {
         return node;
     }
 
-
+    
     /**
      * 将RenderTexture转换为Base64
      * @param rendertexture 渲染Buffer
@@ -825,5 +825,5 @@ export class Utils3D {
     }
 }
 
-
+(window as any).getRTBase64 = Utils3D.uint8ArrayToArrayBuffer;
 const TEMPVector30 = new Vector3();
