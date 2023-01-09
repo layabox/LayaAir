@@ -34,9 +34,10 @@ import { MeshTexture } from "./laya/webgl/utils/MeshTexture";
 import { WeakObject } from "./laya/utils/WeakObject";
 import { RenderStateContext } from "./laya/RenderEngine/RenderStateContext";
 import { RenderClearFlag } from "./laya/RenderEngine/RenderEnum/RenderClearFlag";
-import { LayaEnv } from "./LayaEnv";
+import { IStageConfig, LayaEnv } from "./LayaEnv";
 import { Color } from "./laya/maths/Color";
 import { URL } from "./laya/net/URL";
+import { RunDriver } from "./laya/utils/RunDriver";
 
 var _isinit = false;
 
@@ -70,18 +71,46 @@ export class Laya {
 
     /**
      * 初始化引擎。使用引擎需要先初始化引擎，否则可能会报错。
+     */
+    static init(stageConfig?: IStageConfig): Promise<void>;
+    /**
+     * 初始化引擎。使用引擎需要先初始化引擎，否则可能会报错。
      * @param	width 初始化的游戏窗口宽度，又称设计宽度。
      * @param	height	初始化的游戏窗口高度，又称设计高度。
-     * @param	plugins 插件列表，比如 WebGL（使用WebGL方式渲染）。
-     * @return	返回原生canvas引用，方便对canvas属性进行修改
+     * @param	plugins 参数已失效。
      */
-    static init(width: number, height: number, ...plugins: any[]): any {
-        if (_isinit) return;
+    static init(width: number, height: number, ...plugins: any[]): Promise<void>;
+    static init(...args: any[]): Promise<void> {
+        if (_isinit)
+            return Promise.resolve();
         _isinit = true;
 
-        ArrayBuffer.prototype.slice || (ArrayBuffer.prototype.slice = Laya._arrayBufferSlice);
+        let stageConfig: IStageConfig;
+        if (typeof (args[0]) === "number") {
+            stageConfig = {
+                designWidth: args[0],
+                designHeight: args[1]
+            };
+        }
+        else
+            stageConfig = args[0];
+
+        ArrayBuffer.prototype.slice || (ArrayBuffer.prototype.slice = arrayBufferSlice);
+        Float32Array.prototype.slice || (Float32Array.prototype.slice = float32ArraySlice);
+        Uint16Array.prototype.slice || (Uint16Array.prototype.slice = uint16ArraySlice);
+        Uint8Array.prototype.slice || (Uint8Array.prototype.slice = uint8ArraySlice);
+
         Browser.__init__();
         URL.__init__();
+
+        let laya3D = (<any>window)["Laya3D"];
+        if (laya3D) {
+            if (!WebGL.enable())
+                return Promise.reject("Must support webGL!");
+
+            RunDriver.changeWebGLSize = laya3D._changeWebGLSize;
+            Render.is3DMode = true;
+        }
 
         // 创建主画布
         //这个其实在Render中感觉更合理，但是runtime要求第一个canvas是主画布，所以必须在下面的那个离线画布之前
@@ -120,18 +149,18 @@ export class Laya {
         WeakObject.__init__();
         Mouse.__init__();
 
-        WebGL.inner_enable();
-        if (plugins) {
-            for (var i = 0, n = plugins.length; i < n; i++) {
-                if (plugins[i] && plugins[i].enable) {
-                    plugins[i].enable();
-                }
-            }
+        if (LayaEnv.beforeInit) {
+            if (LayaEnv.isPlaying)
+                LayaEnv.beforeInit(stageConfig);
+            else
+                LayaEnv.beforeInit = null;
         }
+
         if (LayaEnv.isConch) {
             Laya.enableNative();
         }
         CacheManger.beginCheck();
+
         stage = Laya.stage = new Stage();
         ILaya.stage = Laya.stage;
 
@@ -144,7 +173,19 @@ export class Laya {
         MeshTexture.__init__();
         Laya.render = new Render(0, 0, Browser.mainCanvas);
         render = Laya.render;
-        Laya.stage.size(width, height);
+
+        Laya.stage.size(stageConfig.designWidth, stageConfig.designHeight);
+        if (stageConfig.scaleMode)
+            Laya.stage.scaleMode = stageConfig.scaleMode;
+        if (stageConfig.screenMode)
+            Laya.stage.screenMode = stageConfig.screenMode;
+        if (stageConfig.alignV)
+            Laya.stage.alignV = stageConfig.alignV;
+        if (stageConfig.alignH)
+            Laya.stage.alignH = stageConfig.alignH;
+        if (stageConfig.backgroundColor)
+            Laya.stage.bgColor = stageConfig.backgroundColor;
+
         ((<any>window)).stage = Laya.stage;
 
         RenderStateContext.__init__();
@@ -163,20 +204,30 @@ export class Laya {
         Value2D._initone(ShaderDefines2D.PRIMITIVE, PrimitiveSV);
         Value2D._initone(ShaderDefines2D.SKINMESH, SkinSV);
 
-        return Render.canvas;
+        if (laya3D) {
+            return laya3D.__init__().then(() => {
+                if (LayaEnv.afterInit) {
+                    if (LayaEnv.isPlaying)
+                        LayaEnv.afterInit();
+                    else
+                        LayaEnv.afterInit = null;
+                }
+            });
+        }
+        else {
+            if (LayaEnv.afterInit) {
+                if (LayaEnv.isPlaying)
+                    LayaEnv.afterInit();
+                else
+                    LayaEnv.afterInit = null;
+            }
+
+            return Promise.resolve();
+        }
     }
 
     static addWasmModule(id: string, exports: WebAssembly.Exports, memory: WebAssembly.Memory) {
         Laya.WasmModules[id] = { exports, memory };
-    }
-
-    /**@internal */
-    static _arrayBufferSlice(start: number, end: number): ArrayBuffer {
-        var arr: any = this;
-        var arrU8List: Uint8Array = new Uint8Array(arr, start, end - start);
-        var newU8List: Uint8Array = new Uint8Array(arrU8List.length);
-        newU8List.set(arrU8List);
-        return newU8List.buffer;
     }
 
     /**
@@ -287,6 +338,54 @@ export class Laya {
         }
     }
 }
+
+function arrayBufferSlice(this: ArrayBuffer, start: number, end: number): ArrayBuffer {
+    var arrU8List: Uint8Array = new Uint8Array(this, start, end - start);
+    var newU8List: Uint8Array = new Uint8Array(arrU8List.length);
+    newU8List.set(arrU8List);
+    return newU8List.buffer;
+}
+
+function uint8ArraySlice(this: Uint8Array): Uint8Array {
+    var sz: number = this.length;
+    var dec: Uint8Array = new Uint8Array(this.length);
+    for (var i: number = 0; i < sz; i++) dec[i] = this[i];
+    return dec;
+}
+
+function float32ArraySlice(this: Float32Array): Float32Array {
+    var sz: number = this.length;
+    var dec: Float32Array = new Float32Array(this.length);
+    for (var i: number = 0; i < sz; i++) dec[i] = this[i];
+    return dec;
+}
+
+function uint16ArraySlice(this: Uint16Array, ...arg: any[]): Uint16Array {
+    var sz: number;
+    var dec: Uint16Array;
+    var i: number;
+    if (arg.length === 0) {
+        sz = this.length;
+        dec = new Uint16Array(sz);
+        for (i = 0; i < sz; i++)
+            dec[i] = this[i];
+
+    } else if (arg.length === 2) {
+        var start: number = arg[0];
+        var end: number = arg[1];
+
+        if (end > start) {
+            sz = end - start;
+            dec = new Uint16Array(sz);
+            for (i = start; i < end; i++)
+                dec[i - start] = this[i];
+        } else {
+            dec = new Uint16Array(0);
+        }
+    }
+    return dec;
+}
+
 
 ILaya.Loader = Loader;
 ILaya.Context = Context;

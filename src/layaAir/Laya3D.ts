@@ -74,8 +74,6 @@ import { ColorGradEffect } from "./laya/d3/core/render/PostEffect/ColorGradEffec
  * <code>Laya3D</code> 类用于初始化3D设置。
  */
 export class Laya3D {
-    /**@internal */
-    private static _isInit: boolean = false;
 
     /**
      * 获取是否可以启用物理。
@@ -88,7 +86,7 @@ export class Laya3D {
     /**
      *@internal
      */
-    private static _changeWebGLSize(width: number, height: number): void {
+    static _changeWebGLSize(width: number, height: number): void {
         WebGL.onStageResize(width, height);
         RenderContext3D.clientWidth = width;
         RenderContext3D.clientHeight = height;
@@ -97,16 +95,22 @@ export class Laya3D {
     /**
      *@internal
      */
-    private static __init__(width: number, height: number): void {
-        if (!WebGL.enable()) {
-            alert("Laya3D init error,must support webGL!");
-            return;
+    static __init__(checkPhysics?: boolean): Promise<void> {
+        if (checkPhysics !== false) {
+            let physics3D: Function = (window as any).Physics3D;
+            if (physics3D == null)
+                Physics3D._enablePhysics = false;
+            else {
+                Physics3D._enablePhysics = true;
+                //physics3D返回的可能不是正经的promise，所以包一下
+                return new Promise<void>(resolve => {
+                    physics3D(Math.max(16, Config3D.defaultPhysicsMemory) * 16, new BulletInteractive(null, null)).then(() => {
+                        Laya3D.__init__(false).then(resolve);
+                    });
+                });
+            }
         }
 
-        RunDriver.changeWebGLSize = Laya3D._changeWebGLSize;
-        Render.is3DMode = true;
-        Laya.init(width, height);
-        
         Laya3D.createRenderObjInit();
         if (LayaEnv.isConch && !(window as any).conchConfig.conchWebGL) {
             var skinnedMeshRender: any = SkinnedMeshRenderer;
@@ -228,45 +232,29 @@ export class Laya3D {
         ScreenQuad.__init__();
         FrustumCulling.__init__();
         HalfFloatUtils.__init__();
+
+        return Promise.resolve();
     }
 
     /**
      * 初始化Laya3D相关设置。
-     * @param	width  3D画布宽度。
-     * @param	height 3D画布高度。
-     * @param   config 参数已废弃，传null。
+     * @deprecated use Laya.init instead.
      */
     static init(width: number, height: number, config: any = null, complete: Handler = null): void {
-        if (Laya3D._isInit) {
+        Laya.init(width, height).then(() => {
             complete && complete.run();
-            return;
-        }
-        Laya3D._isInit = true;
-        
-        var physics3D: Function = (window as any).Physics3D;
-        if (physics3D == null) {
-            Physics3D._enablePhysics = false;
-            Laya3D.__init__(width, height);
-            complete && complete.run();
-        } else {
-            Physics3D._enablePhysics = true;
-            //should convert MB to pages
-            physics3D(Math.max(16, Config3D.defaultPhysicsMemory) * 16, new BulletInteractive(null, null)).then(function (): void {
-                Laya3D.__init__(width, height);
-                complete && complete.run();
-            });
-        }
+        });
     }
 
-    static createRenderObjInit(){
-        if(LayaEnv.isConch && !(window as any).conchConfig.conchWebGL){
+    static createRenderObjInit() {
+        if (LayaEnv.isConch && !(window as any).conchConfig.conchWebGL) {
             LayaGL.renderEngine._renderOBJCreateContext = new NativeRenderOBJCreateUtil();
             LayaGL.renderOBJCreate = LayaGL.renderEngine.getCreateRenderOBJContext();
-        }else{
+        } else {
             LayaGL.renderEngine._renderOBJCreateContext = new RenderOBJCreateUtil();
             LayaGL.renderOBJCreate = LayaGL.renderEngine.getCreateRenderOBJContext();
         }
-        
+
     }
 }
 
