@@ -34,8 +34,12 @@ export class URL {
         //微信真机 location.protocol是undefined
         URL.rootPath = URL.basePath = (location && location.protocol != undefined && location.protocol != "") ? URL.getPath(location.protocol + "//" + location.host + location.pathname) : "";
 
-        if (LayaEnv.isPlaying && !LayaEnv.isPreview)
+        if (LayaEnv.isPlaying && !LayaEnv.isPreview){
             this.overrideExtension(["rendertexture", "videotexture"], "rt.json");
+            this.overrideExtension(["controller"], "controller.json");
+            this.overrideExtension(["mc"], "mc.bin");
+            this.overrideExtension(["mcc"], "mcc.json");
+        }
     }
 
     /**创建一个新的 <code>URL</code> 实例。*/

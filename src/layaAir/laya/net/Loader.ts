@@ -724,7 +724,7 @@ export class Loader extends EventDispatcher {
                     entry.push(typeId, data);
             }
             else
-                entry = Loader.loadedMap[url] = [null, null, typeId, data];
+                entry = Loader.loadedMap[url] = [null, undefined, typeId, data];
         }
     }
 
@@ -765,7 +765,7 @@ export class Loader extends EventDispatcher {
                 if (entry.length == 2)
                     delete Loader.loadedMap[url];
                 else
-                    entry[1] = null;
+                    entry[1] = undefined;
             }
             else {
                 let i = entry.indexOf(checkObj);

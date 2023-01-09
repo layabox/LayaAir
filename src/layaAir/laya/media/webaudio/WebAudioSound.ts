@@ -2,9 +2,9 @@ import { WebAudioSoundChannel } from "./WebAudioSoundChannel";
 import { Event } from "../../events/Event"
 import { EventDispatcher } from "../../events/EventDispatcher"
 import { SoundChannel } from "../SoundChannel"
-import { URL } from "../../net/URL"
 import { SoundManager } from "../SoundManager";
-import { AssetDb } from "../../resource/AssetDb";
+import { ILaya } from "../../../ILaya";
+import { Loader } from "../../net/Loader";
 
 /**
  * @private
@@ -12,22 +12,10 @@ import { AssetDb } from "../../resource/AssetDb";
  */
 export class WebAudioSound extends EventDispatcher {
 
-    private static _dataCache: any = {};
-
     /**
      * 播放设备
      */
     static ctx: AudioContext;
-
-    /**
-     * 当前要解码的声音文件列表
-     */
-    static buffs: any[] = [];
-
-    /**
-     * 是否在解码中
-     */
-    static isDecoding: boolean = false;
 
     /**
      * 用于播放解锁声音以及解决Ios9版本的内存释放
@@ -35,19 +23,10 @@ export class WebAudioSound extends EventDispatcher {
     static _miniBuffer: any = WebAudioSound.ctx ? WebAudioSound.ctx.createBuffer(1, 1, 22050) : undefined;
 
     /**
-     * 事件派发器，用于处理加载解码完成事件的广播
-     */
-    static e: EventDispatcher = new EventDispatcher();
-    /**
      * 是否已解锁声音播放
      */
     private static _unlocked: boolean = false;
-    /**
-     * 当前解码的声音信息
-     */
-    static tInfo: any;
 
-    private static __loadingSound: any = {};
     /**
      * 声音URL
      */
@@ -56,59 +35,19 @@ export class WebAudioSound extends EventDispatcher {
      * 是否已加载完成
      */
     loaded: boolean = false;
-
-    /**
-     * 声音文件数据
-     */
-    data: ArrayBuffer;
     /**
      * 声音原始文件数据
      */
-    audioBuffer: any;
+    audioBuffer: AudioBuffer;
     /**
      * 待播放的声音列表
      */
     private __toPlays: any[];
-
     /**
      * @private
      */
     private _disposed: boolean = false;
 
-    /**
-     * 解码声音文件
-     *
-     */
-    static decode(): void {
-        if (WebAudioSound.buffs.length <= 0 || WebAudioSound.isDecoding) {
-            return;
-        }
-        WebAudioSound.isDecoding = true;
-        WebAudioSound.tInfo = WebAudioSound.buffs.shift();
-        WebAudioSound.ctx.decodeAudioData(WebAudioSound.tInfo["buffer"], WebAudioSound._done, WebAudioSound._fail);
-    }
-
-    /**
-     * 解码成功回调
-     * @param audioBuffer
-     *
-     */
-    private static _done(audioBuffer: any): void {
-        WebAudioSound.e.event("loaded:" + WebAudioSound.tInfo.url, audioBuffer);
-        WebAudioSound.isDecoding = false;
-        WebAudioSound.decode();
-    }
-
-    /**
-     * 解码失败回调
-     * @return
-     *
-     */
-    private static _fail(): void {
-        WebAudioSound.e.event("err:" + WebAudioSound.tInfo.url, null);
-        WebAudioSound.isDecoding = false;
-        WebAudioSound.decode();
-    }
 
     /**
      * 播放声音以解锁IOS的声音
@@ -159,62 +98,22 @@ export class WebAudioSound extends EventDispatcher {
      *
      */
     load(url: string): void {
-        var me: WebAudioSound = this;
         this.url = url;
-
-        this.audioBuffer = WebAudioSound._dataCache[url];
+        this.audioBuffer = ILaya.loader.getRes(url);
         if (this.audioBuffer) {
             this._loaded(this.audioBuffer);
             return;
         }
-        WebAudioSound.e.on("loaded:" + url, this, this._loaded);
-        WebAudioSound.e.on("err:" + url, this, this._err);
-        if (WebAudioSound.__loadingSound[url]) {
-            return;
-        }
-        WebAudioSound.__loadingSound[url] = true;
-
-        AssetDb.inst.resolveURL(this.url, url => {
-            let formatedUrl = URL.postFormatURL(URL.formatURL(url));
-            var request: any = new XMLHttpRequest();
-            request.open("GET", formatedUrl, true);
-            request.responseType = "arraybuffer";
-            request.onload = function (): void {
-                if (me._disposed) {
-                    me._removeLoadEvents();
-                    return;
-                }
-                me.data = request.response;
-                WebAudioSound.buffs.push({ "buffer": me.data, "url": me.url });
-                WebAudioSound.decode();
-            };
-            request.onerror = function (e: any): void {
-                me._err();
-            }
-            request.send();
-        });
-    }
-
-    private _err(): void {
-        this._removeLoadEvents();
-        WebAudioSound.__loadingSound[this.url] = false;
-        this.event(Event.ERROR);
+        ILaya.loader.load(url, Loader.SOUND).then(audioBuffer => this._loaded(audioBuffer));
     }
 
     private _loaded(audioBuffer: any): void {
-        this._removeLoadEvents();
-        if (this._disposed) {
+        if (this._disposed)
             return;
-        }
+
         this.audioBuffer = audioBuffer;
-        WebAudioSound._dataCache[this.url] = this.audioBuffer;
         this.loaded = true;
         this.event(Event.COMPLETE);
-    }
-
-    private _removeLoadEvents(): void {
-        WebAudioSound.e.off("loaded:" + this.url, this, this._loaded);
-        WebAudioSound.e.off("err:" + this.url, this, this._err);
     }
 
     private __playAfterLoaded(): void {
@@ -268,10 +167,10 @@ export class WebAudioSound extends EventDispatcher {
 
     dispose(): void {
         this._disposed = true;
-        delete WebAudioSound._dataCache[this.url];
-        delete WebAudioSound.__loadingSound[this.url];
-        this.audioBuffer = null;
-        this.data = null;
+        if (this.audioBuffer) {
+            ILaya.loader.clearRes(this.url, this.audioBuffer);
+            this.audioBuffer = null;
+        }
         this.__toPlays = [];
     }
 }
