@@ -57,7 +57,7 @@ export class TextureDemo {
 		//漫反射贴图
 		Texture2D.load("res/threeDimen/texture/layabox.png", Handler.create(this, function (texture: Texture2D): void {
 			//在U方向上使用WRAPMODE_CLAMP
-			texture.wrapModeU = WrapMode.Repeat;
+			texture.wrapModeU = WrapMode.Clamp;
 			//在V方向使用WRAPMODE_REPEAT
 			texture.wrapModeV = WrapMode.Repeat;
 			//设置过滤方式
