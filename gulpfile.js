@@ -77,27 +77,6 @@ const packsDef = [
             './layaAir/ILaya3D.ts',
             './layaAir/Laya3D.ts',
             './layaAir/laya/d3/physics/**/*.*',
-            // './layaAir/laya/d3/animation/**/*.*',
-            // './layaAir/laya/d3/component/**/*.*',
-            // './layaAir/laya/d3/core/**/*.*',
-            // './layaAir/laya/d3/depthMap/*.*',
-            // './layaAir/laya/d3/graphics/**/*.*',
-            // './layaAir/laya/d3/loaders/**/*.*',
-            // './layaAir/laya/d3/math/**/*.*',
-            // './layaAir/laya/d3/resource/**/*.*',
-            // './layaAir/laya/d3/shader/**/*.*',
-            // './layaAir/laya/d3/shadowMap/**/*.*',
-            // './layaAir/laya/d3/text/**/*.*',
-            // './layaAir/laya/d3/utils/**/*.*',
-            // './layaAir/laya/d3/WebXR/**/*.*',
-            // './layaAir/laya/d3/Input3D.ts',
-            // './layaAir/laya/d3/MouseTouch.ts',
-            // './layaAir/laya/d3/Touch.ts',
-            // './layaAir/laya/d3/Physics3D.ts',
-            // './layaAir/laya/d3/ModuleDef.ts',
-            // './layaAir/Config3D.ts',
-            // './layaAir/ILaya3D.ts',
-            // './layaAir/Laya3D.ts'
         ],
     },
     {
@@ -106,12 +85,12 @@ const packsDef = [
             './layaAir/laya/gltf/**/*.*',
         ],
     },
-    {
-        'libName': "bullet",
-        'input': [
-            //'./layaAir/laya/d3/physics/**/*.*',
-        ],
-    },
+    // {
+    //     'libName': "bullet",
+    //     'input': [
+    //         './layaAir/laya/d3/physics/**/*.*',
+    //     ],
+    // },
     {
         'libName': 'device',
         'input': [
@@ -357,57 +336,6 @@ gulp.task('concatBox2dPhysics', () => {
         .pipe(gulp.dest('./build/libs/'));
 });
 
-//合并 cannon.js 和 laya.cannonPhysics.js
-gulp.task('concatCannonPhysics', () => {
-    return gulp.src([
-        './src/layaAir/jsLibs/cannon.js',
-        './build/libs/laya.cannonPhysics.js'])
-        .pipe(concat('laya.cannonPhysics.js'))
-        .pipe(gulp.dest('./build/libs/'));
-});
-
-//合并 laya.bullet.js 和 laya.physics3D.wasm.js
-gulp.task('concatBulletPhysics.wasm', () => {
-    return gulp.src([
-        './src/layaAir/jsLibs/laya.physics3D.wasm.js',
-        './build/libs/laya.bullet.js'])
-        .pipe(concat('laya.physics3D.wasm.js'))
-        .pipe(gulp.dest('./build/libs/'));
-});
-
-//合并 laya.bullet.js 和 laya.physics3D.wasm-wx.js
-gulp.task('concatBulletPhysics.wasm-wx', () => {
-    return gulp.src([
-        './src/layaAir/jsLibs/laya.physics3D.wasm-wx.js',
-        './build/libs/laya.bullet.js'])
-        .pipe(concat('laya.physics3D.wasm-wx.js'))
-        .pipe(gulp.dest('./build/libs/'));
-
-});
-
-//合并 laya.bullet.js 和 laya.physics3D.js
-// gulp.task('concatBulletPhysics', () => {
-//     return gulp.src([
-//         './src/layaAir/jsLibs/laya.physics3D.js',
-//         './build/libs/laya.bullet.js'])
-//         .pipe(concat('laya.physics3D.js'))
-//         .pipe(gulp.dest('./build/libs/')).on("end", () => {
-//             fs.unlinkSync('./build/libs/laya.bullet.js');
-//             if (fs.existsSync('./build/libs/laya.bullet.js.map'))
-//                 fs.unlinkSync('./build/libs/laya.bullet.js.map');
-//         });
-// });
-// gulp.task('concatBulletPhysics', () => {
-//     return gulp.src([
-//         './src/layaAir/jsLibs/laya.physics3D.js'])
-//         .pipe(concat('laya.physics3D.js'))
-//         .pipe(gulp.dest('./build/libs/')).on("end", () => {
-//             fs.unlinkSync('./build/libs/laya.bullet.js');
-//             if (fs.existsSync('./build/libs/laya.bullet.js.map'))
-//                 fs.unlinkSync('./build/libs/laya.bullet.js.map');
-//         });
-// });
-
 gulp.task("compressJs", () => {
     // 修改laya.physics3D.wasm-wx.js 里的路径
     function changeWxWasmPath() {
@@ -516,10 +444,11 @@ gulp.task('genDts', () => {
                 }
                 else if (node.kind == SyntaxKind.TypeReference) {
                     let code = declarationFile.text.slice(node.pos, node.end);
-                    if (!inNamespace && code.indexOf(".") == -1)
-                        return " Laya." + code.substring(1);
-                    else if (code.startsWith(" glTF."))
-                        return " " + code.substring(6);
+                    code = code.substring(1);
+                    if (!inNamespace && code.indexOf(".") == -1 && !code.startsWith("Promise"))
+                        return " Laya." + code;
+                    else if (code.startsWith("glTF."))
+                        return " " + code.substring(5);
                 }
                 //console.log(node.kind, node.parent?.kind, node.text);
             }
@@ -562,110 +491,9 @@ gulp.task('genDts', () => {
     );
 });
 
-gulp.task('publishToIDE', () => {
-    if (!fs.existsSync("./build/IDEPath.txt")) {
-        console.log("请先设置build/IDEPath.txt的内容为IDE项目路径");
-        return;
-    }
-    let idePath = fs.readFileSync("./build/IDEPath.txt", "utf-8");
-
-    rimrafSync("./build/temp");
-
-    async function genDts() {
-        const dtsContents = [];
-        const SyntaxKind = ts.SyntaxKind;
-
-        function processTree(sourceFile, rootNode, replacer) {
-            let code = '';
-            let cursorPosition = rootNode.pos;
-
-            function skip(node) {
-                cursorPosition = node.end;
-            }
-
-            function readThrough(node) {
-                code += sourceFile.text.slice(cursorPosition, node.pos);
-                cursorPosition = node.pos;
-            }
-
-            function visit(node) {
-                readThrough(node);
-
-                const replacement = replacer(node);
-
-                if (replacement != null) {
-                    code += replacement;
-                    skip(node);
-                }
-                else {
-                    ts.forEachChild(node, visit);
-                }
-            }
-
-            visit(rootNode);
-            code += sourceFile.text.slice(cursorPosition, rootNode.end);
-
-            return code;
-        }
-
-        let files = await matched.promise("./build/temp/**/*.d.ts", { realpath: true, nosort: false });
-        for (let file of files) {
-            let code = fs.readFileSync(file, "utf-8");
-            let declarationFile = ts.createSourceFile(file, code, ts.ScriptTarget.Latest, true);
-
-            function visitNode(node) {
-                if (node.kind == SyntaxKind.ImportDeclaration || node.kind == SyntaxKind.ImportEqualsDeclaration) { //删除所有import语句
-                    return '';
-                }
-                else if (node.kind == SyntaxKind.TypeReference) {
-                    let code = declarationFile.text.slice(node.pos, node.end);
-                    if (code.startsWith(" glTF."))
-                        return " " + code.substring(6);
-                }
-                //console.log(node.kind, node.parent?.kind, node.text);
-            }
-
-            const content = processTree(declarationFile, declarationFile, visitNode).trimEnd();
-            if (content.length == 0)
-                continue;
-
-            dtsContents.push(content);
-        }
-
-        //pretty print
-        let code = dtsContents.join("\n\n");
-
-        let savePath = path.join(idePath, "src/engine/LayaAir.d.ts");
-        let declarationFile = ts.createSourceFile(savePath, code, ts.ScriptTarget.Latest, true);
-        code = "/// <reference path=\"../../bin/engine/types/spine-core-3.8.d.ts\" />\n";
-        code += "/// <reference path=\"../../bin/engine/types/cannon.d.ts\" />\n";
-        code += "/// <reference path=\"../../bin/engine/types/glsl.d.ts\" />\n";
-        code += "\n" + ts.createPrinter().printFile(declarationFile);
-
-        fs.writeFileSync(savePath, code);
-
-        rimrafSync("./build/temp");
-    }
-
-    const proj = gulpts.createProject("./src/layaAir/tsconfig.json", {
-        declaration: true,
-        removeComments: false,
-        stripInternal: false
-    });
-
-    return merge(
-        proj.src().pipe(proj()).dts.pipe(gulp.dest("./build/temp")).on("end", genDts),
-
-        gulp.src(['./build/libs/*.js', './build/libs/*.wasm', './build/libs/*.js.map']).pipe(gulp.dest(path.join(idePath, 'bin/engine/libs'))),
-        gulp.src(['./build/libs/min/*.js', './build/libs/min/*.wasm', './build/libs/min/*.js.map']).pipe(gulp.dest(path.join(idePath, 'bin/engine/libs/min'))),
-        gulp.src(['./build/types/*.d.ts']).pipe(gulp.dest(path.join(idePath, 'bin/engine/types')))
-    );
-});
-
 gulp.task('build',
     gulp.series('compile', 'buildJs', 'copyJsLibs',
         'concatBox2dPhysics',
-        // 'concatCannonPhysics', 'concatBulletPhysics.wasm', 'concatBulletPhysics.wasm-wx', 'concatBulletPhysics',
         'genDts'));
 
 gulp.task('buildAndCompress', gulp.series(gulp.series('build', 'compressJs')));
