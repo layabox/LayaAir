@@ -1,13 +1,7 @@
 #define SHADER_NAME SeparableSSSGasFS
-//#if defined(SAMPLE_HIGH)
-    const int StepRange = 3;
-    const int SamplerNum = 17;
-    uniform vec4 u_kernel[SamplerNum];
-//#else
-//    const int StepRange = 2;
-//    const int SamplerNum = 7;
-//    uniform vec4 u_kernel[samplerNum];
-//#endif
+const int StepRange = 3;
+const int SamplerNum = 17;
+uniform vec4 u_kernel[SamplerNum];
 
 //uv
 varying vec2 v_Texcoord0;
@@ -67,6 +61,5 @@ void main()
     //     colorBlurred.rgb += kernel[i].rgb * color.rgb;
     // }
     gl_FragColor = colorBlurred;
-    // gl_FragColor = vec4(scale,scale,scale,1.0);
 }
 

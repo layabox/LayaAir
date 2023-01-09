@@ -8767,3 +8767,5 @@ var spine;
     SwirlEffect.interpolation = new spine.PowOut(2);
     spine.SwirlEffect = SwirlEffect;
 })(spine || (spine = {}));
+// LayaBox_Modify
+window.spine = spine;

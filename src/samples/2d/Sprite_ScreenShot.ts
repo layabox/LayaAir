@@ -9,6 +9,9 @@ import { Event } from "laya/events/Event";
 import { Sprite } from "laya/display/Sprite";
 import { Image } from "laya/ui/Image";
 import { Texture } from "laya/resource/Texture";
+import { RenderTexture } from "laya/resource/RenderTexture";
+import { RenderTexture2D } from "laya/resource/RenderTexture2D";
+import { RenderTargetFormat } from "laya/RenderEngine/RenderEnum/RenderTargetFormat";
 
 export default class Sprite_ScreenShot {
     private main:typeof Main;
@@ -74,7 +77,9 @@ export default class Sprite_ScreenShot {
                 this.drawImage.skin = base64Url;
                 break;
             case this.nameArr[1]:
-                var text:Texture = Laya.stage.drawToTexture(Browser.clientWidth,Browser.clientHeight,0,0) as Texture;
+                var ddrt = new RenderTexture2D(Browser.clientWidth, Browser.clientHeight, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.None);
+                Laya.stage.drawToTexture(Browser.clientWidth, Browser.clientHeight, 0, 0, ddrt, true);
+                var text:Texture = new Texture(ddrt);
                 this.drawSp.graphics.drawTexture(text,0,0,this.drawSp.width,this.drawSp.height);
                 break;
             case this.nameArr[2]:

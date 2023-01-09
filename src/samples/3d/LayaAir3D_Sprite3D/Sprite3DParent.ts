@@ -64,8 +64,8 @@ export class Sprite3DParent {
 		//添加父级猴子
 		this.layaMonkeyParent = this.scene.addChild(Loader.createNodes("res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh")) as Sprite3D;
 		//加载第二只猴子，作为子猴子
-		this.layaMonkeySon = (<Sprite3D>Loader.createNodes("res/threeDimen/skinModel/LayaMonkey2/LayaMonkey.lh"));
-		this.layaMonkeySon.transform.translate(new Vector3(2.5, 0, 0));
+		this.layaMonkeySon = this.layaMonkeyParent.clone() as Sprite3D;
+		this.layaMonkeySon.transform.translate(new Vector3(0.5, 0, 0));
 		//缩放
 		var scale: Vector3 = new Vector3(0.5, 0.5, 0.5);
 		this.layaMonkeySon.transform.localScale = scale;
@@ -140,7 +140,7 @@ export class Sprite3DParent {
 	}
 
 	private stypeFun1() {
-		var scale: Vector3 = new Vector3(0.2, 0.2, 0.2);
+		var scale: Vector3 = new Vector3(2, 2, 2);
 		this.layaMonkeyParent.transform.localScale = scale;
 		Client.instance.send({type:"next",btype:this.btype,stype:1});
 	}

@@ -61,7 +61,7 @@ export class RenderTargetCamera {
 		//增加个小猴
 		Sprite3D.load("res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh", Handler.create(this, function (layaMonkey: Sprite3D): void {
 			scene.addChild(layaMonkey);
-			layaMonkey.transform.localScale = new Vector3(0.5, 0.5, 0.5);
+			layaMonkey.transform.localScale = new Vector3(6, 6, 6);
 			layaMonkey.transform.rotate(new Vector3(0, 180, 0), true, false);
 			layaMonkey.transform.position = new Vector3(-28.8, 5, -53);
 		}));

@@ -39,22 +39,12 @@ export class Sky_SkyBox {
 			var skyRenderer: SkyRenderer = camera.skyRenderer;
 			//创建天空盒的mesh
 			skyRenderer.mesh = SkyDome.instance;
+			// 设置曝光值
+			var exposureNumber: number = 1.0;
+			mat.exposure = exposureNumber;
 			//设置天空盒材质
 			skyRenderer.material = mat;
-			var exposureNumber: number = 0;
 		}));
-		Laya.stage.on(Event.MOUSE_DOWN,this,this.changeSky);
 	}
-
-	changeSky(){
-		let mat = this.camerad.skyRenderer.material;
-		mat._shaderValues.reset();
-		mat.setShaderName("SkyProcedural");
-		mat.setColor("u_SkyTint", new Color(1.0,0.5,0.5,1.0));
-	}
-
-	
-
-
 }
 

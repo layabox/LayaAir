@@ -1,16 +1,16 @@
 import { Material } from "laya/d3/core/material/Material";
+import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
+import { ShaderDataType } from "laya/RenderEngine/RenderShader/ShaderData";
+import { BaseTexture } from "laya/resource/BaseTexture";
+import SeprableSSSFS from "../shader/SeparableSSS_GasBlur.fs";
+import SeprableSSSVS from "../shader/SeparableSSS_GasBlur.vs";
+import { RenderState } from "laya/RenderEngine/RenderShader/RenderState";
+import { SubShader } from "laya/RenderEngine/RenderShader/SubShader";
+import { VertexMesh } from "laya/RenderEngine/RenderShader/VertexMesh";
 import { MathUtils3D } from "laya/maths/MathUtils3D";
 import { Vector2 } from "laya/maths/Vector2";
 import { Vector3 } from "laya/maths/Vector3";
 import { Vector4 } from "laya/maths/Vector4";
-import { RenderState } from "laya/RenderEngine/RenderShader/RenderState";
-import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
-import { ShaderDataType } from "laya/RenderEngine/RenderShader/ShaderData";
-import { SubShader } from "laya/RenderEngine/RenderShader/SubShader";
-import { VertexMesh } from "laya/RenderEngine/RenderShader/VertexMesh";
-import { BaseTexture } from "laya/resource/BaseTexture";
-import SeprableSSSFS from "../shader/SeparableSSS_GasBlur.fs";
-import SeprableSSSVS from "../shader/SeparableSSS_GasBlur.vs";
 
 export class SeparableSSS_BlitMaterial extends Material {
 
@@ -40,7 +40,7 @@ export class SeparableSSS_BlitMaterial extends Material {
 			"u_sssWidth": ShaderDataType.Float,
 			"u_distanceToProjectionWindow": ShaderDataType.Float,
 		};
-		var shader: Shader3D = Shader3D.add("SeparableSSS");
+		var shader: Shader3D = Shader3D.add("SeparableSSS", true, true);
 		var subShader: SubShader = new SubShader(attributeMap, uniformMap);
 		shader.addSubShader(subShader);
 		var shaderpass = subShader.addShaderPass(SeprableSSSVS, SeprableSSSFS);

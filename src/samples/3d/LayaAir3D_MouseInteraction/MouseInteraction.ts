@@ -24,6 +24,7 @@ import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
+import { Event } from "laya/events/Event";
 
 
 /**
@@ -162,7 +163,7 @@ export class MouseInteraction {
 
 	private addMouseEvent(): void {
 		//鼠标事件监听
-		//Laya.stage.on(Event.MOUSE_DOWN, this, onMouseDown);
+		Laya.stage.on(Event.MOUSE_DOWN, this, this.onMouseDown);
 	}
 
 	private onMouseDown(): void {

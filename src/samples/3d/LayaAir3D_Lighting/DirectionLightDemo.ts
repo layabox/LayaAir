@@ -56,24 +56,7 @@ export class DirectionLightDemo {
 			//加载猴子精灵
 			Sprite3D.load("res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh", Handler.create(this, function (layaMonkey: Sprite3D): void {
 				var layaMonkey: Sprite3D = (<Sprite3D>scene.addChild(layaMonkey));
-				var aniSprite3d: Sprite3D = (<Sprite3D>layaMonkey.getChildAt(0));
 
-				//获取猴子精灵的动画组件
-				var animator: Animator = (<Animator>aniSprite3d.getComponent(Animator));
-				//创建动作状态
-				var state: AnimatorState = new AnimatorState();
-				//动作名称
-				state.name = "run";
-				//动作播放起始时间
-				state.clipStart = 40 / 150;
-				//动作播放结束时间
-				state.clipEnd = 70 / 150;
-				//设置动作
-				state.clip = animator.getDefaultState().clip;
-				//为动画组件添加一个动作状态
-				animator.getControllerLayer(0).addState(state);
-				//播放动作
-				animator.play("run");
 				//设置时钟定时执行
 				Laya.timer.frameLoop(1, this, function (): void {
 					//从欧拉角生成四元数（顺序为Yaw、Pitch、Roll）

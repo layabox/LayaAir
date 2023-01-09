@@ -1,4 +1,4 @@
-#define SeparableSSSRenderFS
+#define SHADER_NAME SeparableSSSRenderFS
 varying vec2 v_Texcoord0;
 varying vec4 v_ScreenTexcoord;
 
