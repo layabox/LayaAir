@@ -155,32 +155,6 @@ export class PostProcess {
         return this._depthtextureFlag;
     }
 
-
-    // /**
-    //  * 开启调色Effect
-    //  */
-    // set enableColorGrad(value:boolean){
-    //     if(value==this._enableColorGrad)
-    //         return;
-    //     // if(value){
-    //     //     if(!this._ColorGradEffect) this._ColorGradEffect = new ColorGradEffect();
-    //     //     this.addEffect(this._ColorGradEffect);
-    //     // }else{
-    //     //     this.removeEffect(this._ColorGradEffect);
-    //     // }
-    //     this._enableColorGrad = value;
-    // }
-
-
-    // _enableColorGrad;
-
-
-    // get colorGradEffect(){
-    //     return this._enableColorGrad;
-    // }
-
-
-
     /**
      *@internal
      */
@@ -192,7 +166,8 @@ export class PostProcess {
     /**
      * @internal
      */
-    _render(): void {
+    _render(camera:Camera): void {
+        this._init(camera);
         var camera = this._context!.camera;
         var viewport: Viewport = camera!.viewport;
         var cameraTarget: RenderTexture = camera!._internalRenderTexture;

@@ -560,8 +560,8 @@ export class Camera extends BaseCamera {
 
     set postProcess(value: PostProcess) {
         this._postProcess = value;
-        if (!value) return;
-        value && value._init(this);
+        //if (!value) return;
+        //value && value._init(this);
     }
 
     /**
@@ -1115,7 +1115,7 @@ export class Camera extends BaseCamera {
         if (needInternalRT && Camera.enablePostProcess) {
             if (this._postProcess && this._postProcess.enable) {
                 this._postProcess.commandContext = context;
-                this._postProcess._render();
+                this._postProcess._render(this);
                 this._postProcess._applyPostProcessCommandBuffers();
             } else if (this._enableHDR || this._needBuiltInRenderTexture) {
                 var canvasWidth: number = this._getCanvasWidth(), canvasHeight: number = this._getCanvasHeight();
