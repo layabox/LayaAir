@@ -368,12 +368,16 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         let channels = 0;
         let singlebyte = 0;
         let bytelength = 0;
+        
+        let srgb = this._sRGB?this._sRGB.SRGB_EXT:gl.RGB;
+        let srgb_alpha = this._sRGB?this._sRGB.SRGB_ALPHA_EXT:gl.RGBA;
+
         switch (tex.internalFormat) {
-            case this._sRGB.SRGB_EXT:
+            case srgb:
             case gl.RGB:
                 channels = 3;
                 break;
-            case this._sRGB.SRGB_ALPHA_EXT:
+            case srgb_alpha:
             case gl.RGBA:
                 channels = 4;
                 break;
