@@ -1099,6 +1099,11 @@ export class Scene3D extends Sprite implements ISubmit {
             vpX = viewport.x;
             vpY = camera._getCanvasHeight() - viewport.y - vpH;
         }
+
+        if (camera.renderTarget) {
+            vpY = camera._getCanvasHeight() - vpH - vpY;
+        }
+
         LayaGL.renderEngine.viewport(vpX, vpY, vpW, vpH);
         LayaGL.renderEngine.scissor(vpX, vpY, vpW, vpH);
         state.changeViewport(vpX, vpY, vpW, vpH);
