@@ -167,7 +167,7 @@ export class HttpRequest extends EventDispatcher {
             } else {
                 this._data = this._http.response || this._http.responseText;
             }
-        } catch (e) {
+        } catch (e: any) {
             flag = false;
             this.error(e.message);
         }

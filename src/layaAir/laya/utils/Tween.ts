@@ -353,7 +353,7 @@ export class Tween {
             if (this._usedTimer < 0) {
                 ILaya.timer.once(-this._usedTimer, this, this.firstStart, this._delayParam);
             } else {
-                this.firstStart.apply(this, this._delayParam);
+                this.firstStart.apply(this, <any>this._delayParam);
             }
         } else {
             this._beginLoop();
