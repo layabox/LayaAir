@@ -20,6 +20,7 @@ import { Texture2D } from "../../../../resource/Texture2D";
 import { RenderContext3D } from "../RenderContext3D";
 import { Color } from "../../../../maths/Color";
 import { PostProcess } from "../../../component/PostProcess";
+import { LayaGL } from "../../../../layagl/LayaGL";
 
 export enum ToneMappingType {
 	None,
@@ -509,7 +510,7 @@ export class ColorGradEffect extends PostProcessEffect {
 		this._needBuildLUT = true;
 		this._toneMapping = ToneMappingType.None;
 		this._blitlutParams = new Vector4();
-		this._lutShaderData = new ShaderData();
+		this._lutShaderData = LayaGL.renderOBJCreate.createShaderData(null);
 		this.lutSize = 32;
 		this._lutCommond = new CommandBuffer();
 		this._lutBuilderMat = new Material();
