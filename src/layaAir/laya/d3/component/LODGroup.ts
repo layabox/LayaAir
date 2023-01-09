@@ -415,7 +415,7 @@ export class LODGroup extends Component implements IBoundsCell {
         checkCamera.transform.worldMatrix.getForward(tempVec1);
         Vector3.normalize(tempVec, tempVec);
         Vector3.normalize(tempVec1, tempVec1);
-        let rateYDistance = length * Vector3.dot(tempVec, tempVec1) / checkCamera.farPlane * maxYDistance;
+        let rateYDistance = length * Math.abs(Vector3.dot(tempVec, tempVec1)) / checkCamera.farPlane * maxYDistance;
 
         let rate = (this._size / rateYDistance);
         this._applyVisibleRate(rate);

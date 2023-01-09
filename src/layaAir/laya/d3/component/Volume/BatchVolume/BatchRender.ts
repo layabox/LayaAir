@@ -118,7 +118,7 @@ export class BatchRender extends BaseRender {
             checkCamera.transform.worldMatrix.getForward(tempVec1);
             Vector3.normalize(tempVec, tempVec);
             Vector3.normalize(tempVec1, tempVec1);
-            let rateYDistance = length * Vector3.dot(tempVec, tempVec1) / checkCamera.farPlane * maxYDistance;
+            let rateYDistance = length * Math.abs(Vector3.dot(tempVec, tempVec1)) / checkCamera.farPlane * maxYDistance;
             let rate = (this._lodsize / rateYDistance);
             for (let i = 0; i < this._lodRateArray.length; i++) {
                 if (rate < this._lodRateArray[i])
