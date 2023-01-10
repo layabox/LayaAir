@@ -1091,17 +1091,21 @@ export class Scene3D extends Sprite implements ISubmit {
         var vpX: number, vpY: number;
         var vpW: number = viewport.width;
         var vpH: number = viewport.height;
-        if (camera._needInternalRenderTexture()) {
+        let needInternalRT = camera._needInternalRenderTexture();
+
+        if (needInternalRT) {
             vpX = 0;
             vpY = 0;
         }
         else {
-            vpX = viewport.x;
-            vpY = camera._getCanvasHeight() - viewport.y - vpH;
-        }
-
-        if (camera.renderTarget) {
-            vpY = camera._getCanvasHeight() - vpH - vpY;
+            if (camera.renderTarget) {
+                vpX = viewport.x;
+                vpY = viewport.y;
+            }
+            else {
+                vpX = viewport.x;
+                vpY = camera._getCanvasHeight() - viewport.y - vpH;
+            }
         }
 
         LayaGL.renderEngine.viewport(vpX, vpY, vpW, vpH);
@@ -1387,7 +1391,7 @@ export class Scene3D extends Sprite implements ISubmit {
                 Scene3D._blitOffset.setValue(camera.viewport.x / canvasWidth, camera.viewport.y / canvasHeight, camera.viewport.width / canvasWidth, camera.viewport.height / canvasHeight);
                 this.blitMainCanvans(Scene3D._blitTransRT, camera.normalizedViewport, camera);
             }
-            camera._needInternalRenderTexture() && (!camera._internalRenderTexture._inPool) && RenderTexture.recoverToPool(camera._internalRenderTexture);
+            camera.enableRender && camera._needInternalRenderTexture() && (!camera._internalRenderTexture._inPool) && RenderTexture.recoverToPool(camera._internalRenderTexture);
         }
         Context.set2DRenderConfig();//还原2D配置
         RenderTexture.clearPool();
