@@ -6,14 +6,11 @@ const ts = require('typescript');
 const gulp = require('gulp');
 const gulpts = require('gulp-typescript');
 const concat = require('gulp-concat');
-const uglify = require('gulp-uglify-es').default;
-const rename = require('gulp-rename');
 const inject = require('gulp-inject-string');
 const sourcemaps = require('gulp-sourcemaps');
 const rollup = require('rollup');
 const glsl = require('rollup-plugin-glsl');
 const rollupSourcemaps = require('rollup-plugin-sourcemaps');
-const Stream = require('stream');
 const merge = require('merge2');
 
 const tscOutPath = "./bin/tsc/";
@@ -336,50 +333,6 @@ gulp.task('concatBox2dPhysics', () => {
         .pipe(gulp.dest('./build/libs/'));
 });
 
-gulp.task("compressJs", () => {
-    // 修改laya.physics3D.wasm-wx.js 里的路径
-    function changeWxWasmPath() {
-        var stream = new Stream.Transform({ objectMode: true });
-        stream._transform = function (originalFile, unused, callback) {
-            let fPath = originalFile.path;
-            if (fPath.indexOf('laya.physics3D.wasm-wx.js') >= 0 || fPath.indexOf('laya.physics3D.wasm.js') >= 0) {
-                var stringData = String(originalFile.contents);
-                stringData = stringData.replace('libs/laya.physics3D.wasm.wasm', 'libs/min/laya.physics3D.wasm.wasm');
-                var file = originalFile.clone({ contents: false });
-                var finalBinaryData = Buffer.from(stringData);
-                file.contents = finalBinaryData;
-                callback(null, file);
-            }
-            else {
-                callback(null, originalFile);
-            }
-        };
-        return stream;
-    }
-
-    return merge(
-        gulp.src("./build/libs/laya.physics3D.js")
-            .pipe(rename({ extname: ".min.js" }))
-            .pipe(gulp.dest("./build/libs/min")),
-
-        gulp.src("./build/libs/laya.physics3D.wasm.wasm")
-            .pipe(gulp.dest("./build/libs/min")),
-
-        gulp.src(["./build/libs/*.js", "!./build/libs/{laya.physics3D.js}"])
-            .pipe(uglify({
-                mangle: {
-                    keep_fnames: true
-                }
-            }))
-            .on('error', function (err) {
-                console.warn(err.toString());
-            })
-            .pipe(changeWxWasmPath())
-            .pipe(rename({ extname: ".min.js" }))
-            .pipe(gulp.dest("./build/libs/min"))
-    );
-});
-
 gulp.task('genDts', () => {
     rimrafSync("./build/temp");
     rimrafSync("./build/types");
@@ -495,5 +448,3 @@ gulp.task('build',
     gulp.series('compile', 'buildJs', 'copyJsLibs',
         'concatBox2dPhysics',
         'genDts'));
-
-gulp.task('buildAndCompress', gulp.series(gulp.series('build', 'compressJs')));
