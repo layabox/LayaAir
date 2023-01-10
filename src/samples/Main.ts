@@ -62,6 +62,7 @@ export class Main {
         if (this._isReadNetWorkRes) {
             URL.rootPath = URL.basePath = "https://layaair2.ldc2.layabox.com/demo2/h5/";/*"http://10.10.20.55:8000/";*///"https://star.layabox.com/Laya1.0.0/";//"http://10.10.20.55:8000/";"https://layaair.ldc.layabox.com/demo2/h5/";
         }
+        URL.basePath+="sample-resource/";
         //加载引擎需要的资源
         Laya.loader.load([{ url: "res/atlas/comp.json", type: Loader.ATLAS }], Handler.create(this, this.onLoaded));
     }
