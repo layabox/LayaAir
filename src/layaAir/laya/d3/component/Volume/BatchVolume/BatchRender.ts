@@ -95,6 +95,12 @@ export class BatchRender extends BaseRender {
         if (this._cacheLod == lod) {
             return;
         }
+
+        if(this._cacheLod == this.lodCullRateArray.length - 1)
+        {
+            lod = -1;
+        }
+        
         this._renderElements = this._lodInstanceRenderElement[lod];
         if (this._lodInstanceRenderElement[lod] && lod != -1) {
             this._renderElements || (this._renderElements = []);
