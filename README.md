@@ -23,10 +23,8 @@ npm run build
 ```
 在IDE中使用源码引擎
 ```diff
-
+如果需要使用自己编译的引擎代替IDE自带的引擎，可以将“build/libs”文件夹中的js文件拷贝到“你的项目文件夹/engine/libs"下。不需要拷贝全部js文件，可以只拷贝你需要覆盖的文件。
 ```
-
-npm run publishToIDE
 
 ## 如何贡献代码
 从 github 官方开源项目 fork 一份到 自己仓储,git clone 到本地,将修改的代码提交后，PR到官方，我们会尽快为您回复，为您提供Approve和merge，欢迎大家来共同建设
