@@ -6,28 +6,51 @@
 
 ## 如何使用源码
 安装依赖
+```diff
+执行npm install命令，如下图所示
+
 npm install
-编译aa
+```
+运行示例
+```diff
 npm run start
-build
+```
+编译引擎
+```diff
 npm run build
-编译到IDE
+
+执行之后会在根目录生成build文件夹，编译好的引擎都在其中
+```
+在IDE中使用源码引擎
+```diff
+
+```
+
 npm run publishToIDE
 
 ## 如何贡献代码
-fork3.0代码
-pullRequast相关
+从 github 官方开源项目 fork 一份到 自己仓储,git clone 到本地,将修改的代码提交后，PR到官方，我们会尽快为您回复，为您提供Approve和merge，欢迎大家来共同建设
 
 ## 其他链接
-官网（链接）
+官网
 
-论坛（链接）
+> https://layaair.layabox.com/
+
+论坛
+
+> https://ask.layabox.com/
 
 demo（链接）
 
-开发者文档（链接）
+> https://layaair.layabox.com/3.x/demo/
+
+开发者文档
+
+> https://layaair.layabox.com/3.x/doc/
 
 API（链接）
+
+> https://layaair.layabox.com/3.x/api/
 
 ## 更多资讯
 该引擎使用[MIT](https://opensource.org/licenses/MIT)开源协议，请阅读 LICENSE文件
