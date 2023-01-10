@@ -1,0 +1,3 @@
+[submodule "bin/sample-resource"]
+	path = bin/sample-resource
+	url = https://gitee.com/LayaAirIDE/sample-resource
