@@ -448,6 +448,9 @@ export class Material extends Resource implements IClone {
                 this.depthTest = RenderState.DEPTHTEST_LESS;
                 this._shaderValues.removeDefine(Material.SHADERDEFINE_ADDTIVEFOG);
                 break;
+            case MaterialRenderMode.RENDERMODE_CUSTOME:
+                //TODO IDE
+                break;
             default:
                 throw new Error("UnlitMaterial : renderMode value error.");
         }
