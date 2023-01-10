@@ -1120,7 +1120,7 @@ export class Camera extends BaseCamera {
             } else if (this._enableHDR || this._needBuiltInRenderTexture) {
                 var canvasWidth: number = this._getCanvasWidth(), canvasHeight: number = this._getCanvasHeight();
                 if (this._offScreenRenderTexture) {
-                    this._screenOffsetScale.setValue(viewport.x / canvasWidth, viewport.y / canvasHeight, viewport.width / canvasWidth, viewport.height / canvasHeight);
+                    this._screenOffsetScale.setValue(viewport.x / canvasWidth, (canvasHeight - viewport.y - viewport.height) / canvasHeight, viewport.width / canvasWidth, viewport.height / canvasHeight);
                     this._internalCommandBuffer._camera = this;
                     this._internalCommandBuffer._context = context;
                     this._internalCommandBuffer.blitScreenQuad(this._internalRenderTexture, this._offScreenRenderTexture, this._screenOffsetScale, null, null, 0);

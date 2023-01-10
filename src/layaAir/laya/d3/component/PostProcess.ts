@@ -166,7 +166,7 @@ export class PostProcess {
     /**
      * @internal
      */
-    _render(camera:Camera): void {
+    _render(camera: Camera): void {
         this._init(camera);
         var camera = this._context!.camera;
         var viewport: Viewport = camera!.viewport;
@@ -207,12 +207,10 @@ export class PostProcess {
         var dest = offScreenTex ? offScreenTex : null;//TODO:如果不画到RenderTarget上,最后一次为null直接画到屏幕上
         this._context!.destination = dest;
         var canvasWidth: number = camera!._getCanvasWidth(), canvasHeight: number = camera!._getCanvasHeight();
-        camera!._screenOffsetScale.setValue(viewport.x / canvasWidth, viewport.y / canvasHeight, viewport.width / canvasWidth, viewport.height / canvasHeight);
-
         if (dest) {
-            this._context!.command!.blitScreenTriangle(cameraTarget, dest, camera!._screenOffsetScale,null, this._compositeShaderData, 0);
+            camera!._screenOffsetScale.setValue(viewport.x / canvasWidth, (canvasHeight - viewport.y - viewport.height) / canvasHeight, viewport.width / canvasWidth, viewport.height / canvasHeight);
+            this._context!.command!.blitScreenTriangle(cameraTarget, dest, camera!._screenOffsetScale, null, this._compositeShaderData, 0);
         }
-
 
         //释放临时纹理
         RenderTexture.recoverToPool(screenTexture);
