@@ -80,7 +80,8 @@ export class DrawTextureCmd {
             cmd.colorFlt = new ColorFilter();
             cmd.colorFlt.setColor(color);
         }
-
+        else
+            cmd.colorFlt = null;
         return cmd;
     }
 

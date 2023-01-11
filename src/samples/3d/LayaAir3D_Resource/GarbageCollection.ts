@@ -1,6 +1,6 @@
 import { Laya } from "Laya";
 import { Laya3D } from "Laya3D";
-import { Camera } from "laya/d3/core/Camera";
+import { Camera, CameraClearFlags } from "laya/d3/core/Camera";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Stage } from "laya/display/Stage";
 import { Event } from "laya/events/Event";
@@ -11,6 +11,8 @@ import { Stat } from "laya/utils/Stat";
 import Client from "../../Client";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { Vector3 } from "laya/maths/Vector3";
+import { Color } from "laya/maths/Color";
+import { AssetDb } from "laya/resource/AssetDb";
 
 /**
  * ...
@@ -48,6 +50,7 @@ export class GarbageCollection {
 	 loadUI(): void {
 		Laya.loader.load(["res/threeDimen/ui/button.png"], Handler.create(this, function (): void {
 			this.changeActionButton = (<Button>Laya.stage.addChild(new Button("res/threeDimen/ui/button.png", "释放显存")));
+			this.changeActionButton.zOrder = 10000;
 			this.changeActionButton.size(160, 40);
 			this.changeActionButton.labelBold = true;
 			this.changeActionButton.labelSize = 30;
@@ -80,11 +83,16 @@ export class GarbageCollection {
 	 * @private
 	 */
 	loadScene(): void {
-		Scene3D.load("res/threeDimen/scene/ParticleScene/Example_01.ls", Handler.create(this, function (scene: Scene3D): void {
-			this._scene = (<Scene3D>Laya.stage.addChildAt(scene, 0));
-			var camera: Camera = (<Camera>scene.addChild(new Camera(0, 0.1, 100)));
-			camera.transform.translate(new Vector3(0, 1, 0));
+		AssetDb.inst.enableImageMetaFile = true;
+		Scene3D.load("res/threeDimen/scene/ParticleScene/Scene.ls", Handler.create(this, function (sprite: Scene3D): void {
+			this._scene = <Scene3D>Laya.stage.addChild(sprite);
+			var camera: Camera = <Camera>this._scene.addChild(new Camera(0, 0.1, 100));
+			camera.transform.translate(new Vector3(2, 2.7, 3));
+			camera.transform.rotate(new Vector3(0, 43, 0), false, false);
+			camera.clearFlag = CameraClearFlags.SolidColor;
+			camera.clearColor = new Color(0, 0, 0, 1);
 			camera.addComponent(CameraMoveScript);
+			AssetDb.inst.enableImageMetaFile = false;
 		}));
 	}
 

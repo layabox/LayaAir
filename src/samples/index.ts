@@ -7,10 +7,10 @@ import "laya/particle/ModuleDef";
 import "laya/ani/ModuleDef";
 import "laya/spine/ModuleDef";
 import "laya/gltf/glTFLoader";
+import "laya/html/ModuleDef";
 
 import { Resource } from "laya/resource/Resource";
 import { Main } from "./Main";
-
 Resource.DEBUG = true;
 
 new Main(false);
