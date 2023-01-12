@@ -39,6 +39,7 @@ export class URL {
             this.overrideExtension(["controller"], "controller.json");
             this.overrideExtension(["mc"], "mc.bin");
             this.overrideExtension(["mcc"], "mcc.json");
+            this.overrideExtension(["shader"], "shader.json");
         }
     }
 
