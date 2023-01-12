@@ -20,6 +20,7 @@ export class AudioSoundChannel extends SoundChannel {
     private _audio: HTMLAudioElement = null;
     private _onEnd: (evt: Event) => void;
     private _resumePlay: (evt: Event) => void;
+    private _src: string;
 
     constructor(audio: HTMLAudioElement) {
         super();
@@ -27,6 +28,7 @@ export class AudioSoundChannel extends SoundChannel {
         this._resumePlay = this.__resumePlay.bind(this);
         audio.addEventListener("ended", this._onEnd);
         this._audio = audio;
+        this._src = audio.src;
     }
 
     private __onEnd(evt: Event): void {
@@ -153,7 +155,7 @@ export class AudioSoundChannel extends SoundChannel {
             return;
         this.isStopped = false;
         if (audio.readyState == 0) { //当音频放到后台一定时间后，会被卸载，音频会断开连接，并将readyState重置为0
-            audio.src = this.url;
+            audio.src = this._src;
             audio.addEventListener("canplay", this._resumePlay as any);
             audio.load();
         }
