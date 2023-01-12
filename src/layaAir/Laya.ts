@@ -38,6 +38,7 @@ import { IStageConfig, LayaEnv } from "./LayaEnv";
 import { Color } from "./laya/maths/Color";
 import { URL } from "./laya/net/URL";
 import { RunDriver } from "./laya/utils/RunDriver";
+import { Config } from "./Config";
 
 var _isinit = false;
 
@@ -165,7 +166,7 @@ export class Laya {
         ILaya.stage = Laya.stage;
 
         if (LayaEnv.isConch && (window as any).conch.setGlobalRepaint) {
-            (window as any).conch.setGlobalRepaint(Laya.stage.setGlobalRepaint.bind(Laya.stage));
+            (window as any).conch.setGlobalRepaint(stage.setGlobalRepaint.bind(stage));
         }
 
         MeshQuadTexture.__int__();
@@ -174,24 +175,26 @@ export class Laya {
         Laya.render = new Render(0, 0, Browser.mainCanvas);
         render = Laya.render;
 
-        Laya.stage.size(stageConfig.designWidth, stageConfig.designHeight);
+        stage.size(stageConfig.designWidth, stageConfig.designHeight);
         if (stageConfig.scaleMode)
-            Laya.stage.scaleMode = stageConfig.scaleMode;
+            stage.scaleMode = stageConfig.scaleMode;
         if (stageConfig.screenMode)
-            Laya.stage.screenMode = stageConfig.screenMode;
+            stage.screenMode = stageConfig.screenMode;
         if (stageConfig.alignV)
-            Laya.stage.alignV = stageConfig.alignV;
+            stage.alignV = stageConfig.alignV;
         if (stageConfig.alignH)
-            Laya.stage.alignH = stageConfig.alignH;
-        if (stageConfig.backgroundColor)
-            Laya.stage.bgColor = stageConfig.backgroundColor;
+            stage.alignH = stageConfig.alignH;
+        if (Config.isAlpha)
+            stage.bgColor = null;
+        else if (stageConfig.backgroundColor)
+            stage.bgColor = stageConfig.backgroundColor;
 
-        ((<any>window)).stage = Laya.stage;
+        ((<any>window)).stage = stage;
 
         RenderStateContext.__init__();
         MeshParticle2D.__init__();
         RenderSprite.__init__();
-        InputManager.__init__(Laya.stage, Render.canvas);
+        InputManager.__init__(stage, Render.canvas);
         if (!!(window as any).conch && "conchUseWXAdapter" in Browser.window) {
             Input.isAppUseNewInput = true;
         }
