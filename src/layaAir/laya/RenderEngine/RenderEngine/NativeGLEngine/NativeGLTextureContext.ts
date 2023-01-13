@@ -43,6 +43,10 @@ export class NativeGLTextureContext extends NativeGLObject implements ITextureCo
         this._native.setTextureSubPixelsData(texture, source, mipmapLevel, generateMipmap, xOffset, yOffset, width, height, premultiplyAlpha, invertY);
     }
 
+    setTexturebySubImageData(texture: InternalTexture, source: HTMLImageElement | HTMLCanvasElement | ImageBitmap, x: number, y: number, premultiplyAlpha: boolean, invertY: boolean): void{
+        //TODO
+    }
+
     setTextureHDRData(texture: InternalTexture, hdrInfo: HDRTextureInfo): void {
         let sourceData = hdrInfo.readScanLine();
 

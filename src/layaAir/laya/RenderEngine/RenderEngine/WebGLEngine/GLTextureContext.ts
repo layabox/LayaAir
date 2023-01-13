@@ -600,7 +600,40 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
     }
 
-    initVideoTextureData(texture: WebGLInternalTex){
+    setTexturebySubImageData(texture: WebGLInternalTex, source: HTMLImageElement | HTMLCanvasElement | ImageBitmap, x: number, y: number, premultiplyAlpha: boolean, invertY: boolean) {
+
+        let target = texture.target;
+        let internalFormat = texture.internalFormat;
+        let format = texture.format;
+        let type = texture.type;
+        let width = source.width;
+        let height = source.height;
+
+        let gl = texture._gl;
+        premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+        invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+
+        this._engine._bindTexture(texture.target, texture.resource);
+
+        gl.texSubImage2D(target,0,x,y,format,type,source);
+        texture.gpuMemory = this.getGLtexMemory(texture);
+        //texture.
+        // gl.texImage2D(target, 0, internalFormat, width, height, 0, format, type, null);
+        // gl.texSubImage2D(target, 0, 0, 0, format, type, source);
+
+        if (texture.mipmap) {
+            gl.generateMipmap(texture.target);
+        }
+
+        //resource TODO
+
+        this._engine._bindTexture(texture.target, null);
+
+        premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+        invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+    }
+
+    initVideoTextureData(texture: WebGLInternalTex) {
         let target = texture.target;
         let internalFormat = texture.internalFormat;
         let format = texture.format;
