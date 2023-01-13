@@ -58,7 +58,7 @@ export interface ITextureContext {
 
     setupRendertargetTextureAttachment(renderTarget: InternalRenderTarget, texture: InternalTexture): void;
 
-    bindRenderTarget(renderTarget: InternalRenderTarget): void;
+    bindRenderTarget(renderTarget: InternalRenderTarget, faceIndex?: number): void;
     bindoutScreenTarget(): void;
     unbindRenderTarget(renderTarget: InternalRenderTarget): void;
 

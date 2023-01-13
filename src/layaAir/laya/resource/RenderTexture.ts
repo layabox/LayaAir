@@ -16,8 +16,8 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
         return RenderTexture._currentActive;
     }
 
-    private static _configInstance:any = {};
-    static configRenderContextInstance(value:any){
+    protected static _configInstance: any = {};
+    static configRenderContextInstance(value: any) {
         RenderTexture._configInstance = value;
     }
 

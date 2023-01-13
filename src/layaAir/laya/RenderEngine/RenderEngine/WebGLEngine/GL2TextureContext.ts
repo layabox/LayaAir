@@ -647,7 +647,7 @@ export class GL2TextureContext extends GLTextureContext {
     }
 
 
-	//TODO miner
+    //TODO miner
     getCubeKTXRGBMData(texture: WebGLInternalTex, ktxInfo: KTXTextureInfo) {
         let rightFaceData = [];
         let leftFaceData = [];
@@ -917,9 +917,6 @@ export class GL2TextureContext extends GLTextureContext {
             let framebuffer = renderTarget._framebuffer;
 
             gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
-            // color
-            let colorAttachment = this.glRenderTargetAttachment(colorFormat);
-            gl.framebufferTexture2D(gl.FRAMEBUFFER, colorAttachment, gl.TEXTURE_2D, texture.resource, 0);
 
             // depth
             let depthBufferParam = this.glRenderBufferParam(depthStencilFormat, false);
@@ -944,12 +941,6 @@ export class GL2TextureContext extends GLTextureContext {
         if (!useSRGBExt && sRGB) {
             gammaCorrection = 2.2;
         }
-
-
-        // let gammaCorrection = 1.0;
-        // if (!useSRGBExt && sRGB) {
-        //     gammaCorrection = 2.2;
-        // }
 
         let target = this.getTarget(dimension);
         let internalTex = new WebGLInternalTex(this._engine, target, size, size, dimension, generateMipmap, useSRGBExt, gammaCorrection);
@@ -977,14 +968,14 @@ export class GL2TextureContext extends GLTextureContext {
 
     }
 
-    bindRenderTarget(renderTarget: WebGLInternalRT): void {
+    bindRenderTarget(renderTarget: WebGLInternalRT, faceIndex: number = 0): void {
         let gl = <WebGL2RenderingContext>renderTarget._gl;
 
         if (renderTarget._isCube) {
             let framebuffer = renderTarget._framebuffer;
             gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
             let texture = <WebGLInternalTex>renderTarget._textures[0];
-            gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_CUBE_MAP_POSITIVE_Z, texture.resource, 0);
+            gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_CUBE_MAP_POSITIVE_X + faceIndex, texture.resource, 0);
         }
 
         if (renderTarget._samples > 1) {
