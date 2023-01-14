@@ -107,7 +107,7 @@ export class TextTexture extends Resource {
     addCharCanvas(canv: any, x: number, y: number, uv: any[] = null): any[] {
         !this._source && this.recreateResource();
 
-        LayaGL.textureContext.setTextureImageData(this._source._getSource(), canv, true, false);
+        LayaGL.textureContext.setTexturebySubImageData(this._source._texture, canv, x, y, true, false);
         var u0: number;
         var v0: number;
         var u1: number;
