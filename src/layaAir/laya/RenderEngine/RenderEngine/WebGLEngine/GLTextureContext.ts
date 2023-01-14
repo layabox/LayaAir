@@ -368,9 +368,9 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         let channels = 0;
         let singlebyte = 0;
         let bytelength = 0;
-        
-        let srgb = this._sRGB?this._sRGB.SRGB_EXT:gl.RGB;
-        let srgb_alpha = this._sRGB?this._sRGB.SRGB_ALPHA_EXT:gl.RGBA;
+
+        let srgb = this._sRGB ? this._sRGB.SRGB_EXT : gl.RGB;
+        let srgb_alpha = this._sRGB ? this._sRGB.SRGB_ALPHA_EXT : gl.RGBA;
 
         switch (tex.internalFormat) {
             case srgb:
@@ -1139,7 +1139,7 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         return TextureCompareMode.None;
     }
 
-    bindRenderTarget(renderTarget: WebGLInternalRT): void {
+    bindRenderTarget(renderTarget: WebGLInternalRT, faceIndex: number = 0): void {
         let gl = this._gl;
         let framebuffer = renderTarget._framebuffer;
 
@@ -1147,7 +1147,7 @@ export class GLTextureContext extends GLObject implements ITextureContext {
 
         if (renderTarget._isCube) {
             let texture = <WebGLInternalTex>renderTarget._textures[0];
-            gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_CUBE_MAP_POSITIVE_Z, texture.resource, 0);
+            gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_CUBE_MAP_POSITIVE_X + faceIndex, texture.resource, 0);
         }
 
     }
