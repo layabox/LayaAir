@@ -70,12 +70,21 @@ export class Resource extends EventDispatcher {
             return;
 
         ILaya.timer.clear(Resource, Resource._destroyUnusedResources);
+        let resourceChange = true;
+
+        resourceChange = false;
 
         for (let k in Resource._idResourcesMap) {
             let res: Resource = Resource._idResourcesMap[k];
-            if (!res.lock && res._referenceCount === 0)
+            if (!res.lock && res._referenceCount === 0) {
                 res.destroy();
+                resourceChange = true;
+            }
         }
+        
+        if (resourceChange)
+            ILaya.timer.frameLoop(1, Resource, Resource.destroyUnusedResources);
+
     }
 
     /**@private */
