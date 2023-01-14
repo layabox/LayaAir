@@ -8,6 +8,7 @@ import { Event } from "../../events/Event";
 import { Utils3D } from "../utils/Utils3D";
 import { IBoundsCell } from "../math/IBoundsCell";
 import { Vector3 } from "../../maths/Vector3";
+import { Tab } from "../../ui/Tab";
 
 const tempVec = new Vector3();
 const tempVec1 = new Vector3();
@@ -31,6 +32,8 @@ export class LODInfo {
     /**@internal */
     private _group: LODGroup;
 
+
+    
     /**
      * 实例化一个LODInfo
      * @param mincullRate 
@@ -38,7 +41,7 @@ export class LODInfo {
     constructor(mincullRate: number) {
         this._mincullRate = mincullRate;
         this._renders = [];
-        this._cachSprite3D = []
+        this._cachSprite3D = [];
     }
 
     /**
@@ -186,6 +189,10 @@ export class LODGroup extends Component implements IBoundsCell {
      */
     private _visialIndex = -1;
 
+    /**
+     * lod节点比例
+     */
+    private _nowRate : number;
 
     /**
      * 实例化一个LODGroup
@@ -416,8 +423,8 @@ export class LODGroup extends Component implements IBoundsCell {
         Vector3.normalize(tempVec, tempVec);
         Vector3.normalize(tempVec1, tempVec1);
         let rateYDistance = length * Math.abs(Vector3.dot(tempVec, tempVec1)) / checkCamera.farPlane * maxYDistance;
-
         let rate = (this._size / rateYDistance);
+        this._nowRate = rate;
         this._applyVisibleRate(rate);
     }
 }
