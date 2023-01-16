@@ -367,6 +367,10 @@ export class Camera extends BaseCamera {
     enableRender: boolean = true;
     /**清除标记。*/
     clearFlag: CameraClearFlags = CameraClearFlags.SolidColor;
+    /**是否缓存上一帧的Depth纹理 */
+    _cacheDepth: boolean
+    /**cache 上一帧纹理 */
+    _cacheDepthTexture: RenderTexture;
 
     /**
      * 横纵比。
@@ -630,15 +634,23 @@ export class Camera extends BaseCamera {
         this._depthTextureFormat = value;
     }
 
+
     /**
      * 设置是否使用内置的深度贴图(TODO:如果开启,只可在后期使用深度贴图，不可在渲染流程中使用)
      */
     set enableBlitDepth(value: boolean) {
+        if (value == this._canBlitDepth)
+            return;
         this._canBlitDepth = value;
+        this._cacheDepth = value;
         if (value)
             this._internalRenderTexture && (this._internalRenderTexture.generateDepthTexture = true);
-        else
+        else {
             this._internalRenderTexture && (this._internalRenderTexture.generateDepthTexture = false);
+            if (this._cacheDepthTexture)
+                this._cacheDepthTexture._inPool ? RenderTexture.recoverToPool(this._cacheDepthTexture) : 0;
+        }
+
     }
     get enableBlitDepth() {
         return this._canBlitDepth;
@@ -1163,7 +1175,7 @@ export class Camera extends BaseCamera {
                 Camera.depthPass.render(context, DepthTextureMode.Depth);
             }
             else {
-                this.depthTexture = this._internalRenderTexture.depthStencilTexture;
+                this.depthTexture = this._cacheDepthTexture.depthStencilTexture;
                 //@ts-ignore;
                 Camera.depthPass._depthTexture = this.depthTexture;
                 Camera.depthPass._setupDepthModeShaderValue(DepthTextureMode.Depth, this);
@@ -1207,6 +1219,11 @@ export class Camera extends BaseCamera {
     _aftRenderMainPass(needShadowPass: Boolean) {
         if (needShadowPass)
             ILaya3D.Scene3D._shadowCasterPass.cleanUp();
+        if (this._cacheDepth && this._internalRenderTexture) {
+            if (this._cacheDepthTexture)
+                this._cacheDepthTexture._inPool ? RenderTexture.recoverToPool(this._cacheDepthTexture) : 0;
+            this._cacheDepthTexture = this._internalRenderTexture;
+        }
         Camera.depthPass.cleanUp();
     }
 
@@ -1240,6 +1257,7 @@ export class Camera extends BaseCamera {
         context.replaceTag = replacementTag;
         context.customShader = shader;
         let texFormat = this._getRenderTextureFormat();
+
         if (needInternalRT) {
             if (this._msaa) {
                 this._internalRenderTexture = RenderTexture.createFromPool(viewport.width, viewport.height, texFormat, this._depthTextureFormat, false, 4, this.canblitDepth, this._needRenderGamma(texFormat));

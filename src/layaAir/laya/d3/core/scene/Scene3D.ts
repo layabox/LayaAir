@@ -1391,7 +1391,10 @@ export class Scene3D extends Sprite implements ISubmit {
                 Scene3D._blitOffset.setValue(camera.viewport.x / canvasWidth, camera.viewport.y / canvasHeight, camera.viewport.width / canvasWidth, camera.viewport.height / canvasHeight);
                 this.blitMainCanvans(Scene3D._blitTransRT, camera.normalizedViewport, camera);
             }
-            camera.enableRender && camera._needInternalRenderTexture() && (!camera._internalRenderTexture._inPool) && RenderTexture.recoverToPool(camera._internalRenderTexture);
+            if(!camera._cacheDepth){
+                camera.enableRender && camera._needInternalRenderTexture() && (!camera._internalRenderTexture._inPool) && RenderTexture.recoverToPool(camera._internalRenderTexture);
+            }
+            
         }
         Context.set2DRenderConfig();//还原2D配置
         RenderTexture.clearPool();
