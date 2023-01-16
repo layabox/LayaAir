@@ -391,9 +391,12 @@ export class Scene3D extends Sprite implements ISubmit {
     currentCreationLayer: number = Math.pow(2, 0);
     /** 是否启用灯光。*/
     enableLight: boolean = true;
-
+    /**lightShadowMap 更新频率 @internal */
+    _ShadowMapupdateFrequency:number = 1;
     /** @internal */
     _nativeObj: any;
+    
+
 
     /**
      * set SceneRenderableManager
@@ -615,6 +618,18 @@ export class Scene3D extends Sprite implements ISubmit {
             maps.length = 0;
         }
     }
+
+	/**
+     * 阴影图更新频率（如果无自阴影，可以加大频率优化性能）
+     */
+    get shadowMapFrequency(){
+        return this._ShadowMapupdateFrequency;
+    }
+
+    set shadowMapFrequency(value:number){
+        this._ShadowMapupdateFrequency = value;
+    }
+
 
     /**
      * 创建一个 <code>Scene3D</code> 实例。
@@ -1391,10 +1406,10 @@ export class Scene3D extends Sprite implements ISubmit {
                 Scene3D._blitOffset.setValue(camera.viewport.x / canvasWidth, camera.viewport.y / canvasHeight, camera.viewport.width / canvasWidth, camera.viewport.height / canvasHeight);
                 this.blitMainCanvans(Scene3D._blitTransRT, camera.normalizedViewport, camera);
             }
-            if(!camera._cacheDepth){
+            if (!camera._cacheDepth) {
                 camera.enableRender && camera._needInternalRenderTexture() && (!camera._internalRenderTexture._inPool) && RenderTexture.recoverToPool(camera._internalRenderTexture);
             }
-            
+
         }
         Context.set2DRenderConfig();//还原2D配置
         RenderTexture.clearPool();

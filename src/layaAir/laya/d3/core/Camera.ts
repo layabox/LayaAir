@@ -986,6 +986,9 @@ export class Camera extends BaseCamera {
      * @param context 渲染上下文
      */
     _renderShadowMap(scene: Scene3D, context: RenderContext3D) {
+        if (Scene3D._updateMark % scene._ShadowMapupdateFrequency != 0) {
+            return false;
+        }
         //render shadowMap
         var shadowCasterPass;
         var mainDirectLight: DirectionLightCom = scene._mainDirectionLight;
@@ -1217,8 +1220,8 @@ export class Camera extends BaseCamera {
      * @param needShadowPass 
      */
     _aftRenderMainPass(needShadowPass: Boolean) {
-        if (needShadowPass)
-            ILaya3D.Scene3D._shadowCasterPass.cleanUp();
+        // if (needShadowPass)
+        //     ILaya3D.Scene3D._shadowCasterPass.cleanUp();
         if (this._cacheDepth && this._internalRenderTexture) {
             if (this._cacheDepthTexture)
                 this._cacheDepthTexture._inPool ? RenderTexture.recoverToPool(this._cacheDepthTexture) : 0;

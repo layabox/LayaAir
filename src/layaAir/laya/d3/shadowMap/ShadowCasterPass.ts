@@ -283,6 +283,7 @@ export class ShadowCasterPass {
      * @param lightType 灯光类型
      */
     update(camera: Camera, light: Light, lightType: ShadowLightType): void {
+        this.cleanUp();
         switch (lightType) {
             case ShadowLightType.DirectionLight:
                 this._light = light;
