@@ -67,13 +67,13 @@ export class Timer {
         for (var i: number = 0, n: number = handlers.length; i < n; i++) {
             var handler: TimerHandler = handlers[i];
             if (handler.method !== null) {
-                var t: number = handler.userFrame ? frame : timer;
+                var t: number = handler.useFrame ? frame : timer;
                 if (t >= handler.exeTime) {
                     if (handler.repeat) {
                         if (!handler.jumpFrame || awake) {
                             handler.exeTime += handler.delay;
                             handler.run(false);
-                            if (t > handler.exeTime) {
+                            if (t > handler.exeTime && handler.delay > 0) {
                                 //如果执行一次后还能再执行，做跳出处理，如果想用多次执行，需要设置jumpFrame=true
                                 handler.exeTime += Math.ceil((t - handler.exeTime) / handler.delay) * handler.delay;
                             }
@@ -117,10 +117,9 @@ export class Timer {
 
     /** @internal */
     _create(useFrame: boolean, repeat: boolean, delay: number, caller: any, method: Function, args: any[], coverBefore: boolean): TimerHandler {
-        //如果延迟为0，则立即执行
-        if (!delay) {
-            method.apply(caller, args);
-            return null;
+        //如果延迟为0或null，则设置为0
+        if (!delay || delay < 0) {
+            delay = 0;
         }
 
         //先覆盖相同函数的计时
@@ -128,7 +127,7 @@ export class Timer {
             var handler: TimerHandler = this._getHandler(caller, method);
             if (handler) {
                 handler.repeat = repeat;
-                handler.userFrame = useFrame;
+                handler.useFrame = useFrame;
                 handler.delay = delay;
                 handler.caller = caller;
                 handler.method = method;
@@ -141,7 +140,7 @@ export class Timer {
         //找到一个空闲的timerHandler
         handler = Timer._pool.length > 0 ? Timer._pool.pop() : new TimerHandler();
         handler.repeat = repeat;
-        handler.userFrame = useFrame;
+        handler.useFrame = useFrame;
         handler.delay = delay;
         handler.caller = caller;
         handler.method = method;
@@ -310,7 +309,7 @@ class TimerHandler {
     key: string;
     repeat: boolean;
     delay: number;
-    userFrame: boolean;
+    useFrame: boolean;
     exeTime: number;
     caller: any
     method: Function;
