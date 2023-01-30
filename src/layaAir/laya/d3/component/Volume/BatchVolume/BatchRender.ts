@@ -117,14 +117,10 @@ export class BatchRender extends BaseRender {
         } else {
             let checkCamera = (this.owner.scene as Scene3D).cullInfoCamera as Camera;
             let maxYDistance = checkCamera.maxlocalYDistance;
-            let cameraFrustum = checkCamera.boundFrustum;
             Vector3.subtract(this._bounds.getCenter(), checkCamera.transform.position, tempVec);
             //大于farplane,或者不在视锥内.不做lod操作
             let length = tempVec.length();
-            checkCamera.transform.worldMatrix.getForward(tempVec1);
-            Vector3.normalize(tempVec, tempVec);
-            Vector3.normalize(tempVec1, tempVec1);
-            let rateYDistance = length * Math.abs(Vector3.dot(tempVec, tempVec1)) / checkCamera.farPlane * maxYDistance;
+            let rateYDistance = length / checkCamera.farPlane * maxYDistance;
             let rate = (this._lodsize / rateYDistance);
             for (let i = 0; i < this._lodRateArray.length; i++) {
                 if (rate < this._lodRateArray[i])
