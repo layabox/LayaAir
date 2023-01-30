@@ -68,11 +68,8 @@ export class Resource extends EventDispatcher {
     private static _destroyUnusedResources(force: boolean): void {
         if (!force && ILaya.loader.loading)
             return;
-
         ILaya.timer.clear(Resource, Resource._destroyUnusedResources);
-        let resourceChange = true;
-
-        resourceChange = false;
+        let resourceChange = false;
 
         for (let k in Resource._idResourcesMap) {
             let res: Resource = Resource._idResourcesMap[k];
@@ -83,7 +80,7 @@ export class Resource extends EventDispatcher {
         }
         
         if (resourceChange)
-            ILaya.timer.frameLoop(1, Resource, Resource.destroyUnusedResources);
+            ILaya.timer.frameOnce(1, Resource, Resource.destroyUnusedResources);
 
     }
 
