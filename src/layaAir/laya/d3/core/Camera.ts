@@ -1251,11 +1251,12 @@ export class Camera extends BaseCamera {
     render(shader: Shader3D = null, replacementTag: string = null): void {
         if (!this.activeInHierarchy) //custom render should protected with activeInHierarchy=true
             return;
-
+        
         var viewport: Viewport = this.viewport;
         var needInternalRT: boolean = this._needInternalRenderTexture();
         var context: RenderContext3D = RenderContext3D._instance;
         var scene: Scene3D = context.scene = <Scene3D>this._scene;
+        scene._setCullCamera(this);
         context.pipelineMode = context.configPipeLineMode;
         context.replaceTag = replacementTag;
         context.customShader = shader;

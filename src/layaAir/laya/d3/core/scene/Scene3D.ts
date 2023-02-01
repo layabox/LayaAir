@@ -1391,7 +1391,6 @@ export class Scene3D extends Sprite implements ISubmit {
             // 	ShaderData.setRuntimeValueMode((i == n1) ? true : false);
 
             var camera: Camera = (<Camera>this._cameraPool[i]);
-            this._setCullCamera(camera);
             if (camera.renderTarget)
                 (camera.enableBuiltInRenderTexture = false);//TODO:可能会有性能问题
             else
