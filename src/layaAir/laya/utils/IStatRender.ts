@@ -9,6 +9,8 @@ export class IStatRender {
      */
     show(x: number = 0, y: number = 0,views: any): void {
     }
+    showToggle(x: number = 0, y: number = 0,views: any):void{
+    }
 
     /**激活性能统计*/
     enable(): void {
