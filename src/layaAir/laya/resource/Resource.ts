@@ -3,6 +3,7 @@ import { EventDispatcher } from "../events/EventDispatcher";
 
 var _idCounter: number = 0;
 var _disposingCounter: number = 0;
+var _clearRetry: number = 0;
 
 /**
  * <code>Resource</code> 资源存取类。
@@ -58,6 +59,8 @@ export class Resource extends EventDispatcher {
      */
     static destroyUnusedResources(): void {
         _disposingCounter = 0; //复位一下，避免异常造成的标志错误
+        _clearRetry = 0;
+
         if (!ILaya.loader.loading)
             Resource._destroyUnusedResources(true);
         else
@@ -68,20 +71,25 @@ export class Resource extends EventDispatcher {
     private static _destroyUnusedResources(force: boolean): void {
         if (!force && ILaya.loader.loading)
             return;
+
         ILaya.timer.clear(Resource, Resource._destroyUnusedResources);
-        let resourceChange = false;
+        let destroyCnt = 0;
 
         for (let k in Resource._idResourcesMap) {
             let res: Resource = Resource._idResourcesMap[k];
             if (!res.lock && res._referenceCount === 0) {
                 res.destroy();
-                resourceChange = true;
+                destroyCnt++;
             }
         }
-        
-        if (resourceChange)
-            ILaya.timer.frameOnce(1, Resource, Resource.destroyUnusedResources);
 
+        if (Resource.DEBUG && destroyCnt > 0)
+            console.debug(`destroyUnusedResources(${destroyCnt})`);
+
+        if (destroyCnt > 0 && _clearRetry < 5) {
+            _clearRetry++;
+            ILaya.timer.frameLoop(1, Resource, Resource._destroyUnusedResources);
+        }
     }
 
     /**@private */
@@ -275,4 +283,3 @@ export class Resource extends EventDispatcher {
         }
     }
 }
-
