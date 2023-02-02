@@ -392,10 +392,10 @@ export class Scene3D extends Sprite implements ISubmit {
     /** 是否启用灯光。*/
     enableLight: boolean = true;
     /**lightShadowMap 更新频率 @internal */
-    _ShadowMapupdateFrequency:number = 1;
+    _ShadowMapupdateFrequency: number = 1;
     /** @internal */
     _nativeObj: any;
-    
+
 
 
     /**
@@ -619,14 +619,14 @@ export class Scene3D extends Sprite implements ISubmit {
         }
     }
 
-	/**
+    /**
      * 阴影图更新频率（如果无自阴影，可以加大频率优化性能）
      */
-    get shadowMapFrequency(){
+    get shadowMapFrequency() {
         return this._ShadowMapupdateFrequency;
     }
 
-    set shadowMapFrequency(value:number){
+    set shadowMapFrequency(value: number) {
         this._ShadowMapupdateFrequency = value;
     }
 
@@ -721,7 +721,7 @@ export class Scene3D extends Sprite implements ISubmit {
         //Physics
         let simulation: PhysicsSimulation = this._physicsSimulation;
         if (LayaEnv.isPlaying) {
-            if (Physics3D._enablePhysics && !PhysicsSimulation.disableSimulation) {
+            if (Physics3D._enablePhysics && !PhysicsSimulation.disableSimulation && Stat.enablePhysicsUpdate) {
                 simulation._updatePhysicsTransformFromRender();
                 PhysicsComponent._addUpdateList = false;//物理模拟器会触发_updateTransformComponent函数,不加入更新队列
                 //simulate physics
@@ -810,14 +810,14 @@ export class Scene3D extends Sprite implements ISubmit {
      */
     private _prepareSceneToRender(): void {
         var shaderValues: ShaderData = this._shaderValues;
-        var multiLighting: boolean = Config3D._multiLighting;
+        var multiLighting: boolean = Config3D._multiLighting && Stat.enableMulLight;
         if (multiLighting) {
             var ligTex: Texture2D = Scene3D._lightTexture;
             var ligPix: Float32Array = Scene3D._lightPixles;
             const pixelWidth: number = ligTex.width;
             const floatWidth: number = pixelWidth * 4;
             var curCount: number = 0;
-            var dirCount: number = this._directionLights._length;
+            var dirCount: number = Stat.enableLight ? this._directionLights._length : 0;
             var dirElements: DirectionLightCom[] = this._directionLights._elements;
             if (dirCount > 0) {
                 var sunLightIndex: number = this._directionLights.getBrightestLight();//get the brightest light as sun
@@ -856,7 +856,7 @@ export class Scene3D extends Sprite implements ISubmit {
                 shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_DIRECTIONLIGHT);
             }
 
-            var poiCount: number = this._pointLights._length;
+            var poiCount: number = Stat.enableLight ? this._pointLights._length : 0;
             if (poiCount > 0) {
                 var poiElements: PointLightCom[] = this._pointLights._elements;
                 var mainPointLightIndex: number = this._pointLights.getBrightestLight();
@@ -886,7 +886,7 @@ export class Scene3D extends Sprite implements ISubmit {
                 shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_POINTLIGHT);
             }
 
-            var spoCount: number = this._spotLights._length;
+            var spoCount: number = Stat.enableLight ? this._spotLights._length : 0;
             if (spoCount > 0) {
                 var spoElements: SpotLightCom[] = this._spotLights._elements;
                 var mainSpotLightIndex: number = this._spotLights.getBrightestLight();
@@ -929,7 +929,7 @@ export class Scene3D extends Sprite implements ISubmit {
             shaderValues.setTexture(Scene3D.CLUSTERBUFFER, Cluster.instance._clusterTexture);
         }
         else {
-            if (this._directionLights._length > 0) {
+            if (this._directionLights._length > 0 && this._spotLights._length) {
                 var dirLight: DirectionLightCom = this._directionLights._elements[0];
                 this._mainDirectionLight = dirLight;
                 dirLight._intensityColor.x = Color.gammaToLinearSpace(dirLight.color.r);
@@ -952,7 +952,7 @@ export class Scene3D extends Sprite implements ISubmit {
             else {
                 shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_DIRECTIONLIGHT);
             }
-            if (this._pointLights._length > 0) {
+            if (this._pointLights._length > 0 && this._spotLights._length) {
                 var poiLight: PointLightCom = this._pointLights._elements[0];
                 this._mainPointLight = poiLight;
                 poiLight._intensityColor.x = Color.gammaToLinearSpace(poiLight.color.r);
@@ -967,7 +967,7 @@ export class Scene3D extends Sprite implements ISubmit {
             else {
                 shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_POINTLIGHT);
             }
-            if (this._spotLights._length > 0) {
+            if (this._spotLights._length > 0 && this._spotLights._length) {
                 var spotLight: SpotLightCom = this._spotLights._elements[0];
                 this._mainSpotLight = spotLight;
                 spotLight._intensityColor.x = Color.gammaToLinearSpace(spotLight.color.r);

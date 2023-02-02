@@ -37,6 +37,7 @@ import { Vector2 } from "../../maths/Vector2";
 import { Vector3 } from "../../maths/Vector3";
 import { Vector4 } from "../../maths/Vector4";
 import { RenderTexture } from "../../resource/RenderTexture";
+import { Stat } from "../../utils/Stat";
 
 /**
  * 相机清除标记。
@@ -96,8 +97,6 @@ export class Camera extends BaseCamera {
 
     /** @internal 深度贴图管线*/
     static depthPass: DepthPass;
-    /**@internal 整体开启关闭后期处理 */
-    static enablePostProcess: boolean = true;//
 
     /**
      * 根据相机、scene信息获得scene中某一位置的渲染结果
@@ -446,7 +445,7 @@ export class Camera extends BaseCamera {
 
 
     get msaa(): boolean {
-        return this._msaa;
+        return this._msaa && Stat.enablemsaa;
     }
 
     /**
@@ -933,6 +932,8 @@ export class Camera extends BaseCamera {
      * @param context 
      */
     _applyCommandBuffer(event: number, context: RenderContext3D) {
+        if (!Stat.enableCameraCMD)
+            return;
         var commandBufferArray: CommandBuffer[] = this._cameraEventCommandBuffer[event];
         if (!commandBufferArray || commandBufferArray.length == 0)
             return;
@@ -989,10 +990,11 @@ export class Camera extends BaseCamera {
         if (Scene3D._updateMark % scene._ShadowMapupdateFrequency != 0) {
             return false;
         }
+
         //render shadowMap
         var shadowCasterPass;
         var mainDirectLight: DirectionLightCom = scene._mainDirectionLight;
-        var needShadowCasterPass: boolean = mainDirectLight && mainDirectLight.shadowMode !== ShadowMode.None && ShadowUtils.supportShadow();
+        var needShadowCasterPass: boolean = mainDirectLight && mainDirectLight.shadowMode !== ShadowMode.None && ShadowUtils.supportShadow() && Stat.enableShadow;
         if (needShadowCasterPass) {
             scene._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SPOT)
             scene._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW);
@@ -1004,7 +1006,7 @@ export class Camera extends BaseCamera {
             scene._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW);
         }
         var spotMainLight = scene._mainSpotLight;
-        var spotneedShadowCasterPass: boolean = spotMainLight && spotMainLight.shadowMode !== ShadowMode.None && ShadowUtils.supportShadow();
+        var spotneedShadowCasterPass: boolean = spotMainLight && spotMainLight.shadowMode !== ShadowMode.None && ShadowUtils.supportShadow() && Stat.enableShadow;
         if (spotneedShadowCasterPass) {
             scene._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW);
             scene._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SPOT);
@@ -1114,7 +1116,7 @@ export class Camera extends BaseCamera {
         this._applyCommandBuffer(CameraEventFlags.BeforeForwardOpaque, context);
 
         this.recoverRenderContext3D(context, renderTex);
-        scene._renderScene(context, ILaya3D.Scene3D.SCENERENDERFLAG_RENDERQPAQUE);
+        Stat.enableOpaque && scene._renderScene(context, ILaya3D.Scene3D.SCENERENDERFLAG_RENDERQPAQUE);
         this._applyCommandBuffer(CameraEventFlags.BeforeSkyBox, context);
         this._opaquePass && this._createOpaqueTexture(renderTex, context);
         this.recoverRenderContext3D(context, renderTex);
@@ -1122,12 +1124,12 @@ export class Camera extends BaseCamera {
         this._applyCommandBuffer(CameraEventFlags.BeforeTransparent, context);
 
         this.recoverRenderContext3D(context, renderTex);
-        scene._renderScene(context, ILaya3D.Scene3D.SCENERENDERFLAG_RENDERTRANSPARENT);
+        Stat.enableTransparent && scene._renderScene(context, ILaya3D.Scene3D.SCENERENDERFLAG_RENDERTRANSPARENT);
         //scene._componentDriver.callPostRender();//TODO:duo相机是否重复
         this._applyCommandBuffer(CameraEventFlags.BeforeImageEffect, context);
         (renderTex) && (renderTex._end());
 
-        if (needInternalRT && Camera.enablePostProcess) {
+        if (needInternalRT && Stat.enablePostprocess) {
             if (this._postProcess && this._postProcess.enable) {
                 this._postProcess.commandContext = context;
                 this._postProcess._render(this);
@@ -1251,7 +1253,7 @@ export class Camera extends BaseCamera {
     render(shader: Shader3D = null, replacementTag: string = null): void {
         if (!this.activeInHierarchy) //custom render should protected with activeInHierarchy=true
             return;
-        
+
         var viewport: Viewport = this.viewport;
         var needInternalRT: boolean = this._needInternalRenderTexture();
         var context: RenderContext3D = RenderContext3D._instance;
@@ -1263,7 +1265,7 @@ export class Camera extends BaseCamera {
         let texFormat = this._getRenderTextureFormat();
 
         if (needInternalRT) {
-            if (this._msaa) {
+            if (this.msaa) {
                 this._internalRenderTexture = RenderTexture.createFromPool(viewport.width, viewport.height, texFormat, this._depthTextureFormat, false, 4, this.canblitDepth, this._needRenderGamma(texFormat));
                 this._internalRenderTexture.filterMode = FilterMode.Bilinear;
             } else {

@@ -952,7 +952,7 @@ export class Animator extends Component {
                 var destIndex: number = destDataIndices[i];
                 var srcValue: any = srcIndex !== -1 ? srcRealtimeDatas[srcIndex] : destNodeOwners[destIndex].defaultValue;
                 var desValue: any = destIndex !== -1 ? destRealtimeDatas[destIndex] : srcNodeOwners[srcIndex].defaultValue;
-                if(!desValue){
+                if (!desValue) {
                     desValue = srcNodeOwners[srcIndex].defaultValue;
                 }
                 if (!controllerLayer.avatarMask || controllerLayer.avatarMask.getTransformActive(nodeOwner.nodePath)) {
@@ -1253,6 +1253,8 @@ export class Animator extends Component {
         let delta = timer._delta / 1000.0;//Laya.timer.delta已结包含Laya.timer.scale
         delta = this._applyUpdateMode(delta);
         if (this._speed === 0 || delta === 0)//delta为0无需更新,可能造成crossWeight计算值为NaN
+            return;
+        if (!Stat.enableAnimatorUpdate)
             return;
         var needRender = true;//TODO:有渲染节点才可将needRender变为true
         var i, n;
