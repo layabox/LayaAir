@@ -1,3 +1,4 @@
+import { LayaEnv } from "../../../../LayaEnv";
 import { Matrix4x4 } from "../../../maths/Matrix4x4";
 import { Vector2 } from "../../../maths/Vector2";
 import { Vector3 } from "../../../maths/Vector3";
@@ -37,7 +38,7 @@ export class GLShaderInstance extends GLObject implements IRenderShaderInstance 
     // todo 没用到
     private _uniformObjectMap: { [key: string]: ShaderVariable };
     /**@internal */
-    _complete:boolean = true;
+    _complete: boolean = true;
 
     constructor(engine: WebGLEngine, vs: string, ps: string, attributeMap: { [name: string]: [number, ShaderDataType] }) {
         super(engine);
@@ -123,7 +124,11 @@ export class GLShaderInstance extends GLObject implements IRenderShaderInstance 
         gl.shaderSource(shader, str);
         gl.compileShader(shader);
         if (this._engine._isShaderDebugMode && !gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-            console.warn(gl.getShaderInfoLog(shader));
+            if (!LayaEnv.isPlaying) {
+                console.warn(gl.getShaderInfoLog(shader));
+            } else {
+                console.error(gl.getShaderInfoLog(shader));
+            }
         }
         return shader;
     }
