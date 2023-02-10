@@ -1283,6 +1283,7 @@ export class Sprite extends Node {
         } else {
             ctx.asBitmap = true;
         }
+        let texRT;
         if (ctx._targets) {
             ctx._targets.start();
             let color = RenderTexture2D._clearColor;
@@ -1293,10 +1294,12 @@ export class Sprite extends Node {
             ctx.flush();
             ctx._targets.end();
             ctx._targets.restore();
+            if(!rt)
+                texRT = ctx._targets;
             ctx._targets = null;//IDE闪
         }
         if (!rt) {
-            var rtex: Texture = new Texture(((<Texture2D>(ctx._targets as any))), Texture.INV_UV);
+            var rtex: Texture = new Texture(((<Texture2D>(ctx._targets as any)))?((<Texture2D>(ctx._targets as any))):texRT, Texture.INV_UV);
             ctx.destroy(true);// 保留 _targets
             return rtex;
         }
