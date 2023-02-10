@@ -16,6 +16,7 @@ import { Scene3D } from "./scene/Scene3D";
 import { Bounds } from "../math/Bounds";
 import { Matrix4x4 } from "../../maths/Matrix4x4";
 import { Vector3 } from "../../maths/Vector3";
+import { BoundFrustum } from "../math/BoundFrustum";
 /**
  * <code>SkinMeshRenderer</code> 类用于蒙皮渲染器。
  */
@@ -191,6 +192,17 @@ export class SkinnedMeshRenderer extends MeshRenderer {
                 }
             }
         }
+    }
+
+     /**
+     * @inheritDoc
+     * @internal
+     * @override
+     */
+    _needRender(boundFrustum: BoundFrustum, context: RenderContext3D): boolean {
+        if(!Stat.enableSkin)
+            return false;
+        return super._needRender(boundFrustum,context);
     }
 
     /**

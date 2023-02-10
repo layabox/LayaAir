@@ -23,7 +23,6 @@ export class URL {
     private _url: string;
     /**@private */
     private _path: string;
-    /**@private */
 
     private static overrideFileExts: Record<string, string> = {};
     private static hasExtOverrides: boolean;
@@ -33,14 +32,18 @@ export class URL {
         //Vivo location.protocol是""
         //微信真机 location.protocol是undefined
         URL.rootPath = URL.basePath = (location && location.protocol != undefined && location.protocol != "") ? URL.getPath(location.protocol + "//" + location.host + location.pathname) : "";
+    }
 
-        if (LayaEnv.isPlaying && !LayaEnv.isPreview){
-            this.overrideExtension(["rendertexture", "videotexture"], "rt.json");
-            this.overrideExtension(["controller"], "controller.json");
-            this.overrideExtension(["mc"], "mc.bin");
-            this.overrideExtension(["mcc"], "mcc.json");
-            this.overrideExtension(["shader"], "shader.json");
-        }
+    static initMiniGameExtensionOverrides() {
+        if (!LayaEnv.isPlaying || LayaEnv.isPreview)
+            return;
+
+        URL.overrideExtension(["rendertexture", "videotexture"], "rt.json");
+        URL.overrideExtension(["controller"], "controller.json");
+        URL.overrideExtension(["mc"], "mc.bin");
+        URL.overrideExtension(["mcc"], "mcc.json");
+        URL.overrideExtension(["shader"], "shader.json");
+        URL.overrideExtension(["scene3d", "scene", "taa", "prefab"], "json");
     }
 
     /**创建一个新的 <code>URL</code> 实例。*/
@@ -227,13 +230,5 @@ export class URL {
         for (let ext of originalExts)
             URL.overrideFileExts[ext] = targetExt;
         URL.hasExtOverrides = true;
-    }
-
-    /*
-     * 兼容微信不支持加载scene后缀场景，设置为true，则会把scene加载替换为json
-    */
-    static set exportSceneToJson(value: boolean) {
-        if (value)
-            URL.overrideExtension(["scene3d", "scene", "taa", "prefab"], "json");
     }
 }

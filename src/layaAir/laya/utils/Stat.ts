@@ -12,9 +12,9 @@ import { IStatRender } from "./IStatRender";
      * Shader：是 WebGL 模式独有的性能指标，表示每大约1秒 Shader 提交次数，值越小越好；<br/>
      * Canvas：由三个数值组成，只有设置 CacheAs 后才会有值，默认为0/0/0。从左到右数值的意义分别为：每帧重绘的画布数量 / 缓存类型为"normal"类型的画布数量 / 缓存类型为"bitmap"类型的画布数量。</p>
      */
-export type StatUnit = "M" | "K" | "int";
-export type StatColor = "yellow" | "white" | "red";
-export type StatMode = "summit" | "average";
+export type StatUnit = "M" | "K" | "int";//M计算会除以1024*1024，k会除以1024，int不做处理
+export type StatColor = "yellow" | "white" | "red";//颜色
+export type StatMode = "summit" | "average";//是否根据帧分配
 
 export interface StatUIParams {
     title: string,//显示title
@@ -22,6 +22,12 @@ export interface StatUIParams {
     color: StatColor,//显示颜色
     units: StatUnit,//"M"/"k"/"int"//显示单位
     mode: StatMode//"resource/average"//显示模式
+}
+
+export interface StatToggleUIParams {
+    title: string,//显示title
+    value: string,//Toggle
+    color: StatColor,//显示颜色
 }
 
 export class Stat {
@@ -50,7 +56,7 @@ export class Stat {
     //TransformDrawCall
     public static TransDrawCall: StatUIParams = { title: "TransDrawCall", value: "transDrawCall", color: "white", units: "int", mode: "average" };
     //DepthCastDrawCall
-    public static DepthCastDrawCall:StatUIParams = {title: "DepthCastDrawCall", value: "depthCastDrawCall", color: "white", units: "int", mode: "average" };
+    public static DepthCastDrawCall: StatUIParams = { title: "DepthCastDrawCall", value: "depthCastDrawCall", color: "white", units: "int", mode: "average" };
     //InstanceDrawCall
     public static InstanceDrawCall: StatUIParams = { title: "InstanceDrawCall", value: "instanceDrawCall", color: "white", units: "int", mode: "average" };
     //CMDDrawCall
@@ -65,21 +71,52 @@ export class Stat {
     public static RenderTextureMemory: StatUIParams = { title: "RenderTextureMemory", value: "renderTextureMemory", color: "white", units: "M", mode: "summit" };
     //BufferMemory
     public static BufferMemory: StatUIParams = { title: "BufferMemory", value: "bufferMemory", color: "white", units: "M", mode: "summit" };
-
+    //所有显示
     public static AllShow: Array<StatUIParams> = [Stat.FPSStatUIParams, Stat.NodeStatUIParams, Stat.Sprite3DStatUIParams, Stat.DrawCall, Stat.TriangleFace, Stat.RenderNode, Stat.SkinRenderNode, Stat.ParticleRenderNode
-        , Stat.FrustumCulling, Stat.OpaqueDrawCall, Stat.TransDrawCall,Stat.DepthCastDrawCall, Stat.InstanceDrawCall, Stat.CMDDrawCall, Stat.BlitDrawCall, Stat.GPUMemory, Stat.TextureMemeory, Stat.RenderTextureMemory, Stat.BufferMemory];
+        , Stat.FrustumCulling, Stat.OpaqueDrawCall, Stat.TransDrawCall, Stat.DepthCastDrawCall, Stat.InstanceDrawCall, Stat.CMDDrawCall, Stat.BlitDrawCall, Stat.GPUMemory, Stat.TextureMemeory, Stat.RenderTextureMemory, Stat.BufferMemory];
+    //memory显示
     public static memoryShow: Array<StatUIParams> = [Stat.GPUMemory, Stat.TextureMemeory, Stat.RenderTextureMemory, Stat.BufferMemory];
-    public static renderShaow: Array<StatUIParams> = [Stat.DrawCall, Stat.TriangleFace, Stat.OpaqueDrawCall, Stat.TransDrawCall,Stat.DepthCastDrawCall, Stat.InstanceDrawCall, Stat.CMDDrawCall, Stat.BlitDrawCall];
+    //渲染显示
+    public static renderShow: Array<StatUIParams> = [Stat.DrawCall, Stat.TriangleFace, Stat.OpaqueDrawCall, Stat.TransDrawCall, Stat.DepthCastDrawCall, Stat.InstanceDrawCall, Stat.CMDDrawCall, Stat.BlitDrawCall];
+
+    /**@internal 开启关闭阴影 */
+    public static toogle_Shadow: StatToggleUIParams = { title: "Shadow", value: "enableShadow", color: "white" };
+    /**@internal 开启关闭多光源 */
+    public static toogle_MulLight: StatToggleUIParams = { title: "MulLight", value: "enableMulLight", color: "white" };
+    /**@internal 开启关闭光源 */
+    public static toogle_Light: StatToggleUIParams = { title: "Light", value: "enableLight", color: "white" };
+    /**@internal 开启关闭后期处理 */
+    public static toogle_Postprocess: StatToggleUIParams = { title: "Postprocess", value: "enablePostprocess", color: "white" };
+    /**@internal 开启关闭动画更新 */
+    public static toogle_AnimatorUpdate: StatToggleUIParams = { title: "AnimatorUpdate", value: "enableAnimatorUpdate", color: "white" };
+    /**@internal 开启关闭物理更新*/
+    public static toogle_PhysicsUpdate: StatToggleUIParams = { title: "PhysicsUpdate", value: "enablePhysicsUpdate", color: "white" };
+    /**@internal 开启关闭skin渲染 */
+    public static toogle_Skin: StatToggleUIParams = { title: "Skin", value: "enableSkin", color: "white" };
+    /**@internal 开启关闭透明渲染 */
+    public static toogle_Transparent: StatToggleUIParams = { title: "Transparent", value: "enableTransparent", color: "white" };
+    /**@internal 开启关闭粒子 */
+    public static toogle_Particle: StatToggleUIParams = { title: "Particle", value: "enableParticle", color: "white" };
+    /**@internal 开启关闭msaa */
+    public static toogle_msaa: StatToggleUIParams = { title: "MSAA", value: "enablemsaa", color: "white" };
+    /**@internal 开启关闭CMD */
+    public static toogle_CameraCMD: StatToggleUIParams = { title: "CameraCMD", value: "enableCameraCMD", color: "white" };
+    /**@internal 开启关闭非透明物体渲染 */
+    public static toogle_Opaque: StatToggleUIParams = { title: "Opaque", value: "enableOpaque", color: "white" };
+
+    //所有开关
+    public static AllToggle: Array<StatToggleUIParams> = [Stat.toogle_Shadow, Stat.toogle_Light, Stat.toogle_MulLight, Stat.toogle_Postprocess, Stat.toogle_AnimatorUpdate, Stat.toogle_PhysicsUpdate, Stat.toogle_Opaque,Stat.toogle_Transparent,Stat.toogle_CameraCMD,Stat.toogle_Skin,Stat.toogle_Particle, Stat.toogle_msaa];
+    //渲染开关
+    public static RenderModeToggle: Array<StatToggleUIParams> = [Stat.toogle_Shadow, Stat.toogle_Light, Stat.toogle_MulLight, Stat.toogle_Postprocess, Stat.toogle_AnimatorUpdate, Stat.toogle_PhysicsUpdate];
+    //功能开关
+    public static RenderFuncToggle: Array<StatToggleUIParams> = [Stat.toogle_Opaque,Stat.toogle_Transparent,Stat.toogle_CameraCMD,Stat.toogle_Skin,Stat.toogle_Particle, Stat.toogle_msaa];
+
     /** 每秒帧数。*/
-    static FPS: number = 0;
+    public static FPS: number = 0;
     /**主舞台 <code>Stage</code> 渲染次数计数。 */
-    static loopCount: number = 0;
-    // /** 三角形面数。*/
-    // static trianglesFaces: number = 0;
-    /** 精灵<code>Sprite</code> 的数量。*/
-    //static spriteCount: number = 0;
+    public static loopCount: number = 0;
     /** 精灵渲染使用缓存<code>Sprite</code> 的数量。*/
-    static spriteRenderUseCacheCount: number = 0;
+    public static spriteRenderUseCacheCount: number = 0;
 
 
     /** 画布 canvas 使用标准渲染的次数。*/
@@ -132,7 +169,7 @@ export class Stat {
     /**@internal */
     public static transDrawCall: number = 0;
     /**@internal */
-    public static depthCastDrawCall:number = 0;
+    public static depthCastDrawCall: number = 0;
     /**@internal */
     public static instanceDrawCall: number = 0;
     /**@internal */
@@ -148,10 +185,36 @@ export class Stat {
     /**@interanl */
     public static bufferMemory: number = 0;
 
+    //Toggle
+    /**@internal 开启关闭阴影 */
+    public static enableShadow: boolean = true;
+    /**@internal 开启关闭多光源 */
+    public static enableMulLight: boolean = true;
+    /**@internal 开启关闭光源 */
+    public static enableLight: boolean = true;
+    /**@internal 开启关闭CMD */
+    public static enableCameraCMD: boolean = true;
+    /**@internal 开启关闭后期处理 */
+    public static enablePostprocess: boolean = true;
+    /**@internal 开启关闭skin渲染 */
+    public static enableSkin: boolean = true;
+    /**@internal 开启关闭透明渲染 */
+    public static enableTransparent: boolean = true;
+    /**@internal 开启关闭粒子 */
+    public static enableParticle: boolean = true;
+    /**@internal 开启关闭动画更新 */
+    public static enableAnimatorUpdate: boolean = true;
+    /**@internal 开启关闭物理更新*/
+    public static enablePhysicsUpdate: boolean = true;
+    /**@internal 开启关闭msaa */
+    public static enablemsaa: boolean = true;
+    /**@internal 开启关闭非透明物体渲染 */
+    public static enableOpaque: boolean = true;
 
     /**@internal*/
     static _StatRender: IStatRender;
-    static _currentShowArray:Array<StatUIParams>;
+    static _currentShowArray: Array<StatUIParams>;
+    static _currentToggleArray: Array<StatToggleUIParams>;
     /**
      * 显示性能统计信息。
      * @param	x X轴显示位置。
@@ -160,6 +223,11 @@ export class Stat {
     static show(x: number = 0, y: number = 0, views: Array<StatUIParams> = Stat.AllShow): void {
         Stat._currentShowArray = views;
         Stat._StatRender.show(x, y, views);
+    }
+
+    static showToggle(x: number = 0, y: number = 0, views: Array<StatToggleUIParams> = Stat.AllToggle): void {
+        Stat._currentToggleArray = views;
+        Stat._StatRender.showToggle(x, y, views);
     }
 
     /**
@@ -186,12 +254,12 @@ export class Stat {
         Stat._StatRender.hide();
     }
 
-    static updateEngineData():void{
-        
+    static updateEngineData(): void {
+
         Stat.trianglesFaces = LayaGL.renderEngine.getStatisticsInfo(RenderStatisticsInfo.Triangle);
         Stat.drawCall = LayaGL.renderEngine.getStatisticsInfo(RenderStatisticsInfo.DrawCall);
         Stat.instanceDrawCall = LayaGL.renderEngine.getStatisticsInfo(RenderStatisticsInfo.InstanceDrawCall);
-        
+
         Stat.gpuMemory = LayaGL.renderEngine.getStatisticsInfo(RenderStatisticsInfo.GPUMemory);
         Stat.textureMemory = LayaGL.renderEngine.getStatisticsInfo(RenderStatisticsInfo.TextureMemeory);
         Stat.renderTextureMemory = LayaGL.renderEngine.getStatisticsInfo(RenderStatisticsInfo.RenderTextureMemory);
@@ -203,10 +271,10 @@ export class Stat {
      * 清零性能统计计算相关的数据。
      */
     static clear(): void {
-        if(!Stat._currentShowArray)
+        if (!Stat._currentShowArray)
             return;
         Stat._currentShowArray.forEach(element => {
-            if(element.mode=="average")
+            if (element.mode == "average")
                 (Stat as any)[element.value] = 0;
         });
         LayaGL.renderEngine.clearStatisticsInfo(RenderStatisticsInfo.Triangle);
@@ -221,4 +289,4 @@ export class Stat {
         Stat._StatRender.set_onclick(fn as any);
     }
 }
-
+(window as any).Stat = Stat;
