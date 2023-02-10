@@ -929,7 +929,7 @@ export class Scene3D extends Sprite implements ISubmit {
             shaderValues.setTexture(Scene3D.CLUSTERBUFFER, Cluster.instance._clusterTexture);
         }
         else {
-            if (this._directionLights._length > 0 && this._spotLights._length) {
+            if (this._directionLights._length > 0 && Stat.enableLight) {
                 var dirLight: DirectionLightCom = this._directionLights._elements[0];
                 this._mainDirectionLight = dirLight;
                 dirLight._intensityColor.x = Color.gammaToLinearSpace(dirLight.color.r);
@@ -952,7 +952,7 @@ export class Scene3D extends Sprite implements ISubmit {
             else {
                 shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_DIRECTIONLIGHT);
             }
-            if (this._pointLights._length > 0 && this._spotLights._length) {
+            if (this._pointLights._length > 0 && Stat.enableLight) {
                 var poiLight: PointLightCom = this._pointLights._elements[0];
                 this._mainPointLight = poiLight;
                 poiLight._intensityColor.x = Color.gammaToLinearSpace(poiLight.color.r);
@@ -967,7 +967,7 @@ export class Scene3D extends Sprite implements ISubmit {
             else {
                 shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_POINTLIGHT);
             }
-            if (this._spotLights._length > 0 && this._spotLights._length) {
+            if (this._spotLights._length > 0 && Stat.enableLight) {
                 var spotLight: SpotLightCom = this._spotLights._elements[0];
                 this._mainSpotLight = spotLight;
                 spotLight._intensityColor.x = Color.gammaToLinearSpace(spotLight.color.r);
