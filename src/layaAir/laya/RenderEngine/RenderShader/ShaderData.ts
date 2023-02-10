@@ -422,6 +422,7 @@ export class ShaderData implements IClone {
 		this._data[index] = value ? value : Texture2D.erroTextur;
 		(lastValue) && (lastValue._removeReference());
 		(value) && (value._addReference());
+		
 	}
 
 	/**
@@ -431,6 +432,14 @@ export class ShaderData implements IClone {
 	 */
 	getTexture(index: number): BaseTexture {
 		return this._data[index];
+	}
+
+	getSourceIndex(value:any){
+		for(var i in this._data){
+			if(this._data[i]==value)
+				return Number(i);
+		}
+		return -1;
 	}
 
 	/**

@@ -18,6 +18,7 @@ import { Vector2 } from "../../../maths/Vector2";
 import { Vector3 } from "../../../maths/Vector3";
 import { Vector4 } from "../../../maths/Vector4";
 import { RenderState } from "../../../RenderEngine/RenderShader/RenderState";
+import { Event } from "../../../events/Event";
 
 export enum MaterialRenderMode {
     /**渲染状态_不透明。*/
@@ -905,6 +906,14 @@ export class Material extends Resource implements IClone {
      */
     setTextureByIndex(uniformIndex: number, texture: BaseTexture) {
         this.shaderData.setTexture(uniformIndex, texture);
+        if(!texture._texture) texture.once(Event.READY,this,this.reSetTexture)
+    }
+
+    private reSetTexture(texture:BaseTexture){
+        let index = this.shaderData.getSourceIndex(texture);
+        if(index!=-1){
+            this.setTextureByIndex(index,texture);
+        }
     }
 
     /**
