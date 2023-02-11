@@ -113,7 +113,7 @@ export class Mesh2D {
      * @param	gl
      */
     useMesh(): void {
-        if(this._vao&&!this._vao.isbind()){
+        if((this._vao&&!this._vao.isbind())||this._ib.buffer2D._upload||this._vb.buffer2D._upload){
             BufferState._curBindedBufferState&&BufferState._curBindedBufferState.unBind();
         }
         //要先bind，在bufferData
