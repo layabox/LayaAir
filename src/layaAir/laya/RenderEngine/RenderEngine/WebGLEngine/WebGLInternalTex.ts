@@ -48,7 +48,8 @@ export class WebGLInternalTex extends GLObject implements InternalTexture {
         return this._gpuMemory;
     }
     set gpuMemory(value: number) {
-        
+        this._engine._addStatisticsInfo(RenderStatisticsInfo.GPUMemory,-this._gpuMemory);
+        this._engine._addStatisticsInfo(RenderStatisticsInfo.TextureMemeory,-this._gpuMemory);
         this._gpuMemory = value;
         this._engine._addStatisticsInfo(RenderStatisticsInfo.GPUMemory,this._gpuMemory);
         this._engine._addStatisticsInfo(RenderStatisticsInfo.TextureMemeory,this._gpuMemory);
