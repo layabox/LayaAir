@@ -177,15 +177,17 @@ export function regClass(): any { return dummy; }
 
 /**
  * 设置类型的额外信息。
+ * @param info 类型的额外信息
  */
 export function classInfo(info?: Partial<TypeDescriptor>): any { return dummy2; }
 
 /**
- * 设置组件可以在编辑器环境中激活。
+ * 设置组件可以在编辑器环境中执行完整声明周期。
  */
 export function runInEditor(constructor: Function): void { }
 
 /**
  * 使用这个装饰器，可以使属性显示在编辑器属性设置面板上，并且能序列化保存。
+ * @param info 如果是字符串，是属性的标题；如果是数组，例如[Number]，可以定义属性为数组类型；也可以是PropertyDescriptor，定义详细的属性信息。
  */
-export function property(info?: string | Partial<PropertyDescriptor>): any { return dummy2; }
+export function property(info?: string | Array<any> | Partial<PropertyDescriptor>): any { return dummy2; }
