@@ -257,19 +257,6 @@ export class Skeleton extends Sprite {
 
     /**
      * 动画类型
-     */
-    get aniMode(): number {
-        return this._aniMode;
-    }
-
-    set aniMode(value: number) {
-        this._aniMode = value;
-    }
-
-    /**
-     * 初始化动画
-     * @param	templet		模板
-     * @param	aniMode		动画模式
      * <table>
      * 	<tr><th>模式</th><th>描述</th></tr>
      * 	<tr>
@@ -282,6 +269,18 @@ export class Skeleton extends Sprite {
      * 		<td>2</td> <td>使用动态方式，去实时去画（内存开销小，计算开销大，支持换装,不建议使用）</td>
      * </tr>
      * </table>
+     */
+    get aniMode(): number {
+        return this._aniMode;
+    }
+
+    set aniMode(value: number) {
+        this._aniMode = value;
+    }
+
+    /**
+     * 初始化动画
+     * @param	templet		模板
      */
     protected init(templet: Templet): void {
         if (this._templet) {
@@ -356,9 +355,8 @@ export class Skeleton extends Sprite {
      * 通过加载直接创建动画
      * @param	path		要加载的动画文件路径
      * @param	complete	加载完成的回调函数
-     * @param	aniMode		与<code>Skeleton.init</code>的<code>aniMode</code>作用一致
      */
-    load(path: string, complete: Handler = null): void {
+    load(path: string, complete?: Handler): void {
         ILaya.loader.load(path).then((templet: Templet) => {
             if (templet == null) return;
 
@@ -368,7 +366,7 @@ export class Skeleton extends Sprite {
             this.init(templet);
             this.play(0, true);
 
-            this._complete && this._complete.runWith(this);
+            complete && complete.runWith(this);
         });
     }
 
