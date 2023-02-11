@@ -417,14 +417,11 @@ export class ShaderData implements IClone {
 				shaderDefine && this.removeDefine(shaderDefine);
 			}
 		}
-
 		//维护Reference
 		this._data[index] = value ? value : Texture2D.erroTextur;
 		(lastValue) && (lastValue._removeReference());
-		(value) && (value._addReference());
-		
+		(value) && (value._addReference());	
 	}
-
 	/**
 	 * 获取纹理。
 	 * @param	index shader索引。
