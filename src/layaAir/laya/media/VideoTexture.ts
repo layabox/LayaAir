@@ -1,7 +1,6 @@
 import { BaseTexture } from "../resource/BaseTexture";
 import { LayaGL } from "../layagl/LayaGL";
 import { ILaya } from "../../ILaya";
-import { Delegate } from "../utils/Delegate";
 import { Utils } from "../utils/Utils";
 import { URL } from "../net/URL";
 import { TextureDimension } from "../RenderEngine/RenderEnum/TextureDimension";

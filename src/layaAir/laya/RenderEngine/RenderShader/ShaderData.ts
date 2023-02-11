@@ -417,13 +417,11 @@ export class ShaderData implements IClone {
 				shaderDefine && this.removeDefine(shaderDefine);
 			}
 		}
-
 		//维护Reference
 		this._data[index] = value ? value : Texture2D.erroTextur;
 		(lastValue) && (lastValue._removeReference());
-		(value) && (value._addReference());
+		(value) && (value._addReference());	
 	}
-
 	/**
 	 * 获取纹理。
 	 * @param	index shader索引。
@@ -431,6 +429,14 @@ export class ShaderData implements IClone {
 	 */
 	getTexture(index: number): BaseTexture {
 		return this._data[index];
+	}
+
+	getSourceIndex(value:any){
+		for(var i in this._data){
+			if(this._data[i]==value)
+				return Number(i);
+		}
+		return -1;
 	}
 
 	/**

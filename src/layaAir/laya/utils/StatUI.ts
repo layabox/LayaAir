@@ -110,8 +110,8 @@ export class StatUI extends IStatRender {
 
         // //调整为合适大小和字体			
         var width: number = pixel * 138;
-        var height: number = pixel * (this._toggleView.length * StatUI._fontSize) + 4;
-        this._toggleleftText.fontSize = StatUI._fontSize * pixel;
+        var height: number = pixel * (this._toggleView.length * (StatUI._toggleSize+5)) + 4;
+        this._toggleleftText.fontSize = (StatUI._toggleSize+5) * pixel;
 
         stat.size(width, height);
         stat.graphics.clear();

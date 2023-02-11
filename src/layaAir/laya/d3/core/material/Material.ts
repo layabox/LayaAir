@@ -18,6 +18,7 @@ import { Vector2 } from "../../../maths/Vector2";
 import { Vector3 } from "../../../maths/Vector3";
 import { Vector4 } from "../../../maths/Vector4";
 import { RenderState } from "../../../RenderEngine/RenderShader/RenderState";
+import { Event } from "../../../events/Event";
 
 export enum MaterialRenderMode {
     /**渲染状态_不透明。*/
@@ -542,7 +543,7 @@ export class Material extends Resource implements IClone {
     }
 
 
-    
+
     /**
      * get all material uniform property 
      * @returns 
@@ -602,7 +603,7 @@ export class Material extends Resource implements IClone {
         return this.shaderData.getBool(uniformIndex);
     }
 
-    
+
     /**
      * 设置bool值
      * @param uniformIndex 属性索引
@@ -868,7 +869,7 @@ export class Material extends Resource implements IClone {
     getMatrix4x4ByIndex(uniformIndex: number): Matrix4x4 {
         return this.shaderData.getMatrix4x4(uniformIndex);
     }
-    
+
     /**
      * 设置Matrix4x4
      * @param uniformIndex 属性索引
@@ -905,6 +906,15 @@ export class Material extends Resource implements IClone {
      */
     setTextureByIndex(uniformIndex: number, texture: BaseTexture) {
         this.shaderData.setTexture(uniformIndex, texture);
+        if (texture && !texture._texture)//贴图为加载完，需要重设
+            texture.once(Event.READY, this, this.reSetTexture);
+    }
+
+    private reSetTexture(texture: BaseTexture) {
+        let index = this.shaderData.getSourceIndex(texture);
+        if (index != -1) {
+            this.setTextureByIndex(index, texture);
+        }
     }
 
     /**

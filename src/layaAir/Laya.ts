@@ -39,6 +39,7 @@ import { Color } from "./laya/maths/Color";
 import { URL } from "./laya/net/URL";
 import { RunDriver } from "./laya/utils/RunDriver";
 import { Config } from "./Config";
+import { Shader3D } from "./laya/RenderEngine/RenderShader/Shader3D";
 
 var _isinit = false;
 
@@ -161,14 +162,14 @@ export class Laya {
             Laya.enableNative();
         }
         CacheManger.beginCheck();
-
+        
         stage = Laya.stage = new Stage();
         ILaya.stage = Laya.stage;
 
         if (LayaEnv.isConch && (window as any).conch.setGlobalRepaint) {
             (window as any).conch.setGlobalRepaint(stage.setGlobalRepaint.bind(stage));
         }
-
+        Shader3D.init();
         MeshQuadTexture.__int__();
         MeshVG.__init__();
         MeshTexture.__init__();
