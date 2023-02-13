@@ -283,9 +283,10 @@ export class Sprite extends Node {
         this._cacheStyle = null;
         this._boundStyle = null;
         this._transform = null;
+        this._texture && this._texture._removeReference();
+        this._texture = null;
         this._graphics && this._ownGraphics && this._graphics.destroy();
         this._graphics = null;
-        this.texture = null;
     }
 
     constructor() {
