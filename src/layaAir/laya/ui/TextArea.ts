@@ -209,6 +209,7 @@ export class TextArea extends TextInput {
     private createHScrollBar() {
         this._hScrollBar = new HScrollBar();
         this._hScrollBar.hideFlags = HideFlags.HideAndDontSave;
+        this._hScrollBar._skinBaseUrl = this._skinBaseUrl;
         this.addChild(this._hScrollBar);
         this._hScrollBar.on(Event.CHANGE, this, this.onHBarChanged);
         this._hScrollBar.mouseWheelEnable = false;
@@ -219,6 +220,7 @@ export class TextArea extends TextInput {
     private createVScrollBar() {
         this._vScrollBar = new VScrollBar()
         this._vScrollBar.hideFlags = HideFlags.HideAndDontSave;
+        this._vScrollBar._skinBaseUrl = this._skinBaseUrl;
         this.addChild(this._vScrollBar);
         this._vScrollBar.on(Event.CHANGE, this, this.onVBarChanged);
         this._vScrollBar.target = this._tf;
