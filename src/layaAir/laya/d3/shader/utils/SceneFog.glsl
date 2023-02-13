@@ -1,22 +1,31 @@
 #if !defined(SceneFog_lib)
     #define SceneFog_lib
 
-vec3 scenUnlitFog(in vec3 color)
-{
-    float lerpFact = clamp((1.0 / gl_FragCoord.w - u_FogStart) / u_FogRange, 0.0, 1.0);
+#include "Camera.glsl";
 
-    #ifdef ADDTIVEFOG
-    return mix(color, vec3(0.0), lerpFact);
-    #else
-    return mix(color, u_FogColor.rgb, lerpFact);
-    #endif // ADDTIVEFOG
-}
+    
+#ifdef FOG
+    varying float v_fogFactor;
+    float getFogFactor()
+    {
+        return v_fogFactor;
+    }
 
-vec3 sceneLitFog(in vec3 color)
-{
-    float lerpFact = clamp((1.0 / gl_FragCoord.w - u_FogStart) / u_FogRange, 0.0, 1.0);
+    vec3 scenUnlitFog(in vec3 color)
+    {
+        float lerpFact = getFogFactor();
+        #ifdef ADDTIVEFOG
+        return mix(vec3(0.0), color, lerpFact);
+        #else
+        return mix(u_FogColor.rgb, color, lerpFact);
+        #endif // ADDTIVEFOG
+    }
 
-    return mix(color, u_FogColor.rgb, lerpFact);
-}
+    vec3 sceneLitFog(in vec3 color)
+    {
+        float lerpFact = getFogFactor();
+        return mix(u_FogColor.rgb, color, lerpFact);
+    }
 
+#endif
 #endif // SceneFog_lib
