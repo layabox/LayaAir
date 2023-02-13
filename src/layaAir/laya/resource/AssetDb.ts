@@ -7,17 +7,17 @@ export class AssetDb {
      * 默认资源实例
      */
     static inst: AssetDb = new AssetDb();
-    
+
     /**
      * uuid 数据
      */
     uuidMap: Record<string, string> = {};
-    
+
     /**
      * shaderName 数据
      */
     shaderNameMap: Record<string, string> = {};
-    
+
     /**
      * 元资源 数据
      */
@@ -116,6 +116,9 @@ export class AssetDb {
      * @returns 
      */
     getSubAssetURL(url: string, uuid: string, subAssetName: string, subAssetExt: string): string {
-        return `${Utils.replaceFileExtension(url, "")}@${subAssetName}.${subAssetExt}`;
+        if (subAssetName)
+            return `${Utils.replaceFileExtension(url, "")}@${subAssetName}.${subAssetExt}`;
+        else
+            return url;
     }
 }
