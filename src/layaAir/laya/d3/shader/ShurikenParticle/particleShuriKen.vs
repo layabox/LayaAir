@@ -5,6 +5,9 @@
 #include "Math.glsl";
 #include "MathGradient.glsl";
 #include "Color.glsl";
+#include "Scene.glsl"
+#include "SceneFogInput.glsl"
+
 
 #ifdef RENDERMODE_MESH
 varying vec4 v_MeshColor;
@@ -607,4 +610,7 @@ void main()
 	    gl_Position = vec4(2.0, 2.0, 2.0, 1.0); // Discard use out of X(-1,1),Y(-1,1),Z(0,1)
 	}
     gl_Position = remapPositionZ(gl_Position);
+	#ifdef FOG
+        FogHandle(gl_Position.z);
+    #endif
 }

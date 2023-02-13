@@ -22,6 +22,7 @@ import ShadowSampleTentGLSL from "./lighting/ShadowSampleTent.glsl";
 import ShadowSamplerGLSL from "./lighting/ShadowSampler.glsl";
 
 import SceneFogGLSL from "./utils/SceneFog.glsl";
+import SceneFogInputGLSL from "./utils/SceneFogInput.glsl";
 
 import LightingGLSL from "./lighting/Lighting.glsl";
 import GlobalIlluminationGLSL from "./lighting/globalIllumination.glsl";
@@ -77,7 +78,7 @@ export class ShaderInit3D {
 
 		// scene fog
 		Shader3D.addInclude("SceneFog.glsl", SceneFogGLSL);
-
+		Shader3D.addInclude("SceneFogInput.glsl", SceneFogInputGLSL);
 		// shadow sampler
 		Shader3D.addInclude("ShadowSampleTent.glsl", ShadowSampleTentGLSL);
 		Shader3D.addInclude("ShadowSampler.glsl", ShadowSamplerGLSL);
@@ -224,7 +225,7 @@ export class ShaderInit3D {
 		// renderState.blend = RenderState.BLEND_DISABLE;
 		// //PostProcessBloom
 		// (attributeMap as any) = {
-		// 	'a_PositionTexcoord': VertexMesh.MESH_POSITION0
+		// 	'a_PositionTexcoord': VertexMesh.MESH_POSITION0b
 		// };
 		// shader = Shader3D.add("PostProcessBloom");
 		// //subShader0
