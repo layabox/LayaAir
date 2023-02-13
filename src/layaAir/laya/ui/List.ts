@@ -326,6 +326,7 @@ export class List extends Box {
             let scrollBar = new HScrollBar();
             scrollBar.name = "scrollBar";
             scrollBar.bottom = 0;
+            scrollBar._skinBaseUrl = this._skinBaseUrl;
             scrollBar.skin = this._hScrollBarSkin;
             scrollBar.elasticDistance = this._elasticEnabled ? 200 : 0;
             scrollBar.hideFlags = HideFlags.HideAndDontSave;
@@ -346,6 +347,7 @@ export class List extends Box {
             let scrollBar = new VScrollBar();
             scrollBar.name = "scrollBar";
             scrollBar.right = 0;
+            scrollBar._skinBaseUrl = this._skinBaseUrl;
             scrollBar.skin = this._vScrollBarSkin;
             scrollBar.elasticDistance = this._elasticEnabled ? 200 : 0;
             scrollBar.hideFlags = HideFlags.HideAndDontSave;
