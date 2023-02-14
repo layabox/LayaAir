@@ -9,6 +9,7 @@
 #include "VertexCommon.glsl";
 
 #include "BlinnPhongVertex.glsl";
+#include "SceneFogInput.glsl"
 
 void main()
 {
@@ -21,4 +22,7 @@ void main()
     gl_Position = getPositionCS(pixel.positionWS);
 
     gl_Position = remapPositionZ(gl_Position);
+    #ifdef FOG
+        FogHandle(gl_Position.z);
+    #endif
 }

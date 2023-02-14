@@ -7,6 +7,7 @@
 #include "VertexCommon.glsl";
 
 #include "PBRVertex.glsl";
+#include "SceneFogInput.glsl"
 
 #if defined(DETAILTEXTURE)||defined(DETAILNORMAL)
     varying vec2 v_DetailUV;
@@ -32,4 +33,8 @@ void main()
     gl_Position = getPositionCS(pixel.positionWS);
 
     gl_Position = remapPositionZ(gl_Position);
+    
+    #ifdef FOG
+        FogHandle(gl_Position.z);
+    #endif
 }
