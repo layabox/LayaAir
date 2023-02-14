@@ -350,8 +350,8 @@ export class Scene3D extends Sprite implements ISubmit {
     private _time: number = 0;
     /** @internal */
     private _fogParams: Vector4;
-      /** @internal */
-    private _fogMode:FogMode;
+    /** @internal */
+    private _fogMode: FogMode;
     /**@internal */
     private _sceneReflectionProb: ReflectionProbe;
 
@@ -497,7 +497,7 @@ export class Scene3D extends Sprite implements ISubmit {
     }
 
     /**
-     * 雾化范围。
+     * 雾化end范围。
      */
     get fogEnd(): number {
         return this._fogParams.y;
@@ -508,15 +508,7 @@ export class Scene3D extends Sprite implements ISubmit {
         this.fogParams = this._fogParams;
     }
 
-
-    get fogRange(): number {
-        return this._fogParams.y;
-    }
-
-    set fogRange(value: number) {
-        this._fogParams.y = value;
-        this.fogParams = this._fogParams;
-    }
+   
     /**
      * 雾化密度
      */
@@ -1542,6 +1534,18 @@ export class Scene3D extends Sprite implements ISubmit {
         this._shaderValues.setShaderData(shaderOffset, type, value);
     }
     //--------------------------------------------------------deprecated------------------------------------------------------------------------
+
+    /**
+     * @deprecated
+     */
+    get fogRange(): number {
+        return this._fogParams.y-this.fogParams.x;
+    }
+
+    set fogRange(value: number) {
+        this._fogParams.y = value + this.fogParams.x;
+        this.fogParams = this._fogParams;
+    }
 
     /**
      * @deprecated
