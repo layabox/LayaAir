@@ -232,6 +232,9 @@ export class LODGroup extends Component implements IBoundsCell {
     get nowRate(){
         return this._nowRate;
     }
+    set nowRate(value : number){
+        this._nowRate = value;
+    }
 
     /**
      * 获得LOD包围盒
