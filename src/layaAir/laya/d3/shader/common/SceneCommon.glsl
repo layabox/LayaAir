@@ -5,19 +5,14 @@
 uniform SceneUniformBlock
 {
     // time
-   
     float u_Time;
-    float u_FogStart;
-    float u_FogRange;
-    
+    vec4 u_FogParams;// x start,y range,z Density
     vec4 u_FogColor;
-
 };
     #else // ENUNIFORMBLOCK
 // time
 uniform float u_Time;
-uniform float u_FogStart;
-uniform float u_FogRange;
+uniform vec4 u_FogParams;//x start,y range,z Density
 uniform vec4 u_FogColor;
     #endif // ENUNIFORMBLOCK
     //rotate SH IBL

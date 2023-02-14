@@ -1,6 +1,8 @@
 #define SHADER_NAME TrailVS
 
 #include "Camera.glsl";
+#include "Scene.glsl"
+#include "SceneFogInput.glsl"
 
 // Sprite uniform
 uniform float u_CurTime;
@@ -73,4 +75,7 @@ void main()
     gl_Position = u_Projection * vec4(cameraPos + a_OffsetVector * getCurWidth(normalizeTime), 1.0);
 
     gl_Position = remapPositionZ(gl_Position);
+	#ifdef FOG
+        FogHandle(gl_Position.z);
+    #endif
 }

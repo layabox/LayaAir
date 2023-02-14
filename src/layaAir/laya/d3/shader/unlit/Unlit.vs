@@ -6,6 +6,8 @@
 
 #include "VertexCommon.glsl";
 #include "Color.glsl";
+#include "Scene.glsl"
+#include "SceneFogInput.glsl"
 
 varying vec4 v_Color;
 varying vec2 v_Texcoord0;
@@ -32,4 +34,8 @@ void main()
     gl_Position = getPositionCS(positionWS);
 
     gl_Position = remapPositionZ(gl_Position);
+    
+    #ifdef FOG
+        FogHandle(gl_Position.z);
+    #endif
 }

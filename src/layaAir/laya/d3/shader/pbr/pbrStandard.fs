@@ -5,7 +5,7 @@
 #include "Scene.glsl";
 #include "Camera.glsl";
 #include "Sprite3DFrag.glsl";
-
+#include "SceneFog.glsl";
 #include "PBRMetallicFrag.glsl"
 
 #if defined(DETAILTEXTURE)|| defined(DETAILNORMAL)
@@ -145,5 +145,10 @@ void main()
     initSurfaceInputs(inputs, pixel);
 
     vec4 surfaceColor = PBR_Metallic_Flow(inputs, pixel);
+    
+    #ifdef FOG
+        surfaceColor.rgb = sceneLitFog(surfaceColor.rgb);
+    #endif // FOG
     gl_FragColor = surfaceColor;
+
 }

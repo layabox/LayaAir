@@ -282,6 +282,7 @@ export class Tree extends Box {
         this._list.right = 0;
         this._list.top = 0;
         this._list.bottom = 0;
+        this._list._skinBaseUrl = this._skinBaseUrl;
         this.addChild(this._list);
         this._list.renderHandler = Handler.create(this, this.renderItem, null, false);
         this._list.repeatX = 1;

@@ -647,7 +647,7 @@ export class Camera extends BaseCamera {
         else {
             this._internalRenderTexture && (this._internalRenderTexture.generateDepthTexture = false);
             if (this._cacheDepthTexture)
-                this._cacheDepthTexture._inPool ? RenderTexture.recoverToPool(this._cacheDepthTexture) : 0;
+                this._cacheDepthTexture._inPool ? 0 : RenderTexture.recoverToPool(this._cacheDepthTexture);
         }
 
     }
@@ -1226,7 +1226,7 @@ export class Camera extends BaseCamera {
         //     ILaya3D.Scene3D._shadowCasterPass.cleanUp();
         if (this._cacheDepth && this._internalRenderTexture) {
             if (this._cacheDepthTexture)
-                this._cacheDepthTexture._inPool ? RenderTexture.recoverToPool(this._cacheDepthTexture) : 0;
+                this._cacheDepthTexture._inPool ? 0 : RenderTexture.recoverToPool(this._cacheDepthTexture);
             this._cacheDepthTexture = this._internalRenderTexture;
         }
         Camera.depthPass.cleanUp();
