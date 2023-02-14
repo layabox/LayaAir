@@ -508,15 +508,6 @@ export class Scene3D extends Sprite implements ISubmit {
         this.fogParams = this._fogParams;
     }
 
-
-    get fogRange(): number {
-        return this._fogParams.y;
-    }
-
-    set fogRange(value: number) {
-        this._fogParams.y = value;
-        this.fogParams = this._fogParams;
-    }
     /**
      * 雾化密度
      */

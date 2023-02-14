@@ -41,7 +41,7 @@ export class SceneLoad4 {
 			//设置雾化的起始位置，相对于相机的距离
 			scene.fogStart = 10;
 			//设置雾化最浓处的距离。
-			scene.fogRange = 40;
+			scene.fogEnd = 40;
 			//设置场景环境光
 			//scene.ambientColor = new Vector3(0.05, 0.15, 0.07);
 
