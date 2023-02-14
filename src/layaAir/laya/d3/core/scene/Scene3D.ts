@@ -71,6 +71,11 @@ import { Vector4 } from "../../../maths/Vector4";
 import { BufferState } from "../../../webgl/utils/BufferState";
 import { RenderTexture } from "../../../resource/RenderTexture";
 
+export enum FogMode {
+    Linear = 0, //Linear
+    EXP = 1,    // 指数
+    EXP2 = 2,   // 指数平方
+}
 
 /**
  * 用于实现3D场景。
@@ -97,9 +102,7 @@ export class Scene3D extends Sprite implements ISubmit {
     /** @internal */
     static FOGCOLOR: number;
     /** @internal */
-    static FOGSTART: number;
-    /** @internal */
-    static FOGRANGE: number;
+    static FOGPARAMS: number;
     /** @internal */
     static DIRECTIONLIGHTCOUNT: number;
     /** @internal */
@@ -157,6 +160,8 @@ export class Scene3D extends Sprite implements ISubmit {
     /**@internal */
     static mainCavansViewPort: Viewport = new Viewport(0, 0, 1, 1);
 
+
+
     /**
      * 场景更新标记
      */
@@ -173,6 +178,9 @@ export class Scene3D extends Sprite implements ISubmit {
      */
     static shaderValueInit() {
         Scene3DShaderDeclaration.SHADERDEFINE_FOG = Shader3D.getDefineByName("FOG");
+        Scene3DShaderDeclaration.SHADERDEFINE_FOG_LINEAR = Shader3D.getDefineByName("FOG_LINEAR");
+        Scene3DShaderDeclaration.SHADERDEFINE_FOG_EXP = Shader3D.getDefineByName("FOG_EXP");
+        Scene3DShaderDeclaration.SHADERDEFINE_FOG_EXP2 = Shader3D.getDefineByName("FOG_EXP2");
         Scene3DShaderDeclaration.SHADERDEFINE_DIRECTIONLIGHT = Shader3D.getDefineByName("DIRECTIONLIGHT");
         Scene3DShaderDeclaration.SHADERDEFINE_POINTLIGHT = Shader3D.getDefineByName("POINTLIGHT");
         Scene3DShaderDeclaration.SHADERDEFINE_SPOTLIGHT = Shader3D.getDefineByName("SPOTLIGHT");
@@ -186,8 +194,7 @@ export class Scene3D extends Sprite implements ISubmit {
         Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SPOT_SOFT_SHADOW_HIGH = Shader3D.getDefineByName("SHADOW_SPOT_SOFT_SHADOW_HIGH");
 
         Scene3D.FOGCOLOR = Shader3D.propertyNameToID("u_FogColor");
-        Scene3D.FOGSTART = Shader3D.propertyNameToID("u_FogStart");
-        Scene3D.FOGRANGE = Shader3D.propertyNameToID("u_FogRange");
+        Scene3D.FOGPARAMS = Shader3D.propertyNameToID("u_FogParams");//x start,y end,z Density
         Scene3D.DIRECTIONLIGHTCOUNT = Shader3D.propertyNameToID("u_DirationLightCount");
         Scene3D.LIGHTBUFFER = Shader3D.propertyNameToID("u_LightBuffer");
         Scene3D.CLUSTERBUFFER = Shader3D.propertyNameToID("u_LightClusterBuffer");
@@ -197,8 +204,7 @@ export class Scene3D extends Sprite implements ISubmit {
 
         let sceneUniformMap: CommandUniformMap = Scene3D.sceneUniformMap = LayaGL.renderOBJCreate.createGlobalUniformMap("Scene3D");
         sceneUniformMap.addShaderUniform(Scene3D.FOGCOLOR, "u_FogColor");
-        sceneUniformMap.addShaderUniform(Scene3D.FOGSTART, "u_FogStart");
-        sceneUniformMap.addShaderUniform(Scene3D.FOGRANGE, "u_FogRange");
+        sceneUniformMap.addShaderUniform(Scene3D.FOGPARAMS, "u_FogParams");
         sceneUniformMap.addShaderUniform(Scene3D.DIRECTIONLIGHTCOUNT, "u_DirationLightCount");
         sceneUniformMap.addShaderUniform(Scene3D.LIGHTBUFFER, "u_LightBuffer");
         sceneUniformMap.addShaderUniform(Scene3D.CLUSTERBUFFER, "u_LightClusterBuffer");
@@ -245,8 +251,7 @@ export class Scene3D extends Sprite implements ISubmit {
             let uniformpara: Map<string, UniformBufferParamsType> = new Map<string, UniformBufferParamsType>();
             // uniformpara.set("u_AmbientColor", UniformBufferParamsType.Vector4);
             uniformpara.set("u_Time", UniformBufferParamsType.Number);
-            uniformpara.set("u_FogStart", UniformBufferParamsType.Number);
-            uniformpara.set("u_FogRange", UniformBufferParamsType.Number);
+            uniformpara.set("u_FogParams", UniformBufferParamsType.Vector4);
             uniformpara.set("u_FogColor", UniformBufferParamsType.Vector4);
             let uniformMap = new Map<number, UniformBufferParamsType>();
             uniformpara.forEach((value, key) => {
@@ -343,6 +348,11 @@ export class Scene3D extends Sprite implements ISubmit {
     private _timer: Timer;
     /** @internal */
     private _time: number = 0;
+    /** @internal */
+    private _fogParams: Vector4;
+      /** @internal */
+    private _fogMode:FogMode;
+    /**@internal */
     private _sceneReflectionProb: ReflectionProbe;
 
     /**@internal */
@@ -435,6 +445,34 @@ export class Scene3D extends Sprite implements ISubmit {
     }
 
     /**
+     * 场景雾模式
+     */
+    get fogMode(): FogMode {
+        return this._fogMode;
+    }
+
+    set fogMode(value: FogMode) {
+        this._fogMode = value;
+        switch (value) {
+            case FogMode.Linear:
+                this._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_FOG_LINEAR);
+                this._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_FOG_EXP);
+                this._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_FOG_EXP2);
+                break;
+            case FogMode.EXP:
+                this._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_FOG_EXP);
+                this._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_FOG_LINEAR);
+                this._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_FOG_EXP2);
+                break;
+            case FogMode.EXP2:
+                this._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_FOG_EXP2);
+                this._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_FOG_LINEAR);
+                this._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_FOG_EXP);
+                break;
+        }
+    }
+
+    /**
      * 雾化颜色。
      */
     get fogColor(): Color {
@@ -449,22 +487,55 @@ export class Scene3D extends Sprite implements ISubmit {
      * 雾化起始位置。
      */
     get fogStart(): number {
-        return this._shaderValues.getNumber(Scene3D.FOGSTART);
+        return this._fogParams.x;
+
     }
 
     set fogStart(value: number) {
-        this._shaderValues.setNumber(Scene3D.FOGSTART, value);
+        this._fogParams.x = value;
+        this.fogParams = this._fogParams;
     }
 
     /**
      * 雾化范围。
      */
+    get fogEnd(): number {
+        return this._fogParams.y;
+    }
+
+    set fogEnd(value: number) {
+        this._fogParams.y = value;
+        this.fogParams = this._fogParams;
+    }
+
+
     get fogRange(): number {
-        return this._shaderValues.getNumber(Scene3D.FOGRANGE);
+        return this._fogParams.y;
     }
 
     set fogRange(value: number) {
-        this._shaderValues.setNumber(Scene3D.FOGRANGE, value);
+        this._fogParams.y = value;
+        this.fogParams = this._fogParams;
+    }
+    /**
+     * 雾化密度
+     */
+    get fogDensity(): number {
+        return this._fogParams.z
+    }
+
+    set fogDensity(value: number) {
+        this._fogParams.z = value;
+        this.fogParams = this._fogParams;
+    }
+
+    /**@internal */
+    get fogParams(): Vector4 {
+        return this._shaderValues.getVector(Scene3D.FOGPARAMS);
+    }
+
+    set fogParams(value: Vector4) {
+        this._shaderValues.setVector(Scene3D.FOGPARAMS, value);
     }
 
     //0-2PI
@@ -664,12 +735,13 @@ export class Scene3D extends Sprite implements ISubmit {
             this._shaderValues._addCheckUBO(UniformBufferObject.UBONAME_SHADOW, Scene3D._shadowCasterPass._castDepthBufferOBJ, Scene3D._shadowCasterPass._castDepthBufferData);
             this._shaderValues.setUniformBuffer(Shader3D.propertyNameToID(UniformBufferObject.UBONAME_SHADOW), Scene3D._shadowCasterPass._castDepthBufferOBJ);
         }
-
+        this._fogParams = new Vector4(300, 1000, 0.01, 0);
         this.enableFog = false;
         this.fogStart = 300;
-        this.fogRange = 1000;
+        this.fogEnd = 1000;
+        this.fogDensity = 0.01;
         this.fogColor = new Color(0.7, 0.7, 0.7);
-
+        this.fogMode = FogMode.Linear;
         this.GIRotate = 0;
 
         this._scene = this;
@@ -1225,7 +1297,8 @@ export class Scene3D extends Sprite implements ISubmit {
         }
         this.enableFog = data.enableFog;
         this.fogStart = data.fogStart;
-        this.fogRange = data.fogRange;
+        this.fogEnd = data.fogEnd;
+        this.fogDensity = data.fogDensity;
         var fogColorData: any[] = data.fogColor;
         if (fogColorData) {
             var fogCol: Color = this.fogColor;

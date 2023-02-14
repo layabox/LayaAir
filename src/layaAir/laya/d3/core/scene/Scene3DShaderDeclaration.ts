@@ -8,6 +8,12 @@ export class Scene3DShaderDeclaration {
 	/**@internal */
 	static SHADERDEFINE_FOG: ShaderDefine;
 	/**@internal */
+	static SHADERDEFINE_FOG_LINEAR: ShaderDefine;
+	/**@internal */
+	static SHADERDEFINE_FOG_EXP: ShaderDefine;
+	/**@internal */
+	static SHADERDEFINE_FOG_EXP2: ShaderDefine;
+	/**@internal */
 	static SHADERDEFINE_DIRECTIONLIGHT: ShaderDefine;
 	/**@internal */
 	static SHADERDEFINE_POINTLIGHT: ShaderDefine;
