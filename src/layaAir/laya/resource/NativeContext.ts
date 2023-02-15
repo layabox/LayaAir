@@ -901,7 +901,7 @@ export class NativeContext {
     }
     addRenderObject3D(scene3D: ISubmit): void {
         //this._nativeObj.addRenderObject3D((scene3D as any)._nativeObj);
-        this._renderObject3DList.push(scene3D);
+        this._renderObject3DList.push((scene3D as any)._nativeObj);
         this._nativeObj.flushCommand();
         this._nativeObj.addRenderObject3D((scene3D as any)._nativeObj);
     }
