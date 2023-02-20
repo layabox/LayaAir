@@ -12,6 +12,7 @@ import { LayaEnv } from "../../LayaEnv";
 import { Texture2D } from "../resource/Texture2D";
 import { AssetDb } from "../resource/AssetDb";
 import { Event as LayaEvent } from "../events/Event";
+import { Browser } from "../utils/Browser";
 
 export const enum VideoType {
     MP4 = 1,
@@ -170,7 +171,7 @@ export class VideoTexture extends BaseTexture {
 
         if (this.element.readyState == 0)
             return;
-        if (this.isNeedUpdate()) {
+        if (this.isNeedUpdate() || Browser.onLayaRuntime) {
             LayaGL.textureContext.updateVideoTexture(this._texture, this.element, false, false);
             this._needUpdate = false;
         }
