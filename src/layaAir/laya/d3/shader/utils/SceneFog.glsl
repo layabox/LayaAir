@@ -15,10 +15,10 @@
     {
         float lerpFact = getFogFactor();
         #ifdef ADDTIVEFOG
-            clamp(lerpFact, 0.0, 1.0);
+            lerpFact = clamp(lerpFact, 0.0, 1.0);
             return mix(vec3(0.0), color, lerpFact);
         #else
-            clamp(lerpFact, 0.0, 1.0);
+            lerpFact =clamp(lerpFact, 0.0, 1.0);
             return mix(u_FogColor.rgb, color, lerpFact);
         #endif // ADDTIVEFOG
     }
@@ -26,7 +26,7 @@
     vec3 sceneLitFog(in vec3 color)
     {
         float lerpFact = getFogFactor();
-        clamp(lerpFact, 0.0, 1.0);
+        lerpFact = clamp(lerpFact, 0.0, 1.0);
         return mix(u_FogColor.rgb, color, lerpFact);
     }
 
