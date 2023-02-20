@@ -36,7 +36,7 @@ export class NativeGLTextureContext extends NativeGLObject implements ITextureCo
     }
 
     initVideoTextureData(texture: InternalTexture): void{
-        //TODO
+        this._native.initVideoTextureData(texture);
     }
 
     setTextureSubPixelsData(texture: InternalTexture, source: ArrayBufferView, mipmapLevel: number, generateMipmap: boolean, xOffset: number, yOffset: number, width: number, height: number, premultiplyAlpha: boolean, invertY: boolean): void {
@@ -53,11 +53,11 @@ export class NativeGLTextureContext extends NativeGLObject implements ITextureCo
         this.setTexturePixelsData(texture, sourceData, false, false);
     }
     setTextureDDSData(texture: InternalTexture, ddsInfo: DDSTextureInfo) {
-        throw new Error("setTextureDDSData Method not implemented.");
+        this._native.setTextureKTXData(texture, ddsInfo);
     }
 
     setTextureKTXData(texture: InternalTexture, ktxInfo: KTXTextureInfo) {
-        throw new Error("setTextureKTXData Method not implemented.");
+        this._native.setTextureKTXData(texture, ktxInfo);
     }
     setCubeImageData(texture: InternalTexture, sources: (HTMLImageElement | HTMLCanvasElement | ImageBitmap)[], premultiplyAlpha: boolean, invertY: boolean): void {
         var images: any[] = [];
