@@ -6,6 +6,7 @@ import { Animator } from "./Animator";
 import { AnimatorControllerLayer } from "./AnimatorControllerLayer";
 import { AnimatorState } from "./AnimatorState";
 import { AnimatorTransition } from "./AnimatorTransition";
+import { AvatarMask } from "./AvatarMask";
 
 /**
  * @internal
@@ -24,19 +25,21 @@ export class AnimatorController extends Resource {
 
     private getLayers() {
         let layers = this.data.controllerLayers;
-
-
-
         let lArr: AnimatorControllerLayer[] = [];
 
         for (let i = layers.length - 1; i >= 0; i--) {
             let l = layers[i];
             let acl = new AnimatorControllerLayer(l.name);
+            if (l.avatarMask) {
+                acl.avatarMask = new AvatarMask();
+                for (let key in l.avatarMask) {
+                    acl.avatarMask.setTransformActive(key, l.avatarMask[key]);
+                }
+            }
             lArr.unshift(acl);
 
-
             for (let k in l) {
-                if ("name" == k || "states" == k || null == (l as any)[k]) {
+                if ("avatarMask" == k || "name" == k || "states" == k || null == (l as any)[k]) {
                     continue;
                 }
                 try {

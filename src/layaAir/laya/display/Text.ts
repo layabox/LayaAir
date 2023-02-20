@@ -153,15 +153,10 @@ export class Text extends Sprite {
     _font: string = Config.defaultFont;
     /**@internal */
     _color: string = "#000000";
+    _overflow: string = Text.VISIBLE;
 
     /**@private */
     private _singleCharRender: boolean = false;	// 拆分渲染
-
-    /**
-     * <p>overflow 指定文本超出文本域后的行为。其值为"hidden"、"visible"和"scroll"之一。</p>
-     * <p>性能从高到低依次为：hidden > visible > scroll。</p>
-     */
-    overflow: string = Text.VISIBLE;
 
     /**
      * 创建一个新的 <code>Text</code> 实例。
@@ -608,6 +603,21 @@ export class Text extends Sprite {
     }
 
     /**
+     * <p>overflow 指定文本超出文本域后的行为。其值为"hidden"、"visible"和"scroll"之一。</p>
+     * <p>性能从高到低依次为：hidden > visible > scroll。</p>
+     */
+    get overflow(): string {
+        return this._overflow;
+    }
+
+    set overflow(value: string) {
+        if (this._overflow != value) {
+            this._overflow = value;
+            this.isChanged = true;
+        }
+    }
+
+    /**
      * @private
      * 一个布尔值，表示文本的属性是否有改变。若为true表示有改变。
      */
@@ -659,7 +669,7 @@ export class Text extends Sprite {
         var padding = this.padding;
         var visibleLineCount = this._lines.length;
         // overflow为scroll或visible时会截行
-        if (this.overflow != Text.VISIBLE) {
+        if (this._overflow != Text.VISIBLE) {
             visibleLineCount = Math.min(visibleLineCount, Math.floor((this.height - padding[0] - padding[2]) / (this.leading + this._charSize.height)) + 1);
         }
 
@@ -877,7 +887,7 @@ export class Text extends Sprite {
 
     /**@private */
     private _checkEnabledViewportOrNot(): boolean {
-        return this.overflow == Text.SCROLL && ((this._width > 0 && this._textWidth > this._width) || (this._height > 0 && this._textHeight > this._height)); // 设置了宽高并且超出了
+        return this._overflow == Text.SCROLL && ((this._width > 0 && this._textWidth > this._width) || (this._height > 0 && this._textHeight > this._height)); // 设置了宽高并且超出了
     }
 
     /**
@@ -902,7 +912,7 @@ export class Text extends Sprite {
      */
     protected _parseLines(text: string): void {
         //自动换行和HIDDEN都需要计算换行位置或截断位置
-        var needWordWrapOrTruncate = this.wordWrap || this.overflow == Text.HIDDEN;
+        var needWordWrapOrTruncate = this.wordWrap || this._overflow == Text.HIDDEN;
         if (needWordWrapOrTruncate) {
             var wordWrapWidth = this._getWordWrapWidth();
         }
@@ -1013,7 +1023,7 @@ export class Text extends Sprite {
                         startIndex = -1;
                         break;
                     }
-                } else if (this.overflow == Text.HIDDEN) {
+                } else if (this._overflow == Text.HIDDEN) {
                     lines.push(line.substring(0, j));
                     this._lineWidths.push(this._getTextWidth(lines[lines.length - 1]));
                     return;
@@ -1089,7 +1099,7 @@ export class Text extends Sprite {
      * <p>即使设置超出滚动范围的值，也会被自动限制在可能的最大值处。</p>
      */
     set scrollX(value: number) {
-        if (this.overflow != Text.SCROLL || (this.textWidth < this._width || !this._clipPoint)) return;
+        if (this._overflow != Text.SCROLL || (this.textWidth < this._width || !this._clipPoint)) return;
 
         value = value < this.padding[3] ? this.padding[3] : value;
         var maxScrollX: number = this._textWidth - this._width;
@@ -1111,7 +1121,7 @@ export class Text extends Sprite {
      * 设置纵向滚动量（px)。即使设置超出滚动范围的值，也会被自动限制在可能的最大值处。
      */
     set scrollY(value: number) {
-        if (this.overflow != Text.SCROLL || (this.textHeight < this._height || !this._clipPoint)) return;
+        if (this._overflow != Text.SCROLL || (this.textHeight < this._height || !this._clipPoint)) return;
 
         value = value < this.padding[0] ? this.padding[0] : value;
         var maxScrollY: number = this._textHeight - this._height;
