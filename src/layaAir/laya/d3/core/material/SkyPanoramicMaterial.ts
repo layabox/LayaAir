@@ -23,6 +23,7 @@ export class SkyPanoramicMaterial extends Material {
         SkyPanoramicMaterial.EXPOSURE = Shader3D.propertyNameToID("u_Exposure");
         SkyPanoramicMaterial.ROTATION = Shader3D.propertyNameToID("u_Rotation");
         SkyPanoramicMaterial.TEXTURE = Shader3D.propertyNameToID("u_Texture");
+        SkyPanoramicMaterial.TEXTURE_HDR_PARAMS = Shader3D.propertyNameToID("u_Texture_HDR_params");
     }
     /** @internal */
     private _textureHDRParams: Vector4 = new Vector4(1.0, 0.0, 0.0, 1.0);

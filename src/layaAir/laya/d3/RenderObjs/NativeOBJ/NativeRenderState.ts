@@ -120,9 +120,8 @@ export class NativeRenderState {
 	set stencilOp(value: Vector3) {
 		this._nativeObj.setStencilOp(value.x, value.y, value.z);
 	}
-	setNull():void
-	{
-
+	setNull():void {
+		this._nativeObj.setNull();
 	}
 	constructor() {
 		this._nativeObj = new (window as any).conchRenderState();

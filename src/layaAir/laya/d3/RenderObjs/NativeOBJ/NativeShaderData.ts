@@ -375,5 +375,9 @@ export class NativeShaderData extends ShaderData implements INativeUploadNode {
         this.cloneTo(dest);
         return dest;
     }
-
+    destroy(): void {
+		super.destroy();
+        this._nativeObj.destroy();
+        this._nativeObj = null;
+	}
 }

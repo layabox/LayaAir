@@ -1289,8 +1289,7 @@ export class Scene3D extends Sprite implements ISubmit {
         }
         this.enableFog = data.enableFog;
         this.fogStart = data.fogStart;
-        this.fogEnd = data.fogEnd;
-        this.fogDensity = data.fogDensity;
+        this.fogRange = data.fogRange;
         var fogColorData: any[] = data.fogColor;
         if (fogColorData) {
             var fogCol: Color = this.fogColor;
