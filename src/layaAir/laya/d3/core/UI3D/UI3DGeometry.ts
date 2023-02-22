@@ -1,4 +1,5 @@
 import { LayaGL } from "../../../layagl/LayaGL";
+import { Matrix4x4 } from "../../../maths/Matrix4x4";
 import { Vector2 } from "../../../maths/Vector2";
 import { Vector3 } from "../../../maths/Vector3";
 import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
@@ -18,7 +19,6 @@ import { UI3D } from "./UI3D";
 
 export class UI3DGeometry extends GeometryElement {
     private static tempV0: Vector3 = new Vector3();
-
     /**@internal */
     private static _type: number = GeometryElement._typeCounter++;
     /* @internal 顶点buffer*/
@@ -79,9 +79,9 @@ export class UI3DGeometry extends GeometryElement {
 
     /**
      * @internal
-     * reset vertex data
+     * reset view vertex data
      */
-    _resizeVertexData(size: Vector2, offset: Vector2, cameraDir: Vector3, cameraUp: Vector3, viewMode: boolean,worldPos:Vector3): void {
+    _resizeViewVertexData(size: Vector2, offset: Vector2, cameraDir: Vector3, cameraUp: Vector3, viewMode: boolean, worldPos: Vector3): void {
         var halfwidth = size.x / 2;
         var halfhight = size.y / 2;
         if (viewMode) {
@@ -102,10 +102,36 @@ export class UI3DGeometry extends GeometryElement {
             this._positionArray[2].set(-halfwidth + offset.x, -halfhight + offset.y, 0.0);
             this._positionArray[3].set(halfwidth + offset.x, -halfhight + offset.y, 0.0);
         }
-        Vector3.add(this._positionArray[0],worldPos,this._positionArray[0]);
-        Vector3.add(this._positionArray[1],worldPos,this._positionArray[1]);
-        Vector3.add(this._positionArray[2],worldPos,this._positionArray[2]);
-        Vector3.add(this._positionArray[3],worldPos,this._positionArray[3]);
+        Vector3.add(this._positionArray[0], worldPos, this._positionArray[0]);
+        Vector3.add(this._positionArray[1], worldPos, this._positionArray[1]);
+        Vector3.add(this._positionArray[2], worldPos, this._positionArray[2]);
+        Vector3.add(this._positionArray[3], worldPos, this._positionArray[3]);
+        this._changeVertex(size, offset);
+    }
+
+    /**
+     * @internal
+     * reset vertex data
+     */
+    _resizeWorldVertexData(size: Vector2, offset: Vector2, worldMat: Matrix4x4) {
+        let applyMat = (v3: Vector3, mat: Matrix4x4) => {
+            Vector3.transformV3ToV3(v3, mat, v3);
+            return v3;
+        }
+        var halfwidth = size.x / 2;
+        var halfhight = size.y / 2;
+        this._positionArray[0].set(-halfwidth + offset.x, halfhight + offset.y, 0.0);
+        this._positionArray[1].set(halfwidth + offset.x, halfhight + offset.y, 0.0);
+        this._positionArray[2].set(-halfwidth + offset.x, -halfhight + offset.y, 0.0);
+        this._positionArray[3].set(halfwidth + offset.x, -halfhight + offset.y, 0.0);
+        applyMat(this._positionArray[0], worldMat);
+        applyMat(this._positionArray[1], worldMat);
+        applyMat(this._positionArray[2], worldMat);
+        applyMat(this._positionArray[3], worldMat);
+        this._changeVertex(size, offset);
+    }
+
+    private _changeVertex(size: Vector2, offset: Vector2) {
         this._vertex[0] = this._positionArray[0].x;
         this._vertex[1] = this._positionArray[0].y;
         this._vertex[2] = this._positionArray[0].z;
@@ -119,8 +145,12 @@ export class UI3DGeometry extends GeometryElement {
         this._vertex[25] = this._positionArray[3].y;
         this._vertex[26] = this._positionArray[3].z;
         this._vertexBuffer.setData(this._vertex.buffer, 0, 0, this._vertex.length * 4);
-        this._bound.setExtent(new Vector3(size.x / 2, size.y / 2, size.x / 2));
-        this._bound.setCenter(new Vector3(offset.x+worldPos.x, offset.y+worldPos.y, 0));
+        UI3DGeometry.tempV0.setValue(size.x / 2, size.y / 2, size.x / 2);
+        this._bound.setExtent(UI3DGeometry.tempV0);
+        let halfWidth = (this._positionArray[3].x - this._positionArray[2].x) / 2;
+        let halfHeight = (this._positionArray[0].y - this._positionArray[2].y) / 2;
+        UI3DGeometry.tempV0.setValue(this._positionArray[2].x + halfWidth, this._positionArray[2].y + halfHeight, 0);
+        this._bound.setCenter(UI3DGeometry.tempV0);
     }
 
     /**
