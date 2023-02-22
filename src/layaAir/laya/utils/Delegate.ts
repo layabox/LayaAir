@@ -86,6 +86,7 @@ export class Delegate {
         let arr = this._items;
         let cnt = arr.length;
         for (let i = 0; i < cnt; i += ITEM_LAYOUT) {
+            if (0 == arr[i + 3]) continue;
             let fixedArgs = arr[i + 2];
             if (fixedArgs != null)
                 arr[i].call(arr[i + 1], ...fixedArgs, ...args);

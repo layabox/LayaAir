@@ -272,10 +272,10 @@ export class Animator2D extends Component {
                 if (0.5 > normalizedPlayTime) {
                     if (!playState._frontPlay) {
                         if (0 > animatorState.speed) {
-                            playState._elapsedTime = animatorState.clipEnd;
+                            playState._elapsedTime = animatorState.clipEnd * pAllTime;
                             playState._normalizedPlayTime = animatorState.clipEnd;
                         } else {
-                            playState._elapsedTime = animatorState.clipStart;
+                            playState._elapsedTime = animatorState.clipStart * pAllTime;
                             playState._normalizedPlayTime = animatorState.clipStart;
                         }
                         playState._frontPlay = true;
@@ -284,10 +284,10 @@ export class Animator2D extends Component {
                     if (playState._frontPlay) {
                         playState._frontPlay = false;
                         if (0 > animatorState.speed) {
-                            playState._elapsedTime = animatorState.clipStart;
+                            playState._elapsedTime = animatorState.clipStart * pAllTime;
                             playState._normalizedPlayTime = animatorState.clipStart;
                         } else {
-                            playState._elapsedTime = animatorState.clipEnd;
+                            playState._elapsedTime = animatorState.clipEnd * pAllTime;
                             playState._normalizedPlayTime = animatorState.clipEnd;
                         }
                     }
@@ -305,18 +305,18 @@ export class Animator2D extends Component {
 
                 if (0 > animatorState.speed) {
                     if (animatorState.yoyo) {
-                        playState._elapsedTime = animatorState.clipEnd;
+                        playState._elapsedTime = animatorState.clipEnd * pAllTime;
                         playState._normalizedPlayTime = animatorState.clipEnd;
                     } else {
-                        playState._elapsedTime = animatorState.clipStart;
+                        playState._elapsedTime = animatorState.clipStart * pAllTime;
                         playState._normalizedPlayTime = animatorState.clipStart;
                     }
                 } else {
                     if (animatorState.yoyo) {
-                        playState._elapsedTime = animatorState.clipStart;
+                        playState._elapsedTime = animatorState.clipStart * pAllTime;
                         playState._normalizedPlayTime = animatorState.clipStart;
                     } else {
-                        playState._elapsedTime = animatorState.clipEnd;
+                        playState._elapsedTime = animatorState.clipEnd * pAllTime;
                         playState._normalizedPlayTime = animatorState.clipEnd;
                     }
                 }

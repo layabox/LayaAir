@@ -111,7 +111,10 @@ export class NativeRenderElementOBJ implements IRenderElement {
 
     _destroy() {
         this._nativeObj._destroy();
-        this._shaderInstances = null;
+        this.geometry = null;
+        this._shaderInstances = null; 
+        this.materialShaderData = null;
+        this.renderShaderData = null;
         this.transform = null;
     }
 }
