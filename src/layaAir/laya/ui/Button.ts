@@ -701,38 +701,24 @@ export class Button extends UIComponent implements ISelect {
      * @inheritDoc 
      * @override
      */
-    set width(value: number) {
-        super.set_width(value);
+    _setWidth(value: number) {
+        super._setWidth(value);
         if (this._autoSize) {
             this._graphics.width = value;
             this._text && (this._text.width = value);
         }
-    }
-    /**
-     * @inheritDoc 
-     * @override
-     */
-    get width(): number {
-        return super.get_width();
     }
 
     /**
      * @inheritDoc 
      * @override
      */
-    set height(value: number) {
-        super.set_height(value);
+    _setHeight(value: number) {
+        super._setHeight(value);
         if (this._autoSize) {
             this._graphics.height = value;
             this._text && (this._text.height = value);
         }
-    }
-    /**
-     * @inheritDoc 
-     * @override
-     */
-    get height(): number {
-        return super.get_height();
     }
 
     /**

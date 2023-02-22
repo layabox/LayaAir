@@ -353,29 +353,13 @@ export class ComboBox extends UIComponent {
         this._itemPadding = UIUtils.fillArray(this._itemPadding, value, Number);
     }
 
-
     /**
      * @inheritDoc 
      * @override
      */
-    get width() {
-        return super.width;
-    }
-
-    /**
-     * @inheritDoc 
-     * @override
-     */
-    set height(value: number) {
-        super.height = value;
+    _setHeight(value: number) {
+        super._setHeight(value);
         this._button.height = this._height;
-    }
-    /**
-     * @inheritDoc 
-     * @override
-     */
-    get height() {
-        return super.height;
     }
 
     /**

@@ -207,34 +207,18 @@ export class Image extends UIComponent {
      * @inheritDoc 
      * @override
      */
-    set width(value: number) {
-        super.width = value;
+    _setWidth(value: number) {
+        super._setWidth(value);
         this._graphics.width = value == 0 ? 0.0000001 : value;
     }
 
     /**
      * @inheritDoc 
-     * @override 
-     */
-    get width() {
-        return super.width;
-    }
-
-    /**
-     * @inheritDoc 
      * @override
      */
-    set height(value: number) {
-        super.height = value;
+    _setHeight(value: number) {
+        super._setHeight(value);
         this._graphics.height = value;
-    }
-
-    /**
-     * @inheritDoc 
-     * @override
-     */
-    get height() {
-        return super.height;
     }
 
     /**

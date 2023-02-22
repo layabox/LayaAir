@@ -442,37 +442,20 @@ export class List extends Box {
      * @inheritDoc 
      * @override
     */
-    set width(value: number) {
-        if (value != this._width) {
-            super.width = value;
-            this._setCellChanged();
-        }
-    }
-    /**
-     * @inheritDoc 
-     * @override
-     */
-    get width() {
-        return super.width;
+    _setWidth(value: number) {
+        super._setWidth(value);
+        this._setCellChanged();
     }
 
     /**
      * @inheritDoc 
      * @override
     */
-    set height(value: number) {
-        if (value != this._height) {
-            super.height = value;
-            this._setCellChanged();
-        }
+    _setHeight(value: number) {
+        super._setWidth(value);
+        this._setCellChanged();
     }
-    /**
-     * @inheritDoc 
-     * @override
-     */
-    get height() {
-        return super.height;
-    }
+
 
     /**
      * 水平方向显示的单元格数量。

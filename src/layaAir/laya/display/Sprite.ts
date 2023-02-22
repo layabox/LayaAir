@@ -216,6 +216,10 @@ export class Sprite extends Node {
     _width: number = 0;
     /**@internal */
     _height: number = 0;
+    /**X锚点，值为0-1，设置anchorX值最终通过pivotX值来改变节点轴心点。*/
+    _anchorX: number = 0;
+    /**Y锚点，值为0-1，设置anchorY值最终通过pivotY值来改变节点轴心点。*/
+    _anchorY: number = 0;
     /**@internal */
     _visible: boolean = true;
     /**@internal 鼠标状态，0:auto,1:mouseEnabled=false,2:mouseEnabled=true。*/
@@ -411,14 +415,6 @@ export class Sprite extends Node {
         this._y = value;
     }
 
-    /**@internal */
-    _setWidth(texture: Texture, value: number): void {
-    }
-
-    /**@internal */
-    _setHeight(texture: Texture, value: number): void {
-    }
-
     /**表示显示对象相对于父容器的水平方向坐标值。*/
     get x(): number {
         return this._x;
@@ -468,15 +464,16 @@ export class Sprite extends Node {
         this.set_width(value);
     }
 
-    // for ts
     set_width(value: number): void {
         if (this._width !== value) {
             this._width = 0 == value ? 0.0000001 : value;
-            this._setWidth(this.texture, value);
+            this._setWidth(value);
+            if (this._anchorX != null) this._setPivotX(this._anchorX * value);
             this._setTranformChange();
-            //repaint();
+            this._shouldRefreshLayout();
         }
     }
+
     get_width(): number {
         if (!this.autoSize) return 0.0000001 == this._width ? 0 : (this._width ? this._width : (this.texture ? this.texture.width : 0));
         if (this.texture) return this.texture.width;
@@ -501,9 +498,10 @@ export class Sprite extends Node {
     set_height(value: number): void {
         if (this._height !== value) {
             this._height = 0 == value ? 0.0000001 : value;
-            this._setHeight(this.texture, value);
+            this._setHeight(value);
+            if (this._anchorY != null) this._setPivotY(this._anchorY * value);
             this._setTranformChange();
-            //repaint();
+            this._shouldRefreshLayout();
         }
     }
     get_height(): number {
@@ -511,6 +509,18 @@ export class Sprite extends Node {
         if (this.texture) return this.texture.height;
         if (!this._graphics && this._children.length === 0) return 0;
         return this.getSelfBounds().height;
+    }
+
+
+    /**@internal */
+    _setWidth(value: number): void {
+    }
+
+    /**@internal */
+    _setHeight(value: number): void {
+    }
+
+    protected _shouldRefreshLayout() {
     }
 
     /**
@@ -696,11 +706,6 @@ export class Sprite extends Node {
         this.set_scaleX(value);
     }
 
-    /**@internal */
-    _setScaleX(value: number): void {
-        this._style.scaleX = value;
-    }
-
     /**Y轴缩放值，默认值为1。设置为负数，可以实现垂直反转效果，比如scaleX=-1。*/
     get scaleY(): number {
         return this._style.scaleY;
@@ -710,17 +715,12 @@ export class Sprite extends Node {
         this.set_scaleY(value);
     }
 
-    /**@internal */
-    _setScaleY(value: number): void {
-        this._style.scaleY = value;
-    }
-
-
     set_scaleX(value: number): void {
         var style: SpriteStyle = this.getStyle();
         if (style.scaleX !== value) {
             this._setScaleX(value);
             this._setTranformChange();
+            this._shouldRefreshLayout();
         }
     }
     get_scaleX(): number {
@@ -732,10 +732,22 @@ export class Sprite extends Node {
         if (style.scaleY !== value) {
             this._setScaleY(value);
             this._setTranformChange();
+            this._shouldRefreshLayout();
         }
     }
     get_scaleY(): number {
         return this._style.scaleY;
+    }
+
+
+    /**@internal */
+    _setScaleX(value: number): void {
+        this._style.scaleX = value;
+    }
+
+    /**@internal */
+    _setScaleY(value: number): void {
+        this._style.scaleY = value;
     }
 
     /**旋转角度，默认值为0。以角度为单位。*/
@@ -895,8 +907,14 @@ export class Sprite extends Node {
     }
 
     set pivotX(value: number) {
-        this._setPivotX(value);
-        this.repaint();
+        var style: SpriteStyle = this.getStyle();
+        if (style.pivotX != value) {
+            this._setPivotX(value);
+            let t = this.width;
+            if (t != 0) this._anchorX = value / t;
+            this._shouldRefreshLayout();
+            this.repaint();
+        }
     }
 
     /**Y轴 轴心点的位置，单位为像素，默认为0。轴心点会影响对象位置，缩放中心，旋转中心。*/
@@ -905,8 +923,66 @@ export class Sprite extends Node {
     }
 
     set pivotY(value: number) {
-        this._setPivotY(value);
-        this.repaint();
+        var style: SpriteStyle = this.getStyle();
+        if (style.pivotY != value) {
+            this._setPivotY(value);
+            let t = this.height;
+            if (t != 0) this._anchorY = value / t;
+            this._shouldRefreshLayout();
+            this.repaint();
+        }
+    }
+
+    /**X锚点，值为0-1，设置anchorX值最终通过pivotX值来改变节点轴心点。*/
+    get anchorX(): number {
+        return this.get_anchorX();
+    }
+
+    get_anchorX(): number {
+        return this._anchorX;
+    }
+
+    set anchorX(value: number) {
+        this.set_anchorX(value);
+    }
+
+    set_anchorX(value: number) {
+        if (isNaN(value))
+            value = null;
+        if (this._anchorX != value) {
+            this._anchorX = value;
+            if (value != null) {
+                this._setPivotX(value * this.width);
+                this._shouldRefreshLayout();
+                this.repaint();
+            }
+        }
+    }
+
+    /**Y锚点，值为0-1，设置anchorY值最终通过pivotY值来改变节点轴心点。*/
+    get anchorY(): number {
+        return this.get_anchorY();
+    }
+
+    get_anchorY(): number {
+        return this._anchorY;
+    }
+
+    set anchorY(value: number) {
+        this.set_anchorY(value);
+    }
+
+    set_anchorY(value: number) {
+        if (isNaN(value))
+            value = null;
+        if (this._anchorY != value) {
+            this._anchorY = value;
+            if (value != null) {
+                this._setPivotY(value * this.height);
+                this._shouldRefreshLayout();
+                this.repaint();
+            }
+        }
     }
 
     /**@internal */
@@ -1091,14 +1167,15 @@ export class Sprite extends Node {
      * @param 	speedMode	（可选）是否极速模式，正常是调用this.scaleX=value进行赋值，极速模式直接调用内部函数处理，如果未重写scaleX,scaleY属性，建议设置为急速模式性能更高。
      * @return	返回对象本身。
      */
-    scale(scaleX: number, scaleY: number, speedMode: boolean = false): Sprite {
+    scale(scaleX: number, scaleY: number, speedMode?: boolean): Sprite {
+        if (this._destroyed) return this;
         var style: SpriteStyle = this.getStyle();
         if (style.scaleX != scaleX || style.scaleY != scaleY) {
-            if (this._destroyed) return this;
             if (speedMode) {
                 this._setScaleX(scaleX);
                 this._setScaleY(scaleY);
                 this._setTranformChange();
+                this._shouldRefreshLayout();
             } else {
                 this.scaleX = scaleX;
                 this.scaleY = scaleY;
@@ -1816,8 +1893,8 @@ export class Sprite extends Node {
             this._texture = value;
             value && value._addReference();
             this._setTexture(value);
-            this._setWidth(this._texture, this.width);
-            this._setHeight(this._texture, this.height);
+            this._setWidth(this.width);
+            this._setHeight(this.height);
             if (value) this._renderType |= SpriteConst.TEXTURE;
             else this._renderType &= ~SpriteConst.TEXTURE;
             this._setRenderType(this._renderType);

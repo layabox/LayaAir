@@ -129,30 +129,18 @@ export class TextArea extends TextInput {
     /**
      * @override
      */
-    set width(value: number) {
-        super.width = value;
+    _setWidth(value: number) {
+        super._setWidth(value);
         this.callLater(this.changeScroll);
     }
     /**
-     * @inheritDoc
-     * @override
-     */
-    get width() {
-        return super.width;
-    }
+
     /**
      * @override
      */
-    set height(value: number) {
-        super.height = value;
+    _setHeight(value: number) {
+        super._setHeight(value);
         this.callLater(this.changeScroll);
-    }
-    /**
-     * @inheritDoc
-     * @override
-     */
-    get height() {
-        return super.height;
     }
 
     get scrollType() {

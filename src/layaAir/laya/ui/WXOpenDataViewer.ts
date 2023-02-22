@@ -44,8 +44,8 @@ export class WXOpenDataViewer extends UIComponent {
     /**
      * @override
      */
-    set width(value: number) {
-        super.width = value;
+    _setWidth(value: number) {
+        super._setWidth(value);
         if ((window as any).sharedCanvas) (window as any).sharedCanvas.width = value;
         this.callLater(this._postMsg);
     }
@@ -53,24 +53,10 @@ export class WXOpenDataViewer extends UIComponent {
     /**
      * @override
      */
-    get width() {
-        return super.width;
-    }
-
-    /**
-     * @override
-     */
-    set height(value: number) {
-        super.height = value;
+    _setHeight(value: number) {
+        super._setHeight(value);
         if ((window as any).sharedCanvas) (window as any).sharedCanvas.height = value;
         this.callLater(this._postMsg);
-    }
-
-    /**
-     * @override
-     */
-    get height() {
-        return super.height;
     }
 
     /**

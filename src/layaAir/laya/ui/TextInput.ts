@@ -256,32 +256,18 @@ export class TextInput extends Label {
      * @inheritDoc 
      * @override
      */
-    set width(value: number) {
-        super.width = value;
+    _setWidth(value: number) {
+        super._setWidth(value);
         this._graphics && (this._graphics.width = value);
-    }
-    /**
-     * @inheritDoc 
-     * @override
-     */
-    get width() {
-        return super.width;
     }
 
     /**
      * @inheritDoc 
      * @override
      */
-    set height(value: number) {
-        super.height = value;
+    _setHeight(value: number) {
+        super._setHeight(value);
         this._graphics && (this._graphics.height = value);
-    }
-    /**
-     * @inheritDoc 
-     * @override
-     */
-    get height() {
-        return super.height;
     }
 
     /**
