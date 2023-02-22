@@ -42,12 +42,12 @@ export class FontClip extends Clip {
     /**
      * 资源加载完毕
      */
-     protected loadComplete(url: string, img: Texture): void {
+    protected loadComplete(url: string, img: Texture): void {
         super.loadComplete(url, img);
         this.callLater(this.changeValue);
     }
 
-    
+
     get index(): number {
         return this._index;
     }
@@ -194,34 +194,25 @@ export class FontClip extends Clip {
             this.callLater(this._sizeChanged);
         }
     }
-    /**
-     * @override
-     */
-    set width(value: number) {
-        super.width = value;
-        this.callLater(this.changeValue);
-    }
+
     /**
      * @inheritDoc 
      * @override
      */
-    get width() {
-        return super.width;
-    }
-    /**
-     * @override
-     */
-    set height(value: number) {
-        super.height = value;
+    _setWidth(value: number) {
+        super._setWidth(value);
         this.callLater(this.changeValue);
     }
+
     /**
      * @inheritDoc 
      * @override
      */
-    get height() {
-        return super.height;
+    _setHeight(value: number) {
+        super._setHeight(value);
+        this.callLater(this.changeValue);
     }
+
     /**
      * @override
      */

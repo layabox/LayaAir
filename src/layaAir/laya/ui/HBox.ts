@@ -33,18 +33,9 @@ export class HBox extends LayoutBox {
      * @inheritDoc	
      * @override
      */
-    set height(value: number) {
-        if (this._height != value) {
-            super.height = value;
-            this.callLater(this.changeItems);
-        }
-    }
-    /**
-     * @inheritDoc	
-     * @override
-     */
-    get height() {
-        return super.height;
+    _setHeight(value: number) {
+        super._setHeight(value);
+        this.callLater(this.changeItems);
     }
 
     /** 

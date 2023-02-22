@@ -11,10 +11,6 @@ import { ILaya } from "../../ILaya";
  * <p>生命周期：preinitialize > createChildren > initialize > 组件构造函数</p>
  */
 export class UIComponent extends Sprite {
-    /**X锚点，值为0-1，设置anchorX值最终通过pivotX值来改变节点轴心点。*/
-    protected _anchorX: number = null;
-    /**Y锚点，值为0-1，设置anchorY值最终通过pivotY值来改变节点轴心点。*/
-    protected _anchorY: number = null;
     /**@private 控件的数据源。 */
     protected _dataSource: any;
     /**@private 鼠标悬停提示 */
@@ -73,14 +69,6 @@ export class UIComponent extends Sprite {
     }
 
     /**
-     * <p>表示显示对象的宽度，以像素为单位。</p>
-     * <p><b>注：</b>当值为0时，宽度为自适应大小。</p>
-     *@override
-     */
-    get width(): number {
-        return this.get_width();
-    }
-    /**
      * @override
      */
     get_width(): number {
@@ -112,14 +100,6 @@ export class UIComponent extends Sprite {
     protected commitMeasure(): void {
     }
 
-    /**
-     * <p>表示显示对象的高度，以像素为单位。</p>
-     * <p><b>注：</b>当值为0时，高度为自适应大小。</p>
-     * @override
-     */
-    get height(): number {
-        return this.get_height();
-    }
     /**
      * @override
      */
@@ -268,9 +248,12 @@ export class UIComponent extends Sprite {
         }
     }
 
+    protected _shouldRefreshLayout(): void {
+        super._shouldRefreshLayout();
+        this.callLater(this._sizeChanged);
+    }
+
     protected _sizeChanged(): void {
-        if (this._anchorX != null) this.pivotX = this.anchorX * this.width;
-        if (this._anchorY != null) this.pivotY = this.anchorY * this.height;
         this.event(Event.RESIZE);
         if (this._widget !== Widget.EMPTY) this._widget.resetLayout();
     }
@@ -373,132 +356,12 @@ export class UIComponent extends Sprite {
         return this._widget;
     }
 
-    /**
-     * @inheritDoc 
-     * @override
-    */
-    set scaleX(value: number) {
-        this.set_scaleX(value);
-    }
-    /**
-     * @override
-     */
-    set_scaleX(value: number) {
-        if (super.get_scaleX() == value) return;
-        super.set_scaleX(value);
-        this.callLater(this._sizeChanged);
-    }
-    /**
-     * @inheritDoc
-     * @override
-     */
-    get scaleX() {
-        return super.scaleX;
-    }
-
-    /**
-     * @inheritDoc 
-     * @override
-    */
-    set scaleY(value: number) {
-        this.set_scaleY(value);
-    }
-    /**
-     * @override
-     */
-    set_scaleY(value: number) {
-        if (super.get_scaleY() == value) return;
-        super.set_scaleY(value);
-        this.callLater(this._sizeChanged);
-    }
-    /**
-     * @inheritDoc
-     * @override
-     */
-    get scaleY() {
-        return super.scaleY;
-    }
-
     /**@private */
     protected onCompResize(): void {
         this._sizeChanged();
+
     }
 
-    /**
-     * @inheritDoc 
-     * @override
-    */
-    set width(value: number) {
-        this.set_width(value);
-    }
-    /**
-     * @override
-     */
-    set_width(value: number) {
-        if (super.get_width() == value) return;
-        super.set_width(value);
-        this.callLater(this._sizeChanged);
-    }
-
-    /**
-     * @inheritDoc 
-     * @override
-    */
-    set height(value: number) {
-        this.set_height(value);
-    }
-    /**
-     * @override
-     */
-    set_height(value: number) {
-        if (super.get_height() == value) return;
-        super.set_height(value);
-        this.callLater(this._sizeChanged);
-    }
-
-    /**X锚点，值为0-1，设置anchorX值最终通过pivotX值来改变节点轴心点。*/
-    get anchorX(): number {
-        return this.get_anchorX();
-    }
-
-    get_anchorX(): number {
-        return this._anchorX;
-    }
-
-    set anchorX(value: number) {
-        this.set_anchorX(value);
-    }
-
-    set_anchorX(value: number) {
-        if (isNaN(value))
-            value = null;
-        if (this._anchorX != value) {
-            this._anchorX = value;
-            this.callLater(this._sizeChanged);
-        }
-    }
-
-    /**Y锚点，值为0-1，设置anchorY值最终通过pivotY值来改变节点轴心点。*/
-    get anchorY(): number {
-        return this.get_anchorY();
-    }
-
-    get_anchorY(): number {
-        return this._anchorY;
-    }
-
-    set anchorY(value: number) {
-        this.set_anchorY(value);
-    }
-
-    set_anchorY(value: number) {
-        if (isNaN(value))
-            value = null;
-        if (this._anchorY != value) {
-            this._anchorY = value
-            this.callLater(this._sizeChanged);
-        }
-    }
     /**
      * 
      * @param child 

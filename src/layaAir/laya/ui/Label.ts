@@ -353,8 +353,8 @@ export class Label extends UIComponent {
      * @inheritDoc
      * @override
      */
-    get width(): number {
-        if (this._width || this._tf.text) return super.width;
+    get_width(): number {
+        if (this._width || this._tf.text) return super.get_width();
         return 0;
     }
 
@@ -362,8 +362,8 @@ export class Label extends UIComponent {
      * @inheritDoc
      * @override
      */
-    set width(value: number) {
-        super.width = value;
+    _setWidth(value: number): void {
+        super._setWidth(value);
         this._tf.width = value;
     }
 
@@ -371,8 +371,8 @@ export class Label extends UIComponent {
      * @inheritDoc
      * @override
      */
-    get height(): number {
-        if (this._height || this._tf.text) return super.height;
+    get_height(): number {
+        if (this._height || this._tf.text) return super.get_height();
         return 0;
     }
 
@@ -380,8 +380,8 @@ export class Label extends UIComponent {
      * @inheritDoc
      * @override
      */
-    set height(value: number) {
-        super.height = value;
+    _setHeight(value: number) {
+        super._setHeight(value);
         this._tf.height = value;
     }
 
