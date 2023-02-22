@@ -346,6 +346,9 @@ export class Sprite extends Node {
 
     set cacheAs(value: string) {
         if (value === this._cacheStyle.userSetCache) return;
+        if ('bitmap' == value && !(this._cacheStyle.canvas instanceof HTMLCanvas)) {
+            this._cacheStyle.canvas = null;
+        }
 
         this._getCacheStyle().userSetCache = value;
 
@@ -1295,12 +1298,12 @@ export class Sprite extends Node {
             ctx.flush();
             ctx._targets.end();
             ctx._targets.restore();
-            if(!rt)
+            if (!rt)
                 texRT = ctx._targets;
             ctx._targets = null;//IDE闪
         }
         if (!rt) {
-            var rtex: Texture = new Texture(((<Texture2D>(ctx._targets as any)))?((<Texture2D>(ctx._targets as any))):texRT, Texture.INV_UV);
+            var rtex: Texture = new Texture(((<Texture2D>(ctx._targets as any))) ? ((<Texture2D>(ctx._targets as any))) : texRT, Texture.INV_UV);
             ctx.destroy(true);// 保留 _targets
             return rtex;
         }
