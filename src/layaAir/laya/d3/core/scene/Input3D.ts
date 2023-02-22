@@ -20,6 +20,7 @@ InputManager.prototype.getSprite3DUnderPoint = function (this: InputManager, x: 
 
     for (let scene of <Scene3D[]>this._stage._scene3Ds) {
         let sim = scene._physicsSimulation;
+        let uiManager = scene._UI3DManager;
         if (!sim)
             continue;
 
@@ -29,11 +30,13 @@ InputManager.prototype.getSprite3DUnderPoint = function (this: InputManager, x: 
             let viewport: Viewport = camera.viewport;
             let ratio = Config3D.pixelRatio;
             if (x >= viewport.x && y >= viewport.y && x <= viewport.width / ratio && y <= viewport.height / ratio) {
+                //Physics
                 camera.viewportPointToRay(_vec2, _ray);
-
                 var sucess: boolean = sim.rayCast(_ray, <any>_hitResult);
                 if (sucess || (camera.clearFlag === CameraClearFlags.SolidColor || camera.clearFlag === CameraClearFlags.Sky))
                     break;
+                //UI3D
+                uiManager.rayCast(_ray);
             }
         }
 

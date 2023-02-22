@@ -66,6 +66,13 @@ export class SingletonList<T> {
         this.length = 0;
     }
 
+    /**
+     * @internal
+     */
+    clean(){
+        this.elements.length = this.length;
+    }
+
     destroy() {
         this.elements = null;
     }

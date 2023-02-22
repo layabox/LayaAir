@@ -1,4 +1,5 @@
 import { IClone } from "../utils/IClone";
+import { MathUtils3D } from "./MathUtils3D";
 
 
 /**
@@ -43,6 +44,16 @@ export class Vector2 implements IClone {
     static scale(a: Vector2, b: number, out: Vector2): void {
         out.x = a.x * b;
         out.y = a.y * b;
+    }
+
+    /**
+     * 判断两个二维向量是否相等。
+     * @param	a 三维向量。
+     * @param	b 三维向量。
+     * @return  是否相等。
+     */
+    static equals(a: Vector2, b: Vector2): boolean {
+        return MathUtils3D.nearEqual(a.x, b.x) && MathUtils3D.nearEqual(a.y, b.y);
     }
 
     /**

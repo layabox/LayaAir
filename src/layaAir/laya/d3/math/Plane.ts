@@ -77,6 +77,7 @@ export class Plane {
 		out.distance = -((x * point0.x) + (y * point0.y) + (z * point0.z));
 	}
 
+
 	/**
 	 * 更改平面法线向量的系数，使之成单位长度。
 	 */

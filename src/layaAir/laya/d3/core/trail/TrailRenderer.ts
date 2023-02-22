@@ -22,7 +22,7 @@ export class TrailRenderer extends BaseRender {
     protected _projectionViewWorldMatrix: Matrix4x4 = new Matrix4x4();
 
     /**
-     * 
+     * 实例化一个拖尾渲染器
      */
     constructor() {
         super();
@@ -164,7 +164,6 @@ export class TrailRenderer extends BaseRender {
         let context = RenderContext3D._instance;
         this.boundsChange = false;
         this._trailFilter._update(context);
-
     }
 
     /**

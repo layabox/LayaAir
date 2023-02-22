@@ -1,31 +1,40 @@
 import { Sprite } from "../../../display/Sprite";
-import { Event } from "../../../events/Event";
 import { Matrix4x4 } from "../../../maths/Matrix4x4";
 import { Vector2 } from "../../../maths/Vector2";
 import { Vector3 } from "../../../maths/Vector3";
 import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTargetFormat";
+import { ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData";
 import { BaseTexture } from "../../../resource/BaseTexture";
 import { RenderTexture2D } from "../../../resource/RenderTexture2D";
 import { Plane } from "../../math/Plane";
 import { Ray } from "../../math/Ray";
 import { Picker } from "../../utils/Picker";
+import { Utils3D } from "../../utils/Utils3D";
 import { BlinnPhongMaterial } from "../material/BlinnPhongMaterial";
 import { Material } from "../material/Material";
+import { MeshSprite3DShaderDeclaration } from "../MeshSprite3DShaderDeclaration";
 import { BaseRender } from "../render/BaseRender";
+import { RenderContext3D } from "../render/RenderContext3D";
 import { RenderElement } from "../render/RenderElement";
+import { SubMeshRenderElement } from "../render/SubMeshRenderElement";
 import { Scene3D } from "../scene/Scene3D";
 import { Sprite3D } from "../Sprite3D";
+import { Transform3D } from "../Transform3D";
 import { UI3DGeometry } from "./UI3DGeometry";
 
 /**
  * <code>BaseCamera</code> 类用于创建摄像机的父类。
  */
 export class UI3D extends BaseRender {
+    /**@internal */
     static temp0: Vector3 = new Vector3();
+    /**@internal */
     static temp1: Vector3 = new Vector3();
+    /**@internal */
     static temp2: Vector3 = new Vector3();
     //功能,将2DUI显示到3D面板上 并检测射线
-    /**@internal */
+    private _shellSprite: Sprite;
+    /**@internal UISprite*/
     private _uisprite: Sprite;
     /**@internal */
     private _rendertexure2D: RenderTexture2D;
@@ -35,14 +44,34 @@ export class UI3D extends BaseRender {
     private _needUpdate: boolean;
     /**@internal */
     private _uiPlane: Plane;
+    /**@internal */
+    private _size: Vector2;
+    /**@internal */
+    private _offset: Vector2;
+    /**@internal */
+    private _sizeChange: boolean = true;
+    /**@internal */
+    private _resolutionRate: number;
+    /**@internal */
+    private _view: boolean = true;
+    /**@internal */
+    private _bindPropertyName: string;
+    /**@internal */
+    private _hit:boolean = false;
+    /**@internal */
+    private _occlusion:boolean = false;
 
     /**
      * 3D渲染的UI节点
      */
     set sprite(value: Sprite) {
+        if (value == this._uisprite)
+            return;
+
         this._uisprite = value;
-        //TODO这里需要传入value设置的width，height
-        this._resizeRT(value.width, value.height);
+        this._shellSprite.removeChildren(0, this._shellSprite.numChildren - 1);
+        this._shellSprite.addChild(value);
+        this._resizeRT();
     }
 
     get sprite() {
@@ -50,40 +79,98 @@ export class UI3D extends BaseRender {
     }
 
     /**
-     * @internal
+     * UI3DmeshSize
      */
-    set scale(value: Vector2) {
-        this._geometry.scale = value;
+    set UI3DSize(value: Vector2) {
+        if (Vector2.equals(value, this._size))
+            return;
+        value.cloneTo(this._size);
+        this._resizeRT();
+        this.boundsChange = true;
+        this._sizeChange = true;
+    }
+
+    get UI3DSize() {
+        return this._size;
     }
 
     /**
-     *  @internal
+     * UI3D offset
      */
-    get scale(): Vector2 {
-        return this._geometry.scale;
+    set UI3DOffset(value: Vector2) {
+        if (Vector2.equals(value, this._offset))
+            return;
+        value.cloneTo(this._offset);
+        this.boundsChange = true;
+        this._sizeChange = true;
+    }
+
+    get UI3DUI3DOffset() {
+        return this._offset;
     }
 
     /**
-     * @internal
+     * 分辨率比例
      */
-    set offset(value: Vector2) {
-        this._geometry.offset = value;
+    get resolutionRate() {
+        return this._resolutionRate;
+    }
+
+    set resolutionRate(value: number) {
+        if (this._resolutionRate == value)
+            return
+        this._resolutionRate = value;
+        this._resizeRT();
     }
 
     /**
-     *  @internal
+     * billboard 模式
      */
-    get offset(): Vector2 {
-        return this._geometry.offset;
+    get view() {
+        return this._view
     }
 
-    get UIRender():BaseTexture{
-        return this._rendertexure2D;
+    set view(value: boolean) {
+        this._view = value;
     }
 
+    /**
+     * 检测鼠标事件(关闭优化性能)
+     */
+    get enableHit(){
+        return this._hit;
+    }
+
+    set enableHit(value:boolean){
+        this._hit = value;
+    }
+
+    /**
+     * 遮挡
+     */
+    get occlusion(){
+        return this._occlusion;
+    }
+
+    set occlusion(value:boolean){
+        this._occlusion = value;
+    }
+
+    /**@internal */
+    getCameraLength(rayOri:Vector3):number{
+        return Vector3.distance(rayOri,(this.owner as Sprite3D).transform.position);
+    }
+    /**
+     * 实例化一个UI3D
+     */
     constructor() {
         super();
         this._uiPlane = new Plane(new Vector3(), 0);
+        this._size = new Vector2(1, 1);
+        this._offset = new Vector2(0, 2);
+        this._resolutionRate = 100;
+        this._shellSprite = new Sprite();
+        this._shaderValues.addDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_UV0);
     }
 
     /**
@@ -102,15 +189,42 @@ export class UI3D extends BaseRender {
         elements.push(element);
     }
 
-    private _resizeRT(width: number, height: number) {
+    /**
+     * @internal
+     */
+    private _resizeRT() {
+        let width = this._size.x * this._resolutionRate;
+        let height = this._size.y * this._resolutionRate;
         if (!this._rendertexure2D) {
             this._rendertexure2D = new RenderTexture2D(width, height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.None);
         } else {
-            if (this._rendertexure2D.width == width && this._rendertexure2D.height == height) {
+            if (this._rendertexure2D.width != width || this._rendertexure2D.height != height) {
                 this._rendertexure2D.destroy();
                 this._rendertexure2D = new RenderTexture2D(width, height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.None);
+                this._sharedMaterials[0].setTexture(this._bindPropertyName, this._rendertexure2D);
             }
         }
+        this._submitRT();
+    }
+
+    /**
+     * @internal
+     */
+    onPreRender(): void {
+        //this._geometry
+        if (this.view || this._sizeChange) {
+            this._sizeChange = false;
+            let camera = (this.owner.scene as Scene3D).cullInfoCamera;
+            this._geometry._resizeVertexData(this._size, this._offset, camera._forward, camera._up, this.view, (this.owner as Sprite3D).transform.position);
+            //reset plane
+            this._updatePlane();
+        }
+        this._calculateBoundingBox();
+    }
+
+    private _updatePlane() {
+        let posArray = this._geometry._positionArray;
+        Plane.createPlaneBy3P(posArray[0], posArray[1], posArray[2], this._uiPlane);
     }
 
     /**
@@ -120,46 +234,95 @@ export class UI3D extends BaseRender {
      */
     protected _calculateBoundingBox(): void {
         var worldMat: Matrix4x4 = this._transform.worldMatrix;
-        this._geometry.bounds._tranform(worldMat, this._bounds);
+        this._geometry.bounds.cloneTo(this._bounds);
     }
 
     /**
+     * 获得ui渲染图
+     */
+    getUITexture(): BaseTexture {
+        return this._rendertexure2D;
+    }
+
+    /**
+     * @inheritDoc
+     * @override
+     * @internal
+     */
+    _renderUpdate(context: RenderContext3D, transform: Transform3D): void {
+        this._applyLightMapParams();
+        this._applyReflection();
+        var element: SubMeshRenderElement = <SubMeshRenderElement>context.renderElement;
+        this._setShaderValue(Sprite3D.WORLDMATRIX, ShaderDataType.Matrix4x4, Matrix4x4.DEFAULT);
+        return;
+    }
+
+    /** 
+     * @internal
      * 更新Sprite的RT
      */
     _submitRT() {
         //判断是否需要重置
-        this._uisprite && this._uisprite.drawToTexture(0, 0, 0, 0, this._rendertexure2D, true);
+        this._uisprite && this._shellSprite.drawToTexture(this._rendertexure2D.width, this._rendertexure2D.height, 0, 0, this._rendertexure2D, true);
+        this._bindPropertyName && this._sharedMaterials[0].setTexture(this._bindPropertyName, this._rendertexure2D);
     }
 
     /**
+     * 检测UI事件
      * @internal 
      * @param ray 
      * @returns 
      */
     _checkUIPos(ray: Ray) {
+        if(!this.enableHit)
+            return false;
         let hitPoint = Picker.rayPlaneIntersection(ray, this._uiPlane);
-        return hitPoint;
+        if(hitPoint){
+            return this._parseHit(hitPoint);
+         
+        }else{
+            return false;
+        }
     }
 
-    _changePlane() {
-        let up = Vector3.Up;
-        let right = Vector3.ForwardLH;
-        let worldMat = (this.owner as Sprite3D).transform.worldMatrix;
-        
+    /**
+     * 分析碰撞点
+     * @param hit 
+     */
+    private _parseHit(hit:Vector3){
+        let WV = UI3D.temp0;
+        let HV = UI3D.temp1;
+        let Dir = UI3D.temp2;
+        let posArray = this._geometry._positionArray;
+        if(Utils3D.PointinTriangle(posArray[0],posArray[1],posArray[2],hit)||Utils3D.PointinTriangle(posArray[3],posArray[2],posArray[1],hit)){
+            Vector3.subtract(posArray[1],posArray[0],WV);
+            Vector3.subtract(posArray[0],posArray[2],HV);
+            Vector3.subtract(hit,posArray[0],Dir);
+            Vector3.normalize(WV,WV);
+            Vector3.normalize(HV,HV);
+            //event  ,Math.abs(Vector3.dot(HV,Dir))
+            console.log(Math.abs(Vector3.dot(WV, Dir)));
+            console.log(Math.abs(Vector3.dot(HV,Dir)));
+            //谷主 TODO 绑定2D事件
+            return true;
+        }
+        return false
     }
 
+    /**
+     * @internal
+     */
     protected _onAdded(): void {
         super._onAdded();
         this._addRenderElement();
-        
-
     }
 
-
+    /**
+     * @internal
+     */
     protected _onDisable(): void {
         super._onDisable();
         (this.owner.scene as Scene3D)._UI3DManager.remove(this);
-        (this.owner as Sprite3D).transform.off(Event.TRANSFORM_CHANGED,this,this._changePlane);
     }
 
     /**
@@ -168,7 +331,6 @@ export class UI3D extends BaseRender {
     protected _onEnable(): void {
         super._onEnable();
         (this.owner.scene as Scene3D)._UI3DManager.add(this);
-        (this.owner as Sprite3D).transform.on(Event.TRANSFORM_CHANGED,this,this._changePlane);
     }
 
     /**
@@ -177,6 +339,5 @@ export class UI3D extends BaseRender {
     protected _onDestroy() {
         super._onDestroy();
     }
-
 }
 
