@@ -11,14 +11,13 @@ import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { UnlitMaterial } from "laya/d3/core/material/UnlitMaterial";
 import { VideoTexture } from "laya/media/VideoTexture";
 import { Event } from "laya/events/Event";
-import { URL } from "laya/net/URL";
+
 export class VideoPlayIn3DWorld {
     private videoPlane: MeshSprite3D;
     private isoneVideo:boolean = false
     constructor() {
         //初始化引擎
         Laya3D.init(0, 0);
-        URL.basePath += "sample-resource/"
         Stat.show();
         Laya.stage.scaleMode = Stage.SCALE_FULL;
         Laya.stage.screenMode = Stage.SCREEN_NONE;
