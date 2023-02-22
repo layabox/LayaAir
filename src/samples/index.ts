@@ -10,7 +10,8 @@ import "laya/gltf/glTFLoader";
 import "laya/html/ModuleDef";
 
 import { Resource } from "laya/resource/Resource";
-import { Main } from "./Main";
+import { SceneLoad1 } from "./3d/LayaAir3D_Scene3D/SceneLoad1";
+import { RealTimeShadow } from "./3d/LayaAir3D_Lighting/RealTimeShadow";
 Resource.DEBUG = true;
 
-new Main(false);
+new RealTimeShadow();

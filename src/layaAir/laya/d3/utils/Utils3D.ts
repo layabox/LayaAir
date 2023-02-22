@@ -24,6 +24,7 @@ import { RenderTexture } from "../../resource/RenderTexture";
 export class Utils3D {
     private static _tempVector3_0: Vector3 = new Vector3();
     private static _tempVector3_1: Vector3 = new Vector3();
+    private static _tempVector3_2: Vector3 = new Vector3();
 
     private static _tempArray16_0: Float32Array = new Float32Array(16);
     private static _tempArray16_1: Float32Array = new Float32Array(16);
@@ -149,12 +150,61 @@ export class Utils3D {
      * @internal
      */
     static _compIdToNode: any = new Object();
+    static _tempV0:Vector3 = new Vector3();
+    static _tempV1:Vector3 = new Vector3();
 
+    /**
+     * 将顶点进行billboard转换
+     */
+    static billboardTrans(v0:Vector3,cameraDir:Vector3,cameraUp:Vector3,out:Vector3){
+        //vec3 positionOS = vertex.positionOS.x * normalize(cross(u_CameraDirection, u_CameraUp));
+        //positionOS += vertex.positionOS.y * normalize(u_CameraUp);
+        Vector3.normalize(cameraUp,Utils3D._tempV1);
+        Vector3.cross(cameraDir, cameraUp,Utils3D._tempV0);
+        Vector3.normalize(Utils3D._tempV0,Utils3D._tempV0);
+        Vector3.scale(Utils3D._tempV0,v0.x,out);
+        Vector3.scale(cameraUp,v0.y,Utils3D._tempV1);
+        Vector3.add(out,Utils3D._tempV1,out);        
+    }
 
-
-
-
-
+    /**
+     * 判断P点是否在ABC组成的三角形中
+     * https://mathworld.wolfram.com/BarycentricCoordinates.html
+     * @param A 
+     * @param B 
+     * @param C 
+     * @param P 
+     * @returns 
+     */
+    static PointinTriangle(A:Vector3, B:Vector3,C:Vector3,P:Vector3):boolean
+ 	{
+ 	    let v0  = C.vsub(A,Utils3D._tempVector3_0);
+ 	    let v1  = B.vsub(A,Utils3D._tempVector3_1);
+ 	    let v2  = P.vsub(A,Utils3D._tempVector3_2);
+ 	    
+ 	    let dot00 = v0.dot(v0) ;
+ 	    let dot01 = v0.dot(v1) ;
+ 	    let dot02 = v0.dot(v2) ;
+ 	    let dot11 = v1.dot(v1) ;
+ 	    let dot12 = v1.dot(v2) ;
+ 	    
+ 	    let inverDeno = 1 / (dot00 * dot11 - dot01 * dot01) ;
+ 	 
+ 	    let u = (dot11 * dot02 - dot01 * dot12) * inverDeno ;
+ 	    if (u < 0 || u > 1) // if u out of range, return directly
+ 	    {
+ 	        return false ;
+ 	    }
+ 	 
+ 	    
+ 	    let v = (dot00 * dot12 - dot01 * dot02) * inverDeno ;
+ 	    if (v < 0 || v > 1) // if v out of range, return directly
+ 	    {
+ 	        return false ;
+ 	    }
+ 	    return u + v <= 1 ;
+ 	}
+ 	 
 
     /** @internal */
     static _computeBoneAndAnimationDatasByBindPoseMatrxix(bones: any, curData: Float32Array, inverGlobalBindPose: Matrix4x4[], outBonesDatas: Float32Array, outAnimationDatas: Float32Array, boneIndexToMesh: number[]): void {

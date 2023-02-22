@@ -8,11 +8,13 @@ import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
+import { URL } from "laya/net/URL";
 
 export class SceneLoad1 {
 	constructor() {
 		//初始化引擎
 		Laya3D.init(0, 0);
+		URL.basePath += "sample-resource/";
 		Stat.show();
 		Laya.stage.scaleMode = Stage.SCALE_FULL;
 		Laya.stage.screenMode = Stage.SCREEN_NONE;

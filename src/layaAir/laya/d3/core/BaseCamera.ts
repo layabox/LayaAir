@@ -171,9 +171,9 @@ export class BaseCamera extends Sprite3D {
     /** skyRender */
     private _skyRenderer: SkyRenderer = new SkyRenderer();
     /** 前向量*/
-    private _forward: Vector3 = new Vector3();
+    _forward: Vector3 = new Vector3();
     /** up向量 */
-    private _up: Vector3 = new Vector3();
+    _up: Vector3 = new Vector3();
     /** 是否正交 */
     protected _orthographic: boolean;
     /**@internal 是否使用用户自定义投影矩阵，如果使用了用户投影矩阵，摄像机投影矩阵相关的参数改变则不改变投影矩阵的值，需调用ResetProjectionMatrix方法。*/

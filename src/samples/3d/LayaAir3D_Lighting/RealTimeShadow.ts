@@ -25,6 +25,13 @@ import { SkinnedMeshRenderer } from "laya/d3/core/SkinnedMeshRenderer";
 import { Script } from "laya/components/Script";
 import { Color } from "laya/maths/Color";
 import { Vector3 } from "laya/maths/Vector3";
+import { URL } from "laya/net/URL";
+import { UI3D } from "laya/d3/core/UI3D/UI3D";
+import { RenderTexture2D } from "laya/resource/RenderTexture2D";
+import { UnlitMaterial } from "laya/d3/core/material/UnlitMaterial";
+import { HTMLCanvas } from "laya/resource/HTMLCanvas";
+import { RenderTargetFormat } from "laya/RenderEngine/RenderEnum/RenderTargetFormat";
+import { Sprite } from "laya/display/Sprite";
 
 /**
  * Light rotation script.
@@ -47,25 +54,28 @@ class RotationScript extends Script {
 export class RealTimeShadow {
 
 	/**实例类型*/
-	private btype:any = "RealTimeShadow";
-	private rotationButton:Button;
-	private rotationScript:RotationScript;
+	private btype: any = "RealTimeShadow";
+	private rotationButton: Button;
+	private rotationScript: RotationScript;
 	constructor() {
 		//Init engine.
 		Laya3D.init(0, 0);
 		Laya.stage.scaleMode = Stage.SCALE_FULL;
 		Laya.stage.screenMode = Stage.SCREEN_NONE;
+		URL.basePath += "sample-resource/";
 		//show stat.
 		Stat.show();
 		Laya.loader.load([
 			"res/threeDimen/staticModel/grid/plane.lh",
-			"res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh"
+			"res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh",
+			"res/web/resources/Sprite.lh",
+			"res/apes/monkey3.png"
 		], Handler.create(this, this.onComplete));
 	}
 
 	private onComplete(): void {
 		var scene: Scene3D = <Scene3D>Laya.stage.addChild(new Scene3D());
-		
+
 		var camera: Camera = <Camera>(scene.addChild(new Camera(0, 0.1, 100)));
 		camera.transform.translate(new Vector3(0, 1.2, 1.6));
 		camera.transform.rotate(new Vector3(-35, 0, 0), true, false);
@@ -93,7 +103,7 @@ export class RealTimeShadow {
 		// A plane receive shadow.
 		var grid: Sprite3D = <Sprite3D>scene.addChild(Loader.createNodes("res/threeDimen/staticModel/grid/plane.lh"));
 		(<MeshSprite3D>grid.getChildAt(0)).meshRenderer.receiveShadow = true;
-		
+
 		// A monkey cast shadow.
 		var layaMonkey: Sprite3D = <Sprite3D>scene.addChild(Loader.createNodes("res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh"));
 		layaMonkey.transform.localScale = new Vector3(2, 2, 2);
@@ -103,10 +113,23 @@ export class RealTimeShadow {
 		var sphereSprite: MeshSprite3D = this.addPBRSphere(PrimitiveMesh.createSphere(0.1), new Vector3(0, 0.2, 0.5), scene);
 		sphereSprite.meshRenderer.castShadow = true;
 
+		let UIData = new Sprite3D();
+		let sprite = Loader.getRes("res/web/resources/Sprite.lh").create();
+		
+		//Laya.stage.addChild(sprite);
 		// Add Light controll UI.
+		//Stat.showToggle(0,500);
+		let ui3D = layaMonkey.addComponent(UI3D);
+		let blin = ui3D.sharedMaterial = new UnlitMaterial();
+		ui3D.resolutionRate = 1024;
+		ui3D.sprite = sprite;
+		//ui3D.bindMaterialProperty = "u_AlbedoTexture";
+		blin.albedoTexture = ui3D.getUITexture();
+		Laya.timer.loop(2000,this,this.consoleRT,[ui3D.getUITexture()])
+		//this.draw();
 		this.loadUI();
 	}
-	
+
 	/**
 	 * Add one with smoothness and metallic sphere.
 	 */
@@ -137,7 +160,8 @@ export class RealTimeShadow {
 		}));
 	}
 
-	stypeFun0(label:string = "Stop Rotation"): void {
+	stypeFun0(label: string = "Stop Rotation"): void {
+		this.draw();
 		if (this.rotationScript.rotation) {
 			this.rotationButton.label = "Start Rotation";
 			this.rotationScript.rotation = false;
@@ -146,6 +170,50 @@ export class RealTimeShadow {
 			this.rotationScript.rotation = true;
 		}
 		label = this.rotationButton.label;
-		Client.instance.send({type:"next",btype:this.btype,stype:0,value:label});	
+		Client.instance.send({ type: "next", btype: this.btype, stype: 0, value: label });
+	}
+
+
+	draw(){
+		let sprite =Laya.loader.getRes("res/web/resources/Sprite.lh").create() as Sprite;
+		var ape: Sprite = new Sprite();
+        let spPar = new Sprite();
+		spPar.addChild(sprite);
+		spPar.x = 0;
+		spPar.y = 0;
+        ape.loadImage("res/apes/monkey3.png");
+		
+		Laya.timer.once(1000,this,this.draw2,[spPar]);
+		//Laya.stage.addChild(sprite);
+		
+		
+	}
+
+	draw2(sprite:Sprite){
+		let rt2D = new RenderTexture2D(2048,2048,RenderTargetFormat.R8G8B8A8, RenderTargetFormat.None);
+		//rt2D.clear(1.0,0.0,0.0,1.0);
+		(sprite as Sprite).drawToTexture(rt2D.width, rt2D.height, 0,0, rt2D,true);
+		this.consoleRT(rt2D);
+	}
+
+	consoleRT(rts: RenderTexture2D){
+		
+		let data = rts.getData(0, 0, rts.width, rts.height);
+		let pixels = data;
+		var bs: String;
+
+		var canv: HTMLCanvas = new HTMLCanvas(true);
+		canv.lock = true;
+		canv.size(rts.width, rts.height);
+		var ctx2d = canv.getContext('2d');
+		//@ts-ignore
+		var imgdata: ImageData = ctx2d.createImageData(rts.width, rts.height);
+		//@ts-ignore
+		imgdata.data.set(new Uint8ClampedArray(pixels));
+		//@ts-ignore
+		ctx2d.putImageData(imgdata, 0, 0);;
+		bs = canv.source.toDataURL();
+		canv.destroy();
+		console.log(bs);
 	}
 }

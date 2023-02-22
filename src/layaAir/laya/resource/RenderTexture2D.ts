@@ -15,7 +15,7 @@ import { Color } from "../maths/Color";
 export class RenderTexture2D extends BaseTexture implements IRenderTarget {
     /** @private */
     private static _currentActive: RenderTexture2D;
-    static _clearColor: Color = new Color();
+    static _clearColor: Color = new Color(0,0,0,0);
     static _clearLinearColor:Color = new Color();
     private _lastRT: RenderTexture2D;
     private _lastWidth: number;
@@ -183,6 +183,7 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
                 RenderTexture2D._currentActive = top.rt;
             }
             LayaGL.renderEngine.viewport(0, 0, top.w, top.h);
+            LayaGL.renderEngine.scissor(0, 0, top.w, top.h);
             RenderState2D.width = top.w;
             RenderState2D.height = top.h;
         }
@@ -206,6 +207,7 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
         //
         ////if (_type == TYPE2D) {
         LayaGL.renderEngine.viewport(0, 0, this._width, this._height);//外部设置
+        LayaGL.renderEngine.scissor(0, 0, this._width, this._height);//外部设置
         this._lastWidth = RenderState2D.width;
         this._lastHeight = RenderState2D.height;
         RenderState2D.width = this._width;
@@ -241,6 +243,7 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
         //if (_type == TYPE2D)//待调整
         //{
         LayaGL.renderEngine.viewport(0, 0, this._lastWidth, this._lastHeight);
+        LayaGL.renderEngine.scissor(0, 0, this._lastWidth, this._lastHeight);
         RenderState2D.width = this._lastWidth;
         RenderState2D.height = this._lastHeight;
         BaseShader.activeShader = null;
