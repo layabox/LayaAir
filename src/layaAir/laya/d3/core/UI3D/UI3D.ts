@@ -21,7 +21,7 @@ import { Scene3D } from "../scene/Scene3D";
 import { Sprite3D } from "../Sprite3D";
 import { Transform3D } from "../Transform3D";
 import { UI3DGeometry } from "./UI3DGeometry";
-
+import { Event } from "../../../events/Event";
 /**
  * <code>BaseCamera</code> 类用于创建摄像机的父类。
  */
@@ -32,6 +32,8 @@ export class UI3D extends BaseRender {
     static temp1: Vector3 = new Vector3();
     /**@internal */
     static temp2: Vector3 = new Vector3();
+    static DEBUG: boolean = false;
+
     //功能,将2DUI显示到3D面板上 并检测射线
     private _shellSprite: Sprite;
     /**@internal UISprite*/
@@ -55,11 +57,11 @@ export class UI3D extends BaseRender {
     /**@internal */
     private _view: boolean = true;
     /**@internal */
-    private _bindPropertyName: string;
+    private _bindPropertyName: string = "u_AlbedoTexture";
     /**@internal */
-    private _hit:boolean = false;
+    private _hit: boolean = false;
     /**@internal */
-    private _occlusion:boolean = false;
+    private _occlusion: boolean = false;
 
     /**
      * 3D渲染的UI节点
@@ -137,28 +139,28 @@ export class UI3D extends BaseRender {
     /**
      * 检测鼠标事件(关闭优化性能)
      */
-    get enableHit(){
+    get enableHit() {
         return this._hit;
     }
 
-    set enableHit(value:boolean){
+    set enableHit(value: boolean) {
         this._hit = value;
     }
 
     /**
      * 遮挡
      */
-    get occlusion(){
+    get occlusion() {
         return this._occlusion;
     }
 
-    set occlusion(value:boolean){
+    set occlusion(value: boolean) {
         this._occlusion = value;
     }
 
     /**@internal */
-    getCameraLength(rayOri:Vector3):number{
-        return Vector3.distance(rayOri,(this.owner as Sprite3D).transform.position);
+    getCameraLength(rayOri: Vector3): number {
+        return Vector3.distance(rayOri, (this.owner as Sprite3D).transform.position);
     }
     /**
      * 实例化一个UI3D
@@ -214,11 +216,16 @@ export class UI3D extends BaseRender {
         //this._geometry
         if (this.view || this._sizeChange) {
             this._sizeChange = false;
-            let camera = (this.owner.scene as Scene3D).cullInfoCamera;
-            this._geometry._resizeVertexData(this._size, this._offset, camera._forward, camera._up, this.view, (this.owner as Sprite3D).transform.position);
-            //reset plane
-            this._updatePlane();
+            if (this.view) {
+                let camera = (this.owner.scene as Scene3D).cullInfoCamera;
+                this._geometry._resizeViewVertexData(this._size, this._offset, camera._forward, camera._up, this.view, (this.owner as Sprite3D).transform.position);
+            } else {
+                this._geometry._resizeWorldVertexData(this._size, this._offset, (this.owner as Sprite3D).transform.worldMatrix);
+            }
         }
+
+        //reset plane
+        this._updatePlane();
         this._calculateBoundingBox();
     }
 
@@ -253,6 +260,7 @@ export class UI3D extends BaseRender {
         this._applyLightMapParams();
         this._applyReflection();
         var element: SubMeshRenderElement = <SubMeshRenderElement>context.renderElement;
+        // 这里不需要区分，已经将顶点进行转换了直接使用默认矩阵
         this._setShaderValue(Sprite3D.WORLDMATRIX, ShaderDataType.Matrix4x4, Matrix4x4.DEFAULT);
         return;
     }
@@ -274,13 +282,12 @@ export class UI3D extends BaseRender {
      * @returns 
      */
     _checkUIPos(ray: Ray) {
-        if(!this.enableHit)
+        if (!this.enableHit)
             return false;
         let hitPoint = Picker.rayPlaneIntersection(ray, this._uiPlane);
-        if(hitPoint){
+        if (hitPoint) {
             return this._parseHit(hitPoint);
-         
-        }else{
+        } else {
             return false;
         }
     }
@@ -289,21 +296,24 @@ export class UI3D extends BaseRender {
      * 分析碰撞点
      * @param hit 
      */
-    private _parseHit(hit:Vector3){
+    private _parseHit(hit: Vector3) {
         let WV = UI3D.temp0;
         let HV = UI3D.temp1;
         let Dir = UI3D.temp2;
         let posArray = this._geometry._positionArray;
-        if(Utils3D.PointinTriangle(posArray[0],posArray[1],posArray[2],hit)||Utils3D.PointinTriangle(posArray[3],posArray[2],posArray[1],hit)){
-            Vector3.subtract(posArray[1],posArray[0],WV);
-            Vector3.subtract(posArray[0],posArray[2],HV);
-            Vector3.subtract(hit,posArray[0],Dir);
-            Vector3.normalize(WV,WV);
-            Vector3.normalize(HV,HV);
-            //event  ,Math.abs(Vector3.dot(HV,Dir))
-            console.log(Math.abs(Vector3.dot(WV, Dir)));
-            console.log(Math.abs(Vector3.dot(HV,Dir)));
+        if (Utils3D.PointinTriangle(posArray[0], posArray[1], posArray[2], hit) || Utils3D.PointinTriangle(posArray[3], posArray[2], posArray[1], hit)) {
+            Vector3.subtract(posArray[2], posArray[3], WV);
+            Vector3.subtract(posArray[2], posArray[0], HV);
+            Vector3.subtract(posArray[2], hit, Dir);
+            Vector3.normalize(WV, WV);
+            Vector3.normalize(HV, HV);
+            let normalizeHitWidth = Math.abs(Vector3.dot(WV, Dir));    // dot 也就是在宽度上百分比 0 ~ 1
+            let normalizeHitHeight = Math.abs(Vector3.dot(HV, Dir));    // dot 这个时在高度上的百分比 0 ~ 1
+
+            // drawCircle to test
+            UI3D.DEBUG && this._uisprite && this._shellSprite.graphics.drawCircle(normalizeHitWidth * this._rendertexure2D.width, normalizeHitHeight * this._rendertexure2D.height, 10, "#e53d30");
             //谷主 TODO 绑定2D事件
+
             return true;
         }
         return false
@@ -331,6 +341,7 @@ export class UI3D extends BaseRender {
     protected _onEnable(): void {
         super._onEnable();
         (this.owner.scene as Scene3D)._UI3DManager.add(this);
+        (this.owner as Sprite3D).transform.on(Event.TRANSFORM_CHANGED, this, this._transByRotate);//如果为合并BaseRender,owner可能为空
     }
 
     /**
@@ -338,6 +349,12 @@ export class UI3D extends BaseRender {
      */
     protected _onDestroy() {
         super._onDestroy();
+        (this.owner as Sprite3D).transform.off(Event.TRANSFORM_CHANGED, this, this._transByRotate);//如果为合并BaseRender,owner可能为空
+    }
+
+    private _transByRotate() {
+        if (!this.view)
+            this._sizeChange = true;
     }
 }
 
