@@ -87,19 +87,18 @@ export class SimpleSkinnedMeshSprite3D extends RenderableSprite3D {
         (data.enableRender != undefined) && (render.enabled = data.enableRender);
         (data.receiveShadows != undefined) && (render.receiveShadow = data.receiveShadows);
         (data.castShadow != undefined) && (render.castShadow = data.castShadow);
-        var meshPath: string;
-        meshPath = data.meshPath;
+        let meshPath: string = data.meshPath;
         if (meshPath) {
-            var mesh: Mesh = Loader.getRes(meshPath);//加载失败mesh为空
+            let mesh: Mesh = Loader.getRes(meshPath);//加载失败mesh为空
             (mesh) && (this.meshFilter.sharedMesh = mesh);
         }
 
         var materials: any[] = data.materials;
         if (materials) {
-            var sharedMaterials: Material[] = render.sharedMaterials;
-            var materialCount: number = materials.length;
+            let sharedMaterials: Material[] = render.sharedMaterials;
+            let materialCount: number = materials.length;
             sharedMaterials.length = materialCount;
-            for (var i: number = 0; i < materialCount; i++) {
+            for (let i = 0; i < materialCount; i++) {
                 sharedMaterials[i] = Loader.getRes(materials[i].path);
             }
             render.sharedMaterials = sharedMaterials;
@@ -112,11 +111,10 @@ export class SimpleSkinnedMeshSprite3D extends RenderableSprite3D {
         render.localBounds.setMax(new Vector3(max[0], max[1], max[2]));
         render.localBounds = render.localBounds;
         if (spriteMap) {
-            var rootBoneData: number = data.rootBone;
+            let rootBoneData: number = data.rootBone;
             render.rootBone = spriteMap[rootBoneData];
-            var bonesData: any[] = data.bones;
-            var n: number;
-            for (i = 0, n = bonesData.length; i < n; i++)
+            let bonesData: any[] = data.bones;
+            for (let i = 0, n = bonesData.length; i < n; i++)
                 render.bones.push(spriteMap[bonesData[i]]);
 
             render._bonesNums = data.bonesNums ? data.bonesNums : render.bones.length;
@@ -126,8 +124,8 @@ export class SimpleSkinnedMeshSprite3D extends RenderableSprite3D {
         // }
         var animatorTexture: string = data.animatorTexture;
         if (animatorTexture) {
-            var animatortexture: Texture2D = Loader.getRes(animatorTexture);
-            (render as SimpleSkinnedMeshRenderer).simpleAnimatorTexture = animatortexture;
+            let animatortexture: Texture2D = Loader.getRes(animatorTexture, Loader.TEXTURE2D);
+            render.simpleAnimatorTexture = animatortexture;
         }
     }
 

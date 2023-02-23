@@ -28,19 +28,11 @@ export class VBox extends LayoutBox {
     /**
      * @override
      */
-    set width(value: number) {
-        if (this._width != value) {
-            super.width = value;
-            this.callLater(this.changeItems);
-        }
+    _setWidth(value: number) {
+        super._setWidth(value);
+        this.callLater(this.changeItems);
     }
-    /**
-     * @inheritDoc
-     * @override
-     */
-    get width() {
-        return super.width;
-    }
+
 
     /** 
      * @inheritDoc	

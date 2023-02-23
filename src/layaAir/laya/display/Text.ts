@@ -251,20 +251,18 @@ export class Text extends Sprite {
      * @inheritDoc
      * @override
      */
-    get width(): number {
+    get_width(): number {
         if (this._width) return this._width;
         return this.textWidth + this.padding[1] + this.padding[3];
     }
     /**
      * @override
      */
-    set width(value: number) {
-        if (value != this._width) {
-            super.set_width(value);
-            this.isChanged = true;
-            if (this.borderColor) {
-                this._setBorderStyleColor(0, 0, this.width, this.height, this.borderColor, 1);
-            }
+    _setWidth(value: number) {
+        super._setWidth(value);
+        this.isChanged = true;
+        if (this.borderColor) {
+            this._setBorderStyleColor(0, 0, this.width, this.height, this.borderColor, 1);
         }
     }
 
@@ -279,20 +277,18 @@ export class Text extends Sprite {
      * @inheritDoc
      * @override
      */
-    get height(): number {
+    get_height(): number {
         if (this._height) return this._height;
         return this.textHeight;
     }
     /**
      * @override
      */
-    set height(value: number) {
-        if (value != this._height) {
-            super.set_height(value);
-            this.isChanged = true;
-            if (this.borderColor) {
-                this._setBorderStyleColor(0, 0, this.width, this.height, this.borderColor, 1);
-            }
+    _setHeight(value: number) {
+        super._setHeight(value);
+        this.isChanged = true;
+        if (this.borderColor) {
+            this._setBorderStyleColor(0, 0, this.width, this.height, this.borderColor, 1);
         }
     }
 

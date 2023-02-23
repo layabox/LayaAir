@@ -25,14 +25,10 @@ export class Scene extends Sprite {
     autoDestroyAtClosed: boolean = false;
     /**@internal */
     _idMap?: any;
-    _scene3D:any;
+    _scene3D: any;
 
     /**@private 相对布局组件*/
     protected _widget: Widget;
-    /**X锚点，值为0-1，设置anchorX值最终通过pivotX值来改变节点轴心点。*/
-    protected _anchorX: number = null;
-    /**Y锚点，值为0-1，设置anchorY值最终通过pivotY值来改变节点轴心点。*/
-    protected _anchorY: number = null;
 
     /**场景时钟*/
     private _timer: Timer;
@@ -191,41 +187,7 @@ export class Scene extends Sprite {
      * @inheritDoc 
      * @override
      */
-    set scaleX(value: number) {
-        if (super.get_scaleX() == value) return;
-        super.set_scaleX(value);
-        this.event(Event.RESIZE);
-    }
-    /**
-     * @inheritDoc 
-     * @override
-     */
-    get scaleX() {
-        return super.scaleX;
-    }
-
-    /**
-     * @inheritDoc 
-     * @override
-     */
-    set scaleY(value: number) {
-        if (super.get_scaleY() == value) return;
-        super.set_scaleY(value);
-        this.event(Event.RESIZE);
-    }
-    /**
-     * @inheritDoc 
-     * @override
-     */
-    get scaleY() {
-        return super.scaleY;
-    }
-
-    /**
-     * @inheritDoc 
-     * @override
-     */
-    get width(): number {
+    get_width(): number {
         if (this._width) return this._width;
         var max: number = 0;
         for (var i: number = this.numChildren - 1; i > -1; i--) {
@@ -241,17 +203,7 @@ export class Scene extends Sprite {
      * @inheritDoc 
      * @override
      */
-    set width(value: number) {
-        if (super.get_width() == value) return;
-        super.set_width(value);
-        this.callLater(this._sizeChanged);
-    }
-
-    /**
-     * @inheritDoc 
-     * @override
-     */
-    get height(): number {
+    get_height(): number {
         if (this._height) return this._height;
         var max: number = 0;
         for (var i: number = this.numChildren - 1; i > -1; i--) {
@@ -261,16 +213,6 @@ export class Scene extends Sprite {
             }
         }
         return max;
-    }
-
-    /**
-     * @inheritDoc 
-     * @override
-     */
-    set height(value: number) {
-        if (super.get_height() == value) return;
-        super.set_height(value);
-        this.callLater(this._sizeChanged);
     }
 
     /**
@@ -367,41 +309,18 @@ export class Scene extends Sprite {
         }
     }
 
-    /**X锚点，值为0-1，设置anchorX值最终通过pivotX值来改变节点轴心点。*/
-    get anchorX(): number {
-        return this._anchorX;
+    protected _shouldRefreshLayout(): void {
+        super._shouldRefreshLayout();
+        this.callLater(this._sizeChanged);
     }
-
-    set anchorX(value: number) {
-        if (this._anchorX != value) {
-            this._anchorX = value;
-            this.callLater(this._sizeChanged);
-        }
-    }
-
-    /**Y锚点，值为0-1，设置anchorY值最终通过pivotY值来改变节点轴心点。*/
-    get anchorY(): number {
-        return this._anchorY;
-    }
-
-    set anchorY(value: number) {
-        if (this._anchorY != value) {
-            this._anchorY = value
-            this.callLater(this._sizeChanged);
-        }
-    }
-
+    
     /**
      * @private 
      * @override
     */
     protected _sizeChanged(): void {
-        if (this._anchorX != null) this.pivotX = this.anchorX * this.width;
-        if (this._anchorY != null) this.pivotY = this.anchorY * this.height;
         this.event(Event.RESIZE);
-        if (this._widget != Widget.EMPTY) {
-            this._widget.resetLayout();
-        }
+        if (this._widget !== Widget.EMPTY) this._widget.resetLayout();
     }
 
     /**
