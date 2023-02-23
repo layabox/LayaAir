@@ -11,7 +11,7 @@ import { Ray } from "../../math/Ray";
 import { Picker } from "../../utils/Picker";
 import { Utils3D } from "../../utils/Utils3D";
 import { BlinnPhongMaterial } from "../material/BlinnPhongMaterial";
-import { Material } from "../material/Material";
+import { Material, MaterialRenderMode } from "../material/Material";
 import { MeshSprite3DShaderDeclaration } from "../MeshSprite3DShaderDeclaration";
 import { BaseRender } from "../render/BaseRender";
 import { RenderContext3D } from "../render/RenderContext3D";
@@ -22,6 +22,14 @@ import { Sprite3D } from "../Sprite3D";
 import { Transform3D } from "../Transform3D";
 import { UI3DGeometry } from "./UI3DGeometry";
 import { Event } from "../../../events/Event";
+
+export enum UI3DRenderMode {
+    /**渲染状态__加色法混合。 */
+    ADDTIVE,
+    /**渲染状态_透明混合。 */
+    ALPHABLEND,
+}
+
 /**
  * <code>BaseCamera</code> 类用于创建摄像机的父类。
  */
@@ -33,7 +41,6 @@ export class UI3D extends BaseRender {
     /**@internal */
     static temp2: Vector3 = new Vector3();
     static DEBUG: boolean = false;
-
     //功能,将2DUI显示到3D面板上 并检测射线
     private _shellSprite: Sprite;
     /**@internal UISprite*/
@@ -94,6 +101,24 @@ export class UI3D extends BaseRender {
 
     get UI3DSize() {
         return this._size;
+    }
+
+    set renderMode(value: number) {
+        switch (value) {
+            case UI3DRenderMode.ADDTIVE:
+                this.sharedMaterials[0].materialRenderMode = MaterialRenderMode.RENDERMODE_ADDTIVE;
+                break;
+            case UI3DRenderMode.ALPHABLEND:
+                this.sharedMaterials[0].materialRenderMode = MaterialRenderMode.RENDERMODE_ALPHABLENDED;
+                break;
+            default:
+                this.sharedMaterials[0].materialRenderMode = MaterialRenderMode.RENDERMODE_ALPHABLENDED;
+                break;
+        }
+    }
+
+    get renderMode(): number {
+        return this.sharedMaterial.materialRenderMode;
     }
 
     /**
