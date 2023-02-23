@@ -334,8 +334,8 @@ export class ComboBox extends UIComponent {
      * @inheritDoc 
      * @override
      */
-    set width(value: number) {
-        super.width = value;
+    _setWidth(value: number) {
+        super._setWidth(value);
         this._button.width = this._width;
         this._itemChanged = true;
         this._listChanged = true;
