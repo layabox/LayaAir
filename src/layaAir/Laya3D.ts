@@ -112,10 +112,10 @@ export class Laya3D {
         }
 
         Laya3D.createRenderObjInit();
-        if (LayaEnv.isConch && !(window as any).conchConfig.conchWebGL) {
-            var skinnedMeshRender: any = SkinnedMeshRenderer;
-            skinnedMeshRender.prototype._computeSkinnedData = skinnedMeshRender.prototype._computeSkinnedDataForNative;
-        }
+        // if (LayaEnv.isConch && !(window as any).conchConfig.conchWebGL) {
+        //     var skinnedMeshRender: any = SkinnedMeshRenderer;
+        //     skinnedMeshRender.prototype._computeSkinnedData = skinnedMeshRender.prototype._computeSkinnedDataForNative;
+        // }
         Config3D._multiLighting = Config3D.enableMultiLight && LayaGL.renderEngine.getCapable(RenderCapable.TextureFormat_R32G32B32A32);
         Config3D._uniformBlock = Config3D.enableUniformBufferObject && LayaGL.renderEngine.getCapable(RenderCapable.UnifromBufferObject);
 
