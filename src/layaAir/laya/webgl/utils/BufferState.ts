@@ -71,7 +71,10 @@ export class BufferState {
 		return (BufferState._curBindedBufferState==this);
 	}
 
-
+	static clearbindBufferState(){
+		LayaGL.renderEngine.unbindVertexState();
+		BufferState._curBindedBufferState = null;
+	}
 
 	/**
 	 * @private

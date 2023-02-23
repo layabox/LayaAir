@@ -204,6 +204,9 @@ export class NativeWebGLEngine implements IRenderEngine {
   uploadCustomUniforms(shader: IRenderShaderInstance, custom: any[], index: number, data: any): number {
     throw new Error("Method not implemented.");
   }
+  unbindVertexState(): void{
+    this._nativeObj.unbindVertexState && this._nativeObj.unbindVertexState();
+  }
 }
 
 
