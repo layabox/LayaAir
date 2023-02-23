@@ -111,14 +111,15 @@ export class Socket extends EventDispatcher {
      * @param port		服务器端口。
      * @param byteClass	用于接收和发送数据的 Byte 类。如果为 null ，则使用 Byte 类，也可传入 Byte 类的子类。
      * @param protocols	子协议名称。子协议名称字符串，或由多个子协议名称字符串构成的数组
+     * @param isSecure  是否使用WebSocket安全协议wss，默认（false）使用普通协议ws
      * @see laya.utils.Byte
      */
-    constructor(host: string|null = null, port: number = 0, byteClass: new () => any = null, protocols: any[]|null = null) {
+    constructor(host: string | null = null, port: number = 0, byteClass: new () => any = null, protocols: any[] | null = null, isSecure: boolean = false) {
         super();
         this._byteClass = byteClass ? byteClass : Byte;
         this.protocols = protocols;
         this.endian = Socket.BIG_ENDIAN;
-        if (host && port > 0 && port < 65535) this.connect(host, port);
+        if (host && port > 0 && port < 65535) this.connect(host, port, isSecure);
     }
 
     /**
@@ -126,9 +127,10 @@ export class Socket extends EventDispatcher {
      * <p>连接成功派发 Event.OPEN 事件；连接失败派发 Event.ERROR 事件；连接被关闭派发 Event.CLOSE 事件；接收到数据派发 Event.MESSAGE 事件； 除了 Event.MESSAGE 事件参数为数据内容，其他事件参数都是原生的 HTML DOM Event 对象。</p>
      * @param host	服务器地址。
      * @param port	服务器端口。
+     * @param isSecure  是否使用WebSocket安全协议wss，默认（false）使用普通协议ws
      */
-    connect(host: string, port: number): void {
-        var url: string = "ws://" + host + ":" + port;
+    connect(host: string, port: number, isSecure: boolean = false): void {
+        var url: string = (isSecure) ? "wss" : "ws" + "://" + host + ":" + port;
         this.connectByUrl(url);
     }
 
