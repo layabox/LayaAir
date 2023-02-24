@@ -50,23 +50,6 @@ export class PhysicsWorld_MeshCollider {
 			mat.setForward(new Vector3(0.0, -0.8, -1.0));
 			directionLight.transform.worldMatrix = mat;
 			directionLight.color = new Color(1, 1, 1, 1);
-
-			this.mat1 = new BlinnPhongMaterial();
-			this.mat2 = new BlinnPhongMaterial();
-			this.mat3 = new BlinnPhongMaterial();
-			//加载纹理资源
-			Texture2D.load("res/threeDimen/Physics/rocks.jpg", Handler.create(this, function (tex: Texture2D): void {
-				this.mat1.albedoTexture = tex;
-			}));
-
-			Texture2D.load("res/threeDimen/Physics/plywood.jpg", Handler.create(this, function (tex: Texture2D): void {
-				this.mat2.albedoTexture = tex;
-			}));
-
-			Texture2D.load("res/threeDimen/Physics/wood.jpg", Handler.create(this, function (tex: Texture2D): void {
-				this.mat3.albedoTexture = tex;
-			}));
-
 			Laya.loader.load(["res/threeDimen/staticModel/lizard/Assets/Lizard/lizard-lizard_geo.lm", "res/threeDimen/staticModel/lizard/Assets/Lizard/lizard_diff.png", "res/threeDimen/staticModel/lizard/Assets/Lizard/lizard_norm.png"], Handler.create(this, this.complete));
 		}));
 	}
@@ -138,7 +121,10 @@ export class PhysicsWorld_MeshCollider {
 		var sY: number = Math.random() * 0.75 + 0.25;
 		var sZ: number = Math.random() * 0.75 + 0.25;
 		var box: MeshSprite3D = (<MeshSprite3D>this.scene.addChild(new MeshSprite3D(PrimitiveMesh.createBox(sX, sY, sZ))));
-		box.meshRenderer.material = this.mat1;
+		box.meshRenderer.material = new BlinnPhongMaterial();
+		Laya.loader.load("res/threeDimen/Physics/rocks.jpg").then((res)=>{
+			(box.meshRenderer.material as BlinnPhongMaterial).albedoTexture = res as Texture2D;
+		});
 		var transform: Transform3D = box.transform;
 		var pos: Vector3 = transform.position;
 		pos.setValue(Math.random() * 4 - 2, 10, Math.random() * 4 - 2);
@@ -156,7 +142,10 @@ export class PhysicsWorld_MeshCollider {
 	addSphere(): void {
 		var radius: number = Math.random() * 0.2 + 0.2;
 		var sphere: MeshSprite3D = (<MeshSprite3D>this.scene.addChild(new MeshSprite3D(PrimitiveMesh.createSphere(radius))));
-		sphere.meshRenderer.material = this.mat2;
+		sphere.meshRenderer.material = new BlinnPhongMaterial();
+		Laya.loader.load("res/threeDimen/Physics/plywood.jpg").then((res)=>{
+			(sphere.meshRenderer.material as BlinnPhongMaterial).albedoTexture = res as Texture2D;
+		});
 		var pos: Vector3 = sphere.transform.position;
 		pos.setValue(Math.random() * 4 - 2, 10, Math.random() * 4 - 2);
 		sphere.transform.position = pos;
@@ -171,7 +160,10 @@ export class PhysicsWorld_MeshCollider {
 		var raidius: number = Math.random() * 0.2 + 0.2;
 		var height: number = Math.random() * 0.5 + 0.8;
 		var capsule: MeshSprite3D = (<MeshSprite3D>this.scene.addChild(new MeshSprite3D(PrimitiveMesh.createCapsule(raidius, height))));
-		capsule.meshRenderer.material = this.mat3;
+		capsule.meshRenderer.material = new BlinnPhongMaterial();
+		Laya.loader.load("res/threeDimen/Physics/wood.jpg").then((res)=>{
+			(capsule.meshRenderer.material as BlinnPhongMaterial).albedoTexture = res as Texture2D;
+		});
 		var transform: Transform3D = capsule.transform;
 		var pos: Vector3 = transform.position;
 		pos.setValue(Math.random() * 4 - 2, 10, Math.random() * 4 - 2);

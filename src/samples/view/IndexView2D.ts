@@ -245,7 +245,8 @@ export class IndexView2D extends IndexViewUI {
 		this.bigComBox.height = 50;
 		this.bigComBox.labelSize = 35;
 		this.bigComBox.itemSize = 30;
-
+		this.bigComBox.left = 50;
+		this.bigComBox.bottom = 50;
 		this.smallComBox.x = this.bigComBox.x + this.bigComBox.width + 20;
 
 		this.smallComBox.labels = this._comboBoxSpriteArr.toString();
@@ -255,17 +256,19 @@ export class IndexView2D extends IndexViewUI {
 		this.smallComBox.list.scrollType = ScrollType.Vertical;
 		this.smallComBox.visibleNum = 5;//_comboBoxSpriteArr.length;
 		this.smallComBox.list.selectEnable = true;
-		this.smallComBox.width = 260;
+		this.smallComBox.width = 360;
 		this.smallComBox.height = 50;
 		this.smallComBox.labelSize = 35;
 		this.smallComBox.itemSize = 30;
+		this.smallComBox.left = 300;
+		this.smallComBox.bottom = 50;
 
 		this.btn = new Button();
 		this.btn.skin = "comp/vscroll$down.png"
 		this.addChild(this.btn);
 		this.btn.scale(4, 4);
-		this.btn.bottom = -30;
-		this.btn.right = -430;
+		this.btn.bottom = 50;
+		this.btn.left = 700;
 
 		this.btn.on(Event.MOUSE_DOWN, this, this.nextBtn);
 	}

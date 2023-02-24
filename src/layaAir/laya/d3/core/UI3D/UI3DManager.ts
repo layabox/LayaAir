@@ -33,7 +33,7 @@ export class UI3DManager{
         let rayOri = ray.origin;
         this._UI3Dlist.clean();
         //sort
-        this._UI3Dlist.elements.sort((a:UI3D,b:UI3D)=>Number(a.getCameraLength(rayOri)>b.getCameraLength(rayOri)));
+        this._UI3Dlist.elements.sort((a:UI3D,b:UI3D)=>Number(a._getCameraDistane(rayOri)>b._getCameraDistane(rayOri)));
         for(var i = 0,n = this._UI3Dlist.length;i<n;i++){
             let elements = this._UI3Dlist.elements;
             let hit = elements[i]._checkUIPos(ray);

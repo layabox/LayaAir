@@ -50,7 +50,7 @@ export class CameraDemo {
 		//开启统计信息
 		Stat.show();
 		//预加载所有资源
-		var resource: any[] = ["res/threeDimen/texture/layabox.png", "res/threeDimen/skyBox/skyBox2/skyBox2.lmat"];
+		var resource: any[] = ["res/threeDimen/texture/layabox.png"];
 		Laya.loader.load(resource, Handler.create(this, this.onPreLoadFinish));
 	}
 
@@ -145,14 +145,17 @@ export class CameraDemo {
 		if (this.index2 % 2 === 1) {
 			//设置相机的清除标识为天空盒
 			this.camera.clearFlag = CameraClearFlags.Sky;
-			//使用加载天空盒材质
-			var skyboxMaterial: Material = (<Material>Loader.getRes("res/threeDimen/skyBox/skyBox2/skyBox2.lmat"));
-			//获取相机的天空渲染器
-			var skyRenderer: SkyRenderer = this.camera.skyRenderer;
-			//设置相机的天空渲染器的mesh
-			skyRenderer.mesh = SkyBox.instance;
-			//设置相机的天空渲染器的material
-			skyRenderer.material = skyboxMaterial;
+			Material.load("res/threeDimen/skyBox/skyBox2/skyBox2.lmat", Handler.create(this, ()=>{
+				//使用加载天空盒材质
+				var skyboxMaterial: Material = (<Material>Loader.getRes("res/threeDimen/skyBox/skyBox2/skyBox2.lmat"));
+				//获取相机的天空渲染器
+				var skyRenderer: SkyRenderer = this.camera.skyRenderer;
+				//设置相机的天空渲染器的mesh
+				skyRenderer.mesh = SkyBox.instance;
+				//设置相机的天空渲染器的material
+				skyRenderer.material = skyboxMaterial;
+			}));
+			
 		} else {
 			//设置相机的清除标识为为固定颜色
 			this.camera.clearFlag = CameraClearFlags.SolidColor;

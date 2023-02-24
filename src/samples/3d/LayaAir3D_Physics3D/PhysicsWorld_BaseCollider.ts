@@ -81,33 +81,6 @@ export class PhysicsWorld_BaseCollider {
 			planeStaticCollider.friction = 2;
 			//物理碰撞体设置弹力
 			planeStaticCollider.restitution = 0.3;
-
-
-			this.mat1 = new BlinnPhongMaterial();
-			this.mat2 = new BlinnPhongMaterial();
-			this.mat3 = new BlinnPhongMaterial();
-			this.mat4 = new BlinnPhongMaterial();
-			this.mat5 = new BlinnPhongMaterial();
-			//加载纹理资源
-			Texture2D.load("res/threeDimen/Physics/rocks.jpg", Handler.create(this, function (tex: Texture2D): void {
-				this.mat1.albedoTexture = tex;
-			}));
-
-			Texture2D.load("res/threeDimen/Physics/plywood.jpg", Handler.create(this, function (tex: Texture2D): void {
-				this.mat2.albedoTexture = tex;
-			}));
-
-			Texture2D.load("res/threeDimen/Physics/wood.jpg", Handler.create(this, function (tex: Texture2D): void {
-				this.mat3.albedoTexture = tex;
-			}));
-
-			Texture2D.load("res/threeDimen/Physics/steel2.jpg", Handler.create(this, function (tex: Texture2D): void {
-				this.mat4.albedoTexture = tex;
-			}));
-			Texture2D.load("res/threeDimen/Physics/steel.jpg", Handler.create(this, function (tex: Texture2D): void {
-				this.mat5.albedoTexture = tex;
-			}));
-
 			//随机生成精灵
 			this.randomAddPhysicsSprite();
 		}));
@@ -146,7 +119,10 @@ export class PhysicsWorld_BaseCollider {
 		//创建盒型MeshSprite3D
 		var box: MeshSprite3D = (<MeshSprite3D>this.scene.addChild(new MeshSprite3D(PrimitiveMesh.createBox(sX, sY, sZ))));
 		//设置材质
-		box.meshRenderer.material = this.mat1;
+		box.meshRenderer.material = new BlinnPhongMaterial();
+		Laya.loader.load("res/threeDimen/Physics/rocks.jpg").then((res)=>{
+			(box.meshRenderer.material as BlinnPhongMaterial).albedoTexture = res as Texture2D; 
+		});
 		var transform: Transform3D = box.transform;
 		var pos: Vector3 = transform.position;
 		pos.setValue(Math.random() * 4 - 2, 10, Math.random() * 4 - 2);
@@ -171,7 +147,10 @@ export class PhysicsWorld_BaseCollider {
 		//创建球型MeshSprite3D
 		var sphere: MeshSprite3D = (<MeshSprite3D>this.scene.addChild(new MeshSprite3D(PrimitiveMesh.createSphere(radius))));
 		//设置材质
-		sphere.meshRenderer.material = this.mat2;
+		sphere.meshRenderer.material = new BlinnPhongMaterial();
+		Laya.loader.load("res/threeDimen/Physics/plywood.jpg").then((res)=>{
+			(sphere.meshRenderer.material as BlinnPhongMaterial).albedoTexture = res as Texture2D; 
+		});
 		var pos: Vector3 = sphere.transform.position;
 		pos.setValue(Math.random() * 4 - 2, 10, Math.random() * 4 - 2);
 		sphere.transform.position = pos;
@@ -193,7 +172,10 @@ export class PhysicsWorld_BaseCollider {
 		//创建胶囊MeshSprite3D
 		var capsule: MeshSprite3D = (<MeshSprite3D>this.scene.addChild(new MeshSprite3D(PrimitiveMesh.createCapsule(raidius, height))));
 		//设置材质
-		capsule.meshRenderer.material = this.mat3;
+		capsule.meshRenderer.material = new BlinnPhongMaterial();
+		Laya.loader.load("res/threeDimen/Physics/wood.jpg").then((res)=>{
+			(capsule.meshRenderer.material as BlinnPhongMaterial).albedoTexture = res as Texture2D; 
+		});
 		var transform: Transform3D = capsule.transform;
 		var pos: Vector3 = transform.position;
 		pos.setValue(Math.random() * 4 - 2, 10, Math.random() * 4 - 2);
@@ -220,7 +202,10 @@ export class PhysicsWorld_BaseCollider {
 		var cone: MeshSprite3D = new MeshSprite3D(PrimitiveMesh.createCone(raidius, height));
 		this.scene.addChild(cone);
 		//设置材质
-		cone.meshRenderer.material = this.mat4;
+		cone.meshRenderer.material = new BlinnPhongMaterial();
+		Laya.loader.load("res/threeDimen/Physics/steel2.jpg").then((res)=>{
+			(cone.meshRenderer.material as BlinnPhongMaterial).albedoTexture = res as Texture2D; 
+		});
 		//设置位置
 		var pos: Vector3 = cone.transform.position;
 		pos.setValue(Math.random() * 4 - 2, 10, Math.random() * 4 - 2);
@@ -242,7 +227,10 @@ export class PhysicsWorld_BaseCollider {
 		var cylinder: MeshSprite3D = new MeshSprite3D(PrimitiveMesh.createCylinder(raidius, height));
 		this.scene.addChild(cylinder);
 		//设置材质
-		cylinder.meshRenderer.material = this.mat5;
+		cylinder.meshRenderer.material = new BlinnPhongMaterial();
+		Laya.loader.load("res/threeDimen/Physics/steel.jpg").then((res)=>{
+			(cylinder.meshRenderer.material as BlinnPhongMaterial).albedoTexture = res as Texture2D; 
+		});
 		//设置位置
 		var transform: Transform3D = cylinder.transform;
 		var pos: Vector3 = transform.position;

@@ -11,7 +11,7 @@ import { Ray } from "../../math/Ray";
 import { Picker } from "../../utils/Picker";
 import { Utils3D } from "../../utils/Utils3D";
 import { BlinnPhongMaterial } from "../material/BlinnPhongMaterial";
-import { Material } from "../material/Material";
+import { Material, MaterialRenderMode } from "../material/Material";
 import { MeshSprite3DShaderDeclaration } from "../MeshSprite3DShaderDeclaration";
 import { BaseRender } from "../render/BaseRender";
 import { RenderContext3D } from "../render/RenderContext3D";
@@ -22,6 +22,7 @@ import { Sprite3D } from "../Sprite3D";
 import { Transform3D } from "../Transform3D";
 import { UI3DGeometry } from "./UI3DGeometry";
 import { Event } from "../../../events/Event";
+
 /**
  * <code>BaseCamera</code> 类用于创建摄像机的父类。
  */
@@ -32,8 +33,8 @@ export class UI3D extends BaseRender {
     static temp1: Vector3 = new Vector3();
     /**@internal */
     static temp2: Vector3 = new Vector3();
+    /**@internal */
     static DEBUG: boolean = false;
-
     //功能,将2DUI显示到3D面板上 并检测射线
     private _shellSprite: Sprite;
     /**@internal UISprite*/
@@ -97,7 +98,19 @@ export class UI3D extends BaseRender {
     }
 
     /**
-     * UI3D offset
+     * UI渲染模式
+     */
+    set renderMode(value: MaterialRenderMode) {
+        this.sharedMaterials[0].materialRenderMode = value;
+    }
+
+
+    get renderMode(): number {
+        return this.sharedMaterial.materialRenderMode;
+    }
+
+    /**
+     * UI3D偏移
      */
     set UI3DOffset(value: Vector2) {
         if (Vector2.equals(value, this._offset))
@@ -126,7 +139,7 @@ export class UI3D extends BaseRender {
     }
 
     /**
-     * billboard 模式
+     * 面向相机 模式
      */
     get view() {
         return this._view
@@ -137,7 +150,7 @@ export class UI3D extends BaseRender {
     }
 
     /**
-     * 检测鼠标事件(关闭优化性能)
+     * 检测鼠标事件(关闭优化性能)，开启可以触发鼠标事件
      */
     get enableHit() {
         return this._hit;
@@ -148,7 +161,7 @@ export class UI3D extends BaseRender {
     }
 
     /**
-     * 遮挡
+     * 遮挡,碰到2D射线会停止
      */
     get occlusion() {
         return this._occlusion;
@@ -158,10 +171,6 @@ export class UI3D extends BaseRender {
         this._occlusion = value;
     }
 
-    /**@internal */
-    getCameraLength(rayOri: Vector3): number {
-        return Vector3.distance(rayOri, (this.owner as Sprite3D).transform.position);
-    }
     /**
      * 实例化一个UI3D
      */
@@ -235,13 +244,30 @@ export class UI3D extends BaseRender {
     }
 
     /**
-     * @inheritDoc
-     * @override
-     * @internal
-     */
-    protected _calculateBoundingBox(): void {
-        var worldMat: Matrix4x4 = this._transform.worldMatrix;
-        this._geometry.bounds.cloneTo(this._bounds);
+    * 分析碰撞点
+    * @param hit 
+    */
+    private _parseHit(hit: Vector3) {
+        let WV = UI3D.temp0;
+        let HV = UI3D.temp1;
+        let Dir = UI3D.temp2;
+        let posArray = this._geometry._positionArray;
+        if (Utils3D.PointinTriangle(posArray[0], posArray[1], posArray[2], hit) || Utils3D.PointinTriangle(posArray[3], posArray[2], posArray[1], hit)) {
+            Vector3.subtract(posArray[2], posArray[3], WV);
+            Vector3.subtract(posArray[2], posArray[0], HV);
+            Vector3.subtract(posArray[2], hit, Dir);
+            Vector3.normalize(WV, WV);
+            Vector3.normalize(HV, HV);
+            let normalizeHitWidth = Math.abs(Vector3.dot(WV, Dir));    // dot 也就是在宽度上百分比 0 ~ 1
+            let normalizeHitHeight = Math.abs(Vector3.dot(HV, Dir));    // dot 这个时在高度上的百分比 0 ~ 1
+
+            // drawCircle to test
+            UI3D.DEBUG && this._uisprite && this._shellSprite.graphics.drawCircle(normalizeHitWidth * this._rendertexure2D.width, normalizeHitHeight * this._rendertexure2D.height, 10, "#e53d30");
+            //谷主 TODO 绑定2D事件
+
+            return true;
+        }
+        return false
     }
 
     /**
@@ -249,6 +275,15 @@ export class UI3D extends BaseRender {
      */
     getUITexture(): BaseTexture {
         return this._rendertexure2D;
+    }
+
+    /**
+     * get camera distance
+     * @param rayOri 
+     * @returns 
+     */
+    _getCameraDistane(rayOri: Vector3): number {
+        return Vector3.distance(rayOri, (this.owner as Sprite3D).transform.position);
     }
 
     /**
@@ -293,30 +328,13 @@ export class UI3D extends BaseRender {
     }
 
     /**
-     * 分析碰撞点
-     * @param hit 
+     * @inheritDoc
+     * @override
+     * @internal
      */
-    private _parseHit(hit: Vector3) {
-        let WV = UI3D.temp0;
-        let HV = UI3D.temp1;
-        let Dir = UI3D.temp2;
-        let posArray = this._geometry._positionArray;
-        if (Utils3D.PointinTriangle(posArray[0], posArray[1], posArray[2], hit) || Utils3D.PointinTriangle(posArray[3], posArray[2], posArray[1], hit)) {
-            Vector3.subtract(posArray[2], posArray[3], WV);
-            Vector3.subtract(posArray[2], posArray[0], HV);
-            Vector3.subtract(posArray[2], hit, Dir);
-            Vector3.normalize(WV, WV);
-            Vector3.normalize(HV, HV);
-            let normalizeHitWidth = Math.abs(Vector3.dot(WV, Dir));    // dot 也就是在宽度上百分比 0 ~ 1
-            let normalizeHitHeight = Math.abs(Vector3.dot(HV, Dir));    // dot 这个时在高度上的百分比 0 ~ 1
-
-            // drawCircle to test
-            UI3D.DEBUG && this._uisprite && this._shellSprite.graphics.drawCircle(normalizeHitWidth * this._rendertexure2D.width, normalizeHitHeight * this._rendertexure2D.height, 10, "#e53d30");
-            //谷主 TODO 绑定2D事件
-
-            return true;
-        }
-        return false
+    protected _calculateBoundingBox(): void {
+        var worldMat: Matrix4x4 = this._transform.worldMatrix;
+        this._geometry.bounds.cloneTo(this._bounds);
     }
 
     /**

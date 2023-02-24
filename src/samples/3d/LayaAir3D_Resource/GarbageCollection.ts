@@ -12,7 +12,6 @@ import Client from "../../Client";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { Vector3 } from "laya/maths/Vector3";
 import { Color } from "laya/maths/Color";
-import { AssetDb } from "laya/resource/AssetDb";
 
 /**
  * ...
@@ -83,7 +82,6 @@ export class GarbageCollection {
 	 * @private
 	 */
 	loadScene(): void {
-		AssetDb.inst.enableImageMetaFile = true;
 		Scene3D.load("res/threeDimen/scene/ParticleScene/Scene.ls", Handler.create(this, function (sprite: Scene3D): void {
 			this._scene = <Scene3D>Laya.stage.addChild(sprite);
 			var camera: Camera = <Camera>this._scene.addChild(new Camera(0, 0.1, 100));
@@ -92,7 +90,6 @@ export class GarbageCollection {
 			camera.clearFlag = CameraClearFlags.SolidColor;
 			camera.clearColor = new Color(0, 0, 0, 1);
 			camera.addComponent(CameraMoveScript);
-			AssetDb.inst.enableImageMetaFile = false;
 		}));
 	}
 
