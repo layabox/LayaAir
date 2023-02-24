@@ -22,6 +22,7 @@ import { RenderStateCommand } from "../../RenderStateCommand";
 import { GL2TextureContext } from "./GL2TextureContext";
 import { GLBuffer } from "./GLBuffer";
 import { GlCapable } from "./GlCapable";
+import { WebGLExtension } from "./GLEnum/WebGLExtension";
 import { WebGLMode } from "./GLEnum/WebGLMode";
 import { GLParams } from "./GLParams";
 import { GLRender2DContext } from "./GLRender2DContext";
@@ -471,6 +472,14 @@ export class WebGLEngine implements IRenderEngine {
 
     createRenderStateComand():RenderStateCommand{
         return new RenderStateCommand();
+    }
+
+    unbindVertexState(): void {
+        if (this.isWebGL2)
+            (<WebGL2RenderingContext>this._gl).bindVertexArray(null);
+        else
+            this._supportCapatable.getExtension(WebGLExtension.OES_vertex_array_object).bindVertexArrayOES(null);
+        this._GLBindVertexArray = null;
     }
 
 }

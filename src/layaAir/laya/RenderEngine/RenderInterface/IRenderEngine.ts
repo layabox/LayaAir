@@ -54,4 +54,5 @@ export interface IRenderEngine {
 
     clearStatisticsInfo(info:RenderStatisticsInfo):void;
     getStatisticsInfo(info:RenderStatisticsInfo):number;
+    unbindVertexState(): void;
 }
