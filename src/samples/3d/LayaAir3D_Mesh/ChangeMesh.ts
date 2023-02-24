@@ -30,9 +30,9 @@ export class ChangeMesh {
 	private cone: Mesh;
 
 	/**实例类型*/
-	private btype:any = "ChangeMesh";
+	private btype: any = "ChangeMesh";
 	/**场景内按钮类型*/
-	private stype:any = 0;
+	private stype: any = 0;
 
 	constructor() {
 
@@ -59,13 +59,30 @@ export class ChangeMesh {
 		//获取精灵的mesh
 		this.sphereMesh = this.sphere.meshFilter.sharedMesh;
 		//新建四个mesh
-		this.box = PrimitiveMesh.createBox(0.5, 0.5, 0.5);
-		this.capsule = PrimitiveMesh.createCapsule(0.25, 1, 10, 20);
-		this.cylinder = PrimitiveMesh.createCylinder(0.25, 1, 20);
-		this.cone = PrimitiveMesh.createCone(0.25, 0.75);
+		console.log("创建mesh");
+		this.box = this.createBox();
+		this.capsule = this.createCapsule();
+		this.cylinder = this.createCylinder();
+		this.cone = this.createCone();
 		//加载UI
 		this.loadUI();
 
+	}
+
+	createBox(): Mesh {
+		return PrimitiveMesh.createBox(0.5, 0.5, 0.5);
+	}
+	
+	createCapsule(): Mesh {
+		return PrimitiveMesh.createCapsule(0.25, 1, 10, 20);
+	}
+
+	createCylinder(): Mesh {
+		return PrimitiveMesh.createCylinder(0.25, 1, 20);
+	}
+
+	createCone(): Mesh {
+		return PrimitiveMesh.createCone(0.25, 0.75);
 	}
 
 	private loadUI(): void {
@@ -88,22 +105,22 @@ export class ChangeMesh {
 		this.index++;
 		if (this.index % 5 === 1) {
 			//切换mesh
-			this.sphere.meshFilter.sharedMesh = this.box;
+			this.sphere.meshFilter.sharedMesh = this.createBox();
 		} else if (this.index % 5 === 2) {
 			//切换mesh
-			this.sphere.meshFilter.sharedMesh = this.capsule;
+			this.sphere.meshFilter.sharedMesh = this.createCapsule();
 		} else if (this.index % 5 === 3) {
 			//切换mesh
-			this.sphere.meshFilter.sharedMesh = this.cylinder;
-		} else if (this.index % 5 === 3) {
+			this.sphere.meshFilter.sharedMesh = this.createCylinder();
+		} else if (this.index % 5 === 4) {
 			//切换mesh
-			this.sphere.meshFilter.sharedMesh = this.cone;
+			this.sphere.meshFilter.sharedMesh = this.createCone();
 		} else {
 			//切换mesh
 			this.sphere.meshFilter.sharedMesh = this.sphereMesh;
 		}
 		index = this.index;
-		Client.instance.send({type:"next",btype:this.btype,stype:0,value:index});
+		Client.instance.send({ type: "next", btype: this.btype, stype: 0, value: index });
 	}
 
 }

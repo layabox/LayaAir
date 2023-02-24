@@ -8,7 +8,6 @@ import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { Color } from "laya/maths/Color";
-import { AssetDb } from "laya/resource/AssetDb";
 
 /**
  * ...
@@ -21,7 +20,6 @@ export class LightmapScene {
 		Laya.stage.scaleMode = Stage.SCALE_FULL;
 		Laya.stage.screenMode = Stage.SCREEN_NONE;
 		Stat.show();
-		AssetDb.inst.enableImageMetaFile = true;
 		Scene3D.load("res/threeDimen/scene/ParticleScene/Scene.ls", Handler.create(this, function (sprite: Scene3D): void {
 			var scene: Scene3D = <Scene3D>Laya.stage.addChild(sprite);
 			var camera: Camera = <Camera>scene.addChild(new Camera(0, 0.1, 100));
@@ -30,7 +28,6 @@ export class LightmapScene {
 			camera.clearFlag = CameraClearFlags.SolidColor;
 			camera.clearColor = new Color(0, 0, 0, 1);
 			camera.addComponent(CameraMoveScript);
-			AssetDb.inst.enableImageMetaFile = false;
 		}));
 
 	}

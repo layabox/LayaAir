@@ -108,7 +108,7 @@ export class CommandBuffer_Outline {
 		var texSize: Vector4 = new Vector4(1.0 / viewPort.width, 1.0 / viewPort.height, viewPort.width, downSampleheigh);
 		//创建模糊材质
 		var blurMaterial: BlurMaterial = new BlurMaterial(texSize, 1);
-
+		blurMaterial.lock = true;
 		//创建降采样RenderTexture1
 		var downRenderTexture = RenderTexture.createFromPool(downSampleWidth, downSampleheigh, RenderTargetFormat.R8G8B8, RenderTargetFormat.None, false, 1);
 		//降采样  使用blurMaterial材质的0SubShader将Rendertexture渲染到DownRendertexture

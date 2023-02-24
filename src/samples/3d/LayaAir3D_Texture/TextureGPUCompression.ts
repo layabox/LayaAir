@@ -16,19 +16,10 @@ export class TextureGPUCompression {
 		Laya.stage.scaleMode = Stage.SCALE_FULL;
 		Laya.stage.screenMode = Stage.SCREEN_NONE;
 
-		var path = "";
-		if (Browser.onAndroid)
-			path += "res/Android/";
-		else if (Browser.onIOS)
-			path += "res/IOS/";
-		else
-			path += "res/Conventional/";
-
-
-		Scene3D.load(path +"scene.ls", Handler.create(this, function (scene: Scene3D): void {
-			(<Scene3D>Laya.stage.addChild(scene));
-			var camera: Camera = (<Camera>scene.getChildByName("Main Camera"));
-			camera.addComponent(CameraMoveScript);
+		//此场景中res\CompressTexture\Assets\layabox.jpg 在3.0IDE中已经配置了Android和iOS的纹理压缩并导出，
+		//在发布后时会自动生成不同平台的纹理压缩文件，用手机访问示例时会自动识别机型下载相应的压缩文件
+		Scene3D.load("res/CompressTexture/scene.ls", Handler.create(this, (scene: Scene3D)=> {
+			Laya.stage.addChild(scene);
 		}));
 	}
 }

@@ -122,6 +122,7 @@ import { WebXRStart } from "../3d/WebXR/WebXRStart";
 import { WebXRControllerDemo } from "../3d/WebXR/WebXRControllerDemo";
 import { GriendSkyAmbientDemo } from "../3d/LayaAir3D_Scene3D/GriendSkyAmbientDemo";
 import { Browser } from "laya/utils/Browser";
+import { ScrollType } from "laya/ui/Styles";
 
 export class IndexView3D extends IndexViewUI {
 
@@ -260,7 +261,7 @@ export class IndexView3D extends IndexViewUI {
 		this.bigComBox.labels = lables;
 		this.bigComBox.selectedIndex = 0;
 		this.bigComBox.visibleNum = 15;//_comboxBigArr.length;
-		this.bigComBox.list.vScrollBarSkin = " ";
+		this.bigComBox.list.scrollType = ScrollType.Vertical;
 		this.bigComBox.autoSize = false;
 		this.bigComBox.list.selectEnable = true;
 		this.bigComBox.width = 230;
@@ -274,7 +275,7 @@ export class IndexView3D extends IndexViewUI {
 		this.smallComBox.selectedIndex = 0;
 		//默认显示第一项
 		//onSmallBoxSelectHandler(0);
-		this.smallComBox.list.vScrollBarSkin = " ";
+		this.smallComBox.list.scrollType = ScrollType.Vertical;
 		this.smallComBox.visibleNum = 15;//_comboBoxSpriteArr.length;
 		this.smallComBox.list.selectEnable = true;
 		this.smallComBox.width = 360;

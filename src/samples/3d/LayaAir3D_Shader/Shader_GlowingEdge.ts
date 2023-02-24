@@ -91,8 +91,8 @@ export class Shader_GlowingEdge {
 			baseMaterials[1] = glowingEdgeMaterial2;
 			baseMaterials[2] = glowingEdgeMaterial3;
 			baseMaterials[3] = glowingEdgeMaterial4;
-
-			(<SkinnedMeshSprite3D>dude.getChildAt(0).getChildAt(0)).skinnedMeshRenderer.sharedMaterials = baseMaterials;
+			baseMaterials[4] = glowingEdgeMaterial4;		
+			(<SkinnedMeshSprite3D>dude.getChildAt(0).getChildAt(0)).skinnedMeshRenderer.materials = baseMaterials;	
 			dude.transform.position = new Vector3(0, 0.5, 0);
 			dude.transform.setWorldLossyScale(new Vector3(0.2, 0.2, 0.2));
 			dude.transform.rotate(new Vector3(0, 180, 0), false, false);

@@ -12,6 +12,7 @@ import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
 import { Stage } from "laya/display/Stage";
 import { Matrix4x4 } from "laya/maths/Matrix4x4";
 import { Vector3 } from "laya/maths/Vector3";
+import { Loader } from "laya/net/Loader";
 import { Texture2D } from "laya/resource/Texture2D";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
@@ -74,7 +75,8 @@ export class PhysicsWorld_ContinueCollisionDetection {
 	addSphere(): void {
 		var radius: number = Math.random() * 0.2 + 0.2;
 		var sphere: MeshSprite3D = <MeshSprite3D>this.scene.addChild(new MeshSprite3D(PrimitiveMesh.createSphere(radius)));
-		sphere.meshRenderer.material = this.mat2;
+		sphere.meshRenderer.material = new BlinnPhongMaterial();
+		(sphere.meshRenderer.material as BlinnPhongMaterial).albedoTexture = Loader.getRes("resources/res/threeDimen/Physics/plywood.jpg") as Texture2D;
 		var pos: Vector3 = sphere.transform.position;
 		pos.setValue(Math.random() * 4 - 2, 10, Math.random() * 4 - 2);
 		sphere.transform.position = pos;

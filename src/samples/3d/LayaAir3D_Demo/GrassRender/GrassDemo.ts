@@ -1,12 +1,8 @@
 import { Laya } from "Laya";
 import { Camera, CameraClearFlags } from "laya/d3/core/Camera";
 import { DirectionLight } from "laya/d3/core/light/DirectionLight";
-import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
-import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
-import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
 import { Stage } from "laya/display/Stage";
-import { Color } from "laya/maths/Color";
 import { Matrix4x4 } from "laya/maths/Matrix4x4";
 import { Vector3 } from "laya/maths/Vector3";
 import { Loader } from "laya/net/Loader";
@@ -62,10 +58,6 @@ export class GrassDemo{
 		var mat: Matrix4x4 = directionLight.transform.worldMatrix;
 		mat.setForward(new Vector3(-1.0, -1.0, -1.0));
         directionLight.transform.worldMatrix = mat;
-        
-        var plane = new MeshSprite3D(PrimitiveMesh.createPlane(1000,0,1000));
-        var planeMat = plane.meshRenderer.sharedMaterial = new BlinnPhongMaterial();
-        planeMat.albedoColor = new Color(0.06,0.31,0.14,1.0);
     }
 
 
