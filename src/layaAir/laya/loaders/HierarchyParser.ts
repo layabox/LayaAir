@@ -6,7 +6,7 @@ import { Loader, ILoadURL } from "../net/Loader";
 import { URL } from "../net/URL";
 import { Prefab } from "../resource/HierarchyResource";
 import { ClassUtils } from "../utils/ClassUtils";
-import { SerializeUtil } from "./SerializeUtil";
+import { IDecodeObjOptions, SerializeUtil } from "./SerializeUtil";
 
 const errorList: Array<any> = [];
 
@@ -22,11 +22,14 @@ export class HierarchyParser {
         let inPrefab: boolean;
         let prefabNodeDict: Map<Node, Record<string, Node>>;
         let skinBaseUrl: string;
+        let overrideData: Array<Array<any>>;
+
         if (options) {
             inPrefab = options.inPrefab;
             if (inPrefab)
                 prefabNodeDict = options.prefabNodeDict;
             skinBaseUrl = options.skinBaseUrl;
+            overrideData = options.overrideData;
         }
 
         function createChildren(data: any, prefab: Node) {
@@ -73,7 +76,26 @@ export class HierarchyParser {
                     if (res) {
                         if (!prefabNodeDict)
                             prefabNodeDict = new Map();
-                        node = res.create({ inPrefab: true, prefabNodeDict: prefabNodeDict }, errors);
+
+                        let overrideData2: Array<any> = [];
+                        let testId = nodeData._$id;
+                        if (overrideData) {
+                            for (let i = 0, n = overrideData.length; i < n; i++) {
+                                let arr = overrideData[i];
+                                if (arr && arr.length > 0) {
+                                    overrideData2[i] = arr.filter(d => {
+                                        let od = d._$override || d._$parent;
+                                        return Array.isArray(od) && od.length > n - i && od[n - i - 1] == testId;
+                                    });
+                                }
+                                else
+                                    overrideData2[i] = arr;
+                            }
+                        }
+
+                        overrideData2.push(nodeData._$child);
+
+                        node = res.create({ inPrefab: true, prefabNodeDict: prefabNodeDict, overrideData: overrideData2 }, errors);
                     }
                 }
                 else if (pstr = nodeData._$type) {
@@ -98,7 +120,7 @@ export class HierarchyParser {
             return node;
         }
 
-        function findNode(idPath: string | string[]) {
+        function getNodeByRef(idPath: string | string[]) {
             if (Array.isArray(idPath)) {
                 let prefab = nodeMap[idPath[0]];
                 if (prefab && idPath.length > 1)
@@ -134,6 +156,25 @@ export class HierarchyParser {
             }
             else
                 return map[idPath];
+        }
+
+        let bakedOverrideData: Record<string, Array<any>>;
+        function getNodeData(node: Node) {
+            (<Sprite>node).visible = false;
+
+            let i = allNodes.indexOf(node);
+            let nodeData = dataList[i];
+
+            if (!overrideData)
+                return nodeData;
+
+            if (bakedOverrideData === undefined)
+                bakedOverrideData = SerializeUtil.bakeOverrideData(overrideData);
+
+            if (bakedOverrideData)
+                return SerializeUtil.applyOverrideData(nodeData, bakedOverrideData);
+            else
+                nodeData;
         }
 
         let runtime: any;
@@ -259,6 +300,7 @@ export class HierarchyParser {
         }
 
         //设置节点属性
+        const decodeOptions: IDecodeObjOptions = { outErrors: errors, getNodeByRef, getNodeData };
         for (let i = 0; i < cnt; i++) {
             let nodeData = dataList[i];
             let node = allNodes[i];
@@ -266,7 +308,7 @@ export class HierarchyParser {
                 if (skinBaseUrl != null && (node instanceof Sprite))
                     node._skinBaseUrl = skinBaseUrl;
 
-                SerializeUtil.decodeObj(nodeData, node, null, findNode, errors);
+                SerializeUtil.decodeObj(nodeData, node, decodeOptions);
 
                 if (runtime && nodeData._$var && node.name) {
                     try {
@@ -282,7 +324,7 @@ export class HierarchyParser {
         //设置组件属性
         cnt = compInitList.length;
         for (let i = 0; i < cnt; i += 2) {
-            SerializeUtil.decodeObj(compInitList[i], compInitList[i + 1], null, findNode, errors);
+            SerializeUtil.decodeObj(compInitList[i], compInitList[i + 1], decodeOptions);
         }
 
         if (inPrefab && prefabNodeDict && topNode) //记录下nodeMap，上层创建prefab时使用
