@@ -174,7 +174,7 @@ export class HierarchyParser {
             if (bakedOverrideData)
                 return SerializeUtil.applyOverrideData(nodeData, bakedOverrideData);
             else
-                nodeData;
+                return nodeData;
         }
 
         let runtime: any;

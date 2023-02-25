@@ -177,7 +177,7 @@ export class SerializeUtil {
                     let k: string;
                     if (Array.isArray(od))
                         k = od[n - i - 1];
-                    else if (i == n)
+                    else if (i == n - 1)
                         k = od;
 
                     if (k != null) {
