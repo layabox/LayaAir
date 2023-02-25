@@ -285,12 +285,13 @@ export class Button extends UIComponent implements ISelect {
      */
     protected onMouse(e: Event): void {
         if (this.toggle === false && this._selected) return;
-        if (e.type === Event.CLICK) {
+        let type = e ? e.type : Event.CLICK;
+        if (type === Event.CLICK) {
             this.toggle && (this.selected = !this._selected);
             this._clickHandler && this._clickHandler.run();
             return;
         }
-        !this._selected && (this.state = stateMap[e.type]);
+        !this._selected && (this.state = stateMap[type]);
     }
 
     /**
