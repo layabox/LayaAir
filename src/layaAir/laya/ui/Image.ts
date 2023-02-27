@@ -103,7 +103,6 @@ export class Image extends UIComponent {
      */
     constructor(skin: string | null = null) {
         super();
-        this._useSourceSize = true;
         this.skin = skin;
     }
 
