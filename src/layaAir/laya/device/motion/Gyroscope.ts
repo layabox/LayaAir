@@ -41,6 +41,7 @@ export class Gyroscope extends EventDispatcher {
      */
     constructor(singleton: number) {
         super();
+        this.onStartListeningToType(Event.CHANGE);
         this.onDeviceOrientationChange = this.onDeviceOrientationChange.bind(this);
     }
 
