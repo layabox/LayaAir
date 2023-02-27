@@ -116,6 +116,8 @@ export class TextInput extends Label {
     /** @private */
     protected _skin: string;
 
+    declare _graphics: AutoBitmap;
+
     /**
      * 创建一个新的 <code>TextInput</code> 类实例。
      * @param text 文本内容。
@@ -365,8 +367,4 @@ export class TextInput extends Label {
     setSelection(startIndex: number, endIndex: number): void {
         (<Input>this._tf).setSelection(startIndex, endIndex);
     }
-}
-
-export interface TextInput {
-    _graphics: AutoBitmap;
 }

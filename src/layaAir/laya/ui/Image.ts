@@ -8,6 +8,7 @@ import { UIUtils } from "./UIUtils"
 import { Handler } from "../utils/Handler"
 import { ILaya } from "../../ILaya";
 import { URL } from "../net/URL";
+import { SerializeUtil } from "../loaders/SerializeUtil";
 
 /**
  * 资源加载完成后调度。
@@ -92,6 +93,9 @@ export class Image extends UIComponent {
     protected _skin: string;
     /**@private */
     protected _group: string;
+    protected _useSourceSize: boolean;
+
+    declare _graphics: AutoBitmap;
 
     /**
      * 创建一个 <code>Image</code> 实例。
@@ -99,6 +103,7 @@ export class Image extends UIComponent {
      */
     constructor(skin: string | null = null) {
         super();
+        this._useSourceSize = true;
         this.skin = skin;
     }
 
@@ -139,7 +144,6 @@ export class Image extends UIComponent {
             let source = Loader.getRes(url);
             if (source) {
                 this.source = source;
-                this.onCompResize();
             } else {
                 ILaya.loader.load(url,
                     Handler.create(this, this.setSource, [this._skin]), null, Loader.IMAGE, 1, true, this._group);
@@ -161,6 +165,13 @@ export class Image extends UIComponent {
         this._graphics.source = value;
         this.event(Event.LOADED);
         this.repaint();
+
+        if (this._useSourceSize && value) {
+            this.size(value.width, value.height);
+            this._useSourceSize = true; //重置，因为size会改变
+        }
+        else
+            this.onCompResize();
     }
 
     /**
@@ -175,6 +186,18 @@ export class Image extends UIComponent {
         this._group = value;
     }
 
+    get useSourceSize(): boolean {
+        return this._useSourceSize;
+    }
+
+    set useSourceSize(value: boolean) {
+        if (this._useSourceSize != value) {
+            if (value && this._graphics.source)
+                this.size(this._graphics.source.width, this._graphics.source.height);
+            this._useSourceSize = value; //放最后，因为size会改变autoSize的值
+        }
+    }
+
     /**
      * @private
      * 设置皮肤资源。
@@ -184,7 +207,6 @@ export class Image extends UIComponent {
             return;
 
         this.source = img;
-        this.onCompResize();
     }
 
     /**
@@ -209,7 +231,9 @@ export class Image extends UIComponent {
      */
     _setWidth(value: number) {
         super._setWidth(value);
-        this._graphics.width = value == 0 ? 0.0000001 : value;
+        this._graphics.width = value;
+        if (value != 0 && !SerializeUtil.isDeserializing)
+            this._useSourceSize = false;
     }
 
     /**
@@ -219,6 +243,8 @@ export class Image extends UIComponent {
     _setHeight(value: number) {
         super._setHeight(value);
         this._graphics.height = value;
+        if (value != 0 && !SerializeUtil.isDeserializing)
+            this._useSourceSize = false;
     }
 
     /**
@@ -250,8 +276,4 @@ export class Image extends UIComponent {
         else
             super.set_dataSource(value);
     }
-}
-
-export interface Image {
-    _graphics: AutoBitmap;
 }

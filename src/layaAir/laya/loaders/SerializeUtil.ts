@@ -26,6 +26,7 @@ var _getNodeByRef: (id: string | string[]) => Node;
 var _getNodeData: (node: Node) => any;
 
 export class SerializeUtil {
+    public static isDeserializing = false;
 
     public static decodeObj(data: any, obj?: any, options?: IDecodeObjOptions) {
         if (options) {
@@ -39,7 +40,12 @@ export class SerializeUtil {
             _getNodeData = null;
         }
 
-        return SerializeUtil._decodeObj(data, obj);
+        SerializeUtil.isDeserializing = true;
+        try {
+            return SerializeUtil._decodeObj(data, obj);
+        } finally {
+            SerializeUtil.isDeserializing = false;
+        }
     }
 
     private static _decodeObj(data: any, obj?: any): any {
