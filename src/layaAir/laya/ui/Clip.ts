@@ -148,6 +148,8 @@ export class Clip extends UIComponent {
     /**@private */
     protected _toIndex: number = -1;
 
+    declare _graphics: AutoBitmap;
+
     /**
      * 创建一个新的 <code>Clip</code> 示例。
      * @param url 资源类库名或者地址
@@ -500,8 +502,4 @@ export class Clip extends UIComponent {
             this.callLater(this.changeClip);
         }
     }
-}
-
-export interface Clip {
-    _graphics: AutoBitmap;
 }

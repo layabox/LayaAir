@@ -214,6 +214,8 @@ export class Button extends UIComponent implements ISelect {
      */
     protected _stateChanged: boolean = false;
 
+    declare _graphics: AutoBitmap;
+
     /**
      * 创建一个新的 <code>Button</code> 类实例。
      * @param skin 皮肤资源地址。
@@ -757,7 +759,3 @@ export class Button extends UIComponent implements ISelect {
 }
 
 const stateMap: any = { "mouseup": 0, "mouseover": 1, "mousedown": 2, "mouseout": 0 };
-
-export interface Button {
-    _graphics: AutoBitmap;
-}
