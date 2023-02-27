@@ -524,6 +524,8 @@ export class Button extends UIComponent implements ISelect {
         let index = this._state < this._sources.length ? this._state : this._sources.length - 1;
         this._graphics.source = this._sources[index];
         if (this.label) {
+            if (index < 0)
+                index = 0;
             this._text.color = this._labelColors[index];
             if (this._strokeColors) this._text.strokeColor = this._strokeColors[index];
         }
