@@ -38,7 +38,7 @@ export class UI3DManager {
             let elements = this._UI3Dlist.elements;
             let hit = elements[i]._checkUIPos(ray);
             if (hit && elements[i].occlusion) {//遮挡
-                return elements[i].sprite;
+                return hit;
             }
         }
         return null;
