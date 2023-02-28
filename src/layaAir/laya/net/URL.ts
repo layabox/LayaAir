@@ -44,6 +44,7 @@ export class URL {
         URL.overrideExtension(["mcc"], "mcc.json");
         URL.overrideExtension(["shader"], "shader.json");
         URL.overrideExtension(["scene3d", "scene", "taa", "prefab"], "json");
+        URL.overrideExtension(["fui"], "fui.json");
     }
 
     /**创建一个新的 <code>URL</code> 实例。*/
