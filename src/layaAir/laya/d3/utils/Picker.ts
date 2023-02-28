@@ -150,7 +150,7 @@ export class Picker {
 			return null;
 		}
 
-		let t = (plane.distance - Vector3.dot(ray.origin, plane.normal)) / ddotn;
+		let t = (-plane.distance - Vector3.dot(ray.origin, plane.normal)) / ddotn;
 		if (t < 0)
 			return null;
 		ray.at(t, point);
