@@ -76,13 +76,13 @@ const NullURLInfo: Readonly<URLInfo> = { ext: null, typeId: null, main: false, l
  * <code>Loader</code> 类可用来加载文本、JSON、XML、二进制、图像等资源。
  */
 export class Loader extends EventDispatcher {
-    /**文本类型，加载完成后返回string。*/
+    /**文本类型，加载完成后返回包含string的TextResource对象。*/
     static TEXT = "text";
-    /**JSON 类型，加载完成后返回json数据。*/
+    /**JSON 类型，加载完成后返回包含json数据的TextResource对象。*/
     static JSON = "json";
-    /**XML 类型，加载完成后返回domXML。*/
+    /**XML 类型，加载完成后返回包含domXML的TextResource对象。*/
     static XML = "xml";
-    /**二进制类型，加载完成后返回arraybuffer。*/
+    /**二进制类型，加载完成后返回包含arraybuffer的TextResource对象。*/
     static BUFFER = "arraybuffer";
     /**纹理类型，加载完成后返回Texture。*/
     static IMAGE = "image";
