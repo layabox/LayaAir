@@ -22,6 +22,7 @@ import { Sprite3D } from "../Sprite3D";
 import { Transform3D } from "../Transform3D";
 import { UI3DGeometry } from "./UI3DGeometry";
 import { Event } from "../../../events/Event";
+import { UnlitMaterial } from "../material/UnlitMaterial";
 
 /**
  * <code>BaseCamera</code> 类用于创建摄像机的父类。
@@ -106,6 +107,8 @@ export class UI3D extends BaseRender {
 
 
     get renderMode(): number {
+        if(!this.sharedMaterial)
+            this.sharedMaterial = new UnlitMaterial();
         return this.sharedMaterial.materialRenderMode;
     }
 
@@ -212,7 +215,7 @@ export class UI3D extends BaseRender {
             if (this._rendertexure2D.width != width || this._rendertexure2D.height != height) {
                 this._rendertexure2D.destroy();
                 this._rendertexure2D = new RenderTexture2D(width, height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.None);
-                this._sharedMaterials[0].setTexture(this._bindPropertyName, this._rendertexure2D);
+                this._sharedMaterials[0] && this._sharedMaterials[0].setTexture(this._bindPropertyName, this._rendertexure2D);
             }
         }
         this._submitRT();
@@ -307,7 +310,7 @@ export class UI3D extends BaseRender {
     _submitRT() {
         //判断是否需要重置
         this._uisprite && this._shellSprite.drawToTexture(this._rendertexure2D.width, this._rendertexure2D.height, 0, 0, this._rendertexure2D, true);
-        this._bindPropertyName && this._sharedMaterials[0].setTexture(this._bindPropertyName, this._rendertexure2D);
+        this._sharedMaterials[0] && this._sharedMaterials[0].setTexture(this._bindPropertyName, this._rendertexure2D);
     }
 
     /**

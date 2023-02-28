@@ -1,3 +1,4 @@
+import { Config } from "../../Config";
 import { ILaya } from "../../ILaya";
 
 /**
@@ -228,6 +229,8 @@ export class Browser {
             if (!Laya["QGMiniAdapter"]) {
                 console.error("请先添加OPPO小游戏适配库,详细教程：https://ldc2.layabox.com/doc/?language=zh&nav=zh-ts-5-3-0");
             } else {
+                //temp oppo 需要修改交换链的功能
+                Config.fixedFrames = false;
                 Laya["QGMiniAdapter"].enable();
             }
         }
@@ -238,6 +241,8 @@ export class Browser {
             if (!Laya["VVMiniAdapter"]) {
                 console.error("请先添加VIVO小游戏适配库,详细教程：https://ldc2.layabox.com/doc/?language=zh&nav=zh-ts-5-4-0");
             } else {
+                //temp oppo 需要修改交换链的功能
+                Config.fixedFrames = false;
                 Laya["VVMiniAdapter"].enable();
             }
         }

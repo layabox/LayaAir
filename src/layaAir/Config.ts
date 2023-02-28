@@ -76,5 +76,9 @@ export class Config {
     static defaultFontStr(): string {
         return Config.defaultFontSize + "px " + Config.defaultFont;
     }
+
+    /**tempConfig Fixed number of frames */
+    static fixedFrames:boolean = true;
+
 }
 

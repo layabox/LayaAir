@@ -18,6 +18,7 @@ import { RenderContext3D } from "../render/RenderContext3D";
 import { UI3D } from "./UI3D";
 
 export class UI3DGeometry extends GeometryElement {
+    /**@internal */
     private static tempV0: Vector3 = new Vector3();
     /**@internal */
     private static _type: number = GeometryElement._typeCounter++;
