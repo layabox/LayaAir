@@ -459,12 +459,12 @@ export class BloomEffect extends PostProcessEffect {
 			var upIndex: number = downIndex + 1;
 			var subShader: number = i == 0 ? BloomEffect.SUBSHADER_PREFILTER13 + qualityOffset : BloomEffect.SUBSHADER_DOWNSAMPLE13 + qualityOffset;
 
-			var mipDownTexture: RenderTexture = RenderTexture.createFromPool(tw, th, RenderTargetFormat.R8G8B8, RenderTargetFormat.None, false, 1);
+			var mipDownTexture: RenderTexture = RenderTexture.createFromPool(tw, th, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.None, false, 1, false, true);
 			mipDownTexture.filterMode = FilterMode.Bilinear;
 			this._pyramid[downIndex] = mipDownTexture;
 
 			if (i !== iterations - 1) {
-				var mipUpTexture: RenderTexture = RenderTexture.createFromPool(tw, th, RenderTargetFormat.R8G8B8, RenderTargetFormat.None, false, 1);
+				var mipUpTexture: RenderTexture = RenderTexture.createFromPool(tw, th, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.None, false, 1, false, true);
 				mipUpTexture.filterMode = FilterMode.Bilinear;
 				this._pyramid[upIndex] = mipUpTexture;
 			}
