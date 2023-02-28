@@ -216,9 +216,9 @@ export class Sprite extends Node {
     _width: number = 0;
     /**@internal */
     _height: number = 0;
-    /**X锚点，值为0-1，设置anchorX值最终通过pivotX值来改变节点轴心点。*/
+    /***@internal X锚点，值为0-1，设置anchorX值最终通过pivotX值来改变节点轴心点。*/
     _anchorX: number = 0;
-    /**Y锚点，值为0-1，设置anchorY值最终通过pivotY值来改变节点轴心点。*/
+    /***@internal Y锚点，值为0-1，设置anchorY值最终通过pivotY值来改变节点轴心点。*/
     _anchorY: number = 0;
     /**@internal */
     _visible: boolean = true;
