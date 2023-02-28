@@ -27,7 +27,6 @@ export class HTMLImageElement extends HTMLElement {
         super.reset();
         this._tex = null;
         this._url = null;
-        this._style = null;
         return this;
     }
 
