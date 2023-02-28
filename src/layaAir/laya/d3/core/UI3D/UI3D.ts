@@ -23,6 +23,8 @@ import { UI3DGeometry } from "./UI3DGeometry";
 import { Event } from "../../../events/Event";
 import { UnlitMaterial } from "../material/UnlitMaterial";
 import { Prefab } from "../../../resource/HierarchyResource";
+import { InputManager } from "../../../events/InputManager";
+import { NodeFlags } from "../../../Const";
 
 /**
  * <code>BaseCamera</code> 类用于创建摄像机的父类。
@@ -204,8 +206,11 @@ export class UI3D extends BaseRender {
         this._offset = new Vector2(0, 0);
         this._resolutionRate = 128;
         this._shellSprite = new Sprite();
+        this._shellSprite._setBit(NodeFlags.DISPLAYED_INSTAGE, true);
+        this._shellSprite._setBit(NodeFlags.ACTIVE_INHIERARCHY, true);
         this._shaderValues.addDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_UV0);
         this._ui3DMat = new UnlitMaterial();
+        this._ui3DMat.materialRenderMode = MaterialRenderMode.RENDERMODE_TRANSPARENT;
     }
 
     /**
@@ -285,12 +290,19 @@ export class UI3D extends BaseRender {
             let normalizeHitWidth = Math.abs(Vector3.dot(WV, Dir));    // dot 也就是在宽度上百分比 0 ~ 1
             let normalizeHitHeight = Math.abs(Vector3.dot(HV, Dir));    // dot 这个时在高度上的百分比 0 ~ 1
 
-            // drawCircle to test
-            UI3D.DEBUG && this._uisprite && this._shellSprite.graphics.drawCircle(normalizeHitWidth * this._rendertexure2D.width, normalizeHitHeight * this._rendertexure2D.height, 10, "#e53d30");
+            let cx = normalizeHitWidth * this._rendertexure2D.width;
+            let cy = (1 - normalizeHitHeight) * this._rendertexure2D.height;
 
-            return true;
+            // drawCircle to test
+            //UI3D.DEBUG && this._uisprite && this._shellSprite.graphics.drawCircle(cx, cy, 10, "#e53d30");
+
+            let target = InputManager.inst.getSpriteUnderPoint(this._uisprite, cx, cy);
+            if (target)
+                return target;
+            else
+                return this._uisprite;
         }
-        return false
+        return null;
     }
 
     /**
