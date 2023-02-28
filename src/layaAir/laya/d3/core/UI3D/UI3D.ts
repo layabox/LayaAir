@@ -22,6 +22,7 @@ import { Transform3D } from "../Transform3D";
 import { UI3DGeometry } from "./UI3DGeometry";
 import { Event } from "../../../events/Event";
 import { UnlitMaterial } from "../material/UnlitMaterial";
+import { Prefab } from "../../../resource/HierarchyResource";
 
 /**
  * <code>BaseCamera</code> 类用于创建摄像机的父类。
@@ -39,6 +40,8 @@ export class UI3D extends BaseRender {
     private _shellSprite: Sprite;
     /**@internal UISprite*/
     private _uisprite: Sprite;
+    /**@internal */
+    private _ui3DMat: Material;
     /**@internal */
     private _rendertexure2D: RenderTexture2D;
     /**@internal */
@@ -63,6 +66,8 @@ export class UI3D extends BaseRender {
     private _hit: boolean = false;
     /**@internal */
     private _occlusion: boolean = false;
+    /**@internal */
+    private _prefab: Prefab;
 
     /**
      * 3D渲染的UI节点
@@ -73,12 +78,28 @@ export class UI3D extends BaseRender {
 
         this._uisprite = value;
         this._shellSprite.removeChildren(0, this._shellSprite.numChildren - 1);
-        this._shellSprite.addChild(value);
+        if (value)
+            this._shellSprite.addChild(value);
         this._resizeRT();
     }
 
     get sprite() {
         return this._uisprite;
+    }
+
+    /**
+     * 3D渲染的UI预制体
+     */
+    set prefab(value: Prefab) {
+        this._prefab = value;
+        if (value)
+            this.sprite = <Sprite>value.create();
+        else
+            this.sprite = null;
+    }
+
+    get prefab() {
+        return this._prefab;
     }
 
     /**
@@ -101,13 +122,13 @@ export class UI3D extends BaseRender {
      * UI渲染模式
      */
     set renderMode(value: MaterialRenderMode) {
-        this.sharedMaterials[0].materialRenderMode = value;
+        value && (this.sharedMaterials[0].materialRenderMode = value);
     }
 
 
     get renderMode(): number {
         if (!this.sharedMaterials[0])
-            this.sharedMaterials[0] = new UnlitMaterial();
+            this.sharedMaterials[0] = this._ui3DMat;
         return this.sharedMaterials[0].materialRenderMode;
     }
 
@@ -184,6 +205,7 @@ export class UI3D extends BaseRender {
         this._resolutionRate = 128;
         this._shellSprite = new Sprite();
         this._shaderValues.addDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_UV0);
+        this._ui3DMat = new UnlitMaterial();
     }
 
     /**
@@ -317,7 +339,7 @@ export class UI3D extends BaseRender {
      */
     _setMaterialTexture() {
         if (!this._sharedMaterials[0])
-            this._sharedMaterials[0] = new UnlitMaterial();
+            this._sharedMaterials[0] = this._ui3DMat;
         if (!this._sharedMaterials[0].hasDefine(UnlitMaterial.SHADERDEFINE_ALBEDOTEXTURE)) {
             this._sharedMaterials[0].addDefine(UnlitMaterial.SHADERDEFINE_ALBEDOTEXTURE);
         }
