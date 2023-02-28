@@ -138,7 +138,7 @@ export class AnimatorController extends Resource {
                                 let uuid = scripts[k];
                                 if (uuid && 0 == uuid.indexOf("res://")) {
                                     uuid = uuid.substring(6);
-                                }
+                                } 
                                 let c = ClassUtils.getClass(uuid);
                                 if (c) {
                                     state.addScript(c);
