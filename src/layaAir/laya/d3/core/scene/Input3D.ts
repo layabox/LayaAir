@@ -32,9 +32,13 @@ InputManager.prototype.getSprite3DUnderPoint = function (this: InputManager, x: 
             if (x >= viewport.x && y >= viewport.y && x <= viewport.width / ratio && y <= viewport.height / ratio) {
                 //Physics
                 camera.viewportPointToRay(_vec2, _ray);
+
+                //3D UI
+                let sprite = uiManager.rayCast(_ray);
+                if (sprite)
+                    return sprite;
+
                 var sucess: boolean = sim.rayCast(_ray, <any>_hitResult);
-                //UI3D
-                uiManager.rayCast(_ray);
                 if (sucess || (camera.clearFlag === CameraClearFlags.SolidColor || camera.clearFlag === CameraClearFlags.Sky))
                     break;
             }

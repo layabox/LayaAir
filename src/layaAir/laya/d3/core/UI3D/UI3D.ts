@@ -265,7 +265,6 @@ export class UI3D extends BaseRender {
 
             // drawCircle to test
             UI3D.DEBUG && this._uisprite && this._shellSprite.graphics.drawCircle(normalizeHitWidth * this._rendertexure2D.width, normalizeHitHeight * this._rendertexure2D.height, 10, "#e53d30");
-            //谷主 TODO 绑定2D事件
 
             return true;
         }
@@ -317,13 +316,13 @@ export class UI3D extends BaseRender {
      * 设置材质纹理
      */
     _setMaterialTexture() {
-        if(!this._sharedMaterials[0])
+        if (!this._sharedMaterials[0])
             this._sharedMaterials[0] = new UnlitMaterial();
-        if(!this._sharedMaterials[0].hasDefine(UnlitMaterial.SHADERDEFINE_ALBEDOTEXTURE)){
+        if (!this._sharedMaterials[0].hasDefine(UnlitMaterial.SHADERDEFINE_ALBEDOTEXTURE)) {
             this._sharedMaterials[0].addDefine(UnlitMaterial.SHADERDEFINE_ALBEDOTEXTURE);
         }
         this._sharedMaterials[0].setTexture(this._bindPropertyName, this._rendertexure2D);
-     }
+    }
 
     /**
      * 检测UI事件
