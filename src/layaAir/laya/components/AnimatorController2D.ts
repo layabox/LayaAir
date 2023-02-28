@@ -16,7 +16,7 @@ export class AnimatorController2D extends Resource {
      * @internal
      */
     data: TypeAnimatorControllerData;
-    
+
     /**
      * @internal
      */
@@ -32,7 +32,7 @@ export class AnimatorController2D extends Resource {
         this.data = obj.ret;
         this.clipsID = obj.clipsID;
     }
-    
+
     /**
      * @internal
      * @returns 
@@ -102,6 +102,9 @@ export class AnimatorController2D extends Resource {
                         if (scripts && Array.isArray(scripts)) {
                             for (let k = scripts.length - 1; k >= 0; k--) {
                                 let uuid = scripts[k];
+                                if (uuid && 0 == uuid.indexOf("res://")) {
+                                    uuid = uuid.substring(6);
+                                }
                                 let c = ClassUtils.getClass(uuid);
                                 if (c) {
                                     state.addScript(c);
