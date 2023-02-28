@@ -98,7 +98,8 @@ export class Render {
             let frm = Math.floor(stamp / ifps);    // 不能|0 在微信下会变成负的
             // 是否已经跨帧了
             let dfrm = frm - Render.lastFrm;
-            if (dfrm > 0 || LayaEnv.isConch) {
+            if (dfrm > 0 || LayaEnv.isConch || !Config.fixedFrames) {
+                //不限制
                 Render.lastFrm = frm;
                 ILaya.stage._loop();
             }
