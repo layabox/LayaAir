@@ -8,9 +8,6 @@ import { AnimatorState } from "./AnimatorState";
 import { AnimatorTransition } from "./AnimatorTransition";
 import { AvatarMask } from "./AvatarMask";
 
-/**
- * @internal
- */
 export class AnimatorController extends Resource {
     data: TypeAnimatorControllerData;
     clipsID: string[];
