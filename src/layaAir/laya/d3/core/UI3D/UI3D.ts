@@ -10,7 +10,6 @@ import { Plane } from "../../math/Plane";
 import { Ray } from "../../math/Ray";
 import { Picker } from "../../utils/Picker";
 import { Utils3D } from "../../utils/Utils3D";
-import { BlinnPhongMaterial } from "../material/BlinnPhongMaterial";
 import { Material, MaterialRenderMode } from "../material/Material";
 import { MeshSprite3DShaderDeclaration } from "../MeshSprite3DShaderDeclaration";
 import { BaseRender } from "../render/BaseRender";
@@ -107,9 +106,9 @@ export class UI3D extends BaseRender {
 
 
     get renderMode(): number {
-        if(!this.sharedMaterial)
-            this.sharedMaterial = new UnlitMaterial();
-        return this.sharedMaterial.materialRenderMode;
+        if (!this.sharedMaterials[0])
+            this.sharedMaterials[0] = new UnlitMaterial();
+        return this.sharedMaterials[0].materialRenderMode;
     }
 
     /**
@@ -123,7 +122,7 @@ export class UI3D extends BaseRender {
         this._sizeChange = true;
     }
 
-    get UI3DUI3DOffset() {
+    get UI3DOffset() {
         return this._offset;
     }
 
@@ -181,8 +180,8 @@ export class UI3D extends BaseRender {
         super();
         this._uiPlane = new Plane(new Vector3(), 0);
         this._size = new Vector2(1, 1);
-        this._offset = new Vector2(0, 2);
-        this._resolutionRate = 100;
+        this._offset = new Vector2(0, 0);
+        this._resolutionRate = 128;
         this._shellSprite = new Sprite();
         this._shaderValues.addDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_UV0);
     }
@@ -192,8 +191,8 @@ export class UI3D extends BaseRender {
      */
     private _addRenderElement() {
         var elements: RenderElement[] = this._renderElements;
+        this._setMaterialTexture();
         var material: Material = (<Material>this.sharedMaterials[0]);
-        (material) || (material = BlinnPhongMaterial.defaultMaterial);
         var element: RenderElement = new RenderElement();
         element.setTransform((this.owner as Sprite3D)._transform);
         element.render = this;
@@ -215,7 +214,7 @@ export class UI3D extends BaseRender {
             if (this._rendertexure2D.width != width || this._rendertexure2D.height != height) {
                 this._rendertexure2D.destroy();
                 this._rendertexure2D = new RenderTexture2D(width, height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.None);
-                this._sharedMaterials[0] && this._sharedMaterials[0].setTexture(this._bindPropertyName, this._rendertexure2D);
+                this._setMaterialTexture();
             }
         }
         this._submitRT();
@@ -310,8 +309,21 @@ export class UI3D extends BaseRender {
     _submitRT() {
         //判断是否需要重置
         this._uisprite && this._shellSprite.drawToTexture(this._rendertexure2D.width, this._rendertexure2D.height, 0, 0, this._rendertexure2D, true);
-        this._sharedMaterials[0] && this._sharedMaterials[0].setTexture(this._bindPropertyName, this._rendertexure2D);
+        this._setMaterialTexture();
     }
+
+    /**
+     * @internal
+     * 设置材质纹理
+     */
+    _setMaterialTexture() {
+        if(!this._sharedMaterials[0])
+            this._sharedMaterials[0] = new UnlitMaterial();
+        if(!this._sharedMaterials[0].hasDefine(UnlitMaterial.SHADERDEFINE_ALBEDOTEXTURE)){
+            this._sharedMaterials[0].addDefine(UnlitMaterial.SHADERDEFINE_ALBEDOTEXTURE);
+        }
+        this._sharedMaterials[0].setTexture(this._bindPropertyName, this._rendertexure2D);
+     }
 
     /**
      * 检测UI事件
