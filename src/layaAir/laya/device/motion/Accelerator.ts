@@ -45,6 +45,7 @@ export class Accelerator extends EventDispatcher {
 
     constructor() {
         super();
+        this.onAddListener(Event.CHANGE);
         this.onDeviceOrientationChange = this.onDeviceOrientationChange.bind(this);
     }
 
