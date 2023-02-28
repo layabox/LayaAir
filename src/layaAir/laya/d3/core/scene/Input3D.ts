@@ -33,10 +33,10 @@ InputManager.prototype.getSprite3DUnderPoint = function (this: InputManager, x: 
                 //Physics
                 camera.viewportPointToRay(_vec2, _ray);
                 var sucess: boolean = sim.rayCast(_ray, <any>_hitResult);
-                if (sucess || (camera.clearFlag === CameraClearFlags.SolidColor || camera.clearFlag === CameraClearFlags.Sky))
-                    break;
                 //UI3D
                 uiManager.rayCast(_ray);
+                if (sucess || (camera.clearFlag === CameraClearFlags.SolidColor || camera.clearFlag === CameraClearFlags.Sky))
+                    break;
             }
         }
 
