@@ -124,7 +124,7 @@ export class UI3D extends BaseRender {
      * UI渲染模式
      */
     set renderMode(value: MaterialRenderMode) {
-        value && (this.sharedMaterials[0].materialRenderMode = value);
+        this.sharedMaterials[0].materialRenderMode = value;
     }
 
 
@@ -287,8 +287,8 @@ export class UI3D extends BaseRender {
             Vector3.subtract(posArray[2], hit, Dir);
             Vector3.normalize(WV, WV);
             Vector3.normalize(HV, HV);
-            let normalizeHitWidth = Math.abs(Vector3.dot(WV, Dir));    // dot 也就是在宽度上百分比 0 ~ 1
-            let normalizeHitHeight = Math.abs(Vector3.dot(HV, Dir));    // dot 这个时在高度上的百分比 0 ~ 1
+            let normalizeHitWidth = Math.abs(Vector3.dot(WV, Dir) / this.UI3DSize.x);    // dot 也就是在宽度上百分比 0 ~ 1
+            let normalizeHitHeight = Math.abs(Vector3.dot(HV, Dir) / this.UI3DSize.y);    // dot 这个时在高度上的百分比 0 ~ 1
 
             let cx = normalizeHitWidth * this._rendertexure2D.width;
             let cy = (1 - normalizeHitHeight) * this._rendertexure2D.height;
