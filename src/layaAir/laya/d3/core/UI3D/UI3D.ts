@@ -103,16 +103,16 @@ export class UI3D extends BaseRender {
     }
 
     /**
-     * UI3DmeshSize
+     * UI3DmeshScale
      */
-    set UI3DSize(value: Vector2) {
+    set UI3DScale(value: Vector2) {
         value.cloneTo(this._size);
         this._resizeRT();
         this.boundsChange = true;
         this._sizeChange = true;
     }
 
-    get UI3DSize() {
+    get UI3DScale() {
         return this._size;
     }
 
@@ -270,8 +270,8 @@ export class UI3D extends BaseRender {
             Vector3.subtract(posArray[2], hit, Dir);
             Vector3.normalize(WV, WV);
             Vector3.normalize(HV, HV);
-            let normalizeHitWidth = Math.abs(Vector3.dot(WV, Dir) / this.UI3DSize.x);    // dot 也就是在宽度上百分比 0 ~ 1
-            let normalizeHitHeight = Math.abs(Vector3.dot(HV, Dir) / this.UI3DSize.y);    // dot 这个时在高度上的百分比 0 ~ 1
+            let normalizeHitWidth = Math.abs(Vector3.dot(WV, Dir) / this.UI3DScale.x);    // dot 也就是在宽度上百分比 0 ~ 1
+            let normalizeHitHeight = Math.abs(Vector3.dot(HV, Dir) / this.UI3DScale.y);    // dot 这个时在高度上的百分比 0 ~ 1
 
             let cx = normalizeHitWidth * this._rendertexure2D.width;
             let cy = (1 - normalizeHitHeight) * this._rendertexure2D.height;
