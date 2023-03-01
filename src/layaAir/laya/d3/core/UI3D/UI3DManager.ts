@@ -1,6 +1,5 @@
 import { SingletonList } from "../../../utils/SingletonList";
 import { Ray } from "../../math/Ray";
-import { Camera } from "../Camera";
 import { UI3D } from "./UI3D";
 
 export class UI3DManager {
@@ -37,7 +36,7 @@ export class UI3DManager {
         for (var i = 0, n = this._UI3Dlist.length; i < n; i++) {
             let elements = this._UI3Dlist.elements;
             let hit = elements[i]._checkUIPos(ray);
-            if (hit && elements[i].occlusion) {//遮挡
+            if (hit) {//遮挡
                 return hit;
             }
         }
