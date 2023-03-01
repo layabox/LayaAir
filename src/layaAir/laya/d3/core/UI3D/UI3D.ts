@@ -67,8 +67,6 @@ export class UI3D extends BaseRender {
     /**@internal */
     private _hit: boolean = false;
     /**@internal */
-    private _occlusion: boolean = false;
-    /**@internal */
     private _prefab: Prefab;
 
     /**
@@ -179,17 +177,6 @@ export class UI3D extends BaseRender {
 
     set enableHit(value: boolean) {
         this._hit = value;
-    }
-
-    /**
-     * 遮挡,碰到2D射线会停止
-     */
-    get occlusion() {
-        return this._occlusion;
-    }
-
-    set occlusion(value: boolean) {
-        this._occlusion = value;
     }
 
     /**
@@ -394,6 +381,7 @@ export class UI3D extends BaseRender {
      */
     protected _onDisable(): void {
         super._onDisable();
+        (this.owner as Sprite3D).transform.off(Event.TRANSFORM_CHANGED, this, this._transByRotate);//如果为合并BaseRender,owner可能为空
         (this.owner.scene as Scene3D)._UI3DManager.remove(this);
     }
 
@@ -411,7 +399,6 @@ export class UI3D extends BaseRender {
      */
     protected _onDestroy() {
         super._onDestroy();
-        (this.owner as Sprite3D).transform.off(Event.TRANSFORM_CHANGED, this, this._transByRotate);//如果为合并BaseRender,owner可能为空
     }
 
     private _transByRotate() {
