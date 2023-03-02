@@ -406,7 +406,8 @@ export class Scene3D extends Sprite implements ISubmit {
     /** @internal */
     _nativeObj: any;
 
-
+    /** @internal 由IDE负责调用渲染 */
+    _renderByEditor: boolean;
 
     /**
      * set SceneRenderableManager
@@ -508,7 +509,7 @@ export class Scene3D extends Sprite implements ISubmit {
         this.fogParams = this._fogParams;
     }
 
-   
+
     /**
      * 雾化密度
      */
@@ -813,7 +814,8 @@ export class Scene3D extends Sprite implements ISubmit {
 
         this._sceneRenderManager.updateMotionObjects();
 
-        this._UI3DManager.update();
+        if (!this._renderByEditor)
+            this._UI3DManager.update();
     }
 
     /**
@@ -1443,6 +1445,7 @@ export class Scene3D extends Sprite implements ISubmit {
      * 渲染入口
      */
     renderSubmit(): number {
+        if (this._renderByEditor) return 1;
         BufferState._curBindedBufferState && BufferState._curBindedBufferState.unBind();
         this._prepareSceneToRender();
         var i: number, n: number, n1: number;
@@ -1538,7 +1541,7 @@ export class Scene3D extends Sprite implements ISubmit {
      * @deprecated
      */
     get fogRange(): number {
-        return this._fogParams.y-this.fogParams.x;
+        return this._fogParams.y - this.fogParams.x;
     }
 
     set fogRange(value: number) {
