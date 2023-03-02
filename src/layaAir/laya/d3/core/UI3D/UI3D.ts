@@ -25,6 +25,7 @@ import { UnlitMaterial } from "../material/UnlitMaterial";
 import { Prefab } from "../../../resource/HierarchyResource";
 import { InputManager } from "../../../events/InputManager";
 import { NodeFlags } from "../../../Const";
+import { ILaya } from "../../../../ILaya";
 
 /**
  * <code>BaseCamera</code> 类用于创建摄像机的父类。
@@ -174,8 +175,10 @@ export class UI3D extends BaseRender {
         this._size = new Vector2(1, 1);
         this._resolutionRate = 128;
         this._shellSprite = new Sprite();
+        this._shellSprite.name = "UI3D";
         this._shellSprite._setBit(NodeFlags.DISPLAYED_INSTAGE, true);
         this._shellSprite._setBit(NodeFlags.ACTIVE_INHIERARCHY, true);
+        this._shellSprite._parent = ILaya.stage;
         this._shaderValues.addDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_UV0);
         this._ui3DMat = new UnlitMaterial();
         this._ui3DMat.materialRenderMode = MaterialRenderMode.RENDERMODE_OPAQUE;
@@ -297,7 +300,6 @@ export class UI3D extends BaseRender {
     _renderUpdate(context: RenderContext3D, transform: Transform3D): void {
         this._applyLightMapParams();
         this._applyReflection();
-        var element: SubMeshRenderElement = <SubMeshRenderElement>context.renderElement;
         // 这里不需要区分，已经将顶点进行转换了直接使用默认矩阵
         this._setShaderValue(Sprite3D.WORLDMATRIX, ShaderDataType.Matrix4x4, Matrix4x4.DEFAULT);
         return;

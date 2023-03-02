@@ -138,16 +138,16 @@ export class Slider extends UIComponent {
      * 滑块的的 <code>Event.MOUSE_DOWN</code> 事件侦听处理函数。
      */
     protected onBarMouseDown(e: Event): void {
-        var Laya = ILaya;
+        let stage = ILaya.stage;
         this._globalSacle || (this._globalSacle = new Point());
         this._globalSacle.setTo(this.globalScaleX || 0.01, this.globalScaleY || 0.01);
 
         this._maxMove = this.isVertical ? (this.height - this._bar.height) : (this.width - this._bar.width);
-        this._tx = Laya.stage.mouseX;
-        this._ty = Laya.stage.mouseY;
-        Laya.stage.on(Event.MOUSE_MOVE, this, this.mouseMove);
-        Laya.stage.once(Event.MOUSE_UP, this, this.mouseUp);
-        Laya.stage.once(Event.MOUSE_OUT, this, this.mouseUp);
+        this._tx = stage.mouseX;
+        this._ty = stage.mouseY;
+        stage.on(Event.MOUSE_MOVE, this, this.mouseMove);
+        stage.once(Event.MOUSE_UP, this, this.mouseUp);
+        stage.once(Event.MOUSE_OUT, this, this.mouseUp);
         //显示提示
         this.showValueText();
     }

@@ -4,7 +4,7 @@ import { UI3D } from "./UI3D";
 
 export class UI3DManager {
 
-    private _UI3Dlist: SingletonList<UI3D> = new SingletonList<UI3D>();
+    _UI3Dlist: SingletonList<UI3D> = new SingletonList<UI3D>();
 
     constructor() {
     }
@@ -19,8 +19,8 @@ export class UI3DManager {
 
     //需要在
     update() {
+        let elements = this._UI3Dlist.elements;
         for (var i = 0, n = this._UI3Dlist.length; i < n; i++) {
-            let elements = this._UI3Dlist.elements;
             elements[i]._submitRT();
         }
     }
@@ -33,8 +33,8 @@ export class UI3DManager {
         this._UI3Dlist.clean();
         //sort
         this._UI3Dlist.elements.sort((a: UI3D, b: UI3D) => Number(a._getCameraDistane(rayOri) > b._getCameraDistane(rayOri)));
+        let elements = this._UI3Dlist.elements;
         for (var i = 0, n = this._UI3Dlist.length; i < n; i++) {
-            let elements = this._UI3Dlist.elements;
             let hit = elements[i]._checkUIPos(ray);
             if (hit) {//遮挡
                 return hit;
