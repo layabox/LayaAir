@@ -161,7 +161,9 @@ vec3 specularIrradiance(in vec3 r, in float perceptualRoughness)
     #endif // GI_IBL
 
     #ifdef LIGHTMAP
+
 uniform sampler2D u_LightMap;
+
 vec3 getBakedLightmapColor(in vec2 lightmapUV)
 {
     vec4 lightmapSampler = texture2D(u_LightMap, lightmapUV);
@@ -171,6 +173,19 @@ vec3 getBakedLightmapColor(in vec2 lightmapUV)
 	#endif // Gamma_u_LightMap
     return lightmapSampler.rgb;
 }
+
+        #ifdef LIGHTMAP_DIRECTIONAL
+
+uniform sampler2D u_LightMapDirection;
+
+vec3 DecodeDirectionalLightmap(in vec2 lightmapUV,in vec3 bakeColor,in vec3 normalWS)
+{
+    vec4 dirLightmap = texture2D(u_LightMapDirection,lightmapUV);
+    vec3 lightdir= normalize( dirTex.xyz - vec3(0.5)); //0-1  => -0.5-0.5
+    float halfLambert =clamp(dot(normalWS,lightdir),0.0,1.0) * 0.5 + 0.5;
+    return bakeColor*halfLambert/max(dirLightmap.w,0.001);
+}
+        #endif //LIGHTMAP_DIRECTIONAL
     #endif // LIGHTMAP
 
 #ifdef SPECCUBE_BOX_PROJECTION
