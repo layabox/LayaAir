@@ -25,6 +25,7 @@ import { UnlitMaterial } from "../material/UnlitMaterial";
 import { Prefab } from "../../../resource/HierarchyResource";
 import { InputManager } from "../../../events/InputManager";
 import { NodeFlags } from "../../../Const";
+import { ILaya } from "../../../../ILaya";
 
 /**
  * <code>BaseCamera</code> 类用于创建摄像机的父类。
@@ -55,8 +56,6 @@ export class UI3D extends BaseRender {
     /**@internal */
     private _size: Vector2;
     /**@internal */
-    private _offset: Vector2;
-    /**@internal */
     private _sizeChange: boolean = true;
     /**@internal */
     private _resolutionRate: number;
@@ -66,8 +65,6 @@ export class UI3D extends BaseRender {
     private _bindPropertyName: string = "u_AlbedoTexture";
     /**@internal */
     private _hit: boolean = false;
-    /**@internal */
-    private _occlusion: boolean = false;
     /**@internal */
     private _prefab: Prefab;
 
@@ -105,16 +102,16 @@ export class UI3D extends BaseRender {
     }
 
     /**
-     * UI3DmeshSize
+     * UI3DmeshScale
      */
-    set UI3DSize(value: Vector2) {
+    set scale(value: Vector2) {
         value.cloneTo(this._size);
         this._resizeRT();
         this.boundsChange = true;
         this._sizeChange = true;
     }
 
-    get UI3DSize() {
+    get scale() {
         return this._size;
     }
 
@@ -133,19 +130,6 @@ export class UI3D extends BaseRender {
     }
 
     /**
-     * UI3D偏移
-     */
-    set UI3DOffset(value: Vector2) {
-        value.cloneTo(this._offset);
-        this.boundsChange = true;
-        this._sizeChange = true;
-    }
-
-    get UI3DOffset() {
-        return this._offset;
-    }
-
-    /**
      * 分辨率比例
      */
     get resolutionRate() {
@@ -160,14 +144,15 @@ export class UI3D extends BaseRender {
     }
 
     /**
-     * 面向相机 模式
+     * 面向相机模式
      */
-    get view() {
-        return this._view
+    get billboard() {
+        return this._view;
     }
 
-    set view(value: boolean) {
+    set billboard(value: boolean) {
         this._view = value;
+        this._sizeChange = true;
     }
 
     /**
@@ -182,28 +167,18 @@ export class UI3D extends BaseRender {
     }
 
     /**
-     * 遮挡,碰到2D射线会停止
-     */
-    get occlusion() {
-        return this._occlusion;
-    }
-
-    set occlusion(value: boolean) {
-        this._occlusion = value;
-    }
-
-    /**
      * 实例化一个UI3D
      */
     constructor() {
         super();
         this._uiPlane = new Plane(new Vector3(), 0);
         this._size = new Vector2(1, 1);
-        this._offset = new Vector2(0, 0);
         this._resolutionRate = 128;
         this._shellSprite = new Sprite();
+        this._shellSprite.name = "UI3D";
         this._shellSprite._setBit(NodeFlags.DISPLAYED_INSTAGE, true);
         this._shellSprite._setBit(NodeFlags.ACTIVE_INHIERARCHY, true);
+        this._shellSprite._parent = ILaya.stage;
         this._shaderValues.addDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_UV0);
         this._ui3DMat = new UnlitMaterial();
         this._ui3DMat.materialRenderMode = MaterialRenderMode.RENDERMODE_OPAQUE;
@@ -248,13 +223,13 @@ export class UI3D extends BaseRender {
      */
     onPreRender(): void {
         //this._geometry
-        if (this.view || this._sizeChange) {
+        if (this.billboard || this._sizeChange) {
             this._sizeChange = false;
-            if (this.view) {
+            if (this.billboard) {
                 let camera = (this.owner.scene as Scene3D).cullInfoCamera;
-                this._geometry._resizeViewVertexData(this._size, this._offset, camera._forward, camera._up, this.view, (this.owner as Sprite3D).transform.position);
+                this._geometry._resizeViewVertexData(this._size, camera._forward, camera._up, this.billboard, (this.owner as Sprite3D).transform.position);
             } else {
-                this._geometry._resizeWorldVertexData(this._size, this._offset, (this.owner as Sprite3D).transform.worldMatrix);
+                this._geometry._resizeWorldVertexData(this._size, (this.owner as Sprite3D).transform.worldMatrix);
             }
         }
 
@@ -283,8 +258,8 @@ export class UI3D extends BaseRender {
             Vector3.subtract(posArray[2], hit, Dir);
             Vector3.normalize(WV, WV);
             Vector3.normalize(HV, HV);
-            let normalizeHitWidth = Math.abs(Vector3.dot(WV, Dir) / this.UI3DSize.x);    // dot 也就是在宽度上百分比 0 ~ 1
-            let normalizeHitHeight = Math.abs(Vector3.dot(HV, Dir) / this.UI3DSize.y);    // dot 这个时在高度上的百分比 0 ~ 1
+            let normalizeHitWidth = Math.abs(Vector3.dot(WV, Dir) / this.scale.x);    // dot 也就是在宽度上百分比 0 ~ 1
+            let normalizeHitHeight = Math.abs(Vector3.dot(HV, Dir) / this.scale.y);    // dot 这个时在高度上的百分比 0 ~ 1
 
             let cx = normalizeHitWidth * this._rendertexure2D.width;
             let cy = (1 - normalizeHitHeight) * this._rendertexure2D.height;
@@ -325,7 +300,6 @@ export class UI3D extends BaseRender {
     _renderUpdate(context: RenderContext3D, transform: Transform3D): void {
         this._applyLightMapParams();
         this._applyReflection();
-        var element: SubMeshRenderElement = <SubMeshRenderElement>context.renderElement;
         // 这里不需要区分，已经将顶点进行转换了直接使用默认矩阵
         this._setShaderValue(Sprite3D.WORLDMATRIX, ShaderDataType.Matrix4x4, Matrix4x4.DEFAULT);
         return;
@@ -394,6 +368,7 @@ export class UI3D extends BaseRender {
      */
     protected _onDisable(): void {
         super._onDisable();
+        (this.owner as Sprite3D).transform.off(Event.TRANSFORM_CHANGED, this, this._transByRotate);//如果为合并BaseRender,owner可能为空
         (this.owner.scene as Scene3D)._UI3DManager.remove(this);
     }
 
@@ -411,11 +386,10 @@ export class UI3D extends BaseRender {
      */
     protected _onDestroy() {
         super._onDestroy();
-        (this.owner as Sprite3D).transform.off(Event.TRANSFORM_CHANGED, this, this._transByRotate);//如果为合并BaseRender,owner可能为空
     }
 
     private _transByRotate() {
-        if (!this.view)
+        if (!this.billboard)
             this._sizeChange = true;
     }
 }
