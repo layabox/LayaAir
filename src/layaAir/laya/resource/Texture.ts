@@ -5,6 +5,7 @@ import { Handler } from "../utils/Handler"
 import { ILaya } from "../../ILaya";
 import { BaseTexture } from "./BaseTexture";
 import { Resource } from "./Resource";
+import { DrawTextureFlags } from '../webgl/utils/MeshQuadTexture';
 
 const _rect1 = new Rectangle();
 const _rect2 = new Rectangle();
@@ -375,7 +376,7 @@ export class Texture extends Resource {
             stu + (rePosX + draww) * uk, stv + (rePosY + drawh) * vk,
             stu + rePosX * uk, stv + (rePosY + drawh) * vk];
         }
-        ctx._drawTextureM(this, marginL, marginT, draww, drawh, null, 1.0, uv);
+        ctx._drawTextureM(this, marginL, marginT, draww, drawh, null, 1.0, uv, 0xffffffff, DrawTextureFlags.DEFAULT);
         //ctx.drawTexture(value, -x, -y, x + width, y + height);
         ctx._targets.start();
         ctx.flush();

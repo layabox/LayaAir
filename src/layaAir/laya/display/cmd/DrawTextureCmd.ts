@@ -2,7 +2,9 @@ import { ColorFilter } from "../../filters/ColorFilter"
 import { Matrix } from "../../maths/Matrix"
 import { Context } from "../../resource/Context"
 import { Texture } from "../../resource/Texture"
+import { ColorUtils } from '../../utils/ColorUtils';
 import { Pool } from "../../utils/Pool"
+import { DrawTextureFlags } from '../../webgl/utils/MeshQuadTexture';
 
 /**
  * 绘制单个贴图
@@ -41,7 +43,9 @@ export class DrawTextureCmd {
     /**
      * （可选）颜色滤镜。
      */
-    color: string | null;
+    color: number;
+
+    flags: DrawTextureFlags;
 
     colorFlt: ColorFilter | null = null;
     /**
@@ -52,7 +56,7 @@ export class DrawTextureCmd {
     uv: number[] | null = null;
 
     /**@private */
-    static create(texture: Texture, x: number, y: number, width: number, height: number, matrix: Matrix | null, alpha: number, color: string | null, blendMode: string | null, uv?: number[]): DrawTextureCmd {
+    static create(texture: Texture, x: number, y: number, width: number, height: number, matrix: Matrix | null, alpha: number, color: string | null, blendMode: string | null, uv?: number[], flags: DrawTextureFlags = DrawTextureFlags.DEFAULT): DrawTextureCmd {
         if (!width) width = texture.sourceWidth;
         if (!height) height = texture.sourceHeight;
 
@@ -73,15 +77,10 @@ export class DrawTextureCmd {
         cmd.height = height;
         cmd.matrix = matrix;
         cmd.alpha = alpha;
-        cmd.color = color;
         cmd.blendMode = blendMode;
         cmd.uv = uv || null;
-        if (color) {
-            cmd.colorFlt = new ColorFilter();
-            cmd.colorFlt.setColor(color);
-        }
-        else
-            cmd.colorFlt = null;
+        cmd.flags = flags;
+        cmd.color = color ? ColorUtils.create(color).numColor : 0xffffffff;
         return cmd;
     }
 
@@ -97,7 +96,7 @@ export class DrawTextureCmd {
 
     /**@private */
     run(context: Context, gx: number, gy: number): void {
-        this.texture && context.drawTextureWithTransform(this.texture, this.x, this.y, this.width, this.height, this.matrix, gx, gy, this.alpha, this.blendMode, this.colorFlt, this.uv);
+        this.texture && context.drawTextureWithTransform(this.texture, this.x, this.y, this.width, this.height, this.matrix, gx, gy, this.alpha, this.blendMode, this.colorFlt, this.uv, this.color, this.flags);
     }
 
     /**@private */

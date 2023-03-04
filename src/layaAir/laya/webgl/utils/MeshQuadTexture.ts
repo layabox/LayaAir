@@ -5,6 +5,18 @@ import { IndexBuffer2D } from "./IndexBuffer2D";
 import { Mesh2D } from "./Mesh2D";
 import { VertexBuffer2D } from "./VertexBuffer2D";
 
+/** 纹理颜色绘制的标记 */
+export enum DrawTextureFlags {
+	/** 使用顶点色，用于 fillRect */
+	COLOR_FILL = 0,
+	/** 使用顶点颜色，但使用纹理的透明度，可用于实现被击闪红等效果 */
+	COLOR_FILL_TEXTURE_ALPHA = 0x8F,
+	/** 使用纹理颜色 */
+	TEXTURE_COLOR = 0xFF,
+	/** 默认使用纹理颜色 */
+	DEFAULT = TEXTURE_COLOR,
+}
+
 /**
  * drawImage，fillRect等会用到的简单的mesh。每次添加必然是一个四边形。
  */
@@ -81,13 +93,12 @@ export class MeshQuadTexture extends Mesh2D {
 
 	/**
 	 * 
-	 * @param	pos
-	 * @param	uv
-	 * @param	color
-	 * @param	clip   ox,oy,xx,xy,yx,yy
-	 * @param 	useTex 是否使用贴图。false的话是给fillRect用的
+	 * @param pos 顶点坐标
+	 * @param uv 纹理坐标
+	 * @param color 顶点颜色
+	 * @param flags 填充颜色模式
 	 */
-	addQuad(pos: any[], uv: ArrayLike<number>, color: number, useTex: boolean): void {
+	addQuad(pos: ArrayLike<number>, uv: ArrayLike<number>, color: number, flags: DrawTextureFlags): void {
 		var vb: VertexBuffer2D = this._vb;
 		var vpos: number = (vb._byteLength >> 2);	//float数组的下标
 		//x,y,u,v,rgba
@@ -95,11 +106,10 @@ export class MeshQuadTexture extends Mesh2D {
 		var vbdata: Float32Array = vb._floatArray32 || vb.getFloat32Array();
 		var vbu32Arr: Uint32Array = vb._uint32Array;
 		var cpos: number = vpos;
-		var useTexVal: number = useTex ? 0xff : 0;
-		vbdata[cpos++] = pos[0]; vbdata[cpos++] = pos[1]; vbdata[cpos++] = uv[0]; vbdata[cpos++] = uv[1]; vbu32Arr[cpos++] = color; vbu32Arr[cpos++] = useTexVal;
-		vbdata[cpos++] = pos[2]; vbdata[cpos++] = pos[3]; vbdata[cpos++] = uv[2]; vbdata[cpos++] = uv[3]; vbu32Arr[cpos++] = color; vbu32Arr[cpos++] = useTexVal;
-		vbdata[cpos++] = pos[4]; vbdata[cpos++] = pos[5]; vbdata[cpos++] = uv[4]; vbdata[cpos++] = uv[5]; vbu32Arr[cpos++] = color; vbu32Arr[cpos++] = useTexVal;
-		vbdata[cpos++] = pos[6]; vbdata[cpos++] = pos[7]; vbdata[cpos++] = uv[6]; vbdata[cpos++] = uv[7]; vbu32Arr[cpos++] = color; vbu32Arr[cpos++] = useTexVal;
+		vbdata[cpos++] = pos[0]; vbdata[cpos++] = pos[1]; vbdata[cpos++] = uv[0]; vbdata[cpos++] = uv[1]; vbu32Arr[cpos++] = color; vbu32Arr[cpos++] = flags;
+		vbdata[cpos++] = pos[2]; vbdata[cpos++] = pos[3]; vbdata[cpos++] = uv[2]; vbdata[cpos++] = uv[3]; vbu32Arr[cpos++] = color; vbu32Arr[cpos++] = flags;
+		vbdata[cpos++] = pos[4]; vbdata[cpos++] = pos[5]; vbdata[cpos++] = uv[4]; vbdata[cpos++] = uv[5]; vbu32Arr[cpos++] = color; vbu32Arr[cpos++] = flags;
+		vbdata[cpos++] = pos[6]; vbdata[cpos++] = pos[7]; vbdata[cpos++] = uv[6]; vbdata[cpos++] = uv[7]; vbu32Arr[cpos++] = color; vbu32Arr[cpos++] = flags;
 		vb.buffer2D._upload = true;
 	}
 }
