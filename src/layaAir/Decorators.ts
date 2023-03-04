@@ -1,3 +1,5 @@
+import { ClassUtils } from "./laya/utils/ClassUtils";
+
 export type EnumDescriptor = {
     name: string,
     value: any,
@@ -168,18 +170,21 @@ export interface TypeDescriptor {
 }
 
 function dummy() { }
-function dummy2() { }
 
 /**
  * 注册一个类型，注册后才能被序列化系统自动保存和载入。
  */
-export function regClass(): any { return dummy; }
+export function regClass(assetId?: string): any {
+    return function (constructor: Function) {
+        ClassUtils.regClass(assetId, constructor);
+    };
+}
 
 /**
  * 设置类型的额外信息。
  * @param info 类型的额外信息
  */
-export function classInfo(info?: Partial<TypeDescriptor>): any { return dummy2; }
+export function classInfo(info?: Partial<TypeDescriptor>): any { return dummy; }
 
 /**
  * 设置组件可以在编辑器环境中执行完整声明周期。
@@ -188,6 +193,6 @@ export function runInEditor(constructor: Function): void { }
 
 /**
  * 使用这个装饰器，可以使属性显示在编辑器属性设置面板上，并且能序列化保存。
- * @param info 如果是字符串，是属性的标题；如果是数组，例如[Number]，可以定义属性为数组类型；也可以是PropertyDescriptor，定义详细的属性信息。
+ * @param info 属性的类型，如: Number,"number",[Number],["Record", Number]等。或传递对象描述详细信息，例如{ type: "string", multiline: true }。
  */
-export function property(info?: string | Array<any> | Partial<PropertyDescriptor>): any { return dummy2; }
+export function property(info: string | Array<any> | Function | Object| Partial<PropertyDescriptor>): any { return dummy; }
