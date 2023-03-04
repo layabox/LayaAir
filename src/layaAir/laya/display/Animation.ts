@@ -98,6 +98,10 @@ export class Animation extends AnimationBase {
     /**@private */
     protected _frames: any[];
 
+    private _images: string[];
+
+    private _autoPlay = false;
+
 
     /**
      * 创建一个新的 <code>Animation</code> 实例。
@@ -217,6 +221,19 @@ export class Animation extends AnimationBase {
         else this.loadImages(value.split(","));
     }
 
+
+    set images(arr: string[]) {
+        this._images = arr;
+        if (arr) {
+            this.loadImages(arr);
+        }
+
+
+    }
+    get images() {
+        return this._images;
+    }
+
     /**
      * 设置自动播放的动画名称，在LayaAir IDE中可以创建的多个动画组成的动画集合，选择其中一个动画名称进行播放。
      */
@@ -228,8 +245,12 @@ export class Animation extends AnimationBase {
      * 是否自动播放，默认为false。如果设置为true，则动画被创建并添加到舞台后自动播放。
      */
     set autoPlay(value: boolean) {
+        this._autoPlay = value;
         if (value) this.play();
         else this.stop();
+    }
+    get autoPlay() {
+        return this._autoPlay;
     }
 
     /**
