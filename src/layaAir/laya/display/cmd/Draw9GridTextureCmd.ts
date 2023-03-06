@@ -42,7 +42,7 @@ export class Draw9GridTextureCmd {
     percent: boolean;
 
     /**@private */
-    static create(texture: Texture, x: number, y: number, width: number, height: number, sizeGrid: number[], percent: boolean = false, color: string | null): Draw9GridTextureCmd {
+    static create(texture: Texture, x: number, y: number, width: number, height: number, sizeGrid: number[], percent: boolean = false, color: string | null = null): Draw9GridTextureCmd {
         let cmd: Draw9GridTextureCmd = Pool.getItemByClass("Draw9GridTextureCmd", Draw9GridTextureCmd);
         cmd.texture = texture;
         texture._addReference();
