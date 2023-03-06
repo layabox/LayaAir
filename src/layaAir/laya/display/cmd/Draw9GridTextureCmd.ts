@@ -1,6 +1,7 @@
 import { Context } from "../../resource/Context"
 import { Texture } from "../../resource/Texture"
 import { ClassUtils } from "../../utils/ClassUtils";
+import { ColorUtils } from "../../utils/ColorUtils";
 import { Pool } from "../../utils/Pool"
 
 /**
@@ -33,7 +34,7 @@ export class Draw9GridTextureCmd {
 
     sizeGrid: number[];
 
-    color: number;
+    color: number = 0xffffffff;
 
     /**
      * 位置和大小是否是百分比
@@ -41,7 +42,7 @@ export class Draw9GridTextureCmd {
     percent: boolean;
 
     /**@private */
-    static create(texture: Texture, x: number, y: number, width: number, height: number, sizeGrid: number[], percent: boolean = false, color: number = 0xffffffff): Draw9GridTextureCmd {
+    static create(texture: Texture, x: number, y: number, width: number, height: number, sizeGrid: number[], percent: boolean = false, color: string | null): Draw9GridTextureCmd {
         let cmd: Draw9GridTextureCmd = Pool.getItemByClass("Draw9GridTextureCmd", Draw9GridTextureCmd);
         cmd.texture = texture;
         texture._addReference();
@@ -51,7 +52,7 @@ export class Draw9GridTextureCmd {
         cmd.height = height;
         cmd.sizeGrid = sizeGrid;
         cmd.percent = percent;
-        cmd.color = color;
+        cmd.color = color != null ? ColorUtils.create(color).numColor : 0xffffffff;
         return cmd;
     }
 

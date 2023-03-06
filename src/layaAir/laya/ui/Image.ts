@@ -173,6 +173,14 @@ export class Image extends UIComponent {
             this.onCompResize();
     }
 
+    get color() {
+        return this._graphics.color;
+    }
+
+    set color(value: string) {
+        this._graphics.color = value;
+    }
+
     /**
      * 资源分组。
      */

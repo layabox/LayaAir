@@ -19,7 +19,7 @@ uniform vec2 clipOff;			// 使用要把clip偏移。cacheas normal用. 只用了
 #endif
 varying vec4 v_texcoordAlpha;
 varying vec4 v_color;
-varying vec4 v_flags;
+varying float v_useTex;
 
 void main() {
 
@@ -37,7 +37,8 @@ void main() {
 	//v_texcoordAlpha.z = attribColor.a/255.0;
 	v_color = attribColor/255.0;
 	v_color.xyz*=v_color.w;//反正后面也要预乘
-	v_flags = attribFlags / 255.0;
+	v_useTex = attribFlags.r/255.0;
+
 	float clipw = length(clipMatDir.xy);
 	float cliph = length(clipMatDir.zw);
 	

@@ -46,7 +46,7 @@ import { CharRenderInfo } from "../webgl/text/CharRenderInfo";
 import { CharSubmitCache } from "../webgl/text/CharSubmitCache";
 import { TextRender } from "../webgl/text/TextRender";
 import { Mesh2D } from "../webgl/utils/Mesh2D";
-import { DrawTextureFlags, MeshQuadTexture } from "../webgl/utils/MeshQuadTexture";
+import { MeshQuadTexture } from "../webgl/utils/MeshQuadTexture";
 import { MeshTexture } from "../webgl/utils/MeshTexture";
 import { MeshVG } from "../webgl/utils/MeshVG";
 import { RenderState2D } from "../webgl/utils/RenderState2D";
@@ -886,7 +886,7 @@ export class Context {
 
         this.transformQuad(x, y, width, height, 0, this._curMat, this._transedPoints);
         if (!this.clipedOff(this._transedPoints)) {
-            this._mesh.addQuad(this._transedPoints, Texture.NO_UV, rgba, DrawTextureFlags.COLOR_FILL);
+            this._mesh.addQuad(this._transedPoints, Texture.NO_UV, rgba, false);
             //if (GlUtils.fillRectImgVb(_mesh._vb, _clipRect, x, y, width, height, Texture.DEF_UV, _curMat, rgba,this)){
             if (!sameKey) {
                 submit = this._curSubmit = SubmitTexture.create(this, this._mesh, Value2D.create(ShaderDefines2D.TEXTURE2D, 0));
@@ -918,7 +918,7 @@ export class Context {
     }
 
     //TODO:coverage
-    fillTexture(texture: Texture, x: number, y: number, width: number, height: number, type: string, offset: Point, color: number, flags: DrawTextureFlags): void {
+    fillTexture(texture: Texture, x: number, y: number, width: number, height: number, type: string, offset: Point, color: number): void {
         //test
         /*
         var aa = 95 / 274, bb = 136 / 341, cc = (95 + 41) / 274, dd = (136 + 48) / 341;
@@ -932,11 +932,11 @@ export class Context {
             this.sprite && ILaya.systemTimer.callLater(this, this._repaintSprite);
             return;
         }
-        this._fillTexture(texture, texture.width, texture.height, texture.uvrect, x, y, width, height, type, offset.x, offset.y, color, flags);
+        this._fillTexture(texture, texture.width, texture.height, texture.uvrect, x, y, width, height, type, offset.x, offset.y, color);
     }
 
     /**@internal */
-    _fillTexture(texture: Texture, texw: number, texh: number, texuvRect: any[], x: number, y: number, width: number, height: number, type: string, offsetx: number, offsety: number, color: number, flags: DrawTextureFlags): void {
+    _fillTexture(texture: Texture, texw: number, texh: number, texuvRect: any[], x: number, y: number, width: number, height: number, type: string, offsetx: number, offsety: number, color: number): void {
         var submit: Submit = this._curSubmit;
         var sameKey: boolean = false;
         if (this._mesh.vertNum + 4 > Context._MAXVERTNUM) {
@@ -997,7 +997,7 @@ export class Context {
             //rgba = _mixRGBandAlpha(rgba, alpha);	这个函数有问题，不能连续调用，输出作为输入
             var rgba: number = this._mixRGBandAlpha(color, this._shader2D.ALPHA);
 
-            this._mesh.addQuad(this._transedPoints, uv, rgba, flags);
+            this._mesh.addQuad(this._transedPoints, uv, rgba, true);
 
             var sv: Value2D = Value2D.create(ShaderDefines2D.TEXTURE2D, 0);
             //这个优化先不要了，因为没太弄明白wrapmode的设置，总是不起作用。
@@ -1029,11 +1029,11 @@ export class Context {
         //_reCalculateBlendShader();
     }
 
-    drawTexture(tex: Texture, x: number, y: number, width: number, height: number, color: number = 0xffffffff, flags = DrawTextureFlags.DEFAULT): void {
-        this._drawTextureM(tex, x, y, width, height, null, 1, null, color, flags);
+    drawTexture(tex: Texture, x: number, y: number, width: number, height: number, color: number = 0xffffffff): void {
+        this._drawTextureM(tex, x, y, width, height, null, 1, null, color);
     }
 
-    drawTextures(tex: Texture, pos: ArrayLike<number>, tx: number, ty: number, colors: number[], flags: DrawTextureFlags[]): void {
+    drawTextures(tex: Texture, pos: ArrayLike<number>, tx: number, ty: number, colors: number[]): void {
         if (!tex._getSource()) //source内调用tex.active();
         {
             this.sprite && ILaya.systemTimer.callLater(this, this._repaintSprite);
@@ -1046,8 +1046,7 @@ export class Context {
         var bmpid: number = (tex.bitmap as Texture2D).id;
         for (var i: number = 0; i < n; i++) {
             const color = typeof colors[i] === 'number' ? colors[i] : 0xffffffff;
-            const flag = typeof flags[i] === 'number' ? flags[i] : DrawTextureFlags.DEFAULT;
-            this._inner_drawTexture(tex, bmpid, pos[ipos++] + tx, pos[ipos++] + ty, 0, 0, null, null, 1.0, false, color, flag);
+            this._inner_drawTexture(tex, bmpid, pos[ipos++] + tx, pos[ipos++] + ty, 0, 0, null, null, 1.0, false, color);
         }
 
         /*
@@ -1103,7 +1102,7 @@ export class Context {
     }
 
     /**@internal */
-    _drawTextureM(tex: Texture, x: number, y: number, width: number, height: number, m: Matrix, alpha: number, uv: any[] | null, color: number, flags: DrawTextureFlags): boolean {
+    _drawTextureM(tex: Texture, x: number, y: number, width: number, height: number, m: Matrix, alpha: number, uv: any[] | null, color: number): boolean {
         // 注意sprite要保存，因为后面会被冲掉
         var cs = this.sprite;
         if (!tex._getSource(function (): void {
@@ -1113,12 +1112,12 @@ export class Context {
         })) { //source内调用tex.active();
             return false;
         }
-        return this._inner_drawTexture(tex, (tex.bitmap as Texture2D).id, x, y, width, height, m, uv, alpha, false, color, flags);
+        return this._inner_drawTexture(tex, (tex.bitmap as Texture2D).id, x, y, width, height, m, uv, alpha, false, color);
     }
 
     /**@internal */
     _drawRenderTexture(tex: RenderTexture2D, x: number, y: number, width: number, height: number, m: Matrix, alpha: number, uv: any[], color: number = 0xffffff): boolean {
-        return this._inner_drawTexture((<Texture>(tex as any)), -1, x, y, width, height, m, uv, alpha, false, color, DrawTextureFlags.DEFAULT);
+        return this._inner_drawTexture((<Texture>(tex as any)), -1, x, y, width, height, m, uv, alpha, false, color);
     }
 
     //TODO:coverage
@@ -1186,7 +1185,7 @@ export class Context {
      * @internal
      * 使用上面的设置（texture，submit，alpha，clip），画一个rect
      */
-    _drawTexRect(x: number, y: number, w: number, h: number, uv: any[], flags: DrawTextureFlags): void {
+    _drawTexRect(x: number, y: number, w: number, h: number, uv: any[]): void {
         this.transformQuad(x, y, w, h, this._italicDeg, this._curMat, this._transedPoints);
         //这个是给文字用的，为了清晰，必须要按照屏幕像素对齐，并且四舍五入。
         var ops: any[] = this._transedPoints;
@@ -1200,7 +1199,7 @@ export class Context {
         ops[7] = (ops[7] + 0.5) | 0;
 
         if (!this.clipedOff(this._transedPoints)) {
-            this._mesh.addQuad(this._transedPoints, uv, this._fillColor, flags);
+            this._mesh.addQuad(this._transedPoints, uv, this._fillColor, true);
             this._curSubmit._numEle += 6;
             this._mesh.indexNum += 6;
             this._mesh.vertNum += 4;
@@ -1225,7 +1224,7 @@ export class Context {
      * @param	uv
      * @return
      */
-    _inner_drawTexture(tex: Texture, imgid: number, x: number, y: number, width: number, height: number, m: Matrix, uv: ArrayLike<number> | null, alpha: number, lastRender: boolean, color: number, flags: DrawTextureFlags): boolean {
+    _inner_drawTexture(tex: Texture, imgid: number, x: number, y: number, width: number, height: number, m: Matrix, uv: ArrayLike<number> | null, alpha: number, lastRender: boolean, color: number): boolean {
         if (width <= 0 || height <= 0) {
             return false;
         }
@@ -1288,7 +1287,7 @@ export class Context {
         }
 
         {
-            mesh.addQuad(ops, uv, rgba, flags);
+            mesh.addQuad(ops, uv, rgba, true);
             if (!sameKey) {
                 this._submits[this._submits._length++] = this._curSubmit = submit = SubmitTexture.create(this, mesh, Value2D.create(ShaderDefines2D.TEXTURE2D, 0));
                 submit.shaderValue.textureHost = tex;
@@ -1484,7 +1483,7 @@ export class Context {
      * @param	ty
      * @param	alpha
      */
-    drawTextureWithTransform(tex: Texture, x: number, y: number, width: number, height: number, transform: Matrix | null, tx: number, ty: number, alpha: number, blendMode: string | null, colorfilter: ColorFilter | null = null, uv?: number[], color = 0xffffffff, flags = DrawTextureFlags.DEFAULT): void {
+    drawTextureWithTransform(tex: Texture, x: number, y: number, width: number, height: number, transform: Matrix | null, tx: number, ty: number, alpha: number, blendMode: string | null, colorfilter: ColorFilter | null = null, uv?: number[], color = 0xffffffff): void {
         var oldcomp: string;
         var curMat: Matrix = this._curMat;
         if (blendMode) {
@@ -1497,7 +1496,7 @@ export class Context {
         }
 
         if (!transform) {
-            this._drawTextureM(tex, x + tx, y + ty, width, height, curMat, alpha, uv, color, flags);
+            this._drawTextureM(tex, x + tx, y + ty, width, height, curMat, alpha, uv, color);
             if (blendMode) {
                 this.globalCompositeOperation = oldcomp;
             }
@@ -1522,7 +1521,7 @@ export class Context {
             tmpMat.ty += curMat.ty;
             transform = tmpMat;
         }
-        this._drawTextureM(tex, x, y, width, height, transform, alpha, uv, color, flags);
+        this._drawTextureM(tex, x, y, width, height, transform, alpha, uv, color);
         if (blendMode) {
             this.globalCompositeOperation = oldcomp;
         }
@@ -1643,7 +1642,7 @@ export class Context {
         //凡是这个都是在_mesh上操作，不用考虑samekey
         this.transformQuad(x, y, width, height, 0, m || this._curMat, this._transedPoints);
         if (!this.clipedOff(this._transedPoints)) {
-            this._mesh.addQuad(this._transedPoints, uv || Texture.DEF_UV, color, DrawTextureFlags.DEFAULT);
+            this._mesh.addQuad(this._transedPoints, uv || Texture.DEF_UV, color, true);
             //if (GlUtils.fillRectImgVb( _mesh._vb, _clipRect, x, y, width , height , uv || Texture.DEF_UV, m || _curMat, rgba, this)) {
             var submit: SubmitTarget = this._curSubmit = SubmitTarget.create(this, this._mesh, shaderValue, rt);
             submit.blendType = (blend == -1) ? this._nBlendType : blend;
@@ -2482,7 +2481,7 @@ export class Context {
         var num: number = Math.floor(w / oriw);
         var left: number = w % oriw;
         for (var i: number = 0; i < num; i++) {
-            this._inner_drawTexture(tex, imgid, stx, y, oriw, orih, this._curMat, uv, 1, false, color, DrawTextureFlags.DEFAULT);
+            this._inner_drawTexture(tex, imgid, stx, y, oriw, orih, this._curMat, uv, 1, false, color);
             stx += oriw;
         }
         // 最后剩下的
@@ -2492,7 +2491,7 @@ export class Context {
             var tuv: any[] = Context.tmpuv1;
             tuv[0] = uv[0]; tuv[1] = uv[1]; tuv[2] = uvr; tuv[3] = uv[3];
             tuv[4] = uvr; tuv[5] = uv[5]; tuv[6] = uv[6]; tuv[7] = uv[7];
-            this._inner_drawTexture(tex, imgid, stx, y, left, orih, this._curMat, tuv, 1, false, color, DrawTextureFlags.DEFAULT);
+            this._inner_drawTexture(tex, imgid, stx, y, left, orih, this._curMat, tuv, 1, false, color);
         }
     }
 
@@ -2514,7 +2513,7 @@ export class Context {
         var num: number = Math.floor(h / orih);
         var left: number = h % orih;
         for (var i: number = 0; i < num; i++) {
-            this._inner_drawTexture(tex, imgid, x, sty, oriw, orih, this._curMat, uv, 1, false, color, DrawTextureFlags.DEFAULT);
+            this._inner_drawTexture(tex, imgid, x, sty, oriw, orih, this._curMat, uv, 1, false, color);
             sty += orih;
         }
         // 最后剩下的
@@ -2524,7 +2523,7 @@ export class Context {
             var tuv: any[] = Context.tmpuv1;
             tuv[0] = uv[0]; tuv[1] = uv[1]; tuv[2] = uv[2]; tuv[3] = uv[3];
             tuv[4] = uv[4]; tuv[5] = uvb; tuv[6] = uv[6]; tuv[7] = uvb;
-            this._inner_drawTexture(tex, imgid, x, sty, oriw, left, this._curMat, tuv, 1, false, color, DrawTextureFlags.DEFAULT);
+            this._inner_drawTexture(tex, imgid, x, sty, oriw, left, this._curMat, tuv, 1, false, color);
         }
     }
 
@@ -2600,28 +2599,28 @@ export class Context {
             uvb_ = uvt + d_top;
             tuv[0] = uvl, tuv[1] = uvt, tuv[2] = uvr_, tuv[3] = uvt,
                 tuv[4] = uvr_, tuv[5] = uvb_, tuv[6] = uvl, tuv[7] = uvb_;
-            this._inner_drawTexture(tex, imgid, tx, ty, left, top, mat, tuv, 1, false, color, DrawTextureFlags.DEFAULT);
+            this._inner_drawTexture(tex, imgid, tx, ty, left, top, mat, tuv, 1, false, color);
         }
         if (right && top) {
             uvl_ = uvr - d_right; uvt_ = uvt;
             uvr_ = uvr; uvb_ = uvt + d_top;
             tuv[0] = uvl_, tuv[1] = uvt_, tuv[2] = uvr_, tuv[3] = uvt_,
                 tuv[4] = uvr_, tuv[5] = uvb_, tuv[6] = uvl_, tuv[7] = uvb_;
-            this._inner_drawTexture(tex, imgid, width - right + tx, 0 + ty, right, top, mat, tuv, 1, false, color, DrawTextureFlags.DEFAULT);
+            this._inner_drawTexture(tex, imgid, width - right + tx, 0 + ty, right, top, mat, tuv, 1, false, color);
         }
         if (left && bottom) {
             uvl_ = uvl; uvt_ = uvb - d_bottom;
             uvr_ = uvl + d_left; uvb_ = uvb;
             tuv[0] = uvl_, tuv[1] = uvt_, tuv[2] = uvr_, tuv[3] = uvt_,
                 tuv[4] = uvr_, tuv[5] = uvb_, tuv[6] = uvl_, tuv[7] = uvb_;
-            this._inner_drawTexture(tex, imgid, 0 + tx, height - bottom + ty, left, bottom, mat, tuv, 1, false, color, DrawTextureFlags.DEFAULT);
+            this._inner_drawTexture(tex, imgid, 0 + tx, height - bottom + ty, left, bottom, mat, tuv, 1, false, color);
         }
         if (right && bottom) {
             uvl_ = uvr - d_right; uvt_ = uvb - d_bottom;
             uvr_ = uvr; uvb_ = uvb;
             tuv[0] = uvl_, tuv[1] = uvt_, tuv[2] = uvr_, tuv[3] = uvt_,
                 tuv[4] = uvr_, tuv[5] = uvb_, tuv[6] = uvl_, tuv[7] = uvb_;
-            this._inner_drawTexture(tex, imgid, width - right + tx, height - bottom + ty, right, bottom, mat, tuv, 1, false, color, DrawTextureFlags.DEFAULT);
+            this._inner_drawTexture(tex, imgid, width - right + tx, height - bottom + ty, right, bottom, mat, tuv, 1, false, color);
         }
         //绘制上下两个边
         if (top) {
@@ -2632,7 +2631,7 @@ export class Context {
             if (repeat) {
                 this._fillTexture_h(tex, imgid, tuv, tex.width - left - right, top, left + tx, ty, width - left - right, color);
             } else {
-                this._inner_drawTexture(tex, imgid, left + tx, ty, width - left - right, top, mat, tuv, 1, false, color, DrawTextureFlags.DEFAULT);
+                this._inner_drawTexture(tex, imgid, left + tx, ty, width - left - right, top, mat, tuv, 1, false, color);
             }
 
         }
@@ -2644,7 +2643,7 @@ export class Context {
             if (repeat) {
                 this._fillTexture_h(tex, imgid, tuv, tex.width - left - right, bottom, left + tx, height - bottom + ty, width - left - right, color);
             } else {
-                this._inner_drawTexture(tex, imgid, left + tx, height - bottom + ty, width - left - right, bottom, mat, tuv, 1, false, color, DrawTextureFlags.DEFAULT);
+                this._inner_drawTexture(tex, imgid, left + tx, height - bottom + ty, width - left - right, bottom, mat, tuv, 1, false, color);
             }
         }
         //绘制左右两边
@@ -2656,7 +2655,7 @@ export class Context {
             if (repeat) {
                 this._fillTexture_v(tex, imgid, tuv, left, tex.height - top - bottom, tx, top + ty, height - top - bottom, color);
             } else {
-                this._inner_drawTexture(tex, imgid, tx, top + ty, left, height - top - bottom, mat, tuv, 1, false, color, DrawTextureFlags.DEFAULT);
+                this._inner_drawTexture(tex, imgid, tx, top + ty, left, height - top - bottom, mat, tuv, 1, false, color);
             }
         }
         if (right) {
@@ -2667,7 +2666,7 @@ export class Context {
             if (repeat) {
                 this._fillTexture_v(tex, imgid, tuv, right, tex.height - top - bottom, width - right + tx, top + ty, height - top - bottom, color);
             } else {
-                this._inner_drawTexture(tex, imgid, width - right + tx, top + ty, right, height - top - bottom, mat, tuv, 1, false, color, DrawTextureFlags.DEFAULT);
+                this._inner_drawTexture(tex, imgid, width - right + tx, top + ty, right, height - top - bottom, mat, tuv, 1, false, color);
             }
         }
         //绘制中间
@@ -2680,9 +2679,9 @@ export class Context {
             tuvr[0] = uvl_; tuvr[1] = uvt_;
             tuvr[2] = uvr_ - uvl_; tuvr[3] = uvb_ - uvt_;
             // 这个如果用重复的可能比较多，所以采用filltexture的方法，注意这样会打断合并
-            this._fillTexture(tex, tex.width - left - right, tex.height - top - bottom, tuvr, left + tx, top + ty, width - left - right, height - top - bottom, 'repeat', 0, 0, color, DrawTextureFlags.DEFAULT);
+            this._fillTexture(tex, tex.width - left - right, tex.height - top - bottom, tuvr, left + tx, top + ty, width - left - right, height - top - bottom, 'repeat', 0, 0, color);
         } else {
-            this._inner_drawTexture(tex, imgid, left + tx, top + ty, width - left - right, height - top - bottom, mat, tuv, 1, false, color, DrawTextureFlags.DEFAULT);
+            this._inner_drawTexture(tex, imgid, left + tx, top + ty, width - left - right, height - top - bottom, mat, tuv, 1, false, color);
         }
 
         if (needClip) this.restore();
