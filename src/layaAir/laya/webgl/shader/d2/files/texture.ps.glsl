@@ -23,7 +23,7 @@ vec4 linearToGamma(in vec4 value)
 
 varying vec4 v_texcoordAlpha;
 varying vec4 v_color;
-varying float v_useTex;
+varying vec4 v_flags;
 uniform sampler2D texture;
 varying vec2 cliped;
 
@@ -108,8 +108,14 @@ void main()
     vec4 color = sampleTexture(texture, v_texcoordAlpha.xy);
 #endif
 
-    if (v_useTex <= 0.)
-	color = vec4(1., 1., 1., 1.);
+    if (v_flags.r <= 0.) {
+        color = vec4(1., 1., 1., 1.); // 填充纯色
+    } else if (v_flags.r < 0.9) { // 小于 0.9 认为其值不为 1
+        if (color.a >= 0.02) { // 浮点数精度的问题简单处理 0.02 是一个阈值，小于这个阈值的 alpha 值会被认为是透明的（一般透明度真的是2%的情况下肉眼也可以忽略了吧？）
+            color.rgb = vec3(1., 1., 1.);
+        }
+    }
+
     color.a *= v_color.w;
     // color.rgb*=v_color.w;
     color.rgb *= v_color.rgb;

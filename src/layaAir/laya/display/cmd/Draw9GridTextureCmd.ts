@@ -33,13 +33,15 @@ export class Draw9GridTextureCmd {
 
     sizeGrid: number[];
 
+    color: number;
+
     /**
      * 位置和大小是否是百分比
      */
     percent: boolean;
 
     /**@private */
-    static create(texture: Texture, x: number, y: number, width: number, height: number, sizeGrid: number[], percent?: boolean): Draw9GridTextureCmd {
+    static create(texture: Texture, x: number, y: number, width: number, height: number, sizeGrid: number[], percent: boolean = false, color: number = 0xffffffff): Draw9GridTextureCmd {
         let cmd: Draw9GridTextureCmd = Pool.getItemByClass("Draw9GridTextureCmd", Draw9GridTextureCmd);
         cmd.texture = texture;
         texture._addReference();
@@ -49,7 +51,7 @@ export class Draw9GridTextureCmd {
         cmd.height = height;
         cmd.sizeGrid = sizeGrid;
         cmd.percent = percent;
-
+        cmd.color = color;
         return cmd;
     }
 
@@ -67,10 +69,10 @@ export class Draw9GridTextureCmd {
             if (this.percent && context.sprite) {
                 let w = context.sprite.width;
                 let h = context.sprite.height;
-                context.drawTextureWithSizeGrid(this.texture, this.x * w, this.y * h, this.width * w, this.height * h, this.sizeGrid || EMPTY_SIZE_GRID, gx, gy);
+                context.drawTextureWithSizeGrid(this.texture, this.x * w, this.y * h, this.width * w, this.height * h, this.sizeGrid || EMPTY_SIZE_GRID, gx, gy, this.color);
             }
             else
-                context.drawTextureWithSizeGrid(this.texture, this.x, this.y, this.width, this.height, this.sizeGrid || EMPTY_SIZE_GRID, gx, gy);
+                context.drawTextureWithSizeGrid(this.texture, this.x, this.y, this.width, this.height, this.sizeGrid || EMPTY_SIZE_GRID, gx, gy, this.color);
         }
     }
 

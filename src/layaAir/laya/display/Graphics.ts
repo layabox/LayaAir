@@ -33,6 +33,7 @@ import { Utils } from "../utils/Utils"
 import { VectorGraphManager } from "../utils/VectorGraphManager"
 import { ILaya } from "../../ILaya";
 import { Config } from "../../Config";
+import { DrawTextureFlags } from '../webgl/utils/MeshQuadTexture';
 
 /**
  * <code>Graphics</code> 类用于创建绘图显示对象。Graphics可以同时绘制多个位图或者矢量图，还可以结合save，restore，transform，scale，rotate，translate，alpha等指令对绘图效果进行变化。
@@ -227,11 +228,13 @@ export class Graphics {
      * @param y 		（可选）Y轴偏移量。
      * @param width		（可选）宽度。
      * @param height	（可选）高度。
+     * @param color	 	 （可选）颜色
+     * @param flags		 （可选）颜色填充模式
      */
-    drawImage(texture: Texture, x: number = 0, y: number = 0, width: number = 0, height: number = 0): DrawImageCmd | null {
+    drawImage(texture: Texture, x: number = 0, y: number = 0, width: number = 0, height: number = 0, color = 0xffffffff, flags = DrawTextureFlags.DEFAULT): DrawImageCmd | null {
         if (!texture) return null;
         if (!texture.bitmap) return null;
-        return this.addCmd(DrawImageCmd.create(texture, x, y, width, height));
+        return this.addCmd(DrawImageCmd.create(texture, x, y, width, height, color, flags));
     }
 
     /**
@@ -245,21 +248,24 @@ export class Graphics {
      * @param alpha		（可选）透明度。
      * @param color		（可选）颜色滤镜。
      * @param blendMode （可选）混合模式。
+     * @param flags		（可选）颜色填充模式
      */
-    drawTexture(texture: Texture | null, x: number = 0, y: number = 0, width: number = 0, height: number = 0, matrix: Matrix | null = null, alpha: number = 1, color: string | null = null, blendMode: string | null = null, uv?: number[]): DrawTextureCmd | null {
+    drawTexture(texture: Texture | null, x: number = 0, y: number = 0, width: number = 0, height: number = 0, matrix: Matrix | null = null, alpha: number = 1, color: string | null = null, blendMode: string | null = null, uv?: number[], flags = DrawTextureFlags.DEFAULT): DrawTextureCmd | null {
         if (!texture || alpha < 0.01) return null;
         if (!texture.bitmap) return null;
-        return this.addCmd(DrawTextureCmd.create(texture, x, y, width, height, matrix, alpha, color, blendMode, uv));
+        return this.addCmd(DrawTextureCmd.create(texture, x, y, width, height, matrix, alpha, color, blendMode, uv, flags));
     }
 
     /**
      * 批量绘制同样纹理。
      * @param texture 纹理。
      * @param pos 绘制次数和坐标。
+     * @param colors 图片颜色数组。
+     * @param flags 图片颜色填充模式数组。
      */
-    drawTextures(texture: Texture, pos: any[]): DrawTexturesCmd | null {
+    drawTextures(texture: Texture, pos: any[], colors?: number[], flags?: DrawTextureFlags[]): DrawTexturesCmd | null {
         if (!texture) return null;
-        return this.addCmd(DrawTexturesCmd.create(texture, pos));
+        return this.addCmd(DrawTexturesCmd.create(texture, pos, colors, flags));
     }
 
     /**
@@ -281,7 +287,7 @@ export class Graphics {
     }
 
     /**
-     * 用texture填充。
+     * 用 texture 填充。
      * @param texture		纹理。
      * @param x			X轴偏移量。
      * @param y			Y轴偏移量。
@@ -291,9 +297,9 @@ export class Graphics {
      * @param offset	（可选）贴图纹理偏移
      *
      */
-    fillTexture(texture: Texture, x: number, y: number, width: number = 0, height: number = 0, type: string = "repeat", offset: Point | null = null): FillTextureCmd | null {
+    fillTexture(texture: Texture, x: number, y: number, width: number = 0, height: number = 0, type: string = "repeat", offset: Point | null = null, color = 0xffffff, flags = DrawTextureFlags.DEFAULT): FillTextureCmd | null {
         if (texture && texture.bitmap)
-            return this.addCmd(FillTextureCmd.create(texture, x, y, width, height, type, offset || Point.EMPTY));
+            return this.addCmd(FillTextureCmd.create(texture, x, y, width, height, type, offset || Point.EMPTY, color, flags));
         else
             return null;
     }
@@ -637,8 +643,9 @@ export class Graphics {
      * @param	width
      * @param	height
      * @param	sizeGrid
+     * @param	color
      */
-    draw9Grid(texture: Texture, x: number = 0, y: number = 0, width: number = 0, height: number = 0, sizeGrid: any[]): void {
-        this.addCmd(Draw9GridTextureCmd.create(texture, x, y, width, height, sizeGrid));
+    draw9Grid(texture: Texture, x: number = 0, y: number = 0, width: number = 0, height: number = 0, sizeGrid: any[], color: number): void {
+        this.addCmd(Draw9GridTextureCmd.create(texture, x, y, width, height, sizeGrid, false, color));
     }
 }

@@ -691,7 +691,7 @@ export class List extends Box {
     setContentSize(width: number, height: number): void {
         this._content.width = width;
         this._content.height = height;
-        if (this._scrollBar || this._offset.x != 0 || this._offset.y != 0) {
+        if (this._scrollBar) {
             let r = this._content.scrollRect;
             if (!r)
                 r = Rectangle.create();
