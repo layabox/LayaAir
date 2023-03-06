@@ -23,6 +23,7 @@ import { LayaGLQuickRunner } from "./LayaGLQuickRunner";
 import { ILaya } from "../../ILaya";
 import { NativeFilter } from "../filters/NativeFilter";
 import { LayaEnv } from "../../LayaEnv";
+import { DrawTextureFlags } from '../webgl/utils/MeshQuadTexture';
 
 /**
  * @private
@@ -232,8 +233,8 @@ export class RenderSprite {
 
                 var px = x - sprite.pivotX + tex.offsetX * wRate;
                 var py = y - sprite.pivotY + tex.offsetY * hRate;
-
-                context.drawTexture(tex, px, py, width, height);
+                
+                context.drawTexture(tex, px, py, width, height, 0xffffffff, DrawTextureFlags.DEFAULT);
             }
         }
         var next: RenderSprite = this._next;

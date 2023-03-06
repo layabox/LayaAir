@@ -15,6 +15,7 @@ import { ICharRender } from "./ICharRender"
 import { ILaya } from "../../../ILaya";
 import { LayaEnv } from "../../../LayaEnv";
 import { Const } from "../../Const";
+import { DrawTextureFlags } from '../utils/MeshQuadTexture';
 
 export class TextRender {
     //config
@@ -350,12 +351,12 @@ export class TextRender {
                 ctx.drawTexAlign = true;
                 //ctx._drawTextureM(ri.tex.texture as Texture, startx +riSaved.x -ri.orix / fontScaleX , starty + riSaved.y -ri.oriy / fontScaleY , riSaved.w, riSaved.h, null, 1.0, ri.uv);
                 if (LayaEnv.isConch) {
-                    ctx._drawTextureM((<Texture>tex.texture), startx + riSaved.x - ri.orix, starty + riSaved.y - ri.oriy, riSaved.w, riSaved.h, null, 1.0, ri.uv);
+                    ctx._drawTextureM((<Texture>tex.texture), startx + riSaved.x - ri.orix, starty + riSaved.y - ri.oriy, riSaved.w, riSaved.h, null, 1.0, ri.uv, 0xffffffff, DrawTextureFlags.DEFAULT);
                 } else {
                     let t = tex as TextTexture;
                     ctx._inner_drawTexture(t.texture, t.id,
                         startx + riSaved.x - ri.orix, starty + riSaved.y - ri.oriy, riSaved.w, riSaved.h,
-                        mat, ri.uv, 1.0, isLastRender);
+                        mat, ri.uv, 1.0, isLastRender, 0xffffffff, DrawTextureFlags.DEFAULT);
                 }
 
                 if ((<any>ctx).touches) {

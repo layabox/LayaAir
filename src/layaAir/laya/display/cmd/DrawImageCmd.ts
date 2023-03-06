@@ -1,6 +1,7 @@
 import { Context } from "../../resource/Context"
 import { Texture } from "../../resource/Texture"
 import { Pool } from "../../utils/Pool"
+import { DrawTextureFlags } from '../../webgl/utils/MeshQuadTexture';
 
 /**
  * 绘制图片
@@ -29,8 +30,14 @@ export class DrawImageCmd {
      */
     height: number;
 
+    /** （可选）绘图颜色 */
+    color: number;
+
+    /** （可选）绘图颜色填充标记 */
+    flags: DrawTextureFlags;
+
     /**@private */
-    static create(texture: Texture, x: number, y: number, width: number, height: number): DrawImageCmd {
+    static create(texture: Texture, x: number, y: number, width: number, height: number, color: number, flags: DrawTextureFlags): DrawImageCmd {
         if (!width) width = texture.sourceWidth;
         if (!height) height = texture.sourceHeight;
         if (texture.bitmap) {
@@ -50,6 +57,8 @@ export class DrawImageCmd {
         cmd.y = y;
         cmd.width = width;
         cmd.height = height;
+        cmd.color = color;
+        cmd.flags = flags;
         return cmd;
     }
 
@@ -64,8 +73,9 @@ export class DrawImageCmd {
 
     /**@private */
     run(context: Context, gx: number, gy: number): void {
-        if (this.texture)
-            context.drawTexture(this.texture, this.x + gx, this.y + gy, this.width, this.height);
+        if (this.texture) {
+            context.drawTexture(this.texture, this.x + gx, this.y + gy, this.width, this.height, this.color, this.flags);
+        }
     }
 
     /**@private */
