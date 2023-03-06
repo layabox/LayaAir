@@ -180,8 +180,9 @@ uniform sampler2D u_LightMapDirection;
 
 vec3 DecodeDirectionalLightmap(in vec2 lightmapUV,in vec3 bakeColor,in vec3 normalWS)
 {
-    vec4 dirLightmap = texture2D(u_LightMapDirection,lightmapUV);
-    vec3 lightdir= normalize( dirTex.xyz - vec3(0.5)); //0-1  => -0.5-0.5
+   vec4 dirLightmap = texture2D(u_LightMapDirection,lightmapUV);
+    vec3 lightdir= normalize( dirLightmap.xyz - vec3(0.5)); //0-1  => -0.5-0.5
+    //根据法线计算半兰伯特
     float halfLambert =clamp(dot(normalWS,lightdir),0.0,1.0) * 0.5 + 0.5;
     return bakeColor*halfLambert/max(dirLightmap.w,0.001);
 }
