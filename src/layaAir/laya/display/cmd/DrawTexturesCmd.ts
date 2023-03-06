@@ -1,7 +1,6 @@
 import { Context } from "../../resource/Context"
 import { Texture } from "../../resource/Texture"
 import { Pool } from "../../utils/Pool"
-import { DrawTextureFlags } from '../../webgl/utils/MeshQuadTexture';
 
 /**
  * 根据坐标集合绘制多个贴图
@@ -21,17 +20,13 @@ export class DrawTexturesCmd {
     /** 附加顶点色 */
     colors: number[];
 
-    /** 绘制颜色填充模式标记 */
-    flags: DrawTextureFlags[];
-
     /**@private */
-    static create(texture: Texture, pos: any[], colors: number[], flags: number[]): DrawTexturesCmd {
+    static create(texture: Texture, pos: any[], colors: number[]): DrawTexturesCmd {
         var cmd: DrawTexturesCmd = Pool.getItemByClass("DrawTexturesCmd", DrawTexturesCmd);
         cmd.texture = texture;
         texture._addReference();
         cmd.pos = pos;
         cmd.colors = colors || [];
-        cmd.flags = flags || [];
         return cmd;
     }
 
@@ -47,7 +42,7 @@ export class DrawTexturesCmd {
 
     /**@private */
     run(context: Context, gx: number, gy: number): void {
-        context.drawTextures(this.texture, this.pos, gx, gy, this.colors, this.flags);
+        context.drawTextures(this.texture, this.pos, gx, gy, this.colors);
     }
 
     /**@private */

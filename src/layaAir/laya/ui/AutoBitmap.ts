@@ -24,6 +24,8 @@ export class AutoBitmap extends Graphics {
     _offset: any[];
     uv: number[] = null;
 
+    _color: string = "#ffffff";
+
     /**@private */
     private _drawGridCmd: Draw9GridTextureCmd | DrawTextureCmd;
 
@@ -96,6 +98,17 @@ export class AutoBitmap extends Graphics {
         }
     }
 
+    get color() {
+        return this._color;
+    }
+
+    set color(value: string) {
+        if (this._color != value) {
+            this._color = value;
+            this._setChanged();
+        }
+    }
+
     /** @private */
     protected _setChanged(): void {
         if (!this._isChanged) {
@@ -123,9 +136,9 @@ export class AutoBitmap extends Graphics {
         //如果没有设置9宫格，或大小未改变，则直接用原图绘制
         let cmd: any;
         if (!sizeGrid || (sw === width && sh === height))
-            cmd = DrawTextureCmd.create(source, this._offset ? this._offset[0] : 0, this._offset ? this._offset[1] : 0, width, height, null, 1, null, null, this.uv)
+            cmd = DrawTextureCmd.create(source, this._offset ? this._offset[0] : 0, this._offset ? this._offset[1] : 0, width, height, null, 1, this._color, null, this.uv)
         else
-            cmd = Draw9GridTextureCmd.create(source, 0, 0, width, height, sizeGrid);
+            cmd = Draw9GridTextureCmd.create(source, 0, 0, width, height, sizeGrid, false, this._color);
         this._setDrawGridCmd(cmd);
         this._repaint();
     }

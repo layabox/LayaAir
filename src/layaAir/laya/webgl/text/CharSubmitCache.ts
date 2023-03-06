@@ -5,7 +5,7 @@ import { Texture } from "../../resource/Texture"
 import { ShaderDefines2D } from "../shader/d2/ShaderDefines2D"
 import { Value2D } from "../shader/d2/value/Value2D"
 import { SubmitTexture } from "../submit/SubmitTexture"
-import { DrawTextureFlags, MeshQuadTexture } from "../utils/MeshQuadTexture"
+import { MeshQuadTexture } from "../utils/MeshQuadTexture"
 import { RenderInfo } from "../../renders/RenderInfo";
 /**
  * ...
@@ -93,7 +93,7 @@ export class CharSubmitCache {
         submit.clipInfoID = this._clipid;
 
         for (var i: number = 0; i < n; i += 3) {
-            _mesh.addQuad(this._data[i], this._data[i + 1], this._data[i + 2], DrawTextureFlags.DEFAULT);
+            _mesh.addQuad(this._data[i], this._data[i + 1], this._data[i + 2], true);
             CharSubmitCache.__posPool[CharSubmitCache.__nPosPool++] = this._data[i];
         }
 
