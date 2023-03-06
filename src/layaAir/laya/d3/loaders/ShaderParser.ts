@@ -188,7 +188,7 @@ export class ShaderParser {
                 return mat;
             case ShaderDataType.Texture2D:
                 let tex = Texture2D.whiteTexture;
-                if (data == "write")
+                if (data == "white")
                     tex = Texture2D.whiteTexture;
                 else if (data == "black")
                     tex = Texture2D.blackTexture;
@@ -199,7 +199,7 @@ export class ShaderParser {
                 return tex;
             case ShaderDataType.TextureCube:
                 let texcube = TextureCube.grayTexture;
-                if (data == "write")
+                if (data == "white")
                     texcube = TextureCube.whiteTexture;
                 else if (data == "black")
                     texcube = TextureCube.blackTexture;
