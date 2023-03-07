@@ -45,13 +45,12 @@ export class Accelerator extends EventDispatcher {
 
     constructor() {
         super();
-        this.onAddListener(Event.CHANGE);
         this.onDeviceOrientationChange = this.onDeviceOrientationChange.bind(this);
     }
-
-    protected onAddListener(type: string) {
+    protected onStartListeningToType(type: string) {
         if (type == Event.CHANGE)
             ILaya.Browser.window.addEventListener('devicemotion', this.onDeviceOrientationChange);
+        return this;
     }
 
     private onDeviceOrientationChange(e: any): void {
