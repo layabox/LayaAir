@@ -181,6 +181,11 @@ export class GLShaderInstance extends GLObject implements IRenderShaderInstance 
                 one.textureID = this._engine._glTextureIDParams[this._curActTexIndex++];
                 one.fun = this._uniform_sampler2D;
                 break;
+            case (<WebGL2RenderingContext>gl).SAMPLER_2D_ARRAY:
+                gl.uniform1i(one.location, this._curActTexIndex);
+                one.textureID = this._engine._glTextureIDParams[this._curActTexIndex++];
+                one.fun = this._uniform_sampler2DArray;
+                break;
             case 0x8b5f://sampler3D
                 gl.uniform1i(one.location, this._curActTexIndex);
                 one.textureID = this._engine._glTextureIDParams[this._curActTexIndex++];
@@ -449,6 +454,12 @@ export class GLShaderInstance extends GLObject implements IRenderShaderInstance 
         var value: any = texture._getSource() || texture.defaultTexture._getSource();
         var gl: WebGLRenderingContext = this._gl;
         this._bindTexture(one.textureID, gl.TEXTURE_2D, value);
+        return 0;
+    }
+
+    _uniform_sampler2DArray(one: any, texture: BaseTexture): number {
+        let value = texture._getSource() || texture.defaultTexture._getSource();
+        this._bindTexture(one.textureID, WebGL2RenderingContext.TEXTURE_2D_ARRAY, value)
         return 0;
     }
 

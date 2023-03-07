@@ -19,4 +19,5 @@ export enum RenderCapable{
     MSAA,//MSAA
     UnifromBufferObject,
     GRAPHICS_API_GLES3,//TODO 感觉不太合适
+    Texture3D
 }

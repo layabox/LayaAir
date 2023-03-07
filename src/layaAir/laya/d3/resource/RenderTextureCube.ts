@@ -8,6 +8,9 @@ import { RenderTexture } from "../../resource/RenderTexture";
  */
 export class RenderTextureCube extends RenderTexture {
 
+    /**
+     * +x, -x, +y, -y, +z, -z
+     */
     faceIndex: number;
 
     /**

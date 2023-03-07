@@ -1,4 +1,5 @@
 import { FilterMode } from "../../RenderEnum/FilterMode";
+import { RenderCapable } from "../../RenderEnum/RenderCapable";
 import { RenderStatisticsInfo } from "../../RenderEnum/RenderStatInfo";
 import { TextureCompareMode } from "../../RenderEnum/TextureCompareMode";
 import { TextureDimension } from "../../RenderEnum/TextureDimension";
@@ -48,11 +49,11 @@ export class WebGLInternalTex extends GLObject implements InternalTexture {
         return this._gpuMemory;
     }
     set gpuMemory(value: number) {
-        this._engine._addStatisticsInfo(RenderStatisticsInfo.GPUMemory,-this._gpuMemory);
-        this._engine._addStatisticsInfo(RenderStatisticsInfo.TextureMemeory,-this._gpuMemory);
+        this._engine._addStatisticsInfo(RenderStatisticsInfo.GPUMemory, -this._gpuMemory);
+        this._engine._addStatisticsInfo(RenderStatisticsInfo.TextureMemeory, -this._gpuMemory);
         this._gpuMemory = value;
-        this._engine._addStatisticsInfo(RenderStatisticsInfo.GPUMemory,this._gpuMemory);
-        this._engine._addStatisticsInfo(RenderStatisticsInfo.TextureMemeory,this._gpuMemory);
+        this._engine._addStatisticsInfo(RenderStatisticsInfo.GPUMemory, this._gpuMemory);
+        this._engine._addStatisticsInfo(RenderStatisticsInfo.TextureMemeory, this._gpuMemory);
     }
 
     constructor(engine: WebGLEngine, target: number, width: number, height: number, dimension: TextureDimension, mipmap: boolean, useSRGBLoader: boolean, gammaCorrection: number) {
@@ -86,10 +87,11 @@ export class WebGLInternalTex extends GLObject implements InternalTexture {
 
         this.filterMode = FilterMode.Bilinear;
         this.wrapU = WrapMode.Repeat;
-        // todo
         this.wrapV = WrapMode.Repeat;
         this.wrapW = WrapMode.Repeat;
         this.anisoLevel = 4;
+
+        this.compareMode = TextureCompareMode.None;
     }
 
     private _filterMode: FilterMode;
@@ -123,7 +125,7 @@ export class WebGLInternalTex extends GLObject implements InternalTexture {
     }
 
     private _warpV: WrapMode;
-    
+
     public get wrapV(): WrapMode {
         return this._warpV;
     }
@@ -142,9 +144,14 @@ export class WebGLInternalTex extends GLObject implements InternalTexture {
         return this._warpW;
     }
     public set wrapW(value: WrapMode) {
-        // todo
-        // webgl1 unsupported 
-        this._warpW = value;
+        if (this._warpW != value && this.resource) {
+            if (this._engine.getCapable(RenderCapable.Texture3D)) {
+                let gl = <WebGL2RenderingContext>this._gl;
+                let warpParam = this.getWrapParam(value);
+                this._setWrapMode(gl.TEXTURE_WRAP_R, warpParam);
+            }
+            this._warpW = value;
+        }
     }
 
     private _anisoLevel: number;
@@ -266,8 +273,8 @@ export class WebGLInternalTex extends GLObject implements InternalTexture {
     dispose(): void {
         let gl = this._gl;
         gl.deleteTexture(this.resource);
-        this._engine._addStatisticsInfo(RenderStatisticsInfo.GPUMemory,-this._gpuMemory);
-        this._engine._addStatisticsInfo(RenderStatisticsInfo.TextureMemeory,-this._gpuMemory);
+        this._engine._addStatisticsInfo(RenderStatisticsInfo.GPUMemory, -this._gpuMemory);
+        this._engine._addStatisticsInfo(RenderStatisticsInfo.TextureMemeory, -this._gpuMemory);
         this._gpuMemory = 0;
     }
 }

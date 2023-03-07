@@ -23,8 +23,8 @@ export class NativeGLTextureContext extends NativeGLObject implements ITextureCo
         this._native = native;
     }
 
-    createTextureInternal(dimension: TextureDimension, width: number, height: number, format: TextureFormat, gengerateMipmap: boolean, sRGB: boolean): InternalTexture {
-        return this._native.createTextureInternal(dimension, width, height, format, gengerateMipmap, sRGB);
+    createTextureInternal(dimension: TextureDimension, width: number, height: number, format: TextureFormat, generateMipmap: boolean, sRGB: boolean): InternalTexture {
+        return this._native.createTextureInternal(dimension, width, height, format, generateMipmap, sRGB);
     }
 
     setTextureImageData(texture: InternalTexture, source: HTMLImageElement | HTMLCanvasElement | ImageBitmap, premultiplyAlpha: boolean, invertY: boolean) {
@@ -43,7 +43,7 @@ export class NativeGLTextureContext extends NativeGLObject implements ITextureCo
         this._native.setTextureSubPixelsData(texture, source, mipmapLevel, generateMipmap, xOffset, yOffset, width, height, premultiplyAlpha, invertY);
     }
 
-    setTexturebySubImageData(texture: InternalTexture, source: HTMLImageElement | HTMLCanvasElement | ImageBitmap, x: number, y: number, premultiplyAlpha: boolean, invertY: boolean): void{
+    setTextureSubImageData(texture: InternalTexture, source: HTMLImageElement | HTMLCanvasElement | ImageBitmap, x: number, y: number, premultiplyAlpha: boolean, invertY: boolean): void{
         //TODO
     }
 

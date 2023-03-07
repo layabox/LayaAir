@@ -125,9 +125,11 @@ export class ShaderPass extends ShaderCompileDefineBase {
 #if defined(GL_FRAGMENT_PRECISION_HIGH)
     precision highp float;
     precision highp int;
+    precision highp sampler2DArray;
 #else
     precision mediump float;
     precision mediump int;
+    precision mediump sampler2DArray;
 #endif
 layout(std140, column_major) uniform;
 #define attribute in
@@ -143,9 +145,11 @@ ${uniformglsl}
 #if defined(GL_FRAGMENT_PRECISION_HIGH)
     precision highp float;
     precision highp int;
+    precision highp sampler2DArray;
 #else
     precision mediump float;
     precision mediump int;
+    precision mediump sampler2DArray;
 #endif
 layout(std140, column_major) uniform;
 #define varying in

@@ -10,11 +10,14 @@ import { TextureCompareMode } from "../../RenderEnum/TextureCompareMode";
 import { TextureFormat } from "../../RenderEnum/TextureFormat";
 import { KTXTextureInfo } from "../../KTXTextureInfo";
 import { RenderCapable } from "../../RenderEnum/RenderCapable";
+import { InternalTexture } from "../../RenderInterface/InternalTexture";
 
 /**
  * 将继承修改为类似 WebGLRenderingContextBase, WebGLRenderingContextOverloads 多继承 ?
  */
 export class GL2TextureContext extends GLTextureContext {
+
+    declare protected _gl: WebGL2RenderingContext;
 
     constructor(engine: WebGLEngine) {
         super(engine);
@@ -30,10 +33,10 @@ export class GL2TextureContext extends GLTextureContext {
                 target = this._gl.TEXTURE_2D;
                 break;
             case TextureDimension.Texture2DArray:
-                target = (<WebGL2RenderingContext>this._gl).TEXTURE_2D_ARRAY;
+                target = this._gl.TEXTURE_2D_ARRAY;
                 break;
             case TextureDimension.Tex3D:
-                target = (<WebGL2RenderingContext>this._gl).TEXTURE_3D;
+                target = this._gl.TEXTURE_3D;
                 break;
             default:
                 throw "Unknow Texture Target";
@@ -42,7 +45,7 @@ export class GL2TextureContext extends GLTextureContext {
     }
 
     glTextureParam(format: TextureFormat, useSRGB: boolean) {
-        let gl = <WebGL2RenderingContext>this._gl;
+        let gl = this._gl;
         this._glParam.internalFormat = null;
         this._glParam.format = null;
         this._glParam.type = null;
@@ -180,7 +183,7 @@ export class GL2TextureContext extends GLTextureContext {
     }
 
     glRenderBufferParam(format: RenderTargetFormat, useSRGB: boolean): { internalFormat: number; attachment: number; } {
-        let gl = <WebGL2RenderingContext>this._gl;
+        let gl = this._gl;
         switch (format) {
             case RenderTargetFormat.DEPTH_16:
                 return { internalFormat: gl.DEPTH_COMPONENT16, attachment: gl.DEPTH_ATTACHMENT };
@@ -208,7 +211,7 @@ export class GL2TextureContext extends GLTextureContext {
     }
 
     glRenderTextureParam(format: RenderTargetFormat, useSRGB: boolean) {
-        let gl = <WebGL2RenderingContext>this._gl;
+        let gl = this._gl;
         this._glParam.internalFormat = null;
         this._glParam.format = null;
         this._glParam.type = null;
@@ -262,14 +265,14 @@ export class GL2TextureContext extends GLTextureContext {
             case RenderTargetFormat.STENCIL_8:
                 break;
             default:
-                throw "depht texture format wrong."
+                throw "depth texture format wrong."
         }
 
         return this._glParam;
     }
 
-    getGLtexMemory(tex: WebGLInternalTex): number {
-        let gl = <WebGL2RenderingContext>this._gl;
+    getGLtexMemory(tex: WebGLInternalTex, depth: number = 1): number {
+        let gl = this._gl;
         let channels = 0;
         let singlebyte = 0;
         let bytelength = 0;
@@ -316,6 +319,8 @@ export class GL2TextureContext extends GLTextureContext {
             bytelength *= 6;
         else if (tex.target == gl.TEXTURE_2D)
             bytelength *= 1;
+        else if (tex.target == gl.TEXTURE_2D_ARRAY)
+            bytelength *= depth;
         return bytelength;
     }
 
@@ -350,7 +355,7 @@ export class GL2TextureContext extends GLTextureContext {
         let height = texture.height;
         let mipmapCount = texture.mipmapCount;
 
-        let gl = <WebGL2RenderingContext>this._gl;
+        let gl = this._gl;
         premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
         invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 
@@ -369,7 +374,7 @@ export class GL2TextureContext extends GLTextureContext {
         invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
     }
 
-    setTexturebySubImageData(texture: WebGLInternalTex, source: HTMLImageElement | HTMLCanvasElement | ImageBitmap, x: number, y: number, premultiplyAlpha: boolean, invertY: boolean) {
+    setTextureSubImageData(texture: WebGLInternalTex, source: HTMLImageElement | HTMLCanvasElement | ImageBitmap, x: number, y: number, premultiplyAlpha: boolean, invertY: boolean) {
         let target = texture.target;
         let internalFormat = texture.internalFormat;
         let format = texture.format;
@@ -378,7 +383,7 @@ export class GL2TextureContext extends GLTextureContext {
         let height = texture.height;
         let mipmapCount = texture.mipmapCount;
 
-        let gl = <WebGL2RenderingContext>this._gl;
+        let gl = this._gl;
         premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
         invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 
@@ -408,7 +413,7 @@ export class GL2TextureContext extends GLTextureContext {
         let mipmapCount = texture.mipmapCount;
 
         let fourSize = width % 4 == 0 && height % 4 == 0;
-        let gl = <WebGL2RenderingContext>this._gl;
+        let gl = this._gl;
         premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
         invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
         fourSize || gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
@@ -421,6 +426,97 @@ export class GL2TextureContext extends GLTextureContext {
             if (texture.mipmap) {
                 gl.generateMipmap(texture.target);
             }
+        }
+        this._engine._bindTexture(texture.target, null);
+
+        premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+        invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+        fourSize || gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);
+    }
+
+    setTexture3DImageData(texture: WebGLInternalTex, sources: HTMLImageElement[] | HTMLCanvasElement[] | ImageBitmap[], depth: number, premultiplyAlpha: boolean, invertY: boolean) {
+        let target = texture.target;
+        let internalFormat = texture.internalFormat;
+        let format = texture.format;
+        let type = texture.type;
+        let width = texture.width;
+        let height = texture.height;
+        let mipmapCount = texture.mipmapCount;
+
+        let gl = this._gl;
+        premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+        invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+
+        this._engine._bindTexture(texture.target, texture.resource);
+
+        gl.texStorage3D(target, mipmapCount, internalFormat, width, height, depth);
+        texture.gpuMemory = this.getGLtexMemory(texture, depth);
+        for (let index = 0; index < depth; index++) {
+            gl.texSubImage3D(target, 0, 0, 0, index, width, height, 1, format, type, sources[index]);
+        }
+        texture.gpuMemory = this.getGLtexMemory(texture);
+        if (texture.mipmap) {
+            gl.generateMipmap(texture.target);
+        }
+
+        this._engine._bindTexture(texture.target, null);
+
+        premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+        invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+    }
+
+    setTexture3DPixlesData(texture: WebGLInternalTex, source: ArrayBufferView, depth: number, premultiplyAlpha: boolean, invertY: boolean) {
+        let target = texture.target;
+        let internalFormat = texture.internalFormat;
+        let format = texture.format;
+        let type = texture.type;
+        let width = texture.width;
+        let height = texture.height;
+        let mipmapCount = texture.mipmapCount;
+
+        let fourSize = width % 4 == 0 && height % 4 == 0;
+        let gl = this._gl;
+        premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+        invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+        fourSize || gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+
+        this._engine._bindTexture(texture.target, texture.resource);
+        gl.texStorage3D(target, mipmapCount, internalFormat, width, height, depth);
+        texture.gpuMemory = this.getGLtexMemory(texture, depth);
+        if (source) {
+            gl.texSubImage3D(target, 0, 0, 0, 0, width, height, depth, format, type, source);
+            if (texture.mipmap) {
+                gl.generateMipmap(texture.target);
+            }
+        }
+        this._engine._bindTexture(texture.target, null);
+
+        premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+        invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+        fourSize || gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);
+    }
+
+    setTexture3DSubPixelsData(texture: WebGLInternalTex, source: ArrayBufferView, mipmapLevel: number, generateMipmap: boolean, xOffset: number, yOffset: number, zOffset: number, width: number, height: number, depth: number, premultiplyAlpha: boolean, invertY: boolean) {
+        generateMipmap = generateMipmap && mipmapLevel == 0;
+
+        let target = texture.target;
+        let internalFormat = texture.internalFormat;
+        let format = texture.format;
+        let type = texture.type;
+
+        let fourSize = width % 4 == 0 && height % 4 == 0;
+
+        let gl = this._gl;
+        premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+        invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+        fourSize || gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+
+        this._engine._bindTexture(texture.target, texture.resource);
+
+        gl.texSubImage3D(target, mipmapLevel, xOffset, yOffset, zOffset, width, height, depth, format, type, source);
+
+        if (texture.mipmap && generateMipmap) {
+            gl.generateMipmap(texture.target);
         }
         this._engine._bindTexture(texture.target, null);
 
@@ -454,7 +550,7 @@ export class GL2TextureContext extends GLTextureContext {
         let compressed = ktxInfo.compress;
         let fourSize = width % 4 == 0 && height % 4 == 0;
 
-        let gl = <WebGL2RenderingContext>this._gl;
+        let gl = this._gl;
         premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
         invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
         fourSize || gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
@@ -503,7 +599,7 @@ export class GL2TextureContext extends GLTextureContext {
     }
 
     setCubeImageData(texture: WebGLInternalTex, sources: (HTMLImageElement | HTMLCanvasElement | ImageBitmap)[], premultiplyAlpha: boolean, invertY: boolean): void {
-        let gl = <WebGL2RenderingContext>this._gl;
+        let gl = this._gl;
 
         const cubeFace = [
             gl.TEXTURE_CUBE_MAP_POSITIVE_Z, // back
@@ -546,7 +642,7 @@ export class GL2TextureContext extends GLTextureContext {
     }
 
     setCubePixelsData(texture: WebGLInternalTex, source: ArrayBufferView[], premultiplyAlpha: boolean, invertY: boolean): void {
-        let gl = <WebGL2RenderingContext>this._gl;
+        let gl = this._gl;
 
         const cubeFace = [
             gl.TEXTURE_CUBE_MAP_POSITIVE_Z, // back
@@ -595,7 +691,7 @@ export class GL2TextureContext extends GLTextureContext {
         let premultiplyAlpha = false;
         let invertY = false;
 
-        let gl = <WebGL2RenderingContext>this._gl;
+        let gl = this._gl;
 
         // ktx 标准顺序
         const cubeFace = [
@@ -687,7 +783,7 @@ export class GL2TextureContext extends GLTextureContext {
         let premultiplyAlpha = false;
         let invertY = false;
 
-        let gl = <WebGL2RenderingContext>this._gl;
+        let gl = this._gl;
 
         // ktx 标准顺序
         const cubeFace = [
@@ -759,7 +855,7 @@ export class GL2TextureContext extends GLTextureContext {
     }
 
     setTextureCompareMode(texture: WebGLInternalTex, compareMode: TextureCompareMode): TextureCompareMode {
-        let gl = <WebGL2RenderingContext>this._gl;
+        let gl = this._gl;
         switch (compareMode) {
             case TextureCompareMode.LEQUAL:
                 texture._setTexParameteri(gl.TEXTURE_COMPARE_FUNC, gl.LEQUAL);
@@ -805,7 +901,7 @@ export class GL2TextureContext extends GLTextureContext {
 
     createRenderbuffer(width: number, height: number, internalFormat: number, samples: number): WebGLRenderbuffer {
         // todo  多个 gl
-        let gl = <WebGL2RenderingContext>this._gl;
+        let gl = this._gl;
 
         let renderbuffer = gl.createRenderbuffer();
         gl.bindRenderbuffer(gl.RENDERBUFFER, renderbuffer);
@@ -847,7 +943,7 @@ export class GL2TextureContext extends GLTextureContext {
         let glFormat = internalTex.format;
         let type = internalTex.type;
 
-        let gl = <WebGL2RenderingContext>internalTex._gl;
+        let gl = this._gl;
 
         this._engine._bindTexture(internalTex.target, internalTex.resource);
 
@@ -984,7 +1080,7 @@ export class GL2TextureContext extends GLTextureContext {
         let glFormat = internalTex.format;
         let type = internalTex.type;
 
-        let gl = <WebGL2RenderingContext>internalTex._gl;
+        let gl = this._gl;
 
         this._engine._bindTexture(internalTex.target, internalTex.resource);
 
@@ -997,7 +1093,7 @@ export class GL2TextureContext extends GLTextureContext {
     }
 
     bindRenderTarget(renderTarget: WebGLInternalRT, faceIndex: number = 0): void {
-        let gl = <WebGL2RenderingContext>renderTarget._gl;
+        let gl = this._gl;
 
         if (renderTarget._isCube) {
             let framebuffer = renderTarget._framebuffer;
@@ -1017,7 +1113,7 @@ export class GL2TextureContext extends GLTextureContext {
     }
 
     unbindRenderTarget(renderTarget: WebGLInternalRT): void {
-        let gl = <WebGL2RenderingContext>renderTarget._gl;
+        let gl = this._gl;
         if (renderTarget._samples > 1) {
 
             gl.bindFramebuffer(gl.READ_FRAMEBUFFER, renderTarget._msaaFramebuffer);

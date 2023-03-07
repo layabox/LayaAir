@@ -280,8 +280,8 @@ export class Texture2D extends BaseTexture {
     /**
      * 设置Image数据
      * @param source Image原始数据
-     * @param premultiplyAlpha 是否预乘法
-     * @param invertY 
+     * @param premultiplyAlpha 是否预乘 alpha
+     * @param invertY 是否反转图像 Y 轴
      */
     setImageData(source: HTMLImageElement | HTMLCanvasElement | ImageBitmap, premultiplyAlpha: boolean, invertY: boolean) {
         let texture = this._texture;
@@ -290,9 +290,9 @@ export class Texture2D extends BaseTexture {
 
     /**
      * 设置像素数据
-     * @param source 
-     * @param premultiplyAlpha 
-     * @param invertY 
+     * @param source 像素数据
+     * @param premultiplyAlpha 是否预乘 alpha
+     * @param invertY 是否反转图像 Y 轴
      */
     setPixelsData(source: ArrayBufferView, premultiplyAlpha: boolean, invertY: boolean) {
         let texture = this._texture;

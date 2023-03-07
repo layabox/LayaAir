@@ -363,7 +363,7 @@ export class GLTextureContext extends GLObject implements ITextureContext {
      * @param tex 
      * @returns 
      */
-    getGLtexMemory(tex: WebGLInternalTex): number {
+    getGLtexMemory(tex: WebGLInternalTex, depth: number = 1): number {
         let gl = this._gl;
         let channels = 0;
         let singlebyte = 0;
@@ -534,12 +534,12 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         }
     }
 
-    createTextureInternal(dimension: TextureDimension, width: number, height: number, format: TextureFormat, gengerateMipmap: boolean, sRGB: boolean): InternalTexture {
+    createTextureInternal(dimension: TextureDimension, width: number, height: number, format: TextureFormat, generateMipmap: boolean, sRGB: boolean): InternalTexture {
 
         // todo  一些format 不支持自动生成mipmap
 
         // todo  这个判断, 若纹理本身格式不支持？
-        let useSRGBExt = this.isSRGBFormat(format) || (sRGB && this.supportSRGB(format, gengerateMipmap));
+        let useSRGBExt = this.isSRGBFormat(format) || (sRGB && this.supportSRGB(format, generateMipmap));
 
         let gammaCorrection = 1.0;
         if (!useSRGBExt && sRGB) {
@@ -548,7 +548,7 @@ export class GLTextureContext extends GLObject implements ITextureContext {
 
         // let dimension = TextureDimension.Tex2D;
         let target = this.getTarget(dimension);
-        let internalTex = new WebGLInternalTex(this._engine, target, width, height, dimension, gengerateMipmap, useSRGBExt, gammaCorrection);
+        let internalTex = new WebGLInternalTex(this._engine, target, width, height, dimension, generateMipmap, useSRGBExt, gammaCorrection);
 
         let glParam = this.glTextureParam(format, useSRGBExt);
 
@@ -557,7 +557,7 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         internalTex.type = glParam.type;
 
         //Resource:
-        //internalTex.gpuMemory = this.getGLtexMemory(format, width, height, dimension, gengerateMipmap);
+        //internalTex.gpuMemory = this.getGLtexMemory(format, width, height, dimension, generateMipmap);
 
         return internalTex;
     }
@@ -600,7 +600,7 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
     }
 
-    setTexturebySubImageData(texture: WebGLInternalTex, source: HTMLImageElement | HTMLCanvasElement | ImageBitmap, x: number, y: number, premultiplyAlpha: boolean, invertY: boolean) {
+    setTextureSubImageData(texture: WebGLInternalTex, source: HTMLImageElement | HTMLCanvasElement | ImageBitmap, x: number, y: number, premultiplyAlpha: boolean, invertY: boolean) {
 
         let target = texture.target;
         let internalFormat = texture.internalFormat;
@@ -695,8 +695,6 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         let internalFormat = texture.internalFormat;
         let format = texture.format;
         let type = texture.type;
-        // let width = texture.width;
-        // let height = texture.height;
 
         let fourSize = width % 4 == 0 && height % 4 == 0;
 
@@ -1293,7 +1291,7 @@ export class GLTextureContext extends GLObject implements ITextureContext {
     createRenderTargetCubeInternal(size: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number): WebGLInternalRT {
         multiSamples = 1;
 
-        // let texture = this.createRenderTextureInternal(dimension, size, size, colorFormat, gengerateMipmap, sRGB);
+        // let texture = this.createRenderTextureInternal(dimension, size, size, colorFormat, generateMipmap, sRGB);
         let texture = this.createRenderTextureCubeInternal(TextureDimension.Cube, size, colorFormat, generateMipmap, sRGB);
 
         let renderTarget = new WebGLInternalRT(this._engine, colorFormat, depthStencilFormat, true, texture.mipmap, multiSamples);
