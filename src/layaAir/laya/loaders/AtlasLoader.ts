@@ -55,11 +55,13 @@ class AtlasLoader implements IResourceLoader {
                         continue;
 
                     let url = baseUrl + directory + name;
-                    let tTexture = Texture.create(tPic, obj.frame.x, obj.frame.y, obj.frame.w, obj.frame.h, obj.spriteSourceSize.x, obj.spriteSourceSize.y, obj.sourceSize.w, obj.sourceSize.h);
-                    tTexture.lock = true;
-                    task.loader.cacheRes(url, tTexture);
-                    tTexture.url = url;
-                    subTextures.push(tTexture);
+                    let tt = Texture.create(tPic, obj.frame.x, obj.frame.y, obj.frame.w, obj.frame.h, obj.spriteSourceSize.x, obj.spriteSourceSize.y, obj.sourceSize.w, obj.sourceSize.h);
+                    tt.lock = true;
+                    tt._sizeGrid = obj.sizeGrid;
+                    tt._stateNum = obj.stateNum;
+                    task.loader.cacheRes(url, tt);
+                    tt.url = url;
+                    subTextures.push(tt);
                 }
 
                 return new AtlasResource(directory, pics, subTextures);

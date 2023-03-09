@@ -67,13 +67,14 @@ export class Draw9GridTextureCmd {
     /**@private */
     run(context: Context, gx: number, gy: number): void {
         if (this.texture) {
+            let sizeGrid = this.sizeGrid || this.texture._sizeGrid || EMPTY_SIZE_GRID;
             if (this.percent && context.sprite) {
                 let w = context.sprite.width;
                 let h = context.sprite.height;
-                context.drawTextureWithSizeGrid(this.texture, this.x * w, this.y * h, this.width * w, this.height * h, this.sizeGrid || EMPTY_SIZE_GRID, gx, gy, this.color);
+                context.drawTextureWithSizeGrid(this.texture, this.x * w, this.y * h, this.width * w, this.height * h, sizeGrid, gx, gy, this.color);
             }
             else
-                context.drawTextureWithSizeGrid(this.texture, this.x, this.y, this.width, this.height, this.sizeGrid || EMPTY_SIZE_GRID, gx, gy, this.color);
+                context.drawTextureWithSizeGrid(this.texture, this.x, this.y, this.width, this.height, sizeGrid, gx, gy, this.color);
         }
     }
 

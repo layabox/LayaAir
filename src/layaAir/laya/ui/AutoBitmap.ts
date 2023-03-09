@@ -3,6 +3,7 @@ import { Texture } from "../resource/Texture"
 import { ILaya } from "../../ILaya";
 import { Draw9GridTextureCmd } from "../display/cmd/Draw9GridTextureCmd";
 import { DrawTextureCmd } from "../display/cmd/DrawTextureCmd";
+import { LayaEnv } from "../../LayaEnv";
 
 /**
  * <code>AutoBitmap</code> 类是用于表示位图图像或绘制图形的显示对象。
@@ -20,6 +21,9 @@ export class AutoBitmap extends Graphics {
     /**@private */
     protected _isChanged: boolean;
 
+    protected _stateIndex: number;
+    protected _stateNum: number;
+
     /**@internal */
     _offset: any[];
     uv: number[] = null;
@@ -34,6 +38,8 @@ export class AutoBitmap extends Graphics {
     */
     destroy(): void {
         super.destroy();
+        if (this._source && !LayaEnv.isPlaying)
+            this._source.off("reload", this, this._setChanged);
         this._source = null;
         this._sizeGrid = null;
         this._offset = null;
@@ -82,20 +88,29 @@ export class AutoBitmap extends Graphics {
 
     /**
      * 对象的纹理资源。
-     * @see laya.resource.Texture
      */
     get source(): Texture {
         return this._source;
     }
 
     set source(value: Texture) {
+        if (this._source && !LayaEnv.isPlaying)
+            this._source.off("reload", this, this._setChanged);
         if (value) {
             this._source = value;
             this._setChanged();
+            if (!LayaEnv.isPlaying)
+                value.on("reload", this, this._setChanged);
         } else {
             this._source = null;
             this._setDrawGridCmd(null);
         }
+    }
+
+    setState(index: number, numStates: number) {
+        this._stateIndex = index;
+        this._stateNum = numStates;
+        this._setChanged();
     }
 
     get color() {
@@ -124,12 +139,34 @@ export class AutoBitmap extends Graphics {
     protected changeSource(): void {
         this._isChanged = false;
         let source = this._source;
-        if (!source || !source.bitmap)
+        if (!source || !source.bitmap || !this._sp)
             return;
 
         let width = this.width;
         let height = this.height;
-        let sizeGrid = this._sizeGrid;
+        let sizeGrid = this._sizeGrid || source._sizeGrid;
+        let stateIndex = this._stateIndex;
+        if (stateIndex != null) {
+            let stateNum = source._stateNum || this._stateNum || 1;
+            if (stateNum == 1)
+                stateIndex = 0;
+            else if (stateNum == 2) {
+                if (stateIndex == 2)
+                    stateIndex = 1;
+                else
+                    stateIndex = 0;
+            }
+            else if (stateNum == 3) {
+                if (stateIndex == 3)
+                    stateIndex = 0;
+            }
+
+            let h = source.height / stateNum;
+            source = source.getCachedClip(0, h * stateIndex, source.width, h)
+            if (!source)
+                return;
+        }
+
         let sw = source.sourceWidth;
         let sh = source.sourceHeight;
 

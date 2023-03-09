@@ -251,15 +251,6 @@ export class ComboBox extends UIComponent {
         }
     }
 
-    get skins(): string[] {
-        return this._button.skins;
-    }
-
-    set skins(value: string[]) {
-        this._button.skins = value;
-        this._listChanged = true;
-    }
-
     /**
      * @inheritDoc 
      * @override

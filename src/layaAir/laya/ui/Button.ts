@@ -187,7 +187,7 @@ export class Button extends UIComponent implements ISelect {
      */
     protected _selected: boolean;
 
-    protected _skins: string[];
+    protected _skin: string;
 
     /**
      * @private
@@ -199,11 +199,6 @@ export class Button extends UIComponent implements ISelect {
      * 按钮的状态数。
      */
     protected _stateNum: number;
-    /**
-     * @private
-     * 源数据。
-     */
-    protected _sources: Texture[];
     /**
      * @private
      * 按钮的点击事件函数。
@@ -223,8 +218,6 @@ export class Button extends UIComponent implements ISelect {
      */
     constructor(skin: string = null, label: string = "") {
         super();
-        this._skins = [];
-        this._sources = [];
         this._labelColors = Styles.buttonLabelColors;
         this._stateNum = Styles.buttonStateNum;
 
@@ -242,7 +235,7 @@ export class Button extends UIComponent implements ISelect {
         this._text && this._text.destroy(destroyChild);
         this._text = null;
         this._clickHandler = null;
-        this._labelColors = this._sources = this._strokeColors = null;
+        this._labelColors = this._strokeColors = null;
     }
 
     /**
@@ -303,58 +296,28 @@ export class Button extends UIComponent implements ISelect {
      * @see #stateNum
      */
     get skin(): string {
-        return this._skins[0];
+        return this._skin;
     }
 
     set skin(value: string) {
-        if (value && this._skins.length == 1 && this._skins[0] == value || !value && this._skins.length == 0)
+        if (this._skin == value)
             return;
 
-        this._skins.length = 0;
+        this._skin = value;
         if (value) {
             let url = this._skinBaseUrl ? URL.formatURL(value, this._skinBaseUrl) : value;
-
-            this._skins.push(value);
-            if (!Loader.getRes(url))
+            let tex = Loader.getRes(url);
+            if (!tex)
                 ILaya.loader.load(url, Handler.create(this, this._skinLoaded), null, Loader.IMAGE);
             else
-                this._skinLoaded();
+                this._skinLoaded(tex);
         }
         else
-            this._skinLoaded();
+            this._skinLoaded(null);
     }
 
-    /**
-     * <p>对象的皮肤资源地址。数组可以为1、2、3个元素，分别表达单态，两态和三态。</p>
-     */
-    get skins(): string[] {
-        return this._skins;
-    }
-
-    set skins(value: string[]) {
-        if (value == null)
-            this.skins.length == 0;
-        else
-            this._skins = value;
-        if (this._skins.length > 0) {
-            let toLoad: Array<any>;
-            for (let skin of this._skins) {
-                let url = this._skinBaseUrl ? URL.formatURL(skin, this._skinBaseUrl) : skin;
-                if (!Loader.getRes(skin)) {
-                    if (!toLoad) toLoad = [];
-                    toLoad.push(url);
-                }
-            }
-            if (!toLoad)
-                this._skinLoaded();
-            else
-                ILaya.loader.load(toLoad, Loader.IMAGE).then(() => this._skinLoaded());
-        }
-        else
-            this._skinLoaded();
-    }
-
-    protected _skinLoaded(): void {
+    protected _skinLoaded(tex: any): void {
+        this._graphics.source = tex;
         this.callLater(this.changeClips);
         this._setStateChanged();
         this._sizeChanged();
@@ -385,7 +348,8 @@ export class Button extends UIComponent implements ISelect {
         }
         if (this._stateNum != value) {
             this._stateNum = value < 1 ? 1 : value > 3 ? 3 : value;
-            if (this._skins.length > 0) {
+            this._graphics.setState(this._state, this._stateNum);
+            if (this._skin) {
                 this.callLater(this.changeClips);
                 this._setStateChanged();
             }
@@ -397,38 +361,16 @@ export class Button extends UIComponent implements ISelect {
      * 对象的资源切片发生改变。
      */
     protected changeClips(): void {
-        this._sources.length = 0;
         let width: number = 0, height: number = 0;
 
-        if (this._skins.length == 1) {
-            let img: Texture = Loader.getRes(this._skins[0]);
-            if (!img) {
-                console.log(`lose skin ${this._skins[0]}`);
-                return;
-            }
-
-            width = img.sourceWidth;
-            height = img.sourceHeight / this._stateNum;
-
-            if (this._stateNum === 1) {
-                this._sources.push(img);
-            } else {
-                for (let i = 0; i < this._stateNum; i++) {
-                    this._sources.push(img.getCachedClip(0, height * i, width, height));
-                }
-            }
+        let img: Texture = Loader.getRes(this._skin);
+        if (!img) {
+            console.log(`lose skin ${this._skin}`);
+            return;
         }
-        else {
-            this._sources.length = 0;
-            for (let skin of this._skins) {
-                let img: Texture = Loader.getRes(skin);
-                if (img) {
-                    width = Math.max(width, img.sourceWidth);
-                    height = Math.max(height, img.sourceHeight);
-                    this._sources.push(img);
-                }
-            }
-        }
+
+        width = img.sourceWidth;
+        height = img.sourceHeight / (img._stateNum || this._stateNum);
 
         if (this._autoSize) {
             this._graphics.width = this._width || width;
@@ -447,7 +389,7 @@ export class Button extends UIComponent implements ISelect {
      * @override
      */
     protected measureWidth(): number {
-        if (this._skins.length > 0)
+        if (this._skin)
             this.runCallLater(this.changeClips);
         if (this._autoSize) return this._graphics.width;
         this.runCallLater(this.changeState);
@@ -459,7 +401,7 @@ export class Button extends UIComponent implements ISelect {
      * @override
      */
     protected measureHeight(): number {
-        if (this._skins.length > 0)
+        if (this._skin)
             this.runCallLater(this.changeClips);
         return this._text ? Math.max(this._graphics.height, this._text.height) : this._graphics.height;
     }
@@ -519,13 +461,11 @@ export class Button extends UIComponent implements ISelect {
      */
     protected changeState(): void {
         this._stateChanged = false;
-        if (this._skins.length > 0)
+        if (this._skin)
             this.runCallLater(this.changeClips);
-        let index = this._state < this._sources.length ? this._state : this._sources.length - 1;
-        this._graphics.source = this._sources[index];
+        let index = Math.max(this._state, 0);
+        this._graphics.setState(index, this._stateNum);
         if (this.label) {
-            if (index < 0)
-                index = 0;
             this._text.color = this._labelColors[index];
             if (this._strokeColors) this._text.strokeColor = this._strokeColors[index];
         }
