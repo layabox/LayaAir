@@ -34,7 +34,7 @@ vec3 PBRGI(const in Surface surface, const in PixelInfo info)
             bakedColor = DecodeDirectionalLightmap(lightmapUV,bakedColor,info.normalWS);
         #endif //LIGHTMAP_DIRECTIONAL
     // todo  surface.diffuseColor ？
-    vec3 Fd = bakedColor;
+    vec3 Fd = bakedColor * diffuseColor;
 	#endif // UV1
 
     #else // LIGHTMAP

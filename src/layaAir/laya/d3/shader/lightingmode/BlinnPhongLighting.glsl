@@ -63,7 +63,7 @@ vec3 BlinnPhongGI(const in Surface surface, const in PixelInfo info)
             bakedColor = DecodeDirectionalLightmap(lightmapUV,bakedColor,info.normalWS);
         #endif //LIGHTMAP_DIRECTIONAL
     // todo  surface.diffuseColor ？
-    indirect = bakedColor;
+    indirect = bakedColor * surface.diffuseColor;
 
 	#endif // UV1
 
