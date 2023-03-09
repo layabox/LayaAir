@@ -46,7 +46,13 @@ export class Texture extends Resource {
     /** @private */
     scaleRate: number = 1;
 
-    clipCache: Map<string, Texture>;
+    /**九宫格*/
+    _sizeGrid?: Array<number>;
+    /**状态数量*/
+    _stateNum?: number;
+
+    /**@internal */
+    _clipCache: Map<string, Texture>;
 
     /**
      *  根据指定资源和坐标、宽高、偏移量等创建 <code>Texture</code> 对象。
@@ -155,10 +161,9 @@ export class Texture extends Resource {
         var rect: Rectangle = Rectangle.TEMP.setTo(x - texture.offsetX, y - texture.offsetY, width, height);
         var result = rect.intersection(_rect1.setTo(0, 0, texture.width, texture.height), _rect2);
         if (result)
-            var tex: Texture = Texture.create(texture, result.x, result.y, result.width, result.height, result.x - rect.x, result.y - rect.y, width, height);
+            return Texture.create(texture, result.x, result.y, result.width, result.height, result.x - rect.x, result.y - rect.y, width, height);
         else
             return null;
-        return tex;
     }
 
     /**
@@ -465,18 +470,20 @@ export class Texture extends Resource {
      */
     public getCachedClip(x: number, y: number, width: number, height: number): Texture {
         let key = `${x}_${y}_${width}_${height}`;
-        if (!this.clipCache)
-            this.clipCache = new Map();
+        if (!this._clipCache)
+            this._clipCache = new Map();
 
-        let tex = this.clipCache.get(key);
+        let tex = this._clipCache.get(key);
         if (tex)
             return tex;
         tex = Texture.createFromTexture(this, x, y, width, height);
+        if (tex)
+            tex._sizeGrid = this._sizeGrid;
 
-        if (this.clipCache.size > 100)
-            this.clipCache.clear();
+        if (this._clipCache.size > 100)
+            this._clipCache.clear();
 
-        this.clipCache.set(key, tex);
+        this._clipCache.set(key, tex);
 
         return tex;
     }

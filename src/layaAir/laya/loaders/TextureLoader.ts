@@ -124,6 +124,12 @@ class Texture2DLoader implements IResourceLoader {
 
                 if (propertyParams && propertyParams.hdrEncodeFormat)
                     tex.hdrEncodeFormat = propertyParams.hdrEncodeFormat;
+
+                if (meta) {
+                    (<any>tex)._sizeGrid = meta.sizeGrid;
+                    (<any>tex)._stateNum = meta.stateNum;
+                }
+
                 return tex;
             });
         }
@@ -136,6 +142,12 @@ class Texture2DLoader implements IResourceLoader {
                 let obsoluteInst = <Texture2D>task.obsoluteInst;
                 if (obsoluteInst && Object.getPrototypeOf(obsoluteInst) == Object.getPrototypeOf(tex))
                     tex = this.move(obsoluteInst, tex);
+
+                if (meta) {
+                    (<any>tex)._sizeGrid = meta.sizeGrid;
+                    (<any>tex)._stateNum = meta.stateNum;
+                }
+
                 return tex;
             });
         }
@@ -191,9 +203,23 @@ class TextureLoader implements IResourceLoader {
         if (tex) { //recover
             tex.setTo(tex2D);
             tex.obsolute = false;
+            tex._sizeGrid = (<any>tex2D)._sizeGrid;
+            tex._stateNum = (<any>tex2D)._stateNum;
+            tex.event("reload");
+            if (tex._clipCache) {
+                tex._clipCache.forEach(t => {
+                    t.event("reload");
+                    t._sizeGrid = tex._sizeGrid;
+                    t._stateNum = tex._stateNum;
+                });
+            }
         }
-        else
+        else {
             tex = new Texture(tex2D);
+            tex._sizeGrid = (<any>tex2D)._sizeGrid;
+            tex._stateNum = (<any>tex2D)._stateNum;
+        }
+
         return tex;
     }
 

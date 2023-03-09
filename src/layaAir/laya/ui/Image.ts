@@ -86,7 +86,7 @@ import { SerializeUtil } from "../loaders/SerializeUtil";
  *         Laya.stage.addChild(image);//将此 image 对象添加到显示列表。
  *     }
  * }
- * @see laya.ui.AutoBitmap
+ * @see AutoBitmap
  */
 export class Image extends UIComponent {
     /**@private */
