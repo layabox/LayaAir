@@ -78,7 +78,7 @@ export class DrawMeshCMD extends Command {
         if (this._mesh == value)
             return;
         this._mesh = value;
-        this._meshRender._onMeshChange(this._mesh)
+        this._meshRender._onMeshChange(this._mesh);
         this._renderElemnts = this._meshRender._renderElements;
         this._renderElemnts.forEach(element => {
             element.material = this._material;
@@ -93,6 +93,7 @@ export class DrawMeshCMD extends Command {
      */
     run(): void {
         var context = RenderContext3D._instance;
+        this._meshRender.probReflection = context.scene.sceneReflectionProb;
         context._contextOBJ.applyContext(Camera._updateMark);
         let submeshs = this._mesh._subMeshes
         if (this._subMeshIndex == -1) {
