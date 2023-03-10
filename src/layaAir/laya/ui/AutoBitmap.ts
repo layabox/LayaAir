@@ -75,7 +75,7 @@ export class AutoBitmap extends Graphics {
      */
     get height(): number {
         if (this._height) return this._height;
-        if (this._source) return this._source.sourceHeight;
+        if (this._source) return this._source.sourceHeight / (this._source._stateNum || this._stateNum || 1);
         return 0;
     }
 
