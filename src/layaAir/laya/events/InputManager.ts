@@ -1,4 +1,3 @@
-import { LayaEnv } from "../../LayaEnv";
 import { HideFlags, NodeFlags } from "../Const";
 import { Node } from "../display/Node";
 import { Sprite } from "../display/Sprite";
@@ -433,7 +432,6 @@ export class InputManager {
      * @param y
      */
     getSpriteUnderPoint(sp: Sprite, x: number, y: number): Sprite {
-        let editor = !LayaEnv.isPlaying;
         if (sp == this._stage) {
             _tempPoint.setTo(x, y);
             sp.fromParentPoint(_tempPoint);
@@ -442,11 +440,12 @@ export class InputManager {
 
             for (let i = sp._children.length - 1; i > -1; i--) {
                 let child = <Sprite>sp._children[i];
+                let editing = child._getBit(NodeFlags.EDITING_NODE);
                 if (!child._is3D
                     && !child._destroyed
-                    && (editor && !child.hasHideFlag(HideFlags.HideInHierarchy) || child._mouseState > 1)
+                    && (editing && !child.hasHideFlag(HideFlags.HideInHierarchy) || child._mouseState > 1)
                     && (child._visible || child._getBit(NodeFlags.DISABLE_VISIBILITY))) {
-                    let ret = this._getSpriteUnderPoint(child, x, y, editor);
+                    let ret = this._getSpriteUnderPoint(child, x, y, editing);
                     if (ret)
                         return ret;
                 }
@@ -455,10 +454,10 @@ export class InputManager {
             return sp;
         }
         else
-            return this._getSpriteUnderPoint(sp, x, y, editor);
+            return this._getSpriteUnderPoint(sp, x, y, sp._getBit(NodeFlags.EDITING_NODE));
     }
 
-    private _getSpriteUnderPoint(sp: Sprite, x: number, y: number, editor: boolean): Sprite {
+    private _getSpriteUnderPoint(sp: Sprite, x: number, y: number, editing?: boolean): Sprite {
         _tempPoint.setTo(x, y);
         sp.fromParentPoint(_tempPoint);
         x = _tempPoint.x;
@@ -476,17 +475,17 @@ export class InputManager {
         //优先判断父对象
         //默认情况下，hitTestPrior=mouseThrough=false，也就是优先check子对象
         //$NEXTBIG:下个重大版本将sp.mouseThrough从此逻辑中去除，从而使得sp.mouseThrough只负责目标对象的穿透
-        if (!editor && sp.hitTestPrior && !sp.mouseThrough && !this.hitTest(sp, x, y, editor)) {
+        if (!editing && sp.hitTestPrior && !sp.mouseThrough && !this.hitTest(sp, x, y)) {
             return null;
         }
         for (let i = sp._children.length - 1; i > -1; i--) {
             let child = <Sprite>sp._children[i];
+            let childEditing = editing || child._getBit(NodeFlags.EDITING_NODE);
             //只有接受交互事件的，才进行处理
             if (!child._destroyed
-                && (editor ? (!child.hasHideFlag(HideFlags.HideInHierarchy) || child.mouseThrough) : child._mouseState > 1)
-                && (child._visible || child._getBit(NodeFlags.DISABLE_VISIBILITY)
-                    && !child._getBit(NodeFlags.HIDE_BY_EDITOR))) {
-                let ret = this._getSpriteUnderPoint(child, x, y, editor);
+                && (childEditing ? ((!child.hasHideFlag(HideFlags.HideInHierarchy) || child.mouseThrough) && !child._getBit(NodeFlags.HIDE_BY_EDITOR)) : child._mouseState > 1)
+                && (child._visible || child._getBit(NodeFlags.DISABLE_VISIBILITY))) {
+                let ret = this._getSpriteUnderPoint(child, x, y, childEditing);
                 if (ret)
                     return ret;
             }
@@ -495,22 +494,22 @@ export class InputManager {
         for (let i = sp._extUIChild.length - 1; i >= 0; i--) {
             let child = <Sprite>sp._extUIChild[i];
             if (!child._destroyed
-                && (editor ? (!child.hasHideFlag(HideFlags.HideInHierarchy) || child.mouseThrough) : child._mouseState > 1)
+                && child._mouseState > 1
                 && (child._visible || child._getBit(NodeFlags.DISABLE_VISIBILITY))) {
-                let ret = this._getSpriteUnderPoint(child, x, y, editor);
+                let ret = this._getSpriteUnderPoint(child, x, y);
                 if (ret)
                     return ret;
             }
         }
 
-        if (editor) {
+        if (editing) {
             if (!sp._getBit(NodeFlags.LOCK_BY_EDITOR)
                 && !sp.hasHideFlag(HideFlags.HideInHierarchy)
-                && this.hitTest(sp, x, y, editor))
+                && this.hitTest(sp, x, y, editing))
                 return sp;
         }
         else {
-            if (sp.hitTestPrior && !sp.mouseThrough || this.hitTest(sp, x, y, editor))
+            if (sp.hitTestPrior && !sp.mouseThrough || this.hitTest(sp, x, y))
                 return sp;
         }
 
@@ -521,7 +520,7 @@ export class InputManager {
         return null;
     }
 
-    hitTest(sp: Sprite, x: number, y: number, editor?: boolean): boolean {
+    hitTest(sp: Sprite, x: number, y: number, editing?: boolean): boolean {
         let isHit: boolean = false;
         if (sp.scrollRect) {
             x -= sp._style.scrollRect.x;
@@ -529,7 +528,7 @@ export class InputManager {
         }
         let hitArea: any = sp._style.hitArea;
         let mouseThrough = sp.mouseThrough;
-        if (editor) {
+        if (editing) {
             hitArea = null;
             mouseThrough = false;
         }
