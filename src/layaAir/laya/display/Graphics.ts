@@ -294,7 +294,7 @@ export class Graphics {
      * @param color	 	 （可选）颜色
      *
      */
-    fillTexture(texture: Texture, x: number, y: number, width: number = 0, height: number = 0, type: string = "repeat", offset: Point | null = null, color = 0xffffff): FillTextureCmd | null {
+    fillTexture(texture: Texture, x: number, y: number, width: number = 0, height: number = 0, type: string = "repeat", offset: Point | null = null, color: number = 0xffffffff): FillTextureCmd | null {
         if (texture && texture.bitmap)
             return this.addCmd(FillTextureCmd.create(texture, x, y, width, height, type, offset || Point.EMPTY, color));
         else
