@@ -32,37 +32,12 @@ export interface _RenderFunction {
     (sp: Sprite, ctx: Context, x: number, y: number): void;
 }
 
+const INIT = 0x11111;
 /**
  * @private
  * 精灵渲染器
  */
 export class RenderSprite {
-    /** @private */
-    //public static const IMAGE:int = 0x01;
-    /** @private */
-    //public static const ALPHA:int = 0x02;
-    /** @private */
-    //public static const TRANSFORM:int = 0x04;
-    /** @private */
-    //public static const BLEND:int = 0x08;
-    /** @private */
-    //public static const CANVAS:int = 0x10;
-    /** @private */
-    //public static const FILTERS:int = 0x20;
-    /** @private */
-    //public static const MASK:int = 0x40;
-    /** @private */
-    //public static const CLIP:int = 0x80;
-    /** @private */
-    //public static const STYLE:int = 0x100;
-    /** @private */
-    //public static const GRAPHICS:int = 0x200;
-    /** @private */
-    //public static const CUSTOM:int = 0x400;
-    /** @private */
-    //public static const CHILDS:int = 0x800;
-    /** @private */
-    static INIT: number = 0x11111;
     /** @private */
     static renders: RenderSprite[] = [];
     /** @private */
@@ -77,7 +52,7 @@ export class RenderSprite {
         LayaGLQuickRunner.__init__();
         var i: number, len: number;
         var initRender: RenderSprite;
-        initRender = new RenderSprite(RenderSprite.INIT, null);
+        initRender = new RenderSprite(INIT, null);
         len = RenderSprite.renders.length = SpriteConst.CHILDS * 2;
         for (i = 0; i < len; i++)
             RenderSprite.renders[i] = initRender;
@@ -164,7 +139,7 @@ export class RenderSprite {
             case SpriteConst.HITAREA:
                 this._fun = this._hitarea;
                 return;
-            case RenderSprite.INIT:
+            case INIT:
                 this._fun = RenderSprite._initRenderFun;
                 return;
         }
@@ -200,7 +175,7 @@ export class RenderSprite {
         var next: RenderSprite = this._next;
         if (next == RenderSprite.NORENDER) return;
 
-        if (sprite._getBit(NodeFlags.DISABLE_INNER_CLIPPING)) {
+        if (sprite._getBit(NodeFlags.DISABLE_INNER_CLIPPING) && !context._drawingToTexture) {
             next._fun.call(next, sprite, context, x, y);
             return;
         }
@@ -232,7 +207,7 @@ export class RenderSprite {
 
                 var px = x - sprite.pivotX + tex.offsetX * wRate;
                 var py = y - sprite.pivotY + tex.offsetY * hRate;
-                
+
                 context.drawTexture(tex, px, py, width, height, 0xffffffff);
             }
         }
@@ -302,13 +277,13 @@ export class RenderSprite {
     /**@internal */
     _children(sprite: Sprite, context: Context, x: number, y: number): void {
         let style: SpriteStyle = sprite._style;
-        let childs = <Sprite[]>sprite._children, n: number = childs.length, ele: any;
+        let childs = <Sprite[]>sprite._children, n: number = childs.length;
         x = x - sprite.pivotX;
         y = y - sprite.pivotY;
         let textLastRender: boolean = sprite._getBit(NodeFlags.DRAWCALL_OPTIMIZE) && context.drawCallOptimize(true);
         let drawingToTexture = context._drawingToTexture;
         let rect: Rectangle;
-        let left: number, top: number, right: number, bottom: number, _x: number, _y: number;
+        let left: number, top: number, right: number, bottom: number, x2: number, y2: number;
 
         if (style.viewport) {
             rect = style.viewport;
@@ -326,7 +301,7 @@ export class RenderSprite {
             else
                 visFlag = ele._visible || ele._getBit(NodeFlags.DISABLE_VISIBILITY);
             if (visFlag) {
-                if (rect && ((_x = ele._x) >= right || (_x + ele.width) <= left || (_y = ele._y) >= bottom || (_y + ele.height) <= top))
+                if (rect && ((x2 = ele._x) >= right || (x2 + ele.width) <= left || (y2 = ele._y) >= bottom || (y2 + ele.height) <= top))
                     visFlag = false;
                 else if (sprite._cacheStyle.mask == ele && !ele._getBit(NodeFlags.DISABLE_VISIBILITY))
                     visFlag = false;
