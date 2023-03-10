@@ -408,6 +408,7 @@ export class NativeTransform3D  extends Transform3D {
 	 * @internal
 	 */
 	_setParent(value: Transform3D): void {
+		super._setParent(value);
         this._nativeObj.setParent(value ? (value as any)._nativeObj : null);
 	}
 
