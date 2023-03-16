@@ -5,7 +5,6 @@ import { RenderState2D } from "./utils/RenderState2D"
  * @private
  */
 export class WebGL {
-    static _isWebGL2: boolean = false;
     static isNativeRender_enable: boolean = false;
 
     static _nativeRender_enable(): void {

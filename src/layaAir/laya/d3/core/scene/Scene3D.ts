@@ -285,7 +285,7 @@ export class Scene3D extends Sprite implements ISubmit {
         }
         Scene3D._shadowCasterPass = new ShadowCasterPass();
         //TODO:
-        if (LayaGL.renderEngine.getCapable(RenderCapable.GRAPHICS_API_GLES3) && WebGL._isWebGL2)
+        if (LayaGL.renderEngine.getCapable(RenderCapable.GRAPHICS_API_GLES3))
             configShaderValue.add(Shader3D.SHADERDEFINE_GRAPHICS_API_GLES3);
         else
             configShaderValue.add(Shader3D.SHADERDEFINE_GRAPHICS_API_GLES2);

@@ -18,7 +18,6 @@ import { ITextureContext } from "./ITextureContext";
 
 export interface IRenderEngine {
     gl: any;
-    isWebGL2: boolean;
     _isShaderDebugMode: boolean;
     _renderOBJCreateContext:IRenderOBJCreate;
     initRenderEngine(canvas: any): void;

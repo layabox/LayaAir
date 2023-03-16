@@ -147,7 +147,6 @@ export class Render {
             if (LayaEnv.isConch && !(window as any).conchConfig.conchWebGL) {
                 engine = new NativeWebGLEngine(glConfig, webglMode);
                 engine.initRenderEngine(Render._mainCanvas.source);
-                WebGL._isWebGL2 = engine.isWebGL2;
                 new LayaGL();
             }
             else {
@@ -156,11 +155,9 @@ export class Render {
                 var gl: WebGLRenderingContext = RenderStateContext.mainContext = engine.gl;
                 if (Config.printWebglOrder)
                     this._replaceWebglcall(gl);
-
                 if (!gl)
                     return false;
                 if (gl) {
-                    WebGL._isWebGL2 = engine.isWebGL2;
                     new LayaGL();
                 }
             }

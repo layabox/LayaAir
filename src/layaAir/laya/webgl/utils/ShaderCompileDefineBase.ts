@@ -1,4 +1,5 @@
 import { LayaGL } from "../../layagl/LayaGL";
+import { RenderCapable } from "../../RenderEngine/RenderEnum/RenderCapable";
 import { DefineDatas } from "../../RenderEngine/RenderShader/DefineDatas";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { ShaderInstance } from "../../RenderEngine/RenderShader/ShaderInstance";
@@ -111,7 +112,7 @@ export class ShaderCompileDefineBase {
         var fragmentHead: string;
         var defineStr: string = "";
 
-        if (WebGL._isWebGL2) {
+        if (LayaGL.renderEngine.getCapable(RenderCapable.GRAPHICS_API_GLES3)) {
             vertexHead =
                 `#version 300 es\n
                 #define attribute in

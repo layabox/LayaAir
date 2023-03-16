@@ -12,6 +12,7 @@ import { Vector3 } from "../../maths/Vector3";
 import { GLSLCodeGenerator } from "./GLSLCodeGenerator";
 import { RenderState } from "./RenderState";
 import { ShaderInstance } from "./ShaderInstance";
+import { RenderCapable } from "../RenderEnum/RenderCapable";
 
 /**
  * <code>ShaderPass</code> 类用于实现ShaderPass。
@@ -119,7 +120,7 @@ export class ShaderPass extends ShaderCompileDefineBase {
         let attributeglsl = GLSLCodeGenerator.glslAttributeString(attributeMap);
         let uniformglsl = GLSLCodeGenerator.glslUniformString(uniformMap, useUniformBlock);
 
-        if (WebGL._isWebGL2) {
+        if (LayaGL.renderEngine.getCapable(RenderCapable.GRAPHICS_API_GLES3)) {
             vertexHead =
                 `#version 300 es
 #if defined(GL_FRAGMENT_PRECISION_HIGH)
