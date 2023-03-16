@@ -45,6 +45,12 @@ export class Config3D {
     * X、Y、Z轴的光照集群数量,Z值会影响Cluster接受区域光(点光、聚光)影响的数量,Math.floor(2048 / lightClusterCount.z - 1) * 4 为每个Cluster的最大平均接受区域光数量,如果每个Cluster所接受光源影响的平均数量大于该值，则较远的Cluster会忽略其中多余的光照影响。
     */
     static lightClusterCount: Vector3 = new Vector3(12, 12, 12);
+
+    /**
+     * 最大形变数量
+     */
+    static maxMorphTargetCount: number = 32;
+
     /**
     * 设置分辨率大小（并不是实际渲染分辨率）
     * @param width 
