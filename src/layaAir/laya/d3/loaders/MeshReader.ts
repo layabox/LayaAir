@@ -31,13 +31,14 @@ export class MeshReader {
 			case "LAYAMODEL:COMPRESSION_05":
 			case "LAYAMODEL:0501":
 			case "LAYAMODEL:COMPRESSION_0501":
+			case "LAYAMODEL:0502":
 				LoadModelV05.parse(readData, version, mesh, subMeshes);
 				break;
 			default:
 				throw new Error("MeshReader: unknown mesh version.");
 		}
 		mesh._setSubMeshes(subMeshes);
-		if (version != "LAYAMODEL:0501" && version != "LAYAMODEL:COMPRESSION_0501")//compatible
+		if (version != "LAYAMODEL:0501" && version != "LAYAMODEL:COMPRESSION_0501" && version != "LAYAMODEL:0502")//compatible
 			mesh.calculateBounds();
 	}
 }

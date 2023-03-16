@@ -23,6 +23,7 @@ import { VertexElementFormat } from "../../../renders/VertexElementFormat";
 import { VertexElement } from "../../../renders/VertexElement";
 import { BufferState } from "../../../webgl/utils/BufferState";
 import { VertexMesh } from "../../../RenderEngine/RenderShader/VertexMesh";
+import { MorphTargetData } from "./MorphTargetData";
 /**
  * @internal
  */
@@ -126,6 +127,8 @@ export class Mesh extends Resource implements IClone {
     instanceWorldMatrixData: Float32Array;
     /** @internal */
     instanceSimpleAnimatorData: Float32Array;
+
+    morphTargetData: MorphTargetData;
 
     /** @internal */
     _width: number;
@@ -375,6 +378,7 @@ export class Mesh extends Resource implements IClone {
         this._indexBuffer = null;
         this._boneNames = null;
         this._inverseBindPoses = null;
+        this.morphTargetData && (this.morphTargetData.destroy());
     }
 
     /**
@@ -858,6 +862,10 @@ export class Mesh extends Resource implements IClone {
             destMesh._subMeshes.push(destSubmesh);
         }
         destMesh._setSubMeshes(destMesh._subMeshes);
+
+        if (this.morphTargetData) {
+            destMesh.morphTargetData = this.morphTargetData.clone();
+        }
     }
 
     /**
