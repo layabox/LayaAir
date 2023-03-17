@@ -115,8 +115,7 @@ export class DrawMeshCMD extends Command {
         DrawMeshCMD._pool.push(this);
         super.recover();
         this.material && (this.material = null);
-        this.mesh && (this.mesh = null);
-
+        this._mesh && (this._mesh = null);
     }
 
     /**
