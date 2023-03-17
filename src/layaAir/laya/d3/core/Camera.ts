@@ -705,11 +705,6 @@ export class Camera extends BaseCamera {
         this._viewport.height = pixelRightY - pixelLeftY;
     }
 
-
-
-
-
-
     /**
      * @inheritDoc
      * @override
@@ -762,6 +757,8 @@ export class Camera extends BaseCamera {
     clone(): Camera {
         let camera = <Camera>super.clone();
         camera.clearFlag = this.clearFlag;
+        this.clearColor.cloneTo(camera.clearColor);
+        camera.clearColor = camera.clearColor;
         camera.viewport = this.viewport;
         this.normalizedViewport.cloneTo(camera.normalizedViewport);
         camera.enableHDR = this.enableHDR;
@@ -769,7 +766,7 @@ export class Camera extends BaseCamera {
         camera.nearPlane = this.nearPlane;
         camera.fieldOfView = this.fieldOfView;
         camera.orthographic = this.orthographic;
-        camera._cameraEventCommandBuffer = this._cameraEventCommandBuffer
+        camera._cameraEventCommandBuffer = this._cameraEventCommandBuffer;
         //Object.assign(camera._cameraEventCommandBuffer, this._cameraEventCommandBuffer);
         return camera;
     }
