@@ -354,12 +354,12 @@ export class HDRTextureInfo {
 
         if (width < 8 || width > 32767) {
             this.olddreadcolors(scanlineArray, getc);
-            // continue;
+            return;
         }
 
         if (unnormalizedr != 2 || unnormalizedg != 2 || unnormalizedb & 128) {
             this.olddreadcolors(scanlineArray, getc);
-            // continue;
+            return;
         }
 
         if ((unnormalizedb << 8 | unnormalizede) != width) {
