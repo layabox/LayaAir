@@ -633,6 +633,18 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
     }
 
+    setTexture3DImageData(texture: WebGLInternalTex, sources: HTMLImageElement[] | HTMLCanvasElement[] | ImageBitmap[], depth: number, premultiplyAlpha: boolean, invertY: boolean) {
+        
+    }
+
+    setTexture3DPixlesData(texture: InternalTexture, source: ArrayBufferView, depth: number, premultiplyAlpha: boolean, invertY: boolean): void {
+        
+    }
+
+    setTexture3DSubPixelsData(texture: InternalTexture, source: ArrayBufferView, mipmapLevel: number, generateMipmap: boolean, xOffset: number, yOffset: number, zOffset: number, width: number, height: number, depth: number, premultiplyAlpha: boolean, invertY: boolean): void {
+        
+    }
+    
     initVideoTextureData(texture: WebGLInternalTex) {
         let target = texture.target;
         let internalFormat = texture.internalFormat;
