@@ -288,7 +288,7 @@ export class HDRTextureInfo {
             throw "HDR info: data wrong.";
         }
 
-        for (let y = height - 1; y >= 0; y--) {
+        for (let y = (height - 1); y >= 0; y--) {
 
             this.readcolors(scanlineArray, getc, wrong);
 
@@ -353,12 +353,12 @@ export class HDRTextureInfo {
         let unnormalizede = getc();
 
         if (width < 8 || width > 32767) {
-            this.olddreadcolors(scanlineArray, getc);
+            this.olddreadcolors(scanlineArray, getc, unnormalizedr, unnormalizedg, unnormalizedb, unnormalizede);
             return;
         }
 
         if (unnormalizedr != 2 || unnormalizedg != 2 || unnormalizedb & 128) {
-            this.olddreadcolors(scanlineArray, getc);
+            this.olddreadcolors(scanlineArray, getc, unnormalizedr, unnormalizedg, unnormalizedb, unnormalizede);
             return;
         }
 
@@ -392,13 +392,18 @@ export class HDRTextureInfo {
 
     }
 
-    olddreadcolors(scanlineArray: Uint8Array, getc: () => number) {
+    olddreadcolors(scanlineArray: Uint8Array, getc: () => number, r: number, g: number, b: number, e: number) {
 
         let rshift = 0;
 
         let len = this.width;
 
-        for (let w = 0; w < len; w++) {
+        scanlineArray[0] = r;
+        scanlineArray[1] = g;
+        scanlineArray[2] = b;
+        scanlineArray[3] = e;
+
+        for (let w = 1; w < len; w++) {
             let unnormalizedr = getc();
             let unnormalizedg = getc();
             let unnormalizedb = getc();
@@ -417,12 +422,12 @@ export class HDRTextureInfo {
                     scanlineArray[scanIndex + 1] = scanlineArray[lastIndex + 1];
                     scanlineArray[scanIndex + 2] = scanlineArray[lastIndex + 2];
                     scanlineArray[scanIndex + 3] = scanlineArray[lastIndex + 3];
-                    len--;
+                    // len--;
                 }
                 rshift += 8;
             }
             else {
-                len--;
+                // len--;
                 rshift = 0;
             }
         }
