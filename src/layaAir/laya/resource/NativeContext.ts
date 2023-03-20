@@ -22,6 +22,8 @@ import { Texture } from "./Texture";
 import { BufferState } from "../webgl/utils/BufferState";
 import { RenderTexture } from "./RenderTexture";
 import { NativeRenderTexture2D } from "./NativeRenderTexture2D";
+import { Point } from "../maths/Point";
+
 /**
  * @internal
  */
@@ -62,6 +64,7 @@ enum CONTEXT2D_FUNCTION_ID {
     DRAW_TRANGLES,
     SET_GLOBAL_COMPOSITE_OPERTAION,
     FILL_WORDS,
+    FILL_TEXTURE,
 }
 
 /**
@@ -288,12 +291,12 @@ export class NativeContext {
         this.add_iff(CONTEXT2D_FUNCTION_ID.SCALE, scaleX, scaleY);
     }
 
-    drawTexture(tex: Texture, x: number, y: number, width: number, height: number): void {
+    drawTexture(tex: Texture, x: number, y: number, width: number, height: number, color: number = 0xffffffff): void {
         if (!this.checkTexture(tex)) {
             return;
         }
         //this._nativeObj.drawTexture((tex as any).bitmap._texture.id, x, y, width, height, (tex as any).uv);
-        this.add_iiffffffffffff(CONTEXT2D_FUNCTION_ID.DRAW_TEXTURE, (tex as any).bitmap._texture.id, x, y, width, height
+        this.add_iiffffffffffffi(CONTEXT2D_FUNCTION_ID.DRAW_TEXTURE, (tex as any).bitmap._texture.id, x, y, width, height
             , (tex as any).uv[0]
             , (tex as any).uv[1]
             , (tex as any).uv[2]
@@ -301,9 +304,10 @@ export class NativeContext {
             , (tex as any).uv[4]
             , (tex as any).uv[5]
             , (tex as any).uv[6]
-            , (tex as any).uv[7]);
+            , (tex as any).uv[7]
+            , color);
     }
-    drawTextureWithTransform(tex: Texture, x: number, y: number, width: number, height: number, transform: Matrix | null, tx: number, ty: number, alpha: number, blendMode: string | null, colorfilter: any/*ColorFilter*/ | null = null, uv?: number[]): void {
+    drawTextureWithTransform(tex: Texture, x: number, y: number, width: number, height: number, transform: Matrix | null, tx: number, ty: number, alpha: number, blendMode: string | null, colorfilter: any/*ColorFilter*/ | null = null, uv?: number[], color: number = 0xffffffff): void {
         if (!this.checkTexture(tex)) {
             return;
         }
@@ -322,7 +326,7 @@ export class NativeContext {
         var uvs: any = uv || (tex as any).uv;
         if (transform) {
             this.add_iffffff(CONTEXT2D_FUNCTION_ID.TRANSFORM, transform.a, transform.b, transform.c, transform.d, transform.tx + tx, transform.ty + ty);
-            this.add_iiffffffffffff(CONTEXT2D_FUNCTION_ID.DRAW_TEXTURE, (tex as any).bitmap._texture.id, x, y, width || tex.width, height || tex.height
+            this.add_iiffffffffffffi(CONTEXT2D_FUNCTION_ID.DRAW_TEXTURE, (tex as any).bitmap._texture.id, x, y, width || tex.width, height || tex.height
                 , uvs[0]
                 , uvs[1]
                 , uvs[2]
@@ -330,10 +334,11 @@ export class NativeContext {
                 , uvs[4]
                 , uvs[5]
                 , uvs[6]
-                , uvs[7]);
+                , uvs[7]
+                , color);
         }
         else {
-            this.add_iiffffffffffff(CONTEXT2D_FUNCTION_ID.DRAW_TEXTURE, (tex as any).bitmap._texture.id, x + tx, y + ty, width || tex.width, height || tex.height
+            this.add_iiffffffffffffi(CONTEXT2D_FUNCTION_ID.DRAW_TEXTURE, (tex as any).bitmap._texture.id, x + tx, y + ty, width || tex.width, height || tex.height
                 , uvs[0]
                 , uvs[1]
                 , uvs[2]
@@ -341,12 +346,13 @@ export class NativeContext {
                 , uvs[4]
                 , uvs[5]
                 , uvs[6]
-                , uvs[7]);
+                , uvs[7]
+                , color);
         }
         this.restore();
     }
 
-    drawTextureWithSizeGrid(tex: Texture, tx: number, ty: number, width: number, height: number, sizeGrid: any[], gx: number, gy: number): void {
+    drawTextureWithSizeGrid(tex: Texture, tx: number, ty: number, width: number, height: number, sizeGrid: any[], gx: number, gy: number, color: number): void {
         if (!this.checkTexture(tex)) {
             return;
         }
@@ -367,7 +373,7 @@ export class NativeContext {
             ,uv[5]
             ,uv[6]
             ,uv[7]);*/
-        this.add_iiffffffffiffffffffff(
+        this.add_iiffffffffiffffffffffi(
             CONTEXT2D_FUNCTION_ID.DRAW_TEXTURE_SIZE_GRID,
             (tex as any).bitmap._texture.id, tx, ty, width, height, top, right, bottom, left, repeat ? 1 : 0, gx, gy
             , uv[0]
@@ -377,9 +383,10 @@ export class NativeContext {
             , uv[4]
             , uv[5]
             , uv[6]
-            , uv[7]);
+            , uv[7]
+            , color);
     }
-    _drawTextureM(tex: Texture, x: number, y: number, width: number, height: number, transform: Matrix, alpha: number, uv: any[] | null): void {
+    _drawTextureM(tex: Texture, x: number, y: number, width: number, height: number, transform: Matrix, alpha: number, uv: any[] | null, color: number): void {
         if (!this.checkTexture(tex)) {
             return;
         }
@@ -395,7 +402,7 @@ export class NativeContext {
             this.add_iffffff(CONTEXT2D_FUNCTION_ID.TRANSFORM, transform.a, transform.b, transform.c, transform.d, transform.tx, transform.ty);
         }
         var uvs: any = uv || (tex as any).uv;
-        this.add_iiffffffffffff(CONTEXT2D_FUNCTION_ID.DRAW_TEXTURE, (tex as any).bitmap._texture.id, x, y, width || tex.width, height || tex.height
+        this.add_iiffffffffffffi(CONTEXT2D_FUNCTION_ID.DRAW_TEXTURE, (tex as any).bitmap._texture.id, x, y, width || tex.width, height || tex.height
             , uvs[0]
             , uvs[1]
             , uvs[2]
@@ -403,7 +410,8 @@ export class NativeContext {
             , uvs[4]
             , uvs[5]
             , uvs[6]
-            , uvs[7]);
+            , uvs[7]
+            , color);
             this.restore();
 
     }
@@ -473,6 +481,23 @@ export class NativeContext {
         this.add_iffff(CONTEXT2D_FUNCTION_ID.FILL_RECT, x, y, width, height);
         this.add_i(CONTEXT2D_FUNCTION_ID.RESTORE);
     }
+
+    fillTexture(texture: Texture, x: number, y: number, width: number, height: number, type: string, offset: Point, color: number): void {
+        if (!this.checkTexture(texture)) {
+            return;
+        }
+        var typeValue: number = 0;
+        switch (type) {
+            case "repeat": typeValue = 0; break;
+            case "repeat-x": typeValue = 1; break;
+            case "repeat-y": typeValue = 2; break;
+            case "no-repeat": typeValue = 3; break;
+            default: break;
+        }
+
+        this.add_iiffffiffi(CONTEXT2D_FUNCTION_ID.FILL_TEXTURE, (texture as any).bitmap._texture.id, x, y, width, height, typeValue, offset.x, offset.y, color);
+    }
+
     drawRect(x: number, y: number, width: number, height: number, fillColor: any, lineColor: any, lineWidth: number): void {
 
         /*if (fillColor != null) {
@@ -1159,8 +1184,8 @@ export class NativeContext {
         this.add_String(ab0);
         this.add_String(ab1);
     }
-    add_iiffffffffffff(a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, ii: number, j: number, k: number, l: number, m: number, n: number) {
-        this._need(56);
+    add_iiffffffffffffi(a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, ii: number, j: number, k: number, l: number, m: number, n: number, o: number) {
+        this._need(60);
         var idata: Int32Array = this._idata;
         var i: number = idata[0];
         var fdata: Float32Array = this._fdata;
@@ -1178,12 +1203,13 @@ export class NativeContext {
         fdata[i++] = l;
         fdata[i++] = m;
         fdata[i++] = n;
+        idata[i++] = o;
         idata[0] = i;
     }
-    add_iiffffffffiffffffffff(a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, ii: number, j: number
+    add_iiffffffffiffffffffffi(a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, ii: number, j: number
         , k: number, l: number, m: number, n: number, o: number, p: number, q: number, r: number, s: number, t: number
-        , u: number) {
-        this._need(84);
+        , u: number, v: number) {
+        this._need(88);
         var idata: Int32Array = this._idata;
         var fdata: Float32Array = this._fdata;
         var i: number = idata[0];
@@ -1208,6 +1234,7 @@ export class NativeContext {
         fdata[i++] = s;
         fdata[i++] = t;
         fdata[i++] = u;
+        idata[i++] = v;
         idata[0] = i;
     }
     add_iiifffffffff(a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, ii: number, j: number
@@ -1230,6 +1257,24 @@ export class NativeContext {
         fdata[i++] = l;
         idata[0] = i;
     }
+    add_iiffffiffi(a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number): void {
+        this._need(40);
+        let idata: Int32Array = this._idata;
+        let fdata: Float32Array = this._fdata;
+        var idx: number = idata[0];
+        idata[idx++] = a;
+        idata[idx++] = b;
+        fdata[idx++] = c;
+        fdata[idx++] = d;
+        fdata[idx++] = e;
+        fdata[idx++] = f;
+        idata[idx++] = g;
+        fdata[idx++] = h;
+        fdata[idx++] = i;
+        idata[idx++] = j;
+        idata[0] = idx;
+    }
+
     add_iiifffffffff_ab_ab_ab(a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, ii: number, j: number
         , k: number, l: number, arraybuffer0: any, arraybuffer1: any, arraybuffer2: any) {
 

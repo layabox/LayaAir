@@ -32,9 +32,8 @@ export class Texture2DArray extends BaseTexture {
      */
     setImageData(sources: HTMLImageElement[] | HTMLCanvasElement[] | ImageBitmap[], premultiplyAlpha: boolean, invertY: boolean) {
         let texture = this._texture;
-        let context = <GL2TextureContext>LayaGL.textureContext;
-
-        context.setTexture3DImageData(<WebGLInternalTex>texture, sources, this.depth, premultiplyAlpha, invertY);
+        let context = LayaGL.textureContext;
+        context.setTexture3DImageData(texture, sources, this.depth, premultiplyAlpha, invertY);
     }
 
     /**
@@ -45,8 +44,8 @@ export class Texture2DArray extends BaseTexture {
      */
     setPixlesData(source: ArrayBufferView, premultiplyAlpha: boolean, invertY: boolean) {
         let texture = this._texture;
-        let context = <GL2TextureContext>LayaGL.textureContext;
-        context.setTexture3DPixlesData(<WebGLInternalTex>texture, source, this.depth, premultiplyAlpha, invertY)
+        let context = LayaGL.textureContext;
+        context.setTexture3DPixlesData(texture, source, this.depth, premultiplyAlpha, invertY)
     }
 
     /**
@@ -65,8 +64,8 @@ export class Texture2DArray extends BaseTexture {
      */
     setSubPixelsData(xOffset: number, yOffset: number, zOffset: number, width: number, height: number, depth: number, pixels: ArrayBufferView, mipmapLevel: number, generateMipmap: boolean, premultiplyAlpha: boolean, invertY: boolean) {
         let texture = this._texture;
-        let context = <GL2TextureContext>LayaGL.textureContext;
-        context.setTexture3DSubPixelsData(<WebGLInternalTex>texture, pixels, mipmapLevel, generateMipmap, xOffset, yOffset, zOffset, width, height, depth, premultiplyAlpha, invertY);
+        let context = LayaGL.textureContext;
+        context.setTexture3DSubPixelsData(texture, pixels, mipmapLevel, generateMipmap, xOffset, yOffset, zOffset, width, height, depth, premultiplyAlpha, invertY);
     }
 
 }
