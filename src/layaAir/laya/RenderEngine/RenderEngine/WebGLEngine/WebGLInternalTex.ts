@@ -164,8 +164,8 @@ export class WebGLInternalTex extends GLObject implements InternalTexture {
         if (anisoExt) {
             let gl = this._gl;
             //let maxAnisoLevel = gl.getParameter(anisoExt.MAX_TEXTURE_MAX_ANISOTROPY_EXT);
-            this._engine.getParams(RenderParams.Max_AnisoLevel_Count)
-            let maxAnisoLevel
+            let maxAnisoLevel = this._engine.getParams(RenderParams.Max_AnisoLevel_Count);
+            
             let level = Math.max(1, Math.min(maxAnisoLevel, value));
             this._setTexParametexf(anisoExt.TEXTURE_MAX_ANISOTROPY_EXT, level);
             this._anisoLevel = level;
