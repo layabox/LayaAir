@@ -1116,7 +1116,7 @@ export class Context {
     }
 
     /**@internal */
-    _drawRenderTexture(tex: RenderTexture2D, x: number, y: number, width: number, height: number, m: Matrix, alpha: number, uv: any[], color: number = 0xffffff): boolean {
+    _drawRenderTexture(tex: RenderTexture2D, x: number, y: number, width: number, height: number, m: Matrix, alpha: number, uv: any[], color: number = 0xffffffff): boolean {
         return this._inner_drawTexture((<Texture>(tex as any)), -1, x, y, width, height, m, uv, alpha, false, color);
     }
 
