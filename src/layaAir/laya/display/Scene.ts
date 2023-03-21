@@ -390,6 +390,7 @@ export class Scene extends Sprite {
                 throw "Not a scene:" + url;
 
             scene._viewCreated = true;
+            Scene.unDestroyedScenes.add(scene);
             Scene.hideLoadingPage();
             complete && complete.runWith(scene);
 
