@@ -221,7 +221,8 @@ export class ReflectionProbe extends Volume {
 		if (this.iblTex == value) return;
 		if (this.iblTex) this.iblTex._removeReference();
 		this._iblTex = value;
-		this._iblTex._addReference();
+		if (value)
+			value._addReference();
 		this._updateMark = ILaya3D.Scene3D._updateMark;
 	}
 
