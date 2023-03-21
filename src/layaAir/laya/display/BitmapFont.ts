@@ -3,6 +3,7 @@ import { Rectangle } from "../maths/Rectangle"
 import { Texture } from "../resource/Texture"
 import { Handler } from "../utils/Handler"
 import { ILaya } from "../../ILaya";
+import { Loader } from "../net/Loader";
 import { Resource } from "../resource/Resource";
 
 /**
@@ -10,11 +11,10 @@ import { Resource } from "../resource/Resource";
  * 字体制作及使用方法，请参考文章
  * @see http://ldc2.layabox.com/doc/?nav=ch-js-1-2-5
  */
-export class BitmapFont {
+export class BitmapFont extends Resource {
     private _texture: Texture;
     private _fontCharDic: any = {};
     private _fontWidthMap: any = {};
-    private _path: string;
     private _maxWidth: number = 0;
     private _spaceWidth: number = 10;
     private _padding: any[];
@@ -31,18 +31,14 @@ export class BitmapFont {
      * @param	path		位图字体文件的路径。
      * @param	complete	加载并解析完成的回调。
      */
-    loadFont(path: string, complete: Handler): void {
-        this._path = path;
-
-        if (!path || path.indexOf(".fnt") === -1) {
-            console.error('Bitmap font configuration information must be a ".fnt" file');
-            return;
-        }
-
-        ILaya.loader.load([path, path.replace(".fnt", ".png")]).then((contents: Array<any>) => {
-            this.parseFont(contents[0].data, contents[1]);
+    static loadFont(path: string, complete: Handler): void {
+        ILaya.loader.load(path, Loader.FONT).then(() => {
             complete && complete.run();
         });
+    }
+
+    constructor() {
+        super(false);
     }
 
     /**
@@ -141,7 +137,7 @@ export class BitmapFont {
     /**
      * 销毁位图字体，调用Text.unregisterBitmapFont 时，默认会销毁。
      */
-     destroy(): void {
+    protected _disposeResource(): void {
         if (this._texture) {
             for (let k in this._fontCharDic) {
                 this._fontCharDic[k].destroy();

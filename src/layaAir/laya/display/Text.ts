@@ -10,6 +10,7 @@ import { WordText } from "../utils/WordText"
 import { ILaya } from "../../ILaya";
 import { LayaEnv } from "../../LayaEnv";
 import { Config } from "../../Config";
+import { Utils } from "../utils/Utils";
 
 /**
  * 文本内容发生改变后调度。
@@ -148,9 +149,11 @@ export class Text extends Sprite {
     /**@private */
     protected _valign: string = "top";
     /**@internal */
-    _fontSize: number = Config.defaultFontSize;
+    _fontSize: number;
     /**@internal */
-    _font: string = Config.defaultFont;
+    _font: string;
+    /**@internal */
+    _realFont: string;
     /**@internal */
     _color: string = "#000000";
     _overflow: string = Text.VISIBLE;
@@ -163,7 +166,12 @@ export class Text extends Sprite {
      */
     constructor() {
         super();
+
         this._style = TextStyle.EMPTY;
+
+        this._fontSize = Config.defaultFontSize;
+        this._font = Config.defaultFont;
+        this._realFont = (ILaya.Browser.onIPhone ? (Config.fontFamilyMap[this._font] || this._font) : this._font);
     }
 
     /**
@@ -191,6 +199,7 @@ export class Text extends Sprite {
      */
     static registerBitmapFont(name: string, bitmapFont: BitmapFont): void {
         Text._bitmapFonts || (Text._bitmapFonts = {});
+        bitmapFont._addReference();
         Text._bitmapFonts[name] = bitmapFont;
     }
 
@@ -202,6 +211,7 @@ export class Text extends Sprite {
     static unregisterBitmapFont(name: string, destroy: boolean = true): void {
         if (Text._bitmapFonts && Text._bitmapFonts[name]) {
             var tBitmapFont: BitmapFont = Text._bitmapFonts[name];
+            tBitmapFont._removeReference();
             if (destroy) tBitmapFont.destroy();
             delete Text._bitmapFonts[name];
         }
@@ -372,12 +382,31 @@ export class Text extends Sprite {
             this._getTextStyle().currBitmapFont = null;
             this.scale(1, 1);
         }
-        if (Text._bitmapFonts && Text._bitmapFonts[value]) {
-            this._getTextStyle().currBitmapFont = Text._bitmapFonts[value];
-        }
 
         this._font = value;
-        this.isChanged = true;
+
+        if (Text._bitmapFonts && Text._bitmapFonts[value]) {
+            this._realFont = value;
+            this._getTextStyle().currBitmapFont = Text._bitmapFonts[value];
+            this.isChanged = true;
+        }
+        else if (value && (Utils.getFileExtension(value) || value.startsWith("res://"))) {
+            ILaya.loader.load(value).then(fontObj => {
+                if (!fontObj)
+                    return;
+
+                if (fontObj instanceof BitmapFont)
+                    this._getTextStyle().currBitmapFont = fontObj;
+                else
+                    this._realFont = fontObj.family;
+
+                this.isChanged = true;
+            });
+        }
+        else {
+            this._realFont = (ILaya.Browser.onIPhone ? (Config.fontFamilyMap[value] || value) : value);
+            this.isChanged = true;
+        }
     }
 
     /**
@@ -628,7 +657,7 @@ export class Text extends Sprite {
      * @private
      */
     protected _getContextFont(): string {
-        return (this.italic ? "italic " : "") + (this.bold ? "bold " : "") + this.fontSize + "px " + (ILaya.Browser.onIPhone ? (Config.fontFamilyMap[this.font] || this.font) : this.font);
+        return (this.italic ? "italic " : "") + (this.bold ? "bold " : "") + this.fontSize + "px " + this._realFont;
     }
 
     /**

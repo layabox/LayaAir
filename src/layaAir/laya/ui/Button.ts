@@ -571,7 +571,6 @@ export class Button extends UIComponent implements ISelect {
 
     /**
      * 表示按钮文本标签的字体名称，以字符串形式表示。
-     * @see laya.display.Text.font()
      */
     get labelFont(): string {
         this.createText();

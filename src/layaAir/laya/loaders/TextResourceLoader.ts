@@ -48,4 +48,4 @@ class XMLAssetLoader implements IResourceLoader {
 Loader.registerLoader(["txt", "csv"], TextAssetLoader, Loader.TEXT);
 Loader.registerLoader(["bin", "bytes", "fui"], BytesAssetLoader, Loader.BUFFER);
 Loader.registerLoader(["json"], JsonAssetLoader, Loader.JSON);
-Loader.registerLoader(["xml", "fnt"], XMLAssetLoader, Loader.XML);
+Loader.registerLoader(["xml"], XMLAssetLoader, Loader.XML);
