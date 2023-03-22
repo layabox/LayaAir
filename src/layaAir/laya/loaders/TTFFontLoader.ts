@@ -25,6 +25,13 @@ class TTFFontLoader implements IResourceLoader {
                 return fontFace;
             });
         }
+        else if (Browser.onWeiXin) {
+            let family: string = Browser.window.wx.loadFont(URL.postFormatURL(URL.formatURL(task.url)));
+            if (family)
+                return { family: family };
+            else
+                return null;
+        }
         else {
             let fontStyle: any = Browser.createElement("style");
             fontStyle.type = "text/css";
@@ -47,13 +54,11 @@ class TTFFontLoader implements IResourceLoader {
                     resolve(result);
                 };
 
-                fontStyle.onload = () => {
-                    ILaya.systemTimer.once(10000, this, complete);
-                };
+                ILaya.systemTimer.once(10000, this, complete);
                 ILaya.systemTimer.loop(20, this, checkComplete);
             });
         }
     }
 }
 
-Loader.registerLoader(["ttf", "woff", "woff2", "otf"], TTFFontLoader);
+Loader.registerLoader(["ttf", "woff", "woff2", "otf"], TTFFontLoader, Loader.TTF);

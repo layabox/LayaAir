@@ -98,7 +98,7 @@ export class Animation extends AnimationBase {
     /**@private */
     protected _frames: any[];
 
-    private _images: string[];
+    private _source: string;
 
     private _autoPlay = false;
 
@@ -215,30 +215,16 @@ export class Animation extends AnimationBase {
      * 3. 图片路径集合：使用此类型创建的动画模版不会被缓存到动画模版缓存池中，如果需要缓存，请使用loadImages(...)方法。</p>
      * @param value	数据源。比如：图集："xx/a1.atlas"；图片集合："a1.png,a2.png,a3.png"；LayaAir IDE动画"xx/a1.ani"。
      */
+    get source(): string {
+        return this._source;
+    }
+
     set source(value: string) {
-        if (value.indexOf(".ani") > -1) this.loadAnimation(value);
-        else if (value.indexOf(".json") > -1 || value.indexOf("als") > -1 || value.indexOf("atlas") > -1) this.loadAtlas(value);
-        else this.loadImages(value.split(","));
-    }
-
-
-    set images(arr: string[]) {
-        this._images = arr;
-        if (arr) {
-            this.loadImages(arr);
-        }
-
-
-    }
-    get images() {
-        return this._images;
-    }
-
-    /**
-     * 设置自动播放的动画名称，在LayaAir IDE中可以创建的多个动画组成的动画集合，选择其中一个动画名称进行播放。
-     */
-    set autoAnimation(value: string) {
-        this.play(0, true, value);
+        this._source = value;
+        if (value)
+            this.loadAtlas(value);
+        else
+            this.clear();
     }
 
     /**
@@ -246,9 +232,12 @@ export class Animation extends AnimationBase {
      */
     set autoPlay(value: boolean) {
         this._autoPlay = value;
-        if (value) this.play();
-        else this.stop();
+        if (value)
+            this.play();
+        else
+            this.stop();
     }
+
     get autoPlay() {
         return this._autoPlay;
     }
@@ -279,6 +268,8 @@ export class Animation extends AnimationBase {
         if (!this._setFramesFromCache(cacheName)) {
             this.frames = Animation.framesMap[cacheName] ? Animation.framesMap[cacheName] : Animation.createFrames(urls, cacheName);
         }
+        if (!this._isPlaying && this._autoPlay)
+            this.play();
         return this;
     }
 
@@ -294,11 +285,12 @@ export class Animation extends AnimationBase {
      */
     loadAtlas(url: string, loaded: Handler = null, cacheName: string = ""): Animation {
         this._url = "";
-        var _this: Animation = this;
-        if (!_this._setFramesFromCache(cacheName)) {
-            function onLoaded(loadUrl: string): void {
+        if (!this._setFramesFromCache(cacheName)) {
+            let onLoaded = (loadUrl: string) => {
                 if (url === loadUrl) {
-                    _this.frames = Animation.framesMap[cacheName] ? Animation.framesMap[cacheName] : Animation.createFrames(url, cacheName);
+                    this.frames = Animation.framesMap[cacheName] ? Animation.framesMap[cacheName] : Animation.createFrames(url, cacheName);
+                    if (!this._isPlaying && this._autoPlay)
+                        this.play();
                     if (loaded) loaded.run();
                 }
             }
@@ -306,86 +298,6 @@ export class Animation extends AnimationBase {
             else ILaya.loader.load(url, Handler.create(null, onLoaded, [url]), null, Loader.ATLAS);
         }
         return this;
-    }
-
-    /**
-     * <p>加载并解析由LayaAir IDE制作的动画文件，此文件中可能包含多个动画。默认帧率为在IDE中设计的帧率，如果调用过set interval，则使用此帧间隔对应的帧率。加载后创建动画模版，并缓存到动画模版缓存池，key "url#动画名称" 对应相应动画名称的动画模板，key "url#" 对应动画模版集合的默认动画模版。</p>
-     * <p>注意：如果调用本方法前，还没有预加载动画使用的图集，请将atlas参数指定为对应的图集路径，否则会导致动画创建失败。</p>
-     * <p>动画模版缓存池是以一定的内存开销来节省CPU开销，当相同的动画模版被多次使用时，相比于每次都创建新的动画模版，使用动画模版缓存池，只需创建一次，缓存之后多次复用，从而节省了动画模版创建的开销。</p>
-     * <p>因为返回值为Animation对象本身，所以可以使用如下语法：loadAnimation(...).loadAnimation(...).play(...);。</p>
-     * @param	url 	动画文件路径。可由LayaAir IDE创建并发布。
-     * @param	loaded	（可选）使用指定动画资源初始化动画完毕的回调。
-     * @param	atlas	（可选）动画用到的图集地址（可选）。
-     * @return 	返回动画本身。
-     */
-    loadAnimation(url: string, loaded: Handler = null, atlas: string = null): Animation {
-        this._url = url;
-        var _this: Animation = this;
-        if (!this._actionName) this._actionName = "";
-        if (!_this._setFramesFromCache(this._actionName)) {
-            if (!atlas || Loader.getAtlas(atlas)) {
-                this._loadAnimationData(url, loaded, atlas);
-            } else {
-                ILaya.loader.load(atlas, Handler.create(this, this._loadAnimationData, [url, loaded, atlas]), null, Loader.ATLAS)
-            }
-        } else {
-            _this._setFramesFromCache(this._actionName, true);
-            this.index = 0;
-            if (loaded) loaded.run();
-        }
-        return this;
-    }
-
-    /**@private */
-    private _loadAnimationData(url: string, loaded: Handler = null, atlas: string = null): void {
-        if (atlas && !Loader.getAtlas(atlas)) {
-            console.warn("atlas load fail:" + atlas);
-            return;
-        }
-
-        ILaya.loader.fetch(url, "json").then(data => {
-            if (this._url !== url)
-                return;
-
-            if (!data) {
-                // 如果getRes失败了，有可能是相同的文件已经被删掉了，因为下面在用完后会立即删除
-                // 这时候可以取frameMap中去找，如果找到了，走正常流程。--王伟
-                if (Animation.framesMap[url + "#"]) {
-                    this._setFramesFromCache(this._actionName, true);
-                    this.index = 0;
-                    this._resumePlay();
-                    if (loaded) loaded.run();
-                }
-                return;
-            }
-
-            let tAniO: any;
-            if (!Animation.framesMap[url + "#"]) {
-                //此次解析仅返回动画数据，并不真正解析动画graphic数据
-                let aniData: any = GraphicAnimation.parseAnimationData(data);
-                if (!aniData) return;
-                //缓存动画数据
-                let aniList: any[] = aniData.animationList;
-                let len: number = aniList.length;
-                let defaultO: any;
-                for (let i = 0; i < len; i++) {
-                    tAniO = aniList[i];
-                    Animation.framesMap[url + "#" + tAniO.name] = tAniO;
-                    if (!defaultO) defaultO = tAniO;
-                }
-                if (defaultO) {
-                    Animation.framesMap[url + "#"] = defaultO;
-                    this._setFramesFromCache(this._actionName, true);
-                    this.index = 0;
-                }
-                this._resumePlay();
-            } else {
-                this._setFramesFromCache(this._actionName, true);
-                this.index = 0;
-                this._resumePlay();
-            }
-            if (loaded) loaded.run();
-        });
     }
 
     /**
@@ -432,6 +344,17 @@ export class Animation extends AnimationBase {
             if (val === key || val.indexOf(key2) === 0) {
                 delete Animation.framesMap[val];
             }
+        }
+    }
+
+    /** @internal */
+    onAfterDeserialize(): void {
+        super.onAfterDeserialize();
+
+        if ((<any>this).images) {
+            if (!this._source)
+                this.loadImages((<any>this).images);
+            delete (<any>this).images;
         }
     }
 }
