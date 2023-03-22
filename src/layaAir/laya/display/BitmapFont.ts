@@ -32,8 +32,8 @@ export class BitmapFont extends Resource {
      * @param	complete	加载并解析完成的回调。
      */
     static loadFont(path: string, complete: Handler): void {
-        ILaya.loader.load(path, Loader.FONT).then(() => {
-            complete && complete.run();
+        ILaya.loader.load(path, Loader.FONT).then(font => {
+            complete && complete.runWith(font);
         });
     }
 
@@ -58,6 +58,7 @@ export class BitmapFont extends Resource {
             return this.parseFont2(xml, texture);
         }
         this.fontSize = parseInt(tInfo[0].getAttributeNode("size").nodeValue);
+        this.autoScaleSize = tInfo[0].getAttributeNode("autoScaleSize")?.nodeValue === "true";
 
         let tPadding: string = tInfo[0].getAttributeNode("padding").nodeValue;
         let tPaddingArray: any[] = tPadding.split(",");
@@ -201,7 +202,7 @@ export class BitmapFont extends Resource {
      * @internal
      * 将指定的文本绘制到指定的显示对象上。
      */
-    _drawText(text: string, sprite: Sprite, drawX: number, drawY: number, align: string, width: number): void {
+    _drawText(text: string, sprite: Sprite, drawX: number, drawY: number, align: string, width: number, color: string): void {
         let tWidth: number = this.getTextWidth(text);
         let tTexture: Texture;
         let dx: number = 0;
@@ -211,7 +212,7 @@ export class BitmapFont extends Resource {
         for (let i: number = 0, n: number = text.length; i < n; i++) {
             tTexture = this.getCharTexture(text.charAt(i));
             if (tTexture) {
-                sprite.graphics.drawImage(tTexture, drawX + tx + dx, drawY);
+                sprite.graphics.drawImage(tTexture, drawX + tx + dx, drawY, null, null, color);
                 tx += this.getCharWidth(text.charAt(i));
             }
         }

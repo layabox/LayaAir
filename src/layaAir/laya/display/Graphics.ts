@@ -32,7 +32,9 @@ import { Texture } from "../resource/Texture"
 import { Utils } from "../utils/Utils"
 import { VectorGraphManager } from "../utils/VectorGraphManager"
 import { ILaya } from "../../ILaya";
-import { Config } from "../../Config";
+import { WordText } from "../utils/WordText";
+import { HTMLChar } from "../utils/HTMLChar";
+import { ColorUtils } from "../utils/ColorUtils";
 
 /**
  * <code>Graphics</code> 类用于创建绘图显示对象。Graphics可以同时绘制多个位图或者矢量图，还可以结合save，restore，transform，scale，rotate，translate，alpha等指令对绘图效果进行变化。
@@ -229,7 +231,7 @@ export class Graphics {
      * @param height	（可选）高度。
      * @param color	 	 （可选）颜色
      */
-    drawImage(texture: Texture, x: number = 0, y: number = 0, width: number = 0, height: number = 0, color = 0xffffffff): DrawImageCmd | null {
+    drawImage(texture: Texture, x: number = 0, y: number = 0, width: number = 0, height: number = 0, color: string = null): DrawImageCmd | null {
         if (!texture) return null;
         if (!texture.bitmap) return null;
         return this.addCmd(DrawImageCmd.create(texture, x, y, width, height, color));
@@ -294,7 +296,7 @@ export class Graphics {
      * @param color	 	 （可选）颜色
      *
      */
-    fillTexture(texture: Texture, x: number, y: number, width: number = 0, height: number = 0, type: string = "repeat", offset: Point | null = null, color: number = 0xffffffff): FillTextureCmd | null {
+    fillTexture(texture: Texture, x: number, y: number, width: number = 0, height: number = 0, type: string = "repeat", offset: Point | null = null, color: string = null): FillTextureCmd | null {
         if (texture && texture.bitmap)
             return this.addCmd(FillTextureCmd.create(texture, x, y, width, height, type, offset || Point.EMPTY, color));
         else
@@ -321,8 +323,8 @@ export class Graphics {
      * @param color 定义文本颜色，比如"#ff0000"。
      * @param textAlign 文本对齐方式，可选值："left"，"center"，"right"。
      */
-    fillText(text: string, x: number, y: number, font: string, color: string, textAlign: string): FillTextCmd {
-        return this.addCmd(FillTextCmd.create(text, null, x, y, font || Config.defaultFontStr(), color, textAlign, 0, ""));
+    fillText(text: string | WordText, x: number, y: number, font: string, color: string, textAlign: string): FillTextCmd {
+        return this.addCmd(FillTextCmd.create(text, null, x, y, font, color, textAlign, 0, ""));
     }
 
     /**
@@ -336,19 +338,18 @@ export class Graphics {
      * @param lineWidth		镶边线条宽度。
      * @param borderColor	定义镶边文本颜色。
      */
-
-    fillBorderText(text: string, x: number, y: number, font: string, fillColor: string, textAlign: string, lineWidth: number, borderColor: string): FillTextCmd {
-        return this.addCmd(FillTextCmd.create(text, null, x, y, font || Config.defaultFontStr(), fillColor, textAlign, lineWidth, borderColor));
+    fillBorderText(text: string | WordText, x: number, y: number, font: string, fillColor: string, textAlign: string, lineWidth: number, borderColor: string): FillTextCmd {
+        return this.addCmd(FillTextCmd.create(text, null, x, y, font, fillColor, textAlign, lineWidth, borderColor));
     }
 
     /*** @private */
-    fillWords(words: any[], x: number, y: number, font: string, color: string): FillTextCmd {
-        return this.addCmd(FillTextCmd.create(null, words, x, y, font || Config.defaultFontStr(), color, '', 0, null));
+    fillWords(words: HTMLChar[], x: number, y: number, font: string, color: string): FillTextCmd {
+        return this.addCmd(FillTextCmd.create(null, words, x, y, font, color, '', 0, null));
     }
 
     /*** @private */
-    fillBorderWords(words: any[], x: number, y: number, font: string, fillColor: string, borderColor: string, lineWidth: number): FillTextCmd {
-        return this.addCmd(FillTextCmd.create(null, words, x, y, font || Config.defaultFontStr(), fillColor, "", lineWidth, borderColor));
+    fillBorderWords(words: HTMLChar[], x: number, y: number, font: string, fillColor: string, borderColor: string, lineWidth: number): FillTextCmd {
+        return this.addCmd(FillTextCmd.create(null, words, x, y, font, fillColor, "", lineWidth, borderColor));
     }
 
     /**
@@ -361,8 +362,8 @@ export class Graphics {
      * @param lineWidth	线条宽度。
      * @param textAlign	文本对齐方式，可选值："left"，"center"，"right"。
      */
-    strokeText(text: string, x: number, y: number, font: string, color: string, lineWidth: number, textAlign: string): FillTextCmd {
-        return this.addCmd(FillTextCmd.create(text, null, x, y, font || Config.defaultFontStr(), null, textAlign, lineWidth, color));
+    strokeText(text: string | WordText, x: number, y: number, font: string, color: string, lineWidth: number, textAlign: string): FillTextCmd {
+        return this.addCmd(FillTextCmd.create(text, null, x, y, font, null, textAlign, lineWidth, color));
     }
 
     /**
@@ -438,18 +439,12 @@ export class Graphics {
         //todo 该函数现在加速器应该不对
         var cmds = this._cmds;
         for (let i = cmds.length - 1; i > -1; i--) {
-            if (this._isTextCmd(cmds[i])) {
+            if (cmds[i].cmdID == FillTextCmd.ID) {
                 cmds[i].text = text;
                 return true;
             }
         }
         return false;
-    }
-
-    /**@private */
-    private _isTextCmd(cmd: any): boolean {
-        var cmdID: string = cmd.cmdID;
-        return cmdID == FillTextCmd.ID;
     }
 
     /**
@@ -461,20 +456,22 @@ export class Graphics {
         this._repaint();
         let cmds = this._cmds;
         for (let i = cmds.length - 1; i > -1; i--) {
-            if (this._isTextCmd(cmds[i])) {
-                this._setTextCmdColor(cmds[i], color);
+            let cmd = cmds[i];
+            var cmdID: string = cmd.cmdID;
+            switch (cmdID) {
+                case FillTextCmd.ID:
+                    (cmd as FillTextCmd).color = color;
+                    break;
+                case DrawImageCmd.ID: //bitmap font
+                    (cmd as DrawImageCmd).color = color != null ? ColorUtils.create(color).numColor : 0xffffffff;
+                    break;
             }
         }
     }
 
     /**@private */
     private _setTextCmdColor(cmdO: any, color: string): void {
-        var cmdID: string = cmdO.cmdID;
-        switch (cmdID) {
-            case FillTextCmd.ID:
-                (cmdO as FillTextCmd).color = color;
-                break;
-        }
+
     }
 
     /**

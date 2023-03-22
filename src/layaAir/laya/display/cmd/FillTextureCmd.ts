@@ -3,6 +3,7 @@ import { Rectangle } from "../../maths/Rectangle";
 import { Context } from "../../resource/Context"
 import { Texture } from "../../resource/Texture"
 import { ClassUtils } from "../../utils/ClassUtils";
+import { ColorUtils } from "../../utils/ColorUtils";
 import { Pool } from "../../utils/Pool";
 
 /**
@@ -49,7 +50,7 @@ export class FillTextureCmd {
     color: number = 0xffffffff;
 
     /**@private */
-    static create(texture: Texture, x: number, y: number, width: number, height: number, type: string, offset: Point, color: number): FillTextureCmd {
+    static create(texture: Texture, x: number, y: number, width: number, height: number, type: string, offset: Point, color: string): FillTextureCmd {
         var cmd: FillTextureCmd = Pool.getItemByClass("FillTextureCmd", FillTextureCmd);
         cmd.texture = texture;
         cmd.x = x;
@@ -58,7 +59,7 @@ export class FillTextureCmd {
         cmd.height = height;
         cmd.type = type;
         cmd.offset = offset;
-        cmd.color = color;
+        cmd.color = color != null ? ColorUtils.create(color).numColor : 0xffffffff;
         return cmd;
     }
 
