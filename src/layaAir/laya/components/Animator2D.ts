@@ -349,11 +349,15 @@ export class Animator2D extends Component {
         }
         let preEventIndex = playStateInfo._playEventIndex;
         if (frontPlay) {
-            let newEventIndex = this._eventScript(events, playStateInfo._playEventIndex, loopCount > 0 ? clipDuration : time, true);
+            let startTime = 0;
+            if (playStateInfo.animatorState && 0 != playStateInfo.animatorState.clipStart) {
+                startTime = playStateInfo.animatorState._clip!._duration * playStateInfo.animatorState.clipStart;
+            }
+            let newEventIndex = this._eventScript(events, playStateInfo._playEventIndex, loopCount > 0 ? clipDuration : time, true, startTime);
             (preEventIndex === playStateInfo._playEventIndex) && (playStateInfo._playEventIndex = newEventIndex);//这里打个补丁，在event中调用Play 需要重置eventindex，不能直接赋值
             for (let i = 0, n = loopCount - 1; i < n; i++)
-                this._eventScript(events, 0, clipDuration, true);
-            (loopCount > 0 && time > 0) && (playStateInfo._playEventIndex = this._eventScript(events, 0, time, true));//if need cross loop,'time' must large than 0
+                this._eventScript(events, 0, clipDuration, true, startTime);
+            (loopCount > 0 && time > 0) && (playStateInfo._playEventIndex = this._eventScript(events, 0, time, true, startTime));//if need cross loop,'time' must large than 0
         } else {
             let newEventIndex = this._eventScript(events, playStateInfo._playEventIndex, loopCount > 0 ? 0 : time, false);
             (preEventIndex === playStateInfo._playEventIndex) && (playStateInfo._playEventIndex = newEventIndex);//这里打个补丁，在event中调用Play 需要重置eventindex，不能直接赋值
@@ -368,17 +372,19 @@ export class Animator2D extends Component {
     /**
      * @internal
      */
-    private _eventScript(events: Animation2DEvent[], eventIndex: number, endTime: number, front: boolean): number {
+    private _eventScript(events: Animation2DEvent[], eventIndex: number, endTime: number, front: boolean, startTime = 0): number {
         let scripts = this.owner.components;
         if (front) {
             for (let n = events.length; eventIndex < n; eventIndex++) {
                 let event = events[eventIndex];
                 if (event.time <= endTime) {
-                    for (let j = 0, m = scripts.length; j < m; j++) {
-                        let script = scripts[j];
-                        if (script._isScript()) {
-                            let fun: Function = (script as any)[event.eventName];
-                            (fun) && (fun.apply(script, event.params));
+                    if (event.time >= startTime) {
+                        for (let j = 0, m = scripts.length; j < m; j++) {
+                            let script = scripts[j];
+                            if (script._isScript()) {
+                                let fun: Function = (script as any)[event.eventName];
+                                (fun) && (fun.apply(script, event.params));
+                            }
                         }
                     }
                 } else {
