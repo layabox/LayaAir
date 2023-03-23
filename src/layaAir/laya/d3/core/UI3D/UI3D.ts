@@ -248,6 +248,7 @@ export class UI3D extends BaseRender {
     * @param hit 
     */
     private _parseHit(hit: Vector3) {
+        if(!this._uisprite) return null;
         let WV = UI3D.temp0;
         let HV = UI3D.temp1;
         let Dir = UI3D.temp2;
@@ -288,7 +289,7 @@ export class UI3D extends BaseRender {
      * @param rayOri 
      * @returns 
      */
-    _getCameraDistane(rayOri: Vector3): number {
+    _getCameraDistance(rayOri: Vector3): number {
         return Vector3.distance(rayOri, (this.owner as Sprite3D).transform.position);
     }
 
@@ -311,7 +312,7 @@ export class UI3D extends BaseRender {
      */
     _submitRT() {
         //判断是否需要重置
-        this._uisprite && this._shellSprite.drawToTexture(this._rendertexure2D.width, this._rendertexure2D.height, 0, 0, this._rendertexure2D, true);
+        this._shellSprite.drawToTexture(this._rendertexure2D.width, this._rendertexure2D.height, 0, 0, this._rendertexure2D, false);
         this._setMaterialTexture();
     }
 

@@ -59,10 +59,10 @@ export class UI3DGeometry extends GeometryElement {
         var vertexDeclaration: VertexDeclaration = VertexMesh.getVertexDeclaration("POSITION,NORMAL,UV");
         var halfLong: number = 1 / 2;
         var halfWidth: number = 1 / 2 * 100;
-        this._vertex = new Float32Array([-halfLong, halfWidth, 0, 0, 0, 1, 0, 0,
-            halfLong, halfWidth, 0, 0, 0, 1, 1, 0,
-        -halfLong, -halfWidth, 0, 0, 0, 1, 0, 1,
-            halfLong, -halfWidth, 0, 0, 0, 1, 1, 1]);
+        this._vertex = new Float32Array([-halfLong, halfWidth, 0, 0, 0, 1, 0, 1,
+            halfLong, halfWidth, 0, 0, 0, 1, 1, 1,
+        -halfLong, -halfWidth, 0, 0, 0, 1, 0, 0,
+            halfLong, -halfWidth, 0, 0, 0, 1, 1, 0]);
         this._index = new Uint16Array([0, 1, 2, 3, 2, 1]);
         //VB
         this._vertexBuffer = LayaGL.renderOBJCreate.createVertexBuffer3D(this._vertex.length * 4, BufferUsage.Dynamic, false);
@@ -146,11 +146,11 @@ export class UI3DGeometry extends GeometryElement {
         this._vertex[25] = this._positionArray[3].y;
         this._vertex[26] = this._positionArray[3].z;
         this._vertexBuffer.setData(this._vertex.buffer, 0, 0, this._vertex.length * 4);
-        UI3DGeometry.tempV0.setValue(size.x / 2, size.y / 2, size.x / 2);
+        UI3DGeometry.tempV0.setValue(size.x / 2, size.y / 2, 0.0);
         this._bound.setExtent(UI3DGeometry.tempV0);
         let halfWidth = (this._positionArray[3].x - this._positionArray[2].x) / 2;
         let halfHeight = (this._positionArray[0].y - this._positionArray[2].y) / 2;
-        UI3DGeometry.tempV0.setValue(this._positionArray[2].x + halfWidth, this._positionArray[2].y + halfHeight, 0);
+        UI3DGeometry.tempV0.setValue(this._positionArray[2].x + halfWidth, this._positionArray[2].y + halfHeight, this._positionArray[2].z);
         this._bound.setCenter(UI3DGeometry.tempV0);
     }
 
