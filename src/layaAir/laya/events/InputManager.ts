@@ -183,8 +183,10 @@ export class InputManager {
         _tempPoint.setTo(ev.pageX || ev.clientX, ev.pageY || ev.clientY);
         if (this._stage._canvasTransform)
             this._stage._canvasTransform.invertTransformPoint(_tempPoint);
-        let x = InputManager.mouseX = _tempPoint.x;
-        let y = InputManager.mouseY = _tempPoint.y;
+        InputManager.mouseX = _tempPoint.x;
+        InputManager.mouseY = _tempPoint.y;
+        let x = _tempPoint.x / this._stage.clientScaleX;
+        let y = _tempPoint.y / this._stage.clientScaleY;
 
         touch.event.nativeEvent = ev;
         if (type == 3 || !InputManager.mouseEventsEnabled)
@@ -192,10 +194,13 @@ export class InputManager {
         else {
             touch.target = this._touchTarget = this.getNodeUnderPoint(x, y);
 
-            if (x != touch.pos.x || y != touch.pos.y) {
+            let ix = Math.round(x);
+            let iy = Math.round(y);
+
+            if (ix != touch.pos.x || iy != touch.pos.y) {
                 this._stage._mouseMoveTime = Browser.now();
 
-                touch.pos.setTo(x, y);
+                touch.pos.setTo(ix, iy);
                 touch.move();
 
                 if (InputManager.mouseEventsEnabled) {
@@ -280,8 +285,10 @@ export class InputManager {
             _tempPoint.setTo(uTouch.pageX, uTouch.pageY);
             if (this._stage._canvasTransform)
                 this._stage._canvasTransform.invertTransformPoint(_tempPoint);
-            let x = InputManager.mouseX = _tempPoint.x;
-            let y = InputManager.mouseY = _tempPoint.y;
+            InputManager.mouseX = _tempPoint.x;
+            InputManager.mouseY = _tempPoint.y;
+            let x = _tempPoint.x / this._stage.clientScaleX;
+            let y = _tempPoint.y / this._stage.clientScaleY;
 
             let touch = this.getTouch(uTouch.identifier, type == 0);
             if (!touch)
@@ -295,8 +302,11 @@ export class InputManager {
                 touch.target = this._touchTarget = this.getNodeUnderPoint(x, y);
                 this._stage._mouseMoveTime = Browser.now();
 
-                if (Math.abs(x - touch.pos.x) > 1.5 || Math.abs(y - touch.pos.y) > 1.5) {
-                    touch.pos.setTo(x, y);
+                let ix = Math.round(x);
+                let iy = Math.round(y);
+
+                if (Math.abs(ix - touch.pos.x) > 1.5 || Math.abs(iy - touch.pos.y) > 1.5) {
+                    touch.pos.setTo(ix, iy);
                     touch.move();
 
                     if (InputManager.mouseEventsEnabled) {
@@ -433,11 +443,6 @@ export class InputManager {
      */
     getSpriteUnderPoint(sp: Sprite, x: number, y: number): Sprite {
         if (sp == this._stage) {
-            _tempPoint.setTo(x, y);
-            sp.fromParentPoint(_tempPoint);
-            x = _tempPoint.x;
-            y = _tempPoint.y;
-
             for (let i = sp._children.length - 1; i > -1; i--) {
                 let child = <Sprite>sp._children[i];
                 let editing = child._getBit(NodeFlags.EDITING_NODE);
