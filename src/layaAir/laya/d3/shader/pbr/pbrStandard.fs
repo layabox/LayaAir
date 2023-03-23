@@ -84,12 +84,6 @@ void initSurfaceInputs(inout SurfaceInputs inputs, inout PixelParams pixel)
     inputs.metallic = u_Metallic;
     inputs.smoothness = u_Smoothness;
 
-#ifdef SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA
-    inputs.smoothness = u_SmoothnessScale;
-    #ifdef ALBEDOTEXTURE
-    inputs.smoothness *= albedoSampler.a;
-    #endif // ALBEDOTEXTURE
-#endif // SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA
 
 #ifdef METALLICGLOSSTEXTURE
 
@@ -99,13 +93,14 @@ void initSurfaceInputs(inout SurfaceInputs inputs, inout PixelParams pixel)
     #endif // Gamma_u_MetallicGlossTexture
 
     inputs.metallic = metallicSampler.x;
-    inputs.smoothness = metallicSampler.w * u_SmoothnessScale;
+    
 
     #ifdef SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA
-    inputs.smoothness = u_SmoothnessScale;
-	#ifdef ALBEDOTEXTURE
-    inputs.smoothness *= albedoSampler.a;
-	#endif // ALBEDOTEXTURE
+        #ifdef ALBEDOTEXTURE
+        inputs.smoothness = (albedoSampler.a * u_Smoothness);
+        #endif // ALBEDOTEXTURE
+    #else // SMOOTHNESSSOURCE_METALLICTEXTURE_ALPHA
+        inputs.smoothness = (metallicSampler.a * u_Smoothness);
     #endif // SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA
 
 #endif // METALLICGLOSSTEXTURE
