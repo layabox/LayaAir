@@ -34,14 +34,6 @@ export class Buffer {
 	}
 
 	/**
-	 * reset byteLength
-	 */
-	resizelength(bytelength:number){
-		this._byteLength = bytelength;
-		this._glBuffer.resizeBuffer(this._byteLength)
-	}
-
-	/**
 	 * @private
 	 */
 	destroy(): void {

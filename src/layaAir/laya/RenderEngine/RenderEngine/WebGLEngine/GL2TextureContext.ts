@@ -10,7 +10,6 @@ import { TextureCompareMode } from "../../RenderEnum/TextureCompareMode";
 import { TextureFormat } from "../../RenderEnum/TextureFormat";
 import { KTXTextureInfo } from "../../KTXTextureInfo";
 import { RenderCapable } from "../../RenderEnum/RenderCapable";
-import { InternalTexture } from "../../RenderInterface/InternalTexture";
 
 /**
  * 将继承修改为类似 WebGLRenderingContextBase, WebGLRenderingContextOverloads 多继承 ?

@@ -20,7 +20,7 @@ export class HitResult {
      * 创建一个 <code>HitResult</code> 实例。
      */
     constructor() {
-
+        
     }
 }
 

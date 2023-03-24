@@ -19,13 +19,11 @@ export class GLObject{
         return this._destroyed;
     }
 
-
     /**
+     * destroy
      * @override
+     * @returns 
      */
-    setResourceManager():void{
-    };
-
     destroy():void{
         if (this._destroyed) return;
         this._destroyed = true;

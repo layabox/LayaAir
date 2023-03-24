@@ -596,7 +596,9 @@ export class ShaderData implements IClone {
 				} else if (value instanceof BaseTexture) {
 					destData[k] = value;
 					value._addReference();
-
+				} else if (value instanceof Resource){
+					destData[k] = value as any;
+					value._addReference();
 				}
 			}
 		}
