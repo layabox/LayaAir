@@ -5,7 +5,6 @@ import { Loader } from "../net/Loader"
 import { AutoBitmap } from "./AutoBitmap"
 import { Styles } from "./Styles"
 import { UIUtils } from "./UIUtils"
-import { Handler } from "../utils/Handler"
 import { ILaya } from "../../ILaya";
 import { HideFlags } from "../Const";
 import { URL } from "../net/URL";
@@ -198,17 +197,30 @@ export class TextInput extends Label {
     }
 
     set skin(value: string) {
-        if (this._skin != value) {
-            this._skin = value;
+        if (value == "")
+            value = null;
+        if (this._skin == value)
+            return;
 
-            if (this._skin) {
-                let url = this._skinBaseUrl ? URL.formatURL(this._skin, this._skinBaseUrl) : this._skin;
-                let source = Loader.getRes(url);
-                if (!source)
-                    ILaya.loader.load(url, Handler.create(this, this._skinLoaded), null, Loader.IMAGE);
-                else
-                    this._skinLoaded(source);
+        this._setSkin(value);
+    }
+
+    _setSkin(url: string): Promise<void> {
+        this._skin = url;
+        if (url) {
+            if (this._skinBaseUrl)
+                url = URL.formatURL(url, this._skinBaseUrl);
+            let source = Loader.getRes(url);
+            if (source) {
+                this._skinLoaded(source);
+                return Promise.resolve();
             }
+            else
+                return ILaya.loader.load(url, Loader.IMAGE).then(tex => this._skinLoaded(tex));
+        }
+        else {
+            this._skinLoaded(null);
+            return Promise.resolve();
         }
     }
 
@@ -222,7 +234,6 @@ export class TextInput extends Label {
      * <p>当前实例的背景图（ <code>AutoBitmap</code> ）实例的有效缩放网格数据。</p>
      * <p>数据格式："上边距,右边距,下边距,左边距,是否重复填充(值为0：不重复填充，1：重复填充)"，以逗号分隔。
      * <ul><li>例如："4,4,4,4,1"</li></ul></p>
-     * @see laya.ui.AutoBitmap.sizeGrid
      */
     get sizeGrid(): string {
         return this._graphics && this._graphics.sizeGrid ? this._graphics.sizeGrid.join(",") : null;

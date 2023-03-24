@@ -35,7 +35,7 @@ export class URL {
     }
 
     static initMiniGameExtensionOverrides() {
-        if (!LayaEnv.isPlaying || LayaEnv.isPreview)
+        if (LayaEnv.isPreview)
             return;
 
         URL.overrideExtension(["rendertexture", "videotexture"], "rt.json");

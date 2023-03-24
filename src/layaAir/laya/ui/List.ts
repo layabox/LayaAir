@@ -524,8 +524,8 @@ export class List extends Box {
             if (this._width > 0) this._repeatX2 = this._isVertical ? Math.round(this._width / cellWidth) : Math.ceil(this._width / cellWidth);
             if (this._height > 0) this._repeatY2 = this._isVertical ? Math.ceil(this._height / cellHeight) : Math.round(this._height / cellHeight);
 
-            let listWidth = this._width ? this._width : (cellWidth * this.repeatX - this._spaceX);
-            let listHeight = this._height ? this._height : (cellHeight * this.repeatY - this._spaceY);
+            let listWidth = this._isWidthSet ? this._width : (cellWidth * this.repeatX - this._spaceX);
+            let listHeight = this._isHeightSet ? this._height : (cellHeight * this.repeatY - this._spaceY);
             this._cellSize = this._isVertical ? cellHeight : cellWidth;
             this._cellOffset = this._isVertical ? (cellHeight * Math.max(this._repeatY2, this._repeatY) - listHeight - this._spaceY) : (cellWidth * Math.max(this._repeatX2, this._repeatX) - listWidth - this._spaceX);
 

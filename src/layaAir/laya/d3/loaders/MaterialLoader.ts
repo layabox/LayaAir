@@ -21,17 +21,15 @@ class MaterialLoader implements IResourceLoader {
                     if (url)
                         urls.push(url);
                     else {
-                        let promise = AssetDb.inst.shaderName_to_URL_async(shaderName);
-                        if (promise) {
-                            return promise.then(url => {
-                                if (url)
-                                    urls.push(url);
-                                return this.load2(task, data, urls);
-                            });
-                        }
-                        else if (data.props.shaderPath) {
-                            urls.push(URL.join(basePath, data.props.shaderPath));
-                        }
+                        return AssetDb.inst.shaderName_to_URL_async(shaderName).then(url => {
+                            if (url)
+                                urls.push(url);
+                            else if (data.props.shaderPath)
+                                urls.push(URL.join(basePath, data.props.shaderPath));
+                            else
+                                console.warn(`unknown shaderName: ${shaderName}`);
+                            return this.load2(task, data, urls);
+                        });
                     }
                 }
             }

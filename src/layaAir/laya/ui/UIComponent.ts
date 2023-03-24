@@ -72,7 +72,7 @@ export class UIComponent extends Sprite {
      * @override
      */
     get_width(): number {
-        if (this._width) return this._width;
+        if (this._isWidthSet) return this._width;
         return this.measureWidth();
     }
 
@@ -104,7 +104,7 @@ export class UIComponent extends Sprite {
      * @override
      */
     get_height(): number {
-        if (this._height) return this._height;
+        if (this._isHeightSet) return this._height;
         return this.measureHeight();
     }
 

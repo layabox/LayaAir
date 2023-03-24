@@ -278,6 +278,7 @@ export class Panel extends Box {
         scrollBar.bottom = 0;
         scrollBar._skinBaseUrl = this._skinBaseUrl;
         scrollBar.skin = this._hScrollBarSkin;
+        scrollBar.on(Event.LOADED, this, this._setScrollChanged);
         super.addChild(scrollBar);
         this._setScrollChanged();
     }
@@ -291,6 +292,7 @@ export class Panel extends Box {
         scrollBar.right = 0;
         scrollBar._skinBaseUrl = this._skinBaseUrl;
         scrollBar.skin = this._vScrollBarSkin;
+        scrollBar.on(Event.LOADED, this, this._setScrollChanged);
         super.addChild(scrollBar);
         this._setScrollChanged();
     }

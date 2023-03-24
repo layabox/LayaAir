@@ -17,6 +17,7 @@ import { Resource } from "../resource/Resource";
 import { Downloader } from "./Downloader";
 import { AssetDb } from "../resource/AssetDb";
 import { BaseTexture } from "../resource/BaseTexture";
+import { LayaEnv } from "../../LayaEnv";
 
 export interface ILoadTask {
     readonly type: string;
@@ -282,39 +283,26 @@ export class Loader extends EventDispatcher {
     }
 
     private _load1(url: string, type: string, options: ILoadOptions, onProgress: ProgressCallback): Promise<any> {
-        let uuid: string = null;
-        if (url.startsWith("res://")) {
-            uuid = url.substring(6);
-            let url2 = AssetDb.inst.UUID_to_URL(uuid);
-            if (!url2) {
-                let promise = AssetDb.inst.UUID_to_URL_async(uuid);
-                if (!promise) {
-                    !options.silent && Loader.warn(url);
-                    return Promise.resolve(null);
-                }
-
-                return promise.then(url2 => {
+        if (LayaEnv.isPreview) {
+            if (url.startsWith("res://")) {
+                let uuid = url.substring(6);
+                return AssetDb.inst.UUID_to_URL_async(uuid).then(url2 => {
                     if (url2)
                         return this._load2(url2, uuid, type, options, onProgress);
                     else {
                         !options.silent && Loader.warn(url);
-                        return null;
+                        return Promise.resolve(null);
                     }
                 });
             }
-            else
-                url = url2;
-        }
-        else {
-            let promise = AssetDb.inst.URL_to_UUID_async(url);
-            if (promise) {
-                return promise.then(uuid => {
+            else {
+                return AssetDb.inst.URL_to_UUID_async(url).then(uuid => {
                     return this._load2(url, uuid, type, options, onProgress);
                 });
             }
         }
-
-        return this._load2(url, uuid, type, options, onProgress);
+        else
+            return this._load2(url, null, type, options, onProgress);
     }
 
     private _load2(url: string, uuid: string, type: string, options: ILoadOptions, onProgress: ProgressCallback): Promise<any> {
@@ -455,8 +443,8 @@ export class Loader extends EventDispatcher {
         if (options.silent)
             task.silent = true;
 
-        return new Promise((resolve) => {
-            AssetDb.inst.resolveURL(url, url => {
+        return AssetDb.inst.resolveURL(url).then(url => {
+            return new Promise((resolve) => {
                 task.url = URL.formatURL(url);
                 task.onComplete = resolve;
                 this.queueToDownload(task);

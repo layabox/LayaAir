@@ -231,7 +231,7 @@ export class Graphics {
      * @param height	（可选）高度。
      * @param color	 	 （可选）颜色
      */
-    drawImage(texture: Texture, x: number = 0, y: number = 0, width: number = 0, height: number = 0, color: string = null): DrawImageCmd | null {
+    drawImage(texture: Texture, x: number = 0, y: number = 0, width: number = null, height: number = null, color: string = null): DrawImageCmd | null {
         if (!texture) return null;
         if (!texture.bitmap) return null;
         return this.addCmd(DrawImageCmd.create(texture, x, y, width, height, color));
@@ -249,7 +249,7 @@ export class Graphics {
      * @param color		（可选）颜色滤镜。
      * @param blendMode （可选）混合模式。
      */
-    drawTexture(texture: Texture | null, x: number = 0, y: number = 0, width: number = 0, height: number = 0, matrix: Matrix | null = null, alpha: number = 1, color: string | null = null, blendMode: string | null = null, uv?: number[]): DrawTextureCmd | null {
+    drawTexture(texture: Texture | null, x: number = 0, y: number = 0, width: number = null, height: number = null, matrix: Matrix | null = null, alpha: number = 1, color: string | null = null, blendMode: string | null = null, uv?: number[]): DrawTextureCmd | null {
         if (!texture || alpha < 0.01) return null;
         if (!texture.bitmap) return null;
         return this.addCmd(DrawTextureCmd.create(texture, x, y, width, height, matrix, alpha, color, blendMode, uv));
@@ -469,11 +469,6 @@ export class Graphics {
         }
     }
 
-    /**@private */
-    private _setTextCmdColor(cmdO: any, color: string): void {
-
-    }
-
     /**
      * 加载并显示一个图片。
      * @param url		图片地址。
@@ -483,7 +478,7 @@ export class Graphics {
      * @param height	（可选）显示图片的高度，设置为0表示使用图片默认高度。
      * @param complete	（可选）加载完成回调。
      */
-    loadImage(url: string, x: number = 0, y: number = 0, width: number = 0, height: number = 0, complete: Function | null = null): void {
+    loadImage(url: string, x: number = 0, y: number = 0, width: number = null, height: number = null, complete: Function | null = null): void {
         let tex: Texture = ILaya.loader.getRes(url);
         if (tex) {
             this.drawImage(tex, x, y, width, height);
