@@ -139,7 +139,6 @@ export class PBRMaterial extends Material {
         PBRMaterial.NORMALTEXTURE = Shader3D.propertyNameToID("u_NormalTexture");
         PBRMaterial.NORMALSCALE = Shader3D.propertyNameToID("u_NormalScale");
         PBRMaterial.SMOOTHNESS = Shader3D.propertyNameToID("u_Smoothness");
-        PBRMaterial.SMOOTHNESSSCALE = Shader3D.propertyNameToID("u_SmoothnessScale");
         PBRMaterial.OCCLUSIONTEXTURE = Shader3D.propertyNameToID("u_OcclusionTexture");
         PBRMaterial.OCCLUSIONSTRENGTH = Shader3D.propertyNameToID("u_OcclusionStrength");
         PBRMaterial.PARALLAXTEXTURE = Shader3D.propertyNameToID("u_ParallaxTexture");
@@ -276,17 +275,6 @@ export class PBRMaterial extends Material {
 
     set smoothness(value: number) {
         this._shaderValues.setNumber(PBRMaterial.SMOOTHNESS, Math.max(0.0, Math.min(1.0, value)));
-    }
-
-    /**
-     * 光滑度缩放系数,范围为0到1。
-     */
-    get smoothnessTextureScale(): number {
-        return this._shaderValues.getNumber(PBRMaterial.SMOOTHNESSSCALE);
-    }
-
-    set smoothnessTextureScale(value: number) {
-        this._shaderValues.setNumber(PBRMaterial.SMOOTHNESSSCALE, Math.max(0.0, Math.min(1.0, value)));
     }
 
     /**
@@ -539,12 +527,25 @@ export class PBRMaterial extends Material {
         this._shaderValues.setColor(PBRMaterial.EMISSIONCOLOR, new Color(1.0, 1.0, 1.0, 1.0));
         this._shaderValues.setVector(PBRMaterial.TILINGOFFSET, new Vector4(1.0, 1.0, 0.0, 0.0));
         this._shaderValues.setNumber(PBRMaterial.SMOOTHNESS, 0.5);
-        this._shaderValues.setNumber(PBRMaterial.SMOOTHNESSSCALE, 1.0);
         this._shaderValues.setNumber(PBRMaterial.OCCLUSIONSTRENGTH, 1.0);
         this._shaderValues.setNumber(PBRMaterial.NORMALSCALE, 1.0);
         this._shaderValues.setNumber(PBRMaterial.PARALLAXSCALE, 0.001);
         this._shaderValues.setNumber(Material.ALPHATESTVALUE, 0.5);
         this.renderMode = PBRRenderMode.Opaque;
         this.materialType = PBRMaterialType.Standard;
+    }
+
+
+    //deprecated
+    /**
+     * @deprecated
+     * 光滑度缩放系数,范围为0到1。
+     */
+    get smoothnessTextureScale(): number {
+        return this._shaderValues.getNumber(PBRMaterial.SMOOTHNESS);
+    }
+
+    set smoothnessTextureScale(value: number) {
+        this._shaderValues.setNumber(PBRMaterial.SMOOTHNESS, Math.max(0.0, Math.min(1.0, value)));
     }
 }
