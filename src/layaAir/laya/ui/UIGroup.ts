@@ -221,15 +221,29 @@ export class UIGroup extends Box {
     }
 
     set skin(value: string) {
-        if (this._skin != value) {
-            this._skin = value;
-            if (this._skin) {
-                let url = this._skinBaseUrl ? URL.formatURL(this._skin, this._skinBaseUrl) : this._skin;
-                if (!Loader.getRes(url))
-                    ILaya.loader.load(url, Handler.create(this, this._skinLoaded), null, Loader.IMAGE);
-                else
-                    this._skinLoaded();
+        if (value == "")
+            value = null;
+        if (this._skin == value)
+            return;
+
+        this._setSkin(value);
+    }
+
+    _setSkin(url: string): Promise<void> {
+        this._skin = url;
+        if (url) {
+            if (this._skinBaseUrl)
+                url = URL.formatURL(url, this._skinBaseUrl);
+            if (Loader.getRes(url)) {
+                this._skinLoaded();
+                return Promise.resolve();
             }
+            else
+                return ILaya.loader.load(url, Loader.IMAGE).then(tex => this._skinLoaded());
+        }
+        else {
+            this._skinLoaded();
+            return Promise.resolve();
         }
     }
 

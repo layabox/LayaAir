@@ -67,7 +67,7 @@ export class RenderSprite {
     }
 
     private static _getTypeRender(type: number): RenderSprite {
-        if (LayaGLQuickRunner.map[type]) return new RenderSprite(type, null);
+        if (LayaGLQuickRunner.map[type] && LayaEnv.isPlaying) return new RenderSprite(type, null);
         var rst: RenderSprite | null = null;
         var tType: number = SpriteConst.CHILDS;
         while (tType > 0) {
@@ -80,7 +80,7 @@ export class RenderSprite {
 
     constructor(type: number, next: RenderSprite | null) {
 
-        if (LayaGLQuickRunner.map[type]) {
+        if (LayaGLQuickRunner.map[type] && LayaEnv.isPlaying) {
             this._fun = LayaGLQuickRunner.map[type];
             this._next = RenderSprite.NORENDER;
             return;
@@ -197,8 +197,8 @@ export class RenderSprite {
         if (!sprite._getBit(NodeFlags.HIDE_BY_EDITOR)) {
             var tex: Texture = sprite.texture;
             if (tex._getSource()) {
-                var width: number = sprite._width || tex.sourceWidth;
-                var height: number = sprite._height || tex.sourceHeight;
+                var width: number = sprite._isWidthSet ? sprite._width : tex.sourceWidth;
+                var height: number = sprite._isHeightSet ? sprite._height : tex.sourceHeight;
                 var wRate: number = width / tex.sourceWidth;
                 var hRate: number = height / tex.sourceHeight;
                 width = tex.width * wRate;
