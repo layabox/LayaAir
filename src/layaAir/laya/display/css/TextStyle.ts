@@ -67,7 +67,7 @@ export class TextStyle extends SpriteStyle {
     underline: boolean;
     /**下划线颜色*/
     underlineColor: string|null;
-    /**当前使用的位置字体。*/
+    /**当前使用的位图字体。*/
     currBitmapFont: BitmapFont|null;
     /**
      * @override

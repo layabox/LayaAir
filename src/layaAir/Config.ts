@@ -35,7 +35,7 @@ export class Config {
      */
     static defaultFontSize: number = 12;
     /*
-     *默认文本字体，默认为Arial TODO delete  这个要查找机器里面有什么字体
+     *默认文本字体，默认为Arial
      */
     static defaultFont: string = "Arial";
 
@@ -74,12 +74,8 @@ export class Config {
     /**在IOS下，一些字体会找不到，引擎提供了字体映射功能，比如默认会把 "黑体" 映射为 "黑体-简"，更多映射，可以自己添加*/
     static fontFamilyMap: any = { "报隶": "报隶-简", "黑体": "黑体-简", "楷体": "楷体-简", "兰亭黑": "兰亭黑-简", "隶变": "隶变-简", "凌慧体": "凌慧体-简", "翩翩体": "翩翩体-简", "苹方": "苹方-简", "手札体": "手札体-简", "宋体": "宋体-简", "娃娃体": "娃娃体-简", "魏碑": "魏碑-简", "行楷": "行楷-简", "雅痞": "雅痞-简", "圆体": "圆体-简" };
 
-    static defaultFontStr(): string {
-        return Config.defaultFontSize + "px " + Config.defaultFont;
-    }
-
     /**tempConfig Fixed number of frames */
-    static fixedFrames:boolean = true;
+    static fixedFrames: boolean = true;
 
 }
 

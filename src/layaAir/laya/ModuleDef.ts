@@ -41,6 +41,8 @@ import "./loaders/HierarchyLoader";
 import "./loaders/TextureLoader";
 import "./loaders/AnimationClip2DLoader";
 import "./loaders/NullLoader";
+import "./loaders/BitmapFontLoader";
+import "./loaders/TTFFontLoader";
 import "./media/webaudio/WebAudioLoader";
 
 let c = ClassUtils.regClass;

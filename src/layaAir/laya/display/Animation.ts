@@ -98,7 +98,7 @@ export class Animation extends AnimationBase {
     /**@private */
     protected _frames: any[];
 
-    private _images: string[];
+    private _source: string;
 
     private _autoPlay = false;
 
@@ -215,30 +215,21 @@ export class Animation extends AnimationBase {
      * 3. 图片路径集合：使用此类型创建的动画模版不会被缓存到动画模版缓存池中，如果需要缓存，请使用loadImages(...)方法。</p>
      * @param value	数据源。比如：图集："xx/a1.atlas"；图片集合："a1.png,a2.png,a3.png"；LayaAir IDE动画"xx/a1.ani"。
      */
+    get source(): string {
+        return this._source;
+    }
+
     set source(value: string) {
-        if (value.indexOf(".ani") > -1) this.loadAnimation(value);
-        else if (value.indexOf(".json") > -1 || value.indexOf("als") > -1 || value.indexOf("atlas") > -1) this.loadAtlas(value);
-        else this.loadImages(value.split(","));
-    }
+        this._source = value;
 
-
-    set images(arr: string[]) {
-        this._images = arr;
-        if (arr) {
-            this.loadImages(arr);
-        }
-
-
-    }
-    get images() {
-        return this._images;
-    }
-
-    /**
-     * 设置自动播放的动画名称，在LayaAir IDE中可以创建的多个动画组成的动画集合，选择其中一个动画名称进行播放。
-     */
-    set autoAnimation(value: string) {
-        this.play(0, true, value);
+        if (!value)
+            this.clear();
+        else if (value.indexOf(".ani") > -1)
+            this.loadAnimation(value);
+        else if (value.startsWith("res://") || value.indexOf(".json") > -1 || value.indexOf("als") > -1 || value.indexOf("atlas") > -1)
+            this.loadAtlas(value);
+        else
+            this.loadImages(value.split(","));
     }
 
     /**
@@ -246,9 +237,12 @@ export class Animation extends AnimationBase {
      */
     set autoPlay(value: boolean) {
         this._autoPlay = value;
-        if (value) this.play();
-        else this.stop();
+        if (value)
+            this.play();
+        else
+            this.stop();
     }
+
     get autoPlay() {
         return this._autoPlay;
     }
@@ -279,6 +273,8 @@ export class Animation extends AnimationBase {
         if (!this._setFramesFromCache(cacheName)) {
             this.frames = Animation.framesMap[cacheName] ? Animation.framesMap[cacheName] : Animation.createFrames(urls, cacheName);
         }
+        if (!this._isPlaying && this._autoPlay)
+            this.play();
         return this;
     }
 
@@ -294,11 +290,12 @@ export class Animation extends AnimationBase {
      */
     loadAtlas(url: string, loaded: Handler = null, cacheName: string = ""): Animation {
         this._url = "";
-        var _this: Animation = this;
-        if (!_this._setFramesFromCache(cacheName)) {
-            function onLoaded(loadUrl: string): void {
+        if (!this._setFramesFromCache(cacheName)) {
+            let onLoaded = (loadUrl: string) => {
                 if (url === loadUrl) {
-                    _this.frames = Animation.framesMap[cacheName] ? Animation.framesMap[cacheName] : Animation.createFrames(url, cacheName);
+                    this.frames = Animation.framesMap[cacheName] ? Animation.framesMap[cacheName] : Animation.createFrames(url, cacheName);
+                    if (!this._isPlaying && this._autoPlay)
+                        this.play();
                     if (loaded) loaded.run();
                 }
             }
@@ -317,6 +314,7 @@ export class Animation extends AnimationBase {
      * @param	loaded	（可选）使用指定动画资源初始化动画完毕的回调。
      * @param	atlas	（可选）动画用到的图集地址（可选）。
      * @return 	返回动画本身。
+     * @deprecated
      */
     loadAnimation(url: string, loaded: Handler = null, atlas: string = null): Animation {
         this._url = url;
@@ -432,6 +430,17 @@ export class Animation extends AnimationBase {
             if (val === key || val.indexOf(key2) === 0) {
                 delete Animation.framesMap[val];
             }
+        }
+    }
+
+    /** @internal */
+    onAfterDeserialize(): void {
+        super.onAfterDeserialize();
+
+        if ((<any>this).images) {
+            if (!this._source)
+                this.loadImages((<any>this).images);
+            delete (<any>this).images;
         }
     }
 }

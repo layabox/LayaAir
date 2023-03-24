@@ -11,7 +11,7 @@ export class FontInfo {
      * 解析字体模型
      * @param font 
      */
-    static Parse(font: string): FontInfo {
+    static parse(font: string): FontInfo {
         if (font === FontInfo._lastFont) {
             return FontInfo._lastFontInfo;
         }
@@ -27,7 +27,7 @@ export class FontInfo {
     /**@internal */
     _id: number;
     /**@internal */
-    _font: string = "14px Arial";
+    _font: string;
     /**@internal */
     _family: string = "Arial";
     /**@internal */
@@ -39,7 +39,7 @@ export class FontInfo {
 
     constructor(font: string | null) {
         this._id = FontInfo._gfontID++;
-        this.setFont(font || this._font);
+        this.setFont(font || "14px Arial");
     }
 
     /**
@@ -48,22 +48,22 @@ export class FontInfo {
      */
     setFont(value: string): void {
         this._font = value;
-        var _words: any[] = value.split(' ');
-        var l: number = _words.length;
+        var words: any[] = value.split(' ');
+        var l: number = words.length;
         if (l < 2) {
             if (l == 1) {
-                if (_words[0].indexOf('px') > 0) {
-                    this._size = parseInt(_words[0]);
+                if (words[0].indexOf('px') > 0) {
+                    this._size = parseInt(words[0]);
                 }
             }
             return;
         }
         var szpos: number = -1;
         //由于字体可能有空格，例如Microsoft YaHei 所以不能直接取倒数第二个，要先找到px
-        for (var i: number = 0; i < l; i++) {
-            if (_words[i].indexOf('px') > 0 || _words[i].indexOf('pt') > 0) {
+        for (let i = 0; i < l; i++) {
+            if (words[i].indexOf('px') > 0 || words[i].indexOf('pt') > 0) {
                 szpos = i;
-                this._size = parseInt(_words[i]);
+                this._size = parseInt(words[i]);
                 if (this._size <= 0) {
                     console.error('font parse error:' + value);
                     this._size = 14;
@@ -74,14 +74,14 @@ export class FontInfo {
 
         //最后一个是用逗号分开的family
         var fpos: number = szpos + 1;
-        var familys: string = _words[fpos];
+        var familys: string = words[fpos];
         fpos++;//下一个
         for (; fpos < l; fpos++) {
-            familys += ' ' + _words[fpos];
+            familys += ' ' + words[fpos];
         }
         this._family = (familys.split(','))[0];
-        this._italic = _words.indexOf('italic') >= 0;
-        this._bold = _words.indexOf('bold') >= 0;
+        this._italic = words.indexOf('italic') >= 0;
+        this._bold = words.indexOf('bold') >= 0;
     }
 }
 

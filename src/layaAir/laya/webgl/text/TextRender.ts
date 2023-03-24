@@ -165,7 +165,7 @@ export class TextRender {
         if (data.length <= 0)
             return;
         //以后保存到wordtext中
-        var font = FontInfo.Parse(fontStr);
+        var font = FontInfo.parse(fontStr);
 
         var nTextAlign = 0;
         switch (textAlign) {
@@ -182,7 +182,7 @@ export class TextRender {
     fillWords(ctx: Context, data: HTMLChar[], x: number, y: number, fontStr: string | FontInfo, color: string, strokeColor: string | null, lineWidth: number): void {
         if (!data) return;
         if (data.length <= 0) return;
-        var font = typeof (fontStr) === 'string' ? FontInfo.Parse(fontStr) : fontStr;
+        var font = typeof (fontStr) === 'string' ? FontInfo.parse(fontStr) : fontStr;
         this._fast_filltext(ctx, null, data, x, y, font, color, strokeColor, lineWidth, 0, 0);
     }
 
@@ -873,7 +873,7 @@ export class TextRender {
         if (data && data.length <= 0) return;
         if (htmlchars && htmlchars.length < 1) return;
 
-        var font = FontInfo.Parse(fontStr);
+        var font = FontInfo.parse(fontStr);
 
         var nTextAlign = 0;
         switch (textAlign) {

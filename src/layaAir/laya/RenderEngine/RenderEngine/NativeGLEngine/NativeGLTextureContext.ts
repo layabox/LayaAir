@@ -47,6 +47,18 @@ export class NativeGLTextureContext extends NativeGLObject implements ITextureCo
         //TODO
     }
 
+    setTexture3DImageData(texture: InternalTexture, source: HTMLImageElement[] | HTMLCanvasElement[] | ImageBitmap[], depth: number, premultiplyAlpha: boolean, invertY: boolean): void {
+        this._native.setTexture3DImageData(texture, (source as any[]).map(function(s) { return s._nativeObj}), depth, premultiplyAlpha, invertY);
+    }
+
+    setTexture3DPixlesData(texture: InternalTexture, source: ArrayBufferView, depth: number, premultiplyAlpha: boolean, invertY: boolean): void {
+        this._native.setTexture3DPixlesData(texture, source, depth, premultiplyAlpha, invertY);
+    }
+
+    setTexture3DSubPixelsData(texture: InternalTexture, source: ArrayBufferView, mipmapLevel: number, generateMipmap: boolean, xOffset: number, yOffset: number, zOffset: number, width: number, height: number, depth: number, premultiplyAlpha: boolean, invertY: boolean): void {
+        this._native.setTexture3DSubPixelsData(texture, source, mipmapLevel, generateMipmap, xOffset, yOffset, zOffset, width, height, depth, premultiplyAlpha, invertY);
+    }
+
     setTextureHDRData(texture: InternalTexture, hdrInfo: HDRTextureInfo): void {
         let sourceData = hdrInfo.readScanLine();
 

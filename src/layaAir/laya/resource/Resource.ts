@@ -92,16 +92,10 @@ export class Resource extends EventDispatcher {
         }
     }
 
-    /**@private */
     private _cpuMemory: number = 0;
-    /**@private */
     private _gpuMemory: number = 0;
-
-    /**@private */
     protected _id: number = 0;
-    /**@private */
     protected _destroyed?: boolean;
-    /**@private */
     protected _referenceCount: number = 0;
     protected _obsolute: boolean;
 
@@ -181,30 +175,18 @@ export class Resource extends EventDispatcher {
         this.destoryedImmediately = true;
     }
 
-    /**
-     * @internal
-     * 资源占用CPU资源
-     */
     _setCPUMemory(value: number): void {
         var offsetValue: number = value - this._cpuMemory;
         this._cpuMemory = value;
         Resource._addCPUMemory(offsetValue);
     }
 
-    /**
-     * @internal
-     * 资源占用GPU资源
-     */
     _setGPUMemory(value: number): void {
         var offsetValue: number = value - this._gpuMemory;
         this._gpuMemory = value;
         Resource._addGPUMemory(offsetValue);
     }
 
-    /**
-     * @internal
-     * 设置资源url
-     */
     _setCreateURL(url: string, uuid?: string): void {
         this.url = url;
         this.uuid = uuid;
@@ -218,16 +200,10 @@ export class Resource extends EventDispatcher {
             || this.url === url;
     }
 
-    /**
-     * @internal
-     */
     _addReference(count: number = 1): void {
         this._referenceCount += count;
     }
 
-    /**
-     * @internal
-     */
     _removeReference(count: number = 1): void {
         this._referenceCount -= count;
         //如果_removeReference发生在destroy中，可能是在collect或者处理内嵌资源的释放
@@ -243,21 +219,12 @@ export class Resource extends EventDispatcher {
         this._referenceCount = 0;
     }
 
-    /**
-     * @internal
-     */
     protected _recoverResource(): void {
     }
 
-    /**
-     * @internal
-     */
     protected _disposeResource(): void {
     }
 
-    /**
-     * @internal
-     */
     protected _activeResource(): void {
 
     }

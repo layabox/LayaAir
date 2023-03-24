@@ -166,7 +166,7 @@ export class Image extends UIComponent {
         this.repaint();
 
         if (this._useSourceSize && value) {
-            this.size(value.width, value.height);
+            this.size(value.sourceWidth, value.sourceHeight);
             this._useSourceSize = true; //重置，因为size会改变
         }
         else
@@ -200,7 +200,7 @@ export class Image extends UIComponent {
     set useSourceSize(value: boolean) {
         if (this._useSourceSize != value) {
             if (value && this._graphics.source)
-                this.size(this._graphics.source.width, this._graphics.source.height);
+                this.size(this._graphics.source.sourceWidth, this._graphics.source.sourceHeight);
             this._useSourceSize = value; //放最后，因为size会改变autoSize的值
         }
     }
