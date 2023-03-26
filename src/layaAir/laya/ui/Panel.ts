@@ -90,7 +90,16 @@ export class Panel extends Box {
     removeChild(child: Node): Node {
         child.off(Event.RESIZE, this, this.onResize);
         this._setScrollChanged();
-        return this._content.removeChild(child);
+        if (child._parent == this) {
+            let index = this._children.indexOf(child);
+            if (index != -1) {
+                this._children.splice(index, 1);
+                (<any>child)._setParent(null);
+            }
+            return child;
+        }
+        else
+            return this._content.removeChild(child);
     }
 
     /**@inheritDoc @override*/
