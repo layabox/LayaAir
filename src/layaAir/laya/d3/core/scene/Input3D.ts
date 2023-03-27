@@ -9,6 +9,7 @@ import { Node } from "../../../display/Node";
 import { Scene3D } from "./Scene3D";
 import { Vector2 } from "../../../maths/Vector2";
 import { Vector3 } from "../../../maths/Vector3";
+import { Render } from "../../../renders/Render";
 
 const _vec2 = new Vector2();
 const _ray = new Ray(new Vector3(), new Vector3());
@@ -16,6 +17,18 @@ const _hitResult = new HitResult();
 
 InputManager.prototype.getSprite3DUnderPoint = function (this: InputManager, x: number, y: number): Node {
     _hitResult.succeeded = false;
+    
+    x = x * this._stage.clientScaleX;
+    y = y * this._stage.clientScaleY;
+    var pageX = x;
+    var pageY = y;
+
+    var normalWidth = x / Render._mainCanvas.width;
+    var normalHeight = y / Render._mainCanvas.height;
+    
+    x = this._stage.width * normalWidth;
+    y = this._stage.height * normalHeight;
+
     _vec2.setValue(x, y);
 
     for (let scene of <Scene3D[]>this._stage._scene3Ds) {
@@ -27,7 +40,7 @@ InputManager.prototype.getSprite3DUnderPoint = function (this: InputManager, x: 
             let camera = <Camera>cameras[i];
             let viewport: Viewport = camera.viewport;
             let ratio = Config3D.pixelRatio;
-            if (x >= viewport.x && y >= viewport.y && x <= viewport.width / ratio && y <= viewport.height / ratio) {
+            if (pageX >= viewport.x && pageY >= viewport.y && pageX <= viewport.width / ratio && pageY <= viewport.height / ratio) {
                 //Physics
                 camera.viewportPointToRay(_vec2, _ray);
 
