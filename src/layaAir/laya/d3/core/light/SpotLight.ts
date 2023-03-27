@@ -4,6 +4,7 @@ import { LightSprite } from "./LightSprite";
 import { SpotLightCom } from "./SpotLightCom";
 
 /**
+ * @deprecated
  * <code>SpotLight</code> 类用于创建聚光。
  */
 export class SpotLight extends LightSprite {
