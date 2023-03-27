@@ -51,7 +51,7 @@ export class WebGLEngine implements IRenderEngine {
     /**@internal */
     private _propertyNameCounter: number = 0;
     /**@internal */
-    _renderOBJCreateContext:IRenderOBJCreate;
+    _renderOBJCreateContext: IRenderOBJCreate;
 
     /**@internal */
     _IDCounter: number = 0;
@@ -138,8 +138,6 @@ export class WebGLEngine implements IRenderEngine {
         this._lastScissor = new Vector4(0, 0, 0, 0);
         this._webglMode = webglMode;
         this._initStatisticsInfo();
-
-
     }
 
     /**
@@ -357,7 +355,8 @@ export class WebGLEngine implements IRenderEngine {
             this._GLRenderState.setStencilMask(true);
             flag |= this._context.STENCIL_BUFFER_BIT;
         }
-        this._context.clear(flag);
+        if (flag)
+            this._context.clear(flag);
         //this._gl.disable(this._gl.SCISSOR_TEST);
     }
 
@@ -470,7 +469,7 @@ export class WebGLEngine implements IRenderEngine {
         return shaderCall;
     }
 
-    createRenderStateComand():RenderStateCommand{
+    createRenderStateComand(): RenderStateCommand {
         return new RenderStateCommand();
     }
 
