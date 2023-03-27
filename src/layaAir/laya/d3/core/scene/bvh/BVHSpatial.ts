@@ -41,6 +41,13 @@ export class BVHSpatial {
     }
 
     /**
+     * 获得空间节点
+     */
+    get bvhSpatialBox(){
+        return this._BVHSpatialBox;
+    }
+
+    /**
      * 是否合法
      * @param cell 
      * @returns 
