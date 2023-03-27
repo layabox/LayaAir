@@ -179,11 +179,11 @@ export class Utils {
     /**
      * 更改文件名的扩展名。
      */
-    static replaceFileExtension(path: string, newExt: string): string {
+    static replaceFileExtension(path: string, newExt: string, excludeDot?: boolean): string {
         if (!path)
             return path;
         let i = path.lastIndexOf(".");
-        if (newExt.length > 0)
+        if (newExt.length > 0 && !excludeDot)
             newExt = "." + newExt;
         if (i != -1) {
             let j = path.indexOf("?", i);

@@ -427,47 +427,18 @@ export class InputManager {
 
     getNodeUnderPoint(x: number, y: number): Node {
         let target: Node = this.getSpriteUnderPoint(this._stage, x, y);
-        if (target == this._stage) {
+        if (!target)
             target = this.getSprite3DUnderPoint(x, y);
-            if (!target)
-                return this._stage;
-        }
-        return target;
+        return target || this._stage;
     }
 
     /**
-     * 获取指定坐标下的sprite。x/y值是sp所在容器的坐标
+     * 获取指定坐标下的sprite。x/y值是sp的本地坐标
      * @param sp
      * @param x
      * @param y
      */
     getSpriteUnderPoint(sp: Sprite, x: number, y: number): Sprite {
-        if (sp == this._stage) {
-            for (let i = sp._children.length - 1; i > -1; i--) {
-                let child = <Sprite>sp._children[i];
-                let editing = child._getBit(NodeFlags.EDITING_NODE);
-                if (!child._is3D
-                    && !child._destroyed
-                    && (editing && !child.hasHideFlag(HideFlags.HideInHierarchy) || child._mouseState > 1)
-                    && (child._visible || child._getBit(NodeFlags.DISABLE_VISIBILITY))) {
-                    let ret = this._getSpriteUnderPoint(child, x, y, editing);
-                    if (ret)
-                        return ret;
-                }
-            }
-
-            return sp;
-        }
-        else
-            return this._getSpriteUnderPoint(sp, x, y, sp._getBit(NodeFlags.EDITING_NODE));
-    }
-
-    private _getSpriteUnderPoint(sp: Sprite, x: number, y: number, editing?: boolean): Sprite {
-        _tempPoint.setTo(x, y);
-        sp.fromParentPoint(_tempPoint);
-        x = _tempPoint.x;
-        y = _tempPoint.y;
-
         //如果有裁剪，则先判断是否在裁剪范围内
         let scrollRect = sp._style.scrollRect;
         if (scrollRect && !sp._getBit(NodeFlags.DISABLE_INNER_CLIPPING)) {
@@ -476,13 +447,11 @@ export class InputManager {
                 return null;
         }
 
-        //先判定子对象是否命中
-        //优先判断父对象
-        //默认情况下，hitTestPrior=mouseThrough=false，也就是优先check子对象
-        //$NEXTBIG:下个重大版本将sp.mouseThrough从此逻辑中去除，从而使得sp.mouseThrough只负责目标对象的穿透
-        if (!editing && sp.hitTestPrior && !sp.mouseThrough && !this.hitTest(sp, x, y)) {
+        let editing = sp._getBit(NodeFlags.EDITING_NODE);
+
+        if (!editing && sp.hitTestPrior && !sp.mouseThrough && sp != this._stage && !this.hitTest(sp, x, y))
             return null;
-        }
+
         for (let i = sp._children.length - 1; i > -1; i--) {
             let child = <Sprite>sp._children[i];
             let childEditing = editing || child._getBit(NodeFlags.EDITING_NODE);
@@ -490,18 +459,9 @@ export class InputManager {
             if (!child._destroyed
                 && (childEditing ? ((!child.hasHideFlag(HideFlags.HideInHierarchy) || child.mouseThrough) && !child._getBit(NodeFlags.HIDE_BY_EDITOR)) : child._mouseState > 1)
                 && (child._visible || child._getBit(NodeFlags.DISABLE_VISIBILITY))) {
-                let ret = this._getSpriteUnderPoint(child, x, y, childEditing);
-                if (ret)
-                    return ret;
-            }
-        }
-        // 检查逻辑子对象
-        for (let i = sp._extUIChild.length - 1; i >= 0; i--) {
-            let child = <Sprite>sp._extUIChild[i];
-            if (!child._destroyed
-                && child._mouseState > 1
-                && (child._visible || child._getBit(NodeFlags.DISABLE_VISIBILITY))) {
-                let ret = this._getSpriteUnderPoint(child, x, y);
+                _tempPoint.setTo(x, y);
+                child.fromParentPoint(_tempPoint);
+                let ret = this.getSpriteUnderPoint(child, _tempPoint.x, _tempPoint.y);
                 if (ret)
                     return ret;
             }
@@ -513,7 +473,7 @@ export class InputManager {
                 && this.hitTest(sp, x, y, editing))
                 return sp;
         }
-        else {
+        else if (sp != this._stage) {
             if (sp.hitTestPrior && !sp.mouseThrough || this.hitTest(sp, x, y))
                 return sp;
         }

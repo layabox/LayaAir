@@ -388,7 +388,7 @@ export class GL2TextureContext extends GLTextureContext {
 
         this._engine._bindTexture(texture.target, texture.resource);
 
-        gl.texStorage2D(target, mipmapCount, internalFormat, source.width, source.height);
+        //gl.texStorage2D(target, mipmapCount, internalFormat, source.width, source.height);
         gl.texSubImage2D(target, 0, x, y, source.width, source.height, format, type, source);
         texture.gpuMemory = this.getGLtexMemory(texture);
         if (texture.mipmap) {

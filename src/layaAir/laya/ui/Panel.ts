@@ -90,7 +90,16 @@ export class Panel extends Box {
     removeChild(child: Node): Node {
         child.off(Event.RESIZE, this, this.onResize);
         this._setScrollChanged();
-        return this._content.removeChild(child);
+        if (child._parent == this) {
+            let index = this._children.indexOf(child);
+            if (index != -1) {
+                this._children.splice(index, 1);
+                (<any>child)._setParent(null);
+            }
+            return child;
+        }
+        else
+            return this._content.removeChild(child);
     }
 
     /**@inheritDoc @override*/
@@ -278,6 +287,7 @@ export class Panel extends Box {
         scrollBar.bottom = 0;
         scrollBar._skinBaseUrl = this._skinBaseUrl;
         scrollBar.skin = this._hScrollBarSkin;
+        scrollBar.on(Event.LOADED, this, this._setScrollChanged);
         super.addChild(scrollBar);
         this._setScrollChanged();
     }
@@ -291,6 +301,7 @@ export class Panel extends Box {
         scrollBar.right = 0;
         scrollBar._skinBaseUrl = this._skinBaseUrl;
         scrollBar.skin = this._vScrollBarSkin;
+        scrollBar.on(Event.LOADED, this, this._setScrollChanged);
         super.addChild(scrollBar);
         this._setScrollChanged();
     }
