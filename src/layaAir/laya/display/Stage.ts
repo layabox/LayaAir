@@ -242,7 +242,7 @@ export class Stage extends Sprite {
 			if (this._isInputting()) return;
 
 			// Safari横屏工具栏偏移
-			if (Browser.onSafari)
+			if (Browser.onSafari && !Browser.onChrome)
 				this._safariOffsetY = (Browser.window.__innerHeight || Browser.document.body.clientHeight || Browser.document.documentElement.clientHeight) - Browser.window.innerHeight;
 
 			this._resetCanvas();
