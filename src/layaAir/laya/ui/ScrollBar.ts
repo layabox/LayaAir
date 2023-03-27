@@ -6,13 +6,13 @@ import { Styles } from "./Styles";
 import { Sprite } from "../display/Sprite"
 import { Event } from "../events/Event"
 import { Point } from "../maths/Point"
-import { Loader } from "../net/Loader"
 import { Ease } from "../utils/Ease"
 import { Handler } from "../utils/Handler"
 import { Tween } from "../utils/Tween"
 import { ILaya } from "../../ILaya";
 import { HideFlags } from "../Const";
 import { URL } from "../net/URL";
+import { Utils } from "../utils/Utils";
 import { AssetDb } from "../resource/AssetDb";
 
 /**
@@ -207,35 +207,38 @@ export class ScrollBar extends UIComponent {
     set skin(value: string) {
         if (value == "")
             value = null;
+        if (this._skin == value)
+            return;
 
-        if (this._skin != value) {
-            this._skin = value;
+        this._setSkin(value);
+    }
 
-            if (this._skin) {
-                let url = this._skinBaseUrl ? URL.formatURL(this._skin, this._skinBaseUrl) : this._skin;
-                AssetDb.inst.resolveURL(url, url => {
-                    ILaya.loader.load([url,
-                        url.replace(".png", "$up.png"),
-                        url.replace(".png", "$down.png"),
-                        url.replace(".png", "$bar.png")],
-                        Handler.create(this, this._skinLoaded, [url]), null, Loader.IMAGE);
-                });
-            }
-            else {
-                this.slider.skin = null;
-                this.upButton.skin = null;
-                this.downButton.skin = null;
-            }
+    _setSkin(url: string): Promise<void> {
+        this._skin = url;
+
+        if (url) {
+            return AssetDb.inst.resolveURL(url).then(url => {
+                if (this._skinBaseUrl)
+                    url = URL.formatURL(url, this._skinBaseUrl);
+                return Promise.all([
+                    this.slider._setSkin(url),
+                    this.upButton._setSkin(Utils.replaceFileExtension(url, "$up.png", true)),
+                    this.downButton._setSkin(Utils.replaceFileExtension(url, "$down.png", true))
+                ]).then(() => this._skinLoaded());
+            });
+        }
+        else {
+            this.slider.skin = null;
+            this.upButton.skin = null;
+            this.downButton.skin = null;
+            this._skinLoaded();
+            return Promise.resolve();
         }
     }
 
-    protected _skinLoaded(url: string): void {
+    protected _skinLoaded(): void {
         if (this._destroyed)
             return;
-
-        this.slider.skin = url;
-        this.upButton.skin = url.replace(".png", "$up.png");
-        this.downButton.skin = url.replace(".png", "$down.png");
 
         this.callLater(this.changeScrollBar);
         this._sizeChanged();
@@ -376,7 +379,6 @@ export class ScrollBar extends UIComponent {
      * <p>当前实例的 <code>Slider</code> 实例的有效缩放网格数据。</p>
      * <p>数据格式："上边距,右边距,下边距,左边距,是否重复填充(值为0：不重复填充，1：重复填充)"，以逗号分隔。
      * <ul><li>例如："4,4,4,4,1"</li></ul></p>
-     * @see laya.ui.AutoBitmap.sizeGrid
      */
     get sizeGrid(): string {
         return this.slider.sizeGrid;

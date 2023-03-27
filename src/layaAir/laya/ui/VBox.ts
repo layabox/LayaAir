@@ -47,7 +47,7 @@ export class VBox extends LayoutBox {
             let item = (<UIComponent>this.getChildAt(i));
             if (item) {
                 items.push(item);
-                maxWidth = this._width ? this._width : Math.max(maxWidth, item.width * item.scaleX);
+                maxWidth = this._isWidthSet ? this._width : Math.max(maxWidth, item.width * item.scaleX);
             }
         }
         if (this.isSortItem) {

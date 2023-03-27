@@ -41,7 +41,7 @@ export class AssetDb {
      * @returns 
      */
     UUID_to_URL_async(uuid: string): Promise<string> {
-        return null;
+        return Promise.resolve(null);
     }
 
     /**
@@ -50,31 +50,29 @@ export class AssetDb {
      * @returns 
      */
     URL_to_UUID_async(url: string): Promise<string> {
-        return null;
+        return Promise.resolve(null);
     }
 
     /**
-     * TODO
+     * 获取真实的Url
      * @param url 
      * @param onResolve 
      * @returns 
      */
-    resolveURL(url: string, onResolve: (url: string) => void) {
+    resolveURL(url: string, onResolve?: (url: string) => void): Promise<string> {
         if (url.startsWith("res://")) {
             let uuid = url.substring(6);
-            url = this.UUID_to_URL(uuid);
-            if (url) {
-                onResolve(url);
-                return;
-            }
-
-            let promise = AssetDb.inst.UUID_to_URL_async(uuid);
-            if (promise) {
-                promise.then(onResolve);
-                return;
-            }
+            return AssetDb.inst.UUID_to_URL_async(uuid).then(url => {
+                if (onResolve)
+                    onResolve(url);
+                return url;
+            });
         }
-        onResolve(url);
+        else {
+            if (onResolve)
+                onResolve(url);
+            return Promise.resolve(url);
+        }
     }
 
     /**
@@ -87,8 +85,7 @@ export class AssetDb {
     }
 
     shaderName_to_URL_async(shaderName: string): Promise<string> {
-        console.warn(`unknown shaderName: ${shaderName}`);
-        return null;
+        return Promise.resolve(null);
     }
 
     /**

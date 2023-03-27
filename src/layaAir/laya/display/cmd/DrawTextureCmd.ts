@@ -55,8 +55,8 @@ export class DrawTextureCmd {
 
     /**@private */
     static create(texture: Texture, x: number, y: number, width: number, height: number, matrix: Matrix | null, alpha: number, color: string | null, blendMode: string | null, uv?: number[]): DrawTextureCmd {
-        if (!width) width = texture.sourceWidth;
-        if (!height) height = texture.sourceHeight;
+        if (width == null) width = texture.sourceWidth;
+        if (height == null) height = texture.sourceHeight;
 
         let wRate = width / texture.sourceWidth;
         let hRate = height / texture.sourceHeight;

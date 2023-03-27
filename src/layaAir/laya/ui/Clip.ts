@@ -191,18 +191,27 @@ export class Clip extends UIComponent {
     }
 
     set skin(value: string) {
-        if (this._skin != value) {
-            this._skin = value;
-            if (value) {
-                if (!Loader.getRes(value)) {
-                    let url = this._skinBaseUrl ? URL.formatURL(this._skin, this._skinBaseUrl) : this._skin;
-                    ILaya.loader.load(url, Handler.create(this, this._skinLoaded), null, Loader.IMAGE);
-                } else {
-                    this._skinLoaded();
-                }
-            } else {
-                this._graphics.source = null;
+        if (this._skin == value)
+            return;
+
+        this._setSkin(value);
+    }
+
+    _setSkin(url: string): Promise<void> {
+        this._skin = url;
+        if (url) {
+            if (this._skinBaseUrl)
+                url = URL.formatURL(url, this._skinBaseUrl);
+            if (!Loader.getRes(url))
+                return ILaya.loader.load(url, Loader.IMAGE).then(() => this._skinLoaded());
+            else {
+                this._skinLoaded();
+                return Promise.resolve();
             }
+        }
+        else {
+            this._graphics.source = null;
+            return Promise.resolve();
         }
     }
 
@@ -366,7 +375,6 @@ export class Clip extends UIComponent {
      * <p>当前实例的位图 <code>AutoImage</code> 实例的有效缩放网格数据。</p>
      * <p>数据格式："上边距,右边距,下边距,左边距,是否重复填充(值为0：不重复填充，1：重复填充)"，以逗号分隔。
      * <ul><li>例如："4,4,4,4,1"</li></ul></p>
-     * @see laya.ui.AutoBitmap.sizeGrid
      */
     get sizeGrid(): string {
         if (this._graphics.sizeGrid) return this._graphics.sizeGrid.join(",");

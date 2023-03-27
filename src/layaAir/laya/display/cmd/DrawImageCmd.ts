@@ -35,17 +35,16 @@ export class DrawImageCmd {
 
     /**@private */
     static create(texture: Texture, x: number, y: number, width: number, height: number, color: string): DrawImageCmd {
-        if (!width) width = texture.sourceWidth;
-        if (!height) height = texture.sourceHeight;
-        if (texture.bitmap) {
-            var wRate = width / texture.sourceWidth;
-            var hRate = height / texture.sourceHeight;
-            width = texture.width * wRate;
-            height = texture.height * hRate;
+        if (width == null) width = texture.sourceWidth;
+        if (height == null) height = texture.sourceHeight;
 
-            x += texture.offsetX * wRate;
-            y += texture.offsetY * hRate;
-        }
+        let wRate = width / texture.sourceWidth;
+        let hRate = height / texture.sourceHeight;
+        width = texture.width * wRate;
+        height = texture.height * hRate;
+
+        x += texture.offsetX * wRate;
+        y += texture.offsetY * hRate;
 
         var cmd: DrawImageCmd = Pool.getItemByClass("DrawImageCmd", DrawImageCmd);
         cmd.texture = texture;

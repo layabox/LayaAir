@@ -42,8 +42,6 @@ export class Node extends EventDispatcher {
 
     /**@internal 子对象集合，请不要直接修改此对象。*/
     _children: Node[] = ARRAY_EMPTY;
-    /**@internal 仅仅用来处理输入事件的,并不是真正意义上的子对象 */
-    _extUIChild: Node[] = ARRAY_EMPTY;
     /**@internal 父节点对象*/
     _parent: Node = null;
     /**@internal */
@@ -213,25 +211,6 @@ export class Node extends EventDispatcher {
         }
 
         return node;
-    }
-
-    addInputChild(node: Node): Node {
-        if (this._extUIChild == ARRAY_EMPTY) {
-            this._extUIChild = [node];
-        } else {
-            if (this._extUIChild.indexOf(node) >= 0) {
-                return null;
-            }
-            this._extUIChild.push(node);
-        }
-        return null;
-    }
-
-    removeInputChild(node: Node): void {
-        var idx: number = this._extUIChild.indexOf(node);
-        if (idx >= 0) {
-            this._extUIChild.splice(idx, 1);
-        }
     }
 
     /**

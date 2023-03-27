@@ -11,9 +11,9 @@ import { LayaEnv } from "../../LayaEnv";
  */
 export class AutoBitmap extends Graphics {
     /**@private 宽度*/
-    private _width = 0;
+    private _width: number = null;
     /**@private 高度*/
-    private _height = 0;
+    private _height: number = null;
     /**@private 源数据*/
     private _source: Texture;
     /**@private 网格数据*/
@@ -58,7 +58,7 @@ export class AutoBitmap extends Graphics {
      * 表示显示对象的宽度，以像素为单位。
      */
     get width(): number {
-        if (this._width) return this._width;
+        if (this._width != null) return this._width;
         if (this._source) return this._source.sourceWidth;
         return 0;
     }
@@ -74,7 +74,7 @@ export class AutoBitmap extends Graphics {
      * 表示显示对象的高度，以像素为单位。
      */
     get height(): number {
-        if (this._height) return this._height;
+        if (this._height != null) return this._height;
         if (this._source) return this._source.sourceHeight / (this._source._stateNum || this._stateNum || 1);
         return 0;
     }
