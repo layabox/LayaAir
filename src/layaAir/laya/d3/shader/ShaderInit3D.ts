@@ -26,6 +26,9 @@ import SceneFogInputGLSL from "./utils/SceneFogInput.glsl";
 
 import LightingGLSL from "./lighting/Lighting.glsl";
 import GlobalIlluminationGLSL from "./lighting/globalIllumination.glsl";
+import OctGLSL from "./lighting/volumetricGI/Oct.glsl";
+import GridHelpersGLSL from "./lighting/volumetricGI/GridHelpers.glsl";
+import VolumetricGIGLSL from "./lighting/volumetricGI/VolumetricGI.glsl";
 
 import BlinnPhongLightingGLSL from "./lightingmode/BlinnPhongLighting.glsl";
 import PBRLightingGLSL from "./lightingmode/PBRLighting.glsl";
@@ -86,6 +89,10 @@ export class ShaderInit3D {
 		// lighting
 		Shader3D.addInclude("Lighting.glsl", LightingGLSL);
 		Shader3D.addInclude("globalIllumination.glsl", GlobalIlluminationGLSL);
+		// volumetric GI
+		Shader3D.addInclude("Oct.glsl", OctGLSL);
+		Shader3D.addInclude("GridHelpers.glsl", GridHelpersGLSL);
+		Shader3D.addInclude("VolumetricGI.glsl", VolumetricGIGLSL);
 
 		// lighting mode
 		Shader3D.addInclude("BlinnPhongLighting.glsl", BlinnPhongLightingGLSL);
