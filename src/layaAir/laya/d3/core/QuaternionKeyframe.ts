@@ -13,18 +13,22 @@ export class QuaternionKeyframe extends Keyframe {
 	/**帧数据 */
 	value: Quaternion = new Quaternion();
 	/**内权重 */
-	inWeight: Vector4 = new Vector4();
+	inWeight: Vector4;
 	/**外权重 */
-	outWeight: Vector4 = new Vector4();
+	outWeight: Vector4;
 	/**权重模式*/
-	weightedMode: Vector4 = new Vector4();
+	weightedMode: Vector4;
 
 	/**
 	 * 创建一个 <code>QuaternionKeyframe</code> 实例。
 	 */
-	constructor() {
+	constructor(weightMode: boolean = false) {
 		super();
-
+		if (weightMode) {
+			this.inWeight = new Vector4();
+			this.outWeight = new Vector4();
+			this.weightedMode = new Vector4();
+		}
 	}
 
 	/**
@@ -38,9 +42,11 @@ export class QuaternionKeyframe extends Keyframe {
 		this.inTangent.cloneTo(destKeyFarme.inTangent);
 		this.outTangent.cloneTo(destKeyFarme.outTangent);
 		this.value.cloneTo(destKeyFarme.value);
-		this.inWeight.cloneTo(destKeyFarme.inWeight);
-		this.outWeight.cloneTo(destKeyFarme.outWeight);
-		this.weightedMode.cloneTo(destKeyFarme.weightedMode);
+		if (this.weightedMode) {
+			this.inWeight.cloneTo(destKeyFarme.inWeight);
+			this.outWeight.cloneTo(destKeyFarme.outWeight);
+			this.weightedMode.cloneTo(destKeyFarme.weightedMode);
+		}
 	}
 }
 

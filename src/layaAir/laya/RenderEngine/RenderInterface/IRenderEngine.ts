@@ -17,7 +17,7 @@ import { IRenderVertexState } from "./IRenderVertexState";
 import { ITextureContext } from "./ITextureContext";
 
 export interface IRenderEngine {
-    gl: any;
+    _context: any;
     _isShaderDebugMode: boolean;
     _renderOBJCreateContext:IRenderOBJCreate;
     initRenderEngine(canvas: any): void;

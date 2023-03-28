@@ -31,7 +31,7 @@ import { NativeRenderStateCommand } from "./NativeRenderStateCommand";
  */
 export class NativeWebGLEngine implements IRenderEngine {
 
-  private _gl: WebGLRenderingContext | WebGL2RenderingContext;
+  _context: WebGLRenderingContext | WebGL2RenderingContext;
 
   private _config: WebGlConfig;
 
@@ -88,7 +88,7 @@ export class NativeWebGLEngine implements IRenderEngine {
    * @member {WebGLRenderingContext}
    */
   get gl() {
-    return this._gl;
+    return this._context;
   }
 
   get isWebGL2() {

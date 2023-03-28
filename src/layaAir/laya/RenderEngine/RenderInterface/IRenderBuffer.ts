@@ -6,6 +6,5 @@ export interface IRenderBuffer {
     setDataEx(srcData: ArrayBuffer | ArrayBufferView, offset: number, length: number): void;
     bindBufferBase(glPointer: number): void;
     bindBufferRange(glPointer: number, offset: number, byteCount: number): void;
-    resizeBuffer(dataLength: number): void;
     destroy(): void;
 }

@@ -49,7 +49,7 @@ vec3 diffuseIrradiance(in vec3 normal)
 
 vec3 specularIrradiance(in vec3 r, in float perceptualRoughness)
 {
-    float lod = IBL_ROUGHNESS_LEVEL * perceptualRoughness;
+    float lod = IBL_ROUGHNESS_LEVEL * perceptualRoughness * (2.0 - perceptualRoughness);
 
     // todo 临时转换
     vec3 reflectDir = r * vec3(-1.0, 1.0, 1.0);

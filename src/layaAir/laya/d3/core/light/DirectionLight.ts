@@ -6,6 +6,7 @@ import { Sprite3D } from "../Sprite3D";
 import { Vector3 } from "../../../maths/Vector3";
 
 /**
+ * @deprecated
  * <code>DirectionLight</code> 类用于创建平行光。
  */
 export class DirectionLight extends LightSprite {
