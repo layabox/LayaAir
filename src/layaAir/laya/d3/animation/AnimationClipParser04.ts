@@ -241,7 +241,7 @@ export class AnimationClipParser04 {
 							case KeyFrameValueType.Scale:
 							case KeyFrameValueType.RotationEuler:
 							case KeyFrameValueType.Vector3:
-								var floatArrayKeyframe: Vector3Keyframe = new Vector3Keyframe();
+								var floatArrayKeyframe: Vector3Keyframe = new Vector3Keyframe(true);
 								node._setKeyframeByIndex(j, floatArrayKeyframe);
 								floatArrayKeyframe.time = startTimeTypes[reader.getUint16()];
 								var inTangent: Vector3 = floatArrayKeyframe.inTangent;
@@ -270,7 +270,7 @@ export class AnimationClipParser04 {
 								outWeight.z = reader.getFloat32();
 								break;
 							case KeyFrameValueType.Rotation:
-								var quaternionKeyframe: QuaternionKeyframe = new QuaternionKeyframe();
+								var quaternionKeyframe: QuaternionKeyframe = new QuaternionKeyframe(true);
 								node._setKeyframeByIndex(j, quaternionKeyframe);
 								quaternionKeyframe.time = startTimeTypes[reader.getUint16()];
 								var inTangentQua: Vector4 = quaternionKeyframe.inTangent;
@@ -305,7 +305,7 @@ export class AnimationClipParser04 {
 								outWeightQua.w = reader.getFloat32();
 								break;
 							case KeyFrameValueType.Vector2:
-								var vec2Keyfram = new Vector2Keyframe();
+								var vec2Keyfram = new Vector2Keyframe(true);
 								node._setKeyframeByIndex(j, vec2Keyfram);
 								vec2Keyfram.time = startTimeTypes[reader.getUint16()];
 								var inTangentV2: Vector2 = vec2Keyfram.inTangent;
@@ -329,7 +329,7 @@ export class AnimationClipParser04 {
 								break;
 							case KeyFrameValueType.Vector4:
 							case KeyFrameValueType.Color:
-								var vec4Keyfram = new Vector4Keyframe();
+								var vec4Keyfram = new Vector4Keyframe(true);
 								node._setKeyframeByIndex(j, vec4Keyfram);
 								vec4Keyfram.time = startTimeTypes[reader.getUint16()];
 								var inTangentV4: Vector4 = vec4Keyfram.inTangent;
