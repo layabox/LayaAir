@@ -1027,7 +1027,12 @@ export class Text extends Sprite {
             // 如果j的位置已经超出范围，要从startIndex到j找到一个能拆分的地方
             if (wordWidth > wordWrapWidth) {
                 if (isEmojiChar) {
-                    j--;
+                    if (wordWidth == charsWidth + (charsWidth >> 1)) {
+                        //这里是代表第一个就是emoji表情的逻辑
+                        j++;
+                    } else {
+                        j--;
+                    }
                 }
                 if (this.wordWrap) {
                     //截断换行单词
