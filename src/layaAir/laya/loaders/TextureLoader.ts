@@ -37,14 +37,15 @@ class Texture2DLoader implements IResourceLoader {
                 return Promise.resolve(tex);
         }
 
-        let meta = AssetDb.inst.getMeta(task.url, task.uuid);
-        if (!meta || typeof (meta) === "object")
-            return this.load2(task, meta);
-        else if (!task.options.noMetaFile)
-            return task.loader.fetch(meta, "json", task.progress.createCallback(0.1), metaFetchingOptions)
-                .then(meta => this.load2(task, meta));
-        else
-            return this.load2(task, null);
+        let meta: any;
+        if (!task.url.startsWith("data:") && !task.options.noMetaFile) {
+            meta = AssetDb.inst.getMeta(task.url, task.uuid);
+            if (meta && typeof (meta) === "string")
+                return task.loader.fetch(meta, "json", task.progress.createCallback(0.1), metaFetchingOptions)
+                    .then(meta => this.load2(task, meta));
+        }
+
+        return this.load2(task, meta);
     }
 
     protected load2(task: ILoadTask, meta: any) {
