@@ -294,7 +294,7 @@ export class Animator extends Component {
         }
 
         animatorState._eventStateUpdate(playState._normalizedPlayTime);
-        this._applyTransition(layerIndex, animatorState._eventtransition(playState._normalizedPlayTime, this.animatorParams));
+        this._applyTransition(animatorState,layerIndex, animatorState._eventtransition(playState._normalizedPlayTime, this.animatorParams));
     }
 
     /**
@@ -303,9 +303,10 @@ export class Animator extends Component {
      * @param transition 
      * @returns 
      */
-    private _applyTransition(layerindex: number, transition: AnimatorTransition) {
-        if (!transition)
+    private _applyTransition(state:AnimatorState,layerindex: number, transition: AnimatorTransition) {
+        if (!transition||transition==state.curTransition)
             return;
+        state.curTransition = transition;
         this.crossFade(transition.destState.name, transition.transduration, layerindex, transition.transstartoffset);
     }
 

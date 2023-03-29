@@ -56,6 +56,8 @@ export class AnimatorState extends EventDispatcher implements IClone {
     /**@internal 优先过渡列表only play this transition */
     _soloTransitions: AnimatorTransition[] = [];
 
+    curTransition:AnimatorTransition;
+
     /**名称。*/
     name: string;
     
@@ -163,6 +165,7 @@ export class AnimatorState extends EventDispatcher implements IClone {
      */
     _eventExit() {
         this.event(AnimatorState.EVENT_OnStateExit);
+        this.curTransition = null;
         if (this._scripts) {
             for (let i = 0, n = this._scripts.length; i < n; i++) {
                 this._scripts[i].onStateExit();
