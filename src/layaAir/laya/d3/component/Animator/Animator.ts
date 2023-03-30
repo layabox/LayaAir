@@ -87,8 +87,8 @@ export class Animator extends Component {
     _animationNodeWorldMatrixs: Float32Array;
     /**@internal	[NATIVE]*/
     _animationNodeParentIndices: Int16Array;
-
-
+    /**@internal */
+    private _finishSleep: boolean = false;
 
     _controller: AnimatorController;
 
@@ -151,7 +151,16 @@ export class Animator extends Component {
         return this._animatorParams;
     }
 
+    /**
+     * 动画完成是否停止更新
+     */
+    set sleep(value: boolean) {
+        this._finishSleep = value;
+    }
 
+    get sleep() {
+        return this._finishSleep;
+    }
 
     /**
      * 创建一个 <code>Animation</code> 实例。
@@ -290,11 +299,11 @@ export class Animator extends Component {
             playState._finish = true;
             playState._elapsedTime = clipDuration;
             playState._normalizedPlayTime = 1.0;
-            return;
         }
 
-        animatorState._eventStateUpdate(playState._normalizedPlayTime);
-        this._applyTransition(animatorState,layerIndex, animatorState._eventtransition(playState._normalizedPlayTime, this.animatorParams));
+        (!playState._finish) && animatorState._eventStateUpdate(playState._normalizedPlayTime);
+        this._applyTransition(animatorState, layerIndex, animatorState._eventtransition(playState._normalizedPlayTime, this.animatorParams));
+        return;
     }
 
     /**
@@ -303,8 +312,8 @@ export class Animator extends Component {
      * @param transition 
      * @returns 
      */
-    private _applyTransition(state:AnimatorState,layerindex: number, transition: AnimatorTransition) {
-        if (!transition||transition==state.curTransition)
+    private _applyTransition(state: AnimatorState, layerindex: number, transition: AnimatorTransition) {
+        if (!transition || transition == state.curTransition)
             return;
         state.curTransition = transition;
         this.crossFade(transition.destState.name, transition.transduration, layerindex, transition.transstartoffset);
@@ -1265,11 +1274,14 @@ export class Animator extends Component {
             if (!controllerLayer.enable)
                 continue;
             var playStateInfo: AnimatorPlayState = controllerLayer._playStateInfo!;
+            if (this.sleep && playStateInfo._finish && controllerLayer._playType == 0) {
+                continue;
+            }
             var crossPlayStateInfo: AnimatorPlayState = controllerLayer._crossPlayStateInfo!;
             addtive = controllerLayer.blendingMode !== AnimatorControllerLayer.BLENDINGMODE_OVERRIDE;
             switch (controllerLayer._playType) {
                 case 0:
-                    var animatorState: AnimatorState = playStateInfo._currentState!;
+                    var animatorState: AnimatorState = playStateInfo.currentState!;
                     var clip: AnimationClip = animatorState._clip!;
                     var speed: number = this._speed * animatorState.speed;
                     var finish: boolean = playStateInfo._finish;//提前取出finish,防止最后一帧跳过
@@ -1283,7 +1295,7 @@ export class Animator extends Component {
                     finish || this._updateStateFinish(animatorState, playStateInfo);
                     break;
                 case 1:
-                    animatorState = playStateInfo._currentState!;
+                    animatorState = playStateInfo.currentState!;
                     clip = animatorState._clip!;
                     var crossState: AnimatorState = controllerLayer._crossPlayState;
                     var crossClip: AnimationClip = crossState._clip!;
@@ -1301,7 +1313,7 @@ export class Animator extends Component {
                             this._setClipDatasToNode(crossState, addtive, controllerLayer.defaultWeight, i === 0, controllerLayer);
 
                             controllerLayer._playType = 0;//完成融合,切换到正常播放状态
-                            playStateInfo._currentState = crossState;
+                            playStateInfo.currentState = crossState;
                             crossPlayStateInfo._cloneTo(playStateInfo);
                         }
                     } else {
@@ -1322,7 +1334,7 @@ export class Animator extends Component {
                         this._updateEventScript(crossState, crossPlayStateInfo);
                     }
                     this._updateStateFinish(crossState, crossPlayStateInfo);
-                    needUpdateFinishcurrentState && this._updateStateFinish(playStateInfo._currentState, playStateInfo);
+                    needUpdateFinishcurrentState && this._updateStateFinish(playStateInfo.currentState, playStateInfo);
                     break;
                 case 2:
                     crossState = controllerLayer._crossPlayState;
@@ -1339,7 +1351,7 @@ export class Animator extends Component {
                             this._updateClipDatas(crossState, addtive, crossPlayStateInfo, controllerLayer.avatarMask);
                             this._setClipDatasToNode(crossState, addtive, 1.0, i === 0, controllerLayer);
                             controllerLayer._playType = 0;//完成融合,切换到正常播放状态
-                            playStateInfo._currentState = crossState;
+                            playStateInfo.currentState = crossState;
                             crossPlayStateInfo._cloneTo(playStateInfo);
                         } else {
                             this._updateClipDatas(crossState, addtive, crossPlayStateInfo, controllerLayer.avatarMask);
@@ -1438,7 +1450,7 @@ export class Animator extends Component {
             if (!name && !defaultState)
                 throw new Error("Animator:must have default clip value,please set clip property.");
             var playStateInfo: AnimatorPlayState = controllerLayer._playStateInfo!;
-            var curPlayState: AnimatorState = playStateInfo._currentState!;
+            var curPlayState: AnimatorState = playStateInfo.currentState!;
 
 
             var animatorState: AnimatorState = name ? controllerLayer.getAnimatorState(name) : defaultState;
@@ -1454,7 +1466,7 @@ export class Animator extends Component {
                     playStateInfo._resetPlayState(0.0, calclipduration);
                 (curPlayState !== null && curPlayState !== animatorState) && (this._revertDefaultKeyframeNodes(curPlayState));
                 controllerLayer._playType = 0;
-                playStateInfo._currentState = animatorState;
+                playStateInfo.currentState = animatorState;
             } else {
                 if (normalizedTime !== Number.NEGATIVE_INFINITY) {
                     playStateInfo._resetPlayState(clipDuration * normalizedTime, calclipduration);
@@ -1495,7 +1507,7 @@ export class Animator extends Component {
                 var crossNodeOwners = controllerLayer._crossNodesOwners;
                 var crossNodeOwnerIndicesMap = controllerLayer._crossNodesOwnersIndicesMap;
 
-                var srcAnimatorState = controllerLayer._playStateInfo!._currentState;
+                var srcAnimatorState = controllerLayer._playStateInfo!.currentState;
                 var destNodeOwners = destAnimatorState._nodeOwners;
                 var destCrossClipNodeIndices = controllerLayer._destCrossClipNodeIndices;
                 var destClip = destAnimatorState._clip;
