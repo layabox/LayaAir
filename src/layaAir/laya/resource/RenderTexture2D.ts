@@ -15,8 +15,8 @@ import { Color } from "../maths/Color";
 export class RenderTexture2D extends BaseTexture implements IRenderTarget {
     /** @private */
     private static _currentActive: RenderTexture2D;
-    static _clearColor: Color = new Color(0,0,0,0);
-    static _clearLinearColor:Color = new Color();
+    static _clearColor: Color = new Color(0, 0, 0, 0);
+    static _clearLinearColor: Color = new Color();
     private _lastRT: RenderTexture2D;
     private _lastWidth: number;
     private _lastHeight: number;
@@ -46,7 +46,8 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
 
     /**@internal */
     _mgrKey: number = 0;	//给WebGLRTMgr用的
-
+    /**@internal */
+    _invertY: boolean = false;
     /**
      * 获取深度格式。
      *@return 深度格式。
@@ -154,7 +155,7 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
     _end(): void {
         throw new Error("Method not implemented.");
     }
-    
+
     /**
      * @internal
      */
@@ -179,7 +180,13 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
         var top: any = RenderTexture2D.rtStack.pop();
         if (top) {
             if (RenderTexture2D._currentActive != top.rt) {
-                top.rt ? LayaGL.textureContext.bindRenderTarget(top.rt._renderTarget) : LayaGL.textureContext.bindoutScreenTarget();
+                if (top.rt) {
+                    LayaGL.textureContext.bindRenderTarget(top.rt._renderTarget);
+                    RenderState2D.InvertY = top.rt._invertY;
+                } else {
+                    LayaGL.textureContext.bindoutScreenTarget();
+                    RenderState2D.InvertY = false;
+                }
                 RenderTexture2D._currentActive = top.rt;
             }
             LayaGL.renderEngine.viewport(0, 0, top.w, top.h);
@@ -196,7 +203,7 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
         LayaGL.textureContext.bindRenderTarget(this._renderTarget);
         this._lastRT = RenderTexture2D._currentActive;
         RenderTexture2D._currentActive = this;
-
+        RenderState2D.InvertY = this._invertY;
         //var gl:LayaGL = LayaGL.instance;//TODO:这段代码影响2D、3D混合
         ////(memorySize == 0) && recreateResource();
         //LayaGL.instance.bindFramebuffer(WebGLContext.FRAMEBUFFER, _frameBuffer);
@@ -222,6 +229,7 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
     end(): void {
         LayaGL.textureContext.unbindRenderTarget(this._renderTarget);
         RenderTexture2D._currentActive = null;
+        RenderState2D.InvertY = false;
     }
 
     /**
@@ -232,9 +240,11 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
 
             if (this._lastRT) {
                 LayaGL.textureContext.bindRenderTarget(this._lastRT._renderTarget);
+                RenderState2D.InvertY = this._lastRT._invertY;
             }
             else {
                 LayaGL.textureContext.unbindRenderTarget(this._renderTarget);
+                RenderState2D.InvertY = false;
             }
 
             RenderTexture2D._currentActive = this._lastRT;
@@ -280,7 +290,7 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
     getData(x: number, y: number, width: number, height: number): ArrayBufferView {
         return LayaGL.textureContext.getRenderTextureData(this._renderTarget, x, y, width, height);
     }
-    
+
     /**
      * @internal
      */

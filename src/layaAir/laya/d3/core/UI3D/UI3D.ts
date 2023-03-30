@@ -212,10 +212,12 @@ export class UI3D extends BaseRender {
         let height = this._size.y * this._resolutionRate;
         if (!this._rendertexure2D) {
             this._rendertexure2D = new RenderTexture2D(width, height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.None);
+            this._rendertexure2D._invertY = true;
         } else {
             if (this._rendertexure2D.width != width || this._rendertexure2D.height != height) {
                 this._rendertexure2D.destroy();
                 this._rendertexure2D = new RenderTexture2D(width, height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.None);
+                this._rendertexure2D._invertY = true;
                 this._setMaterialTexture();
             }
         }
@@ -316,7 +318,7 @@ export class UI3D extends BaseRender {
      */
     _submitRT() {
         //判断是否需要重置
-        this._rendertexure2D && this._shellSprite.drawToTexture(this._rendertexure2D.width, this._rendertexure2D.height, 0, 0, this._rendertexure2D, false);
+        this._rendertexure2D && this._shellSprite.drawToTexture(this._rendertexure2D.width, this._rendertexure2D.height, 0, 0, this._rendertexure2D);
         this._setMaterialTexture();
     }
 
@@ -391,6 +393,13 @@ export class UI3D extends BaseRender {
      */
     protected _onDestroy() {
         super._onDestroy();
+        this._rendertexure2D && this._rendertexure2D.destroy();
+        this._uisprite && this._uisprite.destroy();
+        this._shellSprite && this._shellSprite.destroy();
+        this._ui3DMat && this._ui3DMat.destroy();
+        this._resolutionRate = null;
+        this._uiPlane = null;
+        this._size = null;
     }
 
     private _transByRotate() {
