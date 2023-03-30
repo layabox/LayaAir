@@ -4,7 +4,6 @@ import { VertexDeclaration } from "../../RenderEngine/VertexDeclaration";
 
 
 /**
- * @internal
  * 请使用LayaGL.RenderOBJCreate.createIndexBuffer3D来创建
  * <code>VertexBuffer3D</code> 类用于创建顶点缓冲。
  */

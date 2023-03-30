@@ -3,7 +3,6 @@ import { TextureCompareMode } from "../RenderEnum/TextureCompareMode";
 import { WrapMode } from "../RenderEnum/WrapMode";
 
 /**
- * @internal 
  * 内部纹理对象
  */
  export interface InternalTexture {

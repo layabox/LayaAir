@@ -6,7 +6,6 @@ import { VertexBuffer } from "../../RenderEngine/VertexBuffer";
 
 
 /**
- * @internal
  * <code>BufferState</code> 类用于实现渲染所需的Buffer状态集合。
  */
 export class BufferState {

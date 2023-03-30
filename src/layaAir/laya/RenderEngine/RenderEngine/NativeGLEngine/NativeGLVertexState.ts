@@ -19,16 +19,10 @@ export class NativeGLVertexState extends NativeGLObject implements IRenderVertex
         this._nativeVertexBuffers=[];
     }
 
-    /**
-     * @internal
-     */
     bindVertexArray(): void {
         this._nativeObj.bindVertexArray();
     }
 
-    /**
-     * @internal
-     */
     unbindVertexArray(): void {
         this._nativeObj.unbindVertexArray();
     }
