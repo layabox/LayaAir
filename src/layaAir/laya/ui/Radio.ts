@@ -41,7 +41,7 @@ export class Radio extends Button {
         this.createText();
         this._text.align = "left";
         this._text.valign = "top";
-        this._text.width = 0;
+        this._text.width = null;
         this.on(Event.CLICK, this, this.onClick);
     }
 
