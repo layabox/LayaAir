@@ -467,7 +467,14 @@ export class Sprite extends Node {
     }
 
     set_width(value: number): void {
-        value == 0 ? (this._sizeFlag |= 1) : (this._sizeFlag &= ~1);
+        if (value == null) {
+            value = 0;
+            this._sizeFlag &= ~1;
+        }
+        else if (value == 0)
+            this._sizeFlag |= 1;
+        else
+            this._sizeFlag &= ~1;
         if (this._width !== value) {
             this._width = value;
             this._setWidth(value);
@@ -499,7 +506,14 @@ export class Sprite extends Node {
 
     // for ts
     set_height(value: number): void {
-        value == 0 ? (this._sizeFlag |= 2) : (this._sizeFlag &= ~2);
+        if (value == null) {
+            value = 0;
+            this._sizeFlag &= ~2;
+        }
+        else if (value == 0)
+            this._sizeFlag |= 2;
+        else
+            this._sizeFlag &= ~2;
         if (this._height !== value) {
             this._height = value;
             this._setHeight(value);
