@@ -105,7 +105,7 @@ export class AnimationClipParser04 {
 			node = new KeyframeNode();
 			if ("LAYAANIMATION:WEIGHT_05" == AnimationClipParser04._version) {
 				node.callbackFunData = AnimationClipParser04._strings[reader.getUint16()];
-				let paramLen = reader.getUint16();
+				let paramLen = reader.getUint8();
 				let callParms: any[] = null;
 				for (j = 0; j < paramLen; j++) {
 					if (null == callParms) {
