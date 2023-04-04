@@ -22,6 +22,9 @@ export class KeyframeNode {
 	/**@internal */
 	propertyOwner: string;
 
+	cullbakeFunData:string;
+	callParams:any[];
+
 	/**
 	 * 精灵路径个数。
 	 */

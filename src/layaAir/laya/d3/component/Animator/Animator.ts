@@ -194,6 +194,9 @@ export class Animator extends Component {
             keyframeNodeOwner.referenceCount = 1;
             keyframeNodeOwner.propertyOwner = propertyOwner;
             keyframeNodeOwner.nodePath = node.nodePath;
+            keyframeNodeOwner.callbackFunData = node.cullbakeFunData;
+            keyframeNodeOwner.callParams = node.callParams;
+            keyframeNodeOwner.getCallbackNode();
             var propertyCount = node.propertyCount;
             var propertys: string[] = [];
             for (i = 0; i < propertyCount; i++)
@@ -294,7 +297,7 @@ export class Animator extends Component {
         }
 
         animatorState._eventStateUpdate(playState._normalizedPlayTime);
-        this._applyTransition(animatorState,layerIndex, animatorState._eventtransition(playState._normalizedPlayTime, this.animatorParams));
+        this._applyTransition(animatorState, layerIndex, animatorState._eventtransition(playState._normalizedPlayTime, this.animatorParams));
     }
 
     /**
@@ -303,8 +306,8 @@ export class Animator extends Component {
      * @param transition 
      * @returns 
      */
-    private _applyTransition(state:AnimatorState,layerindex: number, transition: AnimatorTransition) {
-        if (!transition||transition==state.curTransition)
+    private _applyTransition(state: AnimatorState, layerindex: number, transition: AnimatorTransition) {
+        if (!transition || transition == state.curTransition)
             return;
         state.curTransition = transition;
         this.crossFade(transition.destState.name, transition.transduration, layerindex, transition.transstartoffset);
@@ -753,6 +756,9 @@ export class Animator extends Component {
                     } else {
                         pro && (pro as Material).setFloat(lastpro, this._applyFloat((pro as Material).getFloat(lastpro), nodeOwner, additive, weight, isFirstLayer, crossValue));
                     }
+                    if (nodeOwner.callbackFun) {
+                        nodeOwner.animatorDataSetCallBack();
+                    }
                     break;
                 case KeyFrameValueType.Position: //Position
                     var localPos: Vector3 = pro.localPosition;
@@ -839,6 +845,9 @@ export class Animator extends Component {
                             let lastpro = proPat[m];
                             if (!nodeOwner.isMaterial) {
                                 pro && (pro[lastpro] = this._applyFloat(pro[lastpro], nodeOwner, additive, weight, isFirstLayer, <number>realtimeDatas[i]));
+                                if (nodeOwner.callbackFun) {
+                                    nodeOwner.animatorDataSetCallBack();
+                                }
                             } else {
                                 pro && (pro as Material).setFloat(lastpro, this._applyFloat(0, nodeOwner, additive, weight, isFirstLayer, <number>realtimeDatas[i]));
                             }
@@ -874,6 +883,9 @@ export class Animator extends Component {
                             value = proPat[m];
                             if (!nodeOwner.isMaterial) {
                                 pro && (pro[value] = this._applyVec2(pro[value], nodeOwner, additive, weight, isFirstLayer, <Vector2>realtimeDatas[i]));
+                                if (nodeOwner.callbackFun) {
+                                    nodeOwner.animatorDataSetCallBack();
+                                }
                             } else {
                                 pro && pro.getVector2(value) && (pro as Material).setVector2(value, this._applyVec2(pro.getVector2(value), nodeOwner, additive, weight, isFirstLayer, <Vector2>realtimeDatas[i]));
                             }
@@ -889,6 +901,9 @@ export class Animator extends Component {
                             value = proPat[m];
                             if (!nodeOwner.isMaterial) {
                                 pro && (pro[value] = this._applyVec3(pro[value], nodeOwner, additive, weight, isFirstLayer, <Vector3>realtimeDatas[i]));
+                                if (nodeOwner.callbackFun) {
+                                    nodeOwner.animatorDataSetCallBack();
+                                }
                             } else {
                                 pro && pro.getVector3(value) && (pro as Material).setVector3(value, this._applyVec3(pro.getVector3(value), nodeOwner, additive, weight, isFirstLayer, <Vector3>realtimeDatas[i]));
                             }
@@ -904,6 +919,9 @@ export class Animator extends Component {
                             value = proPat[m];
                             if (!nodeOwner.isMaterial) {
                                 pro && (pro[value] = this._applyVec4(pro[value], nodeOwner, additive, weight, isFirstLayer, <Vector4>realtimeDatas[i]));
+                                if (nodeOwner.callbackFun) {
+                                    nodeOwner.animatorDataSetCallBack();
+                                }
                             } else {
                                 pro && pro.getVector4(value) && (pro as Material).setVector4(value, this._applyVec4(pro.getVector4(value), nodeOwner, additive, weight, isFirstLayer, <Vector4>realtimeDatas[i]));
                             }
@@ -919,6 +937,9 @@ export class Animator extends Component {
                             value = proPat[m];
                             if (!nodeOwner.isMaterial) {
                                 pro && (pro[value] = this._applyColor(pro[value], nodeOwner, additive, weight, isFirstLayer, <Vector4>realtimeDatas[i]));
+                                if (nodeOwner.callbackFun) {
+                                    nodeOwner.animatorDataSetCallBack();
+                                }
                             } else {
                                 pro && pro.getColor(value) && (pro as Material).setColor(value, this._applyColor(pro.getColor(value), nodeOwner, additive, weight, isFirstLayer, <Vector4>realtimeDatas[i]));
                             }
@@ -1015,6 +1036,9 @@ export class Animator extends Component {
                             let lastpro = proPat[m];
                             if (!nodeOwner.isMaterial) {
                                 pro && (pro[lastpro] = nodeOwner.defaultValue);
+                                if (nodeOwner.callbackFun) {
+                                    nodeOwner.animatorDataSetCallBack();
+                                }
                             } else {
                                 pro && (pro as Material).setFloat(lastpro, nodeOwner.defaultValue);
                             }
@@ -1063,6 +1087,9 @@ export class Animator extends Component {
                             value = proPat[m];
                             if (!nodeOwner.isMaterial) {
                                 pro && (pro[value] = nodeOwner.defaultValue);
+                                if (nodeOwner.callbackFun) {
+                                    nodeOwner.animatorDataSetCallBack();
+                                }
                             } else {
                                 pro && pro.getVector2(value) && (pro as Material).setVector2(value, nodeOwner.defaultValue);
                             }
@@ -1078,6 +1105,9 @@ export class Animator extends Component {
                             value = proPat[m];
                             if (!nodeOwner.isMaterial) {
                                 pro && (pro[value] = nodeOwner.defaultValue);
+                                if (nodeOwner.callbackFun) {
+                                    nodeOwner.animatorDataSetCallBack();
+                                }
                             } else {
                                 pro && pro.getVector3(value) && (pro as Material).setVector3(value, nodeOwner.defaultValue);
                             }
@@ -1093,6 +1123,9 @@ export class Animator extends Component {
                             value = proPat[m];
                             if (!nodeOwner.isMaterial) {
                                 pro && (pro[value] = nodeOwner.defaultValue);
+                                if (nodeOwner.callbackFun) {
+                                    nodeOwner.animatorDataSetCallBack();
+                                }
                             } else {
                                 pro && pro.getVector3(value) && (pro as Material).setVector3(value, nodeOwner.defaultValue);
                             }
@@ -1113,6 +1146,9 @@ export class Animator extends Component {
                             tempColor.a = nodeOwner.defaultValue.w;
                             if (!nodeOwner.isMaterial) {
                                 pro && (pro[value] = tempColor);
+                                if (nodeOwner.callbackFun) {
+                                    nodeOwner.animatorDataSetCallBack();
+                                }
                             } else {
                                 pro && pro.getColor(value) && (pro as Material).setColor(value, tempColor);
                             }
