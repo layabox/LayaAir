@@ -143,6 +143,20 @@ export class PixelLineRenderer extends BaseRender {
     }
 
     /**
+     * @internal //animator data set call
+     * @param key 
+     */
+    _pixelLinesDataChange(key:string){
+        if (key != null) {
+            let keyN = parseInt(key);
+            let line = this._lines[keyN];
+            if (line) {
+                this.setLine(keyN, line.startPosition, line.endPosition, line.startColor, line.endColor);
+            }
+        }
+    }
+
+    /**
      * 增加一条线。
      * @param	startPosition  初始点位置
      * @param	endPosition	   结束点位置

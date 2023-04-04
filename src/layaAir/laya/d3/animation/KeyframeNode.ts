@@ -22,7 +22,7 @@ export class KeyframeNode {
 	/**@internal */
 	propertyOwner: string;
 
-	cullbakeFunData:string;
+	callbackFunData:string;
 	callParams:any[];
 
 	/**
