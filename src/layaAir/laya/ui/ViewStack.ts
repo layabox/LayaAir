@@ -18,6 +18,12 @@ export class ViewStack extends Box {
     /**@private */
     protected _selectedIndex: number;
 
+    constructor() {
+        super();
+
+        this._items = [];
+    }
+
     /**
      * 批量设置视图对象。
      * @param views 视图对象数组。
@@ -61,7 +67,7 @@ export class ViewStack extends Box {
      * 初始化视图对象集合。
      */
     initItems(): void {
-        this._items = [];
+        this._items.length = 0;
         for (var i: number = 0; i < 10000; i++) {
             var item: Sprite = (<Sprite>this.getChildByName("item" + i));
             if (item == null) {

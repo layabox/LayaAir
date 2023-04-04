@@ -69,6 +69,7 @@ export class UIGroup extends Box {
      */
     constructor(labels: string = null, skin: string = null) {
         super();
+        this._items = [];
         this.skin = skin;
         this.labels = labels;
     }
@@ -165,7 +166,6 @@ export class UIGroup extends Box {
      * 初始化项对象们。
      */
     initItems(): void {
-        this._items || (this._items = []);
         this._items.length = 0;
         for (let i = 0; i < 10000; i++) {
             let item = <ISelect>this.getChildByName("item" + i);
