@@ -115,6 +115,7 @@ export class AnimationClipParser04 {
 					}
 					callParms.push(AnimationClipParser04._strings[reader.getUint16()]);
 				}
+				node.callParms = callParms;
 			}
 			nodes.setNodeByIndex(i, node);
 			node._indexInList = i;
