@@ -203,7 +203,7 @@ export class Animator extends Component {
             keyframeNodeOwner.referenceCount = 1;
             keyframeNodeOwner.propertyOwner = propertyOwner;
             keyframeNodeOwner.nodePath = node.nodePath;
-            keyframeNodeOwner.callbackFunData = node.cullbakeFunData;
+            keyframeNodeOwner.callbackFunData = node.callbackFunData;
             keyframeNodeOwner.callParams = node.callParams;
             keyframeNodeOwner.getCallbackNode();
             var propertyCount = node.propertyCount;
