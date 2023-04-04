@@ -967,6 +967,16 @@ export class Text extends Sprite {
             }
         }
     }
+    /**
+     * @private
+     * 判断某个字符串里面是否包含emoji表情
+     * @param str 
+     * @returns 
+     */
+    private _isEmoji(str: string) {
+        if (null == str) return false;
+        return /[\uD800-\uDBFF][\uDC00-\uDFFF]/g.test(str);
+    }
 
     /**
      * @private
@@ -991,19 +1001,39 @@ export class Text extends Sprite {
         }
 
         charsWidth = this._charSize.width;
-        //优化2，预算第几个字符会超出，减少遍历及字符宽度度量
-        maybeIndex = Math.floor(wordWrapWidth / charsWidth);
-        (maybeIndex == 0) && (maybeIndex = 1);
-        charsWidth = this._getTextWidth(line.substring(0, maybeIndex));
-        wordWidth = charsWidth;
+
+        let isEmoji = this._isEmoji(line);
+        if (!isEmoji) {
+            //优化2，预算第几个字符会超出，减少遍历及字符宽度度量
+            maybeIndex = Math.floor(wordWrapWidth / charsWidth);
+            (maybeIndex == 0) && (maybeIndex = 1);
+            charsWidth = this._getTextWidth(line.substring(0, maybeIndex));
+            wordWidth = charsWidth;
+        }
+
         for (var j = maybeIndex, m = line.length; j < m; j++) {
             // 逐字符测量后加入到总宽度中，在某些情况下自动换行不准确。
             // 目前已知在全是字符1的自动换行就会出现这种情况。
             // 考虑性能，保留这种非方式。
             charsWidth = this._getTextWidth(line.charAt(j));
             wordWidth += charsWidth;
+            let isEmojiChar = false;
+            if (isEmoji && j + 1 < m && this._isEmoji(line.charAt(j) + line.charAt(j + 1))) {
+                wordWidth += charsWidth >> 1;
+                j++;
+                isEmojiChar = true;
+            }
+
             // 如果j的位置已经超出范围，要从startIndex到j找到一个能拆分的地方
             if (wordWidth > wordWrapWidth) {
+                if (isEmojiChar) {
+                    if (wordWidth == charsWidth + (charsWidth >> 1)) {
+                        //这里是代表第一个就是emoji表情的逻辑
+                        j++;
+                    } else {
+                        j--;
+                    }
+                }
                 if (this.wordWrap) {
                     //截断换行单词
                     var newLine = line.substring(startIndex, j);
