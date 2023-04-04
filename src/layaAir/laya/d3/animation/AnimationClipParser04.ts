@@ -105,7 +105,7 @@ export class AnimationClipParser04 {
 			node = new KeyframeNode();
 			if ("LAYAANIMATION:WEIGHT_05" == AnimationClipParser04._version) {
 				//propertyChangePath,IDE里面还原数据时候使用，引擎中是不需要的
-				node.propertyChangePath = AnimationClipParser04._strings[reader.getUint16()];
+				(node as any).propertyChangePath = AnimationClipParser04._strings[reader.getUint16()];
 				node.callbackFunData = AnimationClipParser04._strings[reader.getUint16()];
 				let paramLen = reader.getUint8();
 				let callParms: any[] = null;
