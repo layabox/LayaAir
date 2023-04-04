@@ -34,7 +34,7 @@ import { GLVertexState } from "./GLVertexState";
 import { WebGlConfig } from "./WebGLConfig";
 
 /**
- * @private 封装Webgl
+ * 封装Webgl
  */
 export class WebGLEngine implements IRenderEngine {
 

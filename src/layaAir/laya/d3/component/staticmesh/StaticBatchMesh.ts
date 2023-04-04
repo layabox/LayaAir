@@ -20,9 +20,7 @@ const tempMatrix = new Matrix4x4;
 const TriangleIndices = [0, 1, 2];
 const InvertTriangleIndices = [0, 2, 1];
 
-/**
- * @internal
- */
+
 export class StaticBatchMesh {
 
     static create(info: StaticMeshMergeInfo): StaticBatchMesh {

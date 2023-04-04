@@ -303,6 +303,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
      * @internal
      */
     _renderUpdate(context: RenderContext3D, transform: Transform3D): void {
+        this._applyReflection();
         if (this.bones.length > 0) {
             this._computeSkinnedData();
             this._shaderValues.setMatrix4x4(Sprite3D.WORLDMATRIX, Matrix4x4.DEFAULT);

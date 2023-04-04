@@ -46,7 +46,7 @@ export class HttpRequest extends EventDispatcher {
     send(url: string, data: any = null,
         method: "get" | "post" | "head" = "get",
         responseType: "text" | "json" | "xml" | "arraybuffer" = "text",
-        headers: any[] | null = null): void {
+        headers?: string[]): void {
         this._responseType = responseType;
         this._data = null;
 
@@ -57,12 +57,6 @@ export class HttpRequest extends EventDispatcher {
 
         let http = this._http;
         http.open(method, url, true);
-
-        if (headers) {
-            for (let i: number = 0; i < headers.length; i++) {
-                http.setRequestHeader(headers[i++], headers[i]);
-            }
-        }
 
         if (data) {
             if (typeof (data) == 'string') {
@@ -76,6 +70,12 @@ export class HttpRequest extends EventDispatcher {
         }
         else if (Browser.onBLMiniGame && Browser.onAndroid)
             data = {};
+
+        if (headers) {
+            for (let i = 0; i < headers.length; i++) {
+                http.setRequestHeader(headers[i++], headers[i]);
+            }
+        }
 
         let restype: XMLHttpRequestResponseType = responseType !== "arraybuffer" ? "text" : "arraybuffer";
         http.responseType = restype;

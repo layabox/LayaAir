@@ -5,7 +5,7 @@ import { ShaderValue } from "../../../webgl/shader/ShaderValue";
 
 
 /**
- *  @internal 
+ * 2D粒子
  */
 export class ParticleShaderValue extends Value2D {
     private static pShader: ParticleShader = null; //new ParticleShader();

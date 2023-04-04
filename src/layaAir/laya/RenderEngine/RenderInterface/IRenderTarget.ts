@@ -8,6 +8,12 @@ export interface IRenderTarget {
     samples: number;
     generateMipmap: boolean;
     depthStencilTexture: BaseTexture | null;
+    /**
+     * @internal
+     */
     _start(): void;
+    /**
+     * @internal
+     */
     _end(): void;
 }

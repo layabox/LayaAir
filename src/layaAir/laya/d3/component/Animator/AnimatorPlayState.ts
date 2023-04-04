@@ -23,7 +23,18 @@ export class AnimatorPlayState {
 	/**@internal */
 	_lastIsFront: boolean;
 	/**@internal */
-	_currentState: AnimatorState|null = null;
+	private _currentState: AnimatorState | null = null;
+
+	/**
+	 * 当前动画State
+	 */
+	public get currentState(): AnimatorState | null {
+		return this._currentState;
+	}
+	public set currentState(value: AnimatorState | null) {
+		this._currentState = value;
+		this._currentState.curTransition = null;//清空目前条件判断
+	}
 
 	/**
 	 * 播放状态的归一化时间,整数为循环次数，小数为单次播放时间。
@@ -55,13 +66,13 @@ export class AnimatorPlayState {
 	/**
 	 * @internal
 	 */
-	_resetPlayState(startTime: number,clipDuration:number): void {
+	_resetPlayState(startTime: number, clipDuration: number): void {
 		this._finish = false;
 		this._startPlayTime = startTime;
 		this._elapsedTime = startTime;
 		this._playEventIndex = 0;
 		this._lastIsFront = true;
-		this._normalizedTime = this._elapsedTime/clipDuration;
+		this._normalizedTime = this._elapsedTime / clipDuration;
 		var playTime = this._normalizedTime % 1.0;
 		this._normalizedPlayTime = playTime < 0 ? playTime + 1.0 : playTime;
 	}

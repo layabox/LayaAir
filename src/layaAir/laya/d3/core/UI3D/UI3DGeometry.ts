@@ -59,10 +59,10 @@ export class UI3DGeometry extends GeometryElement {
         var vertexDeclaration: VertexDeclaration = VertexMesh.getVertexDeclaration("POSITION,NORMAL,UV");
         var halfLong: number = 1 / 2;
         var halfWidth: number = 1 / 2 * 100;
-        this._vertex = new Float32Array([-halfLong, halfWidth, 0, 0, 0, 1, 0, 1,
-            halfLong, halfWidth, 0, 0, 0, 1, 1, 1,
-        -halfLong, -halfWidth, 0, 0, 0, 1, 0, 0,
-            halfLong, -halfWidth, 0, 0, 0, 1, 1, 0]);
+        this._vertex = new Float32Array([-halfLong, halfWidth, 0, 0, 0, 1, 0, 0,
+            halfLong, halfWidth, 0, 0, 0, 1, 1, 0,
+        -halfLong, -halfWidth, 0, 0, 0, 1, 0, 1,
+            halfLong, -halfWidth, 0, 0, 0, 1, 1, 1]);
         this._index = new Uint16Array([0, 1, 2, 3, 2, 1]);
         //VB
         this._vertexBuffer = LayaGL.renderOBJCreate.createVertexBuffer3D(this._vertex.length * 4, BufferUsage.Dynamic, false);

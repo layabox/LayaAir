@@ -1,11 +1,12 @@
 import { Laya } from "Laya";
 import { Main } from "./../Main";
-import { BitmapFont } from "laya/display/BitmapFont"
-import { Stage } from "laya/display/Stage"
-import { Text } from "laya/display/Text"
-import { Browser } from "laya/utils/Browser"
-import { Handler } from "laya/utils/Handler"
-import { WebGL } from "laya/webgl/WebGL"
+import { BitmapFont } from "laya/display/BitmapFont";
+import { Stage } from "laya/display/Stage";
+import { Text } from "laya/display/Text";
+import { Browser } from "laya/utils/Browser";
+import { WebGL } from "laya/webgl/WebGL";
+import { Loader } from "laya/net/Loader";
+
 
 export class Text_BitmapFont {
 	private fontName: string = "diyFont";
@@ -27,8 +28,9 @@ export class Text_BitmapFont {
 	}
 
 	private loadFont(): void {
-		var bitmapFont: BitmapFont = new BitmapFont();
-		bitmapFont.loadFont("res/bitmapFont/test.fnt", new Handler(this, this.onFontLoaded, [bitmapFont]));
+		Laya.loader.load("res/bitmapFont/test.fnt", Loader.FONT).then((res: BitmapFont) => {
+			this.onFontLoaded(res);
+		});
 	}
 
 	private onFontLoaded(bitmapFont: BitmapFont): void {
