@@ -78,7 +78,7 @@ export default class Sprite_ScreenShot {
                 break;
             case this.nameArr[1]:
                 var ddrt = new RenderTexture2D(Browser.clientWidth, Browser.clientHeight, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.None);
-                Laya.stage.drawToTexture(Browser.clientWidth, Browser.clientHeight, 0, 0, ddrt, true);
+                Laya.stage.drawToTexture(Browser.clientWidth, Browser.clientHeight, 0, 0, ddrt);
                 var text:Texture = new Texture(ddrt);
                 this.drawSp.graphics.drawTexture(text,0,0,this.drawSp.width,this.drawSp.height);
                 break;
