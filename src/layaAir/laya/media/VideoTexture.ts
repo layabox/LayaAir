@@ -466,5 +466,5 @@ export class VideoTexture extends BaseTexture {
 const videoEvents = new Set([
     "abort", "canplay", "canplaythrough", "durationchange", "emptied", "error", "loadeddata",
     "loadedmetadata", "loadstart", "pause", "play", "playing", "progress", "ratechange", "seeked", "seeking",
-    "stalled", "suspend", "timeupdate", "volumechange", "waiting"
+    "stalled", "suspend", "timeupdate", "volumechange", "waiting", "ended"
 ]);
