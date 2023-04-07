@@ -44,7 +44,7 @@ export class ImgUtils {
      * 是否支持数据预处理
      */
     static get isSupport(): boolean {
-        if (Browser.onMiniGame) {
+        if (Browser._isMiniGame) {
             var version: string = Browser.window.wx.getSystemInfoSync().SDKVersion;
             return ImgUtils.compareVersion(version, '2.14.0');
         }
@@ -62,11 +62,11 @@ export class ImgUtils {
      * @returns 
      */
     static arrayBufferToURL(url: string, arrayBuffer: ArrayBuffer) {
-        if (!ImgUtils.isSupport) return null;
+        if (!ImgUtils.isSupport) return url;
         if (ImgUtils.data[url])
             return ImgUtils.data[url];
         var newurl: string = "";
-        if (Browser.onMiniGame || Browser.onLayaRuntime) {
+        if (Browser._isMiniGame || Browser.onLayaRuntime) {
             newurl = Browser.window.wx.createBufferURL(arrayBuffer);//是一个字符串内存地址
         } else if (Browser.window.Blob) {
             let blob = new Blob([arrayBuffer], { type: 'application/octet-binary' });
@@ -80,7 +80,7 @@ export class ImgUtils {
     static _arrayBufferToURL(arrayBuffer: ArrayBuffer) {
         if (!ImgUtils.isSupport) return null;
         var newurl: string = "";
-        if (Browser.onMiniGame || Browser.onLayaRuntime) {
+        if (Browser._isMiniGame || Browser.onLayaRuntime) {
             newurl = Browser.window.wx.createBufferURL(arrayBuffer);//是一个字符串内存地址
         } else if (Browser.window.Blob) {
             let blob = new Blob([arrayBuffer], { type: 'application/octet-binary' });
@@ -97,7 +97,7 @@ export class ImgUtils {
         if (!ImgUtils.isSupport) return;
         var newurl: string = ImgUtils.data[url];
         if (newurl) {
-            if (Browser.onMiniGame || Browser.onLayaRuntime)
+            if (Browser._isMiniGame || Browser.onLayaRuntime)
                 Browser.window.wx.revokeBufferURL(newurl);
             else if (Browser.window.Blob)
                 Browser.window.URL.revokeObjectURL(newurl);
