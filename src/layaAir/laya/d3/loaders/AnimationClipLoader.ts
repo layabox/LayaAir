@@ -1,12 +1,14 @@
 import { IResourceLoader, ILoadTask, Loader } from "../../net/Loader";
+import { AssetDb } from "../../resource/AssetDb";
 import { AnimationClip } from "../animation/AnimationClip";
 
 class AnimationClipLoader implements IResourceLoader {
     load(task: ILoadTask) {
-        return task.loader.fetch(task.url, "arraybuffer", task.progress.createCallback(), task.options).then(data => {
-            if (!data)
+        let url = AssetDb.inst.getSubAssetURL(task.url, task.uuid, null, "lani");
+        return task.loader.fetch(url, "arraybuffer", task.progress.createCallback(), task.options).then(data => {
+            if (!data) {
                 return null;
-
+            }
             return AnimationClip._parse(data);
         });
     }

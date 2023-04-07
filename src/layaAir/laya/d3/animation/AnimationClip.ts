@@ -44,6 +44,7 @@ export class AnimationClip extends Resource {
 			case "LAYAANIMATION:04":
 			case "LAYAANIMATION:COMPRESSION_04":
 			case "LAYAANIMATION:WEIGHT_04":
+			case "LAYAANIMATION:WEIGHT_05":
 				AnimationClipParser04.parse(clip, reader, version);
 				break;
 			default:
@@ -139,7 +140,7 @@ export class AnimationClip extends Resource {
 		var d = -2.0 * t3 + 3.0 * t2;
 
 		var t0 = tan0.x, t1 = tan1.x;
-		if ((!frame.weightedMode)||this._weightModeHermite(frame.weightedMode.x, nextFrame.weightedMode.x)) {
+		if ((!frame.weightedMode) || this._weightModeHermite(frame.weightedMode.x, nextFrame.weightedMode.x)) {
 			if (Number.isFinite(t0) && Number.isFinite(t1))
 				out.x = a * p0.x + b * t0 * dur + c * t1 * dur + d * p1.x;
 			else
@@ -150,7 +151,7 @@ export class AnimationClip extends Resource {
 		}
 
 		t0 = tan0.y, t1 = tan1.y;
-		if ((!frame.weightedMode)||this._weightModeHermite(frame.weightedMode.y, nextFrame.weightedMode.y)) {
+		if ((!frame.weightedMode) || this._weightModeHermite(frame.weightedMode.y, nextFrame.weightedMode.y)) {
 			if (Number.isFinite(t0) && Number.isFinite(t1))
 				out.y = a * p0.y + b * t0 * dur + c * t1 * dur + d * p1.y;
 			else
@@ -161,7 +162,7 @@ export class AnimationClip extends Resource {
 		}
 
 		t0 = tan0.z, t1 = tan1.z;
-		if ((!frame.weightedMode)||this._weightModeHermite(frame.weightedMode.z, nextFrame.weightedMode.z)) {
+		if ((!frame.weightedMode) || this._weightModeHermite(frame.weightedMode.z, nextFrame.weightedMode.z)) {
 			if (Number.isFinite(t0) && Number.isFinite(t1))
 				out.z = a * p0.z + b * t0 * dur + c * t1 * dur + d * p1.z;
 			else
@@ -189,7 +190,7 @@ export class AnimationClip extends Resource {
 		var d = -2.0 * t3 + 3.0 * t2;
 
 		var t0 = tan0.x, t1 = tan1.x;
-		if ((!frame.weightedMode)||this._weightModeHermite(frame.weightedMode.x, nextFrame.weightedMode.x)) {
+		if ((!frame.weightedMode) || this._weightModeHermite(frame.weightedMode.x, nextFrame.weightedMode.x)) {
 			if (Number.isFinite(t0) && Number.isFinite(t1))
 				out.x = a * p0.x + b * t0 * dur + c * t1 * dur + d * p1.x;
 			else
@@ -201,7 +202,7 @@ export class AnimationClip extends Resource {
 
 
 		t0 = tan0.y, t1 = tan1.y;
-		if ((!frame.weightedMode)||this._weightModeHermite(frame.weightedMode.y, nextFrame.weightedMode.y)) {
+		if ((!frame.weightedMode) || this._weightModeHermite(frame.weightedMode.y, nextFrame.weightedMode.y)) {
 			if (Number.isFinite(t0) && Number.isFinite(t1))
 				out.y = a * p0.y + b * t0 * dur + c * t1 * dur + d * p1.y;
 			else
@@ -212,7 +213,7 @@ export class AnimationClip extends Resource {
 		}
 
 		t0 = tan0.z, t1 = tan1.z;
-		if ((!frame.weightedMode)||this._weightModeHermite(frame.weightedMode.z, nextFrame.weightedMode.z)) {
+		if ((!frame.weightedMode) || this._weightModeHermite(frame.weightedMode.z, nextFrame.weightedMode.z)) {
 			if (Number.isFinite(t0) && Number.isFinite(t1))
 				out.z = a * p0.z + b * t0 * dur + c * t1 * dur + d * p1.z;
 			else
@@ -223,7 +224,7 @@ export class AnimationClip extends Resource {
 		}
 
 		t0 = tan0.w, t1 = tan1.w;
-		if ((!frame.weightedMode)||this._weightModeHermite(frame.weightedMode.w, nextFrame.weightedMode.w)) {
+		if ((!frame.weightedMode) || this._weightModeHermite(frame.weightedMode.w, nextFrame.weightedMode.w)) {
 			if (Number.isFinite(t0) && Number.isFinite(t1))
 				out.w = a * p0.w + b * t0 * dur + c * t1 * dur + d * p1.w;
 			else
@@ -248,7 +249,7 @@ export class AnimationClip extends Resource {
 		var d = -2.0 * t3 + 3.0 * t2;
 
 		var t0 = tan0.x, t1 = tan1.x;
-		if ((!frame.weightedMode)||this._weightModeHermite(frame.weightedMode.x, nextFrame.weightedMode.x)) {
+		if ((!frame.weightedMode) || this._weightModeHermite(frame.weightedMode.x, nextFrame.weightedMode.x)) {
 			if (Number.isFinite(t0) && Number.isFinite(t1))
 				out.x = a * p0.x + b * t0 * dur + c * t1 * dur + d * p1.x;
 			else
@@ -258,7 +259,7 @@ export class AnimationClip extends Resource {
 				nextFrame.value.x, nextFrame.time, nextFrame.inWeight.x, nextFrame.inTangent.x, t);
 		}
 		t0 = tan0.y, t1 = tan1.y;
-		if ((!frame.weightedMode)||this._weightModeHermite(frame.weightedMode.y, nextFrame.weightedMode.y)) {
+		if ((!frame.weightedMode) || this._weightModeHermite(frame.weightedMode.y, nextFrame.weightedMode.y)) {
 			if (Number.isFinite(t0) && Number.isFinite(t1))
 				out.y = a * p0.y + b * t0 * dur + c * t1 * dur + d * p1.y;
 			else
@@ -269,7 +270,7 @@ export class AnimationClip extends Resource {
 		}
 
 		t0 = tan0.z, t1 = tan1.z;
-		if ((!frame.weightedMode)||this._weightModeHermite(frame.weightedMode.z, nextFrame.weightedMode.z)) {
+		if ((!frame.weightedMode) || this._weightModeHermite(frame.weightedMode.z, nextFrame.weightedMode.z)) {
 			if (Number.isFinite(t0) && Number.isFinite(t1))
 				out.z = a * p0.z + b * t0 * dur + c * t1 * dur + d * p1.z;
 			else
@@ -280,7 +281,7 @@ export class AnimationClip extends Resource {
 		}
 
 		t0 = tan0.w, t1 = tan1.w;
-		if ((!frame.weightedMode)||this._weightModeHermite(frame.weightedMode.w, nextFrame.weightedMode.w)) {
+		if ((!frame.weightedMode) || this._weightModeHermite(frame.weightedMode.w, nextFrame.weightedMode.w)) {
 			if (Number.isFinite(t0) && Number.isFinite(t1))
 				out.w = a * p0.w + b * t0 * dur + c * t1 * dur + d * p1.w;
 			else
@@ -305,7 +306,7 @@ export class AnimationClip extends Resource {
 		var d = -2.0 * t3 + 3.0 * t2;
 
 		var t0 = tan0.x, t1 = tan1.x;
-		if ((!frame.weightedMode)||this._weightModeHermite(frame.weightedMode.x, nextFrame.weightedMode.x)) {
+		if ((!frame.weightedMode) || this._weightModeHermite(frame.weightedMode.x, nextFrame.weightedMode.x)) {
 			if (Number.isFinite(t0) && Number.isFinite(t1))
 				out.x = a * p0.x + b * t0 * dur + c * t1 * dur + d * p1.x;
 			else
@@ -316,7 +317,7 @@ export class AnimationClip extends Resource {
 		}
 
 		t0 = tan0.y, t1 = tan1.y;
-		if ((!frame.weightedMode)||this._weightModeHermite(frame.weightedMode.y, nextFrame.weightedMode.y)) {
+		if ((!frame.weightedMode) || this._weightModeHermite(frame.weightedMode.y, nextFrame.weightedMode.y)) {
 			if (Number.isFinite(t0) && Number.isFinite(t1))
 				out.y = a * p0.y + b * t0 * dur + c * t1 * dur + d * p1.y;
 			else
@@ -383,7 +384,7 @@ export class AnimationClip extends Resource {
 	}
 
 	private _curveInterpolate(frame: FloatKeyframe, nextFrame: FloatKeyframe, t: number, dur: number): number {
-		if ((!frame.weightedMode)||this._weightModeHermite(frame.weightedMode, nextFrame.weightedMode)) {
+		if ((!frame.weightedMode) || this._weightModeHermite(frame.weightedMode, nextFrame.weightedMode)) {
 			return this._hermiteInterpolate(frame, nextFrame, t, dur);
 		} else {
 			//weight
@@ -518,10 +519,10 @@ export class AnimationClip extends Resource {
 					this._evaluateFrameNodeVector4DatasRealTime(keyFrames as Vector4Keyframe[], frameIndex, isEnd, playCurTime, v4Data);
 					if (addtive) {
 						var v4FrameValue = ((<Vector4Keyframe>keyFrames[0])).value;
-						v4Data.x -= v4FrameValue .x;
-						v4Data.y -= v4FrameValue .y;
-						v4Data.z -= v4FrameValue .z;
-						v4Data.w -= v4FrameValue .w;
+						v4Data.x -= v4FrameValue.x;
+						v4Data.y -= v4FrameValue.y;
+						v4Data.z -= v4FrameValue.z;
+						v4Data.w -= v4FrameValue.w;
 					}
 					break;
 					break;
