@@ -125,7 +125,7 @@ export class UI3D extends BaseRender {
     }
 
 
-    get renderMode(): number {
+    get renderMode(): MaterialRenderMode {
         if (!this.sharedMaterials[0])
             this.sharedMaterials[0] = this._ui3DMat;
         return this.sharedMaterials[0].materialRenderMode;

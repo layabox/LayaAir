@@ -25,22 +25,14 @@ class TTFFontLoader implements IResourceLoader {
                 return fontFace;
             });
         }
-        else if (Browser.onWeiXin) {
-            let family: string = Browser.window.wx.loadFont(URL.postFormatURL(URL.formatURL(task.url)));
-            if (family)
-                return { family: family };
-            else
-                return null;
-        }
         else {
+            let fontTxt = "40px " + fontName;
+            let txtWidth = Browser.measureText(testString, fontTxt).width;
+
             let fontStyle: any = Browser.createElement("style");
             fontStyle.type = "text/css";
             document.body.appendChild(fontStyle);
             fontStyle.textContent = "@font-face { font-family:'" + fontName + "'; src:url('" + URL.postFormatURL(URL.formatURL(task.url)) + "');}";
-
-            let fontTxt = "40px " + fontName;
-            let txtWidth = Browser.measureText(testString, fontTxt).width;
-            let result = { family: fontName };
 
             return new Promise((resolve) => {
                 let checkComplete = () => {
@@ -51,7 +43,7 @@ class TTFFontLoader implements IResourceLoader {
                     ILaya.systemTimer.clear(this, checkComplete);
                     ILaya.systemTimer.clear(this, complete);
 
-                    resolve(result);
+                    resolve({ family: fontName });
                 };
 
                 ILaya.systemTimer.once(10000, this, complete);
