@@ -248,7 +248,6 @@ export class AnimationClipParser04 {
 				case "LAYAANIMATION:WEIGHT_05":
 					for (j = 0; j < keyframeCount; j++) {
 						let isWeight = 1;
-						
 						switch (type) {
 							case KeyFrameValueType.Float:
 								var floatKeyframe: FloatKeyframe = new FloatKeyframe();
