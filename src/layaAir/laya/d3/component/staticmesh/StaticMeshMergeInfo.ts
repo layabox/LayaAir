@@ -17,13 +17,20 @@ export class StaticMeshMergeInfo {
         return info;
     }
 
+    /**
+     * receiveShadow接受阴影
+     */
     receiveShadow: boolean;
-
+    
+    /**
+     * 光照贴图索引
+     */
     lightmapIndex: number;
 
+    /**
+     * 顶点描述
+     */
     vertexDec: VertexDeclaration;
-
-    // invertFrontFace: boolean;
 
     private _renders: MeshRenderer[];
     public get renders(): MeshRenderer[] {

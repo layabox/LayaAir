@@ -88,7 +88,7 @@ export class KeyframeNodeOwner {
 	 */
 	animatorDataSetCallBack(){
 		let fn:Function = this.callBackOwner[this.callbackFun];
-		fn.call(this.callBackOwner,this.callParams);
+		fn.apply(this.callBackOwner,this.callParams);
 	}
 	
 	/**
@@ -103,9 +103,7 @@ export class KeyframeNodeOwner {
 			}
 			this.callbackFun = funPropertys[funPropertys.length-1];
 		}
-		
 	}
-
 }
 
 
