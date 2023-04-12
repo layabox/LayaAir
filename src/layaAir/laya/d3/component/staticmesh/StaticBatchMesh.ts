@@ -150,13 +150,13 @@ export class StaticBatchMesh {
 
         return staticMesh;
     }
-
+    /**@internal */
     _bufferState: BufferState;
-
+    /**@internal */
     _vertexBuffer: VertexBuffer3D;
-
+    /**@internal */
     _indexBuffer: IndexBuffer3D;
-
+    /**@internal */
     _staticSubMeshes: Map<Material, StaticBatchSubMesh>;
 
     bounds: Bounds;
