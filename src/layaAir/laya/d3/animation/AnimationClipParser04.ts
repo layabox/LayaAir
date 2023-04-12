@@ -14,6 +14,7 @@ import { Quaternion } from "../../maths/Quaternion";
 import { Vector2 } from "../../maths/Vector2";
 import { Vector3 } from "../../maths/Vector3";
 import { Vector4 } from "../../maths/Vector4";
+import { WeightedMode } from "../core/Keyframe";
 
 /**
  * @internal
@@ -105,8 +106,14 @@ export class AnimationClipParser04 {
 			node = new KeyframeNode();
 			if ("LAYAANIMATION:WEIGHT_05" == AnimationClipParser04._version) {
 				//propertyChangePath,IDE里面还原数据时候使用，引擎中是不需要的
-				(node as any).propertyChangePath = AnimationClipParser04._strings[reader.getUint16()];
-				node.callbackFunData = AnimationClipParser04._strings[reader.getUint16()];
+				let propertyChangePath = AnimationClipParser04._strings[reader.getUint16()];
+				if ("undefined" != propertyChangePath) {
+					(node as any).propertyChangePath = propertyChangePath;
+				}
+				let callbackFunData = AnimationClipParser04._strings[reader.getUint16()];
+				if ("undefined" != callbackFunData) {
+					node.callbackFunData = callbackFunData;
+				}
 				let paramLen = reader.getUint8();
 				let callParms: any[] = null;
 				for (j = 0; j < paramLen; j++) {
@@ -240,6 +247,7 @@ export class AnimationClipParser04 {
 				case "LAYAANIMATION:WEIGHT_04":
 				case "LAYAANIMATION:WEIGHT_05":
 					for (j = 0; j < keyframeCount; j++) {
+						let isWeight = 1;
 						switch (type) {
 							case KeyFrameValueType.Float:
 								var floatKeyframe: FloatKeyframe = new FloatKeyframe();
@@ -249,8 +257,17 @@ export class AnimationClipParser04 {
 								floatKeyframe.outTangent = reader.getFloat32();
 								floatKeyframe.value = reader.getFloat32();
 								floatKeyframe.weightedMode = reader.getUint8();
-								floatKeyframe.inWeight = reader.getFloat32();
-								floatKeyframe.outWeight = reader.getFloat32();
+								if ("LAYAANIMATION:WEIGHT_05" == AnimationClipParser04._version) {
+									if (WeightedMode.In == floatKeyframe.weightedMode || WeightedMode.Both == floatKeyframe.weightedMode) {
+										floatKeyframe.inWeight = reader.getFloat32();
+									}
+									if (WeightedMode.Out == floatKeyframe.weightedMode || WeightedMode.Both == floatKeyframe.weightedMode) {
+										floatKeyframe.outWeight = reader.getFloat32();
+									}
+								} else {
+									floatKeyframe.inWeight = reader.getFloat32();
+									floatKeyframe.outWeight = reader.getFloat32();
+								}
 								break;
 							case KeyFrameValueType.Position:
 							case KeyFrameValueType.Scale:
@@ -274,15 +291,21 @@ export class AnimationClipParser04 {
 								value.x = reader.getFloat32();
 								value.y = reader.getFloat32();
 								value.z = reader.getFloat32();
-								weidhtMode.x = reader.getUint8();
-								weidhtMode.y = reader.getUint8();
-								weidhtMode.z = reader.getUint8();
-								inWeight.x = reader.getFloat32();
-								inWeight.y = reader.getFloat32();
-								inWeight.z = reader.getFloat32();
-								outWeight.x = reader.getFloat32();
-								outWeight.y = reader.getFloat32();
-								outWeight.z = reader.getFloat32();
+
+								if ("LAYAANIMATION:WEIGHT_05" == AnimationClipParser04._version) {
+									isWeight = reader.getByte();
+								}
+								if (1 == isWeight) {
+									weidhtMode.x = reader.getUint8();
+									weidhtMode.y = reader.getUint8();
+									weidhtMode.z = reader.getUint8();
+									inWeight.x = reader.getFloat32();
+									inWeight.y = reader.getFloat32();
+									inWeight.z = reader.getFloat32();
+									outWeight.x = reader.getFloat32();
+									outWeight.y = reader.getFloat32();
+									outWeight.z = reader.getFloat32();
+								}
 								break;
 							case KeyFrameValueType.Rotation:
 								var quaternionKeyframe: QuaternionKeyframe = new QuaternionKeyframe(true);
@@ -306,18 +329,24 @@ export class AnimationClipParser04 {
 								valueQua.y = reader.getFloat32();
 								valueQua.z = reader.getFloat32();
 								valueQua.w = reader.getFloat32();
-								weightModeV4.x = reader.getUint8();
-								weightModeV4.y = reader.getUint8();
-								weightModeV4.z = reader.getUint8();
-								weightModeV4.w = reader.getUint8();
-								inWeightQua.x = reader.getFloat32();
-								inWeightQua.y = reader.getFloat32();
-								inWeightQua.z = reader.getFloat32();
-								inWeightQua.w = reader.getFloat32();
-								outWeightQua.x = reader.getFloat32();
-								outWeightQua.y = reader.getFloat32();
-								outWeightQua.z = reader.getFloat32();
-								outWeightQua.w = reader.getFloat32();
+
+								if ("LAYAANIMATION:WEIGHT_05" == AnimationClipParser04._version) {
+									isWeight = reader.getByte();
+								}
+								if (1 == isWeight) {
+									weightModeV4.x = reader.getUint8();
+									weightModeV4.y = reader.getUint8();
+									weightModeV4.z = reader.getUint8();
+									weightModeV4.w = reader.getUint8();
+									inWeightQua.x = reader.getFloat32();
+									inWeightQua.y = reader.getFloat32();
+									inWeightQua.z = reader.getFloat32();
+									inWeightQua.w = reader.getFloat32();
+									outWeightQua.x = reader.getFloat32();
+									outWeightQua.y = reader.getFloat32();
+									outWeightQua.z = reader.getFloat32();
+									outWeightQua.w = reader.getFloat32();
+								}
 								break;
 							case KeyFrameValueType.Vector2:
 								var vec2Keyfram = new Vector2Keyframe(true);
@@ -335,12 +364,17 @@ export class AnimationClipParser04 {
 								outTangentV2.y = reader.getFloat32();
 								valueV2.x = reader.getFloat32();
 								valueV2.y = reader.getFloat32();
-								weightModeV2.x = reader.getUint8();
-								weightModeV2.y = reader.getUint8();
-								inWeightV2.x = reader.getFloat32();
-								inWeightV2.y = reader.getFloat32();
-								outWeightV2.x = reader.getFloat32();
-								outWeightV2.y = reader.getFloat32();
+								if ("LAYAANIMATION:WEIGHT_05" == AnimationClipParser04._version) {
+									isWeight = reader.getByte();
+								}
+								if (1 == isWeight) {
+									weightModeV2.x = reader.getUint8();
+									weightModeV2.y = reader.getUint8();
+									inWeightV2.x = reader.getFloat32();
+									inWeightV2.y = reader.getFloat32();
+									outWeightV2.x = reader.getFloat32();
+									outWeightV2.y = reader.getFloat32();
+								}
 								break;
 							case KeyFrameValueType.Vector4:
 							case KeyFrameValueType.Color:
@@ -365,19 +399,23 @@ export class AnimationClipParser04 {
 								valueV4.y = reader.getFloat32();
 								valueV4.z = reader.getFloat32();
 								valueV4.w = reader.getFloat32();
-
-								weightMode_V4.x = reader.getUint8();
-								weightMode_V4.y = reader.getUint8();
-								weightMode_V4.z = reader.getUint8();
-								weightMode_V4.w = reader.getUint8();
-								inWeightV4.x = reader.getFloat32();
-								inWeightV4.y = reader.getFloat32();
-								inWeightV4.z = reader.getFloat32();
-								inWeightV4.w = reader.getFloat32();
-								outWeightV4.x = reader.getFloat32();
-								outWeightV4.y = reader.getFloat32();
-								outWeightV4.z = reader.getFloat32();
-								outWeightV4.w = reader.getFloat32();
+								if ("LAYAANIMATION:WEIGHT_05" == AnimationClipParser04._version) {
+									isWeight = reader.getByte();
+								}
+								if (1 == isWeight) {
+									weightMode_V4.x = reader.getUint8();
+									weightMode_V4.y = reader.getUint8();
+									weightMode_V4.z = reader.getUint8();
+									weightMode_V4.w = reader.getUint8();
+									inWeightV4.x = reader.getFloat32();
+									inWeightV4.y = reader.getFloat32();
+									inWeightV4.z = reader.getFloat32();
+									inWeightV4.w = reader.getFloat32();
+									outWeightV4.x = reader.getFloat32();
+									outWeightV4.y = reader.getFloat32();
+									outWeightV4.z = reader.getFloat32();
+									outWeightV4.w = reader.getFloat32();
+								}
 								break;
 							default:
 								throw "AnimationClipParser04:unknown type.";
