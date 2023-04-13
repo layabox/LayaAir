@@ -201,7 +201,7 @@ export class ReflectionProbe extends Volume {
 		this._ambientMode = value;
 		if (!this.ambientSH) {
 			if (value == AmbientMode.SphericalHarmonics) {
-				this._ambientSphericalHarmonics && this._applySHCoefficients(this._ambientSphericalHarmonics, 2.2);
+				this._ambientSphericalHarmonics && this._applySHCoefficients(this._ambientSphericalHarmonics, Math.pow(this._ambientIntensity,2.2));
 			} else if (value == AmbientMode.TripleColor) {
 				this._ambientTripleColorSphericalHarmonics && this._applySHCoefficients(this._ambientTripleColorSphericalHarmonics, 1.0);
 			}
