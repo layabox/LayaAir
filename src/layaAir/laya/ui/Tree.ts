@@ -523,7 +523,7 @@ export class Tree extends Box {
      */
     private onArrowClick(e: Event): void {
         var arrow = (<Clip>e.currentTarget);
-        var index = arrow.tag;
+        var index = arrow.tag as number;
         this._list.array[index].isOpen = !this._list.array[index].isOpen;
         this.event(Event.OPEN);
         this._list.array = this.getArray();

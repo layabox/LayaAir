@@ -15,8 +15,6 @@ export class UIComponent extends Sprite {
     protected _dataSource: any;
     /**@private 鼠标悬停提示 */
     protected _toolTip: any;
-    /**@private 标签 */
-    protected _tag: any;
     /**@private 禁用 */
     protected _disabled: boolean;
     /**@private 变灰*/
@@ -43,7 +41,6 @@ export class UIComponent extends Sprite {
     destroy(destroyChild: boolean = true): void {
         super.destroy(destroyChild);
         this._dataSource = null;
-        this._tag = null;
         this._toolTip = null;
     }
 
@@ -256,18 +253,6 @@ export class UIComponent extends Sprite {
     protected _sizeChanged(): void {
         this.event(Event.RESIZE);
         if (this._widget !== Widget.EMPTY) this._widget.resetLayout();
-    }
-
-    /**
-     * <p>对象的标签。</p>
-     * 冗余字段，可以用来储存数据。
-     */
-    get tag(): any {
-        return this._tag;
-    }
-
-    set tag(value: any) {
-        this._tag = value;
     }
 
     /**

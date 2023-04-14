@@ -58,6 +58,9 @@ export class Node extends EventDispatcher {
     /**节点名称。*/
     name: string = "";
 
+    /** 节点标签 */
+    tag?: string | number;
+
     /**
      * 如果节点从资源中创建，这里记录是他的url
      */
