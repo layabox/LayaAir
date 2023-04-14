@@ -30,6 +30,8 @@ export class HLOD extends Component {
     private _lodRateArray: number[];
     /**@internal */
     private _size: number;
+
+    
     constructor() {
         super();
         this._singleton = true;
@@ -76,7 +78,7 @@ export class HLOD extends Component {
         for (let i = 0, n = element.length; i < n; i++) {
             let hlodRender = this.owner.addComponent(HLODRender);
             this._curRender.push(hlodRender);
-            hlodRender.curHLODRS = element[n];
+            hlodRender.curHLODRS = element[i];
         }
     }
 

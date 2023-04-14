@@ -81,7 +81,7 @@ export class HLODElement {
  * Load/release
  */
 export class HLODResourceGroup {
-    url: string;
+    url: string;   
     updateMark: number;
     resources: HLODElement[];
     loaded: boolean;
