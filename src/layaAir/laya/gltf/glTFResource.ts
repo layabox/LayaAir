@@ -349,6 +349,140 @@ export class glTFResource extends Prefab {
         });
     }
 
+    /**
+     * 
+     * @param data 
+     * @param createURL 
+     * @param progress 
+     */
+    _parseglb(data: glTF.glTF, firstbin: ArrayBuffer, createURL: string, progress?: IBatchProgress): Promise<void> {
+        this._data = data;
+        if (!data.asset || data.asset.version !== "2.0") {
+            console.warn("glTF version wrong!");
+            return Promise.resolve();
+        }
+
+        let basePath = URL.getPath(createURL);
+        let promise: Promise<any>;
+        this._idCounter = {};
+
+        if (data.buffers) {
+            let firstBuffer = data.buffers[0];
+            if (firstBuffer && !firstBuffer.uri) {
+                this._buffers[0] = firstbin;
+            }
+        }
+
+
+        promise = Promise.resolve();
+        promise = promise.then(() => {
+            //load textuers
+            if (data.textures) {
+                let promises: Array<Promise<Texture2D>> = [];
+
+                let sRGBTex = new Array<boolean>(data.textures.length).fill(false);
+
+                if (data.materials) {
+                    for (let glTFMaterial of data.materials) {
+                        if (glTFMaterial.pbrMetallicRoughness) {
+                            if (glTFMaterial.pbrMetallicRoughness.baseColorTexture) {
+                                let index = glTFMaterial.pbrMetallicRoughness.baseColorTexture.index;
+                                sRGBTex[index] = true;
+                            }
+                        }
+                        if (glTFMaterial.emissiveTexture) {
+                            let index = glTFMaterial.emissiveTexture.index;
+                            sRGBTex[index] = true;
+                        }
+                    }
+                }
+
+                for (let index = 0; index < data.textures.length; index++) {
+                    let tex = data.textures[index];
+                    let imgSource = tex.source;
+                    let glTFImg = data.images[imgSource];
+                    let samplerSource = tex.sampler;
+                    let glTFSampler = data.samplers ? data.samplers[samplerSource] : undefined;
+                    let constructParams = this.getTextureConstructParams(glTFImg, glTFSampler, sRGBTex[index]);
+                    let propertyParams = this.getTexturePropertyParams(glTFSampler);
+
+                    if (glTFImg.bufferView != null) {
+                        let bufferView: glTF.glTFBufferView = data.bufferViews[glTFImg.bufferView];
+                        let buffer: ArrayBuffer = this._buffers[bufferView.buffer];
+                        let byteOffset: number = (bufferView.byteOffset || 0);
+                        let byteLength: number = bufferView.byteLength;
+                        let arraybuffer: ArrayBuffer = buffer.slice(byteOffset, byteOffset + byteLength);
+                        promises.push(this.loadTextureFromBuffer(arraybuffer, glTFImg.mimeType, constructParams, propertyParams, progress));
+                    }
+                    else
+                        promises.push(this.loadTexture(URL.join(basePath, glTFImg.uri), constructParams, propertyParams, progress));
+                }
+                sRGBTex = null;
+                return Promise.all(promises).then(textures => {
+                    textures = textures.filter(tex => tex);
+                    this._textures.push(...textures);
+                    this.addDeps(textures);
+                });
+            }
+
+            return null;
+        });
+
+        promise = promise.then(() => {
+            //create materials
+            if (data.materials) {
+                let index = 0;
+                for (let glTFMaterial of data.materials) {
+                    let mat: Material;
+                    // todo extension
+                    if (glTFMaterial.extras) {
+                        let createHandler = Handler.create(this, this.createMaterial, null, false);
+                        mat = this.executeExtras("MATERIAL", glTFMaterial.extras, createHandler, [glTFMaterial]);
+                    }
+                    else
+                        mat = this.createMaterial(glTFMaterial);
+                    this._materials[index++] = mat;
+                    this.addDep(mat);
+                }
+            }
+
+            //create meshes
+            if (data.meshes && data.nodes) {
+                for (let glTFNode of data.nodes) {
+                    if (glTFNode.mesh != null) {
+                        let glTFMesh = this._data.meshes[glTFNode.mesh];
+                        let glTFSkin = this._data.skins?.[glTFNode.skin];
+                        let key = glTFNode.mesh + (glTFNode.skin != null ? ("_" + glTFNode.skin) : "");
+                        let mesh = this._meshes[key];
+                        if (mesh)
+                            continue;
+
+                        if (glTFMesh.extras) {
+                            let createHandler = Handler.create(this, this.createMesh, null, false);
+                            mesh = this.executeExtras("MESH", glTFMesh.extras, createHandler, [glTFMesh, glTFSkin]);
+                        }
+                        else
+                            mesh = this.createMesh(glTFMesh, glTFSkin);
+                        this._meshes[key] = mesh;
+                        this.addDep(mesh);
+                    }
+                }
+            }
+        });
+
+        return promise.then(() => {
+            if (this._pendingOps.length > 0) {
+                return Promise.all(this._pendingOps).then(() => {
+                    this._idCounter = null;
+                });
+            }
+            else {
+                this._idCounter = null;
+                return Promise.resolve();
+            }
+        });
+    }
+
     public create(): Node {
         let data = this._data;
 
