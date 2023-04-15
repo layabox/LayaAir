@@ -574,7 +574,6 @@ export class ComboBox extends UIComponent {
      * <p>当前实例的位图 <code>AutoImage</code> 实例的有效缩放网格数据。</p>
      * <p>数据格式："上边距,右边距,下边距,左边距,是否重复填充(值为0：不重复填充，1：重复填充)"，以逗号分隔。
      * <ul><li>例如："4,4,4,4,1"</li></ul></p>
-     * @see laya.ui.AutoBitmap.sizeGrid
      */
     get sizeGrid(): string {
         return this._button.sizeGrid;

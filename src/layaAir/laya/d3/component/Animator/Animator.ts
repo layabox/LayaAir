@@ -87,8 +87,8 @@ export class Animator extends Component {
     _animationNodeWorldMatrixs: Float32Array;
     /**@internal	[NATIVE]*/
     _animationNodeParentIndices: Int16Array;
-
-
+    /**@internal */
+    private _finishSleep: boolean = false;
 
     _controller: AnimatorController;
 
@@ -151,7 +151,16 @@ export class Animator extends Component {
         return this._animatorParams;
     }
 
+    /**
+     * 动画完成是否停止更新
+     */
+    set sleep(value: boolean) {
+        this._finishSleep = value;
+    }
 
+    get sleep() {
+        return this._finishSleep;
+    }
 
     /**
      * 创建一个 <code>Animation</code> 实例。
@@ -194,6 +203,9 @@ export class Animator extends Component {
             keyframeNodeOwner.referenceCount = 1;
             keyframeNodeOwner.propertyOwner = propertyOwner;
             keyframeNodeOwner.nodePath = node.nodePath;
+            keyframeNodeOwner.callbackFunData = node.callbackFunData;
+            keyframeNodeOwner.callParams = node.callParams;
+            keyframeNodeOwner.getCallbackNode();
             var propertyCount = node.propertyCount;
             var propertys: string[] = [];
             for (i = 0; i < propertyCount; i++)
@@ -290,11 +302,11 @@ export class Animator extends Component {
             playState._finish = true;
             playState._elapsedTime = clipDuration;
             playState._normalizedPlayTime = 1.0;
-            return;
         }
 
-        animatorState._eventStateUpdate(playState._normalizedPlayTime);
-        this._applyTransition(layerIndex, animatorState._eventtransition(playState._normalizedPlayTime, this.animatorParams));
+        (!playState._finish) && animatorState._eventStateUpdate(playState._normalizedPlayTime);
+        this._applyTransition(animatorState, layerIndex, animatorState._eventtransition(playState._normalizedPlayTime, this.animatorParams));
+        return;
     }
 
     /**
@@ -303,9 +315,10 @@ export class Animator extends Component {
      * @param transition 
      * @returns 
      */
-    private _applyTransition(layerindex: number, transition: AnimatorTransition) {
-        if (!transition)
+    private _applyTransition(state: AnimatorState, layerindex: number, transition: AnimatorTransition) {
+        if (!transition || transition == state.curTransition)
             return;
+        state.curTransition = transition;
         this.crossFade(transition.destState.name, transition.transduration, layerindex, transition.transstartoffset);
     }
 
@@ -323,17 +336,20 @@ export class Animator extends Component {
     /**
      * @internal
      */
-    private _eventScript(events: AnimationEvent[], eventIndex: number, endTime: number, front: boolean): number {
+    private _eventScript(events: AnimationEvent[], eventIndex: number, endTime: number, front: boolean, startTime = 0): number {
         let scripts = this.owner.components;
         if (front) {
+            endTime += startTime;
             for (let n = events.length; eventIndex < n; eventIndex++) {
                 let event = events[eventIndex];
                 if (event.time <= endTime) {
-                    for (let j = 0, m = scripts.length; j < m; j++) {
-                        let script = scripts[j];
-                        if (script._isScript()) {
-                            let fun: Function = (script as any)[event.eventName];
-                            (fun) && (fun.apply(script, event.params));
+                    if (event.time >= startTime) {
+                        for (let j = 0, m = scripts.length; j < m; j++) {
+                            let script = scripts[j];
+                            if (script._isScript()) {
+                                let fun: Function = (script as any)[event.eventName];
+                                (fun) && (fun.apply(script, event.params));
+                            }
                         }
                     }
                 } else {
@@ -383,11 +399,15 @@ export class Animator extends Component {
         }
         let preEventIndex = playStateInfo._playEventIndex;
         if (frontPlay) {
-            let newEventIndex = this._eventScript(events, playStateInfo._playEventIndex, loopCount > 0 ? clipDuration : time, true);
+            let startTime = 0;
+            if (playStateInfo.animatorState && 0 != playStateInfo.animatorState.clipStart) {
+                startTime = playStateInfo.animatorState._clip!._duration * playStateInfo.animatorState.clipStart;
+            }
+            let newEventIndex = this._eventScript(events, playStateInfo._playEventIndex, loopCount > 0 ? clipDuration : time, true, startTime);
             (preEventIndex === playStateInfo._playEventIndex) && (playStateInfo._playEventIndex = newEventIndex);//这里打个补丁，在event中调用Play 需要重置eventindex，不能直接赋值
             for (let i = 0, n = loopCount - 1; i < n; i++)
-                this._eventScript(events, 0, clipDuration, true);
-            (loopCount > 0 && time > 0) && (playStateInfo._playEventIndex = this._eventScript(events, 0, time, true));//if need cross loop,'time' must large than 0
+                this._eventScript(events, 0, clipDuration, true, startTime);
+            (loopCount > 0 && time > 0) && (playStateInfo._playEventIndex = this._eventScript(events, 0, time, true, startTime));//if need cross loop,'time' must large than 0
         } else {
             let newEventIndex = this._eventScript(events, playStateInfo._playEventIndex, loopCount > 0 ? 0 : time, false);
             (preEventIndex === playStateInfo._playEventIndex) && (playStateInfo._playEventIndex = newEventIndex);//这里打个补丁，在event中调用Play 需要重置eventindex，不能直接赋值
@@ -752,6 +772,9 @@ export class Animator extends Component {
                     } else {
                         pro && (pro as Material).setFloat(lastpro, this._applyFloat((pro as Material).getFloat(lastpro), nodeOwner, additive, weight, isFirstLayer, crossValue));
                     }
+                    if (nodeOwner.callbackFun) {
+                        nodeOwner.animatorDataSetCallBack();
+                    }
                     break;
                 case KeyFrameValueType.Position: //Position
                     var localPos: Vector3 = pro.localPosition;
@@ -838,6 +861,9 @@ export class Animator extends Component {
                             let lastpro = proPat[m];
                             if (!nodeOwner.isMaterial) {
                                 pro && (pro[lastpro] = this._applyFloat(pro[lastpro], nodeOwner, additive, weight, isFirstLayer, <number>realtimeDatas[i]));
+                                if (nodeOwner.callbackFun) {
+                                    nodeOwner.animatorDataSetCallBack();
+                                }
                             } else {
                                 pro && (pro as Material).setFloat(lastpro, this._applyFloat(0, nodeOwner, additive, weight, isFirstLayer, <number>realtimeDatas[i]));
                             }
@@ -873,6 +899,9 @@ export class Animator extends Component {
                             value = proPat[m];
                             if (!nodeOwner.isMaterial) {
                                 pro && (pro[value] = this._applyVec2(pro[value], nodeOwner, additive, weight, isFirstLayer, <Vector2>realtimeDatas[i]));
+                                if (nodeOwner.callbackFun) {
+                                    nodeOwner.animatorDataSetCallBack();
+                                }
                             } else {
                                 pro && pro.getVector2(value) && (pro as Material).setVector2(value, this._applyVec2(pro.getVector2(value), nodeOwner, additive, weight, isFirstLayer, <Vector2>realtimeDatas[i]));
                             }
@@ -888,6 +917,9 @@ export class Animator extends Component {
                             value = proPat[m];
                             if (!nodeOwner.isMaterial) {
                                 pro && (pro[value] = this._applyVec3(pro[value], nodeOwner, additive, weight, isFirstLayer, <Vector3>realtimeDatas[i]));
+                                if (nodeOwner.callbackFun) {
+                                    nodeOwner.animatorDataSetCallBack();
+                                }
                             } else {
                                 pro && pro.getVector3(value) && (pro as Material).setVector3(value, this._applyVec3(pro.getVector3(value), nodeOwner, additive, weight, isFirstLayer, <Vector3>realtimeDatas[i]));
                             }
@@ -903,6 +935,9 @@ export class Animator extends Component {
                             value = proPat[m];
                             if (!nodeOwner.isMaterial) {
                                 pro && (pro[value] = this._applyVec4(pro[value], nodeOwner, additive, weight, isFirstLayer, <Vector4>realtimeDatas[i]));
+                                if (nodeOwner.callbackFun) {
+                                    nodeOwner.animatorDataSetCallBack();
+                                }
                             } else {
                                 pro && pro.getVector4(value) && (pro as Material).setVector4(value, this._applyVec4(pro.getVector4(value), nodeOwner, additive, weight, isFirstLayer, <Vector4>realtimeDatas[i]));
                             }
@@ -918,6 +953,9 @@ export class Animator extends Component {
                             value = proPat[m];
                             if (!nodeOwner.isMaterial) {
                                 pro && (pro[value] = this._applyColor(pro[value], nodeOwner, additive, weight, isFirstLayer, <Vector4>realtimeDatas[i]));
+                                if (nodeOwner.callbackFun) {
+                                    nodeOwner.animatorDataSetCallBack();
+                                }
                             } else {
                                 pro && pro.getColor(value) && (pro as Material).setColor(value, this._applyColor(pro.getColor(value), nodeOwner, additive, weight, isFirstLayer, <Vector4>realtimeDatas[i]));
                             }
@@ -1014,6 +1052,9 @@ export class Animator extends Component {
                             let lastpro = proPat[m];
                             if (!nodeOwner.isMaterial) {
                                 pro && (pro[lastpro] = nodeOwner.defaultValue);
+                                if (nodeOwner.callbackFun) {
+                                    nodeOwner.animatorDataSetCallBack();
+                                }
                             } else {
                                 pro && (pro as Material).setFloat(lastpro, nodeOwner.defaultValue);
                             }
@@ -1062,6 +1103,9 @@ export class Animator extends Component {
                             value = proPat[m];
                             if (!nodeOwner.isMaterial) {
                                 pro && (pro[value] = nodeOwner.defaultValue);
+                                if (nodeOwner.callbackFun) {
+                                    nodeOwner.animatorDataSetCallBack();
+                                }
                             } else {
                                 pro && pro.getVector2(value) && (pro as Material).setVector2(value, nodeOwner.defaultValue);
                             }
@@ -1077,6 +1121,9 @@ export class Animator extends Component {
                             value = proPat[m];
                             if (!nodeOwner.isMaterial) {
                                 pro && (pro[value] = nodeOwner.defaultValue);
+                                if (nodeOwner.callbackFun) {
+                                    nodeOwner.animatorDataSetCallBack();
+                                }
                             } else {
                                 pro && pro.getVector3(value) && (pro as Material).setVector3(value, nodeOwner.defaultValue);
                             }
@@ -1092,6 +1139,9 @@ export class Animator extends Component {
                             value = proPat[m];
                             if (!nodeOwner.isMaterial) {
                                 pro && (pro[value] = nodeOwner.defaultValue);
+                                if (nodeOwner.callbackFun) {
+                                    nodeOwner.animatorDataSetCallBack();
+                                }
                             } else {
                                 pro && pro.getVector3(value) && (pro as Material).setVector3(value, nodeOwner.defaultValue);
                             }
@@ -1112,6 +1162,9 @@ export class Animator extends Component {
                             tempColor.a = nodeOwner.defaultValue.w;
                             if (!nodeOwner.isMaterial) {
                                 pro && (pro[value] = tempColor);
+                                if (nodeOwner.callbackFun) {
+                                    nodeOwner.animatorDataSetCallBack();
+                                }
                             } else {
                                 pro && pro.getColor(value) && (pro as Material).setColor(value, tempColor);
                             }
@@ -1264,11 +1317,14 @@ export class Animator extends Component {
             if (!controllerLayer.enable)
                 continue;
             var playStateInfo: AnimatorPlayState = controllerLayer._playStateInfo!;
+            if (this.sleep && playStateInfo._finish && controllerLayer._playType == 0) {
+                continue;
+            }
             var crossPlayStateInfo: AnimatorPlayState = controllerLayer._crossPlayStateInfo!;
             addtive = controllerLayer.blendingMode !== AnimatorControllerLayer.BLENDINGMODE_OVERRIDE;
             switch (controllerLayer._playType) {
                 case 0:
-                    var animatorState: AnimatorState = playStateInfo._currentState!;
+                    var animatorState: AnimatorState = playStateInfo.currentState!;
                     var clip: AnimationClip = animatorState._clip!;
                     var speed: number = this._speed * animatorState.speed;
                     var finish: boolean = playStateInfo._finish;//提前取出finish,防止最后一帧跳过
@@ -1282,7 +1338,7 @@ export class Animator extends Component {
                     finish || this._updateStateFinish(animatorState, playStateInfo);
                     break;
                 case 1:
-                    animatorState = playStateInfo._currentState!;
+                    animatorState = playStateInfo.currentState!;
                     clip = animatorState._clip!;
                     var crossState: AnimatorState = controllerLayer._crossPlayState;
                     var crossClip: AnimationClip = crossState._clip!;
@@ -1300,7 +1356,7 @@ export class Animator extends Component {
                             this._setClipDatasToNode(crossState, addtive, controllerLayer.defaultWeight, i === 0, controllerLayer);
 
                             controllerLayer._playType = 0;//完成融合,切换到正常播放状态
-                            playStateInfo._currentState = crossState;
+                            playStateInfo.currentState = crossState;
                             crossPlayStateInfo._cloneTo(playStateInfo);
                         }
                     } else {
@@ -1321,7 +1377,7 @@ export class Animator extends Component {
                         this._updateEventScript(crossState, crossPlayStateInfo);
                     }
                     this._updateStateFinish(crossState, crossPlayStateInfo);
-                    needUpdateFinishcurrentState && this._updateStateFinish(playStateInfo._currentState, playStateInfo);
+                    needUpdateFinishcurrentState && this._updateStateFinish(playStateInfo.currentState, playStateInfo);
                     break;
                 case 2:
                     crossState = controllerLayer._crossPlayState;
@@ -1338,7 +1394,7 @@ export class Animator extends Component {
                             this._updateClipDatas(crossState, addtive, crossPlayStateInfo, controllerLayer.avatarMask);
                             this._setClipDatasToNode(crossState, addtive, 1.0, i === 0, controllerLayer);
                             controllerLayer._playType = 0;//完成融合,切换到正常播放状态
-                            playStateInfo._currentState = crossState;
+                            playStateInfo.currentState = crossState;
                             crossPlayStateInfo._cloneTo(playStateInfo);
                         } else {
                             this._updateClipDatas(crossState, addtive, crossPlayStateInfo, controllerLayer.avatarMask);
@@ -1437,7 +1493,7 @@ export class Animator extends Component {
             if (!name && !defaultState)
                 throw new Error("Animator:must have default clip value,please set clip property.");
             var playStateInfo: AnimatorPlayState = controllerLayer._playStateInfo!;
-            var curPlayState: AnimatorState = playStateInfo._currentState!;
+            var curPlayState: AnimatorState = playStateInfo.currentState!;
 
 
             var animatorState: AnimatorState = name ? controllerLayer.getAnimatorState(name) : defaultState;
@@ -1453,7 +1509,7 @@ export class Animator extends Component {
                     playStateInfo._resetPlayState(0.0, calclipduration);
                 (curPlayState !== null && curPlayState !== animatorState) && (this._revertDefaultKeyframeNodes(curPlayState));
                 controllerLayer._playType = 0;
-                playStateInfo._currentState = animatorState;
+                playStateInfo.currentState = animatorState;
             } else {
                 if (normalizedTime !== Number.NEGATIVE_INFINITY) {
                     playStateInfo._resetPlayState(clipDuration * normalizedTime, calclipduration);
@@ -1494,7 +1550,7 @@ export class Animator extends Component {
                 var crossNodeOwners = controllerLayer._crossNodesOwners;
                 var crossNodeOwnerIndicesMap = controllerLayer._crossNodesOwnersIndicesMap;
 
-                var srcAnimatorState = controllerLayer._playStateInfo!._currentState;
+                var srcAnimatorState = controllerLayer._playStateInfo!.currentState;
                 var destNodeOwners = destAnimatorState._nodeOwners;
                 var destCrossClipNodeIndices = controllerLayer._destCrossClipNodeIndices;
                 var destClip = destAnimatorState._clip;

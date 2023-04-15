@@ -325,7 +325,7 @@ export class Camera extends BaseCamera {
     /**@internal */
     protected _msaa: boolean = false;
     /**@internal */
-    private _fxaa: boolean;
+    private _fxaa: boolean = false;
     /** @internal*/
     private _depthTextureMode: DepthTextureMode;
     /** @internal */
@@ -1041,10 +1041,12 @@ export class Camera extends BaseCamera {
         //if need internal RT and no off screen RT and clearFlag is DepthOnly or Nothing, should grab the backBuffer
         if (needInternalRT && !this._offScreenRenderTexture && (this.clearFlag == CameraClearFlags.DepthOnly || this.clearFlag == CameraClearFlags.Nothing)) {
             if (RenderTexture.bindCanvasRender) {//解决iOS中使用CopyTexSubImage2D特别慢的bug
-                var blit: BlitScreenQuadCMD = BlitScreenQuadCMD.create(RenderTexture.bindCanvasRender, this._internalRenderTexture);
-                blit.setContext(context);
-                blit.run();
-                blit.recover();
+                if (RenderTexture.bindCanvasRender != this._internalRenderTexture) {
+                    var blit: BlitScreenQuadCMD = BlitScreenQuadCMD.create(RenderTexture.bindCanvasRender, this._internalRenderTexture);
+                    blit.setContext(context);
+                    blit.run();
+                    blit.recover();
+                }
             } else {
                 if (this._enableHDR) {//internal RT is HDR can't directly copy
                     var grabTexture: RenderTexture = RenderTexture.createFromPool(viewport.width, viewport.height, RenderTargetFormat.R8G8B8, RenderTargetFormat.DEPTH_16, false, 1);
@@ -1057,11 +1059,6 @@ export class Camera extends BaseCamera {
                     blit.run();
                     blit.recover();
                     RenderTexture.recoverToPool(grabTexture);
-                }
-                else {
-                    this._renderEngine.copySubFrameBuffertoTex(this._internalRenderTexture, 0, 0, 0, viewport.x, RenderContext3D.clientHeight - (viewport.y + viewport.height), viewport.width, viewport.height);
-                    // this._renderEngine.bindTexture(gl.TEXTURE_2D, this._internalRenderTexture._getSource());
-                    // gl.copyTexSubImage2D(gl.TEXTURE_2D, 0, 0, 0, viewport.x, RenderContext3D.clientHeight - (viewport.y + viewport.height), viewport.width, viewport.height);
                 }
             }
 

@@ -105,6 +105,8 @@ export class UI3D extends BaseRender {
      * UI3DmeshScale
      */
     set scale(value: Vector2) {
+        if (value.x <= 0 || value.y <= 0)
+            return;
         value.cloneTo(this._size);
         this._resizeRT();
         this.boundsChange = true;
@@ -123,7 +125,7 @@ export class UI3D extends BaseRender {
     }
 
 
-    get renderMode(): number {
+    get renderMode(): MaterialRenderMode {
         if (!this.sharedMaterials[0])
             this.sharedMaterials[0] = this._ui3DMat;
         return this.sharedMaterials[0].materialRenderMode;
@@ -137,6 +139,8 @@ export class UI3D extends BaseRender {
     }
 
     set resolutionRate(value: number) {
+        if (value <= 0)
+            return
         if (this._resolutionRate == value)
             return
         this._resolutionRate = value;
@@ -208,10 +212,12 @@ export class UI3D extends BaseRender {
         let height = this._size.y * this._resolutionRate;
         if (!this._rendertexure2D) {
             this._rendertexure2D = new RenderTexture2D(width, height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.None);
+            this._rendertexure2D._invertY = true;
         } else {
             if (this._rendertexure2D.width != width || this._rendertexure2D.height != height) {
                 this._rendertexure2D.destroy();
                 this._rendertexure2D = new RenderTexture2D(width, height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.None);
+                this._rendertexure2D._invertY = true;
                 this._setMaterialTexture();
             }
         }
@@ -248,6 +254,7 @@ export class UI3D extends BaseRender {
     * @param hit 
     */
     private _parseHit(hit: Vector3) {
+        if (!this._uisprite) return null;
         let WV = UI3D.temp0;
         let HV = UI3D.temp1;
         let Dir = UI3D.temp2;
@@ -288,7 +295,7 @@ export class UI3D extends BaseRender {
      * @param rayOri 
      * @returns 
      */
-    _getCameraDistane(rayOri: Vector3): number {
+    _getCameraDistance(rayOri: Vector3): number {
         return Vector3.distance(rayOri, (this.owner as Sprite3D).transform.position);
     }
 
@@ -311,7 +318,7 @@ export class UI3D extends BaseRender {
      */
     _submitRT() {
         //判断是否需要重置
-        this._uisprite && this._shellSprite.drawToTexture(this._rendertexure2D.width, this._rendertexure2D.height, 0, 0, this._rendertexure2D, true);
+        this._rendertexure2D && this._shellSprite.drawToTexture(this._rendertexure2D.width, this._rendertexure2D.height, 0, 0, this._rendertexure2D);
         this._setMaterialTexture();
     }
 
@@ -386,6 +393,13 @@ export class UI3D extends BaseRender {
      */
     protected _onDestroy() {
         super._onDestroy();
+        this._rendertexure2D && this._rendertexure2D.destroy();
+        this._uisprite && this._uisprite.destroy();
+        this._shellSprite && this._shellSprite.destroy();
+        this._ui3DMat && this._ui3DMat.destroy();
+        this._resolutionRate = null;
+        this._uiPlane = null;
+        this._size = null;
     }
 
     private _transByRotate() {

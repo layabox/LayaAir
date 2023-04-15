@@ -1,6 +1,19 @@
+import { Config3D } from "../../../Config3D"
+import { Component } from "../../components/Component"
+import { LayaGL } from "../../layagl/LayaGL"
+import { Matrix4x4 } from "../../maths/Matrix4x4"
+import { RenderCapable } from "../../RenderEngine/RenderEnum/RenderCapable"
+import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D"
+import { ShaderData, ShaderDataType } from "../../RenderEngine/RenderShader/ShaderData"
+import { ShaderDefine } from "../../RenderEngine/RenderShader/ShaderDefine"
+import { VertexMesh } from "../../RenderEngine/RenderShader/VertexMesh"
+import { VertexElement } from "../../renders/VertexElement"
 import { Mesh } from "../resource/models/Mesh"
-import { Material } from "./material/Material"
+import { MorphTargetChannel } from "../resource/models/MorphTarget"
+import { SubMesh } from "../resource/models/SubMesh"
 import { BlinnPhongMaterial } from "./material/BlinnPhongMaterial"
+import { Material } from "./material/Material"
+import { MeshFilter } from "./MeshFilter"
 import { MeshSprite3DShaderDeclaration } from "./MeshSprite3DShaderDeclaration"
 import { BaseRender } from "./render/BaseRender"
 import { RenderContext3D } from "./render/RenderContext3D"
@@ -9,15 +22,7 @@ import { SubMeshRenderElement } from "./render/SubMeshRenderElement"
 import { RenderableSprite3D } from "./RenderableSprite3D"
 import { Sprite3D } from "./Sprite3D"
 import { Transform3D } from "./Transform3D"
-import { MeshFilter } from "./MeshFilter"
-import { Component } from "../../components/Component"
-import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D"
-import { ShaderDefine } from "../../RenderEngine/RenderShader/ShaderDefine"
-import { SubMesh } from "../resource/models/SubMesh"
-import { ShaderData, ShaderDataType } from "../../RenderEngine/RenderShader/ShaderData"
-import { Matrix4x4 } from "../../maths/Matrix4x4"
-import { VertexElement } from "../../renders/VertexElement"
-import { VertexMesh } from "../../RenderEngine/RenderShader/VertexMesh"
+import { MeshUtil } from "../resource/models/MeshUtil"
 
 /**
  * <code>MeshRenderer</code> 类用于网格渲染器。
@@ -41,6 +46,20 @@ export class MeshRenderer extends BaseRender {
         MeshSprite3DShaderDeclaration.SHADERDEFINE_GPU_INSTANCE = Shader3D.getDefineByName("GPU_INSTANCE");
     }
 
+    private morphTargetActiveCount: number = 0;
+    private morphTargetActiveWeight: Float32Array;
+    private morphTargetActiveIndex: Float32Array;
+
+    /**@internal */
+    morphTargetWeight: Float32Array;
+    private morphtargetChannels: MorphTargetChannel[];
+
+    /**
+     * @internal
+     */
+    morphChannelWeight: Float32Array;
+
+    private _morphWeightChange: boolean = false;
 
     /**
      * 创建一个新的 <code>MeshRender</code> 实例。
@@ -55,6 +74,11 @@ export class MeshRenderer extends BaseRender {
      */
     _createRenderElement(): RenderElement {
         return new SubMeshRenderElement();
+    }
+
+    /**@intermal */
+    getMesh() {
+        return this._mesh;
     }
 
     /**
@@ -72,30 +96,9 @@ export class MeshRenderer extends BaseRender {
      * @param out 
      */
     protected _getMeshDefine(mesh: Mesh, out: Array<ShaderDefine>): number {
+        let define;
         out.length = 0;
-        var define: number;
-        for (var i: number = 0, n: number = mesh._subMeshes.length; i < n; i++) {
-            var subMesh: SubMesh = (<SubMesh>mesh.getSubMesh(i));
-            var vertexElements: any[] = subMesh._vertexBuffer._vertexDeclaration._vertexElements;
-            for (var j: number = 0, m: number = vertexElements.length; j < m; j++) {
-                var vertexElement: VertexElement = vertexElements[j];
-                var name: number = vertexElement._elementUsage;
-                switch (name) {
-                    case VertexMesh.MESH_COLOR0:
-                        out.push(MeshSprite3DShaderDeclaration.SHADERDEFINE_COLOR);
-                        break
-                    case VertexMesh.MESH_TEXTURECOORDINATE0:
-                        out.push(MeshSprite3DShaderDeclaration.SHADERDEFINE_UV0);
-                        break;
-                    case VertexMesh.MESH_TEXTURECOORDINATE1:
-                        out.push(MeshSprite3DShaderDeclaration.SHADERDEFINE_UV1);
-                        break;
-                    case VertexMesh.MESH_TANGENT0:
-                        out.push(MeshSprite3DShaderDeclaration.SHADERDEFINE_TANGENT);
-                        break;
-                }
-            }
-        }
+        MeshUtil.getMeshDefine(mesh, out);
         return define;
     }
 
@@ -115,12 +118,197 @@ export class MeshRenderer extends BaseRender {
 
     }
 
+    private _morphTargetValueMap: Record<string, number> = {}
+    /**
+     * @internal
+     */
+    public get morphTargetMap(): Record<string, number> {
+        return this._morphTargetValueMap;
+    }
+
+    /**
+     * @internal
+     * @param key 
+     */
+    _changeMorphTargetValue(key: string) {
+        this.setMorphChannelWeight(key, this.morphTargetMap[key]);
+    }
+
+    setMorphChannelWeight(channelName: string, weight: number) {
+        // todo
+        let mesh = this._mesh;
+        if (mesh && mesh.morphTargetData) {
+            let morphData = mesh.morphTargetData;
+
+            let channel = morphData.getMorphChannel(channelName);
+            this.morphChannelWeight[channel._index] = weight;
+            this._morphWeightChange = true;
+        }
+    }
+
+    /**
+     * 更新 morph target 数据
+     */
+    protected _applyMorphdata() {
+        let mesh = this._mesh;
+        if (this._morphWeightChange && mesh && mesh.morphTargetData) {
+
+            let morphData = mesh.morphTargetData;
+            let channelCount = morphData.channelCount;
+
+            for (let channelIndex = 0; channelIndex < channelCount; channelIndex++) {
+                let channel = morphData.getMorphChannelbyIndex(channelIndex);
+                // channel.targetCount;
+                let weight = this.morphChannelWeight[channelIndex];
+
+                // update target weight
+                let lastFullWeight = 0;
+                channel.targets.forEach(target => {
+                    if (weight <= target.fullWeight) {
+                        this.morphTargetWeight[target._index] = (weight - lastFullWeight) / (target.fullWeight - lastFullWeight);
+                    }
+                    else {
+                        this.morphTargetWeight[target._index] = 1;
+                    }
+                    lastFullWeight = target.fullWeight;
+                });
+            }
+
+            let activeIndex = 0;
+            // todo top k
+            this.morphTargetWeight.forEach((weight, index) => {
+                if (weight > 0) {
+                    this.morphTargetActiveIndex[activeIndex] = index;
+                    this.morphTargetActiveWeight[activeIndex] = weight;
+                    activeIndex++;
+                }
+            });
+
+            this.morphTargetActiveCount = Math.min(activeIndex, Config3D.maxMorphTargetCount);
+
+            if (LayaGL.renderEngine.getCapable(RenderCapable.Texture3D)) {
+                this._shaderValues.setInt(RenderableSprite3D.MorphActiveCount, this.morphTargetActiveCount);
+
+                this._shaderValues.setBuffer(RenderableSprite3D.MorphActiceTargets, this.morphTargetActiveIndex);
+                this._shaderValues.setBuffer(RenderableSprite3D.MorphActiveWeights, this.morphTargetActiveWeight);
+            }
+            else {
+                // todo
+            }
+            this._morphWeightChange = false;
+            // todo 
+            // active count == 0 disable morph ?
+        }
+
+    }
+
+    /**
+     * 更新 mesh 时 更新 morph target data (shader define)
+     * @param mesh 
+     */
+    protected _changeMorphData(mesh: Mesh) {
+        let shaderData = this._shaderValues;
+        let oldMesh = this._mesh;
+
+        // todo
+        // config max count
+        const maxMorphTargetCount = Config3D.maxMorphTargetCount;
+        let maxCount = maxMorphTargetCount;
+
+        this.morphTargetActiveIndex = new Float32Array(maxCount);
+        this.morphTargetActiveWeight = new Float32Array(maxCount);
+
+        if (LayaGL.renderEngine.getCapable(RenderCapable.Texture3D)) {
+            if (oldMesh && oldMesh.morphTargetData) {
+                let morphData = oldMesh.morphTargetData;
+                shaderData.removeDefine(RenderableSprite3D.SHADERDEFINE_MORPHTARGET);
+
+                let morphVertexDec = morphData.vertexDec;
+
+                morphVertexDec._vertexElements.forEach(element => {
+                    switch (element.elementUsage) {
+                        case VertexMesh.MESH_POSITION0:
+                            shaderData.removeDefine(RenderableSprite3D.SHADERDEFINE_MORPHTARGET_POSITION);
+                            break;
+                        case VertexMesh.MESH_NORMAL0:
+                            shaderData.removeDefine(RenderableSprite3D.SHADERDEFINE_MORPHTARGET_NORMAL);
+                            break;
+                        case VertexMesh.MESH_TANGENT0:
+                            shaderData.removeDefine(RenderableSprite3D.SHADERDEFINE_MORPHTARGET_TANGENT);
+                            break;
+                        default:
+                            break;
+                    }
+                })
+            }
+
+            if (mesh && mesh.morphTargetData) {
+
+                let morphData = mesh.morphTargetData;
+
+                shaderData.addDefine(RenderableSprite3D.SHADERDEFINE_MORPHTARGET);
+                let morphVertexDec = morphData.vertexDec;
+                morphVertexDec._vertexElements.forEach(element => {
+                    switch (element.elementUsage) {
+                        case VertexMesh.MESH_POSITION0:
+                            shaderData.addDefine(RenderableSprite3D.SHADERDEFINE_MORPHTARGET_POSITION);
+                            break;
+                        case VertexMesh.MESH_NORMAL0:
+                            shaderData.addDefine(RenderableSprite3D.SHADERDEFINE_MORPHTARGET_NORMAL);
+                            break;
+                        case VertexMesh.MESH_TANGENT0:
+                            shaderData.addDefine(RenderableSprite3D.SHADERDEFINE_MORPHTARGET_TANGENT);
+                            break;
+                        default:
+                            break;
+                    }
+                })
+
+                shaderData.setVector(RenderableSprite3D.MorphAttriOffset, mesh.morphTargetData.attributeOffset);
+
+                shaderData.setTexture(RenderableSprite3D.MorphTex, mesh.morphTargetData.targetTexture);
+
+                shaderData.setVector(RenderableSprite3D.MorphParams, morphData.params);
+
+                shaderData.setBuffer(RenderableSprite3D.MorphActiceTargets, this.morphTargetActiveIndex);
+                shaderData.setBuffer(RenderableSprite3D.MorphActiveWeights, this.morphTargetActiveWeight);
+            }
+        }
+
+        if (oldMesh && oldMesh.morphTargetData) {
+            this.morphTargetWeight = null;
+            this.morphChannelWeight = null;
+
+            this.morphtargetChannels = null;
+            this._morphTargetValueMap = {};
+        }
+
+        if (mesh && mesh.morphTargetData) {
+
+            let morphData = mesh.morphTargetData;
+
+            let channelCount = morphData.channelCount;
+
+            this.morphTargetWeight = new Float32Array(morphData.targetCount);
+            this.morphChannelWeight = new Float32Array(channelCount);
+
+            this.morphtargetChannels = new Array<MorphTargetChannel>(channelCount);
+            for (let index = 0; index < channelCount; index++) {
+                let channel =  morphData.getMorphChannelbyIndex(index);
+                this.morphtargetChannels[index] = channel;
+                this._morphTargetValueMap[channel.name] = 0;
+            }
+        }
+
+    }
+
     /**
      * @internal
      */
     _onMeshChange(mesh: Mesh): void {
         if (mesh && this._mesh != mesh) {
             this._changeVertexDefine(mesh);
+            this._changeMorphData(mesh);
             this._mesh = mesh;
             this.geometryBounds = mesh.bounds;
             var count: number = mesh.subMeshCount;
@@ -145,6 +333,7 @@ export class MeshRenderer extends BaseRender {
             this._renderElements.length = 0;
             this._mesh = null;
             this._changeVertexDefine(null);
+            this._changeMorphData(null);
         }
         this.boundsChange = true;
         // if (this._octreeNode && this._indexInOctreeMotionList === -1) {
@@ -213,7 +402,12 @@ export class MeshRenderer extends BaseRender {
         var sharedMesh: Mesh = this._mesh;
         if (sharedMesh) {
             var worldMat: Matrix4x4 = this._transform.worldMatrix;
-            sharedMesh.bounds._tranform(worldMat, this._bounds);
+            if (sharedMesh.morphTargetData) {
+                sharedMesh.morphTargetData.bounds._tranform(worldMat, this._bounds);
+            }
+            else {
+                sharedMesh.bounds._tranform(worldMat, this._bounds);
+            }
         }
     }
 
@@ -225,6 +419,7 @@ export class MeshRenderer extends BaseRender {
     _renderUpdate(context: RenderContext3D, transform: Transform3D): void {
         this._applyLightMapParams();
         this._applyReflection();
+        this._applyMorphdata();
         var element: SubMeshRenderElement = <SubMeshRenderElement>context.renderElement;
         this._setShaderValue(Sprite3D.WORLDMATRIX, ShaderDataType.Matrix4x4, transform ? transform.worldMatrix : this._transform.worldMatrix);
         return;
@@ -272,6 +467,8 @@ export class MeshRenderer extends BaseRender {
 
     protected _onDestroy() {
         super._onDestroy();
+        this._morphTargetValueMap = null;
+        this.morphChannelWeight = null;
     }
 
     /**
@@ -280,5 +477,13 @@ export class MeshRenderer extends BaseRender {
      */
     _cloneTo(dest: Component): void {
         super._cloneTo(dest);
+        // todo clone morphtarget weight
+        // onMeshChange in onEnable
+        if (this.morphTargetWeight) {
+            (<MeshRenderer>dest).morphTargetWeight = new Float32Array(this.morphTargetWeight);
+        }
+        for (const key in this._morphTargetValueMap) {
+            (<MeshRenderer>dest)._morphTargetValueMap[key] = this._morphTargetValueMap[key];
+        }
     }
 }

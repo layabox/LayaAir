@@ -22,6 +22,6 @@
     },
     "include":[
         "./**/*",
-        "../node_modules/@webgpu/types"
+        "../../node_modules/@webgpu/types"
     ]
 }

@@ -1,6 +1,10 @@
 #if !defined(VertexCommon_lib)
     #define VertexCommon_lib
 
+    #ifdef MORPHTARGETS
+	#include "MorphTarget.glsl";
+    #endif // MORPHTARGETS
+
 struct Vertex {
 
     vec3 positionOS;
@@ -25,15 +29,48 @@ struct Vertex {
     #endif // COLOR
 };
 
-
 /**
  * vertex position
  */
 vec4 getVertexPosition()
 {
     vec4 position = a_Position;
+
+    #ifdef MORPHTARGETS
+	#ifdef MORPHTARGETS_POSITION
+    position.xyz = positionMorph(position.xyz);
+	#endif // MORPHTARGETS_POSITION
+    #endif // MORPHTARGETS
+
     return position;
 }
+
+vec3 getVertexNormal()
+{
+    vec3 normal = a_Normal.xyz;
+    #ifdef MORPHTARGETS
+	#ifdef MORPHTARGETS_NORMAL
+    normal.xyz = normalMorph(normal);
+	#endif // MORPHTARGETS_NORMAL
+    #endif // MORPHTARGETS
+
+    return normal;
+}
+
+    #ifdef TANGENT
+vec4 getVertexTangent()
+{
+    vec4 tangent = a_Tangent0;
+
+	#ifdef MORPHTARGETS
+	    #ifdef MORPHTARGETS_TANGENT
+    tangent = tangentMorph(tangent);
+	    #endif // MORPHTARGETS_TANGENT
+	#endif // MORPHTARGETS
+
+    return tangent;
+}
+    #endif // TANGENT
 
 vec2 transformUV(in vec2 texcoord, in vec4 tilingOffset)
 {
@@ -45,10 +82,10 @@ void getVertexParams(inout Vertex vertex)
 {
     vertex.positionOS = getVertexPosition().xyz;
 
-    vertex.normalOS = a_Normal.xyz;
+    vertex.normalOS = getVertexNormal();
 
     #ifdef TANGENT
-    vertex.tangentOS = a_Tangent0;
+    vertex.tangentOS = getVertexTangent();
     #endif // TANGENT
 
     #ifdef UV

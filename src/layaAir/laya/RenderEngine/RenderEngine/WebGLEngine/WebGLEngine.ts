@@ -34,11 +34,11 @@ import { GLVertexState } from "./GLVertexState";
 import { WebGlConfig } from "./WebGLConfig";
 
 /**
- * @private 封装Webgl
+ * 封装Webgl
  */
 export class WebGLEngine implements IRenderEngine {
 
-    private _gl: WebGLRenderingContext | WebGL2RenderingContext;
+    _context: WebGLRenderingContext | WebGL2RenderingContext;
 
     private _config: WebGlConfig;
 
@@ -51,7 +51,7 @@ export class WebGLEngine implements IRenderEngine {
     /**@internal */
     private _propertyNameCounter: number = 0;
     /**@internal */
-    _renderOBJCreateContext:IRenderOBJCreate;
+    _renderOBJCreateContext: IRenderOBJCreate;
 
     /**@internal */
     _IDCounter: number = 0;
@@ -138,8 +138,6 @@ export class WebGLEngine implements IRenderEngine {
         this._lastScissor = new Vector4(0, 0, 0, 0);
         this._webglMode = webglMode;
         this._initStatisticsInfo();
-
-
     }
 
     /**
@@ -147,7 +145,7 @@ export class WebGLEngine implements IRenderEngine {
      * @member {WebGLRenderingContext}
      */
     get gl() {
-        return this._gl;
+        return this._context;
     }
 
     get isWebGL2() {
@@ -244,7 +242,7 @@ export class WebGLEngine implements IRenderEngine {
                 break;
             }
         }
-        this._gl = gl;
+        this._context = gl;
 
         //init Other
         this._initBindBufferMap();
@@ -281,9 +279,9 @@ export class WebGLEngine implements IRenderEngine {
      * @param texture 
      */
     _bindTexture(target: number, texture: WebGLTexture) {
-        const texID = this._activedTextureID - this._gl.TEXTURE0;
+        const texID = this._activedTextureID - this._context.TEXTURE0;
         if (this._activeTextures[texID] !== texture) {
-            this._gl.bindTexture(target, texture);
+            this._context.bindTexture(target, texture);
             this._activeTextures[texID] = texture;
         }
     }
@@ -304,7 +302,7 @@ export class WebGLEngine implements IRenderEngine {
     viewport(x: number, y: number, width: number, height: number): void {
         // gl.enable(gl.SCISSOR_TEST);
         // gl.scissor(x, transformY, width, height);
-        const gl = this._gl;
+        const gl = this._context;
         const lv = this._lastViewport;
         if (LayaEnv.isConch) {
             gl.viewport(x, y, width, height);
@@ -315,7 +313,7 @@ export class WebGLEngine implements IRenderEngine {
     }
 
     scissor(x: number, y: number, width: number, height: number) {
-        const gl = this._gl;
+        const gl = this._context;
         const lv = this._lastScissor;
         if (LayaEnv.isConch) {
             gl.scissor(x, y, width, height);
@@ -327,9 +325,9 @@ export class WebGLEngine implements IRenderEngine {
 
     scissorTest(value: boolean) {
         if (value)
-            this._gl.enable(this._gl.SCISSOR_TEST);
+            this._context.enable(this._context.SCISSOR_TEST);
         else
-            this._gl.disable(this._gl.SCISSOR_TEST);
+            this._context.disable(this._context.SCISSOR_TEST);
     }
 
 
@@ -339,35 +337,36 @@ export class WebGLEngine implements IRenderEngine {
         //this.gl.enable(this._gl.SCISSOR_TEST)
         if (clearFlag & RenderClearFlag.Color) {
             if (clearcolor && !this._lastClearColor.equal(clearcolor)) {
-                this._gl.clearColor(clearcolor.r, clearcolor.g, clearcolor.b, clearcolor.a);
+                this._context.clearColor(clearcolor.r, clearcolor.g, clearcolor.b, clearcolor.a);
                 clearcolor.cloneTo(this._lastClearColor);
             }
             flag |= this.gl.COLOR_BUFFER_BIT;
         }
         if (clearFlag & RenderClearFlag.Depth) {
             if (this._lastClearDepth != clearDepth) {
-                this._gl.clearDepth(clearDepth);
+                this._context.clearDepth(clearDepth);
                 this._lastClearDepth = clearDepth;
             }
             this._GLRenderState.setDepthMask(true);
-            flag |= this._gl.DEPTH_BUFFER_BIT;
+            flag |= this._context.DEPTH_BUFFER_BIT;
         }
         if (clearFlag & RenderClearFlag.Stencil) {
-            this._gl.clearStencil(0);
+            this._context.clearStencil(0);
             this._GLRenderState.setStencilMask(true);
-            flag |= this._gl.STENCIL_BUFFER_BIT;
+            flag |= this._context.STENCIL_BUFFER_BIT;
         }
-        this._gl.clear(flag);
+        if (flag)
+            this._context.clear(flag);
         //this._gl.disable(this._gl.SCISSOR_TEST);
     }
 
     copySubFrameBuffertoTex(texture: BaseTexture, level: number, xoffset: number, yoffset: number, x: number, y: number, width: number, height: number) {
         this._bindTexture(texture._texture.target, texture._getSource());
-        this._gl.copyTexSubImage2D(texture._texture.target, level, xoffset, yoffset, x, y, width, height);
+        this._context.copyTexSubImage2D(texture._texture.target, level, xoffset, yoffset, x, y, width, height);
     }
 
     colorMask(r: boolean, g: boolean, b: boolean, a: boolean): void {
-        this._gl.colorMask(r, g, b, a);
+        this._context.colorMask(r, g, b, a);
     }
 
     getParams(params: RenderParams): number {
@@ -470,13 +469,13 @@ export class WebGLEngine implements IRenderEngine {
         return shaderCall;
     }
 
-    createRenderStateComand():RenderStateCommand{
+    createRenderStateComand(): RenderStateCommand {
         return new RenderStateCommand();
     }
 
     unbindVertexState(): void {
         if (this.isWebGL2)
-            (<WebGL2RenderingContext>this._gl).bindVertexArray(null);
+            (<WebGL2RenderingContext>this._context).bindVertexArray(null);
         else
             this._supportCapatable.getExtension(WebGLExtension.OES_vertex_array_object).bindVertexArrayOES(null);
         this._GLBindVertexArray = null;

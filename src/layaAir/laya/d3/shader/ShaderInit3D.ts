@@ -8,6 +8,8 @@ import BakedBoneMatrixSamplerGLSL from "./utils/BakedBoneMatrixSampler.glsl";
 
 import VertexGLSL from "./common/VertexCommon.glsl";
 
+import MorphTargetGLSL from "./common/MorphTarget.glsl";
+
 import SceneGLSL from "./common/SceneCommon.glsl";
 import CameraGLSL from "./common/CameraCommon.glsl";
 import Sprite3DCommonGLSL from "./common/Sprite3DCommon.glsl";
@@ -62,6 +64,7 @@ export class ShaderInit3D {
 		Shader3D.addInclude("TBNNormal.glsl", TBNNormalGLSL);
 		Shader3D.addInclude("BakedBoneMatrixSampler.glsl", BakedBoneMatrixSamplerGLSL);
 		Shader3D.addInclude("VertexCommon.glsl", VertexGLSL);
+		Shader3D.addInclude("MorphTarget.glsl", MorphTargetGLSL);
 
 		// scene
 		Shader3D.addInclude("Scene.glsl", SceneGLSL);

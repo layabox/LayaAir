@@ -12,19 +12,24 @@ export class Vector3Keyframe extends Keyframe {
 	/**帧数据 */
 	value: Vector3 = new Vector3();
 	/**内权重 */
-	inWeight: Vector3 = new Vector3(Keyframe.defaultWeight, Keyframe.defaultWeight, Keyframe.defaultWeight);
+	inWeight: Vector3;
 	/**外权重 */
-	outWeight: Vector3 = new Vector3(Keyframe.defaultWeight, Keyframe.defaultWeight, Keyframe.defaultWeight);
+	outWeight: Vector3;
 	/**权重模式 */
-	weightedMode: Vector3 = new Vector3(WeightedMode.None, WeightedMode.None, WeightedMode.None);
+	weightedMode: Vector3;
 
 
 	/**
 	 * 创建一个 <code>Vector3Keyframe</code> 实例。
 	 */
-	constructor() {
+	constructor(weightMode:boolean = false) {
 		super();
-
+		if(weightMode){
+			this.inWeight = new Vector3(Keyframe.defaultWeight, Keyframe.defaultWeight, Keyframe.defaultWeight);
+			this.outWeight = new Vector3(Keyframe.defaultWeight, Keyframe.defaultWeight, Keyframe.defaultWeight);
+			this.weightedMode = new Vector3(WeightedMode.None, WeightedMode.None, WeightedMode.None);
+		}
+		
 	}
 
 	/**
@@ -38,8 +43,11 @@ export class Vector3Keyframe extends Keyframe {
 		this.inTangent.cloneTo(destKeyFarme.inTangent);
 		this.outTangent.cloneTo(destKeyFarme.outTangent);
 		this.value.cloneTo(destKeyFarme.value);
-		this.inWeight.cloneTo(destKeyFarme.inWeight);
-		this.outWeight.cloneTo(destKeyFarme.outWeight);
-		this.weightedMode.cloneTo(destKeyFarme.weightedMode);
+		if(this.weightedMode){
+			this.inWeight.cloneTo(destKeyFarme.inWeight);
+			this.outWeight.cloneTo(destKeyFarme.outWeight);
+			this.weightedMode.cloneTo(destKeyFarme.weightedMode);
+		}
+		
 	}
 }

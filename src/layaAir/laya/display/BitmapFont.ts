@@ -3,6 +3,7 @@ import { Rectangle } from "../maths/Rectangle"
 import { Texture } from "../resource/Texture"
 import { Handler } from "../utils/Handler"
 import { ILaya } from "../../ILaya";
+import { Loader } from "../net/Loader";
 import { Resource } from "../resource/Resource";
 
 /**
@@ -10,11 +11,10 @@ import { Resource } from "../resource/Resource";
  * 字体制作及使用方法，请参考文章
  * @see http://ldc2.layabox.com/doc/?nav=ch-js-1-2-5
  */
-export class BitmapFont {
+export class BitmapFont extends Resource {
     private _texture: Texture;
     private _fontCharDic: any = {};
     private _fontWidthMap: any = {};
-    private _path: string;
     private _maxWidth: number = 0;
     private _spaceWidth: number = 10;
     private _padding: any[];
@@ -31,18 +31,14 @@ export class BitmapFont {
      * @param	path		位图字体文件的路径。
      * @param	complete	加载并解析完成的回调。
      */
-    loadFont(path: string, complete: Handler): void {
-        this._path = path;
-
-        if (!path || path.indexOf(".fnt") === -1) {
-            console.error('Bitmap font configuration information must be a ".fnt" file');
-            return;
-        }
-
-        ILaya.loader.load([path, path.replace(".fnt", ".png")]).then((contents: Array<any>) => {
-            this.parseFont(contents[0].data, contents[1]);
-            complete && complete.run();
+    static loadFont(path: string, complete: Handler): void {
+        ILaya.loader.load(path, Loader.FONT).then(font => {
+            complete && complete.runWith(font);
         });
+    }
+
+    constructor() {
+        super(false);
     }
 
     /**
@@ -62,6 +58,7 @@ export class BitmapFont {
             return this.parseFont2(xml, texture);
         }
         this.fontSize = parseInt(tInfo[0].getAttributeNode("size").nodeValue);
+        this.autoScaleSize = tInfo[0].getAttributeNode("autoScaleSize")?.nodeValue === "true";
 
         let tPadding: string = tInfo[0].getAttributeNode("padding").nodeValue;
         let tPaddingArray: any[] = tPadding.split(",");
@@ -141,7 +138,7 @@ export class BitmapFont {
     /**
      * 销毁位图字体，调用Text.unregisterBitmapFont 时，默认会销毁。
      */
-     destroy(): void {
+    protected _disposeResource(): void {
         if (this._texture) {
             for (let k in this._fontCharDic) {
                 this._fontCharDic[k].destroy();
@@ -205,7 +202,7 @@ export class BitmapFont {
      * @internal
      * 将指定的文本绘制到指定的显示对象上。
      */
-    _drawText(text: string, sprite: Sprite, drawX: number, drawY: number, align: string, width: number): void {
+    _drawText(text: string, sprite: Sprite, drawX: number, drawY: number, align: string, width: number, color: string): void {
         let tWidth: number = this.getTextWidth(text);
         let tTexture: Texture;
         let dx: number = 0;
@@ -215,7 +212,7 @@ export class BitmapFont {
         for (let i: number = 0, n: number = text.length; i < n; i++) {
             tTexture = this.getCharTexture(text.charAt(i));
             if (tTexture) {
-                sprite.graphics.drawImage(tTexture, drawX + tx + dx, drawY);
+                sprite.graphics.drawImage(tTexture, drawX + tx + dx, drawY, null, null, color);
                 tx += this.getCharWidth(text.charAt(i));
             }
         }

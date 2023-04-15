@@ -68,7 +68,8 @@ export class GLShaderInstance extends GLObject implements IRenderShaderInstance 
         }
         //Uniform
         //Unifrom Objcet
-        const nUniformNum: number = gl.getProgramParameter(this._program, gl.ACTIVE_UNIFORMS);
+        const nUniformNum: number = gl.getProgramParameter(this._program, gl.ACTIVE_UNIFORMS);        
+
         this.useProgram();
         this._curActTexIndex = 0;
         let one: ShaderVariable, i: number;

@@ -134,21 +134,32 @@ export class Image extends UIComponent {
     set skin(value: string) {
         if (value == "")
             value = null;
-        if (this._skin === value)
+        if (this._skin == value)
             return;
 
-        this._skin = value;
-        if (value) {
-            let url = this._skinBaseUrl ? URL.formatURL(this._skin, this._skinBaseUrl) : this._skin;
+        this._setSkin(value);
+    }
+
+    _setSkin(url: string): Promise<void> {
+        this._skin = url;
+        if (url) {
+            if (this._skinBaseUrl)
+                url = URL.formatURL(url, this._skinBaseUrl);
             let source = Loader.getRes(url);
             if (source) {
                 this.source = source;
-            } else {
-                ILaya.loader.load(url,
-                    Handler.create(this, this.setSource, [this._skin]), null, Loader.IMAGE, 1, true, this._group);
+                return Promise.resolve();
             }
-        } else {
+            else {
+                return ILaya.loader.load(url, { type: Loader.IMAGE, group: this._group }).then(tex => {
+                    if (url == this._skin)
+                        this.source = tex;
+                });
+            }
+        }
+        else {
             this.source = null;
+            return Promise.resolve();
         }
     }
 
@@ -166,7 +177,7 @@ export class Image extends UIComponent {
         this.repaint();
 
         if (this._useSourceSize && value) {
-            this.size(value.width, value.height);
+            this.size(value.sourceWidth, value.sourceHeight);
             this._useSourceSize = true; //重置，因为size会改变
         }
         else
@@ -200,20 +211,9 @@ export class Image extends UIComponent {
     set useSourceSize(value: boolean) {
         if (this._useSourceSize != value) {
             if (value && this._graphics.source)
-                this.size(this._graphics.source.width, this._graphics.source.height);
+                this.size(this._graphics.source.sourceWidth, this._graphics.source.sourceHeight);
             this._useSourceSize = value; //放最后，因为size会改变autoSize的值
         }
-    }
-
-    /**
-     * @private
-     * 设置皮肤资源。
-     */
-    protected setSource(url: string, img: any): void {
-        if (url !== this._skin)
-            return;
-
-        this.source = img;
     }
 
     /**
@@ -239,7 +239,7 @@ export class Image extends UIComponent {
     _setWidth(value: number) {
         super._setWidth(value);
         this._graphics.width = value;
-        if (value != 0 && !SerializeUtil.isDeserializing)
+        if (!SerializeUtil.isDeserializing)
             this._useSourceSize = false;
     }
 
@@ -250,7 +250,7 @@ export class Image extends UIComponent {
     _setHeight(value: number) {
         super._setHeight(value);
         this._graphics.height = value;
-        if (value != 0 && !SerializeUtil.isDeserializing)
+        if (!SerializeUtil.isDeserializing)
             this._useSourceSize = false;
     }
 

@@ -25,9 +25,6 @@ export class volumeIntersectInfo {
     intersectRate: number;
 }
 
-/**
- * @internal
- */
 export class Volume extends Component {
     /**@internal */
     protected _primitiveBounds: Bounds;

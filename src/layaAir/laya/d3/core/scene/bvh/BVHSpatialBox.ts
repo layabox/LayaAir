@@ -224,6 +224,29 @@ export class BVHSpatialBox<T> {
     }
 
     /**
+     * 获得渲染list
+     * @returns 
+     */
+    getList(){
+        return this._cellList;
+    }
+
+    /**
+     * 获得child0
+     * @returns 
+     */
+    getchild0(){
+        return this._children0;
+    }
+    /**
+     * 获得child1
+     * @returns 
+     */
+    getchild1(){
+        return this._children1;
+    }
+
+    /**
      * fill one Cell
      * add but dont Split immediately
      */

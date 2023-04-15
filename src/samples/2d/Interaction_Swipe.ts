@@ -47,7 +47,8 @@ export class Interaction_Swipe {
 
 		this.button = new Sprite();
 		this.button.graphics.drawRect(0, 0, w, h, "#FF7F50");
-		this.button.pivot(w / 2, h / 2);
+		this.button.anchorX = 0.5;
+		this.button.anchorY = 0.5;
 		//设置宽高（要接收鼠标事件必须设置宽高，否则不会被命中）  
 		this.button.size(w, h);
 		this.button.x = (Laya.stage.width - this.TrackLength) / 2;

@@ -160,7 +160,7 @@ export class FontClip extends Clip {
             this._wordsH = (texture.sourceHeight + this.spaceY) * this._valueArr.length;
         }
         let dX: number = 0;
-        if (this._width) {
+        if (this._isWidthSet) {
             switch (this._align) {
                 case "center":
                     dX = 0.5 * (this._width - this._wordsW);
@@ -185,11 +185,11 @@ export class FontClip extends Clip {
                 this.graphics.drawImage(texture, 0 + dX, i * (texture.sourceHeight + this.spaceY), texture.sourceWidth, texture.sourceHeight);
         }
 
-        if (!this._width) {
+        if (!this._isWidthSet) {
             this._widget.resetLayoutX();
             this.callLater(this._sizeChanged);
         }
-        if (!this._height) {
+        if (!this._isHeightSet) {
             this._widget.resetLayoutY();
             this.callLater(this._sizeChanged);
         }

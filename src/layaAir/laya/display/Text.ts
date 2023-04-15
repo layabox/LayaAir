@@ -10,6 +10,7 @@ import { WordText } from "../utils/WordText"
 import { ILaya } from "../../ILaya";
 import { LayaEnv } from "../../LayaEnv";
 import { Config } from "../../Config";
+import { Utils } from "../utils/Utils";
 
 /**
  * 文本内容发生改变后调度。
@@ -148,9 +149,11 @@ export class Text extends Sprite {
     /**@private */
     protected _valign: string = "top";
     /**@internal */
-    _fontSize: number = Config.defaultFontSize;
+    _fontSize: number;
     /**@internal */
-    _font: string = Config.defaultFont;
+    _font: string;
+    /**@internal */
+    _realFont: string;
     /**@internal */
     _color: string = "#000000";
     _overflow: string = Text.VISIBLE;
@@ -158,12 +161,19 @@ export class Text extends Sprite {
     /**@private */
     private _singleCharRender: boolean = false;	// 拆分渲染
 
+    /**@internal */
+    declare _style: TextStyle;
+
     /**
      * 创建一个新的 <code>Text</code> 实例。
      */
     constructor() {
         super();
+
         this._style = TextStyle.EMPTY;
+
+        this._fontSize = Config.defaultFontSize;
+        this.font = "";
     }
 
     /**
@@ -181,7 +191,7 @@ export class Text extends Sprite {
         if (this._style === TextStyle.EMPTY) {
             this._style = TextStyle.create();
         }
-        return (<TextStyle>this._style);
+        return this._style;
     }
 
     /**
@@ -191,6 +201,7 @@ export class Text extends Sprite {
      */
     static registerBitmapFont(name: string, bitmapFont: BitmapFont): void {
         Text._bitmapFonts || (Text._bitmapFonts = {});
+        bitmapFont._addReference();
         Text._bitmapFonts[name] = bitmapFont;
     }
 
@@ -202,6 +213,7 @@ export class Text extends Sprite {
     static unregisterBitmapFont(name: string, destroy: boolean = true): void {
         if (Text._bitmapFonts && Text._bitmapFonts[name]) {
             var tBitmapFont: BitmapFont = Text._bitmapFonts[name];
+            tBitmapFont._removeReference();
             if (destroy) tBitmapFont.destroy();
             delete Text._bitmapFonts[name];
         }
@@ -252,7 +264,7 @@ export class Text extends Sprite {
      * @override
      */
     get_width(): number {
-        if (this._width) return this._width;
+        if (this._isWidthSet) return this._width;
         return this.textWidth + this.padding[1] + this.padding[3];
     }
     /**
@@ -270,7 +282,7 @@ export class Text extends Sprite {
      * @internal
      */
     _getCSSStyle(): TextStyle {
-        return (<TextStyle>this._style);
+        return this._style;
     }
 
     /**
@@ -278,7 +290,7 @@ export class Text extends Sprite {
      * @override
      */
     get_height(): number {
-        if (this._height) return this._height;
+        if (this._isHeightSet) return this._height;
         return this.textHeight;
     }
     /**
@@ -313,10 +325,6 @@ export class Text extends Sprite {
         return this._text || "";
     }
 
-    // 为了转ts。ts不支持super.get set
-    get_text(): string {
-        return this._text || "";
-    }
     set_text(value: string): void {
         if (this._text !== value) {
             this.lang(value + "");
@@ -360,7 +368,7 @@ export class Text extends Sprite {
 
     /**
      * <p>文本的字体名称，以字符串形式表示。</p>
-     * <p>默认值为："Arial"，可以通过Text.defaultFont设置默认字体。</p>
+     * <p>默认值为："Arial"，可以通过Config.defaultFont设置默认字体。</p>
      * <p>如果运行时系统找不到设定的字体，则用系统默认的字体渲染文字，从而导致显示异常。(通常电脑上显示正常，在一些移动端因缺少设置的字体而显示异常)。</p>
      */
     get font(): string {
@@ -368,21 +376,44 @@ export class Text extends Sprite {
     }
 
     set font(value: string) {
-        if (((<TextStyle>this._style)).currBitmapFont) {
+        if (this._style.currBitmapFont) {
             this._getTextStyle().currBitmapFont = null;
             this.scale(1, 1);
         }
-        if (Text._bitmapFonts && Text._bitmapFonts[value]) {
-            this._getTextStyle().currBitmapFont = Text._bitmapFonts[value];
-        }
 
         this._font = value;
-        this.isChanged = true;
+        if (!value)
+            value = Config.defaultFont;
+
+        if (Text._bitmapFonts && Text._bitmapFonts[value]) {
+            this._realFont = value;
+            this._getTextStyle().currBitmapFont = Text._bitmapFonts[value];
+            if (this._text)
+                this.isChanged = true;
+        }
+        else if (value && (Utils.getFileExtension(value) || value.startsWith("res://"))) {
+            ILaya.loader.load(value).then(fontObj => {
+                if (!fontObj)
+                    return;
+
+                if (fontObj instanceof BitmapFont)
+                    this._getTextStyle().currBitmapFont = fontObj;
+                else
+                    this._realFont = fontObj.family;
+                if (this._text)
+                    this.isChanged = true;
+            });
+        }
+        else {
+            this._realFont = (ILaya.Browser.onIPhone ? (Config.fontFamilyMap[value] || value) : value);
+            if (this._text)
+                this.isChanged = true;
+        }
     }
 
     /**
      * <p>指定文本的字体大小（以像素为单位）。</p>
-     * <p>默认为20像素，可以通过 <code>Text.defaultFontSize</code> 设置默认大小。</p>
+     * <p>默认为20像素，可以通过 <code>Config.defaultFontSize</code> 设置默认大小。</p>
      */
     get fontSize(): number {
         return this._fontSize;
@@ -400,7 +431,7 @@ export class Text extends Sprite {
      * <p>默认值为 false，这意味着不使用粗体字。如果值为 true，则文本为粗体字。</p>
      */
     get bold(): boolean {
-        return ((<TextStyle>this._style)).bold;
+        return this._style.bold;
     }
 
     set bold(value: boolean) {
@@ -420,16 +451,12 @@ export class Text extends Sprite {
         this.set_color(value);
     }
 
-    // for转ts。 ts不支持 super.get/set
-    get_color(): string {
-        return this._color;
-    }
     set_color(value: string): void {
         if (this._color != value) {
             this._color = value;
             //如果仅仅更新颜色，无需重新排版
             if (!this._isChanged && this._graphics) {
-                this._graphics.replaceTextColor(this.color)
+                this._graphics.replaceTextColor(this._color)
             } else {
                 this.isChanged = true;
             }
@@ -441,7 +468,7 @@ export class Text extends Sprite {
      * <p>默认值为 false，这意味着不使用斜体。如果值为 true，则文本为斜体。</p>
      */
     get italic(): boolean {
-        return ((<TextStyle>this._style)).italic;
+        return this._style.italic;
     }
 
     set italic(value: boolean) {
@@ -458,7 +485,7 @@ export class Text extends Sprite {
      * </p>
      */
     get align(): string {
-        return ((<TextStyle>this._style)).align;
+        return this._style.align;
     }
 
     set align(value: string) {
@@ -488,7 +515,7 @@ export class Text extends Sprite {
      * <p>若值为true，则自动换行；否则不自动换行。</p>
      */
     get wordWrap(): boolean {
-        return ((<TextStyle>this._style)).wordWrap;
+        return this._style.wordWrap;
     }
 
     set wordWrap(value: boolean) {
@@ -500,7 +527,7 @@ export class Text extends Sprite {
      * 垂直行间距（以像素为单位）。
      */
     get leading(): number {
-        return ((<TextStyle>this._style)).leading;
+        return this._style.leading;
     }
 
     set leading(value: number) {
@@ -513,7 +540,7 @@ export class Text extends Sprite {
      * <p>数据格式：[上边距，右边距，下边距，左边距]（边距以像素为单位）。</p>
      */
     get padding(): any[] {
-        return ((<TextStyle>this._style)).padding;
+        return this._style.padding;
     }
 
     set padding(value: any[]) {
@@ -538,14 +565,13 @@ export class Text extends Sprite {
      * 文本背景颜色，以字符串表示。
      */
     get bgColor(): string {
-        return ((<TextStyle>this._style)).bgColor;
+        return this._style.bgColor;
     }
 
     set bgColor(value: string) {
         this.set_bgColor(value);
     }
 
-    // fot ts
     set_bgColor(value: string): void {
         this._getTextStyle().bgColor = value;
         this._renderType |= SpriteConst.STYLE;
@@ -553,15 +579,12 @@ export class Text extends Sprite {
         this._setRenderType(this._renderType);
         this.isChanged = true;
     }
-    get_bgColor(): string {
-        return ((<TextStyle>this._style)).bgColor;
-    }
 
     /**
      * 文本边框背景颜色，以字符串表示。
      */
     get borderColor(): string {
-        return ((<TextStyle>this._style)).borderColor;
+        return this._style.borderColor;
     }
 
     set borderColor(value: string) {
@@ -577,7 +600,7 @@ export class Text extends Sprite {
      * <p>默认值0，表示不描边。</p>
      */
     get stroke(): number {
-        return ((<TextStyle>this._style)).stroke;
+        return this._style.stroke;
     }
 
     set stroke(value: number) {
@@ -590,7 +613,7 @@ export class Text extends Sprite {
      * <p>默认值为 "#000000"（黑色）;</p>
      */
     get strokeColor(): string {
-        return ((<TextStyle>this._style)).strokeColor;
+        return this._style.strokeColor;
     }
 
     set strokeColor(value: string) {
@@ -628,15 +651,14 @@ export class Text extends Sprite {
      * @private
      */
     protected _getContextFont(): string {
-        return (this.italic ? "italic " : "") + (this.bold ? "bold " : "") + this.fontSize + "px " + (ILaya.Browser.onIPhone ? (Config.fontFamilyMap[this.font] || this.font) : this.font);
+        return (this._style.italic ? "italic " : "") + (this._style.bold ? "bold " : "") + this._fontSize + "px " + this._realFont;
     }
 
     /**
      * @private
      */
     protected _isPassWordMode(): boolean {
-        var style: TextStyle = (<TextStyle>this._style);
-        var password: boolean = style.asPassword;
+        var password: boolean = this._style.asPassword;
         if (("prompt" in (this as any)) && (this as any)['prompt'] == this._text)
             password = false;
         return password;
@@ -682,14 +704,14 @@ export class Text extends Sprite {
         var textAlgin = "left";
         var lines = this._lines;
         var lineHeight = this.leading + this._charSize.height;
-        var tCurrBitmapFont = ((<TextStyle>this._style)).currBitmapFont;
-        if (tCurrBitmapFont) {
-            lineHeight = this.leading + tCurrBitmapFont.getMaxHeight();
+        var bfont = this._style.currBitmapFont;
+        if (bfont) {
+            lineHeight = this.leading + bfont.getMaxHeight();
         }
         var startY = padding[0];
 
         //处理水平对齐
-        if ((!tCurrBitmapFont) && this._width > 0 && this._textWidth <= this._width) {
+        if ((!bfont) && this._width > 0 && this._textWidth <= this._width) {
             if (this.align == "right") {
                 textAlgin = "right";
                 startX = this._width - padding[1];
@@ -701,12 +723,12 @@ export class Text extends Sprite {
 
         //drawBg(style);
         let bitmapScale = 1;
-        if (tCurrBitmapFont && tCurrBitmapFont.autoScaleSize) {
-            bitmapScale = tCurrBitmapFont.fontSize / this.fontSize;
+        if (bfont && bfont.autoScaleSize) {
+            bitmapScale = bfont.fontSize / this._fontSize;
         }
 
         if (this._height > 0) {
-            var tempVAlign = (this._textHeight > this._height) ? "top" : this.valign;
+            let tempVAlign = (this._textHeight > this._height) ? "top" : this.valign;
             if (tempVAlign === "middle")
                 startY = (this._height - visibleLineCount / bitmapScale * lineHeight) * 0.5 + padding[0] - padding[2];
             else if (tempVAlign === "bottom")
@@ -716,9 +738,9 @@ export class Text extends Sprite {
         //渲染
         if (this._clipPoint) {
             graphics.save();
-            if (tCurrBitmapFont && tCurrBitmapFont.autoScaleSize) {
-                var tClipWidth: number;
-                var tClipHeight: number;
+            if (bfont && bfont.autoScaleSize) {
+                let tClipWidth: number;
+                let tClipHeight: number;
 
                 this._width ? tClipWidth = (this._width - padding[3] - padding[1]) : tClipWidth = this._textWidth;
                 this._height ? tClipHeight = (this._height - padding[0] - padding[2]) : tClipHeight = this._textHeight;
@@ -733,7 +755,7 @@ export class Text extends Sprite {
             this.repaint();
         }
 
-        var style = <TextStyle>this._style;
+        var style = this._style;
         var password = style.asPassword;
         // 输入框的prompt始终显示明文
         if (("prompt" in (this as any)) && (this as any)['prompt'] == this._text)
@@ -741,13 +763,13 @@ export class Text extends Sprite {
 
         var x = 0, y = 0;
         var end = Math.min(this._lines.length, visibleLineCount + beginLine) || 1;
-        for (var i = beginLine; i < end; i++) {
-            var word = lines[i];
-            var _word: any;
+        for (let i = beginLine; i < end; i++) {
+            let word = lines[i];
+            let wordText: WordText;
             if (password) {
                 let len = word.length;
                 word = "";
-                for (var j = len; j > 0; j--) {
+                for (let j = len; j > 0; j--) {
                     word += "●";
                 }
             }
@@ -758,29 +780,32 @@ export class Text extends Sprite {
 
             this.underline && this._drawUnderline(textAlgin, x, y, i);
 
-            if (tCurrBitmapFont) {
+            if (bfont) {
                 var tWidth = this.width;
-                if (tCurrBitmapFont.autoScaleSize) {
+                if (bfont.autoScaleSize) {
                     tWidth = this.width * bitmapScale;
                     x *= bitmapScale;
                     y *= bitmapScale;
                 }
-                tCurrBitmapFont._drawText(word, this, x, y, this.align, tWidth);
+                bfont._drawText(word, this, x, y, this.align, tWidth, this._color);
             } else {
                 this._words || (this._words = []);
                 if (this._words.length > (i - beginLine)) {
-                    _word = this._words[i - beginLine];
+                    wordText = this._words[i - beginLine];
                 } else {
-                    _word = new WordText();
-                    this._words.push(_word);
+                    wordText = new WordText();
+                    this._words.push(wordText);
                 }
-                _word.setText(word);
-                ((<WordText>_word)).splitRender = this._singleCharRender;
-                style.stroke ? graphics.fillBorderText(_word, x, y, ctxFont, this.color, textAlgin, style.stroke, style.strokeColor) : graphics.fillText(_word, x, y, ctxFont, this.color, textAlgin);
+                wordText.setText(word);
+                wordText.splitRender = this._singleCharRender;
+                if (style.stroke)
+                    graphics.fillBorderText(wordText, x, y, ctxFont, this._color, textAlgin, style.stroke, style.strokeColor);
+                else
+                    graphics.fillText(wordText, x, y, ctxFont, this._color, textAlgin);
             }
         }
-        if (tCurrBitmapFont && tCurrBitmapFont.autoScaleSize) {
-            var tScale = 1 / bitmapScale;
+        if (bfont && bfont.autoScaleSize) {
+            let tScale = 1 / bitmapScale;
             this.scale(tScale, tScale);
         }
 
@@ -812,7 +837,7 @@ export class Text extends Sprite {
         }
 
         y += this._charSize.height;
-        this._graphics.drawLine(x, y, x + lineWidth, y, this.underlineColor || this.color, 1);
+        this._graphics.drawLine(x, y, x + lineWidth, y, this.underlineColor || this._color, 1);
     }
 
     /**
@@ -858,11 +883,11 @@ export class Text extends Sprite {
         nw = Math.max.apply(this, this._lineWidths);
 
         //计算textHeight
-        let bmpFont = (this._style as TextStyle).currBitmapFont;
+        let bmpFont = this._style.currBitmapFont;
         if (bmpFont) {
             let h = bmpFont.getMaxHeight();
             if (bmpFont.autoScaleSize) {
-                h = this.fontSize;
+                h = this._fontSize;
             }
             nh = this._lines.length * (h + this.leading) + this.padding[0] + this.padding[2];
         }
@@ -913,7 +938,7 @@ export class Text extends Sprite {
             var wordWrapWidth = this._getWordWrapWidth();
         }
 
-        var bitmapFont = ((<TextStyle>this._style)).currBitmapFont;
+        var bitmapFont = this._style.currBitmapFont;
         if (bitmapFont) {
             this._charSize.width = bitmapFont.getMaxWidth();
             this._charSize.height = bitmapFont.getMaxHeight();
@@ -926,7 +951,7 @@ export class Text extends Sprite {
             }
             if (!measureResult) measureResult = { width: 100 };
             this._charSize.width = measureResult.width;
-            this._charSize.height = (measureResult.height || this.fontSize);
+            this._charSize.height = (measureResult.height || this._fontSize);
         }
 
         var lines: any[] = text.replace(/\r\n/g, "\n").split("\n");
@@ -941,6 +966,16 @@ export class Text extends Sprite {
                 this._lines.push(line);
             }
         }
+    }
+    /**
+     * @private
+     * 判断某个字符串里面是否包含emoji表情
+     * @param str 
+     * @returns 
+     */
+    private _isEmoji(str: string) {
+        if (null == str) return false;
+        return /[\uD800-\uDBFF][\uDC00-\uDFFF]/g.test(str);
     }
 
     /**
@@ -966,19 +1001,39 @@ export class Text extends Sprite {
         }
 
         charsWidth = this._charSize.width;
-        //优化2，预算第几个字符会超出，减少遍历及字符宽度度量
-        maybeIndex = Math.floor(wordWrapWidth / charsWidth);
-        (maybeIndex == 0) && (maybeIndex = 1);
-        charsWidth = this._getTextWidth(line.substring(0, maybeIndex));
-        wordWidth = charsWidth;
+
+        let isEmoji = this._isEmoji(line);
+        if (!isEmoji) {
+            //优化2，预算第几个字符会超出，减少遍历及字符宽度度量
+            maybeIndex = Math.floor(wordWrapWidth / charsWidth);
+            (maybeIndex == 0) && (maybeIndex = 1);
+            charsWidth = this._getTextWidth(line.substring(0, maybeIndex));
+            wordWidth = charsWidth;
+        }
+
         for (var j = maybeIndex, m = line.length; j < m; j++) {
             // 逐字符测量后加入到总宽度中，在某些情况下自动换行不准确。
             // 目前已知在全是字符1的自动换行就会出现这种情况。
             // 考虑性能，保留这种非方式。
             charsWidth = this._getTextWidth(line.charAt(j));
             wordWidth += charsWidth;
+            let isEmojiChar = false;
+            if (isEmoji && j + 1 < m && this._isEmoji(line.charAt(j) + line.charAt(j + 1))) {
+                wordWidth += charsWidth >> 1;
+                j++;
+                isEmojiChar = true;
+            }
+
             // 如果j的位置已经超出范围，要从startIndex到j找到一个能拆分的地方
             if (wordWidth > wordWrapWidth) {
+                if (isEmojiChar) {
+                    if (wordWidth == charsWidth + (charsWidth >> 1)) {
+                        //这里是代表第一个就是emoji表情的逻辑
+                        j++;
+                    } else {
+                        j--;
+                    }
+                }
                 if (this.wordWrap) {
                     //截断换行单词
                     var newLine = line.substring(startIndex, j);
@@ -1034,7 +1089,7 @@ export class Text extends Sprite {
 
     /**@private */
     private _getTextWidth(text: string): number {
-        var bitmapFont: BitmapFont = ((<TextStyle>this._style)).currBitmapFont;
+        var bitmapFont: BitmapFont = this._style.currBitmapFont;
         if (bitmapFont) return bitmapFont.getTextWidth(text);
         else {
             if (LayaEnv.isConch) {
@@ -1054,8 +1109,8 @@ export class Text extends Sprite {
     private _getWordWrapWidth(): number {
         var p: any[] = this.padding;
         var w: number;
-        var bitmapFont: BitmapFont = ((<TextStyle>this._style)).currBitmapFont;
-        if (bitmapFont && bitmapFont.autoScaleSize) w = this._width * (bitmapFont.fontSize / this.fontSize);
+        var bitmapFont: BitmapFont = this._style.currBitmapFont;
+        if (bitmapFont && bitmapFont.autoScaleSize) w = this._width * (bitmapFont.fontSize / this._fontSize);
         else w = this._width;
 
         if (w <= 0) {
@@ -1083,7 +1138,7 @@ export class Text extends Sprite {
             startIndex = len;
         }
         //计算字符的宽度
-        var ctxFont: string = (this.italic ? "italic " : "") + (this.bold ? "bold " : "") + this.fontSize + "px " + this.font;
+        var ctxFont: string = this._getContextFont();
         ILaya.Browser.context.font = ctxFont;
         var width: number = this._getTextWidth(this._text.substring(startIndex, charIndex));
         var point: Point = out || new Point();
@@ -1157,7 +1212,7 @@ export class Text extends Sprite {
 
     /**下划线的颜色，为null则使用字体颜色。*/
     get underlineColor(): string {
-        return ((<TextStyle>this._style)).underlineColor;
+        return this._style.underlineColor;
     }
 
     set underlineColor(value: string) {
@@ -1167,7 +1222,7 @@ export class Text extends Sprite {
 
     /**是否显示下划线。*/
     get underline(): boolean {
-        return ((<TextStyle>this._style)).underline;
+        return this._style.underline;
     }
 
     set underline(value: boolean) {
@@ -1181,15 +1236,4 @@ export class Text extends Sprite {
     get singleCharRender(): boolean {
         return this._singleCharRender;
     }
-    /*	
-        scale(scaleX: number, scaleY: number, speedMode: boolean = false): Sprite {
-            super.scale(scaleX,scaleY, speedMode);
-            // 注意_words是一个数组（例如有换行）
-            this._words && this._words.forEach(function (w: WordText): void {
-                w.cleanCache();
-            });
-            this.repaint();
-            return this;
-        }	
-    */
 }

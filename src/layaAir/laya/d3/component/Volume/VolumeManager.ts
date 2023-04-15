@@ -3,7 +3,7 @@ import { BaseRender } from "../../core/render/BaseRender";
 import { Bounds } from "../../math/Bounds";
 import { IVolumeManager } from "./IVolumeManager";
 import { ReflectionProbeManager } from "./reflectionProbe/ReflectionProbeManager";
-import { Volume, volumeIntersectType } from "./Volume";
+import { Volume} from "./Volume";
 import { VolumetricGIManager } from "./VolumetricGI/VolumetricGIManager";
 
 

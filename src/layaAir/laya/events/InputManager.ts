@@ -183,8 +183,10 @@ export class InputManager {
         _tempPoint.setTo(ev.pageX || ev.clientX, ev.pageY || ev.clientY);
         if (this._stage._canvasTransform)
             this._stage._canvasTransform.invertTransformPoint(_tempPoint);
-        let x = InputManager.mouseX = _tempPoint.x;
-        let y = InputManager.mouseY = _tempPoint.y;
+        InputManager.mouseX = _tempPoint.x;
+        InputManager.mouseY = _tempPoint.y;
+        let x = _tempPoint.x / this._stage.clientScaleX;
+        let y = _tempPoint.y / this._stage.clientScaleY;
 
         touch.event.nativeEvent = ev;
         if (type == 3 || !InputManager.mouseEventsEnabled)
@@ -192,10 +194,13 @@ export class InputManager {
         else {
             touch.target = this._touchTarget = this.getNodeUnderPoint(x, y);
 
-            if (x != touch.pos.x || y != touch.pos.y) {
+            let ix = Math.round(x);
+            let iy = Math.round(y);
+
+            if (ix != touch.pos.x || iy != touch.pos.y) {
                 this._stage._mouseMoveTime = Browser.now();
 
-                touch.pos.setTo(x, y);
+                touch.pos.setTo(ix, iy);
                 touch.move();
 
                 if (InputManager.mouseEventsEnabled) {
@@ -280,8 +285,10 @@ export class InputManager {
             _tempPoint.setTo(uTouch.pageX, uTouch.pageY);
             if (this._stage._canvasTransform)
                 this._stage._canvasTransform.invertTransformPoint(_tempPoint);
-            let x = InputManager.mouseX = _tempPoint.x;
-            let y = InputManager.mouseY = _tempPoint.y;
+            InputManager.mouseX = _tempPoint.x;
+            InputManager.mouseY = _tempPoint.y;
+            let x = _tempPoint.x / this._stage.clientScaleX;
+            let y = _tempPoint.y / this._stage.clientScaleY;
 
             let touch = this.getTouch(uTouch.identifier, type == 0);
             if (!touch)
@@ -295,8 +302,11 @@ export class InputManager {
                 touch.target = this._touchTarget = this.getNodeUnderPoint(x, y);
                 this._stage._mouseMoveTime = Browser.now();
 
-                if (Math.abs(x - touch.pos.x) > 1.5 || Math.abs(y - touch.pos.y) > 1.5) {
-                    touch.pos.setTo(x, y);
+                let ix = Math.round(x);
+                let iy = Math.round(y);
+
+                if (Math.abs(ix - touch.pos.x) > 1.5 || Math.abs(iy - touch.pos.y) > 1.5) {
+                    touch.pos.setTo(ix, iy);
                     touch.move();
 
                     if (InputManager.mouseEventsEnabled) {
@@ -417,52 +427,18 @@ export class InputManager {
 
     getNodeUnderPoint(x: number, y: number): Node {
         let target: Node = this.getSpriteUnderPoint(this._stage, x, y);
-        if (target == this._stage) {
+        if (!target)
             target = this.getSprite3DUnderPoint(x, y);
-            if (!target)
-                return this._stage;
-        }
-        return target;
+        return target || this._stage;
     }
 
     /**
-     * 获取指定坐标下的sprite。x/y值是sp所在容器的坐标
+     * 获取指定坐标下的sprite。x/y值是sp的本地坐标
      * @param sp
      * @param x
      * @param y
      */
     getSpriteUnderPoint(sp: Sprite, x: number, y: number): Sprite {
-        if (sp == this._stage) {
-            _tempPoint.setTo(x, y);
-            sp.fromParentPoint(_tempPoint);
-            x = _tempPoint.x;
-            y = _tempPoint.y;
-
-            for (let i = sp._children.length - 1; i > -1; i--) {
-                let child = <Sprite>sp._children[i];
-                let editing = child._getBit(NodeFlags.EDITING_NODE);
-                if (!child._is3D
-                    && !child._destroyed
-                    && (editing && !child.hasHideFlag(HideFlags.HideInHierarchy) || child._mouseState > 1)
-                    && (child._visible || child._getBit(NodeFlags.DISABLE_VISIBILITY))) {
-                    let ret = this._getSpriteUnderPoint(child, x, y, editing);
-                    if (ret)
-                        return ret;
-                }
-            }
-
-            return sp;
-        }
-        else
-            return this._getSpriteUnderPoint(sp, x, y, sp._getBit(NodeFlags.EDITING_NODE));
-    }
-
-    private _getSpriteUnderPoint(sp: Sprite, x: number, y: number, editing?: boolean): Sprite {
-        _tempPoint.setTo(x, y);
-        sp.fromParentPoint(_tempPoint);
-        x = _tempPoint.x;
-        y = _tempPoint.y;
-
         //如果有裁剪，则先判断是否在裁剪范围内
         let scrollRect = sp._style.scrollRect;
         if (scrollRect && !sp._getBit(NodeFlags.DISABLE_INNER_CLIPPING)) {
@@ -471,13 +447,11 @@ export class InputManager {
                 return null;
         }
 
-        //先判定子对象是否命中
-        //优先判断父对象
-        //默认情况下，hitTestPrior=mouseThrough=false，也就是优先check子对象
-        //$NEXTBIG:下个重大版本将sp.mouseThrough从此逻辑中去除，从而使得sp.mouseThrough只负责目标对象的穿透
-        if (!editing && sp.hitTestPrior && !sp.mouseThrough && !this.hitTest(sp, x, y)) {
+        let editing = sp._getBit(NodeFlags.EDITING_NODE);
+
+        if (!editing && sp.hitTestPrior && !sp.mouseThrough && sp != this._stage && !this.hitTest(sp, x, y))
             return null;
-        }
+
         for (let i = sp._children.length - 1; i > -1; i--) {
             let child = <Sprite>sp._children[i];
             let childEditing = editing || child._getBit(NodeFlags.EDITING_NODE);
@@ -485,18 +459,9 @@ export class InputManager {
             if (!child._destroyed
                 && (childEditing ? ((!child.hasHideFlag(HideFlags.HideInHierarchy) || child.mouseThrough) && !child._getBit(NodeFlags.HIDE_BY_EDITOR)) : child._mouseState > 1)
                 && (child._visible || child._getBit(NodeFlags.DISABLE_VISIBILITY))) {
-                let ret = this._getSpriteUnderPoint(child, x, y, childEditing);
-                if (ret)
-                    return ret;
-            }
-        }
-        // 检查逻辑子对象
-        for (let i = sp._extUIChild.length - 1; i >= 0; i--) {
-            let child = <Sprite>sp._extUIChild[i];
-            if (!child._destroyed
-                && child._mouseState > 1
-                && (child._visible || child._getBit(NodeFlags.DISABLE_VISIBILITY))) {
-                let ret = this._getSpriteUnderPoint(child, x, y);
+                _tempPoint.setTo(x, y);
+                child.fromParentPoint(_tempPoint);
+                let ret = this.getSpriteUnderPoint(child, _tempPoint.x, _tempPoint.y);
                 if (ret)
                     return ret;
             }
@@ -508,7 +473,7 @@ export class InputManager {
                 && this.hitTest(sp, x, y, editing))
                 return sp;
         }
-        else {
+        else if (sp != this._stage) {
             if (sp.hitTestPrior && !sp.mouseThrough || this.hitTest(sp, x, y))
                 return sp;
         }

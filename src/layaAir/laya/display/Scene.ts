@@ -188,7 +188,7 @@ export class Scene extends Sprite {
      * @override
      */
     get_width(): number {
-        if (this._width) return this._width;
+        if (this._isWidthSet) return this._width;
         var max: number = 0;
         for (var i: number = this.numChildren - 1; i > -1; i--) {
             var comp: Sprite = (<Sprite>this.getChildAt(i));
@@ -204,7 +204,7 @@ export class Scene extends Sprite {
      * @override
      */
     get_height(): number {
-        if (this._height) return this._height;
+        if (this._isHeightSet) return this._height;
         var max: number = 0;
         for (var i: number = this.numChildren - 1; i > -1; i--) {
             var comp: Sprite = (<Sprite>this.getChildAt(i));
@@ -390,6 +390,7 @@ export class Scene extends Sprite {
                 throw "Not a scene:" + url;
 
             scene._viewCreated = true;
+            Scene.unDestroyedScenes.add(scene);
             Scene.hideLoadingPage();
             complete && complete.runWith(scene);
 

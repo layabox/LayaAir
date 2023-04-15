@@ -236,6 +236,8 @@ export class Sprite extends Node {
     protected _repaint: number = SpriteConst.REPAINT_NONE;
     /**@internal */
     private _texture: Texture | null = null;
+    /**@internal */
+    private _sizeFlag: number = 0;
 
     //以下变量为系统调用，请不要直接使用
     /**@internal */
@@ -465,17 +467,25 @@ export class Sprite extends Node {
     }
 
     set_width(value: number): void {
+        if (value == null) {
+            value = 0;
+            this._sizeFlag &= ~1;
+        }
+        else if (value == 0)
+            this._sizeFlag |= 1;
+        else
+            this._sizeFlag &= ~1;
         if (this._width !== value) {
             this._width = value;
             this._setWidth(value);
-            if (this._anchorX != null) this._setPivotX(this._anchorX * value);
+            this._setPivotX(this._anchorX * value);
             this._setTranformChange();
             this._shouldRefreshLayout();
         }
     }
 
     get_width(): number {
-        if (!this.autoSize) return (this._width == 0 && this.texture) ? this.texture.width : this._width;
+        if (!this.autoSize) return (this._width == 0 && (this._sizeFlag & 1) == 0 && this.texture) ? this.texture.width : this._width;
         if (this.texture) return this.texture.width;
         if (!this._graphics && this._children.length === 0) return 0;
         return this.getSelfBounds().width;
@@ -496,21 +506,36 @@ export class Sprite extends Node {
 
     // for ts
     set_height(value: number): void {
+        if (value == null) {
+            value = 0;
+            this._sizeFlag &= ~2;
+        }
+        else if (value == 0)
+            this._sizeFlag |= 2;
+        else
+            this._sizeFlag &= ~2;
         if (this._height !== value) {
             this._height = value;
             this._setHeight(value);
-            if (this._anchorY != null) this._setPivotY(this._anchorY * value);
+            this._setPivotY(this._anchorY * value);
             this._setTranformChange();
             this._shouldRefreshLayout();
         }
     }
     get_height(): number {
-        if (!this.autoSize) return (this._height == 0 && this.texture) ? this.texture.height : this._height;
+        if (!this.autoSize) return (this._height == 0 && (this._sizeFlag & 2) == 0 && this.texture) ? this.texture.height : this._height;
         if (this.texture) return this.texture.height;
         if (!this._graphics && this._children.length === 0) return 0;
         return this.getSelfBounds().height;
     }
 
+    get _isWidthSet() {
+        return this._width != 0 || (this._sizeFlag & 1) != 0;
+    }
+
+    get _isHeightSet() {
+        return this._height != 0 || (this._sizeFlag & 2) != 0;
+    }
 
     /**@internal */
     _setWidth(value: number): void {
@@ -1279,10 +1304,8 @@ export class Sprite extends Node {
      * @param offsetX 
      * @param offsetY 
      */
-    drawToTexture(canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number, rt: RenderTexture2D | null = null, invertY: boolean = false): Texture | RenderTexture2D {
-        RenderState2D.InvertY = invertY;
+    drawToTexture(canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number, rt: RenderTexture2D | null = null): Texture | RenderTexture2D {
         let res = Sprite.drawToTexture(this, this._renderType, canvasWidth, canvasHeight, offsetX, offsetY, rt);
-        RenderState2D.InvertY = false;
         return res;
     }
 

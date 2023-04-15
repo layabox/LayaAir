@@ -10,7 +10,6 @@ import { TextureCompareMode } from "../../RenderEnum/TextureCompareMode";
 import { TextureFormat } from "../../RenderEnum/TextureFormat";
 import { KTXTextureInfo } from "../../KTXTextureInfo";
 import { RenderCapable } from "../../RenderEnum/RenderCapable";
-import { InternalTexture } from "../../RenderInterface/InternalTexture";
 
 /**
  * 将继承修改为类似 WebGLRenderingContextBase, WebGLRenderingContextOverloads 多继承 ?
@@ -389,7 +388,7 @@ export class GL2TextureContext extends GLTextureContext {
 
         this._engine._bindTexture(texture.target, texture.resource);
 
-        gl.texStorage2D(target, mipmapCount, internalFormat, source.width, source.height);
+        //gl.texStorage2D(target, mipmapCount, internalFormat, source.width, source.height);
         gl.texSubImage2D(target, 0, x, y, source.width, source.height, format, type, source);
         texture.gpuMemory = this.getGLtexMemory(texture);
         if (texture.mipmap) {

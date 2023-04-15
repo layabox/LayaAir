@@ -21,6 +21,10 @@ export class KeyframeNode {
 	nodePath: string;
 	/**@internal */
 	propertyOwner: string;
+	/**@internal call bake fun*/
+	callbackFunData:string;
+	/**@internal apply params*/
+	callParams:any[];
 
 	/**
 	 * 精灵路径个数。

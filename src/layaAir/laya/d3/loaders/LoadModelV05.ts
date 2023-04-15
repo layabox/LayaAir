@@ -10,6 +10,8 @@ import { HalfFloatUtils } from "../../utils/HalfFloatUtils"
 import { IndexBuffer3D } from "../graphics/IndexBuffer3D"
 import { VertexBuffer3D } from "../graphics/VertexBuffer3D"
 import { Mesh, skinnedMatrixCache } from "../resource/models/Mesh"
+import { MorphTarget, MorphTargetChannel } from "../resource/models/MorphTarget"
+import { MorphTargetData } from "../resource/models/MorphTargetData"
 import { SubMesh } from "../resource/models/SubMesh"
 
 
@@ -22,7 +24,7 @@ export class LoadModelV05 {
     /**@internal */
     private static _BLOCK: any = { count: 0 };
     /**@internal */
-    private static _DATA: any = { offset: 0, size: 0 };
+    private static _DATA = { offset: 0, size: 0 };
 
     /**@internal */
     private static _strings: any[] = [];
@@ -138,6 +140,7 @@ export class LoadModelV05 {
             switch (LoadModelV05._version) {
                 case "LAYAMODEL:05":
                 case "LAYAMODEL:0501":
+                case "LAYAMODEL:0502":
                     vertexData = arrayBuffer.slice(vbStart, vbStart + vertexCount * vertexStride);
                     floatData = new Float32Array(vertexData);
                     uint8Data = new Uint8Array(vertexData);
@@ -252,7 +255,7 @@ export class LoadModelV05 {
         mesh._setCPUMemory(memorySize);
         mesh._setGPUMemory(memorySize);
 
-        if (LoadModelV05._version == "LAYAMODEL:0501" || LoadModelV05._version == "LAYAMODEL:COMPRESSION_0501") {
+        if (LoadModelV05._version == "LAYAMODEL:0501" || LoadModelV05._version == "LAYAMODEL:COMPRESSION_0501" || LoadModelV05._version == "LAYAMODEL:0502") {
             var bounds = mesh.bounds;
             var min: Vector3 = bounds.getMin();
             var max: Vector3 = bounds.getMax();
@@ -329,6 +332,53 @@ export class LoadModelV05 {
             }
         }
         LoadModelV05._subMeshes.push(subMesh);
+        return true;
+    }
+
+    private static READ_MORPH(): boolean {
+
+        let reader: Byte = LoadModelV05._readData;
+        let arrayBuffer: ArrayBuffer = reader.__getBuffer();
+        let offset = LoadModelV05._DATA.offset;
+        let mesh = LoadModelV05._mesh;
+
+        let morphData = mesh.morphTargetData = new MorphTargetData();
+
+        let morphVertexDecStr = LoadModelV05._strings[reader.getUint16()];
+
+        morphData.vertexDec = VertexMesh.getVertexDeclaration(morphVertexDecStr);
+
+        let bounds = morphData.bounds;
+        let min = bounds.getMin();
+        let max = bounds.getMax();
+        min.set(reader.getFloat32(), reader.getFloat32(), reader.getFloat32());
+        max.set(reader.getFloat32(), reader.getFloat32(), reader.getFloat32());
+        bounds.setMin(min);
+        bounds.setMax(max);
+
+        let channelCount = reader.readUint16();
+
+        for (let channelIndex = 0; channelIndex < channelCount; channelIndex++) {
+            let channel = new MorphTargetChannel();
+            channel.name = LoadModelV05._strings[reader.getUint16()];
+            let targetCount = reader.readUint16();
+            for (let targetIndex = 0; targetIndex < targetCount; targetIndex++) {
+                let target = new MorphTarget();
+                let targetName = LoadModelV05._strings[reader.getUint16()];
+                target.name = targetName;
+                target.fullWeight = reader.readFloat32();
+                let bufferStart = reader.readUint32();
+                let bufferLength = reader.readUint32();
+                target.data = new Float32Array(arrayBuffer.slice(offset + bufferStart, offset + bufferStart + bufferLength));
+
+                channel.addTarget(target);
+            }
+            morphData.addMorphChannel(channel);
+        }
+
+        morphData.vertexCount = mesh.vertexCount;
+        morphData.initData();
+
         return true;
     }
 

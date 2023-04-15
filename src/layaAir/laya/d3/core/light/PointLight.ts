@@ -3,6 +3,7 @@ import { PointLightCom } from "./PointLightCom";
 import { LightSprite } from "./LightSprite";
 import { Sprite3D } from "../Sprite3D";
 /**
+ * @deprecated
  * <code>PointLight</code> 类用于创建点光。
  */
 export class PointLight extends LightSprite {

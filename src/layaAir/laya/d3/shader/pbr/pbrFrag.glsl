@@ -9,7 +9,7 @@ void getPixelParams(inout PixelParams params)
 {
     params.positionWS = v_PositionWS;
     params.normalWS = normalize(v_NormalWS);
-    params.normalTS = vec3(0.0,0.0,1.0);
+    params.normalTS = vec3(0.0, 0.0, 1.0);
     #ifdef UV
     params.uv0 = v_Texcoord0;
     #endif // UV
@@ -41,7 +41,7 @@ void getPixelParams(inout PixelParams params)
     params.normalTS = normalSampler;
     params.normalWS = normalize(TBN * normalSampler);
 	// params.normalWS = normalize(TBN * normalSampler);
-	#endif // NORMALTEXTURE
+    #endif // NORMALTEXTURE
 
 	#ifdef TANGENTTEXTURE
     vec3 tangentSampler = texture2D(u_TangentTexture, params.uv0).rgb;

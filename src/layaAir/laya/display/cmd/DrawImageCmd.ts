@@ -1,5 +1,6 @@
 import { Context } from "../../resource/Context"
 import { Texture } from "../../resource/Texture"
+import { ColorUtils } from "../../utils/ColorUtils";
 import { Pool } from "../../utils/Pool"
 
 /**
@@ -33,18 +34,17 @@ export class DrawImageCmd {
     color: number = 0xffffffff;
 
     /**@private */
-    static create(texture: Texture, x: number, y: number, width: number, height: number, color: number): DrawImageCmd {
-        if (!width) width = texture.sourceWidth;
-        if (!height) height = texture.sourceHeight;
-        if (texture.bitmap) {
-            var wRate = width / texture.sourceWidth;
-            var hRate = height / texture.sourceHeight;
-            width = texture.width * wRate;
-            height = texture.height * hRate;
+    static create(texture: Texture, x: number, y: number, width: number, height: number, color: string): DrawImageCmd {
+        if (width == null) width = texture.sourceWidth;
+        if (height == null) height = texture.sourceHeight;
 
-            x += texture.offsetX * wRate;
-            y += texture.offsetY * hRate;
-        }
+        let wRate = width / texture.sourceWidth;
+        let hRate = height / texture.sourceHeight;
+        width = texture.width * wRate;
+        height = texture.height * hRate;
+
+        x += texture.offsetX * wRate;
+        y += texture.offsetY * hRate;
 
         var cmd: DrawImageCmd = Pool.getItemByClass("DrawImageCmd", DrawImageCmd);
         cmd.texture = texture;
@@ -53,7 +53,7 @@ export class DrawImageCmd {
         cmd.y = y;
         cmd.width = width;
         cmd.height = height;
-        cmd.color = color;
+        cmd.color = color != null ? ColorUtils.create(color).numColor : 0xffffffff;
         return cmd;
     }
 

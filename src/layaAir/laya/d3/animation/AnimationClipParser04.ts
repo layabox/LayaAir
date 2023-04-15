@@ -103,6 +103,20 @@ export class AnimationClipParser04 {
 
 		for (i = 0; i < nodeCount; i++) {
 			node = new KeyframeNode();
+			if ("LAYAANIMATION:WEIGHT_05" == AnimationClipParser04._version) {
+				//propertyChangePath,IDE里面还原数据时候使用，引擎中是不需要的
+				(node as any).propertyChangePath = AnimationClipParser04._strings[reader.getUint16()];
+				node.callbackFunData = AnimationClipParser04._strings[reader.getUint16()];
+				let paramLen = reader.getUint8();
+				let callParms: any[] = null;
+				for (j = 0; j < paramLen; j++) {
+					if (null == callParms) {
+						callParms = [];
+					}
+					callParms.push(AnimationClipParser04._strings[reader.getUint16()]);
+				}
+				node.callParams = callParms;
+			}
 			nodes.setNodeByIndex(i, node);
 			node._indexInList = i;
 			var type: number = node.type = reader.getUint8();
@@ -224,6 +238,7 @@ export class AnimationClipParser04 {
 					}
 					break;
 				case "LAYAANIMATION:WEIGHT_04":
+				case "LAYAANIMATION:WEIGHT_05":
 					for (j = 0; j < keyframeCount; j++) {
 						switch (type) {
 							case KeyFrameValueType.Float:
@@ -241,7 +256,7 @@ export class AnimationClipParser04 {
 							case KeyFrameValueType.Scale:
 							case KeyFrameValueType.RotationEuler:
 							case KeyFrameValueType.Vector3:
-								var floatArrayKeyframe: Vector3Keyframe = new Vector3Keyframe();
+								var floatArrayKeyframe: Vector3Keyframe = new Vector3Keyframe(true);
 								node._setKeyframeByIndex(j, floatArrayKeyframe);
 								floatArrayKeyframe.time = startTimeTypes[reader.getUint16()];
 								var inTangent: Vector3 = floatArrayKeyframe.inTangent;
@@ -270,7 +285,7 @@ export class AnimationClipParser04 {
 								outWeight.z = reader.getFloat32();
 								break;
 							case KeyFrameValueType.Rotation:
-								var quaternionKeyframe: QuaternionKeyframe = new QuaternionKeyframe();
+								var quaternionKeyframe: QuaternionKeyframe = new QuaternionKeyframe(true);
 								node._setKeyframeByIndex(j, quaternionKeyframe);
 								quaternionKeyframe.time = startTimeTypes[reader.getUint16()];
 								var inTangentQua: Vector4 = quaternionKeyframe.inTangent;
@@ -305,7 +320,7 @@ export class AnimationClipParser04 {
 								outWeightQua.w = reader.getFloat32();
 								break;
 							case KeyFrameValueType.Vector2:
-								var vec2Keyfram = new Vector2Keyframe();
+								var vec2Keyfram = new Vector2Keyframe(true);
 								node._setKeyframeByIndex(j, vec2Keyfram);
 								vec2Keyfram.time = startTimeTypes[reader.getUint16()];
 								var inTangentV2: Vector2 = vec2Keyfram.inTangent;
@@ -329,7 +344,7 @@ export class AnimationClipParser04 {
 								break;
 							case KeyFrameValueType.Vector4:
 							case KeyFrameValueType.Color:
-								var vec4Keyfram = new Vector4Keyframe();
+								var vec4Keyfram = new Vector4Keyframe(true);
 								node._setKeyframeByIndex(j, vec4Keyfram);
 								vec4Keyfram.time = startTimeTypes[reader.getUint16()];
 								var inTangentV4: Vector4 = vec4Keyfram.inTangent;

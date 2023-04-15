@@ -1,11 +1,10 @@
 import { Event } from "../events/Event"
-import { Loader } from "../net/Loader"
 import { UIComponent } from "./UIComponent"
 import { Image } from "./Image"
 import { Handler } from "../utils/Handler"
-import { ILaya } from "../../ILaya";
 import { HideFlags } from "../Const"
 import { URL } from "../net/URL"
+import { Utils } from "../utils/Utils"
 import { AssetDb } from "../resource/AssetDb"
 
 /**
@@ -176,28 +175,37 @@ export class ProgressBar extends UIComponent {
     }
 
     set skin(value: string) {
-        if (this._skin != value) {
-            this._skin = value;
+        if (this._skin == value)
+            return;
 
-            if (this._skin) {
-                let url = this._skinBaseUrl ? URL.formatURL(this._skin, this._skinBaseUrl) : this._skin;
-                AssetDb.inst.resolveURL(url, url => {
-                    ILaya.loader.load([url.replace(".png", "$bar.png")], Handler.create(this, this._skinLoaded, [url]), null, Loader.IMAGE);
-                });
-            }
-            else {
-                this._bg.skin = null;
-                this._bar.skin = null;
-            }
+        this._setSkin(value);
+    }
+
+    _setSkin(url: string): Promise<void> {
+        this._skin = url;
+
+        if (url) {
+            return AssetDb.inst.resolveURL(url).then(url => {
+                if (this._skinBaseUrl)
+                    url = URL.formatURL(url, this._skinBaseUrl);
+
+                return Promise.all([
+                    this._bg._setSkin(url),
+                    this._bar._setSkin(Utils.replaceFileExtension(url, "$bar.png", true))
+                ]).then(() => this._skinLoaded());
+            });
+        }
+        else {
+            this._bg.skin = null;
+            this._bar.skin = null;
+            this._skinLoaded();
+            return Promise.resolve();
         }
     }
 
-    protected _skinLoaded(url: string): void {
+    protected _skinLoaded(): void {
         if (this._destroyed)
             return;
-
-        this._bg.skin = url;
-        this._bar.skin = url.replace(".png", "$bar.png");
 
         this.callLater(this.changeValue);
         this._sizeChanged();

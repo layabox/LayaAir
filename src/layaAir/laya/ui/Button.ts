@@ -303,17 +303,26 @@ export class Button extends UIComponent implements ISelect {
         if (this._skin == value)
             return;
 
-        this._skin = value;
-        if (value) {
-            let url = this._skinBaseUrl ? URL.formatURL(value, this._skinBaseUrl) : value;
+        this._setSkin(value);
+    }
+
+    _setSkin(url: string): Promise<void> {
+        this._skin = url;
+        if (url) {
+            if (this._skinBaseUrl)
+                url = URL.formatURL(url, this._skinBaseUrl);
             let tex = Loader.getRes(url);
             if (!tex)
-                ILaya.loader.load(url, Handler.create(this, this._skinLoaded), null, Loader.IMAGE);
-            else
+                return ILaya.loader.load(url, Loader.IMAGE).then(tex => this._skinLoaded(tex));
+            else {
                 this._skinLoaded(tex);
+                return Promise.resolve();
+            }
         }
-        else
+        else {
             this._skinLoaded(null);
+            return Promise.resolve();
+        }
     }
 
     protected _skinLoaded(tex: any): void {
@@ -373,8 +382,8 @@ export class Button extends UIComponent implements ISelect {
         height = img.sourceHeight / (img._stateNum || this._stateNum);
 
         if (this._autoSize) {
-            this._graphics.width = this._width || width;
-            this._graphics.height = this._height || height;
+            this._graphics.width = this._isWidthSet ? this._width : width;
+            this._graphics.height = this._isHeightSet ? this._height : height;
             if (this._text) {
                 this._text.width = this._graphics.width;
                 this._text.height = this._graphics.height;
@@ -571,7 +580,6 @@ export class Button extends UIComponent implements ISelect {
 
     /**
      * 表示按钮文本标签的字体名称，以字符串形式表示。
-     * @see laya.display.Text.font()
      */
     get labelFont(): string {
         this.createText();
@@ -628,7 +636,6 @@ export class Button extends UIComponent implements ISelect {
      * <p>当前实例的位图 <code>AutoImage</code> 实例的有效缩放网格数据。</p>
      * <p>数据格式："上边距,右边距,下边距,左边距,是否重复填充(值为0：不重复填充，1：重复填充)"，以逗号分隔。
      * <ul><li>例如："4,4,4,4,1"</li></ul></p>
-     * @see laya.ui.AutoBitmap.sizeGrid
      */
     get sizeGrid(): string {
         if (this._graphics.sizeGrid) return this._graphics.sizeGrid.join(",");

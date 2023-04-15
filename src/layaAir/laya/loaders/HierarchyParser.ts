@@ -338,7 +338,7 @@ export class HierarchyParser {
 
     public static collectResourceLinks(data: any, basePath: string) {
         let test: Record<string, string[]> = {};
-        let innerUrls: ILoadURL[] = [];
+        let innerUrls: (string | ILoadURL)[] = [];
 
         function addInnerUrl(url: string, type: string) {
             if (!url)
@@ -353,7 +353,7 @@ export class HierarchyParser {
                 innerUrls.push({ url: url2, type: type });
                 test[url] = entry = [url2, type];
             }
-            else if (entry.indexOf(type) == -1) {
+            else if (entry.indexOf(type, 1) == -1) {
                 entry.push(type);
                 innerUrls.push({ url: entry[0], type: type });
             }
@@ -396,6 +396,11 @@ export class HierarchyParser {
         }
 
         check(data);
+
+        if (data._$preloads) {
+            for (let url of data._$preloads)
+                innerUrls.push(url);
+        }
 
         return innerUrls;
     }

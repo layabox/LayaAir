@@ -14,7 +14,6 @@ import { ShaderCompileDefineBase } from "../../webgl/utils/ShaderCompileDefineBa
 import { RenderState } from "./RenderState";
 
 /**
- * @internal
  * <code>ShaderInstance</code> 类用于实现ShaderInstance。
  */
 export class ShaderInstance {

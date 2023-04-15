@@ -56,18 +56,21 @@ export class Texture2D extends BaseTexture {
         Texture2D.grayTexture = new Texture2D(1, 1, TextureFormat.R8G8B8, false, false);
         Texture2D.grayTexture.setPixelsData(pixels, false, false);
         Texture2D.grayTexture.lock = true;//锁住资源防止被资源管理释放
+        Texture2D.grayTexture.name = "Default_Gray";
         pixels[0] = 255;
         pixels[1] = 255;
         pixels[2] = 255;
         Texture2D.whiteTexture = new Texture2D(1, 1, TextureFormat.R8G8B8, false, false);
         Texture2D.whiteTexture.setPixelsData(pixels, false, false);
         Texture2D.whiteTexture.lock = true;//锁住资源防止被资源管理释放
+        Texture2D.whiteTexture.name = "Default_White";
         pixels[0] = 0;
         pixels[1] = 0;
         pixels[2] = 0;
         Texture2D.blackTexture = new Texture2D(1, 1, TextureFormat.R8G8B8, false, false);
         Texture2D.blackTexture.setPixelsData(pixels, false, false);
         Texture2D.blackTexture.lock = true;//锁住资源防止被资源管理释放
+        Texture2D.blackTexture.name = "Default_Black";
         if (LayaGL.renderEngine.getCapable(RenderCapable.TextureFormat_R16G16B16A16)) {
             let floatPixle = new Uint16Array(3);
             floatPixle[0] = 14336;
@@ -85,6 +88,7 @@ export class Texture2D extends BaseTexture {
         }
 
         Texture2D.normalTexture.lock = true;
+        Texture2D.normalTexture.name = "Default_Normal";
 
         pixels = new Uint8Array(9);
         pixels[0] = 255;

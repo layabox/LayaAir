@@ -67,8 +67,8 @@ export class LayaGLQuickRunner {
         context.saveTransform(LayaGLQuickRunner.curMat);
         context.transformByMatrix(sprite.transform, x, y);
 
-        var width: number = sprite._width || tex.sourceWidth;
-        var height: number = sprite._height || tex.sourceHeight;
+        var width: number = sprite._isWidthSet ? sprite._width : tex.sourceWidth;
+        var height: number = sprite._isHeightSet ? sprite._height : tex.sourceHeight;
         var wRate: number = width / tex.sourceWidth;
         var hRate: number = height / tex.sourceHeight;
         width = tex.width * wRate;
@@ -124,8 +124,8 @@ export class LayaGLQuickRunner {
         if ((alpha = style.alpha) > 0.01 || sprite._needRepaint()) {
             var temp: number = context.globalAlpha;
             context.globalAlpha *= alpha;
-            var width: number = sprite._width || tex.width;
-            var height: number = sprite._height || tex.height;
+            var width: number = sprite._isWidthSet ? sprite._width : tex.sourceWidth;
+            var height: number = sprite._isHeightSet ? sprite._height : tex.sourceHeight;
             var wRate: number = width / tex.sourceWidth;
             var hRate: number = height / tex.sourceHeight;
             width = tex.width * wRate;
@@ -149,8 +149,8 @@ export class LayaGLQuickRunner {
 
             context.saveTransform(LayaGLQuickRunner.curMat);
             context.transformByMatrix(sprite.transform, x, y);
-            var width: number = sprite._width || tex.sourceWidth;
-            var height: number = sprite._height || tex.sourceHeight;
+            var width: number = sprite._isWidthSet ? sprite._width : tex.sourceWidth;
+            var height: number = sprite._isHeightSet ? sprite._height : tex.sourceHeight;
             var wRate: number = width / tex.sourceWidth;
             var hRate: number = height / tex.sourceHeight;
             width = tex.width * wRate;

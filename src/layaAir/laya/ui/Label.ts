@@ -157,7 +157,7 @@ export class Label extends UIComponent {
                 value = UIUtils.adptString(value + "");
             this._tf.text = value;
             this.event(Event.CHANGE);
-            if (!this._width || !this._height) this.onCompResize();
+            if (!this._isWidthSet || !this._isHeightSet) this.onCompResize();
         }
     }
 
@@ -354,7 +354,7 @@ export class Label extends UIComponent {
      * @override
      */
     get_width(): number {
-        if (this._width || this._tf.text) return super.get_width();
+        if (this._isWidthSet || this._tf.text) return super.get_width();
         return 0;
     }
 
@@ -372,7 +372,7 @@ export class Label extends UIComponent {
      * @override
      */
     get_height(): number {
-        if (this._height || this._tf.text) return super.get_height();
+        if (this._isHeightSet || this._tf.text) return super.get_height();
         return 0;
     }
 
