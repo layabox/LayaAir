@@ -109,7 +109,7 @@ export class Resource extends EventDispatcher {
     uuid: string;
 
     /**是否在引用计数为0的时候立马删除他 */
-    destoryedImmediately: boolean;
+    destroyedImmediately: boolean;
 
     /**
      * 获取唯一标识ID,通常用于识别。
@@ -172,7 +172,7 @@ export class Resource extends EventDispatcher {
         if (managed == null || managed)
             Resource._idResourcesMap[this.id] = this;
         this.lock = false;
-        this.destoryedImmediately = true;
+        this.destroyedImmediately = true;
     }
 
     _setCPUMemory(value: number): void {
@@ -207,7 +207,7 @@ export class Resource extends EventDispatcher {
     _removeReference(count: number = 1): void {
         this._referenceCount -= count;
         //如果_removeReference发生在destroy中，可能是在collect或者处理内嵌资源的释放
-        if (_disposingCounter > 0 && this._referenceCount <= 0 && !this.lock && this.destoryedImmediately) {
+        if (_disposingCounter > 0 && this._referenceCount <= 0 && !this.lock && this.destroyedImmediately) {
             this.destroy();
         }
     }
