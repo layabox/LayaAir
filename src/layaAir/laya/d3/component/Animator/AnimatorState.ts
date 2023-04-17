@@ -69,6 +69,8 @@ export class AnimatorState extends EventDispatcher implements IClone {
     
     /**动作播放结束时间。*/
     clipEnd: number = 1.0;
+    /**play on awake start offset*/
+    cycleOffset:number = 0;
 
     /**
      * 动作。
