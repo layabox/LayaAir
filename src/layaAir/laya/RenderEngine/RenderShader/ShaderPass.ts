@@ -208,6 +208,7 @@ ${uniformglsl}`;
         defineStr += "#define CLUSTER_X_COUNT " + clusterSlices.x + "\n";
         defineStr += "#define CLUSTER_Y_COUNT " + clusterSlices.y + "\n";
         defineStr += "#define CLUSTER_Z_COUNT " + clusterSlices.z + "\n";
+        defineStr += "#define MORPH_MAX_COUNT " + Config3D.maxMorphTargetCount + "\n";
         defineStr += "#define SHADER_CAPAILITY_LEVEL " + LayaGL.renderEngine.getParams(RenderParams.SHADER_CAPAILITY_LEVEL) + "\n";
 
 

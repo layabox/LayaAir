@@ -171,7 +171,12 @@ export class PBRMaterial extends Material {
      * 漫反射贴图。
      */
     get albedoTexture(): BaseTexture {
-        return this._shaderValues.getTexture(PBRMaterial.ALBEDOTEXTURE);
+        if (this.hasDefine(PBRMaterial.SHADERDEFINE_ALBEDOTEXTURE)) {
+            return this._shaderValues.getTexture(PBRMaterial.ALBEDOTEXTURE);
+        }
+        else {
+            return null;
+        }
     }
 
     set albedoTexture(value: BaseTexture) {
@@ -189,7 +194,12 @@ export class PBRMaterial extends Material {
      * 法线贴图。
      */
     get normalTexture(): BaseTexture {
-        return this._shaderValues.getTexture(PBRMaterial.NORMALTEXTURE);
+        if (this.hasDefine(PBRMaterial.SHADERDEFINE_NORMALTEXTURE)) {
+            return this._shaderValues.getTexture(PBRMaterial.NORMALTEXTURE);
+        }
+        else {
+            return null;
+        }
     }
 
     set normalTexture(value: BaseTexture) {

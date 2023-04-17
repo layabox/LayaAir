@@ -84,7 +84,6 @@ void initSurfaceInputs(inout SurfaceInputs inputs, inout PixelParams pixel)
     inputs.metallic = u_Metallic;
     inputs.smoothness = u_Smoothness;
 
-
 #ifdef METALLICGLOSSTEXTURE
 
     vec4 metallicSampler = texture2D(u_MetallicGlossTexture, uv);
@@ -93,14 +92,13 @@ void initSurfaceInputs(inout SurfaceInputs inputs, inout PixelParams pixel)
     #endif // Gamma_u_MetallicGlossTexture
 
     inputs.metallic = metallicSampler.x;
-    
 
     #ifdef SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA
-        #ifdef ALBEDOTEXTURE
-        inputs.smoothness = (albedoSampler.a * u_Smoothness);
-        #endif // ALBEDOTEXTURE
+	#ifdef ALBEDOTEXTURE
+    inputs.smoothness = (albedoSampler.a * u_Smoothness);
+	#endif // ALBEDOTEXTURE
     #else // SMOOTHNESSSOURCE_METALLICTEXTURE_ALPHA
-        inputs.smoothness = (metallicSampler.a * u_Smoothness);
+    inputs.smoothness = (metallicSampler.a * u_Smoothness);
     #endif // SMOOTHNESSSOURCE_ALBEDOTEXTURE_ALPHA
 
 #endif // METALLICGLOSSTEXTURE
@@ -141,10 +139,9 @@ void main()
     initSurfaceInputs(inputs, pixel);
 
     vec4 surfaceColor = PBR_Metallic_Flow(inputs, pixel);
-    
-    #ifdef FOG
-        surfaceColor.rgb = sceneLitFog(surfaceColor.rgb);
-    #endif // FOG
-    gl_FragColor = surfaceColor;
 
+#ifdef FOG
+    surfaceColor.rgb = sceneLitFog(surfaceColor.rgb);
+#endif // FOG
+    gl_FragColor = surfaceColor;
 }

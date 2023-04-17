@@ -325,7 +325,7 @@ export class Camera extends BaseCamera {
     /**@internal */
     protected _msaa: boolean = false;
     /**@internal */
-    private _fxaa: boolean;
+    private _fxaa: boolean = false;
     /** @internal*/
     private _depthTextureMode: DepthTextureMode;
     /** @internal */

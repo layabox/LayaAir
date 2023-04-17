@@ -1,15 +1,20 @@
-import * as glTF from "./glTFInterface";
-import { Material } from "../d3/core/material/Material";
-import { Texture2D, TextureConstructParams, TexturePropertyParams } from "../resource/Texture2D";
-import { URL } from "../net/URL";
-import { PBRStandardMaterial } from "../d3/core/material/PBRStandardMaterial";
-import { PBRRenderMode } from "../d3/core/material/PBRMaterial";
-import { glTFTextureEditor } from "./glTFTextureEditor";
-import { Mesh, skinnedMatrixCache } from "../d3/resource/models/Mesh";
 import { AnimationClip } from "../d3/animation/AnimationClip";
 import { KeyframeNode } from "../d3/animation/KeyframeNode";
 import { KeyframeNodeList } from "../d3/animation/KeyframeNodeList";
+import { Material } from "../d3/core/material/Material";
+import { PBRRenderMode } from "../d3/core/material/PBRMaterial";
+import { PBRStandardMaterial } from "../d3/core/material/PBRStandardMaterial";
+import { Mesh, skinnedMatrixCache } from "../d3/resource/models/Mesh";
+import { URL } from "../net/URL";
+import { Texture2D, TextureConstructParams, TexturePropertyParams } from "../resource/Texture2D";
+import * as glTF from "./glTFInterface";
+import { glTFTextureEditor } from "./glTFTextureEditor";
 
+import { ILaya } from "../../ILaya";
+import { Animator } from "../d3/component/Animator/Animator";
+import { AnimatorControllerLayer } from "../d3/component/Animator/AnimatorControllerLayer";
+import { AnimatorState } from "../d3/component/Animator/AnimatorState";
+import { FloatKeyframe } from "../d3/core/FloatKeyframe";
 import { MeshSprite3D } from "../d3/core/MeshSprite3D";
 import { QuaternionKeyframe } from "../d3/core/QuaternionKeyframe";
 import { SkinnedMeshRenderer } from "../d3/core/SkinnedMeshRenderer";
@@ -18,28 +23,28 @@ import { Sprite3D } from "../d3/core/Sprite3D";
 import { Vector3Keyframe } from "../d3/core/Vector3Keyframe";
 import { IndexBuffer3D } from "../d3/graphics/IndexBuffer3D";
 import { VertexBuffer3D } from "../d3/graphics/VertexBuffer3D";
+import { MorphTargetData } from "../d3/resource/models/MorphTargetData";
+import { MorphTarget, MorphTargetChannel } from "../d3/resource/models/MorphTarget";
 import { SubMesh } from "../d3/resource/models/SubMesh";
-import { LayaGL } from "../layagl/LayaGL";
-import { Handler } from "../utils/Handler";
-import { IBatchProgress } from "../net/BatchProgress";
-import { ILaya } from "../../ILaya";
-import { Loader } from "../net/Loader";
 import { Node } from "../display/Node";
-import { Prefab } from "../resource/HierarchyResource";
-import { VertexDeclaration } from "../RenderEngine/VertexDeclaration";
-import { BufferUsage } from "../RenderEngine/RenderEnum/BufferTargetType";
-import { IndexFormat } from "../RenderEngine/RenderEnum/IndexFormat";
-import { Base64Tool } from "../utils/Base64Tool";
-import { HDREncodeFormat } from "../RenderEngine/RenderEnum/HDREncodeFormat";
-import { AnimatorControllerLayer } from "../d3/component/Animator/AnimatorControllerLayer";
-import { AnimatorState } from "../d3/component/Animator/AnimatorState";
-import { Animator } from "../d3/component/Animator/Animator";
+import { LayaGL } from "../layagl/LayaGL";
 import { Matrix4x4 } from "../maths/Matrix4x4";
 import { Quaternion } from "../maths/Quaternion";
 import { Vector3 } from "../maths/Vector3";
 import { Vector4 } from "../maths/Vector4";
+import { IBatchProgress } from "../net/BatchProgress";
+import { Loader } from "../net/Loader";
+import { BufferUsage } from "../RenderEngine/RenderEnum/BufferTargetType";
+import { HDREncodeFormat } from "../RenderEngine/RenderEnum/HDREncodeFormat";
+import { IndexFormat } from "../RenderEngine/RenderEnum/IndexFormat";
+import { RenderCapable } from "../RenderEngine/RenderEnum/RenderCapable";
 import { RenderState } from "../RenderEngine/RenderShader/RenderState";
 import { VertexMesh } from "../RenderEngine/RenderShader/VertexMesh";
+import { VertexDeclaration } from "../RenderEngine/VertexDeclaration";
+import { Prefab } from "../resource/HierarchyResource";
+import { Base64Tool } from "../utils/Base64Tool";
+import { Handler } from "../utils/Handler";
+import { MeshFilter } from "../d3/core/MeshFilter";
 
 const maxSubBoneCount = 24;
 
@@ -126,10 +131,142 @@ export class glTFResource extends Prefab {
 
                 if (data.materials) {
                     for (let glTFMaterial of data.materials) {
-                        if (glTFMaterial.pbrMetallicRoughness)
-                        {
-                            if (glTFMaterial.pbrMetallicRoughness.baseColorTexture)
-                            {
+                        if (glTFMaterial.pbrMetallicRoughness) {
+                            if (glTFMaterial.pbrMetallicRoughness.baseColorTexture) {
+                                let index = glTFMaterial.pbrMetallicRoughness.baseColorTexture.index;
+                                sRGBTex[index] = true;
+                            }
+                        }
+                        if (glTFMaterial.emissiveTexture) {
+                            let index = glTFMaterial.emissiveTexture.index;
+                            sRGBTex[index] = true;
+                        }
+                    }
+                }
+
+                for (let index = 0; index < data.textures.length; index++) {
+                    let tex = data.textures[index];
+                    let imgSource = tex.source;
+                    let glTFImg = data.images[imgSource];
+                    let samplerSource = tex.sampler;
+                    let glTFSampler = data.samplers ? data.samplers[samplerSource] : undefined;
+                    let constructParams = this.getTextureConstructParams(glTFImg, glTFSampler, sRGBTex[index]);
+                    let propertyParams = this.getTexturePropertyParams(glTFSampler);
+
+                    if (glTFImg.bufferView != null) {
+                        let bufferView: glTF.glTFBufferView = data.bufferViews[glTFImg.bufferView];
+                        let buffer: ArrayBuffer = this._buffers[bufferView.buffer];
+                        let byteOffset: number = (bufferView.byteOffset || 0);
+                        let byteLength: number = bufferView.byteLength;
+                        let arraybuffer: ArrayBuffer = buffer.slice(byteOffset, byteOffset + byteLength);
+                        promises.push(this.loadTextureFromBuffer(arraybuffer, glTFImg.mimeType, constructParams, propertyParams, progress));
+                    }
+                    else
+                        promises.push(this.loadTexture(URL.join(basePath, glTFImg.uri), constructParams, propertyParams, progress));
+                }
+                sRGBTex = null;
+                return Promise.all(promises).then(textures => {
+                    textures = textures.filter(tex => tex);
+                    this._textures.push(...textures);
+                    this.addDeps(textures);
+                });
+            }
+
+            return null;
+        });
+
+        promise = promise.then(() => {
+            //create materials
+            if (data.materials) {
+                let index = 0;
+                for (let glTFMaterial of data.materials) {
+                    let mat: Material;
+                    // todo extension
+                    if (glTFMaterial.extras) {
+                        let createHandler = Handler.create(this, this.createMaterial, null, false);
+                        mat = this.executeExtras("MATERIAL", glTFMaterial.extras, createHandler, [glTFMaterial]);
+                    }
+                    else
+                        mat = this.createMaterial(glTFMaterial);
+                    this._materials[index++] = mat;
+                    this.addDep(mat);
+                }
+            }
+
+            //create meshes
+            if (data.meshes && data.nodes) {
+                for (let glTFNode of data.nodes) {
+                    if (glTFNode.mesh != null) {
+                        let glTFMesh = this._data.meshes[glTFNode.mesh];
+                        let glTFSkin = this._data.skins?.[glTFNode.skin];
+                        let key = glTFNode.mesh + (glTFNode.skin != null ? ("_" + glTFNode.skin) : "");
+                        let mesh = this._meshes[key];
+                        if (mesh)
+                            continue;
+
+                        if (glTFMesh.extras) {
+                            let createHandler = Handler.create(this, this.createMesh, null, false);
+                            mesh = this.executeExtras("MESH", glTFMesh.extras, createHandler, [glTFMesh, glTFSkin]);
+                        }
+                        else
+                            mesh = this.createMesh(glTFMesh, glTFSkin);
+                        this._meshes[key] = mesh;
+                        this.addDep(mesh);
+                    }
+                }
+            }
+        });
+
+        return promise.then(() => {
+            if (this._pendingOps.length > 0) {
+                return Promise.all(this._pendingOps).then(() => {
+                    this._idCounter = null;
+                });
+            }
+            else {
+                this._idCounter = null;
+                return Promise.resolve();
+            }
+        });
+    }
+
+    /**
+     * 
+     * @param data 
+     * @param createURL 
+     * @param progress 
+     */
+    _parseglb(data: glTF.glTF, firstbin: ArrayBuffer, createURL: string, progress?: IBatchProgress): Promise<void> {
+        this._data = data;
+        if (!data.asset || data.asset.version !== "2.0") {
+            console.warn("glTF version wrong!");
+            return Promise.resolve();
+        }
+
+        let basePath = URL.getPath(createURL);
+        let promise: Promise<any>;
+        this._idCounter = {};
+
+        if (data.buffers) {
+            let firstBuffer = data.buffers[0];
+            if (firstBuffer && !firstBuffer.uri) {
+                this._buffers[0] = firstbin;
+            }
+        }
+
+
+        promise = Promise.resolve();
+        promise = promise.then(() => {
+            //load textuers
+            if (data.textures) {
+                let promises: Array<Promise<Texture2D>> = [];
+
+                let sRGBTex = new Array<boolean>(data.textures.length).fill(false);
+
+                if (data.materials) {
+                    for (let glTFMaterial of data.materials) {
+                        if (glTFMaterial.pbrMetallicRoughness) {
+                            if (glTFMaterial.pbrMetallicRoughness.baseColorTexture) {
                                 let index = glTFMaterial.pbrMetallicRoughness.baseColorTexture.index;
                                 sRGBTex[index] = true;
                             }
@@ -834,6 +971,15 @@ export class glTFResource extends Prefab {
         let materials: Material[] = this.pickMeshMaterials(glTFMesh);
         let sprite: MeshSprite3D = new MeshSprite3D(mesh, glTFNode.name);
         sprite.meshRenderer.sharedMaterials = materials;
+
+        if (glTFMesh.weights) {
+            let render = sprite.meshRenderer;
+            glTFMesh.weights.forEach((weight, index) => {
+                let target = mesh.morphTargetData.getMorphChannelbyIndex(index);
+                render.setMorphChannelWeight(target.name, weight);
+            });
+        }
+
         return sprite;
     }
 
@@ -847,6 +993,15 @@ export class glTFResource extends Prefab {
         let materials: Material[] = this.pickMeshMaterials(glTFMesh);
         let sprite: SkinnedMeshSprite3D = new SkinnedMeshSprite3D(mesh, glTFNode.name);
         sprite.skinnedMeshRenderer.sharedMaterials = materials;
+
+        if (glTFMesh.weights) {
+            let render = sprite.skinnedMeshRenderer;
+            glTFMesh.weights.forEach((weight, index) => {
+                let target = mesh.morphTargetData.getMorphChannelbyIndex(index);
+                render.setMorphChannelWeight(target.name, weight);
+            });
+        }
+
         return sprite;
     }
 
@@ -996,7 +1151,7 @@ export class glTFResource extends Prefab {
      * @param subIndexStartArray 
      * @param subIndexCountArray 
      */
-    private splitSubMeshByBonesCount(attributeMap: Map<string, Float32Array>, indexArray: Uint32Array, boneIndicesList: Array<Uint16Array>, subIndexStartArray: number[], subIndexCountArray: number[]): void {
+    private splitSubMeshByBonesCount(attributeMap: Map<string, Float32Array>, morphtargets: SubMorphData, indexArray: Uint32Array, boneIndicesList: Array<Uint16Array>, subIndexStartArray: number[], subIndexCountArray: number[]): void {
         let start: number = 0;
         let subIndexSet: Set<number> = new Set();
         let boneIndexArray: Float32Array = attributeMap.get("BLENDINDICES");
@@ -1057,6 +1212,17 @@ export class glTFResource extends Prefab {
             let array: Array<number> = new Array();
             newAttributeMap.set(key, array);
         });
+
+        let newTargetMap: { [name: string]: Map<string, Array<number>> } = {};
+        for (const key in morphtargets.targets) {
+            let newMap = newTargetMap[key] = new Map();
+
+            let target = morphtargets.targets[key];
+            target.forEach((value, attri) => {
+                newMap.set(attri, new Array<number>());
+            });
+        }
+
         let curMaxIndex: number = vertexCount - 1;
         for (let d: number = 0; d < drawCount; d++) {
             let k: number = subIndexStartArray[d];
@@ -1108,6 +1274,22 @@ export class glTFResource extends Prefab {
                             }
                         }
                     });
+
+                    for (const key in newTargetMap) {
+                        let newMap = newTargetMap[key];
+                        let oldMap = morphtargets.targets[key];
+                        newMap.forEach((value, attri) => {
+                            let attOffset = this.getAttributeNum(attri);
+                            let oldArray = oldMap.get(attri);
+
+                            for (let index = 0; index < attOffset; index++) {
+                                value.push(oldArray[index + ci * attOffset]);
+                            }
+
+                        });
+                    }
+
+
                 }
                 //其他batch 出现， 此batch 出现
                 else if (flagArray[ci] && batchFlag[ci]) {
@@ -1131,6 +1313,22 @@ export class glTFResource extends Prefab {
             newFloatArray.set(value, oldFloatArray.length);
             attributeMap.set(key, newFloatArray);
         });
+
+        for (const key in newTargetMap) {
+            let newMap = newTargetMap[key];
+            let oldMap = morphtargets.targets[key];
+
+            newMap.forEach((value, attri) => {
+                let oldArray = oldMap.get(attri);
+                let newLength = value.length + oldArray.length;
+
+                let newFloatArray = new Float32Array(newLength);
+                newFloatArray.set(oldArray, 0);
+                newFloatArray.set(value, oldArray.length);
+                oldMap.set(attri, newFloatArray);
+            });
+        }
+
         boneIndexArray = null;
     }
 
@@ -1158,6 +1356,10 @@ export class glTFResource extends Prefab {
         layaMesh._setBuffer(vertexBuffer, indexBuffer);
         layaMesh._vertexCount = vertexBuffer._byteLength / vertexDeclaration.vertexStride;
 
+        let reCalculateBounds = false;
+        let min = new Vector3(Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE);
+        let max = new Vector3(-Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE);
+
         // subMesh
         let subMeshOffset: number = 0;
         let subMeshCount: number = subDatas.length;
@@ -1184,10 +1386,28 @@ export class glTFResource extends Prefab {
                 subMesh._subIndexBufferStart[subIndex] += subIndexStart;
             }
 
+            if (subData.boundMax && subData.boundMin) {
+                min.x = Math.min(subData.boundMin[0], min.x);
+                min.y = Math.min(subData.boundMin[1], min.y);
+                min.z = Math.min(subData.boundMin[2], min.z);
+
+                max.x = Math.max(subData.boundMax[0], max.x);
+                max.y = Math.max(subData.boundMax[1], max.y);
+                max.z = Math.max(subData.boundMax[2], max.z);
+            }
+            else {
+                reCalculateBounds = true;
+            }
         }
 
         layaMesh._setSubMeshes(subMeshes);
-        layaMesh.calculateBounds();
+        if (reCalculateBounds) {
+            layaMesh.calculateBounds();
+        }
+        else {
+            layaMesh.bounds.setMin(min);
+            layaMesh.bounds.setMax(max);
+        }
 
         //layaMesh._setInstanceBuffer(Mesh.MESH_INSTANCEBUFFER_TYPE_NORMAL);
 
@@ -1255,6 +1475,118 @@ export class glTFResource extends Prefab {
         }
     }
 
+    private applyMorphTarget(mesh: Mesh, subDatas: PrimitiveSubMesh[]) {
+
+        let hasPosition = false;
+        let hasNormal = false;
+        let hasTangent = false;
+
+        subDatas.forEach(subData => {
+            hasPosition = subData.morphtargets.position || hasPosition;
+            hasNormal = subData.morphtargets.normal || hasNormal;
+            hasTangent = subData.morphtargets.tangent || hasTangent;
+        });
+
+        if (!(hasPosition || hasTangent || hasTangent)) {
+            return;
+        }
+
+        let vertexCount = mesh.vertexCount;
+
+        let morphData = new MorphTargetData();
+        morphData.vertexCount = vertexCount;
+
+        let decStr = [];
+        if (hasPosition)
+            decStr.push("POSITION");
+        if (hasNormal)
+            decStr.push("NORMAL");
+        if (hasTangent)
+            decStr.push("TANGENT");
+
+        let morphVertexDec = VertexMesh.getVertexDeclaration(decStr.toLocaleString());
+        let targetVertexFloatStride = morphVertexDec.vertexStride / 4;
+
+        morphData.vertexDec = morphVertexDec;
+
+        let bounds = morphData.bounds;
+        let min = bounds.getMin();
+        let max = bounds.getMax();
+        min.set(Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE);
+        max.set(-Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE);
+
+        let subVertexOffset = 0;
+        for (let index = 0; index < subDatas.length; index++) {
+            let subData = subDatas[index];
+
+            min.x = Math.min(min.x, subData.morphtargets.boundMin[0]);
+            min.y = Math.min(min.y, subData.morphtargets.boundMin[1]);
+            min.z = Math.min(min.z, subData.morphtargets.boundMin[2]);
+
+            max.x = Math.max(max.x, subData.morphtargets.boundMax[0]);
+            max.y = Math.max(max.y, subData.morphtargets.boundMax[1]);
+            max.z = Math.max(max.z, subData.morphtargets.boundMax[2]);
+
+            let targets = subData.morphtargets.targets;
+            // glTF do not support in-between blendshape
+            for (const targetName in targets) {
+
+                let channel = morphData.getMorphChannel(targetName);
+                if (!channel) {
+                    channel = new MorphTargetChannel();
+                    channel.name = targetName;
+
+                    let target = new MorphTarget();
+                    target.name = targetName;
+                    target.data = new Float32Array(vertexCount * targetVertexFloatStride).fill(0);
+
+                    channel.addTarget(target);
+                    morphData.addMorphChannel(channel);
+                }
+
+                let target = channel.getTargetByIndex(0);
+                let morphMap = targets[targetName];
+
+                for (let vertexIndex = 0; vertexIndex < subData.vertexCount; vertexIndex++) {
+                    let morphPosition = morphMap.get("POSITION");
+                    if (morphPosition) {
+                        let posElement = morphVertexDec.getVertexElementByUsage(VertexMesh.MESH_POSITION0);
+                        let offset = posElement.offset / 4;
+                        target.data[(vertexIndex + subVertexOffset) * targetVertexFloatStride + offset] = morphPosition[vertexIndex * 3];
+                        target.data[(vertexIndex + subVertexOffset) * targetVertexFloatStride + offset + 1] = morphPosition[vertexIndex * 3 + 1];
+                        target.data[(vertexIndex + subVertexOffset) * targetVertexFloatStride + offset + 2] = morphPosition[vertexIndex * 3 + 2];
+                    }
+
+                    let morphNormal = morphMap.get("NORMAL");
+                    if (morphNormal) {
+                        let normalElement = morphVertexDec.getVertexElementByUsage(VertexMesh.MESH_NORMAL0);
+                        let offset = normalElement.offset / 4;
+                        target.data[(vertexIndex + subVertexOffset) * targetVertexFloatStride + offset] = morphNormal[vertexIndex * 3];
+                        target.data[(vertexIndex + subVertexOffset) * targetVertexFloatStride + offset + 1] = morphNormal[vertexIndex * 3 + 1];
+                        target.data[(vertexIndex + subVertexOffset) * targetVertexFloatStride + offset + 2] = morphNormal[vertexIndex * 3 + 2];
+                    }
+                    let morphTangent = morphMap.get("TANGENT");
+                    if (morphTangent) {
+                        let tangentElement = morphVertexDec.getVertexElementByUsage(VertexMesh.MESH_TANGENT0);
+                        let offset = tangentElement.offset / 4;
+                        target.data[(vertexIndex + subVertexOffset) * targetVertexFloatStride + offset] = morphTangent[vertexIndex * 3];
+                        target.data[(vertexIndex + subVertexOffset) * targetVertexFloatStride + offset + 1] = morphTangent[vertexIndex * 3 + 1];
+                        target.data[(vertexIndex + subVertexOffset) * targetVertexFloatStride + offset + 2] = morphTangent[vertexIndex * 3 + 2];
+                        target.data[(vertexIndex + subVertexOffset) * targetVertexFloatStride + offset + 3] = subData.attributeMap.get("TANGENT")[vertexIndex * 4 + 3];
+                    }
+                }
+            }
+
+            subVertexOffset += subData.vertexCount;
+        }
+
+        bounds.setMin(min);
+        bounds.setMax(max);
+
+        mesh.morphTargetData = morphData;
+        morphData.initData();
+    }
+
     /**
      * 创建 Mesh
      * @param mesh 
@@ -1284,6 +1616,7 @@ export class glTFResource extends Prefab {
             let attributes: { [name: string]: number } = glTFMeshPrimitive.attributes;
 
             let position: Float32Array = this.getArrributeBuffer(attributes.POSITION, "POSITION", attributeMap, vertexDeclarArr);
+            let positionAccessor = this._data.accessors[attributes.POSITION];
             let normal: Float32Array = this.getArrributeBuffer(attributes.NORMAL, "NORMAL", attributeMap, vertexDeclarArr);
             let color: Float32Array = this.getArrributeBuffer(attributes.COLOR_0, "COLOR", attributeMap, vertexDeclarArr);
             let uv: Float32Array = this.getArrributeBuffer(attributes.TEXCOORD_0, "UV", attributeMap, vertexDeclarArr);
@@ -1299,22 +1632,57 @@ export class glTFResource extends Prefab {
             // }
 
             let targets: { [name: string]: number }[] = glTFMeshPrimitive.targets;
-            (targets) && targets.forEach((target, index) => {
-                let weight: number = morphWeights[index];
-                let morphPosition: Float32Array = <Float32Array>this.getBufferwithAccessorIndex(target.POSITION);
-                let morphNormal: Float32Array = <Float32Array>this.getBufferwithAccessorIndex(target.NORMAL);
-                let morphTangent: Float32Array = <Float32Array>this.getBufferwithAccessorIndex(target.TANGENT);
+            let morphtargets: SubMorphData = { weights: morphWeights, position: false, normal: false, tangent: false, targets: {}, boundMin: [Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE], boundMax: [-Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE] };
+            if (targets) {
 
-                (morphPosition) && morphPosition.forEach((value, index) => {
-                    position[index] += value * weight;
+                let morphtargetMap: { [name: string]: Map<string, Float32Array> };
+                let targetNames = glTFMesh.extras?.targetNames || [];
+                morphtargetMap = morphtargets.targets;
+
+                targets.forEach((target, index) => {
+                    let targetName = targetNames[index] || `target_${index}`;
+                    let morph = new Map<string, Float32Array>();
+                    morphtargetMap[targetName] = morph;
+
+                    let morphPosition = <Float32Array>this.getBufferwithAccessorIndex(target.POSITION);
+                    let morphNormal = <Float32Array>this.getBufferwithAccessorIndex(target.NORMAL);
+                    let morphTangent = <Float32Array>this.getBufferwithAccessorIndex(target.TANGENT);
+
+                    if (morphPosition) {
+                        morph.set("POSITION", morphPosition);
+                        morphtargets.position = true;
+
+                        if (position) {
+                            let vertexCount: number = position.length / 3;
+
+                            for (let i = 0; i < vertexCount; i++) {
+                                let offset = i * 3;
+
+                                let morphX = position[offset] + morphPosition[offset];
+                                let morphY = position[offset + 1] + morphPosition[offset + 1];
+                                let morphZ = position[offset + 2] + morphPosition[offset + 2];
+
+                                morphtargets.boundMin[0] = Math.min(morphX, morphtargets.boundMin[0]);
+                                morphtargets.boundMin[1] = Math.min(morphY, morphtargets.boundMin[1]);
+                                morphtargets.boundMin[2] = Math.min(morphZ, morphtargets.boundMin[2]);
+
+                                morphtargets.boundMax[0] = Math.max(morphX, morphtargets.boundMax[0]);
+                                morphtargets.boundMax[1] = Math.max(morphY, morphtargets.boundMax[1]);
+                                morphtargets.boundMax[2] = Math.max(morphZ, morphtargets.boundMax[2]);
+                            }
+                        }
+
+                    }
+                    if (morphNormal) {
+                        morph.set("NORMAL", morphNormal);
+                        morphtargets.normal = true;
+                    }
+                    if (morphTangent) {
+                        morph.set("TANGENT", morphTangent);
+                        morphtargets.tangent = true;
+                    }
                 });
-                (morphNormal) && morphNormal.forEach((value, index) => {
-                    normal[index] += value * weight;
-                });
-                (morphTangent) && morphTangent.forEach((value, index) => {
-                    tangent[index] += value * weight;
-                });
-            });
+            }
 
             let vertexCount: number = position.length / 3;
 
@@ -1326,7 +1694,7 @@ export class glTFResource extends Prefab {
             if (glTFSkin) {
                 if (boneCount > maxSubBoneCount) {
                     // todo 划分 subMesh
-                    this.splitSubMeshByBonesCount(attributeMap, indexArray, boneIndicesList, subIndexStartArray, subIndexCountArray);
+                    this.splitSubMeshByBonesCount(attributeMap, morphtargets, indexArray, boneIndicesList, subIndexStartArray, subIndexCountArray);
                     vertexCount = attributeMap.get("POSITION").length / 3;
                 }
                 else {
@@ -1348,6 +1716,9 @@ export class glTFResource extends Prefab {
             subDatas.push(subData);
 
             subData.attributeMap = attributeMap;
+            subData.boundMax = positionAccessor.max;
+            subData.boundMin = positionAccessor.min;
+            subData.morphtargets = morphtargets;
             subData.indices = indexArray;
             subData.vertexCount = vertexCount;
             subData.vertexDecler = vertexDeclaration;
@@ -1358,7 +1729,7 @@ export class glTFResource extends Prefab {
 
         this.parseMeshwithSubMeshData(subDatas, layaMesh);
         this.applyglTFSkinData(layaMesh, subDatas, glTFSkin);
-
+        this.applyMorphTarget(layaMesh, subDatas);
         return layaMesh;
     }
 
@@ -1621,47 +1992,98 @@ export class glTFResource extends Prefab {
         let channels: glTF.glTFAnimationChannel[] = animation.channels;
         let samplers: glTF.glTFAnimationSampler[] = animation.samplers;
 
-        let clipNodes: ClipNode[] = new Array<ClipNode>(channels.length);
+        let clipNodes: ClipNode[] = [];
         channels.forEach((channel: glTF.glTFAnimationChannel, index: number) => {
             let target: glTF.glTFAnimationChannelTarget = channel.target;
             let sampler: glTF.glTFAnimationSampler = samplers[channel.sampler];
-
-            let clipNode: ClipNode = clipNodes[index] = {};
-
-            let sprite: Sprite3D = this._nodes[target.node];
+            let targetPath: glTF.glTFAnimationChannelTargetPath = target.path;
 
             let timeBuffer = this.getBufferwithAccessorIndex(sampler.input);
             let outBuffer = this.getBufferwithAccessorIndex(sampler.output);
-            clipNode.timeArray = new Float32Array(timeBuffer);
-            clipNode.valueArray = new Float32Array(outBuffer);
-            let interpolation = sampler.interpolation;
-            clipNode.interpolation = interpolation;
 
-            clipNode.paths = this.getAnimationPath(animatorRoot, sprite);
-            clipNode.propertyOwner = "transform";
-            clipNode.propertyLength = 1;
-            clipNode.propertise = [];
+            let timeArray = new Float32Array(timeBuffer);
+            let outArray = new Float32Array(outBuffer);
 
-            let targetPath: glTF.glTFAnimationChannelTargetPath = target.path;
-            switch (targetPath) {
-                case glTF.glTFAnimationChannelTargetPath.TRANSLATION:
-                    clipNode.propertise.push("localPosition");
-                    clipNode.type = 1;
-                    break;
-                case glTF.glTFAnimationChannelTargetPath.ROTATION:
-                    clipNode.propertise.push("localRotation");
-                    clipNode.type = 2;
-                    break;
-                case glTF.glTFAnimationChannelTargetPath.SCALE:
-                    clipNode.propertise.push("localScale");
-                    clipNode.type = 3;
-                    break;
-                default:
-                    break;
+            let sprite: Sprite3D = this._nodes[target.node];
+
+            let animaPaths = this.getAnimationPath(animatorRoot, sprite);
+
+            if (targetPath == glTF.glTFAnimationChannelTargetPath.WEIGHTS) {
+
+                let mesh = sprite.getComponent(MeshFilter)?.sharedMesh;
+                if (mesh && mesh.morphTargetData) {
+                    let morphData = mesh.morphTargetData;
+                    let channelCount = morphData.channelCount;
+                    // check data 
+                    if (outArray.length / timeArray.length == channelCount) {
+                        for (let channelIndex = 0; channelIndex < channelCount; channelIndex++) {
+                            let morphChannel = morphData.getMorphChannelbyIndex(channelIndex);
+                            let channelName = morphChannel.name;
+
+                            let clipNode: ClipNode = {};
+                            clipNodes.push(clipNode);
+                            clipNode.paths = animaPaths;
+                            clipNode.interpolation = sampler.interpolation;
+                            clipNode.timeArray = timeArray;
+                            clipNode.valueArray = new Float32Array(timeArray.length);
+                            for (let i = 0; i < timeArray.length; i++) {
+                                clipNode.valueArray[i] = outArray[i * channelCount + channelIndex];
+                            }
+
+                            clipNode.propertyOwner = "MeshRenderer";
+                            clipNode.propertise = [];
+                            clipNode.propertise.push("morphTargetMap");
+                            clipNode.propertise.push(channelName);
+                            clipNode.propertyLength = clipNode.propertise.length;
+                            clipNode.type = 0;
+                            clipNode.callbackFunc = "_changeMorphTargetValue";
+                            clipNode.callbackParams = [channelName];
+
+                            clipNode.duration = clipNode.timeArray[clipNode.timeArray.length - 1];
+                            duration = Math.max(duration, clipNode.duration);
+                        }
+                    }
+                }
             }
+            else {
+                let clipNode: ClipNode = {};
+                clipNodes.push(clipNode);
+                clipNode.timeArray = timeArray;
+                clipNode.valueArray = outArray;
+                let interpolation = sampler.interpolation;
+                clipNode.interpolation = interpolation;
 
-            clipNode.duration = clipNode.timeArray[clipNode.timeArray.length - 1];
-            duration = Math.max(duration, clipNode.duration);
+                clipNode.paths = animaPaths;
+
+                switch (targetPath) {
+                    case glTF.glTFAnimationChannelTargetPath.TRANSLATION:
+                        clipNode.propertyOwner = "transform";
+                        clipNode.propertyLength = 1;
+                        clipNode.propertise = [];
+                        clipNode.propertise.push("localPosition");
+                        clipNode.type = 1;
+                        break;
+                    case glTF.glTFAnimationChannelTargetPath.ROTATION:
+                        clipNode.propertyOwner = "transform";
+                        clipNode.propertyLength = 1;
+                        clipNode.propertise = [];
+                        clipNode.propertise.push("localRotation");
+                        clipNode.type = 2;
+                        break;
+                    case glTF.glTFAnimationChannelTargetPath.SCALE:
+                        clipNode.propertyOwner = "transform";
+                        clipNode.propertyLength = 1;
+                        clipNode.propertise = [];
+                        clipNode.propertise.push("localScale");
+                        clipNode.type = 3;
+                        break;
+                    default:
+                        break;
+                }
+
+                clipNode.duration = clipNode.timeArray[clipNode.timeArray.length - 1];
+                duration = Math.max(duration, clipNode.duration);
+            }
         });
 
         clip.name = animation.name ? animation.name : `Animation_${this.generateId("Animation")}`;
@@ -1702,12 +2124,59 @@ export class glTFResource extends Prefab {
             nodesDic[fullPath] = fullPath;
             node.fullPath = fullPath;
 
+            node.callbackFunData = glTFClipNode.callbackFunc;
+            node.callParams = glTFClipNode.callbackParams;
+
             let keyframeCount: number = glTFClipNode.timeArray.length;
 
             // laya animation version "LAYAANIMATION:04"
             for (let j: number = 0; j < keyframeCount; j++) {
                 switch (type) {
                     case 0:
+                        let floatKeyFrame = new FloatKeyframe();
+                        node._setKeyframeByIndex(j, floatKeyFrame);
+                        floatKeyFrame.time = glTFClipNode.timeArray[j];
+                        floatKeyFrame.value = glTFClipNode.valueArray[j];
+
+                        switch (glTFClipNode.interpolation) {
+                            case glTF.glTFAnimationSamplerInterpolation.LINEAR:
+                                {
+                                    let lastI = j == 0 ? j : j - 1;
+                                    let lastTime = glTFClipNode.timeArray[lastI];
+                                    let lastValue = glTFClipNode.valueArray[lastI];
+                                    let lastTimeDet = lastI == j ? 1 : (floatKeyFrame.time - lastTime);
+
+                                    floatKeyFrame.inTangent = (floatKeyFrame.value - lastValue) / lastTimeDet;
+
+                                    let nextI = j == keyframeCount - 1 ? j : j + 1;
+                                    let nextTime = glTFClipNode.timeArray[nextI];
+                                    let nextValue = glTFClipNode.valueArray[nextI];
+                                    let nextTimeDet = nextI == j ? 1 : (nextTime - floatKeyFrame.time);
+
+                                    floatKeyFrame.outTangent = (nextValue - floatKeyFrame.value) / nextTimeDet;
+
+                                    if (lastI = j) {
+                                        floatKeyFrame.inTangent = floatKeyFrame.outTangent;
+                                    }
+                                    if (nextI = j) {
+                                        floatKeyFrame.outTangent = floatKeyFrame.inTangent;
+                                    }
+                                }
+                                break;
+                            case glTF.glTFAnimationSamplerInterpolation.CUBICSPLINE:
+                                {
+                                    // todo
+                                    floatKeyFrame.inTangent = 0;
+                                    floatKeyFrame.outTangent = 0;
+                                }
+                                break;
+                            case glTF.glTFAnimationSamplerInterpolation.STEP:
+                            default:
+                                floatKeyFrame.inTangent = 0;
+                                floatKeyFrame.outTangent = 0;
+                                break;
+                        }
+
                         break;
                     case 1: // local position
                     case 3: // local scale
@@ -1842,8 +2311,25 @@ export class glTFResource extends Prefab {
             }
         }
 
+        clipNodes = null;
+
         return clip;
     }
+}
+
+
+/**
+ * @internal
+ * 辅助记录 sub morph data 所需数据
+ */
+class SubMorphData {
+    weights: number[];
+    position: boolean;
+    boundMin: number[];
+    boundMax: number[];
+    normal: boolean;
+    tangent: boolean;
+    targets: { [name: string]: Map<string, Float32Array> }
 }
 
 /**
@@ -1853,12 +2339,16 @@ export class glTFResource extends Prefab {
 class PrimitiveSubMesh {
 
     attributeMap: Map<string, Float32Array>;
+    boundMin: number[];
+    boundMax: number[];
     indices: Uint32Array;
     vertexDecler: string;
     vertexCount: number;
     boneIndicesList: Uint16Array[];
     subIndexStartArray: number[];
     subIndexCountArray: number[];
+
+    morphtargets: SubMorphData;
 
     constructor() {
 
@@ -1879,4 +2369,6 @@ interface ClipNode {
     interpolation?: glTF.glTFAnimationSamplerInterpolation;
     duration?: number;
     type?: number;
+    callbackFunc?: string;
+    callbackParams?: any[];
 }
