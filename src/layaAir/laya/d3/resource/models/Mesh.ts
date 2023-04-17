@@ -23,6 +23,7 @@ import { VertexElementFormat } from "../../../renders/VertexElementFormat";
 import { VertexElement } from "../../../renders/VertexElement";
 import { BufferState } from "../../../webgl/utils/BufferState";
 import { VertexMesh } from "../../../RenderEngine/RenderShader/VertexMesh";
+import { Config } from "../../../../Config";
 /**
  * @internal
  */
@@ -200,7 +201,7 @@ export class Mesh extends Resource implements IClone {
         this._bounds = new Bounds(new Vector3(), new Vector3());
         this._isReadable = isReadable;
         this._subMeshes = [];
-        this.destoryedImmediately = false;
+        this.destroyedImmediately = Config.destroyResourceImmediatelyDefault;
     }
 
     /**
