@@ -76,6 +76,8 @@ export class Config {
 
     /**tempConfig Fixed number of frames */
     static fixedFrames: boolean = true;
+	/*资源引用参数为0是否立即删除资源，如果不立即删除请调用DestrotyUnUse*/
+    static destroyResourceImmediatelyDefault = true;
 
 }
 

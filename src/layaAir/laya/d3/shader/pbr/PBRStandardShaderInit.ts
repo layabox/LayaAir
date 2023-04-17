@@ -26,7 +26,7 @@ export class PBRStandardShaderInit {
             "u_OcclusionStrength": ShaderDataType.Float,
             "u_AlphaTestValue": ShaderDataType.Float,
             "u_EmissionColor": ShaderDataType.Color,
-            "u_EmissionIntensity":ShaderDataType.Float,
+            "u_EmissionIntensity": ShaderDataType.Float,
             "u_AlbedoTexture": ShaderDataType.Texture2D,
             "u_NormalTexture": ShaderDataType.Texture2D,
             "u_OcclusionTexture": ShaderDataType.Texture2D,
@@ -35,23 +35,23 @@ export class PBRStandardShaderInit {
             "u_Anisotropy": ShaderDataType.Float,
             "u_TangentTexture": ShaderDataType.Texture2D,
             //detail 
-            "u_DetailAlbedoTexture":ShaderDataType.Texture2D,
-            "u_DetailNormalTexture":ShaderDataType.Texture2D,
-            "u_DetailNormalScale":ShaderDataType.Float,
-            "u_DetailTillingOffset":ShaderDataType.Vector4
+            "u_DetailAlbedoTexture": ShaderDataType.Texture2D,
+            "u_DetailNormalTexture": ShaderDataType.Texture2D,
+            "u_DetailNormalScale": ShaderDataType.Float,
+            "u_DetailTillingOffset": ShaderDataType.Vector4
         };
 
         let defaultValue = {
             "u_AlbedoColor": Color.WHITE,
             "u_TilingOffset": new Vector4(1, 1, 0, 0),
-            "u_DetailTillingOffset":new Vector4(1,1,0,0),
+            "u_DetailTillingOffset": new Vector4(1, 1, 0, 0),
             "u_NormalScale": 1,
-            "u_DetailNormalScale":1,
+            "u_DetailNormalScale": 1,
             "u_Metallic": 0,
             "u_Smoothness": 0.5,
             "u_OcclusionStrength": 1,
             "u_EmissionColor": Color.WHITE,
-            "u_EmissionIntensity":1,
+            "u_EmissionIntensity": 1,
             "u_Anisotropy": 0
         };
 

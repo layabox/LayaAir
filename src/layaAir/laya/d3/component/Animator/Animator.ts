@@ -1194,7 +1194,7 @@ export class Animator extends Component {
         for (let i = 0, n = this._controllerLayers.length; i < n; i++) {
             if (this._controllerLayers[i].playOnWake) {
                 let defaultClip: AnimatorState = this.getDefaultState(i);
-                (defaultClip) && (this.play(null, i, 0));
+                (defaultClip) && (this.play(null, i, defaultClip.cycleOffset));
             }
         }
     }
