@@ -27,7 +27,7 @@ class MaterialLoader implements IResourceLoader {
                             else if (data.props.shaderPath)
                                 urls.push(URL.join(basePath, data.props.shaderPath));
                             else
-                                console.warn(`unknown shaderName: ${shaderName}`);
+                                Loader.warn(`unknown shaderName: ${shaderName}`);
                             return this.load2(task, data, urls);
                         });
                     }

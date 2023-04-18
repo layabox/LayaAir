@@ -27,7 +27,7 @@ class ShaderLoader implements IResourceLoader {
             let passArray: IShaderpassStructor[] = obj.shaderPass;
             return Promise.all(passArray.map(pass => ShaderCompile.compileAsync(pass.VS, pass.FS, basePath))).then(compiledObjs => {
                 if (compiledObjs.findIndex(obj => obj == null) != -1) {
-                    console.warn("some pass null");
+                    Loader.warn("some pass null " + task.url);
                     return null;
                 }
 
