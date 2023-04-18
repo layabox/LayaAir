@@ -42,7 +42,7 @@ class CubemapLoader implements IResourceLoader {
 
                 let ktxInfo = KTXTextureInfo.getKTXTextureInfo(data);
                 if (ktxInfo.dimension != TextureDimension.Cube) {
-                    console.warn("ktxInfo.dimension != TextureDimension.Cube! " + task.url);
+                    Loader.warn("ktxInfo.dimension != TextureDimension.Cube! " + task.url);
                     return null;
                 }
 

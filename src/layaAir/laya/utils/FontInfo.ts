@@ -65,7 +65,7 @@ export class FontInfo {
                 szpos = i;
                 this._size = parseInt(words[i]);
                 if (this._size <= 0) {
-                    console.error('font parse error:' + value);
+                    console.debug('font parse error:' + value);
                     this._size = 14;
                 }
                 break;

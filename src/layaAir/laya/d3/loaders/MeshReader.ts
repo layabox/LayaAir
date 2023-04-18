@@ -35,7 +35,7 @@ export class MeshReader {
 				LoadModelV05.parse(readData, version, mesh, subMeshes);
 				break;
 			default:
-				throw new Error("MeshReader: unknown mesh version.");
+				throw new Error("unknown mesh version: " + version);
 		}
 		mesh._setSubMeshes(subMeshes);
 		if (version != "LAYAMODEL:0501" && version != "LAYAMODEL:COMPRESSION_0501" && version != "LAYAMODEL:0502")//compatible

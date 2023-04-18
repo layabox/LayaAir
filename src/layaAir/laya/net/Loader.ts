@@ -290,7 +290,7 @@ export class Loader extends EventDispatcher {
                     if (url2)
                         return this._load2(url2, uuid, type, options, onProgress);
                     else {
-                        !options.silent && Loader.warn(url);
+                        !options.silent && Loader.warnFailed(url);
                         return Promise.resolve(null);
                     }
                 });
@@ -308,7 +308,7 @@ export class Loader extends EventDispatcher {
     private _load2(url: string, uuid: string, type: string, options: ILoadOptions, onProgress: ProgressCallback): Promise<any> {
         let { ext, typeId, main, loaderType } = Loader.getURLInfo(url, type);
         if (!loaderType) {
-            !options.silent && Loader.warn(url);
+            !options.silent && Loader.warnFailed(url);
             return Promise.resolve(null);
         }
         let formattedUrl = URL.formatURL(url);
@@ -383,7 +383,7 @@ export class Loader extends EventDispatcher {
             promise = assetLoader.load(task);
         }
         catch (err: any) {
-            !options.silent && Loader.warn(url, err);
+            !options.silent && Loader.warnFailed(url, err);
 
             promise = Promise.resolve(null);
         }
@@ -402,7 +402,7 @@ export class Loader extends EventDispatcher {
             task.onComplete.invoke(content);
             return content;
         }).catch(error => {
-            !options.silent && Loader.warn(url, error);
+            !options.silent && Loader.warnFailed(url, error);
 
             if (task.options.cache == null || task.options.cache)
                 Loader._cacheRes(formattedUrl, null, typeId, main);
@@ -539,7 +539,7 @@ export class Loader extends EventDispatcher {
             ILaya.systemTimer.once(this.retryDelay, this, this.queueToDownload, [item], false);
         }
         else {
-            !item.silent && Loader.warn(item.url);
+            !item.silent && Loader.warnFailed(item.url);
             if (item.onProgress)
                 item.onProgress(1);
 
@@ -564,7 +564,7 @@ export class Loader extends EventDispatcher {
         if (type) { //指定了类型
             let typeEntry = Loader.typeMap[type];
             if (!typeEntry) {
-                console.warn(`not recognize type: '${type}'`);
+                Loader.warn(`not recognize type: '${type}'`);
                 return NullURLInfo;
             }
             typeId = typeEntry.typeId;
@@ -589,7 +589,7 @@ export class Loader extends EventDispatcher {
         }
         else {
             if (!extEntry) {
-                console.warn(`not recognize the resource suffix: '${url}'`);
+                Loader.warn(`not recognize the resource suffix: '${url}'`);
                 return NullURLInfo;
             }
 
@@ -602,8 +602,15 @@ export class Loader extends EventDispatcher {
         return { ext, main, typeId, loaderType };
     }
 
-    private static warn(url: string, err?: any) {
-        console.warn(`Failed to load ${url}` + (err ? (":" + err) : ""));
+    private static warnFailed(url: string, err?: any) {
+        this.warn(`Failed to load ${url}`, err);
+    }
+
+    public static warn(msg: string, err?: any) {
+        let errMsg = err ? (err.stack ? err.stack : err) : "";
+        if (errMsg)
+            errMsg = ": " + errMsg;
+        console.warn(msg + errMsg);
     }
 
     /**
