@@ -30,6 +30,8 @@ export class RenderableSprite3D extends Sprite3D {
 	static REFLECTIONCUBE_PROBEBOXMAX: number;
 	static REFLECTIONCUBE_PROBEBOXMIN: number;
 
+	/** volumetric GI */
+
 	static VOLUMETRICGI_PROBECOUNTS: number;
 	static VOLUMETRICGI_PROBESTEPS: number;
 	static VOLUMETRICGI_PROBESTARTPOS: number;

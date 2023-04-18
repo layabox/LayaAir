@@ -97,7 +97,7 @@ export class VolumetricGI extends Volume {
         shaderData.setVector3(RenderableSprite3D.VOLUMETRICGI_PROBECOUNTS, this.probeCounts);
         shaderData.setVector3(RenderableSprite3D.VOLUMETRICGI_PROBESTEPS, this.probeStep);
 
-        shaderData.setVector3(RenderableSprite3D.VOLUMETRICGI_PROBESTARTPOS, this.boundsMin);
+        shaderData.setVector3(RenderableSprite3D.VOLUMETRICGI_PROBESTARTPOS, this.bounds.getMin());
         shaderData.setVector(RenderableSprite3D.VOLUMETRICGI_PROBEPARAMS, this._params);
 
         shaderData.setTexture(RenderableSprite3D.VOLUMETRICGI_IRRADIANCE, this.irradiance);
