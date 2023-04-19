@@ -110,6 +110,7 @@ export class AnimationClipParser04 {
 					//propertyChangePath,IDE里面还原数据时候使用，引擎中是不需要的
 					(node as any).propertyChangePath = AnimationClipParser04._strings[index];
 				}
+				
 				index = reader.getUint16();
 				if (0 != index) {
 					node.callbackFunData = AnimationClipParser04._strings[index];
