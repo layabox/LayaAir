@@ -45,6 +45,7 @@ import { Prefab } from "../resource/HierarchyResource";
 import { Base64Tool } from "../utils/Base64Tool";
 import { Handler } from "../utils/Handler";
 import { MeshFilter } from "../d3/core/MeshFilter";
+import { Byte } from "../utils/Byte";
 
 const maxSubBoneCount = 24;
 
@@ -84,26 +85,15 @@ export class glTFResource extends Prefab {
 
     /**
      * @internal
-     * @param data 
-     * @param createURL 
+     * @param basePath 
      * @param progress 
      * @returns 
      */
-    _parse(data: glTF.glTF, createURL: string, progress?: IBatchProgress): Promise<void> {
-        this._data = data;
-        if (!data.asset || data.asset.version !== "2.0") {
-            console.warn("glTF version wrong!");
-            return Promise.resolve();
-        }
-
-        let basePath = URL.getPath(createURL);
-        let promise: Promise<any>;
-        this._idCounter = {};
-
+    loadBinary(basePath: string, progress?: IBatchProgress) {
+        let data = this._data;
         if (data.buffers) {
             let promises: Array<Promise<any>> = [];
-            let i = 0;
-            for (let buffer of data.buffers) {
+            data.buffers.forEach((buffer, i) => {
                 if (Base64Tool.isBase64String(buffer.uri)) {
                     let bin = Base64Tool.decode(buffer.uri.replace(Base64Tool.reghead, ""));
                     this._buffers[i] = bin;
@@ -115,55 +105,61 @@ export class glTFResource extends Prefab {
                             this._buffers[j] = bin;
                         }));
                 }
-                i++;
-            }
-            promise = Promise.all(promises);
+            });
+            return Promise.all(promises);
         }
-        else
-            promise = Promise.resolve();
+        else {
+            return Promise.resolve();
+        }
+    }
 
-        promise = promise.then(() => {
-            //load textuers
-            if (data.textures) {
-                let promises: Array<Promise<Texture2D>> = [];
-
-                let sRGBTex = new Array<boolean>(data.textures.length).fill(false);
-
-                if (data.materials) {
-                    for (let glTFMaterial of data.materials) {
-                        if (glTFMaterial.pbrMetallicRoughness) {
-                            if (glTFMaterial.pbrMetallicRoughness.baseColorTexture) {
-                                let index = glTFMaterial.pbrMetallicRoughness.baseColorTexture.index;
-                                sRGBTex[index] = true;
-                            }
-                        }
-                        if (glTFMaterial.emissiveTexture) {
-                            let index = glTFMaterial.emissiveTexture.index;
-                            sRGBTex[index] = true;
-                        }
+    /**
+     * internal
+     * @param basePath 
+     * @param progress 
+     * @returns 
+     */
+    loadTextures(basePath: string, progress?: IBatchProgress): Promise<any> {
+        let data = this._data;
+        if (data.textures) {
+            let promises: Array<Promise<Texture2D>> = [];
+            let sRGBTex = new Array<boolean>(data.textures.length).fill(false);
+            if (data.materials) {
+                for (let glTFMaterial of data.materials) {
+                    if (glTFMaterial.pbrMetallicRoughness?.baseColorTexture) {
+                        let index = glTFMaterial.pbrMetallicRoughness.baseColorTexture.index;
+                        sRGBTex[index] = true;
+                    }
+                    if (glTFMaterial.emissiveTexture) {
+                        let index = glTFMaterial.emissiveTexture.index;
+                        sRGBTex[index] = true;
                     }
                 }
 
-                for (let index = 0; index < data.textures.length; index++) {
-                    let tex = data.textures[index];
+                data.textures.forEach((tex, index) => {
                     let imgSource = tex.source;
                     let glTFImg = data.images[imgSource];
+
                     let samplerSource = tex.sampler;
                     let glTFSampler = data.samplers ? data.samplers[samplerSource] : undefined;
+
                     let constructParams = this.getTextureConstructParams(glTFImg, glTFSampler, sRGBTex[index]);
                     let propertyParams = this.getTexturePropertyParams(glTFSampler);
 
                     if (glTFImg.bufferView != null) {
-                        let bufferView: glTF.glTFBufferView = data.bufferViews[glTFImg.bufferView];
-                        let buffer: ArrayBuffer = this._buffers[bufferView.buffer];
-                        let byteOffset: number = (bufferView.byteOffset || 0);
-                        let byteLength: number = bufferView.byteLength;
-                        let arraybuffer: ArrayBuffer = buffer.slice(byteOffset, byteOffset + byteLength);
+                        let bufferView = data.bufferViews[glTFImg.bufferView];
+                        let buffer = this._buffers[bufferView.buffer];
+                        let byteOffset = bufferView.byteOffset || 0;
+                        let byteLength = bufferView.byteLength;
+
+                        let arraybuffer = buffer.slice(byteOffset, byteOffset + byteLength);
                         promises.push(this.loadTextureFromBuffer(arraybuffer, glTFImg.mimeType, constructParams, propertyParams, progress));
                     }
-                    else
+                    else {
                         promises.push(this.loadTexture(URL.join(basePath, glTFImg.uri), constructParams, propertyParams, progress));
-                }
+                    }
+                });
+
                 sRGBTex = null;
                 return Promise.all(promises).then(textures => {
                     textures = textures.filter(tex => tex);
@@ -172,49 +168,94 @@ export class glTFResource extends Prefab {
                 });
             }
 
-            return null;
-        });
+            return Promise.all(promises);
+        }
+        else {
+            return Promise.resolve();
+        }
+    }
 
-        promise = promise.then(() => {
-            //create materials
+    /**
+     * @internal
+     * @returns 
+     */
+    importMaterials() {
+        return Promise.resolve().then(() => {
+            let data = this._data;
             if (data.materials) {
-                let index = 0;
-                for (let glTFMaterial of data.materials) {
+                data.materials.forEach((glTFMat, index) => {
                     let mat: Material;
-                    // todo extension
-                    if (glTFMaterial.extras) {
+                    if (glTFMat.extras) {
                         let createHandler = Handler.create(this, this.createMaterial, null, false);
-                        mat = this.executeExtras("MATERIAL", glTFMaterial.extras, createHandler, [glTFMaterial]);
+                        mat = this.executeExtras("MATERIAL", glTFMat.extras, createHandler, [glTFMat]);
                     }
                     else
-                        mat = this.createMaterial(glTFMaterial);
+                        mat = this.createMaterial(glTFMat);
                     this._materials[index++] = mat;
                     this.addDep(mat);
-                }
+                })
             }
+        });
+    }
 
-            //create meshes
+    /**
+     * @internal
+     * @returns 
+     */
+    importMeshes() {
+        return Promise.resolve().then(() => {
+            let data = this._data;
             if (data.meshes && data.nodes) {
-                for (let glTFNode of data.nodes) {
+                data.nodes.forEach((glTFNode) => {
                     if (glTFNode.mesh != null) {
                         let glTFMesh = this._data.meshes[glTFNode.mesh];
                         let glTFSkin = this._data.skins?.[glTFNode.skin];
                         let key = glTFNode.mesh + (glTFNode.skin != null ? ("_" + glTFNode.skin) : "");
                         let mesh = this._meshes[key];
-                        if (mesh)
-                            continue;
-
-                        if (glTFMesh.extras) {
-                            let createHandler = Handler.create(this, this.createMesh, null, false);
-                            mesh = this.executeExtras("MESH", glTFMesh.extras, createHandler, [glTFMesh, glTFSkin]);
+                        if (!mesh) {
+                            if (glTFMesh.extras) {
+                                let createHandler = Handler.create(this, this.createMesh, null, false);
+                                mesh = this.executeExtras("MESH", glTFMesh.extras, createHandler, [glTFMesh, glTFSkin]);
+                            }
+                            else
+                                mesh = this.createMesh(glTFMesh, glTFSkin);
+                            this._meshes[key] = mesh;
+                            this.addDep(mesh);
                         }
-                        else
-                            mesh = this.createMesh(glTFMesh, glTFSkin);
-                        this._meshes[key] = mesh;
-                        this.addDep(mesh);
                     }
-                }
+                });
             }
+        });
+    }
+
+    /**
+     * @internal
+     * @param data 
+     * @param createURL 
+     * @param progress 
+     * @returns 
+     */
+    _parse(data: glTF.glTF, createURL: string, progress?: IBatchProgress): Promise<void> {
+        if (!data.asset || data.asset.version !== "2.0") {
+            throw new Error("glTF version wrong!");
+        }
+
+        this._data = data;
+        let basePath = URL.getPath(createURL);
+        this._idCounter = {};
+
+        let promise: Promise<any> = this.loadBinary(basePath, progress);
+
+        promise = promise.then(() => {
+            return this.loadTextures(basePath, progress);
+        });
+
+        promise = promise.then(() => {
+            return this.importMeshes();
+        });
+
+        promise = promise.then(() => {
+            return this.importMaterials();
         });
 
         return promise.then(() => {
@@ -236,119 +277,63 @@ export class glTFResource extends Prefab {
      * @param createURL 
      * @param progress 
      */
-    _parseglb(data: glTF.glTF, firstbin: ArrayBuffer, createURL: string, progress?: IBatchProgress): Promise<void> {
-        this._data = data;
-        if (!data.asset || data.asset.version !== "2.0") {
-            console.warn("glTF version wrong!");
-            return Promise.resolve();
-        }
-
+    _parseglb(data: ArrayBuffer, createURL: string, progress?: IBatchProgress): Promise<void> {
         let basePath = URL.getPath(createURL);
-        let promise: Promise<any>;
+        // let promise: Promise<any>;
         this._idCounter = {};
 
-        if (data.buffers) {
-            let firstBuffer = data.buffers[0];
-            if (firstBuffer && !firstBuffer.uri) {
-                this._buffers[0] = firstbin;
-            }
+        let byte = new Byte(data);
+        let magic = byte.readUint32();
+        //  ASCII string glTF
+        if (magic != 0x46546C67) {
+            throw new Error("glb fromat wrong!");
         }
 
+        let version = byte.readUint32();
+        if (version != 2) {
+            throw new Error("glb version wrong!");
+        }
 
-        promise = Promise.resolve();
+        // total length of the Binary glTF, including header and all chunks, in bytes.
+        let length = byte.readUint32();
+
+        /**
+         * first chunk: json 
+         * second chunk: buffer
+         * other chunk: ignore
+         */
+
+        // first chunk json
+        let firstChunkLength = byte.readUint32();
+        let firstChunkType = byte.readUint32();
+        if (firstChunkType != 0x4E4F534A) {
+            throw new Error("glb json chunk data wrong!");
+        }
+
+        let firstChunkData = byte.readArrayBuffer(firstChunkLength);
+        let texDecoder = new TextDecoder();
+        let jsonStr = texDecoder.decode(firstChunkData);
+        let glTFObj: glTF.glTF = JSON.parse(jsonStr);
+        this._data = glTFObj;
+
+        // binary data json
+        let chunkLength = byte.readUint32();
+        let chunkType = byte.readUint32();
+        if (chunkType != 0x004E4942) {
+            throw new Error("glb bin chunk data wrong!");
+        }
+        let firstBuffer = glTFObj.buffers?.[0];
+        firstBuffer.byteLength = firstBuffer.byteLength ? (Math.min(firstBuffer.byteLength, chunkLength)) : chunkLength;
+
+        this._buffers[0] = byte.readArrayBuffer(firstBuffer.byteLength);
+
+        let promise: Promise<any> = this.loadTextures(basePath, progress);
         promise = promise.then(() => {
-            //load textuers
-            if (data.textures) {
-                let promises: Array<Promise<Texture2D>> = [];
-
-                let sRGBTex = new Array<boolean>(data.textures.length).fill(false);
-
-                if (data.materials) {
-                    for (let glTFMaterial of data.materials) {
-                        if (glTFMaterial.pbrMetallicRoughness) {
-                            if (glTFMaterial.pbrMetallicRoughness.baseColorTexture) {
-                                let index = glTFMaterial.pbrMetallicRoughness.baseColorTexture.index;
-                                sRGBTex[index] = true;
-                            }
-                        }
-                        if (glTFMaterial.emissiveTexture) {
-                            let index = glTFMaterial.emissiveTexture.index;
-                            sRGBTex[index] = true;
-                        }
-                    }
-                }
-
-                for (let index = 0; index < data.textures.length; index++) {
-                    let tex = data.textures[index];
-                    let imgSource = tex.source;
-                    let glTFImg = data.images[imgSource];
-                    let samplerSource = tex.sampler;
-                    let glTFSampler = data.samplers ? data.samplers[samplerSource] : undefined;
-                    let constructParams = this.getTextureConstructParams(glTFImg, glTFSampler, sRGBTex[index]);
-                    let propertyParams = this.getTexturePropertyParams(glTFSampler);
-
-                    if (glTFImg.bufferView != null) {
-                        let bufferView: glTF.glTFBufferView = data.bufferViews[glTFImg.bufferView];
-                        let buffer: ArrayBuffer = this._buffers[bufferView.buffer];
-                        let byteOffset: number = (bufferView.byteOffset || 0);
-                        let byteLength: number = bufferView.byteLength;
-                        let arraybuffer: ArrayBuffer = buffer.slice(byteOffset, byteOffset + byteLength);
-                        promises.push(this.loadTextureFromBuffer(arraybuffer, glTFImg.mimeType, constructParams, propertyParams, progress));
-                    }
-                    else
-                        promises.push(this.loadTexture(URL.join(basePath, glTFImg.uri), constructParams, propertyParams, progress));
-                }
-                sRGBTex = null;
-                return Promise.all(promises).then(textures => {
-                    textures = textures.filter(tex => tex);
-                    this._textures.push(...textures);
-                    this.addDeps(textures);
-                });
-            }
-
-            return null;
+            return this.importMeshes();
         });
 
         promise = promise.then(() => {
-            //create materials
-            if (data.materials) {
-                let index = 0;
-                for (let glTFMaterial of data.materials) {
-                    let mat: Material;
-                    // todo extension
-                    if (glTFMaterial.extras) {
-                        let createHandler = Handler.create(this, this.createMaterial, null, false);
-                        mat = this.executeExtras("MATERIAL", glTFMaterial.extras, createHandler, [glTFMaterial]);
-                    }
-                    else
-                        mat = this.createMaterial(glTFMaterial);
-                    this._materials[index++] = mat;
-                    this.addDep(mat);
-                }
-            }
-
-            //create meshes
-            if (data.meshes && data.nodes) {
-                for (let glTFNode of data.nodes) {
-                    if (glTFNode.mesh != null) {
-                        let glTFMesh = this._data.meshes[glTFNode.mesh];
-                        let glTFSkin = this._data.skins?.[glTFNode.skin];
-                        let key = glTFNode.mesh + (glTFNode.skin != null ? ("_" + glTFNode.skin) : "");
-                        let mesh = this._meshes[key];
-                        if (mesh)
-                            continue;
-
-                        if (glTFMesh.extras) {
-                            let createHandler = Handler.create(this, this.createMesh, null, false);
-                            mesh = this.executeExtras("MESH", glTFMesh.extras, createHandler, [glTFMesh, glTFSkin]);
-                        }
-                        else
-                            mesh = this.createMesh(glTFMesh, glTFSkin);
-                        this._meshes[key] = mesh;
-                        this.addDep(mesh);
-                    }
-                }
-            }
+            return this.importMaterials();
         });
 
         return promise.then(() => {
