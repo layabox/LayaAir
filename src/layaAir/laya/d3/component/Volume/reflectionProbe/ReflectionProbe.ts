@@ -263,9 +263,9 @@ export class ReflectionProbe extends Volume {
 			this.ambientSH && shaderData.setBuffer(RenderableSprite3D.AMBIENTSH, this.ambientSH);
 		} else {//Legency
 			shaderData.removeDefine(Sprite3DRenderDeclaration.SHADERDEFINE_GI_IBL);
+			shaderData.addDefine(Sprite3DRenderDeclaration.SHADERDEFINE_GI_LEGACYIBL);
 			if (this._reflectionTexture) {
-				shaderData.addDefine(Sprite3DRenderDeclaration.SHADERDEFINE_GI_LEGACYIBL);
-				shaderData.setShaderData(RenderableSprite3D.REFLECTIONTEXTURE, ShaderDataType.TextureCube, this.reflectionTexture);
+				shaderData.setShaderData(RenderableSprite3D.REFLECTIONTEXTURE, ShaderDataType.TextureCube, this.reflectionTexture?this.reflectionTexture:TextureCube.blackTexture);
 				shaderData.setShaderData(RenderableSprite3D.REFLECTIONCUBE_HDR_PARAMS, ShaderDataType.Vector4, this.reflectionHDRParams);
 			}
 
