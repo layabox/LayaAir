@@ -438,4 +438,18 @@ export class Label extends UIComponent {
     set underlineColor(value: string) {
         this._tf.underlineColor = value;
     }
+
+    /**
+     * @copy laya.display.Text#ignoreLang
+     */
+    get ignoreLang(): boolean {
+        return this._tf.ignoreLang;
+    }
+
+    /**
+     * @copy laya.display.Text#ignoreLang
+     */
+    set ignoreLang(value: boolean) {
+        this._tf.ignoreLang = value;
+    }
 }
