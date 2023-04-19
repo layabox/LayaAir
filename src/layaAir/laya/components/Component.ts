@@ -214,6 +214,7 @@ export class Component {
                 driver.remove(this);
 
                 this.owner.offAllCaller(this);
+                ILaya.stage.offAllCaller(this);
 
                 this._onDisable();
             }

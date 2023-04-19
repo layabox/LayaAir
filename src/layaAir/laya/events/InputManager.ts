@@ -249,13 +249,20 @@ export class InputManager {
                     let clickTarget = touch.clickTest();
                     if (clickTarget) {
                         if (ev.button == 0) {
+                            touch.event.isDblClick = touch.clickCount == 2;
+
                             this.bubbleEvent(Event.CLICK, touch.event, clickTarget);
 
                             if (touch.clickCount == 2)
                                 this.bubbleEvent(Event.DOUBLE_CLICK, touch.event, clickTarget);
+
+                            touch.event.isDblClick = false;
                         }
-                        else
+                        else {
+                            touch.event.isDblClick = touch.clickCount == 2;
                             this.bubbleEvent(Event.RIGHT_CLICK, touch.event, clickTarget);
+                            touch.event.isDblClick = false;
+                        }
                     }
                 }
             }
@@ -347,10 +354,14 @@ export class InputManager {
                         if (type != 3) {
                             let clickTarget = touch.clickTest();
                             if (clickTarget != null) {
+                                touch.event.isDblClick = touch.clickCount == 2;
+
                                 this.bubbleEvent(Event.CLICK, touch.event, clickTarget);
 
                                 if (touch.clickCount == 2)
                                     this.bubbleEvent(Event.DOUBLE_CLICK, touch.event, clickTarget);
+
+                                touch.event.isDblClick = false;
                             }
                         }
                     }
