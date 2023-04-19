@@ -520,7 +520,7 @@ export class Input extends Text {
     }
 
     get color() {
-        return super.color;
+        return this._originColor;
     }
 
     /**@inheritDoc 
@@ -604,7 +604,7 @@ export class Input extends Text {
         else
             super.set_text(value);
 
-        this._prompt = Text.langPacks && Text.langPacks[value] ? Text.langPacks[value] : value;
+        this._prompt = Text.langPacks?.[value] || value;
     }
 
     /**
