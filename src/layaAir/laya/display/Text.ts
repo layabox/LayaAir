@@ -114,7 +114,7 @@ export class Text extends Sprite {
     static HIDDEN: string = "hidden";
 
     /**语言包，是一个包含key:value的集合，用key索引，替换为目标value语言*/
-    static langPacks: any;
+    static langPacks: Record<string, string>;
     /**@internal 预测长度的文字，用来提升计算效率，不同语言找一个最大的字符即可*/
     static _testWord: string = "游";
     /**@private 位图字体字典。*/
@@ -124,42 +124,34 @@ export class Text extends Sprite {
     /**是否是从右向左的显示顺序*/
     static RightToLeft: boolean = false;
 
-    /**@private */
     private _clipPoint: Point | null;
-    /**@private 表示文本内容字符串。*/
+    /**表示文本内容字符串。*/
     protected _text: string;
-    /**@private 表示文本内容是否发生改变。*/
+    /**表示文本内容是否发生改变。*/
     protected _isChanged: boolean;
-    /**@private 表示文本的宽度，以像素为单位。*/
+    /**表示文本的宽度，以像素为单位。*/
     protected _textWidth: number = 0;
-    /**@private 表示文本的高度，以像素为单位。*/
+    /**表示文本的高度，以像素为单位。*/
     protected _textHeight: number = 0;
-    /**@private 存储文字行数信息。*/
+    /**存储文字行数信息。*/
     protected _lines: string[] | null = [];
-    /**@private 保存每行宽度*/
+    /**保存每行宽度*/
     protected _lineWidths: number[] | null = [];
-    /**@private 文本的内容位置 X 轴信息。*/
+    /**文本的内容位置 X 轴信息。*/
     protected _startX: number = 0;
-    /**@private 文本的内容位置X轴信息。 */
+    /**文本的内容位置X轴信息。 */
     protected _startY: number = 0;
-    /**@private */
     protected _words: WordText[] | null;
-    /**@private */
     protected _charSize: any = {};
-    /**@private */
     protected _valign: string = "top";
-    /**@internal */
-    _fontSize: number;
-    /**@internal */
-    _font: string;
-    /**@internal */
-    _realFont: string;
-    /**@internal */
-    _color: string = "#000000";
-    _overflow: string = Text.VISIBLE;
+    protected _fontSize: number;
+    protected _font: string;
+    protected _realFont: string;
+    protected _color: string = "#000000";
+    protected _overflow: string = Text.VISIBLE;
+    protected _singleCharRender: boolean = false;	// 拆分渲染
 
-    /**@private */
-    private _singleCharRender: boolean = false;	// 拆分渲染
+    _ignoreLang: boolean; //是否忽略语言包
 
     /**@internal */
     declare _style: TextStyle;
@@ -352,16 +344,20 @@ export class Text extends Sprite {
      * </li>
      * </p>
      * @param	text 文本内容。
-     * @param	...args 文本替换参数。
+     * @param	args 文本替换参数。
      */
-    lang(text: string, arg1: any = null, arg2: any = null, arg3: any = null, arg4: any = null, arg5: any = null, arg6: any = null, arg7: any = null, arg8: any = null, arg9: any = null, arg10: any = null): void {
-        text = Text.langPacks && Text.langPacks[text] ? Text.langPacks[text] : text;
-        if (arguments.length < 2) {
+    lang(text: string, ...args: any[]): void {
+        if (this._ignoreLang) {
+            this._text = text;
+            return;
+        }
+
+        text = Text.langPacks?.[text] || text;
+        if (args.length == 0) {
             this._text = text;
         } else {
-            for (var i: number = 0, n: number = arguments.length; i < n; i++) {
-                text = text.replace("{" + i + "}", arguments[i + 1]);
-            }
+            for (let i = 0, n = args.length; i < n; i++)
+                text = text.replace("{" + i + "}", args[i]);
             this._text = text;
         }
     }
