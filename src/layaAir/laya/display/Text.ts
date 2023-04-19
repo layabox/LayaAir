@@ -151,7 +151,8 @@ export class Text extends Sprite {
     protected _overflow: string = Text.VISIBLE;
     protected _singleCharRender: boolean = false;	// 拆分渲染
 
-    _ignoreLang: boolean; //是否忽略语言包
+    /** 标记此文本是否忽略语言包 */
+    ignoreLang: boolean;
 
     /**@internal */
     declare _style: TextStyle;
@@ -347,7 +348,7 @@ export class Text extends Sprite {
      * @param	args 文本替换参数。
      */
     lang(text: string, ...args: any[]): void {
-        if (this._ignoreLang) {
+        if (this.ignoreLang) {
             this._text = text;
             return;
         }
