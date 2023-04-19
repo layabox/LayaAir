@@ -402,13 +402,7 @@ export var stage: Stage;
 /**@internal */
 export var systemTimer: Timer;
 /**@internal */
-export var startTimer: Timer;
-/**@internal */
 export var physicsTimer: Timer;
-/**@internal */
-export var updateTimer: Timer;
-/**@internal */
-export var lateTimer: Timer;
 /**@internal */
 export var timer: Timer;
 /**@internal */

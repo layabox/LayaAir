@@ -13,7 +13,7 @@ import { InternalTexture } from "../RenderEngine/RenderInterface/InternalTexture
 export class NativeRenderTexture2D extends BaseTexture implements IRenderTarget {
     /** @private */
     private static _currentActive: NativeRenderTexture2D;
-    private static _clearColor: Color = new Color();
+    private static _clearColor: Color = new Color(0, 0, 0, 0);
     private _lastRT: NativeRenderTexture2D;
     private _lastWidth: number;
     private _lastHeight: number;
