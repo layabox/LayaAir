@@ -2017,12 +2017,13 @@ export class glTFResource extends Prefab {
 
                             clipNode.propertyOwner = "MeshRenderer";
                             clipNode.propertise = [];
-                            clipNode.propertise.push("morphTargetMap");
+                            clipNode.propertise.push("morphTargetValues");
                             clipNode.propertise.push(channelName);
                             clipNode.propertyLength = clipNode.propertise.length;
                             clipNode.type = 0;
                             clipNode.callbackFunc = "_changeMorphTargetValue";
                             clipNode.callbackParams = [channelName];
+                            clipNode.propertyChangePath = "morphTargetValues";
 
                             clipNode.duration = clipNode.timeArray[clipNode.timeArray.length - 1];
                             duration = Math.max(duration, clipNode.duration);
@@ -2111,6 +2112,7 @@ export class glTFResource extends Prefab {
 
             node.callbackFunData = glTFClipNode.callbackFunc;
             node.callParams = glTFClipNode.callbackParams;
+            node.propertyChangePath = glTFClipNode.propertyChangePath;
 
             let keyframeCount: number = glTFClipNode.timeArray.length;
 
@@ -2356,4 +2358,5 @@ interface ClipNode {
     type?: number;
     callbackFunc?: string;
     callbackParams?: any[];
+    propertyChangePath?: string;
 }
