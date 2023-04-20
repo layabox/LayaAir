@@ -105,15 +105,12 @@ export class AnimationClipParser04 {
 		for (i = 0; i < nodeCount; i++) {
 			node = new KeyframeNode();
 			if ("LAYAANIMATION:WEIGHT_05" == AnimationClipParser04._version) {
-				let index = reader.getUint16();
-				if (0 != index) {
+				if (1 == reader.getByte()) {
 					//propertyChangePath,IDE里面还原数据时候使用，引擎中是不需要的
-					(node as any).propertyChangePath = AnimationClipParser04._strings[index];
+					node.propertyChangePath = AnimationClipParser04._strings[reader.getUint16()];
 				}
-				
-				index = reader.getUint16();
-				if (0 != index) {
-					node.callbackFunData = AnimationClipParser04._strings[index];
+				if (1 == reader.getByte()) {
+					node.callbackFunData = AnimationClipParser04._strings[reader.getUint16()];
 				}
 
 				let paramLen = reader.getUint8();
