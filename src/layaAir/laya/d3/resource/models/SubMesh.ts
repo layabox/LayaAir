@@ -31,9 +31,6 @@ export class SubMesh extends GeometryElement {
 
 	/** @internal */
 	_indexInMesh: number;
-
-	/** @internal */
-	_vertexStart: number;
 	/** @internal */
 	_indexStart: number;
 	/** @internal */
