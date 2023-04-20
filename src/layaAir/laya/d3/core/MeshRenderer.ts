@@ -126,7 +126,7 @@ export class MeshRenderer extends BaseRender {
      * @param key 
      */
     _changeMorphTargetValue(key: string) {
-        this.setMorphChannelWeight(key, this.morphTargetValues[key]);
+        this._morphWeightChange = true;
     }
 
     setMorphChannelWeight(channelName: string, weight: number) {
@@ -134,9 +134,8 @@ export class MeshRenderer extends BaseRender {
         let mesh = this._mesh;
         if (mesh && mesh.morphTargetData) {
             let morphData = mesh.morphTargetData;
-
             let channel = morphData.getMorphChannel(channelName);
-            this.morphTargetValues
+            this.morphTargetValues[channel.name] = weight;
             this._morphWeightChange = true;
         }
     }
