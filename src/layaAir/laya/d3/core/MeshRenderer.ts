@@ -120,6 +120,12 @@ export class MeshRenderer extends BaseRender {
     public get morphTargetValues(): Record<string, number> {
         return this._morphTargetValues;
     }
+    /**
+     * @internal
+     */
+    public set morphTargetValues(value: Record<string, number>) {
+        this._morphTargetValues = value;
+    }
 
     /**
      * @internal
