@@ -113,12 +113,12 @@ export class MeshRenderer extends BaseRender {
 
     }
 
-    private _morphTargetValueMap: Record<string, number> = {}
+    private _morphTargetValues: Record<string, number> = {}
     /**
      * @internal
      */
     public get morphTargetValues(): Record<string, number> {
-        return this._morphTargetValueMap;
+        return this._morphTargetValues;
     }
 
     /**
@@ -273,7 +273,7 @@ export class MeshRenderer extends BaseRender {
             this.morphTargetWeight = null;
 
             this.morphtargetChannels = null;
-            this._morphTargetValueMap = {};
+            this._morphTargetValues = {};
         }
 
         if (mesh && mesh.morphTargetData) {
@@ -288,7 +288,7 @@ export class MeshRenderer extends BaseRender {
             for (let index = 0; index < channelCount; index++) {
                 let channel = morphData.getMorphChannelbyIndex(index);
                 this.morphtargetChannels[index] = channel;
-                this._morphTargetValueMap[channel.name] = 0;
+                this._morphTargetValues[channel.name] = 0;
             }
         }
 
@@ -459,7 +459,7 @@ export class MeshRenderer extends BaseRender {
 
     protected _onDestroy() {
         super._onDestroy();
-        this._morphTargetValueMap = null;
+        this._morphTargetValues = null;
     }
 
     /**
@@ -473,8 +473,8 @@ export class MeshRenderer extends BaseRender {
         if (this.morphTargetWeight) {
             (<MeshRenderer>dest).morphTargetWeight = new Float32Array(this.morphTargetWeight);
         }
-        for (const key in this._morphTargetValueMap) {
-            (<MeshRenderer>dest)._morphTargetValueMap[key] = this._morphTargetValueMap[key];
+        for (const key in this._morphTargetValues) {
+            (<MeshRenderer>dest)._morphTargetValues[key] = this._morphTargetValues[key];
         }
     }
 }
