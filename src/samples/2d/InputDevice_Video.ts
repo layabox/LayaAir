@@ -6,7 +6,7 @@ import { Event } from "laya/events/Event";
 import { Rectangle } from "laya/maths/Rectangle";
 import { Loader } from "laya/net/Loader";
 import { Texture } from "laya/resource/Texture";
-import { VideoTexture, VideoType } from "laya/media/VideoTexture";
+import { VideoTexture } from "laya/media/VideoTexture";
 import { Button } from "laya/ui/Button";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
@@ -250,7 +250,7 @@ export class InputDevice_Video {
         this.video.videoTexture = new VideoTexture();
 
         // 检查浏览器兼容性
-        if (this.video.canPlayType(VideoType.MP4) == "" && this.video.canPlayType(VideoType.OGG) == "") {
+        if (this.video.canPlayType("mp4") == "" && this.video.canPlayType("ogg") == "") {
             alert("当前浏览器不支持播放本视频");
         }
 
