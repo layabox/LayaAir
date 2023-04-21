@@ -25,11 +25,11 @@ import { ShaderVariable } from "./ShaderVariable";
  */
 export class ShaderInstance extends Resource {
 	/**@internal */
-	private _attributeMap: {[key:string]:number};
+	private _attributeMap: { [key: string]: number };
 	/**@internal */
-	private _uniformMap: {[key:string]:number};
+	private _uniformMap: { [key: string]: number };
 	/**@internal miner 动态添加的uniformMap*/
-	private _globaluniformMap:{[key:string]:number};
+	private _globaluniformMap: { [key: string]: number };
 	/**@internal */
 	private _shaderPass: ShaderPass;
 
@@ -156,7 +156,7 @@ export class ShaderInstance extends Resource {
 						throw new Error("Shader3D: period is unkonw.");
 				}
 			}
-			else{
+			else {
 				//没有涉及到的uniform加入sceneParms,全局传入
 				one.dataOffset = Shader3D.propertyNameToID(uniName);
 				this._globaluniformMap[uniName] = Shader3D.PERIOD_SCENE;
@@ -186,7 +186,7 @@ export class ShaderInstance extends Resource {
 			var custom: ShaderVariable = customParms[i];
 			this._customUniformParamsMap[custom.dataOffset] = custom;
 		}
-		var stateMap: {[key:string]:number} = this._shaderPass._stateMap;
+		var stateMap: { [key: string]: number } = this._shaderPass._stateMap;
 		for (var s in stateMap)
 			this._stateParamsMap[stateMap[s]] = Shader3D.propertyNameToID(s);
 	}
@@ -565,17 +565,17 @@ export class ShaderInstance extends Resource {
 		var depthWrite: any = this._getRenderState(datas, Shader3D.RENDER_STATE_DEPTH_WRITE);
 		var depthTest: any = this._getRenderState(datas, Shader3D.RENDER_STATE_DEPTH_TEST);
 		var blend: any = this._getRenderState(datas, Shader3D.RENDER_STATE_BLEND);
-		var stencilRef:any = this._getRenderState(datas,Shader3D.RENDER_STATE_STENCIL_REF);
-		var stencilTest:any = this._getRenderState(datas,Shader3D.RENDER_STATE_STENCIL_TEST);
-		var stencilWrite:any = this._getRenderState(datas,Shader3D.RENDER_STATE_STENCIL_WRITE);
-		var stencilOp:any = this._getRenderState(datas,Shader3D.RENDER_STATE_STENCIL_OP);
+		var stencilRef: any = this._getRenderState(datas, Shader3D.RENDER_STATE_STENCIL_REF);
+		var stencilTest: any = this._getRenderState(datas, Shader3D.RENDER_STATE_STENCIL_TEST);
+		var stencilWrite: any = this._getRenderState(datas, Shader3D.RENDER_STATE_STENCIL_WRITE);
+		var stencilOp: any = this._getRenderState(datas, Shader3D.RENDER_STATE_STENCIL_OP);
 		depthWrite == null && (depthWrite = renderState.depthWrite);
 		depthTest == null && (depthTest = renderState.depthTest);
 		blend == null && (blend = renderState.blend);
 		stencilRef == null && (stencilRef = renderState.stencilRef);
-		stencilTest ==null && (stencilTest = renderState.stencilTest);
-		stencilWrite == null && (stencilTest = renderState.stencilWrite);
-		stencilOp ==null && (stencilOp = renderState.stencilOp);
+		stencilTest == null && (stencilTest = renderState.stencilTest);
+		stencilWrite == null && (stencilWrite = renderState.stencilWrite);
+		stencilOp == null && (stencilOp = renderState.stencilOp);
 
 		WebGLContext.setDepthMask(gl, depthWrite);
 		if (depthTest === RenderState.DEPTHTEST_OFF)
@@ -621,17 +621,17 @@ export class ShaderInstance extends Resource {
 
 		//Stencil
 		WebGLContext.setStencilMask(gl, stencilWrite);
-		if(stencilTest==RenderState.STENCILTEST_OFF){
-			WebGLContext.setStencilTest(gl,false);
-		}else{
-			WebGLContext.setStencilTest(gl,true);
-			WebGLContext.setStencilFunc(gl,stencilTest,stencilRef);
-			
+		if (stencilTest == RenderState.STENCILTEST_OFF) {
+			WebGLContext.setStencilTest(gl, false);
+		} else {
+			WebGLContext.setStencilTest(gl, true);
+			WebGLContext.setStencilFunc(gl, stencilTest, stencilRef);
+
 		}
-		WebGLContext.setstencilOp(gl,stencilOp.x,stencilOp.y,stencilOp.z);
-		
-		
-		
+		WebGLContext.setstencilOp(gl, stencilOp.x, stencilOp.y, stencilOp.z);
+
+
+
 	}
 
 	/**
