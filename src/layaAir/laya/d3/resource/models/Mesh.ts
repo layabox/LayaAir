@@ -23,8 +23,8 @@ import { VertexElementFormat } from "../../../renders/VertexElementFormat";
 import { VertexElement } from "../../../renders/VertexElement";
 import { BufferState } from "../../../webgl/utils/BufferState";
 import { VertexMesh } from "../../../RenderEngine/RenderShader/VertexMesh";
-import { Config } from "../../../../Config";
 import { MorphTargetData } from "./MorphTargetData";
+import { Config } from "../../../../Config";
 /**
  * @internal
  */
