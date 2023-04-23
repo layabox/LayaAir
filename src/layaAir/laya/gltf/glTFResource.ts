@@ -1997,6 +1997,9 @@ export class glTFResource extends Prefab {
 
                 let mesh = sprite.getComponent(MeshFilter)?.sharedMesh;
                 if (mesh && mesh.morphTargetData) {
+
+                    let ownerStr = sprite.getComponent(SkinnedMeshRenderer) ? "SkinnedMeshRenderer" : "MeshRenderer";
+
                     let morphData = mesh.morphTargetData;
                     let channelCount = morphData.channelCount;
                     // check data 
@@ -2015,7 +2018,7 @@ export class glTFResource extends Prefab {
                                 clipNode.valueArray[i] = outArray[i * channelCount + channelIndex];
                             }
 
-                            clipNode.propertyOwner = "MeshRenderer";
+                            clipNode.propertyOwner = ownerStr;
                             clipNode.propertise = [];
                             clipNode.propertise.push("morphTargetValues");
                             clipNode.propertise.push(channelName);
