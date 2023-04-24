@@ -94,6 +94,7 @@ export class Animator extends Component {
 
 
     set controller(val: AnimatorController) {
+        
         this._controller = val;
         if (this._controller) {
             this._controller.updateTo(this);
@@ -1427,6 +1428,7 @@ export class Animator extends Component {
                 (j == 0) && (cloneLayer.defaultState = state);
             }
         }
+        animator.controller = this._controller
     }
 
     /**
