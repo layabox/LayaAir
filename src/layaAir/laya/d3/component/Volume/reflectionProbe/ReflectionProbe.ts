@@ -448,10 +448,12 @@ export class ReflectionProbe extends Volume {
 		if (!this._ambientSphericalHarmonics) {
 			this._ambientSphericalHarmonics = new SphericalHarmonicsL2();
 		}
-		if (this._ambientSphericalHarmonics != value)
+		if (this._ambientSphericalHarmonics != value){
 			value.cloneTo(this._ambientSphericalHarmonics);
+			this._applySHCoefficients(this._ambientSphericalHarmonics,Math.pow(this.ambientIntensity,2.2))
+		}
 		if (this.ambientMode == AmbientMode.TripleColor)
-			this._applySHCoefficients(originalSH, 2.2);//Gamma to Linear,I prefer use 'Color.gammaToLinearSpace',but must same with Unity now.
+			this._applySHCoefficients(originalSH, Math.pow(this.ambientIntensity,2.2));//Gamma to Linear,I prefer use 'Color.gammaToLinearSpace',but must same with Unity now.
 		this._updateMark = ILaya3D.Scene3D._updateMark;
 	}
 
