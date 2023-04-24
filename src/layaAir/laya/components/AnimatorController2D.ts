@@ -202,11 +202,6 @@ export class AnimatorController2D extends Resource {
 
                     }
                 }
-
-
-
-
-
             }
         }
     }
