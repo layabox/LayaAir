@@ -46,6 +46,7 @@ import { Base64Tool } from "../utils/Base64Tool";
 import { Handler } from "../utils/Handler";
 import { MeshFilter } from "../d3/core/MeshFilter";
 import { Byte } from "../utils/Byte";
+import { Color } from "../maths/Color";
 
 const maxSubBoneCount = 24;
 
@@ -697,6 +698,7 @@ export class glTFResource extends Prefab {
             if (pbrMetallicRoughness.baseColorFactor) {
                 let color = layaPBRMaterial.albedoColor;
                 color.fromArray(pbrMetallicRoughness.baseColorFactor);
+                color.toGamma(color);
                 layaPBRMaterial.albedoColor = color;
             }
 
@@ -709,17 +711,16 @@ export class glTFResource extends Prefab {
                 metallicFactor = layaPBRMaterial.metallic = pbrMetallicRoughness.metallicFactor;
             }
 
-            let roughnessFactor = 1.0;
-            layaPBRMaterial.smoothness = 0.0;
-            if (pbrMetallicRoughness.roughnessFactor != undefined) {
-                roughnessFactor = pbrMetallicRoughness.roughnessFactor;
-                layaPBRMaterial.smoothness = 1.0 - pbrMetallicRoughness.roughnessFactor;
-            }
+            let roughnessFactor = pbrMetallicRoughness.roughnessFactor ?? 1;
+            layaPBRMaterial.smoothness = 1.0 - roughnessFactor;
 
             if (pbrMetallicRoughness.metallicRoughnessTexture) {
                 let metallicGlossTexture = this.getTextureWithInfo(pbrMetallicRoughness.metallicRoughnessTexture);
-                if (metallicGlossTexture)
+                if (metallicGlossTexture) {
                     layaPBRMaterial.metallicGlossTexture = this.toMetallicGlossTransTexture(metallicGlossTexture, metallicFactor, roughnessFactor);
+                    // roughnessFactor already encode in texture 
+                    layaPBRMaterial.smoothness = 1.0;
+                }
             }
         }
 
@@ -752,6 +753,7 @@ export class glTFResource extends Prefab {
             let color = layaPBRMaterial.emissionColor;
             color.fromArray(glTFMaterial.emissiveFactor);
             color.a = 1.0;
+            color.toGamma(color);
             layaPBRMaterial.emissionColor = color;
         }
 

@@ -100,6 +100,7 @@ export class TextArea extends TextInput {
     constructor(text: string = "") {
         super(text);
         this.on(Event.CHANGE, this, this._onTextChange);
+        this.on(Event.BLUR, this, this._onTextChange);
     }
 
     private _onTextChange(): void {
