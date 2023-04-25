@@ -34,6 +34,8 @@ export class Animator2D extends Component {
     _controllerLayers: AnimatorControllerLayer2D[];
     /**@internal */
     _controller: AnimatorController2D;
+    /**@internal */
+    _checkEnterIndex: number[];
 
     /**
      * 实例化2D动画组件
@@ -451,6 +453,12 @@ export class Animator2D extends Component {
      * @returns 
      */
     play(name?: string, layerIndex = 0, normalizedTime: number = Number.NEGATIVE_INFINITY) {
+        if (this._checkEnterIndex) {
+            let i = this._checkEnterIndex.indexOf(layerIndex);
+            if (0 <= i) {
+                this._checkEnterIndex.splice(i, 1);
+            }
+        }
         this._isPlaying = true;
         var controllerLayer = this._controllerLayers[layerIndex];
         if (controllerLayer) {
@@ -464,8 +472,6 @@ export class Animator2D extends Component {
 
             if (!animatorState._clip)
                 return;
-
-
 
             var clipDuration = animatorState._clip!._duration;
             var calclipduration = animatorState._clip!._duration * (animatorState.clipEnd - animatorState.clipStart);
@@ -492,12 +498,6 @@ export class Animator2D extends Component {
                 }
             }
             animatorState._eventStart();
-
-
-
-
-
-
         }
         var scripts = animatorState._scripts!;
         if (scripts) {
@@ -519,6 +519,19 @@ export class Animator2D extends Component {
      */
     onUpdate(): void {
         if (!this._isPlaying) return;
+
+        if (this._checkEnterIndex) {
+            for (let i = this._checkEnterIndex.length - 1; i >= 0; i--) {
+                let index = this._checkEnterIndex[i];
+                let enterTransition = this._controllerLayers[index]._enterTransition;
+                if (enterTransition.check(0, this.parameters, true)) {
+                    var defaultClip = this.getDefaultState(index);
+                    this.play(null, index, defaultClip.cycleOffset);
+                }
+            }
+        }
+
+
         var delta = this.owner.timer._delta / 1000.0;
         delta = this._applyUpdateMode(delta);
         if (0 == this.speed || 0 == delta) return;
@@ -617,11 +630,27 @@ export class Animator2D extends Component {
      * @internal
      */
     onEnable() {
+        if (this._checkEnterIndex) this._checkEnterIndex.length = 0;
+        else this._checkEnterIndex = [];
+
         if (this._isPlaying) {
             for (var i = 0, n = this._controllerLayers.length; i < n; i++) {
                 if (this._controllerLayers[i].playOnWake) {
                     var defaultClip = this.getDefaultState(i);
-                    (defaultClip) && (this.play(null, i));
+                    //(defaultClip) && (this.play(null, i, defaultClip.cycleOffset));
+                    if (defaultClip) {
+                        let enterTransition = this._controllerLayers[i]._enterTransition;
+                        if (enterTransition) {
+                            this._isPlaying = true;
+                            if (enterTransition.check(0, this.parameters, true)) {
+                                this.play(null, i, defaultClip.cycleOffset);
+                            } else {
+                                this._checkEnterIndex.push(i);
+                            }
+                        } else {
+                            this.play(null, i, defaultClip.cycleOffset);
+                        }
+                    }
                 }
             }
         }

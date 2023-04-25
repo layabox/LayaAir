@@ -259,6 +259,7 @@ export class AnimatorState extends EventDispatcher implements IClone {
      */
     addScript(type: typeof AnimatorStateScript): AnimatorStateScript {
         var script: AnimatorStateScript = new type();
+        script.owner = this;
         this._scripts = this._scripts || [];
         this._scripts.push(script);
         return script;

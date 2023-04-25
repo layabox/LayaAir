@@ -1,6 +1,7 @@
 import { IClone } from "../utils/IClone";
 import { AnimatorPlayState2D } from "./AnimatorPlayState2D";
 import { AnimatorState2D } from "./AnimatorState2D";
+import { AnimatorTransition2D } from "./AnimatorTransition2D";
 
 export class AnimatorControllerLayer2D implements IClone {
 
@@ -39,6 +40,9 @@ export class AnimatorControllerLayer2D implements IClone {
 
     /**@internal */
     _destCrossClipNodeIndices: number[] = [];
+    
+    /**@internal */
+    _enterTransition: AnimatorTransition2D;
 
     /**
      * 层的名字

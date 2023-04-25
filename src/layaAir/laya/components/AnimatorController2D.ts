@@ -197,13 +197,30 @@ export class AnimatorController2D extends Resource {
                         } else {
                             ats.unshift(ato);
                         }
-
-
-
                     }
                 }
             }
         }
+    }
+
+    private _getAnimatorTransition2D(o: TypeAnimatorTransition, idCatch: Record<string, AnimatorState2D>, data: TypeAnimatorControllerData) {
+        let ato = new AnimatorTransition2D();
+
+        if (idCatch[o.id]) {
+            ato.destState = idCatch[o.id];
+        }
+        if (o.conditions) {
+            this.addConditions(o.conditions, ato, data);
+        }
+
+        for (let k in o) {
+            if ("solo" == k || "id" == k || "conditions" == k) {
+                continue;
+            } else {
+                (ato as any)[k] = (o as any)[k];
+            }
+        }
+        return ato;
     }
 
     /**
@@ -241,14 +258,11 @@ export class AnimatorController2D extends Resource {
             if (obj.states) {
                 continue;
             }
-
-
-
-
             if ("-1" == obj.id) {
                 if (obj.soloTransitions && 0 < obj.soloTransitions.length) {
                     if (null == pState) {
                         acl.defaultState = idCatch[obj.soloTransitions[0].id];
+                        acl._enterTransition = this._getAnimatorTransition2D(obj.soloTransitions[0], idCatch, data);
                     } else {
                         idCatch[pState.id] = idCatch[obj.soloTransitions[0].id];
                     }
@@ -263,29 +277,26 @@ export class AnimatorController2D extends Resource {
                         if (destState) {
                             for (let idk in idCatch) {
                                 let state = idCatch[idk];
-                                let ato = new AnimatorTransition2D();
-                                ato.destState = destState;
-                                if (o.conditions) {
-                                    this.addConditions(o.conditions, ato, data);
-                                }
+                                let ato = this._getAnimatorTransition2D(o, idCatch, data)
+                                // let ato = new AnimatorTransition2D();
+                                // ato.destState = destState;
+                                // if (o.conditions) {
+                                //     this.addConditions(o.conditions, ato, data);
+                                // }
 
-                                for (let k in o) {
-                                    if ("solo" == k || "id" == k || "conditions" == k) {
-                                        continue;
-                                    } else {
-                                        (ato as any)[k] = (o as any)[k];
-                                    }
-                                }
+                                // for (let k in o) {
+                                //     if ("solo" == k || "id" == k || "conditions" == k) {
+                                //         continue;
+                                //     } else {
+                                //         (ato as any)[k] = (o as any)[k];
+                                //     }
+                                // }
 
                                 if (o.solo) {
                                     state.soloTransitions.unshift(ato);
                                 } else {
                                     state.transitions.unshift(ato);
                                 }
-
-
-
-
                             }
                         }
 
@@ -301,9 +312,6 @@ export class AnimatorController2D extends Resource {
 
                 let ats: AnimatorTransition2D[] = idCatch[obj.id].transitions;
                 let sts: AnimatorTransition2D[] = idCatch[obj.id].soloTransitions;
-
-
-
                 for (let j = soloTransitions.length - 1; j >= 0; j--) {
                     let o = soloTransitions[j];
                     if ("-3" == o.id) {
@@ -314,23 +322,8 @@ export class AnimatorController2D extends Resource {
                         continue;
                     }
 
-                    let ato = new AnimatorTransition2D();
+                    let ato = this._getAnimatorTransition2D(o,idCatch,data);
 
-                    if (idCatch[o.id]) {
-                        ato.destState = idCatch[o.id];
-                    }
-                    if (o.conditions) {
-                        this.addConditions(o.conditions, ato, data);
-                    }
-
-
-                    for (let k in o) {
-                        if ("solo" == k || "id" == k || "conditions" == k) {
-                            continue;
-                        } else {
-                            (ato as any)[k] = (o as any)[k];
-                        }
-                    }
                     if (o.solo) {
                         sts.unshift(ato);
                     } else {
@@ -338,8 +331,6 @@ export class AnimatorController2D extends Resource {
                     }
                 }
             }
-
-
         }
 
         return exitRet;
@@ -369,20 +360,18 @@ export class AnimatorController2D extends Resource {
             }
             let c: AnimatorStateCondition;
             if (parm.type == AniParmType.Bool) {
-                let b = new AnimatorStateBoolCondition(o.name);
+                let b = new AnimatorStateBoolCondition(parm.name);
                 b.compareFlag = Boolean(o.checkValue);
                 c = b;
             } else if (parm.type == AniParmType.Float) {
-                let n = new AnimatorStateNumberCondition(o.name);
+                let n = new AnimatorStateNumberCondition(parm.name);
                 n.numberValue = Number(o.checkValue);
                 n.compareFlag = o.type;
                 c = n;
             } else if (parm.type == AniParmType.Trigger) {
-                let t = new AnimatorStateTriggerCondition(o.name);
+                let t = new AnimatorStateTriggerCondition(parm.name);
                 c = t;
             }
-
-
             ato.addCondition(c);
         }
     }
@@ -417,8 +406,5 @@ export class AnimatorController2D extends Resource {
             }
             a.parameters = setParm;
         }
-
-
-
     }
 }
