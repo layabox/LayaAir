@@ -247,20 +247,17 @@ export class Scene3D extends Sprite implements ISubmit {
      * @returns 
      */
     static createSceneUniformBlock(): UnifromBufferData {
-        if (!Scene3D.SceneUBOData) {
-            let uniformpara: Map<string, UniformBufferParamsType> = new Map<string, UniformBufferParamsType>();
-            // uniformpara.set("u_AmbientColor", UniformBufferParamsType.Vector4);
-            uniformpara.set("u_Time", UniformBufferParamsType.Number);
-            uniformpara.set("u_FogParams", UniformBufferParamsType.Vector4);
-            uniformpara.set("u_FogColor", UniformBufferParamsType.Vector4);
-            let uniformMap = new Map<number, UniformBufferParamsType>();
-            uniformpara.forEach((value, key) => {
-                uniformMap.set(Shader3D.propertyNameToID(key), value);
-            });
-            Scene3D.SceneUBOData = new UnifromBufferData(uniformMap);
-        }
-        return Scene3D.SceneUBOData;
-    }
+        let uniformpara: Map<string, UniformBufferParamsType> = new Map<string, UniformBufferParamsType>();
+        // uniformpara.set("u_AmbientColor", UniformBufferParamsType.Vector4);
+        uniformpara.set("u_Time", UniformBufferParamsType.Number);
+        uniformpara.set("u_FogParams", UniformBufferParamsType.Vector4);
+        uniformpara.set("u_FogColor", UniformBufferParamsType.Vector4);
+        let uniformMap = new Map<number, UniformBufferParamsType>();
+        uniformpara.forEach((value, key) => {
+            uniformMap.set(Shader3D.propertyNameToID(key), value);
+        });
+        return new UnifromBufferData(uniformMap);
+}
 
 
     /**

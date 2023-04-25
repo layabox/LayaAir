@@ -80,7 +80,7 @@ export class GLShaderInstance extends GLObject implements IRenderShaderInstance 
             if (!location && location != 0)
                 continue;
             one = new ShaderVariable();
-            one.location = location;
+            one.location = location as number;
             if (uniName.indexOf('[0]') > 0) {
                 one.name = uniName = uniName.substr(0, uniName.length - 3);
                 one.isArray = true;
