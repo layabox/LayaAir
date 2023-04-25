@@ -5,14 +5,17 @@ import { ShaderDefine } from "./ShaderDefine";
 import { Texture2D } from "../../resource/Texture2D";
 import { IClone } from "../../utils/IClone";
 import { UniformBufferObject } from "../UniformBufferObject";
-import { UniformBufferParamsType, UnifromBufferData } from "../UniformBufferData";
+import {
+	UniformBufferParamsType,
+	UnifromBufferData,
+} from "../UniformBufferData";
 import { Color } from "../../maths/Color";
 import { Matrix4x4 } from "../../maths/Matrix4x4";
 import { Quaternion } from "../../maths/Quaternion";
 import { Vector2 } from "../../maths/Vector2";
 import { Vector3 } from "../../maths/Vector3";
 import { Vector4 } from "../../maths/Vector4";
-
+type uboParams = { ubo: UniformBufferObject; uboBuffer: UnifromBufferData };
 export enum ShaderDataType {
 	Int,
 	Bool,
@@ -68,7 +71,7 @@ export class ShaderData implements IClone {
 	_defineDatas: DefineDatas = new DefineDatas();
 
 	/**@internal */
-	_uniformBufferDatas: Map<string, UniformBufferObject>;
+	_uniformBufferDatas: Map<string, uboParams>;
 
 	/**
 	 * @internal
@@ -109,10 +112,12 @@ export class ShaderData implements IClone {
 	 * @param uboData 
 	 */
 	_addCheckUBO(key: string, ubo: UniformBufferObject, uboData: UnifromBufferData) {
-		this._uniformBufferDatas.set(key, ubo);
-		uboData._uniformParamsState.forEach((value: UniformBufferParamsType, id: number) => {
-			this.uniformBuffersMap.set(id, ubo);
-		});
+		this._uniformBufferDatas.set(key, { ubo: ubo, uboBuffer: uboData });
+		uboData._uniformParamsState.forEach(
+			(value: UniformBufferParamsType, id: number) => {
+				this.uniformBuffersMap.set(id, ubo);
+			}
+		);
 		ubo.setDataByUniformBufferData(uboData);
 	}
 
@@ -129,6 +134,12 @@ export class ShaderData implements IClone {
 	 */
 	getData(): any {
 		return this._data;
+	}
+
+	applyUBOData() {
+		this._uniformBufferDatas.forEach((value, key) => {
+			value.ubo.setDataByUniformBufferData(value.uboBuffer);
+		});
 	}
 
 	/**
@@ -198,15 +209,14 @@ export class ShaderData implements IClone {
 		this._data[index] = value;
 		let ubo = this._uniformBuffersMap.get(index);
 		if (ubo) {
-			ubo._updateDataInfo._setData(index, this.getInt(index));
-			ubo.setDataByUniformBufferData(ubo._updateDataInfo);
-		}
-	}
+			this._uniformBufferDatas.get(ubo._name).uboBuffer._setData(index, this.getInt(index));
+    }
+  }
 
 	/**
 	 * 获取浮点。
 	 * @param	index shader索引。
-	 * @return  浮点。
+	 * @return	浮点。
 	 */
 	getNumber(index: number): number {
 		return this._data[index];
@@ -221,8 +231,7 @@ export class ShaderData implements IClone {
 		this._data[index] = value;
 		let ubo = this._uniformBuffersMap.get(index);
 		if (ubo) {
-			ubo._updateDataInfo._setData(index, this.getNumber(index));
-			ubo.setDataByUniformBufferData(ubo._updateDataInfo);
+			this._uniformBufferDatas.get(ubo._name).uboBuffer._setData(index, this.getNumber(index));
 		}
 	}
 
@@ -243,12 +252,11 @@ export class ShaderData implements IClone {
 	setVector2(index: number, value: Vector2): void {
 		if (this._data[index]) {
 			value.cloneTo(this._data[index]);
-		} else
-			this._data[index] = value.clone();
+		} else 
+        this._data[index] = value.clone();
 		let ubo = this._uniformBuffersMap.get(index);
 		if (ubo) {
-			ubo._updateDataInfo._setData(index, this.getVector2(index));
-			ubo.setDataByUniformBufferData(ubo._updateDataInfo);
+			this._uniformBufferDatas.get(ubo._name).uboBuffer._setData(index, this.getVector2(index));
 		}
 	}
 
@@ -269,12 +277,10 @@ export class ShaderData implements IClone {
 	setVector3(index: number, value: Vector3): void {
 		if (this._data[index]) {
 			value.cloneTo(this._data[index]);
-		} else
-			this._data[index] = value.clone();
+		} else this._data[index] = value.clone();
 		let ubo = this._uniformBuffersMap.get(index);
 		if (ubo) {
-			ubo._updateDataInfo._setData(index, this.getVector3(index));
-			ubo.setDataByUniformBufferData(ubo._updateDataInfo);
+			this._uniformBufferDatas.get(ubo._name).uboBuffer._setData(index, this.getVector3(index));
 		}
 	}
 
@@ -299,8 +305,7 @@ export class ShaderData implements IClone {
 			this._data[index] = value.clone();
 		let ubo = this._uniformBuffersMap.get(index);
 		if (ubo) {
-			ubo._updateDataInfo._setData(index, this.getVector(index));
-			ubo.setDataByUniformBufferData(ubo._updateDataInfo);
+			this._uniformBufferDatas.get(ubo._name).uboBuffer._setData(index, this.getVector(index));
 		}
 	}
 
@@ -341,8 +346,7 @@ export class ShaderData implements IClone {
 		}
 		let ubo = this._uniformBuffersMap.get(index);
 		if (ubo) {
-			ubo._updateDataInfo._setData(index, this.getLinearColor(index));
-			ubo.setDataByUniformBufferData(ubo._updateDataInfo);
+			this._uniformBufferDatas.get(ubo._name).uboBuffer._setData(index, this.getLinearColor(index));
 		}
 	}
 
@@ -377,8 +381,7 @@ export class ShaderData implements IClone {
 
 		let ubo = this._uniformBuffersMap.get(index);
 		if (ubo) {
-			ubo._updateDataInfo._setData(index, this.getVector(index));
-			ubo.setDataByUniformBufferData(ubo._updateDataInfo);
+			this._uniformBufferDatas.get(ubo._name).uboBuffer._setData(index, this.getMatrix4x4(index));
 		}
 	}
 
@@ -419,8 +422,8 @@ export class ShaderData implements IClone {
 		}
 		//维护Reference
 		this._data[index] = value ? value : Texture2D.erroTextur;
-		(lastValue) && (lastValue._removeReference());
-		(value) && (value._addReference());	
+		lastValue && lastValue._removeReference();
+		value && value._addReference();
 	}
 	/**
 	 * 获取纹理。
@@ -450,18 +453,16 @@ export class ShaderData implements IClone {
 		if (value instanceof Color) {
 			this.setColor(index, value);
 			return;
-		} else if (!value) {//value null
+		} else if (!value) {
+			//value null
 			this._data[index] = value;
-		}
-		else if (!!value.clone) {
+		} else if (!!value.clone) {
 			this._data[index] = value.clone();
-		} else
-			this._data[index] = value;
+		} else this._data[index] = value;
 
 		let ubo = this._uniformBuffersMap.get(index);
 		if (ubo) {
-			ubo._updateDataInfo._setData(index, this.getValueData(index));
-			ubo.setDataByUniformBufferData(ubo._updateDataInfo);
+			this._uniformBufferDatas.get(ubo._name).uboBuffer._setData(index, this.getValueData(index));
 		}
 	}
 
@@ -564,19 +565,19 @@ export class ShaderData implements IClone {
 		for (var k in this._data) {//TODO:需要优化,杜绝is判断，慢
 			var value: any = this._data[k];
 			if (value != null) {
-				if (typeof (value) == 'number') {
+				if (typeof value == "number") {
 					destData[k] = value;
-				} else if (typeof (value) == 'number') {
+				} else if (typeof value == "number") {
 					destData[k] = value;
-				} else if (typeof (value) == "boolean") {
+				} else if (typeof value == "boolean") {
 					destData[k] = value;
 				} else if (value instanceof Vector2) {
-					var v2 = (destData[k]) || (destData[k] = new Vector2());
-					((<Vector2>value)).cloneTo(v2);
+					var v2 = destData[k] || (destData[k] = new Vector2());
+					(<Vector2>value).cloneTo(v2);
 					destData[k] = v2;
 				} else if (value instanceof Vector3) {
-					var v3 = (destData[k]) || (destData[k] = new Vector3());
-					((<Vector3>value)).cloneTo(v3);
+					var v3 = destData[k] || (destData[k] = new Vector3());
+					(<Vector3>value).cloneTo(v3);
 					destData[k] = v3;
 				} else if (value instanceof Vector4) {
 					let color = this.getColor(parseInt(k));
@@ -584,19 +585,18 @@ export class ShaderData implements IClone {
 						let clonecolor = color.clone();
 						destObject.setColor(parseInt(k), clonecolor);
 					} else {
-						var v4 = (destData[k]) || (destData[k] = new Vector4());
-						((<Vector4>value)).cloneTo(v4);
+						var v4 = destData[k] || (destData[k] = new Vector4());
+						(<Vector4>value).cloneTo(v4);
 						destData[k] = v4;
 					}
-
 				} else if (value instanceof Matrix4x4) {
-					var mat = (destData[k]) || (destData[k] = new Matrix4x4());
-					((<Matrix4x4>value)).cloneTo(mat);
+					var mat = destData[k] || (destData[k] = new Matrix4x4());
+					(<Matrix4x4>value).cloneTo(mat);
 					destData[k] = mat;
 				} else if (value instanceof BaseTexture) {
 					destData[k] = value;
 					value._addReference();
-				} else if (value instanceof Resource){
+				} else if (value instanceof Resource) {
 					destData[k] = value as any;
 					value._addReference();
 				}
@@ -605,8 +605,7 @@ export class ShaderData implements IClone {
 		this._defineDatas.cloneTo(dest._defineDatas);
 		this._gammaColorMap.forEach((color, index) => {
 			destObject._gammaColorMap.set(index, color.clone());
-		})
-
+		});
 	}
 
 	/**
@@ -652,7 +651,5 @@ export class ShaderData implements IClone {
 		delete this._uniformBuffersMap;
 		this._uniformBufferDatas = null;
 		this._uniformBuffersMap = null;
-
 	}
 }
-

@@ -525,9 +525,9 @@ export class Material extends Resource implements IClone {
             return;
         }
         for (let value of this._shaderValues.uniformBufferDatas.values()) {
-            value._updateDataInfo.destroy();
-            value.destroy();
-            value._updateDataInfo = null;
+            value.ubo._updateDataInfo.destroy();
+            value.ubo.destroy();
+            value.ubo._updateDataInfo = null;
         }
         this._shaderValues.uniformBufferDatas.clear();
         this._shaderValues.uniformBuffersMap.clear();
