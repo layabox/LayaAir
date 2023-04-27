@@ -764,7 +764,7 @@ export class glTFResource extends Prefab {
                 break;
             }
             case glTF.glTFMaterialAlphaMode.BLEND: {
-                layaPBRMaterial.renderMode = PBRRenderMode.Transparent;
+                layaPBRMaterial.renderMode = PBRRenderMode.Fade;
                 break;
             }
             case glTF.glTFMaterialAlphaMode.MASK: {
@@ -776,9 +776,7 @@ export class glTFResource extends Prefab {
             }
         }
 
-        if (glTFMaterial.alphaCutoff != undefined) {
-            layaPBRMaterial.alphaTestValue = glTFMaterial.alphaCutoff;
-        }
+        layaPBRMaterial.alphaTestValue = glTFMaterial.alphaCutoff ?? 0.5;
 
         if (glTFMaterial.doubleSided) {
             layaPBRMaterial.cull = RenderState.CULL_NONE;
