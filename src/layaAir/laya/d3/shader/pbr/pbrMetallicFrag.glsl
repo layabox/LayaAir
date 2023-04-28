@@ -11,7 +11,7 @@ struct SurfaceInputs {
     float anisotropy;
 };
 
-void initSurface(inout Surface surface, const in SurfaceInputs inputs)
+void initSurface(inout Surface surface, const in SurfaceInputs inputs, const in PixelParams pixel)
 {
     surface.alpha = inputs.alpha;
 
@@ -20,12 +20,17 @@ void initSurface(inout Surface surface, const in SurfaceInputs inputs)
     float perceptualRoughness = 1.0 - inputs.smoothness;
     float reflectance = 0.5;
 
+    float dielectricSpecular = 0.16 * reflectance * reflectance;
+
     surface.diffuseColor = (1.0 - metallic) * baseColor;
     surface.perceptualRoughness = clamp(perceptualRoughness, MIN_PERCEPTUAL_ROUGHNESS, 1.0);
     surface.roughness = surface.perceptualRoughness * surface.perceptualRoughness;
-    surface.f0 = baseColor * metallic + (0.16 * reflectance * reflectance * (1.0 - metallic));
+    surface.f0 = baseColor * metallic + (dielectricSpecular * (1.0 - metallic));
 
     surface.occlusion = inputs.occlusion;
+
+    surface.dfg = prefilteredDFG_LUT(surface.perceptualRoughness, pixel.NoV);
+
 #ifdef ANISOTROPIC
     surface.anisotropy = inputs.anisotropy;
 #endif // ANISOTROPIC
@@ -41,7 +46,7 @@ vec4 PBR_Metallic_Flow(const in SurfaceInputs inputs, in PixelParams pixel)
 #endif // ALPHATEST
 
     Surface surface;
-    initSurface(surface, inputs);
+    initSurface(surface, inputs, pixel);
 
     vec3 surfaceColor = vec3(0.0);
 

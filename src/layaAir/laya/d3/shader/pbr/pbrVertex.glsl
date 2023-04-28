@@ -1,23 +1,27 @@
 #if !defined(pbrVertex_lib)
     #define pbrVertex_lib
 
+    #include "Math.glsl";
+
     #include "PBRCommon.glsl";
 
 void initPixelParams(inout PixelParams params, in Vertex vertex)
 {
     mat4 worldMat = getWorldMatrix();
-    params.positionWS = (worldMat * vec4(vertex.positionOS, 1.0)).xyz;
+    vec4 pos = (worldMat * vec4(vertex.positionOS, 1.0));
+    params.positionWS = pos.xyz / pos.w;
     v_PositionWS = params.positionWS;
 
-    params.normalWS = normalize((worldMat * vec4(vertex.normalOS, 0.0)).xyz);
+    mat4 normalMat = transpose(inverse(worldMat));
+    params.normalWS = normalize((normalMat * vec4(vertex.normalOS, 0.0)).xyz);
     v_NormalWS = params.normalWS;
 
     #ifdef NEEDTBN
 	#ifdef TANGENT
-    params.tangentWS = normalize((worldMat * vec4(a_Tangent0.xyz, 0.0)).xyz);
+    params.tangentWS = normalize((normalMat * vec4(a_Tangent0.xyz, 0.0)).xyz);
     params.biNormalWS = normalize(cross(params.normalWS, params.tangentWS) * sign(a_Tangent0.w));
 	#else // TANGENT
-    params.tangentWS = normalize((worldMat * vec4(1.0, 0.0, 0.0, 0.0)).xyz);
+    params.tangentWS = normalize((normalMat * vec4(1.0, 0.0, 0.0, 0.0)).xyz);
     params.biNormalWS = normalize(cross(params.normalWS, params.tangentWS));
 	#endif // TANGENT
     v_TangentWS = params.tangentWS;

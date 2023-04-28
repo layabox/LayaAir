@@ -1609,6 +1609,12 @@ export class glTFResource extends Prefab {
             let blendWeight: Float32Array = this.getArrributeBuffer(attributes.WEIGHTS_0, "BLENDWEIGHT", attributeMap, vertexDeclarArr);
             let blendIndices: Float32Array = this.getArrributeBuffer(attributes.JOINTS_0, "BLENDINDICES", attributeMap, vertexDeclarArr);
             let tangent: Float32Array = this.getArrributeBuffer(attributes.TANGENT, "TANGENT", attributeMap, vertexDeclarArr);
+            // :(
+            if (tangent) {
+                for (let tangentIndex = 0; tangentIndex < tangent.length; tangentIndex += 4) {
+                    tangent[tangentIndex + 3] *= -1;
+                }
+            }
 
             // todo  vertex color
             // if (color) {
