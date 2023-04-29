@@ -117,7 +117,7 @@ export class HTMLElement {
         if (this._children)
             this._children.forEach(function (o: HTMLElement, index: number, array: any[]): void {
                 var _style: HTMLStyle = (<HTMLStyle>o._style);
-                _style._enableLayout && _style._enableLayout() && o._addToLayout(out);
+                _style && _style._enableLayout && _style._enableLayout() && o._addToLayout(out);
             });
         return true;
     }
