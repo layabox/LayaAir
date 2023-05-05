@@ -54,12 +54,7 @@ export class MeshRenderer extends BaseRender {
     morphTargetWeight: Float32Array;
     private morphtargetChannels: MorphTargetChannel[];
 
-    /**
-     * @internal
-     */
-    morphChannelWeight: Float32Array;
-
-    private _morphWeightChange: boolean = false;
+    private _morphWeightChange: boolean = true;
 
     /**
      * 创建一个新的 <code>MeshRender</code> 实例。
@@ -118,12 +113,18 @@ export class MeshRenderer extends BaseRender {
 
     }
 
-    private _morphTargetValueMap: Record<string, number> = {}
+    private _morphTargetValues: Record<string, number> = {}
     /**
      * @internal
      */
-    public get morphTargetMap(): Record<string, number> {
-        return this._morphTargetValueMap;
+    public get morphTargetValues(): Record<string, number> {
+        return this._morphTargetValues;
+    }
+    /**
+     * @internal
+     */
+    public set morphTargetValues(value: Record<string, number>) {
+        this._morphTargetValues = value;
     }
 
     /**
@@ -131,7 +132,7 @@ export class MeshRenderer extends BaseRender {
      * @param key 
      */
     _changeMorphTargetValue(key: string) {
-        this.setMorphChannelWeight(key, this.morphTargetMap[key]);
+        this._morphWeightChange = true;
     }
 
     setMorphChannelWeight(channelName: string, weight: number) {
@@ -139,9 +140,8 @@ export class MeshRenderer extends BaseRender {
         let mesh = this._mesh;
         if (mesh && mesh.morphTargetData) {
             let morphData = mesh.morphTargetData;
-
             let channel = morphData.getMorphChannel(channelName);
-            this.morphChannelWeight[channel._index] = weight;
+            this.morphTargetValues[channel.name] = weight;
             this._morphWeightChange = true;
         }
     }
@@ -159,7 +159,7 @@ export class MeshRenderer extends BaseRender {
             for (let channelIndex = 0; channelIndex < channelCount; channelIndex++) {
                 let channel = morphData.getMorphChannelbyIndex(channelIndex);
                 // channel.targetCount;
-                let weight = this.morphChannelWeight[channelIndex];
+                let weight = this.morphTargetValues[channel.name];
 
                 // update target weight
                 let lastFullWeight = 0;
@@ -277,10 +277,9 @@ export class MeshRenderer extends BaseRender {
 
         if (oldMesh && oldMesh.morphTargetData) {
             this.morphTargetWeight = null;
-            this.morphChannelWeight = null;
 
             this.morphtargetChannels = null;
-            this._morphTargetValueMap = {};
+            this._morphTargetValues = {};
         }
 
         if (mesh && mesh.morphTargetData) {
@@ -290,13 +289,12 @@ export class MeshRenderer extends BaseRender {
             let channelCount = morphData.channelCount;
 
             this.morphTargetWeight = new Float32Array(morphData.targetCount);
-            this.morphChannelWeight = new Float32Array(channelCount);
 
             this.morphtargetChannels = new Array<MorphTargetChannel>(channelCount);
             for (let index = 0; index < channelCount; index++) {
-                let channel =  morphData.getMorphChannelbyIndex(index);
+                let channel = morphData.getMorphChannelbyIndex(index);
                 this.morphtargetChannels[index] = channel;
-                this._morphTargetValueMap[channel.name] = 0;
+                this._morphTargetValues[channel.name] = 0;
             }
         }
 
@@ -467,8 +465,7 @@ export class MeshRenderer extends BaseRender {
 
     protected _onDestroy() {
         super._onDestroy();
-        this._morphTargetValueMap = null;
-        this.morphChannelWeight = null;
+        this._morphTargetValues = null;
     }
 
     /**
@@ -482,8 +479,8 @@ export class MeshRenderer extends BaseRender {
         if (this.morphTargetWeight) {
             (<MeshRenderer>dest).morphTargetWeight = new Float32Array(this.morphTargetWeight);
         }
-        for (const key in this._morphTargetValueMap) {
-            (<MeshRenderer>dest)._morphTargetValueMap[key] = this._morphTargetValueMap[key];
+        for (const key in this._morphTargetValues) {
+            (<MeshRenderer>dest)._morphTargetValues[key] = this._morphTargetValues[key];
         }
     }
 }

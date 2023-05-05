@@ -94,6 +94,7 @@ export class Animator extends Component {
 
 
     set controller(val: AnimatorController) {
+        
         this._controller = val;
         if (this._controller) {
             this._controller.updateTo(this);
@@ -1194,7 +1195,7 @@ export class Animator extends Component {
         for (let i = 0, n = this._controllerLayers.length; i < n; i++) {
             if (this._controllerLayers[i].playOnWake) {
                 let defaultClip: AnimatorState = this.getDefaultState(i);
-                (defaultClip) && (this.play(null, i, 0));
+                (defaultClip) && (this.play(null, i, defaultClip.cycleOffset));
             }
         }
     }
@@ -1427,6 +1428,7 @@ export class Animator extends Component {
                 (j == 0) && (cloneLayer.defaultState = state);
             }
         }
+        animator.controller = this._controller
     }
 
     /**

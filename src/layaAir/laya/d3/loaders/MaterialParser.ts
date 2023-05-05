@@ -21,14 +21,13 @@ export class MaterialParser {
             case "LAYAMATERIAL:01":
             case "LAYAMATERIAL:02":
             case "LAYAMATERIAL:03":
-                 let mat = MaterialParser.parseLegacy(data);
-                 mat.oldparseEndEvent();
-                 return mat;
+                let mat = MaterialParser.parseLegacy(data);
+                mat.oldparseEndEvent();
+                return mat;
             case "LAYAMATERIAL:04":
                 break;
             default:
-                console.error("Material:unkonwn version.");
-                return null;
+                throw new Error(`unkonwn material version: ${data.version}`);
         }
 
         let mat = new Material();
@@ -118,7 +117,7 @@ export class MaterialParser {
 
     static collectLinks(data: any, basePath: string) {
         let urls: ILoadURL[] = [];
-        let textures: any[] = data.props.textures;
+        let textures: any[] = data.props?.textures;
         if (textures) {
             for (let i = 0, n = textures.length; i < n; i++) {
                 let tex2D: any = textures[i];
@@ -182,7 +181,7 @@ export class MaterialParser {
                                             (<any>mat)[vector.name] = new Vector4(vectorValue[0], vectorValue[1], vectorValue[2], vectorValue[3]);
                                         break;
                                     default:
-                                        throw new Error("Material:unkonwn color length.");
+                                        throw new Error("unkonwn material color length: " + vectorValue.length);
                                 }
                             }
                             break;
@@ -314,7 +313,7 @@ export class MaterialParser {
                                                     mat._shaderValues.setVector(uniName, new Vector4(vectorValue[0], vectorValue[1], vectorValue[2], vectorValue[3]));
                                                 break;
                                             default:
-                                                throw new Error("Material:unkonwn color length.");
+                                                throw new Error("unkonwn material color length: " + vectorValue.length);
                                         }
                                     }
                                     break;
@@ -325,7 +324,7 @@ export class MaterialParser {
                 }
                 break;
             default:
-                throw new Error("Material:unkonwn version.");
+                throw new Error("unkonwn material version: " + jsonData.version);
         }
         return mat;
     }

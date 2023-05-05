@@ -172,7 +172,8 @@ export class Event {
     touchId: number = 0;
     /** 点击坐标 */
     readonly touchPos: Point;
-
+    /** 是否双击 */
+    isDblClick: boolean;
     /**滚轮滑动增量*/
     delta: number;
 

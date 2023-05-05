@@ -8,4 +8,6 @@ export class Lightmap {
     lightmapColor: Texture2D;
     /** 光照贴图方向。 */
     lightmapDirection: Texture2D;
+
+    
 }

@@ -49,6 +49,8 @@ struct Surface {
     float perceptualRoughness;
     float occlusion;
 
+    vec3 dfg;
+
     #ifdef ANISOTROPIC
     float anisotropy;
     #endif // ANISOTROPIC
@@ -59,6 +61,7 @@ struct LightParams {
     float NoL;
     float NoH;
     float LoH;
+    float VoH;
 
     #ifdef ANISOTROPIC
     float ToL;
@@ -82,7 +85,9 @@ vec3 getReflectedVector(const in Surface surface, const in PixelInfo info)
     return reflect(-v, bentNormal);
 
     #else // ANISOTROPIC
+
     return reflect(-v, n);
+
     #endif // ANISOTROPIC
 }
 
@@ -97,6 +102,7 @@ void initLightParams(inout LightParams params, const in PixelInfo pixel, const i
     params.NoL = saturate(dot(n, l));
     params.NoH = saturate(dot(n, h));
     params.LoH = saturate(dot(l, h));
+    params.VoH = saturate(dot(v, h));
 
     #ifdef ANISOTROPIC
     params.ToL = dot(pixel.tangentWS, l);
@@ -104,9 +110,26 @@ void initLightParams(inout LightParams params, const in PixelInfo pixel, const i
     #endif // ANISOTROPIC
 }
 
+vec3 prefilteredDFG_LUT(float roughness, float NoV)
+{
+    vec2 samplePoint = clamp(vec2(NoV, roughness), vec2(0.0, 0.0), vec2(1.0, 1.0));
+    return (texture2D(u_IBLDGF, samplePoint)).rgb;
+}
+
+vec2 EnvBRDFApproxLazarov(float roughness, float NoV)
+{
+    vec4 c0 = vec4(-1, -0.0275, -0.572, 0.022);
+    vec4 c1 = vec4(1, 0.0425, 1.04, -0.04);
+    vec4 r = roughness * c0 + c1;
+    float a004 = min(r.x * r.x, exp2(-9.28 * NoV)) * r.x + r.y;
+    vec2 AB = vec2(-1.04, 1.04) * a004 + r.zw;
+    return AB;
+}
+
 vec3 diffuseLobe(in Surface surface, const in PixelInfo pixel, const in LightParams lightParams)
 {
     return surface.diffuseColor * diffuse();
+    // return surface.diffuseColor * diffuse() * (1.0 - F_Schlick(surface.f0, vec3(1.0, 1.0, 1.0), lightParams.VoH));
     // return surface.diffuseColor * Fd_Burley(surface.roughness, pixel.NoV, lightParams.NoL, lightParams.LoH);
 }
 

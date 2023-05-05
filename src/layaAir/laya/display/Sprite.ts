@@ -467,6 +467,7 @@ export class Sprite extends Node {
     }
 
     set_width(value: number): void {
+        let flag = this._sizeFlag;
         if (value == null) {
             value = 0;
             this._sizeFlag &= ~1;
@@ -475,7 +476,7 @@ export class Sprite extends Node {
             this._sizeFlag |= 1;
         else
             this._sizeFlag &= ~1;
-        if (this._width !== value) {
+        if (this._width !== value || flag != this._sizeFlag) {
             this._width = value;
             this._setWidth(value);
             this._setPivotX(this._anchorX * value);
@@ -506,6 +507,7 @@ export class Sprite extends Node {
 
     // for ts
     set_height(value: number): void {
+        let flag = this._sizeFlag;
         if (value == null) {
             value = 0;
             this._sizeFlag &= ~2;
@@ -514,7 +516,7 @@ export class Sprite extends Node {
             this._sizeFlag |= 2;
         else
             this._sizeFlag &= ~2;
-        if (this._height !== value) {
+        if (this._height !== value || flag != this._sizeFlag) {
             this._height = value;
             this._setHeight(value);
             this._setPivotY(this._anchorY * value);

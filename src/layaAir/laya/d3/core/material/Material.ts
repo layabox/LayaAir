@@ -19,6 +19,7 @@ import { Vector3 } from "../../../maths/Vector3";
 import { Vector4 } from "../../../maths/Vector4";
 import { RenderState } from "../../../RenderEngine/RenderShader/RenderState";
 import { Event } from "../../../events/Event";
+import { Config } from "../../../../Config";
 
 export enum MaterialRenderMode {
     /**渲染状态_不透明。*/
@@ -489,7 +490,7 @@ export class Material extends Resource implements IClone {
         this.stencilTest = RenderState.STENCILTEST_OFF;
         this.stencilWrite = false;
         this.stencilOp = new Vector3(RenderState.STENCILOP_KEEP, RenderState.STENCILOP_KEEP, RenderState.STENCILOP_REPLACE);
-        this.destoryedImmediately = false;
+        this.destroyedImmediately = Config.destroyResourceImmediatelyDefault;
     }
 
     /**
@@ -524,9 +525,9 @@ export class Material extends Resource implements IClone {
             return;
         }
         for (let value of this._shaderValues.uniformBufferDatas.values()) {
-            value._updateDataInfo.destroy();
-            value.destroy();
-            value._updateDataInfo = null;
+            value.ubo._updateDataInfo.destroy();
+            value.ubo.destroy();
+            value.ubo._updateDataInfo = null;
         }
         this._shaderValues.uniformBufferDatas.clear();
         this._shaderValues.uniformBuffersMap.clear();
