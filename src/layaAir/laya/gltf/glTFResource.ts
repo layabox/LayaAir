@@ -245,6 +245,12 @@ export class glTFResource extends Prefab {
         let basePath = URL.getPath(createURL);
         this._idCounter = {};
 
+        data.extensionsUsed?.forEach(value => {
+            if (!this._extras[value]) {
+                console.warn(`glTF: unsupported extension: ${value}`);
+            }
+        });
+
         let promise: Promise<any> = this.loadBinary(basePath, progress);
 
         promise = promise.then(() => {
@@ -327,6 +333,12 @@ export class glTFResource extends Prefab {
         firstBuffer.byteLength = firstBuffer.byteLength ? (Math.min(firstBuffer.byteLength, chunkLength)) : chunkLength;
 
         this._buffers[0] = byte.readArrayBuffer(firstBuffer.byteLength);
+
+        glTFObj.extensionsUsed?.forEach(value => {
+            if (!this._extras[value]) {
+                console.warn(`glTF: unsupported extension: ${value}`);
+            }
+        });
 
         let promise: Promise<any> = this.loadTextures(basePath, progress);
         promise = promise.then(() => {
@@ -586,11 +598,11 @@ export class glTFResource extends Prefab {
      * @param glTFImage 
      */
     private getTextureFormat(glTFImage: glTF.glTFImage): number {
-        if (glTFImage.mimeType === glTF.glTFImageMimeType.PNG) {
-            return 1;   // R8G8B8A8
+        if (glTFImage.mimeType === glTF.glTFImageMimeType.JPEG) {
+            return 0;   // R8G8B8
         }
         else {
-            return 0;   // R8G8B8
+            return 1;   // R8G8B8A8
         }
     }
 
