@@ -426,6 +426,7 @@ export class BaseRender extends Component implements IBoundsCell {
     }
 
     /**
+     * @internal
      * 设置反射球
      */
     set probReflection(voluemProbe: ReflectionProbe) {

@@ -13,12 +13,6 @@ export class VolumetricGI extends Volume {
     probeStep: Vector3;
 
     /** @internal */
-    startPosition: Vector3;
-
-    /** @internal */
-    center: Vector3;
-
-    /** @internal */
     probeLocations: Float32Array;
 
     /**
@@ -65,7 +59,6 @@ export class VolumetricGI extends Volume {
         this._type = VolumeManager.VolumetricGIType;
         this.probeCounts = new Vector3();
         this.probeStep = new Vector3();
-        this.center = new Vector3();
         this._params = new Vector4(8, 16, 0, 0);
     }
 
@@ -107,10 +100,17 @@ export class VolumetricGI extends Volume {
 
     _onDestroy() {
         // todo
+        this.irradiance = null;
+        this.distance = null;
     }
 
     _cloneTo(dest: VolumetricGI): void {
-        // todo
+        dest.irradiance = this.irradiance;
+        dest.distance = this.distance;
+        this.probeCounts.cloneTo(dest.probeCounts);
+        this.probeStep.cloneTo(dest.probeStep);
+        dest.normalBias = this.normalBias;
+        dest.viewBias = this.viewBias;
     }
 
 }

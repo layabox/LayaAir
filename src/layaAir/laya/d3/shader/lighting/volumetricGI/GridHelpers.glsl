@@ -25,12 +25,13 @@ ivec3 probeIndexToGridcoord(in int probeIndex, const in ivec3 probeCounts)
 vec3 gridCoordToPosition(in ivec3 coord, const in vec3 probeStep,
     const in vec3 probeStartPosition)
 {
-    return vec3(coord) * probeStep + probeStartPosition;
+    return (vec3(coord) + 0.5) * probeStep + probeStartPosition;
 }
 
 ivec3 baseGridCoord(in vec3 position, in vec3 probeStep,
     in vec3 probeStartPosition, in ivec3 probeCounts)
 {
+    probeStartPosition += 0.5 * probeStep;
     return clamp(ivec3((position - probeStartPosition) / probeStep),
 	ivec3(0, 0, 0), probeCounts - ivec3(1, 1, 1));
 }

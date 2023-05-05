@@ -1,3 +1,5 @@
+// https://jcgt.org/published/0008/02/01/
+
 #if !defined(VolumetricGI_lib)
     #define VolumetricGI_lib
 
@@ -34,15 +36,15 @@ vec2 porbeGridCoordToTextureGridCoord(in ivec3 porbeGridCoord,
     return textureGridCoord;
 }
 
-vec3 DDGISurfaceBias(in vec3 surfaceNormal, in vec3 cameraDirection)
+vec3 VolumetricGISurfaceBias(in vec3 surfaceNormal, in vec3 cameraDirection)
 {
     return surfaceNormal * u_VolumetricGI.probeParams.z + cameraDirection * u_VolumetricGI.probeParams.w;
 }
 
-vec3 DDGIVolumeIrradiance(in vec3 worldPosition, in vec3 surfaceBias,
+vec3 VolumetricGIVolumeIrradiance(in vec3 worldPosition, in vec3 surfaceBias,
     in vec3 direction)
 {
-
+    // direction *= vec3(-1.0, 1.0, 1.0);
     ivec3 porbeCounts = ivec3(u_VolumetricGI.probeCounts);
     vec3 probeStep = u_VolumetricGI.probeStep;
     vec3 probeStartPosition = u_VolumetricGI.probeStartPosition;
@@ -117,7 +119,7 @@ vec3 DDGIVolumeIrradiance(in vec3 worldPosition, in vec3 surfaceBias,
 		vec4(textureGridCoord, volumeCounts));
 	    // Sample the probe's distance texture to get the mean distance to nearby
 	    // surfaces
-	    vec2 filteredDistance = 2.0 * texture2D(u_ProbeDistance, probeTextureUV).xy;
+	    vec3 filteredDistance = texture2D(u_ProbeDistance, probeTextureUV).xyz;
 	    // Find the variance of the mean distance
 	    float variance = abs(filteredDistance.x * filteredDistance.x - filteredDistance.y);
 
@@ -134,6 +136,11 @@ vec3 DDGIVolumeIrradiance(in vec3 worldPosition, in vec3 surfaceBias,
 		    chebyshevWeight = max(chebyshevWeight * chebyshevWeight * chebyshevWeight, 0.0);
 		}
 
+	    if (filteredDistance.z < 1.0)
+		{
+		    chebyshevWeight = 1.0;
+		}
+
 	    // Avoid visibility weights ever going all the way to zero because
 	    // when *no* probe has visibility we need a fallback value
 	    weight *= max(0.05, chebyshevWeight);
@@ -146,7 +153,7 @@ vec3 DDGIVolumeIrradiance(in vec3 worldPosition, in vec3 surfaceBias,
 	    const float crushThreshold = 0.2;
 	    if (weight < crushThreshold)
 		{
-		    weight *= (weight * weight) / (1.0 / (crushThreshold * crushThreshold));
+		    weight *= (weight * weight) * (1.0 / (crushThreshold * crushThreshold));
 		}
 
 	    // Apply the trilinear weights
@@ -156,7 +163,7 @@ vec3 DDGIVolumeIrradiance(in vec3 worldPosition, in vec3 surfaceBias,
 		direction, irradianceTexels, vec4(textureGridCoord, volumeCounts));
 
 	    // Sample the probe's irradiance
-	    vec3 probeIrradiance = texture2D(u_ProbeIrradiance, probeTextureUV).rgb;
+	    vec3 probeIrradiance = linearToGamma(texture2D(u_ProbeIrradiance, probeTextureUV).rgb);
 
 	    irradiance += (probeIrradiance * weight);
 	    accumulatedWeights += weight;
@@ -169,9 +176,7 @@ vec3 DDGIVolumeIrradiance(in vec3 worldPosition, in vec3 surfaceBias,
 
     irradiance *= (1.f / accumulatedWeights); // Normalize by the accumulated weights
 
-    // irradiance *= 2.0;
-    // irradiance *= 2.0;
-    irradiance *= 2.0 * PI;
+    irradiance = gammaToLinear(irradiance);
 
     return irradiance;
 }
