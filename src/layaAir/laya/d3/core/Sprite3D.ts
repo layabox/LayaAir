@@ -211,6 +211,7 @@ export class Sprite3D extends Node {
         (data.isStatic !== undefined) && (this.isStatic = data.isStatic);
         (data.active !== undefined) && (this.active = data.active);
         (data.name != undefined) && (this.name = data.name);
+        (data.tag != undefined) && (this.tag = data.tag);
 
         if (data.position !== undefined) {
             var loccalPosition: Vector3 = this.transform.localPosition;
@@ -253,6 +254,7 @@ export class Sprite3D extends Node {
         var destTrans: Transform3D = destSprite3D._transform;
 
         destSprite3D.name = this.name/* + "(clone)"*/;//TODO:克隆后不能播放刚体动画，找不到名字
+        destSprite3D.tag = this.tag;
         destSprite3D._destroyed = this._destroyed;
         destSprite3D.active = this.active;
         destTrans.localPosition = trans.localPosition;

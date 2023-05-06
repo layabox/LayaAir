@@ -499,7 +499,7 @@ export class Tree extends Box {
                 if (item.hasChild) {
                     arrow.visible = true;
                     arrow.index = item.isOpen ? 1 : 0;
-                    arrow.tag = index;
+                    (<any>arrow).__cellIndex = index;
                     arrow.off(Event.CLICK, this, this.onArrowClick);
                     arrow.on(Event.CLICK, this, this.onArrowClick);
                 } else {
@@ -522,8 +522,8 @@ export class Tree extends Box {
      * @private
      */
     private onArrowClick(e: Event): void {
-        var arrow = (<Clip>e.currentTarget);
-        var index = arrow.tag;
+        var arrow = e.currentTarget;
+        var index = arrow.__cellIndex;
         this._list.array[index].isOpen = !this._list.array[index].isOpen;
         this.event(Event.OPEN);
         this._list.array = this.getArray();
