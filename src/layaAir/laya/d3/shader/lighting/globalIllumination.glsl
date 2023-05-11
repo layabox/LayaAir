@@ -1,6 +1,10 @@
 #if !defined(globalIllumination_lib)
     #define globalIllumination_lib
 
+    #ifdef VOLUMETRICGI
+	#include "VolumetricGI.glsl";
+    #endif // VOLUMETRICGI
+
 vec3 rotateByYAixs(in vec3 normal)
 {
     float co = cos(u_GIRotate);
@@ -29,10 +33,10 @@ uniform vec3 u_IblSH[9];
 uniform samplerCube u_IBLTex;
 
 // todo 格式
-vec3 diffuseIrradiance(in vec3 normal)
+vec3 diffuseIrradiance(in vec3 normalWS)
 {
     // todo cmeng 生成的数据问题， 临时转换下
-    vec3 n = normal * vec3(-1.0, 1.0, 1.0);
+    vec3 n = normalWS * vec3(-1.0, 1.0, 1.0);
     n = rotateByYAixs(n);
     return max(
 	       u_IblSH[0]
@@ -46,6 +50,16 @@ vec3 diffuseIrradiance(in vec3 normal)
 		   + u_IblSH[8] * (n.x * n.x - n.y * n.y),
 	       0.0)
 	* u_AmbientIntensity;
+}
+
+vec3 diffuseIrradiance(in vec3 normalWS, in vec3 positionWS, in vec3 viewDir)
+{
+	#ifdef VOLUMETRICGI
+    vec3 surfaceBias = VolumetricGISurfaceBias(normalWS, viewDir);
+    return VolumetricGIVolumeIrradiance(positionWS, surfaceBias, normalWS) * u_AmbientIntensity;
+	#else // VOLUMETRICGI
+    return diffuseIrradiance(normalWS);
+	#endif // VOLUMETRICGI
 }
 
 vec3 specularIrradiance(in vec3 r, in float perceptualRoughness)
@@ -125,6 +139,16 @@ vec3 diffuseIrradiance(in vec3 normalWS)
     return ambient * u_AmbientIntensity;
 }
 
+vec3 diffuseIrradiance(in vec3 normalWS, in vec3 positionWS, in vec3 viewDir)
+{
+	#ifdef VOLUMETRICGI
+    vec3 surfaceBias = VolumetricGISurfaceBias(normalWS, viewDir);
+    return VolumetricGIVolumeIrradiance(positionWS, surfaceBias, normalWS) * u_AmbientIntensity;
+	#else // VOLUMETRICGI
+    return diffuseIrradiance(normalWS);
+	#endif // VOLUMETRICGI
+}
+
 vec3 specularIrradiance(in vec3 r, in float perceptualRoughness)
 {
     float roughness = perceptualRoughness * (1.7 - 0.7 * perceptualRoughness);
@@ -150,6 +174,11 @@ uniform vec4 u_AmbientColor;
 vec3 diffuseIrradiance(in vec3 normalWS)
 {
     return u_AmbientColor.rgb * u_AmbientIntensity;
+}
+
+vec3 diffuseIrradiance(in vec3 normalWS, in vec3 positionWS, in vec3 viewDir)
+{
+    return diffuseIrradiance(normalWS);
 }
 
 vec3 specularIrradiance(in vec3 r, in float perceptualRoughness)

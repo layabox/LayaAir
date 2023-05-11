@@ -7,6 +7,7 @@ vec3 PBRGI(const in Surface surface, const in PixelInfo info)
 {
     float NoV = info.NoV;
     vec3 n = info.normalWS;
+    vec3 positionWS = info.positionWS;
 
     // todo specular
     float specularWeight = 1.0;
@@ -24,7 +25,7 @@ vec3 PBRGI(const in Surface surface, const in PixelInfo info)
     vec3 r = getReflectedVector(surface, info);
     // todo
     #ifdef SPECCUBE_BOX_PROJECTION
-    r = getBoxProjectionReflectedVector(r, info.positionWS);
+    r = getBoxProjectionReflectedVector(r, positionWS);
     #endif // SPECCUBE_BOX_PROJECTION
 
     vec3 indirectSpecular = specularIrradiance(r, roughness);
@@ -41,7 +42,7 @@ vec3 PBRGI(const in Surface surface, const in PixelInfo info)
 
     #else // USELIGHTMAP
 
-    vec3 irradiance = diffuseIrradiance(n);
+    vec3 irradiance = diffuseIrradiance(n, positionWS, info.viewDir);
     float Ems = (1.0 - (f_ab.x + f_ab.y));
     vec3 F_avg = specularWeight * (F0 + (1.0 - F0) / 21.0);
     vec3 FmsEms = Ems * FssEss * F_avg / (1.0 - F_avg * Ems);

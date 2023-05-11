@@ -4,12 +4,19 @@ import { Bounds } from "../../math/Bounds";
 import { IVolumeManager } from "./IVolumeManager";
 import { ReflectionProbeManager } from "./reflectionProbe/ReflectionProbeManager";
 import { Volume} from "./Volume";
+import { VolumetricGIManager } from "./VolumetricGI/VolumetricGIManager";
+
+
+
 
 /**
  * <code>VolumeManager</code> 类用于管理体积组件
  */
 export class VolumeManager implements IVolumeManager {
     static ReflectionProbeVolumeType: number = 1;
+
+    static VolumetricGIType: number = 2;
+
     //注册特殊的Volume管理类
     //static regVolumeManager: { [key: number]: any } = {};
     /** @internal 需要跟新反射探针的渲染队列 */
@@ -24,9 +31,15 @@ export class VolumeManager implements IVolumeManager {
 
     /**@internal 反射探针管理*/
     _reflectionProbeManager: ReflectionProbeManager;
+
+    _volumetricGIManager: VolumetricGIManager;
+
     constructor() {
         this._reflectionProbeManager = new ReflectionProbeManager();
         this._regVolumeManager[VolumeManager.ReflectionProbeVolumeType] = this._reflectionProbeManager;
+
+        this._volumetricGIManager = new VolumetricGIManager();
+        this._regVolumeManager[VolumeManager.VolumetricGIType] = this._volumetricGIManager;
 
     }
 
@@ -35,6 +48,10 @@ export class VolumeManager implements IVolumeManager {
      */
     get reflectionProbeManager(): ReflectionProbeManager {
         return this._reflectionProbeManager;
+    }
+
+    get volumetricGIManager(): VolumetricGIManager {
+        return this._volumetricGIManager;
     }
 
     /**
@@ -73,7 +90,7 @@ export class VolumeManager implements IVolumeManager {
         this._motionObjects.add(renderObj);
     }
 
-    removeMotionObject(renderObj:BaseRender){
+    removeMotionObject(renderObj: BaseRender) {
         this._motionObjects.remove(renderObj);
     }
 
@@ -90,7 +107,7 @@ export class VolumeManager implements IVolumeManager {
         for (var i: number = 0, n: number = this._volumeList.length; i < n; i++) {
             let volume = elements[i];
             let bounds = volume.bounds;
-            if(Bounds.containPoint(bounds,center)){
+            if (Bounds.containPoint(bounds, center)) {
                 mainVolume = volume;
                 continue;
             }
@@ -108,6 +125,8 @@ export class VolumeManager implements IVolumeManager {
         }
         //miner特殊管理TODO 更新所有动态物体
         this.reflectionProbeManager.handleMotionlist(this._motionObjects);
+
+        this.volumetricGIManager.handleMotionlist(this._motionObjects);
 
         this.clearMotionObjects();
     }
@@ -133,10 +152,17 @@ export class VolumeManager implements IVolumeManager {
             this.reflectionProbeManager.handleMotionlist(this._motionObjects);
         }
 
+        if (this.volumetricGIManager._needUpdateAllRender) {
+            this.volumetricGIManager.reCaculateAllRenderObjects(baseRenders);
+        }
+        else {
+            this.volumetricGIManager.handleMotionlist(this._motionObjects);
+        }
+
     }
 
     needreCaculateAllRenderObjects(): boolean {
-        return this._needUpdateAllRender || this.reflectionProbeManager._needUpdateAllRender;
+        return this._needUpdateAllRender || this.reflectionProbeManager._needUpdateAllRender || this.volumetricGIManager._needUpdateAllRender;
     }
 
     /**

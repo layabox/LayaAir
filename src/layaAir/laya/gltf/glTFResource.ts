@@ -2144,11 +2144,26 @@ export class glTFResource extends Prefab {
                         let floatKeyFrame = new FloatKeyframe();
                         node._setKeyframeByIndex(j, floatKeyFrame);
                         floatKeyFrame.time = glTFClipNode.timeArray[j];
-                        floatKeyFrame.value = glTFClipNode.valueArray[j];
 
                         switch (glTFClipNode.interpolation) {
-                            case glTF.glTFAnimationSamplerInterpolation.LINEAR:
+                            case glTF.glTFAnimationSamplerInterpolation.CUBICSPLINE:
                                 {
+                                    floatKeyFrame.value = glTFClipNode.valueArray[3 * j + 1];
+                                    // todo
+                                    floatKeyFrame.inTangent = glTFClipNode.valueArray[3 * j + 0];
+                                    floatKeyFrame.outTangent = glTFClipNode.valueArray[3 * j + 2];
+                                }
+                                break;
+                            case glTF.glTFAnimationSamplerInterpolation.STEP:
+                                floatKeyFrame.value = glTFClipNode.valueArray[j];
+                                floatKeyFrame.inTangent = Infinity;
+                                floatKeyFrame.outTangent = Infinity;
+                                break;
+                            case glTF.glTFAnimationSamplerInterpolation.LINEAR:
+                            default:
+                                {
+                                    floatKeyFrame.value = glTFClipNode.valueArray[j];
+
                                     let lastI = j == 0 ? j : j - 1;
                                     let lastTime = glTFClipNode.timeArray[lastI];
                                     let lastValue = glTFClipNode.valueArray[lastI];
@@ -2163,25 +2178,13 @@ export class glTFResource extends Prefab {
 
                                     floatKeyFrame.outTangent = (nextValue - floatKeyFrame.value) / nextTimeDet;
 
-                                    if (lastI = j) {
+                                    if (lastI == j) {
                                         floatKeyFrame.inTangent = floatKeyFrame.outTangent;
                                     }
-                                    if (nextI = j) {
+                                    if (nextI == j) {
                                         floatKeyFrame.outTangent = floatKeyFrame.inTangent;
                                     }
                                 }
-                                break;
-                            case glTF.glTFAnimationSamplerInterpolation.CUBICSPLINE:
-                                {
-                                    // todo
-                                    floatKeyFrame.inTangent = 0;
-                                    floatKeyFrame.outTangent = 0;
-                                }
-                                break;
-                            case glTF.glTFAnimationSamplerInterpolation.STEP:
-                            default:
-                                floatKeyFrame.inTangent = 0;
-                                floatKeyFrame.outTangent = 0;
                                 break;
                         }
 
@@ -2195,11 +2198,23 @@ export class glTFResource extends Prefab {
                         let inTangent: Vector3 = floatArrayKeyframe.inTangent;
                         let outTangent: Vector3 = floatArrayKeyframe.outTangent;
                         let value: Vector3 = floatArrayKeyframe.value;
-                        value.setValue(glTFClipNode.valueArray[3 * j], glTFClipNode.valueArray[3 * j + 1], glTFClipNode.valueArray[3 * j + 2]);
 
                         switch (glTFClipNode.interpolation) {
+                            case glTF.glTFAnimationSamplerInterpolation.CUBICSPLINE:
+                                value.setValue(glTFClipNode.valueArray[9 * j + 3], glTFClipNode.valueArray[9 * j + 4], glTFClipNode.valueArray[9 * j + 5]);
+                                inTangent.setValue(glTFClipNode.valueArray[9 * j + 0], glTFClipNode.valueArray[9 * j + 1], glTFClipNode.valueArray[9 * j + 2]);
+                                outTangent.setValue(glTFClipNode.valueArray[9 * j + 6], glTFClipNode.valueArray[9 * j + 7], glTFClipNode.valueArray[9 * j + 8]);
+                                break;
+                            case glTF.glTFAnimationSamplerInterpolation.STEP:
+                                value.setValue(glTFClipNode.valueArray[3 * j], glTFClipNode.valueArray[3 * j + 1], glTFClipNode.valueArray[3 * j + 2]);
+                                inTangent.setValue(Infinity, Infinity, Infinity);
+                                outTangent.setValue(Infinity, Infinity, Infinity);
+                                break;
                             case glTF.glTFAnimationSamplerInterpolation.LINEAR:
+                            default:
                                 {
+                                    value.setValue(glTFClipNode.valueArray[3 * j], glTFClipNode.valueArray[3 * j + 1], glTFClipNode.valueArray[3 * j + 2]);
+
                                     let lastI = j == 0 ? j : j - 1;
                                     let lastTime = glTFClipNode.timeArray[lastI];
                                     let lastX = glTFClipNode.valueArray[3 * lastI];
@@ -2222,25 +2237,15 @@ export class glTFResource extends Prefab {
                                     outTangent.y = (nextY - value.y) / nestTimeDet;
                                     outTangent.z = (nextZ - value.z) / nestTimeDet;
 
-                                    if (lastI = j) {
+                                    if (lastI == j) {
                                         outTangent.cloneTo(inTangent);
                                     }
-                                    if (nextI = j) {
+                                    if (nextI == j) {
                                         inTangent.cloneTo(outTangent);
                                     }
                                 }
                                 break;
-                            case glTF.glTFAnimationSamplerInterpolation.CUBICSPLINE:// todo
-                                inTangent.setValue(0, 0, 0);
-                                outTangent.setValue(0, 0, 0);
-                                break;
-                            case glTF.glTFAnimationSamplerInterpolation.STEP:
-                            default:
-                                inTangent.setValue(0, 0, 0);
-                                outTangent.setValue(0, 0, 0);
-                                break;
                         }
-                        break;
                         break;
                     case 2: // local rotation
                         let quaternionKeyframe: QuaternionKeyframe = new QuaternionKeyframe();
@@ -2249,15 +2254,23 @@ export class glTFResource extends Prefab {
                         let inTangentQua: Vector4 = quaternionKeyframe.inTangent;
                         let outTangentQua: Vector4 = quaternionKeyframe.outTangent;
                         let valueQua: Quaternion = quaternionKeyframe.value;
-
-                        valueQua.x = glTFClipNode.valueArray[4 * j];
-                        valueQua.y = glTFClipNode.valueArray[4 * j + 1];
-                        valueQua.z = glTFClipNode.valueArray[4 * j + 2];
-                        valueQua.w = glTFClipNode.valueArray[4 * j + 3];
-
                         switch (glTFClipNode.interpolation) {
+                            case glTF.glTFAnimationSamplerInterpolation.CUBICSPLINE:
+                                valueQua.set(glTFClipNode.valueArray[12 * j + 4], glTFClipNode.valueArray[12 * j + 5], glTFClipNode.valueArray[12 * j + 6], glTFClipNode.valueArray[12 * j + 7]);
+                                inTangentQua.setValue(glTFClipNode.valueArray[12 * j + 0], glTFClipNode.valueArray[12 * j + 1], glTFClipNode.valueArray[12 * j + 2], glTFClipNode.valueArray[12 * j + 3]);
+                                outTangentQua.setValue(glTFClipNode.valueArray[12 * j + 8], glTFClipNode.valueArray[12 * j + 9], glTFClipNode.valueArray[12 * j + 10], glTFClipNode.valueArray[12 * j + 11]);
+                                break;
+                            case glTF.glTFAnimationSamplerInterpolation.STEP:
+                                valueQua.set(glTFClipNode.valueArray[4 * j + 0], glTFClipNode.valueArray[4 * j + 1], glTFClipNode.valueArray[4 * j + 2], glTFClipNode.valueArray[4 * j + 3]);
+                                inTangentQua.setValue(Infinity, Infinity, Infinity, Infinity);
+                                outTangentQua.setValue(Infinity, Infinity, Infinity, Infinity);
+                                break;
+
                             case glTF.glTFAnimationSamplerInterpolation.LINEAR:
+                            default:
                                 {
+                                    valueQua.set(glTFClipNode.valueArray[4 * j + 0], glTFClipNode.valueArray[4 * j + 1], glTFClipNode.valueArray[4 * j + 2], glTFClipNode.valueArray[4 * j + 3]);
+
                                     let lastI = j == 0 ? j : j - 1;
                                     let lastTime = glTFClipNode.timeArray[lastI];
                                     let lastX = glTFClipNode.valueArray[4 * lastI];
@@ -2295,23 +2308,14 @@ export class glTFResource extends Prefab {
                                     outTangentQua.z = (nextZ - valueQua.z) / nestTimeDet;
                                     outTangentQua.w = (nextW - valueQua.w) / nestTimeDet;
 
-                                    if (lastI = j) {
+                                    if (lastI == j) {
                                         outTangentQua.cloneTo(inTangentQua);
                                     }
-                                    if (nextI = j) {
+                                    if (nextI == j) {
                                         inTangentQua.cloneTo(outTangentQua);
                                     }
 
                                 }
-                                break;
-                            case glTF.glTFAnimationSamplerInterpolation.CUBICSPLINE:// todo
-                                inTangentQua.setValue(0, 0, 0, 0);
-                                outTangentQua.setValue(0, 0, 0, 0);
-                                break;
-                            case glTF.glTFAnimationSamplerInterpolation.STEP:
-                            default:
-                                inTangentQua.setValue(0, 0, 0, 0);
-                                outTangentQua.setValue(0, 0, 0, 0);
                                 break;
                         }
                         break;
