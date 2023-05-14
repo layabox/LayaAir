@@ -18,6 +18,7 @@ import { Downloader } from "./Downloader";
 import { AssetDb } from "../resource/AssetDb";
 import { BaseTexture } from "../resource/BaseTexture";
 import { LayaEnv } from "../../LayaEnv";
+import { XML } from "../html/XML";
 
 export interface ILoadTask {
     readonly type: string;
@@ -56,7 +57,7 @@ export interface ILoadURL extends ILoadOptions {
 interface ContentTypeMap {
     "text": string,
     "json": any,
-    "xml": XMLDocument,
+    "xml": XML,
     "arraybuffer": ArrayBuffer,
     "image": HTMLImageElement | ImageBitmap,
     "sound": HTMLAudioElement

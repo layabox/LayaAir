@@ -1,31 +1,24 @@
 export class FontInfo {
 
-    static EMPTY: FontInfo = new FontInfo(null);
-
-    private static _cache: any = {};
-    private static _gfontID: number = 0;
-    private static _lastFont: string = '';
-    private static _lastFontInfo: FontInfo;
+    private static _cache: Record<string, FontInfo> = {};
 
     /**
      * 解析字体模型
      * @param font 
      */
     static parse(font: string): FontInfo {
-        if (font === FontInfo._lastFont) {
-            return FontInfo._lastFontInfo;
+        if (font === _lastFont) {
+            return _lastFontInfo;
         }
-        var r: FontInfo = FontInfo._cache[font];
+        let r = FontInfo._cache[font];
         if (!r) {
             r = FontInfo._cache[font] = new FontInfo(font);
         }
-        FontInfo._lastFont = font;
-        FontInfo._lastFontInfo = r;
+        _lastFont = font;
+        _lastFontInfo = r;
         return r;
     }
 
-    /**@internal */
-    _id: number;
     /**@internal */
     _font: string;
     /**@internal */
@@ -38,7 +31,6 @@ export class FontInfo {
     _bold: boolean = false;
 
     constructor(font: string | null) {
-        this._id = FontInfo._gfontID++;
         this.setFont(font || "14px Arial");
     }
 
@@ -85,3 +77,5 @@ export class FontInfo {
     }
 }
 
+var _lastFont: string = '';
+var _lastFontInfo: FontInfo;

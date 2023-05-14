@@ -1,3 +1,4 @@
+import { XML } from "laya/html/XML";
 import { Utils } from "laya/utils/Utils";
 
 export class Network_XML {
@@ -17,7 +18,7 @@ export class Network_XML {
 	// 使用xml
 	private proessXML(source: string): void {
 		try {
-			var xml: XMLDocument = Utils.parseXMLFromString(source);
+			var xml: XML = new XML(source);
 		}
 		catch (e) {
 			console.log(e.massage);
@@ -28,22 +29,14 @@ export class Network_XML {
 	}
 
 	// 打印直接子级
-	private printDirectChildren(xml: any): void {
-		var rootNode: any = xml.firstChild;
-
-		var nodes: any[] = rootNode.childNodes;
+	private printDirectChildren(xml: XML): void {
+		var nodes: any[] = xml.elements();
 		for (var i: number = 0; i < nodes.length; i++) {
-			var node: any = nodes[i];
+			var node: XML = nodes[i];
 
-			// 本节点为元素节点
-			if (node.nodeType == 1) {
-				console.log("节点名称: " + node.nodeName);
-				console.log("元素节点，第一个子节点值为：" + node.firstChild.nodeValue);
-			}
-			// 本节点是文本节点
-			else if (node.nodeType == 3) {
-				console.log("文本节点：" + node.nodeValue);
-			}
+			console.log("节点名称: " + node.name);
+
+
 			console.log("\n");
 		}
 	}

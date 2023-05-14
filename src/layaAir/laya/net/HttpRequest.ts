@@ -1,7 +1,7 @@
 import { Event } from "../events/Event"
 import { EventDispatcher } from "../events/EventDispatcher"
-import { Utils } from "../utils/Utils"
 import { Browser } from "../utils/Browser";
+import { XML } from "../html/XML";
 
 /**
  * 请求进度改变时调度。
@@ -163,7 +163,7 @@ export class HttpRequest extends EventDispatcher {
             if (this._responseType === "json") {
                 this._data = JSON.parse(this._http.responseText);
             } else if (this._responseType === "xml") {
-                this._data = Utils.parseXMLFromString(this._http.responseText);
+                this._data = new XML(this._http.responseText);
             } else {
                 this._data = this._http.response || this._http.responseText;
             }

@@ -15,7 +15,6 @@ import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetForma
 import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
 import { RenderStateCommand } from "../RenderEngine/RenderStateCommand";
 import { FontInfo } from "../utils/FontInfo";
-import { HTMLChar } from "../utils/HTMLChar";
 import { WordText } from "../utils/WordText";
 import { BlendMode } from "../webgl/canvas/BlendMode";
 import { DrawStyle } from "../webgl/canvas/DrawStyle";
@@ -848,30 +847,22 @@ export class Context {
     drawText(text: string | WordText, x: number, y: number, font: string, color: string, textAlign: string): void {
         Context._textRender!.filltext(this, text, x, y, font, color, null, 0, textAlign);
     }
-    fillWords(words: HTMLChar[], x: number, y: number, fontStr: string, color: string): void {
-        Context._textRender!.fillWords(this, words, x, y, fontStr, color, null, 0);
-    }
     strokeWord(text: string | WordText, x: number, y: number, font: string, color: string, lineWidth: number, textAlign: string): void {
         Context._textRender!.filltext(this, text, x, y, font, null, color, lineWidth, textAlign);
     }
     fillBorderText(txt: string | WordText, x: number, y: number, font: string, color: string, borderColor: string, lineWidth: number, textAlign: string): void {
         Context._textRender!.filltext(this, txt, x, y, font, color, borderColor, lineWidth, textAlign);
     }
-    fillBorderWords(words: HTMLChar[], x: number, y: number, font: string, color: string, borderColor: string, lineWidth: number): void {
-        Context._textRender!.fillWords(this, words, x, y, font, color, borderColor, lineWidth);
-    }
 
     /**@internal */
-    _fast_filltext(data: string | WordText, x: number, y: number, fontObj: any, color: string, strokeColor: string | null, lineWidth: number, textAlign: number, underLine: number = 0): void {
-        Context._textRender!._fast_filltext(this, data, null, x, y, (<FontInfo>fontObj), color, strokeColor, lineWidth, textAlign, underLine);
-    }
-    fillWords11(data: HTMLChar[], x: number, y: number, fontStr: FontInfo, color: string, strokeColor: string | null, lineWidth: number): void {
-        Context._textRender!.fillWords(this, data, x, y, fontStr, color, strokeColor, lineWidth);
+    _fast_filltext(data: string | WordText, x: number, y: number, fontObj: FontInfo, color: string, strokeColor: string | null, lineWidth: number, textAlign: number): void {
+        Context._textRender!._fast_filltext(this, data, x, y, fontObj, color, strokeColor, lineWidth, textAlign);
     }
 
     filltext11(data: string | WordText, x: number, y: number, fontStr: string, color: string, strokeColor: string, lineWidth: number, textAlign: string): void {
         Context._textRender!.filltext(this, data, x, y, fontStr, color, strokeColor, lineWidth, textAlign);
     }
+
     private _fillRect(x: number, y: number, width: number, height: number, rgba: number): void {
         var submit: Submit = this._curSubmit;
         var sameKey: boolean = submit && (submit._key.submitType === SubmitBase.KEY_DRAWTEXTURE && submit._key.blendShader === this._nBlendType);

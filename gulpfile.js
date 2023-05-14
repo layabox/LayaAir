@@ -43,6 +43,7 @@ const packsDef = [
             './layaAir/laya/resource/**/*.*',
             './layaAir/laya/system/**/*.*',
             './layaAir/laya/utils/**/*.*',
+            './layaAir/laya/html/**/*.*',
             './layaAir/laya/webgl/**/*.*',
             './layaAir/Config3D.ts',
 
@@ -98,12 +99,6 @@ const packsDef = [
         'libName': 'tiledmap',
         'input': [
             './layaAir/laya/map/**/*.*'
-        ],
-    },
-    {
-        'libName': 'html',
-        'input': [
-            './layaAir/laya/html/**/*.*'
         ],
     },
     {

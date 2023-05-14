@@ -21,11 +21,11 @@ export class UIUtils {
      * @return 填充后的数组。
      */
     static fillArray(arr: any[], str: string, type: typeof Number | typeof String = null): any[] {
-        var temp: any[] = arr.concat();
+        let temp = arr.concat();
         if (str) {
-            var a: any[] = str.split(",");
-            for (var i: number = 0, n: number = Math.min(temp.length, a.length); i < n; i++) {
-                var value: string = a[i];
+            let a = str.split(",");
+            for (let i = 0, n = Math.min(temp.length, a.length); i < n; i++) {
+                let value = a[i];
                 temp[i] = (value == "true" ? true : (value == "false" ? false : value));
                 if (type != null) temp[i] = type(value);
             }
