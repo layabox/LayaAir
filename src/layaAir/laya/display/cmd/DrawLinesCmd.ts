@@ -27,15 +27,14 @@ export class DrawLinesCmd {
     /**
      * （可选）线段宽度。
      */
-    lineWidth: number;
+    lineWidth: number = 0;
 
     /**@private */
     static create(x: number, y: number, points: any[], lineColor: any, lineWidth: number): DrawLinesCmd {
         var cmd: DrawLinesCmd = Pool.getItemByClass("DrawLinesCmd", DrawLinesCmd);
-        var offset = (lineWidth < 1 || lineWidth % 2 === 0) ? 0 : 0.5;
         //TODO 线段需要缓存
-        cmd.x = x + offset;
-        cmd.y = y + offset;
+        cmd.x = x;
+        cmd.y = y;
         cmd.points = points;
         cmd.lineColor = lineColor;
         cmd.lineWidth = lineWidth;
@@ -53,7 +52,8 @@ export class DrawLinesCmd {
 
     /**@private */
     run(context: Context, gx: number, gy: number): void {
-        this.points && context._drawLines(this.x + gx, this.y + gy, this.points, this.lineColor, this.lineWidth, 0);
+        let offset = (this.lineWidth < 1 || this.lineWidth % 2 === 0) ? 0 : 0.5;
+        this.points && context._drawLines(this.x + offset + gx, this.y + offset + gy, this.points, this.lineColor, this.lineWidth, 0);
     }
 
     /**@private */

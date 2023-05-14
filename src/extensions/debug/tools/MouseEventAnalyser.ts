@@ -9,6 +9,7 @@ import { Point } from "laya/maths/Point";
 import { Rectangle } from "laya/maths/Rectangle";
 import { HitArea } from "laya/utils/HitArea";
 import { InputManager } from "laya/events/InputManager";
+import { IHitArea } from "laya/utils/IHitArea";
 
 /**
  * ...
@@ -172,13 +173,14 @@ export class MouseEventAnalyser {
         graphicHit = sp.getGraphicBounds().contains(mouseX, mouseY);
         if (sp.width > 0 && sp.height > 0) {
 
-            var hitRect: Rectangle = MouseEventAnalyser._rect;
+            var hitRect: IHitArea = MouseEventAnalyser._rect;
             if (!sp.mouseThrough) {
                 if (sp.hitArea)
                     hitRect = sp.hitArea;
                 else
-                    hitRect.setTo(0, 0, sp.width, sp.height);
-                mHitRect.copyFrom(hitRect);
+                    (<Rectangle>hitRect).setTo(0, 0, sp.width, sp.height);
+                if (hitRect instanceof Rectangle)
+                    mHitRect.copyFrom(hitRect);
                 isHit = hitRect.contains(mouseX, mouseY);
             }
             else {
@@ -214,10 +216,10 @@ export class MouseEventAnalyser {
         }
         if (sp.width > 0 && sp.height > 0 || sp.mouseThrough || sp.hitArea) {
             //判断是否在矩形区域内
-            var hitRect: Rectangle = MouseEventAnalyser._rect;
+            var hitRect: IHitArea = MouseEventAnalyser._rect;
             if (!sp.mouseThrough) {
                 if (sp.hitArea) hitRect = sp.hitArea;
-                else hitRect.setTo(0, 0, sp.width, sp.height);
+                else (<Rectangle>hitRect).setTo(0, 0, sp.width, sp.height);
                 isHit = hitRect.contains(mouseX, mouseY);
             } else {
                 //如果可穿透，则根据子对象实际大小进行碰撞

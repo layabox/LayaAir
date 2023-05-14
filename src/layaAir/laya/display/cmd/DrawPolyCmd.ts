@@ -32,28 +32,16 @@ export class DrawPolyCmd {
      * 可选）边框宽度。
      */
     lineWidth: number;
-    /**@private */
-    isConvexPolygon: boolean;
 
     /**@private */
     static create(x: number, y: number, points: any[], fillColor: any, lineColor: any, lineWidth: number): DrawPolyCmd {
         var cmd: DrawPolyCmd = Pool.getItemByClass("DrawPolyCmd", DrawPolyCmd);
-        var tIsConvexPolygon = false;
-        //这里加入多加形是否是凸边形
-        if (points.length > 6) {
-            tIsConvexPolygon = false;
-        } else {
-            tIsConvexPolygon = true;
-        }
-        var offset = (lineWidth >= 1 && lineColor) ? (lineWidth % 2 === 0 ? 0 : 0.5) : 0;
-        //TODO 非凸多边形需要缓存
-        cmd.x = x + offset;
-        cmd.y = y + offset;
+        cmd.x = x;
+        cmd.y = y;
         cmd.points = points;
         cmd.fillColor = fillColor;
         cmd.lineColor = lineColor;
         cmd.lineWidth = lineWidth;
-        cmd.isConvexPolygon = tIsConvexPolygon;
         return cmd;
     }
 
@@ -69,7 +57,9 @@ export class DrawPolyCmd {
 
     /**@private */
     run(context: Context, gx: number, gy: number): void {
-        this.points && context._drawPoly(this.x + gx, this.y + gy, this.points, this.fillColor, this.lineColor, this.lineWidth, this.isConvexPolygon, 0);
+        let isConvexPolygon = this.points.length <= 6;
+        let offset = this.lineWidth >= 1 ? (this.lineWidth % 2 === 0 ? 0 : 0.5) : 0;
+        this.points && context._drawPoly(this.x + offset + gx, this.y + offset + gy, this.points, this.fillColor, this.lineColor, this.lineWidth, isConvexPolygon, 0);
     }
 
     /**@private */
