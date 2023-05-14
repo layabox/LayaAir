@@ -79,21 +79,6 @@ export class Utils {
     }
 
     /**
-     * 将字符串解析成 XML 对象。
-     * @param value 需要解析的字符串。
-     * @return js原生的XML对象。
-     */
-    static parseXMLFromString: Function = function (value: string): XMLDocument {
-        var rst: any;
-        value = value.replace(/>\s+</g, '><');
-        rst = (new DOMParser()).parseFromString(value, 'text/xml');
-        if (rst.firstChild.textContent.indexOf("This page contains the following errors") > -1) {
-            throw new Error(rst.firstChild.firstChild.textContent);
-        }
-        return rst;
-    }
-
-    /**
      * @private
      * 清空source数组，复制array数组的值。
      * @param	source 需要赋值的数组。

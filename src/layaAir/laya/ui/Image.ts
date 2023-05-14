@@ -164,9 +164,6 @@ export class Image extends UIComponent {
         }
     }
 
-    /**
-     * @copy laya.ui.AutoBitmap#source
-     */
     get source(): Texture {
         return this._graphics.source;
     }
