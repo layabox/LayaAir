@@ -959,7 +959,6 @@ export class Text extends Sprite {
 
         let addCmd = (target: string | IHtmlObject, style: TextStyle, width?: number) => {
             let cmd: ITextCmd = cmdPool.length > 0 ? cmdPool.pop() : <any>{};
-            lastCmd = cmd;
             cmd.x = lineX;
             cmd.y = lineY;
             if (typeof (target) === "string") {
@@ -981,20 +980,30 @@ export class Text extends Sprite {
             }
             cmd.style = style;
             cmd.linkEnd = false;
-            curLine.cmds.push(cmd);
+            cmd.next = null;
             lineX += Math.round(cmd.width);
+
+            if (!curLine.cmd)
+                curLine.cmd = cmd;
+            else
+                lastCmd.next = cmd;
+            lastCmd = cmd;
         };
 
         let endLine = () => {
             //计算行高
             let lineHeight = 0;
-            for (let cmd of curLine.cmds) {
+            let cmd = curLine.cmd;
+            while (cmd) {
                 if (cmd.height > lineHeight) lineHeight = cmd.height;
+                cmd = cmd.next;
             }
 
             //调整元素y位置
-            for (let cmd of curLine.cmds) {
+            cmd = curLine.cmd;
+            while (cmd) {
                 cmd.y = Math.floor((lineHeight - cmd.height) * 0.5);
+                cmd = cmd.next;
             }
 
             if (lineHeight == 0)
@@ -1288,7 +1297,8 @@ export class Text extends Sprite {
             }
             let lineClipped = clipped && ((y + line.height) <= paddingTop || y >= bottom);
 
-            for (let cmd of line.cmds) {
+            let cmd = line.cmd;
+            while (cmd) {
                 if (cmd.linkEnd) {
                     if (curLink) {
                         curLink.addRect(linkStartX, y, x + cmd.x + cmd.width - linkStartX, line.height);
@@ -1332,6 +1342,8 @@ export class Text extends Sprite {
                     let thickness = Math.max(1, cmd.style.fontSize / 16);
                     graphics.drawLine(x + cmd.x, y + line.height - thickness, x + cmd.x + cmd.width, y + line.height - thickness, cmd.style.underlineColor || cmd.style.color, thickness);
                 }
+
+                cmd = cmd.next;
             }
 
             if (curLink) {
@@ -1380,6 +1392,7 @@ interface ITextCmd {
     wt: WordText;
     obj: IHtmlObject;
     linkEnd: boolean;
+    next: ITextCmd;
 }
 
 interface ITextLine {
@@ -1387,7 +1400,7 @@ interface ITextLine {
     y: number;
     height: number;
     width: number;
-    cmds: Array<ITextCmd>;
+    cmd: ITextCmd;
 }
 
 var cmdPool: Array<ITextCmd> = [];
@@ -1395,13 +1408,15 @@ var linePool: Array<ITextLine> = [];
 
 function recoverLines(lines: Array<ITextLine>) {
     for (let line of lines) {
-        for (let cmd of line.cmds) {
+        let cmd = line.cmd;
+        while (cmd) {
             cmd.obj = null;
             if (cmd.wt)
                 cmd.wt.cleanCache();
+            cmdPool.push(cmd);
+            cmd = cmd.next;
         }
-        cmdPool.push(...line.cmds);
-        line.cmds.length = 0;
+        line.cmd = null;
     }
 
     linePool.push(...lines);
