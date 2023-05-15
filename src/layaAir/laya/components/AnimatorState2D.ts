@@ -27,6 +27,9 @@ export class AnimatorState2D extends EventDispatcher implements IClone {
     /**@internal */
     _currentFrameIndices: Int16Array | null = null;
 
+    /**play on awake start offset*/
+    cycleOffset: number = 0;
+
     /**
      * 名称
      */
@@ -148,7 +151,7 @@ export class AnimatorState2D extends EventDispatcher implements IClone {
         }
         return null;
     }
-    
+
     /**
      * @internal
      */
@@ -197,6 +200,7 @@ export class AnimatorState2D extends EventDispatcher implements IClone {
      */
     addScript(type: typeof AnimatorStateScript): AnimatorStateScript {
         var script: AnimatorStateScript = new type();
+        script.owner = this;
         this._scripts = this._scripts || [];
         this._scripts.push(script);
         return script;

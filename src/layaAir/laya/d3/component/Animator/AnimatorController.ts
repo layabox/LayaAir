@@ -14,8 +14,6 @@ export class AnimatorController extends Resource {
     constructor(data: any) {
         super();
         let obj = AnimatorControllerParse.parse(data);
-
-
         this.data = obj.ret;
         this.clipsID = obj.clipsID;
     }
@@ -23,7 +21,6 @@ export class AnimatorController extends Resource {
     private getLayers() {
         let layers = this.data.controllerLayers;
         let lArr: AnimatorControllerLayer[] = [];
-
         for (let i = layers.length - 1; i >= 0; i--) {
             let l = layers[i];
             let acl = new AnimatorControllerLayer(l.name);
@@ -34,7 +31,6 @@ export class AnimatorController extends Resource {
                 }
             }
             lArr.unshift(acl);
-
             for (let k in l) {
                 if ("avatarMask" == k || "name" == k || "states" == k || null == (l as any)[k]) {
                     continue;
@@ -44,11 +40,9 @@ export class AnimatorController extends Resource {
                 } catch (err: any) { }
             }
             this.getState(l.states, acl, this.data);
-
         }
         return lArr;
     }
-
 
     updateTo(a: Animator) {
         let currLayer = (a as any)._controllerLayers;
@@ -82,10 +76,7 @@ export class AnimatorController extends Resource {
                 }
             }
         }
-
     }
-
-
 
     private createState(states: TypeAnimatorState[], idCatch: Record<string, AnimatorState>, acl: AnimatorControllerLayer) {
         if (!states) return null;
@@ -102,15 +93,8 @@ export class AnimatorController extends Resource {
                 if (groupRet) {
                     idCatch[obj.id] = groupRet.states[groupRet.id];
                 }
-
-
                 continue;
             }
-
-
-
-
-
             if (0 > Number(obj.id)) {
                 if ("-1" == obj.id) {
                     let transitions = obj.soloTransitions;
@@ -118,17 +102,11 @@ export class AnimatorController extends Resource {
                         defID = transitions[0].id;
                     }
                 }
-
-
                 continue;
             }
-
-
             let state = new AnimatorState();
             idCatch[obj.id] = state;
-
             ret[obj.id] = state;
-
             for (let k in obj) {
                 try {
                     if ("scripts" == k) {
@@ -153,7 +131,6 @@ export class AnimatorController extends Resource {
                     }
                 } catch (err: any) { }
             }
-
             acl.addState(state);
         }
         return { id: defID, states: ret };
@@ -164,10 +141,8 @@ export class AnimatorController extends Resource {
         for (let id in exitRet) {
             let state = idCatch[id];
             if (state) {
-
                 let ats: AnimatorTransition[] = state.transitions;
                 let sts: AnimatorTransition[] = state.soloTransitions;
-
                 let linArr = exitRet[id];
                 for (let i = transitions.length - 1; i >= 0; i--) {
                     let t = transitions[i];
@@ -178,24 +153,16 @@ export class AnimatorController extends Resource {
                         pExitRet[id].push(t);
                         continue;
                     }
-
-
                     for (let j = linArr.length - 1; j >= 0; j--) {
                         let t2 = linArr[j];
-
-
                         let ato = new AnimatorTransition();
                         ato.destState = idCatch[t.id];
-
                         if (t.conditions) {
                             this.addConditions(t.conditions, ato, data);
                         }
-
                         if (t2.conditions) {
                             this.addConditions(t2.conditions, ato, data);
                         }
-
-
                         for (let k in t) {
                             if ("solo" == k || "id" == k || "conditions" == k) {
                                 continue;
@@ -203,22 +170,13 @@ export class AnimatorController extends Resource {
                                 (ato as any)[k] = (t as any)[k];
                             }
                         }
-
                         if (t.solo) {
                             sts.unshift(ato);
                         } else {
                             ats.unshift(ato);
                         }
-
-
-
                     }
                 }
-
-
-
-
-
             }
         }
     }
@@ -226,12 +184,9 @@ export class AnimatorController extends Resource {
 
     private setTransitions(states: TypeAnimatorState[], idCatch: Record<string, AnimatorState>, acl: AnimatorControllerLayer, data: TypeAnimatorControllerData, pState?: TypeAnimatorState) {
         if (!states) return null;
-
         let exitRet: Record<string, TypeAnimatorTransition[]> = {};
-
         for (let i = states.length - 1; i >= 0; i--) {
             let obj = states[i];
-
             if (obj.states) {
                 let exitTransition = this.setTransitions(obj.states, idCatch, acl, data, obj);
                 if (exitTransition) {
@@ -242,18 +197,11 @@ export class AnimatorController extends Resource {
                 }
             }
         }
-
-
         for (let i = states.length - 1; i >= 0; i--) {
             let obj = states[i];
-
             if (obj.states) {
                 continue;
             }
-
-
-
-
             if ("-1" == obj.id) {
                 if (obj.soloTransitions && 0 < obj.soloTransitions.length) {
                     if (null == pState) {
@@ -291,28 +239,18 @@ export class AnimatorController extends Resource {
                                 } else {
                                     state.transitions.unshift(ato);
                                 }
-
-
-
-
                             }
                         }
-
                     }
                 }
                 continue;
             } else if ("-3" == obj.id) {
                 continue;
             }
-
             let soloTransitions = obj.soloTransitions;
             if (soloTransitions && idCatch[obj.id]) {
-
                 let ats: AnimatorTransition[] = idCatch[obj.id].transitions;
                 let sts: AnimatorTransition[] = idCatch[obj.id].soloTransitions;
-
-
-
                 for (let j = soloTransitions.length - 1; j >= 0; j--) {
                     let o = soloTransitions[j];
                     if ("-3" == o.id) {
@@ -331,8 +269,6 @@ export class AnimatorController extends Resource {
                     if (o.conditions) {
                         this.addConditions(o.conditions, ato, data);
                     }
-
-
                     for (let k in o) {
                         if ("solo" == k || "id" == k || "conditions" == k) {
                             continue;
@@ -347,37 +283,15 @@ export class AnimatorController extends Resource {
                     }
                 }
             }
-
-
         }
-
         return exitRet;
     }
 
-
-
     private getState(states: TypeAnimatorState[], acl: AnimatorControllerLayer, data: TypeAnimatorControllerData) {
-        //let ret:
         if (states) {
             let idCatch: Record<string, AnimatorState> = {};
-
             this.createState(states, idCatch, acl);
-
-
-
             this.setTransitions(states, idCatch, acl, data);
-
-            //acl.defaultState = 
-
-
-
-
-
-
-
-
-
-
         }
     }
 
@@ -410,12 +324,7 @@ export class AnimatorController extends Resource {
                 let t = new AnimatorStateTriggerCondition(o.name);
                 c = t;
             }
-
-
             ato.addCondition(c);
         }
     }
-
-
-
 }
