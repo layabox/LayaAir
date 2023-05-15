@@ -142,6 +142,28 @@ export class Node extends EventDispatcher {
         }
     }
 
+    bubbleEvent(type: string, ev: Event) {
+        let arr: Array<Node> = _bubbleChainPool.length > 0 ? _bubbleChainPool.pop() : [];
+        arr.length = 0;
+
+        let obj: Node = this;
+        while (obj) {
+            if (obj.activeInHierarchy)
+                arr.push(obj);
+            obj = obj.parent;
+        }
+
+        ev._stopped = false;
+        for (let obj of arr) {
+            ev.setTo(type, obj, this);
+            obj.event(type, ev);
+            if (ev._stopped)
+                break;
+        }
+
+        _bubbleChainPool.push(arr);
+    }
+
     hasHideFlag(flag: number): boolean {
         return (this._hideFlags & flag) != 0;
     }
@@ -403,7 +425,7 @@ export class Node extends EventDispatcher {
      * 子对象数量。
      */
     get numChildren(): number {
-        return this._children?this._children.length:0;
+        return this._children ? this._children.length : 0;
     }
 
     /**父节点。*/
@@ -985,5 +1007,7 @@ export class Node extends EventDispatcher {
      */
     onAfterDeserialize() { }
 }
+
+const _bubbleChainPool: Array<Array<Node>> = [];
 
 export interface INodeExtra { }

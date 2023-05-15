@@ -1,5 +1,6 @@
 import { Rectangle } from "../../maths/Rectangle"
 import { Dragging } from "../../utils/Dragging"
+import { IHitArea } from "../../utils/IHitArea";
 import { Pool } from "../../utils/Pool"
 
 /**
@@ -30,7 +31,7 @@ export class SpriteStyle {
     /**视口 */
     viewport: Rectangle;
     /**点击区域 */
-    hitArea: any;
+    hitArea: IHitArea;
     /**滑动 */
     dragging: Dragging;
     /**混合模式 */

@@ -32,7 +32,7 @@ export class DrawCircleCmd {
     /**
      * （可选）边框宽度。
      */
-    lineWidth: number;
+    lineWidth: number = 0;
 
     /**
      * 位置和大小是否是百分比
@@ -42,10 +42,9 @@ export class DrawCircleCmd {
     /**@private */
     static create(x: number, y: number, radius: number, fillColor: any, lineColor: any, lineWidth: number): DrawCircleCmd {
         var cmd: DrawCircleCmd = Pool.getItemByClass("DrawCircleCmd", DrawCircleCmd);
-        var offset = (lineWidth >= 1 && lineColor) ? lineWidth / 2 : 0;
         cmd.x = x;
         cmd.y = y;
-        cmd.radius = radius - offset;
+        cmd.radius = radius;
         cmd.fillColor = fillColor;
         cmd.lineColor = lineColor;
         cmd.lineWidth = lineWidth;
@@ -63,13 +62,14 @@ export class DrawCircleCmd {
 
     /**@private */
     run(context: Context, gx: number, gy: number): void {
+        let offset = this.lineWidth / 2;
         if (this.percent && context.sprite) {
             let w = context.sprite.width;
             let h = context.sprite.height;
-            context._drawCircle(this.x * w + gx, this.y * h + gy, this.radius * w, this.fillColor, this.lineColor, this.lineWidth, 0);
+            context._drawCircle(this.x * w + gx, this.y * h + gy, this.radius * w - offset, this.fillColor, this.lineColor, this.lineWidth, 0);
         }
         else
-            context._drawCircle(this.x + gx, this.y + gy, this.radius, this.fillColor, this.lineColor, this.lineWidth, 0);
+            context._drawCircle(this.x + gx, this.y + gy, this.radius - offset, this.fillColor, this.lineColor, this.lineWidth, 0);
     }
 
     /**@private */

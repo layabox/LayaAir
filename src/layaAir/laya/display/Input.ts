@@ -99,13 +99,6 @@ export class Input extends Text {
 
     private _type: string = "text";
 
-    /**输入提示符。*/
-    private _prompt: string = '';
-    /**输入提示符颜色。*/
-    private _promptColor: string = "#A9A9A9";
-    private _originColor: string = "#000000";
-    private _content: string = '';
-
     /**@private */
     static IOS_IFRAME: boolean = false;
 
@@ -120,6 +113,7 @@ export class Input extends Text {
 
         this.multiline = false;
         this.overflow = Text.SCROLL;
+        this._promptColor = "#A9A9A9";
 
         this.on(Event.MOUSE_DOWN, this, this._onMouseDown);
         this.on(Event.UNDISPLAY, this, this._onUnDisplay);
@@ -248,17 +242,14 @@ export class Input extends Text {
     private _onMouseDown(e: Event): void {
         this.focus = true;
     }
-
-    private static stageMatrix: Matrix;
-
     /**
      * 在输入期间，如果 Input 实例的位置改变，调用_syncInputTransform同步输入框的位置。
      */
     private _syncInputTransform(): void {
         var inputElement = this.nativeInput;
-        var transform = SpriteUtils.getTransformRelativeToWindow(this, this.padding[3], this.padding[0]);
-        var inputWid = this._width - this.padding[1] - this.padding[3];
-        var inputHei = this._height - this.padding[0] - this.padding[2];
+        var transform = SpriteUtils.getTransformRelativeToWindow(this, this._padding[3], this._padding[0]);
+        var inputWid = this._width - this._padding[1] - this._padding[3];
+        var inputHei = this._height - this._padding[0] - this._padding[2];
         if (LayaEnv.isConch && !Input.isAppUseNewInput) {
             (inputElement as any).setScale(transform.scaleX, transform.scaleY);
             (inputElement as any).setSize(inputWid, inputHei);
@@ -349,10 +340,7 @@ export class Input extends Text {
         }
         input.maxLength = this._maxChars;
 
-        //var padding: any[] = this.padding;
-
-        //input.type = this._type;      不知道为什么说这个是只读的。但是as项目就没问题
-        input.value = this._content;
+        input.value = this._text;
         input.placeholder = this._prompt;
 
         ILaya.stage.off(Event.KEY_DOWN, this, this._onKeyDown);
@@ -365,13 +353,12 @@ export class Input extends Text {
 
         // PC浏览器隐藏文字
         if (!(LayaEnv.isConch && Input.isAppUseNewInput) && !ILaya.Browser.onMiniGame && !ILaya.Browser.onBDMiniGame && !ILaya.Browser.onQGMiniGame && !ILaya.Browser.onKGMiniGame && !ILaya.Browser.onVVMiniGame && !ILaya.Browser.onAlipayMiniGame && !ILaya.Browser.onQQMiniGame && !ILaya.Browser.onBLMiniGame && !ILaya.Browser.onTTMiniGame && !ILaya.Browser.onHWMiniGame && !ILaya.Browser.onTBMiniGame) {
-            //var temp: string = this._text;
-            this._text = null;
+            this.graphics.clear(true);
+            this.drawBg();
         }
-        this.typeset();
 
         // PC同步输入框外观。
-        (input as any).setColor(this._originColor);
+        (input as any).setColor(this.color);
         (input as any).setFontSize(this.fontSize);
         (input as any).setFontFace(ILaya.Browser.onIPhone ? (Config.fontFamilyMap[this.font] || this.font) : this.font);
         if (LayaEnv.isConch && !Input.isAppUseNewInput) {
@@ -410,15 +397,9 @@ export class Input extends Text {
             InputManager.isTextInputting = false;
         this._focus = false;
 
-        this._text = null;
-        this._content = this.nativeInput.value;
-        if (!this._content) {
-            super.set_text(this._prompt);
-            super.set_color(this._promptColor);
-        } else {
-            super.set_text(this._content);
-            super.set_color(this._originColor);
-        }
+        this.text = this.nativeInput.value;
+        this.markChanged();
+        this.typeset();
 
         ILaya.stage.off(Event.KEY_DOWN, this, this._onKeyDown);
         ILaya.stage.focus = null;
@@ -445,26 +426,18 @@ export class Input extends Text {
      * @param value 
      */
     miniGameTxt(value: string) {
-        super.set_color(this._originColor);
         value += '';
         if (!this._multiline)
             value = value.replace(/\r?\n/g, '');
-        this._content = value;
-        if (value)
-            super.set_text(value);
-        else {
-            super.set_text(this._prompt);
-            super.set_color(this.promptColor);
-        }
+        this.text = value;
     }
 
     /**@inheritDoc 
      * @override
     */
     set text(value: string) {
-        super.set_color(this._originColor);
-
-        value += '';
+        if (typeof (value) !== "string")
+            value = '' + value;
 
         if (this._focus) {
             this.nativeInput.value = value || '';
@@ -474,14 +447,7 @@ export class Input extends Text {
             if (!this._multiline)
                 value = value.replace(/\r?\n/g, '');
 
-            this._content = value;
-
-            if (value)
-                super.set_text(value);
-            else {
-                super.set_text(this._prompt);
-                super.set_color(this.promptColor);
-            }
+            super.text = value;
         }
     }
     /**
@@ -491,43 +457,24 @@ export class Input extends Text {
         if (this._focus)
             return this.nativeInput.value;
         else
-            return this._content || "";
-    }
-    /**
-     * 
-     * @param text 
-     * @override
-     */
-    changeText(text: string): void {
-        this._content = text;
-
-        if (this._focus) {
-            this.nativeInput.value = text || '';
-            this.event(Event.CHANGE);
-        } else
-            super.changeText(text);
+            return super.text || "";
     }
 
     /**@inheritDoc 
      * @override
     */
-    set color(value: string) {
+    set_color(value: string) {
         if (this._focus)
             (this.nativeInput as any).setColor(value);
 
-        super.set_color(this._content ? value : this._promptColor);
-        this._originColor = value;
-    }
-
-    get color() {
-        return this._originColor;
+        super.set_color(value);
     }
 
     /**@inheritDoc 
      * @override
     */
     set bgColor(value: string) {
-        super.set_bgColor(value);
+        super.bgColor = value;
         if (LayaEnv.isConch && !Input.isAppUseNewInput)
             (this.nativeInput as any).setBgColor(value);
     }
@@ -594,17 +541,11 @@ export class Input extends Text {
     }
 
     set prompt(value: string) {
-        if (!this._text && value)
-            super.set_color(this._promptColor);
-
-        this.promptColor = this._promptColor;
-
-        if (this._text)
-            super.set_text((this._text == this._prompt) ? value : this._text);
-        else
-            super.set_text(value);
-
-        this._prompt = Text.langPacks?.[value] || value;
+        value = Text.langPacks?.[value] || value;
+        if (this._prompt != value) {
+            this._prompt = value;
+            this.markChanged();
+        }
     }
 
     /**
@@ -615,8 +556,10 @@ export class Input extends Text {
     }
 
     set promptColor(value: string) {
-        this._promptColor = value;
-        if (!this._content) super.set_color(value);
+        if (this._promptColor != value) {
+            this._promptColor = value;
+            this.markChanged();
+        }
     }
 
     /**
@@ -642,8 +585,8 @@ export class Input extends Text {
     }
 
     set type(value: string) {
-        if (value === "password") this._getTextStyle().asPassword = true;
-        else this._getTextStyle().asPassword = false;
+        if (value === "password") this._asPassword = true;
+        else this._asPassword = false;
         this._type = value;
     }
 }

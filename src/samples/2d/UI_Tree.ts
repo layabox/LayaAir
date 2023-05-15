@@ -8,6 +8,7 @@ import { Handler } from "laya/utils/Handler";
 import { Utils } from "laya/utils/Utils";
 import { WebGL } from "laya/webgl/WebGL";
 import { Main } from "./../Main";
+import { XML } from "laya/html/XML";
 
 export class UI_Tree {
 	Main: typeof Main = null;
@@ -45,7 +46,7 @@ export class UI_Tree {
 		}
 		treeData += "</data>";
 		// 解析tree的数据
-		var xml: any = Utils.parseXMLFromString(treeData);
+		var xml: any = new XML(treeData);
 
 		var tree: Tree = new Tree();
 		tree.scrollBarSkin = "res/ui/vscroll.png";

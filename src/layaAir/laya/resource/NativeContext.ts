@@ -9,8 +9,6 @@ import { CullMode } from "../RenderEngine/RenderEnum/CullMode";
 import { RenderStateType } from "../RenderEngine/RenderEnum/RenderStateType";
 import { RenderStateCommand } from "../RenderEngine/RenderStateCommand";
 import { ColorUtils } from "../utils/ColorUtils";
-import { FontInfo } from "../utils/FontInfo";
-import { HTMLChar } from "../utils/HTMLChar";
 import { WordText } from "../utils/WordText";
 import { BlendMode } from "../webgl/canvas/BlendMode";
 import { NativeWebGLCacheAsNormalCanvas } from "../webgl/canvas/NativeWebGLCacheAsNormalCanvas";
@@ -686,15 +684,6 @@ export class NativeContext {
             this.add_iiffiifi_String(CONTEXT2D_FUNCTION_ID.FILL_WORD_TEXT, (text as any)._nativeObj.id, x, y, c1.numColor, c2.numColor, 0, nTextAlign, font);
         }
     }
-    fillWords(words: HTMLChar[], x: number, y: number, fontStr: string, color: string): void {
-        var c1: ColorUtils = ColorUtils.create(color);
-        var c2: ColorUtils = ColorUtils.create(null);
-        var length = words.length;
-        for (var i = 0; i < length; i++) {
-            //this._nativeObj.fillWords(words[i].char, words[i].x + x,  words[i].y + y, fontStr, c1.numColor, c2.numColor, 0, 0);
-            this.add_iiiifff_String_String(CONTEXT2D_FUNCTION_ID.FILL_WORDS, c1.numColor, c2.numColor, 0, words[i].x + x, words[i].y + y, 0, words[i].char, fontStr);
-        }
-    }
     strokeWord(text: string | WordText, x: number, y: number, font: string, color: string, lineWidth: number, align: string): void {
         var nTextAlign = 0;
         switch (align) {
@@ -737,26 +726,6 @@ export class NativeContext {
             this.add_iiffiifi_String(CONTEXT2D_FUNCTION_ID.FILL_WORD_TEXT, (txt as any)._nativeObj.id, x, y, c1.numColor, c2.numColor, lineWidth, nTextAlign, font);
         }
     }
-    fillBorderWords(words: HTMLChar[], x: number, y: number, font: string, color: string, borderColor: string, lineWidth: number): void {
-        var c1: ColorUtils = ColorUtils.create(color);
-        var c2: ColorUtils = ColorUtils.create(borderColor);
-        var length = words.length;
-        for (var i = 0; i < length; i++) {
-            //this._nativeObj.fillWords(words[i].char, words[i].x + x,  words[i].y + y, font, c1.numColor, c2.numColor, lineWidth, 0);
-            this.add_iiiifff_String_String(CONTEXT2D_FUNCTION_ID.FILL_WORDS, c1.numColor, c2.numColor, 0, words[i].x + x, words[i].y + y, lineWidth, words[i].char, font);
-        }
-    }
-    fillWords11(words: HTMLChar[], x: number, y: number, fontStr: FontInfo, color: string, strokeColor: string | null, lineWidth: number): void {
-        var c1: ColorUtils = ColorUtils.create(color);
-        var c2: ColorUtils = ColorUtils.create(strokeColor);
-        var font = typeof (fontStr) === 'string' ? fontStr : (fontStr as any)._font;
-        var length = words.length;
-        for (var i = 0; i < length; i++) {
-            //this._nativeObj.fillWords(words[i].char, words[i].x + x,  words[i].y + y, font, c1.numColor, c2.numColor, lineWidth, 0);
-            this.add_iiiifff_String_String(CONTEXT2D_FUNCTION_ID.FILL_WORDS, c1.numColor, c2.numColor, 0, words[i].x + x, words[i].y + y, lineWidth, words[i].char, font);
-        }
-    }
-
     filltext11(data: string | WordText, x: number, y: number, fontStr: string, color: string, strokeColor: string, lineWidth: number, align: string): void {
         var nTextAlign = 0;
         switch (align) {

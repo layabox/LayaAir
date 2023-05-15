@@ -33,7 +33,6 @@ export class PerfHUD extends Sprite {
         super();
         PerfHUD.inst = this;
         this._renderType |= SpriteConst.CUSTOM;
-        this._setRenderType(this._renderType);
         this._setCustomRender();
 
         this.addDataDef(0, 0xffffff, 'frame', 1.0);

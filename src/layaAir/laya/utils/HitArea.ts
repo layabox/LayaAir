@@ -4,6 +4,7 @@ import { Sprite } from "../display/Sprite";
 import { Point } from "../maths/Point"
 import { Rectangle } from "../maths/Rectangle"
 import { ClassUtils } from "./ClassUtils";
+import { IHitArea } from "./IHitArea";
 
 const _rect: Rectangle = new Rectangle();
 const _ptPoint: Point = new Point();
@@ -12,7 +13,7 @@ const _ptPoint: Point = new Point();
  * 鼠标点击区域，可以设置绘制一系列矢量图作为点击区域和非点击区域（目前只支持圆形，矩形，多边形）
  *
  */
-export class HitArea {
+export class HitArea implements IHitArea {
     _hit: Graphics;
     _unHit: Graphics;
 
