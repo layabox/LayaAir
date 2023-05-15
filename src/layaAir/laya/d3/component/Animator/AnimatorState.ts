@@ -58,6 +58,9 @@ export class AnimatorState extends EventDispatcher implements IClone {
 
     curTransition: AnimatorTransition;
 
+    /**是否循环播放,为0时则使用_clip.islooping，1为循环，2为不循环 */
+    _isLooping: 0 | 1 | 2 = 0;
+
     /**名称。*/
     name: string;
 
@@ -118,6 +121,13 @@ export class AnimatorState extends EventDispatcher implements IClone {
             }
             this._clip = value;
         }
+    }
+
+    get islooping() {
+        if (0 != this._isLooping) {
+            return 1 == this._isLooping;
+        }
+        return this._clip.islooping;
     }
 
     /**
