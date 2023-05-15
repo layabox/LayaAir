@@ -631,7 +631,7 @@ export class ComboBox extends UIComponent {
 
     /**
      * 获取或设置对 <code>ComboBox</code> 组件所包含的 <code>Button</code> 组件的文本标签颜色。
-     * <p><b>格式：</b>upColor,overColor,downColor,disableColor</p>
+     * <p><b>格式：</b>upColor,overColor,downColor</p>
      */
     get labelColors(): string {
         return this._button.labelColors;
