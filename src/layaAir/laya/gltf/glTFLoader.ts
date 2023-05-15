@@ -1,7 +1,9 @@
 import * as glTF from "./glTFInterface";
 import { IResourceLoader, ILoadTask, Loader } from "../net/Loader";
 import { glTFResource } from "./glTFResource";
-import { Byte } from "../utils/Byte";
+
+import "./extensions/KHR_materials_unlit";
+
 
 class glTFLoader implements IResourceLoader {
     load(task: ILoadTask) {

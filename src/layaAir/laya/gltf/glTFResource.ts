@@ -1,8 +1,7 @@
 import { AnimationClip } from "../d3/animation/AnimationClip";
 import { KeyframeNode } from "../d3/animation/KeyframeNode";
 import { KeyframeNodeList } from "../d3/animation/KeyframeNodeList";
-import { Material } from "../d3/core/material/Material";
-import { PBRRenderMode } from "../d3/core/material/PBRMaterial";
+import { Material, MaterialRenderMode } from "../d3/core/material/Material";
 import { PBRStandardMaterial } from "../d3/core/material/PBRStandardMaterial";
 import { Mesh, skinnedMatrixCache } from "../d3/resource/models/Mesh";
 import { URL } from "../net/URL";
@@ -11,10 +10,17 @@ import * as glTF from "./glTFInterface";
 import { glTFTextureEditor } from "./glTFTextureEditor";
 
 import { ILaya } from "../../ILaya";
+import { BufferUsage } from "../RenderEngine/RenderEnum/BufferTargetType";
+import { HDREncodeFormat } from "../RenderEngine/RenderEnum/HDREncodeFormat";
+import { IndexFormat } from "../RenderEngine/RenderEnum/IndexFormat";
+import { RenderState } from "../RenderEngine/RenderShader/RenderState";
+import { VertexMesh } from "../RenderEngine/RenderShader/VertexMesh";
+import { VertexDeclaration } from "../RenderEngine/VertexDeclaration";
 import { Animator } from "../d3/component/Animator/Animator";
 import { AnimatorControllerLayer } from "../d3/component/Animator/AnimatorControllerLayer";
 import { AnimatorState } from "../d3/component/Animator/AnimatorState";
 import { FloatKeyframe } from "../d3/core/FloatKeyframe";
+import { MeshFilter } from "../d3/core/MeshFilter";
 import { MeshSprite3D } from "../d3/core/MeshSprite3D";
 import { QuaternionKeyframe } from "../d3/core/QuaternionKeyframe";
 import { SkinnedMeshRenderer } from "../d3/core/SkinnedMeshRenderer";
@@ -23,8 +29,8 @@ import { Sprite3D } from "../d3/core/Sprite3D";
 import { Vector3Keyframe } from "../d3/core/Vector3Keyframe";
 import { IndexBuffer3D } from "../d3/graphics/IndexBuffer3D";
 import { VertexBuffer3D } from "../d3/graphics/VertexBuffer3D";
-import { MorphTargetData } from "../d3/resource/models/MorphTargetData";
 import { MorphTarget, MorphTargetChannel } from "../d3/resource/models/MorphTarget";
+import { MorphTargetData } from "../d3/resource/models/MorphTargetData";
 import { SubMesh } from "../d3/resource/models/SubMesh";
 import { Node } from "../display/Node";
 import { LayaGL } from "../layagl/LayaGL";
@@ -34,19 +40,10 @@ import { Vector3 } from "../maths/Vector3";
 import { Vector4 } from "../maths/Vector4";
 import { IBatchProgress } from "../net/BatchProgress";
 import { Loader } from "../net/Loader";
-import { BufferUsage } from "../RenderEngine/RenderEnum/BufferTargetType";
-import { HDREncodeFormat } from "../RenderEngine/RenderEnum/HDREncodeFormat";
-import { IndexFormat } from "../RenderEngine/RenderEnum/IndexFormat";
-import { RenderCapable } from "../RenderEngine/RenderEnum/RenderCapable";
-import { RenderState } from "../RenderEngine/RenderShader/RenderState";
-import { VertexMesh } from "../RenderEngine/RenderShader/VertexMesh";
-import { VertexDeclaration } from "../RenderEngine/VertexDeclaration";
 import { Prefab } from "../resource/HierarchyResource";
 import { Base64Tool } from "../utils/Base64Tool";
-import { Handler } from "../utils/Handler";
-import { MeshFilter } from "../d3/core/MeshFilter";
 import { Byte } from "../utils/Byte";
-import { Color } from "../maths/Color";
+import { glTFExtension } from "./extensions/glTFExtension";
 
 const maxSubBoneCount = 24;
 
@@ -54,11 +51,21 @@ const maxSubBoneCount = 24;
  * @internal
  */
 export class glTFResource extends Prefab {
+
+    private static _Extensions: { [name: string]: (resource: glTFResource) => glTFExtension } = {};
+
+    static registerExtension(name: string, factory: (resource: glTFResource) => glTFExtension) {
+        this._Extensions[name] = factory;
+    }
+
     protected _data: glTF.glTF;
     protected _buffers: Record<string, ArrayBuffer>;
     protected _textures: Texture2D[];
     protected _materials: Material[];
     protected _meshes: Record<string, Mesh>;
+
+    protected _extensions: Array<glTFExtension>;
+
     protected _pendingOps: Array<Promise<any>>;
 
     private _scenes: Array<Sprite3D>;
@@ -67,11 +74,6 @@ export class glTFResource extends Prefab {
     /** @internal */
     private _idCounter: Record<string, number>;
 
-    /**
-     * 保存 extra 处理函数对象
-     */
-    protected _extras: { [name: string]: { [name: string]: Handler } } = {};// todo change context from string to enum ?
-
     constructor() {
         super(3);
 
@@ -79,6 +81,7 @@ export class glTFResource extends Prefab {
         this._textures = [];
         this._materials = [];
         this._meshes = {};
+        this._extensions = [];
         this._pendingOps = [];
         this._scenes = [];
         this._nodes = [];
@@ -186,12 +189,7 @@ export class glTFResource extends Prefab {
             if (data.materials) {
                 data.materials.forEach((glTFMat, index) => {
                     let mat: Material;
-                    if (glTFMat.extras) {
-                        let createHandler = Handler.create(this, this.createMaterial, null, false);
-                        mat = this.executeExtras("MATERIAL", glTFMat.extras, createHandler, [glTFMat]);
-                    }
-                    else
-                        mat = this.createMaterial(glTFMat);
+                    mat = this.createMaterial(glTFMat);
                     this._materials[index++] = mat;
                     this.addDep(mat);
                 })
@@ -214,12 +212,7 @@ export class glTFResource extends Prefab {
                         let key = glTFNode.mesh + (glTFNode.skin != null ? ("_" + glTFNode.skin) : "");
                         let mesh = this._meshes[key];
                         if (!mesh) {
-                            if (glTFMesh.extras) {
-                                let createHandler = Handler.create(this, this.createMesh, null, false);
-                                mesh = this.executeExtras("MESH", glTFMesh.extras, createHandler, [glTFMesh, glTFSkin]);
-                            }
-                            else
-                                mesh = this.createMesh(glTFMesh, glTFSkin);
+                            mesh = this.createMesh(glTFMesh, glTFSkin);
                             this._meshes[key] = mesh;
                             this.addDep(mesh);
                         }
@@ -246,8 +239,12 @@ export class glTFResource extends Prefab {
         this._idCounter = {};
 
         data.extensionsUsed?.forEach(value => {
-            if (!this._extras[value]) {
+            let extensionFactory = glTFResource._Extensions[value];
+            if (!extensionFactory) {
                 console.warn(`glTF: unsupported extension: ${value}`);
+            }
+            else {
+                this._extensions.push(extensionFactory(this));
             }
         });
 
@@ -335,9 +332,14 @@ export class glTFResource extends Prefab {
         this._buffers[0] = byte.readArrayBuffer(firstBuffer.byteLength);
 
         glTFObj.extensionsUsed?.forEach(value => {
-            if (!this._extras[value]) {
+            let extensionFactory = glTFResource._Extensions[value];
+            if (!extensionFactory) {
                 console.warn(`glTF: unsupported extension: ${value}`);
             }
+            else {
+                this._extensions.push(extensionFactory(this));
+            }
+            // this._extensions.sort((a, b) => )
         });
 
         let promise: Promise<any> = this.loadTextures(basePath, progress);
@@ -381,56 +383,6 @@ export class glTFResource extends Prefab {
         this._idCounter = null;
 
         return defaultScene;
-    }
-
-    /**
-     * 注册 extra 处理函数
-     * @param context 
-     * @param extraName 
-     * @param handler 
-     */
-    public registerExtra(context: string, extraName: string, handler: Handler) {
-        let extra: { [name: string]: Handler } = this._extras[context] || (this._extras[context] = {});
-        extra[extraName] = handler;
-    }
-
-    /**
-     * 取消注册 extra 处理函数
-     * @param context 
-     * @param extraName 
-     * @param recoverHandler 
-     */
-    public unregisterExtra(context: string, extraName: string, recoverHandler: boolean = true) {
-        let extra: { [name: string]: Handler } = this._extras[context] || (this._extras[context] = {});
-        if (recoverHandler) {
-            let extraHandler: Handler = extra[extraName];
-            extraHandler && extraHandler.recover();
-        }
-        delete extra[extraName];
-    }
-
-    /**
-     * @internal
-     * 执行 extra 处理函数
-     * @param context 
-     * @param glTFExtra 
-     * @param createHandler 
-     * @param params 
-     */
-    private executeExtras(context: string, glTFExtra: glTF.glTFNodeProperty, createHandler: Handler, params?: any): any {
-        let contextExtra = this._extras[context];
-        let extraRes: any = null;
-
-        if (contextExtra) {
-            for (const key in glTFExtra) {
-                let extraHandler: Handler = contextExtra[key];
-                extraRes = extraHandler ? extraHandler.runWith([...params, createHandler]) : extraRes;
-            }
-        }
-
-        extraRes = extraRes || createHandler.runWith(params);
-        createHandler.recover();
-        return extraRes;
     }
 
     protected loadTextureFromBuffer(buffer: ArrayBuffer, mimeType: glTF.glTFImageMimeType, constructParams: TextureConstructParams, propertyParams: TexturePropertyParams, progress?: IBatchProgress): Promise<Texture2D> {
@@ -683,7 +635,7 @@ export class glTFResource extends Prefab {
      * 根据 glTFTextureInfo 获取 Texture2D
      * @param glTFTextureInfo 
      */
-    private getTextureWithInfo(glTFTextureInfo: glTF.glTFTextureInfo): Texture2D {
+    getTextureWithInfo(glTFTextureInfo: glTF.glTFTextureInfo): Texture2D {
 
         // uv 非 0 
         if (glTFTextureInfo.texCoord) {
@@ -696,10 +648,56 @@ export class glTFResource extends Prefab {
     }
 
     /**
+     * 
+     * @param glTFMaterial 
+     * @param material 
+     */
+    applyMaterialRenderState(glTFMaterial: glTF.glTFMaterial, material: Material) {
+        // material render state
+        let renderMode: glTF.glTFMaterialAlphaMode = glTFMaterial.alphaMode || glTF.glTFMaterialAlphaMode.OPAQUE;
+        switch (renderMode) {
+            case glTF.glTFMaterialAlphaMode.OPAQUE: {
+                material.materialRenderMode = MaterialRenderMode.RENDERMODE_OPAQUE;
+                break;
+            }
+            case glTF.glTFMaterialAlphaMode.BLEND: {
+                material.materialRenderMode = MaterialRenderMode.RENDERMODE_TRANSPARENT;
+                break;
+            }
+            case glTF.glTFMaterialAlphaMode.MASK: {
+                material.materialRenderMode = MaterialRenderMode.RENDERMODE_CUTOUT;
+                break;
+            }
+            default: {
+                // todo
+            }
+        }
+
+        material.alphaTestValue = glTFMaterial.alphaCutoff ?? 0.5;
+
+        if (glTFMaterial.doubleSided) {
+            material.cull = RenderState.CULL_NONE;
+        }
+
+    }
+
+    protected createMaterial(glTFMaterial: glTF.glTFMaterial): Material {
+
+        for (const key in glTFMaterial.extensions) {
+            let extension = this._extensions.find(value => value.name == key);
+            if (extension && extension.createMaterial) {
+                return extension.createMaterial(glTFMaterial);
+            }
+        }
+
+        return this.createDefaultMaterial(glTFMaterial);
+    }
+
+    /**
      * 根据 glTFMaterial 节点数据创建 default Material
      * @param glTFMaterial 
      */
-    protected createMaterial(glTFMaterial: glTF.glTFMaterial): PBRStandardMaterial {
+    protected createDefaultMaterial(glTFMaterial: glTF.glTFMaterial): PBRStandardMaterial {
         let layaPBRMaterial: PBRStandardMaterial = new PBRStandardMaterial();
 
         // apply glTF Material property
@@ -769,30 +767,7 @@ export class glTFResource extends Prefab {
             layaPBRMaterial.emissionColor = color;
         }
 
-        let renderMode: glTF.glTFMaterialAlphaMode = glTFMaterial.alphaMode || glTF.glTFMaterialAlphaMode.OPAQUE;
-        switch (renderMode) {
-            case glTF.glTFMaterialAlphaMode.OPAQUE: {
-                layaPBRMaterial.renderMode = PBRRenderMode.Opaque;
-                break;
-            }
-            case glTF.glTFMaterialAlphaMode.BLEND: {
-                layaPBRMaterial.renderMode = PBRRenderMode.Fade;
-                break;
-            }
-            case glTF.glTFMaterialAlphaMode.MASK: {
-                layaPBRMaterial.renderMode = PBRRenderMode.Cutout;
-                break;
-            }
-            default: {
-                // todo
-            }
-        }
-
-        layaPBRMaterial.alphaTestValue = glTFMaterial.alphaCutoff ?? 0.5;
-
-        if (glTFMaterial.doubleSided) {
-            layaPBRMaterial.cull = RenderState.CULL_NONE;
-        }
+        this.applyMaterialRenderState(glTFMaterial, layaPBRMaterial);
 
         return layaPBRMaterial;
     }
@@ -968,6 +943,8 @@ export class glTFResource extends Prefab {
         let materials: Material[] = this.pickMeshMaterials(glTFMesh);
         let sprite: MeshSprite3D = new MeshSprite3D(mesh, glTFNode.name);
         sprite.meshRenderer.sharedMaterials = materials;
+        sprite.meshRenderer.receiveShadow = true;
+        sprite.meshRenderer.castShadow = true;
 
         if (glTFMesh.weights) {
             let render = sprite.meshRenderer;
@@ -990,6 +967,8 @@ export class glTFResource extends Prefab {
         let materials: Material[] = this.pickMeshMaterials(glTFMesh);
         let sprite: SkinnedMeshSprite3D = new SkinnedMeshSprite3D(mesh, glTFNode.name);
         sprite.skinnedMeshRenderer.sharedMaterials = materials;
+        sprite.skinnedMeshRenderer.receiveShadow = true;
+        sprite.skinnedMeshRenderer.castShadow = true;
 
         if (glTFMesh.weights) {
             let render = sprite.skinnedMeshRenderer;
@@ -1036,10 +1015,64 @@ export class glTFResource extends Prefab {
         else {
             let indices: Uint32Array = new Uint32Array(vertexCount);
             for (let i = 0; i < vertexCount; i++) {
-                indices[i] = i;
+                indices[i] = vertexCount - 1 - i;
             }
             return indices;
         }
+    }
+
+    private calculateFlatNormal(positions: Float32Array, indexArray: Uint32Array): Float32Array {
+        let normal = new Float32Array(positions.length);
+
+        for (let index = 0; index < indexArray.length; index += 3) {
+            // todo
+            let i0 = indexArray[index];
+            let i1 = indexArray[index + 1];
+            let i2 = indexArray[index + 2];
+
+            let p0x = positions[i0 * 3];
+            let p0y = positions[i0 * 3 + 1];
+            let p0z = positions[i0 * 3 + 2];
+
+            let p1x = positions[i1 * 3];
+            let p1y = positions[i1 * 3 + 1];
+            let p1z = positions[i1 * 3 + 2];
+
+            let p2x = positions[i2 * 3];
+            let p2y = positions[i2 * 3 + 1];
+            let p2z = positions[i2 * 3 + 2];
+
+            let x1 = p1x - p0x;
+            let y1 = p1y - p0y;
+            let z1 = p1z - p0z;
+
+            let x2 = p2x - p0x;
+            let y2 = p2y - p0y;
+            let z2 = p2z - p0z;
+
+            let yz = y1 * z2 - z1 * y2;
+            let xz = z1 * x2 - x1 * z2;
+            let xy = x1 * y2 - y1 * x2;
+
+            let invPyth = -1.0 / (Math.sqrt((yz * yz) + (xz * xz) + (xy * xy)));
+            let nx = yz * invPyth;
+            let ny = xz * invPyth;
+            let nz = xy * invPyth;
+
+            normal[i0 * 3] = nx;
+            normal[i1 * 3] = nx;
+            normal[i2 * 3] = nx;
+
+            normal[i0 * 3 + 1] = ny;
+            normal[i1 * 3 + 1] = ny;
+            normal[i2 * 3 + 1] = ny;
+
+            normal[i0 * 3 + 2] = nz;
+            normal[i1 * 3 + 2] = nz;
+            normal[i2 * 3 + 2] = nz;
+        }
+
+        return normal;
     }
 
     /**
@@ -1613,14 +1646,28 @@ export class glTFResource extends Prefab {
             let attributes: { [name: string]: number } = glTFMeshPrimitive.attributes;
 
             let position: Float32Array = this.getArrributeBuffer(attributes.POSITION, "POSITION", attributeMap, vertexDeclarArr);
+            let vertexCount: number = position.length / 3;
+            let indexArray: Uint32Array = this.getIndexBuffer(glTFMeshPrimitive.indices, vertexCount);
             let positionAccessor = this._data.accessors[attributes.POSITION];
+
             let normal: Float32Array = this.getArrributeBuffer(attributes.NORMAL, "NORMAL", attributeMap, vertexDeclarArr);
+            /**
+             * When normals are not specified, client implementations MUST calculate flat normals and the provided tangents (if present) MUST be ignored.
+             */
+            if (!normal) {
+                normal = this.calculateFlatNormal(position, indexArray);
+                vertexDeclarArr.push("NORMAL");
+                attributeMap.set("NORMAL", normal);
+            }
+
             let color: Float32Array = this.getArrributeBuffer(attributes.COLOR_0, "COLOR", attributeMap, vertexDeclarArr);
             let uv: Float32Array = this.getArrributeBuffer(attributes.TEXCOORD_0, "UV", attributeMap, vertexDeclarArr);
             let uv1: Float32Array = this.getArrributeBuffer(attributes.TEXCOORD_1, "UV1", attributeMap, vertexDeclarArr);
             let blendWeight: Float32Array = this.getArrributeBuffer(attributes.WEIGHTS_0, "BLENDWEIGHT", attributeMap, vertexDeclarArr);
             let blendIndices: Float32Array = this.getArrributeBuffer(attributes.JOINTS_0, "BLENDINDICES", attributeMap, vertexDeclarArr);
-            let tangent: Float32Array = this.getArrributeBuffer(attributes.TANGENT, "TANGENT", attributeMap, vertexDeclarArr);
+
+            let tangent: Float32Array;
+            tangent = this.getArrributeBuffer(attributes.TANGENT, "TANGENT", attributeMap, vertexDeclarArr);
             // :(
             if (tangent) {
                 for (let tangentIndex = 0; tangentIndex < tangent.length; tangentIndex += 4) {
@@ -1687,9 +1734,6 @@ export class glTFResource extends Prefab {
                 });
             }
 
-            let vertexCount: number = position.length / 3;
-
-            let indexArray: Uint32Array = this.getIndexBuffer(glTFMeshPrimitive.indices, vertexCount);
             let boneIndicesList: Array<Uint16Array> = new Array<Uint16Array>();
             let subIndexStartArray: number[] = [];
             let subIndexCountArray: number[] = [];
@@ -2328,7 +2372,6 @@ export class glTFResource extends Prefab {
         return clip;
     }
 }
-
 
 /**
  * @internal

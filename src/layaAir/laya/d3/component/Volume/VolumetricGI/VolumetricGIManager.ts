@@ -22,8 +22,6 @@ export class VolumetricGIManager implements IVolumeManager {
     }
 
     add(volume: VolumetricGI): void {
-        console.log("add VolumetricGI");
-
         this._GIVolumes.add(volume);
         this._needUpdateAllRender = true;
     }
