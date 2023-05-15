@@ -785,7 +785,7 @@ export class Text extends Sprite {
     }
 
     /**返回文字行信息*/
-    get lines(): any[] {
+    get lines(): ReadonlyArray<ITextLine> {
         this.typeset();
         return this._lines;
     }
@@ -952,7 +952,12 @@ export class Text extends Sprite {
             if (wrapWidth != null) {
                 for (let i = 0, n = lines.length; i < n; i++) {
                     let line = lines[i];
-                    wrapText(line, style);
+                    if (line.length > 0)
+                        wrapText(line, style);
+                    if (i != n - 1) {
+                        endLine();
+                        startLine();
+                    }
                 }
             }
             else {
@@ -960,9 +965,10 @@ export class Text extends Sprite {
                     let line = lines[i];
                     if (line.length > 0)
                         addCmd(line, style, null);
-                    endLine();
-                    if (i != n - 1)
+                    if (i != n - 1) {
+                        endLine();
                         startLine();
+                    }
                 }
             }
         };
@@ -1175,11 +1181,16 @@ export class Text extends Sprite {
             }
         }
 
-        endLine();
+        if (curLine.cmd)
+            endLine();
+        else {
+            this._lines.pop();
+            linePool.push(curLine);
+        }
 
         //计算textWidth和textHeight
 
-        let nw: number = 0, nh: number;
+        let nw: number = 0, nh: number = 0;
         for (let line of this._lines) {
             if (line.width > nw)
                 nw = line.width;
@@ -1189,7 +1200,8 @@ export class Text extends Sprite {
         this._textWidth = nw;
 
         let lastLine = this._lines[this._lines.length - 1];
-        nh = lastLine.y + lastLine.height;
+        if (lastLine)
+            nh = lastLine.y + lastLine.height;
         if (nh > 0)
             nh += padding[0] + padding[2];
         this._textHeight = nh;
@@ -1389,7 +1401,7 @@ export class Text extends Sprite {
         }
     }
 }
-interface ITextCmd {
+export interface ITextCmd {
     x: number;
     y: number;
     width: number;
@@ -1401,7 +1413,7 @@ interface ITextCmd {
     next: ITextCmd;
 }
 
-interface ITextLine {
+export interface ITextLine {
     x: number;
     y: number;
     height: number;

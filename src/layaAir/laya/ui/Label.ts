@@ -4,6 +4,8 @@ import { Event } from "../events/Event"
 import { UIComponent } from "./UIComponent"
 import { UIUtils } from "./UIUtils"
 import { HideFlags } from "../Const";
+import { SerializeUtil } from "../loaders/SerializeUtil";
+import { LayaEnv } from "../../LayaEnv";
 
 /**
  * 文本内容发生改变后调度。
@@ -142,7 +144,7 @@ export class Label extends UIComponent {
         this._tf = new Text();
         this._tf.hideFlags = HideFlags.HideAndDontSave;
         this._tf._onPostLayout = () => {
-            if (this._fitContent) {
+            if (this._fitContent && (LayaEnv.isPlaying || this._tf.textWidth > 0 && this._tf.textHeight > 0)) {
                 if (this._tf.wordWrap)
                     this.height = this._tf.textHeight;
                 else
@@ -361,7 +363,15 @@ export class Label extends UIComponent {
 
     /** 设置文本框大小是否自动适应文本内容的大小。可取值为both或者height */
     set fitContent(value: boolean) {
-        this._fitContent = value;
+        if (this._fitContent != value) {
+            if (value && !SerializeUtil.isDeserializing && (LayaEnv.isPlaying || this._tf.textWidth > 0 && this._tf.textHeight > 0)) {
+                if (this._tf.wordWrap)
+                    this.height = this._tf.textHeight;
+                else
+                    this.size(this._tf.textWidth, this._tf.textHeight);
+            }
+            this._fitContent = value;
+        }
     }
 
     /**
