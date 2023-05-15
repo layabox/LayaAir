@@ -482,7 +482,7 @@ export class Button extends UIComponent implements ISelect {
 
     /**
      * 表示按钮各个状态下的文本颜色。
-     * <p><b>格式:</b> "upColor,overColor,downColor,disableColor"。</p>
+     * <p><b>格式:</b> "upColor,overColor,downColor"。</p>
      */
     get labelColors(): string {
         return this._labelColors.join(",");
@@ -495,7 +495,7 @@ export class Button extends UIComponent implements ISelect {
 
     /**
      * 表示按钮各个状态下的描边颜色。
-     * <p><b>格式:</b> "upColor,overColor,downColor,disableColor"。</p>
+     * <p><b>格式:</b> "upColor,overColor,downColor"。</p>
      */
     get strokeColors(): string {
         return this._strokeColors ? this._strokeColors.join(",") : "";

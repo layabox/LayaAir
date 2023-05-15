@@ -144,6 +144,7 @@ export class TextInput extends Label {
 
         this._tf = new Input();
         this._tf.hideFlags = HideFlags.HideAndDontSave;
+        this._tf._onPostLayout = () => this._onPostLayout();
         this.addChild(this._tf);
         this._tf.padding = Styles.inputLabelPadding;
         this._tf.on(Event.INPUT, this, this._onInput);
