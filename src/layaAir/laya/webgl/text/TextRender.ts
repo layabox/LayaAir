@@ -462,11 +462,8 @@ export class TextRender {
                     ri.oriy = margin;
                 } else {
                     // 取下来的imagedata的原点在哪
-                    //guzhu 2023.5.13
-                    //ri.orix = (this.fontSizeOffX + lineExt);	// 由于是相对于imagedata的，上面会根据包边调整左上角，所以原点也要相应反向调整
-                    //ri.oriy = (this.fontSizeOffY + lineExt);
-                    ri.orix = lineExt;	// 由于是相对于imagedata的，上面会根据包边调整左上角，所以原点也要相应反向调整
-                    ri.oriy = lineExt;
+                    ri.orix = (this.fontSizeOffX + lineExt);	// 由于是相对于imagedata的，上面会根据包边调整左上角，所以原点也要相应反向调整
+                    ri.oriy = (this.fontSizeOffY + lineExt);
                 }
                 atlas.charMaps[key] = ri;
             }

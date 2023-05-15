@@ -11,13 +11,13 @@ import { Config } from "../../Config";
 import { Utils } from "../utils/Utils";
 import { DrawRectCmd } from "./cmd/DrawRectCmd";
 import { HtmlElement, HtmlElementType } from "../html/HtmlElement";
-import { HtmlImage } from "../html/HtmlImage";
 import { HtmlLink } from "../html/HtmlLink";
 import { Pool } from "../utils/Pool";
 import { IHtmlObject } from "../html/IHtmlObject";
 import { HideFlags } from "../Const";
 import { HtmlParser } from "../html/HtmlParser";
 import { UBBParser } from "../html/UBBParser";
+import { HtmlParseOptions } from "../html/HtmlParseOptions";
 
 /**
  * 文本内容发生改变后调度。
@@ -171,6 +171,8 @@ export class Text extends Sprite {
      * 如果此属性的值为 true，则文本字段被视为密码文本字段，并使用星号而不是实际字符来隐藏输入的字符。如果为 false，则不会将文本字段视为密码文本字段。
      */
     protected _asPassword: boolean;
+
+    protected _htmlParseOptions: HtmlParseOptions;
 
     /**表示文本内容是否发生改变。*/
     protected _isChanged: boolean;
@@ -711,6 +713,14 @@ export class Text extends Sprite {
         }
     }
 
+    get htmlParseOptions(): HtmlParseOptions {
+        return this._htmlParseOptions;
+    }
+
+    set htmlParseOptions(value: HtmlParseOptions) {
+        this._htmlParseOptions = value;
+    }
+
     /**
     * <p>设置横向滚动量。</p>
     * <p>即使设置超出滚动范围的值，也会被自动限制在可能的最大值处。</p>
@@ -855,7 +865,7 @@ export class Text extends Sprite {
             this._textStyle.color = this._promptColor;
         }
         if (html)
-            HtmlParser.defaultParser.parse(text, this._textStyle, this._elements, null);
+            HtmlParser.defaultParser.parse(text, this._textStyle, this._elements, this._htmlParseOptions);
         else {
             let ele = HtmlElement.getFromPool(HtmlElementType.Text);
             Object.assign(ele.style, this._textStyle);
@@ -1142,11 +1152,7 @@ export class Text extends Sprite {
             else {
                 let htmlObj = ele.obj;
                 if (!htmlObj) {
-                    let cls: any;
-                    if (ele.type == HtmlElementType.Image)
-                        cls = HtmlImage;
-                    else if (ele.type == HtmlElementType.Link)
-                        cls = HtmlLink;
+                    let cls = HtmlParser.classMap[ele.type];
                     if (cls) {
                         htmlObj = Pool.createByClass(cls);
                         htmlObj.create(this, ele);
