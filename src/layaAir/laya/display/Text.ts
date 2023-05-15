@@ -204,6 +204,7 @@ export class Text extends Sprite {
 
         this._textStyle = new TextStyle();
         this._textStyle.fontSize = Config.defaultFontSize;
+        this._text = "";
         this.font = "";
         this._elements = [];
         this._lines = [];
@@ -323,10 +324,12 @@ export class Text extends Sprite {
 
     /** 当前文本的内容字符串。*/
     get text(): string {
-        return this._text || "";
+        return this._text;
     }
 
     set_text(value: string): void {
+        if (value == null)
+            value = "";
         if (this._text !== value) {
             this.lang(value + "");
             this.markChanged();
