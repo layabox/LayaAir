@@ -393,15 +393,18 @@ export class Text extends Sprite {
                 value = "Arial";
         }
 
+        this._realFont = value;
+        this._bitmapFont = null;
+
         if (Text._bitmapFonts && Text._bitmapFonts[value]) {
-            this._realFont = value;
             this._bitmapFont = Text._bitmapFonts[value];
             if (this._text)
                 this.markChanged();
         }
         else if (value && (Utils.getFileExtension(value) || value.startsWith("res://"))) {
+            let t = value;
             ILaya.loader.load(value).then(fontObj => {
-                if (!fontObj)
+                if (!fontObj || this._realFont != t)
                     return;
 
                 if (fontObj instanceof BitmapFont)
