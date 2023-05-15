@@ -3,69 +3,56 @@
 
     #include "globalIllumination.glsl";
 
-    // todo cpu 拼接？
-    #define IBL_ROUGHNESS_LEVEL 4.0
-
-vec2 prefilteredDFG_LUT(float coord, float NoV)
-{
-    return texture2DLodEXT(u_IBLDGF, vec2(NoV, 1.0 - coord), 0.0).rg;
-}
-
-vec2 EnvBRDFApproxLazarov(float roughness, float NoV)
-{
-    vec4 c0 = vec4(-1, -0.0275, -0.572, 0.022);
-    vec4 c1 = vec4(1, 0.0425, 1.04, -0.04);
-    vec4 r = roughness * c0 + c1;
-    float a004 = min(r.x * r.x, exp2(-9.28 * NoV)) * r.x + r.y;
-    vec2 AB = vec2(-1.04, 1.04) * a004 + r.zw;
-    return AB;
-}
-
 vec3 PBRGI(const in Surface surface, const in PixelInfo info)
 {
-    vec3 indirect = vec3(0.0);
-
-    #ifdef LIGHTMAP
-
-	#ifdef UV1
-    vec2 lightmapUV = info.lightmapUV;
-    vec3 bakedColor = getBakedLightmapColor(lightmapUV);
-        #ifdef LIGHTMAP_DIRECTIONAL
-            bakedColor = DecodeDirectionalLightmap(lightmapUV,bakedColor,info.normalWS);
-        #endif //LIGHTMAP_DIRECTIONAL
-    // todo  surface.diffuseColor ？
-    vec3 Fd = bakedColor * surface.diffuseColor;
-	#endif // UV1
-
-    #else // LIGHTMAP
-
-    vec3 n = info.normalWS;
-    vec3 Fd = diffuseIrradiance(n) * surface.diffuseColor * surface.occlusion * u_AmbientIntensity;
-
-    #endif // LIGHTMAP
-
-    // specular
-    float perceptualRoughness = surface.perceptualRoughness;
     float NoV = info.NoV;
-    vec2 env = EnvBRDFApproxLazarov(perceptualRoughness, NoV);
-    vec3 f0 = surface.f0;
-    // todo f90 用 1.0 近似 f90
-    float f90 = 1.0;
-    vec3 specularColor = f0 * env.x + f90 * env.y;
+    vec3 n = info.normalWS;
+    vec3 positionWS = info.positionWS;
 
+    // todo specular
+    float specularWeight = 1.0;
+    vec3 diffuseColor = surface.diffuseColor;
+    float roughness = surface.perceptualRoughness;
+    vec3 F0 = surface.f0;
+    float occlusion = surface.occlusion;
+    vec2 f_ab = surface.dfg.rg.rg;
+
+    vec3 Fr = max(vec3(1.0 - roughness), F0) - F0;
+    vec3 k_S = F0 + Fr * pow5(1.0 - NoV);
+    vec3 FssEss = k_S * f_ab.x + f_ab.y;
+
+    // radiance
     vec3 r = getReflectedVector(surface, info);
-
+    // todo
     #ifdef SPECCUBE_BOX_PROJECTION
-    r = getBoxProjectionReflectedVector(r, info.positionWS, u_SpecCubeProbePosition, u_SpecCubeBoxMin, u_SpecCubeBoxMax);
+    r = getBoxProjectionReflectedVector(r, positionWS);
     #endif // SPECCUBE_BOX_PROJECTION
 
-    vec3 indirectSpecular = specularIrradiance(r, perceptualRoughness) * u_ReflectionIntensity;
+    vec3 indirectSpecular = specularIrradiance(r, roughness);
 
-    vec3 Fr = indirectSpecular * specularColor * surface.occlusion;
+    vec3 fSpecular = indirectSpecular * FssEss * occlusion;
 
-    indirect = Fd + Fr;
+    // irradiance
+    #if defined(USELIGHTMAP)
 
-    return indirect;
+    vec2 lightmapUV = info.lightmapUV;
+    vec3 bakedlight = getBakedLightmapColor(lightmapUV, n);
+
+    vec3 fDiffuse = bakedlight * diffuseColor;
+
+    #else // USELIGHTMAP
+
+    vec3 irradiance = diffuseIrradiance(n, positionWS, info.viewDir);
+    float Ems = (1.0 - (f_ab.x + f_ab.y));
+    vec3 F_avg = specularWeight * (F0 + (1.0 - F0) / 21.0);
+    vec3 FmsEms = Ems * FssEss * F_avg / (1.0 - F_avg * Ems);
+    vec3 k_D = diffuseColor * (1.0 - FssEss + FmsEms);
+
+    vec3 fDiffuse = (FmsEms + k_D) * irradiance * occlusion;
+
+    #endif // USELIGHTMAP
+
+    return fDiffuse + fSpecular;
 }
 
 #endif // pbrGI_lib

@@ -53,7 +53,8 @@ export class RenderElementBatch {
             else if (Config3D.enableDynamicBatch && LayaGL.renderEngine.getCapable(RenderCapable.DrawElement_Instance)) {
                 if (element.renderSubShader._owner._enableInstancing && element.render.lightmapIndex < 0) {
                     var insManager = this._instanceBatchManager;
-                    var insBatchMarks = insManager.getInstanceBatchOpaquaMark(element.render.receiveShadow, element.material.id, element._geometry._id, element.transform ? element.transform._isFrontFaceInvert : false, element.render._probReflection ? element.render._probReflection.id : -1);
+                    let invertFrontFace = element.transform ? element.transform._isFrontFaceInvert : false;
+                    var insBatchMarks = insManager.getInstanceBatchOpaquaMark(element.render.receiveShadow, element.material.id, element._geometry._id, invertFrontFace, element.render._probReflection ? element.render._probReflection.id : -1);
                     if (insManager.updateCountMark === insBatchMarks.updateMark) {
                         //can batch
                         var insBatchIndex: number = insBatchMarks.indexInList;
@@ -86,6 +87,7 @@ export class RenderElementBatch {
                             elementArray[insBatchIndex] = instanceRenderElement;
                             insBatchMarks.batched = true;
                             instanceRenderElement._isUpdataData = true;
+                            instanceRenderElement._invertFrontFace = invertFrontFace;
                         }
                     } else {
                         insBatchMarks.updateMark = insManager.updateCountMark;

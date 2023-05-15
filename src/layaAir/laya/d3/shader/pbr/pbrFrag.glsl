@@ -26,22 +26,21 @@ void getPixelParams(inout PixelParams params)
 
     params.viewDir = normalize(u_CameraPos - params.positionWS);
     // todo NoV varying ?
-    params.NoV = max(abs(dot(params.normalWS, params.viewDir)), MIN_N_DOT_V);
+    params.NoV = min(max(dot(params.normalWS, params.viewDir), MIN_N_DOT_V), 1.0);
 
     #ifdef NEEDTBN
     params.tangentWS = normalize(v_TangentWS);
     params.biNormalWS = normalize(v_BiNormalWS);
     mat3 TBN = mat3(params.tangentWS, params.biNormalWS, params.normalWS);
     params.TBN = TBN;
-    
+
 	#ifdef NORMALTEXTURE
     vec3 normalSampler = texture2D(u_NormalTexture, params.uv0).rgb;
     normalSampler = normalize(normalSampler * 2.0 - 1.0);
     normalSampler.y *= -1.0;
     params.normalTS = normalSampler;
     params.normalWS = normalize(TBN * normalSampler);
-	// params.normalWS = normalize(TBN * normalSampler);
-    #endif // NORMALTEXTURE
+	#endif // NORMALTEXTURE
 
 	#ifdef TANGENTTEXTURE
     vec3 tangentSampler = texture2D(u_TangentTexture, params.uv0).rgb;
@@ -96,7 +95,7 @@ vec3 PBRLighting(const in Surface surface, const in PixelParams pixel)
 	    if (i >= DirectionCount)
 		break;
 	    DirectionLight directionLight = getDirectionLight(i, pixel.positionWS);
-        if (directionLight.lightMode == LightMode_Mix)
+	    if (directionLight.lightMode == LightMode_Mix)
 		{
 		    continue;
 		}
@@ -115,7 +114,7 @@ vec3 PBRLighting(const in Surface surface, const in PixelParams pixel)
 	    if (i >= clusterInfo.x)
 		break;
 	    PointLight pointLight = getPointLight(i, clusterInfo, pixel.positionWS);
-        if (pointLight.lightMode == LightMode_Mix)
+	    if (pointLight.lightMode == LightMode_Mix)
 		{
 		    continue;
 		}
@@ -130,7 +129,7 @@ vec3 PBRLighting(const in Surface surface, const in PixelParams pixel)
 	    if (i >= clusterInfo.y)
 		break;
 	    SpotLight spotLight = getSpotLight(i, clusterInfo, pixel.positionWS);
-        if (spotLight.lightMode == LightMode_Mix)
+	    if (spotLight.lightMode == LightMode_Mix)
 		{
 		    continue;
 		}
@@ -140,7 +139,6 @@ vec3 PBRLighting(const in Surface surface, const in PixelParams pixel)
     #endif // SPOTLIGHT
 
     vec3 giColor = PBRGI(surface, info);
-
 
     return lightColor + giColor;
 }

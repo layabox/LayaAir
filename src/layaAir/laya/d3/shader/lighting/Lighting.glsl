@@ -41,7 +41,13 @@ int getAttenuationByMode(float lightMapMode)
 {
     #ifdef LIGHTMAP // mix 0 realtime 1
     return int(lightMapMode);
-    #endif
+    #else // LIGHTMAP
+
+	#ifdef VOLUMETRICGI
+    return int(lightMapMode);
+	#endif // VOLUMETRICGI
+
+    #endif // LIGHTMAP
     return LightMode_RealTime;
 }
 

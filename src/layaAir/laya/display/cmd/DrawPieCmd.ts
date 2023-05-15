@@ -19,10 +19,7 @@ export class DrawPieCmd {
     /**
      * 扇形半径。
      */
-    radius: number;
-    
-    private _startAngle: number;
-    private _endAngle: number;
+    radius: number = 0;
 
     /**
      * 填充颜色，或者填充绘图的渐变对象。
@@ -35,16 +32,17 @@ export class DrawPieCmd {
     /**
      * （可选）边框宽度。
      */
-    lineWidth: number;
+    lineWidth: number = 0;
+
+    private _startAngle: number;
+    private _endAngle: number;
 
     /**@private */
     static create(x: number, y: number, radius: number, startAngle: number, endAngle: number, fillColor: any, lineColor: any, lineWidth: number): DrawPieCmd {
         var cmd: DrawPieCmd = Pool.getItemByClass("DrawPieCmd", DrawPieCmd);
-        var offset = (lineWidth >= 1 && lineColor) ? lineWidth / 2 : 0;
-        var lineOffset = lineColor ? lineWidth : 0;
-        cmd.x = x + offset;
-        cmd.y = y + offset;
-        cmd.radius = radius - lineOffset;
+        cmd.x = x;
+        cmd.y = y;
+        cmd.radius = radius;
         cmd._startAngle = startAngle;
         cmd._endAngle = endAngle;
         cmd.fillColor = fillColor;
@@ -64,7 +62,9 @@ export class DrawPieCmd {
 
     /**@private */
     run(context: Context, gx: number, gy: number): void {
-        context._drawPie(this.x + gx, this.y + gy, this.radius, this._startAngle, this._endAngle, this.fillColor, this.lineColor, this.lineWidth, 0);
+        let offset = this.lineWidth >= 1 ? this.lineWidth / 2 : 0;
+        let lineOffset = this.lineWidth;
+        context._drawPie(this.x + offset + gx, this.y + offset + gy, this.radius - lineOffset, this._startAngle, this._endAngle, this.fillColor, this.lineColor, this.lineWidth, 0);
     }
 
     /**@private */

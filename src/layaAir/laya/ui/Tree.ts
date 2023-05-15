@@ -5,6 +5,7 @@ import { Clip } from "./Clip";
 import { Event } from "../events/Event"
 import { Handler } from "../utils/Handler"
 import { HideFlags } from "../Const";
+import { XML } from "../html/XML";
 
 /**@private */
 interface ITreeDataSource {
@@ -499,7 +500,7 @@ export class Tree extends Box {
                 if (item.hasChild) {
                     arrow.visible = true;
                     arrow.index = item.isOpen ? 1 : 0;
-                    arrow.tag = index;
+                    (<any>arrow).__cellIndex = index;
                     arrow.off(Event.CLICK, this, this.onArrowClick);
                     arrow.on(Event.CLICK, this, this.onArrowClick);
                 } else {
@@ -522,8 +523,8 @@ export class Tree extends Box {
      * @private
      */
     private onArrowClick(e: Event): void {
-        var arrow = (<Clip>e.currentTarget);
-        var index = arrow.tag;
+        var arrow = e.currentTarget;
+        var index = arrow.__cellIndex;
         this._list.array[index].isOpen = !this._list.array[index].isOpen;
         this.event(Event.OPEN);
         this._list.array = this.getArray();
@@ -561,9 +562,9 @@ export class Tree extends Box {
     /**
      *  xml结构的数据源。
      */
-    set xml(value: XMLDocument) {
+    set xml(value: XML) {
         var arr: any[] = [];
-        this.parseXml(value.childNodes[0], arr, null, true);
+        this.parseXml(value, arr, null, true);
 
         this.array = arr;
     }
@@ -572,18 +573,16 @@ export class Tree extends Box {
      * @private
      * 解析并处理XML类型的数据源。
      */
-    protected parseXml(xml: ChildNode, source: any[], nodeParent: any, isRoot: boolean): void {
+    protected parseXml(xml: XML, source: any[], nodeParent: any, isRoot: boolean): void {
         var obj: any;
-        var list = xml.childNodes;
+        var list = xml.elements();
         var childCount = list.length;
         if (!isRoot) {
             obj = {};
-            var list2 = (xml as any).attributes;
+            var list2 = xml.attributes;
             for (let key in list2) {
-                var attrs = list2[key];
-                var prop: string = attrs.nodeName;
-                var value: string = attrs.nodeValue;
-                obj[prop] = value == "true" ? true : value == "false" ? false : value;
+                var value = list2[key];
+                obj[key] = value == "true" ? true : value == "false" ? false : value;
             }
             obj.nodeParent = nodeParent;
             if (childCount > 0) obj.isDirectory = true;

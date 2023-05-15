@@ -43,6 +43,7 @@ const packsDef = [
             './layaAir/laya/resource/**/*.*',
             './layaAir/laya/system/**/*.*',
             './layaAir/laya/utils/**/*.*',
+            './layaAir/laya/html/**/*.*',
             './layaAir/laya/webgl/**/*.*',
             './layaAir/Config3D.ts',
 
@@ -98,12 +99,6 @@ const packsDef = [
         'libName': 'tiledmap',
         'input': [
             './layaAir/laya/map/**/*.*'
-        ],
-    },
-    {
-        'libName': 'html',
-        'input': [
-            './layaAir/laya/html/**/*.*'
         ],
     },
     {
@@ -313,7 +308,7 @@ gulp.task("buildJs", async () => {
                 .pipe(inject.replace(/}\)\({}, Laya\);/, "})({});"))
                 .pipe(inject.replace(/Laya\$1\./g, "exports."))
                 .pipe(inject.replace(/\(this.Laya = this.Laya \|\| {}, Laya\)/, "(window.Laya = window.Laya || {}, Laya)"))
-                .pipe(gulp.dest(process.platform == 'darwin' ? './build/libs' : '.')); //在win下dest竟然突然变成src的相对目录
+                .pipe(gulp.dest(process.platform == 'win32' ? '.' : './build/libs')); //在win下dest竟然突然变成src的相对目录
         }),
     );
 });

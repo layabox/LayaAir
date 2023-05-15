@@ -4,6 +4,8 @@ import { Event } from "../events/Event"
 import { UIComponent } from "./UIComponent"
 import { UIUtils } from "./UIUtils"
 import { HideFlags } from "../Const";
+import { SerializeUtil } from "../loaders/SerializeUtil";
+import { LayaEnv } from "../../LayaEnv";
 
 /**
  * 文本内容发生改变后调度。
@@ -123,6 +125,7 @@ export class Label extends UIComponent {
      * 文本 <code>Text</code> 实例。
      */
     protected _tf: Text;
+    protected _fitContent: boolean;
 
     /**
      * 创建一个新的 <code>Label</code> 实例。
@@ -140,6 +143,14 @@ export class Label extends UIComponent {
     protected createChildren(): void {
         this._tf = new Text();
         this._tf.hideFlags = HideFlags.HideAndDontSave;
+        this._tf._onPostLayout = () => {
+            if (this._fitContent && (LayaEnv.isPlaying || this._tf.textWidth > 0 && this._tf.textHeight > 0)) {
+                if (this._tf.wordWrap)
+                    this.height = this._tf.textHeight;
+                else
+                    this.size(this._tf.textWidth, this._tf.textHeight);
+            }
+        };
         this.addChild(this._tf);
     }
 
@@ -159,12 +170,6 @@ export class Label extends UIComponent {
             this.event(Event.CHANGE);
             if (!this._isWidthSet || !this._isHeightSet) this.onCompResize();
         }
-    }
-
-    /**@copy laya.display.Text#changeText()
-     **/
-    changeText(text: string): void {
-        this._tf.changeText(text);
     }
 
     /**
@@ -272,7 +277,6 @@ export class Label extends UIComponent {
     /**
      * <p>边距信息</p>
      * <p>"上边距，右边距，下边距 , 左边距（边距以像素为单位）"</p>
-     * @see laya.display.Text.padding
      */
     get padding(): string {
         return this._tf.padding.join(",");
@@ -324,6 +328,50 @@ export class Label extends UIComponent {
 
     set strokeColor(value: string) {
         this._tf.strokeColor = value;
+    }
+
+    get html(): boolean {
+        return this._tf.html;
+    }
+
+    /** 设置是否富文本，支持html语法 */
+    set html(value: boolean) {
+        this._tf.html = value;
+    }
+
+    get ubb(): boolean {
+        return this._tf.ubb;
+    }
+
+    /** 设置是否使用UBB语法解析文本 */
+    set ubb(value: boolean) {
+        this._tf.ubb = value;
+    }
+
+    get maxWidth(): number {
+        return this._tf.maxWidth;
+    }
+
+    /** 设置当文本达到最大允许的宽度时，自定换行，设置为0则此限制不生效。*/
+    set maxWidth(value: number) {
+        this._tf.maxWidth = value;
+    }
+
+    get fitContent(): boolean {
+        return this._fitContent;
+    }
+
+    /** 设置文本框大小是否自动适应文本内容的大小。可取值为both或者height */
+    set fitContent(value: boolean) {
+        if (this._fitContent != value) {
+            if (value && !SerializeUtil.isDeserializing && (LayaEnv.isPlaying || this._tf.textWidth > 0 && this._tf.textHeight > 0)) {
+                if (this._tf.wordWrap)
+                    this.height = this._tf.textHeight;
+                else
+                    this.size(this._tf.textWidth, this._tf.textHeight);
+            }
+            this._fitContent = value;
+        }
     }
 
     /**

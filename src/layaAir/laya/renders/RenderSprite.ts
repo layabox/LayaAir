@@ -23,6 +23,7 @@ import { LayaGLQuickRunner } from "./LayaGLQuickRunner";
 import { ILaya } from "../../ILaya";
 import { NativeFilter } from "../filters/NativeFilter";
 import { LayaEnv } from "../../LayaEnv";
+import { HitArea } from "../utils/HitArea";
 
 /**
  * @private
@@ -153,11 +154,7 @@ export class RenderSprite {
 
     /**@internal */
     _style(sprite: Sprite, context: Context, x: number, y: number): void {
-        //现在只有Text会走这里，Html已经不走这里了
-        var style: TextStyle = (<TextStyle>sprite._style);
-        if (style.render != null) style.render(sprite, context, x, y);
-        var next: RenderSprite = this._next;
-        next._fun.call(next, sprite, context, x, y);
+        //这里的功能取消了，应该不会走进这里
     }
 
     /**@internal */
@@ -232,11 +229,11 @@ export class RenderSprite {
     _hitarea(sprite: Sprite, context: Context, x: number, y: number): void {
         if (!context._drawingToTexture && sprite.hitArea) {
             var style = sprite._style;
-            var g = sprite.hitArea._hit;
+            var g = (<HitArea>sprite.hitArea)._hit;
             var temp: number = context.globalAlpha;
             context.globalAlpha *= 0.5;
             g && g._render(sprite, context, x - style.pivotX, y - style.pivotY);
-            g = sprite.hitArea._unHit;
+            g = (<HitArea>sprite.hitArea)._unHit;
             g && g._render(sprite, context, x - style.pivotX, y - style.pivotY);
             context.globalAlpha = temp;
         }

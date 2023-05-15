@@ -31,7 +31,7 @@ export class DrawLineCmd {
     /**
      * （可选）线条宽度。
      */
-    lineWidth: number;
+    lineWidth: number = 0;
 
     /**
      * 位置是否是百分比
@@ -41,12 +41,10 @@ export class DrawLineCmd {
     /**@private */
     static create(fromX: number, fromY: number, toX: number, toY: number, lineColor: string, lineWidth: number): DrawLineCmd {
         var cmd: DrawLineCmd = Pool.getItemByClass("DrawLineCmd", DrawLineCmd);
-        var offset = (lineWidth < 1 || lineWidth % 2 === 0) ? 0 : 0.5;
-
-        cmd.fromX = fromX + offset;
-        cmd.fromY = fromY + offset;
-        cmd.toX = toX + offset;
-        cmd.toY = toY + offset;
+        cmd.fromX = fromX;
+        cmd.fromY = fromY;
+        cmd.toX = toX;
+        cmd.toY = toY;
         cmd.lineColor = lineColor;
         cmd.lineWidth = lineWidth;
         return cmd;
@@ -61,13 +59,14 @@ export class DrawLineCmd {
 
     /**@private */
     run(context: Context, gx: number, gy: number): void {
+        let offset = (this.lineWidth < 1 || this.lineWidth % 2 === 0) ? 0 : 0.5;
         if (this.percent && context.sprite) {
             let w = context.sprite.width;
             let h = context.sprite.height;
-            context._drawLine(gx, gy, this.fromX * w, this.fromY * h, this.toX * w, this.toY * h, this.lineColor, this.lineWidth, 0);
+            context._drawLine(gx, gy, this.fromX * w + offset, this.fromY * h + offset, this.toX * w + offset, this.toY * h + offset, this.lineColor, this.lineWidth, 0);
         }
         else
-            context._drawLine(gx, gy, this.fromX, this.fromY, this.toX, this.toY, this.lineColor, this.lineWidth, 0);
+            context._drawLine(gx, gy, this.fromX + offset, this.fromY + offset, this.toX + offset, this.toY + offset, this.lineColor, this.lineWidth, 0);
     }
 
     /**@private */

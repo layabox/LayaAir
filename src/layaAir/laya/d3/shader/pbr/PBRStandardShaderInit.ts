@@ -52,7 +52,8 @@ export class PBRStandardShaderInit {
             "u_OcclusionStrength": 1,
             "u_EmissionColor": Color.WHITE,
             "u_EmissionIntensity": 1,
-            "u_Anisotropy": 0
+            "u_Anisotropy": 0,
+            "u_AlphaTestValue": 0.5
         };
 
         let shader = Shader3D.add("PBR", true, true);
