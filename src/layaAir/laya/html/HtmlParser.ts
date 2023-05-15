@@ -1,6 +1,9 @@
 import { TextStyle } from "../display/css/TextStyle";
 import { HtmlElement, HtmlElementType } from "./HtmlElement";
+import { HtmlImage } from "./HtmlImage";
+import { HtmlLink } from "./HtmlLink";
 import { HtmlParseOptions } from "./HtmlParseOptions";
+import { IHtmlObject } from "./IHtmlObject";
 import { XMLIterator, XMLTagType } from "./XMLIterator";
 import { XMLUtils } from "./XMLUtils";
 
@@ -9,6 +12,11 @@ const s_list2 = new Array<string>();
 
 export class HtmlParser {
     static defaultParser: HtmlParser = new HtmlParser();
+
+    static classMap: Record<number, new () => IHtmlObject> = {
+        [HtmlElementType.Image]: HtmlImage,
+        [HtmlElementType.Link]: HtmlLink
+    };
 
     protected _styleStack: Array<TextStyle>;
     protected _styleStackTop: number;
@@ -22,7 +30,7 @@ export class HtmlParser {
         this._options = new HtmlParseOptions();
     }
 
-    public parse(aSource: string, style: TextStyle, out: Array<HtmlElement>, options: HtmlParseOptions): void {
+    public parse(aSource: string, style: TextStyle, out: Array<HtmlElement>, options?: HtmlParseOptions): void {
         if (options == null)
             options = this._options;
 

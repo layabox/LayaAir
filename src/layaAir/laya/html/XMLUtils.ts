@@ -94,15 +94,20 @@ export class XMLUtils {
 
     public static getInt(attrs: any, attrName: string, defValue?: number): number {
         let value: string = this.getString(attrs, attrName);
-        if (value == null || value.length == 0)
-            return defValue == null ? 0 : defValue;
-
-        if (value[value.length - 1] == '%') {
-            let ret = parseInt(value.substring(0, value.length - 1));
-            return Math.ceil(ret / 100.0 * defValue);
+        if (value != null && value.length > 0) {
+            if (value[value.length - 1] == '%') {
+                let ret = parseInt(value.substring(0, value.length - 1));
+                if (!isNaN(ret))
+                    return Math.ceil(ret / 100.0 * defValue);
+            }
+            else {
+                let ret = parseInt(value);
+                if (!isNaN(ret))
+                    return ret;
+            }
         }
-        else
-            return parseInt(value);
+
+        return defValue == null ? 0 : defValue;
     }
 
     public static getFloat(attrs: any, attrName: string, defValue?: number): number {

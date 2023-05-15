@@ -1,3 +1,5 @@
+import { ClassUtils } from "../utils/ClassUtils";
+
 export class HtmlParseOptions {
     public linkUnderline: boolean;
     public linkColor: string;
@@ -11,3 +13,5 @@ export class HtmlParseOptions {
         this.linkColor = HtmlParseOptions.defaultLinkColor;
     }
 }
+
+ClassUtils.regClass("HtmlParseOptions", HtmlParseOptions);
