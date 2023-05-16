@@ -502,4 +502,18 @@ export class Label extends UIComponent {
     set ignoreLang(value: boolean) {
         this._tf.ignoreLang = value;
     }
+
+    public get templateVars(): Record<string, any> {
+        return this._tf.templateVars;
+    }
+
+    public set templateVars(value: Record<string, any>) {
+        this._tf.templateVars = value;
+    }
+
+    public setVar(name: string, value: any): Label {
+        this._tf.setVar(name, value);
+
+        return this;
+    }
 }
