@@ -1,16 +1,18 @@
+import { ILaya } from "../../ILaya";
+import { Sprite } from "../display/Sprite";
 import { Text } from "../display/Text";
-import { Image } from "../ui/Image";
+import { Loader } from "../net/Loader";
 import { HtmlElement } from "./HtmlElement";
 import { IHtmlObject } from "./IHtmlObject";
 
 export class HtmlImage implements IHtmlObject {
-    public readonly obj: Image;
+    public readonly obj: Sprite;
 
     private _owner: Text;
     private _element: HtmlElement;
 
     public constructor() {
-        this.obj = new Image();
+        this.obj = new Sprite();
     }
 
     public get element(): HtmlElement {
@@ -30,25 +32,39 @@ export class HtmlImage implements IHtmlObject {
         this._element = element;
         this._owner.objContainer.addChild(this.obj);
 
-        let width = element.getAttrInt("width", -1);
-        let height = element.getAttrInt("height", -1);
+        let src = this._element.getAttrString("src");
+        this.loadTexture(src);
+    }
+
+    protected loadTexture(src: string) {
+        let width = this._element.getAttrInt("width", -1);
+        let height = this._element.getAttrInt("height", -1);
         if (width != -1)
             this.obj.width = width;
         if (height != -1)
             this.obj.height = height;
 
-        let p = this.obj._setSkin(element.getAttrString("src"));
-        let w = this.obj.width;
-        let h = this.obj.height;
-        p.then(() => {
-            let source = this.obj.source;
+        let tex = Loader.getRes(src);
+        if (tex) {
+            this.obj.texture = tex;
             if (width == -1)
-                this.obj.width = source ? source.sourceWidth : 0;
+                this.obj.width = tex.sourceWidth;
             if (height == -1)
-                this.obj.height = source ? source.sourceHeight : 0;
-            if (this._owner && (w != this.obj.width || h != this.obj.height))
-                this._owner.refreshLayout();
-        });
+                this.obj.height = tex.sourceHeight;
+        }
+        else {
+            ILaya.loader.load(src, { silent: true }).then(tex => {
+                let w = this.obj.width;
+                let h = this.obj.height;
+                this.obj.texture = tex;
+                if (width == -1)
+                    this.obj.width = tex ? tex.sourceWidth : 0;
+                if (height == -1)
+                    this.obj.height = tex ? tex.sourceHeight : 0;
+                if (this._owner && (w != this.obj.width || h != this.obj.height))
+                    this._owner.refreshLayout();
+            });
+        }
     }
 
     public pos(x: number, y: number): void {
@@ -58,7 +74,7 @@ export class HtmlImage implements IHtmlObject {
     public release(): void {
         this.obj.removeSelf();
         this.obj.offAll();
-        this.obj.skin = null;
+        this.obj.texture = null;
         this._owner = null;
         this._element = null;
     }
