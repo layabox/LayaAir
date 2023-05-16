@@ -6,7 +6,7 @@ export class HtmlParseOptions {
     public ignoreWhiteSpace: boolean;
 
     public static defaultLinkUnderline: boolean = true;
-    public static defaultLinkColor: string = "#3A67CC";
+    public static defaultLinkColor: string = null;
 
     public constructor() {
         this.linkUnderline = HtmlParseOptions.defaultLinkUnderline;

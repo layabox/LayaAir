@@ -150,7 +150,7 @@ export class HtmlParser {
                         this.pushStyle();
 
                         this._style.underline = this._style.underline || options.linkUnderline;
-                        if (!(<any>this._style).colorChanged)
+                        if (!(<any>this._style).colorChanged && options.linkColor != null)
                             this._style.color = options.linkColor;
 
                         let element = HtmlElement.getFromPool(HtmlElementType.Link);

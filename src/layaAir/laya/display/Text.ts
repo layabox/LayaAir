@@ -133,7 +133,7 @@ export class Text extends Sprite {
     static _passwordChar = "●";
 
     /**@private 位图字体字典。*/
-    private static _bitmapFonts: any;
+    private static _bitmapFonts: Record<string, BitmapFont> = {};
 
     /** 标记此文本是否忽略语言包 */
     ignoreLang: boolean;
@@ -218,7 +218,6 @@ export class Text extends Sprite {
      * @param	bitmapFont	位图字体文件。
      */
     static registerBitmapFont(name: string, bitmapFont: BitmapFont): void {
-        Text._bitmapFonts || (Text._bitmapFonts = {});
         bitmapFont._addReference();
         Text._bitmapFonts[name] = bitmapFont;
     }
@@ -229,10 +228,10 @@ export class Text extends Sprite {
      * @param	destroy		是否销毁指定的字体文件。
      */
     static unregisterBitmapFont(name: string, destroy: boolean = true): void {
-        if (Text._bitmapFonts && Text._bitmapFonts[name]) {
-            var tBitmapFont: BitmapFont = Text._bitmapFonts[name];
-            tBitmapFont._removeReference();
-            if (destroy) tBitmapFont.destroy();
+        let font = Text._bitmapFonts[name];
+        if (font) {
+            font._removeReference();
+            if (destroy) font.destroy();
             delete Text._bitmapFonts[name];
         }
     }
@@ -357,18 +356,18 @@ export class Text extends Sprite {
      * @param	args 文本替换参数。
      */
     lang(text: string, ...args: any[]): void {
-        if (this.ignoreLang) {
-            this.text = text;
+        if (this.ignoreLang || !Text.langPacks) {
+            this._text = text;
             return;
         }
 
         text = Text.langPacks?.[text] || text;
         if (args.length == 0) {
-            this.text = text;
+            this._text = text;
         } else {
             for (let i = 0, n = args.length; i < n; i++)
                 text = text.replace("{" + i + "}", args[i]);
-            this.text = text;
+            this._text = text;
         }
     }
 
@@ -395,10 +394,9 @@ export class Text extends Sprite {
         }
 
         this._realFont = value;
-        this._bitmapFont = null;
+        this._bitmapFont = Text._bitmapFonts[value];
 
-        if (Text._bitmapFonts && Text._bitmapFonts[value]) {
-            this._bitmapFont = Text._bitmapFonts[value];
+        if (this._bitmapFont) {
             if (this._text)
                 this.markChanged();
         }
@@ -716,7 +714,7 @@ export class Text extends Sprite {
     set maxWidth(value: number) {
         if (this._maxWidth != value) {
             this._maxWidth = value;
-            this.typeset();
+            this.markChanged();
         }
     }
 
@@ -973,12 +971,15 @@ export class Text extends Sprite {
         let padding = this._padding;
         let wrapWidth: number;
         if (this._isWidthSet && (wordWrap || this._overflow == Text.HIDDEN)) {
+            wordWrap = true;
             wrapWidth = this._width - padding[3] - padding[1];
             if (this._maxWidth > 0 && this._maxWidth < wrapWidth)
                 wrapWidth = this._maxWidth;
         }
-        else if (this._maxWidth > 0)
+        else if (this._maxWidth > 0) {
+            wordWrap = true;
             wrapWidth = this._maxWidth;
+        }
 
         recoverLines(this._lines);
 
@@ -1126,11 +1127,6 @@ export class Text extends Sprite {
 
         let wrapText = (text: string, style: TextStyle) => {
             let remainWidth = wrapWidth - lineX;
-            if (remainWidth < charWidth && lineX != 0) {
-                endLine();
-                startLine();
-                remainWidth = wrapWidth;
-            }
 
             let tw = getTextWidth(text, style);
             //优化1，如果一行小于宽度，则直接跳过遍历
@@ -1144,11 +1140,16 @@ export class Text extends Sprite {
             let startIndex = 0;
 
             let isEmoji = testEmoji(text);
-            if (!isEmoji) {
+            if (!bfont && !isEmoji) {
                 //优化2，预算第几个字符会超出，减少遍历及字符宽度度量
                 maybeIndex = Math.floor(remainWidth / charWidth);
                 (maybeIndex == 0) && (maybeIndex = 1);
                 wordWidth = getTextWidth(text.substring(0, maybeIndex), style);
+                if (remainWidth < wordWidth && lineX != 0) {
+                    endLine();
+                    startLine();
+                    remainWidth = wrapWidth;
+                }
             }
 
             let len = text.length;
@@ -1175,11 +1176,21 @@ export class Text extends Sprite {
                             j--;
                         }
                     }
+
                     if (wordWrap) {
+                        if (j == 0) {
+                            if (lineX > 0) {
+                                endLine();
+                                startLine();
+                                remainWidth = wrapWidth;
+                            }
+                            continue;
+                        }
+
                         //截断换行单词
                         let newLine = text.substring(startIndex, j);
                         // 如果最后一个是中文则直接截断，否则找空格或者-来拆分
-                        let ccode = newLine.charCodeAt(newLine.length - 1)
+                        let ccode = newLine.charCodeAt(newLine.length - 1);
                         if (ccode < 0x4e00 || ccode > 0x9fa5) {
                             //按照英文单词字边界截取 因此将会无视中文
                             let execResult = wordBoundaryTest.exec(newLine);// 找不是 空格和标点符号的
@@ -1203,11 +1214,15 @@ export class Text extends Sprite {
 
                         startIndex = j;
                         if (j + maybeIndex < len) {
-                            j += maybeIndex;
+                            if (maybeIndex != 0) {
+                                j += maybeIndex;
 
-                            tw = getTextWidth(text.substring(startIndex, j), style);
-                            wordWidth = tw;
-                            j--;
+                                tw = getTextWidth(text.substring(startIndex, j), style);
+                                wordWidth = tw;
+                                j--;
+                            }
+                            else
+                                wordWidth = 0;
                         } else {
                             //此处执行将不会在循环结束后再push一次
                             addCmd(text.substring(startIndex, len), style);
@@ -1262,12 +1277,7 @@ export class Text extends Sprite {
             }
         }
 
-        if (curLine.cmd)
-            endLine();
-        else {
-            this._lines.pop();
-            linePool.push(curLine);
-        }
+        endLine();
 
         //计算textWidth和textHeight
 
@@ -1418,14 +1428,15 @@ export class Text extends Sprite {
                     if (bfont) {
                         let tx: number = 0;
                         let str = cmd.wt.text;
+                        let color = bfont.tint ? cmd.style.color : "#FFFFFF";
                         for (let i = 0, n = str.length; i < n; i++) {
                             let c = str.charCodeAt(i);
-                            let tex = bfont.getCharTexture(c);
-                            if (tex) {
-                                let w = bfont.getCharWidth(c, cmd.style.fontSize);
+                            let g = bfont.dict[c];
+                            if (g) {
                                 let scale = bfont.autoScaleSize ? (cmd.style.fontSize / bfont.fontSize) : 1;
-                                graphics.drawImage(tex, x + cmd.x + tx, y + cmd.y, tex.sourceWidth * scale, tex.sourceHeight * scale, cmd.style.color);
-                                tx += w;
+                                if (g.texture)
+                                    graphics.drawImage(g.texture, x + cmd.x + tx + g.x * scale, y + cmd.y + g.y * scale, g.width * scale, g.height * scale, color);
+                                tx += Math.round(g.advance * scale);
                             }
                         }
                     } else {
