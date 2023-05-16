@@ -52,7 +52,7 @@ export class TextureCube extends BaseTexture {
      * 白色纯色纹理。
      */
      static get whiteTexture() {
-        return TextureCube._grayTexture;
+        return TextureCube._whiteTexture;
     }
 
     /**

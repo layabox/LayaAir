@@ -249,7 +249,7 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         return this._glParam;
     }
 
-    glRenderBufferParam(format: RenderTargetFormat, useSRGB: boolean) {
+    glRenderBufferParam(format: RenderTargetFormat, useSRGB: boolean): { internalFormat: number; attachment: number; } {
         // todo
         let gl = this._gl;
         switch (format) {
@@ -289,7 +289,7 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         }
     }
 
-    protected getTarget(dimension: TextureDimension) {
+    protected getTarget(dimension: TextureDimension): number {
         let gl = this._gl;
         switch (dimension) {
             case TextureDimension.Tex2D:
@@ -762,7 +762,7 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         for (let index = 0; index < mipmapCount; index++) {
 
             // todo  size 计算 方式
-            let dataLength = Math.max(4, mipmapWidth) / 4 * Math.max(4, mipmapHeight) / 4 * blockBytes;
+            let dataLength = (((Math.max(4, width) / 4) * Math.max(4, height)) / 4) * blockBytes;
             let sourceData = new Uint8Array(source, dataOffset, dataLength);
 
             gl.compressedTexImage2D(target, index, internalFormat, mipmapWidth, mipmapHeight, 0, sourceData);

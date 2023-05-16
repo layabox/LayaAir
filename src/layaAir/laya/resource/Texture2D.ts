@@ -43,7 +43,7 @@ export class Texture2D extends BaseTexture {
     /**错误纹理 */
     static erroTextur: Texture2D = null;
     /**Default Toggle Texture */
-    static defalutUITexture:Texture2D = null;
+    static defalutUITexture: Texture2D = null;
 
     /**
      * @internal
@@ -75,7 +75,7 @@ export class Texture2D extends BaseTexture {
             let floatPixle = new Uint16Array(3);
             floatPixle[0] = 14336;
             floatPixle[1] = 14336;
-            floatPixle[1] = 15360;
+            floatPixle[2] = 15360;
             Texture2D.normalTexture = new Texture2D(1, 1, TextureFormat.R16G16B16, false, false, false);
             Texture2D.normalTexture.setPixelsData(floatPixle, false, false);
         }
