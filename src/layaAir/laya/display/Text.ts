@@ -174,6 +174,8 @@ export class Text extends Sprite {
 
     protected _htmlParseOptions: HtmlParseOptions;
 
+    protected _templateVars: Record<string, string>;
+
     /**表示文本内容是否发生改变。*/
     protected _isChanged: boolean;
     /**表示文本的宽度，以像素为单位。*/
@@ -193,7 +195,6 @@ export class Text extends Sprite {
 
     private _updatingLayout: boolean;
 
-    /** @internal */
     _onPostLayout: () => void;
 
     /**
@@ -357,17 +358,17 @@ export class Text extends Sprite {
      */
     lang(text: string, ...args: any[]): void {
         if (this.ignoreLang) {
-            this._text = text;
+            this.text = text;
             return;
         }
 
         text = Text.langPacks?.[text] || text;
         if (args.length == 0) {
-            this._text = text;
+            this.text = text;
         } else {
             for (let i = 0, n = args.length; i < n; i++)
                 text = text.replace("{" + i + "}", args[i]);
-            this._text = text;
+            this.text = text;
         }
     }
 
@@ -727,6 +728,76 @@ export class Text extends Sprite {
         this._htmlParseOptions = value;
     }
 
+    protected parseTemplate(template: string): string {
+        let pos1: number = 0, pos2: number, pos3: number;
+        let tag: string;
+        let value: string;
+        let result: string = "";
+        while ((pos2 = template.indexOf("{", pos1)) != -1) {
+            if (pos2 > 0 && template.charCodeAt(pos2 - 1) == 92)//\
+            {
+                result += template.substring(pos1, pos2 - 1);
+                result += "{";
+                pos1 = pos2 + 1;
+                continue;
+            }
+
+            result += template.substring(pos1, pos2);
+            pos1 = pos2;
+            pos2 = template.indexOf("}", pos1);
+            if (pos2 == -1)
+                break;
+
+            if (pos2 == pos1 + 1) {
+                result += template.substring(pos1, pos1 + 2);
+                pos1 = pos2 + 1;
+                continue;
+            }
+
+            tag = template.substring(pos1 + 1, pos2);
+            pos3 = tag.indexOf("=");
+            if (pos3 != -1) {
+                value = this._templateVars[tag.substring(0, pos3)];
+                if (value == null)
+                    result += tag.substring(pos3 + 1);
+                else
+                    result += value;
+            }
+            else {
+                value = this._templateVars[tag];
+                if (value != null)
+                    result += value;
+            }
+            pos1 = pos2 + 1;
+        }
+
+        if (pos1 < template.length)
+            result += template.substring(pos1);
+
+        return result;
+    }
+
+    public get templateVars(): Record<string, any> {
+        return this._templateVars;
+    }
+
+    public set templateVars(value: Record<string, any>) {
+        if (!this._templateVars && !value)
+            return;
+
+        this._templateVars = value;
+        this.markChanged();
+    }
+
+    public setVar(name: string, value: any): Text {
+        if (!this._templateVars)
+            this._templateVars = {};
+        this._templateVars[name] = value;
+        this.markChanged();
+
+        return this;
+    }
+
     /**
     * <p>设置横向滚动量。</p>
     * <p>即使设置超出滚动范围的值，也会被自动限制在可能的最大值处。</p>
@@ -844,6 +915,9 @@ export class Text extends Sprite {
         }
 
         if (!text) {
+            this.graphics.clear(true);
+            this.drawBg();
+
             this._textWidth = this._textHeight = 0;
             this._scrollPos = null;
             if (this._onPostLayout) {
@@ -851,13 +925,14 @@ export class Text extends Sprite {
                 this._onPostLayout();
                 this._updatingLayout = false;
             }
-            this.graphics.clear(true);
-            this.drawBg();
             return;
         }
 
         let html = this._html;
         text = text.replace(/\r\n/g, "\n");
+        if (!isPrompt && this._templateVars)
+            text = this.parseTemplate(text);
+
         if (this._ubb) {
             text = UBBParser.defaultParser.parse(text);
             html = true;
