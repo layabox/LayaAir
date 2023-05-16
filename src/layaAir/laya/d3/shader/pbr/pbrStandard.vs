@@ -9,8 +9,8 @@
 #include "PBRVertex.glsl";
 #include "SceneFogInput.glsl"
 
-#if defined(DETAILTEXTURE)||defined(DETAILNORMAL)
-    varying vec2 v_DetailUV;
+#if defined(DETAILTEXTURE) || defined(DETAILNORMAL)
+varying vec2 v_DetailUV;
 #endif
 
 void main()
@@ -21,20 +21,19 @@ void main()
     PixelParams pixel;
     initPixelParams(pixel, vertex);
 
-    #if defined(DETAILTEXTURE)||defined(DETAILNORMAL)
-        #ifdef UV
-            v_DetailUV = transformUV(vertex.texCoord0, u_DetailTillingOffset);
-        #else // UV
-            v_DetailUV = vec2(0.0);
-        #endif
+#if defined(DETAILTEXTURE) || defined(DETAILNORMAL)
+    #ifdef UV
+    v_DetailUV = transformUV(vertex.texCoord0, u_DetailTillingOffset);
+    #else // UV
+    v_DetailUV = vec2(0.0);
     #endif
-
+#endif
 
     gl_Position = getPositionCS(pixel.positionWS);
 
     gl_Position = remapPositionZ(gl_Position);
-    
-    #ifdef FOG
-        FogHandle(gl_Position.z);
-    #endif
+
+#ifdef FOG
+    FogHandle(gl_Position.z);
+#endif
 }

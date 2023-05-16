@@ -8,7 +8,12 @@
 void getPixelParams(inout PixelParams params)
 {
     params.positionWS = v_PositionWS;
+
     params.normalWS = normalize(v_NormalWS);
+    params.tangentWS = normalize(v_TangentWS);
+    params.biNormalWS = normalize(v_BiNormalWS);
+
+    params.TBN = mat3(params.tangentWS, params.biNormalWS, params.normalWS);
 
     #ifdef UV
     params.uv0 = v_Texcoord0;
@@ -23,31 +28,21 @@ void getPixelParams(inout PixelParams params)
     #ifdef COLOR
     params.vertexColor = v_VertexColor;
     #endif // COLOR
-
-    params.viewDir = normalize(u_CameraPos - params.positionWS);
-
-    #ifdef TANGENT
-	#ifdef NEEDTBN
-    params.tangentWS = normalize(v_TangentWS);
-    params.biNormalWS = normalize(v_BiNormalWS);
-    mat3 TBN = mat3(params.tangentWS, params.biNormalWS, params.normalWS);
-
-	    #ifdef NORMALMAP
-    vec3 normalSampler = texture2D(u_NormalTexture, params.uv0).rgb;
-    normalSampler = normalize(normalSampler * 2.0 - 1.0);
-    normalSampler.y *= -1.0;
-    params.normalWS = normalize(TBN * normalSampler);
-	    #endif // NORMALMAP
-
-	#endif // NEEDTBN
-    #endif TANGENT
 }
 
-void getPixelInfo(inout PixelInfo info, const in PixelParams pixel)
+void getPixelInfo(inout PixelInfo info, const in PixelParams pixel, const in Surface surface)
 {
     info.positionWS = pixel.positionWS;
+
+    info.vertexNormalWS = pixel.normalWS;
+
+    #ifdef TANGENT
+    info.normalWS = normalize(pixel.TBN * surface.normalTS);
+    #else // TANGENT
     info.normalWS = pixel.normalWS;
-    info.viewDir = pixel.viewDir;
+    #endif // TANGENT
+
+    info.viewDir = normalize(u_CameraPos - info.positionWS);
 
     #ifdef LIGHTMAP
 	#ifdef UV1
@@ -58,12 +53,12 @@ void getPixelInfo(inout PixelInfo info, const in PixelParams pixel)
 
 vec3 BlinnPhongLighting(const in Surface surface, const in PixelParams pixel)
 {
-    vec3 positionWS = pixel.positionWS;
-    vec3 v = pixel.viewDir;
-    vec3 normalWS = pixel.normalWS;
-
     PixelInfo info;
-    getPixelInfo(info, pixel);
+    getPixelInfo(info, pixel, surface);
+
+    vec3 positionWS = info.positionWS;
+    vec3 normalWS = info.normalWS;
+    vec3 v = info.viewDir;
 
     vec3 lightColor = vec3(0.0, 0.0, 0.0);
 

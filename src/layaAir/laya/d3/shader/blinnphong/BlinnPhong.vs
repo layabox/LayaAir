@@ -22,7 +22,8 @@ void main()
     gl_Position = getPositionCS(pixel.positionWS);
 
     gl_Position = remapPositionZ(gl_Position);
-    #ifdef FOG
-        FogHandle(gl_Position.z);
-    #endif
+
+#ifdef FOG
+    FogHandle(gl_Position.z);
+#endif
 }

@@ -12,6 +12,12 @@
 
 void getBinnPhongSurfaceParams(inout Surface surface, in PixelParams pixel)
 {
+#ifdef UV
+    vec2 uv = transformUV(pixel.uv0, u_TilingOffset);
+#else // UV
+    vec2 uv = vec2(0.0);
+#endif // UV
+
     surface.diffuseColor = u_DiffuseColor.rgb;
     surface.alpha = u_DiffuseColor.a;
 
@@ -19,12 +25,6 @@ void getBinnPhongSurfaceParams(inout Surface surface, in PixelParams pixel)
     surface.diffuseColor *= pixel.vertexColor.xyz;
     surface.alpha *= pixel.vertexColor.a;
 #endif // COLOR && ENABLEVERTEXCOLOR
-
-#ifdef UV
-    vec2 uv = pixel.uv0;
-#else // UV
-    vec2 uv = vec2(0.0);
-#endif // UV
 
 #ifdef DIFFUSEMAP
     vec4 diffuseSampler = texture2D(u_DiffuseTexture, uv);
@@ -36,6 +36,14 @@ void getBinnPhongSurfaceParams(inout Surface surface, in PixelParams pixel)
 #endif // DIFFUSEMAP
 
     surface.diffuseColor *= u_AlbedoIntensity;
+
+    surface.normalTS = vec3(0.0, 0.0, 1.0);
+#ifdef NORMALMAP
+    vec3 normalSampler = texture2D(u_NormalTexture, uv).rgb;
+    normalSampler = normalize(normalSampler * 2.0 - 1.0);
+    normalSampler.y *= -1.0;
+    surface.normalTS = normalSampler;
+#endif // NORMALMAP
 
 #ifdef ALPHATEST
     if (surface.alpha < u_AlphaTestValue)

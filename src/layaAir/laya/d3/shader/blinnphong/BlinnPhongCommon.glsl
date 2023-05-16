@@ -3,7 +3,10 @@
 
 // varying
 varying vec3 v_PositionWS;
+// todo
 varying vec3 v_NormalWS;
+varying vec3 v_TangentWS;
+varying vec3 v_BiNormalWS;
 
     #ifdef UV
 varying vec2 v_Texcoord0;
@@ -15,11 +18,6 @@ varying vec2 v_Texcoord1;
 	#endif // LIGHTMAP
     #endif // UV1
 
-    #ifdef NEEDTBN
-varying vec3 v_TangentWS;
-varying vec3 v_BiNormalWS;
-    #endif // NEEDTBN
-
     #ifdef COLOR
 varying vec4 v_VertexColor;
     #endif // COLOR
@@ -27,7 +25,11 @@ varying vec4 v_VertexColor;
 // 记录顶点信息, 用于由vs向fs传递数据
 struct PixelParams {
     vec3 positionWS;
+
     vec3 normalWS;
+    vec3 tangentWS;
+    vec3 biNormalWS;
+    mat3 TBN;
 
     #ifdef UV
     vec2 uv0;
@@ -39,16 +41,9 @@ struct PixelParams {
 	#endif // LIGHTMAP
     #endif // UV1
 
-    #ifdef NEEDTBN
-    vec3 tangentWS;
-    vec3 biNormalWS;
-    #endif // NEEDTBN
-
     #ifdef COLOR
     vec4 vertexColor;
     #endif // COLOR
-
-    vec3 viewDir;
 };
 
 #endif // BlinnPhongCommon_lib

@@ -209,7 +209,6 @@ export class PBRMaterial extends Material {
             this._shaderValues.removeDefine(PBRMaterial.SHADERDEFINE_NORMALTEXTURE);
         }
         this._shaderValues.setTexture(PBRMaterial.NORMALTEXTURE, value);
-        this.resetNeedTBN();
     }
 
     /**
@@ -398,7 +397,6 @@ export class PBRMaterial extends Material {
         else
             this._shaderValues.removeDefine(PBRMaterial.SHADERDEFINE_DETAILNORMAL);
         this._shaderValues.setTexture(PBRMaterial.DETAILNORMALTEXTURE, value);
-        this.resetNeedTBN();
     }
 
     /**
@@ -481,14 +479,6 @@ export class PBRMaterial extends Material {
         }
     }
 
-    private resetNeedTBN() {
-        if (!!this.normalTexture || !!this.detailNormalTexture || this.materialType == PBRMaterialType.Anisotropy) {
-            this._shaderValues.addDefine(Shader3D.getDefineByName("NEEDTBN"));
-        } else {
-            this._shaderValues.removeDefine(Shader3D.getDefineByName("NEEDTBN"));
-        }
-    }
-
     public get anisotropy(): number {
         return this.getFloatByIndex(PBRMaterial.ANISOTROPY);
     }
@@ -528,7 +518,6 @@ export class PBRMaterial extends Material {
                 break;
         }
         this._materialType = value;
-        this.resetNeedTBN();
     }
 
     constructor() {

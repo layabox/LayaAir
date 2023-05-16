@@ -18,23 +18,22 @@ vec3 BlendNormals(vec3 n1, vec3 n2)
 
 #endif
 
-#if defined(DETAILNORMAL) || defined(NORMALTEXTURE)
 vec3 normalScale(vec3 normal, float scale)
 {
     normal.xy *= scale;
     normal.z = sqrt(1.0 - clamp(dot(normal.xy, normal.xy), 0.0, 1.0));
     return normal;
 }
-#endif
 
-void initSurfaceInputs(inout SurfaceInputs inputs, inout PixelParams pixel)
+void initSurfaceInputs(inout SurfaceInputs inputs, const in PixelParams pixel)
 {
 
 #ifdef UV
-    vec2 uv = pixel.uv0;
+    vec2 uv = transformUV(pixel.uv0, u_TilingOffset);
 #else // UV
     vec2 uv = vec2(0.0);
 #endif // UV
+
     inputs.diffuseColor = u_AlbedoColor.rgb;
     inputs.alpha = u_AlbedoColor.a;
 
@@ -66,10 +65,12 @@ void initSurfaceInputs(inout SurfaceInputs inputs, inout PixelParams pixel)
     inputs.diffuseColor *= detailSampler;
 #endif
 
+    inputs.normalTS = vec3(0.0, 0.0, 1.0);
 #ifdef NORMALTEXTURE
-    vec3 normalTS = pixel.normalTS;
-    pixel.normalTS = normalScale(normalTS, u_NormalScale);
-    pixel.normalWS = normalize(pixel.TBN * pixel.normalTS);
+    vec3 normalSampler = texture2D(u_NormalTexture, uv).rgb;
+    normalSampler = normalize(normalSampler * 2.0 - 1.0);
+    normalSampler.y *= -1.0;
+    inputs.normalTS = normalScale(normalSampler, u_NormalScale);
 #endif
 
 #ifdef DETAILNORMAL
@@ -77,8 +78,7 @@ void initSurfaceInputs(inout SurfaceInputs inputs, inout PixelParams pixel)
     detailnormalSampler = normalize(detailnormalSampler * 2.0 - 1.0);
     detailnormalSampler.y *= -1.0;
     detailnormalSampler = normalScale(detailnormalSampler, u_DetailNormalScale);
-    pixel.normalTS = BlendNormals(pixel.normalTS, detailnormalSampler);
-    pixel.normalWS = normalize(pixel.TBN * pixel.normalTS);
+    inputs.normalTS = BlendNormals(inputs.normalTS, detailnormalSampler);
 #endif
 
     inputs.metallic = u_Metallic;
@@ -143,5 +143,6 @@ void main()
 #ifdef FOG
     surfaceColor.rgb = sceneLitFog(surfaceColor.rgb);
 #endif // FOG
+
     gl_FragColor = surfaceColor;
 }

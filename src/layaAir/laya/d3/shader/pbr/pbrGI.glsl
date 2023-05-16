@@ -15,7 +15,7 @@ vec3 PBRGI(const in Surface surface, const in PixelInfo info)
     float roughness = surface.perceptualRoughness;
     vec3 F0 = surface.f0;
     float occlusion = surface.occlusion;
-    vec2 f_ab = surface.dfg.rg.rg;
+    vec2 f_ab = info.dfg.rg;
 
     vec3 Fr = max(vec3(1.0 - roughness), F0) - F0;
     vec3 k_S = F0 + Fr * pow5(1.0 - NoV);

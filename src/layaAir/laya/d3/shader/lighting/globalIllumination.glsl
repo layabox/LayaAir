@@ -222,7 +222,7 @@ vec3 getBakedLightmapColor(in vec2 lightmapUV, in vec3 normalWS)
 	#endif // Gamma_u_LightMap
 
 	#ifdef LIGHTMAP_DIRECTIONAL
-    lightmapSampler.rgb = DecodeDirectionalLightmap(lightmapUV, bakedColor, normalWS);
+    lightmapSampler.rgb = DecodeDirectionalLightmap(lightmapUV, lightmapSampler.rgb, normalWS);
 	#endif // LIGHTMAP_DIRECTIONAL
 
     return lightmapSampler.rgb;

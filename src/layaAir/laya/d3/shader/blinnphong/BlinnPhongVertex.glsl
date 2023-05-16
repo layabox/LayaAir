@@ -13,16 +13,17 @@ void initPixelParams(inout PixelParams params, in Vertex vertex)
     v_NormalWS = params.normalWS;
 
     #ifdef TANGENT
-	#ifdef NEEDTBN
     params.tangentWS = normalize((worldMat * vec4(vertex.tangentOS.xyz, 0.0)).xyz);
     params.biNormalWS = normalize(cross(params.normalWS, params.tangentWS) * sign(vertex.tangentOS.w));
+    #else // TANGENT
+    params.tangentWS = vec3(1.0, 0.0, 0.0);
+    params.biNormalWS = normalize(cross(params.normalWS, params.tangentWS));
+    #endif // TANGENT
     v_TangentWS = params.tangentWS;
     v_BiNormalWS = params.biNormalWS;
-	#endif // NEEDTBN
-    #endif // TANGENT
 
     #ifdef UV
-    params.uv0 = transformUV(vertex.texCoord0, u_TilingOffset);
+    params.uv0 = vertex.texCoord0;
     v_Texcoord0 = params.uv0;
     #endif // UV
 

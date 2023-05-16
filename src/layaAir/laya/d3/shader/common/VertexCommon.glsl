@@ -72,12 +72,6 @@ vec4 getVertexTangent()
 }
     #endif // TANGENT
 
-vec2 transformUV(in vec2 texcoord, in vec4 tilingOffset)
-{
-    vec2 uv = texcoord * tilingOffset.xy + tilingOffset.zw * vec2(1.0, -1.0) + vec2(0.0, 1.0 - tilingOffset.y);
-    return uv;
-}
-
 void getVertexParams(inout Vertex vertex)
 {
     vertex.positionOS = getVertexPosition().xyz;

@@ -8,12 +8,15 @@ struct SurfaceInputs {
     float smoothness;
     float occlusion;
     vec3 emissionColor;
+    vec3 normalTS;
     float anisotropy;
 };
 
 void initSurface(inout Surface surface, const in SurfaceInputs inputs, const in PixelParams pixel)
 {
     surface.alpha = inputs.alpha;
+
+    surface.normalTS = inputs.normalTS;
 
     vec3 baseColor = inputs.diffuseColor;
     float metallic = inputs.metallic;
@@ -28,8 +31,6 @@ void initSurface(inout Surface surface, const in SurfaceInputs inputs, const in 
     surface.f0 = baseColor * metallic + (dielectricSpecular * (1.0 - metallic));
 
     surface.occlusion = inputs.occlusion;
-
-    surface.dfg = prefilteredDFG_LUT(surface.perceptualRoughness, pixel.NoV);
 
 #ifdef ANISOTROPIC
     surface.anisotropy = inputs.anisotropy;
