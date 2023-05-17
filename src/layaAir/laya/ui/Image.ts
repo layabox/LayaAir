@@ -18,7 +18,7 @@ import { ClassUtils } from "../utils/ClassUtils";
 /**
  * <code>Image</code> 类是用于表示位图图像或绘制图形的显示对象。
  * Image和Clip组件是唯一支持异步加载的两个组件，比如img.skin = "abc/xxx.png"，其他UI组件均不支持异步加载。
- * 
+ *
  * @example <caption>以下示例代码，创建了一个新的 <code>Image</code> 实例，设置了它的皮肤、位置信息，并添加到舞台上。</caption>
  *	package
  *	 {
@@ -88,6 +88,9 @@ import { ClassUtils } from "../utils/ClassUtils";
  * @see laya.ui.AutoBitmap
  */
 export class Image extends UIComponent {
+    public static readonly SYMMETRIC_FILL_NONE = 0;
+    public static readonly SYMMETRIC_FILL_HORI = 1;
+    public static readonly SYMMETRIC_FILL_VERT = 2;
     /**@internal */
     _bitmap: AutoBitmap;
     /**@private */
@@ -105,7 +108,7 @@ export class Image extends UIComponent {
     }
 
     /**
-     * @inheritDoc 
+     * @inheritDoc
      * @override
      */
 	destroy(destroyChild: boolean = true): void {
@@ -123,7 +126,7 @@ export class Image extends UIComponent {
     }
 
     /**
-     * @inheritDoc 
+     * @inheritDoc
      * @override
      */
 	protected createChildren(): void {
@@ -192,7 +195,7 @@ export class Image extends UIComponent {
     }
 
     /**
-     * @inheritDoc 
+     * @inheritDoc
      * @override
      */
 	protected measureWidth(): number {
@@ -200,7 +203,7 @@ export class Image extends UIComponent {
     }
 
     /**
-     * @inheritDoc 
+     * @inheritDoc
      * @override
      */
 	protected measureHeight(): number {
@@ -208,7 +211,7 @@ export class Image extends UIComponent {
     }
 
     /**
-     * @inheritDoc 
+     * @inheritDoc
      * @override
      */
 	set width(value: number) {
@@ -217,15 +220,15 @@ export class Image extends UIComponent {
     }
 
     /**
-     * @inheritDoc 
-     * @override 
+     * @inheritDoc
+     * @override
      */
     get width() {
         return super.width;
     }
 
     /**
-     * @inheritDoc 
+     * @inheritDoc
      * @override
      */
 	set height(value: number) {
@@ -233,7 +236,7 @@ export class Image extends UIComponent {
         this._bitmap.height = value == 0 ? 0.0000001 : value;
     }
     /**
-     * @inheritDoc 
+     * @inheritDoc
      * @override
      */
     get height() {
@@ -256,7 +259,24 @@ export class Image extends UIComponent {
     }
 
     /**
-     * @inheritDoc 
+     * 当前精灵图的纹理(对称)填充类型，默认值为0
+     * <p> <code>symmetricType</code> 的值如下所示：
+     * <ol>
+     * <li>0: 直接铺满填充</li>
+     * <li>1: 左右对称填充</li>
+     * <li>2: 上下对称填充</li>
+     * <li>3: 上下左右对称填充</li>
+     * </p>
+     */
+    get symmetricType() {
+        return this._bitmap.symmetricType;
+    }
+    set symmetricType(value) {
+        this._bitmap.symmetricType = value;
+    }
+
+    /**
+     * @inheritDoc
      * @override
      */
     set dataSource(value: any) {
@@ -265,7 +285,7 @@ export class Image extends UIComponent {
         else super.dataSource = value;
     }
     /**
-     * @inheritDoc 
+     * @inheritDoc
      * @override
      */
     get dataSource() {

@@ -7,6 +7,7 @@ import { Draw9GridTexture } from "../display/cmd/Draw9GridTexture";
 import { DrawTextureCmd } from "../display/cmd/DrawTextureCmd";
 import { SpriteConst } from "../display/SpriteConst";
 import { Matrix } from "../maths/Matrix";
+import { DrawSymmetricTexture } from "../display/cmd/DrawSymmetricTexture";
 
 /**
  * <code>AutoBitmap</code> 类是用于表示位图图像或绘制图形的显示对象。
@@ -23,6 +24,8 @@ export class AutoBitmap extends Graphics {
     private _source: Texture;
     /**@private 网格数据*/
     private _sizeGrid: number[];
+    /**@private 对称图像类型*/
+    private _symmetricType: number = 0;
     /**@private */
     protected _isChanged: boolean;
     /**@internal */
@@ -32,7 +35,7 @@ export class AutoBitmap extends Graphics {
     //private var _key:String;
     private  _drawGridCmd:Draw9GridTexture|null;
 
-    /**@inheritDoc 
+    /**@inheritDoc
      * @override
     */
     destroy(): void {
@@ -75,6 +78,23 @@ export class AutoBitmap extends Graphics {
 
     set sizeGrid(value: number[]) {
         this._sizeGrid = value.map((v) => { return +v; });
+        this._setChanged();
+    }
+    /**
+     * 当前精灵图的纹理(对称)填充类型，默认值为0
+     * <p> <code>symmetricType</code> 的值如下所示：
+     * <ol>
+     * <li>0: 直接铺满填充</li>
+     * <li>1: 左右对称填充</li>
+     * <li>2: 上下对称填充</li>
+     * <li>3: 上下左右对称填充</li>
+     * </p>
+     */
+    get symmetricType() {
+        return this._symmetricType;
+    }
+    set symmetricType(value) {
+        this._symmetricType = value;
         this._setChanged();
     }
 
@@ -192,8 +212,15 @@ export class AutoBitmap extends Graphics {
 
         //如果没有设置9宫格，或大小未改变，则直接用原图绘制
         if (!sizeGrid || (sw === width && sh === height)) {
-            let cmd = this._createDrawTexture(source, this._offset ? this._offset[0] : 0, this._offset ? this._offset[1] : 0, width, height, null, 1, null, null, this.uv);
+            let cmd:any;
+            if(this._symmetricType) {
+                cmd = DrawSymmetricTexture.create(source, 0, 0, width, height, this._symmetricType);
+            }
+            else {
+                cmd = this._createDrawTexture(source, this._offset ? this._offset[0] : 0, this._offset ? this._offset[1] : 0, width, height, null, 1, null, null, this.uv);
+            }
             cmd && this._setDrawGridCmd(cmd);
+
         } else {
             let cmd = Draw9GridTexture.create(source, 0, 0, width, height, sizeGrid);
             this._setDrawGridCmd(cmd);
@@ -228,7 +255,7 @@ export class AutoBitmap extends Graphics {
         var source = this._source;
         if (!source || !source.bitmap){
             return;
-        } 
+        }
 
         //let newcmd = Draw9GridTexture.create(source, 0, 0, width, height, sizeGrid);
         let cmds = this.cmds;

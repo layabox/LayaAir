@@ -289,7 +289,7 @@ export class Context {
 		this._fillAndStroke(fillColor, lineColor, lineWidth);
 	}
 
-	//矢量方法	
+	//矢量方法
 	/**@internal */
 	_drawPie(x: number, y: number, radius: number, startAngle: number, endAngle: number, fillColor: any, lineColor: any, lineWidth: number, vid: number): void {
 		//移动中心点
@@ -639,7 +639,7 @@ export class Context {
 	 * 当前canvas请求保存渲染结果。
 	 * 实现：
 	 * 如果value==true，就要给_target赋值
-	 * @param value {Boolean} 
+	 * @param value {Boolean}
 	 */
 	set asBitmap(value: boolean) {
 		if (value) {
@@ -834,7 +834,7 @@ export class Context {
 		var submit: Submit = this._curSubmit;
 		var sameKey: boolean = submit && (submit._key.submitType === SubmitBase.KEY_DRAWTEXTURE && submit._key.blendShader === this._nBlendType);
 		if (this._mesh.vertNum + 4 > Context._MAXVERTNUM) {
-			this._mesh = MeshQuadTexture.getAMesh(this.isMain);//创建新的mesh  TODO 如果_mesh不是常见格式，这里就不能这么做了。以后把_mesh单独表示成常用模式 
+			this._mesh = MeshQuadTexture.getAMesh(this.isMain);//创建新的mesh  TODO 如果_mesh不是常见格式，这里就不能这么做了。以后把_mesh单独表示成常用模式
 			this.meshlist.push(this._mesh);
 			sameKey = false;
 		}
@@ -1010,12 +1010,12 @@ export class Context {
 			return;
 		}
 		_clipRect = pre;
-		
+
 		Stat.drawCall++;//= pos.length / 2;
-		
+
 		if (pos.length < 4)
 			return;
-		
+
 		var finalVB:VertexBuffer2D = _curSubmit._vb || _vb;
 		var sx:Number = _curMat.a, sy:Number = _curMat.d;
 		var vpos:int = finalVB._byteLength >> 2;// + Context._RECTVBSIZE;
@@ -1107,8 +1107,8 @@ export class Context {
 		/*
 		var cd:Array = submit.shaderValue.clipDir;
 		var cp:Array = submit.shaderValue.clipRect;
-		
-		if (clipInfo[0] != cp[0] || clipInfo[1] != cp[1] || clipInfo[2] != cd[0] || clipInfo[3] != cd[1] || clipInfo[4] != cd[2] || clipInfo[5] != cd[3] ) 
+
+		if (clipInfo[0] != cp[0] || clipInfo[1] != cp[1] || clipInfo[2] != cd[0] || clipInfo[3] != cd[1] || clipInfo[4] != cd[2] || clipInfo[5] != cd[3] )
 			return false;
 		return true;
 		*/
@@ -1124,7 +1124,7 @@ export class Context {
 		//var sameKey:Boolean = tex.bitmap.id >= 0 && preKey.submitType === SubmitBase.KEY_DRAWTEXTURE && preKey.other === tex.bitmap.id ;
 
 		if (this._mesh.vertNum + minVertNum > Context._MAXVERTNUM) {
-			this._mesh = MeshQuadTexture.getAMesh(this.isMain);//创建新的mesh  TODO 如果_mesh不是常见格式，这里就不能这么做了。以后把_mesh单独表示成常用模式 
+			this._mesh = MeshQuadTexture.getAMesh(this.isMain);//创建新的mesh  TODO 如果_mesh不是常见格式，这里就不能这么做了。以后把_mesh单独表示成常用模式
 			this.meshlist.push(this._mesh);
 			//sameKey = false;
 		}
@@ -1235,7 +1235,7 @@ export class Context {
 		this._lastTex = tex;
 
 		if (mesh.vertNum + 4 > Context._MAXVERTNUM) {
-			mesh = this._mesh = MeshQuadTexture.getAMesh(this.isMain);//创建新的mesh  TODO 如果_mesh不是常见格式，这里就不能这么做了。以后把_mesh单独表示成常用模式 
+			mesh = this._mesh = MeshQuadTexture.getAMesh(this.isMain);//创建新的mesh  TODO 如果_mesh不是常见格式，这里就不能这么做了。以后把_mesh单独表示成常用模式
 			this.meshlist.push(mesh);
 			sameKey = false;	//新的mesh不能算samekey了
 		}
@@ -1314,7 +1314,7 @@ export class Context {
 	}
 
 	/**
-	 * 应用当前矩阵。把转换后的位置放到输出数组中。 
+	 * 应用当前矩阵。把转换后的位置放到输出数组中。
 	 * @param	x
 	 * @param	y
 	 * @param	w
@@ -1426,9 +1426,9 @@ export class Context {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param	tex
-	 * @param	x			
+	 * @param	x
 	 * @param	y
 	 * @param	width
 	 * @param	height
@@ -1593,7 +1593,7 @@ export class Context {
 		this._drawCount++;
 		var rgba: number = 0xffffffff;
 		if (this._mesh.vertNum + 4 > Context._MAXVERTNUM) {
-			this._mesh = MeshQuadTexture.getAMesh(this.isMain);//创建新的mesh  TODO 如果_mesh不是常见格式，这里就不能这么做了。以后把_mesh单独表示成常用模式 
+			this._mesh = MeshQuadTexture.getAMesh(this.isMain);//创建新的mesh  TODO 如果_mesh不是常见格式，这里就不能这么做了。以后把_mesh单独表示成常用模式
 			this.meshlist.push(this._mesh);
 		}
 
@@ -1618,11 +1618,11 @@ export class Context {
 		return false;
 	}
 
-	drawTriangles(tex: Texture, 
-			x: number, y: number, 
-			vertices: Float32Array, 
-			uvs : Float32Array, 
-			indices : Uint16Array, 
+	drawTriangles(tex: Texture,
+			x: number, y: number,
+			vertices: Float32Array,
+			uvs : Float32Array,
+			indices : Uint16Array,
 			matrix : Matrix, alpha: number, color: ColorFilter, blendMode: string, colorNum: number = 0xffffffff): void {
 
 		if (!tex._getSource()) { //source内调用tex.active();
@@ -1658,7 +1658,7 @@ export class Context {
 		//var rgba:int = mixRGBandAlpha(0xffffffff);
 		//rgba = _mixRGBandAlpha(rgba, alpha);	这个函数有问题，不能连续调用，输出作为输入
 		if (triMesh.vertNum + vertices.length / 2 > Context._MAXVERTNUM) {
-			triMesh = this._triangleMesh = MeshTexture.getAMesh(this.isMain);//创建新的mesh  TODO 如果_mesh不是常见格式，这里就不能这么做了。以后把_mesh单独表示成常用模式 
+			triMesh = this._triangleMesh = MeshTexture.getAMesh(this.isMain);//创建新的mesh  TODO 如果_mesh不是常见格式，这里就不能这么做了。以后把_mesh单独表示成常用模式
 			this.meshlist.push(triMesh);
 			sameKey = false;	//新的mesh不能算samekey了
 		}
@@ -1828,7 +1828,7 @@ export class Context {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param	start
 	 * @param	end
 	 */
@@ -2090,7 +2090,7 @@ export class Context {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param	x
 	 * @param	y
 	 * @param	b 是否应用矩阵
@@ -2360,7 +2360,7 @@ export class Context {
 		 * |     p6--------------------p7   |
 		 * |  x,y+h                  x+w,y+h|
 		 * p5-------------------------------p8
-		 * 
+		 *
 		 * 不用了
 		 * 这个其实用4个fillrect拼起来更好，能与fillrect合并。虽然多了几个点。
 		 */
@@ -2395,16 +2395,16 @@ export class Context {
 	get canvas(): HTMLCanvas {
 		return this._canvas;
 	}
-	//=============新增==================	
+	//=============新增==================
 	/* 下面的方式是有bug的。canvas是直接save，restore，现在是为了优化，但是有bug，所以先不重载了
 	public function saveTransform(matrix:Matrix):void {
 		this._curMat.copyTo(matrix);
 	}
-	
+
 	public function restoreTransform(matrix:Matrix):void {
 		matrix.copyTo(this._curMat);
 	}
-	
+
 	public function transformByMatrix(matrix:Matrix,tx:Number,ty:Number):void {
 		var mat:Matrix = _curMat;
 		matrix.setTranslate(tx, ty);
@@ -2416,15 +2416,15 @@ export class Context {
 
 	/* 下面的是错误的。位置没有被缩放
 	public function transformByMatrix(matrix:Matrix, tx:Number, ty:Number):void {
-		SaveTransform.save(this);			
-		Matrix.mul(matrix, _curMat, _curMat);	
+		SaveTransform.save(this);
+		Matrix.mul(matrix, _curMat, _curMat);
 		_curMat.tx += tx;
 		_curMat.ty += ty;
 		_curMat._checkTransform();
 	}
-			
+
 	public function transformByMatrixNoSave(matrix:Matrix, tx:Number, ty:Number):void {
-		Matrix.mul(matrix, _curMat, _curMat);	
+		Matrix.mul(matrix, _curMat, _curMat);
 		_curMat.tx += tx;
 		_curMat.ty += ty;
 		_curMat._checkTransform();
@@ -2444,7 +2444,7 @@ export class Context {
 	 * @param	w
 	 */
 	private _fillTexture_h(tex: Texture, imgid: number, uv: ArrayLike<number>, oriw: number, orih: number, x: number, y: number, w: number): void {
-		if(oriw<=0) 
+		if(oriw<=0)
 			console.error('_fillTexture_h error: oriw must>0');
 
 		var stx: number = x;
@@ -2477,7 +2477,7 @@ export class Context {
 	 * @param	h
 	 */
 	private _fillTexture_v(tex: Texture, imgid: number, uv: ArrayLike<number>, oriw: number, orih: number, x: number, y: number, h: number): void {
-		if(orih<=0) 
+		if(orih<=0)
 			console.error('_fillTexture_v error: orih must>0');
 		var sty: number = y;
 		var num: number = Math.floor(h / orih);
@@ -2655,6 +2655,68 @@ export class Context {
 		}
 
 		if (needClip) this.restore();
+	}
+
+	drawSymmetricTexture(tex:Texture, tx:number, ty:number, width:number, height:number, type:number, gx:number, gy:number):void {
+		if (!tex._getSource())
+			return;
+		tx += gx;
+		ty += gy;
+		let uv = tex.uv;
+		let imgid = (tex.bitmap as Texture2D).id;
+		let mat = this._curMat;
+		let tuv = this._tempUV;
+
+		// 整图的uv
+		// 一定是方的，所以uv只要左上右下就行
+		let uvl = uv[0];
+		let uvt = uv[1];
+		let uvr = uv[4];
+		let uvb = uv[5];
+
+		//1：左右对称；2上下对称；3：上下左右中心对称
+		//1, 2, 3 左上UV同
+		//1, 3 左下UV同
+		//2, 3 右上UV同
+		//3 右下UV
+
+		let offsetX = 0, offsetY = 0;
+		let drawW = width, drawH = height;
+		if(type & 1) {
+			drawW = width * 0.5;
+			offsetX = drawW;
+		}
+		if(type & 2) {
+			drawH = height * 0.5;
+			offsetY = drawH;
+		}
+
+		if(type & 1) {
+			//绘制右上角矩形
+			tuv[0] = uvr; tuv[1] = uvt; tuv[2] = uvl; tuv[3] = uvt;
+			tuv[6] = uvr; tuv[7] = uvb; tuv[4] = uvl; tuv[5] = uvb;
+			this._inner_drawTexture(tex, imgid, tx+offsetX, ty, drawW, drawH, mat, tuv, 1, false);
+		}
+
+		if(type & 2) {
+			//绘制左下角矩形
+			tuv[0] = uvl; tuv[1] = uvb; tuv[2] = uvr; tuv[3] = uvb;
+			tuv[6] = uvl; tuv[7] = uvt; tuv[4] = uvr; tuv[5] = uvt;
+			this._inner_drawTexture(tex, imgid, tx, ty+offsetY, drawW, drawH, mat, tuv, 1, false);
+		}
+
+		//绘制左上角矩形, 这块矩形总是会绘制的
+		tuv[0] = uvl; tuv[1] = uvt; tuv[2] = uvr; tuv[3] = uvt;
+		tuv[6] = uvl; tuv[7] = uvb; tuv[4] = uvr; tuv[5] = uvb;
+		this._inner_drawTexture(tex, imgid, tx, ty, drawW, drawH, mat, tuv, 1, false);
+
+		if(type === 3) {
+			//绘制右下角矩形
+			tuv[0] = uvr; tuv[1] = uvb;  tuv[2] = uvl; tuv[3] = uvb;
+			tuv[6] = uvr; tuv[7] = uvt;  tuv[4] = uvl; tuv[5] = uvt;
+			this._inner_drawTexture(tex, imgid, tx+offsetX, ty+offsetY, drawW, drawH, mat, tuv, 1, false);
+		}
+
 	}
 }
 
