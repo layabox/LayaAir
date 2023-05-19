@@ -1,4 +1,7 @@
-#include "PBRFrag.glsl";
+#if !defined(PBRMetallic_lib)
+    #define PBRMetallic_lib
+
+    #include "PBRFrag.glsl";
 
 struct SurfaceInputs {
     vec3 diffuseColor;
@@ -32,19 +35,19 @@ void initSurface(inout Surface surface, const in SurfaceInputs inputs, const in 
 
     surface.occlusion = inputs.occlusion;
 
-#ifdef ANISOTROPIC
+    #ifdef ANISOTROPIC
     surface.anisotropy = inputs.anisotropy;
-#endif // ANISOTROPIC
+    #endif // ANISOTROPIC
 }
 
 vec4 PBR_Metallic_Flow(const in SurfaceInputs inputs, in PixelParams pixel)
 {
-#ifdef ALPHATEST
+    #ifdef ALPHATEST
     if (inputs.alpha < inputs.alphaTest)
 	{
 	    discard;
 	}
-#endif // ALPHATEST
+    #endif // ALPHATEST
 
     Surface surface;
     initSurface(surface, inputs, pixel);
@@ -53,10 +56,12 @@ vec4 PBR_Metallic_Flow(const in SurfaceInputs inputs, in PixelParams pixel)
 
     surfaceColor += PBRLighting(surface, pixel);
 
-// todo emission calculate
-#ifdef EMISSION
+    // todo emission calculate
+    #ifdef EMISSION
     surfaceColor += inputs.emissionColor;
-#endif // EMISSION
+    #endif // EMISSION
 
     return vec4(surfaceColor, surface.alpha);
 }
+
+#endif // PBRMetallic_lib

@@ -5,9 +5,12 @@ import ColorGLSL from "./utils/Color.glsl";
 import MathGLSL from "./utils/Math.glsl";
 import BakedBoneMatrixSamplerGLSL from "./utils/BakedBoneMatrixSampler.glsl";
 
+import MorphTargetGLSL from "./common/MorphTarget.glsl";
 import VertexGLSL from "./common/VertexCommon.glsl";
 
-import MorphTargetGLSL from "./common/MorphTarget.glsl";
+import ShadingCommonGLSL from "./common/ShadingCommon.glsl";
+import ShadingVertexGLSL from "./common/ShadingVertex.glsl";
+import ShadingFragGLSL from "./common/ShadingFrag.glsl";
 
 import SceneGLSL from "./common/SceneCommon.glsl";
 import CameraGLSL from "./common/CameraCommon.glsl";
@@ -61,8 +64,11 @@ export class ShaderInit3D {
 		Shader3D.addInclude("Color.glsl", ColorGLSL);
 		Shader3D.addInclude("Math.glsl", MathGLSL);
 		Shader3D.addInclude("BakedBoneMatrixSampler.glsl", BakedBoneMatrixSamplerGLSL);
-		Shader3D.addInclude("VertexCommon.glsl", VertexGLSL);
 		Shader3D.addInclude("MorphTarget.glsl", MorphTargetGLSL);
+		Shader3D.addInclude("VertexCommon.glsl", VertexGLSL);
+		Shader3D.addInclude("ShadingCommon.glsl", ShadingCommonGLSL);
+		Shader3D.addInclude("ShadingVertex.glsl", ShadingVertexGLSL);
+		Shader3D.addInclude("ShadingFrag.glsl", ShadingFragGLSL);
 
 		// scene
 		Shader3D.addInclude("Scene.glsl", SceneGLSL);

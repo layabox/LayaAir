@@ -3,10 +3,10 @@
 #include "Color.glsl";
 
 #include "Scene.glsl";
+#include "SceneFog.glsl";
+
 #include "Camera.glsl";
 #include "Sprite3DFrag.glsl";
-
-#include "SceneFog.glsl";
 
 #include "BlinnPhongFrag.glsl";
 
@@ -21,10 +21,12 @@ void getBinnPhongSurfaceParams(inout Surface surface, in PixelParams pixel)
     surface.diffuseColor = u_DiffuseColor.rgb;
     surface.alpha = u_DiffuseColor.a;
 
-#if defined(COLOR) && defined(ENABLEVERTEXCOLOR)
+#ifdef COLOR
+    #ifdef ENABLEVERTEXCOLOR
     surface.diffuseColor *= pixel.vertexColor.xyz;
     surface.alpha *= pixel.vertexColor.a;
-#endif // COLOR && ENABLEVERTEXCOLOR
+    #endif // ENABLEVERTEXCOLOR
+#endif // COLOR
 
 #ifdef DIFFUSEMAP
     vec4 diffuseSampler = texture2D(u_DiffuseTexture, uv);

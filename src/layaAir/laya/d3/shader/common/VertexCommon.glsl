@@ -91,7 +91,8 @@ void getVertexParams(inout Vertex vertex)
     #endif // UV1
 
     #ifdef COLOR
-    vertex.vertexColor = a_Color;
+    // consider vertexColor is gamma
+    vertex.vertexColor = vec4(pow(a_Color.rgb, vec3(2.2)), a_Color.a);
     #endif // COLOR
 }
 

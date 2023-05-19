@@ -1,15 +1,14 @@
 #define SHADER_NAME BlinnPhongVS
 
-#include "Color.glsl";
+#include "Math.glsl";
 
 #include "Scene.glsl";
+#include "SceneFogInput.glsl";
+
 #include "Camera.glsl";
 #include "Sprite3DVertex.glsl";
 
-#include "VertexCommon.glsl";
-
-#include "BlinnPhongVertex.glsl";
-#include "SceneFogInput.glsl"
+#include "ShadingVertex.glsl";
 
 void main()
 {

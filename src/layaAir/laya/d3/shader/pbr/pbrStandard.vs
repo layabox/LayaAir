@@ -1,13 +1,14 @@
 #define SHADER_NAME PBRStandardVS
 
+#include "Math.glsl";
+
 #include "Scene.glsl";
+#include "SceneFogInput.glsl"
+
 #include "Camera.glsl";
 #include "Sprite3DVertex.glsl";
 
-#include "VertexCommon.glsl";
-
-#include "PBRVertex.glsl";
-#include "SceneFogInput.glsl"
+#include "ShadingVertex.glsl";
 
 #if defined(DETAILTEXTURE) || defined(DETAILNORMAL)
 varying vec2 v_DetailUV;

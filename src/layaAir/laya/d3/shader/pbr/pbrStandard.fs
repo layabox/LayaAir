@@ -3,10 +3,12 @@
 #include "Color.glsl";
 
 #include "Scene.glsl";
+#include "SceneFog.glsl";
+
 #include "Camera.glsl";
 #include "Sprite3DFrag.glsl";
-#include "SceneFog.glsl";
-#include "PBRMetallicFrag.glsl"
+
+#include "PBRMetallicFrag.glsl";
 
 #if defined(DETAILTEXTURE) || defined(DETAILNORMAL)
 varying vec2 v_DetailUV;
@@ -15,8 +17,7 @@ vec3 BlendNormals(vec3 n1, vec3 n2)
 {
     return normalize(vec3(n1.xy + n2.xy, n1.z * n2.z));
 }
-
-#endif
+#endif // DETAILTEXTURE || DETAILNORMAL
 
 vec3 normalScale(vec3 normal, float scale)
 {
@@ -27,7 +28,6 @@ vec3 normalScale(vec3 normal, float scale)
 
 void initSurfaceInputs(inout SurfaceInputs inputs, const in PixelParams pixel)
 {
-
 #ifdef UV
     vec2 uv = transformUV(pixel.uv0, u_TilingOffset);
 #else // UV
