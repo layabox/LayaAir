@@ -40,6 +40,12 @@ float V_SmithGGXCorrelated(float roughness, float NoV, float NoL)
     return saturateMediump(v);
 }
 
+float V_kelemen(float LoH)
+{
+    // Kelemen 2001, "A Microfacet Based Coupled Specular-Matte BRDF Model with Importance Sampling"
+    return saturateMediump(0.25 / (LoH * LoH));
+}
+
 float V_SmithGGXCorrelated_Anisotropic(float at, float ab, float ToV, float BoV, float ToL, float BoL, float NoV, float NoL)
 {
     float lambdaV = NoL * length(vec3(at * ToV, ab * BoV, NoV));
@@ -65,7 +71,7 @@ float F_Schlick(float f0, float f90, float VoH)
 
 vec3 F_Schlick(vec3 f0, vec3 f90, float VoH)
 {
-    return f0 + (f90 - f0) * pow(clamp(1.0 - VoH, 0.0, 1.0), 5.0);
+    return f0 + (f90 - f0) * pow5(clamp(1.0 - VoH, 0.0, 1.0));
 }
 
 // Specular dispatch

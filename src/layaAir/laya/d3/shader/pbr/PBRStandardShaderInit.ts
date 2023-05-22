@@ -1,5 +1,5 @@
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
-import { ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData";
+import { ShaderData, ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData";
 
 import PBRStandardVS from "./pbrStandard.vs";
 import PBRStandardFS from "./pbrStandard.fs";
@@ -32,8 +32,15 @@ export class PBRStandardShaderInit {
             "u_OcclusionTexture": ShaderDataType.Texture2D,
             "u_EmissionTexture": ShaderDataType.Texture2D,
             "u_MetallicGlossTexture": ShaderDataType.Texture2D,
+            // anisotrioy
             "u_Anisotropy": ShaderDataType.Float,
             "u_TangentTexture": ShaderDataType.Texture2D,
+            // clear coat
+            "u_ClearCoat": ShaderDataType.Float,
+            "u_ClearCoatTexture": ShaderDataType.Texture2D,
+            "u_ClearCoatRoughness": ShaderDataType.Float,
+            "u_ClearCoatRoughnessTexture": ShaderDataType.Texture2D,
+            "u_ClearCoatNormalTexture": ShaderDataType.Texture2D,
             //detail 
             "u_DetailAlbedoTexture": ShaderDataType.Texture2D,
             "u_DetailNormalTexture": ShaderDataType.Texture2D,

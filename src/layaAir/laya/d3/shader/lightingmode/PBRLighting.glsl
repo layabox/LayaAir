@@ -29,6 +29,11 @@ struct PixelInfo {
 
     vec3 dfg;
 
+    #ifdef CLEARCOAT
+    vec3 clearCoatNormal;
+    float clearCoatNoV;
+    #endif // CLEARCOAT
+
     #ifdef ANISOTROPIC
     float ToV;
     float BoV;
@@ -51,17 +56,32 @@ struct Surface {
 
     vec3 normalTS;
 
+    #ifdef CLEARCOAT
+    float clearCoat;
+    float clearCoatRoughness;
+    float clearCoatPerceptualRoughness;
+	#ifdef CLEARCOAT_NORMAL
+    vec3 clearCoatNormalTS;
+	#endif // CLEARCOAT_NORMAL
+    #endif // CLEARCOAT
+
     #ifdef ANISOTROPIC
     float anisotropy;
     #endif // ANISOTROPIC
 };
 
 struct LightParams {
+    vec3 l;
     vec3 h;
     float NoL;
     float NoH;
     float LoH;
     float VoH;
+
+    #ifdef CLEARCOAT
+    float clearCoatNoH;
+    float clearCoatNoL;
+    #endif // CLEARCOAT
 
     #ifdef ANISOTROPIC
     float ToL;
@@ -93,9 +113,11 @@ vec3 getReflectedVector(const in Surface surface, const in PixelInfo info)
 
 void initLightParams(inout LightParams params, const in PixelInfo pixel, const in Light light)
 {
-    vec3 l = normalize(-light.dir);
     vec3 v = pixel.viewDir;
     vec3 n = pixel.normalWS;
+
+    vec3 l = normalize(-light.dir);
+    params.l = l;
 
     vec3 h = SafeNormalize(v + l);
     params.h = h;
@@ -103,6 +125,11 @@ void initLightParams(inout LightParams params, const in PixelInfo pixel, const i
     params.NoH = saturate(dot(n, h));
     params.LoH = saturate(dot(l, h));
     params.VoH = saturate(dot(v, h));
+
+    #ifdef CLEARCOAT
+    params.clearCoatNoL = saturate(dot(pixel.clearCoatNormal, l));
+    params.clearCoatNoH = saturate(dot(pixel.clearCoatNormal, h));
+    #endif // CLEARCOAT
 
     #ifdef ANISOTROPIC
     params.ToL = dot(pixel.tangentWS, l);
@@ -156,6 +183,24 @@ vec3 specularLobe(const in Surface surface, const in PixelInfo pixel, const in L
     return (D * V) * F;
 }
 
+    #ifdef CLEARCOAT
+float clearCoatLobe(const in Surface surface, const in PixelInfo pixel, const in LightParams lightParams)
+{
+    float roughness = surface.clearCoatRoughness;
+    float clearCoat = surface.clearCoat;
+    vec3 n = pixel.clearCoatNormal;
+    vec3 h = lightParams.h;
+    float LoH = lightParams.LoH;
+
+    float clearCoatNoH = lightParams.clearCoatNoH;
+
+    float D = distribution(roughness, clearCoatNoH, h, n);
+    float V = V_kelemen(LoH);
+
+    return D * V;
+}
+    #endif // CLEARCOAT
+
 vec3 PBRLighting(const in Surface surface, const in PixelInfo pixel, const in Light light)
 {
     LightParams lightParams;
@@ -165,7 +210,22 @@ vec3 PBRLighting(const in Surface surface, const in PixelInfo pixel, const in Li
 
     vec3 Fr = specularLobe(surface, pixel, lightParams);
 
-    return (Fd + Fr) * light.color * lightParams.NoL;
+    vec3 shading = (Fd + Fr) * lightParams.NoL;
+
+    #ifdef CLEARCOAT
+    float clearCoatNoL = lightParams.clearCoatNoL;
+    float LoH = lightParams.LoH;
+    // todo
+    // default IOR 1.5
+    float FccClearCoat = F_Schlick(0.04, 1.0, LoH) * surface.clearCoat;
+    float attenuation = 1.0 - FccClearCoat;
+    shading *= attenuation;
+
+    float clearcoat = clearCoatLobe(surface, pixel, lightParams) * FccClearCoat;
+    shading += clearcoat * clearCoatNoL;
+    #endif // CLEARCOAT
+
+    return shading * light.color;
 }
 
     // gi

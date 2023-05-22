@@ -21,9 +21,12 @@ vec3 BlendNormals(vec3 n1, vec3 n2)
 
 vec3 normalScale(vec3 normal, float scale)
 {
-    normal.xy *= scale;
-    normal.z = sqrt(1.0 - clamp(dot(normal.xy, normal.xy), 0.0, 1.0));
-    return normal;
+    // normal.xy *= scale;
+    // normal.z = sqrt(1.0 - clamp(dot(normal.xy, normal.xy), 0.0, 1.0));
+    // return normal;
+
+    normal *= vec3(scale, scale, 1.0);
+    return normalize(normal);
 }
 
 void initSurfaceInputs(inout SurfaceInputs inputs, const in PixelParams pixel)
@@ -124,6 +127,32 @@ void initSurfaceInputs(inout SurfaceInputs inputs, const in PixelParams pixel)
     inputs.emissionColor *= emissionSampler.rgb;
     #endif // EMISSIONTEXTURE
 #endif // EMISSION
+
+#ifdef CLEARCOAT
+    inputs.clearCoat = u_ClearCoat;
+    inputs.clearCoatRoughness = u_ClearCoatRoughness;
+
+    #ifdef CLEARCOATTEXTURE
+    // todo
+    // linear tex no need gamma
+    vec4 clearCoatSampler = texture2D(u_ClearCoatTexture, uv);
+    inputs.clearCoat *= clearCoatSampler.r;
+    #endif // CLEARCOATTEXTURE
+
+    #ifdef CLEARCOAT_ROUGHNESS
+    // todo
+    // linear tex no need gamma
+    vec4 clearcoatSampleRoughness = texture2D(u_ClearCoatRoughnessTexture, uv);
+    inputs.clearCoatRoughness *= clearcoatSampleRoughness.g;
+    #endif // CLEARCOAT_ROUGHNESS
+
+    #ifdef CLEARCOAT_NORMAL
+    vec3 clearCoatNormalSampler = texture2D(u_ClearCoatNormalTexture, uv).rgb;
+    clearCoatNormalSampler = normalize(clearCoatNormalSampler * 2.0 - 1.0);
+    clearCoatNormalSampler.y *= -1.0;
+    inputs.clearCoatNormalTS = clearCoatNormalSampler;
+    #endif // CLEARCOAT_NORMAL
+#endif // CLEARCOAT
 
 #ifdef ANISOTROPIC
     inputs.anisotropy = u_Anisotropy;

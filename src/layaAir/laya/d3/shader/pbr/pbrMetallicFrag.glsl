@@ -13,6 +13,14 @@ struct SurfaceInputs {
     vec3 emissionColor;
     vec3 normalTS;
     float anisotropy;
+
+    #ifdef CLEARCOAT
+    float clearCoat;
+    float clearCoatRoughness;
+	#ifdef CLEARCOAT_NORMAL
+    vec3 clearCoatNormalTS;
+	#endif // CLEARCOAT_NORMAL
+    #endif // CLEARCOAT
 };
 
 void initSurface(inout Surface surface, const in SurfaceInputs inputs, const in PixelParams pixel)
@@ -34,6 +42,15 @@ void initSurface(inout Surface surface, const in SurfaceInputs inputs, const in 
     surface.f0 = baseColor * metallic + (dielectricSpecular * (1.0 - metallic));
 
     surface.occlusion = inputs.occlusion;
+
+    #ifdef CLEARCOAT
+    surface.clearCoat = inputs.clearCoat;
+    surface.clearCoatPerceptualRoughness = clamp(inputs.clearCoatRoughness, MIN_PERCEPTUAL_ROUGHNESS, 1.0);
+    surface.clearCoatRoughness = surface.clearCoatPerceptualRoughness * surface.clearCoatPerceptualRoughness;
+	#ifdef CLEARCOAT_NORMAL
+    surface.clearCoatNormalTS = inputs.clearCoatNormalTS;
+	#endif // CLEARCOAT_NORMAL
+    #endif // CLEARCOAT
 
     #ifdef ANISOTROPIC
     surface.anisotropy = inputs.anisotropy;

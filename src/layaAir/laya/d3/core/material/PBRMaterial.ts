@@ -107,6 +107,27 @@ export class PBRMaterial extends Material {
     /**@internal */
     static DETAILNORMALSCALE: number;
 
+    // clear coat
+    /**@internal */
+    static SHADERDEFINE_CLEARCOAT: ShaderDefine;
+    /**@internal */
+    static CLEARCOAT: number;
+    /**@internal */
+    static SHADERDEFINE_CLEARCOATTEXTURE: ShaderDefine;
+    /**@internal */
+    static CLEARCOATTEXTURE: number;
+    /**@internal */
+    static CLEARCOATROUGHNESS: number;
+    /**@internal */
+    static SHADERDEFINE_CLEARCOATROUGHNESSTEXTURE: ShaderDefine;
+    /**@internal */
+    static CLEARCOATROUGHNESSTEXTURE: number;
+    /**@internal */
+    static SHADERDEFINE_CLEARCOATNORMAL: ShaderDefine;
+    /** @internal */
+    static CLEARCOATNORMALTEXTURE: number;
+
+
     /** 渲染质量。*/
     static renderQuality: PBRRenderQuality = PBRRenderQuality.High;
 
@@ -153,6 +174,21 @@ export class PBRMaterial extends Material {
         PBRMaterial.DETAILNORMALTEXTURE = Shader3D.propertyNameToID("u_DetailNormalTexture");
         PBRMaterial.DETAILTILLINGOFFSET = Shader3D.propertyNameToID("u_DetailTillingOffset");
         PBRMaterial.DETAILNORMALSCALE = Shader3D.propertyNameToID("u_DetailNormalScale");
+
+        // clear coat
+        PBRMaterial.SHADERDEFINE_CLEARCOAT = Shader3D.getDefineByName("CLEARCOAT");
+
+        PBRMaterial.CLEARCOAT = Shader3D.propertyNameToID("u_ClearCoat");
+        PBRMaterial.SHADERDEFINE_CLEARCOATTEXTURE = Shader3D.getDefineByName("CLEARCOATTEXTURE");
+        PBRMaterial.CLEARCOATTEXTURE = Shader3D.propertyNameToID("u_ClearCoatTexture");
+
+        PBRMaterial.CLEARCOATROUGHNESS = Shader3D.propertyNameToID("u_ClearCoatRoughness");
+        PBRMaterial.SHADERDEFINE_CLEARCOATROUGHNESSTEXTURE = Shader3D.getDefineByName("CLEARCOAT_ROUGHNESS");
+        PBRMaterial.CLEARCOATROUGHNESSTEXTURE = Shader3D.propertyNameToID("u_ClearCoatRoughnessTexture");
+
+        PBRMaterial.SHADERDEFINE_CLEARCOATNORMAL = Shader3D.getDefineByName("CLEARCOAT_NORMAL");
+        PBRMaterial.CLEARCOATNORMALTEXTURE = Shader3D.propertyNameToID("u_ClearCoatNormalTexture");
+
     }
 
 
@@ -500,6 +536,7 @@ export class PBRMaterial extends Material {
         }
     }
 
+    // todo remove
     private _materialType: PBRMaterialType;
     public get materialType(): PBRMaterialType {
         return this._materialType;
@@ -518,6 +555,89 @@ export class PBRMaterial extends Material {
                 break;
         }
         this._materialType = value;
+    }
+
+    /**
+     * 是否开启 clear coat
+     */
+    public get clearCoatEnable(): boolean {
+        return this.shaderData.hasDefine(PBRMaterial.SHADERDEFINE_CLEARCOAT);
+    }
+    public set clearCoatEnable(value: boolean) {
+        if (value) {
+            this.shaderData.addDefine(PBRMaterial.SHADERDEFINE_CLEARCOAT);
+        }
+        else {
+            this.shaderData.removeDefine(PBRMaterial.SHADERDEFINE_CLEARCOAT);
+        }
+    }
+
+    /**
+     * clear coat 层 强度
+     */
+    public get clearCoat(): number {
+        return this.shaderData.getNumber(PBRMaterial.CLEARCOAT);
+    }
+    public set clearCoat(value: number) {
+        this.shaderData.setNumber(PBRMaterial.CLEARCOAT, value);
+    }
+
+    /**
+     * clear coat 强度贴图
+     */
+    public get clearCoatTexture(): BaseTexture {
+        return this.shaderData.getTexture(PBRMaterial.CLEARCOATTEXTURE);
+    }
+    public set clearCoatTexture(value: BaseTexture) {
+        if (value) {
+            this.shaderData.addDefine(PBRMaterial.SHADERDEFINE_CLEARCOATTEXTURE);
+        }
+        else {
+            this.shaderData.removeDefine(PBRMaterial.SHADERDEFINE_CLEARCOATTEXTURE);
+        }
+        this.shaderData.setTexture(PBRMaterial.CLEARCOATTEXTURE, value);
+    }
+
+    /**
+     * clear coat 层 粗糙度
+     */
+    public get clearCoatRoughness(): number {
+        return this.shaderData.getNumber(PBRMaterial.CLEARCOATROUGHNESS);
+    }
+    public set clearCoatRoughness(value: number) {
+        this.shaderData.setNumber(PBRMaterial.CLEARCOATROUGHNESS, value);
+    }
+
+    /**
+     * clear coat 层 粗糙度贴图
+     */
+    public get clearCoatRoughnessTexture(): BaseTexture {
+        return this.shaderData.getTexture(PBRMaterial.CLEARCOATROUGHNESSTEXTURE);
+    }
+    public set clearCoatRoughnessTexture(value: BaseTexture) {
+        if (value) {
+            this.shaderData.addDefine(PBRMaterial.SHADERDEFINE_CLEARCOATROUGHNESSTEXTURE);
+        }
+        else {
+            this.shaderData.removeDefine(PBRMaterial.SHADERDEFINE_CLEARCOATROUGHNESSTEXTURE);
+        }
+        this.shaderData.setTexture(PBRMaterial.CLEARCOATROUGHNESSTEXTURE, value);
+    }
+
+    /**
+     * clear coat 法线贴图
+     */
+    public get clearCoatNormalTexture(): BaseTexture {
+        return this.shaderData.getTexture(PBRMaterial.CLEARCOATNORMALTEXTURE);
+    }
+    public set clearCoatNormalTexture(value: BaseTexture) {
+        if (value) {
+            this.shaderData.addDefine(PBRMaterial.SHADERDEFINE_CLEARCOATNORMAL);
+        }
+        else {
+            this.shaderData.removeDefine(PBRMaterial.SHADERDEFINE_CLEARCOATNORMAL);
+        }
+        this.shaderData.setTexture(PBRMaterial.CLEARCOATNORMALTEXTURE, value);
     }
 
     constructor() {

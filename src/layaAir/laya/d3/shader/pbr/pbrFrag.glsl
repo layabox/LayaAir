@@ -34,6 +34,15 @@ void getPixelInfo(inout PixelInfo info, const in PixelParams pixel, const in Sur
     info.ToV = dot(info.tangentWS, info.viewDir);
     info.BoV = dot(info.biNormalWS, info.viewDir);
     #endif // ANISOTROPIC
+
+    #ifdef CLEARCOAT
+	#ifdef CLEARCOAT_NORMAL
+    info.clearCoatNormal = normalize(pixel.TBN * surface.clearCoatNormalTS);
+	#else // CLEARCOAT_NORMAL
+    info.clearCoatNormal = info.vertexNormalWS;
+	#endif // CLEARCOAT_NORMAL
+    info.clearCoatNoV = min(max(dot(info.clearCoatNormal, info.viewDir), MIN_N_DOT_V), 1.0);
+    #endif // CLEARCOAT
 }
 
 vec3 PBRLighting(const in Surface surface, const in PixelParams pixel)
