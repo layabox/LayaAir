@@ -162,7 +162,7 @@ export class Laya {
             Laya.enableNative();
         }
         CacheManger.beginCheck();
-        
+
         stage = Laya.stage = new Stage();
         ILaya.stage = Laya.stage;
 
@@ -173,7 +173,7 @@ export class Laya {
         MeshQuadTexture.__int__();
         MeshVG.__init__();
         MeshTexture.__init__();
-        Laya.render = new Render(0, 0, Browser.mainCanvas);
+        Laya.render = Laya.createRender();
         render = Laya.render;
 
         stage.size(stageConfig.designWidth, stageConfig.designHeight);
@@ -228,6 +228,10 @@ export class Laya {
 
             return Promise.resolve();
         }
+    }
+
+    static createRender(): Render {
+        return new Render(0, 0, Browser.mainCanvas);
     }
 
     static addWasmModule(id: string, exports: WebAssembly.Exports, memory: WebAssembly.Memory) {
