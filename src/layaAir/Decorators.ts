@@ -35,7 +35,7 @@ export interface PropertyDescriptor {
      * 
      *      number : 数字输入。
      *      string : 字符串输入。默认为单行输入，如果是多行，需要激活multiline选项。
-     *      boolean : 多选框。
+     *      boolean : 布尔值输入，用于单选框或多选框。
      *      color : 一个颜色框+调色盘+拾色器
      *      vec2 : XY输入的组合
      *      vec3 : XYZ输入的组合
@@ -50,20 +50,22 @@ export interface PropertyDescriptor {
      */
     inspector: string;
 
-    /** 隐藏控制。
-     * 可以用表达式，支持的语法有：
-     * 1. 字符串。例如"!data.a && !data.b"，表示属性a和属性b均为空时，隐藏这个属性。隐含的变量有两个，data为当前数据，field为IPropertyField接口。
-     * 2. 函数。函数原型为func(data:any, field:IPropertyField)。
+    /** 隐藏控制:true隐藏，false显示。常用于关联属性的情况。
+     * 1. 可以用表达式，通过将条件表达式放到字符串里，获得布尔类型的运算结果，例如"!data.a && !data.b"，表示属性a和属性b均为空时，条件成立（true），隐藏这个属性。
+     * 2. 这里的data为当前组件的对象数据，data.a与data.b属性字段的a与b就是指当前组件中的a与b属性值，通过这种方法取到组件对象数据中的属性值，用于条件判断，作用于当前属性是否隐藏。
      */
     hidden: boolean | string;
-    /** 只读控制。可以用表达式，参考隐藏控制。 */
-    readonly: boolean | string | Function;
+    
+    /** 只读控制。
+     * 1. 可以用表达式，通过将条件表达式放到字符串里，获得布尔类型的运算结果，例如"!data.a && !data.b"，表示属性a和属性b均为空时，条件成立（true），该属性只读。
+     * 2. 这里的data为当前组件的对象数据，data.a与data.b属性字段的a与b就是指当前组件中的a与b属性值，通过这种方法取到组件对象数据中的属性值，用于条件判断，作用于当前属性是否隐藏。
+     */
+    readonly: boolean | string;
+
     /** 数据检查机制。
-     * 可以用表达式，支持的语法有：
-     * 1. 字符串。例如"data.a"， 如果data.a是一个字符串，表示验证不通过，这个字符串作为错误提示信息显示；如果是其他值，则表示验证通过。
-     *    隐含的变量有三个，data为当前数据，value为当前用户输入的值，field为IPropertyField接口。
-     * 2. 函数。函数原型为func(data:any, value:any, field:IPropertyField)。
-     *    如果返回值是一个字符串，表示验证不通过，这个字符串作为错误提示信息显示；如果是其他值，则表示验证通过。
+     * 1. 将包括表达式的字符串传入，用于判断检查是否符合表达式的条件。符合条件，需要返回报错信息。
+     * 2. 使用示例为："if(value == data.a) return '不能与a的值相同'"
+     * 其中的value为当前用户在该属性输入的值，data为当前组件的对象数据，data.a是当前组件中的a属性值
      */
     validator: string;
 
@@ -195,4 +197,4 @@ export function runInEditor(constructor: Function): void { }
  * 使用这个装饰器，可以使属性显示在编辑器属性设置面板上，并且能序列化保存。
  * @param info 属性的类型，如: Number,"number",[Number],["Record", Number]等。或传递对象描述详细信息，例如{ type: "string", multiline: true }。
  */
-export function property(info: string | Array<any> | Function | Object| Partial<PropertyDescriptor>): any { return dummy; }
+export function property(info: string | Array<any> | Function | Object | Partial<PropertyDescriptor>): any { return dummy; }
