@@ -600,6 +600,8 @@ export class Animator2D extends Component {
 
 
                     finish || this._updatePlayer(animatorState, playStateInfo, delta * speed * dir, loop, i);
+                    playStateInfo = controllerLayer._playStateInfo!;
+                    animatorState = playStateInfo._currentState!;
                     if (needRender) {
                         this._updateClipDatas(animatorState, addtive, playStateInfo);
                         if (!finish) {
