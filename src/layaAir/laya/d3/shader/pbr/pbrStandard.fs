@@ -156,6 +156,20 @@ void initSurfaceInputs(inout SurfaceInputs inputs, const in PixelParams pixel)
 
 #ifdef ANISOTROPIC
     inputs.anisotropy = u_Anisotropy;
+    vec2 direction = vec2(1.0, 0.0);
+
+    #ifdef ANISOTROPICTEXTURE
+    vec3 anisotropySampler = texture2D(u_AnisotropyTexture, uv).rgb;
+
+    inputs.anisotropy *= anisotropySampler.b;
+    direction = anisotropySampler.xy * 2.0 - 1.0;
+    #endif // ANISOTROPICTEXTURE
+
+    vec2 anisotropyRotation = vec2(cos(u_AnisotropyRotation), sin(u_AnisotropyRotation));
+    // vec2 anisotropyRotation = vec2(sin(u_AnisotropyRotation), cos(u_AnisotropyRotation));
+    mat2 rotationMatrix = mat2(anisotropyRotation.x, anisotropyRotation.y, -anisotropyRotation.y, anisotropyRotation.x);
+    inputs.anisotropyDirection = rotationMatrix * direction;
+
 #endif // ANISOTROPIC
 }
 

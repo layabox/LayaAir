@@ -51,7 +51,7 @@ float V_SmithGGXCorrelated_Anisotropic(float at, float ab, float ToV, float BoV,
     float lambdaV = NoL * length(vec3(at * ToV, ab * BoV, NoV));
     float lambdaL = NoV * length(vec3(at * ToL, ab * BoL, NoL));
     float v = 0.5 / (lambdaV + lambdaL);
-    return saturateMediump(v);
+    return saturate(v);
 }
 
 vec3 F_Schlick(vec3 f0, float f90, float VoH)
@@ -71,7 +71,7 @@ float F_Schlick(float f0, float f90, float VoH)
 
 vec3 F_Schlick(vec3 f0, vec3 f90, float VoH)
 {
-    return f0 + (f90 - f0) * pow5(clamp(1.0 - VoH, 0.0, 1.0));
+    return f0 + (f90 - f0) * pow5(1.0 - VoH);
 }
 
 // Specular dispatch

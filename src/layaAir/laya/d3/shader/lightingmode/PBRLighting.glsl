@@ -35,6 +35,8 @@ struct PixelInfo {
     #endif // CLEARCOAT
 
     #ifdef ANISOTROPIC
+    vec3 anisotropicT;
+    vec3 anisotropicB;
     float ToV;
     float BoV;
     #endif // ANISOTROPIC
@@ -67,6 +69,9 @@ struct Surface {
 
     #ifdef ANISOTROPIC
     float anisotropy;
+    vec2 anisotropyDirection;
+    float at;
+    float ab;
     #endif // ANISOTROPIC
 };
 
@@ -94,21 +99,37 @@ vec3 getReflectedVector(const in Surface surface, const in PixelInfo info)
 {
     vec3 v = info.viewDir;
     vec3 n = info.normalWS;
+    vec3 positionWS = info.positionWS;
+
+    vec3 r;
 
     #ifdef ANISOTROPIC
 
-    vec3 direction = surface.anisotropy >= 0.0 ? info.biNormalWS : info.tangentWS;
-    vec3 at = cross(direction, v);
-    vec3 an = cross(at, direction);
-    float bendFactor = abs(surface.anisotropy) * saturate(5.0 * surface.perceptualRoughness);
-    vec3 bentNormal = normalize(mix(n, an, bendFactor));
-    return reflect(-v, bentNormal);
+    float anisotropy = surface.anisotropy;
+    vec3 anisotropyDirection = info.anisotropicB;
+
+    // float tangentRoughness = mix(roughness, 1.0, anisotropy * anisotropy);
+    float roughness = surface.perceptualRoughness;
+    vec3 anisotropicTangent = cross(anisotropyDirection, v);
+    vec3 anisotropicNormal = cross(anisotropicTangent, anisotropyDirection);
+    float bendFactor = 1.0 - anisotropy * (1.0 - roughness);
+    float bendFactorPow4 = pow2(bendFactor) * pow2(bendFactor);
+    vec3 bentNormal = normalize(mix(anisotropicNormal, n, bendFactorPow4));
+
+    r = normalize(reflect(-v, bentNormal));
 
     #else // ANISOTROPIC
 
-    return reflect(-v, n);
+    r = reflect(-v, n);
 
     #endif // ANISOTROPIC
+
+    // todo
+    #ifdef SPECCUBE_BOX_PROJECTION
+    r = getBoxProjectionReflectedVector(r, positionWS);
+    #endif // SPECCUBE_BOX_PROJECTION
+
+    return r;
 }
 
 void initLightParams(inout LightParams params, const in PixelInfo pixel, const in Light light)
@@ -132,8 +153,10 @@ void initLightParams(inout LightParams params, const in PixelInfo pixel, const i
     #endif // CLEARCOAT
 
     #ifdef ANISOTROPIC
-    params.ToL = dot(pixel.tangentWS, l);
-    params.BoL = dot(pixel.biNormalWS, l);
+    vec3 t = pixel.anisotropicT;
+    vec3 b = pixel.anisotropicB;
+    params.ToL = dot(t, l);
+    params.BoL = dot(b, l);
     #endif // ANISOTROPIC
 }
 
@@ -163,21 +186,9 @@ vec3 diffuseLobe(in Surface surface, const in PixelInfo pixel, const in LightPar
 vec3 specularLobe(const in Surface surface, const in PixelInfo pixel, const in LightParams lightParams)
 {
     float roughness = surface.roughness;
-    #ifdef ANISOTROPIC
-
-    float at = max(roughness * (1.0 + surface.anisotropy), 0.001);
-    float ab = max(roughness * (1.0 - surface.anisotropy), 0.001);
-
-    float D = D_GGX_Anisotropic(lightParams.NoH, lightParams.h, pixel.tangentWS, pixel.biNormalWS, at, ab);
-    float V = V_SmithGGXCorrelated_Anisotropic(at, ab, pixel.ToV, pixel.BoV, lightParams.ToL, lightParams.BoL, pixel.NoV, lightParams.NoL);
-
-    #else // ANISOTROPIC
 
     float D = distribution(roughness, lightParams.NoH, lightParams.h, pixel.normalWS);
     float V = visibility(roughness, pixel.NoV, lightParams.NoL);
-
-    #endif // ANISOTROPIC
-
     vec3 F = fresnel(surface.f0, lightParams.LoH);
 
     return (D * V) * F;
@@ -201,6 +212,33 @@ float clearCoatLobe(const in Surface surface, const in PixelInfo pixel, const in
 }
     #endif // CLEARCOAT
 
+    #ifdef ANISOTROPIC
+vec3 anisotropyLobe(const in Surface surface, const in PixelInfo pixel, const in LightParams lightParams)
+{
+    float anisotropy = surface.anisotropy;
+    float at = surface.at;
+    float ab = surface.ab;
+    vec3 anisotropicT = pixel.anisotropicT;
+    vec3 anisotropicB = pixel.anisotropicB;
+
+    float NoV = pixel.NoV;
+    float ToV = pixel.ToV;
+    float BoV = pixel.BoV;
+
+    vec3 h = lightParams.h;
+    float NoL = lightParams.NoL;
+    float NoH = lightParams.NoH;
+    float VoH = lightParams.VoH;
+    float ToL = lightParams.ToL;
+    float BoL = lightParams.BoL;
+
+    float V = V_SmithGGXCorrelated_Anisotropic(at, ab, ToV, BoV, ToL, BoL, NoV, NoL);
+    float D = D_GGX_Anisotropic(NoH, h, anisotropicT, anisotropicB, at, ab);
+    vec3 F = fresnel(surface.f0, lightParams.LoH);
+    return V * D * F;
+}
+    #endif // ANISOTROPIC
+
 vec3 PBRLighting(const in Surface surface, const in PixelInfo pixel, const in Light light)
 {
     LightParams lightParams;
@@ -208,7 +246,11 @@ vec3 PBRLighting(const in Surface surface, const in PixelInfo pixel, const in Li
 
     vec3 Fd = diffuseLobe(surface, pixel, lightParams);
 
+    #ifdef ANISOTROPIC
+    vec3 Fr = anisotropyLobe(surface, pixel, lightParams);
+    #else // ANISOTROPIC
     vec3 Fr = specularLobe(surface, pixel, lightParams);
+    #endif // ANISOTROPIC
 
     vec3 shading = (Fd + Fr) * lightParams.NoL;
 

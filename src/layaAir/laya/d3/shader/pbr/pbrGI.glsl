@@ -59,10 +59,6 @@ vec3 PBRGI(const in Surface surface, const in PixelInfo info)
 
     // radiance
     vec3 r = getReflectedVector(surface, info);
-    // todo
-    #ifdef SPECCUBE_BOX_PROJECTION
-    r = getBoxProjectionReflectedVector(r, positionWS);
-    #endif // SPECCUBE_BOX_PROJECTION
 
     vec3 indirectSpecular = specularIrradiance(r, roughness);
 

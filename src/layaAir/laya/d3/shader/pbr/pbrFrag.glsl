@@ -24,17 +24,6 @@ void getPixelInfo(inout PixelInfo info, const in PixelParams pixel, const in Sur
 
     info.dfg = prefilteredDFG_LUT(surface.perceptualRoughness, info.NoV);
 
-    #ifdef LIGHTMAP
-	#ifdef UV1
-    info.lightmapUV = pixel.uv1;
-	#endif // UV1
-    #endif // LIGHTMAP
-
-    #ifdef ANISOTROPIC
-    info.ToV = dot(info.tangentWS, info.viewDir);
-    info.BoV = dot(info.biNormalWS, info.viewDir);
-    #endif // ANISOTROPIC
-
     #ifdef CLEARCOAT
 	#ifdef CLEARCOAT_NORMAL
     info.clearCoatNormal = normalize(pixel.TBN * surface.clearCoatNormalTS);
@@ -43,6 +32,21 @@ void getPixelInfo(inout PixelInfo info, const in PixelParams pixel, const in Sur
 	#endif // CLEARCOAT_NORMAL
     info.clearCoatNoV = min(max(dot(info.clearCoatNormal, info.viewDir), MIN_N_DOT_V), 1.0);
     #endif // CLEARCOAT
+
+    #ifdef ANISOTROPIC
+    // todo
+    mat3 anisotripyTBN = mat3(info.tangentWS, info.biNormalWS * -1.0, info.normalWS);
+    info.anisotropicT = anisotripyTBN * normalize(vec3(surface.anisotropyDirection, 0.0));
+    info.anisotropicB = cross(info.vertexNormalWS, info.anisotropicT);
+    info.ToV = dot(info.anisotropicT, info.viewDir);
+    info.BoV = dot(info.anisotropicB, info.viewDir);
+    #endif // ANISOTROPIC
+
+    #ifdef LIGHTMAP
+	#ifdef UV1
+    info.lightmapUV = pixel.uv1;
+	#endif // UV1
+    #endif // LIGHTMAP
 }
 
 vec3 PBRLighting(const in Surface surface, const in PixelParams pixel)

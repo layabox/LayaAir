@@ -34,7 +34,8 @@ export class PBRStandardShaderInit {
             "u_MetallicGlossTexture": ShaderDataType.Texture2D,
             // anisotrioy
             "u_Anisotropy": ShaderDataType.Float,
-            "u_TangentTexture": ShaderDataType.Texture2D,
+            "u_AnisotropyTexture": ShaderDataType.Texture2D,
+            "u_AnisotropyRotation": ShaderDataType.Float,
             // clear coat
             "u_ClearCoat": ShaderDataType.Float,
             "u_ClearCoatTexture": ShaderDataType.Texture2D,

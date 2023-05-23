@@ -12,7 +12,6 @@ struct SurfaceInputs {
     float occlusion;
     vec3 emissionColor;
     vec3 normalTS;
-    float anisotropy;
 
     #ifdef CLEARCOAT
     float clearCoat;
@@ -21,6 +20,11 @@ struct SurfaceInputs {
     vec3 clearCoatNormalTS;
 	#endif // CLEARCOAT_NORMAL
     #endif // CLEARCOAT
+
+    #ifdef ANISOTROPIC
+    float anisotropy;
+    vec2 anisotropyDirection;
+    #endif // ANISOTROPIC
 };
 
 void initSurface(inout Surface surface, const in SurfaceInputs inputs, const in PixelParams pixel)
@@ -54,6 +58,9 @@ void initSurface(inout Surface surface, const in SurfaceInputs inputs, const in 
 
     #ifdef ANISOTROPIC
     surface.anisotropy = inputs.anisotropy;
+    surface.anisotropyDirection = inputs.anisotropyDirection;
+    surface.at = mix(surface.roughness, 1.0, pow2(surface.anisotropy));
+    surface.ab = surface.roughness;
     #endif // ANISOTROPIC
 }
 
