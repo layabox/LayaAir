@@ -114,8 +114,8 @@ export class AnimatorState2D extends EventDispatcher implements IClone {
         this.event(AnimatorState2D.EVENT_OnStateEnter);
         if (this._scripts) {
             for (var i: number = 0, n: number = this._scripts.length; i < n; i++) {
-                this._scripts[i].onStateEnter();
                 this._scripts[i].setPlayScriptInfo(animator, layerIndex, this);
+                this._scripts[i].onStateEnter();
             }
         }
     }

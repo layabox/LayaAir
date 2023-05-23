@@ -530,11 +530,11 @@ export class Animator2D extends Component {
             }
             animatorState._eventStart(this, layerIndex);
         }
-        var scripts = animatorState._scripts!;
-        if (scripts) {
-            for (var i = 0, n = scripts.length; i < n; i++)
-                scripts[i].onStateEnter();
-        }
+        // var scripts = animatorState._scripts!;
+        // if (scripts) {
+        //     for (var i = 0, n = scripts.length; i < n; i++)
+        //         scripts[i].onStateEnter();
+        // }
     }
 
     /**
