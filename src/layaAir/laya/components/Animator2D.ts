@@ -528,7 +528,7 @@ export class Animator2D extends Component {
                     controllerLayer._playType = 0;
                 }
             }
-            animatorState._eventStart();
+            animatorState._eventStart(this, layerIndex);
         }
         var scripts = animatorState._scripts!;
         if (scripts) {

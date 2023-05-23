@@ -94,7 +94,7 @@ export class Animator extends Component {
 
 
     set controller(val: AnimatorController) {
-
+        
         this._controller = val;
         if (this._controller) {
             this._controller.updateTo(this);
@@ -334,6 +334,47 @@ export class Animator extends Component {
         }
     }
 
+    /**
+     * @internal
+     */
+    private _eventScript(events: AnimationEvent[], eventIndex: number, endTime: number, front: boolean, startTime = 0): number {
+        let scripts = this.owner.components;
+        if (front) {
+            endTime += startTime;
+            for (let n = events.length; eventIndex < n; eventIndex++) {
+                let event = events[eventIndex];
+                if (event.time <= endTime) {
+                    if (event.time >= startTime) {
+                        for (let j = 0, m = scripts.length; j < m; j++) {
+                            let script = scripts[j];
+                            if (script._isScript()) {
+                                let fun: Function = (script as any)[event.eventName];
+                                (fun) && (fun.apply(script, event.params));
+                            }
+                        }
+                    }
+                } else {
+                    break;
+                }
+            }
+        } else {
+            for (; eventIndex >= 0; eventIndex--) {
+                let event = events[eventIndex];
+                if (event.time >= endTime) {
+                    for (let j = 0, m = scripts.length; j < m; j++) {
+                        let script = scripts[j];
+                        if (script._isScript()) {
+                            let fun = (script as any)[event.eventName];
+                            (fun) && (fun.apply(script, event.params));
+                        }
+                    }
+                } else {
+                    break;
+                }
+            }
+        }
+        return eventIndex;
+    }
 
     /**
      * @internal
@@ -344,40 +385,37 @@ export class Animator extends Component {
 
         let clip = stateInfo._clip;
         let events = clip!._animationEvents;
-        if (!events || 0 == events.length) return;
         let clipDuration = clip!._duration;
-        let time = playStateInfo._normalizedPlayTime * clipDuration;
-        let parentPlayTime = playStateInfo._parentPlayTime;
-        if (null == parentPlayTime) {
-            parentPlayTime = clipDuration * playStateInfo.animatorState.clipStart;
-        }
-        if (time < parentPlayTime) {
-            this._eventScript(events, parentPlayTime, clipDuration * playStateInfo.animatorState.clipEnd);
-            parentPlayTime = clipDuration * playStateInfo.animatorState.clipStart;
-        }
+        let elapsedTime = playStateInfo._elapsedTime;
+        let time = elapsedTime % clipDuration;
+        let loopCount = Math.abs(Math.floor(elapsedTime / clipDuration) - Math.floor(playStateInfo._lastElapsedTime / clipDuration));//backPlay可能为负数
 
-
-        this._eventScript(events, parentPlayTime, time);
-        playStateInfo._parentPlayTime = time;
-    }
-    /**
-    * @internal
-    */
-    private _eventScript(events: AnimationEvent[], parentPlayTime: number, currPlayTime: number) {
-        let scripts = this.owner.components;
-        for (let i = 0, len = events.length; i < len; i++) {
-            let e = events[i];
-            if (e.time > parentPlayTime && e.time <= currPlayTime) {
-                for (let j = 0, m = scripts.length; j < m; j++) {
-                    let script = scripts[j];
-                    if (script._isScript()) {
-                        let fun: Function = (script as any)[e.eventName];
-                        (fun) && (fun.apply(script, e.params));
-                    }
-                }
-            } else if (e.time > currPlayTime) {
-                break;
+        let frontPlay = playStateInfo._elapsedTime >= playStateInfo._lastElapsedTime;
+        if (playStateInfo._lastIsFront !== frontPlay) {
+            if (frontPlay)
+                playStateInfo._playEventIndex++;
+            else
+                playStateInfo._playEventIndex--;
+            playStateInfo._lastIsFront = frontPlay;
+        }
+        let preEventIndex = playStateInfo._playEventIndex;
+        if (frontPlay) {
+            let startTime = 0;
+            if (playStateInfo.animatorState && 0 != playStateInfo.animatorState.clipStart) {
+                startTime = playStateInfo.animatorState._clip!._duration * playStateInfo.animatorState.clipStart;
             }
+            let newEventIndex = this._eventScript(events, playStateInfo._playEventIndex, loopCount > 0 ? clipDuration : time, true, startTime);
+            (preEventIndex === playStateInfo._playEventIndex) && (playStateInfo._playEventIndex = newEventIndex);//这里打个补丁，在event中调用Play 需要重置eventindex，不能直接赋值
+            for (let i = 0, n = loopCount - 1; i < n; i++)
+                this._eventScript(events, 0, clipDuration, true, startTime);
+            (loopCount > 0 && time > 0) && (playStateInfo._playEventIndex = this._eventScript(events, 0, time, true, startTime));//if need cross loop,'time' must large than 0
+        } else {
+            let newEventIndex = this._eventScript(events, playStateInfo._playEventIndex, loopCount > 0 ? 0 : time, false);
+            (preEventIndex === playStateInfo._playEventIndex) && (playStateInfo._playEventIndex = newEventIndex);//这里打个补丁，在event中调用Play 需要重置eventindex，不能直接赋值
+            let eventIndex = events.length - 1;
+            for (let i = 0, n = loopCount - 1; i < n; i++)
+                this._eventScript(events, eventIndex, 0, false);
+            (loopCount > 0 && time > 0) && (playStateInfo._playEventIndex = this._eventScript(events, eventIndex, time, false));//if need cross loop,'time' must large than 0
         }
     }
 
@@ -1291,7 +1329,7 @@ export class Animator extends Component {
                     var clip: AnimationClip = animatorState._clip!;
                     var speed: number = this._speed * animatorState.speed;
                     var finish: boolean = playStateInfo._finish;//提前取出finish,防止最后一帧跳过
-                    finish || this._updatePlayer(animatorState, playStateInfo, delta * speed, animatorState.islooping, i);
+                    finish || this._updatePlayer(animatorState, playStateInfo, delta * speed, clip.islooping, i);
                     if (needRender) {
                         var addtive: boolean = controllerLayer.blendingMode !== AnimatorControllerLayer.BLENDINGMODE_OVERRIDE;
                         this._updateClipDatas(animatorState, addtive, playStateInfo, controllerLayer.avatarMask);//clipDatas为逐动画文件,防止两个使用同一动画文件的Animator数据错乱,即使动画停止也要updateClipDatas
@@ -1310,7 +1348,7 @@ export class Animator extends Component {
                     var crossClipDuration: number = crossClip._duration - startPlayTime;
                     var crossScale: number = crossDuratuion > crossClipDuration ? crossClipDuration / crossDuratuion : 1.0;//如果过度时间大于过度动作时间,则减慢速度
                     var crossSpeed: number = this._speed * crossState.speed;
-                    this._updatePlayer(crossState, crossPlayStateInfo, delta * crossScale * crossSpeed, crossState.islooping, i);
+                    this._updatePlayer(crossState, crossPlayStateInfo, delta * crossScale * crossSpeed, crossClip.islooping, i);
                     var crossWeight: number = ((crossPlayStateInfo._elapsedTime - startPlayTime) / crossScale) / crossDuratuion;
                     var needUpdateFinishcurrentState = false;
                     if (crossWeight >= 1.0) {
@@ -1326,7 +1364,7 @@ export class Animator extends Component {
                         if (!playStateInfo._finish) {
                             speed = this._speed * animatorState.speed;
                             needUpdateFinishcurrentState = true;
-                            this._updatePlayer(animatorState, playStateInfo, delta * speed, animatorState.islooping, i);
+                            this._updatePlayer(animatorState, playStateInfo, delta * speed, clip.islooping, i);
                             if (needRender)
                                 this._updateClipDatas(animatorState, addtive, playStateInfo, controllerLayer.avatarMask);
                         }
@@ -1481,7 +1519,7 @@ export class Animator extends Component {
                 }
             }
             var scripts: AnimatorStateScript[] = animatorState._scripts!;
-            animatorState._eventStart();
+            animatorState._eventStart(this,layerIndex);
 
         }
         else {
@@ -1611,7 +1649,7 @@ export class Animator extends Component {
                     crossPlayStateInfo!._resetPlayState(destClip._duration * normalizedTime, controllerLayer._crossDuration);
                 else
                     crossPlayStateInfo!._resetPlayState(0.0, controllerLayer._crossDuration);
-                destAnimatorState._eventStart();
+                destAnimatorState._eventStart(this,layerIndex);
             }
             else {
                 console.warn("Invalid name " + layerIndex + ".");
