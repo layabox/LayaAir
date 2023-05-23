@@ -7,7 +7,7 @@ import { BoundFrustum } from "../../math/BoundFrustum"
 import { Event } from "../../../events/Event"
 import { Lightmap } from "../scene/Lightmap";
 import { MeshSprite3DShaderDeclaration } from "../../../d3/core/MeshSprite3DShaderDeclaration";
-import { TextureCube } from "../../resource/TextureCube";
+import { TextureCube } from "../../../resource/TextureCube";
 import { Component } from "../../../components/Component";
 import { Sprite3D } from "../Sprite3D";
 import { ShaderData, ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData";

@@ -1,7 +1,7 @@
 
 import { Color } from "../../maths/Color";
 import { Vector3 } from "../../maths/Vector3";
-import { TextureCubeFace } from "../resource/TextureCube";
+import { TextureCubeFace } from "../../resource/TextureCube";
 
 /**
  * 二阶球谐函数。

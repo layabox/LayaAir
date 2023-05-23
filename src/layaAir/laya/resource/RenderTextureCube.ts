@@ -1,7 +1,8 @@
-import { LayaGL } from "../../layagl/LayaGL";
-import { RenderTargetFormat } from "../../RenderEngine/RenderEnum/RenderTargetFormat";
-import { TextureDimension } from "../../RenderEngine/RenderEnum/TextureDimension";
-import { RenderTexture } from "../../resource/RenderTexture";
+import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
+import { TextureDimension } from "../RenderEngine/RenderEnum/TextureDimension";
+import { LayaGL } from "../layagl/LayaGL";
+import { RenderTexture } from "./RenderTexture";
+
 
 /**
  * <code>SpotLight</code> 类用于创建RenderTextureCube。

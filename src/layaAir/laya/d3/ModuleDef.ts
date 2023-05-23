@@ -63,7 +63,7 @@ import { BoundBox } from "./math/BoundBox";
 import { Viewport } from "./math/Viewport";
 import { Mesh } from "./resource/models/Mesh";
 import { SkyRenderer } from "./resource/models/SkyRenderer";
-import { TextureCube } from "./resource/TextureCube";
+import { TextureCube } from "../resource/TextureCube";
 import { DirectionLightCom } from "./core/light/DirectionLightCom";
 import { PointLightCom } from "./core/light/PointLightCom";
 import { SpotLightCom } from "./core/light/SpotLightCom";

@@ -421,7 +421,7 @@ export class ShaderData implements IClone {
 			}
 		}
 		//维护Reference
-		this._data[index] = value ? value : Texture2D.erroTextur;
+		this._data[index] = value;
 		lastValue && lastValue._removeReference();
 		value && value._addReference();
 	}

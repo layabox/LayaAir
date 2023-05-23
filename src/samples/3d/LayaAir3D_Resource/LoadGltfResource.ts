@@ -9,11 +9,11 @@ import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { Loader } from "laya/net/Loader";
-import { TextureCube } from "laya/d3/resource/TextureCube";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 import { Color } from "laya/maths/Color";
 import { Matrix4x4 } from "laya/maths/Matrix4x4";
 import { Vector3 } from "laya/maths/Vector3";
+import { TextureCube } from "laya/resource/TextureCube";
 
 
 export class LoadGltfResource {
