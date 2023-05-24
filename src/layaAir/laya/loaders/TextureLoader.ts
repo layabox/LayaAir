@@ -62,13 +62,13 @@ class Texture2DLoader implements IResourceLoader {
                 ext = fileInfo.ext;
             }
 
-            constructParams = [0, 0, fileInfo.format, meta.mipmap, meta.readWrite, meta.sRGB];
+            constructParams = [0, 0, fileInfo.format??1, meta.mipmap, meta.readWrite, meta.sRGB];
             propertyParams = {
                 wrapModeU: meta.wrapMode,
                 wrapModeV: meta.wrapMode,
                 filterMode: meta.filterMode,
                 anisoLevel: meta.anisoLevel,
-                premultiplyAlpha: meta.pma,
+                premultiplyAlpha: !!meta.pma,
                 hdrEncodeFormat: meta.hdrEncodeFormat,
             };
         }
