@@ -13,8 +13,7 @@ import { Resource } from "../resource/Resource";
 import { Utils } from "../utils/Utils";
 import { RenderTexture } from "../resource/RenderTexture";
 import { VideoTexture } from "../media/VideoTexture";
-
-const metaFetchingOptions = { noRetry: true, silent: true };
+import { LayaEnv } from "../../LayaEnv";
 
 var internalResources: Record<string, Texture2D>;
 
@@ -38,11 +37,13 @@ class Texture2DLoader implements IResourceLoader {
         }
 
         let meta: any;
-        if (!task.url.startsWith("data:") && !task.options.noMetaFile) {
-            meta = AssetDb.inst.getMeta(task.url, task.uuid);
-            if (meta && typeof (meta) === "string")
-                return task.loader.fetch(meta, "json", task.progress.createCallback(0.1), metaFetchingOptions)
-                    .then(meta => this.load2(task, meta));
+        if (!task.url.startsWith("data:")) {
+            meta = AssetDb.inst.metaMap[task.url];
+            if (!meta && LayaEnv.isPreview) {
+                return AssetDb.inst.getMeta(task.url, task.uuid).then(meta => {
+                    return this.load2(task, meta);
+                });
+            }
         }
 
         return this.load2(task, meta);
@@ -62,13 +63,13 @@ class Texture2DLoader implements IResourceLoader {
                 ext = fileInfo.ext;
             }
 
-            constructParams = [0, 0, fileInfo.format, meta.mipmap, meta.readWrite, meta.sRGB];
+            constructParams = [0, 0, fileInfo.format ?? 1, meta.mipmap, meta.readWrite, meta.sRGB];
             propertyParams = {
                 wrapModeU: meta.wrapMode,
                 wrapModeV: meta.wrapMode,
                 filterMode: meta.filterMode,
                 anisoLevel: meta.anisoLevel,
-                premultiplyAlpha: meta.pma,
+                premultiplyAlpha: !!meta.pma,
                 hdrEncodeFormat: meta.hdrEncodeFormat,
             };
         }

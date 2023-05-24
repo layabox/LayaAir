@@ -55,6 +55,7 @@ export class BatchProgress implements IBatchProgress {
                     np += p * (w != null ? w : perc);
             }
             value = np;
+            if (value > 1) value = 1;
         }
 
         if (value > this._progress) {

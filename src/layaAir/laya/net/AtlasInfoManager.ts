@@ -3,6 +3,7 @@ import { ILaya } from "./../../ILaya";
 import { URL } from "./URL";
 
 /**
+ * 自动图集管理类
  * @private
  */
 export class AtlasInfoManager {
@@ -14,21 +15,31 @@ export class AtlasInfoManager {
             if (!data)
                 return;
 
-            AtlasInfoManager.addToDict(data);
+            AtlasInfoManager.addAtlases(data);
             callback && callback.run();
         });
     }
 
-    static addToDict(data: any) {
-        for (let tKey in data) {
-            let tArr = data[tKey];
-            let tPrefix = URL.formatURL(tArr[0]);
-            tArr = tArr[1];
-            let len = tArr.length;
-            let entry = { url: tKey };
+    static addAtlases(data: Record<string, [string, string[]]>) {
+        let dic = AtlasInfoManager._fileLoadDic;
+        for (let key in data) {
+            let arr = data[key];
+            let prefix = URL.formatURL(arr[0]);
+            let frames = arr[1];
+            let len = frames.length;
+            let entry = { url: key };
             for (let i = 0; i < len; i++) {
-                AtlasInfoManager._fileLoadDic[tPrefix + tArr[i]] = entry;
+                dic[prefix + frames[i]] = entry;
             }
+        }
+    }
+
+    static addAtlas(atlasUrl: string, prefix: string, frames: Array<string>) {
+        prefix = URL.formatURL(prefix);
+        let dic = AtlasInfoManager._fileLoadDic;
+        let entry = { url: atlasUrl };
+        for (let i of frames) {
+            dic[prefix + i] = entry;
         }
     }
 
