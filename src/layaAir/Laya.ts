@@ -41,8 +41,6 @@ import { RunDriver } from "./laya/utils/RunDriver";
 import { Config } from "./Config";
 import { Shader3D } from "./laya/RenderEngine/RenderShader/Shader3D";
 
-var _isinit = false;
-
 /**
  * <code>Laya</code> 是全局对象的引用入口集。
  * Laya类引用了一些常用的全局对象，比如Laya.stage：舞台，Laya.timer：时间管理器，Laya.loader：加载管理器，使用时注意大小写。
@@ -210,6 +208,9 @@ export class Laya {
 
         if (laya3D) {
             return laya3D.__init__().then(() => {
+                _onInitModuleCallbacks.forEach(c => c());
+                _onInitModuleCallbacks.length = 0;
+
                 if (LayaEnv.afterInit) {
                     if (LayaEnv.isPlaying)
                         LayaEnv.afterInit();
@@ -219,6 +220,9 @@ export class Laya {
             });
         }
         else {
+            _onInitModuleCallbacks.forEach(c => c());
+            _onInitModuleCallbacks.length = 0;
+
             if (LayaEnv.afterInit) {
                 if (LayaEnv.isPlaying)
                     LayaEnv.afterInit();
@@ -345,6 +349,18 @@ export class Laya {
             return this._texture;
         }
     }
+
+    /**
+     * @internal
+     * 引擎各个模块如果需要初始化逻辑可以在这里注册回调函数。
+     * @param callback
+     */
+    static onInitModule(callback: () => void) {
+        if (_isinit)
+            callback();
+        else
+            _onInitModuleCallbacks.push(callback);
+    }
 }
 
 function arrayBufferSlice(this: ArrayBuffer, start: number, end: number): ArrayBuffer {
@@ -398,6 +414,10 @@ function uint16ArraySlice(this: Uint16Array, ...arg: any[]): Uint16Array {
 ILaya.Loader = Loader;
 ILaya.Context = Context;
 ILaya.Browser = Browser;
+ILaya.onInitModule = Laya.onInitModule;
+
+var _isinit = false;
+var _onInitModuleCallbacks: Array<() => void> = [];
 
 /**@internal */
 export var init = Laya.init;
