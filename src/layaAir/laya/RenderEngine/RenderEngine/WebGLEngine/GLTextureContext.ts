@@ -762,7 +762,7 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         for (let index = 0; index < mipmapCount; index++) {
 
             // todo  size 计算 方式
-            let dataLength = (((Math.max(4, width) / 4) * Math.max(4, height)) / 4) * blockBytes;
+            let dataLength = (((Math.max(4, mipmapWidth) / 4) * Math.max(4, mipmapHeight)) / 4) * blockBytes;
             let sourceData = new Uint8Array(source, dataOffset, dataLength);
 
             gl.compressedTexImage2D(target, index, internalFormat, mipmapWidth, mipmapHeight, 0, sourceData);
