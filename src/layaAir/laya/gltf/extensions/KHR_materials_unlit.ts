@@ -22,7 +22,6 @@ export class KHR_materials_unlit implements glTFExtension {
     }
 
     createMaterial(glTFMaterial: glTF.glTFMaterial): Material {
-
         let unlit = new UnlitMaterial();
 
         let pbrMetallicRoughness = glTFMaterial.pbrMetallicRoughness;
@@ -40,8 +39,9 @@ export class KHR_materials_unlit implements glTFExtension {
         }
 
         this._resource.applyMaterialRenderState(glTFMaterial, unlit);
+
         return unlit;
     }
 }
 
-glTFResource.registerExtension("KHR_materials_unlit", (resource) => new KHR_materials_unlit(resource));
+glTFResource.registerExtension(ExtensionName, (resource) => new KHR_materials_unlit(resource));
