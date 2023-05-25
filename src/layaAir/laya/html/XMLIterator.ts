@@ -197,7 +197,7 @@ export class XMLIterator {
             if (i == this.tagPos)
                 return "";
             else
-                return XMLUtils.decodeString(this.source.substring(i, this.tagPos)).trimEnd();
+                return XMLUtils.decodeString(this.source.substring(i, this.tagPos)).trimRight();
         }
         else
             return XMLUtils.decodeString(this.source.substring(this.lastTagEnd, this.tagPos));
