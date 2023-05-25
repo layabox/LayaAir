@@ -19,5 +19,4 @@ export class ILaya {
     static systemTimer: Timer = null;
     static physicsTimer: Timer = null;
     static stage: Stage = null;
-    static onInitModule: (callback: () => void) => void;
 }
