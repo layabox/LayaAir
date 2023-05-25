@@ -1,14 +1,10 @@
 #define SHADER_NAME DepthNormalVS
 
 #include "Scene.glsl";
+#include "Camera.glsl";
 #include "Sprite3DVertex.glsl";
 
 #include "VertexCommon.glsl";
-#include "Camera.glsl";
-
-// uniform mat4 u_View;
-// uniform mat4 u_ViewProjection;
-// uniform vec4 u_ProjectionParams;
 
 //传入法线
 varying vec4 v_depthNormals;
@@ -19,9 +15,11 @@ vec4 depthNormalsVertex()
     getVertexParams(vertex);
 
     mat4 worldMat = getWorldMatrix();
-    vec3 positionWS = (worldMat * vec4(vertex.positionOS, 1.0)).xyz;
+    vec4 pos = (worldMat * vec4(vertex.positionOS, 1.0));
+    vec3 positionWS = pos.xyz / pos.w;
 
-    vec3 normalWS = normalize((worldMat * vec4(vertex.normalOS, 0.0)).xyz);
+    mat4 normalMat = transpose(inverse(worldMat));
+    vec3 normalWS = normalize((normalMat * vec4(vertex.normalOS, 0.0)).xyz);
 
     //存储View空间法线
     vec3 normalVS = mat3(u_View) * normalWS;

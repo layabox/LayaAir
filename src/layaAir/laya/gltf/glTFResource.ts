@@ -226,27 +226,7 @@ export class glTFResource extends Prefab {
             let data = this._data;
             if (data.materials) {
                 data.materials.forEach((glTFMat, index) => {
-                    let mat: Material = null;
-                    let propertiesExts = [];
-                    for (const key in glTFMat.extensions) {
-                        let extension = this._extensions.find(value => value.name == key);
-                        if (extension) {
-                            if (extension.createMaterial) {
-                                mat = extension.createMaterial(glTFMat);
-                            }
-                            if (extension.additionMaterialProperties) {
-                                propertiesExts.push(extension);
-                            }
-                        }
-                    }
-
-                    if (!mat) {
-                        mat = this.createDefaultMaterial(glTFMat);
-                    }
-                    propertiesExts.forEach(extension => {
-                        extension.additionMaterialProperties(glTFMat, mat);
-                    });
-
+                    let mat = this.createMaterial(glTFMat);
                     this._materials[index++] = mat;
                     this.addDep(mat);
                 })
@@ -811,6 +791,31 @@ export class glTFResource extends Prefab {
         this.applyDefaultMaterialProperties(glTFMaterial, material);
 
         return material;
+    }
+
+    protected createMaterial(glTFMaterial: glTF.glTFMaterial) {
+        let mat: Material = null;
+        let propertiesExts = [];
+        for (const key in glTFMaterial.extensions) {
+            let extension = this._extensions.find(value => value.name == key);
+            if (extension) {
+                if (extension.createMaterial) {
+                    mat = extension.createMaterial(glTFMaterial);
+                }
+                if (extension.additionMaterialProperties) {
+                    propertiesExts.push(extension);
+                }
+            }
+        }
+
+        if (!mat) {
+            mat = this.createDefaultMaterial(glTFMaterial);
+        }
+        propertiesExts.forEach(extension => {
+            extension.additionMaterialProperties(glTFMaterial, mat);
+        });
+
+        return mat;
     }
 
     /**

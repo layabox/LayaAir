@@ -22,15 +22,19 @@ export class BlinnPhongShaderInit {
         Shader3D.addInclude("BlinnPhongFrag.glsl", BlinnPhongFragGLSL);
 
         let uniformMap = {
-            "u_DiffuseTexture": ShaderDataType.Texture2D,
-            "u_NormalTexture": ShaderDataType.Texture2D,
-            "u_SpecularTexture": ShaderDataType.Texture2D,
-            "u_DiffuseColor": ShaderDataType.Color,
-            "u_MaterialSpecular": ShaderDataType.Color,
-            "u_Shininess": ShaderDataType.Float,
+            "u_AlphaTestValue": ShaderDataType.Float,
             "u_TilingOffset": ShaderDataType.Vector4,
+
+            "u_DiffuseColor": ShaderDataType.Color,
+            "u_DiffuseTexture": ShaderDataType.Texture2D,
             "u_AlbedoIntensity": ShaderDataType.Float,
-            "u_AlphaTestValue": ShaderDataType.Float
+            
+            "u_MaterialSpecular": ShaderDataType.Color,
+            "u_SpecularTexture": ShaderDataType.Texture2D,
+            
+            "u_Shininess": ShaderDataType.Float,
+            
+            "u_NormalTexture": ShaderDataType.Texture2D,
         };
 
         let defaultValue = {

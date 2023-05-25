@@ -47,13 +47,6 @@ void getBinnPhongSurfaceParams(inout Surface surface, in PixelParams pixel)
     surface.normalTS = normalSampler;
 #endif // NORMALMAP
 
-#ifdef ALPHATEST
-    if (surface.alpha < u_AlphaTestValue)
-	{
-	    discard;
-	}
-#endif // ALPHATEST
-
 #ifdef SPECULARMAP
     vec4 specularSampler = texture2D(u_SpecularTexture, uv);
     #ifdef Gamma_u_SpecularTexture
@@ -78,6 +71,13 @@ void main()
 
     Surface surface;
     getBinnPhongSurfaceParams(surface, pixel);
+
+#ifdef ALPHATEST
+    if (surface.alpha < u_AlphaTestValue)
+	{
+	    discard;
+	}
+#endif // ALPHATEST
 
     vec3 surfaceColor = vec3(0.0);
 

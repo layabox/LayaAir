@@ -22,6 +22,10 @@ import Sprite3DFragGLSL from "./common/Sprite3DFrag.glsl";
 import DepthVertexGLSL from "./depth/DepthVertex.glsl";
 import DepthFragGLSL from "./depth/DepthFrag.glsl";
 import DepthNormalUtilGLSL from "./depth/DepthNormalUtil.glsl";
+import DepthVS from "./depth/Depth.vs";
+import DepthFS from "./depth/Depth.fs";
+import DephtNormalVS from "./depth/DepthNormal.vs";
+import DephtNormalFS from "./depth/DepthNormal.fs";
 
 import ShadowSampleTentGLSL from "./lighting/ShadowSampleTent.glsl";
 import ShadowSamplerGLSL from "./lighting/ShadowSampler.glsl";
@@ -51,6 +55,10 @@ import { SkyPanoramicShaderInit } from "./sky/SkyPanoramicShaderInit";
 import { ACESShaderLib } from "./postprocess/ACES/ACESShaderLib";
 
 export const ShadingVS = ShadingVertex;
+export const DefaultDepthVS = DepthVS;
+export const DefaultDephtFS = DepthFS;
+export const DefaultDephtNormalVS = DephtNormalVS;
+export const DefaultDephtNormalFS = DephtNormalFS;
 
 /**
  * @internal
