@@ -44,8 +44,6 @@ export class DrawTextureCmd {
      * （可选）颜色滤镜。
      */
     color: number = 0xffffffff;
-
-    colorFlt: ColorFilter | null = null;
     /**
      * （可选）混合模式。
      */
@@ -93,7 +91,7 @@ export class DrawTextureCmd {
 
     /**@private */
     run(context: Context, gx: number, gy: number): void {
-        this.texture && context.drawTextureWithTransform(this.texture, this.x, this.y, this.width, this.height, this.matrix, gx, gy, this.alpha, this.blendMode, this.colorFlt, this.uv, this.color);
+        this.texture && context.drawTextureWithTransform(this.texture, this.x, this.y, this.width, this.height, this.matrix, gx, gy, this.alpha, this.blendMode, this.uv, this.color);
     }
 
     /**@private */
