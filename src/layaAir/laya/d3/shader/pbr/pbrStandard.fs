@@ -19,16 +19,6 @@ vec3 BlendNormals(vec3 n1, vec3 n2)
 }
 #endif // DETAILTEXTURE || DETAILNORMAL
 
-vec3 normalScale(vec3 normal, float scale)
-{
-    // normal.xy *= scale;
-    // normal.z = sqrt(1.0 - clamp(dot(normal.xy, normal.xy), 0.0, 1.0));
-    // return normal;
-
-    normal *= vec3(scale, scale, 1.0);
-    return normalize(normal);
-}
-
 void initSurfaceInputs(inout SurfaceInputs inputs, const in PixelParams pixel)
 {
 #ifdef UV
@@ -117,6 +107,7 @@ void initSurfaceInputs(inout SurfaceInputs inputs, const in PixelParams pixel)
     inputs.occlusion = (1.0 - u_OcclusionStrength) + occlusion * u_OcclusionStrength;
 #endif // OCCLUSIONTEXTURE
 
+    inputs.emissionColor = vec3(0.0);
 #ifdef EMISSION
     inputs.emissionColor = u_EmissionColor.rgb * u_EmissionIntensity;
     #ifdef EMISSIONTEXTURE
@@ -129,22 +120,22 @@ void initSurfaceInputs(inout SurfaceInputs inputs, const in PixelParams pixel)
 #endif // EMISSION
 
 #ifdef CLEARCOAT
-    inputs.clearCoat = u_ClearCoat;
+    inputs.clearCoat = u_ClearCoatFactor;
     inputs.clearCoatRoughness = u_ClearCoatRoughness;
 
-    #ifdef CLEARCOATTEXTURE
+    #ifdef CLEARCOATMAP
     // todo
     // linear tex no need gamma
     vec4 clearCoatSampler = texture2D(u_ClearCoatTexture, uv);
     inputs.clearCoat *= clearCoatSampler.r;
-    #endif // CLEARCOATTEXTURE
+    #endif // CLEARCOATMAP
 
-    #ifdef CLEARCOAT_ROUGHNESS
+    #ifdef CLEARCOAT_ROUGHNESSMAP
     // todo
     // linear tex no need gamma
     vec4 clearcoatSampleRoughness = texture2D(u_ClearCoatRoughnessTexture, uv);
     inputs.clearCoatRoughness *= clearcoatSampleRoughness.g;
-    #endif // CLEARCOAT_ROUGHNESS
+    #endif // CLEARCOAT_ROUGHNESSMAP
 
     #ifdef CLEARCOAT_NORMAL
     vec3 clearCoatNormalSampler = texture2D(u_ClearCoatNormalTexture, uv).rgb;
@@ -155,18 +146,17 @@ void initSurfaceInputs(inout SurfaceInputs inputs, const in PixelParams pixel)
 #endif // CLEARCOAT
 
 #ifdef ANISOTROPIC
-    inputs.anisotropy = u_Anisotropy;
+    inputs.anisotropy = u_AnisotropyStrength;
     vec2 direction = vec2(1.0, 0.0);
 
-    #ifdef ANISOTROPICTEXTURE
+    #ifdef ANISOTROPYMAP
     vec3 anisotropySampler = texture2D(u_AnisotropyTexture, uv).rgb;
 
     inputs.anisotropy *= anisotropySampler.b;
     direction = anisotropySampler.xy * 2.0 - 1.0;
-    #endif // ANISOTROPICTEXTURE
+    #endif // ANISOTROPYMAP
 
     vec2 anisotropyRotation = vec2(cos(u_AnisotropyRotation), sin(u_AnisotropyRotation));
-    // vec2 anisotropyRotation = vec2(sin(u_AnisotropyRotation), cos(u_AnisotropyRotation));
     mat2 rotationMatrix = mat2(anisotropyRotation.x, anisotropyRotation.y, -anisotropyRotation.y, anisotropyRotation.x);
     inputs.anisotropyDirection = rotationMatrix * direction;
 

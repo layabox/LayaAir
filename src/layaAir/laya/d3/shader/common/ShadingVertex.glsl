@@ -29,7 +29,7 @@ void initPixelParams(inout PixelParams params, in Vertex vertex)
     v_BiNormalWS = params.biNormalWS;
 
     #ifdef UV
-    params.uv0 = transformUV(vertex.texCoord0, u_TilingOffset);
+    params.uv0 = vertex.texCoord0;
     v_Texcoord0 = params.uv0;
     #endif // UV
 

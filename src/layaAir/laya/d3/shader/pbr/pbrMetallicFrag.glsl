@@ -36,14 +36,14 @@ void initSurface(inout Surface surface, const in SurfaceInputs inputs, const in 
     vec3 baseColor = inputs.diffuseColor;
     float metallic = inputs.metallic;
     float perceptualRoughness = 1.0 - inputs.smoothness;
-    float reflectance = 0.5;
 
-    float dielectricSpecular = 0.16 * reflectance * reflectance;
+    float ior = 1.5;
+    vec3 f0 = vec3(pow2((ior - 1.0) / (ior + 1.0)));
 
-    surface.diffuseColor = (1.0 - metallic) * baseColor;
     surface.perceptualRoughness = clamp(perceptualRoughness, MIN_PERCEPTUAL_ROUGHNESS, 1.0);
     surface.roughness = surface.perceptualRoughness * surface.perceptualRoughness;
-    surface.f0 = baseColor * metallic + (dielectricSpecular * (1.0 - metallic));
+    surface.diffuseColor = (1.0 - metallic) * baseColor;
+    surface.f0 = mix(f0, baseColor, metallic);
 
     surface.occlusion = inputs.occlusion;
 
@@ -59,8 +59,6 @@ void initSurface(inout Surface surface, const in SurfaceInputs inputs, const in 
     #ifdef ANISOTROPIC
     surface.anisotropy = inputs.anisotropy;
     surface.anisotropyDirection = inputs.anisotropyDirection;
-    surface.at = mix(surface.roughness, 1.0, pow2(surface.anisotropy));
-    surface.ab = surface.roughness;
     #endif // ANISOTROPIC
 }
 

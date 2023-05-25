@@ -29,7 +29,7 @@ void main()
 #endif // UV
 
 #ifdef COLOR
-    v_VertexColorr = vertex.vertexColor;
+    v_VertexColor = vertex.vertexColor;
 #endif // COLOR
 
     mat4 worldMat = getWorldMatrix();

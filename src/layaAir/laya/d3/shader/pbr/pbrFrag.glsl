@@ -34,12 +34,13 @@ void getPixelInfo(inout PixelInfo info, const in PixelParams pixel, const in Sur
     #endif // CLEARCOAT
 
     #ifdef ANISOTROPIC
-    // todo
     mat3 anisotripyTBN = mat3(info.tangentWS, info.biNormalWS * -1.0, info.normalWS);
     info.anisotropicT = anisotripyTBN * normalize(vec3(surface.anisotropyDirection, 0.0));
     info.anisotropicB = cross(info.vertexNormalWS, info.anisotropicT);
     info.ToV = dot(info.anisotropicT, info.viewDir);
     info.BoV = dot(info.anisotropicB, info.viewDir);
+    info.at = mix(surface.roughness, 1.0, pow2(surface.anisotropy));
+    info.ab = surface.roughness;
     #endif // ANISOTROPIC
 
     #ifdef LIGHTMAP

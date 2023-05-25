@@ -11,6 +11,7 @@ import VertexGLSL from "./common/VertexCommon.glsl";
 import ShadingCommonGLSL from "./common/ShadingCommon.glsl";
 import ShadingVertexGLSL from "./common/ShadingVertex.glsl";
 import ShadingFragGLSL from "./common/ShadingFrag.glsl";
+import ShadingVertex from "./common/Shading.vs";
 
 import SceneGLSL from "./common/SceneCommon.glsl";
 import CameraGLSL from "./common/CameraCommon.glsl";
@@ -48,6 +49,8 @@ import { ParticleShuriKenShaderInit } from "./ShurikenParticle/ParticleShuriKenS
 import { SkyProceduralShaderInit } from "./sky/SkyProceduralShaderInit";
 import { SkyPanoramicShaderInit } from "./sky/SkyPanoramicShaderInit";
 import { ACESShaderLib } from "./postprocess/ACES/ACESShaderLib";
+
+export const ShadingVS = ShadingVertex;
 
 /**
  * @internal

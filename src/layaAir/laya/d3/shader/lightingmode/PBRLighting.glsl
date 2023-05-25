@@ -39,6 +39,8 @@ struct PixelInfo {
     vec3 anisotropicB;
     float ToV;
     float BoV;
+    float at;
+    float ab;
     #endif // ANISOTROPIC
 
     #ifdef LIGHTMAP
@@ -70,8 +72,6 @@ struct Surface {
     #ifdef ANISOTROPIC
     float anisotropy;
     vec2 anisotropyDirection;
-    float at;
-    float ab;
     #endif // ANISOTROPIC
 };
 
@@ -216,8 +216,8 @@ float clearCoatLobe(const in Surface surface, const in PixelInfo pixel, const in
 vec3 anisotropyLobe(const in Surface surface, const in PixelInfo pixel, const in LightParams lightParams)
 {
     float anisotropy = surface.anisotropy;
-    float at = surface.at;
-    float ab = surface.ab;
+    float at = pixel.at;
+    float ab = pixel.ab;
     vec3 anisotropicT = pixel.anisotropicT;
     vec3 anisotropicB = pixel.anisotropicB;
 

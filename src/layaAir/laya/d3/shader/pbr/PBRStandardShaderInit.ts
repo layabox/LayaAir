@@ -33,11 +33,11 @@ export class PBRStandardShaderInit {
             "u_EmissionTexture": ShaderDataType.Texture2D,
             "u_MetallicGlossTexture": ShaderDataType.Texture2D,
             // anisotrioy
-            "u_Anisotropy": ShaderDataType.Float,
+            "u_AnisotropyStrength": ShaderDataType.Float,
             "u_AnisotropyTexture": ShaderDataType.Texture2D,
             "u_AnisotropyRotation": ShaderDataType.Float,
             // clear coat
-            "u_ClearCoat": ShaderDataType.Float,
+            "u_ClearCoatFactor": ShaderDataType.Float,
             "u_ClearCoatTexture": ShaderDataType.Texture2D,
             "u_ClearCoatRoughness": ShaderDataType.Float,
             "u_ClearCoatRoughnessTexture": ShaderDataType.Texture2D,
@@ -60,8 +60,13 @@ export class PBRStandardShaderInit {
             "u_OcclusionStrength": 1,
             "u_EmissionColor": Color.WHITE,
             "u_EmissionIntensity": 1,
-            "u_Anisotropy": 0,
-            "u_AlphaTestValue": 0.5
+            "u_AlphaTestValue": 0.5,
+            // anisotrioy
+            "u_AnisotropyStrength": 0,
+            "u_AnisotropyRotation": 0,
+            // clear coat
+            "u_ClearCoatFactor": 0,
+            "u_ClearCoatRoughness": 0,
         };
 
         let shader = Shader3D.add("PBR", true, true);

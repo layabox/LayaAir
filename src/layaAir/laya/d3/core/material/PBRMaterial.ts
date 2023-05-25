@@ -7,6 +7,7 @@ import { Texture2D } from "../../../resource/Texture2D";
 import { Color } from "../../../maths/Color";
 import { Vector4 } from "../../../maths/Vector4";
 import { RenderState } from "../../../RenderEngine/RenderShader/RenderState";
+import { PBRShaderLib } from "../../shader/pbr/PBRShaderLib";
 
 /**
  * 渲染模式。
@@ -34,8 +35,6 @@ export class PBRMaterial extends Material {
     static SHADERDEFINE_OCCLUSIONTEXTURE: ShaderDefine;
     /** @internal */
     static SHADERDEFINE_PARALLAXTEXTURE: ShaderDefine;
-    /** @internal */
-    static SHADERDEFINE_EMISSION: ShaderDefine;
     /** @internal */
     static SHADERDEFINE_EMISSIONTEXTURE: ShaderDefine;
 
@@ -98,8 +97,6 @@ export class PBRMaterial extends Material {
 
     // clear coat
     /**@internal */
-    static SHADERDEFINE_CLEARCOAT: ShaderDefine;
-    /**@internal */
     static CLEARCOAT: number;
     /**@internal */
     static SHADERDEFINE_CLEARCOATTEXTURE: ShaderDefine;
@@ -111,14 +108,10 @@ export class PBRMaterial extends Material {
     static SHADERDEFINE_CLEARCOATROUGHNESSTEXTURE: ShaderDefine;
     /**@internal */
     static CLEARCOATROUGHNESSTEXTURE: number;
-    /**@internal */
-    static SHADERDEFINE_CLEARCOATNORMAL: ShaderDefine;
     /** @internal */
     static CLEARCOATNORMALTEXTURE: number;
 
     // anisotropy
-    /**@internal */
-    static SHADERDEFINE_ANISOTROPY: ShaderDefine;
     /** @internal */
     static ANISOTROPY: number;
     /** @internal */
@@ -137,7 +130,6 @@ export class PBRMaterial extends Material {
         PBRMaterial.SHADERDEFINE_NORMALTEXTURE = Shader3D.getDefineByName("NORMALTEXTURE");
         PBRMaterial.SHADERDEFINE_PARALLAXTEXTURE = Shader3D.getDefineByName("PARALLAXTEXTURE");
         PBRMaterial.SHADERDEFINE_OCCLUSIONTEXTURE = Shader3D.getDefineByName("OCCLUSIONTEXTURE");
-        PBRMaterial.SHADERDEFINE_EMISSION = Shader3D.getDefineByName("EMISSION");
         PBRMaterial.SHADERDEFINE_EMISSIONTEXTURE = Shader3D.getDefineByName("EMISSIONTEXTURE");
         PBRMaterial.SHADERDEFINE_TRANSPARENTBLEND = Shader3D.getDefineByName("TRANSPARENTBLEND");
         PBRMaterial.SHADERDEFINE_LAYA_PBR_BRDF_HIGH = Shader3D.getDefineByName("LAYA_PBR_BRDF_HIGH");
@@ -171,23 +163,18 @@ export class PBRMaterial extends Material {
         PBRMaterial.DETAILNORMALSCALE = Shader3D.propertyNameToID("u_DetailNormalScale");
 
         // clear coat
-        PBRMaterial.SHADERDEFINE_CLEARCOAT = Shader3D.getDefineByName("CLEARCOAT");
-
-        PBRMaterial.CLEARCOAT = Shader3D.propertyNameToID("u_ClearCoat");
-        PBRMaterial.SHADERDEFINE_CLEARCOATTEXTURE = Shader3D.getDefineByName("CLEARCOATTEXTURE");
+        PBRMaterial.CLEARCOAT = Shader3D.propertyNameToID("u_ClearCoatFactor");
+        PBRMaterial.SHADERDEFINE_CLEARCOATTEXTURE = Shader3D.getDefineByName("CLEARCOATMAP");
         PBRMaterial.CLEARCOATTEXTURE = Shader3D.propertyNameToID("u_ClearCoatTexture");
 
         PBRMaterial.CLEARCOATROUGHNESS = Shader3D.propertyNameToID("u_ClearCoatRoughness");
-        PBRMaterial.SHADERDEFINE_CLEARCOATROUGHNESSTEXTURE = Shader3D.getDefineByName("CLEARCOAT_ROUGHNESS");
+        PBRMaterial.SHADERDEFINE_CLEARCOATROUGHNESSTEXTURE = Shader3D.getDefineByName("CLEARCOAT_ROUGHNESSMAP");
         PBRMaterial.CLEARCOATROUGHNESSTEXTURE = Shader3D.propertyNameToID("u_ClearCoatRoughnessTexture");
-
-        PBRMaterial.SHADERDEFINE_CLEARCOATNORMAL = Shader3D.getDefineByName("CLEARCOAT_NORMAL");
         PBRMaterial.CLEARCOATNORMALTEXTURE = Shader3D.propertyNameToID("u_ClearCoatNormalTexture");
 
         // anisotropy
-        PBRMaterial.SHADERDEFINE_ANISOTROPY = Shader3D.getDefineByName("ANISOTROPIC");
-        PBRMaterial.ANISOTROPY = Shader3D.propertyNameToID("u_Anisotropy");
-        PBRMaterial.SHADERDEFINE_ANISOTROPYTEXTURE = Shader3D.getDefineByName("ANISOTROPICTEXTURE");
+        PBRMaterial.ANISOTROPY = Shader3D.propertyNameToID("u_AnisotropyStrength");
+        PBRMaterial.SHADERDEFINE_ANISOTROPYTEXTURE = Shader3D.getDefineByName("ANISOTROPYMAP");
         PBRMaterial.ANISOTROPYTEXTURE = Shader3D.propertyNameToID("u_AnisotropyTexture");
         PBRMaterial.ANISOTROPYROTATION = Shader3D.propertyNameToID("u_AnisotropyRotation");
     }
@@ -339,14 +326,14 @@ export class PBRMaterial extends Material {
      * 是否开启自发光。
      */
     get enableEmission(): boolean {
-        return this._shaderValues.hasDefine(PBRMaterial.SHADERDEFINE_EMISSION);
+        return this._shaderValues.hasDefine(PBRShaderLib.DEFINE_EMISSION);
     }
 
     set enableEmission(value: boolean) {
         if (value)
-            this._shaderValues.addDefine(PBRMaterial.SHADERDEFINE_EMISSION);
+            this._shaderValues.addDefine(PBRShaderLib.DEFINE_EMISSION);
         else
-            this._shaderValues.removeDefine(PBRMaterial.SHADERDEFINE_EMISSION);
+            this._shaderValues.removeDefine(PBRShaderLib.DEFINE_EMISSION);
     }
 
     /**
@@ -518,14 +505,14 @@ export class PBRMaterial extends Material {
      * 是否开启 anisotropy
      */
     public get anisotropyEnable(): boolean {
-        return this.shaderData.hasDefine(PBRMaterial.SHADERDEFINE_ANISOTROPY);
+        return this.shaderData.hasDefine(PBRShaderLib.DEFINE_ANISOTROPY);
     }
     public set anisotropyEnable(value: boolean) {
         if (value) {
-            this.shaderData.addDefine(PBRMaterial.SHADERDEFINE_ANISOTROPY);
+            this.shaderData.addDefine(PBRShaderLib.DEFINE_ANISOTROPY);
         }
         else {
-            this.shaderData.removeDefine(PBRMaterial.SHADERDEFINE_ANISOTROPY);
+            this.shaderData.removeDefine(PBRShaderLib.DEFINE_ANISOTROPY);
         }
     }
 
@@ -571,14 +558,14 @@ export class PBRMaterial extends Material {
      * 是否开启 clear coat
      */
     public get clearCoatEnable(): boolean {
-        return this.shaderData.hasDefine(PBRMaterial.SHADERDEFINE_CLEARCOAT);
+        return this.shaderData.hasDefine(PBRShaderLib.DEFINE_CLEARCOAT);
     }
     public set clearCoatEnable(value: boolean) {
         if (value) {
-            this.shaderData.addDefine(PBRMaterial.SHADERDEFINE_CLEARCOAT);
+            this.shaderData.addDefine(PBRShaderLib.DEFINE_CLEARCOAT);
         }
         else {
-            this.shaderData.removeDefine(PBRMaterial.SHADERDEFINE_CLEARCOAT);
+            this.shaderData.removeDefine(PBRShaderLib.DEFINE_CLEARCOAT);
         }
     }
 
@@ -642,10 +629,10 @@ export class PBRMaterial extends Material {
     }
     public set clearCoatNormalTexture(value: BaseTexture) {
         if (value) {
-            this.shaderData.addDefine(PBRMaterial.SHADERDEFINE_CLEARCOATNORMAL);
+            this.shaderData.addDefine(PBRShaderLib.DEFINE_CLEARCOAT_NORMAL);
         }
         else {
-            this.shaderData.removeDefine(PBRMaterial.SHADERDEFINE_CLEARCOATNORMAL);
+            this.shaderData.removeDefine(PBRShaderLib.DEFINE_CLEARCOAT_NORMAL);
         }
         this.shaderData.setTexture(PBRMaterial.CLEARCOATNORMALTEXTURE, value);
     }
