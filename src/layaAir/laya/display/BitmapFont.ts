@@ -23,7 +23,7 @@ export class BitmapFont extends Resource {
     tint: boolean = true;
     maxWidth: number = 0;
     lineHeight: number = 12;
-    letterSpacing = 2;
+    letterSpacing = 0;
 
     /**
      * 通过指定位图字体文件路径，加载位图字体文件，加载完成后会自动解析。
