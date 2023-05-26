@@ -181,6 +181,20 @@ export class Material extends Resource implements IClone {
     }
 
     /**
+     * 开启 或 关闭 shader 宏定义
+     * @param define 
+     * @param value true: addDefine, false: removeDefine
+     */
+    setDefine(define: ShaderDefine, value: boolean) {
+        if (value) {
+            this._shaderValues.addDefine(define);
+        }
+        else {
+            this._shaderValues.removeDefine(define);
+        }
+    }
+
+    /**
      * 是否包含Shader宏定义。
      * @param value 宏定义。
      */

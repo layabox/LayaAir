@@ -13,6 +13,7 @@ const DDPF_LUMINANCE = 0x20000;
 const DDSD_MIPMAPCOUNT: number = 0x20000;
 const DDS_MAGIC: number = 0x20534444;
 const DDS_HEADER_LENGTH: number = 31;
+const DDS_DXGI_FORMAT: number = 32;
 const DDS_HEADER_MAGIC: number = 0;
 const DDS_HEADER_SIZE: number = 1;
 const DDS_HEADER_FLAGS: number = 2;
@@ -78,7 +79,7 @@ export class DDSTextureInfo {
         let fourCC = header[DDS_HEADER_PF_FOURCC];
 
         // let extendedHeader = new Int32Array(source, 0, DDS_HEADER_LENGTH + 4);
-        // let dxgiFormat = (fourCC == FOURCC_DX10) ? extendedHeader[32] : 0;
+        // let dxgiFormat = (fourCC == FOURCC_DX10) ? header[32] : 0;
 
         let isFourCC = (header[DDS_HEADER_PF_FLAGS] & DDPF_FOURCC) === DDPF_FOURCC;
 

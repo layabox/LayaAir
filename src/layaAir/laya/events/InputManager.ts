@@ -313,14 +313,17 @@ export class InputManager {
 
                 if (Math.abs(ix - touch.pos.x) > 1.5 || Math.abs(iy - touch.pos.y) > 1.5) {
                     touch.pos.setTo(ix, iy);
-                    touch.move();
 
-                    if (InputManager.mouseEventsEnabled) {
+                    if (type == 2) {
+                        touch.move();
 
-                        touch.target.bubbleEvent(Event.MOUSE_MOVE, touch.event);
+                        if (InputManager.mouseEventsEnabled) {
 
-                        for (let t of touch.downTargets)
-                            t.event(Event.MOUSE_DRAG, touch.event);
+                            touch.target.bubbleEvent(Event.MOUSE_MOVE, touch.event);
+
+                            for (let t of touch.downTargets)
+                                t.event(Event.MOUSE_DRAG, touch.event);
+                        }
                     }
                 }
             }

@@ -18,8 +18,8 @@ export class AnimatorPlayState2D {
 	_normalizedPlayTime: number;
 	/**@internal */
 	_duration: number;
-	/**@internal */
-	_playEventIndex: number;
+	/**@internal 上次播放的时间，event事件使用*/
+	_parentPlayTime: number;
 	/**@internal */
 	_lastIsFront: boolean;
 	/**@internal */
@@ -68,7 +68,6 @@ export class AnimatorPlayState2D {
 		this._finish = false;
 		this._startPlayTime = startTime;
 		this._elapsedTime = startTime;
-		this._playEventIndex = 0;
 		this._lastIsFront = true;
 		this._playNum = 0;
 		this._playAllTime = 0;
@@ -86,7 +85,6 @@ export class AnimatorPlayState2D {
 		dest._elapsedTime = this._elapsedTime;
 		dest._playNum = this._playNum;
 		dest._normalizedPlayTime = this._normalizedPlayTime;
-		dest._playEventIndex = this._playEventIndex;
 		dest._lastIsFront = this._lastIsFront;
 		dest._frontPlay = this._frontPlay;
 		dest._playAllTime = this._playAllTime;

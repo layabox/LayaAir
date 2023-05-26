@@ -43,6 +43,7 @@ export enum AniStateConditionType {
 export interface TypeAnimatorState {
     x: number,
     y: number,
+    /**-1代表enter，-2代表exit，-3代表anyState */
     id: string,
     name: string,
     speed?: number,

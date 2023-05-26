@@ -3,19 +3,93 @@
 
     #include "globalIllumination.glsl";
 
+// 获取反射向量
+vec3 getReflectedVector(const in Surface surface, const in PixelInfo info)
+{
+    vec3 v = info.viewDir;
+    vec3 n = info.normalWS;
+    vec3 positionWS = info.positionWS;
+
+    vec3 r;
+
+    #ifdef ANISOTROPIC
+
+    float anisotropy = surface.anisotropy;
+    vec3 anisotropyDirection = info.anisotropicB;
+
+    // float tangentRoughness = mix(roughness, 1.0, anisotropy * anisotropy);
+    float roughness = surface.perceptualRoughness;
+    vec3 anisotropicTangent = cross(anisotropyDirection, v);
+    vec3 anisotropicNormal = cross(anisotropicTangent, anisotropyDirection);
+    float bendFactor = 1.0 - anisotropy * (1.0 - roughness);
+    float bendFactorPow4 = pow2(bendFactor) * pow2(bendFactor);
+    vec3 bentNormal = normalize(mix(anisotropicNormal, n, bendFactorPow4));
+
+    r = normalize(reflect(-v, bentNormal));
+
+    #else // ANISOTROPIC
+
+    r = reflect(-v, n);
+
+    #endif // ANISOTROPIC
+
+    // todo
+    #ifdef SPECCUBE_BOX_PROJECTION
+    r = getBoxProjectionReflectedVector(r, positionWS);
+    #endif // SPECCUBE_BOX_PROJECTION
+
+    return r;
+}
+
+    #ifdef CLEARCOAT
+vec3 clearCoatIBL(const in Surface surface, const in PixelInfo info)
+{
+    float NoV = info.clearCoatNoV;
+
+    // specular
+    float roughness = surface.clearCoatPerceptualRoughness;
+    // todo default IOR 1.5
+    vec3 F0 = vec3(0.04);
+    float occlusion = surface.occlusion;
+    vec2 f_ab = info.dfg.rg;
+
+    vec3 Fr = max(vec3(1.0 - roughness), F0) - F0;
+    vec3 k_S = F0 + Fr * pow5(1.0 - NoV);
+    vec3 FssEss = k_S * f_ab.x + f_ab.y;
+
+    // radiance
+    vec3 v = info.viewDir;
+    vec3 n = info.clearCoatNormal;
+    vec3 positionWS = info.positionWS;
+    vec3 r = reflect(-v, n);
+	// todo
+	#ifdef SPECCUBE_BOX_PROJECTION
+    r = getBoxProjectionReflectedVector(r, positionWS);
+	#endif // SPECCUBE_BOX_PROJECTION
+
+    vec3 indirectSpecular = specularIrradiance(r, roughness);
+
+    vec3 fClearCoat = indirectSpecular * FssEss * surface.clearCoat * occlusion;
+
+    return fClearCoat;
+}
+    #endif // CLEARCOAT
+
 vec3 PBRGI(const in Surface surface, const in PixelInfo info)
 {
     float NoV = info.NoV;
     vec3 n = info.normalWS;
     vec3 positionWS = info.positionWS;
 
-    // todo specular
+    vec3 ibl = vec3(0.0);
+
+    // specular
     float specularWeight = 1.0;
     vec3 diffuseColor = surface.diffuseColor;
     float roughness = surface.perceptualRoughness;
     vec3 F0 = surface.f0;
     float occlusion = surface.occlusion;
-    vec2 f_ab = surface.dfg.rg.rg;
+    vec2 f_ab = info.dfg.rg;
 
     vec3 Fr = max(vec3(1.0 - roughness), F0) - F0;
     vec3 k_S = F0 + Fr * pow5(1.0 - NoV);
@@ -23,10 +97,6 @@ vec3 PBRGI(const in Surface surface, const in PixelInfo info)
 
     // radiance
     vec3 r = getReflectedVector(surface, info);
-    // todo
-    #ifdef SPECCUBE_BOX_PROJECTION
-    r = getBoxProjectionReflectedVector(r, positionWS);
-    #endif // SPECCUBE_BOX_PROJECTION
 
     vec3 indirectSpecular = specularIrradiance(r, roughness);
 
@@ -52,7 +122,15 @@ vec3 PBRGI(const in Surface surface, const in PixelInfo info)
 
     #endif // USELIGHTMAP
 
-    return fDiffuse + fSpecular;
+    ibl = fDiffuse + fSpecular;
+
+    // clear coat
+    #ifdef CLEARCOAT
+    vec3 fClearCoat = clearCoatIBL(surface, info);
+    ibl += fClearCoat;
+    #endif // CLEARCOAT
+
+    return ibl;
 }
 
 #endif // pbrGI_lib

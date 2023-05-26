@@ -3,6 +3,7 @@ import { EventDispatcher } from "../events/EventDispatcher";
 import { IClone } from "../utils/IClone";
 import { Animation2DParm } from "./Animation2DParm";
 import { AnimationClip2D } from "./AnimationClip2D";
+import { Animator2D } from "./Animator2D";
 import { AnimatorTransition2D } from "./AnimatorTransition2D";
 
 /**
@@ -26,6 +27,9 @@ export class AnimatorState2D extends EventDispatcher implements IClone {
 
     /**@internal */
     _currentFrameIndices: Int16Array | null = null;
+
+    /**play on awake start offset*/
+    cycleOffset: number = 0;
 
     /**
      * 名称
@@ -106,11 +110,13 @@ export class AnimatorState2D extends EventDispatcher implements IClone {
     /**
      * @internal
      */
-    _eventStart() {
+    _eventStart(animator: Animator2D, layerIndex: number) {
         this.event(AnimatorState2D.EVENT_OnStateEnter);
         if (this._scripts) {
-            for (var i: number = 0, n: number = this._scripts.length; i < n; i++)
+            for (var i: number = 0, n: number = this._scripts.length; i < n; i++) {
+                this._scripts[i].setPlayScriptInfo(animator, layerIndex, this);
                 this._scripts[i].onStateEnter();
+            }
         }
     }
 
@@ -148,7 +154,7 @@ export class AnimatorState2D extends EventDispatcher implements IClone {
         }
         return null;
     }
-    
+
     /**
      * @internal
      */

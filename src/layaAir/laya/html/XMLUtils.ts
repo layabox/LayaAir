@@ -135,11 +135,3 @@ export class XMLUtils {
             return defValue == null ? false : defValue;
     }
 }
-
-const ESCAPES: Array<string> = [
-    "&", "&amp;",
-    "<", "&lt;",
-    ">", "&gt;",
-    "'", "&apos;",
-    "\"", "&quot;"
-];

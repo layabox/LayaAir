@@ -197,6 +197,7 @@ export class Input extends Text {
             }
         }
 
+        if (value == null) value = "";
         input._text = value;
         input.event(Event.INPUT);
     }

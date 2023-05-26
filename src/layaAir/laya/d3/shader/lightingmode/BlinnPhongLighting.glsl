@@ -6,7 +6,10 @@
 
 struct PixelInfo {
     vec3 positionWS;
+
+    vec3 vertexNormalWS;
     vec3 normalWS;
+
     vec3 viewDir;
 
     #ifdef LIGHTMAP
@@ -21,6 +24,9 @@ struct Surface {
     vec3 specularColor;
     float shininess;
     vec3 gloss;
+
+    vec3 normalTS;
+
     float alpha;
     float alphaClip;
 };

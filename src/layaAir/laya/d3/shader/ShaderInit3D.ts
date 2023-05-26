@@ -3,12 +3,14 @@ import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import UtilsGLSL from "./utils/Utils.glsl";
 import ColorGLSL from "./utils/Color.glsl";
 import MathGLSL from "./utils/Math.glsl";
-import TBNNormalGLSL from "./utils/TBNNormal.glsl";
 import BakedBoneMatrixSamplerGLSL from "./utils/BakedBoneMatrixSampler.glsl";
 
+import MorphTargetGLSL from "./common/MorphTarget.glsl";
 import VertexGLSL from "./common/VertexCommon.glsl";
 
-import MorphTargetGLSL from "./common/MorphTarget.glsl";
+import ShadingCommonGLSL from "./common/ShadingCommon.glsl";
+import ShadingVertexGLSL from "./common/ShadingVertex.glsl";
+import ShadingFragGLSL from "./common/ShadingFrag.glsl";
 
 import SceneGLSL from "./common/SceneCommon.glsl";
 import CameraGLSL from "./common/CameraCommon.glsl";
@@ -19,6 +21,7 @@ import Sprite3DFragGLSL from "./common/Sprite3DFrag.glsl";
 import DepthVertexGLSL from "./depth/DepthVertex.glsl";
 import DepthFragGLSL from "./depth/DepthFrag.glsl";
 import DepthNormalUtilGLSL from "./depth/DepthNormalUtil.glsl";
+import DepthNormalFragGLSL from "./depth/DepthNormalFrag.glsl";
 
 import ShadowSampleTentGLSL from "./lighting/ShadowSampleTent.glsl";
 import ShadowSamplerGLSL from "./lighting/ShadowSampler.glsl";
@@ -61,10 +64,12 @@ export class ShaderInit3D {
 		Shader3D.addInclude("Utils.glsl", UtilsGLSL);
 		Shader3D.addInclude("Color.glsl", ColorGLSL);
 		Shader3D.addInclude("Math.glsl", MathGLSL);
-		Shader3D.addInclude("TBNNormal.glsl", TBNNormalGLSL);
 		Shader3D.addInclude("BakedBoneMatrixSampler.glsl", BakedBoneMatrixSamplerGLSL);
-		Shader3D.addInclude("VertexCommon.glsl", VertexGLSL);
 		Shader3D.addInclude("MorphTarget.glsl", MorphTargetGLSL);
+		Shader3D.addInclude("VertexCommon.glsl", VertexGLSL);
+		Shader3D.addInclude("ShadingCommon.glsl", ShadingCommonGLSL);
+		Shader3D.addInclude("ShadingVertex.glsl", ShadingVertexGLSL);
+		Shader3D.addInclude("ShadingFrag.glsl", ShadingFragGLSL);
 
 		// scene
 		Shader3D.addInclude("Scene.glsl", SceneGLSL);
@@ -81,6 +86,7 @@ export class ShaderInit3D {
 		Shader3D.addInclude("DepthVertex.glsl", DepthVertexGLSL);
 		Shader3D.addInclude("DepthFrag.glsl", DepthFragGLSL);
 		Shader3D.addInclude("DepthNormalUtil.glsl", DepthNormalUtilGLSL);
+		Shader3D.addInclude("DepthNormalFrag.glsl", DepthNormalFragGLSL);
 
 		// scene fog
 		Shader3D.addInclude("SceneFog.glsl", SceneFogGLSL);

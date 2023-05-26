@@ -143,15 +143,17 @@ export class Label extends UIComponent {
     protected createChildren(): void {
         this._tf = new Text();
         this._tf.hideFlags = HideFlags.HideAndDontSave;
-        this._tf._onPostLayout = () => {
-            if (this._fitContent && (LayaEnv.isPlaying || this._tf.textWidth > 0 && this._tf.textHeight > 0)) {
-                if (this._tf.wordWrap)
-                    this.height = this._tf.textHeight;
-                else
-                    this.size(this._tf.textWidth, this._tf.textHeight);
-            }
-        };
+        this._tf._onPostLayout = () => this._onPostLayout();
         this.addChild(this._tf);
+    }
+
+    protected _onPostLayout() {
+        if (this._fitContent && (LayaEnv.isPlaying || this._tf.textWidth > 0 && this._tf.textHeight > 0)) {
+            if (this._tf.wordWrap)
+                this.height = this._tf.textHeight;
+            else
+                this.size(this._tf.textWidth, this._tf.textHeight);
+        }
     }
 
     /**
@@ -499,5 +501,19 @@ export class Label extends UIComponent {
      */
     set ignoreLang(value: boolean) {
         this._tf.ignoreLang = value;
+    }
+
+    public get templateVars(): Record<string, any> {
+        return this._tf.templateVars;
+    }
+
+    public set templateVars(value: Record<string, any>) {
+        this._tf.templateVars = value;
+    }
+
+    public setVar(name: string, value: any): Label {
+        this._tf.setVar(name, value);
+
+        return this;
     }
 }

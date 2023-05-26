@@ -1474,25 +1474,18 @@ export class Context {
      * @param	ty
      * @param	alpha
      */
-    drawTextureWithTransform(tex: Texture, x: number, y: number, width: number, height: number, transform: Matrix | null, tx: number, ty: number, alpha: number, blendMode: string | null, colorfilter: ColorFilter | null = null, uv?: number[], color = 0xffffffff): void {
+    drawTextureWithTransform(tex: Texture, x: number, y: number, width: number, height: number, transform: Matrix | null, tx: number, ty: number, alpha: number, blendMode: string | null, uv?: number[], color = 0xffffffff): void {
         var oldcomp: string;
         var curMat: Matrix = this._curMat;
         if (blendMode) {
             oldcomp = this.globalCompositeOperation;
             this.globalCompositeOperation = blendMode;
         }
-        var oldColorFilter = this._colorFiler;
-        if (colorfilter) {
-            this.setColorFilter(colorfilter);
-        }
 
         if (!transform) {
             this._drawTextureM(tex, x + tx, y + ty, width, height, curMat, alpha, uv, color);
             if (blendMode) {
                 this.globalCompositeOperation = oldcomp;
-            }
-            if (colorfilter) {
-                this.setColorFilter(oldColorFilter);
             }
             return;
         }
@@ -1513,12 +1506,8 @@ export class Context {
             transform = tmpMat;
         }
         this._drawTextureM(tex, x, y, width, height, transform, alpha, uv, color);
-        if (blendMode) {
+        if (blendMode)
             this.globalCompositeOperation = oldcomp;
-        }
-        if (colorfilter) {
-            this.setColorFilter(oldColorFilter);
-        }
     }
 
     /**
@@ -1656,7 +1645,7 @@ export class Context {
         vertices: Float32Array,
         uvs: Float32Array,
         indices: Uint16Array,
-        matrix: Matrix, alpha: number, color: ColorFilter, blendMode: string, colorNum: number = 0xffffffff): void {
+        matrix: Matrix, alpha: number, blendMode: string, colorNum: number = 0xffffffff): void {
 
         if (!tex._getSource()) { //source内调用tex.active();
             if (this.sprite) {
@@ -1675,15 +1664,6 @@ export class Context {
         var tmpMat = this._tmpMatrix;
         var triMesh = this._triangleMesh!;
 
-        var oldColorFilter: ColorFilter | null = null;
-        var needRestorFilter: boolean = false;
-        if (color) {
-            oldColorFilter = this._colorFiler;
-            //这个不用save，直接修改就行
-            this._colorFiler = color;
-            this._curSubmit = SubmitBase.RENDERBASE;
-            needRestorFilter = oldColorFilter != color;
-        }
         var webGLImg = tex.bitmap;
         var preKey: SubmitKey = this._curSubmit._key;
         var sameKey: boolean = preKey.submitType === SubmitBase.KEY_TRIANGLES && preKey.other === webGLImg.id && preKey.blendShader == this._nBlendType;
@@ -1721,10 +1701,6 @@ export class Context {
         }
         this._curSubmit._numEle += indices.length;
 
-        if (needRestorFilter) {
-            this._colorFiler = oldColorFilter;
-            this._curSubmit = SubmitBase.RENDERBASE;
-        }
         if (blendMode) {
             this.globalCompositeOperation = oldcomp!;
         }

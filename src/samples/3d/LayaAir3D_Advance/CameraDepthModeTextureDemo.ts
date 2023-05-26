@@ -3,7 +3,6 @@ import { Camera } from "laya/d3/core/Camera";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { DepthTextureMode } from "laya/d3/depthMap/DepthPass";
-import { TextureCube } from "laya/d3/resource/TextureCube";
 import { Stage } from "laya/display/Stage";
 import { Color } from "laya/maths/Color";
 import { Loader } from "laya/net/Loader";
@@ -13,6 +12,7 @@ import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import { DepthMaterial } from "./DepthNormalShader/DepthMaterial";
 import { DepthNormalsMaterial } from "./DepthNormalShader/DepthNormalsMaterial";
+import { TextureCube } from "laya/resource/TextureCube";
 
 /**
  * 示例用来展示获得的深度、深度法线贴图

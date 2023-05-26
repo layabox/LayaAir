@@ -1,9 +1,9 @@
-import { LayaGL } from "../../layagl/LayaGL";
-import { DDSTextureInfo } from "../../RenderEngine/DDSTextureInfo";
-import { KTXTextureInfo } from "../../RenderEngine/KTXTextureInfo";
-import { TextureDimension } from "../../RenderEngine/RenderEnum/TextureDimension";
-import { TextureFormat } from "../../RenderEngine/RenderEnum/TextureFormat";
-import { BaseTexture } from "../../resource/BaseTexture";
+import { LayaGL } from "../layagl/LayaGL";
+import { DDSTextureInfo } from "../RenderEngine/DDSTextureInfo";
+import { KTXTextureInfo } from "../RenderEngine/KTXTextureInfo";
+import { TextureDimension } from "../RenderEngine/RenderEnum/TextureDimension";
+import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
+import { BaseTexture } from "./BaseTexture";
 
 export enum TextureCubeFace {
     /**+x */
@@ -33,7 +33,9 @@ export class TextureCube extends BaseTexture {
     private static _grayTexture: TextureCube;
     /**@private*/
     private static _whiteTexture: TextureCube;
-    
+
+    private static _errorTexture: TextureCube;
+
     /**
      * 黑色纯色纹理。
      */
@@ -51,8 +53,12 @@ export class TextureCube extends BaseTexture {
     /**
      * 白色纯色纹理。
      */
-     static get whiteTexture() {
-        return TextureCube._grayTexture;
+    static get whiteTexture() {
+        return TextureCube._whiteTexture;
+    }
+
+    static get errorTexture() {
+        return TextureCube._errorTexture;
     }
 
     /**
@@ -61,7 +67,7 @@ export class TextureCube extends BaseTexture {
     static __init__(): void {
         var blackTexture: TextureCube = new TextureCube(1, TextureFormat.R8G8B8, false);
         var grayTexture: TextureCube = new TextureCube(1, TextureFormat.R8G8B8, false);
-        var writeTexture:TextureCube = new TextureCube(1,TextureFormat.R8G8B8,false);
+        var writeTexture: TextureCube = new TextureCube(1, TextureFormat.R8G8B8, false);
         var pixels = DEFAULT_PIXELS;
         pixels[0] = 0, pixels[1] = 0, pixels[2] = 0;
         blackTexture.setPixelsData([pixels, pixels, pixels, pixels, pixels, pixels], false, false);
@@ -75,6 +81,7 @@ export class TextureCube extends BaseTexture {
         TextureCube._grayTexture = grayTexture;
         TextureCube._blackTexture = blackTexture;
         TextureCube._whiteTexture = writeTexture;
+        TextureCube._errorTexture = writeTexture;
     }
 
     constructor(size: number, format: TextureFormat, mipmap: boolean = true, sRGB: boolean = false) {

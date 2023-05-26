@@ -172,7 +172,7 @@ export class NativeShaderData extends ShaderData implements INativeUploadNode {
             memoryBlock.int32Array[stride + 2] = (value._texture as any).id;
         }
         else {
-            memoryBlock.int32Array[stride + 2] = (Texture2D.erroTextur._texture as any).id;
+            memoryBlock.int32Array[stride + 2] = (Texture2D.errorTexture._texture as any).id;
         }
         return 3;
     }

@@ -35,7 +35,7 @@ import { Mesh } from "./laya/d3/resource/models/Mesh";
 import { PrimitiveMesh } from "./laya/d3/resource/models/PrimitiveMesh";
 import { SkyBox } from "./laya/d3/resource/models/SkyBox";
 import { SkyDome } from "./laya/d3/resource/models/SkyDome";
-import { TextureCube } from "./laya/d3/resource/TextureCube";
+import { TextureCube } from "./laya/resource/TextureCube";
 import { ShaderInit3D } from "./laya/d3/shader/ShaderInit3D";
 import { LayaGL } from "./laya/layagl/LayaGL";
 import { Render } from "./laya/renders/Render";

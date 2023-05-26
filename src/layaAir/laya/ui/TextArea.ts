@@ -99,11 +99,10 @@ export class TextArea extends TextInput {
      */
     constructor(text: string = "") {
         super(text);
-        this.on(Event.CHANGE, this, this._onTextChange);
-        this.on(Event.BLUR, this, this._onTextChange);
     }
 
-    private _onTextChange(): void {
+    protected _onPostLayout(): void {
+        super._onPostLayout();
         this.callLater(this.changeScroll);
     }
     /**
@@ -201,17 +200,19 @@ export class TextArea extends TextInput {
         this._hScrollBar._skinBaseUrl = this._skinBaseUrl;
         this.addChild(this._hScrollBar);
         this._hScrollBar.on(Event.CHANGE, this, this.onHBarChanged);
+        this._hScrollBar.on(Event.LOADED, this, this.changeScroll);
         this._hScrollBar.mouseWheelEnable = false;
         this._hScrollBar.target = this._tf;
         this.callLater(this.changeScroll);
     }
 
     private createVScrollBar() {
-        this._vScrollBar = new VScrollBar()
+        this._vScrollBar = new VScrollBar();
         this._vScrollBar.hideFlags = HideFlags.HideAndDontSave;
         this._vScrollBar._skinBaseUrl = this._skinBaseUrl;
         this.addChild(this._vScrollBar);
         this._vScrollBar.on(Event.CHANGE, this, this.onVBarChanged);
+        this._vScrollBar.on(Event.LOADED, this, this.changeScroll);
         this._vScrollBar.target = this._tf;
         this.callLater(this.changeScroll);
     }
@@ -299,14 +300,13 @@ export class TextArea extends TextInput {
     }
 
     private changeScroll(): void {
-        var vShow: boolean = this._vScrollBar && this._tf.maxScrollY > 0;
-        var hShow: boolean = this._hScrollBar && this._tf.maxScrollX > 0;
-        var showWidth: number = vShow ? this._width - this._vScrollBar.width : this._width;
-        var showHeight: number = hShow ? this._height - this._hScrollBar.height : this._height;
-        var padding: any[] = this._tf.padding || Styles.labelPadding;
+        let vShow: boolean = this._vScrollBar && this._tf.maxScrollY > 0;
+        let hShow: boolean = this._hScrollBar && this._tf.maxScrollX > 0;
+        let padding: any[] = this._tf.padding;
+        let showWidth: number = vShow ? this._width - this._vScrollBar.width - padding[2] : this._width;
+        let showHeight: number = hShow ? this._height - this._hScrollBar.height - padding[3] : this._height;
 
-        this._tf.width = showWidth;
-        this._tf.height = showHeight;
+        this._tf.size(showWidth, showHeight);
 
         if (this._vScrollBar) {
             this._vScrollBar.x = this._width - this._vScrollBar.width - padding[2];

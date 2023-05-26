@@ -41,9 +41,9 @@ export class Texture2D extends BaseTexture {
     /**默认法线纹理 */
     static normalTexture: Texture2D = null;
     /**错误纹理 */
-    static erroTextur: Texture2D = null;
+    static errorTexture: Texture2D = null;
     /**Default Toggle Texture */
-    static defalutUITexture:Texture2D = null;
+    static defalutUITexture: Texture2D = null;
 
     /**
      * @internal
@@ -75,7 +75,7 @@ export class Texture2D extends BaseTexture {
             let floatPixle = new Uint16Array(3);
             floatPixle[0] = 14336;
             floatPixle[1] = 14336;
-            floatPixle[1] = 15360;
+            floatPixle[2] = 15360;
             Texture2D.normalTexture = new Texture2D(1, 1, TextureFormat.R16G16B16, false, false, false);
             Texture2D.normalTexture.setPixelsData(floatPixle, false, false);
         }
@@ -103,7 +103,7 @@ export class Texture2D extends BaseTexture {
         Texture2D.defalutUITexture = new Texture2D(1, 3, TextureFormat.R8G8B8, false, false);
         Texture2D.defalutUITexture.setPixelsData(pixels, false, false);
         Texture2D.defalutUITexture.lock = true;//锁住资源防止被资源管理释放
-        Texture2D.erroTextur = Texture2D.whiteTexture;
+        Texture2D.errorTexture = Texture2D.whiteTexture;
     }
 
 

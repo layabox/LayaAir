@@ -10,6 +10,7 @@ import "laya/gltf/glTFLoader";
 
 import { Resource } from "laya/resource/Resource";
 import { Main } from "./Main";
+import { Test } from "./Test";
 Resource.DEBUG = true;
 
-new Main(false);
+new Test();

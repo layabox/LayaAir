@@ -52,13 +52,11 @@ export class DrawTrianglesCmd {
     /**
      * 颜色变换
      */
-    color: ColorFilter;
-
-    colorNum: number | null;
+    color: number | null;
 
     /**@private */
     static create(texture: Texture, x: number, y: number, vertices: Float32Array, uvs: Float32Array, indices: Uint16Array,
-        matrix: Matrix | null, alpha: number, color: string | null, blendMode: string | null, colorNum: number | null): DrawTrianglesCmd {
+        matrix: Matrix | null, alpha: number, color: string | number, blendMode: string | null): DrawTrianglesCmd {
         var cmd: DrawTrianglesCmd = Pool.getItemByClass("DrawTrianglesCmd", DrawTrianglesCmd);
         cmd.texture = texture;
         cmd.x = x;
@@ -68,13 +66,8 @@ export class DrawTrianglesCmd {
         cmd.indices = indices;
         cmd.matrix = matrix;
         cmd.alpha = alpha;
-        if (color) {
-            cmd.color = new ColorFilter();
-            var c: any[] = ColorUtils.create(color).arrColor;
-            cmd.color.color(c[0] * 255, c[1] * 255, c[2] * 255, c[3] * 255);	//TODO 这个好像设置的是加色，这样并不合理
-        }
+        cmd.color = color != null ? ColorUtils.create(color).numColor : 0xffffffff;
         cmd.blendMode = blendMode;
-        cmd.colorNum = colorNum;
         return cmd;
     }
 
@@ -83,11 +76,8 @@ export class DrawTrianglesCmd {
      */
     recover(): void {
         this.texture = null;
-        //@ts-ignore
         this.vertices = null;
-        //@ts-ignore
         this.uvs = null;
-        //@ts-ignore
         this.indices = null;
         this.matrix = null;
         Pool.recover("DrawTrianglesCmd", this);
@@ -95,7 +85,7 @@ export class DrawTrianglesCmd {
 
     /**@private */
     run(context: Context, gx: number, gy: number): void {
-        context.drawTriangles(this.texture, this.x + gx, this.y + gy, this.vertices, this.uvs, this.indices, this.matrix, this.alpha, this.color, this.blendMode, this.colorNum);
+        context.drawTriangles(this.texture, this.x + gx, this.y + gy, this.vertices, this.uvs, this.indices, this.matrix, this.alpha, this.blendMode, this.color);
     }
 
     /**@private */

@@ -28,7 +28,7 @@ import { RenderCapable } from "../../RenderEngine/RenderEnum/RenderCapable";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { ILaya } from "../../../ILaya";
 import { ShadowLightType } from "../shadowMap/ShadowLightType";
-import { TextureCube } from "../resource/TextureCube";
+import { TextureCube } from "../../resource/TextureCube";
 import { TextureFormat } from "../../RenderEngine/RenderEnum/TextureFormat";
 import { Texture2D } from "../../resource/Texture2D";
 import { Matrix4x4 } from "../../maths/Matrix4x4";

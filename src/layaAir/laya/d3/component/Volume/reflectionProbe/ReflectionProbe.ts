@@ -1,7 +1,7 @@
 import { TextureDecodeFormat } from "../../../../RenderEngine/RenderEnum/TextureDecodeFormat";
 import { Sprite3D } from "../../../core/Sprite3D";
 import { Bounds } from "../../../math/Bounds";
-import { TextureCube } from "../../../resource/TextureCube";
+import { TextureCube } from "../../../../resource/TextureCube";
 import { Volume } from "../Volume";
 import { VolumeManager } from "../VolumeManager";
 import { SphericalHarmonicsL2, SphericalHarmonicsL2Generater } from "../../../graphics/SphericalHarmonicsL2";

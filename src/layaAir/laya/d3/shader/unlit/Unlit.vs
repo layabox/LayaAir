@@ -1,41 +1,46 @@
 
 #define SHADER_NAME UnlitVS
 
+#include "Math.glsl";
+
+#include "Scene.glsl";
+#include "SceneFogInput.glsl";
+
 #include "Camera.glsl";
 #include "Sprite3DVertex.glsl";
 
 #include "VertexCommon.glsl";
-#include "Color.glsl";
-#include "Scene.glsl"
-#include "SceneFogInput.glsl"
 
-varying vec4 v_Color;
+#ifdef UV
 varying vec2 v_Texcoord0;
+#endif // UV
+
+#ifdef COLOR
+varying vec4 v_VertexColor;
+#endif // COLOR
 
 void main()
 {
     Vertex vertex;
     getVertexParams(vertex);
-	
-#if defined(UV)
+
+#ifdef UV
     v_Texcoord0 = transformUV(vertex.texCoord0, u_TilingOffset);
-#else
-	v_Texcoord0 = vec2(0);
 #endif // UV
 
-#if defined(COLOR) && defined(ENABLEVERTEXCOLOR)
-    v_Color = gammaToLinear(vertex.vertexColor);
-#endif // COLOR && ENABLEVERTEXCOLOR
+#ifdef COLOR
+    v_VertexColor = vertex.vertexColor;
+#endif // COLOR
 
     mat4 worldMat = getWorldMatrix();
-
-    vec3 positionWS = (worldMat * vec4(vertex.positionOS, 1.0)).xyz;
+    vec4 pos = (worldMat * vec4(vertex.positionOS, 1.0));
+    vec3 positionWS = pos.xyz / pos.w;
 
     gl_Position = getPositionCS(positionWS);
 
     gl_Position = remapPositionZ(gl_Position);
-    
-    #ifdef FOG
-        FogHandle(gl_Position.z);
-    #endif
+
+#ifdef FOG
+    FogHandle(gl_Position.z);
+#endif
 }

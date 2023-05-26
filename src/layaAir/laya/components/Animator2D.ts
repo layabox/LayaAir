@@ -34,6 +34,8 @@ export class Animator2D extends Component {
     _controllerLayers: AnimatorControllerLayer2D[];
     /**@internal */
     _controller: AnimatorController2D;
+    /**@internal */
+    _checkEnterIndex: number[];
 
     /**
      * 实例化2D动画组件
@@ -109,6 +111,7 @@ export class Animator2D extends Component {
         var realtimeDatas = stateInfo._realtimeDatas;
         var nodes = stateInfo._clip!._nodes!;
         for (var i = 0, n = nodes.count; i < n; i++) {
+            if (null == realtimeDatas[i]) continue;
             var node = nodes.getNodeByIndex(i);
             var o = this.getOwner(node);
             o && this._applyFloat(o, additive, weight, isFirstLayer, realtimeDatas[i]);
@@ -333,82 +336,112 @@ export class Animator2D extends Component {
     private _updateEventScript(stateInfo: AnimatorState2D, playStateInfo: AnimatorPlayState2D): void {
         let clip = stateInfo._clip;
         let events = clip!._animationEvents;
-
+        if (!events || 0 == events.length) return;
         let clipDuration = clip!._duration;
-        let elapsedTime = playStateInfo._elapsedTime;
-        let time = elapsedTime % clipDuration;
-        let loopCount = Math.abs(Math.floor(elapsedTime / clipDuration) - Math.floor(playStateInfo._lastElapsedTime / clipDuration));//backPlay可能为负数
-
-        let frontPlay = playStateInfo._elapsedTime >= playStateInfo._lastElapsedTime;
-        if (playStateInfo._lastIsFront !== frontPlay) {
-            if (frontPlay)
-                playStateInfo._playEventIndex++;
-            else
-                playStateInfo._playEventIndex--;
-            playStateInfo._lastIsFront = frontPlay;
-        }
-        let preEventIndex = playStateInfo._playEventIndex;
-        if (frontPlay) {
-            let startTime = 0;
-            if (playStateInfo.animatorState && 0 != playStateInfo.animatorState.clipStart) {
-                startTime = playStateInfo.animatorState._clip!._duration * playStateInfo.animatorState.clipStart;
+        let time = playStateInfo._normalizedPlayTime * clipDuration;
+        let frontPlay = playStateInfo._frontPlay;
+        let parentPlayTime = playStateInfo._parentPlayTime;
+        if (null == parentPlayTime) {
+            if (frontPlay) {
+                parentPlayTime = clipDuration * playStateInfo.animatorState.clipStart;
+            } else {
+                parentPlayTime = clipDuration * playStateInfo.animatorState.clipEnd;
             }
-            let newEventIndex = this._eventScript(events, playStateInfo._playEventIndex, loopCount > 0 ? clipDuration : time, true, startTime);
-            (preEventIndex === playStateInfo._playEventIndex) && (playStateInfo._playEventIndex = newEventIndex);//这里打个补丁，在event中调用Play 需要重置eventindex，不能直接赋值
-            for (let i = 0, n = loopCount - 1; i < n; i++)
-                this._eventScript(events, 0, clipDuration, true, startTime);
-            (loopCount > 0 && time > 0) && (playStateInfo._playEventIndex = this._eventScript(events, 0, time, true, startTime));//if need cross loop,'time' must large than 0
+        }
+        if (frontPlay) {
+            if (time < parentPlayTime) {
+                this._eventScript(events, parentPlayTime, clipDuration * playStateInfo.animatorState.clipEnd, frontPlay);
+                parentPlayTime = clipDuration * playStateInfo.animatorState.clipStart;
+            }
         } else {
-            let newEventIndex = this._eventScript(events, playStateInfo._playEventIndex, loopCount > 0 ? 0 : time, false);
-            (preEventIndex === playStateInfo._playEventIndex) && (playStateInfo._playEventIndex = newEventIndex);//这里打个补丁，在event中调用Play 需要重置eventindex，不能直接赋值
-            let eventIndex = events.length - 1;
-            for (let i = 0, n = loopCount - 1; i < n; i++)
-                this._eventScript(events, eventIndex, 0, false);
-            (loopCount > 0 && time > 0) && (playStateInfo._playEventIndex = this._eventScript(events, eventIndex, time, false));//if need cross loop,'time' must large than 0
+            if (time > parentPlayTime) {
+                this._eventScript(events, parentPlayTime, clipDuration * playStateInfo.animatorState.clipStart, frontPlay);
+                parentPlayTime = clipDuration * playStateInfo.animatorState.clipEnd;
+            }
         }
 
+
+        this._eventScript(events, parentPlayTime, time, frontPlay);
+        playStateInfo._parentPlayTime = time;
+    }
+    /**
+    * @internal
+    */
+    private _eventScript(events: Animation2DEvent[], parentPlayTime: number, currPlayTime: number, frontPlay: boolean) {
+        let scripts = this.owner.components;
+        if (frontPlay) {
+            for (let i = 0, len = events.length; i < len; i++) {
+                let e = events[i];
+                if (e.time > parentPlayTime && e.time <= currPlayTime) {
+                    for (let j = 0, m = scripts.length; j < m; j++) {
+                        let script = scripts[j];
+                        if (script._isScript()) {
+                            let fun: Function = (script as any)[e.eventName];
+                            (fun) && (fun.apply(script, e.params));
+                        }
+                    }
+                } else if (e.time > currPlayTime) {
+                    break;
+                }
+            }
+        } else {
+            for (let i = events.length - 1; i >= 0; i--) {
+                let e = events[i];
+                if (e.time < parentPlayTime && e.time >= currPlayTime) {
+                    for (let j = 0, m = scripts.length; j < m; j++) {
+                        let script = scripts[j];
+                        if (script._isScript()) {
+                            let fun: Function = (script as any)[e.eventName];
+                            (fun) && (fun.apply(script, e.params));
+                        }
+                    }
+                } else if (e.time < currPlayTime) {
+                    break;
+                }
+            }
+        }
     }
 
     /**
      * @internal
      */
-    private _eventScript(events: Animation2DEvent[], eventIndex: number, endTime: number, front: boolean, startTime = 0): number {
-        let scripts = this.owner.components;
-        if (front) {
-            for (let n = events.length; eventIndex < n; eventIndex++) {
-                let event = events[eventIndex];
-                if (event.time <= endTime) {
-                    if (event.time >= startTime) {
-                        for (let j = 0, m = scripts.length; j < m; j++) {
-                            let script = scripts[j];
-                            if (script._isScript()) {
-                                let fun: Function = (script as any)[event.eventName];
-                                (fun) && (fun.apply(script, event.params));
-                            }
-                        }
-                    }
-                } else {
-                    break;
-                }
-            }
-        } else {
-            for (; eventIndex >= 0; eventIndex--) {
-                let event = events[eventIndex];
-                if (event.time >= endTime) {
-                    for (let j = 0, m = scripts.length; j < m; j++) {
-                        let script = scripts[j];
-                        if (script._isScript()) {
-                            let fun = (script as any)[event.eventName];
-                            (fun) && (fun.apply(script, event.params));
-                        }
-                    }
-                } else {
-                    break;
-                }
-            }
-        }
-        return eventIndex;
-    }
+    // private _eventScript(events: Animation2DEvent[], eventIndex: number, endTime: number, front: boolean, startTime = 0): number {
+    //     let scripts = this.owner.components;
+    //     if (front) {
+    //         for (let n = events.length; eventIndex < n; eventIndex++) {
+    //             let event = events[eventIndex];
+    //             if (event.time <= endTime) {
+    //                 if (event.time >= startTime) {
+    //                     for (let j = 0, m = scripts.length; j < m; j++) {
+    //                         let script = scripts[j];
+    //                         if (script._isScript()) {
+    //                             let fun: Function = (script as any)[event.eventName];
+    //                             (fun) && (fun.apply(script, event.params));
+    //                         }
+    //                     }
+    //                 }
+    //             } else {
+    //                 break;
+    //             }
+    //         }
+    //     } else {
+    //         for (; eventIndex >= 0; eventIndex--) {
+    //             let event = events[eventIndex];
+    //             if (event.time >= endTime) {
+    //                 for (let j = 0, m = scripts.length; j < m; j++) {
+    //                     let script = scripts[j];
+    //                     if (script._isScript()) {
+    //                         let fun = (script as any)[event.eventName];
+    //                         (fun) && (fun.apply(script, event.params));
+    //                     }
+    //                 }
+    //             } else {
+    //                 break;
+    //             }
+    //         }
+    //     }
+    //     return eventIndex;
+    // }
 
     /**
      * 启用过渡
@@ -451,6 +484,12 @@ export class Animator2D extends Component {
      * @returns 
      */
     play(name?: string, layerIndex = 0, normalizedTime: number = Number.NEGATIVE_INFINITY) {
+        if (this._checkEnterIndex) {
+            let i = this._checkEnterIndex.indexOf(layerIndex);
+            if (0 <= i) {
+                this._checkEnterIndex.splice(i, 1);
+            }
+        }
         this._isPlaying = true;
         var controllerLayer = this._controllerLayers[layerIndex];
         if (controllerLayer) {
@@ -464,8 +503,6 @@ export class Animator2D extends Component {
 
             if (!animatorState._clip)
                 return;
-
-
 
             var clipDuration = animatorState._clip!._duration;
             var calclipduration = animatorState._clip!._duration * (animatorState.clipEnd - animatorState.clipStart);
@@ -491,19 +528,13 @@ export class Animator2D extends Component {
                     controllerLayer._playType = 0;
                 }
             }
-            animatorState._eventStart();
-
-
-
-
-
-
+            animatorState._eventStart(this, layerIndex);
         }
-        var scripts = animatorState._scripts!;
-        if (scripts) {
-            for (var i = 0, n = scripts.length; i < n; i++)
-                scripts[i].onStateEnter();
-        }
+        // var scripts = animatorState._scripts!;
+        // if (scripts) {
+        //     for (var i = 0, n = scripts.length; i < n; i++)
+        //         scripts[i].onStateEnter();
+        // }
     }
 
     /**
@@ -519,6 +550,19 @@ export class Animator2D extends Component {
      */
     onUpdate(): void {
         if (!this._isPlaying) return;
+
+        if (this._checkEnterIndex) {
+            for (let i = this._checkEnterIndex.length - 1; i >= 0; i--) {
+                let index = this._checkEnterIndex[i];
+                let enterTransition = this._controllerLayers[index]._enterTransition;
+                if (enterTransition.check(0, this.parameters, true)) {
+                    var defaultClip = this.getDefaultState(index);
+                    this.play(null, index, defaultClip.cycleOffset);
+                }
+            }
+        }
+
+
         var delta = this.owner.timer._delta / 1000.0;
         delta = this._applyUpdateMode(delta);
         if (0 == this.speed || 0 == delta) return;
@@ -556,10 +600,14 @@ export class Animator2D extends Component {
 
 
                     finish || this._updatePlayer(animatorState, playStateInfo, delta * speed * dir, loop, i);
+                    playStateInfo = controllerLayer._playStateInfo!;
+                    animatorState = playStateInfo._currentState!;
                     if (needRender) {
                         this._updateClipDatas(animatorState, addtive, playStateInfo);
-                        finish || this._setClipDatasToNode(animatorState, addtive, controllerLayer.defaultWeight, i == 0, controllerLayer);
-                        finish || this._updateEventScript(animatorState, playStateInfo)
+                        if (!finish) {
+                            this._setClipDatasToNode(animatorState, addtive, controllerLayer.defaultWeight, i == 0, controllerLayer);
+                            this._updateEventScript(animatorState, playStateInfo);
+                        }
                     }
                     finish || this._updateStateFinish(animatorState, playStateInfo);
                     break;
@@ -617,11 +665,27 @@ export class Animator2D extends Component {
      * @internal
      */
     onEnable() {
+        if (this._checkEnterIndex) this._checkEnterIndex.length = 0;
+        else this._checkEnterIndex = [];
+
         if (this._isPlaying) {
             for (var i = 0, n = this._controllerLayers.length; i < n; i++) {
                 if (this._controllerLayers[i].playOnWake) {
                     var defaultClip = this.getDefaultState(i);
-                    (defaultClip) && (this.play(null, i));
+                    //(defaultClip) && (this.play(null, i, defaultClip.cycleOffset));
+                    if (defaultClip) {
+                        let enterTransition = this._controllerLayers[i]._enterTransition;
+                        if (enterTransition) {
+                            this._isPlaying = true;
+                            if (enterTransition.check(0, this.parameters, true)) {
+                                this.play(null, i, defaultClip.cycleOffset);
+                            } else {
+                                this._checkEnterIndex.push(i);
+                            }
+                        } else {
+                            this.play(null, i, defaultClip.cycleOffset);
+                        }
+                    }
                 }
             }
         }

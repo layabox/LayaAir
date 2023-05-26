@@ -18,21 +18,30 @@
 
 struct PixelInfo {
     vec3 positionWS;
-    vec3 normalWS;
 
-    #ifdef NEEDTBN
+    vec3 vertexNormalWS;
+    vec3 normalWS;
     vec3 tangentWS;
     vec3 biNormalWS;
 
-	#ifdef ANISOTROPIC
-    float ToV;
-    float BoV;
-	#endif // ANISOTROPIC
-
-    #endif // NEEDTBN
-
     vec3 viewDir;
     float NoV;
+
+    vec3 dfg;
+
+    #ifdef CLEARCOAT
+    vec3 clearCoatNormal;
+    float clearCoatNoV;
+    #endif // CLEARCOAT
+
+    #ifdef ANISOTROPIC
+    vec3 anisotropicT;
+    vec3 anisotropicB;
+    float ToV;
+    float BoV;
+    float at;
+    float ab;
+    #endif // ANISOTROPIC
 
     #ifdef LIGHTMAP
 	#ifdef UV1
@@ -49,19 +58,35 @@ struct Surface {
     float perceptualRoughness;
     float occlusion;
 
-    vec3 dfg;
+    vec3 normalTS;
+
+    #ifdef CLEARCOAT
+    float clearCoat;
+    float clearCoatRoughness;
+    float clearCoatPerceptualRoughness;
+	#ifdef CLEARCOAT_NORMAL
+    vec3 clearCoatNormalTS;
+	#endif // CLEARCOAT_NORMAL
+    #endif // CLEARCOAT
 
     #ifdef ANISOTROPIC
     float anisotropy;
+    vec2 anisotropyDirection;
     #endif // ANISOTROPIC
 };
 
 struct LightParams {
+    vec3 l;
     vec3 h;
     float NoL;
     float NoH;
     float LoH;
     float VoH;
+
+    #ifdef CLEARCOAT
+    float clearCoatNoH;
+    float clearCoatNoL;
+    #endif // CLEARCOAT
 
     #ifdef ANISOTROPIC
     float ToL;
@@ -69,33 +94,13 @@ struct LightParams {
     #endif // ANISOTROPIC
 };
 
-// 获取反射向量
-vec3 getReflectedVector(const in Surface surface, const in PixelInfo info)
-{
-    vec3 v = info.viewDir;
-    vec3 n = info.normalWS;
-
-    #ifdef ANISOTROPIC
-
-    vec3 direction = surface.anisotropy >= 0.0 ? info.biNormalWS : info.tangentWS;
-    vec3 at = cross(direction, v);
-    vec3 an = cross(at, direction);
-    float bendFactor = abs(surface.anisotropy) * saturate(5.0 * surface.perceptualRoughness);
-    vec3 bentNormal = normalize(mix(n, an, bendFactor));
-    return reflect(-v, bentNormal);
-
-    #else // ANISOTROPIC
-
-    return reflect(-v, n);
-
-    #endif // ANISOTROPIC
-}
-
 void initLightParams(inout LightParams params, const in PixelInfo pixel, const in Light light)
 {
-    vec3 l = normalize(-light.dir);
     vec3 v = pixel.viewDir;
     vec3 n = pixel.normalWS;
+
+    vec3 l = normalize(-light.dir);
+    params.l = l;
 
     vec3 h = SafeNormalize(v + l);
     params.h = h;
@@ -104,9 +109,16 @@ void initLightParams(inout LightParams params, const in PixelInfo pixel, const i
     params.LoH = saturate(dot(l, h));
     params.VoH = saturate(dot(v, h));
 
+    #ifdef CLEARCOAT
+    params.clearCoatNoL = saturate(dot(pixel.clearCoatNormal, l));
+    params.clearCoatNoH = saturate(dot(pixel.clearCoatNormal, h));
+    #endif // CLEARCOAT
+
     #ifdef ANISOTROPIC
-    params.ToL = dot(pixel.tangentWS, l);
-    params.BoL = dot(pixel.biNormalWS, l);
+    vec3 t = pixel.anisotropicT;
+    vec3 b = pixel.anisotropicB;
+    params.ToL = dot(t, l);
+    params.BoL = dot(b, l);
     #endif // ANISOTROPIC
 }
 
@@ -136,29 +148,58 @@ vec3 diffuseLobe(in Surface surface, const in PixelInfo pixel, const in LightPar
 vec3 specularLobe(const in Surface surface, const in PixelInfo pixel, const in LightParams lightParams)
 {
     float roughness = surface.roughness;
-    #ifdef ANISOTROPIC
-
-	#ifdef NEEDTBN
-
-    float at = max(roughness * (1.0 + surface.anisotropy), 0.001);
-    float ab = max(roughness * (1.0 - surface.anisotropy), 0.001);
-
-    float D = D_GGX_Anisotropic(lightParams.NoH, lightParams.h, pixel.tangentWS, pixel.biNormalWS, at, ab);
-    float V = V_SmithGGXCorrelated_Anisotropic(at, ab, pixel.ToV, pixel.BoV, lightParams.ToL, lightParams.BoL, pixel.NoV, lightParams.NoL);
-
-	#endif // NEEDTBN
-
-    #else // ANISOTROPIC
 
     float D = distribution(roughness, lightParams.NoH, lightParams.h, pixel.normalWS);
     float V = visibility(roughness, pixel.NoV, lightParams.NoL);
-
-    #endif // ANISOTROPIC
-
     vec3 F = fresnel(surface.f0, lightParams.LoH);
 
     return (D * V) * F;
 }
+
+    #ifdef CLEARCOAT
+float clearCoatLobe(const in Surface surface, const in PixelInfo pixel, const in LightParams lightParams)
+{
+    float roughness = surface.clearCoatRoughness;
+    float clearCoat = surface.clearCoat;
+    vec3 n = pixel.clearCoatNormal;
+    vec3 h = lightParams.h;
+    float LoH = lightParams.LoH;
+
+    float clearCoatNoH = lightParams.clearCoatNoH;
+
+    float D = distribution(roughness, clearCoatNoH, h, n);
+    float V = V_kelemen(LoH);
+
+    return D * V;
+}
+    #endif // CLEARCOAT
+
+    #ifdef ANISOTROPIC
+vec3 anisotropyLobe(const in Surface surface, const in PixelInfo pixel, const in LightParams lightParams)
+{
+    float anisotropy = surface.anisotropy;
+    float at = pixel.at;
+    float ab = pixel.ab;
+    vec3 anisotropicT = pixel.anisotropicT;
+    vec3 anisotropicB = pixel.anisotropicB;
+
+    float NoV = pixel.NoV;
+    float ToV = pixel.ToV;
+    float BoV = pixel.BoV;
+
+    vec3 h = lightParams.h;
+    float NoL = lightParams.NoL;
+    float NoH = lightParams.NoH;
+    float VoH = lightParams.VoH;
+    float ToL = lightParams.ToL;
+    float BoL = lightParams.BoL;
+
+    float V = V_SmithGGXCorrelated_Anisotropic(at, ab, ToV, BoV, ToL, BoL, NoV, NoL);
+    float D = D_GGX_Anisotropic(NoH, h, anisotropicT, anisotropicB, at, ab);
+    vec3 F = fresnel(surface.f0, lightParams.LoH);
+    return V * D * F;
+}
+    #endif // ANISOTROPIC
 
 vec3 PBRLighting(const in Surface surface, const in PixelInfo pixel, const in Light light)
 {
@@ -167,9 +208,28 @@ vec3 PBRLighting(const in Surface surface, const in PixelInfo pixel, const in Li
 
     vec3 Fd = diffuseLobe(surface, pixel, lightParams);
 
+    #ifdef ANISOTROPIC
+    vec3 Fr = anisotropyLobe(surface, pixel, lightParams);
+    #else // ANISOTROPIC
     vec3 Fr = specularLobe(surface, pixel, lightParams);
+    #endif // ANISOTROPIC
 
-    return (Fd + Fr) * light.color * lightParams.NoL;
+    vec3 shading = (Fd + Fr) * lightParams.NoL;
+
+    #ifdef CLEARCOAT
+    float clearCoatNoL = lightParams.clearCoatNoL;
+    float LoH = lightParams.LoH;
+    // todo
+    // default IOR 1.5
+    float FccClearCoat = F_Schlick(0.04, 1.0, LoH) * surface.clearCoat;
+    float attenuation = 1.0 - FccClearCoat;
+    shading *= attenuation;
+
+    float clearcoat = clearCoatLobe(surface, pixel, lightParams) * FccClearCoat;
+    shading += clearcoat * clearCoatNoL;
+    #endif // CLEARCOAT
+
+    return shading * light.color;
 }
 
     // gi
