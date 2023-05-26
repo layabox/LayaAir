@@ -28,10 +28,4 @@ void getPixelParams(inout PixelParams params)
     #endif // COLOR
 }
 
-vec3 normalScale(in vec3 normal, in float scale)
-{
-    normal *= vec3(scale, scale, 1.0);
-    return normalize(normal);
-}
-
 #endif // ShadingFrag_lib

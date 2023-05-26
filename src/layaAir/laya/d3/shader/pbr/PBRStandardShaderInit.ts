@@ -1,13 +1,15 @@
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
-import { ShaderData, ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData";
+import { ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData";
 
 import PBRStandardVS from "./pbrStandard.vs";
 import PBRStandardFS from "./pbrStandard.fs";
 
 import DepthVS from "../depth/Depth.vs";
 import DepthFS from "../depth/Depth.fs";
-import DepthNormalVS from "../depth/DepthNormal.vs";
-import DepthNormalFS from "../depth/DepthNormal.fs";
+
+import DepthNormalVS from "./PBRStandardDepthNormal.vs";
+import DepthNormalFS from "./PBRStandardDepthNormal.fs";
+
 import { Color } from "../../../maths/Color";
 import { Vector4 } from "../../../maths/Vector4";
 import { SubShader } from "../../../RenderEngine/RenderShader/SubShader";

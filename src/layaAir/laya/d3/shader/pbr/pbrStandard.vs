@@ -3,12 +3,14 @@
 #include "Math.glsl";
 
 #include "Scene.glsl";
-#include "SceneFogInput.glsl"
+#include "SceneFogInput.glsl";
 
 #include "Camera.glsl";
 #include "Sprite3DVertex.glsl";
 
-#include "ShadingVertex.glsl";
+#include "VertexCommon.glsl";
+
+#include "PBRVertex.glsl";
 
 #if defined(DETAILTEXTURE) || defined(DETAILNORMAL)
 varying vec2 v_DetailUV;

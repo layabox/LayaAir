@@ -2,12 +2,16 @@ import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { ShaderDataType } from "../../RenderEngine/RenderShader/ShaderData";
 import { ShaderDefine } from "../../RenderEngine/RenderShader/ShaderDefine";
 import { SubShader } from "../../RenderEngine/RenderShader/SubShader";
-import { DefaultDephtFS, DefaultDephtNormalFS, DefaultDephtNormalVS, DefaultDepthVS, ShadingVS } from "../../d3/shader/ShaderInit3D";
 import { Vector3 } from "../../maths/Vector3";
 import { Vector4 } from "../../maths/Vector4";
 import { Texture2D } from "../../resource/Texture2D";
 
+import glTFPBRVS from "./glTFPBR.vs";
 import glTFPBRFS from "./glTFPBR.fs";
+import DepthVS from "./glTFPBRDepth.vs";
+import DephtFS from "./glTFPBRDepth.fs";
+import DepthNormalVS from "./glTFPBRDepthNormal.vs";
+import DepthNormalFS from "./glTFPBRDepthNormal.fs";
 
 /**
  * @internal
@@ -108,9 +112,9 @@ export class glTFShader {
         let subShader = new SubShader(SubShader.DefaultAttributeMap, uniformMap, defaultValue);
         shader.addSubShader(subShader);
 
-        let shadingPass = subShader.addShaderPass(ShadingVS, glTFPBRFS);
-        let depthPass = subShader.addShaderPass(DefaultDepthVS, DefaultDephtFS, "ShadowCaster");
-        let dephtNormalPass = subShader.addShaderPass(DefaultDephtNormalVS, DefaultDephtNormalFS, "DepthNormal");
+        let shadingPass = subShader.addShaderPass(glTFPBRVS, glTFPBRFS);
+        let depthPass = subShader.addShaderPass(DepthVS, DephtFS, "ShadowCaster");
+        let dephtNormalPass = subShader.addShaderPass(DepthNormalVS, DepthNormalFS, "DepthNormal");
 
     }
 

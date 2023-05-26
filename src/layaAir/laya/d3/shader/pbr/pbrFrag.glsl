@@ -3,8 +3,6 @@
 
     #include "PBRLighting.glsl";
 
-    #include "ShadingFrag.glsl";
-
 void getPixelInfo(inout PixelInfo info, const in PixelParams pixel, const in Surface surface)
 {
     info.positionWS = pixel.positionWS;

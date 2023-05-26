@@ -1,6 +1,8 @@
 #if !defined(PBRMetallic_lib)
     #define PBRMetallic_lib
 
+    #include "ShadingFrag.glsl";
+
     #include "PBRFrag.glsl";
 
 struct SurfaceInputs {

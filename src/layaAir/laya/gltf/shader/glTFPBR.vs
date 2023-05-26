@@ -1,4 +1,4 @@
-#define SHADER_NAME ShadingVS
+#define SHADER_NAME glTFPBRVS
 
 #include "Math.glsl";
 
@@ -8,7 +8,9 @@
 #include "Camera.glsl";
 #include "Sprite3DVertex.glsl";
 
-#include "ShadingVertex.glsl";
+#include "VertexCommon.glsl";
+
+#include "PBRVertex.glsl";
 
 void main()
 {
@@ -17,6 +19,8 @@ void main()
 
     PixelParams pixel;
     initPixelParams(pixel, vertex);
+
+    sharePixelParams(pixel);
 
     gl_Position = getPositionCS(pixel.positionWS);
 

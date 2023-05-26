@@ -94,44 +94,6 @@ struct LightParams {
     #endif // ANISOTROPIC
 };
 
-// 获取反射向量
-vec3 getReflectedVector(const in Surface surface, const in PixelInfo info)
-{
-    vec3 v = info.viewDir;
-    vec3 n = info.normalWS;
-    vec3 positionWS = info.positionWS;
-
-    vec3 r;
-
-    #ifdef ANISOTROPIC
-
-    float anisotropy = surface.anisotropy;
-    vec3 anisotropyDirection = info.anisotropicB;
-
-    // float tangentRoughness = mix(roughness, 1.0, anisotropy * anisotropy);
-    float roughness = surface.perceptualRoughness;
-    vec3 anisotropicTangent = cross(anisotropyDirection, v);
-    vec3 anisotropicNormal = cross(anisotropicTangent, anisotropyDirection);
-    float bendFactor = 1.0 - anisotropy * (1.0 - roughness);
-    float bendFactorPow4 = pow2(bendFactor) * pow2(bendFactor);
-    vec3 bentNormal = normalize(mix(anisotropicNormal, n, bendFactorPow4));
-
-    r = normalize(reflect(-v, bentNormal));
-
-    #else // ANISOTROPIC
-
-    r = reflect(-v, n);
-
-    #endif // ANISOTROPIC
-
-    // todo
-    #ifdef SPECCUBE_BOX_PROJECTION
-    r = getBoxProjectionReflectedVector(r, positionWS);
-    #endif // SPECCUBE_BOX_PROJECTION
-
-    return r;
-}
-
 void initLightParams(inout LightParams params, const in PixelInfo pixel, const in Light light)
 {
     vec3 v = pixel.viewDir;
