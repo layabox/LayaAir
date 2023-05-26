@@ -1,3 +1,4 @@
+import { Sprite } from "../display/Sprite";
 import { ColliderBase } from "./ColliderBase";
 import { Physics } from "./Physics";
 
@@ -23,6 +24,17 @@ export class CircleCollider extends ColliderBase {
         }
         this.label = (this.label || "CircleCollider");
         return super.getDef();
+    }
+    /**
+     * @override 初始化设置为当前显示对象的宽和高
+     */
+    protected _onAdded(): void {
+        let node = this.owner as Sprite;
+        if (node && 0 < node.width && 0 < node.height) {
+            if (50 == this._radius) {
+                this._radius = node.width >> 1;
+            }
+        }
     }
 
     private _setShape(re: boolean = true): void {
