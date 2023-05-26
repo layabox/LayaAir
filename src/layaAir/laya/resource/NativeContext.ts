@@ -198,17 +198,17 @@ export class NativeContext {
      * 释放所有资源
      * @param	keepRT  是否保留rendertarget
      */
-     destroy(keepRT: boolean = false): void {
+    destroy(keepRT: boolean = false): void {
         this._nativeObj.flushCommand();
         if (this._tempRenderTexture2D._nativeObj) {
             this._tempRenderTexture2D._nativeObj._deleteRT = keepRT;
         }
         this._nativeObj.destroy(keepRT);
     }
-    
+
     static const2DRenderCMD: RenderStateCommand;
     static set2DRenderConfig(): void {
-       
+
         if (!NativeContext.const2DRenderCMD) {
             const cmd = NativeContext.const2DRenderCMD = LayaGL.renderEngine.createRenderStateComand();
             cmd.addCMD(RenderStateType.BlendType, true);
@@ -305,7 +305,7 @@ export class NativeContext {
             , (tex as any).uv[7]
             , color);
     }
-    drawTextureWithTransform(tex: Texture, x: number, y: number, width: number, height: number, transform: Matrix | null, tx: number, ty: number, alpha: number, blendMode: string | null, colorfilter: any/*ColorFilter*/ | null = null, uv?: number[], color: number = 0xffffffff): void {
+    drawTextureWithTransform(tex: Texture, x: number, y: number, width: number, height: number, transform: Matrix | null, tx: number, ty: number, alpha: number, blendMode: string | null, uv?: number[], color: number = 0xffffffff): void {
         if (!this.checkTexture(tex)) {
             return;
         }
@@ -410,7 +410,7 @@ export class NativeContext {
             , uvs[6]
             , uvs[7]
             , color);
-            this.restore();
+        this.restore();
 
     }
     translate(x: number, y: number): void {
@@ -768,34 +768,12 @@ export class NativeContext {
         vertices: Float32Array,
         uvs: Float32Array,
         indices: Uint16Array,
-        matrix: Matrix, alpha: number, color: ColorFilter, blendMode: string, colorNum: number = 0xffffffff): void {
+        matrix: Matrix, alpha: number, blendMode: string, colorNum: number = 0xffffffff): void {
         if (!this.checkTexture(tex)) {
             return;
-        } 
-        var m: Matrix = matrix ? matrix : this._tmpMatrix;
-        /*if (blendMode != null || color != null) {
-            this._nativeObj.save(); 
-            //to do ColorFilter
-            this._nativeObj.globalCompositeOperation = blendMode;
-            this._nativeObj.drawTriangles((tex as any).bitmap._texture.id, 
-                x, y, 
-                vertices, 
-                uvs, 
-                indices, 
-                m.a, m.b,m.c,m.d,m.tx,m.ty, alpha, colorNum);
-            this._nativeObj.restore();
         }
-        else {
-            this._nativeObj.drawTriangles((tex as any).bitmap._texture.id, 
-            x, y, 
-            vertices, 
-            uvs, 
-            indices, 
-            m.a, m.b,m.c,m.d,m.tx,m.ty, alpha, colorNum)
-        }*/
-
-       
-        if (blendMode != null || color != null) {
+        var m: Matrix = matrix ? matrix : this._tmpMatrix;
+        if (blendMode != null) {
 
             this.add_i(CONTEXT2D_FUNCTION_ID.SAVE);
             //to do ColorFilter 

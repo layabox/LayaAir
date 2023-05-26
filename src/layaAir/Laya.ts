@@ -414,7 +414,6 @@ function uint16ArraySlice(this: Uint16Array, ...arg: any[]): Uint16Array {
 ILaya.Loader = Loader;
 ILaya.Context = Context;
 ILaya.Browser = Browser;
-ILaya.onInitModule = Laya.onInitModule;
 
 var _isinit = false;
 var _onInitModuleCallbacks: Array<() => void> = [];

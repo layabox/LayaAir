@@ -22,7 +22,8 @@ export class BitmapFont extends Resource {
     autoScaleSize: boolean = false;
     tint: boolean = true;
     maxWidth: number = 0;
-    lineHeight: number;
+    lineHeight: number = 12;
+    letterSpacing = 2;
 
     /**
      * 通过指定位图字体文件路径，加载位图字体文件，加载完成后会自动解析。
@@ -49,35 +50,42 @@ export class BitmapFont extends Resource {
         this.texture = texture;
         texture._addReference();
 
-        let tScale: number = 1;
-        let tInfo = xml.getNode("info");
-        this.fontSize = tInfo.getAttrInt("size", 12);
-        this.autoScaleSize = tInfo.getAttrBool("autoScaleSize");
-        this.lineHeight = this.fontSize;
+        let scale: number = 1;
+        let info = xml.getNode("info");
+        this.fontSize = info.getAttrInt("size", 12);
+        this.autoScaleSize = info.getAttrBool("autoScaleSize");
+        this.lineHeight = info.getAttrInt("lineHeight", this.fontSize);
+        if (this.lineHeight == 0)
+            this.lineHeight = this.fontSize;
 
-        let tPadding: string = tInfo.getAttrString("padding", "");
-        let tPaddingArray: any[] = tPadding.split(",");
-        this.padding = [parseInt(tPaddingArray[0]), parseInt(tPaddingArray[1]), parseInt(tPaddingArray[2]), parseInt(tPaddingArray[3])];
+        let padding: string = info.getAttrString("padding", "");
+        let paddingArray: any[] = padding.split(",");
+        this.padding = [parseInt(paddingArray[0]), parseInt(paddingArray[1]), parseInt(paddingArray[2]), parseInt(paddingArray[3])];
 
         let chars = xml.getNode("chars")?.elements("char") || [];
         let maxWidth = 0;
         let dict = this.dict;
-        for (let i = 0; i < chars.length; i++) {
+        for (let i = 0, n = chars.length; i < n; i++) {
             let ct = chars[i];
-            let tId = ct.getAttrInt("id");
+            let id = ct.getAttrInt("id");
 
-            let xOffset = ct.getAttrInt("xoffset") / tScale;
-            let yOffset = ct.getAttrInt("yoffset") / tScale;
-            let advance = ct.getAttrInt("xadvance") / tScale;
+            let xOffset = ct.getAttrInt("xoffset") / scale;
+            let yOffset = ct.getAttrInt("yoffset") / scale;
+            let advance = ct.getAttrInt("xadvance") / scale;
 
             let x = ct.getAttrInt("x");
             let y = ct.getAttrInt("y");
             let width = ct.getAttrInt("width");
             let height = ct.getAttrInt("height");
 
-            let tTexture = Texture.create(texture, x, y, width, height, xOffset, yOffset);
+            let tex = Texture.create(texture, x, y, width, height, xOffset, yOffset);
+
+            if (advance == 0)
+                advance = width;
+            advance += this.letterSpacing;
             maxWidth = Math.max(maxWidth, advance);
-            dict[tId] = { x: 0, y: 0, width, height, advance, texture: tTexture };
+
+            dict[id] = { x: 0, y: 0, width, height, advance, texture: tex };
         }
 
         if (maxWidth > 0)
@@ -86,7 +94,7 @@ export class BitmapFont extends Resource {
             this.maxWidth = this.fontSize;
 
         if (!dict[32]) //space
-            dict[32] = { x: 0, y: 0, advance: Math.floor(this.fontSize * 0.5) };
+            dict[32] = { x: 0, y: 0, advance: Math.floor(this.fontSize * 0.5) + this.letterSpacing };
     }
 
     /**

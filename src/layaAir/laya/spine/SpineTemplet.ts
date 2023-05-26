@@ -84,10 +84,8 @@ export class SpineTemplet extends Resource {
 
     private parseAtlas4(atlasText: string, progress?: IBatchProgress): Promise<spine.TextureAtlas> {
         let atlas = new this._ns.TextureAtlas(atlasText);
-        return ILaya.loader.load(atlas.pages.map(
-            (page: spine.TextureAtlasPage) => { return <ILoadURL>{ url: this._basePath + page.name, propertyParams: { premultiplyAlpha: (<any>page).pma } } }),
-            null, progress?.createCallback())
-            .then((res: Array<Texture>) => {
+        return ILaya.loader.load(atlas.pages.map((page: spine.TextureAtlasPage) => this._basePath + page.name),
+            null, progress?.createCallback()).then((res: Array<Texture>) => {
                 let i = 0;
                 for (let page of atlas.pages) {
                     let tex = res[i++];
