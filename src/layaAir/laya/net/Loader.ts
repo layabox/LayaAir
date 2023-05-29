@@ -924,12 +924,20 @@ export class Loader extends EventDispatcher {
 
             for (let c of fileConfig.config) {
                 let file = files[c.i];
-                if (c.files) //图片
-                    AssetDb.inst.metaMap[file] = c;
-                else if (c.shaderName) //Shader
-                    AssetDb.inst.shaderNameMap[c.shaderName] = file;
-                else if (c.frames) //自动图集
-                    AtlasInfoManager.addAtlas(file, c.prefix, c.frames);
+                switch (c.t) {
+                    case 0: //图片
+                        AssetDb.inst.metaMap[file] = c;
+                        break;
+                    case 1: //自动图集
+                        AtlasInfoManager.addAtlas(file, c.prefix, c.frames);
+                        break;
+                    case 2: //Shader
+                        AssetDb.inst.shaderNameMap[c.shaderName] = file;
+                        break;
+                    case 3: //render texture
+                        Loader.preLoadedMap[URL.formatURL(file)] = c;
+                        break;
+                }
             }
         });
     }
