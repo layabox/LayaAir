@@ -37,7 +37,7 @@ export class SkeletonMask {
 		});
 	}
 	private onFontLoaded(bitmapFont: BitmapFont): void {
-		bitmapFont.setSpaceWidth(10);
+		bitmapFont.letterSpacing = 10;
 		Text.registerBitmapFont(this.fontName, bitmapFont);
 		this.createText(this.fontName);
 		this.createText1(this.fontName);
