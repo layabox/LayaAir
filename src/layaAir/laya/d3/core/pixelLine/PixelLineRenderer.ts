@@ -2,6 +2,7 @@ import { Component } from "../../../components/Component";
 import { Color } from "../../../maths/Color";
 import { Matrix4x4 } from "../../../maths/Matrix4x4";
 import { Vector3 } from "../../../maths/Vector3";
+import { Vector4 } from "../../../maths/Vector4";
 import { ShaderData } from "../../../RenderEngine/RenderShader/ShaderData";
 import { Material } from "../material/Material";
 import { MeshSprite3DShaderDeclaration } from "../MeshSprite3DShaderDeclaration";
@@ -120,11 +121,11 @@ export class PixelLineRenderer extends BaseRender {
         if (transform) {
             var worldMat: Matrix4x4 = transform.worldMatrix;
             sv.setMatrix4x4(Sprite3D.WORLDMATRIX, worldMat);
-            //Matrix4x4.multiply(projectionView, worldMat, this._projectionViewWorldMatrix);
-            //sv.setMatrix4x4(Sprite3D.MVPMATRIX, this._projectionViewWorldMatrix);
+            this._worldParams.x = transform.getFrontFaceValue();
+            sv.setVector(Sprite3D.WORLDINVERTFRONT, this._worldParams);
         } else {
             sv.setMatrix4x4(Sprite3D.WORLDMATRIX, Matrix4x4.DEFAULT);
-            //sv.setMatrix4x4(Sprite3D.MVPMATRIX, projectionView);
+            sv.setVector(Sprite3D.WORLDINVERTFRONT, Vector4.UnitX);
         }
     }
 
@@ -146,7 +147,7 @@ export class PixelLineRenderer extends BaseRender {
      * @internal //animator data set call
      * @param key 
      */
-    _pixelLinesDataChange(key:string){
+    _pixelLinesDataChange(key: string) {
         if (key != null) {
             let keyN = parseInt(key);
             let line = this._lines[keyN];

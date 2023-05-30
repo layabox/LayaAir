@@ -168,6 +168,8 @@ export class BaseRender extends Component implements IBoundsCell {
     _batchRender: BatchRender;
     /**@internal 如果这个值不是0,说明有一些条件使他不能加入渲染队列，例如如果是1，证明此节点被lod淘汰*/
     private _volume: Volume;
+    /**@internal */
+    protected _worldParams: Vector4;//x:invertFaceFront  yzw?
     /**
      * DistanceVolumCull
      * 根据距离和包围盒进行裁剪，越大越容易被裁
@@ -463,6 +465,7 @@ export class BaseRender extends Component implements IBoundsCell {
         this.boundsChange = true;
         this._rendernode.renderbitFlag = 0;
         this._rendernode.staticMask = 1;
+        this._worldParams = new Vector4(1.0, 0.0, 0.0, 0.0);
     }
 
     protected _createBaseRenderNode(): IBaseRenderNode {

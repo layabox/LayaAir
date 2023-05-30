@@ -36,7 +36,7 @@ import { View } from "./View";
 import { ViewStack } from "./ViewStack";
 import { VScrollBar } from "./VScrollBar";
 import { VSlider } from "./VSlider";
-import { WXOpenDataViewer } from "./WXOpenDataViewer";
+import { OpenDataContextView } from "./OpenDataContextView";
 
 let c = ClassUtils.regClass;
 c("AutoBitmap", AutoBitmap);
@@ -77,4 +77,4 @@ c("VScrollBar", VScrollBar);
 c("VSlider", VSlider);
 c("UIComponent", UIComponent);
 
-c("WXOpenDataViewer", WXOpenDataViewer);
+c("OpenDataContextView", OpenDataContextView);

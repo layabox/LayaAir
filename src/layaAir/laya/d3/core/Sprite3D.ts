@@ -28,6 +28,7 @@ export enum StaticFlag {
 export class Sprite3D extends Node {
     /**@internal 着色器变量名，世界矩阵。*/
     static WORLDMATRIX: number;
+    static WORLDINVERTFRONT: number;//-1为翻转了反面，1为正常情况
     /**@internal */
     static sprite3DCommandUniformMap: CommandUniformMap;
     /**@internal */
@@ -37,11 +38,11 @@ export class Sprite3D extends Node {
      * @internal
      */
     static __init__(): void {
-
         Sprite3D.WORLDMATRIX = Shader3D.propertyNameToID("u_WorldMat");
-
+        Sprite3D.WORLDINVERTFRONT = Shader3D.propertyNameToID("u_WroldInvertFront");
         Sprite3D.sprite3DCommandUniformMap = LayaGL.renderOBJCreate.createGlobalUniformMap("Sprite3D");
         Sprite3D.sprite3DCommandUniformMap.addShaderUniform(Sprite3D.WORLDMATRIX, "u_WorldMat");
+        Sprite3D.sprite3DCommandUniformMap.addShaderUniform(Sprite3D.WORLDINVERTFRONT, "u_WroldInvertFront");
     }
 
     /**

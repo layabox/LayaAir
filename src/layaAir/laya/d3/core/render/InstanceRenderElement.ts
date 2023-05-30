@@ -44,7 +44,8 @@ export class InstanceRenderElement extends RenderElement {
     _invertFrontFace: boolean;
     /**@internal recover renderData*/
     private oriRendertype: number;
-
+    /**@internal */
+    private _InvertFront: boolean = false;
 
     constructor() {
         super();
@@ -59,6 +60,11 @@ export class InstanceRenderElement extends RenderElement {
      */
     getInvertFront(): boolean {
         return this._invertFrontFace;
+    }
+
+    set InvertFront(value: boolean) {
+        this._InvertFront = value;
+
     }
 
     protected _createRenderElementOBJ() {

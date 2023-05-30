@@ -171,15 +171,24 @@ class RenderTextureLoader implements IResourceLoader {
             if (!data)
                 return null;
 
-            let obsoluteInst = <RenderTexture>task.obsoluteInst;
-            if (obsoluteInst) {
-                obsoluteInst.recreate(data.width, data.height, data.colorFormat, data.depthFormat,
-                    data.generateMipmap, data.multiSamples, false, data.sRGB);
-                return obsoluteInst;
-            }
+            let rt = <RenderTexture>task.obsoluteInst;
+            if (rt)
+                rt.recreate(data.width, data.height, data.colorFormat, data.depthFormat,
+                    data.generateMipmap, data.multiSamples, data.generateDepthTexture, data.sRGB);
             else
-                return new RenderTexture(data.width, data.height, data.colorFormat, data.depthFormat,
-                    data.generateMipmap, data.multiSamples, false, data.sRGB);
+                rt = new RenderTexture(data.width, data.height, data.colorFormat, data.depthFormat,
+                    data.generateMipmap, data.multiSamples, data.generateDepthTexture, data.sRGB);
+
+            if (null != data.anisoLevel)
+                rt.anisoLevel = data.anisoLevel;
+            if (null != data.filterMode)
+                rt.filterMode = data.filterMode;
+            if (null != data.wrapModeU)
+                rt.wrapModeU = data.wrapModeU;
+            if (null != data.wrapModeV)
+                rt.wrapModeV = data.wrapModeV;
+
+            return rt;
         });
     }
 }
