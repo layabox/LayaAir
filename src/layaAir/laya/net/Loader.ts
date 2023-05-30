@@ -881,23 +881,85 @@ export class Loader extends EventDispatcher {
     }
 
     /**
+     * 载入一个分包
+     * @path 小游戏的分包路径
+     * @onProgress 加载进度回调
+     */
+    loadPackage(path: string, onProgress?: ProgressCallback): Promise<void>;
+    /**
      * 载入一个分包。
      * @path 分包路径
      * @remoteUrl 如果分包是一个远程包，那需要提供远程资源服务器的地址，例如"http://cdn.com/"
      * @onProgress 加载进度回调
      */
-    loadPackage(path: string, remoteUrl?: string, onProgress?: ProgressCallback): Promise<void> {
-        if (LayaEnv.isPreview && !remoteUrl)
-            return Promise.resolve();
+    loadPackage(path: string, remoteUrl?: string, onProgress?: ProgressCallback): Promise<void>;
+    loadPackage(path: string, arg2?: string | ProgressCallback, arg3?: ProgressCallback): Promise<void> {
+        let progress: ProgressCallback;
+        let remoteUrl: string;
 
-        if (path.length > 0)
-            path += "/";
+        if (typeof (arg2) === "string") {
+            remoteUrl = arg2;
+            progress = arg3;
+        } else {
+            progress = arg2;
+        }
 
         if (remoteUrl) {
             if (!remoteUrl.endsWith("/"))
                 remoteUrl += "/";
-            URL.basePaths[path] = remoteUrl;
+            let tmpPath: string = path + "/";
+            URL.basePaths[tmpPath] = remoteUrl;
+            return this._loadSubFileConfig(path, progress);
+        } else {
+            if (LayaEnv.isPreview)
+                return Promise.resolve();
+            let plat: any = null;
+            if (ILaya.Browser.onMiniGame) {
+                // wechat
+                plat = ILaya.Browser.window.wx;
+            } else if (ILaya.Browser.onTTMiniGame) {
+                // bytedance
+                plat = ILaya.Browser.window.tt;
+            } else if (ILaya.Browser.onKGMiniGame || ILaya.Browser.onVVMiniGame || ILaya.Browser.onQGMiniGame) {
+                // mi/vivo/oppo
+                plat = ILaya.Browser.window.qg;
+            } else if (ILaya.Browser.onAlipayMiniGame) {
+                // alipay
+                plat = ILaya.Browser.window.my;
+            } else {
+                return this._loadSubFileConfig(path, progress);
+            }
+
+            return this._loadMiniPackage(plat, path, progress).then(() =>
+                this._loadSubFileConfig(path, progress)
+            );
         }
+    }
+
+
+    private _loadMiniPackage(mini: any, packName: string, progress?: ProgressCallback): Promise<any> {
+        if (!(packName.length > 0)) return Promise.resolve();
+        return new Promise((resolve: (value: any) => void, reject: (reason?: any) => void) => {
+            let loadTask: any = mini.loadSubpackage({
+                name: packName,
+                success: (res: any) => {
+                    resolve(res);
+                },
+                fail: (res: any) => {
+                    resolve(res);
+                }
+            });
+
+            loadTask.onProgressUpdate((res: any) => {
+                progress(res);
+            });
+        })
+    }
+
+
+    private _loadSubFileConfig(path: string, onProgress: ProgressCallback): Promise<any> {
+        if (path.length > 0)
+            path += "/";
 
         return this.fetch(path + "fileconfig.json", "json", onProgress).then(fileConfig => {
             let files: Array<string> = [];
