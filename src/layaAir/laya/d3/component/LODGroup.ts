@@ -221,11 +221,8 @@ export class LODGroup extends Component implements IBoundsCell {
             let element = this._lods[i]
             element._lodIndex = i;
             element.group = this;
-            this._setLODinvisible(i);
         }
         this._updateRecaculateFlag();
-        this._visialIndex = -1;
-        //this.recalculateBounds();
         this._lodCount = this._lods.length;
     }
 
@@ -246,7 +243,10 @@ export class LODGroup extends Component implements IBoundsCell {
      */
     protected _onEnable(): void {
         super._onEnable();
-        //this.onPreRender();
+        for (var i = 0, n = this._lods.length; i < n; i++) {
+            this._setLODinvisible(i);
+        }
+        this._visialIndex = -1;
     }
 
     /**
