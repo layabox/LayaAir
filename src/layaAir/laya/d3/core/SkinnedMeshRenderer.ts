@@ -309,10 +309,12 @@ export class SkinnedMeshRenderer extends MeshRenderer {
         if (this.bones.length > 0) {
             this._computeSkinnedData();
             this._shaderValues.setMatrix4x4(Sprite3D.WORLDMATRIX, Matrix4x4.DEFAULT);
-            this._shaderValues.setNumber(Sprite3D.WORLDINVERTFRONT, 1);
+            this._worldParams.x = 1;
+            this._shaderValues.setVector(Sprite3D.WORLDINVERTFRONT, this._worldParams);
         } else {
             this._shaderValues.setMatrix4x4(Sprite3D.WORLDMATRIX, transform.worldMatrix);
-            this._shaderValues.setNumber(Sprite3D.WORLDINVERTFRONT, transform._isFrontFaceInvert ? -1 : 1);
+            this._worldParams.x = transform.getFrontFaceValue();
+            this._shaderValues.setVector(Sprite3D.WORLDINVERTFRONT, this._worldParams);
         }
 
         this._applyMorphdata();

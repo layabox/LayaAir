@@ -421,7 +421,10 @@ export class MeshRenderer extends BaseRender {
         var element: SubMeshRenderElement = <SubMeshRenderElement>context.renderElement;
         let trans = transform ? transform : this._transform;
         this._setShaderValue(Sprite3D.WORLDMATRIX, ShaderDataType.Matrix4x4, trans.worldMatrix);
-        this._setShaderValue(Sprite3D.WORLDINVERTFRONT, ShaderDataType.Float, trans._isFrontFaceInvert ? -1 : 1);
+
+        this._worldParams.x = trans.getFrontFaceValue();
+        this._setShaderValue(Sprite3D.WORLDINVERTFRONT, ShaderDataType.Vector4, this._worldParams);
+
         return;
     }
     /**

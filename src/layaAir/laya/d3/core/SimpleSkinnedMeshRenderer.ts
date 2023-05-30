@@ -127,10 +127,12 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
                         this._subUniformBufferData._needUpdate = oriMat ? !oriMat.equalsOtherMatrix(worldMat) : true;
                     }
                     this._setShaderValue(Sprite3D.WORLDMATRIX, ShaderDataType.Matrix4x4, worldMat);
-                    this._setShaderValue(Sprite3D.WORLDINVERTFRONT, ShaderDataType.Float, 1);
+                    this._worldParams.x = (this.rootBone as Sprite3D).transform.getFrontFaceValue();
+                    this._setShaderValue(Sprite3D.WORLDINVERTFRONT, ShaderDataType.Vector4, this._worldParams);
                 } else {
                     this._setShaderValue(Sprite3D.WORLDMATRIX, ShaderDataType.Matrix4x4, transform.worldMatrix);
-                    this._setShaderValue(Sprite3D.WORLDINVERTFRONT, ShaderDataType.Float, transform._isFrontFaceInvert ? -1 : 1);
+                    this._worldParams.x = transform.getFrontFaceValue();
+                    this._setShaderValue(Sprite3D.WORLDINVERTFRONT, ShaderDataType.Vector4, this._worldParams);
                 }
                 this._computeAnimatorParamsData();
                 this._shaderValues.setVector(SimpleSkinnedMeshRenderer.SIMPLE_SIMPLEANIMATORPARAMS, this._simpleAnimatorParams);

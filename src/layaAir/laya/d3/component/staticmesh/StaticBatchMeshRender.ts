@@ -1,4 +1,5 @@
 import { Matrix4x4 } from "../../../maths/Matrix4x4";
+import { Vector4 } from "../../../maths/Vector4";
 import { ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData";
 import { ShaderDefine } from "../../../RenderEngine/RenderShader/ShaderDefine";
 import { VertexMesh } from "../../../RenderEngine/RenderShader/VertexMesh";
@@ -30,7 +31,7 @@ export class StaticBatchMeshRender extends BaseRender {
     }
 
     private _mergeInfo: StaticMeshMergeInfo;
-    
+
     public get mergeInfo(): StaticMeshMergeInfo {
         return this._mergeInfo;
     }
@@ -89,7 +90,8 @@ export class StaticBatchMeshRender extends BaseRender {
         this._applyLightMapParams();
         // todo 若有根节点, 在这里更新 worldmatrix
         this._setShaderValue(Sprite3D.WORLDMATRIX, ShaderDataType.Matrix4x4, Matrix4x4.DEFAULT);
-        this._setShaderValue(Sprite3D.WORLDINVERTFRONT, ShaderDataType.Float, 1);
+        this._worldParams.x = 1.0;
+        this._setShaderValue(Sprite3D.WORLDINVERTFRONT, ShaderDataType.Vector4, this._worldParams);//TODO
     }
 
     _getMeshDefine(mesh: StaticBatchMesh, out: Array<ShaderDefine>) {
