@@ -887,6 +887,7 @@ export class Loader extends EventDispatcher {
      * @onProgress 加载进度回调
      */
     loadPackage(path: string, remoteUrl?: string, onProgress?: ProgressCallback): Promise<void> {
+        var originPath: string = path;
         if (LayaEnv.isPreview && !remoteUrl)
             return Promise.resolve();
 
@@ -899,6 +900,60 @@ export class Loader extends EventDispatcher {
             URL.basePaths[path] = remoteUrl;
         }
 
+        let plat: any = null;
+        if (ILaya.Browser.onMiniGame) {
+            // wechat
+            plat = ILaya.Browser.window.wx;
+        } else if (ILaya.Browser.onTTMiniGame) {
+            // bytedance
+            plat = ILaya.Browser.window.tt;
+        } else if (ILaya.Browser.onKGMiniGame || ILaya.Browser.onVVMiniGame || ILaya.Browser.onQGMiniGame) {
+            // mi/vivo/oppo
+            plat = ILaya.Browser.window.qg;
+            path = originPath;
+        } else if (ILaya.Browser.onAlipayMiniGame) {
+            // alipay
+            plat = ILaya.Browser.window.my;
+        }
+
+        if (plat) {
+            return new Promise<any>((resolve: (value: any) => void) => {
+                this._loadMiniPackage(plat, path, onProgress).then(() => {
+                    this._loadSubFileConfig(path, onProgress).then((value: any) => {
+                        resolve(value);
+                    })
+                });
+            });
+        } else {
+            return this._loadSubFileConfig(path, onProgress);
+        }
+    }
+
+
+    private _loadMiniPackage(mini: any, packName: string, progress?: ProgressCallback): Promise<any> {
+        if (!(packName.length > 0)) return Promise.resolve();
+        return new Promise((resolve: (value: any) => void, reject: (reason?: any) => void) => {
+            let loadTask: any = mini.loadSubpackage({
+                name: packName,
+                success: (res: any) => {
+                    resolve(res);
+                },
+                fail: (res: any) => {
+                    resolve(res);
+                }
+            });
+
+            loadTask.onProgressUpdate((res: any) => {
+                progress(res);
+            });
+        })
+    }
+
+
+    private _loadSubFileConfig(path: string, onProgress: ProgressCallback): Promise<any> {
+        if (ILaya.Browser.onKGMiniGame || ILaya.Browser.onVVMiniGame || ILaya.Browser.onQGMiniGame) {
+            path += "/";
+        }
         return this.fetch(path + "fileconfig.json", "json", onProgress).then(fileConfig => {
             let files: Array<string> = [];
             let col = fileConfig.files;
