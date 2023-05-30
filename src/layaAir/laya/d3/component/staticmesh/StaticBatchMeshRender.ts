@@ -88,6 +88,7 @@ export class StaticBatchMeshRender extends BaseRender {
         this._applyLightMapParams();
         // todo 若有根节点, 在这里更新 worldmatrix
         this._setShaderValue(Sprite3D.WORLDMATRIX, ShaderDataType.Matrix4x4, Matrix4x4.DEFAULT);
+        this._setShaderValue(Sprite3D.WORLDINVERTFRONT, ShaderDataType.Float, 1);
     }
 
     _getMeshDefine(mesh: StaticBatchMesh, out: Array<ShaderDefine>) {

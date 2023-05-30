@@ -226,31 +226,10 @@ export class MeshRenderer extends BaseRender {
         this._applyLightMapParams();
         this._applyReflection();
         var element: SubMeshRenderElement = <SubMeshRenderElement>context.renderElement;
-        this._setShaderValue(Sprite3D.WORLDMATRIX, ShaderDataType.Matrix4x4, transform ? transform.worldMatrix : this._transform.worldMatrix);
+        let trans = transform ? transform : this._transform;
+        this._setShaderValue(Sprite3D.WORLDMATRIX, ShaderDataType.Matrix4x4, trans.worldMatrix);
+        this._setShaderValue(Sprite3D.WORLDINVERTFRONT, ShaderDataType.Float, trans._isFrontFaceInvert ? -1 : 1);
         return;
-        switch (0) {
-            case RenderElement.RENDERTYPE_NORMAL:
-                transform && this._setShaderValue(Sprite3D.WORLDMATRIX, ShaderDataType.Matrix4x4, transform.worldMatrix);
-                break;
-            case RenderElement.RENDERTYPE_STATICBATCH:
-                if (transform)
-                    this._setShaderValue(Sprite3D.WORLDMATRIX, ShaderDataType.Matrix4x4, transform.worldMatrix);
-                else
-                    this._setShaderValue(Sprite3D.WORLDMATRIX, ShaderDataType.Matrix4x4, Matrix4x4.DEFAULT);
-                if (!this._shaderValues.hasDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_UV1)) {
-                    this._shaderValues.addDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_UV1);
-                    this._revertStaticBatchDefineUV1 = true;
-                }
-                else {
-                    this._revertStaticBatchDefineUV1 = false;
-                }
-                this._setShaderValue(RenderableSprite3D.LIGHTMAPSCALEOFFSET, ShaderDataType.Vector4, BaseRender._defaultLightmapScaleOffset);
-                this._subUniformBufferData && (this._subUniformBufferData._needUpdate = true);//静态合并的时候需要调整lightmapoffest
-                break;
-            case RenderElement.RENDERTYPE_VERTEXBATCH:
-                this._setShaderValue(Sprite3D.WORLDMATRIX, ShaderDataType.Matrix4x4, Matrix4x4.DEFAULT);
-                break;
-        }
     }
     /**
      * @internal

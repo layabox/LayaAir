@@ -3,6 +3,8 @@
 
 uniform mat4 u_WorldMat;
 
+uniform float u_WroldInvertFront;
+    
     #ifdef LIGHTMAP
 uniform vec4 u_LightmapScaleOffset;
     #endif // LIGHTMAP

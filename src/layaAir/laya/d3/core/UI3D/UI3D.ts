@@ -307,6 +307,7 @@ export class UI3D extends BaseRender {
         this._applyReflection();
         // 这里不需要区分，已经将顶点进行转换了直接使用默认矩阵
         this._setShaderValue(Sprite3D.WORLDMATRIX, ShaderDataType.Matrix4x4, Matrix4x4.DEFAULT);
+        this._setShaderValue(Sprite3D.WORLDINVERTFRONT, ShaderDataType.Float, transform._isFrontFaceInvert ? -1 : 1);
         return;
     }
 

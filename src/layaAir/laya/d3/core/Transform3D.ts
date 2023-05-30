@@ -74,6 +74,7 @@ export class Transform3D extends EventDispatcher {
 	_children: Transform3D[] | null = null;
 	/**@internal 如果为true 表示自身相对于父节点并无任何改变，将通过这个参数忽略计算*/
 	protected _isDefaultMatrix: boolean = false;
+	protected _FaceInvert: boolean = false;
 
 	/** @internal */
 	_parent: Transform3D | null = null;
@@ -92,11 +93,14 @@ export class Transform3D extends EventDispatcher {
 	 * @internal
 	 */
 	get _isFrontFaceInvert(): boolean {
-		var scale: Vector3 = this.getWorldLossyScale();
-		var isInvert: boolean = scale.x < 0;
-		(scale.y < 0) && (isInvert = !isInvert);
-		(scale.z < 0) && (isInvert = !isInvert);
-		return isInvert;
+		if (this._getTransformFlag(Transform3D.TRANSFORM_WORLDSCALE)) {
+			var scale: Vector3 = this.getWorldLossyScale();
+			var isInvert: boolean = scale.x < 0;
+			(scale.y < 0) && (isInvert = !isInvert);
+			(scale.z < 0) && (isInvert = !isInvert);
+			this._FaceInvert = isInvert;
+		}
+		return this._FaceInvert;
 	}
 
 	/**
