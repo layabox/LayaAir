@@ -43,6 +43,8 @@ void shadingPixelParams(inout PixelParams params, in Vertex vertex)
     params.biNormalWS = normalize(cross(params.normalWS, params.tangentWS));
     #endif // TANGENT
 
+    params.tangentWS *= u_WroldInvertFront;
+
     #ifdef UV
     params.uv0 = vertex.texCoord0;
     #endif // UV
