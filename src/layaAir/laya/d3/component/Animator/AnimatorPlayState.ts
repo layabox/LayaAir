@@ -18,12 +18,25 @@ export class AnimatorPlayState {
 	_normalizedPlayTime: number;
 	/**@internal */
 	_duration: number;
+	/**@internal 上次播放的时间，event事件使用*/
+	_parentPlayTime: number;
 	/**@internal */
 	_playEventIndex: number;
 	/**@internal */
 	_lastIsFront: boolean;
 	/**@internal */
-	_currentState: AnimatorState|null = null;
+	private _currentState: AnimatorState | null = null;
+
+	/**
+	 * 当前动画State
+	 */
+	public get currentState(): AnimatorState | null {
+		return this._currentState;
+	}
+	public set currentState(value: AnimatorState | null) {
+		this._currentState = value;
+		this._currentState.curTransition = null;//清空目前条件判断
+	}
 
 	/**
 	 * 播放状态的归一化时间,整数为循环次数，小数为单次播放时间。
@@ -55,13 +68,13 @@ export class AnimatorPlayState {
 	/**
 	 * @internal
 	 */
-	_resetPlayState(startTime: number,clipDuration:number): void {
+	_resetPlayState(startTime: number, clipDuration: number): void {
 		this._finish = false;
+		this._playEventIndex = 0;
 		this._startPlayTime = startTime;
 		this._elapsedTime = startTime;
-		this._playEventIndex = 0;
 		this._lastIsFront = true;
-		this._normalizedTime = this._elapsedTime/clipDuration;
+		this._normalizedTime = this._elapsedTime / clipDuration;
 		var playTime = this._normalizedTime % 1.0;
 		this._normalizedPlayTime = playTime < 0 ? playTime + 1.0 : playTime;
 	}
@@ -72,10 +85,10 @@ export class AnimatorPlayState {
 	_cloneTo(dest: AnimatorPlayState): void {
 		dest._finish = this._finish;
 		dest._startPlayTime = this._startPlayTime;
+		dest._playEventIndex = this._playEventIndex;
 		dest._elapsedTime = this._elapsedTime;
 		dest._normalizedTime = this._normalizedTime;
 		dest._normalizedPlayTime = this._normalizedPlayTime;
-		dest._playEventIndex = this._playEventIndex;
 		dest._lastIsFront = this._lastIsFront;
 	}
 

@@ -16,4 +16,10 @@ vec2 tranformLightMapUV(in vec2 texcoord, in vec4 tilingOffset)
     return lightMapUV;
 }
 
+vec2 transformUV(in vec2 texcoord, in vec4 tilingOffset)
+{
+    vec2 uv = texcoord * tilingOffset.xy + tilingOffset.zw * vec2(1.0, -1.0) + vec2(0.0, 1.0 - tilingOffset.y);
+    return uv;
+}
+
 #endif // Sprite3DCommon_lib

@@ -20,6 +20,17 @@ vec4 linearToGamma(in vec4 value)
     return vec4(linearToGamma(value.rgb), value.a);
 }
 
+vec3 gammaToLinear(in vec3 value)
+{
+    // return pow((value + 0.055) / 1.055, vec3(2.4));
+    return pow(value, vec3(2.2));
+}
+
+vec4 gammaToLinear(in vec4 value)
+{
+    return vec4(gammaToLinear(value.rgb), value.a);
+}
+
 
 varying vec4 v_texcoordAlpha;
 varying vec4 v_color;
@@ -113,7 +124,11 @@ void main()
 
     color.a *= v_color.w;
     // color.rgb*=v_color.w;
-    color.rgb *= v_color.rgb;
+    vec4 transColor = v_color;
+    #ifndef GAMMASPACE
+        transColor = gammaToLinear(v_color);
+    #endif
+    color.rgb *= transColor.rgb;
     gl_FragColor = color;
 
 #ifdef COLOR_ADD

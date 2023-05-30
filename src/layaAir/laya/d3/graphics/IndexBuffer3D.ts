@@ -2,7 +2,6 @@ import { IndexBuffer } from "../../RenderEngine/IndexBuffer";
 import { BufferTargetType, BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
 import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
 /**
- * @internal
  * 请使用LayaGL.RenderOBJCreate.createIndexBuffer3D来创建
  * <code>IndexBuffer3D</code> 类用于创建索引缓冲。
  */

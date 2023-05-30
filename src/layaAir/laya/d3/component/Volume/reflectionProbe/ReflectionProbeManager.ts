@@ -34,7 +34,7 @@ export class ReflectionProbeManager implements IVolumeManager {
         this._needUpdateAllRender = true;//update Reflection
     }
 
-    get sceneReflectionProbe():ReflectionProbe{
+    get sceneReflectionProbe(): ReflectionProbe {
         return this._sceneReflectionProbe;
     }
 
@@ -75,8 +75,8 @@ export class ReflectionProbeManager implements IVolumeManager {
      * @internal
      * @param reflectionProbe 
      */
-    add(volume: Volume) {
-        this._reflectionProbes.add(volume as any);
+    add(volume: ReflectionProbe) {
+        this._reflectionProbes.add(volume);
         this._needUpdateAllRender = true;
     }
     /**
@@ -84,8 +84,8 @@ export class ReflectionProbeManager implements IVolumeManager {
      * @internal
      * @param reflectionProbe 
      */
-    remove(volume: Volume) {
-        this._reflectionProbes.remove(volume as any);
+    remove(volume: ReflectionProbe) {
+        this._reflectionProbes.remove(volume);
         this._needUpdateAllRender = true;
     }
 

@@ -121,7 +121,7 @@ export class VideoNode extends Sprite {
 
     /**
      * 检测是否支持播放指定格式视频。
-     * @param type	参数为Video.MP4 / Video.OGG / Video.WEBM之一。
+     * @param type	"mp4","ogg","webm","m3u8"等。
      * @return 表示支持的级别。可能的值：
      * <ul>
      * <li>"probably" - 浏览器最可能支持该音频/视频类型</li>
@@ -129,7 +129,7 @@ export class VideoNode extends Sprite {
      * <li>"" - （空字符串）浏览器不支持该音频/视频类型</li>
      * </ul>
      */
-    canPlayType(type: number): CanPlayTypeResult {
+    canPlayType(type: string): CanPlayTypeResult {
         if (!this._videoTexture)
             this.videoTexture = new VideoTexture();
         return this._videoTexture.canPlayType(type);

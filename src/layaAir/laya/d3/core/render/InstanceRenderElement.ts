@@ -35,8 +35,13 @@ export class InstanceRenderElement extends RenderElement {
     _instanceBatchElementList: SingletonList<RenderElement>
     /**@internal */
     _isInPool: boolean;
-    /**判断是否需要更新数据 */
+    /**
+     * @internal
+     * 判断是否需要更新数据 
+     * */
     _isUpdataData: boolean;
+    /** @internal */
+    _invertFrontFace: boolean;
     /**@internal recover renderData*/
     private oriRendertype: number;
     /**@internal */
@@ -47,13 +52,14 @@ export class InstanceRenderElement extends RenderElement {
         this.setGeometry(new MeshInstanceGeometry(null));
         this._instanceBatchElementList = new SingletonList();
         this._isUpdataData = true;
+        this._invertFrontFace = false;
     }
 
     /**
      * @internal
      */
-    get InvertFront(): boolean {
-        return this._InvertFront;
+    getInvertFront(): boolean {
+        return this._invertFrontFace;
     }
 
     set InvertFront(value: boolean) {

@@ -1,5 +1,3 @@
-import { ClassUtils } from "./ClassUtils";
-
 /**
  * <p> <code>Pool</code> 是对象池类，用于对象的存储、重复使用。</p>
  * <p>合理使用对象池，可以有效减少对象创建的开销，避免频繁的垃圾回收，从而优化游戏流畅度。</p>
@@ -35,7 +33,8 @@ export class Pool {
      * @param item 对象。
      */
     static recover(sign: string, item: any): void {
-        if (item[Pool.POOLSIGN]) return;
+        if (item[Pool.POOLSIGN] !== false) //有这个标志，才表明对象是从Pool里获取的，允许recover
+            return;
         item[Pool.POOLSIGN] = true;
         Pool.getPoolBySign(sign).push(item);
     }
@@ -54,12 +53,11 @@ export class Pool {
     /**
      * 返回类的唯一标识
      */
-    private static _getClassSign(cla:any): string {
+    private static _getClassSign(cla: any): string {
         var className = cla["__className"] || cla["_$gid"];
         if (!className) {
             cla["_$gid"] = className = Pool._CLSID + "";
             Pool._CLSID++;
-            //ClassUtils.regClass(cla.name,cla);
         }
         return className;
     }
@@ -85,10 +83,10 @@ export class Pool {
         var pool = Pool.getPoolBySign(sign);
         if (pool.length) {
             var rst = pool.pop();
-            rst[Pool.POOLSIGN] = false;
         } else {
             rst = new cls();
         }
+        rst[Pool.POOLSIGN] = false;
         return rst;
     }
 

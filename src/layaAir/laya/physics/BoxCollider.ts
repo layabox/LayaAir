@@ -1,3 +1,4 @@
+import { Sprite } from "../display/Sprite";
 import { ColliderBase } from "./ColliderBase";
 import { Physics } from "./Physics";
 
@@ -24,6 +25,19 @@ export class BoxCollider extends ColliderBase {
         }
         this.label = (this.label || "BoxCollider");
         return super.getDef();
+    }
+
+    /**
+     * @override 初始化设置为当前显示对象的宽和高
+     */
+    protected _onAdded(): void {
+        let node = this.owner as Sprite;
+        if (node && 0 < node.width && 0 < node.height) {
+            if (100 == this.width && 100 == this.height) {
+                this.width = node.width;
+                this.height = node.height;
+            }
+        }
     }
 
     private _setShape(re: boolean = true): void {

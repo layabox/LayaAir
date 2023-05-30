@@ -152,7 +152,7 @@ export class Browser {
             }
         }
 
-        if (u.indexOf('OPPO') == -1 && u.indexOf("MiniGame") > -1 && "wx" in Browser.window) {
+        if (((u.indexOf('OPPO') == -1 && u.indexOf("MiniGame") > -1) || u.indexOf('runtime') != -1 || (u.indexOf('miniprogram') != -1 && (window as any).isWXMiMi)) && "wx" in Browser.window) {
             if ("tt" in Browser.window) {
                 //手机头条小游戏
                 (window as any).ttMiniGame(Laya, Laya);

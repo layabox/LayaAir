@@ -9,8 +9,6 @@ import { CullMode } from "../RenderEngine/RenderEnum/CullMode";
 import { RenderStateType } from "../RenderEngine/RenderEnum/RenderStateType";
 import { RenderStateCommand } from "../RenderEngine/RenderStateCommand";
 import { ColorUtils } from "../utils/ColorUtils";
-import { FontInfo } from "../utils/FontInfo";
-import { HTMLChar } from "../utils/HTMLChar";
 import { WordText } from "../utils/WordText";
 import { BlendMode } from "../webgl/canvas/BlendMode";
 import { NativeWebGLCacheAsNormalCanvas } from "../webgl/canvas/NativeWebGLCacheAsNormalCanvas";
@@ -200,17 +198,17 @@ export class NativeContext {
      * 释放所有资源
      * @param	keepRT  是否保留rendertarget
      */
-     destroy(keepRT: boolean = false): void {
+    destroy(keepRT: boolean = false): void {
         this._nativeObj.flushCommand();
         if (this._tempRenderTexture2D._nativeObj) {
             this._tempRenderTexture2D._nativeObj._deleteRT = keepRT;
         }
         this._nativeObj.destroy(keepRT);
     }
-    
+
     static const2DRenderCMD: RenderStateCommand;
     static set2DRenderConfig(): void {
-       
+
         if (!NativeContext.const2DRenderCMD) {
             const cmd = NativeContext.const2DRenderCMD = LayaGL.renderEngine.createRenderStateComand();
             cmd.addCMD(RenderStateType.BlendType, true);
@@ -307,7 +305,7 @@ export class NativeContext {
             , (tex as any).uv[7]
             , color);
     }
-    drawTextureWithTransform(tex: Texture, x: number, y: number, width: number, height: number, transform: Matrix | null, tx: number, ty: number, alpha: number, blendMode: string | null, colorfilter: any/*ColorFilter*/ | null = null, uv?: number[], color: number = 0xffffffff): void {
+    drawTextureWithTransform(tex: Texture, x: number, y: number, width: number, height: number, transform: Matrix | null, tx: number, ty: number, alpha: number, blendMode: string | null, uv?: number[], color: number = 0xffffffff): void {
         if (!this.checkTexture(tex)) {
             return;
         }
@@ -412,7 +410,7 @@ export class NativeContext {
             , uvs[6]
             , uvs[7]
             , color);
-            this.restore();
+        this.restore();
 
     }
     translate(x: number, y: number): void {
@@ -686,15 +684,6 @@ export class NativeContext {
             this.add_iiffiifi_String(CONTEXT2D_FUNCTION_ID.FILL_WORD_TEXT, (text as any)._nativeObj.id, x, y, c1.numColor, c2.numColor, 0, nTextAlign, font);
         }
     }
-    fillWords(words: HTMLChar[], x: number, y: number, fontStr: string, color: string): void {
-        var c1: ColorUtils = ColorUtils.create(color);
-        var c2: ColorUtils = ColorUtils.create(null);
-        var length = words.length;
-        for (var i = 0; i < length; i++) {
-            //this._nativeObj.fillWords(words[i].char, words[i].x + x,  words[i].y + y, fontStr, c1.numColor, c2.numColor, 0, 0);
-            this.add_iiiifff_String_String(CONTEXT2D_FUNCTION_ID.FILL_WORDS, c1.numColor, c2.numColor, 0, words[i].x + x, words[i].y + y, 0, words[i].char, fontStr);
-        }
-    }
     strokeWord(text: string | WordText, x: number, y: number, font: string, color: string, lineWidth: number, align: string): void {
         var nTextAlign = 0;
         switch (align) {
@@ -737,26 +726,6 @@ export class NativeContext {
             this.add_iiffiifi_String(CONTEXT2D_FUNCTION_ID.FILL_WORD_TEXT, (txt as any)._nativeObj.id, x, y, c1.numColor, c2.numColor, lineWidth, nTextAlign, font);
         }
     }
-    fillBorderWords(words: HTMLChar[], x: number, y: number, font: string, color: string, borderColor: string, lineWidth: number): void {
-        var c1: ColorUtils = ColorUtils.create(color);
-        var c2: ColorUtils = ColorUtils.create(borderColor);
-        var length = words.length;
-        for (var i = 0; i < length; i++) {
-            //this._nativeObj.fillWords(words[i].char, words[i].x + x,  words[i].y + y, font, c1.numColor, c2.numColor, lineWidth, 0);
-            this.add_iiiifff_String_String(CONTEXT2D_FUNCTION_ID.FILL_WORDS, c1.numColor, c2.numColor, 0, words[i].x + x, words[i].y + y, lineWidth, words[i].char, font);
-        }
-    }
-    fillWords11(words: HTMLChar[], x: number, y: number, fontStr: FontInfo, color: string, strokeColor: string | null, lineWidth: number): void {
-        var c1: ColorUtils = ColorUtils.create(color);
-        var c2: ColorUtils = ColorUtils.create(strokeColor);
-        var font = typeof (fontStr) === 'string' ? fontStr : (fontStr as any)._font;
-        var length = words.length;
-        for (var i = 0; i < length; i++) {
-            //this._nativeObj.fillWords(words[i].char, words[i].x + x,  words[i].y + y, font, c1.numColor, c2.numColor, lineWidth, 0);
-            this.add_iiiifff_String_String(CONTEXT2D_FUNCTION_ID.FILL_WORDS, c1.numColor, c2.numColor, 0, words[i].x + x, words[i].y + y, lineWidth, words[i].char, font);
-        }
-    }
-
     filltext11(data: string | WordText, x: number, y: number, fontStr: string, color: string, strokeColor: string, lineWidth: number, align: string): void {
         var nTextAlign = 0;
         switch (align) {
@@ -799,34 +768,12 @@ export class NativeContext {
         vertices: Float32Array,
         uvs: Float32Array,
         indices: Uint16Array,
-        matrix: Matrix, alpha: number, color: ColorFilter, blendMode: string, colorNum: number = 0xffffffff): void {
+        matrix: Matrix, alpha: number, blendMode: string, colorNum: number = 0xffffffff): void {
         if (!this.checkTexture(tex)) {
             return;
-        } 
-        var m: Matrix = matrix ? matrix : this._tmpMatrix;
-        /*if (blendMode != null || color != null) {
-            this._nativeObj.save(); 
-            //to do ColorFilter
-            this._nativeObj.globalCompositeOperation = blendMode;
-            this._nativeObj.drawTriangles((tex as any).bitmap._texture.id, 
-                x, y, 
-                vertices, 
-                uvs, 
-                indices, 
-                m.a, m.b,m.c,m.d,m.tx,m.ty, alpha, colorNum);
-            this._nativeObj.restore();
         }
-        else {
-            this._nativeObj.drawTriangles((tex as any).bitmap._texture.id, 
-            x, y, 
-            vertices, 
-            uvs, 
-            indices, 
-            m.a, m.b,m.c,m.d,m.tx,m.ty, alpha, colorNum)
-        }*/
-
-       
-        if (blendMode != null || color != null) {
+        var m: Matrix = matrix ? matrix : this._tmpMatrix;
+        if (blendMode != null) {
 
             this.add_i(CONTEXT2D_FUNCTION_ID.SAVE);
             //to do ColorFilter 

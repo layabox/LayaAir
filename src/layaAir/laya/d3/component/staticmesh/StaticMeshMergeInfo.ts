@@ -1,24 +1,7 @@
-
 import { VertexDeclaration } from "../../../RenderEngine/VertexDeclaration";
 import { MeshRenderer } from "../../core/MeshRenderer";
 import { Sprite3D } from "../../core/Sprite3D";
-import { Mesh } from "../../resource/models/Mesh";
 
-
-declare module "../../core/MeshRenderer" {
-    export interface MeshRenderer {
-        getMesh: () => Mesh;
-    }
-}
-
-MeshRenderer.prototype.getMesh = function () {
-    // @ts-ignore
-    return this._mesh;
-}
-
-/**
- * @internal
- */
 export class StaticMeshMergeInfo {
 
     static create(render: MeshRenderer) {
@@ -34,13 +17,20 @@ export class StaticMeshMergeInfo {
         return info;
     }
 
+    /**
+     * receiveShadow接受阴影
+     */
     receiveShadow: boolean;
-
+    
+    /**
+     * 光照贴图索引
+     */
     lightmapIndex: number;
 
+    /**
+     * 顶点描述
+     */
     vertexDec: VertexDeclaration;
-
-    // invertFrontFace: boolean;
 
     private _renders: MeshRenderer[];
     public get renders(): MeshRenderer[] {

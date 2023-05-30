@@ -16,7 +16,7 @@ import { IRenderOBJCreate } from "../../RenderInterface/IRenderOBJCreate";
 import { IRenderShaderInstance } from "../../RenderInterface/IRenderShaderInstance";
 import { IRenderVertexState } from "../../RenderInterface/IRenderVertexState";
 import { ITextureContext } from "../../RenderInterface/ITextureContext";
-import { ShaderDataType } from "../../RenderShader/ShaderData";
+import { ShaderData, ShaderDataType } from "../../RenderShader/ShaderData";
 import { ShaderVariable } from "../../RenderShader/ShaderVariable";
 import { RenderStateCommand } from "../../RenderStateCommand";
 import { GL2TextureContext } from "./GL2TextureContext";
@@ -34,7 +34,7 @@ import { GLVertexState } from "./GLVertexState";
 import { WebGlConfig } from "./WebGLConfig";
 
 /**
- * @private 封装Webgl
+ * 封装Webgl
  */
 export class WebGLEngine implements IRenderEngine {
 
@@ -51,7 +51,7 @@ export class WebGLEngine implements IRenderEngine {
     /**@internal */
     private _propertyNameCounter: number = 0;
     /**@internal */
-    _renderOBJCreateContext:IRenderOBJCreate;
+    _renderOBJCreateContext: IRenderOBJCreate;
 
     /**@internal */
     _IDCounter: number = 0;
@@ -110,7 +110,7 @@ export class WebGLEngine implements IRenderEngine {
     private _GLParams: GLParams;
 
     //GL纹理生成
-    private _GLTextureContext: GLTextureContext;
+    private _GLTextureContext: GLTextureContext|GL2TextureContext;
     //Gl Draw
     private _GLRenderDrawContext: GLRenderDrawContext;
 
@@ -138,8 +138,6 @@ export class WebGLEngine implements IRenderEngine {
         this._lastScissor = new Vector4(0, 0, 0, 0);
         this._webglMode = webglMode;
         this._initStatisticsInfo();
-
-
     }
 
     /**
@@ -357,7 +355,8 @@ export class WebGLEngine implements IRenderEngine {
             this._GLRenderState.setStencilMask(true);
             flag |= this._context.STENCIL_BUFFER_BIT;
         }
-        this._context.clear(flag);
+        if (flag)
+            this._context.clear(flag);
         //this._gl.disable(this._gl.SCISSOR_TEST);
     }
 
@@ -442,8 +441,9 @@ export class WebGLEngine implements IRenderEngine {
     /**
      * @internal
      */
-    uploadUniforms(shader: GLShaderInstance, commandEncoder: CommandEncoder, shaderData: any, uploadUnTexture: boolean): number {
+    uploadUniforms(shader: GLShaderInstance, commandEncoder: CommandEncoder, shaderData: ShaderData, uploadUnTexture: boolean): number {
         shader.bind();
+        shaderData.applyUBOData();
         var data: any = shaderData._data;
         var shaderUniform: any[] = commandEncoder.getArrayData();
         var shaderCall: number = 0;
@@ -470,7 +470,7 @@ export class WebGLEngine implements IRenderEngine {
         return shaderCall;
     }
 
-    createRenderStateComand():RenderStateCommand{
+    createRenderStateComand(): RenderStateCommand {
         return new RenderStateCommand();
     }
 

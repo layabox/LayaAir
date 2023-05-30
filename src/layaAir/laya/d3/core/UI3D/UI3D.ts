@@ -15,7 +15,6 @@ import { MeshSprite3DShaderDeclaration } from "../MeshSprite3DShaderDeclaration"
 import { BaseRender } from "../render/BaseRender";
 import { RenderContext3D } from "../render/RenderContext3D";
 import { RenderElement } from "../render/RenderElement";
-import { SubMeshRenderElement } from "../render/SubMeshRenderElement";
 import { Scene3D } from "../scene/Scene3D";
 import { Sprite3D } from "../Sprite3D";
 import { Transform3D } from "../Transform3D";
@@ -80,6 +79,7 @@ export class UI3D extends BaseRender {
         if (value)
             this._shellSprite.addChild(value);
         this._resizeRT();
+        this.boundsChange = true;
     }
 
     get sprite() {
@@ -87,6 +87,7 @@ export class UI3D extends BaseRender {
     }
 
     /**
+     * IDE
      * 3D渲染的UI预制体
      */
     set prefab(value: Prefab) {
@@ -122,10 +123,11 @@ export class UI3D extends BaseRender {
      */
     set renderMode(value: MaterialRenderMode) {
         this.sharedMaterials[0].materialRenderMode = value;
+        this.boundsChange = true;
     }
 
 
-    get renderMode(): number {
+    get renderMode(): MaterialRenderMode {
         if (!this.sharedMaterials[0])
             this.sharedMaterials[0] = this._ui3DMat;
         return this.sharedMaterials[0].materialRenderMode;
@@ -157,6 +159,7 @@ export class UI3D extends BaseRender {
     set billboard(value: boolean) {
         this._view = value;
         this._sizeChange = true;
+        this.boundsChange = true;
     }
 
     /**
@@ -212,10 +215,12 @@ export class UI3D extends BaseRender {
         let height = this._size.y * this._resolutionRate;
         if (!this._rendertexure2D) {
             this._rendertexure2D = new RenderTexture2D(width, height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.None);
+            this._rendertexure2D._invertY = true;
         } else {
             if (this._rendertexure2D.width != width || this._rendertexure2D.height != height) {
                 this._rendertexure2D.destroy();
                 this._rendertexure2D = new RenderTexture2D(width, height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.None);
+                this._rendertexure2D._invertY = true;
                 this._setMaterialTexture();
             }
         }
@@ -229,6 +234,7 @@ export class UI3D extends BaseRender {
         //this._geometry
         if (this.billboard || this._sizeChange) {
             this._sizeChange = false;
+            this.boundsChange = true;
             if (this.billboard) {
                 let camera = (this.owner.scene as Scene3D).cullInfoCamera;
                 this._geometry._resizeViewVertexData(this._size, camera._forward, camera._up, this.billboard, (this.owner as Sprite3D).transform.position);
@@ -239,7 +245,6 @@ export class UI3D extends BaseRender {
 
         //reset plane
         this._updatePlane();
-        this._calculateBoundingBox();
     }
 
     private _updatePlane() {
@@ -317,7 +322,7 @@ export class UI3D extends BaseRender {
      */
     _submitRT() {
         //判断是否需要重置
-        this._rendertexure2D && this._shellSprite.drawToTexture(this._rendertexure2D.width, this._rendertexure2D.height, 0, 0, this._rendertexure2D, false);
+        this._rendertexure2D && this._shellSprite.drawToTexture(this._rendertexure2D.width, this._rendertexure2D.height, 0, 0, this._rendertexure2D);
         this._setMaterialTexture();
     }
 
@@ -392,11 +397,20 @@ export class UI3D extends BaseRender {
      */
     protected _onDestroy() {
         super._onDestroy();
+        this._rendertexure2D && this._rendertexure2D.destroy();
+        this._uisprite && this._uisprite.destroy();
+        this._shellSprite && this._shellSprite.destroy();
+        this._ui3DMat && this._ui3DMat.destroy();
+        this._resolutionRate = null;
+        this._uiPlane = null;
+        this._size = null;
     }
 
     private _transByRotate() {
-        if (!this.billboard)
+        if (!this.billboard) {
             this._sizeChange = true;
+        }
+        this.boundsChange = true;
     }
 }
 

@@ -30,6 +30,7 @@ export class StaticBatchMeshRender extends BaseRender {
     }
 
     private _mergeInfo: StaticMeshMergeInfo;
+    
     public get mergeInfo(): StaticMeshMergeInfo {
         return this._mergeInfo;
     }

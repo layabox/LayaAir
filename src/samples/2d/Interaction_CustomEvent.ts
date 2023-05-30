@@ -30,8 +30,9 @@ export class Interaction_CustomEvent {
 	private createSprite(): void {
 		this.sp = new Sprite();
 		this.sp.graphics.drawRect(0, 0, 200, 200, "#D2691E");
-		this.sp.pivot(100, 100);
-
+		this.sp.anchorX = 0.5;
+		this.sp.anchorY = 0.5;
+		
 		this.sp.x = Laya.stage.width / 2;
 		this.sp.y = Laya.stage.height / 2;
 

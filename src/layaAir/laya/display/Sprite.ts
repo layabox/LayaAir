@@ -25,9 +25,9 @@ import { Event } from "../events/Event";
 import { Dragging } from "../utils/Dragging";
 import { URL } from "../net/URL";
 import { Scene } from "./Scene";
-import { RenderState2D } from "../webgl/utils/RenderState2D";
 import { LayaEnv } from "../../LayaEnv";
 import { SpriteUtils } from "../utils/SpriteUtils";
+import { IHitArea } from "../utils/IHitArea";
 
 /**在显示对象上按下后调度。
  * @eventType Event.MOUSE_DOWN
@@ -327,7 +327,6 @@ export class Sprite extends Node {
     set customRenderEnable(b: boolean) {
         if (b) {
             this._renderType |= SpriteConst.CUSTOM;
-            this._setRenderType(this._renderType);
             this._setCustomRender();
         }
     }
@@ -384,7 +383,6 @@ export class Sprite extends Node {
             this._renderType &= ~SpriteConst.CANVAS;
         }
         this._setCacheAs(this._cacheStyle.cacheAs);
-        this._setRenderType(this._renderType);
     }
 
     /**设置cacheAs为非空时此值才有效，staticCache=true时，子对象变化时不会自动更新缓存，只能通过调用reCache方法手动刷新。*/
@@ -467,8 +465,16 @@ export class Sprite extends Node {
     }
 
     set_width(value: number): void {
-        value == 0 ? (this._sizeFlag |= 1) : (this._sizeFlag &= ~1);
-        if (this._width !== value) {
+        let flag = this._sizeFlag;
+        if (value == null) {
+            value = 0;
+            this._sizeFlag &= ~1;
+        }
+        else if (value == 0)
+            this._sizeFlag |= 1;
+        else
+            this._sizeFlag &= ~1;
+        if (this._width !== value || flag != this._sizeFlag) {
             this._width = value;
             this._setWidth(value);
             this._setPivotX(this._anchorX * value);
@@ -499,8 +505,16 @@ export class Sprite extends Node {
 
     // for ts
     set_height(value: number): void {
-        value == 0 ? (this._sizeFlag |= 2) : (this._sizeFlag &= ~2);
-        if (this._height !== value) {
+        let flag = this._sizeFlag;
+        if (value == null) {
+            value = 0;
+            this._sizeFlag &= ~2;
+        }
+        else if (value == 0)
+            this._sizeFlag |= 2;
+        else
+            this._sizeFlag &= ~2;
+        if (this._height !== value || flag != this._sizeFlag) {
             this._height = value;
             this._setHeight(value);
             this._setPivotY(this._anchorY * value);
@@ -845,7 +859,6 @@ export class Sprite extends Node {
         } else {
             m.identity();
             this._renderType &= ~SpriteConst.TRANSFORM;
-            this._setRenderType(this._renderType);
         }
         return m;
     }
@@ -886,7 +899,6 @@ export class Sprite extends Node {
         else {
             this._renderType &= ~SpriteConst.TRANSFORM;
         }
-        this._setRenderType(this._renderType);
         this.parentRepaint();
     }
 
@@ -1003,7 +1015,6 @@ export class Sprite extends Node {
             style.alpha = value;
             if (value !== 1) this._renderType |= SpriteConst.ALPHA;
             else this._renderType &= ~SpriteConst.ALPHA;
-            this._setRenderType(this._renderType);
             this.parentRepaint();
         }
     }
@@ -1043,23 +1054,20 @@ export class Sprite extends Node {
         }
     }
 
-    /**@internal */
-    _setBlendMode(value: string): void {
-
-    }
-
     /**指定要使用的混合模式。目前只支持"lighter"。*/
     get blendMode(): string {
         return this._style.blendMode;
     }
 
     set blendMode(value: string) {
-        this._setBlendMode(value);
-        this.getStyle().blendMode = value;
-        if (value && value != "source-over") this._renderType |= SpriteConst.BLEND;
-        else this._renderType &= ~SpriteConst.BLEND;
-        this._setRenderType(this._renderType);
-        this.parentRepaint();
+        if (this.getStyle().blendMode != value) {
+            this.getStyle().blendMode = value;
+            if (value && value != "source-over")
+                this._renderType |= SpriteConst.BLEND;
+            else
+                this._renderType &= ~SpriteConst.BLEND;
+            this.parentRepaint();
+        }
     }
 
     /**绘图对象。封装了绘制位图和矢量图的接口，Sprite所有的绘图操作都通过Graphics来实现的。*/
@@ -1071,21 +1079,15 @@ export class Sprite extends Node {
         return this._graphics;
     }
 
-    /**@internal */
-    _setGraphics(value: Graphics): void {
-    }
-
     set graphics(value: Graphics) {
         if (this._graphics) this._graphics._sp = null;
         this._graphics = value;
         if (value) {
-            this._setGraphics(value);
             this._renderType |= SpriteConst.GRAPHICS;
             value._sp = this;
         } else {
             this._renderType &= ~SpriteConst.GRAPHICS;
         }
-        this._setRenderType(this._renderType);
         this.repaint();
     }
 
@@ -1099,21 +1101,17 @@ export class Sprite extends Node {
         return this._style.scrollRect;
     }
 
-    /**@internal */
-    _setScrollRect(value: Rectangle): void {
-
-    }
-
     set scrollRect(value: Rectangle) {
+        if (this.getStyle().scrollRect == null && value == null)
+            return;
+
         this.getStyle().scrollRect = value;
-        this._setScrollRect(value);
         //viewport = value;
         if (value) {
             this._renderType |= SpriteConst.CLIP;
         } else {
             this._renderType &= ~SpriteConst.CLIP;
         }
-        this._setRenderType(this._renderType);
         this.repaint();
     }
 
@@ -1216,45 +1214,6 @@ export class Sprite extends Node {
      */
     render(ctx: Context, x: number, y: number): void {
         RenderSprite.renders[this._renderType]._fun(this, ctx, x + this._x, y + this._y);
-        /*
-        var rt:int = _renderType;
-        var style:SpriteStyle = _style;
-        var oldAlpha:Number = ctx.globalAlpha;
-        var save:Boolean = false;
-        if (rt & SpriteConst.TRANSFORM ) {
-            ctx.save();
-            save = true;
-            ctx.transform(transform.a, transform.b, transform.c, transform.d, transform.tx + x+_x, transform.ty + y+_y);
-        }
-    	
-        if ( rt & SpriteConst.ALPHA) {
-            var alpha:Number = style.alpha;
-            if (alpha > 0.01 || _needRepaint()) {
-                //var temp:Number = context.globalAlpha;
-                ctx.globalAlpha *= alpha;
-                //context.globalAlpha = temp;
-            }				
-        }
-    	
-        if ( rt & SpriteConst.TEXTURE ) {
-            var tex:Texture = texture;
-            ctx.drawTexture(tex, x-pivotX+_x, y-pivotY+_y, tex.width, tex.height);
-        }
-    	
-        if ( rt & SpriteConst.GRAPHICS) {
-            _graphics && _graphics._render(this, ctx, x-pivotX+_x, y-pivotY+_y);
-        }
-    	
-        if (_children.length) {
-            _children.forEach(function(c:Sprite) {
-                c._visible && c.render(ctx, x - pivotX+_x, y - pivotY+_y);
-            } );
-        }
-        ctx.globalAlpha = oldAlpha;//TODO 可能慢
-        if (save) {
-            ctx.restore();
-        }
-        */
         this._repaint = 0;
     }
 
@@ -1290,10 +1249,8 @@ export class Sprite extends Node {
      * @param offsetX 
      * @param offsetY 
      */
-    drawToTexture(canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number, rt: RenderTexture2D | null = null, invertY: boolean = false): Texture | RenderTexture2D {
-        RenderState2D.InvertY = invertY;
+    drawToTexture(canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number, rt: RenderTexture2D | null = null): Texture | RenderTexture2D {
         let res = Sprite.drawToTexture(this, this._renderType, canvasWidth, canvasHeight, offsetX, offsetY, rt);
-        RenderState2D.InvertY = false;
         return res;
     }
 
@@ -1408,7 +1365,6 @@ export class Sprite extends Node {
      */
     customRender(context: Context, x: number, y: number): void {
         //_renderType |= SpriteConst.CUSTOM;
-        //_setRenderType(_renderType);
         this._repaint = SpriteConst.REPAINT_ALL;
     }
 
@@ -1432,7 +1388,6 @@ export class Sprite extends Node {
             this._renderType |= SpriteConst.FILTERS;
         else
             this._renderType &= ~SpriteConst.FILTERS;
-        this._setRenderType(this._renderType);
 
         if (value && value.length > 0) {
             if (!this._getBit(NodeFlags.DISPLAY)) this._setBitUp(NodeFlags.DISPLAY);
@@ -1677,7 +1632,6 @@ export class Sprite extends Node {
 
         if (this._children.length) this._renderType |= SpriteConst.CHILDS;
         else this._renderType &= ~SpriteConst.CHILDS;
-        this._setRenderType(this._renderType);
         if (child && this._getBit(NodeFlags.HAS_ZORDER)) ILaya.systemTimer.callLater(this, this.updateZOrder);
         this.repaint(SpriteConst.REPAINT_ALL);
     }
@@ -1700,11 +1654,11 @@ export class Sprite extends Node {
      * <p>可以设置一个Rectangle区域作为点击区域，或者设置一个<code>HitArea</code>实例作为点击区域，HitArea内可以设置可点击和不可点击区域。</p>
      * <p>如果不设置hitArea，则根据宽高形成的区域进行碰撞。</p>
      */
-    get hitArea(): any {
+    get hitArea(): IHitArea {
         return this._style.hitArea;
     }
 
-    set hitArea(value: any) {
+    set hitArea(value: IHitArea) {
         this.getStyle().hitArea = value;
     }
 
@@ -1738,8 +1692,6 @@ export class Sprite extends Node {
         }
         else
             this._renderType &= ~SpriteConst.MASK;
-
-        this._setRenderType(this._renderType);
         this.repaint();
     }
 
@@ -1802,7 +1754,7 @@ export class Sprite extends Node {
         var point: Point = this.globalToLocal(Point.TEMP.setTo(x, y));
         x = point.x;
         y = point.y;
-        var rect: Rectangle = this._style.hitArea ? this._style.hitArea : (this._width > 0 && this._height > 0) ? Rectangle.TEMP.setTo(0, 0, this._width, this._height) : this.getSelfBounds();
+        var rect: IHitArea = this._style.hitArea ? this._style.hitArea : (this._isWidthSet && this._isHeightSet) ? Rectangle.TEMP.setTo(0, 0, this._width, this._height) : this.getSelfBounds();
         return rect.contains(x, y);
     }
 
@@ -1908,7 +1860,6 @@ export class Sprite extends Node {
             this._setHeight(this.height);
             if (value) this._renderType |= SpriteConst.TEXTURE;
             else this._renderType &= ~SpriteConst.TEXTURE;
-            this._setRenderType(this._renderType);
             this.repaint();
         }
     }
@@ -1927,8 +1878,7 @@ export class Sprite extends Node {
 
     set viewport(value: Rectangle) {
         if (typeof (value) == 'string') {
-            var recArr: any[];
-            recArr = ((<string>((<any>value)))).split(",");
+            let recArr = (<any>value).split(",");
             if (recArr.length > 3) {
                 value = new Rectangle(parseFloat(recArr[0]), parseFloat(recArr[1]), parseFloat(recArr[2]), parseFloat(recArr[3]));
             }
@@ -1937,25 +1887,10 @@ export class Sprite extends Node {
     }
 
     /**@internal */
-    _setRenderType(type: number): void {
-
-    }
-
-    /**@internal */
     _setTranformChange(): void {
         this._tfChanged = true;
         this._renderType |= SpriteConst.TRANSFORM;
         this.parentRepaint(SpriteConst.REPAINT_CACHE);
-    }
-
-    /**@internal */
-    _setBgStyleColor(x: number, y: number, width: number, height: number, fillColor: any): void {
-
-    }
-
-    /**@internal */
-    _setBorderStyleColor(x: number, y: number, width: number, height: number, fillColor: any, borderWidth: number): void {
-
     }
 
     set drawCallOptimize(value: boolean) {

@@ -7,7 +7,7 @@ import { IClone } from "../../../utils/IClone";
 import { AnimationClip } from "../../animation/AnimationClip";
 import { AnimatorStateScript } from "../../animation/AnimatorStateScript";
 import { KeyframeNodeList } from "../../animation/KeyframeNodeList";
-import { AnimatorParams } from "./Animator";
+import { Animator, AnimatorParams } from "./Animator";
 import { AnimatorTransition } from "./AnimatorTransition";
 import { KeyframeNodeOwner, KeyFrameValueType } from "./KeyframeNodeOwner";
 
@@ -27,46 +27,53 @@ export class AnimatorState extends EventDispatcher implements IClone {
      * 动画事件 离开时调用
      */
     static EVENT_OnStateExit = "OnStateExit";
-    
+
     /** @internal */
     private _referenceCount: number = 0;
 
     /** @internal */
     _clip: AnimationClip | null = null;
-    
+
     /** @internal */
     _nodeOwners: KeyframeNodeOwner[] = [];//TODO:提出去
-    
+
     /** @internal */
     _currentFrameIndices: Int16Array | null = null;
-    
+
+    /**是否循环播放,为0时则使用_clip.islooping，1为循环，2为不循环 */
+    _isLooping: 0 | 1 | 2 = 0;
+
     /**
      * @internal
      * to avoid data confused,must put realtime datas in animatorState,can't be in animationClip,
      * for example use crossFade() with different animatorState but the sample clip source.
      */
     _realtimeDatas: Array<number | Vector3 | Quaternion> = [];
-    
+
     /** @internal */
     _scripts: AnimatorStateScript[] | null = null;
-    
+
     /**@internal 过渡列表*/
     _transitions: AnimatorTransition[] = [];
-    
+
     /**@internal 优先过渡列表only play this transition */
     _soloTransitions: AnimatorTransition[] = [];
 
+    curTransition: AnimatorTransition;
+
     /**名称。*/
     name: string;
-    
+
     /**动画播放速度,1.0为正常播放速度。*/
     speed: number = 1.0;
-    
+
     /**动作播放起始时间。*/
     clipStart: number = 0.0;
-    
+
     /**动作播放结束时间。*/
     clipEnd: number = 1.0;
+    /**play on awake start offset*/
+    cycleOffset: number = 0;
 
     /**
      * 动作。
@@ -115,6 +122,12 @@ export class AnimatorState extends EventDispatcher implements IClone {
             this._clip = value;
         }
     }
+    get islooping() {
+        if (0 != this._isLooping) {
+            return 1 == this._isLooping;
+        }
+        return this._clip.islooping;
+    }
 
     /**
      * IDE
@@ -150,11 +163,14 @@ export class AnimatorState extends EventDispatcher implements IClone {
     /**
      * @internal
      */
-    _eventStart() {
+    _eventStart(animator: Animator, layerIndex: number) {
         this.event(AnimatorState.EVENT_OnStateEnter);
+
         if (this._scripts) {
-            for (var i: number = 0, n: number = this._scripts.length; i < n; i++)
+            for (var i: number = 0, n: number = this._scripts.length; i < n; i++) {
+                this._scripts[i].setPlayScriptInfo(animator, layerIndex, this);
                 this._scripts[i].onStateEnter();
+            }
         }
     }
 
@@ -163,6 +179,7 @@ export class AnimatorState extends EventDispatcher implements IClone {
      */
     _eventExit() {
         this.event(AnimatorState.EVENT_OnStateExit);
+        this.curTransition = null;
         if (this._scripts) {
             for (let i = 0, n = this._scripts.length; i < n; i++) {
                 this._scripts[i].onStateExit();

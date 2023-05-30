@@ -151,8 +151,9 @@ export class Image extends UIComponent {
                 return Promise.resolve();
             }
             else {
+                let sk = this._skin;
                 return ILaya.loader.load(url, { type: Loader.IMAGE, group: this._group }).then(tex => {
-                    if (url == this._skin)
+                    if (sk == this._skin)
                         this.source = tex;
                 });
             }
@@ -163,9 +164,6 @@ export class Image extends UIComponent {
         }
     }
 
-    /**
-     * @copy laya.ui.AutoBitmap#source
-     */
     get source(): Texture {
         return this._graphics.source;
     }

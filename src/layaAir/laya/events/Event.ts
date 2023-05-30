@@ -172,7 +172,8 @@ export class Event {
     touchId: number = 0;
     /** 点击坐标 */
     readonly touchPos: Point;
-
+    /** 是否双击 */
+    isDblClick: boolean;
     /**滚轮滑动增量*/
     delta: number;
 
@@ -294,6 +295,7 @@ export class Event {
 }
 
 const MOUSE_EVENTS = new Set<string>([
-    Event.MOUSE_DOWN, Event.MOUSE_UP, Event.MOUSE_MOVE, Event.CLICK, Event.RIGHT_CLICK, Event.DOUBLE_CLICK,
+    Event.MOUSE_DOWN, Event.MOUSE_UP, Event.MOUSE_MOVE, Event.CLICK, Event.DOUBLE_CLICK,
+    Event.RIGHT_CLICK, Event.RIGHT_MOUSE_DOWN, Event.RIGHT_MOUSE_UP,
     Event.MOUSE_OVER, Event.MOUSE_OUT, Event.MOUSE_WHEEL
 ]);

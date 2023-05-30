@@ -33,7 +33,6 @@ import { Utils } from "../utils/Utils"
 import { VectorGraphManager } from "../utils/VectorGraphManager"
 import { ILaya } from "../../ILaya";
 import { WordText } from "../utils/WordText";
-import { HTMLChar } from "../utils/HTMLChar";
 import { ColorUtils } from "../utils/ColorUtils";
 
 /**
@@ -82,7 +81,6 @@ export class Graphics {
         this._vectorgraphArray = null;
         if (this._sp) {
             this._sp._renderType = 0;
-            this._sp._setRenderType(0);
             this._sp = null;
         }
         this._destroyData();
@@ -105,7 +103,6 @@ export class Graphics {
         this._clearData();
         if (this._sp) {
             this._sp._renderType &= ~SpriteConst.GRAPHICS;
-            this._sp._setRenderType(this._sp._renderType);
         }
         this._repaint();
         if (this._vectorgraphArray) {
@@ -154,7 +151,6 @@ export class Graphics {
     set cmds(value) {
         if (this._sp) {
             this._sp._renderType |= SpriteConst.GRAPHICS;
-            this._sp._setRenderType(this._sp._renderType);
         }
 
         this._cmds = value;
@@ -175,13 +171,9 @@ export class Graphics {
 
         if (this._sp) {
             this._sp._renderType |= SpriteConst.GRAPHICS;
-            this._sp._setRenderType(this._sp._renderType);
         }
         this._cmds.push(cmd);
-        if (this._cmds.length == 1)
-            this._render = this._renderOne;
-        else
-            this._render = this._renderAll;
+        this._render = this._cmds.length === 1 ? this._renderOne : this._renderAll;
         this._repaint();
         return cmd;
     }
@@ -190,11 +182,6 @@ export class Graphics {
         let i = this.cmds.indexOf(cmd);
         if (i != -1) {
             this._cmds.splice(i, 1);
-
-            if (this._sp) {
-                this._sp._renderType |= SpriteConst.GRAPHICS;
-                this._sp._setRenderType(this._sp._renderType);
-            }
 
             let len = this._cmds.length;
             this._render = len === 0 ? this._renderEmpty : (len === 1 ? this._renderOne : this._renderAll);
@@ -280,8 +267,8 @@ export class Graphics {
      * @param blendMode	blend模式
      */
     drawTriangles(texture: Texture, x: number, y: number, vertices: Float32Array, uvs: Float32Array, indices: Uint16Array, matrix: Matrix | null = null,
-        alpha: number = 1, color: string | null = null, blendMode: string | null = null, colorNum: number = 0xffffffff): DrawTrianglesCmd {
-        return this.addCmd(DrawTrianglesCmd.create(texture, x, y, vertices, uvs, indices, matrix, alpha, color, blendMode, colorNum));
+        alpha: number = 1, color: string | number = null, blendMode: string | null = null): DrawTrianglesCmd {
+        return this.addCmd(DrawTrianglesCmd.create(texture, x, y, vertices, uvs, indices, matrix, alpha, color, blendMode));
     }
 
     /**
@@ -324,7 +311,7 @@ export class Graphics {
      * @param textAlign 文本对齐方式，可选值："left"，"center"，"right"。
      */
     fillText(text: string | WordText, x: number, y: number, font: string, color: string, textAlign: string): FillTextCmd {
-        return this.addCmd(FillTextCmd.create(text, null, x, y, font, color, textAlign, 0, ""));
+        return this.addCmd(FillTextCmd.create(text, x, y, font, color, textAlign, 0, ""));
     }
 
     /**
@@ -339,17 +326,7 @@ export class Graphics {
      * @param borderColor	定义镶边文本颜色。
      */
     fillBorderText(text: string | WordText, x: number, y: number, font: string, fillColor: string, textAlign: string, lineWidth: number, borderColor: string): FillTextCmd {
-        return this.addCmd(FillTextCmd.create(text, null, x, y, font, fillColor, textAlign, lineWidth, borderColor));
-    }
-
-    /*** @private */
-    fillWords(words: HTMLChar[], x: number, y: number, font: string, color: string): FillTextCmd {
-        return this.addCmd(FillTextCmd.create(null, words, x, y, font, color, '', 0, null));
-    }
-
-    /*** @private */
-    fillBorderWords(words: HTMLChar[], x: number, y: number, font: string, fillColor: string, borderColor: string, lineWidth: number): FillTextCmd {
-        return this.addCmd(FillTextCmd.create(null, words, x, y, font, fillColor, "", lineWidth, borderColor));
+        return this.addCmd(FillTextCmd.create(text, x, y, font, fillColor, textAlign, lineWidth, borderColor));
     }
 
     /**
@@ -363,7 +340,7 @@ export class Graphics {
      * @param textAlign	文本对齐方式，可选值："left"，"center"，"right"。
      */
     strokeText(text: string | WordText, x: number, y: number, font: string, color: string, lineWidth: number, textAlign: string): FillTextCmd {
-        return this.addCmd(FillTextCmd.create(text, null, x, y, font, null, textAlign, lineWidth, color));
+        return this.addCmd(FillTextCmd.create(text, x, y, font, null, textAlign, lineWidth, color));
     }
 
     /**
@@ -426,25 +403,6 @@ export class Graphics {
      */
     restore(): RestoreCmd {
         return this.addCmd(RestoreCmd.create());
-    }
-
-    /**
-     * @private
-     * 替换文本内容。
-     * @param text 文本内容。
-     * @return 替换成功则值为true，否则值为flase。
-     */
-    replaceText(text: string): boolean {
-        this._repaint();
-        //todo 该函数现在加速器应该不对
-        var cmds = this._cmds;
-        for (let i = cmds.length - 1; i > -1; i--) {
-            if (cmds[i].cmdID == FillTextCmd.ID) {
-                cmds[i].text = text;
-                return true;
-            }
-        }
-        return false;
     }
 
     /**

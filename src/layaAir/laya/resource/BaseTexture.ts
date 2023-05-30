@@ -1,3 +1,5 @@
+import { Config } from "../../Config";
+import { Config3D } from "../../Config3D";
 import { LayaGL } from "../layagl/LayaGL";
 import { FilterMode } from "../RenderEngine/RenderEnum/FilterMode";
 import { HDREncodeFormat } from "../RenderEngine/RenderEnum/HDREncodeFormat";
@@ -184,7 +186,7 @@ export class BaseTexture extends Resource {
         this._width = width;
         this._height = height;
         this._format = format;
-        this.destoryedImmediately = false;
+        this.destroyedImmediately = Config.destroyResourceImmediatelyDefault;
         this.hdrEncodeFormat = HDREncodeFormat.NONE;
     }
 

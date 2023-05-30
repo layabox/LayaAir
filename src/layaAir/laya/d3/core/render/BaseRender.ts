@@ -7,7 +7,7 @@ import { BoundFrustum } from "../../math/BoundFrustum"
 import { Event } from "../../../events/Event"
 import { Lightmap } from "../scene/Lightmap";
 import { MeshSprite3DShaderDeclaration } from "../../../d3/core/MeshSprite3DShaderDeclaration";
-import { TextureCube } from "../../resource/TextureCube";
+import { TextureCube } from "../../../resource/TextureCube";
 import { Component } from "../../../components/Component";
 import { Sprite3D } from "../Sprite3D";
 import { ShaderData, ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData";
@@ -120,6 +120,8 @@ export class BaseRender extends Component implements IBoundsCell {
         Sprite3DRenderDeclaration.SHADERDEFINE_GI_IBL = Shader3D.getDefineByName("GI_IBL");
         Sprite3DRenderDeclaration.SHADERDEFINE_IBL_RGBD = Shader3D.getDefineByName("IBL_RGBD");
         Sprite3DRenderDeclaration.SHADERDEFINE_SPECCUBE_BOX_PROJECTION = Shader3D.getDefineByName("SPECCUBE_BOX_PROJECTION");
+
+        Sprite3DRenderDeclaration.SHADERDEFINE_VOLUMETRICGI = Shader3D.getDefineByName("VOLUMETRICGI");
     }
 
     /** @internal */
@@ -424,6 +426,7 @@ export class BaseRender extends Component implements IBoundsCell {
     }
 
     /**
+     * @internal
      * 设置反射球
      */
     set probReflection(voluemProbe: ReflectionProbe) {

@@ -10,4 +10,7 @@ export class Sprite3DRenderDeclaration{
     /**盒子反射宏 */
 	static SHADERDEFINE_SPECCUBE_BOX_PROJECTION: ShaderDefine;
 
+	/// Volumetric GI
+	static SHADERDEFINE_VOLUMETRICGI: ShaderDefine;
+
 }

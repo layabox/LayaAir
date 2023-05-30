@@ -34,9 +34,9 @@ export class Styles {
     static buttonStateNum: number = 3;
     /**
      * 按钮标签颜色。
-     * <p><b>格式：</b>[upColor,overColor,downColor,disableColor]。</p>
+     * <p><b>格式：</b>[upColor,overColor,downColor]。</p>
      */
-    static buttonLabelColors: any[] = ["#32556b", "#32cc6b", "#ff0000", "#C0C0C0"];
+    static buttonLabelColors: any[] = ["#32556b", "#32cc6b", "#ff0000"];
 
     //-----------------ComboBox-----------------
     /**

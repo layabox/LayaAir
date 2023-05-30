@@ -18,6 +18,7 @@ import { Downloader } from "./Downloader";
 import { AssetDb } from "../resource/AssetDb";
 import { BaseTexture } from "../resource/BaseTexture";
 import { LayaEnv } from "../../LayaEnv";
+import { XML } from "../html/XML";
 
 export interface ILoadTask {
     readonly type: string;
@@ -45,7 +46,6 @@ export interface ILoadOptions {
     constructParams?: TextureConstructParams;
     propertyParams?: TexturePropertyParams;
     blob?: ArrayBuffer;
-    noMetaFile?: boolean;
     [key: string]: any;
 }
 
@@ -56,7 +56,7 @@ export interface ILoadURL extends ILoadOptions {
 interface ContentTypeMap {
     "text": string,
     "json": any,
-    "xml": XMLDocument,
+    "xml": XML,
     "arraybuffer": ArrayBuffer,
     "image": HTMLImageElement | ImageBitmap,
     "sound": HTMLAudioElement
@@ -290,7 +290,7 @@ export class Loader extends EventDispatcher {
                     if (url2)
                         return this._load2(url2, uuid, type, options, onProgress);
                     else {
-                        !options.silent && Loader.warn(url);
+                        !options.silent && Loader.warnFailed(url);
                         return Promise.resolve(null);
                     }
                 });
@@ -308,7 +308,7 @@ export class Loader extends EventDispatcher {
     private _load2(url: string, uuid: string, type: string, options: ILoadOptions, onProgress: ProgressCallback): Promise<any> {
         let { ext, typeId, main, loaderType } = Loader.getURLInfo(url, type);
         if (!loaderType) {
-            !options.silent && Loader.warn(url);
+            !options.silent && Loader.warnFailed(url);
             return Promise.resolve(null);
         }
         let formattedUrl = URL.formatURL(url);
@@ -349,6 +349,7 @@ export class Loader extends EventDispatcher {
             return new Promise((resolve) => task.onComplete.add(resolve));
         }
 
+        //判断是否在自动图集里
         let atlasInfo = AtlasInfoManager.getFileLoadPath(formattedUrl);
         if (atlasInfo) {
             return this.load(atlasInfo.url, { type: Loader.ATLAS, baseUrl: atlasInfo.baseUrl }).then(() => {
@@ -383,7 +384,7 @@ export class Loader extends EventDispatcher {
             promise = assetLoader.load(task);
         }
         catch (err: any) {
-            !options.silent && Loader.warn(url, err);
+            !options.silent && Loader.warnFailed(url, err);
 
             promise = Promise.resolve(null);
         }
@@ -402,7 +403,7 @@ export class Loader extends EventDispatcher {
             task.onComplete.invoke(content);
             return content;
         }).catch(error => {
-            !options.silent && Loader.warn(url, error);
+            !options.silent && Loader.warnFailed(url, error);
 
             if (task.options.cache == null || task.options.cache)
                 Loader._cacheRes(formattedUrl, null, typeId, main);
@@ -423,7 +424,7 @@ export class Loader extends EventDispatcher {
      * 从指定URL下载。这是较为底层的下载资源的方法，它和load方法不同，不对返回的数据进行解析，也不会缓存下载的内容。
      * 成功则返回下载的数据，失败返回null。
      */
-    fetch<K extends keyof ContentTypeMap>(url: string, contentType: K, onProgress?: (progress: number) => void, options?: Readonly<ILoadOptions>): Promise<ContentTypeMap[K]> {
+    fetch<K extends keyof ContentTypeMap>(url: string, contentType: K, onProgress?: ProgressCallback, options?: Readonly<ILoadOptions>): Promise<ContentTypeMap[K]> {
         options = options || dummyOptions;
         let task: DownloadItem = {
             originalUrl: url,
@@ -539,7 +540,7 @@ export class Loader extends EventDispatcher {
             ILaya.systemTimer.once(this.retryDelay, this, this.queueToDownload, [item], false);
         }
         else {
-            !item.silent && Loader.warn(item.url);
+            !item.silent && Loader.warnFailed(item.url);
             if (item.onProgress)
                 item.onProgress(1);
 
@@ -564,7 +565,7 @@ export class Loader extends EventDispatcher {
         if (type) { //指定了类型
             let typeEntry = Loader.typeMap[type];
             if (!typeEntry) {
-                console.warn(`not recognize type: '${type}'`);
+                Loader.warn(`not recognize type: '${type}'`);
                 return NullURLInfo;
             }
             typeId = typeEntry.typeId;
@@ -589,7 +590,7 @@ export class Loader extends EventDispatcher {
         }
         else {
             if (!extEntry) {
-                console.warn(`not recognize the resource suffix: '${url}'`);
+                Loader.warn(`not recognize the resource suffix: '${url}'`);
                 return NullURLInfo;
             }
 
@@ -602,8 +603,15 @@ export class Loader extends EventDispatcher {
         return { ext, main, typeId, loaderType };
     }
 
-    private static warn(url: string, err?: any) {
-        console.warn(`Failed to load ${url}` + (err ? (":" + err) : ""));
+    private static warnFailed(url: string, err?: any) {
+        this.warn(`Failed to load ${url}`, err);
+    }
+
+    public static warn(msg: string, err?: any) {
+        let errMsg = err ? (err.stack ? err.stack : err) : "";
+        if (errMsg)
+            errMsg = ": " + errMsg;
+        console.warn(msg + errMsg);
     }
 
     /**
@@ -871,6 +879,68 @@ export class Loader extends EventDispatcher {
             item.onComplete(null);
         }
     }
+
+    /**
+     * 载入一个分包。
+     * @path 分包路径
+     * @remoteUrl 如果分包是一个远程包，那需要提供远程资源服务器的地址，例如"http://cdn.com/"
+     * @onProgress 加载进度回调
+     */
+    loadPackage(path: string, remoteUrl?: string, onProgress?: ProgressCallback): Promise<void> {
+        if (LayaEnv.isPreview && !remoteUrl)
+            return Promise.resolve();
+
+        if (path.length > 0)
+            path += "/";
+
+        if (remoteUrl) {
+            if (!remoteUrl.endsWith("/"))
+                remoteUrl += "/";
+            URL.basePaths[path] = remoteUrl;
+        }
+
+        return this.fetch(path + "fileconfig.json", "json", onProgress).then(fileConfig => {
+            let files: Array<string> = [];
+            let col = fileConfig.files;
+            for (let k in col) {
+                if (k.length > 0) {
+                    for (let file of col[k])
+                        files.push(k + "/" + file);
+                }
+                else {
+                    for (let file of col[k])
+                        files.push(file);
+                }
+            }
+
+            if (fileConfig.hash) {
+                let i = 0;
+                for (let k of fileConfig.hash) {
+                    if (k != null)
+                        URL.version[files[i]] = k;
+                    i++;
+                }
+            }
+
+            for (let c of fileConfig.config) {
+                let file = files[c.i];
+                switch (c.t) {
+                    case 0: //图片
+                        AssetDb.inst.metaMap[file] = c;
+                        break;
+                    case 1: //自动图集
+                        AtlasInfoManager.addAtlas(file, c.prefix, c.frames);
+                        break;
+                    case 2: //Shader
+                        AssetDb.inst.shaderNameMap[c.shaderName] = file;
+                        break;
+                    case 3: //render texture
+                        Loader.preLoadedMap[URL.formatURL(file)] = c;
+                        break;
+                }
+            }
+        });
+    }
 }
 
 class LoadTask implements ILoadTask {
@@ -916,5 +986,5 @@ interface DownloadItem {
     retryCnt?: number;
     silent?: boolean;
     onComplete: (content: any) => void;
-    onProgress: (progress: number) => void;
+    onProgress: ProgressCallback;
 }

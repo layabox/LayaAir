@@ -40,12 +40,18 @@ float V_SmithGGXCorrelated(float roughness, float NoV, float NoL)
     return saturateMediump(v);
 }
 
+float V_kelemen(float LoH)
+{
+    // Kelemen 2001, "A Microfacet Based Coupled Specular-Matte BRDF Model with Importance Sampling"
+    return saturateMediump(0.25 / (LoH * LoH));
+}
+
 float V_SmithGGXCorrelated_Anisotropic(float at, float ab, float ToV, float BoV, float ToL, float BoL, float NoV, float NoL)
 {
     float lambdaV = NoL * length(vec3(at * ToV, ab * BoV, NoV));
     float lambdaL = NoV * length(vec3(at * ToL, ab * BoL, NoL));
     float v = 0.5 / (lambdaV + lambdaL);
-    return saturateMediump(v);
+    return saturate(v);
 }
 
 vec3 F_Schlick(vec3 f0, float f90, float VoH)
@@ -59,6 +65,11 @@ vec3 F_Schlick(vec3 f0, float VoH)
 }
 
 float F_Schlick(float f0, float f90, float VoH)
+{
+    return f0 + (f90 - f0) * pow5(1.0 - VoH);
+}
+
+vec3 F_Schlick(vec3 f0, vec3 f90, float VoH)
 {
     return f0 + (f90 - f0) * pow5(1.0 - VoH);
 }
@@ -90,7 +101,8 @@ vec3 fresnel(vec3 f0, float LoH)
 
 float Fd_Lambert()
 {
-    // return 1.0 / PI;
+    // https://seblagarde.wordpress.com/2012/01/08/pi-or-not-to-pi-in-game-lighting-equation/
+    // return INVERT_PI;
     return 1.0;
 }
 
@@ -99,10 +111,10 @@ float Fd_Burley(float roughness, float NoV, float NoL, float LoH)
     float f90 = 0.5 + 2.0 * roughness * LoH * LoH;
     float lightScatter = F_Schlick(1.0, f90, NoL);
     float veiwScatter = F_Schlick(1.0, f90, NoV);
-    return lightScatter * veiwScatter;
+    return lightScatter * veiwScatter * INVERT_PI;
 }
 
-// diffuse dispatch 
+// diffuse dispatch
 float diffuse()
 {
     return Fd_Lambert();

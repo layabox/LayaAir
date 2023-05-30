@@ -5,6 +5,7 @@ import { PhysicsComponent } from "../d3/physics/PhysicsComponent";
 import { ColliderBase } from "../physics/ColliderBase";
 import { Sprite3D } from "../d3/core/Sprite3D";
 import { Sprite } from "../display/Sprite";
+import { ILaya } from "../../ILaya";
 
 /**
  * <code>Script</code> 类用于创建脚本的父类，该类为抽象类，不允许实例。
@@ -46,9 +47,9 @@ export class Script extends Component {
         if (func = this.onMouseDoubleClick) owner.on(Event.DOUBLE_CLICK, this, func);
         if (func = this.onMouseRightClick) owner.on(Event.RIGHT_CLICK, this, func);
 
-        if (func = this.onKeyDown) owner.on(Event.KEY_DOWN, this, func);
-        if (func = this.onKeyPress) owner.on(Event.KEY_PRESS, this, func);
-        if (func = this.onKeyUp) owner.on(Event.KEY_UP, this, func);
+        if (func = this.onKeyDown) ILaya.stage.on(Event.KEY_DOWN, this, func);
+        if (func = this.onKeyPress) ILaya.stage.on(Event.KEY_PRESS, this, func);
+        if (func = this.onKeyUp) ILaya.stage.on(Event.KEY_UP, this, func);
     }
 
     /**

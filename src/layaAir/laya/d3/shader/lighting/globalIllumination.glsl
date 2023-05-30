@@ -1,6 +1,10 @@
 #if !defined(globalIllumination_lib)
     #define globalIllumination_lib
 
+    #ifdef VOLUMETRICGI
+	#include "VolumetricGI.glsl";
+    #endif // VOLUMETRICGI
+
 vec3 rotateByYAixs(in vec3 normal)
 {
     float co = cos(u_GIRotate);
@@ -29,27 +33,38 @@ uniform vec3 u_IblSH[9];
 uniform samplerCube u_IBLTex;
 
 // todo 格式
-vec3 diffuseIrradiance(in vec3 normal)
+vec3 diffuseIrradiance(in vec3 normalWS)
 {
     // todo cmeng 生成的数据问题， 临时转换下
-    vec3 n = normal * vec3(-1.0, 1.0, 1.0);
+    vec3 n = normalWS * vec3(-1.0, 1.0, 1.0);
     n = rotateByYAixs(n);
     return max(
-	u_IblSH[0]
-	    + u_IblSH[1] * n.y
-	    + u_IblSH[2] * n.z
-	    + u_IblSH[3] * n.x
-	    + u_IblSH[4] * (n.y * n.x)
-	    + u_IblSH[5] * (n.y * n.z)
-	    + u_IblSH[6] * (3.0 * n.z * n.z - 1.0)
-	    + u_IblSH[7] * (n.z * n.x)
-	    + u_IblSH[8] * (n.x * n.x - n.y * n.y),
-	0.0);
+	       u_IblSH[0]
+		   + u_IblSH[1] * n.y
+		   + u_IblSH[2] * n.z
+		   + u_IblSH[3] * n.x
+		   + u_IblSH[4] * (n.y * n.x)
+		   + u_IblSH[5] * (n.y * n.z)
+		   + u_IblSH[6] * (3.0 * n.z * n.z - 1.0)
+		   + u_IblSH[7] * (n.z * n.x)
+		   + u_IblSH[8] * (n.x * n.x - n.y * n.y),
+	       0.0)
+	* u_AmbientIntensity;
+}
+
+vec3 diffuseIrradiance(in vec3 normalWS, in vec3 positionWS, in vec3 viewDir)
+{
+	#ifdef VOLUMETRICGI
+    vec3 surfaceBias = VolumetricGISurfaceBias(normalWS, viewDir);
+    return VolumetricGIVolumeIrradiance(positionWS, surfaceBias, normalWS) * u_AmbientIntensity;
+	#else // VOLUMETRICGI
+    return diffuseIrradiance(normalWS);
+	#endif // VOLUMETRICGI
 }
 
 vec3 specularIrradiance(in vec3 r, in float perceptualRoughness)
 {
-    float lod = IBL_ROUGHNESS_LEVEL * perceptualRoughness;
+    float lod = IBL_ROUGHNESS_LEVEL * perceptualRoughness * (2.0 - perceptualRoughness);
 
     // todo 临时转换
     vec3 reflectDir = r * vec3(-1.0, 1.0, 1.0);
@@ -61,9 +76,9 @@ vec3 specularIrradiance(in vec3 r, in float perceptualRoughness)
     vec4 reflectSampler = textureCubeLodEXT(u_IBLTex, reflectDir, lod);
 
 	#ifdef IBL_RGBD
-    return decodeRGBD(reflectSampler);
+    return decodeRGBD(reflectSampler) * u_ReflectionIntensity;
 	#else // IBL_RGBD
-    return reflectSampler.rgb;
+    return reflectSampler.rgb * u_ReflectionIntensity;
 	#endif // IBL_RGBD
 }
 
@@ -121,7 +136,17 @@ vec3 diffuseIrradiance(in vec3 normalWS)
     ambientContrib += shEvalLinearL2(normal);
     vec3 ambient = max(vec3(0.0), ambientContrib);
 
-    return ambient;
+    return ambient * u_AmbientIntensity;
+}
+
+vec3 diffuseIrradiance(in vec3 normalWS, in vec3 positionWS, in vec3 viewDir)
+{
+	#ifdef VOLUMETRICGI
+    vec3 surfaceBias = VolumetricGISurfaceBias(normalWS, viewDir);
+    return VolumetricGIVolumeIrradiance(positionWS, surfaceBias, normalWS) * u_AmbientIntensity;
+	#else // VOLUMETRICGI
+    return diffuseIrradiance(normalWS);
+	#endif // VOLUMETRICGI
 }
 
 vec3 specularIrradiance(in vec3 r, in float perceptualRoughness)
@@ -136,7 +161,7 @@ vec3 specularIrradiance(in vec3 r, in float perceptualRoughness)
     float range = u_ReflectCubeHDRParams.x;
     vec3 color = decodeRGBM(rgbm, range);
     color = gammaToLinear(color);
-    return color;
+    return color * u_ReflectionIntensity;
 }
 
     #endif // GI_LEGACYIBL
@@ -148,13 +173,18 @@ uniform vec4 u_AmbientColor;
 
 vec3 diffuseIrradiance(in vec3 normalWS)
 {
-    return u_AmbientColor.rgb;
+    return u_AmbientColor.rgb * u_AmbientIntensity;
+}
+
+vec3 diffuseIrradiance(in vec3 normalWS, in vec3 positionWS, in vec3 viewDir)
+{
+    return diffuseIrradiance(normalWS);
 }
 
 vec3 specularIrradiance(in vec3 r, in float perceptualRoughness)
 {
     // todo
-    return u_AmbientColor.rgb;
+    return u_AmbientColor.rgb * u_ReflectionIntensity;
 }
 
 	#endif // GI_LEGACYIBL
@@ -162,41 +192,56 @@ vec3 specularIrradiance(in vec3 r, in float perceptualRoughness)
 
     #ifdef LIGHTMAP
 
+	#ifdef UV1
+	    #define USELIGHTMAP
+	#endif // UV1
+
 uniform sampler2D u_LightMap;
 
-vec3 getBakedLightmapColor(in vec2 lightmapUV)
+	#ifdef LIGHTMAP_DIRECTIONAL
+
+uniform sampler2D u_LightMapDirection;
+
+vec3 DecodeDirectionalLightmap(in vec2 lightmapUV, in vec3 bakeColor, in vec3 normalWS)
+{
+    vec4 dirLightmap = texture2D(u_LightMapDirection, lightmapUV);
+    vec3 lightdir = normalize(dirLightmap.xyz - vec3(0.5)); // 0-1  => -0.5-0.5
+    //根据法线计算半兰伯特
+    float halfLambert = clamp(dot(normalWS, lightdir), 0.0, 1.0) * 0.5 + 0.5;
+    return bakeColor * halfLambert / max(dirLightmap.w, 0.001);
+}
+
+	#endif // LIGHTMAP_DIRECTIONAL
+
+vec3 getBakedLightmapColor(in vec2 lightmapUV, in vec3 normalWS)
 {
     vec4 lightmapSampler = texture2D(u_LightMap, lightmapUV);
 	// todo lightmap rgbm encode color space
 	#ifdef Gamma_u_LightMap
     lightmapSampler = gammaToLinear(lightmapSampler);
 	#endif // Gamma_u_LightMap
+
+	#ifdef LIGHTMAP_DIRECTIONAL
+    lightmapSampler.rgb = DecodeDirectionalLightmap(lightmapUV, lightmapSampler.rgb, normalWS);
+	#endif // LIGHTMAP_DIRECTIONAL
+
     return lightmapSampler.rgb;
 }
 
-        #ifdef LIGHTMAP_DIRECTIONAL
-
-uniform sampler2D u_LightMapDirection;
-
-vec3 DecodeDirectionalLightmap(in vec2 lightmapUV,in vec3 bakeColor,in vec3 normalWS)
-{
-   vec4 dirLightmap = texture2D(u_LightMapDirection,lightmapUV);
-    vec3 lightdir= normalize( dirLightmap.xyz - vec3(0.5)); //0-1  => -0.5-0.5
-    //根据法线计算半兰伯特
-    float halfLambert =clamp(dot(normalWS,lightdir),0.0,1.0) * 0.5 + 0.5;
-    return bakeColor*halfLambert/max(dirLightmap.w,0.001);
-}
-        #endif //LIGHTMAP_DIRECTIONAL
     #endif // LIGHTMAP
 
-#ifdef SPECCUBE_BOX_PROJECTION
+    #ifdef SPECCUBE_BOX_PROJECTION
 
 uniform vec3 u_SpecCubeProbePosition;
 uniform vec3 u_SpecCubeBoxMax;
 uniform vec3 u_SpecCubeBoxMin;
 
-vec3 getBoxProjectionReflectedVector(vec3 r, vec3 positionWS, vec3 boxCenter, vec3 boxMin, vec3 boxMax)
+vec3 getBoxProjectionReflectedVector(vec3 r, vec3 positionWS)
 {
+    vec3 boxCenter = u_SpecCubeProbePosition;
+    vec3 boxMin = u_SpecCubeBoxMin;
+    vec3 boxMax = u_SpecCubeBoxMax;
+
     vec3 nr = normalize(r);
     vec3 rbmax = boxMax - positionWS;
     vec3 rbmin = boxMin - positionWS;
@@ -207,6 +252,6 @@ vec3 getBoxProjectionReflectedVector(vec3 r, vec3 positionWS, vec3 boxCenter, ve
     return boxr;
 }
 
-#endif // SPECCUBE_BOX_PROJECTION
+    #endif // SPECCUBE_BOX_PROJECTION
 
 #endif // globalIllumination_lib

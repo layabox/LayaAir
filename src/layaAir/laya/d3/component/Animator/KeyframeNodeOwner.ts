@@ -2,6 +2,7 @@ import { Quaternion } from "../../../maths/Quaternion";
 import { Vector3 } from "../../../maths/Vector3";
 
 export enum KeyFrameValueType {
+	None = -1,
 	Float = 0,
 	Position = 1,
 	Rotation = 2,
@@ -41,6 +42,15 @@ export class KeyframeNodeOwner {
 	crossFixedValue: any = null;
 	/**@internal */
 	isMaterial: boolean = false;
+	
+	/**@internal 回调路径*/
+	callbackFunData:string;
+	/**@internal 回调归属*/
+	callBackOwner:any;
+	/**@internal */
+	callbackFun:string;
+	/**@internal */
+	callParams:any[];
 
 	/**
 	 * 创建一个 <code>KeyframeNodeOwner</code> 实例。
@@ -73,6 +83,27 @@ export class KeyframeNodeOwner {
 		}
 	}
 
+	/**
+	 * @internal
+	 */
+	animatorDataSetCallBack(){
+		let fn:Function = this.callBackOwner[this.callbackFun];
+		fn.apply(this.callBackOwner,this.callParams);
+	}
+	
+	/**
+	 * @internal
+	 */
+	getCallbackNode(){
+		if(this.propertyOwner&&this.callbackFunData){
+			let funPropertys = this.callbackFunData.split(".");
+			this.callBackOwner = this.propertyOwner;
+			for(let i = 0,n = funPropertys.length-1;i<n;i++){
+				this.callBackOwner = this.callBackOwner[funPropertys[i]];
+			}
+			this.callbackFun = funPropertys[funPropertys.length-1];
+		}
+	}
 }
 
 

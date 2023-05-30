@@ -10,7 +10,9 @@ export interface INativeUploadNode{
     /**NativeID */
     nativeObjID:number;
     //组织一条数据更新命令
+    /**@internal */
     getUploadMemoryLength():number;
     //组织头数据
+    /**@internal */
     uploadDataTOShareMemory(memoryBlock:UploadMemory,stride:number): boolean;
 }

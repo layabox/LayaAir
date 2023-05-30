@@ -9,7 +9,7 @@ import { AssetDb } from "../../resource/AssetDb";
 import { Resource } from "../../resource/Resource";
 import { Byte } from "../../utils/Byte";
 import { Utils } from "../../utils/Utils";
-import { TextureCube } from "../resource/TextureCube";
+import { TextureCube } from "../../resource/TextureCube";
 
 var internalResources: Record<string, TextureCube>;
 
@@ -42,7 +42,7 @@ class CubemapLoader implements IResourceLoader {
 
                 let ktxInfo = KTXTextureInfo.getKTXTextureInfo(data);
                 if (ktxInfo.dimension != TextureDimension.Cube) {
-                    console.warn("ktxInfo.dimension != TextureDimension.Cube! " + task.url);
+                    Loader.warn("ktxInfo.dimension != TextureDimension.Cube! " + task.url);
                     return null;
                 }
 

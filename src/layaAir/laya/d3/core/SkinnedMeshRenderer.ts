@@ -220,6 +220,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
     _onSkinMeshChange(mesh: Mesh): void {
         if (mesh && this._mesh != mesh) {
             this._changeVertexDefine(mesh);
+            this._changeMorphData(mesh);
             this._mesh = mesh;
             var count: number = mesh.subMeshCount;
             this._renderElements.length = count;
@@ -242,6 +243,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
             this._renderElements.length = 0;
             this._mesh = null;
             this._changeVertexDefine(null);
+            this._changeMorphData(null);
         }
         this.boundsChange = true;
         // if (this._octreeNode && this._indexInOctreeMotionList === -1) {
@@ -303,6 +305,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
      * @internal
      */
     _renderUpdate(context: RenderContext3D, transform: Transform3D): void {
+        this._applyReflection();
         if (this.bones.length > 0) {
             this._computeSkinnedData();
             this._shaderValues.setMatrix4x4(Sprite3D.WORLDMATRIX, Matrix4x4.DEFAULT);
@@ -311,6 +314,8 @@ export class SkinnedMeshRenderer extends MeshRenderer {
             this._shaderValues.setMatrix4x4(Sprite3D.WORLDMATRIX, transform.worldMatrix);
             this._shaderValues.setNumber(Sprite3D.WORLDINVERTFRONT, transform._isFrontFaceInvert ? -1 : 1);
         }
+
+        this._applyMorphdata();
     }
 
     // /**

@@ -6,9 +6,6 @@ import { RenderContext3D } from "../../core/render/RenderContext3D";
 import { Bounds } from "../../math/Bounds";
 
 
-/**
- * @internal
- */
 export class StaticBatchSubInfo {
 
     indexStart: number;
@@ -27,9 +24,6 @@ export class StaticBatchSubInfo {
 
 }
 
-/**
- * @internal
- */
 export class StaticBatchSubMesh extends GeometryElement {
 
     /**@internal */

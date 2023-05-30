@@ -161,7 +161,7 @@ export class Slider extends UIComponent {
         if (this.showLabel) {
             var label: Label = Slider.label;
             this.addChild(label);
-            label.textField.changeText(this._value + "");
+            label.textField.text = this._value + "";
             if (this.isVertical) {
                 label.x = this._bar._x + 20;
                 label.y = (this._bar.height - label.height) * 0.5 + this._bar._y;

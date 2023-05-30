@@ -1,9 +1,11 @@
 import { LayaEnv } from "../../../../LayaEnv";
+import { TextureCube } from "../../../resource/TextureCube";
 import { Matrix4x4 } from "../../../maths/Matrix4x4";
 import { Vector2 } from "../../../maths/Vector2";
 import { Vector3 } from "../../../maths/Vector3";
 import { Vector4 } from "../../../maths/Vector4";
 import { BaseTexture } from "../../../resource/BaseTexture";
+import { Texture2D } from "../../../resource/Texture2D";
 import { IRenderShaderInstance } from "../../RenderInterface/IRenderShaderInstance";
 import { ShaderDataType } from "../../RenderShader/ShaderData";
 import { ShaderVariable } from "../../RenderShader/ShaderVariable";
@@ -69,6 +71,7 @@ export class GLShaderInstance extends GLObject implements IRenderShaderInstance 
         //Uniform
         //Unifrom Objcet
         const nUniformNum: number = gl.getProgramParameter(this._program, gl.ACTIVE_UNIFORMS);
+
         this.useProgram();
         this._curActTexIndex = 0;
         let one: ShaderVariable, i: number;
@@ -79,7 +82,7 @@ export class GLShaderInstance extends GLObject implements IRenderShaderInstance 
             if (!location && location != 0)
                 continue;
             one = new ShaderVariable();
-            one.location = location;
+            one.location = location as number;
             if (uniName.indexOf('[0]') > 0) {
                 one.name = uniName = uniName.substr(0, uniName.length - 3);
                 one.isArray = true;
@@ -451,20 +454,20 @@ export class GLShaderInstance extends GLObject implements IRenderShaderInstance 
      * @internal
      */
     _uniform_sampler2D(one: any, texture: BaseTexture): number {//TODO:TEXTURTE ARRAY
-        var value: any = texture._getSource() || texture.defaultTexture._getSource();
+        var value: any = texture ? texture._getSource() : Texture2D.errorTexture._getSource();
         var gl: WebGLRenderingContext = this._gl;
         this._bindTexture(one.textureID, gl.TEXTURE_2D, value);
         return 0;
     }
 
     _uniform_sampler2DArray(one: any, texture: BaseTexture): number {
-        let value = texture._getSource() || texture.defaultTexture._getSource();
+        var value: any = texture ? texture._getSource() : Texture2D.errorTexture._getSource();
         this._bindTexture(one.textureID, WebGL2RenderingContext.TEXTURE_2D_ARRAY, value)
         return 0;
     }
 
     _uniform_sampler3D(one: any, texture: BaseTexture): number {//TODO:TEXTURTE ARRAY
-        var value: any = texture._getSource() || texture.defaultTexture._getSource();
+        var value: any = texture ? texture._getSource() : Texture2D.errorTexture._getSource();
         this._bindTexture(one.textureID, WebGL2RenderingContext.TEXTURE_3D, value);
         return 0;
     }
@@ -473,7 +476,7 @@ export class GLShaderInstance extends GLObject implements IRenderShaderInstance 
      * @internal
      */
     _uniform_samplerCube(one: any, texture: BaseTexture): number {//TODO:TEXTURTECUBE ARRAY
-        var value: any = texture._getSource() || texture.defaultTexture._getSource();
+        var value: any = texture ? texture._getSource() : TextureCube.errorTexture._getSource();
         var gl: WebGLRenderingContext = this._gl;
         this._bindTexture(one.textureID, gl.TEXTURE_CUBE_MAP, value);
         return 0;

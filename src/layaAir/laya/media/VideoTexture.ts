@@ -12,13 +12,8 @@ import { LayaEnv } from "../../LayaEnv";
 import { Texture2D } from "../resource/Texture2D";
 import { AssetDb } from "../resource/AssetDb";
 import { Event as LayaEvent } from "../events/Event";
+import { Browser } from "../utils/Browser";
 
-export const enum VideoType {
-    MP4 = 1,
-    OGG = 2,
-    CAMERA = 4,
-    WEBM = 8,
-}
 
 /**
  * <code>VideoTexture</code> 多媒体纹理
@@ -35,7 +30,8 @@ export class VideoTexture extends BaseTexture {
     private _frameRender: boolean;
     /** @inernal 避免重复的加载 */
     _isLoaded: boolean;
-    _needUpdate: boolean = false;
+    _needUpdate: boolean;
+
     /**
      * 创建VideoTexture对象，
      */
@@ -44,6 +40,7 @@ export class VideoTexture extends BaseTexture {
         super(ele.videoWidth, ele.videoHeight, RenderTargetFormat.R8G8B8);
         this._frameRender = true;
         this._isLoaded = false;
+        this._needUpdate = false;
         this.immediatelyPlay = false;
         this.element = ele;
 
@@ -159,7 +156,8 @@ export class VideoTexture extends BaseTexture {
     private appendSource(source: string): void {
         var sourceElement: HTMLSourceElement = ILaya.Browser.createElement("source");
         sourceElement.src = URL.postFormatURL(URL.formatURL(source));
-        sourceElement.type = "video/" + Utils.getFileExtension(source);
+        let extension = Utils.getFileExtension(source);
+        sourceElement.type = extension == "m3u8" ? "application/vnd.apple.mpegurl" : ("video/" + extension);
         this.element.appendChild(sourceElement);
     }
 
@@ -170,7 +168,7 @@ export class VideoTexture extends BaseTexture {
 
         if (this.element.readyState == 0)
             return;
-        if (this.isNeedUpdate()) {
+        if (this.isNeedUpdate() || Browser.onLayaRuntime) {
             LayaGL.textureContext.updateVideoTexture(this._texture, this.element, false, false);
             this._needUpdate = false;
         }
@@ -201,7 +199,9 @@ export class VideoTexture extends BaseTexture {
         if (!this._texture) {
             this.immediatelyPlay = true;
         } else {
-            this.element.play();
+            this.element.play().catch(() => {
+                this.event("NotAllowedError");
+            });
             if (this._frameRender) {
                 ILaya.timer.frameLoop(1, this, this.render);
             }
@@ -237,7 +237,7 @@ export class VideoTexture extends BaseTexture {
 
     /**
      * 检测是否支持播放指定格式视频。
-     * @param type	参数为Video.MP4 / Video.OGG / Video.WEBM之一。
+     * @param type	"mp4","ogg","webm","m3u8"等。
      * @return 表示支持的级别。可能的值：
      * <ul>
      * <li>"probably" - 浏览器最可能支持该音频/视频类型</li>
@@ -245,20 +245,9 @@ export class VideoTexture extends BaseTexture {
      * <li>"" - （空字符串）浏览器不支持该音频/视频类型</li>
      * </ul>
      */
-    canPlayType(type: number): CanPlayTypeResult {
-        var typeString: string;
-        switch (type) {
-            case VideoType.MP4:
-                typeString = "video/mp4";
-                break;
-            case VideoType.OGG:
-                typeString = "video/ogg";
-                break;
-            case VideoType.WEBM:
-                typeString = "video/webm";
-                break;
-        }
-        return this.element.canPlayType(typeString);
+    canPlayType(type: string): CanPlayTypeResult {
+        type == "m3u8" ? "application/vnd.apple.mpegurl" : ("video/" + type);
+        return this.element.canPlayType(type);
     }
 
     /**
@@ -465,5 +454,5 @@ export class VideoTexture extends BaseTexture {
 const videoEvents = new Set([
     "abort", "canplay", "canplaythrough", "durationchange", "emptied", "error", "loadeddata",
     "loadedmetadata", "loadstart", "pause", "play", "playing", "progress", "ratechange", "seeked", "seeking",
-    "stalled", "suspend", "timeupdate", "volumechange", "waiting"
+    "stalled", "suspend", "timeupdate", "volumechange", "waiting", "ended"
 ]);

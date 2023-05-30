@@ -18,7 +18,9 @@ import { ITextureContext } from "./ITextureContext";
 
 export interface IRenderEngine {
     _context: any;
+    /**@internal */
     _isShaderDebugMode: boolean;
+    /**@internal */
     _renderOBJCreateContext:IRenderOBJCreate;
     initRenderEngine(canvas: any): void;
 
@@ -42,16 +44,18 @@ export interface IRenderEngine {
     getDrawContext(): IRenderDrawContext;
     get2DRenderContext(): IRender2DContext;
     getCreateRenderOBJContext(): IRenderOBJCreate;
-
+    /**@internal */
     uploadUniforms(shader: IRenderShaderInstance, commandEncoder: CommandEncoder, shaderData: any, uploadUnTexture: boolean): number;
+    /**@internal */
     uploadCustomUniforms(shader: IRenderShaderInstance, custom: any[], index: number, data: any): number;
     createRenderStateComand():RenderStateCommand;
     createShaderInstance(vs: string, ps: string, attributeMap: { [name: string]: [number, ShaderDataType] }): IRenderShaderInstance
     createBuffer(targetType: BufferTargetType, bufferUsageType: BufferUsage): IRenderBuffer;
     createVertexState(): IRenderVertexState;
     getUBOPointer(name: string): number;
-
+    /**@internal */
     clearStatisticsInfo(info:RenderStatisticsInfo):void;
+    /**@internal */
     getStatisticsInfo(info:RenderStatisticsInfo):number;
     unbindVertexState(): void;
 }

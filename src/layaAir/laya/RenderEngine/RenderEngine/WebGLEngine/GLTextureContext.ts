@@ -249,7 +249,7 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         return this._glParam;
     }
 
-    glRenderBufferParam(format: RenderTargetFormat, useSRGB: boolean) {
+    glRenderBufferParam(format: RenderTargetFormat, useSRGB: boolean): { internalFormat: number; attachment: number; } {
         // todo
         let gl = this._gl;
         switch (format) {
@@ -289,7 +289,7 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         }
     }
 
-    protected getTarget(dimension: TextureDimension) {
+    protected getTarget(dimension: TextureDimension): number {
         let gl = this._gl;
         switch (dimension) {
             case TextureDimension.Tex2D:
@@ -615,7 +615,7 @@ export class GLTextureContext extends GLObject implements ITextureContext {
 
         this._engine._bindTexture(texture.target, texture.resource);
 
-        gl.texSubImage2D(target,0,x,y,format,type,source);
+        gl.texSubImage2D(target, 0, x, y, format, type, source);
         texture.gpuMemory = this.getGLtexMemory(texture);
         //texture.
         // gl.texImage2D(target, 0, internalFormat, width, height, 0, format, type, null);
@@ -634,17 +634,17 @@ export class GLTextureContext extends GLObject implements ITextureContext {
     }
 
     setTexture3DImageData(texture: WebGLInternalTex, sources: HTMLImageElement[] | HTMLCanvasElement[] | ImageBitmap[], depth: number, premultiplyAlpha: boolean, invertY: boolean) {
-        
+
     }
 
     setTexture3DPixlesData(texture: InternalTexture, source: ArrayBufferView, depth: number, premultiplyAlpha: boolean, invertY: boolean): void {
-        
+
     }
 
     setTexture3DSubPixelsData(texture: InternalTexture, source: ArrayBufferView, mipmapLevel: number, generateMipmap: boolean, xOffset: number, yOffset: number, zOffset: number, width: number, height: number, depth: number, premultiplyAlpha: boolean, invertY: boolean): void {
-        
+
     }
-    
+
     initVideoTextureData(texture: WebGLInternalTex) {
         let target = texture.target;
         let internalFormat = texture.internalFormat;
@@ -762,7 +762,7 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         for (let index = 0; index < mipmapCount; index++) {
 
             // todo  size 计算 方式
-            let dataLength = Math.max(4, mipmapWidth) / 4 * Math.max(4, mipmapHeight) / 4 * blockBytes;
+            let dataLength = (((Math.max(4, mipmapWidth) / 4) * Math.max(4, mipmapHeight)) / 4) * blockBytes;
             let sourceData = new Uint8Array(source, dataOffset, dataLength);
 
             gl.compressedTexImage2D(target, index, internalFormat, mipmapWidth, mipmapHeight, 0, sourceData);
@@ -817,13 +817,19 @@ export class GLTextureContext extends GLObject implements ITextureContext {
             let imageSize = new Int32Array(source, dataOffset, 1)[0];
 
             dataOffset += 4;
-            // todo  cube 在一起？
+            if (compressed) {
+                let sourceData = new Uint8Array(source, dataOffset, imageSize);
+                gl.compressedTexImage2D(target, index, internalFormat, mipmapWidth, mipmapHeight, 0, sourceData);
+                memory += sourceData.length;
+            }
+            else {
+                let pixelParams = this.getFormatPixelsParams(ktxInfo.format);
+                let typedSize = imageSize / pixelParams.typedSize;
+                let sourceData: ArrayBufferView = new pixelParams.dataTypedCons(source, dataOffset, typedSize);
+                gl.texImage2D(target, index, internalFormat, mipmapWidth, mipmapHeight, 0, format, type, sourceData);
+                memory += sourceData.byteLength;
+            }
 
-            let sourceData = new Uint8Array(source, dataOffset, imageSize);
-
-            compressed && gl.compressedTexImage2D(target, index, internalFormat, mipmapWidth, mipmapHeight, 0, sourceData);
-            !compressed && gl.texImage2D(target, index, internalFormat, mipmapWidth, mipmapHeight, 0, format, type, sourceData);
-            memory += sourceData.length;
             dataOffset += imageSize;
             dataOffset += 3 - ((imageSize + 3) % 4);
 

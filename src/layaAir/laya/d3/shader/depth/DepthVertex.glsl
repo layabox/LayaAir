@@ -23,13 +23,6 @@ uniform vec3 u_ShadowLightDirection;
 		#endif // SHADOW
 	    #endif // ENUNIFORMBLOCK
 
-// 根据投影剧专重映射深度
-//vec4 remapPositionZ(vec4 position)
-//{
-//    position.z = position.z * 2.0 - position.w;
-//    return position;
-//}
-
 vec3 applyShadowBias(vec3 positionWS, vec3 normalWS, vec3 lightDirection)
 {
     float invNdotL = 1.0 - clamp(dot(-lightDirection, normalWS), 0.0, 1.0);
@@ -71,6 +64,5 @@ vec4 DepthPositionCS(in vec3 positionWS, in vec3 normalWS)
 
     return positionCS;
 }
-
 
 #endif // DepthVertex_lib

@@ -60,7 +60,6 @@ export class Main {
 
         //这里改成true就会从外部加载资源
         this._isReadNetWorkRes = isReadNetWorkRes;
-        AssetDb.inst.enableImageMetaFile = true;
         if (this._isReadNetWorkRes) {
             URL.rootPath = URL.basePath = "https://layaair.layabox.com/3.x/api/EngineDemoResource/";/*"http://10.10.20.55:8000/";*///"https://star.layabox.com/Laya1.0.0/";//"http://10.10.20.55:8000/";"https://layaair.ldc.layabox.com/demo2/h5/";
         }else{
