@@ -779,11 +779,16 @@ export class Text extends Sprite {
         return this._templateVars;
     }
 
-    public set templateVars(value: Record<string, any>) {
+    public set templateVars(value: Record<string, any> | boolean) {
         if (!this._templateVars && !value)
             return;
 
-        this._templateVars = value;
+        if (value === true)
+            this._templateVars = {};
+        else if (value === false)
+            this._templateVars = null;
+        else
+            this._templateVars = value;
         this.markChanged();
     }
 
