@@ -1,5 +1,5 @@
-#if !defined(PBRMetallic_lib)
-    #define PBRMetallic_lib
+#if !defined(glTFMetallicRoughness_lib)
+    #define glTFMetallicRoughness_lib
 
     #include "ShadingFrag.glsl";
 
@@ -10,7 +10,7 @@ struct SurfaceInputs {
     float alpha;
     float alphaTest;
     float metallic;
-    float smoothness;
+    float roughness;
     float occlusion;
     vec3 emissionColor;
     vec3 normalTS;
@@ -27,6 +27,16 @@ struct SurfaceInputs {
     float anisotropy;
     vec2 anisotropyDirection;
     #endif // ANISOTROPIC
+
+    #ifdef IOR
+    float ior;
+    #endif // IOR
+
+    #ifdef IRIDESCENCE
+    float iridescence;
+    float iridescenceIor;
+    float iridescenceThickness;
+    #endif // IRIDESCENCE
 };
 
 void initSurface(inout Surface surface, const in SurfaceInputs inputs, const in PixelParams pixel)
@@ -37,12 +47,15 @@ void initSurface(inout Surface surface, const in SurfaceInputs inputs, const in 
 
     vec3 baseColor = inputs.diffuseColor;
     float metallic = inputs.metallic;
-    float perceptualRoughness = 1.0 - inputs.smoothness;
+    float perceptualRoughness = inputs.roughness;
 
-    // default ior 1.5
     float ior = 1.5;
-    surface.ior = 1.5;
-    vec3 f0 = vec3(0.04, 0.04, 0.04);
+    vec3 f0 = vec3(0.04);
+    #ifdef IOR
+    ior = inputs.ior;
+    f0 = vec3(pow2((ior - 1.0) / (ior + 1.0)));
+    #endif // IOR
+    surface.ior = ior;
 
     surface.perceptualRoughness = clamp(perceptualRoughness, MIN_PERCEPTUAL_ROUGHNESS, 1.0);
     surface.roughness = surface.perceptualRoughness * surface.perceptualRoughness;
@@ -50,6 +63,12 @@ void initSurface(inout Surface surface, const in SurfaceInputs inputs, const in 
     surface.f0 = mix(f0, baseColor, metallic);
 
     surface.occlusion = inputs.occlusion;
+
+    #ifdef IRIDESCENCE
+    surface.iridescence = inputs.iridescence;
+    surface.iridescenceIor = inputs.iridescenceIor;
+    surface.iridescenceThickness = inputs.iridescenceThickness;
+    #endif // IRIDESCENCE
 
     #ifdef CLEARCOAT
     surface.clearCoat = inputs.clearCoat;
@@ -66,7 +85,7 @@ void initSurface(inout Surface surface, const in SurfaceInputs inputs, const in 
     #endif // ANISOTROPIC
 }
 
-vec4 PBR_Metallic_Flow(const in SurfaceInputs inputs, in PixelParams pixel)
+vec4 glTFMetallicRoughness(const in SurfaceInputs inputs, in PixelParams pixel)
 {
     #ifdef ALPHATEST
     if (inputs.alpha < inputs.alphaTest)
@@ -90,4 +109,4 @@ vec4 PBR_Metallic_Flow(const in SurfaceInputs inputs, in PixelParams pixel)
     return vec4(surfaceColor, surface.alpha);
 }
 
-#endif // PBRMetallic_lib
+#endif // glTFMetallicRoughness_lib

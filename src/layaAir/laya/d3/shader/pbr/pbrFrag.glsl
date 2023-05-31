@@ -22,6 +22,10 @@ void getPixelInfo(inout PixelInfo info, const in PixelParams pixel, const in Sur
 
     info.dfg = prefilteredDFG_LUT(surface.perceptualRoughness, info.NoV);
 
+    #ifdef IRIDESCENCE
+    info.iridescenceFresnel = evalIridescence(1.0, surface.iridescenceIor, info.NoV, surface.iridescenceThickness, surface.f0);
+    #endif // IRIDESCENCE
+
     #ifdef CLEARCOAT
 	#ifdef CLEARCOAT_NORMAL
     info.clearCoatNormal = normalize(pixel.TBN * surface.clearCoatNormalTS);

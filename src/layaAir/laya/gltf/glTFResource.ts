@@ -698,14 +698,12 @@ export class glTFResource extends Prefab {
      * @param glTFTextureInfo 
      */
     getTextureWithInfo(glTFTextureInfo: glTF.glTFTextureInfo): Texture2D {
-
         // uv 非 0 
         if (glTFTextureInfo.texCoord) {
             // todo 非0 uv 
             console.warn("glTF Loader: non 0 uv channel unsupported.");
         }
 
-        // let glTFImage: glTF.glTFTexture = this._glTF.textures[glTFTextureInfo.index];
         return this._textures[glTFTextureInfo.index];
     }
 

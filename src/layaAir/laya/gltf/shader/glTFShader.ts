@@ -6,6 +6,7 @@ import { Vector3 } from "../../maths/Vector3";
 import { Vector4 } from "../../maths/Vector4";
 import { Texture2D } from "../../resource/Texture2D";
 
+import glTFMetallicRoughnessGLSL from "./glTFMetallicRoughness.glsl";
 import glTFPBRVS from "./glTFPBR.vs";
 import glTFPBRFS from "./glTFPBR.fs";
 import DepthVS from "./glTFPBRDepth.vs";
@@ -36,8 +37,14 @@ export class glTFShader {
     // anisotropy
     static Define_AnisotropyMap: ShaderDefine;
 
+    // iridescence
+    static Define_IridescenceMap: ShaderDefine;
+    static Define_IridescenceThicknessMap: ShaderDefine;
+
     // todo
     static init() {
+
+        Shader3D.addInclude("glTFMetallicRoughness.glsl", glTFMetallicRoughnessGLSL);
 
         this.Define_MetallicRoughnessMap = Shader3D.getDefineByName("METALLICROUGHNESSMAP");
         this.Define_NormalMap = Shader3D.getDefineByName("NORMALMAP");
@@ -49,6 +56,9 @@ export class glTFShader {
         this.Define_ClearCoatNormalMap = Shader3D.getDefineByName("CLEARCOAT_NORMAL");
 
         this.Define_AnisotropyMap = Shader3D.getDefineByName("ANISOTROPYMAP");
+
+        this.Define_IridescenceMap = Shader3D.getDefineByName("IRIDESCENCEMAP");
+        this.Define_IridescenceThicknessMap = Shader3D.getDefineByName("IRIDESCENCETHICKNESSMAP");
 
         let uniformMap = {
             // render 
@@ -83,6 +93,17 @@ export class glTFShader {
             "u_AnisotropyStrength": ShaderDataType.Float,
             "u_AnisotropyRotation": ShaderDataType.Float,
             "u_AnisotropyTexture": ShaderDataType.Texture2D,
+
+            // ior
+            "u_Ior": ShaderDataType.Float,
+
+            // iridescence
+            "u_IridescenceFactor": ShaderDataType.Float,
+            "u_IridescenceTexture": ShaderDataType.Texture2D,
+            "u_IridescenceIor": ShaderDataType.Float,
+            "u_IridescenceThicknessMinimum": ShaderDataType.Float,
+            "u_IridescenceThicknessMaximum": ShaderDataType.Float,
+            "u_IridescenceThicknessTexture": ShaderDataType.Texture2D,
         }
 
         let defaultValue = {
@@ -97,6 +118,8 @@ export class glTFShader {
             "u_OcclusionStrength": 1.0,
             "u_EmissionFactor": Vector3.ZERO,
             "u_EmissionStrength": 1.0,
+
+            "u_Ior": 1.5,
 
             // clear coat
             "u_ClearcoatFactor": 0.0,

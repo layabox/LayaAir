@@ -29,6 +29,10 @@ struct PixelInfo {
 
     vec3 dfg;
 
+    #ifdef IRIDESCENCE
+    vec3 iridescenceFresnel;
+    #endif // IRIDESCENCE
+
     #ifdef CLEARCOAT
     vec3 clearCoatNormal;
     float clearCoatNoV;
@@ -60,6 +64,8 @@ struct Surface {
 
     vec3 normalTS;
 
+    float ior;
+
     #ifdef CLEARCOAT
     float clearCoat;
     float clearCoatRoughness;
@@ -73,6 +79,12 @@ struct Surface {
     float anisotropy;
     vec2 anisotropyDirection;
     #endif // ANISOTROPIC
+
+    #ifdef IRIDESCENCE
+    float iridescence;
+    float iridescenceIor;
+    float iridescenceThickness;
+    #endif // IRIDESCENCE
 };
 
 struct LightParams {
@@ -140,8 +152,8 @@ vec2 EnvBRDFApproxLazarov(float roughness, float NoV)
 
 vec3 diffuseLobe(in Surface surface, const in PixelInfo pixel, const in LightParams lightParams)
 {
-    return surface.diffuseColor * diffuse();
-    // return surface.diffuseColor * diffuse() * (1.0 - F_Schlick(surface.f0, vec3(1.0, 1.0, 1.0), lightParams.VoH));
+    return surface.diffuseColor * Fd_Lambert();
+    // return surface.diffuseColor * Fd_Lambert() * (1.0 - F_Schlick(surface.f0, vec3(1.0, 1.0, 1.0), lightParams.VoH));
     // return surface.diffuseColor * Fd_Burley(surface.roughness, pixel.NoV, lightParams.NoL, lightParams.LoH);
 }
 
@@ -155,6 +167,31 @@ vec3 specularLobe(const in Surface surface, const in PixelInfo pixel, const in L
 
     return (D * V) * F;
 }
+
+    #ifdef IRIDESCENCE
+vec3 iridescenceDiffuseLobe(in Surface surface, const in PixelInfo pixel, const in LightParams lightParams)
+{
+    vec3 f0 = surface.f0;
+    vec3 f90 = vec3(1.0);
+    vec3 iridescenceFresnel = pixel.iridescenceFresnel;
+    float iridescence = surface.iridescence;
+    float VoH = lightParams.VoH;
+    return surface.diffuseColor * Fd_IridescenceLambert(f0, f90, iridescenceFresnel, iridescence, VoH);
+}
+
+vec3 iridescenceSpecularLobe(const in Surface surface, const in PixelInfo pixel, const in LightParams lightParams)
+{
+    float roughness = surface.roughness;
+    float D = distribution(roughness, lightParams.NoH, lightParams.h, pixel.normalWS);
+    float V = visibility(roughness, pixel.NoV, lightParams.NoL);
+
+    float iridescenceFactor = surface.iridescence;
+    vec3 iridescenceFresnel = pixel.iridescenceFresnel;
+    vec3 F = mix(fresnel(surface.f0, lightParams.LoH), iridescenceFresnel, vec3(iridescenceFactor));
+
+    return (D * V) * F;
+}
+    #endif // IRIDESCENCE
 
     #ifdef CLEARCOAT
 float clearCoatLobe(const in Surface surface, const in PixelInfo pixel, const in LightParams lightParams)
@@ -206,20 +243,22 @@ vec3 PBRLighting(const in Surface surface, const in PixelInfo pixel, const in Li
     LightParams lightParams;
     initLightParams(lightParams, pixel, light);
 
+    #ifdef IRIDESCENCE
+    vec3 Fd = iridescenceDiffuseLobe(surface, pixel, lightParams);
+    vec3 Fr = iridescenceSpecularLobe(surface, pixel, lightParams);
+    #elif defined(ANISOTROPIC)
     vec3 Fd = diffuseLobe(surface, pixel, lightParams);
-
-    #ifdef ANISOTROPIC
     vec3 Fr = anisotropyLobe(surface, pixel, lightParams);
-    #else // ANISOTROPIC
+    #else
+    vec3 Fd = diffuseLobe(surface, pixel, lightParams);
     vec3 Fr = specularLobe(surface, pixel, lightParams);
-    #endif // ANISOTROPIC
+    #endif
 
     vec3 shading = (Fd + Fr) * lightParams.NoL;
 
     #ifdef CLEARCOAT
     float clearCoatNoL = lightParams.clearCoatNoL;
     float LoH = lightParams.LoH;
-    // todo
     // default IOR 1.5
     float FccClearCoat = F_Schlick(0.04, 1.0, LoH) * surface.clearCoat;
     float attenuation = 1.0 - FccClearCoat;

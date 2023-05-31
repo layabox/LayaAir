@@ -8,7 +8,7 @@
 #include "Camera.glsl";
 #include "Sprite3DFrag.glsl";
 
-#include "PBRMetallicFrag.glsl";
+#include "glTFMetallicRoughness.glsl";
 
 void initSurfaceInputs(inout SurfaceInputs inputs, const in PixelParams pixel)
 {
@@ -38,7 +38,7 @@ void initSurfaceInputs(inout SurfaceInputs inputs, const in PixelParams pixel)
     inputs.metallic *= metallicRoughnessSampler.b;
     roughness *= metallicRoughnessSampler.g;
 #endif // METALLICROUGHNESSMAP
-    inputs.smoothness = 1.0 - roughness;
+    inputs.roughness = roughness;
 
     float occlusion = 1.0;
 #ifdef OCCLUSIONMAP
@@ -66,6 +66,26 @@ void initSurfaceInputs(inout SurfaceInputs inputs, const in PixelParams pixel)
     normalSampler.y *= -1.0;
     inputs.normalTS = normalScale(normalSampler, u_NormalScale);
 #endif // NORMALMAP
+
+#ifdef IOR
+    inputs.ior = u_Ior;
+#endif // IOR
+
+#ifdef IRIDESCENCE
+    float iridescenceFactor = u_IridescenceFactor;
+    #ifdef IRIDESCENCEMAP
+    vec4 iridescenceSampler = texture2D(u_IridescenceTexture, uv);
+    iridescenceFactor *= iridescenceSampler.r;
+    #endif // IRIDESCENCEMAP
+    float iridescenceThickness = u_IridescenceThicknessMaximum;
+    #ifdef IRIDESCENCETHICKNESSMAP
+    vec4 iridescenceThicknessSampler = texture2D(u_IridescenceThicknessTexture, uv);
+    iridescenceThickness = mix(u_IridescenceThicknessMinimum, u_IridescenceThicknessMaximum, iridescenceThicknessSampler.g);
+    #endif // IRIDESCENCETHICKNESSMAP
+    inputs.iridescence = iridescenceFactor;
+    inputs.iridescenceIor = u_IridescenceIor;
+    inputs.iridescenceThickness = iridescenceThickness;
+#endif // IRIDESCENCE
 
 #ifdef CLEARCOAT
     inputs.clearCoat = u_ClearCoatFactor;
@@ -116,7 +136,7 @@ void main()
     SurfaceInputs inputs;
     initSurfaceInputs(inputs, pixel);
 
-    vec4 surfaceColor = PBR_Metallic_Flow(inputs, pixel);
+    vec4 surfaceColor = glTFMetallicRoughness(inputs, pixel);
 
 #ifdef FOG
     surfaceColor.rgb = sceneLitFog(surfaceColor.rgb);
@@ -133,7 +153,7 @@ void main()
 
     // vec3 debug = vec3(0.0);
 
-    // debug = vec3(1.0 - inputs.smoothness);
+    // debug = vec3(surface.iridescenceThickness / 1200.0);
 
     // debug = gammaToLinear(debug);
     // gl_FragColor = vec4(debug, 1.0);

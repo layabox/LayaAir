@@ -30,6 +30,16 @@ export class PBRShaderLib {
      */
     static DEFINE_ANISOTROPY: ShaderDefine;
 
+    /**
+     * ior
+     */
+    static DEFINE_IOR: ShaderDefine;
+
+    /**
+     * iridescence
+     */
+    static DEFINE_IRIDESCENCE: ShaderDefine;
+
     static init() {
 
         PBRShaderLib.DEFINE_EMISSION = Shader3D.getDefineByName("EMISSION");
@@ -38,6 +48,10 @@ export class PBRShaderLib {
         PBRShaderLib.DEFINE_CLEARCOAT_NORMAL = Shader3D.getDefineByName("CLEARCOAT_NORMAL");
 
         PBRShaderLib.DEFINE_ANISOTROPY = Shader3D.getDefineByName("ANISOTROPIC");
+
+        PBRShaderLib.DEFINE_IOR = Shader3D.getDefineByName("IOR");
+
+        PBRShaderLib.DEFINE_IRIDESCENCE = Shader3D.getDefineByName("IRIDESCENCE");
 
         // pbr lib
         Shader3D.addInclude("BRDF.glsl", BRDFGLSL);
