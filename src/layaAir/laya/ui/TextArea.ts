@@ -198,6 +198,7 @@ export class TextArea extends TextInput {
         this._hScrollBar = new HScrollBar();
         this._hScrollBar.hideFlags = HideFlags.HideAndDontSave;
         this._hScrollBar._skinBaseUrl = this._skinBaseUrl;
+        this._hScrollBar.skin = this._hScrollBarSkin;
         this.addChild(this._hScrollBar);
         this._hScrollBar.on(Event.CHANGE, this, this.onHBarChanged);
         this._hScrollBar.on(Event.LOADED, this, this.changeScroll);
@@ -210,6 +211,7 @@ export class TextArea extends TextInput {
         this._vScrollBar = new VScrollBar();
         this._vScrollBar.hideFlags = HideFlags.HideAndDontSave;
         this._vScrollBar._skinBaseUrl = this._skinBaseUrl;
+        this._vScrollBar.skin = this._vScrollBarSkin;
         this.addChild(this._vScrollBar);
         this._vScrollBar.on(Event.CHANGE, this, this.onVBarChanged);
         this._vScrollBar.on(Event.LOADED, this, this.changeScroll);
@@ -300,11 +302,11 @@ export class TextArea extends TextInput {
     }
 
     private changeScroll(): void {
-        let vShow: boolean = this._vScrollBar && this._tf.maxScrollY > 0;
-        let hShow: boolean = this._hScrollBar && this._tf.maxScrollX > 0;
-        let padding: any[] = this._tf.padding;
-        let showWidth: number = vShow ? this._width - this._vScrollBar.width - padding[2] : this._width;
-        let showHeight: number = hShow ? this._height - this._hScrollBar.height - padding[3] : this._height;
+        let vShow = this._vScrollBar && this._tf.maxScrollY > 0;
+        let hShow = this._hScrollBar && this._tf.maxScrollX > 0;
+        let padding = this._tf.padding;
+        let showWidth = vShow ? this._width - this._vScrollBar.width - padding[2] : this._width;
+        let showHeight = hShow ? this._height - this._hScrollBar.height - padding[3] : this._height;
 
         this._tf.size(showWidth, showHeight);
 
