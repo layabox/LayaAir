@@ -507,7 +507,7 @@ export class Label extends UIComponent {
         return this._tf.templateVars;
     }
 
-    public set templateVars(value: Record<string, any>) {
+    public set templateVars(value: Record<string, any> | boolean) {
         this._tf.templateVars = value;
     }
 
