@@ -5,7 +5,6 @@ import { Texture2D } from "../resource/Texture2D";
 import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
 import { ILaya } from "../../ILaya";
 import { LayaEnv } from "../../LayaEnv";
-import { LayaGL } from "../layagl/LayaGL";
 
 /**
  * 微信开放数据展示组件，直接实例本组件，即可根据组件宽高，位置，以最优的方式显示开放域数据
@@ -16,8 +15,7 @@ export class OpenDataContextView extends UIComponent {
     constructor() {
         super();
         this._width = this._height = 200;
-        let tex: Texture = new Texture();
-        tex.bitmap = new Texture2D(this._width, this._height, TextureFormat.R8G8B8A8, false, false, false);
+        let tex: Texture = new Texture(new Texture2D(this._width, this._height, TextureFormat.R8G8B8A8, false, false, false));
         tex.bitmap.lock = true;
         this.texture = tex;
     }
