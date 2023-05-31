@@ -1483,7 +1483,8 @@ export class Text extends Sprite {
             let cmds = this.graphics.cmds;
             let i = cmds.indexOf(cmd);
             if (i != 0) {
-                cmds.splice(i, 1);
+                if (i != -1)
+                    cmds.splice(i, 1);
                 cmds.unshift(cmd);
                 this.graphics.cmds = cmds;
             }
