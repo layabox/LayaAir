@@ -974,17 +974,18 @@ export class Text extends Sprite {
 
         let wordWrap = this._wordWrap;
         let padding = this._padding;
-        let wrapWidth: number;
-        if (this._isWidthSet && (wordWrap || this._overflow == Text.HIDDEN)) {
-            wordWrap = true;
-            wrapWidth = this._width - padding[3] - padding[1];
-            if (this._maxWidth > 0 && this._maxWidth < wrapWidth)
-                wrapWidth = this._maxWidth;
+        let rectWidth: number;
+        if (this._isWidthSet) {
+            rectWidth = this._width - padding[3] - padding[1];
+            if (this._maxWidth > 0 && this._maxWidth < rectWidth)
+                rectWidth = this._maxWidth;
         }
         else if (this._maxWidth > 0) {
             wordWrap = true;
-            wrapWidth = this._maxWidth;
+            rectWidth = this._maxWidth;
         }
+        else
+            rectWidth = Number.MAX_VALUE;
 
         recoverLines(this._lines);
 
@@ -1036,7 +1037,7 @@ export class Text extends Sprite {
             }
 
             let lines = text.split("\n");
-            if (wrapWidth != null) {
+            if (wordWrap) {
                 for (let i = 0, n = lines.length; i < n; i++) {
                     let line = lines[i];
                     if (line.length > 0)
@@ -1131,7 +1132,7 @@ export class Text extends Sprite {
         };
 
         let wrapText = (text: string, style: TextStyle) => {
-            let remainWidth = wrapWidth - lineX;
+            let remainWidth = rectWidth - lineX;
 
             let tw = getTextWidth(text, style);
             //优化1，如果一行小于宽度，则直接跳过遍历
@@ -1153,7 +1154,7 @@ export class Text extends Sprite {
                 if (remainWidth < wordWidth && lineX != 0) {
                     endLine();
                     startLine();
-                    remainWidth = wrapWidth;
+                    remainWidth = rectWidth;
                 }
             }
 
@@ -1182,65 +1183,60 @@ export class Text extends Sprite {
                         }
                     }
 
-                    if (wordWrap) {
-                        if (j == 0) {
-                            if (lineX > 0) {
-                                endLine();
-                                startLine();
-                                remainWidth = wrapWidth;
-                            }
-                            continue;
+                    if (j == 0) {
+                        if (lineX > 0) {
+                            endLine();
+                            startLine();
+                            remainWidth = rectWidth;
                         }
+                        continue;
+                    }
 
-                        //截断换行单词
-                        let newLine = text.substring(startIndex, j);
-                        // 如果最后一个是中文则直接截断，否则找空格或者-来拆分
-                        let ccode = newLine.charCodeAt(newLine.length - 1);
-                        if (ccode < 0x4e00 || ccode > 0x9fa5) {
-                            //按照英文单词字边界截取 因此将会无视中文
-                            let execResult = wordBoundaryTest.exec(newLine);// 找不是 空格和标点符号的
-                            if (execResult) {
-                                j = execResult.index + startIndex;
-                                //此行只够容纳这一个单词 强制换行
-                                if (execResult.index == 0)
-                                    j += newLine.length;
-                                //此行有多个单词 按单词分行
-                                else
-                                    newLine = text.substring(startIndex, j);
-                            }
-                        }
-
-                        //如果自动换行，则另起一行
-                        addCmd(newLine, style, wordWidth - tw);
-                        endLine();
-                        startLine();
-                        remainWidth = wrapWidth;
-                        //如果非自动换行，则只截取字符串
-
-                        startIndex = j;
-                        if (j + maybeIndex < len) {
-                            if (maybeIndex != 0) {
-                                j += maybeIndex;
-
-                                tw = getTextWidth(text.substring(startIndex, j), style);
-                                wordWidth = tw;
-                                j--;
-                            }
+                    //截断换行单词
+                    let newLine = text.substring(startIndex, j);
+                    // 如果最后一个是中文则直接截断，否则找空格或者-来拆分
+                    let ccode = newLine.charCodeAt(newLine.length - 1);
+                    if (ccode < 0x4e00 || ccode > 0x9fa5) {
+                        //按照英文单词字边界截取 因此将会无视中文
+                        let execResult = wordBoundaryTest.exec(newLine);// 找不是 空格和标点符号的
+                        if (execResult) {
+                            j = execResult.index + startIndex;
+                            //此行只够容纳这一个单词 强制换行
+                            if (execResult.index == 0)
+                                j += newLine.length;
+                            //此行有多个单词 按单词分行
                             else
-                                wordWidth = 0;
-                        } else {
-                            //此处执行将不会在循环结束后再push一次
-                            addCmd(text.substring(startIndex, len), style);
-                            startIndex = -1;
-                            break;
+                                newLine = text.substring(startIndex, j);
                         }
-                    } else if (this._overflow == Text.HIDDEN) {
-                        addCmd(text.substring(0, j), style);
-                        return;
+                    }
+
+                    //如果自动换行，则另起一行
+                    addCmd(newLine, style, wordWidth - tw);
+                    endLine();
+                    startLine();
+                    remainWidth = rectWidth;
+                    //如果非自动换行，则只截取字符串
+
+                    startIndex = j;
+                    if (j + maybeIndex < len) {
+                        if (maybeIndex != 0) {
+                            j += maybeIndex;
+
+                            tw = getTextWidth(text.substring(startIndex, j), style);
+                            wordWidth = tw;
+                            j--;
+                        }
+                        else
+                            wordWidth = 0;
+                    } else {
+                        //此处执行将不会在循环结束后再push一次
+                        addCmd(text.substring(startIndex, len), style);
+                        startIndex = -1;
+                        break;
                     }
                 }
             }
-            if (this.wordWrap && startIndex != -1)
+            if (startIndex != -1)
                 addCmd(text.substring(startIndex, len), style);
         };
 
@@ -1268,8 +1264,8 @@ export class Text extends Sprite {
                 }
 
                 if (htmlObj) {
-                    if (wrapWidth != null) {
-                        let remainWidth = wrapWidth - lineX;
+                    if (wordWrap) {
+                        let remainWidth = rectWidth - lineX;
                         if (remainWidth < htmlObj.width + 1) {
                             if (lineX > 0) { //如果已经是开始位置了，就算放不下也不换行
                                 endLine();
@@ -1355,7 +1351,7 @@ export class Text extends Sprite {
         if (this._objContainer) {
             this._objContainer.size(this._width, this._height);
 
-            if (this._scrollPos) {
+            if (this._scrollPos || this._overflow == Text.HIDDEN && this._objContainer.numChildren > 0) {
                 if (!this._objContainer.scrollRect)
                     this._objContainer.scrollRect = new Rectangle();
                 this._objContainer.scrollRect.setTo(0, 0, this._width, this._height);
@@ -1388,11 +1384,11 @@ export class Text extends Sprite {
         let rectWidth = (this._isWidthSet ? this._width : this._textWidth) - padding[3] - padding[1];
         let rectHeight = (this._isHeightSet ? this._height : this._textHeight) - padding[0] - padding[2];
         let bottom = paddingTop + rectHeight;
-        let clipped = this._overflow != Text.VISIBLE && rectWidth > 0 && rectHeight > 0;
+        let clipped = this._overflow != Text.VISIBLE;
 
         if (clipped) {
             graphics.save();
-            graphics.clipRect(paddingLeft, paddingTop, rectWidth, rectHeight);
+            graphics.clipRect(paddingLeft, paddingTop, rectWidth > 0 ? rectWidth : 0.001, rectHeight > 0 ? rectHeight : 0.001);
             this.repaint();
         }
 
