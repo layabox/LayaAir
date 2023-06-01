@@ -234,7 +234,7 @@ export class TextRender {
         }
 
         //检查保存的数据是否有的已经被释放了
-        if (wt && sameTexData) {	// TODO 能利用lastGCCnt么
+        if (isWT) {	// TODO 能利用lastGCCnt么
             //wt.lastGCCnt = _curPage.gcCnt;
             if (this.hasFreedText(sameTexData) || wt.pagecharsCtx != ctx) {
                 sameTexData = wt.pageChars = [];
@@ -295,7 +295,7 @@ export class TextRender {
                 // 整句渲染，则只有一个贴图
                 sameTexData[0] = { texgen: ((<TextTexture>ri.tex)).genID, tex: ri.tex, words: [{ ri: ri, x: 0, y: 0, w: ri.bmpWidth / this.fontScaleX, h: ri.bmpHeight / this.fontScaleY }] };
             }
-            wt.pagecharsCtx = ctx;
+            isWT && (wt.pagecharsCtx = ctx);
             //TODO getbmp 考虑margin 字体与标准字体的关系
         }
 
