@@ -1,6 +1,6 @@
 #if !defined(DepthVertex_lib)
     #define DepthVertex_lib
-
+    #include "Math.glsl";
     #include "Scene.glsl";
     #include "Camera.glsl";
     #include "Sprite3DVertex.glsl";
