@@ -24,17 +24,27 @@ void initSurfaceInputs(inout SurfaceInputs inputs, const in PixelParams pixel)
     inputs.diffuseColor = u_BaseColorFactor.xyz;
     inputs.alpha = u_BaseColorFactor.w;
 
-    vec4 baseColorSampler = texture2D(u_BaseColorTexture, uv);
-#ifdef Gamma_u_BaseColorTexture
+#ifdef BASECOLORMAP
+    vec2 baseColorUV = uv;
+    #ifdef BASECOLORMAP_TRANSFORM
+    baseColorUV = (u_BaseColorMapTransform * vec3(baseColorUV, 1.0)).xy;
+    #endif // BASECOLORMAP_TRANSFORM
+    vec4 baseColorSampler = texture2D(u_BaseColorTexture, baseColorUV);
+    #ifdef Gamma_u_BaseColorTexture
     baseColorSampler = gammaToLinear(baseColorSampler);
-#endif // u_BaseColorTexture_Gamma
+    #endif // u_BaseColorTexture_Gamma
     inputs.diffuseColor *= baseColorSampler.rgb;
     inputs.alpha *= baseColorSampler.a;
+#endif // BASECOLORMAP
 
     inputs.metallic = u_MetallicFactor;
     float roughness = u_RoughnessFactor;
 #ifdef METALLICROUGHNESSMAP
-    vec4 metallicRoughnessSampler = texture2D(u_MetallicRoughnessTexture, uv);
+    vec2 metallicUV = uv;
+    #ifdef METALLICROUGHNESSMAP_TRANSFORM
+    metallicUV = (u_MetallicRoughnessMapTransform * vec3(metallicUV, 1.0)).xy;
+    #endif METALLICROUGHNESSMAP_TRANSFORM
+    vec4 metallicRoughnessSampler = texture2D(u_MetallicRoughnessTexture, metallicUV);
     inputs.metallic *= metallicRoughnessSampler.b;
     roughness *= metallicRoughnessSampler.g;
 #endif // METALLICROUGHNESSMAP
@@ -42,7 +52,11 @@ void initSurfaceInputs(inout SurfaceInputs inputs, const in PixelParams pixel)
 
     float occlusion = 1.0;
 #ifdef OCCLUSIONMAP
-    vec4 occlusionSampler = texture2D(u_OcclusionTexture, uv);
+    vec2 occlusionUV = uv;
+    #ifdef OCCLUSIONMAP_TRANSFORM
+    occlusionUV = (u_OcclusionMapTransform * vec3(occlusionUV, 1.0)).xy;
+    #endif // OCCLUSIONMAP_TRANSFORM
+    vec4 occlusionSampler = texture2D(u_OcclusionTexture, occlusionUV);
     #ifdef Gamma_u_OcclusionTexture
     occlusionSampler = gammaToLinear(occlusionSampler);
     #endif // Gamma_u_OcclusionTexture
@@ -52,7 +66,11 @@ void initSurfaceInputs(inout SurfaceInputs inputs, const in PixelParams pixel)
 
     inputs.emissionColor = u_EmissionFactor * u_EmissionStrength;
 #ifdef EMISSIONMAP
-    vec4 emissionSampler = texture2D(u_EmissionTexture, uv);
+    vec2 emissionUV = uv;
+    #ifdef EMISSIONMAP_TRANSFORM
+    emissionUV = (u_EmissionMapTransform * vec3(emissionUV, 1.0)).xy;
+    #endif // EMISSIONMAP_TRANSFORM
+    vec4 emissionSampler = texture2D(u_EmissionTexture, emissionUV);
     #ifdef Gamma_u_EmissionTexture
     emissionSampler = gammaToLinear(emissionSampler);
     #endif // Gamma_u_EmissionTexture
@@ -61,7 +79,11 @@ void initSurfaceInputs(inout SurfaceInputs inputs, const in PixelParams pixel)
 
     inputs.normalTS = vec3(0.0, 0.0, 1.0);
 #ifdef NORMALMAP
-    vec3 normalSampler = texture2D(u_NormalTexture, uv).xyz;
+    vec2 normalUV = uv;
+    #ifdef NORMALMAP_TRANSFORM
+    normalUV = (u_NormalMapTransform * vec3(normalUV, 1.0)).xy;
+    #endif // NORMALMAP_TRANSFORM
+    vec3 normalSampler = texture2D(u_NormalTexture, normalUV).xyz;
     normalSampler = normalize(normalSampler * 2.0 - 1.0);
     normalSampler.y *= -1.0;
     inputs.normalTS = normalScale(normalSampler, u_NormalScale);
@@ -74,14 +96,22 @@ void initSurfaceInputs(inout SurfaceInputs inputs, const in PixelParams pixel)
 #ifdef IRIDESCENCE
     float iridescenceFactor = u_IridescenceFactor;
     #ifdef IRIDESCENCEMAP
-    vec4 iridescenceSampler = texture2D(u_IridescenceTexture, uv);
+    vec2 iridescenceUV = uv;
+	#ifdef IRIDESCENCEMAP_TRANSFORM
+    iridescenceUV = (u_IridescenceMapTransform * vec3(iridescenceUV, 1.0)).xy;
+	#endif // IRIDESCENCEMAP_TRANSFORM
+    vec4 iridescenceSampler = texture2D(u_IridescenceTexture, iridescenceUV);
     iridescenceFactor *= iridescenceSampler.r;
     #endif // IRIDESCENCEMAP
     float iridescenceThickness = u_IridescenceThicknessMaximum;
-    #ifdef IRIDESCENCETHICKNESSMAP
-    vec4 iridescenceThicknessSampler = texture2D(u_IridescenceThicknessTexture, uv);
+    #ifdef IRIDESCENCE_THICKNESSMAP
+    vec2 iridescenceThicknessUV = uv;
+	#ifdef IRIDESCENCE_THICKNESSMAP_TRANSFORM
+    iridescenceThicknessUV = (u_IridescenceThicknessMapTransform, vec3(iridescenceThicknessUV, 1.0)).xy;
+	#endif // IRIDESCENCE_THICKNESSMAP_TRANSFORM
+    vec4 iridescenceThicknessSampler = texture2D(u_IridescenceThicknessTexture, iridescenceThicknessUV);
     iridescenceThickness = mix(u_IridescenceThicknessMinimum, u_IridescenceThicknessMaximum, iridescenceThicknessSampler.g);
-    #endif // IRIDESCENCETHICKNESSMAP
+    #endif // IRIDESCENCE_THICKNESSMAP
     inputs.iridescence = iridescenceFactor;
     inputs.iridescenceIor = u_IridescenceIor;
     inputs.iridescenceThickness = iridescenceThickness;
@@ -92,17 +122,29 @@ void initSurfaceInputs(inout SurfaceInputs inputs, const in PixelParams pixel)
     inputs.clearCoatRoughness = u_ClearCoatRoughness;
 
     #ifdef CLEARCOATMAP
-    vec4 clearCoatSampler = texture2D(u_ClearCoatTexture, uv);
+    vec2 clearCoatUV = uv;
+	#ifdef CLEARCOATMAP_TRANSFORM
+    clearCoatUV = (u_ClearCoatMapTransform * vec3(clearCoatUV, 1.0)).xy;
+	#endif // CLEARCOATMAP_TRANSFORM
+    vec4 clearCoatSampler = texture2D(u_ClearCoatTexture, clearCoatUV);
     inputs.clearCoat *= clearCoatSampler.r;
     #endif // CLEARCOATMAP
 
     #ifdef CLEARCOAT_ROUGHNESSMAP
-    vec4 clearcoatSampleRoughness = texture2D(u_ClearCoatRoughnessTexture, uv);
+    vec2 clearCoatRoughnessUV = uv;
+	#ifdef CLEARCOAT_ROUGHNESSMAP_TRANSFORM
+    clearCoatRoughnessUV = (u_ClearCoatRoughnessMapTransform * vec3(uv, 1.0)).xy;
+	#endif // CLEARCOAT_ROUGHNESSMAP_TRANSFORM
+    vec4 clearcoatSampleRoughness = texture2D(u_ClearCoatRoughnessTexture, clearCoatRoughnessUV);
     inputs.clearCoatRoughness *= clearcoatSampleRoughness.g;
     #endif // CLEARCOAT_ROUGHNESSMAP
 
     #ifdef CLEARCOAT_NORMAL
-    vec3 clearCoatNormalSampler = texture2D(u_ClearCoatNormalTexture, uv).rgb;
+    vec2 clearCoatNormalUV = uv;
+	#ifdef CLEARCOAT_NORMALMAP_TRANSFORM
+    clearCoatNormalUV = (u_ClearCoatNormalMapTransform * vec3(clearCoatNormalUV, 1.0)).xy;
+	#endif // CLEARCOAT_NORMALMAP_TRANSFORM
+    vec3 clearCoatNormalSampler = texture2D(u_ClearCoatNormalTexture, clearCoatNormalUV).rgb;
     clearCoatNormalSampler = normalize(clearCoatNormalSampler * 2.0 - 1.0);
     clearCoatNormalSampler.y *= -1.0;
     // todo scale
@@ -115,7 +157,11 @@ void initSurfaceInputs(inout SurfaceInputs inputs, const in PixelParams pixel)
     vec2 direction = vec2(1.0, 0.0);
 
     #ifdef ANISOTROPYMAP
-    vec3 anisotropySampler = texture2D(u_AnisotropyTexture, uv).rgb;
+    vec3 anisotropyUV = uv;
+	#ifdef ANISOTROPYMAP_TRANSFORM
+    anisotropyUV = (u_AnisotropyMapTransform * vec3(anisotropyUV, 1.0)).xy;
+	#endif // ANISOTROPYMAP_TRANSFORM
+    vec3 anisotropySampler = texture2D(u_AnisotropyTexture, anisotropyUV).rgb;
 
     inputs.anisotropy *= anisotropySampler.b;
     direction = anisotropySampler.xy * 2.0 - 1.0;
@@ -144,17 +190,23 @@ void main()
 
     gl_FragColor = surfaceColor;
 
-    // // debug
-    // Surface surface;
-    // initSurface(surface, inputs, pixel);
+    //     // debug
+    //     Surface surface;
+    //     initSurface(surface, inputs, pixel);
 
-    // // PixelInfo info;
-    // // getPixelInfo(info, pixel, surface);
+    //     PixelInfo info;
+    //     getPixelInfo(info, pixel, surface);
 
-    // vec3 debug = vec3(0.0);
+    //     vec3 debug = vec3(0.0);
+    // #ifdef CLEARCOAT
+    //     // debug = vec3(info.iridescenceFresnel);
+    //     #ifdef CLEARCOAT_NORMAL
+    //     debug = vec3(surface.clearCoatNormalTS * 0.5 + 0.5);
+    //     #endif // CLEARCOAT_NORMAL
+    //     // debug = vec3(surface.clearCoatRoughness);
+    //     // debug = vec3(surface.clearCoat);
+    // #endif // CLEARCOAT
 
-    // debug = vec3(surface.iridescenceThickness / 1200.0);
-
-    // debug = gammaToLinear(debug);
-    // gl_FragColor = vec4(debug, 1.0);
+    //     debug = gammaToLinear(debug);
+    //     gl_FragColor = vec4(debug, 1.0);
 }

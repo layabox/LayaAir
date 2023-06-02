@@ -21,44 +21,68 @@ export class glTFShader {
 
     static ShaderName: string = "glTFPBR";
 
+    static Define_BaseColorMap: ShaderDefine;
+    static Define_BaseColorMapTransform: ShaderDefine;
+
     static Define_MetallicRoughnessMap: ShaderDefine;
+    static Define_MetallicRoughnessMapTransform: ShaderDefine;
 
     static Define_NormalMap: ShaderDefine;
+    static Define_NormalMapTransform: ShaderDefine;
 
     static Define_OcclusionMap: ShaderDefine;
+    static Define_OcclusionMapTransform: ShaderDefine;
 
     static Define_EmissionMap: ShaderDefine;
+    static Define_EmissionMapTransform: ShaderDefine;
 
     // clear coat
     static Define_ClearCoatMap: ShaderDefine;
+    static Define_ClearCoatMapTransform: ShaderDefine;
     static Define_ClearCoatRoughnessMap: ShaderDefine;
-    static Define_ClearCoatNormalMap: ShaderDefine;
+    static Define_ClearCoatRoughnessMapTransform: ShaderDefine;
+    static Define_ClearCoatNormalMapTransform: ShaderDefine;
 
     // anisotropy
     static Define_AnisotropyMap: ShaderDefine;
+    static Define_AnisotropyMapTransform: ShaderDefine;
 
     // iridescence
     static Define_IridescenceMap: ShaderDefine;
+    static Define_IridescenceMapTransform: ShaderDefine;
     static Define_IridescenceThicknessMap: ShaderDefine;
+    static Define_IridescenceThicknessMapTransform: ShaderDefine;
 
     // todo
     static init() {
 
         Shader3D.addInclude("glTFMetallicRoughness.glsl", glTFMetallicRoughnessGLSL);
 
+        this.Define_BaseColorMap = Shader3D.getDefineByName("BASECOLORMAP");
+        this.Define_BaseColorMapTransform = Shader3D.getDefineByName("BASECOLORMAP_TRANSFORM");
+
         this.Define_MetallicRoughnessMap = Shader3D.getDefineByName("METALLICROUGHNESSMAP");
+        this.Define_MetallicRoughnessMapTransform = Shader3D.getDefineByName("METALLICROUGHNESSMAP_TRANSFORM");
         this.Define_NormalMap = Shader3D.getDefineByName("NORMALMAP");
+        this.Define_NormalMapTransform = Shader3D.getDefineByName("NORMALMAP_TRANSFORM");
         this.Define_OcclusionMap = Shader3D.getDefineByName("OCCLUSIONMAP");
+        this.Define_OcclusionMapTransform = Shader3D.getDefineByName("OCCLUSIONMAP_TRANSFORM");
         this.Define_EmissionMap = Shader3D.getDefineByName("EMISSIONMAP");
+        this.Define_EmissionMapTransform = Shader3D.getDefineByName("EMISSIONMAP_TRANSFORM");
 
         this.Define_ClearCoatMap = Shader3D.getDefineByName("CLEARCOATMAP");
+        this.Define_ClearCoatMapTransform = Shader3D.getDefineByName("CLEARCOATMAP_TRANSFORM");
         this.Define_ClearCoatRoughnessMap = Shader3D.getDefineByName("CLEARCOAT_ROUGHNESSMAP");
-        this.Define_ClearCoatNormalMap = Shader3D.getDefineByName("CLEARCOAT_NORMAL");
+        this.Define_ClearCoatRoughnessMapTransform = Shader3D.getDefineByName("CLEARCOAT_ROUGHNESSMAP_TRANSFORM");
+        this.Define_ClearCoatNormalMapTransform = Shader3D.getDefineByName("CLEARCOAT_NORMALMAP_TRANSFORM");
 
         this.Define_AnisotropyMap = Shader3D.getDefineByName("ANISOTROPYMAP");
+        this.Define_AnisotropyMapTransform = Shader3D.getDefineByName("ANISOTROPYMAP_TRANSFORM");
 
         this.Define_IridescenceMap = Shader3D.getDefineByName("IRIDESCENCEMAP");
-        this.Define_IridescenceThicknessMap = Shader3D.getDefineByName("IRIDESCENCETHICKNESSMAP");
+        this.Define_IridescenceMapTransform = Shader3D.getDefineByName("IRIDESCENCEMAP_TRANSFORM");
+        this.Define_IridescenceThicknessMap = Shader3D.getDefineByName("IRIDESCENCE_THICKNESSMAP");
+        this.Define_IridescenceThicknessMapTransform = Shader3D.getDefineByName("IRIDESCENCE_THICKNESSMAP_TRANSFORM");
 
         let uniformMap = {
             // render 
@@ -67,32 +91,41 @@ export class glTFShader {
             // metallic roughness
             "u_BaseColorFactor": ShaderDataType.Vector4,
             "u_BaseColorTexture": ShaderDataType.Texture2D,
+            "u_BaseColorMapTransform": ShaderDataType.Matrix3x3,
             "u_MetallicFactor": ShaderDataType.Float,
             "u_RoughnessFactor": ShaderDataType.Float,
             "u_MetallicRoughnessTexture": ShaderDataType.Texture2D,
+            "u_MetallicRoughnessMapTransform": ShaderDataType.Matrix3x3,
 
             "u_NormalTexture": ShaderDataType.Texture2D,
+            "u_NormalMapTransform": ShaderDataType.Matrix3x3,
             "u_NormalScale": ShaderDataType.Float,
 
             "u_OcclusionTexture": ShaderDataType.Texture2D,
+            "u_OcclusionMapTransform": ShaderDataType.Matrix3x3,
             "u_OcclusionStrength": ShaderDataType.Float,
 
             "u_EmissionFactor": ShaderDataType.Vector3,
             "u_EmissionTexture": ShaderDataType.Texture2D,
+            "u_EmissionMapTransform": ShaderDataType.Matrix3x3,
             "u_EmissionStrength": ShaderDataType.Float,
 
             // clear coat
             "u_ClearCoatFactor": ShaderDataType.Float,
             "u_ClearCoatTexture": ShaderDataType.Texture2D,
+            "u_ClearCoatMapTransform": ShaderDataType.Matrix3x3,
             "u_ClearCoatRoughness": ShaderDataType.Float,
             "u_ClearCoatRoughnessTexture": ShaderDataType.Texture2D,
+            "u_ClearCoatRoughnessMapTransform": ShaderDataType.Matrix3x3,
             "u_ClearCoatNormalTexture": ShaderDataType.Texture2D,
+            "u_ClearCoatNormalMapTransform": ShaderDataType.Matrix3x3,
             "u_ClearCoatNormalScale": ShaderDataType.Float,
 
             // anisotropy
             "u_AnisotropyStrength": ShaderDataType.Float,
             "u_AnisotropyRotation": ShaderDataType.Float,
             "u_AnisotropyTexture": ShaderDataType.Texture2D,
+            "u_AnisotropyMapTransform": ShaderDataType.Matrix3x3,
 
             // ior
             "u_Ior": ShaderDataType.Float,
@@ -100,10 +133,12 @@ export class glTFShader {
             // iridescence
             "u_IridescenceFactor": ShaderDataType.Float,
             "u_IridescenceTexture": ShaderDataType.Texture2D,
+            "u_IridescenceMapTransform": ShaderDataType.Matrix3x3,
             "u_IridescenceIor": ShaderDataType.Float,
             "u_IridescenceThicknessMinimum": ShaderDataType.Float,
             "u_IridescenceThicknessMaximum": ShaderDataType.Float,
             "u_IridescenceThicknessTexture": ShaderDataType.Texture2D,
+            "u_IridescenceThicknessMapTransform": ShaderDataType.Matrix3x3,
         }
 
         let defaultValue = {

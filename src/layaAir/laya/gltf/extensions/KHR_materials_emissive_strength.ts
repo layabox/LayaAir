@@ -27,7 +27,7 @@ export class KHR_materials_emissive_strength implements glTFExtension {
         this._resource = resource;
     }
 
-    additionMaterialProperties?(glTFMaterial: glTFMaterial, material: Material): void {
+    additionMaterialProperties(glTFMaterial: glTFMaterial, material: Material): void {
 
         let extension: glTF.glTFMaterialEmissionStrength = glTFMaterial.extensions.KHR_materials_emissive_strength;
 

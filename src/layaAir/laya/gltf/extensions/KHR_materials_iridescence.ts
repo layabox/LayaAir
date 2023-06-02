@@ -39,7 +39,7 @@ export class KHR_materials_iridescence implements glTFExtension {
     }
 
 
-    loadTextures(basePath: string, progress?: IBatchProgress): Promise<any> {
+    loadAdditionTextures(basePath: string, progress?: IBatchProgress): Promise<any> {
         let materials = this._resource.data.materials;
         let textures = this._resource.data.textures;
 
@@ -49,13 +49,11 @@ export class KHR_materials_iridescence implements glTFExtension {
                 let extension: glTF.glTFMaterialIridescence = material.extensions?.KHR_materials_iridescence;
                 if (extension) {
                     if (extension.iridescenceTexture) {
-                        let index = extension.iridescenceTexture.index;
-                        let promise = this._resource.loadTextureFromglTF(index, false, basePath, progress);
+                        let promise = this._resource.loadTextureFromInfo(extension.iridescenceTexture, false, basePath, progress);
                         promises.push(promise);
                     }
                     if (extension.iridescenceThicknessTexture) {
-                        let index = extension.iridescenceThicknessTexture.index;
-                        let promise = this._resource.loadTextureFromglTF(index, false, basePath, progress);
+                        let promise = this._resource.loadTextureFromInfo(extension.iridescenceThicknessTexture, false, basePath, progress);
                         promises.push(promise);
                     }
                 }
@@ -83,17 +81,11 @@ export class KHR_materials_iridescence implements glTFExtension {
         material.setFloat("u_IridescenceThicknessMaximum", thicknessMax);
 
         if (extension.iridescenceTexture) {
-            let tex = this._resource.getTextureWithInfo(extension.iridescenceTexture);
-
-            material.setDefine(glTFShader.Define_IridescenceMap, true);
-            material.setTexture("u_IridescenceTexture", tex);
+            this._resource.setMaterialTextureProperty(material, extension.iridescenceTexture, "u_IridescenceTexture", glTFShader.Define_IridescenceMap, "u_IridescenceMapTransform", glTFShader.Define_IridescenceMapTransform);
         }
 
         if (extension.iridescenceThicknessTexture) {
-            let tex = this._resource.getTextureWithInfo(extension.iridescenceThicknessTexture);
-
-            material.setDefine(glTFShader.Define_IridescenceThicknessMap, true);
-            material.setTexture("u_IridescenceThicknessTexture", tex);
+            this._resource.setMaterialTextureProperty(material, extension.iridescenceThicknessTexture, "u_IridescenceThicknessTexture", glTFShader.Define_IridescenceThicknessMap, "u_IridescenceThicknessMapTransform", glTFShader.Define_IridescenceThicknessMapTransform);
         }
 
     }
