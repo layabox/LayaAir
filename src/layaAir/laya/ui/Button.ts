@@ -1,6 +1,6 @@
 import { UIComponent } from "./UIComponent";
 import { ISelect } from "./ISelect";
-import { Styles } from "./Styles";
+import { Styles } from "../display/Styles";
 import { NodeFlags, HideFlags } from "../Const"
 import { Text } from "../display/Text"
 import { Event } from "../events/Event"

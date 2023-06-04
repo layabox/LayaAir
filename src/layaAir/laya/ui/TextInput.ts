@@ -3,7 +3,7 @@ import { Input } from "../display/Input"
 import { Event } from "../events/Event"
 import { Loader } from "../net/Loader"
 import { AutoBitmap } from "./AutoBitmap"
-import { Styles } from "./Styles"
+import { Styles } from "../display/Styles"
 import { UIUtils } from "./UIUtils"
 import { ILaya } from "../../ILaya";
 import { HideFlags } from "../Const";

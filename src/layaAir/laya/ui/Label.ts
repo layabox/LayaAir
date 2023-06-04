@@ -1,4 +1,4 @@
-import { Styles } from "./Styles";
+import { Styles } from "../display/Styles";
 import { Text } from "../display/Text"
 import { Event } from "../events/Event"
 import { UIComponent } from "./UIComponent"

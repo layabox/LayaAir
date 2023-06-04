@@ -1,7 +1,7 @@
 import { TextInput } from "./TextInput";
 import { VScrollBar } from "./VScrollBar";
 import { HScrollBar } from "./HScrollBar";
-import { ScrollType, Styles } from "./Styles";
+import { ScrollType, Styles } from "../display/Styles";
 import { Event } from "../events/Event"
 import { HideFlags } from "../Const";
 

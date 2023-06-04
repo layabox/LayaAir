@@ -1,7 +1,7 @@
 import { UIComponent } from "./UIComponent";
 import { AutoBitmap } from "./AutoBitmap";
 import { UIUtils } from "./UIUtils";
-import { Styles } from "./Styles";
+import { Styles } from "../display/Styles";
 import { NodeFlags } from "../Const"
 import { Event } from "../events/Event"
 import { Loader } from "../net/Loader"

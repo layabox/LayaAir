@@ -1,7 +1,7 @@
 import { UIComponent } from "./UIComponent";
 import { Button } from "./Button";
 import { List } from "./List";
-import { Styles } from "./Styles";
+import { Styles } from "../display/Styles";
 import { Label } from "./Label";
 import { UIUtils } from "./UIUtils";
 import { VScrollBar } from "./VScrollBar";

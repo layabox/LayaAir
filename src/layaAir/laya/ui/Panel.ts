@@ -7,7 +7,7 @@ import { Sprite } from "../display/Sprite"
 import { Event } from "../events/Event"
 import { Rectangle } from "../maths/Rectangle"
 import { HideFlags } from "../Const";
-import { ScrollType } from "./Styles";
+import { ScrollType } from "../display/Styles";
 
 /**
  * <code>Panel</code> 是一个面板容器类。

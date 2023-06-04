@@ -1,4 +1,4 @@
-import { Styles } from "./Styles";
+import { Styles } from "../display/Styles";
 import { Event } from "../events/Event"
 import { Loader } from "../net/Loader"
 import { Texture } from "../resource/Texture"

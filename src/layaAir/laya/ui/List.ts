@@ -13,7 +13,7 @@ import { LegacyUIParser } from "../loaders/LegacyUIParser";
 import { HideFlags } from "../Const";
 import { HierarchyParser } from "../loaders/HierarchyParser";
 import { UIComponent } from "./UIComponent";
-import { ScrollType } from "./Styles";
+import { ScrollType } from "../display/Styles";
 
 /**
  * 当对象的 <code>selectedIndex</code> 属性发生变化时调度。
