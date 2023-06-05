@@ -30,6 +30,14 @@ float D_GGX_Anisotropic(float NoH, const vec3 h, const vec3 t, const vec3 b, flo
     return a2 * w2 * w2 * INVERT_PI;
 }
 
+float D_Charlie(float roughness, float NoH)
+{
+    float invR = 1.0 / roughness;
+    float cos2h = NoH * NoH;
+    float sin2h = max(1.0 - cos2h, 0.0078125);
+    return (2.0 + invR) * pow(sin2h, invR * 0.5) * 0.5 * INVERT_PI;
+}
+
 float V_SmithGGXCorrelated(float roughness, float NoV, float NoL)
 {
     float a2 = roughness * roughness;
@@ -40,10 +48,45 @@ float V_SmithGGXCorrelated(float roughness, float NoV, float NoL)
     return saturateMediump(v);
 }
 
+// Kelemen 2001, "A Microfacet Based Coupled Specular-Matte BRDF Model with Importance Sampling"
 float V_kelemen(float LoH)
 {
-    // Kelemen 2001, "A Microfacet Based Coupled Specular-Matte BRDF Model with Importance Sampling"
     return saturateMediump(0.25 / (LoH * LoH));
+}
+
+float lCharlieNumericHelper(float x, float alphaG)
+{
+    float oneMinusAlphaSq = (1.0 - alphaG) * (1.0 - alphaG);
+    float a = mix(21.5473, 25.3245, oneMinusAlphaSq);
+    float b = mix(3.82987, 3.32435, oneMinusAlphaSq);
+    float c = mix(0.19823, 0.16801, oneMinusAlphaSq);
+    float d = mix(-1.97760, -1.27393, oneMinusAlphaSq);
+    float e = mix(-4.32054, -4.85967, oneMinusAlphaSq);
+    return a / (1.0 + b * pow(x, c)) + d * x + e;
+}
+
+float lCharlie(float cosTheta, float alphaG)
+{
+    if (abs(cosTheta) < 0.5)
+	{
+	    return exp(lCharlieNumericHelper(cosTheta, alphaG));
+	}
+    else
+	{
+	    return exp(2.0 * lCharlieNumericHelper(0.5, alphaG) - lCharlieNumericHelper(1.0 - cosTheta, alphaG));
+	}
+}
+
+float V_Charlie(float NoL, float NoV, float roughness)
+{
+    float alphaG = roughness * roughness;
+    return clamp(1.0 / ((1.0 + lCharlie(NoV, alphaG) + lCharlie(NoL, alphaG)) * (4.0 * NoV * NoL)), 0.0, 1.0);
+}
+
+// Neubelt and Pettineo 2013, "Crafting a Next-gen Material Pipeline for The Order: 1886"
+float V_Neubelt(float NoV, float NoL)
+{
+    return saturateMediump(1.0 / (4.0 * (NoL + NoV - NoL * NoV)));
 }
 
 float V_SmithGGXCorrelated_Anisotropic(float at, float ab, float ToV, float BoV, float ToL, float BoL, float NoV, float NoL)
@@ -117,6 +160,7 @@ vec3 evalSensitivity(float OPD, vec3 shift)
     return srgb;
 }
 
+// https://belcour.github.io/blog/research/publication/2017/05/01/brdf-thin-film.html
 vec3 evalIridescence(float outsideIOR, float eta2, float cosTheta1, float thinFilmThickness, vec3 baseF0)
 {
     vec3 I;

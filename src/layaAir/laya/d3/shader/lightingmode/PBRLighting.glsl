@@ -28,6 +28,7 @@ struct PixelInfo {
     float NoV;
 
     vec3 dfg;
+    vec3 energyCompensation;
 
     #ifdef IRIDESCENCE
     vec3 iridescenceFresnel;
@@ -37,6 +38,11 @@ struct PixelInfo {
     vec3 clearCoatNormal;
     float clearCoatNoV;
     #endif // CLEARCOAT
+
+    #ifdef SHEEN
+    float sheenScaling;
+    float sheenDfg;
+    #endif // SHEEN
 
     #ifdef ANISOTROPIC
     vec3 anisotropicT;
@@ -85,6 +91,12 @@ struct Surface {
     float iridescenceIor;
     float iridescenceThickness;
     #endif // IRIDESCENCE
+
+    #ifdef SHEEN
+    vec3 sheenColor;
+    float sheenRoughness;
+    float sheenPerceptualRoughness;
+    #endif // SHEEN
 };
 
 struct LightParams {
@@ -137,6 +149,7 @@ void initLightParams(inout LightParams params, const in PixelInfo pixel, const i
 vec3 prefilteredDFG_LUT(float roughness, float NoV)
 {
     vec2 samplePoint = clamp(vec2(NoV, roughness), vec2(0.0, 0.0), vec2(1.0, 1.0));
+    samplePoint.y = 1.0 - samplePoint.y;
     return (texture2D(u_IBLDGF, samplePoint)).rgb;
 }
 
@@ -211,6 +224,26 @@ float clearCoatLobe(const in Surface surface, const in PixelInfo pixel, const in
 }
     #endif // CLEARCOAT
 
+    #ifdef SHEEN
+vec3 sheenLobe(const in Surface surface, const in PixelInfo pixel, const in LightParams lightParams)
+{
+    float roughness = surface.sheenRoughness;
+    float NoV = pixel.NoV;
+    float NoH = lightParams.NoH;
+    float NoL = lightParams.NoL;
+
+    float D = D_Charlie(roughness, NoH);
+	// todo
+	#ifdef SHEEN_V_Charlie
+    float V = V_Charlie(NoL, NoV, roughness);
+	#else // SHEEN_V_Charlie
+    float V = V_Neubelt(NoV, NoL);
+	#endif // SHEEN_V_Charlie
+    // F = 1.0
+    return D * V * surface.sheenColor;
+}
+    #endif // SHEEN
+
     #ifdef ANISOTROPIC
 vec3 anisotropyLobe(const in Surface surface, const in PixelInfo pixel, const in LightParams lightParams)
 {
@@ -243,6 +276,8 @@ vec3 PBRLighting(const in Surface surface, const in PixelInfo pixel, const in Li
     LightParams lightParams;
     initLightParams(lightParams, pixel, light);
 
+    float NoL = lightParams.NoL;
+
     #ifdef IRIDESCENCE
     vec3 Fd = iridescenceDiffuseLobe(surface, pixel, lightParams);
     vec3 Fr = iridescenceSpecularLobe(surface, pixel, lightParams);
@@ -254,7 +289,13 @@ vec3 PBRLighting(const in Surface surface, const in PixelInfo pixel, const in Li
     vec3 Fr = specularLobe(surface, pixel, lightParams);
     #endif
 
-    vec3 shading = (Fd + Fr) * lightParams.NoL;
+    vec3 shading = (Fd + Fr * pixel.energyCompensation);
+
+    #ifdef SHEEN
+    vec3 fSheen = sheenLobe(surface, pixel, lightParams);
+    shading *= pixel.sheenScaling;
+    shading += fSheen;
+    #endif // SHEEN
 
     #ifdef CLEARCOAT
     float clearCoatNoL = lightParams.clearCoatNoL;
@@ -262,13 +303,15 @@ vec3 PBRLighting(const in Surface surface, const in PixelInfo pixel, const in Li
     // default IOR 1.5
     float FccClearCoat = F_Schlick(0.04, 1.0, LoH) * surface.clearCoat;
     float attenuation = 1.0 - FccClearCoat;
-    shading *= attenuation;
+    shading *= attenuation * NoL;
 
     float clearcoat = clearCoatLobe(surface, pixel, lightParams) * FccClearCoat;
     shading += clearcoat * clearCoatNoL;
+    // NoL has alread multiply
+    NoL = 1.0;
     #endif // CLEARCOAT
 
-    return shading * light.color;
+    return shading * light.color * NoL;
 }
 
     // gi

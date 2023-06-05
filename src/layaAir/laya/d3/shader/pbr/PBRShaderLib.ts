@@ -40,6 +40,11 @@ export class PBRShaderLib {
      */
     static DEFINE_IRIDESCENCE: ShaderDefine;
 
+    /**
+     * sheen
+     */
+    static DEFINE_SHEEN: ShaderDefine;
+
     static init() {
 
         PBRShaderLib.DEFINE_EMISSION = Shader3D.getDefineByName("EMISSION");
@@ -52,6 +57,8 @@ export class PBRShaderLib {
         PBRShaderLib.DEFINE_IOR = Shader3D.getDefineByName("IOR");
 
         PBRShaderLib.DEFINE_IRIDESCENCE = Shader3D.getDefineByName("IRIDESCENCE");
+
+        PBRShaderLib.DEFINE_SHEEN = Shader3D.getDefineByName("SHEEN");
 
         // pbr lib
         Shader3D.addInclude("BRDF.glsl", BRDFGLSL);
