@@ -951,7 +951,7 @@ export class Loader extends EventDispatcher {
             });
 
             loadTask.onProgressUpdate((res: any) => {
-                progress(res);
+                progress && progress(res);
             });
         })
     }
