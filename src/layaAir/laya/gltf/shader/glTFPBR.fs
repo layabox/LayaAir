@@ -117,6 +117,34 @@ void initSurfaceInputs(inout SurfaceInputs inputs, const in PixelParams pixel)
     inputs.iridescenceThickness = iridescenceThickness;
 #endif // IRIDESCENCE
 
+#ifdef SHEEN
+    vec3 sheenColor = u_SheenColorFactor;
+    #ifdef SHEENCOLORMAP
+    vec2 sheenColorUV = uv;
+	#ifdef SHEENCOLORMAP_TRANSFORM
+    sheenColorUV = (u_SheenColorMapTransform * vec3(sheenColorUV, 1.0)).xy;
+	#endif // SHEENCOLORMAP_TRANSFORM
+    vec4 sheenColorSampler = texture2D(u_SheenColorTexture, sheenColorUV);
+	#ifdef Gamma_u_SheenColorFactor
+    sheenColorSampler = gammaToLinear(sheenColorSampler);
+	#endif // Gamma_u_SheenColorFactor
+    sheenColor *= sheenColorSampler.rgb;
+    #endif // SHEENCOLORMAP
+
+    float sheenRoughness = u_SheenRoughness;
+    #ifdef SHEEN_ROUGHNESSMAP
+    vec2 sheenRoughnessUV = uv;
+	#ifdef SHEEN_ROUGHNESSMAP_TRANSFORM
+    sheenRoughnessUV = (u_SheenRoughnessMapTransform * vec3(sheenRoughnessUV, 1.0)).xy;
+	#endif // SHEEN_ROUGHNESSMAP_TRANSFORM
+    vec4 sheenRoughnessSampler = texture2D(u_SheenRoughnessTexture, sheenRoughnessUV);
+    sheenRoughness *= sheenRoughnessSampler.a;
+    #endif // SHEEN_ROUGHNESSMAP
+
+    inputs.sheenColor = sheenColor;
+    inputs.sheenRoughness = sheenRoughness;
+#endif // SHEEN
+
 #ifdef CLEARCOAT
     inputs.clearCoat = u_ClearCoatFactor;
     inputs.clearCoatRoughness = u_ClearCoatRoughness;
@@ -157,7 +185,7 @@ void initSurfaceInputs(inout SurfaceInputs inputs, const in PixelParams pixel)
     vec2 direction = vec2(1.0, 0.0);
 
     #ifdef ANISOTROPYMAP
-    vec3 anisotropyUV = uv;
+    vec2 anisotropyUV = uv;
 	#ifdef ANISOTROPYMAP_TRANSFORM
     anisotropyUV = (u_AnisotropyMapTransform * vec3(anisotropyUV, 1.0)).xy;
 	#endif // ANISOTROPYMAP_TRANSFORM
@@ -190,23 +218,39 @@ void main()
 
     gl_FragColor = surfaceColor;
 
-    //     // debug
-    //     Surface surface;
-    //     initSurface(surface, inputs, pixel);
+//     // debug
+//     Surface surface;
+//     initSurface(surface, inputs, pixel);
 
-    //     PixelInfo info;
-    //     getPixelInfo(info, pixel, surface);
+//     PixelInfo info;
+//     getPixelInfo(info, pixel, surface);
 
-    //     vec3 debug = vec3(0.0);
-    // #ifdef CLEARCOAT
-    //     // debug = vec3(info.iridescenceFresnel);
-    //     #ifdef CLEARCOAT_NORMAL
-    //     debug = vec3(surface.clearCoatNormalTS * 0.5 + 0.5);
-    //     #endif // CLEARCOAT_NORMAL
-    //     // debug = vec3(surface.clearCoatRoughness);
-    //     // debug = vec3(surface.clearCoat);
-    // #endif // CLEARCOAT
+//     vec3 debug = vec3(0.0);
+//     // #ifdef CLEARCOAT
+//     //     // debug = vec3(info.iridescenceFresnel);
+//     //     #ifdef CLEARCOAT_NORMAL
+//     //     debug = vec3(surface.clearCoatNormalTS * 0.5 + 0.5);
+//     //     #endif // CLEARCOAT_NORMAL
+//     //     // debug = vec3(surface.clearCoatRoughness);
+//     //     // debug = vec3(surface.clearCoat);
+//     // #endif // CLEARCOAT
 
-    //     debug = gammaToLinear(debug);
-    //     gl_FragColor = vec4(debug, 1.0);
+//     // debug = vec3(info.normalWS * 0.5 + 0.5);
+
+//     // #ifdef SHEEN
+//     //     // debug = vec3(inputs.sheenColor);
+//     //     // debug = vec3(inputs.sheenRoughness);
+//     //     debug = vec3(info.sheenScaling);
+//     // #endif // SHEEN
+
+// // #ifdef IRIDESCENCE
+// //     // debug = vec3(surface.iridescenceIor - 1.0);
+// //     // debug = vec3(surface.iridescenceThickness / 1200.0);
+// //     debug = vec3(info.iridescenceFresnel);
+// // #endif // IRIDESCENCE
+
+//     debug = vec3(inputs.metallic);
+
+//     debug = gammaToLinear(debug);
+//     gl_FragColor = vec4(debug, 1.0);
 }

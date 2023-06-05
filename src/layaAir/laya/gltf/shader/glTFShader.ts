@@ -53,6 +53,12 @@ export class glTFShader {
     static Define_IridescenceThicknessMap: ShaderDefine;
     static Define_IridescenceThicknessMapTransform: ShaderDefine;
 
+    // sheen
+    static Define_SheenColorMap: ShaderDefine;
+    static Define_SheenColorMapTransform: ShaderDefine;
+    static Define_SheenRoughnessMap: ShaderDefine;
+    static Define_SheenRoughnessMapTransform: ShaderDefine;
+
     // todo
     static init() {
 
@@ -83,6 +89,11 @@ export class glTFShader {
         this.Define_IridescenceMapTransform = Shader3D.getDefineByName("IRIDESCENCEMAP_TRANSFORM");
         this.Define_IridescenceThicknessMap = Shader3D.getDefineByName("IRIDESCENCE_THICKNESSMAP");
         this.Define_IridescenceThicknessMapTransform = Shader3D.getDefineByName("IRIDESCENCE_THICKNESSMAP_TRANSFORM");
+
+        this.Define_SheenColorMap = Shader3D.getDefineByName("SHEENCOLORMAP");
+        this.Define_SheenColorMapTransform = Shader3D.getDefineByName("SHEENCOLORMAP_TRANSFORM");
+        this.Define_SheenRoughnessMap = Shader3D.getDefineByName("SHEEN_ROUGHNESSMAP");
+        this.Define_SheenRoughnessMapTransform = Shader3D.getDefineByName("SHEEN_ROUGHNESSMAP_TRANSFORM");
 
         let uniformMap = {
             // render 
@@ -139,6 +150,15 @@ export class glTFShader {
             "u_IridescenceThicknessMaximum": ShaderDataType.Float,
             "u_IridescenceThicknessTexture": ShaderDataType.Texture2D,
             "u_IridescenceThicknessMapTransform": ShaderDataType.Matrix3x3,
+
+            // sheen
+            "u_SheenColorFactor": ShaderDataType.Vector3,
+            "u_SheenColorTexture": ShaderDataType.Texture2D,
+            "u_SheenColorMapTransform": ShaderDataType.Matrix3x3,
+            "u_SheenRoughness": ShaderDataType.Float,
+            "u_SheenRoughnessTexture": ShaderDataType.Texture2D,
+            "u_SheenRoughnessMapTransform": ShaderDataType.Matrix3x3,
+
         }
 
         let defaultValue = {

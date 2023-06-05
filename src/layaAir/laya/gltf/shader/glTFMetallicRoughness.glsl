@@ -37,6 +37,11 @@ struct SurfaceInputs {
     float iridescenceIor;
     float iridescenceThickness;
     #endif // IRIDESCENCE
+
+    #ifdef SHEEN
+    vec3 sheenColor;
+    float sheenRoughness;
+    #endif // SHEEN
 };
 
 void initSurface(inout Surface surface, const in SurfaceInputs inputs, const in PixelParams pixel)
@@ -69,6 +74,12 @@ void initSurface(inout Surface surface, const in SurfaceInputs inputs, const in 
     surface.iridescenceIor = inputs.iridescenceIor;
     surface.iridescenceThickness = inputs.iridescenceThickness;
     #endif // IRIDESCENCE
+
+    #ifdef SHEEN
+    surface.sheenColor = inputs.sheenColor;
+    surface.sheenPerceptualRoughness = max(inputs.sheenRoughness, MIN_PERCEPTUAL_ROUGHNESS);
+    surface.sheenRoughness = pow2(surface.sheenPerceptualRoughness);
+    #endif // SHEEN
 
     #ifdef CLEARCOAT
     surface.clearCoat = inputs.clearCoat;
