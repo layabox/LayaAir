@@ -38,12 +38,14 @@ export class ParticleShuriKenShaderInit{
         let uniformMap = {
             "u_Tintcolor": ShaderDataType.Color,
             "u_texture": ShaderDataType.Texture2D,
-            "u_TilingOffset": ShaderDataType.Vector4
+            "u_TilingOffset": ShaderDataType.Vector4,
+            "u_AlphaTestValue": ShaderDataType.Float,
         };
 
         let defaultValue = {
             "u_Tintcolor": new Color(0.5, 0.5, 0.5, 0.5),
             "u_TilingOffset": new Vector4(1, 1, 0, 0),
+            "u_AlphaTestValue": 0.5
         };
 
         let shader = Shader3D.add("PARTICLESHURIKEN", false, false);
