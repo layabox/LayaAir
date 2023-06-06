@@ -462,13 +462,15 @@ export class GLShaderInstance extends GLObject implements IRenderShaderInstance 
 
     _uniform_sampler2DArray(one: any, texture: BaseTexture): number {
         var value: any = texture ? texture._getSource() : Texture2D.errorTexture._getSource();
-        this._bindTexture(one.textureID, WebGL2RenderingContext.TEXTURE_2D_ARRAY, value)
+        var gl: WebGL2RenderingContext = this._gl as WebGL2RenderingContext;
+        this._bindTexture(one.textureID, gl.TEXTURE_2D_ARRAY, value);
         return 0;
     }
 
     _uniform_sampler3D(one: any, texture: BaseTexture): number {//TODO:TEXTURTE ARRAY
         var value: any = texture ? texture._getSource() : Texture2D.errorTexture._getSource();
-        this._bindTexture(one.textureID, WebGL2RenderingContext.TEXTURE_3D, value);
+        var gl: WebGL2RenderingContext = this._gl as WebGL2RenderingContext;
+        this._bindTexture(one.textureID, gl.TEXTURE_3D, value);
         return 0;
     }
 
