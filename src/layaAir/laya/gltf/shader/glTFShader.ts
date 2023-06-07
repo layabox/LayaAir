@@ -59,6 +59,10 @@ export class glTFShader {
     static Define_SheenRoughnessMap: ShaderDefine;
     static Define_SheenRoughnessMapTransform: ShaderDefine;
 
+    // transmission
+    static Define_TransmissionMap: ShaderDefine;
+    static Define_TransmissionMapTransform: ShaderDefine;
+
     // todo
     static init() {
 
@@ -94,6 +98,9 @@ export class glTFShader {
         this.Define_SheenColorMapTransform = Shader3D.getDefineByName("SHEENCOLORMAP_TRANSFORM");
         this.Define_SheenRoughnessMap = Shader3D.getDefineByName("SHEEN_ROUGHNESSMAP");
         this.Define_SheenRoughnessMapTransform = Shader3D.getDefineByName("SHEEN_ROUGHNESSMAP_TRANSFORM");
+
+        this.Define_TransmissionMap = Shader3D.getDefineByName("TRANSMISSIONMAP");
+        this.Define_TransmissionMapTransform = Shader3D.getDefineByName("TRANSMISSIONMAP_TRANSFORM");
 
         let uniformMap = {
             // render 
@@ -159,6 +166,10 @@ export class glTFShader {
             "u_SheenRoughnessTexture": ShaderDataType.Texture2D,
             "u_SheenRoughnessMapTransform": ShaderDataType.Matrix3x3,
 
+            // transmission
+            "u_TransmissionFactor": ShaderDataType.Float,
+            "u_TransmissionTexture": ShaderDataType.Texture2D,
+            "u_TransmissionMapTransform": ShaderDataType.Matrix3x3,
         }
 
         let defaultValue = {

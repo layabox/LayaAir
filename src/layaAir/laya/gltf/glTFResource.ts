@@ -765,7 +765,7 @@ export class glTFResource extends Prefab {
                 break;
             }
             default: {
-                // todo
+                break;
             }
         }
 

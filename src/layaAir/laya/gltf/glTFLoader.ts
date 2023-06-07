@@ -9,6 +9,7 @@ import "./extensions/KHR_materials_emissive_strength";
 import "./extensions/KHR_materials_ior";
 import "./extensions/KHR_materials_iridescence";
 import "./extensions/KHR_materials_sheen";
+import "./extensions/KHR_materials_transmission";
 import "./extensions/KHR_materials_unlit";
 
 class glTFLoader implements IResourceLoader {

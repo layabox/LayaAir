@@ -200,6 +200,19 @@ void initSurfaceInputs(inout SurfaceInputs inputs, const in PixelParams pixel)
     inputs.anisotropyDirection = rotationMatrix * direction;
 
 #endif // ANISOTROPIC
+
+#ifdef TRANSMISSION
+    float transmission = u_TransmissionFactor;
+    #ifdef TRANSMISSIONMAP
+    vec2 transmissionUV = uv;
+	#ifdef TRANSMISSIONMAP_TRANSFORM
+    transmissionUV = (u_TransmissionMapTransform * vec3(transmissionUV, 1.0)).xy;
+	#endif // TRANSMISSIONMAP_TRANSFORM
+    vec4 transmissionSampler = texture2D(u_TransmissionTexture, transmissionUV);
+    transmission *= transmissionSampler.r;
+    #endif // TRANSMISSIONMAP
+    inputs.transmission = transmission;
+#endif // TRANSMISSION
 }
 
 void main()
@@ -218,39 +231,41 @@ void main()
 
     gl_FragColor = surfaceColor;
 
-//     // debug
-//     Surface surface;
-//     initSurface(surface, inputs, pixel);
+    // // debug
+    // Surface surface;
+    // initSurface(surface, inputs, pixel);
 
-//     PixelInfo info;
-//     getPixelInfo(info, pixel, surface);
+    // PixelInfo info;
+    // getPixelInfo(info, pixel, surface);
 
-//     vec3 debug = vec3(0.0);
-//     // #ifdef CLEARCOAT
-//     //     // debug = vec3(info.iridescenceFresnel);
-//     //     #ifdef CLEARCOAT_NORMAL
-//     //     debug = vec3(surface.clearCoatNormalTS * 0.5 + 0.5);
-//     //     #endif // CLEARCOAT_NORMAL
-//     //     // debug = vec3(surface.clearCoatRoughness);
-//     //     // debug = vec3(surface.clearCoat);
-//     // #endif // CLEARCOAT
+    // vec3 debug = vec3(0.0);
+    // // #ifdef CLEARCOAT
+    // //     // debug = vec3(info.iridescenceFresnel);
+    // //     #ifdef CLEARCOAT_NORMAL
+    // //     debug = vec3(surface.clearCoatNormalTS * 0.5 + 0.5);
+    // //     #endif // CLEARCOAT_NORMAL
+    // //     // debug = vec3(surface.clearCoatRoughness);
+    // //     // debug = vec3(surface.clearCoat);
+    // // #endif // CLEARCOAT
 
-//     // debug = vec3(info.normalWS * 0.5 + 0.5);
+    // debug = vec3(info.normalWS * 0.5 + 0.5);
 
-//     // #ifdef SHEEN
-//     //     // debug = vec3(inputs.sheenColor);
-//     //     // debug = vec3(inputs.sheenRoughness);
-//     //     debug = vec3(info.sheenScaling);
-//     // #endif // SHEEN
+    // // #ifdef SHEEN
+    // //     // debug = vec3(inputs.sheenColor);
+    // //     // debug = vec3(inputs.sheenRoughness);
+    // //     debug = vec3(info.sheenScaling);
+    // // #endif // SHEEN
 
-// // #ifdef IRIDESCENCE
-// //     // debug = vec3(surface.iridescenceIor - 1.0);
-// //     // debug = vec3(surface.iridescenceThickness / 1200.0);
-// //     debug = vec3(info.iridescenceFresnel);
-// // #endif // IRIDESCENCE
+    // // #ifdef IRIDESCENCE
+    // //     // debug = vec3(surface.iridescenceIor - 1.0);
+    // //     // debug = vec3(surface.iridescenceThickness / 1200.0);
+    // //     debug = vec3(info.iridescenceFresnel);
+    // // #endif // IRIDESCENCE
 
-//     debug = vec3(inputs.metallic);
+    // // #ifdef TRANSMISSION
+    // //     debug = vec3(surface.transmission);
+    // // #endif // TRANSMISSION
 
-//     debug = gammaToLinear(debug);
-//     gl_FragColor = vec4(debug, 1.0);
+    // debug = gammaToLinear(debug);
+    // gl_FragColor = vec4(debug, 1.0);
 }

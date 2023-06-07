@@ -42,6 +42,10 @@ struct SurfaceInputs {
     vec3 sheenColor;
     float sheenRoughness;
     #endif // SHEEN
+
+    #ifdef TRANSMISSION
+    float transmission;
+    #endif // TRANSMISSION
 };
 
 void initSurface(inout Surface surface, const in SurfaceInputs inputs, const in PixelParams pixel)
@@ -62,7 +66,7 @@ void initSurface(inout Surface surface, const in SurfaceInputs inputs, const in 
     #endif // IOR
     surface.ior = ior;
 
-    surface.perceptualRoughness = clamp(perceptualRoughness, MIN_PERCEPTUAL_ROUGHNESS, 1.0);
+    surface.perceptualRoughness = max(perceptualRoughness, MIN_PERCEPTUAL_ROUGHNESS);
     surface.roughness = surface.perceptualRoughness * surface.perceptualRoughness;
     surface.diffuseColor = (1.0 - metallic) * baseColor;
     surface.f0 = mix(f0, baseColor, metallic);
@@ -94,6 +98,10 @@ void initSurface(inout Surface surface, const in SurfaceInputs inputs, const in 
     surface.anisotropy = inputs.anisotropy;
     surface.anisotropyDirection = inputs.anisotropyDirection;
     #endif // ANISOTROPIC
+
+    #ifdef TRANSMISSION
+    surface.transmission = inputs.transmission;
+    #endif // TRANSMISSION
 }
 
 vec4 glTFMetallicRoughness(const in SurfaceInputs inputs, in PixelParams pixel)
