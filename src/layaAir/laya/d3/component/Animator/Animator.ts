@@ -1411,7 +1411,7 @@ export class Animator extends Component {
                     var clip: AnimationClip = animatorState._clip!;
                     var speed: number = this._speed * animatorState.speed;
                     var finish: boolean = playStateInfo._finish;//提前取出finish,防止最后一帧跳过
-                    finish || this._updatePlayer(animatorState, playStateInfo, delta * speed, clip.islooping, i);
+                    finish || this._updatePlayer(animatorState, playStateInfo, delta * speed, animatorState.islooping, i);
                     if (needRender) {
                         var addtive: boolean = controllerLayer.blendingMode !== AnimatorControllerLayer.BLENDINGMODE_OVERRIDE;
                         this._updateClipDatas(animatorState, addtive, playStateInfo, controllerLayer.avatarMask);//clipDatas为逐动画文件,防止两个使用同一动画文件的Animator数据错乱,即使动画停止也要updateClipDatas
@@ -1446,7 +1446,7 @@ export class Animator extends Component {
                         if (!playStateInfo._finish) {
                             speed = this._speed * animatorState.speed;
                             needUpdateFinishcurrentState = true;
-                            this._updatePlayer(animatorState, playStateInfo, delta * speed, clip.islooping, i);
+                            this._updatePlayer(animatorState, playStateInfo, delta * speed, animatorState.islooping, i);
                             if (needRender)
                                 this._updateClipDatas(animatorState, addtive, playStateInfo, controllerLayer.avatarMask);
                         }
@@ -1470,7 +1470,7 @@ export class Animator extends Component {
                     crossClipDuration = crossClip._duration - startPlayTime;
                     crossScale = crossDuratuion > crossClipDuration ? crossClipDuration / crossDuratuion : 1.0;//如果过度时间大于过度动作时间,则减慢速度
                     crossSpeed = this._speed * crossState.speed;
-                    this._updatePlayer(crossState, crossPlayStateInfo, delta * crossScale * crossSpeed, crossClip.islooping, i);
+                    this._updatePlayer(crossState, crossPlayStateInfo, delta * crossScale * crossSpeed, crossState.islooping, i);
                     if (needRender) {
                         crossWeight = ((crossPlayStateInfo._elapsedTime - startPlayTime) / crossScale) / crossDuratuion;
                         if (crossWeight >= 1.0) {
