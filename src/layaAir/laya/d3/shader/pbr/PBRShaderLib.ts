@@ -45,6 +45,11 @@ export class PBRShaderLib {
      */
     static DEFINE_SHEEN: ShaderDefine;
 
+    /**
+     * transmission
+     */
+    static DEFINE_TRANSMISSION: ShaderDefine;
+
     static init() {
 
         PBRShaderLib.DEFINE_EMISSION = Shader3D.getDefineByName("EMISSION");
@@ -60,6 +65,8 @@ export class PBRShaderLib {
 
         PBRShaderLib.DEFINE_SHEEN = Shader3D.getDefineByName("SHEEN");
 
+        PBRShaderLib.DEFINE_TRANSMISSION = Shader3D.getDefineByName("TRANSMISSION");
+
         // pbr lib
         Shader3D.addInclude("BRDF.glsl", BRDFGLSL);
         Shader3D.addInclude("PBRGI.glsl", PBRGIGLSL);
@@ -69,7 +76,7 @@ export class PBRShaderLib {
         Shader3D.addInclude("PBRFrag.glsl", PBRFragGLSL);
 
         PBRDefaultDFG.DefaultDfgTexture();
-        SubShader.regIncludeBindUnifrom("PBRGI.glsl", { "u_IBLDGF": ShaderDataType.Texture2D }, { "u_IBLDGF": PBRDefaultDFG.defaultDFG });
+        SubShader.regIncludeBindUnifrom("PBRGI.glsl", { "u_IBLDFG": ShaderDataType.Texture2D }, { "u_IBLDFG": PBRDefaultDFG.defaultDFG });
 
         Shader3D.addInclude("PBRMetallicFrag.glsl", PBRMetallicGLSL);
     }

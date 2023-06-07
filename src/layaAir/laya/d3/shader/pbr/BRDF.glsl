@@ -48,6 +48,12 @@ float V_SmithGGXCorrelated(float roughness, float NoV, float NoL)
     return saturateMediump(v);
 }
 
+float V_SmithGGXCorrelated_Fast(float roughness, float NoV, float NoL)
+{
+    float v = 0.5 / mix(2.0 * NoL * NoV, NoL + NoV, roughness);
+    return saturateMediump(v);
+}
+
 // Kelemen 2001, "A Microfacet Based Coupled Specular-Matte BRDF Model with Importance Sampling"
 float V_kelemen(float LoH)
 {

@@ -9,6 +9,9 @@ vec3 anisotropyBentNormal(const in Surface surface, const in PixelInfo info)
     float anisotropy = surface.anisotropy;
     vec3 anisotropyDirection = info.anisotropicB;
 
+    vec3 n = info.normalWS;
+    vec3 v = info.viewDir;
+
     // float tangentRoughness = mix(roughness, 1.0, anisotropy * anisotropy);
     float roughness = surface.perceptualRoughness;
     vec3 anisotropicTangent = cross(anisotropyDirection, v);
@@ -35,7 +38,7 @@ vec3 getReflectedVector(const in vec3 n, const in vec3 v, const in vec3 position
 }
 
     #ifdef IRIDESCENCE
-vec3 iridescenceIBL(const in Surface surface, const in PixelInfo info)
+void iridescenceIBL(const in Surface surface, const in PixelInfo info, in vec3 E, inout vec3 Fd, inout vec3 Fr)
 {
     vec3 dfg = info.dfg;
     float NoV = info.NoV;
@@ -50,15 +53,15 @@ vec3 iridescenceIBL(const in Surface surface, const in PixelInfo info)
     vec3 f0 = surface.f0;
     float iridescenceFactor = surface.iridescence;
 
-    vec3 iridescenceFresnelMax = vec3(vecmax(iridescenceFresnel));
-    vec3 schlickFresnel = F_Schlick(f0, vec3(1.0), NoV);
-    vec3 F = mix(schlickFresnel, iridescenceFresnelMax, iridescenceFactor);
+    // vec3 iridescenceFresnelMax = vec3(vecmax(iridescenceFresnel));
+    // vec3 schlickFresnel = F_Schlick(f0, vec3(1.0), NoV);
+    // vec3 F = mix(schlickFresnel, iridescenceFresnelMax, iridescenceFactor);
 
-    vec3 E = mix(dfg.xxx, dfg.yyy, F);
+    // vec3 E = mix(dfg.xxx, dfg.yyy, F);
 
     // diffuse
     vec3 irradiance = diffuseIrradiance(n, positionWS, info.viewDir);
-    vec3 Fd = diffuseColor * irradiance * (1.0 - E) * occlusion;
+    Fd += diffuseColor * irradiance * (1.0 - E) * occlusion;
 
     // specular
     vec3 iridescenceF0 = mix(surface.f0, iridescenceFresnel, vec3(iridescenceFactor));
@@ -72,14 +75,12 @@ vec3 iridescenceIBL(const in Surface surface, const in PixelInfo info)
 	#endif // ANISOTROPIC
 
     vec3 indirectSpecular = specularIrradiance(r, roughness);
-    vec3 Fr = Er * indirectSpecular * occlusion * info.energyCompensation;
-
-    return Fd + Fr;
+    Fr += Er * indirectSpecular * occlusion * (1.0 + Er * (1.0 / dfg.y - 1.0));
 }
     #endif // IRIDESCENCE
 
     #ifdef SHEEN
-vec3 sheenIBL(const in Surface surface, const in PixelInfo info)
+void sheenIBL(const in Surface surface, const in PixelInfo info, inout vec3 Fd, inout vec3 Fr)
 {
     vec3 v = info.viewDir;
     vec3 n = info.normalWS;
@@ -88,15 +89,18 @@ vec3 sheenIBL(const in Surface surface, const in PixelInfo info)
     float occlusion = surface.occlusion;
     float roughness = surface.sheenPerceptualRoughness;
 
+    Fd *= info.sheenScaling;
+    Fr *= info.sheenScaling;
+
     vec3 r = getReflectedVector(n, v, positionWS);
     vec3 indirectSpecular = specularIrradiance(r, roughness);
 
-    return indirectSpecular * info.sheenDfg * surface.sheenColor * occlusion;
+    Fr += indirectSpecular * info.sheenDfg * surface.sheenColor * occlusion;
 }
     #endif // SHEEN
 
     #ifdef CLEARCOAT
-vec3 clearCoatIBL(const in Surface surface, const in PixelInfo info)
+void clearCoatIBL(const in Surface surface, const in PixelInfo info, inout vec3 Fd, inout vec3 Fr)
 {
     vec3 v = info.viewDir;
     vec3 n = info.clearCoatNormal;
@@ -107,19 +111,58 @@ vec3 clearCoatIBL(const in Surface surface, const in PixelInfo info)
     float roughness = surface.clearCoatPerceptualRoughness;
     float occlusion = surface.occlusion;
 
-    // vec3 Fc = F_Schlick(0.04, 1.0, NoV) * clearCoat;
-    // todo base attenuation = 1.0 - Fc
+    float Fc = F_Schlick(0.04, 1.0, NoV) * clearCoat;
+    float attenuation = 1.0 - Fc;
+    Fd *= attenuation;
+    Fr *= attenuation;
 
     vec3 r = getReflectedVector(n, v, positionWS);
     vec3 indirectSpecular = specularIrradiance(r, roughness);
 
-    vec3 FrClearCoat = indirectSpecular * occlusion;
-
-    return FrClearCoat;
+    Fr += indirectSpecular * Fc * occlusion;
 }
     #endif // CLEARCOAT
 
-vec3 baseIBL(const in Surface surface, const in PixelInfo info)
+    #ifdef TRANSMISSION
+vec3 transmissionIBL(const in Surface surface, const in PixelInfo info, in vec3 E)
+{
+    vec3 n = info.normalWS;
+    // ray
+    vec3 position = info.positionWS;
+    vec3 direction = -info.viewDir;
+    float d = 0.0;
+
+    // todo ior
+    float airIor = 1.0;
+    float ior = surface.ior;
+    float etaIR = airIor / ior;
+    float etaRI = ior / airIor;
+
+    E *= 1.0 + surface.transmission * (1.0 - E.g) / (1.0 + E.g);
+
+    // todo
+    // only ibl
+    // float perceptualRoughness = mix(surface.perceptualRoughness, 0.0, saturate(etaIR * 3.0 - 2.0));
+    // vec3 Ft = specularIrradiance(direction, perceptualRoughness);
+
+    // ssr
+    vec4 p = u_ViewProjection * vec4(position, 1.0);
+    p.xy = p.xy * (0.5 / p.w) + 0.5;
+    // const float invLog2sqrt5 = 0.8614;
+    // float lod = max(0.0, (2.0 * log2(perceptualRoughness) + frameUniforms.refractionLodOffset) * invLog2sqrt5);
+    float lod = log2(1024.0) * surface.perceptualRoughness * saturate(surface.ior * 2.0 - 2.0);
+    // todo
+    vec3 Ft = texture2DLodEXT(u_CameraOpaqueTexture, p.xy, lod).xyz;
+
+    Ft *= surface.diffuseColor;
+
+    Ft *= 1.0 - E;
+
+    return Ft;
+}
+    #endif // TRANSMISSION
+
+void baseIBL(const in Surface surface, const in PixelInfo info, in vec3 E, inout vec3 Fd, inout vec3 Fr)
 {
     vec3 dfg = info.dfg;
     float NoV = info.NoV;
@@ -132,7 +175,7 @@ vec3 baseIBL(const in Surface surface, const in PixelInfo info)
     vec3 f0 = surface.f0;
     float occlusion = surface.occlusion;
 
-    vec3 E = mix(dfg.xxx, dfg.yyy, f0);
+    // vec3 E = mix(dfg.xxx, dfg.yyy, f0);
 
     #ifdef ANISOTROPIC
     vec3 bentNormal = anisotropyBentNormal(surface, info);
@@ -143,38 +186,57 @@ vec3 baseIBL(const in Surface surface, const in PixelInfo info)
 
     vec3 indirectSpecular = specularIrradiance(r, roughness);
 
-    vec3 Fr = E * indirectSpecular * occlusion * info.energyCompensation;
+    Fr += E * indirectSpecular * occlusion * info.energyCompensation;
 
     vec3 irradiance = diffuseIrradiance(n, positionWS, info.viewDir);
 
-    vec3 Fd = diffuseColor * irradiance * (1.0 - E) * occlusion;
-
-    return Fd + Fr;
+    Fd += diffuseColor * irradiance * (1.0 - E) * occlusion;
 }
 
 vec3 PBRGI(const in Surface surface, const in PixelInfo info)
 {
-    vec3 gi = vec3(0.0);
+    vec3 Fd = vec3(0.0);
+    vec3 Fr = vec3(0.0);
 
     #ifdef IRIDESCENCE
-    gi += iridescenceIBL(surface, info);
+    vec3 dfg = info.dfg;
+    float NoV = info.NoV;
+    vec3 iridescenceFresnel = info.iridescenceFresnel;
+    vec3 f0 = surface.f0;
+    float iridescenceFactor = surface.iridescence;
+    vec3 iridescenceFresnelMax = vec3(vecmax(iridescenceFresnel));
+    vec3 schlickFresnel = F_Schlick(f0, vec3(1.0), NoV);
+    vec3 F = mix(schlickFresnel, iridescenceFresnelMax, iridescenceFactor);
+    vec3 E = mix(dfg.xxx, dfg.yyy, F);
+    iridescenceIBL(surface, info, E, Fd, Fr);
     #else // IRIDESCENCE
-    gi += baseIBL(surface, info);
+    vec3 dfg = info.dfg;
+    vec3 f0 = surface.f0;
+    vec3 E = mix(dfg.xxx, dfg.yyy, f0);
+    baseIBL(surface, info, E, Fd, Fr);
     #endif // IRIDESCENCE
 
     // sheen
     #ifdef SHEEN
-    gi *= info.sheenScaling;
-    gi += sheenIBL(surface, info);
+    sheenIBL(surface, info, Fd, Fr);
     #endif // SHEEN
 
     // clear coat
     #ifdef CLEARCOAT
-    float FcClearCoat = F_Schlick(0.04, 1.0, info.clearCoatNoV) * surface.clearCoat;
-    gi *= (1.0 - FcClearCoat);
-    vec3 fClearCoat = clearCoatIBL(surface, info) * FcClearCoat;
-    gi += fClearCoat;
+    clearCoatIBL(surface, info, Fd, Fr);
     #endif // CLEARCOAT
+
+    #ifdef TRANSMISSION
+    Fd *= (1.0 - surface.transmission);
+    vec3 Ft = transmissionIBL(surface, info, E);
+    Ft *= surface.transmission;
+    #endif // TRANSMISSION
+
+    vec3 gi = Fd + Fr;
+
+    #ifdef TRANSMISSION
+    gi += Ft;
+    #endif // TRANSMISSION
 
     return gi;
 }

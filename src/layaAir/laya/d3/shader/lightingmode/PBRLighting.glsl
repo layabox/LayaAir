@@ -97,6 +97,10 @@ struct Surface {
     float sheenRoughness;
     float sheenPerceptualRoughness;
     #endif // SHEEN
+
+    #ifdef TRANSMISSION
+    float transmission;
+    #endif // TRANSMISSION
 };
 
 struct LightParams {
@@ -150,7 +154,7 @@ vec3 prefilteredDFG_LUT(float roughness, float NoV)
 {
     vec2 samplePoint = clamp(vec2(NoV, roughness), vec2(0.0, 0.0), vec2(1.0, 1.0));
     samplePoint.y = 1.0 - samplePoint.y;
-    return (texture2D(u_IBLDGF, samplePoint)).rgb;
+    return (texture2D(u_IBLDFG, samplePoint)).rgb;
 }
 
 vec2 EnvBRDFApproxLazarov(float roughness, float NoV)
@@ -288,6 +292,10 @@ vec3 PBRLighting(const in Surface surface, const in PixelInfo pixel, const in Li
     vec3 Fd = diffuseLobe(surface, pixel, lightParams);
     vec3 Fr = specularLobe(surface, pixel, lightParams);
     #endif
+
+    #ifdef TRANSMISSION
+    Fd *= 1.0 - surface.transmission;
+    #endif // TRANSMISSION
 
     vec3 shading = (Fd + Fr * pixel.energyCompensation);
 

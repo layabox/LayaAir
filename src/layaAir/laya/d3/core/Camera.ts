@@ -38,6 +38,9 @@ import { Vector3 } from "../../maths/Vector3";
 import { Vector4 } from "../../maths/Vector4";
 import { RenderTexture } from "../../resource/RenderTexture";
 import { Stat } from "../../utils/Stat";
+import { WrapMode } from "../../RenderEngine/RenderEnum/WrapMode";
+import { ClearRenderTextureCMD } from "./render/command/ClearRenderTextureCMD";
+import { Color } from "../../maths/Color";
 
 /**
  * 相机清除标记。
@@ -1112,10 +1115,12 @@ export class Camera extends BaseCamera {
         this.recoverRenderContext3D(context, renderTex);
         Stat.enableOpaque && scene._renderScene(context, ILaya3D.Scene3D.SCENERENDERFLAG_RENDERQPAQUE);
         this._applyCommandBuffer(CameraEventFlags.BeforeSkyBox, context);
-        this._opaquePass && this._createOpaqueTexture(renderTex, context);
-        this.recoverRenderContext3D(context, renderTex);
+
         scene._renderScene(context, ILaya3D.Scene3D.SCENERENDERFLAG_SKYBOX);
         this._applyCommandBuffer(CameraEventFlags.BeforeTransparent, context);
+
+        this._opaquePass && this._createOpaqueTexture(renderTex, context);
+        this.recoverRenderContext3D(context, renderTex);
 
         this.recoverRenderContext3D(context, renderTex);
         Stat.enableTransparent && scene._renderScene(context, ILaya3D.Scene3D.SCENERENDERFLAG_RENDERTRANSPARENT);
@@ -1230,9 +1235,16 @@ export class Camera extends BaseCamera {
     _createOpaqueTexture(currentTarget: RenderTexture, renderContext: RenderContext3D) {
         if (!this._opaqueTexture) {
             let tex = this._getRenderTexture();
-            this._opaqueTexture = RenderTexture.createFromPool(tex.width, tex.height, tex.colorFormat, RenderTargetFormat.None, false, 1, false, true);
+            // this._opaqueTexture = RenderTexture.createFromPool(tex.width, tex.height, tex.colorFormat, RenderTargetFormat.None, false, 1, false, true);
+            this._opaqueTexture = RenderTexture.createFromPool(1024, 1024, tex.colorFormat, RenderTargetFormat.None, true, 1, false, true);
+            this._opaqueTexture.filterMode = FilterMode.Bilinear;
+            this._opaqueTexture.wrapModeU = WrapMode.Clamp;
+            this._opaqueTexture.wrapModeV = WrapMode.Clamp;
             this._shaderValues.setTexture(BaseCamera.OPAQUETEXTURE, this._opaqueTexture);
         }
+
+
+
         var blit: BlitScreenQuadCMD = BlitScreenQuadCMD.create(currentTarget, this._opaqueTexture);
         blit.setContext(renderContext);
         blit.run();
