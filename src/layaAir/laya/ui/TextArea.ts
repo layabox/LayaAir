@@ -203,6 +203,7 @@ export class TextArea extends TextInput {
         this._hScrollBar.on(Event.CHANGE, this, this.onHBarChanged);
         this._hScrollBar.on(Event.LOADED, this, this.changeScroll);
         this._hScrollBar.mouseWheelEnable = false;
+        this._hScrollBar.touchScrollEnable = false;
         this._hScrollBar.target = this._tf;
         this.callLater(this.changeScroll);
     }
@@ -215,6 +216,7 @@ export class TextArea extends TextInput {
         this.addChild(this._vScrollBar);
         this._vScrollBar.on(Event.CHANGE, this, this.onVBarChanged);
         this._vScrollBar.on(Event.LOADED, this, this.changeScroll);
+        this._vScrollBar.touchScrollEnable = false;
         this._vScrollBar.target = this._tf;
         this.callLater(this.changeScroll);
     }
