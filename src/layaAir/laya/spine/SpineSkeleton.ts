@@ -78,7 +78,7 @@ export class SpineSkeleton extends Sprite {
 
         if (value) {
             ILaya.loader.load(value, Loader.SPINE).then((templet: SpineTemplet) => {
-                if (templet && !templet.isCreateFromURL(this._source))
+                if (!this._source || templet && !templet.isCreateFromURL(this._source))
                     return;
 
                 this.templet = templet;
