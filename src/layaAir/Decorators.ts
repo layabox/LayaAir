@@ -122,6 +122,8 @@ export interface PropertyDescriptor {
     /** 对对象类型属性适用。对象创建时可以下拉选择一个类型。如果显示设置为null，则禁止菜单。默认是显示一个创建基类的菜单。*/
     createObjectMenu: Array<string>;
 
+    /** 说明此属性是引用一个资源 */
+    isAsset?: boolean;
     /** 对资源类型的属性适用。多个资源类型用逗号分隔，例如“Image,Audio"。*/
     assetTypeFilter: string;
     /** 如果属性类型是string，并且进行资源选择时，这个选项决定属性值是资源原始路径还是res://uuid这样的格式。如果是true，则是资源原始路径。默认false。*/
