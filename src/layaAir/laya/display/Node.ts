@@ -142,7 +142,7 @@ export class Node extends EventDispatcher {
         }
     }
 
-    bubbleEvent(type: string, ev: Event) {
+    bubbleEvent(type: string, data?: any) {
         let arr: Array<Node> = _bubbleChainPool.length > 0 ? _bubbleChainPool.pop() : [];
         arr.length = 0;
 
@@ -153,12 +153,18 @@ export class Node extends EventDispatcher {
             obj = obj.parent;
         }
 
-        ev._stopped = false;
-        for (let obj of arr) {
-            ev.setTo(type, obj, this);
-            obj.event(type, ev);
-            if (ev._stopped)
-                break;
+        if (data instanceof Event) {
+            data._stopped = false;
+            for (let obj of arr) {
+                data.setTo(type, obj, this);
+                obj.event(type, data);
+                if (data._stopped)
+                    break;
+            }
+        }
+        else {
+            for (let obj of arr)
+                obj.event(type, data);
         }
 
         _bubbleChainPool.push(arr);
