@@ -298,6 +298,9 @@ export class List extends Box {
         return this._content;
     }
 
+    /**
+     * 滚动类型
+     */
     get scrollType() {
         return this._scrollType;
     }
