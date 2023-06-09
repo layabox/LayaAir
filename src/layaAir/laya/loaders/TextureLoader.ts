@@ -260,7 +260,7 @@ class TextureLoader implements IResourceLoader {
 const compressedFormats = ["ktx", "pvr", "dds", "hdr", "lanit.ls"];
 const videoFormats = ["mp4", "webm"];
 
-Loader.registerLoader(["tif", "tiff", "png", "jpg", "jpeg", "rendertexture", ...videoFormats, ...compressedFormats], TextureLoader, Loader.IMAGE);
+Loader.registerLoader(["tga", "tif", "tiff", "png", "jpg", "jpeg", "rendertexture", ...videoFormats, ...compressedFormats], TextureLoader, Loader.IMAGE);
 Loader.registerLoader([], Texture2DLoader, Loader.TEXTURE2D);
 Loader.registerLoader(["rendertexture"], RenderTextureLoader, Loader.TEXTURE2D);
 Loader.registerLoader(videoFormats, VideoTextureLoader, Loader.TEXTURE2D);
