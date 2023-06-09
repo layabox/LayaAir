@@ -126,6 +126,8 @@ export class Label extends UIComponent {
      */
     protected _tf: Text;
     protected _fitContent: boolean;
+    /** @internal */
+    private _fitFlag: boolean;
 
     /**
      * 创建一个新的 <code>Label</code> 实例。
@@ -149,10 +151,12 @@ export class Label extends UIComponent {
 
     protected _onPostLayout() {
         if (this._fitContent && (LayaEnv.isPlaying || this._tf.textWidth > 0 && this._tf.textHeight > 0)) {
+            this._fitFlag = true;
             if (this._tf.wordWrap)
                 this.height = this._tf.textHeight;
             else
                 this.size(this._tf.textWidth, this._tf.textHeight);
+            this._fitFlag = false;
         }
     }
 
@@ -408,6 +412,12 @@ export class Label extends UIComponent {
         return 0;
     }
 
+    set_width(value: number): void {
+        if (this._fitContent && !this._fitFlag)
+            return;
+        super.set_width(value);
+    }
+
     /**
      * @inheritDoc
      * @override
@@ -424,6 +434,12 @@ export class Label extends UIComponent {
     get_height(): number {
         if (this._isHeightSet || this._tf.text) return super.get_height();
         return 0;
+    }
+
+    set_height(value: number): void {
+        if (this._fitContent && !this._fitFlag)
+            return;
+        super.set_height(value);
     }
 
     /**

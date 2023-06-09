@@ -975,17 +975,15 @@ export class Text extends Sprite {
         let wordWrap = this._wordWrap;
         let padding = this._padding;
         let rectWidth: number;
-        if (this._isWidthSet) {
+        if (this._isWidthSet)
             rectWidth = this._width - padding[3] - padding[1];
-            if (this._maxWidth > 0 && this._maxWidth < rectWidth)
-                rectWidth = this._maxWidth;
-        }
-        else if (this._maxWidth > 0) {
-            wordWrap = true;
-            rectWidth = this._maxWidth;
-        }
         else
             rectWidth = Number.MAX_VALUE;
+        if (this._maxWidth > 0) {
+            if (!wordWrap || this._maxWidth < rectWidth)
+                rectWidth = this._maxWidth;
+            wordWrap = true;
+        }
 
         recoverLines(this._lines);
 

@@ -361,7 +361,7 @@ export class Input extends Text {
         // PC同步输入框外观。
         (input as any).setColor(this.color);
         (input as any).setFontSize(this.fontSize);
-        (input as any).setFontFace(ILaya.Browser.onIPhone ? (Config.fontFamilyMap[this.font] || this.font) : this.font);
+        (input as any).setFontFace(this._realFont);
         if (LayaEnv.isConch && !Input.isAppUseNewInput) {
             (input as any).setMultiAble && (input as any).setMultiAble(this._multiline);
         }

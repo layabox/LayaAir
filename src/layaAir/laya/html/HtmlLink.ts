@@ -17,7 +17,7 @@ export class HtmlLink implements IHtmlObject, IHitArea {
         this._shape = new Sprite();
         this._shape.hitArea = this;
         this._shape.on(Event.CLICK, () => {
-            this._owner.event(Event.LINK, this._element.getAttrString("href"));
+            this._owner.bubbleEvent(Event.LINK, this._element.getAttrString("href"));
         });
 
         this._rects = [];
