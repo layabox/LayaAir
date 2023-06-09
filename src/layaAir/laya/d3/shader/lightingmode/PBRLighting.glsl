@@ -100,6 +100,12 @@ struct Surface {
 
     #ifdef TRANSMISSION
     float transmission;
+
+	#ifdef VOLUME
+    float thickness;
+    vec3 attenuationColor;
+    float attenuationDistance;
+	#endif // VOLUME
     #endif // TRANSMISSION
 };
 
@@ -237,12 +243,7 @@ vec3 sheenLobe(const in Surface surface, const in PixelInfo pixel, const in Ligh
     float NoL = lightParams.NoL;
 
     float D = D_Charlie(roughness, NoH);
-	// todo
-	#ifdef SHEEN_V_Charlie
-    float V = V_Charlie(NoL, NoV, roughness);
-	#else // SHEEN_V_Charlie
     float V = V_Neubelt(NoV, NoL);
-	#endif // SHEEN_V_Charlie
     // F = 1.0
     return D * V * surface.sheenColor;
 }

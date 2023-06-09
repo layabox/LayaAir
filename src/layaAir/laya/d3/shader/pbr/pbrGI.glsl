@@ -127,19 +127,43 @@ void clearCoatIBL(const in Surface surface, const in PixelInfo info, inout vec3 
 vec3 transmissionIBL(const in Surface surface, const in PixelInfo info, in vec3 E)
 {
     vec3 n = info.normalWS;
-    // ray
-    vec3 position = info.positionWS;
-    vec3 direction = -info.viewDir;
-    float d = 0.0;
+    vec3 r = -info.viewDir;
 
     // todo ior
     float airIor = 1.0;
+
     float ior = surface.ior;
+
     float etaIR = airIor / ior;
     float etaRI = ior / airIor;
 
-    E *= 1.0 + surface.transmission * (1.0 - E.g) / (1.0 + E.g);
+	// ray
+	#ifndef VOLUME
+    vec3 position = info.positionWS;
+    vec3 direction = r;
+    float d = 0.0;
+	#endif // VOLUME
 
+	#ifdef VOLUME
+    r = refract(r, n, etaIR);
+    float NoR = dot(n, r);
+    float d = surface.thickness * -NoR;
+    vec3 scaleLength = vec3(0.0);
+    scaleLength.x = length(vec3(u_WorldMat[0].xyz));
+    scaleLength.y = length(vec3(u_WorldMat[1].xyz));
+    scaleLength.z = length(vec3(u_WorldMat[2].xyz));
+    vec3 position = vec3(info.positionWS + r * d * length(scaleLength));
+    vec3 n1 = normalize(NoR * r - n * 0.5);
+    vec3 direction = refract(r, n1, etaRI);
+
+    vec3 absorption = -log(clamp(surface.attenuationColor, vec3(1e-5), vec3(1.0))) / max(1e-5, surface.attenuationDistance);
+    vec3 T = min(vec3(1.0), exp(-absorption * d));
+
+	#endif // VOLUME
+
+	#ifndef VOLUME
+    E *= 1.0 + surface.transmission * (1.0 - E.g) / (1.0 + E.g);
+	#endif // VOLUME
     // todo
     // only ibl
     // float perceptualRoughness = mix(surface.perceptualRoughness, 0.0, saturate(etaIR * 3.0 - 2.0));
@@ -157,6 +181,10 @@ vec3 transmissionIBL(const in Surface surface, const in PixelInfo info, in vec3 
     Ft *= surface.diffuseColor;
 
     Ft *= 1.0 - E;
+
+	#ifdef VOLUME
+    Ft *= T;
+	#endif // VOLUME
 
     return Ft;
 }
@@ -193,11 +221,8 @@ void baseIBL(const in Surface surface, const in PixelInfo info, in vec3 E, inout
     Fd += diffuseColor * irradiance * (1.0 - E) * occlusion;
 }
 
-vec3 PBRGI(const in Surface surface, const in PixelInfo info)
+vec3 getE(const in Surface surface, const in PixelInfo info)
 {
-    vec3 Fd = vec3(0.0);
-    vec3 Fr = vec3(0.0);
-
     #ifdef IRIDESCENCE
     vec3 dfg = info.dfg;
     float NoV = info.NoV;
@@ -208,11 +233,25 @@ vec3 PBRGI(const in Surface surface, const in PixelInfo info)
     vec3 schlickFresnel = F_Schlick(f0, vec3(1.0), NoV);
     vec3 F = mix(schlickFresnel, iridescenceFresnelMax, iridescenceFactor);
     vec3 E = mix(dfg.xxx, dfg.yyy, F);
-    iridescenceIBL(surface, info, E, Fd, Fr);
     #else // IRIDESCENCE
     vec3 dfg = info.dfg;
     vec3 f0 = surface.f0;
     vec3 E = mix(dfg.xxx, dfg.yyy, f0);
+    #endif // IRIDESCENCE
+
+    return E;
+}
+
+vec3 PBRGI(const in Surface surface, const in PixelInfo info)
+{
+    vec3 Fd = vec3(0.0);
+    vec3 Fr = vec3(0.0);
+
+    vec3 E = getE(surface, info);
+
+    #ifdef IRIDESCENCE
+    iridescenceIBL(surface, info, E, Fd, Fr);
+    #else // IRIDESCENCE
     baseIBL(surface, info, E, Fd, Fr);
     #endif // IRIDESCENCE
 
