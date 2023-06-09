@@ -69,6 +69,7 @@ export class AnimatorPlayState2D {
 		this._startPlayTime = startTime;
 		this._elapsedTime = startTime;
 		this._lastIsFront = true;
+		this._parentPlayTime = null;
 		this._playNum = 0;
 		this._playAllTime = 0;
 		var playTime = (this._elapsedTime / clipDuration) % 1.0;
