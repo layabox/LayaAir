@@ -516,6 +516,39 @@ export class glTFResource extends Prefab {
         }
     }
 
+    private getBufferFormBufferView(bufferView: glTF.glTFBufferView, byteOffset: number, accessorType: glTF.glTFAccessorType, componentType: glTF.glTFAccessorComponentType, count: number) {
+        let buffer: ArrayBuffer = this._buffers[bufferView.buffer];
+
+        const constructor = this._getTypedArrayConstructor(componentType);
+        let componentCount: number = this.getAccessorComponentsNum(accessorType);
+        let res;
+        if (bufferView.byteStride) {
+            let vertexStride = bufferView.byteStride;
+            let dataByteStride = this._getAccessorDateByteStride(componentType);
+            let dataStride = vertexStride / dataByteStride;
+
+            let elementByteOffset = byteOffset || 0;
+            let elementOffset = elementByteOffset / dataByteStride;
+
+            // let d = new ArrayBuffer(dataStride * accessorDataCount);
+            let dataReader = new constructor(buffer, bufferView.byteOffset || 0, bufferView.byteLength / dataByteStride);
+            res = new constructor(count);
+            let resIndex = 0;
+            for (let index = 0; index < count; index++) {
+                let componentOffset = index * dataStride;
+                for (let i = 0; i < componentCount; i++) {
+                    res[resIndex++] = dataReader[componentOffset + elementOffset + i];
+                }
+            }
+        }
+        else {
+            let bufferOffset: number = (bufferView.byteOffset || 0) + (byteOffset || 0);
+            res = new constructor(buffer, bufferOffset, count);
+        }
+
+        return res;
+    }
+
     /**
      * 获取 accessor buffer 数据
      * @param accessorIndex 
@@ -525,40 +558,40 @@ export class glTFResource extends Prefab {
         if (!accessor)
             return null;
 
-        let bufferView: glTF.glTFBufferView = this._data.bufferViews[accessor.bufferView];
-        let buffer: ArrayBuffer = this._buffers[bufferView.buffer];
-
         let count: number = accessor.count;
         let componentCount: number = this.getAccessorComponentsNum(accessor.type);
         let accessorDataCount: number = count * componentCount;
 
-        const constructor = this._getTypedArrayConstructor(accessor.componentType);
+        let res;
 
-        if (bufferView.byteStride) {
-
-            let vertexStride = bufferView.byteStride;
-            let dataByteStride = this._getAccessorDateByteStride(accessor.componentType);
-            let dataStride = vertexStride / dataByteStride;
-
-            let elementByteOffset = accessor.byteOffset || 0;
-            let elementOffset = elementByteOffset / dataByteStride;
-
-            // let d = new ArrayBuffer(dataStride * accessorDataCount);
-            let dataReader = new constructor(buffer, bufferView.byteOffset || 0, bufferView.byteLength / dataByteStride);
-            let res = new constructor(accessorDataCount);
-            let resIndex = 0;
-            for (let index = 0; index < count; index++) {
-                let componentOffset = index * dataStride;
-                for (let i = 0; i < componentCount; i++) {
-                    res[resIndex++] = dataReader[componentOffset + elementOffset + i];
-                }
-            }
-            return res;
+        let bufferView: glTF.glTFBufferView = this._data.bufferViews[accessor.bufferView];
+        if (bufferView) {
+            res = this.getBufferFormBufferView(bufferView, accessor.byteOffset, accessor.type, accessor.componentType, accessorDataCount);
         }
         else {
-            let byteOffset: number = (bufferView.byteOffset || 0) + (accessor.byteOffset || 0);
-            return new constructor(buffer, byteOffset, accessorDataCount);
+            const constructor = this._getTypedArrayConstructor(accessor.componentType);
+            res = new constructor(accessorDataCount).fill(0);
         }
+
+        if (accessor.sparse) {
+            let sparseCount = accessor.sparse.count;
+            let sparseIndices = accessor.sparse.indices;
+            let sparseIndicesBufferView = this._data.bufferViews[sparseIndices.bufferView];
+            let sparseIndicesData = this.getBufferFormBufferView(sparseIndicesBufferView, sparseIndices.byteOffset, accessor.type, sparseIndices.componentType, sparseCount);
+
+            let sparseValues = accessor.sparse.values;
+            let sparseValuesBufferView = this._data.bufferViews[sparseValues.bufferView];
+            let sparseValuesData = this.getBufferFormBufferView(sparseValuesBufferView, sparseValues.byteOffset, accessor.type, accessor.componentType, sparseCount * componentCount);
+
+            for (let index = 0; index < sparseCount; index++) {
+                let i = sparseIndicesData[index];
+                for (let componentIndex = 0; componentIndex < componentCount; componentIndex++) {
+                    res[i * componentCount + componentIndex] = sparseValuesData[index * componentCount + componentIndex];
+                }
+            }
+        }
+
+        return res;
     }
 
     /**
