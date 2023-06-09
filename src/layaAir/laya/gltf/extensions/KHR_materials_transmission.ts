@@ -12,7 +12,7 @@ const ExtensionName = "KHR_materials_transmission";
 
 declare module "../glTFInterface" {
 
-    export interface glTFmaterialTransmission {
+    export interface glTFMaterialTransmission {
         /** The base percentage of light that is transmitted through the surface. default: 0 */
         transmissionFactor: number;
         /** A texture that defines the transmission percentage of the surface, stored in the R channel. */
@@ -37,7 +37,7 @@ export class KHR_materials_transmission implements glTFExtension {
         if (materials && textures) {
             let promises: Array<Promise<Texture2D>> = [];
             materials.forEach(material => {
-                let extension: glTF.glTFmaterialTransmission = material.extensions?.KHR_materials_transmission;
+                let extension: glTF.glTFMaterialTransmission = material.extensions?.KHR_materials_transmission;
                 if (extension) {
                     if (extension.transmissionTexture) {
                         let sRGB = false;
@@ -54,7 +54,7 @@ export class KHR_materials_transmission implements glTFExtension {
     }
 
     additionMaterialProperties(glTFMaterial: glTF.glTFMaterial, material: Material): void {
-        let extension: glTF.glTFmaterialTransmission = glTFMaterial.extensions.KHR_materials_transmission;
+        let extension: glTF.glTFMaterialTransmission = glTFMaterial.extensions.KHR_materials_transmission;
 
         let transmissionFactor = extension.transmissionFactor ?? 0.0;
 

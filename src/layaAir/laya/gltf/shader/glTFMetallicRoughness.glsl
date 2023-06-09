@@ -45,6 +45,13 @@ struct SurfaceInputs {
 
     #ifdef TRANSMISSION
     float transmission;
+
+	#ifdef VOLUME
+    float thickness;
+    vec3 attenuationColor;
+    float attenuationDistance;
+	#endif // VOLUME
+
     #endif // TRANSMISSION
 };
 
@@ -101,6 +108,11 @@ void initSurface(inout Surface surface, const in SurfaceInputs inputs, const in 
 
     #ifdef TRANSMISSION
     surface.transmission = inputs.transmission;
+	#ifdef VOLUME
+    surface.thickness = inputs.thickness;
+    surface.attenuationColor = inputs.attenuationColor;
+    surface.attenuationDistance = inputs.attenuationDistance;
+	#endif // VOLUME
     #endif // TRANSMISSION
 }
 

@@ -63,6 +63,12 @@ export class glTFShader {
     static Define_TransmissionMap: ShaderDefine;
     static Define_TransmissionMapTransform: ShaderDefine;
 
+    // volume
+    // todo 
+    static Define_Volume: ShaderDefine;
+    static Define_VolumeThicknessMap: ShaderDefine;
+    static Define_VolumeThicknessMapTransform: ShaderDefine;
+
     // todo
     static init() {
 
@@ -101,6 +107,10 @@ export class glTFShader {
 
         this.Define_TransmissionMap = Shader3D.getDefineByName("TRANSMISSIONMAP");
         this.Define_TransmissionMapTransform = Shader3D.getDefineByName("TRANSMISSIONMAP_TRANSFORM");
+
+        this.Define_Volume = Shader3D.getDefineByName("VOLUME");
+        this.Define_VolumeThicknessMap = Shader3D.getDefineByName("VOLUME_THICKNESSMAP");
+        this.Define_VolumeThicknessMapTransform = Shader3D.getDefineByName("VOLUME_THICKNESSMAP_TRANSFORM");
 
         let uniformMap = {
             // render 
@@ -170,6 +180,14 @@ export class glTFShader {
             "u_TransmissionFactor": ShaderDataType.Float,
             "u_TransmissionTexture": ShaderDataType.Texture2D,
             "u_TransmissionMapTransform": ShaderDataType.Matrix3x3,
+
+            // volume
+            "u_VolumeThicknessFactor": ShaderDataType.Float,
+            "u_VolumeThicknessTexture": ShaderDataType.Texture2D,
+            "u_VoluemThicknessMapTransform": ShaderDataType.Matrix3x3,
+            "u_VolumeAttenuationDistance": ShaderDataType.Float,
+            // todo
+            "u_VolumeAttenuationColor": ShaderDataType.Vector3
         }
 
         let defaultValue = {

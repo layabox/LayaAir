@@ -212,11 +212,35 @@ void initSurfaceInputs(inout SurfaceInputs inputs, const in PixelParams pixel)
     transmission *= transmissionSampler.r;
     #endif // TRANSMISSIONMAP
     inputs.transmission = transmission;
+
+    #ifdef VOLUME
+
+    float thicknessFactor = u_VolumeThicknessFactor;
+    float attenuationDistance = u_VolumeAttenuationDistance;
+    vec3 attenuationColor = u_VolumeAttenuationColor;
+
+	#ifdef VOLUME_THICKNESSMAP
+    vec2 thicknessUV = uv;
+	    #ifdef VOLUME_THICKNESSMAP_TRANSFORM
+    thicknessUV = (u_VoluemThicknessMapTransform * vec3(thicknessUV, 1.0)).xy;
+	    #endif // VOLUME_THICKNESSMAP_TRANSFORM
+    vec4 thicknessSampler = texture2D(u_VolumeThicknessTexture, thicknessUV);
+    thicknessFactor *= thicknessSampler.g;
+	#endif // VOLUME_THICKNESSMAP
+
+    inputs.thickness = thicknessFactor;
+    inputs.attenuationColor = attenuationColor;
+    inputs.attenuationDistance = attenuationDistance;
+
+    #endif // VOLUME
+
 #endif // TRANSMISSION
 }
 
 void main()
 {
+
+#ifndef DEBUG
     PixelParams pixel;
     getPixelParams(pixel);
 
@@ -225,20 +249,69 @@ void main()
 
     vec4 surfaceColor = glTFMetallicRoughness(inputs, pixel);
 
-#ifdef FOG
+    #ifdef FOG
     surfaceColor.rgb = sceneLitFog(surfaceColor.rgb);
-#endif // FOG
+    #endif // FOG
 
     gl_FragColor = surfaceColor;
 
+#else DEBUG
     // // debug
-    // Surface surface;
-    // initSurface(surface, inputs, pixel);
+    PixelParams pixel;
+    getPixelParams(pixel);
 
-    // PixelInfo info;
-    // getPixelInfo(info, pixel, surface);
+    SurfaceInputs inputs;
+    initSurfaceInputs(inputs, pixel);
 
-    // vec3 debug = vec3(0.0);
+    Surface surface;
+    initSurface(surface, inputs, pixel);
+
+    PixelInfo info;
+    getPixelInfo(info, pixel, surface);
+
+    vec3 debug = vec3(0.0);
+
+    #ifdef Debug_ShadingNormal
+    debug = vec3(info.normalWS * 0.5 + 0.5);
+    #endif // Debug_ShadingNormal
+
+    #ifdef Debug_GeometryNormal
+    debug = vec3(info.vertexNormalWS * 0.5 + 0.5);
+    #endif // Debug_GeometryNormal
+
+    #ifdef Debug_Roughness
+    debug = vec3(surface.perceptualRoughness);
+    #endif // Debug_Roughness
+
+    #ifdef Debug_Alpha
+    debug = vec3(surface.alpha);
+    #endif // Debug_Alpha
+
+    #ifdef Debug_Occlusion
+    debug = vec3(surface.occlusion);
+    #endif // Debug_Occlusion
+
+    #ifdef Debug_Metallic
+    debug = vec3(inputs.metallic);
+    #endif // Debug_Metallic
+
+    #ifdef VOLUME
+	#ifdef Debug_VolumeThickness
+    debug = vec3(surface.thickness);
+	#endif // Debug_VolumeThickness
+    #endif // VOLUME
+
+    #ifdef TRANSMISSION
+	#ifdef Debug_Transmission
+    vec3 E = getE(surface, info);
+    debug = transmissionIBL(surface, info, E);
+	#endif // Debug_Transmission
+    #endif // TRANSMISSION
+
+    #ifdef Debug_IOR
+    debug = vec3(surface.ior - 1.0);
+    #endif // Debug_IOR
+
     // // #ifdef CLEARCOAT
     // //     // debug = vec3(info.iridescenceFresnel);
     // //     #ifdef CLEARCOAT_NORMAL
@@ -266,6 +339,8 @@ void main()
     // //     debug = vec3(surface.transmission);
     // // #endif // TRANSMISSION
 
-    // debug = gammaToLinear(debug);
-    // gl_FragColor = vec4(debug, 1.0);
+    debug = gammaToLinear(debug);
+    gl_FragColor = vec4(debug, 1.0);
+
+#endif // DEBUG
 }
