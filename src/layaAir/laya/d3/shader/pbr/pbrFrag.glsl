@@ -22,6 +22,8 @@ void getPixelInfo(inout PixelInfo info, const in PixelParams pixel, const in Sur
 
     info.dfg = prefilteredDFG_LUT(surface.perceptualRoughness, info.NoV);
 
+    info.energyCompensation = (1.0 + surface.f0 * (1.0 / info.dfg.y - 1.0));
+
     #ifdef CLEARCOAT
 	#ifdef CLEARCOAT_NORMAL
     info.clearCoatNormal = normalize(pixel.TBN * surface.clearCoatNormalTS);
@@ -55,18 +57,16 @@ vec3 PBRLighting(const in Surface surface, const in PixelParams pixel)
 
     vec3 lightColor = vec3(0.0);
     #ifdef DIRECTIONLIGHT
-    for (int i = 0; i < CalculateLightCount; i++)
-	{
-	    if (i >= DirectionCount)
-		break;
-	    DirectionLight directionLight = getDirectionLight(i, info.positionWS);
-	    if (directionLight.lightMode == LightMode_Mix)
-		{
-		    continue;
-		}
-	    Light light = getLight(directionLight);
-	    lightColor += PBRLighting(surface, info, light) * light.attenuation;
+    for (int i = 0; i < CalculateLightCount; i++) {
+	if (i >= DirectionCount)
+	    break;
+	DirectionLight directionLight = getDirectionLight(i, info.positionWS);
+	if (directionLight.lightMode == LightMode_Mix) {
+	    continue;
 	}
+	Light light = getLight(directionLight);
+	lightColor += PBRLighting(surface, info, light) * light.attenuation;
+    }
     #endif // DIRECTIONLIGHT
 
     #if defined(POINTLIGHT) || defined(SPOTLIGHT)
@@ -74,33 +74,29 @@ vec3 PBRLighting(const in Surface surface, const in PixelParams pixel)
     #endif // POINTLIGHT || SPOTLIGHT
 
     #ifdef POINTLIGHT
-    for (int i = 0; i < CalculateLightCount; i++)
-	{
-	    if (i >= clusterInfo.x)
-		break;
-	    PointLight pointLight = getPointLight(i, clusterInfo, info.positionWS);
-	    if (pointLight.lightMode == LightMode_Mix)
-		{
-		    continue;
-		}
-	    Light light = getLight(pointLight, info.normalWS, info.positionWS);
-	    lightColor += PBRLighting(surface, info, light) * light.attenuation;
+    for (int i = 0; i < CalculateLightCount; i++) {
+	if (i >= clusterInfo.x)
+	    break;
+	PointLight pointLight = getPointLight(i, clusterInfo, info.positionWS);
+	if (pointLight.lightMode == LightMode_Mix) {
+	    continue;
 	}
+	Light light = getLight(pointLight, info.normalWS, info.positionWS);
+	lightColor += PBRLighting(surface, info, light) * light.attenuation;
+    }
     #endif // POINTLIGHT
 
     #ifdef SPOTLIGHT
-    for (int i = 0; i < CalculateLightCount; i++)
-	{
-	    if (i >= clusterInfo.y)
-		break;
-	    SpotLight spotLight = getSpotLight(i, clusterInfo, info.positionWS);
-	    if (spotLight.lightMode == LightMode_Mix)
-		{
-		    continue;
-		}
-	    Light light = getLight(spotLight, info.normalWS, info.positionWS);
-	    lightColor += PBRLighting(surface, info, light) * light.attenuation;
+    for (int i = 0; i < CalculateLightCount; i++) {
+	if (i >= clusterInfo.y)
+	    break;
+	SpotLight spotLight = getSpotLight(i, clusterInfo, info.positionWS);
+	if (spotLight.lightMode == LightMode_Mix) {
+	    continue;
 	}
+	Light light = getLight(spotLight, info.normalWS, info.positionWS);
+	lightColor += PBRLighting(surface, info, light) * light.attenuation;
+    }
     #endif // SPOTLIGHT
 
     vec3 giColor = PBRGI(surface, info);

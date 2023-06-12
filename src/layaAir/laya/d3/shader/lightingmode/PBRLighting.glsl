@@ -28,6 +28,7 @@ struct PixelInfo {
     float NoV;
 
     vec3 dfg;
+    vec3 energyCompensation;
 
     #ifdef CLEARCOAT
     vec3 clearCoatNormal;
@@ -125,7 +126,8 @@ void initLightParams(inout LightParams params, const in PixelInfo pixel, const i
 vec3 prefilteredDFG_LUT(float roughness, float NoV)
 {
     vec2 samplePoint = clamp(vec2(NoV, roughness), vec2(0.0, 0.0), vec2(1.0, 1.0));
-    return (texture2D(u_IBLDGF, samplePoint)).rgb;
+    samplePoint.y = 1.0 - samplePoint.y;
+    return (texture2D(u_IBLDFG, samplePoint)).rgb;
 }
 
 vec2 EnvBRDFApproxLazarov(float roughness, float NoV)
@@ -214,7 +216,7 @@ vec3 PBRLighting(const in Surface surface, const in PixelInfo pixel, const in Li
     vec3 Fr = specularLobe(surface, pixel, lightParams);
     #endif // ANISOTROPIC
 
-    vec3 shading = (Fd + Fr) * lightParams.NoL;
+    vec3 shading = (Fd + Fr * pixel.energyCompensation) * lightParams.NoL;
 
     #ifdef CLEARCOAT
     float clearCoatNoL = lightParams.clearCoatNoL;

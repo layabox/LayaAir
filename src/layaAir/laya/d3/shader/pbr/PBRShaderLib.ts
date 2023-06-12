@@ -48,7 +48,7 @@ export class PBRShaderLib {
         Shader3D.addInclude("PBRFrag.glsl", PBRFragGLSL);
 
         PBRDefaultDFG.DefaultDfgTexture();
-        SubShader.regIncludeBindUnifrom("PBRGI.glsl", { "u_IBLDGF": ShaderDataType.Texture2D }, { "u_IBLDGF": PBRDefaultDFG.defaultDFG });
+        SubShader.regIncludeBindUnifrom("PBRGI.glsl", { "u_IBLDFG": ShaderDataType.Texture2D }, { "u_IBLDFG": PBRDefaultDFG.defaultDFG });
 
         Shader3D.addInclude("PBRMetallicFrag.glsl", PBRMetallicGLSL);
     }
