@@ -7,6 +7,7 @@ import { glTFExtension } from "./glTFExtension";
 import { glTFResource } from "../glTFResource";
 import { glTFShader } from "../shader/glTFShader";
 import { Vector3 } from "../../maths/Vector3";
+import { Color } from "../../maths/Color";
 
 const ExtensionName = "KHR_materials_volume";
 
@@ -71,12 +72,12 @@ export class KHR_materials_volume implements glTFExtension {
         material.setFloat("u_VolumeAttenuationDistance", attenuationDistance);
 
         // todo type color or vector
-        let attenuationColor = new Vector3(1, 1, 1);
+        let attenuationColor = new Color(1, 1, 1);
         if (extension.attenuationColor) {
             attenuationColor.fromArray(extension.attenuationColor);
         }
 
-        material.setVector3("u_VolumeAttenuationColor", attenuationColor);
+        material.setColor("u_VolumeAttenuationColor", attenuationColor);
 
         if (extension.thicknessTexture) {
             this._resource.setMaterialTextureProperty(material, extension.thicknessTexture, "u_VolumeThicknessTexture", glTFShader.Define_VolumeThicknessMap, "u_VoluemThicknessMapTransform", glTFShader.Define_VolumeThicknessMapTransform);

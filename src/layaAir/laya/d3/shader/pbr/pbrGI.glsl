@@ -74,7 +74,7 @@ void iridescenceIBL(const in Surface surface, const in PixelInfo info, in vec3 E
     vec3 r = getReflectedVector(n, v, positionWS);
 	#endif // ANISOTROPIC
 
-    vec3 indirectSpecular = specularIrradiance(r, roughness);
+    vec3 indirectSpecular = specularRadiance(r, roughness);
     Fr += Er * indirectSpecular * occlusion * (1.0 + Er * (1.0 / dfg.y - 1.0));
 }
     #endif // IRIDESCENCE
@@ -93,7 +93,7 @@ void sheenIBL(const in Surface surface, const in PixelInfo info, inout vec3 Fd, 
     Fr *= info.sheenScaling;
 
     vec3 r = getReflectedVector(n, v, positionWS);
-    vec3 indirectSpecular = specularIrradiance(r, roughness);
+    vec3 indirectSpecular = specularRadiance(r, roughness);
 
     Fr += indirectSpecular * info.sheenDfg * surface.sheenColor * occlusion;
 }
@@ -117,7 +117,7 @@ void clearCoatIBL(const in Surface surface, const in PixelInfo info, inout vec3 
     Fr *= attenuation;
 
     vec3 r = getReflectedVector(n, v, positionWS);
-    vec3 indirectSpecular = specularIrradiance(r, roughness);
+    vec3 indirectSpecular = specularRadiance(r, roughness);
 
     Fr += indirectSpecular * Fc * occlusion;
 }
@@ -145,35 +145,34 @@ vec3 transmissionIBL(const in Surface surface, const in PixelInfo info, in vec3 
 	#endif // VOLUME
 
 	#ifdef VOLUME
-    r = refract(r, n, etaIR);
-    float NoR = dot(n, r);
-    float d = surface.thickness * -NoR;
+
     vec3 scaleLength = vec3(0.0);
     scaleLength.x = length(vec3(u_WorldMat[0].xyz));
     scaleLength.y = length(vec3(u_WorldMat[1].xyz));
     scaleLength.z = length(vec3(u_WorldMat[2].xyz));
-    vec3 position = vec3(info.positionWS + r * d * length(scaleLength));
+    float transmissionDistance = length(scaleLength) / 3.0;
+
+    r = refract(r, n, etaIR);
+    float NoR = dot(n, r);
+    float d = surface.thickness * -NoR * transmissionDistance;
+
+    vec3 position = vec3(info.positionWS + r * d);
     vec3 n1 = normalize(NoR * r - n * 0.5);
     vec3 direction = refract(r, n1, etaRI);
 
-    vec3 absorption = -log(clamp(surface.attenuationColor, vec3(1e-5), vec3(1.0))) / max(1e-5, surface.attenuationDistance);
+    vec3 absorption = -log((surface.attenuationColor)) / surface.attenuationDistance;
+
     vec3 T = min(vec3(1.0), exp(-absorption * d));
 
 	#endif // VOLUME
 
 	#ifndef VOLUME
-    E *= 1.0 + surface.transmission * (1.0 - E.g) / (1.0 + E.g);
+    E *= (1.0 + surface.transmission * (1.0 - E.g) / (1.0 + E.g));
 	#endif // VOLUME
-    // todo
-    // only ibl
-    // float perceptualRoughness = mix(surface.perceptualRoughness, 0.0, saturate(etaIR * 3.0 - 2.0));
-    // vec3 Ft = specularIrradiance(direction, perceptualRoughness);
 
     // ssr
     vec4 p = u_ViewProjection * vec4(position, 1.0);
     p.xy = p.xy * (0.5 / p.w) + 0.5;
-    // const float invLog2sqrt5 = 0.8614;
-    // float lod = max(0.0, (2.0 * log2(perceptualRoughness) + frameUniforms.refractionLodOffset) * invLog2sqrt5);
     float lod = log2(1024.0) * surface.perceptualRoughness * saturate(surface.ior * 2.0 - 2.0);
     // todo
     vec3 Ft = texture2DLodEXT(u_CameraOpaqueTexture, p.xy, lod).xyz;
@@ -203,8 +202,6 @@ void baseIBL(const in Surface surface, const in PixelInfo info, in vec3 E, inout
     vec3 f0 = surface.f0;
     float occlusion = surface.occlusion;
 
-    // vec3 E = mix(dfg.xxx, dfg.yyy, f0);
-
     #ifdef ANISOTROPIC
     vec3 bentNormal = anisotropyBentNormal(surface, info);
     vec3 r = getReflectedVector(bentNormal, v, positionWS);
@@ -212,7 +209,7 @@ void baseIBL(const in Surface surface, const in PixelInfo info, in vec3 E, inout
     vec3 r = getReflectedVector(n, v, positionWS);
     #endif // ANISOTROPIC
 
-    vec3 indirectSpecular = specularIrradiance(r, roughness);
+    vec3 indirectSpecular = specularRadiance(r, roughness);
 
     Fr += E * indirectSpecular * occlusion * info.energyCompensation;
 

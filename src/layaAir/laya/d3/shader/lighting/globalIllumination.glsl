@@ -62,7 +62,7 @@ vec3 diffuseIrradiance(in vec3 normalWS, in vec3 positionWS, in vec3 viewDir)
 	#endif // VOLUMETRICGI
 }
 
-vec3 specularIrradiance(in vec3 r, in float perceptualRoughness)
+vec3 specularRadiance(in vec3 r, in float perceptualRoughness)
 {
     float lod = IBL_ROUGHNESS_LEVEL * perceptualRoughness * (2.0 - perceptualRoughness);
 
@@ -149,7 +149,7 @@ vec3 diffuseIrradiance(in vec3 normalWS, in vec3 positionWS, in vec3 viewDir)
 	#endif // VOLUMETRICGI
 }
 
-vec3 specularIrradiance(in vec3 r, in float perceptualRoughness)
+vec3 specularRadiance(in vec3 r, in float perceptualRoughness)
 {
     float roughness = perceptualRoughness * (1.7 - 0.7 * perceptualRoughness);
     // todo 临时转换
@@ -181,7 +181,7 @@ vec3 diffuseIrradiance(in vec3 normalWS, in vec3 positionWS, in vec3 viewDir)
     return diffuseIrradiance(normalWS);
 }
 
-vec3 specularIrradiance(in vec3 r, in float perceptualRoughness)
+vec3 specularRadiance(in vec3 r, in float perceptualRoughness)
 {
     // todo
     return u_AmbientColor.rgb * u_ReflectionIntensity;

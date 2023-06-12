@@ -186,8 +186,7 @@ export class glTFShader {
             "u_VolumeThicknessTexture": ShaderDataType.Texture2D,
             "u_VoluemThicknessMapTransform": ShaderDataType.Matrix3x3,
             "u_VolumeAttenuationDistance": ShaderDataType.Float,
-            // todo
-            "u_VolumeAttenuationColor": ShaderDataType.Vector3
+            "u_VolumeAttenuationColor": ShaderDataType.Color
         }
 
         let defaultValue = {

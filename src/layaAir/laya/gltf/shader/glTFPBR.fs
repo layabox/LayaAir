@@ -217,7 +217,7 @@ void initSurfaceInputs(inout SurfaceInputs inputs, const in PixelParams pixel)
 
     float thicknessFactor = u_VolumeThicknessFactor;
     float attenuationDistance = u_VolumeAttenuationDistance;
-    vec3 attenuationColor = u_VolumeAttenuationColor;
+    vec3 attenuationColor = u_VolumeAttenuationColor.xyz;
 
 	#ifdef VOLUME_THICKNESSMAP
     vec2 thicknessUV = uv;
@@ -291,6 +291,10 @@ void main()
     debug = vec3(surface.occlusion);
     #endif // Debug_Occlusion
 
+    #ifdef Debug_BaseColor
+    debug = surface.diffuseColor;
+    #endif // Debug_BaseColor
+
     #ifdef Debug_Metallic
     debug = vec3(inputs.metallic);
     #endif // Debug_Metallic
@@ -299,6 +303,11 @@ void main()
 	#ifdef Debug_VolumeThickness
     debug = vec3(surface.thickness);
 	#endif // Debug_VolumeThickness
+
+	#ifdef Debug_Attenuation
+    debug = -log((surface.attenuationColor)) / surface.attenuationDistance;
+	#endif // Debug_Attenuation
+
     #endif // VOLUME
 
     #ifdef TRANSMISSION
