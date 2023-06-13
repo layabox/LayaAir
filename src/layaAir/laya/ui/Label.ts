@@ -169,7 +169,7 @@ export class Label extends UIComponent {
     }
 
     set text(value: string) {
-        if (this._tf.text != value) {
+        if (this._tf.text !== value) {
             if (value)
                 value = UIUtils.adptString(value + "");
             this._tf.text = value;
