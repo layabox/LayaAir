@@ -9,8 +9,8 @@ import { ITextureContext } from "../RenderEngine/RenderInterface/ITextureContext
  */
 export class LayaGL {
     static textureContext: ITextureContext;
-    static renderEngine:IRenderEngine;
-    static render2DContext:IRender2DContext;
-    static renderDrawContext:IRenderDrawContext;
-    static renderOBJCreate:IRenderOBJCreate;
+    static renderEngine: IRenderEngine;
+    static render2DContext: IRender2DContext;
+    static renderDrawContext: IRenderDrawContext;
+    static renderOBJCreate: IRenderOBJCreate;
 }

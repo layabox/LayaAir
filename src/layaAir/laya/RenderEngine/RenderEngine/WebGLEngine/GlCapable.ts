@@ -64,6 +64,10 @@ export class GlCapable {
         this._capabilityMap.set(RenderCapable.COMPRESS_TEXTURE_ASTC, value);
         value = (isWebgl2) || (!!this.getExtension(WebGLExtension.EXT_sRGB))
         this._capabilityMap.set(RenderCapable.Texture_SRGB, value);
+        value = (!!this.getExtension(WebGLExtension.OES_texture_float_linear));
+        this._capabilityMap.set(RenderCapable.Texture_FloatLinearFiltering, value);
+        value = (!!this.getExtension(WebGLExtension.OES_texture_half_float_linear));
+        this._capabilityMap.set(RenderCapable.Texture_HalfFloatLinearFiltering, value);
         value = isWebgl2;
         this._capabilityMap.set(RenderCapable.MSAA, value);
         this._capabilityMap.set(RenderCapable.UnifromBufferObject, value);
@@ -121,7 +125,8 @@ export class GlCapable {
             const _sRGB = this._getExtension("EXT_sRGB");
             setExtensionMap(WebGLExtension.EXT_sRGB, _sRGB, this._extensionMap);
 
-
+            const OES_standard_derivatives = this._getExtension("OES_standard_derivatives");
+            setExtensionMap(WebGLExtension.OES_standard_derivatives, OES_standard_derivatives, this._extensionMap);
         }
     }
 
