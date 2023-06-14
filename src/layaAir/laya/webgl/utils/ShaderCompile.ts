@@ -258,6 +258,14 @@ export class ShaderCompile {
                     let includeFile: IncludeFile;
                     if (includeName.startsWith("."))
                         includeName = URL.join(basePath, includeName);
+                    else if (includeName.startsWith("/"))
+                        includeName = URL.formatURL(includeName.substring(1));
+                    else {
+                        //check if builtin
+                        includeFile = ShaderCompile.includes[includeName];
+                        if (!includeFile)
+                            includeName = "internal/" + includeName;
+                    }
                     includeFile = ShaderCompile.includes[includeName];
 
                     if (!includeFile && ShaderCompile.loadIncludeFileSync) {
