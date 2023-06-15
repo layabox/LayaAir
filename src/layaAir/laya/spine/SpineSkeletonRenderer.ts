@@ -137,7 +137,8 @@ export class SpineSkeletonRenderer {
                     let clippedTriangles = clipper.clippedTriangles;
                     let mVertices = [];
                     let mUVs = [];
-                    let colors = [];
+                    let colorNum = 0xffffff;
+                    let alpha = 1;
                     if (this.vertexEffect != null) {
                         let vertexEffect = this.vertexEffect;
                         let verts = clippedVertices;
@@ -160,7 +161,8 @@ export class SpineSkeletonRenderer {
                                 verts[v + 7] = tempUv.y
 
                                 mVertices.push(verts[v], -verts[v + 1]);
-                                colors.push(verts[v + 2], verts[v + 3], verts[v + 4], verts[v + 5]);
+                                colorNum = (verts[v + 2] * 255 << 16) + (verts[v + 3] * 255 << 8) + verts[v + 4];
+                                alpha = verts[v + 5];
                                 mUVs.push(verts[v + 6], verts[v + 7]);
                             }
                         }
@@ -169,17 +171,13 @@ export class SpineSkeletonRenderer {
                         while (Number.isFinite(clippedVertices[vi + 6]) && Number.isFinite(clippedVertices[vi + 7])) {
                             mVertices.push(clippedVertices[vi]);
                             mVertices.push(-clippedVertices[vi + 1]);
-                            colors.push(clippedVertices[vi + 2]);
-                            colors.push(clippedVertices[vi + 3]);
-                            colors.push(clippedVertices[vi + 4]);
-                            colors.push(clippedVertices[vi + 5]);
+                            colorNum = (clippedVertices[vi + 2] * 255 << 16) + (clippedVertices[vi + 3] * 255 << 8) + clippedVertices[vi + 4] * 255;
+                            alpha = clippedVertices[vi + 5];
                             mUVs.push(clippedVertices[vi + 6]);
                             mUVs.push(clippedVertices[vi + 7]);
                             vi += this.vertexSize;
                         }
                     }
-                    let color = null;
-                    let colorNum = null;
                     let blendMode;
                     switch (slotBlendMode) {
                         case 1:
@@ -194,13 +192,13 @@ export class SpineSkeletonRenderer {
                         default:
                             blendMode = "normal";
                     }
-                    colorNum = (255 << 24) + colors[0] * 255 | 0 + ((colors[1] * 255) << 8) + ((colors[2] * 255) << 16);
-                    graphics.drawTriangles(texture.realTexture, 0, 0, <any>mVertices, <any>mUVs, new Uint16Array(clippedTriangles), Matrix.EMPTY, colors[3], color, blendMode, colorNum);
+                    graphics.drawTriangles(texture.realTexture, 0, 0, <any>mVertices, <any>mUVs, new Uint16Array(clippedTriangles), Matrix.EMPTY, alpha, colorNum, blendMode);
                 } else {
                     let verts = renderable.vertices;
                     let mVertices = [];
                     let mUVs = [];
-                    let colors = [];
+                    let colorNum = 0xffffff;
+                    let alpha = 1;
                     if (this.vertexEffect != null) {
                         let vertexEffect = this.vertexEffect;
                         if (!twoColorTint) {
@@ -222,7 +220,8 @@ export class SpineSkeletonRenderer {
                                 verts[v + 7] = tempUv.y
 
                                 mVertices.push(verts[v], -verts[v + 1]);
-                                colors.push(verts[v + 2], verts[v + 3], verts[v + 4], verts[v + 5]);
+                                colorNum = (verts[v + 2] * 255 << 16) + (verts[v + 3] * 255 << 8) + verts[v + 4] * 255;
+                                alpha = verts[v + 5];
                                 mUVs.push(verts[v + 6], verts[v + 7]);
                             }
                         }
@@ -237,13 +236,12 @@ export class SpineSkeletonRenderer {
                                 verts[v + 5] = uvs[u + 1];
 
                                 mVertices.push(verts[v - 2], -verts[v - 1]);
-                                colors.push(verts[v], verts[v + 1], verts[v + 2], verts[v + 3]);
+                                colorNum = (verts[v] * 255 << 16) + (verts[v + 1] * 255 << 8) + verts[v + 2] * 255;
+                                alpha = verts[v + 3];
                                 mUVs.push(verts[v + 4], verts[v + 5]);
                             }
                         }
                     }
-                    let color = null;
-                    let colorNum = null;
                     let blendMode;
                     switch (slotBlendMode) {
                         case 1:
@@ -258,8 +256,7 @@ export class SpineSkeletonRenderer {
                         default:
                             blendMode = "normal";
                     }
-                    colorNum = (255 << 24) + colors[0] * 255 | 0 + ((colors[1] * 255) << 8) + ((colors[2] * 255) << 16);
-                    graphics.drawTriangles(texture.realTexture, 0, 0, <any>mVertices, <any>mUVs, new Uint16Array(triangles), Matrix.EMPTY, colors[3], color, blendMode, colorNum);
+                    graphics.drawTriangles(texture.realTexture, 0, 0, <any>mVertices, <any>mUVs, new Uint16Array(triangles), Matrix.EMPTY, alpha, colorNum, blendMode);
                 }
             }
 

@@ -12,7 +12,6 @@ const _tempPoint = new Point();
 const _tempRect = new Rectangle();
 const _rollOverChain: Array<Node> = [];
 const _rollOutChain: Array<Node> = [];
-const _bubbleChain: Array<Node> = [];
 var _inst: InputManager;
 
 export class InputManager {
@@ -204,7 +203,7 @@ export class InputManager {
                 touch.move();
 
                 if (InputManager.mouseEventsEnabled) {
-                    this.bubbleEvent(Event.MOUSE_MOVE, touch.event, touch.target);
+                    touch.target.bubbleEvent(Event.MOUSE_MOVE, touch.event);
 
                     for (let t of touch.downTargets)
                         t.event(Event.MOUSE_DRAG, touch.event);
@@ -224,9 +223,9 @@ export class InputManager {
                     this.handleFocus();
 
                     if (ev.button == 0)
-                        this.bubbleEvent(Event.MOUSE_DOWN, touch.event, touch.target);
+                        touch.target?.bubbleEvent(Event.MOUSE_DOWN, touch.event);
                     else
-                        this.bubbleEvent(Event.RIGHT_MOUSE_DOWN, touch.event, touch.target);
+                        touch.target?.bubbleEvent(Event.RIGHT_MOUSE_DOWN, touch.event);
                 }
             }
         }
@@ -237,9 +236,9 @@ export class InputManager {
 
                 if (InputManager.mouseEventsEnabled) {
                     if (ev.button == 0)
-                        this.bubbleEvent(Event.MOUSE_UP, touch.event, touch.target);
+                        touch.target?.bubbleEvent(Event.MOUSE_UP, touch.event);
                     else
-                        this.bubbleEvent(Event.RIGHT_MOUSE_UP, touch.event, touch.target);
+                        touch.target?.bubbleEvent(Event.RIGHT_MOUSE_UP, touch.event);
 
                     if (touch.moved) {
                         for (let t of touch.downTargets)
@@ -251,16 +250,16 @@ export class InputManager {
                         if (ev.button == 0) {
                             touch.event.isDblClick = touch.clickCount == 2;
 
-                            this.bubbleEvent(Event.CLICK, touch.event, clickTarget);
+                            clickTarget.bubbleEvent(Event.CLICK, touch.event);
 
                             if (touch.clickCount == 2)
-                                this.bubbleEvent(Event.DOUBLE_CLICK, touch.event, clickTarget);
+                                clickTarget.bubbleEvent(Event.DOUBLE_CLICK, touch.event);
 
                             touch.event.isDblClick = false;
                         }
                         else {
                             touch.event.isDblClick = touch.clickCount == 2;
-                            this.bubbleEvent(Event.RIGHT_CLICK, touch.event, clickTarget);
+                            clickTarget.bubbleEvent(Event.RIGHT_CLICK, touch.event);
                             touch.event.isDblClick = false;
                         }
                     }
@@ -270,7 +269,7 @@ export class InputManager {
         else if (type == 4) {
             if (InputManager.mouseEventsEnabled) {
                 touch.event.delta = (<WheelEvent>ev).deltaY * 0.025;
-                this.bubbleEvent(Event.MOUSE_WHEEL, touch.event, touch.target);
+                touch.target?.bubbleEvent(Event.MOUSE_WHEEL, touch.event);
                 touch.event.delta = 0;
             }
         }
@@ -314,14 +313,17 @@ export class InputManager {
 
                 if (Math.abs(ix - touch.pos.x) > 1.5 || Math.abs(iy - touch.pos.y) > 1.5) {
                     touch.pos.setTo(ix, iy);
-                    touch.move();
 
-                    if (InputManager.mouseEventsEnabled) {
+                    if (type == 2) {
+                        touch.move();
 
-                        this.bubbleEvent(Event.MOUSE_MOVE, touch.event, touch.target);
+                        if (InputManager.mouseEventsEnabled) {
 
-                        for (let t of touch.downTargets)
-                            t.event(Event.MOUSE_DRAG, touch.event);
+                            touch.target.bubbleEvent(Event.MOUSE_MOVE, touch.event);
+
+                            for (let t of touch.downTargets)
+                                t.event(Event.MOUSE_DRAG, touch.event);
+                        }
                     }
                 }
             }
@@ -335,7 +337,7 @@ export class InputManager {
 
                     if (InputManager.mouseEventsEnabled) {
                         this.handleFocus();
-                        this.bubbleEvent(Event.MOUSE_DOWN, touch.event, touch.target);
+                        touch.target?.bubbleEvent(Event.MOUSE_DOWN, touch.event);
                     }
                 }
             }
@@ -344,7 +346,7 @@ export class InputManager {
                     touch.end();
 
                     if (InputManager.mouseEventsEnabled) {
-                        this.bubbleEvent(Event.MOUSE_UP, touch.event, touch.target);
+                        touch.target?.bubbleEvent(Event.MOUSE_UP, touch.event);
 
                         if (touch.moved) {
                             for (let t of touch.downTargets)
@@ -356,10 +358,10 @@ export class InputManager {
                             if (clickTarget != null) {
                                 touch.event.isDblClick = touch.clickCount == 2;
 
-                                this.bubbleEvent(Event.CLICK, touch.event, clickTarget);
+                                clickTarget.bubbleEvent(Event.CLICK, touch.event);
 
                                 if (touch.clickCount == 2)
-                                    this.bubbleEvent(Event.DOUBLE_CLICK, touch.event, clickTarget);
+                                    clickTarget.bubbleEvent(Event.DOUBLE_CLICK, touch.event);
 
                                 touch.event.isDblClick = false;
                             }
@@ -502,7 +504,7 @@ export class InputManager {
             x -= sp._style.scrollRect.x;
             y -= sp._style.scrollRect.y;
         }
-        let hitArea: any = sp._style.hitArea;
+        let hitArea = sp._style.hitArea;
         let mouseThrough = sp.mouseThrough;
         if (editing) {
             hitArea = null;
@@ -571,25 +573,6 @@ export class InputManager {
             }
             _rollOverChain.length = 0;
         };
-    }
-
-    protected bubbleEvent(type: string, ev: Event, initiator: Node) {
-        _bubbleChain.length = 0;
-
-        let obj = initiator;
-        while (obj) {
-            if (obj.activeInHierarchy)
-                _bubbleChain.push(obj);
-            obj = obj.parent;
-        }
-
-        ev._stopped = false;
-        for (let obj of _bubbleChain) {
-            ev.setTo(type, obj, initiator);
-            obj.event(type, ev);
-            if (ev._stopped)
-                break;
-        }
     }
 }
 

@@ -512,7 +512,6 @@ export class AnimationClip extends Resource {
 						v2Data.y -= v2FrameValue.y;
 					}
 					break;
-					break;
 				case KeyFrameValueType.Vector4:
 				case KeyFrameValueType.Color:
 					var v4Data = <Vector4>outDatas[i];

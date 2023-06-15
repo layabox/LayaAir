@@ -1,7 +1,7 @@
 import { UIComponent } from "./UIComponent";
 import { Button } from "./Button";
 import { List } from "./List";
-import { Styles } from "./Styles";
+import { ScrollType, Styles } from "./Styles";
 import { Label } from "./Label";
 import { UIUtils } from "./UIUtils";
 import { VScrollBar } from "./VScrollBar";
@@ -153,6 +153,7 @@ export class ComboBox extends UIComponent {
      * @private
      */
     protected _scrollBarSkin: string;
+    protected _scrollType: ScrollType = 0;
     /**
      * @private
      */
@@ -213,6 +214,7 @@ export class ComboBox extends UIComponent {
     private _createList(): void {
         this._list = new List();
         this._list.hideFlags = HideFlags.HideAndDontSave;
+        this._list.scrollType = this._scrollType;
         if (this._scrollBarSkin)
             this._list.vScrollBarSkin = this._scrollBarSkin;
         this._setListEvent(this._list);
@@ -390,7 +392,7 @@ export class ComboBox extends UIComponent {
         for (let i = 0, n = this._labels.length; i < n; i++) {
             a.push({ label: this._labels[i] });
         }
-        this._list.height = this._listHeight;
+        this._list.size(this.width, this._listHeight);
         this._list.array = a;
 
         //if (_visibleNum > a.length) {
@@ -560,6 +562,17 @@ export class ComboBox extends UIComponent {
     }
 
     /**
+     * 滚动类型
+     */
+    get scrollType() {
+        return this._scrollType;
+    }
+
+    set scrollType(value: ScrollType) {
+        this._scrollType = value;
+    }
+
+    /**
      * 滚动条皮肤。
      */
     get scrollBarSkin(): string {
@@ -631,7 +644,7 @@ export class ComboBox extends UIComponent {
 
     /**
      * 获取或设置对 <code>ComboBox</code> 组件所包含的 <code>Button</code> 组件的文本标签颜色。
-     * <p><b>格式：</b>upColor,overColor,downColor,disableColor</p>
+     * <p><b>格式：</b>upColor,overColor,downColor</p>
      */
     get labelColors(): string {
         return this._button.labelColors;

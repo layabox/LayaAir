@@ -18,6 +18,8 @@ export class AnimatorPlayState {
 	_normalizedPlayTime: number;
 	/**@internal */
 	_duration: number;
+	/**@internal 上次播放的时间，event事件使用*/
+	_parentPlayTime: number;
 	/**@internal */
 	_playEventIndex: number;
 	/**@internal */
@@ -68,9 +70,9 @@ export class AnimatorPlayState {
 	 */
 	_resetPlayState(startTime: number, clipDuration: number): void {
 		this._finish = false;
+		this._playEventIndex = 0;
 		this._startPlayTime = startTime;
 		this._elapsedTime = startTime;
-		this._playEventIndex = 0;
 		this._lastIsFront = true;
 		this._normalizedTime = this._elapsedTime / clipDuration;
 		var playTime = this._normalizedTime % 1.0;
@@ -83,10 +85,10 @@ export class AnimatorPlayState {
 	_cloneTo(dest: AnimatorPlayState): void {
 		dest._finish = this._finish;
 		dest._startPlayTime = this._startPlayTime;
+		dest._playEventIndex = this._playEventIndex;
 		dest._elapsedTime = this._elapsedTime;
 		dest._normalizedTime = this._normalizedTime;
 		dest._normalizedPlayTime = this._normalizedPlayTime;
-		dest._playEventIndex = this._playEventIndex;
 		dest._lastIsFront = this._lastIsFront;
 	}
 

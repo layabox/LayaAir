@@ -6,7 +6,7 @@ import { Vector4 } from "../../maths/Vector4";
 import { IShaderObjStructor, IShaderpassStructor, Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { ShaderDataType } from "../../RenderEngine/RenderShader/ShaderData";
 import { Texture2D } from "../../resource/Texture2D";
-import { TextureCube } from "../resource/TextureCube";
+import { TextureCube } from "../../resource/TextureCube";
 import { ParseJSON } from "../utils/ParseJSON";
 
 const CGBlock: string[] = ["GLSL Start", "GLSL End"];
@@ -113,14 +113,14 @@ export class ShaderParser {
             let indexofAttribute = 0;
             for (let i in attributemap) {
                 //TODO  这里的格式要重新理 "name":type or "name":[type,custom Attribute Location]
-                if(attributemap[i] instanceof Array){
+                if (attributemap[i] instanceof Array) {
                     let dataArray = attributemap[i];
-                    attributemap[i] = [dataArray[1],ShaderParser.getShaderDataType(dataArray[0])];
-                }else{
+                    attributemap[i] = [dataArray[1], ShaderParser.getShaderDataType(dataArray[0])];
+                } else {
                     attributemap[i] = [indexofAttribute, ShaderParser.getShaderDataType(attributemap[i])];
                     indexofAttribute++;
                 }
-                
+
             }
         }
         //uniform map trans
@@ -187,7 +187,7 @@ export class ShaderParser {
                 mat.cloneByArray(data);
                 return mat;
             case ShaderDataType.Texture2D:
-                let tex = Texture2D.whiteTexture;
+                let tex = null;
                 if (data == "white")
                     tex = Texture2D.whiteTexture;
                 else if (data == "black")

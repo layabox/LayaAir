@@ -483,7 +483,7 @@ export class LegacyUIParser {
         if (!dataO || !dataO.props) return sprite.graphics;
         var propsName: string = dataO.props.renderType;
         if (propsName === "hit" || propsName === "unHit") {
-            var hitArea: HitArea = sprite._style.hitArea || (sprite.hitArea = new HitArea());
+            var hitArea: HitArea = <HitArea>sprite._style.hitArea || (sprite.hitArea = new HitArea());
             if (!hitArea[propsName]) {
                 hitArea[propsName] = new Graphics();
             }

@@ -421,7 +421,7 @@ export interface glTFMaterialPbrMetallicRoughness extends glTFNodeProperty {
  * Material Normal Texture Info
  */
 export interface glTFMaterialNormalTextureInfo extends glTFTextureInfo {
-    /** The scalar multiplier applied to each normal vector of the normal texture */
+    /** The scalar multiplier applied to each normal vector of the normal texture. default: 1*/
     scale?: number;
 }
 

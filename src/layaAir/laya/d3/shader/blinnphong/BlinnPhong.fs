@@ -3,28 +3,30 @@
 #include "Color.glsl";
 
 #include "Scene.glsl";
+#include "SceneFog.glsl";
+
 #include "Camera.glsl";
 #include "Sprite3DFrag.glsl";
-
-#include "SceneFog.glsl";
 
 #include "BlinnPhongFrag.glsl";
 
 void getBinnPhongSurfaceParams(inout Surface surface, in PixelParams pixel)
 {
-    surface.diffuseColor = u_DiffuseColor.rgb;
-    surface.alpha = u_DiffuseColor.a;
-
-#if defined(COLOR) && defined(ENABLEVERTEXCOLOR)
-    surface.diffuseColor *= pixel.vertexColor.xyz;
-    surface.alpha *= pixel.vertexColor.a;
-#endif // COLOR && ENABLEVERTEXCOLOR
-
 #ifdef UV
-    vec2 uv = pixel.uv0;
+    vec2 uv = transformUV(pixel.uv0, u_TilingOffset);
 #else // UV
     vec2 uv = vec2(0.0);
 #endif // UV
+
+    surface.diffuseColor = u_DiffuseColor.rgb;
+    surface.alpha = u_DiffuseColor.a;
+
+#ifdef COLOR
+    #ifdef ENABLEVERTEXCOLOR
+    surface.diffuseColor *= pixel.vertexColor.xyz;
+    surface.alpha *= pixel.vertexColor.a;
+    #endif // ENABLEVERTEXCOLOR
+#endif // COLOR
 
 #ifdef DIFFUSEMAP
     vec4 diffuseSampler = texture2D(u_DiffuseTexture, uv);
@@ -37,12 +39,13 @@ void getBinnPhongSurfaceParams(inout Surface surface, in PixelParams pixel)
 
     surface.diffuseColor *= u_AlbedoIntensity;
 
-#ifdef ALPHATEST
-    if (surface.alpha < u_AlphaTestValue)
-	{
-	    discard;
-	}
-#endif // ALPHATEST
+    surface.normalTS = vec3(0.0, 0.0, 1.0);
+#ifdef NORMALMAP
+    vec3 normalSampler = texture2D(u_NormalTexture, uv).rgb;
+    normalSampler = normalize(normalSampler * 2.0 - 1.0);
+    normalSampler.y *= -1.0;
+    surface.normalTS = normalSampler;
+#endif // NORMALMAP
 
 #ifdef SPECULARMAP
     vec4 specularSampler = texture2D(u_SpecularTexture, uv);
@@ -68,6 +71,13 @@ void main()
 
     Surface surface;
     getBinnPhongSurfaceParams(surface, pixel);
+
+#ifdef ALPHATEST
+    if (surface.alpha < u_AlphaTestValue)
+	{
+	    discard;
+	}
+#endif // ALPHATEST
 
     vec3 surfaceColor = vec3(0.0);
 

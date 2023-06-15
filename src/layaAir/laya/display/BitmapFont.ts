@@ -1,10 +1,9 @@
-import { Sprite } from "./Sprite";
-import { Rectangle } from "../maths/Rectangle"
 import { Texture } from "../resource/Texture"
 import { Handler } from "../utils/Handler"
 import { ILaya } from "../../ILaya";
 import { Loader } from "../net/Loader";
 import { Resource } from "../resource/Resource";
+import { XML } from "../html/XML";
 
 /**
  * <code>BitmapFont</code> 是位图字体类，用于定义位图字体信息。
@@ -12,19 +11,19 @@ import { Resource } from "../resource/Resource";
  * @see http://ldc2.layabox.com/doc/?nav=ch-js-1-2-5
  */
 export class BitmapFont extends Resource {
-    private _texture: Texture;
-    private _fontCharDic: any = {};
-    private _fontWidthMap: any = {};
-    private _maxWidth: number = 0;
-    private _spaceWidth: number = 10;
-    private _padding: any[];
+    texture: Texture;
+    dict: Record<string, BMGlyph> = {};
+
+    padding: any[];
 
     /**当前位图字体字号，使用时，如果字号和设置不同，并且autoScaleSize=true，则按照设置字号比率进行缩放显示。*/
     fontSize: number = 12;
     /**表示是否根据实际使用的字体大小缩放位图字体大小。*/
     autoScaleSize: boolean = false;
-    /**字符间距（以像素为单位）。*/
-    letterSpacing: number = 0;
+    tint: boolean = true;
+    maxWidth: number = 0;
+    lineHeight: number = 12;
+    letterSpacing = 0;
 
     /**
      * 通过指定位图字体文件路径，加载位图字体文件，加载完成后会自动解析。
@@ -46,129 +45,71 @@ export class BitmapFont extends Resource {
      * @param	xml			字体文件XML。
      * @param	texture		字体的纹理。
      */
-    parseFont(xml: XMLDocument, texture: Texture): void {
+    parseFont(xml: XML, texture: Texture): void {
         if (xml == null || texture == null) return;
-        this._texture = texture;
+        this.texture = texture;
         texture._addReference();
-        let tX: number = 0;
-        let tScale: number = 1;
 
-        let tInfo: any = xml.getElementsByTagName("info");
-        if (!tInfo[0].getAttributeNode) {
-            return this.parseFont2(xml, texture);
+        let scale: number = 1;
+        let info = xml.getNode("info");
+        this.fontSize = info.getAttrInt("size", 12);
+        this.autoScaleSize = info.getAttrBool("autoScaleSize");
+        this.lineHeight = info.getAttrInt("lineHeight", this.fontSize);
+        if (this.lineHeight == 0)
+            this.lineHeight = this.fontSize;
+
+        let padding: string = info.getAttrString("padding", "");
+        let paddingArray: any[] = padding.split(",");
+        this.padding = [parseInt(paddingArray[0]), parseInt(paddingArray[1]), parseInt(paddingArray[2]), parseInt(paddingArray[3])];
+
+        let chars = xml.getNode("chars")?.elements("char") || [];
+        let maxWidth = 0;
+        let dict = this.dict;
+        for (let i = 0, n = chars.length; i < n; i++) {
+            let ct = chars[i];
+            let id = ct.getAttrInt("id");
+
+            let xOffset = ct.getAttrInt("xoffset") / scale;
+            let yOffset = ct.getAttrInt("yoffset") / scale;
+            let advance = ct.getAttrInt("xadvance") / scale;
+
+            let x = ct.getAttrInt("x");
+            let y = ct.getAttrInt("y");
+            let width = ct.getAttrInt("width");
+            let height = ct.getAttrInt("height");
+
+            let tex = Texture.create(texture, x, y, width, height, xOffset, yOffset);
+
+            if (advance == 0)
+                advance = width;
+            advance += this.letterSpacing;
+            maxWidth = Math.max(maxWidth, advance);
+
+            dict[id] = { x: 0, y: 0, width, height, advance, texture: tex };
         }
-        this.fontSize = parseInt(tInfo[0].getAttributeNode("size").nodeValue);
-        this.autoScaleSize = tInfo[0].getAttributeNode("autoScaleSize")?.nodeValue === "true";
 
-        let tPadding: string = tInfo[0].getAttributeNode("padding").nodeValue;
-        let tPaddingArray: any[] = tPadding.split(",");
-        this._padding = [parseInt(tPaddingArray[0]), parseInt(tPaddingArray[1]), parseInt(tPaddingArray[2]), parseInt(tPaddingArray[3])];
+        if (maxWidth > 0)
+            this.maxWidth = maxWidth;
+        else
+            this.maxWidth = this.fontSize;
 
-        let chars = xml.getElementsByTagName("char");
-        for (let i = 0; i < chars.length; i++) {
-            let tAttribute: any = chars[i];
-            let tId: number = parseInt(tAttribute.getAttributeNode("id").nodeValue);
-
-            let xOffset: number = parseInt(tAttribute.getAttributeNode("xoffset").nodeValue) / tScale;
-            let yOffset: number = parseInt(tAttribute.getAttributeNode("yoffset").nodeValue) / tScale;
-            let xAdvance: number = parseInt(tAttribute.getAttributeNode("xadvance").nodeValue) / tScale;
-
-            let region: Rectangle = new Rectangle();
-            region.x = parseInt(tAttribute.getAttributeNode("x").nodeValue);
-            region.y = parseInt(tAttribute.getAttributeNode("y").nodeValue);
-            region.width = parseInt(tAttribute.getAttributeNode("width").nodeValue);
-            region.height = parseInt(tAttribute.getAttributeNode("height").nodeValue);
-
-            let tTexture: Texture = Texture.create(texture, region.x, region.y, region.width, region.height, xOffset, yOffset);
-            this._maxWidth = Math.max(this._maxWidth, xAdvance + this.letterSpacing);
-            this._fontCharDic[tId] = tTexture;
-            this._fontWidthMap[tId] = xAdvance;
-        }
-    }
-
-    /**
-     * 解析字体文件。
-     * @param	xml			字体文件XML。
-     * @param	texture		字体的纹理。
-     */
-    protected parseFont2(xml: XMLDocument, texture: Texture): void {
-        if (xml == null || texture == null) return;
-        this._texture = texture;
-        let tX: number = 0;
-        let tScale: number = 1;
-
-        let tInfo: any = xml.getElementsByTagName("info");
-        this.fontSize = parseInt(tInfo[0].attributes["size"].nodeValue);
-
-        let tPadding: string = tInfo[0].attributes["padding"].nodeValue;
-        let tPaddingArray: any[] = tPadding.split(",");
-        this._padding = [parseInt(tPaddingArray[0]), parseInt(tPaddingArray[1]), parseInt(tPaddingArray[2]), parseInt(tPaddingArray[3])];
-
-        let chars = xml.getElementsByTagName("char");
-        for (let i = 0; i < chars.length; i++) {
-            let tAttribute = chars[i].attributes;
-            let tId: number = parseInt((tAttribute as any)["id"].nodeValue);
-
-            let xOffset: number = parseInt((tAttribute as any)["xoffset"].nodeValue) / tScale;
-            let yOffset: number = parseInt((tAttribute as any)["yoffset"].nodeValue) / tScale;
-
-            let xAdvance: number = parseInt((tAttribute as any)["xadvance"].nodeValue) / tScale;
-
-            let region: Rectangle = new Rectangle();
-            region.x = parseInt((tAttribute as any)["x"].nodeValue);
-            region.y = parseInt((tAttribute as any)["y"].nodeValue);
-            region.width = parseInt((tAttribute as any)["width"].nodeValue);
-            region.height = parseInt((tAttribute as any)["height"].nodeValue);
-
-            let tTexture: Texture = Texture.create(texture, region.x, region.y, region.width, region.height, xOffset, yOffset);
-            this._maxWidth = Math.max(this._maxWidth, xAdvance + this.letterSpacing);
-            this._fontCharDic[tId] = tTexture;
-            this._fontWidthMap[tId] = xAdvance;
-        }
-    }
-    /**
-     * 获取指定字符的字体纹理对象。
-     * @param	char 字符。
-     * @return 指定的字体纹理对象。
-     */
-    getCharTexture(char: string): Texture {
-        return this._fontCharDic[char.charCodeAt(0)];
+        if (!dict[32]) //space
+            dict[32] = { x: 0, y: 0, advance: Math.floor(this.fontSize * 0.5) + this.letterSpacing };
     }
 
     /**
      * 销毁位图字体，调用Text.unregisterBitmapFont 时，默认会销毁。
      */
     protected _disposeResource(): void {
-        if (this._texture) {
-            for (let k in this._fontCharDic) {
-                this._fontCharDic[k].destroy();
+        if (this.texture) {
+            for (let k in this.dict) {
+                this.dict[k].texture?.destroy();
             }
-            this._texture._removeReference();
-            this._fontCharDic = null;
-            this._fontWidthMap = null;
-            this._texture = null;
-            this._padding = null;
+            this.texture._removeReference();
+            this.dict = null;
+            this.texture = null;
+            this.padding = null;
         }
-    }
-
-    /**
-     * 设置空格的宽（如果字体库有空格，这里就可以不用设置了）。
-     * @param	spaceWidth 宽度，单位为像素。
-     */
-    setSpaceWidth(spaceWidth: number): void {
-        this._spaceWidth = spaceWidth;
-    }
-
-    /**
-     * 获取指定字符的宽度。
-     * @param	char 字符。
-     * @return  宽度。
-     */
-    getCharWidth(char: string): number {
-        let code: number = char.charCodeAt(0);
-        if (this._fontWidthMap[code]) return this._fontWidthMap[code] + this.letterSpacing;
-        if (char === " ") return this._spaceWidth + this.letterSpacing;
-        return 0;
     }
 
     /**
@@ -176,45 +117,44 @@ export class BitmapFont extends Resource {
      * @param	text 文本内容。
      * @return  宽度。
      */
-    getTextWidth(text: string): number {
-        let tWidth: number = 0;
-        for (let i: number = 0, n: number = text.length; i < n; i++) {
-            tWidth += this.getCharWidth(text.charAt(i));
+    getTextWidth(text: string, fontSize?: number): number {
+        let w = 0;
+        for (let i = 0, n = text.length; i < n; i++) {
+            let g = this.dict[text.charCodeAt(i)];
+            if (g) {
+                let scale = this.autoScaleSize ? (fontSize / this.fontSize) : 1;
+                w += Math.round(g.advance * scale);
+            }
         }
-        return tWidth;
+        return w;
     }
 
     /**
      * 获取最大字符宽度。
      */
-    getMaxWidth(): number {
-        return this._maxWidth;
+    getMaxWidth(fontSize?: number): number {
+        if (fontSize != null && this.autoScaleSize)
+            return Math.round(this.maxWidth * (fontSize / this.fontSize));
+        else
+            return this.maxWidth;
     }
 
     /**
      * 获取最大字符高度。
      */
-    getMaxHeight(): number {
-        return this.fontSize;
+    getMaxHeight(fontSize?: number): number {
+        if (fontSize != null && this.autoScaleSize)
+            return Math.round(this.lineHeight * (fontSize / this.fontSize));
+        else
+            return this.lineHeight;
     }
+}
 
-    /**
-     * @internal
-     * 将指定的文本绘制到指定的显示对象上。
-     */
-    _drawText(text: string, sprite: Sprite, drawX: number, drawY: number, align: string, width: number, color: string): void {
-        let tWidth: number = this.getTextWidth(text);
-        let tTexture: Texture;
-        let dx: number = 0;
-        align === "center" && (dx = (width - tWidth) / 2);
-        align === "right" && (dx = (width - tWidth));
-        let tx: number = 0;
-        for (let i: number = 0, n: number = text.length; i < n; i++) {
-            tTexture = this.getCharTexture(text.charAt(i));
-            if (tTexture) {
-                sprite.graphics.drawImage(tTexture, drawX + tx + dx, drawY, null, null, color);
-                tx += this.getCharWidth(text.charAt(i));
-            }
-        }
-    }
+export interface BMGlyph {
+    x?: number;
+    y?: number;
+    width?: number;
+    height?: number;
+    advance?: number;
+    texture?: Texture;
 }

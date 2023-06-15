@@ -15,7 +15,6 @@ import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetForma
 import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
 import { RenderStateCommand } from "../RenderEngine/RenderStateCommand";
 import { FontInfo } from "../utils/FontInfo";
-import { HTMLChar } from "../utils/HTMLChar";
 import { WordText } from "../utils/WordText";
 import { BlendMode } from "../webgl/canvas/BlendMode";
 import { DrawStyle } from "../webgl/canvas/DrawStyle";
@@ -851,30 +850,22 @@ export class Context {
     drawText(text: string | WordText, x: number, y: number, font: string, color: string, textAlign: string): void {
         Context._textRender!.filltext(this, text, x, y, font, color, null, 0, textAlign);
     }
-    fillWords(words: HTMLChar[], x: number, y: number, fontStr: string, color: string): void {
-        Context._textRender!.fillWords(this, words, x, y, fontStr, color, null, 0);
-    }
     strokeWord(text: string | WordText, x: number, y: number, font: string, color: string, lineWidth: number, textAlign: string): void {
         Context._textRender!.filltext(this, text, x, y, font, null, color, lineWidth, textAlign);
     }
     fillBorderText(txt: string | WordText, x: number, y: number, font: string, color: string, borderColor: string, lineWidth: number, textAlign: string): void {
         Context._textRender!.filltext(this, txt, x, y, font, color, borderColor, lineWidth, textAlign);
     }
-    fillBorderWords(words: HTMLChar[], x: number, y: number, font: string, color: string, borderColor: string, lineWidth: number): void {
-        Context._textRender!.fillWords(this, words, x, y, font, color, borderColor, lineWidth);
-    }
 
     /**@internal */
-    _fast_filltext(data: string | WordText, x: number, y: number, fontObj: any, color: string, strokeColor: string | null, lineWidth: number, textAlign: number, underLine: number = 0): void {
-        Context._textRender!._fast_filltext(this, data, null, x, y, (<FontInfo>fontObj), color, strokeColor, lineWidth, textAlign, underLine);
-    }
-    fillWords11(data: HTMLChar[], x: number, y: number, fontStr: FontInfo, color: string, strokeColor: string | null, lineWidth: number): void {
-        Context._textRender!.fillWords(this, data, x, y, fontStr, color, strokeColor, lineWidth);
+    _fast_filltext(data: string | WordText, x: number, y: number, fontObj: FontInfo, color: string, strokeColor: string | null, lineWidth: number, textAlign: number): void {
+        Context._textRender!._fast_filltext(this, data, x, y, fontObj, color, strokeColor, lineWidth, textAlign);
     }
 
     filltext11(data: string | WordText, x: number, y: number, fontStr: string, color: string, strokeColor: string, lineWidth: number, textAlign: string): void {
         Context._textRender!.filltext(this, data, x, y, fontStr, color, strokeColor, lineWidth, textAlign);
     }
+
     private _fillRect(x: number, y: number, width: number, height: number, rgba: number): void {
         var submit: Submit = this._curSubmit;
         var sameKey: boolean = submit && (submit._key.submitType === SubmitBase.KEY_DRAWTEXTURE && submit._key.blendShader === this._nBlendType);
@@ -1486,25 +1477,18 @@ export class Context {
      * @param	ty
      * @param	alpha
      */
-    drawTextureWithTransform(tex: Texture, x: number, y: number, width: number, height: number, transform: Matrix | null, tx: number, ty: number, alpha: number, blendMode: string | null, colorfilter: ColorFilter | null = null, uv?: number[], color = 0xffffffff): void {
+    drawTextureWithTransform(tex: Texture, x: number, y: number, width: number, height: number, transform: Matrix | null, tx: number, ty: number, alpha: number, blendMode: string | null, uv?: number[], color = 0xffffffff): void {
         var oldcomp: string;
         var curMat: Matrix = this._curMat;
         if (blendMode) {
             oldcomp = this.globalCompositeOperation;
             this.globalCompositeOperation = blendMode;
         }
-        var oldColorFilter = this._colorFiler;
-        if (colorfilter) {
-            this.setColorFilter(colorfilter);
-        }
 
         if (!transform) {
             this._drawTextureM(tex, x + tx, y + ty, width, height, curMat, alpha, uv, color);
             if (blendMode) {
                 this.globalCompositeOperation = oldcomp;
-            }
-            if (colorfilter) {
-                this.setColorFilter(oldColorFilter);
             }
             return;
         }
@@ -1525,12 +1509,8 @@ export class Context {
             transform = tmpMat;
         }
         this._drawTextureM(tex, x, y, width, height, transform, alpha, uv, color);
-        if (blendMode) {
+        if (blendMode)
             this.globalCompositeOperation = oldcomp;
-        }
-        if (colorfilter) {
-            this.setColorFilter(oldColorFilter);
-        }
     }
 
     /**
@@ -1668,7 +1648,7 @@ export class Context {
         vertices: Float32Array,
         uvs: Float32Array,
         indices: Uint16Array,
-        matrix: Matrix, alpha: number, color: ColorFilter, blendMode: string, colorNum: number = 0xffffffff): void {
+        matrix: Matrix, alpha: number, blendMode: string, colorNum: number = 0xffffffff): void {
 
         if (!tex._getSource()) { //source内调用tex.active();
             if (this.sprite) {
@@ -1687,15 +1667,6 @@ export class Context {
         var tmpMat = this._tmpMatrix;
         var triMesh = this._triangleMesh!;
 
-        var oldColorFilter: ColorFilter | null = null;
-        var needRestorFilter: boolean = false;
-        if (color) {
-            oldColorFilter = this._colorFiler;
-            //这个不用save，直接修改就行
-            this._colorFiler = color;
-            this._curSubmit = SubmitBase.RENDERBASE;
-            needRestorFilter = oldColorFilter != color;
-        }
         var webGLImg = tex.bitmap;
         var preKey: SubmitKey = this._curSubmit._key;
         var sameKey: boolean = preKey.submitType === SubmitBase.KEY_TRIANGLES && preKey.other === webGLImg.id && preKey.blendShader == this._nBlendType;
@@ -1733,10 +1704,6 @@ export class Context {
         }
         this._curSubmit._numEle += indices.length;
 
-        if (needRestorFilter) {
-            this._colorFiler = oldColorFilter;
-            this._curSubmit = SubmitBase.RENDERBASE;
-        }
         if (blendMode) {
             this.globalCompositeOperation = oldcomp!;
         }

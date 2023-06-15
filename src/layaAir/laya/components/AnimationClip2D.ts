@@ -246,6 +246,7 @@ export class AnimationClip2D extends Resource {
             var nextFrameIndex;
             var keyFrames = node._keyFrames;
             var keyFramesCount = keyFrames.length;
+            if (0 == keyFramesCount) continue;
             var frameIndex = realTimeCurrentFrameIndexes[i];
             if (frontPlay) {
                 if ((-1 != frameIndex) && (playCurTime < keyFrames[frameIndex].time)) {//重置正向循环

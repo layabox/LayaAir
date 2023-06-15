@@ -3,100 +3,76 @@
 
     #include "PBRLighting.glsl";
 
-    #include "PBRCommon.glsl";
-
-void getPixelParams(inout PixelParams params)
-{
-    params.positionWS = v_PositionWS;
-    params.normalWS = normalize(v_NormalWS);
-    params.normalTS = vec3(0.0, 0.0, 1.0);
-    #ifdef UV
-    params.uv0 = v_Texcoord0;
-    #endif // UV
-
-    #ifdef UV1
-	#ifdef LIGHTMAP
-    params.uv1 = v_Texcoord1;
-	#endif // LIGHTMAP
-    #endif // UV1
-
-    #ifdef COLOR
-    params.vertexColor = v_VertexColor;
-    #endif // COLOR
-
-    params.viewDir = normalize(u_CameraPos - params.positionWS);
-    // todo NoV varying ?
-    params.NoV = max(abs(dot(params.normalWS, params.viewDir)), MIN_N_DOT_V);
-
-    #ifdef NEEDTBN
-    params.tangentWS = normalize(v_TangentWS);
-    params.biNormalWS = normalize(v_BiNormalWS);
-    mat3 TBN = mat3(params.tangentWS, params.biNormalWS, params.normalWS);
-    params.TBN = TBN;
-    
-	#ifdef NORMALTEXTURE
-    vec3 normalSampler = texture2D(u_NormalTexture, params.uv0).rgb;
-    normalSampler = normalize(normalSampler * 2.0 - 1.0);
-    normalSampler.y *= -1.0;
-    params.normalTS = normalSampler;
-    params.normalWS = normalize(TBN * normalSampler);
-	// params.normalWS = normalize(TBN * normalSampler);
-    #endif // NORMALTEXTURE
-
-	#ifdef TANGENTTEXTURE
-    vec3 tangentSampler = texture2D(u_TangentTexture, params.uv0).rgb;
-    tangentSampler = normalize(tangentSampler * 2.0 - 1.0);
-    params.tangentWS = normalize(TBN * tangentSampler);
-    params.biNormalWS = normalize(cross(params.normalWS, params.tangentWS));
-	#endif // TANGENTTEXTURE
-
-	#ifdef ANISOTROPIC
-    params.ToV = dot(params.tangentWS, params.viewDir);
-    params.BoV = dot(params.biNormalWS, params.viewDir);
-	#endif // ANISOTROPIC
-
-    #endif // NEEDTBN
-}
-
-void getPixelInfo(inout PixelInfo info, const in PixelParams pixel)
+void getPixelInfo(inout PixelInfo info, const in PixelParams pixel, const in Surface surface)
 {
     info.positionWS = pixel.positionWS;
+    info.vertexNormalWS = pixel.normalWS;
+
+    #ifdef TANGENT
+    info.normalWS = normalize(pixel.TBN * surface.normalTS);
+    #else // TANGENT
     info.normalWS = pixel.normalWS;
-    info.viewDir = pixel.viewDir;
-    info.NoV = pixel.NoV;
+    #endif // TANGENT
+
+    info.tangentWS = pixel.tangentWS;
+    info.biNormalWS = pixel.biNormalWS;
+
+    info.viewDir = normalize(u_CameraPos - info.positionWS);
+    info.NoV = min(max(dot(info.normalWS, info.viewDir), MIN_N_DOT_V), 1.0);
+
+    info.dfg = prefilteredDFG_LUT(surface.perceptualRoughness, info.NoV);
+
+    #ifdef SHEEN
+    info.energyCompensation = vec3(1.0);
+    #else // SHEEN
+    info.energyCompensation = (1.0 + surface.f0 * (1.0 / info.dfg.y - 1.0));
+    #endif // SHEEN
+
+    #ifdef IRIDESCENCE
+    info.iridescenceFresnel = evalIridescence(1.0, surface.iridescenceIor, info.NoV, surface.iridescenceThickness, surface.f0);
+    #endif // IRIDESCENCE
+
+    #ifdef SHEEN
+    info.sheenDfg = prefilteredDFG_LUT(surface.sheenPerceptualRoughness, info.NoV).z;
+    info.sheenScaling = 1.0 - vecmax(surface.sheenColor) * info.sheenDfg;
+    #endif // SHEEN
+
+    #ifdef CLEARCOAT
+	#ifdef CLEARCOAT_NORMAL
+    info.clearCoatNormal = normalize(pixel.TBN * surface.clearCoatNormalTS);
+	#else // CLEARCOAT_NORMAL
+    info.clearCoatNormal = info.vertexNormalWS;
+	#endif // CLEARCOAT_NORMAL
+    info.clearCoatNoV = min(max(dot(info.clearCoatNormal, info.viewDir), MIN_N_DOT_V), 1.0);
+    #endif // CLEARCOAT
+
+    #ifdef ANISOTROPIC
+    mat3 anisotropyTBN = mat3(info.tangentWS, info.biNormalWS * -1.0, info.normalWS);
+    info.anisotropicT = anisotropyTBN * normalize(vec3(surface.anisotropyDirection, 0.0));
+    info.anisotropicB = cross(info.vertexNormalWS, info.anisotropicT);
+    info.ToV = dot(info.anisotropicT, info.viewDir);
+    info.BoV = dot(info.anisotropicB, info.viewDir);
+    info.at = mix(surface.roughness, 1.0, pow2(surface.anisotropy));
+    info.ab = surface.roughness;
+    #endif // ANISOTROPIC
 
     #ifdef LIGHTMAP
 	#ifdef UV1
     info.lightmapUV = pixel.uv1;
 	#endif // UV1
     #endif // LIGHTMAP
-
-    #ifdef NEEDTBN
-    info.tangentWS = pixel.tangentWS;
-    info.biNormalWS = pixel.biNormalWS;
-
-	#ifdef ANISOTROPIC
-    info.ToV = pixel.ToV;
-    info.BoV = pixel.BoV;
-	#endif // ANISOTROPIC
-
-    #endif // NEEDTBN
 }
 
-vec3 PBRLighting(const in Surface surface, const in PixelParams pixel)
+vec3 PBRLighting(const in Surface surface, const in PixelInfo info)
 {
-
-    PixelInfo info;
-    getPixelInfo(info, pixel);
-
     vec3 lightColor = vec3(0.0);
     #ifdef DIRECTIONLIGHT
     for (int i = 0; i < CalculateLightCount; i++)
 	{
 	    if (i >= DirectionCount)
 		break;
-	    DirectionLight directionLight = getDirectionLight(i, pixel.positionWS);
-        if (directionLight.lightMode == LightMode_Mix)
+	    DirectionLight directionLight = getDirectionLight(i, info.positionWS);
+	    if (directionLight.lightMode == LightMode_Mix)
 		{
 		    continue;
 		}
@@ -106,7 +82,7 @@ vec3 PBRLighting(const in Surface surface, const in PixelParams pixel)
     #endif // DIRECTIONLIGHT
 
     #if defined(POINTLIGHT) || defined(SPOTLIGHT)
-    ivec4 clusterInfo = getClusterInfo(u_View, u_Viewport, pixel.positionWS, gl_FragCoord, u_ProjectionParams);
+    ivec4 clusterInfo = getClusterInfo(u_View, u_Viewport, info.positionWS, gl_FragCoord, u_ProjectionParams);
     #endif // POINTLIGHT || SPOTLIGHT
 
     #ifdef POINTLIGHT
@@ -114,12 +90,12 @@ vec3 PBRLighting(const in Surface surface, const in PixelParams pixel)
 	{
 	    if (i >= clusterInfo.x)
 		break;
-	    PointLight pointLight = getPointLight(i, clusterInfo, pixel.positionWS);
-        if (pointLight.lightMode == LightMode_Mix)
+	    PointLight pointLight = getPointLight(i, clusterInfo, info.positionWS);
+	    if (pointLight.lightMode == LightMode_Mix)
 		{
 		    continue;
 		}
-	    Light light = getLight(pointLight, pixel.normalWS, pixel.positionWS);
+	    Light light = getLight(pointLight, info.normalWS, info.positionWS);
 	    lightColor += PBRLighting(surface, info, light) * light.attenuation;
 	}
     #endif // POINTLIGHT
@@ -129,18 +105,17 @@ vec3 PBRLighting(const in Surface surface, const in PixelParams pixel)
 	{
 	    if (i >= clusterInfo.y)
 		break;
-	    SpotLight spotLight = getSpotLight(i, clusterInfo, pixel.positionWS);
-        if (spotLight.lightMode == LightMode_Mix)
+	    SpotLight spotLight = getSpotLight(i, clusterInfo, info.positionWS);
+	    if (spotLight.lightMode == LightMode_Mix)
 		{
 		    continue;
 		}
-	    Light light = getLight(spotLight, pixel.normalWS, pixel.positionWS);
+	    Light light = getLight(spotLight, info.normalWS, info.positionWS);
 	    lightColor += PBRLighting(surface, info, light) * light.attenuation;
 	}
     #endif // SPOTLIGHT
 
     vec3 giColor = PBRGI(surface, info);
-
 
     return lightColor + giColor;
 }

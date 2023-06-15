@@ -15,7 +15,6 @@ import { MeshSprite3DShaderDeclaration } from "../MeshSprite3DShaderDeclaration"
 import { BaseRender } from "../render/BaseRender";
 import { RenderContext3D } from "../render/RenderContext3D";
 import { RenderElement } from "../render/RenderElement";
-import { SubMeshRenderElement } from "../render/SubMeshRenderElement";
 import { Scene3D } from "../scene/Scene3D";
 import { Sprite3D } from "../Sprite3D";
 import { Transform3D } from "../Transform3D";
@@ -80,6 +79,7 @@ export class UI3D extends BaseRender {
         if (value)
             this._shellSprite.addChild(value);
         this._resizeRT();
+        this.boundsChange = true;
     }
 
     get sprite() {
@@ -87,6 +87,7 @@ export class UI3D extends BaseRender {
     }
 
     /**
+     * IDE
      * 3D渲染的UI预制体
      */
     set prefab(value: Prefab) {
@@ -122,6 +123,7 @@ export class UI3D extends BaseRender {
      */
     set renderMode(value: MaterialRenderMode) {
         this.sharedMaterials[0].materialRenderMode = value;
+        this.boundsChange = true;
     }
 
 
@@ -157,6 +159,7 @@ export class UI3D extends BaseRender {
     set billboard(value: boolean) {
         this._view = value;
         this._sizeChange = true;
+        this.boundsChange = true;
     }
 
     /**
@@ -231,6 +234,7 @@ export class UI3D extends BaseRender {
         //this._geometry
         if (this.billboard || this._sizeChange) {
             this._sizeChange = false;
+            this.boundsChange = true;
             if (this.billboard) {
                 let camera = (this.owner.scene as Scene3D).cullInfoCamera;
                 this._geometry._resizeViewVertexData(this._size, camera._forward, camera._up, this.billboard, (this.owner as Sprite3D).transform.position);
@@ -241,7 +245,6 @@ export class UI3D extends BaseRender {
 
         //reset plane
         this._updatePlane();
-        this._calculateBoundingBox();
     }
 
     private _updatePlane() {
@@ -309,6 +312,8 @@ export class UI3D extends BaseRender {
         this._applyReflection();
         // 这里不需要区分，已经将顶点进行转换了直接使用默认矩阵
         this._setShaderValue(Sprite3D.WORLDMATRIX, ShaderDataType.Matrix4x4, Matrix4x4.DEFAULT);
+        this._worldParams.x = transform.getFrontFaceValue();
+        this._setShaderValue(Sprite3D.WORLDINVERTFRONT, ShaderDataType.Vector4, this._worldParams);
         return;
     }
 
@@ -403,8 +408,10 @@ export class UI3D extends BaseRender {
     }
 
     private _transByRotate() {
-        if (!this.billboard)
+        if (!this.billboard) {
             this._sizeChange = true;
+        }
+        this.boundsChange = true;
     }
 }
 

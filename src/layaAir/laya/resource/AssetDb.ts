@@ -23,9 +23,6 @@ export class AssetDb {
      */
     metaMap: Record<string, any> = {};
 
-    /** 是否下载图片的描述信息 */
-    enableImageMetaFile: boolean = false;
-
     /**
      * uuid获得url
      * @param uuid uuid
@@ -94,14 +91,8 @@ export class AssetDb {
      * @param uuid 
      * @returns 
      */
-    getMeta(url: string, uuid: string): any {
-        let meta = this.metaMap[url];
-        if (meta)
-            return meta;
-        else if (this.enableImageMetaFile)
-            return url + ".json";
-        else
-            return null;
+    getMeta(url: string, uuid: string): Promise<any> {
+        return Promise.resolve(null);
     }
 
     /**

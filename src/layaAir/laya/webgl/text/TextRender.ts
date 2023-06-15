@@ -6,7 +6,6 @@ import { RenderInfo } from "../../renders/RenderInfo"
 import { Context } from "../../resource/Context"
 import { Texture } from "../../resource/Texture"
 import { FontInfo } from "../../utils/FontInfo"
-import { HTMLChar } from "../../utils/HTMLChar"
 import { WordText } from "../../utils/WordText"
 import { CharRenderInfo } from "./CharRenderInfo"
 import { CharRender_Canvas } from "./CharRender_Canvas"
@@ -161,7 +160,7 @@ export class TextRender {
         return str.substring(start, i);
     }
 
-    filltext(ctx: Context, data: string | WordText, x: number, y: number, fontStr: string, color: string, strokeColor: string, lineWidth: number, textAlign: string, underLine: number = 0): void {
+    filltext(ctx: Context, data: string | WordText, x: number, y: number, fontStr: string, color: string, strokeColor: string, lineWidth: number, textAlign: string): void {
         if (data.length <= 0)
             return;
         //以后保存到wordtext中
@@ -176,19 +175,11 @@ export class TextRender {
                 nTextAlign = Const.ENUM_TEXTALIGN_RIGHT;
                 break;
         }
-        this._fast_filltext(ctx, (<WordText>data), null, x, y, font, color, strokeColor, lineWidth, nTextAlign, underLine);
+        this._fast_filltext(ctx, data, x, y, font, color, strokeColor, lineWidth, nTextAlign);
     }
 
-    fillWords(ctx: Context, data: HTMLChar[], x: number, y: number, fontStr: string | FontInfo, color: string, strokeColor: string | null, lineWidth: number): void {
-        if (!data) return;
-        if (data.length <= 0) return;
-        var font = typeof (fontStr) === 'string' ? FontInfo.parse(fontStr) : fontStr;
-        this._fast_filltext(ctx, null, data, x, y, font, color, strokeColor, lineWidth, 0, 0);
-    }
-
-    _fast_filltext(ctx: Context, data: string | WordText | null, htmlchars: HTMLChar[] | null, x: number, y: number, font: FontInfo, color: string, strokeColor: string | null, lineWidth: number, textAlign: number, underLine: number = 0): void {
+    _fast_filltext(ctx: Context, data: string | WordText | null, x: number, y: number, font: FontInfo, color: string, strokeColor: string | null, lineWidth: number, textAlign: number): void {
         if (data && !(data.length >= 1)) return;	// length有可能是 undefined
-        if (htmlchars && htmlchars.length < 1) return;
         if (lineWidth < 0) lineWidth = 0;
         this.setFont(font);
         this.fontScaleX = this.fontScaleY = 1.0;
@@ -211,9 +202,9 @@ export class TextRender {
         //准备bmp
         //拷贝到texture上,得到一个gltexture和uv
         var wt = <WordText>data;
-        var isWT = !htmlchars && (data instanceof WordText);
+        var isWT = data instanceof WordText;
         var str = data && data.toString();//(<string>data);guo 某种情况下，str还是WordText（没找到为啥），这里保护一下
-        var isHtmlChar = !!htmlchars;
+
         /**
          * sameTexData 
          * WordText 中保存了一个数组，这个数组是根据贴图排序的，目的是为了能相同的贴图合并。
@@ -221,10 +212,9 @@ export class TextRender {
          */
         var sameTexData: any[] = isWT ? wt.pageChars : [];
 
-        //总宽度，下面的对齐需要
         var strWidth = 0;
         if (isWT) {
-            str = wt._text;
+            str = wt.text;
             strWidth = wt.width;
             if (strWidth < 0) {
                 strWidth = wt.width = this.charRender.getWidth(this.fontStr, str);	// 字符串长度是原始的。
@@ -244,9 +234,9 @@ export class TextRender {
         }
 
         //检查保存的数据是否有的已经被释放了
-        if (wt && sameTexData) {	// TODO 能利用lastGCCnt么
+        if (isWT) {	// TODO 能利用lastGCCnt么
             //wt.lastGCCnt = _curPage.gcCnt;
-            if (this.hasFreedText(sameTexData)) {
+            if (this.hasFreedText(sameTexData) || wt.pagecharsCtx != ctx) {
                 sameTexData = wt.pageChars = [];
             }
             // if(isWT && (this.fontScaleX!=wt.scalex || this.fontScaleY!=wt.scaley)) {
@@ -256,7 +246,7 @@ export class TextRender {
         }
         var ri: CharRenderInfo = null;
         //var oneTex: boolean = isWT || TextRender.forceWholeRender;	// 如果能缓存的话，就用一张贴图
-        var splitTex = this.renderPerChar = (!isWT) || TextRender.forceSplitRender || isHtmlChar || (isWT && wt.splitRender); 	// 拆分字符串渲染，这个优先级高
+        var splitTex = this.renderPerChar = (!isWT) || TextRender.forceSplitRender || (isWT && wt.splitRender); 	// 拆分字符串渲染，这个优先级高
         if (!sameTexData || sameTexData.length < 1) {
             if (isWT) {
                 wt.scalex = this.fontScaleX;
@@ -272,18 +262,7 @@ export class TextRender {
                 this._curStrPos = 0;
                 var curstr: string | null;
                 while (true) {
-                    if (htmlchars) {
-                        var chc = htmlchars[this._curStrPos++];
-                        if (chc) {
-                            curstr = chc.char;
-                            stx = chc.x;
-                            sty = chc.y;
-                        } else {
-                            curstr = null;
-                        }
-                    } else {
-                        curstr = this.getNextChar(str);
-                    }
+                    curstr = this.getNextChar(str);
                     if (!curstr)
                         break;
                     ri = this.getCharRenderInfo(curstr, font, color, strokeColor, lineWidth, false);
@@ -316,7 +295,7 @@ export class TextRender {
                 // 整句渲染，则只有一个贴图
                 sameTexData[0] = { texgen: ((<TextTexture>ri.tex)).genID, tex: ri.tex, words: [{ ri: ri, x: 0, y: 0, w: ri.bmpWidth / this.fontScaleX, h: ri.bmpHeight / this.fontScaleY }] };
             }
-
+            isWT && (wt.pagecharsCtx = ctx);
             //TODO getbmp 考虑margin 字体与标准字体的关系
         }
 
@@ -869,9 +848,8 @@ export class TextRender {
     }
 
     /////// native ///////
-    filltext_native(ctx: Context, data: string | WordText, htmlchars: HTMLChar[], x: number, y: number, fontStr: string, color: string, strokeColor: string, lineWidth: number, textAlign: string, underLine: number = 0): void {
+    filltext_native(ctx: Context, data: string | WordText, x: number, y: number, fontStr: string, color: string, strokeColor: string, lineWidth: number, textAlign: string): void {
         if (data && data.length <= 0) return;
-        if (htmlchars && htmlchars.length < 1) return;
 
         var font = FontInfo.parse(fontStr);
 
@@ -884,6 +862,6 @@ export class TextRender {
                 nTextAlign = Const.ENUM_TEXTALIGN_RIGHT;
                 break;
         }
-        return this._fast_filltext(ctx, (<WordText>data), htmlchars, x, y, font, color, strokeColor, lineWidth, nTextAlign, underLine);
+        return this._fast_filltext(ctx, data, x, y, font, color, strokeColor, lineWidth, nTextAlign);
     }
 }

@@ -389,7 +389,10 @@ export class Button extends UIComponent implements ISelect {
                 this._text.height = this._graphics.height;
             }
         } else {
-            this._text && (this._text.x = width);
+            if (this._text) {
+                this._text.x = width;
+                this._text.height = height;
+            }
         }
     }
 
@@ -482,7 +485,7 @@ export class Button extends UIComponent implements ISelect {
 
     /**
      * 表示按钮各个状态下的文本颜色。
-     * <p><b>格式:</b> "upColor,overColor,downColor,disableColor"。</p>
+     * <p><b>格式:</b> "upColor,overColor,downColor"。</p>
      */
     get labelColors(): string {
         return this._labelColors.join(",");
@@ -495,7 +498,7 @@ export class Button extends UIComponent implements ISelect {
 
     /**
      * 表示按钮各个状态下的描边颜色。
-     * <p><b>格式:</b> "upColor,overColor,downColor,disableColor"。</p>
+     * <p><b>格式:</b> "upColor,overColor,downColor"。</p>
      */
     get strokeColors(): string {
         return this._strokeColors ? this._strokeColors.join(",") : "";
@@ -591,7 +594,9 @@ export class Button extends UIComponent implements ISelect {
         this._text.font = value;
     }
 
-    /**标签对齐模式，默认为居中对齐。*/
+    /**
+     * 标签对齐模式，
+     */
     get labelAlign(): string {
         this.createText()
         return this._text.align;
@@ -600,6 +605,19 @@ export class Button extends UIComponent implements ISelect {
     set labelAlign(value: string) {
         this.createText()
         this._text.align = value;
+    }
+
+    /**
+     * 标签垂直对齐模式，
+     */
+    get labelVAlign(): string {
+        this.createText()
+        return this._text.valign;
+    }
+
+    set labelVAlign(value: string) {
+        this.createText()
+        this._text.valign = value;
     }
 
     /**

@@ -245,7 +245,7 @@ export class Skeleton extends Sprite {
 
         if (value) {
             ILaya.loader.load(value).then((templet: Templet) => {
-                if (templet && !templet.isCreateFromURL(this._source))
+                if (!this._source || templet && !templet.isCreateFromURL(this._source))
                     return;
 
                 this.templet = templet;

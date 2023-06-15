@@ -1,15 +1,16 @@
 #define SHADER_NAME BlinnPhongVS
 
-#include "Color.glsl";
+#include "Math.glsl";
 
 #include "Scene.glsl";
+#include "SceneFogInput.glsl";
+
 #include "Camera.glsl";
 #include "Sprite3DVertex.glsl";
 
 #include "VertexCommon.glsl";
 
 #include "BlinnPhongVertex.glsl";
-#include "SceneFogInput.glsl"
 
 void main()
 {
@@ -22,7 +23,8 @@ void main()
     gl_Position = getPositionCS(pixel.positionWS);
 
     gl_Position = remapPositionZ(gl_Position);
-    #ifdef FOG
-        FogHandle(gl_Position.z);
-    #endif
+
+#ifdef FOG
+    FogHandle(gl_Position.z);
+#endif
 }

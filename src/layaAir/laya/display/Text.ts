@@ -1,7 +1,5 @@
 import { Sprite } from "./Sprite";
 import { BitmapFont } from "./BitmapFont";
-import { SpriteConst } from "./SpriteConst";
-import { SpriteStyle } from "./css/SpriteStyle"
 import { TextStyle } from "./css/TextStyle"
 import { Event } from "../events/Event"
 import { Point } from "../maths/Point"
@@ -11,6 +9,15 @@ import { ILaya } from "../../ILaya";
 import { LayaEnv } from "../../LayaEnv";
 import { Config } from "../../Config";
 import { Utils } from "../utils/Utils";
+import { DrawRectCmd } from "./cmd/DrawRectCmd";
+import { HtmlElement, HtmlElementType } from "../html/HtmlElement";
+import { HtmlLink } from "../html/HtmlLink";
+import { Pool } from "../utils/Pool";
+import { IHtmlObject } from "../html/IHtmlObject";
+import { HideFlags } from "../Const";
+import { HtmlParser } from "../html/HtmlParser";
+import { UBBParser } from "../html/UBBParser";
+import { HtmlParseOptions } from "../html/HtmlParseOptions";
 
 /**
  * 文本内容发生改变后调度。
@@ -113,49 +120,82 @@ export class Text extends Sprite {
     /**hidden 不显示超出文本域的字符。*/
     static HIDDEN: string = "hidden";
 
+    static FIT_HEIGHT = "height";
+    static FIT_BOTH = "both";
+
     /**语言包，是一个包含key:value的集合，用key索引，替换为目标value语言*/
     static langPacks: Record<string, string>;
-    /**@internal 预测长度的文字，用来提升计算效率，不同语言找一个最大的字符即可*/
-    static _testWord: string = "游";
-    /**@private 位图字体字典。*/
-    private static _bitmapFonts: any;
-    //TODO:
-    static CharacterCache: boolean = true;
     /**是否是从右向左的显示顺序*/
     static RightToLeft: boolean = false;
 
-    private _clipPoint: Point | null;
+    /**@internal 预测长度的文字，用来提升计算效率，不同语言找一个最大的字符即可*/
+    static _testWord: string = "游";
+    static _passwordChar = "●";
+
+    /**@private 位图字体字典。*/
+    private static _bitmapFonts: Record<string, BitmapFont> = {};
+
+    /** 标记此文本是否忽略语言包 */
+    ignoreLang: boolean;
+
     /**表示文本内容字符串。*/
     protected _text: string;
+    protected _overflow: string = Text.VISIBLE;
+    protected _singleCharRender: boolean = false;	// 拆分渲染
+    protected _textStyle: TextStyle;
+    protected _prompt: string = '';
+    /**输入提示符颜色。*/
+    protected _promptColor: string;
+    /**
+     * 文本背景颜色，以字符串表示。
+     */
+    protected _bgColor: string;
+    /**
+     * 文本边框背景颜色，以字符串表示。
+     */
+    protected _borderColor: string;
+    /**
+     * <p>默认边距信息</p>
+     * <p>[左边距，上边距，右边距，下边距]（边距以像素为单位）</p>
+     */
+    protected _padding: number[];
+    /**
+     * <p>表示使用此文本格式的文本字段是否自动换行。</p>
+     * 如果 wordWrap 的值为 true，则该文本字段自动换行；如果值为 false，则该文本字段不自动换行。
+     * @default false。
+     */
+    protected _wordWrap: boolean;
+
+    /**
+     * <p>指定文本字段是否是密码文本字段。</p>
+     * 如果此属性的值为 true，则文本字段被视为密码文本字段，并使用星号而不是实际字符来隐藏输入的字符。如果为 false，则不会将文本字段视为密码文本字段。
+     */
+    protected _asPassword: boolean;
+
+    protected _htmlParseOptions: HtmlParseOptions;
+
+    protected _templateVars: Record<string, string>;
+
     /**表示文本内容是否发生改变。*/
     protected _isChanged: boolean;
     /**表示文本的宽度，以像素为单位。*/
     protected _textWidth: number = 0;
     /**表示文本的高度，以像素为单位。*/
     protected _textHeight: number = 0;
-    /**存储文字行数信息。*/
-    protected _lines: string[] | null = [];
-    /**保存每行宽度*/
-    protected _lineWidths: number[] | null = [];
-    /**文本的内容位置 X 轴信息。*/
-    protected _startX: number = 0;
-    /**文本的内容位置X轴信息。 */
-    protected _startY: number = 0;
-    protected _words: WordText[] | null;
-    protected _charSize: any = {};
-    protected _valign: string = "top";
-    protected _fontSize: number;
-    protected _font: string;
     protected _realFont: string;
-    protected _color: string = "#000000";
-    protected _overflow: string = Text.VISIBLE;
-    protected _singleCharRender: boolean = false;	// 拆分渲染
+    protected _bitmapFont: BitmapFont;
+    protected _scrollPos: Point | null;
+    protected _bgDrawCmd: DrawRectCmd;
+    protected _html: boolean;
+    protected _ubb: boolean;
+    protected _lines: Array<ITextLine>;
+    protected _elements: Array<HtmlElement>;
+    protected _objContainer: Sprite;
+    protected _maxWidth: number;
 
-    /** 标记此文本是否忽略语言包 */
-    ignoreLang: boolean;
+    private _updatingLayout: boolean;
 
-    /**@internal */
-    declare _style: TextStyle;
+    _onPostLayout: () => void;
 
     /**
      * 创建一个新的 <code>Text</code> 实例。
@@ -163,28 +203,13 @@ export class Text extends Sprite {
     constructor() {
         super();
 
-        this._style = TextStyle.EMPTY;
-
-        this._fontSize = Config.defaultFontSize;
+        this._textStyle = new TextStyle();
+        this._textStyle.fontSize = Config.defaultFontSize;
+        this._text = "";
         this.font = "";
-    }
-
-    /**
-     * @private
-     * 获取样式。
-     * @return  样式 Style 。
-     * @override
-     */
-    getStyle(): SpriteStyle {
-        this._style === TextStyle.EMPTY && (this._style = TextStyle.create());
-        return this._style;
-    }
-
-    protected _getTextStyle(): TextStyle {
-        if (this._style === TextStyle.EMPTY) {
-            this._style = TextStyle.create();
-        }
-        return this._style;
+        this._elements = [];
+        this._lines = [];
+        this._padding = [0, 0, 0, 0];
     }
 
     /**
@@ -193,7 +218,6 @@ export class Text extends Sprite {
      * @param	bitmapFont	位图字体文件。
      */
     static registerBitmapFont(name: string, bitmapFont: BitmapFont): void {
-        Text._bitmapFonts || (Text._bitmapFonts = {});
         bitmapFont._addReference();
         Text._bitmapFonts[name] = bitmapFont;
     }
@@ -204,10 +228,10 @@ export class Text extends Sprite {
      * @param	destroy		是否销毁指定的字体文件。
      */
     static unregisterBitmapFont(name: string, destroy: boolean = true): void {
-        if (Text._bitmapFonts && Text._bitmapFonts[name]) {
-            var tBitmapFont: BitmapFont = Text._bitmapFonts[name];
-            tBitmapFont._removeReference();
-            if (destroy) tBitmapFont.destroy();
+        let font = Text._bitmapFonts[name];
+        if (font) {
+            font._removeReference();
+            if (destroy) font.destroy();
             delete Text._bitmapFonts[name];
         }
     }
@@ -218,17 +242,9 @@ export class Text extends Sprite {
     */
     destroy(destroyChild: boolean = true): void {
         super.destroy(destroyChild);
-        this._clipPoint = null;
-        this._lines = null;
-        this._lineWidths = null;
 
-        // 注意_words是一个数组（例如有换行）
-        this._words && this._words.forEach(function (w: WordText): void {
-            w.cleanCache();
-        });
-        this._words = null;
-
-        this._charSize = null;
+        recoverLines(this._lines);
+        HtmlElement.returnToPool(this._elements);
     }
 
     /**
@@ -258,24 +274,17 @@ export class Text extends Sprite {
      */
     get_width(): number {
         if (this._isWidthSet) return this._width;
-        return this.textWidth + this.padding[1] + this.padding[3];
+        return this.textWidth;
     }
     /**
      * @override
      */
     _setWidth(value: number) {
         super._setWidth(value);
-        this.isChanged = true;
-        if (this.borderColor) {
-            this._setBorderStyleColor(0, 0, this.width, this.height, this.borderColor, 1);
-        }
-    }
-
-    /**
-     * @internal
-     */
-    _getCSSStyle(): TextStyle {
-        return this._style;
+        if (!this._updatingLayout)
+            this.markChanged();
+        else
+            this.drawBg();
     }
 
     /**
@@ -291,17 +300,17 @@ export class Text extends Sprite {
      */
     _setHeight(value: number) {
         super._setHeight(value);
-        this.isChanged = true;
-        if (this.borderColor) {
-            this._setBorderStyleColor(0, 0, this.width, this.height, this.borderColor, 1);
-        }
+        if (!this._updatingLayout)
+            this.markChanged();
+        else
+            this.drawBg();
     }
 
     /**
      * 表示文本的宽度，以像素为单位。
      */
     get textWidth(): number {
-        this._isChanged && ILaya.systemTimer.runCallLater(this, this.typeset);
+        this.typeset();
         return this._textWidth;
     }
 
@@ -309,23 +318,22 @@ export class Text extends Sprite {
      * 表示文本的高度，以像素为单位。
      */
     get textHeight(): number {
-        this._isChanged && ILaya.systemTimer.runCallLater(this, this.typeset);
+        this.typeset();
         return this._textHeight;
     }
 
     /** 当前文本的内容字符串。*/
     get text(): string {
-        return this._text || "";
+        return this._text;
     }
 
     set_text(value: string): void {
+        if (value == null)
+            value = "";
         if (this._text !== value) {
             this.lang(value + "");
-            this.isChanged = true;
+            this.markChanged();
             this.event(Event.CHANGE);
-            if (this.borderColor) {
-                this._setBorderStyleColor(0, 0, this.width, this.height, this.borderColor, 1);
-            }
         }
     }
 
@@ -348,7 +356,7 @@ export class Text extends Sprite {
      * @param	args 文本替换参数。
      */
     lang(text: string, ...args: any[]): void {
-        if (this.ignoreLang) {
+        if (this.ignoreLang || !Text.langPacks) {
             this._text = text;
             return;
         }
@@ -363,48 +371,53 @@ export class Text extends Sprite {
         }
     }
 
+    /** @deprecated **/
+    changeText(text: string): void {
+        this.text = text;
+    }
+
     /**
      * <p>文本的字体名称，以字符串形式表示。</p>
      * <p>默认值为："Arial"，可以通过Config.defaultFont设置默认字体。</p>
      * <p>如果运行时系统找不到设定的字体，则用系统默认的字体渲染文字，从而导致显示异常。(通常电脑上显示正常，在一些移动端因缺少设置的字体而显示异常)。</p>
      */
     get font(): string {
-        return this._font;
+        return this._textStyle.font;
     }
 
     set font(value: string) {
-        if (this._style.currBitmapFont) {
-            this._getTextStyle().currBitmapFont = null;
-            this.scale(1, 1);
+        this._textStyle.font = value;
+        if (!value) {
+            value = Config.defaultFont;
+            if (!value)
+                value = "Arial";
         }
 
-        this._font = value;
-        if (!value)
-            value = Config.defaultFont;
+        this._realFont = value;
+        this._bitmapFont = Text._bitmapFonts[value];
 
-        if (Text._bitmapFonts && Text._bitmapFonts[value]) {
-            this._realFont = value;
-            this._getTextStyle().currBitmapFont = Text._bitmapFonts[value];
+        if (this._bitmapFont) {
             if (this._text)
-                this.isChanged = true;
+                this.markChanged();
         }
         else if (value && (Utils.getFileExtension(value) || value.startsWith("res://"))) {
+            let t = value;
             ILaya.loader.load(value).then(fontObj => {
-                if (!fontObj)
+                if (!fontObj || this._realFont != t)
                     return;
 
                 if (fontObj instanceof BitmapFont)
-                    this._getTextStyle().currBitmapFont = fontObj;
+                    this._bitmapFont = fontObj;
                 else
                     this._realFont = fontObj.family;
                 if (this._text)
-                    this.isChanged = true;
+                    this.markChanged();
             });
         }
         else {
             this._realFont = (ILaya.Browser.onIPhone ? (Config.fontFamilyMap[value] || value) : value);
             if (this._text)
-                this.isChanged = true;
+                this.markChanged();
         }
     }
 
@@ -413,13 +426,36 @@ export class Text extends Sprite {
      * <p>默认为20像素，可以通过 <code>Config.defaultFontSize</code> 设置默认大小。</p>
      */
     get fontSize(): number {
-        return this._fontSize;
+        return this._textStyle.fontSize;
     }
 
     set fontSize(value: number) {
-        if (this._fontSize != value) {
-            this._fontSize = value;
-            this.isChanged = true;
+        if (this._textStyle.fontSize != value) {
+            this._textStyle.fontSize = value;
+            this.markChanged();
+        }
+    }
+
+    /**
+     * <p>表示文本的颜色值。可以通过 <code>Text.defaultColor</code> 设置默认颜色。</p>
+     * <p>默认值为黑色。</p>
+     */
+    get color(): string {
+        return this._textStyle.color;
+    }
+
+    set color(value: string) {
+        this.set_color(value);
+    }
+
+    set_color(value: string): void {
+        if (this._textStyle.color != value) {
+            this._textStyle.color = value;
+            //如果仅仅更新颜色，无需重新排版
+            if (!this._isChanged && this._graphics && this._elements.length == 0)
+                this._graphics.replaceTextColor(this._textStyle.color);
+            else
+                this.markChanged();
         }
     }
 
@@ -428,35 +464,13 @@ export class Text extends Sprite {
      * <p>默认值为 false，这意味着不使用粗体字。如果值为 true，则文本为粗体字。</p>
      */
     get bold(): boolean {
-        return this._style.bold;
+        return this._textStyle.bold;
     }
 
     set bold(value: boolean) {
-        this._getTextStyle().bold = value;
-        this.isChanged = true;
-    }
-
-    /**
-     * <p>表示文本的颜色值。可以通过 <code>Text.defaultColor</code> 设置默认颜色。</p>
-     * <p>默认值为黑色。</p>
-     */
-    get color(): string {
-        return this._color;
-    }
-
-    set color(value: string) {
-        this.set_color(value);
-    }
-
-    set_color(value: string): void {
-        if (this._color != value) {
-            this._color = value;
-            //如果仅仅更新颜色，无需重新排版
-            if (!this._isChanged && this._graphics) {
-                this._graphics.replaceTextColor(this._color)
-            } else {
-                this.isChanged = true;
-            }
+        if (this._textStyle.bold != value) {
+            this._textStyle.bold = value;
+            this.markChanged();
         }
     }
 
@@ -465,12 +479,14 @@ export class Text extends Sprite {
      * <p>默认值为 false，这意味着不使用斜体。如果值为 true，则文本为斜体。</p>
      */
     get italic(): boolean {
-        return this._style.italic;
+        return this._textStyle.italic;
     }
 
     set italic(value: boolean) {
-        this._getTextStyle().italic = value;
-        this.isChanged = true;
+        if (this._textStyle.italic != value) {
+            this._textStyle.italic = value;
+            this.markChanged();
+        }
     }
 
     /**
@@ -482,12 +498,14 @@ export class Text extends Sprite {
      * </p>
      */
     get align(): string {
-        return this._style.align;
+        return this._textStyle.align;
     }
 
     set align(value: string) {
-        this._getTextStyle().align = value;
-        this.isChanged = true;
+        if (this._textStyle.align != value) {
+            this._textStyle.align = value;
+            this.markChanged();
+        }
     }
 
     /**
@@ -499,12 +517,14 @@ export class Text extends Sprite {
      * </p>
      */
     get valign(): string {
-        return this._valign;
+        return this._textStyle.valign;
     }
 
     set valign(value: string) {
-        this._valign = value;
-        this.isChanged = true;
+        if (this._textStyle.valign != value) {
+            this._textStyle.valign = value;
+            this.markChanged();
+        }
     }
 
     /**
@@ -512,84 +532,76 @@ export class Text extends Sprite {
      * <p>若值为true，则自动换行；否则不自动换行。</p>
      */
     get wordWrap(): boolean {
-        return this._style.wordWrap;
+        return this._wordWrap;
     }
 
     set wordWrap(value: boolean) {
-        this._getTextStyle().wordWrap = value;
-        this.isChanged = true;
+        if (this._wordWrap != value) {
+            this._wordWrap = value;
+            this.markChanged();
+        }
     }
 
     /**
      * 垂直行间距（以像素为单位）。
      */
     get leading(): number {
-        return this._style.leading;
+        return this._textStyle.leading;
     }
 
     set leading(value: number) {
-        this._getTextStyle().leading = value;
-        this.isChanged = true;
+        if (this._textStyle.leading != value) {
+            this._textStyle.leading = value;
+            this.markChanged();
+        }
     }
 
     /**
      * <p>边距信息。</p>
      * <p>数据格式：[上边距，右边距，下边距，左边距]（边距以像素为单位）。</p>
      */
-    get padding(): any[] {
-        return this._style.padding;
+    get padding(): number[] {
+        return this._padding;
     }
 
-    set padding(value: any[]) {
+    set padding(value: number[] | string) {
         if (typeof (value) == 'string') {
-            var arr: any[];
-            arr = ((<string>(value as any))).split(",");
-            var i: number, len: number;
-            len = arr.length;
-            while (arr.length < 4) {
-                arr.push(0);
+            let arr = value.split(",");
+            this._padding.length = 0;
+            for (let i = 0; i < 4; i++) {
+                let v = parseFloat(arr[i]);
+                if (isNaN(v))
+                    v = 0;
+                this._padding.push(v);
             }
-            for (i = 0; i < len; i++) {
-                arr[i] = parseFloat(arr[i]) || 0;
-            }
-            value = arr;
         }
-        this._getTextStyle().padding = value;
-        this.isChanged = true;
+        else
+            this._padding = value;
+        this.markChanged();
     }
 
     /**
      * 文本背景颜色，以字符串表示。
      */
     get bgColor(): string {
-        return this._style.bgColor;
+        return this._bgColor;
     }
 
     set bgColor(value: string) {
-        this.set_bgColor(value);
-    }
-
-    set_bgColor(value: string): void {
-        this._getTextStyle().bgColor = value;
-        this._renderType |= SpriteConst.STYLE;
-        this._setBgStyleColor(0, 0, this.width, this.height, value);
-        this._setRenderType(this._renderType);
-        this.isChanged = true;
+        this._bgColor = value;
+        this.drawBg();
     }
 
     /**
      * 文本边框背景颜色，以字符串表示。
      */
     get borderColor(): string {
-        return this._style.borderColor;
+        return this._borderColor;
     }
 
     set borderColor(value: string) {
-        this._getTextStyle().borderColor = value;
-        this._renderType |= SpriteConst.STYLE;
-        this._setBorderStyleColor(0, 0, this.width, this.height, value, 1);
-        this._setRenderType(this._renderType);
-        this.isChanged = true;
+        this._borderColor = value;
+        this.drawBg();
     }
 
     /**
@@ -597,12 +609,14 @@ export class Text extends Sprite {
      * <p>默认值0，表示不描边。</p>
      */
     get stroke(): number {
-        return this._style.stroke;
+        return this._textStyle.stroke;
     }
 
     set stroke(value: number) {
-        this._getTextStyle().stroke = value;
-        this.isChanged = true;
+        if (this._textStyle.stroke != value) {
+            this._textStyle.stroke = value;
+            this.markChanged();
+        }
     }
 
     /**
@@ -610,12 +624,14 @@ export class Text extends Sprite {
      * <p>默认值为 "#000000"（黑色）;</p>
      */
     get strokeColor(): string {
-        return this._style.strokeColor;
+        return this._textStyle.strokeColor;
     }
 
     set strokeColor(value: string) {
-        this._getTextStyle().strokeColor = value;
-        this.isChanged = true;
+        if (this._textStyle.strokeColor != value) {
+            this._textStyle.strokeColor = value;
+            this.markChanged();
+        }
     }
 
     /**
@@ -629,418 +645,558 @@ export class Text extends Sprite {
     set overflow(value: string) {
         if (this._overflow != value) {
             this._overflow = value;
-            this.isChanged = true;
+            this.markChanged();
         }
     }
 
-    /**
-     * @private
-     * 一个布尔值，表示文本的属性是否有改变。若为true表示有改变。
-     */
-    protected set isChanged(value: boolean) {
-        if (this._isChanged !== value) {
-            this._isChanged = value;
-            value && ILaya.systemTimer.callLater(this, this.typeset);
+    /**是否显示下划线。*/
+    get underline(): boolean {
+        return this._textStyle.underline;
+    }
+
+    set underline(value: boolean) {
+        if (this._textStyle.underline != value) {
+            this._textStyle.underline = value;
+            this.markChanged();
         }
     }
 
-    /**
-     * @private
-     */
-    protected _getContextFont(): string {
-        return (this._style.italic ? "italic " : "") + (this._style.bold ? "bold " : "") + this._fontSize + "px " + this._realFont;
+    /**下划线的颜色，为null则使用字体颜色。*/
+    get underlineColor(): string {
+        return this._textStyle.underlineColor;
     }
 
-    /**
-     * @private
-     */
-    protected _isPassWordMode(): boolean {
-        var password: boolean = this._style.asPassword;
-        if (("prompt" in (this as any)) && (this as any)['prompt'] == this._text)
-            password = false;
-        return password;
+    set underlineColor(value: string) {
+        if (this._textStyle.underlineColor != value) {
+            this._textStyle.underlineColor = value;
+            this.markChanged();
+        }
     }
 
-    /**
-     * @private
-     */
-    protected _getPassWordTxt(txt: string): string {
-        var len: number = txt.length;
-        var word: string;
-        word = "";
-        for (var j: number = len; j > 0; j--) {
-            word += "●";
-        }
-        return word;
+    get singleCharRender(): boolean {
+        return this._singleCharRender;
     }
 
-    /**
-     * @private
-     * 渲染文字。
-     * @param	begin 开始渲染的行索引。
-     * @param	visibleLineCount 渲染的行数。
-     */
-    protected _renderText(): void {
-        var padding = this.padding;
-        var visibleLineCount = this._lines.length;
-        // overflow为scroll或visible时会截行
-        if (this._overflow != Text.VISIBLE) {
-            visibleLineCount = Math.min(visibleLineCount, Math.floor((this.height - padding[0] - padding[2]) / (this.leading + this._charSize.height)) + 1);
+    /** 设置是否单个字符渲染，如果Textd的内容一直改变，例如是一个增加的数字，就设置这个，防止无效占用缓存 */
+    set singleCharRender(value: boolean) {
+        this._singleCharRender = value;
+    }
+
+    get html(): boolean {
+        return this._html;
+    }
+
+    /** 设置是否富文本，支持html语法 */
+    set html(value: boolean) {
+        if (this._html != value) {
+            this._html = value;
+            this.markChanged();
         }
+    }
 
-        var beginLine = this.scrollY / (this._charSize.height + this.leading) | 0;
+    get ubb(): boolean {
+        return this._ubb;
+    }
 
-        var graphics = this.graphics;
-        graphics.clear(true);
-
-        var ctxFont = this._getContextFont();
-        ILaya.Browser.context.font = ctxFont;
-
-        //处理垂直对齐
-        var startX = padding[3];
-        var textAlgin = "left";
-        var lines = this._lines;
-        var lineHeight = this.leading + this._charSize.height;
-        var bfont = this._style.currBitmapFont;
-        if (bfont) {
-            lineHeight = this.leading + bfont.getMaxHeight();
+    /** 设置是否使用UBB语法解析文本 */
+    set ubb(value: boolean) {
+        if (this._ubb != value) {
+            this._ubb = value;
+            this.markChanged();
         }
-        var startY = padding[0];
+    }
 
-        //处理水平对齐
-        if ((!bfont) && this._width > 0 && this._textWidth <= this._width) {
-            if (this.align == "right") {
-                textAlgin = "right";
-                startX = this._width - padding[1];
-            } else if (this.align == "center") {
-                textAlgin = "center";
-                startX = this._width * 0.5 + padding[3] - padding[1];
-            }
+    get maxWidth(): number {
+        return this._maxWidth;
+    }
+
+    /** 设置当文本达到最大允许的宽度时，自定换行，设置为0则此限制不生效。*/
+    set maxWidth(value: number) {
+        if (this._maxWidth != value) {
+            this._maxWidth = value;
+            this.markChanged();
         }
+    }
 
-        //drawBg(style);
-        let bitmapScale = 1;
-        if (bfont && bfont.autoScaleSize) {
-            bitmapScale = bfont.fontSize / this._fontSize;
-        }
+    get htmlParseOptions(): HtmlParseOptions {
+        return this._htmlParseOptions;
+    }
 
-        if (this._height > 0) {
-            let tempVAlign = (this._textHeight > this._height) ? "top" : this.valign;
-            if (tempVAlign === "middle")
-                startY = (this._height - visibleLineCount / bitmapScale * lineHeight) * 0.5 + padding[0] - padding[2];
-            else if (tempVAlign === "bottom")
-                startY = this._height - visibleLineCount / bitmapScale * lineHeight - padding[2];
-        }
+    set htmlParseOptions(value: HtmlParseOptions) {
+        this._htmlParseOptions = value;
+    }
 
-        //渲染
-        if (this._clipPoint) {
-            graphics.save();
-            if (bfont && bfont.autoScaleSize) {
-                let tClipWidth: number;
-                let tClipHeight: number;
-
-                this._width ? tClipWidth = (this._width - padding[3] - padding[1]) : tClipWidth = this._textWidth;
-                this._height ? tClipHeight = (this._height - padding[0] - padding[2]) : tClipHeight = this._textHeight;
-
-                tClipWidth *= bitmapScale;
-                tClipHeight *= bitmapScale;
-
-                graphics.clipRect(padding[3], padding[0], tClipWidth, tClipHeight);
-            } else {
-                graphics.clipRect(padding[3], padding[0], this._width ? (this._width - padding[3] - padding[1]) : this._textWidth, this._height ? (this._height - padding[0] - padding[2]) : this._textHeight);
-            }
-            this.repaint();
-        }
-
-        var style = this._style;
-        var password = style.asPassword;
-        // 输入框的prompt始终显示明文
-        if (("prompt" in (this as any)) && (this as any)['prompt'] == this._text)
-            password = false;
-
-        var x = 0, y = 0;
-        var end = Math.min(this._lines.length, visibleLineCount + beginLine) || 1;
-        for (let i = beginLine; i < end; i++) {
-            let word = lines[i];
-            let wordText: WordText;
-            if (password) {
-                let len = word.length;
-                word = "";
-                for (let j = len; j > 0; j--) {
-                    word += "●";
-                }
+    protected parseTemplate(template: string): string {
+        let pos1: number = 0, pos2: number, pos3: number;
+        let tag: string;
+        let value: string;
+        let result: string = "";
+        while ((pos2 = template.indexOf("{", pos1)) != -1) {
+            if (pos2 > 0 && template.charCodeAt(pos2 - 1) == 92)//\
+            {
+                result += template.substring(pos1, pos2 - 1);
+                result += "{";
+                pos1 = pos2 + 1;
+                continue;
             }
 
-            if (word == null) word = "";
-            x = startX - (this._clipPoint ? this._clipPoint.x : 0);
-            y = startY + lineHeight * i - (this._clipPoint ? this._clipPoint.y : 0);
+            result += template.substring(pos1, pos2);
+            pos1 = pos2;
+            pos2 = template.indexOf("}", pos1);
+            if (pos2 == -1)
+                break;
 
-            this.underline && this._drawUnderline(textAlgin, x, y, i);
+            if (pos2 == pos1 + 1) {
+                result += template.substring(pos1, pos1 + 2);
+                pos1 = pos2 + 1;
+                continue;
+            }
 
-            if (bfont) {
-                var tWidth = this.width;
-                if (bfont.autoScaleSize) {
-                    tWidth = this.width * bitmapScale;
-                    x *= bitmapScale;
-                    y *= bitmapScale;
-                }
-                bfont._drawText(word, this, x, y, this.align, tWidth, this._color);
-            } else {
-                this._words || (this._words = []);
-                if (this._words.length > (i - beginLine)) {
-                    wordText = this._words[i - beginLine];
-                } else {
-                    wordText = new WordText();
-                    this._words.push(wordText);
-                }
-                wordText.setText(word);
-                wordText.splitRender = this._singleCharRender;
-                if (style.stroke)
-                    graphics.fillBorderText(wordText, x, y, ctxFont, this._color, textAlgin, style.stroke, style.strokeColor);
+            tag = template.substring(pos1 + 1, pos2);
+            pos3 = tag.indexOf("=");
+            if (pos3 != -1) {
+                value = this._templateVars[tag.substring(0, pos3)];
+                if (value == null)
+                    result += tag.substring(pos3 + 1);
                 else
-                    graphics.fillText(wordText, x, y, ctxFont, this._color, textAlgin);
+                    result += value;
             }
-        }
-        if (bfont && bfont.autoScaleSize) {
-            let tScale = 1 / bitmapScale;
-            this.scale(tScale, tScale);
+            else {
+                value = this._templateVars[tag];
+                if (value != null)
+                    result += value;
+            }
+            pos1 = pos2 + 1;
         }
 
-        if (this._clipPoint) graphics.restore();
+        if (pos1 < template.length)
+            result += template.substring(pos1);
 
-        this._startX = startX;
-        this._startY = startY;
+        return result;
+    }
+
+    public get templateVars(): Record<string, any> {
+        return this._templateVars;
+    }
+
+    public set templateVars(value: Record<string, any> | boolean) {
+        if (!this._templateVars && !value)
+            return;
+
+        if (value === true)
+            this._templateVars = {};
+        else if (value === false)
+            this._templateVars = null;
+        else
+            this._templateVars = value;
+        this.markChanged();
+    }
+
+    public setVar(name: string, value: any): Text {
+        if (!this._templateVars)
+            this._templateVars = {};
+        this._templateVars[name] = value;
+        this.markChanged();
+
+        return this;
+    }
+
+    /**
+    * <p>设置横向滚动量。</p>
+    * <p>即使设置超出滚动范围的值，也会被自动限制在可能的最大值处。</p>
+    */
+    set scrollX(value: number) {
+        this.typeset();
+        if (!this._scrollPos) return;
+
+        let maxScrollX = this.maxScrollX;
+        value = value < 0 ? 0 : value;
+        value = value > maxScrollX ? maxScrollX : value;
+
+        this._scrollPos.x = value;
+        this.renderText();
+    }
+
+    /**
+     * 获取横向滚动量。
+     */
+    get scrollX(): number {
+        if (!this._scrollPos) return 0;
+        return this._scrollPos.x;
+    }
+
+    /**
+     * 设置纵向滚动量（px)。即使设置超出滚动范围的值，也会被自动限制在可能的最大值处。
+     */
+    set scrollY(value: number) {
+        this.typeset();
+        if (!this._scrollPos) return;
+
+        let maxScrollY = this.maxScrollY;
+        value = value < 0 ? 0 : value;
+        value = value > maxScrollY ? maxScrollY : value;
+
+        this._scrollPos.y = value;
+        this.renderText();
+    }
+
+    /**
+     * 获取纵向滚动量。
+     */
+    get scrollY(): number {
+        if (!this._scrollPos) return 0;
+        return this._scrollPos.y;
+    }
+
+    /**
+     * 获取横向可滚动最大值。
+     */
+    get maxScrollX(): number {
+        let r = this.textWidth - this._width;
+        return r < 0 ? 0 : r;
+    }
+
+    /**
+     * 获取纵向可滚动最大值。
+     */
+    get maxScrollY(): number {
+        let r = this.textHeight - this._height;
+        return r < 0 ? 0 : r;
+    }
+
+    /**返回文字行信息*/
+    get lines(): ReadonlyArray<ITextLine> {
+        this.typeset();
+        return this._lines;
     }
 
     /**
      * @private
-     * 绘制下划线
-     * @param	x 本行坐标
-     * @param	y 本行坐标
-     * @param	lineIndex 本行索引
      */
-    private _drawUnderline(align: string, x: number, y: number, lineIndex: number): void {
-        var lineWidth: number = this._lineWidths[lineIndex];
-        switch (align) {
-            case 'center':
-                x -= lineWidth / 2;
-                break;
-            case 'right':
-                x -= lineWidth;
-                break;
-            case 'left':
-            default:
-                break;
+    protected markChanged() {
+        if (!this._isChanged) {
+            this._isChanged = true;
+            ILaya.systemTimer.callLater(this, this._typeset);
         }
+    }
 
-        y += this._charSize.height;
-        this._graphics.drawLine(x, y, x + lineWidth, y, this.underlineColor || this._color, 1);
+    typeset() {
+        this._isChanged && ILaya.systemTimer.runCallLater(this, this._typeset);
+    }
+
+    refreshLayout() {
+        ILaya.systemTimer.callLater(this, this.doLayout);
+    }
+
+    get objContainer(): Sprite {
+        if (!this._objContainer) {
+            this._objContainer = new Sprite();
+            this._objContainer.hideFlags |= HideFlags.HideAndDontSave;
+            this.addChild(this._objContainer);
+        }
+        return this._objContainer;
     }
 
     /**
      * <p>排版文本。</p>
      * <p>进行宽高计算，渲染、重绘文本。</p>
      */
-    typeset(): void {
+    private _typeset(): void {
         this._isChanged = false;
+        if (this._destroyed)
+            return;
 
-        if (!this._text) {
-            this._clipPoint = null;
-            this._textWidth = this._textHeight = 0;
+        HtmlElement.returnToPool(this._elements);
+        if (this._objContainer)
+            this._objContainer.removeChildren();
+
+        let text = this._text;
+        let isPrompt: boolean;
+        if (!text && this._prompt) {
+            text = this._prompt;
+            isPrompt = true;
+        }
+
+        if (!text) {
             this.graphics.clear(true);
+            this.drawBg();
+
+            this._textWidth = this._textHeight = 0;
+            this._scrollPos = null;
+            if (this._onPostLayout) {
+                this._updatingLayout = true;
+                this._onPostLayout();
+                this._updatingLayout = false;
+            }
             return;
         }
 
-        if (LayaEnv.isConch) {
-            (window as any).conchTextCanvas.font = this._getContextFont();;
-        } else {
-            ILaya.Browser.context.font = this._getContextFont();
+        let html = this._html;
+        text = text.replace(/\r\n/g, "\n");
+        if (!isPrompt && this._templateVars)
+            text = this.parseTemplate(text);
+
+        if (this._ubb) {
+            text = UBBParser.defaultParser.parse(text);
+            html = true;
         }
+        if (!isPrompt && this._asPassword)
+            text = Text._passwordChar.repeat(text.length);
 
-        this._lines.length = 0;
-        this._lineWidths.length = 0;
-        if (this._isPassWordMode())//如果是password显示状态应该使用密码符号计算
-        {
-            this._parseLines(this._getPassWordTxt(this._text));
-        } else
-            this._parseLines(this._text);
-
-        this._evalTextSize();
-        //启用Viewport
-        if (this._checkEnabledViewportOrNot()) this._clipPoint || (this._clipPoint = new Point(0, 0));
-        //否则禁用Viewport
-        else this._clipPoint = null;
-
-        this._renderText();
-    }
-
-    /**@private */
-    private _evalTextSize(): void {
-        var nw: number, nh: number;
-        nw = Math.max.apply(this, this._lineWidths);
-
-        //计算textHeight
-        let bmpFont = this._style.currBitmapFont;
-        if (bmpFont) {
-            let h = bmpFont.getMaxHeight();
-            if (bmpFont.autoScaleSize) {
-                h = this._fontSize;
-            }
-            nh = this._lines.length * (h + this.leading) + this.padding[0] + this.padding[2];
+        let saveColor: string;
+        if (isPrompt) {
+            saveColor = this._textStyle.color;
+            this._textStyle.color = this._promptColor;
         }
+        if (html)
+            HtmlParser.defaultParser.parse(text, this._textStyle, this._elements, this._htmlParseOptions);
         else {
-            nh = this._lines.length * (this._charSize.height + this.leading) + this.padding[0] + this.padding[2];
-            if (this._lines.length) {
-                nh -= this.leading; 	// 去掉最后一行的leading，否则多算了。
-            }
+            let ele = HtmlElement.getFromPool(HtmlElementType.Text);
+            Object.assign(ele.style, this._textStyle);
+            ele.text = text;
+            this._elements.push(ele);
         }
-        if (nw != this._textWidth || nh != this._textHeight) {
-            this._textWidth = nw;
-            this._textHeight = nh;
-            //TODO:
-            //if (!_width || !_height)
-            //conchModel && conchModel.size(_width || _textWidth, _height || _textHeight);
-        }
-    }
+        if (isPrompt)
+            this._textStyle.color = saveColor;
 
-    /**@private */
-    private _checkEnabledViewportOrNot(): boolean {
-        return this._overflow == Text.SCROLL && ((this._width > 0 && this._textWidth > this._width) || (this._height > 0 && this._textHeight > this._height)); // 设置了宽高并且超出了
-    }
-
-    /**
-     * <p>快速更改显示文本。不进行排版计算，效率较高。</p>
-     * <p>如果只更改文字内容，不更改文字样式，建议使用此接口，能提高效率。</p>
-     * @param text 文本内容。
-     */
-    changeText(text: string): void {
-        if (this._text !== text) {
-            this.lang(text + "");
-            if (this._graphics && this._graphics.replaceText(this._text)) {
-                //repaint();
-            } else {
-                this.typeset();
-            }
-        }
+        this.doLayout();
     }
 
     /**
      * @private
      * 分析文本换行。
      */
-    protected _parseLines(text: string): void {
-        //自动换行和HIDDEN都需要计算换行位置或截断位置
-        var needWordWrapOrTruncate = this.wordWrap || this._overflow == Text.HIDDEN;
-        if (needWordWrapOrTruncate) {
-            var wordWrapWidth = this._getWordWrapWidth();
-        }
-
-        var bitmapFont = this._style.currBitmapFont;
-        if (bitmapFont) {
-            this._charSize.width = bitmapFont.getMaxWidth();
-            this._charSize.height = bitmapFont.getMaxHeight();
-        } else {
-            var measureResult: any = null;
-            if (LayaEnv.isConch) {
-                measureResult = (window as any).conchTextCanvas.measureText(Text._testWord);
-            } else {
-                measureResult = ILaya.Browser.context.measureText(Text._testWord);
-            }
-            if (!measureResult) measureResult = { width: 100 };
-            this._charSize.width = measureResult.width;
-            this._charSize.height = (measureResult.height || this._fontSize);
-        }
-
-        var lines: any[] = text.replace(/\r\n/g, "\n").split("\n");
-        for (var i = 0, n = lines.length; i < n; i++) {
-            var line = lines[i];
-            // 开启了自动换行需要计算换行位置
-            // overflow为hidden需要计算截断位置
-            if (needWordWrapOrTruncate)
-                this._parseLine(line, wordWrapWidth);
-            else {
-                this._lineWidths.push(this._getTextWidth(line));
-                this._lines.push(line);
-            }
-        }
-    }
-    /**
-     * @private
-     * 判断某个字符串里面是否包含emoji表情
-     * @param str 
-     * @returns 
-     */
-    private _isEmoji(str: string) {
-        if (null == str) return false;
-        return /[\uD800-\uDBFF][\uDC00-\uDFFF]/g.test(str);
-    }
-
-    /**
-     * @private
-     * 解析行文本。
-     * @param	line 某行的文本。
-     * @param	wordWrapWidth 文本的显示宽度。
-     */
-    protected _parseLine(line: string, wordWrapWidth: number): void {
-        var lines = this._lines;
-
-        var maybeIndex = 0;
-        var charsWidth = 0;
-        var wordWidth = 0;
-        var startIndex = 0;
-
-        charsWidth = this._getTextWidth(line);
-        //优化1，如果一行小于宽度，则直接跳过遍历
-        if (charsWidth <= wordWrapWidth) {
-            lines.push(line);
-            this._lineWidths.push(charsWidth);
+    protected doLayout(): void {
+        if (this._destroyed)
             return;
+
+        this._updatingLayout = true;
+
+        let wordWrap = this._wordWrap;
+        let padding = this._padding;
+        let rectWidth: number;
+        if (this._isWidthSet)
+            rectWidth = this._width - padding[3] - padding[1];
+        else
+            rectWidth = Number.MAX_VALUE;
+        if (this._maxWidth > 0) {
+            if (!wordWrap || this._maxWidth < rectWidth)
+                rectWidth = this._maxWidth;
+            wordWrap = true;
         }
 
-        charsWidth = this._charSize.width;
+        recoverLines(this._lines);
 
-        let isEmoji = this._isEmoji(line);
-        if (!isEmoji) {
-            //优化2，预算第几个字符会超出，减少遍历及字符宽度度量
-            maybeIndex = Math.floor(wordWrapWidth / charsWidth);
-            (maybeIndex == 0) && (maybeIndex = 1);
-            charsWidth = this._getTextWidth(line.substring(0, maybeIndex));
-            wordWidth = charsWidth;
-        }
+        let lineX = 0, lineY = 0;
+        let curLine: ITextLine;
+        let lastCmd: ITextCmd;
+        let bfont = this._bitmapFont;
+        let charWidth: number, charHeight: number;
 
-        for (var j = maybeIndex, m = line.length; j < m; j++) {
-            // 逐字符测量后加入到总宽度中，在某些情况下自动换行不准确。
-            // 目前已知在全是字符1的自动换行就会出现这种情况。
-            // 考虑性能，保留这种非方式。
-            charsWidth = this._getTextWidth(line.charAt(j));
-            wordWidth += charsWidth;
-            let isEmojiChar = false;
-            if (isEmoji && j + 1 < m && this._isEmoji(line.charAt(j) + line.charAt(j + 1))) {
-                wordWidth += charsWidth >> 1;
-                j++;
-                isEmojiChar = true;
+        let getTextWidth = (text: string, style: TextStyle) => {
+            if (bfont)
+                return bfont.getTextWidth(text, style.fontSize);
+            else {
+                if (LayaEnv.isConch)
+                    return (window as any).conchTextCanvas.measureText(text).width;
+                else {
+                    let ret = ILaya.Browser.context.measureText(text);
+                    return ret ? ret.width : 100;
+                }
+            }
+        };
+
+        let buildLines = (text: string, style: TextStyle) => {
+            if (bfont) {
+                charWidth = bfont.getMaxWidth(style.fontSize);
+                charHeight = bfont.getMaxHeight(style.fontSize);
+            } else {
+                let ctxFont = (style.italic ? "italic " : "") + (style.bold ? "bold " : "") + style.fontSize + "px " + this._realFont;
+                (<any>style)._ctxFont = ctxFont; //缓存起来，避免renderText里又拼一次
+
+                let mr: any;
+                if (LayaEnv.isConch) {
+                    (window as any).conchTextCanvas.font = ctxFont;
+                    mr = (window as any).conchTextCanvas.measureText(Text._testWord);
+                }
+                else {
+                    ILaya.Browser.context.font = ctxFont;
+                    mr = ILaya.Browser.context.measureText(Text._testWord);
+                }
+
+                if (mr) {
+                    charWidth = mr.width;
+                    charHeight = Math.ceil(mr.height || style.fontSize);
+                }
+                else {
+                    charWidth = 100;
+                    charHeight = style.fontSize;
+                }
             }
 
-            // 如果j的位置已经超出范围，要从startIndex到j找到一个能拆分的地方
-            if (wordWidth > wordWrapWidth) {
-                if (isEmojiChar) {
-                    if (wordWidth == charsWidth + (charsWidth >> 1)) {
-                        //这里是代表第一个就是emoji表情的逻辑
-                        j++;
-                    } else {
-                        j--;
+            let lines = text.split("\n");
+            if (wordWrap) {
+                for (let i = 0, n = lines.length; i < n; i++) {
+                    let line = lines[i];
+                    if (line.length > 0)
+                        wrapText(line, style);
+                    if (i != n - 1) {
+                        endLine();
+                        startLine();
                     }
                 }
-                if (this.wordWrap) {
+            }
+            else {
+                for (let i = 0, n = lines.length; i < n; i++) {
+                    let line = lines[i];
+                    if (line.length > 0)
+                        addCmd(line, style, null);
+                    if (i != n - 1) {
+                        endLine();
+                        startLine();
+                    }
+                }
+            }
+        };
+
+        let addCmd = (target: string | IHtmlObject, style: TextStyle, width?: number) => {
+            let cmd: ITextCmd = cmdPool.length > 0 ? cmdPool.pop() : <any>{};
+            cmd.x = lineX;
+            cmd.y = lineY;
+            if (typeof (target) === "string") {
+                if (!width)
+                    width = getTextWidth(target, style);
+                if (!cmd.wt)
+                    cmd.wt = new WordText();
+                cmd.wt.setText(target);
+                cmd.wt.width = width;
+                cmd.wt.splitRender = this._singleCharRender;
+                cmd.width = width;
+                cmd.height = charHeight;
+            }
+            else {
+                cmd.obj = target;
+                cmd.x++;
+                cmd.width = target.width + 2;
+                cmd.height = target.height;
+            }
+            cmd.style = style;
+            cmd.linkEnd = false;
+            cmd.next = null;
+            lineX += Math.round(cmd.width);
+
+            if (!curLine.cmd)
+                curLine.cmd = cmd;
+            else
+                lastCmd.next = cmd;
+            lastCmd = cmd;
+        };
+
+        let endLine = () => {
+            //计算行高
+            let lineHeight = 0;
+            let cmd = curLine.cmd;
+            while (cmd) {
+                if (cmd.height > lineHeight) lineHeight = cmd.height;
+                cmd = cmd.next;
+            }
+
+            //调整元素y位置
+            cmd = curLine.cmd;
+            while (cmd) {
+                cmd.y = Math.floor((lineHeight - cmd.height) * 0.5);
+                cmd = cmd.next;
+            }
+
+            if (lineHeight == 0)
+                lineHeight = charHeight;
+            lineHeight++; //预览一个像素用来放下划线
+
+            curLine.height = lineHeight;
+            curLine.width = lineX;
+        };
+
+        let startLine = () => {
+            lineX = 0;
+            if (curLine)
+                lineY += curLine.height + this._textStyle.leading;
+
+            curLine = linePool.length > 0 ? linePool.pop() : <any>{ cmds: [] };
+            curLine.x = 0;
+            curLine.y = lineY;
+            this._lines.push(curLine);
+
+            return curLine;
+        };
+
+        let wrapText = (text: string, style: TextStyle) => {
+            let remainWidth = rectWidth - lineX;
+
+            let tw = getTextWidth(text, style);
+            //优化1，如果一行小于宽度，则直接跳过遍历
+            if (tw <= remainWidth) {
+                addCmd(text, style, tw);
+                return;
+            }
+
+            let maybeIndex = 0;
+            let wordWidth = 0;
+            let startIndex = 0;
+
+            let isEmoji = testEmoji(text);
+            if (!bfont && !isEmoji) {
+                //优化2，预算第几个字符会超出，减少遍历及字符宽度度量
+                maybeIndex = Math.floor(remainWidth / charWidth);
+                (maybeIndex == 0) && (maybeIndex = 1);
+                wordWidth = getTextWidth(text.substring(0, maybeIndex), style);
+                if (remainWidth < wordWidth && lineX != 0) {
+                    endLine();
+                    startLine();
+                    remainWidth = rectWidth;
+                }
+            }
+
+            let len = text.length;
+            for (let j = maybeIndex; j < len; j++) {
+                // 逐字符测量后加入到总宽度中，在某些情况下自动换行不准确。
+                // 目前已知在全是字符1的自动换行就会出现这种情况。
+                // 考虑性能，保留这种非方式。
+                tw = getTextWidth(text.charAt(j), style);
+                wordWidth += tw;
+                let isEmojiChar = false;
+                if (isEmoji && j + 1 < len && testEmoji(text.charAt(j) + text.charAt(j + 1))) {
+                    wordWidth += tw >> 1;
+                    j++;
+                    isEmojiChar = true;
+                }
+
+                // 如果j的位置已经超出范围，要从startIndex到j找到一个能拆分的地方
+                if (wordWidth > remainWidth) {
+                    if (isEmojiChar) {
+                        if (wordWidth == tw + (tw >> 1)) {
+                            //这里是代表第一个就是emoji表情的逻辑
+                            j++;
+                        } else {
+                            j--;
+                        }
+                    }
+
+                    if (j == 0) {
+                        if (lineX > 0) {
+                            endLine();
+                            startLine();
+                            remainWidth = rectWidth;
+                        }
+                        continue;
+                    }
+
                     //截断换行单词
-                    var newLine = line.substring(startIndex, j);
+                    let newLine = text.substring(startIndex, j);
                     // 如果最后一个是中文则直接截断，否则找空格或者-来拆分
-                    var ccode = newLine.charCodeAt(newLine.length - 1)
+                    let ccode = newLine.charCodeAt(newLine.length - 1);
                     if (ccode < 0x4e00 || ccode > 0x9fa5) {
-                        //if (newLine.charCodeAt(newLine.length - 1) < 255) {
                         //按照英文单词字边界截取 因此将会无视中文
-                        //var execResult = /(?:\w|-)+$/.exec(newLine);
-                        var execResult = /(?:[^\s\!-\/])+$/.exec(newLine);// 找不是 空格和标点符号的
+                        let execResult = wordBoundaryTest.exec(newLine);// 找不是 空格和标点符号的
                         if (execResult) {
                             j = execResult.index + startIndex;
                             //此行只够容纳这一个单词 强制换行
@@ -1048,189 +1204,339 @@ export class Text extends Sprite {
                                 j += newLine.length;
                             //此行有多个单词 按单词分行
                             else
-                                newLine = line.substring(startIndex, j);
+                                newLine = text.substring(startIndex, j);
                         }
                     }
 
                     //如果自动换行，则另起一行
-                    lines.push(newLine);
-                    this._lineWidths.push(wordWidth - charsWidth);
+                    addCmd(newLine, style, wordWidth - tw);
+                    endLine();
+                    startLine();
+                    remainWidth = rectWidth;
                     //如果非自动换行，则只截取字符串
 
                     startIndex = j;
-                    if (j + maybeIndex < m) {
-                        j += maybeIndex;
+                    if (j + maybeIndex < len) {
+                        if (maybeIndex != 0) {
+                            j += maybeIndex;
 
-                        charsWidth = this._getTextWidth(line.substring(startIndex, j));
-                        wordWidth = charsWidth;
-                        j--;
+                            tw = getTextWidth(text.substring(startIndex, j), style);
+                            wordWidth = tw;
+                            j--;
+                        }
+                        else
+                            wordWidth = 0;
                     } else {
                         //此处执行将不会在循环结束后再push一次
-                        lines.push(line.substring(startIndex, m));
-                        this._lineWidths.push(this._getTextWidth(lines[lines.length - 1]));
+                        addCmd(text.substring(startIndex, len), style);
                         startIndex = -1;
                         break;
                     }
-                } else if (this._overflow == Text.HIDDEN) {
-                    lines.push(line.substring(0, j));
-                    this._lineWidths.push(this._getTextWidth(lines[lines.length - 1]));
-                    return;
+                }
+            }
+            if (startIndex != -1)
+                addCmd(text.substring(startIndex, len), style);
+        };
+
+        startLine();
+
+        let elements = this._elements;
+        for (let i = 0, n = elements.length; i < n; i++) {
+            let ele = elements[i];
+            if (ele.type == HtmlElementType.Text) {
+                buildLines(ele.text, ele.style);
+            }
+            else if (ele.type == HtmlElementType.LinkEnd) {
+                if (lastCmd)
+                    lastCmd.linkEnd = true;
+            }
+            else {
+                let htmlObj = ele.obj;
+                if (!htmlObj) {
+                    let cls = HtmlParser.classMap[ele.type];
+                    if (cls) {
+                        htmlObj = Pool.createByClass(cls);
+                        htmlObj.create(this, ele);
+                        ele.obj = htmlObj;
+                    }
+                }
+
+                if (htmlObj) {
+                    if (wordWrap) {
+                        let remainWidth = rectWidth - lineX;
+                        if (remainWidth < htmlObj.width + 1) {
+                            if (lineX > 0) { //如果已经是开始位置了，就算放不下也不换行
+                                endLine();
+                                startLine();
+                            }
+                        }
+                    }
+                    addCmd(htmlObj, ele.style);
                 }
             }
         }
-        if (this.wordWrap && startIndex != -1) {
-            lines.push(line.substring(startIndex, m));
-            this._lineWidths.push(this._getTextWidth(lines[lines.length - 1]));
-        }
-    }
 
-    /**@private */
-    private _getTextWidth(text: string): number {
-        var bitmapFont: BitmapFont = this._style.currBitmapFont;
-        if (bitmapFont) return bitmapFont.getTextWidth(text);
-        else {
-            if (LayaEnv.isConch) {
-                return (window as any).conchTextCanvas.measureText(text).width;;
+        endLine();
+
+        //计算textWidth和textHeight
+
+        let nw: number = 0, nh: number = 0;
+        for (let line of this._lines) {
+            if (line.width > nw)
+                nw = line.width;
+        }
+        if (nw > 0)
+            nw += padding[1] + padding[3];
+        this._textWidth = nw;
+
+        let lastLine = this._lines[this._lines.length - 1];
+        if (lastLine)
+            nh = lastLine.y + lastLine.height;
+        if (nh > 0)
+            nh += padding[0] + padding[2];
+        this._textHeight = nh;
+
+        if (this._onPostLayout)
+            this._onPostLayout();
+
+        //处理水平对齐
+        let align = this._textStyle.align == "center" ? 1 : (this._textStyle.align == "right" ? 2 : 0);
+        if (align != 0 && this._isWidthSet) {
+            let rectWidth = this._width - padding[3] - padding[1];
+            for (let line of this._lines) {
+                let offsetX = 0;
+                if (align == 1)
+                    offsetX = Math.floor((rectWidth - line.width) * 0.5);
+                else if (align == 2)
+                    offsetX = rectWidth - line.width;
+
+                if (offsetX > 0)
+                    line.x = offsetX;
             }
+        }
+
+        //处理垂直对齐
+        if (this._isHeightSet && this._textHeight < this._height) {
+            let offsetY = 0;
+            if (this._textStyle.valign === "middle")
+                offsetY = Math.floor((this._height - this._textHeight) * 0.5);
+            else if (this._textStyle.valign === "bottom")
+                offsetY = this._height - this._textHeight;
+
+            if (offsetY > 0) {
+                for (let line of this._lines) {
+                    line.y += offsetY;
+                }
+            }
+        }
+
+        if (this._overflow == Text.SCROLL
+            && (this._isWidthSet && this._textWidth > this._width || this._isHeightSet && this._textHeight > this._height)) {
+            if (!this._scrollPos)
+                this._scrollPos = new Point(0, 0);
             else {
-                let ret = ILaya.Browser.context.measureText(text) || { width: 100 };
-                return ret.width;
+                let maxScrollX = this.maxScrollX;
+                let maxScrollY = this.maxScrollY;
+                if (this._scrollPos.x > maxScrollX)
+                    this._scrollPos.x = maxScrollX;
+                if (this._scrollPos.y > maxScrollY)
+                    this._scrollPos.y = maxScrollY;
             }
         }
-    }
+        else
+            this._scrollPos = null;
 
-    /**
-     * @private
-     * 获取换行所需的宽度。
-     */
-    private _getWordWrapWidth(): number {
-        var p: any[] = this.padding;
-        var w: number;
-        var bitmapFont: BitmapFont = this._style.currBitmapFont;
-        if (bitmapFont && bitmapFont.autoScaleSize) w = this._width * (bitmapFont.fontSize / this._fontSize);
-        else w = this._width;
+        if (this._objContainer) {
+            this._objContainer.size(this._width, this._height);
 
-        if (w <= 0) {
-            w = this.wordWrap ? 100 : ILaya.Browser.width;
-        }
-        w <= 0 && (w = 100);
-        return w - p[3] - p[1];
-    }
-
-    /**
-     * 返回字符在本类实例的父坐标系下的坐标。
-     * @param charIndex	索引位置。
-     * @param out		（可选）输出的Point引用。
-     * @return Point 字符在本类实例的父坐标系下的坐标。如果out参数不为空，则将结果赋值给指定的Point对象，否则创建一个新的Point对象返回。建议使用Point.TEMP作为out参数，可以省去Point对象创建和垃圾回收的开销，尤其是在需要频繁执行的逻辑中，比如帧循环和MOUSE_MOVE事件回调函数里面。
-     */
-    getCharPoint(charIndex: number, out: Point = null): Point {
-        this._isChanged && ILaya.systemTimer.runCallLater(this, this.typeset);
-        var len: number = 0, lines: any[] = this._lines, startIndex: number = 0;
-        for (var i: number = 0, n: number = lines.length; i < n; i++) {
-            len += lines[i].length;
-            if (charIndex < len) {
-                var line: number = i;
-                break;
+            if (this._scrollPos || this._overflow == Text.HIDDEN && this._objContainer.numChildren > 0) {
+                if (!this._objContainer.scrollRect)
+                    this._objContainer.scrollRect = new Rectangle();
+                this._objContainer.scrollRect.setTo(0, 0, this._width, this._height);
             }
-            startIndex = len;
+            else
+                this._objContainer.scrollRect = null;
         }
-        //计算字符的宽度
-        var ctxFont: string = this._getContextFont();
-        ILaya.Browser.context.font = ctxFont;
-        var width: number = this._getTextWidth(this._text.substring(startIndex, charIndex));
-        var point: Point = out || new Point();
-        return point.setTo(this._startX + width - (this._clipPoint ? this._clipPoint.x : 0), this._startY + line * (this._charSize.height + this.leading) - (this._clipPoint ? this._clipPoint.y : 0));
+
+        this._updatingLayout = false;
+
+        this.renderText();
     }
 
     /**
-     * <p>设置横向滚动量。</p>
-     * <p>即使设置超出滚动范围的值，也会被自动限制在可能的最大值处。</p>
-     */
-    set scrollX(value: number) {
-        if (this._overflow != Text.SCROLL || (this.textWidth < this._width || !this._clipPoint)) return;
+    * @private
+    * 渲染文字。
+    * @param	begin 开始渲染的行索引。
+    * @param	visibleLineCount 渲染的行数。
+    */
+    protected renderText(): void {
+        let graphics = this.graphics;
+        graphics.clear(true);
+        this.drawBg();
 
-        value = value < this.padding[3] ? this.padding[3] : value;
-        var maxScrollX: number = this._textWidth - this._width;
-        value = value > maxScrollX ? maxScrollX : value;
+        let padding = this._padding;
+        let paddingLeft = padding[3];
+        let paddingTop = padding[0];
+        let bfont = this._bitmapFont;
+        let scrollPos = this._scrollPos;
+        let rectWidth = (this._isWidthSet ? this._width : this._textWidth) - padding[3] - padding[1];
+        let rectHeight = (this._isHeightSet ? this._height : this._textHeight) - padding[0] - padding[2];
+        let bottom = paddingTop + rectHeight;
+        let clipped = this._overflow != Text.VISIBLE;
 
-        this._clipPoint.x = value;
-        this._renderText();
+        if (clipped) {
+            graphics.save();
+            graphics.clipRect(paddingLeft, paddingTop, rectWidth > 0 ? rectWidth : 0.001, rectHeight > 0 ? rectHeight : 0.001);
+            this.repaint();
+        }
+
+        let x = 0, y = 0;
+        let lines = this._lines;
+        let lineCnt = lines.length;
+        let curLink: HtmlLink;
+        let linkStartX: number;
+        for (let i = 0; i < lineCnt; i++) {
+            let line = lines[i];
+            x = paddingLeft + line.x;
+            y = paddingTop + line.y;
+            if (scrollPos) {
+                x -= scrollPos.x;
+                y -= scrollPos.y;
+            }
+            let lineClipped = clipped && ((y + line.height) <= paddingTop || y >= bottom);
+
+            let cmd = line.cmd;
+            while (cmd) {
+                if (cmd.linkEnd) {
+                    if (curLink) {
+                        curLink.addRect(linkStartX, y, x + cmd.x + cmd.width - linkStartX, line.height);
+                        curLink = null;
+                    }
+                }
+
+                if (cmd.obj) {
+                    cmd.obj.pos(x + cmd.x, y + cmd.y);
+
+                    if (cmd.obj.element.type == HtmlElementType.Link) {
+                        curLink = <HtmlLink>cmd.obj;
+                        curLink.resetArea();
+                        linkStartX = x + cmd.x;
+                    }
+                }
+                else if (!lineClipped) {
+                    if (bfont) {
+                        let tx: number = 0;
+                        let str = cmd.wt.text;
+                        let color = bfont.tint ? cmd.style.color : "#FFFFFF";
+                        for (let i = 0, n = str.length; i < n; i++) {
+                            let c = str.charCodeAt(i);
+                            let g = bfont.dict[c];
+                            if (g) {
+                                let scale = bfont.autoScaleSize ? (cmd.style.fontSize / bfont.fontSize) : 1;
+                                if (g.texture)
+                                    graphics.drawImage(g.texture, x + cmd.x + tx + g.x * scale, y + cmd.y + g.y * scale, g.width * scale, g.height * scale, color);
+                                tx += Math.round(g.advance * scale);
+                            }
+                        }
+                    } else {
+                        let ctxFont = (<any>cmd.style)._ctxFont;
+                        if (cmd.style.stroke)
+                            graphics.fillBorderText(cmd.wt, x + cmd.x, y + cmd.y, ctxFont, cmd.style.color, null, cmd.style.stroke, cmd.style.strokeColor);
+                        else
+                            graphics.fillText(cmd.wt, x + cmd.x, y + cmd.y, ctxFont, cmd.style.color, null);
+                    }
+                }
+
+                if (!lineClipped && cmd.style.underline) {
+                    let thickness = Math.max(1, cmd.style.fontSize / 16);
+                    graphics.drawLine(x + cmd.x, y + line.height - thickness, x + cmd.x + cmd.width, y + line.height - thickness, cmd.style.underlineColor || cmd.style.color, thickness);
+                }
+
+                cmd = cmd.next;
+            }
+
+            if (curLink) {
+                curLink.addRect(linkStartX, y, rectWidth - linkStartX + paddingLeft, line.height);
+                linkStartX = paddingLeft;
+            }
+        }
+
+        if (clipped)
+            graphics.restore();
     }
 
-    /**
-     * 获取横向滚动量。
-     */
-    get scrollX(): number {
-        if (!this._clipPoint) return 0;
-        return this._clipPoint.x;
-    }
+    protected drawBg() {
+        let cmd = this._bgDrawCmd;
+        if (this._bgColor || this._borderColor) {
+            if (!cmd) {
+                cmd = new DrawRectCmd();
+                cmd.x = cmd.y = 0;
+                cmd.width = cmd.height = 1;
+                cmd.percent = true;
+                this._bgDrawCmd = cmd;
+            }
+            cmd.fillColor = this._bgColor;
+            cmd.lineColor = this._borderColor;
+            cmd.lineWidth = this._borderColor ? 1 : 0;
 
-    /**
-     * 设置纵向滚动量（px)。即使设置超出滚动范围的值，也会被自动限制在可能的最大值处。
-     */
-    set scrollY(value: number) {
-        if (this._overflow != Text.SCROLL || (this.textHeight < this._height || !this._clipPoint)) return;
-
-        value = value < this.padding[0] ? this.padding[0] : value;
-        var maxScrollY: number = this._textHeight - this._height;
-        value = value > maxScrollY ? maxScrollY : value;
-
-        this._clipPoint.y = value;
-        this._renderText();
-    }
-
-    /**
-     * 获取纵向滚动量。
-     */
-    get scrollY(): number {
-        if (!this._clipPoint) return 0;
-        return this._clipPoint.y;
-    }
-
-    /**
-     * 获取横向可滚动最大值。
-     */
-    get maxScrollX(): number {
-        return (this.textWidth < this._width) ? 0 : this._textWidth - this._width;
-    }
-
-    /**
-     * 获取纵向可滚动最大值。
-     */
-    get maxScrollY(): number {
-        return (this.textHeight < this._height) ? 0 : this._textHeight - this._height;
-    }
-
-    /**返回文字行信息*/
-    get lines(): any[] {
-        if (this._isChanged) this.typeset();
-        return this._lines;
-    }
-
-    /**下划线的颜色，为null则使用字体颜色。*/
-    get underlineColor(): string {
-        return this._style.underlineColor;
-    }
-
-    set underlineColor(value: string) {
-        this._getTextStyle().underlineColor = value;
-        if (!this._isChanged) this._renderText();
-    }
-
-    /**是否显示下划线。*/
-    get underline(): boolean {
-        return this._style.underline;
-    }
-
-    set underline(value: boolean) {
-        this._getTextStyle().underline = value;
-    }
-
-    /** 设置是否单个字符渲染，如果Textd的内容一直改变，例如是一个增加的数字，就设置这个，防止无效占用缓存 */
-    set singleCharRender(value: boolean) {
-        this._singleCharRender = value;
-    }
-    get singleCharRender(): boolean {
-        return this._singleCharRender;
+            let cmds = this.graphics.cmds;
+            let i = cmds.indexOf(cmd);
+            if (i != 0) {
+                if (i != -1)
+                    cmds.splice(i, 1);
+                cmds.unshift(cmd);
+                this.graphics.cmds = cmds;
+            }
+        }
+        else if (cmd) {
+            this.graphics.removeCmd(cmd);
+        }
     }
 }
+export interface ITextCmd {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    style: TextStyle;
+    wt: WordText;
+    obj: IHtmlObject;
+    linkEnd: boolean;
+    next: ITextCmd;
+}
+
+export interface ITextLine {
+    x: number;
+    y: number;
+    height: number;
+    width: number;
+    cmd: ITextCmd;
+}
+
+var cmdPool: Array<ITextCmd> = [];
+var linePool: Array<ITextLine> = [];
+
+function recoverLines(lines: Array<ITextLine>) {
+    for (let line of lines) {
+        let cmd = line.cmd;
+        while (cmd) {
+            cmd.obj = null;
+            if (cmd.wt)
+                cmd.wt.cleanCache();
+            cmdPool.push(cmd);
+            cmd = cmd.next;
+        }
+        line.cmd = null;
+    }
+
+    linePool.push(...lines);
+    lines.length = 0;
+}
+
+var emojiTest = /[\uD800-\uDBFF][\uDC00-\uDFFF]/g;
+function testEmoji(str: string) {
+    if (null == str) return false;
+    return emojiTest.test(str);
+}
+
+var wordBoundaryTest = /(?:[^\s\!-\/])+$/;

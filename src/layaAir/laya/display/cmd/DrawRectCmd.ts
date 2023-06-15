@@ -36,7 +36,7 @@ export class DrawRectCmd {
     /**
      * （可选）边框宽度。
      */
-    lineWidth: number;
+    lineWidth: number = 0;
 
     /**
      * 位置和大小是否是百分比
@@ -46,12 +46,10 @@ export class DrawRectCmd {
     /**@private */
     static create(x: number, y: number, width: number, height: number, fillColor: any, lineColor: any, lineWidth: number, percent?: boolean): DrawRectCmd {
         var cmd: DrawRectCmd = Pool.getItemByClass("DrawRectCmd", DrawRectCmd);
-        var offset = (lineWidth >= 1 && lineColor) ? lineWidth / 2 : 0;
-        var lineOffset = lineColor ? lineWidth : 0;
-        cmd.x = x + offset;
-        cmd.y = y + offset;
-        cmd.width = width - lineOffset;
-        cmd.height = height - lineOffset;
+        cmd.x = x;
+        cmd.y = y;
+        cmd.width = width;
+        cmd.height = height;
         cmd.fillColor = fillColor;
         cmd.lineColor = lineColor;
         cmd.lineWidth = lineWidth;
@@ -70,13 +68,15 @@ export class DrawRectCmd {
 
     /**@private */
     run(context: Context, gx: number, gy: number): void {
+        let offset = this.lineWidth >= 1 ? this.lineWidth / 2 : 0;
+        let lineOffset = this.lineWidth;
         if (this.percent && context.sprite) {
             let w = context.sprite.width;
             let h = context.sprite.height;
-            context.drawRect(this.x * w + gx, this.y * h + gy, this.width * w, this.height * h, this.fillColor, this.lineColor, this.lineWidth);
+            context.drawRect(this.x * w + offset + gx, this.y * h + offset + gy, this.width * w - lineOffset, this.height * h - lineOffset, this.fillColor, this.lineColor, this.lineWidth);
         }
         else
-            context.drawRect(this.x + gx, this.y + gy, this.width, this.height, this.fillColor, this.lineColor, this.lineWidth);
+            context.drawRect(this.x + offset + gx, this.y + offset + gy, this.width - lineOffset, this.height - lineOffset, this.fillColor, this.lineColor, this.lineWidth);
     }
 
     /**@private */

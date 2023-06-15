@@ -20,6 +20,7 @@ import { Vector4 } from "../../../maths/Vector4";
 import { RenderState } from "../../../RenderEngine/RenderShader/RenderState";
 import { Event } from "../../../events/Event";
 import { Config } from "../../../../Config";
+import { Matrix3x3 } from "../../../maths/Matrix3x3";
 
 export enum MaterialRenderMode {
     /**渲染状态_不透明。*/
@@ -178,6 +179,20 @@ export class Material extends Resource implements IClone {
      */
     removeDefine(define: ShaderDefine): void {
         this._shaderValues.removeDefine(define);
+    }
+
+    /**
+     * 开启 或 关闭 shader 宏定义
+     * @param define 
+     * @param value true: addDefine, false: removeDefine
+     */
+    setDefine(define: ShaderDefine, value: boolean) {
+        if (value) {
+            this._shaderValues.addDefine(define);
+        }
+        else {
+            this._shaderValues.removeDefine(define);
+        }
     }
 
     /**
@@ -898,6 +913,44 @@ export class Material extends Resource implements IClone {
     setMatrix4x4(name: string, value: Matrix4x4) {
         let uniformIndex = Shader3D.propertyNameToID(name);
         this.setMatrix4x4ByIndex(uniformIndex, value);
+    }
+
+    /**
+     * 获取 matrix3x3
+     * @param index 
+     * @returns 
+     */
+    getMatrix3x3ByIndex(index: number) {
+        return this.shaderData.getMatrix3x3(index);
+    }
+
+    /**
+     * 设置 matrix3x3
+     * @param index 
+     * @param value 
+     */
+    setMatrix3x3ByIndex(index: number, value: Matrix3x3) {
+        this.shaderData.setMatrix3x3(index, value);
+    }
+
+    /**
+     * 获取 matrix3x3
+     * @param name 
+     * @returns 
+     */
+    getMatrix3x3(name: string): Matrix3x3 {
+        let index = Shader3D.propertyNameToID(name);
+        return this.getMatrix3x3ByIndex(index);
+    }
+
+    /**
+     * 设置 matrix3x3
+     * @param name 
+     * @param value 
+     */
+    setMatrix3x3(name: string, value: Matrix3x3) {
+        let index = Shader3D.propertyNameToID(name);
+        this.setMatrix3x3ByIndex(index, value);
     }
 
     /**

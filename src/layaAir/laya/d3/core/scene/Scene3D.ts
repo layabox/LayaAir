@@ -18,7 +18,7 @@ import { PhysicsSimulation } from "../../physics/PhysicsSimulation";
 import { SkyBox } from "../../resource/models/SkyBox";
 import { SkyDome } from "../../resource/models/SkyDome";
 import { SkyRenderer } from "../../resource/models/SkyRenderer";
-import { TextureCube } from "../../resource/TextureCube";
+import { TextureCube } from "../../../resource/TextureCube";
 import { Utils3D } from "../../utils/Utils3D";
 import { BaseCamera } from "../BaseCamera";
 import { Camera, CameraClearFlags } from "../Camera";

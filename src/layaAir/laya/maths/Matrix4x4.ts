@@ -20,6 +20,7 @@ export class Matrix4x4 implements IClone {
 
     /**默认矩阵,禁止修改*/
     static readonly DEFAULT: Readonly<Matrix4x4> = new Matrix4x4();
+    static readonly DEFAULTINVERT: Readonly<Matrix4x4> = new Matrix4x4(-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
     /**默认矩阵,禁止修改*/
     static readonly ZERO: Readonly<Matrix4x4> = new Matrix4x4(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 
@@ -461,11 +462,11 @@ export class Matrix4x4 implements IClone {
         this.elements[(row * 4) + column] = value;
     }
 
-       /**
-     * 四元数生成矩阵
-     * @param rotation 
-     */
-       setRotation(rotation: Quaternion): void {
+    /**
+  * 四元数生成矩阵
+  * @param rotation 
+  */
+    setRotation(rotation: Quaternion): void {
         var rotationX: number = rotation.x;
         var rotationY: number = rotation.y;
         var rotationZ: number = rotation.z;

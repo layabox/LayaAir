@@ -173,16 +173,16 @@ export class SkinnedMeshRenderer extends MeshRenderer {
             if (this._bonesTransformForNative == null) {
                 this._bonesTransformForNative = [];
                 for (var i: number = 0, n: number = this._bones.length; i < n; i++) {
-                    let bone = this._bones[i]; 
+                    let bone = this._bones[i];
                     if (bone) {
                         this._bonesTransformForNative[i] = (bone.transform as any)._nativeObj;
                     }
                     else {
                         this._bonesTransformForNative[i] = null;
                     }
-                } 
+                }
             }
-        
+
             for (var i: number = 0, n: number = this._cacheMesh.subMeshCount; i < n; i++) {
                 var subMeshBoneIndices: Uint16Array[] = ((<SubMesh>this._cacheMesh.getSubMesh(i)))._boneIndicesList;
                 var subData: Float32Array[] = this._skinnedData[i];
@@ -194,15 +194,15 @@ export class SkinnedMeshRenderer extends MeshRenderer {
         }
     }
 
-     /**
-     * @inheritDoc
-     * @internal
-     * @override
-     */
+    /**
+    * @inheritDoc
+    * @internal
+    * @override
+    */
     _needRender(boundFrustum: BoundFrustum, context: RenderContext3D): boolean {
-        if(!Stat.enableSkin)
+        if (!Stat.enableSkin)
             return false;
-        return super._needRender(boundFrustum,context);
+        return super._needRender(boundFrustum, context);
     }
 
     /**
@@ -309,8 +309,12 @@ export class SkinnedMeshRenderer extends MeshRenderer {
         if (this.bones.length > 0) {
             this._computeSkinnedData();
             this._shaderValues.setMatrix4x4(Sprite3D.WORLDMATRIX, Matrix4x4.DEFAULT);
+            this._worldParams.x = 1;
+            this._shaderValues.setVector(Sprite3D.WORLDINVERTFRONT, this._worldParams);
         } else {
             this._shaderValues.setMatrix4x4(Sprite3D.WORLDMATRIX, transform.worldMatrix);
+            this._worldParams.x = transform.getFrontFaceValue();
+            this._shaderValues.setVector(Sprite3D.WORLDINVERTFRONT, this._worldParams);
         }
 
         this._applyMorphdata();

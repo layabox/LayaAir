@@ -81,6 +81,8 @@ function getAttributeType(type: ShaderDataType) {
             return "vec4";
         case ShaderDataType.Matrix4x4:
             return "mat4";
+        case ShaderDataType.Matrix3x3:
+            return "mat3";
         case ShaderDataType.Texture2D:
             return "sampler2D";
         case ShaderDataType.TextureCube:

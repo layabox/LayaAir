@@ -7,7 +7,7 @@ import { IClone } from "../../../utils/IClone";
 import { AnimationClip } from "../../animation/AnimationClip";
 import { AnimatorStateScript } from "../../animation/AnimatorStateScript";
 import { KeyframeNodeList } from "../../animation/KeyframeNodeList";
-import { AnimatorParams } from "./Animator";
+import { Animator, AnimatorParams } from "./Animator";
 import { AnimatorTransition } from "./AnimatorTransition";
 import { KeyframeNodeOwner, KeyFrameValueType } from "./KeyframeNodeOwner";
 
@@ -39,6 +39,9 @@ export class AnimatorState extends EventDispatcher implements IClone {
 
     /** @internal */
     _currentFrameIndices: Int16Array | null = null;
+
+    /**是否循环播放,为0时则使用_clip.islooping，1为循环，2为不循环 */
+    _isLooping: 0 | 1 | 2 = 0;
 
     /**
      * @internal
@@ -119,6 +122,12 @@ export class AnimatorState extends EventDispatcher implements IClone {
             this._clip = value;
         }
     }
+    get islooping() {
+        if (0 != this._isLooping) {
+            return 1 == this._isLooping;
+        }
+        return this._clip.islooping;
+    }
 
     /**
      * IDE
@@ -154,11 +163,14 @@ export class AnimatorState extends EventDispatcher implements IClone {
     /**
      * @internal
      */
-    _eventStart() {
+    _eventStart(animator: Animator, layerIndex: number) {
         this.event(AnimatorState.EVENT_OnStateEnter);
+
         if (this._scripts) {
-            for (var i: number = 0, n: number = this._scripts.length; i < n; i++)
+            for (var i: number = 0, n: number = this._scripts.length; i < n; i++) {
+                this._scripts[i].setPlayScriptInfo(animator, layerIndex, this);
                 this._scripts[i].onStateEnter();
+            }
         }
     }
 

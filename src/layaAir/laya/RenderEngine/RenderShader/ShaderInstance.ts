@@ -500,10 +500,11 @@ ${uniformglsl}`;
 
 		cull = cull ?? RenderState.Default.cull;
 
-		var forntFace: number;
+		var forntFace: number = CullMode.Back;
 		switch (cull) {
 			case RenderState.CULL_NONE:
 				this._cullStateCMD.addCMD(RenderStateType.CullFace, false);
+				this._cullStateCMD.addCMD(RenderStateType.FrontFace, forntFace);
 				break;
 			case RenderState.CULL_FRONT:
 				this._cullStateCMD.addCMD(RenderStateType.CullFace, true);

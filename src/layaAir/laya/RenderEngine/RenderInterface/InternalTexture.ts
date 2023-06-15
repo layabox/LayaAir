@@ -5,13 +5,13 @@ import { WrapMode } from "../RenderEnum/WrapMode";
 /**
  * 内部纹理对象
  */
- export interface InternalTexture {
+export interface InternalTexture {
 
     /**
      * gpu texture object
      */
     resource: any;
-    target:number;
+    target: number;
 
     width: number;
     height: number;
@@ -25,12 +25,12 @@ import { WrapMode } from "../RenderEnum/WrapMode";
     wrapV: WrapMode;
     wrapW: WrapMode;
     anisoLevel: number;
-    baseMipmapLevel:number;
-    maxMipmapLevel:number;
+    baseMipmapLevel: number;
+    maxMipmapLevel: number;
     compareMode: TextureCompareMode;
 
     /**bytelength */
-    gpuMemory:number;
+    gpuMemory: number;
 
     /**
      * 是否使用 sRGB格式 加载图片数据

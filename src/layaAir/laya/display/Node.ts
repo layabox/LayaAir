@@ -58,6 +58,9 @@ export class Node extends EventDispatcher {
     /**节点名称。*/
     name: string = "";
 
+    /** 节点标签 */
+    tag?: string;
+
     /**
      * 如果节点从资源中创建，这里记录是他的url
      */
@@ -137,6 +140,34 @@ export class Node extends EventDispatcher {
         if (type === Event.DISPLAY || type === Event.UNDISPLAY) {
             if (!this._getBit(NodeFlags.DISPLAY)) this._setBitUp(NodeFlags.DISPLAY);
         }
+    }
+
+    bubbleEvent(type: string, data?: any) {
+        let arr: Array<Node> = _bubbleChainPool.length > 0 ? _bubbleChainPool.pop() : [];
+        arr.length = 0;
+
+        let obj: Node = this;
+        while (obj) {
+            if (obj.activeInHierarchy)
+                arr.push(obj);
+            obj = obj.parent;
+        }
+
+        if (data instanceof Event) {
+            data._stopped = false;
+            for (let obj of arr) {
+                data.setTo(type, obj, this);
+                obj.event(type, data);
+                if (data._stopped)
+                    break;
+            }
+        }
+        else {
+            for (let obj of arr)
+                obj.event(type, data);
+        }
+
+        _bubbleChainPool.push(arr);
     }
 
     hasHideFlag(flag: number): boolean {
@@ -400,7 +431,7 @@ export class Node extends EventDispatcher {
      * 子对象数量。
      */
     get numChildren(): number {
-        return this._children?this._children.length:0;
+        return this._children ? this._children.length : 0;
     }
 
     /**父节点。*/
@@ -982,5 +1013,7 @@ export class Node extends EventDispatcher {
      */
     onAfterDeserialize() { }
 }
+
+const _bubbleChainPool: Array<Array<Node>> = [];
 
 export interface INodeExtra { }

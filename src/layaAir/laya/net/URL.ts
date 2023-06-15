@@ -7,15 +7,16 @@ import { Utils } from "../utils/Utils";
  * <p>引擎加载资源的时候，会自动调用formatURL函数格式化URL路径</p>
  * <p>通过basePath属性可以设置网络基础路径</p>
  * <p>通过设置customFormat函数，可以自定义URL格式化的方式</p>
- * <p>除了默认的通过增加后缀的格式化外，通过VersionManager类，可以开启IDE提供的，基于目录的管理方式来替代 "?v=" 的管理方式</p>
- * @see laya.net.VersionManager
  */
 export class URL {
-    /**URL地址版本映射表，比如{"aaa/bb.png":99,"aaa/bb.png":12}，默认情况下，通过formatURL格式化后，会自动生成为"aaa/bb.png?v=99"的一个地址*/
-    static version: Record<string, number | string> = {};
+    /**URL地址版本映射表，比如{"aaa/bb.png":"edcba","aaa/bb.png":"1342a"}，默认情况下，通过formatURL格式化后，会自动生成为"aaa/bb-1342a.png"的一个地址*/
+    static version: Record<string, string> = {};
 
     /**基础路径。如果不设置，默认为当前网页的路径。最终地址将被格式化为 basePath+相对URL地址，*/
     static basePath: string = "";
+    /**扩展的基础路径映射表，比如{"aa/":"http://abc.com/"},则把路径以aa/开头的资源映射到http://abc.com/下*/
+    static basePaths: Record<string, string> = {};
+
     /**root路径。只针对'~'类型的url路径有效*/
     static rootPath: string = "";
 
@@ -65,15 +66,6 @@ export class URL {
 
     /** 自定义URL格式化的方式。例如： customFormat = function(url:String):String{} */
     static customFormat: Function = function (url: string): string {
-        let ver = URL.version[url];
-        if (!((<any>window)).conch && ver != null) {
-            if (url.indexOf("?") != -1) {
-                if (url.indexOf("&v=") == -1 && url.indexOf("?v=") == -1)
-                    url += "&v=" + ver;
-            }
-            else
-                url += "?v=" + ver;
-        }
         return url;
     }
 
@@ -102,10 +94,26 @@ export class URL {
             if (URL.customFormat != null)
                 url = URL.customFormat(url);
 
+            let ver = URL.version[url];
+            if (ver != null) {
+                let i = url.lastIndexOf(".");
+                url = url.substring(0, i) + "-" + ver + url.substring(i);
+            }
+
             if (char1 === 126) // ~
                 url = URL.join(URL.rootPath, url.substring(2));
-            else
-                url = URL.join(base != null ? base : URL.basePath, url);
+            else {
+                if (base == null) {
+                    base = URL.basePath;
+                    for (let k in URL.basePaths) {
+                        if (url.startsWith(k)) {
+                            base = URL.basePaths[k];
+                            break;
+                        }
+                    }
+                }
+                url = URL.join(base, url);
+            }
         }
 
         return url;
