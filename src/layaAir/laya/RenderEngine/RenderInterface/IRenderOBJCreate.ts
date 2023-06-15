@@ -1,21 +1,20 @@
-import { Config } from "../../../Config";
 import { Sprite3D } from "../../d3/core/Sprite3D";
 import { Transform3D } from "../../d3/core/Transform3D";
 import { IndexBuffer3D } from "../../d3/graphics/IndexBuffer3D";
 import { VertexBuffer3D } from "../../d3/graphics/VertexBuffer3D";
 import { Vector3 } from "../../maths/Vector3";
 import { Resource } from "../../resource/Resource";
-import { ShaderCompileDefineBase, ShaderProcessInfo } from "../../webgl/utils/ShaderCompileDefineBase";
+import { ShaderCompileDefineBase } from "../../webgl/utils/ShaderCompileDefineBase";
 import { CommandUniformMap } from "../CommandUniformMap";
 import { BufferUsage } from "../RenderEnum/BufferTargetType";
 import { DrawType } from "../RenderEnum/DrawType";
 import { IndexFormat } from "../RenderEnum/IndexFormat";
 import { MeshTopology } from "../RenderEnum/RenderPologyMode";
 import { RenderState } from "../RenderShader/RenderState";
-import { ShaderData } from "../RenderShader/ShaderData";
+import { ShaderData, ShaderDataType } from "../RenderShader/ShaderData";
+import { ShaderInstance } from "../RenderShader/ShaderInstance";
 import { RenderStateCommand } from "../RenderStateCommand";
 import { UniformBufferObject } from "../UniformBufferObject";
-import { IRenderEngine } from "./IRenderEngine";
 import { IBaseRenderNode } from "./RenderPipelineInterface/IBaseRenderNode";
 import { ICameraCullInfo } from "./RenderPipelineInterface/ICameraCullInfo";
 import { ICullPass } from "./RenderPipelineInterface/ICullPass";
@@ -29,7 +28,7 @@ import { ISortPass } from "./RenderPipelineInterface/ISortPass";
 
 export interface IRenderOBJCreate {
 
-    createShaderInstance(shaderProcessInfo: ShaderProcessInfo, shaderPass: ShaderCompileDefineBase): any;
+    createShaderInstance(vs: string, ps: string, attributeMap: { [name: string]: [number, ShaderDataType] }, shaderPass: ShaderCompileDefineBase): ShaderInstance;
 
     createTransform(owner: Sprite3D): Transform3D;
 
@@ -72,6 +71,4 @@ export interface IRenderOBJCreate {
     createUniformBufferObject(glPointer: number, name: string, bufferUsage: BufferUsage, byteLength: number, isSingle: boolean): UniformBufferObject;
 
     createGlobalUniformMap(blockName: string): CommandUniformMap;
-
-    createEngine(config:Config,canvas:any):any;
 }

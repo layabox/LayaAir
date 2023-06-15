@@ -3,21 +3,13 @@
 
     #include "ShadingCommon.glsl";
 
-    #ifdef GRAPHICS_API_GLES3
-	#define _InvertNormal (float(gl_FrontFacing) * 2.0 - 1.0);
-    #else // GRAPHICS_API_GLES3
-	#define _InvertNormal 1.0
-    #endif // GRAPHICS_API_GLES3
-
 void getPixelParams(inout PixelParams params)
 {
     params.positionWS = v_PositionWS;
 
-    float invertN = _InvertNormal;
-
-    params.normalWS = normalize(v_NormalWS * invertN);
-    params.tangentWS = normalize(v_TangentWS * invertN);
-    params.biNormalWS = normalize(v_BiNormalWS * invertN);
+    params.normalWS = normalize(v_NormalWS);
+    params.tangentWS = normalize(v_TangentWS);
+    params.biNormalWS = normalize(v_BiNormalWS);
 
     params.TBN = mat3(params.tangentWS, params.biNormalWS, params.normalWS);
 

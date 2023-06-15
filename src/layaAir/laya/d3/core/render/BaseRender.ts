@@ -130,8 +130,6 @@ export class BaseRender extends Component implements IBoundsCell {
     private _lightmapIndex: number;
     /** @internal */
     private _materialsInstance: boolean[];
-    /**@internal */
-    _commonUniformMap:Array<string> = [];
     /** @internal */
     _sharedMaterials: Material[] = [];
     /** @internal TODO*/
@@ -441,7 +439,6 @@ export class BaseRender extends Component implements IBoundsCell {
             this._shaderValues.removeDefine(Sprite3DRenderDeclaration.SHADERDEFINE_SPECCUBE_BOX_PROJECTION);
             this._shaderValues.addDefine(Sprite3DRenderDeclaration.SHADERDEFINE_GI_IBL);
             this._setShaderValue(RenderableSprite3D.IBLTEX, ShaderDataType.TextureCube, TextureCube.blackTexture);
-            this._setShaderValue(RenderableSprite3D.IBLROUGHNESSLEVEL, ShaderDataType.Float, 0);
         } else {
             this._probReflection.applyReflectionShaderData(this._shaderValues);
         }
@@ -452,7 +449,6 @@ export class BaseRender extends Component implements IBoundsCell {
      */
     constructor() {
         super();
-        this._commonUniformMap = this._getcommonUniformMap();
         this._rendernode = this._createBaseRenderNode();
         this._rendernode.owner = this;
         this._rendernode.renderId = ++BaseRender._uniqueIDCounter;
@@ -470,10 +466,6 @@ export class BaseRender extends Component implements IBoundsCell {
         this._rendernode.renderbitFlag = 0;
         this._rendernode.staticMask = 1;
         this._worldParams = new Vector4(1.0, 0.0, 0.0, 0.0);
-    }
-
-    protected _getcommonUniformMap():Array<string>{
-        return ["Sprite3D"];
     }
 
     protected _createBaseRenderNode(): IBaseRenderNode {

@@ -66,6 +66,7 @@ export class RenderElement {
             this._material = value;
             this._renderElementOBJ._materialShaderData = value.shaderData;
         }
+
     }
 
     /**@internal */
@@ -162,18 +163,14 @@ export class RenderElement {
                 Shader3D._configDefineValues.cloneTo(comDef);
             }
             context.cameraShaderData && comDef.addDefineDatas(context.cameraShaderData._defineDatas);
-            if(this.render){
-                comDef.addDefineDatas(this.render._shaderValues._defineDatas);
-                pass.nodeCommonMap = this.render._commonUniformMap;
-            }else{
-                pass.nodeCommonMap = null;
-            }
+            this.render && comDef.addDefineDatas(this.render._shaderValues._defineDatas);
 
             comDef.addDefineDatas(this._renderElementOBJ._materialShaderData._defineDatas);
             var shaderIns: ShaderInstance = pass.withCompile(comDef);
             this._renderElementOBJ._addShaderInstance(shaderIns);
         }
     }
+
 
     _convertSubShader(customShader: Shader3D, replacementTag: string, subshaderIndex: number = 0) {
         var subShader: SubShader = this.material._shader.getSubShaderAt(this._subShaderIndex);//TODO:
@@ -220,6 +217,7 @@ export class RenderElement {
     }
 
     _renderUpdatePre(context: RenderContext3D) {
+
         var sceneMark: number = ILaya3D.Scene3D._updateMark;
         var transform: Transform3D = this.transform;
         context.renderElement = this;

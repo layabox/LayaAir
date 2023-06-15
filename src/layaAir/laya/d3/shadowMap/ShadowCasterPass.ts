@@ -5,6 +5,7 @@ import { ShadowCascadesMode } from "../core/light/ShadowCascadesMode";
 import { ShadowMode } from "../core/light/ShadowMode";
 import { ShadowMapFormat, ShadowUtils } from "../core/light/ShadowUtils";
 import { RenderContext3D } from "../core/render/RenderContext3D";
+import { Scene3D } from "../core/scene/Scene3D";
 import { Scene3DShaderDeclaration } from "../core/scene/Scene3DShaderDeclaration";
 import { Plane } from "../math/Plane";
 import { Light, LightType } from "../core/light/Light";
@@ -13,7 +14,7 @@ import { Sprite3D } from "../core/Sprite3D";
 import { SpotLightCom } from "../core/light/SpotLightCom";
 import { Config3D } from "../../../Config3D";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
-import { ShaderData, ShaderDataType } from "../../RenderEngine/RenderShader/ShaderData";
+import { ShaderData } from "../../RenderEngine/RenderShader/ShaderData";
 import { UnifromBufferData } from "../../RenderEngine/UniformBufferData";
 import { UniformBufferObject } from "../../RenderEngine/UniformBufferObject";
 import { BoundFrustum } from "../math/BoundFrustum";
@@ -31,7 +32,6 @@ import { Matrix4x4 } from "../../maths/Matrix4x4";
 import { Vector3 } from "../../maths/Vector3";
 import { Vector4 } from "../../maths/Vector4";
 import { RenderTexture } from "../../resource/RenderTexture";
-import { Scene3D } from "../core/scene/Scene3D";
 
 /**
  * @internal
@@ -89,40 +89,20 @@ export class ShadowCasterPass {
         ShadowCasterPass.SHADOW_SPOTMATRICES = Shader3D.propertyNameToID("u_SpotViewProjectMatrix");
 
         const sceneUniformMap = LayaGL.renderOBJCreate.createGlobalUniformMap("Scene3D");
-
-        if (Config3D._uniformBlock) {
-            sceneUniformMap.addShaderBlockUniform(Shader3D.propertyNameToID(UniformBufferObject.UBONAME_SHADOW), UniformBufferObject.UBONAME_SHADOW, [
-                {
-                    id: ShadowCasterPass.SHADOW_BIAS,
-                    propertyName: "u_ShadowBias",
-                    uniformtype: ShaderDataType.Vector4
-
-                },
-                {
-                    id: ShadowCasterPass.SHADOW_LIGHT_DIRECTION,
-                    propertyName: "u_ShadowLightDirection",
-                    uniformtype: ShaderDataType.Vector3
-                }
-            ])
-        }else{
-            sceneUniformMap.addShaderUniform(ShadowCasterPass.SHADOW_BIAS, "u_ShadowBias",ShaderDataType.Vector4);
-            sceneUniformMap.addShaderUniform(ShadowCasterPass.SHADOW_LIGHT_DIRECTION, "u_ShadowLightDirection",ShaderDataType.Vector3);
-        }
-
-
-        
-        sceneUniformMap.addShaderUniform(ShadowCasterPass.SHADOW_SPLIT_SPHERES, "u_ShadowSplitSpheres",ShaderDataType.Vector4);
-        sceneUniformMap.addShaderUniform(ShadowCasterPass.SHADOW_MATRICES, "u_ShadowMatrices",ShaderDataType.Matrix4x4);
-        sceneUniformMap.addShaderUniform(ShadowCasterPass.SHADOW_MAP_SIZE, "u_ShadowMapSize",ShaderDataType.Vector4);
-        sceneUniformMap.addShaderUniform(ShadowCasterPass.SHADOW_MAP, "u_ShadowMap",ShaderDataType.Texture2D);
-        sceneUniformMap.addShaderUniform(ShadowCasterPass.SHADOW_PARAMS, "u_ShadowParams",ShaderDataType.Vector4);
-        sceneUniformMap.addShaderUniform(ShadowCasterPass.SHADOW_SPOTMAP_SIZE, "u_SpotShadowMapSize",ShaderDataType.Vector4);
-        sceneUniformMap.addShaderUniform(ShadowCasterPass.SHADOW_SPOTMAP, "u_SpotShadowMap",ShaderDataType.Texture2D);
-        sceneUniformMap.addShaderUniform(ShadowCasterPass.SHADOW_SPOTMATRICES, "u_SpotViewProjectMatrix",ShaderDataType.Matrix4x4);
-        //sceneUniformMap.addShaderUniform(Shader3D.propertyNameToID(UniformBufferObject.UBONAME_SHADOW), UniformBufferObject.UBONAME_SHADOW);
+        sceneUniformMap.addShaderUniform(ShadowCasterPass.SHADOW_BIAS, "u_ShadowBias");
+        sceneUniformMap.addShaderUniform(ShadowCasterPass.SHADOW_LIGHT_DIRECTION, "u_ShadowLightDirection");
+        sceneUniformMap.addShaderUniform(ShadowCasterPass.SHADOW_SPLIT_SPHERES, "u_ShadowSplitSpheres");
+        sceneUniformMap.addShaderUniform(ShadowCasterPass.SHADOW_MATRICES, "u_ShadowMatrices");
+        sceneUniformMap.addShaderUniform(ShadowCasterPass.SHADOW_MAP_SIZE, "u_ShadowMapSize");
+        sceneUniformMap.addShaderUniform(ShadowCasterPass.SHADOW_MAP, "u_ShadowMap");
+        sceneUniformMap.addShaderUniform(ShadowCasterPass.SHADOW_PARAMS, "u_ShadowParams");
+        sceneUniformMap.addShaderUniform(ShadowCasterPass.SHADOW_SPOTMAP_SIZE, "u_SpotShadowMapSize");
+        sceneUniformMap.addShaderUniform(ShadowCasterPass.SHADOW_SPOTMAP, "u_SpotShadowMap");
+        sceneUniformMap.addShaderUniform(ShadowCasterPass.SHADOW_SPOTMATRICES, "u_SpotViewProjectMatrix");
+        sceneUniformMap.addShaderUniform(Shader3D.propertyNameToID(UniformBufferObject.UBONAME_SHADOW), UniformBufferObject.UBONAME_SHADOW);
     }
 
-
+  
 
     /** @internal */
     private _shadowBias: Vector4 = new Vector4();

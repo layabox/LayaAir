@@ -33,7 +33,7 @@ export class KHR_materials_anisotropy implements glTFExtension {
         this._resource = resource;
     }
 
-    loadAdditionTextures(basePath: string, progress?: IBatchProgress): Promise<any> {
+    loadTextures(basePath: string, progress?: IBatchProgress): Promise<any> {
         let materials = this._resource.data.materials;
         let textures = this._resource.data.textures;
 
@@ -43,7 +43,8 @@ export class KHR_materials_anisotropy implements glTFExtension {
                 let extension: glTF.glTFMaterialAnisotropy = material.extensions?.KHR_materials_anisotropy;
                 if (extension) {
                     if (extension.anisotropyTexture) {
-                        let promise = this._resource.loadTextureFromInfo(extension.anisotropyTexture, false, basePath, progress);
+                        let index = extension.anisotropyTexture.index;
+                        let promise = this._resource.loadTextureFromglTF(index, false, basePath, progress);
                         promises.push(promise);
                     }
                 }

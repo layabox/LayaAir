@@ -252,6 +252,7 @@ export class BaseTexture extends Resource {
                 return 2;
             case TextureFormat.R32G32B32A32:
                 return 4;
+
             default:
                 throw "Texture2D: unknown format.";
         }

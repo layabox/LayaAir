@@ -42,14 +42,6 @@ void main()
     #endif // TINTCOLOR
 #endif
 
-#ifdef ALPHATEST
-    if (color.a < u_AlphaTestValue)
-	{
-	    discard;
-	}
-#endif // ALPHATEST
-
-
 #ifdef FOG
     color.rgb = scenUnlitFog(color.rgb);
 #endif // FOG

@@ -249,7 +249,7 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         return this._glParam;
     }
 
-    glRenderBufferParam(format: RenderTargetFormat, useSRGB: boolean): { internalFormat: number; attachment: number } {
+    glRenderBufferParam(format: RenderTargetFormat, useSRGB: boolean): { internalFormat: number; attachment: number; } {
         // todo
         let gl = this._gl;
         switch (format) {
@@ -633,6 +633,17 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
     }
 
+    setTexture3DImageData(texture: WebGLInternalTex, sources: HTMLImageElement[] | HTMLCanvasElement[] | ImageBitmap[], depth: number, premultiplyAlpha: boolean, invertY: boolean) {
+
+    }
+
+    setTexture3DPixlesData(texture: InternalTexture, source: ArrayBufferView, depth: number, premultiplyAlpha: boolean, invertY: boolean): void {
+
+    }
+
+    setTexture3DSubPixelsData(texture: InternalTexture, source: ArrayBufferView, mipmapLevel: number, generateMipmap: boolean, xOffset: number, yOffset: number, zOffset: number, width: number, height: number, depth: number, premultiplyAlpha: boolean, invertY: boolean): void {
+
+    }
 
     initVideoTextureData(texture: WebGLInternalTex) {
         let target = texture.target;
@@ -736,8 +747,6 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         let blockBytes = ddsInfo.blockBytes;
         let mipmapCount = ddsInfo.mipmapCount;
 
-        texture.maxMipmapLevel = mipmapCount - 1;
-
         let fourSize = width % 4 == 0 && height % 4 == 0;
 
         let gl = texture._gl;
@@ -790,8 +799,6 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         // todo texture size 与 ddsInfo size
         let width = texture.width;
         let height = texture.height;
-
-        texture.maxMipmapLevel = mipmapCount - 1;
 
         let fourSize = width % 4 == 0 && height % 4 == 0;
 
@@ -993,11 +1000,11 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         let blockBytes = ddsInfo.blockBytes;
         let mipmapCount = ddsInfo.mipmapCount;
 
-        texture.maxMipmapLevel = mipmapCount - 1;
-
         let fourSize = width % 4 == 0 && height % 4 == 0;
         fourSize = true;
         let gl = texture._gl;
+
+
 
         premultiplyAlpha && gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
         invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
@@ -1082,8 +1089,6 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         // todo texture size 与 ddsInfo size
         let width = texture.width;
         let height = texture.height;
-
-        texture.maxMipmapLevel = mipmapCount - 1;
 
         let fourSize = width % 4 == 0 && height % 4 == 0;
 

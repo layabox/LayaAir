@@ -32,11 +32,11 @@ void shadingPixelParams(inout PixelParams params, in Vertex vertex)
     vec4 pos = (worldMat * vec4(vertex.positionOS, 1.0));
     params.positionWS = pos.xyz / pos.w;
 
-    mat3 normalMat = transpose(inverse(mat3(worldMat)));
-    params.normalWS = normalize((normalMat * vertex.normalOS).xyz);
+    mat4 normalMat = transpose(inverse(worldMat));
+    params.normalWS = normalize((normalMat * vec4(vertex.normalOS, 0.0)).xyz);
 
     #ifdef TANGENT
-    params.tangentWS = normalize((normalMat * vertex.tangentOS.xyz).xyz);
+    params.tangentWS = normalize((normalMat * vec4(vertex.tangentOS.xyz, 0.0)).xyz);
     params.tangentWS *= u_WroldInvertFront.x;
     params.biNormalWS = normalize(cross(params.normalWS, params.tangentWS) * sign(vertex.tangentOS.w));
     #else // TANGENT
@@ -44,6 +44,7 @@ void shadingPixelParams(inout PixelParams params, in Vertex vertex)
     params.tangentWS *= u_WroldInvertFront.x;
     params.biNormalWS = normalize(cross(params.normalWS, params.tangentWS));
     #endif // TANGENT
+    
 
     #ifdef UV
     params.uv0 = vertex.texCoord0;

@@ -103,7 +103,7 @@ export class HDRTextureInfo {
         let width = parseInt(resolutions[3]);
 
         // format 固定?
-        let hdrInfo = new HDRTextureInfo(source, readByteOffset, decreaseX, decreaseY, width, height, TextureFormat.R32G32B32A32);
+        let hdrInfo = new HDRTextureInfo(source, readByteOffset, decreaseX, decreaseY, width, height, TextureFormat.R32G32B32);
 
         /**
          * Scanline Records
@@ -267,12 +267,7 @@ export class HDRTextureInfo {
         let decreaseX = this.decreaseX;
         let decreaseY = this.decreaseY;
 
-        let n = 3;
-        if (this.format == TextureFormat.R32G32B32A32) {
-            n = 4;
-        }
-
-        let pixelArray = new Float32Array(width * height * n);
+        let pixelArray = new Float32Array(width * height * 3);
 
         let scanlineArray = new Uint8Array(width * 4);
 
@@ -324,24 +319,18 @@ export class HDRTextureInfo {
                     offsetX = width - 1 - i;
                 }
 
-                let pixelIndex = offsetY * width * n + offsetX * n;
+                let pixelIndex = offsetY * width * 3 + offsetX * 3;
 
                 if (bytee == 0) {
                     pixelArray[pixelIndex] = 0;
                     pixelArray[pixelIndex + 1] = 0;
                     pixelArray[pixelIndex + 2] = 0;
-                    if (n == 4) {
-                        pixelArray[pixelIndex + 3] = 1;
-                    }
                 }
                 else {
                     let f = ldexp(1.0, bytee - (128 + 8));
                     pixelArray[pixelIndex] = (byter + 0.5) * f;
                     pixelArray[pixelIndex + 1] = (byteg + 0.5) * f;
                     pixelArray[pixelIndex + 2] = (byteb + 0.5) * f;
-                    if (n == 4) {
-                        pixelArray[pixelIndex + 3] = 1;
-                    }
                 }
             }
 

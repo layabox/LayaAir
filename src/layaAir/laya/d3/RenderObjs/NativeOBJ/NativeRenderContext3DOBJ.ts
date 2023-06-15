@@ -32,9 +32,6 @@ export class NativeRenderContext3DOBJ implements IRenderContext3D {
         this._scissor = new Vector4();
         this._nativeObj = new (window as any).conchRenderContext3D((LayaGL.renderEngine as any)._nativeObj);
     }
-    end(): void {
-        //TODO
-    }
 
     drawRenderElement(renderelemt: NativeRenderElementOBJ): void {
         UploadMemoryManager.syncRenderMemory();//同步数据

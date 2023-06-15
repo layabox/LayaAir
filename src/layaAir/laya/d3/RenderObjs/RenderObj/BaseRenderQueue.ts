@@ -58,7 +58,6 @@ export class BaseRenderQueue implements IRenderQueue {
             elements[i]._render(this._context);//Update Data
         BufferState._curBindedBufferState && BufferState._curBindedBufferState.unBind();
         this._batch.recoverData();
-        this._context.end()
         return n;
     }
 

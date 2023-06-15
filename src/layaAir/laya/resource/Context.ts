@@ -363,27 +363,24 @@ export class Context {
 
     static const2DRenderCMD: RenderStateCommand;
     static set2DRenderConfig(): void {
-        
         if (!Context.const2DRenderCMD) {
             const cmd = Context.const2DRenderCMD = LayaGL.renderEngine.createRenderStateComand();
-            if(cmd){
-                cmd.addCMD(RenderStateType.BlendType, true);
-                //WebGLContext.setBlendEquation(gl, gl.FUNC_ADD);
-                cmd.addCMD(RenderStateType.BlendEquation, BlendEquationSeparate.ADD);
-                BlendMode.activeBlendFunction = null;// 防止submit不设置blend
-                //WebGLContext.setBlendFunc(gl, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
-                cmd.addCMD(RenderStateType.BlendFunc, [BlendFactor.One, BlendFactor.OneMinusSourceAlpha]);
-                //WebGLContext.setDepthTest(gl, false);
-                cmd.addCMD(RenderStateType.DepthTest, false);
-                //WebGLContext.setDepthMask(gl, true);
-                cmd.addCMD(RenderStateType.DepthMask, true);
-                //WebGLContext.setCullFace(gl, false);
-                cmd.addCMD(RenderStateType.CullFace, false);
-                //WebGLContext.setFrontFace(gl, gl.CCW);
-                cmd.addCMD(RenderStateType.FrontFace, CullMode.Front);
-            }
+            cmd.addCMD(RenderStateType.BlendType, true);
+            //WebGLContext.setBlendEquation(gl, gl.FUNC_ADD);
+            cmd.addCMD(RenderStateType.BlendEquation, BlendEquationSeparate.ADD);
+            BlendMode.activeBlendFunction = null;// 防止submit不设置blend
+            //WebGLContext.setBlendFunc(gl, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+            cmd.addCMD(RenderStateType.BlendFunc, [BlendFactor.One, BlendFactor.OneMinusSourceAlpha]);
+            //WebGLContext.setDepthTest(gl, false);
+            cmd.addCMD(RenderStateType.DepthTest, false);
+            //WebGLContext.setDepthMask(gl, true);
+            cmd.addCMD(RenderStateType.DepthMask, true);
+            //WebGLContext.setCullFace(gl, false);
+            cmd.addCMD(RenderStateType.CullFace, false);
+            //WebGLContext.setFrontFace(gl, gl.CCW);
+            cmd.addCMD(RenderStateType.FrontFace, CullMode.Front);
         }
-        Context.const2DRenderCMD&&Context.const2DRenderCMD.applyCMD();
+        Context.const2DRenderCMD.applyCMD();
         RenderTexture.currentActive && RenderTexture.currentActive._end();
         // WebGLContext.setBlend(gl, true);//还原2D设置
         // WebGLContext.setBlendEquation(gl, gl.FUNC_ADD);

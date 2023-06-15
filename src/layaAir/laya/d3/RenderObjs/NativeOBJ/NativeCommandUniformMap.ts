@@ -23,7 +23,7 @@ export class NativeCommandUniformMap extends CommandUniformMap {
 	 * @param propertyKey 
 	 */
 	addShaderUniform(propertyID: number, propertyKey: string): void {
-		//this._idata[propertyID] = propertyKey;
+		this._idata[propertyID] = propertyKey;
         this._nativeObj.addShaderUniform(propertyID, propertyKey);
 	}
 }

@@ -19,17 +19,9 @@ export class ScreenQuad extends GeometryElement {
 	/** @internal */
 	private static _vertexDeclaration: VertexDeclaration;
 	/** @internal */
-	private static _vertices: Float32Array = new Float32Array([
-		1, 1, 1, 1, 
-		1, -1, 1, 0,
-		-1, 1, 0, 1,
-		-1, -1, 0, 0]);//the rule of OpenGL
+	private static _vertices: Float32Array = new Float32Array([1, 1, 1, 1, 1, -1, 1, 0, -1, 1, 0, 1, -1, -1, 0, 0]);//the rule of OpenGL
 	/** @internal */
-	private static _verticesInvertUV: Float32Array = new Float32Array([
-		1, 1, 1, 0, 
-		1, -1, 1, 1,
-		-1, 1, 0, 0, 
-		-1, -1, 0, 1]);
+	private static _verticesInvertUV: Float32Array = new Float32Array([1, 1, 1, 0, 1, -1, 1, 1, -1, 1, 0, 0, -1, -1, 0, 1]);
 	/**@internal */
 	static instance: ScreenQuad;
 

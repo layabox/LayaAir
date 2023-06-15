@@ -11,6 +11,7 @@ import { Shader2D } from "../webgl/shader/d2/Shader2D";
 import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
 import { Value2D } from "../webgl/shader/d2/value/Value2D";
 import { SubmitBase } from "../webgl/submit/SubmitBase";
+import { WebGL } from "../webgl/WebGL";
 import { IRenderEngine } from "../RenderEngine/RenderInterface/IRenderEngine";
 import { WebGLEngine } from "../RenderEngine/RenderEngine/WebGLEngine/WebGLEngine";
 import { NativeWebGLEngine } from "../RenderEngine/RenderEngine/NativeGLEngine/NativeWebGLEngine";
@@ -136,6 +137,43 @@ export class Render {
     }
 
     initRender(canvas: HTMLCanvas, w: number, h: number): boolean {
+        let glConfig: WebGlConfig = { stencil: Config.isStencil, alpha: Config.isAlpha, antialias: Config.isAntialias, premultipliedAlpha: Config.premultipliedAlpha, preserveDrawingBuffer: Config.preserveDrawingBuffer, depth: Config.isDepth, failIfMajorPerformanceCaveat: Config.isfailIfMajorPerformanceCaveat, powerPreference: Config.powerPreference };
+
+        //TODO  other engine
+        const webglMode: WebGLMode = Config.useWebGL2 ? WebGLMode.Auto : WebGLMode.WebGL1;
+
+        let engine: IRenderEngine;
+        if (!Render.customRenderEngine) {
+            if (LayaEnv.isConch && !(window as any).conchConfig.conchWebGL) {
+                engine = new NativeWebGLEngine(glConfig, webglMode);
+                engine.initRenderEngine(Render._mainCanvas.source);
+                new LayaGL();
+            }
+            else {
+                engine = new WebGLEngine(glConfig, webglMode);
+                engine.initRenderEngine(Render._mainCanvas.source);
+                var gl: WebGLRenderingContext = RenderStateContext.mainContext = engine._context;
+                if (Config.printWebglOrder)
+                    this._replaceWebglcall(gl);
+                if (!gl)
+                    return false;
+                if (gl) {
+                    new LayaGL();
+                }
+            }
+        }
+        else {
+            engine = Render.customRenderEngine;
+            engine.initRenderEngine(Render._mainCanvas.source);
+        }
+
+        LayaGL.renderEngine = engine;
+        //LayaGL.instance = gl;
+        //native TODO
+        LayaGL.textureContext = engine.getTextureContext();
+        LayaGL.renderDrawContext = engine.getDrawContext();
+        LayaGL.render2DContext = engine.get2DRenderContext();
+        //LayaGL.renderOBJCreate = engine.getCreateRenderOBJContext();
 
         canvas.size(w, h);	//在ctx之后调用。
         VertexElementFormat.__init__();
@@ -148,6 +186,7 @@ export class Render {
         Render._context = ctx;
         canvas._setContext(ctx);
 
+        //TODO 现在有个问题是 gl.deleteTexture并没有走WebGLContex封装的
         ShaderDefines2D.__init__();
         Value2D.__init__();
         Shader2D.__init__();
@@ -156,6 +195,30 @@ export class Render {
         return true;
     }
 
+    /**@private */
+    private _replaceWebglcall(gl: any) {
+        var tempgl: { [key: string]: any } = {};
+        for (const key in gl) {
+            if (typeof gl[key] == "function" && key != "getError" && key != "__SPECTOR_Origin_getError" && key != "__proto__") {
+                tempgl[key] = gl[key];
+                gl[key] = function () {
+                    let arr: IArguments[] = [];
+                    for (let i = 0; i < arguments.length; i++) {
+                        arr.push(arguments[i]);
+                    }
+                    let result = tempgl[key].apply(gl, arr);
+
+                    //console.log(RenderInfo.loopCount + ":gl." + key + ":" + arr);
+                    let err = gl.getError();
+                    if (err) {
+                        //console.log(err);
+                        debugger;
+                    }
+                    return result;
+                }
+            }
+        }
+    }
 
     /**@private */
     private _enterFrame(e: any = null): void {

@@ -14,6 +14,5 @@ export enum RenderTargetFormat {
     DEPTH_16 = 35,
     STENCIL_8 = 36,
     DEPTHSTENCIL_24_8 = 37,
-    DEPTH_32 = 38,
-    DEPTHSTENCIL_24_Plus = 39
+    DEPTH_32 = 38
 }

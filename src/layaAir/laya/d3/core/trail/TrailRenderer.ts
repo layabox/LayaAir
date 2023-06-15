@@ -30,11 +30,6 @@ export class TrailRenderer extends BaseRender {
 
     }
 
-    protected _getcommonUniformMap():Array<string>{
-        return ["Sprite3D","TrailRender"];
-    }
-
-
     protected _onAdded(): void {
         this._trailFilter = new TrailFilter(this);
     }

@@ -1,7 +1,8 @@
 import { LayaGL } from "../layagl/LayaGL";
+import { GL2TextureContext } from "../RenderEngine/RenderEngine/WebGLEngine/GL2TextureContext";
+import { WebGLInternalTex } from "../RenderEngine/RenderEngine/WebGLEngine/WebGLInternalTex";
 import { TextureDimension } from "../RenderEngine/RenderEnum/TextureDimension";
 import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
-import { ITexture3DContext } from "../RenderEngine/RenderInterface/ITextureContext";
 import { BaseTexture } from "./BaseTexture";
 
 /**
@@ -31,7 +32,7 @@ export class Texture2DArray extends BaseTexture {
      */
     setImageData(sources: HTMLImageElement[] | HTMLCanvasElement[] | ImageBitmap[], premultiplyAlpha: boolean, invertY: boolean) {
         let texture = this._texture;
-        let context = <ITexture3DContext>LayaGL.textureContext;
+        let context = LayaGL.textureContext;
         context.setTexture3DImageData(texture, sources, this.depth, premultiplyAlpha, invertY);
     }
 
@@ -43,7 +44,7 @@ export class Texture2DArray extends BaseTexture {
      */
     setPixlesData(source: ArrayBufferView, premultiplyAlpha: boolean, invertY: boolean) {
         let texture = this._texture;
-        let context = <ITexture3DContext>LayaGL.textureContext;
+        let context = LayaGL.textureContext;
         context.setTexture3DPixlesData(texture, source, this.depth, premultiplyAlpha, invertY)
     }
 
@@ -63,7 +64,7 @@ export class Texture2DArray extends BaseTexture {
      */
     setSubPixelsData(xOffset: number, yOffset: number, zOffset: number, width: number, height: number, depth: number, pixels: ArrayBufferView, mipmapLevel: number, generateMipmap: boolean, premultiplyAlpha: boolean, invertY: boolean) {
         let texture = this._texture;
-        let context = <ITexture3DContext>LayaGL.textureContext;
+        let context = LayaGL.textureContext;
         context.setTexture3DSubPixelsData(texture, pixels, mipmapLevel, generateMipmap, xOffset, yOffset, zOffset, width, height, depth, premultiplyAlpha, invertY);
     }
 

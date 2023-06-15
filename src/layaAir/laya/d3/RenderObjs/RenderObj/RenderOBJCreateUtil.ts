@@ -1,11 +1,6 @@
 
-import { Config } from "../../../../Config";
-import { LayaGL } from "../../../layagl/LayaGL";
 import { Vector3 } from "../../../maths/Vector3";
 import { CommandUniformMap } from "../../../RenderEngine/CommandUniformMap";
-import { WebGLMode } from "../../../RenderEngine/RenderEngine/WebGLEngine/GLEnum/WebGLMode";
-import { WebGlConfig } from "../../../RenderEngine/RenderEngine/WebGLEngine/WebGLConfig";
-import { WebGLEngine } from "../../../RenderEngine/RenderEngine/WebGLEngine/WebGLEngine";
 import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { DrawType } from "../../../RenderEngine/RenderEnum/DrawType";
 import { IndexFormat } from "../../../RenderEngine/RenderEnum/IndexFormat";
@@ -22,11 +17,11 @@ import { ISceneRenderManager } from "../../../RenderEngine/RenderInterface/Rende
 import { IShadowCullInfo } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IShadowCullInfo";
 import { ISortPass } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/ISortPass";
 import { RenderState } from "../../../RenderEngine/RenderShader/RenderState";
-import { ShaderData } from "../../../RenderEngine/RenderShader/ShaderData";
+import { ShaderData, ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData";
 import { ShaderInstance } from "../../../RenderEngine/RenderShader/ShaderInstance";
 import { RenderStateCommand } from "../../../RenderEngine/RenderStateCommand";
 import { UniformBufferObject } from "../../../RenderEngine/UniformBufferObject";
-import { ShaderCompileDefineBase, ShaderProcessInfo } from "../../../webgl/utils/ShaderCompileDefineBase";
+import { ShaderCompileDefineBase } from "../../../webgl/utils/ShaderCompileDefineBase";
 import { Sprite3D } from "../../core/Sprite3D";
 import { Transform3D } from "../../core/Transform3D";
 import { IndexBuffer3D } from "../../graphics/IndexBuffer3D";
@@ -46,11 +41,11 @@ import { ShadowCullInfo } from "./ShadowCullInfo";
 import { SkinRenderElementOBJ } from "./SkinRenderElementOBJ";
 
 export class RenderOBJCreateUtil implements IRenderOBJCreate {
-
+    
     /**@internal */
-    private globalBlockMap: any = {};
+	private globalBlockMap: any = {};
 
-
+	
     createTransform(owner: Sprite3D): Transform3D {
         return new Transform3D(owner);
     }
@@ -91,8 +86,8 @@ export class RenderOBJCreateUtil implements IRenderOBJCreate {
         return new IndexBuffer3D(indexType, indexCount, bufferUsage, canRead);
     }
 
-    createShaderInstance(shaderProcessInfo: ShaderProcessInfo, shaderPass: ShaderCompileDefineBase): ShaderInstance {
-        return new ShaderInstance(shaderProcessInfo, shaderPass);
+    createShaderInstance(vs: string, ps: string, attributeMap: { [name: string]: [number, ShaderDataType] }, shaderPass: ShaderCompileDefineBase): ShaderInstance {
+        return new ShaderInstance(vs, ps, attributeMap, shaderPass);
     }
 
     createBaseRenderNode(): IBaseRenderNode {
@@ -136,56 +131,9 @@ export class RenderOBJCreateUtil implements IRenderOBJCreate {
     }
 
     createGlobalUniformMap(blockName: string): CommandUniformMap {
-        let comMap = this.globalBlockMap[blockName];
-        if (!comMap)
-            comMap = this.globalBlockMap[blockName] = new CommandUniformMap(blockName);;
-        return comMap;
-    }
-
-    createEngine(config: any, canvas: any): WebGLEngine {
-        let engine: WebGLEngine;
-        let glConfig: WebGlConfig = { stencil: Config.isStencil, alpha: Config.isAlpha, antialias: Config.isAntialias, premultipliedAlpha: Config.premultipliedAlpha, preserveDrawingBuffer: Config.preserveDrawingBuffer, depth: Config.isDepth, failIfMajorPerformanceCaveat: Config.isfailIfMajorPerformanceCaveat, powerPreference: Config.powerPreference };
-
-        //TODO  other engine
-        const webglMode: WebGLMode = Config.useWebGL2 ? WebGLMode.Auto : WebGLMode.WebGL1;
-        engine = new WebGLEngine(glConfig, webglMode);
-        engine.initRenderEngine(canvas._source);
-        var gl: WebGLRenderingContext = engine._context;//TODO 优化
-        if (Config.printWebglOrder)
-            this._replaceWebglcall(gl);
-
-        if (gl) {
-            new LayaGL();
-        }
-        LayaGL.renderEngine = engine;
-        LayaGL.textureContext = engine.getTextureContext();
-        LayaGL.renderDrawContext = engine.getDrawContext();
-        LayaGL.render2DContext = engine.get2DRenderContext();
-        return engine;
-    }
-
-    /**@private test function*/
-    private _replaceWebglcall(gl: any) {
-        var tempgl: { [key: string]: any } = {};
-        for (const key in gl) {
-            if (typeof gl[key] == "function" && key != "getError" && key != "__SPECTOR_Origin_getError" && key != "__proto__") {
-                tempgl[key] = gl[key];
-                gl[key] = function () {
-                    let arr: IArguments[] = [];
-                    for (let i = 0; i < arguments.length; i++) {
-                        arr.push(arguments[i]);
-                    }
-                    let result = tempgl[key].apply(gl, arr);
-
-                    //console.log(RenderInfo.loopCount + ":gl." + key + ":" + arr);
-                    let err = gl.getError();
-                    if (err) {
-                        //console.log(err);
-                        debugger;
-                    }
-                    return result;
-                }
-            }
-        }
-    }
+		let comMap = this.globalBlockMap[blockName];
+		if (!comMap)
+			comMap = this.globalBlockMap[blockName] = new CommandUniformMap(blockName);;
+		return comMap;
+	}
 }

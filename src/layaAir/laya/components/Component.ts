@@ -233,8 +233,6 @@ export class Component {
 
         if (this.owner)
             this.owner._destroyComponent(this);
-        else
-            this._destroy(true);
     }
 
     /**

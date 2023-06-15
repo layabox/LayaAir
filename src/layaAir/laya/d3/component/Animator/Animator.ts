@@ -94,7 +94,7 @@ export class Animator extends Component {
 
 
     set controller(val: AnimatorController) {
-
+        
         this._controller = val;
         if (this._controller) {
             this._controller.updateTo(this);
@@ -754,7 +754,6 @@ export class Animator extends Component {
      */
     private _applyCrossData(nodeOwner: KeyframeNodeOwner, additive: boolean, weight: number, isFirstLayer: boolean, srcValue: any, desValue: any, crossWeight: number): void {
         var pro: any = nodeOwner.propertyOwner;
-        let lastpro;
         if (pro) {
             switch (nodeOwner.type) {
                 case KeyFrameValueType.Float: //Float
@@ -768,7 +767,7 @@ export class Animator extends Component {
 
                     var crossValue: number = srcValue + crossWeight * (desValue - srcValue);
                     nodeOwner.value = crossValue;
-                    lastpro = proPat[m];
+                    const lastpro = proPat[m];
                     if (!nodeOwner.isMaterial) {
                         pro && (pro[lastpro] = this._applyFloat(pro[lastpro], nodeOwner, additive, weight, isFirstLayer, crossValue));
                     } else {
@@ -813,97 +812,16 @@ export class Animator extends Component {
                     pro.localRotationEuler = localEuler;
                     break;
                 case KeyFrameValueType.Color:
-                    var proPat: string[] = nodeOwner.property!;
-                    var m: number = proPat.length - 1;
-                    for (var j: number = 0; j < m; j++) {
-                        pro = pro[proPat[j]];
-                        if (!pro)//属性可能或被置空
-                            break;
-                    }
-                    let v44 = nodeOwner.value as Vector4;
-                    v44.x = srcValue.r + crossWeight * (desValue.r - srcValue.r);
-                    v44.y = srcValue.g + crossWeight * (desValue.g - srcValue.g);
-                    v44.z = srcValue.b + crossWeight * (desValue.b - srcValue.b);
-                    v44.w = srcValue.a + crossWeight * (desValue.a - srcValue.a);
-
-                    nodeOwner.value = v44;
-                    lastpro = proPat[m];
-                    if (!nodeOwner.isMaterial) {
-                        pro && (pro[lastpro] = this._applyColor(pro[lastpro], nodeOwner, additive, weight, isFirstLayer, v44));
-                    } else {
-                        pro && (pro as Material).setColor(lastpro, this._applyColor((pro as Material).getColor(lastpro), nodeOwner, additive, weight, isFirstLayer, v44));
-                    }
-                    if (nodeOwner.callbackFun) {
-                        nodeOwner.animatorDataSetCallBack();
-                    }
+                    //TODO
                     break;
                 case KeyFrameValueType.Vector2:
-                    var proPat: string[] = nodeOwner.property!;
-                    var m: number = proPat.length - 1;
-                    for (var j: number = 0; j < m; j++) {
-                        pro = pro[proPat[j]];
-                        if (!pro)//属性可能或被置空
-                            break;
-                    }
-                    let v2 = nodeOwner.value as Vector2;
-                    v2.x = srcValue.r + crossWeight * (desValue.r - srcValue.r);
-                    v2.y = srcValue.g + crossWeight * (desValue.g - srcValue.g);
-                    nodeOwner.value = v2;
-                    lastpro = proPat[m];
-                    if (!nodeOwner.isMaterial) {
-                        pro && (pro[lastpro] = this._applyVec2(pro[lastpro], nodeOwner, additive, weight, isFirstLayer, v2));
-                    } else {
-                        pro && (pro as Material).setVector2(lastpro, this._applyVec2((pro as Material).getVector2(lastpro), nodeOwner, additive, weight, isFirstLayer, v2));
-                    }
-                    if (nodeOwner.callbackFun) {
-                        nodeOwner.animatorDataSetCallBack();
-                    }
+                    //TODO
                     break;
                 case KeyFrameValueType.Vector4:
-                    var proPat: string[] = nodeOwner.property!;
-                    var m: number = proPat.length - 1;
-                    for (var j: number = 0; j < m; j++) {
-                        pro = pro[proPat[j]];
-                        if (!pro)//属性可能或被置空
-                            break;
-                    }
-                    let v4 = nodeOwner.value as Vector4;
-                    v4.x = srcValue.x + crossWeight * (desValue.x - srcValue.x);
-                    v4.y = srcValue.y + crossWeight * (desValue.y - srcValue.y);
-                    v4.z = srcValue.z + crossWeight * (desValue.z - srcValue.z);
-                    nodeOwner.value = v4;
-                    lastpro = proPat[m];
-                    if (!nodeOwner.isMaterial) {
-                        pro && (pro[lastpro] = this._applyVec4(pro[lastpro], nodeOwner, additive, weight, isFirstLayer, v4));
-                    } else {
-                        pro && (pro as Material).setVector4(lastpro, this._applyVec4((pro as Material).getVector4(lastpro), nodeOwner, additive, weight, isFirstLayer, v4));
-                    }
-                    if (nodeOwner.callbackFun) {
-                        nodeOwner.animatorDataSetCallBack();
-                    }
+                    //TODO
                     break;
                 case KeyFrameValueType.Vector3:
-                    var proPat: string[] = nodeOwner.property!;
-                    var m: number = proPat.length - 1;
-                    for (var j: number = 0; j < m; j++) {
-                        pro = pro[proPat[j]];
-                        if (!pro)//属性可能或被置空
-                            break;
-                    }
-                    let v3 = nodeOwner.value as Vector3;
-                    v3.x = srcValue.x + crossWeight * (desValue.x - srcValue.x);
-                    v3.y = srcValue.y + crossWeight * (desValue.y - srcValue.y);
-                    v3.z = srcValue.z + crossWeight * (desValue.z - srcValue.z);
-                    nodeOwner.value = v3;
-                    lastpro = proPat[m];
-                    if (!nodeOwner.isMaterial) {
-                        pro && (pro[lastpro] = this._applyVec3(pro[lastpro], nodeOwner, additive, weight, isFirstLayer, v3));
-                    } else {
-                        pro && (pro as Material).setVector3(lastpro, this._applyVec3((pro as Material).getVector3(lastpro), nodeOwner, additive, weight, isFirstLayer, v3));
-                    }
-                    if (nodeOwner.callbackFun) {
-                        nodeOwner.animatorDataSetCallBack();
-                    }
+                    //TODO
                     break;
             }
             nodeOwner.updateMark = this._updateMark;
@@ -1601,7 +1519,7 @@ export class Animator extends Component {
                 }
             }
             var scripts: AnimatorStateScript[] = animatorState._scripts!;
-            animatorState._eventStart(this, layerIndex);
+            animatorState._eventStart(this,layerIndex);
 
         }
         else {
@@ -1731,7 +1649,7 @@ export class Animator extends Component {
                     crossPlayStateInfo!._resetPlayState(destClip._duration * normalizedTime, controllerLayer._crossDuration);
                 else
                     crossPlayStateInfo!._resetPlayState(0.0, controllerLayer._crossDuration);
-                destAnimatorState._eventStart(this, layerIndex);
+                destAnimatorState._eventStart(this,layerIndex);
             }
             else {
                 console.warn("Invalid name " + layerIndex + ".");

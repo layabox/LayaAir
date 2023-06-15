@@ -135,11 +135,6 @@ export class MeshRenderer extends BaseRender {
         this._morphWeightChange = true;
     }
 
-    /**
-     * 设置 morph target 通道 权重
-     * @param channelName 通道名
-     * @param weight 权重值
-     */
     setMorphChannelWeight(channelName: string, weight: number) {
         // todo
         let mesh = this._mesh;

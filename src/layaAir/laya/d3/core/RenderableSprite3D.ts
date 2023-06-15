@@ -4,7 +4,6 @@ import { BaseRender } from "./render/BaseRender";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { ShaderDefine } from "../../RenderEngine/RenderShader/ShaderDefine";
 import { LayaGL } from "../../layagl/LayaGL";
-import { ShaderData, ShaderDataType } from "../../RenderEngine/RenderShader/ShaderData";
 
 /**
  * <code>RenderableSprite3D</code> 类用于可渲染3D精灵的父类，抽象类不允许实例。
@@ -42,8 +41,6 @@ export class RenderableSprite3D extends Sprite3D {
 
 	/** @internal */
 	static IBLTEX: number;
-	/** @internal */
-	static IBLROUGHNESSLEVEL: number;
 	/** @internal */
 	static AMBIENTSH: number;
 	/** @internal */
@@ -154,7 +151,6 @@ export class RenderableSprite3D extends Sprite3D {
 		RenderableSprite3D.AMBIENTINTENSITY = Shader3D.propertyNameToID("u_AmbientIntensity");
 		RenderableSprite3D.REFLECTIONINTENSITY = Shader3D.propertyNameToID("u_ReflectionIntensity");
 		RenderableSprite3D.IBLTEX = Shader3D.propertyNameToID("u_IBLTex");
-		RenderableSprite3D.IBLROUGHNESSLEVEL = Shader3D.propertyNameToID("u_IBLRoughnessLevel");
 
 		const commandUniform = LayaGL.renderOBJCreate.createGlobalUniformMap("Sprite3D");
 
@@ -172,23 +168,22 @@ export class RenderableSprite3D extends Sprite3D {
 		RenderableSprite3D.MorphActiveWeights = Shader3D.propertyNameToID("u_MorphTargetWeights");
 		RenderableSprite3D.MorphActiveCount = Shader3D.propertyNameToID("u_MorphTargetActiveCount");
 
-		commandUniform.addShaderUniform(RenderableSprite3D.MorphTex, "u_MorphTargetsTex",ShaderDataType.Texture2D);
-		commandUniform.addShaderUniform(RenderableSprite3D.MorphParams, "u_MorphParams",ShaderDataType.Vector4);
-		commandUniform.addShaderUniform(RenderableSprite3D.MorphAttriOffset, "u_MorphAttrOffset",ShaderDataType.Vector4);
-		commandUniform.addShaderUniform(RenderableSprite3D.MorphActiceTargets, "u_MorphActiveTargets",ShaderDataType.Buffer);
-		commandUniform.addShaderUniform(RenderableSprite3D.MorphActiveWeights, "u_MorphTargetWeights",ShaderDataType.Buffer);
-		commandUniform.addShaderUniform(RenderableSprite3D.MorphActiveCount, "u_MorphTargetActiveCount",ShaderDataType.Int);
+		commandUniform.addShaderUniform(RenderableSprite3D.MorphTex, "u_MorphTargetsTex");
+		commandUniform.addShaderUniform(RenderableSprite3D.MorphParams, "u_MorphParams");
+		commandUniform.addShaderUniform(RenderableSprite3D.MorphAttriOffset, "u_MorphAttrOffset");
+		commandUniform.addShaderUniform(RenderableSprite3D.MorphActiceTargets, "u_MorphActiveTargets");
+		commandUniform.addShaderUniform(RenderableSprite3D.MorphActiveWeights, "u_MorphTargetWeights")
+		commandUniform.addShaderUniform(RenderableSprite3D.MorphActiveCount, "u_MorphTargetActiveCount");
 
-		commandUniform.addShaderUniform(RenderableSprite3D.LIGHTMAPSCALEOFFSET, "u_LightmapScaleOffset",ShaderDataType.Vector4);
-		commandUniform.addShaderUniform(RenderableSprite3D.LIGHTMAP, "u_LightMap",ShaderDataType.Texture2D);
-		commandUniform.addShaderUniform(RenderableSprite3D.LIGHTMAP_DIRECTION, "u_LightMapDirection",ShaderDataType.Texture2D);
-		commandUniform.addShaderUniform(RenderableSprite3D.PICKCOLOR, "u_PickColor",ShaderDataType.Vector3);
+		commandUniform.addShaderUniform(RenderableSprite3D.LIGHTMAPSCALEOFFSET, "u_LightmapScaleOffset");
+		commandUniform.addShaderUniform(RenderableSprite3D.LIGHTMAP, "u_LightMap");
+		commandUniform.addShaderUniform(RenderableSprite3D.LIGHTMAP_DIRECTION, "u_LightMapDirection");
+		commandUniform.addShaderUniform(RenderableSprite3D.PICKCOLOR, "u_PickColor");
 
 		commandUniform.addShaderUniform(RenderableSprite3D.REFLECTIONCUBE_PROBEPOSITION, "u_SpecCubeProbePosition");
 		commandUniform.addShaderUniform(RenderableSprite3D.REFLECTIONCUBE_PROBEBOXMAX, "u_SpecCubeBoxMax");
 		commandUniform.addShaderUniform(RenderableSprite3D.REFLECTIONCUBE_PROBEBOXMIN, "u_SpecCubeBoxMin");
 		commandUniform.addShaderUniform(RenderableSprite3D.IBLTEX, "u_IBLTex");
-		commandUniform.addShaderUniform(RenderableSprite3D.IBLROUGHNESSLEVEL, "u_IBLRoughnessLevel");
 		commandUniform.addShaderUniform(RenderableSprite3D.VOLUMETRICGI_PROBECOUNTS, "u_VolumetricGI.probeCounts");
 		commandUniform.addShaderUniform(RenderableSprite3D.VOLUMETRICGI_PROBESTEPS, "u_VolumetricGI.probeStep");
 		commandUniform.addShaderUniform(RenderableSprite3D.VOLUMETRICGI_PROBESTARTPOS, "u_VolumetricGI.probeStartPosition");
@@ -203,23 +198,23 @@ export class RenderableSprite3D extends Sprite3D {
 		//Legency Reflectexture
 		RenderableSprite3D.REFLECTIONTEXTURE = Shader3D.propertyNameToID("u_ReflectTexture");
 		RenderableSprite3D.REFLECTIONCUBE_HDR_PARAMS = Shader3D.propertyNameToID("u_ReflectCubeHDRParams");
-		commandUniform.addShaderUniform(RenderableSprite3D.REFLECTIONTEXTURE, "u_ReflectTexture",ShaderDataType.TextureCube);
-		commandUniform.addShaderUniform(RenderableSprite3D.REFLECTIONCUBE_HDR_PARAMS, "u_ReflectCubeHDRParams",ShaderDataType.Vector4);
+		commandUniform.addShaderUniform(RenderableSprite3D.REFLECTIONTEXTURE, "REFLECTIONTEXTURE");
+		commandUniform.addShaderUniform(RenderableSprite3D.REFLECTIONCUBE_HDR_PARAMS, "u_ReflectCubeHDRParams");
 		// legacy sh
 		RenderableSprite3D.AMBIENTSHAR = Shader3D.propertyNameToID("u_AmbientSHAr");
-		commandUniform.addShaderUniform(RenderableSprite3D.AMBIENTSHAR, "u_AmbientSHAr",ShaderDataType.Vector4);
+		commandUniform.addShaderUniform(RenderableSprite3D.AMBIENTSHAR, "u_AmbientSHAr");
 		RenderableSprite3D.AMBIENTSHAG = Shader3D.propertyNameToID("u_AmbientSHAg");
-		commandUniform.addShaderUniform(RenderableSprite3D.AMBIENTSHAG, "u_AmbientSHAg",ShaderDataType.Vector4);
+		commandUniform.addShaderUniform(RenderableSprite3D.AMBIENTSHAG, "u_AmbientSHAg");
 		RenderableSprite3D.AMBIENTSHAB = Shader3D.propertyNameToID("u_AmbientSHAb");
-		commandUniform.addShaderUniform(RenderableSprite3D.AMBIENTSHAB, "u_AmbientSHAb",ShaderDataType.Vector4);
+		commandUniform.addShaderUniform(RenderableSprite3D.AMBIENTSHAB, "u_AmbientSHAb");
 		RenderableSprite3D.AMBIENTSHBR = Shader3D.propertyNameToID("u_AmbientSHBr");
-		commandUniform.addShaderUniform(RenderableSprite3D.AMBIENTSHBR, "u_AmbientSHBr",ShaderDataType.Vector4);
+		commandUniform.addShaderUniform(RenderableSprite3D.AMBIENTSHBR, "u_AmbientSHBr");
 		RenderableSprite3D.AMBIENTSHBG = Shader3D.propertyNameToID("u_AmbientSHBg");
-		commandUniform.addShaderUniform(RenderableSprite3D.AMBIENTSHBG, "u_AmbientSHBg",ShaderDataType.Vector4);
+		commandUniform.addShaderUniform(RenderableSprite3D.AMBIENTSHBG, "u_AmbientSHBg");
 		RenderableSprite3D.AMBIENTSHBB = Shader3D.propertyNameToID("u_AmbientSHBb");
-		commandUniform.addShaderUniform(RenderableSprite3D.AMBIENTSHBB, "u_AmbientSHBb",ShaderDataType.Vector4);
+		commandUniform.addShaderUniform(RenderableSprite3D.AMBIENTSHBB, "u_AmbientSHBb");
 		RenderableSprite3D.AMBIENTSHC = Shader3D.propertyNameToID("u_AmbientSHC");
-		commandUniform.addShaderUniform(RenderableSprite3D.AMBIENTSHC, "u_AmbientSHC",ShaderDataType.Vector4);
+		commandUniform.addShaderUniform(RenderableSprite3D.AMBIENTSHC, "u_AmbientSHC");
 	}
 
 	/** @internal */

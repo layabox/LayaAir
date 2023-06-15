@@ -24,7 +24,25 @@ export class Shader extends BaseShader {
         return new Shader(vs, ps, saveName, nameMap, bindAttrib);
     }
 
-  
+    // /**
+    //  * 根据宏动态生成shader文件，支持#include?COLOR_FILTER "parts/ColorFilter_ps_logic.glsl";条件嵌入文件
+    //  * @param	name
+    //  * @param	vs
+    //  * @param	ps
+    //  * @param	define 宏定义，格式:{name:value...}
+    //  * @return
+    //  */
+    // //TODO:coverage
+    // static withCompile(nameID: number, define: any, shaderName: any, createShader: Function): Shader {
+    //     if (shaderName && Shader.sharders[shaderName])
+    //         return Shader.sharders[shaderName];
+
+    //     var pre: ShaderCompile = Shader._preCompileShader[Shader.SHADERNAME2ID * nameID];
+    //     if (!pre)
+    //         throw new Error("withCompile shader err!" + nameID);
+    //     return pre.createShader(define, shaderName, createShader, null);
+    // }
+
     /**
      * 根据宏动态生成shader文件，支持#include?COLOR_FILTER "parts/ColorFilter_ps_logic.glsl";条件嵌入文件
      * @param	name
@@ -116,7 +134,6 @@ export class Shader extends BaseShader {
      */
     constructor(vs: string, ps: string, saveName: any = null, nameMap: any = null, bindAttrib: any[] | null = null) {
         super();
-        RenderStateContext.mainContext = LayaGL.renderEngine._context;
         if ((!vs) || (!ps)) throw "Shader Error";
         this._attribInfo = bindAttrib;
         this._id = ++Shader._count;
@@ -139,6 +156,9 @@ export class Shader extends BaseShader {
      * @override
      */
     protected _disposeResource(): void {
+        RenderStateContext.mainContext.deleteShader(this._vshader);
+        RenderStateContext.mainContext.deleteShader(this._pshader);
+        RenderStateContext.mainContext.deleteProgram(this._program);
         this._vshader = this._pshader = this._program = null;
         this._params = null;
         this._paramsMap = {};

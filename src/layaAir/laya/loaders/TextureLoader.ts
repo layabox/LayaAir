@@ -137,19 +137,21 @@ class Texture2DLoader implements IResourceLoader {
         }
         else {
             return task.loader.fetch(url, "image", task.progress.createCallback(), task.options).then(img => {
-                return createImageBitmap(img)}).then(bitmapimage=>{
-                    if (!bitmapimage)
+                if (!img)
                     return null;
-                let tex: BaseTexture = Texture2D._parseImage(bitmapimage, propertyParams, constructParams);
+
+                let tex: BaseTexture = Texture2D._parseImage(img, propertyParams, constructParams);
                 let obsoluteInst = <Texture2D>task.obsoluteInst;
                 if (obsoluteInst && Object.getPrototypeOf(obsoluteInst) == Object.getPrototypeOf(tex))
                     tex = this.move(obsoluteInst, tex);
+
                 if (meta) {
                     (<any>tex)._sizeGrid = meta.sizeGrid;
                     (<any>tex)._stateNum = meta.stateNum;
                 }
+
                 return tex;
-                });
+            });
         }
     }
 
@@ -258,7 +260,7 @@ class TextureLoader implements IResourceLoader {
 const compressedFormats = ["ktx", "pvr", "dds", "hdr", "lanit.ls"];
 const videoFormats = ["mp4", "webm"];
 
-Loader.registerLoader(["tga", "tif", "tiff", "png", "jpg", "jpeg", "rendertexture", ...videoFormats, ...compressedFormats], TextureLoader, Loader.IMAGE);
+Loader.registerLoader(["png", "jpg", "jpeg", "rendertexture", ...videoFormats, ...compressedFormats], TextureLoader, Loader.IMAGE);
 Loader.registerLoader([], Texture2DLoader, Loader.TEXTURE2D);
 Loader.registerLoader(["rendertexture"], RenderTextureLoader, Loader.TEXTURE2D);
 Loader.registerLoader(videoFormats, VideoTextureLoader, Loader.TEXTURE2D);

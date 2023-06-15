@@ -15,7 +15,6 @@ import { Quaternion } from "../../maths/Quaternion";
 import { Vector2 } from "../../maths/Vector2";
 import { Vector3 } from "../../maths/Vector3";
 import { Vector4 } from "../../maths/Vector4";
-import { Matrix3x3 } from "../../maths/Matrix3x3";
 type uboParams = { ubo: UniformBufferObject; uboBuffer: UnifromBufferData };
 export enum ShaderDataType {
 	Int,
@@ -28,11 +27,10 @@ export enum ShaderDataType {
 	Matrix4x4,
 	Texture2D,
 	TextureCube,
-	Buffer,
-	Matrix3x3,
+	Buffer
 }
 
-export type ShaderDataItem = number | boolean | Vector2 | Vector3 | Vector4 | Color | Matrix4x4 | BaseTexture | Float32Array | Matrix3x3;
+export type ShaderDataItem = number | boolean | Vector2 | Vector3 | Vector4 | Color | Matrix4x4 | BaseTexture | Float32Array;
 
 export function ShaderDataDefaultValue(type: ShaderDataType) {
 	switch (type) {
@@ -52,8 +50,6 @@ export function ShaderDataDefaultValue(type: ShaderDataType) {
 			return Color.BLACK;
 		case ShaderDataType.Matrix4x4:
 			return Matrix4x4.DEFAULT;
-		case ShaderDataType.Matrix3x3:
-			return Matrix3x3.DEFAULT;
 	}
 	return null;
 }
@@ -214,8 +210,8 @@ export class ShaderData implements IClone {
 		let ubo = this._uniformBuffersMap.get(index);
 		if (ubo) {
 			this._uniformBufferDatas.get(ubo._name).uboBuffer._setData(index, this.getInt(index));
-		}
-	}
+    }
+  }
 
 	/**
 	 * 获取浮点。
@@ -256,8 +252,8 @@ export class ShaderData implements IClone {
 	setVector2(index: number, value: Vector2): void {
 		if (this._data[index]) {
 			value.cloneTo(this._data[index]);
-		} else
-			this._data[index] = value.clone();
+		} else 
+        this._data[index] = value.clone();
 		let ubo = this._uniformBuffersMap.get(index);
 		if (ubo) {
 			this._uniformBufferDatas.get(ubo._name).uboBuffer._setData(index, this.getVector2(index));
@@ -390,34 +386,6 @@ export class ShaderData implements IClone {
 	}
 
 	/**
-	 * 获取矩阵
-	 * @param index 
-	 * @returns 
-	 */
-	getMatrix3x3(index: number): Matrix3x3 {
-		return this._data[index];
-	}
-
-	/**
-	 * 设置矩阵。
-	 * @param index 
-	 * @param value 
-	 */
-	setMatrix3x3(index: number, value: Matrix3x3): void {
-		if (this._data[index]) {
-			value.cloneTo(this._data[index]);
-		}
-		else {
-			this._data[index] = value.clone();
-		}
-
-		let ubo = this._uniformBuffersMap.get(index);
-		if (ubo) {
-			this._uniformBufferDatas.get(ubo._name).uboBuffer._setData(index, this.getMatrix3x3(index));
-		}
-	}
-
-	/**
 	 * 获取Buffer。
 	 * @param	index shader索引。
 	 * @return
@@ -466,9 +434,9 @@ export class ShaderData implements IClone {
 		return this._data[index];
 	}
 
-	getSourceIndex(value: any) {
-		for (var i in this._data) {
-			if (this._data[i] == value)
+	getSourceIndex(value:any){
+		for(var i in this._data){
+			if(this._data[i]==value)
 				return Number(i);
 		}
 		return -1;
@@ -536,9 +504,6 @@ export class ShaderData implements IClone {
 				break;
 			case ShaderDataType.Matrix4x4:
 				this.setMatrix4x4(uniformIndex, <Matrix4x4>value);
-				break;
-			case ShaderDataType.Matrix3x3:
-				this.setMatrix3x3(uniformIndex, <Matrix3x3>value);
 				break;
 			case ShaderDataType.Texture2D:
 			case ShaderDataType.TextureCube:
@@ -687,5 +652,4 @@ export class ShaderData implements IClone {
 		this._uniformBufferDatas = null;
 		this._uniformBuffersMap = null;
 	}
-
 }
