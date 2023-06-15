@@ -1018,6 +1018,7 @@ export class GL2TextureContext extends GLTextureContext {
         renderTarget.colorFormat = colorFormat;
         renderTarget.depthStencilFormat = depthStencilFormat;
         renderTarget._textures.push(texture);
+        renderTarget.isSRGB = sRGB;
 
         let gl = <WebGLRenderingContext>renderTarget._gl;
 

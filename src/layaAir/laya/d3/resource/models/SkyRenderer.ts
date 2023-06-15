@@ -5,6 +5,7 @@ import { Vector3 } from "../../../maths/Vector3";
 import { CompareFunction } from "../../../RenderEngine/RenderEnum/CompareFunction";
 import { CullMode } from "../../../RenderEngine/RenderEnum/CullMode";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
+import { ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData";
 import { Camera } from "../../core/Camera";
 import { GeometryElement } from "../../core/GeometryElement";
 import { Material } from "../../core/material/Material";
@@ -38,8 +39,8 @@ export class SkyRenderer {
         SkyRenderer.SUNLIGHTDIRECTION = Shader3D.propertyNameToID("u_SunLight_direction");
         SkyRenderer.SUNLIGHTDIRCOLOR = Shader3D.propertyNameToID("u_SunLight_color");
         const commandUniform = LayaGL.renderOBJCreate.createGlobalUniformMap("Sprite3D");
-        commandUniform.addShaderUniform(SkyRenderer.SUNLIGHTDIRECTION, "u_SunLight_direction");
-        commandUniform.addShaderUniform(SkyRenderer.SUNLIGHTDIRCOLOR, "u_SunLight_color");
+        commandUniform.addShaderUniform(SkyRenderer.SUNLIGHTDIRECTION, "u_SunLight_direction",ShaderDataType.Vector3);
+        commandUniform.addShaderUniform(SkyRenderer.SUNLIGHTDIRCOLOR, "u_SunLight_color",ShaderDataType.Color);
     }
 
     /**

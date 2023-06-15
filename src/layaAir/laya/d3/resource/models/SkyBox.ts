@@ -43,7 +43,7 @@ export class SkyBox extends GeometryElement {
 		let vertexBuffer = LayaGL.renderOBJCreate.createVertexBuffer3D(verDec.vertexStride * 8, BufferUsage.Static, false);
 		vertexBuffer.vertexDeclaration = verDec;
 		let indexBuffer = LayaGL.renderOBJCreate.createIndexBuffer3D(IndexFormat.UInt8, 36, BufferUsage.Static, false);
-		vertexBuffer.setData(vertices.buffer);
+		vertexBuffer.setData(vertices);
 		indexBuffer.setData(indices);
 		this.bufferState = new BufferState();
 		this.bufferState.applyState([vertexBuffer],indexBuffer);

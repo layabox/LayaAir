@@ -54,7 +54,7 @@ export class LoadModelV05 {
             var blockName: string = LoadModelV05._strings[index];
             var fn: Function = (LoadModelV05 as any)["READ_" + blockName];
             if (fn == null)
-                throw new Error("model file err,no this function:" + index + " " + blockName);
+                console.warn("model file err,no this function:" + index + " " + blockName);
             else
                 fn.call(null);
         }

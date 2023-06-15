@@ -9,10 +9,11 @@ import { ILaya } from "../../../ILaya";
 import { CommandUniformMap } from "../../RenderEngine/CommandUniformMap";
 import { NodeFlags } from "../../Const";
 import { Event } from "../../events/Event";
-import { Scene3D } from "./scene/Scene3D";
 import { Matrix4x4 } from "../../maths/Matrix4x4";
 import { Quaternion } from "../../maths/Quaternion";
 import { Vector3 } from "../../maths/Vector3";
+import { Scene3D } from "./scene/Scene3D";
+import { ShaderDataType } from "../../RenderEngine/RenderShader/ShaderData";
 
 /**
  * @internal
@@ -41,7 +42,7 @@ export class Sprite3D extends Node {
         Sprite3D.WORLDMATRIX = Shader3D.propertyNameToID("u_WorldMat");
 
         Sprite3D.sprite3DCommandUniformMap = LayaGL.renderOBJCreate.createGlobalUniformMap("Sprite3D");
-        Sprite3D.sprite3DCommandUniformMap.addShaderUniform(Sprite3D.WORLDMATRIX, "u_WorldMat");
+        Sprite3D.sprite3DCommandUniformMap.addShaderUniform(Sprite3D.WORLDMATRIX, "u_WorldMat",ShaderDataType.Matrix4x4);
     }
 
     /**

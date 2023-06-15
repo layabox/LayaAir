@@ -249,7 +249,7 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         return this._glParam;
     }
 
-    glRenderBufferParam(format: RenderTargetFormat, useSRGB: boolean) {
+    glRenderBufferParam(format: RenderTargetFormat, useSRGB: boolean): { internalFormat: number; attachment: number } {
         // todo
         let gl = this._gl;
         switch (format) {
@@ -289,7 +289,7 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         }
     }
 
-    protected getTarget(dimension: TextureDimension) {
+    protected getTarget(dimension: TextureDimension): number {
         let gl = this._gl;
         switch (dimension) {
             case TextureDimension.Tex2D:

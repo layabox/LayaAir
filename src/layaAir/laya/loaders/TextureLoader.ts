@@ -136,21 +136,19 @@ class Texture2DLoader implements IResourceLoader {
         }
         else {
             return task.loader.fetch(url, "image", task.progress.createCallback(), task.options).then(img => {
-                if (!img)
+                return createImageBitmap(img)}).then(bitmapimage=>{
+                    if (!bitmapimage)
                     return null;
-
-                let tex: BaseTexture = Texture2D._parseImage(img, propertyParams, constructParams);
+                let tex: BaseTexture = Texture2D._parseImage(bitmapimage, propertyParams, constructParams);
                 let obsoluteInst = <Texture2D>task.obsoluteInst;
                 if (obsoluteInst && Object.getPrototypeOf(obsoluteInst) == Object.getPrototypeOf(tex))
                     tex = this.move(obsoluteInst, tex);
-
                 if (meta) {
                     (<any>tex)._sizeGrid = meta.sizeGrid;
                     (<any>tex)._stateNum = meta.stateNum;
                 }
-
                 return tex;
-            });
+                });
         }
     }
 

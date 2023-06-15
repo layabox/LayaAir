@@ -128,6 +128,8 @@ export class BaseRender extends Component implements IBoundsCell {
     private _lightmapIndex: number;
     /** @internal */
     private _materialsInstance: boolean[];
+    /**@internal */
+    _commonUniformMap:Array<string> = [];
     /** @internal */
     _sharedMaterials: Material[] = [];
     /** @internal TODO*/
@@ -444,6 +446,7 @@ export class BaseRender extends Component implements IBoundsCell {
      */
     constructor() {
         super();
+        this._commonUniformMap = this._getcommonUniformMap();
         this._rendernode = this._createBaseRenderNode();
         this._rendernode.owner = this;
         this._rendernode.renderId = ++BaseRender._uniqueIDCounter;
@@ -460,6 +463,10 @@ export class BaseRender extends Component implements IBoundsCell {
         this.boundsChange = true;
         this._rendernode.renderbitFlag = 0;
         this._rendernode.staticMask = 1;
+    }
+
+    protected _getcommonUniformMap():Array<string>{
+        return ["Sprite3D"];
     }
 
     protected _createBaseRenderNode(): IBaseRenderNode {

@@ -69,6 +69,7 @@ import { SubShader } from "./laya/RenderEngine/RenderShader/SubShader";
 import { VertexMesh } from "./laya/RenderEngine/RenderShader/VertexMesh";
 import { RenderTexture } from "./laya/resource/RenderTexture";
 import { ColorGradEffect } from "./laya/d3/core/render/PostEffect/ColorGradEffect";
+import { Browser } from "./laya/utils/Browser";
 
 /**
  * <code>Laya3D</code> 类用于初始化3D设置。
@@ -242,6 +243,11 @@ export class Laya3D {
      */
     static init(width: number, height: number, config: any = null, complete: Handler = null): void {
         Laya.init(width, height).then(() => {
+            return LayaGL.renderOBJCreate.createEngine(null,Browser.mainCanvas)
+            //complete && complete.run();
+        }).then(()=>{
+            return Laya.initRender2D();
+        }).then(()=>{
             complete && complete.run();
         });
     }
@@ -251,8 +257,8 @@ export class Laya3D {
             LayaGL.renderEngine._renderOBJCreateContext = new NativeRenderOBJCreateUtil();
             LayaGL.renderOBJCreate = LayaGL.renderEngine.getCreateRenderOBJContext();
         } else {
-            LayaGL.renderEngine._renderOBJCreateContext = new RenderOBJCreateUtil();
-            LayaGL.renderOBJCreate = LayaGL.renderEngine.getCreateRenderOBJContext();
+            //LayaGL.renderEngine._renderOBJCreateContext = new RenderOBJCreateUtil();
+            //LayaGL.renderOBJCreate = LayaGL.renderEngine.getCreateRenderOBJContext();
         }
 
     }

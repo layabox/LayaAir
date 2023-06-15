@@ -67,7 +67,6 @@ export class GlCapable {
         value = isWebgl2;
         this._capabilityMap.set(RenderCapable.MSAA, value);
         this._capabilityMap.set(RenderCapable.UnifromBufferObject, value);
-        this._capabilityMap.set(RenderCapable.GRAPHICS_API_GLES3, value);
         this._capabilityMap.set(RenderCapable.Texture3D, value);
     }
 

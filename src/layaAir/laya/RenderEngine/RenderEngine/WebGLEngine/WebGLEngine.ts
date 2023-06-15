@@ -16,7 +16,7 @@ import { IRenderOBJCreate } from "../../RenderInterface/IRenderOBJCreate";
 import { IRenderShaderInstance } from "../../RenderInterface/IRenderShaderInstance";
 import { IRenderVertexState } from "../../RenderInterface/IRenderVertexState";
 import { ITextureContext } from "../../RenderInterface/ITextureContext";
-import { ShaderData, ShaderDataType } from "../../RenderShader/ShaderData";
+import { ShaderDataType } from "../../RenderShader/ShaderData";
 import { ShaderVariable } from "../../RenderShader/ShaderVariable";
 import { RenderStateCommand } from "../../RenderStateCommand";
 import { GL2TextureContext } from "./GL2TextureContext";
@@ -61,8 +61,6 @@ export class WebGLEngine implements IRenderEngine {
 
     /**@internal gl.TextureID*/
     _glTextureIDParams: Array<number>;
-
-
 
     /**@internal bind active Texture*/
     _activedTextureID: number;
@@ -300,8 +298,6 @@ export class WebGLEngine implements IRenderEngine {
     }
 
     viewport(x: number, y: number, width: number, height: number): void {
-        // gl.enable(gl.SCISSOR_TEST);
-        // gl.scissor(x, transformY, width, height);
         const gl = this._context;
         const lv = this._lastViewport;
         if (LayaEnv.isConch) {
@@ -441,9 +437,8 @@ export class WebGLEngine implements IRenderEngine {
     /**
      * @internal
      */
-    uploadUniforms(shader: GLShaderInstance, commandEncoder: CommandEncoder, shaderData: ShaderData, uploadUnTexture: boolean): number {
+    uploadUniforms(shader: GLShaderInstance, commandEncoder: CommandEncoder, shaderData: any, uploadUnTexture: boolean): number {
         shader.bind();
-        shaderData.applyUBOData();
         var data: any = shaderData._data;
         var shaderUniform: any[] = commandEncoder.getArrayData();
         var shaderCall: number = 0;

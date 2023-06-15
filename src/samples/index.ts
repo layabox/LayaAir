@@ -10,7 +10,12 @@ import "laya/gltf/glTFLoader";
 import "laya/html/ModuleDef";
 
 import { Resource } from "laya/resource/Resource";
-import { Main } from "./Main";
-Resource.DEBUG = true;
+import { UnlitMaterialDemo } from "./3d/LayaAir3D_Material/UnlitMaterialDemo";
+import { LayaGL } from "laya/layagl/LayaGL";
+import { WGPURenderOBJCreateUtil } from "laya/d3/RenderObjs/WebGPUOBJ/WGPURenderOBJCreateUtil";
+import { RenderOBJCreateUtil } from "laya/d3/RenderObjs/RenderObj/RenderOBJCreateUtil";
 
-new Main(false);
+Resource.DEBUG = true;
+LayaGL.renderOBJCreate = new RenderOBJCreateUtil();//创建WebGLRenderOBJCreateUtil
+
+new UnlitMaterialDemo();

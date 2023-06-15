@@ -16,6 +16,7 @@ import { TrailAlignment } from "./TrailAlignment";
 import { TrailTextureMode } from "../TrailTextureMode";
 import { Color } from "../../../maths/Color";
 import { Vector3 } from "../../../maths/Vector3";
+import { ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData";
 
 
 /**
@@ -33,13 +34,11 @@ export class TrailFilter {
 		TrailFilter.WIDTHCURVE = Shader3D.propertyNameToID("u_WidthCurve");
 		TrailFilter.WIDTHCURVEKEYLENGTH = Shader3D.propertyNameToID("u_WidthCurveKeyLength");
 
-		const spriteParms = LayaGL.renderOBJCreate.createGlobalUniformMap("Sprite3D");
-		spriteParms.addShaderUniform(TrailFilter.CURTIME, "u_CurTime");
-		spriteParms.addShaderUniform(TrailFilter.LIFETIME, "u_LifeTime");
-		spriteParms.addShaderUniform(TrailFilter.WIDTHCURVE, "u_WidthCurve");
-		spriteParms.addShaderUniform(TrailFilter.WIDTHCURVEKEYLENGTH, "u_WidthCurveKeyLength");
-
-
+		const spriteParms = LayaGL.renderOBJCreate.createGlobalUniformMap("TrailRender");
+		spriteParms.addShaderUniform(TrailFilter.CURTIME, "u_CurTime",ShaderDataType.Float);
+		spriteParms.addShaderUniform(TrailFilter.LIFETIME, "u_LifeTime",ShaderDataType.Float);
+		spriteParms.addShaderUniform(TrailFilter.WIDTHCURVE, "u_WidthCurve",ShaderDataType.Buffer);
+		spriteParms.addShaderUniform(TrailFilter.WIDTHCURVEKEYLENGTH, "u_WidthCurveKeyLength",ShaderDataType.Int);
 	}
 
 	/**@internal */
