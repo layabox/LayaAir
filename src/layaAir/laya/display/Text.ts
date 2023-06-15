@@ -1106,7 +1106,7 @@ export class Text extends Sprite {
         };
 
         let wrapText = (text: string, style: TextStyle) => {
-            let remainWidth = rectWidth - lineX;
+            let remainWidth = Math.max(0, rectWidth - lineX);
 
             let tw = getTextWidth(text, style);
             //优化1，如果一行小于宽度，则直接跳过遍历
@@ -1168,6 +1168,8 @@ export class Text extends Sprite {
 
                     //截断换行单词
                     let newLine = text.substring(startIndex, j);
+                    wordWidth -= tw;
+
                     // 如果最后一个是中文则直接截断，否则找空格或者-来拆分
                     let ccode = newLine.charCodeAt(newLine.length - 1);
                     if (ccode < 0x4e00 || ccode > 0x9fa5) {
@@ -1179,13 +1181,15 @@ export class Text extends Sprite {
                             if (execResult.index == 0)
                                 j += newLine.length;
                             //此行有多个单词 按单词分行
-                            else
-                                newLine = text.substring(startIndex, j);
+                            else {
+                                wordWidth = null;
+                                newLine = text.substring(startIndex, j - 1);
+                            }
                         }
                     }
 
                     //如果自动换行，则另起一行
-                    addCmd(newLine, style, wordWidth - tw);
+                    addCmd(newLine, style, wordWidth);
                     endLine();
                     startLine();
                     remainWidth = rectWidth;
@@ -1362,7 +1366,7 @@ export class Text extends Sprite {
 
         if (clipped) {
             graphics.save();
-            graphics.clipRect(paddingLeft, paddingTop, rectWidth > 0 ? rectWidth : 0.001, rectHeight > 0 ? rectHeight : 0.001);
+            graphics.clipRect(paddingLeft, paddingTop, rectWidth, rectHeight);
             this.repaint();
         }
 
