@@ -114,8 +114,11 @@ export class Graphics {
     }
 
     /**@private */
-    private _clearBoundsCache(): void {
-        if (this._graphicBounds) this._graphicBounds.reset();
+    _clearBoundsCache(onSizeChanged?: boolean): void {
+        if (this._graphicBounds) {
+            if (!onSizeChanged || this._graphicBounds._affectBySize)
+                this._graphicBounds.reset();
+        }
     }
 
     /**@private */
