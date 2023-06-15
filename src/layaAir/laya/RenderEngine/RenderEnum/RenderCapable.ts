@@ -1,4 +1,4 @@
-export enum RenderCapable{
+export enum RenderCapable {
     Element_Index_Uint32,//Index Usage 32
     TextureFormat_R32G32B32A32,//Texturefloat32
     TextureFormat_R16G16B16A16,//TextureFloat16
@@ -18,6 +18,7 @@ export enum RenderCapable{
     Texture_SRGB,//Textrue srgb   
     MSAA,//MSAA
     UnifromBufferObject,
-    GRAPHICS_API_GLES3,//TODO 感觉不太合适
-    Texture3D
+    Texture3D,
+    Texture_FloatLinearFiltering,
+    Texture_HalfFloatLinearFiltering,
 }

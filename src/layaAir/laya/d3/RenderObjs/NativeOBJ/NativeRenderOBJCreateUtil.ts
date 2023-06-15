@@ -4,6 +4,7 @@ import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { DrawType } from "../../../RenderEngine/RenderEnum/DrawType";
 import { IndexFormat } from "../../../RenderEngine/RenderEnum/IndexFormat";
 import { MeshTopology } from "../../../RenderEngine/RenderEnum/RenderPologyMode";
+import { IRenderEngine } from "../../../RenderEngine/RenderInterface/IRenderEngine";
 import { IRenderOBJCreate } from "../../../RenderEngine/RenderInterface/IRenderOBJCreate";
 import { IBaseRenderNode } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IBaseRenderNode";
 import { ICameraCullInfo } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/ICameraCullInfo";
@@ -16,10 +17,10 @@ import { ISceneRenderManager } from "../../../RenderEngine/RenderInterface/Rende
 import { IShadowCullInfo } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IShadowCullInfo";
 import { ISortPass } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/ISortPass";
 import { RenderState } from "../../../RenderEngine/RenderShader/RenderState";
-import { ShaderData, ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData";
+import { ShaderData } from "../../../RenderEngine/RenderShader/ShaderData";
 import { ShaderInstance } from "../../../RenderEngine/RenderShader/ShaderInstance";
 import { UniformBufferObject } from "../../../RenderEngine/UniformBufferObject";
-import { ShaderCompileDefineBase } from "../../../webgl/utils/ShaderCompileDefineBase";
+import { ShaderCompileDefineBase, ShaderProcessInfo } from "../../../webgl/utils/ShaderCompileDefineBase";
 import { Sprite3D } from "../../core/Sprite3D";
 import { Transform3D } from "../../core/Transform3D";
 import { IndexBuffer3D } from "../../graphics/IndexBuffer3D";
@@ -86,8 +87,10 @@ export class NativeRenderOBJCreateUtil implements IRenderOBJCreate {
         return new NativeIndexBuffer3D(indexType, indexCount, bufferUsage, canRead);
     }
 
-    createShaderInstance(vs: string, ps: string, attributeMap: { [name: string]: [number, ShaderDataType] }, shaderPass: ShaderCompileDefineBase): ShaderInstance {
-        return new NativeShaderInstance(vs, ps, attributeMap, shaderPass) as unknown as ShaderInstance;
+    createShaderInstance(shaderProcessInfo:ShaderProcessInfo, shaderPass: ShaderCompileDefineBase): ShaderInstance {
+        //return new NativeShaderInstance(vs, ps, attributeMap, shaderPass) as unknown as ShaderInstance;
+        //TODO
+        return null;
     }
 
     createBaseRenderNode(): IBaseRenderNode {
@@ -131,5 +134,10 @@ export class NativeRenderOBJCreateUtil implements IRenderOBJCreate {
 
     createGlobalUniformMap(blockName: string): NativeCommandUniformMap{
         return new NativeCommandUniformMap((window as any).conchCommandUniformMap.createGlobalUniformMap(blockName), blockName);
+    }
+
+    createEngine(config:any,canvas:any):IRenderEngine{
+        //TODO:
+        return null
     }
 }

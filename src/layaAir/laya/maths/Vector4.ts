@@ -71,7 +71,7 @@ export class Vector4 implements IClone {
      * @param  arr 数组。
      * @param  offset 数组偏移。
      */
-    fromArray(arr: any[], offset: number = 0): void {
+    fromArray(arr: ArrayLike<number>, offset: number = 0): void {
         this.x = arr[offset + 0];
         this.y = arr[offset + 1];
         this.z = arr[offset + 2];
@@ -170,8 +170,8 @@ export class Vector4 implements IClone {
      * @param value 
      * @returns 
      */
-    equal(value:Vector4){
-        return Vector4.equals(this,value);
+    equal(value: Vector4) {
+        return Vector4.equals(this, value);
     }
 
     /**

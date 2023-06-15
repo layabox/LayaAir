@@ -69,6 +69,8 @@ export class Laya {
     /**@internal */
     static WasmModules: { [key: string]: { exports: WebAssembly.Exports, memory: WebAssembly.Memory } } = {};
 
+    static _stageconfig: IStageConfig;
+
     /**
      * 初始化引擎。使用引擎需要先初始化引擎，否则可能会报错。
      */
@@ -85,15 +87,15 @@ export class Laya {
             return Promise.resolve();
         _isinit = true;
 
-        let stageConfig: IStageConfig;
+        //let stageConfig: IStageConfig;
         if (typeof (args[0]) === "number") {
-            stageConfig = {
+            this._stageconfig = {
                 designWidth: args[0],
                 designHeight: args[1]
             };
         }
         else
-            stageConfig = args[0];
+            this._stageconfig = args[0];
 
         ArrayBuffer.prototype.slice || (ArrayBuffer.prototype.slice = arrayBufferSlice);
         Float32Array.prototype.slice || (Float32Array.prototype.slice = float32ArraySlice);
@@ -151,7 +153,7 @@ export class Laya {
 
         if (LayaEnv.beforeInit) {
             if (LayaEnv.isPlaying)
-                LayaEnv.beforeInit(stageConfig);
+                LayaEnv.beforeInit(this._stageconfig);
             else
                 LayaEnv.beforeInit = null;
         }
@@ -171,9 +173,14 @@ export class Laya {
         MeshQuadTexture.__int__();
         MeshVG.__init__();
         MeshTexture.__init__();
-        Laya.render = Laya.createRender();
-        render = Laya.render;
 
+        return Promise.resolve();
+    }
+
+    static initRender2D():Promise<void> {
+        Laya.render = new Render(0, 0, Browser.mainCanvas);
+        render = Laya.render;
+        let stageConfig = this._stageconfig;
         stage.size(stageConfig.designWidth, stageConfig.designHeight);
         if (stageConfig.scaleMode)
             stage.scaleMode = stageConfig.scaleMode;
@@ -205,7 +212,7 @@ export class Laya {
         Value2D._initone(ShaderDefines2D.TEXTURE2D | ShaderDefines2D.FILTERGLOW, TextureSV);
         Value2D._initone(ShaderDefines2D.PRIMITIVE, PrimitiveSV);
         Value2D._initone(ShaderDefines2D.SKINMESH, SkinSV);
-
+        let laya3D = (<any>window)["Laya3D"];
         if (laya3D) {
             return laya3D.__init__().then(() => {
                 _onInitModuleCallbacks.forEach(c => c());

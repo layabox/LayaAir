@@ -1,5 +1,7 @@
+import { Color } from "../../maths/Color";
 import { RenderTargetFormat } from "../RenderEnum/RenderTargetFormat";
 import { InternalTexture } from "./InternalTexture";
+
 
 
 export interface InternalRenderTarget {
@@ -15,6 +17,8 @@ export interface InternalRenderTarget {
 
     colorFormat: RenderTargetFormat;
     depthStencilFormat: RenderTargetFormat;
+
+    isSRGB:boolean;
 
     gpuMemory:number;
 

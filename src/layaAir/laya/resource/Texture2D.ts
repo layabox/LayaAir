@@ -49,57 +49,65 @@ export class Texture2D extends BaseTexture {
      * @internal
      */
     static __init__() {
-        var pixels: Uint8Array = new Uint8Array(3);
+        var pixels: Uint8Array = new Uint8Array(4);
         pixels[0] = 128;
         pixels[1] = 128;
         pixels[2] = 128;
-        Texture2D.grayTexture = new Texture2D(1, 1, TextureFormat.R8G8B8, false, false);
+        pixels[3] = 255;
+        Texture2D.grayTexture = new Texture2D(1, 1, TextureFormat.R8G8B8A8, false, false);
         Texture2D.grayTexture.setPixelsData(pixels, false, false);
         Texture2D.grayTexture.lock = true;//锁住资源防止被资源管理释放
         Texture2D.grayTexture.name = "Default_Gray";
         pixels[0] = 255;
         pixels[1] = 255;
         pixels[2] = 255;
-        Texture2D.whiteTexture = new Texture2D(1, 1, TextureFormat.R8G8B8, false, false);
+        pixels[3] = 255;
+        Texture2D.whiteTexture = new Texture2D(1, 1, TextureFormat.R8G8B8A8, false, false);
         Texture2D.whiteTexture.setPixelsData(pixels, false, false);
         Texture2D.whiteTexture.lock = true;//锁住资源防止被资源管理释放
         Texture2D.whiteTexture.name = "Default_White";
         pixels[0] = 0;
         pixels[1] = 0;
         pixels[2] = 0;
-        Texture2D.blackTexture = new Texture2D(1, 1, TextureFormat.R8G8B8, false, false);
+        pixels[3] = 255;
+        Texture2D.blackTexture = new Texture2D(1, 1, TextureFormat.R8G8B8A8, false, false);
         Texture2D.blackTexture.setPixelsData(pixels, false, false);
         Texture2D.blackTexture.lock = true;//锁住资源防止被资源管理释放
         Texture2D.blackTexture.name = "Default_Black";
         if (LayaGL.renderEngine.getCapable(RenderCapable.TextureFormat_R16G16B16A16)) {
-            let floatPixle = new Uint16Array(3);
+            let floatPixle = new Uint16Array(4);
             floatPixle[0] = 14336;
             floatPixle[1] = 14336;
             floatPixle[2] = 15360;
-            Texture2D.normalTexture = new Texture2D(1, 1, TextureFormat.R16G16B16, false, false, false);
+            floatPixle[3] = 15360;
+            Texture2D.normalTexture = new Texture2D(1, 1, TextureFormat.R16G16B16A16, false, false, false);
             Texture2D.normalTexture.setPixelsData(floatPixle, false, false);
         }
         else {
             pixels[0] = 128;
             pixels[1] = 128;
             pixels[2] = 255;
-            Texture2D.normalTexture = new Texture2D(1, 1, TextureFormat.R8G8B8, false, false, false);
+            pixels[3] = 255;
+            Texture2D.normalTexture = new Texture2D(1, 1, TextureFormat.R8G8B8A8, false, false, false);
             Texture2D.normalTexture.setPixelsData(pixels, false, false);
         }
 
         Texture2D.normalTexture.lock = true;
         Texture2D.normalTexture.name = "Default_Normal";
 
-        pixels = new Uint8Array(9);
+        pixels = new Uint8Array(12);
         pixels[0] = 255;
         pixels[1] = 255;
         pixels[2] = 255;
         pixels[3] = 255;
         pixels[4] = 255;
-        pixels[5] = 128;
+        pixels[5] = 255;
         pixels[6] = 128;
-        pixels[7] = 128;
-        pixels[8] = 0;
+        pixels[7] = 255;
+        pixels[8] = 128;
+        pixels[9] = 128;
+        pixels[10] = 0;
+        pixels[11] = 255;
         Texture2D.defalutUITexture = new Texture2D(1, 3, TextureFormat.R8G8B8, false, false);
         Texture2D.defalutUITexture.setPixelsData(pixels, false, false);
         Texture2D.defalutUITexture.lock = true;//锁住资源防止被资源管理释放

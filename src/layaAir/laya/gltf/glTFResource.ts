@@ -46,6 +46,8 @@ import { glTFExtension } from "./extensions/glTFExtension";
 import { glTFShader } from "./shader/glTFShader";
 import { PBRShaderLib } from "../d3/shader/pbr/PBRShaderLib";
 import { Laya } from "../../Laya";
+import { WrapMode } from "../RenderEngine/RenderEnum/WrapMode";
+import { ShaderDefine } from "../RenderEngine/RenderShader/ShaderDefine";
 
 const maxSubBoneCount = 24;
 
@@ -71,7 +73,7 @@ export class glTFResource extends Prefab {
     protected _materials: Material[];
     protected _meshes: Record<string, Mesh>;
 
-    protected _extensions: Array<glTFExtension>;
+    protected _extensions: Map<string, glTFExtension>;
 
     protected _pendingOps: Array<Promise<any>>;
 
@@ -88,7 +90,7 @@ export class glTFResource extends Prefab {
         this._textures = [];
         this._materials = [];
         this._meshes = {};
-        this._extensions = [];
+        this._extensions = new Map();
         this._pendingOps = [];
         this._scenes = [];
         this._nodes = [];
@@ -124,9 +126,10 @@ export class glTFResource extends Prefab {
         }
     }
 
-    loadTextureFromglTF(index: number, sRGB: boolean, basePath: string, progress?: IBatchProgress): Promise<Texture2D> {
+    loadTextureFromInfo(info: glTF.glTFTextureInfo, sRGB: boolean, basePath: string, progress?: IBatchProgress): Promise<Texture2D> {
         let data = this._data;
 
+        let index = info.index;
         let tex = data.textures[index];
         let imgSource = tex.source;
         let glTFImg = data.images[imgSource];
@@ -169,47 +172,42 @@ export class glTFResource extends Prefab {
         let data = this._data;
         let materials = data.materials;
         let textures = data.textures;
-        let promises: Array<Promise<Texture2D>> = [];
+        let promises: Array<Promise<Texture2D> | Promise<Texture2D[]>> = [];
         if (materials && textures) {
             for (let glTFMaterial of data.materials) {
                 let pbrMetallicRoughness = glTFMaterial.pbrMetallicRoughness;
                 if (pbrMetallicRoughness) {
                     if (pbrMetallicRoughness.baseColorTexture) {
-                        let index = pbrMetallicRoughness.baseColorTexture.index;
                         let sRGB = true;
-                        let promise = this.loadTextureFromglTF(index, sRGB, basePath, progress);
+                        let promise = this.loadTextureFromInfo(pbrMetallicRoughness.baseColorTexture, sRGB, basePath, progress);
                         promises.push(promise);
                     }
                     if (pbrMetallicRoughness.metallicRoughnessTexture) {
-                        let index = pbrMetallicRoughness.metallicRoughnessTexture.index;
                         let sRGB = false;
-                        let promise = this.loadTextureFromglTF(index, sRGB, basePath, progress);
+                        let promise = this.loadTextureFromInfo(pbrMetallicRoughness.metallicRoughnessTexture, sRGB, basePath, progress);
                         promises.push(promise);
                     }
                 }
                 if (glTFMaterial.normalTexture) {
-                    let index = glTFMaterial.normalTexture.index;
                     let sRGB = false;
-                    let promise = this.loadTextureFromglTF(index, sRGB, basePath, progress);
+                    let promise = this.loadTextureFromInfo(glTFMaterial.normalTexture, sRGB, basePath, progress);
                     promises.push(promise);
                 }
                 if (glTFMaterial.occlusionTexture) {
-                    let index = glTFMaterial.occlusionTexture.index;
                     let sRGB = false;
-                    let promise = this.loadTextureFromglTF(index, sRGB, basePath, progress);
+                    let promise = this.loadTextureFromInfo(glTFMaterial.occlusionTexture, sRGB, basePath, progress);
                     promises.push(promise);
                 }
                 if (glTFMaterial.emissiveTexture) {
-                    let index = glTFMaterial.emissiveTexture.index;
                     let sRGB = true;
-                    let promise = this.loadTextureFromglTF(index, sRGB, basePath, progress);
+                    let promise = this.loadTextureFromInfo(glTFMaterial.emissiveTexture, sRGB, basePath, progress);
                     promises.push(promise);
                 }
             }
         }
         this._extensions.forEach(extension => {
-            if (extension.loadTextures) {
-                let promise = extension.loadTextures(basePath, progress);
+            if (extension.loadAdditionTextures) {
+                let promise = extension.loadAdditionTextures(basePath, progress);
                 promises.push(promise);
             }
 
@@ -278,10 +276,17 @@ export class glTFResource extends Prefab {
         data.extensionsUsed?.forEach(value => {
             let extensionFactory = glTFResource._Extensions[value];
             if (!extensionFactory) {
-                console.warn(`glTF: unsupported extension: ${value}`);
+                console.warn(`glTF: unsupported used extension: ${value}`);
             }
             else {
-                this._extensions.push(extensionFactory(this));
+                this._extensions.set(value, extensionFactory(this));
+            }
+        });
+
+        data.extensionsRequired?.forEach(value => {
+            let extensionFactory = glTFResource._Extensions[value];
+            if (!extensionFactory) {
+                console.warn(`glTF: unsupported required extension: ${value}`);
             }
         });
 
@@ -371,12 +376,19 @@ export class glTFResource extends Prefab {
         glTFObj.extensionsUsed?.forEach(value => {
             let extensionFactory = glTFResource._Extensions[value];
             if (!extensionFactory) {
-                console.warn(`glTF: unsupported extension: ${value}`);
+                console.warn(`glTF: unsupported used extension: ${value}`);
             }
             else {
-                this._extensions.push(extensionFactory(this));
+                this._extensions.set(value, extensionFactory(this));
             }
             // this._extensions.sort((a, b) => )
+        });
+
+        glTFObj.extensionsRequired?.forEach(value => {
+            let extensionFactory = glTFResource._Extensions[value];
+            if (!extensionFactory) {
+                console.warn(`glTF: unsupported required extension: ${value}`);
+            }
         });
 
         let promise: Promise<any> = this.loadTextures(basePath, progress);
@@ -648,6 +660,18 @@ export class glTFResource extends Prefab {
      * @param mode 
      */
     private getTextureWrapMode(mode: glTF.glTFTextureWrapMode): number {
+        mode = mode ?? glTF.glTFTextureWrapMode.REPEAT;
+        switch (mode) {
+            case glTF.glTFTextureWrapMode.REPEAT:
+                return WrapMode.Repeat;
+            case glTF.glTFTextureWrapMode.CLAMP_TO_EDGE:
+                return WrapMode.Clamp;
+            case glTF.glTFTextureWrapMode.MIRRORED_REPEAT:
+                return WrapMode.Mirrored;
+            default:
+                return WrapMode.Repeat;
+        }
+
         if (mode === glTF.glTFTextureWrapMode.CLAMP_TO_EDGE) {
             return 1;   // WrapMode.Clamp
         }
@@ -698,15 +722,25 @@ export class glTFResource extends Prefab {
      * @param glTFTextureInfo 
      */
     getTextureWithInfo(glTFTextureInfo: glTF.glTFTextureInfo): Texture2D {
-
         // uv 非 0 
         if (glTFTextureInfo.texCoord) {
             // todo 非0 uv 
             console.warn("glTF Loader: non 0 uv channel unsupported.");
         }
 
-        // let glTFImage: glTF.glTFTexture = this._glTF.textures[glTFTextureInfo.index];
         return this._textures[glTFTextureInfo.index];
+    }
+
+    getExtensionTextureInfo(info: glTF.glTFTextureInfo, extensionName: string): any {
+        let extension = this._extensions.get(extensionName);
+        if (info.extensions && info.extensions[extensionName] && extension) {
+            if (extension.loadExtensionTextureInfo) {
+                return extension.loadExtensionTextureInfo(info);
+            }
+        }
+        else {
+            return null;
+        }
     }
 
     /**
@@ -731,7 +765,7 @@ export class glTFResource extends Prefab {
                 break;
             }
             default: {
-                // todo
+                break;
             }
         }
 
@@ -743,70 +777,79 @@ export class glTFResource extends Prefab {
 
     }
 
+    setMaterialTextureProperty(material: Material, texInfo: glTF.glTFTextureInfo, name: string, define: ShaderDefine, transformName: string, transformDefine: ShaderDefine) {
+        let tex = this.getTextureWithInfo(texInfo);
+        material.setTexture(name, tex);
+        if (define) {
+            material.setDefine(define, true);
+        }
+
+        // transform info
+        if (transformDefine) {
+            let transformInfo = this.getExtensionTextureInfo(texInfo, "KHR_texture_transform");
+            if (transformInfo) {
+                material.setDefine(transformDefine, true);
+                material.setMatrix3x3(transformName, transformInfo.transform);
+            }
+        }
+    }
+
     /**
      * @param glTFMaterial 
      * @param material 
      */
     applyDefaultMaterialProperties(glTFMaterial: glTF.glTFMaterial, material: Material) {
-
-        {
-            let pbrMetallicRoughness = glTFMaterial.pbrMetallicRoughness;
-            if (pbrMetallicRoughness) {
-                if (pbrMetallicRoughness.baseColorFactor) {
-                    let baseColorFactor = material.getVector4("u_BaseColorFactor");
-                    baseColorFactor.fromArray(pbrMetallicRoughness.baseColorFactor);
-                    material.setVector4("u_BaseColorFactor", baseColorFactor);
-                }
-                if (pbrMetallicRoughness.baseColorTexture) {
-                    let tex = this.getTextureWithInfo(pbrMetallicRoughness.baseColorTexture);
-                    material.setTexture("u_BaseColorTexture", tex);
-                }
-
-                let metallicFactor = pbrMetallicRoughness.metallicFactor ?? 1.0;
-                material.setFloat("u_MetallicFactor", metallicFactor);
-
-                let roughnessFactor = pbrMetallicRoughness.roughnessFactor ?? 1.0;
-                material.setFloat("u_RoughnessFactor", roughnessFactor);
-
-                if (pbrMetallicRoughness.metallicRoughnessTexture) {
-                    let tex = this.getTextureWithInfo(pbrMetallicRoughness.metallicRoughnessTexture);
-                    material.setTexture("u_MetallicRoughnessTexture", tex);
-                    material.setDefine(glTFShader.Define_MetallicRoughnessMap, true);
-                }
+        let pbrMetallicRoughness = glTFMaterial.pbrMetallicRoughness;
+        if (pbrMetallicRoughness) {
+            if (pbrMetallicRoughness.baseColorFactor) {
+                let baseColorFactor = material.getVector4("u_BaseColorFactor");
+                baseColorFactor.fromArray(pbrMetallicRoughness.baseColorFactor);
+                material.setVector4("u_BaseColorFactor", baseColorFactor);
+            }
+            if (pbrMetallicRoughness.baseColorTexture) {
+                this.setMaterialTextureProperty(material, pbrMetallicRoughness.baseColorTexture, "u_BaseColorTexture", glTFShader.Define_BaseColorMap, "u_BaseColorMapTransform", glTFShader.Define_BaseColorMapTransform);
             }
 
-            if (glTFMaterial.normalTexture) {
-                let tex = this.getTextureWithInfo(glTFMaterial.normalTexture);
-                material.setTexture("u_NormalTexture", tex);
-                material.setDefine(glTFShader.Define_NormalMap, true);
-                let normalScale = glTFMaterial.normalTexture.scale ?? 1.0;
-                material.setFloat("u_NormalScale", normalScale);
-            }
+            let metallicFactor = pbrMetallicRoughness.metallicFactor ?? 1.0;
+            material.setFloat("u_MetallicFactor", metallicFactor);
 
-            if (glTFMaterial.occlusionTexture) {
-                let tex = this.getTextureWithInfo(glTFMaterial.occlusionTexture);
-                material.setTexture("u_OcclusionTexture", tex);
-                material.setDefine(glTFShader.Define_OcclusionMap, true);
-                let strength = glTFMaterial.occlusionTexture.strength ?? 1.0;
-                material.setFloat("u_OcclusionStrength", strength);
-            }
+            let roughnessFactor = pbrMetallicRoughness.roughnessFactor ?? 1.0;
+            material.setFloat("u_RoughnessFactor", roughnessFactor);
 
-            if (glTFMaterial.emissiveFactor) {
-                let emissionFactor = material.getVector3("u_EmissionFactor");
-                emissionFactor.fromArray(glTFMaterial.emissiveFactor);
-                material.setVector3("u_EmissionFactor", emissionFactor);
-                material.setDefine(PBRShaderLib.DEFINE_EMISSION, true);
+            if (pbrMetallicRoughness.metallicRoughnessTexture) {
+                this.setMaterialTextureProperty(material, pbrMetallicRoughness.metallicRoughnessTexture, "u_MetallicRoughnessTexture", glTFShader.Define_MetallicRoughnessMap, "u_MetallicRoughnessMapTransform", glTFShader.Define_MetallicRoughnessMapTransform);
             }
-
-            if (glTFMaterial.emissiveTexture) {
-                let tex = this.getTextureWithInfo(glTFMaterial.emissiveTexture);
-                material.setTexture("u_EmissionTexture", tex);
-                material.setDefine(PBRShaderLib.DEFINE_EMISSION, true);
-                material.setDefine(glTFShader.Define_EmissionMap, true);
-            }
-
-            this.applyMaterialRenderState(glTFMaterial, material);
         }
+
+        if (glTFMaterial.normalTexture) {
+            this.setMaterialTextureProperty(material, glTFMaterial.normalTexture, "u_NormalTexture", glTFShader.Define_NormalMap, "u_NormalMapTransform", glTFShader.Define_NormalMapTransform);
+
+            let normalScale = glTFMaterial.normalTexture.scale ?? 1.0;
+            material.setFloat("u_NormalScale", normalScale);
+        }
+
+        if (glTFMaterial.occlusionTexture) {
+            this.setMaterialTextureProperty(material, glTFMaterial.occlusionTexture, "u_OcclusionTexture", glTFShader.Define_OcclusionMap, "u_OcclusionMapTransform", glTFShader.Define_OcclusionMapTransform);
+
+            let strength = glTFMaterial.occlusionTexture.strength ?? 1.0;
+            material.setFloat("u_OcclusionStrength", strength);
+        }
+
+        if (glTFMaterial.emissiveFactor) {
+            let emissionFactor = material.getVector3("u_EmissionFactor");
+            emissionFactor.fromArray(glTFMaterial.emissiveFactor);
+            material.setVector3("u_EmissionFactor", emissionFactor);
+            material.setDefine(PBRShaderLib.DEFINE_EMISSION, true);
+        }
+
+        if (glTFMaterial.emissiveTexture) {
+            material.setDefine(PBRShaderLib.DEFINE_EMISSION, true);
+
+            this.setMaterialTextureProperty(material, glTFMaterial.emissiveTexture, "u_EmissionTexture", glTFShader.Define_EmissionMap, "u_EmissionMapTransform", glTFShader.Define_EmissionMapTransform);
+        }
+
+        this.applyMaterialRenderState(glTFMaterial, material);
+
         return;
     }
 
@@ -830,7 +873,7 @@ export class glTFResource extends Prefab {
         let mat: Material = null;
         let propertiesExts = [];
         for (const key in glTFMaterial.extensions) {
-            let extension = this._extensions.find(value => value.name == key);
+            let extension = this._extensions.get(key);
             if (extension) {
                 if (extension.createMaterial) {
                     mat = extension.createMaterial(glTFMaterial);

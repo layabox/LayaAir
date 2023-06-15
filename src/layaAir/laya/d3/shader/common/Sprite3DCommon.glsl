@@ -3,7 +3,7 @@
 
 uniform mat4 u_WorldMat;
 
-uniform vec4 u_WroldInvertFront;
+uniform vec4 u_WroldInvertFront; // x: invert front face
     
     #ifdef LIGHTMAP
 uniform vec4 u_LightmapScaleOffset;

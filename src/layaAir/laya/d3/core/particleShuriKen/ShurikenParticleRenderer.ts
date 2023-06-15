@@ -128,6 +128,11 @@ export class ShurikenParticleRenderer extends BaseRender {
         this._supportOctree = false;
     }
 
+    protected _getcommonUniformMap():Array<string>{
+        return ["Sprite3D","ShurikenSprite3D"];
+    }
+
+
     protected _onAdded(): void {
         super._onAdded();
         if (!LayaGL.renderEngine.getCapable(RenderCapable.DrawElement_Instance)) {

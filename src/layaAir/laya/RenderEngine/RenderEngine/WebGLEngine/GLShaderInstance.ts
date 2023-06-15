@@ -12,6 +12,7 @@ import { ShaderVariable } from "../../RenderShader/ShaderVariable";
 import { UniformBufferObject } from "../../UniformBufferObject";
 import { GLObject } from "./GLObject";
 import { WebGLEngine } from "./WebGLEngine";
+import { Matrix3x3 } from "../../../maths/Matrix3x3";
 
 
 export class GLShaderInstance extends GLObject implements IRenderShaderInstance {
@@ -348,7 +349,8 @@ export class GLShaderInstance extends GLObject implements IRenderShaderInstance 
     /**
      * @internal
      */
-    _uniformMatrix3fv(one: any, value: any): number {
+    _uniformMatrix3fv(one: any, m: Matrix3x3): number {
+        let value = m.elements;
         this._gl.uniformMatrix3fv(one.location, false, value);
         return 1;
     }

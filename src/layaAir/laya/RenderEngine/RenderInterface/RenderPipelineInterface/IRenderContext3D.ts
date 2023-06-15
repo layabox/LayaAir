@@ -31,4 +31,6 @@ export interface IRenderContext3D {
 	applyContext(cameraUpdateMark: number): void;
 	/**draw one element by context */
 	drawRenderElement(renderelemt: IRenderElement): void;
+
+	end():void;
 }

@@ -201,16 +201,37 @@ export class Scene3D extends Sprite implements ISubmit {
         Scene3D.TIME = Shader3D.propertyNameToID("u_Time");
         Scene3D.GIRotate = Shader3D.propertyNameToID("u_GIRotate");
         Scene3D.SCENEUNIFORMBLOCK = Shader3D.propertyNameToID(UniformBufferObject.UBONAME_SCENE);
-
         let sceneUniformMap: CommandUniformMap = Scene3D.sceneUniformMap = LayaGL.renderOBJCreate.createGlobalUniformMap("Scene3D");
-        sceneUniformMap.addShaderUniform(Scene3D.FOGCOLOR, "u_FogColor");
-        sceneUniformMap.addShaderUniform(Scene3D.FOGPARAMS, "u_FogParams");
-        sceneUniformMap.addShaderUniform(Scene3D.DIRECTIONLIGHTCOUNT, "u_DirationLightCount");
-        sceneUniformMap.addShaderUniform(Scene3D.LIGHTBUFFER, "u_LightBuffer");
-        sceneUniformMap.addShaderUniform(Scene3D.CLUSTERBUFFER, "u_LightClusterBuffer");
-        sceneUniformMap.addShaderUniform(Scene3D.TIME, "u_Time");
-        sceneUniformMap.addShaderUniform(Scene3D.GIRotate, "u_GIRotate")
-        sceneUniformMap.addShaderUniform(Scene3D.SCENEUNIFORMBLOCK, UniformBufferObject.UBONAME_SCENE);
+        if (Config3D._uniformBlock) {
+            
+            sceneUniformMap.addShaderBlockUniform(Scene3D.SCENEUNIFORMBLOCK, UniformBufferObject.UBONAME_SCENE, [
+                {
+                    id: Scene3D.TIME,
+                    propertyName: "u_Time",
+                    uniformtype: ShaderDataType.Float
+                },
+                {
+                    id: Scene3D.FOGPARAMS,
+                    propertyName: "u_FogParams",
+                    uniformtype: ShaderDataType.Vector4
+                },
+                {
+                    id: Scene3D.FOGCOLOR,
+                    propertyName: "u_FogColor",
+                    uniformtype: ShaderDataType.Vector4
+                }
+            ])
+        } else {
+            sceneUniformMap.addShaderUniform(Scene3D.FOGCOLOR, "u_FogColor", ShaderDataType.Color);
+            sceneUniformMap.addShaderUniform(Scene3D.FOGPARAMS, "u_FogParams", ShaderDataType.Vector4);
+            sceneUniformMap.addShaderUniform(Scene3D.TIME, "u_Time", ShaderDataType.Float);
+        }
+
+        sceneUniformMap.addShaderUniform(Scene3D.DIRECTIONLIGHTCOUNT, "u_DirationLightCount", ShaderDataType.Int);
+        sceneUniformMap.addShaderUniform(Scene3D.LIGHTBUFFER, "u_LightBuffer", ShaderDataType.Texture2D);
+        sceneUniformMap.addShaderUniform(Scene3D.CLUSTERBUFFER, "u_LightClusterBuffer", ShaderDataType.Texture2D);
+
+        sceneUniformMap.addShaderUniform(Scene3D.GIRotate, "u_GIRotate", ShaderDataType.Float);
     }
 
     /**
@@ -218,27 +239,27 @@ export class Scene3D extends Sprite implements ISubmit {
      */
     static legacyLightingValueInit() {
         Scene3D.LIGHTDIRECTION = Shader3D.propertyNameToID("u_DirectionLight.direction");
-        Scene3D.sceneUniformMap.addShaderUniform(Scene3D.LIGHTDIRECTION, "u_DirectionLight.direction");
+        Scene3D.sceneUniformMap.addShaderUniform(Scene3D.LIGHTDIRECTION, "u_DirectionLight.direction", ShaderDataType.Vector3);
         Scene3D.LIGHTDIRCOLOR = Shader3D.propertyNameToID("u_DirectionLight.color");
-        Scene3D.sceneUniformMap.addShaderUniform(Scene3D.LIGHTDIRCOLOR, "u_DirectionLight.color");
+        Scene3D.sceneUniformMap.addShaderUniform(Scene3D.LIGHTDIRCOLOR, "u_DirectionLight.color", ShaderDataType.Vector3);
         Scene3D.POINTLIGHTPOS = Shader3D.propertyNameToID("u_PointLight.position");
-        Scene3D.sceneUniformMap.addShaderUniform(Scene3D.POINTLIGHTPOS, "u_PointLight.position");
+        Scene3D.sceneUniformMap.addShaderUniform(Scene3D.POINTLIGHTPOS, "u_PointLight.position", ShaderDataType.Vector3);
         Scene3D.POINTLIGHTRANGE = Shader3D.propertyNameToID("u_PointLight.range");
-        Scene3D.sceneUniformMap.addShaderUniform(Scene3D.POINTLIGHTRANGE, "u_PointLight.range");
+        Scene3D.sceneUniformMap.addShaderUniform(Scene3D.POINTLIGHTRANGE, "u_PointLight.range", ShaderDataType.Float);
         Scene3D.POINTLIGHTATTENUATION = Shader3D.propertyNameToID("u_PointLight.attenuation");
-        Scene3D.sceneUniformMap.addShaderUniform(Scene3D.POINTLIGHTATTENUATION, "u_PointLight.attenuation");
+        Scene3D.sceneUniformMap.addShaderUniform(Scene3D.POINTLIGHTATTENUATION, "u_PointLight.attenuation", ShaderDataType.Float);
         Scene3D.POINTLIGHTCOLOR = Shader3D.propertyNameToID("u_PointLight.color");
-        Scene3D.sceneUniformMap.addShaderUniform(Scene3D.POINTLIGHTCOLOR, "u_PointLight.color");
+        Scene3D.sceneUniformMap.addShaderUniform(Scene3D.POINTLIGHTCOLOR, "u_PointLight.color", ShaderDataType.Vector3);;
         Scene3D.SPOTLIGHTPOS = Shader3D.propertyNameToID("u_SpotLight.position");
-        Scene3D.sceneUniformMap.addShaderUniform(Scene3D.SPOTLIGHTPOS, "u_SpotLight.position");
+        Scene3D.sceneUniformMap.addShaderUniform(Scene3D.SPOTLIGHTPOS, "u_SpotLight.position", ShaderDataType.Vector3);
         Scene3D.SPOTLIGHTDIRECTION = Shader3D.propertyNameToID("u_SpotLight.direction");
-        Scene3D.sceneUniformMap.addShaderUniform(Scene3D.SPOTLIGHTDIRECTION, "u_DirectionLight.direction");
+        Scene3D.sceneUniformMap.addShaderUniform(Scene3D.SPOTLIGHTDIRECTION, "u_DirectionLight.direction", ShaderDataType.Vector3);
         Scene3D.SPOTLIGHTSPOTANGLE = Shader3D.propertyNameToID("u_SpotLight.spot");
-        Scene3D.sceneUniformMap.addShaderUniform(Scene3D.SPOTLIGHTSPOTANGLE, "u_SpotLight.spot");
+        Scene3D.sceneUniformMap.addShaderUniform(Scene3D.SPOTLIGHTSPOTANGLE, "u_SpotLight.spot", ShaderDataType.Float);
         Scene3D.SPOTLIGHTRANGE = Shader3D.propertyNameToID("u_SpotLight.range");
-        Scene3D.sceneUniformMap.addShaderUniform(Scene3D.SPOTLIGHTRANGE, "u_SpotLight.range");
+        Scene3D.sceneUniformMap.addShaderUniform(Scene3D.SPOTLIGHTRANGE, "u_SpotLight.range", ShaderDataType.Float);
         Scene3D.SPOTLIGHTCOLOR = Shader3D.propertyNameToID("u_SpotLight.color");
-        Scene3D.sceneUniformMap.addShaderUniform(Scene3D.SPOTLIGHTCOLOR, "u_SpotLight.color");
+        Scene3D.sceneUniformMap.addShaderUniform(Scene3D.SPOTLIGHTCOLOR, "u_SpotLight.color", ShaderDataType.Vector3);
     }
 
     /**
@@ -247,17 +268,20 @@ export class Scene3D extends Sprite implements ISubmit {
      * @returns 
      */
     static createSceneUniformBlock(): UnifromBufferData {
-        let uniformpara: Map<string, UniformBufferParamsType> = new Map<string, UniformBufferParamsType>();
-        // uniformpara.set("u_AmbientColor", UniformBufferParamsType.Vector4);
-        uniformpara.set("u_Time", UniformBufferParamsType.Number);
-        uniformpara.set("u_FogParams", UniformBufferParamsType.Vector4);
-        uniformpara.set("u_FogColor", UniformBufferParamsType.Vector4);
-        let uniformMap = new Map<number, UniformBufferParamsType>();
-        uniformpara.forEach((value, key) => {
-            uniformMap.set(Shader3D.propertyNameToID(key), value);
-        });
-        return new UnifromBufferData(uniformMap);
-}
+        if (!Scene3D.SceneUBOData) {
+            let uniformpara: Map<string, UniformBufferParamsType> = new Map<string, UniformBufferParamsType>();
+            // uniformpara.set("u_AmbientColor", UniformBufferParamsType.Vector4);
+            uniformpara.set("u_Time", UniformBufferParamsType.Number);
+            uniformpara.set("u_FogParams", UniformBufferParamsType.Vector4);
+            uniformpara.set("u_FogColor", UniformBufferParamsType.Vector4);
+            let uniformMap = new Map<number, UniformBufferParamsType>();
+            uniformpara.forEach((value, key) => {
+                uniformMap.set(Shader3D.propertyNameToID(key), value);
+            });
+            Scene3D.SceneUBOData = new UnifromBufferData(uniformMap);
+        }
+        return Scene3D.SceneUBOData;
+    }
 
 
     /**
@@ -281,11 +305,6 @@ export class Scene3D extends Sprite implements ISubmit {
             Scene3D.legacyLightingValueInit()
         }
         Scene3D._shadowCasterPass = new ShadowCasterPass();
-        //TODO:
-        if (LayaGL.renderEngine.getCapable(RenderCapable.GRAPHICS_API_GLES3))
-            configShaderValue.add(Shader3D.SHADERDEFINE_GRAPHICS_API_GLES3);
-        else
-            configShaderValue.add(Shader3D.SHADERDEFINE_GRAPHICS_API_GLES2);
         //UniformBuffer
         if (Config3D._uniformBlock)
             configShaderValue.add(Shader3D.SHADERDEFINE_ENUNIFORMBLOCK);
@@ -1212,7 +1231,6 @@ export class Scene3D extends Sprite implements ISubmit {
             case CameraClearFlags.ColorOnly:
                 clearConst = RenderClearFlag.Color;
                 break;
-
         }
 
         LayaGL.renderEngine.clearRenderTexture(clearConst, camera._linearClearColor, 1);

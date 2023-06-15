@@ -35,6 +35,9 @@ export class RenderContext3DOBJ implements IRenderContext3D {
         this.scissor = new Vector4();
         this.pipelineMode = "Forward";
     }
+    end(): void {
+        //TODO
+    }
 
     /**设置IRenderContext */
     applyContext(cameraUpdateMark: number): void {

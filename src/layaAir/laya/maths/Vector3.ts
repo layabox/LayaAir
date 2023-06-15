@@ -381,7 +381,7 @@ export class Vector3 implements IClone {
      * @param  arr 数组。
      * @param  offset 数组偏移。
      */
-    fromArray(arr: any[], offset: number = 0): void {
+    fromArray(arr: ArrayLike<number>, offset: number = 0): void {
         this.x = arr[offset + 0];
         this.y = arr[offset + 1];
         this.z = arr[offset + 2];

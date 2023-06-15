@@ -79,6 +79,10 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
         this._shaderValues.addDefine(SkinnedMeshSprite3DShaderDeclaration.SHADERDEFINE_BONE);
     }
 
+    protected _getcommonUniformMap(): string[] {
+        return ["Sprite3D","SimpleSkinnedMesh"];
+    }
+
     /**
      *@inheritDoc
      *@override

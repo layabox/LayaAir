@@ -29,8 +29,10 @@ uniform float u_ReflectionIntensity;
 
 uniform vec3 u_IblSH[9];
 
-	#define IBL_ROUGHNESS_LEVEL 4.0
 uniform samplerCube u_IBLTex;
+uniform float u_IBLRoughnessLevel;
+
+	#define IBL_ROUGHNESS_LEVEL u_IBLRoughnessLevel
 
 // todo 格式
 vec3 diffuseIrradiance(in vec3 normalWS)

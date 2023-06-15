@@ -27,6 +27,8 @@ export class WebGLInternalRT extends GLObject implements InternalRenderTarget {
     colorFormat: RenderTargetFormat;
     depthStencilFormat: RenderTargetFormat;
 
+    isSRGB: boolean;
+
     /**bytelength */
     _gpuMemory: number = 0;
 
@@ -58,6 +60,7 @@ export class WebGLInternalRT extends GLObject implements InternalRenderTarget {
             this._msaaFramebuffer = this._gl.createFramebuffer();
         }
     }
+    
 
 
     dispose(): void {
