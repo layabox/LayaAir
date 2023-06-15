@@ -1,7 +1,6 @@
 import { NodeFlags } from "../Const";
 import { CacheStyle } from "../display/css/CacheStyle";
 import { SpriteStyle } from "../display/css/SpriteStyle";
-import { TextStyle } from "../display/css/TextStyle";
 import { Sprite } from "../display/Sprite";
 import { SpriteConst } from "../display/SpriteConst";
 import { Filter } from "../filters/Filter";
@@ -169,7 +168,7 @@ export class RenderSprite {
 
     /**@internal */
     _clip(sprite: Sprite, context: Context, x: number, y: number): void {
-        var next: RenderSprite = this._next;
+        let next: RenderSprite = this._next;
         if (next == RenderSprite.NORENDER) return;
 
         if (sprite._getBit(NodeFlags.DISABLE_INNER_CLIPPING) && !context._drawingToTexture) {
@@ -177,12 +176,13 @@ export class RenderSprite {
             return;
         }
 
-        var r: Rectangle = sprite._style.scrollRect;
-        var width = r.width;
-        var height = r.height;
-        if (width === 0 || height === 0) {
-            return;
-        }
+        let r = sprite._style.scrollRect;
+        let width = r.width;
+        let height = r.height;
+        if (width === 0)
+            width = 0.001;
+        if (height === 0)
+            height = 0.001;
         context.save();
         context.clipRect(x, y, width, height);
         next._fun.call(next, sprite, context, x - r.x, y - r.y);
@@ -200,12 +200,12 @@ export class RenderSprite {
                 var hRate: number = height / tex.sourceHeight;
                 width = tex.width * wRate;
                 height = tex.height * hRate;
-                if (width <= 0 || height <= 0) return;
+                if (width > 0 && height > 0) {
+                    let px = x - sprite.pivotX + tex.offsetX * wRate;
+                    let py = y - sprite.pivotY + tex.offsetY * hRate;
 
-                var px = x - sprite.pivotX + tex.offsetX * wRate;
-                var py = y - sprite.pivotY + tex.offsetY * hRate;
-
-                context.drawTexture(tex, px, py, width, height, 0xffffffff);
+                    context.drawTexture(tex, px, py, width, height, 0xffffffff);
+                }
             }
         }
         var next: RenderSprite = this._next;
@@ -259,7 +259,6 @@ export class RenderSprite {
     /**@internal */
     _transform(sprite: Sprite, context: Context, x: number, y: number): void {
         var transform: Matrix = sprite.transform, _next: RenderSprite = this._next;
-        var style: SpriteStyle = sprite._style;
         if (transform && _next != RenderSprite.NORENDER) {
             context.save();
             context.transform(transform.a, transform.b, transform.c, transform.d, transform.tx + x, transform.ty + y);
@@ -384,7 +383,7 @@ export class RenderSprite {
         top = tRec.y;
 
         if (tCacheType === 'bitmap' && (w > 2048 || h > 2048)) {
-            console.warn("cache bitmap size larger than 2048,cache ignored");
+            console.warn("cache bitmap size larger than 2048, cache ignored");
             _cacheStyle.releaseContext();
             _next._fun.call(_next, sprite, context, x, y);
             return;
@@ -476,7 +475,6 @@ export class RenderSprite {
     _mask(sprite: Sprite, context: Context, x: number, y: number): void {
         var next: RenderSprite = this._next;
         var mask: Sprite = sprite.mask;
-        var submitCMD: SubmitCMD;
         var ctx: Context = (<Context>context);
         if (mask && (!mask._getBit(NodeFlags.DISABLE_VISIBILITY) || context._drawingToTexture)) {
             ctx.save();
@@ -485,13 +483,12 @@ export class RenderSprite {
             //裁剪范围是根据mask来定的
             tRect.copyFrom(mask.getBounds());
             // 为什么round
-            tRect.width = Math.round(tRect.width);
-            tRect.height = Math.round(tRect.height);
+            let w = tRect.width = Math.round(tRect.width);
+            let h = tRect.height = Math.round(tRect.height);
             tRect.x = Math.round(tRect.x);
             tRect.y = Math.round(tRect.y);
-            if (tRect.width > 0 && tRect.height > 0) {
-                var w: number = tRect.width;
-                var h: number = tRect.height;
+
+            if (w > 0 && h > 0) {
                 var tmpRT: RenderTexture2D = WebGLRTMgr.getRT(w, h);
 
                 ctx.breakNextMerge();
@@ -533,6 +530,7 @@ export class RenderSprite {
                 //恢复混合模式
                 ctx.addRenderObject(SubmitCMD.create([preBlendMode], RenderSprite.setBlendMode, this));
             }
+
             ctx.restore();
         } else {
             next._fun.call(next, sprite, context, x, y);

@@ -177,7 +177,6 @@ export class AutoBitmap extends Graphics {
         else
             cmd = Draw9GridTextureCmd.create(source, 0, 0, width, height, sizeGrid, false, this._color);
         this._setDrawGridCmd(cmd);
-        this._repaint();
     }
 
     /**

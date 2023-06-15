@@ -66,7 +66,7 @@ export class DrawCircleCmd {
         if (this.percent && context.sprite) {
             let w = context.sprite.width;
             let h = context.sprite.height;
-            context._drawCircle(this.x * w + gx, this.y * h + gy, this.radius * w - offset, this.fillColor, this.lineColor, this.lineWidth, 0);
+            context._drawCircle(this.x * w + gx, this.y * h + gy, this.radius * Math.min(w, h) - offset, this.fillColor, this.lineColor, this.lineWidth, 0);
         }
         else
             context._drawCircle(this.x + gx, this.y + gy, this.radius - offset, this.fillColor, this.lineColor, this.lineWidth, 0);
