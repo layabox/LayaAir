@@ -200,12 +200,12 @@ export class RenderSprite {
                 var hRate: number = height / tex.sourceHeight;
                 width = tex.width * wRate;
                 height = tex.height * hRate;
-                if (width <= 0 || height <= 0) return;
+                if (width > 0 && height > 0) {
+                    let px = x - sprite.pivotX + tex.offsetX * wRate;
+                    let py = y - sprite.pivotY + tex.offsetY * hRate;
 
-                var px = x - sprite.pivotX + tex.offsetX * wRate;
-                var py = y - sprite.pivotY + tex.offsetY * hRate;
-
-                context.drawTexture(tex, px, py, width, height, 0xffffffff);
+                    context.drawTexture(tex, px, py, width, height, 0xffffffff);
+                }
             }
         }
         var next: RenderSprite = this._next;
