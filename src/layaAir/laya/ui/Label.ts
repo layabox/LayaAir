@@ -133,9 +133,10 @@ export class Label extends UIComponent {
      * 创建一个新的 <code>Label</code> 实例。
      * @param text 文本内容字符串。
      */
-    constructor(text: string = "") {
+    constructor(text?: string) {
         super();
-        this.text = text;
+        if (text != null)
+            this.text = text;
     }
 
     /**
@@ -145,7 +146,13 @@ export class Label extends UIComponent {
     protected createChildren(): void {
         this._tf = new Text();
         this._tf.hideFlags = HideFlags.HideAndDontSave;
+        this._tf._parseEscapeChars = true;
         this._tf._onPostLayout = () => this._onPostLayout();
+        this._tf.on(Event.CHANGE, () => {
+            this.event(Event.CHANGE);
+            if (!this._isWidthSet || !this._isHeightSet)
+                this.onCompResize();
+        });
         this.addChild(this._tf);
     }
 
@@ -169,13 +176,7 @@ export class Label extends UIComponent {
     }
 
     set text(value: string) {
-        if (this._tf.text != value) {
-            if (value)
-                value = UIUtils.adptString(value + "");
-            this._tf.text = value;
-            this.event(Event.CHANGE);
-            if (!this._isWidthSet || !this._isHeightSet) this.onCompResize();
-        }
+        this._tf.text = value;
     }
 
     /**
