@@ -97,7 +97,7 @@ export class TextArea extends TextInput {
      * <p>创建一个新的 <code>TextArea</code> 示例。</p>
      * @param text 文本内容字符串。
      */
-    constructor(text: string = "") {
+    constructor(text?: string) {
         super(text);
     }
 
