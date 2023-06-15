@@ -47,7 +47,7 @@ export class KHR_materials_sheen implements glTFExtension {
                 let extension: glTF.glTFMaterialSheen = material.extensions?.KHR_materials_sheen;
                 if (extension) {
                     if (extension.sheenColorTexture) {
-                        let sRGB = true;
+                        let sRGB = false;
                         let promise = this._resource.loadTextureFromInfo(extension.sheenColorTexture, sRGB, basePath, progress);
                         promises.push(promise);
                     }

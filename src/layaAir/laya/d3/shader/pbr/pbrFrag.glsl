@@ -63,11 +63,8 @@ void getPixelInfo(inout PixelInfo info, const in PixelParams pixel, const in Sur
     #endif // LIGHTMAP
 }
 
-vec3 PBRLighting(const in Surface surface, const in PixelParams pixel)
+vec3 PBRLighting(const in Surface surface, const in PixelInfo info)
 {
-    PixelInfo info;
-    getPixelInfo(info, pixel, surface);
-
     vec3 lightColor = vec3(0.0);
     #ifdef DIRECTIONLIGHT
     for (int i = 0; i < CalculateLightCount; i++)

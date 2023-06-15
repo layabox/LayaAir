@@ -14,6 +14,11 @@ struct SurfaceInputs {
     float occlusion;
     vec3 emissionColor;
     vec3 normalTS;
+    float specular;
+
+    // specular
+    float specularFactor;
+    vec3 specularColor;
 
     #ifdef CLEARCOAT
     float clearCoat;
@@ -65,18 +70,23 @@ void initSurface(inout Surface surface, const in SurfaceInputs inputs, const in 
     float metallic = inputs.metallic;
     float perceptualRoughness = inputs.roughness;
 
-    float ior = 1.5;
-    vec3 f0 = vec3(0.04);
     #ifdef IOR
-    ior = inputs.ior;
-    f0 = vec3(pow2((ior - 1.0) / (ior + 1.0)));
-    #endif // IOR
+    float ior = inputs.ior;
     surface.ior = ior;
+    vec3 f0 = vec3(dielectricIorToF0(ior));
+    #else // IOR
+    vec3 f0 = vec3(dielectricSpecularToF0(inputs.specular));
+    surface.ior = dielectricF0ToIor(f0.x);
+    #endif // IOR
+
+    // KHR_materials_specular
+    f0 *= inputs.specularFactor * inputs.specularColor;
 
     surface.perceptualRoughness = max(perceptualRoughness, MIN_PERCEPTUAL_ROUGHNESS);
     surface.roughness = surface.perceptualRoughness * surface.perceptualRoughness;
-    surface.diffuseColor = (1.0 - metallic) * baseColor;
-    surface.f0 = mix(f0, baseColor, metallic);
+    surface.diffuseColor = computeDiffuse(baseColor, metallic);
+    surface.f0 = computeF0(f0, baseColor, metallic);
+    surface.f90 = computeF90(surface.f0);
 
     surface.occlusion = inputs.occlusion;
 
@@ -128,9 +138,11 @@ vec4 glTFMetallicRoughness(const in SurfaceInputs inputs, in PixelParams pixel)
     Surface surface;
     initSurface(surface, inputs, pixel);
 
-    vec3 surfaceColor = vec3(0.0);
+    PixelInfo info;
+    getPixelInfo(info, pixel, surface);
 
-    surfaceColor += PBRLighting(surface, pixel);
+    vec3 surfaceColor = vec3(0.0);
+    surfaceColor += PBRLighting(surface, info);
 
     // todo emission calculate
     #ifdef EMISSION

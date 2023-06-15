@@ -69,6 +69,12 @@ export class glTFShader {
     static Define_VolumeThicknessMap: ShaderDefine;
     static Define_VolumeThicknessMapTransform: ShaderDefine;
 
+    // specular
+    static Define_SpecularFactorMap: ShaderDefine;
+    static Define_SpecularFactorMapTransform: ShaderDefine;
+    static Define_SpecularColorMap: ShaderDefine;
+    static Define_SpecularColorMapTransform: ShaderDefine;
+
     // todo
     static init() {
 
@@ -112,6 +118,11 @@ export class glTFShader {
         this.Define_VolumeThicknessMap = Shader3D.getDefineByName("VOLUME_THICKNESSMAP");
         this.Define_VolumeThicknessMapTransform = Shader3D.getDefineByName("VOLUME_THICKNESSMAP_TRANSFORM");
 
+        this.Define_SpecularFactorMap = Shader3D.getDefineByName("SPECULARFACTORMAP");
+        this.Define_SpecularFactorMapTransform = Shader3D.getDefineByName("SPECULARFACTORMAP_TRANSFORM");
+        this.Define_SpecularColorMap = Shader3D.getDefineByName("SPECULARCOLORMAP");
+        this.Define_SpecularColorMapTransform = Shader3D.getDefineByName("SPECULARCOLORMAP_TRANSFORM");
+
         let uniformMap = {
             // render 
             "u_AlphaTestValue": ShaderDataType.Float,
@@ -120,6 +131,7 @@ export class glTFShader {
             "u_BaseColorFactor": ShaderDataType.Vector4,
             "u_BaseColorTexture": ShaderDataType.Texture2D,
             "u_BaseColorMapTransform": ShaderDataType.Matrix3x3,
+            "u_Specular": ShaderDataType.Float,
             "u_MetallicFactor": ShaderDataType.Float,
             "u_RoughnessFactor": ShaderDataType.Float,
             "u_MetallicRoughnessTexture": ShaderDataType.Texture2D,
@@ -186,7 +198,17 @@ export class glTFShader {
             "u_VolumeThicknessTexture": ShaderDataType.Texture2D,
             "u_VoluemThicknessMapTransform": ShaderDataType.Matrix3x3,
             "u_VolumeAttenuationDistance": ShaderDataType.Float,
-            "u_VolumeAttenuationColor": ShaderDataType.Vector3
+            "u_VolumeAttenuationColor": ShaderDataType.Vector3,
+
+            // specular
+            "u_SpecularFactor": ShaderDataType.Float,
+            "u_SpecularFactorTexture": ShaderDataType.Texture2D,
+            "u_SpecularFactorMapTransfrom": ShaderDataType.Matrix3x3,
+
+            "u_SpecularColorFactor": ShaderDataType.Vector3,
+            "u_SpecularColorTexture": ShaderDataType.Texture2D,
+            "u_SpecularColorMapTransform": ShaderDataType.Matrix3x3,
+
         }
 
         let defaultValue = {
@@ -195,12 +217,17 @@ export class glTFShader {
             // surface
             "u_BaseColorFactor": Vector4.ONE,
             "u_BaseColorTexture": Texture2D.whiteTexture,
+            "u_Specular": 0.5,
             "u_MetallicFactor": 1.0,
             "u_RoughnessFactor": 1.0,
             "u_NormalScale": 1.0,
             "u_OcclusionStrength": 1.0,
             "u_EmissionFactor": Vector3.ZERO,
             "u_EmissionStrength": 1.0,
+
+            // specular
+            "u_SpecularFactor": 1.0,
+            "u_SpecularColorFactor": Vector3.ONE,
 
             "u_Ior": 1.5,
 

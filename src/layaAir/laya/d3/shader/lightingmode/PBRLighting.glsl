@@ -64,6 +64,7 @@ struct Surface {
     vec3 diffuseColor;
     float alpha;
     vec3 f0;
+    vec3 f90;
     float roughness;
     float perceptualRoughness;
     float occlusion;
@@ -163,6 +164,7 @@ vec3 prefilteredDFG_LUT(float roughness, float NoV)
     return (texture2D(u_IBLDFG, samplePoint)).rgb;
 }
 
+// todo remove
 vec2 EnvBRDFApproxLazarov(float roughness, float NoV)
 {
     vec4 c0 = vec4(-1, -0.0275, -0.572, 0.022);
@@ -173,10 +175,41 @@ vec2 EnvBRDFApproxLazarov(float roughness, float NoV)
     return AB;
 }
 
+float dielectricSpecularToF0(float specular)
+{
+    return 0.08 * specular;
+}
+
+float dielectricF0ToIor(float f0)
+{
+    return 2.0 / (1.0 - sqrt(min(f0, 0.99))) - 1.0;
+}
+
+float dielectricIorToF0(float ior)
+{
+    return pow2((ior - 1.0) / (ior + 1.0));
+}
+
+// input dielectric f0, output surface f0
+vec3 computeF0(vec3 f0, vec3 baseColor, float metallic)
+{
+    return mix(f0, baseColor, metallic);
+}
+
+// input surface f0, output surface f90
+vec3 computeF90(vec3 f0)
+{
+    return vec3(saturate(dot(f0, vec3(50.0 * 0.33))));
+}
+
+vec3 computeDiffuse(vec3 baseColor, float metallic)
+{
+    return (1.0 - metallic) * baseColor;
+}
+
 vec3 diffuseLobe(in Surface surface, const in PixelInfo pixel, const in LightParams lightParams)
 {
     return surface.diffuseColor * Fd_Lambert();
-    // return surface.diffuseColor * Fd_Lambert() * (1.0 - F_Schlick(surface.f0, vec3(1.0, 1.0, 1.0), lightParams.VoH));
     // return surface.diffuseColor * Fd_Burley(surface.roughness, pixel.NoV, lightParams.NoL, lightParams.LoH);
 }
 
@@ -186,7 +219,7 @@ vec3 specularLobe(const in Surface surface, const in PixelInfo pixel, const in L
 
     float D = distribution(roughness, lightParams.NoH, lightParams.h, pixel.normalWS);
     float V = visibility(roughness, pixel.NoV, lightParams.NoL);
-    vec3 F = fresnel(surface.f0, lightParams.LoH);
+    vec3 F = fresnel(surface.f0, surface.f90, lightParams.LoH);
 
     return (D * V) * F;
 }

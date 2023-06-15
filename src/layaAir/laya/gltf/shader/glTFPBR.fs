@@ -37,6 +37,34 @@ void initSurfaceInputs(inout SurfaceInputs inputs, const in PixelParams pixel)
     inputs.alpha *= baseColorSampler.a;
 #endif // BASECOLORMAP
 
+    inputs.specular = u_Specular;
+
+    inputs.specularFactor = 1.0;
+    inputs.specularColor = vec3(1.0);
+
+    inputs.specularFactor = u_SpecularFactor;
+#ifdef SPECULARFACTORMAP
+    vec2 specularFactorUV = uv;
+    #ifdef SPECULARFACTORMAP_TRANSFORM
+    specularFactorUV = (u_SpecularFactorMapTransfrom * specularFactorUV).xy;
+    #endif // SPECULARFACTORMAP_TRANSFORM
+    vec4 specularFactorSampler = texture2D(u_SpecularFactorTexture, specularFactorUV);
+    inputs.specularFactor *= specularFactorSampler.a;
+#endif // SPECULARFACTORMAP
+
+    inputs.specularColor = u_SpecularColorFactor;
+#ifdef SPECULARCOLORMAP
+    vec2 specularColorUV = uv;
+    #ifdef SPECULARFACTORMAP_TRANSFORM
+    specularColorUV = (u_SpecularColorMapTransform * specularColorUV).xy;
+    #endif // SPECULARFACTORMAP_TRANSFORM
+    vec4 specularColorSampler = texture2D(u_SpecularColorTexture, specularColorUV);
+    #ifdef Gamma_u_SpecularColorTexture
+    specularColorSampler = gammaToLinear(specularColorSampler);
+    #endif // Gamma_u_SpecularColorTexture
+    inputs.specularColor *= specularColorSampler.rgb;
+#endif // SPECULARCOLORMAP
+
     inputs.metallic = u_MetallicFactor;
     float roughness = u_RoughnessFactor;
 #ifdef METALLICROUGHNESSMAP
@@ -320,6 +348,22 @@ void main()
     #ifdef Debug_IOR
     debug = vec3(surface.ior - 1.0);
     #endif // Debug_IOR
+
+    #ifdef Debug_SpecularFactor
+    debug = vec3(inputs.specularFactor);
+    #endif // Debug_SpecularFactor
+
+    #ifdef Debug_SpecularColor
+    debug = vec3(inputs.specularColor);
+    #endif // DebugSpecularColor
+
+    #ifdef Debug_f0
+    debug = vec3(surface.f0);
+    #endif // Debug_f0
+
+    #ifdef Debug_f90
+    debug = vec3(surface.f90);
+    #endif // Debug_f90
 
     // // #ifdef CLEARCOAT
     // //     // debug = vec3(info.iridescenceFresnel);

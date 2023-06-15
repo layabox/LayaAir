@@ -50,7 +50,6 @@ void iridescenceIBL(const in Surface surface, const in PixelInfo info, in vec3 E
     vec3 diffuseColor = surface.diffuseColor;
     float roughness = surface.perceptualRoughness;
     float occlusion = surface.occlusion;
-    vec3 f0 = surface.f0;
     float iridescenceFactor = surface.iridescence;
 
     // vec3 iridescenceFresnelMax = vec3(vecmax(iridescenceFresnel));
@@ -199,7 +198,6 @@ void baseIBL(const in Surface surface, const in PixelInfo info, in vec3 E, inout
 
     vec3 diffuseColor = surface.diffuseColor;
     float roughness = surface.perceptualRoughness;
-    vec3 f0 = surface.f0;
     float occlusion = surface.occlusion;
 
     #ifdef ANISOTROPIC
@@ -213,9 +211,18 @@ void baseIBL(const in Surface surface, const in PixelInfo info, in vec3 E, inout
 
     Fr += E * indirectSpecular * occlusion * info.energyCompensation;
 
-    vec3 irradiance = diffuseIrradiance(n, positionWS, info.viewDir);
+    #if defined(USELIGHTMAP)
 
+    vec2 lightmapUV = info.lightmapUV;
+    vec3 bakedlight = getBakedLightmapColor(lightmapUV, n);
+    Fd += bakedlight * diffuseColor;
+
+    #else // USELIGHTMAP
+
+    vec3 irradiance = diffuseIrradiance(n, positionWS, info.viewDir);
     Fd += diffuseColor * irradiance * (1.0 - E) * occlusion;
+
+    #endif // USELIGHTMAP
 }
 
 vec3 getE(const in Surface surface, const in PixelInfo info)
@@ -233,7 +240,9 @@ vec3 getE(const in Surface surface, const in PixelInfo info)
     #else // IRIDESCENCE
     vec3 dfg = info.dfg;
     vec3 f0 = surface.f0;
-    vec3 E = mix(dfg.xxx, dfg.yyy, f0);
+    vec3 f90 = surface.f90;
+    // vec3 E = mix(dfg.xxx, dfg.yyy, f0);
+    vec3 E = (f90 - f0) * dfg.x + f0 * dfg.y;
     #endif // IRIDESCENCE
 
     return E;

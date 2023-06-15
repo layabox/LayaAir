@@ -172,7 +172,7 @@ export class glTFResource extends Prefab {
         let data = this._data;
         let materials = data.materials;
         let textures = data.textures;
-        let promises: Array<Promise<Texture2D | void>> = [];
+        let promises: Array<Promise<Texture2D> | Promise<Texture2D[]>> = [];
         if (materials && textures) {
             for (let glTFMaterial of data.materials) {
                 let pbrMetallicRoughness = glTFMaterial.pbrMetallicRoughness;
@@ -711,7 +711,7 @@ export class glTFResource extends Prefab {
             wrapModeU: this.getTextureWrapMode(glTFSampler.wrapS),
             wrapModeV: this.getTextureWrapMode(glTFSampler.wrapT),
             // todo aniso值 设置 默认值 ?
-            anisoLevel: 1,
+            anisoLevel: 16,
             hdrEncodeFormat: HDREncodeFormat.NONE
         };
         return propertyParams;

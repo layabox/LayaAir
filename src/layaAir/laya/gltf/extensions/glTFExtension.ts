@@ -19,7 +19,7 @@ export interface glTFExtension {
      * @param basePath 
      * @param progress 
      */
-    loadAdditionTextures?(basePath: string, progress?: IBatchProgress): Promise<Texture2D | void>;
+    loadAdditionTextures?(basePath: string, progress?: IBatchProgress): Promise<Texture2D[]>;
 
     createMaterial?(glTFMaterial: glTF.glTFMaterial): Material;
 

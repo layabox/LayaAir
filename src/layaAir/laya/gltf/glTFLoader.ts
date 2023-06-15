@@ -11,6 +11,7 @@ import "./extensions/KHR_materials_iridescence";
 import "./extensions/KHR_materials_sheen";
 import "./extensions/KHR_materials_transmission";
 import "./extensions/KHR_materials_volume";
+import "./extensions/KHR_materials_specular";
 import "./extensions/KHR_materials_unlit";
 
 class glTFLoader implements IResourceLoader {

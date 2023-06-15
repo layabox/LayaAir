@@ -46,8 +46,9 @@ void initSurface(inout Surface surface, const in SurfaceInputs inputs, const in 
 
     surface.perceptualRoughness = clamp(perceptualRoughness, MIN_PERCEPTUAL_ROUGHNESS, 1.0);
     surface.roughness = surface.perceptualRoughness * surface.perceptualRoughness;
-    surface.diffuseColor = (1.0 - metallic) * baseColor;
-    surface.f0 = mix(f0, baseColor, metallic);
+    surface.diffuseColor = computeDiffuse(baseColor, metallic);
+    surface.f0 = computeF0(f0, baseColor, metallic);
+    surface.f90 = computeF90(surface.f0);
 
     surface.occlusion = inputs.occlusion;
 
@@ -78,9 +79,11 @@ vec4 PBR_Metallic_Flow(const in SurfaceInputs inputs, in PixelParams pixel)
     Surface surface;
     initSurface(surface, inputs, pixel);
 
-    vec3 surfaceColor = vec3(0.0);
+    PixelInfo info;
+    getPixelInfo(info, pixel, surface);
 
-    surfaceColor += PBRLighting(surface, pixel);
+    vec3 surfaceColor = vec3(0.0);
+    surfaceColor += PBRLighting(surface, info);
 
     // todo emission calculate
     #ifdef EMISSION

@@ -248,6 +248,11 @@ vec3 fresnel(vec3 f0, float LoH)
     // return F_Schlick(f0, LoH);
 }
 
+vec3 fresnel(vec3 f0, vec3 f90, float LoH)
+{
+    return F_Schlick(f0, f90, LoH);
+}
+
 // diffuse BRDF implementations
 
 float Fd_Lambert()
