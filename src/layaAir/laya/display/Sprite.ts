@@ -478,6 +478,7 @@ export class Sprite extends Node {
             this._width = value;
             this._setWidth(value);
             this._setPivotX(this._anchorX * value);
+            if (this._graphics) this._graphics._clearBoundsCache(true);
             this._setTranformChange();
             this._shouldRefreshLayout();
         }
@@ -518,6 +519,7 @@ export class Sprite extends Node {
             this._height = value;
             this._setHeight(value);
             this._setPivotY(this._anchorY * value);
+            if (this._graphics) this._graphics._clearBoundsCache(true);
             this._setTranformChange();
             this._shouldRefreshLayout();
         }
@@ -599,7 +601,7 @@ export class Sprite extends Node {
      * @return 顶点列表。结构：[x1,y1,x2,y2,x3,y3,...]。
      */
     _boundPointsToParent(ifRotate: boolean = false): any[] {
-        var pX: number = 0, pY: number = 0;
+        let pX: number = 0, pY: number = 0;
         if (this._style) {
             pX = this.pivotX;
             pY = this.pivotY;
@@ -609,7 +611,7 @@ export class Sprite extends Node {
                 pY += this._style.scrollRect.y;
             }
         }
-        var pList: any[] = this._getBoundPointsM(ifRotate);
+        let pList: any[] = this._getBoundPointsM(ifRotate);
         if (!pList || pList.length < 1) return pList;
 
         if (pList.length != 8) {
@@ -620,9 +622,9 @@ export class Sprite extends Node {
             Utils.transPointList(pList, this._x - pX, this._y - pY);
             return pList;
         }
-        var tPoint: Point = Point.TEMP;
-        var i: number, len: number = pList.length;
-        for (i = 0; i < len; i += 2) {
+        let tPoint = Point.TEMP;
+        let len = pList.length;
+        for (let i = 0; i < len; i += 2) {
             tPoint.x = pList[i];
             tPoint.y = pList[i + 1];
             this.toParentPoint(tPoint);
@@ -660,7 +662,7 @@ export class Sprite extends Node {
             rst.push(...rec._getBoundPoints());
             return rst;
         }
-        var pList: any[];
+        let pList: any[];
         if (this._graphics) {
             pList = this._graphics.getBoundPoints();
         } else {
@@ -673,15 +675,11 @@ export class Sprite extends Node {
             pList.push(...rec._getBoundPoints());
         }
         //处理子对象区域
-        let child: Sprite;
-        let cList: any[];
-        let __childs: any[];
-        __childs = this._children;
-        for (let i: number = 0, n: number = __childs.length; i < n; i++) {
-            //child = getChildAt(i) as Sprite; 
-            child = __childs[i];
-            if (child instanceof Sprite && child._visible === true) {
-                cList = child._boundPointsToParent(ifRotate);
+        let chidren = this._children;
+        for (let i = 0, n = chidren.length; i < n; i++) {
+            let child = <Sprite>chidren[i]; //_visible===true隐含了是Sprite
+            if (child._visible === true && child._cacheStyle.maskParent != this) {
+                let cList = child._boundPointsToParent(ifRotate);
                 if (cList) {
                     if (pList)
                         pList.push(...cList);

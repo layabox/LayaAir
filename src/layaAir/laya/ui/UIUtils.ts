@@ -8,10 +8,6 @@ import { WeakObject } from "../utils/WeakObject"
  */
 export class UIUtils {
     private static grayFilter: ColorFilter = new ColorFilter([0.3086, 0.6094, 0.082, 0, 0, 0.3086, 0.6094, 0.082, 0, 0, 0.3086, 0.6094, 0.082, 0, 0, 0, 0, 0, 1, 0]);
-    /**
-     * 需要替换的转义字符表
-     */
-    static escapeSequence: any = { "\\n": "\n", "\\t": "\t" };
 
     /**
      * 用字符串填充数组，并返回数组副本。
@@ -61,25 +57,6 @@ export class UIUtils {
             filters.splice(i, 1);
             target.filters = filters;
         }
-    }
-
-    /**
-     * 获取当前要替换的转移字符
-     * @param word
-     * @return
-     *
-     */
-    //TODO:coverage
-    private static _getReplaceStr(word: string): string {
-        return UIUtils.escapeSequence[word];
-    }
-
-    /**
-     * 替换字符串中的转义字符
-     * @param str
-     */
-    static adptString(str: string): string {
-        return str.replace(/\\(\w)/g, UIUtils._getReplaceStr);
     }
 
     /**@private */

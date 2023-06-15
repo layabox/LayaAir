@@ -36,15 +36,17 @@ const _tempMatrixArrays: any[] = [];
  */
 export class GraphicsBounds {
     /**@private */
-    private _temp: any[];
+    private _temp: number[];
     /**@private */
     private _bounds: Rectangle;
     /**@private */
-    private _rstBoundPoints: any[];
+    private _rstBoundPoints: number[];
     /**@private */
     private _cacheBoundsType: boolean = false;
     /**@internal */
     _graphics: Graphics;
+    /**@internal */
+    _affectBySize: boolean;
 
     /**
      * 销毁
@@ -101,8 +103,9 @@ export class GraphicsBounds {
     private _getCmdPoints(realSize: boolean = false): any[] {
         let cmds = this._graphics.cmds;
         let sp = this._graphics._sp;
-        let rst: any[];
-        rst = this._temp || (this._temp = []);
+        this._affectBySize = false;
+
+        let rst = this._temp || (this._temp = []);
         rst.length = 0;
         if (cmds.length == 0) return rst;
 
@@ -113,6 +116,8 @@ export class GraphicsBounds {
         let tempMatrix: Matrix = _tempMatrix;
         for (let i = 0, n = cmds.length; i < n; i++) {
             let cmd = cmds[i];
+            if (cmd.percent)
+                this._affectBySize = true;
             switch (cmd.cmdID) {
                 case AlphaCmd.ID:
                 case SaveCmd.ID:
@@ -162,68 +167,6 @@ export class GraphicsBounds {
                         tempMatrix.concat(cmd.matrix);
                     addPointArrToRst(rst, Rectangle._getBoundPointS(cmd.x, cmd.y, cmd.width, cmd.height), tempMatrix);
                     break;
-                // case DrawImageCmd.ID:
-                //     {
-                //         let tex = cmd.texture;
-                //         if (realSize) {
-                //             if (cmd.width && cmd.height) {
-                //                 addPointArrToRst(rst, Rectangle._getBoundPointS(cmd.x, cmd.y, cmd.width, cmd.height), tMatrix);
-                //             } else {
-                //                 addPointArrToRst(rst, Rectangle._getBoundPointS(cmd.x, cmd.y, tex.width, tex.height), tMatrix);
-                //             }
-                //         } else {
-                //             var wRate: number = (cmd.width || tex.sourceWidth) / tex.width;
-                //             var hRate: number = (cmd.height || tex.sourceHeight) / tex.height;
-                //             var oWidth: number = wRate * tex.sourceWidth;
-                //             var oHeight: number = hRate * tex.sourceHeight;
-
-                //             var offX: number = tex.offsetX > 0 ? tex.offsetX : 0;
-                //             var offY: number = tex.offsetY > 0 ? tex.offsetY : 0;
-
-                //             offX *= wRate;
-                //             offY *= hRate;
-
-                //             addPointArrToRst(rst, Rectangle._getBoundPointS(cmd.x - offX, cmd.y - offY, oWidth, oHeight), tMatrix);
-                //         }
-                //     }
-                //     break;
-                // case FillTextureCmd.ID:
-                //     addPointArrToRst(rst, (<FillTextureCmd>cmd).getBoundPoints(sp), tMatrix);
-                //     break;
-                // case DrawTextureCmd.ID:
-                //     {
-                //         let drawMatrix: Matrix;
-                //         if (cmd.matrix) {
-                //             tMatrix.copyTo(tempMatrix);
-                //             tempMatrix.concat(cmd.matrix);
-                //             drawMatrix = tempMatrix;
-                //         } else {
-                //             drawMatrix = tMatrix;
-                //         }
-                //         if (realSize) {
-                //             if (cmd.width && cmd.height) {
-                //                 addPointArrToRst(rst, Rectangle._getBoundPointS(cmd.x, cmd.y, cmd.width, cmd.height), drawMatrix);
-                //             } else {
-                //                 let tex = cmd.texture;
-                //                 addPointArrToRst(rst, Rectangle._getBoundPointS(cmd.x, cmd.y, tex.width, tex.height), drawMatrix);
-                //             }
-                //         } else {
-                //             let tex = cmd.texture;
-                //             wRate = (cmd.width || tex.sourceWidth) / tex.width;
-                //             hRate = (cmd.height || tex.sourceHeight) / tex.height;
-                //             oWidth = wRate * tex.sourceWidth;
-                //             oHeight = hRate * tex.sourceHeight;
-
-                //             offX = tex.offsetX > 0 ? tex.offsetX : 0;
-                //             offY = tex.offsetY > 0 ? tex.offsetY : 0;
-
-                //             offX *= wRate;
-                //             offY *= hRate;
-
-                //             addPointArrToRst(rst, Rectangle._getBoundPointS(cmd.x - offX, cmd.y - offY, oWidth, oHeight), drawMatrix);
-                //         }
-                //     }
-                //     break;
                 case DrawRectCmd.ID:
                     addPointArrToRst(rst, (<DrawRectCmd>cmd).getBoundPoints(sp), tMatrix);
                     break;

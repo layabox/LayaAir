@@ -196,16 +196,25 @@ export class Loader extends EventDispatcher {
 
     /**
      * <p>加载资源。</p>
-     * @param url 要加载的单个资源地址或资源地址数组。
-     * @return 加载成功返回资源对象，加载失败返回null。
+     * @param url 要加载的资源地址或资源地址数组。
+     * @param type 资源类型。比如：Loader.IMAGE。
+     * @param onProgress 进度回调函数。
+     * @return 根据url类型不同分为2种情况：1. url为String或ILoadURL类型，也就是单个资源地址，如果加载成功，则回调参数值为加载完成的资源，否则为null；2. url为数组类型，则返回一个数组，数组每个元素为加载完成的资源或null。
      */
     load(url: string | ILoadURL | (string | Readonly<ILoadURL>)[], type?: string, onProgress?: ProgressCallback): Promise<any>;
+    /**
+     * <p>加载资源。</p>
+     * @param url 要加载的资源地址或资源地址数组。
+     * @param options 加载选项。
+     * @param onProgress 进度回调函数。
+     * @return 根据url类型不同分为2种情况：1. url为String或ILoadURL类型，也就是单个资源地址，如果加载成功，则回调参数值为加载完成的资源，否则为null；2. url为数组类型，则返回一个数组，数组每个元素为加载完成的资源或null。
+     */
     load(url: string | ILoadURL | (string | Readonly<ILoadURL>)[], options?: Readonly<ILoadOptions>, onProgress?: ProgressCallback): Promise<any>;
     /**
      * <p>这是兼容2.0引擎的加载接口</p>
      * <p>加载资源。</p>
      * @param url		要加载的单个资源地址或资源信息数组。比如：简单数组：["a.png","b.png"]；复杂数组[{url:"a.png",type:Loader.IMAGE,size:100,priority:1},{url:"b.json",type:Loader.JSON,size:50,priority:1}]。
-     * @param complete	加载结束回调。根据url类型不同分为2种情况：1. url为String类型，也就是单个资源地址，如果加载成功，则回调参数值为加载完成的资源，否则为null；2. url为数组类型，指定了一组要加载的资源，如果全部加载成功，则回调参数值为true，否则为false。
+     * @param complete	加载结束回调。根据url类型不同分为2种情况：1. url为String类型，也就是单个资源地址，如果加载成功，则回调参数值为加载完成的资源，否则为null；2. url为数组类型，则返回一个数组，数组每个元素为加载完成的资源或null。
      * @param progress	加载进度回调。回调参数值为当前资源的加载进度信息(0-1)。
      * @param type		资源类型。比如：Loader.IMAGE。
      * @param priority	(default = 0)加载的优先级，数字越大优先级越高，优先级高的优先加载。
@@ -809,7 +818,7 @@ export class Loader extends EventDispatcher {
         let entry = Loader.loadedMap[url];
         if (!entry)
             return;
-        let res = entry[0];
+        let res = entry[1];
         if (res instanceof Texture) {
             res.disposeBitmap();
         }

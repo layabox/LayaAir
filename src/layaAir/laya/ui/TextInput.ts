@@ -116,14 +116,16 @@ export class TextInput extends Label {
     protected _skin: string;
 
     declare _graphics: AutoBitmap;
+    declare _tf: Input;
 
     /**
      * 创建一个新的 <code>TextInput</code> 类实例。
      * @param text 文本内容。
      */
-    constructor(text: string = "") {
+    constructor(text?: string) {
         super();
-        this.text = text;
+        if (text != null)
+            this.text = text;
         this.skin = this.skin;
     }
 
@@ -144,41 +146,13 @@ export class TextInput extends Label {
 
         this._tf = new Input();
         this._tf.hideFlags = HideFlags.HideAndDontSave;
-        this._tf._onPostLayout = () => this._onPostLayout();
-        this.addChild(this._tf);
         this._tf.padding = Styles.inputLabelPadding;
-        this._tf.on(Event.INPUT, this, this._onInput);
-        this._tf.on(Event.ENTER, this, this._onEnter);
-        this._tf.on(Event.BLUR, this, this._onBlur);
-        this._tf.on(Event.FOCUS, this, this._onFocus);
-    }
-
-    /**
-     * @private
-     */
-    private _onFocus(): void {
-        this.event(Event.FOCUS, this);
-    }
-
-    /**
-     * @private
-     */
-    private _onBlur(): void {
-        this.event(Event.BLUR, this);
-    }
-
-    /**
-     * @private
-     */
-    private _onInput(): void {
-        this.event(Event.INPUT, this);
-    }
-
-    /**
-     * @private
-     */
-    private _onEnter(): void {
-        this.event(Event.ENTER, this);
+        this._tf._onPostLayout = () => this._onPostLayout();
+        this._tf.on(Event.INPUT, () => this.event(Event.INPUT));
+        this._tf.on(Event.ENTER, () => this.event(Event.ENTER));
+        this._tf.on(Event.BLUR, () => this.event(Event.BLUR));
+        this._tf.on(Event.FOCUS, () => this.event(Event.FOCUS));
+        this.addChild(this._tf);
     }
 
     /**
@@ -248,25 +222,6 @@ export class TextInput extends Label {
     }
 
     /**
-     * 当前文本内容字符串。
-     * @see laya.display.Text.text
-     * @override
-     */
-    set text(value: string) {
-        if (this._tf.text != value) {
-            value = value + "";
-            this._tf.text = value;
-            this.event(Event.CHANGE);
-        }
-    }
-    /**
-     * @override
-     */
-    get text() {
-        return super.text;
-    }
-
-    /**
      * @inheritDoc 
      * @override
      */
@@ -289,94 +244,94 @@ export class TextInput extends Label {
      * 值为true表示当前是文本域，否则不是文本域。
      */
     get multiline(): boolean {
-        return ((<Input>this._tf)).multiline;
+        return this._tf.multiline;
     }
 
     set multiline(value: boolean) {
-        (<Input>this._tf).multiline = value;
+        this._tf.multiline = value;
     }
 
     /**
      * 设置可编辑状态。
      */
     set editable(value: boolean) {
-        (<Input>this._tf).editable = value;
+        this._tf.editable = value;
     }
 
     get editable(): boolean {
-        return (<Input>this._tf).editable;
+        return this._tf.editable;
     }
 
     /**选中输入框内的文本。*/
     select(): void {
-        ((<Input>this._tf)).select();
+        this._tf.select();
     }
 
     /**限制输入的字符。*/
     get restrict(): string {
-        return (<Input>this._tf).restrict;
+        return this._tf.restrict;
     }
 
     set restrict(pattern: string) {
-        (<Input>this._tf).restrict = pattern;
+        this._tf.restrict = pattern;
     }
 
     /**
      * @copy laya.display.Input#prompt
      */
     get prompt(): string {
-        return (<Input>this._tf).prompt;
+        return this._tf.prompt;
     }
 
     set prompt(value: string) {
-        (<Input>this._tf).prompt = value;
+        this._tf.prompt = value;
     }
 
     /**
      * @copy laya.display.Input#promptColor
      */
     get promptColor(): string {
-        return (<Input>this._tf).promptColor;
+        return this._tf.promptColor;
     }
 
     set promptColor(value: string) {
-        (<Input>this._tf).promptColor = value;
+        this._tf.promptColor = value;
     }
 
     /**
      * @copy laya.display.Input#maxChars
      */
     get maxChars(): number {
-        return (<Input>this._tf).maxChars;
+        return this._tf.maxChars;
     }
 
     set maxChars(value: number) {
-        (<Input>this._tf).maxChars = value;
+        this._tf.maxChars = value;
     }
 
     /**
      * @copy laya.display.Input#focus
      */
     get focus(): boolean {
-        return (<Input>this._tf).focus;
+        return this._tf.focus;
     }
 
     set focus(value: boolean) {
-        (<Input>this._tf).focus = value;
+        this._tf.focus = value;
     }
 
     /**
      * @copy laya.display.Input#type
      */
     get type(): string {
-        return (<Input>this._tf).type;
+        return this._tf.type;
     }
 
     set type(value: string) {
-        (<Input>this._tf).type = value;
+        this._tf.type = value;
     }
 
     setSelection(startIndex: number, endIndex: number): void {
-        (<Input>this._tf).setSelection(startIndex, endIndex);
+        this._tf.setSelection(startIndex, endIndex);
     }
 }
