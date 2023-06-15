@@ -7,6 +7,8 @@ import { HideFlags } from "../Const";
 import { SerializeUtil } from "../loaders/SerializeUtil";
 import { LayaEnv } from "../../LayaEnv";
 
+export type LabelFitContent = "no" | "yes" | "height";
+
 /**
  * 文本内容发生改变后调度。
  * @eventType laya.events.Event
@@ -125,7 +127,7 @@ export class Label extends UIComponent {
      * 文本 <code>Text</code> 实例。
      */
     protected _tf: Text;
-    protected _fitContent: boolean;
+    protected _fitContent: LabelFitContent;
     /** @internal */
     private _fitFlag: boolean;
 
@@ -135,6 +137,7 @@ export class Label extends UIComponent {
      */
     constructor(text?: string) {
         super();
+        this._fitContent = "no";
         if (text != null)
             this.text = text;
     }
@@ -157,9 +160,9 @@ export class Label extends UIComponent {
     }
 
     protected _onPostLayout() {
-        if (this._fitContent && (LayaEnv.isPlaying || this._tf.textWidth > 0 && this._tf.textHeight > 0)) {
+        if ((this._fitContent == "yes" || this._fitContent == "height") && (LayaEnv.isPlaying || this._tf.textWidth > 0 && this._tf.textHeight > 0)) {
             this._fitFlag = true;
-            if (this._tf.wordWrap)
+            if (this._fitContent == "height")
                 this.height = this._tf.textHeight;
             else
                 this.size(this._tf.textWidth, this._tf.textHeight);
@@ -364,15 +367,17 @@ export class Label extends UIComponent {
         this._tf.maxWidth = value;
     }
 
-    get fitContent(): boolean {
+    get fitContent(): LabelFitContent {
         return this._fitContent;
     }
 
     /** 设置文本框大小是否自动适应文本内容的大小。可取值为both或者height */
-    set fitContent(value: boolean) {
+    set fitContent(value: LabelFitContent) {
+        if (typeof (value) === "boolean")
+            value = value ? "yes" : "no";
         if (this._fitContent != value) {
-            if (value && !SerializeUtil.isDeserializing && (LayaEnv.isPlaying || this._tf.textWidth > 0 && this._tf.textHeight > 0)) {
-                if (this._tf.wordWrap)
+            if ((value == "yes" || value == "height") && !SerializeUtil.isDeserializing && (LayaEnv.isPlaying || this._tf.textWidth > 0 && this._tf.textHeight > 0)) {
+                if (value == "height")
                     this.height = this._tf.textHeight;
                 else
                     this.size(this._tf.textWidth, this._tf.textHeight);
@@ -414,7 +419,7 @@ export class Label extends UIComponent {
     }
 
     set_width(value: number): void {
-        if (this._fitContent && !this._fitFlag)
+        if (this._fitContent == "yes" && !this._fitFlag)
             return;
         super.set_width(value);
     }
@@ -438,7 +443,7 @@ export class Label extends UIComponent {
     }
 
     set_height(value: number): void {
-        if (this._fitContent && !this._fitFlag)
+        if ((this._fitContent == "yes" || this._fitContent == "height") && !this._fitFlag)
             return;
         super.set_height(value);
     }
