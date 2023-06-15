@@ -23,6 +23,7 @@ export class TextRender {
     static forceSplitRender = false;	    // 强制把一句话拆开渲染
     static forceWholeRender = false; 	// 强制整句话渲染
     static scaleFontWithCtx = true;		// 如果有缩放，则修改字体，以保证清晰度
+    static maxFontScale = 4;            //当scaleFontWithCtx为true时，最大允许放大的倍数
     static standardFontSize = 32;			// 测量的时候使用的字体大小
     static destroyAtlasDt = 10;					// 回收图集贴图的时间
     static checkCleanTextureDt = 2000;		// 检查是否要真正删除纹理的时间。单位是ms
@@ -184,8 +185,8 @@ export class TextRender {
         this.setFont(font);
         this.fontScaleX = this.fontScaleY = 1.0;
         if (TextRender.scaleFontWithCtx) {
-            var sx = 1;
-            var sy = 1;
+            let sx = 1;
+            let sy = 1;
 
             if (!LayaEnv.isConch || ((window as any).conchTextCanvas.scale)) {
                 sx = ctx.getMatScaleX();
@@ -194,8 +195,9 @@ export class TextRender {
 
             if (sx < 1e-4 || sy < 1e-1)
                 return;
-            if (sx > 1) this.fontScaleX = sx;
-            if (sy > 1) this.fontScaleY = sy;
+
+            if (sx > 1) this.fontScaleX = Math.min(TextRender.maxFontScale, sx);
+            if (sy > 1) this.fontScaleY = Math.min(TextRender.maxFontScale, sy);
         }
 
         font._italic && (ctx._italicDeg = 13);
