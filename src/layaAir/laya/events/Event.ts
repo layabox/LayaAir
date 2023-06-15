@@ -175,7 +175,16 @@ export class Event {
     /** 是否双击 */
     isDblClick: boolean;
     /**滚轮滑动增量*/
-    delta: number;
+    delta: number = 0;
+    /** 
+     * 鼠标按键，
+     * 0：主按键，通常指鼠标左键
+     * 1：辅助按键，通常指鼠标滚轮中键
+     * 2：次按键，通常指鼠标右键
+     * 3：第四个按钮，通常指浏览器后退按钮
+     * 4：第五个按钮，通常指浏览器的前进按钮
+     */
+    button: number = 0;
 
     /** 原生浏览器事件。*/
     nativeEvent: MouseEvent | TouchEvent | WheelEvent | KeyboardEvent;
@@ -215,18 +224,6 @@ export class Event {
      */
     get touches(): ReadonlyArray<Readonly<ITouchInfo>> {
         return this._touches;
-    }
-
-    /** 
-     * 鼠标按键，
-     * 0：主按键，通常指鼠标左键
-     * 1：辅助按键，通常指鼠标滚轮中键
-     * 2：次按键，通常指鼠标右键
-     * 3：第四个按钮，通常指浏览器后退按钮
-     * 4：第五个按钮，通常指浏览器的前进按钮
-     */
-    get button(): number {
-        return ((<MouseEvent | WheelEvent>this.nativeEvent)?.button) ?? 0;
     }
 
     /**
