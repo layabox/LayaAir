@@ -439,6 +439,7 @@ export class WebGLEngine implements IRenderEngine {
      */
     uploadUniforms(shader: GLShaderInstance, commandEncoder: CommandEncoder, shaderData: any, uploadUnTexture: boolean): number {
         shader.bind();
+        shaderData.applyUBOData();
         var data: any = shaderData._data;
         var shaderUniform: any[] = commandEncoder.getArrayData();
         var shaderCall: number = 0;
