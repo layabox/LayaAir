@@ -52,12 +52,6 @@ void iridescenceIBL(const in Surface surface, const in PixelInfo info, in vec3 E
     float occlusion = surface.occlusion;
     float iridescenceFactor = surface.iridescence;
 
-    // vec3 iridescenceFresnelMax = vec3(vecmax(iridescenceFresnel));
-    // vec3 schlickFresnel = F_Schlick(f0, vec3(1.0), NoV);
-    // vec3 F = mix(schlickFresnel, iridescenceFresnelMax, iridescenceFactor);
-
-    // vec3 E = mix(dfg.xxx, dfg.yyy, F);
-
     // diffuse
     vec3 irradiance = diffuseIrradiance(n, positionWS, info.viewDir);
     Fd += diffuseColor * irradiance * (1.0 - E) * occlusion;
@@ -172,7 +166,7 @@ vec3 transmissionIBL(const in Surface surface, const in PixelInfo info, in vec3 
     // ssr
     vec4 p = u_ViewProjection * vec4(position, 1.0);
     p.xy = p.xy * (0.5 / p.w) + 0.5;
-    float lod = log2(1024.0) * surface.perceptualRoughness * saturate(surface.ior * 2.0 - 2.0);
+    float lod = u_OpaqueTextureParams.z * surface.perceptualRoughness * saturate(surface.ior * 2.0 - 2.0);
     // todo
     vec3 Ft = texture2DLodEXT(u_CameraOpaqueTexture, p.xy, lod).xyz;
 

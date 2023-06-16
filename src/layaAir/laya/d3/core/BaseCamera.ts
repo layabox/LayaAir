@@ -44,6 +44,8 @@ export class BaseCamera extends Sprite3D {
     static PROJECTION_PARAMS: number;
     /**@internal */
     static OPAQUETEXTURE: number
+    /** @internal */
+    static OPAQUETEXTUREPARAMS: number;
     /**@internal */
     static DEPTHTEXTURE: number;
     /**@internal */
@@ -99,6 +101,7 @@ export class BaseCamera extends Sprite3D {
         BaseCamera.DEPTHTEXTURE = Shader3D.propertyNameToID("u_CameraDepthTexture");
         BaseCamera.DEPTHNORMALSTEXTURE = Shader3D.propertyNameToID("u_CameraDepthNormalsTexture");
         BaseCamera.OPAQUETEXTURE = Shader3D.propertyNameToID("u_CameraOpaqueTexture");
+        BaseCamera.OPAQUETEXTUREPARAMS = Shader3D.propertyNameToID("u_OpaqueTextureParams");
         BaseCamera.DEPTHZBUFFERPARAMS = Shader3D.propertyNameToID("u_ZBufferParams");
         BaseCamera.CAMERAUNIFORMBLOCK = Shader3D.propertyNameToID(UniformBufferObject.UBONAME_CAMERA);
 
@@ -113,6 +116,7 @@ export class BaseCamera extends Sprite3D {
         camerauniformMap.addShaderUniform(BaseCamera.DEPTHTEXTURE, "u_CameraDepthTexture");
         camerauniformMap.addShaderUniform(BaseCamera.DEPTHNORMALSTEXTURE, "u_CameraDepthNormalsTexture");
         camerauniformMap.addShaderUniform(BaseCamera.OPAQUETEXTURE, "u_CameraOpaqueTexture");
+        camerauniformMap.addShaderUniform(BaseCamera.OPAQUETEXTUREPARAMS, "u_OpaqueTextureParams");
         camerauniformMap.addShaderUniform(BaseCamera.DEPTHZBUFFERPARAMS, "u_ZBufferParams");
         camerauniformMap.addShaderUniform(BaseCamera.CAMERAUNIFORMBLOCK, UniformBufferObject.UBONAME_CAMERA);
     }
@@ -286,11 +290,11 @@ export class BaseCamera extends Sprite3D {
         this._calculateProjectionMatrix();
     }
 
-    get cullingMask(){
+    get cullingMask() {
         return this._cullingMask;
     }
 
-    set cullingMask(value:number){
+    set cullingMask(value: number) {
         this._cullingMask = value;
     }
 

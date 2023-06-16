@@ -1241,6 +1241,7 @@ export class Camera extends BaseCamera {
             this._opaqueTexture.wrapModeU = WrapMode.Clamp;
             this._opaqueTexture.wrapModeV = WrapMode.Clamp;
             this._shaderValues.setTexture(BaseCamera.OPAQUETEXTURE, this._opaqueTexture);
+            this._shaderValues.setVector(BaseCamera.OPAQUETEXTUREPARAMS, new Vector4(this._opaqueTexture.width, this._opaqueTexture.height, this._opaqueTexture.maxMipmapLevel, 0.0));
         }
 
 
