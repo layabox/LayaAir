@@ -25,37 +25,38 @@ export class CommandBuffer_BlurryGlass {
 	texture: RenderTexture;
 	constructor() {
 		//初始化引擎
-		Laya3D.init(100, 100);
-		Stat.show();
-		Shader3D.debugMode = true;
-		Laya.stage.scaleMode = Stage.SCALE_FULL;
-		Laya.stage.screenMode = Stage.SCREEN_NONE;
+		Laya.init(100, 100).then(() => {
+			Stat.show();
+			Shader3D.debugMode = true;
+			Laya.stage.scaleMode = Stage.SCALE_FULL;
+			Laya.stage.screenMode = Stage.SCREEN_NONE;
 
-		//材质初始化
-		BlurEffect.init();
-		GlassWithoutGrabMaterial.init();
+			//材质初始化
+			BlurEffect.init();
+			GlassWithoutGrabMaterial.init();
 
-		//加载场景
-		Scene3D.load("res/threeDimen/BlurryRefraction/Conventional/BlurryGlass.ls", Handler.create(this, function (scene: Scene3D): void {
-			(<Scene3D>Laya.stage.addChild(scene));
-			//获取场景中的相机
-			var camera: Camera = (<Camera>scene.getChildByName("Main Camera"));
-			//增加移动脚本
-			camera.addComponent(CameraMoveScript);
+			//加载场景
+			Scene3D.load("res/threeDimen/BlurryRefraction/Conventional/BlurryGlass.ls", Handler.create(this, function (scene: Scene3D): void {
+				(<Scene3D>Laya.stage.addChild(scene));
+				//获取场景中的相机
+				var camera: Camera = (<Camera>scene.getChildByName("Main Camera"));
+				//增加移动脚本
+				camera.addComponent(CameraMoveScript);
 
-			var glass01: MeshSprite3D = scene.getChildByName("glass01") as MeshSprite3D;
-			var glass02: MeshSprite3D = scene.getChildByName("glass02") as MeshSprite3D;
-			//在这里切换了材质
-			var pbrStandard: PBRStandardMaterial = glass01.meshRenderer.sharedMaterial as PBRStandardMaterial;
-			//将图片设置到玻璃材质
-			var glassMaterial = new GlassWithoutGrabMaterial(pbrStandard.albedoTexture);
-			//给模型赋毛玻璃材质
-			glass01.meshRenderer.sharedMaterial = glassMaterial;
-			glass02.meshRenderer.sharedMaterial = glassMaterial;
-			this.mat = glassMaterial;
-			//创建使用CommandBuffer
-			this.createCommandBuffer(camera);
-		}));
+				var glass01: MeshSprite3D = scene.getChildByName("glass01") as MeshSprite3D;
+				var glass02: MeshSprite3D = scene.getChildByName("glass02") as MeshSprite3D;
+				//在这里切换了材质
+				var pbrStandard: PBRStandardMaterial = glass01.meshRenderer.sharedMaterial as PBRStandardMaterial;
+				//将图片设置到玻璃材质
+				var glassMaterial = new GlassWithoutGrabMaterial(pbrStandard.albedoTexture);
+				//给模型赋毛玻璃材质
+				glass01.meshRenderer.sharedMaterial = glassMaterial;
+				glass02.meshRenderer.sharedMaterial = glassMaterial;
+				this.mat = glassMaterial;
+				//创建使用CommandBuffer
+				this.createCommandBuffer(camera);
+			}));
+		});
 	}
 
 	/**

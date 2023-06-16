@@ -44,42 +44,42 @@ export class CommandBuffer_DrawCustomInstance{
 
 
     constructor(){
-        Laya3D.init(0,0);
+        Laya.init(0,0);
         Stat.show();
-     
         //初始化引擎
-        Laya3D.init(100, 100);
-        Stat.show();
-        Shader3D.debugMode = true;
-        Laya.stage.scaleMode = Stage.SCALE_FULL;
-        Laya.stage.screenMode = Stage.SCREEN_NONE;
-        
-        //材质初始化
-        CustomInstanceMaterial.init();
-        let scene: Scene3D = (<Scene3D>Laya.stage.addChild(new Scene3D()));
+        Laya.init(100, 100).then(()=>{
+            Stat.show();
+            Shader3D.debugMode = true;
+            Laya.stage.scaleMode = Stage.SCALE_FULL;
+            Laya.stage.screenMode = Stage.SCREEN_NONE;
+            
+            //材质初始化
+            CustomInstanceMaterial.init();
+            let scene: Scene3D = (<Scene3D>Laya.stage.addChild(new Scene3D()));
 
-		let camera: Camera = (<Camera>scene.addChild(new Camera(0, 0.1, 100)));
-		camera.transform.position = new Vector3(14.85,17.08,35.89);
-		camera.transform.rotation = new Quaternion(0,0,0,1);
-		camera.addComponent(CameraMoveScript);
-        camera.clearColor = new Color(0.8, 0.4, 0.2, 1.0);
-        this.mat = new CustomInstanceMaterial();
-        //camera.enableHDR = true;
-		//创建方向光
-		let directionLight: DirectionLight = (<DirectionLight>scene.addChild(new DirectionLight()));
-		//方向光的颜色
-		directionLight.color = new Color(1, 1, 1, 1);
-		//设置平行光的方向
-		let mat: Matrix4x4 = directionLight.transform.worldMatrix;
-		mat.setForward(new Vector3(-1.0, -1.0, -1.0));
-		directionLight.transform.worldMatrix = mat;
-     
-        //创建CommandBuffer命令流
-        this.createCommandBuffer(camera);
-        //UI
-        this.loadUI();
-        //初始化动作
-        Laya.timer.frameLoop(1,this,this.changetwoon);
+            let camera: Camera = (<Camera>scene.addChild(new Camera(0, 0.1, 100)));
+            camera.transform.position = new Vector3(14.85,17.08,35.89);
+            camera.transform.rotation = new Quaternion(0,0,0,1);
+            camera.addComponent(CameraMoveScript);
+            camera.clearColor = new Color(0.8, 0.4, 0.2, 1.0);
+            this.mat = new CustomInstanceMaterial();
+            //camera.enableHDR = true;
+            //创建方向光
+            let directionLight: DirectionLight = (<DirectionLight>scene.addChild(new DirectionLight()));
+            //方向光的颜色
+            directionLight.color = new Color(1, 1, 1, 1);
+            //设置平行光的方向
+            let mat: Matrix4x4 = directionLight.transform.worldMatrix;
+            mat.setForward(new Vector3(-1.0, -1.0, -1.0));
+            directionLight.transform.worldMatrix = mat;
+        
+            //创建CommandBuffer命令流
+            this.createCommandBuffer(camera);
+            //UI
+            this.loadUI();
+            //初始化动作
+            Laya.timer.frameLoop(1,this,this.changetwoon);
+        });
 	}
     
         /**

@@ -49,22 +49,23 @@ class RotationScript extends Script {
 
 export class DamagedHelmetModelShow {
 	constructor() {
-		Laya3D.init(0, 0);
-		Laya.stage.scaleMode = Stage.SCALE_FULL;
-		Laya.stage.screenMode = Stage.SCREEN_NONE;
+		Laya.init(0, 0).then(() => {
+			Laya.stage.scaleMode = Stage.SCALE_FULL;
+			Laya.stage.screenMode = Stage.SCREEN_NONE;
 
-		Scene3D.load("res/threeDimen/scene/LayaScene_DamagedHelmetScene/Conventional/DamagedHelmetScene.ls", Handler.create(this, function (scene: Scene3D): void {
-			Laya.stage.addChild(scene);
+			Scene3D.load("res/threeDimen/scene/LayaScene_DamagedHelmetScene/Conventional/DamagedHelmetScene.ls", Handler.create(this, function (scene: Scene3D): void {
+				Laya.stage.addChild(scene);
 
-			var damagedHelmet: MeshSprite3D = <MeshSprite3D>scene.getChildAt(1).getChildAt(0);
-			var rotationScript: RotationScript = damagedHelmet.addComponent(RotationScript);
-			rotationScript.model = damagedHelmet;
+				var damagedHelmet: MeshSprite3D = <MeshSprite3D>scene.getChildAt(1).getChildAt(0);
+				var rotationScript: RotationScript = damagedHelmet.addComponent(RotationScript);
+				rotationScript.model = damagedHelmet;
 
-			var size: number = 20;
-			this.addText(size, size * 4, "Drag the screen to rotate the model.", "#F09900");
-			size = 10;
-			this.addText(size, Laya.stage.height - size * 4, "Battle Damaged Sci-fi Helmet by theblueturtle_    www.leonardocarrion.com", "#FFFF00");
-		}));
+				var size: number = 20;
+				this.addText(size, size * 4, "Drag the screen to rotate the model.", "#F09900");
+				size = 10;
+				this.addText(size, Laya.stage.height - size * 4, "Battle Damaged Sci-fi Helmet by theblueturtle_    www.leonardocarrion.com", "#FFFF00");
+			}));
+		});
 	}
 
 	/**

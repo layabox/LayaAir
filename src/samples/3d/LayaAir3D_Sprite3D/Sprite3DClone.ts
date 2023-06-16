@@ -16,20 +16,21 @@ export class Sprite3DClone {
 
 	constructor() {
 		//初始化引擎
-		Laya3D.init(0, 0);
-		Laya.stage.scaleMode = Stage.SCALE_FULL;
-		Laya.stage.screenMode = Stage.SCREEN_NONE;
-		//显示性能面板
-		Stat.show();
+		Laya.init(0, 0).then(() => {
+			Laya.stage.scaleMode = Stage.SCALE_FULL;
+			Laya.stage.screenMode = Stage.SCREEN_NONE;
+			//显示性能面板
+			Stat.show();
 
-		this.scene = (<Scene3D>Laya.stage.addChild(new Scene3D()));
-		this.scene.ambientColor = new Color(1, 1, 1);
+			this.scene = (<Scene3D>Laya.stage.addChild(new Scene3D()));
+			this.scene.ambientColor = new Color(1, 1, 1);
 
-		var camera: Camera = (<Camera>this.scene.addChild(new Camera(0, 0.1, 100)));
-		camera.transform.translate(new Vector3(0, 0.5, 1));
-		camera.transform.rotate(new Vector3(-15, 0, 0), true, false);
+			var camera: Camera = (<Camera>this.scene.addChild(new Camera(0, 0.1, 100)));
+			camera.transform.translate(new Vector3(0, 0.5, 1));
+			camera.transform.rotate(new Vector3(-15, 0, 0), true, false);
 
-		Laya.loader.load("res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh", Handler.create(this, this.onComplete));
+			Laya.loader.load("res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh", Handler.create(this, this.onComplete));
+		});
 	}
 
 	onComplete(): void {

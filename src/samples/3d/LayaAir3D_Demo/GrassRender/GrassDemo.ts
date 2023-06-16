@@ -21,14 +21,13 @@ export class GrassDemo{
 	grassManager:GrassRenderManager;
 	
     constructor(){
-        Laya3D.init(0, 0);
-		Laya.stage.scaleMode = Stage.SCALE_FULL;
-		Laya.stage.screenMode = Stage.SCREEN_NONE;
-		Stat.show();
-		Shader3D.debugMode = true;
-		this.PreloadingRes();
-	
-	
+        Laya.init(0, 0).then(() => {
+			Laya.stage.scaleMode = Stage.SCALE_FULL;
+			Laya.stage.screenMode = Stage.SCREEN_NONE;
+			Stat.show();
+			Shader3D.debugMode = true;
+			this.PreloadingRes();
+		});
 		
     }
 

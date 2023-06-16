@@ -9,15 +9,16 @@ import { Config3D } from "Config3D";
 
 export class GPUTexture2DTest {
 	constructor() {
-		Laya3D.init(0, 0);
-		Stat.show();
-		Laya.stage.scaleMode = Stage.SCALE_FULL;
-		Laya.stage.screenMode = Stage.SCREEN_NONE;
+		Laya.init(0, 0).then(() => {
+			Stat.show();
+			Laya.stage.scaleMode = Stage.SCALE_FULL;
+			Laya.stage.screenMode = Stage.SCREEN_NONE;
 
-		Laya.loader.load("Test/LayaScene_layaScene/Android/Assets/rr.ktx", Handler.create(null, function (tex: Texture): void {
-			var sprite: Sprite = <Sprite>Laya.stage.addChild(new Sprite());
-			sprite.texture = tex;
-		}))
+			Laya.loader.load("Test/LayaScene_layaScene/Android/Assets/rr.ktx", Handler.create(null, function (tex: Texture): void {
+				var sprite: Sprite = <Sprite>Laya.stage.addChild(new Sprite());
+				sprite.texture = tex;
+			}))
+		});
 	}
 }
 

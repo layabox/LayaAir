@@ -12,16 +12,17 @@ import { CameraMoveScript } from "../common/CameraMoveScript";
  */
 export class GhostModelShow {
 	constructor() {
-		Laya3D.init(0, 0);
-		Laya.stage.scaleMode = Stage.SCALE_FULL;
-		Laya.stage.screenMode = Stage.SCREEN_NONE;
-		Stat.show();
+		Laya.init(0, 0).then(() => {
+			Laya.stage.scaleMode = Stage.SCALE_FULL;
+			Laya.stage.screenMode = Stage.SCREEN_NONE;
+			Stat.show();
 
-		Scene3D.load("res/threeDimen/scene/PBRScene/Demo.ls", Handler.create(null, function (scene: Scene3D): void {
-			Laya.stage.addChild(scene);
-			var camera: Camera = <Camera>scene.getChildByName("Camera");
-			camera.addComponent(CameraMoveScript);
-		}));
+			Scene3D.load("res/threeDimen/scene/PBRScene/Demo.ls", Handler.create(null, function (scene: Scene3D): void {
+				Laya.stage.addChild(scene);
+				var camera: Camera = <Camera>scene.getChildByName("Camera");
+				camera.addComponent(CameraMoveScript);
+			}));
+		});
 	}
 }
 

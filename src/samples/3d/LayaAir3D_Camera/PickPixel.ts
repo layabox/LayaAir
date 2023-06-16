@@ -34,18 +34,19 @@ export class PickPixel {
 	constructor() {
 		//初始化引擎
 		Config.useRetinalCanvas = true;
-		Laya3D.init(750, 1334);
-		Laya.stage.scaleMode = Stage.SCALE_FULL;
-		Laya.stage.screenMode = Stage.SCREEN_NONE;
-		//显示性能面板
-		Stat.show();
-		//射线初始化（必须初始化）
-		this.ray = new Ray(new Vector3(0, 0, 0), new Vector3(0, 0, 0));
-		this._sp = new Sprite();
-		Laya.stage.addChild(this._sp);
-		this._sp.zOrder = 10;
-		//预加载资源
-		Laya.loader.load(["res/threeDimen/scene/CourtyardScene/Courtyard.ls", "res/threeDimen/texture/earth.png"], Handler.create(this, this.onComplete));
+		Laya.init(750, 1334).then(() => {
+			Laya.stage.scaleMode = Stage.SCALE_FULL;
+			Laya.stage.screenMode = Stage.SCREEN_NONE;
+			//显示性能面板
+			Stat.show();
+			//射线初始化（必须初始化）
+			this.ray = new Ray(new Vector3(0, 0, 0), new Vector3(0, 0, 0));
+			this._sp = new Sprite();
+			Laya.stage.addChild(this._sp);
+			this._sp.zOrder = 10;
+			//预加载资源
+			Laya.loader.load(["res/threeDimen/scene/CourtyardScene/Courtyard.ls", "res/threeDimen/texture/earth.png"], Handler.create(this, this.onComplete));
+		});
 	}
 
 	private onMouseDown(): void {

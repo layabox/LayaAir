@@ -225,11 +225,12 @@ export class IndexView3D extends IndexViewUI {
 		super();
 		this.initView3D();
 		this.initEvent();
-		Laya3D.init(0, 0);
-		Laya.stage.scaleMode = Stage.SCALE_FULL;
-		Laya.stage.screenMode = Stage.SCREEN_NONE;
-		Stat.show();
-		this.zOrder = 99999;
+		Laya.init(0, 0).then(() => {
+			Laya.stage.scaleMode = Stage.SCALE_FULL;
+			Laya.stage.screenMode = Stage.SCREEN_NONE;
+			Stat.show();
+			this.zOrder = 99999;
+		});
 	}
 
 	private initEvent(): void {

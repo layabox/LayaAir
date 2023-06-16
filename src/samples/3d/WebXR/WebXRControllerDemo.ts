@@ -37,11 +37,12 @@ export class WebXRControllerDemo {
 	public rightTargetDistance: number = 3;
 	constructor() {
 		//初始化引擎
-		Laya3D.init(0, 0);
-		Stat.show();
-		Laya.stage.scaleMode = Stage.SCALE_FULL;
-		Laya.stage.screenMode = Stage.SCREEN_NONE;
-		this.PreloadingRes();
+		Laya.init(0, 0).then(() => {
+			Stat.show();
+			Laya.stage.scaleMode = Stage.SCALE_FULL;
+			Laya.stage.screenMode = Stage.SCREEN_NONE;
+			this.PreloadingRes();
+		});
 	}
 
 	//批量预加载方式

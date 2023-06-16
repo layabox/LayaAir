@@ -18,11 +18,12 @@ export class DataViewPerformance {
 	dataView: DataView = new DataView(this.arrayBuffer1);
 
 	constructor() {
-		Laya3D.init(0, 0);
-		Laya.stage.scaleMode = Stage.SCALE_FULL;
-		Laya.stage.screenMode = Stage.SCREEN_NONE;
-		Stat.show();
-		DataViewPerformance.instance = this;
+		Laya.init(0, 0).then(() => {
+			Laya.stage.scaleMode = Stage.SCALE_FULL;
+			Laya.stage.screenMode = Stage.SCREEN_NONE;
+			Stat.show();
+			DataViewPerformance.instance = this;
+		});
 	}
 
 	test(): void {

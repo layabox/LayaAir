@@ -27,31 +27,32 @@ export class Shader_Simple {
 
 	constructor() {
 
-		Laya3D.init(0, 0);
-		Laya.stage.scaleMode = Stage.SCALE_FULL;
-		Laya.stage.screenMode = Stage.SCREEN_NONE;
-		Stat.show();
+		Laya.init(0, 0).then(() => {
+			Laya.stage.scaleMode = Stage.SCALE_FULL;
+			Laya.stage.screenMode = Stage.SCREEN_NONE;
+			Stat.show();
 
-		this.initShader();
+			this.initShader();
 
-		var scene: Scene3D = (<Scene3D>Laya.stage.addChild(new Scene3D()));
+			var scene: Scene3D = (<Scene3D>Laya.stage.addChild(new Scene3D()));
 
-		var camera: Camera = (<Camera>(scene.addChild(new Camera(0, 0.1, 100))));
-		camera.transform.translate(new Vector3(0, 0.5, 1.5));
-		camera.addComponent(CameraMoveScript);
-		camera.clearColor = new Color(0.207, 0.269, 0.383, 1.0);
-		Mesh.load("res/threeDimen/skinModel/LayaMonkey/Assets/LayaMonkey/LayaMonkey-LayaMonkey.lm", Handler.create(this, function (mesh: Mesh): void {
-			var layaMonkey: MeshSprite3D = (<MeshSprite3D>scene.addChild(new MeshSprite3D(mesh)));
-			layaMonkey.transform.localScale = new Vector3(0.3, 0.3, 0.3);
-			layaMonkey.transform.rotation = new Quaternion(0.7071068, 0, 0, -0.7071067);
+			var camera: Camera = (<Camera>(scene.addChild(new Camera(0, 0.1, 100))));
+			camera.transform.translate(new Vector3(0, 0.5, 1.5));
+			camera.addComponent(CameraMoveScript);
+			camera.clearColor = new Color(0.207, 0.269, 0.383, 1.0);
+			Mesh.load("res/threeDimen/skinModel/LayaMonkey/Assets/LayaMonkey/LayaMonkey-LayaMonkey.lm", Handler.create(this, function (mesh: Mesh): void {
+				var layaMonkey: MeshSprite3D = (<MeshSprite3D>scene.addChild(new MeshSprite3D(mesh)));
+				layaMonkey.transform.localScale = new Vector3(0.3, 0.3, 0.3);
+				layaMonkey.transform.rotation = new Quaternion(0.7071068, 0, 0, -0.7071067);
 
-			var customMaterial: CustomMaterial = new CustomMaterial();
-			layaMonkey.meshRenderer.sharedMaterial = customMaterial;
+				var customMaterial: CustomMaterial = new CustomMaterial();
+				layaMonkey.meshRenderer.sharedMaterial = customMaterial;
 
-			Laya.timer.frameLoop(1, this, function (): void {
-				layaMonkey.transform.rotate(this.rotation, false);
-			});
-		}));
+				Laya.timer.frameLoop(1, this, function (): void {
+					layaMonkey.transform.rotate(this.rotation, false);
+				});
+			}));
+		});
 	}
 
 	private initShader(): void {

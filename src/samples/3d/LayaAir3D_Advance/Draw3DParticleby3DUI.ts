@@ -34,11 +34,12 @@ export class Draw3DParticleby3DUI{
 	constructor() {
 		Config.isAlpha = true;
 		UIConfig.closeDialogOnSide = false;
-		Laya3D.init(Browser.clientWidth, Browser.clientHeight);
-		Laya.stage.scaleMode = Stage.SCALE_FULL;
-		Laya.stage.screenMode = Stage.SCREEN_NONE;
-		Stat.show();
-		Sprite3D.load("res/particles/particle/SampleScene.lh", Handler.create(this, this.loadParticle))
+		Laya.init(Browser.clientWidth, Browser.clientHeight).then(() => {
+			Laya.stage.scaleMode = Stage.SCALE_FULL;
+			Laya.stage.screenMode = Stage.SCREEN_NONE;
+			Stat.show();
+			Sprite3D.load("res/particles/particle/SampleScene.lh", Handler.create(this, this.loadParticle))
+		});
 	}
 
 	private dialog:Dialog;

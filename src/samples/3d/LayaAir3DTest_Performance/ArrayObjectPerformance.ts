@@ -19,65 +19,66 @@ export class ArrayObjectPerformance {
 	defineObject: any = {};
 
 	constructor() {
-		Laya3D.init(0, 0);
-		Laya.stage.scaleMode = Stage.SCALE_FULL;
-		Laya.stage.screenMode = Stage.SCREEN_NONE;
-		Stat.show();
+		Laya.init(0, 0).then(() => {
+			Laya.stage.scaleMode = Stage.SCALE_FULL;
+			Laya.stage.screenMode = Stage.SCREEN_NONE;
+			Stat.show();
 
-		// for (var i: number = 0; i < this.count; i++) {
-		// 	this.array[this.offset + i * this.c] = this.count - i;
-		// }
-
-		// for (var i: number = 0; i < this.count; i++) {
-		// 	this.object[this.offset + i * this.c] = this.count - i;
-		// }
-
-		Laya.stage.on(Event.MOUSE_DOWN, this, function (): void {
-			var f: number = 0;
-			var t: number = Browser.now();
 			// for (var i: number = 0; i < this.count; i++) {
-			// 	f += this.offset + i * this.c;
+			// 	this.array[this.offset + i * this.c] = this.count - i;
 			// }
-			// console.log("ArrayKey", Browser.now() - t);
 
-			// f = 0;
-			// t = Browser.now();
 			// for (var i: number = 0; i < this.count; i++) {
-			// 	f += this.offset + i * this.c;
+			// 	this.object[this.offset + i * this.c] = this.count - i;
 			// }
-			// console.log("ObjectKey", Browser.now() - t);
 
-			// f = 0;
-			// t = Browser.now();
-			// for (var i: number; i < this.count; i++) {
-			// 	f += this.array[this.offset + i * this.c];
-			// }
-			// console.log("Array", Browser.now() - t);
+			Laya.stage.on(Event.MOUSE_DOWN, this, function (): void {
+				var f: number = 0;
+				var t: number = Browser.now();
+				// for (var i: number = 0; i < this.count; i++) {
+				// 	f += this.offset + i * this.c;
+				// }
+				// console.log("ArrayKey", Browser.now() - t);
 
-			// f = 0;
-			// t = Browser.now();
-			// for (var i: number = 0; i < this.count; i++) {
-			// 	f += this.object[this.offset + i * this.c];
-			// }
-			// console.log("Object", Browser.now() - t);
+				// f = 0;
+				// t = Browser.now();
+				// for (var i: number = 0; i < this.count; i++) {
+				// 	f += this.offset + i * this.c;
+				// }
+				// console.log("ObjectKey", Browser.now() - t);
+
+				// f = 0;
+				// t = Browser.now();
+				// for (var i: number; i < this.count; i++) {
+				// 	f += this.array[this.offset + i * this.c];
+				// }
+				// console.log("Array", Browser.now() - t);
+
+				// f = 0;
+				// t = Browser.now();
+				// for (var i: number = 0; i < this.count; i++) {
+				// 	f += this.object[this.offset + i * this.c];
+				// }
+				// console.log("Object", Browser.now() - t);
 
 
 
-			t = Browser.now();
-			for (var i: number = 0; i < 32; i++) {
-				this.defineObject[1 << i] = 1 << i;
-			}
-			console.log("DefineKeyObject", Browser.now() - t);
+				t = Browser.now();
+				for (var i: number = 0; i < 32; i++) {
+					this.defineObject[1 << i] = 1 << i;
+				}
+				console.log("DefineKeyObject", Browser.now() - t);
 
 
-			t = Browser.now();
-			f = 0;
-			for (var i: number = 0; i < this.count; i++) {
-				for (var j: number = 0; j < 32; j++)
-					f = this.defineObject[1 << j];
-			}
-			console.log("DefineObject", Browser.now() - t);
+				t = Browser.now();
+				f = 0;
+				for (var i: number = 0; i < this.count; i++) {
+					for (var j: number = 0; j < 32; j++)
+						f = this.defineObject[1 << j];
+				}
+				console.log("DefineObject", Browser.now() - t);
 
+			});
 		});
 
 	}

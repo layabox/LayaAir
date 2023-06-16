@@ -27,36 +27,37 @@ export class SkinAnimationNoAvatarVerisonTest {
 	private _forward: Vector3 = new Vector3(-1.0, -1.0, -1.0);
 
 	constructor() {
-		Laya3D.init(0, 0);
-		Laya.stage.scaleMode = Stage.SCALE_FULL;
-		Laya.stage.screenMode = Stage.SCREEN_NONE;
-		Stat.show();
+		Laya.init(0, 0).then(() => {
+			Laya.stage.scaleMode = Stage.SCALE_FULL;
+			Laya.stage.screenMode = Stage.SCREEN_NONE;
+			Stat.show();
 
-		var scene: Scene3D = (<Scene3D>Laya.stage.addChild(new Scene3D()));
+			var scene: Scene3D = (<Scene3D>Laya.stage.addChild(new Scene3D()));
 
-		var camera: Camera = (<Camera>(scene.addChild(new Camera(0, 0.1, 1000))));
-		camera.transform.translate(this._translate);
-		camera.transform.rotate(this._rotation, true, false);
-		camera.addComponent(CameraMoveScript);
+			var camera: Camera = (<Camera>(scene.addChild(new Camera(0, 0.1, 1000))));
+			camera.transform.translate(this._translate);
+			camera.transform.rotate(this._rotation, true, false);
+			camera.addComponent(CameraMoveScript);
 
-		var directionLight: DirectionLight = (<DirectionLight>scene.addChild(new DirectionLight()));
-		//设置平行光的方向
-		var mat: Matrix4x4 = directionLight.transform.worldMatrix;
-		mat.setForward(this._forward);
-		directionLight.transform.worldMatrix = mat;
-		directionLight.color.setValue(1, 1, 1, 1);
+			var directionLight: DirectionLight = (<DirectionLight>scene.addChild(new DirectionLight()));
+			//设置平行光的方向
+			var mat: Matrix4x4 = directionLight.transform.worldMatrix;
+			mat.setForward(this._forward);
+			directionLight.transform.worldMatrix = mat;
+			directionLight.color.setValue(1, 1, 1, 1);
 
-		Sprite3D.load("res/threeDimen/skinModel/Zombie/Plane.lh", Handler.create(this, function (plane: Sprite3D): void {
-			scene.addChild(plane);
-		}));
+			Sprite3D.load("res/threeDimen/skinModel/Zombie/Plane.lh", Handler.create(this, function (plane: Sprite3D): void {
+				scene.addChild(plane);
+			}));
 
-		Sprite3D.load("test/monkey.lh", Handler.create(this, function (zombie: Sprite3D): void {
-			//Sprite3D.load("test/Conventional/monkey.lh", Handler.create(this, function(zombie:Sprite3D):void {
-			//scene.addChild(zombie.clone());
-			scene.addChild(zombie);
-			//zombieAnimator = (zombie.getChildAt(0) as Sprite3D).getComponent(Animator) as Animator;//获取Animator动画组件
-			//loadUI();
-		}));
+			Sprite3D.load("test/monkey.lh", Handler.create(this, function (zombie: Sprite3D): void {
+				//Sprite3D.load("test/Conventional/monkey.lh", Handler.create(this, function(zombie:Sprite3D):void {
+				//scene.addChild(zombie.clone());
+				scene.addChild(zombie);
+				//zombieAnimator = (zombie.getChildAt(0) as Sprite3D).getComponent(Animator) as Animator;//获取Animator动画组件
+				//loadUI();
+			}));
+		});
 	}
 
 }

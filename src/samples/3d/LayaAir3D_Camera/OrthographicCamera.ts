@@ -20,25 +20,26 @@ export class OrthographicCamera {
 
 	constructor() {
 		//初始化引擎
-		Laya3D.init(0, 0);
-		Laya.stage.scaleMode = Stage.SCALE_FULL;
-		Laya.stage.screenMode = Stage.SCREEN_NONE;
-		Stat.show();
+		Laya.init(0, 0).then(() => {
+			Laya.stage.scaleMode = Stage.SCALE_FULL;
+			Laya.stage.screenMode = Stage.SCREEN_NONE;
+			Stat.show();
 
-		var scene: Scene3D = (<Scene3D>Laya.stage.addChild(new Scene3D()));
-		var camera: Camera = (<Camera>scene.addChild(new Camera(0, 0.1, 1000)));
-		camera.transform.rotate(new Vector3(0, 0, 0), false, false);
-		camera.transform.translate(new Vector3(0, 1, 3));
-		camera.orthographic = true;
-		camera.clearFlag = CameraClearFlags.SolidColor;
-		//正交投影垂直矩阵尺寸
-		camera.orthographicVerticalSize = 10;
-		var directionLight: DirectionLight = (<DirectionLight>scene.addChild(new DirectionLight()));
-		Sprite3D.load("res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh", Handler.create(this, function (layaMonkey: Sprite3D): void {
-			scene.addChild(layaMonkey);
-			layaMonkey.transform.localScale = new Vector3(10, 10, 10);
-			layaMonkey.transform.localPosition = new Vector3(0, 0, 0);
-		}));
+			var scene: Scene3D = (<Scene3D>Laya.stage.addChild(new Scene3D()));
+			var camera: Camera = (<Camera>scene.addChild(new Camera(0, 0.1, 1000)));
+			camera.transform.rotate(new Vector3(0, 0, 0), false, false);
+			camera.transform.translate(new Vector3(0, 1, 3));
+			camera.orthographic = true;
+			camera.clearFlag = CameraClearFlags.SolidColor;
+			//正交投影垂直矩阵尺寸
+			camera.orthographicVerticalSize = 10;
+			var directionLight: DirectionLight = (<DirectionLight>scene.addChild(new DirectionLight()));
+			Sprite3D.load("res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh", Handler.create(this, function (layaMonkey: Sprite3D): void {
+				scene.addChild(layaMonkey);
+				layaMonkey.transform.localScale = new Vector3(10, 10, 10);
+				layaMonkey.transform.localPosition = new Vector3(0, 0, 0);
+			}));
+		});
 
 	}
 }

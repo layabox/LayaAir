@@ -22,25 +22,26 @@ export class BlinnPhong_NormalMap {
 	private normalMapUrl: any[] = ["res/threeDimen/staticModel/lizard/Assets/Lizard/lizardeye_norm.png", "res/threeDimen/staticModel/lizard/Assets/Lizard/lizard_norm.png", "res/threeDimen/staticModel/lizard/Assets/Lizard/rock_norm.png"];
 
 	constructor() {
-		Laya3D.init(0, 0);
-		Laya.stage.scaleMode = Stage.SCALE_FULL;
-		Laya.stage.screenMode = Stage.SCREEN_NONE;
-		Stat.show();
+		Laya.init(0, 0).then(() => {
+			Laya.stage.scaleMode = Stage.SCALE_FULL;
+			Laya.stage.screenMode = Stage.SCREEN_NONE;
+			Stat.show();
 
-		this.scene = (<Scene3D>Laya.stage.addChild(new Scene3D()));
+			this.scene = (<Scene3D>Laya.stage.addChild(new Scene3D()));
 
-		var camera: Camera = (<Camera>(this.scene.addChild(new Camera(0, 0.1, 100))));
-		camera.transform.translate(new Vector3(0, 0.6, 1.1));
-		camera.transform.rotate(new Vector3(-30, 0, 0), true, false);
+			var camera: Camera = (<Camera>(this.scene.addChild(new Camera(0, 0.1, 100))));
+			camera.transform.translate(new Vector3(0, 0.6, 1.1));
+			camera.transform.rotate(new Vector3(-30, 0, 0), true, false);
 
-		var directionLight: DirectionLight = (<DirectionLight>this.scene.addChild(new DirectionLight()));
-		//设置平行光的方向
-		var mat: Matrix4x4 = directionLight.transform.worldMatrix;
-		mat.setForward(new Vector3(0.0, -0.8, -1.0));
-		directionLight.transform.worldMatrix = mat;
-		directionLight.color.setValue(1, 1, 1, 1);
+			var directionLight: DirectionLight = (<DirectionLight>this.scene.addChild(new DirectionLight()));
+			//设置平行光的方向
+			var mat: Matrix4x4 = directionLight.transform.worldMatrix;
+			mat.setForward(new Vector3(0.0, -0.8, -1.0));
+			directionLight.transform.worldMatrix = mat;
+			directionLight.color.setValue(1, 1, 1, 1);
 
-		Laya.loader.load("res/threeDimen/staticModel/lizard/lizard.lh", Handler.create(this, this.onComplete), null, Loader.HIERARCHY);
+			Laya.loader.load("res/threeDimen/staticModel/lizard/lizard.lh", Handler.create(this, this.onComplete), null, Loader.HIERARCHY);
+		});
 	}
 
 	onComplete(s: any): void {

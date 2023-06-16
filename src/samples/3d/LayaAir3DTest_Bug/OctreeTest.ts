@@ -25,66 +25,67 @@ export class OctreeTest {
 	private sprite3D: Sprite3D;
 
 	constructor() {
-		Laya3D.init(0, 0);
-		Laya.stage.scaleMode = Stage.SCALE_FULL;
-		Laya.stage.screenMode = Stage.SCREEN_NONE;
-		Stat.show();
+		Laya.init(0, 0).then(() => {
+			Laya.stage.scaleMode = Stage.SCALE_FULL;
+			Laya.stage.screenMode = Stage.SCREEN_NONE;
+			Stat.show();
 
-		var scene: Scene3D = (<Scene3D>Laya.stage.addChild(new Scene3D()));
+			var scene: Scene3D = (<Scene3D>Laya.stage.addChild(new Scene3D()));
 
-		var camera: Camera = (<Camera>scene.addChild(new Camera(0, 0.1, 1000)));
-		camera.transform.translate(new Vector3(0, 2, 5));
-		camera.transform.rotate(new Vector3(-15, 0, 0), true, false);
-		camera.addComponent(CameraMoveScript);
-		camera.clearColor = new Color(0.2, 0.2, 0.2, 1.0);
+			var camera: Camera = (<Camera>scene.addChild(new Camera(0, 0.1, 1000)));
+			camera.transform.translate(new Vector3(0, 2, 5));
+			camera.transform.rotate(new Vector3(-15, 0, 0), true, false);
+			camera.addComponent(CameraMoveScript);
+			camera.clearColor = new Color(0.2, 0.2, 0.2, 1.0);
 
-		var directionLight: DirectionLight = (<DirectionLight>scene.addChild(new DirectionLight()));
-		//设置平行光的方向
-		var mat = directionLight.transform.worldMatrix;
-		mat.setForward(new Vector3(1.0, -1.0, -1.0));
-		directionLight.transform.worldMatrix = mat;
+			var directionLight: DirectionLight = (<DirectionLight>scene.addChild(new DirectionLight()));
+			//设置平行光的方向
+			var mat = directionLight.transform.worldMatrix;
+			mat.setForward(new Vector3(1.0, -1.0, -1.0));
+			directionLight.transform.worldMatrix = mat;
 
-		this.sprite3D = (<Sprite3D>scene.addChild(new Sprite3D()));
+			this.sprite3D = (<Sprite3D>scene.addChild(new Sprite3D()));
 
-		//正方体
-		var box: MeshSprite3D = (<MeshSprite3D>this.sprite3D.addChild(new MeshSprite3D(PrimitiveMesh.createBox(0.5, 0.5, 0.5))));
-		box.transform.position = new Vector3(2.0, 0.25, 0.6);
-		box.transform.rotate(new Vector3(0, 45, 0), false, false);
+			//正方体
+			var box: MeshSprite3D = (<MeshSprite3D>this.sprite3D.addChild(new MeshSprite3D(PrimitiveMesh.createBox(0.5, 0.5, 0.5))));
+			box.transform.position = new Vector3(2.0, 0.25, 0.6);
+			box.transform.rotate(new Vector3(0, 45, 0), false, false);
 
-		//球体
-		var sphere: MeshSprite3D = (<MeshSprite3D>this.sprite3D.addChild(new MeshSprite3D(PrimitiveMesh.createSphere(0.25, 20, 20))));
-		sphere.transform.position = new Vector3(1.0, 0.25, 0.6);
+			//球体
+			var sphere: MeshSprite3D = (<MeshSprite3D>this.sprite3D.addChild(new MeshSprite3D(PrimitiveMesh.createSphere(0.25, 20, 20))));
+			sphere.transform.position = new Vector3(1.0, 0.25, 0.6);
 
-		//圆柱体
-		var cylinder: MeshSprite3D = (<MeshSprite3D>this.sprite3D.addChild(new MeshSprite3D(PrimitiveMesh.createCylinder(0.25, 1, 20))));
-		cylinder.transform.position = new Vector3(0, 0.5, 0.6);
+			//圆柱体
+			var cylinder: MeshSprite3D = (<MeshSprite3D>this.sprite3D.addChild(new MeshSprite3D(PrimitiveMesh.createCylinder(0.25, 1, 20))));
+			cylinder.transform.position = new Vector3(0, 0.5, 0.6);
 
-		//胶囊体
-		var capsule: MeshSprite3D = (<MeshSprite3D>this.sprite3D.addChild(new MeshSprite3D(PrimitiveMesh.createCapsule(0.25, 1, 10, 20))));
-		capsule.transform.position = new Vector3(-1.0, 0.5, 0.6);
+			//胶囊体
+			var capsule: MeshSprite3D = (<MeshSprite3D>this.sprite3D.addChild(new MeshSprite3D(PrimitiveMesh.createCapsule(0.25, 1, 10, 20))));
+			capsule.transform.position = new Vector3(-1.0, 0.5, 0.6);
 
-		//圆锥体
-		var cone: MeshSprite3D = (<MeshSprite3D>this.sprite3D.addChild(new MeshSprite3D(PrimitiveMesh.createCone(0.25, 0.75))));
-		cone.transform.position = new Vector3(-2.0, 0.375, 0.6);
-		//
-		//圆锥体
-		var cone: MeshSprite3D = (<MeshSprite3D>this.sprite3D.addChild(new MeshSprite3D(PrimitiveMesh.createCone(0.25, 0.75))));
-		cone.transform.position = new Vector3(-3.0, 0.375, 0.6);
+			//圆锥体
+			var cone: MeshSprite3D = (<MeshSprite3D>this.sprite3D.addChild(new MeshSprite3D(PrimitiveMesh.createCone(0.25, 0.75))));
+			cone.transform.position = new Vector3(-2.0, 0.375, 0.6);
+			//
+			//圆锥体
+			var cone: MeshSprite3D = (<MeshSprite3D>this.sprite3D.addChild(new MeshSprite3D(PrimitiveMesh.createCone(0.25, 0.75))));
+			cone.transform.position = new Vector3(-3.0, 0.375, 0.6);
 
-		//圆锥体
-		var cone: MeshSprite3D = (<MeshSprite3D>this.sprite3D.addChild(new MeshSprite3D(PrimitiveMesh.createCone(0.25, 0.75))));
-		cone.transform.position = new Vector3(-4.0, 0.375, 0.6);
+			//圆锥体
+			var cone: MeshSprite3D = (<MeshSprite3D>this.sprite3D.addChild(new MeshSprite3D(PrimitiveMesh.createCone(0.25, 0.75))));
+			cone.transform.position = new Vector3(-4.0, 0.375, 0.6);
 
-		//圆锥体
-		var cone: MeshSprite3D = (<MeshSprite3D>this.sprite3D.addChild(new MeshSprite3D(PrimitiveMesh.createCone(0.25, 0.75))));
-		cone.transform.position = new Vector3(-5.0, 0.375, 0.6);
-		this.character = cone;
+			//圆锥体
+			var cone: MeshSprite3D = (<MeshSprite3D>this.sprite3D.addChild(new MeshSprite3D(PrimitiveMesh.createCone(0.25, 0.75))));
+			cone.transform.position = new Vector3(-5.0, 0.375, 0.6);
+			this.character = cone;
 
-		//平面
-		var plane: MeshSprite3D = (<MeshSprite3D>this.sprite3D.addChild(new MeshSprite3D(PrimitiveMesh.createPlane(6, 6, 10, 10))));
-		this.loadUI();
+			//平面
+			var plane: MeshSprite3D = (<MeshSprite3D>this.sprite3D.addChild(new MeshSprite3D(PrimitiveMesh.createPlane(6, 6, 10, 10))));
+			this.loadUI();
 
-		Laya.timer.frameLoop(1, this, this.onKeyDown);
+			Laya.timer.frameLoop(1, this, this.onKeyDown);
+		});
 	}
 
 	private character: MeshSprite3D;

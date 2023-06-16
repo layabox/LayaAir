@@ -15,18 +15,19 @@ export class AnimationEventByUnity {
 
 	constructor() {
 		//初始化引擎
-		Laya3D.init(0, 0);
-		Stat.show();
-		Laya.stage.scaleMode = Stage.SCALE_FULL;
-		Laya.stage.screenMode = Stage.SCREEN_NONE;
+		Laya.init(0, 0).then(() => {
+			Stat.show();
+			Laya.stage.scaleMode = Stage.SCALE_FULL;
+			Laya.stage.screenMode = Stage.SCREEN_NONE;
 
-		//加载场景
-		Scene3D.load("res/threeDimen/scene/LayaScene_AnimationEvent/Conventional/layaScene.ls", Handler.create(this, function (scene: Scene3D): void {
-			(<Scene3D>Laya.stage.addChild(scene));
-			var cube: Sprite3D = scene.getChildByName("Cube") as Sprite3D;
-			//添加组件(脚本)
-			cube.addComponent(SceneScript);
-		}));
+			//加载场景
+			Scene3D.load("res/threeDimen/scene/LayaScene_AnimationEvent/Conventional/layaScene.ls", Handler.create(this, function (scene: Scene3D): void {
+				(<Scene3D>Laya.stage.addChild(scene));
+				var cube: Sprite3D = scene.getChildByName("Cube") as Sprite3D;
+				//添加组件(脚本)
+				cube.addComponent(SceneScript);
+			}));
+		});
 	}
 
 }
