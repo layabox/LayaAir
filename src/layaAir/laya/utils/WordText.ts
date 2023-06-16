@@ -26,12 +26,11 @@ export class WordText {
     }
 
     setText(txt: string): void {
+        this.text = txt;
         if (this._nativeObj)
             this._nativeObj._text = txt;
-        else {
-            this.text = txt;
+        else
             this.width = -1;
-        }
         this.cleanCache();
     }
 
@@ -57,14 +56,17 @@ export class WordText {
         // 如果是独占文字贴图的，需要删掉
         //TODO 这个效果不对。会造成文字错乱
         let chars = this.pageChars;
-        for (let p of chars) {
-            let tex = p.tex;
-            let words = p.words;
-            if (words.length == 1 && tex && tex.ri) {// 如果有ri表示是独立贴图
-                tex.destroy();
+        if (chars.length > 0) {
+            for (let p of chars) {
+                let tex = p.tex;
+                let words = p.words;
+                if (words.length == 1 && tex && tex.ri) {// 如果有ri表示是独立贴图
+                    tex.destroy();
+                }
             }
+
+            this.pageChars = [];
         }
-        this.pageChars = [];
         this.scalex = 1;
         this.scaley = 1;
     }
