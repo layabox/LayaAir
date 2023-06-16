@@ -119,9 +119,10 @@ export class Text extends Sprite {
     static SCROLL: string = "scroll";
     /**hidden 不显示超出文本域的字符。*/
     static HIDDEN: string = "hidden";
-
-    static FIT_HEIGHT = "height";
-    static FIT_BOTH = "both";
+    /**shrink 超出文本域时，文本整体缩小以适应文本框。*/
+    static SHRINK: string = "shrink";
+    /**ellipsis 超出文本域时，文本被截断，并且文本最后显示省略号。*/
+    static ELLIPSIS: string = "ellipsis";
 
     /**语言包，是一个包含key:value的集合，用key索引，替换为目标value语言*/
     static langPacks: Record<string, string>;
@@ -193,7 +194,9 @@ export class Text extends Sprite {
     protected _objContainer: Sprite;
     protected _maxWidth: number;
     protected _hideText: boolean;
+
     private _updatingLayout: boolean;
+    private _fontSizeScale: number;
 
     /**是否将字符串中的\n,\t转换为实际功能的字符 */
     _parseEscapeChars: boolean;
@@ -212,6 +215,7 @@ export class Text extends Sprite {
         this._elements = [];
         this._lines = [];
         this._padding = [0, 0, 0, 0];
+        this._fontSizeScale = 1;
     }
 
     /**
@@ -947,6 +951,7 @@ export class Text extends Sprite {
             return;
 
         this._updatingLayout = true;
+        this._fontSizeScale = 1;
 
         let wordWrap = this._wordWrap;
         let padding = this._padding;
@@ -960,18 +965,18 @@ export class Text extends Sprite {
                 rectWidth = this._maxWidth;
             wordWrap = true;
         }
+        let rectHeight = this._isHeightSet ? (this._height - padding[0] - padding[2]) : Number.MAX_VALUE;
+        let bfont = this._bitmapFont;
 
-        recoverLines(this._lines);
-
-        let lineX = 0, lineY = 0;
+        let lineX: number, lineY: number;
         let curLine: ITextLine;
         let lastCmd: ITextCmd;
-        let bfont = this._bitmapFont;
         let charWidth: number, charHeight: number;
+        let fontSize: number;
 
-        let getTextWidth = (text: string, style: TextStyle) => {
+        let getTextWidth = (text: string) => {
             if (bfont)
-                return bfont.getTextWidth(text, style.fontSize);
+                return bfont.getTextWidth(text, fontSize);
             else {
                 if (LayaEnv.isConch)
                     return (window as any).conchTextCanvas.measureText(text).width;
@@ -984,10 +989,10 @@ export class Text extends Sprite {
 
         let buildLines = (text: string, style: TextStyle) => {
             if (bfont) {
-                charWidth = bfont.getMaxWidth(style.fontSize);
-                charHeight = bfont.getMaxHeight(style.fontSize);
+                charWidth = bfont.getMaxWidth(fontSize);
+                charHeight = bfont.getMaxHeight(fontSize);
             } else {
-                let ctxFont = (style.italic ? "italic " : "") + (style.bold ? "bold " : "") + style.fontSize + "px " + this._realFont;
+                let ctxFont = (style.italic ? "italic " : "") + (style.bold ? "bold " : "") + fontSize + "px " + this._realFont;
                 (<any>style)._ctxFont = ctxFont; //缓存起来，避免renderText里又拼一次
 
                 let mr: any;
@@ -1002,11 +1007,11 @@ export class Text extends Sprite {
 
                 if (mr) {
                     charWidth = mr.width;
-                    charHeight = Math.ceil(mr.height || style.fontSize);
+                    charHeight = Math.ceil(mr.height || fontSize);
                 }
                 else {
                     charWidth = 100;
-                    charHeight = style.fontSize;
+                    charHeight = fontSize;
                 }
             }
 
@@ -1041,7 +1046,7 @@ export class Text extends Sprite {
             cmd.y = lineY;
             if (typeof (target) === "string") {
                 if (!width)
-                    width = getTextWidth(target, style);
+                    width = getTextWidth(target);
                 if (!cmd.wt)
                     cmd.wt = new WordText();
                 cmd.wt.setText(target);
@@ -1095,7 +1100,7 @@ export class Text extends Sprite {
         let startLine = () => {
             lineX = 0;
             if (curLine)
-                lineY += curLine.height + this._textStyle.leading;
+                lineY += curLine.height + Math.floor(this._textStyle.leading * this._fontSizeScale);
 
             curLine = linePool.length > 0 ? linePool.pop() : <any>{ cmds: [] };
             curLine.x = 0;
@@ -1108,7 +1113,7 @@ export class Text extends Sprite {
         let wrapText = (text: string, style: TextStyle) => {
             let remainWidth = Math.max(0, rectWidth - lineX);
 
-            let tw = getTextWidth(text, style);
+            let tw = getTextWidth(text);
             //优化1，如果一行小于宽度，则直接跳过遍历
             if (tw <= remainWidth) {
                 addCmd(text, style, tw);
@@ -1124,7 +1129,7 @@ export class Text extends Sprite {
                 //优化2，预算第几个字符会超出，减少遍历及字符宽度度量
                 maybeIndex = Math.floor(remainWidth / charWidth);
                 (maybeIndex == 0) && (maybeIndex = 1);
-                wordWidth = getTextWidth(text.substring(0, maybeIndex), style);
+                wordWidth = getTextWidth(text.substring(0, maybeIndex));
                 if (remainWidth < wordWidth && lineX != 0) {
                     endLine();
                     startLine();
@@ -1137,7 +1142,7 @@ export class Text extends Sprite {
                 // 逐字符测量后加入到总宽度中，在某些情况下自动换行不准确。
                 // 目前已知在全是字符1的自动换行就会出现这种情况。
                 // 考虑性能，保留这种非方式。
-                tw = getTextWidth(text.charAt(j), style);
+                tw = getTextWidth(text.charAt(j));
                 wordWidth += tw;
                 let isEmojiChar = false;
                 if (isEmoji && j + 1 < len && testEmoji(text.charAt(j) + text.charAt(j + 1))) {
@@ -1200,7 +1205,7 @@ export class Text extends Sprite {
                         if (maybeIndex != 0) {
                             j += maybeIndex;
 
-                            tw = getTextWidth(text.substring(startIndex, j), style);
+                            tw = getTextWidth(text.substring(startIndex, j));
                             wordWidth = tw;
                             j--;
                         }
@@ -1218,63 +1223,159 @@ export class Text extends Sprite {
                 addCmd(text.substring(startIndex, len), style);
         };
 
-        startLine();
+        let calcTextSize = () => {
+            let nw: number = 0, nh: number = 0;
+            for (let line of this._lines) {
+                if (line.width > nw)
+                    nw = line.width;
+            }
+            if (nw > 0)
+                nw += padding[1] + padding[3];
+            this._textWidth = nw;
 
-        let elements = this._elements;
-        for (let i = 0, n = elements.length; i < n; i++) {
-            let ele = elements[i];
-            if (ele.type == HtmlElementType.Text) {
-                buildLines(ele.text, ele.style);
-            }
-            else if (ele.type == HtmlElementType.LinkEnd) {
-                if (lastCmd)
-                    lastCmd.linkEnd = true;
-            }
-            else {
-                let htmlObj = ele.obj;
-                if (!htmlObj) {
-                    let cls = HtmlParser.classMap[ele.type];
-                    if (cls) {
-                        htmlObj = Pool.createByClass(cls);
-                        htmlObj.create(this, ele);
-                        ele.obj = htmlObj;
-                    }
+            let lastLine = this._lines[this._lines.length - 1];
+            if (lastLine)
+                nh = lastLine.y + lastLine.height;
+            if (nh > 0)
+                nh += padding[0] + padding[2];
+            this._textHeight = nh;
+        };
+
+        let run = () => {
+            lineX = lineY = charWidth = charHeight = 0;
+            curLine = null;
+            lastCmd = null;
+
+            recoverLines(this._lines);
+            startLine();
+
+            let elements = this._elements;
+            for (let i = 0, n = elements.length; i < n; i++) {
+                let ele = elements[i];
+                if (ele.type == HtmlElementType.Text) {
+                    fontSize = Math.floor(ele.style.fontSize * this._fontSizeScale);
+                    if (fontSize == 0)
+                        fontSize = 1;
+                    buildLines(ele.text, ele.style);
                 }
-
-                if (htmlObj) {
-                    if (wordWrap) {
-                        let remainWidth = rectWidth - lineX;
-                        if (remainWidth < htmlObj.width + 1) {
-                            if (lineX > 0) { //如果已经是开始位置了，就算放不下也不换行
-                                endLine();
-                                startLine();
-                            }
+                else if (ele.type == HtmlElementType.LinkEnd) {
+                    if (lastCmd)
+                        lastCmd.linkEnd = true;
+                }
+                else {
+                    let htmlObj = ele.obj;
+                    if (!htmlObj) {
+                        let cls = HtmlParser.classMap[ele.type];
+                        if (cls) {
+                            htmlObj = Pool.createByClass(cls);
+                            htmlObj.create(this, ele);
+                            ele.obj = htmlObj;
                         }
                     }
-                    addCmd(htmlObj, ele.style);
+
+                    if (htmlObj) {
+                        if (wordWrap) {
+                            let remainWidth = rectWidth - lineX;
+                            if (remainWidth < htmlObj.width + 1) {
+                                if (lineX > 0) { //如果已经是开始位置了，就算放不下也不换行
+                                    endLine();
+                                    startLine();
+                                }
+                            }
+                        }
+                        addCmd(htmlObj, ele.style);
+                    }
+                }
+            }
+
+            endLine();
+            calcTextSize();
+        };
+
+        run();
+
+        if (this._overflow == Text.SHRINK) {
+            if (this._lines.length > 1 && this._textHeight > rectHeight) {
+                //多行的情况，涉及到自动换行，得用二分法查找最合适的比例，会消耗多一点计算资源
+                let low = 0;
+                let high = this._textStyle.fontSize;
+
+                //先尝试猜测一个比例
+                this._fontSizeScale = Math.sqrt(rectHeight / this._textHeight);
+                let cur = Math.floor(this._fontSizeScale * this._textStyle.fontSize);
+
+                while (true) {
+                    run();
+
+                    if (this._textWidth > rectWidth || this._textHeight > rectHeight)
+                        high = cur;
+                    else
+                        low = cur;
+                    if (high - low > 1 || high != low && cur == high) {
+                        cur = low + (high - low) / 2;
+                        this._fontSizeScale = cur / this._textStyle.fontSize;
+                    }
+                    else
+                        break;
+                }
+            }
+            else if (this._textWidth > rectWidth) {
+                this._fontSizeScale = rectWidth / this._textWidth;
+
+                run();
+
+                if (this._textWidth > rectWidth) //如果还超出，缩小一点再来一次
+                {
+                    let size = Math.floor(this._textStyle.fontSize * this._fontSizeScale);
+                    size--;
+                    this._fontSizeScale = size / this._textStyle.fontSize;
+
+                    run();
                 }
             }
         }
+        else if (this._overflow == Text.ELLIPSIS && (this._textWidth > rectWidth || this._textHeight > rectHeight)) {
+            //删掉超出的行
+            let i = this._lines.findIndex(line => line.y + line.height > rectHeight);
+            if (i == 0) i = 1;
+            let linesDeleted = false;
+            if (i != -1 && this._lines.length > i) {
+                recoverLines(this._lines.splice(i, this._lines.length - i));
+                linesDeleted = true;
+            }
 
-        endLine();
+            //在最后一行加省略号
+            let lastLine = this._lines[this._lines.length - 1];
+            let cmd = lastLine.cmd;
+            let next: ITextCmd;
+            let done = false;
+            while (cmd) {
+                next = cmd.next;
 
-        //计算textWidth和textHeight
+                if (done) {
+                    if (cmd.obj)
+                        cmd.obj = null;
+                    else if (cmd.wt)
+                        cmd.wt.cleanCache();
+                    cmdPool.push(cmd);
+                }
+                else if ((!next && linesDeleted) || cmd.x + cmd.width > rectWidth) {
+                    if (cmd.obj) //如果最后是个图片，那就删除图片，换成省略号
+                        cmd.obj = null;
+                    if (!cmd.wt)
+                        cmd.wt = new WordText();
 
-        let nw: number = 0, nh: number = 0;
-        for (let line of this._lines) {
-            if (line.width > nw)
-                nw = line.width;
+                    cmd.wt.setText(cmd.wt.text.substring(0, Math.max(0, cmd.wt.text.length - 2)) + ellipsisStr);
+                    fontSize = Math.floor(cmd.style.fontSize * this._fontSizeScale);
+                    cmd.width = cmd.wt.width = getTextWidth(ellipsisStr);
+                    cmd.wt.splitRender = this._singleCharRender;
+                    cmd.next = null;
+                    done = true;
+                }
+
+                cmd = next;
+            }
         }
-        if (nw > 0)
-            nw += padding[1] + padding[3];
-        this._textWidth = nw;
-
-        let lastLine = this._lines[this._lines.length - 1];
-        if (lastLine)
-            nh = lastLine.y + lastLine.height;
-        if (nh > 0)
-            nh += padding[0] + padding[2];
-        this._textHeight = nh;
 
         if (this._onPostLayout)
             this._onPostLayout();
@@ -1362,7 +1463,7 @@ export class Text extends Sprite {
         let rectWidth = (this._isWidthSet ? this._width : this._textWidth) - padding[3] - padding[1];
         let rectHeight = (this._isHeightSet ? this._height : this._textHeight) - padding[0] - padding[2];
         let bottom = paddingTop + rectHeight;
-        let clipped = this._overflow != Text.VISIBLE;
+        let clipped = this._overflow == Text.HIDDEN || this._overflow == Text.SCROLL;
 
         if (clipped) {
             graphics.save();
@@ -1408,11 +1509,11 @@ export class Text extends Sprite {
                         let tx: number = 0;
                         let str = cmd.wt.text;
                         let color = bfont.tint ? cmd.style.color : "#FFFFFF";
+                        let scale = Math.floor((bfont.autoScaleSize ? cmd.style.fontSize : bfont.fontSize) * this._fontSizeScale) / bfont.fontSize;
                         for (let i = 0, n = str.length; i < n; i++) {
                             let c = str.charCodeAt(i);
                             let g = bfont.dict[c];
                             if (g) {
-                                let scale = bfont.autoScaleSize ? (cmd.style.fontSize / bfont.fontSize) : 1;
                                 if (g.texture)
                                     graphics.drawImage(g.texture, x + cmd.x + tx + g.x * scale, y + cmd.y + g.y * scale, g.width * scale, g.height * scale, color);
                                 tx += Math.round(g.advance * scale);
@@ -1428,7 +1529,7 @@ export class Text extends Sprite {
                 }
 
                 if (!lineClipped && cmd.style.underline) {
-                    let thickness = Math.max(1, cmd.style.fontSize / 16);
+                    let thickness = Math.max(1, cmd.style.fontSize * this._fontSizeScale / 16);
                     graphics.drawLine(x + cmd.x, y + line.height - thickness, x + cmd.x + cmd.width, y + line.height - thickness, cmd.style.underlineColor || cmd.style.color, thickness);
                 }
 
@@ -1493,15 +1594,16 @@ export interface ITextLine {
     cmd: ITextCmd;
 }
 
-var cmdPool: Array<ITextCmd> = [];
-var linePool: Array<ITextLine> = [];
+const cmdPool: Array<ITextCmd> = [];
+const linePool: Array<ITextLine> = [];
 
 function recoverLines(lines: Array<ITextLine>) {
     for (let line of lines) {
         let cmd = line.cmd;
         while (cmd) {
-            cmd.obj = null;
-            if (cmd.wt)
+            if (cmd.obj)
+                cmd.obj = null;
+            else if (cmd.wt)
                 cmd.wt.cleanCache();
             cmdPool.push(cmd);
             cmd = cmd.next;
@@ -1513,16 +1615,17 @@ function recoverLines(lines: Array<ITextLine>) {
     lines.length = 0;
 }
 
-var emojiTest = /[\uD800-\uDBFF][\uDC00-\uDFFF]/g;
+const emojiTest = /[\uD800-\uDBFF][\uDC00-\uDFFF]/g;
 function testEmoji(str: string) {
     if (null == str) return false;
     return emojiTest.test(str);
 }
 
-var wordBoundaryTest = /(?:[^\s\!-\/])+$/;
-var normalizeCR = /\r\n/g;
-var escapeCharsPattern = /\\(\w)/g;
-var escapeSequence: any = { "\\n": "\n", "\\t": "\t" };
+const wordBoundaryTest = /(?:[^\s\!-\/])+$/;
+const normalizeCR = /\r\n/g;
+const escapeCharsPattern = /\\(\w)/g;
+const escapeSequence: any = { "\\n": "\n", "\\t": "\t" };
+const ellipsisStr = "…";
 
 function getReplaceStr(word: string): string {
     return escapeSequence[word];
