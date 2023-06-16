@@ -142,7 +142,7 @@ export class RenderOBJCreateUtil implements IRenderOBJCreate {
         return comMap;
     }
 
-    createEngine(config: any, canvas: any): WebGLEngine {
+    createEngine(config: any, canvas: any): Promise<void> {
         let engine: WebGLEngine;
         let glConfig: WebGlConfig = { stencil: Config.isStencil, alpha: Config.isAlpha, antialias: Config.isAntialias, premultipliedAlpha: Config.premultipliedAlpha, preserveDrawingBuffer: Config.preserveDrawingBuffer, depth: Config.isDepth, failIfMajorPerformanceCaveat: Config.isfailIfMajorPerformanceCaveat, powerPreference: Config.powerPreference };
 
@@ -161,7 +161,7 @@ export class RenderOBJCreateUtil implements IRenderOBJCreate {
         LayaGL.textureContext = engine.getTextureContext();
         LayaGL.renderDrawContext = engine.getDrawContext();
         LayaGL.render2DContext = engine.get2DRenderContext();
-        return engine;
+        return Promise.resolve();
     }
 
     /**@private test function*/

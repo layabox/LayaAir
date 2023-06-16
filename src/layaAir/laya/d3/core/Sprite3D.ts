@@ -43,7 +43,7 @@ export class Sprite3D extends Node {
         Sprite3D.WORLDINVERTFRONT = Shader3D.propertyNameToID("u_WroldInvertFront");
         Sprite3D.sprite3DCommandUniformMap = LayaGL.renderOBJCreate.createGlobalUniformMap("Sprite3D");
         Sprite3D.sprite3DCommandUniformMap.addShaderUniform(Sprite3D.WORLDMATRIX, "u_WorldMat",ShaderDataType.Matrix4x4);
-        Sprite3D.sprite3DCommandUniformMap.addShaderUniform(Sprite3D.WORLDINVERTFRONT, "u_WroldInvertFront");
+        Sprite3D.sprite3DCommandUniformMap.addShaderUniform(Sprite3D.WORLDINVERTFRONT, "u_WroldInvertFront",ShaderDataType.Vector4);
     }
 
     /**

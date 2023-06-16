@@ -184,21 +184,21 @@ export class RenderableSprite3D extends Sprite3D {
 		commandUniform.addShaderUniform(RenderableSprite3D.LIGHTMAP_DIRECTION, "u_LightMapDirection",ShaderDataType.Texture2D);
 		commandUniform.addShaderUniform(RenderableSprite3D.PICKCOLOR, "u_PickColor",ShaderDataType.Vector3);
 
-		commandUniform.addShaderUniform(RenderableSprite3D.REFLECTIONCUBE_PROBEPOSITION, "u_SpecCubeProbePosition");
-		commandUniform.addShaderUniform(RenderableSprite3D.REFLECTIONCUBE_PROBEBOXMAX, "u_SpecCubeBoxMax");
-		commandUniform.addShaderUniform(RenderableSprite3D.REFLECTIONCUBE_PROBEBOXMIN, "u_SpecCubeBoxMin");
-		commandUniform.addShaderUniform(RenderableSprite3D.IBLTEX, "u_IBLTex");
-		commandUniform.addShaderUniform(RenderableSprite3D.IBLROUGHNESSLEVEL, "u_IBLRoughnessLevel");
-		commandUniform.addShaderUniform(RenderableSprite3D.VOLUMETRICGI_PROBECOUNTS, "u_VolumetricGI.probeCounts");
-		commandUniform.addShaderUniform(RenderableSprite3D.VOLUMETRICGI_PROBESTEPS, "u_VolumetricGI.probeStep");
-		commandUniform.addShaderUniform(RenderableSprite3D.VOLUMETRICGI_PROBESTARTPOS, "u_VolumetricGI.probeStartPosition");
-		commandUniform.addShaderUniform(RenderableSprite3D.VOLUMETRICGI_PROBEPARAMS, "u_VolumetricGI.probeParams");
-		commandUniform.addShaderUniform(RenderableSprite3D.VOLUMETRICGI_IRRADIANCE, "u_ProbeIrradiance");
-		commandUniform.addShaderUniform(RenderableSprite3D.VOLUMETRICGI_DISTANCE, "u_ProbeDistance");
-		commandUniform.addShaderUniform(RenderableSprite3D.AMBIENTSH, "u_IblSH");
-		commandUniform.addShaderUniform(RenderableSprite3D.AMBIENTCOLOR, "u_AmbientColor");
-		commandUniform.addShaderUniform(RenderableSprite3D.AMBIENTINTENSITY, "u_AmbientIntensity");
-		commandUniform.addShaderUniform(RenderableSprite3D.REFLECTIONINTENSITY, "u_ReflectionIntensity");
+		commandUniform.addShaderUniform(RenderableSprite3D.REFLECTIONCUBE_PROBEPOSITION, "u_SpecCubeProbePosition",ShaderDataType.Vector3);
+		commandUniform.addShaderUniform(RenderableSprite3D.REFLECTIONCUBE_PROBEBOXMAX, "u_SpecCubeBoxMax",ShaderDataType.Vector3);
+		commandUniform.addShaderUniform(RenderableSprite3D.REFLECTIONCUBE_PROBEBOXMIN, "u_SpecCubeBoxMin",ShaderDataType.Vector3);
+		commandUniform.addShaderUniform(RenderableSprite3D.IBLTEX, "u_IBLTex",ShaderDataType.Texture2D);
+		commandUniform.addShaderUniform(RenderableSprite3D.IBLROUGHNESSLEVEL, "u_IBLRoughnessLevel",ShaderDataType.Float);
+		commandUniform.addShaderUniform(RenderableSprite3D.VOLUMETRICGI_PROBECOUNTS, "u_VolumetricGI.probeCounts",ShaderDataType.Vector3);
+		commandUniform.addShaderUniform(RenderableSprite3D.VOLUMETRICGI_PROBESTEPS, "u_VolumetricGI.probeStep",ShaderDataType.Vector3);
+		commandUniform.addShaderUniform(RenderableSprite3D.VOLUMETRICGI_PROBESTARTPOS, "u_VolumetricGI.probeStartPosition",ShaderDataType.Vector3);
+		commandUniform.addShaderUniform(RenderableSprite3D.VOLUMETRICGI_PROBEPARAMS, "u_VolumetricGI.probeParams",ShaderDataType.Vector4);
+		commandUniform.addShaderUniform(RenderableSprite3D.VOLUMETRICGI_IRRADIANCE, "u_ProbeIrradiance",ShaderDataType.Texture2D);
+		commandUniform.addShaderUniform(RenderableSprite3D.VOLUMETRICGI_DISTANCE, "u_ProbeDistance",ShaderDataType.Texture2D);
+		commandUniform.addShaderUniform(RenderableSprite3D.AMBIENTSH, "u_IblSH",ShaderDataType.Buffer);
+		commandUniform.addShaderUniform(RenderableSprite3D.AMBIENTCOLOR, "u_AmbientColor",ShaderDataType.Vector4);
+		commandUniform.addShaderUniform(RenderableSprite3D.AMBIENTINTENSITY, "u_AmbientIntensity",ShaderDataType.Float);
+		commandUniform.addShaderUniform(RenderableSprite3D.REFLECTIONINTENSITY, "u_ReflectionIntensity",ShaderDataType.Float);
 
 		//Legency Reflectexture
 		RenderableSprite3D.REFLECTIONTEXTURE = Shader3D.propertyNameToID("u_ReflectTexture");

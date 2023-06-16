@@ -9,7 +9,11 @@ import "laya/spine/ModuleDef";
 import "laya/gltf/glTFLoader";
 
 import { Resource } from "laya/resource/Resource";
+import { LayaGL } from "laya/layagl/LayaGL";
+import { RenderOBJCreateUtil } from "laya/d3/RenderObjs/RenderObj/RenderOBJCreateUtil";
+import { Main } from "./Main";
+import { Laya3D } from "Laya3D";
 Resource.DEBUG = true;
-LayaGL.renderOBJCreate = new RenderOBJCreateUtil();//´´½¨WebGLRenderOBJCreateUtil
-
+LayaGL.renderOBJCreate = new RenderOBJCreateUtil();
+Laya3D
 new Main(false);

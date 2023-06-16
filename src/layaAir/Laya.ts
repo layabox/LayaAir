@@ -174,8 +174,14 @@ export class Laya {
         MeshVG.__init__();
         MeshTexture.__init__();
 
-        return Promise.resolve();
+        
+        return  LayaGL.renderOBJCreate.createEngine(null,Browser.mainCanvas).then(()=>{
+            return Laya.initRender2D();  
+        })
     }
+
+    //createEngine
+    //initRender2D
 
     static initRender2D():Promise<void> {
         Laya.render = new Render(0, 0, Browser.mainCanvas);
@@ -212,6 +218,7 @@ export class Laya {
         Value2D._initone(ShaderDefines2D.TEXTURE2D | ShaderDefines2D.FILTERGLOW, TextureSV);
         Value2D._initone(ShaderDefines2D.PRIMITIVE, PrimitiveSV);
         Value2D._initone(ShaderDefines2D.SKINMESH, SkinSV);
+        debugger;
         let laya3D = (<any>window)["Laya3D"];
         if (laya3D) {
             return laya3D.__init__().then(() => {

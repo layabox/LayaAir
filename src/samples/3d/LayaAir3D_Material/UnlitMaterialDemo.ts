@@ -22,7 +22,7 @@ export class UnlitMaterialDemo {
 	private rotation: Vector3 = new Vector3(0, 0.01, 0);
 
 	constructor() {
-		Laya3D.init(0, 0, null, Handler.create(null, () => {
+		Laya.init(0, 0).then(() => {
 			URL.basePath += "sample-resource/";
 			Laya.stage.scaleMode = Stage.SCALE_FULL;
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
@@ -71,7 +71,7 @@ export class UnlitMaterialDemo {
 				earth1.transform.rotate(this.rotation, false);
 				earth2.transform.rotate(this.rotation, false);
 			});
-		}));
+		});
 
 	}
 }
