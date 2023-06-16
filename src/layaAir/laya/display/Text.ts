@@ -192,9 +192,11 @@ export class Text extends Sprite {
     protected _elements: Array<HtmlElement>;
     protected _objContainer: Sprite;
     protected _maxWidth: number;
-
+    protected _hideText: boolean;
     private _updatingLayout: boolean;
 
+    /**是否将字符串中的\n,\t转换为实际功能的字符 */
+    _parseEscapeChars: boolean;
     _onPostLayout: () => void;
 
     /**
@@ -327,47 +329,19 @@ export class Text extends Sprite {
         return this._text;
     }
 
-    set_text(value: string): void {
+    set text(value: string) {
         if (value == null)
             value = "";
-        if (this._text !== value) {
-            this.lang(value + "");
+        else if (typeof (value) !== "string")
+            value = '' + value;
+
+        if (!this.ignoreLang && Text.langPacks)
+            value = Text.langPacks[value] || value;
+
+        if (this._text != value) {
+            this._text = value;
             this.markChanged();
             this.event(Event.CHANGE);
-        }
-    }
-
-    set text(value: string) {
-        this.set_text(value);
-    }
-
-    /**
-     * <p>根据指定的文本，从语言包中取当前语言的文本内容。并对此文本中的{i}文本进行替换。</p>
-     * <p>设置Text.langPacks语言包后，即可使用lang获取里面的语言</p>
-     * <p>例如：
-     * <li>（1）text 的值为“我的名字”，先取到这个文本对应的当前语言版本里的值“My name”，将“My name”设置为当前文本的内容。</li>
-     * <li>（2）text 的值为“恭喜你赢得{0}个钻石，{1}经验。”，arg1 的值为100，arg2 的值为200。
-     * 			则先取到这个文本对应的当前语言版本里的值“Congratulations on your winning {0} diamonds, {1} experience.”，
-     * 			然后将文本里的{0}、{1}，依据括号里的数字从0开始替换为 arg1、arg2 的值。
-     * 			将替换处理后的文本“Congratulations on your winning 100 diamonds, 200 experience.”设置为当前文本的内容。
-     * </li>
-     * </p>
-     * @param	text 文本内容。
-     * @param	args 文本替换参数。
-     */
-    lang(text: string, ...args: any[]): void {
-        if (this.ignoreLang || !Text.langPacks) {
-            this._text = text;
-            return;
-        }
-
-        text = Text.langPacks?.[text] || text;
-        if (args.length == 0) {
-            this._text = text;
-        } else {
-            for (let i = 0, n = args.length; i < n; i++)
-                text = text.replace("{" + i + "}", args[i]);
-            this._text = text;
         }
     }
 
@@ -901,9 +875,9 @@ export class Text extends Sprite {
      * <p>排版文本。</p>
      * <p>进行宽高计算，渲染、重绘文本。</p>
      */
-    private _typeset(): void {
+    protected _typeset(): void {
         this._isChanged = false;
-        if (this._destroyed)
+        if (this._hideText || this._destroyed)
             return;
 
         HtmlElement.returnToPool(this._elements);
@@ -932,7 +906,9 @@ export class Text extends Sprite {
         }
 
         let html = this._html;
-        text = text.replace(/\r\n/g, "\n");
+        text = text.replace(normalizeCR, "\n");
+        if (this._parseEscapeChars)
+            text = text.replace(escapeCharsPattern, getReplaceStr);
         if (!isPrompt && this._templateVars)
             text = this.parseTemplate(text);
 
@@ -1130,7 +1106,7 @@ export class Text extends Sprite {
         };
 
         let wrapText = (text: string, style: TextStyle) => {
-            let remainWidth = rectWidth - lineX;
+            let remainWidth = Math.max(0, rectWidth - lineX);
 
             let tw = getTextWidth(text, style);
             //优化1，如果一行小于宽度，则直接跳过遍历
@@ -1192,6 +1168,8 @@ export class Text extends Sprite {
 
                     //截断换行单词
                     let newLine = text.substring(startIndex, j);
+                    wordWidth -= tw;
+
                     // 如果最后一个是中文则直接截断，否则找空格或者-来拆分
                     let ccode = newLine.charCodeAt(newLine.length - 1);
                     if (ccode < 0x4e00 || ccode > 0x9fa5) {
@@ -1203,13 +1181,15 @@ export class Text extends Sprite {
                             if (execResult.index == 0)
                                 j += newLine.length;
                             //此行有多个单词 按单词分行
-                            else
-                                newLine = text.substring(startIndex, j);
+                            else {
+                                wordWidth = null;
+                                newLine = text.substring(startIndex, j - 1);
+                            }
                         }
                     }
 
                     //如果自动换行，则另起一行
-                    addCmd(newLine, style, wordWidth - tw);
+                    addCmd(newLine, style, wordWidth);
                     endLine();
                     startLine();
                     remainWidth = rectWidth;
@@ -1386,7 +1366,7 @@ export class Text extends Sprite {
 
         if (clipped) {
             graphics.save();
-            graphics.clipRect(paddingLeft, paddingTop, rectWidth > 0 ? rectWidth : 0.001, rectHeight > 0 ? rectHeight : 0.001);
+            graphics.clipRect(paddingLeft, paddingTop, rectWidth, rectHeight);
             this.repaint();
         }
 
@@ -1540,3 +1520,10 @@ function testEmoji(str: string) {
 }
 
 var wordBoundaryTest = /(?:[^\s\!-\/])+$/;
+var normalizeCR = /\r\n/g;
+var escapeCharsPattern = /\\(\w)/g;
+var escapeSequence: any = { "\\n": "\n", "\\t": "\t" };
+
+function getReplaceStr(word: string): string {
+    return escapeSequence[word];
+}

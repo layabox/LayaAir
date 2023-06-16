@@ -218,6 +218,7 @@ export class InputManager {
             if (!touch.began) {
                 touch.begin();
                 this._touches[0] = touch;
+                touch.event.button = ev.button;
 
                 if (InputManager.mouseEventsEnabled) {
                     this.handleFocus();
@@ -233,6 +234,7 @@ export class InputManager {
             if (touch.began) {
                 touch.end();
                 this._touches.length = 0;
+                touch.event.button = ev.button;
 
                 if (InputManager.mouseEventsEnabled) {
                     if (ev.button == 0)
@@ -264,6 +266,8 @@ export class InputManager {
                         }
                     }
                 }
+
+                touch.event.button = 0;
             }
         }
         else if (type == 4) {

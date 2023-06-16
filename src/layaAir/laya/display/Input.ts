@@ -86,16 +86,12 @@ export class Input extends Text {
     /**@private */
     protected static promptStyleDOM: any;
 
-    /**@private */
     protected _focus: boolean;
-    /**@private */
     protected _multiline: boolean = false;
-    /**@private */
     protected _editable: boolean = true;
-    /**@private */
+    protected _restrict: string;
     protected _restrictPattern: any;
-    /**@private */
-    protected _maxChars: number = 1E5;
+    protected _maxChars: number = 0;
 
     private _type: string = "text";
 
@@ -339,7 +335,7 @@ export class Input extends Text {
             (input as any).setType(this._type);
             (input as any).setForbidEdit(!this._editable);
         }
-        input.maxLength = this._maxChars;
+        input.maxLength = this._maxChars <= 0 ? 1E5 : this._maxChars;
 
         input.value = this._text;
         input.placeholder = this._prompt;
@@ -356,6 +352,7 @@ export class Input extends Text {
         if (!(LayaEnv.isConch && Input.isAppUseNewInput) && !ILaya.Browser.onMiniGame && !ILaya.Browser.onBDMiniGame && !ILaya.Browser.onQGMiniGame && !ILaya.Browser.onKGMiniGame && !ILaya.Browser.onVVMiniGame && !ILaya.Browser.onAlipayMiniGame && !ILaya.Browser.onQQMiniGame && !ILaya.Browser.onBLMiniGame && !ILaya.Browser.onTTMiniGame && !ILaya.Browser.onHWMiniGame && !ILaya.Browser.onTBMiniGame) {
             this.graphics.clear(true);
             this.drawBg();
+            this._hideText = true;
         }
 
         // PC同步输入框外观。
@@ -397,6 +394,7 @@ export class Input extends Text {
         if (!InputManager.isiOSWKwebView)
             InputManager.isTextInputting = false;
         this._focus = false;
+        this._hideText = false;
 
         this.text = this.nativeInput.value;
         this.markChanged();
@@ -437,11 +435,13 @@ export class Input extends Text {
      * @override
     */
     set text(value: string) {
-        if (typeof (value) !== "string")
+        if (value == null)
+            value = "";
+        else if (typeof (value) !== "string")
             value = '' + value;
 
         if (this._focus) {
-            this.nativeInput.value = value || '';
+            this.nativeInput.value = value;
             this.event(Event.CHANGE);
         } else {
             // 单行时不允许换行
@@ -458,7 +458,7 @@ export class Input extends Text {
         if (this._focus)
             return this.nativeInput.value;
         else
-            return super.text || "";
+            return super.text;
     }
 
     /**@inheritDoc 
@@ -486,22 +486,20 @@ export class Input extends Text {
 
     /**限制输入的字符。*/
     get restrict(): string {
-        if (this._restrictPattern) {
-            return this._restrictPattern.source;
-        }
-        return "";
+        return this._restrict;
     }
 
-    set restrict(pattern: string) {
+    set restrict(value: string) {
+        this._restrict = value;
         // H5保存RegExp
-        if (pattern) {
-            pattern = "[^" + pattern + "]";
+        if (value) {
+            value = "[^" + value + "]";
 
             // 如果pattern为^\00-\FF，则我们需要的正则表达式是\00-\FF
-            if (pattern.indexOf("^^") > -1)
-                pattern = pattern.replace("^^", "");
+            if (value.indexOf("^^") > -1)
+                value = value.replace("^^", "");
 
-            this._restrictPattern = new RegExp(pattern, "g");
+            this._restrictPattern = new RegExp(value, "g");
         } else
             this._restrictPattern = null;
     }
@@ -529,8 +527,6 @@ export class Input extends Text {
     }
 
     set maxChars(value: number) {
-        if (value <= 0)
-            value = 1E5;
         this._maxChars = value;
     }
 
@@ -586,8 +582,7 @@ export class Input extends Text {
     }
 
     set type(value: string) {
-        if (value === "password") this._asPassword = true;
-        else this._asPassword = false;
+        this._asPassword = value === "password";
         this._type = value;
     }
 }
