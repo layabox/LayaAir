@@ -1375,6 +1375,9 @@ export class Text extends Sprite {
 
                 cmd = next;
             }
+
+            if (done)
+                calcTextSize();
         }
 
         if (this._onPostLayout)
