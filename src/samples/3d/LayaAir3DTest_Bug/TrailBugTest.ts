@@ -24,13 +24,14 @@ export class TrailBugTest {
 	private index: number = 0;
 	constructor() {
 		//初始化引擎
-		Laya3D.init(1000, 500);
-		//适配模式
-		Laya.stage.scaleMode = Stage.SCALE_FULL;
-		Laya.stage.screenMode = Stage.SCREEN_NONE;
-		//开启统计信息
-		Stat.show();
-		this.onPreLoadFinish();
+		Laya.init(1000, 500).then(() => {
+			//适配模式
+			Laya.stage.scaleMode = Stage.SCALE_FULL;
+			Laya.stage.screenMode = Stage.SCREEN_NONE;
+			//开启统计信息
+			Stat.show();
+			this.onPreLoadFinish();
+		});
 	}
 
 	private onPreLoadFinish(): void {

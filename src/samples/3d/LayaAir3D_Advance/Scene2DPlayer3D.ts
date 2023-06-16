@@ -28,43 +28,44 @@ export class Scene2DPlayer3D {
 
 	constructor() {
 		//初始化引擎
-		Laya3D.init(0, 0);
-		Laya.stage.scaleMode = Stage.SCALE_FULL;
-		Laya.stage.screenMode = Stage.SCREEN_NONE;
-		//显示性能面板
-		Stat.show();
+		Laya.init(0, 0).then(() => {
+			Laya.stage.scaleMode = Stage.SCALE_FULL;
+			Laya.stage.screenMode = Stage.SCREEN_NONE;
+			//显示性能面板
+			Stat.show();
 
-		//var dialog:Image = Laya.stage.addChild(new Image("res/threeDimen/secne.jpg")) as Image;
-		var dialog: Image = new Image("res/threeDimen/secne.jpg");
-		Laya.stage.addChild(dialog);
-		var scene: Scene3D = (<Scene3D>Laya.stage.addChild(new Scene3D()));
+			//var dialog:Image = Laya.stage.addChild(new Image("res/threeDimen/secne.jpg")) as Image;
+			var dialog: Image = new Image("res/threeDimen/secne.jpg");
+			Laya.stage.addChild(dialog);
+			var scene: Scene3D = (<Scene3D>Laya.stage.addChild(new Scene3D()));
 
-		var camera: Camera = (<Camera>scene.addChild(new Camera(0, 0.1, 1000)));
-		camera.transform.rotate(this._rotation, false, false);
-		camera.transform.translate(this._translate2);
-		camera.orthographic = true;
-		camera.clearFlag = CameraClearFlags.SolidColor;
-		//正交投影垂直矩阵尺寸
-		camera.orthographicVerticalSize = 10;
+			var camera: Camera = (<Camera>scene.addChild(new Camera(0, 0.1, 1000)));
+			camera.transform.rotate(this._rotation, false, false);
+			camera.transform.translate(this._translate2);
+			camera.orthographic = true;
+			camera.clearFlag = CameraClearFlags.SolidColor;
+			//正交投影垂直矩阵尺寸
+			camera.orthographicVerticalSize = 10;
 
-		scene.addChild(new DirectionLight());
+			scene.addChild(new DirectionLight());
 
-		Sprite3D.load("res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh", Handler.create(this, function (layaMonkey: Sprite3D): void {
-			scene.addChild(layaMonkey);
-			this._layaMonkey = layaMonkey;
-			var transform: Transform3D = layaMonkey.transform;
-			var localScale: Vector3 = transform.localScale;
-			var rotationEuler: Vector3 = transform.rotationEuler;
-			//转换2D屏幕坐标系统到3D正交投影下的坐标系统
-			camera.convertScreenCoordToOrthographicCoord(this._pos, this._translate);
-			transform.position = this._translate;
-			localScale.setValue(0.3, 0.3, 0.3);
-			transform.localScale = localScale;
-			rotationEuler.setValue(-30, 0, 0);
-			transform.rotationEuler = rotationEuler;
+			Sprite3D.load("res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh", Handler.create(this, function (layaMonkey: Sprite3D): void {
+				scene.addChild(layaMonkey);
+				this._layaMonkey = layaMonkey;
+				var transform: Transform3D = layaMonkey.transform;
+				var localScale: Vector3 = transform.localScale;
+				var rotationEuler: Vector3 = transform.rotationEuler;
+				//转换2D屏幕坐标系统到3D正交投影下的坐标系统
+				camera.convertScreenCoordToOrthographicCoord(this._pos, this._translate);
+				transform.position = this._translate;
+				localScale.setValue(0.3, 0.3, 0.3);
+				transform.localScale = localScale;
+				rotationEuler.setValue(-30, 0, 0);
+				transform.rotationEuler = rotationEuler;
 
-			Laya.timer.frameLoop(1, this, this.onKeyDown);
-		}));
+				Laya.timer.frameLoop(1, this, this.onKeyDown);
+			}));
+		});
 
 	}
 	private onKeyDown(): void {

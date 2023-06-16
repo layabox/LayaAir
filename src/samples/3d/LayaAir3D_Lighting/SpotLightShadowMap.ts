@@ -16,19 +16,20 @@ export class SpotLightShadowMap {
     public camera: Camera;
     public demoScene: Scene3D;
     constructor() {
-        Laya3D.init(0, 0);
-        Stat.show();
-        Laya.stage.scaleMode = Stage.SCALE_FULL;
-        Laya.stage.screenMode = Stage.SCREEN_NONE;
-        Shader3D.debugMode = true;
+        Laya.init(0, 0).then(() => {
+            Stat.show();
+            Laya.stage.scaleMode = Stage.SCALE_FULL;
+            Laya.stage.screenMode = Stage.SCREEN_NONE;
+            Shader3D.debugMode = true;
 
-        Scene3D.load("res/threeDimen/testNewFunction/LayaScene_depthScene/Conventional/depthScene.ls", Handler.create(this, function (scene: Scene3D): void {
-            this.demoScene = (<Scene3D>Laya.stage.addChild(scene));
-            this.camera = (<Camera>scene.getChildByName("Camera"));
-            this.camera.addComponent(CameraMoveScript);
-            this.camera.active = true;
-            this.receaveRealShadow(this.demoScene);
-        }));
+            Scene3D.load("res/threeDimen/testNewFunction/LayaScene_depthScene/Conventional/depthScene.ls", Handler.create(this, function (scene: Scene3D): void {
+                this.demoScene = (<Scene3D>Laya.stage.addChild(scene));
+                this.camera = (<Camera>scene.getChildByName("Camera"));
+                this.camera.addComponent(CameraMoveScript);
+                this.camera.active = true;
+                this.receaveRealShadow(this.demoScene);
+            }));
+        });
     }
     receaveRealShadow(scene3d: Scene3D): void {
         var childLength: number = scene3d.numChildren;

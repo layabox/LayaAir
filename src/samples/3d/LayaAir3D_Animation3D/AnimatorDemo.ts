@@ -46,7 +46,7 @@ export class AnimatorDemo {
 	private _forward: Vector3 = new Vector3(-1.0, -1.0, -1.0);
 	constructor() {
 		//初始化引擎
-		Laya3D.init(0, 0);
+		Laya.init(0, 0).then(() => {
 
 		//适配模式
 		Laya.stage.scaleMode = Stage.SCALE_FULL;
@@ -59,6 +59,7 @@ export class AnimatorDemo {
 		var resource: any[] = ["res/threeDimen/skinModel/BoneLinkScene/R_kl_H_001.lh", "res/threeDimen/skinModel/BoneLinkScene/R_kl_S_009.lh", "res/threeDimen/skinModel/BoneLinkScene/PangZi.lh"];
 
 		Laya.loader.load(resource, Handler.create(this, this.onLoadFinish));
+		});
 	}
 
 	private onLoadFinish(): void {

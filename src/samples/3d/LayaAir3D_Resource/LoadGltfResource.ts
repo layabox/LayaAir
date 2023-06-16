@@ -22,43 +22,44 @@ export class LoadGltfResource {
     camera: Camera;
 
     constructor() {
-        Laya3D.init(0, 0);
-        Laya.stage.scaleMode = Stage.SCALE_FULL;
-        Laya.stage.screenMode = Stage.SCREEN_NONE;
+        Laya.init(0, 0).then(() => {
+            Laya.stage.scaleMode = Stage.SCALE_FULL;
+            Laya.stage.screenMode = Stage.SCREEN_NONE;
 
-        Stat.show();
+            Stat.show();
 
-        Shader3D.debugMode = true;
-        
-        this.scene = <Scene3D>Laya.stage.addChild(new Scene3D);
-        this.camera = <Camera>this.scene.addChild(new Camera);
-        this.camera.addComponent(CameraMoveScript);
-        this.scene.ambientColor = Color.WHITE;
-        this.camera.transform.position = new Vector3(0, 1, 7);
+            Shader3D.debugMode = true;
+            
+            this.scene = <Scene3D>Laya.stage.addChild(new Scene3D);
+            this.camera = <Camera>this.scene.addChild(new Camera);
+            this.camera.addComponent(CameraMoveScript);
+            this.scene.ambientColor = Color.WHITE;
+            this.camera.transform.position = new Vector3(0, 1, 7);
 
-        //light
-        var directionLight: DirectionLight = (<DirectionLight>this.scene.addChild(new DirectionLight()));
-        directionLight.color = new Color(0.6, 0.6, 0.6, 1);
-        //设置平行光的方向
-        var mat: Matrix4x4 = directionLight.transform.worldMatrix;
-        mat.setForward(new Vector3(-1.0, -1.0, -1.0));
-        directionLight.transform.worldMatrix = mat;
+            //light
+            var directionLight: DirectionLight = (<DirectionLight>this.scene.addChild(new DirectionLight()));
+            directionLight.color = new Color(0.6, 0.6, 0.6, 1);
+            //设置平行光的方向
+            var mat: Matrix4x4 = directionLight.transform.worldMatrix;
+            mat.setForward(new Vector3(-1.0, -1.0, -1.0));
+            directionLight.transform.worldMatrix = mat;
 
-        // 配置环境反射贴图
-        Laya.loader.load("res/threeDimen/LayaScene_depthNormalScene/Conventional/Assets/Scenes/depthNormalSceneGIReflection.ltcb.ls", Handler.create(this, function () {
-            this.scene.ambientColor = new Color(0.858, 0.858, 0.858,1.0);
-            this.scene.reflection = Loader.getRes("res/threeDimen/LayaScene_depthNormalScene/Conventional/Assets/Scenes/depthNormalSceneGIReflection.ltcb.ls") as TextureCube;
-            this.scene.reflectionDecodingFormat = 1;
-            this.scene.reflectionIntensity = 1;
-        }));
+            // 配置环境反射贴图
+            Laya.loader.load("res/threeDimen/LayaScene_depthNormalScene/Conventional/Assets/Scenes/depthNormalSceneGIReflection.ltcb.ls", Handler.create(this, function () {
+                this.scene.ambientColor = new Color(0.858, 0.858, 0.858,1.0);
+                this.scene.reflection = Loader.getRes("res/threeDimen/LayaScene_depthNormalScene/Conventional/Assets/Scenes/depthNormalSceneGIReflection.ltcb.ls") as TextureCube;
+                this.scene.reflectionDecodingFormat = 1;
+                this.scene.reflectionIntensity = 1;
+            }));
 
-        var gltfResource:any[] = [
-            "res/threeDimen/gltf/RiggedFigure/RiggedFigure.gltf",
-            "res/threeDimen/gltf/Duck/Duck.gltf",
-            "res/threeDimen/gltf/AnimatedCube/AnimatedCube.gltf"
-        ];
+            var gltfResource:any[] = [
+                "res/threeDimen/gltf/RiggedFigure/RiggedFigure.gltf",
+                "res/threeDimen/gltf/Duck/Duck.gltf",
+                "res/threeDimen/gltf/AnimatedCube/AnimatedCube.gltf"
+            ];
 
-        Laya.loader.load(gltfResource, Handler.create(this, this.onGLTFComplate));
+            Laya.loader.load(gltfResource, Handler.create(this, this.onGLTFComplate));
+        });
     }
 
     onGLTFComplate(success: boolean): void {

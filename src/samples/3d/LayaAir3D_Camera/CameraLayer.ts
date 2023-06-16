@@ -37,34 +37,35 @@ export class CameraLayer {
 	private stype:any = 0;
 	constructor() {
 		//初始化引擎
-		Laya3D.init(0, 0);
-		Laya.stage.scaleMode = Stage.SCALE_FULL;
-		Laya.stage.screenMode = Stage.SCREEN_NONE;
-		//显示性能面板
-		Stat.show();
+		Laya.init(0, 0).then(() => {
+			Laya.stage.scaleMode = Stage.SCALE_FULL;
+			Laya.stage.screenMode = Stage.SCREEN_NONE;
+			//显示性能面板
+			Stat.show();
 
-		//创建场景
-		this._scene = (<Scene3D>Laya.stage.addChild(new Scene3D()));
+			//创建场景
+			this._scene = (<Scene3D>Laya.stage.addChild(new Scene3D()));
 
-		//添加相机
-		this.camera = (<Camera>(this._scene.addChild(new Camera(0, 0.1, 100))));
-		this.camera.transform.translate(this._translate);
-		this.camera.transform.rotate(this._rotation, true, false);
-		//相机添加视角控制组件(脚本)
-		this.camera.addComponent(CameraMoveScript);
+			//添加相机
+			this.camera = (<Camera>(this._scene.addChild(new Camera(0, 0.1, 100))));
+			this.camera.transform.translate(this._translate);
+			this.camera.transform.rotate(this._rotation, true, false);
+			//相机添加视角控制组件(脚本)
+			this.camera.addComponent(CameraMoveScript);
 
-		//移除所有图层
-		this.camera.removeAllLayers();
-		//添加显示图层(为相机添加一个蒙版)
-		this.camera.addLayer(5);
+			//移除所有图层
+			this.camera.removeAllLayers();
+			//添加显示图层(为相机添加一个蒙版)
+			this.camera.addLayer(5);
 
-		//添加平行光
-		var directionLight: DirectionLight = (<DirectionLight>this._scene.addChild(new DirectionLight()));
-		directionLight.color.setValue(1, 1, 1, 1);
-		directionLight.transform.rotate(this._rotation2);
+			//添加平行光
+			var directionLight: DirectionLight = (<DirectionLight>this._scene.addChild(new DirectionLight()));
+			directionLight.color.setValue(1, 1, 1, 1);
+			directionLight.transform.rotate(this._rotation2);
 
-		Laya.loader.load(["res/threeDimen/staticModel/grid/plane.lh",
-			"res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh"], Handler.create(this, this.onComplete));
+			Laya.loader.load(["res/threeDimen/staticModel/grid/plane.lh",
+				"res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh"], Handler.create(this, this.onComplete));
+		});
 	}
 	private onComplete(): void {
 

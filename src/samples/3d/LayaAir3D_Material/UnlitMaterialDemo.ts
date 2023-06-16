@@ -14,6 +14,7 @@ import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import { URL } from "laya/net/URL";
+import { Color } from "laya/maths/Color";
 /**
  * ...
  * @author ...
@@ -63,7 +64,7 @@ export class UnlitMaterialDemo {
 				//设置反照率强度
 				material2.albedoIntensity = 1;
 				//设置材质颜色
-				//material2.albedoColor = new Vector4(0, 0, 0.6, 1);
+				material2.albedoColor = new Color(0, 0, 0.6, 1);
 			}));
 			earth2.meshRenderer.material = material2;
 

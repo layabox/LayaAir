@@ -30,28 +30,28 @@ export class PostProcess_Edge {
     camera: Camera;
 
     constructor() {
-        Laya3D.init(0, 0);
-        Laya.stage.scaleMode = Stage.SCALE_FULL;
-        Laya.stage.screenMode = Stage.SCREEN_NONE;
+        Laya.init(0, 0).then(() => {
+            Laya.stage.scaleMode = Stage.SCALE_FULL;
+            Laya.stage.screenMode = Stage.SCREEN_NONE;
 
-        Stat.show();
+            Stat.show();
 
-        Shader3D.debugMode = true;
+            Shader3D.debugMode = true;
 
-        this.scene = <Scene3D>Laya.stage.addChild(new Scene3D);
-        this.camera = <Camera>this.scene.addChild(new Camera(0, 0.2, 50));
-        this.camera.addComponent(CameraMoveScript);
-        this.camera.transform.position = new Vector3(0, 4, 10);
-        this.camera.transform.rotation = new Quaternion(-0.2, 0, 0, 0.97);
+            this.scene = <Scene3D>Laya.stage.addChild(new Scene3D);
+            this.camera = <Camera>this.scene.addChild(new Camera(0, 0.2, 50));
+            this.camera.addComponent(CameraMoveScript);
+            this.camera.transform.position = new Vector3(0, 4, 10);
+            this.camera.transform.rotation = new Quaternion(-0.2, 0, 0, 0.97);
 
-        this.addLight();
+            this.addLight();
 
-        let res: string[] = [
-            "res/threeDimen/skinModel/dude/dude.lh",
-        ];
+            let res: string[] = [
+                "res/threeDimen/skinModel/dude/dude.lh",
+            ];
 
-        Laya.loader.load(res, Handler.create(this, this.onResComplate));
-
+            Laya.loader.load(res, Handler.create(this, this.onResComplate));
+        });
     }
 
     onResComplate(): void {

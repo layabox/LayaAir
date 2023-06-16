@@ -17,28 +17,29 @@ export class VideoPlayIn3DWorld {
     private isoneVideo:boolean = false
     constructor() {
         //初始化引擎
-        Laya3D.init(0, 0);
-        Stat.show();
-        Laya.stage.scaleMode = Stage.SCALE_FULL;
-        Laya.stage.screenMode = Stage.SCREEN_NONE;
-        //加载场景
-        Scene3D.load("res/threeDimen/moveClipSample/moveclip/Conventional/moveclip.ls", Handler.create(this, function (this: VideoPlayIn3DWorld, scene: Scene3D): void {
-            (<Scene3D>Laya.stage.addChild(scene));
+        Laya.init(0, 0).then(() => {
+            Stat.show();
+            Laya.stage.scaleMode = Stage.SCALE_FULL;
+            Laya.stage.screenMode = Stage.SCREEN_NONE;
+            //加载场景
+            Scene3D.load("res/threeDimen/moveClipSample/moveclip/Conventional/moveclip.ls", Handler.create(this, function (this: VideoPlayIn3DWorld, scene: Scene3D): void {
+                (<Scene3D>Laya.stage.addChild(scene));
 
-            //获取场景中的相机
-            var camera: Camera = (<Camera>scene.getChildByName("Main Camera"));
-            camera.enableHDR = false;
-            camera.addComponent(CameraMoveScript);
-            var mirrorFloor: ChinarMirrorPlane = camera.addComponent(ChinarMirrorPlane) as ChinarMirrorPlane;
-            mirrorFloor.onlyMainCamera = camera;
-            mirrorFloor.mirrorPlane = scene.getChildByName("reflectionPlan") as MeshSprite3D;
-            //camera.active = false;    
+                //获取场景中的相机
+                var camera: Camera = (<Camera>scene.getChildByName("Main Camera"));
+                camera.enableHDR = false;
+                camera.addComponent(CameraMoveScript);
+                var mirrorFloor: ChinarMirrorPlane = camera.addComponent(ChinarMirrorPlane) as ChinarMirrorPlane;
+                mirrorFloor.onlyMainCamera = camera;
+                mirrorFloor.mirrorPlane = scene.getChildByName("reflectionPlan") as MeshSprite3D;
+                //camera.active = false;    
 
-            //增加视频
-            this.videoPlane = scene.getChildByName("moveclip") as MeshSprite3D;
-            Laya.stage.on(Event.MOUSE_DOWN, this, this.createVideo, ["res/av/mov_bbb.mp4"]);
-            // this.createVideo("res/av/mov_bbb.mp4");
-        }));
+                //增加视频
+                this.videoPlane = scene.getChildByName("moveclip") as MeshSprite3D;
+                Laya.stage.on(Event.MOUSE_DOWN, this, this.createVideo, ["res/av/mov_bbb.mp4"]);
+                // this.createVideo("res/av/mov_bbb.mp4");
+            }));
+        });
     }
 
     private createVideo(url: string): void {

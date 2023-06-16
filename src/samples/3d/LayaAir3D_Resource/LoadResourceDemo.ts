@@ -26,6 +26,7 @@ import { Color } from "laya/maths/Color";
 import { Quaternion } from "laya/maths/Quaternion";
 import { Event } from "laya/events/Event";
 import { Resource } from "laya/resource/Resource";
+import { SkyDome } from "laya/d3/resource/models/SkyDome";
 
 /**
  * ...
@@ -40,21 +41,22 @@ export class LoadResourceDemo {
 
 	constructor() {
 		//初始化引擎
-		Laya3D.init(0, 0);
-		Laya.stage.scaleMode = Stage.SCALE_FULL;
-		Laya.stage.screenMode = Stage.SCREEN_NONE;
-		//显示性能面板
-		Stat.show();
-		Shader3D.debugMode = true;
-		//加载资源
-		// this.LoadRes();
+		Laya.init(0, 0).then(() => {
+			Laya.stage.scaleMode = Stage.SCALE_FULL;
+			Laya.stage.screenMode = Stage.SCREEN_NONE;
+			//显示性能面板
+			Stat.show();
+			Shader3D.debugMode = true;
+			//加载资源
+			// this.LoadRes();
 
-		//批量预加载方式
-		this.PreloadingRes();
+			//批量预加载方式
+			this.PreloadingRes();
 
-		Laya.stage.on(Event.CLICK, this, ()=>{
-			Resource.destroyUnusedResources();
-		})
+			Laya.stage.on(Event.CLICK, this, ()=>{
+				Resource.destroyUnusedResources();
+			})
+		});
 	}
 
 	//加载资源
@@ -67,7 +69,7 @@ export class LoadResourceDemo {
 			var camera: Camera = new Camera();
 			scene.addChild(camera);
 			//设置相机清楚标记，使用天空
-			camera.clearFlag = CameraClearFlags.Sky;
+			camera.clearFlag = CameraClearFlags.SolidColor;
 			//调整相机的位置
 			camera.transform.translate(new Vector3(3, 20, 47));
 			//相机视角控制组件(脚本)
@@ -191,7 +193,7 @@ export class LoadResourceDemo {
 		//使用材质
 		var skyboxMaterial: Material = <Material>Loader.getRes("res/threeDimen/skyBox/skyBox2/skyBox2.lmat");
 		var skyRenderer: SkyRenderer = camera.skyRenderer;
-		skyRenderer.mesh = SkyBox.instance;
+		skyRenderer.mesh = SkyDome.instance;
 		skyRenderer.material = skyboxMaterial;
 
 		//使用纹理

@@ -39,40 +39,41 @@ class LightMoveScript extends Script {
 export class MultiLight {
 
 	constructor() {
-		Laya3D.init(0, 0);
-		Laya.stage.scaleMode = Stage.SCALE_FULL;
-		Laya.stage.screenMode = Stage.SCREEN_NONE;
-		Stat.show();
-		Scene3D.load("res/threeDimen/scene/MultiLightScene/InventoryScene_Forest.ls", Handler.create(this, function (scene: Scene3D): void {
-			Laya.stage.addChild(scene);
+		Laya.init(0, 0).then(() => {
+			Laya.stage.scaleMode = Stage.SCALE_FULL;
+			Laya.stage.screenMode = Stage.SCREEN_NONE;
+			Stat.show();
+			Scene3D.load("res/threeDimen/scene/MultiLightScene/InventoryScene_Forest.ls", Handler.create(this, function (scene: Scene3D): void {
+				Laya.stage.addChild(scene);
 
-			var camera: Camera = <Camera>scene.getChildByName("Main Camera");
-			camera.addComponent(CameraMoveScript);
-			camera.transform.localPosition = new Vector3(8.937199060699333, 61.364798067809126, -66.77836086472654);
+				var camera: Camera = <Camera>scene.getChildByName("Main Camera");
+				camera.addComponent(CameraMoveScript);
+				camera.transform.localPosition = new Vector3(8.937199060699333, 61.364798067809126, -66.77836086472654);
 
-			var moveScript: LightMoveScript = camera.addComponent(LightMoveScript);
-			var moverLights: LightSprite[] = moveScript.lights;
-			var offsets: Vector3[] = moveScript.offsets;
-			var moveRanges: Vector3[] = moveScript.moveRanges;
-			moverLights.length = 15;
-			for (var i: number = 0; i < 15; i++) {
-				var pointLight: PointLight = (<PointLight>scene.addChild(new PointLight()));
-				pointLight.range = 2.0 + Math.random() * 8.0;
-				pointLight.color.setValue(Math.random(), Math.random(), Math.random(), 1);
-				pointLight.intensity = 6.0 + Math.random() * 8;
-				moverLights[i] = pointLight;
-				offsets[i] = new Vector3((Math.random() - 0.5) * 10, pointLight.range * 0.75, (Math.random() - 0.5) * 10);
-				moveRanges[i] = new Vector3((Math.random() - 0.5) * 40, 0, (Math.random() - 0.5) * 40);
-			}
+				var moveScript: LightMoveScript = camera.addComponent(LightMoveScript);
+				var moverLights: LightSprite[] = moveScript.lights;
+				var offsets: Vector3[] = moveScript.offsets;
+				var moveRanges: Vector3[] = moveScript.moveRanges;
+				moverLights.length = 15;
+				for (var i: number = 0; i < 15; i++) {
+					var pointLight: PointLight = (<PointLight>scene.addChild(new PointLight()));
+					pointLight.range = 2.0 + Math.random() * 8.0;
+					pointLight.color.setValue(Math.random(), Math.random(), Math.random(), 1);
+					pointLight.intensity = 6.0 + Math.random() * 8;
+					moverLights[i] = pointLight;
+					offsets[i] = new Vector3((Math.random() - 0.5) * 10, pointLight.range * 0.75, (Math.random() - 0.5) * 10);
+					moveRanges[i] = new Vector3((Math.random() - 0.5) * 40, 0, (Math.random() - 0.5) * 40);
+				}
 
-			var spotLight: SpotLight = (<SpotLight>scene.addChild(new SpotLight()));
-			spotLight.transform.localPosition = new Vector3(0.0, 9.0, -35.0);
-			spotLight.transform.localRotationEuler = new Vector3(-15.0, 180.0, 0.0);
-			spotLight.color.setValue(Math.random(), Math.random(), Math.random(), 1);
-			spotLight.range = 50;
-			spotLight.intensity = 15;
-			spotLight.spotAngle = 60;
-		}));
+				var spotLight: SpotLight = (<SpotLight>scene.addChild(new SpotLight()));
+				spotLight.transform.localPosition = new Vector3(0.0, 9.0, -35.0);
+				spotLight.transform.localRotationEuler = new Vector3(-15.0, 180.0, 0.0);
+				spotLight.color.setValue(Math.random(), Math.random(), Math.random(), 1);
+				spotLight.range = 50;
+				spotLight.intensity = 15;
+				spotLight.spotAngle = 60;
+			}));
+		});
 
 	}
 }

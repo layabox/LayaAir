@@ -61,7 +61,7 @@ export class PhysicsWorld_RayShapeCast {
 	private stype:any = 0;
 	constructor() {
 		//初始化引擎
-		Laya3D.init(0, 0, null, Handler.create(null, () => {
+		Laya.init(0, 0, null, Handler.create(null, () => {
 			//设置舞台
 			Laya.stage.scaleMode = Stage.SCALE_FULL;
 			Laya.stage.screenMode = Stage.SCREEN_NONE;

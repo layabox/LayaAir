@@ -31,7 +31,7 @@ export class PhysicsWorld_MeshCollider {
 	private mat2: BlinnPhongMaterial;
 	private mat3: BlinnPhongMaterial;
 	constructor() {
-		Laya3D.init(0, 0, null, Handler.create(null, () => {
+		Laya.init(0, 0, null, Handler.create(null, () => {
 			Laya.stage.scaleMode = Stage.SCALE_FULL;
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
 			Stat.show();

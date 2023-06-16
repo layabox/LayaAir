@@ -45,23 +45,24 @@ class RotationScript extends Script {
 
 export class CerberusModelShow {
 	constructor() {
-		Laya3D.init(0, 0);
-		Laya.stage.scaleMode = Stage.SCALE_FULL;
-		Laya.stage.screenMode = Stage.SCREEN_NONE;
+		Laya.init(0, 0).then(() => {
+			Laya.stage.scaleMode = Stage.SCALE_FULL;
+			Laya.stage.screenMode = Stage.SCREEN_NONE;
 
-		Scene3D.load("res/threeDimen/scene/LayaScene_CerberusScene/Conventional/CerberusScene.ls", Handler.create(this, function (scene: Scene3D): void {
-			Laya.stage.addChild(scene);
-			scene.ambientMode = AmbientMode.SphericalHarmonics;
+			Scene3D.load("res/threeDimen/scene/LayaScene_CerberusScene/Conventional/CerberusScene.ls", Handler.create(this, function (scene: Scene3D): void {
+				Laya.stage.addChild(scene);
+				scene.ambientMode = AmbientMode.SphericalHarmonics;
 
-			var model: Sprite3D = <Sprite3D>scene.getChildByName("Cerberus_LP");
-			var rotationScript: RotationScript = model.addComponent(RotationScript);
-			rotationScript.model = model;
+				var model: Sprite3D = <Sprite3D>scene.getChildByName("Cerberus_LP");
+				var rotationScript: RotationScript = model.addComponent(RotationScript);
+				rotationScript.model = model;
 
-			var size: number = 20;
-			this.addText(size, size * 4, "Drag the screen to rotate the model.", "#F09900");
-			size = 10;
-			this.addText(size, Laya.stage.height - size * 4, "Cerberus by Andrew Maximov     http://artisaverb.info/PBT.html", "#FFFF00");
-		}));
+				var size: number = 20;
+				this.addText(size, size * 4, "Drag the screen to rotate the model.", "#F09900");
+				size = 10;
+				this.addText(size, Laya.stage.height - size * 4, "Cerberus by Andrew Maximov     http://artisaverb.info/PBT.html", "#FFFF00");
+			}));
+		});
 	}
 
 	/**
