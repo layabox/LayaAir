@@ -44,6 +44,8 @@ import "./loaders/NullLoader";
 import "./loaders/BitmapFontLoader";
 import "./loaders/TTFFontLoader";
 import "./media/webaudio/WebAudioLoader";
+import { Script } from "./components/Script";
+import { Script3D } from "./d3/component/Script3D";
 
 let c = ClassUtils.regClass;
 
@@ -63,6 +65,8 @@ c("VideoNode", VideoNode);
 c("Scene", Scene);
 c("Stage", Stage);
 c("Component", Component);
+c("Script", Script);
+c("Script3D", Script3D);
 c("BitmapFont", BitmapFont);
 c("BlurFilter", BlurFilter);
 c("ColorFilter", ColorFilter);
