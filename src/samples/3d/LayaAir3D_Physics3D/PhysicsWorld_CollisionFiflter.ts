@@ -51,7 +51,7 @@ export class PhysicsWorld_CollisionFiflter {
 
 	constructor() {
 		//初始化引擎
-		Laya.init(0, 0, null, Handler.create(null, () => {
+		Laya.init(0, 0).then(() => {
 			Laya.stage.scaleMode = Stage.SCALE_FULL;
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
 			//显示性能面板
@@ -118,7 +118,7 @@ export class PhysicsWorld_CollisionFiflter {
 				this.addCylinder();
 				this.addSphere();
 			}
-		}));
+		});
 	}
 
 	addKinematicSphere(): void {
