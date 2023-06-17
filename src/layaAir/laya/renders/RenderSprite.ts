@@ -472,14 +472,14 @@ export class RenderSprite {
      * @param	x
      * @param	y
      */
-    _mask(sprite: Sprite, context: Context, x: number, y: number): void {
-        var next: RenderSprite = this._next;
-        var mask: Sprite = sprite.mask;
-        var ctx: Context = (<Context>context);
-        if (mask && (!mask._getBit(NodeFlags.DISABLE_VISIBILITY) || context._drawingToTexture)) {
+    _mask(sprite: Sprite, ctx: Context, x: number, y: number): void {
+        let next = this._next;
+        let mask = sprite.mask;
+        if (mask && (!mask._getBit(NodeFlags.DISABLE_VISIBILITY) || ctx._drawingToTexture)) {
             ctx.save();
-            var preBlendMode: string = ctx.globalCompositeOperation;
-            var tRect: Rectangle = new Rectangle();
+
+            let preBlendMode: string = ctx.globalCompositeOperation;
+            let tRect: Rectangle = new Rectangle();
             //裁剪范围是根据mask来定的
             tRect.copyFrom(mask.getBounds());
             // 为什么round
@@ -489,7 +489,7 @@ export class RenderSprite {
             tRect.y = Math.round(tRect.y);
 
             if (w > 0 && h > 0) {
-                var tmpRT: RenderTexture2D = WebGLRTMgr.getRT(w, h);
+                let tmpRT: RenderTexture2D = WebGLRTMgr.getRT(w, h);
 
                 ctx.breakNextMerge();
                 //先把mask画到tmpTarget上
@@ -517,8 +517,8 @@ export class RenderSprite {
                 preBlendMode = ctx.globalCompositeOperation;
                 ctx.addRenderObject(SubmitCMD.create(["mask"], RenderSprite.setBlendMode, this));
 
-                var shaderValue: Value2D = Value2D.create(ShaderDefines2D.TEXTURE2D, 0);
-                var uv = Texture.INV_UV;
+                let shaderValue: Value2D = Value2D.create(ShaderDefines2D.TEXTURE2D, 0);
+                let uv = Texture.INV_UV;
                 //这个地方代码不要删除，为了解决在iphone6-plus上的诡异问题
                 //renderTarget + StencilBuffer + renderTargetSize < 32 就会变得超级卡
                 //所以增加的限制。王亚伟
@@ -526,22 +526,20 @@ export class RenderSprite {
 
                 ctx.drawTarget(tmpRT, x + tRect.x - sprite.getStyle().pivotX, y + tRect.y - sprite.getStyle().pivotY, w, h, Matrix.TEMP.identity(), shaderValue, uv, 6);
                 ctx.addRenderObject(SubmitCMD.create([tmpRT], RenderSprite.recycleTarget, this));
-
-                //恢复混合模式
-                ctx.addRenderObject(SubmitCMD.create([preBlendMode], RenderSprite.setBlendMode, this));
             }
+
+            //恢复混合模式
+            ctx.addRenderObject(SubmitCMD.create([preBlendMode], RenderSprite.setBlendMode, this));
 
             ctx.restore();
         } else {
-            next._fun.call(next, sprite, context, x, y);
+            next._fun.call(next, sprite, ctx, x, y);
         }
 
     }
-    _maskNative(sprite: Sprite, context: Context, x: number, y: number): void {
+    _maskNative(sprite: Sprite, ctx: Context, x: number, y: number): void {
         var next: RenderSprite = this._next;
         var mask: Sprite = sprite.mask;
-        var submitCMD: SubmitCMD;
-        var ctx: Context = (<Context>context);
         if (mask) {
             ctx.save();
             var preBlendMode: string = ctx.globalCompositeOperation;
@@ -549,15 +547,13 @@ export class RenderSprite {
             //裁剪范围是根据mask来定的
             tRect.copyFrom(mask.getBounds());
             // 为什么round
-            tRect.width = Math.round(tRect.width);
-            tRect.height = Math.round(tRect.height);
+            let w = tRect.width = Math.round(tRect.width);
+            let h = tRect.height = Math.round(tRect.height);
             tRect.x = Math.round(tRect.x);
             tRect.y = Math.round(tRect.y);
-            if (tRect.width > 0 && tRect.height > 0) {
-                var w: number = tRect.width;
-                var h: number = tRect.height;
 
-                var tmpRT: any = (ctx as any).drawMask(w, h);
+            if (w > 0 && h > 0) {
+                let tmpRT: any = (ctx as any).drawMask(w, h);
                 /*var tmpRT: RenderTexture2D = WebGLRTMgr.getRT(w, h);
 
                 ctx.breakNextMerge();
@@ -605,7 +601,7 @@ export class RenderSprite {
             }
             ctx.restore();
         } else {
-            next._fun.call(next, sprite, context, x, y);
+            next._fun.call(next, sprite, ctx, x, y);
         }
 
     }
