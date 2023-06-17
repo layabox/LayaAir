@@ -34,6 +34,7 @@ import { Vector3 } from "./maths/Vector3";
 import { Vector4 } from "./maths/Vector4";
 import { Quaternion } from "./maths/Quaternion";
 import { Color } from "./maths/Color";
+import { Script } from "./components/Script";
 
 import "./loaders/TextResourceLoader";
 import "./loaders/AtlasLoader";
@@ -44,8 +45,6 @@ import "./loaders/NullLoader";
 import "./loaders/BitmapFontLoader";
 import "./loaders/TTFFontLoader";
 import "./media/webaudio/WebAudioLoader";
-import { Script } from "./components/Script";
-import { Script3D } from "./d3/component/Script3D";
 
 let c = ClassUtils.regClass;
 
