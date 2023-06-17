@@ -66,7 +66,6 @@ c("Scene", Scene);
 c("Stage", Stage);
 c("Component", Component);
 c("Script", Script);
-c("Script3D", Script3D);
 c("BitmapFont", BitmapFont);
 c("BlurFilter", BlurFilter);
 c("ColorFilter", ColorFilter);
