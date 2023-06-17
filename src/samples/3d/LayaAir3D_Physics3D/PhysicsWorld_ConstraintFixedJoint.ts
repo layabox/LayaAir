@@ -22,7 +22,7 @@ export class PhysicsWorld_ConstraintFixedJoint {
 	private scene: Scene3D;
 	private camera: Camera;
 	constructor() {
-		Laya.init(0, 0, null, Handler.create(this, () => {
+		Laya.init(0, 0).then(() => {
 			Laya.stage.scaleMode = Stage.SCALE_FULL;
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
 			Stat.show();
@@ -36,7 +36,7 @@ export class PhysicsWorld_ConstraintFixedJoint {
 			mat.setForward(new Vector3(-1.0, -1.0, 1.0));
 			directionLight.transform.worldMatrix = mat;
 			this.addbox();
-		}));
+		});
 
 	}
 
