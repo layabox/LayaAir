@@ -179,8 +179,6 @@ export class SkyRenderer {
             this._material = null;
         }
         this._renderData.destroy();
-        //@ts-ignore
-        this._renderData._onDestroy();
         this._renderElement.destroy();
 
 
