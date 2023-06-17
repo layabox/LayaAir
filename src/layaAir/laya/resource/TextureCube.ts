@@ -67,16 +67,15 @@ export class TextureCube extends BaseTexture {
     static __init__(): void {
         var blackTexture: TextureCube = new TextureCube(1, TextureFormat.R8G8B8A8, false);
         var grayTexture: TextureCube = new TextureCube(1, TextureFormat.R8G8B8A8, false);
-        var writeTexture:TextureCube = new TextureCube(1,TextureFormat.R8G8B8A8,false);
+        var writeTexture: TextureCube = new TextureCube(1, TextureFormat.R8G8B8A8, false);
         var pixels = DEFAULT_PIXELS;
-        pixels[0] = 0, pixels[1] = 0, pixels[2] = 0;pixels[3] = 255;
+        pixels[0] = 0, pixels[1] = 0, pixels[2] = 0; pixels[3] = 255;
         blackTexture.setPixelsData([pixels, pixels, pixels, pixels, pixels, pixels], false, false);
         blackTexture.lock = true;//锁住资源防止被资源管理释放
-        return;
-        pixels[0] = 128, pixels[1] = 128, pixels[2] = 128;pixels[3] = 255;
+        pixels[0] = 128, pixels[1] = 128, pixels[2] = 128; pixels[3] = 255;
         grayTexture.setPixelsData([pixels, pixels, pixels, pixels, pixels, pixels], false, false);
         grayTexture.lock = true;//锁住资源防止被资源管理释放
-        pixels[0] = 255, pixels[1] = 255, pixels[2] = 255;pixels[3] = 255;
+        pixels[0] = 255, pixels[1] = 255, pixels[2] = 255; pixels[3] = 255;
         writeTexture.setPixelsData([pixels, pixels, pixels, pixels, pixels, pixels], false, false);
         writeTexture.lock = true;
         TextureCube._grayTexture = grayTexture;
