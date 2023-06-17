@@ -52,6 +52,10 @@ void initSurface(inout Surface surface, const in SurfaceInputs inputs, const in 
 
     surface.occlusion = inputs.occlusion;
 
+    #ifdef EMISSION
+    surface.emissionColor = inputs.emissionColor;
+    #endif // EMISSION
+
     #ifdef CLEARCOAT
     surface.clearCoat = inputs.clearCoat;
     surface.clearCoatPerceptualRoughness = clamp(inputs.clearCoatRoughness, MIN_PERCEPTUAL_ROUGHNESS, 1.0);
@@ -84,11 +88,6 @@ vec4 PBR_Metallic_Flow(const in SurfaceInputs inputs, in PixelParams pixel)
 
     vec3 surfaceColor = vec3(0.0);
     surfaceColor += PBRLighting(surface, info);
-
-    // todo emission calculate
-    #ifdef EMISSION
-    surfaceColor += inputs.emissionColor;
-    #endif // EMISSION
 
     return vec4(surfaceColor, surface.alpha);
 }

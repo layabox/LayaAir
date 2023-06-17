@@ -69,6 +69,10 @@ struct Surface {
     float perceptualRoughness;
     float occlusion;
 
+    #ifdef EMISSION
+    vec3 emissionColor;
+    #endif // EMISSION
+
     vec3 normalTS;
 
     float ior;

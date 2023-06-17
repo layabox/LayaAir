@@ -117,7 +117,12 @@ vec3 PBRLighting(const in Surface surface, const in PixelInfo info)
 
     vec3 giColor = PBRGI(surface, info);
 
-    return lightColor + giColor;
+    vec3 color = lightColor + giColor;
+
+    #ifdef EMISSION
+    color += surface.emissionColor;
+    #endif //  EMISSION
+    return color;
 }
 
 #endif // pbrFrag_lib
