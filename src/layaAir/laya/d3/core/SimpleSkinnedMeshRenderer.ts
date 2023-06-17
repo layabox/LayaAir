@@ -80,7 +80,7 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
     }
 
     protected _getcommonUniformMap(): string[] {
-        return ["Sprite3D","SimpleSkinnedMesh"];
+        return ["Sprite3D", "SimpleSkinnedMesh"];
     }
 
     /**
@@ -122,27 +122,26 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
      */
     _renderUpdate(context: RenderContext3D, transform: Transform3D): void {
         var element: SubMeshRenderElement = <SubMeshRenderElement>context.renderElement;
-        switch (element.renderType) {
-            case RenderElement.RENDERTYPE_NORMAL:
-                if (this.rootBone) {
-                    var worldMat: Matrix4x4 = (this.rootBone as Sprite3D).transform.worldMatrix;
-                    if (this._subUniformBufferData) {
-                        let oriMat = this._shaderValues.getMatrix4x4(Sprite3D.WORLDMATRIX);
-                        this._subUniformBufferData._needUpdate = oriMat ? !oriMat.equalsOtherMatrix(worldMat) : true;
-                    }
-                    this._setShaderValue(Sprite3D.WORLDMATRIX, ShaderDataType.Matrix4x4, worldMat);
-                    this._worldParams.x = (this.rootBone as Sprite3D).transform.getFrontFaceValue();
-                    this._setShaderValue(Sprite3D.WORLDINVERTFRONT, ShaderDataType.Vector4, this._worldParams);
-                } else {
-                    this._setShaderValue(Sprite3D.WORLDMATRIX, ShaderDataType.Matrix4x4, transform.worldMatrix);
-                    this._worldParams.x = transform.getFrontFaceValue();
-                    this._setShaderValue(Sprite3D.WORLDINVERTFRONT, ShaderDataType.Vector4, this._worldParams);
-                }
-                this._computeAnimatorParamsData();
-                this._shaderValues.setVector(SimpleSkinnedMeshRenderer.SIMPLE_SIMPLEANIMATORPARAMS, this._simpleAnimatorParams);
-                break;
+
+        if (this.rootBone) {
+            var worldMat: Matrix4x4 = (this.rootBone as Sprite3D).transform.worldMatrix;
+            if (this._subUniformBufferData) {
+                let oriMat = this._shaderValues.getMatrix4x4(Sprite3D.WORLDMATRIX);
+                this._subUniformBufferData._needUpdate = oriMat ? !oriMat.equalsOtherMatrix(worldMat) : true;
+            }
+            this._setShaderValue(Sprite3D.WORLDMATRIX, ShaderDataType.Matrix4x4, worldMat);
+            this._worldParams.x = (this.rootBone as Sprite3D).transform.getFrontFaceValue();
+            this._setShaderValue(Sprite3D.WORLDINVERTFRONT, ShaderDataType.Vector4, this._worldParams);
+        } else {
+            this._setShaderValue(Sprite3D.WORLDMATRIX, ShaderDataType.Matrix4x4, transform.worldMatrix);
+            this._worldParams.x = transform.getFrontFaceValue();
+            this._setShaderValue(Sprite3D.WORLDINVERTFRONT, ShaderDataType.Vector4, this._worldParams);
         }
+        this._computeAnimatorParamsData();
+        this._shaderValues.setVector(SimpleSkinnedMeshRenderer.SIMPLE_SIMPLEANIMATORPARAMS, this._simpleAnimatorParams);
+
     }
+
     /**
      * @inheritDoc
      * @override

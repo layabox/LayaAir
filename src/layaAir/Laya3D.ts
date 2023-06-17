@@ -235,7 +235,6 @@ export class Laya3D {
         return Promise.resolve();
     }
 
-
     static createRenderObjInit() {
         if (LayaEnv.isConch && !(window as any).conchConfig.conchWebGL) {
             LayaGL.renderEngine._renderOBJCreateContext = new NativeRenderOBJCreateUtil();

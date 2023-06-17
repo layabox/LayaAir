@@ -231,6 +231,7 @@ export class Laya {
                     else
                         LayaEnv.afterInit = null;
                 }
+                return Promise.resolve();
             });
         }
         else {
