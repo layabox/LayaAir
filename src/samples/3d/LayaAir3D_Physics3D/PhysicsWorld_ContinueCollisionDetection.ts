@@ -23,7 +23,7 @@ export class PhysicsWorld_ContinueCollisionDetection {
 	private scene: Scene3D;
 	private mat2: BlinnPhongMaterial;
 	constructor() {
-		Laya.init(0, 0, null, Handler.create(null, () => {
+		Laya.init(0, 0).then(() => {
 			Laya.stage.scaleMode = Stage.SCALE_FULL;
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
 			Stat.show();
@@ -69,7 +69,7 @@ export class PhysicsWorld_ContinueCollisionDetection {
 			Laya.timer.loop(200, this, function (): void {
 				this.addSphere();
 			});
-		}));
+		});
 	}
 
 	addSphere(): void {
