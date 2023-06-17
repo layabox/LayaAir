@@ -34,6 +34,7 @@ import { Vector3 } from "./maths/Vector3";
 import { Vector4 } from "./maths/Vector4";
 import { Quaternion } from "./maths/Quaternion";
 import { Color } from "./maths/Color";
+import { Script } from "./components/Script";
 
 import "./loaders/TextResourceLoader";
 import "./loaders/AtlasLoader";
@@ -63,6 +64,7 @@ c("VideoNode", VideoNode);
 c("Scene", Scene);
 c("Stage", Stage);
 c("Component", Component);
+c("Script", Script);
 c("BitmapFont", BitmapFont);
 c("BlurFilter", BlurFilter);
 c("ColorFilter", ColorFilter);
