@@ -39,8 +39,8 @@ void getPixelInfo(inout PixelInfo info, const in PixelParams pixel, const in Sur
     info.anisotropicB = cross(info.vertexNormalWS, info.anisotropicT);
     info.ToV = dot(info.anisotropicT, info.viewDir);
     info.BoV = dot(info.anisotropicB, info.viewDir);
-    info.at = mix(surface.roughness, 1.0, pow2(surface.anisotropy));
-    info.ab = surface.roughness;
+    info.at = mix(surface.perceptualRoughness, 1.0, pow2(surface.anisotropy));
+    info.ab = surface.perceptualRoughness;
     #endif // ANISOTROPIC
 
     #ifdef LIGHTMAP
