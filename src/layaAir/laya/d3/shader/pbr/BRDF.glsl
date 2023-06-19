@@ -100,7 +100,7 @@ float V_SmithGGXCorrelated_Anisotropic(float at, float ab, float ToV, float BoV,
     float lambdaV = NoL * length(vec3(at * ToV, ab * BoV, NoV));
     float lambdaL = NoV * length(vec3(at * ToL, ab * BoL, NoL));
     float v = 0.5 / (lambdaV + lambdaL);
-    return saturate(v);
+    return saturateMediump(v);
 }
 
 vec3 F_Schlick(vec3 f0, float f90, float VoH)
