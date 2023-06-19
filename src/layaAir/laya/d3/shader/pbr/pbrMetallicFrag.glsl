@@ -76,9 +76,11 @@ vec4 PBR_Metallic_Flow(const in SurfaceInputs inputs, in PixelParams pixel)
     Surface surface;
     initSurface(surface, inputs, pixel);
 
-    vec3 surfaceColor = vec3(0.0);
+    PixelInfo info;
+    getPixelInfo(info, pixel, surface);
 
-    surfaceColor += PBRLighting(surface, pixel);
+    vec3 surfaceColor = vec3(0.0);
+    surfaceColor += PBRLighting(surface, info);
 
     // todo emission calculate
     #ifdef EMISSION
