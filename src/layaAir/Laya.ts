@@ -86,17 +86,16 @@ export class Laya {
         if (_isinit)
             return Promise.resolve();
         _isinit = true;
-        let _stageconfig: IStageConfig;
 
-        //let stageConfig: IStageConfig;
+        let stageConfig: IStageConfig;
         if (typeof (args[0]) === "number") {
-            _stageconfig = {
+            stageConfig = {
                 designWidth: args[0],
                 designHeight: args[1]
             };
         }
         else
-            _stageconfig = args[0];
+            stageConfig = args[0];
 
         ArrayBuffer.prototype.slice || (ArrayBuffer.prototype.slice = arrayBufferSlice);
         Float32Array.prototype.slice || (Float32Array.prototype.slice = float32ArraySlice);
@@ -154,7 +153,7 @@ export class Laya {
 
         if (LayaEnv.beforeInit) {
             if (LayaEnv.isPlaying)
-                LayaEnv.beforeInit(_stageconfig);
+                LayaEnv.beforeInit(stageConfig);
             else
                 LayaEnv.beforeInit = null;
         }
@@ -177,14 +176,14 @@ export class Laya {
 
 
         return LayaGL.renderOBJCreate.createEngine(null, Browser.mainCanvas).then(() => {
-            return Laya.initRender2D(_stageconfig);
+            return Laya.initRender2D(stageConfig);
         })
     }
 
     //createEngine
     //initRender2D
 
-    static initRender2D(stageConfig:IStageConfig): Promise<void> {
+    static initRender2D(stageConfig: IStageConfig): Promise<void> {
         Laya.render = new Render(0, 0, Browser.mainCanvas);
         render = Laya.render;
         stage.size(stageConfig.designWidth, stageConfig.designHeight);
