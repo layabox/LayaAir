@@ -616,8 +616,10 @@ export class Camera extends BaseCamera {
         if (value == this._opaquePass)
             return;
         if (!value) {
-            this._shaderValues.setTexture(BaseCamera.OPAQUETEXTURE, null);
+            this._shaderValues.setTexture(BaseCamera.OPAQUETEXTURE, Texture2D.blackTexture);
+            this._shaderValues.setVector(BaseCamera.OPAQUETEXTUREPARAMS, Vector4.ONE);
             this._opaqueTexture && RenderTexture.recoverToPool(this._opaqueTexture);
+            this._opaqueTexture = null;
         }
         this._opaquePass = value;
     }
@@ -1242,7 +1244,13 @@ export class Camera extends BaseCamera {
             this._opaqueTexture.wrapModeU = WrapMode.Clamp;
             this._opaqueTexture.wrapModeV = WrapMode.Clamp;
             this._shaderValues.setTexture(BaseCamera.OPAQUETEXTURE, this._opaqueTexture);
-            this._shaderValues.setVector(BaseCamera.OPAQUETEXTUREPARAMS, new Vector4(this._opaqueTexture.width, this._opaqueTexture.height, this._opaqueTexture.maxMipmapLevel, 0.0));
+
+            let opaqueTexParams = new Vector4();
+            opaqueTexParams.x = this._opaqueTexture.width;
+            opaqueTexParams.y = this._opaqueTexture.height;
+            opaqueTexParams.z = this._opaqueTexture.maxMipmapLevel;
+
+            this._shaderValues.setVector(BaseCamera.OPAQUETEXTUREPARAMS, opaqueTexParams);
         }
 
 

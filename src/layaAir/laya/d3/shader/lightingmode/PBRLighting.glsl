@@ -308,7 +308,7 @@ vec3 anisotropyLobe(const in Surface surface, const in PixelInfo pixel, const in
 
     float V = V_SmithGGXCorrelated_Anisotropic(at, ab, ToV, BoV, ToL, BoL, NoV, NoL);
     float D = D_GGX_Anisotropic(NoH, h, anisotropicT, anisotropicB, at, ab);
-    vec3 F = fresnel(surface.f0, lightParams.LoH);
+    vec3 F = fresnel(surface.f0, surface.f90, lightParams.LoH);
     return V * D * F;
 }
     #endif // ANISOTROPIC
