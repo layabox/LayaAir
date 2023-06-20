@@ -59,7 +59,7 @@ export class ShaderInstance {
 	constructor(shaderProcessInfo: ShaderProcessInfo, shaderPass: ShaderCompileDefineBase) {
 		this._cullStateCMD = LayaGL.renderOBJCreate.createRenderStateComand();
 		shaderProcessInfo.is2D ? this._webGLShaderLanguageProcess2D(shaderProcessInfo.defineString, shaderProcessInfo.attributeMap, shaderProcessInfo.uniformMap, shaderProcessInfo.vs, shaderProcessInfo.ps)
-		: this._webGLShaderLanguageProcess3D(shaderProcessInfo.defineString, shaderProcessInfo.attributeMap, shaderProcessInfo.uniformMap, shaderProcessInfo.vs, shaderProcessInfo.ps);
+			: this._webGLShaderLanguageProcess3D(shaderProcessInfo.defineString, shaderProcessInfo.attributeMap, shaderProcessInfo.uniformMap, shaderProcessInfo.vs, shaderProcessInfo.ps);
 		if (this._renderShaderInstance._complete) {
 			this._shaderPass = shaderPass;
 			this._create();
@@ -504,6 +504,10 @@ ${uniformglsl}`;
 		switch (cull) {
 			case RenderState.CULL_NONE:
 				this._cullStateCMD.addCMD(RenderStateType.CullFace, false);
+				if (isTarget != invertFront)
+					forntFace = CullMode.Front;//gl.CCW
+				else
+					forntFace = CullMode.Back;
 				this._cullStateCMD.addCMD(RenderStateType.FrontFace, forntFace);
 				break;
 			case RenderState.CULL_FRONT:
