@@ -389,7 +389,7 @@ gulp.task('genDts', () => {
                     let code = declarationFile.text.slice(node.pos, node.end);
                     return code.substring(0, code.length - 6);
                 }
-                else if (node.kind == SyntaxKind.DeclareKeyword && inNamespace) { //删除declare
+                else if ((node.kind == SyntaxKind.DeclareKeyword || node.kind == SyntaxKind.ModuleDeclaration) && inNamespace) { //删除declare
                     return '';
                 }
                 else if (node.kind == SyntaxKind.TypeReference) {
