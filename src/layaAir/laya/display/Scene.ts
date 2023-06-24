@@ -313,7 +313,7 @@ export class Scene extends Sprite {
         super._shouldRefreshLayout();
         this.callLater(this._sizeChanged);
     }
-    
+
     /**
      * @private 
      * @override
@@ -377,7 +377,7 @@ export class Scene extends Sprite {
             let errors: Array<any> = [];
             let ret = content.create(null, errors);
             if (errors.length > 0)
-                console.warn(`Error loading ${url}: \n${errors}`);
+                console.warn(`Error loading ${url}: \n${errors.join("\n")}`);
 
             if (ret instanceof Scene)
                 scene = ret;

@@ -1712,7 +1712,6 @@ export class Sprite extends Node {
      * @param elasticDistance	（可选）橡皮筋效果的距离值，0为无橡皮筋效果，默认为0，可选。
      * @param elasticBackTime	（可选）橡皮筋回弹时间，单位为毫秒，默认为300毫秒，可选。
      * @param data				（可选）拖动事件携带的数据，可选。
-     * @param disableMouseEvent	（可选）禁用其他对象的鼠标检测，默认为false，设置为true能提高性能。
      * @param ratio				（可选）惯性阻尼系数，影响惯性力度和时长。
      */
     startDrag(area: Rectangle = null, hasInertia: boolean = false, elasticDistance: number = 0, elasticBackTime: number = 300, data: any = null, ratio: number = 0.92): void {

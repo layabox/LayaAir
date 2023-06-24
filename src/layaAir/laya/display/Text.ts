@@ -953,7 +953,7 @@ export class Text extends Sprite {
         this._updatingLayout = true;
         this._fontSizeScale = 1;
 
-        let wordWrap = this._wordWrap;
+        let wordWrap = this._wordWrap || this._overflow == Text.ELLIPSIS;
         let padding = this._padding;
         let rectWidth: number;
         if (this._isWidthSet)
@@ -1366,8 +1366,8 @@ export class Text extends Sprite {
                         cmd.wt = new WordText();
 
                     cmd.wt.setText(cmd.wt.text.substring(0, Math.max(0, cmd.wt.text.length - 2)) + ellipsisStr);
-                    fontSize = Math.floor(cmd.style.fontSize * this._fontSizeScale);
-                    cmd.width = cmd.wt.width = getTextWidth(ellipsisStr);
+                    fontSize = cmd.style.fontSize;
+                    cmd.width = cmd.wt.width = getTextWidth(cmd.wt.text);
                     cmd.wt.splitRender = this._singleCharRender;
                     cmd.next = null;
                     done = true;

@@ -3,8 +3,10 @@ import { SoundManager } from "./SoundManager";
 import { Sprite } from "../display/Sprite"
 import { Event } from "../events/Event"
 import { Handler } from "../utils/Handler"
+import { LayaEnv } from "../../LayaEnv";
 
 /**
+ * 用于播放背景音乐或者音效的节点
  */
 export class SoundNode extends Sprite {
     private _channel: SoundChannel;
@@ -12,10 +14,15 @@ export class SoundNode extends Sprite {
     private _playEvents: string;
     private _stopEvents: string;
     private _source: string;
+    private _isMusic: boolean;
+    private _autoPlay: boolean;
+    private _loop: number;
 
     constructor() {
         super();
-        this.visible = false;
+
+        this._loop = 1;
+
         this.on(Event.ADDED, this, this._onParentChange);
         this.on(Event.REMOVED, this, this._onParentChange);
     }
@@ -26,8 +33,47 @@ export class SoundNode extends Sprite {
 
     set source(value: string) {
         this._source = value;
-        if (!value)
+        if (value) {
+            if (this._autoPlay && (!this._channel || this._channel.isStopped) && LayaEnv.isPlaying)
+                this.play();
+        }
+        else
             this.stop();
+    }
+
+    /**
+     * 如果是，音乐类型为背景音乐，否则为音效
+     */
+    get isMusic() {
+        return this._isMusic;
+    }
+
+    set isMusic(value: boolean) {
+        this._isMusic = value;
+    }
+
+    /**
+     * 循环次数
+     */
+    get loop() {
+        return this._loop;
+    }
+
+    set loop(value: number) {
+        this._loop = value;
+    }
+
+    /**
+     * 是否自动播放
+     */
+    get autoPlay() {
+        return this._autoPlay;
+    }
+
+    set autoPlay(value: boolean) {
+        this._autoPlay = value;
+        if (value && this._source && (!this._channel || this._channel.isStopped) && LayaEnv.isPlaying)
+            this.play();
     }
 
     /**@private */
@@ -41,13 +87,18 @@ export class SoundNode extends Sprite {
      * @param complete 完成回调
      *
      */
-    play(loops: number = 1, complete: Handler = null): void {
-        if (isNaN(loops)) {
-            loops = 1;
-        }
+    play(loops?: number, complete?: Handler): void {
         if (!this._source) return;
+
+        if (loops == null || isNaN(loops))
+            loops = this._loop;
+
         this.stop();
-        this._channel = SoundManager.playSound(this._source, loops, complete);
+
+        if (this._isMusic)
+            this._channel = SoundManager.playMusic(this._source, loops, complete);
+        else
+            this._channel = SoundManager.playSound(this._source, loops, complete);
     }
 
     /**
@@ -77,10 +128,9 @@ export class SoundNode extends Sprite {
     private _setPlayActions(tar: Sprite, events: string, action: string, add: boolean = true): void {
         if (!tar) return;
         if (!events) return;
-        var eventArr: any[] = events.split(",");
-        var i: number, len: number;
-        len = eventArr.length;
-        for (i = 0; i < len; i++) {
+        let eventArr = events.split(",");
+        let len = eventArr.length;
+        for (let i = 0; i < len; i++) {
             this._setPlayAction(tar, eventArr[i], action, add);
         }
     }
