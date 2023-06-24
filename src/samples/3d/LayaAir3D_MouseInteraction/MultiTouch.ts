@@ -20,13 +20,14 @@ export class MultiTouch {
 
 	constructor() {
 		//初始化引擎
-		Laya3D.init(0, 0);
-		Laya.stage.scaleMode = Stage.SCALE_FULL;
-		Laya.stage.screenMode = Stage.SCREEN_NONE;
+		Laya.init(0, 0).then(() => {
+			Laya.stage.scaleMode = Stage.SCALE_FULL;
+			Laya.stage.screenMode = Stage.SCREEN_NONE;
 
-		//预加载所有资源
-		var resource: any[] = ["res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh"];
-		Laya.loader.load(resource, Handler.create(this, this.onComplete));
+			//预加载所有资源
+			var resource: any[] = ["res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh"];
+			Laya.loader.load(resource, Handler.create(this, this.onComplete));
+		});
 	}
 
 	private onComplete(): void {

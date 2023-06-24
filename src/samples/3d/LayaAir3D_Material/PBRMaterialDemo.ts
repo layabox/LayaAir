@@ -20,23 +20,24 @@ export class PBRMaterialDemo {
 
 	constructor() {
 		Shader3D.debugMode = true;
-		Laya3D.init(0, 0);
-		Laya.stage.scaleMode = Stage.SCALE_FULL;
-		Laya.stage.screenMode = Stage.SCREEN_NONE;
+		Laya.init(0, 0).then(() => {
+			Laya.stage.scaleMode = Stage.SCALE_FULL;
+			Laya.stage.screenMode = Stage.SCREEN_NONE;
 
-		Scene3D.load("res/threeDimen/scene/LayaScene_EmptyScene/Conventional/EmptyScene.ls", Handler.create(this, function (scene: Scene3D): void {
-			Laya.stage.addChild(scene);
-			
-			var camera: Camera = <Camera>scene.getChildByName("Main Camera");
-			var moveScript: CameraMoveScript = camera.addComponent(CameraMoveScript);
-			moveScript.speed = 0.005;
+			Scene3D.load("res/threeDimen/scene/LayaScene_EmptyScene/Conventional/EmptyScene.ls", Handler.create(this, function (scene: Scene3D): void {
+				Laya.stage.addChild(scene);
+				
+				var camera: Camera = <Camera>scene.getChildByName("Main Camera");
+				var moveScript: CameraMoveScript = camera.addComponent(CameraMoveScript);
+				moveScript.speed = 0.005;
 
-			var sphereMesh: Mesh = PrimitiveMesh.createSphere(0.25, 32, 32);
-			const row: number = 6;
-			this.addSpheresSpecialMetallic(sphereMesh, new Vector3(0, 1.5, 0), scene, row, new Color(186 / 255, 110 / 255, 64 / 255, 1.0), 1.0);
-			this.addSpheresSmoothnessMetallic(sphereMesh, new Vector3(0, 0, 0), scene, 3, row, new Color(1.0, 1.0, 1.0, 1.0));
-			this.addSpheresSpecialMetallic(sphereMesh, new Vector3(0, -1.5, 0), scene, row, new Color(0.0, 0.0, 0.0, 1.0), 0.0);
-		}));
+				var sphereMesh: Mesh = PrimitiveMesh.createSphere(0.25, 32, 32);
+				const row: number = 6;
+				this.addSpheresSpecialMetallic(sphereMesh, new Vector3(0, 1.5, 0), scene, row, new Color(186 / 255, 110 / 255, 64 / 255, 1.0), 1.0);
+				this.addSpheresSmoothnessMetallic(sphereMesh, new Vector3(0, 0, 0), scene, 3, row, new Color(1.0, 1.0, 1.0, 1.0));
+				this.addSpheresSpecialMetallic(sphereMesh, new Vector3(0, -1.5, 0), scene, row, new Color(0.0, 0.0, 0.0, 1.0), 0.0);
+			}));
+		});
 	}
 
 	/**

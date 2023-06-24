@@ -52,15 +52,16 @@ export class RealTimeShadow {
 	private rotationScript:RotationScript;
 	constructor() {
 		//Init engine.
-		Laya3D.init(0, 0);
-		Laya.stage.scaleMode = Stage.SCALE_FULL;
-		Laya.stage.screenMode = Stage.SCREEN_NONE;
-		//show stat.
-		Stat.show();
-		Laya.loader.load([
-			"res/threeDimen/staticModel/grid/plane.lh",
-			"res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh"
-		], Handler.create(this, this.onComplete));
+		Laya.init(0, 0).then(() => {
+			Laya.stage.scaleMode = Stage.SCALE_FULL;
+			Laya.stage.screenMode = Stage.SCREEN_NONE;
+			//show stat.
+			Stat.show();
+			Laya.loader.load([
+				"res/threeDimen/staticModel/grid/plane.lh",
+				"res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh"
+			], Handler.create(this, this.onComplete));
+		});
 	}
 
 	private onComplete(): void {

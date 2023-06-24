@@ -1,9 +1,10 @@
-import { LayaGL } from "../layagl/LayaGL";
+import { ShaderDataType } from "./RenderShader/ShaderData";
 
+type UniformProperty = { id: number, propertyName: string, uniformtype?: ShaderDataType }
 export class CommandUniformMap {
 
 	/**@internal */
-	_idata: { [key: number]: string } = {};
+	_idata: { [key: number]: { block?: Object, propertyName: string, uniformtype?: ShaderDataType, blockProperty?: UniformProperty[] } } = {};
 	_stateName: string;
 
 	constructor(stateName: string) {
@@ -19,13 +20,27 @@ export class CommandUniformMap {
 	}
 
 	/**
-	 * 增加一个UniformMap
+	 * 增加一个Uniform参数
 	 * @internal
 	 * @param propertyID 
 	 * @param propertyKey 
 	 */
-	addShaderUniform(propertyID: number, propertyKey: string): void {
-		this._idata[propertyID] = propertyKey;
+	addShaderUniform(propertyID: number, propertyKey: string, uniformtype: ShaderDataType, block: string = null): void {
+		this._idata[propertyID] = { uniformtype: uniformtype, propertyName: propertyKey, block: block };
 	}
+
+	/**
+	 * 增加一个Uniform
+	 * @param propertyID 
+	 * @param propertyKey 
+	 */
+	addShaderBlockUniform(propertyID: number, blockname: string, blockProperty: UniformProperty[]): void {
+		this._idata[propertyID] = { propertyName: blockname, blockProperty: blockProperty }
+		blockProperty.forEach(element => {
+			this.addShaderUniform(element.id, element.propertyName, element.uniformtype, blockname);
+		});
+	}
+
+
 
 }

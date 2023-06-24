@@ -43,7 +43,7 @@ export class KHR_materials_clearcoat implements glTFExtension {
         this._resource = resource;
     }
 
-    loadTextures(basePath: string, progress?: IBatchProgress): Promise<any> {
+    loadAdditionTextures(basePath: string, progress?: IBatchProgress): Promise<any> {
         let materials = this._resource.data.materials;
         let textures = this._resource.data.textures;
 
@@ -53,18 +53,15 @@ export class KHR_materials_clearcoat implements glTFExtension {
                 let extension: glTF.glTFMaterialClearCoat = material.extensions?.KHR_materials_clearcoat;
                 if (extension) {
                     if (extension.clearcoatTexture) {
-                        let index = extension.clearcoatTexture.index
-                        let promise = this._resource.loadTextureFromglTF(index, false, basePath, progress);
+                        let promise = this._resource.loadTextureFromInfo(extension.clearcoatTexture, false, basePath, progress);
                         promises.push(promise);
                     }
                     if (extension.clearcoatRoughnessTexture) {
-                        let index = extension.clearcoatRoughnessTexture.index;
-                        let promise = this._resource.loadTextureFromglTF(index, false, basePath, progress);
+                        let promise = this._resource.loadTextureFromInfo(extension.clearcoatRoughnessTexture, false, basePath, progress);
                         promises.push(promise);
                     }
                     if (extension.clearcoatNormalTexture) {
-                        let index = extension.clearcoatNormalTexture.index;
-                        let promise = this._resource.loadTextureFromglTF(index, false, basePath, progress);
+                        let promise = this._resource.loadTextureFromInfo(extension.clearcoatNormalTexture, false, basePath, progress);
                         promises.push(promise);
                     }
                 }
@@ -85,24 +82,22 @@ export class KHR_materials_clearcoat implements glTFExtension {
 
         material.setFloat("u_ClearCoatFactor", clearCoat);
         if (extension.clearcoatTexture) {
-            let tex = this._resource.getTextureWithInfo(extension.clearcoatTexture);
-            material.setTexture("u_ClearCoatTexture", tex);
-            material.setDefine(glTFShader.Define_ClearCoatMap, true)
+            this._resource.setMaterialTextureProperty(material, extension.clearcoatTexture, "u_ClearCoatTexture", glTFShader.Define_ClearCoatMap, "u_ClearCoatMapTransform", glTFShader.Define_ClearCoatMapTransform);
         }
 
         material.setFloat("u_ClearCoatRoughness", clearCoatRoughness);
         if (extension.clearcoatRoughnessTexture) {
-            let tex = this._resource.getTextureWithInfo(extension.clearcoatRoughnessTexture);
-            material.setTexture("u_ClearCoatRoughnessTexture", tex);
-            material.setDefine(glTFShader.Define_ClearCoatRoughnessMap, true);
+            this._resource.setMaterialTextureProperty(material, extension.clearcoatRoughnessTexture, "u_ClearCoatRoughnessTexture", glTFShader.Define_ClearCoatRoughnessMap, "u_ClearCoatRoughnessMapTransform", glTFShader.Define_ClearCoatRoughnessMapTransform);
         }
 
         if (extension.clearcoatNormalTexture) {
-            let tex = this._resource.getTextureWithInfo(extension.clearcoatNormalTexture);
-            material.setTexture("u_ClearCoatNormalTexture", tex);
-            material.setDefine(glTFShader.Define_ClearCoatNormalMap, true);
+            material.setDefine(PBRShaderLib.DEFINE_CLEARCOAT_NORMAL, true);
+
+            this._resource.setMaterialTextureProperty(material, extension.clearcoatNormalTexture, "u_ClearCoatNormalTexture", null, "u_ClearCoatNormalMapTransform", glTFShader.Define_ClearCoatNormalMapTransform);
+
             let scale = extension.clearcoatNormalTexture.scale ?? 1.0;
             material.setFloat("u_ClearCoatNormalScale", scale);
+
         }
     }
 

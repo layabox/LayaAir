@@ -24,24 +24,25 @@ export class Blinnphong_Transmission {
 
 	constructor() {
 
-		Laya3D.init(0, 0);
-		Laya.stage.scaleMode = Stage.SCALE_FULL;
-		Laya.stage.screenMode = Stage.SCREEN_NONE;
-		Stat.show();
+		Laya.init(0, 0).then(() => {
+			Laya.stage.scaleMode = Stage.SCALE_FULL;
+			Laya.stage.screenMode = Stage.SCREEN_NONE;
+			Stat.show();
 
-		//加载场景
-		Scene3D.load("res/threeDimen/LayaScene_TransmissionScene/Conventional/TransmissionScene.ls", Handler.create(this, function (scene: Scene3D): void {
-			(<Scene3D>Laya.stage.addChild(scene));
-			//获取场景中的相机
-			var camera: Camera = (<Camera>scene.getChildByName("Main Camera"));
-			//加入摄像机移动控制脚本
-			camera.addComponent(CameraMoveScript);
-			this.rabbitModel = scene.getChildByName("rabbit");
-			this.monkeyModel = scene.getChildByName("monkey");
-			this.rabbitMaterial = (this.rabbitModel as MeshSprite3D).meshRenderer.sharedMaterial;
-			this.monkeyMaterial = (this.monkeyModel as MeshSprite3D).meshRenderer.sharedMaterial;
-			this.loadThinkNessTexture();
-		}));
+			//加载场景
+			Scene3D.load("res/threeDimen/LayaScene_TransmissionScene/Conventional/TransmissionScene.ls", Handler.create(this, function (scene: Scene3D): void {
+				(<Scene3D>Laya.stage.addChild(scene));
+				//获取场景中的相机
+				var camera: Camera = (<Camera>scene.getChildByName("Main Camera"));
+				//加入摄像机移动控制脚本
+				camera.addComponent(CameraMoveScript);
+				this.rabbitModel = scene.getChildByName("rabbit");
+				this.monkeyModel = scene.getChildByName("monkey");
+				this.rabbitMaterial = (this.rabbitModel as MeshSprite3D).meshRenderer.sharedMaterial;
+				this.monkeyMaterial = (this.monkeyModel as MeshSprite3D).meshRenderer.sharedMaterial;
+				this.loadThinkNessTexture();
+			}));
+		});
 
 	}
 	loadThinkNessTexture(){

@@ -26,42 +26,43 @@ export class SimpleSkinAnimationInstance {
 	private widthNums: number = 20;
 	private step: number = 2.5;
 	constructor() {
-		Laya3D.init(0, 0);
-		Laya.stage.scaleMode = Stage.SCALE_FULL;
-		Laya.stage.screenMode = Stage.SCREEN_NONE;
-		Stat.show();
-		Shader3D.debugMode = true;
-		this.scene = (<Scene3D>Laya.stage.addChild(new Scene3D()));
-		// add Camera
-		var camera: Camera = new Camera();
-		this.scene.addChild(camera);
-		camera.clearFlag = CameraClearFlags.SolidColor;
-		camera.clearColor = new Color(0.79, 0.72, 0.72, 1.0);
-		camera.transform.localPosition = new Vector3(-16.4, 2.96, 24.3);
-		camera.transform.localRotationEuler = new Vector3(-7.5, -30, 0.0);
-		camera.addComponent(CameraMoveScript);
-		// add Light
-		var light = new DirectionLight();
-		light.intensity = 0.5;
-		light.transform.localRotationEuler = new Vector3(-20, 0, 0);
-		this.scene.addChild(light);
-		var res = [
-			"res/threeDimen/texAnimation/Attack01/Attack01.lh",
-			"res/threeDimen/texAnimation/role/role.lh",
-		];
-		Laya.loader.load(res).then(() => {
-			this.oriSprite3D = Loader.createNodes(res[0]);
-			this.sceneBuild(0);
-			// add other model
-			this.oriSprite3D = Loader.createNodes(res[1]);
-			this.sceneBuild(1);
-		});
+		Laya.init(0, 0).then(() => {
+			Laya.stage.scaleMode = Stage.SCALE_FULL;
+			Laya.stage.screenMode = Stage.SCREEN_NONE;
+			Stat.show();
+			Shader3D.debugMode = true;
+			this.scene = (<Scene3D>Laya.stage.addChild(new Scene3D()));
+			// add Camera
+			var camera: Camera = new Camera();
+			this.scene.addChild(camera);
+			camera.clearFlag = CameraClearFlags.SolidColor;
+			camera.clearColor = new Color(0.79, 0.72, 0.72, 1.0);
+			camera.transform.localPosition = new Vector3(-16.4, 2.96, 24.3);
+			camera.transform.localRotationEuler = new Vector3(-7.5, -30, 0.0);
+			camera.addComponent(CameraMoveScript);
+			// add Light
+			var light = new DirectionLight();
+			light.intensity = 0.5;
+			light.transform.localRotationEuler = new Vector3(-20, 0, 0);
+			this.scene.addChild(light);
+			var res = [
+				"res/threeDimen/texAnimation/Attack01/Attack01.lh",
+				"res/threeDimen/texAnimation/role/role.lh",
+			];
+			Laya.loader.load(res).then(() => {
+				this.oriSprite3D = Loader.createNodes(res[0]);
+				this.sceneBuild(0);
+				// add other model
+				this.oriSprite3D = Loader.createNodes(res[1]);
+				this.sceneBuild(1);
+			});
 
-		// addPlane
-		var plane = new MeshSprite3D(PrimitiveMesh.createPlane(100, 100, 1, 1));
-		var planeMat = new BlinnPhongMaterial();
-		plane.meshRenderer.sharedMaterial = planeMat;
-		this.scene.addChild(plane);
+			// addPlane
+			var plane = new MeshSprite3D(PrimitiveMesh.createPlane(100, 100, 1, 1));
+			var planeMat = new BlinnPhongMaterial();
+			plane.meshRenderer.sharedMaterial = planeMat;
+			this.scene.addChild(plane);
+		});
 	}
 	cloneSprite(pos: Vector3, quaterial: Vector3, aniNameIndex: number) {
 		var clonesprite: Sprite3D = this.oriSprite3D.clone() as Sprite3D;

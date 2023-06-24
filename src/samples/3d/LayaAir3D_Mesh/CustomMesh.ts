@@ -37,72 +37,73 @@ export class CustomMesh {
 	private changeActionButton:Button;
 
 	constructor() {
-		Laya3D.init(0, 0);
-		Laya.stage.scaleMode = Stage.SCALE_FULL;
-		Laya.stage.screenMode = Stage.SCREEN_NONE;
-		Stat.show();
+		Laya.init(0, 0).then(() => {
+			Laya.stage.scaleMode = Stage.SCALE_FULL;
+			Laya.stage.screenMode = Stage.SCREEN_NONE;
+			Stat.show();
 
-		var scene: Scene3D = (<Scene3D>Laya.stage.addChild(new Scene3D()));
+			var scene: Scene3D = (<Scene3D>Laya.stage.addChild(new Scene3D()));
 
-		var camera: Camera = (<Camera>scene.addChild(new Camera(0, 0.1, 100)));
-		camera.transform.translate(new Vector3(0, 2, 5));
-		camera.transform.rotate(new Vector3(-15, 0, 0), true, false);
-		camera.addComponent(CameraMoveScript);
-		camera.clearColor = new Color(0.2, 0.2, 0.2, 1.0);
+			var camera: Camera = (<Camera>scene.addChild(new Camera(0, 0.1, 100)));
+			camera.transform.translate(new Vector3(0, 2, 5));
+			camera.transform.rotate(new Vector3(-15, 0, 0), true, false);
+			camera.addComponent(CameraMoveScript);
+			camera.clearColor = new Color(0.2, 0.2, 0.2, 1.0);
 
-		var directionLight: DirectionLight = (<DirectionLight>scene.addChild(new DirectionLight()));
-		//设置平行光的方向
-		var mat: Matrix4x4 = directionLight.transform.worldMatrix;
-		mat.setForward(new Vector3(-1.0, -1.0, -1.0));
-		directionLight.transform.worldMatrix = mat;
+			var directionLight: DirectionLight = (<DirectionLight>scene.addChild(new DirectionLight()));
+			//设置平行光的方向
+			var mat: Matrix4x4 = directionLight.transform.worldMatrix;
+			mat.setForward(new Vector3(-1.0, -1.0, -1.0));
+			directionLight.transform.worldMatrix = mat;
 
-		this.sprite3D = (<Sprite3D>scene.addChild(new Sprite3D()));
-		this.lineSprite3D = (<Sprite3D>scene.addChild(new Sprite3D()));
+			this.sprite3D = (<Sprite3D>scene.addChild(new Sprite3D()));
+			this.lineSprite3D = (<Sprite3D>scene.addChild(new Sprite3D()));
 
-		//正方体
-		var box: MeshSprite3D = (<MeshSprite3D>this.sprite3D.addChild(new MeshSprite3D(PrimitiveMesh.createBox(0.5, 0.5, 0.5))));
-		box.transform.position = new Vector3(2.0, 0.25, 0.6);
-		box.transform.rotate(new Vector3(0, 45, 0), false, false);
-		//为正方体添加像素线渲染精灵
-		var boxLineSprite3D: PixelLineSprite3D = (<PixelLineSprite3D>this.lineSprite3D.addChild(new PixelLineSprite3D(100)));
-		//设置像素线渲染精灵线模式
-		Tool.linearModel(box, boxLineSprite3D, Color.GREEN);
-
-
-		//球体
-		var sphere: MeshSprite3D = (<MeshSprite3D>this.sprite3D.addChild(new MeshSprite3D(PrimitiveMesh.createSphere(0.25, 20, 20))));
-		sphere.transform.position = new Vector3(1.0, 0.25, 0.6);
-		var sphereLineSprite3D: PixelLineSprite3D = (<PixelLineSprite3D>this.lineSprite3D.addChild(new PixelLineSprite3D(3500)));
-		Tool.linearModel(sphere, sphereLineSprite3D, Color.GREEN);
+			//正方体
+			var box: MeshSprite3D = (<MeshSprite3D>this.sprite3D.addChild(new MeshSprite3D(PrimitiveMesh.createBox(0.5, 0.5, 0.5))));
+			box.transform.position = new Vector3(2.0, 0.25, 0.6);
+			box.transform.rotate(new Vector3(0, 45, 0), false, false);
+			//为正方体添加像素线渲染精灵
+			var boxLineSprite3D: PixelLineSprite3D = (<PixelLineSprite3D>this.lineSprite3D.addChild(new PixelLineSprite3D(100)));
+			//设置像素线渲染精灵线模式
+			Tool.linearModel(box, boxLineSprite3D, Color.GREEN);
 
 
-
-		//圆柱体
-		var cylinder: MeshSprite3D = (<MeshSprite3D>this.sprite3D.addChild(new MeshSprite3D(PrimitiveMesh.createCylinder(0.25, 1, 20))));
-		cylinder.transform.position = new Vector3(0, 0.5, 0.6);
-		var cylinderLineSprite3D: PixelLineSprite3D = (<PixelLineSprite3D>this.lineSprite3D.addChild(new PixelLineSprite3D(1000)));
-		Tool.linearModel(cylinder, cylinderLineSprite3D, Color.GREEN);
-
-		//胶囊体
-		var capsule: MeshSprite3D = (<MeshSprite3D>this.sprite3D.addChild(new MeshSprite3D(PrimitiveMesh.createCapsule(0.25, 1, 10, 20))));
-		capsule.transform.position = new Vector3(-1.0, 0.5, 0.6);
-		var capsuleLineSprite3D: PixelLineSprite3D = (<PixelLineSprite3D>this.lineSprite3D.addChild(new PixelLineSprite3D(3000)));
-		Tool.linearModel(capsule, capsuleLineSprite3D, Color.GREEN);
-
-		//圆锥体
-		var cone: MeshSprite3D = (<MeshSprite3D>this.sprite3D.addChild(new MeshSprite3D(PrimitiveMesh.createCone(0.25, 0.75))));
-		cone.transform.position = new Vector3(-2.0, 0.375, 0.6);
-		var coneLineSprite3D: PixelLineSprite3D = (<PixelLineSprite3D>this.lineSprite3D.addChild(new PixelLineSprite3D(500)));
-		Tool.linearModel(cone, coneLineSprite3D, Color.GREEN);
-
-		//平面
-		var plane: MeshSprite3D = (<MeshSprite3D>this.sprite3D.addChild(new MeshSprite3D(PrimitiveMesh.createPlane(6, 6, 10, 10))));
-		var planeLineSprite3D: PixelLineSprite3D = (<PixelLineSprite3D>this.lineSprite3D.addChild(new PixelLineSprite3D(1000)));
-		Tool.linearModel(plane, planeLineSprite3D, Color.GRAY);
+			//球体
+			var sphere: MeshSprite3D = (<MeshSprite3D>this.sprite3D.addChild(new MeshSprite3D(PrimitiveMesh.createSphere(0.25, 20, 20))));
+			sphere.transform.position = new Vector3(1.0, 0.25, 0.6);
+			var sphereLineSprite3D: PixelLineSprite3D = (<PixelLineSprite3D>this.lineSprite3D.addChild(new PixelLineSprite3D(3500)));
+			Tool.linearModel(sphere, sphereLineSprite3D, Color.GREEN);
 
 
-		this.lineSprite3D.active = false;
-		this.loadUI();
+
+			//圆柱体
+			var cylinder: MeshSprite3D = (<MeshSprite3D>this.sprite3D.addChild(new MeshSprite3D(PrimitiveMesh.createCylinder(0.25, 1, 20))));
+			cylinder.transform.position = new Vector3(0, 0.5, 0.6);
+			var cylinderLineSprite3D: PixelLineSprite3D = (<PixelLineSprite3D>this.lineSprite3D.addChild(new PixelLineSprite3D(1000)));
+			Tool.linearModel(cylinder, cylinderLineSprite3D, Color.GREEN);
+
+			//胶囊体
+			var capsule: MeshSprite3D = (<MeshSprite3D>this.sprite3D.addChild(new MeshSprite3D(PrimitiveMesh.createCapsule(0.25, 1, 10, 20))));
+			capsule.transform.position = new Vector3(-1.0, 0.5, 0.6);
+			var capsuleLineSprite3D: PixelLineSprite3D = (<PixelLineSprite3D>this.lineSprite3D.addChild(new PixelLineSprite3D(3000)));
+			Tool.linearModel(capsule, capsuleLineSprite3D, Color.GREEN);
+
+			//圆锥体
+			var cone: MeshSprite3D = (<MeshSprite3D>this.sprite3D.addChild(new MeshSprite3D(PrimitiveMesh.createCone(0.25, 0.75))));
+			cone.transform.position = new Vector3(-2.0, 0.375, 0.6);
+			var coneLineSprite3D: PixelLineSprite3D = (<PixelLineSprite3D>this.lineSprite3D.addChild(new PixelLineSprite3D(500)));
+			Tool.linearModel(cone, coneLineSprite3D, Color.GREEN);
+
+			//平面
+			var plane: MeshSprite3D = (<MeshSprite3D>this.sprite3D.addChild(new MeshSprite3D(PrimitiveMesh.createPlane(6, 6, 10, 10))));
+			var planeLineSprite3D: PixelLineSprite3D = (<PixelLineSprite3D>this.lineSprite3D.addChild(new PixelLineSprite3D(1000)));
+			Tool.linearModel(plane, planeLineSprite3D, Color.GRAY);
+
+
+			this.lineSprite3D.active = false;
+			this.loadUI();
+		});
 	}
 
 	private curStateIndex: number = 0;

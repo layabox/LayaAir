@@ -39,53 +39,54 @@ export class MeshLoad {
 	constructor() {
 
 		//初始化引擎
-		Laya3D.init(0, 0);
-		Laya.stage.scaleMode = Stage.SCALE_FULL;
-		Laya.stage.screenMode = Stage.SCREEN_NONE;
-		//显示性能面板
-		Stat.show();
+		Laya.init(0, 0).then(() => {
+			Laya.stage.scaleMode = Stage.SCALE_FULL;
+			Laya.stage.screenMode = Stage.SCREEN_NONE;
+			//显示性能面板
+			Stat.show();
 
-		//创建场景
-		var scene: Scene3D = (<Scene3D>Laya.stage.addChild(new Scene3D()));
+			//创建场景
+			var scene: Scene3D = (<Scene3D>Laya.stage.addChild(new Scene3D()));
 
-		//创建相机
-		var camera: Camera = (<Camera>scene.addChild(new Camera(0, 0.1, 100)));
-		camera.transform.translate(new Vector3(0, 0.8, 1.5));
-		camera.transform.rotate(new Vector3(-15, 0, 0), true, false);
+			//创建相机
+			var camera: Camera = (<Camera>scene.addChild(new Camera(0, 0.1, 100)));
+			camera.transform.translate(new Vector3(0, 0.8, 1.5));
+			camera.transform.rotate(new Vector3(-15, 0, 0), true, false);
 
-		//添加平行光
-		var directionLight: DirectionLight = (<DirectionLight>scene.addChild(new DirectionLight()));
-		directionLight.color = new Color(0.6, 0.6, 0.6, 1);
+			//添加平行光
+			var directionLight: DirectionLight = (<DirectionLight>scene.addChild(new DirectionLight()));
+			directionLight.color = new Color(0.6, 0.6, 0.6, 1);
 
-		//创建精灵
-		this.sprite3D = (<Sprite3D>scene.addChild(new Sprite3D()));
-		this.lineSprite3D = (<Sprite3D>scene.addChild(new Sprite3D()));
+			//创建精灵
+			this.sprite3D = (<Sprite3D>scene.addChild(new Sprite3D()));
+			this.lineSprite3D = (<Sprite3D>scene.addChild(new Sprite3D()));
 
-		//加载mesh
-		Mesh.load("res/threeDimen/skinModel/LayaMonkey/Assets/LayaMonkey/LayaMonkey-LayaMonkey.lm", Handler.create(this, function (mesh: Mesh): void {
-			var layaMonkey: MeshSprite3D = (<MeshSprite3D>this.sprite3D.addChild(new MeshSprite3D(mesh)));
-			layaMonkey.transform.localScale = new Vector3(0.3, 0.3, 0.3);
-			layaMonkey.transform.rotation = new Quaternion(0.7071068, 0, 0, -0.7071067);
+			//加载mesh
+			Mesh.load("res/threeDimen/skinModel/LayaMonkey/Assets/LayaMonkey/LayaMonkey-LayaMonkey.lm", Handler.create(this, function (mesh: Mesh): void {
+				var layaMonkey: MeshSprite3D = (<MeshSprite3D>this.sprite3D.addChild(new MeshSprite3D(mesh)));
+				layaMonkey.transform.localScale = new Vector3(0.3, 0.3, 0.3);
+				layaMonkey.transform.rotation = new Quaternion(0.7071068, 0, 0, -0.7071067);
 
-			//创建像素线渲染精灵
-			var layaMonkeyLineSprite3D: PixelLineSprite3D = (<PixelLineSprite3D>this.lineSprite3D.addChild(new PixelLineSprite3D(5000)));
-			//设置像素线渲染精灵线模式
-			Tool.linearModel(layaMonkey, layaMonkeyLineSprite3D, Color.GREEN);
+				//创建像素线渲染精灵
+				var layaMonkeyLineSprite3D: PixelLineSprite3D = (<PixelLineSprite3D>this.lineSprite3D.addChild(new PixelLineSprite3D(5000)));
+				//设置像素线渲染精灵线模式
+				Tool.linearModel(layaMonkey, layaMonkeyLineSprite3D, Color.GREEN);
 
-			var plane: MeshSprite3D = (<MeshSprite3D>this.sprite3D.addChild(new MeshSprite3D(PrimitiveMesh.createPlane(6, 6, 10, 10))));
-			plane.transform.position = new Vector3(0, 0, -1);
-			var planeLineSprite3D: PixelLineSprite3D = (<PixelLineSprite3D>this.lineSprite3D.addChild(new PixelLineSprite3D(1000)));
-			Tool.linearModel(plane, planeLineSprite3D, Color.GRAY);
+				var plane: MeshSprite3D = (<MeshSprite3D>this.sprite3D.addChild(new MeshSprite3D(PrimitiveMesh.createPlane(6, 6, 10, 10))));
+				plane.transform.position = new Vector3(0, 0, -1);
+				var planeLineSprite3D: PixelLineSprite3D = (<PixelLineSprite3D>this.lineSprite3D.addChild(new PixelLineSprite3D(1000)));
+				Tool.linearModel(plane, planeLineSprite3D, Color.GRAY);
 
-			//设置时钟定时执行
-			Laya.timer.frameLoop(1, this, function (): void {
-				layaMonkeyLineSprite3D.transform.rotate(this.rotation, false);
-				layaMonkey.transform.rotate(this.rotation, false);
-			});
+				//设置时钟定时执行
+				Laya.timer.frameLoop(1, this, function (): void {
+					layaMonkeyLineSprite3D.transform.rotate(this.rotation, false);
+					layaMonkey.transform.rotate(this.rotation, false);
+				});
 
-			this.lineSprite3D.active = false;
-			this.loadUI();
-		}));
+				this.lineSprite3D.active = false;
+				this.loadUI();
+			}));
+		});
 	}
 
 	private curStateIndex: number = 0;

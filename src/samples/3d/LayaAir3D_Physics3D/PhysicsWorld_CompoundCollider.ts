@@ -27,7 +27,7 @@ export class PhysicsWorld_CompoundCollider {
 	private scene: Scene3D;
 	private camera: Camera;
 	constructor() {
-		Laya3D.init(0, 0, null, Handler.create(null, () => {
+		Laya.init(0, 0).then(() => {
 			Laya.stage.scaleMode = Stage.SCALE_FULL;
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
 			Stat.show();
@@ -60,7 +60,7 @@ export class PhysicsWorld_CompoundCollider {
 			staticCollider.friction = 2;
 
 			this.randomAddPhysicsSprite();
-		}));
+		});
 	}
 
 	randomAddPhysicsSprite(): void {

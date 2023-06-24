@@ -23,45 +23,46 @@ export class ScriptDemo {
 
     constructor() {
         //初始化引擎
-        Laya3D.init(0, 0);
-        //适配模式
-        Laya.stage.scaleMode = Stage.SCALE_FULL;
-        Laya.stage.screenMode = Stage.SCREEN_NONE;
-        //开启统计信息
-        Stat.show();
-        //添加3D场景
-        var scene: Scene3D = (<Scene3D>Laya.stage.addChild(new Scene3D()));
-        //添加照相机
-        var camera: Camera = (<Camera>(scene.addChild(new Camera(0, 0.1, 100))));
-        //移动摄影机位置
-        camera.transform.translate(this._translate);
-        //旋转摄影机方向
-        camera.transform.rotate(this._rotation, true, false);
-        //添加方向光
-        var directionLight: DirectionLight = (<DirectionLight>scene.addChild(new DirectionLight()));
-        //设置灯光漫反射颜色
-        var lightColor: Color = directionLight.color;
-        lightColor.setValue(0.6, 0.6, 0.6, 1);
-        //设置平行光的方向
-        var mat: Matrix4x4 = directionLight.transform.worldMatrix;
-        mat.setForward(this._forward);
-        directionLight.transform.worldMatrix = mat;
-        //添加自定义模型
-        var box: MeshSprite3D = (<MeshSprite3D>scene.addChild(new MeshSprite3D(PrimitiveMesh.createBox(1, 1, 1), "MOs")));
-        //设置模型的旋转
-        box.transform.rotate(this._rotation2, false, false);
-        //创建材质
-        var material: PBRStandardMaterial = new PBRStandardMaterial();
-        //加载模型的材质贴图
-        Texture2D.load("res/threeDimen/layabox.png", Handler.create(this, function (text: Texture2D): void {
-            material.albedoTexture = text;
-            //给模型添加材质
-            box.meshRenderer.material = material;
-            //给box添加自定义脚本组件
-            box.addComponent(BoxControlScript);
-        }));
-        //4秒后删除自定义组件
-        Laya.timer.once(4000, this, this.onLoop, [box]);
+        Laya.init(0, 0).then(() => {
+            //适配模式
+            Laya.stage.scaleMode = Stage.SCALE_FULL;
+            Laya.stage.screenMode = Stage.SCREEN_NONE;
+            //开启统计信息
+            Stat.show();
+            //添加3D场景
+            var scene: Scene3D = (<Scene3D>Laya.stage.addChild(new Scene3D()));
+            //添加照相机
+            var camera: Camera = (<Camera>(scene.addChild(new Camera(0, 0.1, 100))));
+            //移动摄影机位置
+            camera.transform.translate(this._translate);
+            //旋转摄影机方向
+            camera.transform.rotate(this._rotation, true, false);
+            //添加方向光
+            var directionLight: DirectionLight = (<DirectionLight>scene.addChild(new DirectionLight()));
+            //设置灯光漫反射颜色
+            var lightColor: Color = directionLight.color;
+            lightColor.setValue(0.6, 0.6, 0.6, 1);
+            //设置平行光的方向
+            var mat: Matrix4x4 = directionLight.transform.worldMatrix;
+            mat.setForward(this._forward);
+            directionLight.transform.worldMatrix = mat;
+            //添加自定义模型
+            var box: MeshSprite3D = (<MeshSprite3D>scene.addChild(new MeshSprite3D(PrimitiveMesh.createBox(1, 1, 1), "MOs")));
+            //设置模型的旋转
+            box.transform.rotate(this._rotation2, false, false);
+            //创建材质
+            var material: PBRStandardMaterial = new PBRStandardMaterial();
+            //加载模型的材质贴图
+            Texture2D.load("res/threeDimen/layabox.png", Handler.create(this, function (text: Texture2D): void {
+                material.albedoTexture = text;
+                //给模型添加材质
+                box.meshRenderer.material = material;
+                //给box添加自定义脚本组件
+                box.addComponent(BoxControlScript);
+            }));
+            //4秒后删除自定义组件
+            Laya.timer.once(4000, this, this.onLoop, [box]);
+        });
     }
 
     private onLoop(box: MeshSprite3D): void {

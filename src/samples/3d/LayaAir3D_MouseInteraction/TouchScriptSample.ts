@@ -34,43 +34,44 @@ export class TouchScriptSample {
 	private kinematicSphere: Sprite3D;
 
 	constructor() {
-		Laya3D.init(0, 0, null);
-		Laya.stage.scaleMode = Stage.SCALE_FULL;
-		Laya.stage.screenMode = Stage.SCREEN_NONE;
-		//Stat.show();
-		this.scene = (<Scene3D>Laya.stage.addChild(new Scene3D()));
+		Laya.init(0, 0, null).then(() => {
+			Laya.stage.scaleMode = Stage.SCALE_FULL;
+			Laya.stage.screenMode = Stage.SCREEN_NONE;
+			//Stat.show();
+			this.scene = (<Scene3D>Laya.stage.addChild(new Scene3D()));
 
-		this.camera = (<Camera>this.scene.addChild(new Camera(0, 0.1, 100)));
-		this.camera.transform.translate(new Vector3(0, 8, 20));
-		this.camera.transform.rotate(new Vector3(-30, 0, 0), true, false);
+			this.camera = (<Camera>this.scene.addChild(new Camera(0, 0.1, 100)));
+			this.camera.transform.translate(new Vector3(0, 8, 20));
+			this.camera.transform.rotate(new Vector3(-30, 0, 0), true, false);
 
-		var directionLight: DirectionLight = (<DirectionLight>this.scene.addChild(new DirectionLight()));
-		directionLight.color = new Color(1, 1, 1, 1);
-		//设置平行光的方向
-		var mat: Matrix4x4 = directionLight.transform.worldMatrix;
-		mat.setForward(new Vector3(-1.0, -1.0, 1.0));
-		directionLight.transform.worldMatrix = mat;
+			var directionLight: DirectionLight = (<DirectionLight>this.scene.addChild(new DirectionLight()));
+			directionLight.color = new Color(1, 1, 1, 1);
+			//设置平行光的方向
+			var mat: Matrix4x4 = directionLight.transform.worldMatrix;
+			mat.setForward(new Vector3(-1.0, -1.0, 1.0));
+			directionLight.transform.worldMatrix = mat;
 
-		var plane: MeshSprite3D = (<MeshSprite3D>this.scene.addChild(new MeshSprite3D(PrimitiveMesh.createPlane(20, 20, 10, 10))));
-		var planeMat: BlinnPhongMaterial = new BlinnPhongMaterial();
-		Texture2D.load("res/threeDimen/Physics/wood.jpg", Handler.create(this, function (tex: Texture2D): void {
-			planeMat.albedoTexture = tex;
-		}));
-		planeMat.tilingOffset = new Vector4(2, 2, 0, 0);
-		plane.meshRenderer.material = planeMat;
+			var plane: MeshSprite3D = (<MeshSprite3D>this.scene.addChild(new MeshSprite3D(PrimitiveMesh.createPlane(20, 20, 10, 10))));
+			var planeMat: BlinnPhongMaterial = new BlinnPhongMaterial();
+			Texture2D.load("res/threeDimen/Physics/wood.jpg", Handler.create(this, function (tex: Texture2D): void {
+				planeMat.albedoTexture = tex;
+			}));
+			planeMat.tilingOffset = new Vector4(2, 2, 0, 0);
+			plane.meshRenderer.material = planeMat;
 
-		var rigidBody: PhysicsCollider = (<PhysicsCollider>plane.addComponent(PhysicsCollider));
-		var boxShape: BoxColliderShape = new BoxColliderShape(20, 0, 20);
-		rigidBody.colliderShape = boxShape;
+			var rigidBody: PhysicsCollider = (<PhysicsCollider>plane.addComponent(PhysicsCollider));
+			var boxShape: BoxColliderShape = new BoxColliderShape(20, 0, 20);
+			rigidBody.colliderShape = boxShape;
 
-		this.text = new Text();
-		this.text.pos(20, 20);
-		this.text.fontSize = 16;
-		this.text.color = "yellow";
+			this.text = new Text();
+			this.text.pos(20, 20);
+			this.text.fontSize = 16;
+			this.text.color = "yellow";
 
-		this.addBox();
-		this.addCapsule();
-		Laya.stage.addChild(this.text);
+			this.addBox();
+			this.addCapsule();
+			Laya.stage.addChild(this.text);
+		});
 	}
 
 	addBox(): void {

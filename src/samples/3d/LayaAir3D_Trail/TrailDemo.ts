@@ -17,19 +17,20 @@ import { CameraMoveScript } from "../common/CameraMoveScript";
 export class TrailDemo {
 
 	constructor() {
-		Laya3D.init(0, 0);
-		Laya.stage.scaleMode = Stage.SCALE_FULL;
-		Laya.stage.screenMode = Stage.SCREEN_NONE;
-		Stat.show();
-		//加载拖尾示例效果
-		Scene3D.load("res/threeDimen/TrailTest/Trail.ls", Handler.create(this, function (scene: Scene3D): void {
-			(<Scene3D>Laya.stage.addChild(scene));
-			var camera: Camera = (<Camera>scene.getChildByName("Main Camera"));
-			camera.addComponent(CameraMoveScript);
-			var directionLight: DirectionLight = (<DirectionLight>scene.addChild(new DirectionLight()));
-			directionLight.color = new Color(1, 1, 1, 1);
-			directionLight.transform.rotate(new Vector3(-Math.PI / 3, 0, 0));
-		}));
+		Laya.init(0, 0).then(() => {
+			Laya.stage.scaleMode = Stage.SCALE_FULL;
+			Laya.stage.screenMode = Stage.SCREEN_NONE;
+			Stat.show();
+			//加载拖尾示例效果
+			Scene3D.load("res/threeDimen/TrailTest/Trail.ls", Handler.create(this, function (scene: Scene3D): void {
+				(<Scene3D>Laya.stage.addChild(scene));
+				var camera: Camera = (<Camera>scene.getChildByName("Main Camera"));
+				camera.addComponent(CameraMoveScript);
+				var directionLight: DirectionLight = (<DirectionLight>scene.addChild(new DirectionLight()));
+				directionLight.color = new Color(1, 1, 1, 1);
+				directionLight.transform.rotate(new Vector3(-Math.PI / 3, 0, 0));
+			}));
+		});
 
 	}
 

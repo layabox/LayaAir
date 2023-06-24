@@ -40,45 +40,46 @@ export class CommandBuffer_Outline {
 	private stype: any = 0;
 	constructor() {
 		//初始化引擎
-		Laya3D.init(0, 0);
-		Stat.show();
-		Laya.stage.scaleMode = Stage.SCALE_FULL;
-		Laya.stage.screenMode = Stage.SCREEN_NONE;
-		BlurEffect.init();
-		var unlitMaterial = new UnlitMaterial();
-		unlitMaterial.albedoColor = new Color(255, 0, 0, 255);
-		var shurikenMaterial: ShurikenParticleMaterial = new ShurikenParticleMaterial();
-		shurikenMaterial.color = new Color(255, 0, 0, 255);
+		Laya.init(0, 0).then(() => {
+			Stat.show();
+			Laya.stage.scaleMode = Stage.SCALE_FULL;
+			Laya.stage.screenMode = Stage.SCREEN_NONE;
+			BlurEffect.init();
+			var unlitMaterial = new UnlitMaterial();
+			unlitMaterial.albedoColor = new Color(255, 0, 0, 255);
+			var shurikenMaterial: ShurikenParticleMaterial = new ShurikenParticleMaterial();
+			shurikenMaterial.color = new Color(255, 0, 0, 255);
 
-		Shader3D.debugMode = true;
-		//加载场景
-		Scene3D.load("res/threeDimen/OutlineEdgeScene/Conventional/OutlineEdgeScene.ls", Handler.create(this, function (scene: Scene3D): void {
-			(<Scene3D>Laya.stage.addChild(scene));
-			//获取场景中的相机
-			this.camera = (<Camera>scene.getChildByName("Main Camera"));
+			Shader3D.debugMode = true;
+			//加载场景
+			Scene3D.load("res/threeDimen/OutlineEdgeScene/Conventional/OutlineEdgeScene.ls", Handler.create(this, function (scene: Scene3D): void {
+				(<Scene3D>Laya.stage.addChild(scene));
+				//获取场景中的相机
+				this.camera = (<Camera>scene.getChildByName("Main Camera"));
 
-			// //加入摄像机移动控制脚本
-			this.camera.addComponent(CameraMoveScript);
+				// //加入摄像机移动控制脚本
+				this.camera.addComponent(CameraMoveScript);
 
-			var renders: BaseRender[] = [];
-			var materials: Material[] = [];
-			renders.push((scene.getChildByName("Cube") as MeshSprite3D).meshRenderer);
-			materials.push(unlitMaterial);
-			renders.push((scene.getChildByName("Particle") as ShuriKenParticle3D).particleRenderer);
-			materials.push(shurikenMaterial);
-			renders.push((scene.getChildByName("LayaMonkey").getChildByName("LayaMonkey") as SkinnedMeshSprite3D).skinnedMeshRenderer);
-			materials.push(unlitMaterial);
+				var renders: BaseRender[] = [];
+				var materials: Material[] = [];
+				renders.push((scene.getChildByName("Cube") as MeshSprite3D).meshRenderer);
+				materials.push(unlitMaterial);
+				renders.push((scene.getChildByName("Particle") as ShuriKenParticle3D).particleRenderer);
+				materials.push(shurikenMaterial);
+				renders.push((scene.getChildByName("LayaMonkey").getChildByName("LayaMonkey") as SkinnedMeshSprite3D).skinnedMeshRenderer);
+				materials.push(unlitMaterial);
 
-			//创建commandBuffer
-			this.commandBuffer = this.createDrawMeshCommandBuffer(this.camera, renders, materials);
-			//将commandBuffer加入渲染流程
-			this.camera.addCommandBuffer(this.cameraEventFlag, this.commandBuffer);
+				//创建commandBuffer
+				this.commandBuffer = this.createDrawMeshCommandBuffer(this.camera, renders, materials);
+				//将commandBuffer加入渲染流程
+				this.camera.addCommandBuffer(this.cameraEventFlag, this.commandBuffer);
 
 
 
-			//加载UI
-			this.loadUI();
-		}));
+				//加载UI
+				this.loadUI();
+			}));
+		});
 	}
 
 	createDrawMeshCommandBuffer(camera: Camera, renders: BaseRender[], materials: Material[]): CommandBuffer {

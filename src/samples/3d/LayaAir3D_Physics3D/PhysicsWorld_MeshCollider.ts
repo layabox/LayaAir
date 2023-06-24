@@ -31,7 +31,7 @@ export class PhysicsWorld_MeshCollider {
 	private mat2: BlinnPhongMaterial;
 	private mat3: BlinnPhongMaterial;
 	constructor() {
-		Laya3D.init(0, 0, null, Handler.create(null, () => {
+		Laya.init(0, 0).then(() => {
 			Laya.stage.scaleMode = Stage.SCALE_FULL;
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
 			Stat.show();
@@ -51,7 +51,7 @@ export class PhysicsWorld_MeshCollider {
 			directionLight.transform.worldMatrix = mat;
 			directionLight.color = new Color(1, 1, 1, 1);
 			Laya.loader.load(["res/threeDimen/staticModel/lizard/Assets/Lizard/lizard-lizard_geo.lm", "res/threeDimen/staticModel/lizard/Assets/Lizard/lizard_diff.png", "res/threeDimen/staticModel/lizard/Assets/Lizard/lizard_norm.png"], Handler.create(this, this.complete));
-		}));
+		});
 	}
 
 	complete(): void {

@@ -26,26 +26,27 @@ export class D3SpaceToD2Space {
 	constructor() {
 
 		//初始化引擎
-		Laya3D.init(0, 0);
-		Laya.stage.scaleMode = Stage.SCALE_FULL;
-		Laya.stage.screenMode = Stage.SCREEN_NONE;
-		//显示性能面板
-		Stat.show();
+		Laya.init(0, 0).then(() => {
+			Laya.stage.scaleMode = Stage.SCALE_FULL;
+			Laya.stage.screenMode = Stage.SCREEN_NONE;
+			//显示性能面板
+			Stat.show();
 
-		//创建场景
-		this.scene = (<Scene3D>Laya.stage.addChild(new Scene3D()));
+			//创建场景
+			this.scene = (<Scene3D>Laya.stage.addChild(new Scene3D()));
 
-		//创建相机
-		this.camera = (<Camera>this.scene.addChild(new Camera(0, 0.1, 100)));
-		this.camera.transform.translate(this._translate);
-		this.camera.transform.rotate(this._rotation, true, false);
+			//创建相机
+			this.camera = (<Camera>this.scene.addChild(new Camera(0, 0.1, 100)));
+			this.camera.transform.translate(this._translate);
+			this.camera.transform.rotate(this._rotation, true, false);
 
-		//创建平行光
-		var directionLight: DirectionLight = (<DirectionLight>this.scene.addChild(new DirectionLight()));
+			//创建平行光
+			var directionLight: DirectionLight = (<DirectionLight>this.scene.addChild(new DirectionLight()));
 
-		var completeHandler: Handler = Handler.create(this, this.onComplete);
+			var completeHandler: Handler = Handler.create(this, this.onComplete);
 
-		Laya.loader.load("res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh", completeHandler);
+			Laya.loader.load("res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh", completeHandler);
+		});
 	}
 
 	onComplete(): void {

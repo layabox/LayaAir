@@ -18,19 +18,20 @@ export class TestAbc {
 
 	constructor() {
 		//初始化引擎
-		Laya3D.init(720, 1280);
+		Laya.init(720, 1280).then(() => {
 
-		//适配模式
-		Laya.stage.scaleMode = Stage.SCALE_FULL;
-		Laya.stage.screenMode = Stage.SCREEN_NONE;
+			//适配模式
+			Laya.stage.scaleMode = Stage.SCALE_FULL;
+			Laya.stage.screenMode = Stage.SCREEN_NONE;
 
-		//开启统计信息
-		Stat.show();
+			//开启统计信息
+			Stat.show();
 
-		//预加载所有资源
-		var resource: any[] = ["res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh"];
+			//预加载所有资源
+			var resource: any[] = ["res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh"];
 
-		Laya.loader.load(resource, Handler.create(this, this.onLoadFinish));
+			Laya.loader.load(resource, Handler.create(this, this.onLoadFinish));
+		});
 	}
 
 	onLoadFinish(): void {

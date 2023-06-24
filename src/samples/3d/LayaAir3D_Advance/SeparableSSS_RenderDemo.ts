@@ -54,17 +54,18 @@ export class SeparableSSS_RenderDemo {
     //进行两次根据kenerl的高斯采样模拟多极子光照模型
     //再将高光部分与模糊好的地方重新相加
     constructor() {
-        Laya3D.init(0, 0);
-        Laya.stage.scaleMode = Stage.SCALE_FULL;
-        Laya.stage.screenMode = Stage.SCREEN_NONE;
-        Stat.show();
-        Shader3D.debugMode = true;
-        SeparableSSS_BlitMaterial.init();
-        SeparableSSSRenderMaterial.init();
+        Laya.init(0, 0).then(() => {
+            Laya.stage.scaleMode = Stage.SCALE_FULL;
+            Laya.stage.screenMode = Stage.SCREEN_NONE;
+            Stat.show();
+            Shader3D.debugMode = true;
+            SeparableSSS_BlitMaterial.init();
+            SeparableSSSRenderMaterial.init();
 
-        this.sssssBlitMaterail = new SeparableSSS_BlitMaterial();
-        this.sssssRenderMaterial = new SeparableSSSRenderMaterial();
-        this.PreloadingRes();
+            this.sssssBlitMaterail = new SeparableSSS_BlitMaterial();
+            this.sssssRenderMaterial = new SeparableSSSRenderMaterial();
+            this.PreloadingRes();
+        });
     }
 
     //批量预加载方式

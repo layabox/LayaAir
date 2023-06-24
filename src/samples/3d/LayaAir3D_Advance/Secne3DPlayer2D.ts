@@ -27,26 +27,28 @@ export class Secne3DPlayer2D {
 
 	constructor() {
 		//初始化引擎
-		Laya3D.init(0, 0);
-		Laya.stage.scaleMode = Stage.SCALE_FULL;
-		Laya.stage.screenMode = Stage.SCREEN_NONE;
-		//显示性能面板
-		Stat.show();
+		Laya.init(0, 0).then(() => {
+			Laya.stage.scaleMode = Stage.SCALE_FULL;
+			Laya.stage.screenMode = Stage.SCREEN_NONE;
+			//显示性能面板
+			Stat.show();
 
-		//创建场景
-		this._scene = (<Scene3D>Laya.stage.addChild(new Scene3D()));
+			//创建场景
+			this._scene = (<Scene3D>Laya.stage.addChild(new Scene3D()));
 
-		//创建相机
-		this._camera = (<Camera>this._scene.addChild(new Camera(0, 0.1, 100)));
-		this._camera.transform.translate(this._translate);
-		this._camera.transform.rotate(this._rotation, true, false);
+			//创建相机
+			this._camera = (<Camera>this._scene.addChild(new Camera(0, 0.1, 100)));
+			this._camera.transform.translate(this._translate);
+			this._camera.transform.rotate(this._rotation, true, false);
 
-		//创建平行光
-		var directionLight: DirectionLight = (<DirectionLight>this._scene.addChild(new DirectionLight()));
-		directionLight.color = new Color(1, 1, 1, 1);
-		directionLight.transform.rotate(this._rotation);
-		//加载精灵
-		Laya.loader.load("res/threeDimen/staticModel/grid/plane.lh", Handler.create(this, this.onComplete));
+			//创建平行光
+			var directionLight: DirectionLight = (<DirectionLight>this._scene.addChild(new DirectionLight()));
+			directionLight.color = new Color(1, 1, 1, 1);
+			directionLight.transform.rotate(this._rotation);
+			//加载精灵
+			Laya.loader.load("res/threeDimen/staticModel/grid/plane.lh", Handler.create(this, this.onComplete));
+		});
+
 	}
 
 	onComplete(): void {

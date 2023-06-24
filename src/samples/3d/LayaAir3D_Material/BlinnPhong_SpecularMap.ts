@@ -25,22 +25,23 @@ export class BlinnPhong_SpecularMap {
 	private specularMapUrl: any[] = ["res/threeDimen/skinModel/dude/Assets/dude/headS.png", "res/threeDimen/skinModel/dude/Assets/dude/jacketS.png", "res/threeDimen/skinModel/dude/Assets/dude/pantsS.png", "res/threeDimen/skinModel/dude/Assets/dude/upBodyS.png", "res/threeDimen/skinModel/dude/Assets/dude/upBodyS.png"];
 
 	constructor() {
-		Laya3D.init(0, 0);
-		Laya.stage.scaleMode = Stage.SCALE_FULL;
-		Laya.stage.screenMode = Stage.SCREEN_NONE;
-		Stat.show();
+		Laya.init(0, 0).then(() => {
+			Laya.stage.scaleMode = Stage.SCALE_FULL;
+			Laya.stage.screenMode = Stage.SCREEN_NONE;
+			Stat.show();
 
-		this.scene = (<Scene3D>Laya.stage.addChild(new Scene3D()));
+			this.scene = (<Scene3D>Laya.stage.addChild(new Scene3D()));
 
-		var camera: Camera = (<Camera>(this.scene.addChild(new Camera(0, 0.1, 1000))));
-		camera.transform.translate(new Vector3(0, 3, 5));
-		camera.transform.rotate(new Vector3(-15, 0, 0), true, false);
-		camera.addComponent(CameraMoveScript);
+			var camera: Camera = (<Camera>(this.scene.addChild(new Camera(0, 0.1, 1000))));
+			camera.transform.translate(new Vector3(0, 3, 5));
+			camera.transform.rotate(new Vector3(-15, 0, 0), true, false);
+			camera.addComponent(CameraMoveScript);
 
-		var directionLight: DirectionLight = (<DirectionLight>this.scene.addChild(new DirectionLight()));
-		directionLight.color.setValue(1, 1, 1, 1);
+			var directionLight: DirectionLight = (<DirectionLight>this.scene.addChild(new DirectionLight()));
+			directionLight.color.setValue(1, 1, 1, 1);
 
-		Laya.loader.load("res/threeDimen/skinModel/dude/dude.lh", Handler.create(this, this.onComplete));
+			Laya.loader.load("res/threeDimen/skinModel/dude/dude.lh", Handler.create(this, this.onComplete));
+		});
 	}
 
 	onComplete(): void {

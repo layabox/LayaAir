@@ -37,7 +37,7 @@ export class ChangeMesh {
 	constructor() {
 
 		//初始化引擎
-		Laya3D.init(0, 0);
+		Laya.init(0, 0);
 		Laya.stage.scaleMode = Stage.SCALE_FULL;
 		Laya.stage.screenMode = Stage.SCREEN_NONE;
 		//显示性能面板

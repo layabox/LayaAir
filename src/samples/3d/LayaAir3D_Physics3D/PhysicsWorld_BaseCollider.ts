@@ -37,7 +37,7 @@ export class PhysicsWorld_BaseCollider {
 
 	constructor() {
 		//初始化引擎
-		Laya3D.init(0, 0, null, Handler.create(null, () => {
+		Laya.init(0, 0).then(() => {
 			Laya.stage.scaleMode = Stage.SCALE_FULL;
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
 			//显示性能面板
@@ -83,7 +83,7 @@ export class PhysicsWorld_BaseCollider {
 			planeStaticCollider.restitution = 0.3;
 			//随机生成精灵
 			this.randomAddPhysicsSprite();
-		}));
+		});
 	}
 
 	randomAddPhysicsSprite(): void {

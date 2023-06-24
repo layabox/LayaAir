@@ -14,19 +14,20 @@ export class MemoryTest {
 	static array: any[] = new Array();
 
 	constructor() {
-		Laya3D.init(0, 0);
-		Laya.stage.scaleMode = Stage.SCALE_FULL;
-		Laya.stage.screenMode = Stage.SCREEN_NONE;
-		Stat.show();
+		Laya.init(0, 0).then(() => {
+			Laya.stage.scaleMode = Stage.SCALE_FULL;
+			Laya.stage.screenMode = Stage.SCREEN_NONE;
+			Stat.show();
 
-		Laya.stage.on(Event.MOUSE_DOWN, null, function (): void {
-			for (var i: number = 0; i < this.count; i++)
-				//array.push(new Vector3Test());
-				//array.push(new Vector3TestFloatArray());
-				//array.push(new Float32Array(16));
-				//array.push(new  Transform3D());
-				//array.push(new  AnimationTransform3D());
-				MemoryTest.array.push(new Sprite3D());
+			Laya.stage.on(Event.MOUSE_DOWN, null, function (): void {
+				for (var i: number = 0; i < this.count; i++)
+					//array.push(new Vector3Test());
+					//array.push(new Vector3TestFloatArray());
+					//array.push(new Float32Array(16));
+					//array.push(new  Transform3D());
+					//array.push(new  AnimationTransform3D());
+					MemoryTest.array.push(new Sprite3D());
+			});	
 		});
 
 	}

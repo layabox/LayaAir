@@ -24,15 +24,16 @@ export class CameraDepthModeTextureDemo {
     private depthNormalPlane: MeshSprite3D;
     constructor() {
         //初始化引擎
-        Laya3D.init(0, 0);
-        Laya.stage.scaleMode = Stage.SCALE_FULL;
-        Laya.stage.screenMode = Stage.SCREEN_NONE;
-        //显示性能面板
-        Stat.show();
-        Shader3D.debugMode = true;
-        DepthMaterial.init();
-        DepthNormalsMaterial.init();
-        this.PreloadingRes();
+        Laya.init(0, 0).then(() => {
+            Laya.stage.scaleMode = Stage.SCALE_FULL;
+            Laya.stage.screenMode = Stage.SCREEN_NONE;
+            //显示性能面板
+            Stat.show();
+            Shader3D.debugMode = true;
+            DepthMaterial.init();
+            DepthNormalsMaterial.init();
+            this.PreloadingRes();
+        });
     }
 
     //批量预加载方式

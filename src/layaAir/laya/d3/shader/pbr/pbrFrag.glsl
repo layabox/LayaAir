@@ -22,7 +22,20 @@ void getPixelInfo(inout PixelInfo info, const in PixelParams pixel, const in Sur
 
     info.dfg = prefilteredDFG_LUT(surface.perceptualRoughness, info.NoV);
 
+    #ifdef SHEEN
+    info.energyCompensation = vec3(1.0);
+    #else // SHEEN
     info.energyCompensation = (1.0 + surface.f0 * (1.0 / info.dfg.y - 1.0));
+    #endif // SHEEN
+
+    #ifdef IRIDESCENCE
+    info.iridescenceFresnel = evalIridescence(1.0, surface.iridescenceIor, info.NoV, surface.iridescenceThickness, surface.f0);
+    #endif // IRIDESCENCE
+
+    #ifdef SHEEN
+    info.sheenDfg = prefilteredDFG_LUT(surface.sheenPerceptualRoughness, info.NoV).z;
+    info.sheenScaling = 1.0 - vecmax(surface.sheenColor) * info.sheenDfg;
+    #endif // SHEEN
 
     #ifdef CLEARCOAT
 	#ifdef CLEARCOAT_NORMAL
@@ -34,8 +47,8 @@ void getPixelInfo(inout PixelInfo info, const in PixelParams pixel, const in Sur
     #endif // CLEARCOAT
 
     #ifdef ANISOTROPIC
-    mat3 anisotripyTBN = mat3(info.tangentWS, info.biNormalWS * -1.0, info.normalWS);
-    info.anisotropicT = anisotripyTBN * normalize(vec3(surface.anisotropyDirection, 0.0));
+    mat3 anisotropyTBN = mat3(info.tangentWS, info.biNormalWS * -1.0, info.normalWS);
+    info.anisotropicT = anisotropyTBN * normalize(vec3(surface.anisotropyDirection, 0.0));
     info.anisotropicB = cross(info.vertexNormalWS, info.anisotropicT);
     info.ToV = dot(info.anisotropicT, info.viewDir);
     info.BoV = dot(info.anisotropicB, info.viewDir);
@@ -104,7 +117,12 @@ vec3 PBRLighting(const in Surface surface, const in PixelInfo info)
 
     vec3 giColor = PBRGI(surface, info);
 
-    return lightColor + giColor;
+    vec3 color = lightColor + giColor;
+
+    #ifdef EMISSION
+    color += surface.emissionColor;
+    #endif //  EMISSION
+    return color;
 }
 
 #endif // pbrFrag_lib

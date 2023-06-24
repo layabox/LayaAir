@@ -33,12 +33,13 @@ export class ProstProcess_AO {
     private stype: any = 0;
     private button: Button;
     constructor() {
-        Laya3D.init(0, 0);
-        Laya.stage.scaleMode = Stage.SCALE_FULL;
-        Laya.stage.screenMode = Stage.SCREEN_NONE;
+        Laya.init(0, 0).then(() => {
+            Laya.stage.scaleMode = Stage.SCALE_FULL;
+            Laya.stage.screenMode = Stage.SCREEN_NONE;
 
-        Stat.show();
-        this.onResComplate();
+            Stat.show();
+            this.onResComplate();
+        });
     }
 
     onResComplate() {

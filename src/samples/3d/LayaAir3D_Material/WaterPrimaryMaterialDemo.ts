@@ -9,15 +9,16 @@ import { CameraMoveScript } from "../common/CameraMoveScript";
 
 export class WaterPrimaryMaterialDemo {
 	constructor() {
-		Laya3D.init(0, 0);
-		Stat.show();
-		Laya.stage.scaleMode = Stage.SCALE_FULL;
-		Laya.stage.screenMode = Stage.SCREEN_NONE;
-		Scene3D.load("res/threeDimen/scene/LayaScene_water/Conventional/Default.ls", Handler.create(this, function (scene: Scene3D): void {
-			(<Scene3D>Laya.stage.addChild(scene));
-			var camera: Camera = (<Camera>scene.getChildByName("Main Camera"));
-			camera.addComponent(CameraMoveScript);
-		}));
+		Laya.init(0, 0).then(() => {
+			Stat.show();
+			Laya.stage.scaleMode = Stage.SCALE_FULL;
+			Laya.stage.screenMode = Stage.SCREEN_NONE;
+			Scene3D.load("res/threeDimen/scene/LayaScene_water/Conventional/Default.ls", Handler.create(this, function (scene: Scene3D): void {
+				(<Scene3D>Laya.stage.addChild(scene));
+				var camera: Camera = (<Camera>scene.getChildByName("Main Camera"));
+				camera.addComponent(CameraMoveScript);
+			}));
+		});
 	}
 
 }

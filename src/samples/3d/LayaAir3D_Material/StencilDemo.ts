@@ -27,15 +27,15 @@ export class StencilDemo {
 	stencilMat: Material;
 	constructor() {
 		//初始化引擎
-		Laya3D.init(0, 0);
-		Laya.stage.scaleMode = Stage.SCALE_FULL;
-		Laya.stage.screenMode = Stage.SCREEN_NONE;
-		//显示性能面板
-		Stat.show();
-		//预加载所有资源
-		var resource: any[] = ["res/threeDimen/scene/ChangeMaterialDemo/Conventional/scene.ls", "res/threeDimen/texture/earth.png"];
-		Laya.loader.load(resource, Handler.create(this, this.onPreLoadFinish));
-
+		Laya.init(0, 0).then(() => {
+			Laya.stage.scaleMode = Stage.SCALE_FULL;
+			Laya.stage.screenMode = Stage.SCREEN_NONE;
+			//显示性能面板
+			Stat.show();
+			//预加载所有资源
+			var resource: any[] = ["res/threeDimen/scene/ChangeMaterialDemo/Conventional/scene.ls", "res/threeDimen/texture/earth.png"];
+			Laya.loader.load(resource, Handler.create(this, this.onPreLoadFinish));
+		});
 	}
 
 	onPreLoadFinish() {

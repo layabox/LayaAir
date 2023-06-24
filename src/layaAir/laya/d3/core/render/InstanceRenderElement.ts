@@ -81,7 +81,13 @@ export class InstanceRenderElement extends RenderElement {
                 continue;
             var comDef: DefineDatas = RenderElement._compileDefine;
             context.sceneShaderData._defineDatas.cloneTo(comDef);
-            this.render && comDef.addDefineDatas(this.render._shaderValues._defineDatas);
+            if(this.render){
+                comDef.addDefineDatas(this.render._shaderValues._defineDatas);
+                pass.nodeCommonMap = this.render._commonUniformMap;
+            }else{
+                pass.nodeCommonMap = null;
+            }
+            
 
             comDef.addDefineDatas(this._renderElementOBJ._materialShaderData._defineDatas);
             //add Instance Define

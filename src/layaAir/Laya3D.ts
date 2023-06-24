@@ -62,13 +62,12 @@ import { BloomEffect } from "./laya/d3/core/render/PostEffect/BloomEffect";
 import { ScalableAO } from "./laya/d3/core/render/PostEffect/ScalableAO";
 import { GaussianDoF } from "./laya/d3/core/render/PostEffect/GaussianDoF";
 import { LayaEnv } from "./LayaEnv";
-import { SkinnedMeshRenderer } from "./laya/d3/core/SkinnedMeshRenderer";
-import { RenderOBJCreateUtil } from "./laya/d3/RenderObjs/RenderObj/RenderOBJCreateUtil";
 import { NativeRenderOBJCreateUtil } from "./laya/d3/RenderObjs/NativeOBJ/NativeRenderOBJCreateUtil";
 import { SubShader } from "./laya/RenderEngine/RenderShader/SubShader";
 import { VertexMesh } from "./laya/RenderEngine/RenderShader/VertexMesh";
 import { RenderTexture } from "./laya/resource/RenderTexture";
 import { ColorGradEffect } from "./laya/d3/core/render/PostEffect/ColorGradEffect";
+import { Browser } from "./laya/utils/Browser";
 
 /**
  * <code>Laya3D</code> 类用于初始化3D设置。
@@ -236,23 +235,13 @@ export class Laya3D {
         return Promise.resolve();
     }
 
-    /**
-     * 初始化Laya3D相关设置。
-     * @deprecated use Laya.init instead.
-     */
-    static init(width: number, height: number, config: any = null, complete: Handler = null): void {
-        Laya.init(width, height).then(() => {
-            complete && complete.run();
-        });
-    }
-
     static createRenderObjInit() {
         if (LayaEnv.isConch && !(window as any).conchConfig.conchWebGL) {
             LayaGL.renderEngine._renderOBJCreateContext = new NativeRenderOBJCreateUtil();
             LayaGL.renderOBJCreate = LayaGL.renderEngine.getCreateRenderOBJContext();
         } else {
-            LayaGL.renderEngine._renderOBJCreateContext = new RenderOBJCreateUtil();
-            LayaGL.renderOBJCreate = LayaGL.renderEngine.getCreateRenderOBJContext();
+            //LayaGL.renderEngine._renderOBJCreateContext = new RenderOBJCreateUtil();
+            //LayaGL.renderOBJCreate = LayaGL.renderEngine.getCreateRenderOBJContext();
         }
 
     }

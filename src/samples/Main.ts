@@ -41,33 +41,42 @@ export class Main {
      * @param isReadNetWorkRes true从网络读取资源，false从本地目录读取资源(bin/res)。
      */
     constructor(is3D: boolean = true, isReadNetWorkRes: boolean = false) {
-        //false为2D true为3D
-        this._is3D = is3D;
-        if (!this._is3D) {
-            Laya.init(1280, 720);
-            Laya.stage.scaleMode = Stage.SCALE_FIXED_AUTO;
-        } else {
-            Laya3D.init(0, 0);
-            Laya.stage.scaleMode = Stage.SCALE_FULL;
-            Laya.stage.screenMode = Stage.SCREEN_NONE;
-        }
-        Laya.stage.bgColor = "#ffffff";
-        Stat.show();
+        Laya.init(this._is3D?0:1280,this._is3D?0:720).then(() => {
+            if (!this._is3D) {
+                Laya.stage.scaleMode = Stage.SCALE_FIXED_AUTO;
+            } else {
+                Laya.stage.scaleMode = Stage.SCALE_FULL;
+                Laya.stage.screenMode = Stage.SCREEN_NONE;
+            }//false为2D true为3D
+            this._is3D = is3D;
+            if (!this._is3D) {
+                Laya.init(1280, 720);
+                Laya.stage.scaleMode = Stage.SCALE_FIXED_AUTO;
+            } else {
+                Laya.init(0, 0);
+                Laya.stage.scaleMode = Stage.SCALE_FULL;
+                Laya.stage.screenMode = Stage.SCREEN_NONE;
+            }
+            Laya.stage.bgColor = "#ffffff";
+            Stat.show();
+    
+            //初始化socket连接
+            if (Main.isOpenSocket)
+                Client.init();
+    
+            //这里改成true就会从外部加载资源
+            this._isReadNetWorkRes = isReadNetWorkRes;
+            if (this._isReadNetWorkRes) {
+                URL.rootPath = URL.basePath = "https://layaair.layabox.com/3.x/api/EngineDemoResource/";/*"http://10.10.20.55:8000/";*///"https://star.layabox.com/Laya1.0.0/";//"http://10.10.20.55:8000/";"https://layaair.ldc.layabox.com/demo2/h5/";
+            }else{
+                URL.basePath += "sample-resource/";
+            }
+            
+            //加载引擎需要的资源
+            Laya.loader.load([{ url: "res/atlas/comp.json", type: Loader.ATLAS }], Handler.create(this, this.onLoaded));
+        })
 
-        //初始化socket连接
-        if (Main.isOpenSocket)
-            Client.init();
-
-        //这里改成true就会从外部加载资源
-        this._isReadNetWorkRes = isReadNetWorkRes;
-        if (this._isReadNetWorkRes) {
-            URL.rootPath = URL.basePath = "https://layaair.layabox.com/3.x/api/EngineDemoResource/";/*"http://10.10.20.55:8000/";*///"https://star.layabox.com/Laya1.0.0/";//"http://10.10.20.55:8000/";"https://layaair.ldc.layabox.com/demo2/h5/";
-        }else{
-            URL.basePath += "sample-resource/";
-        }
         
-        //加载引擎需要的资源
-        Laya.loader.load([{ url: "res/atlas/comp.json", type: Loader.ATLAS }], Handler.create(this, this.onLoaded));
     }
 
     private onLoaded(): void {

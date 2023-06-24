@@ -10,11 +10,12 @@ import { TextureCompareMode } from "../../RenderEnum/TextureCompareMode";
 import { TextureFormat } from "../../RenderEnum/TextureFormat";
 import { KTXTextureInfo } from "../../KTXTextureInfo";
 import { RenderCapable } from "../../RenderEnum/RenderCapable";
+import { ITexture3DContext } from "../../RenderInterface/ITextureContext";
 
 /**
  * 将继承修改为类似 WebGLRenderingContextBase, WebGLRenderingContextOverloads 多继承 ?
  */
-export class GL2TextureContext extends GLTextureContext {
+export class GL2TextureContext extends GLTextureContext implements ITexture3DContext {
 
     declare protected _gl: WebGL2RenderingContext;
 
@@ -545,6 +546,8 @@ export class GL2TextureContext extends GLTextureContext {
         let width = texture.width;
         let height = texture.height;
 
+        texture.maxMipmapLevel = mipmapCount - 1;
+
         let source = ktxInfo.source;
         let compressed = ktxInfo.compress;
         let fourSize = width % 4 == 0 && height % 4 == 0;
@@ -713,6 +716,8 @@ export class GL2TextureContext extends GLTextureContext {
         let width = texture.width;
         let height = texture.height;
 
+        texture.maxMipmapLevel = ktxInfo.mipmapCount - 1;
+
         let source = ktxInfo.source;
         let compressed = ktxInfo.compress;
 
@@ -804,6 +809,8 @@ export class GL2TextureContext extends GLTextureContext {
         // todo texture size 与 ddsInfo size
         let width = texture.width;
         let height = texture.height;
+
+        texture.maxMipmapLevel = mipmapCount - 1;
 
         let source = ktxInfo.source;
         let compressed = ktxInfo.compress;
@@ -1018,6 +1025,7 @@ export class GL2TextureContext extends GLTextureContext {
         renderTarget.colorFormat = colorFormat;
         renderTarget.depthStencilFormat = depthStencilFormat;
         renderTarget._textures.push(texture);
+        renderTarget.isSRGB = sRGB;
 
         let gl = <WebGLRenderingContext>renderTarget._gl;
 

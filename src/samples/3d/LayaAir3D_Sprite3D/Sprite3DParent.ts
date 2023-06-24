@@ -35,29 +35,30 @@ export class Sprite3DParent {
 
 	constructor() {
 		//初始化引擎
-		Laya3D.init(0, 0);
-		Laya.stage.scaleMode = Stage.SCALE_FULL;
-		Laya.stage.screenMode = Stage.SCREEN_NONE;
-		//显示性能面板
-		Stat.show();
+		Laya.init(0, 0).then(() => {
+			Laya.stage.scaleMode = Stage.SCALE_FULL;
+			Laya.stage.screenMode = Stage.SCREEN_NONE;
+			//显示性能面板
+			Stat.show();
 
-		//创建场景
-		this.scene = (<Scene3D>Laya.stage.addChild(new Scene3D()));
+			//创建场景
+			this.scene = (<Scene3D>Laya.stage.addChild(new Scene3D()));
 
-		//创建相机
-		var camera: Camera = (<Camera>this.scene.addChild(new Camera(0, 0.1, 100)));
-		camera.transform.translate(new Vector3(0, 0.75, 1));
-		camera.transform.rotate(new Vector3(-30, 0, 0), true, false);
-		camera.addComponent(CameraMoveScript);
+			//创建相机
+			var camera: Camera = (<Camera>this.scene.addChild(new Camera(0, 0.1, 100)));
+			camera.transform.translate(new Vector3(0, 0.75, 1));
+			camera.transform.rotate(new Vector3(-30, 0, 0), true, false);
+			camera.addComponent(CameraMoveScript);
 
-		//添加光照
-		var directionLight: DirectionLight = (<DirectionLight>this.scene.addChild(new DirectionLight()));
-		directionLight.color = new Color(1, 1, 1, 1);
-		directionLight.transform.rotate(new Vector3(-3.14 / 3, 0, 0));
+			//添加光照
+			var directionLight: DirectionLight = (<DirectionLight>this.scene.addChild(new DirectionLight()));
+			directionLight.color = new Color(1, 1, 1, 1);
+			directionLight.transform.rotate(new Vector3(-3.14 / 3, 0, 0));
 
-		//预加载所有资源
-		var resource: any[] = ["res/threeDimen/skinModel/LayaMonkey2/LayaMonkey.lh", "res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh"];
-		Laya.loader.load(resource, Handler.create(this, this.onPreLoadFinish));
+			//预加载所有资源
+			var resource: any[] = ["res/threeDimen/skinModel/LayaMonkey2/LayaMonkey.lh", "res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh"];
+			Laya.loader.load(resource, Handler.create(this, this.onPreLoadFinish));
+		});
 	}
 
 	onPreLoadFinish(): void {

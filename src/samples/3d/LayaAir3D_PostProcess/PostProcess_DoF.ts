@@ -18,16 +18,16 @@ export class PostProcessDoF {
     camera: Camera;
 
     constructor() {
-        Laya3D.init(0, 0);
-        Laya.stage.scaleMode = Stage.SCALE_FULL;
-        Laya.stage.screenMode = Stage.SCREEN_NONE;
+        Laya.init(0, 0).then(() => {
+            Laya.stage.scaleMode = Stage.SCALE_FULL;
+            Laya.stage.screenMode = Stage.SCREEN_NONE;
 
-        Stat.show();
+            Stat.show();
 
-        Shader3D.debugMode = true;
+            Shader3D.debugMode = true;
 
-        Laya.loader.load("res/threeDimen/LayaScene_zhuandibanben/Conventional/zhuandibanben.ls", Handler.create(this, this.onComplate));
-
+            Laya.loader.load("res/threeDimen/LayaScene_zhuandibanben/Conventional/zhuandibanben.ls", Handler.create(this, this.onComplate));
+        });
     }
 
     onComplate(): void {

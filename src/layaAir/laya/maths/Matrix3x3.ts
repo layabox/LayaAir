@@ -357,7 +357,7 @@ export class Matrix3x3 implements IClone {
         if (s === d) {
             return;
         }
-        s.set(d);
+        d.set(s);
         /*
         for (i = 0; i < 9; ++i) {
             d[i] = s[i];

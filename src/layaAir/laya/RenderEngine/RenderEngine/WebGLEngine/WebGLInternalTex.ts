@@ -73,6 +73,8 @@ export class WebGLInternalTex extends GLObject implements InternalTexture {
 
         this._mipmap = mipmap && this.isPotSize;
         this._mipmapCount = this._mipmap ? Math.max(Math.ceil(Math.log2(width)) + 1, Math.ceil(Math.log2(height)) + 1) : 1;
+        this._maxMipmapLevel = this._mipmapCount - 1;
+        this._baseMipmapLevel = 0;
 
         this.useSRGBLoad = useSRGBLoader;
         this.gammaCorrection = gammaCorrection;
@@ -165,7 +167,7 @@ export class WebGLInternalTex extends GLObject implements InternalTexture {
             let gl = this._gl;
             //let maxAnisoLevel = gl.getParameter(anisoExt.MAX_TEXTURE_MAX_ANISOTROPY_EXT);
             let maxAnisoLevel = this._engine.getParams(RenderParams.Max_AnisoLevel_Count);
-            
+
             let level = Math.max(1, Math.min(maxAnisoLevel, value));
             this._setTexParametexf(anisoExt.TEXTURE_MAX_ANISOTROPY_EXT, level);
             this._anisoLevel = level;
@@ -176,10 +178,12 @@ export class WebGLInternalTex extends GLObject implements InternalTexture {
     }
 
     private _baseMipmapLevel: number = 0;
+
     public set baseMipmapLevel(value: number) {
         if (this._engine.isWebGL2) {
             this._setTexParameteri((<WebGL2RenderingContext>this._gl).TEXTURE_BASE_LEVEL, value);
         }
+        this._baseMipmapLevel = value;
     }
 
     public get baseMipmapLevel() {
@@ -187,10 +191,12 @@ export class WebGLInternalTex extends GLObject implements InternalTexture {
     }
 
     private _maxMipmapLevel: number = 0;
+
     public set maxMipmapLevel(value: number) {
         if (this._engine.isWebGL2) {
             this._setTexParameteri((<WebGL2RenderingContext>this._gl).TEXTURE_MAX_LEVEL, value);
         }
+        this._maxMipmapLevel = value;
     }
 
     public get maxMipmapLevel() {
