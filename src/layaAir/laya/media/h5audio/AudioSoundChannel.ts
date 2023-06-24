@@ -76,8 +76,11 @@ export class AudioSoundChannel extends SoundChannel {
         }
         SoundManager.addChannel(this);
         Browser.container.appendChild(this._audio);
-        if ("play" in this._audio)
-            this._audio.play();
+        if ("play" in this._audio) {
+            let p = this._audio.play();
+            if (p)
+                p.catch(e => { /*Auto-play was prevented*/ });
+        }
     }
 
     /**
