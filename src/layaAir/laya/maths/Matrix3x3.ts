@@ -171,7 +171,13 @@ export class Matrix3x3 implements IClone {
     constructor(createElement: boolean = true) {
         createElement && (this.elements = _DEFAULTELEMENTS.slice());
     }
-
+    /**
+     * 克隆
+     * @param destObject 
+     */
+    cloneByArray(destObject: Float32Array) {
+        this.elements.set(destObject);
+    }
     /**
      * 计算3x3矩阵的行列式
      * @return    矩阵的行列式
