@@ -1,4 +1,6 @@
 import { Color } from "../../maths/Color";
+import { Matrix3x3 } from "../../maths/Matrix3x3";
+import { Matrix4x4 } from "../../maths/Matrix4x4";
 import { Vector2 } from "../../maths/Vector2";
 import { Vector3 } from "../../maths/Vector3";
 import { Vector4 } from "../../maths/Vector4";
@@ -102,6 +104,16 @@ export class MaterialParser {
                                             mat._shaderValues.setColor(uniName, new Color(vectorValue[0], vectorValue[1], vectorValue[2], vectorValue[3]));
                                         } else
                                             mat._shaderValues.setVector(uniName, new Vector4(vectorValue[0], vectorValue[1], vectorValue[2], vectorValue[3]));
+                                        break;
+                                    case 9:
+                                        let matrix3 = new Matrix3x3();
+                                        matrix3.elements = new Float32Array(vectorValue);
+                                        mat._shaderValues.setMatrix3x3(uniName, matrix3);
+                                        break;
+                                    case 16:
+                                        let matrix4 = new Matrix4x4();
+                                        matrix4.elements = new Float32Array(vectorValue);
+                                        mat._shaderValues.setMatrix4x4(uniName, matrix4);
                                         break;
                                     default:
                                         mat._shaderValues.setBuffer(uniName, vectorValue);

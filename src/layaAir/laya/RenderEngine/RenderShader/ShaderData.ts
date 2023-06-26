@@ -575,6 +575,10 @@ export class ShaderData implements IClone {
 				return this.getTexture(uniformIndex);
 			case ShaderDataType.Buffer:
 				return this.getBuffer(uniformIndex);
+			case ShaderDataType.Matrix3x3:
+				return this.getMatrix3x3(uniformIndex);
+			case ShaderDataType.Matrix4x4:
+				return this.getMatrix4x4(uniformIndex);
 			default:
 				throw "unkone shader data type.";
 		}
@@ -596,7 +600,7 @@ export class ShaderData implements IClone {
 	 */
 	cloneTo(destObject: ShaderData): void {
 		var dest: ShaderData = <ShaderData>destObject;
-		var destData: { [key: string]: number | boolean | Vector2 | Vector3 | Vector4 | Matrix4x4 | BaseTexture } = dest._data;
+		var destData: { [key: string]: number | boolean | Vector2 | Vector3 | Vector4 | Matrix3x3 | Matrix4x4 | BaseTexture } = dest._data;
 		for (var k in this._data) {//TODO:需要优化,杜绝is判断，慢
 			var value: any = this._data[k];
 			if (value != null) {
@@ -624,7 +628,13 @@ export class ShaderData implements IClone {
 						(<Vector4>value).cloneTo(v4);
 						destData[k] = v4;
 					}
-				} else if (value instanceof Matrix4x4) {
+				}
+				else if (value instanceof Matrix3x3) {
+					let mat = destData[k] || (destData[k] = new Matrix3x3());
+					value.cloneTo(mat);
+					destData[k] = mat;
+				}
+				else if (value instanceof Matrix4x4) {
 					var mat = destData[k] || (destData[k] = new Matrix4x4());
 					(<Matrix4x4>value).cloneTo(mat);
 					destData[k] = mat;
