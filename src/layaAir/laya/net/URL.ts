@@ -46,7 +46,7 @@ export class URL {
         URL.overrideExtension(["shader"], "shader.json");
         URL.overrideExtension(["scene3d", "scene", "taa", "prefab"], "json");
         URL.overrideExtension(["fui"], "fui.json");
-        URL.overrideExtension(["glsl"], "glsl.json");
+        URL.overrideExtension(["glsl"], "glsl.txt");
     }
 
     /**创建一个新的 <code>URL</code> 实例。*/
