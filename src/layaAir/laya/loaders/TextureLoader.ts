@@ -137,8 +137,10 @@ class Texture2DLoader implements IResourceLoader {
         }
         else {
             return task.loader.fetch(url, "image", task.progress.createCallback(), task.options).then(img => {
-                return createImageBitmap(img,{imageOrientation:"none",premultiplyAlpha:"none"})}).then(bitmapimage=>{
-                    if (!bitmapimage)
+                let option:ImageBitmapOptions= { premultiplyAlpha: (propertyParams&&propertyParams.premultiplyAlpha) ? "premultiply" : "none" };
+                return createImageBitmap(img, option)
+            }).then(bitmapimage => {
+                if (!bitmapimage)
                     return null;
                 let tex: BaseTexture = Texture2D._parseImage(bitmapimage, propertyParams, constructParams);
                 let obsoluteInst = <Texture2D>task.obsoluteInst;
@@ -149,7 +151,7 @@ class Texture2DLoader implements IResourceLoader {
                     (<any>tex)._stateNum = meta.stateNum;
                 }
                 return tex;
-                });
+            });
         }
     }
 
