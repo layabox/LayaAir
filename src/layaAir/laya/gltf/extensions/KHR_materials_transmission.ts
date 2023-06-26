@@ -1,6 +1,6 @@
 import * as glTF from "../glTFInterface";
 
-import { Material } from "../../d3/core/material/Material";
+import { Material, MaterialRenderMode } from "../../d3/core/material/Material";
 import { IBatchProgress } from "../../net/BatchProgress";
 import { Texture2D } from "../../resource/Texture2D";
 import { glTFExtension } from "./glTFExtension";
@@ -57,7 +57,7 @@ export class KHR_materials_transmission implements glTFExtension {
         let extension: glTF.glTFMaterialTransmission = glTFMaterial.extensions.KHR_materials_transmission;
 
         let transmissionFactor = extension.transmissionFactor ?? 0.0;
-
+        material.materialRenderMode = MaterialRenderMode.RENDERMODE_CUSTOME;
         material.renderQueue = 3000;
 
         material.setDefine(PBRShaderLib.DEFINE_TRANSMISSION, true);
