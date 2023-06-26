@@ -248,21 +248,8 @@ export class LODGroup extends Component implements IBoundsCell {
         }
         this._visialIndex = -1;
 
-        this.recalculateBounds();
-        //查看相机的距离
-        let checkCamera = (this.owner.scene as Scene3D).cullInfoCamera as Camera;
-        let maxYDistance = checkCamera.maxlocalYDistance;
-        let cameraFrustum = checkCamera.boundFrustum;
-        Vector3.subtract(this._lodPosition, checkCamera.transform.position, tempVec);
-        //大于farplane,或者不在视锥内.不做lod操作
-        let length = tempVec.length();
-        if (length > checkCamera.farPlane || !cameraFrustum.intersects(this._bounds)) {
-            return;
-        }
-        let rateYDistance = length / checkCamera.farPlane * maxYDistance;
-        let rate = (this._size / rateYDistance);
-        this._nowRate = rate;
-        this._applyVisibleRate(rate);
+      
+        this._applyVisibleRate(1);
     }
     /**
      * @internal
