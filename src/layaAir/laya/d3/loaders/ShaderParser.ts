@@ -1,4 +1,5 @@
 import { Color } from "../../maths/Color";
+import { Matrix3x3 } from "../../maths/Matrix3x3";
 import { Matrix4x4 } from "../../maths/Matrix4x4";
 import { Vector2 } from "../../maths/Vector2";
 import { Vector3 } from "../../maths/Vector3";
@@ -21,6 +22,7 @@ const shaderDataOBJ: Record<string, ShaderDataType> = {
     "Vector3": ShaderDataType.Vector3,
     "Vector4": ShaderDataType.Vector4,
     "Matrix4x4": ShaderDataType.Matrix4x4,
+    "Matrix3x3": ShaderDataType.Matrix3x3,
     "Texture2D": ShaderDataType.Texture2D,
     "TextureCube": ShaderDataType.TextureCube,
 }
@@ -186,6 +188,10 @@ export class ShaderParser {
                 let mat = new Matrix4x4();
                 mat.cloneByArray(data);
                 return mat;
+            case ShaderDataType.Matrix3x3:
+                let mat3 = new Matrix3x3();
+                mat3.cloneByArray(data);
+                return mat3;
             case ShaderDataType.Texture2D:
                 let tex = null;
                 if (data == "white")
