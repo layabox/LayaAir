@@ -100,7 +100,7 @@ export class WorkerLoader extends EventDispatcher {
         }
 
         var imageData: ImageBitmap = data.imageBitmap;
-        console.log("load:", data.url);
+        //console.log("load:", data.url);
         this.event(data.url, imageData);
     }
 }
