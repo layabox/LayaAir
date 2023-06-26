@@ -137,7 +137,7 @@ class Texture2DLoader implements IResourceLoader {
         }
         else {
             return task.loader.fetch(url, "image", task.progress.createCallback(), task.options).then(img => {
-                return createImageBitmap(img)}).then(bitmapimage=>{
+                return createImageBitmap(img,{imageOrientation:"none",premultiplyAlpha:"none"})}).then(bitmapimage=>{
                     if (!bitmapimage)
                     return null;
                 let tex: BaseTexture = Texture2D._parseImage(bitmapimage, propertyParams, constructParams);

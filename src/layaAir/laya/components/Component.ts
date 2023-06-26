@@ -233,7 +233,7 @@ export class Component {
 
         if (this.owner)
             this.owner._destroyComponent(this);
-        else
+        else if(!this.destroyed)
             this._destroy(true);
     }
 
@@ -249,6 +249,7 @@ export class Component {
                 this._resetComp();
                 Pool.recoverByClass(this);
             }
+            this._status = 4;
             return;
         }
 
