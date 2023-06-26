@@ -226,7 +226,7 @@ export class LODGroup extends Component implements IBoundsCell {
         this._lodCount = this._lods.length;
     }
 
-    get nowRate(){
+    get nowRate() {
         return this._nowRate;
     }
 
@@ -247,8 +247,10 @@ export class LODGroup extends Component implements IBoundsCell {
             this._setLODinvisible(i);
         }
         this._visialIndex = -1;
-    }
 
+      
+        this._applyVisibleRate(1);
+    }
     /**
      * @internal
      */
