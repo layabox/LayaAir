@@ -183,8 +183,10 @@ export class AutoBitmap extends Graphics {
      *  由于可能有其他的graphic命令，因此不能用原来的直接clear()的方法
      */
     private _setDrawGridCmd(newcmd: any) {
-        if (this._drawGridCmd)
+        if (this._drawGridCmd) {
             this.removeCmd(this._drawGridCmd);
+            this._drawGridCmd.recover();
+        }
         this._drawGridCmd = newcmd;
         if (newcmd)
             this.addCmd(newcmd);
