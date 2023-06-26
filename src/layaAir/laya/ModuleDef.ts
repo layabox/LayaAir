@@ -35,6 +35,9 @@ import { Vector4 } from "./maths/Vector4";
 import { Quaternion } from "./maths/Quaternion";
 import { Color } from "./maths/Color";
 import { Script } from "./components/Script";
+import { Matrix } from "./maths/Matrix";
+import { Matrix3x3 } from "./maths/Matrix3x3";
+import { Matrix4x4 } from "./maths/Matrix4x4";
 
 import "./loaders/TextResourceLoader";
 import "./loaders/AtlasLoader";
@@ -89,3 +92,6 @@ c("Vector3", Vector3);
 c("Vector4", Vector4);
 c("Quaternion", Quaternion);
 c("Color", Color);
+c("Matrix", Matrix);
+c("Matrix3x3", Matrix3x3);
+c("Matrix4x4", Matrix4x4);
