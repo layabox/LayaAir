@@ -760,6 +760,7 @@ export class glTFResource extends Prefab {
                 if (pbrMetallicRoughness.baseColorTexture) {
                     let tex = this.getTextureWithInfo(pbrMetallicRoughness.baseColorTexture);
                     material.setTexture("u_BaseColorTexture", tex);
+                    material.setDefine(glTFShader.Define_BaseMap, true);
                 }
 
                 let metallicFactor = pbrMetallicRoughness.metallicFactor ?? 1.0;

@@ -20,6 +20,8 @@ export class glTFShader {
 
     static ShaderName: string = "glTFPBR";
 
+    static Define_BaseMap: ShaderDefine;
+
     static Define_MetallicRoughnessMap: ShaderDefine;
 
     static Define_NormalMap: ShaderDefine;
@@ -38,7 +40,7 @@ export class glTFShader {
 
     // todo
     static init() {
-
+        this.Define_BaseMap = Shader3D.getDefineByName("BASECOLORMAP");
         this.Define_MetallicRoughnessMap = Shader3D.getDefineByName("METALLICROUGHNESSMAP");
         this.Define_NormalMap = Shader3D.getDefineByName("NORMALMAP");
         this.Define_OcclusionMap = Shader3D.getDefineByName("OCCLUSIONMAP");
@@ -49,6 +51,11 @@ export class glTFShader {
         this.Define_ClearCoatNormalMap = Shader3D.getDefineByName("CLEARCOAT_NORMAL");
 
         this.Define_AnisotropyMap = Shader3D.getDefineByName("ANISOTROPYMAP");
+
+        let s = Shader3D.find(glTFShader.name);
+        if (s) {
+            return;
+        }
 
         let uniformMap = {
             // render 
@@ -99,7 +106,7 @@ export class glTFShader {
             "u_EmissionStrength": 1.0,
 
             // clear coat
-            "u_ClearcoatFactor": 0.0,
+            "u_ClearCoatFactor": 0.0,
             "u_ClearCoatRoughness": 0.0,
             "u_ClearCoatNormalScale": 1.0,
 
