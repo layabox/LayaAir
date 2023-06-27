@@ -182,6 +182,8 @@ export class Sprite3D extends Node {
             var parent3D: Sprite3D = (<Sprite3D>this._parent);
             this.transform._setParent(parent3D.transform);
         }
+        else
+            this.transform._onWorldTransform();
         super._onAdded();
     }
 
