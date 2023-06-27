@@ -1,44 +1,16 @@
 import { EventDispatcher } from "../events/EventDispatcher"
 
 /**
- * @private
  * Worker Image加载器
  */
-export class WorkerLoader extends EventDispatcher {
+export class WorkerLoader {
 
-    /**单例*/
-    static I: WorkerLoader;
     /**worker.js的路径 */
-    static workerPath: string = "libs/workerloader.js";
+    static workerPath: string = "libs/laya.workerloader.js";
 
-    /**@private */
+    private static _worker: Worker;
+    private static _dispatcher: EventDispatcher;
     private static _enable: boolean = false;
-
-    /**使用的Worker对象。*/
-    worker: Worker;
-    /**@private */
-    protected _useWorkerLoader: boolean;
-
-    constructor() {
-        super();
-        this.worker = new Worker(WorkerLoader.workerPath);
-        this.worker.onmessage = (evt: any) => {
-            //接收worker传过来的数据函数
-            this.workerMessage(evt.data);
-        }
-    }
-
-    /**
-     * @internal
-     * 尝试使用Work加载Image
-     * @return 是否启动成功
-     */
-    static __init__() {
-        if (WorkerLoader.I) return;
-        if (!Worker) return;
-
-        WorkerLoader.I = new WorkerLoader();
-    }
 
     /**
      * 是否支持worker
@@ -49,24 +21,21 @@ export class WorkerLoader extends EventDispatcher {
     }
 
     /**
-     * 尝试启用WorkerLoader,只有第一次调用有效
-     */
-    static enableWorkerLoader(): void {
-        WorkerLoader.enable = true;
-    }
-
-    /**
      * 是否启用。
      */
     static set enable(value: boolean) {
         if (WorkerLoader._enable != value) {
-            WorkerLoader._enable = value;
             if (value) {
-                if (WorkerLoader.I == null)
-                    WorkerLoader.__init__();
-                if (WorkerLoader.I.worker == null)
-                    WorkerLoader._enable = false;
+                if (!Worker)
+                    return;
+
+                if (!WorkerLoader._worker) {
+                    WorkerLoader._worker = new Worker(WorkerLoader.workerPath);
+                    WorkerLoader._worker.onmessage = WorkerLoader.workerMessage;
+                    WorkerLoader._dispatcher = new EventDispatcher();
+                }
             }
+            WorkerLoader._enable = value;
         }
     }
 
@@ -74,34 +43,25 @@ export class WorkerLoader extends EventDispatcher {
         return WorkerLoader._enable;
     }
 
-    /**
-     * @private
-     */
-    private workerMessage(data: any): void {
+    static load(url: string, options: any): Promise<any> {
+        return new Promise(resolve => {
+            WorkerLoader._worker.postMessage({ url, options });
+            WorkerLoader._dispatcher.once(url, resolve);
+        });
+    }
+
+    private static workerMessage(evt: any): void {
+        let data = evt.data;
         if (data) {
             switch (data.type) {
                 case "Image":
-                    this.imageLoaded(data);
+                    WorkerLoader._dispatcher.event(data.url, data.imageBitmap);
                     break;
                 case "Disable":
                     WorkerLoader.enable = false;
                     break;
             }
         }
-    }
-
-    /**
-     * @private
-     */
-    private imageLoaded(data: any): void {
-        if (!data.dataType || data.dataType != "imageBitmap") {
-            this.event(data.url, null);
-            return;
-        }
-
-        var imageData: ImageBitmap = data.imageBitmap;
-        //console.log("load:", data.url);
-        this.event(data.url, imageData);
     }
 }
 
