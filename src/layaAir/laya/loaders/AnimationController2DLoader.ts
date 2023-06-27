@@ -1,11 +1,12 @@
-import { TypeAnimatorState } from "../../components/AnimatorControllerParse";
-import { IResourceLoader, ILoadTask, Loader } from "../../net/Loader";
-import { AnimatorController } from "../component/Animator/AnimatorController";
-import { URL } from "../../net/URL";
-class AnimationControllerLoader implements IResourceLoader {
+import { AnimatorController2D } from "../components/AnimatorController2D";
+import { TypeAnimatorState } from "../components/AnimatorControllerParse";
+import { IResourceLoader, ILoadTask, Loader } from "../net/Loader";
+import { URL } from "../net/URL";
+
+class AnimationController2DLoader implements IResourceLoader {
     load(task: ILoadTask) {
         return task.loader.fetch(task.url, "json", task.progress.createCallback(0.2), task.options).then(data => {
-            let ret = new AnimatorController(data);
+            let ret = new AnimatorController2D(data);
             if (ret.data && ret.data.controllerLayers) {
                 let layers = ret.data.controllerLayers;
                 let promises: Array<any> = [];
@@ -45,4 +46,4 @@ class AnimationControllerLoader implements IResourceLoader {
     }
 }
 
-Loader.registerLoader(["controller"], AnimationControllerLoader);
+Loader.registerLoader(["mcc"], AnimationController2DLoader);
