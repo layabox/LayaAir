@@ -278,13 +278,18 @@ export class ShaderInstance {
 		if ((<ShaderPass>this._shaderPass).statefirst) {
 			cull = renderState.cull ?? cull;
 		}
-		
+
 		cull = cull ?? RenderState.Default.cull;
 
 		var forntFace: number;
 		switch (cull) {
 			case RenderState.CULL_NONE:
 				this._cullStateCMD.addCMD(RenderStateType.CullFace, false);
+				if (isTarget != invertFront)
+					forntFace = CullMode.Front;//gl.CCW
+				else
+					forntFace = CullMode.Back;
+				this._cullStateCMD.addCMD(RenderStateType.FrontFace, forntFace);
 				break;
 			case RenderState.CULL_FRONT:
 				this._cullStateCMD.addCMD(RenderStateType.CullFace, true);
