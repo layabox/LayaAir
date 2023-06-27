@@ -136,7 +136,11 @@ class Texture2DLoader implements IResourceLoader {
             });
         }
         else {
-            return task.loader.fetch(url, "image", task.progress.createCallback(), task.options).then(img => {
+            let options = task.options;
+            if (options.useWorkerLoader && !propertyParams.premultiplyAlpha)
+                options = Object.assign({ workerLoaderOptions: { premultiplyAlpha: "none" } }, options);
+
+            return task.loader.fetch(url, "image", task.progress.createCallback(), options).then(img => {
                 if (!img)
                     return null;
 
