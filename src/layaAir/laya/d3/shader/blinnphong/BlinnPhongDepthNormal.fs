@@ -3,6 +3,7 @@
 #include "Color.glsl";
 
 #include "Scene.glsl";
+#include "SceneFog.glsl";
 
 #include "Camera.glsl";
 #include "Sprite3DFrag.glsl";

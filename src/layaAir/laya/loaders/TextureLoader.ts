@@ -137,7 +137,7 @@ class Texture2DLoader implements IResourceLoader {
         }
         else {
             return task.loader.fetch(url, "image", task.progress.createCallback(), task.options).then(img => {
-                let option:ImageBitmapOptions= { premultiplyAlpha: (propertyParams&&propertyParams.premultiplyAlpha) ? "premultiply" : "none" };
+                let option: ImageBitmapOptions = { premultiplyAlpha: (propertyParams && propertyParams.premultiplyAlpha) ? "premultiply" : "none" };
                 return createImageBitmap(img, option)
             }).then(bitmapimage => {
                 if (!bitmapimage)
