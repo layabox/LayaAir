@@ -36,7 +36,7 @@ export class SpineTemplet extends Resource {
         return this._textures[name];
     }
 
-    _parse(desc: string | ArrayBuffer, atlasText: string, createURL: string, progress?: IBatchProgress): Promise<void> {
+    _parse(desc: string | ArrayBuffer | Uint8Array, atlasText: string, createURL: string, progress?: IBatchProgress): Promise<void> {
         this._basePath = URL.getPath(createURL);
         let version = this.getRuntimeVersion(desc);
         let parseAtlas;
@@ -50,6 +50,9 @@ export class SpineTemplet extends Resource {
             if (desc instanceof ArrayBuffer) {
                 let skeletonBinary = new this._ns.SkeletonBinary(atlasLoader);
                 this.skeletonData = skeletonBinary.readSkeletonData(new Uint8Array(desc));
+            } else if (desc instanceof Uint8Array) {
+                let skeletonBinary = new this._ns.SkeletonBinary(atlasLoader);
+                this.skeletonData = skeletonBinary.readSkeletonData(desc);
             } else {
                 let skeletonJson = new this._ns.SkeletonJson(atlasLoader);
                 this.skeletonData = skeletonJson.readSkeletonData(desc);
