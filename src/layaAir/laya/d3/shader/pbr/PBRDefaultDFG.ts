@@ -47,9 +47,9 @@ export class PBRDefaultDFG {
 
             for (let index = 0; index < pixelCount; index++) {
 
-                let r = hdrPixelData[index * 3];
-                let g = hdrPixelData[index * 3 + 1];
-                let b = hdrPixelData[index * 3 + 2];
+                let r = hdrPixelData[index * 4];
+                let g = hdrPixelData[index * 4 + 1];
+                let b = hdrPixelData[index * 4 + 2];
 
                 let maxRGB = Math.max(r, g, b, 1e-5);
                 let d = Math.max(1.0, RGBDMaxRange / maxRGB);
