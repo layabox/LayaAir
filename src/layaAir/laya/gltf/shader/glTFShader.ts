@@ -97,7 +97,6 @@ export class glTFShader {
             "u_AlphaTestValue": 0.5,
             // surface
             "u_BaseColorFactor": Vector4.ONE,
-            "u_BaseColorTexture": Texture2D.whiteTexture,
             "u_MetallicFactor": 1.0,
             "u_RoughnessFactor": 1.0,
             "u_NormalScale": 1.0,
