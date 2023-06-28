@@ -710,8 +710,7 @@ export class glTFResource extends Prefab {
             filterMode: this.getTextureFilterMode(glTFSampler),
             wrapModeU: this.getTextureWrapMode(glTFSampler.wrapS),
             wrapModeV: this.getTextureWrapMode(glTFSampler.wrapT),
-            // todo aniso值 设置 默认值 ?
-            anisoLevel: 16,
+            anisoLevel: 1,
             hdrEncodeFormat: HDREncodeFormat.NONE
         };
         return propertyParams;
