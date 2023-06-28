@@ -2,7 +2,6 @@ import { Laya } from "Laya";
 import { Stage } from "laya/display/Stage";
 import { CheckBox } from "laya/ui/CheckBox";
 import { Handler } from "laya/utils/Handler";
-import { WebGL } from "laya/webgl/WebGL";
 import { Main } from "./../Main";
 
 export class UI_CheckBox {
@@ -20,18 +19,18 @@ export class UI_CheckBox {
 	constructor(maincls: typeof Main) {
 		this.Main = maincls;
 
-		// 不支持WebGL时自动切换至Canvas
-		Laya.init(800, 600, WebGL);
+		Laya.init(800, 600).then(() => {
+			Laya.stage.alignV = Stage.ALIGN_MIDDLE;
+			Laya.stage.alignH = Stage.ALIGN_CENTER;
 
-		Laya.stage.alignV = Stage.ALIGN_MIDDLE;
-		Laya.stage.alignH = Stage.ALIGN_CENTER;
+			Laya.stage.scaleMode = Stage.SCALE_SHOWALL;
+			Laya.stage.bgColor = "#232628";
 
-		Laya.stage.scaleMode = Stage.SCALE_SHOWALL;
-		Laya.stage.bgColor = "#232628";
+			this.skins = ["res/ui/checkbox (1).png", "res/ui/checkbox (2).png", "res/ui/checkbox (3).png", "res/ui/checkbox (4).png", "res/ui/checkbox (5).png", "res/ui/checkbox (6).png"];
 
-		this.skins = ["res/ui/checkbox (1).png", "res/ui/checkbox (2).png", "res/ui/checkbox (3).png", "res/ui/checkbox (4).png", "res/ui/checkbox (5).png", "res/ui/checkbox (6).png"];
+			Laya.loader.load(this.skins, Handler.create(this, this.onCheckBoxSkinLoaded));
+		});
 
-		Laya.loader.load(this.skins, Handler.create(this, this.onCheckBoxSkinLoaded));
 	}
 
 	private onCheckBoxSkinLoaded(e: any = null): void {

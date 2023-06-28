@@ -12,16 +12,16 @@ export class Sprite_MagnifyingGlass {
 	constructor(maincls: typeof Main) {
 		this.Main = maincls;
 
-		// 不支持WebGL时自动切换至Canvas
-		Laya.init(1136, 640);
-		//
-		Laya.stage.alignV = Stage.ALIGN_MIDDLE;
-		Laya.stage.alignH = Stage.ALIGN_CENTER;
-		//
-		Laya.stage.scaleMode = "showall";
-		Laya.stage.bgColor = "#232628";
+		Laya.init(1136, 640).then(() => {
+			//
+			Laya.stage.alignV = Stage.ALIGN_MIDDLE;
+			Laya.stage.alignH = Stage.ALIGN_CENTER;
+			//
+			Laya.stage.scaleMode = "showall";
+			Laya.stage.bgColor = "#232628";
 
-		Laya.loader.load("res/bg2.png", Handler.create(this, this.setup));
+			Laya.loader.load("res/bg2.png", Handler.create(this, this.setup));
+		});
 	}
 
 	private setup(_e: any = null): void {

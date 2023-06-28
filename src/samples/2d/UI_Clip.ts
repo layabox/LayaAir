@@ -4,7 +4,6 @@ import { Button } from "laya/ui/Button";
 import { Clip } from "laya/ui/Clip";
 import { Image } from "laya/ui/Image";
 import { Handler } from "laya/utils/Handler";
-import { WebGL } from "laya/webgl/WebGL";
 import { Main } from "./../Main";
 
 export class UI_Clip {
@@ -19,16 +18,16 @@ export class UI_Clip {
 	Main: typeof Main = null;
 	constructor(maincls: typeof Main) {
 		this.Main = maincls;
-		// 不支持WebGL时自动切换至Canvas
-		Laya.init(800, 600, WebGL);
+		Laya.init(800, 600).then(() => {
+			Laya.stage.alignV = Stage.ALIGN_MIDDLE;
+			Laya.stage.alignH = Stage.ALIGN_CENTER;
 
-		Laya.stage.alignV = Stage.ALIGN_MIDDLE;
-		Laya.stage.alignH = Stage.ALIGN_CENTER;
+			Laya.stage.scaleMode = Stage.SCALE_SHOWALL;
+			Laya.stage.bgColor = "#232628";
 
-		Laya.stage.scaleMode = Stage.SCALE_SHOWALL;
-		Laya.stage.bgColor = "#232628";
+			Laya.loader.load([this.buttonSkin, this.clipSkin, this.bgSkin], Handler.create(this, this.onSkinLoaded));
+		});
 
-		Laya.loader.load([this.buttonSkin, this.clipSkin, this.bgSkin], Handler.create(this, this.onSkinLoaded));
 	}
 
 	private onSkinLoaded(e: any = null): void {

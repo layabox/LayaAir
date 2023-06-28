@@ -3,7 +3,6 @@ import { Sprite } from "laya/display/Sprite";
 import { Stage } from "laya/display/Stage";
 import { Point } from "laya/maths/Point";
 import { Browser } from "laya/utils/Browser";
-import { WebGL } from "laya/webgl/WebGL";
 import { Main } from "./../Main";
 
 /**
@@ -22,14 +21,15 @@ export class PIXI_Example_23 {
 	constructor(maincls: typeof Main) {
 		this.Main = maincls;
 
-		Laya.init(this.viewWidth, this.viewHeight, WebGL);
-		Laya.stage.screenMode = Stage.SCREEN_HORIZONTAL;
-		Laya.stage.scaleMode = Stage.SCALE_NOBORDER;
-
-		// create a background texture
-		Laya.stage.loadImage("res/pixi/laserBG.jpg");
-
-		Laya.stage.frameLoop(1, this, this.animate);
+		Laya.init(this.viewWidth, this.viewHeight).then(() => {
+			Laya.stage.screenMode = Stage.SCREEN_HORIZONTAL;
+			Laya.stage.bgColor = '#181818';
+			// create a background texture
+			let bgsp = new Sprite();
+			bgsp.loadImage("res/pixi/laserBG.jpg");
+			this.Main.box2D.addChild(bgsp);
+			Laya.stage.frameLoop(1, this, this.animate);
+		});
 	}
 
 	private animate(): void {
@@ -88,6 +88,10 @@ export class PIXI_Example_23 {
 		}
 		// increment the ticker
 		this.tick += 1;
+	}
+
+	dispose(){
+		Laya.timer.clear(this, this.animate);
 	}
 }
 

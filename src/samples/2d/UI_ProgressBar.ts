@@ -10,18 +10,16 @@ export class UI_ProgressBar {
 	Main: typeof Main = null;
 	constructor(maincls: typeof Main) {
 		this.Main = maincls;
+		Laya.init(800, 600).then(() => {
+			Laya.stage.alignV = Stage.ALIGN_MIDDLE;
+			Laya.stage.alignH = Stage.ALIGN_CENTER;
 
-		// 不支持WebGL时自动切换至Canvas
-		//Laya.init(800, 600, WebGL);
-		Laya.init(800, 600);
+			Laya.stage.scaleMode = Stage.SCALE_SHOWALL;
+			Laya.stage.bgColor = "#232628";
 
-		Laya.stage.alignV = Stage.ALIGN_MIDDLE;
-		Laya.stage.alignH = Stage.ALIGN_CENTER;
+			Laya.loader.load(["res/ui/progressBar.png", "res/ui/progressBar$bar.png"], Handler.create(this, this.onLoadComplete));
+		});
 
-		Laya.stage.scaleMode = Stage.SCALE_SHOWALL;
-		Laya.stage.bgColor = "#232628";
-
-		Laya.loader.load(["res/ui/progressBar.png", "res/ui/progressBar$bar.png"], Handler.create(this, this.onLoadComplete));
 	}
 
 	private onLoadComplete(e: any = null): void {

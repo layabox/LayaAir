@@ -4,7 +4,6 @@ import { Stage } from "laya/display/Stage";
 import { Event } from "laya/events/Event";
 import { Browser } from "laya/utils/Browser";
 import { Stat } from "laya/utils/Stat";
-import { WebGL } from "laya/webgl/WebGL";
 import { Main } from "./../Main";
 
 
@@ -28,12 +27,10 @@ export class PIXI_Example_05 {
 	constructor(maincls: typeof Main) {
 		this.Main = maincls;
 
-		// 不支持WebGL时自动切换至Canvas
-		Laya.init(Browser.width, Browser.height, WebGL);
-		Stat.show();
-		Laya.stage.scaleMode = Stage.SCALE_FULL;
-
-		this.setup();
+		Laya.init(Browser.width, Browser.height).then(() => {
+			Stat.show();
+			this.setup();
+		});
 	}
 
 	private setup(): void {

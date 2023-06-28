@@ -6,7 +6,6 @@ import { Event } from "laya/events/Event";
 import { SoundManager } from "laya/media/SoundManager";
 import { Browser } from "laya/utils/Browser";
 import { Handler } from "laya/utils/Handler";
-import { WebGL } from "laya/webgl/WebGL";
 import { Main } from "./../Main";
 
 export class Sound_SimpleDemo {
@@ -16,16 +15,16 @@ export class Sound_SimpleDemo {
 	constructor(maincls: typeof Main) {
 		this.Main = maincls;
 
-		// 不支持WebGL时自动切换至Canvas
-		Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
+		Laya.init(Browser.clientWidth, Browser.clientHeight).then(() => {
+			Laya.stage.alignV = Stage.ALIGN_MIDDLE;
+			Laya.stage.alignH = Stage.ALIGN_CENTER;
 
-		Laya.stage.alignV = Stage.ALIGN_MIDDLE;
-		Laya.stage.alignH = Stage.ALIGN_CENTER;
+			Laya.stage.scaleMode = "showall";
+			Laya.stage.bgColor = "#232628";
 
-		Laya.stage.scaleMode = "showall";
-		Laya.stage.bgColor = "#232628";
+			this.setup();
+		});
 
-		this.setup();
 	}
 
 	private setup(): void {

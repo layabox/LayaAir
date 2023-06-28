@@ -1,23 +1,22 @@
 import { Laya } from "Laya";
 import { Stage } from "laya/display/Stage";
 import { Label } from "laya/ui/Label";
-import { WebGL } from "laya/webgl/WebGL";
 import { Main } from "./../Main";
 
 export class UI_Label {
 	Main: typeof Main;
 	constructor(maincls: typeof Main) {
 		this.Main = maincls;
-		// 不支持WebGL时自动切换至Canvas
-		Laya.init(800, 600, WebGL);
+		Laya.init(800, 600).then(() => {
+			Laya.stage.alignV = Stage.ALIGN_MIDDLE;
+			Laya.stage.alignH = Stage.ALIGN_CENTER;
 
-		Laya.stage.alignV = Stage.ALIGN_MIDDLE;
-		Laya.stage.alignH = Stage.ALIGN_CENTER;
+			Laya.stage.scaleMode = Stage.SCALE_SHOWALL;
+			Laya.stage.bgColor = "#232628";
 
-		Laya.stage.scaleMode = Stage.SCALE_SHOWALL;
-		Laya.stage.bgColor = "#232628";
+			this.setup();
+		});
 
-		this.setup();
 	}
 
 	private setup(): void {

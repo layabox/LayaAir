@@ -13,7 +13,6 @@ import { PolygonCollider } from "laya/physics/PolygonCollider";
 import { RigidBody } from "laya/physics/RigidBody";
 import { Label } from "laya/ui/Label";
 import { Stat } from "laya/utils/Stat";
-import { WebGL } from "laya/webgl/WebGL";
 import { Main } from "../Main";
 
 export class Physics_Bridge {
@@ -24,17 +23,18 @@ export class Physics_Bridge {
     constructor(maincls: typeof Main) {
         this.Main = maincls;
         Config.isAntialias = true;
-        Laya.init(1200, 700, WebGL);
-        Stat.show();
-        Physics.enable();
-        PhysicsDebugDraw.enable();
-		Laya.stage.alignV = Stage.ALIGN_MIDDLE;
-		Laya.stage.alignH = Stage.ALIGN_CENTER;
-		Laya.stage.scaleMode = Stage.SCALE_FIXED_AUTO;
-		Laya.stage.bgColor = "#232628";
+        Laya.init(1200, 700).then(() => {
+            Stat.show();
+            Physics.enable();
+            PhysicsDebugDraw.enable();
+            Laya.stage.alignV = Stage.ALIGN_MIDDLE;
+            Laya.stage.alignH = Stage.ALIGN_CENTER;
+            Laya.stage.scaleMode = Stage.SCALE_FIXED_AUTO;
+            Laya.stage.bgColor = "#232628";
 
-        this.createBridge();
-        this.eventListener();
+            this.createBridge();
+            this.eventListener();
+        });
     }
 
     createBridge() {
@@ -110,7 +110,7 @@ export class Physics_Bridge {
     eventListener() {
         // 单击产生新的小球刚体
         Laya.stage.on(Event.CLICK, this, () => {
-            let 
+            let
                 targetX = (300 + Math.random() * 400) / Physics.PIXEL_RATIO, // [300, 700)
                 targetY = 500 / Physics.PIXEL_RATIO;
             let newBall = new Sprite();
@@ -125,8 +125,8 @@ export class Physics_Bridge {
             let circlePosy = circleCollider.y / Physics.PIXEL_RATIO;
             let velocityX = targetX - circlePosx;
             let velocityY = targetY - circlePosy;
-            circleBody.linearVelocity = {"x": velocityX * 3, "y": velocityY * 3};
-            Laya.timer.frameOnce(120, this, function() {
+            circleBody.linearVelocity = { "x": velocityX * 3, "y": velocityY * 3 };
+            Laya.timer.frameOnce(120, this, function () {
                 newBall.destroy();
             });
         });

@@ -5,7 +5,6 @@ import { Sprite } from "laya/display/Sprite";
 import { Event } from "laya/events/Event";
 import { Point } from "laya/maths/Point";
 import { Browser } from "laya/utils/Browser";
-import { WebGL } from "laya/webgl/WebGL";
 import { Main } from "./../Main";
 
 /**
@@ -26,18 +25,19 @@ export class InputDevice_GluttonousSnake {
 	constructor(maincls: typeof Main) {
 		this.Main = maincls;
 
-		Laya.init(Browser.width, Browser.height, WebGL);
+		Laya.init(Browser.width, Browser.height).then(() => {
+			// 初始化蛇
+			this.initSnake();
+			// 监视加速器状态
+			Accelerator.instance.on(Event.CHANGE, this, this.monitorAccelerator);
+			// 游戏循环
+			Laya.timer.frameLoop(1, this, this.animate);
+			// 食物生产
+			Laya.timer.loop(3000, this, this.produceFood);
+			// 游戏开始时有一个食物
+			this.produceFood();
+		});
 
-		// 初始化蛇
-		this.initSnake();
-		// 监视加速器状态
-		Accelerator.instance.on(Event.CHANGE, this, this.monitorAccelerator);
-		// 游戏循环
-		Laya.timer.frameLoop(1, this, this.animate);
-		// 食物生产
-		Laya.timer.loop(3000, this, this.produceFood);
-		// 游戏开始时有一个食物
-		this.produceFood();
 	}
 
 	private initSnake(): void {
@@ -159,6 +159,12 @@ export class InputDevice_GluttonousSnake {
 
 		food.x = Math.random() * Laya.stage.width;
 		food.y = Math.random() * Laya.stage.height;
+	}
+
+
+	dispose(){
+		Laya.timer.clear(this, this.animate);
+		Laya.timer.clear(this, this.produceFood);
 	}
 }
 

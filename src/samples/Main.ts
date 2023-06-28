@@ -1,7 +1,6 @@
 
 import { Laya } from "Laya";
 import { Stat } from "laya/utils/Stat";
-import { Laya3D } from "Laya3D";
 import { Sprite } from "laya/display/Sprite";
 import { Stage } from "laya/display/Stage";
 import { Loader } from "laya/net/Loader";
@@ -11,7 +10,6 @@ import { IndexView2D } from "./view/IndexView2D";
 import { IndexView3D } from "./view/IndexView3D";
 import { Texture } from "laya/resource/Texture";
 import Client from "./Client";
-import { AssetDb } from "laya/resource/AssetDb";
 
 export class Main {
     private static _box3D: Sprite;
@@ -41,7 +39,7 @@ export class Main {
      * @param isReadNetWorkRes true从网络读取资源，false从本地目录读取资源(bin/res)。
      */
     constructor(is3D: boolean = true, isReadNetWorkRes: boolean = false) {
-        Laya.init(this._is3D?0:1280,this._is3D?0:720).then(() => {
+        Laya.init(this._is3D ? 0 : 1280, this._is3D ? 0 : 720).then(() => {
             if (!this._is3D) {
                 Laya.stage.scaleMode = Stage.SCALE_FIXED_AUTO;
             } else {
@@ -59,24 +57,26 @@ export class Main {
             }
             Laya.stage.bgColor = "#ffffff";
             Stat.show();
-    
+
             //初始化socket连接
             if (Main.isOpenSocket)
                 Client.init();
-    
+
             //这里改成true就会从外部加载资源
             this._isReadNetWorkRes = isReadNetWorkRes;
             if (this._isReadNetWorkRes) {
                 URL.rootPath = URL.basePath = "https://layaair.layabox.com/3.x/api/EngineDemoResource/";/*"http://10.10.20.55:8000/";*///"https://star.layabox.com/Laya1.0.0/";//"http://10.10.20.55:8000/";"https://layaair.ldc.layabox.com/demo2/h5/";
-            }else{
+            } else {
                 URL.basePath += "sample-resource/";
             }
-            
-            //加载引擎需要的资源
-            Laya.loader.load([{ url: "res/atlas/comp.json", type: Loader.ATLAS }], Handler.create(this, this.onLoaded));
+            // 加载fileConfig.json配置内容
+            Laya.loader.loadPackage("", null, null).then(() => {
+                //加载引擎需要的资源
+                Laya.loader.load([{ url: "res/atlas/comp.json", type: Loader.ATLAS }], Handler.create(this, this.onLoaded));
+            });
         })
 
-        
+
     }
 
     private onLoaded(): void {

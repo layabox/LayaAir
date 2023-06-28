@@ -2,7 +2,6 @@ import { Laya } from "Laya";
 import { Input } from "laya/display/Input";
 import { Stage } from "laya/display/Stage";
 import { Text } from "laya/display/Text";
-import { WebGL } from "laya/webgl/WebGL";
 import { Main } from "./../Main";
 
 export class Text_Restrict {
@@ -11,16 +10,16 @@ export class Text_Restrict {
 	constructor(maincls: typeof Main) {
 		this.Main = maincls;
 
-		// 不支持WebGL时自动切换至Canvas
-		Laya.init(550, 300, WebGL);
+		Laya.init(550, 300).then(() => {
+			Laya.stage.alignV = Stage.ALIGN_MIDDLE;
+			Laya.stage.alignH = Stage.ALIGN_CENTER;
 
-		Laya.stage.alignV = Stage.ALIGN_MIDDLE;
-		Laya.stage.alignH = Stage.ALIGN_CENTER;
+			Laya.stage.scaleMode = Stage.SCALE_SHOWALL;
+			Laya.stage.bgColor = "#232628";
 
-		Laya.stage.scaleMode = Stage.SCALE_SHOWALL;
-		Laya.stage.bgColor = "#232628";
+			this.createTexts();
+		});
 
-		this.createTexts();
 	}
 
 	private createTexts(): void {

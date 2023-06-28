@@ -18,37 +18,40 @@ export class DOM_Form {
 	private rowSpacing: number = 10;
 
 	Main: typeof Main = null;
+	emailInput: any;
+	birthdayInput: any;
+	passwordInput: any;
 	constructor(maincls: typeof Main) {
 		this.Main = maincls;
 
-		Laya.init(600, 400);
-		Laya.stage.alignH = Stage.ALIGN_CENTER;
-		Laya.stage.alignV = Stage.ALIGN_MIDDLE;
-		Laya.stage.scaleMode = Stage.SCALE_SHOWALL;
-		Laya.stage.screenMode = Stage.SCREEN_HORIZONTAL;
-		Laya.stage.bgColor = "#FFFFFF";
+		Laya.init(600, 400).then(() => {
+			Laya.stage.alignH = Stage.ALIGN_CENTER;
+			Laya.stage.alignV = Stage.ALIGN_MIDDLE;
+			Laya.stage.scaleMode = Stage.SCALE_SHOWALL;
+			Laya.stage.screenMode = Stage.SCREEN_HORIZONTAL;
 
-		this.form = new Sprite();
-		this.form.size(250, 120);
-		this.form.pos((Laya.stage.width - this.form.width) / 2, (Laya.stage.height - this.form.height) / 2);
-		this.Main.box2D.addChild(this.form);
+			this.form = new Sprite();
+			this.form.size(250, 120);
+			this.form.pos((Laya.stage.width - this.form.width) / 2, (Laya.stage.height - this.form.height) / 2);
+			this.Main.box2D.addChild(this.form);
 
-		var rowHeightDelta = this.rowSpacing + this.rowHeight;
+			var rowHeightDelta = this.rowSpacing + this.rowHeight;
 
-		// 显示左侧标签
-		this.showLabel("邮箱", 0, rowHeightDelta * 0);
-		this.showLabel("出生日期", 0, rowHeightDelta * 1);
-		this.showLabel("密码", 0, rowHeightDelta * 2);
+			// 显示左侧标签
+			this.showLabel("邮箱", 0, rowHeightDelta * 0);
+			this.showLabel("出生日期", 0, rowHeightDelta * 1);
+			this.showLabel("密码", 0, rowHeightDelta * 2);
 
-		// 显示右侧输入框
-		var emailInput: any = this.createInputElement();
-		var birthdayInput: any = this.createInputElement();
-		var passwordInput: any = this.createInputElement();
+			// 显示右侧输入框
+			this.emailInput = this.createInputElement();
+			this.birthdayInput = this.createInputElement();
+			this.passwordInput = this.createInputElement();
 
-		birthdayInput.type = "date";
-		passwordInput.type = "password";
+			this.birthdayInput.type = "date";
+			this.passwordInput.type = "password";
 
-		Laya.stage.on(Event.RESIZE, this, this.fitDOMElements, [emailInput, birthdayInput, passwordInput]);
+			Laya.stage.on(Event.RESIZE, this, this.fitDOMElements, [this.emailInput, this.birthdayInput, this.passwordInput]);
+		});
 	}
 
 	private showLabel(label: string, x: number, y: number): void {
@@ -76,6 +79,15 @@ export class DOM_Form {
 			dom = arguments[i];
 			SpriteUtils.fitDOMElementInArea(dom, this.form, 100, i * (this.rowSpacing + this.rowHeight), 150, this.rowHeight);
 		}
+	}
+
+	dispose(): void {
+		Browser.document.body.removeChild(this.emailInput);
+		Browser.document.body.removeChild(this.birthdayInput);
+		Browser.document.body.removeChild(this.passwordInput);
+		this.emailInput = null;
+		this.birthdayInput = null;
+		this.passwordInput = null;
 	}
 }
 

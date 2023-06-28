@@ -4,25 +4,24 @@ import { Stage } from "laya/display/Stage"
 import { HSlider } from "laya/ui/HSlider"
 import { VSlider } from "laya/ui/VSlider"
 import { Handler } from "laya/utils/Handler"
-import { WebGL } from "laya/webgl/WebGL"
 
 export class UI_Slider {
 	Main: typeof Main = null;
 	constructor(maincls: typeof Main) {
 		this.Main = maincls;
-		// 不支持WebGL时自动切换至Canvas
-		Laya.init(550, 400, WebGL);
+		Laya.init(550, 400).then(() => {
+			Laya.stage.alignV = Stage.ALIGN_MIDDLE;
+			Laya.stage.alignH = Stage.ALIGN_CENTER;
 
-		Laya.stage.alignV = Stage.ALIGN_MIDDLE;
-		Laya.stage.alignH = Stage.ALIGN_CENTER;
+			Laya.stage.scaleMode = Stage.SCALE_SHOWALL;
+			Laya.stage.bgColor = "#232628";
 
-		Laya.stage.scaleMode = Stage.SCALE_SHOWALL;
-		Laya.stage.bgColor = "#232628";
+			var skins: any[] = [];
+			skins.push("res/ui/hslider.png", "res/ui/hslider$bar.png");
+			skins.push("res/ui/vslider.png", "res/ui/vslider$bar.png");
+			Laya.loader.load(skins, Handler.create(this, this.onLoadComplete));
+		});
 
-		var skins: any[] = [];
-		skins.push("res/ui/hslider.png", "res/ui/hslider$bar.png");
-		skins.push("res/ui/vslider.png", "res/ui/vslider$bar.png");
-		Laya.loader.load(skins, Handler.create(this, this.onLoadComplete));
 	}
 
 	private onLoadComplete(e: any = null): void {

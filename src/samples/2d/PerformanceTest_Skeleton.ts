@@ -2,12 +2,8 @@ import { Laya } from "Laya";
 import { Skeleton } from "laya/ani/bone/Skeleton";
 import { Templet } from "laya/ani/bone/Templet";
 import { Event } from "laya/events/Event";
-import { Loader } from "laya/net/Loader";
-import { Texture } from "laya/resource/Texture";
 import { Browser } from "laya/utils/Browser";
-import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
-import { WebGL } from "laya/webgl/WebGL";
 import { Main } from "./../Main";
 
 export class PerformanceTest_Skeleton {
@@ -30,21 +26,22 @@ export class PerformanceTest_Skeleton {
         this.mSpacingX = Browser.width / this.colCount;
         this.mSpacingY = Browser.height / this.rowCount;
 
-        Laya.init(Browser.width, Browser.height, WebGL);
-        Stat.show();
+        Laya.init(Browser.width, Browser.height).then(() => {
+            Stat.show();
 
-        Laya.loader.load("res/skeleton/" + this.fileName + "/" + this.fileName + ".sk", { mainTexture: true }).then((templet: Templet) => {
-            for (var i: number = 0; i < this.rowCount; i++) {
-                for (var j: number = 0; j < this.colCount; j++) {
-                    this.mArmature = templet.buildArmature(1);
-                    this.mArmature.x = this.xOff + j * this.mSpacingX;
-                    this.mArmature.y = this.yOff + i * this.mSpacingY;
-                    this.mAnimationArray.push(this.mArmature);
-                    this.mArmature.play(0, true);
-                    this.Main.box2D.addChild(this.mArmature);
+            Laya.loader.load("res/skeleton/" + this.fileName + "/" + this.fileName + ".sk", { mainTexture: true }).then((templet: Templet) => {
+                for (var i: number = 0; i < this.rowCount; i++) {
+                    for (var j: number = 0; j < this.colCount; j++) {
+                        this.mArmature = templet.buildArmature(1);
+                        this.mArmature.x = this.xOff + j * this.mSpacingX;
+                        this.mArmature.y = this.yOff + i * this.mSpacingY;
+                        this.mAnimationArray.push(this.mArmature);
+                        this.mArmature.play(0, true);
+                        this.Main.box2D.addChild(this.mArmature);
+                    }
                 }
-            }
-            Laya.stage.on(Event.CLICK, this, this.toggleAction);
+                Laya.stage.on(Event.CLICK, this, this.toggleAction);
+            });
         });
     }
 

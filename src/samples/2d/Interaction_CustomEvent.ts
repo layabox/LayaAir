@@ -5,7 +5,6 @@ import { Event } from "laya/events/Event";
 import { Browser } from "laya/utils/Browser";
 import { Ease } from "laya/utils/Ease";
 import { Tween } from "laya/utils/Tween";
-import { WebGL } from "laya/webgl/WebGL";
 import { Main } from "./../Main";
 
 export class Interaction_CustomEvent {
@@ -15,16 +14,16 @@ export class Interaction_CustomEvent {
 	Main: typeof Main;
 	constructor(maincls: typeof Main) {
 		this.Main = maincls;
-		// 不支持WebGL时自动切换至Canvas
-		Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
-		//
-		Laya.stage.alignV = Stage.ALIGN_MIDDLE;
-		Laya.stage.alignH = Stage.ALIGN_CENTER;
-		//
-		Laya.stage.scaleMode = "showall";
-		Laya.stage.bgColor = "#232628";
+		Laya.init(Browser.clientWidth, Browser.clientHeight).then(() => {
+			//
+			Laya.stage.alignV = Stage.ALIGN_MIDDLE;
+			Laya.stage.alignH = Stage.ALIGN_CENTER;
+			//
+			Laya.stage.scaleMode = "showall";
+			Laya.stage.bgColor = "#232628";
 
-		this.createSprite();
+			this.createSprite();
+		});
 	}
 
 	private createSprite(): void {
@@ -32,7 +31,7 @@ export class Interaction_CustomEvent {
 		this.sp.graphics.drawRect(0, 0, 200, 200, "#D2691E");
 		this.sp.anchorX = 0.5;
 		this.sp.anchorY = 0.5;
-		
+
 		this.sp.x = Laya.stage.width / 2;
 		this.sp.y = Laya.stage.height / 2;
 

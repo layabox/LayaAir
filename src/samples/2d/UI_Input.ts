@@ -2,7 +2,6 @@ import { Laya } from "Laya";
 import { Stage } from "laya/display/Stage";
 import { TextInput } from "laya/ui/TextInput";
 import { Handler } from "laya/utils/Handler";
-import { WebGL } from "laya/webgl/WebGL";
 import { Main } from "./../Main";
 
 export class UI_Input {
@@ -16,17 +15,17 @@ export class UI_Input {
 	constructor(maincls: typeof Main) {
 		this.Main = maincls;
 
-		// 不支持WebGL时自动切换至Canvas
-		Laya.init(800, 600, WebGL);
+		Laya.init(800, 600).then(() => {
+			Laya.stage.alignV = Stage.ALIGN_MIDDLE;
+			Laya.stage.alignH = Stage.ALIGN_CENTER;
 
-		Laya.stage.alignV = Stage.ALIGN_MIDDLE;
-		Laya.stage.alignH = Stage.ALIGN_CENTER;
+			Laya.stage.scaleMode = Stage.SCALE_SHOWALL;
+			Laya.stage.bgColor = "#232628";
 
-		Laya.stage.scaleMode = Stage.SCALE_SHOWALL;
-		Laya.stage.bgColor = "#232628";
+			this.skins = ["res/ui/input (1).png", "res/ui/input (2).png", "res/ui/input (3).png", "res/ui/input (4).png"];
+			Laya.loader.load(this.skins, Handler.create(this, this.onLoadComplete));//加载资源。
+		});
 
-		this.skins = ["res/ui/input (1).png", "res/ui/input (2).png", "res/ui/input (3).png", "res/ui/input (4).png"];
-		Laya.loader.load(this.skins, Handler.create(this, this.onLoadComplete));//加载资源。
 	}
 
 	private onLoadComplete(e: any = null): void {

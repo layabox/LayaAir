@@ -11,10 +11,7 @@ import { Physics } from "laya/physics/Physics";
 import { PhysicsDebugDraw } from "laya/physics/PhysicsDebugDraw";
 import { PolygonCollider } from "laya/physics/PolygonCollider";
 import { RigidBody } from "laya/physics/RigidBody";
-import { Box } from "laya/ui/Box";
-import { Browser } from "laya/utils/Browser";
 import { Stat } from "laya/utils/Stat";
-import { WebGL } from "laya/webgl/WebGL";
 import { Main } from "../Main";
 
 /**
@@ -22,15 +19,15 @@ import { Main } from "../Main";
  */
 export class Physics_CollisionFiltering {
     Main: typeof Main = null;
-    public static  k_smallGroup = 1;
-    public static  k_middleGroup = 0;
-    public static  k_largeGroup = -1;
-    public static  k_triangleCategory = 0x2;
-    public static  k_boxCategory = 0x4;
-    public static  k_circleCategory = 0x8;
-    public static  k_triangleMask = 0xF;
-    public static  k_boxMask = 0xF ^ Physics_CollisionFiltering.k_circleCategory;
-    public static  k_circleMask = Physics_CollisionFiltering.k_triangleCategory | Physics_CollisionFiltering.k_boxCategory | 0x01; // 0x01为house刚体默认的category，若不设置，则会穿透house
+    public static k_smallGroup = 1;
+    public static k_middleGroup = 0;
+    public static k_largeGroup = -1;
+    public static k_triangleCategory = 0x2;
+    public static k_boxCategory = 0x4;
+    public static k_circleCategory = 0x8;
+    public static k_triangleMask = 0xF;
+    public static k_boxMask = 0xF ^ Physics_CollisionFiltering.k_circleCategory;
+    public static k_circleMask = Physics_CollisionFiltering.k_triangleCategory | Physics_CollisionFiltering.k_boxCategory | 0x01; // 0x01为house刚体默认的category，若不设置，则会穿透house
     private curTarget: Sprite;
     private preMovementX: number = 0;
     private preMovementY: number = 0;
@@ -38,25 +35,26 @@ export class Physics_CollisionFiltering {
     constructor(maincls: typeof Main) {
         this.Main = maincls;
         Config.isAntialias = true;
-        Laya.init(1200, 700, WebGL);
-        Stat.show();
-        Physics.enable();
-        PhysicsDebugDraw.enable();
-		Laya.stage.alignV = Stage.ALIGN_MIDDLE;
-		Laya.stage.alignH = Stage.ALIGN_CENTER;
-		Laya.stage.scaleMode = Stage.SCALE_FIXED_AUTO;
-		Laya.stage.bgColor = "#232628";
+        Laya.init(1200, 700).then(() => {
+            Stat.show();
+            Physics.enable();
+            PhysicsDebugDraw.enable();
+            Laya.stage.alignV = Stage.ALIGN_MIDDLE;
+            Laya.stage.alignH = Stage.ALIGN_CENTER;
+            Laya.stage.scaleMode = Stage.SCALE_FIXED_AUTO;
+            Laya.stage.bgColor = "#232628";
 
-        this.createHouse();
-        for (let i = 1; i <= 3; i++) {
-            this.createBox(300, 300, 20, 20, i);
-            this.createTriangle(500, 300, 20, i);
-            this.createCircle(700, 300, 10, i);
-        }
+            this.createHouse();
+            for (let i = 1; i <= 3; i++) {
+                this.createBox(300, 300, 20, 20, i);
+                this.createTriangle(500, 300, 20, i);
+                this.createCircle(700, 300, 10, i);
+            }
+        });
     }
 
     createHouse() {
-        let house=  new Sprite();
+        let house = new Sprite();
         this.Main.box2D.addChild(house);
         let rigidbody: RigidBody = house.addComponent(RigidBody);
         rigidbody.type = "static";
@@ -106,7 +104,7 @@ export class Physics_CollisionFiltering {
     }
 
     addGroup(rigidbody, ratio) {
-        switch(ratio) {
+        switch (ratio) {
             case 1:
                 rigidbody.group = Physics_CollisionFiltering.k_smallGroup;
                 break;

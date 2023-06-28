@@ -2,7 +2,6 @@ import { Laya } from "Laya";
 import { MovieClip } from "laya/ani/swf/MovieClip";
 import { Stage } from "laya/display/Stage";
 import { Browser } from "laya/utils/Browser";
-import { WebGL } from "laya/webgl/WebGL";
 import { Main } from "./../Main";
 
 export class Animation_SWF {
@@ -13,16 +12,16 @@ export class Animation_SWF {
     constructor(maincls: typeof Main) {
         this.Main = maincls;
 
-        // 不支持WebGL时自动切换至Canvas
-        Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
+        Laya.init(Browser.clientWidth, Browser.clientHeight).then(() => {
+            Laya.stage.alignV = Stage.ALIGN_MIDDLE;
+            Laya.stage.alignH = Stage.ALIGN_CENTER;
 
-        Laya.stage.alignV = Stage.ALIGN_MIDDLE;
-        Laya.stage.alignH = Stage.ALIGN_CENTER;
+            Laya.stage.scaleMode = "showall";
+            Laya.stage.bgColor = "#232628";
 
-        Laya.stage.scaleMode = "showall";
-        Laya.stage.bgColor = "#232628";
+            this.createMovieClip();
+        });
 
-        this.createMovieClip();
     }
 
     private createMovieClip(): void {

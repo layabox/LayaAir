@@ -4,7 +4,6 @@ import { Text } from "laya/display/Text";
 import { Event } from "laya/events/Event";
 import { Browser } from "laya/utils/Browser";
 import { Stat } from "laya/utils/Stat";
-import { WebGL } from "laya/webgl/WebGL";
 import { Main } from "./../Main";
 
 export class Text_Scroll {
@@ -16,17 +15,17 @@ export class Text_Scroll {
 	constructor(maincls: typeof Main) {
 		this.Main = maincls;
 
-		// 不支持WebGL时自动切换至Canvas
-		Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
-		Stat.show();
+		Laya.init(Browser.clientWidth, Browser.clientHeight).then(() => {
+			Stat.show();
 
-		Laya.stage.alignV = Stage.ALIGN_MIDDLE;
-		Laya.stage.alignH = Stage.ALIGN_CENTER;
+			Laya.stage.alignV = Stage.ALIGN_MIDDLE;
+			Laya.stage.alignH = Stage.ALIGN_CENTER;
 
-		Laya.stage.scaleMode = Stage.SCALE_SHOWALL;
-		Laya.stage.bgColor = "#232628";
+			Laya.stage.scaleMode = Stage.SCALE_SHOWALL;
+			Laya.stage.bgColor = "#232628";
 
-		this.createText();
+			this.createText();
+		});
 	}
 
 	private createText(): void {

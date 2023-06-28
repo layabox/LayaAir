@@ -26,22 +26,23 @@ export class InputDevice_Map {
 	constructor(maincls: typeof Main) {
 		this.Main = maincls;
 
-		Laya.init(Browser.width, 255);
-		Laya.stage.scaleMode = Stage.SCALE_NOSCALE;
+		Laya.init(Browser.width, 255).then(() => {
+			Laya.stage.scaleMode = Stage.SCALE_NOSCALE;
 
-		this.createDom();
-		this.initMap();
-		this.createInfoText();
+			this.createDom();
+			this.initMap();
+			this.createInfoText();
 
-		var successHandler: Handler = new Handler(this, this.updatePosition);
-		var errorHandler: Handler = new Handler(this, this.onError);
+			var successHandler: Handler = new Handler(this, this.updatePosition);
+			var errorHandler: Handler = new Handler(this, this.onError);
 
-		// 使用高精度位置
-		Geolocation.enableHighAccuracy = true;
-		Geolocation.watchPosition(successHandler, errorHandler);
+			// 使用高精度位置
+			Geolocation.enableHighAccuracy = true;
+			Geolocation.watchPosition(successHandler, errorHandler);
 
-		// 绑定作用域
-		this.convertToBaiduCoord = this.convertToBaiduCoord.bind(this);
+			// 绑定作用域
+			this.convertToBaiduCoord = this.convertToBaiduCoord.bind(this);
+		});
 	}
 
 	private createDom(): void {
@@ -127,6 +128,12 @@ export class InputDevice_Map {
 			alert("无权限");
 	}
 
+	dispose(){
+		Browser.document.body.removeChild(this.mapDiv);
+		this.mapDiv = null;
+		this.map = null;
+		this.marker = null;
+	}
 }
 
 
