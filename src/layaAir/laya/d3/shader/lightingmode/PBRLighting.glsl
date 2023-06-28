@@ -127,7 +127,11 @@ vec3 prefilteredDFG_LUT(float roughness, float NoV)
 {
     vec2 samplePoint = clamp(vec2(NoV, roughness), vec2(0.0, 0.0), vec2(1.0, 1.0));
     samplePoint.y = 1.0 - samplePoint.y;
-    return (texture2D(u_IBLDFG, samplePoint)).rgb;
+    #if defined(FLOATTEXTURE) && defined(FLOATTEXTURE_FIL_LINEAR)
+        return (texture2D(u_IBLDFG, samplePoint)).rgb;
+    #else
+        return decodeRGBD(texture2D(u_IBLDFG, samplePoint));
+    #endif
 }
 
 vec2 EnvBRDFApproxLazarov(float roughness, float NoV)
