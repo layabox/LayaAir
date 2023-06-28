@@ -13,6 +13,7 @@ import DepthVS from "./glTFPBRDepth.vs";
 import DephtFS from "./glTFPBRDepth.fs";
 import DepthNormalVS from "./glTFPBRDepthNormal.vs";
 import DepthNormalFS from "./glTFPBRDepthNormal.fs";
+import { Matrix3x3 } from "../../maths/Matrix3x3";
 
 /**
  * @internal
@@ -78,8 +79,6 @@ export class glTFShader {
     // todo
     static init() {
 
-        Shader3D.addInclude("glTFMetallicRoughness.glsl", glTFMetallicRoughnessGLSL);
-
         this.Define_BaseColorMap = Shader3D.getDefineByName("BASECOLORMAP");
         this.Define_BaseColorMapTransform = Shader3D.getDefineByName("BASECOLORMAP_TRANSFORM");
 
@@ -123,6 +122,13 @@ export class glTFShader {
         this.Define_SpecularColorMap = Shader3D.getDefineByName("SPECULARCOLORMAP");
         this.Define_SpecularColorMapTransform = Shader3D.getDefineByName("SPECULARCOLORMAP_TRANSFORM");
 
+
+        let shader = Shader3D.find(glTFShader.name);
+        if (shader) {
+            return;
+        }
+
+        Shader3D.addInclude("glTFMetallicRoughness.glsl", glTFMetallicRoughnessGLSL);
         let uniformMap = {
             // render 
             "u_AlphaTestValue": ShaderDataType.Float,
@@ -216,32 +222,62 @@ export class glTFShader {
             "u_AlphaTestValue": 0.5,
             // surface
             "u_BaseColorFactor": Vector4.ONE,
-            "u_BaseColorTexture": Texture2D.whiteTexture,
+            "u_BaseColorMapTransform": Matrix3x3.DEFAULT,
             "u_Specular": 0.5,
             "u_MetallicFactor": 1.0,
             "u_RoughnessFactor": 1.0,
+            "u_MetallicRoughnessMapTransform": Matrix3x3.DEFAULT,
+
+            "u_NormalMapTransform": Matrix3x3.DEFAULT,
             "u_NormalScale": 1.0,
+            "u_OcclusionMapTransform": Matrix3x3.DEFAULT,
             "u_OcclusionStrength": 1.0,
+
             "u_EmissionFactor": Vector3.ZERO,
+            "u_EmissionMapTransform": Matrix3x3.DEFAULT,
             "u_EmissionStrength": 1.0,
 
             // specular
             "u_SpecularFactor": 1.0,
+            "u_SpecularFactorMapTransfrom": Matrix3x3.DEFAULT,
             "u_SpecularColorFactor": Vector3.ONE,
+            "u_SpecularColorMapTransform": Matrix3x3.DEFAULT,
 
             "u_Ior": 1.5,
 
             // clear coat
-            "u_ClearcoatFactor": 0.0,
+            "u_ClearCoatFactor": 0.0,
+            "u_ClearCoatMapTransform": Matrix3x3.DEFAULT,
             "u_ClearCoatRoughness": 0.0,
+            "u_ClearCoatRoughnessMapTransform": Matrix3x3.DEFAULT,
+            "u_ClearCoatNormalMapTransform": Matrix3x3.DEFAULT,
             "u_ClearCoatNormalScale": 1.0,
 
             // anisotropy
             "u_AnisotropyStrength": 0.0,
-            "u_AnisotropyRotation": 0.0
+            "u_AnisotropyRotation": 0.0,
+            "u_AnisotropyMapTransform": Matrix3x3.DEFAULT,
+
+            // iridescence
+            "u_IridescenceFactor": 0.0,
+            "u_IridescenceMapTransform": Matrix3x3.DEFAULT,
+            "u_IridescenceIor": 1.33,
+            "u_IridescenceThicknessMinimum": 100,
+            "u_IridescenceThicknessMaximum": 400,
+            "u_IridescenceThicknessMapTransform": Matrix3x3.DEFAULT,
+
+            // sheen
+            "u_SheenColorFactor": Vector3.ZERO,
+            "u_SheenColorMapTransform": Matrix3x3.DEFAULT,
+            "u_SheenRoughness": 0.0,
+            "u_SheenRoughnessMapTransform": Matrix3x3.DEFAULT,
+
+            // transmission
+            "u_TransmissionFactor": 0.0,
+            "u_TransmissionMapTransform": Matrix3x3.DEFAULT,
         }
 
-        let shader = Shader3D.add("glTFPBR", true, true);
+        shader = Shader3D.add("glTFPBR", true, true);
         let subShader = new SubShader(SubShader.DefaultAttributeMap, uniformMap, defaultValue);
         shader.addSubShader(subShader);
 
