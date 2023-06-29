@@ -686,8 +686,7 @@ export class glTFResource extends Prefab {
             filterMode: this.getTextureFilterMode(glTFSampler),
             wrapModeU: this.getTextureWrapMode(glTFSampler.wrapS),
             wrapModeV: this.getTextureWrapMode(glTFSampler.wrapT),
-            // todo aniso值 设置 默认值 ?
-            anisoLevel: 16,
+            anisoLevel: 1,
             hdrEncodeFormat: HDREncodeFormat.NONE
         };
         return propertyParams;
@@ -760,6 +759,7 @@ export class glTFResource extends Prefab {
                 if (pbrMetallicRoughness.baseColorTexture) {
                     let tex = this.getTextureWithInfo(pbrMetallicRoughness.baseColorTexture);
                     material.setTexture("u_BaseColorTexture", tex);
+                    material.setDefine(glTFShader.Define_BaseMap, true);
                 }
 
                 let metallicFactor = pbrMetallicRoughness.metallicFactor ?? 1.0;

@@ -24,12 +24,21 @@ void initSurfaceInputs(inout SurfaceInputs inputs, const in PixelParams pixel)
     inputs.diffuseColor = u_BaseColorFactor.xyz;
     inputs.alpha = u_BaseColorFactor.w;
 
+#ifdef COLOR
+    #ifdef ENABLEVERTEXCOLOR
+    inputs.diffuseColor *= pixel.vertexColor.xyz;
+    inputs.alpha *= pixel.vertexColor.a;
+    #endif // ENABLEVERTEXCOLOR
+#endif // COLOR
+
+#ifdef BASECOLORMAP
     vec4 baseColorSampler = texture2D(u_BaseColorTexture, uv);
 #ifdef Gamma_u_BaseColorTexture
     baseColorSampler = gammaToLinear(baseColorSampler);
 #endif // u_BaseColorTexture_Gamma
     inputs.diffuseColor *= baseColorSampler.rgb;
     inputs.alpha *= baseColorSampler.a;
+#endif // BASECOLORMAP
 
     inputs.metallic = u_MetallicFactor;
     float roughness = u_RoughnessFactor;

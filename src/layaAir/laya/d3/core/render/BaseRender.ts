@@ -439,6 +439,7 @@ export class BaseRender extends Component implements IBoundsCell {
             this._shaderValues.removeDefine(Sprite3DRenderDeclaration.SHADERDEFINE_SPECCUBE_BOX_PROJECTION);
             this._shaderValues.addDefine(Sprite3DRenderDeclaration.SHADERDEFINE_GI_IBL);
             this._setShaderValue(RenderableSprite3D.IBLTEX, ShaderDataType.TextureCube, TextureCube.blackTexture);
+            this._setShaderValue(RenderableSprite3D.IBLROUGHNESSLEVEL, ShaderDataType.Float, 0);
         } else {
             this._probReflection.applyReflectionShaderData(this._shaderValues);
         }

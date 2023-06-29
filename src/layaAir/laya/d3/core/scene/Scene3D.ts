@@ -291,6 +291,15 @@ export class Scene3D extends Sprite implements ISubmit {
             configShaderValue.add(Shader3D.SHADERDEFINE_ENUNIFORMBLOCK);
 
         Physics3D._bullet && (Scene3D.physicsSettings = new PhysicsSettings());
+        
+        let supportFloatTex = LayaGL.renderEngine.getCapable(RenderCapable.TextureFormat_R32G32B32A32);
+        if (supportFloatTex) {
+            configShaderValue.add(Shader3D.SHADERDEFINE_FLOATTEXTURE);
+        }
+        let supportFloatLinearFiltering = LayaGL.renderEngine.getCapable(RenderCapable.Texture_FloatLinearFiltering);
+        if (supportFloatLinearFiltering) {
+            configShaderValue.add(Shader3D.SHADERDEFINE_FLOATTEXTURE_FIL_LINEAR);
+        }
     }
 
     /**

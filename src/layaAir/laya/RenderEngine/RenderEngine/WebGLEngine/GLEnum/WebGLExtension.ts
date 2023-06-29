@@ -17,5 +17,6 @@ export enum WebGLExtension{
     WEBGL_compressed_texture_pvrtc,
     WEBGL_compressed_texture_etc1,
     WEBGL_compressed_texture_etc,
-    WEBGL_compressed_texture_astc
+    WEBGL_compressed_texture_astc,
+    OES_standard_derivatives,
 }

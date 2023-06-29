@@ -42,6 +42,8 @@ export class RenderableSprite3D extends Sprite3D {
 	/** @internal */
 	static IBLTEX: number;
 	/** @internal */
+	static IBLROUGHNESSLEVEL: number;
+	/** @internal */
 	static AMBIENTSH: number;
 	/** @internal */
 	static AMBIENTCOLOR: number;
@@ -151,6 +153,7 @@ export class RenderableSprite3D extends Sprite3D {
 		RenderableSprite3D.AMBIENTINTENSITY = Shader3D.propertyNameToID("u_AmbientIntensity");
 		RenderableSprite3D.REFLECTIONINTENSITY = Shader3D.propertyNameToID("u_ReflectionIntensity");
 		RenderableSprite3D.IBLTEX = Shader3D.propertyNameToID("u_IBLTex");
+		RenderableSprite3D.IBLROUGHNESSLEVEL = Shader3D.propertyNameToID("u_IBLRoughnessLevel");
 
 		const commandUniform = LayaGL.renderOBJCreate.createGlobalUniformMap("Sprite3D");
 
@@ -184,6 +187,7 @@ export class RenderableSprite3D extends Sprite3D {
 		commandUniform.addShaderUniform(RenderableSprite3D.REFLECTIONCUBE_PROBEBOXMAX, "u_SpecCubeBoxMax");
 		commandUniform.addShaderUniform(RenderableSprite3D.REFLECTIONCUBE_PROBEBOXMIN, "u_SpecCubeBoxMin");
 		commandUniform.addShaderUniform(RenderableSprite3D.IBLTEX, "u_IBLTex");
+		commandUniform.addShaderUniform(RenderableSprite3D.IBLROUGHNESSLEVEL, "u_IBLRoughnessLevel");
 		commandUniform.addShaderUniform(RenderableSprite3D.VOLUMETRICGI_PROBECOUNTS, "u_VolumetricGI.probeCounts");
 		commandUniform.addShaderUniform(RenderableSprite3D.VOLUMETRICGI_PROBESTEPS, "u_VolumetricGI.probeStep");
 		commandUniform.addShaderUniform(RenderableSprite3D.VOLUMETRICGI_PROBESTARTPOS, "u_VolumetricGI.probeStartPosition");
