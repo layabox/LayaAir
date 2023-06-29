@@ -2,7 +2,6 @@ import { Laya } from "Laya";
 import { Graphics } from "laya/display/Graphics";
 import { Sprite } from "laya/display/Sprite";
 import { Browser } from "laya/utils/Browser";
-import { WebGL } from "laya/webgl/WebGL";
 import { Main } from "./../Main";
 
 /**
@@ -23,17 +22,17 @@ export class PIXI_Example_21 {
 	Main: typeof Main = null;
 	constructor(maincls: typeof Main) {
 		this.Main = maincls;
+		Laya.init(Browser.width, Browser.height).then(() => {
+			Laya.stage.bgColor = "#3da8bb";
 
-		Laya.init(Browser.width, Browser.height, WebGL);
-		Laya.stage.bgColor = "#3da8bb";
+			this.createCanvases();
 
-		this.createCanvases();
+			Laya.timer.frameLoop(1, this, this.animate);
 
-		Laya.timer.frameLoop(1, this, this.animate);
-
-		Laya.stage.on('mousedown', this, this.onMouseDown);
-		Laya.stage.on('mousemove', this, this.onMouseMove);
-		Laya.stage.on('mouseup', this, this.onMouseUp);
+			Laya.stage.on('mousedown', this, this.onMouseDown);
+			Laya.stage.on('mousemove', this, this.onMouseMove);
+			Laya.stage.on('mouseup', this, this.onMouseUp);
+		});
 	}
 
 	private createCanvases(): void {
@@ -67,6 +66,10 @@ export class PIXI_Example_21 {
 	private animate(): void {
 		this.liveGraphics.clear();
 		this.liveGraphics.drawPoly(0, 0, this.path, this.color);
+	}
+
+	dispose(){
+		Laya.timer.clear(this, this.animate);
 	}
 }
 

@@ -20,19 +20,20 @@ export class Skeleton_SpineStretchyman {
 	constructor(maincls: typeof Main) {
 		this.Main = maincls;
 
-		Laya.init(Browser.width, Browser.height);
-		Laya.stage.bgColor = "#ffffff";
-		Stat.show();
+		Laya.init(Browser.width, Browser.height).then(() => {
+			Laya.stage.bgColor = "#ffffff";
+			Stat.show();
 
-		Laya.loader.load("res/spine/spineRes4/stretchyman.sk").then((templet: Templet) => {
-			//创建模式为1，可以启用换装
-			this.mArmature = templet.buildArmature(1);
-			this.mArmature.x = this.mStartX;
-			this.mArmature.y = this.mStartY;
-			//mArmature.scale(0.5, 0.5);
-			this.Main.box2D.addChild(this.mArmature);
-			this.mArmature.on(Event.STOPPED, this, this.completeHandler);
-			this.play();
+			Laya.loader.load("res/spine/spineRes4/stretchyman.sk").then((templet: Templet) => {
+				//创建模式为1，可以启用换装
+				this.mArmature = templet.buildArmature(1);
+				this.mArmature.x = this.mStartX;
+				this.mArmature.y = this.mStartY;
+				//mArmature.scale(0.5, 0.5);
+				this.Main.box2D.addChild(this.mArmature);
+				this.mArmature.on(Event.STOPPED, this, this.completeHandler);
+				this.play();
+			});
 		});
 	}
 

@@ -4,7 +4,6 @@ import { Rectangle } from "laya/maths/Rectangle";
 import { Browser } from "laya/utils/Browser";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
-import { WebGL } from "laya/webgl/WebGL";
 import { Main } from "./../Main";
 
 export class PerformanceTest_Maggots {
@@ -21,13 +20,14 @@ export class PerformanceTest_Maggots {
 	Main: typeof Main = null;
 	constructor(maincls: typeof Main) {
 		this.Main = maincls;
-		Laya.init(Browser.width, Browser.height, WebGL);
-		Laya.stage.bgColor = "#000000";
-		Stat.show();
+		Laya.init(Browser.width, Browser.height).then(() => {
+			Laya.stage.bgColor = "#000000";
+			Stat.show();
 
-		this.wrapBounds = new Rectangle(-this.padding, -this.padding, Laya.stage.width + this.padding * 2, Laya.stage.height + this.padding * 2);
+			this.wrapBounds = new Rectangle(-this.padding, -this.padding, Laya.stage.width + this.padding * 2, Laya.stage.height + this.padding * 2);
 
-		Laya.loader.load(this.texturePath, Handler.create(this, this.onTextureLoaded));
+			Laya.loader.load(this.texturePath, Handler.create(this, this.onTextureLoaded));
+		});
 	}
 
 	private onTextureLoaded(e: any = null): void {

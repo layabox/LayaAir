@@ -5,7 +5,6 @@ import { ColorFilter } from "laya/filters/ColorFilter";
 import { Texture } from "laya/resource/Texture";
 import { Browser } from "laya/utils/Browser";
 import { Handler } from "laya/utils/Handler";
-import { WebGL } from "laya/webgl/WebGL";
 import { Main } from "./../Main";
 
 export class Filters_Color {
@@ -17,16 +16,16 @@ export class Filters_Color {
 	constructor(maincls: typeof Main) {
 		this.Main = maincls;
 
-		// 不支持WebGL时自动切换至Canvas
-		Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
+		Laya.init(Browser.clientWidth, Browser.clientHeight).then(() => {
+			Laya.stage.alignV = Stage.ALIGN_MIDDLE;
+			Laya.stage.alignH = Stage.ALIGN_CENTER;
 
-		Laya.stage.alignV = Stage.ALIGN_MIDDLE;
-		Laya.stage.alignH = Stage.ALIGN_CENTER;
+			Laya.stage.scaleMode = "showall";
+			Laya.stage.bgColor = "#232628";
 
-		Laya.stage.scaleMode = "showall";
-		Laya.stage.bgColor = "#232628";
+			Laya.loader.load(this.ApePath, Handler.create(this, this.setup));
+		});
 
-		Laya.loader.load(this.ApePath, Handler.create(this, this.setup));
 	}
 
 	private setup(e: any = null): void {

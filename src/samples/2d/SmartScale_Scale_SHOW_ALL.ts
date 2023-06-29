@@ -9,10 +9,11 @@ export class SmartScale_Scale_SHOW_ALL {
 	Main: typeof Main = null;
 	constructor(maincls: typeof Main) {
 		this.Main = maincls;
-		Laya.init(550, 400);
-		Laya.stage.scaleMode = Stage.SCALE_SHOWALL;
-		Laya.stage.bgColor = "#232628";
-		this.createCantralRect();
+		Laya.init(550, 400).then(() => {
+			Laya.stage.scaleMode = Stage.SCALE_SHOWALL;
+			Laya.stage.bgColor = "#232628";
+			this.createCantralRect();
+		});
 	}
 
 	private createCantralRect(): void {

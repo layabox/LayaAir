@@ -2,7 +2,6 @@ import { Laya } from "Laya";
 import { Stage } from "laya/display/Stage";
 import { TiledMap } from "laya/map/TiledMap";
 import { Rectangle } from "laya/maths/Rectangle";
-import { Resource } from "laya/resource/Resource";
 import { Handler } from "laya/utils/Handler";
 import { Main } from "./../Main";
 export class TiledMap_PerspectiveWall {
@@ -10,13 +9,14 @@ export class TiledMap_PerspectiveWall {
 	Main: typeof Main = null;
 	constructor(maincls: typeof Main) {
 		this.Main = maincls;
-		Laya.init(700, 500);
-		Laya.stage.alignV = Stage.ALIGN_MIDDLE;
-		Laya.stage.alignH = Stage.ALIGN_CENTER;
+		Laya.init(700, 500).then(() => {
+			Laya.stage.alignV = Stage.ALIGN_MIDDLE;
+			Laya.stage.alignH = Stage.ALIGN_CENTER;
 
-		Laya.stage.bgColor = "#232628";
+			Laya.stage.bgColor = "#232628";
 
-		this.createMap();
+			this.createMap();
+		});
 	}
 
 	private createMap(): void {

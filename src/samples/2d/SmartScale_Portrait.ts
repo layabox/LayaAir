@@ -1,7 +1,6 @@
 import { Laya } from "Laya";
 import { Stage } from "laya/display/Stage";
 import { Text } from "laya/display/Text";
-import { WebGL } from "laya/webgl/WebGL";
 import { Main } from "./../Main";
 
 export class SmartScale_Portrait {
@@ -9,18 +8,18 @@ export class SmartScale_Portrait {
 	constructor(maincls: typeof Main) {
 		this.Main = maincls;
 
-		// 不支持WebGL时自动切换至Canvas
-		Laya.init(550, 400, WebGL);
+		Laya.init(550, 400).then(() => {
+			Laya.stage.alignV = Stage.ALIGN_MIDDLE;
+			Laya.stage.alignH = Stage.ALIGN_CENTER;
 
-		Laya.stage.alignV = Stage.ALIGN_MIDDLE;
-		Laya.stage.alignH = Stage.ALIGN_CENTER;
+			Laya.stage.scaleMode = "showall";
+			Laya.stage.screenMode = Stage.SCREEN_VERTICAL;
 
-		Laya.stage.scaleMode = "showall";
-		Laya.stage.screenMode = Stage.SCREEN_VERTICAL;
+			Laya.stage.bgColor = "#232628";
 
-		Laya.stage.bgColor = "#232628";
+			this.showText();
+		});
 
-		this.showText();
 	}
 
 	private showText(): void {

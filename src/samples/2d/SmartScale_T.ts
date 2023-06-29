@@ -5,7 +5,6 @@ import { Stage } from "laya/display/Stage"
 import { Text } from "laya/display/Text"
 import { Event } from "laya/events/Event"
 import { Image } from "laya/ui/Image"
-import { WebGL } from "laya/webgl/WebGL"
 
 export class SmartScale_T {
 
@@ -19,51 +18,51 @@ export class SmartScale_T {
 	Main: typeof Main = null;
 	constructor(maincls: typeof Main) {
 		this.Main = maincls;
-		// 不支持WebGL时自动切换至Canvas
-		Laya.init(1136, 640, WebGL);
+		Laya.init(1136, 640).then(() => {
+			//设置适配模式
+			Laya.stage.scaleMode = "noscale";
+			//设置横竖屏
+			Laya.stage.screenMode = Stage.SCREEN_HORIZONTAL;
+			//设置水平对齐
+			Laya.stage.alignH = "center";
+			//设置垂直对齐
+			Laya.stage.alignV = "middle";
 
-		//设置适配模式
-		Laya.stage.scaleMode = "noscale";
-		//设置横竖屏
-		Laya.stage.screenMode = Stage.SCREEN_HORIZONTAL;
-		//设置水平对齐
-		Laya.stage.alignH = "center";
-		//设置垂直对齐
-		Laya.stage.alignV = "middle";
+			//实例一个背景
+			var bg: Image = new Image();
+			bg.skin = "res/bg.jpg";
+			this.Main.box2D.addChild(bg);
 
-		//实例一个背景
-		var bg: Image = new Image();
-		bg.skin = "res/bg.jpg";
-		this.Main.box2D.addChild(bg);
+			//实例一个文本
+			this.txt = new Text();
+			this.txt.text = "点击我切换适配模式(noscale)";
+			this.txt.bold = true;
+			this.txt.pos(0, 200);
+			this.txt.fontSize = 30;
+			this.txt.on("click", this, this.onTxtClick);
+			this.Main.box2D.addChild(this.txt);
 
-		//实例一个文本
-		this.txt = new Text();
-		this.txt.text = "点击我切换适配模式(noscale)";
-		this.txt.bold = true;
-		this.txt.pos(0, 200);
-		this.txt.fontSize = 30;
-		this.txt.on("click", this, this.onTxtClick);
-		this.Main.box2D.addChild(this.txt);
+			//实例一个小人，放到右上角，并相对布局
+			var boy1: Image = new Image();
+			boy1.skin = "res/cartoonCharacters/1.png";
+			boy1.top = 0;
+			boy1.right = 0;
+			boy1.on("click", this, this.onBoyClick);
+			this.Main.box2D.addChild(boy1);
 
-		//实例一个小人，放到右上角，并相对布局
-		var boy1: Image = new Image();
-		boy1.skin = "res/cartoonCharacters/1.png";
-		boy1.top = 0;
-		boy1.right = 0;
-		boy1.on("click", this, this.onBoyClick);
-		this.Main.box2D.addChild(boy1);
+			//实例一个小人，放到右下角，并相对布局
+			var boy2: Image = new Image();
+			boy2.skin = "res/cartoonCharacters/2.png";
+			boy2.bottom = 0;
+			boy2.right = 0;
+			boy2.on("click", this, this.onBoyClick);
+			this.Main.box2D.addChild(boy2);
 
-		//实例一个小人，放到右下角，并相对布局
-		var boy2: Image = new Image();
-		boy2.skin = "res/cartoonCharacters/2.png";
-		boy2.bottom = 0;
-		boy2.right = 0;
-		boy2.on("click", this, this.onBoyClick);
-		this.Main.box2D.addChild(boy2);
+			//侦听点击事件，输出坐标信息
+			Laya.stage.on("click", this, this.onClick);
+			Laya.stage.on("resize", this, this.onResize);
+		});
 
-		//侦听点击事件，输出坐标信息
-		Laya.stage.on("click", this, this.onClick);
-		Laya.stage.on("resize", this, this.onResize);
 	}
 
 	private onBoyClick(e: Event): void {

@@ -11,7 +11,6 @@ import { Physics } from "laya/physics/Physics";
 import { PhysicsDebugDraw } from "laya/physics/PhysicsDebugDraw";
 import { RigidBody } from "laya/physics/RigidBody";
 import { Stat } from "laya/utils/Stat";
-import { WebGL } from "laya/webgl/WebGL";
 import { Main } from "../Main";
 
 /**
@@ -27,16 +26,17 @@ export class Physics_CollisionEvent {
     constructor(maincls: typeof Main) {
         this.Main = maincls;
         Config.isAntialias = true;
-        Laya.init(1200, 700, WebGL);
-        Stat.show();
-        Physics.enable();
-        PhysicsDebugDraw.enable();
-		Laya.stage.alignV = Stage.ALIGN_MIDDLE;
-		Laya.stage.alignH = Stage.ALIGN_CENTER;
-		Laya.stage.scaleMode = Stage.SCALE_FIXED_AUTO;
-		Laya.stage.bgColor = "#232628";
+        Laya.init(1200, 700).then(() => {
+            Stat.show();
+            Physics.enable();
+            PhysicsDebugDraw.enable();
+            Laya.stage.alignV = Stage.ALIGN_MIDDLE;
+            Laya.stage.alignH = Stage.ALIGN_CENTER;
+            Laya.stage.scaleMode = Stage.SCALE_FIXED_AUTO;
+            Laya.stage.bgColor = "#232628";
 
-        this.createSensor();
+            this.createSensor();
+        });
     }
 
     createSensor() {
@@ -61,7 +61,7 @@ export class Physics_CollisionEvent {
             let rb: RigidBody = sp.addComponent(RigidBody);
             this.bodys.push(rb);
             this.touching[i] = false;
-            rb.getBody().SetUserData({'pointer': i});
+            rb.getBody().SetUserData({ 'pointer': i });
             let circleCollider: CircleCollider = sp.addComponent(CircleCollider);
             circleCollider.radius = 20;
             sp.addComponent(MouseJoint);

@@ -2,7 +2,6 @@ import { Laya } from "Laya";
 import { Stage } from "laya/display/Stage";
 import { Tab } from "laya/ui/Tab";
 import { Handler } from "laya/utils/Handler";
-import { WebGL } from "laya/webgl/WebGL";
 import { Main } from "./../Main";
 
 export class UI_Tab {
@@ -12,17 +11,17 @@ export class UI_Tab {
 	constructor(maincls: typeof Main) {
 		this.Main = maincls;
 
-		// 不支持WebGL时自动切换至Canvas
-		Laya.init(550, 400, WebGL);
+		Laya.init(550, 400).then(() => {
+			Laya.stage.alignV = Stage.ALIGN_MIDDLE;
+			Laya.stage.alignH = Stage.ALIGN_CENTER;
 
-		Laya.stage.alignV = Stage.ALIGN_MIDDLE;
-		Laya.stage.alignH = Stage.ALIGN_CENTER;
+			Laya.stage.scaleMode = Stage.SCALE_SHOWALL;
+			Laya.stage.bgColor = "#232628";
 
-		Laya.stage.scaleMode = Stage.SCALE_SHOWALL;
-		Laya.stage.bgColor = "#232628";
+			Laya.stage.bgColor = "#3d3d3d";
+			Laya.loader.load(this.skins, Handler.create(this, this.onSkinLoaded));
+		});
 
-		Laya.stage.bgColor = "#3d3d3d";
-		Laya.loader.load(this.skins, Handler.create(this, this.onSkinLoaded));
 	}
 
 	private onSkinLoaded(e: any = null): void {

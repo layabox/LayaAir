@@ -3,7 +3,6 @@ import { Stage } from "laya/display/Stage";
 import { HScrollBar } from "laya/ui/HScrollBar";
 import { VScrollBar } from "laya/ui/VScrollBar";
 import { Handler } from "laya/utils/Handler";
-import { WebGL } from "laya/webgl/WebGL";
 import { Main } from "./../Main";
 
 export class UI_ScrollBar {
@@ -11,19 +10,19 @@ export class UI_ScrollBar {
 	constructor(maincls: typeof Main) {
 		this.Main = maincls;
 
-		// 不支持WebGL时自动切换至Canvas
-		Laya.init(550, 400, WebGL);
+		Laya.init(550, 400).then(() => {
+			Laya.stage.alignV = Stage.ALIGN_MIDDLE;
+			Laya.stage.alignH = Stage.ALIGN_CENTER;
 
-		Laya.stage.alignV = Stage.ALIGN_MIDDLE;
-		Laya.stage.alignH = Stage.ALIGN_CENTER;
+			Laya.stage.scaleMode = Stage.SCALE_SHOWALL;
+			Laya.stage.bgColor = "#232628";
 
-		Laya.stage.scaleMode = Stage.SCALE_SHOWALL;
-		Laya.stage.bgColor = "#232628";
+			var skins: any[] = [];
+			skins.push("res/ui/hscroll.png", "res/ui/hscroll$bar.png", "res/ui/hscroll$down.png", "res/ui/hscroll$up.png");
+			skins.push("res/ui/vscroll.png", "res/ui/vscroll$bar.png", "res/ui/vscroll$down.png", "res/ui/vscroll$up.png");
+			Laya.loader.load(skins, Handler.create(this, this.onSkinLoadComplete));
+		});
 
-		var skins: any[] = [];
-		skins.push("res/ui/hscroll.png", "res/ui/hscroll$bar.png", "res/ui/hscroll$down.png", "res/ui/hscroll$up.png");
-		skins.push("res/ui/vscroll.png", "res/ui/vscroll$bar.png", "res/ui/vscroll$down.png", "res/ui/vscroll$up.png");
-		Laya.loader.load(skins, Handler.create(this, this.onSkinLoadComplete));
 	}
 
 	private onSkinLoadComplete(e: any = null): void {

@@ -45,17 +45,17 @@ export class InputDevice_Video {
     constructor(maincls: typeof Main) {
         this.Main = maincls;
 
-        Laya.init(650, 350);
-        Stat.show();
+        Laya.init(650, 350).then(() => {
+            Stat.show();
 
-        Laya.stage.alignV = Stage.ALIGN_MIDDLE;
-        Laya.stage.alignH = Stage.ALIGN_CENTER;
+            Laya.stage.alignV = Stage.ALIGN_MIDDLE;
+            Laya.stage.alignH = Stage.ALIGN_CENTER;
 
-        Laya.stage.scaleMode = Stage.SCALE_SHOWALL;
-        Laya.stage.bgColor = "#FFFFFF";
-        Laya.loader.load(
-            [this.BackgroundSkin, this.TimeLineBoxSkin, this.TimeLineSkin, this.ColorTimelineSkin, this.PauseButtonSkin, this.PlayButtonSkin, this.NormalSoundControlSkin, this.SoundBgControlSkin, this.MuteButtonSkin, this.VolumnLineSkin, this.VolumeSliderSkin, this.PlayHeadSliderSkin],
-            Handler.create(this, this.setupUI));
+            Laya.stage.scaleMode = Stage.SCALE_SHOWALL;
+            Laya.loader.load(
+                [this.BackgroundSkin, this.TimeLineBoxSkin, this.TimeLineSkin, this.ColorTimelineSkin, this.PauseButtonSkin, this.PlayButtonSkin, this.NormalSoundControlSkin, this.SoundBgControlSkin, this.MuteButtonSkin, this.VolumnLineSkin, this.VolumeSliderSkin, this.PlayHeadSliderSkin],
+                Handler.create(this, this.setupUI));
+        });
     }
 
     // 以下是UI创建
@@ -248,7 +248,6 @@ export class InputDevice_Video {
     private createVideo(): void {
         this.video = new VideoNode();
         this.video.videoTexture = new VideoTexture();
-
         // 检查浏览器兼容性
         if (this.video.canPlayType("mp4") == "" && this.video.canPlayType("ogg") == "") {
             alert("当前浏览器不支持播放本视频");
@@ -296,13 +295,17 @@ export class InputDevice_Video {
         this.video.width = this.video.videoWidth;
         this.video.height = this.video.videoHeight;
 
-        this.video.x = (Laya.stage.width - this.video.width) / 2;
+        this.video.x = 160;
         this.video.y = 65;
     }
 
     private loop(): void {
         this.playProgressScrollRect.width = this.video.currentTime / this.video.duration * this.colorTimeline.width;
         this.playHeadSlider.x = 143 + this.playProgressScrollRect.width;
+    }
+
+    dispose() {
+        Laya.timer.clear(this, this.loop);
     }
 }
 

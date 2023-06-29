@@ -21,12 +21,13 @@ export class InputDevice_Shake {
 	constructor(maincls: typeof Main) {
 		this.Main = maincls;
 
-		Laya.init(this.picW, Browser.height * this.picW / Browser.width);
-		Laya.stage.scaleMode = Stage.SCALE_SHOWALL;
+		Laya.init(this.picW, Browser.height * this.picW / Browser.width).then(() => {
+			Laya.stage.scaleMode = Stage.SCALE_SHOWALL;
 
-		this.showShakePic();
-		this.showConsoleText();
-		this.startShake();
+			this.showShakePic();
+			this.showConsoleText();
+			this.startShake();
+		});
 	}
 
 	private showShakePic(): void {

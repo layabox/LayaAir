@@ -3,7 +3,6 @@ import { Stage } from "laya/display/Stage";
 import { TextArea } from "laya/ui/TextArea";
 import { Browser } from "laya/utils/Browser";
 import { Handler } from "laya/utils/Handler";
-import { WebGL } from "laya/webgl/WebGL";
 import { Main } from "./../Main";
 
 export class UI_TextArea {
@@ -13,17 +12,16 @@ export class UI_TextArea {
 	constructor(maincls: typeof Main) {
 		this.Main = maincls;
 
-		// 不支持WebGL时自动切换至Canvas
-		Laya.init(550, 400, WebGL);
+		Laya.init(550, 400).then(() => {
+			Laya.stage.alignV = Stage.ALIGN_MIDDLE;
+			Laya.stage.alignH = Stage.ALIGN_CENTER;
 
-		Laya.stage.alignV = Stage.ALIGN_MIDDLE;
-		Laya.stage.alignH = Stage.ALIGN_CENTER;
+			Laya.stage.scaleMode = Stage.SCALE_SHOWALL;
+			Laya.stage.bgColor = "#232628";
 
-		Laya.stage.scaleMode = Stage.SCALE_SHOWALL;
-		Laya.stage.bgColor = "#232628";
+			Laya.loader.load(this.skin, Handler.create(this, this.onLoadComplete));
+		});
 
-
-		Laya.loader.load(this.skin, Handler.create(this, this.onLoadComplete));
 	}
 
 	private onLoadComplete(e: any = null): void {

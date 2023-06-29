@@ -9,7 +9,6 @@ import { BoxCollider } from "laya/physics/BoxCollider";
 import { ChainCollider } from "laya/physics/ChainCollider";
 import { CircleCollider } from "laya/physics/CircleCollider";
 import { DistanceJoint } from "laya/physics/joint/DistanceJoint";
-import { MouseJoint } from "laya/physics/joint/MouseJoint";
 import { RevoluteJoint } from "laya/physics/joint/RevoluteJoint";
 import { Physics } from "laya/physics/Physics";
 import { PhysicsDebugDraw } from "laya/physics/PhysicsDebugDraw";
@@ -17,7 +16,6 @@ import { PolygonCollider } from "laya/physics/PolygonCollider";
 import { RigidBody } from "laya/physics/RigidBody";
 import { Label } from "laya/ui/Label";
 import { Stat } from "laya/utils/Stat";
-import { WebGL } from "laya/webgl/WebGL";
 import { Main } from "../Main";
 
 /**
@@ -37,17 +35,18 @@ export class Physics_Strandbeests {
     constructor(maincls: typeof Main) {
         this.Main = maincls;
         Config.isAntialias = true;
-        Laya.init(1200, 700, WebGL);
-        Stat.show();
-        Physics.enable();
-        PhysicsDebugDraw.enable();
-		Laya.stage.alignV = Stage.ALIGN_MIDDLE;
-		Laya.stage.alignH = Stage.ALIGN_CENTER;
-		Laya.stage.scaleMode = Stage.SCALE_FIXED_AUTO;
-		Laya.stage.bgColor = "#232628";
+        Laya.init(1200, 700).then(() => {
+            Stat.show();
+            Physics.enable();
+            PhysicsDebugDraw.enable();
+            Laya.stage.alignV = Stage.ALIGN_MIDDLE;
+            Laya.stage.alignH = Stage.ALIGN_CENTER;
+            Laya.stage.scaleMode = Stage.SCALE_FIXED_AUTO;
+            Laya.stage.bgColor = "#232628";
 
-        this.Construct();
-        this.eventListener();
+            this.Construct();
+            this.eventListener();
+        });
     }
 
     Construct() {
@@ -124,9 +123,9 @@ export class Physics_Strandbeests {
         const p1 = [54 * s * this.scale, -61 * -1 * this.scale];
         const p2 = [72 * s * this.scale, -12 * -1 * this.scale];
         const p3 = [43 * s * this.scale, -19 * -1 * this.scale];
-        const p4 = [31 * s * this.scale,  8  * -1 * this.scale];
-        const p5 = [60 * s * this.scale,  15 * -1 * this.scale];
-        const p6 = [25 * s * this.scale,  37 * -1 * this.scale];
+        const p4 = [31 * s * this.scale, 8 * -1 * this.scale];
+        const p5 = [60 * s * this.scale, 15 * -1 * this.scale];
+        const p6 = [25 * s * this.scale, 37 * -1 * this.scale];
 
         let leg1 = new Sprite();
         leg1.pos(this.pos[0] + this.m_offset[0], this.pos[1] + this.m_offset[1] + 16 * this.scale); // TODO 这里的数值待优化
@@ -152,7 +151,7 @@ export class Physics_Strandbeests {
             legCollider1.points = p1.concat(p3).concat(p2).join(",");
             legCollider2.points = [0, 0].concat(B2Math.SubVV(p6, p4)).concat(B2Math.SubVV(p5, p4)).join(",");
         }
-        
+
         const dampingRatio: number = 0.5;
         const frequencyHz: number = 10.0;
         let distanceJoint1: DistanceJoint = new DistanceJoint();
@@ -174,7 +173,7 @@ export class Physics_Strandbeests {
         distanceJoint2.maxLength = distanceJoint2.minLength = distanceJoint2.length || distanceJoint2.joint.GetLength() * Physics.PIXEL_RATIO;;
 
         let localAnchor = new box2d.b2Vec2();
-        wheelBody.getBody().GetLocalPoint({'x': (this.pos[0] + this.m_offset[0]) / Physics.PIXEL_RATIO, 'y': (this.pos[1] + this.m_offset[1]) / Physics.PIXEL_RATIO}, localAnchor);
+        wheelBody.getBody().GetLocalPoint({ 'x': (this.pos[0] + this.m_offset[0]) / Physics.PIXEL_RATIO, 'y': (this.pos[1] + this.m_offset[1]) / Physics.PIXEL_RATIO }, localAnchor);
         let anchor = [-localAnchor.x * Physics.PIXEL_RATIO, -localAnchor.y * Physics.PIXEL_RATIO];
 
         let distanceJoint3: DistanceJoint = new DistanceJoint();
@@ -222,8 +221,8 @@ export class Physics_Strandbeests {
             let circlePosy = circleCollider.y / Physics.PIXEL_RATIO;
             let velocityX = chassisPos.x - circlePosx;
             let velocityY = chassisPos.y - circlePosy;
-            circleBody.linearVelocity = {"x": velocityX * 5, "y": velocityY * 5};
-            Laya.timer.frameOnce(120, this, function() {
+            circleBody.linearVelocity = { "x": velocityX * 5, "y": velocityY * 5 };
+            Laya.timer.frameOnce(120, this, function () {
                 newBall.destroy();
             });
         });

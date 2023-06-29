@@ -6,7 +6,6 @@ import { Rectangle } from "laya/maths/Rectangle";
 import { Texture } from "laya/resource/Texture";
 import { Browser } from "laya/utils/Browser";
 import { Handler } from "laya/utils/Handler";
-import { WebGL } from "laya/webgl/WebGL";
 import { Main } from "./../Main";
 
 export class Interaction_Drag {
@@ -19,16 +18,16 @@ export class Interaction_Drag {
 	constructor(maincls: typeof Main) {
 		this.Main = maincls;
 
-		// 不支持WebGL时自动切换至Canvas
-		Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
-		//
-		Laya.stage.alignV = Stage.ALIGN_MIDDLE;
-		Laya.stage.alignH = Stage.ALIGN_CENTER;
-		//
-		Laya.stage.scaleMode = "showall";
-		Laya.stage.bgColor = "#232628";
+		Laya.init(Browser.clientWidth, Browser.clientHeight).then(() => {
+			//
+			Laya.stage.alignV = Stage.ALIGN_MIDDLE;
+			Laya.stage.alignH = Stage.ALIGN_CENTER;
+			//
+			Laya.stage.scaleMode = "showall";
+			Laya.stage.bgColor = "#232628";
 
-		Laya.loader.load(this.ApePath, Handler.create(this, this.setup));
+			Laya.loader.load(this.ApePath, Handler.create(this, this.setup));
+		});
 	}
 
 	private setup(_e: any = null): void {

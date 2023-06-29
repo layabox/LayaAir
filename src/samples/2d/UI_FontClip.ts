@@ -1,7 +1,6 @@
 import { Laya } from "Laya";
 import { Stage } from "laya/display/Stage";
 import { FontClip } from "laya/ui/FontClip";
-import { WebGL } from "laya/webgl/WebGL";
 import { Handler } from "laya/utils/Handler";
 import { Main } from "../Main";
 export class UI_FontClip {
@@ -14,16 +13,15 @@ export class UI_FontClip {
     Main: typeof Main = null;
     constructor(maincls: typeof Main) {
         this.Main = maincls;
-        // 不支持WebGL时自动切换至Canvas
-        Laya.init(800, 600, WebGL);
-
-        Laya.stage.alignV = Stage.ALIGN_MIDDLE;
-        Laya.stage.alignH = Stage.ALIGN_CENTER;
-        Laya.stage.scaleMode = Stage.SCALE_SHOWALL;
-        Laya.stage.bgColor = "#232628";
-        Laya.loader.load([this.TestClipNum, this.TestFontClip, this._ClipNum, this._FontClip, this._ClipNum1], Handler.create(this, this.ShowContent));
+        Laya.init(800, 600).then(() => {
+            Laya.stage.alignV = Stage.ALIGN_MIDDLE;
+            Laya.stage.alignH = Stage.ALIGN_CENTER;
+            Laya.stage.scaleMode = Stage.SCALE_SHOWALL;
+            Laya.stage.bgColor = "#232628";
+            Laya.loader.load([this.TestClipNum, this.TestFontClip, this._ClipNum, this._FontClip, this._ClipNum1], Handler.create(this, this.ShowContent));
+        });
     }
-    
+
     private ShowContent(): void {
         var clipnum: FontClip = new FontClip(this._ClipNum);
         var fontClip: FontClip = new FontClip(this._FontClip);

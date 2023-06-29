@@ -3,7 +3,6 @@ import { Animation } from "laya/display/Animation";
 import { Sprite } from "laya/display/Sprite";
 import { Text } from "laya/display/Text";
 import { Stat } from "laya/utils/Stat";
-import { WebGL } from "laya/webgl/WebGL";
 import { Main } from "./../Main";
 import { Image } from "laya/ui/Image";
 
@@ -47,27 +46,27 @@ export class PerformanceTest_Cartoon2 {
 
 	private characters: any[] = [];
 	private text: Text;
-	private image:Image;
+	private image: Image;
 	Main: typeof Main = null;
 	constructor(maincls: typeof Main) {
 		this.Main = maincls;
-		Laya.init(1280, 720, WebGL);
-		//			Laya.stage.screenMode = Stage.SCREEN_HORIZONTAL;
-		Stat.enable();
+		Laya.init(1280, 720).then(() => {
+			Stat.enable();
 
-		this.image = new Image();
-		this.image.skin = "res/cartoon2/background.jpg";
-		this.Main.box2D.addChild(this.image);
+			this.image = new Image();
+			this.image.skin = "res/cartoon2/background.jpg";
+			this.Main.box2D.addChild(this.image);
 
-		this.createCharacters();
+			this.createCharacters();
 
-		this.text = new Text();
-		this.text.zOrder = 10000;
-		this.text.fontSize = 60;
-		this.text.color = "#ff0000"
-		this.Main.box2D.addChild(this.text);
+			this.text = new Text();
+			this.text.zOrder = 10000;
+			this.text.fontSize = 60;
+			this.text.color = "#ff0000"
+			this.Main.box2D.addChild(this.text);
 
-		Laya.timer.frameLoop(1, this, this.gameLoop);
+			Laya.timer.frameLoop(1, this, this.gameLoop);
+		});
 	}
 
 	private createCharacters(): void {

@@ -4,7 +4,6 @@ import { Stage } from "laya/display/Stage";
 import { BlurFilter } from "laya/filters/BlurFilter";
 import { Browser } from "laya/utils/Browser";
 import { Handler } from "laya/utils/Handler";
-import { WebGL } from "laya/webgl/WebGL";
 import { Main } from "./../Main";
 
 export class Filters_Blur {
@@ -14,16 +13,16 @@ export class Filters_Blur {
 	constructor(maincls: typeof Main) {
 		this.Main = maincls;
 
-		// 不支持WebGL时自动切换至Canvas
-		Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
+		Laya.init(Browser.clientWidth, Browser.clientHeight).then(() => {
+			Laya.stage.alignV = Stage.ALIGN_MIDDLE;
+			Laya.stage.alignH = Stage.ALIGN_CENTER;
 
-		Laya.stage.alignV = Stage.ALIGN_MIDDLE;
-		Laya.stage.alignH = Stage.ALIGN_CENTER;
+			Laya.stage.scaleMode = "showall";
+			Laya.stage.bgColor = "#232628";
 
-		Laya.stage.scaleMode = "showall";
-		Laya.stage.bgColor = "#232628";
+			Laya.loader.load(this.apePath, Handler.create(this, this.createApe));
+		});
 
-		Laya.loader.load(this.apePath, Handler.create(this, this.createApe));
 	}
 
 	private createApe(_e: any = null): void {

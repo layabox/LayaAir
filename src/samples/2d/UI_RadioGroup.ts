@@ -1,7 +1,6 @@
 import { Laya } from "Laya";
 import { Main } from "./../Main";
 import { Stage } from "laya/display/Stage"
-import { WebGL } from "laya/webgl/WebGL";
 import { Handler } from "laya/utils/Handler";
 import { RadioGroup } from "laya/ui/RadioGroup";
 
@@ -16,17 +15,16 @@ export class UI_RadioGroup {
 	constructor(maincls: typeof Main) {
 		this.Main = maincls;
 
-		// 不支持WebGL时自动切换至Canvas
-		Laya.init(800, 600, WebGL);
+		Laya.init(800, 600).then(() => {
+			Laya.stage.alignV = Stage.ALIGN_MIDDLE;
+			Laya.stage.alignH = Stage.ALIGN_CENTER;
 
-		Laya.stage.alignV = Stage.ALIGN_MIDDLE;
-		Laya.stage.alignH = Stage.ALIGN_CENTER;
+			Laya.stage.scaleMode = Stage.SCALE_SHOWALL;
+			Laya.stage.bgColor = "#232628";
 
-		Laya.stage.scaleMode = Stage.SCALE_SHOWALL;
-		Laya.stage.bgColor = "#232628";
-
-		this.skins = ["res/ui/radioButton (1).png", "res/ui/radioButton (2).png", "res/ui/radioButton (3).png"];
-		Laya.loader.load(this.skins, Handler.create(this, this.initRadioGroups));
+			this.skins = ["res/ui/radioButton (1).png", "res/ui/radioButton (2).png", "res/ui/radioButton (3).png"];
+			Laya.loader.load(this.skins, Handler.create(this, this.initRadioGroups));
+		});
 	}
 
 	private initRadioGroups(e: any = null): void {

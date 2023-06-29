@@ -1,5 +1,4 @@
 import { XML } from "laya/html/XML";
-import { Utils } from "laya/utils/Utils";
 
 export class Network_XML {
 	constructor() {

@@ -21,50 +21,54 @@ export class Sprite_Guide {
 	constructor(maincls: typeof Main) {
 		this.Main = maincls;
 
-		Laya.init(1285, 727);
-		Laya.stage.alignH = Stage.ALIGN_CENTER;
-		Laya.stage.alignV = Stage.ALIGN_MIDDLE;
+		Laya.init(1285, 727).then(() => {
+			Laya.stage.scaleMode = Stage.SCALE_SHOWALL;
+			Laya.stage.screenMode = Stage.SCREEN_HORIZONTAL;
+			Laya.stage.alignH = Stage.ALIGN_CENTER;
+			Laya.stage.alignV = Stage.ALIGN_MIDDLE;
 
-		//绘制一个蓝色方块，不被抠图
-		var gameContainer: Sprite = new Sprite();
-		gameContainer.loadImage("res/guide/crazy_snowball.png");
-		this.Main.box2D.addChild(gameContainer);
+			//绘制一个蓝色方块，不被抠图
+			var gameContainer: Sprite = new Sprite();
+			gameContainer.loadImage("res/guide/crazy_snowball.png");
+			this.Main.box2D.addChild(gameContainer);
 
-		// 引导所在容器
-		this.guideContainer = new Sprite();
-		// 设置容器为画布缓存
-		this.guideContainer.cacheAs = "bitmap";
-		this.Main.box2D.addChild(this.guideContainer);
-		gameContainer.on("click", this, this.nextStep);
+			// 引导所在容器
+			this.guideContainer = new Sprite();
+			// 设置容器为画布缓存
+			this.guideContainer.cacheAs = "bitmap";
+			this.Main.box2D.addChild(this.guideContainer);
+			gameContainer.on("click", this, this.nextStep);
 
-		//绘制遮罩区，含透明度，可见游戏背景
-		var maskArea: Sprite = new Sprite();
-		maskArea.alpha = 0.5;
-		maskArea.graphics.drawRect(0, 0, Laya.stage.width, Laya.stage.height, "#000000");
-		this.guideContainer.addChild(maskArea);
+			//绘制遮罩区，含透明度，可见游戏背景
+			var maskArea: Sprite = new Sprite();
+			maskArea.alpha = 0.5;
+			maskArea.graphics.drawRect(0, 0, Laya.stage.width, Laya.stage.height, "#000000");
+			this.guideContainer.addChild(maskArea);
 
-		//绘制一个圆形区域，利用叠加模式，从遮罩区域抠出可交互区
-		this.interactionArea = new Sprite();
-		//设置叠加模式
-		this.interactionArea.blendMode = "destination-out";
-		this.guideContainer.addChild(this.interactionArea);
+			//绘制一个圆形区域，利用叠加模式，从遮罩区域抠出可交互区
+			this.interactionArea = new Sprite();
+			//设置叠加模式
+			this.interactionArea.blendMode = "destination-out";
+			this.guideContainer.addChild(this.interactionArea);
 
-		this.hitArea = new HitArea();
-		this.hitArea.hit.drawRect(0, 0, Laya.stage.width, Laya.stage.height, "#000000");
+			this.hitArea = new HitArea();
+			this.hitArea.hit.drawRect(0, 0, Laya.stage.width, Laya.stage.height, "#000000");
 
-		this.guideContainer.hitArea = this.hitArea;
-		this.guideContainer.mouseEnabled = true;
+			this.guideContainer.hitArea = this.hitArea;
+			this.guideContainer.mouseEnabled = true;
 
-		this.tipContainer = new Sprite();
-		this.Main.box2D.addChild(this.tipContainer);
+			this.tipContainer = new Sprite();
+			this.Main.box2D.addChild(this.tipContainer);
 
-		this.nextStep();
+			this.nextStep();
+		});
 	}
 
 	private nextStep(): void {
 		if (this.guideStep == this.guideSteps.length) {
-			Laya.stage.removeChild(this.guideContainer);
-			Laya.stage.removeChild(this.tipContainer);
+			this.Main.box2D.removeChild(this.guideContainer);
+			this.Main.box2D.removeChild(this.tipContainer);
+			return;
 		}
 		else {
 			var step: any = this.guideSteps[this.guideStep++];

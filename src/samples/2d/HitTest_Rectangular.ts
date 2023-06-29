@@ -15,14 +15,15 @@ export class HitTest_Rectangular {
 	constructor(maincls: typeof Main) {
 		this.Main = maincls;
 
-		Laya.init(800, 600);
-		Laya.stage.scaleMode = "showall";
-		Laya.stage.bgColor = "#232628";
+		Laya.init(800, 600).then(() => {
+			Laya.stage.scaleMode = "showall";
+			Laya.stage.bgColor = "#232628";
 
-		this.rect1 = this.createRect(100, "orange");
-		this.rect2 = this.createRect(200, "purple");
+			this.rect1 = this.createRect(100, "orange");
+			this.rect2 = this.createRect(200, "purple");
 
-		Laya.timer.frameLoop(1, this, this.loop);
+			Laya.timer.frameLoop(1, this, this.loop);
+		});
 	}
 
 	private createRect(size: number, color: string): Sprite {
@@ -50,6 +51,10 @@ export class HitTest_Rectangular {
 		var bounds2: Rectangle = this.rect2.getBounds();
 		var hit: boolean = bounds1.intersects(bounds2);
 		this.rect1.alpha = this.rect2.alpha = hit ? 0.5 : 1;
+	}
+
+	dispose(){
+		Laya.timer.clear(this, this.loop);
 	}
 }
 

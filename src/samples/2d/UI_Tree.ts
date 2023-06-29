@@ -5,8 +5,6 @@ import { Clip } from "laya/ui/Clip";
 import { Label } from "laya/ui/Label";
 import { Tree } from "laya/ui/Tree";
 import { Handler } from "laya/utils/Handler";
-import { Utils } from "laya/utils/Utils";
-import { WebGL } from "laya/webgl/WebGL";
 import { Main } from "./../Main";
 import { XML } from "laya/html/XML";
 
@@ -14,29 +12,29 @@ export class UI_Tree {
 	Main: typeof Main = null;
 	constructor(maincls: typeof Main) {
 		this.Main = maincls;
-		// 不支持WebGL时自动切换至Canvas
-		Laya.init(550, 400, WebGL);
+		Laya.init(550, 400).then(() => {
+			Laya.stage.alignV = Stage.ALIGN_MIDDLE;
+			Laya.stage.alignH = Stage.ALIGN_CENTER;
 
-		Laya.stage.alignV = Stage.ALIGN_MIDDLE;
-		Laya.stage.alignH = Stage.ALIGN_CENTER;
+			Laya.stage.scaleMode = Stage.SCALE_SHOWALL;
+			Laya.stage.bgColor = "#232628";
 
-		Laya.stage.scaleMode = Stage.SCALE_SHOWALL;
-		Laya.stage.bgColor = "#232628";
+			var res: any[] = ["res/ui/vscroll.png",
+				"res/ui/vscroll$bar.png",
+				"res/ui/vscroll$down.png",
+				"res/ui/vscroll$up.png",
+				"res/ui/tree/clip_selectBox.png",
+				"res/ui/tree/clip_tree_folder.png",
+				"res/ui/tree/clip_tree_arrow.png"];
 
-		var res: any[] = ["res/ui/vscroll.png",
-			"res/ui/vscroll$bar.png",
-			"res/ui/vscroll$down.png",
-			"res/ui/vscroll$up.png",
-			"res/ui/tree/clip_selectBox.png",
-			"res/ui/tree/clip_tree_folder.png",
-			"res/ui/tree/clip_tree_arrow.png"];
+			Laya.loader.load(res, new Handler(this, this.onLoadComplete));
+		});
 
-		Laya.loader.load(res, new Handler(this, this.onLoadComplete));
 	}
 
 	private onLoadComplete(e: any = null): void {
 		// 组装tree的数据
-		var treeData:string = "<data>";
+		var treeData: string = "<data>";
 		for (var i: number = 0; i < 5; ++i) {
 			treeData += "<item label='Directory " + (i + 1) + "' isOpen='true'>";
 			for (var j: number = 0; j < 5; ++j) {

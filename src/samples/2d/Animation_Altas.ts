@@ -2,14 +2,10 @@ import { Laya } from "Laya";
 import { Main } from "./../Main";
 import { Animation } from "laya/display/Animation"
 import { Stage } from "laya/display/Stage"
-import { Event } from "laya/events/Event"
 import { Rectangle } from "laya/maths/Rectangle"
 import { Loader } from "laya/net/Loader"
-import { Texture } from "laya/resource/Texture"
-import { Image } from "laya/ui/Image"
 import { Browser } from "laya/utils/Browser"
 import { Handler } from "laya/utils/Handler"
-import { WebGL } from "laya/webgl/WebGL"
 
 export class Animation_Altas {
 	private AniConfPath: string = "res/fighter/fighter.json";
@@ -18,16 +14,15 @@ export class Animation_Altas {
 	constructor(maincls: typeof Main) {
 		this.Main = maincls;
 
-		// 不支持WebGL时自动切换至Canvas
-		Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
+		Laya.init(Browser.clientWidth, Browser.clientHeight).then(() => {
+			Laya.stage.alignV = Stage.ALIGN_MIDDLE;
+			Laya.stage.alignH = Stage.ALIGN_CENTER;
 
-		Laya.stage.alignV = Stage.ALIGN_MIDDLE;
-		Laya.stage.alignH = Stage.ALIGN_CENTER;
+			Laya.stage.scaleMode = "showall";
+			Laya.stage.bgColor = "#232628";
 
-		Laya.stage.scaleMode = "showall";
-		Laya.stage.bgColor = "#232628";
-
-		Laya.loader.load(this.AniConfPath, Handler.create(this, this.createAnimation), null, Loader.ATLAS);
+			Laya.loader.load(this.AniConfPath, Handler.create(this, this.createAnimation), null, Loader.ATLAS);
+		});
 	}
 
 	private createAnimation(_e: any = null): void {

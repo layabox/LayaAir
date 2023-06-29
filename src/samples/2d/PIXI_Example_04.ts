@@ -2,7 +2,6 @@ import { Laya } from "Laya";
 import { Sprite } from "laya/display/Sprite";
 import { Text } from "laya/display/Text";
 import { Browser } from "laya/utils/Browser";
-import { WebGL } from "laya/webgl/WebGL";
 import { Main } from "./../Main";
 
 /**
@@ -25,10 +24,10 @@ export class PIXI_Example_04 {
 	constructor(maincls: typeof Main) {
 		this.Main = maincls;
 
-		Laya.init(this.w, this.h, WebGL);
-
-		this.createText();
-		this.start();
+		Laya.init(this.w, this.h).then(() => {
+			this.createText();
+			this.start();
+		});
 	}
 
 	private start(): void {
