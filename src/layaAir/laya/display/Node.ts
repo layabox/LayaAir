@@ -314,6 +314,14 @@ export class Node extends EventDispatcher {
     }
 
     /**
+     * Get All children nodes
+     * @return	children nodes
+     */
+    getChildren(): Node[] {
+        return this._children.length > 0 ? this._children : null;
+    }
+
+    /**
      * 设置子节点的索引位置。
      * @param	node 子节点。
      * @param	index 新的索引。
