@@ -27,7 +27,7 @@ export class GlCapable {
         this._capabilityMap.set(RenderCapable.Element_Index_Uint32, value);
         //FLoat32Texture
         value = isWebgl2 || !!(this.getExtension(WebGLExtension.OES_texture_float));
-        this._capabilityMap.set(RenderCapable.TextureFormat_R32G32B32A32, false);
+        this._capabilityMap.set(RenderCapable.TextureFormat_R32G32B32A32, value);
         //halfFloatTexture
         value = isWebgl2 || !!(this.getExtension(WebGLExtension.OES_texture_half_float));
         this._capabilityMap.set(RenderCapable.TextureFormat_R16G16B16A16, value);
