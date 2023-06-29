@@ -18,7 +18,7 @@ export interface TypeAnimatorLayer {
     states: TypeAnimatorState[],
     playOnWake: boolean,
     defaultWeight: number,
-    avatarMask?: Record<string, boolean>,
+    avatarMask?: any,
 
     stageX?: number,
     stageY?: number,
