@@ -246,7 +246,7 @@ export class VideoTexture extends BaseTexture {
      * </ul>
      */
     canPlayType(type: string): CanPlayTypeResult {
-        type == "m3u8" ? "application/vnd.apple.mpegurl" : ("video/" + type);
+        type = type == "m3u8" ? "application/vnd.apple.mpegurl" : ("video/" + type);
         return this.element.canPlayType(type);
     }
 
