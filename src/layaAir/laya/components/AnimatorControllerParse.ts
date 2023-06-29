@@ -1,3 +1,5 @@
+import { AvatarMask } from "../d3/component/Animator/AvatarMask";
+
 export interface TypeAnimatorControllerData {
     layerW: number,
     controllerLayers: TypeAnimatorLayer[];
@@ -18,7 +20,7 @@ export interface TypeAnimatorLayer {
     states: TypeAnimatorState[],
     playOnWake: boolean,
     defaultWeight: number,
-    avatarMask?: Record<string, boolean>,
+    avatarMask?: any,
 
     stageX?: number,
     stageY?: number,
