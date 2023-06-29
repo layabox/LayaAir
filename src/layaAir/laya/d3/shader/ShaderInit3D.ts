@@ -122,6 +122,8 @@ export class ShaderInit3D {
 		///////////////////////////////////////////////////////////////////////
 		Shader3D.SHADERDEFINE_LEGACYSINGALLIGHTING = Shader3D.getDefineByName("LEGACYSINGLELIGHTING");
 		Shader3D.SHADERDEFINE_ENUNIFORMBLOCK = Shader3D.getDefineByName("ENUNIFORMBLOCK");
+		Shader3D.SHADERDEFINE_FLOATTEXTURE = Shader3D.getDefineByName("FLOATTEXTURE");
+		Shader3D.SHADERDEFINE_FLOATTEXTURE_FIL_LINEAR = Shader3D.getDefineByName("FLOATTEXTURE_FIL_LINEAR");
 	}
 }
 

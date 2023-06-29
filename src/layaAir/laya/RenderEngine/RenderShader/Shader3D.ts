@@ -1,6 +1,7 @@
 import { LayaGL } from "../../layagl/LayaGL";
 import { ShaderCompile } from "../../webgl/utils/ShaderCompile";
 import { DefineDatas } from "./DefineDatas";
+import { ShaderData } from "./ShaderData";
 import { ShaderDefine } from "./ShaderDefine";
 import { ShaderPass } from "./ShaderPass";
 import { ShaderVariant, ShaderVariantCollection } from "./ShaderVariantCollection";
@@ -83,6 +84,10 @@ export class Shader3D {
     static SHADERDEFINE_LEGACYSINGALLIGHTING: ShaderDefine;
     /**@internal 图形数据传输使用UniformBlock的方式 */
     static SHADERDEFINE_ENUNIFORMBLOCK: ShaderDefine;
+    /**@internal */
+    static SHADERDEFINE_FLOATTEXTURE: ShaderDefine;
+    /**@internal */
+    static SHADERDEFINE_FLOATTEXTURE_FIL_LINEAR: ShaderDefine;
 
     /**@internal */
     static _propertyNameMap: any = {};
@@ -105,7 +110,7 @@ export class Shader3D {
     static debugShaderVariantCollection: ShaderVariantCollection;
 
 
-    static init(){
+    static init() {
         Shader3D.debugShaderVariantCollection = new ShaderVariantCollection();
     }
 

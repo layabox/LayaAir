@@ -8,8 +8,8 @@ export class AvatarMask {
     /**
      * 创建一个<code>AvatarMask</code>实例
      */
-    constructor(data?: Record<string, boolean>) {
-        this._avatarPathMap = data || {};
+    constructor(data?: any) {
+        this._avatarPathMap = data?._avatarPathMap || {};
     }
 
     /**
