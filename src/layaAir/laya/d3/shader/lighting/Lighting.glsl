@@ -172,7 +172,7 @@ DirectionLight getDirectionLight(in int index, in vec3 positionWS)
     light.color = u_DirectionLight.color;
     light.direction = u_DirectionLight.direction;
     light.attenuation = 1.0;
-    light.lightMode = LightMode_RealTime;
+    light.lightMode = getAttenuationByMode(float(u_DirectionLight.lightMode));
 	    #else // LEGACYSINGLELIGHTING
     float v = (float(index) + 0.5) / float(CalculateLightCount);
     vec4 p1 = texture2D(u_LightBuffer, vec2(0.125, v));
@@ -226,6 +226,7 @@ PointLight getPointLight(in int index, in ivec4 clusterInfo, in vec3 positionWS)
     light.position = u_PointLight.position;
     light.range = u_PointLight.range;
     light.attenuation = 1.0;
+    light.lightMode = getAttenuationByMode(float(u_PointLight.lightMode));
 	    #else // LEGACYSINGLELIGHTING
     // todo  重复计算
     int indexOffset = clusterInfo.z * c_ClusterBufferFloatWidth + clusterInfo.w;
@@ -255,6 +256,7 @@ SpotLight getSpotLight(in int index, in ivec4 clusterInfo, in vec3 positionWS)
     light.direction = u_SpotLight.direction;
     light.spot = u_SpotLight.spot;
     light.attenuation = 1.0;
+    light.lightMode = getAttenuationByMode(float(u_SpotLight.lightMode));
 	    #else // LEGACYSINGLELIGHTING
     // todo  重复计算
     int indexOffset = clusterInfo.z * c_ClusterBufferFloatWidth + clusterInfo.w;
