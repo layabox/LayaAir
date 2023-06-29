@@ -25,10 +25,7 @@ export class AnimatorController extends Resource {
             let l = layers[i];
             let acl = new AnimatorControllerLayer(l.name);
             if (l.avatarMask) {
-                acl.avatarMask = new AvatarMask();
-                for (let key in l.avatarMask) {
-                    acl.avatarMask.setTransformActive(key, l.avatarMask[key]);
-                }
+                acl.avatarMask = l.avatarMask;
             }
             lArr.unshift(acl);
             for (let k in l) {
@@ -116,7 +113,7 @@ export class AnimatorController extends Resource {
                                 let uuid = scripts[k];
                                 if (uuid && 0 == uuid.indexOf("res://")) {
                                     uuid = uuid.substring(6);
-                                } 
+                                }
                                 let c = ClassUtils.getClass(uuid);
                                 if (c) {
                                     state.addScript(c);
