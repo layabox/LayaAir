@@ -25,13 +25,15 @@ class AnimationControllerLoader implements IResourceLoader {
     }
     loadAvatarMask(l: TypeAnimatorLayer, promises: Array<any>, task: ILoadTask) {
         let basePath = URL.getPath(task.url);
-        if (l.avatarMask && l.avatarMask._$uuid) {
+        if (l.avatarMask && l.avatarMask._$uuid && '' != l.avatarMask._$uuid) {
             let url = URL.getResURLByUUID(l.avatarMask._$uuid);
             if (!url.startsWith("res://"))
                 url = URL.join(basePath, url);
             promises.push(task.loader.load(url).then(res => {
                 l.avatarMask = res;
             }));
+        } else {
+            l.avatarMask = null;
         }
     }
 
