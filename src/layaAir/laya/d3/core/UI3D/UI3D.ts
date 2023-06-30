@@ -25,6 +25,7 @@ import { Prefab } from "../../../resource/HierarchyResource";
 import { InputManager } from "../../../events/InputManager";
 import { NodeFlags } from "../../../Const";
 import { ILaya } from "../../../../ILaya";
+import { RenderState } from "../../../RenderEngine/RenderShader/RenderState";
 
 /**
  * <code>BaseCamera</code> 类用于创建摄像机的父类。
@@ -134,6 +135,23 @@ export class UI3D extends BaseRender {
     }
 
     /**
+     * UI剔除模式
+     */
+    set cull(value: number) {
+        this.sharedMaterials[0] && (this.sharedMaterials[0].cull = value);
+    }
+
+
+    get cull(): number {
+        let mat = this.sharedMaterials[0];
+        if (!mat) {
+            mat = this._ui3DMat;
+        }
+        return mat.cull;
+    }
+
+
+    /**
      * 分辨率比例
      */
     get resolutionRate() {
@@ -189,6 +207,7 @@ export class UI3D extends BaseRender {
         this._shaderValues.addDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_UV0);
         this._ui3DMat = new UnlitMaterial();
         this._ui3DMat.materialRenderMode = MaterialRenderMode.RENDERMODE_OPAQUE;
+        this._ui3DMat.cull = RenderState.CULL_BACK;
     }
 
     /**

@@ -1,18 +1,16 @@
-import { TypeAnimatorLayer, TypeAnimatorState } from "../../components/AnimatorControllerParse";
-import { IResourceLoader, ILoadTask, Loader } from "../../net/Loader";
-import { AnimatorController } from "../component/Animator/AnimatorController";
-import { URL } from "../../net/URL";
-class AnimationControllerLoader implements IResourceLoader {
+import { AnimatorController2D } from "../components/AnimatorController2D";
+import { TypeAnimatorState } from "../components/AnimatorControllerParse";
+import { IResourceLoader, ILoadTask, Loader } from "../net/Loader";
+import { URL } from "../net/URL";
+
+class AnimationController2DLoader implements IResourceLoader {
     load(task: ILoadTask) {
         return task.loader.fetch(task.url, "json", task.progress.createCallback(0.2), task.options).then(data => {
-            let ret = new AnimatorController(data);
+            let ret = new AnimatorController2D(data);
             if (ret.data && ret.data.controllerLayers) {
                 let layers = ret.data.controllerLayers;
                 let promises: Array<any> = [];
                 for (let i = layers.length - 1; i >= 0; i--) {
-                    if (layers[i].avatarMask) {
-                        this.loadAvatarMask(layers[i], promises, task);
-                    }
                     let states = layers[i].states;
                     this.loadStates(states, promises, task);
 
@@ -23,19 +21,7 @@ class AnimationControllerLoader implements IResourceLoader {
                 return ret;
         });
     }
-    loadAvatarMask(l: TypeAnimatorLayer, promises: Array<any>, task: ILoadTask) {
-        let basePath = URL.getPath(task.url);
-        if (l.avatarMask && l.avatarMask._$uuid && '' != l.avatarMask._$uuid) {
-            let url = URL.getResURLByUUID(l.avatarMask._$uuid);
-            if (!url.startsWith("res://"))
-                url = URL.join(basePath, url);
-            promises.push(task.loader.load(url).then(res => {
-                l.avatarMask = res;
-            }));
-        } else {
-            l.avatarMask = null;
-        }
-    }
+
 
     loadStates(states: TypeAnimatorState[], promises: Array<any>, task: ILoadTask) {
         let basePath = URL.getPath(task.url);
@@ -60,4 +46,4 @@ class AnimationControllerLoader implements IResourceLoader {
     }
 }
 
-Loader.registerLoader(["controller"], AnimationControllerLoader);
+Loader.registerLoader(["mcc"], AnimationController2DLoader);
