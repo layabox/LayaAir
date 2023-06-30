@@ -444,8 +444,10 @@ export class Loader extends EventDispatcher {
             onProgress: onProgress,
             onComplete: null,
         };
-        if (options.useWorkerLoader)
+        if (options.useWorkerLoader) {
             task.useWorkerLoader = true;
+            task.workerLoaderOptions = options.workerLoaderOptions;
+        }
         if (options.blob)
             task.blob = options.blob;
         if (options.noRetry)
@@ -1053,6 +1055,7 @@ interface DownloadItem {
     contentType: string;
     priority: number;
     useWorkerLoader?: boolean;
+    workerLoaderOptions?: Record<string, any>;
     blob?: ArrayBuffer;
     retryCnt?: number;
     silent?: boolean;

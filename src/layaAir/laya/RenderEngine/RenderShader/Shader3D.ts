@@ -88,7 +88,6 @@ export class Shader3D {
     static SHADERDEFINE_FLOATTEXTURE: ShaderDefine;
     /**@internal */
     static SHADERDEFINE_FLOATTEXTURE_FIL_LINEAR: ShaderDefine;
-
     /**@internal */
     static _propertyNameMap: any = {};
     /**@internal */
