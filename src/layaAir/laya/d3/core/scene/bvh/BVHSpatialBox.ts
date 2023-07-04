@@ -227,7 +227,7 @@ export class BVHSpatialBox<T> {
      * 获得渲染list
      * @returns 
      */
-    getList(){
+    getList() {
         return this._cellList;
     }
 
@@ -235,14 +235,14 @@ export class BVHSpatialBox<T> {
      * 获得child0
      * @returns 
      */
-    getchild0(){
+    getchild0() {
         return this._children0;
     }
     /**
      * 获得child1
      * @returns 
      */
-    getchild1(){
+    getchild1() {
         return this._children1;
     }
 
@@ -374,15 +374,22 @@ export class BVHSpatialBox<T> {
     /**
      * 获得这个节点包含的所有content
      * @param out 
+     * @param conditionalFun条件函数
      */
-    traverseBoundsCell(out: SingletonList<IBoundsCell>) {
+    traverseBoundsCell(out: SingletonList<IBoundsCell>, conditionalFun: Function = null) {
         if (this.isContentBox()) {
-            for (var i = 0; i < this._cellCount; i++) {
-                out.add(this._cellList[i]);
-            }
+            if (!conditionalFun)
+                for (var i = 0; i < this._cellCount; i++) {
+                    out.add(this._cellList[i]);
+                }
+            else
+                for (var i = 0; i < this._cellCount; i++) {
+                    var node = this._cellList[i]
+                    conditionalFun(node) && out.add(node);
+                }
         } else {
-            this._children0 && this._children0.traverseBoundsCell(out);
-            this._children1 && this._children1.traverseBoundsCell(out);
+            this._children0 && this._children0.traverseBoundsCell(out, conditionalFun);
+            this._children1 && this._children1.traverseBoundsCell(out, conditionalFun);
         }
     }
 
@@ -449,14 +456,16 @@ export class BVHSpatialBox<T> {
      */
     getItemBySCI(sci: IShadowCullInfo, out: SingletonList<IBoundsCell>) {
         const result = BVHSpatialBox.sciContainsBox(this._bounds, sci);
-        if (result == 1) //完全包含
-            this.traverseBoundsCell(out); //遍历分支，添加所有逻辑对象
+        if (result == 1) { //完全包含
+            let fn = (data: IBoundsCell) => { return data.shadowCullPass() };
+            this.traverseBoundsCell(out, fn); //遍历分支，添加所有逻辑对象
+        }
         else if (result == 2) { //部分包含
             if (this.isContentBox()) {
                 for (let i = 0; i < this._cellList.length; i++) { //逐个判断逻辑对象包围盒是否和视锥有交集
                     let render = this._cellList[i];
-                    let pass = render.castShadow && render._enabled && (render.renderbitFlag == 0);
-                    if (BVHSpatialBox.sciIntersectsBox(this._cellList[i].bounds, sci))
+                    let pass = render.shadowCullPass();
+                    if (pass && BVHSpatialBox.sciIntersectsBox(this._cellList[i].bounds, sci))
                         out.add(this._cellList[i]);
                 }
             } else {

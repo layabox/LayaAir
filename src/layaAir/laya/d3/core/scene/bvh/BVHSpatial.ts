@@ -156,7 +156,7 @@ export class BVHSpatial {
         if (this._isBuild) {
             this._BVHSpatialBox.getItemBySCI(sci, out);
         } else {
-            this._BVHSpatialBox.traverseBoundsCell(out);
+            this._BVHSpatialBox.traverseBoundsCell(out,(data:IBoundsCell)=>{return data.shadowCullPass()});
         }
     }
 
