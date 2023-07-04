@@ -454,6 +454,8 @@ export class BVHSpatialBox<T> {
         else if (result == 2) { //部分包含
             if (this.isContentBox()) {
                 for (let i = 0; i < this._cellList.length; i++) { //逐个判断逻辑对象包围盒是否和视锥有交集
+                    let render = this._cellList[i];
+                    let pass = render.castShadow && render._enabled && (render.renderbitFlag == 0);
                     if (BVHSpatialBox.sciIntersectsBox(this._cellList[i].bounds, sci))
                         out.add(this._cellList[i]);
                 }

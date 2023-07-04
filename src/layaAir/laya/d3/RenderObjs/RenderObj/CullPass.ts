@@ -66,7 +66,7 @@ export class CullPassBase implements ICullPass {
         var renders = renderList.elements;
         for (var i: number = 0, n: number = renderList.length; i < n; i++) {
             var render = renders[i];
-            var canPass: boolean = render.castShadow && render._enabled && (render.renderbitFlag == 0);
+            var canPass: boolean = render.shadowCullPass();
             if (canPass) {
                 Stat.frustumCulling++;
                 let pass = FrustumCulling.cullingRenderBounds(render.bounds, cullInfo);

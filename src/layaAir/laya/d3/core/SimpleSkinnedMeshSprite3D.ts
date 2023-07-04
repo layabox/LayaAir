@@ -130,66 +130,12 @@ export class SimpleSkinnedMeshSprite3D extends RenderableSprite3D {
         }
     }
 
-    // /**
-    //  * @inheritDoc
-    //  * @override
-    //  * @internal
-    //  */
-    // protected _changeHierarchyAnimator(animator: Animator): void {
-    // 	super._changeHierarchyAnimator(animator);
-    // 	this.simpleSkinnedMeshRenderer._setCacheAnimator(animator);
-    // }
-
-
     /**
      * @inheritDoc
      * @override
      * @internal
      */
     _cloneTo(destObject: any, srcRoot: Node, dstRoot: Node): void {
-        // var meshSprite3D: MeshSprite3D = (<MeshSprite3D>destObject);
-        // meshSprite3D.meshFilter.sharedMesh = this.meshFilter.sharedMesh;
-        // var meshRender: SimpleSkinnedMeshRenderer = (<SimpleSkinnedMeshRenderer>this._render);
-        // var destMeshRender: SimpleSkinnedMeshRenderer = (<SimpleSkinnedMeshRenderer>meshSprite3D._render);
-        // destMeshRender.enabled = meshRender.enabled;
-        // destMeshRender.sharedMaterials = meshRender.sharedMaterials;
-        // destMeshRender.castShadow = meshRender.castShadow;
-        // var lightmapScaleOffset: Vector4 = meshRender.lightmapScaleOffset;
-        // lightmapScaleOffset && (destMeshRender.lightmapScaleOffset = lightmapScaleOffset.clone());
-        // destMeshRender.receiveShadow = meshRender.receiveShadow;
-        // destMeshRender.sortingFudge = meshRender.sortingFudge;
-        // //destMeshRender._rootBone = meshRender._rootBone;
-
-        // var bones: Sprite3D[] = meshRender.bones;
-        // var destBones: Sprite3D[] = destMeshRender.bones;
-        // var bonesCount: number = bones.length;
-        // destBones.length = bonesCount;
-
-        // var rootBone: Sprite3D = meshRender.rootBone;
-        // if (rootBone) {
-        // 	var pathes: any[] = Utils3D._getHierarchyPath(srcRoot, rootBone, SimpleSkinnedMeshSprite3D._tempArray0);
-        // 	if (pathes)
-        // 		destMeshRender.rootBone = (<Sprite3D>Utils3D._getNodeByHierarchyPath(dstRoot, pathes));
-        // 	else
-        // 		destMeshRender.rootBone = rootBone;
-        // }
-
-        // for (var i: number = 0; i < bones.length; i++) {
-        // 	pathes = Utils3D._getHierarchyPath(srcRoot, bones[i], SimpleSkinnedMeshSprite3D._tempArray0);
-        // 	if (pathes)
-        // 		destBones[i] = (<Sprite3D>Utils3D._getNodeByHierarchyPath(dstRoot, pathes));
-        // 	else
-        // 		destBones[i] = bones[i];
-        // }
-
-        // var lbb: Bounds = meshRender.localBounds;
-        // (lbb) && (lbb.cloneTo(destMeshRender.localBounds));
-
-
-        // destMeshRender.simpleAnimatorOffset = meshRender.simpleAnimatorOffset;
-        // destMeshRender.simpleAnimatorTexture = meshRender.simpleAnimatorTexture;
-        // destMeshRender._bonesNums = meshRender._bonesNums;
-
         super._cloneTo(destObject, srcRoot, dstRoot);//父类函数在最后,组件应该最后赋值，否则获取材质默认值等相关函数会有问题
     }
 

@@ -202,6 +202,9 @@ export class LODGroup extends Component implements IBoundsCell {
         this._lodPosition = new Vector3();
         this.runInEditor = true;
     }
+    shadowCullPass(): boolean {
+        return false;
+    }
 
     /**
     * get LODInfo 数组
