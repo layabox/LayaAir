@@ -18,7 +18,7 @@ export class CharRender_Native extends ICharRender {
 	 * @param str 
 	 * @override
 	 */
-	 getWidth(font: string, str: string): number {
+	getWidth(font: string, str: string): number {
 		if (!(window as any).conchTextCanvas) return 0;
 		//TODO 先取消判断，保证字体信息一致
 		//if (lastFont != font) { 
@@ -49,8 +49,8 @@ export class CharRender_Native extends ICharRender {
 	 * @override
 	 */
 	getCharBmp(char: string, font: string, lineWidth: number, colStr: string, strokeColStr: string, size: CharRenderInfo,
-		margin_left: number, margin_top: number, margin_right: number, margin_bottom: number, rect: any[] | null = null): ImageData|null {
-
+		margin_left: number, margin_top: number, margin_right: number, margin_bottom: number, rect: any[] | null = null): ImageData | null {
+		// font = this.isThai(char, font);
 		if (!(window as any).conchTextCanvas) return null;
 		//window.conchTextCanvas.getTextBitmapData();
 
@@ -76,27 +76,27 @@ export class CharRender_Native extends ICharRender {
 		size.bmpWidth = textInfo.width;
 		size.bmpHeight = textInfo.height;
 		return textInfo;
-        /*
-        ctx.clearRect(0,0, w, h);
-        //ctx.textAlign = "end";
-        ctx.textBaseline = "top";
-        if (lineWidth > 0) { 
-            ctx.strokeStyle = colStr;
-            ctx.lineWidth = lineWidth;
-            ctx.strokeText(char, margin_left, margin_top);
-        } else {
-            ctx.fillStyle = colStr;
-            ctx.fillText(char, margin_left, margin_top);
-        }
-        if ( CharBook.debug) {
-            ctx.strokeStyle = '#ff0000';
-            ctx.strokeRect(0, 0, w, h);
-            ctx.strokeStyle = '#00ff00';
-            ctx.strokeRect(margin_left, margin_top, size.width, size.height);
-        }
-        //ctx.restore();
-        return ctx.getImageData( 0,0, w, h );
-        */
+		/*
+		ctx.clearRect(0,0, w, h);
+		//ctx.textAlign = "end";
+		ctx.textBaseline = "top";
+		if (lineWidth > 0) {
+			ctx.strokeStyle = colStr;
+			ctx.lineWidth = lineWidth;
+			ctx.strokeText(char, margin_left, margin_top);
+		} else {
+			ctx.fillStyle = colStr;
+			ctx.fillText(char, margin_left, margin_top);
+		}
+		if ( CharBook.debug) {
+			ctx.strokeStyle = '#ff0000';
+			ctx.strokeRect(0, 0, w, h);
+			ctx.strokeStyle = '#00ff00';
+			ctx.strokeRect(margin_left, margin_top, size.width, size.height);
+		}
+		//ctx.restore();
+		return ctx.getImageData( 0,0, w, h );
+		*/
 	}
 }
 

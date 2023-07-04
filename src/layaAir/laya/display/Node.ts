@@ -171,7 +171,7 @@ export class Node extends EventDispatcher {
         if (this._children) {
             //为了保持销毁顺序，所以需要正序销毁
             for (var i: number = 0, n: number = this._children.length; i < n; i++) {
-                this._children[0].destroy(true);
+                this._children[0]&&this._children[0].destroy(true);
             }
         }
     }
@@ -959,6 +959,8 @@ export class Node extends EventDispatcher {
         if (this._components) {
             for (var i: number = 0, n: number = this._components.length; i < n; i++) {
                 var comp: Component = this._components[i];
+                if (typeof componentType === "string" && comp.constructor.name === componentType)
+                        return comp;
                 if (comp instanceof componentType)
                     return comp;
             }

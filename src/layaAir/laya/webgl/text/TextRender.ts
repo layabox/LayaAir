@@ -19,7 +19,7 @@ export class TextRender {
     static useOldCharBook = false;
     static atlasWidth = 1024;
     static noAtlas = false;				// 一串文字用独立贴图
-    static forceSplitRender = false;	    // 强制把一句话拆开渲染
+    static forceSplitRender = true;	    // 强制把一句话拆开渲染
     static forceWholeRender = false; 	// 强制整句话渲染
     static scaleFontWithCtx = true;		// 如果有缩放，则修改字体，以保证清晰度
     static standardFontSize = 32;			// 测量的时候使用的字体大小
@@ -42,7 +42,7 @@ export class TextRender {
     static atlasWidth2: number;
     private charRender: ICharRender;
     private static tmpRI: CharRenderInfo = new CharRenderInfo();
-    private static pixelBBX:number[] = [0, 0, 0, 0];
+    private static pixelBBX: number[] = [0, 0, 0, 0];
     private mapFont: any = {};		// 把font名称映射到数字
     private fontID: number = 0;
 
@@ -52,6 +52,7 @@ export class TextRender {
     //private var charMaps:Object = {};	// 所有的都放到一起
 
     private _curStrPos: number = 0;		//解开一个字符串的时候用的。表示当前解到什么位置了
+    private _curStrPos2: number = 0;		//解开一个UBB字符串的时候用的。表示当前解到什么位置了
     static textRenderInst: TextRender;	//debug
 
     textAtlases: TextAtlas[] = [];		// 所有的大图集
@@ -61,7 +62,7 @@ export class TextRender {
     private static imgdtRect: any[] = [0, 0, 0, 0];
 
     // 当前字体的测量信息。
-    private lastFont: FontInfo|null = null;
+    private lastFont: FontInfo | null = null;
     private fontSizeW: number = 0;
     private fontSizeH: number = 0;
     private fontSizeOffX: number = 0;
@@ -80,10 +81,10 @@ export class TextRender {
         //在微信下有时候不显示文字，所以采用canvas模式，现在测试微信好像都好了，所以去掉了。
         var miniadp: any = ILaya.Laya['MiniAdpter']; //头条也继承了这个bug
         if (miniadp && miniadp.systemInfo && miniadp.systemInfo.system) {
-			bugIOS = miniadp.systemInfo.system.toLowerCase() === 'ios 10.1.1';
-			//12.3
+            bugIOS = miniadp.systemInfo.system.toLowerCase() === 'ios 10.1.1';
+            //12.3
         }
-        if ((ILaya.Browser.onMiniGame||ILaya.Browser.onTTMiniGame||ILaya.Browser.onBLMiniGame||ILaya.Browser.onAlipayMiniGame || ILaya.Browser.onTBMiniGame) /*&& !Browser.onAndroid*/ && !bugIOS) TextRender.isWan1Wan = true; //android 微信下 字边缘发黑，所以不用getImageData了
+        if ((ILaya.Browser.onMiniGame || ILaya.Browser.onTTMiniGame || ILaya.Browser.onBLMiniGame || ILaya.Browser.onAlipayMiniGame || ILaya.Browser.onTBMiniGame) /*&& !Browser.onAndroid*/ && !bugIOS) TextRender.isWan1Wan = true; //android 微信下 字边缘发黑，所以不用getImageData了
         //TextRender.isWan1Wan = true;
         this.charRender = ILaya.Render.isConchApp ? (new CharRender_Native()) : (new CharRender_Canvas(2048, 2048, TextRender.scaleFontWithCtx, !TextRender.isWan1Wan, false));
         TextRender.textRenderInst = this;
@@ -127,10 +128,10 @@ export class TextRender {
      * @param	str
      * @param	start	开始位置
      */
-    getNextChar(str: string): string |null{
+    getNextChar(str: string): string | null {
         var len = str.length;
-		var start = this._curStrPos;
-		if(!str.substring) return null;	// 保护一下，避免下面 substring 报错
+        var start = this._curStrPos;
+        if (!str.substring) return null;	// 保护一下，避免下面 substring 报错
         if (start >= len)
             return null;
 
@@ -159,8 +160,105 @@ export class TextRender {
         }
         this._curStrPos = i;
         return str.substring(start, i);
-	}
-	
+    }
+
+    getNextUBBChar(txt: string): { txt: string, info: { color?: string, font?: string } } {
+        let re = /\[u (.+?)\](.+?)\[\/u\]/ig;
+        let txts: any[] = [];
+        let ubbs = txt.match(re)
+        let lastIndex = 0;
+        let resObj: any = null;
+        let getChat: Function = () => {
+            let showTxt = txts[this._curStrPos];
+            if (!showTxt) {
+                return;
+            }
+            let reqRes = re.exec(showTxt);
+            let res = reqRes && reqRes[1].split(" ") || null;
+            let ChildChat
+            if (res) {
+                resObj = {};
+                for (let i = 0; i < res.length; i++) {
+                    const element = res[i].split("=");
+                    resObj[element[0]] = element[1];
+                }
+                ChildChat = reqRes[2];
+            }
+            else {
+                resObj = null;
+                ChildChat = showTxt;
+            }
+
+            let _getNextChar = this.getUBBNextChar(ChildChat);
+            if (!_getNextChar) {
+                this._curStrPos++;
+                return getChat();
+            }
+            else {
+                return { txt: _getNextChar, info: resObj };
+            }
+        };
+        let getChildChat: Function = (str: string) => {
+            let _getNextChar = this.getUBBNextChar(str);
+            if (!_getNextChar) {
+                this._curStrPos++;
+                return null;
+            }
+            else {
+                return { txt: _getNextChar, info: resObj };
+            }
+        };
+        if (!ubbs) {
+            resObj = null;
+            return getChildChat(txt);
+        }
+        for (let i = 0; i < ubbs.length; i++) {
+            let index = txt.indexOf(ubbs[i]);
+            if (lastIndex == index) {
+                txts.push(ubbs[i]);
+            } else {
+                txts.push(txt.substring(lastIndex, index), ubbs[i])
+            }
+            lastIndex = index + ubbs[i].length;
+            if (i == ubbs.length - 1) {
+                txts.push(txt.substring(lastIndex))
+            }
+            if (txts.length > this._curStrPos) {
+                break
+            }
+        }
+        return getChat()
+    }
+
+
+    getUBBNextChar(txt: string) {
+        let len = txt.length;
+        let lastCharCode: number = -1;
+        let str = "";
+        let strs = [];
+        for (let i = 0; i < txt.length; i++) {
+            let chartype = txt[i].charCodeAt(0) >>> 11;
+            if (lastCharCode == chartype || lastCharCode == -1 || txt[i].charCodeAt(0) == 32) {
+            } else {
+                strs.push(str)
+                str = "";
+            }
+            if (txt[i].charCodeAt(0) != 32) {
+                lastCharCode = chartype;
+            }
+            str += txt[i];
+            if (i == len - 1) {
+                strs.push(str)
+            }
+        }
+        let result = strs[this._curStrPos2]
+        this._curStrPos2++
+        if (!result) {
+            this._curStrPos2 = 0;
+        }
+        return result
+    }
+
     filltext(ctx: Context, data: string | WordText, x: number, y: number, fontStr: string, color: string, strokeColor: string, lineWidth: number, textAlign: string, underLine: number = 0): void {
         if (data.length <= 0)
             return;
@@ -179,14 +277,14 @@ export class TextRender {
         this._fast_filltext(ctx, (<WordText>data), null, x, y, font, color, strokeColor, lineWidth, nTextAlign, underLine);
     }
 
-    fillWords(ctx: Context, data: HTMLChar[], x: number, y: number, fontStr: string | FontInfo, color: string, strokeColor: string|null, lineWidth: number): void {
+    fillWords(ctx: Context, data: HTMLChar[], x: number, y: number, fontStr: string | FontInfo, color: string, strokeColor: string | null, lineWidth: number): void {
         if (!data) return;
         if (data.length <= 0) return;
         var font = typeof (fontStr) === 'string' ? FontInfo.Parse(fontStr) : fontStr;
         this._fast_filltext(ctx, null, data, x, y, font, color, strokeColor, lineWidth, 0, 0);
     }
 
-    _fast_filltext(ctx: Context, data: string | WordText|null, htmlchars: HTMLChar[]|null, x: number, y: number, font: FontInfo, color: string, strokeColor: string|null, lineWidth: number, textAlign: number, underLine: number = 0): void {
+    _fast_filltext(ctx: Context, data: string | WordText | null, htmlchars: HTMLChar[] | null, x: number, y: number, font: FontInfo, color: string, strokeColor: string | null, lineWidth: number, textAlign: number, underLine: number = 0): void {
         if (data && !(data.length >= 1)) return;	// length有可能是 undefined
         if (htmlchars && htmlchars.length < 1) return;
         if (lineWidth < 0) lineWidth = 0;
@@ -195,16 +293,16 @@ export class TextRender {
         if (TextRender.scaleFontWithCtx) {
             var sx = 1;
             var sy = 1;
-    
+
             if (!ILaya.Render.isConchApp || ((window as any).conchTextCanvas.scale)) {
                 sx = ctx.getMatScaleX();
                 sy = ctx.getMatScaleY();
             }
-            
+
             if (sx < 1e-4 || sy < 1e-1)
                 return;
-            if(sx>1) this.fontScaleX = sx;
-            if(sy>1) this.fontScaleY = sy;
+            if (sx > 1) this.fontScaleX = sx;
+            if (sy > 1) this.fontScaleY = sy;
         }
 
         font._italic && (ctx._italicDeg = 13);
@@ -212,8 +310,8 @@ export class TextRender {
         //拷贝到texture上,得到一个gltexture和uv
         var wt = <WordText>data;
         var isWT = !htmlchars && (data instanceof WordText);
-        var str = data&&data.toString();//(<string>data);guo 某种情况下，str还是WordText（没找到为啥），这里保护一下
-        var isHtmlChar= !!htmlchars;
+        var str = data && data.toString();//(<string>data);guo 某种情况下，str还是WordText（没找到为啥），这里保护一下
+        var isHtmlChar = !!htmlchars;
         /**
          * sameTexData 
          * WordText 中保存了一个数组，这个数组是根据贴图排序的，目的是为了能相同的贴图合并。
@@ -248,17 +346,17 @@ export class TextRender {
             //wt.lastGCCnt = _curPage.gcCnt;
             if (this.hasFreedText(sameTexData)) {
                 sameTexData = wt.pageChars = [];
-			}
-			// if(isWT && (this.fontScaleX!=wt.scalex || this.fontScaleY!=wt.scaley)) {
-			// 	// 文字缩放要清理缓存
-			// 	sameTexData = wt.pageChars = [];
-			// }
+            }
+            // if(isWT && (this.fontScaleX!=wt.scalex || this.fontScaleY!=wt.scaley)) {
+            // 	// 文字缩放要清理缓存
+            // 	sameTexData = wt.pageChars = [];
+            // }
         }
         var ri: CharRenderInfo = null;
         //var oneTex: boolean = isWT || TextRender.forceWholeRender;	// 如果能缓存的话，就用一张贴图
         var splitTex = this.renderPerChar = (!isWT) || TextRender.forceSplitRender || isHtmlChar || (isWT && wt.splitRender); 	// 拆分字符串渲染，这个优先级高
         if (!sameTexData || sameTexData.length < 1) {
-			if (isWT) {
+            if (isWT) {
                 wt.scalex = this.fontScaleX;
                 wt.scaley = this.fontScaleY;
             }
@@ -270,7 +368,14 @@ export class TextRender {
                 var sty = 0;
 
                 this._curStrPos = 0;
-                var curstr: string|null;
+                var curstr: string | null;
+                let UBBInfo: {
+                    txt: string;
+                    info: {
+                        color?: string;
+                        font?: string;
+                    };
+                }
                 while (true) {
                     if (htmlchars) {
                         var chc = htmlchars[this._curStrPos++];
@@ -282,15 +387,29 @@ export class TextRender {
                             curstr = null;
                         }
                     } else {
-                        curstr = this.getNextChar(str);
+                        UBBInfo = this.getNextUBBChar(str);
+                        curstr = UBBInfo && UBBInfo.txt || null;
                     }
                     if (!curstr)
                         break;
-                    ri = this.getCharRenderInfo(curstr, font, color, strokeColor, lineWidth, false);
+
+                    let font_temp: FontInfo = null;
+                    let color_temp: string = null;
+                    if (UBBInfo && UBBInfo.info) {
+                        if (UBBInfo.info.font) {
+                            font_temp = FontInfo.Parse(UBBInfo.info.font.replace(",", " "))
+                            this.setFont(font_temp);
+                        }
+                        if (UBBInfo.info.color) {
+                            color_temp = UBBInfo.info.color;
+                        }
+                    }
+                    ri = this.getCharRenderInfo(curstr, font_temp || font, color_temp || color, strokeColor, lineWidth, false);
                     if (!ri) {
                         // 没有分配到。。。
                         break;
                     }
+
                     if (ri.isSpace) {	// 空格什么都不做
                     } else {
                         //分组保存
@@ -310,8 +429,8 @@ export class TextRender {
 
             } else {
                 // 如果要整句话渲染
-				var margin = ILaya.Render.isConchApp ? 0 : (font._size / 3 | 0);  // margin保持与charrender_canvas的一致
-				var isotex = TextRender.noAtlas || (strWidth+margin+margin) * this.fontScaleX > TextRender.atlasWidth;	// 独立贴图还是大图集。需要考虑margin
+                var margin = ILaya.Render.isConchApp ? 0 : (font._size / 3 | 0);  // margin保持与charrender_canvas的一致
+                var isotex = TextRender.noAtlas || (strWidth + margin + margin) * this.fontScaleX > TextRender.atlasWidth;	// 独立贴图还是大图集。需要考虑margin
                 ri = this.getCharRenderInfo(str, font, color, strokeColor, lineWidth, isotex);
                 // 整句渲染，则只有一个贴图
                 sameTexData[0] = { texgen: ((<TextTexture>ri.tex)).genID, tex: ri.tex, words: [{ ri: ri, x: 0, y: 0, w: ri.bmpWidth / this.fontScaleX, h: ri.bmpHeight / this.fontScaleY }] };
@@ -331,15 +450,16 @@ export class TextRender {
      * @param y {int} 因为这个只能画在一行上所以没有必要保存y。所以这里再把y传进来
      */
     protected _drawResortedWords(ctx: Context, startx: number, starty: number, samePagesData: any[]): void {
-        var isLastRender = ctx._charSubmitCache?ctx._charSubmitCache._enable:false;
+        var isLastRender = ctx._charSubmitCache ? ctx._charSubmitCache._enable : false;
         var mat = ctx._curMat;
         //var slen = samePagesData.length;
         //for (var id = 0; id < slen; id++) {
-		for(var id in samePagesData) {// TODO samePagesData可能是个不连续的数组，比如只有一个samePagesData[29999] = dt;
-										// TODO 想个更好的方法
+        for (var id in samePagesData) {// TODO samePagesData可能是个不连续的数组，比如只有一个samePagesData[29999] = dt;
+            // TODO 想个更好的方法
             var dt = samePagesData[id];
             if (!dt) continue;
             var pri: any[] = dt.words;
+            if (!pri) continue;
             var pisz = pri.length; if (pisz <= 0) continue;
             var tex = ((<TextTexture>samePagesData[id].tex));
             for (var j = 0; j < pisz; j++) {
@@ -374,10 +494,14 @@ export class TextRender {
      * @return
      */
     hasFreedText(txts: any[]): boolean {
-        for(let i in txts){
+        if (txts.length <= 0) return false
+        for (let i in txts) {
             var pri = txts[i];
             if (!pri) continue;
             var tex = (<TextTexture>pri.tex);
+            if (!tex) {
+                continue;
+            }
             if (tex.__destroyed || tex.genID != pri.texgen) {
                 return true;
             }
@@ -385,7 +509,7 @@ export class TextRender {
         return false;
     }
 
-    getCharRenderInfo(str: string, font: FontInfo, color: string, strokeColor: string|null, lineWidth: number, isoTexture: boolean = false): CharRenderInfo {
+    getCharRenderInfo(str: string, font: FontInfo, color: string, strokeColor: string | null, lineWidth: number, isoTexture: boolean = false): CharRenderInfo {
         var fid = this.mapFont[font._family];
         if (fid == undefined) {
             this.mapFont[font._family] = fid = this.fontID++;
@@ -428,7 +552,7 @@ export class TextRender {
         ri.height = font._size;
         var margin = ILaya.Render.isConchApp ? 0 : (font._size / 3 | 0);	// 凑的。 注意这里不能乘以缩放，因为ctx会自动处理
         // 如果不存在，就要插入已有的，或者创建新的
-        var imgdt: ImageData|null=null;
+        var imgdt: ImageData | null = null;
         // 先大约测量文字宽度 
 
         if (!lineWidth) {
@@ -442,16 +566,19 @@ export class TextRender {
             // 独立贴图
             this.charRender.fontsz = font._size;
             imgdt = this.charRender.getCharBmp(str, this.fontStr, lineWidth, color, strokeColor, ri, margin, margin, margin, margin, null);
-			// 这里可以直接
-			if(imgdt){
-				var tex = TextTexture.getTextTexture(imgdt.width, imgdt.height);
-				tex.addChar(imgdt, 0, 0, ri.uv);
-				ri.tex = tex;
-				ri.orix = margin; // 这里是原始的，不需要乘scale,因为scale的会创建一个scale之前的rect
-				ri.oriy = margin;
-				tex.ri = ri;
-				this.isoTextures.push(tex);
-			}
+            // 这里可以直接
+            if (imgdt) {
+                var tex = TextTexture.getTextTexture(imgdt.width, imgdt.height);
+                tex.addChar(imgdt, 0, 0, ri.uv);
+                ri.tex = tex;
+                ri.orix = margin; // 这里是原始的，不需要乘scale,因为scale的会创建一个scale之前的rect
+                ri.oriy = margin;
+                if (new RegExp(/[\u0E00-\u0E7F]+/).test(str)) {
+                    ri.oriy = margin + 6;
+                }
+                tex.ri = ri;
+                this.isoTextures.push(tex);
+            }
         } else {
             // 大图集
             var len = str.length;
@@ -474,20 +601,23 @@ export class TextRender {
             }
             this.charRender.fontsz = font._size;
             imgdt = this.charRender.getCharBmp(str, this.fontStr, lineWidth, color, strokeColor, ri,
-				margin, margin, margin, margin, TextRender.imgdtRect);
-			if(imgdt){
-				atlas = this.addBmpData(imgdt, ri);
-				if (TextRender.isWan1Wan) {
-					// 这时候 imgdtRect 是不好使的，要自己设置
-					ri.orix = margin;	// 不要乘缩放。要不后面也要除。
-					ri.oriy = margin;
-				} else {
-					// 取下来的imagedata的原点在哪
-					ri.orix = (this.fontSizeOffX + lineExt);	// 由于是相对于imagedata的，上面会根据包边调整左上角，所以原点也要相应反向调整
-					ri.oriy = (this.fontSizeOffY + lineExt);
-				}
-				atlas.charMaps[key] = ri;
-			}
+                margin, margin, margin, margin, TextRender.imgdtRect);
+            if (imgdt) {
+                atlas = this.addBmpData(imgdt, ri);
+                if (TextRender.isWan1Wan) {
+                    // 这时候 imgdtRect 是不好使的，要自己设置
+                    ri.orix = margin;	// 不要乘缩放。要不后面也要除。
+                    ri.oriy = margin;
+                } else {
+                    // 取下来的imagedata的原点在哪
+                    ri.orix = (this.fontSizeOffX + lineExt);	// 由于是相对于imagedata的，上面会根据包边调整左上角，所以原点也要相应反向调整
+                    ri.oriy = (this.fontSizeOffY + lineExt);
+                    if (new RegExp(/[\u0E00-\u0E7F]+/).test(str)) {//泰文
+                        ri.oriy = (this.fontSizeOffY + lineExt) + 6;
+                    }
+                }
+                atlas.charMaps[key] = ri;
+            }
         }
         return ri;
     }
