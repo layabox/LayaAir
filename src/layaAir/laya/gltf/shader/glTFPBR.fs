@@ -24,6 +24,13 @@ void initSurfaceInputs(inout SurfaceInputs inputs, const in PixelParams pixel)
     inputs.diffuseColor = u_BaseColorFactor.xyz;
     inputs.alpha = u_BaseColorFactor.w;
 
+#ifdef COLOR
+    #ifdef ENABLEVERTEXCOLOR
+    inputs.diffuseColor *= pixel.vertexColor.xyz;
+    inputs.alpha *= pixel.vertexColor.a;
+    #endif // ENABLEVERTEXCOLOR
+#endif // COLOR
+
 #ifdef BASECOLORMAP
     vec2 baseColorUV = uv;
     #ifdef BASECOLORMAP_TRANSFORM
@@ -307,6 +314,14 @@ void main()
     debug = vec3(info.vertexNormalWS * 0.5 + 0.5);
     #endif // Debug_GeometryNormal
 
+    #ifdef Debug_GeometryTangent
+    debug = vec3(pixel.tangentWS * 0.5 + 0.5);
+    #endif // Debug_GeometryTangent
+
+    #ifdef Debug_GeometryBiTangent
+    debug = vec3(pixel.biNormalWS * 0.5 + 0.5);
+    #endif // Debug_GeometryBiTangent
+
     #ifdef Debug_Roughness
     debug = vec3(surface.perceptualRoughness);
     #endif // Debug_Roughness
@@ -364,6 +379,23 @@ void main()
     #ifdef Debug_f90
     debug = vec3(surface.f90);
     #endif // Debug_f90
+
+    #ifdef Debug_FrontFace
+    if (gl_FrontFacing)
+	{
+	    debug = vec3(1.0, 0.0, 0.0);
+	}
+    else
+	{
+	    debug = vec3(0.0, 1.0, 0.0);
+	}
+    #endif // Debug_FrontFace
+
+    #ifdef Debug_SpecularAO
+	#if defined(GL_OES_standard_derivatives)
+    debug = vec3(saturate(pow(info.NoV + surface.occlusion, exp2(-16.0 * surface.roughness - 1.0)) - 1.0 + surface.occlusion));
+	#endif // GL_OES_standard_derivatives
+    #endif // Debug_SpecularAO
 
     // // #ifdef CLEARCOAT
     // //     // debug = vec3(info.iridescenceFresnel);

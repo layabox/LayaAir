@@ -3,7 +3,6 @@ import { Sprite } from "laya/display/Sprite";
 import { Stage } from "laya/display/Stage";
 import { Event } from "laya/events/Event";
 import { Browser } from "laya/utils/Browser";
-import { WebGL } from "laya/webgl/WebGL";
 import { Main } from "./../Main";
 
 export class Sprite_Pivot {
@@ -14,16 +13,16 @@ export class Sprite_Pivot {
 	constructor(maincls: typeof Main) {
 		this.Main = maincls;
 
-		// 不支持WebGL时自动切换至Canvas
-		Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
-		//
-		Laya.stage.alignV = Stage.ALIGN_MIDDLE;
-		Laya.stage.alignH = Stage.ALIGN_CENTER;
-		//
-		Laya.stage.scaleMode = "showall";
-		Laya.stage.bgColor = "#232628";
+		Laya.init(Browser.clientWidth, Browser.clientHeight).then(() => {
+			//
+			Laya.stage.alignV = Stage.ALIGN_MIDDLE;
+			Laya.stage.alignH = Stage.ALIGN_CENTER;
+			//
+			Laya.stage.scaleMode = "showall";
+			Laya.stage.bgColor = "#232628";
 
-		this.createApes();
+			this.createApes();
+		});
 	}
 
 	private createApes(): void {

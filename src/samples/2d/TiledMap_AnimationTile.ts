@@ -2,7 +2,6 @@ import { Laya } from "Laya";
 import { Stage } from "laya/display/Stage";
 import { TiledMap } from "laya/map/TiledMap";
 import { Rectangle } from "laya/maths/Rectangle";
-import { Resource } from "laya/resource/Resource";
 import { Handler } from "laya/utils/Handler";
 import { Main } from "./../Main";
 
@@ -13,16 +12,16 @@ export class TiledMap_AnimationTile {
 	constructor(maincls: typeof Main) {
 		this.Main = maincls;
 
-		// 不支持WebGL时自动切换至Canvas
-		Laya.init(1100, 800);
+		Laya.init(1100, 800).then(() => {
+			Laya.stage.alignV = Stage.ALIGN_MIDDLE;
+			Laya.stage.alignH = Stage.ALIGN_CENTER;
 
-		Laya.stage.alignV = Stage.ALIGN_MIDDLE;
-		Laya.stage.alignH = Stage.ALIGN_CENTER;
+			Laya.stage.scaleMode = Stage.SCALE_SHOWALL;
+			Laya.stage.bgColor = "#232628";
 
-		//			Laya.stage.scaleMode = Stage.SCALE_SHOWALL;
-		Laya.stage.bgColor = "#232628";
+			this.createMap();
+		});
 
-		this.createMap();
 	}
 
 	private createMap(): void {

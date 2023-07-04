@@ -4,7 +4,6 @@ import { Loader } from "laya/net/Loader";
 import { Browser } from "laya/utils/Browser";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
-import { WebGL } from "laya/webgl/WebGL";
 import { Main } from "./../Main";
 export class PerformanceTest_Cartoon {
 	private colAmount: number = 100;
@@ -18,11 +17,11 @@ export class PerformanceTest_Cartoon {
 	constructor(maincls: typeof Main) {
 		this.Main = maincls;
 
-		// 不支持WebGL时自动切换至Canvas
-		Laya.init( Browser.width, Browser.height, WebGL);
-		Laya.stage.bgColor = "#232628";
-		Stat.show();
-		Laya.loader.load("res/cartoonCharacters/cartoonCharactors.json", Handler.create(this, this.createCharacters), null, Loader.ATLAS);
+		Laya.init(Browser.width, Browser.height).then(() => {
+			Laya.stage.bgColor = "#232628";
+			Stat.show();
+			Laya.loader.load("res/cartoonCharacters/cartoonCharactors.json", Handler.create(this, this.createCharacters), null, Loader.ATLAS);
+		});
 	}
 
 	private createCharacters(e: any = null): void {

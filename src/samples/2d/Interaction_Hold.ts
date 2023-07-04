@@ -7,7 +7,6 @@ import { Browser } from "laya/utils/Browser";
 import { Ease } from "laya/utils/Ease";
 import { Handler } from "laya/utils/Handler";
 import { Tween } from "laya/utils/Tween";
-import { WebGL } from "laya/webgl/WebGL";
 import { Main } from "./../Main";
 
 export class Interaction_Hold {
@@ -21,16 +20,16 @@ export class Interaction_Hold {
 	Main: typeof Main = null;
 	constructor(maincls: typeof Main) {
 		this.Main = maincls;
-		// 不支持WebGL时自动切换至Canvas
-		Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
-		//
-		//Laya.stage.alignV = Stage.ALIGN_MIDDLE;
-		//Laya.stage.alignH = Stage.ALIGN_CENTER;
+		Laya.init(Browser.clientWidth, Browser.clientHeight).then(() => {
+			//
+			Laya.stage.alignV = Stage.ALIGN_MIDDLE;
+			Laya.stage.alignH = Stage.ALIGN_CENTER;
 
-		//Laya.stage.scaleMode = "showall";
-		Laya.stage.bgColor = "#232628";
+			Laya.stage.scaleMode = "showall";
+			Laya.stage.bgColor = "#232628";
 
-		Laya.loader.load(this.apePath, Handler.create(this, this.createApe));
+			Laya.loader.load(this.apePath, Handler.create(this, this.createApe));
+		});
 	}
 
 	private createApe(_e: any = null): void {

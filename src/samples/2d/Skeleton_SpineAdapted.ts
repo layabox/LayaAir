@@ -16,18 +16,19 @@ export class Skeleton_SpineAdapted {
     constructor(maincls: typeof Main) {
         this.Main = maincls;
 
-        Laya.init(Browser.width, Browser.height);
-        Laya.stage.bgColor = "#cccccc";
-        Stat.show();
+        Laya.init(Browser.width, Browser.height).then(() => {
+            Laya.stage.bgColor = "#cccccc";
+            Stat.show();
 
-        Laya.loader.load("res/spine/spineboy-pma.skel", Loader.SPINE).then((templet: SpineTemplet) => {
-            this.skeleton = new SpineSkeleton();
-            this.skeleton.templet = templet;
-            this.Main.box2D.addChild(this.skeleton);
-            this.skeleton.pos(Browser.width / 2, Browser.height / 2 + 100);
-            this.skeleton.scale(0.5, 0.5);
-            this.skeleton.on(Event.STOPPED, this, this.play);
-            this.play();
+            Laya.loader.load("res/spine/spineboy-pma.skel", Loader.SPINE).then((templet: SpineTemplet) => {
+                this.skeleton = new SpineSkeleton();
+                this.skeleton.templet = templet;
+                this.Main.box2D.addChild(this.skeleton);
+                this.skeleton.pos(Browser.width / 2, Browser.height / 2 + 100);
+                this.skeleton.scale(0.5, 0.5);
+                this.skeleton.on(Event.STOPPED, this, this.play);
+                this.play();
+            });
         });
     }
 

@@ -10,10 +10,12 @@ export class SmartScale_Scale_NOSCALE {
 	constructor(maincls: typeof Main) {
 		this.Main = maincls;
 
-		Laya.init(550, 400);
-		Laya.stage.scaleMode = Stage.SCALE_NOSCALE;
-		Laya.stage.bgColor = "#232628";
-		this.createCantralRect();
+		Laya.init(550, 400).then(() => {
+			Laya.stage.scaleMode = Stage.SCALE_NOSCALE;
+			Laya.stage.screenMode = Stage.SCREEN_HORIZONTAL;
+			Laya.stage.bgColor = "#232628";
+			this.createCantralRect();
+		});
 	}
 
 	private createCantralRect(): void {

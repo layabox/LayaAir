@@ -133,6 +133,8 @@ export class Scene3D extends Sprite implements ISubmit {
     /** @internal */
     static LIGHTDIRCOLOR: number;
     /** @internal */
+    static LIGHTMODE: number;
+    /** @internal */
     static POINTLIGHTPOS: number;
     /** @internal */
     static POINTLIGHTRANGE: number;
@@ -140,6 +142,8 @@ export class Scene3D extends Sprite implements ISubmit {
     static POINTLIGHTATTENUATION: number;
     /** @internal */
     static POINTLIGHTCOLOR: number;
+    /** @internal */
+    static POINTLIGHTMODE: number;
     /** @internal */
     static SPOTLIGHTPOS: number;
     /** @internal */
@@ -150,6 +154,8 @@ export class Scene3D extends Sprite implements ISubmit {
     static SPOTLIGHTRANGE: number;
     /** @internal */
     static SPOTLIGHTCOLOR: number;
+    /** @internal */
+    static SPOTLIGHTMODE: number;
     //------------------legacy lighting-------------------------------
     /** @internal 场景更新标记*/
     static __updateMark: number = 0;
@@ -242,6 +248,9 @@ export class Scene3D extends Sprite implements ISubmit {
         Scene3D.sceneUniformMap.addShaderUniform(Scene3D.LIGHTDIRECTION, "u_DirectionLight.direction", ShaderDataType.Vector3);
         Scene3D.LIGHTDIRCOLOR = Shader3D.propertyNameToID("u_DirectionLight.color");
         Scene3D.sceneUniformMap.addShaderUniform(Scene3D.LIGHTDIRCOLOR, "u_DirectionLight.color", ShaderDataType.Vector3);
+        Scene3D.LIGHTMODE = Shader3D.propertyNameToID("u_DirectionLight.lightMode");
+        Scene3D.sceneUniformMap.addShaderUniform(Scene3D.LIGHTMODE, "u_DirectionLight.lightMode", ShaderDataType.Int);
+
         Scene3D.POINTLIGHTPOS = Shader3D.propertyNameToID("u_PointLight.position");
         Scene3D.sceneUniformMap.addShaderUniform(Scene3D.POINTLIGHTPOS, "u_PointLight.position", ShaderDataType.Vector3);
         Scene3D.POINTLIGHTRANGE = Shader3D.propertyNameToID("u_PointLight.range");
@@ -249,17 +258,22 @@ export class Scene3D extends Sprite implements ISubmit {
         Scene3D.POINTLIGHTATTENUATION = Shader3D.propertyNameToID("u_PointLight.attenuation");
         Scene3D.sceneUniformMap.addShaderUniform(Scene3D.POINTLIGHTATTENUATION, "u_PointLight.attenuation", ShaderDataType.Float);
         Scene3D.POINTLIGHTCOLOR = Shader3D.propertyNameToID("u_PointLight.color");
-        Scene3D.sceneUniformMap.addShaderUniform(Scene3D.POINTLIGHTCOLOR, "u_PointLight.color", ShaderDataType.Vector3);;
+        Scene3D.sceneUniformMap.addShaderUniform(Scene3D.POINTLIGHTCOLOR, "u_PointLight.color", ShaderDataType.Vector3);
+        Scene3D.POINTLIGHTMODE = Shader3D.propertyNameToID("u_PointLight.lightMode");
+        Scene3D.sceneUniformMap.addShaderUniform(Scene3D.POINTLIGHTMODE, "u_PointLight.lightMode", ShaderDataType.Int);
+
         Scene3D.SPOTLIGHTPOS = Shader3D.propertyNameToID("u_SpotLight.position");
         Scene3D.sceneUniformMap.addShaderUniform(Scene3D.SPOTLIGHTPOS, "u_SpotLight.position", ShaderDataType.Vector3);
         Scene3D.SPOTLIGHTDIRECTION = Shader3D.propertyNameToID("u_SpotLight.direction");
-        Scene3D.sceneUniformMap.addShaderUniform(Scene3D.SPOTLIGHTDIRECTION, "u_DirectionLight.direction", ShaderDataType.Vector3);
+        Scene3D.sceneUniformMap.addShaderUniform(Scene3D.SPOTLIGHTDIRECTION, "u_SpotLight.direction", ShaderDataType.Vector3);
         Scene3D.SPOTLIGHTSPOTANGLE = Shader3D.propertyNameToID("u_SpotLight.spot");
         Scene3D.sceneUniformMap.addShaderUniform(Scene3D.SPOTLIGHTSPOTANGLE, "u_SpotLight.spot", ShaderDataType.Float);
         Scene3D.SPOTLIGHTRANGE = Shader3D.propertyNameToID("u_SpotLight.range");
         Scene3D.sceneUniformMap.addShaderUniform(Scene3D.SPOTLIGHTRANGE, "u_SpotLight.range", ShaderDataType.Float);
         Scene3D.SPOTLIGHTCOLOR = Shader3D.propertyNameToID("u_SpotLight.color");
         Scene3D.sceneUniformMap.addShaderUniform(Scene3D.SPOTLIGHTCOLOR, "u_SpotLight.color", ShaderDataType.Vector3);
+        Scene3D.SPOTLIGHTMODE = Shader3D.propertyNameToID("u_SpotLight.lightMode");
+        Scene3D.sceneUniformMap.addShaderUniform(Scene3D.SPOTLIGHTMODE, "u_SpotLight.lightMode", ShaderDataType.Int);
     }
 
     /**
@@ -1032,6 +1046,7 @@ export class Scene3D extends Sprite implements ISubmit {
                 Vector3.normalize(dirLight._direction, dirLight._direction);
                 shaderValues.setVector3(Scene3D.LIGHTDIRCOLOR, dirLight._intensityColor);
                 shaderValues.setVector3(Scene3D.LIGHTDIRECTION, dirLight._direction);
+                shaderValues.setInt(Scene3D.LIGHTMODE, dirLight._lightmapBakedType);
                 if (i == 0) {
                     this._sunColor = dirLight.color;
                     this._sundir = dirLight._direction;
@@ -1053,6 +1068,7 @@ export class Scene3D extends Sprite implements ISubmit {
                 shaderValues.setVector3(Scene3D.POINTLIGHTCOLOR, poiLight._intensityColor);
                 shaderValues.setVector3(Scene3D.POINTLIGHTPOS, (poiLight.owner as Sprite3D).transform.position);
                 shaderValues.setNumber(Scene3D.POINTLIGHTRANGE, poiLight.range);
+                shaderValues.setInt(Scene3D.POINTLIGHTMODE, poiLight._lightmapBakedType);
                 shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_POINTLIGHT);
             }
             else {
@@ -1072,6 +1088,7 @@ export class Scene3D extends Sprite implements ISubmit {
                 shaderValues.setVector3(Scene3D.SPOTLIGHTDIRECTION, spotLight._direction);
                 shaderValues.setNumber(Scene3D.SPOTLIGHTRANGE, spotLight.range);
                 shaderValues.setNumber(Scene3D.SPOTLIGHTSPOTANGLE, spotLight.spotAngle * Math.PI / 180);
+                shaderValues.setInt(Scene3D.SPOTLIGHTMODE, spotLight._lightmapBakedType);
                 shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SPOTLIGHT);
             }
             else {

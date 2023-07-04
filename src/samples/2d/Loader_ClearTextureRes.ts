@@ -6,7 +6,6 @@ import { Text } from "laya/display/Text";
 import { Event } from "laya/events/Event";
 import { Browser } from "laya/utils/Browser";
 import { Stat } from "laya/utils/Stat";
-import { WebGL } from "laya/webgl/WebGL";
 
 export class Loader_ClearTextureRes {
 	private spBg: Sprite;
@@ -14,8 +13,8 @@ export class Loader_ClearTextureRes {
 	private btn: Sprite;
 	private txt: Text;
 	private isDestroyed: boolean = false;
-	private PathBg: string = "../../res/bg2.png";
-	private PathFly: string = "../../res/fighter/fighter.atlas";
+	private PathBg: string = "res/bg2.png";
+	private PathFly: string = "res/fighter/fighter.atlas";
 
 	/**
 	 * Tips:
@@ -25,18 +24,19 @@ export class Loader_ClearTextureRes {
 	constructor() {
 
 		//初始化引擎
-		Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
+		Laya.init(Browser.clientWidth, Browser.clientHeight).then(() => {
+			Laya.stage.alignV = Stage.ALIGN_MIDDLE;
+			Laya.stage.alignH = Stage.ALIGN_CENTER;
 
-		Laya.stage.alignV = Stage.ALIGN_MIDDLE;
-		Laya.stage.alignH = Stage.ALIGN_CENTER;
+			Laya.stage.scaleMode = "showall";
+			Laya.stage.bgColor = "#232628";
 
-		Laya.stage.scaleMode = "showall";
-		Laya.stage.bgColor = "#232628";
+			this.init();
 
-		this.init();
+			//显示性能统计信息
+			Stat.show();
+		});
 
-		//显示性能统计信息
-		Stat.show();
 	}
 
 	/**
@@ -95,6 +95,12 @@ export class Loader_ClearTextureRes {
 			this.isDestroyed = true;
 			this.txt.text = "恢复";
 		}
+	}
+
+	dispose(){
+		this.btn.destroy();
+		this.aniFly && this.aniFly.destroy();
+		this.spBg && this.spBg.destroy();
 	}
 }
 

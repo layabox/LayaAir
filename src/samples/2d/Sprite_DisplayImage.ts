@@ -4,7 +4,6 @@ import { Stage } from "laya/display/Stage";
 import { Loader } from "laya/net/Loader";
 import { Texture } from "laya/resource/Texture";
 import { Browser } from "laya/utils/Browser";
-import { Handler } from "laya/utils/Handler";
 import { Main } from "./../Main";
 
 export class Sprite_DisplayImage {
@@ -12,16 +11,16 @@ export class Sprite_DisplayImage {
     constructor(maincls: typeof Main) {
         this.Main = maincls;
 
-        // 不支持WebGL时自动切换至Canvas
-        Laya.init(Browser.clientWidth, Browser.clientHeight);
+        Laya.init(Browser.clientWidth, Browser.clientHeight).then(() => {
+            Laya.stage.alignV = Stage.ALIGN_MIDDLE;
+            Laya.stage.alignH = Stage.ALIGN_CENTER;
 
-        //Laya.stage.alignV = Stage.ALIGN_MIDDLE;
-        //Laya.stage.alignH = Stage.ALIGN_CENTER;
+            Laya.stage.scaleMode = "showall";
+            Laya.stage.bgColor = "#232628";
 
-        //Laya.stage.scaleMode = "showall";
-        Laya.stage.bgColor = "#232628";
+            this.showApe();
+        });
 
-        this.showApe();
     }
 
     private showApe(): void {

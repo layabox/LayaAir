@@ -1,7 +1,6 @@
 import { Laya } from "Laya";
 import { Stage } from "laya/display/Stage";
 import { Browser } from "laya/utils/Browser";
-import { WebGL } from "laya/webgl/WebGL";
 import { Main } from "../Main";
 import { Text } from "laya/display/Text";
 
@@ -10,16 +9,15 @@ export class Text_HTML {
 	constructor(maincls: typeof Main) {
 		this.Main = maincls;
 
-		// 不支持WebGL时自动切换至Canvas
-		Laya.init( Browser.clientWidth, Browser.clientHeight, WebGL);
+		Laya.init(Browser.clientWidth, Browser.clientHeight).then(() => {
+			Laya.stage.alignV = Stage.ALIGN_MIDDLE;
+			Laya.stage.alignH = Stage.ALIGN_CENTER;
 
-		Laya.stage.alignV = Stage.ALIGN_MIDDLE;
-		Laya.stage.alignH = Stage.ALIGN_CENTER;
+			Laya.stage.scaleMode = "showall";
+			Laya.stage.bgColor = "#232628";
 
-		Laya.stage.scaleMode = "showall";
-		Laya.stage.bgColor = "#232628";
-
-		this.setup();
+			this.setup();
+		});
 	}
 
 	private setup(): void {
@@ -30,15 +28,13 @@ export class Text_HTML {
 		this.Main.box2D.addChild(p);
 		p.zOrder = 90000;
 		p.font = "Impact";
-		p.fontSize = 30;
+		p.fontSize = 40;
 		p.html = true;
 
-		var html: string = "<span color='#e3d26a'>使用</span>";
-		html += "<span style='color:#FFFFFF;font-weight :bold'>HTMLDivElement</span>";
-		html += "<span color='#6ad2e3'>创建的</span><br/>";
-		html += "<span color='#d26ae3'>HTML文本</span>";
-
-		p.text = html;
+		p.text = '<font color=#e3d26a>使用</font><br/>';
+		p.text += '<font color=#409ed7><b>文本的</b>HTML</font><br/>';
+		p.text += '<font color=#10d269><i>创建的</i></font><br/>';
+		p.text += '<font color=#dfbfc9><u>HTML富文本</u></font>';
 	}
 }
 

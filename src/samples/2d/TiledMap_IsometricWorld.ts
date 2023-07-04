@@ -5,7 +5,6 @@ import { MapLayer } from "laya/map/MapLayer";
 import { TiledMap } from "laya/map/TiledMap";
 import { Point } from "laya/maths/Point";
 import { Rectangle } from "laya/maths/Rectangle";
-import { Resource } from "laya/resource/Resource";
 import { Handler } from "laya/utils/Handler";
 import { Main } from "./../Main";
 
@@ -18,18 +17,18 @@ export class TiledMap_IsometricWorld {
 	constructor(maincls: typeof Main) {
 		this.Main = maincls;
 
-		// 不支持WebGL时自动切换至Canvas
-		Laya.init(1600, 800);
+		Laya.init(1600, 800).then(() => {
+			Laya.stage.alignV = Stage.ALIGN_MIDDLE;
+			Laya.stage.alignH = Stage.ALIGN_CENTER;
 
-		Laya.stage.alignV = Stage.ALIGN_MIDDLE;
-		Laya.stage.alignH = Stage.ALIGN_CENTER;
+			Laya.stage.scaleMode = Stage.SCALE_SHOWALL;
+			Laya.stage.bgColor = "#232628";
 
-		//			Laya.stage.scaleMode = Stage.SCALE_SHOWALL;
-		Laya.stage.bgColor = "#232628";
+			this.createMap();
 
-		this.createMap();
+			Laya.stage.on("click", this, this.onStageClick);
+		});
 
-		Laya.stage.on("click", this, this.onStageClick);
 	}
 
 	private createMap(): void {

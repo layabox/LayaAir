@@ -4,7 +4,6 @@ import { Rectangle } from "laya/maths/Rectangle";
 import { Browser } from "laya/utils/Browser";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
-import { WebGL } from "laya/webgl/WebGL";
 import { Main } from "./../Main";
 
 export class PerformanceTest_Maggots2 {
@@ -22,14 +21,14 @@ export class PerformanceTest_Maggots2 {
 	constructor(maincls: typeof Main) {
 		this.Main = maincls;
 
-		Laya.init(Browser.width, Browser.height, WebGL);
-		Laya.stage.bgColor = "#000001";
-		//Stat.show(true,30);
-		Stat.show(0, 0);
+		Laya.init(Browser.width, Browser.height).then(() => {
+			Laya.stage.bgColor = "#000001";
+			Stat.show(0, 0);
 
-		this.wrapBounds = new Rectangle(-this.padding, -this.padding, Laya.stage.width + this.padding * 2, Laya.stage.height + this.padding * 2);
+			this.wrapBounds = new Rectangle(-this.padding, -this.padding, Laya.stage.width + this.padding * 2, Laya.stage.height + this.padding * 2);
 
-		Laya.loader.load(this.texturePath, Handler.create(this, this.onTextureLoaded2));
+			Laya.loader.load(this.texturePath, Handler.create(this, this.onTextureLoaded2));
+		});
 	}
 
 	private _isClear: boolean;
@@ -39,7 +38,7 @@ export class PerformanceTest_Maggots2 {
 		this.maggotContainer = this.createNewContainer();
 		this.maggotTexture = Laya.loader.getRes(this.texturePath);
 		Laya.timer.frameLoop(1, this, this.animate);
-		Laya.timer.loop(5000, this, this.initMaggots);
+		Laya.timer.loop(2000, this, this.initMaggots);
 	}
 
 	private onTextureLoaded(e: any = null): void {
@@ -138,6 +137,7 @@ export class PerformanceTest_Maggots2 {
 
 	dispose(): void {
 		Laya.timer.clear(this, this.animate);
+		Laya.timer.clear(this, this.initMaggots);
 	}
 }
 

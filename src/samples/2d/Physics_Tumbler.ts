@@ -3,7 +3,6 @@ import { Sprite } from "laya/display/Sprite";
 import { Stage } from "laya/display/Stage";
 import { Browser } from "laya/utils/Browser";
 import { RigidBody } from "laya/physics/RigidBody";
-import { WebGL } from "laya/webgl/WebGL";
 import { Main } from "./../Main";
 import { BoxCollider } from "laya/physics/BoxCollider";
 import { RevoluteJoint } from "laya/physics/joint/RevoluteJoint";
@@ -23,26 +22,27 @@ export class Physics_Tumbler {
     Main: typeof Main = null;
 
     constructor(maincls: typeof Main) {
-		this.Main = maincls;
+        this.Main = maincls;
         Config.isAntialias = true;
-		Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
-        Stat.show();
-        Physics.enable({
-            'gravity': 0
-        });
-        PhysicsDebugDraw.enable();
-		Laya.stage.alignV = Stage.ALIGN_MIDDLE;
-		Laya.stage.alignH = Stage.ALIGN_CENTER;
-		Laya.stage.scaleMode = Stage.SCALE_FIXED_AUTO;
-		Laya.stage.bgColor = "#232628";
+        Laya.init(Browser.clientWidth, Browser.clientHeight).then(() => {
+            Stat.show();
+            Physics.enable({
+                'gravity': 0
+            });
+            PhysicsDebugDraw.enable();
+            Laya.stage.alignV = Stage.ALIGN_MIDDLE;
+            Laya.stage.alignH = Stage.ALIGN_CENTER;
+            Laya.stage.scaleMode = Stage.SCALE_FIXED_AUTO;
+            Laya.stage.bgColor = "#232628";
 
-		this.createBox();
-        this.eventListener();
-	}
+            this.createBox();
+            this.eventListener();
+        });
+    }
 
     createBox() {
         const width = 300, height = 20;
-        const 
+        const
             posx = Browser.width / 2,
             posy = Browser.height / 2;
 
@@ -91,7 +91,7 @@ export class Physics_Tumbler {
         let sp = new Sprite();
         this.Main.box2D.addChild(sp);
         sp.x = box.x;
-        sp.y=  box.y;
+        sp.y = box.y;
         sp.addComponent(RigidBody);
         let collider = sp.addComponent(BoxCollider);
         collider.width = 5;

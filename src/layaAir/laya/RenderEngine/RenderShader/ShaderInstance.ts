@@ -151,6 +151,10 @@ ${uniformglsl}`;
     #extension GL_EXT_shader_texture_lod : enable
 #endif
 
+#ifdef GL_OES_standard_derivatives
+	#extension GL_OES_standard_derivatives : enable 
+#endif
+
 #if defined(GL_FRAGMENT_PRECISION_HIGH)
     precision highp float;
     precision highp int;

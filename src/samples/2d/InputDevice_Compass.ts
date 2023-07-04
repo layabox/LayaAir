@@ -8,7 +8,6 @@ import { Text } from "laya/display/Text"
 import { Event } from "laya/events/Event"
 import { Browser } from "laya/utils/Browser"
 import { Handler } from "laya/utils/Handler"
-import { WebGL } from "laya/webgl/WebGL"
 
 /**
  * ...
@@ -25,12 +24,13 @@ export class InputDevice_Compass {
 	constructor(maincls: typeof Main) {
 		this.Main = maincls;
 
-		Laya.init(700, 1024, WebGL);
-		Laya.stage.scaleMode = Stage.SCALE_SHOWALL;
-		Laya.stage.alignH = Stage.ALIGN_CENTER;
-		Laya.stage.alignV = Stage.ALIGN_MIDDLE;
+		Laya.init(700, 1024).then(() => {
+			Laya.stage.scaleMode = Stage.SCALE_SHOWALL;
+			Laya.stage.alignH = Stage.ALIGN_CENTER;
+			Laya.stage.alignV = Stage.ALIGN_MIDDLE;
 
-		Laya.loader.load(this.compassImgPath, Handler.create(this, this.init));
+			Laya.loader.load(this.compassImgPath, Handler.create(this, this.init));
+		});
 	}
 
 	private init(): void {

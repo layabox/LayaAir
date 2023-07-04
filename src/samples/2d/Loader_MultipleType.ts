@@ -8,13 +8,14 @@ export class Loader_MultipleType {
 
 	constructor() {
 
-		Laya.init(100, 100);
+		Laya.init(100, 100).then(() => {
+			var assets: any[] = [];
+			assets.push({ "url": this.ROBOT_DATA_PATH, "type": Loader.BUFFER });
+			assets.push({ "url": this.ROBOT_TEXTURE_PATH, "type": Loader.IMAGE });
 
-		var assets: any[] = [];
-		assets.push({ "url": this.ROBOT_DATA_PATH, "type": Loader.BUFFER });
-		assets.push({ "url": this.ROBOT_TEXTURE_PATH, "type": Loader.IMAGE });
+			Laya.loader.load(assets, Handler.create(this, this.onAssetsLoaded));
+		});
 
-		Laya.loader.load(assets, Handler.create(this, this.onAssetsLoaded));
 	}
 
 	private onAssetsLoaded(e: any = null): void {

@@ -8,9 +8,9 @@ export class Network_Socket {
 	private output: Byte;
 
 	constructor() {
-		Laya.init(550, 400);
-
-		this.connect();
+		Laya.init(550, 400).then(() => {
+			this.connect();
+		});
 	}
 
 	private connect(): void {

@@ -10,13 +10,14 @@ export class Network_ProtocolBuffer {
 	constructor(maincls: typeof Main) {
 		this.Main = maincls;
 
-		Laya.init(550, 400);
-		var resPath: string = "res/protobuf/awesome.proto";
-		if (Main.isWXAPP) {
-			this.ProtoBuf = require("./protobuf.js");
-			resPath = URL.basePath + "res/protobuf/awesome.proto";
-		}
-		this.ProtoBuf.load(resPath, this.onAssetsLoaded);
+		Laya.init(550, 400).then(() => {
+			var resPath: string = "res/protobuf/awesome.proto";
+			if (Main.isWXAPP) {
+				this.ProtoBuf = require("./protobuf.js");
+				resPath = URL.basePath + "res/protobuf/awesome.proto";
+			}
+			this.ProtoBuf.load(resPath, this.onAssetsLoaded);
+		});
 	}
 
 	private onAssetsLoaded(err: any, root: any): void {

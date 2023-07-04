@@ -2,7 +2,6 @@ import { Laya } from "Laya";
 import { Stage } from "laya/display/Stage";
 import { Button } from "laya/ui/Button";
 import { Handler } from "laya/utils/Handler";
-import { WebGL } from "laya/webgl/WebGL";
 import { Main } from "./../Main";
 
 export class UI_Button {
@@ -21,23 +20,23 @@ export class UI_Button {
 	constructor(maincls: typeof Main) {
 		this.Main = maincls;
 
-		// 不支持WebGL时自动切换至Canvas
-		Laya.init(800, 600, WebGL);
+		Laya.init(800, 600).then(() => {
+			Laya.stage.alignV = Stage.ALIGN_MIDDLE;
+			Laya.stage.alignH = Stage.ALIGN_CENTER;
 
-		Laya.stage.alignV = Stage.ALIGN_MIDDLE;
-		Laya.stage.alignH = Stage.ALIGN_CENTER;
+			Laya.stage.scaleMode = Stage.SCALE_SHOWALL;
+			Laya.stage.bgColor = "#232628";
 
-		Laya.stage.scaleMode = Stage.SCALE_SHOWALL;
-		Laya.stage.bgColor = "#232628";
+			this.skins = ["res/ui/button-1.png", "res/ui/button-2.png", "res/ui/button-3.png",
+				"res/ui/button-4.png", "res/ui/button-5.png", "res/ui/button-6.png"];
 
-		this.skins = ["res/ui/button-1.png", "res/ui/button-2.png", "res/ui/button-3.png",
-			"res/ui/button-4.png", "res/ui/button-5.png", "res/ui/button-6.png"];
+			// 计算将Button至于舞台中心的偏移量
+			this.xOffset = (Laya.stage.width - this.HORIZONTAL_SPACING * (this.COLUMNS - 1) - this.BUTTON_WIDTH) / 2;
+			this.yOffset = (Laya.stage.height - this.VERTICAL_SPACING * (this.skins.length / this.COLUMNS - 1) - this.BUTTON_HEIGHT) / 2;
 
-		// 计算将Button至于舞台中心的偏移量
-		this.xOffset = (Laya.stage.width - this.HORIZONTAL_SPACING * (this.COLUMNS - 1) - this.BUTTON_WIDTH) / 2;
-		this.yOffset = (Laya.stage.height - this.VERTICAL_SPACING * (this.skins.length / this.COLUMNS - 1) - this.BUTTON_HEIGHT) / 2;
+			Laya.loader.load(this.skins, Handler.create(this, this.onUIAssetsLoaded));
+		});
 
-		Laya.loader.load(this.skins, Handler.create(this, this.onUIAssetsLoaded));
 	}
 
 	private onUIAssetsLoaded(e: any = null): void {

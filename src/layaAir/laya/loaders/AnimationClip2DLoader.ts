@@ -11,4 +11,4 @@ class AnimationClip2DLoader implements IResourceLoader {
         });
     }
 }
-Loader.registerLoader(["mc"], AnimationClip2DLoader, "ANIMATIONCLIP2D");
+Loader.registerLoader(["mc"], AnimationClip2DLoader);

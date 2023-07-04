@@ -4,7 +4,6 @@ import { Button } from "laya/ui/Button";
 import { Dialog } from "laya/ui/Dialog";
 import { Image } from "laya/ui/Image";
 import { Handler } from "laya/utils/Handler";
-import { WebGL } from "laya/webgl/WebGL";
 
 export class UI_Dialog {
 	private DIALOG_WIDTH: number = 220;
@@ -15,17 +14,17 @@ export class UI_Dialog {
 	private assets: any[];
 
 	constructor() {
-		// 不支持WebGL时自动切换至Canvas
-		Laya.init(800, 600, WebGL);
+		Laya.init(800, 600).then(() => {
+			Laya.stage.alignV = Stage.ALIGN_MIDDLE;
+			Laya.stage.alignH = Stage.ALIGN_CENTER;
 
-		Laya.stage.alignV = Stage.ALIGN_MIDDLE;
-		Laya.stage.alignH = Stage.ALIGN_CENTER;
+			Laya.stage.scaleMode = Stage.SCALE_SHOWALL;
+			Laya.stage.bgColor = "#232628";
 
-		Laya.stage.scaleMode = Stage.SCALE_SHOWALL;
-		Laya.stage.bgColor = "#232628";
+			this.assets = ["res/ui/dialog (1).png", "res/ui/close.png"];
+			Laya.loader.load(this.assets, Handler.create(this, this.onSkinLoadComplete));
+		});
 
-		this.assets = ["res/ui/dialog (1).png", "res/ui/close.png"];
-		Laya.loader.load(this.assets, Handler.create(this, this.onSkinLoadComplete));
 	}
 
 	dialog: Dialog;

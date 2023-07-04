@@ -2,7 +2,6 @@ import { Laya } from "Laya";
 import { Stage } from "laya/display/Stage";
 import { Text } from "laya/display/Text";
 import { Browser } from "laya/utils/Browser";
-import { WebGL } from "laya/webgl/WebGL";
 import { Main } from "./../Main";
 
 export class Timer_CallLater {
@@ -10,16 +9,16 @@ export class Timer_CallLater {
 	constructor(maincls: typeof Main) {
 		this.Main = maincls;
 
-		// 不支持WebGL时自动切换至Canvas
-		Laya.init(Browser.clientWidth, Browser.clientHeight, WebGL);
-		//
-		Laya.stage.alignV = Stage.ALIGN_MIDDLE;
-		Laya.stage.alignH = Stage.ALIGN_CENTER;
-		//
-		//			Laya.stage.scaleMode = Stage.SCALE_SHOWALL;
-		Laya.stage.bgColor = "#232628";
+		Laya.init(Browser.clientWidth, Browser.clientHeight).then(() => {
+			//
+			Laya.stage.alignV = Stage.ALIGN_MIDDLE;
+			Laya.stage.alignH = Stage.ALIGN_CENTER;
+			//
+			Laya.stage.scaleMode = Stage.SCALE_SHOWALL;
+			Laya.stage.bgColor = "#232628";
 
-		this.demonstrate();
+			this.demonstrate();
+		});
 	}
 
 	private demonstrate(): void {
