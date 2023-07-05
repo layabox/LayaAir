@@ -368,7 +368,7 @@ ${uniformglsl}`;
 	uploadRenderStateBlendDepth(shaderDatas: ShaderData): void {
 		var renderState: RenderState = (<ShaderPass>this._shaderPass).renderState;
 		var datas: any = shaderDatas.getData();
-
+		//depth
 		var depthWrite: any = this._getRenderState(datas, Shader3D.RENDER_STATE_DEPTH_WRITE);
 		var depthTest: any = this._getRenderState(datas, Shader3D.RENDER_STATE_DEPTH_TEST);
 		var blend: any = this._getRenderState(datas, Shader3D.RENDER_STATE_BLEND);
@@ -410,6 +410,16 @@ ${uniformglsl}`;
 			RenderStateContext.setDepthTest(true);
 			RenderStateContext.setDepthFunc(depthTest);
 		}
+		//Stencil
+		RenderStateContext.setStencilMask(stencilWrite);
+		if (stencilTest == RenderState.STENCILTEST_OFF) {
+			RenderStateContext.setStencilTest(false);
+		} else {
+			RenderStateContext.setStencilTest(true);
+			RenderStateContext.setStencilFunc(stencilTest, stencilRef);
+
+		}
+		RenderStateContext.setstencilOp(stencilOp.x, stencilOp.y, stencilOp.z);
 		//blend
 		switch (blend) {
 			case RenderState.BLEND_DISABLE:
@@ -474,20 +484,6 @@ ${uniformglsl}`;
 				RenderStateContext.setBlendFuncSeperate(srcRGB, dstRGB, srcAlpha, dstAlpha);
 				break;
 		}
-
-		//Stencil
-		RenderStateContext.setStencilMask(stencilWrite);
-		if (stencilTest == RenderState.STENCILTEST_OFF) {
-			RenderStateContext.setStencilTest(false);
-		} else {
-			RenderStateContext.setStencilTest(true);
-			RenderStateContext.setStencilFunc(stencilTest, stencilRef);
-
-		}
-		RenderStateContext.setstencilOp(stencilOp.x, stencilOp.y, stencilOp.z);
-
-
-
 	}
 
 	/**
