@@ -39,8 +39,8 @@ export class SkyRenderer {
         SkyRenderer.SUNLIGHTDIRECTION = Shader3D.propertyNameToID("u_SunLight_direction");
         SkyRenderer.SUNLIGHTDIRCOLOR = Shader3D.propertyNameToID("u_SunLight_color");
         const commandUniform = LayaGL.renderOBJCreate.createGlobalUniformMap("Sprite3D");
-        commandUniform.addShaderUniform(SkyRenderer.SUNLIGHTDIRECTION, "u_SunLight_direction",ShaderDataType.Vector3);
-        commandUniform.addShaderUniform(SkyRenderer.SUNLIGHTDIRCOLOR, "u_SunLight_color",ShaderDataType.Color);
+        commandUniform.addShaderUniform(SkyRenderer.SUNLIGHTDIRECTION, "u_SunLight_direction", ShaderDataType.Vector3);
+        commandUniform.addShaderUniform(SkyRenderer.SUNLIGHTDIRCOLOR, "u_SunLight_color", ShaderDataType.Color);
     }
 
     /**
@@ -119,11 +119,9 @@ export class SkyRenderer {
      */
     _render(context: RenderContext3D): void {
         if (this._material && this._mesh) {
-            var camera= context.camera;
+            var camera = context.camera;
             var scene: Scene3D = context.scene;
             var projectionMatrix: Matrix4x4 = SkyRenderer._tempMatrix1;
-            if (camera.orthographic)
-                Matrix4x4.createPerspective(camera.fieldOfView, camera.aspectRatio, camera.nearPlane, camera.farPlane, projectionMatrix);
             this._renderData._shaderValues.setColor(SkyRenderer.SUNLIGHTDIRCOLOR, scene._sunColor);
             this._renderData._shaderValues.setVector3(SkyRenderer.SUNLIGHTDIRECTION, scene._sundir);
             //无穷投影矩阵算法,DirectX右手坐标系推导
@@ -148,20 +146,29 @@ export class SkyRenderer {
             var viewMatrix: Matrix4x4 = SkyRenderer._tempMatrix0;
 
             camera.viewMatrix.cloneTo(viewMatrix);//视图矩阵逆矩阵的转置矩阵，移除平移和缩放
-            camera.projectionMatrix.cloneTo(projectionMatrix);
             viewMatrix.setTranslationVector(Vector3.ZERO);
-            var epsilon: number = 1e-6;
-            var yScale: number = 1.0 / Math.tan(3.1416 * camera.fieldOfView / 180 * 0.5);
-            projectionMatrix.elements[0] = yScale / camera.aspectRatio;
-            projectionMatrix.elements[5] = yScale;
-            projectionMatrix.elements[10] = epsilon - 1.0;
-            projectionMatrix.elements[11] = -1.0;
-            projectionMatrix.elements[14] = -0;//znear无穷小
+            if (!camera.orthographic) {
+                camera.projectionMatrix.cloneTo(projectionMatrix);
+
+                var epsilon: number = 1e-6;
+                var yScale: number = 1.0 / Math.tan(3.1416 * camera.fieldOfView / 180 * 0.5);
+                projectionMatrix.elements[0] = yScale / camera.aspectRatio;
+                projectionMatrix.elements[5] = yScale;
+                projectionMatrix.elements[10] = epsilon - 1.0;
+                projectionMatrix.elements[11] = -1.0;
+                projectionMatrix.elements[14] = -0;//znear无穷小
+
+            } else {
+                var halfHeight: number = camera.orthographicVerticalSize * 0.5 * 0.1;
+                var halfWidth: number = halfHeight;
+                Matrix4x4.createOrthoOffCenter(-halfWidth, halfWidth, -halfHeight, halfHeight, camera.nearPlane, camera.farPlane, projectionMatrix);
+            }
             if ((camera as any).isWebXR) {
                 camera._applyViewProject(context, viewMatrix, camera.projectionMatrix);//TODO:优化 不应设置给Camera直接提交
             } else {
                 camera._applyViewProject(context, viewMatrix, projectionMatrix);//TODO:优化 不应设置给Camera直接提交
             }
+
 
             context._contextOBJ.applyContext(Camera._updateMark);
             context.drawRenderElement(this._renderElement);
