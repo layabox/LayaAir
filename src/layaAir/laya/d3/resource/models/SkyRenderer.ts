@@ -57,7 +57,6 @@ export class SkyRenderer {
             this._renderElement.material = value;
             if (value) {
                 value._addReference();
-                value.cull = CullMode.Off;
                 value.depthTest = CompareFunction.LessEqual;
                 value.depthWrite = false;
                 value.stencilWrite = false;
@@ -159,8 +158,9 @@ export class SkyRenderer {
                 projectionMatrix.elements[14] = -0;//znear无穷小
 
             } else {
-                var halfHeight: number = camera.orthographicVerticalSize * 0.5 * 0.1;
-                var halfWidth: number = halfHeight;
+                
+                var halfWidth: number = 0.2;
+                var halfHeight: number = halfWidth;
                 Matrix4x4.createOrthoOffCenter(-halfWidth, halfWidth, -halfHeight, halfHeight, camera.nearPlane, camera.farPlane, projectionMatrix);
             }
             if ((camera as any).isWebXR) {

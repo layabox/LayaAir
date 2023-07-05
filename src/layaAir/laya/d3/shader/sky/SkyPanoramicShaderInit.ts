@@ -8,6 +8,7 @@ import { Vector4 } from "../../../maths/Vector4";
 import { RenderState } from "../../../RenderEngine/RenderShader/RenderState";
 import { AttributeMapType, SubShader } from "../../../RenderEngine/RenderShader/SubShader";
 import { VertexMesh } from "../../../RenderEngine/RenderShader/VertexMesh";
+import { CullMode } from "../../../RenderEngine/RenderEnum/CullMode";
 
 export class SkyPanoramicShaderInit {
     static init() {
@@ -33,6 +34,7 @@ export class SkyPanoramicShaderInit {
         shader.addSubShader(subShader);
         let pass = subShader.addShaderPass(SkyPanoramicVS, SkyPanoramicFS);
         pass.renderState.depthTest = RenderState.DEPTHTEST_LEQUAL;
+        pass.renderState.cull = CullMode.Back;
         pass.statefirst = true;
     }
 }
