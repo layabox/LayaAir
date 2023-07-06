@@ -542,62 +542,50 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 
     set velocityOverLifetime(value: VelocityOverLifetime) {
         var shaDat: ShaderData = this._ownerRender._shaderValues;
+
+        shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_VELOCITYOVERLIFETIMECONSTANT);
+        shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_VELOCITYOVERLIFETIMECURVE);
+        shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_VELOCITYOVERLIFETIMERANDOMCONSTANT);
+        shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_VELOCITYOVERLIFETIMERANDOMCURVE);
+
+        this._velocityOverLifetime = value;
+
         if (value) {
             var velocity: GradientVelocity = value.velocity;
             var velocityType: number = velocity.type;
+
             if (value.enable) {
                 switch (velocityType) {
                     case 0:
                         shaDat.addDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_VELOCITYOVERLIFETIMECONSTANT);
+                        shaDat.setVector3(ShuriKenParticle3DShaderDeclaration.VOLVELOCITYCONST, velocity.constant);
                         break;
                     case 1:
                         shaDat.addDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_VELOCITYOVERLIFETIMECURVE);
+                        shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.VOLVELOCITYGRADIENTX, velocity.gradientX._elements);
+                        shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.VOLVELOCITYGRADIENTY, velocity.gradientY._elements);
+                        shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.VOLVELOCITYGRADIENTZ, velocity.gradientZ._elements);
                         break;
                     case 2:
                         shaDat.addDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_VELOCITYOVERLIFETIMERANDOMCONSTANT);
+                        shaDat.setVector3(ShuriKenParticle3DShaderDeclaration.VOLVELOCITYCONST, velocity.constantMin);
+                        shaDat.setVector3(ShuriKenParticle3DShaderDeclaration.VOLVELOCITYCONSTMAX, velocity.constantMax);
                         break;
                     case 3:
                         shaDat.addDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_VELOCITYOVERLIFETIMERANDOMCURVE);
+                        shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.VOLVELOCITYGRADIENTX, velocity.gradientXMin._elements);
+                        shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.VOLVELOCITYGRADIENTXMAX, velocity.gradientXMax._elements);
+                        shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.VOLVELOCITYGRADIENTY, velocity.gradientYMin._elements);
+                        shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.VOLVELOCITYGRADIENTYMAX, velocity.gradientYMax._elements);
+                        shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.VOLVELOCITYGRADIENTZ, velocity.gradientZMin._elements);
+                        shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.VOLVELOCITYGRADIENTZMAX, velocity.gradientZMax._elements);
+                        break;
+                    default:
                         break;
                 }
-
-            } else {
-                shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_VELOCITYOVERLIFETIMECONSTANT);
-                shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_VELOCITYOVERLIFETIMECURVE);
-                shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_VELOCITYOVERLIFETIMERANDOMCONSTANT);
-                shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_VELOCITYOVERLIFETIMERANDOMCURVE);
-            }
-
-            switch (velocityType) {
-                case 0:
-                    shaDat.setVector3(ShuriKenParticle3DShaderDeclaration.VOLVELOCITYCONST, velocity.constant);
-                    break;
-                case 1:
-                    shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.VOLVELOCITYGRADIENTX, velocity.gradientX._elements);
-                    shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.VOLVELOCITYGRADIENTY, velocity.gradientY._elements);
-                    shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.VOLVELOCITYGRADIENTZ, velocity.gradientZ._elements);
-                    break;
-                case 2:
-                    shaDat.setVector3(ShuriKenParticle3DShaderDeclaration.VOLVELOCITYCONST, velocity.constantMin);
-                    shaDat.setVector3(ShuriKenParticle3DShaderDeclaration.VOLVELOCITYCONSTMAX, velocity.constantMax);
-                    break;
-                case 3:
-                    shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.VOLVELOCITYGRADIENTX, velocity.gradientXMin._elements);
-                    shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.VOLVELOCITYGRADIENTXMAX, velocity.gradientXMax._elements);
-                    shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.VOLVELOCITYGRADIENTY, velocity.gradientYMin._elements);
-                    shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.VOLVELOCITYGRADIENTYMAX, velocity.gradientYMax._elements);
-                    shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.VOLVELOCITYGRADIENTZ, velocity.gradientZMin._elements);
-                    shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.VOLVELOCITYGRADIENTZMAX, velocity.gradientZMax._elements);
-                    break;
             }
             shaDat.setInt(ShuriKenParticle3DShaderDeclaration.VOLSPACETYPE, value.space);
-        } else {
-            shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_VELOCITYOVERLIFETIMECONSTANT);
-            shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_VELOCITYOVERLIFETIMECURVE);
-            shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_VELOCITYOVERLIFETIMERANDOMCONSTANT);
-            shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_VELOCITYOVERLIFETIMERANDOMCURVE);
         }
-        this._velocityOverLifetime = value;
     }
 
     /**
@@ -609,107 +597,93 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 
     set colorOverLifetime(value: ColorOverLifetime) {
         var shaDat: ShaderData = this._ownerRender._shaderValues;
+
+        shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_COLOROVERLIFETIME);
+        shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_RANDOMCOLOROVERLIFETIME);
+
+        this._colorOverLifetime = value;
+
         if (value) {
             var color: GradientColor = value.color;
             if (value.enable) {
                 switch (color.type) {
                     case 1:
                         shaDat.addDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_COLOROVERLIFETIME);
-                        shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_RANDOMCOLOROVERLIFETIME);
+
+                        let gradientColor: Gradient = color.gradient;
+                        shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.COLOROVERLIFEGRADIENTALPHAS, gradientColor._alphaElements);
+                        shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.COLOROVERLIFEGRADIENTCOLORS, gradientColor._rgbElements);
+                        let ranges = gradientColor._keyRanges;
+                        ranges.setValue(1, 0, 1, 0);
+                        for (let index = 0; index < gradientColor.colorRGBKeysCount; index++) {
+                            let colorKey = gradientColor._rgbElements[index * 4];
+                            ranges.x = Math.min(ranges.x, colorKey);
+                            ranges.y = Math.max(ranges.y, colorKey);
+                        }
+                        for (let index = 0; index < gradientColor.colorAlphaKeysCount; index++) {
+                            let alphaKey = gradientColor._alphaElements[index * 2];
+                            ranges.z = Math.min(ranges.z, alphaKey);
+                            ranges.w = Math.max(ranges.w, alphaKey);
+                        }
+                        shaDat.setVector(ShuriKenParticle3DShaderDeclaration.COLOROVERLIFEGRADIENTRANGES, ranges);
+
+                        if (gradientColor.maxColorAlphaKeysCount == 8) {
+                            shaDat.addDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_COLORKEYCOUNT_8);
+                        }
+                        else {
+                            shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_COLORKEYCOUNT_8);
+                        }
                         break;
                     case 3:
                         shaDat.addDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_RANDOMCOLOROVERLIFETIME);
-                        shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_COLOROVERLIFETIME);
+
+                        let minGradientColor: Gradient = color.gradientMin;
+                        let maxGradientColor: Gradient = color.gradientMax;
+                        shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.COLOROVERLIFEGRADIENTALPHAS, minGradientColor._alphaElements);
+                        shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.COLOROVERLIFEGRADIENTCOLORS, minGradientColor._rgbElements);
+                        shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.MAXCOLOROVERLIFEGRADIENTALPHAS, maxGradientColor._alphaElements);
+                        shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.MAXCOLOROVERLIFEGRADIENTCOLORS, maxGradientColor._rgbElements);
+
+                        let minRanges = minGradientColor._keyRanges;
+                        minRanges.setValue(1, 0, 1, 0);
+                        for (let index = 0; index < minGradientColor.colorRGBKeysCount; index++) {
+                            let colorKey = minGradientColor._rgbElements[index * 4];
+                            minRanges.x = Math.min(minRanges.x, colorKey);
+                            minRanges.y = Math.max(minRanges.y, colorKey);
+                        }
+                        for (let index = 0; index < minGradientColor.colorAlphaKeysCount; index++) {
+                            let alphaKey = minGradientColor._alphaElements[index * 2];
+                            minRanges.z = Math.min(minRanges.z, alphaKey);
+                            minRanges.w = Math.max(minRanges.w, alphaKey);
+                        }
+                        shaDat.setVector(ShuriKenParticle3DShaderDeclaration.COLOROVERLIFEGRADIENTRANGES, minRanges);
+                        let maxRanges = maxGradientColor._keyRanges;
+                        maxRanges.setValue(1, 0, 1, 0);
+                        for (let index = 0; index < maxGradientColor.colorRGBKeysCount; index++) {
+                            let colorKey = maxGradientColor._rgbElements[index * 4];
+                            maxRanges.x = Math.min(maxRanges.x, colorKey);
+                            maxRanges.y = Math.max(maxRanges.y, colorKey);
+                        }
+                        for (let index = 0; index < maxGradientColor.colorAlphaKeysCount; index++) {
+                            let alphaKey = maxGradientColor._alphaElements[index * 2];
+                            maxRanges.z = Math.min(maxRanges.z, alphaKey);
+                            maxRanges.w = Math.max(maxRanges.w, alphaKey);
+                        }
+                        shaDat.setVector(ShuriKenParticle3DShaderDeclaration.MAXCOLOROVERLIFEGRADIENTRANGES, maxRanges);
+
+                        let maxkeyCount = Math.max(minGradientColor.maxColorAlphaKeysCount, maxGradientColor.maxColorAlphaKeysCount);
+                        if (maxkeyCount == 8) {
+                            shaDat.addDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_COLORKEYCOUNT_8);
+                        }
+                        else {
+                            shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_COLORKEYCOUNT_8);
+                        }
+                        break;
+                    default:
                         break;
                 }
-            } else {
-                shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_COLOROVERLIFETIME);
-                shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_RANDOMCOLOROVERLIFETIME);
             }
-
-            switch (color.type) {
-                case 1:
-                    var gradientColor: Gradient = color.gradient;
-                    shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.COLOROVERLIFEGRADIENTALPHAS, gradientColor._alphaElements);
-                    shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.COLOROVERLIFEGRADIENTCOLORS, gradientColor._rgbElements);
-                    let ranges = gradientColor._keyRanges;
-                    ranges.setValue(1, 0, 1, 0);
-                    for (let index = 0; index < gradientColor.colorRGBKeysCount; index++) {
-                        let colorKey = gradientColor._rgbElements[index * 4];
-                        ranges.x = Math.min(ranges.x, colorKey);
-                        ranges.y = Math.max(ranges.y, colorKey);
-                    }
-                    for (let index = 0; index < gradientColor.colorAlphaKeysCount; index++) {
-                        let alphaKey = gradientColor._alphaElements[index * 2];
-                        ranges.z = Math.min(ranges.z, alphaKey);
-                        ranges.w = Math.max(ranges.w, alphaKey);
-                    }
-                    shaDat.setVector(ShuriKenParticle3DShaderDeclaration.COLOROVERLIFEGRADIENTRANGES, ranges);
-
-                    if (gradientColor.maxColorAlphaKeysCount == 8) {
-                        shaDat.addDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_COLORKEYCOUNT_8);
-                    }
-                    else {
-                        shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_COLORKEYCOUNT_8);
-                    }
-                    break;
-                case 3:
-                    var minGradientColor: Gradient = color.gradientMin;
-                    var maxGradientColor: Gradient = color.gradientMax;
-                    shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.COLOROVERLIFEGRADIENTALPHAS, minGradientColor._alphaElements);
-                    shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.COLOROVERLIFEGRADIENTCOLORS, minGradientColor._rgbElements);
-                    shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.MAXCOLOROVERLIFEGRADIENTALPHAS, maxGradientColor._alphaElements);
-                    shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.MAXCOLOROVERLIFEGRADIENTCOLORS, maxGradientColor._rgbElements);
-
-                    let minRanges = minGradientColor._keyRanges;
-                    minRanges.setValue(1, 0, 1, 0);
-                    for (let index = 0; index < minGradientColor.colorRGBKeysCount; index++) {
-                        let colorKey = minGradientColor._rgbElements[index * 4];
-                        minRanges.x = Math.min(minRanges.x, colorKey);
-                        minRanges.y = Math.max(minRanges.y, colorKey);
-                    }
-                    for (let index = 0; index < minGradientColor.colorAlphaKeysCount; index++) {
-                        let alphaKey = minGradientColor._alphaElements[index * 2];
-                        minRanges.z = Math.min(minRanges.z, alphaKey);
-                        minRanges.w = Math.max(minRanges.w, alphaKey);
-                    }
-                    shaDat.setVector(ShuriKenParticle3DShaderDeclaration.COLOROVERLIFEGRADIENTRANGES, minRanges);
-                    let maxRanges = maxGradientColor._keyRanges;
-                    maxRanges.setValue(1, 0, 1, 0);
-                    for (let index = 0; index < maxGradientColor.colorRGBKeysCount; index++) {
-                        let colorKey = maxGradientColor._rgbElements[index * 4];
-                        maxRanges.x = Math.min(maxRanges.x, colorKey);
-                        maxRanges.y = Math.max(maxRanges.y, colorKey);
-                    }
-                    for (let index = 0; index < maxGradientColor.colorAlphaKeysCount; index++) {
-                        let alphaKey = maxGradientColor._alphaElements[index * 2];
-                        maxRanges.z = Math.min(maxRanges.z, alphaKey);
-                        maxRanges.w = Math.max(maxRanges.w, alphaKey);
-                    }
-                    shaDat.setVector(ShuriKenParticle3DShaderDeclaration.MAXCOLOROVERLIFEGRADIENTRANGES, maxRanges);
-
-                    let maxkeyCount = Math.max(minGradientColor.maxColorAlphaKeysCount, maxGradientColor.maxColorAlphaKeysCount);
-                    if (maxkeyCount == 8) {
-                        shaDat.addDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_COLORKEYCOUNT_8);
-                    }
-                    else {
-                        shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_COLORKEYCOUNT_8);
-                    }
-
-                    break;
-            }
-        } else {
-            shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_COLOROVERLIFETIME);
-            shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_RANDOMCOLOROVERLIFETIME);
-
-            shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.COLOROVERLIFEGRADIENTALPHAS, gradientColor._alphaElements);
-            shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.COLOROVERLIFEGRADIENTCOLORS, gradientColor._rgbElements);
-            shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.COLOROVERLIFEGRADIENTALPHAS, minGradientColor._alphaElements);
-            shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.COLOROVERLIFEGRADIENTCOLORS, minGradientColor._rgbElements);
-            shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.MAXCOLOROVERLIFEGRADIENTALPHAS, maxGradientColor._alphaElements);
-            shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.MAXCOLOROVERLIFEGRADIENTCOLORS, maxGradientColor._rgbElements);
         }
-        this._colorOverLifetime = value;
     }
 
     /**
@@ -721,6 +695,14 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 
     set sizeOverLifetime(value: SizeOverLifetime) {
         var shaDat: ShaderData = this._ownerRender._shaderValues;
+
+        shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_SIZEOVERLIFETIMECURVE);
+        shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_SIZEOVERLIFETIMECURVESEPERATE);
+        shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_SIZEOVERLIFETIMERANDOMCURVES);
+        shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_SIZEOVERLIFETIMERANDOMCURVESSEPERATE);
+
+        this._sizeOverLifetime = value;
+
         if (value) {
             var size: GradientSize = value.size;
             var sizeSeparate: boolean = size.separateAxes;
@@ -728,57 +710,42 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
             if (value.enable) {
                 switch (sizeType) {
                     case 0:
-                        if (sizeSeparate)
+                        if (sizeSeparate) {
                             shaDat.addDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_SIZEOVERLIFETIMECURVESEPERATE);
-                        else
+
+                            shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.SOLSIZEGRADIENTX, size.gradientX._elements);
+                            shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.SOLSIZEGRADIENTY, size.gradientY._elements);
+                            shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.SOLSizeGradientZ, size.gradientZ._elements);
+                        }
+                        else {
                             shaDat.addDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_SIZEOVERLIFETIMECURVE);
+
+                            shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.SOLSIZEGRADIENT, size.gradient._elements);
+                        }
                         break;
                     case 2:
-                        if (sizeSeparate)
+                        if (sizeSeparate) {
                             shaDat.addDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_SIZEOVERLIFETIMERANDOMCURVESSEPERATE);
-                        else
+
+                            shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.SOLSIZEGRADIENTX, size.gradientXMin._elements);
+                            shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.SOLSIZEGRADIENTXMAX, size.gradientXMax._elements);
+                            shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.SOLSIZEGRADIENTY, size.gradientYMin._elements);
+                            shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.SOLSIZEGRADIENTYMAX, size.gradientYMax._elements);
+                            shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.SOLSizeGradientZ, size.gradientZMin._elements);
+                            shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.SOLSizeGradientZMAX, size.gradientZMax._elements);
+                        }
+                        else {
                             shaDat.addDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_SIZEOVERLIFETIMERANDOMCURVES);
+
+                            shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.SOLSIZEGRADIENT, size.gradientMin._elements);
+                            shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.SOLSizeGradientMax, size.gradientMax._elements);
+                        }
+                        break;
+                    default:
                         break;
                 }
-
-            } else {
-                shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_SIZEOVERLIFETIMECURVE);
-                shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_SIZEOVERLIFETIMECURVESEPERATE);
-                shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_SIZEOVERLIFETIMERANDOMCURVES);
-                shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_SIZEOVERLIFETIMERANDOMCURVESSEPERATE);
             }
-
-            switch (sizeType) {
-                case 0:
-                    if (sizeSeparate) {
-                        shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.SOLSIZEGRADIENTX, size.gradientX._elements);
-                        shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.SOLSIZEGRADIENTY, size.gradientY._elements);
-                        shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.SOLSizeGradientZ, size.gradientZ._elements);
-                    } else {
-                        shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.SOLSIZEGRADIENT, size.gradient._elements);
-                    }
-                    break;
-                case 2:
-                    if (sizeSeparate) {
-                        shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.SOLSIZEGRADIENTX, size.gradientXMin._elements);
-                        shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.SOLSIZEGRADIENTXMAX, size.gradientXMax._elements);
-                        shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.SOLSIZEGRADIENTY, size.gradientYMin._elements);
-                        shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.SOLSIZEGRADIENTYMAX, size.gradientYMax._elements);
-                        shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.SOLSizeGradientZ, size.gradientZMin._elements);
-                        shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.SOLSizeGradientZMAX, size.gradientZMax._elements);
-                    } else {
-                        shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.SOLSIZEGRADIENT, size.gradientMin._elements);
-                        shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.SOLSizeGradientMax, size.gradientMax._elements);
-                    }
-                    break;
-            }
-        } else {
-            shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_SIZEOVERLIFETIMECURVE);
-            shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_SIZEOVERLIFETIMECURVESEPERATE);
-            shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_SIZEOVERLIFETIMERANDOMCURVES);
-            shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_SIZEOVERLIFETIMERANDOMCURVESSEPERATE);
         }
-        this._sizeOverLifetime = value;
     }
 
     /**
@@ -790,6 +757,16 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 
     set rotationOverLifetime(value: RotationOverLifetime) {
         var shaDat: ShaderData = this._ownerRender._shaderValues;
+
+        shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_ROTATIONOVERLIFETIME);
+        shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_ROTATIONOVERLIFETIMESEPERATE);
+        shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_ROTATIONOVERLIFETIMECONSTANT);
+        shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_ROTATIONOVERLIFETIMECURVE);
+        shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_ROTATIONOVERLIFETIMERANDOMCONSTANTS);
+        shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_ROTATIONOVERLIFETIMERANDOMCURVES);
+
+        this._rotationOverLifetime = value;
+
         if (value) {
             var rotation: GradientAngularVelocity = value.angularVelocity;
 
@@ -801,98 +778,64 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
             if (value.enable) {
                 if (rotationSeparate) {
                     shaDat.addDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_ROTATIONOVERLIFETIMESEPERATE);
-                    shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_ROTATIONOVERLIFETIME);
                 }
                 else {
                     shaDat.addDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_ROTATIONOVERLIFETIME);
-                    shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_ROTATIONOVERLIFETIMESEPERATE);
                 }
                 switch (rotationType) {
                     case 0:
                         shaDat.addDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_ROTATIONOVERLIFETIMECONSTANT);
-                        shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_ROTATIONOVERLIFETIMECURVE);
-                        shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_ROTATIONOVERLIFETIMERANDOMCONSTANTS);
-                        shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_ROTATIONOVERLIFETIMERANDOMCURVES);
+                        if (rotationSeparate) {
+                            shaDat.setVector3(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYCONSTSEPRARATE, rotation.constantSeparate);
+                        }
+                        else {
+                            shaDat.setNumber(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYCONST, rotation.constant);
+                        }
                         break;
                     case 1:
                         shaDat.addDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_ROTATIONOVERLIFETIMECURVE);
-                        shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_ROTATIONOVERLIFETIMECONSTANT);
-                        shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_ROTATIONOVERLIFETIMERANDOMCONSTANTS);
-                        shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_ROTATIONOVERLIFETIMERANDOMCURVES);
+                        if (rotationSeparate) {
+                            shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTX, rotation.gradientX._elements);
+                            shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTY, rotation.gradientY._elements);
+                            shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTZ, rotation.gradientZ._elements);
+                        }
+                        else {
+                            shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENT, rotation.gradient._elements);
+                        }
                         break;
                     case 2:
                         shaDat.addDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_ROTATIONOVERLIFETIMERANDOMCONSTANTS);
-                        shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_ROTATIONOVERLIFETIMECONSTANT);
-                        shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_ROTATIONOVERLIFETIMECURVE);
-                        shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_ROTATIONOVERLIFETIMERANDOMCURVES);
+                        if (rotationSeparate) {
+                            shaDat.setVector3(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYCONSTSEPRARATE, rotation.constantMinSeparate);
+                            shaDat.setVector3(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYCONSTMAXSEPRARATE, rotation.constantMaxSeparate);
+                        }
+                        else {
+                            shaDat.setNumber(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYCONST, rotation.constantMin);
+                            shaDat.setNumber(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYCONSTMAX, rotation.constantMax);
+                        }
                         break;
                     case 3:
                         shaDat.addDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_ROTATIONOVERLIFETIMERANDOMCURVES);
-                        shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_ROTATIONOVERLIFETIMERANDOMCONSTANTS);
-                        shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_ROTATIONOVERLIFETIMECONSTANT);
-                        shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_ROTATIONOVERLIFETIMECURVE);
+                        if (rotationSeparate) {
+                            shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTX, rotation.gradientXMin._elements);
+                            shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTXMAX, rotation.gradientXMax._elements);
+                            shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTY, rotation.gradientYMin._elements);
+                            shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTYMAX, rotation.gradientYMax._elements);
+                            shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTZ, rotation.gradientZMin._elements);
+                            shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTZMAX, rotation.gradientZMax._elements);
+                            //shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTW, rotation.gradientWMin._elements);
+                            //shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTWMAX, rotation.gradientWMax._elements);
+                        }
+                        else {
+                            shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENT, rotation.gradientMin._elements);
+                            shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTMAX, rotation.gradientMax._elements);
+                        }
+                        break;
+                    default:
                         break;
                 }
-            } else {
-                shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_ROTATIONOVERLIFETIME);
-                shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_ROTATIONOVERLIFETIMESEPERATE);
-                shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_ROTATIONOVERLIFETIMECONSTANT);
-                shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_ROTATIONOVERLIFETIMECURVE);
-                shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_ROTATIONOVERLIFETIMERANDOMCONSTANTS);
-                shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_ROTATIONOVERLIFETIMERANDOMCURVES);
             }
-
-            switch (rotationType) {
-                case 0:
-                    if (rotationSeparate) {
-                        shaDat.setVector3(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYCONSTSEPRARATE, rotation.constantSeparate);
-                    } else {
-                        shaDat.setNumber(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYCONST, rotation.constant);
-                    }
-                    break;
-                case 1:
-                    if (rotationSeparate) {
-                        shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTX, rotation.gradientX._elements);
-                        shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTY, rotation.gradientY._elements);
-                        shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTZ, rotation.gradientZ._elements);
-                    } else {
-                        shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENT, rotation.gradient._elements);
-                    }
-                    break;
-                case 2:
-                    if (rotationSeparate) {
-                        shaDat.setVector3(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYCONSTSEPRARATE, rotation.constantMinSeparate);
-                        shaDat.setVector3(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYCONSTMAXSEPRARATE, rotation.constantMaxSeparate);
-                    } else {
-                        shaDat.setNumber(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYCONST, rotation.constantMin);
-                        shaDat.setNumber(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYCONSTMAX, rotation.constantMax);
-                    }
-                    break;
-                case 3:
-                    if (rotationSeparate) {
-                        shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTX, rotation.gradientXMin._elements);
-                        shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTXMAX, rotation.gradientXMax._elements);
-                        shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTY, rotation.gradientYMin._elements);
-                        shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTYMAX, rotation.gradientYMax._elements);
-                        shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTZ, rotation.gradientZMin._elements);
-                        shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTZMAX, rotation.gradientZMax._elements);
-                        //shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTW, rotation.gradientWMin._elements);
-                        //shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTWMAX, rotation.gradientWMax._elements);
-                    } else {
-                        shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENT, rotation.gradientMin._elements);
-                        shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.ROLANGULARVELOCITYGRADIENTMAX, rotation.gradientMax._elements);
-                    }
-                    break;
-            }
-        } else {
-            shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_ROTATIONOVERLIFETIME);
-            shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_ROTATIONOVERLIFETIMESEPERATE);
-            shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_ROTATIONOVERLIFETIMECONSTANT);
-            shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_ROTATIONOVERLIFETIMECURVE);
-            shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_ROTATIONOVERLIFETIMERANDOMCONSTANTS);
-            shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_ROTATIONOVERLIFETIMERANDOMCURVES);
         }
-        this._rotationOverLifetime = value;
     }
 
     /**
@@ -904,6 +847,12 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 
     set textureSheetAnimation(value: TextureSheetAnimation) {
         var shaDat: ShaderData = this._ownerRender._shaderValues;
+
+        shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_TEXTURESHEETANIMATIONCURVE);
+        shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_TEXTURESHEETANIMATIONRANDOMCURVE);
+
+        this._textureSheetAnimation = value;
+
         if (value) {
             var frameOverTime: FrameOverTime = value.frame;
             var textureAniType: number = frameOverTime.type;
@@ -911,42 +860,34 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
                 switch (textureAniType) {
                     case 1:
                         shaDat.addDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_TEXTURESHEETANIMATIONCURVE);
-                        shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_TEXTURESHEETANIMATIONRANDOMCURVE);
+
+                        shaDat.setNumber(ShuriKenParticle3DShaderDeclaration.TEXTURESHEETANIMATIONCYCLES, value.cycles);
+                        var title: Vector2 = value.tiles;
+                        var _uvLengthE: Vector2 = this._uvLength;
+                        _uvLengthE.x = 1.0 / title.x;
+                        _uvLengthE.y = 1.0 / title.y;
+                        shaDat.setVector2(ShuriKenParticle3DShaderDeclaration.TEXTURESHEETANIMATIONSUBUVLENGTH, this._uvLength);
+
+                        shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.TEXTURESHEETANIMATIONGRADIENTUVS, frameOverTime.frameOverTimeData._elements);
                         break;
                     case 3:
                         shaDat.addDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_TEXTURESHEETANIMATIONRANDOMCURVE);
-                        shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_TEXTURESHEETANIMATIONCURVE);
+
+                        shaDat.setNumber(ShuriKenParticle3DShaderDeclaration.TEXTURESHEETANIMATIONCYCLES, value.cycles);
+                        var title: Vector2 = value.tiles;
+                        var _uvLengthE: Vector2 = this._uvLength;
+                        _uvLengthE.x = 1.0 / title.x;
+                        _uvLengthE.y = 1.0 / title.y;
+                        shaDat.setVector2(ShuriKenParticle3DShaderDeclaration.TEXTURESHEETANIMATIONSUBUVLENGTH, this._uvLength);
+
+                        shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.TEXTURESHEETANIMATIONGRADIENTUVS, frameOverTime.frameOverTimeDataMin._elements);
+                        shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.TEXTURESHEETANIMATIONGRADIENTMAXUVS, frameOverTime.frameOverTimeDataMax._elements);
                         break;
-
+                    default:
+                        break;
                 }
-            } else {
-                shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_TEXTURESHEETANIMATIONCURVE);
-                shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_TEXTURESHEETANIMATIONRANDOMCURVE);
             }
-
-            if (textureAniType === 1 || textureAniType === 3) {
-                shaDat.setNumber(ShuriKenParticle3DShaderDeclaration.TEXTURESHEETANIMATIONCYCLES, value.cycles);
-                var title: Vector2 = value.tiles;
-                var _uvLengthE: Vector2 = this._uvLength;
-                _uvLengthE.x = 1.0 / title.x;
-                _uvLengthE.y = 1.0 / title.y;
-                shaDat.setVector2(ShuriKenParticle3DShaderDeclaration.TEXTURESHEETANIMATIONSUBUVLENGTH, this._uvLength);
-            }
-            switch (textureAniType) {
-                case 1:
-                    shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.TEXTURESHEETANIMATIONGRADIENTUVS, frameOverTime.frameOverTimeData._elements);
-                    break;
-                case 3:
-                    shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.TEXTURESHEETANIMATIONGRADIENTUVS, frameOverTime.frameOverTimeDataMin._elements);
-                    shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.TEXTURESHEETANIMATIONGRADIENTMAXUVS, frameOverTime.frameOverTimeDataMax._elements);
-                    break;
-            }
-
-        } else {
-            shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_TEXTURESHEETANIMATIONCURVE);
-            shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_TEXTURESHEETANIMATIONRANDOMCURVE);
         }
-        this._textureSheetAnimation = value;
     }
 
 
