@@ -2,7 +2,6 @@ import { BaseTexture } from "../../resource/BaseTexture";
 import { Resource } from "../../resource/Resource";
 import { DefineDatas } from "./DefineDatas";
 import { ShaderDefine } from "./ShaderDefine";
-import { Texture2D } from "../../resource/Texture2D";
 import { IClone } from "../../utils/IClone";
 import { UniformBufferObject } from "../UniformBufferObject";
 import {
@@ -210,8 +209,8 @@ export class ShaderData implements IClone {
 		let ubo = this._uniformBuffersMap.get(index);
 		if (ubo) {
 			this._uniformBufferDatas.get(ubo._name).uboBuffer._setData(index, this.getInt(index));
-    }
-  }
+		}
+	}
 
 	/**
 	 * 获取浮点。
@@ -250,10 +249,7 @@ export class ShaderData implements IClone {
 	 * @param	value Vector2向量。
 	 */
 	setVector2(index: number, value: Vector2): void {
-		if (this._data[index]) {
-			value.cloneTo(this._data[index]);
-		} else 
-        this._data[index] = value.clone();
+		this._data[index] = value;
 		let ubo = this._uniformBuffersMap.get(index);
 		if (ubo) {
 			this._uniformBufferDatas.get(ubo._name).uboBuffer._setData(index, this.getVector2(index));
@@ -275,9 +271,7 @@ export class ShaderData implements IClone {
 	 * @param	value Vector3向量。
 	 */
 	setVector3(index: number, value: Vector3): void {
-		if (this._data[index]) {
-			value.cloneTo(this._data[index]);
-		} else this._data[index] = value.clone();
+		this._data[index] = value;
 		let ubo = this._uniformBuffersMap.get(index);
 		if (ubo) {
 			this._uniformBufferDatas.get(ubo._name).uboBuffer._setData(index, this.getVector3(index));
@@ -299,10 +293,7 @@ export class ShaderData implements IClone {
 	 * @param	value 向量。
 	 */
 	setVector(index: number, value: Vector4): void {
-		if (this._data[index]) {
-			value.cloneTo(this._data[index]);
-		} else
-			this._data[index] = value.clone();
+		this._data[index] = value;
 		let ubo = this._uniformBuffersMap.get(index);
 		if (ubo) {
 			this._uniformBufferDatas.get(ubo._name).uboBuffer._setData(index, this.getVector(index));
@@ -373,12 +364,7 @@ export class ShaderData implements IClone {
 	 * @param	value  矩阵。
 	 */
 	setMatrix4x4(index: number, value: Matrix4x4): void {
-		if (this._data[index]) {
-			value.cloneTo(this._data[index]);
-		} else {
-			this._data[index] = value.clone();
-		}
-
+		this._data[index] = value;
 		let ubo = this._uniformBuffersMap.get(index);
 		if (ubo) {
 			this._uniformBufferDatas.get(ubo._name).uboBuffer._setData(index, this.getMatrix4x4(index));
@@ -434,9 +420,9 @@ export class ShaderData implements IClone {
 		return this._data[index];
 	}
 
-	getSourceIndex(value:any){
-		for(var i in this._data){
-			if(this._data[i]==value)
+	getSourceIndex(value: any) {
+		for (var i in this._data) {
+			if (this._data[i] == value)
 				return Number(i);
 		}
 		return -1;

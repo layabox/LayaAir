@@ -117,7 +117,7 @@ export class WebGLEngine implements IRenderEngine {
     private _GL2DRenderContext: GLRender2DContext;
 
     //GLRenderState
-    private _GLRenderState: GLRenderState;
+    _GLRenderState: GLRenderState;
 
     // //TODO:管理Buffer
     // private _bufferResourcePool: any;

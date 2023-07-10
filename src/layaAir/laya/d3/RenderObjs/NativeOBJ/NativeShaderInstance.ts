@@ -32,7 +32,7 @@ export class NativeShaderInstance/* extends ShaderInstance */ {
 			pConchAttributeMap.setAttributeValue(k, attributeMap[k][0]);
 		}
 		
-		var stateMap: { [stateID: number]: number } = SubShader.StateParamsMap;
+		var stateMap: { [stateID: number]: number } = {};
 		for (var s in stateMap) {
 			pConchAttributeMap.setStateValue(parseInt(s), stateMap[s]);
 		}
