@@ -32,7 +32,7 @@ export class MaterialParser {
 
         let mat = new Material();
         mat.setShaderName(props.type);
-
+        let renderQueue: number;
         for (let key in props) {
             switch (key) {
                 case "type":
@@ -54,7 +54,7 @@ export class MaterialParser {
                     }
                     break;
                 case "renderQueue":
-                    mat.renderQueue = props[key];
+                    renderQueue = props[key];
                     break;
                 case "alphaTest":
                     mat.alphaTest = props[key];
@@ -134,6 +134,9 @@ export class MaterialParser {
                             break;
                     }
             }
+        }
+        if (null != renderQueue) {
+            mat.renderQueue = renderQueue;
         }
 
         return mat;
