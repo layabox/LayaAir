@@ -70,6 +70,7 @@ export class AnimatorPlayState2D {
 		this._elapsedTime = startTime;
 		this._lastIsFront = true;
 		this._playNum = 0;
+		this._parentPlayTime = null;
 		this._playAllTime = 0;
 		var playTime = (this._elapsedTime / clipDuration) % 1.0;
 		this._normalizedPlayTime = playTime < 0 ? playTime + 1.0 : playTime;
@@ -84,6 +85,7 @@ export class AnimatorPlayState2D {
 		dest._startPlayTime = this._startPlayTime;
 		dest._elapsedTime = this._elapsedTime;
 		dest._playNum = this._playNum;
+		dest._parentPlayTime = this._parentPlayTime;
 		dest._normalizedPlayTime = this._normalizedPlayTime;
 		dest._lastIsFront = this._lastIsFront;
 		dest._frontPlay = this._frontPlay;
