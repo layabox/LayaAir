@@ -961,8 +961,9 @@ export class Text extends Sprite {
         else
             rectWidth = Number.MAX_VALUE;
         if (this._maxWidth > 0) {
-            if (!wordWrap || this._maxWidth < rectWidth)
-                rectWidth = this._maxWidth;
+            let m = this._maxWidth - padding[3] - padding[1];
+            if (!wordWrap || m < rectWidth)
+                rectWidth = m;
             wordWrap = true;
         }
         let rectHeight = this._isHeightSet ? (this._height - padding[0] - padding[2]) : Number.MAX_VALUE;
