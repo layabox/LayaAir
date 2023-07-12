@@ -7,6 +7,7 @@ import { ShaderData, ShaderDataType } from "../../RenderEngine/RenderShader/Shad
 import { ShaderPass } from "../../RenderEngine/RenderShader/ShaderPass";
 import { ShaderVariable } from "../../RenderEngine/RenderShader/ShaderVariable";
 import { RenderStateContext } from "../../RenderEngine/RenderStateContext";
+import { Stat } from "../../utils/Stat";
 import { ShaderCompileDefineBase } from "../../webgl/utils/ShaderCompileDefineBase";
 import { RenderState } from "./RenderState";
 
@@ -126,7 +127,7 @@ export class ShaderInstance {
 	 * @param uploadUnTexture 
 	 */
 	uploadUniforms(shaderUniform: CommandEncoder, shaderDatas: ShaderData, uploadUnTexture: boolean) {
-		LayaGL.renderEngine.uploadUniforms(this._renderShaderInstance, shaderUniform, shaderDatas, uploadUnTexture);
+		Stat.uploadUniform += LayaGL.renderEngine.uploadUniforms(this._renderShaderInstance, shaderUniform, shaderDatas, uploadUnTexture);
 	}
 
 	/**

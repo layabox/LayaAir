@@ -94,7 +94,7 @@ export class Resource extends EventDispatcher {
 
     private _cpuMemory: number = 0;
     private _gpuMemory: number = 0;
-    protected _id: number = 0;
+    _id: number = 0;
     protected _destroyed?: boolean;
     protected _referenceCount: number = 0;
     protected _obsolute: boolean;

@@ -39,18 +39,19 @@ export class RenderElement {
     /**@internal */
     _canBatch: boolean = false;
     /** @internal */
-    protected _material: Material;//可能为空
+    _material: Material;//可能为空
     /** @internal */
-    protected _baseRender: BaseRender;
+    _baseRender: BaseRender;
     /**@internal */
-    protected _subShader: SubShader;
+    _subShader: SubShader;
     /**@internal */
     _subShaderIndex: number = 0;
     _batchElement: RenderElement;
-
+    _transform: Transform3D;
 
     /** @internal */
     set transform(value: Transform3D) {
+        this._transform = value;
         this._renderElementOBJ._transform = value;
     }
 
@@ -132,20 +133,10 @@ export class RenderElement {
         this._renderElementOBJ._geometry = geometry._geometryElementOBj;
     }
 
-    // /**
-    //  * @internal
-    //  */
-    // addToOpaqueRenderQueue(context: RenderContext3D, queue: RenderQueue): void {
-    // 	queue.elements.add(this);
-    // }
-
-    // /**
-    //  * @internal
-    //  */
-    // addToTransparentRenderQueue(context: RenderContext3D, queue: RenderQueue): void {
-    // 	queue.elements.add(this);
-    // }
-
+    /**
+     * 编译shader
+     * @param context 
+     */
     compileShader(context: IRenderContext3D) {
         var passes: ShaderPass[] = this._subShader._passes;
         this._renderElementOBJ._clearShaderInstance();
@@ -171,7 +162,13 @@ export class RenderElement {
         }
     }
 
-
+    /**
+     * 切换Shader
+     * @param customShader 
+     * @param replacementTag 
+     * @param subshaderIndex 
+     * @returns 
+     */
     _convertSubShader(customShader: Shader3D, replacementTag: string, subshaderIndex: number = 0) {
         var subShader: SubShader = this.material._shader.getSubShaderAt(this._subShaderIndex);//TODO:
         this.renderSubShader = null;
@@ -216,27 +213,31 @@ export class RenderElement {
         }
     }
 
+    /**
+     * pre update data
+     * @param context 
+     */
     _renderUpdatePre(context: RenderContext3D) {
 
         var sceneMark: number = ILaya3D.Scene3D._updateMark;
         var transform: Transform3D = this.transform;
         context.renderElement = this;
         //model local
-        var modelDataRender: boolean = (!!this.render) ? (sceneMark !== this.render._sceneUpdateMark || this.renderType !== this.render._updateRenderType) : false;
+        var modelDataRender: boolean = (!!this._baseRender) ? (sceneMark !== this._baseRender._sceneUpdateMark || this.renderType !== this._baseRender._updateRenderType) : false;
         if (modelDataRender) {
-            this.render._renderUpdate(context, transform);
-            this.render._sceneUpdateMark = sceneMark;
+            this._baseRender._renderUpdate(context, transform);
+            this._baseRender._sceneUpdateMark = sceneMark;
         }
         //camera
         var updateMark: number = Camera._updateMark;
-        var updateRender: boolean = (!!this.render) ? (updateMark !== this.render._updateMark || this.renderType !== this.render._updateRenderType) : false;
+        var updateRender: boolean = (!!this._baseRender) ? (updateMark !== this._baseRender._updateMark || this.renderType !== this._baseRender._updateRenderType) : false;
         if (updateRender) {//此处处理更新为裁剪和合并后的，可避免浪费
-            this.render._renderUpdateWithCamera(context, transform);
-            this.render._updateMark = updateMark;
-            this.render._updateRenderType = this.renderType;
+            this._baseRender._renderUpdateWithCamera(context, transform);
+            this._baseRender._updateMark = updateMark;
+            this._baseRender._updateRenderType = this.renderType;
         }
 
-        const subUbo = (!!this.render) ? this.render._subUniformBufferData : false;
+        const subUbo = (!!this._baseRender) ? this._baseRender._subUniformBufferData : false;
         if (subUbo) {
             subUbo._needUpdate && BaseRender._transLargeUbO.updateSubData(subUbo);
         }

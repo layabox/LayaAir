@@ -492,6 +492,7 @@ export class GLShaderInstance extends GLObject implements IRenderShaderInstance 
      */
     _uniform_UniformBuffer(one: any, value: UniformBufferObject) {
         value._bindUniformBufferBase();
+        return 1;
     }
 
     /**

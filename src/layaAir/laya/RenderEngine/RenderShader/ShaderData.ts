@@ -62,7 +62,8 @@ export class ShaderData implements IClone {
 
 	/**@internal */
 	protected _gammaColorMap: Map<number, Color>;
-
+	/**@internal */
+	applyUBO: boolean = false;
 	/**@internal */
 	_data: any = null;
 
@@ -139,6 +140,7 @@ export class ShaderData implements IClone {
 		this._uniformBufferDatas.forEach((value, key) => {
 			value.ubo.setDataByUniformBufferData(value.uboBuffer);
 		});
+		this.applyUBO = false;
 	}
 
 	/**
@@ -231,6 +233,7 @@ export class ShaderData implements IClone {
 		let ubo = this._uniformBuffersMap.get(index);
 		if (ubo) {
 			this._uniformBufferDatas.get(ubo._name).uboBuffer._setData(index, this.getNumber(index));
+			this.applyUBO = true;
 		}
 	}
 
@@ -253,6 +256,7 @@ export class ShaderData implements IClone {
 		let ubo = this._uniformBuffersMap.get(index);
 		if (ubo) {
 			this._uniformBufferDatas.get(ubo._name).uboBuffer._setData(index, this.getVector2(index));
+			this.applyUBO = true;
 		}
 	}
 
@@ -275,6 +279,7 @@ export class ShaderData implements IClone {
 		let ubo = this._uniformBuffersMap.get(index);
 		if (ubo) {
 			this._uniformBufferDatas.get(ubo._name).uboBuffer._setData(index, this.getVector3(index));
+			this.applyUBO = true;
 		}
 	}
 
@@ -297,6 +302,7 @@ export class ShaderData implements IClone {
 		let ubo = this._uniformBuffersMap.get(index);
 		if (ubo) {
 			this._uniformBufferDatas.get(ubo._name).uboBuffer._setData(index, this.getVector(index));
+			this.applyUBO = true;
 		}
 	}
 
@@ -338,6 +344,8 @@ export class ShaderData implements IClone {
 		let ubo = this._uniformBuffersMap.get(index);
 		if (ubo) {
 			this._uniformBufferDatas.get(ubo._name).uboBuffer._setData(index, this.getLinearColor(index));
+			this.applyUBO = true;
+
 		}
 	}
 
@@ -368,6 +376,7 @@ export class ShaderData implements IClone {
 		let ubo = this._uniformBuffersMap.get(index);
 		if (ubo) {
 			this._uniformBufferDatas.get(ubo._name).uboBuffer._setData(index, this.getMatrix4x4(index));
+			this.applyUBO = true;
 		}
 	}
 
@@ -449,6 +458,7 @@ export class ShaderData implements IClone {
 		let ubo = this._uniformBuffersMap.get(index);
 		if (ubo) {
 			this._uniformBufferDatas.get(ubo._name).uboBuffer._setData(index, this.getValueData(index));
+			this.applyUBO = true;
 		}
 	}
 
@@ -615,6 +625,7 @@ export class ShaderData implements IClone {
 		this._data = {};
 		this._gammaColorMap.clear();
 		this._uniformBufferDatas.clear();
+		this.applyUBO = false;
 		this._uniformBuffersMap.clear();
 		this._defineDatas.clear();
 	}

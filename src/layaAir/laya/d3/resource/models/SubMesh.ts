@@ -109,7 +109,7 @@ export class SubMesh extends GeometryElement {
 
 		var skinnedDatas: any[] = (state.renderElement && !!(state.renderElement.render)) ? (<SkinnedMeshRenderer>state.renderElement.render)._skinnedData : null;
 		var byteCount: number;
-		switch (mesh.indexFormat) {
+		switch (mesh._indexFormat) {
 			case IndexFormat.UInt32:
 				byteCount = 4;
 				break;
