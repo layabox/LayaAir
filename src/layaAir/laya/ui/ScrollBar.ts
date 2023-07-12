@@ -218,6 +218,9 @@ export class ScrollBar extends UIComponent {
 
         if (url) {
             return AssetDb.inst.resolveURL(url).then(url => {
+                if (this._destroyed)
+                    return null;
+
                 if (this._skinBaseUrl)
                     url = URL.formatURL(url, this._skinBaseUrl);
                 return Promise.all([
