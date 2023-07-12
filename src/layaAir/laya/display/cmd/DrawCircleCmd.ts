@@ -62,7 +62,7 @@ export class DrawCircleCmd {
 
     /**@private */
     run(context: Context, gx: number, gy: number): void {
-        let offset = this.lineWidth / 2;
+        let offset = (this.lineWidth >= 1 && this.lineColor) ? this.lineWidth / 2 : 0;
         if (this.percent && context.sprite) {
             let w = context.sprite.width;
             let h = context.sprite.height;

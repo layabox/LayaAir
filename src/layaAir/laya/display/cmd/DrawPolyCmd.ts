@@ -58,7 +58,7 @@ export class DrawPolyCmd {
     /**@private */
     run(context: Context, gx: number, gy: number): void {
         let isConvexPolygon = this.points.length <= 6;
-        let offset = this.lineWidth >= 1 ? (this.lineWidth % 2 === 0 ? 0 : 0.5) : 0;
+        let offset = (this.lineWidth >= 1 && this.lineColor) ? (this.lineWidth % 2 === 0 ? 0 : 0.5) : 0;
         this.points && context._drawPoly(this.x + offset + gx, this.y + offset + gy, this.points, this.fillColor, this.lineColor, this.lineWidth, isConvexPolygon, 0);
     }
 

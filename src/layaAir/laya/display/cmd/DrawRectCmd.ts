@@ -68,7 +68,7 @@ export class DrawRectCmd {
 
     /**@private */
     run(context: Context, gx: number, gy: number): void {
-        let offset = this.lineWidth >= 1 ? this.lineWidth / 2 : 0;
+        let offset = (this.lineWidth >= 1 && this.lineColor) ? this.lineWidth / 2 : 0;
         let lineOffset = this.lineWidth;
         if (this.percent && context.sprite) {
             let w = context.sprite.width;
