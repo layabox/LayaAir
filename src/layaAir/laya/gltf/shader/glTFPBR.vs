@@ -20,8 +20,6 @@ void main()
     PixelParams pixel;
     initPixelParams(pixel, vertex);
 
-    sharePixelParams(pixel);
-
     gl_Position = getPositionCS(pixel.positionWS);
 
     gl_Position = remapPositionZ(gl_Position);
