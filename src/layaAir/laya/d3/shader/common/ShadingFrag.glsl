@@ -3,13 +3,17 @@
 
     #include "ShadingCommon.glsl";
 
+    #define _InvertNormal (float(gl_FrontFacing) * 2.0 - 1.0);
+
 void getPixelParams(inout PixelParams params)
 {
     params.positionWS = v_PositionWS;
 
-    params.normalWS = normalize(v_NormalWS);
-    params.tangentWS = normalize(v_TangentWS);
-    params.biNormalWS = normalize(v_BiNormalWS);
+    float invertN = _InvertNormal;
+
+    params.normalWS = normalize(v_NormalWS * invertN);
+    params.tangentWS = normalize(v_TangentWS * invertN);
+    params.biNormalWS = normalize(v_BiNormalWS * invertN);
 
     params.TBN = mat3(params.tangentWS, params.biNormalWS, params.normalWS);
 

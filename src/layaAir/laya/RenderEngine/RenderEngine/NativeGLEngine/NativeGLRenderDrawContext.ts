@@ -1,4 +1,3 @@
-import { DrawType } from "../../RenderEnum/DrawType";
 import { IndexFormat } from "../../RenderEnum/IndexFormat";
 import { MeshTopology } from "../../RenderEnum/RenderPologyMode";
 import { IRenderDrawContext } from "../../RenderInterface/IRenderDrawContext";
@@ -40,6 +39,10 @@ export class NativeGLRenderDrawContext extends NativeGLObject implements IRender
      */
     drawElements(mode: MeshTopology, count: number, type: IndexFormat, offset: number): void {
         this._nativeObj.drawElements(mode, count, type, offset);
+    }
+
+    drawElements2DTemp(mode: MeshTopology, count: number, type: IndexFormat, offset: number): void {
+        //todo
     }
 
     /**

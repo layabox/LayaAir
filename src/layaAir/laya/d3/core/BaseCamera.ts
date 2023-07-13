@@ -8,7 +8,6 @@ import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { ShaderData } from "../../RenderEngine/RenderShader/ShaderData";
 import { ShaderDefine } from "../../RenderEngine/RenderShader/ShaderDefine";
 import { UniformBufferParamsType, UnifromBufferData } from "../../RenderEngine/UniformBufferData";
-import { SkyRenderer } from "../resource/models/SkyRenderer";
 import { Scene3D } from "./scene/Scene3D";
 import { Sprite3D, StaticFlag } from "./Sprite3D";
 import { UniformBufferObject } from "../../RenderEngine/UniformBufferObject";
@@ -18,6 +17,7 @@ import { ILaya } from "../../../ILaya";
 import { Color } from "../../maths/Color";
 import { Matrix4x4 } from "../../maths/Matrix4x4";
 import { Vector3 } from "../../maths/Vector3";
+import { SkyRenderer } from "../resource/models/SkyRenderer";
 
 /**
  * <code>BaseCamera</code> 类用于创建摄像机的父类。

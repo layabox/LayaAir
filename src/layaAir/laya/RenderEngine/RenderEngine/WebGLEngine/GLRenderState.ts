@@ -58,20 +58,29 @@ export class GLRenderState {
     /**@internal */
     private _frontFace: number;
 
+    /**@internal */
     _engine: WebGLEngine;
+    /**@internal */
     _gl: WebGLRenderingContext | WebGL2RenderingContext;
 
+    /**
+     * intance glRenderState
+     * @param engine 
+     */
     constructor(engine: WebGLEngine) {
         this._engine = engine;
         this._gl = this._engine.gl;
         this._initState();
     }
 
+    /**
+     * init
+     */
     private _initState() {
         //TODO:并不完全
         const gl = this._gl;
         this.setDepthFunc(gl.LESS);
-        this.setBlendEquationSeparate(gl.FUNC_ADD, gl.FUNC_ADD);
+        this.setBlendEquationSeparate(BlendEquationSeparate.ADD, BlendEquationSeparate.ADD);
         this._blendEquation = gl.FUNC_ADD;
         this._sFactor = gl.ONE;
         this._dFactor = gl.ZERO;
@@ -80,7 +89,11 @@ export class GLRenderState {
 
     }
 
-    //TODO 性能优化
+    /**
+     * get gl blend factor
+     * @param factor 
+     * @returns 
+     */
     _getBlendFactor(factor: BlendFactor) {
         const gl = this._gl;
         switch (factor) {
@@ -112,7 +125,12 @@ export class GLRenderState {
                 return gl.ONE_MINUS_CONSTANT_COLOR;
         }
     }
-    //TODO:性能优化
+
+    /**
+     * get gl blend operation
+     * @param factor 
+     * @returns 
+     */
     _getBlendOperation(factor: BlendEquationSeparate) {
         const gl = this._gl;
         switch (factor) {
@@ -131,7 +149,11 @@ export class GLRenderState {
         }
     }
 
-    //TODO 性能优化
+    /**
+     * get gl compare fun factor
+     * @param compareFunction 
+     * @returns 
+     */
     _getGLCompareFunction(compareFunction: CompareFunction): number {
         const gl = this._gl;
         switch (compareFunction) {
@@ -154,7 +176,11 @@ export class GLRenderState {
         }
     }
 
-    //性能优化
+    /**
+     * get gl stencil operation
+     * @param compareFunction 
+     * @returns 
+     */
     _getGLStencilOperation(compareFunction: StencilOperation): number {
         const gl = this._gl;
         switch (compareFunction) {
@@ -177,7 +203,11 @@ export class GLRenderState {
         }
     }
 
-    //
+    /**
+     * get gl frontface factor
+     * @param cullmode 
+     * @returns 
+     */
     _getGLFrontfaceFactor(cullmode: CullMode) {
         if (cullmode == CullMode.Front)
             return this._gl.CCW;
@@ -205,7 +235,7 @@ export class GLRenderState {
      * value {CompareType}
      */
     setDepthFunc(value: number): void {
-        value !== this._depthFunc && (this._depthFunc = value, this._gl.depthFunc(value));
+        value !== this._depthFunc && (this._depthFunc = value, this._gl.depthFunc(this._getGLCompareFunction(value)));
     }
 
 
@@ -232,7 +262,7 @@ export class GLRenderState {
         if (fun != this._stencilFunc || ref != this._stencilRef) {
             this._stencilFunc = fun;
             this._stencilRef = ref;
-            this._gl.stencilFunc(fun, ref, 0xff);
+            this._gl.stencilFunc(this._getGLCompareFunction(fun), ref, 0xff);
         }
     }
 
@@ -244,7 +274,7 @@ export class GLRenderState {
             this._stencilOp_fail = fail;
             this._stencilOp_zfail = zfail;
             this._stencilOp_zpass = zpass;
-            this._gl.stencilOp(fail, zfail, zpass);
+            this._gl.stencilOp(this._getGLStencilOperation(fail), this._getGLStencilOperation(zfail), this._getGLStencilOperation(zpass));
         }
     }
 
@@ -263,7 +293,7 @@ export class GLRenderState {
         if (blendEquation !== this._blendEquation) {
             this._blendEquation = blendEquation;
             this._blendEquationRGB = this._blendEquationAlpha = null;
-            this._gl.blendEquation(blendEquation);
+            this._gl.blendEquation(this._getBlendOperation(blendEquation));
         }
     }
 
@@ -275,7 +305,7 @@ export class GLRenderState {
             this._blendEquationRGB = blendEquationRGB;
             this._blendEquationAlpha = blendEquationAlpha;
             this._blendEquation = null;
-            this._gl.blendEquationSeparate(blendEquationRGB, blendEquationAlpha);
+            this._gl.blendEquationSeparate(this._getBlendOperation(blendEquationRGB), this._getBlendOperation(blendEquationAlpha));
         }
     }
 
@@ -291,7 +321,7 @@ export class GLRenderState {
             this._dFactorRGB = null;
             this._sFactorAlpha = null;
             this._dFactorAlpha = null;
-            this._gl.blendFunc(sFactor, dFactor);
+            this._gl.blendFunc(this._getBlendFactor(sFactor), this._getBlendFactor(dFactor));
         }
     }
 
@@ -306,7 +336,7 @@ export class GLRenderState {
             this._dFactorAlpha = dstAlpha;
             this._sFactor = null;
             this._dFactor = null;
-            this._gl.blendFuncSeparate(srcRGB, dstRGB, srcAlpha, dstAlpha);
+            this._gl.blendFuncSeparate(this._getBlendFactor(srcRGB), this._getBlendFactor(dstRGB), this._getBlendFactor(srcAlpha), this._getBlendFactor(dstAlpha));
         }
     }
 
@@ -322,9 +352,13 @@ export class GLRenderState {
      * @internal
      */
     setFrontFace(value: number): void {
-        value !== this._frontFace && (this._frontFace = value, this._gl.frontFace(value));
+        value !== this._frontFace && (this._frontFace = value, this._gl.frontFace(this._getGLFrontfaceFactor(value)));
     }
 
+    /**
+     * apply RenderState list
+     * @param cmd 
+     */
     applyRenderStateCommand(cmd: RenderStateCommand) {
         let cmdArray = cmd.cmdArray;
         cmdArray.forEach((value, key) => {
@@ -336,7 +370,7 @@ export class GLRenderState {
                     this.setDepthMask(value);
                     break;
                 case RenderStateType.DepthFunc:
-                    this.setDepthFunc(this._getGLCompareFunction(value));
+                    this.setDepthFunc(value);
                     break;
                 case RenderStateType.StencilTest:
                     this.setStencilTest(value);
@@ -345,31 +379,31 @@ export class GLRenderState {
                     this.setStencilMask(value);
                     break;
                 case RenderStateType.StencilFunc:
-                    this.setStencilFunc(this._getGLCompareFunction(value[0]), value[1]);
+                    this.setStencilFunc(value[0], value[1]);
                     break;
                 case RenderStateType.StencilOp:
-                    this.setstencilOp(this._getGLStencilOperation(value[0]), this._getGLStencilOperation(value[1]), this._getGLStencilOperation(value[2]));//TODO
+                    this.setstencilOp(value[0], value[1], value[2]);//TODO
                     break;
                 case RenderStateType.BlendType:
                     this.setBlend(value != BlendType.BLEND_DISABLE);
                     break;
                 case RenderStateType.BlendEquation:
-                    this.setBlendEquation(this._getBlendOperation(value));
+                    this.setBlendEquation(value);
                     break;
                 case RenderStateType.BlendEquationSeparate:
-                    this.setBlendEquationSeparate(this._getBlendOperation(value[0]), this._getBlendOperation(value[1]));//TODO
+                    this.setBlendEquationSeparate(value[0], value[1]);//TODO
                     break;
                 case RenderStateType.BlendFunc:
-                    this.setBlendFunc(this._getBlendFactor(value[0]), this._getBlendFactor(value[1]));
+                    this.setBlendFunc(value[0], value[1]);
                     break;
                 case RenderStateType.BlendFuncSeperate:
-                    this.setBlendFuncSeperate(this._getBlendFactor(value[0]), this._getBlendFactor(value[1]), this._getBlendFactor(value[2]), this._getBlendFactor(value[3]));
+                    this.setBlendFuncSeperate(value[0], value[1], value[2], value[3]);
                     break;
                 case RenderStateType.CullFace:
                     this.setCullFace(value);
                     break;
                 case RenderStateType.FrontFace:
-                    this.setFrontFace(this._getGLFrontfaceFactor(value));
+                    this.setFrontFace(value);
                     break;
                 default:
                     throw "unknow type of renderStateType";

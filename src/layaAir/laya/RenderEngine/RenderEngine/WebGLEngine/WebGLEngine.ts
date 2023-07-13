@@ -110,14 +110,14 @@ export class WebGLEngine implements IRenderEngine {
     private _GLParams: GLParams;
 
     //GL纹理生成
-    private _GLTextureContext: GLTextureContext|GL2TextureContext;
+    private _GLTextureContext: GLTextureContext | GL2TextureContext;
     //Gl Draw
     private _GLRenderDrawContext: GLRenderDrawContext;
 
     private _GL2DRenderContext: GLRender2DContext;
 
     //GLRenderState
-    private _GLRenderState: GLRenderState;
+    _GLRenderState: GLRenderState;
 
     // //TODO:管理Buffer
     // private _bufferResourcePool: any;
@@ -442,8 +442,7 @@ export class WebGLEngine implements IRenderEngine {
      * @internal
      */
     uploadUniforms(shader: GLShaderInstance, commandEncoder: CommandEncoder, shaderData: ShaderData, uploadUnTexture: boolean): number {
-        shader.bind();
-        shaderData.applyUBOData();
+        shaderData.applyUBO && shaderData.applyUBOData();
         var data: any = shaderData._data;
         var shaderUniform: any[] = commandEncoder.getArrayData();
         var shaderCall: number = 0;
