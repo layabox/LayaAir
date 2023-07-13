@@ -117,69 +117,64 @@ void clearCoatIBL(const in Surface surface, const in PixelInfo info, inout vec3 
     #endif // CLEARCOAT
 
     #ifdef TRANSMISSION
-vec3 transmissionIBL(const in Surface surface, const in PixelInfo info, in vec3 E)
+vec3 getRefraction(const in Surface surface, const in PixelInfo info)
 {
+    vec3 position = info.positionWS;
+
+	#ifdef THICKNESS
+
     vec3 n = info.normalWS;
     vec3 r = -info.viewDir;
+    float airIOR = 1.0;
+    float etaIR = airIOR / surface.ior;
 
-    // todo ior
-    float airIor = 1.0;
+    vec3 refractionV = normalize(refract(r, n, etaIR)) * surface.thickness * info.worldScale.xyz;
 
-    float ior = surface.ior;
+    position += refractionV;
 
-    float etaIR = airIor / ior;
-    float etaRI = ior / airIor;
+	#endif // THICKNESS
 
-	// ray
-	#ifndef VOLUME
-    vec3 position = info.positionWS;
-    vec3 direction = r;
-    float d = 0.0;
-	#endif // VOLUME
-
-	#ifdef VOLUME
-
-    vec3 scaleLength = vec3(0.0);
-    scaleLength.x = length(vec3(u_WorldMat[0].xyz));
-    scaleLength.y = length(vec3(u_WorldMat[1].xyz));
-    scaleLength.z = length(vec3(u_WorldMat[2].xyz));
-    float transmissionDistance = length(scaleLength) / 3.0;
-
-    r = refract(r, n, etaIR);
-    float NoR = dot(n, r);
-    float d = surface.thickness * -NoR * transmissionDistance;
-
-    vec3 position = vec3(info.positionWS + r * d);
-    vec3 n1 = normalize(NoR * r - n * 0.5);
-    vec3 direction = refract(r, n1, etaRI);
-
-    vec3 absorption = -log((surface.attenuationColor)) / surface.attenuationDistance;
-
-    vec3 T = min(vec3(1.0), exp(-absorption * d));
-
-	#endif // VOLUME
-
-	#ifndef VOLUME
-    E *= (1.0 + surface.transmission * (1.0 - E.g) / (1.0 + E.g));
-	#endif // VOLUME
-
-    // ssr
     vec4 p = u_ViewProjection * vec4(position, 1.0);
-    p.xy = p.xy * (0.5 / p.w) + 0.5;
-    float lod = u_OpaqueTextureParams.z * surface.perceptualRoughness * saturate(surface.ior * 2.0 - 2.0);
-    // todo
-    vec3 Ft = texture2DLodEXT(u_CameraOpaqueTexture, p.xy, lod).xyz;
+    vec2 refractionUV = (p.xy / p.w) * 0.5 + 0.5;
+
+    float refractionLOD = u_OpaqueTextureParams.z * surface.perceptualRoughness * saturate(surface.ior * 2.0 - 2.0);
+    vec3 refraction = texture2DLodEXT(u_CameraOpaqueTexture, refractionUV, refractionLOD).xyz;
+
+    return refraction;
+}
+
+vec3 transmissionIBL(const in Surface surface, const in PixelInfo info, in vec3 E)
+{
+    // refraction
+    vec3 refraction = getRefraction(surface, info);
+
+	#ifndef THICKNESS
+    E *= 1.0 + surface.transmission * (1.0 - E.g) / (1.0 + E.g);
+	#endif // THICKNESS
+
+	#ifdef THICKNESS
+
+    // ABSORPTION
+    vec3 attenuationColor = surface.attenuationColor;
+    float attenuationDistance = surface.attenuationDistance;
+    vec3 absorption = -log(attenuationColor) / (attenuationDistance);
+    vec3 T = exp(-absorption * info.worldScale.xyz * surface.thickness);
+
+	#endif // THICKNESS
+
+    vec3 Ft = refraction;
 
     Ft *= surface.diffuseColor;
 
     Ft *= 1.0 - E;
 
-	#ifdef VOLUME
+	#ifdef THICKNESS
     Ft *= T;
-	#endif // VOLUME
+	#endif // THICKNESS
 
-    return Ft;
+    return Ft * surface.transmission;
 }
+
     #endif // TRANSMISSION
 
 void baseIBL(const in Surface surface, const in PixelInfo info, in vec3 E, inout vec3 Fd, inout vec3 Fr)
@@ -203,7 +198,9 @@ void baseIBL(const in Surface surface, const in PixelInfo info, in vec3 E, inout
 
     vec3 indirectSpecular = specularRadiance(r, roughness);
 
-    Fr += E * indirectSpecular * occlusion * info.energyCompensation;
+    // todo
+    float specularAO = occlusion;
+    Fr += E * indirectSpecular * specularAO * info.energyCompensation;
 
     #if defined(USELIGHTMAP)
 
@@ -222,6 +219,7 @@ void baseIBL(const in Surface surface, const in PixelInfo info, in vec3 E, inout
 vec3 getE(const in Surface surface, const in PixelInfo info)
 {
     #ifdef IRIDESCENCE
+
     vec3 dfg = info.dfg;
     float NoV = info.NoV;
     vec3 iridescenceFresnel = info.iridescenceFresnel;
@@ -231,14 +229,16 @@ vec3 getE(const in Surface surface, const in PixelInfo info)
     vec3 schlickFresnel = F_Schlick(f0, vec3(1.0), NoV);
     vec3 F = mix(schlickFresnel, iridescenceFresnelMax, iridescenceFactor);
     vec3 E = mix(dfg.xxx, dfg.yyy, F);
+
     #else // IRIDESCENCE
+
     vec3 dfg = info.dfg;
     vec3 f0 = surface.f0;
     vec3 f90 = surface.f90;
     // vec3 E = mix(dfg.xxx, dfg.yyy, f0);
     vec3 E = (f90 - f0) * dfg.x + f0 * dfg.y;
-    #endif // IRIDESCENCE
 
+    #endif // IRIDESCENCE
     return E;
 }
 
@@ -268,7 +268,6 @@ vec3 PBRGI(const in Surface surface, const in PixelInfo info)
     #ifdef TRANSMISSION
     Fd *= (1.0 - surface.transmission);
     vec3 Ft = transmissionIBL(surface, info, E);
-    Ft *= surface.transmission;
     #endif // TRANSMISSION
 
     vec3 gi = Fd + Fr;

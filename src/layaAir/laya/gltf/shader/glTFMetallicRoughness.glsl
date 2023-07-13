@@ -50,14 +50,13 @@ struct SurfaceInputs {
 
     #ifdef TRANSMISSION
     float transmission;
+    #endif // TRANSMISSION
 
-	#ifdef VOLUME
+    #ifdef THICKNESS
     float thickness;
     vec3 attenuationColor;
     float attenuationDistance;
-	#endif // VOLUME
-
-    #endif // TRANSMISSION
+    #endif // THICKNESS
 };
 
 void initSurface(inout Surface surface, const in SurfaceInputs inputs, const in PixelParams pixel)
@@ -122,12 +121,13 @@ void initSurface(inout Surface surface, const in SurfaceInputs inputs, const in 
 
     #ifdef TRANSMISSION
     surface.transmission = inputs.transmission;
-	#ifdef VOLUME
+    #endif // TRANSMISSION
+
+    #ifdef THICKNESS
     surface.thickness = inputs.thickness;
     surface.attenuationColor = inputs.attenuationColor;
     surface.attenuationDistance = inputs.attenuationDistance;
-	#endif // VOLUME
-    #endif // TRANSMISSION
+    #endif // THICKNESS
 }
 
 vec4 glTFMetallicRoughness(const in SurfaceInputs inputs, in PixelParams pixel)

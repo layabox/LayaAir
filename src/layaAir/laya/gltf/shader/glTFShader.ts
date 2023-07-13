@@ -65,8 +65,6 @@ export class glTFShader {
     static Define_TransmissionMapTransform: ShaderDefine;
 
     // volume
-    // todo 
-    static Define_Volume: ShaderDefine;
     static Define_VolumeThicknessMap: ShaderDefine;
     static Define_VolumeThicknessMapTransform: ShaderDefine;
 
@@ -113,9 +111,8 @@ export class glTFShader {
         this.Define_TransmissionMap = Shader3D.getDefineByName("TRANSMISSIONMAP");
         this.Define_TransmissionMapTransform = Shader3D.getDefineByName("TRANSMISSIONMAP_TRANSFORM");
 
-        this.Define_Volume = Shader3D.getDefineByName("VOLUME");
-        this.Define_VolumeThicknessMap = Shader3D.getDefineByName("VOLUME_THICKNESSMAP");
-        this.Define_VolumeThicknessMapTransform = Shader3D.getDefineByName("VOLUME_THICKNESSMAP_TRANSFORM");
+        this.Define_VolumeThicknessMap = Shader3D.getDefineByName("THICKNESSMAP");
+        this.Define_VolumeThicknessMapTransform = Shader3D.getDefineByName("THICKNESSMAP_TRANSFORM");
 
         this.Define_SpecularFactorMap = Shader3D.getDefineByName("SPECULARFACTORMAP");
         this.Define_SpecularFactorMapTransform = Shader3D.getDefineByName("SPECULARFACTORMAP_TRANSFORM");

@@ -247,29 +247,28 @@ void initSurfaceInputs(inout SurfaceInputs inputs, const in PixelParams pixel)
     transmission *= transmissionSampler.r;
     #endif // TRANSMISSIONMAP
     inputs.transmission = transmission;
+#endif // TRANSMISSION
 
-    #ifdef VOLUME
+#ifdef THICKNESS
 
     float thicknessFactor = u_VolumeThicknessFactor;
     float attenuationDistance = u_VolumeAttenuationDistance;
     vec3 attenuationColor = u_VolumeAttenuationColor.xyz;
 
-	#ifdef VOLUME_THICKNESSMAP
+    #ifdef THICKNESSMAP
     vec2 thicknessUV = uv;
-	    #ifdef VOLUME_THICKNESSMAP_TRANSFORM
+	#ifdef THICKNESSMAP_TRANSFORM
     thicknessUV = (u_VoluemThicknessMapTransform * vec3(thicknessUV, 1.0)).xy;
-	    #endif // VOLUME_THICKNESSMAP_TRANSFORM
+	#endif // THICKNESSMAP_TRANSFORM
     vec4 thicknessSampler = texture2D(u_VolumeThicknessTexture, thicknessUV);
     thicknessFactor *= thicknessSampler.g;
-	#endif // VOLUME_THICKNESSMAP
+    #endif // THICKNESSMAP
 
     inputs.thickness = thicknessFactor;
     inputs.attenuationColor = attenuationColor;
     inputs.attenuationDistance = attenuationDistance;
 
-    #endif // VOLUME
-
-#endif // TRANSMISSION
+#endif // THICKNESS
 }
 
 void main()
@@ -342,16 +341,33 @@ void main()
     debug = vec3(inputs.metallic);
     #endif // Debug_Metallic
 
-    #ifdef VOLUME
+    #ifdef THICKNESS
 	#ifdef Debug_VolumeThickness
     debug = vec3(surface.thickness);
 	#endif // Debug_VolumeThickness
 
 	#ifdef Debug_Attenuation
-    debug = -log((surface.attenuationColor)) / surface.attenuationDistance;
+    {
+	vec3 scaleLength = vec3(0.0);
+	scaleLength.x = length(vec3(u_WorldMat[0].xyz));
+	scaleLength.y = length(vec3(u_WorldMat[1].xyz));
+	scaleLength.z = length(vec3(u_WorldMat[2].xyz));
+
+	vec3 n = info.normalWS;
+	vec3 r = -info.viewDir;
+	float airIor = 1.0;
+
+	float ior = surface.ior;
+	float etaIR = airIor / ior;
+	float etaRI = ior / airIor;
+	vec3 refractionVector = normalize(refract(r, n, etaIR)) * surface.thickness * scaleLength;
+
+	vec3 absorption = -log((surface.attenuationColor)) / (surface.attenuationDistance);
+	debug = exp(-absorption);
+    }
 	#endif // Debug_Attenuation
 
-    #endif // VOLUME
+    #endif // THICKNESS
 
     #ifdef TRANSMISSION
 	#ifdef Debug_Transmission
@@ -392,9 +408,20 @@ void main()
     #endif // Debug_FrontFace
 
     #ifdef Debug_SpecularAO
-	#if defined(GL_OES_standard_derivatives)
-    debug = vec3(saturate(pow(info.NoV + surface.occlusion, exp2(-16.0 * surface.roughness - 1.0)) - 1.0 + surface.occlusion));
-	#endif // GL_OES_standard_derivatives
+    float specularAO = saturate(pow(info.NoV + surface.occlusion, exp2(-16.0 * surface.roughness - 1.0)) - 1.0 + surface.occlusion);
+
+    float diffAO = specularAO - surface.occlusion;
+
+    debug = vec3(abs(diffAO));
+
+    if (diffAO < 0.0)
+	{
+	    debug *= vec3(1.0, 0.0, 0.0);
+	}
+    else
+	{
+	    debug *= vec3(0.0, 1.0, 0.0);
+	}
     #endif // Debug_SpecularAO
 
     // // #ifdef CLEARCOAT
