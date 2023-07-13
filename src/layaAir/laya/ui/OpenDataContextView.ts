@@ -15,7 +15,7 @@ export class OpenDataContextView extends UIComponent {
     constructor() {
         super();
         this._width = this._height = 200;
-        let tex: Texture = new Texture(new Texture2D(this._width, this._height, TextureFormat.R8G8B8A8, false, false, false));
+        let tex: Texture = new Texture(new Texture2D(this._width, this._height, TextureFormat.R8G8B8A8, false, false, true));
         tex.bitmap.lock = true;
         this.texture = tex;
     }
