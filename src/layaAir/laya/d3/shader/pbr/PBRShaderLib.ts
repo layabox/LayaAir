@@ -50,6 +50,11 @@ export class PBRShaderLib {
      */
     static DEFINE_TRANSMISSION: ShaderDefine;
 
+    /**
+     * thick / volume
+     */
+    static DEFINE_THICKNESS: ShaderDefine;
+
     static init() {
 
         PBRShaderLib.DEFINE_EMISSION = Shader3D.getDefineByName("EMISSION");
@@ -66,6 +71,8 @@ export class PBRShaderLib {
         PBRShaderLib.DEFINE_SHEEN = Shader3D.getDefineByName("SHEEN");
 
         PBRShaderLib.DEFINE_TRANSMISSION = Shader3D.getDefineByName("TRANSMISSION");
+
+        PBRShaderLib.DEFINE_THICKNESS = Shader3D.getDefineByName("THICKNESS");
 
         // pbr lib
         Shader3D.addInclude("BRDF.glsl", BRDFGLSL);

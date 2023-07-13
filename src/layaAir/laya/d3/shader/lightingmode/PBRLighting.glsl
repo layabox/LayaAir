@@ -53,6 +53,10 @@ struct PixelInfo {
     float ab;
     #endif // ANISOTROPIC
 
+    #ifdef THICKNESS
+    vec4 worldScale;
+    #endif // THICKNESS
+
     #ifdef LIGHTMAP
 	#ifdef UV1
     vec2 lightmapUV;
@@ -105,13 +109,13 @@ struct Surface {
 
     #ifdef TRANSMISSION
     float transmission;
+    #endif // TRANSMISSION
 
-	#ifdef VOLUME
+    #ifdef THICKNESS
     float thickness;
     vec3 attenuationColor;
     float attenuationDistance;
-	#endif // VOLUME
-    #endif // TRANSMISSION
+    #endif // THICKNESS
 };
 
 struct LightParams {
@@ -213,6 +217,31 @@ vec3 computeF90(vec3 f0)
 vec3 computeDiffuse(vec3 baseColor, float metallic)
 {
     return (1.0 - metallic) * baseColor;
+}
+
+float specularAA(float roughness, in vec3 normalWS)
+{
+
+    #if !defined(GRAPHICS_API_GLES3) && !defined(GL_OES_standard_derivatives)
+
+    return roughness;
+
+    #else // !GRAPHICS_API_GLES3 && !GL_OES_standard_derivatives
+
+    vec3 du = dFdx(normalWS);
+    vec3 dv = dFdy(normalWS);
+
+    float specularAAVariance = 0.15;
+    float specularAAThreshold = 0.04;
+
+    float variance = specularAAVariance * (dot(du, du) + dot(dv, dv));
+    float kernelRoughness = min(2.0 * variance, specularAAThreshold);
+
+    float squareRoughness = saturate(roughness * roughness + kernelRoughness);
+
+    return sqrt(squareRoughness);
+
+    #endif // !GRAPHICS_API_GLES3 && !GL_OES_standard_derivatives
 }
 
 vec3 diffuseLobe(in Surface surface, const in PixelInfo pixel, const in LightParams lightParams)
