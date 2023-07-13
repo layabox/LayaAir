@@ -79,14 +79,13 @@ export class GLRenderState {
     private _initState() {
         //TODO:并不完全
         const gl = this._gl;
-        this.setDepthFunc(gl.LESS);
+        this.setDepthFunc(CompareFunction.Less);
         this.setBlendEquationSeparate(BlendEquationSeparate.ADD, BlendEquationSeparate.ADD);
-        this._blendEquation = gl.FUNC_ADD;
-        this._sFactor = gl.ONE;
-        this._dFactor = gl.ZERO;
-        this._sFactorAlpha = gl.ONE;
-        this._dFactorAlpha = gl.ONE;
-
+        this._blendEquation =BlendEquationSeparate.ADD;
+        this._sFactor = BlendFactor.One;
+        this._dFactor = BlendFactor.Zero;
+        this._sFactorAlpha = BlendFactor.One;
+        this._dFactorAlpha = BlendFactor.One;
     }
 
     /**
