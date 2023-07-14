@@ -74,6 +74,7 @@ export class RenderElementBatch {
                             let instanceRenderElement = InstanceRenderElement.create();
                             this._recoverList.add(instanceRenderElement);
                             instanceRenderElement._baseRender = insOriElement._baseRender;
+                            instanceRenderElement._renderElementOBJ._renderShaderData = insOriElement._baseRender._shaderValues;
                             instanceRenderElement.renderType = RenderElement.RENDERTYPE_INSTANCEBATCH;
                             //Geometry updaste
                             (instanceRenderElement._geometry as MeshInstanceGeometry).subMesh = (insOriElement._geometry as SubMesh);
