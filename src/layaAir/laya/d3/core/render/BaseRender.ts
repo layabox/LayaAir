@@ -233,7 +233,7 @@ export class BaseRender extends Component implements IBoundsCell {
     set geometryBounds(value: Bounds) {
         this._baseGeometryBounds = this._rendernode.geometryBounds = value;
     }
-    
+
     get geometryBounds(): Bounds {
         return this._baseGeometryBounds;
     }
@@ -253,11 +253,12 @@ export class BaseRender extends Component implements IBoundsCell {
 
     set lightmapIndex(value: number) {
         if (value != -1) {
-            this._scene && this._scene.on(Lightmap.ApplyLightmapEvent, this._applyLightMapParams);
+            this._scene && this._scene.on(Lightmap.ApplyLightmapEvent, this, this._applyLightMapParams);
         } else {
-            this._scene && this._scene.off(Lightmap.ApplyLightmapEvent, this._applyLightMapParams);
+            this._scene && this._scene.off(Lightmap.ApplyLightmapEvent, this, this._applyLightMapParams);
         }
         this._lightmapIndex = value;
+        this._scene && this._applyLightMapParams();
     }
 
     /**
@@ -651,6 +652,7 @@ export class BaseRender extends Component implements IBoundsCell {
         this._onWorldMatNeedChange(1);
         this._isSupportReflection();
         this._batchRender && this._batchRender._batchOneRender(this);
+        this.lightmapIndex = this.lightmapIndex;
         Stat.renderNode++;
         if (false) {
             this._subUniformBufferData = BaseRender._transLargeUbO.create();
