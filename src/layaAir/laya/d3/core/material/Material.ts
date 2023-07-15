@@ -49,7 +49,7 @@ export class Material extends Resource implements IClone {
 
     /**着色器变量,透明测试值。*/
     static ALPHATESTVALUE: number;
-  
+
     /**材质级着色器宏定义,透明测试。*/
     static SHADERDEFINE_ALPHATEST: ShaderDefine;
     static SHADERDEFINE_MAINTEXTURE: ShaderDefine;
@@ -435,7 +435,8 @@ export class Material extends Resource implements IClone {
                 //TODO IDE
                 break;
             default:
-                throw new Error("UnlitMaterial : renderMode value error.");
+                console.warn(`Material : renderMode value error - (${value}).`);
+                break;
         }
     }
 
