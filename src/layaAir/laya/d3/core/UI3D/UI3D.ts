@@ -123,27 +123,27 @@ export class UI3D extends BaseRender {
      * UI渲染模式
      */
     set renderMode(value: MaterialRenderMode) {
-        this.sharedMaterials[0].materialRenderMode = value;
+        this.sharedMaterial.materialRenderMode = value;
         this.boundsChange = true;
     }
 
 
     get renderMode(): MaterialRenderMode {
-        if (!this.sharedMaterials[0])
-            this.sharedMaterials[0] = this._ui3DMat;
-        return this.sharedMaterials[0].materialRenderMode;
+        if (!this.sharedMaterial)
+            this.sharedMaterial = this._ui3DMat;
+        return this.sharedMaterial.materialRenderMode;
     }
 
     /**
      * UI剔除模式
      */
     set cull(value: number) {
-        this.sharedMaterials[0] && (this.sharedMaterials[0].cull = value);
+        this.sharedMaterial && (this.sharedMaterial.cull = value);
     }
 
 
     get cull(): number {
-        let mat = this.sharedMaterials[0];
+        let mat = this.sharedMaterial;
         if (!mat) {
             mat = this._ui3DMat;
         }
@@ -216,7 +216,7 @@ export class UI3D extends BaseRender {
     private _addRenderElement() {
         var elements: RenderElement[] = this._renderElements;
         this._setMaterialTexture();
-        var material: Material = (<Material>this.sharedMaterials[0]);
+        var material: Material = (<Material>this.sharedMaterial);
         var element: RenderElement = new RenderElement();
         element.setTransform((this.owner as Sprite3D)._transform);
         element.render = this;
@@ -351,12 +351,12 @@ export class UI3D extends BaseRender {
      * 设置材质纹理
      */
     _setMaterialTexture() {
-        if (!this._sharedMaterials[0])
-            this._sharedMaterials[0] = this._ui3DMat;
-        if (!this._sharedMaterials[0].hasDefine(UnlitMaterial.SHADERDEFINE_ALBEDOTEXTURE)) {
-            this._sharedMaterials[0].addDefine(UnlitMaterial.SHADERDEFINE_ALBEDOTEXTURE);
+        if (!this.sharedMaterial)
+            this.sharedMaterial = this._ui3DMat;
+        if (!this.sharedMaterial.hasDefine(UnlitMaterial.SHADERDEFINE_ALBEDOTEXTURE)) {
+            this.sharedMaterial.addDefine(UnlitMaterial.SHADERDEFINE_ALBEDOTEXTURE);
         }
-        this._sharedMaterials[0].setTexture(this._bindPropertyName, this._rendertexure2D);
+        this.sharedMaterial.setTexture(this._bindPropertyName, this._rendertexure2D);
     }
 
     /**

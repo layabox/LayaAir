@@ -17,6 +17,7 @@ export class Submit extends SubmitBase {
     constructor(renderType: number = SubmitBase.TYPE_2D) {
         super(renderType);
     }
+
     /**
      * @override
      */
@@ -42,12 +43,13 @@ export class Submit extends SubmitBase {
             this._blendFn();
             BlendMode.activeBlendFunction = this._blendFn;
         }
-        LayaGL.renderDrawContext.drawElements(MeshTopology.Triangles, this._numEle, IndexFormat.UInt16, this._startIdx);
+        LayaGL.renderDrawContext.drawElements2DTemp(MeshTopology.Triangles, this._numEle, IndexFormat.UInt16, this._startIdx);
         // Stat.renderBatches++;
         // Stat.trianglesFaces += this._numEle / 3;
 
         return 1;
     }
+    
     /**
      * @override
      */
@@ -66,7 +68,7 @@ export class Submit extends SubmitBase {
         }
     }
 
-	/**
+    /**
      * create方法只传对submit设置的值
      */
     static create(context: Context, mesh: Mesh2D, sv: Value2D): Submit {
@@ -85,15 +87,15 @@ export class Submit extends SubmitBase {
         return o;
     }
 
-	/**
-	 * 创建一个矢量submit
-	 * @param	ctx
-	 * @param	mesh
-	 * @param	numEle		对应drawElement的第二个参数:count
-	 * @param	offset		drawElement的时候的ib的偏移。
-	 * @param	sv			Value2D
-	 * @return
-	 */
+    /**
+     * 创建一个矢量submit
+     * @param	ctx
+     * @param	mesh
+     * @param	numEle		对应drawElement的第二个参数:count
+     * @param	offset		drawElement的时候的ib的偏移。
+     * @param	sv			Value2D
+     * @return
+     */
     static createShape(ctx: Context, mesh: Mesh2D, numEle: number, sv: Value2D): Submit {
         var o = Submit._poolSize ? Submit.POOL[--Submit._poolSize] : (new Submit());
         o._mesh = mesh;

@@ -62,8 +62,8 @@ export class DrawPieCmd {
 
     /**@private */
     run(context: Context, gx: number, gy: number): void {
-        let offset = this.lineWidth >= 1 ? this.lineWidth / 2 : 0;
-        let lineOffset = this.lineWidth;
+        let offset = (this.lineWidth >= 1 && this.lineColor) ? this.lineWidth / 2 : 0;
+        let lineOffset = this.lineColor ? this.lineWidth : 0;
         context._drawPie(this.x + offset + gx, this.y + offset + gy, this.radius - lineOffset, this._startAngle, this._endAngle, this.fillColor, this.lineColor, this.lineWidth, 0);
     }
 

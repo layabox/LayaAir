@@ -165,7 +165,7 @@ export class Scene3D extends Sprite implements ISubmit {
     static _blitOffset: Vector4 = new Vector4();
     /**@internal */
     static mainCavansViewPort: Viewport = new Viewport(0, 0, 1, 1);
-
+    
 
 
     /**
@@ -720,6 +720,8 @@ export class Scene3D extends Sprite implements ISubmit {
         } else {
             maps.length = 0;
         }
+        this.event(Lightmap.ApplyLightmapEvent);
+        
     }
 
     /**

@@ -71,13 +71,18 @@ export class Stat {
     public static RenderTextureMemory: StatUIParams = { title: "RenderTextureMemory", value: "renderTextureMemory", color: "white", units: "M", mode: "summit" };
     //BufferMemory
     public static BufferMemory: StatUIParams = { title: "BufferMemory", value: "bufferMemory", color: "white", units: "M", mode: "summit" };
+    //upload Uniform
+    public static uploadUniformNum: StatUIParams = { title: "uploadUniformNum", value: "uploadUniform", color: "white", units: "int", mode: "average" };
     //所有显示
     public static AllShow: Array<StatUIParams> = [Stat.FPSStatUIParams, Stat.NodeStatUIParams, Stat.Sprite3DStatUIParams, Stat.DrawCall, Stat.TriangleFace, Stat.RenderNode, Stat.SkinRenderNode, Stat.ParticleRenderNode
-        , Stat.FrustumCulling, Stat.OpaqueDrawCall, Stat.TransDrawCall, Stat.DepthCastDrawCall, Stat.InstanceDrawCall, Stat.CMDDrawCall, Stat.BlitDrawCall, Stat.GPUMemory, Stat.TextureMemeory, Stat.RenderTextureMemory, Stat.BufferMemory];
+        , Stat.FrustumCulling, Stat.OpaqueDrawCall, Stat.TransDrawCall, Stat.DepthCastDrawCall, Stat.InstanceDrawCall, Stat.CMDDrawCall, Stat.BlitDrawCall, Stat.GPUMemory, Stat.TextureMemeory, Stat.RenderTextureMemory, Stat.BufferMemory, Stat.uploadUniformNum];
     //memory显示
     public static memoryShow: Array<StatUIParams> = [Stat.GPUMemory, Stat.TextureMemeory, Stat.RenderTextureMemory, Stat.BufferMemory];
     //渲染显示
     public static renderShow: Array<StatUIParams> = [Stat.DrawCall, Stat.TriangleFace, Stat.OpaqueDrawCall, Stat.TransDrawCall, Stat.DepthCastDrawCall, Stat.InstanceDrawCall, Stat.CMDDrawCall, Stat.BlitDrawCall];
+
+
+
 
     /**@internal 开启关闭阴影 */
     public static toogle_Shadow: StatToggleUIParams = { title: "Shadow", value: "enableShadow", color: "white" };
@@ -105,11 +110,11 @@ export class Stat {
     public static toogle_Opaque: StatToggleUIParams = { title: "Opaque", value: "enableOpaque", color: "white" };
 
     //所有开关
-    public static AllToggle: Array<StatToggleUIParams> = [Stat.toogle_Shadow, Stat.toogle_Light, Stat.toogle_MulLight, Stat.toogle_Postprocess, Stat.toogle_AnimatorUpdate, Stat.toogle_PhysicsUpdate, Stat.toogle_Opaque,Stat.toogle_Transparent,Stat.toogle_CameraCMD,Stat.toogle_Skin,Stat.toogle_Particle, Stat.toogle_msaa];
+    public static AllToggle: Array<StatToggleUIParams> = [Stat.toogle_Shadow, Stat.toogle_Light, Stat.toogle_MulLight, Stat.toogle_Postprocess, Stat.toogle_AnimatorUpdate, Stat.toogle_PhysicsUpdate, Stat.toogle_Opaque, Stat.toogle_Transparent, Stat.toogle_CameraCMD, Stat.toogle_Skin, Stat.toogle_Particle, Stat.toogle_msaa];
     //渲染开关
     public static RenderModeToggle: Array<StatToggleUIParams> = [Stat.toogle_Shadow, Stat.toogle_Light, Stat.toogle_MulLight, Stat.toogle_Postprocess, Stat.toogle_AnimatorUpdate, Stat.toogle_PhysicsUpdate];
     //功能开关
-    public static RenderFuncToggle: Array<StatToggleUIParams> = [Stat.toogle_Opaque,Stat.toogle_Transparent,Stat.toogle_CameraCMD,Stat.toogle_Skin,Stat.toogle_Particle, Stat.toogle_msaa];
+    public static RenderFuncToggle: Array<StatToggleUIParams> = [Stat.toogle_Opaque, Stat.toogle_Transparent, Stat.toogle_CameraCMD, Stat.toogle_Skin, Stat.toogle_Particle, Stat.toogle_msaa];
 
     /** 每秒帧数。*/
     public static FPS: number = 0;
@@ -184,6 +189,8 @@ export class Stat {
     public static renderTextureMemory: number = 0;
     /**@interanl */
     public static bufferMemory: number = 0;
+    /**@internal */
+    public static uploadUniform: number = 0;
 
     //Toggle
     /**@internal 开启关闭阴影 */

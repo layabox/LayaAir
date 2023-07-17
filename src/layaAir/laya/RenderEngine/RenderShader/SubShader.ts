@@ -20,11 +20,6 @@ export class SubShader {
     public static IncludeUniformMap: any;
 
     /**
-     * @internal
-     */
-    public static StateParamsMap: { [stateID: number]: number };
-
-    /**
      * 注册glsl所用到的Uniform
      * 会在生成Uniformmap的时候根据包含的Include文件，添加所需要的uniform因素
      * @param includeName 
@@ -53,29 +48,6 @@ export class SubShader {
     }
 
     static __init__() {
-        let DefaultShaderStateMap: { [s: string]: number } = {
-            's_Cull': Shader3D.RENDER_STATE_CULL,
-            's_Blend': Shader3D.RENDER_STATE_BLEND,
-            's_BlendSrc': Shader3D.RENDER_STATE_BLEND_SRC,
-            's_BlendDst': Shader3D.RENDER_STATE_BLEND_DST,
-            's_BlendSrcRGB': Shader3D.RENDER_STATE_BLEND_SRC_RGB,
-            's_BlendDstRGB': Shader3D.RENDER_STATE_BLEND_DST_RGB,
-            's_BlendSrcAlpha': Shader3D.RENDER_STATE_BLEND_SRC_ALPHA,
-            's_BlendDstAlpha': Shader3D.RENDER_STATE_BLEND_DST_ALPHA,
-            's_BlendEquation': Shader3D.RENDER_STATE_BLEND_EQUATION,
-            's_BlendEquationRGB': Shader3D.RENDER_STATE_BLEND_EQUATION_RGB,
-            's_BlendEquationAlpha': Shader3D.RENDER_STATE_BLEND_EQUATION_ALPHA,
-            's_DepthTest': Shader3D.RENDER_STATE_DEPTH_TEST,
-            's_DepthWrite': Shader3D.RENDER_STATE_DEPTH_WRITE,
-            's_StencilRef': Shader3D.RENDER_STATE_STENCIL_REF,
-            's_StencilTest': Shader3D.RENDER_STATE_STENCIL_TEST,
-            's_StencilWrite': Shader3D.RENDER_STATE_STENCIL_WRITE,
-            's_StencilOp': Shader3D.RENDER_STATE_STENCIL_OP
-        }
-        this.StateParamsMap = {};
-        for (let s in DefaultShaderStateMap) {
-            this.StateParamsMap[DefaultShaderStateMap[s]] = Shader3D.propertyNameToID(s);
-        }
 
         SubShader.IncludeUniformMap = {};
     }

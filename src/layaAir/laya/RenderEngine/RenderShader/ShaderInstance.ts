@@ -2,7 +2,6 @@ import { Config3D } from "../../../Config3D";
 import { CommandEncoder } from "../../layagl/CommandEncoder";
 import { LayaGL } from "../../layagl/LayaGL";
 import { CullMode } from "../../RenderEngine/RenderEnum/CullMode";
-import { RenderStateType } from "../../RenderEngine/RenderEnum/RenderStateType";
 import { IRenderShaderInstance } from "../../RenderEngine/RenderInterface/IRenderShaderInstance";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { ShaderData, ShaderDataType } from "../../RenderEngine/RenderShader/ShaderData";
@@ -16,6 +15,9 @@ import { ShaderNode } from "../../webgl/utils/ShaderNode";
 import { WebGLEngine } from "../RenderEngine/WebGLEngine/WebGLEngine";
 import { RenderParams } from "../RenderEnum/RenderParams";
 import { GLSLCodeGenerator } from "./GLSLCodeGenerator";
+import { RenderStateContext } from "../../RenderEngine/RenderStateContext";
+import { Stat } from "../../utils/Stat";
+import { ShaderCompileDefineBase } from "../../webgl/utils/ShaderCompileDefineBase";
 import { RenderState } from "./RenderState";
 
 /**
@@ -51,13 +53,10 @@ export class ShaderInstance {
 	/**@internal SceneIDTODO*/
 	_uploadScene: any;
 
-	_cullStateCMD: RenderStateCommand;
-
 	/**
 	 * 创建一个 <code>ShaderInstance</code> 实例。
 	 */
 	constructor(shaderProcessInfo: ShaderProcessInfo, shaderPass: ShaderCompileDefineBase) {
-		this._cullStateCMD = LayaGL.renderOBJCreate.createRenderStateComand();
 		shaderProcessInfo.is2D ? this._webGLShaderLanguageProcess2D(shaderProcessInfo.defineString, shaderProcessInfo.attributeMap, shaderProcessInfo.uniformMap, shaderProcessInfo.vs, shaderProcessInfo.ps)
 			: this._webGLShaderLanguageProcess3D(shaderProcessInfo.defineString, shaderProcessInfo.attributeMap, shaderProcessInfo.uniformMap, shaderProcessInfo.vs, shaderProcessInfo.ps);
 		if (this._renderShaderInstance._complete) {
@@ -66,6 +65,9 @@ export class ShaderInstance {
 		}
 	}
 
+	/**
+	 * get complete
+	 */
 	get complete(): boolean {
 		return this._renderShaderInstance._complete;
 	}
@@ -281,7 +283,7 @@ ${uniformglsl}`;
 		this._renderShaderInstance = LayaGL.renderEngine.createShaderInstance(dstVS, detFS, attributeMap);
 	}
 	/**
-	 * @internal TODO3D
+	 * @internal
 	 */
 	protected _create(): void {
 		this._sceneUniformParamsMap = new CommandEncoder();
@@ -343,142 +345,87 @@ ${uniformglsl}`;
 		this._uploadScene = null;
 	}
 
-
-	//miner RenderState  removeTODO
-
 	/**
-	 * @internal
+	 * apply shader programe
+	 * @returns 
 	 */
-	private _getRenderState(shaderDatas: any, stateIndex: number): any {
-		var stateID: any = SubShader.StateParamsMap[stateIndex];
-		return shaderDatas[stateID];
-	}
-
 	bind() {
 		return this._renderShaderInstance.bind();
 	}
 
+	/**
+	 * upload uniform data
+	 * @param shaderUniform 
+	 * @param shaderDatas 
+	 * @param uploadUnTexture 
+	 */
 	uploadUniforms(shaderUniform: CommandEncoder, shaderDatas: ShaderData, uploadUnTexture: boolean) {
-		LayaGL.renderEngine.uploadUniforms(this._renderShaderInstance, shaderUniform, shaderDatas, uploadUnTexture);
+		Stat.uploadUniform += LayaGL.renderEngine.uploadUniforms(this._renderShaderInstance, shaderUniform, shaderDatas, uploadUnTexture);
 	}
 
 	/**
-	 * @internal
+	 * set blend depth stencil RenderState
+	 * @param shaderDatas 
 	 */
 	uploadRenderStateBlendDepth(shaderDatas: ShaderData): void {
-		var renderState: RenderState = (<ShaderPass>this._shaderPass).renderState;
+		if ((<ShaderPass>this._shaderPass).statefirst)
+			this.uploadRenderStateBlendDepthByShader(shaderDatas);
+		else
+			this.uploadRenderStateBlendDepthByMaterial(shaderDatas);
+	}
+
+	/**
+	 * set blend depth stencil RenderState frome Shader
+	 * @param shaderDatas 
+	 */
+	uploadRenderStateBlendDepthByShader(shaderDatas: ShaderData) {
 		var datas: any = shaderDatas.getData();
-		//depth
-		var depthWrite: any = this._getRenderState(datas, Shader3D.RENDER_STATE_DEPTH_WRITE);
-		var depthTest: any = this._getRenderState(datas, Shader3D.RENDER_STATE_DEPTH_TEST);
-		var blend: any = this._getRenderState(datas, Shader3D.RENDER_STATE_BLEND);
-		var stencilRef: any = this._getRenderState(datas, Shader3D.RENDER_STATE_STENCIL_REF);
-		var stencilTest: any = this._getRenderState(datas, Shader3D.RENDER_STATE_STENCIL_TEST);
-		var stencilWrite: any = this._getRenderState(datas, Shader3D.RENDER_STATE_STENCIL_WRITE);
-		var stencilOp: any = this._getRenderState(datas, Shader3D.RENDER_STATE_STENCIL_OP);
-		if ((<ShaderPass>this._shaderPass).statefirst) {
-			renderState.depthWrite != null ? depthWrite = renderState.depthWrite : 0;
-			renderState.depthTest != null ? depthTest = renderState.depthTest : 0;
-			renderState.blend != null ? blend = renderState.blend : 0;
-			renderState.stencilRef != null ? stencilRef = renderState.stencilRef : 0;
-			renderState.stencilTest != null ? stencilTest = renderState.stencilTest : 0;
-			renderState.stencilWrite != null ? stencilWrite = renderState.stencilWrite : 0;
-			renderState.stencilOp != null ? stencilOp = renderState.stencilOp : 0;
-		}
-		else {
-			depthWrite = depthWrite ?? renderState.depthWrite;
-			depthTest = depthTest ?? renderState.depthTest;
-			blend = blend ?? renderState.blend;
-			stencilRef = stencilRef ?? renderState.stencilRef;
-			stencilTest = stencilTest ?? renderState.stencilTest;
-			stencilWrite = stencilWrite ?? renderState.stencilWrite;
-			stencilOp = stencilOp ?? renderState.stencilOp;
-		}
-
-		depthWrite = depthWrite ?? RenderState.Default.depthWrite;
-		depthTest = depthTest ?? RenderState.Default.depthTest;
-		blend = blend ?? RenderState.Default.blend;
-		stencilRef = stencilRef ?? RenderState.Default.stencilRef;
-		stencilTest = stencilTest ?? RenderState.Default.stencilTest;
-		stencilWrite = stencilWrite ?? RenderState.Default.stencilWrite;
-		stencilOp = stencilOp ?? RenderState.Default.stencilOp;
-
+		var renderState: RenderState = (<ShaderPass>this._shaderPass).renderState;
+		var depthWrite: any = (renderState.depthWrite ?? datas[Shader3D.DEPTH_WRITE]) ?? RenderState.Default.depthWrite;
 		RenderStateContext.setDepthMask(depthWrite);
 		if (depthTest === RenderState.DEPTHTEST_OFF)
 			RenderStateContext.setDepthTest(false);
 		else {
 			RenderStateContext.setDepthTest(true);
+			var depthTest: any = (renderState.depthTest ?? datas[Shader3D.DEPTH_TEST]) ?? RenderState.Default.depthTest;
 			RenderStateContext.setDepthFunc(depthTest);
 		}
 		//Stencil
+		var stencilWrite: any = (renderState.stencilWrite ?? datas[Shader3D.STENCIL_WRITE]) ?? RenderState.Default.stencilWrite;
+		var stencilTest: any = (renderState.stencilTest ?? datas[Shader3D.STENCIL_TEST]) ?? RenderState.Default.stencilTest;
 		RenderStateContext.setStencilMask(stencilWrite);
+		if (stencilWrite) {
+			var stencilOp: any = (renderState.stencilOp ?? datas[Shader3D.STENCIL_Op]) ?? RenderState.Default.stencilOp;
+			RenderStateContext.setstencilOp(stencilOp.x, stencilOp.y, stencilOp.z);
+		}
 		if (stencilTest == RenderState.STENCILTEST_OFF) {
 			RenderStateContext.setStencilTest(false);
 		} else {
+			var stencilRef: any = (renderState.stencilRef ?? datas[Shader3D.STENCIL_Ref]) ?? RenderState.Default.stencilRef;
 			RenderStateContext.setStencilTest(true);
 			RenderStateContext.setStencilFunc(stencilTest, stencilRef);
-
 		}
-		RenderStateContext.setstencilOp(stencilOp.x, stencilOp.y, stencilOp.z);
 		//blend
+		var blend: any = (renderState.blend ?? datas[Shader3D.BLEND]) ?? RenderState.Default.blend;
 		switch (blend) {
 			case RenderState.BLEND_DISABLE:
 				RenderStateContext.setBlend(false);
 				break;
 			case RenderState.BLEND_ENABLE_ALL:
-				var blendEquation: any = this._getRenderState(datas, Shader3D.RENDER_STATE_BLEND_EQUATION);
-				var srcBlend: any = this._getRenderState(datas, Shader3D.RENDER_STATE_BLEND_SRC);
-				var dstBlend: any = this._getRenderState(datas, Shader3D.RENDER_STATE_BLEND_DST);
-				if ((<ShaderPass>this._shaderPass).statefirst) {
-					renderState.blendEquation != null ? blendEquation = renderState.blendEquation : 0;
-					renderState.srcBlend != null ? srcBlend = renderState.srcBlend : 0;
-					renderState.dstBlend != null ? dstBlend = renderState.dstBlend : 0;
-				}
-				else {
-					blendEquation = blendEquation ?? renderState.blendEquation;
-					srcBlend = srcBlend ?? renderState.srcBlend;
-					dstBlend = dstBlend ?? renderState.dstBlend;
-				}
-				blendEquation = blendEquation ?? RenderState.Default.blendEquation;
-				srcBlend = srcBlend ?? RenderState.Default.srcBlend;
-				dstBlend = dstBlend ?? RenderState.Default.dstBlend;
-
+				var blendEquation: any = (renderState.blendEquation ?? datas[Shader3D.BLEND_EQUATION]) ?? RenderState.Default.blendEquation;
+				var srcBlend: any = (renderState.srcBlend ?? datas[Shader3D.BLEND_SRC]) ?? RenderState.Default.srcBlend;
+				var dstBlend: any = (renderState.dstBlend ?? datas[Shader3D.BLEND_DST]) ?? RenderState.Default.dstBlend;
 				RenderStateContext.setBlend(true);
 				RenderStateContext.setBlendEquation(blendEquation);
 				RenderStateContext.setBlendFunc(srcBlend, dstBlend);
 				break;
 			case RenderState.BLEND_ENABLE_SEPERATE:
-
-				var blendEquationRGB: any = this._getRenderState(datas, Shader3D.RENDER_STATE_BLEND_EQUATION_RGB);
-				var blendEquationAlpha: any = this._getRenderState(datas, Shader3D.RENDER_STATE_BLEND_EQUATION_ALPHA);
-				var srcRGB: any = this._getRenderState(datas, Shader3D.RENDER_STATE_BLEND_SRC_RGB);
-				var dstRGB: any = this._getRenderState(datas, Shader3D.RENDER_STATE_BLEND_DST_RGB);
-				var srcAlpha: any = this._getRenderState(datas, Shader3D.RENDER_STATE_BLEND_SRC_ALPHA);
-				var dstAlpha: any = this._getRenderState(datas, Shader3D.RENDER_STATE_BLEND_DST_ALPHA);
-				if ((<ShaderPass>this._shaderPass).statefirst) {
-					renderState.blendEquationRGB != null ? blendEquationRGB = renderState.blendEquationRGB : 0;
-					renderState.blendEquationAlpha != null ? blendEquationAlpha = renderState.blendEquationAlpha : 0;
-					renderState.srcBlendRGB != null ? srcRGB = renderState.srcBlendRGB : 0;
-					renderState.dstBlendRGB != null ? dstRGB = renderState.dstBlendRGB : 0;
-					renderState.srcBlendAlpha != null ? srcAlpha = renderState.srcBlendAlpha : 0;
-					renderState.dstBlendAlpha != null ? dstAlpha = renderState.dstBlendAlpha : 0;
-				}
-				else {
-					blendEquationRGB = blendEquationRGB ?? renderState.blendEquationRGB;
-					blendEquationAlpha = blendEquationAlpha ?? renderState.blendEquationAlpha;
-					srcRGB = srcRGB ?? renderState.srcBlendRGB;
-					dstRGB = dstRGB ?? renderState.dstBlendRGB;
-					srcAlpha = srcAlpha ?? renderState.srcBlendAlpha;
-					dstAlpha = dstAlpha ?? renderState.dstBlendAlpha;
-				}
-
-				blendEquationRGB = blendEquationRGB ?? RenderState.Default.blendEquationRGB;
-				blendEquationAlpha = blendEquationAlpha ?? RenderState.Default.blendEquationAlpha;
-				srcRGB = srcRGB ?? RenderState.Default.srcBlendRGB;
-				dstRGB = dstRGB ?? RenderState.Default.dstBlendRGB;
-				srcAlpha = srcAlpha ?? RenderState.Default.srcBlendAlpha;
-				dstAlpha = dstAlpha ?? RenderState.Default.dstBlendAlpha;
-
+				var blendEquationRGB: any = (renderState.blendEquationRGB ?? datas[Shader3D.BLEND_EQUATION_RGB]) ?? RenderState.Default.blendEquationRGB;
+				var blendEquationAlpha: any = (renderState.blendEquationAlpha ?? datas[Shader3D.BLEND_EQUATION_ALPHA]) ?? RenderState.Default.blendEquationAlpha;
+				var srcRGB: any = (renderState.srcBlendRGB ?? datas[Shader3D.BLEND_SRC_RGB]) ?? RenderState.Default.srcBlendRGB;
+				var dstRGB: any = (renderState.dstBlendRGB ?? datas[Shader3D.BLEND_DST_RGB]) ?? RenderState.Default.dstBlendRGB;
+				var srcAlpha: any = (renderState.srcBlendAlpha ?? datas[Shader3D.BLEND_SRC_ALPHA]) ?? RenderState.Default.srcBlendAlpha;
+				var dstAlpha: any = (renderState.dstBlendAlpha ?? datas[Shader3D.BLEND_DST_ALPHA]) ?? RenderState.Default.dstBlendAlpha;
 				RenderStateContext.setBlend(true);
 				RenderStateContext.setBlendEquationSeparate(blendEquationRGB, blendEquationAlpha);
 				RenderStateContext.setBlendFuncSeperate(srcRGB, dstRGB, srcAlpha, dstAlpha);
@@ -487,48 +434,105 @@ ${uniformglsl}`;
 	}
 
 	/**
+	 * set blend depth stencil RenderState frome Material
+	 * @param shaderDatas 
+	 */
+	uploadRenderStateBlendDepthByMaterial(shaderDatas: ShaderData) {
+		var datas: any = shaderDatas.getData();
+
+		var depthWrite: any = datas[Shader3D.DEPTH_WRITE];
+
+		RenderStateContext.setDepthMask(depthWrite);
+		if (depthTest === RenderState.DEPTHTEST_OFF)
+			RenderStateContext.setDepthTest(false);
+		else {
+			RenderStateContext.setDepthTest(true);
+			var depthTest: any = datas[Shader3D.DEPTH_TEST];
+			RenderStateContext.setDepthFunc(depthTest);
+		}
+
+		var stencilWrite: any = datas[Shader3D.STENCIL_WRITE];
+		//Stencil
+		var stencilTest: any = datas[Shader3D.STENCIL_TEST];
+		RenderStateContext.setStencilMask(stencilWrite);
+		if (stencilWrite) {
+			var stencilOp: any = datas[Shader3D.STENCIL_Op];
+			RenderStateContext.setstencilOp(stencilOp.x, stencilOp.y, stencilOp.z);
+		}
+		if (stencilTest == RenderState.STENCILTEST_OFF) {
+			RenderStateContext.setStencilTest(false);
+		} else {
+			var stencilRef: any = datas[Shader3D.STENCIL_Ref];
+			RenderStateContext.setStencilTest(true);
+			RenderStateContext.setStencilFunc(stencilTest, stencilRef);
+		}
+		//blend
+		var blend: any = datas[Shader3D.BLEND];
+		switch (blend) {
+			case RenderState.BLEND_DISABLE:
+				RenderStateContext.setBlend(false);
+				break;
+			case RenderState.BLEND_ENABLE_ALL:
+				var blendEquation: any = datas[Shader3D.BLEND_EQUATION] //Shader3D.RENDER_STATE_BLEND_EQUATION);
+				var srcBlend: any = datas[Shader3D.BLEND_SRC] //Shader3D.RENDER_STATE_BLEND_SRC);
+				var dstBlend: any = datas[Shader3D.BLEND_DST] //Shader3D.RENDER_STATE_BLEND_DST);
+				RenderStateContext.setBlend(true);
+				RenderStateContext.setBlendEquation(blendEquation);
+				RenderStateContext.setBlendFunc(srcBlend, dstBlend);
+				break;
+			case RenderState.BLEND_ENABLE_SEPERATE:
+				var blendEquationRGB: any = datas[Shader3D.BLEND_EQUATION_RGB];
+				var blendEquationAlpha: any = datas[Shader3D.BLEND_EQUATION_ALPHA];
+				var srcRGB: any = datas[Shader3D.BLEND_SRC_RGB];
+				var dstRGB: any = datas[Shader3D.BLEND_DST_RGB];
+				var srcAlpha: any = datas[Shader3D.BLEND_SRC_ALPHA];
+				var dstAlpha: any = datas[Shader3D.BLEND_DST_ALPHA];
+				RenderStateContext.setBlend(true);
+				RenderStateContext.setBlendEquationSeparate(blendEquationRGB, blendEquationAlpha);
+				RenderStateContext.setBlendFuncSeperate(srcRGB, dstRGB, srcAlpha, dstAlpha);
+				break;
+		}
+	}
+
+
+	/**
 	 * @internal
 	 */
 	uploadRenderStateFrontFace(shaderDatas: ShaderData, isTarget: boolean, invertFront: boolean): void {
-		this._cullStateCMD.clear();
 		var renderState: RenderState = (<ShaderPass>this._shaderPass).renderState;
 		var datas: any = shaderDatas.getData();
-		var cull: any = this._getRenderState(datas, Shader3D.RENDER_STATE_CULL);
+		var cull: any = datas[Shader3D.CULL];
 		if ((<ShaderPass>this._shaderPass).statefirst) {
 			cull = renderState.cull ?? cull;
 		}
-
 		cull = cull ?? RenderState.Default.cull;
-
-		var forntFace: number = CullMode.Back;
+		var forntFace: number;
 		switch (cull) {
 			case RenderState.CULL_NONE:
-				this._cullStateCMD.addCMD(RenderStateType.CullFace, false);
+				RenderStateContext.setCullFace(false);
 				if (isTarget != invertFront)
 					forntFace = CullMode.Front;//gl.CCW
 				else
 					forntFace = CullMode.Back;
-				this._cullStateCMD.addCMD(RenderStateType.FrontFace, forntFace);
+				RenderStateContext.setFrontFace(forntFace);
 				break;
 			case RenderState.CULL_FRONT:
-				this._cullStateCMD.addCMD(RenderStateType.CullFace, true);
+				RenderStateContext.setCullFace(true);
 				if (isTarget == invertFront)
 					forntFace = CullMode.Front;//gl.CCW
 				else
 					forntFace = CullMode.Back;
-				this._cullStateCMD.addCMD(RenderStateType.FrontFace, forntFace);
+				RenderStateContext.setFrontFace(forntFace);
 				break;
 			case RenderState.CULL_BACK:
-				this._cullStateCMD.addCMD(RenderStateType.CullFace, true);
+				RenderStateContext.setCullFace(true);
 				if (isTarget != invertFront)
 					forntFace = CullMode.Front;//gl.CCW
 				else
 					forntFace = CullMode.Back;
-				this._cullStateCMD.addCMD(RenderStateType.FrontFace, forntFace);
-
+				RenderStateContext.setFrontFace(forntFace);
 				break;
 		}
-		this._cullStateCMD.applyCMD();
 	}
 
 	/**

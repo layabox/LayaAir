@@ -50,40 +50,7 @@ export class Material extends Resource implements IClone {
 
     /**着色器变量,透明测试值。*/
     static ALPHATESTVALUE: number;
-    /**@internal */
-    static CULL: number;
-    /**@internal */
-    static BLEND: number;
-    /**@internal */
-    static BLEND_SRC: number;
-    /**@internal */
-    static BLEND_DST: number;
-    /**@internal */
-    static BLEND_SRC_RGB: number;
-    /**@internal */
-    static BLEND_DST_RGB: number;
-    /**@internal */
-    static BLEND_SRC_ALPHA: number;
-    /**@internal */
-    static BLEND_DST_ALPHA: number;
-    /**@internal */
-    static BLEND_EQUATION: number;
-    /**@internal */
-    static BLEND_EQUATION_RGB: number;
-    /**@internal */
-    static BLEND_EQUATION_ALPHA: number;
-    /**@internal */
-    static DEPTH_TEST: number;
-    /**@internal */
-    static DEPTH_WRITE: number;
-    /**@internal */
-    static STENCIL_TEST: number;
-    /**@internal */
-    static STENCIL_WRITE: number;
-    /**@internal */
-    static STENCIL_Ref: number;
-    /**@internal */
-    static STENCIL_Op: number;
+
     /**材质级着色器宏定义,透明测试。*/
     static SHADERDEFINE_ALPHATEST: ShaderDefine;
     static SHADERDEFINE_MAINTEXTURE: ShaderDefine;
@@ -105,23 +72,23 @@ export class Material extends Resource implements IClone {
         Material.SHADERDEFINE_MAINTEXTURE = Shader3D.getDefineByName("MAINTEXTURE");
         Material.SHADERDEFINE_ADDTIVEFOG = Shader3D.getDefineByName("ADDTIVEFOG");
         Material.ALPHATESTVALUE = Shader3D.propertyNameToID("u_AlphaTestValue");
-        Material.CULL = Shader3D.propertyNameToID("s_Cull");
-        Material.BLEND = Shader3D.propertyNameToID("s_Blend");
-        Material.BLEND_SRC = Shader3D.propertyNameToID("s_BlendSrc");
-        Material.BLEND_DST = Shader3D.propertyNameToID("s_BlendDst");
-        Material.BLEND_SRC_RGB = Shader3D.propertyNameToID("s_BlendSrcRGB");
-        Material.BLEND_DST_RGB = Shader3D.propertyNameToID("s_BlendDstRGB");
-        Material.BLEND_SRC_ALPHA = Shader3D.propertyNameToID("s_BlendSrcAlpha");
-        Material.BLEND_DST_ALPHA = Shader3D.propertyNameToID("s_BlendDstAlpha");
-        Material.BLEND_EQUATION = Shader3D.propertyNameToID("s_BlendEquation");
-        Material.BLEND_EQUATION_RGB = Shader3D.propertyNameToID("s_BlendEquationRGB");
-        Material.BLEND_EQUATION_ALPHA = Shader3D.propertyNameToID("s_BlendEquationAlpha");
-        Material.DEPTH_TEST = Shader3D.propertyNameToID("s_DepthTest");
-        Material.DEPTH_WRITE = Shader3D.propertyNameToID("s_DepthWrite");
-        Material.STENCIL_Ref = Shader3D.propertyNameToID("s_StencilRef");
-        Material.STENCIL_TEST = Shader3D.propertyNameToID("s_StencilTest");
-        Material.STENCIL_WRITE = Shader3D.propertyNameToID("s_StencilWrite");
-        Material.STENCIL_Op = Shader3D.propertyNameToID("s_StencilOp");
+        Shader3D.CULL = Shader3D.propertyNameToID("s_Cull");
+        Shader3D.BLEND = Shader3D.propertyNameToID("s_Blend");
+        Shader3D.BLEND_SRC = Shader3D.propertyNameToID("s_BlendSrc");
+        Shader3D.BLEND_DST = Shader3D.propertyNameToID("s_BlendDst");
+        Shader3D.BLEND_SRC_RGB = Shader3D.propertyNameToID("s_BlendSrcRGB");
+        Shader3D.BLEND_DST_RGB = Shader3D.propertyNameToID("s_BlendDstRGB");
+        Shader3D.BLEND_SRC_ALPHA = Shader3D.propertyNameToID("s_BlendSrcAlpha");
+        Shader3D.BLEND_DST_ALPHA = Shader3D.propertyNameToID("s_BlendDstAlpha");
+        Shader3D.BLEND_EQUATION = Shader3D.propertyNameToID("s_BlendEquation");
+        Shader3D.BLEND_EQUATION_RGB = Shader3D.propertyNameToID("s_BlendEquationRGB");
+        Shader3D.BLEND_EQUATION_ALPHA = Shader3D.propertyNameToID("s_BlendEquationAlpha");
+        Shader3D.DEPTH_TEST = Shader3D.propertyNameToID("s_DepthTest");
+        Shader3D.DEPTH_WRITE = Shader3D.propertyNameToID("s_DepthWrite");
+        Shader3D.STENCIL_Ref = Shader3D.propertyNameToID("s_StencilRef");
+        Shader3D.STENCIL_TEST = Shader3D.propertyNameToID("s_StencilTest");
+        Shader3D.STENCIL_WRITE = Shader3D.propertyNameToID("s_StencilWrite");
+        Shader3D.STENCIL_Op = Shader3D.propertyNameToID("s_StencilOp");
     }
 
     /**@internal */
@@ -207,11 +174,11 @@ export class Material extends Resource implements IClone {
      * 是否写入深度。
      */
     get depthWrite(): boolean {
-        return this._shaderValues.getBool(Material.DEPTH_WRITE);
+        return this._shaderValues.getBool(Shader3D.DEPTH_WRITE);
     }
 
     set depthWrite(value: boolean) {
-        this._shaderValues.setBool(Material.DEPTH_WRITE, value);
+        this._shaderValues.setBool(Shader3D.DEPTH_WRITE, value);
     }
 
 
@@ -219,22 +186,22 @@ export class Material extends Resource implements IClone {
      * 剔除方式。
      */
     get cull(): number {
-        return this._shaderValues.getInt(Material.CULL);
+        return this._shaderValues.getInt(Shader3D.CULL);
     }
 
     set cull(value: number) {
-        this._shaderValues.setInt(Material.CULL, value);
+        this._shaderValues.setInt(Shader3D.CULL, value);
     }
 
     /**
      * 混合方式。
      */
     get blend(): number {
-        return this._shaderValues.getInt(Material.BLEND);
+        return this._shaderValues.getInt(Shader3D.BLEND);
     }
 
     set blend(value: number) {
-        this._shaderValues.setInt(Material.BLEND, value);
+        this._shaderValues.setInt(Shader3D.BLEND, value);
     }
 
 
@@ -242,11 +209,11 @@ export class Material extends Resource implements IClone {
      * 混合源。
      */
     get blendSrc(): number {
-        return this._shaderValues.getInt(Material.BLEND_SRC);
+        return this._shaderValues.getInt(Shader3D.BLEND_SRC);
     }
 
     set blendSrc(value: number) {
-        this._shaderValues.setInt(Material.BLEND_SRC, value);
+        this._shaderValues.setInt(Shader3D.BLEND_SRC, value);
     }
 
 
@@ -255,125 +222,125 @@ export class Material extends Resource implements IClone {
      * 混合目标。
      */
     get blendDst(): number {
-        return this._shaderValues.getInt(Material.BLEND_DST);
+        return this._shaderValues.getInt(Shader3D.BLEND_DST);
     }
 
     set blendDst(value: number) {
-        this._shaderValues.setInt(Material.BLEND_DST, value);
+        this._shaderValues.setInt(Shader3D.BLEND_DST, value);
     }
 
     /**
      * 混合目标 alpha
      */
     public get blendSrcAlpha(): number {
-        return this._shaderValues.getInt(Material.BLEND_SRC_ALPHA);
+        return this._shaderValues.getInt(Shader3D.BLEND_SRC_ALPHA);
     }
     public set blendSrcAlpha(value: number) {
-        this._shaderValues.setInt(Material.BLEND_SRC_ALPHA, value);
+        this._shaderValues.setInt(Shader3D.BLEND_SRC_ALPHA, value);
     }
 
     /**
      * 混合原 RGB
      */
     public get blendSrcRGB(): number {
-        return this._shaderValues.getInt(Material.BLEND_SRC_RGB);
+        return this._shaderValues.getInt(Shader3D.BLEND_SRC_RGB);
     }
     /**
      * 混合原 RGB
      */
     public set blendSrcRGB(value: number) {
-        this._shaderValues.setInt(Material.BLEND_SRC_RGB, value);
+        this._shaderValues.setInt(Shader3D.BLEND_SRC_RGB, value);
     }
 
     public get blendDstRGB(): number {
-        return this._shaderValues.getInt(Material.BLEND_DST_RGB);
+        return this._shaderValues.getInt(Shader3D.BLEND_DST_RGB);
     }
     public set blendDstRGB(value: number) {
-        this._shaderValues.setInt(Material.BLEND_DST_RGB, value);
+        this._shaderValues.setInt(Shader3D.BLEND_DST_RGB, value);
     }
 
     /**
      * 混合目标 alpha
      */
     public get blendDstAlpha(): number {
-        return this._shaderValues.getInt(Material.BLEND_DST_ALPHA);
+        return this._shaderValues.getInt(Shader3D.BLEND_DST_ALPHA);
     }
     public set blendDstAlpha(value: number) {
-        this._shaderValues.setInt(Material.BLEND_DST_ALPHA, value);
+        this._shaderValues.setInt(Shader3D.BLEND_DST_ALPHA, value);
     }
 
     /**
      * 混合方程
      */
     public get blendEquation(): number {
-        return this._shaderValues.getInt(Material.BLEND_EQUATION);
+        return this._shaderValues.getInt(Shader3D.BLEND_EQUATION);
     }
     public set blendEquation(value: number) {
-        this._shaderValues.setInt(Material.BLEND_EQUATION, value);
+        this._shaderValues.setInt(Shader3D.BLEND_EQUATION, value);
     }
 
     /**
      * 混合方式 RGB
      */
     public get blendEquationRGB(): number {
-        return this._shaderValues.getInt(Material.BLEND_EQUATION_RGB);
+        return this._shaderValues.getInt(Shader3D.BLEND_EQUATION_RGB);
     }
     public set blendEquationRGB(value: number) {
-        this._shaderValues.setInt(Material.BLEND_EQUATION_RGB, value);
+        this._shaderValues.setInt(Shader3D.BLEND_EQUATION_RGB, value);
     }
 
     /**
      * 混合方式 Alpha
      */
     public get blendEquationAlpha(): number {
-        return this._shaderValues.getInt(Material.BLEND_EQUATION_ALPHA);
+        return this._shaderValues.getInt(Shader3D.BLEND_EQUATION_ALPHA);
     }
     public set blendEquationAlpha(value: number) {
-        this._shaderValues.setInt(Material.BLEND_EQUATION_ALPHA, value);
+        this._shaderValues.setInt(Shader3D.BLEND_EQUATION_ALPHA, value);
     }
 
     /**
      * 深度测试方式。
      */
     get depthTest(): number {
-        return this._shaderValues.getInt(Material.DEPTH_TEST);
+        return this._shaderValues.getInt(Shader3D.DEPTH_TEST);
     }
 
     set depthTest(value: number) {
-        this._shaderValues.setInt(Material.DEPTH_TEST, value);
+        this._shaderValues.setInt(Shader3D.DEPTH_TEST, value);
     }
 
     /**
      * 模板测试方式
      */
     get stencilTest(): number {
-        return this._shaderValues.getInt(Material.STENCIL_TEST);
+        return this._shaderValues.getInt(Shader3D.STENCIL_TEST);
     }
 
     set stencilTest(value: number) {
-        this._shaderValues.setInt(Material.STENCIL_TEST, value);
+        this._shaderValues.setInt(Shader3D.STENCIL_TEST, value);
     }
 
     /**
      * 是否写入模板。
      */
     get stencilWrite(): boolean {
-        return this._shaderValues.getBool(Material.STENCIL_WRITE);
+        return this._shaderValues.getBool(Shader3D.STENCIL_WRITE);
     }
 
     set stencilWrite(value: boolean) {
-        this._shaderValues.setBool(Material.STENCIL_WRITE, value);
+        this._shaderValues.setBool(Shader3D.STENCIL_WRITE, value);
     }
 
     /**
      * 写入模板值
      */
     set stencilRef(value: number) {
-        this._shaderValues.setInt(Material.STENCIL_Ref, value);
+        this._shaderValues.setInt(Shader3D.STENCIL_Ref, value);
     }
 
     get stencilRef(): number {
-        return this._shaderValues.getInt(Material.STENCIL_Ref);
+        return this._shaderValues.getInt(Shader3D.STENCIL_Ref);
     }
 
     /** */
@@ -382,11 +349,11 @@ export class Material extends Resource implements IClone {
      * vector(fail, zfail, zpass)
      */
     set stencilOp(value: Vector3) {
-        this._shaderValues.setVector3(Material.STENCIL_Op, value);
+        this._shaderValues.setVector3(Shader3D.STENCIL_Op, value);
     }
 
     get stencilOp(): Vector3 {
-        return this._shaderValues.getVector3(Material.STENCIL_Op);
+        return this._shaderValues.getVector3(Shader3D.STENCIL_Op);
     }
 
     /**
@@ -469,7 +436,8 @@ export class Material extends Resource implements IClone {
                 //TODO IDE
                 break;
             default:
-                throw new Error("UnlitMaterial : renderMode value error.");
+                console.warn(`Material : renderMode value error - (${value}).`);
+                break;
         }
     }
 

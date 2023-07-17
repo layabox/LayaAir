@@ -317,7 +317,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
             this._shaderValues.setVector(Sprite3D.WORLDINVERTFRONT, this._worldParams);
         }
 
-        this._applyMorphdata();
+        this._mesh.morphTargetData && this._applyMorphdata();
     }
 
     // /**

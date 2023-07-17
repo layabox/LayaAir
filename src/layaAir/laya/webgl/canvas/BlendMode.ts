@@ -65,69 +65,69 @@ export class BlendMode {
 
     static BlendNormal(): void {
         //为了避免黑边，和canvas作为贴图的黑边
-        RenderStateContext.setBlendFunc(BlendFactor.One, BlendFactor.OneMinusSourceAlpha,true);
+        RenderStateContext.setBlendFunc(BlendFactor.One, BlendFactor.OneMinusSourceAlpha);
         
     }
 
     /**@internal 这个add感觉不合理，所以改成old了 */
     static BlendAddOld(): void {
-        RenderStateContext.setBlendFunc(BlendFactor.One, BlendFactor.DestinationAlpha,true);
+        RenderStateContext.setBlendFunc(BlendFactor.One, BlendFactor.DestinationAlpha);
     }
 
     static BlendAdd(): void {
-        RenderStateContext.setBlendFunc(BlendFactor.One, BlendFactor.One,true);
+        RenderStateContext.setBlendFunc(BlendFactor.One, BlendFactor.One);
     }
 
     static BlendMultiply(): void {
-        RenderStateContext.setBlendFunc(BlendFactor.DestinationColor, BlendFactor.OneMinusSourceAlpha,true);
+        RenderStateContext.setBlendFunc(BlendFactor.DestinationColor, BlendFactor.OneMinusSourceAlpha);
     }
 
     static BlendScreen(): void {
-        RenderStateContext.setBlendFunc(BlendFactor.One, BlendFactor.One,true);
+        RenderStateContext.setBlendFunc(BlendFactor.One, BlendFactor.One);
     }
 
     static BlendOverlay(): void {
-        RenderStateContext.setBlendFunc(BlendFactor.One, BlendFactor.OneMinusSourceAlpha,true);
+        RenderStateContext.setBlendFunc(BlendFactor.One, BlendFactor.OneMinusSourceAlpha);
     }
 
     static BlendLight(): void {
-        RenderStateContext.setBlendFunc(BlendFactor.One,BlendFactor.One,true);
+        RenderStateContext.setBlendFunc(BlendFactor.One,BlendFactor.One);
     }
 
     static BlendNormalTarget(): void {
-        RenderStateContext.setBlendFunc(BlendFactor.One, BlendFactor.OneMinusSourceAlpha,true);
+        RenderStateContext.setBlendFunc(BlendFactor.One, BlendFactor.OneMinusSourceAlpha);
     }
 
     /**@internal add不应该是1+dst_α 所以改成old */
     static BlendAddTargetOld(): void {
-        RenderStateContext.setBlendFunc(BlendFactor.One, BlendFactor.DestinationAlpha,true);
+        RenderStateContext.setBlendFunc(BlendFactor.One, BlendFactor.DestinationAlpha);
     }
     static BlendAddTarget(): void {
-        RenderStateContext.setBlendFunc(BlendFactor.One, BlendFactor.One,true);
+        RenderStateContext.setBlendFunc(BlendFactor.One, BlendFactor.One);
     }
 
     static BlendMultiplyTarget(): void {
-        RenderStateContext.setBlendFunc(BlendFactor.DestinationColor, BlendFactor.OneMinusSourceAlpha,true);
+        RenderStateContext.setBlendFunc(BlendFactor.DestinationColor, BlendFactor.OneMinusSourceAlpha);
     }
 
     static BlendScreenTarget(): void {
-        RenderStateContext.setBlendFunc(BlendFactor.One, BlendFactor.One,true);
+        RenderStateContext.setBlendFunc(BlendFactor.One, BlendFactor.One);
     }
 
     static BlendOverlayTarget(): void {
-        RenderStateContext.setBlendFunc(BlendFactor.One, BlendFactor.OneMinusSourceColor,true);
+        RenderStateContext.setBlendFunc(BlendFactor.One, BlendFactor.OneMinusSourceColor);
     }
 
     static BlendLightTarget(): void {
-        RenderStateContext.setBlendFunc(BlendFactor.One, BlendFactor.One,true);
+        RenderStateContext.setBlendFunc(BlendFactor.One, BlendFactor.One);
     }
 
     static BlendMask(): void {
-        RenderStateContext.setBlendFunc(BlendFactor.Zero, BlendFactor.SourceAlpha,true);
+        RenderStateContext.setBlendFunc(BlendFactor.Zero, BlendFactor.SourceAlpha);
     }
 
     static BlendDestinationOut(): void {
-        RenderStateContext.setBlendFunc(BlendFactor.Zero, BlendFactor.Zero,true);
+        RenderStateContext.setBlendFunc(BlendFactor.Zero, BlendFactor.Zero);
     }
 }
 
