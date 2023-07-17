@@ -197,7 +197,7 @@ export class XMLIterator {
             if (i == this.tagPos)
                 return "";
             else
-                return XMLUtils.decodeString(this.source.substring(i, this.tagPos)).trimRight();
+                return XMLUtils.decodeString(this.source.substring(i, this.tagPos)).trimEnd();
         }
         else
             return XMLUtils.decodeString(this.source.substring(this.lastTagEnd, this.tagPos));
@@ -318,5 +318,11 @@ export class XMLIterator {
                     waitValue = true;
             }
         }
+    }
+}
+
+if (!String.prototype.trimEnd) {
+    String.prototype.trimEnd = function (this: string) {
+        return this.replace(/\s+$/g, "");
     }
 }

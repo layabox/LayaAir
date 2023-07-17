@@ -34,7 +34,7 @@ export class MaterialParser {
 
         let mat = new Material();
         mat.setShaderName(props.type);
-
+        let renderQueue: number;
         for (let key in props) {
             switch (key) {
                 case "type":
@@ -56,7 +56,7 @@ export class MaterialParser {
                     }
                     break;
                 case "renderQueue":
-                    mat.renderQueue = props[key];
+                    renderQueue = props[key];
                     break;
                 case "alphaTest":
                     mat.alphaTest = props[key];
@@ -69,23 +69,47 @@ export class MaterialParser {
                     let uniName = Shader3D.propertyNameToID(key);
 
                     switch (uniName) {
-                        case Material.CULL:
+                        case Shader3D.CULL:
                             mat.cull = property;
                             break;
-                        case Material.BLEND:
+                        case Shader3D.BLEND:
                             mat.blend = property;
                             break;
-                        case Material.BLEND_SRC:
+                        case Shader3D.BLEND_SRC:
                             mat.blendSrc = property;
                             break;
-                        case Material.BLEND_DST:
+                        case Shader3D.BLEND_DST:
                             mat.blendDst = property;
                             break;
-                        case Material.DEPTH_TEST:
+                        case Shader3D.BLEND_DST_ALPHA:
+                            mat.blendDstAlpha = property;
+                            break;
+                        case Shader3D.BLEND_SRC_ALPHA:
+                            mat.blendSrcAlpha = property;
+                            break;
+                        case Shader3D.BLEND_SRC_RGB:
+                            mat.blendSrcRGB = property;
+                            break;
+                        case Shader3D.BLEND_SRC_RGB:
+                            mat.blendDstRGB = property;
+                            break;
+                        case Shader3D.DEPTH_TEST:
                             mat.depthTest = property;
                             break;
-                        case Material.DEPTH_WRITE:
+                        case Shader3D.DEPTH_WRITE:
                             mat.depthWrite = !!props[key];
+                            break;
+                        case Shader3D.STENCIL_TEST:
+                            mat.stencilTest = property;
+                            break;
+                        case Shader3D.STENCIL_Op:
+                            mat.stencilOp = property;
+                            break;
+                        case Shader3D.STENCIL_Ref:
+                            mat.stencilRef = property;
+                            break;
+                        case Shader3D.STENCIL_WRITE:
+                            mat.stencilWrite = property;
                             break;
                         default:
                             if (!property.length) {
@@ -122,6 +146,9 @@ export class MaterialParser {
                             break;
                     }
             }
+        }
+        if (null != renderQueue) {
+            mat.renderQueue = renderQueue;
         }
 
         return mat;
@@ -288,22 +315,22 @@ export class MaterialParser {
                             let uniName = Shader3D.propertyNameToID(key);
 
                             switch (uniName) {
-                                case Material.CULL:
+                                case Shader3D.CULL:
                                     mat.cull = this._getRenderStateParams(property);
                                     break;
-                                case Material.BLEND:
+                                case Shader3D.BLEND:
                                     mat.blend = this._getRenderStateParams(property);
                                     break;
-                                case Material.BLEND_SRC:
+                                case Shader3D.BLEND_SRC:
                                     mat.blendSrc = this._getRenderStateParams(property);
                                     break;
-                                case Material.BLEND_DST:
+                                case Shader3D.BLEND_DST:
                                     mat.blendDst = this._getRenderStateParams(property);
                                     break;
-                                case Material.DEPTH_TEST:
+                                case Shader3D.DEPTH_TEST:
                                     mat.depthTest = this._getRenderStateParams(property);
                                     break;
-                                case Material.DEPTH_WRITE:
+                                case Shader3D.DEPTH_WRITE:
                                     mat.depthWrite = !!props[key];
                                     break;
                                 default:

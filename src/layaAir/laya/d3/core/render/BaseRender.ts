@@ -205,24 +205,33 @@ export class BaseRender extends Component implements IBoundsCell {
 
     /**@internal */
     protected _rendernode: IBaseRenderNode;
+
     /** @internal */
     protected _bounds: Bounds;
 
     /** @internal */
     protected _baseGeometryBounds: Bounds;
+
     /**@internal */
     protected _transform: Transform3D;
+
+    /**@internal */
+    _distanceForSort: number;
+
+    /**@interface */
+    _receiveShadow: boolean;
 
     get renderNode(): IBaseRenderNode {
         return this._rendernode;
     }
 
     set distanceForSort(value: number) {
+        this._distanceForSort = value;
         this._rendernode.distanceForSort = value;
     }
 
     get distanceForSort() {
-        return this._rendernode.distanceForSort;
+        return this._distanceForSort;
     }
 
     /**
@@ -233,6 +242,7 @@ export class BaseRender extends Component implements IBoundsCell {
     set geometryBounds(value: Bounds) {
         this._baseGeometryBounds = this._rendernode.geometryBounds = value;
     }
+
     get geometryBounds(): Bounds {
         return this._baseGeometryBounds;
     }
@@ -251,7 +261,13 @@ export class BaseRender extends Component implements IBoundsCell {
     }
 
     set lightmapIndex(value: number) {
+        if (value != -1) {
+            this._scene && this._scene.on(Lightmap.ApplyLightmapEvent, this, this._applyLightMapParams);
+        } else {
+            this._scene && this._scene.off(Lightmap.ApplyLightmapEvent, this, this._applyLightMapParams);
+        }
         this._lightmapIndex = value;
+        this._scene && this._applyLightMapParams();
     }
 
     /**
@@ -377,6 +393,7 @@ export class BaseRender extends Component implements IBoundsCell {
     set receiveShadow(value: boolean) {
         if (this.renderNode.receiveShadow !== value) {
             this.renderNode.receiveShadow = value;
+            this._receiveShadow = value;
             if (value)
                 this._shaderValues.addDefine(RenderableSprite3D.SHADERDEFINE_RECEIVE_SHADOW);
             else
@@ -649,6 +666,7 @@ export class BaseRender extends Component implements IBoundsCell {
         this._onWorldMatNeedChange(1);
         this._isSupportReflection();
         this._batchRender && this._batchRender._batchOneRender(this);
+        this.lightmapIndex = this.lightmapIndex;
         Stat.renderNode++;
         if (false) {
             this._subUniformBufferData = BaseRender._transLargeUbO.create();
@@ -722,6 +740,7 @@ export class BaseRender extends Component implements IBoundsCell {
         this._sharedMaterials = null;
         this._bounds = null;
         this._lightmapScaleOffset = null;
+        this._lightmapIndex = -1;
         this._scene = null;
         this._rendernode = null;
         this._shaderValues.destroy();

@@ -16,7 +16,7 @@ import { IRenderOBJCreate } from "../../RenderInterface/IRenderOBJCreate";
 import { IRenderShaderInstance } from "../../RenderInterface/IRenderShaderInstance";
 import { IRenderVertexState } from "../../RenderInterface/IRenderVertexState";
 import { ITextureContext } from "../../RenderInterface/ITextureContext";
-import { ShaderDataType } from "../../RenderShader/ShaderData";
+import { ShaderData, ShaderDataType } from "../../RenderShader/ShaderData";
 import { ShaderVariable } from "../../RenderShader/ShaderVariable";
 import { RenderStateCommand } from "../../RenderStateCommand";
 import { GL2TextureContext } from "./GL2TextureContext";
@@ -108,14 +108,14 @@ export class WebGLEngine implements IRenderEngine {
     private _GLParams: GLParams;
 
     //GL纹理生成
-    private _GLTextureContext: GLTextureContext|GL2TextureContext;
+    private _GLTextureContext: GLTextureContext | GL2TextureContext;
     //Gl Draw
     private _GLRenderDrawContext: GLRenderDrawContext;
 
     private _GL2DRenderContext: GLRender2DContext;
 
     //GLRenderState
-    private _GLRenderState: GLRenderState;
+    _GLRenderState: GLRenderState;
 
     // //TODO:管理Buffer
     // private _bufferResourcePool: any;
@@ -437,9 +437,8 @@ export class WebGLEngine implements IRenderEngine {
     /**
      * @internal
      */
-    uploadUniforms(shader: GLShaderInstance, commandEncoder: CommandEncoder, shaderData: any, uploadUnTexture: boolean): number {
-        shader.bind();
-        shaderData.applyUBOData();
+    uploadUniforms(shader: GLShaderInstance, commandEncoder: CommandEncoder, shaderData: ShaderData, uploadUnTexture: boolean): number {
+        shaderData.applyUBO && shaderData.applyUBOData();
         var data: any = shaderData._data;
         var shaderUniform: any[] = commandEncoder.getArrayData();
         var shaderCall: number = 0;

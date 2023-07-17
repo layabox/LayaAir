@@ -46,15 +46,15 @@ export class RenderElementBatch {
                 elements.add(element);
                 continue;
             }
-            if (element.staticBatch && (!element.render._probReflection || element.render._probReflection._isScene) && Config3D.enableStaticBatch) {
+            if (element.staticBatch && (!element._baseRender._probReflection || element._baseRender._probReflection._isScene) && Config3D.enableStaticBatch) {
                 //static Batch TODO
                 elements.add(element);
             }
             else if (Config3D.enableDynamicBatch && LayaGL.renderEngine.getCapable(RenderCapable.DrawElement_Instance)) {
-                if (element.renderSubShader._owner._enableInstancing && element.render.lightmapIndex < 0) {
+                if (element._subShader._owner._enableInstancing && element._baseRender.lightmapIndex < 0) {
                     var insManager = this._instanceBatchManager;
-                    let invertFrontFace = element.transform ? element.transform._isFrontFaceInvert : false;
-                    var insBatchMarks = insManager.getInstanceBatchOpaquaMark(element.render.receiveShadow, element.material.id, element._geometry._id, invertFrontFace, element.render._probReflection ? element.render._probReflection.id : -1);
+                    let invertFrontFace = element._transform ? element._transform._isFrontFaceInvert : false;
+                    var insBatchMarks = insManager.getInstanceBatchOpaquaMark(element._baseRender._receiveShadow, element._material._id, element._geometry._id, invertFrontFace, element._baseRender._probReflection ? element._baseRender._probReflection._id : -1);
                     if (insManager.updateCountMark === insBatchMarks.updateMark) {
                         //can batch
                         var insBatchIndex: number = insBatchMarks.indexInList;
@@ -73,13 +73,14 @@ export class RenderElementBatch {
                             //替换Elements中的RenderElement为InstanceElement
                             let instanceRenderElement = InstanceRenderElement.create();
                             this._recoverList.add(instanceRenderElement);
-                            instanceRenderElement.render = insOriElement.render;
+                            instanceRenderElement._baseRender = insOriElement._baseRender;
+                            instanceRenderElement._renderElementOBJ._renderShaderData = insOriElement._baseRender._shaderValues;
                             instanceRenderElement.renderType = RenderElement.RENDERTYPE_INSTANCEBATCH;
                             //Geometry updaste
                             (instanceRenderElement._geometry as MeshInstanceGeometry).subMesh = (insOriElement._geometry as SubMesh);
-                            instanceRenderElement.material = insOriElement.material;
+                            instanceRenderElement.material = insOriElement._material;
                             instanceRenderElement.setTransform(null);
-                            instanceRenderElement.renderSubShader = insOriElement.renderSubShader;
+                            instanceRenderElement._subShader = insOriElement._subShader;
                             let list = instanceRenderElement._instanceBatchElementList;
                             list.length = 0;
                             list.add(insOriElement);

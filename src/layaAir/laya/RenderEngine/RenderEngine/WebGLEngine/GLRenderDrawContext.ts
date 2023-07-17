@@ -1,16 +1,18 @@
+import { RenderGeometryElementOBJ } from "../../../d3/RenderObjs/RenderObj/RenderGeometryElementOBJ";
 import { DrawType } from "../../RenderEnum/DrawType";
 import { IndexFormat } from "../../RenderEnum/IndexFormat";
 import { MeshTopology } from "../../RenderEnum/RenderPologyMode";
 import { RenderStatisticsInfo } from "../../RenderEnum/RenderStatInfo";
 import { IRenderDrawContext } from "../../RenderInterface/IRenderDrawContext";
-import { IRenderGeometryElement } from "../../RenderInterface/RenderPipelineInterface/IRenderGeometryElement";
 import { WebGLExtension } from "./GLEnum/WebGLExtension";
 import { GLObject } from "./GLObject";
 import { WebGLEngine } from "./WebGLEngine"
 
 //TODO
 export class GLRenderDrawContext extends GLObject implements IRenderDrawContext {
+    /**@internal */
     private _angleInstancedArrays: any;
+
     constructor(engine: WebGLEngine) {
         super(engine);
         if (!this._engine.isWebGL2) {
@@ -18,7 +20,11 @@ export class GLRenderDrawContext extends GLObject implements IRenderDrawContext 
         }
     }
 
-    //TODO 优化
+    /**
+     * @internal
+     * @param mode 
+     * @returns 
+     */
     getMeshTopology(mode: MeshTopology): number {
         switch (mode) {
             case MeshTopology.Points:
@@ -38,6 +44,11 @@ export class GLRenderDrawContext extends GLObject implements IRenderDrawContext 
         }
     }
 
+    /**
+     * @internal
+     * @param type 
+     * @returns 
+     */
     getIndexType(type: IndexFormat): number {
         switch (type) {
             case IndexFormat.UInt8:
@@ -52,86 +63,102 @@ export class GLRenderDrawContext extends GLObject implements IRenderDrawContext 
     /**
      * @internal
      */
-    drawElementsInstanced(mode: MeshTopology, count: number, type: IndexFormat, offset: number, instanceCount: number): void {
-        const glmode = this.getMeshTopology(mode);
-        const gltype = this.getIndexType(type);
+    drawElementsInstanced(mode: number, count: number, type: IndexFormat, offset: number, instanceCount: number): void {
         if (this._engine.isWebGL2)
-            (<WebGL2RenderingContext>this._gl).drawElementsInstanced(glmode, count, gltype, offset, instanceCount);
+            (<WebGL2RenderingContext>this._gl).drawElementsInstanced(mode, count, type, offset, instanceCount);
         else
-            this._angleInstancedArrays.drawElementsInstancedANGLE(glmode, count, gltype, offset, instanceCount);
-        
-        this._engine._addStatisticsInfo(RenderStatisticsInfo.DrawCall,1);
-        this._engine._addStatisticsInfo(RenderStatisticsInfo.InstanceDrawCall,1);
-        this._engine._addStatisticsInfo(RenderStatisticsInfo.Triangle,count/3*instanceCount);
+            this._angleInstancedArrays.drawElementsInstancedANGLE(mode, count, type, offset, instanceCount);
+
+        this._engine._addStatisticsInfo(RenderStatisticsInfo.DrawCall, 1);
+        this._engine._addStatisticsInfo(RenderStatisticsInfo.InstanceDrawCall, 1);
+        this._engine._addStatisticsInfo(RenderStatisticsInfo.Triangle, count / 3 * instanceCount);
 
     }
 
     /**
      * @internal
      */
-    drawArraysInstanced(mode: MeshTopology, first: number, count: number, instanceCount: number): void {
-        const glmode = this.getMeshTopology(mode);
+    drawArraysInstanced(mode: number, first: number, count: number, instanceCount: number): void {
         if (this._engine.isWebGL2)
-            (<WebGL2RenderingContext>this._gl).drawArraysInstanced(glmode, first, count, instanceCount);
+            (<WebGL2RenderingContext>this._gl).drawArraysInstanced(mode, first, count, instanceCount);
         else
-            this._angleInstancedArrays.drawArraysInstancedANGLE(glmode, first, count, instanceCount);
-        
-        this._engine._addStatisticsInfo(RenderStatisticsInfo.DrawCall,1);
-        this._engine._addStatisticsInfo(RenderStatisticsInfo.InstanceDrawCall,1);
-        //TODO glmode
-        this._engine._addStatisticsInfo(RenderStatisticsInfo.Triangle,(count-2)*instanceCount);
+            this._angleInstancedArrays.drawArraysInstancedANGLE(mode, first, count, instanceCount);
+        this._engine._addStatisticsInfo(RenderStatisticsInfo.DrawCall, 1);
+        this._engine._addStatisticsInfo(RenderStatisticsInfo.InstanceDrawCall, 1);
+        this._engine._addStatisticsInfo(RenderStatisticsInfo.Triangle, (count - 2) * instanceCount);
     }
 
-    drawArrays(mode: MeshTopology, first: number, count: number): void {
-        const glmode = this.getMeshTopology(mode);
-        this._gl.drawArrays(glmode, first, count);
-
-        this._engine._addStatisticsInfo(RenderStatisticsInfo.DrawCall,1);
-        //TODO glmode
-        this._engine._addStatisticsInfo(RenderStatisticsInfo.Triangle,(count-2));
-        
+    /**
+     * @internal
+     * @param mode 
+     * @param first 
+     * @param count 
+     */
+    drawArrays(mode: number, first: number, count: number): void {
+        this._gl.drawArrays(mode, first, count);
+        this._engine._addStatisticsInfo(RenderStatisticsInfo.DrawCall, 1);
+        this._engine._addStatisticsInfo(RenderStatisticsInfo.Triangle, (count - 2));
     }
 
-    drawElements(mode: MeshTopology, count: number, type: IndexFormat, offset: number): void {
-        const glmode = this.getMeshTopology(mode);
-        const gltype = this.getIndexType(type);
-        this._gl.drawElements(glmode, count, gltype, offset);
-
-        this._engine._addStatisticsInfo(RenderStatisticsInfo.DrawCall,1);
-        this._engine._addStatisticsInfo(RenderStatisticsInfo.Triangle,count/3);
-        
+    /**
+     * @internal
+     * @param mode 
+     * @param count 
+     * @param type 
+     * @param offset 
+     */
+    drawElements(mode: number, count: number, type: IndexFormat, offset: number): void {
+        this._gl.drawElements(mode, count, type, offset);
+        this._engine._addStatisticsInfo(RenderStatisticsInfo.DrawCall, 1);
+        this._engine._addStatisticsInfo(RenderStatisticsInfo.Triangle, count / 3);
     }
 
+    /**
+     * @internal
+     * @param mode 
+     * @param count 
+     * @param type 
+     * @param offset 
+     */
+    drawElements2DTemp(mode: MeshTopology, count: number, type: IndexFormat, offset: number): void {
+        mode = this.getMeshTopology(mode);
+        type = this.getIndexType(type);
+        this._gl.drawElements(mode, count, type, offset);
+        this._engine._addStatisticsInfo(RenderStatisticsInfo.DrawCall, 1);
+        this._engine._addStatisticsInfo(RenderStatisticsInfo.Triangle, count / 3);
+    }
 
-    drawGeometryElement(geometryElement: IRenderGeometryElement): void {
+    /**
+     * @internal
+     * @param geometryElement 
+     */
+    drawGeometryElement(geometryElement: RenderGeometryElementOBJ): void {
         geometryElement.bufferState.bind();
         let element = geometryElement.drawParams.elements;
         let length = geometryElement.drawParams.length;
         switch (geometryElement.drawType) {
             case DrawType.DrawArray:
-                for(let i = 0;i<length;i+=2){
-                    this.drawArrays(geometryElement.mode,element[i],element[i+1]);
+                for (let i = 0; i < length; i += 2) {
+                    this.drawArrays(geometryElement._glmode, element[i], element[i + 1]);
                 }
                 break;
             case DrawType.DrawElement:
-                for(let i = 0;i<length;i+=2){
-                    this.drawElements(geometryElement.mode,element[i+1],geometryElement.indexFormat,element[i]);
+                for (let i = 0; i < length; i += 2) {
+                    this.drawElements(geometryElement._glmode, element[i + 1], geometryElement._glindexFormat, element[i]);
                 }
                 break;
             case DrawType.DrawArrayInstance:
-                for(let i = 0;i<length;i+=2){
-                    this.drawArraysInstanced(geometryElement.mode,element[i],element[i+1],geometryElement.instanceCount);
+                for (let i = 0; i < length; i += 2) {
+                    this.drawArraysInstanced(geometryElement._glmode, element[i], element[i + 1], geometryElement.instanceCount);
                 }
                 break;
             case DrawType.DrawElementInstance:
-                for(let i = 0;i<length;i+=2){
-                    this.drawElementsInstanced(geometryElement.mode,element[i+1],geometryElement.indexFormat,element[i],geometryElement.instanceCount);
+                for (let i = 0; i < length; i += 2) {
+                    this.drawElementsInstanced(geometryElement._glmode, element[i + 1], geometryElement._glindexFormat, element[i], geometryElement.instanceCount);
                 }
                 break;
             default:
                 break;
         }
     }
-
-
 }
