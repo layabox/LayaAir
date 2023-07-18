@@ -639,7 +639,8 @@ export class BaseRender extends Component implements IBoundsCell {
 
     _applyReflection() {
         if (!this._probReflection) return;
-        if (this._probReflection._updateMark = ILaya3D.Scene3D._updateMark) {
+        //+1 It is because after setting the value, updatemark is updated before rendering
+        if ((this._probReflection._updateMark + 1) == ILaya3D.Scene3D._updateMark) {
             this._probReflection.applyReflectionShaderData(this._shaderValues)
         }
     }
