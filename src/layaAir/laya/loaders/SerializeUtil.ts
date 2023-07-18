@@ -57,7 +57,7 @@ export class SerializeUtil {
                 let v = data[i];
                 if (v != null) {
                     try {
-                        arr[i] = this._decodeObj(v);
+                        arr[i] = SerializeUtil._decodeObj(v);
                     }
                     catch (error: any) {
                         if (_errors)
