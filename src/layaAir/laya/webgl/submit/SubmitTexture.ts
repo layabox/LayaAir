@@ -44,6 +44,8 @@ export class SubmitTexture extends SubmitBase {
         }
 
         this._mesh.useMesh();
+        this.shaderValue.texture = source;
+        this.shaderValue.upload();
         //如果shader参数都相同，只要提交texture就行了
         var lastSubmit = <SubmitTexture>SubmitBase.preRender;
         var prekey = ((<SubmitBase>SubmitBase.preRender))._key;
@@ -60,8 +62,6 @@ export class SubmitTexture extends SubmitBase {
                 this._blendFn();
                 BlendMode.activeBlendFunction = this._blendFn;
             }
-            this.shaderValue.texture = source;
-            this.shaderValue.upload();
         }
 
         LayaGL.renderDrawContext.drawElements2DTemp(MeshTopology.Triangles, this._numEle, IndexFormat.UInt16, this._startIdx);
