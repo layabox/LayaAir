@@ -5,6 +5,7 @@ import { Vector3 } from "../../../maths/Vector3";
 import { CompareFunction } from "../../../RenderEngine/RenderEnum/CompareFunction";
 import { CullMode } from "../../../RenderEngine/RenderEnum/CullMode";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
+import { ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData";
 import { Camera } from "../../core/Camera";
 import { GeometryElement } from "../../core/GeometryElement";
 import { Material } from "../../core/material/Material";
@@ -56,7 +57,6 @@ export class SkyRenderer {
             this._renderElement.material = value;
             if (value) {
                 value._addReference();
-                value.cull = CullMode.Off;
                 value.depthTest = CompareFunction.LessEqual;
                 value.depthWrite = false;
                 value.stencilWrite = false;
@@ -118,11 +118,9 @@ export class SkyRenderer {
      */
     _render(context: RenderContext3D): void {
         if (this._material && this._mesh) {
-            var camera= context.camera;
+            var camera = context.camera;
             var scene: Scene3D = context.scene;
             var projectionMatrix: Matrix4x4 = SkyRenderer._tempMatrix1;
-            if (camera.orthographic)
-                Matrix4x4.createPerspective(camera.fieldOfView, camera.aspectRatio, camera.nearPlane, camera.farPlane, projectionMatrix);
             this._renderData._shaderValues.setColor(SkyRenderer.SUNLIGHTDIRCOLOR, scene._sunColor);
             this._renderData._shaderValues.setVector3(SkyRenderer.SUNLIGHTDIRECTION, scene._sundir);
             //无穷投影矩阵算法,DirectX右手坐标系推导
@@ -147,20 +145,30 @@ export class SkyRenderer {
             var viewMatrix: Matrix4x4 = SkyRenderer._tempMatrix0;
 
             camera.viewMatrix.cloneTo(viewMatrix);//视图矩阵逆矩阵的转置矩阵，移除平移和缩放
-            camera.projectionMatrix.cloneTo(projectionMatrix);
             viewMatrix.setTranslationVector(Vector3.ZERO);
-            var epsilon: number = 1e-6;
-            var yScale: number = 1.0 / Math.tan(3.1416 * camera.fieldOfView / 180 * 0.5);
-            projectionMatrix.elements[0] = yScale / camera.aspectRatio;
-            projectionMatrix.elements[5] = yScale;
-            projectionMatrix.elements[10] = epsilon - 1.0;
-            projectionMatrix.elements[11] = -1.0;
-            projectionMatrix.elements[14] = -0;//znear无穷小
+            if (!camera.orthographic) {
+                camera.projectionMatrix.cloneTo(projectionMatrix);
+
+                var epsilon: number = 1e-6;
+                var yScale: number = 1.0 / Math.tan(3.1416 * camera.fieldOfView / 180 * 0.5);
+                projectionMatrix.elements[0] = yScale / camera.aspectRatio;
+                projectionMatrix.elements[5] = yScale;
+                projectionMatrix.elements[10] = epsilon - 1.0;
+                projectionMatrix.elements[11] = -1.0;
+                projectionMatrix.elements[14] = -0;//znear无穷小
+
+            } else {
+                
+                var halfWidth: number = 0.2;
+                var halfHeight: number = halfWidth;
+                Matrix4x4.createOrthoOffCenter(-halfWidth, halfWidth, -halfHeight, halfHeight, camera.nearPlane, camera.farPlane, projectionMatrix);
+            }
             if ((camera as any).isWebXR) {
                 camera._applyViewProject(context, viewMatrix, camera.projectionMatrix);//TODO:优化 不应设置给Camera直接提交
             } else {
                 camera._applyViewProject(context, viewMatrix, projectionMatrix);//TODO:优化 不应设置给Camera直接提交
             }
+
 
             context._contextOBJ.applyContext(Camera._updateMark);
             context.drawRenderElement(this._renderElement);
@@ -178,8 +186,6 @@ export class SkyRenderer {
             this._material = null;
         }
         this._renderData.destroy();
-        //@ts-ignore
-        this._renderData._onDestroy();
         this._renderElement.destroy();
 
 

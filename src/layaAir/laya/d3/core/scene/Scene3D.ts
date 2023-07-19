@@ -165,7 +165,7 @@ export class Scene3D extends Sprite implements ISubmit {
     static _blitOffset: Vector4 = new Vector4();
     /**@internal */
     static mainCavansViewPort: Viewport = new Viewport(0, 0, 1, 1);
-    
+
 
 
     /**
@@ -428,6 +428,15 @@ export class Scene3D extends Sprite implements ISubmit {
 
     /** @internal 由IDE负责调用渲染 */
     _renderByEditor: boolean;
+    /** @internal */
+    _scene2D: Scene;
+
+    /**
+     * Scene3D所属的2D场景，使用IDE编辑的场景载入后具有此属性。
+     */
+    get scene2D(): Scene {
+        return this._scene2D;
+    }
 
     /**
      * set SceneRenderableManager
@@ -702,7 +711,7 @@ export class Scene3D extends Sprite implements ISubmit {
             maps.length = 0;
         }
         this.event(Lightmap.ApplyLightmapEvent);
-        
+
     }
 
     /**
