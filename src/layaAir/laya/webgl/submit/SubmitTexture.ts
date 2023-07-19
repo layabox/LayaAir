@@ -23,7 +23,7 @@ export class SubmitTexture extends SubmitBase {
     /**
      * @override
      */
-	releaseRender(): void {
+    releaseRender(): void {
         if ((--this._ref) < 1) {
             SubmitTexture.POOL[SubmitTexture._poolSize++] = this;
             this.shaderValue.release();
