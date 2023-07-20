@@ -101,10 +101,8 @@ export class Value2D {
         //ret.setAttributesLocation(_attribLocation); 由于上面函数的流程的修改，导致这里已经晚了
         return ret;
     }
-
-    upload(): void {
+    public updateShaderData() {
         var renderstate2d: any = RenderState2D;
-
         // 如果有矩阵的话，就设置 WORLDMAT 宏
         RenderState2D.worldMatrix4 === RenderState2D.TEMPMAT4_ARRAY || this.defines.addInt(ShaderDefines2D.WORLDMAT);
         this.mmat = renderstate2d.worldMatrix4;
@@ -134,7 +132,11 @@ export class Value2D {
         } else {
             this.defines.remove(ShaderDefines2D.INVERTY);
         }
+    }
+    upload(): void {
+        var renderstate2d: any = RenderState2D;
 
+        this.updateShaderData();
 
 
         var sd: Shader2X = Shader.sharders[this.mainID | this.defines._value] || this._ShaderWithCompile();
