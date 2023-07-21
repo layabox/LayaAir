@@ -78,14 +78,12 @@ export class Pool {
      * @return 此类型标识的一个对象。
      */
     static getItemByClass<T>(sign: string, cls: new () => T): T {
-        if (!Pool._poolDic[sign]) return new cls();
-
-        var pool = Pool.getPoolBySign(sign);
-        if (pool.length) {
-            var rst = pool.pop();
-        } else {
+        let rst: any;
+        let pool = Pool.getPoolBySign(sign);
+        if (pool.length)
+            rst = pool.pop();
+        else
             rst = new cls();
-        }
         rst[Pool.POOLSIGN] = false;
         return rst;
     }
