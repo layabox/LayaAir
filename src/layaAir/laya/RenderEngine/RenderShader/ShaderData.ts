@@ -599,10 +599,28 @@ export class ShaderData implements IClone {
 			}
 		}
 		this._defineDatas.cloneTo(dest._defineDatas);
+		this._cloneUBODatas(dest._uniformBufferDatas);
 		this._gammaColorMap.forEach((color, index) => {
 			destObject._gammaColorMap.set(index, color.clone());
 		});
 	}
+
+	/**
+	 * 克隆UBOData
+	 * @dest 
+	 */
+	_cloneUBODatas(dest: Map<string, uboParams>): void {
+		let shaderUBODatas = this._uniformBufferDatas;
+		if (!shaderUBODatas)
+			return;
+		for (let key of shaderUBODatas.keys()) {
+			//clone data
+			let uboData = shaderUBODatas.get(key).uboBuffer.clone();
+			//set data
+			dest.get(key).uboBuffer = uboData;
+		}
+	}
+
 
 	/**
 	 * 克隆。
