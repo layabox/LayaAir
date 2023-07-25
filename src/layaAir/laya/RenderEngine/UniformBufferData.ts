@@ -135,7 +135,7 @@ export class UnifromBufferData {
                 }
                 break;
             case UniformBufferParamsType.Vector4:
-            //case UniformBufferParamsType.Color:
+                //case UniformBufferParamsType.Color:
                 size = 4;
                 switch (posG) {
                     case 0:
@@ -256,10 +256,10 @@ export class UnifromBufferData {
                 this.setMatrixbyIndex(uniformID, value);
                 break;
             case UniformBufferParamsType.Vector4Array:
-                this.setVector4ArraybyIndex(uniformID,value);
+                this.setVector4ArraybyIndex(uniformID, value);
                 break;
             case UniformBufferParamsType.MatrixArray:
-                this.setMatrixArraybyIndex(uniformID,value);
+                this.setMatrixArraybyIndex(uniformID, value);
                 break;
             // todo
             default:
@@ -483,11 +483,19 @@ export class UnifromBufferData {
         pos += 16;
         this._setUpdateFlag(info.x, pos);
     }
-    
+
 
     clone(): UnifromBufferData {
         // todo clone 更改
         let ubd = new UnifromBufferData(this._uniformParamsState);
+        this.cloneTo(ubd);
         return ubd
+    }
+
+    cloneTo(destObject: UnifromBufferData) {
+        if (destObject._bytelength == this._bytelength) {
+            destObject._buffer = Float32Array.from(this._buffer);
+            this._updateFlag.setValue(0, this._buffer.length);
+        }
     }
 }
