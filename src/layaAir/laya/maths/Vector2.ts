@@ -10,6 +10,14 @@ export class Vector2 implements IClone {
     static readonly ZERO: Readonly<Vector2> = new Vector2(0.0, 0.0);
     /**一向量,禁止修改*/
     static readonly ONE: Readonly<Vector2> = new Vector2(1.0, 1.0);
+    /**上向量,禁止修改*/
+    static readonly UP: Readonly<Vector2> = new Vector2(0.0, -1.0);
+    /**下向量,禁止修改*/
+    static readonly DOWN: Readonly<Vector2> = new Vector2(0.0, 1.0);
+    /**左向量,禁止修改*/
+    static readonly LEFT: Readonly<Vector2> = new Vector2(-1.0, 0.0);
+    /**右向量,禁止修改*/
+    static readonly RIGHT: Readonly<Vector2> = new Vector2(1.0, 0.0);
 
     /**X轴坐标*/
     x: number;
@@ -17,14 +25,41 @@ export class Vector2 implements IClone {
     y: number;
 
     /**
+     * 创建一个空 <code>Vector2</code> 实例。
+     * @param	x = 0  X轴坐标。
+     * @param	y = 0  Y轴坐标。
+     */
+    constructor(); // 无参数构建0向量
+    /**
+     * 从角度创建一个 <code>Vector2</code> 实例。
+     * @param	angle  旋转角度。
+     */
+    constructor(angle: number); // 从角度构建向量
+    /**
      * 创建一个 <code>Vector2</code> 实例。
      * @param	x  X轴坐标。
      * @param	y  Y轴坐标。
      */
-    constructor(x: number = 0, y: number = 0) {
-        this.x = x;
-        this.y = y;
+    constructor(x: number, y: number); // 有参数构建向量
+
+    constructor(xOrAngle?: number, y?: number) {
+        if (xOrAngle === undefined && y === undefined) {
+            this.x = 0;
+            this.y = 0;
+        } else if (y === undefined) {
+            const angle = xOrAngle as number;
+            const radians = angle * (Math.PI / 180);
+            this.x = Math.cos(radians);
+            this.y = Math.sin(radians);
+        } else {
+            this.x = xOrAngle as number;
+            this.y = y;
+        }
     }
+    // constructor(x: number = 0, y: number = 0) {
+    //     this.x = x;
+    //     this.y = y;
+    // }
     /**
      * 设置xy值。
      * @param	x X值。
@@ -36,20 +71,27 @@ export class Vector2 implements IClone {
     }
 
     /**
-     * 缩放二维向量。
+     * 二维向量标量乘法。
      * @param	a 源二维向量。
      * @param	b 缩放值。
-     * @param	out 输出二维向量。
+     * @return   缩放后的新向量。
      */
-    static scale(a: Vector2, b: number, out: Vector2): void {
-        out.x = a.x * b;
-        out.y = a.y * b;
+    static scale(a: Vector2, b: number): Vector2 {
+        return new Vector2(a.x * b, a.y * b);
+    }
+    /**
+     * 二维向量标量乘法。
+     * @param	b 缩放值。
+     * @return   缩放后的新向量。
+     */
+    scale(b: number): Vector2 {
+        return new Vector2(this.x * b, this.y * b);
     }
 
     /**
      * 判断两个二维向量是否相等。
-     * @param	a 三维向量。
-     * @param	b 三维向量。
+     * @param	a 二维向量。
+     * @param	b 二维向量。
      * @return  是否相等。
      */
     static equals(a: Vector2, b: Vector2): boolean {
@@ -68,7 +110,7 @@ export class Vector2 implements IClone {
 
     /**
      * 转换为Array数组
-     * @return
+     * @return 数组
      */
     toArray(): Array<number> {
         return [this.x, this.y];
@@ -85,8 +127,8 @@ export class Vector2 implements IClone {
     }
 
     /**
-     * 克隆。
-     * @param	destObject 克隆源。
+     * 克隆到。
+     * @param	destObject 克隆到这里。
      */
     cloneTo(destObject: any): void {
         var destVector2: Vector2 = (<Vector2>destObject);
@@ -105,38 +147,133 @@ export class Vector2 implements IClone {
     }
 
     /**
-     * 归一化二维向量。
-     * @param	s 源三维向量。
-     * @param	out 输出三维向量。
+     * 求二维向量的点积。
+     * @param	b right向量。
+     * @return   点积。
      */
-    static normalize(s: Vector2, out: Vector2): void {
-        var x: number = s.x, y: number = s.y;
+    dot(b: Vector2): number {
+        return (this.x * b.x) + (this.y * b.y);
+    }
+
+    /**
+     * 归一化二维向量。
+     * @param	a 源二维向量。
+     * @return 新的二维向量。
+     */
+    static normalize(a: Vector2): Vector2 {
+        var x: number = a.x, y: number = a.y;
         var len: number = x * x + y * y;
         if (len > 0) {
             len = 1 / Math.sqrt(len);
-            out.x = x * len;
-            out.y = y * len;
+            return new Vector2(x * len, y * len);
         }
+        return a.clone();
+    }
+
+    /**
+     * 归一化二维向量。
+     * @return 新的二维向量。
+     */
+    normalize(): Vector2 {
+        var x: number = this.x, y: number = this.y;
+        var len: number = x * x + y * y;
+        if (len > 0) {
+            len = 1 / Math.sqrt(len);
+            return new Vector2(x * len, y * len);
+        }
+        return this.clone();
     }
 
     /**
      * 计算标量长度。
-     * @param	a 源三维向量。
+     * @param	a 源二维向量。
      * @return 标量长度。
      */
     static scalarLength(a: Vector2): number {
         var x: number = a.x, y: number = a.y;
         return Math.sqrt(x * x + y * y);
     }
+    /**
+     * 计算标量长度。
+     * @return 标量长度。
+     */
+    scalarLength(): number {
+        var x: number = this.x, y: number = this.y;
+        return Math.sqrt(x * x + y * y);
+    }
 
+    /**
+     * 计算二维向量距离。
+     * @param	a 二维向量。
+     * @param	b 二维向量。
+     * @return 标量距离。
+     */
+    static distance(a: Vector2, b: Vector2): number {
+        var x: number = a.x - b.x, y: number = a.y - b.y;
+        return Math.sqrt(x * x + y * y);
+    }
+    /**
+     * 计算二维向量距离。
+     * @param	b 二维向量。
+     * @return 标量距离。
+     */
+    distance(b: Vector2): number {
+        var x: number = this.x - b.x, y: number = this.y - b.y;
+        return Math.sqrt(x * x + y * y);
+    }
+    /**
+     * 二维向量加法。
+     * @param	a 二维向量。
+     * @param	b 二维向量。
+     * @return 新的二维向量。
+     */
+    static add(a: Vector2, b: Vector2): Vector2 {
+        var x: number = a.x + b.x, y: number = a.y + b.y;
+        return new Vector2(x, y);
+    }
+    /**
+     * 二维向量加法。
+     * @param	b 二维向量。
+     * @return 新的二维向量。
+     */
+    add(b: Vector2): Vector2 {
+        var x: number = this.x + b.x, y: number = this.y + b.y;
+        return new Vector2(x, y);
+    }
+    /**
+     * 二维向量减法。
+     * @param	a 二维向量。
+     * @param	b 二维向量。
+     * @return 新的二维向量。
+     */
+    static sub(a: Vector2, b: Vector2): Vector2 {
+        var x: number = a.x - b.x, y: number = a.y - b.y;
+        return new Vector2(x, y);
+    }
+    /**
+     * 二维向量加法。
+     * @param	b 二维向量。
+     * @return 新的二维向量。
+     */
+    sub(b: Vector2): Vector2 {
+        var x: number = this.x - b.x, y: number = this.y - b.y;
+        return new Vector2(x, y);
+    }
+
+    /**
+     * 克隆。
+     * @param	a 源二维向量。
+     * @return	 克隆副本。
+     */
+    static clone(a: Vector2): any {
+        return new Vector2(a.x, a.y);
+    }
     /**
      * 克隆。
      * @return	 克隆副本。
      */
     clone(): any {
-        var destVector2: Vector2 = new Vector2();
-        this.cloneTo(destVector2);
-        return destVector2;
+        return new Vector2(this.x, this.y);
     }
 
     forNativeElement(nativeElements: Float32Array | null = null): void//[NATIVE_TS]
