@@ -311,7 +311,6 @@ ${uniformglsl}`;
 	}
 
 	private hasSpritePtrID(dataOffset: number): boolean {
-		const spriteParms = LayaGL.renderOBJCreate.createGlobalUniformMap("Sprite3D");//分开，根据不同的Render
 		let commap = this._shaderPass.nodeCommonMap;
 		if (!commap) {
 			return false;

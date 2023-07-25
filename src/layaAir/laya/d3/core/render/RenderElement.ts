@@ -153,10 +153,10 @@ export class RenderElement {
                 Shader3D._configDefineValues.cloneTo(comDef);
             }
             context.cameraShaderData && comDef.addDefineDatas(context.cameraShaderData._defineDatas);
-            if(this.render){
+            if (this.render) {
                 comDef.addDefineDatas(this.render._shaderValues._defineDatas);
                 pass.nodeCommonMap = this.render._commonUniformMap;
-            }else{
+            } else {
                 pass.nodeCommonMap = null;
             }
 

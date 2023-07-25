@@ -213,7 +213,7 @@ export class ShaderVariantCollection {
             var variants: ShaderVariant[] = this._variants;
             for (var i: number = 0, n: number = variants.length; i < n; i++) {
                 var variant: ShaderVariant = variants[i];
-                Shader3D.compileShaderByDefineNames(variant._shader._name, variant._subShaderIndex, variant._passIndex, variant._defineNames);
+                Shader3D.compileShaderByDefineNames(variant._shader._name, variant._subShaderIndex, variant._passIndex, variant._defineNames,[]);
             }
             this._allCompiled = true;
         }

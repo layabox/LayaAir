@@ -1,4 +1,4 @@
-import { SubShader} from "./SubShader";
+import { SubShader } from "./SubShader";
 import { ShaderCompileDefineBase, ShaderProcessInfo } from "../../webgl/utils/ShaderCompileDefineBase";
 import { LayaGL } from "../../layagl/LayaGL";
 import { DefineDatas } from "../../RenderEngine/RenderShader/DefineDatas";
@@ -27,7 +27,7 @@ export class ShaderPass extends ShaderCompileDefineBase {
     /** @internal */
     _pipelineMode: string;
     /**@internal */
-    _nodeUniformCommonMap:Array<string>;
+    _nodeUniformCommonMap: Array<string>;
     /** 优先 ShaderPass 渲染状态 */
     statefirst: boolean = false;
 
@@ -100,30 +100,48 @@ export class ShaderPass extends ShaderCompileDefineBase {
         if (shader)
             return shader;
 
-        let shaderProcessInfo:ShaderProcessInfo = new ShaderProcessInfo();
+        let shaderProcessInfo: ShaderProcessInfo = new ShaderProcessInfo();
         shaderProcessInfo.is2D = false;
         shaderProcessInfo.vs = this._VS;
         shaderProcessInfo.ps = this._PS;
         shaderProcessInfo.attributeMap = this._owner._attributeMap;
         shaderProcessInfo.uniformMap = this._owner._uniformMap;
-        
+
         var defineString: string[] = ShaderPass._defineStrings;
         Shader3D._getNamesByDefineData(compileDefine, defineString);
         shaderProcessInfo.defineString = defineString;
-        
+
         shader = LayaGL.renderOBJCreate.createShaderInstance(shaderProcessInfo, this);
 
         cacheShaders[cacheKey] = shader;
 
         if (Shader3D.debugMode) {
             var defStr: string = "";
+            var defCommonStr: string = "";
             var defMask: string = "";
-            for (var i: number = 0, n: number = debugMaskLength; i < n; i++){
+            var spriteCommonNode: string = "";
+            for (var i: number = 0, n: number = debugMaskLength; i < n; i++) {
                 (i == n - 1) ? defMask += debugDefineMask[i] : defMask += debugDefineMask[i] + ",";
             }
-            for (var i: number = 0, n: number = debugDefineString.length; i < n; i++)
-                (i == n - 1) ? defStr += debugDefineString[i] : defStr += debugDefineString[i] + ",";
-            console.log("%cLayaAir: Shader Compile Information---ShaderName:" + this._owner._owner._name + " SubShaderIndex:" + this._owner._owner._subShaders.indexOf(this._owner) + " PassIndex:" + this._owner._passes.indexOf(this) + " DefineMask:[" + defMask + "]" + " DefineNames:[" + defStr + "]", "color:green");
+            // for (var i: number = 0, n: number = debugDefineString.length; i < n; i++){}
+            //     (i == n - 1) ? defStr += debugDefineString[i] : defStr += debugDefineString[i] + ",";
+            for (var i: number = 0, n: number = debugDefineString.length; i < n; i++) {
+                if (Shader3D._configDefineValues.has(Shader3D.getDefineByName(debugDefineString[i])))
+                    defCommonStr += debugDefineString[i] + ",";
+                else
+                    defStr += debugDefineString[i] + ",";
+            }
+            for (var j = 0; j < this.nodeCommonMap.length; j++) {
+                spriteCommonNode += this.nodeCommonMap[j] + ",";
+            }
+            console.log("%cLayaAir: Shader Compile Information---ShaderName:" + this._owner._owner._name +
+                " SubShaderIndex:" + this._owner._owner._subShaders.indexOf(this._owner) +
+                " PassIndex:" + this._owner._passes.indexOf(this) +
+                " DefineMask:[" + defMask + "]" +
+                " DefineNames:[" + defStr + "]" +
+                " Environment Macro DefineNames:[" + defCommonStr + "]" +
+                "Sprite CommonNode:[" + spriteCommonNode + "]",
+                "color:green");
         }
         return shader;
     }

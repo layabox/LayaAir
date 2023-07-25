@@ -183,18 +183,18 @@ export class Shader3D {
      * @param   passIndex  通道索引。
      * @param	defineNames 宏定义名字集合。
      */
-    static compileShaderByDefineNames(shaderName: string, subShaderIndex: number, passIndex: number, defineNames: string[]): void {
+    static compileShaderByDefineNames(shaderName: string, subShaderIndex: number, passIndex: number, defineNames: string[], nodeCommonMap: string[]): void {
         var shader: Shader3D = Shader3D.find(shaderName);
         if (shader) {
             var subShader: SubShader = shader.getSubShaderAt(subShaderIndex);
             if (subShader) {
                 var pass: ShaderPass = subShader._passes[passIndex];
+                pass.nodeCommonMap = nodeCommonMap;
                 if (pass) {
                     var compileDefineDatas: DefineDatas = Shader3D._compileDefineDatas;
-                    compileDefineDatas.clear();
+                    Shader3D._configDefineValues.cloneTo(compileDefineDatas);
                     for (var i: number = 0, n: number = defineNames.length; i < n; i++)
                         compileDefineDatas.add(Shader3D.getDefineByName(defineNames[i]));
-                    compileDefineDatas.addDefineDatas(Shader3D._configDefineValues);
                     pass.withCompile(compileDefineDatas);
                 } else {
                     console.warn("Shader3D: unknown passIndex.");
@@ -278,40 +278,6 @@ export class Shader3D {
      */
     getSubShaderAt(index: number): SubShader {
         return this._subShaders[index];
-    }
-
-    /**
-     * @deprecated
-     * 通过宏定义遮罩编译shader,建议使用compileShaderByDefineNames。
-     * @param	shaderName Shader名称。
-     * @param   subShaderIndex 子着色器索引。
-     * @param   passIndex  通道索引。
-     * @param	defineMask 宏定义遮罩集合。
-     */
-    static compileShader(shaderName: string, subShaderIndex: number, passIndex: number, ...defineMask: any[]): void {
-        var shader: Shader3D = Shader3D.find(shaderName);
-        if (shader) {
-            var subShader: SubShader = shader.getSubShaderAt(subShaderIndex);
-            if (subShader) {
-                var pass: ShaderPass = subShader._passes[passIndex];
-                if (pass) {
-                    var compileDefineDatas: DefineDatas = Shader3D._compileDefineDatas;
-                    var mask: Array<number> = compileDefineDatas._mask;
-                    mask.length = 0;
-                    for (var i: number = 0, n: number = defineMask.length; i < n; i++)
-                        mask.push(defineMask[i]);
-                    compileDefineDatas._length = defineMask.length;
-                    pass.withCompile(compileDefineDatas);
-
-                } else {
-                    console.warn("Shader3D: unknown passIndex.");
-                }
-            } else {
-                console.warn("Shader3D: unknown subShaderIndex.");
-            }
-        } else {
-            console.warn("Shader3D: unknown shader name.");
-        }
     }
 
 }
