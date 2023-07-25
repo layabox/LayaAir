@@ -101,10 +101,8 @@ export class Value2D {
         //ret.setAttributesLocation(_attribLocation); 由于上面函数的流程的修改，导致这里已经晚了
         return ret;
     }
-
-    upload(): void {
+    public updateShaderData() {
         var renderstate2d: any = RenderState2D;
-
         // 如果有矩阵的话，就设置 WORLDMAT 宏
         RenderState2D.worldMatrix4 === RenderState2D.TEMPMAT4_ARRAY || this.defines.addInt(ShaderDefines2D.WORLDMAT);
         this.mmat = renderstate2d.worldMatrix4;
@@ -113,7 +111,7 @@ export class Value2D {
             this.defines.addInt(ShaderDefines2D.MVP3D);
             this.u_MvpMatrix = RenderState2D.matWVP.elements;
         }
-        let returnGamma: boolean = !(RenderTexture2D.currentActive);
+        let returnGamma: boolean = !(RenderTexture2D.currentActive) || ((RenderTexture2D.currentActive)._texture.gammaCorrection != 1);
         //returnGamma = returnGamma && (this.textureHost && ((this.textureHost as RenderTexture2D).gammaCorrection == 1 || (this.textureHost as Texture).bitmap.gammaCorrection == 1));
         if (returnGamma && this.textureHost) {
             if (this.textureHost instanceof RenderTexture2D) {
@@ -129,14 +127,15 @@ export class Value2D {
             this.defines.remove(ShaderDefines2D.GAMMASPACE);
         }
 
-        if(RenderState2D.InvertY){
+        if (RenderState2D.InvertY) {
             this.defines.addInt(ShaderDefines2D.INVERTY);
-        }else{
+        } else {
             this.defines.remove(ShaderDefines2D.INVERTY);
         }
-
-
-
+    }
+    upload(): void {
+        var renderstate2d: any = RenderState2D;
+        this.updateShaderData();
         var sd: Shader2X = Shader.sharders[this.mainID | this.defines._value] || this._ShaderWithCompile();
 
         if (sd._shaderValueWidth !== renderstate2d.width || sd._shaderValueHeight !== renderstate2d.height) {

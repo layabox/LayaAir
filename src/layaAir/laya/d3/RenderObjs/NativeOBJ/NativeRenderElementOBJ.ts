@@ -1,5 +1,6 @@
 
 import { LayaGL } from "../../../layagl/LayaGL";
+import { UploadMemoryManager } from "../../../RenderEngine/RenderEngine/NativeGLEngine/CommonMemory/UploadMemoryManager";
 import { IBaseRenderNode } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IBaseRenderNode";
 import { IRenderContext3D } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderContext3D";
 import { IRenderElement } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderElement";
@@ -106,6 +107,7 @@ export class NativeRenderElementOBJ implements IRenderElement {
      * @param renderqueue 
      */
     _render(context: IRenderContext3D): void {
+        UploadMemoryManager.syncRenderMemory();//同步数据
         this._nativeObj._render((context as any)._nativeObj);
     }
 

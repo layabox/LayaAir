@@ -23,7 +23,7 @@ export class SubmitTexture extends SubmitBase {
     /**
      * @override
      */
-	releaseRender(): void {
+    releaseRender(): void {
         if ((--this._ref) < 1) {
             SubmitTexture.POOL[SubmitTexture._poolSize++] = this;
             this.shaderValue.release();
@@ -44,6 +44,7 @@ export class SubmitTexture extends SubmitBase {
         }
 
         this._mesh.useMesh();
+        this.shaderValue.updateShaderData();
         //如果shader参数都相同，只要提交texture就行了
         var lastSubmit = <SubmitTexture>SubmitBase.preRender;
         var prekey = ((<SubmitBase>SubmitBase.preRender))._key;

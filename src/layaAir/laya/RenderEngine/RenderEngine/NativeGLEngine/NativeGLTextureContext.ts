@@ -44,7 +44,7 @@ export class NativeGLTextureContext extends NativeGLObject implements ITextureCo
     }
 
     setTextureSubImageData(texture: InternalTexture, source: HTMLImageElement | HTMLCanvasElement | ImageBitmap, x: number, y: number, premultiplyAlpha: boolean, invertY: boolean): void{
-        //TODO
+        throw new Error("setTextureSubImageData Method not implemented.");
     }
 
     setTexture3DImageData(texture: InternalTexture, source: HTMLImageElement[] | HTMLCanvasElement[] | ImageBitmap[], depth: number, premultiplyAlpha: boolean, invertY: boolean): void {
@@ -61,7 +61,7 @@ export class NativeGLTextureContext extends NativeGLObject implements ITextureCo
 
     setTextureHDRData(texture: InternalTexture, hdrInfo: HDRTextureInfo): void {
         let sourceData = hdrInfo.readScanLine();
-
+        throw new Error("setTextureHDRData Method not implemented.");
         this.setTexturePixelsData(texture, sourceData, false, false);
     }
     setTextureDDSData(texture: InternalTexture, ddsInfo: DDSTextureInfo) {
@@ -89,19 +89,19 @@ export class NativeGLTextureContext extends NativeGLObject implements ITextureCo
 
 
     setCubeDDSData(texture: InternalTexture, ddsInfo: DDSTextureInfo) {
-        throw new Error("setCubeDDSData Method not implemented.");
+        this._native.setCubeDDSData(texture, ddsInfo);
     }
 
     setCubeKTXData(texture: InternalTexture, ktxInfo: KTXTextureInfo) {
-        throw new Error("setCubeKTXData Method not implemented.");
+        this._native.setCubeKTXData(texture, ktxInfo);
     }
 
     setTextureCompareMode(texture: InternalTexture, compareMode: TextureCompareMode): TextureCompareMode {
         return this._native.setTextureCompareMode(texture, compareMode);
     }
 
-    bindRenderTarget(renderTarget: InternalRenderTarget): void {
-        this._native.bindRenderTarget(renderTarget);
+    bindRenderTarget(renderTarget: InternalRenderTarget, faceIndex: number = 0): void {
+        this._native.bindRenderTarget(renderTarget, faceIndex);
     }
 
     bindoutScreenTarget(): void {
