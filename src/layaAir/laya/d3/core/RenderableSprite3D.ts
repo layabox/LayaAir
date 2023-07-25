@@ -7,6 +7,7 @@ import { LayaGL } from "../../layagl/LayaGL";
 import { ShaderData, ShaderDataType } from "../../RenderEngine/RenderShader/ShaderData";
 
 /**
+ * @deprecated
  * <code>RenderableSprite3D</code> 类用于可渲染3D精灵的父类，抽象类不允许实例。
  */
 export class RenderableSprite3D extends Sprite3D {

@@ -9,6 +9,7 @@ import { Sprite3D } from "./Sprite3D";
 import { Vector4 } from "../../maths/Vector4";
 
 /**
+ * @deprecated
  * <code>MeshSprite3D</code> 类用于创建网格。
  */
 export class MeshSprite3D extends RenderableSprite3D {

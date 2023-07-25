@@ -7,9 +7,7 @@ import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { ShaderData, ShaderDataType } from "../../RenderEngine/RenderShader/ShaderData";
 import { ShaderPass } from "../../RenderEngine/RenderShader/ShaderPass";
 import { ShaderVariable } from "../../RenderEngine/RenderShader/ShaderVariable";
-import { SubShader, UniformMapType } from "../../RenderEngine/RenderShader/SubShader";
-import { RenderStateCommand } from "../../RenderEngine/RenderStateCommand";
-import { RenderStateContext } from "../../RenderEngine/RenderStateContext";
+import { UniformMapType } from "../../RenderEngine/RenderShader/SubShader";
 import { ShaderCompileDefineBase, ShaderProcessInfo } from "../../webgl/utils/ShaderCompileDefineBase";
 import { ShaderNode } from "../../webgl/utils/ShaderNode";
 import { WebGLEngine } from "../RenderEngine/WebGLEngine/WebGLEngine";
@@ -17,7 +15,6 @@ import { RenderParams } from "../RenderEnum/RenderParams";
 import { GLSLCodeGenerator } from "./GLSLCodeGenerator";
 import { RenderStateContext } from "../../RenderEngine/RenderStateContext";
 import { Stat } from "../../utils/Stat";
-import { ShaderCompileDefineBase } from "../../webgl/utils/ShaderCompileDefineBase";
 import { RenderState } from "./RenderState";
 
 /**

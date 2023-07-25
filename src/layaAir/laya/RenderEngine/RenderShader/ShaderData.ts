@@ -125,6 +125,8 @@ export class ShaderData implements IClone {
 		ubo.setDataByUniformBufferData(uboData);
 	}
 
+
+
 	/**
 	 * @internal
 	 */
@@ -646,6 +648,21 @@ export class ShaderData implements IClone {
 		this._defineDatas.cloneTo(dest._defineDatas);
 		this._gammaColorMap.forEach((color, index) => {
 			destObject._gammaColorMap.set(index, color.clone());
+		});
+
+		//UBO Clone
+		this._cloneUBO(dest._uniformBufferDatas);
+		dest.applyUBO = true;
+	}
+
+	/**
+	 * clone UBO Data
+	 * @internal
+	 * @param uboDatas 
+	 */
+	_cloneUBO(uboDatas: Map<string, uboParams>) {
+		this._uniformBufferDatas.forEach((value, key) => {
+			value.uboBuffer.cloneTo(uboDatas.get(key).uboBuffer);
 		});
 	}
 
