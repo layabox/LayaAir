@@ -208,28 +208,33 @@ export class ShaderInstance {
 		var datas: any = shaderDatas.getData();
 
 		var depthWrite: any = datas[Shader3D.DEPTH_WRITE];
-
+		depthWrite = depthWrite ?? false;
 		RenderStateContext.setDepthMask(depthWrite);
+		var depthTest: any = datas[Shader3D.DEPTH_TEST];
+		depthTest = depthTest ?? RenderState.Default.depthTest;
 		if (depthTest === RenderState.DEPTHTEST_OFF)
 			RenderStateContext.setDepthTest(false);
 		else {
 			RenderStateContext.setDepthTest(true);
-			var depthTest: any = datas[Shader3D.DEPTH_TEST];
 			RenderStateContext.setDepthFunc(depthTest);
 		}
 
 		var stencilWrite: any = datas[Shader3D.STENCIL_WRITE];
+		stencilWrite = stencilWrite ?? false;
 		//Stencil
 		var stencilTest: any = datas[Shader3D.STENCIL_TEST];
+		stencilTest = stencilTest ?? RenderState.Default.stencilTest;
 		RenderStateContext.setStencilMask(stencilWrite);
 		if (stencilWrite) {
 			var stencilOp: any = datas[Shader3D.STENCIL_Op];
+			stencilOp = stencilTest ?? RenderState.Default.stencilOp;
 			RenderStateContext.setstencilOp(stencilOp.x, stencilOp.y, stencilOp.z);
 		}
 		if (stencilTest == RenderState.STENCILTEST_OFF) {
 			RenderStateContext.setStencilTest(false);
 		} else {
 			var stencilRef: any = datas[Shader3D.STENCIL_Ref];
+			stencilRef = stencilRef ?? RenderState.Default.stencilRef;
 			RenderStateContext.setStencilTest(true);
 			RenderStateContext.setStencilFunc(stencilTest, stencilRef);
 		}
@@ -243,6 +248,9 @@ export class ShaderInstance {
 				var blendEquation: any = datas[Shader3D.BLEND_EQUATION] //Shader3D.RENDER_STATE_BLEND_EQUATION);
 				var srcBlend: any = datas[Shader3D.BLEND_SRC] //Shader3D.RENDER_STATE_BLEND_SRC);
 				var dstBlend: any = datas[Shader3D.BLEND_DST] //Shader3D.RENDER_STATE_BLEND_DST);
+				blendEquation = blendEquation ?? RenderState.Default.blendEquation;
+				srcBlend = srcBlend ?? RenderState.Default.srcBlend;
+				dstBlend = dstBlend ?? RenderState.Default.dstBlend;
 				RenderStateContext.setBlend(true);
 				RenderStateContext.setBlendEquation(blendEquation);
 				RenderStateContext.setBlendFunc(srcBlend, dstBlend);
@@ -254,6 +262,12 @@ export class ShaderInstance {
 				var dstRGB: any = datas[Shader3D.BLEND_DST_RGB];
 				var srcAlpha: any = datas[Shader3D.BLEND_SRC_ALPHA];
 				var dstAlpha: any = datas[Shader3D.BLEND_DST_ALPHA];
+				blendEquationRGB = blendEquationRGB ?? RenderState.Default.blendEquationRGB;
+				blendEquationAlpha = blendEquationAlpha ?? RenderState.Default.blendEquationAlpha;
+				srcRGB = srcRGB ?? RenderState.Default.srcBlendRGB;
+				dstRGB = dstRGB ?? RenderState.Default.dstBlendRGB;
+				srcAlpha = srcAlpha ?? RenderState.Default.srcBlendAlpha;
+				dstAlpha = dstAlpha ?? RenderState.Default.dstBlendAlpha;
 				RenderStateContext.setBlend(true);
 				RenderStateContext.setBlendEquationSeparate(blendEquationRGB, blendEquationAlpha);
 				RenderStateContext.setBlendFuncSeperate(srcRGB, dstRGB, srcAlpha, dstAlpha);
