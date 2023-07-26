@@ -14,6 +14,8 @@ import { Quaternion } from "../../maths/Quaternion";
 import { Vector2 } from "../../maths/Vector2";
 import { Vector3 } from "../../maths/Vector3";
 import { Vector4 } from "../../maths/Vector4";
+import { BufferUsage } from "../RenderEnum/BufferTargetType";
+import { Shader3D } from "./Shader3D";
 type uboParams = { ubo: UniformBufferObject; uboBuffer: UnifromBufferData };
 export enum ShaderDataType {
 	Int,
@@ -604,18 +606,30 @@ export class ShaderData implements IClone {
 		});
 
 		//UBO Clone
-		this._cloneUBO(dest._uniformBufferDatas);
+		this._cloneUBO(dest);
 		dest.applyUBO = true;
 	}
 
 	/**
 	 * clone UBO Data
 	 * @internal
-	 * @param uboDatas 
+	 * @param dst 
 	 */
-	_cloneUBO(uboDatas: Map<string, uboParams>) {
+	_cloneUBO(dst: ShaderData) {
+		let dstUBODatas = dst._uniformBufferDatas;
+
 		this._uniformBufferDatas.forEach((value, key) => {
-			value.uboBuffer.cloneTo(uboDatas.get(key).uboBuffer);
+			let uboObj = dstUBODatas.get(key);
+			if (uboObj) {
+				value.uboBuffer.cloneTo(dstUBODatas.get(key).uboBuffer);
+			} else {
+				//no same key ubo,need create data and ubo
+				let uboData = value.uboBuffer.clone();
+				//create ubo
+				let ubo = UniformBufferObject.create(key, BufferUsage.Dynamic, uboData.getbyteLength(), false);
+				dst.setUniformBuffer(Shader3D.propertyNameToID(key), ubo);
+				dst._addCheckUBO(key, ubo, uboData);
+			}
 		});
 	}
 
