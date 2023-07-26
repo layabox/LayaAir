@@ -439,12 +439,12 @@ ${uniformglsl}`;
 		var depthWrite: any = datas[Shader3D.DEPTH_WRITE];
 		depthWrite = depthWrite??false;
 		RenderStateContext.setDepthMask(depthWrite);
+		var depthTest: any = datas[Shader3D.DEPTH_TEST];
+		depthTest = depthTest??RenderState.Default.depthTest;
 		if (depthTest === RenderState.DEPTHTEST_OFF)
 			RenderStateContext.setDepthTest(false);
 		else {
 			RenderStateContext.setDepthTest(true);
-			var depthTest: any = datas[Shader3D.DEPTH_TEST];
-			depthTest = depthTest??RenderState.Default.depthTest;
 			RenderStateContext.setDepthFunc(depthTest);
 		}
 
