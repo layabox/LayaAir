@@ -487,19 +487,19 @@ export class ShaderData implements IClone {
 				this.setNumber(uniformIndex, <number>value);
 				break;
 			case ShaderDataType.Vector2:
-				this.setVector2(uniformIndex, <Vector2>value);
+				this.setVector2(uniformIndex, (<Vector2>value as Vector2).clone());
 				break;
 			case ShaderDataType.Vector3:
-				this.setVector3(uniformIndex, <Vector3>value);
+				this.setVector3(uniformIndex, (<Vector3>value as Vector3).clone());
 				break;
 			case ShaderDataType.Vector4:
-				this.setVector(uniformIndex, <Vector4>value);
+				this.setVector(uniformIndex, (<Vector4>value as Vector4).clone());
 				break;
 			case ShaderDataType.Color:
 				this.setColor(uniformIndex, <Color>value);
 				break;
 			case ShaderDataType.Matrix4x4:
-				this.setMatrix4x4(uniformIndex, <Matrix4x4>value);
+				this.setMatrix4x4(uniformIndex, (<Matrix4x4>value as Matrix4x4).clone());
 				break;
 			case ShaderDataType.Texture2D:
 			case ShaderDataType.TextureCube:
