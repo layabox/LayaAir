@@ -473,14 +473,14 @@ export class UIGroup extends Box {
                 var btn: Button = (<Button>this._items[i]);
                 this._skin && (btn.skin = this._skin);
                 this._labelColors && (btn.labelColors = this._labelColors);
-                this._labelSize && (btn.labelSize = this._labelSize);
-                this._labelStroke && (btn.labelStroke = this._labelStroke);
+                this._labelSize != null && (btn.labelSize = this._labelSize);
+                this._labelStroke != null && (btn.labelStroke = this._labelStroke);
                 this._labelStrokeColor && (btn.labelStrokeColor = this._labelStrokeColor);
                 this._strokeColors && (btn.strokeColors = this._strokeColors);
                 this._labelBold && (btn.labelBold = this._labelBold);
                 this._labelPadding && (btn.labelPadding = this._labelPadding);
                 this._labelAlign && (btn.labelAlign = this._labelAlign);
-                this._stateNum && (btn.stateNum = this._stateNum);
+                this._stateNum != null && (btn.stateNum = this._stateNum);
                 this._labelFont && (btn.labelFont = this._labelFont);
                 if (this._direction === "horizontal") {
                     btn.y = 0;
