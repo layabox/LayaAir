@@ -227,7 +227,7 @@ export class ShaderInstance {
 		RenderStateContext.setStencilMask(stencilWrite);
 		if (stencilWrite) {
 			var stencilOp: any = datas[Shader3D.STENCIL_Op];
-			stencilOp = stencilTest ?? RenderState.Default.stencilOp;
+			stencilOp = stencilOp ?? RenderState.Default.stencilOp;
 			RenderStateContext.setstencilOp(stencilOp.x, stencilOp.y, stencilOp.z);
 		}
 		if (stencilTest == RenderState.STENCILTEST_OFF) {
