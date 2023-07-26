@@ -252,7 +252,10 @@ export class ShaderData implements IClone {
 	 * @param	value Vector2向量。
 	 */
 	setVector2(index: number, value: Vector2): void {
-		this._data[index] = value;
+		if (this._data[index]) {
+			value.cloneTo(this._data[index]);
+		} else
+			this._data[index] = value.clone();
 		let ubo = this._uniformBuffersMap.get(index);
 		if (ubo) {
 			this._uniformBufferDatas.get(ubo._name).uboBuffer._setData(index, this.getVector2(index));
@@ -275,7 +278,10 @@ export class ShaderData implements IClone {
 	 * @param	value Vector3向量。
 	 */
 	setVector3(index: number, value: Vector3): void {
-		this._data[index] = value;
+		if (this._data[index]) {
+			value.cloneTo(this._data[index]);
+		} else
+			this._data[index] = value.clone();
 		let ubo = this._uniformBuffersMap.get(index);
 		if (ubo) {
 			this._uniformBufferDatas.get(ubo._name).uboBuffer._setData(index, this.getVector3(index));
@@ -298,7 +304,10 @@ export class ShaderData implements IClone {
 	 * @param	value 向量。
 	 */
 	setVector(index: number, value: Vector4): void {
-		this._data[index] = value;
+		if (this._data[index]) {
+			value.cloneTo(this._data[index]);
+		} else
+			this._data[index] = value.clone();
 		let ubo = this._uniformBuffersMap.get(index);
 		if (ubo) {
 			this._uniformBufferDatas.get(ubo._name).uboBuffer._setData(index, this.getVector(index));
@@ -372,7 +381,11 @@ export class ShaderData implements IClone {
 	 * @param	value  矩阵。
 	 */
 	setMatrix4x4(index: number, value: Matrix4x4): void {
-		this._data[index] = value;
+		if (this._data[index]) {
+			value.cloneTo(this._data[index]);
+		} else {
+			this._data[index] = value.clone();
+		}
 		let ubo = this._uniformBuffersMap.get(index);
 		if (ubo) {
 			this._uniformBufferDatas.get(ubo._name).uboBuffer._setData(index, this.getMatrix4x4(index));
@@ -615,7 +628,7 @@ export class ShaderData implements IClone {
 	 */
 	_cloneUBO(uboDatas: Map<string, uboParams>) {
 		this._uniformBufferDatas.forEach((value, key) => {
-			value.uboBuffer.cloneTo(uboDatas.get(key).uboBuffer);
+			uboDatas.has(key) && (value.uboBuffer.cloneTo(uboDatas.get(key).uboBuffer));
 		});
 	}
 
