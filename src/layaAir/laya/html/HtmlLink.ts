@@ -67,7 +67,6 @@ export class HtmlLink implements IHtmlObject, IHitArea {
 
     public release(): void {
         this._shape.removeSelf();
-        this._shape.offAll();
         this._owner = null;
         this._element = null;
     }
