@@ -936,8 +936,9 @@ export class Node extends EventDispatcher {
         if (component.owner)
             throw "Node:the component has belong to other node.";
         if (component._singleton && this.getComponent(((<any>component)).constructor))
-            throw "Node:the component is singleton, can't add the second one.";
-        this._addComponentInstance(component);
+            console.warn("Node:the component is singleton, can't add the second one.", component);
+        else
+            this._addComponentInstance(component);
         return component;
     }
 
@@ -949,12 +950,13 @@ export class Node extends EventDispatcher {
     addComponent<T extends Component>(componentType: new () => T): T {
         let comp: T = Pool.createByClass(componentType);
         if (!comp) {
-            throw componentType.toString() + "组件不存在";
+            throw "missing " + componentType.toString();
         }
 
         if (comp._singleton && this.getComponent(componentType))
-            throw "无法实例" + componentType + "组件" + "，" + componentType + "组件已存在！";
-        this._addComponentInstance(comp);
+            console.warn("Node:the component is singleton, can't add the second one.", comp);
+        else
+            this._addComponentInstance(comp);
         return comp;
     }
 

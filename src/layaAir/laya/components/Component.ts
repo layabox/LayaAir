@@ -10,7 +10,7 @@ import { Utils } from "../utils/Utils";
  */
 export class Component {
     /** @private */
-    private _id: number;
+    _id: number;
     /**@private */
     private _hideFlags: number = 0;
     /**@private */

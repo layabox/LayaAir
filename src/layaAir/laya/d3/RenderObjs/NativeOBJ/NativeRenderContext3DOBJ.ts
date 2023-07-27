@@ -24,20 +24,19 @@ export class NativeRenderContext3DOBJ implements IRenderContext3D {
     private _sceneShaderData: ShaderData;
     //Global ShaderData
     private _globalShaderData: ShaderData;
-
+	
     private _nativeObj: any;
 
     constructor() {
         this._viewPort = new Viewport(0, 0, 0, 0);
         this._scissor = new Vector4();
         this._nativeObj = new (window as any).conchRenderContext3D((LayaGL.renderEngine as any)._nativeObj);
+		this.pipelineMode = "Forward";
     }
     end(): void {
         //TODO
     }
-
     drawRenderElement(renderelemt: NativeRenderElementOBJ): void {
-        UploadMemoryManager.syncRenderMemory();//同步数据
         renderelemt._render(this);
     }
 

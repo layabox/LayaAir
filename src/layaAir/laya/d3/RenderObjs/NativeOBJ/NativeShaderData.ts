@@ -43,6 +43,7 @@ export class NativeShaderData extends ShaderData implements INativeUploadNode {
         super(ownerResource)
         this._initData();
         this._nativeObj = new (window as any).conchShaderData();
+        this._nativeObj.setApplyUBOData(this.applyUBOData.bind(this));
         this.nativeObjID = this._nativeObj.nativeID;
         this._dataType = MemoryDataType.ShaderData;
         this.updateMap = new Map();
@@ -95,6 +96,11 @@ export class NativeShaderData extends ShaderData implements INativeUploadNode {
         this.updateMap.clear();
     }
 
+    applyUBOData() {
+        if (this._uniformBufferDatas) {
+            super.applyUBOData();
+        }
+	}
     compressNumber(index: number, memoryBlock: UploadMemory, stride: number): number {
         //console.log("..index " + index + " NativeShaderDataType.Number32 " + NativeShaderDataType.Number32 + "stride " + stride);
         var length = 3;
@@ -139,6 +145,7 @@ export class NativeShaderData extends ShaderData implements INativeUploadNode {
         memoryBlock.float32Array[stride + 5] = value.w;
         return length;
     }
+    
 
     compressMatrix4x4(index: number, memoryBlock: UploadMemory, stride: number): number {
         //console.log("..index " + index + " NativeShaderDataType.Matrix4x4 " + NativeShaderDataType.Matrix4x4 + "stride " + stride);

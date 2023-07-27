@@ -961,8 +961,9 @@ export class Text extends Sprite {
         else
             rectWidth = Number.MAX_VALUE;
         if (this._maxWidth > 0) {
-            if (!wordWrap || this._maxWidth < rectWidth)
-                rectWidth = this._maxWidth;
+            let m = this._maxWidth - padding[3] - padding[1];
+            if (!wordWrap || m < rectWidth)
+                rectWidth = m;
             wordWrap = true;
         }
         let rectHeight = this._isHeightSet ? (this._height - padding[0] - padding[2]) : Number.MAX_VALUE;
@@ -1188,7 +1189,7 @@ export class Text extends Sprite {
                             //此行有多个单词 按单词分行
                             else {
                                 wordWidth = null;
-                                newLine = text.substring(startIndex, j - 1);
+                                newLine = text.substring(startIndex, j);
                             }
                         }
                     }
@@ -1202,15 +1203,9 @@ export class Text extends Sprite {
 
                     startIndex = j;
                     if (j + maybeIndex < len) {
-                        if (maybeIndex != 0) {
-                            j += maybeIndex;
-
-                            tw = getTextWidth(text.substring(startIndex, j));
-                            wordWidth = tw;
-                            j--;
-                        }
-                        else
-                            wordWidth = 0;
+                        if (maybeIndex != 0)
+                            j += maybeIndex - 1;
+                        wordWidth = getTextWidth(text.substring(startIndex, j + 1));
                     } else {
                         //此处执行将不会在循环结束后再push一次
                         addCmd(text.substring(startIndex, len), style);

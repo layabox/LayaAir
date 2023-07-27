@@ -829,6 +829,19 @@ export class GLTextureContext extends GLObject implements ITextureContext {
             mipmapWidth = Math.max(1, mipmapWidth * 0.5);
             mipmapHeight = Math.max(1, mipmapHeight * 0.5);
         }
+
+        for (let index = ktxInfo.mipmapCount; index < texture.mipmapCount; index++) {
+            if (compressed) {
+                // todo
+            }
+            else {
+                gl.texImage2D(target, index, internalFormat, mipmapWidth, mipmapHeight, 0, format, type, null);
+            }
+
+            mipmapWidth = Math.max(1, mipmapWidth * 0.5);
+            mipmapHeight = Math.max(1, mipmapHeight * 0.5);
+        }
+
         texture.gpuMemory = memory;//TODO 不太准
         this._engine._bindTexture(texture.target, null);
 
@@ -1134,6 +1147,22 @@ export class GLTextureContext extends GLObject implements ITextureContext {
                 dataOffset += 3 - ((imageSize + 3) % 4);
             }
 
+
+            mipmapWidth = Math.max(1, mipmapWidth * 0.5);
+            mipmapHeight = Math.max(1, mipmapHeight * 0.5);
+        }
+
+        for (let index = ktxInfo.mipmapCount; index < texture.mipmapCount; index++) {
+
+            for (let face = 0; face < 6; face++) {
+                let target = cubeFace[face];
+                if (compressed) {
+                    // todo
+                }
+                else {
+                    gl.texImage2D(target, index, internalFormat, mipmapWidth, mipmapHeight, 0, format, type, null);
+                }
+            }
 
             mipmapWidth = Math.max(1, mipmapWidth * 0.5);
             mipmapHeight = Math.max(1, mipmapHeight * 0.5);

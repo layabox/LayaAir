@@ -13,8 +13,7 @@ export class GeometryElement {
 	/** @internal */
 	private static _uniqueIDCounter: number = 0;
 	protected _owner: any;
-	/**@internal */
-	protected static _typeCounter: number = 0;
+	static _typeCounter: number = 0;
 	/**@internal */
 	protected _destroyed: boolean;
 	_geometryElementOBj: IRenderGeometryElement;
@@ -115,14 +114,6 @@ export class GeometryElement {
 	 */
 	_prepareRender(state: RenderContext3D): boolean {
 		return true;
-	}
-
-	/**
-	 * @internal
-	 */
-	_render(state: RenderContext3D): void {
-		// throw "GeometryElement:must override it.";
-		LayaGL.renderDrawContext.drawGeometryElement(this._geometryElementOBj);
 	}
 
 	/**

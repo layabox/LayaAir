@@ -33,41 +33,39 @@ export class Shader3D {
     /**@internal */
     private static _compileDefineDatas: DefineDatas = new DefineDatas();
     /**渲染状态_剔除。*/
-    static RENDER_STATE_CULL: number = 0;
+    static CULL: number;
     /**渲染状态_混合。*/
-    static RENDER_STATE_BLEND: number = 1;
+    static BLEND: number;
     /**渲染状态_混合源。*/
-    static RENDER_STATE_BLEND_SRC: number = 2;
+    static BLEND_SRC: number;
     /**渲染状态_混合目标。*/
-    static RENDER_STATE_BLEND_DST: number = 3;
+    static BLEND_DST: number;
     /**渲染状态_混合源RGB。*/
-    static RENDER_STATE_BLEND_SRC_RGB: number = 4;
+    static BLEND_SRC_RGB: number;
     /**渲染状态_混合目标RGB。*/
-    static RENDER_STATE_BLEND_DST_RGB: number = 5;
+    static BLEND_DST_RGB: number;
     /**渲染状态_混合源ALPHA。*/
-    static RENDER_STATE_BLEND_SRC_ALPHA: number = 6;
+    static BLEND_SRC_ALPHA: number;
     /**渲染状态_混合目标ALPHA。*/
-    static RENDER_STATE_BLEND_DST_ALPHA: number = 7;
-    /**渲染状态_混合常量颜色。*/
-    static RENDER_STATE_BLEND_CONST_COLOR: number = 8;
+    static BLEND_DST_ALPHA: number;
     /**渲染状态_混合方程。*/
-    static RENDER_STATE_BLEND_EQUATION: number = 9;
-    /**渲染状态_RGB混合方程。*/
-    static RENDER_STATE_BLEND_EQUATION_RGB: number = 10;
+    static BLEND_EQUATION: number;
+    /**渲染状态_混合方程。*/
+    static BLEND_EQUATION_RGB: number;
     /**渲染状态_ALPHA混合方程。*/
-    static RENDER_STATE_BLEND_EQUATION_ALPHA: number = 11;
+    static BLEND_EQUATION_ALPHA: number;
     /**渲染状态_深度测试。*/
-    static RENDER_STATE_DEPTH_TEST: number = 12;
+    static DEPTH_TEST: number;
     /**渲染状态_深度写入。*/
-    static RENDER_STATE_DEPTH_WRITE: number = 13;
+    static DEPTH_WRITE: number;
     /**渲染状态_模板测试。*/
-    static RENDER_STATE_STENCIL_TEST: number = 14;
+    static STENCIL_TEST: number;
     /**渲染状态_模板写入 */
-    static RENDER_STATE_STENCIL_WRITE: number = 15;
+    static STENCIL_WRITE: number;
     /**渲染状态_模板写入值 */
-    static RENDER_STATE_STENCIL_REF: number = 16;
+    static STENCIL_Ref: number;
     /**渲染状态_模板写入设置 */
-    static RENDER_STATE_STENCIL_OP: number = 17;
+    static STENCIL_Op: number;
 
     /**shader变量提交周期，自定义。*/
     static PERIOD_CUSTOM: number = 0;
@@ -185,18 +183,18 @@ export class Shader3D {
      * @param   passIndex  通道索引。
      * @param	defineNames 宏定义名字集合。
      */
-    static compileShaderByDefineNames(shaderName: string, subShaderIndex: number, passIndex: number, defineNames: string[]): void {
+    static compileShaderByDefineNames(shaderName: string, subShaderIndex: number, passIndex: number, defineNames: string[], nodeCommonMap: string[]): void {
         var shader: Shader3D = Shader3D.find(shaderName);
         if (shader) {
             var subShader: SubShader = shader.getSubShaderAt(subShaderIndex);
             if (subShader) {
                 var pass: ShaderPass = subShader._passes[passIndex];
+                pass.nodeCommonMap = nodeCommonMap;
                 if (pass) {
                     var compileDefineDatas: DefineDatas = Shader3D._compileDefineDatas;
-                    compileDefineDatas.clear();
+                    Shader3D._configDefineValues.cloneTo(compileDefineDatas);
                     for (var i: number = 0, n: number = defineNames.length; i < n; i++)
                         compileDefineDatas.add(Shader3D.getDefineByName(defineNames[i]));
-                    compileDefineDatas.addDefineDatas(Shader3D._configDefineValues);
                     pass.withCompile(compileDefineDatas);
                 } else {
                     console.warn("Shader3D: unknown passIndex.");
@@ -280,40 +278,6 @@ export class Shader3D {
      */
     getSubShaderAt(index: number): SubShader {
         return this._subShaders[index];
-    }
-
-    /**
-     * @deprecated
-     * 通过宏定义遮罩编译shader,建议使用compileShaderByDefineNames。
-     * @param	shaderName Shader名称。
-     * @param   subShaderIndex 子着色器索引。
-     * @param   passIndex  通道索引。
-     * @param	defineMask 宏定义遮罩集合。
-     */
-    static compileShader(shaderName: string, subShaderIndex: number, passIndex: number, ...defineMask: any[]): void {
-        var shader: Shader3D = Shader3D.find(shaderName);
-        if (shader) {
-            var subShader: SubShader = shader.getSubShaderAt(subShaderIndex);
-            if (subShader) {
-                var pass: ShaderPass = subShader._passes[passIndex];
-                if (pass) {
-                    var compileDefineDatas: DefineDatas = Shader3D._compileDefineDatas;
-                    var mask: Array<number> = compileDefineDatas._mask;
-                    mask.length = 0;
-                    for (var i: number = 0, n: number = defineMask.length; i < n; i++)
-                        mask.push(defineMask[i]);
-                    compileDefineDatas._length = defineMask.length;
-                    pass.withCompile(compileDefineDatas);
-
-                } else {
-                    console.warn("Shader3D: unknown passIndex.");
-                }
-            } else {
-                console.warn("Shader3D: unknown subShaderIndex.");
-            }
-        } else {
-            console.warn("Shader3D: unknown shader name.");
-        }
     }
 
 }

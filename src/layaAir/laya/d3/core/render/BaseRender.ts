@@ -131,7 +131,7 @@ export class BaseRender extends Component implements IBoundsCell {
     /** @internal */
     private _materialsInstance: boolean[];
     /**@internal */
-    _commonUniformMap:Array<string> = [];
+    _commonUniformMap: Array<string> = [];
     /** @internal */
     _sharedMaterials: Material[] = [];
     /** @internal TODO*/
@@ -144,6 +144,8 @@ export class BaseRender extends Component implements IBoundsCell {
     _updateMark: number = -1;
     /** @internal 是否需要反射探针*/
     _probReflection: ReflectionProbe;
+    /**@internal 属于更新反射探针的标志 */
+    _probeReflectionUpdateMark: number = -1;
     /** @internal 材质是否支持反射探针*/
     _surportReflectionProbe: boolean = false;
     /** @internal 设置是反射探针模式 off  simple */
@@ -205,24 +207,33 @@ export class BaseRender extends Component implements IBoundsCell {
 
     /**@internal */
     protected _rendernode: IBaseRenderNode;
+
     /** @internal */
     protected _bounds: Bounds;
 
     /** @internal */
     protected _baseGeometryBounds: Bounds;
+
     /**@internal */
     protected _transform: Transform3D;
+
+    /**@internal */
+    _distanceForSort: number;
+
+    /**@interface */
+    _receiveShadow: boolean;
 
     get renderNode(): IBaseRenderNode {
         return this._rendernode;
     }
 
     set distanceForSort(value: number) {
+        this._distanceForSort = value;
         this._rendernode.distanceForSort = value;
     }
 
     get distanceForSort() {
-        return this._rendernode.distanceForSort;
+        return this._distanceForSort;
     }
 
     /**
@@ -233,6 +244,7 @@ export class BaseRender extends Component implements IBoundsCell {
     set geometryBounds(value: Bounds) {
         this._baseGeometryBounds = this._rendernode.geometryBounds = value;
     }
+
     get geometryBounds(): Bounds {
         return this._baseGeometryBounds;
     }
@@ -251,7 +263,13 @@ export class BaseRender extends Component implements IBoundsCell {
     }
 
     set lightmapIndex(value: number) {
+        if (value != -1) {
+            this._scene && this._scene.on(Lightmap.ApplyLightmapEvent, this, this._applyLightMapParams);
+        } else {
+            this._scene && this._scene.off(Lightmap.ApplyLightmapEvent, this, this._applyLightMapParams);
+        }
         this._lightmapIndex = value;
+        this._scene && this._applyLightMapParams();
     }
 
     /**
@@ -377,6 +395,7 @@ export class BaseRender extends Component implements IBoundsCell {
     set receiveShadow(value: boolean) {
         if (this.renderNode.receiveShadow !== value) {
             this.renderNode.receiveShadow = value;
+            this._receiveShadow = value;
             if (value)
                 this._shaderValues.addDefine(RenderableSprite3D.SHADERDEFINE_RECEIVE_SHADOW);
             else
@@ -443,6 +462,7 @@ export class BaseRender extends Component implements IBoundsCell {
     set probReflection(voluemProbe: ReflectionProbe) {
         if (this._probReflection == voluemProbe)
             return;
+        this._probeReflectionUpdateMark = -1;
         this._probReflection = voluemProbe;
         if (this._reflectionMode == ReflectionProbeMode.off) {
             this._shaderValues.removeDefine(Sprite3DRenderDeclaration.SHADERDEFINE_SPECCUBE_BOX_PROJECTION);
@@ -479,7 +499,7 @@ export class BaseRender extends Component implements IBoundsCell {
         this._worldParams = new Vector4(1.0, 0.0, 0.0, 0.0);
     }
 
-    protected _getcommonUniformMap():Array<string>{
+    protected _getcommonUniformMap(): Array<string> {
         return ["Sprite3D"];
     }
 
@@ -636,8 +656,9 @@ export class BaseRender extends Component implements IBoundsCell {
 
     _applyReflection() {
         if (!this._probReflection) return;
-        if (this._probReflection._updateMark = ILaya3D.Scene3D._updateMark) {
-            this._probReflection.applyReflectionShaderData(this._shaderValues)
+        if (this._probReflection._updateMark != this._probeReflectionUpdateMark) {
+            this._probeReflectionUpdateMark = this._probReflection._updateMark;
+            this._probReflection.applyReflectionShaderData(this._shaderValues);
         }
     }
 
@@ -649,6 +670,7 @@ export class BaseRender extends Component implements IBoundsCell {
         this._onWorldMatNeedChange(1);
         this._isSupportReflection();
         this._batchRender && this._batchRender._batchOneRender(this);
+        this.lightmapIndex = this.lightmapIndex;
         Stat.renderNode++;
         if (false) {
             this._subUniformBufferData = BaseRender._transLargeUbO.create();
@@ -722,6 +744,7 @@ export class BaseRender extends Component implements IBoundsCell {
         this._sharedMaterials = null;
         this._bounds = null;
         this._lightmapScaleOffset = null;
+        this._lightmapIndex = -1;
         this._scene = null;
         this._rendernode = null;
         this._shaderValues.destroy();

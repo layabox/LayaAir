@@ -7,10 +7,8 @@ import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D"
 import { ShaderData, ShaderDataType } from "../../RenderEngine/RenderShader/ShaderData"
 import { ShaderDefine } from "../../RenderEngine/RenderShader/ShaderDefine"
 import { VertexMesh } from "../../RenderEngine/RenderShader/VertexMesh"
-import { VertexElement } from "../../renders/VertexElement"
 import { Mesh } from "../resource/models/Mesh"
 import { MorphTargetChannel } from "../resource/models/MorphTarget"
-import { SubMesh } from "../resource/models/SubMesh"
 import { BlinnPhongMaterial } from "./material/BlinnPhongMaterial"
 import { Material } from "./material/Material"
 import { MeshFilter } from "./MeshFilter"
@@ -156,7 +154,7 @@ export class MeshRenderer extends BaseRender {
      */
     protected _applyMorphdata() {
         let mesh = this._mesh;
-        if (this._morphWeightChange && mesh && mesh.morphTargetData) {
+        if (this._morphWeightChange && mesh) {
 
             let morphData = mesh.morphTargetData;
             let channelCount = morphData.channelCount;
@@ -420,16 +418,13 @@ export class MeshRenderer extends BaseRender {
      * @internal
      */
     _renderUpdate(context: RenderContext3D, transform: Transform3D): void {
-        this._applyLightMapParams();
         this._applyReflection();
-        this._applyMorphdata();
+        this._mesh.morphTargetData && this._applyMorphdata();
         var element: SubMeshRenderElement = <SubMeshRenderElement>context.renderElement;
         let trans = transform ? transform : this._transform;
         this._setShaderValue(Sprite3D.WORLDMATRIX, ShaderDataType.Matrix4x4, trans.worldMatrix);
-
         this._worldParams.x = trans.getFrontFaceValue();
         this._setShaderValue(Sprite3D.WORLDINVERTFRONT, ShaderDataType.Vector4, this._worldParams);
-
         return;
     }
     /**

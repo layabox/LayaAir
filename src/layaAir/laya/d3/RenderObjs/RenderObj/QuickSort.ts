@@ -4,17 +4,24 @@ import { RenderElement } from "../../core/render/RenderElement";
 
 
 
-export class QuickSort implements ISortPass{
-    private elementArray:SingletonList<RenderElement>;
-    private isTransparent:boolean;
+export class QuickSort implements ISortPass {
+	private elementArray: SingletonList<RenderElement>;
+	private isTransparent: boolean;
 
-    sort(elements: SingletonList<RenderElement>,isTransparent:boolean, left: number, right: number): void {
-        this.elementArray = elements;
-        this.isTransparent = isTransparent;
-        this._quickSort(left,right);
-    }
+	/**
+	 * 快速排序
+	 * @param elements 
+	 * @param isTransparent 
+	 * @param left 
+	 * @param right 
+	 */
+	sort(elements: SingletonList<RenderElement>, isTransparent: boolean, left: number, right: number): void {
+		this.elementArray = elements;
+		this.isTransparent = isTransparent;
+		this._quickSort(left, right);
+	}
 
-    /**
+	/**
 	 * @internal
 	 */
 	_quickSort(left: number, right: number): void {
@@ -29,7 +36,7 @@ export class QuickSort implements ISortPass{
 		}
 	}
 
-    
+
 	/**
 	 * @internal
 	 */
@@ -55,14 +62,14 @@ export class QuickSort implements ISortPass{
 		return left;
 	}
 
-    /**
+	/**
 	 * @internal
 	 */
 	private _compare(left: RenderElement, right: RenderElement): number {
-		var renderQueue: number = left.material.renderQueue - right.material.renderQueue;
+		var renderQueue: number = left._material.renderQueue - right._material.renderQueue;
 		if (renderQueue === 0) {
-			var sort: number = this.isTransparent ? right.render.distanceForSort - left.render.distanceForSort : left.render.distanceForSort - right.render.distanceForSort;
-			return sort + right.render.sortingFudge - left.render.sortingFudge;
+			var sort: number = this.isTransparent ? right._baseRender._distanceForSort - left._baseRender._distanceForSort : left._baseRender._distanceForSort - right._baseRender._distanceForSort;
+			return sort + right._baseRender.sortingFudge - left._baseRender.sortingFudge;
 		} else {
 			return renderQueue;
 		}

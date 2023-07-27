@@ -8,9 +8,6 @@ import { Matrix4x4 } from "../../../maths/Matrix4x4";
 import { Vector3 } from "../../../maths/Vector3";
 
 
-/**
- * @internal
- */
 export enum LightType {
     Directional,
     Spot,
@@ -174,6 +171,10 @@ export class Light extends Component {
         var quaterian = (this.owner as Sprite3D).transform.rotation;
         Matrix4x4.createAffineTransformation(position, quaterian, Vector3.ONE, this._lightWoldMatrix);
         return this._lightWoldMatrix;
+    }
+
+    get lightType() {
+        return this._lightType;
     }
 
     /**

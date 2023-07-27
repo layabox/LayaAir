@@ -6,31 +6,55 @@ import { CompareFunction } from "../RenderEngine/RenderEnum/CompareFunction";
 import { RenderStateType } from "../RenderEngine/RenderEnum/RenderStateType";
 import { StencilOperation } from "../RenderEngine/RenderEnum/StencilOperation";
 import { RenderStateCommand } from "../RenderEngine/RenderStateCommand";
+import { WebGLEngine } from "./RenderEngine/WebGLEngine/WebGLEngine";
 /**
  * @private
  */
 export class RenderStateContext {
+    /**@internal */
     static mainContext: any;
-
+    /**@internal */
     static DepthTestCMD: RenderStateCommand;
+    /**@internal */
     static DepthMaskCMD: RenderStateCommand;
+    /**@internal */
     static DepthFuncCMD: RenderStateCommand;
+    /**@internal */
     static StencilTestCMD: RenderStateCommand;
+    /**@internal */
     static StencilMaskCMD: RenderStateCommand;
+    /**@internal */
     static StencilFuncCMD: RenderStateCommand;
+    /**@internal */
     static stencilOpCMD: RenderStateCommand;
+    /**@internal */
     static BlendCMD: RenderStateCommand;
+    /**@internal */
     static BlendEquationCMD: RenderStateCommand;
+    /**@internal */
     static BlendEquationSeparateCMD: RenderStateCommand;
+    /**@internal */
     static BlendFuncCMD: RenderStateCommand;
+    /**@internal */
     static BlendFuncSeperateCMD: RenderStateCommand;
+    /**@internal */
     static CullFaceCMD: RenderStateCommand;
+    /**@internal */
     static FrontFaceCMD: RenderStateCommand;
+    /**@internal */
     static stencilFuncArray = new Array<number>(2);
+    /**@internal */
     static blendEquationSeparateArray = new Array<number>(2);
+    /**@internal */
     static blenfunArray = new Array(2);
+    /**@internal */
     static blendFuncSeperateArray = new Array(4);
+    /**@internal */
     static stencilOpArray = new Array<number>(3);
+    
+    /**
+     * @internal
+     */
     static __init__() {
         RenderStateContext.DepthTestCMD = LayaGL.renderEngine.createRenderStateComand();
         RenderStateContext.DepthMaskCMD = LayaGL.renderEngine.createRenderStateComand();
@@ -51,36 +75,28 @@ export class RenderStateContext {
      * @internal
      */
     static setDepthTest(value: boolean): void {
-        RenderStateContext.DepthTestCMD.clear();
-        RenderStateContext.DepthTestCMD.addCMD(RenderStateType.DepthTest, value);
-        RenderStateContext.DepthTestCMD.applyCMD();
+        (LayaGL.renderEngine as WebGLEngine)._GLRenderState.setDepthTest(value);
     }
 
     /**
      * @internal
      */
     static setDepthMask(value: boolean): void {
-        RenderStateContext.DepthMaskCMD.clear();
-        RenderStateContext.DepthMaskCMD.addCMD(RenderStateType.DepthMask, value);
-        RenderStateContext.DepthMaskCMD.applyCMD();
+        (LayaGL.renderEngine as WebGLEngine)._GLRenderState.setDepthMask(value);
     }
 
     /**
      * @internal
      */
     static setDepthFunc(value: CompareFunction): void {
-        RenderStateContext.DepthFuncCMD.clear();
-        RenderStateContext.DepthFuncCMD.addCMD(RenderStateType.DepthFunc, value);
-        RenderStateContext.DepthFuncCMD.applyCMD();
+        (LayaGL.renderEngine as WebGLEngine)._GLRenderState.setDepthFunc(value);
     }
 
     /**
      * @internal
      */
     static setStencilTest(value: boolean): void {
-        RenderStateContext.StencilTestCMD.clear();
-        RenderStateContext.StencilTestCMD.addCMD(RenderStateType.StencilTest, value);
-        RenderStateContext.StencilTestCMD.applyCMD();
+        (LayaGL.renderEngine as WebGLEngine)._GLRenderState.setStencilTest(value);
     }
 
     /**
@@ -89,9 +105,7 @@ export class RenderStateContext {
      * @param value 
      */
     static setStencilMask(value: boolean): void {
-        RenderStateContext.StencilMaskCMD.clear();
-        RenderStateContext.StencilMaskCMD.addCMD(RenderStateType.StencilMask, value);
-        RenderStateContext.StencilMaskCMD.applyCMD();
+        (LayaGL.renderEngine as WebGLEngine)._GLRenderState.setStencilMask(value);
     }
 
 
@@ -99,23 +113,14 @@ export class RenderStateContext {
      * @internal
      */
     static setStencilFunc(fun: CompareFunction, ref: number): void {
-        RenderStateContext.StencilFuncCMD.clear();
-        RenderStateContext.stencilFuncArray[0] = fun;
-        RenderStateContext.stencilFuncArray[1] = ref;
-        RenderStateContext.StencilFuncCMD.addCMD(RenderStateType.StencilFunc, RenderStateContext.stencilFuncArray);
-        RenderStateContext.StencilFuncCMD.applyCMD();
+        (LayaGL.renderEngine as WebGLEngine)._GLRenderState.setStencilFunc(fun, ref);
     }
 
     /**
     * @internal
     */
     static setstencilOp(fail: StencilOperation, zfail: StencilOperation, zpass: StencilOperation) {
-        RenderStateContext.stencilOpCMD.clear();
-        RenderStateContext.stencilOpArray[0] = fail;
-        RenderStateContext.stencilOpArray[1] = zfail;
-        RenderStateContext.stencilOpArray[2] = zpass;
-        RenderStateContext.stencilOpCMD.addCMD(RenderStateType.StencilOp, RenderStateContext.stencilOpArray);
-        RenderStateContext.stencilOpCMD.applyCMD();
+        (LayaGL.renderEngine as WebGLEngine)._GLRenderState.setstencilOp(fail, zfail, zpass);
     }
 
 
@@ -124,12 +129,7 @@ export class RenderStateContext {
      * @internal
      */
     static setBlend(value: boolean): void {
-        RenderStateContext.BlendCMD.clear();
-        if (!value)
-            RenderStateContext.BlendCMD.addCMD(RenderStateType.BlendType, BlendType.BLEND_DISABLE);
-        else
-            RenderStateContext.BlendCMD.addCMD(RenderStateType.BlendType, BlendType.BLEND_ENABLE_SEPERATE);
-        RenderStateContext.BlendCMD.applyCMD();
+        (LayaGL.renderEngine as WebGLEngine)._GLRenderState.setBlend(value);
     }
 
 
@@ -137,9 +137,7 @@ export class RenderStateContext {
      * @internal
      */
     static setBlendEquation(blendEquation: BlendEquationSeparate): void {
-        RenderStateContext.BlendEquationCMD.clear();
-        RenderStateContext.BlendEquationCMD.addCMD(RenderStateType.BlendEquation, blendEquation);
-        RenderStateContext.BlendEquationCMD.applyCMD();
+        (LayaGL.renderEngine as WebGLEngine)._GLRenderState.setBlendEquation(blendEquation);
     }
 
 
@@ -147,36 +145,38 @@ export class RenderStateContext {
      * @internal
      */
     static setBlendEquationSeparate(blendEquationRGB: BlendEquationSeparate, blendEquationAlpha: BlendEquationSeparate): void {
-        RenderStateContext.BlendEquationSeparateCMD.clear();
-        RenderStateContext.blendEquationSeparateArray[0] = blendEquationRGB;
-        RenderStateContext.blendEquationSeparateArray[1] = blendEquationAlpha;
-        RenderStateContext.BlendEquationSeparateCMD.addCMD(RenderStateType.BlendEquationSeparate, RenderStateContext.blendEquationSeparateArray)
-        RenderStateContext.BlendEquationSeparateCMD.applyCMD();
+        (LayaGL.renderEngine as WebGLEngine)._GLRenderState.setBlendEquationSeparate(blendEquationRGB, blendEquationAlpha);
     }
 
 
     /**
      * @internal
      */
-    static setBlendFunc(sFactor: BlendFactor, dFactor: BlendFactor, force: boolean = false): void {
-        RenderStateContext.BlendFuncCMD.clear();
-        RenderStateContext.blenfunArray[0] = sFactor;
-        RenderStateContext.blenfunArray[1] = dFactor;
-        RenderStateContext.BlendFuncCMD.addCMD(RenderStateType.BlendFunc, RenderStateContext.blenfunArray);
-        RenderStateContext.BlendFuncCMD.applyCMD();
+    static setBlendFunc(sFactor: BlendFactor, dFactor: BlendFactor): void {
+        (LayaGL.renderEngine as WebGLEngine)._GLRenderState.setBlendFunc(sFactor, dFactor);
     }
 
     /**
      * @internal
      */
     static setBlendFuncSeperate(srcRGB: BlendFactor, dstRGB: BlendFactor, srcAlpha: BlendFactor, dstAlpha: BlendFactor): void {
-        RenderStateContext.BlendFuncSeperateCMD.clear();
-        RenderStateContext.blendFuncSeperateArray[0] = srcRGB;
-        RenderStateContext.blendFuncSeperateArray[1] = dstRGB;
-        RenderStateContext.blendFuncSeperateArray[2] = srcAlpha;
-        RenderStateContext.blendFuncSeperateArray[3] = dstAlpha;
-        RenderStateContext.BlendFuncSeperateCMD.addCMD(RenderStateType.BlendFuncSeperate, RenderStateContext.blendFuncSeperateArray);
-        RenderStateContext.BlendFuncSeperateCMD.applyCMD();
+        (LayaGL.renderEngine as WebGLEngine)._GLRenderState.setBlendFuncSeperate(srcRGB, dstRGB, srcAlpha, dstAlpha);
+    }
+
+    /**
+     * @internal
+     * @param value 
+     */
+    static setCullFace(value: boolean): void {
+        (LayaGL.renderEngine as WebGLEngine)._GLRenderState.setCullFace(value);
+    }
+
+    /**
+     * @internal
+     * @param value 
+     */
+    static setFrontFace(value: number): void {
+        (LayaGL.renderEngine as WebGLEngine)._GLRenderState.setFrontFace(value);
     }
 }
 

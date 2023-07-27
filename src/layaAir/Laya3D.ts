@@ -68,6 +68,7 @@ import { VertexMesh } from "./laya/RenderEngine/RenderShader/VertexMesh";
 import { RenderTexture } from "./laya/resource/RenderTexture";
 import { ColorGradEffect } from "./laya/d3/core/render/PostEffect/ColorGradEffect";
 import { Browser } from "./laya/utils/Browser";
+import { LensFlareEffect } from "./laya/d3/core/render/PostEffect/LensFlares/LensFlareEffect";
 
 /**
  * <code>Laya3D</code> 类用于初始化3D设置。
@@ -158,6 +159,7 @@ export class Laya3D {
         ScalableAO.init();
         GaussianDoF.init();
         ColorGradEffect.init();
+        LensFlareEffect.init();
 
         Mesh.__init__();
         PrimitiveMesh.__init__();

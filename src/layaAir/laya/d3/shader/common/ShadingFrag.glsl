@@ -3,7 +3,7 @@
 
     #include "ShadingCommon.glsl";
 
-	#define _InvertNormal (float(gl_FrontFacing) * 2.0 - 1.0);
+    #define _InvertNormal (float(gl_FrontFacing) * 2.0 - 1.0);
 
 void getPixelParams(inout PixelParams params)
 {

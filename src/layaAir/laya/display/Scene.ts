@@ -227,6 +227,9 @@ export class Scene extends Sprite {
         this._timer = value;
     }
 
+    /**
+     * 场景包含的3D场景实例
+     */
     get scene3D() {
         return this._scene3D;
     }
@@ -390,6 +393,8 @@ export class Scene extends Sprite {
                 throw "Not a scene:" + url;
 
             scene._viewCreated = true;
+            if (scene._scene3D)
+                scene._scene3D._scene2D = scene;
             Scene.unDestroyedScenes.add(scene);
             Scene.hideLoadingPage();
             complete && complete.runWith(scene);

@@ -85,8 +85,8 @@ export class WGPURenderPipelineInstance {
      * @internal
      */
     private _getRenderState(shaderDatas: any, stateIndex: number): any {
-        var stateID: any = SubShader.StateParamsMap[stateIndex];
-        return shaderDatas[stateID];
+        //var stateID: any = SubShader.StateParamsMap[stateIndex];
+        //return shaderDatas[stateID];
     }
 
     private _getData(key: number, data: any) {
@@ -103,7 +103,7 @@ export class WGPURenderPipelineInstance {
     getBlendState(shaderDatas: ShaderData): WGPUBlendState {
         var renderState: RenderState = (<ShaderPass>this._shaderPass).renderState;
         var datas: any = shaderDatas.getData();
-        var blend: any = this._getRenderState(datas, Shader3D.RENDER_STATE_BLEND);
+        var blend: any = this._getRenderState(datas, Shader3D.BLEND);
         renderState.blend != null ? blend = renderState.blend : 0;
         if ((<ShaderPass>this._shaderPass).statefirst) {
             renderState.blend != null ? blend = renderState.blend : 0;
@@ -119,9 +119,9 @@ export class WGPURenderPipelineInstance {
                 blenstate = WGPUBlendState.getBlendState(blend);
                 break;
             case RenderState.BLEND_ENABLE_ALL:
-                var blendEquation: any = this._getRenderState(datas, Shader3D.RENDER_STATE_BLEND_EQUATION);
-                var srcBlend: any = this._getRenderState(datas, Shader3D.RENDER_STATE_BLEND_SRC);
-                var dstBlend: any = this._getRenderState(datas, Shader3D.RENDER_STATE_BLEND_DST);
+                var blendEquation: any = this._getRenderState(datas, Shader3D.BLEND_EQUATION);
+                var srcBlend: any = this._getRenderState(datas, Shader3D.BLEND_SRC);
+                var dstBlend: any = this._getRenderState(datas, Shader3D.BLEND_DST);
                 if ((<ShaderPass>this._shaderPass).statefirst) {
                     renderState.blendEquation != null ? blendEquation = renderState.blendEquation : 0;
                     renderState.srcBlend != null ? srcBlend = renderState.srcBlend : 0;
@@ -138,12 +138,12 @@ export class WGPURenderPipelineInstance {
                 blenstate = WGPUBlendState.getBlendState(blend, blendEquation, srcBlend, dstBlend, blendEquation, srcBlend, dstBlend);
                 break;
             case RenderState.BLEND_ENABLE_SEPERATE:
-                var blendEquationRGB: any = this._getRenderState(datas, Shader3D.RENDER_STATE_BLEND_EQUATION_RGB);
-                var blendEquationAlpha: any = this._getRenderState(datas, Shader3D.RENDER_STATE_BLEND_EQUATION_ALPHA);
-                var srcRGB: any = this._getRenderState(datas, Shader3D.RENDER_STATE_BLEND_SRC_RGB);
-                var dstRGB: any = this._getRenderState(datas, Shader3D.RENDER_STATE_BLEND_DST_RGB);
-                var srcAlpha: any = this._getRenderState(datas, Shader3D.RENDER_STATE_BLEND_SRC_ALPHA);
-                var dstAlpha: any = this._getRenderState(datas, Shader3D.RENDER_STATE_BLEND_DST_ALPHA);
+                var blendEquationRGB: any = this._getRenderState(datas, Shader3D.BLEND_EQUATION_RGB);
+                var blendEquationAlpha: any = this._getRenderState(datas, Shader3D.BLEND_EQUATION_ALPHA);
+                var srcRGB: any = this._getRenderState(datas, Shader3D.BLEND_SRC_RGB);
+                var dstRGB: any = this._getRenderState(datas, Shader3D.BLEND_DST_RGB);
+                var srcAlpha: any = this._getRenderState(datas, Shader3D.BLEND_SRC_ALPHA);
+                var dstAlpha: any = this._getRenderState(datas, Shader3D.BLEND_DST_ALPHA);
                 if ((<ShaderPass>this._shaderPass).statefirst) {
                     renderState.blendEquationRGB != null ? blendEquationRGB = renderState.blendEquationRGB : 0;
                     renderState.blendEquationAlpha != null ? blendEquationAlpha = renderState.blendEquationAlpha : 0;
@@ -180,13 +180,13 @@ export class WGPURenderPipelineInstance {
     getDepthStencilState(shaderDatas: ShaderData, depthTexture: WebGPUInternalRT): WGPUDepthStencilState {
         var renderState: RenderState = (<ShaderPass>this._shaderPass).renderState;
         var datas: any = shaderDatas.getData();
-        var depthWrite: any = this._getRenderState(datas, Shader3D.RENDER_STATE_DEPTH_WRITE);
-        var depthTest: any = this._getRenderState(datas, Shader3D.RENDER_STATE_DEPTH_TEST);
+        var depthWrite: any = this._getRenderState(datas, Shader3D.DEPTH_WRITE);
+        var depthTest: any = this._getRenderState(datas, Shader3D.DEPTH_TEST);
         //var blend: any = this._getRenderState(datas, Shader3D.RENDER_STATE_BLEND);
-        var stencilRef: any = this._getRenderState(datas, Shader3D.RENDER_STATE_STENCIL_REF);
-        var stencilTest: any = this._getRenderState(datas, Shader3D.RENDER_STATE_STENCIL_TEST);
-        var stencilWrite: any = this._getRenderState(datas, Shader3D.RENDER_STATE_STENCIL_WRITE);
-        var stencilOp: any = this._getRenderState(datas, Shader3D.RENDER_STATE_STENCIL_OP);
+        var stencilRef: any = this._getRenderState(datas, Shader3D.STENCIL_Ref);
+        var stencilTest: any = this._getRenderState(datas, Shader3D.STENCIL_TEST);
+        var stencilWrite: any = this._getRenderState(datas, Shader3D.STENCIL_WRITE);
+        var stencilOp: any = this._getRenderState(datas, Shader3D.STENCIL_Op);
         if ((<ShaderPass>this._shaderPass).statefirst) {
             renderState.depthWrite != null ? depthWrite = renderState.depthWrite : 0;
             renderState.depthTest != null ? depthTest = renderState.depthTest : 0;
@@ -223,7 +223,7 @@ export class WGPURenderPipelineInstance {
     getPrimitiveState(shaderDatas: ShaderData, isTarget: boolean, invertFront: boolean, mode: MeshTopology, indexformat: IndexFormat): WGPUPrimitiveState {
         var renderState: RenderState = (<ShaderPass>this._shaderPass).renderState;
         var datas: any = shaderDatas.getData();
-        var cull: any = this._getRenderState(datas, Shader3D.RENDER_STATE_CULL);
+        var cull: any = this._getRenderState(datas, Shader3D.CULL);
         if ((<ShaderPass>this._shaderPass).statefirst) {
             cull = renderState.cull ?? cull;
         }

@@ -15,7 +15,6 @@ import { ShaderInstance } from "../../../RenderEngine/RenderShader/ShaderInstanc
  * <code>RenderContext3D</code> 类用于实现渲染状态。
  */
 export class RenderContext3D {
-    /** @internal */
     static _instance: RenderContext3D;
 
     /**渲染区宽度。*/
@@ -41,7 +40,7 @@ export class RenderContext3D {
     projectionViewMatrix: Matrix4x4;
     /** @internal */
     renderElement: RenderElement;
-    /** @internal */
+
     camera: Camera;
     /**@internal */
     _scene: Scene3D;
@@ -106,16 +105,16 @@ export class RenderContext3D {
 
     /** @internal */
     set scene(value: Scene3D) {
-        if(value){
+        if (value) {
             this._contextOBJ.sceneID = value._id;
             this._contextOBJ.sceneShaderData = value._shaderValues;
             this._scene = value;
-        }else{
+        } else {
             this._contextOBJ.sceneID = -1;
             this._contextOBJ.sceneShaderData = null;
             this._scene = null;
         }
-        
+
     }
 
     get scene(): Scene3D {
@@ -132,13 +131,17 @@ export class RenderContext3D {
         this.scissor = Vector4.tempVec4;
     }
 
+    applyContext(cameraUpdateMark: number) {
+        this._contextOBJ.applyContext(cameraUpdateMark);
+    }
+
     /**
      * 渲染一个
      * @param renderelemt 
      */
     drawRenderElement(renderelemt: RenderElement): void {
         renderelemt.material && renderelemt._convertSubShader(this.customShader, this.replaceTag);
-        if(!renderelemt.renderSubShader)
+        if (!renderelemt.renderSubShader)
             return;
         renderelemt._renderUpdatePre(this);
         this._contextOBJ.drawRenderElement(renderelemt._renderElementOBJ);
