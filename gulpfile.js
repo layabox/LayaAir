@@ -166,9 +166,10 @@ const onwarn = warning => {
         });
         msg = arr.join(" -> ");
         msg = "(C_D) " + msg;
+        console.warn(msg);
     }
-
-    console.warn(msg);
+    else
+        console.warn(warning);
 }
 
 gulp.task('compileLayaAir', () => {

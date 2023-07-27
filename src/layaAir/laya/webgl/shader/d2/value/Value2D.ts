@@ -135,7 +135,10 @@ export class Value2D {
     }
     upload(): void {
         var renderstate2d: any = RenderState2D;
+
         this.updateShaderData();
+
+
         var sd: Shader2X = Shader.sharders[this.mainID | this.defines._value] || this._ShaderWithCompile();
 
         if (sd._shaderValueWidth !== renderstate2d.width || sd._shaderValueHeight !== renderstate2d.height) {
