@@ -179,7 +179,7 @@ export class Stat {
     public static instanceDrawCall: number = 0;
     /**@internal */
     public static cmdDrawCall: number = 0;
-    /**@internal */
+
     public static blitDrawCall: number = 0;
     /** 资源管理器所管理资源的累计内存,以字节为单位。*/
     public static gpuMemory: number;

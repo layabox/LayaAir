@@ -62,7 +62,7 @@ export class BlitScreenQuadCMD extends Command {
 	/**@internal */
 	private _sourceTexelSize: Vector4 = new Vector4();
 	/**@internal */
-	private _renderElement: RenderElement
+	private _renderElement: RenderElement;
 	/**@internal */
 	private _transform3D: Transform3D;
 

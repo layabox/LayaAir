@@ -526,7 +526,9 @@ export class Material extends Resource implements IClone {
         this._shaderValues = null;
     }
 
-
+    get shader() {
+        return this._shader;
+    }
 
     /**
      * get all material uniform property 

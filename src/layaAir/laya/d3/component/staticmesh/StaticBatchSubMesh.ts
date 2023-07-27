@@ -76,10 +76,6 @@ export class StaticBatchSubMesh extends GeometryElement {
         return !!this.subInfos.find(info => info.needRender);
     }
 
-    _render(state: RenderContext3D): void {
-        super._render(state);
-    }
-
     destroy() {
         for (const info of this.subInfos) {
         }

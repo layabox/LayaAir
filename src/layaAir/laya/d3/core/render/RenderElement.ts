@@ -60,7 +60,9 @@ export class RenderElement {
         return this._renderElementOBJ._transform;
     }
 
-    /**@internal */
+    /**
+     * set RenderElement Material/Shaderdata
+     */
     set material(value: Material) {
         // todo debug 临时
         if (value) {
@@ -74,14 +76,23 @@ export class RenderElement {
         return this._material;
     }
 
-    /**@internal */
+    /**
+     * 设置 SubShader
+     */
     set renderSubShader(value: SubShader) {
         this._subShader = value;
     }
 
-    /**@internal */
     get renderSubShader(): SubShader {
         return this._subShader;
+    }
+
+    set subShaderIndex(value: number) {
+        this._subShaderIndex = value;
+    }
+
+    get subShaderIndex() {
+        return this._subShaderIndex;
     }
     /**@internal */
     set render(value: BaseRender) {
@@ -118,14 +129,14 @@ export class RenderElement {
     }
 
     /**
-     * @internal
+     * 设置位置
      */
     setTransform(transform: Transform3D): void {
         this.transform = transform;
     }
 
     /**
-     * @internal
+     * 设置渲染几何信息
      */
     setGeometry(geometry: GeometryElement): void {
         this._geometry = geometry;
