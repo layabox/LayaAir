@@ -309,16 +309,16 @@ export class AnimatorController extends Resource {
             }
             let c: AnimatorStateCondition;
             if (parm.type == AniParmType.Bool) {
-                let b = new AnimatorStateBoolCondition(o.name);
+                let b = new AnimatorStateBoolCondition(parm.name);
                 b.compareFlag = Boolean(o.checkValue);
                 c = b;
             } else if (parm.type == AniParmType.Float) {
-                let n = new AnimatorStateNumberCondition(o.name);
+                let n = new AnimatorStateNumberCondition(parm.name);
                 n.numberValue = Number(o.checkValue);
                 n.compareFlag = o.type;
                 c = n;
             } else if (parm.type == AniParmType.Trigger) {
-                let t = new AnimatorStateTriggerCondition(o.name);
+                let t = new AnimatorStateTriggerCondition(parm.name);
                 c = t;
             }
             ato.addCondition(c);
