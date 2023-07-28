@@ -73,5 +73,5 @@ export interface IRenderOBJCreate {
 
     createGlobalUniformMap(blockName: string): CommandUniformMap;
 
-    createEngine(config:Config,canvas:any):any;
+    createEngine(config:Config,canvas:any):Promise<void>;
 }

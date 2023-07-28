@@ -136,8 +136,8 @@ export class NativeRenderOBJCreateUtil implements IRenderOBJCreate {
         return new NativeCommandUniformMap((window as any).conchCommandUniformMap.createGlobalUniformMap(blockName), blockName);
     }
 
-    createEngine(config:any,canvas:any):IRenderEngine{
+    createEngine(config:any,canvas:any){
         //TODO:
-        return null
+        return Promise.resolve();
     }
 }
