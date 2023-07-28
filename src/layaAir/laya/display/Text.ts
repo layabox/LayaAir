@@ -247,10 +247,10 @@ export class Text extends Sprite {
      * @override
     */
     destroy(destroyChild: boolean = true): void {
-        super.destroy(destroyChild);
-
         recoverLines(this._lines);
         HtmlElement.returnToPool(this._elements);
+
+        super.destroy(destroyChild);
     }
 
     /**
