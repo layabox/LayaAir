@@ -535,13 +535,12 @@ export class Skeleton extends Sprite {
      * @param force 是否强制删掉所有的声音channel
      */
     private _onAniSoundStoped(force: boolean): void {
-        for (let len = this._soundChannelArr.length, i = 0; i < len; i++) {
+        for (let i = this._soundChannelArr.length - 1; i >= 0; i--) {
             let channel = this._soundChannelArr[i];
             if (channel.isStopped || force) {
                 !channel.isStopped && channel.stop();
                 this._soundChannelArr.splice(i, 1);
                 // SoundManager.removeChannel(_channel); // TODO 是否需要? 去掉有什么好处? 是否还需要其他操作?
-                len--; i--;
             }
         }
     }
