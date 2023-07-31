@@ -1,13 +1,14 @@
-import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
-import { ShaderDataType } from "laya/RenderEngine/RenderShader/ShaderData";
-import { SubShader } from "laya/RenderEngine/RenderShader/SubShader";
-import { Color } from "laya/maths/Color";
 
 import LensFlareVS from "../../../../shader/files/postProcess/LensFlare/LensFlare.vs";
 import LensFlareFS from "../../../../shader/files/postProcess/LensFlare/LensFlare.fs";
+import { Shader3D } from "../../../../../RenderEngine/RenderShader/Shader3D";
+import { ShaderDataType } from "../../../../../RenderEngine/RenderShader/ShaderData";
+import { SubShader } from "../../../../../RenderEngine/RenderShader/SubShader";
+import { Color } from "../../../../../maths/Color";
 import { LensFlareElementGeomtry } from "./LensFlareGeometry";
 
 export class LensFlareShaderInit {
+
     static init() {
         let attribute: { [name: string]: [number, ShaderDataType] } = {
             'a_PositionTexcoord': [LensFlareElementGeomtry.PositionUV, ShaderDataType.Vector4],
@@ -15,6 +16,7 @@ export class LensFlareShaderInit {
         }
         let uniformMap = {
             "u_Tint": ShaderDataType.Color,
+            "u_TintIntensity": ShaderDataType.Float,
             "u_FlareTexture": ShaderDataType.Texture2D,
             "u_FlareCenter": ShaderDataType.Vector2,
             "u_aspectRatio": ShaderDataType.Float,
