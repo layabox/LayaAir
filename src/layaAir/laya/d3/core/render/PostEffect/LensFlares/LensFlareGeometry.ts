@@ -1,16 +1,16 @@
-import { BufferUsage } from "laya/RenderEngine/RenderEnum/BufferTargetType";
-import { DrawType } from "laya/RenderEngine/RenderEnum/DrawType";
-import { IndexFormat } from "laya/RenderEngine/RenderEnum/IndexFormat";
-import { MeshTopology } from "laya/RenderEngine/RenderEnum/RenderPologyMode";
-import { VertexDeclaration } from "laya/RenderEngine/VertexDeclaration";
-import { GeometryElement } from "laya/d3/core/GeometryElement";
-import { RenderContext3D } from "laya/d3/core/render/RenderContext3D";
-import { IndexBuffer3D } from "laya/d3/graphics/IndexBuffer3D";
-import { VertexBuffer3D } from "laya/d3/graphics/VertexBuffer3D";
-import { LayaGL } from "laya/layagl/LayaGL";
-import { VertexElement } from "laya/renders/VertexElement";
-import { VertexElementFormat } from "laya/renders/VertexElementFormat";
-import { BufferState } from "laya/webgl/utils/BufferState";
+import { BufferUsage } from "../../../../../RenderEngine/RenderEnum/BufferTargetType";
+import { DrawType } from "../../../../../RenderEngine/RenderEnum/DrawType";
+import { IndexFormat } from "../../../../../RenderEngine/RenderEnum/IndexFormat";
+import { MeshTopology } from "../../../../../RenderEngine/RenderEnum/RenderPologyMode";
+import { VertexDeclaration } from "../../../../../RenderEngine/VertexDeclaration";
+import { LayaGL } from "../../../../../layagl/LayaGL";
+import { VertexElement } from "../../../../../renders/VertexElement";
+import { VertexElementFormat } from "../../../../../renders/VertexElementFormat";
+import { BufferState } from "../../../../../webgl/utils/BufferState";
+import { IndexBuffer3D } from "../../../../graphics/IndexBuffer3D";
+import { VertexBuffer3D } from "../../../../graphics/VertexBuffer3D";
+import { GeometryElement } from "../../../GeometryElement";
+import { RenderContext3D } from "../../RenderContext3D";
 
 export class LensFlareElementGeomtry extends GeometryElement {
     static PositionUV: number = 0;

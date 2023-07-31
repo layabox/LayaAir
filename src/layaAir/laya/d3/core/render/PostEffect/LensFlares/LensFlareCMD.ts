@@ -1,15 +1,16 @@
-import { RenderElement } from "laya/d3/core/render/RenderElement";
-import { Command } from "laya/d3/core/render/command/Command";
-import { Material, MaterialRenderMode } from "laya/d3/core/material/Material";
-import { Transform3D } from "laya/d3/core/Transform3D";
-import { LayaGL } from "laya/layagl/LayaGL";
-import { RenderState } from "laya/RenderEngine/RenderShader/RenderState";
-import { RenderContext3D } from "laya/d3/core/render/RenderContext3D";
-import { Camera } from "laya/d3/core/Camera";
-import { Stat } from "laya/utils/Stat";
-import { Vector2 } from "laya/maths/Vector2";
+import { RenderState } from "../../../../../RenderEngine/RenderShader/RenderState";
+import { LayaGL } from "../../../../../layagl/LayaGL";
+import { Vector2 } from "../../../../../maths/Vector2";
+import { Stat } from "../../../../../utils/Stat";
+import { Utils } from "../../../../../utils/Utils";
+import { Camera } from "../../../Camera";
+import { Transform3D } from "../../../Transform3D";
+import { Material, MaterialRenderMode } from "../../../material/Material";
+import { RenderContext3D } from "../../RenderContext3D";
+import { RenderElement } from "../../RenderElement";
+import { Command } from "../../command/Command";
+import { LensFlareElement, LensFlareEffect } from "./LensFlareEffect";
 import { LensFlareElementGeomtry } from "./LensFlareGeometry";
-import { LensFlareElement } from "./LensFlareEffect";
 
 export class LensFlareCMD extends Command {
 
@@ -27,6 +28,18 @@ export class LensFlareCMD extends Command {
 
     /**@internal */
     private _lensFlareElementData: LensFlareElement;
+
+    /**instance绘制的个数 */
+    private _instanceCount: number = 1;
+
+    public get instanceCount(): number {
+        return this._instanceCount;
+    }
+    public set instanceCount(value: number) {
+        this._instanceCount = value;
+    }
+
+
 
     /**
      * instance CMD
@@ -72,6 +85,10 @@ export class LensFlareCMD extends Command {
         this.applyElementData();
     }
 
+    get lensFlareElement(): LensFlareElement {
+        return this._lensFlareElementData;
+    }
+
     /**
      * apply element Data
      */
@@ -79,12 +96,20 @@ export class LensFlareCMD extends Command {
         //根据LensFlareElement更新数据
         this._materials.setTexture("u_FlareTexture", this._lensFlareElementData.texture);
         this._materials.setColor("u_Tint", this._lensFlareElementData.tint);
+        this._materials.setFloat("u_TintIntensity", this._lensFlareElementData.intensity);
+        if (this._lensFlareElementData.autoRotate) {
+            this._materials.addDefine(LensFlareEffect.SHADERDEFINE_AUTOROTATE);
+        } else {
+            this._materials.removeDefine(LensFlareEffect.SHADERDEFINE_AUTOROTATE);
+        }
         //其他TODO
 
         //更新InstanceBuffer
         this._lensFlareGeometry.instanceCount = 1;//TODO
-        let testFloat = new Float32Array([this._lensFlareElementData.startPosition, this._lensFlareElementData.AngularOffset, 1, 1]);//TODO
-        this._lensFlareGeometry.instanceBuffer.setData(testFloat, 0, 0, 4 * 4);//TODO
+        // startPos、angular、scaleX、scaleY
+        let testFloat = new Float32Array([this._lensFlareElementData.startPosition, Utils.toAngle(this._lensFlareElementData.rotation), this._lensFlareElementData.scale.x, this._lensFlareElementData.scale.y]);//TODO        
+        // instanceBuffer set
+        this._lensFlareGeometry.instanceBuffer.setData(testFloat.buffer, 0, 0, testFloat.length * 4);//TODO
     }
 
     /**
@@ -95,6 +120,7 @@ export class LensFlareCMD extends Command {
         var context = RenderContext3D._instance;
         this._materials.setFloat("u_aspectRatio", context.camera.viewport.height / context.camera.viewport.width);
         context.applyContext(Camera._updateMark);
+        this._lensFlareElementData && this.applyElementData();
         context.drawRenderElement(this._renderElement);
         Stat.blitDrawCall++;
     }
