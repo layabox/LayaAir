@@ -106,7 +106,7 @@ import "./loaders/AvatarMaskLoader";
 import "./loaders/ShaderLoader";
 import "./loaders/GLSLLoader";
 import "./loaders/AnimationControllerLoader";
-
+import { LensFlareData, LensFlareEffect, LensFlareElement } from "./core/render/PostEffect/LensFlares/LensFlareEffect";
 
 
 
@@ -142,8 +142,8 @@ c("Transform3D", Transform3D);
 c("Lightmap", Lightmap);
 c("ReflectionProbe", ReflectionProbe);
 c("VolumetricGI", VolumetricGI);
-c("StaticBatchVolume",StaticBatchVolume);
-c("StaticInstanceBatchRender",StaticInstanceBatchRender);
+c("StaticBatchVolume", StaticBatchVolume);
+c("StaticInstanceBatchRender", StaticInstanceBatchRender);
 c("SphericalHarmonicsL2", SphericalHarmonicsL2);
 c("Viewport", Viewport);
 c("Bounds", Bounds);
@@ -223,4 +223,8 @@ c("PostProcessEffect", PostProcessEffect);
 c("BloomEffect", BloomEffect);
 c("GaussianDoF", GaussianDoF);
 c("ScalableAO", ScalableAO);
-c("ColorGradEffect",ColorGradEffect);
+c("ColorGradEffect", ColorGradEffect);
+
+c("LensFlareEffect", LensFlareEffect);
+c("LensFlareElement", LensFlareElement);
+c("LensFlareData", LensFlareData);
