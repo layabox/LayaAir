@@ -6,6 +6,7 @@ import { Vector3 } from "../../../../../maths/Vector3";
 import { Vector4 } from "../../../../../maths/Vector4";
 import { BaseTexture } from "../../../../../resource/BaseTexture";
 import { RenderTexture } from "../../../../../resource/RenderTexture";
+import { Resource } from "../../../../../resource/Resource";
 import { Texture2D } from "../../../../../resource/Texture2D";
 import { Utils } from "../../../../../utils/Utils";
 import { PostProcess } from "../../../../component/PostProcess";
@@ -177,7 +178,11 @@ export class LensFlareElement {
  * lens Flare Data 
  * 资源数据
  */
-export class LensFlareData {
+export class LensFlareData extends Resource {
+    constructor() {
+        super(false);
+    }
+
     elements: LensFlareElement[] = [];
 }
 
@@ -240,7 +245,7 @@ export class LensFlareEffect extends PostProcessEffect {
      */
     set lensFlareData(value: LensFlareData) {
         if (!value) return;
-        this._flareCMDS.length = 0;//TODO Destory pre cmd
+        this._flareCMDS.length = 0;
         for (let i = 0; i < value.elements.length; i++) {
             let ele = value.elements[i];
             if (!ele.active) continue;
@@ -294,6 +299,7 @@ export class LensFlareEffect extends PostProcessEffect {
 
     constructor() {
         super();
+        this.singleton = false;
         this._flareCMDS = [];
         this._flareCMDS.push(new LensFlareCMD());
         this._center = new Vector2();

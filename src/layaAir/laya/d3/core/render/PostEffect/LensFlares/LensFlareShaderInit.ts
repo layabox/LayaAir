@@ -20,7 +20,9 @@ export class LensFlareShaderInit {
             "u_FlareTexture": ShaderDataType.Texture2D,
             "u_FlareCenter": ShaderDataType.Vector2,
             "u_aspectRatio": ShaderDataType.Float,
-            "u_rotate": ShaderDataType.Float
+            "u_rotate": ShaderDataType.Float,
+            "u_Postionoffset": ShaderDataType.Vector2,
+            "u_Angularoffset": ShaderDataType.Float,
         }
         let defaultValue = {
             "u_Tint": Color.WHITE,
