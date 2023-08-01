@@ -123,6 +123,7 @@ import { WebXRControllerDemo } from "../3d/WebXR/WebXRControllerDemo";
 import { GriendSkyAmbientDemo } from "../3d/LayaAir3D_Scene3D/GriendSkyAmbientDemo";
 import { Browser } from "laya/utils/Browser";
 import { ScrollType } from "laya/ui/Styles";
+import { PostProcess_LensFlare } from "../3d/LayaAir3D_PostProcess/PostPorcess_LensFlare";
 
 export class IndexView3D extends IndexViewUI {
 
@@ -149,8 +150,8 @@ export class IndexView3D extends IndexViewUI {
 	private _advanceClsArr: any[] = [DrawTextTexture, Secne3DPlayer2D,VideoPlayIn3DWorld,CommandBuffer_Outline,CommandBuffer_BlurryGlass,CommandBuffer_DrawCustomInstance,CameraDepthModeTextureDemo,ReflectionProbeDemo];//PostProcessBloom,AStarFindPath,
 	private _advanceArr: any[] = ['DrawTextTexture', 'Secne3DPlayer2D','VideoPlayIn3DWorld','CommandBuffer_Outline','CommandBuffer_BlurryGlass','CommandBuffer_DrawCustomInstance','CameraDepthTextureDemo', 'ReflectionProbeDemo'];//'后期处理之泛光','寻路示例',
 
-	private _postProcessClsArr:any[] = [PostProcessBloom,PostProcess_Blur,PostProcess_Edge,PostProcessDoF,ProstProcess_AO];
-	private _postProcessArr:any[] = ['PostProcessBloom','PostProcess_Blur','PostProcess_Edge','PostProcessDOF','PostProcessAO'];
+	private _postProcessClsArr:any[] = [PostProcessBloom,PostProcess_Blur,PostProcess_Edge,PostProcessDoF,ProstProcess_AO,PostProcess_LensFlare];
+	private _postProcessArr:any[] = ['PostProcessBloom','PostProcess_Blur','PostProcess_Edge','PostProcessDOF','PostProcessAO','PostProcess_LensFlare'];
 	// AnimationLayerBlend暂时去掉
 	// BoneLinkSprite3D暂时去掉
 	// MaterialAnimation暂时去掉
