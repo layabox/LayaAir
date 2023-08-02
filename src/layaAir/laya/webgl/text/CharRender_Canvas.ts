@@ -137,6 +137,8 @@ export class CharRender_Canvas extends ICharRender {
 		//ctx.translate(CborderSize, CborderSize);
 		//ctx.scale(xs, ys);
 		if (lineWidth > 0) {
+			//解决默认字体Arial下，描边会出现尖角的问题
+			ctx.lineJoin = "round";
 			ctx.strokeStyle = strokeColStr;
 			ctx.lineWidth = lineWidth;
 			ctx.strokeText(char, margin_left, margin_top + sz / 2);
