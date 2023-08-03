@@ -6,6 +6,7 @@ import { SoundChannel } from "../media/SoundChannel";
 import { SoundManager } from "../media/SoundManager";
 import { Loader } from "../net/Loader";
 import { Handler } from "../utils/Handler";
+import { ExternalSkin } from "./ExternalSkin";
 import { SpineSkeletonRenderer } from "./SpineSkeletonRenderer";
 import { SpineTemplet } from "./SpineTemplet";
 
@@ -65,8 +66,22 @@ export class SpineSkeleton extends Sprite {
     private _animationName: string = "";
     private _loop: boolean = true;
 
+    private _extenalSkins: ExternalSkin[];
+
     constructor() {
         super();
+    }
+
+    get extenalSkins() {
+        return this._extenalSkins;
+    }
+    set extenalSkins(value: ExternalSkin[]) {
+        if (value) {
+            for (let i = value.length - 1; i >= 0; i--) {
+                value[i].target = this;
+            }
+        }
+        this._extenalSkins = value;
     }
 
     get source(): string {
