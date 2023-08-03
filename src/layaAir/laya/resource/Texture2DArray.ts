@@ -18,7 +18,7 @@ export class Texture2DArray extends BaseTexture {
 
         this.depth = depth;
 
-        this._texture = LayaGL.textureContext.createTextureInternal(this._dimension, width, height, format, mipmap, sRGB);
+        this._texture = LayaGL.textureContext.createTextureInternal(this._dimension, width, height, format, mipmap, sRGB, false);
 
         return;
     }

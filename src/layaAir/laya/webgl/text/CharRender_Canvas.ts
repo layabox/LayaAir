@@ -137,6 +137,8 @@ export class CharRender_Canvas extends ICharRender {
 		//ctx.translate(CborderSize, CborderSize);
 		//ctx.scale(xs, ys);
 		if (lineWidth > 0) {
+			//设置文本描边为圆角模式，默认值miter会导致在某些字体的转角字符出现尖刺现象。
+			ctx.lineJoin = "round";
 			ctx.strokeStyle = strokeColStr;
 			ctx.lineWidth = lineWidth;
 			ctx.strokeText(char, margin_left, margin_top + sz / 2);
