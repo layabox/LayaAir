@@ -84,12 +84,12 @@ export class TextureCube extends BaseTexture {
         TextureCube._errorTexture = writeTexture;
     }
 
-    constructor(size: number, format: TextureFormat, mipmap: boolean = true, sRGB: boolean = false) {
+    constructor(size: number, format: TextureFormat, mipmap: boolean = true, sRGB: boolean = false, premultiplyAlpha: boolean = false) {
         super(size, size, format);
 
         this._dimension = TextureDimension.Cube;
 
-        this._texture = LayaGL.textureContext.createTextureInternal(this._dimension, size, size, format, mipmap, sRGB);
+        this._texture = LayaGL.textureContext.createTextureInternal(this._dimension, size, size, format, mipmap, sRGB, premultiplyAlpha);
         return;
     }
 
