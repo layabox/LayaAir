@@ -1,13 +1,13 @@
 import { ILaya } from "../../ILaya";
 import { Loader } from "../net/Loader";
-import { ExternalskinItem } from "./ExternalSkinItem";
+import { ExternalSkinItem } from "./ExternalSkinItem";
 import { SpineSkeleton } from "./SpineSkeleton";
 import { SpineTemplet } from "./SpineTemplet";
 
 export class ExternalSkin {
     protected _source: string;
     protected _templet: SpineTemplet;
-    protected _externalSkinItem: ExternalskinItem[];
+    protected _items: ExternalSkinItem[];
     target: SpineSkeleton;
 
     get source(): string {
@@ -28,12 +28,12 @@ export class ExternalSkin {
             this.templet = null;
     }
 
-    set externalSkinItem(value: ExternalskinItem[]) {
-        this._externalSkinItem = value;
+    set items(value: ExternalSkinItem[]) {
+        this._items = value;
         this.flush();
     }
-    get externalSkinItem() {
-        return this._externalSkinItem;
+    get items() {
+        return this._items;
     }
 
 
@@ -58,9 +58,9 @@ export class ExternalSkin {
         this.flush();
     }
     flush() {
-        if (this._externalSkinItem && this._templet) {
-            for (let i = this._externalSkinItem.length - 1; i >= 0; i--) {
-                let o = this._externalSkinItem[i];
+        if (this.target && this._items && this._templet && this._templet.skeletonData) {
+            for (let i = this._items.length - 1; i >= 0; i--) {
+                let o = this._items[i];
                 let attachmentStr = o.attachment;
                 let slot = o.slot;
                 let skinStr = o.skin;

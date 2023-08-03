@@ -1,4 +1,4 @@
-export class ExternalskinItem {
+export class ExternalSkinItem {
     protected _skin: string;
     protected _slot: string;
     protected _attachment: string;

@@ -241,7 +241,7 @@ export class SpineSkeleton extends Sprite {
                 }
             },
         });
-
+        this._flushExtSkin();
         this.event(Event.READY);
 
         if (LayaEnv.isPlaying && this._animationName)
@@ -317,6 +317,15 @@ export class SpineSkeleton extends Sprite {
 
         this.graphics.clear();
         this._renerer.draw(this._skeleton, this.graphics, -1, -1);
+    }
+
+    private _flushExtSkin() {
+        let skins = this._extenalSkins;
+        if (skins) {
+            for (let i = skins.length - 1; i >= 0; i--) {
+                skins[i].flush();
+            }
+        }
     }
 
     /**
