@@ -113,12 +113,19 @@ export class Value2D {
         }
         let returnGamma: boolean = !(RenderTexture2D.currentActive) || ((RenderTexture2D.currentActive)._texture.gammaCorrection != 1);
         //returnGamma = returnGamma && (this.textureHost && ((this.textureHost as RenderTexture2D).gammaCorrection == 1 || (this.textureHost as Texture).bitmap.gammaCorrection == 1));
-        if (returnGamma && this.textureHost) {
+        let textrueReadGamma: boolean = false;
+        if (this.textureHost) {
             if (this.textureHost instanceof RenderTexture2D) {
-                returnGamma = (this.textureHost as RenderTexture2D).gammaCorrection == 1;
+                textrueReadGamma = (this.textureHost as RenderTexture2D).gammaCorrection != 1;
             } else if (this.textureHost instanceof Texture) {
-                returnGamma = (this.textureHost as Texture).bitmap.gammaCorrection == 1;
+                textrueReadGamma = (this.textureHost as Texture).bitmap.gammaCorrection != 1;
             }
+        }
+
+        if (textrueReadGamma) {
+            this.defines.addInt(ShaderDefines2D.GAMMATEXTURE);
+        } else {
+            this.defines.remove(ShaderDefines2D.GAMMATEXTURE);
         }
 
         if (returnGamma) {

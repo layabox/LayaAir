@@ -534,13 +534,15 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         }
     }
 
-    createTextureInternal(dimension: TextureDimension, width: number, height: number, format: TextureFormat, generateMipmap: boolean, sRGB: boolean): InternalTexture {
+    createTextureInternal(dimension: TextureDimension, width: number, height: number, format: TextureFormat, generateMipmap: boolean, sRGB: boolean, premultipliedAlpha: boolean): InternalTexture {
 
         // todo  一些format 不支持自动生成mipmap
 
         // todo  这个判断, 若纹理本身格式不支持？
         let useSRGBExt = this.isSRGBFormat(format) || (sRGB && this.supportSRGB(format, generateMipmap));
-
+        if(premultipliedAlpha){//预乘法和SRGB同时开启，会有颜色白边问题
+            useSRGBExt = false;
+        }
         let gammaCorrection = 1.0;
         if (!useSRGBExt && sRGB) {
             gammaCorrection = 2.2;
