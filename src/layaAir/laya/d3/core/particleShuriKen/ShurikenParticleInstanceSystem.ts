@@ -222,7 +222,7 @@ export class ShurikenParticleInstanceSystem extends ShurikenParticleSystem {
                 this._firstActiveElement = 0;
             }
         }
-        
+
         if (this._firstActiveElement != firstActive) {
             let byteStride = this._floatCountPerParticleData * 4;
             if (this._firstActiveElement < this._firstFreeElement) {
@@ -546,14 +546,14 @@ export class ShurikenParticleInstanceSystem extends ShurikenParticleSystem {
             this._indexBuffer.destroy();
         }
         if (this._vertexBuffer) {
-            memorySize +=  this._vertexBuffer._byteLength;
+            memorySize += this._vertexBuffer._byteLength;
             this._vertexBuffer.destroy();
         }
         if (this._instanceParticleVertexBuffer) {
-            this._instanceParticleVertexBuffer._byteLength;
+            memorySize += this._instanceParticleVertexBuffer._byteLength;
             this._instanceParticleVertexBuffer.destroy();
         }
-        Resource._addMemory(-memorySize,-memorySize);
+        Resource._addMemory(-memorySize, -memorySize);
         this._instanceVertex = null;
         this._meshIndexCount = null;
         this._meshFloatCountPreVertex = null;

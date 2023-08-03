@@ -163,7 +163,7 @@ export class Laya {
 	 * @param	plugins 插件列表，比如 WebGL（使用WebGL方式渲染）。
 	 * @return	返回原生canvas引用，方便对canvas属性进行修改
 	 */
-	static init(width: number, height: number, ...plugins:any[]): any {
+	static init(width: number, height: number, ...plugins: any[]): any {
 		if (Laya._isinit) return;
 		Laya._isinit = true;
 		ArrayBuffer.prototype.slice || (ArrayBuffer.prototype.slice = Laya._arrayBufferSlice);
@@ -234,7 +234,7 @@ export class Laya {
 		MeshQuadTexture.__int__();
 		MeshVG.__init__();
 		MeshTexture.__init__();
-		Laya.render = new Render(0, 0, Browser.mainCanvas);
+		Laya.render = Laya.createRender();
 		render = Laya.render;
 		Laya.stage.size(width, height);
 		((<any>window)).stage = Laya.stage;
@@ -255,6 +255,10 @@ export class Laya {
 		Value2D._initone(ShaderDefines2D.SKINMESH, SkinSV);
 
 		return Render.canvas;
+	}
+
+	static createRender(): any {
+		return new Render(0, 0, Browser.mainCanvas);
 	}
 
 	/**@internal */
