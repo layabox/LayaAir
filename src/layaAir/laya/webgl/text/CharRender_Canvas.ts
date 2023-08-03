@@ -31,16 +31,16 @@ export class CharRender_Canvas extends ICharRender {
 			this.ctx = CharRender_Canvas.canvas.getContext('2d');
 		}
 	}
-    /**
-     * @override
-     */
+	/**
+	 * @override
+	 */
 	get canvasWidth(): number {
 		return CharRender_Canvas.canvas.width;
 	}
 
-    /**
-     * @override
-     */
+	/**
+	 * @override
+	 */
 	set canvasWidth(w: number) {
 		if (CharRender_Canvas.canvas.width == w)
 			return;
@@ -99,7 +99,7 @@ export class CharRender_Canvas extends ICharRender {
 	 * @override
 	 */
 	getCharBmp(char: string, font: string, lineWidth: number, colStr: string, strokeColStr: string, cri: CharRenderInfo,
-		margin_left: number, margin_top: number, margin_right: number, margin_bottom: number, rect: any[] | null = null): ImageData|null {
+		margin_left: number, margin_top: number, margin_right: number, margin_bottom: number, rect: any[] | null = null): ImageData | null {
 		if (!this.supportImageData)
 			return this.getCharCanvas(char, font, lineWidth, colStr, strokeColStr, cri, margin_left, margin_top, margin_right, margin_bottom);
 		var ctx: any = this.ctx;
@@ -130,13 +130,15 @@ export class CharRender_Canvas extends ICharRender {
 			clearW = Math.max(clearW, rect[0] + rect[2] + 1);
 			clearH = Math.max(clearH, rect[1] + rect[3] + 1);
 		}
-		ctx.clearRect(0, 0, clearW/this.lastScaleX+1, clearH/this.lastScaleY+1);
+		ctx.clearRect(0, 0, clearW / this.lastScaleX + 1, clearH / this.lastScaleY + 1);
 		ctx.save();
 		//ctx.textAlign = "end";
 		ctx.textBaseline = "middle";
 		//ctx.translate(CborderSize, CborderSize);
 		//ctx.scale(xs, ys);
 		if (lineWidth > 0) {
+			//设置文本描边为圆角模式，默认值miter会导致在某些字体的转角字符出现尖刺现象。
+			ctx.lineJoin = "round";
 			ctx.strokeStyle = strokeColStr;
 			ctx.lineWidth = lineWidth;
 			ctx.strokeText(char, margin_left, margin_top + sz / 2);
@@ -155,9 +157,9 @@ export class CharRender_Canvas extends ICharRender {
 		//ctx.restore();
 		if (rect) {
 			if (rect[2] == -1) rect[2] = Math.ceil((cri.width + lineWidth * 2) * this.lastScaleX); // 这个没有考虑左右margin
-			if(rect[2]<=0) rect[2]=1;	// 有的字体在处理不存在文字的时候，测量宽度为0，会导致getImageData出错
+			if (rect[2] <= 0) rect[2] = 1;	// 有的字体在处理不存在文字的时候，测量宽度为0，会导致getImageData出错
 		}
-		var imgdt: ImageData = rect ? (ctx.getImageData(rect[0], rect[1], rect[2], rect[3]+1)) : (ctx.getImageData(0, 0, w, h+1));
+		var imgdt: ImageData = rect ? (ctx.getImageData(rect[0], rect[1], rect[2], rect[3] + 1)) : (ctx.getImageData(0, 0, w, h + 1));
 		ctx.restore();
 		cri.bmpWidth = imgdt.width;
 		cri.bmpHeight = imgdt.height;
