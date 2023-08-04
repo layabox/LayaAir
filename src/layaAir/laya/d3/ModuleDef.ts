@@ -97,6 +97,8 @@ import { StaticInstanceBatchRender } from "./component/Volume/BatchVolume/Static
 import { RenderTexture } from "../resource/RenderTexture";
 import { ColorGradEffect } from "./core/render/PostEffect/ColorGradEffect";
 import { UI3D } from "./core/UI3D/UI3D";
+import { Image3D } from "./core/UI3D/Image3D";
+
 import "./loaders/AnimationClipLoader";
 import "./loaders/CubemapLoader";
 import "./loaders/MaterialLoader";
@@ -159,6 +161,7 @@ c("AnimatorState", AnimatorState);
 c("AnimationClip", AnimationClip);
 c("AvatarMask", AvatarMask);
 c("UI3D", UI3D);
+c("Image3D", Image3D);
 
 c("Material", Material);
 c("BlinnPhongMaterial", BlinnPhongMaterial);
