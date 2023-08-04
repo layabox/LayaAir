@@ -54,7 +54,7 @@ export class ExternalSkin {
         this.flush();
     }
     flush() {
-        if (this.target && this._items && this._templet && this._templet.skeletonData) {
+        if (this.target && this.target.templet && this._items && this._templet && this._templet.skeletonData) {
             if (null == (this.target.templet as any)._textures) return;
             for (let i = this._items.length - 1; i >= 0; i--) {
                 let o = this._items[i];

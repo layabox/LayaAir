@@ -66,27 +66,27 @@ export class SpineSkeleton extends Sprite {
     private _animationName: string = "";
     private _loop: boolean = true;
 
-    private _extenalSkins: ExternalSkin[];
+    private _externalSkins: ExternalSkin[];
 
     constructor() {
         super();
     }
 
-    get extenalSkins() {
-        return this._extenalSkins;
+    get externalSkins() {
+        return this._externalSkins;
     }
-    set extenalSkins(value: ExternalSkin[]) {
+    set externalSkins(value: ExternalSkin[]) {
         if (value) {
             for (let i = value.length - 1; i >= 0; i--) {
                 value[i].target = this;
             }
         }
-        this._extenalSkins = value;
+        this._externalSkins = value;
     }
     /**
      * 重置外部加载的皮肤的样式
      */
-    resetExtenalSkin() {
+    resetExternalSkin() {
         if (this._skeleton) {
             this._skeleton = new this._templet.ns.Skeleton(this._templet.skeletonData);
             this._flushExtSkin();
@@ -330,7 +330,7 @@ export class SpineSkeleton extends Sprite {
 
     private _flushExtSkin() {
         if (null == this._skeleton) return;
-        let skins = this._extenalSkins;
+        let skins = this._externalSkins;
         if (skins) {
             for (let i = skins.length - 1; i >= 0; i--) {
                 skins[i].flush();
