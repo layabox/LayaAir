@@ -41,8 +41,16 @@ varying vec2 cliped;
 vec4 sampleTexture(sampler2D texture, vec2 uv)
 {
     vec4 color = texture2D(texture, uv);
-#ifdef GAMMASPACE
-    color.xyz = linearToGamma(color.xyz);
+#ifndef GAMMATEXTURE
+    //是linear数据
+    #ifdef GAMMASPACE
+        color.xyz = linearToGamma(color.xyz);    
+    #endif
+#else
+    //gamma数据
+    #ifndef GAMMASPACE
+        color.xyz = gammaToLinear(color.xyz);
+    #endif
 #endif
     return color;
 }

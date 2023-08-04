@@ -61,7 +61,7 @@ export class OpenDataContextView extends UIComponent {
         let canvas: HTMLCanvasElement = (window as any).sharedCanvas;
         if (tex.width != canvas.width || tex.height != canvas.height) {
             tex.bitmap.destroy();
-            tex.bitmap = new Texture2D(canvas.width, canvas.height, TextureFormat.R8G8B8A8, false, false, true);
+            tex.bitmap = new Texture2D(canvas.width, canvas.height, TextureFormat.R8G8B8A8, false, false, true, true);
             tex.bitmap.lock = true;
         }
         (<Texture2D>tex.bitmap).setImageData(canvas, true, false);
