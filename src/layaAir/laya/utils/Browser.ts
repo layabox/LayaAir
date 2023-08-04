@@ -60,8 +60,8 @@ export class Browser {
     static onTBMiniGame: boolean;
     /** @private */
     static onFirefox: boolean;//TODO:求补充
-    /** @private */
-    static onEdge: boolean;//TODO:求补充
+    /** Edge浏览器 */
+    static onEdge: boolean;
     /** @private */
     static onLayaRuntime: boolean;
 
@@ -137,7 +137,7 @@ export class Browser {
                 //这里需要手动初始化阿里适配库
                 (window as any).tbMiniGame(Laya, Laya);
                 if (!Laya["TBMiniAdapter"]) {
-                    console.error("请先添加淘宝适配库,详细教程：https://ldc2.layabox.com/doc/?language=zh&nav=zh-ts-5-6-0");
+                    console.error("请先添加淘宝适配库");
                 } else {
                     Laya["TBMiniAdapter"].enable();
                 }
@@ -145,7 +145,7 @@ export class Browser {
                 //这里需要手动初始化阿里适配库
                 (window as any).aliPayMiniGame(Laya, Laya);
                 if (!Laya["ALIMiniAdapter"]) {
-                    console.error("请先添加阿里小游戏适配库,详细教程：https://ldc2.layabox.com/doc/?language=zh&nav=zh-ts-5-6-0");
+                    console.error("请先添加阿里小游戏适配库");
                 } else {
                     Laya["ALIMiniAdapter"].enable();
                 }
@@ -158,7 +158,7 @@ export class Browser {
                 (window as any).ttMiniGame(Laya, Laya);
                 if (!Laya["TTMiniAdapter"]) {
                     //TODO
-                    console.error("请引入字节跳动小游戏的适配库");
+                    console.error("请引入字节跳动小游戏的适配库，详细教程：https://layaair.com/3.x/doc/released/miniGame/byteDance/readme.html");
                 } else {
                     Laya["TTMiniAdapter"].enable();
                 }
@@ -166,7 +166,7 @@ export class Browser {
                 //手机B站小游戏
                 (window as any).biliMiniGame(Laya, Laya);
                 if (!Laya["BLMiniAdapter"]) {
-                    console.error("请引入bilibili小游戏的适配库,详细教程：https://ldc2.layabox.com/doc/?language=zh&nav=zh-ts-5-7-0");
+                    console.error("请引入bilibili小游戏的适配库");
                 } else {
                     Laya["BLMiniAdapter"].enable();
                 }
@@ -175,7 +175,7 @@ export class Browser {
                 //手机QQ小游戏
                 (window as any).qqMiniGame(Laya, Laya);
                 if (!Laya["QQMiniAdapter"]) {
-                    console.error("请引入手机QQ小游戏的适配库,详细教程：https://ldc2.layabox.com/doc/?language=zh&nav=zh-ts-5-0-0");
+                    console.error("请引入手机QQ小游戏的适配库");
                 } else {
                     Laya["QQMiniAdapter"].enable();
                 }
@@ -184,7 +184,7 @@ export class Browser {
                 //微信小游戏
                 (window as any).wxMiniGame(Laya, Laya);
                 if (!Laya["MiniAdpter"]) {
-                    console.error("请先添加小游戏适配库,详细教程：https://ldc2.layabox.com/doc/?nav=zh-ts-5-0-0");
+                    console.error("请先添加小游戏适配库,详细教程：https://layaair.com/3.x/doc/released/miniGame/wechat/readme.html");
                     //TODO 教程要改
                 } else {
                     Laya["MiniAdpter"].enable();
@@ -206,7 +206,7 @@ export class Browser {
         if (u.indexOf("SwanGame") > -1) {
             (window as any).bdMiniGame(Laya, Laya);
             if (!Laya["BMiniAdapter"]) {
-                console.error("请先添加百度小游戏适配库,详细教程：https://ldc2.layabox.com/doc/?language=zh&nav=zh-ts-5-1-0");
+                console.error("请先添加百度小游戏适配库");
                 //TODO 教程要改
             } else {
                 Laya["BMiniAdapter"].enable();
@@ -217,7 +217,7 @@ export class Browser {
         if (u.indexOf('QuickGame') > -1) {
             (window as any).miMiniGame(Laya, Laya);
             if (!Laya["KGMiniAdapter"]) {
-                console.error("请先添加小米小游戏适配库,详细教程：https://ldc2.layabox.com/doc/?language=zh&nav=zh-ts-5-2-0");
+                console.error("请先添加小米小游戏适配库,详细教程：https://layaair.com/3.x/doc/released/miniGame/xiaomi/readme.html");
             } else {
                 Laya["KGMiniAdapter"].enable();
             }
@@ -227,7 +227,7 @@ export class Browser {
         if (u.indexOf('OPPO') > -1 && u.indexOf('MiniGame') > -1) {
             (window as any).qgMiniGame(Laya, Laya);
             if (!Laya["QGMiniAdapter"]) {
-                console.error("请先添加OPPO小游戏适配库,详细教程：https://ldc2.layabox.com/doc/?language=zh&nav=zh-ts-5-3-0");
+                console.error("请先添加OPPO小游戏适配库,详细教程：https://layaair.com/3.x/doc/released/miniGame/OPPO/readme.html");
             } else {
                 //temp oppo 需要修改交换链的功能
                 Config.fixedFrames = false;
@@ -239,7 +239,7 @@ export class Browser {
         if (u.indexOf('VVGame') > -1) {
             (window as any).vvMiniGame(Laya, Laya);
             if (!Laya["VVMiniAdapter"]) {
-                console.error("请先添加VIVO小游戏适配库,详细教程：https://ldc2.layabox.com/doc/?language=zh&nav=zh-ts-5-4-0");
+                console.error("请先添加VIVO小游戏适配库,详细教程：https://layaair.com/3.x/doc/released/miniGame/vivo/readme.html");
             } else {
                 //temp oppo 需要修改交换链的功能
                 Config.fixedFrames = false;
@@ -296,7 +296,7 @@ export class Browser {
         Browser.onChrome = u.indexOf("Chrome") > -1;
         Browser.onPC = !Browser.onMobile;
         Browser.onFirefox = u.indexOf('Firefox') > -1;
-        Browser.onEdge = u.indexOf('Edge') > -1;
+        Browser.onEdge = u.indexOf('Edge') > -1 || u.indexOf('Edg') > -1;
         Browser.onMiniGame = u.indexOf('MiniGame') > -1;
         Browser.onBDMiniGame = u.indexOf('SwanGame') > -1;
         Browser.onLayaRuntime = !!(window as any).conch;
