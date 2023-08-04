@@ -30,7 +30,6 @@ export class ExternalSkin {
 
     set items(value: ExternalSkinItem[]) {
         this._items = value;
-        this.flush();
     }
     get items() {
         return this._items;
@@ -44,21 +43,19 @@ export class ExternalSkin {
     get templet(): SpineTemplet {
         return this._templet;
     }
-
-    /**
-     * 
-     */
     set templet(value: SpineTemplet) {
         this.init(value);
     }
     protected init(templet: SpineTemplet): void {
         this._templet = templet;
-        if (!this._templet)
+        if (!this._templet) {
             return;
+        }
         this.flush();
     }
     flush() {
         if (this.target && this._items && this._templet && this._templet.skeletonData) {
+            if (null == (this.target.templet as any)._textures) return;
             for (let i = this._items.length - 1; i >= 0; i--) {
                 let o = this._items[i];
                 let attachmentStr = o.attachment;
@@ -84,7 +81,10 @@ export class ExternalSkin {
                     if (attachment) {
                         let regionPage = (attachment as any).region.page;
                         (this.target.templet as any)._textures[regionPage.name] = regionPage.texture;
-                        this.target.getSkeleton().findSlot(slot).setAttachment(attachment);
+                        let slotObj = this.target.getSkeleton().findSlot(slot);
+                        if (slotObj) {
+                            slotObj.setAttachment(attachment);
+                        }
                     }
                 }
 

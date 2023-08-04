@@ -83,6 +83,15 @@ export class SpineSkeleton extends Sprite {
         }
         this._extenalSkins = value;
     }
+    /**
+     * 重置外部加载的皮肤的样式
+     */
+    resetExtenalSkin() {
+        if (this._skeleton) {
+            this._skeleton = new this._templet.ns.Skeleton(this._templet.skeletonData);
+            this._flushExtSkin();
+        }
+    }
 
     get source(): string {
         return this._source;
@@ -320,6 +329,7 @@ export class SpineSkeleton extends Sprite {
     }
 
     private _flushExtSkin() {
+        if (null == this._skeleton) return;
         let skins = this._extenalSkins;
         if (skins) {
             for (let i = skins.length - 1; i >= 0; i--) {
@@ -327,7 +337,6 @@ export class SpineSkeleton extends Sprite {
             }
         }
     }
-
     /**
      * 得到当前动画的数量
      * @return 当前动画的数量
