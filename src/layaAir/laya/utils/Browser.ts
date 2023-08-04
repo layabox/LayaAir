@@ -292,7 +292,7 @@ export class Browser {
         Browser.onMQQBrowser = u.indexOf("MQQBrowser") > -1 || (u.indexOf("Mobile") > -1 && u.indexOf("QQ") > -1);
         Browser.onIE = !!win.ActiveXObject || "ActiveXObject" in win;
         Browser.onWeiXin = u.indexOf('MicroMessenger') > -1;
-        Browser.onSafari = u.indexOf("Safari") > -1;
+        Browser.onSafari = u.indexOf("Safari") > -1 && u.indexOf("Chrome") === -1;
         Browser.onChrome = u.indexOf("Chrome") > -1;
         Browser.onPC = !Browser.onMobile;
         Browser.onFirefox = u.indexOf('Firefox') > -1;
