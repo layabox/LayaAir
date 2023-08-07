@@ -613,8 +613,11 @@ export class Text extends Sprite {
     }
 
     /**
-     * <p>overflow 指定文本超出文本域后的行为。其值为"hidden"、"visible"和"scroll"之一。</p>
-     * <p>性能从高到低依次为：hidden > visible > scroll。</p>
+     * 指定文本超出文本域后的行为
+     * @tips: <p>值为:可见visible、隐藏hidden、滚动:scroll、自动收缩shrink、显示省略号ellipsis。</p>
+     * @tips: <p>作用：可见，表示文本不受文本宽高约束全部可见；隐藏，超过文本宽高就会被裁切掉，性能最好；
+     * 滚动，表示超出宽高的部分被隐藏，可以通过划动控制显示在宽高内区域；自动收缩，表示文本会跟随宽高的大小而自动调整文本的大小，始终全部显示在文本宽高内。
+     * 显示省略号，表示当文本超出宽高后，未尾的几位字符会替换为省略号，表示当前文本还有未显示的内容</p>
      */
     get overflow(): string {
         return this._overflow;
