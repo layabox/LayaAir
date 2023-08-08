@@ -157,7 +157,7 @@ export class Text extends Sprite {
     protected _borderColor: string;
     /**
      * <p>默认边距信息</p>
-     * <p>[左边距，上边距，右边距，下边距]（边距以像素为单位）</p>
+     * <p>[上边距，右边距，下边距，左边距]（边距以像素为单位）</p>
      */
     protected _padding: number[];
     /**
@@ -1461,16 +1461,19 @@ export class Text extends Sprite {
         let paddingTop = padding[0];
         let bfont = this._bitmapFont;
         let scrollPos = this._scrollPos;
-        let rectWidth = (this._isWidthSet ? this._width : this._textWidth) - padding[3] - padding[1];
-        let rectHeight = (this._isHeightSet ? this._height : this._textHeight) - padding[0] - padding[2];
-        let bottom = paddingTop + rectHeight;
+        let rectWidth = this._isWidthSet ? this._width : this._textWidth;
+        let rectHeight = this._isHeightSet ? this._height : this._textHeight;
+        let bottom = rectHeight - padding[2];
         let clipped = this._overflow == Text.HIDDEN || this._overflow == Text.SCROLL;
 
         if (clipped) {
             graphics.save();
-            graphics.clipRect(paddingLeft, paddingTop, rectWidth, rectHeight);
+            graphics.clipRect(0, 0, rectWidth, rectHeight);
             this.repaint();
         }
+
+        rectWidth -= (padding[3] + padding[1]);
+        rectHeight -= (padding[0] + padding[2]);
 
         let x = 0, y = 0;
         let lines = this._lines;
