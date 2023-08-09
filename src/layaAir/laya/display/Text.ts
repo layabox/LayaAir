@@ -157,7 +157,7 @@ export class Text extends Sprite {
     protected _borderColor: string;
     /**
      * <p>默认边距信息</p>
-     * <p>[左边距，上边距，右边距，下边距]（边距以像素为单位）</p>
+     * <p>[上边距，右边距，下边距，左边距]（边距以像素为单位）</p>
      */
     protected _padding: number[];
     /**
@@ -613,8 +613,11 @@ export class Text extends Sprite {
     }
 
     /**
-     * <p>overflow 指定文本超出文本域后的行为。其值为"hidden"、"visible"和"scroll"之一。</p>
-     * <p>性能从高到低依次为：hidden > visible > scroll。</p>
+     * 指定文本超出文本域后的行为
+     * @tips: <p>值为:可见visible、隐藏hidden、滚动:scroll、自动收缩shrink、显示省略号ellipsis。</p>
+     * @tips: <p>作用：可见，表示文本不受文本宽高约束全部可见；隐藏，超过文本宽高就会被裁切掉，性能最好；
+     * 滚动，表示超出宽高的部分被隐藏，可以通过划动控制显示在宽高内区域；自动收缩，表示文本会跟随宽高的大小而自动调整文本的大小，始终全部显示在文本宽高内。
+     * 显示省略号，表示当文本超出宽高后，未尾的几位字符会替换为省略号，表示当前文本还有未显示的内容</p>
      */
     get overflow(): string {
         return this._overflow;
@@ -1458,16 +1461,19 @@ export class Text extends Sprite {
         let paddingTop = padding[0];
         let bfont = this._bitmapFont;
         let scrollPos = this._scrollPos;
-        let rectWidth = (this._isWidthSet ? this._width : this._textWidth) - padding[3] - padding[1];
-        let rectHeight = (this._isHeightSet ? this._height : this._textHeight) - padding[0] - padding[2];
-        let bottom = paddingTop + rectHeight;
+        let rectWidth = this._isWidthSet ? this._width : this._textWidth;
+        let rectHeight = this._isHeightSet ? this._height : this._textHeight;
+        let bottom = rectHeight - padding[2];
         let clipped = this._overflow == Text.HIDDEN || this._overflow == Text.SCROLL;
 
         if (clipped) {
             graphics.save();
-            graphics.clipRect(paddingLeft, paddingTop, rectWidth, rectHeight);
+            graphics.clipRect(0, 0, rectWidth, rectHeight);
             this.repaint();
         }
+
+        rectWidth -= (padding[3] + padding[1]);
+        rectHeight -= (padding[0] + padding[2]);
 
         let x = 0, y = 0;
         let lines = this._lines;

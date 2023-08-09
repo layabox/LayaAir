@@ -213,7 +213,6 @@ export class Component {
                 let driver = (this.owner._is3D && this.owner._scene)?._componentDriver || ILaya.stage._componentDriver;
                 driver.remove(this);
 
-                this.owner.offAllCaller(this);
                 ILaya.stage.offAllCaller(this);
 
                 this._onDisable();
