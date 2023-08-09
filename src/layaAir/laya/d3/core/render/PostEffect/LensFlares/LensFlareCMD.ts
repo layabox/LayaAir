@@ -97,6 +97,8 @@ export class LensFlareCMD extends Command {
         this._materials.setTexture("u_FlareTexture", this._lensFlareElementData.texture);
         this._materials.setColor("u_Tint", this._lensFlareElementData.tint);
         this._materials.setFloat("u_TintIntensity", this._lensFlareElementData.intensity);
+        this._materials.setVector2("u_Postionoffset", this._lensFlareElementData.positionOffset);
+        this._materials.setFloat("u_Angularoffset", this._lensFlareElementData.angularOffset);
         if (this._lensFlareElementData.autoRotate) {
             this._materials.addDefine(LensFlareEffect.SHADERDEFINE_AUTOROTATE);
         } else {
@@ -120,7 +122,6 @@ export class LensFlareCMD extends Command {
         var context = RenderContext3D._instance;
         this._materials.setFloat("u_aspectRatio", context.camera.viewport.height / context.camera.viewport.width);
         context.applyContext(Camera._updateMark);
-        this._lensFlareElementData && this.applyElementData();
         context.drawRenderElement(this._renderElement);
         Stat.blitDrawCall++;
     }
