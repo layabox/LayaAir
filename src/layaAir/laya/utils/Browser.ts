@@ -52,7 +52,7 @@ export class Browser {
     static onQQMiniGame: boolean;
     /*** BILIBILI小游戏 */
     static onBLMiniGame: boolean;
-    /** 字节跳动小游戏*/
+    /** 抖音小游戏*/
     static onTTMiniGame: boolean;
     /** 华为快游戏 */
     static onHWMiniGame: boolean;
@@ -154,11 +154,11 @@ export class Browser {
 
         if (((u.indexOf('OPPO') == -1 && u.indexOf("MiniGame") > -1) || u.indexOf('runtime') != -1 || (u.indexOf('miniprogram') != -1 && (window as any).isWXMiMi)) && "wx" in Browser.window) {
             if ("tt" in Browser.window) {
-                //手机头条小游戏
+                //抖音小游戏
                 (window as any).ttMiniGame(Laya, Laya);
                 if (!Laya["TTMiniAdapter"]) {
                     //TODO
-                    console.error("请引入字节跳动小游戏的适配库，详细教程：https://layaair.com/3.x/doc/released/miniGame/byteDance/readme.html");
+                    console.error("请引入抖音小游戏的适配库，详细教程：https://layaair.com/3.x/doc/released/miniGame/byteDance/readme.html");
                 } else {
                     Laya["TTMiniAdapter"].enable();
                 }
