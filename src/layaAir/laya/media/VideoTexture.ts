@@ -112,7 +112,12 @@ export class VideoTexture extends BaseTexture {
         //flag only TODO
         this._width = this.element.videoWidth;
         this._height = this.element.videoHeight;
-        this._texture = LayaGL.textureContext.createTextureInternal(this._dimension, this.element.videoWidth, this.element.videoHeight, TextureFormat.R8G8B8, false, false);
+        if (Browser.onLayaRuntime) {
+            this._texture = LayaGL.textureContext.createTextureInternal(this._dimension, this.element.videoWidth, this.element.videoHeight, TextureFormat.R8G8B8A8, false, false, false);
+        }
+        else {
+            this._texture = LayaGL.textureContext.createTextureInternal(this._dimension, this.element.videoWidth, this.element.videoHeight, TextureFormat.R8G8B8, false, false, false);
+        }
         this.wrapModeU = WrapMode.Clamp;
         this.wrapModeV = WrapMode.Clamp;
         this.filterMode = FilterMode.Bilinear;

@@ -11,6 +11,7 @@ export class LensFlareSettingsLoader implements IResourceLoader {
                 return null;
             let ret = new LensFlareData();
             let basePath = URL.getPath(task.url);
+            let promises: Array<any> = [];
 
             let elements = data.elements;
             if (elements)
@@ -20,12 +21,12 @@ export class LensFlareSettingsLoader implements IResourceLoader {
                         let url = URL.getResURLByUUID((e.texture as any)._$uuid);
                         if (!url.startsWith("res://"))
                             url = URL.join(basePath, url);
-                        task.loader.load(url).then((t) => {
+                        promises.push(task.loader.load(url).then((t) => {
                             e.texture = t;
-                        })
+                        }))
                     }
                     if (e.tint) {
-                        e.tint = new Color(e.tint.x, e.tint.y, e.tint.z, e.tint.w);
+                        e.tint = new Color(e.tint.r, e.tint.g, e.tint.b, e.tint.a);
                     }
                     if (e.positionOffset) {
                         e.positionOffset = new Vector2(e.positionOffset.x, e.positionOffset.y);
@@ -35,8 +36,10 @@ export class LensFlareSettingsLoader implements IResourceLoader {
                     }
                 }
 
-            ret.elements = elements;
-            return ret;
+            return Promise.all(promises).then(() => {
+                ret.elements = elements;
+                return ret;
+            });
         });
     }
 }
