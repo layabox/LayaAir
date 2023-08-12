@@ -1,7 +1,5 @@
 import { Component } from "../../../components/Component";
 import { Rigidbody3D } from "../Rigidbody3D";
-import { PhysicsSimulation } from "../PhysicsSimulation";
-import { Physics3D } from "../../Physics3D";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Vector3 } from "../../../maths/Vector3";
@@ -42,8 +40,6 @@ export class ConstraintComponent extends Component {
     static tempForceV3: Vector3 = new Vector3();
     /**@internal */
     _btConstraint: any;
-    /** @internal */
-    _simulation: PhysicsSimulation;
     /**@internal 回调参数*/
     _btJointFeedBackObj: number;
     /** @internal */
@@ -186,18 +182,18 @@ export class ConstraintComponent extends Component {
      */
     constructor(constraintType: number) {
         super();
-        this._constraintType = constraintType;
-        var bt = Physics3D._bullet;
-        this._btframATrans = bt.btTransform_create();
-        this._btframBTrans = bt.btTransform_create();
-        bt.btTransform_setIdentity(this._btframATrans);
-        bt.btTransform_setIdentity(this._btframBTrans);
-        this._btframAPos = bt.btVector3_create(0, 0, 0);
-        this._btframBPos = bt.btVector3_create(0, 0, 0);
-        bt.btTransform_setOrigin(this._btframATrans, this._btframAPos);
-        bt.btTransform_setOrigin(this._btframBTrans, this._btframBPos);
-        this._breakForce = -1;
-        this._breakTorque = -1;
+        // this._constraintType = constraintType;
+        // var bt = Physics3D._bullet;
+        // this._btframATrans = bt.btTransform_create();
+        // this._btframBTrans = bt.btTransform_create();
+        // bt.btTransform_setIdentity(this._btframATrans);
+        // bt.btTransform_setIdentity(this._btframBTrans);
+        // this._btframAPos = bt.btVector3_create(0, 0, 0);
+        // this._btframBPos = bt.btVector3_create(0, 0, 0);
+        // bt.btTransform_setOrigin(this._btframATrans, this._btframAPos);
+        // bt.btTransform_setOrigin(this._btframBTrans, this._btframBPos);
+        // this._breakForce = -1;
+        // this._breakTorque = -1;
     }
 
     /**
@@ -205,8 +201,8 @@ export class ConstraintComponent extends Component {
      * @param overideNumIterations 
      */
     setOverrideNumSolverIterations(overideNumIterations: number): void {
-        var bt = Physics3D._bullet;
-        bt.btTypedConstraint_setOverrideNumSolverIterations(this._btConstraint, overideNumIterations);
+        // var bt = Physics3D._bullet;
+        // bt.btTypedConstraint_setOverrideNumSolverIterations(this._btConstraint, overideNumIterations);
     }
 
     /**
@@ -214,19 +210,19 @@ export class ConstraintComponent extends Component {
      * @param enable 
      */
     setConstraintEnabled(enable: boolean): void {
-        var bt = Physics3D._bullet;
-        bt.btTypedConstraint_setEnabled(this._btConstraint, enable);
+        // var bt = Physics3D._bullet;
+        // bt.btTypedConstraint_setEnabled(this._btConstraint, enable);
     }
 
     /**
      * 设置约束的本地空间
      */
     setFrames() {
-        var bt = Physics3D._bullet;
-        bt.btVector3_setValue(this._btframAPos, this._anchor.x, this.anchor.y, this.anchor.z);
-        bt.btVector3_setValue(this._btframBPos, this._connectAnchor.x, this._connectAnchor.y, this._connectAnchor.z);
-        bt.btTransform_setOrigin(this._btframATrans, this._btframAPos);
-        bt.btTransform_setOrigin(this._btframBTrans, this._btframBPos);
+        // var bt = Physics3D._bullet;
+        // bt.btVector3_setValue(this._btframAPos, this._anchor.x, this.anchor.y, this.anchor.z);
+        // bt.btVector3_setValue(this._btframBPos, this._connectAnchor.x, this._connectAnchor.y, this._connectAnchor.z);
+        // bt.btTransform_setOrigin(this._btframATrans, this._btframAPos);
+        // bt.btTransform_setOrigin(this._btframBTrans, this._btframBPos);
         /*
         let q = new Quaternion();
         Quaternion.createFromAxisAngle(new Vector3(0,0,1), Math.PI/2, q);
@@ -261,19 +257,19 @@ export class ConstraintComponent extends Component {
      * @override
      */
     setConnectRigidBody(ownerRigid: Rigidbody3D, connectRigidBody: Rigidbody3D) {
-        var ownerCanInSimulation = ownerRigid && !!(ownerRigid._simulation && ownerRigid._enabled && ownerRigid.colliderShape);
-        var connectCanInSimulation = connectRigidBody && !!(connectRigidBody._simulation && connectRigidBody._enabled && connectRigidBody.colliderShape);
-        if (!(ownerCanInSimulation && connectCanInSimulation))
-            throw "ownerRigid or connectRigidBody is not in Simulation";
-        if (ownerRigid != this._ownBody || connectRigidBody != this._connectedBody) {
-            var canInSimulation = !!(this.enabled && this._simulation);
-            canInSimulation && this._removeFromSimulation();
-            this._ownBody = ownerRigid;
-            this._connectedBody = connectRigidBody;
-            //this._ownBody.constaintRigidbodyA = this;
-            //this._connectedBody.constaintRigidbodyB = this;
-            this._createConstraint();
-        }
+        // var ownerCanInSimulation = ownerRigid && !!(ownerRigid._simulation && ownerRigid._enabled && ownerRigid.colliderShape);
+        // var connectCanInSimulation = connectRigidBody && !!(connectRigidBody._simulation && connectRigidBody._enabled && connectRigidBody.colliderShape);
+        // if (!(ownerCanInSimulation && connectCanInSimulation))
+        //     throw "ownerRigid or connectRigidBody is not in Simulation";
+        // if (ownerRigid != this._ownBody || connectRigidBody != this._connectedBody) {
+        //     var canInSimulation = !!(this.enabled && this._simulation);
+        //     canInSimulation && this._removeFromSimulation();
+        //     this._ownBody = ownerRigid;
+        //     this._connectedBody = connectRigidBody;
+        //     //this._ownBody.constaintRigidbodyA = this;
+        //     //this._connectedBody.constaintRigidbodyB = this;
+        //     this._createConstraint();
+        // }
     }
 
     /**
@@ -294,12 +290,12 @@ export class ConstraintComponent extends Component {
      * @param out 
      */
     getcurrentForce(out: Vector3) {
-        if (!this._btJointFeedBackObj)
-            throw "this Constraint is not simulation";
-        var bt = Physics3D._bullet;
-        var applyForce: number = bt.btJointFeedback_getAppliedForceBodyA(this._btJointFeedBackObj);
-        out.setValue(bt.btVector3_x(applyForce), bt.btVector3_y(applyForce), bt.btVector3_z(applyForce));
-        return;
+        // if (!this._btJointFeedBackObj)
+        //     throw "this Constraint is not simulation";
+        // var bt = Physics3D._bullet;
+        // var applyForce: number = bt.btJointFeedback_getAppliedForceBodyA(this._btJointFeedBackObj);
+        // out.setValue(bt.btVector3_x(applyForce), bt.btVector3_y(applyForce), bt.btVector3_z(applyForce));
+        // return;
     }
 
     /**
@@ -316,40 +312,40 @@ export class ConstraintComponent extends Component {
      * @param out 
      */
     getcurrentTorque(out: Vector3) {
-        if (!this._btJointFeedBackObj)
-            throw "this Constraint is not simulation";
-        var bt = Physics3D._bullet;
-        var applyTorque: number = bt.btJointFeedback_getAppliedTorqueBodyA(this._btJointFeedBackObj);
-        out.setValue(bt.btVector3_x(applyTorque), bt.btVector3_y(applyTorque), bt.btVector3_z(applyTorque));
-        return;
+        // if (!this._btJointFeedBackObj)
+        //     throw "this Constraint is not simulation";
+        // var bt = Physics3D._bullet;
+        // var applyTorque: number = bt.btJointFeedback_getAppliedTorqueBodyA(this._btJointFeedBackObj);
+        // out.setValue(bt.btVector3_x(applyTorque), bt.btVector3_y(applyTorque), bt.btVector3_z(applyTorque));
+        // return;
     }
 
     protected _onDestroy() {
-        var physics3D: any = Physics3D._bullet;
-        this._simulation && this._removeFromSimulation();
-        if (this._btConstraint && this._btJointFeedBackObj && this._simulation) {
-            physics3D.btTypedConstraint_destroy(this._btConstraint);
-            physics3D.btJointFeedback_destroy(this._btJointFeedBackObj);
-            this._btJointFeedBackObj = null;
-            this._btConstraint = null;
-        }
+        // var physics3D: any = Physics3D._bullet;
+        // this._simulation && this._removeFromSimulation();
+        // if (this._btConstraint && this._btJointFeedBackObj && this._simulation) {
+        //     physics3D.btTypedConstraint_destroy(this._btConstraint);
+        //     physics3D.btJointFeedback_destroy(this._btJointFeedBackObj);
+        //     this._btJointFeedBackObj = null;
+        //     this._btConstraint = null;
+        // }
     }
 
     /**
      * @internal
      */
     _isBreakConstrained(): Boolean {
-        this._getJointFeedBack = false;
-        if (this.breakForce == -1 && this.breakTorque == -1)
-            return false;
-        this._getFeedBackInfo();
-        var isBreakForce: Boolean = this._breakForce != -1 && (Vector3.scalarLength(this._currentForce) > this._breakForce);
-        var isBreakTorque: Boolean = this._breakTorque != -1 && (Vector3.scalarLength(this._currentTorque) > this._breakTorque);
-        if (isBreakForce || isBreakTorque) {
-            this._breakConstrained();
-            return true;
-        }
-        return false;
+        // this._getJointFeedBack = false;
+        // if (this.breakForce == -1 && this.breakTorque == -1)
+        //     return false;
+        // this._getFeedBackInfo();
+        // var isBreakForce: Boolean = this._breakForce != -1 && (Vector3.scalarLength(this._currentForce) > this._breakForce);
+        // var isBreakTorque: Boolean = this._breakTorque != -1 && (Vector3.scalarLength(this._currentTorque) > this._breakTorque);
+        // if (isBreakForce || isBreakTorque) {
+        //     this._breakConstrained();
+        //     return true;
+        // }
+         return false;
     }
 
 
@@ -367,12 +363,12 @@ export class ConstraintComponent extends Component {
      * @internal
      */
     private _getFeedBackInfo() {
-        var bt = Physics3D._bullet;
-        var applyForce: number = bt.btJointFeedback_getAppliedForceBodyA(this._btJointFeedBackObj);
-        var applyTorque: number = bt.btJointFeedback_getAppliedTorqueBodyA(this._btJointFeedBackObj);
-        this._currentTorque.setValue(bt.btVector3_x(applyTorque), bt.btVector3_y(applyTorque), bt.btVector3_z(applyTorque));
-        this._currentForce.setValue(bt.btVector3_x(applyForce), bt.btVector3_y(applyForce), bt.btVector3_z(applyForce));
-        this._getJointFeedBack = true;
+        // var bt = Physics3D._bullet;
+        // var applyForce: number = bt.btJointFeedback_getAppliedForceBodyA(this._btJointFeedBackObj);
+        // var applyTorque: number = bt.btJointFeedback_getAppliedTorqueBodyA(this._btJointFeedBackObj);
+        // this._currentTorque.setValue(bt.btVector3_x(applyTorque), bt.btVector3_y(applyTorque), bt.btVector3_z(applyTorque));
+        // this._currentForce.setValue(bt.btVector3_x(applyForce), bt.btVector3_y(applyForce), bt.btVector3_z(applyForce));
+        // this._getJointFeedBack = true;
     }
 
     /**

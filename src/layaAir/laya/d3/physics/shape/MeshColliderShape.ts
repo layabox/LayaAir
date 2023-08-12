@@ -1,12 +1,12 @@
 import { Mesh } from "../../resource/models/Mesh";
-import { ColliderShape } from "./ColliderShape";
 import { ILaya3D } from "../../../../ILaya3D";
 import { Vector3 } from "../../../maths/Vector3";
+import { Physics3DColliderShape } from "./Physics3DColliderShape";
 
 /**
  * <code>MeshColliderShape</code> 类用于创建网格碰撞器。
  */
-export class MeshColliderShape extends ColliderShape {
+export class MeshColliderShape extends Physics3DColliderShape {
 	/** @internal */
 	private _mesh: Mesh = null;
 	/** @internal */
@@ -22,17 +22,17 @@ export class MeshColliderShape extends ColliderShape {
 	}
 
 	set mesh(value: Mesh) {
-		if(!value)
-			return;
-		if (this._mesh !== value) {
-			var bt: any = ILaya3D.Physics3D._bullet;
-			this._physicMesh = value._getPhysicMesh()
-			if (this._mesh) {
-				bt.btCollisionShape_destroy(this._btShape);
-			}
-			this._setPhysicsMesh();
-			this._mesh = value;
-		}
+		// if(!value)
+		// 	return;
+		// if (this._mesh !== value) {
+		// 	var bt: any = ILaya3D.Physics3D._bullet;
+		// 	//this._physicMesh = BulletPhysicsCreateUtil._getPhysicMesh(value);
+		// 	if (this._mesh) {
+		// 		bt.btCollisionShape_destroy(this._btShape);
+		// 	}
+		// 	this._setPhysicsMesh();
+		// 	this._mesh = value;
+		// }
 	}
 
 	/**
@@ -58,28 +58,26 @@ export class MeshColliderShape extends ColliderShape {
 	 * @internal
 	 */
 	_setPhysicsMesh(){
-		//if (this._attatchedCollisionObject) {
-			if(false){
-				this._createDynamicMeshCollider();
-			}else{
-				this._createBvhTriangleCollider();
-				//bt.btGImpactShapeInterface_updateBound(this._btShape);
-			}
-		//}
-	}
-
-	private _createDynamicMeshCollider(){
-		var bt: any = ILaya3D.Physics3D._bullet;
-		if(this._physicMesh){
-			this._btShape = bt.btGImpactMeshShape_create(this._physicMesh);
-			bt.btGImpactShapeInterface_updateBound(this._btShape);
+		if(false){
+			this._createDynamicMeshCollider();
+		}else{
+			this._createBvhTriangleCollider();
+			
 		}
 	}
 
+	private _createDynamicMeshCollider(){
+		// var bt: any = ILaya3D.Physics3D._bullet;
+		// if(this._physicMesh){
+		// 	this._btShape = bt.btGImpactMeshShape_create(this._physicMesh);
+		// 	bt.btGImpactShapeInterface_updateBound(this._btShape);
+		// }
+	}
+
 	private _createBvhTriangleCollider(){
-		var bt: any = ILaya3D.Physics3D._bullet;
-		if(this._physicMesh)
-		this._btShape = bt.btBvhTriangleMeshShape_create(this._physicMesh);
+		// var bt: any = ILaya3D.Physics3D._bullet;
+		// if(this._physicMesh)
+		// this._btShape = bt.btBvhTriangleMeshShape_create(this._physicMesh);
 	}
 
 	/**
@@ -88,16 +86,16 @@ export class MeshColliderShape extends ColliderShape {
 	 * @internal
 	 */
 	_setScale(value: Vector3): void {
-		if (this._compoundParent) {//TODO:待查,这里有问题
-			this.updateLocalTransformations();//TODO:
-		} else {
-			var bt: any = ILaya3D.Physics3D._bullet;
-			bt.btVector3_setValue(ColliderShape._btScale, value.x, value.y, value.z);
-			bt.btCollisionShape_setLocalScaling(this._btShape, ColliderShape._btScale);
-			if(this._attatchedCollisionObject&&this._attatchedCollisionObject._enableProcessCollisions){
-				bt.btGImpactShapeInterface_updateBound(this._btShape);//更新缩放后需要更新包围体,有性能损耗
-			}
-		}
+		// if (this._compoundParent) {//TODO:待查,这里有问题
+		// 	this.updateLocalTransformations();//TODO:
+		// } else {
+		// 	var bt: any = ILaya3D.Physics3D._bullet;
+		// 	bt.btVector3_setValue(ColliderShape._btScale, value.x, value.y, value.z);
+		// 	bt.btCollisionShape_setLocalScaling(this._btShape, ColliderShape._btScale);
+		// 	if(this._attatchedCollisionObject&&this._attatchedCollisionObject._enableProcessCollisions){
+		// 		bt.btGImpactShapeInterface_updateBound(this._btShape);//更新缩放后需要更新包围体,有性能损耗
+		// 	}
+		// }
 	}
 
 	/**
@@ -127,10 +125,10 @@ export class MeshColliderShape extends ColliderShape {
 	 * @internal
 	 */
 	destroy(): void {
-		if (this._btShape) {
-			ILaya3D.Physics3D._bullet.btCollisionShape_destroy(this._btShape);
-			this._btShape = null;
-		}
+		// if (this._btShape) {
+		// 	ILaya3D.Physics3D._bullet.btCollisionShape_destroy(this._btShape);
+		// 	this._btShape = null;
+		// }
 	}
 
 }

@@ -1,3 +1,4 @@
+import { PhysicsForceMode } from "../../d3/physics/PhysicsColliderComponent";
 import { Quaternion } from "../../maths/Quaternion";
 import { Vector3 } from "../../maths/Vector3";
 import { ICollider } from "./ICollider";
@@ -6,21 +7,6 @@ import { ICollider } from "./ICollider";
  * Interface of physics dynamic collider.
  */
 export interface IDynamicCollider extends ICollider {
-
-    /**
-     * Set global transform of collider.
-     * @param position - The global position
-     * @param rotation - The global rotation
-     */
-    setWorldTransform(position: Vector3, rotation: Quaternion): void;
-
-    /**
-     * Get global transform of collider.
-     * @param outPosition - The global position
-     * @param outRotation - The global rotation
-     */
-    getWorldTransform(outPosition: Vector3, outRotation: Quaternion): void;
-
 
     /**
      * Sets the linear damping coefficient.
@@ -65,28 +51,10 @@ export interface IDynamicCollider extends ICollider {
     setInertiaTensor(value: Vector3): void;
 
     /**
-     * Set the maximum angular velocity permitted for this actor.
-     * @param value - Max allowable angular velocity for actor.
-     */
-    setMaxAngularVelocity(value: number): void;
-
-    /**
-     * Sets the maximum depenetration velocity permitted to be introduced by the solver.
-     * @param value - The maximum velocity to de-penetrate
-     */
-    setMaxDepenetrationVelocity(value: number): void;
-
-    /**
      * Sets the mass-normalized kinetic energy threshold below which an actor may go to sleep.
      * @param value - Energy below which an actor may go to sleep.
      */
     setSleepThreshold(value: number): void;
-
-    /**
-     * Sets the solver iteration counts for the body.
-     * @param value - Number of position iterations the solver should perform for this body.
-     */
-    setSolverIterations(value: number): void;
 
     /**
      * Sets the colliders' collision detection mode.
@@ -104,34 +72,39 @@ export interface IDynamicCollider extends ICollider {
      * Raises or clears a particular rigid dynamic lock flag.
      * @param flags - the flag to raise(set) or clear.
      */
-    setConstraints(flags: number): void;
+    setConstraints(linearFactor: Vector3, angularFactor: Vector3): void;
 
     /**
      * Apply a force to the dynamic collider.
      * @param force - The force make the collider move
      */
-    addForce(force: Vector3): void;
+    addForce(force: Vector3, mode: PhysicsForceMode, localOffset: Vector3): void;
 
     /**
      * Apply a torque to the dynamic collider.
      * @param torque - The force make the collider rotate
      */
-    addTorque(torque: Vector3): void;
-
-    /**
-     * Moves kinematically controlled dynamic actors through the game world.
-     * @param positionOrRotation - The desired position or rotation for the kinematic actor
-     * @param rotation - The desired rotation for the kinematic actor
-     */
-    move(positionOrRotation: Vector3 | Quaternion, rotation?: Quaternion): void;
+    addTorque(torque: Vector3, mode: PhysicsForceMode): void;
 
     /**
      * Forces a collider to sleep at least one frame.
      */
-    sleep(): void;
+    sleep?(): void;
 
     /**
      * Forces a collider to wake up.
      */
     wakeUp(): void;
+
+    /**
+     * set world position
+     * @param value 
+     */
+    setWorldPosition(value: Vector3): void
+
+    /**
+     * set world rotation
+     * @param value 
+     */
+    setWorldRotation(value: Quaternion): void
 }

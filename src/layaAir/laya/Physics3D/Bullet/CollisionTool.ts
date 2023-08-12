@@ -1,7 +1,8 @@
-import { ContactPoint } from "./ContactPoint";
-import { HitResult } from "./HitResult";
-import { Collision } from "./Collision";
-import { PhysicsComponent } from "./PhysicsComponent";
+import { Collision } from "../../d3/physics/Collision";
+import { ContactPoint } from "../../d3/physics/ContactPoint";
+import { HitResult } from "../../d3/physics/HitResult";
+import { btCollider } from "./Collider/btCollider";
+
 
 /**
  * <code>CollisionMap</code> 类用于实现碰撞组合实例图。
@@ -69,10 +70,10 @@ export class CollisionTool {
 	/**
 	 * @internal
 	 */
-	getCollision(physicComponentA: PhysicsComponent, physicComponentB: PhysicsComponent): Collision {
+	getCollision(physicComponentA: btCollider, physicComponentB: btCollider): Collision {
 		var collision: Collision;
-		var idA = physicComponentA.id;
-		var idB = physicComponentB.id;
+		var idA = physicComponentA._id;
+		var idB = physicComponentB._id;
 		var subCollisionFirst: any = this._collisions[idA];
 		if (subCollisionFirst)
 			collision = subCollisionFirst[idB];
@@ -93,8 +94,8 @@ export class CollisionTool {
 	 * @internal
 	 */
 	recoverCollision(collision: Collision): void {
-		var idA = collision._colliderA.id;
-		var idB = collision._colliderB.id;
+		var idA = (collision._colliderA as btCollider)._id;
+		var idB = (collision._colliderB as btCollider)._id;
 		this._collisions[idA][idB] = null;
 		this._collisionsPool.push(collision);
 	}

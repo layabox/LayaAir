@@ -74,7 +74,6 @@ export class PhysicsWorld_ConfigurableJoint {
 	springTest(): void {
 		var boxA: MeshSprite3D = this.addRigidBodySphere(new Vector3(7, 3, 0), 1);
 		var boxARigid: Rigidbody3D = boxA.getComponent(Rigidbody3D);
-		boxARigid.overrideGravity = true;
 		boxARigid.isKinematic = true;
 
 		var boxB: MeshSprite3D = this.addRigidBodyBox(new Vector3(10, 0, 0), 1);

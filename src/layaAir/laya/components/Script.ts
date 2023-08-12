@@ -1,7 +1,7 @@
 import { Component } from "./Component";
 import { Event } from "../events/Event"
 import { Collision } from "../d3/physics/Collision";
-import { PhysicsComponent } from "../d3/physics/PhysicsComponent";
+import { PhysicsColliderComponent } from "../d3/physics/PhysicsColliderComponent";
 import { ColliderBase } from "../physics/ColliderBase";
 import { Sprite3D } from "../d3/core/Sprite3D";
 import { Sprite } from "../display/Sprite";
@@ -55,17 +55,17 @@ export class Script extends Component {
     /**
      * 开始碰撞时执行
      */
-    onTriggerEnter?(other: PhysicsComponent | ColliderBase, self?: ColliderBase, contact?: any): void;
+    onTriggerEnter?(other: PhysicsColliderComponent | ColliderBase, self?: ColliderBase, contact?: any): void;
 
     /**
      * 持续碰撞时执行
      */
-    onTriggerStay?(other: PhysicsComponent | ColliderBase, self?: ColliderBase, contact?: any): void;
+    onTriggerStay?(other: PhysicsColliderComponent | ColliderBase, self?: ColliderBase, contact?: any): void;
 
     /**
      * 结束碰撞时执行
      */
-    onTriggerExit?(other: PhysicsComponent | ColliderBase, self?: ColliderBase, contact?: any): void;
+    onTriggerExit?(other: PhysicsColliderComponent | ColliderBase, self?: ColliderBase, contact?: any): void;
 
     /**
      * 开始碰撞时执行

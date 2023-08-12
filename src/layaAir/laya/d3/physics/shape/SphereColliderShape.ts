@@ -1,11 +1,14 @@
-import { ColliderShape } from "./ColliderShape";
-import { ILaya3D } from "../../../../ILaya3D";
+import { Physics3DColliderShape } from "./Physics3DColliderShape";
 import { LayaEnv } from "../../../../LayaEnv";
+import { ISphereColliderShape } from "../../../Physics3D/interface/Shape/ISphereColliderShape";
+import { Laya3D } from "../../../../Laya3D";
 
 /**
  * <code>SphereColliderShape</code> 类用于创建球形碰撞器。
  */
-export class SphereColliderShape extends ColliderShape {
+export class SphereColliderShape extends Physics3DColliderShape {
+	/**@internal */
+	_shape: ISphereColliderShape;
 	/** @internal */
 	private _radius: number;
 
@@ -18,7 +21,7 @@ export class SphereColliderShape extends ColliderShape {
 
 	set radius(value: number) {
 		this._radius = value;
-		if (LayaEnv.isPlaying) this.changeSphere();
+		if (LayaEnv.isPlaying) this._shape.setRadius(value);
 	}
 
 	/**
@@ -26,23 +29,14 @@ export class SphereColliderShape extends ColliderShape {
 	 * @param radius 半径。
 	 */
 	constructor(radius: number = 0.5) {//TODO:球形旋转无效，需要优化
-
 		super();
-		this._radius = radius;
-		this._type = ColliderShape.SHAPETYPES_SPHERE;
+		this.radius = radius;
 
-		this._btShape = ILaya3D.Physics3D._bullet.btSphereShape_create(radius);
 	}
 
-	/**
-	 * @internal
-	 */
-	changeSphere() {
-		var bt: any = ILaya3D.Physics3D._bullet;
-		if (this._btShape) {
-			bt.btCollisionShape_destroy(this._btShape);
-		}
-		this._btShape = ILaya3D.Physics3D._bullet.btSphereShape_create(this._radius);
+	/**@internal */
+	protected _createShape() {
+		this._shape = Laya3D.PhysicsCreateUtil.createSphereColliderShape()
 	}
 
 	/**
@@ -53,6 +47,12 @@ export class SphereColliderShape extends ColliderShape {
 		var dest: SphereColliderShape = new SphereColliderShape(this._radius);
 		this.cloneTo(dest);
 		return dest;
+	}
+
+	/**@internal */
+	cloneTo(destObject: SphereColliderShape): void {
+		super.cloneTo(destObject);
+		destObject.radius = this.radius
 	}
 
 }

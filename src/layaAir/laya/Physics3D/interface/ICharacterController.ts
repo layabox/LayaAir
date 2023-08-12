@@ -5,25 +5,18 @@ import { ICollider } from "./ICollider";
  * Base class for character controllers.
  */
 export interface ICharacterController extends ICollider {
+
   /**
    * Moves the character using a "collide-and-slide" algorithm.
    * @param disp Displacement vector
-   * @param minDist The minimum travelled distance to consider.
-   * @param elapsedTime Time elapsed since last call
    */
-  move(disp: Vector3, minDist: number, elapsedTime: number): number;
+  move(disp: Vector3): void;
 
   /**
-   * Sets controller's world position.
-   * @param position The new (center) position for the controller.
+   * jump
+   * @param velocity 
    */
-  setWorldPosition(position: Vector3): void;
-
-  /**
-   * Retrieve the world position of the controller.
-   * @param position The controller's center position
-   */
-  getWorldPosition(position: Vector3): void;
+  jump(velocity: Vector3): void;
 
   /**
    * The step height.
@@ -32,20 +25,43 @@ export interface ICharacterController extends ICollider {
   setStepOffset(offset: number): void;
 
   /**
-   * Sets the non-walkable mode for the CCT.
-   * @param flag The new value of the non-walkable mode.
-   */
-  setNonWalkableMode(flag: number): void;
-
-  /**
    * Sets the 'up' direction.
    * @param up The up direction for the controller.
    */
   setUpDirection(up: Vector3): void;
 
   /**
+   * get VerticalVel
+   */
+  getVerticalVel(): number;
+
+  /**
    * Sets the slope limit.
    * @param slopeLimit The slope limit for the controller.
    */
   setSlopeLimit(slopeLimit: number): void;
+
+  /**
+   * set fall speed
+   * @param value 
+   */
+  setfallSpeed?(value: number): void;
+
+  /**
+   * 设置碰撞收到的push力
+   * @param value 
+   */
+  setpushForce?(value: number): void;
+
+  /**
+   * 设置重力
+   * @param value 
+   */
+  setGravity(value: Vector3): void;
+
+  /**
+   * 设置角色控制器位置
+   * @param value 
+   */
+  setWorldPosition(value: Vector3): void;
 }

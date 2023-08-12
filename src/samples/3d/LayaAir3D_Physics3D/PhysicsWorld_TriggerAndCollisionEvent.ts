@@ -9,7 +9,6 @@ import { Sprite3D } from "laya/d3/core/Sprite3D";
 import { Transform3D } from "laya/d3/core/Transform3D";
 import { Collision } from "laya/d3/physics/Collision";
 import { PhysicsCollider } from "laya/d3/physics/PhysicsCollider";
-import { PhysicsComponent } from "laya/d3/physics/PhysicsComponent";
 import { Rigidbody3D } from "laya/d3/physics/Rigidbody3D";
 import { BoxColliderShape } from "laya/d3/physics/shape/BoxColliderShape";
 import { CapsuleColliderShape } from "laya/d3/physics/shape/CapsuleColliderShape";
@@ -26,6 +25,7 @@ import { Color } from "laya/maths/Color";
 import { Matrix4x4 } from "laya/maths/Matrix4x4";
 import { Vector3 } from "laya/maths/Vector3";
 import { Vector4 } from "laya/maths/Vector4";
+import { PhysicsColliderComponent } from "laya/d3/physics/PhysicsColliderComponent";
 
 export class PhysicsWorld_TriggerAndCollisionEvent {
 
@@ -245,18 +245,18 @@ class TriggerCollisionScript extends Script {
 	}
 
 	//开始触发时执行
-	onTriggerEnter(other: PhysicsComponent): void {
+	onTriggerEnter(other: PhysicsColliderComponent): void {
 		((<BlinnPhongMaterial>((<MeshRenderer>((<MeshSprite3D>this.owner)).meshRenderer)).sharedMaterial)).albedoColor = new Color(0.0, 1.0, 0.0, 1.0);
 		console.log("onTriggerEnter");
 	}
 
 	//持续触发时执行
-	onTriggerStay(other: PhysicsComponent): void {
+	onTriggerStay(other: PhysicsColliderComponent): void {
 		console.log("onTriggerStay");
 	}
 
 	//结束触发时执行
-	onTriggerExit(other: PhysicsComponent): void {
+	onTriggerExit(other: PhysicsColliderComponent): void {
 		((<BlinnPhongMaterial>((<MeshRenderer>((<MeshSprite3D>this.owner)).meshRenderer)).sharedMaterial)).albedoColor = new Color(1.0, 1.0, 1.0, 1.0);
 		console.log("onTriggerExit");
 	}

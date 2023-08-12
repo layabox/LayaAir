@@ -1,43 +1,53 @@
-import { Sprite3D } from "../core/Sprite3D";
-import { Physics3D } from "../Physics3D";
-import { Physics3DUtils } from "../utils/Physics3DUtils";
-import { PhysicsComponent } from "./PhysicsComponent";
-import { PhysicsTriggerComponent } from "./PhysicsTriggerComponent";
+import { Laya3D } from "../../../Laya3D";
+import { IStaticCollider } from "../../Physics3D/interface/IStaticCollider";
+import { Scene3D } from "../core/scene/Scene3D";
+import { PhysicsColliderComponent } from "./PhysicsColliderComponent";
 
 /**
  * <code>PhysicsCollider</code> 类用于创建物理碰撞器。
  */
-export class PhysicsCollider extends PhysicsTriggerComponent {
+export class PhysicsCollider extends PhysicsColliderComponent {
+    /** @internal */
+    private _isTrigger: boolean = false;
+
+    /**
+     * @override
+     * @interanl
+     */
+    _collider: IStaticCollider;
+
+    /**
+     * @override
+     * @interanl
+     */
+    protected _initCollider() {
+        this._physicsManager = ((<Scene3D>this.owner._scene))._physicsManager;
+        this._collider = Laya3D.PhysicsCreateUtil.createStaticCollider(this._physicsManager);
+    }
 
     /**
      * 创建一个 <code>PhysicsCollider</code> 实例。
      * @param collisionGroup 所属碰撞组。
      * @param canCollideWith 可产生碰撞的碰撞组。
      */
-    constructor(collisionGroup: number = Physics3DUtils.COLLISIONFILTERGROUP_DEFAULTFILTER, canCollideWith: number = Physics3DUtils.COLLISIONFILTERGROUP_ALLFILTER) {
-        super(collisionGroup, canCollideWith);
-        this._enableProcessCollisions = false;
+    constructor() {
+        super();
     }
 
     /**
-     * @inheritDoc
-     * @override
-     * @internal
+     * 是否为触发器。
      */
-    _addToSimulation(): void {
-        this._simulation._addPhysicsCollider(this, this._collisionGroup, this._canCollideWith);
+    get isTrigger(): boolean {
+        return this._isTrigger;
+    }
+
+    set isTrigger(value: boolean) {
+        this._isTrigger = value;
+
     }
 
     /**
-     * @inheritDoc
-     * @override
-     * @internal
-     */
-    _removeFromSimulation(): void {
-        this._simulation._removePhysicsCollider(this);
-    }
-
-    /**
+     * @deprecated
      * @inheritDoc
      * @override
      * @internal
@@ -49,27 +59,6 @@ export class PhysicsCollider extends PhysicsTriggerComponent {
         (data.isTrigger != null) && (this.isTrigger = data.isTrigger);
         super._parse(data);
         this._parseShape(data.shapes);
-    }
-
-    protected _onAdded(): void {
-        var bt: any = Physics3D._bullet;
-        var btColObj: number = bt.btCollisionObject_create();
-        bt.btCollisionObject_setUserIndex(btColObj, this.id);
-        bt.btCollisionObject_forceActivationState(btColObj, PhysicsComponent.ACTIVATIONSTATE_DISABLE_SIMULATION);//prevent simulation
-
-        var flags: number = bt.btCollisionObject_getCollisionFlags(btColObj);
-        if ((<Sprite3D>this.owner).isStatic) {//TODO:
-            if ((flags & PhysicsComponent.COLLISIONFLAGS_KINEMATIC_OBJECT) > 0)
-                flags = flags ^ PhysicsComponent.COLLISIONFLAGS_KINEMATIC_OBJECT;
-            flags = flags | PhysicsComponent.COLLISIONFLAGS_STATIC_OBJECT;
-        } else {
-            if ((flags & PhysicsComponent.COLLISIONFLAGS_STATIC_OBJECT) > 0)
-                flags = flags ^ PhysicsComponent.COLLISIONFLAGS_STATIC_OBJECT;
-            flags = flags | PhysicsComponent.COLLISIONFLAGS_KINEMATIC_OBJECT;
-        }
-        bt.btCollisionObject_setCollisionFlags(btColObj, flags);
-        this._btColliderObject = btColObj;
-        super._onAdded();
     }
 }
 

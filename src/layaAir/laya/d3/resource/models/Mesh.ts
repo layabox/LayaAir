@@ -11,8 +11,6 @@ import { InstanceRenderElement } from "../../core/render/InstanceRenderElement";
 import { IndexBuffer3D } from "../../graphics/IndexBuffer3D";
 import { VertexBuffer3D } from "../../graphics/VertexBuffer3D";
 import { Bounds } from "../../math/Bounds";
-import { Physics3D } from "../../Physics3D";
-import { Utils3D } from "../../utils/Utils3D";
 import { SubMesh } from "./SubMesh";
 import { Color } from "../../../maths/Color";
 import { Matrix4x4 } from "../../../maths/Matrix4x4";
@@ -52,25 +50,25 @@ export class Mesh extends Resource implements IClone {
     private _tempVector30: Vector3 = new Vector3()
     /** @internal */
     private _tempVector31: Vector3 = new Vector3();
-    /** @internal */
-    private _tempVector32: Vector3 = new Vector3();
-    /** @internal */
-    private static _nativeTempVector30: number;
-    /** @internal */
-    private static _nativeTempVector31: number;
-    /** @internal */
-    private static _nativeTempVector32: number;
+    // /** @internal */
+    // private _tempVector32: Vector3 = new Vector3();
+    // /** @internal */
+    // private static _nativeTempVector30: number;
+    // /** @internal */
+    // private static _nativeTempVector31: number;
+    // /** @internal */
+    // private static _nativeTempVector32: number;
 
     /**
       * @internal
       */
     static __init__(): void {
-        var physics3D: any = Physics3D._bullet;
-        if (physics3D) {
-            Mesh._nativeTempVector30 = physics3D.btVector3_create(0, 0, 0);
-            Mesh._nativeTempVector31 = physics3D.btVector3_create(0, 0, 0);
-            Mesh._nativeTempVector32 = physics3D.btVector3_create(0, 0, 0);
-        }
+        // var physics3D: any = Physics3D._bullet;
+        // if (physics3D) {
+        //     Mesh._nativeTempVector30 = physics3D.btVector3_create(0, 0, 0);
+        //     Mesh._nativeTempVector31 = physics3D.btVector3_create(0, 0, 0);
+        //     Mesh._nativeTempVector32 = physics3D.btVector3_create(0, 0, 0);
+        // }
     }
 
 
@@ -359,7 +357,7 @@ export class Mesh extends Resource implements IClone {
     protected _disposeResource(): void {
         for (var i: number = 0, n: number = this._subMeshes.length; i < n; i++)
             this._subMeshes[i].destroy();
-        this._btTriangleMesh && Physics3D._bullet.btStridingMeshInterface_destroy(this._btTriangleMesh);
+        //this._btTriangleMesh && Physics3D._bullet.btStridingMeshInterface_destroy(this._btTriangleMesh);
         this._vertexBuffer && this._vertexBuffer.destroy();
         this._indexBuffer && this._indexBuffer.destroy();
         this._bufferState.destroy();
@@ -397,10 +395,6 @@ export class Mesh extends Resource implements IClone {
      */
     _setBuffer(vertexBuffer: VertexBuffer3D, indexBuffer: IndexBuffer3D): void {
         var bufferState: BufferState = this._bufferState;
-        // bufferState.bind();
-        // bufferState.applyVertexBuffer(vertexBuffer);
-        // bufferState.applyIndexBuffer(indexBuffer);
-        // bufferState.unBind();
         bufferState.applyState([vertexBuffer], indexBuffer);
     }
 
@@ -433,44 +427,44 @@ export class Mesh extends Resource implements IClone {
         instanceBufferState.applyState(vertexArray, this._indexBuffer);
     }
 
-    /**
-     * @internal
-     */
-    _getPhysicMesh(): any {
-        //if (!this._btTriangleMesh) {//TODO 去掉共享物理Mesh
-        var bt: any = Physics3D._bullet;
-        var triangleMesh: number = bt.btTriangleMesh_create();//TODO:独立抽象btTriangleMesh,增加内存复用
-        var nativePositio0: number = Mesh._nativeTempVector30;
-        var nativePositio1: number = Mesh._nativeTempVector31;
-        var nativePositio2: number = Mesh._nativeTempVector32;
-        var position0: Vector3 = this._tempVector30;
-        var position1: Vector3 = this._tempVector31;
-        var position2: Vector3 = this._tempVector32;
+    // /**
+    //  * @internal
+    //  */
+    // _getPhysicMesh(): any {
+    //     //if (!this._btTriangleMesh) {//TODO 去掉共享物理Mesh
+    //     var bt: any = Physics3D._bullet;
+    //     var triangleMesh: number = bt.btTriangleMesh_create();//TODO:独立抽象btTriangleMesh,增加内存复用
+    //     var nativePositio0: number = Mesh._nativeTempVector30;
+    //     var nativePositio1: number = Mesh._nativeTempVector31;
+    //     var nativePositio2: number = Mesh._nativeTempVector32;
+    //     var position0: Vector3 = this._tempVector30;
+    //     var position1: Vector3 = this._tempVector31;
+    //     var position2: Vector3 = this._tempVector32;
 
-        var vertexBuffer: VertexBuffer3D = this._vertexBuffer;
-        var positionElement: VertexElement = this._getPositionElement(vertexBuffer);
-        var verticesData: Float32Array = vertexBuffer.getFloat32Data();
-        var floatCount: number = vertexBuffer.vertexDeclaration.vertexStride / 4;
-        var posOffset: number = positionElement._offset / 4;
+    //     var vertexBuffer: VertexBuffer3D = this._vertexBuffer;
+    //     var positionElement: VertexElement = this._getPositionElement(vertexBuffer);
+    //     var verticesData: Float32Array = vertexBuffer.getFloat32Data();
+    //     var floatCount: number = vertexBuffer.vertexDeclaration.vertexStride / 4;
+    //     var posOffset: number = positionElement._offset / 4;
 
-        var indices: Uint16Array = this._indexBuffer.getData();//TODO:API修改问题
-        for (var i: number = 0, n: number = indices.length; i < n; i += 3) {
-            var p0Index: number = indices[i] * floatCount + posOffset;
-            var p1Index: number = indices[i + 1] * floatCount + posOffset;
-            var p2Index: number = indices[i + 2] * floatCount + posOffset;
-            position0.setValue(verticesData[p0Index], verticesData[p0Index + 1], verticesData[p0Index + 2]);
-            position1.setValue(verticesData[p1Index], verticesData[p1Index + 1], verticesData[p1Index + 2]);
-            position2.setValue(verticesData[p2Index], verticesData[p2Index + 1], verticesData[p2Index + 2]);
+    //     var indices: Uint16Array = this._indexBuffer.getData();//TODO:API修改问题
+    //     for (var i: number = 0, n: number = indices.length; i < n; i += 3) {
+    //         var p0Index: number = indices[i] * floatCount + posOffset;
+    //         var p1Index: number = indices[i + 1] * floatCount + posOffset;
+    //         var p2Index: number = indices[i + 2] * floatCount + posOffset;
+    //         position0.setValue(verticesData[p0Index], verticesData[p0Index + 1], verticesData[p0Index + 2]);
+    //         position1.setValue(verticesData[p1Index], verticesData[p1Index + 1], verticesData[p1Index + 2]);
+    //         position2.setValue(verticesData[p2Index], verticesData[p2Index + 1], verticesData[p2Index + 2]);
 
-            Utils3D._convertToBulletVec3(position0, nativePositio0);
-            Utils3D._convertToBulletVec3(position1, nativePositio1);
-            Utils3D._convertToBulletVec3(position2, nativePositio2);
-            bt.btTriangleMesh_addTriangle(triangleMesh, nativePositio0, nativePositio1, nativePositio2, false);
-        }
-        this._btTriangleMesh = triangleMesh;
-        //}
-        return this._btTriangleMesh;
-    }
+    //         Utils3D._convertToBulletVec3(position0, nativePositio0);
+    //         Utils3D._convertToBulletVec3(position1, nativePositio1);
+    //         Utils3D._convertToBulletVec3(position2, nativePositio2);
+    //         bt.btTriangleMesh_addTriangle(triangleMesh, nativePositio0, nativePositio1, nativePositio2, false);
+    //     }
+    //     this._btTriangleMesh = triangleMesh;
+    //     //}
+    //     return this._btTriangleMesh;
+    // }
 
     /**
      * @internal

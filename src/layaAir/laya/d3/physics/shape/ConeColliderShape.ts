@@ -1,13 +1,20 @@
-import { ColliderShape } from "./ColliderShape";
-import { ILaya3D } from "../../../../ILaya3D";
-import { LayaEnv } from "../../../../LayaEnv";
 
+import { Laya3D } from "../../../../Laya3D";
+import { LayaEnv } from "../../../../LayaEnv";
+import { IConeColliderShape } from "../../../Physics3D/interface/Shape/IConeColliderShape";
+import { Physics3DColliderShape } from "./Physics3DColliderShape";
 /**
  * <code>ConeColliderShape</code> 类用于创建圆锥碰撞器。
  */
-export class ConeColliderShape extends ColliderShape {
+export class ConeColliderShape extends Physics3DColliderShape {
+	/**@internal */
+	_shape: IConeColliderShape;
+
+	/**@internal */
 	private _orientation: number;
+	/**@internal */
 	private _radius: number = 1;
+	/**@internal */
 	private _height: number = 0.5;
 
 	/**
@@ -19,7 +26,7 @@ export class ConeColliderShape extends ColliderShape {
 
 	set radius(value: number) {
 		this._radius = value;
-		if (LayaEnv.isPlaying) this.changeConeShape();
+		if (LayaEnv.isPlaying) this._shape.setRadius(value);
 	}
 
 	/**
@@ -31,7 +38,7 @@ export class ConeColliderShape extends ColliderShape {
 
 	set height(value: number) {
 		this._height = value;
-		if (LayaEnv.isPlaying) this.changeConeShape();
+		if (LayaEnv.isPlaying) this._shape.setHeight(value);
 	}
 
 	/**
@@ -43,7 +50,7 @@ export class ConeColliderShape extends ColliderShape {
 
 	set orientation(value: number) {
 		this._orientation = value;
-		if (LayaEnv.isPlaying) this.changeConeShape();
+		if (LayaEnv.isPlaying) this._shape.setUpAxis(value);
 	}
 
 	/**
@@ -51,50 +58,19 @@ export class ConeColliderShape extends ColliderShape {
 	 * @param height 高。
 	 * @param radius 半径。
 	 */
-	constructor(radius: number = 0.5, height: number = 1.0, orientation: number = ColliderShape.SHAPEORIENTATION_UPY) {
+	constructor(radius: number = 0.5, height: number = 1.0, orientation: number = Physics3DColliderShape.SHAPEORIENTATION_UPY) {
 		super();
-		this._radius = radius;
-		this._height = height;
-		this._orientation = orientation;
-		this._type = ColliderShape.SHAPETYPES_CYLINDER;
-		var bt: any = ILaya3D.Physics3D._bullet;
-		switch (orientation) {
-			case ColliderShape.SHAPEORIENTATION_UPX:
-				this._btShape = bt.btConeShapeX_create(radius, height);
-				break;
-			case ColliderShape.SHAPEORIENTATION_UPY:
-				this._btShape = bt.btConeShape_create(radius, height);
-				break;
-			case ColliderShape.SHAPEORIENTATION_UPZ:
-				this._btShape = bt.btConeShapeZ_create(radius, height);
-				break;
-			default:
-				throw "ConeColliderShape:unknown orientation.";
-		}
+		this.radius = radius;
+		this.height = height;
+		this.orientation = orientation;
 	}
 
 	/**
 	 * @internal
+	 * @override
 	 */
-	changeConeShape() {
-		var bt: any = ILaya3D.Physics3D._bullet;
-		if (this._btShape) {
-			bt.btCollisionShape_destroy(this._btShape);
-		}
-
-		switch (this._orientation) {
-			case ColliderShape.SHAPEORIENTATION_UPX:
-				this._btShape = bt.btConeShapeX_create(this._radius, this._height);
-				break;
-			case ColliderShape.SHAPEORIENTATION_UPY:
-				this._btShape = bt.btConeShape_create(this._radius, this._height);
-				break;
-			case ColliderShape.SHAPEORIENTATION_UPZ:
-				this._btShape = bt.btConeShapeZ_create(this._radius, this._height);
-				break;
-			default:
-				throw "ConeColliderShape:unknown orientation.";
-		}
+	protected _createShape() {
+		this._shape = Laya3D.PhysicsCreateUtil.createConeColliderShape();
 	}
 
 	/**
@@ -107,6 +83,19 @@ export class ConeColliderShape extends ColliderShape {
 		var dest: ConeColliderShape = new ConeColliderShape(this._radius, this._height, this._orientation);
 		this.cloneTo(dest);
 		return dest;
+	}
+
+	/**
+	 * 克隆
+	 * @inheritDoc
+	 * @override
+	 * @returns 克隆的ConeColliderShape实例
+	 */
+	cloneTo(destObject: ConeColliderShape): void {
+		super.cloneTo(destObject);
+		destObject.radius = this.radius;
+		destObject.height = this.height;
+		destObject.orientation = this.orientation;
 	}
 
 }

@@ -1,19 +1,20 @@
-import { ColliderShape } from "./ColliderShape";
-import { ILaya3D } from "../../../../ILaya3D";
+import { Laya3D } from "../../../../Laya3D";
 import { LayaEnv } from "../../../../LayaEnv";
-import { Vector3 } from "../../../maths/Vector3";
-
+import { ICapsuleColliderShape } from "../../../Physics3D/interface/Shape/ICapsuleColliderShape";
+import { Physics3DColliderShape } from "./Physics3DColliderShape";
 /**
  * <code>CapsuleColliderShape</code> 类用于创建胶囊形状碰撞器。
  */
-export class CapsuleColliderShape extends ColliderShape {
-	/** @internal */
-	public static _tempVector30: Vector3 = new Vector3();
+export class CapsuleColliderShape extends Physics3DColliderShape {
+
+	_shape: ICapsuleColliderShape;
 
 	/**@internal */
 	private _radius: number;
+
 	/**@internal */
 	private _length: number;
+
 	/**@internal */
 	private _orientation: number;
 
@@ -27,7 +28,7 @@ export class CapsuleColliderShape extends ColliderShape {
 	set radius(value: number) {
 		this._radius = value;
 		if (LayaEnv.isPlaying) {
-			this.changeCapsuleShape();
+			this._shape.setRadius(value);
 		}
 	}
 
@@ -41,7 +42,7 @@ export class CapsuleColliderShape extends ColliderShape {
 	set length(value: number) {
 		this._length = value;
 		if (LayaEnv.isPlaying) {
-			this.changeCapsuleShape();
+			this._shape.setHeight(value)
 		}
 	}
 
@@ -55,7 +56,7 @@ export class CapsuleColliderShape extends ColliderShape {
 	set orientation(value: number) {
 		this._orientation = value;
 		if (LayaEnv.isPlaying) {
-			this.changeCapsuleShape();
+			this._shape.setUpAxis(value);
 		}
 	}
 
@@ -65,78 +66,19 @@ export class CapsuleColliderShape extends ColliderShape {
 	 * @param 高(包含半径)。
 	 * @param orientation 胶囊体方向。
 	 */
-	constructor(radius: number = 0.5, length: number = 2, orientation: number = ColliderShape.SHAPEORIENTATION_UPY) {
+	constructor(radius: number = 0.5, length: number = 2, orientation: number = Physics3DColliderShape.SHAPEORIENTATION_UPY) {
 
 		super();
-		this._radius = radius;
-		this._length = length;
-		this._orientation = orientation;
-		this._type = ColliderShape.SHAPETYPES_CAPSULE;
-
-		var bt: any = ILaya3D.Physics3D._bullet;
-		switch (orientation) {
-			case ColliderShape.SHAPEORIENTATION_UPX:
-				this._btShape = bt.btCapsuleShapeX_create(radius, length - radius * 2);
-				break;
-			case ColliderShape.SHAPEORIENTATION_UPY:
-				this._btShape = bt.btCapsuleShape_create(radius, length - radius * 2);
-				break;
-			case ColliderShape.SHAPEORIENTATION_UPZ:
-				this._btShape = bt.btCapsuleShapeZ_create(radius, length - radius * 2);
-				break;
-			default:
-				throw "CapsuleColliderShape:unknown orientation.";
-		}
+		this.radius = radius;
+		this.length = length;
+		this.orientation = orientation;
 	}
 
 	/**
-	 * @internal
-	 */
-	changeCapsuleShape() {
-		//TODO MIner
-		var bt: any = ILaya3D.Physics3D._bullet;
-		if (this._btShape) {
-			bt.btCollisionShape_destroy(this._btShape);
-		}
-		switch (this._orientation) {
-			case ColliderShape.SHAPEORIENTATION_UPX:
-				this._btShape = bt.btCapsuleShapeX_create(this._radius, this._length - this._radius * 2);
-				break;
-			case ColliderShape.SHAPEORIENTATION_UPY:
-				this._btShape = bt.btCapsuleShape_create(this._radius, this._length - this._radius * 2);
-				break;
-			case ColliderShape.SHAPEORIENTATION_UPZ:
-				this._btShape = bt.btCapsuleShapeZ_create(this._radius, this._length - this._radius * 2);
-				break;
-			default:
-				throw "CapsuleColliderShape:unknown orientation.";
-		}
-	}
-
-	/**
-	 * @inheritDoc
 	 * @override
-	 * @internal
 	 */
-	_setScale(value: Vector3): void {
-		var fixScale: Vector3 = CapsuleColliderShape._tempVector30;
-		switch (this.orientation) {
-			case ColliderShape.SHAPEORIENTATION_UPX:
-				fixScale.x = value.x;
-				fixScale.y = fixScale.z = Math.max(value.y, value.z);
-				break;
-			case ColliderShape.SHAPEORIENTATION_UPY:
-				fixScale.y = value.y;
-				fixScale.x = fixScale.z = Math.max(value.x, value.z);
-				break;
-			case ColliderShape.SHAPEORIENTATION_UPZ:
-				fixScale.z = value.z;
-				fixScale.x = fixScale.y = Math.max(value.x, value.y);
-				break;
-			default:
-				throw "CapsuleColliderShape:unknown orientation.";
-		}
-		super._setScale(fixScale);
+	protected _createShape() {
+		this._shape = Laya3D.PhysicsCreateUtil.createCapsuleColliderShape()
 	}
 
 	/**
@@ -147,6 +89,17 @@ export class CapsuleColliderShape extends ColliderShape {
 		var dest: CapsuleColliderShape = new CapsuleColliderShape(this._radius, this._length, this._orientation);
 		this.cloneTo(dest);
 		return dest;
+	}
+
+	/**
+	 * @inheritDoc
+	 * @override
+	 */
+	cloneTo(destObject: CapsuleColliderShape): void {
+		super.cloneTo(destObject);
+		destObject.radius = this.radius;
+		destObject.length = this.length;
+		destObject.orientation = this.orientation;
 	}
 
 }

@@ -1,7 +1,6 @@
 import { ConstraintComponent } from "./ConstraintComponent";
 import { Sprite3D } from "../../core/Sprite3D";
 import { Rigidbody3D } from "../Rigidbody3D";
-import { Physics3D } from "../../Physics3D";
 
 export class FixedConstraint extends ConstraintComponent {
     /**
@@ -19,7 +18,7 @@ export class FixedConstraint extends ConstraintComponent {
      * @internal
      */
     _addToSimulation(): void {
-        this._simulation && this._simulation.addConstraint(this, this.disableCollisionsBetweenLinkedBodies);
+       // this._simulation && this._simulation.addConstraint(this, this.disableCollisionsBetweenLinkedBodies);
     }
 
     /**
@@ -28,8 +27,8 @@ export class FixedConstraint extends ConstraintComponent {
     * @internal
     */
     _removeFromSimulation(): void {
-        this._simulation.removeConstraint(this);
-        this._simulation = null;
+       // this._simulation.removeConstraint(this);
+       // this._simulation = null;
     }
 
     /**
@@ -38,28 +37,28 @@ export class FixedConstraint extends ConstraintComponent {
      * @internal
      */
     _createConstraint(): void {
-        if (this.ownBody && this.ownBody._simulation && this.connectedBody && this.connectedBody._simulation) {
-            var bt = Physics3D._bullet;
-            this._btConstraint = bt.btFixedConstraint_create(this.ownBody.btColliderObject, this._btframATrans, this.connectedBody.btColliderObject, this._btframBTrans)
-            this._btJointFeedBackObj = bt.btJointFeedback_create(this._btConstraint);
-            bt.btTypedConstraint_setJointFeedback(this._btConstraint, this._btJointFeedBackObj);
-            bt.btTypedConstraint_setEnabled(this._btConstraint, true);
+        // if (this.ownBody && this.ownBody._simulation && this.connectedBody && this.connectedBody._simulation) {
+        //     var bt = Physics3D._bullet;
+        //     this._btConstraint = bt.btFixedConstraint_create(this.ownBody.btColliderObject, this._btframATrans, this.connectedBody.btColliderObject, this._btframBTrans)
+        //     this._btJointFeedBackObj = bt.btJointFeedback_create(this._btConstraint);
+        //     bt.btTypedConstraint_setJointFeedback(this._btConstraint, this._btJointFeedBackObj);
+        //     bt.btTypedConstraint_setEnabled(this._btConstraint, true);
 
-            this._simulation = this.getPhysicsSimulation();// (<Scene3D>this.owner._scene).physicsSimulation;
-            this._addToSimulation();
-        }
+        //     this._simulation = this.getPhysicsSimulation();// (<Scene3D>this.owner._scene).physicsSimulation;
+        //     this._addToSimulation();
+        // }
     }
 
     protected _onEnable(): void {
-        if (this._btConstraint)
-            Physics3D._bullet.btTypedConstraint_setEnabled(this._btConstraint, true);
+        // if (this._btConstraint)
+        //     Physics3D._bullet.btTypedConstraint_setEnabled(this._btConstraint, true);
     }
 
     protected _onDisable(): void {
-        if (!this.connectedBody)
-            this._removeFromSimulation();
-        if (this._btConstraint)
-            Physics3D._bullet.btTypedConstraint_setEnabled(this._btConstraint, false);
+        // if (!this.connectedBody)
+        //     this._removeFromSimulation();
+        // if (this._btConstraint)
+        //     Physics3D._bullet.btTypedConstraint_setEnabled(this._btConstraint, false);
     }
 
     /**

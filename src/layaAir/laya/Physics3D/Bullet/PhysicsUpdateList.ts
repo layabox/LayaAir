@@ -1,10 +1,10 @@
-import { PhysicsComponent } from "./PhysicsComponent";
-import { SingletonList } from "../../utils/SingletonList"
+import { SingletonList } from "../../utils/SingletonList";
+import { btCollider } from "./Collider/btCollider";
 
 /**
  * <code>PhysicsUpdateList</code> 类用于实现物理更新队列。
  */
-export class PhysicsUpdateList extends SingletonList<PhysicsComponent> {
+export class PhysicsUpdateList extends SingletonList<btCollider> {
 
     /**
      * 创建一个新的 <code>PhysicsUpdateList</code> 实例。
@@ -17,7 +17,7 @@ export class PhysicsUpdateList extends SingletonList<PhysicsComponent> {
     /**
      * @internal
      */
-    add(element: PhysicsComponent): void {
+    add(element: btCollider): void {
         var index: number = element._inPhysicUpdateListIndex;
         if (index !== -1)
             throw "PhysicsUpdateList:element has  in  PhysicsUpdateList.";
@@ -28,7 +28,7 @@ export class PhysicsUpdateList extends SingletonList<PhysicsComponent> {
     /**
      * @internal
      */
-    remove(element: PhysicsComponent): void {
+    remove(element: btCollider): void {
         var index: number = element._inPhysicUpdateListIndex;
         this.length--;
         if (index !== this.length) {

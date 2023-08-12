@@ -45,23 +45,6 @@ export class Utils3D {
     }
 
     /**
-     * @internal
-     */
-    static _convertToLayaVec3(bVector: number, out: Vector3): void {
-        var bullet: any = ILaya3D.Physics3D._bullet;
-        out.x = bullet.btVector3_x(bVector);
-        out.y = bullet.btVector3_y(bVector);
-        out.z = bullet.btVector3_z(bVector);
-    }
-
-    /**
-     * @internal
-     */
-    static _convertToBulletVec3(lVector: Vector3, out: number): void {
-        ILaya3D.Physics3D._bullet.btVector3_setValue(out, lVector.x, lVector.y, lVector.z);
-    }
-
-    /**
      *通过数平移、旋转、缩放值计算到结果矩阵数组,骨骼动画专用。
      * @param tx left矩阵数组。
      * @param ty left矩阵数组的偏移。

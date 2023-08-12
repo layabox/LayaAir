@@ -12,9 +12,7 @@ import { SubmitKey } from "../../../webgl/submit/SubmitKey";
 import { Cluster } from "../../graphics/renderPath/Cluster";
 import { SphericalHarmonicsL2 } from "../../graphics/SphericalHarmonicsL2";
 import { Viewport } from "../../math/Viewport";
-import { PhysicsComponent } from "../../physics/PhysicsComponent";
 import { PhysicsSettings } from "../../physics/PhysicsSettings";
-import { PhysicsSimulation } from "../../physics/PhysicsSimulation";
 import { SkyBox } from "../../resource/models/SkyBox";
 import { SkyDome } from "../../resource/models/SkyDome";
 import { SkyRenderer } from "../../resource/models/SkyRenderer";
@@ -28,7 +26,6 @@ import { RenderElement } from "../render/RenderElement";
 import { Lightmap } from "./Lightmap";
 import { Scene3DShaderDeclaration } from "./Scene3DShaderDeclaration";
 import { ShadowCasterPass } from "../../shadowMap/ShadowCasterPass";
-import { Physics3D } from "../../Physics3D";
 import { BaseTexture } from "../../../resource/BaseTexture";
 import { BlitFrameBufferCMD } from "../render/command/BlitFrameBufferCMD";
 import { DirectionLightCom } from "../light/DirectionLightCom";
@@ -48,7 +45,6 @@ import { ICullPass } from "../../../RenderEngine/RenderInterface/RenderPipelineI
 import { FrustumCulling } from "../../graphics/FrustumCulling";
 import { IShadowCullInfo } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IShadowCullInfo";
 import { ICameraCullInfo } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/ICameraCullInfo";
-import { WebGL } from "../../../webgl/WebGL";
 import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { Prefab } from "../../../resource/HierarchyResource";
 import { Stat } from "../../../utils/Stat";
@@ -70,6 +66,8 @@ import { Vector3 } from "../../../maths/Vector3";
 import { Vector4 } from "../../../maths/Vector4";
 import { BufferState } from "../../../webgl/utils/BufferState";
 import { RenderTexture } from "../../../resource/RenderTexture";
+import { Laya3D } from "../../../../Laya3D";
+import { IPhysicsManager } from "../../../Physics3D/interface/IPhysicsManager";
 
 export enum FogMode {
     Linear = 0, //Linear
@@ -284,7 +282,6 @@ export class Scene3D extends Sprite implements ISubmit {
     static createSceneUniformBlock(): UnifromBufferData {
         if (!Scene3D.SceneUBOData) {
             let uniformpara: Map<string, UniformBufferParamsType> = new Map<string, UniformBufferParamsType>();
-            // uniformpara.set("u_AmbientColor", UniformBufferParamsType.Vector4);
             uniformpara.set("u_Time", UniformBufferParamsType.Number);
             uniformpara.set("u_FogParams", UniformBufferParamsType.Vector4);
             uniformpara.set("u_FogColor", UniformBufferParamsType.Vector4);
@@ -323,7 +320,7 @@ export class Scene3D extends Sprite implements ISubmit {
         if (Config3D._uniformBlock)
             configShaderValue.add(Shader3D.SHADERDEFINE_ENUNIFORMBLOCK);
 
-        Physics3D._bullet && (Scene3D.physicsSettings = new PhysicsSettings());
+        Laya3D.enablePhysics && (Scene3D.physicsSettings = new PhysicsSettings());
 
         let supportFloatTex = LayaGL.renderEngine.getCapable(RenderCapable.TextureFormat_R32G32B32A32);
         if (supportFloatTex) {
@@ -407,9 +404,7 @@ export class Scene3D extends Sprite implements ISubmit {
     /** @internal */
     _mainPointLight: PointLightCom;//TODO
     /** @internal */
-    _physicsSimulation: PhysicsSimulation;
-    /**@internal */
-    _physicsdisableSimulation: boolean = false;
+    _physicsManager: IPhysicsManager;
     /** @internal 只读,不允许修改。*/
     _collsionTestList: number[] = [];
     /** @internal */
@@ -685,8 +680,8 @@ export class Scene3D extends Sprite implements ISubmit {
     /**
      * 物理模拟器。
      */
-    get physicsSimulation(): PhysicsSimulation {
-        return this._physicsSimulation;
+    get physicsSimulation(): IPhysicsManager {
+        return this._physicsManager;
     }
 
     /**
@@ -758,8 +753,8 @@ export class Scene3D extends Sprite implements ISubmit {
         if (LayaEnv.isConch && !(window as any).conchConfig.conchWebGL) {
             this._nativeObj = new (window as any).conchSubmitScene3D(this.renderSubmit.bind(this));
         }
-        if (Physics3D._bullet)
-            this._physicsSimulation = new PhysicsSimulation(Scene3D.physicsSettings);
+        if (Laya3D.enablePhysics)
+            this._physicsManager = Laya3D.PhysicsCreateUtil.createPhysicsManger(Scene3D.physicsSettings);
 
         this._shaderValues = LayaGL.renderOBJCreate.createShaderData(null);
         this._shaderValues._defineDatas.addDefineDatas(Shader3D._configDefineValues);
@@ -800,22 +795,7 @@ export class Scene3D extends Sprite implements ISubmit {
             this._cullPass = LayaGL.renderOBJCreate.createCullPass();
         }
 
-        //this._cullPass = LayaGL.renderOBJCreate.createCullPass();
-
-        // if (Scene3D.octreeCulling)
-        // 	this._octree = new BoundsOctree(Scene3D.octreeInitialSize, Scene3D.octreeInitialCenter, Scene3D.octreeMinNodeSize, Scene3D.octreeLooseness);
         if (Config3D.debugFrustumCulling) {
-            // this._debugTool = new PixelLineSprite3D();
-            // var lineMaterial: PixelLineMaterial = new PixelLineMaterial();
-            // lineMaterial.renderQueue = Material.RENDERQUEUE_TRANSPARENT;
-            // lineMaterial.alphaTest = false;
-            // lineMaterial.depthWrite = false;
-            // lineMaterial.cull = RenderState.CULL_BACK;
-            // lineMaterial.blend = RenderState.BLEND_ENABLE_ALL;
-            // lineMaterial.blendSrc = RenderState.BLENDPARAM_SRC_ALPHA;
-            // lineMaterial.blendDst = RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA;
-            // lineMaterial.depthTest = RenderState.DEPTHTEST_LESS;
-            // this._debugTool.pixelLineRenderer.sharedMaterial = lineMaterial;
         }
 
         this._volumeManager = new VolumeManager();
@@ -833,21 +813,12 @@ export class Scene3D extends Sprite implements ISubmit {
         var delta: number = this.timer._delta / 1000;
         this._time += delta;
         this._shaderValues.setNumber(Scene3D.TIME, this._time);
+
         //Physics
-        let simulation: PhysicsSimulation = this._physicsSimulation;
         if (LayaEnv.isPlaying) {
-            if (Physics3D._enablePhysics && !PhysicsSimulation.disableSimulation && Stat.enablePhysicsUpdate) {
-                simulation._updatePhysicsTransformFromRender();
-                PhysicsComponent._addUpdateList = false;//物理模拟器会触发_updateTransformComponent函数,不加入更新队列
-                //simulate physics
-                simulation._simulate(delta);
-                //update character sprite3D transforms from physics engine simulation
-                simulation._updateCharacters();
-                PhysicsComponent._addUpdateList = true;
-                //handle frame contacts
-                simulation._updateCollisions();
-                //send contact events
-                simulation.dispatchCollideEvent();
+            let physicsManager = this._physicsManager;
+            if (Laya3D.enablePhysics && Stat.enablePhysicsUpdate) {
+                physicsManager.update(delta);
             }
         }
 
@@ -1464,7 +1435,7 @@ export class Scene3D extends Sprite implements ISubmit {
         this._sceneRenderManager = null
         this._cameraPool = null;
         // this._octree = null;
-        this._physicsSimulation && this._physicsSimulation._destroy();
+        this._physicsManager && this._physicsManager.destroy();
         // this._reflection._removeReference();
         // this._reflection = null;
         var maps: Lightmap[] = this._lightmaps;
@@ -1636,6 +1607,4 @@ export class Scene3D extends Sprite implements ISubmit {
         }
         return lightmapColors;//slice()防止修改数组内容
     }
-
-
 }

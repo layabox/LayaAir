@@ -1,3 +1,4 @@
+import { PhysicsSettings } from "../../d3/physics/PhysicsSettings";
 import { Vector3 } from "../../maths/Vector3";
 import { ICharacterController } from "./ICharacterController";
 import { IDynamicCollider } from "./IDynamicCollider";
@@ -10,6 +11,8 @@ import { IHingeJoint } from "./Joint/IHingeJoint";
 import { ISpringJoint } from "./Joint/ISpringJoint";
 import { IBoxColliderShape } from "./Shape/IBoxColliderShape";
 import { ICapsuleColliderShape } from "./Shape/ICapsuleColliderShape";
+import { IConeColliderShape } from "./Shape/IConeColliderShape";
+import { ICylinderColliderShape } from "./Shape/ICylinderColliderShape";
 import { IMeshColliderShape } from "./Shape/IMeshColliderShape";
 import { IPlaneColliderShape } from "./Shape/IPlaneColliderShape";
 import { ISphereColliderShape } from "./Shape/ISphereColliderShape";
@@ -23,51 +26,46 @@ export interface IPhysicsCreateUtil {
     /**
      * 创建物理管理类
      */
-    createPhysicsManger(): IPhysicsManager;
+    createPhysicsManger(physicsSettings: PhysicsSettings): IPhysicsManager;
 
     /**
      * 创建动态碰撞体
      */
-    createDynamicCollider(): IDynamicCollider;
+    createDynamicCollider(manager: IPhysicsManager): IDynamicCollider;
 
     /**
      * 创建静态碰撞体
      */
-    createStaticCollider(): IStaticCollider;
+    createStaticCollider(manager: IPhysicsManager): IStaticCollider;
 
     /**
      * 创建角色碰撞器
      */
-    createCharacterController(): ICharacterController;
-
-    /**
-     * 创建物理材质
-     */
-    createPhysicsMaterial(): IPhysicsMaterial;
+    createCharacterController(manager: IPhysicsManager): ICharacterController;
 
     //joint module
     /**
      * Create fixed joint.
      * @param collider - Affector of joint
      */
-    createFixedJoint(): IFixedJoint;
+    createFixedJoint(manager: IPhysicsManager): IFixedJoint;
 
     /**
      * Create hinge joint.
      * @param collider - Affector of joint
      */
-    createHingeJoint(): IHingeJoint;
+    createHingeJoint(manager: IPhysicsManager): IHingeJoint;
 
     /**
      * Create spring joint
      * @param collider - Affector of joint
      */
-    createSpringJoint(): ISpringJoint;
+    createSpringJoint(manager: IPhysicsManager): ISpringJoint;
 
     /**
      * Create Custom Joint
      */
-    createCustomJoint(): ICustomJoint;
+    createCustomJoint(manager: IPhysicsManager): ICustomJoint;
 
     //Shape
     /**
@@ -76,7 +74,7 @@ export interface IPhysicsCreateUtil {
      * @param size - Size of the box
      * @param material - The material of this shape
      */
-    createBoxColliderShape(uniqueID: number, size: Vector3, material: IPhysicsMaterial): IBoxColliderShape;
+    createBoxColliderShape(): IBoxColliderShape;
 
     /**
      * Create sphere collider shape.
@@ -84,14 +82,14 @@ export interface IPhysicsCreateUtil {
      * @param radius - Radius of the sphere
      * @param material - The material of this shape
      */
-    createSphereColliderShape(uniqueID: number, radius: number, material: IPhysicsMaterial): ISphereColliderShape;
+    createSphereColliderShape(): ISphereColliderShape;
 
     /**
      * Create plane collider shape.
      * @param uniqueID - Shape unique id
      * @param material - The material of this shape
      */
-    createPlaneColliderShape(uniqueID: number, material: IPhysicsMaterial): IPlaneColliderShape;
+    createPlaneColliderShape(): IPlaneColliderShape;
 
     /**
      * Create capsule collider shape.
@@ -100,10 +98,20 @@ export interface IPhysicsCreateUtil {
      * @param height - Height of capsule
      * @param material - The material of this shape
      */
-    createCapsuleColliderShape(uniqueID: number, radius: number, height: number, material: IPhysicsMaterial): ICapsuleColliderShape;
+    createCapsuleColliderShape?(): ICapsuleColliderShape;
 
     /**
      * create Mesh Collider shape
      */
-    createMeshColliderShape(): IMeshColliderShape;
+    createMeshColliderShape?(): IMeshColliderShape;
+
+    /**
+     * create Cylinder Collider Shape
+     */
+    createCylinderColliderShape?(): ICylinderColliderShape;
+
+    /**
+     * create Cone Collider Shape
+     */
+    createConeColliderShape?(): IConeColliderShape;
 }

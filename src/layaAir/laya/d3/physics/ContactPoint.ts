@@ -1,5 +1,5 @@
+import { ICollider } from "../../Physics3D/interface/ICollider";
 import { Vector3 } from "../../maths/Vector3";
-import { PhysicsComponent } from "./PhysicsComponent"
 
 /**
  * <code>ContactPoint</code> 类用于创建物理碰撞信息。
@@ -12,9 +12,9 @@ export class ContactPoint {
 	_id: number;
 
 	/**碰撞器A。*/
-	colliderA: PhysicsComponent = null;
+	_colliderA: ICollider = null;
 	/**碰撞器B。*/
-	colliderB: PhysicsComponent = null;
+	_colliderB: ICollider = null;
 	/**距离。*/
 	distance: number = 0;
 	/**法线。*/

@@ -1,26 +1,15 @@
 import { Ray } from "../../d3/math/Ray";
+import { HitResult } from "../../d3/physics/HitResult";
 import { Vector3 } from "../../maths/Vector3";
 import { ICollider } from "./ICollider";
-import { IColliderShape } from "./Shape/IColliderShape";
 
 export interface IPhysicsManager {
+  
   /**
   * Set gravity.
   * @param gravity - Physics gravity
   */
   setGravity(gravity: Vector3): void;
-
-  /**
-   * Add IColliderShape into the manager.??
-   * @param colliderShape - The Collider Shape.
-   */
-  //addColliderShape(colliderShape: IColliderShape): void;
-
-  /**
-   * Remove IColliderShape.??
-   * @param colliderShape - The Collider Shape.
-   */
-  //removeColliderShape(colliderShape: IColliderShape): void;
 
   /**
    * Add ICollider into the manager.
@@ -35,35 +24,53 @@ export interface IPhysicsManager {
   removeCollider(collider: ICollider): void;
 
   /**
-   * Add ICharacterController into the manager.
-   * @param characterController The Character Controller.
-   */
-  //addCharacterController(characterController: ICharacterController): void;
-
-  /**
-   * Remove ICharacterController.
-   * @param characterController The Character Controller.
-   */
-  //removeCharacterController(characterController: ICharacterController): void;
-
-  /**
    * Call on every frame to update pose of objects.
    * @param elapsedTime - Step time of update.
    */
   update(elapsedTime: number): void;
 
   /**
-   * Casts a ray through the Scene and returns the first hit.
-   * @param ray - The ray
-   * @param distance - The max distance the ray should check
-   * @param onRaycast - The raycast result callback which prefilter result
-   * @param outHitResult - If true is returned, outHitResult will contain more detailed collision information
-   * @returns Returns True if the ray intersects with a collider, otherwise false
+   * ray cast first one collision
+   * @param ray 
+   * @param outHitResult 
+   * @param distance 
+   * @param collisonGroup 
+   * @param collisionMask 
    */
-  raycast(
-    ray: Ray,
-    distance: number,
-    onRaycast: (obj: number) => boolean,
-    outHitResult?: (shapeUniqueID: number, distance: number, point: Vector3, normal: Vector3) => void
-  ): boolean;
+  rayCast?(ray: Ray, outHitResult: HitResult, distance?: number, collisonGroup?: number, collisionMask?: number): boolean;
+
+  /**
+   * ray cast all collision
+   * @param ray 
+   * @param out 
+   * @param distance 
+   * @param collisonGroup 
+   * @param collisionMask 
+   */
+  rayCastAll?(ray: Ray, out: HitResult[], distance: number, collisonGroup?: number, collisionMask?: number): boolean;
+
+  /**
+   * debugger
+   * @param value 
+   */
+  enableDebugDrawer?(value: boolean): void;
+
+  /**
+   * Query
+   * @param pos 
+   * @param radius 
+   * @param result 
+   * @param collisionmask 
+   */
+  sphereQuery?(pos: Vector3, radius: number, result: ICollider[], collisionmask: number): void;
+
+  /**
+   * destroy
+   */
+  destroy(): void;
+
+  //shapeCast(shape: IColliderShape, fromPosition: Vector3, toPosition: Vector3, out: HitResult, fromRotation: Quaternion = null, toRotation: Quaternion = null, collisonGroup: number = Physics3DUtils.COLLISIONFILTERGROUP_ALLFILTER, collisionMask: number = Physics3DUtils.COLLISIONFILTERGROUP_ALLFILTER, allowedCcdPenetration: number = 0.0): boolean
+
+  //shapeCastAll(shape: ColliderShape, fromPosition: Vector3, toPosition: Vector3, out: HitResult[], fromRotation: Quaternion = null, toRotation: Quaternion = null, collisonGroup: number = Physics3DUtils.COLLISIONFILTERGROUP_ALLFILTER, collisionMask: number = Physics3DUtils.COLLISIONFILTERGROUP_ALLFILTER, allowedCcdPenetration: number = 0.0): boolean 
+
 }

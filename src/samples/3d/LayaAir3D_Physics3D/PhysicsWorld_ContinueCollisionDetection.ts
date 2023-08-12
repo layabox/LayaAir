@@ -28,7 +28,7 @@ export class PhysicsWorld_ContinueCollisionDetection {
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
 			Stat.show();
 			this.scene = (<Scene3D>Laya.stage.addChild(new Scene3D()));
-			this.scene.physicsSimulation.gravity = new Vector3(0, -98.0, 0);
+			this.scene.physicsSimulation.setGravity(new Vector3(0, -98.0, 0));
 
 			//初始化照相机
 			var camera: Camera = (<Camera>this.scene.addChild(new Camera(0, 0.1, 100)));

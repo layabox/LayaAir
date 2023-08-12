@@ -1,6 +1,5 @@
 import { BoundFrustum } from "../../math/BoundFrustum";
 import { Mesh } from "../../resource/models/Mesh";
-import { Physics3DUtils } from "../../utils/Physics3DUtils";
 import { BaseRender } from "../render/BaseRender";
 import { RenderContext3D } from "../render/RenderContext3D";
 import { Transform3D } from "../Transform3D";
@@ -25,6 +24,8 @@ import { Vector3 } from "../../../maths/Vector3";
  * <code>ShurikenParticleRender</code> 类用于创建3D粒子渲染器。
  */
 export class ShurikenParticleRenderer extends BaseRender {
+    /**重力值。*/
+    static gravity: Vector3 = new Vector3(0, -9.81, 0);
     /** @internal */
     private _finalGravity: Vector3 = new Vector3();
     private _dragConstant: Vector2 = new Vector2();
@@ -128,8 +129,8 @@ export class ShurikenParticleRenderer extends BaseRender {
         this._supportOctree = false;
     }
 
-    protected _getcommonUniformMap():Array<string>{
-        return ["Sprite3D","ShurikenSprite3D"];
+    protected _getcommonUniformMap(): Array<string> {
+        return ["Sprite3D", "ShurikenSprite3D"];
     }
 
 
@@ -206,7 +207,7 @@ export class ShurikenParticleRenderer extends BaseRender {
      * @override
      */
     _needRender(boundFrustum: BoundFrustum, context: RenderContext3D): boolean {
-        if(!Stat.enableParticle)
+        if (!Stat.enableParticle)
             return false;
         if (boundFrustum) {
             if (boundFrustum.intersects(this.bounds)) {
@@ -273,7 +274,7 @@ export class ShurikenParticleRenderer extends BaseRender {
                 break;
         }
 
-        Vector3.scale(Physics3DUtils.gravity, particleSystem.gravityModifier, this._finalGravity);
+        Vector3.scale(ShurikenParticleRenderer.gravity, particleSystem.gravityModifier, this._finalGravity);
         sv.setVector3(ShuriKenParticle3DShaderDeclaration.GRAVITY, this._finalGravity);
         sv.setInt(ShuriKenParticle3DShaderDeclaration.SIMULATIONSPACE, particleSystem.simulationSpace);
         sv.setBool(ShuriKenParticle3DShaderDeclaration.THREEDSTARTROTATION, particleSystem.threeDStartRotation);

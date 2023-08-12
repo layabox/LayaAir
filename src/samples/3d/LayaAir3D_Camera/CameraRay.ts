@@ -23,6 +23,7 @@ import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import Client from "../../Client";
 import { CameraMoveScript } from "../common/CameraMoveScript";
+import { Physics3DUtils } from "laya/d3/utils/Physics3DUtils";
 
 
 
@@ -51,26 +52,26 @@ export class CameraRay {
 	private tmpVector2: Vector3 = new Vector3(0, 0, 0);
 
 	/**实例类型*/
-	private btype:any = "CameraRay";
+	private btype: any = "CameraRay";
 	/**场景内按钮类型*/
-	private stype:any = 0;
+	private stype: any = 0;
 
 	constructor() {
 		//初始化引擎,使用物理的wasm库需要调用回调的方式来初始化
-		Laya.init(0, 0,null,Handler.create(this,()=>{
+		Laya.init(0, 0, null, Handler.create(this, () => {
 			Laya.stage.scaleMode = Stage.SCALE_FULL;
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
 			//显示性能面板
 			Stat.show();
-	
+
 			this.scene = (<Scene3D>Laya.stage.addChild(new Scene3D()));
-	
+
 			//初始化照相机
 			this.camera = (<Camera>this.scene.addChild(new Camera(0, 0.1, 100)));
 			this.camera.transform.translate(this._translate);
 			this.camera.transform.rotate(this._rotation, true, false);
 			this.camera.addComponent(CameraMoveScript);
-	
+
 			//方向光
 			var directionLight: DirectionLight = (<DirectionLight>this.scene.addChild(new DirectionLight()));
 			directionLight.color.setValue(0.6, 0.6, 0.6, 1);
@@ -78,7 +79,7 @@ export class CameraRay {
 			var mat: Matrix4x4 = directionLight.transform.worldMatrix;
 			mat.setForward(this._forward);
 			directionLight.transform.worldMatrix = mat;
-	
+
 			//平面
 			var plane: MeshSprite3D = (<MeshSprite3D>this.scene.addChild(new MeshSprite3D(PrimitiveMesh.createPlane(10, 10, 10, 10))));
 			var planeMat: BlinnPhongMaterial = new BlinnPhongMaterial();
@@ -89,7 +90,7 @@ export class CameraRay {
 			planeMat.tilingOffset = this._tilingOffset;
 			//设置材质
 			plane.meshRenderer.material = planeMat;
-	
+
 			//平面添加物理碰撞体组件
 			var planeStaticCollider: PhysicsCollider = plane.addComponent(PhysicsCollider);
 			//创建盒子形状碰撞器
@@ -146,7 +147,7 @@ export class CameraRay {
 		//产生射线
 		this.camera.viewportPointToRay(this.point, this._ray);
 		//拿到射线碰撞的物体
-		this.scene.physicsSimulation.rayCastAll(this._ray, this.outs);
+		this.scene.physicsSimulation.rayCastAll(this._ray, this.outs, Physics3DUtils.COLLISIONFILTERGROUP_ALLFILTER, Physics3DUtils.COLLISIONFILTERGROUP_ALLFILTER)
 
 		//如果碰撞到物体
 		if (this.outs.length != 0) {
@@ -156,7 +157,7 @@ export class CameraRay {
 				this.addBoxXYZ(this.outs[i].point.x, this.outs[i].point.y, this.outs[i].point.z);
 			}
 		}
-		Client.instance.send({type:"next",btype:this.btype,stype:0})
+		Client.instance.send({ type: "next", btype: this.btype, stype: 0 })
 
 	}
 

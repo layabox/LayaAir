@@ -23,7 +23,7 @@ import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
-
+import { URL } from "laya/net/URL";
 
 export class PhysicsWorld_BaseCollider {
 	private scene: Scene3D;
@@ -38,10 +38,13 @@ export class PhysicsWorld_BaseCollider {
 	constructor() {
 		//初始化引擎
 		Laya.init(0, 0).then(() => {
+
 			Laya.stage.scaleMode = Stage.SCALE_FULL;
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
+
 			//显示性能面板
 			Stat.show();
+			URL.basePath += "sample-resource/";
 			this.scene = (<Scene3D>Laya.stage.addChild(new Scene3D()));
 
 			//初始化照相机
@@ -120,8 +123,8 @@ export class PhysicsWorld_BaseCollider {
 		var box: MeshSprite3D = (<MeshSprite3D>this.scene.addChild(new MeshSprite3D(PrimitiveMesh.createBox(sX, sY, sZ))));
 		//设置材质
 		box.meshRenderer.material = new BlinnPhongMaterial();
-		Laya.loader.load("res/threeDimen/Physics/rocks.jpg").then((res)=>{
-			(box.meshRenderer.material as BlinnPhongMaterial).albedoTexture = res as Texture2D; 
+		Laya.loader.load("res/threeDimen/Physics/rocks.jpg").then((res) => {
+			(box.meshRenderer.material as BlinnPhongMaterial).albedoTexture = res as Texture2D;
 		});
 		var transform: Transform3D = box.transform;
 		var pos: Vector3 = transform.position;
@@ -148,8 +151,8 @@ export class PhysicsWorld_BaseCollider {
 		var sphere: MeshSprite3D = (<MeshSprite3D>this.scene.addChild(new MeshSprite3D(PrimitiveMesh.createSphere(radius))));
 		//设置材质
 		sphere.meshRenderer.material = new BlinnPhongMaterial();
-		Laya.loader.load("res/threeDimen/Physics/plywood.jpg").then((res)=>{
-			(sphere.meshRenderer.material as BlinnPhongMaterial).albedoTexture = res as Texture2D; 
+		Laya.loader.load("res/threeDimen/Physics/plywood.jpg").then((res) => {
+			(sphere.meshRenderer.material as BlinnPhongMaterial).albedoTexture = res as Texture2D;
 		});
 		var pos: Vector3 = sphere.transform.position;
 		pos.setValue(Math.random() * 4 - 2, 10, Math.random() * 4 - 2);
@@ -173,8 +176,8 @@ export class PhysicsWorld_BaseCollider {
 		var capsule: MeshSprite3D = (<MeshSprite3D>this.scene.addChild(new MeshSprite3D(PrimitiveMesh.createCapsule(raidius, height))));
 		//设置材质
 		capsule.meshRenderer.material = new BlinnPhongMaterial();
-		Laya.loader.load("res/threeDimen/Physics/wood.jpg").then((res)=>{
-			(capsule.meshRenderer.material as BlinnPhongMaterial).albedoTexture = res as Texture2D; 
+		Laya.loader.load("res/threeDimen/Physics/wood.jpg").then((res) => {
+			(capsule.meshRenderer.material as BlinnPhongMaterial).albedoTexture = res as Texture2D;
 		});
 		var transform: Transform3D = capsule.transform;
 		var pos: Vector3 = transform.position;
@@ -203,8 +206,8 @@ export class PhysicsWorld_BaseCollider {
 		this.scene.addChild(cone);
 		//设置材质
 		cone.meshRenderer.material = new BlinnPhongMaterial();
-		Laya.loader.load("res/threeDimen/Physics/steel2.jpg").then((res)=>{
-			(cone.meshRenderer.material as BlinnPhongMaterial).albedoTexture = res as Texture2D; 
+		Laya.loader.load("res/threeDimen/Physics/steel2.jpg").then((res) => {
+			(cone.meshRenderer.material as BlinnPhongMaterial).albedoTexture = res as Texture2D;
 		});
 		//设置位置
 		var pos: Vector3 = cone.transform.position;
@@ -228,8 +231,8 @@ export class PhysicsWorld_BaseCollider {
 		this.scene.addChild(cylinder);
 		//设置材质
 		cylinder.meshRenderer.material = new BlinnPhongMaterial();
-		Laya.loader.load("res/threeDimen/Physics/steel.jpg").then((res)=>{
-			(cylinder.meshRenderer.material as BlinnPhongMaterial).albedoTexture = res as Texture2D; 
+		Laya.loader.load("res/threeDimen/Physics/steel.jpg").then((res) => {
+			(cylinder.meshRenderer.material as BlinnPhongMaterial).albedoTexture = res as Texture2D;
 		});
 		//设置位置
 		var transform: Transform3D = cylinder.transform;

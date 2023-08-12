@@ -44,7 +44,7 @@ export class Transform3D extends EventDispatcher {
 	static TRANSFORM_WORLDEULER: number = 0x80;
 
 	/**@internal */
-	protected static _angleToRandin: number = 180 / Math.PI;
+	static _angleToRandin: number = 180 / Math.PI;
 
 	/** @internal */
 	protected _owner: Sprite3D;

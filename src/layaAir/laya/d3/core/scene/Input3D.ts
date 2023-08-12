@@ -17,7 +17,7 @@ const _hitResult = new HitResult();
 
 InputManager.prototype.getSprite3DUnderPoint = function (this: InputManager, x: number, y: number): Node {
     _hitResult.succeeded = false;
-    
+
     x = x * this._stage.clientScaleX;
     y = y * this._stage.clientScaleY;
     var pageX = x;
@@ -25,14 +25,14 @@ InputManager.prototype.getSprite3DUnderPoint = function (this: InputManager, x: 
 
     var normalWidth = x / Render._mainCanvas.width;
     var normalHeight = y / Render._mainCanvas.height;
-    
+
     x = this._stage.width * normalWidth;
     y = this._stage.height * normalHeight;
 
     _vec2.setValue(x, y);
 
     for (let scene of <Scene3D[]>this._stage._scene3Ds) {
-        let sim = scene._physicsSimulation;
+        let sim = scene._physicsManager;
         let uiManager = scene._UI3DManager;
 
         let cameras = scene._cameraPool;

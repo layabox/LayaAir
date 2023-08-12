@@ -1,6 +1,5 @@
 import { Config3D } from "./Config3D";
 import { ILaya3D } from "./ILaya3D";
-import { Laya } from "./Laya";
 import { PostProcess } from "./laya/d3/component/PostProcess";
 import { BlinnPhongMaterial } from "./laya/d3/core/material/BlinnPhongMaterial";
 import { Material } from "./laya/d3/core/material/Material";
@@ -30,7 +29,6 @@ import { VertexPositionTerrain } from "./laya/d3/graphics/Vertex/VertexPositionT
 import { VertexPositionTexture0 } from "./laya/d3/graphics/Vertex/VertexPositionTexture0";
 import { VertexShurikenParticleBillboard } from "./laya/d3/graphics/Vertex/VertexShurikenParticleBillboard";
 import { VertexShurikenParticleMesh } from "./laya/d3/graphics/Vertex/VertexShurikenParticleMesh";
-import { BulletInteractive } from "./laya/d3/physics/BulletInteractive";
 import { Mesh } from "./laya/d3/resource/models/Mesh";
 import { PrimitiveMesh } from "./laya/d3/resource/models/PrimitiveMesh";
 import { SkyBox } from "./laya/d3/resource/models/SkyBox";
@@ -38,16 +36,12 @@ import { SkyDome } from "./laya/d3/resource/models/SkyDome";
 import { TextureCube } from "./laya/resource/TextureCube";
 import { ShaderInit3D } from "./laya/d3/shader/ShaderInit3D";
 import { LayaGL } from "./laya/layagl/LayaGL";
-import { Render } from "./laya/renders/Render";
 import { Texture2D } from "./laya/resource/Texture2D";
-import { Handler } from "./laya/utils/Handler";
-import { RunDriver } from "./laya/utils/RunDriver";
 import { WebGL } from "./laya/webgl/WebGL";
 import { ShadowUtils } from "./laya/d3/core/light/ShadowUtils";
 import { ShadowCasterPass } from "./laya/d3/shadowMap/ShadowCasterPass";
 import { SimpleSkinnedMeshSprite3D } from "./laya/d3/core/SimpleSkinnedMeshSprite3D";
 import { HalfFloatUtils } from "./laya/utils/HalfFloatUtils";
-import { Physics3D } from "./laya/d3/Physics3D";
 import { Camera } from "./laya/d3/core/Camera";
 import { BaseCamera } from "./laya/d3/core/BaseCamera";
 import { ShuriKenParticle3DShaderDeclaration } from "./laya/d3/core/particleShuriKen/ShuriKenParticle3DShaderDeclaration";
@@ -67,20 +61,39 @@ import { SubShader } from "./laya/RenderEngine/RenderShader/SubShader";
 import { VertexMesh } from "./laya/RenderEngine/RenderShader/VertexMesh";
 import { RenderTexture } from "./laya/resource/RenderTexture";
 import { ColorGradEffect } from "./laya/d3/core/render/PostEffect/ColorGradEffect";
-import { Browser } from "./laya/utils/Browser";
 import { LensFlareEffect } from "./laya/d3/core/render/PostEffect/LensFlares/LensFlareEffect";
+import { IPhysicsCreateUtil } from "./laya/Physics3D/interface/IPhysicsCreateUtil";
 
 /**
  * <code>Laya3D</code> 类用于初始化3D设置。
  */
 export class Laya3D {
+    /**物理创建管理器 */
+    static _PhysicsCreateUtil: IPhysicsCreateUtil;
+
+    /**@internal */
+    static _enablePhysics: boolean = false;
 
     /**
-     * 获取是否可以启用物理。
+     * 设置物理创建管理器
+     */
+    static set PhysicsCreateUtil(value: IPhysicsCreateUtil) {
+        if (!value) {
+            Laya3D._PhysicsCreateUtil = value;
+            Laya3D._enablePhysics = true;
+        }
+    }
+
+    static get PhysicsCreateUtil() {
+        return this._PhysicsCreateUtil;
+    }
+
+    /**
+     * 是否启用物理。
      * @param 是否启用物理。
      */
     static get enablePhysics(): any {
-        return Physics3D._enablePhysics;
+        return Laya3D._enablePhysics;
     }
 
     /**
@@ -97,20 +110,17 @@ export class Laya3D {
      */
     static __init__(checkPhysics?: boolean): Promise<void> {
         if (checkPhysics !== false) {
-            let physics3D: Function = (window as any).Physics3D;
-            if (physics3D == null)
-                Physics3D._enablePhysics = false;
+            if (Laya3D._PhysicsCreateUtil)
+                Laya3D._enablePhysics = false;
             else {
-                Physics3D._enablePhysics = true;
-                //physics3D返回的可能不是正经的promise，所以包一下
+                Laya3D._enablePhysics = true;
                 return new Promise<void>(resolve => {
-                    physics3D(Math.max(16, Config3D.defaultPhysicsMemory) * 16, new BulletInteractive(null, null)).then(() => {
+                    Laya3D._PhysicsCreateUtil.initialize().then(() => {
                         Laya3D.__init__(false).then(resolve);
                     });
                 });
             }
         }
-
         Laya3D.createRenderObjInit();
         // if (LayaEnv.isConch && !(window as any).conchConfig.conchWebGL) {
         //     var skinnedMeshRender: any = SkinnedMeshRenderer;
@@ -137,9 +147,6 @@ export class Laya3D {
 
         ILaya3D.Scene3D = Scene3D;
         ILaya3D.Laya3D = Laya3D;
-        ILaya3D.Physics3D = Physics3D;
-
-        Physics3D.__bulletinit__();
         SubShader.__init__();
         VertexMesh.__init__();
         VertexShurikenParticleBillboard.__init__();
@@ -185,47 +192,15 @@ export class Laya3D {
         RenderTexture.configRenderContextInstance(RenderContext3D._instance);
         Material.__initDefine__();
         BlinnPhongMaterial.__initDefine__();
-        // PBRStandardMaterial.__initDefine__();
-        // PBRSpecularMaterial.__initDefine__();
         SkyProceduralMaterial.__initDefine__();
         UnlitMaterial.__initDefine__();
         TrailMaterial.__initDefine__();
-
-        // EffectMaterial.__initDefine__();
-        // WaterPrimaryMaterial.__initDefine__();
         ShurikenParticleMaterial.__initDefine__();
-        // ExtendTerrainMaterial.__initDefine__();
-        // PixelLineMaterial.__initDefine__();
         SkyBoxMaterial.__initDefine__();
-        // BloomEffect.__init__();
-
         Command.__init__();
         BlitFrameBufferCMD.__init__();
-
-        // PixelLineMaterial.defaultMaterial = new PixelLineMaterial();
         BlinnPhongMaterial.defaultMaterial = new BlinnPhongMaterial();
         BlinnPhongMaterial.defaultMaterial.lock = true;
-        // EffectMaterial.defaultMaterial = new EffectMaterial();
-        // PBRStandardMaterial.defaultMaterial = new PBRStandardMaterial();
-        // PBRSpecularMaterial.defaultMaterial = new PBRSpecularMaterial();
-        // UnlitMaterial.defaultMaterial = new UnlitMaterial();
-        // ShurikenParticleMaterial.defaultMaterial = new ShurikenParticleMaterial();
-        // TrailMaterial.defaultMaterial = new TrailMaterial();
-        // SkyProceduralMaterial.defaultMaterial = new SkyProceduralMaterial();
-        // SkyBoxMaterial.defaultMaterial = new SkyBoxMaterial();
-        // WaterPrimaryMaterial.defaultMaterial = new WaterPrimaryMaterial();
-
-        // PixelLineMaterial.defaultMaterial.lock = true;//todo:
-        // BlinnPhongMaterial.defaultMaterial.lock = true;
-        // EffectMaterial.defaultMaterial.lock = true;
-        // // PBRStandardMaterial.defaultMaterial.lock = true;
-        // // PBRSpecularMaterial.defaultMaterial.lock = true;
-        // // UnlitMaterial.defaultMaterial.lock = true;
-        // ShurikenParticleMaterial.defaultMaterial.lock = true;
-        // TrailMaterial.defaultMaterial.lock = true;
-        // SkyProceduralMaterial.defaultMaterial.lock = true;
-        // SkyBoxMaterial.defaultMaterial.lock = true;
-        // WaterPrimaryMaterial.defaultMaterial.lock = true;
         Texture2D.__init__();
         TextureCube.__init__();
         SkyBox.__init__();
@@ -242,8 +217,7 @@ export class Laya3D {
             LayaGL.renderEngine._renderOBJCreateContext = new NativeRenderOBJCreateUtil();
             LayaGL.renderOBJCreate = LayaGL.renderEngine.getCreateRenderOBJContext();
         } else {
-            //LayaGL.renderEngine._renderOBJCreateContext = new RenderOBJCreateUtil();
-            //LayaGL.renderOBJCreate = LayaGL.renderEngine.getCreateRenderOBJContext();
+            //TODO
         }
 
     }

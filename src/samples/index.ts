@@ -15,5 +15,5 @@ import { Main } from "./Main";
 import { Laya3D } from "Laya3D";
 Resource.DEBUG = true;
 LayaGL.renderOBJCreate = new RenderOBJCreateUtil();
-Laya3D
+Laya3D.PhysicsCreateUtil = new btPhysicsCreateUtil();
 new Main(false);

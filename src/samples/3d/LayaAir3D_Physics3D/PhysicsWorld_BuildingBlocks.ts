@@ -143,7 +143,7 @@ export class PhysicsWorld_BuildingBlocks {
 		this.camera.viewportPointToRay(this.point, this.ray);
 		this.scene.physicsSimulation.rayCast(this.ray, this._outHitResult);
 		if (this._outHitResult.succeeded) {
-			var collider: Rigidbody3D = <Rigidbody3D>this._outHitResult.collider;
+			var collider: Rigidbody3D = <Rigidbody3D>this._outHitResult.collider.owner.getComponent(Rigidbody3D);
 			this.hasSelectedSprite = <Sprite3D>collider.owner;
 			this.hasSelectedRigidBody = collider;
 			collider.angularFactor = this.ZERO;
