@@ -23,6 +23,8 @@ export interface IShaderpassStructor {
     VSPath?: string,//TODO
     FSPath?: string,//TODO
     pipeline?: string,
+    statefirst?: boolean;
+    renderState?: Record<string, string | boolean | number | string[]>
 
 }
 /**

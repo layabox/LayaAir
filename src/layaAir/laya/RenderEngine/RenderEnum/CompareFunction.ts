@@ -14,6 +14,7 @@ export enum CompareFunction {
     /** pass if the incoming value is greater than or equal to the depth/stencil buffer value. */
     GreaterEqual,
     /** always pass. */
-    Always
-  }
-  
+    Always,
+    /** off */
+    Off,
+}
