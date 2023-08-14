@@ -222,9 +222,9 @@ export class Texture extends Resource {
     set bitmap(value: BaseTexture) {
         if (this._bitmap == value)
             return;
-        this._bitmap && this._bitmap._removeReference(this._referenceCount);
+        this._bitmap && this._bitmap._removeReference();
         this._bitmap = value;
-        value && (value._addReference(this._referenceCount));
+        value && (value._addReference());
     }
 
     /**
@@ -237,22 +237,6 @@ export class Texture extends Resource {
         super(false);
         let bitmap = (source instanceof Texture) ? source.bitmap : source;
         this.setTo(bitmap, uv, sourceWidth, sourceHeight);
-    }
-
-    /**
-     * @internal
-     */
-    _addReference(count: number = 1): void {
-        super._addReference(count);
-        this._bitmap && this._bitmap._addReference(count);
-    }
-
-    /**
-     * @internal
-     */
-    _removeReference(count: number = 1): void {
-        super._removeReference(count);
-        this._bitmap && this._bitmap._removeReference(count);
     }
 
     /**
@@ -416,12 +400,12 @@ export class Texture extends Resource {
     /**
      * 通过url强制恢复bitmap。
      */
-    recoverBitmap(onok: () => void = null): void {
+    recoverBitmap(callback?: () => void): void {
         var url = this._bitmap.url;
         if (!this._destroyed && (!this._bitmap || this._bitmap.destroyed) && url) {
             ILaya.loader.load(url).then((tex: Texture) => {
                 this.bitmap = tex.bitmap;
-                onok && onok();
+                callback && callback();
             });
         }
     }
@@ -457,7 +441,7 @@ export class Texture extends Resource {
         let bit = this._bitmap;
         this._bitmap = null;
         if (bit)
-            bit._removeReference(this._referenceCount);
+            bit._removeReference();
     }
 
     /**
