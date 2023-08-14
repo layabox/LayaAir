@@ -1,9 +1,6 @@
 import { Config3D } from "../../../Config3D";
 import { PhysicsSettings } from "../../d3/physics/PhysicsSettings";
-import { ICharacterController } from "../interface/ICharacterController";
-import { IDynamicCollider } from "../interface/IDynamicCollider";
 import { IPhysicsCreateUtil } from "../interface/IPhysicsCreateUtil";
-import { IStaticCollider } from "../interface/IStaticCollider";
 import { ICustomJoint } from "../interface/Joint/ICustomJoint";
 import { IFixedJoint } from "../interface/Joint/IFixedJoint";
 import { IHingeJoint } from "../interface/Joint/IHingeJoint";
@@ -13,7 +10,6 @@ import { IPlaneColliderShape } from "../interface/Shape/IPlaneColliderShape";
 import { btCharacterCollider } from "./Collider/btCharacterCollider";
 import { btRigidBodyCollider } from "./Collider/btRigidBodyCollider";
 import { btStaticCollider } from "./Collider/btStaticCollider";
-
 import { btBoxColliderShape } from "./Shape/btBoxColliderShape";
 import { btCapsuleColliderShape } from "./Shape/btCapsuleColliderShape";
 import { btConeColliderShape } from "./Shape/btConeColliderShape";
@@ -50,15 +46,15 @@ export class btPhysicsCreateUtil implements IPhysicsCreateUtil {
     }
 
 
-    createDynamicCollider(manager:btPhysicsManager): IDynamicCollider {
+    createDynamicCollider(manager:btPhysicsManager): btRigidBodyCollider {
         return new btRigidBodyCollider(manager);
     }
 
-    createStaticCollider(manager:btPhysicsManager): IStaticCollider {
+    createStaticCollider(manager:btPhysicsManager): btStaticCollider {
         return new btStaticCollider(manager);
     }
 
-    createCharacterController(manager:btPhysicsManager): ICharacterController {
+    createCharacterController(manager:btPhysicsManager): btCharacterCollider {
         return new btCharacterCollider(manager);
     }
 
