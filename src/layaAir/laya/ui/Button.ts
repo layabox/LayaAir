@@ -327,7 +327,8 @@ export class Button extends UIComponent implements ISelect {
 
     protected _skinLoaded(tex: any): void {
         this._graphics.source = tex;
-        this.callLater(this.changeClips);
+        if (tex)
+            this.callLater(this.changeClips);
         this._setStateChanged();
         this._sizeChanged();
         this.event(Event.LOADED);

@@ -11,6 +11,7 @@ import { HideFlags } from "../Const";
 import { URL } from "../net/URL";
 import { Utils } from "../utils/Utils";
 import { AssetDb } from "../resource/AssetDb";
+import { SerializeUtil } from "../loaders/SerializeUtil";
 
 /**
  * 移动滑块位置时调度。
@@ -56,6 +57,12 @@ export class Slider extends UIComponent {
      * @default true
      */
     showLabel: boolean = true;
+
+    /**
+     * 一个布尔值，指示是否显示进度条。
+     */
+    protected _showProgress: boolean = false;
+
     /**@private */
     protected _allowClickBack: boolean;
     /**@private */
@@ -119,6 +126,10 @@ export class Slider extends UIComponent {
         this._bg = new Image();
         this._bg.hideFlags = HideFlags.HideAndDontSave;
         this.addChild(this._bg);
+
+        this._progress = new Image();
+        this._progress.hideFlags = HideFlags.HideAndDontSave;
+        this.addChildAt(this._progress, 1);
 
         this._bar = new Button();
         this._bar.hideFlags = HideFlags.HideAndDontSave;
@@ -203,13 +214,13 @@ export class Slider extends UIComponent {
             if (this._bar._y > this._maxMove) this._bar.y = this._maxMove;
             else if (this._bar._y < 0) this._bar.y = 0;
             this._value = this._bar._y / this._maxMove * (this._max - this._min) + this._min;
-            if (this._progress) this._progress.height = this._bar._y + 0.5 * this._bar.height;
+            this._progress.height = this._bar._y + 0.5 * this._bar.height;
         } else {
             this._bar.x += (stage.mouseX - this._tx) / this._globalSacle.x;
             if (this._bar._x > this._maxMove) this._bar.x = this._maxMove;
             else if (this._bar._x < 0) this._bar.x = 0;
             this._value = this._bar._x / this._maxMove * (this._max - this._min) + this._min;
-            if (this._progress) this._progress.width = this._bar._x + 0.5 * this._bar.width;
+            this._progress.width = this._bar._x + 0.5 * this._bar.width;
         }
 
         this._tx = stage.mouseX;
@@ -250,6 +261,20 @@ export class Slider extends UIComponent {
         this._setSkin(value);
     }
 
+    get showProgress(): boolean {
+        return this._showProgress;
+    }
+
+    set showProgress(value: boolean) {
+        this._showProgress = value;
+        if (value) {
+            if (this._skin && !SerializeUtil.isDeserializing)
+                this._setSkin(this._skin);
+        }
+        else
+            this._progress.skin = null;
+    }
+
     _setSkin(url: string): Promise<void> {
         this._skin = url;
 
@@ -260,36 +285,28 @@ export class Slider extends UIComponent {
 
                 if (this._skinBaseUrl)
                     url = URL.formatURL(url, this._skinBaseUrl);
-                return Promise.all([
+                let tasks = [
                     this._bg._setSkin(url),
                     this._bar._setSkin(Utils.replaceFileExtension(url, "$bar.png", true))
-                ]).then(() => this._skinLoaded());
+                ];
+                if (this._showProgress)
+                    tasks.push(this._progress._setSkin(Utils.replaceFileExtension(url, "$progress.png", true)));
+                else
+                    this._progress.skin = null;
+
+                return Promise.all(tasks).then(() => this._skinLoaded());
             });
         }
         else {
             this._bg.skin = null;
             this._bar.skin = null;
-            if (this._progress)
-                this._progress.skin = null;
+            this._progress.skin = null;
             this._skinLoaded();
             return Promise.resolve();
         }
     }
 
     protected _skinLoaded(): void {
-        let url = this._bg.source?.url;
-        if (url) {
-            let progressSkin = Utils.replaceFileExtension(url, "$progress.png", true);
-            if (Loader.getRes(progressSkin)) {
-                if (!this._progress) {
-                    this._progress = new Image();
-                    this._progress.hideFlags = HideFlags.HideAndDontSave;
-                    this.addChildAt(this._progress, 1);
-                }
-                this._progress.skin = progressSkin;
-            }
-        }
-
         this.setBarPoint();
         this.callLater(this.changeValue);
         this._sizeChanged();
@@ -342,7 +359,7 @@ export class Slider extends UIComponent {
     set sizeGrid(value: string) {
         this._bg.sizeGrid = value;
         this._bar.sizeGrid = value;
-        if (this._progress) this._progress.sizeGrid = this._bar.sizeGrid;
+        this._progress.sizeGrid = this._bar.sizeGrid;
     }
 
     /**
@@ -393,11 +410,11 @@ export class Slider extends UIComponent {
         if (num === 0) num = 1;
         if (this.isVertical) {
             this._bar.y = (this._value - this._min) / num * (this.height - this._bar.height);
-            if (this._progress) this._progress.height = this._bar._y + 0.5 * this._bar.height;
+            this._progress.height = this._bar._y + 0.5 * this._bar.height;
         }
         else {
             this._bar.x = (this._value - this._min) / num * (this.width - this._bar.width);
-            if (this._progress) this._progress.width = this._bar._x + 0.5 * this._bar.width;
+            this._progress.width = this._bar._x + 0.5 * this._bar.width;
         }
 
     }
