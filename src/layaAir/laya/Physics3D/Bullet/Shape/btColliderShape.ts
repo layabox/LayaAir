@@ -4,7 +4,7 @@ import { btCollider } from "../Collider/btCollider";
 import { btPhysicsCreateUtil } from "../btPhysicsCreateUtil";
 
 export class btColliderShape implements IColliderShape {
-    
+
     /** 形状方向_X轴正向 */
     static SHAPEORIENTATION_UPX: number = 0;
     /** 形状方向_Y轴正向 */
@@ -49,7 +49,7 @@ export class btColliderShape implements IColliderShape {
         this._localOffset = new Vector3(0, 0, 0);
         let bt = btPhysicsCreateUtil._bt;
         this._btScale = bt.btVector3_create(1, 1, 1);
-        this._worldScale = new Vector3(-1,-1,-1);
+        this._worldScale = new Vector3(1, 1, 1);
     }
 
     /**
@@ -71,7 +71,7 @@ export class btColliderShape implements IColliderShape {
     }
 
     setWorldScale(scale: Vector3): void {
-        if(this._btScale.equal(scale))
+        if (this._worldScale.equal(scale))
             return;
         scale.cloneTo(this._worldScale);
         let bt = btPhysicsCreateUtil._bt;

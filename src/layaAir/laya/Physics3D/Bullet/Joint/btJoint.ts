@@ -1,5 +1,6 @@
 import { Vector3 } from "../../../maths/Vector3";
 import { IJoint } from "../../interface/Joint/IJoint";
+import { EJointCapable } from "../../physicsEnum/EJointCapable";
 import { btCollider } from "../Collider/btCollider";
 import { btPhysicsManager } from "../btPhysicsManager";
 
@@ -64,6 +65,14 @@ export class btJoint implements IJoint {
         //     return true;
         // }
          return false;
+    }
+
+    initJointCapable(): void {
+        throw new Error("Method not implemented.");
+    }
+
+    getJointCapable(value: EJointCapable): boolean {
+        return null;
     }
 
     setConnectedCollider(value: btCollider): void {

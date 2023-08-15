@@ -33,8 +33,10 @@ export class CharacterController extends PhysicsColliderComponent {
      * @internal
      */
     protected _initCollider() {
-        this._physicsManager = ((<Scene3D>this.owner._scene))._physicsManager;
-        this._collider = Laya3D.PhysicsCreateUtil.createCharacterController(this._physicsManager);
+        if (Laya3D.enablePhysics) {
+            this._physicsManager = ((<Scene3D>this.owner._scene))._physicsManager;
+            this._collider = Laya3D.PhysicsCreateUtil.createCharacterController(this._physicsManager);
+        }
     }
 
     /**

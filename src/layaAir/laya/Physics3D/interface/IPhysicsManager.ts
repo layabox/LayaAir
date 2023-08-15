@@ -1,10 +1,21 @@
 import { Ray } from "../../d3/math/Ray";
 import { HitResult } from "../../d3/physics/HitResult";
 import { Vector3 } from "../../maths/Vector3";
+import { EPhysicsCapable } from "../physicsEnum/EPhycisCapable";
 import { ICollider } from "./ICollider";
 
 export interface IPhysicsManager {
-  
+  /**
+   * set PhysicsEngine Capable
+   */
+  initPhysicsCapable(): void;
+
+  /**
+   * get PhysicsEngine Capable
+   * @param value 
+   */
+  getPhysicsCapable(value: EPhysicsCapable): boolean;
+
   /**
   * Set gravity.
   * @param gravity - Physics gravity

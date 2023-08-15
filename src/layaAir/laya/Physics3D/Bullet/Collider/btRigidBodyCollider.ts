@@ -1,7 +1,9 @@
-import { PhysicsCombineMode, PhysicsForceMode } from "../../../d3/physics/PhysicsColliderComponent";
+import { PhysicsForceMode } from "../../../d3/physics/PhysicsColliderComponent";
+import { MeshColliderShape } from "../../../d3/physics/shape/MeshColliderShape";
 import { Quaternion } from "../../../maths/Quaternion";
 import { Vector3 } from "../../../maths/Vector3";
 import { IDynamicCollider } from "../../interface/IDynamicCollider";
+import { ERigidBodyCapable } from "../../physicsEnum/ERigiBodyCapable";
 import { btColliderShape } from "../Shape/btColliderShape";
 import { btPhysicsCreateUtil } from "../btPhysicsCreateUtil";
 import { btPhysicsManager } from "../btPhysicsManager";
@@ -71,11 +73,62 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
     private _angularFactor = new Vector3(1, 1, 1);
     /** @internal */
     private _detectCollisions = true;
+    /**@internal TODO*/
+    private _allowSleep: boolean = false;
+
 
     constructor(manager: btPhysicsManager) {
         super(manager);
+        this.initCapable();
     }
-    
+
+    getCapable(value: ERigidBodyCapable): boolean {
+        return this._physicsCapableMap.get(value);
+    }
+
+    initCapable(): void {
+        this._physicsCapableMap = new Map();
+        this._physicsCapableMap.set(ERigidBodyCapable.RigidBody_AllowSleep, false);
+        this._physicsCapableMap.set(ERigidBodyCapable.RigidBody_Gravity, true);
+        this._physicsCapableMap.set(ERigidBodyCapable.RigidBody_CollisionGroup, true);
+        this._physicsCapableMap.set(ERigidBodyCapable.RigidBody_Restitution, true);
+        this._physicsCapableMap.set(ERigidBodyCapable.RigidBody_Friction, true);
+        this._physicsCapableMap.set(ERigidBodyCapable.RigidBody_RollingFriction, true);
+        this._physicsCapableMap.set(ERigidBodyCapable.RigidBody_LinearDamp, true);
+        this._physicsCapableMap.set(ERigidBodyCapable.RigidBody_AngularDamp, true);
+        this._physicsCapableMap.set(ERigidBodyCapable.RigidBody_LinearVelocity, true);
+        this._physicsCapableMap.set(ERigidBodyCapable.RigidBody_AngularVelocity, true);
+        this._physicsCapableMap.set(ERigidBodyCapable.RigidBody_Mass, true);
+        this._physicsCapableMap.set(ERigidBodyCapable.RigidBody_InertiaTensor, true);
+        this._physicsCapableMap.set(ERigidBodyCapable.RigidBody_MassCenter, true);
+        this._physicsCapableMap.set(ERigidBodyCapable.RigidBody_MaxAngularVelocity, false);
+        this._physicsCapableMap.set(ERigidBodyCapable.RigidBody_MaxDepenetrationVelocity, false);
+        this._physicsCapableMap.set(ERigidBodyCapable.RigidBody_SleepThreshold, false);
+        this._physicsCapableMap.set(ERigidBodyCapable.RigidBody_SleepAngularVelocity, false);
+        this._physicsCapableMap.set(ERigidBodyCapable.RigidBody_SolverIterations, false);
+        this._physicsCapableMap.set(ERigidBodyCapable.RigidBody_AllowDetectionMode, true);
+        this._physicsCapableMap.set(ERigidBodyCapable.RigidBody_AllowKinematic, true);
+        this._physicsCapableMap.set(ERigidBodyCapable.RigidBody_AllowStatic, true);
+        this._physicsCapableMap.set(ERigidBodyCapable.RigidBody_AllowDynamic, true);
+        this._physicsCapableMap.set(ERigidBodyCapable.RigidBody_LinearFactor, true);
+        this._physicsCapableMap.set(ERigidBodyCapable.RigidBody_AngularFactor, true);
+        this._physicsCapableMap.set(ERigidBodyCapable.RigidBody_ApplyForce, true);
+        this._physicsCapableMap.set(ERigidBodyCapable.RigidBody_ClearForce, true);
+        this._physicsCapableMap.set(ERigidBodyCapable.RigidBody_ApplyForceWithOffset, true);
+        this._physicsCapableMap.set(ERigidBodyCapable.RigidBody_ApplyTorque, true);
+        this._physicsCapableMap.set(ERigidBodyCapable.RigidBody_ApplyImpulse, true);
+        this._physicsCapableMap.set(ERigidBodyCapable.RigidBody_ApplyTorqueImpulse, true);
+        this._physicsCapableMap.set(ERigidBodyCapable.RigidBody_AllowTrigger, true);
+        this._physicsCapableMap.set(ERigidBodyCapable.RigidBody_BoxColliderShape, true);
+        this._physicsCapableMap.set(ERigidBodyCapable.RigidBody_SphereColliderShape, true);
+        this._physicsCapableMap.set(ERigidBodyCapable.RigidBody_PlaneColliderShape, true);
+        this._physicsCapableMap.set(ERigidBodyCapable.RigidBody_CapsuleColliderShape, true);
+        this._physicsCapableMap.set(ERigidBodyCapable.RigidBody_CylinderColliderShape, true);
+        this._physicsCapableMap.set(ERigidBodyCapable.RigidBody_ConeColliderShape, true);
+        this._physicsCapableMap.set(ERigidBodyCapable.RigidBody_MeshColliderShape, false);
+        this._physicsCapableMap.set(ERigidBodyCapable.RigidBody_CompoundColliderShape, true);
+    }
+
     setWorldPosition(value: Vector3): void {
         let bt = btPhysicsCreateUtil._bt;
         var btColliderObject = this._btCollider;
@@ -87,7 +140,20 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
         var btColliderObject = this._btCollider;
         bt.btRigidBody_setCenterOfMassOrientation(btColliderObject, value.x, value.y, value.z, value.w);
     }
-  
+
+    /**
+     * 是否允许睡眠
+     */
+    public get allowSleep(): boolean {
+        return this._allowSleep;
+    }
+
+    public set allowSleep(value: boolean) {
+        this._allowSleep = value;
+        let bt = btPhysicsCreateUtil._bt;
+        // TODO cannon有这个接口，考虑这里是不是也加上
+    }
+
     protected getColliderType() {
         return this._type = btColliderType.RigidbodyCollider;
 
@@ -148,7 +214,7 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
 
         this.setMass(this._mass);
         this.setConstraints(this._linearFactor, this._angularFactor);
-        this.setLinearDamping(this._linearDamping)
+        this.setLinearDamping(this._linearDamping);
         this.setAngularDamping(this._angularDamping);
         this.setInertiaTensor(this._gravity);
         this.setIsKinematic(this._isKinematic);
@@ -186,6 +252,8 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
     }
 
     setAngularVelocity(value: Vector3): void {
+        if (!this.getCapable(ERigidBodyCapable.RigidBody_AngularVelocity))
+            return;
         this._angularVelocity = value;
         let bt = btPhysicsCreateUtil._bt;
         if (this._btCollider) {
@@ -262,7 +330,20 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
         canInSimulation && this._physicsManager.addCollider(this);
     }
 
-
+    setTrigger(value: boolean): void {
+        this._isTrigger = value;
+        var bt: any = btPhysicsCreateUtil._bt;
+        if (this._btCollider) {
+            var flags: number = bt.btCollisionObject_getCollisionFlags(this._btCollider);
+            if (value) {
+                if ((flags & btPhysicsManager.COLLISIONFLAGS_NO_CONTACT_RESPONSE) === 0)
+                    bt.btCollisionObject_setCollisionFlags(this._btCollider, flags | btPhysicsManager.COLLISIONFLAGS_NO_CONTACT_RESPONSE);
+            } else {
+                if ((flags & btPhysicsManager.COLLISIONFLAGS_NO_CONTACT_RESPONSE) !== 0)
+                    bt.btCollisionObject_setCollisionFlags(this._btCollider, flags ^ btPhysicsManager.COLLISIONFLAGS_NO_CONTACT_RESPONSE);
+            }
+        }
+    }
 
     setIsKinematic(value: boolean): void {
         this._isKinematic = value;
@@ -447,9 +528,9 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
     }
 
     setColliderShape(shape: btColliderShape) {
-        if (shape instanceof btColliderShape) {
+        if (shape instanceof MeshColliderShape) {
             console.error("RigidBody3D is not support MeshColliderShape");
-            shape = null
+            shape = null;
         }
         super.setColliderShape(shape);
     }
@@ -458,7 +539,6 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
         let bt = btPhysicsCreateUtil._bt;
         bt.btMotionState_destroy(this._btLayaMotionState);
         super.destroy();
-
     }
 
 }

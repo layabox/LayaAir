@@ -68,7 +68,7 @@ export class btCollider implements ICollider {
     _manager: btPhysicsManager;
 
     //update list index
-    _inPhysicUpdateListIndex: number;
+    _inPhysicUpdateListIndex: number = -1;
 
     _id: number;
 
@@ -93,6 +93,8 @@ export class btCollider implements ICollider {
     /** @internal */
     protected _transformFlag = 2147483647 /*int.MAX_VALUE*/;
 
+    protected _physicsCapableMap: Map<any, any>;
+
     /**
     * @internal
     */
@@ -115,15 +117,21 @@ export class btCollider implements ICollider {
         this._enableProcessCollisions = false;
         btCollider._physicObjectsMap[this._id] = this;
         this._type = this.getColliderType();
-        
     }
 
     setOwner(node: Sprite3D): void {
         this.owner = node;
         this._transform = node.transform;
         this._initCollider();
+        this._physicsManager._physicsUpdateList.add(this);
     }
 
+    getCapable(value: number): boolean {
+        return null;
+    }
+
+    initCapable(): void {
+    }
 
     setCollisionGroup(value: number) {
         if (value != this._collisionGroup) {
@@ -195,10 +203,13 @@ export class btCollider implements ICollider {
     }
 
     destroy(): void {
+        this._physicsManager._physicsUpdateList.remove(this);
+        this._inPhysicUpdateListIndex = -1;
         let bt = btPhysicsCreateUtil._bt;
         bt.btCollisionObject_destroy(this._btCollider);
         delete btCollider._physicObjectsMap[this._id];
         this._destroyed = true;
+        this._physicsCapableMap = null;
     }
 
 

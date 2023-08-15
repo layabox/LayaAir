@@ -1,8 +1,20 @@
 import { Vector3 } from "../../../maths/Vector3";
+import { EJointCapable } from "../../physicsEnum/EJointCapable";
 import { ICollider } from "../ICollider";
 
-export interface IJoint{
-      /**
+export interface IJoint {
+  /**
+   * init joint component capable
+   */
+  initJointCapable(): void;
+
+  /**
+   * get joint component capable
+   * @param value 
+   */
+  getJointCapable(value: EJointCapable): boolean;
+
+  /**
    * The connected collider.
    */
   setConnectedCollider(value: ICollider): void;

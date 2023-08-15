@@ -8,6 +8,7 @@ import { ISpringJoint } from "../interface/Joint/ISpringJoint";
 import { IMeshColliderShape } from "../interface/Shape/IMeshColliderShape";
 import { IPlaneColliderShape } from "../interface/Shape/IPlaneColliderShape";
 import { btCharacterCollider } from "./Collider/btCharacterCollider";
+import { btCollider } from "./Collider/btCollider";
 import { btRigidBodyCollider } from "./Collider/btRigidBodyCollider";
 import { btStaticCollider } from "./Collider/btStaticCollider";
 import { btBoxColliderShape } from "./Shape/btBoxColliderShape";
@@ -36,6 +37,10 @@ export class btPhysicsCreateUtil implements IPhysicsCreateUtil {
             // CharacterController.__init__();
             // Rigidbody3D.__init__();
             btPhysicsCreateUtil._bt = (window as any).Physics3D;
+            btCollider.__init__();
+            btRigidBodyCollider.__init__();
+            btStaticCollider.__init__();
+            btCharacterCollider.__init__();
             return Promise.resolve();
         }
         );
@@ -48,31 +53,31 @@ export class btPhysicsCreateUtil implements IPhysicsCreateUtil {
     }
 
 
-    createDynamicCollider(manager:btPhysicsManager): btRigidBodyCollider {
+    createDynamicCollider(manager: btPhysicsManager): btRigidBodyCollider {
         return new btRigidBodyCollider(manager);
     }
 
-    createStaticCollider(manager:btPhysicsManager): btStaticCollider {
+    createStaticCollider(manager: btPhysicsManager): btStaticCollider {
         return new btStaticCollider(manager);
     }
 
-    createCharacterController(manager:btPhysicsManager): btCharacterCollider {
+    createCharacterController(manager: btPhysicsManager): btCharacterCollider {
         return new btCharacterCollider(manager);
     }
 
-    createFixedJoint(manager:btPhysicsManager): IFixedJoint {
+    createFixedJoint(manager: btPhysicsManager): IFixedJoint {
         throw new Error("Method not implemented.");
     }
 
-    createHingeJoint(manager:btPhysicsManager): IHingeJoint {
+    createHingeJoint(manager: btPhysicsManager): IHingeJoint {
         throw new Error("Method not implemented.");
     }
 
-    createSpringJoint(manager:btPhysicsManager): ISpringJoint {
+    createSpringJoint(manager: btPhysicsManager): ISpringJoint {
         throw new Error("Method not implemented.");
     }
 
-    createCustomJoint(manager:btPhysicsManager): ICustomJoint {
+    createCustomJoint(manager: btPhysicsManager): ICustomJoint {
         throw new Error("Method not implemented.");
     }
 

@@ -1,10 +1,13 @@
+import { Vector3 } from "../../../maths/Vector3";
 import { IStaticCollider } from "../../interface/IStaticCollider";
+import { EStaticCapable } from "../../physicsEnum/EStaticCapable";
 import { btPhysicsCreateUtil } from "../btPhysicsCreateUtil";
 import { btPhysicsManager } from "../btPhysicsManager";
 import { btCollider, btColliderType } from "./btCollider";
 
 export class btStaticCollider extends btCollider implements IStaticCollider {
-    protected _initCollider(){
+
+    protected _initCollider() {
         let bt = btPhysicsCreateUtil._bt;
         var btColObj: number = bt.btCollisionObject_create();
         bt.btCollisionObject_setUserIndex(btColObj, this._id);
@@ -24,7 +27,6 @@ export class btStaticCollider extends btCollider implements IStaticCollider {
         this._btCollider = btColObj;
     }
 
-    
     setTrigger(value: boolean): void {
         this._isTrigger = value;
         let bt = btPhysicsCreateUtil._bt;
@@ -40,7 +42,7 @@ export class btStaticCollider extends btCollider implements IStaticCollider {
         }
     }
 
-    protected getColliderType(): btColliderType{
+    protected getColliderType(): btColliderType {
         return btColliderType.StaticCollider;
     }
 
@@ -48,5 +50,36 @@ export class btStaticCollider extends btCollider implements IStaticCollider {
     constructor(physicsManager: btPhysicsManager) {
         super(physicsManager);
         this._enableProcessCollisions = false;
+        this.initCapable();
     }
+
+
+    getCapable(value: EStaticCapable): boolean {
+        return this._physicsCapableMap.get(value);
+    }
+
+    initCapable(): void {
+        this._physicsCapableMap = new Map();
+        this._physicsCapableMap.set(EStaticCapable.Static_AllowSleep, false);
+        this._physicsCapableMap.set(EStaticCapable.Static_AllowTrigger, true);
+        this._physicsCapableMap.set(EStaticCapable.Static_CollisionGroup, true);
+        this._physicsCapableMap.set(EStaticCapable.Static_Friction, true);
+        this._physicsCapableMap.set(EStaticCapable.Static_Restitution, true);
+        this._physicsCapableMap.set(EStaticCapable.Static_RollingFriction, true);
+        this._physicsCapableMap.set(EStaticCapable.Static_BoxColliderShape, true);
+        this._physicsCapableMap.set(EStaticCapable.Static_SphereColliderShape, true);
+        this._physicsCapableMap.set(EStaticCapable.Static_PlaneColliderShape, true);
+        this._physicsCapableMap.set(EStaticCapable.Static_CapsuleColliderShape, true);
+        this._physicsCapableMap.set(EStaticCapable.Static_CylinderColliderShape, true);
+        this._physicsCapableMap.set(EStaticCapable.Static_ConeColliderShape, true);
+        this._physicsCapableMap.set(EStaticCapable.Static_MeshColliderShape, true);
+        this._physicsCapableMap.set(EStaticCapable.Static_CompoundColliderShape, true);
+    }
+
+    setWorldPosition(value: Vector3): void {
+        let bt = btPhysicsCreateUtil._bt;
+        var btColliderObject = this._btCollider;
+        bt.btRigidBody_setCenterOfMassPos(btColliderObject, value.x, value.y, value.z);
+    }
+
 }

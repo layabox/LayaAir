@@ -3,7 +3,7 @@ import { btPhysicsCreateUtil } from "../btPhysicsCreateUtil";
 import { ICharacterController } from "../../interface/ICharacterController";
 import { Vector3 } from "../../../maths/Vector3";
 import { btPhysicsManager } from "../btPhysicsManager";
-import { PhysicsCombineMode } from "../../../d3/physics/PhysicsColliderComponent";
+import { ECharacterCapable } from "../../physicsEnum/ECharacterCapable";
 
 export class btCharacterCollider extends btCollider implements ICharacterController {
 
@@ -25,6 +25,43 @@ export class btCharacterCollider extends btCollider implements ICharacterControl
 
     /**@internal */
     private _pushForce = 1;
+
+    constructor(physicsManager: btPhysicsManager) {
+        super(physicsManager);
+        this.initCapable();
+    }
+
+    getCapable(value: ECharacterCapable): boolean {
+        return this._physicsCapableMap.get(value);
+    }
+
+    initCapable(): void {
+        this._physicsCapableMap = new Map();
+        this._physicsCapableMap.set(ECharacterCapable.Charcater_AllowSleep, false);
+        this._physicsCapableMap.set(ECharacterCapable.Charcater_Gravity, true);
+        this._physicsCapableMap.set(ECharacterCapable.Charcater_CollisionGroup, true);
+        this._physicsCapableMap.set(ECharacterCapable.Charcater_Friction, true);
+        this._physicsCapableMap.set(ECharacterCapable.Charcater_Restitution, true);
+        this._physicsCapableMap.set(ECharacterCapable.Charcater_RollingFriction, true);
+        this._physicsCapableMap.set(ECharacterCapable.Charcater_AllowTrigger, false);
+        this._physicsCapableMap.set(ECharacterCapable.Charcater_WorldPosition, true);
+        this._physicsCapableMap.set(ECharacterCapable.Charcater_Move, true);
+        this._physicsCapableMap.set(ECharacterCapable.Charcater_Jump, true);
+        this._physicsCapableMap.set(ECharacterCapable.Charcater_StepOffset, true);
+        this._physicsCapableMap.set(ECharacterCapable.Character_UpDirection, true);
+        this._physicsCapableMap.set(ECharacterCapable.Character_FallSpeed, true);
+        this._physicsCapableMap.set(ECharacterCapable.Character_SlopeLimit, true);
+        this._physicsCapableMap.set(ECharacterCapable.Character_PushForce, true);
+        this._physicsCapableMap.set(ECharacterCapable.Character_BoxColliderShape, false);
+        this._physicsCapableMap.set(ECharacterCapable.Character_PlaneColliderShape, false);
+        this._physicsCapableMap.set(ECharacterCapable.Character_MeshColliderShape, false);
+        this._physicsCapableMap.set(ECharacterCapable.Character_CompoundColliderShape, false);
+        this._physicsCapableMap.set(ECharacterCapable.Character_CapsuleColliderShape, true);
+        this._physicsCapableMap.set(ECharacterCapable.Character_CylinderColliderShape, false);
+        this._physicsCapableMap.set(ECharacterCapable.Character_ConeColliderShape, false);
+        this._physicsCapableMap.set(ECharacterCapable.Character_SphereColliderShape, false);
+
+    }
 
     protected getColliderType(): btColliderType {
         return btColliderType.CharactorCollider;
@@ -139,5 +176,9 @@ export class btCharacterCollider extends btCollider implements ICharacterControl
                 cb(comp);
             }
         }
+    }
+
+    setTrigger(value: boolean): void {
+
     }
 }
