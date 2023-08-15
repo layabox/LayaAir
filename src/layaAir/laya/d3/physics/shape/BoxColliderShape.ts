@@ -1,15 +1,15 @@
-import { Physics3DColliderShape } from "./Physics3DColliderShape";
 import { LayaEnv } from "../../../../LayaEnv";
 import { Vector3 } from "../../../maths/Vector3";
 import { IBoxColliderShape } from "../../../Physics3D/interface/Shape/IBoxColliderShape";
 import { Laya3D } from "../../../../Laya3D";
+import { Physics3DColliderShape } from "./Physics3DColliderShape";
 
 /**
  * <code>BoxColliderShape</code> 类用于创建盒子形状碰撞器。
  */
 export class BoxColliderShape extends Physics3DColliderShape {
 	
-	/**@interanl */
+	
 	_shape: IBoxColliderShape;
 	private _size: Vector3;
 	/**@internal */
@@ -34,12 +34,9 @@ export class BoxColliderShape extends Physics3DColliderShape {
 		this._shape.setSize(this._size);
 	}
 
-	/**
-	 * @internal
-	 * @override
-	 */
+
 	protected _createShape() {
-		Laya3D.PhysicsCreateUtil.createBoxColliderShape()
+		this._shape = Laya3D.PhysicsCreateUtil.createBoxColliderShape();
 	}
 
 	/**

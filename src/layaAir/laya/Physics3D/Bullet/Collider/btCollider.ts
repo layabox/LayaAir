@@ -115,12 +115,13 @@ export class btCollider implements ICollider {
         this._enableProcessCollisions = false;
         btCollider._physicObjectsMap[this._id] = this;
         this._type = this.getColliderType();
-        this._initCollider();
+        
     }
 
     setOwner(node: Sprite3D): void {
         this.owner = node;
         this._transform = node.transform;
+        this._initCollider();
     }
 
 

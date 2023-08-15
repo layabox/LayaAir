@@ -131,8 +131,10 @@ export class ShaderPass extends ShaderCompileDefineBase {
                 else
                     defStr += debugDefineString[i] + ",";
             }
-            for (var j = 0; j < this.nodeCommonMap.length; j++) {
-                spriteCommonNode += this.nodeCommonMap[j] + ",";
+            if(this.nodeCommonMap){
+                for (var j = 0; j < this.nodeCommonMap.length; j++) {
+                    spriteCommonNode += this.nodeCommonMap[j] + ",";
+                }
             }
             console.log("%cLayaAir: Shader Compile Information---ShaderName:" + this._owner._owner._name +
                 " SubShaderIndex:" + this._owner._owner._subShaders.indexOf(this._owner) +

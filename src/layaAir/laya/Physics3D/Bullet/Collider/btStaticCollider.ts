@@ -24,7 +24,7 @@ export class btStaticCollider extends btCollider implements IStaticCollider {
         this._btCollider = btColObj;
     }
 
-    /**@internal */
+    
     setTrigger(value: boolean): void {
         this._isTrigger = value;
         let bt = btPhysicsCreateUtil._bt;

@@ -261,6 +261,7 @@ export class PhysicsColliderComponent extends Component {
 
     protected _onAdded(): void {
         this._initCollider();
+        this._collider.setOwner(this.owner);
         this.restitution = this._restitution;
         this.friction = this._friction;
         this.rollingFriction = this._rollingFriction;

@@ -42,7 +42,7 @@ export class CapsuleColliderShape extends Physics3DColliderShape {
 	set length(value: number) {
 		this._length = value;
 		if (LayaEnv.isPlaying) {
-			this._shape.setHeight(value)
+			this._shape.setHeight(value);
 		}
 	}
 

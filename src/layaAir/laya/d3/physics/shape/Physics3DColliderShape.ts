@@ -14,7 +14,7 @@ export class Physics3DColliderShape implements IClone {
 	/** 形状方向_Z轴正向 */
 	static SHAPEORIENTATION_UPZ: number = 2;
 	
-	/**@interanl */
+	
 	_shape: IColliderShape;
 
 	/**@internal */

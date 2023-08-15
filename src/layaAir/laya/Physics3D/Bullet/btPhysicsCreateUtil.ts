@@ -25,7 +25,7 @@ export class btPhysicsCreateUtil implements IPhysicsCreateUtil {
     //Bullet init
     initialize(): Promise<void> {
         let physics3D: Function = (window as any).Physics3D;
-        return physics3D(Math.max(16, Config3D.defaultPhysicsMemory) * 16, new BulletInteractive(null, null)).then(() => {
+        physics3D(Math.max(16, Config3D.defaultPhysicsMemory) * 16, new BulletInteractive(null, null)).then(() => {
             //     StaticPlaneColliderShape.__init__();
             // ColliderShape.__init__();
             // CompoundColliderShape.__init__();
@@ -39,6 +39,8 @@ export class btPhysicsCreateUtil implements IPhysicsCreateUtil {
             return Promise.resolve();
         }
         );
+
+        return Promise.resolve();
     }
 
     createPhysicsManger(physicsSettings: PhysicsSettings): btPhysicsManager {
