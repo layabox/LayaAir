@@ -78,7 +78,7 @@ export class Laya3D {
      * 设置物理创建管理器
      */
     static set PhysicsCreateUtil(value: IPhysicsCreateUtil) {
-        if (!value) {
+        if (value) {
             Laya3D._PhysicsCreateUtil = value;
             Laya3D._enablePhysics = true;
         }
@@ -110,7 +110,7 @@ export class Laya3D {
      */
     static __init__(checkPhysics?: boolean): Promise<void> {
         if (checkPhysics !== false) {
-            if (Laya3D._PhysicsCreateUtil)
+            if (!Laya3D._PhysicsCreateUtil)
                 Laya3D._enablePhysics = false;
             else {
                 Laya3D._enablePhysics = true;
