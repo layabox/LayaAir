@@ -170,7 +170,7 @@ export class Clip extends UIComponent {
      * @override 
      */
     protected createChildren(): void {
-        this.graphics = new AutoBitmap();
+        this.setGraphics(new AutoBitmap(), true);
     }
 
     /**@private	 @override*/

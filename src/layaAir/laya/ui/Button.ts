@@ -243,7 +243,7 @@ export class Button extends UIComponent implements ISelect {
      * @override
      */
     protected createChildren(): void {
-        this.graphics = new AutoBitmap();
+        this.setGraphics(new AutoBitmap(), true);
     }
 
     /**@private */
