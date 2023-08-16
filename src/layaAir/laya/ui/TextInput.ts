@@ -142,7 +142,7 @@ export class TextInput extends Label {
      * @override 
     */
     protected createChildren(): void {
-        this.graphics = new AutoBitmap();
+        this.setGraphics(new AutoBitmap(), true);
 
         this._tf = new Input();
         this._tf.hideFlags = HideFlags.HideAndDontSave;

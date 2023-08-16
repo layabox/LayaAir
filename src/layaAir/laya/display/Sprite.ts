@@ -1078,7 +1078,16 @@ export class Sprite extends Node {
     }
 
     set graphics(value: Graphics) {
-        if (this._graphics) this._graphics._sp = null;
+        this.setGraphics(value, false);
+    }
+
+    setGraphics(value: Graphics, transferOwnership: boolean) {
+        if (this._graphics) {
+            this._graphics._sp = null;
+            if (this._ownGraphics)
+                this._graphics.destroy();
+        }
+        this._ownGraphics = transferOwnership;
         this._graphics = value;
         if (value) {
             this._renderType |= SpriteConst.GRAPHICS;
