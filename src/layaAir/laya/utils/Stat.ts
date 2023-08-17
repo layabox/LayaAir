@@ -1,40 +1,25 @@
+import { ILaya } from "../../ILaya";
 import { LayaGL } from "../layagl/LayaGL";
 import { RenderStatisticsInfo } from "../RenderEngine/RenderEnum/RenderStatInfo";
-import { IStatRender } from "./IStatRender";
+import { Browser } from "./Browser";
+import { ClassUtils } from "./ClassUtils";
+import { IStatUI, StatToggleUIParams, StatUIParams } from "./IStatUI";
 
 /**
-     * <p> <code>Stat</code> 是一个性能统计面板，可以实时更新相关的性能参数。</p>
-     * <p>参与统计的性能参数如下（所有参数都是每大约1秒进行更新）：<br/>
-     * FPS(WebGL)：WebGL 模式下的帧频，也就是每秒显示的帧数，值越高、越稳定，感觉越流畅；<br/>
-     * Sprite：统计所有渲染节点（包括容器）数量，它的大小会影响引擎进行节点遍历、数据组织和渲染的效率。其值越小，游戏运行效率越高；<br/>
-     * DrawCall：此值是决定性能的重要指标，其值越小，游戏运行效率越高。Canvas模式下表示每大约1秒的图像绘制次数；WebGL模式下表示每大约1秒的渲染提交批次，每次准备数据并通知GPU渲染绘制的过程称为1次DrawCall，在每次DrawCall中除了在通知GPU的渲染上比较耗时之外，切换材质与shader也是非常耗时的操作；<br/>
-     * CurMem：Canvas模式下，表示内存占用大小，值越小越好，过高会导致游戏闪退；WebGL模式下，表示内存与显存的占用，值越小越好；<br/>
-     * Shader：是 WebGL 模式独有的性能指标，表示每大约1秒 Shader 提交次数，值越小越好；<br/>
-     * Canvas：由三个数值组成，只有设置 CacheAs 后才会有值，默认为0/0/0。从左到右数值的意义分别为：每帧重绘的画布数量 / 缓存类型为"normal"类型的画布数量 / 缓存类型为"bitmap"类型的画布数量。</p>
-     */
-export type StatUnit = "M" | "K" | "int";//M计算会除以1024*1024，k会除以1024，int不做处理
-export type StatColor = "yellow" | "white" | "red";//颜色
-export type StatMode = "summit" | "average";//是否根据帧分配
-
-export interface StatUIParams {
-    title: string,//显示title
-    value: string,//对应Stat的数据
-    color: StatColor,//显示颜色
-    units: StatUnit,//"M"/"k"/"int"//显示单位
-    mode: StatMode//"resource/average"//显示模式
-}
-
-export interface StatToggleUIParams {
-    title: string,//显示title
-    value: string,//Toggle
-    color: StatColor,//显示颜色
-}
-
+ * <p> <code>Stat</code> 是一个性能统计面板，可以实时更新相关的性能参数。</p>
+ * <p>参与统计的性能参数如下（所有参数都是每大约1秒进行更新）：<br/>
+ * FPS(WebGL)：WebGL 模式下的帧频，也就是每秒显示的帧数，值越高、越稳定，感觉越流畅；<br/>
+ * Sprite：统计所有渲染节点（包括容器）数量，它的大小会影响引擎进行节点遍历、数据组织和渲染的效率。其值越小，游戏运行效率越高；<br/>
+ * DrawCall：此值是决定性能的重要指标，其值越小，游戏运行效率越高。Canvas模式下表示每大约1秒的图像绘制次数；WebGL模式下表示每大约1秒的渲染提交批次，每次准备数据并通知GPU渲染绘制的过程称为1次DrawCall，在每次DrawCall中除了在通知GPU的渲染上比较耗时之外，切换材质与shader也是非常耗时的操作；<br/>
+ * CurMem：Canvas模式下，表示内存占用大小，值越小越好，过高会导致游戏闪退；WebGL模式下，表示内存与显存的占用，值越小越好；<br/>
+ * Shader：是 WebGL 模式独有的性能指标，表示每大约1秒 Shader 提交次数，值越小越好；<br/>
+ * Canvas：由三个数值组成，只有设置 CacheAs 后才会有值，默认为0/0/0。从左到右数值的意义分别为：每帧重绘的画布数量 / 缓存类型为"normal"类型的画布数量 / 缓存类型为"bitmap"类型的画布数量。</p>
+ */
 export class Stat {
     //FPS
-    public static FPSStatUIParams: StatUIParams = { title: "FPS(WebGL)", value: "_fpsStr", color: "yellow", units: "int", mode: "summit" };
+    public static FPSStatUIParams: StatUIParams = { title: "FPS", value: "_fpsStr", color: "yellow", units: "int", mode: "summit" };
     //Node nums
-    public static NodeStatUIParams: StatUIParams = { title: "NodeNums", value: "spriteCount", color: "white", units: "int", mode: "summit" };
+    public static NodeStatUIParams: StatUIParams = { title: "Node", value: "spriteCount", color: "white", units: "int", mode: "summit" };
     //Sprite3D nums
     public static Sprite3DStatUIParams: StatUIParams = { title: "Sprite3D", value: "sprite3DCount", color: "white", units: "int", mode: "summit" };
     //DrawCall
@@ -72,7 +57,7 @@ export class Stat {
     //BufferMemory
     public static BufferMemory: StatUIParams = { title: "BufferMemory", value: "bufferMemory", color: "white", units: "M", mode: "summit" };
     //upload Uniform
-    public static uploadUniformNum: StatUIParams = { title: "uploadUniformNum", value: "uploadUniform", color: "white", units: "int", mode: "average" };
+    public static uploadUniformNum: StatUIParams = { title: "UploadUniformNum", value: "uploadUniform", color: "white", units: "int", mode: "average" };
     //所有显示
     public static AllShow: Array<StatUIParams> = [Stat.FPSStatUIParams, Stat.NodeStatUIParams, Stat.Sprite3DStatUIParams, Stat.DrawCall, Stat.TriangleFace, Stat.RenderNode, Stat.SkinRenderNode, Stat.ParticleRenderNode
         , Stat.FrustumCulling, Stat.OpaqueDrawCall, Stat.TransDrawCall, Stat.DepthCastDrawCall, Stat.InstanceDrawCall, Stat.CMDDrawCall, Stat.BlitDrawCall, Stat.GPUMemory, Stat.TextureMemeory, Stat.RenderTextureMemory, Stat.BufferMemory, Stat.uploadUniformNum];
@@ -80,9 +65,6 @@ export class Stat {
     public static memoryShow: Array<StatUIParams> = [Stat.GPUMemory, Stat.TextureMemeory, Stat.RenderTextureMemory, Stat.BufferMemory];
     //渲染显示
     public static renderShow: Array<StatUIParams> = [Stat.DrawCall, Stat.TriangleFace, Stat.OpaqueDrawCall, Stat.TransDrawCall, Stat.DepthCastDrawCall, Stat.InstanceDrawCall, Stat.CMDDrawCall, Stat.BlitDrawCall];
-
-
-
 
     /**@internal 开启关闭阴影 */
     public static toogle_Shadow: StatToggleUIParams = { title: "Shadow", value: "enableShadow", color: "white" };
@@ -123,7 +105,6 @@ export class Stat {
     /** 精灵渲染使用缓存<code>Sprite</code> 的数量。*/
     public static spriteRenderUseCacheCount: number = 0;
 
-
     /** 画布 canvas 使用标准渲染的次数。*/
     static canvasNormal: number = 0;
     /** 画布 canvas 使用位图渲染的次数。*/
@@ -135,14 +116,6 @@ export class Stat {
     /** 资源管理器所管理资源的累计内存,以字节为单位。*/
     //static gpuMemory: number;
     static cpuMemory: number;
-
-    /**@internal */
-    public static _canvasStr: string;
-    /**@internal */
-    public static _spriteStr: string;
-    /**@internal */
-    public static _fpsData: any[] = [];
-
 
     /**@internal */
     public static _timer: number = 0;
@@ -218,51 +191,96 @@ export class Stat {
     /**@internal 开启关闭非透明物体渲染 */
     public static enableOpaque: boolean = true;
 
-    /**@internal*/
-    static _StatRender: IStatRender;
-    static _currentShowArray: Array<StatUIParams>;
-    static _currentToggleArray: Array<StatToggleUIParams>;
+    static _statUI: IStatUI;
+
+    /**@internal */
+    private static _currentShowArray: Array<StatUIParams>;
+    /**@internal */
+    private static _currentToggleArray: Array<StatToggleUIParams>;
+    /**@internal */
+    private static _show: boolean;
+
     /**
      * 显示性能统计信息。
      * @param	x X轴显示位置。
      * @param	y Y轴显示位置。
      */
-    static show(x: number = 0, y: number = 0, views: Array<StatUIParams> = Stat.AllShow): void {
+    static show(x?: number, y?: number, views?: Array<StatUIParams>): void {
+        if (!Stat.checkUI())
+            return;
+        this.hide();
+
+        Stat._show = true;
         Stat._currentShowArray = views;
-        Stat._StatRender.show(x, y, views);
+        Stat._statUI.show(x, y, views);
+        ILaya.systemTimer.frameLoop(1, null, Stat.loop);
     }
 
-    static showToggle(x: number = 0, y: number = 0, views: Array<StatToggleUIParams> = Stat.AllToggle): void {
+    static showToggle(x?: number, y?: number, views?: Array<StatToggleUIParams>): void {
+        if (!Stat.checkUI())
+            return;
+        this.hide();
+
+        Stat._show = true;
         Stat._currentToggleArray = views;
-        Stat._StatRender.showToggle(x, y, views);
+        Stat._statUI.showToggle(x, y, views);
+        ILaya.systemTimer.frameLoop(1, null, Stat.loop);
     }
 
-    /**
-     * 设置自定义的Stat
-     * @param stat 
-     * @param value 
-     */
-    static setStat(stat: string, value: number) {
-        if (!(Stat as any)[stat])
-            (Stat as any)[stat] = 0;
-        (Stat as any)[stat] += value;
-    }
+    private static checkUI() {
+        if (!Stat._statUI) {
+            let cls = ClassUtils.getClass("StatUI");
+            if (!cls) {
+                console.error("StatUI not found");
+                return false;
+            }
+            Stat._statUI = new cls();
+        }
 
-
-    /**激活性能统计*/
-    static enable(): void {
-        Stat._StatRender.enable();
+        return true;
     }
 
     /**
      * 隐藏性能统计信息。
      */
     static hide(): void {
-        Stat._StatRender.hide();
+        if (!Stat._show)
+            return;
+
+        Stat._show = false;
+        Stat._currentShowArray = null;
+        Stat._currentToggleArray = null;
+        ILaya.systemTimer.clear(null, Stat.loop);
+        if (Stat._statUI)
+            Stat._statUI.hide();
+    }
+
+    /**
+     * @private
+     * 性能统计参数计算循环处理函数。
+     */
+    static loop(): void {
+        Stat._count++;
+        let timer: number = Browser.now();
+        if (timer - Stat._timer < 1000) return;
+
+        let count: number = Stat._count;
+        //计算更精确的FPS值
+        Stat.FPS = Math.round((count * 1000) / (timer - Stat._timer));
+
+        if (Stat._show) {
+            Stat.updateEngineData();
+            let delay: string = Stat.FPS > 0 ? Math.floor(1000 / Stat.FPS).toString() : " ";
+            Stat._fpsStr = Stat.FPS + (Stat.renderSlow ? " slow" : "") + " " + delay + "ms";
+            Stat._statUI.update();
+            Stat.clear();
+        }
+
+        Stat._count = 0;
+        Stat._timer = timer;
     }
 
     static updateEngineData(): void {
-
         Stat.trianglesFaces = LayaGL.renderEngine.getStatisticsInfo(RenderStatisticsInfo.Triangle);
         Stat.drawCall = LayaGL.renderEngine.getStatisticsInfo(RenderStatisticsInfo.DrawCall);
         Stat.instanceDrawCall = LayaGL.renderEngine.getStatisticsInfo(RenderStatisticsInfo.InstanceDrawCall);
@@ -289,11 +307,10 @@ export class Stat {
         LayaGL.renderEngine.clearStatisticsInfo(RenderStatisticsInfo.InstanceDrawCall);
     }
 
-    /**
-     * 点击性能统计显示区域的处理函数。
-     */
-    static set onclick(fn: Function) {
-        Stat._StatRender.set_onclick(fn as any);
+    static render(ctx: any, x: number, y: number) {
+        if (Stat._show)
+            Stat._statUI.render(ctx, x, y);
     }
 }
+
 (window as any).Stat = Stat;
