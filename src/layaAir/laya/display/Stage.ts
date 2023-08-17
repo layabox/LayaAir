@@ -847,7 +847,7 @@ export class Stage extends Sprite {
 
             super.render(context, x, y);
 
-            Stat._StatRender.renderNotCanvas(context, x, y);
+            Stat.render(context, x, y);
 
             Stage.clear(this._bgColor);
 
@@ -893,7 +893,7 @@ export class Stage extends Sprite {
 
             context.clear();
             super.render(context, x, y);
-            Stat._StatRender.renderNotCanvas(context, x, y);
+            Stat.render(context, x, y);
 
             this._componentDriver.callPostRender();
         }

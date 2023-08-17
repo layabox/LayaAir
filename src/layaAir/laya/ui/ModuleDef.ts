@@ -37,6 +37,7 @@ import { ViewStack } from "./ViewStack";
 import { VScrollBar } from "./VScrollBar";
 import { VSlider } from "./VSlider";
 import { OpenDataContextView } from "./OpenDataContextView";
+import { StatUI } from "./StatUI";
 
 let c = ClassUtils.regClass;
 c("AutoBitmap", AutoBitmap);
@@ -78,3 +79,4 @@ c("VSlider", VSlider);
 c("UIComponent", UIComponent);
 
 c("OpenDataContextView", OpenDataContextView);
+c("StatUI", StatUI);
