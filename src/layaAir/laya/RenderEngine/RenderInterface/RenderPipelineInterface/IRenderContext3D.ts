@@ -17,6 +17,8 @@ export interface IRenderContext3D {
 	invertY: boolean;
 	//pipeLineMode
 	pipelineMode: PipelineMode;
+	// config shader data
+	configShaderData: ShaderData;
 	//Camera Shader Data
 	cameraShaderData: ShaderData;
 	//Scene cache

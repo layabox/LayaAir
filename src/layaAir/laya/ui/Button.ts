@@ -243,7 +243,7 @@ export class Button extends UIComponent implements ISelect {
      * @override
      */
     protected createChildren(): void {
-        this.graphics = new AutoBitmap();
+        this.setGraphics(new AutoBitmap(), true);
     }
 
     /**@private */
@@ -327,7 +327,8 @@ export class Button extends UIComponent implements ISelect {
 
     protected _skinLoaded(tex: any): void {
         this._graphics.source = tex;
-        this.callLater(this.changeClips);
+        if (tex)
+            this.callLater(this.changeClips);
         this._setStateChanged();
         this._sizeChanged();
         this.event(Event.LOADED);

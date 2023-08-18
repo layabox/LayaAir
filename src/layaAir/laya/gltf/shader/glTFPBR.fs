@@ -133,6 +133,8 @@ void main()
 
     gl_FragColor = surfaceColor;
 
+    gl_FragColor = outputTransform(gl_FragColor);
+
     // // debug
     // Surface surface;
     // initSurface(surface, inputs, pixel);

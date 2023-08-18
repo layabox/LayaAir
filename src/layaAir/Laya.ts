@@ -16,8 +16,6 @@ import { Texture } from "./laya/resource/Texture";
 import { Browser } from "./laya/utils/Browser";
 import { CacheManger } from "./laya/utils/CacheManger";
 import { ColorUtils } from "./laya/utils/ColorUtils";
-import { Stat } from "./laya/utils/Stat";
-import { StatUI } from "./laya/utils/StatUI";
 import { Timer } from "./laya/utils/Timer";
 import { ShaderDefines2D } from "./laya/webgl/shader/d2/ShaderDefines2D";
 import { SkinSV } from "./laya/webgl/shader/d2/skinAnishader/SkinSV";
@@ -199,7 +197,6 @@ export class Laya {
         }
         Input.__init__();
         SoundManager.autoStopMusic = true;
-        Stat._StatRender = new StatUI();
 
         Value2D._initone(ShaderDefines2D.TEXTURE2D, TextureSV);
         Value2D._initone(ShaderDefines2D.TEXTURE2D | ShaderDefines2D.FILTERGLOW, TextureSV);

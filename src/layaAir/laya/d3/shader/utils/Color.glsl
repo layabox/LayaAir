@@ -64,4 +64,6 @@ vec3 decodeRGBM(in vec4 rgbm, float range)
     return range * rgbm.rgb * rgbm.a;
 }
 
+    #include "OutputTransform.glsl";
+
 #endif // Color_lib

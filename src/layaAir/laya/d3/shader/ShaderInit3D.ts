@@ -3,6 +3,7 @@ import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import UtilsGLSL from "./utils/Utils.glsl";
 import ColorGLSL from "./utils/Color.glsl";
 import MathGLSL from "./utils/Math.glsl";
+import OutputTransformGLSL from "./common/OutputTransform.glsl";
 import BakedBoneMatrixSamplerGLSL from "./utils/BakedBoneMatrixSampler.glsl";
 
 import MorphTargetGLSL from "./common/MorphTarget.glsl";
@@ -70,6 +71,8 @@ export class ShaderInit3D {
 		Shader3D.addInclude("ShadingCommon.glsl", ShadingCommonGLSL);
 		Shader3D.addInclude("ShadingVertex.glsl", ShadingVertexGLSL);
 		Shader3D.addInclude("ShadingFrag.glsl", ShadingFragGLSL);
+
+		Shader3D.addInclude("OutputTransform.glsl", OutputTransformGLSL);
 
 		// scene
 		Shader3D.addInclude("Scene.glsl", SceneGLSL);

@@ -10,6 +10,7 @@ import { IRenderTarget } from "../../../RenderEngine/RenderInterface/IRenderTarg
 import { Matrix4x4 } from "../../../maths/Matrix4x4";
 import { Vector4 } from "../../../maths/Vector4";
 import { ShaderInstance } from "../../../RenderEngine/RenderShader/ShaderInstance";
+import { ShaderDefine } from "../../../RenderEngine/RenderShader/ShaderDefine";
 
 /**
  * <code>RenderContext3D</code> 类用于实现渲染状态。
@@ -23,10 +24,15 @@ export class RenderContext3D {
     /**渲染区高度。*/
     static clientHeight: number;
 
+    /** @internal */
+    static GammaCorrect: ShaderDefine;
+
+    /**@internal */
     static __init__() {
         RenderContext3D._instance = new RenderContext3D();
+
+        this.GammaCorrect = Shader3D.getDefineByName("GAMMACORRECT");
     }
-    /**@internal */
 
     /** @internal */
     viewMatrix: Matrix4x4;
@@ -59,6 +65,26 @@ export class RenderContext3D {
     /**@internal */
     set destTarget(value: IRenderTarget) {
         this._contextOBJ.destTarget = value;
+
+        // todo ohter color gamut
+        let sRGBGammaOut = false;
+        if (value) {
+            // todo 
+            if (value._renderTarget._textures[0].gammaCorrection == 2.2) {
+                sRGBGammaOut = true;
+            }
+        }
+        else {
+            // 直接输出到屏幕, 默认srgb gamma 2.2
+            sRGBGammaOut = true;
+        }
+
+        if (sRGBGammaOut) {
+            this._contextOBJ.configShaderData.addDefine(RenderContext3D.GammaCorrect);
+        }
+        else {
+            this._contextOBJ.configShaderData.removeDefine(RenderContext3D.GammaCorrect);
+        }
     }
 
     /** @internal */
@@ -106,16 +132,16 @@ export class RenderContext3D {
 
     /** @internal */
     set scene(value: Scene3D) {
-        if(value){
+        if (value) {
             this._contextOBJ.sceneID = value._id;
             this._contextOBJ.sceneShaderData = value._shaderValues;
             this._scene = value;
-        }else{
+        } else {
             this._contextOBJ.sceneID = -1;
             this._contextOBJ.sceneShaderData = null;
             this._scene = null;
         }
-        
+
     }
 
     get scene(): Scene3D {
@@ -138,7 +164,7 @@ export class RenderContext3D {
      */
     drawRenderElement(renderelemt: RenderElement): void {
         renderelemt.material && renderelemt._convertSubShader(this.customShader, this.replaceTag);
-        if(!renderelemt.renderSubShader)
+        if (!renderelemt.renderSubShader)
             return;
         renderelemt._renderUpdatePre(this);
         this._contextOBJ.drawRenderElement(renderelemt._renderElementOBJ);
