@@ -779,7 +779,7 @@ export class Node extends EventDispatcher {
         else
             this._inActiveHierarchy(arr, fromSetter);
 
-        for (let i = 0, n = arr.length; i < n; i++) {
+        for (let i = arr.length - 1; i >= 0; i--) {
             let comp = arr[i];
             comp.owner && comp._setActive(active);
         }
