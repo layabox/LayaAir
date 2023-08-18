@@ -55,4 +55,6 @@ void main()
 #endif // FOG
 
     gl_FragColor = vec4(color, alpha);
+
+    gl_FragColor = outputTransform(gl_FragColor);
 }

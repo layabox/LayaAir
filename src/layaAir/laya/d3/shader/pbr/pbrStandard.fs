@@ -178,4 +178,6 @@ void main()
 #endif // FOG
 
     gl_FragColor = surfaceColor;
+
+    gl_FragColor = outputTransform(gl_FragColor);
 }

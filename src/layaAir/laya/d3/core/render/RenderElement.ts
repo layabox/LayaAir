@@ -148,8 +148,11 @@ export class RenderElement {
 
             var comDef: DefineDatas = RenderElement._compileDefine;
 
+            context.configShaderData._defineDatas.cloneTo(comDef);
+
             if (context.sceneShaderData) {
-                context.sceneShaderData._defineDatas.cloneTo(comDef);
+                // context.sceneShaderData._defineDatas.cloneTo(comDef);
+                comDef.addDefineDatas(context.sceneShaderData._defineDatas);
             } else {
                 Shader3D._configDefineValues.cloneTo(comDef);
             }

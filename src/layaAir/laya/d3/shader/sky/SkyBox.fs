@@ -17,4 +17,6 @@ void main()
     vec3 color = cubeSampler.rgb * u_TintColor.rgb * u_Exposure * c_ColorSpace.rgb;
 
     gl_FragColor = vec4(color, 1.0);
+
+    gl_FragColor = outputTransform(gl_FragColor);
 }

@@ -19,6 +19,8 @@ export class RenderContext3DOBJ implements IRenderContext3D {
     invertY: boolean = false;
     //pipeLineMode
     pipelineMode: PipelineMode;
+    // config shader data
+    configShaderData: ShaderData;
     //Camera Shader Data
     cameraShaderData: ShaderData;
     //Scene cache
@@ -34,6 +36,7 @@ export class RenderContext3DOBJ implements IRenderContext3D {
         this.viewPort = new Viewport(0, 0, 0, 0);
         this.scissor = new Vector4();
         this.pipelineMode = "Forward";
+        this.configShaderData = new ShaderData();
     }
 
     /**设置IRenderContext */

@@ -1252,7 +1252,13 @@ export class Scene3D extends Sprite implements ISubmit {
 
         }
 
-        LayaGL.renderEngine.clearRenderTexture(clearConst, camera._linearClearColor, 1);
+        // todo other color gamut
+        let clearColor = camera._linearClearColor;
+        if (renderTex.gammaCorrection != 1) {
+            clearColor = camera.clearColor;
+        }
+
+        LayaGL.renderEngine.clearRenderTexture(clearConst, clearColor, 1);
     }
 
     /**
