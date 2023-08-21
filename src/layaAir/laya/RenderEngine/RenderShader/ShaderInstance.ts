@@ -436,49 +436,53 @@ ${uniformglsl}`;
 	uploadRenderStateBlendDepthByMaterial(shaderDatas: ShaderData) {
 		var datas: any = shaderDatas.getData();
 
+		// depth
 		var depthWrite: any = datas[Shader3D.DEPTH_WRITE];
-		depthWrite = depthWrite ?? false;
+		depthWrite = depthWrite ?? RenderState.Default.depthWrite;
 		RenderStateContext.setDepthMask(depthWrite);
+
 		var depthTest: any = datas[Shader3D.DEPTH_TEST];
 		depthTest = depthTest ?? RenderState.Default.depthTest;
-		if (depthTest === RenderState.DEPTHTEST_OFF)
+		if (depthTest === RenderState.DEPTHTEST_OFF) {
 			RenderStateContext.setDepthTest(false);
+		}
 		else {
 			RenderStateContext.setDepthTest(true);
 			RenderStateContext.setDepthFunc(depthTest);
 		}
 
-		var stencilWrite: any = datas[Shader3D.STENCIL_WRITE];
-		stencilWrite = stencilWrite ?? false;
 		//Stencil
-		var stencilTest: any = datas[Shader3D.STENCIL_TEST];
-		stencilTest = stencilTest ?? RenderState.Default.stencilTest;
+		var stencilWrite: any = datas[Shader3D.STENCIL_WRITE];
+		stencilWrite = stencilWrite ?? RenderState.Default.stencilWrite;
 		RenderStateContext.setStencilMask(stencilWrite);
 		if (stencilWrite) {
 			var stencilOp: any = datas[Shader3D.STENCIL_Op];
 			stencilOp = stencilOp ?? RenderState.Default.stencilOp;
 			RenderStateContext.setstencilOp(stencilOp.x, stencilOp.y, stencilOp.z);
 		}
+
+		var stencilTest: any = datas[Shader3D.STENCIL_TEST];
+		stencilTest = stencilTest ?? RenderState.Default.stencilTest;
 		if (stencilTest == RenderState.STENCILTEST_OFF) {
 			RenderStateContext.setStencilTest(false);
-		} else {
+		}
+		else {
 			var stencilRef: any = datas[Shader3D.STENCIL_Ref];
 			stencilRef = stencilRef ?? RenderState.Default.stencilRef;
 			RenderStateContext.setStencilTest(true);
 			RenderStateContext.setStencilFunc(stencilTest, stencilRef);
 		}
+
 		//blend
 		var blend: any = datas[Shader3D.BLEND];
+		blend = blend ?? RenderState.Default.blend;
 		switch (blend) {
-			case RenderState.BLEND_DISABLE:
-				RenderStateContext.setBlend(false);
-				break;
 			case RenderState.BLEND_ENABLE_ALL:
-				var blendEquation: any = datas[Shader3D.BLEND_EQUATION] //Shader3D.RENDER_STATE_BLEND_EQUATION);
-				var srcBlend: any = datas[Shader3D.BLEND_SRC] //Shader3D.RENDER_STATE_BLEND_SRC);
-				var dstBlend: any = datas[Shader3D.BLEND_DST] //Shader3D.RENDER_STATE_BLEND_DST);
+				var blendEquation: any = datas[Shader3D.BLEND_EQUATION];
 				blendEquation = blendEquation ?? RenderState.Default.blendEquation;
+				var srcBlend: any = datas[Shader3D.BLEND_SRC];
 				srcBlend = srcBlend ?? RenderState.Default.srcBlend;
+				var dstBlend: any = datas[Shader3D.BLEND_DST];
 				dstBlend = dstBlend ?? RenderState.Default.dstBlend;
 				RenderStateContext.setBlend(true);
 				RenderStateContext.setBlendEquation(blendEquation);
@@ -486,20 +490,30 @@ ${uniformglsl}`;
 				break;
 			case RenderState.BLEND_ENABLE_SEPERATE:
 				var blendEquationRGB: any = datas[Shader3D.BLEND_EQUATION_RGB];
-				var blendEquationAlpha: any = datas[Shader3D.BLEND_EQUATION_ALPHA];
-				var srcRGB: any = datas[Shader3D.BLEND_SRC_RGB];
-				var dstRGB: any = datas[Shader3D.BLEND_DST_RGB];
-				var srcAlpha: any = datas[Shader3D.BLEND_SRC_ALPHA];
-				var dstAlpha: any = datas[Shader3D.BLEND_DST_ALPHA];
 				blendEquationRGB = blendEquationRGB ?? RenderState.Default.blendEquationRGB;
+
+				var blendEquationAlpha: any = datas[Shader3D.BLEND_EQUATION_ALPHA];
 				blendEquationAlpha = blendEquationAlpha ?? RenderState.Default.blendEquationAlpha;
+
+				var srcRGB: any = datas[Shader3D.BLEND_SRC_RGB];
 				srcRGB = srcRGB ?? RenderState.Default.srcBlendRGB;
+
+				var dstRGB: any = datas[Shader3D.BLEND_DST_RGB];
 				dstRGB = dstRGB ?? RenderState.Default.dstBlendRGB;
+
+				var srcAlpha: any = datas[Shader3D.BLEND_SRC_ALPHA];
 				srcAlpha = srcAlpha ?? RenderState.Default.srcBlendAlpha;
+
+				var dstAlpha: any = datas[Shader3D.BLEND_DST_ALPHA];
 				dstAlpha = dstAlpha ?? RenderState.Default.dstBlendAlpha;
+
 				RenderStateContext.setBlend(true);
 				RenderStateContext.setBlendEquationSeparate(blendEquationRGB, blendEquationAlpha);
 				RenderStateContext.setBlendFuncSeperate(srcRGB, dstRGB, srcAlpha, dstAlpha);
+				break;
+			case RenderState.BLEND_DISABLE:
+			default:
+				RenderStateContext.setBlend(false);
 				break;
 		}
 	}
@@ -535,6 +549,7 @@ ${uniformglsl}`;
 				RenderStateContext.setFrontFace(forntFace);
 				break;
 			case RenderState.CULL_BACK:
+			default:
 				RenderStateContext.setCullFace(true);
 				if (isTarget != invertFront)
 					forntFace = CullMode.Front;//gl.CCW

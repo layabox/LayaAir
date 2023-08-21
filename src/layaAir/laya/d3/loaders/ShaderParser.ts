@@ -4,6 +4,13 @@ import { Matrix4x4 } from "../../maths/Matrix4x4";
 import { Vector2 } from "../../maths/Vector2";
 import { Vector3 } from "../../maths/Vector3";
 import { Vector4 } from "../../maths/Vector4";
+import { BlendEquationSeparate } from "../../RenderEngine/RenderEnum/BlendEquationSeparate";
+import { BlendFactor } from "../../RenderEngine/RenderEnum/BlendFactor";
+import { BlendType } from "../../RenderEngine/RenderEnum/BlendType";
+import { CompareFunction } from "../../RenderEngine/RenderEnum/CompareFunction";
+import { CullMode } from "../../RenderEngine/RenderEnum/CullMode";
+import { StencilOperation } from "../../RenderEngine/RenderEnum/StencilOperation";
+import { RenderState } from "../../RenderEngine/RenderShader/RenderState";
 import { IShaderObjStructor, IShaderpassStructor, Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { ShaderDataType } from "../../RenderEngine/RenderShader/ShaderData";
 import { Texture2D } from "../../resource/Texture2D";
@@ -25,6 +32,61 @@ const shaderDataOBJ: Record<string, ShaderDataType> = {
     "Matrix3x3": ShaderDataType.Matrix3x3,
     "Texture2D": ShaderDataType.Texture2D,
     "TextureCube": ShaderDataType.TextureCube,
+};
+const CullStateMap: Record<string, CullMode> = {
+    "Back": CullMode.Back,
+    "Front": CullMode.Front,
+    "Off": CullMode.Off
+}
+const BlendStateMap: Record<string, BlendType> = {
+    "Disable": BlendType.BLEND_DISABLE,
+    "All": BlendType.BLEND_ENABLE_ALL,
+    "Seperate": BlendType.BLEND_ENABLE_SEPERATE
+}
+const BlendFactorMap: Record<string, BlendFactor> = {
+    "Zero": BlendFactor.Zero,
+    "One": BlendFactor.One,
+    "SourceColor": BlendFactor.SourceColor,
+    "OneMinusSourceColor": BlendFactor.OneMinusSourceColor,
+    "DestinationColor": BlendFactor.DestinationColor,
+    "OneMinusDestinationColor": BlendFactor.OneMinusDestinationColor,
+    "SourceAlpha": BlendFactor.SourceAlpha,
+    "OneMinusSourceAlpha": BlendFactor.OneMinusSourceAlpha,
+    "DestinationAlpha": BlendFactor.DestinationAlpha,
+    "OneMinusDestinationAlpha": BlendFactor.OneMinusDestinationAlpha,
+    "SourceAlphaSaturate": BlendFactor.SourceAlphaSaturate,
+    "BlendColor": BlendFactor.BlendColor,
+    "OneMinusBlendColor": BlendFactor.OneMinusBlendColor,
+}
+const BlendEquationMap: Record<string, BlendEquationSeparate> = {
+    "Add": BlendEquationSeparate.ADD,
+    "Subtract": BlendEquationSeparate.SUBTRACT,
+    "Reverse_substract": BlendEquationSeparate.REVERSE_SUBTRACT,
+    "Min": BlendEquationSeparate.MIN,
+    "Max": BlendEquationSeparate.MAX
+}
+
+const CompareFunctionMap: Record<string, CompareFunction> = {
+    "Never": CompareFunction.Never,
+    "Less": CompareFunction.Less,
+    "Equal": CompareFunction.Equal,
+    "LessEqual": CompareFunction.LessEqual,
+    "Greater": CompareFunction.Greater,
+    "NotEqual": CompareFunction.NotEqual,
+    "GreaterEqual": CompareFunction.GreaterEqual,
+    "Always": CompareFunction.Always,
+    "Off": CompareFunction.Off,
+}
+
+const StencilOperationMap: Record<string, StencilOperation> = {
+    "Keep": StencilOperation.Keep,
+    "Zero": StencilOperation.Zero,
+    "Replace": StencilOperation.Replace,
+    "IncrementSaturate": StencilOperation.IncrementSaturate,
+    "DecrementSaturate": StencilOperation.DecrementSaturate,
+    "Invert": StencilOperation.Invert,
+    "IncrementWrap": StencilOperation.IncrementWrap,
+    "DecrementWrap": StencilOperation.DecrementWrap,
 }
 
 //TODO 格式改变
@@ -153,6 +215,38 @@ export class ShaderParser {
                     newUniformMap[k] = dataType;
             }
         }
+    }
+
+    static getRenderState(obj: Record<string, string | boolean | number | string[]>, renderState: RenderState) {
+        if (!obj) {
+            return;
+        }
+
+        renderState.cull = CullStateMap[<string>obj.cull];
+        renderState.blend = BlendStateMap[<string>obj.blend];
+        renderState.srcBlend = BlendFactorMap[<string>obj.srcBlend];
+        renderState.dstBlend = BlendFactorMap[<string>obj.dstBlend];
+        renderState.srcBlendRGB = BlendFactorMap[<string>obj.srcBlendRGB];
+        renderState.dstBlendRGB = BlendFactorMap[<string>obj.dstBlendRGB];
+        renderState.srcBlendAlpha = BlendFactorMap[<string>obj.srcBlendAlpha];
+        renderState.dstBlendAlpha = BlendFactorMap[<string>obj.dstBlendAlpha];
+        renderState.blendEquation = BlendEquationMap[<string>obj.blendEquation];
+        renderState.blendEquationRGB = BlendEquationMap[<string>obj.blendEquationRGB];
+        renderState.blendEquationAlpha = BlendEquationMap[<string>obj.blendEquationAlpha];
+        renderState.depthTest = CompareFunctionMap[<string>obj.depthTest];
+        renderState.depthWrite = <boolean>obj.depthWrite;
+        renderState.stencilRef = <number>obj.stencilRef;
+        renderState.stencilTest = CompareFunctionMap[<string>obj.stencilTest];
+        renderState.stencilWrite = <boolean>obj.stencilWrite;
+        let stencilOp = <string[]>obj.stencilOp;
+        let stencilFail = stencilOp ? stencilOp[0] : null;
+        let stencilZFail = stencilOp ? stencilOp[1] : null;
+        let stencilZPass = stencilOp ? stencilOp[2] : null;
+        renderState.stencilOp.x = StencilOperationMap[stencilFail];
+        renderState.stencilOp.y = StencilOperationMap[stencilZFail];
+        renderState.stencilOp.z = StencilOperationMap[stencilZPass];
+
+        return;
     }
 
     /**

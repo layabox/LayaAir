@@ -81,7 +81,7 @@ export class GLRenderState {
         const gl = this._gl;
         this.setDepthFunc(CompareFunction.Less);
         this.setBlendEquationSeparate(BlendEquationSeparate.ADD, BlendEquationSeparate.ADD);
-        this._blendEquation =BlendEquationSeparate.ADD;
+        this._blendEquation = BlendEquationSeparate.ADD;
         this._sFactor = BlendFactor.One;
         this._dFactor = BlendFactor.Zero;
         this._sFactorAlpha = BlendFactor.One;
@@ -172,6 +172,8 @@ export class GLRenderState {
                 return gl.GEQUAL;
             case CompareFunction.Always:
                 return gl.ALWAYS;
+            default:
+                return gl.LEQUAL; // todo
         }
     }
 
