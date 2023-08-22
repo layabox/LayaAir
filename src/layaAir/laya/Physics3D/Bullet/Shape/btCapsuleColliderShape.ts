@@ -6,9 +6,9 @@ import { btColliderShape } from "./btColliderShape";
 export class btCapsuleColliderShape extends btColliderShape implements ICapsuleColliderShape {
     private static _tempVector30: Vector3 = new Vector3();
     /**@internal */
-    private _radius: number = 0.5;
+    private _radius: number = 0.25;
     /**@internal */
-    private _length: number = 2;
+    private _length: number = 1;
     /**@internal */
     private _orientation: number = btColliderShape.SHAPEORIENTATION_UPY;
     constructor() {
@@ -43,17 +43,20 @@ export class btCapsuleColliderShape extends btColliderShape implements ICapsuleC
     setRadius(radius: number): void {
         if (this._radius == radius)
             return;
+        this._radius = radius;
         this._createShape();
     }
 
     setHeight(height: number): void {
         if (this._length == height)
             return;
+        this._length = height;
         this._createShape();
     }
     setUpAxis(upAxis: number): void {
         if (this._orientation == upAxis)
             return;
+        this._orientation = upAxis;
         this._createShape();
     }
 

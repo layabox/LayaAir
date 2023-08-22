@@ -1,5 +1,6 @@
 import { Laya3D } from "../../../Laya3D";
 import { IStaticCollider } from "../../Physics3D/interface/IStaticCollider";
+import { EStaticCapable } from "../../Physics3D/physicsEnum/EStaticCapable";
 import { Scene3D } from "../core/scene/Scene3D";
 import { PhysicsColliderComponent } from "./PhysicsColliderComponent";
 
@@ -27,11 +28,6 @@ export class PhysicsCollider extends PhysicsColliderComponent {
         }
     }
 
-    /**
-     * 创建一个 <code>PhysicsCollider</code> 实例。
-     * @param collisionGroup 所属碰撞组。
-     * @param canCollideWith 可产生碰撞的碰撞组。
-     */
     constructor() {
         super();
     }
@@ -45,7 +41,9 @@ export class PhysicsCollider extends PhysicsColliderComponent {
 
     set isTrigger(value: boolean) {
         this._isTrigger = value;
-
+        if(this._collider.getCapable(EStaticCapable.Static_AllowTrigger)){
+            this._collider.setTrigger && this._collider.setTrigger(value);
+        }
     }
 
     /**

@@ -3,11 +3,15 @@ import { Rigidbody3D } from "../Rigidbody3D";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Vector3 } from "../../../maths/Vector3";
+import { IJoint } from "../../../Physics3D/interface/Joint/IJoint";
+import { Laya3D } from "../../../../Laya3D";
 
 /**
  * <code>ConstraintComponent</code> 类用于创建约束的父类。
  */
 export class ConstraintComponent extends Component {
+    /**@internal */
+    _joint: IJoint;
     /** @internal TODO*/
     static CONSTRAINT_POINT2POINT_CONSTRAINT_TYPE = 3;
     /** @internal TODO*/
@@ -74,7 +78,7 @@ export class ConstraintComponent extends Component {
     private _breakTorque: number;
 
     /** 连接的两个物体是否进行碰撞检测 */
-    disableCollisionsBetweenLinkedBodies = true;
+    private _disableCollisionsBetweenLinkedBodies = true;
 
     /**
      * 获取应用的冲力。
@@ -140,6 +144,7 @@ export class ConstraintComponent extends Component {
     }
     set breakForce(value: number) {
         this._breakForce = value;
+        this._joint && this._joint.setBreakForce(value);
     }
 
     /**
@@ -151,6 +156,7 @@ export class ConstraintComponent extends Component {
     }
     set breakTorque(value: number) {
         this._breakTorque = value;
+        this._joint && this._joint.setBreakTorque(value);
     }
 
     /**
@@ -158,7 +164,8 @@ export class ConstraintComponent extends Component {
      */
     set anchor(value: Vector3) {
         value.cloneTo(this._anchor);
-        this.setFrames();
+        // this.setFrames();
+        this._joint && this._joint.setConnectedAnchor(value, ConstraintComponent.tempForceV3);
     }
 
     get anchor() {
@@ -170,7 +177,8 @@ export class ConstraintComponent extends Component {
      */
     set connectAnchor(value: Vector3) {
         value.cloneTo(this._connectAnchor);
-        this.setFrames();
+        // this.setFrames();
+        this._joint && this._joint.setConnectedAnchor(this._anchor, value);
     }
 
     get connectAnchor(): Vector3 {
@@ -194,6 +202,10 @@ export class ConstraintComponent extends Component {
         // bt.btTransform_setOrigin(this._btframBTrans, this._btframBPos);
         // this._breakForce = -1;
         // this._breakTorque = -1;
+    }
+
+    protected _onAdded(): void {
+        this._joint.setOwner(this.owner);
     }
 
     /**
@@ -257,19 +269,15 @@ export class ConstraintComponent extends Component {
      * @override
      */
     setConnectRigidBody(ownerRigid: Rigidbody3D, connectRigidBody: Rigidbody3D) {
-        // var ownerCanInSimulation = ownerRigid && !!(ownerRigid._simulation && ownerRigid._enabled && ownerRigid.colliderShape);
-        // var connectCanInSimulation = connectRigidBody && !!(connectRigidBody._simulation && connectRigidBody._enabled && connectRigidBody.colliderShape);
-        // if (!(ownerCanInSimulation && connectCanInSimulation))
-        //     throw "ownerRigid or connectRigidBody is not in Simulation";
-        // if (ownerRigid != this._ownBody || connectRigidBody != this._connectedBody) {
-        //     var canInSimulation = !!(this.enabled && this._simulation);
-        //     canInSimulation && this._removeFromSimulation();
-        //     this._ownBody = ownerRigid;
-        //     this._connectedBody = connectRigidBody;
-        //     //this._ownBody.constaintRigidbodyA = this;
-        //     //this._connectedBody.constaintRigidbodyB = this;
-        //     this._createConstraint();
-        // }
+        let ownerCanInSimulation = ownerRigid && !!(ownerRigid.enabled && ownerRigid.colliderShape && (ownerRigid.owner.scene as Scene3D)._physicsManager);
+        let connectCanInSimulation = connectRigidBody && !!(connectRigidBody.enabled && connectRigidBody.colliderShape && (connectRigidBody.owner.scene as Scene3D)._physicsManager);
+        if (!(ownerCanInSimulation && connectCanInSimulation))
+            throw "ownerRigid or connectRigidBody is not in Simulation";
+        if (ownerRigid != this._ownBody || connectRigidBody != this._connectedBody) {
+            this._ownBody = ownerRigid;
+            this._connectedBody = connectRigidBody;
+            this._createConstraint();
+        }
     }
 
     /**
@@ -345,7 +353,7 @@ export class ConstraintComponent extends Component {
         //     this._breakConstrained();
         //     return true;
         // }
-         return false;
+        return false;
     }
 
 

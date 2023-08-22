@@ -2,6 +2,7 @@ import { Mesh } from "../../resource/models/Mesh";
 import { ILaya3D } from "../../../../ILaya3D";
 import { Vector3 } from "../../../maths/Vector3";
 import { Physics3DColliderShape } from "./Physics3DColliderShape";
+import { IColliderShape } from "../../../Physics3D/interface/Shape/IColliderShape";
 
 /**
  * <code>MeshColliderShape</code> 类用于创建网格碰撞器。
@@ -12,7 +13,9 @@ export class MeshColliderShape extends Physics3DColliderShape {
 	/** @internal */
 	private _convex: boolean = false;
 	/** @internal */
-	private _physicMesh:any;
+	private _physicMesh: any;
+
+	_shape: IColliderShape;
 
 	/**
 	 * 网格。
@@ -22,6 +25,10 @@ export class MeshColliderShape extends Physics3DColliderShape {
 	}
 
 	set mesh(value: Mesh) {
+		if ((this._mesh == value && this._shape) || !value)
+			return;
+		this._mesh = value;
+
 		// if(!value)
 		// 	return;
 		// if (this._mesh !== value) {
@@ -57,16 +64,16 @@ export class MeshColliderShape extends Physics3DColliderShape {
 	/**
 	 * @internal
 	 */
-	_setPhysicsMesh(){
-		if(false){
+	_setPhysicsMesh() {
+		if (false) {
 			this._createDynamicMeshCollider();
-		}else{
+		} else {
 			this._createBvhTriangleCollider();
-			
+
 		}
 	}
 
-	private _createDynamicMeshCollider(){
+	private _createDynamicMeshCollider() {
 		// var bt: any = ILaya3D.Physics3D._bullet;
 		// if(this._physicMesh){
 		// 	this._btShape = bt.btGImpactMeshShape_create(this._physicMesh);
@@ -74,7 +81,7 @@ export class MeshColliderShape extends Physics3DColliderShape {
 		// }
 	}
 
-	private _createBvhTriangleCollider(){
+	private _createBvhTriangleCollider() {
 		// var bt: any = ILaya3D.Physics3D._bullet;
 		// if(this._physicMesh)
 		// this._btShape = bt.btBvhTriangleMeshShape_create(this._physicMesh);

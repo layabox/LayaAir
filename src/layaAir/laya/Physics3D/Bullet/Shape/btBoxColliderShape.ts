@@ -12,7 +12,7 @@ export class btBoxColliderShape extends btColliderShape implements IBoxColliderS
     constructor() {
         super();
         let bt = btPhysicsCreateUtil._bt;
-        this._size = new Vector3(1, 1, 1);
+        this._size = new Vector3(0.5, 0.5, 0.5);
         this._btSize = bt.btVector3_create(0, 0, 0);
     }
 
@@ -36,6 +36,7 @@ export class btBoxColliderShape extends btColliderShape implements IBoxColliderS
 
     setSize(size: Vector3): void {
         if (!size.equal(this._size)) {
+            this._size.setValue(size.x, size.y, size.z);
             this.changeBoxShape();
         }
     }
@@ -43,6 +44,8 @@ export class btBoxColliderShape extends btColliderShape implements IBoxColliderS
     destroy(): void {
         super.destroy();
         //destroy _btsize
+        this._size = null;
+        this._btSize = null;
     }
 
 }

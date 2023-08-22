@@ -2,6 +2,7 @@ import { ConstraintComponent } from "./ConstraintComponent";
 import { Rigidbody3D } from "../Rigidbody3D";
 import { Sprite3D } from "../../core/Sprite3D";
 import { Vector3 } from "../../../maths/Vector3";
+import { Laya3D } from "../../../../Laya3D";
 
 /**
  * <code>ConfigurableConstraint</code>类用于可设置的约束组件
@@ -558,6 +559,9 @@ export class ConfigurableConstraint extends ConstraintComponent {
     protected _onEnable(): void {
         // if (this._btConstraint)
         //     Physics3D._bullet.btTypedConstraint_setEnabled(this._btConstraint, true);
+        if (Laya3D.enablePhysics) {
+            this._joint = Laya3D.PhysicsCreateUtil.createCustomJoint(null);
+        }
     }
 
     protected _onDisable(): void {

@@ -67,7 +67,6 @@ export class CapsuleColliderShape extends Physics3DColliderShape {
 	 * @param orientation 胶囊体方向。
 	 */
 	constructor(radius: number = 0.5, length: number = 2, orientation: number = Physics3DColliderShape.SHAPEORIENTATION_UPY) {
-
 		super();
 		this.radius = radius;
 		this.length = length;
@@ -78,7 +77,7 @@ export class CapsuleColliderShape extends Physics3DColliderShape {
 	 * @override
 	 */
 	protected _createShape() {
-		this._shape = Laya3D.PhysicsCreateUtil.createCapsuleColliderShape()
+		this._shape = Laya3D.PhysicsCreateUtil.createCapsuleColliderShape();
 	}
 
 	/**

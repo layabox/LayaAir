@@ -12,6 +12,8 @@ import { Collision } from "../../d3/physics/Collision";
 import { ContactPoint } from "../../d3/physics/ContactPoint";
 import { Event } from "../../events/Event";
 import { HitResult } from "../../d3/physics/HitResult";
+import { EPhysicsCapable } from "../physicsEnum/EPhycisCapable";
+import { Physics3DUtils } from "../../d3/utils/Physics3DUtils";
 
 export class btPhysicsManager implements IPhysicsManager {
     /**默认碰撞组 */
@@ -215,6 +217,8 @@ export class btPhysicsManager implements IPhysicsManager {
     _physicsUpdateList = new PhysicsUpdateList();
     _characters: btCharacterCollider[] = [];
 
+    // capable map
+    protected _physicsEngineCapableMap: Map<any, any>;
 
     constructor(physicsSettings: PhysicsSettings) {
         let bt = this._bt = btPhysicsCreateUtil._bt;
@@ -252,6 +256,7 @@ export class btPhysicsManager implements IPhysicsManager {
         this._btAllConvexResultCallback = bt.AllConvexResultCallback_create(this._btVector3Zero, this._btVector3Zero);//TODO:是否优化C++
 
         bt.btGImpactCollisionAlgorithm_RegisterAlgorithm(this._btDispatcher);//注册算法
+        this.initPhysicsCapable();  // 初始化物理能力
     }
 
     //TODO
@@ -533,6 +538,65 @@ export class btPhysicsManager implements IPhysicsManager {
         bt.btDynamicsWorld_enableDebugDrawer(this._btDiscreteDynamicsWorld, value);
     }
 
+    getPhysicsCapable(value: EPhysicsCapable): boolean {
+        return this._physicsEngineCapableMap.get(value);
+    }
+
+    initPhysicsCapable(): void {
+        this._physicsEngineCapableMap = new Map();
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_CanSleep, false);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_CollisionGroup, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_FrictionRestitutionCombineMode, false);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_Friction, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_DynamicFriction, false);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_RollingFriction, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_Restitution, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_Gravity, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_LinearDamp, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_AngularDamp, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_LinearVelocity, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_AngularVelocity, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_Mass, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_InertiaTensor, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_MassCenter, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_MaxAngularVelocity, false);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_MaxDepenetrationVelocity, false);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_SleepThreshold, false);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_SleepAngularVelocity, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_SolverIterations, false);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_CanDetectionMode, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_CanKinematic, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_CanStatic, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_CanDynamic, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_CanCharacter, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_LinearFactor, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_AngularFactor, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_ApplyForce, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_ClearForce, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_ApplyForceWithOffset, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_ApplyTorque, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_ApplyImpulse, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_ApplyTorqueImpulse, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_CanTrigger, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_BoxColliderShape, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_SphereColliderShape, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_CapsuleColliderShape, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_CylinderColliderShape, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_ConeColliderShape, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_MeshColliderShape, false);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_CompoundColliderShape, false);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_WorldPosition, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_WorldOrientation, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_Move, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_Jump, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_StepOffset, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_UpDirection, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_FallSpeed, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_SlopeLimit, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_PushForce, true);
+    }
+
+
     /**
      * gravity
      * @param gravity 
@@ -596,7 +660,7 @@ export class btPhysicsManager implements IPhysicsManager {
         if (!this._btDiscreteDynamicsWorld)
             throw "Cannot perform this action when the physics engine is set to CollisionsOnly";
         // this._nativeDiscreteDynamicsWorld.removeConstraint(constraint._nativeConstraint);
-        this._bt._bullet.btCollisionWorld_removeConstraint(this._btDiscreteDynamicsWorld, joint._btJoint);
+        this._bt.btCollisionWorld_removeConstraint(this._btDiscreteDynamicsWorld, joint._btJoint);
         delete this._currentConstraint[joint._id];
     }
 
@@ -614,7 +678,7 @@ export class btPhysicsManager implements IPhysicsManager {
         this.dispatchCollideEvent();
     }
 
-    rayCast(ray: Ray, outHitResult: HitResult, distance: number, collisonGroup: number, collisionMask: number): boolean {
+    rayCast(ray: Ray, outHitResult: HitResult, distance: number = 2147483647/*Int.MAX_VALUE*/, collisonGroup: number = Physics3DUtils.COLLISIONFILTERGROUP_ALLFILTER, collisionMask: number = Physics3DUtils.COLLISIONFILTERGROUP_ALLFILTER): boolean {
         var from = ray.origin;
         var to = btPhysicsManager._tempVector30;
         Vector3.normalize(ray.direction, to);
@@ -660,7 +724,7 @@ export class btPhysicsManager implements IPhysicsManager {
     }
 
 
-    rayCastAll(ray: Ray, out: HitResult[], distance: number, collisonGroup: number, collisionMask: number): boolean {
+    rayCastAll(ray: Ray, out: HitResult[], distance: number = 2147483647/*Int.MAX_VALUE*/, collisonGroup: number = Physics3DUtils.COLLISIONFILTERGROUP_ALLFILTER, collisionMask: number = Physics3DUtils.COLLISIONFILTERGROUP_ALLFILTER): boolean {
         var from = ray.origin;
         var to = btPhysicsManager._tempVector30;
         Vector3.normalize(ray.direction, to);
@@ -731,6 +795,7 @@ export class btPhysicsManager implements IPhysicsManager {
         this._btDispatcher = null;
         bt.btDefaultCollisionConfiguration_destroy(this._btCollisionConfiguration);
         this._btCollisionConfiguration = null;
+        this._physicsEngineCapableMap = null;
     }
 
     /**
