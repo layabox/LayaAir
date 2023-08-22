@@ -1,19 +1,21 @@
 import { Config3D } from "../../../Config3D";
 import { PhysicsSettings } from "../../d3/physics/PhysicsSettings";
 import { IPhysicsCreateUtil } from "../interface/IPhysicsCreateUtil";
-import { ICustomJoint } from "../interface/Joint/ICustomJoint";
-import { IFixedJoint } from "../interface/Joint/IFixedJoint";
-import { IHingeJoint } from "../interface/Joint/IHingeJoint";
-import { ISpringJoint } from "../interface/Joint/ISpringJoint";
 import { IMeshColliderShape } from "../interface/Shape/IMeshColliderShape";
 import { IPlaneColliderShape } from "../interface/Shape/IPlaneColliderShape";
 import { btCharacterCollider } from "./Collider/btCharacterCollider";
+import { btCollider } from "./Collider/btCollider";
 import { btRigidBodyCollider } from "./Collider/btRigidBodyCollider";
 import { btStaticCollider } from "./Collider/btStaticCollider";
+import { btCustomJoint } from "./Joint/btCustomJoint";
+import { btFixedJoint } from "./Joint/btFixedJoint";
+import { btHingJoint } from "./Joint/btHingJoint";
+import { btSpringJoint } from "./Joint/btSpringJoint";
 import { btBoxColliderShape } from "./Shape/btBoxColliderShape";
 import { btCapsuleColliderShape } from "./Shape/btCapsuleColliderShape";
 import { btConeColliderShape } from "./Shape/btConeColliderShape";
 import { btCylinderColliderShape } from "./Shape/btCylinderColliderShape";
+import { btMeshColliderShape } from "./Shape/btMeshColliderShape";
 import { btSphereColliderShape } from "./Shape/btSphereColliderShape";
 import { BulletInteractive } from "./btInteractive";
 import { btPhysicsManager } from "./btPhysicsManager";
@@ -36,6 +38,11 @@ export class btPhysicsCreateUtil implements IPhysicsCreateUtil {
             // CharacterController.__init__();
             // Rigidbody3D.__init__();
             btPhysicsCreateUtil._bt = (window as any).Physics3D;
+            btPhysicsManager.init();
+            btCollider.__init__();
+            btRigidBodyCollider.__init__();
+            btStaticCollider.__init__();
+            btCharacterCollider.__init__();
             return Promise.resolve();
         }
         );
@@ -47,33 +54,32 @@ export class btPhysicsCreateUtil implements IPhysicsCreateUtil {
         return new btPhysicsManager(physicsSettings);
     }
 
-
-    createDynamicCollider(manager:btPhysicsManager): btRigidBodyCollider {
+    createDynamicCollider(manager: btPhysicsManager): btRigidBodyCollider {
         return new btRigidBodyCollider(manager);
     }
 
-    createStaticCollider(manager:btPhysicsManager): btStaticCollider {
+    createStaticCollider(manager: btPhysicsManager): btStaticCollider {
         return new btStaticCollider(manager);
     }
 
-    createCharacterController(manager:btPhysicsManager): btCharacterCollider {
+    createCharacterController(manager: btPhysicsManager): btCharacterCollider {
         return new btCharacterCollider(manager);
     }
 
-    createFixedJoint(manager:btPhysicsManager): IFixedJoint {
-        throw new Error("Method not implemented.");
+    createFixedJoint(manager: btPhysicsManager): btFixedJoint {
+        return new btFixedJoint(manager);
     }
 
-    createHingeJoint(manager:btPhysicsManager): IHingeJoint {
-        throw new Error("Method not implemented.");
+    createHingeJoint(manager: btPhysicsManager): btHingJoint {
+        return new btHingJoint(manager);
     }
 
-    createSpringJoint(manager:btPhysicsManager): ISpringJoint {
-        throw new Error("Method not implemented.");
+    createSpringJoint(manager: btPhysicsManager): btSpringJoint {
+        return new btSpringJoint(manager);
     }
 
-    createCustomJoint(manager:btPhysicsManager): ICustomJoint {
-        throw new Error("Method not implemented.");
+    createCustomJoint(manager: btPhysicsManager): btCustomJoint {
+        return new btCustomJoint(manager);
     }
 
     createBoxColliderShape(): btBoxColliderShape {

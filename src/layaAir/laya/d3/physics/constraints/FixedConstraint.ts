@@ -1,15 +1,22 @@
 import { ConstraintComponent } from "./ConstraintComponent";
 import { Sprite3D } from "../../core/Sprite3D";
 import { Rigidbody3D } from "../Rigidbody3D";
+import { IJoint } from "../../../Physics3D/interface/Joint/IJoint";
+import { Laya3D } from "../../../../Laya3D";
+import { Scene3D } from "../../core/scene/Scene3D";
 
 export class FixedConstraint extends ConstraintComponent {
+
+    /**@intenal */
+    _joint: IJoint;
+
     /**
      * 创建一个<code>FixedConstraint</code>实例
      */
     constructor() {
         super(ConstraintComponent.CONSTRAINT_FIXED_CONSTRAINT_TYPE);
-        this.breakForce = -1;
-        this.breakTorque = -1;
+        // this.breakForce = -1;
+        // this.breakTorque = -1;
     }
 
     /**
@@ -18,7 +25,12 @@ export class FixedConstraint extends ConstraintComponent {
      * @internal
      */
     _addToSimulation(): void {
-       // this._simulation && this._simulation.addConstraint(this, this.disableCollisionsBetweenLinkedBodies);
+        // this._simulation && this._simulation.addConstraint(this, this.disableCollisionsBetweenLinkedBodies);
+        // if (!this._btDiscreteDynamicsWorld)
+        // 	throw "Cannot perform this action when the physics engine is set to CollisionsOnly";
+        // // this._nativeDiscreteDynamicsWorld.addConstraint(constraint._nativeConstraint, disableCollisionsBetweenLinkedBodies);
+        // ILaya3D.Physics3D._bullet.btCollisionWorld_addConstraint(this._btDiscreteDynamicsWorld,constraint._btConstraint,disableCollisionsBetweenLinkedBodies);
+        // this._currentConstraint[constraint.id] = constraint;
     }
 
     /**
@@ -27,8 +39,8 @@ export class FixedConstraint extends ConstraintComponent {
     * @internal
     */
     _removeFromSimulation(): void {
-       // this._simulation.removeConstraint(this);
-       // this._simulation = null;
+        // this._simulation.removeConstraint(this);
+        // this._simulation = null;
     }
 
     /**
@@ -37,6 +49,8 @@ export class FixedConstraint extends ConstraintComponent {
      * @internal
      */
     _createConstraint(): void {
+        this._joint.setConnectedCollider && this._joint.setConnectedCollider(this.ownBody.collider, this.connectedBody.collider);
+
         // if (this.ownBody && this.ownBody._simulation && this.connectedBody && this.connectedBody._simulation) {
         //     var bt = Physics3D._bullet;
         //     this._btConstraint = bt.btFixedConstraint_create(this.ownBody.btColliderObject, this._btframATrans, this.connectedBody.btColliderObject, this._btframBTrans)
@@ -47,6 +61,13 @@ export class FixedConstraint extends ConstraintComponent {
         //     this._simulation = this.getPhysicsSimulation();// (<Scene3D>this.owner._scene).physicsSimulation;
         //     this._addToSimulation();
         // }
+    }
+
+    protected _onAdded(): void {
+        if (Laya3D.enablePhysics) {
+            let _physicsManager = ((<Scene3D>this.owner._scene))._physicsManager;
+            this._joint = Laya3D.PhysicsCreateUtil.createFixedJoint(_physicsManager);
+        }
     }
 
     protected _onEnable(): void {

@@ -7,7 +7,6 @@ import { ICollider } from "./ICollider";
  * Interface of physics dynamic collider.
  */
 export interface IDynamicCollider extends ICollider {
-
     /**
      * Sets the linear damping coefficient.
      * @param value - Linear damping coefficient.
@@ -100,11 +99,17 @@ export interface IDynamicCollider extends ICollider {
      * set world position
      * @param value 
      */
-    setWorldPosition(value: Vector3): void
+    setWorldPosition(value: Vector3): void;
 
     /**
      * set world rotation
      * @param value 
      */
-    setWorldRotation(value: Quaternion): void
+    setWorldRotation(value: Quaternion): void;
+
+    /**
+     * set trigger
+     * @param value 
+     */
+    setTrigger(value: boolean): void;
 }

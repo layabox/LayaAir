@@ -5,6 +5,8 @@ import { Scene3D } from "../core/scene/Scene3D";
 import { PhysicsColliderComponent } from "./PhysicsColliderComponent";
 import { Laya3D } from "../../../Laya3D";
 import { ICharacterController } from "../../Physics3D/interface/ICharacterController";
+import { CapsuleColliderShape } from "./shape/CapsuleColliderShape";
+import { ECharacterCapable } from "../../Physics3D/physicsEnum/ECharacterCapable";
 
 /**
  * <code>CharacterController</code> 类用于创建角色控制器。
@@ -14,7 +16,7 @@ export class CharacterController extends PhysicsColliderComponent {
     /**@internal */
     protected _collider: ICharacterController;
     /** @internal */
-    private _stepHeight: number;
+    private _stepHeight: number = 0.1;
     /** @internal */
     private _upAxis = new Vector3(0, 1, 0);
     /**@internal */
@@ -27,14 +29,18 @@ export class CharacterController extends PhysicsColliderComponent {
     private _gravity = new Vector3(0, -9.8 * 3, 0);
     /**@internal */
     private _pushForce = 1;
-
+    /** @internal */
+    protected _colliderShape: CapsuleColliderShape;
     /**
      * @override
      * @internal
      */
     protected _initCollider() {
-        this._physicsManager = ((<Scene3D>this.owner._scene))._physicsManager;
-        this._collider = Laya3D.PhysicsCreateUtil.createCharacterController(this._physicsManager);
+        if (Laya3D.enablePhysics) {
+            this._physicsManager = ((<Scene3D>this.owner._scene))._physicsManager;
+            this._collider = Laya3D.PhysicsCreateUtil.createCharacterController(this._physicsManager);
+            this.colliderShape = new CapsuleColliderShape();
+        }
     }
 
     /**
@@ -45,7 +51,9 @@ export class CharacterController extends PhysicsColliderComponent {
     }
 
     set fallSpeed(value: number) {
-        this._collider && this._collider.setfallSpeed(value);
+        if (this.collider.getCapable(ECharacterCapable.Character_FallSpeed)) {
+            this._collider && this._collider.setfallSpeed(value);
+        }
     }
 
     /**
@@ -53,7 +61,9 @@ export class CharacterController extends PhysicsColliderComponent {
      */
     set pushForce(v: number) {
         this._pushForce = v;
-        this._collider && this._collider.setpushForce(v);
+        if (this.collider.getCapable(ECharacterCapable.Character_PushForce)) {
+            this._collider && this._collider.setpushForce(v);
+        }
     }
 
     get pushForce() {
@@ -68,7 +78,9 @@ export class CharacterController extends PhysicsColliderComponent {
     }
 
     set jumpSpeed(value: number) {
-        this._jumpSpeed = value;
+        if (this.collider.getCapable(ECharacterCapable.Charcater_Jump)) {
+            this._jumpSpeed = value;
+        }
     }
 
     /**
@@ -80,7 +92,9 @@ export class CharacterController extends PhysicsColliderComponent {
 
     set gravity(value: Vector3) {
         this._gravity = value;
-        this._collider && this._collider.setGravity(value);
+        if (this.collider.getCapable(ECharacterCapable.Charcater_Gravity)) {
+            this._collider && this._collider.setGravity(value);
+        }
     }
 
     /**
@@ -92,7 +106,9 @@ export class CharacterController extends PhysicsColliderComponent {
 
     set maxSlope(value: number) {
         this._maxSlope = value;
-        this._collider && this._collider.setSlopeLimit(value);
+        if (this.collider.getCapable(ECharacterCapable.Character_SlopeLimit)) {
+            this._collider && this._collider.setSlopeLimit(value);
+        }
     }
 
     /**
@@ -104,7 +120,9 @@ export class CharacterController extends PhysicsColliderComponent {
 
     set stepHeight(value: number) {
         this._stepHeight = value;
-        this._collider && this._collider.setStepOffset(value);
+        if (this.collider.getCapable(ECharacterCapable.Charcater_StepOffset)) {
+            this._collider && this._collider.setStepOffset(value);
+        }
     }
 
     /**
@@ -116,7 +134,9 @@ export class CharacterController extends PhysicsColliderComponent {
 
     set upAxis(value: Vector3) {
         this._upAxis = value;
-        this._collider && this._collider.setUpDirection(value);
+        if (this.collider.getCapable(ECharacterCapable.Character_UpDirection)) {
+            this._collider && this._collider.setUpDirection(value);
+        }
     }
 
     /**
@@ -127,7 +147,9 @@ export class CharacterController extends PhysicsColliderComponent {
     }
 
     set position(v: Vector3) {
-        this._collider && this._collider.setWorldPosition(v);
+        if (this.collider.getCapable(ECharacterCapable.Charcater_WorldPosition)) {
+            this._collider && this._collider.setWorldPosition(v);
+        }
     }
 
     /**
@@ -154,7 +176,9 @@ export class CharacterController extends PhysicsColliderComponent {
      * @param	movement 移动向量。
      */
     move(movement: Vector3): void {
-        this._collider && this._collider.move(movement);
+        if (this.collider.getCapable(ECharacterCapable.Charcater_Move)) {
+            this._collider && this._collider.move(movement);
+        }
     }
 
     /**
@@ -162,13 +186,28 @@ export class CharacterController extends PhysicsColliderComponent {
      * @param velocity 跳跃速度。
      */
     jump(velocity: Vector3 = null): void {
-
-        if (velocity) {
-            this._collider && this._collider.jump(velocity);
-        } else {
-            Utils3D._tempV0.set(0, this._jumpSpeed, 0)
-            this._collider && this._collider.jump(Utils3D._tempV0);
+        if (this.collider.getCapable(ECharacterCapable.Charcater_Jump)) {
+            if (velocity) {
+                this._collider && this._collider.jump(velocity);
+            } else {
+                Utils3D._tempV0.set(0, this._jumpSpeed, 0)
+                this._collider && this._collider.jump(Utils3D._tempV0);
+            }
         }
+    }
+
+    /**
+     * 碰撞形状
+     */
+    get colliderShape(): CapsuleColliderShape {
+        return this._colliderShape;
+    }
+    set colliderShape(value: CapsuleColliderShape) {
+        if (this._colliderShape == value && this._colliderShape)
+            return;
+        this._colliderShape && this._colliderShape.destroy();
+        this._colliderShape = value;
+        this._collider && this._collider.setColliderShape(value._shape);
     }
 
     /**

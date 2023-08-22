@@ -1,17 +1,24 @@
+import { Node } from "../../../display/Node";
 import { Vector3 } from "../../../maths/Vector3";
 import { ICollider } from "../ICollider";
 
-export interface IJoint{
-      /**
+export interface IJoint {
+  /**
+   * set owner
+   * @param value 
+   */
+  setOwner(value: Node): void;
+
+  /**
    * The connected collider.
    */
-  setConnectedCollider(value: ICollider): void;
+  setConnectedCollider(owner: ICollider, other: ICollider): void;
 
   /**
    * The connected anchor position.
    * @remarks If connectedCollider is set, this anchor is relative offset, or the anchor is world position.
    */
-  setConnectedAnchor(value: Vector3): void;
+  setConnectedAnchor(ownerValue: Vector3, otherValue: Vector3): void;
 
   /**
    *  The scale to apply to the inverse mass of collider 0 for resolving this constraint.

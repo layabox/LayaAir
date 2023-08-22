@@ -42,7 +42,7 @@ export class BulletInteractive {
     //Dynamic刚体,物理引擎每帧调用一次,用于更新渲染矩阵。
     setWorldTransform(rigidBodyID: number, worldTransPointer: number) {
         var rigidBody = btCollider._physicObjectsMap[rigidBodyID];
-        rigidBody._manager._updatedRigidbodies++;
+        rigidBody._physicsManager._updatedRigidbodies++;
         rigidBody._updateTransformComponent(worldTransPointer);
     }
 

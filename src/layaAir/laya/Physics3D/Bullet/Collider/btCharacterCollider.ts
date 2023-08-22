@@ -3,7 +3,8 @@ import { btPhysicsCreateUtil } from "../btPhysicsCreateUtil";
 import { ICharacterController } from "../../interface/ICharacterController";
 import { Vector3 } from "../../../maths/Vector3";
 import { btPhysicsManager } from "../btPhysicsManager";
-import { PhysicsCombineMode } from "../../../d3/physics/PhysicsColliderComponent";
+import { ECharacterCapable } from "../../physicsEnum/ECharacterCapable";
+import { btColliderShape } from "../Shape/btColliderShape";
 
 export class btCharacterCollider extends btCollider implements ICharacterController {
 
@@ -13,7 +14,7 @@ export class btCharacterCollider extends btCollider implements ICharacterControl
     /**@internal */
     _btKinematicCharacter: number = null;
     /** @internal */
-    private _stepHeight: number;
+    private _stepHeight: number = 0.1;
     /** @internal */
     private _upAxis = new Vector3(0, 1, 0);
     /**@internal */
@@ -26,16 +27,60 @@ export class btCharacterCollider extends btCollider implements ICharacterControl
     /**@internal */
     private _pushForce = 1;
 
-    protected getColliderType(): btColliderType {
-        return btColliderType.CharactorCollider;
+    /**@internal */
+    static _characterCapableMap: Map<any, any>;
+
+    /** @internal */
+    componentEnable: boolean;
+
+    static __init__(): void {
+        let bt = btPhysicsCreateUtil._bt;
+        btCharacterCollider._btTempVector30 = bt.btVector3_create(0, 0, 0);
+        btCharacterCollider.initCapable();
     }
 
-    protected _initCollider() {
+    getCapable(value: number): boolean {
+        return btCharacterCollider.getCharacterCapable(value);
+    }
+
+    constructor(physicsManager: btPhysicsManager) {
+        super(physicsManager);
+        this._enableProcessCollisions = true;  // not support trigger
         var bt = btPhysicsCreateUtil._bt;
         var ghostObject: number = bt.btPairCachingGhostObject_create();
         bt.btCollisionObject_setUserIndex(ghostObject, this._id);
         bt.btCollisionObject_setCollisionFlags(ghostObject, btPhysicsManager.COLLISIONFLAGS_CHARACTER_OBJECT);
         this._btCollider = ghostObject;
+    }
+
+    static getCharacterCapable(value: ECharacterCapable): boolean {
+        return btCharacterCollider._characterCapableMap.get(value);
+    }
+
+    static initCapable(): void {
+        this._characterCapableMap = new Map();
+        this._characterCapableMap.set(ECharacterCapable.Charcater_AllowSleep, false);
+        this._characterCapableMap.set(ECharacterCapable.Charcater_Gravity, true);
+        this._characterCapableMap.set(ECharacterCapable.Charcater_CollisionGroup, true);
+        this._characterCapableMap.set(ECharacterCapable.Charcater_Friction, true);
+        this._characterCapableMap.set(ECharacterCapable.Charcater_Restitution, true);
+        this._characterCapableMap.set(ECharacterCapable.Charcater_RollingFriction, true);
+        this._characterCapableMap.set(ECharacterCapable.Charcater_AllowTrigger, false);
+        this._characterCapableMap.set(ECharacterCapable.Charcater_WorldPosition, true);
+        this._characterCapableMap.set(ECharacterCapable.Charcater_Move, true);
+        this._characterCapableMap.set(ECharacterCapable.Charcater_Jump, true);
+        this._characterCapableMap.set(ECharacterCapable.Charcater_StepOffset, true);
+        this._characterCapableMap.set(ECharacterCapable.Character_UpDirection, true);
+        this._characterCapableMap.set(ECharacterCapable.Character_FallSpeed, true);
+        this._characterCapableMap.set(ECharacterCapable.Character_SlopeLimit, true);
+        this._characterCapableMap.set(ECharacterCapable.Character_PushForce, true);
+    }
+
+    protected getColliderType(): btColliderType {
+        return btColliderType.CharactorCollider;
+    }
+
+    protected _initCollider() {
         super._initCollider();
     }
 
@@ -47,7 +92,7 @@ export class btCharacterCollider extends btCollider implements ICharacterControl
 
         var btUpAxis: number = btCharacterCollider._btTempVector30;
         bt.btVector3_setValue(btUpAxis, this._upAxis.x, this._upAxis.y, this._upAxis.z);
-        this._btKinematicCharacter = bt.btKinematicCharacterController_create(this._btCollider, this._btCollider._btShape, this._stepHeight, btUpAxis);
+        this._btKinematicCharacter = bt.btKinematicCharacterController_create(this._btCollider, this._btColliderShape._btShape, this._stepHeight, btUpAxis);
         //bt.btKinematicCharacterController_setUseGhostSweepTest(this._btKinematicCharacter, false);
         this.setfallSpeed(this._fallSpeed);
         this.setSlopeLimit(this._maxSlope);
@@ -110,7 +155,7 @@ export class btCharacterCollider extends btCollider implements ICharacterControl
 
     setpushForce(value: number): void {
         this._pushForce = value;
-        if (this._btCollider) {
+        if (this._btCollider && this._btKinematicCharacter) {
             var bt = btPhysicsCreateUtil._bt;
             bt.btKinematicCharacterController_setPushForce(this._btKinematicCharacter, value);
         }
@@ -139,5 +184,9 @@ export class btCharacterCollider extends btCollider implements ICharacterControl
                 cb(comp);
             }
         }
+    }
+
+    setColliderShape(shape: btColliderShape): void {
+        super.setColliderShape(shape);
     }
 }

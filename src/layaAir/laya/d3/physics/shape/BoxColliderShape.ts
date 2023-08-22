@@ -8,16 +8,11 @@ import { Physics3DColliderShape } from "./Physics3DColliderShape";
  * <code>BoxColliderShape</code> 类用于创建盒子形状碰撞器。
  */
 export class BoxColliderShape extends Physics3DColliderShape {
-	
-	
+
+	/**@internal */
 	_shape: IBoxColliderShape;
+	/**@internal */
 	private _size: Vector3;
-	/**@internal */
-	private _sizeX: number;
-	/**@internal */
-	private _sizeY: number;
-	/**@internal */
-	private _sizeZ: number;
 
 	/**
 	 * 创建一个新的 <code>BoxColliderShape</code> 实例。
@@ -27,9 +22,6 @@ export class BoxColliderShape extends Physics3DColliderShape {
 	 */
 	constructor(sizeX: number = 1.0, sizeY: number = 1.0, sizeZ: number = 1.0) {
 		super();
-		this._sizeX = sizeX;
-		this._sizeY = sizeY;
-		this._sizeZ = sizeZ;
 		this._size = new Vector3(sizeX, sizeY, sizeZ);
 		this._shape.setSize(this._size);
 	}
@@ -58,7 +50,7 @@ export class BoxColliderShape extends Physics3DColliderShape {
 	 * @override
 	 */
 	clone(): any {
-		var dest: BoxColliderShape = new BoxColliderShape(this._sizeX, this._sizeY, this._sizeZ);
+		var dest: BoxColliderShape = new BoxColliderShape(this._size.x, this._size.y, this._size.z);
 		this.cloneTo(dest);
 		return dest;
 	}
@@ -74,7 +66,7 @@ export class BoxColliderShape extends Physics3DColliderShape {
 	 * X轴尺寸。
 	 */
 	get sizeX(): number {
-		return this._sizeX;
+		return this.size.x;
 	}
 
 	set sizeX(value: number) {
@@ -89,7 +81,7 @@ export class BoxColliderShape extends Physics3DColliderShape {
 	 * Y轴尺寸。
 	 */
 	get sizeY(): number {
-		return this._sizeY;
+		return this.size.y;
 	}
 
 	set sizeY(value: number) {
@@ -104,7 +96,7 @@ export class BoxColliderShape extends Physics3DColliderShape {
 	 * Z轴尺寸。
 	 */
 	get sizeZ(): number {
-		return this._sizeZ;
+		return this.size.z;
 	}
 
 	set sizeZ(value: number) {
