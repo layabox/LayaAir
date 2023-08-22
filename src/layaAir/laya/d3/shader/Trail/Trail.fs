@@ -1,5 +1,6 @@
 #define SHADER_NAME TrailFS
 
+#include "Color.glsl";
 #include "Scene.glsl";
 #include "SceneFog.glsl";
 
