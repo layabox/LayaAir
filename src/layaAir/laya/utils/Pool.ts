@@ -63,8 +63,8 @@ export class Pool {
     }
 
     /**
-     * 根据类名回收类的实例
-     * @param	instance 类的具体实例
+     * 根据类型创建对象
+     * @param	cls 类型
      */
     static createByClass<T>(cls: new () => T): T {
         return Pool.getItemByClass(Pool._getClassSign(cls), cls);
