@@ -1,10 +1,10 @@
+import { ICollider } from "../../Physics3D/interface/ICollider";
 import { SingletonList } from "../../utils/SingletonList";
-import { btCollider } from "./Collider/btCollider";
 
 /**
  * <code>PhysicsUpdateList</code> 类用于实现物理更新队列。
  */
-export class PhysicsUpdateList extends SingletonList<btCollider> {
+export class PhysicsUpdateList extends SingletonList<ICollider> {
 
     /**
      * 创建一个新的 <code>PhysicsUpdateList</code> 实例。
@@ -17,26 +17,26 @@ export class PhysicsUpdateList extends SingletonList<btCollider> {
     /**
      * @internal
      */
-    add(element: btCollider): void {
-        var index: number = element._inPhysicUpdateListIndex;
+    add(element: ICollider): void {
+        var index: number = element.inPhysicUpdateListIndex;
         if (index !== -1)
             throw "PhysicsUpdateList:element has  in  PhysicsUpdateList.";
         this._add(element);
-        element._inPhysicUpdateListIndex = this.length++;
+        element.inPhysicUpdateListIndex = this.length++;
     }
 
     /**
      * @internal
      */
-    remove(element: btCollider): void {
-        var index: number = element._inPhysicUpdateListIndex;
+    remove(element: ICollider): void {
+        var index: number = element.inPhysicUpdateListIndex;
         this.length--;
         if (index !== this.length) {
             var end: any = this.elements[this.length];
             this.elements[index] = end;
             end._inPhysicUpdateListIndex = index;
         }
-        element._inPhysicUpdateListIndex = -1;
+        element.inPhysicUpdateListIndex = -1;
     }
 
 }

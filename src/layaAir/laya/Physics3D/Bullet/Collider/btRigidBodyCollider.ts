@@ -3,7 +3,7 @@ import { MeshColliderShape } from "../../../d3/physics/shape/MeshColliderShape";
 import { Quaternion } from "../../../maths/Quaternion";
 import { Vector3 } from "../../../maths/Vector3";
 import { IDynamicCollider } from "../../interface/IDynamicCollider";
-import { ERigidBodyCapable } from "../../physicsEnum/ERigiBodyCapable";
+import { EColliderCapable } from "../../physicsEnum/EColliderCapable";
 import { btColliderShape } from "../Shape/btColliderShape";
 import { btPhysicsCreateUtil } from "../btPhysicsCreateUtil";
 import { btPhysicsManager } from "../btPhysicsManager";
@@ -90,43 +90,52 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
         return btRigidBodyCollider.getRigidBodyCapable(value);
     }
 
-    static getRigidBodyCapable(value: ERigidBodyCapable): boolean {
+    static getRigidBodyCapable(value: EColliderCapable): boolean {
         return this._rigidBodyCapableMap.get(value);
     }
 
     static initCapable(): void {
         this._rigidBodyCapableMap = new Map();
-        this._rigidBodyCapableMap.set(ERigidBodyCapable.RigidBody_AllowSleep, false);
-        this._rigidBodyCapableMap.set(ERigidBodyCapable.RigidBody_Gravity, true);
-        this._rigidBodyCapableMap.set(ERigidBodyCapable.RigidBody_CollisionGroup, true);
-        this._rigidBodyCapableMap.set(ERigidBodyCapable.RigidBody_Restitution, true);
-        this._rigidBodyCapableMap.set(ERigidBodyCapable.RigidBody_Friction, true);
-        this._rigidBodyCapableMap.set(ERigidBodyCapable.RigidBody_RollingFriction, true);
-        this._rigidBodyCapableMap.set(ERigidBodyCapable.RigidBody_LinearDamp, true);
-        this._rigidBodyCapableMap.set(ERigidBodyCapable.RigidBody_AngularDamp, true);
-        this._rigidBodyCapableMap.set(ERigidBodyCapable.RigidBody_LinearVelocity, true);
-        this._rigidBodyCapableMap.set(ERigidBodyCapable.RigidBody_AngularVelocity, true);
-        this._rigidBodyCapableMap.set(ERigidBodyCapable.RigidBody_Mass, true);
-        this._rigidBodyCapableMap.set(ERigidBodyCapable.RigidBody_InertiaTensor, true);
-        this._rigidBodyCapableMap.set(ERigidBodyCapable.RigidBody_MassCenter, true);
-        this._rigidBodyCapableMap.set(ERigidBodyCapable.RigidBody_MaxAngularVelocity, false);
-        this._rigidBodyCapableMap.set(ERigidBodyCapable.RigidBody_MaxDepenetrationVelocity, false);
-        this._rigidBodyCapableMap.set(ERigidBodyCapable.RigidBody_SleepThreshold, false);
-        this._rigidBodyCapableMap.set(ERigidBodyCapable.RigidBody_SleepAngularVelocity, false);
-        this._rigidBodyCapableMap.set(ERigidBodyCapable.RigidBody_SolverIterations, false);
-        this._rigidBodyCapableMap.set(ERigidBodyCapable.RigidBody_AllowDetectionMode, true);
-        this._rigidBodyCapableMap.set(ERigidBodyCapable.RigidBody_AllowKinematic, true);
-        this._rigidBodyCapableMap.set(ERigidBodyCapable.RigidBody_AllowStatic, true);
-        this._rigidBodyCapableMap.set(ERigidBodyCapable.RigidBody_AllowDynamic, true);
-        this._rigidBodyCapableMap.set(ERigidBodyCapable.RigidBody_LinearFactor, true);
-        this._rigidBodyCapableMap.set(ERigidBodyCapable.RigidBody_AngularFactor, true);
-        this._rigidBodyCapableMap.set(ERigidBodyCapable.RigidBody_ApplyForce, true);
-        this._rigidBodyCapableMap.set(ERigidBodyCapable.RigidBody_ClearForce, true);
-        this._rigidBodyCapableMap.set(ERigidBodyCapable.RigidBody_ApplyForceWithOffset, true);
-        this._rigidBodyCapableMap.set(ERigidBodyCapable.RigidBody_ApplyTorque, true);
-        this._rigidBodyCapableMap.set(ERigidBodyCapable.RigidBody_ApplyImpulse, true);
-        this._rigidBodyCapableMap.set(ERigidBodyCapable.RigidBody_ApplyTorqueImpulse, true);
-        this._rigidBodyCapableMap.set(ERigidBodyCapable.RigidBody_AllowTrigger, true);
+        this._rigidBodyCapableMap.set(EColliderCapable.Collider_AllowTrigger, false);
+        this._rigidBodyCapableMap.set(EColliderCapable.Collider_CollisionGroup, true);
+        this._rigidBodyCapableMap.set(EColliderCapable.Collider_Friction, true);
+        this._rigidBodyCapableMap.set(EColliderCapable.Collider_Restitution, true);
+        this._rigidBodyCapableMap.set(EColliderCapable.Collider_RollingFriction, true);
+        this._rigidBodyCapableMap.set(EColliderCapable.Collider_DynamicFriction, true);
+        this._rigidBodyCapableMap.set(EColliderCapable.Collider_StaticFriction, true);
+        this._rigidBodyCapableMap.set(EColliderCapable.Collider_BounceCombine, true);
+        this._rigidBodyCapableMap.set(EColliderCapable.Collider_FrictionCombine, true);
+
+        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_AllowSleep, false);
+        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_Gravity, true);
+        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_Restitution, true);
+        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_Friction, true);
+        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_RollingFriction, true);
+        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_LinearDamp, true);
+        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_AngularDamp, true);
+        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_LinearVelocity, true);
+        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_AngularVelocity, true);
+        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_Mass, true);
+        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_InertiaTensor, true);
+        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_MassCenter, true);
+        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_MaxAngularVelocity, false);
+        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_MaxDepenetrationVelocity, false);
+        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_SleepThreshold, false);
+        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_SleepAngularVelocity, false);
+        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_SolverIterations, false);
+        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_AllowDetectionMode, true);
+        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_AllowKinematic, true);
+        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_AllowStatic, true);
+        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_AllowDynamic, true);
+        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_LinearFactor, true);
+        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_AngularFactor, true);
+        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_ApplyForce, true);
+        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_ClearForce, true);
+        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_ApplyForceWithOffset, true);
+        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_ApplyTorque, true);
+        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_ApplyImpulse, true);
+        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_ApplyTorqueImpulse, true);
+        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_AllowTrigger, true);
     }
 
     setWorldPosition(value: Vector3): void {

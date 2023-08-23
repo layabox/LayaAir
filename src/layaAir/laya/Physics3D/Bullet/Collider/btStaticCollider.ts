@@ -1,6 +1,6 @@
 import { Vector3 } from "../../../maths/Vector3";
 import { IStaticCollider } from "../../interface/IStaticCollider";
-import { EStaticCapable } from "../../physicsEnum/EStaticCapable";
+import { EColliderCapable } from "../../physicsEnum/EColliderCapable";
 import { btPhysicsCreateUtil } from "../btPhysicsCreateUtil";
 import { btPhysicsManager } from "../btPhysicsManager";
 import { btCollider, btColliderType } from "./btCollider";
@@ -67,18 +67,21 @@ export class btStaticCollider extends btCollider implements IStaticCollider {
     }
 
 
-    static getStaticColliderCapable(value: EStaticCapable): boolean {
+    static getStaticColliderCapable(value: EColliderCapable): boolean {
         return this._staticCapableMap.get(value);
     }
 
     static initCapable(): void {
         this._staticCapableMap = new Map();
-        this._staticCapableMap.set(EStaticCapable.Static_AllowSleep, false);
-        this._staticCapableMap.set(EStaticCapable.Static_AllowTrigger, true);
-        this._staticCapableMap.set(EStaticCapable.Static_CollisionGroup, true);
-        this._staticCapableMap.set(EStaticCapable.Static_Friction, true);
-        this._staticCapableMap.set(EStaticCapable.Static_Restitution, true);
-        this._staticCapableMap.set(EStaticCapable.Static_RollingFriction, true);
+        this._staticCapableMap.set(EColliderCapable.Collider_AllowTrigger, false);
+        this._staticCapableMap.set(EColliderCapable.Collider_CollisionGroup, true);
+        this._staticCapableMap.set(EColliderCapable.Collider_Friction, true);
+        this._staticCapableMap.set(EColliderCapable.Collider_Restitution, true);
+        this._staticCapableMap.set(EColliderCapable.Collider_RollingFriction, true);
+        this._staticCapableMap.set(EColliderCapable.Collider_DynamicFriction, true);
+        this._staticCapableMap.set(EColliderCapable.Collider_StaticFriction, true);
+        this._staticCapableMap.set(EColliderCapable.Collider_BounceCombine, true);
+        this._staticCapableMap.set(EColliderCapable.Collider_FrictionCombine, true);
     }
 
     setWorldPosition(value: Vector3): void {

@@ -53,6 +53,7 @@ export class btCapsuleColliderShape extends btColliderShape implements ICapsuleC
         this._length = height;
         this._createShape();
     }
+
     setUpAxis(upAxis: number): void {
         if (this._orientation == upAxis)
             return;

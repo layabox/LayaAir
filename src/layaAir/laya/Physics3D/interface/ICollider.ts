@@ -4,7 +4,7 @@ import { PhysicsCombineMode } from "../../d3/physics/PhysicsColliderComponent";
 
 export interface ICollider {
     owner: Node;
-
+    inPhysicUpdateListIndex:number;
     /**
      * component is enable
      */
@@ -55,7 +55,7 @@ export interface ICollider {
 
     setStaticFriction?(value: number): void;
 
-    setFrictionCombine?(value: PhysicsCombineMode): number;
+    setFrictionCombine?(value: PhysicsCombineMode): void;
 
-    setBounceCombine?(value: PhysicsCombineMode): number;
+    setBounceCombine?(value: PhysicsCombineMode): void;
 }

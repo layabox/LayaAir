@@ -5,7 +5,6 @@ import { IPhysicsManager } from "../interface/IPhysicsManager";
 import { btJoint } from "./Joint/btJoint";
 import { btCollider, btColliderType } from "./Collider/btCollider";
 import { btPhysicsCreateUtil } from "./btPhysicsCreateUtil";
-import { PhysicsUpdateList } from "./PhysicsUpdateList";
 import { btCharacterCollider } from "./Collider/btCharacterCollider";
 import { CollisionTool } from "./CollisionTool";
 import { Collision } from "../../d3/physics/Collision";
@@ -14,6 +13,7 @@ import { Event } from "../../events/Event";
 import { HitResult } from "../../d3/physics/HitResult";
 import { EPhysicsCapable } from "../physicsEnum/EPhycisCapable";
 import { Physics3DUtils } from "../../d3/utils/Physics3DUtils";
+import { PhysicsUpdateList } from "../../d3/physics/PhysicsUpdateList";
 
 export class btPhysicsManager implements IPhysicsManager {
     /**默认碰撞组 */
@@ -312,7 +312,7 @@ export class btPhysicsManager implements IPhysicsManager {
         for (var i = 0, n = this._physicsUpdateList.length; i < n; i++) {
             var physicCollider: btCollider = elements[i];
             physicCollider._derivePhysicsTransformation(false);
-            physicCollider._inPhysicUpdateListIndex = -1;//置空索引
+            physicCollider.inPhysicUpdateListIndex = -1;//置空索引
         }
         this._physicsUpdateList.length = 0;//清空物理更新队列
     }
@@ -528,7 +528,6 @@ export class btPhysicsManager implements IPhysicsManager {
         }
     }
 
-
     /**
      * debugger Function
      * @param value 
@@ -544,40 +543,10 @@ export class btPhysicsManager implements IPhysicsManager {
 
     initPhysicsCapable(): void {
         this._physicsEngineCapableMap = new Map();
-        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_CanSleep, false);
-        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_CollisionGroup, true);
-        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_FrictionRestitutionCombineMode, false);
-        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_Friction, true);
-        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_DynamicFriction, false);
-        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_RollingFriction, true);
-        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_Restitution, true);
         this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_Gravity, true);
-        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_LinearDamp, true);
-        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_AngularDamp, true);
-        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_LinearVelocity, true);
-        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_AngularVelocity, true);
-        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_Mass, true);
-        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_InertiaTensor, true);
-        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_MassCenter, true);
-        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_MaxAngularVelocity, false);
-        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_MaxDepenetrationVelocity, false);
-        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_SleepThreshold, false);
-        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_SleepAngularVelocity, true);
-        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_SolverIterations, false);
-        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_CanDetectionMode, true);
-        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_CanKinematic, true);
-        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_CanStatic, true);
-        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_CanDynamic, true);
-        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_CanCharacter, true);
-        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_LinearFactor, true);
-        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_AngularFactor, true);
-        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_ApplyForce, true);
-        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_ClearForce, true);
-        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_ApplyForceWithOffset, true);
-        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_ApplyTorque, true);
-        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_ApplyImpulse, true);
-        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_ApplyTorqueImpulse, true);
-        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_CanTrigger, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_StaticCollider, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_DynamicCollider, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_CharacterCollider, true);
         this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_BoxColliderShape, true);
         this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_SphereColliderShape, true);
         this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_CapsuleColliderShape, true);
@@ -585,17 +554,7 @@ export class btPhysicsManager implements IPhysicsManager {
         this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_ConeColliderShape, true);
         this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_MeshColliderShape, false);
         this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_CompoundColliderShape, false);
-        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_WorldPosition, true);
-        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_WorldOrientation, true);
-        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_Move, true);
-        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_Jump, true);
-        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_StepOffset, true);
-        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_UpDirection, true);
-        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_FallSpeed, true);
-        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_SlopeLimit, true);
-        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_PushForce, true);
     }
-
 
     /**
      * gravity
@@ -631,7 +590,7 @@ export class btPhysicsManager implements IPhysicsManager {
     }
 
     removeCollider(collider: btCollider): void {
-        if (collider._inPhysicUpdateListIndex !== -1)
+        if (collider.inPhysicUpdateListIndex !== -1)
             this._physicsUpdateList.remove(collider);
         switch (collider._type) {
             case btColliderType.StaticCollider:

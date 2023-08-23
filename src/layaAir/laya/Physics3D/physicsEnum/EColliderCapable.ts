@@ -1,8 +1,18 @@
-export enum ERigidBodyCapable {
+export enum EColliderCapable {
+    Collider_CollisionGroup, // 碰撞分组
+    Collider_Friction,   // 摩擦力
+    Collider_RollingFriction,    // 滚动摩擦力
+    Collider_Restitution,    // 弹力
+    Collider_AllowTrigger, // 是否支持触发器
+    Collider_DynamicFriction,
+    Collider_StaticFriction,
+    Collider_BounceCombine,
+    Collider_FrictionCombine,
+
     // RigidBody刚体能力
+    RigidBody_CanKinematic,   // 是否支持运动学模式
     RigidBody_AllowSleep,   // 是否支持睡眠
     RigidBody_Gravity,   // 重力
-    RigidBody_CollisionGroup, // 碰撞分组
     RigidBody_Friction,   // 摩擦力
     RigidBody_RollingFriction,    // 滚动摩擦力
     RigidBody_Restitution,    // 弹力

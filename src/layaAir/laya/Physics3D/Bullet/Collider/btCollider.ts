@@ -66,7 +66,7 @@ export class btCollider implements ICollider {
     _type: btColliderType;
 
     //update list index
-    _inPhysicUpdateListIndex: number = -1;
+    inPhysicUpdateListIndex: number = -1;
 
     _id: number;
 
@@ -344,7 +344,7 @@ export class btCollider implements ICollider {
 
     transformChanged(flag: number): void {
         this._transformFlag = flag;
-        if (this._inPhysicUpdateListIndex == -1 && !this._enableProcessCollisions) {
+        if (this.inPhysicUpdateListIndex == -1 && !this._enableProcessCollisions) {
             this._physicsManager._physicsUpdateList.add(this);
         }
     }

@@ -6,11 +6,10 @@ import { BoxColliderShape } from "./shape/BoxColliderShape";
 import { Event } from "../../events/Event";
 import { Scene3D } from "../core/scene/Scene3D";
 import { IPhysicsManager } from "../../Physics3D/interface/IPhysicsManager";
-//import { CompoundColliderShape } from "./shape/CompoundColliderShape";
 import { Physics3DColliderShape } from "./shape/Physics3DColliderShape";
 import { SphereColliderShape } from "./shape/SphereColliderShape";
 import { CapsuleColliderShape } from "./shape/CapsuleColliderShape";
-import { EPhysicsCapable } from "../../Physics3D/physicsEnum/EPhycisCapable";
+import { EColliderCapable } from "../../Physics3D/physicsEnum/EColliderCapable";
 
 /**
  * Describes how physics materials of the colliding objects are combined.
@@ -81,7 +80,7 @@ export class PhysicsColliderComponent extends Component {
 
     set restitution(value: number) {
         this._restitution = value;
-        if (this._physicsManager.getPhysicsCapable(EPhysicsCapable.Physics_Restitution)) {
+        if (this._collider.getCapable(EColliderCapable.Collider_Restitution)) {
             this._collider.setBounciness && this._collider.setBounciness(value);
         }
     }
@@ -95,7 +94,7 @@ export class PhysicsColliderComponent extends Component {
 
     set friction(value: number) {
         this._friction = value;
-        if (this._physicsManager.getPhysicsCapable(EPhysicsCapable.Physics_Friction)) {
+        if (this._collider.getCapable(EColliderCapable.Collider_Friction)) {
             this._collider.setfriction && this._collider.setfriction(value);
         }
         //this._btColliderObject && ILaya3D.Physics3D._bullet.btCollisionObject_setFriction(this._btColliderObject, value);
@@ -110,7 +109,7 @@ export class PhysicsColliderComponent extends Component {
 
     set rollingFriction(value: number) {
         this._rollingFriction = value;
-        if (this._physicsManager.getPhysicsCapable(EPhysicsCapable.Physics_RollingFriction)) {
+        if (this._collider.getCapable(EColliderCapable.Collider_RollingFriction)) {
             this._collider.setRollingFriction && this._collider.setRollingFriction(value);
         }
     }
@@ -123,7 +122,7 @@ export class PhysicsColliderComponent extends Component {
     }
 
     set dynamicFriction(value: number) {
-        if (this._physicsManager.getPhysicsCapable(EPhysicsCapable.Physics_DynamicFriction)) {
+        if (this._collider.getCapable(EColliderCapable.Collider_DynamicFriction)) {
             this._collider.setDynamicFriction && this._collider.setDynamicFriction(value);
         }
     }
@@ -137,7 +136,7 @@ export class PhysicsColliderComponent extends Component {
 
     set staticFriction(value: number) {
         this._staticFriction = value
-        if (this._physicsManager.getPhysicsCapable(EPhysicsCapable.Physics_Friction)) {
+        if (this._collider.getCapable(EColliderCapable.Collider_StaticFriction)) {
             this._collider.setStaticFriction && this._collider.setStaticFriction(value);
         }
     }
@@ -147,7 +146,7 @@ export class PhysicsColliderComponent extends Component {
      */
     set frictionCombine(value: PhysicsCombineMode) {
         this._frictionCombine = value;
-        if (this._physicsManager.getPhysicsCapable(EPhysicsCapable.Physics_FrictionRestitutionCombineMode)) {
+        if (this._collider.getCapable(EColliderCapable.Collider_FrictionCombine)) {
             this._collider.setFrictionCombine && this._collider.setFrictionCombine(value);
         }
     }
@@ -161,7 +160,7 @@ export class PhysicsColliderComponent extends Component {
      */
     set restitutionCombine(value: PhysicsCombineMode) {
         this._restitutionCombine = value;
-        if (this._physicsManager.getPhysicsCapable(EPhysicsCapable.Physics_FrictionRestitutionCombineMode)) {
+        if (this._collider.getCapable(EColliderCapable.Collider_BounceCombine)) {
             this._collider.setBounceCombine && this._collider.setBounceCombine(value);
         }
     }
@@ -224,7 +223,7 @@ export class PhysicsColliderComponent extends Component {
     }
 
     set collisionGroup(value: number) {
-        if (this._physicsManager.getPhysicsCapable(EPhysicsCapable.Physics_CollisionGroup)) {
+        if (this._collider.getCapable(EColliderCapable.Collider_CollisionGroup)) {
             if (this._collisionGroup !== value) {
                 this._collisionGroup = value;
                 if (this._colliderShape && this._enabled) {
@@ -242,7 +241,7 @@ export class PhysicsColliderComponent extends Component {
     }
 
     set canCollideWith(value: number) {
-        if (this._physicsManager.getPhysicsCapable(EPhysicsCapable.Physics_CollisionGroup)) {
+        if (this._collider.getCapable(EColliderCapable.Collider_CollisionGroup)) {
             if (this._canCollideWith !== value) {
                 this._canCollideWith = value;
                 if (this._colliderShape && this._enabled) {
@@ -254,6 +253,7 @@ export class PhysicsColliderComponent extends Component {
 
     constructor() {
         super();
+
     }
 
     /**

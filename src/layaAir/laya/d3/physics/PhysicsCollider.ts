@@ -1,6 +1,6 @@
 import { Laya3D } from "../../../Laya3D";
 import { IStaticCollider } from "../../Physics3D/interface/IStaticCollider";
-import { EStaticCapable } from "../../Physics3D/physicsEnum/EStaticCapable";
+import { EColliderCapable } from "../../Physics3D/physicsEnum/EColliderCapable";
 import { Scene3D } from "../core/scene/Scene3D";
 import { PhysicsColliderComponent } from "./PhysicsColliderComponent";
 
@@ -41,7 +41,7 @@ export class PhysicsCollider extends PhysicsColliderComponent {
 
     set isTrigger(value: boolean) {
         this._isTrigger = value;
-        if(this._collider.getCapable(EStaticCapable.Static_AllowTrigger)){
+        if(this._collider.getCapable(EColliderCapable.Collider_AllowTrigger)){
             this._collider.setTrigger && this._collider.setTrigger(value);
         }
     }
