@@ -53,7 +53,7 @@ export class PerformanceTest_Cartoon2 {
 		this.Main = maincls;
 		Laya.init(1280, 720, WebGL);
 		//			Laya.stage.screenMode = Stage.SCREEN_HORIZONTAL;
-		Stat.enable();
+		// Stat.enable();
 
 		this.image = new Image();
 		this.image.skin = "res/cartoon2/background.jpg";

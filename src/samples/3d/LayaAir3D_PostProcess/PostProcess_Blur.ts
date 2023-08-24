@@ -14,6 +14,7 @@ import { BlurEffect } from "./BlurShader/BlurEffect";
 import Client from "../../Client";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 import { Matrix4x4 } from "laya/maths/Matrix4x4";
+import { URL } from "laya/net/URL";
 
 export class PostProcess_Blur {
 	/**实例类型*/
@@ -34,6 +35,9 @@ export class PostProcess_Blur {
 		Laya.stage.screenMode = Stage.SCREEN_NONE;
 		Shader3D.debugMode = true;
 		BlurEffect.init();
+
+		// URL.basePath = "http://localhost:9001/";
+
 		//加载场景
 		Scene3D.load("res/threeDimen/LayaScene_zhuandibanben/Conventional/zhuandibanben.ls", Handler.create(this, function (scene: Scene3D): void {
 			Laya.stage.addChild(scene);

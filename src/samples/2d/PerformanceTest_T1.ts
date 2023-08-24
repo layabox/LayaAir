@@ -54,7 +54,7 @@ export class PerformanceTest_T1 {
 
 		Laya.init(1280, 720, WebGL);
 		Laya.stage.screenMode = Stage.SCREEN_HORIZONTAL;
-		Stat.enable();
+		// Stat.enable();
 		Laya.stage.loadImage("res/cartoon2/background.jpg");
 
 		this.createCharacters();
