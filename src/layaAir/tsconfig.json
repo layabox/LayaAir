@@ -4,7 +4,7 @@
         "module": "es6",
         "outDir": "../../bin/tsc/layaAir",
         "composite": true,
-        "stripInternal": false,
+        "stripInternal": true,
         "removeComments": false,
         "preserveConstEnums": false,
         "noImplicitAny": true,
