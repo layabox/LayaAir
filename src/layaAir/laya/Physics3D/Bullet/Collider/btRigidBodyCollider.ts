@@ -96,17 +96,17 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
 
     static initCapable(): void {
         this._rigidBodyCapableMap = new Map();
-        this._rigidBodyCapableMap.set(EColliderCapable.Collider_AllowTrigger, false);
+        this._rigidBodyCapableMap.set(EColliderCapable.Collider_AllowTrigger, true);
         this._rigidBodyCapableMap.set(EColliderCapable.Collider_CollisionGroup, true);
         this._rigidBodyCapableMap.set(EColliderCapable.Collider_Friction, true);
         this._rigidBodyCapableMap.set(EColliderCapable.Collider_Restitution, true);
         this._rigidBodyCapableMap.set(EColliderCapable.Collider_RollingFriction, true);
-        this._rigidBodyCapableMap.set(EColliderCapable.Collider_DynamicFriction, true);
-        this._rigidBodyCapableMap.set(EColliderCapable.Collider_StaticFriction, true);
-        this._rigidBodyCapableMap.set(EColliderCapable.Collider_BounceCombine, true);
-        this._rigidBodyCapableMap.set(EColliderCapable.Collider_FrictionCombine, true);
+        this._rigidBodyCapableMap.set(EColliderCapable.Collider_DynamicFriction, false);
+        this._rigidBodyCapableMap.set(EColliderCapable.Collider_StaticFriction, false);
+        this._rigidBodyCapableMap.set(EColliderCapable.Collider_BounceCombine, false);
+        this._rigidBodyCapableMap.set(EColliderCapable.Collider_FrictionCombine, false);
 
-        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_AllowSleep, false);
+        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_AllowSleep, true);
         this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_Gravity, true);
         this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_Restitution, true);
         this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_Friction, true);
@@ -120,8 +120,8 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
         this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_MassCenter, true);
         this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_MaxAngularVelocity, false);
         this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_MaxDepenetrationVelocity, false);
-        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_SleepThreshold, false);
-        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_SleepAngularVelocity, false);
+        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_SleepThreshold, true);
+        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_SleepAngularVelocity, true);
         this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_SolverIterations, false);
         this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_AllowDetectionMode, true);
         this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_AllowKinematic, true);

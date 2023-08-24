@@ -73,15 +73,15 @@ export class btStaticCollider extends btCollider implements IStaticCollider {
 
     static initCapable(): void {
         this._staticCapableMap = new Map();
-        this._staticCapableMap.set(EColliderCapable.Collider_AllowTrigger, false);
+        this._staticCapableMap.set(EColliderCapable.Collider_AllowTrigger, true);
         this._staticCapableMap.set(EColliderCapable.Collider_CollisionGroup, true);
         this._staticCapableMap.set(EColliderCapable.Collider_Friction, true);
         this._staticCapableMap.set(EColliderCapable.Collider_Restitution, true);
         this._staticCapableMap.set(EColliderCapable.Collider_RollingFriction, true);
-        this._staticCapableMap.set(EColliderCapable.Collider_DynamicFriction, true);
-        this._staticCapableMap.set(EColliderCapable.Collider_StaticFriction, true);
-        this._staticCapableMap.set(EColliderCapable.Collider_BounceCombine, true);
-        this._staticCapableMap.set(EColliderCapable.Collider_FrictionCombine, true);
+        this._staticCapableMap.set(EColliderCapable.Collider_DynamicFriction, false);
+        this._staticCapableMap.set(EColliderCapable.Collider_StaticFriction, false);
+        this._staticCapableMap.set(EColliderCapable.Collider_BounceCombine, false);
+        this._staticCapableMap.set(EColliderCapable.Collider_FrictionCombine, false);
     }
 
     setWorldPosition(value: Vector3): void {
