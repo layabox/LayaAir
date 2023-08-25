@@ -4,6 +4,7 @@ import { PhysicsCombineMode } from "../../../d3/physics/PhysicsColliderComponent
 import { Quaternion } from "../../../maths/Quaternion";
 import { Vector3 } from "../../../maths/Vector3";
 import { ICollider } from "../../interface/ICollider";
+import { EColliderCapable } from "../../physicsEnum/EColliderCapable";
 import { pxColliderShape } from "../Shape/pxColliderShape";
 import { pxPhysicsManager } from "../pxPhysicsManager";
 export enum pxColliderType {
@@ -13,6 +14,7 @@ export enum pxColliderType {
 }
 
 export class pxCollider implements ICollider {
+
 
     private static _tempTransform: {
         translation: Vector3;
@@ -56,12 +58,12 @@ export class pxCollider implements ICollider {
     private _bounceCombine: PhysicsCombineMode = PhysicsCombineMode.Average;
     private _frictionCombine: PhysicsCombineMode = PhysicsCombineMode.Average;
 
-    constructor(manager:pxPhysicsManager) {
+    constructor(manager: pxPhysicsManager) {
         this._physicsManager = manager;
     }
 
     getCapable(value: number): boolean {
-        return false;
+        return null;
     }
 
     setColliderShape(shape: pxColliderShape): void {
@@ -69,14 +71,14 @@ export class pxCollider implements ICollider {
             return;
         var lastColliderShape: pxColliderShape = this._shape;
         this._shape = shape;
-        shape._pxCollider = this;
+        //shape._pxCollider = this;
         if (shape) {
             if (this._pxActor) {
                 if (lastColliderShape)
                     lastColliderShape.removeFromActor(this);
                 this._shape.addToActor(this);
                 this._initColliderShapeByCollider();
-                if(!lastColliderShape&&this.componentEnable){
+                if (!lastColliderShape && this.componentEnable) {
                     this._physicsManager.addCollider(this);
                 }
             }
@@ -113,7 +115,7 @@ export class pxCollider implements ICollider {
         this._initCollider();
     }
 
-    protected _initCollider(){
+    protected _initCollider() {
         //override it
     }
 

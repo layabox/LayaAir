@@ -13,9 +13,6 @@ export enum EColliderCapable {
     RigidBody_CanKinematic,   // 是否支持运动学模式
     RigidBody_AllowSleep,   // 是否支持睡眠
     RigidBody_Gravity,   // 重力
-    RigidBody_Friction,   // 摩擦力
-    RigidBody_RollingFriction,    // 滚动摩擦力
-    RigidBody_Restitution,    // 弹力
     RigidBody_LinearDamp, // 线性阻尼
     RigidBody_AngularDamp,    // 角度阻尼
     RigidBody_LinearVelocity, // 线速度
@@ -32,8 +29,6 @@ export enum EColliderCapable {
     RigidBody_SolverIterations,   // 物理迭代次数
     RigidBody_AllowDetectionMode,   // 是否支持动态切换物体类型
     RigidBody_AllowKinematic,   // 是否支持运动学模式
-    RigidBody_AllowStatic,  // 是否支持静态模式
-    RigidBody_AllowDynamic, // 是否支持动态模式
     RigidBody_AllowCharacter,   // 是否支持角色模式
     RigidBody_LinearFactor,   // 线速度缩放因子
     RigidBody_AngularFactor,  // 角速度缩放因子
@@ -43,5 +38,4 @@ export enum EColliderCapable {
     RigidBody_ApplyTorque,    // 应用扭力
     RigidBody_ApplyImpulse,   // 应用冲量
     RigidBody_ApplyTorqueImpulse, // 应用扭力冲量
-    RigidBody_AllowTrigger, // 是否支持触发器
 }

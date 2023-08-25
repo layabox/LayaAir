@@ -4,8 +4,9 @@ import { PhysicsCombineMode } from "../../d3/physics/PhysicsColliderComponent";
 
 export interface ICollider {
     owner: Node;
-    inPhysicUpdateListIndex:number;
+    inPhysicUpdateListIndex: number;
     /**
+     * @internal
      * component is enable
      */
     componentEnable: boolean;

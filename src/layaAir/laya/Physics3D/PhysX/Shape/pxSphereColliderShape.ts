@@ -12,6 +12,7 @@ export class pxSphereColliderShape extends pxColliderShape implements ISphereCol
     constructor() {
         super();
         this._pxGeometry = new pxPhysicsCreateUtil._physX.PxSphereGeometry(this._radius);
+        this._createShape();
     }
 
     setRadius(radius: number): void {

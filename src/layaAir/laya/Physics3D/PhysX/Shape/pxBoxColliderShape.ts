@@ -16,6 +16,7 @@ export class pxBoxColliderShape extends pxColliderShape implements IBoxColliderS
             this._size.y / 2,
             this._size.z / 2
         );
+        this._createShape();
     }
 
     setSize(size: Vector3): void {
@@ -23,7 +24,7 @@ export class pxBoxColliderShape extends pxColliderShape implements IBoxColliderS
         size.cloneTo(this._size);
         tempExtents.setValue(this._size.x * 0.5 * this._scale.x, this._size.y * 0.5 * this._scale.y, this._size.z * 0.5 * this._scale.z);
         this._pxGeometry.halfExtents = tempExtents;
-        this._pxShape.setGeometry(this._pxGeometry);
+        this._pxShape && this._pxShape.setGeometry(this._pxGeometry);
     }
 
     setOffset(position: Vector3): void {

@@ -52,6 +52,17 @@ export class pxPhysicsManager implements IPhysicsManager {
 
     initPhysicsCapable(): void {
         this._physicsEngineCapableMap = new Map();
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_Gravity, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_StaticCollider, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_DynamicCollider, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_CharacterCollider, false);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_BoxColliderShape, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_SphereColliderShape, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_CapsuleColliderShape, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_CylinderColliderShape, false);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_ConeColliderShape, false);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_MeshColliderShape, false);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_CompoundColliderShape, false);
     }
 
     getPhysicsCapable(value: EPhysicsCapable): boolean {
@@ -113,12 +124,12 @@ export class pxPhysicsManager implements IPhysicsManager {
 
     private _updatePhysicsTransformToRender(): void {
         var elements: any = this._dynamicUpdateList.elements;
-        for (var i = 0, n = this._physicsUpdateList.length; i < n; i++) {
+        for (var i = 0, n = this._dynamicUpdateList.length; i < n; i++) {
             var physicCollider = elements[i] as pxDynamicCollider;
             physicCollider.getWorldTransform();
-            physicCollider.inPhysicUpdateListIndex = -1;//置空索引
+            //physicCollider.inPhysicUpdateListIndex = -1;//置空索引
         }
-        this._physicsUpdateList.length = 0;//清空物理更新队列
+        //this._physicsUpdateList.length = 0;//清空物理更新队列
     }
 
 
@@ -138,7 +149,7 @@ export class pxPhysicsManager implements IPhysicsManager {
     update(elapsedTime: number): void {
         this._updatePhysicsTransformFromRender();//update render to physics
         //simulate
-        this._pxScene.simulate(elapsedTime, true);
+        this._pxScene.simulate(1 / 60, true);
         this._pxScene.fetchResults(true);
         //update dynamic
         this._updatePhysicsTransformToRender();

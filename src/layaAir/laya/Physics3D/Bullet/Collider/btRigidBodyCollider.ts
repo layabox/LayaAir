@@ -101,16 +101,13 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
         this._rigidBodyCapableMap.set(EColliderCapable.Collider_Friction, true);
         this._rigidBodyCapableMap.set(EColliderCapable.Collider_Restitution, true);
         this._rigidBodyCapableMap.set(EColliderCapable.Collider_RollingFriction, true);
-        this._rigidBodyCapableMap.set(EColliderCapable.Collider_DynamicFriction, true);
-        this._rigidBodyCapableMap.set(EColliderCapable.Collider_StaticFriction, true);
-        this._rigidBodyCapableMap.set(EColliderCapable.Collider_BounceCombine, true);
-        this._rigidBodyCapableMap.set(EColliderCapable.Collider_FrictionCombine, true);
+        this._rigidBodyCapableMap.set(EColliderCapable.Collider_DynamicFriction, false);
+        this._rigidBodyCapableMap.set(EColliderCapable.Collider_StaticFriction, false);
+        this._rigidBodyCapableMap.set(EColliderCapable.Collider_BounceCombine, false);
+        this._rigidBodyCapableMap.set(EColliderCapable.Collider_FrictionCombine, false);
 
         this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_AllowSleep, false);
         this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_Gravity, true);
-        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_Restitution, true);
-        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_Friction, true);
-        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_RollingFriction, true);
         this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_LinearDamp, true);
         this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_AngularDamp, true);
         this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_LinearVelocity, true);
@@ -125,8 +122,6 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
         this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_SolverIterations, false);
         this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_AllowDetectionMode, true);
         this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_AllowKinematic, true);
-        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_AllowStatic, true);
-        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_AllowDynamic, true);
         this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_LinearFactor, true);
         this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_AngularFactor, true);
         this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_ApplyForce, true);
@@ -135,7 +130,6 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
         this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_ApplyTorque, true);
         this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_ApplyImpulse, true);
         this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_ApplyTorqueImpulse, true);
-        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_AllowTrigger, true);
     }
 
     setWorldPosition(value: Vector3): void {

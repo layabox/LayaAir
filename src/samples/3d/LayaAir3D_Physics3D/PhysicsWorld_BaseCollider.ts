@@ -24,7 +24,12 @@ import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { URL } from "laya/net/URL";
-
+import { InputManager } from "laya/events/InputManager";
+import { Event } from "laya/events/Event";
+import { Sprite3D } from "laya/d3/core/Sprite3D";
+import { pxPhysicsCreateUtil } from "laya/Physics3D/PhysX/pxPhysicsCreateUtil";
+import { pxPhysicsManager } from "laya/Physics3D/PhysX/pxPhysicsManager";
+import { Quaternion } from "laya/maths/Quaternion";
 export class PhysicsWorld_BaseCollider {
 	private scene: Scene3D;
 	private tmpVector: Vector3 = new Vector3(0, 0, 0);
@@ -41,7 +46,7 @@ export class PhysicsWorld_BaseCollider {
 
 			Laya.stage.scaleMode = Stage.SCALE_FULL;
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
-
+			Laya.stage.on(Event.KEY_DOWN, this, this.test);
 			//显示性能面板
 			Stat.show();
 			URL.basePath += "sample-resource/";
@@ -77,7 +82,7 @@ export class PhysicsWorld_BaseCollider {
 			//平面添加物理碰撞体组件
 			var planeStaticCollider: PhysicsCollider = plane.addComponent(PhysicsCollider);
 			//创建盒子形状碰撞器
-			var planeShape: BoxColliderShape = new BoxColliderShape(10, 0, 10);
+			var planeShape: BoxColliderShape = new BoxColliderShape(10, 0.1, 10);
 			//物理碰撞体设置形状
 			planeStaticCollider.colliderShape = planeShape;
 			//物理碰撞体设置摩擦力
@@ -91,7 +96,7 @@ export class PhysicsWorld_BaseCollider {
 
 	randomAddPhysicsSprite(): void {
 		Laya.timer.loop(1000, this, function (): void {
-			var random: number = Math.floor(Math.random() * 5) % 5;
+			var random: number = Math.floor(Math.random() * 3) % 3;
 			switch (random) {
 				case 0:
 					this.addBox();
@@ -112,6 +117,59 @@ export class PhysicsWorld_BaseCollider {
 					break;
 			}
 		});
+	}
+
+	addPhybySDK() {
+		// var sX: number = Math.random() * 0.75 + 0.25;
+		// var sY: number = Math.random() * 0.75 + 0.25;
+		// var sZ: number = Math.random() * 0.75 + 0.25;
+
+		//let createUtil = Laya3D.PhysicsCreateUtil as pxPhysicsCreateUtil;
+		//@ts-ignore
+		let phyScene = (this.scene.physicsSimulation as pxPhysicsManager)._pxScene;
+		//@ts-ignore
+		let pxGeometry = new pxPhysicsCreateUtil._physX.PxBoxGeometry(
+			1.0 / 2,
+			1.0 / 2,
+			1.0 / 2
+		);
+		let transform = {
+			translation: new Vector3(0, 50, 0),
+			rotation: new Quaternion()
+		};
+		//@ts-ignore
+		let dynamic = pxPhysicsCreateUtil._pxPhysics.createRigidDynamic(transform);
+
+		//@ts-ignore
+		let _pxMaterial = pxPhysicsCreateUtil._pxPhysics.createMaterial(0.5, 0.5, 0.6);
+		//@ts-ignore
+		let shape = pxPhysicsCreateUtil._pxPhysics.createShape(pxGeometry, _pxMaterial, true, new pxPhysicsCreateUtil._physX.PxShapeFlags(1 << 0));
+		
+		dynamic.setMassAndUpdateInertia(10);
+		dynamic.setMassAndUpdateInertia(1);
+		dynamic.attachShape(shape);
+		phyScene.addActor(dynamic, null);
+		
+		
+
+		//@ts-ignore
+		window.rig = dynamic;
+
+
+		Laya.timer.loop(1000, this, function (): void {
+			//@ts-ignore
+			let transform = window.rig.getGlobalPose();
+			console.log(transform.translation.x + "," + transform.translation.y + "," + transform.translation.z);
+		});
+		// PxReal aa = PxReal(size) ;
+		//  PxTransform localTm(PxVec3(PxReal(0.0) , PxReal(aa), 0) );
+		// 	//PxTransform localTm(PxVec3(PxReal(j*2) - PxReal(size-i), PxReal(i*2+1), 0) * halfExtent);
+		// 	PxRigidDynamic* body = gPhysics->createRigidDynamic(t.transform(localTm));
+		// 	body->attachShape(*shape);
+		// 	PxRigidBodyExt::updateMassAndInertia(*body, 10.0f);
+		// 	gScene->addActor(*body);
+
+		// shape->release();
 	}
 
 	addBox(): void {
@@ -142,6 +200,16 @@ export class PhysicsWorld_BaseCollider {
 		rigidBody.colliderShape = boxShape;
 		//设置刚体的质量
 		rigidBody.mass = 10;
+		(window as any).rig = rigidBody;
+	}
+
+	test() {
+		//console.log("hah");
+		//let rigidBody = (window as any).rig as Rigidbody3D;
+		//let v = new Vector3(1, 0, 0);
+		// (rigidBody.owner as Sprite3D).transform.position.vadd(v, v);
+		// rigidBody.position = v;
+		//rigidBody.applyForce(new Vector3(1000, 0, 0));
 	}
 
 	addSphere(): void {

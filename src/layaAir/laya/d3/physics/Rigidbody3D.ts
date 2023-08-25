@@ -6,8 +6,6 @@ import { IDynamicCollider } from "../../Physics3D/interface/IDynamicCollider";
 import { Scene3D } from "../core/scene/Scene3D";
 import { Utils3D } from "../utils/Utils3D";
 import { Quaternion } from "../../maths/Quaternion";
-import { Node } from "../../display/Node";
-import { EPhysicsCapable } from "../../Physics3D/physicsEnum/EPhycisCapable";
 import { EColliderCapable } from "../../Physics3D/physicsEnum/EColliderCapable";
 
 /**
@@ -215,7 +213,7 @@ export class Rigidbody3D extends PhysicsColliderComponent {
     }
     public set trigger(value: boolean) {
         this._trigger = value;
-        if (this.collider.getCapable(EColliderCapable.RigidBody_AllowTrigger)) {
+        if (this.collider.getCapable(EColliderCapable.Collider_AllowTrigger)) {
             this._collider && this._collider.setTrigger(value);
         }
     }

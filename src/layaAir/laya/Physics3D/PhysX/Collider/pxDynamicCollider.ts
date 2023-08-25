@@ -2,6 +2,7 @@ import { PhysicsForceMode } from "../../../d3/physics/PhysicsColliderComponent";
 import { Quaternion } from "../../../maths/Quaternion";
 import { Vector3 } from "../../../maths/Vector3";
 import { IDynamicCollider } from "../../interface/IDynamicCollider";
+import { EColliderCapable } from "../../physicsEnum/EColliderCapable";
 import { pxPhysicsCreateUtil } from "../pxPhysicsCreateUtil";
 import { pxPhysicsManager } from "../pxPhysicsManager";
 import { pxCollider, pxColliderType } from "./pxCollider";
@@ -45,6 +46,41 @@ export enum DynamicColliderConstraints {
 
 export class pxDynamicCollider extends pxCollider implements IDynamicCollider {
 
+    /**@internal */
+    static _dynamicCapableMap: Map<any, any>;
+
+    static getStaticColliderCapable(value: EColliderCapable): boolean {
+        return pxDynamicCollider._dynamicCapableMap.get(value);
+    }
+
+    static initCapable(): void {
+        this._dynamicCapableMap = new Map();
+        this._dynamicCapableMap.set(EColliderCapable.Collider_AllowTrigger, true);
+        this._dynamicCapableMap.set(EColliderCapable.Collider_CollisionGroup, false);
+        this._dynamicCapableMap.set(EColliderCapable.Collider_Restitution, true);
+        this._dynamicCapableMap.set(EColliderCapable.Collider_DynamicFriction, true);
+        this._dynamicCapableMap.set(EColliderCapable.Collider_StaticFriction, true);
+        this._dynamicCapableMap.set(EColliderCapable.Collider_BounceCombine, true);
+        this._dynamicCapableMap.set(EColliderCapable.Collider_FrictionCombine, true);
+        this._dynamicCapableMap.set(EColliderCapable.RigidBody_AllowSleep, true);
+        this._dynamicCapableMap.set(EColliderCapable.RigidBody_LinearDamp, true);
+        this._dynamicCapableMap.set(EColliderCapable.RigidBody_AngularDamp, true);
+        this._dynamicCapableMap.set(EColliderCapable.RigidBody_LinearVelocity, true);
+        this._dynamicCapableMap.set(EColliderCapable.RigidBody_AngularVelocity, true);
+        this._dynamicCapableMap.set(EColliderCapable.RigidBody_Mass, true);
+        this._dynamicCapableMap.set(EColliderCapable.RigidBody_InertiaTensor, true);
+        this._dynamicCapableMap.set(EColliderCapable.RigidBody_MassCenter, true);
+        this._dynamicCapableMap.set(EColliderCapable.RigidBody_SolverIterations, true);
+        this._dynamicCapableMap.set(EColliderCapable.RigidBody_AllowDetectionMode, true);
+        this._dynamicCapableMap.set(EColliderCapable.RigidBody_AllowKinematic, true);
+        this._dynamicCapableMap.set(EColliderCapable.RigidBody_LinearFactor, true);
+        this._dynamicCapableMap.set(EColliderCapable.RigidBody_AngularFactor, true);
+        this._dynamicCapableMap.set(EColliderCapable.RigidBody_ApplyForce, true);
+        this._dynamicCapableMap.set(EColliderCapable.RigidBody_ApplyTorque, true);
+        this._dynamicCapableMap.set(EColliderCapable.RigidBody_WorldPosition, true);
+        this._dynamicCapableMap.set(EColliderCapable.RigidBody_WorldOrientation, true);
+    }
+
     private static _tempTranslation = new Vector3();
 
     private static _tempRotation = new Quaternion();
@@ -55,6 +91,9 @@ export class pxDynamicCollider extends pxCollider implements IDynamicCollider {
         this._type = pxColliderType.RigidbodyCollider;
     }
 
+    getCapable(value: number): boolean {
+        return pxDynamicCollider.getStaticColliderCapable(value);
+    }
 
     protected _initCollider() {
         this._pxActor = pxPhysicsCreateUtil._pxPhysics.createRigidDynamic(this._transformTo(new Vector3(), new Quaternion()));
@@ -64,6 +103,12 @@ export class pxDynamicCollider extends pxCollider implements IDynamicCollider {
     protected _initColliderShapeByCollider() {
         super._initColliderShapeByCollider();
         this.setTrigger(this._isTrigger);
+        this.setCenterOfMass(new Vector3());
+        this.setInertiaTensor(new Vector3(1, 1, 1));
+        this.setSolverIterations(4);
+        this.setIsKinematic(false);
+        this.setCollisionDetectionMode(CollisionDetectionMode.Discrete);
+        this.setSleepThreshold(5e-3);
     }
 
     setWorldPosition(value: Vector3): void {
@@ -108,7 +153,7 @@ export class pxDynamicCollider extends pxCollider implements IDynamicCollider {
     }
 
     setMass(value: number): void {
-        this._pxActor.setMass(value);
+        this._pxActor.setMassAndUpdateInertia(value);
     }
 
     setCenterOfMass(value: Vector3): void {
@@ -157,12 +202,12 @@ export class pxDynamicCollider extends pxCollider implements IDynamicCollider {
 
     setConstraints(linearFactor: Vector3, angularFactor: Vector3): void {
         let constrainFlag: number = DynamicColliderConstraints.None;
-        linearFactor.x > 0 && (constrainFlag |= DynamicColliderConstraints.FreezePositionX);
-        linearFactor.y > 0 && (constrainFlag |= DynamicColliderConstraints.FreezePositionY);
-        linearFactor.z > 0 && (constrainFlag |= DynamicColliderConstraints.FreezePositionZ);
-        angularFactor.x > 0 && (constrainFlag |= DynamicColliderConstraints.FreezeRotationX);
-        angularFactor.y > 0 && (constrainFlag |= DynamicColliderConstraints.FreezeRotationY);
-        angularFactor.z > 0 && (constrainFlag |= DynamicColliderConstraints.FreezeRotationZ);
+        linearFactor.x == 0 && (constrainFlag |= DynamicColliderConstraints.FreezePositionX);
+        linearFactor.y == 0 && (constrainFlag |= DynamicColliderConstraints.FreezePositionY);
+        linearFactor.z == 0 && (constrainFlag |= DynamicColliderConstraints.FreezePositionZ);
+        angularFactor.x == 0 && (constrainFlag |= DynamicColliderConstraints.FreezeRotationX);
+        angularFactor.y == 0 && (constrainFlag |= DynamicColliderConstraints.FreezeRotationY);
+        angularFactor.z == 0 && (constrainFlag |= DynamicColliderConstraints.FreezeRotationZ);
         this._pxActor.setRigidDynamicLockFlags(constrainFlag);
     }
 

@@ -16,15 +16,16 @@ enum ColliderShapeUpAxis {
 
 export class pxCapsuleColliderShape extends pxColliderShape implements ICapsuleColliderShape {
     /** @internal */
-    _radius: number;
+    _radius: number = 0.25;
     /** @internal */
-    _halfHeight: number;
+    _halfHeight: number = 0.5;
 
     private _upAxis: ColliderShapeUpAxis = ColliderShapeUpAxis.Y;
 
     constructor() {
         super();
         this._pxGeometry = new pxPhysicsCreateUtil._physX.PxCapsuleGeometry(this._radius, this._halfHeight);
+        this._createShape();
     }
 
     setRadius(radius: number): void {

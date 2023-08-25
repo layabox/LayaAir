@@ -14,6 +14,7 @@ import { HitResult } from "../../d3/physics/HitResult";
 import { EPhysicsCapable } from "../physicsEnum/EPhycisCapable";
 import { Physics3DUtils } from "../../d3/utils/Physics3DUtils";
 import { PhysicsUpdateList } from "../../d3/physics/PhysicsUpdateList";
+import { ICollider } from "../interface/ICollider";
 
 export class btPhysicsManager implements IPhysicsManager {
     /**默认碰撞组 */
@@ -571,40 +572,42 @@ export class btPhysicsManager implements IPhysicsManager {
     }
 
 
-    addCollider(collider: btCollider): void {
-        collider._derivePhysicsTransformation(true);
-        switch (collider._type) {
+    addCollider(collider: ICollider): void {
+        let btcollider = collider as btCollider;
+        btcollider._derivePhysicsTransformation(true);
+        switch (btcollider._type) {
             case btColliderType.StaticCollider:
-                this._bt.btCollisionWorld_addCollisionObject(this._btCollisionWorld, collider._btCollider, collider._collisionGroup, collider._canCollideWith);
+                this._bt.btCollisionWorld_addCollisionObject(this._btCollisionWorld, btcollider._btCollider, btcollider._collisionGroup, btcollider._canCollideWith);
                 break;
             case btColliderType.RigidbodyCollider:
-                this._addRigidBody(collider);
+                this._addRigidBody(btcollider);
                 break;
             case btColliderType.CharactorCollider:
-                this._addCharacter(collider as btCharacterCollider);
+                this._addCharacter(btcollider as btCharacterCollider);
                 //TODO:
                 break;
         }
-        collider._isSimulate = true;
+        btcollider._isSimulate = true;
 
     }
 
-    removeCollider(collider: btCollider): void {
-        if (collider.inPhysicUpdateListIndex !== -1)
-            this._physicsUpdateList.remove(collider);
-        switch (collider._type) {
+    removeCollider(collider: ICollider): void {
+        let btcollider = collider as btCollider;
+        if (btcollider.inPhysicUpdateListIndex !== -1)
+            this._physicsUpdateList.remove(btcollider);
+        switch (btcollider._type) {
             case btColliderType.StaticCollider:
-                this._bt.btCollisionWorld_removeCollisionObject(this._btCollisionWorld, collider._btCollider);
+                this._bt.btCollisionWorld_removeCollisionObject(this._btCollisionWorld, btcollider._btCollider);
                 break;
             case btColliderType.RigidbodyCollider:
-                this._removeRigidBody(collider);
+                this._removeRigidBody(btcollider);
                 break;
             case btColliderType.CharactorCollider:
                 //TODO:
-                this._removeCharacter(collider as btCharacterCollider);
+                this._removeCharacter(btcollider as btCharacterCollider);
                 break;
         }
-        collider._isSimulate = false;
+        btcollider._isSimulate = false;
     }
 
     addJoint(joint: btJoint) {

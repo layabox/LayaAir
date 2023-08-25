@@ -18,33 +18,39 @@ import { IPlaneColliderShape } from "../interface/Shape/IPlaneColliderShape";
 import { ISphereColliderShape } from "../interface/Shape/ISphereColliderShape";
 import { pxDynamicCollider } from "./Collider/pxDynamicCollider";
 import { pxStaticCollider } from "./Collider/pxStaticCollider";
+import { pxBoxColliderShape } from "./Shape/pxBoxColliderShape";
+import { pxCapsuleColliderShape } from "./Shape/pxCapsuleColliderShape";
+import { pxSphereColliderShape } from "./Shape/pxSphereColliderShape";
 import { pxPhysicsManager } from "./pxPhysicsManager";
 
-export class pxPhysicsCreateUtil implements IPhysicsCreateUtil{
-   
-    /** @internal PhysX wasm object */
+export class pxPhysicsCreateUtil implements IPhysicsCreateUtil {
+
+    //** @internal PhysX wasm object */
     static _physX: any;
-    /** @internal PhysX Foundation SDK singleton class */
+    // /** @internal PhysX Foundation SDK singleton class */
     static _pxFoundation: any;
-    /** @internal PhysX physics object */
+    // /** @internal PhysX physics object */
     static _pxPhysics: any;
 
     initialize(): Promise<void> {
-        return (window as any).PHYSX().then((PHYSX:any)=>{
+        return (window as any).PHYSX().then((PHYSX: any) => {
             this._init(PHYSX);
             console.log("PhysX loaded.");
+            pxDynamicCollider.initCapable();
+            pxStaticCollider.initCapable();
+
             return Promise.resolve();
         });
 
     }
 
-    private _init(physX:any):void{
+    private _init(physX: any): void {
         const version = physX.PX_PHYSICS_VERSION;
         const defaultErrorCallback = new physX.PxDefaultErrorCallback();
         const allocator = new physX.PxDefaultAllocator();
         const pxFoundation = physX.PxCreateFoundation(version, allocator, defaultErrorCallback);
         const pxPhysics = physX.PxCreatePhysics(version, pxFoundation, new physX.PxTolerancesScale(), false, null);
-    
+
         physX.PxInitExtensions(pxPhysics, null);
         pxPhysicsCreateUtil._physX = physX;
         pxPhysicsCreateUtil._pxFoundation = pxFoundation;
@@ -89,11 +95,11 @@ export class pxPhysicsCreateUtil implements IPhysicsCreateUtil{
     }
 
     createBoxColliderShape(): IBoxColliderShape {
-        return null;
+        return new pxBoxColliderShape();
     }
 
     createSphereColliderShape(): ISphereColliderShape {
-        return null;
+        return new pxSphereColliderShape();
     }
 
     createPlaneColliderShape(): IPlaneColliderShape {
@@ -101,7 +107,7 @@ export class pxPhysicsCreateUtil implements IPhysicsCreateUtil{
     }
 
     createCapsuleColliderShape?(): ICapsuleColliderShape {
-        return null;
+        return new pxCapsuleColliderShape();
     }
 
     createMeshColliderShape?(): IMeshColliderShape {
@@ -117,4 +123,4 @@ export class pxPhysicsCreateUtil implements IPhysicsCreateUtil{
     }
 }
 
-Laya3D.PhysicsCreateUtil =new pxPhysicsCreateUtil()
+Laya3D.PhysicsCreateUtil = new pxPhysicsCreateUtil()

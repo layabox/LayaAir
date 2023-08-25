@@ -6,8 +6,9 @@ import { Color } from "laya/maths/Color";
 import { Vector3 } from "laya/maths/Vector3";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
-import { Laya3D } from "Laya3D";
+import { URL } from "laya/net/URL";
 import { CameraMoveScript } from "../common/CameraMoveScript";
+import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 
 export class SceneLoad1 {
 	constructor() {
@@ -16,6 +17,8 @@ export class SceneLoad1 {
 			Stat.show();
 			Laya.stage.scaleMode = Stage.SCALE_FULL;
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
+			URL.basePath += "sample-resource/";
+			Shader3D.debugMode = true;
 			//加载场景
 			Scene3D.load("res/threeDimen/scene/LayaScene_dudeScene/Conventional/dudeScene.ls", Handler.create(this, function (scene: Scene3D): void {
 				(<Scene3D>Laya.stage.addChild(scene));

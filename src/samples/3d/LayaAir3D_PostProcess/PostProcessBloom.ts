@@ -14,6 +14,7 @@ import Client from "../../Client";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { BloomEffect } from "laya/d3/core/render/PostEffect/BloomEffect"
 import { Color } from "laya/maths/Color";
+import { URL } from "laya/net/URL";
 
 export class PostProcessBloom {
 	camera: Camera = null;
@@ -27,11 +28,13 @@ export class PostProcessBloom {
 	 *@private
 	 */
 	constructor() {
+		
 		//初始化引擎
 		Laya.init(0, 0).then(() => {
 			Stat.show();
 			Laya.stage.scaleMode = Stage.SCALE_FULL;
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
+			URL.basePath += "sample-resource/";
 			//加载场景
 			Scene3D.load("res/threeDimen/scene/LayaScene_BloomScene/Conventional/BloomScene.ls", Handler.create(this, function (scene: Scene3D): void {
 				Laya.stage.addChild(scene);
