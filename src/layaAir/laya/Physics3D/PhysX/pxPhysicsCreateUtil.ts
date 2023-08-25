@@ -16,6 +16,7 @@ import { ICylinderColliderShape } from "../interface/Shape/ICylinderColliderShap
 import { IMeshColliderShape } from "../interface/Shape/IMeshColliderShape";
 import { IPlaneColliderShape } from "../interface/Shape/IPlaneColliderShape";
 import { ISphereColliderShape } from "../interface/Shape/ISphereColliderShape";
+import { EPhysicsCapable } from "../physicsEnum/EPhycisCapable";
 import { pxDynamicCollider } from "./Collider/pxDynamicCollider";
 import { pxStaticCollider } from "./Collider/pxStaticCollider";
 import { pxBoxColliderShape } from "./Shape/pxBoxColliderShape";
@@ -31,6 +32,27 @@ export class pxPhysicsCreateUtil implements IPhysicsCreateUtil {
     static _pxFoundation: any;
     // /** @internal PhysX physics object */
     static _pxPhysics: any;
+
+    protected _physicsEngineCapableMap: Map<any, any>;
+
+    initPhysicsCapable(): void {
+        this._physicsEngineCapableMap = new Map();
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_Gravity, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_StaticCollider, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_DynamicCollider, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_CharacterCollider, false);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_BoxColliderShape, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_SphereColliderShape, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_CapsuleColliderShape, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_CylinderColliderShape, false);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_ConeColliderShape, false);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_MeshColliderShape, false);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_CompoundColliderShape, false);
+    }
+
+    getPhysicsCapable(value: EPhysicsCapable): boolean {
+        return this._physicsEngineCapableMap.get(value);
+    }
 
     initialize(): Promise<void> {
         return (window as any).PHYSX().then((PHYSX: any) => {

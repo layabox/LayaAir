@@ -7,6 +7,7 @@ import { Scene3D } from "../core/scene/Scene3D";
 import { Utils3D } from "../utils/Utils3D";
 import { Quaternion } from "../../maths/Quaternion";
 import { EColliderCapable } from "../../Physics3D/physicsEnum/EColliderCapable";
+import { EPhysicsCapable } from "../../Physics3D/physicsEnum/EPhycisCapable";
 
 /**
  * <code>Rigidbody3D</code> 类用于创建刚体碰撞器。
@@ -44,9 +45,11 @@ export class Rigidbody3D extends PhysicsColliderComponent {
      * @internal
      */
     protected _initCollider() {
-        if (Laya3D.enablePhysics) {
-            this._physicsManager = ((<Scene3D>this.owner._scene))._physicsManager;
+        this._physicsManager = ((<Scene3D>this.owner._scene))._physicsManager;
+        if (Laya3D.enablePhysics && this._physicsManager && Laya3D.PhysicsCreateUtil.getPhysicsCapable(EPhysicsCapable.Physics_DynamicCollider)) {
             this._collider = Laya3D.PhysicsCreateUtil.createDynamicCollider(this._physicsManager);
+        } else {
+            throw "Rigidbody3D: cant enable Rigidbody3D";
         }
     }
 
@@ -223,6 +226,7 @@ export class Rigidbody3D extends PhysicsColliderComponent {
     }
 
     protected _onAdded(): void {
+
         super._onAdded();
         this.mass = this._mass;
         this.linearFactor = this._linearFactor;

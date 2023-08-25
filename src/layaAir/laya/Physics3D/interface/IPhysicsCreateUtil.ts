@@ -1,9 +1,8 @@
 import { PhysicsSettings } from "../../d3/physics/PhysicsSettings";
-import { Vector3 } from "../../maths/Vector3";
+import { EPhysicsCapable } from "../physicsEnum/EPhycisCapable";
 import { ICharacterController } from "./ICharacterController";
 import { IDynamicCollider } from "./IDynamicCollider";
 import { IPhysicsManager } from "./IPhysicsManager";
-import { IPhysicsMaterial } from "./IPhysicsMaterial";
 import { IStaticCollider } from "./IStaticCollider";
 import { ICustomJoint } from "./Joint/ICustomJoint";
 import { IFixedJoint } from "./Joint/IFixedJoint";
@@ -22,6 +21,17 @@ export interface IPhysicsCreateUtil {
      * 初始化物理
      */
     initialize(): Promise<void>;
+
+    /**
+     * set PhysicsEngine Capable
+     */
+    initPhysicsCapable(): void;
+
+    /**
+     * get PhysicsEngine Capable
+     * @param value 
+     */
+    getPhysicsCapable(value: EPhysicsCapable): boolean;
 
     /**
      * 创建物理管理类

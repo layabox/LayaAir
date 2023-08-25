@@ -2,6 +2,7 @@ import { Physics3DColliderShape } from "./Physics3DColliderShape";
 import { LayaEnv } from "../../../../LayaEnv";
 import { ISphereColliderShape } from "../../../Physics3D/interface/Shape/ISphereColliderShape";
 import { Laya3D } from "../../../../Laya3D";
+import { EPhysicsCapable } from "../../../Physics3D/physicsEnum/EPhycisCapable";
 
 /**
  * <code>SphereColliderShape</code> 类用于创建球形碰撞器。
@@ -36,7 +37,10 @@ export class SphereColliderShape extends Physics3DColliderShape {
 
 	/**@internal */
 	protected _createShape() {
-		this._shape = Laya3D.PhysicsCreateUtil.createSphereColliderShape()
+		if(Laya3D.PhysicsCreateUtil.getPhysicsCapable(EPhysicsCapable.Physics_BoxColliderShape))
+			this._shape = Laya3D.PhysicsCreateUtil.createSphereColliderShape()
+		else
+			throw "SphereColliderShape: cant enable SphereColliderShape";
 	}
 
 	/**

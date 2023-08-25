@@ -5,7 +5,6 @@ import { PhysicsUpdateList } from "../../d3/physics/PhysicsUpdateList";
 import { Vector3 } from "../../maths/Vector3";
 import { ICollider } from "../interface/ICollider";
 import { IPhysicsManager } from "../interface/IPhysicsManager";
-import { EPhysicsCapable } from "../physicsEnum/EPhycisCapable";
 import { pxCharactorCollider } from "./Collider/pxCharactorCollider";
 import { pxCollider, pxColliderType } from "./Collider/pxCollider";
 import { pxDynamicCollider } from "./Collider/pxDynamicCollider";
@@ -18,8 +17,6 @@ export class pxPhysicsManager implements IPhysicsManager {
     _dynamicUpdateList = new PhysicsUpdateList();
     /** @internal */
     _pxScene: any;
-
-    protected _physicsEngineCapableMap: Map<any, any>;
 
     private _gravity: Vector3 = new Vector3(0, -9.81, 0);
 
@@ -47,26 +44,6 @@ export class pxPhysicsManager implements IPhysicsManager {
         const sceneDesc = pxPhysicsCreateUtil._physX.getDefaultSceneDesc(pxPhysics.getTolerancesScale(), 0, physXSimulationCallbackInstance);
         this._pxScene = pxPhysics.createScene(sceneDesc);
         this.setGravity(this._gravity);
-        this.initPhysicsCapable();
-    }
-
-    initPhysicsCapable(): void {
-        this._physicsEngineCapableMap = new Map();
-        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_Gravity, true);
-        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_StaticCollider, true);
-        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_DynamicCollider, true);
-        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_CharacterCollider, false);
-        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_BoxColliderShape, true);
-        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_SphereColliderShape, true);
-        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_CapsuleColliderShape, true);
-        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_CylinderColliderShape, false);
-        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_ConeColliderShape, false);
-        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_MeshColliderShape, false);
-        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_CompoundColliderShape, false);
-    }
-
-    getPhysicsCapable(value: EPhysicsCapable): boolean {
-        return this._physicsEngineCapableMap.get(value);
     }
 
     setGravity(gravity: Vector3): void {

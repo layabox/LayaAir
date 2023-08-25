@@ -7,6 +7,7 @@ import { Laya3D } from "../../../Laya3D";
 import { ICharacterController } from "../../Physics3D/interface/ICharacterController";
 import { CapsuleColliderShape } from "./shape/CapsuleColliderShape";
 import { ECharacterCapable } from "../../Physics3D/physicsEnum/ECharacterCapable";
+import { EPhysicsCapable } from "../../Physics3D/physicsEnum/EPhycisCapable";
 
 /**
  * <code>CharacterController</code> 类用于创建角色控制器。
@@ -31,15 +32,18 @@ export class CharacterController extends PhysicsColliderComponent {
     private _pushForce = 1;
     /** @internal */
     protected _colliderShape: CapsuleColliderShape;
+
     /**
      * @override
      * @internal
      */
     protected _initCollider() {
-        if (Laya3D.enablePhysics) {
+        if (Laya3D.enablePhysics && this._physicsManager && Laya3D.PhysicsCreateUtil.getPhysicsCapable(EPhysicsCapable.Physics_CharacterCollider)) {
             this._physicsManager = ((<Scene3D>this.owner._scene))._physicsManager;
             this._collider = Laya3D.PhysicsCreateUtil.createCharacterController(this._physicsManager);
             this.colliderShape = new CapsuleColliderShape();
+        } else {
+            throw "CharacterController: cant enable CharacterController"
         }
     }
 

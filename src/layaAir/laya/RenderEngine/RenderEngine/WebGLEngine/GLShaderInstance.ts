@@ -53,22 +53,26 @@ export class GLShaderInstance extends GLObject implements IRenderShaderInstance 
     }
 
     private _create(): void {
+
         const gl: WebGLRenderingContext = this._gl;
         this._program = gl.createProgram();
         this._vshader = this._createShader(gl, this._vs, gl.VERTEX_SHADER);
         this._pshader = this._createShader(gl, this._ps, gl.FRAGMENT_SHADER);
         gl.attachShader(this._program, this._vshader);
         gl.attachShader(this._program, this._pshader);
+
         for (var k in this._attributeMap)//根据声明调整location,便于VAO使用
             gl.bindAttribLocation(this._program, this._attributeMap[k][0], k);
         gl.linkProgram(this._program);
         const bo = gl.getProgramParameter(this._program, gl.LINK_STATUS);
+
         if (!bo) {
             var info = gl.getProgramInfoLog(this._program);
             console.error(new Error('Could not compile WebGL program. \n\n' + info));
             this._complete = false;
             return;
         }
+
         //Uniform
         //Unifrom Objcet
         const nUniformNum: number = gl.getProgramParameter(this._program, gl.ACTIVE_UNIFORMS);
@@ -207,7 +211,6 @@ export class GLShaderInstance extends GLObject implements IRenderShaderInstance 
                 throw new Error("compile shader err!");
         }
     }
-
 
     getUniformMap(): ShaderVariable[] {
         return this._uniformMap;

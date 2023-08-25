@@ -1,8 +1,10 @@
 import { Config3D } from "../../../Config3D";
+import { Laya3D } from "../../../Laya3D";
 import { PhysicsSettings } from "../../d3/physics/PhysicsSettings";
 import { IPhysicsCreateUtil } from "../interface/IPhysicsCreateUtil";
 import { IMeshColliderShape } from "../interface/Shape/IMeshColliderShape";
 import { IPlaneColliderShape } from "../interface/Shape/IPlaneColliderShape";
+import { EPhysicsCapable } from "../physicsEnum/EPhycisCapable";
 import { btCharacterCollider } from "./Collider/btCharacterCollider";
 import { btCollider } from "./Collider/btCollider";
 import { btRigidBodyCollider } from "./Collider/btRigidBodyCollider";
@@ -15,12 +17,32 @@ import { btBoxColliderShape } from "./Shape/btBoxColliderShape";
 import { btCapsuleColliderShape } from "./Shape/btCapsuleColliderShape";
 import { btConeColliderShape } from "./Shape/btConeColliderShape";
 import { btCylinderColliderShape } from "./Shape/btCylinderColliderShape";
-import { btMeshColliderShape } from "./Shape/btMeshColliderShape";
 import { btSphereColliderShape } from "./Shape/btSphereColliderShape";
 import { BulletInteractive } from "./btInteractive";
 import { btPhysicsManager } from "./btPhysicsManager";
 
 export class btPhysicsCreateUtil implements IPhysicsCreateUtil {
+    // capable map
+    protected _physicsEngineCapableMap: Map<any, any>;
+
+    initPhysicsCapable(): void {
+        this._physicsEngineCapableMap = new Map();
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_Gravity, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_StaticCollider, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_DynamicCollider, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_CharacterCollider, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_BoxColliderShape, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_SphereColliderShape, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_CapsuleColliderShape, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_CylinderColliderShape, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_ConeColliderShape, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_MeshColliderShape, false);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_CompoundColliderShape, false);
+    }
+
+    getPhysicsCapable(value: EPhysicsCapable): boolean {
+        return this._physicsEngineCapableMap.get(value);
+    }
 
     /**@internal */
     static _bt: any;
@@ -49,6 +71,8 @@ export class btPhysicsCreateUtil implements IPhysicsCreateUtil {
 
         return Promise.resolve();
     }
+
+
 
     createPhysicsManger(physicsSettings: PhysicsSettings): btPhysicsManager {
         return new btPhysicsManager(physicsSettings);
@@ -110,3 +134,6 @@ export class btPhysicsCreateUtil implements IPhysicsCreateUtil {
         return new btConeColliderShape();
     }
 }
+
+
+Laya3D.PhysicsCreateUtil = new btPhysicsCreateUtil();
