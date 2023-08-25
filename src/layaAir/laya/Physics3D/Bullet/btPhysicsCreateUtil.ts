@@ -60,6 +60,7 @@ export class btPhysicsCreateUtil implements IPhysicsCreateUtil {
             // CharacterController.__init__();
             // Rigidbody3D.__init__();
             btPhysicsCreateUtil._bt = (window as any).Physics3D;
+            this.initPhysicsCapable();
             btPhysicsManager.init();
             btCollider.__init__();
             btRigidBodyCollider.__init__();
