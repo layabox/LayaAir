@@ -93,10 +93,12 @@ export class ShaderInstance {
     precision highp float;
     precision highp int;
     precision highp sampler2DArray;
+    precision highp sampler3D;
 #else
     precision mediump float;
     precision mediump int;
     precision mediump sampler2DArray;
+    precision mediump sampler3D;
 #endif
 layout(std140, column_major) uniform;
 #define attribute in
@@ -113,10 +115,12 @@ ${uniformglsl}
     precision highp float;
     precision highp int;
     precision highp sampler2DArray;
+	precision highp sampler3D;
 #else
     precision mediump float;
     precision mediump int;
     precision mediump sampler2DArray;
+	precision mediump sampler3D;
 #endif
 layout(std140, column_major) uniform;
 #define varying in

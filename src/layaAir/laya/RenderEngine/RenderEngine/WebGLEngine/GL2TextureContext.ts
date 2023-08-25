@@ -11,6 +11,7 @@ import { TextureFormat } from "../../RenderEnum/TextureFormat";
 import { KTXTextureInfo } from "../../KTXTextureInfo";
 import { RenderCapable } from "../../RenderEnum/RenderCapable";
 import { ITexture3DContext } from "../../RenderInterface/ITextureContext";
+import { InternalTexture } from "../../RenderInterface/InternalTexture";
 
 /**
  * 将继承修改为类似 WebGLRenderingContextBase, WebGLRenderingContextOverloads 多继承 ?
@@ -434,6 +435,32 @@ export class GL2TextureContext extends GLTextureContext implements ITexture3DCon
         fourSize || gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);
     }
 
+    createTexture3DInternal(dimension: TextureDimension, width: number, height: number, depth: number, format: TextureFormat, generateMipmap: boolean, sRGB: boolean, premultipliedAlpha: boolean): InternalTexture {
+        // todo  一些format 不支持自动生成mipmap
+
+        // todo  这个判断, 若纹理本身格式不支持？
+        let useSRGBExt = this.isSRGBFormat(format) || (sRGB && this.supportSRGB(format, generateMipmap));
+        if (premultipliedAlpha) {//预乘法和SRGB同时开启，会有颜色白边问题
+            useSRGBExt = false;
+        }
+        let gammaCorrection = 1.0;
+        if (!useSRGBExt && sRGB) {
+            gammaCorrection = 2.2;
+        }
+
+        // let dimension = TextureDimension.Tex2D;
+        let target = this.getTarget(dimension);
+        let internalTex = new WebGLInternalTex(this._engine, target, width, height, depth, dimension, generateMipmap, useSRGBExt, gammaCorrection);
+
+        let glParam = this.glTextureParam(format, useSRGBExt);
+
+        internalTex.internalFormat = glParam.internalFormat;
+        internalTex.format = glParam.format;
+        internalTex.type = glParam.type;
+
+        return internalTex;
+    }
+
     setTexture3DImageData(texture: WebGLInternalTex, sources: HTMLImageElement[] | HTMLCanvasElement[] | ImageBitmap[], depth: number, premultiplyAlpha: boolean, invertY: boolean) {
         let target = texture.target;
         let internalFormat = texture.internalFormat;
@@ -465,7 +492,7 @@ export class GL2TextureContext extends GLTextureContext implements ITexture3DCon
         invertY && gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
     }
 
-    setTexture3DPixlesData(texture: WebGLInternalTex, source: ArrayBufferView, depth: number, premultiplyAlpha: boolean, invertY: boolean) {
+    setTexture3DPixelsData(texture: WebGLInternalTex, source: ArrayBufferView, depth: number, premultiplyAlpha: boolean, invertY: boolean) {
         let target = texture.target;
         let internalFormat = texture.internalFormat;
         let format = texture.format;
@@ -937,7 +964,7 @@ export class GL2TextureContext extends GLTextureContext implements ITexture3DCon
         }
 
         let target = this.getTarget(dimension);
-        let internalTex = new WebGLInternalTex(this._engine, target, width, height, dimension, generateMipmap, useSRGBExt, gammaCorrection);
+        let internalTex = new WebGLInternalTex(this._engine, target, width, height, 1, dimension, generateMipmap, useSRGBExt, gammaCorrection);
 
         let glParam = this.glRenderTextureParam(format, useSRGBExt);
 
@@ -1074,7 +1101,7 @@ export class GL2TextureContext extends GLTextureContext implements ITexture3DCon
         }
 
         let target = this.getTarget(dimension);
-        let internalTex = new WebGLInternalTex(this._engine, target, size, size, dimension, generateMipmap, useSRGBExt, gammaCorrection);
+        let internalTex = new WebGLInternalTex(this._engine, target, size, size, 1, dimension, generateMipmap, useSRGBExt, gammaCorrection);
 
         let glParam = this.glRenderTextureParam(format, useSRGBExt);
 

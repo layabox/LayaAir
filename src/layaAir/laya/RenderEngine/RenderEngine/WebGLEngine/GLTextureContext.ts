@@ -540,7 +540,7 @@ export class GLTextureContext extends GLObject implements ITextureContext {
 
         // todo  这个判断, 若纹理本身格式不支持？
         let useSRGBExt = this.isSRGBFormat(format) || (sRGB && this.supportSRGB(format, generateMipmap));
-        if(premultipliedAlpha){//预乘法和SRGB同时开启，会有颜色白边问题
+        if (premultipliedAlpha) {//预乘法和SRGB同时开启，会有颜色白边问题
             useSRGBExt = false;
         }
         let gammaCorrection = 1.0;
@@ -550,7 +550,7 @@ export class GLTextureContext extends GLObject implements ITextureContext {
 
         // let dimension = TextureDimension.Tex2D;
         let target = this.getTarget(dimension);
-        let internalTex = new WebGLInternalTex(this._engine, target, width, height, dimension, generateMipmap, useSRGBExt, gammaCorrection);
+        let internalTex = new WebGLInternalTex(this._engine, target, width, height, 1, dimension, generateMipmap, useSRGBExt, gammaCorrection);
 
         let glParam = this.glTextureParam(format, useSRGBExt);
 
@@ -1226,7 +1226,7 @@ export class GLTextureContext extends GLObject implements ITextureContext {
 
         // let dimension = TextureDimension.Tex2D;
         let target = this.getTarget(dimension);
-        let internalTex = new WebGLInternalTex(this._engine, target, width, height, dimension, generateMipmap, useSRGBExt, gammaCorrection);
+        let internalTex = new WebGLInternalTex(this._engine, target, width, height, 1, dimension, generateMipmap, useSRGBExt, gammaCorrection);
 
         let glParam = this.glRenderTextureParam(format, useSRGBExt);
 
@@ -1264,7 +1264,7 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         }
 
         let target = this.getTarget(dimension);
-        let internalTex = new WebGLInternalTex(this._engine, target, size, size, dimension, generateMipmap, useSRGBExt, gammaCorrection);
+        let internalTex = new WebGLInternalTex(this._engine, target, size, size, 1, dimension, generateMipmap, useSRGBExt, gammaCorrection);
 
         let glParam = this.glRenderTextureParam(format, useSRGBExt);
 

@@ -15,6 +15,7 @@ export interface InternalTexture {
 
     width: number;
     height: number;
+    depth: number;
     isPotSize: boolean;
 
     mipmap: boolean;

@@ -143,7 +143,7 @@ export class MorphTargetData {
                 }
             }
 
-            this.targetTexture.setPixlesData(data, false, false);
+            this.targetTexture.setPixelsData(data, false, false);
 
             this.params.setValue(this.targetTexture.width, this.targetTexture.height, this.elementCount, this.channelCount);
         }
