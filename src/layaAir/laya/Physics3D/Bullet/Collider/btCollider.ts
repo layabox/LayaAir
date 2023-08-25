@@ -137,7 +137,7 @@ export class btCollider implements ICollider {
 
     setCanCollideWith(value: number) {
         if (value != this._canCollideWith) {
-            this._collisionGroup = value;
+            this._canCollideWith = value;
             this._physicsManager.removeCollider(this);
             this._physicsManager.addCollider(this);
         }
