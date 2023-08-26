@@ -110,33 +110,26 @@ const packsDef = [
         'libName': "btPhysics",
         'input': [
             // use this compile order to solve C_D problem
-            './layaAir/laya/Physics3D/Bullet/Shape/btBoxColliderShape.ts',
-            './layaAir/laya/Physics3D/Bullet/Shape/btCapsuleColliderShape.ts',
-            './layaAir/laya/Physics3D/Bullet/Shape/btCompoundColliderShape.ts',
-            './layaAir/laya/Physics3D/Bullet/Shape/btConeColliderShape.ts',
-            './layaAir/laya/Physics3D/Bullet/Shape/btCylinderColliderShape.ts',
-            './layaAir/laya/Physics3D/Bullet/Shape/btMeshColliderShape.ts',
-            './layaAir/laya/Physics3D/Bullet/Shape/btSphereColliderShape.ts',   
-            './layaAir/laya/Physics3D/Bullet/Shape/btColliderShape.ts',
-
-            './layaAir/laya/Physics3D/Bullet/Joint/btJoint.ts',
-            './layaAir/laya/Physics3D/Bullet/Joint/btCustomJoint.ts',
-            './layaAir/laya/Physics3D/Bullet/Joint/btFixedJoint.ts',
-            './layaAir/laya/Physics3D/Bullet/Joint/btHingJoint.ts',
-            './layaAir/laya/Physics3D/Bullet/Joint/btSpringJoint.ts',     
-            
-            './layaAir/laya/Physics3D/Bullet/Collider/btCollider.ts',
-            './layaAir/laya/Physics3D/Bullet/Collider/btCharacterCollider.ts',
-            './layaAir/laya/Physics3D/Bullet/Collider/btRigidBodyCollider.ts',
-            './layaAir/laya/Physics3D/Bullet/Collider/btStaticCollider.ts',
-
+            './layaAir/laya/Physics3D/Bullet/btPhysicsCreateUtil.ts',
+            './layaAir/laya/Physics3D/Bullet/Collider/**/*.*',
+            './layaAir/laya/Physics3D/Bullet/Shape/**/*.*',
+            './layaAir/laya/Physics3D/Bullet/Joint/**/*.*',
             './layaAir/laya/Physics3D/Bullet/btInteractive.ts',
             './layaAir/laya/Physics3D/Bullet/CollisionTool.ts',
-            './layaAir/laya/Physics3D/Bullet/PhysicsUpdateList.ts',
-            './layaAir/laya/Physics3D/Bullet/btPhysicsCreateUtil.ts',
             './layaAir/laya/Physics3D/Bullet/btPhysicsManager.ts',
-            
             // './layaAir/laya/Physics3D/Bullet/**/*.*',        
+        ],
+    },
+    {
+        'libName': "pxPhysics",
+        'input': [
+            './layaAir/laya/Physics3D/PhysX/pxPhysicsCreateUtil.ts',
+            './layaAir/laya/Physics3D/PhysX/Collider/**/*.*',
+            './layaAir/laya/Physics3D/PhysX/Shape/**/*.*',
+            // './layaAir/laya/Physics3D/PhysX/Joint/**/*.*',
+            './layaAir/laya/Physics3D/PhysX/pxPhysicsManager.ts',
+            './layaAir/laya/Physics3D/PhysX/pxPhysicsMaterial.ts',
+            // './layaAir/laya/Physics3D/PhysX/**/*.*',        
             
         ],
     },
@@ -369,7 +362,7 @@ gulp.task("buildJs", async () => {
 gulp.task("copyJsLibs", async () => {
     return gulp.src([
         './src/layaAir/jsLibs/laya.physics3D.wasm.wasm', './src/layaAir/jsLibs/*.js',
-        '!./src/layaAir/jsLibs/{box2d.js,cannon.js,laya.physics3D.js}'])    // 由于laya.physics3D.js是bullet引擎内容，已经移动到btPhysics.js里面了这里去掉就行
+        '!./src/layaAir/jsLibs/{box2d.js,cannon.js,laya.physics3D.js,physx.release.js}'])    // 由于laya.physics3D.js是bullet引擎内容，已经移动到btPhysics.js里面了这里去掉就行
         .pipe(gulp.dest('./build/libs'));
 });
 
@@ -392,6 +385,16 @@ gulp.task('concatPhysics3DTobtPhysics', () => {
         .pipe(gulp.dest('./build/libs/'));
 });
 
+
+//合并physx.release.js(physX物理引擎库) 和 编译出来的pxPhysics.js，实现完全分离
+gulp.task('concatphysxReleaseTopxPhysics', () => {
+    return gulp.src([
+        './build/libs/laya.pxPhysics.js',
+        './src/layaAir/jsLibs/physx.release.js',
+    ])
+        .pipe(concat('laya.pxPhysics.js'))
+        .pipe(gulp.dest('./build/libs/'));
+});
 
 gulp.task('genDts', () => {
     rimrafSync("./build/temp");
@@ -508,4 +511,5 @@ gulp.task('build',
     gulp.series('compile', 'buildJs', 'copyJsLibs',
         'concatBox2dPhysics',
         'concatPhysics3DTobtPhysics',
+        'concatphysxReleaseTopxPhysics',
         'genDts'));

@@ -58,6 +58,7 @@ export class pxPhysicsCreateUtil implements IPhysicsCreateUtil {
         return (window as any).PHYSX().then((PHYSX: any) => {
             this._init(PHYSX);
             console.log("PhysX loaded.");
+            this.initPhysicsCapable();
             pxDynamicCollider.initCapable();
             pxStaticCollider.initCapable();
 
