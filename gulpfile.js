@@ -78,6 +78,7 @@ const packsDef = [
             './layaAir/laya/Physics3D/interface/**/*.*',
             './layaAir/laya/Physics3D/physicsEnum/**/*.*',
             './layaAir/laya/d3/physics/HitResult.ts',
+            './layaAir/laya/d3/physics/PhysicsSettings.ts',
         ],
     },
     {
@@ -86,14 +87,13 @@ const packsDef = [
             './layaAir/laya/d3/physics/constraints/**/*.*',
             './layaAir/laya/d3/physics/shape/**/*.*',
             './layaAir/laya/d3/Physics3D.ts',
-            './layaAir/laya/d3/ModuleDef.ts',
+            './layaAir/laya/d3/physics/ModuleDef.ts',
             './layaAir/laya/d3/physics/CharacterController.ts',
             './layaAir/laya/d3/physics/Collision.ts',
             './layaAir/laya/d3/physics/Constraint3D.ts',
             './layaAir/laya/d3/physics/ContactPoint.ts',
             './layaAir/laya/d3/physics/PhysicsCollider.ts',
             './layaAir/laya/d3/physics/PhysicsColliderComponent.ts',
-            './layaAir/laya/d3/physics/PhysicsSettings.ts',
             './layaAir/laya/d3/physics/PhysicsUpdateList.ts',
             './layaAir/laya/d3/physics/RaycastVehicle.ts',
             './layaAir/laya/d3/physics/RaycastWheel.ts',
@@ -359,10 +359,13 @@ gulp.task("buildJs", async () => {
 });
 
 //拷贝引擎的第三方js库
+// 由于laya.physics3D.js是bullet引擎内容，已经移动到btPhysics.js里面了这里去掉就行
+// 去掉physx.release.js
+// 去掉laya.physics3D.runtime.js
 gulp.task("copyJsLibs", async () => {
     return gulp.src([
         './src/layaAir/jsLibs/laya.physics3D.wasm.wasm', './src/layaAir/jsLibs/*.js',
-        '!./src/layaAir/jsLibs/{box2d.js,cannon.js,laya.physics3D.js,physx.release.js}'])    // 由于laya.physics3D.js是bullet引擎内容，已经移动到btPhysics.js里面了这里去掉就行
+        '!./src/layaAir/jsLibs/{box2d.js,cannon.js,laya.physics3D.js,physx.release.js,laya.physics3D.runtime.js}'])    
         .pipe(gulp.dest('./build/libs'));
 });
 

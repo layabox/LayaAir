@@ -236,20 +236,19 @@ export class pxDynamicCollider extends pxCollider implements IDynamicCollider {
  * {@inheritDoc IDynamicCollider.move }
  */
     move(positionOrRotation: Vector3 | Quaternion, rotation?: Quaternion): void {
-        //TODO
-        // if (rotation) {
-        //   this._pxActor.setKinematicTarget(positionOrRotation, rotation);
-        //   return;
-        // }
+        if (rotation) {
+            this._pxActor.setKinematicTarget(positionOrRotation, rotation);
+            return;
+        }
 
-        // const tempTranslation = PhysXDynamicCollider._tempTranslation;
-        // const tempRotation = PhysXDynamicCollider._tempRotation;
-        // this.getWorldTransform(tempTranslation, tempRotation);
-        // if (positionOrRotation instanceof Vector3) {
-        //   this._pxActor.setKinematicTarget(positionOrRotation, tempRotation);
-        // } else {
-        //   this._pxActor.setKinematicTarget(tempTranslation, positionOrRotation);
-        // }
+        const tempTranslation = pxDynamicCollider._tempTranslation;
+        const tempRotation = pxDynamicCollider._tempRotation;
+        this.getWorldTransform();
+        if (positionOrRotation instanceof Vector3) {
+            this._pxActor.setKinematicTarget(positionOrRotation, tempRotation);
+        } else {
+            this._pxActor.setKinematicTarget(tempTranslation, positionOrRotation);
+        }
     }
 
 
