@@ -211,8 +211,8 @@ export class Stat {
         this.hide();
 
         Stat._show = true;
-        Stat._currentShowArray = views;
-        Stat._statUI.show(x, y, views);
+        Stat._currentShowArray = views||Stat.AllShow;
+        Stat._statUI.show(x, y, Stat._currentShowArray);
         ILaya.systemTimer.frameLoop(1, null, Stat.loop);
     }
 
