@@ -995,8 +995,44 @@ export class Loader extends EventDispatcher {
                 }
             }
 
-            for (let c of fileConfig.config) {
-                let file = files[c.i];
+            let configs: Array<any> = fileConfig.config;
+            let len = configs.length;
+            let i = 0, j = 0, m = 0, k = 0, n = 0;
+            let indice: Array<number>;
+            let c: any;
+            while (true) {
+                if (indice == null) {
+                    if (i >= len)
+                        break;
+                    c = configs[i];
+                    indice = c.i;
+                    if (Array.isArray(indice))
+                        n = indice.length;
+                    else {
+                        m = indice;
+                        n = 0;
+                        k = 1;
+                    }
+                    j = 0;
+                }
+                if (k == 0) {
+                    if (j >= n) {
+                        i++;
+                        indice = null;
+                        continue;
+                    }
+                    k = indice[j++];
+                    if (k > 0) {
+                        m = k;
+                        k = 0;
+                    }
+                    else
+                        k = -k;
+                }
+                else
+                    k--;
+
+                let file = files[m + k];
                 switch (c.t) {
                     case 0: //图片
                         AssetDb.inst.metaMap[file] = c;
