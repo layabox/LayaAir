@@ -1220,9 +1220,10 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         generateMipmap = generateMipmap && this.supportGenerateMipmap(format);
 
         let gammaCorrection = 1.0;
-        if (!useSRGBExt && sRGB) {
-            gammaCorrection = 2.2;
-        }
+        // if (!useSRGBExt && sRGB) {
+        //     // todo 
+        //     // gammaCorrection = 2.2;
+        // }
 
         // let dimension = TextureDimension.Tex2D;
         let target = this.getTarget(dimension);
@@ -1259,9 +1260,10 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         generateMipmap = generateMipmap && this.supportGenerateMipmap(format);
 
         let gammaCorrection = 1.0;
-        if (!useSRGBExt && sRGB) {
-            gammaCorrection = 2.2;
-        }
+        // todo 非 srgb framebuffer 只能渲染 linear, 目前不支持手动矫正
+        // if (!useSRGBExt && sRGB) {
+        //     gammaCorrection = 2.2;
+        // }
 
         let target = this.getTarget(dimension);
         let internalTex = new WebGLInternalTex(this._engine, target, size, size, dimension, generateMipmap, useSRGBExt, gammaCorrection);
