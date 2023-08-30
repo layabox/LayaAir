@@ -16,9 +16,8 @@ vec4 gammaCorrect(in vec4 color)
 
 vec4 outputTransform(in vec4 color)
 {
-    // render in sRGB, output sRGB
-
     #ifdef GAMMACORRECT
+    // render in linear, output gamma
     return gammaCorrect(color);
     #else // GAMMACORRECT
     return color;
