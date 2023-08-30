@@ -31,6 +31,8 @@ import { RenderState } from "../../../RenderEngine/RenderShader/RenderState";
  * <code>BaseCamera</code> 类用于创建摄像机的父类。
  */
 export class UI3D extends BaseRender {
+    /**@intrtnal */
+    static TempMatrix = new Matrix4x4();
     /**@internal */
     static temp0: Vector3 = new Vector3();
     /**@internal */
@@ -67,6 +69,21 @@ export class UI3D extends BaseRender {
     private _hit: boolean = false;
     /**@internal */
     private _prefab: Prefab;
+    /**@internal 计算矩阵*/
+    private _matrix: Matrix4x4;
+    /**@internal 缩放 */
+    private _scale: Vector3;
+    /**@internal */
+    private _pos0: Vector3;
+    /**@internal */
+    private _pos1: Vector3;
+    /**@internal */
+    private _pos2: Vector3;
+    /**@internal */
+    private _pos3: Vector3;
+    /**@internal */
+    static _ray: Ray = new Ray(new Vector3(), new Vector3());
+
 
     /**
      * 3D渲染的UI节点
@@ -74,7 +91,6 @@ export class UI3D extends BaseRender {
     set sprite(value: Sprite) {
         if (value == this._uisprite)
             return;
-
         this._uisprite = value;
         this._shellSprite.removeChildren(0, this._shellSprite.numChildren - 1);
         if (value)
@@ -112,7 +128,7 @@ export class UI3D extends BaseRender {
         value.cloneTo(this._size);
         this._resizeRT();
         this.boundsChange = true;
-        this._sizeChange = true;
+        this._scale.setValue(value.x, value.y, 1);
     }
 
     get scale() {
@@ -208,6 +224,8 @@ export class UI3D extends BaseRender {
         this._ui3DMat = new UnlitMaterial();
         this._ui3DMat.materialRenderMode = MaterialRenderMode.RENDERMODE_OPAQUE;
         this._ui3DMat.cull = RenderState.CULL_BACK;
+        this._matrix = new Matrix4x4();
+        this._scale = new Vector3();
     }
 
     /**
@@ -224,6 +242,10 @@ export class UI3D extends BaseRender {
         this._geometry = new UI3DGeometry(this);
         element.setGeometry(this._geometry);
         elements.push(element);
+        this._pos0 = this._geometry._positionArray[0];
+        this._pos1 = this._geometry._positionArray[1];
+        this._pos2 = this._geometry._positionArray[2];
+        this._pos3 = this._geometry._positionArray[3];
     }
 
     /**
@@ -251,59 +273,129 @@ export class UI3D extends BaseRender {
      */
     onPreRender(): void {
         //this._geometry
-        if (this.billboard || this._sizeChange) {
+        if (this.billboard) {
             this._sizeChange = false;
-            this.boundsChange = true;
-            if (this.billboard) {
-                let camera = (this.owner.scene as Scene3D).cullInfoCamera;
-                this._geometry._resizeViewVertexData(this._size, camera._forward, camera._up, this.billboard, (this.owner as Sprite3D).transform.position);
-            } else {
-                this._geometry._resizeWorldVertexData(this._size, (this.owner as Sprite3D).transform.worldMatrix);
-            }
+            let camera = (this.owner.scene as Scene3D).cullInfoCamera;
+            Matrix4x4.createAffineTransformation(this._transform.position, camera.transform.rotation, this._scale, this._matrix);
+        } else if (this._sizeChange) {
+            this._sizeChange = false;
+            this._transform.worldMatrix.cloneTo(this._matrix);
         }
-
-        //reset plane
-        this._updatePlane();
-    }
-
-    private _updatePlane() {
-        let posArray = this._geometry._positionArray;
-        Plane.createPlaneBy3P(posArray[0], posArray[1], posArray[2], this._uiPlane);
     }
 
     /**
     * 分析碰撞点
     * @param hit 
     */
-    private _parseHit(hit: Vector3) {
+    private _parseHit(ray: Ray) {
         if (!this._uisprite) return null;
-        let WV = UI3D.temp0;
-        let HV = UI3D.temp1;
-        let Dir = UI3D.temp2;
-        let posArray = this._geometry._positionArray;
-        if (Utils3D.PointinTriangle(posArray[0], posArray[1], posArray[2], hit) || Utils3D.PointinTriangle(posArray[3], posArray[2], posArray[1], hit)) {
-            Vector3.subtract(posArray[2], posArray[3], WV);
-            Vector3.subtract(posArray[2], posArray[0], HV);
-            Vector3.subtract(posArray[2], hit, Dir);
-            Vector3.normalize(WV, WV);
-            Vector3.normalize(HV, HV);
-            let normalizeHitWidth = Math.abs(Vector3.dot(WV, Dir) / this.scale.x);    // dot 也就是在宽度上百分比 0 ~ 1
-            let normalizeHitHeight = Math.abs(Vector3.dot(HV, Dir) / this.scale.y);    // dot 这个时在高度上的百分比 0 ~ 1
+        this._matrix.invert(UI3D.TempMatrix);
+        Vector3.transformCoordinate(ray.origin, UI3D.TempMatrix, UI3D._ray.origin);
+        Vector3.TransformNormal(ray.direction, UI3D.TempMatrix, UI3D._ray.direction);
+        UI3D._ray.direction.normalize();
 
+        let normalizeHitWidth = 0;
+        let normalizeHitHeight = 0;
+
+        let minDix: number = Number.MAX_VALUE;
+        let hitUVs = [];
+        hitUVs.push(this.rayIntersectsTriangle(UI3D._ray, this._pos0, this._pos1, this._pos2));
+        hitUVs.push(this.rayIntersectsTriangle(UI3D._ray, this._pos3, this._pos2, this._pos1));
+        let isTriangleto = false;
+        for (let i = 0, j = hitUVs.length; i < j; i++) {
+            let uv = hitUVs[i];
+            if (uv != undefined && uv[0] < minDix) {
+                i == 1 && (isTriangleto = true);
+                minDix = uv[0];
+                normalizeHitWidth = uv[1];
+                normalizeHitHeight = uv[2];
+                break;
+            }
+        }
+        if (minDix != Number.MAX_VALUE) {
+            isTriangleto && (normalizeHitWidth = 1 - normalizeHitWidth);
+            isTriangleto && (normalizeHitHeight = 1 - normalizeHitHeight);
             let cx = normalizeHitWidth * this._rendertexure2D.width;
-            let cy = (1 - normalizeHitHeight) * this._rendertexure2D.height;
+            let cy = normalizeHitHeight * this._rendertexure2D.height;
 
             // drawCircle to test
-            //UI3D.DEBUG && this._uisprite && this._shellSprite.graphics.drawCircle(cx, cy, 10, "#e53d30");
+            // UI3D.DEBUG && this._uisprite && this._shellSprite.graphics.drawCircle(cx, cy, 10, "#e53d30");
 
             let target = InputManager.inst.getSpriteUnderPoint(this._uisprite, cx, cy);
             if (target)
                 return target;
             else
                 return this._uisprite;
+        } else {
+            return false;
         }
-        return null;
     }
+
+
+    private rayIntersectsTriangle(ray: Ray, vertex1: Vector3, vertex2: Vector3, vertex3: Vector3): number[] {
+        var result: number;
+        var edge1: Vector3 = new Vector3(), edge2: Vector3 = new Vector3();
+
+        Vector3.subtract(vertex2, vertex1, edge1);
+        Vector3.subtract(vertex3, vertex1, edge2);
+
+        // Compute the determinant.
+        var directionCrossEdge2: Vector3 = new Vector3();
+        Vector3.cross(ray.direction, edge2, directionCrossEdge2);
+
+        var determinant: number;
+        determinant = Vector3.dot(edge1, directionCrossEdge2);
+
+        // If the ray is parallel to the triangle plane, there is no collision.
+        if (determinant > -Number.MIN_VALUE && determinant < Number.MIN_VALUE) {
+            return undefined;
+        }
+
+        var inverseDeterminant: number = 1.0 / determinant;
+
+        // Calculate the U parameter of the intersection point.
+        var distanceVector: Vector3 = new Vector3();
+        Vector3.subtract(ray.origin, vertex1, distanceVector);
+
+        var triangleU: number;
+        triangleU = Vector3.dot(distanceVector, directionCrossEdge2);
+        triangleU *= inverseDeterminant;
+
+        // Make sure it is inside the triangle.
+        if (triangleU < 0 || triangleU > 1) {
+            result = Number.NaN;
+            return undefined;
+        }
+
+        // Calculate the V parameter of the intersection point.
+        var distanceCrossEdge1: Vector3 = new Vector3();
+        Vector3.cross(distanceVector, edge1, distanceCrossEdge1);
+
+        var triangleV: number;
+        triangleV = Vector3.dot(ray.direction, distanceCrossEdge1);
+        triangleV *= inverseDeterminant;
+
+        // Make sure it is inside the triangle.
+        if (triangleV < 0 || triangleU + triangleV > 1) {
+            result = Number.NaN;
+            return undefined;
+        }
+
+        // Compute the distance along the ray to the triangle.
+        var rayDistance: number;
+        rayDistance = Vector3.dot(edge2, distanceCrossEdge1);
+        rayDistance *= inverseDeterminant;
+
+        // Is the triangle behind the ray origin?
+        if (rayDistance < 0) {
+            result = Number.NaN;
+            return undefined;
+        }
+
+        result = rayDistance;
+        return [result, triangleU, triangleV];
+    }
+
 
     /**
      * 获得ui渲染图
@@ -329,8 +421,7 @@ export class UI3D extends BaseRender {
     _renderUpdate(context: RenderContext3D, transform: Transform3D): void {
         this._applyLightMapParams();
         this._applyReflection();
-        // 这里不需要区分，已经将顶点进行转换了直接使用默认矩阵
-        this._setShaderValue(Sprite3D.WORLDMATRIX, ShaderDataType.Matrix4x4, Matrix4x4.DEFAULT);
+        this._setShaderValue(Sprite3D.WORLDMATRIX, ShaderDataType.Matrix4x4, this._matrix);
         this._worldParams.x = transform.getFrontFaceValue();
         this._setShaderValue(Sprite3D.WORLDINVERTFRONT, ShaderDataType.Vector4, this._worldParams);
         return;
@@ -368,12 +459,14 @@ export class UI3D extends BaseRender {
     _checkUIPos(ray: Ray) {
         if (!this.enableHit)
             return false;
-        let hitPoint = Picker.rayPlaneIntersection(ray, this._uiPlane);
-        if (hitPoint) {
-            return this._parseHit(hitPoint);
-        } else {
-            return false;
-        }
+        return this._parseHit(ray);
+    }
+
+    _updataPlan3D(): void {
+        var normal = UI3D.temp0;
+        this._matrix.getForward(normal);
+        this._uiPlane.normal = normal.normalize();
+        this._uiPlane.distance = -Vector3.dot(this._transform.position, normal);
     }
 
     /**
@@ -383,7 +476,7 @@ export class UI3D extends BaseRender {
      */
     protected _calculateBoundingBox(): void {
         var worldMat: Matrix4x4 = this._transform.worldMatrix;
-        this._geometry.bounds.cloneTo(this._bounds);
+        this._geometry.bounds._tranform(worldMat, this._bounds);
     }
 
     /**
