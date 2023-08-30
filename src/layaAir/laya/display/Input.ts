@@ -7,6 +7,7 @@ import { InputManager } from "../events/InputManager";
 import { Render } from "../renders/Render";
 import { Config } from "../../Config";
 import { SpriteUtils } from "../utils/SpriteUtils";
+import { SerializeUtil } from "../loaders/SerializeUtil";
 
 /**
  * 用户输入一个或多个文本字符时后调度。
@@ -222,7 +223,8 @@ export class Input extends Text {
 
     set multiline(value: boolean) {
         this._multiline = value;
-        this.valign = value ? "top" : "middle";
+        if (!SerializeUtil.isDeserializing)
+            this.valign = value ? "top" : "middle";
     }
 
     /**
