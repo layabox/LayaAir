@@ -127,6 +127,10 @@ export class BlitFrameBufferCMD {
 
 		if (dest) {
 			dest._start();
+			shaderData.removeDefine(RenderContext3D.GammaCorrect);
+		}
+		else {
+			shaderData.addDefine(RenderContext3D.GammaCorrect);
 		}
 		var subShader: SubShader = shader.getSubShaderAt(this._subShader);
 		var passes: ShaderPass[] = subShader._passes;

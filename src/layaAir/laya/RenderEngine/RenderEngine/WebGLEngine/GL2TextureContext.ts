@@ -930,11 +930,11 @@ export class GL2TextureContext extends GLTextureContext implements ITexture3DCon
 
         let useSRGBExt = this.isSRGBFormat(format) || (sRGB && this.supportSRGB(format, generateMipmap));
 
-
         let gammaCorrection = 1.0;
-        if (!useSRGBExt && sRGB) {
-            gammaCorrection = 2.2;
-        }
+        // todo 非 srgb framebuffer 只能渲染 linear, 目前不支持手动矫正
+        // if (!useSRGBExt && sRGB) {
+        //     gammaCorrection = 2.2;
+        // }
 
         let target = this.getTarget(dimension);
         let internalTex = new WebGLInternalTex(this._engine, target, width, height, dimension, generateMipmap, useSRGBExt, gammaCorrection);
@@ -1068,9 +1068,10 @@ export class GL2TextureContext extends GLTextureContext implements ITexture3DCon
         let useSRGBExt = this.isSRGBFormat(format) || (sRGB && this.supportSRGB(format, generateMipmap));
 
         let gammaCorrection = 1.0;
-        if (!useSRGBExt && sRGB) {
-            gammaCorrection = 2.2;
-        }
+        // todo 非 srgb framebuffer 只能渲染 linear, 目前不支持手动矫正
+        // if (!useSRGBExt && sRGB) {
+        //     gammaCorrection = 2.2;
+        // }
 
         let target = this.getTarget(dimension);
         let internalTex = new WebGLInternalTex(this._engine, target, size, size, dimension, generateMipmap, useSRGBExt, gammaCorrection);
