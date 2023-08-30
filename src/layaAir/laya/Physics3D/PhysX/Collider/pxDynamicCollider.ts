@@ -85,6 +85,8 @@ export class pxDynamicCollider extends pxCollider implements IDynamicCollider {
 
     private static _tempRotation = new Quaternion();
 
+    IsKinematic:boolean = false;
+
     constructor(manager: pxPhysicsManager) {
         super(manager);
         this._enableProcessCollisions = true;
@@ -97,11 +99,12 @@ export class pxDynamicCollider extends pxCollider implements IDynamicCollider {
 
     protected _initCollider() {
         this._pxActor = pxPhysicsCreateUtil._pxPhysics.createRigidDynamic(this._transformTo(new Vector3(), new Quaternion()));
-        this.setWorldTransform(true);
+        
     }
 
     protected _initColliderShapeByCollider() {
         super._initColliderShapeByCollider();
+        this.setWorldTransform(true);
         this.setTrigger(this._isTrigger);
         this.setCenterOfMass(new Vector3());
         this.setInertiaTensor(new Vector3(1, 1, 1));
@@ -193,9 +196,16 @@ export class pxDynamicCollider extends pxCollider implements IDynamicCollider {
     }
 
     setIsKinematic(value: boolean): void {
+        this.IsKinematic = value;
         if (value) {
+            this._enableProcessCollisions = false;
+            if (this._isSimulate)
+                this._physicsManager._dynamicUpdateList.remove(this);
             this._pxActor.setRigidBodyFlag(pxPhysicsCreateUtil._physX.PxRigidBodyFlag.eKINEMATIC, true);
         } else {
+            this._enableProcessCollisions = true;
+            if (this._isSimulate && this.inPhysicUpdateListIndex == -1)
+                this._physicsManager._dynamicUpdateList.add(this);
             this._pxActor.setRigidBodyFlag(pxPhysicsCreateUtil._physX.PxRigidBodyFlag.eKINEMATIC, false);
         }
     }
@@ -233,8 +243,8 @@ export class pxDynamicCollider extends pxCollider implements IDynamicCollider {
 
 
     /**
- * {@inheritDoc IDynamicCollider.move }
- */
+     * {@inheritDoc IDynamicCollider.move }
+     */
     move(positionOrRotation: Vector3 | Quaternion, rotation?: Quaternion): void {
         if (rotation) {
             this._pxActor.setKinematicTarget(positionOrRotation, rotation);

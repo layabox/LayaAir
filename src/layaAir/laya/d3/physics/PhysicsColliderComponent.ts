@@ -10,6 +10,7 @@ import { Physics3DColliderShape } from "./shape/Physics3DColliderShape";
 import { SphereColliderShape } from "./shape/SphereColliderShape";
 import { CapsuleColliderShape } from "./shape/CapsuleColliderShape";
 import { EColliderCapable } from "../../Physics3D/physicsEnum/EColliderCapable";
+import { Node } from "../../display/Node";
 
 /**
  * Describes how physics materials of the colliding objects are combined.
@@ -274,12 +275,7 @@ export class PhysicsColliderComponent extends Component {
         }
     }
 
-    protected _initCollider() {
-        //createCollider
-        //Override it
-    }
-
-    protected _onAdded(): void {
+    initCollider(){
         this._initCollider();
         this._collider.setOwner(this.owner);
         this.restitution = this._restitution;
@@ -289,6 +285,20 @@ export class PhysicsColliderComponent extends Component {
         this.ccdSweptSphereRadius = this._ccdSweptSphereRadius;
         this.collisionGroup = this._collisionGroup;
         this.canCollideWith = this._canCollideWith;
+    }
+
+    protected _initCollider() {
+        //createCollider
+        //Override it
+    }
+
+    protected _onAdded(): void {
+        if(!this.owner.scene){
+            this.owner.on(Node.EVENT_SET_ACTIVESCENE,this._onAdded);
+        }else{
+            this.initCollider();
+            this.owner.off(Node.EVENT_SET_ACTIVESCENE,this._onAdded);
+        }
     }
 
     protected _onEnable(): void {

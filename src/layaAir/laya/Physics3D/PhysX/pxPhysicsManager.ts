@@ -67,7 +67,7 @@ export class pxPhysicsManager implements IPhysicsManager {
                 break;
             case pxColliderType.RigidbodyCollider:
                 this._pxScene.addActor(pxcollider._pxActor, null);
-                this._dynamicUpdateList.add(collider);
+                !(collider as pxDynamicCollider).IsKinematic && this._dynamicUpdateList.add(collider);
                 break;
             case pxColliderType.CharactorCollider:
                 //TODO:
@@ -88,7 +88,7 @@ export class pxPhysicsManager implements IPhysicsManager {
                 break;
             case pxColliderType.RigidbodyCollider:    //TODO
                 if (collider.inPhysicUpdateListIndex !== -1)
-                    this._dynamicUpdateList.remove(collider);
+                    !(collider as pxDynamicCollider).IsKinematic && this._dynamicUpdateList.remove(collider);
                 this._pxScene.removeActor(pxcollider._pxActor, true);
                 break;
             case pxColliderType.CharactorCollider:

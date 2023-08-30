@@ -1,3 +1,4 @@
+import { Quaternion } from "../../../maths/Quaternion";
 import { Vector3 } from "../../../maths/Vector3";
 import { IColliderShape } from "../../interface/Shape/IColliderShape";
 import { pxCollider } from "../Collider/pxCollider";
@@ -23,6 +24,7 @@ export class pxColliderShape implements IColliderShape {
 
     static transform = {
         translation: new Vector3(),
+        rotation:new Quaternion()
     };
 
     _offset: Vector3 = new Vector3(0, 0, 0);
@@ -76,6 +78,7 @@ export class pxColliderShape implements IColliderShape {
     }
 
     setOffset(position: Vector3): void {
+        if(!this._pxCollider) return;
         position.cloneTo(this._offset);
         const transform = pxColliderShape.transform;
         this._pxCollider.owner.transform.getWorldLossyScale().cloneTo(this._scale);

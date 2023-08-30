@@ -320,7 +320,7 @@ export class Scene3D extends Sprite implements ISubmit {
         if (Config3D._uniformBlock)
             configShaderValue.add(Shader3D.SHADERDEFINE_ENUNIFORMBLOCK);
 
-        Laya3D.enablePhysics && (Scene3D.physicsSettings = new PhysicsSettings());
+        Scene3D.physicsSettings = new PhysicsSettings();
 
         let supportFloatTex = LayaGL.renderEngine.getCapable(RenderCapable.TextureFormat_R32G32B32A32);
         if (supportFloatTex) {

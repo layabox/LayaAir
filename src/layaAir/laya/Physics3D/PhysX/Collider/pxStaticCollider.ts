@@ -41,7 +41,7 @@ export class pxStaticCollider extends pxCollider implements IStaticCollider {
 
     protected _initCollider() {
         this._pxActor = pxPhysicsCreateUtil._pxPhysics.createRigidStatic(this._transformTo(new Vector3(), new Quaternion()));
-        this.setWorldTransform(true);
+        
     }
 
     setTrigger(value: boolean): void {
@@ -51,6 +51,7 @@ export class pxStaticCollider extends pxCollider implements IStaticCollider {
 
     protected _initColliderShapeByCollider() {
         super._initColliderShapeByCollider();
+        this.setWorldTransform(true);
         this.setTrigger(this._isTrigger);
     }
 
