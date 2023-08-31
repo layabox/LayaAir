@@ -5,6 +5,7 @@ import { Node } from "../display/Node"
 import { Sprite } from "../display/Sprite"
 import { Event } from "../events/Event"
 import { ILaya } from "../../ILaya";
+import { SerializeUtil } from "../loaders/SerializeUtil";
 
 /**
  * <code>Component</code> 是ui控件类的基类。
@@ -327,7 +328,9 @@ export class UIComponent extends Sprite {
 
     set disabled(value: boolean) {
         if (value !== this._disabled) {
-            this.gray = this._disabled = value;
+            this._disabled = value;
+            if (!SerializeUtil.isDeserializing)
+                this.gray = value;
             this.mouseEnabled = !value;
         }
     }
