@@ -8,8 +8,6 @@ import { BaseTexture } from "../../../resource/BaseTexture";
 import { RenderTexture2D } from "../../../resource/RenderTexture2D";
 import { Plane } from "../../math/Plane";
 import { Ray } from "../../math/Ray";
-import { Picker } from "../../utils/Picker";
-import { Utils3D } from "../../utils/Utils3D";
 import { Material, MaterialRenderMode } from "../material/Material";
 import { MeshSprite3DShaderDeclaration } from "../MeshSprite3DShaderDeclaration";
 import { BaseRender } from "../render/BaseRender";
@@ -26,11 +24,14 @@ import { InputManager } from "../../../events/InputManager";
 import { NodeFlags } from "../../../Const";
 import { ILaya } from "../../../../ILaya";
 import { RenderState } from "../../../RenderEngine/RenderShader/RenderState";
+import { LayaEnv } from "../../../../LayaEnv";
 
 /**
  * <code>BaseCamera</code> 类用于创建摄像机的父类。
  */
 export class UI3D extends BaseRender {
+    /**@intrtnal */
+    static TempMatrix = new Matrix4x4();
     /**@internal */
     static temp0: Vector3 = new Vector3();
     /**@internal */
@@ -67,6 +68,12 @@ export class UI3D extends BaseRender {
     private _hit: boolean = false;
     /**@internal */
     private _prefab: Prefab;
+    /**@internal 计算矩阵*/
+    private _matrix: Matrix4x4;
+    /**@internal 缩放 */
+    private _scale: Vector3;
+    /**@internal */
+    static _ray: Ray = new Ray(new Vector3(), new Vector3());
 
     /**
      * 3D渲染的UI节点
@@ -74,7 +81,6 @@ export class UI3D extends BaseRender {
     set sprite(value: Sprite) {
         if (value == this._uisprite)
             return;
-
         this._uisprite = value;
         this._shellSprite.removeChildren(0, this._shellSprite.numChildren - 1);
         if (value)
@@ -112,7 +118,7 @@ export class UI3D extends BaseRender {
         value.cloneTo(this._size);
         this._resizeRT();
         this.boundsChange = true;
-        this._sizeChange = true;
+        this._scale.setValue(value.x, value.y, 1);
     }
 
     get scale() {
@@ -208,6 +214,8 @@ export class UI3D extends BaseRender {
         this._ui3DMat = new UnlitMaterial();
         this._ui3DMat.materialRenderMode = MaterialRenderMode.RENDERMODE_OPAQUE;
         this._ui3DMat.cull = RenderState.CULL_BACK;
+        this._matrix = new Matrix4x4();
+        this._scale = new Vector3();
     }
 
     /**
@@ -251,58 +259,55 @@ export class UI3D extends BaseRender {
      */
     onPreRender(): void {
         //this._geometry
-        if (this.billboard || this._sizeChange) {
+        if (this.billboard) {
             this._sizeChange = false;
-            this.boundsChange = true;
-            if (this.billboard) {
-                let camera = (this.owner.scene as Scene3D).cullInfoCamera;
-                this._geometry._resizeViewVertexData(this._size, camera._forward, camera._up, this.billboard, (this.owner as Sprite3D).transform.position);
-            } else {
-                this._geometry._resizeWorldVertexData(this._size, (this.owner as Sprite3D).transform.worldMatrix);
-            }
+            let camera = (this.owner.scene as Scene3D).cullInfoCamera;
+            Matrix4x4.createAffineTransformation(this._transform.position, camera.transform.rotation, this._scale, this._matrix);
+        } else if (this._sizeChange) {
+            this._sizeChange = false;
+            this._transform.worldMatrix.cloneTo(this._matrix);
         }
-
-        //reset plane
-        this._updatePlane();
-    }
-
-    private _updatePlane() {
-        let posArray = this._geometry._positionArray;
-        Plane.createPlaneBy3P(posArray[0], posArray[1], posArray[2], this._uiPlane);
     }
 
     /**
     * 分析碰撞点
     * @param hit 
     */
-    private _parseHit(hit: Vector3) {
-        if (!this._uisprite) return null;
-        let WV = UI3D.temp0;
-        let HV = UI3D.temp1;
-        let Dir = UI3D.temp2;
-        let posArray = this._geometry._positionArray;
-        if (Utils3D.PointinTriangle(posArray[0], posArray[1], posArray[2], hit) || Utils3D.PointinTriangle(posArray[3], posArray[2], posArray[1], hit)) {
-            Vector3.subtract(posArray[2], posArray[3], WV);
-            Vector3.subtract(posArray[2], posArray[0], HV);
-            Vector3.subtract(posArray[2], hit, Dir);
-            Vector3.normalize(WV, WV);
-            Vector3.normalize(HV, HV);
-            let normalizeHitWidth = Math.abs(Vector3.dot(WV, Dir) / this.scale.x);    // dot 也就是在宽度上百分比 0 ~ 1
-            let normalizeHitHeight = Math.abs(Vector3.dot(HV, Dir) / this.scale.y);    // dot 这个时在高度上的百分比 0 ~ 1
+    private _parseHit(ray: Ray) {
+        let _tempRay = UI3D._ray;
+        let u, v;
+        if (!this._uisprite || !LayaEnv.isPlaying) return null;
+        this._matrix.invert(UI3D.TempMatrix);
+        Vector3.transformCoordinate(ray.origin, UI3D.TempMatrix, _tempRay.origin);
+        Vector3.TransformNormal(ray.direction, UI3D.TempMatrix, _tempRay.direction);
+        _tempRay.direction.normalize();
 
-            let cx = normalizeHitWidth * this._rendertexure2D.width;
-            let cy = (1 - normalizeHitHeight) * this._rendertexure2D.height;
+        let normalizeHitWidth = 0;
+        let normalizeHitHeight = 0;
 
-            // drawCircle to test
-            //UI3D.DEBUG && this._uisprite && this._shellSprite.graphics.drawCircle(cx, cy, 10, "#e53d30");
-
-            let target = InputManager.inst.getSpriteUnderPoint(this._uisprite, cx, cy);
-            if (target)
-                return target;
-            else
-                return this._uisprite;
+        let t = -_tempRay.origin.z / _tempRay.direction.z;
+        if (t < 0) {
+            return null;
         }
-        return null;
+        else {
+            u = _tempRay.origin.x + t * _tempRay.direction.x;
+            v = _tempRay.origin.y + t * _tempRay.direction.y;
+        }
+
+        normalizeHitWidth = u + 0.5;
+        normalizeHitHeight = v + 0.5;
+
+        let cx = normalizeHitWidth * this._rendertexure2D.width;
+        let cy = (1.0 - normalizeHitHeight) * this._rendertexure2D.height;
+
+        // drawCircle to test
+        // UI3D.DEBUG && this._uisprite && this._shellSprite.graphics.drawCircle(cx, cy, 10, "#e53d30");
+
+        let target = InputManager.inst.getSpriteUnderPoint(this._uisprite, cx, cy);
+        if (target)
+            return target;
+        else
+            return this._uisprite;
     }
 
     /**
@@ -329,8 +334,7 @@ export class UI3D extends BaseRender {
     _renderUpdate(context: RenderContext3D, transform: Transform3D): void {
         this._applyLightMapParams();
         this._applyReflection();
-        // 这里不需要区分，已经将顶点进行转换了直接使用默认矩阵
-        this._setShaderValue(Sprite3D.WORLDMATRIX, ShaderDataType.Matrix4x4, Matrix4x4.DEFAULT);
+        this._setShaderValue(Sprite3D.WORLDMATRIX, ShaderDataType.Matrix4x4, this._matrix);
         this._worldParams.x = transform.getFrontFaceValue();
         this._setShaderValue(Sprite3D.WORLDINVERTFRONT, ShaderDataType.Vector4, this._worldParams);
         return;
@@ -368,12 +372,7 @@ export class UI3D extends BaseRender {
     _checkUIPos(ray: Ray) {
         if (!this.enableHit)
             return false;
-        let hitPoint = Picker.rayPlaneIntersection(ray, this._uiPlane);
-        if (hitPoint) {
-            return this._parseHit(hitPoint);
-        } else {
-            return false;
-        }
+        return this._parseHit(ray);
     }
 
     /**
@@ -383,7 +382,7 @@ export class UI3D extends BaseRender {
      */
     protected _calculateBoundingBox(): void {
         var worldMat: Matrix4x4 = this._transform.worldMatrix;
-        this._geometry.bounds.cloneTo(this._bounds);
+        this._geometry.bounds._tranform(worldMat, this._bounds);
     }
 
     /**
@@ -424,6 +423,8 @@ export class UI3D extends BaseRender {
         this._resolutionRate = null;
         this._uiPlane = null;
         this._size = null;
+        this._scale = null;
+        this._matrix = null;
     }
 
     private _transByRotate() {
