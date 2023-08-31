@@ -988,9 +988,10 @@ export class Loader extends EventDispatcher {
 
             if (fileConfig.hash) {
                 let i = 0;
+                let version = URL.version;
                 for (let k of fileConfig.hash) {
                     if (k != null)
-                        URL.version[files[i]] = k;
+                        version[files[i]] = k;
                     i++;
                 }
             }
@@ -1000,6 +1001,7 @@ export class Loader extends EventDispatcher {
             let i = 0, j = 0, m = 0, k = 0, n = 0;
             let indice: Array<number>;
             let c: any;
+            let metaMap = AssetDb.inst.metaMap;
             while (true) {
                 if (indice == null) {
                     if (i >= len)
@@ -1035,7 +1037,7 @@ export class Loader extends EventDispatcher {
                 let file = files[m + k];
                 switch (c.t) {
                     case 0: //图片
-                        AssetDb.inst.metaMap[file] = c;
+                        metaMap[file] = c;
                         break;
                     case 1: //自动图集
                         AtlasInfoManager.addAtlas(file, c.prefix, c.frames);

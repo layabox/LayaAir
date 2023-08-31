@@ -44,7 +44,6 @@ export class UI3DGeometry extends GeometryElement {
         this._bound = new Bounds();
         this._createBuffer();
         this.indexFormat = IndexFormat.UInt16;
-        this._positionArray = [new Vector3(), new Vector3(), new Vector3(), new Vector3()];
     }
 
     /**@internal */
@@ -58,7 +57,7 @@ export class UI3DGeometry extends GeometryElement {
     private _createBuffer() {
         var vertexDeclaration: VertexDeclaration = VertexMesh.getVertexDeclaration("POSITION,NORMAL,UV");
         var halfLong: number = 1 / 2;
-        var halfWidth: number = 1 / 2 * 100;
+        var halfWidth: number = 1 / 2;
         this._vertex = new Float32Array([-halfLong, halfWidth, 0, 0, 0, 1, 0, 0,
             halfLong, halfWidth, 0, 0, 0, 1, 1, 0,
         -halfLong, -halfWidth, 0, 0, 0, 1, 0, 1,
@@ -74,8 +73,13 @@ export class UI3DGeometry extends GeometryElement {
         //VAO
         this.bufferState = new BufferState();
         this.bufferState.applyState([this._vertexBuffer], this._indexBuffer);
-        this._bound.setExtent(new Vector3(0.5, 0.5, 0.05));
+        this._bound.setExtent(new Vector3(halfLong, halfWidth, halfLong));
         this._bound.setCenter(new Vector3(0, 0, 0));
+        this._positionArray = [new Vector3(), new Vector3(), new Vector3(), new Vector3()];
+        this._positionArray[0].set(-halfWidth, halfLong, 0.0);
+        this._positionArray[1].set(halfWidth, halfLong, 0.0);
+        this._positionArray[2].set(-halfWidth, -halfLong, 0.0);
+        this._positionArray[3].set(halfWidth, -halfLong, 0.0);
     }
 
     /**
@@ -109,6 +113,40 @@ export class UI3DGeometry extends GeometryElement {
         Vector3.add(this._positionArray[3], worldPos, this._positionArray[3]);
         this._changeVertex(size);
     }
+
+
+    /**
+     * @internal
+     * reset view vertex data
+     */
+    _resizeVertexData(size: Vector2): void {
+        var halfwidth = size.x / 2;
+        var halfhight = size.y / 2;
+        // if (viewMode) {
+        //     UI3DGeometry.tempV0.set(-halfwidth, halfhight, 0.0);
+        //     Utils3D.billboardTrans(UI3DGeometry.tempV0, cameraDir, cameraUp, this._positionArray[0]);
+        //     UI3DGeometry.tempV0.set(halfwidth, halfhight, 0.0);
+        //     Utils3D.billboardTrans(UI3DGeometry.tempV0, cameraDir, cameraUp, this._positionArray[1]);
+        //     UI3DGeometry.tempV0.set(-halfwidth, -halfhight, 0.0);
+        //     Utils3D.billboardTrans(UI3DGeometry.tempV0, cameraDir, cameraUp, this._positionArray[2]);
+        //     UI3DGeometry.tempV0.set(halfwidth, -halfhight, 0.0);
+        //     Utils3D.billboardTrans(UI3DGeometry.tempV0, cameraDir, cameraUp, this._positionArray[3]);
+        //     this._vertex[3] = this._vertex[11] = this._vertex[19] = this._vertex[27] = -cameraDir.x;
+        //     this._vertex[4] = this._vertex[12] = this._vertex[20] = this._vertex[28] = -cameraDir.y;
+        //     this._vertex[5] = this._vertex[13] = this._vertex[21] = this._vertex[29] = -cameraDir.z;
+        // } else {
+        this._positionArray[0].set(-halfwidth, halfhight, 0.0);
+        this._positionArray[1].set(halfwidth, halfhight, 0.0);
+        this._positionArray[2].set(-halfwidth, -halfhight, 0.0);
+        this._positionArray[3].set(halfwidth, -halfhight, 0.0);
+        // }
+        // Vector3.add(this._positionArray[0], worldPos, this._positionArray[0]);
+        // Vector3.add(this._positionArray[1], worldPos, this._positionArray[1]);
+        // Vector3.add(this._positionArray[2], worldPos, this._positionArray[2]);
+        // Vector3.add(this._positionArray[3], worldPos, this._positionArray[3]);
+        this._changeVertex(size);
+    }
+
 
     /**
      * @internal
