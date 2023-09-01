@@ -33,7 +33,8 @@ export class pxBoxColliderShape extends pxColliderShape implements IBoxColliderS
     }
 
     destroy(): void {
-        throw new Error("Method not implemented.");
+        super.destroy();
+        this._size = null;
     }
 
 }

@@ -38,6 +38,7 @@ export class CharacterController extends PhysicsColliderComponent {
      * @internal
      */
     protected _initCollider() {
+        this._physicsManager = (this.owner.scene as Scene3D)._physicsManager;
         if (Laya3D.enablePhysics && this._physicsManager && Laya3D.PhysicsCreateUtil.getPhysicsCapable(EPhysicsCapable.Physics_CharacterCollider)) {
             this._physicsManager = ((<Scene3D>this.owner._scene))._physicsManager;
             this._collider = Laya3D.PhysicsCreateUtil.createCharacterController(this._physicsManager);
@@ -55,8 +56,8 @@ export class CharacterController extends PhysicsColliderComponent {
     }
 
     set fallSpeed(value: number) {
-        if (this.collider.getCapable(ECharacterCapable.Character_FallSpeed)) {
-            this._collider && this._collider.setfallSpeed(value);
+        if (this._collider && this.collider.getCapable(ECharacterCapable.Character_FallSpeed)) {
+            this._collider.setfallSpeed(value);
         }
     }
 
@@ -65,8 +66,8 @@ export class CharacterController extends PhysicsColliderComponent {
      */
     set pushForce(v: number) {
         this._pushForce = v;
-        if (this.collider.getCapable(ECharacterCapable.Character_PushForce)) {
-            this._collider && this._collider.setpushForce(v);
+        if (this._collider && this.collider.getCapable(ECharacterCapable.Character_PushForce)) {
+            this._collider.setpushForce(v);
         }
     }
 
@@ -82,7 +83,7 @@ export class CharacterController extends PhysicsColliderComponent {
     }
 
     set jumpSpeed(value: number) {
-        if (this.collider.getCapable(ECharacterCapable.Charcater_Jump)) {
+        if (this._collider && this.collider.getCapable(ECharacterCapable.Charcater_Jump)) {
             this._jumpSpeed = value;
         }
     }
@@ -96,8 +97,8 @@ export class CharacterController extends PhysicsColliderComponent {
 
     set gravity(value: Vector3) {
         this._gravity = value;
-        if (this.collider.getCapable(ECharacterCapable.Charcater_Gravity)) {
-            this._collider && this._collider.setGravity(value);
+        if (this._collider && this.collider.getCapable(ECharacterCapable.Charcater_Gravity)) {
+            this._collider.setGravity(value);
         }
     }
 
@@ -110,8 +111,8 @@ export class CharacterController extends PhysicsColliderComponent {
 
     set maxSlope(value: number) {
         this._maxSlope = value;
-        if (this.collider.getCapable(ECharacterCapable.Character_SlopeLimit)) {
-            this._collider && this._collider.setSlopeLimit(value);
+        if (this._collider && this.collider.getCapable(ECharacterCapable.Character_SlopeLimit)) {
+            this._collider.setSlopeLimit(value);
         }
     }
 
@@ -124,8 +125,8 @@ export class CharacterController extends PhysicsColliderComponent {
 
     set stepHeight(value: number) {
         this._stepHeight = value;
-        if (this.collider.getCapable(ECharacterCapable.Charcater_StepOffset)) {
-            this._collider && this._collider.setStepOffset(value);
+        if (this._collider && this.collider.getCapable(ECharacterCapable.Charcater_StepOffset)) {
+            this._collider.setStepOffset(value);
         }
     }
 
@@ -138,8 +139,8 @@ export class CharacterController extends PhysicsColliderComponent {
 
     set upAxis(value: Vector3) {
         this._upAxis = value;
-        if (this.collider.getCapable(ECharacterCapable.Character_UpDirection)) {
-            this._collider && this._collider.setUpDirection(value);
+        if (this._collider && this.collider.getCapable(ECharacterCapable.Character_UpDirection)) {
+            this._collider.setUpDirection(value);
         }
     }
 
@@ -151,8 +152,8 @@ export class CharacterController extends PhysicsColliderComponent {
     }
 
     set position(v: Vector3) {
-        if (this.collider.getCapable(ECharacterCapable.Charcater_WorldPosition)) {
-            this._collider && this._collider.setWorldPosition(v);
+        if (this._collider && this.collider.getCapable(ECharacterCapable.Charcater_WorldPosition)) {
+            this._collider.setWorldPosition(v);
         }
     }
 
@@ -180,8 +181,8 @@ export class CharacterController extends PhysicsColliderComponent {
      * @param	movement 移动向量。
      */
     move(movement: Vector3): void {
-        if (this.collider.getCapable(ECharacterCapable.Charcater_Move)) {
-            this._collider && this._collider.move(movement);
+        if (this._collider && this.collider.getCapable(ECharacterCapable.Charcater_Move)) {
+            this._collider.move(movement);
         }
     }
 
@@ -190,12 +191,12 @@ export class CharacterController extends PhysicsColliderComponent {
      * @param velocity 跳跃速度。
      */
     jump(velocity: Vector3 = null): void {
-        if (this.collider.getCapable(ECharacterCapable.Charcater_Jump)) {
+        if (this._collider && this.collider.getCapable(ECharacterCapable.Charcater_Jump)) {
             if (velocity) {
-                this._collider && this._collider.jump(velocity);
+                this._collider.jump(velocity);
             } else {
                 Utils3D._tempV0.set(0, this._jumpSpeed, 0)
-                this._collider && this._collider.jump(Utils3D._tempV0);
+                this._collider.jump(Utils3D._tempV0);
             }
         }
     }
