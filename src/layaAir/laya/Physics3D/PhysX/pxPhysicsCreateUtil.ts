@@ -24,14 +24,20 @@ import { pxCapsuleColliderShape } from "./Shape/pxCapsuleColliderShape";
 import { pxSphereColliderShape } from "./Shape/pxSphereColliderShape";
 import { pxPhysicsManager } from "./pxPhysicsManager";
 
+
 export class pxPhysicsCreateUtil implements IPhysicsCreateUtil {
 
+    static _physXPVD: boolean = false;
     //** @internal PhysX wasm object */
     static _physX: any;
     // /** @internal PhysX Foundation SDK singleton class */
     static _pxFoundation: any;
     // /** @internal PhysX physics object */
     static _pxPhysics: any;
+    /**@internal pvd */
+    static _pvd: any;
+    /**@internal */
+    static _PxPvdTransport: any;
 
     protected _physicsEngineCapableMap: Map<any, any>;
 
@@ -72,9 +78,20 @@ export class pxPhysicsCreateUtil implements IPhysicsCreateUtil {
         const defaultErrorCallback = new physX.PxDefaultErrorCallback();
         const allocator = new physX.PxDefaultAllocator();
         const pxFoundation = physX.PxCreateFoundation(version, allocator, defaultErrorCallback);
-        const pxPhysics = physX.PxCreatePhysics(version, pxFoundation, new physX.PxTolerancesScale(), false, null);
+        let pxPhysics;
+        if (pxPhysicsCreateUtil._physXPVD) {
+            let gPvd = physX.PxCreatePvd(pxFoundation);
+            let socketsuccess = physX.CreatepvdTransport(5425, 10, gPvd);
+            //gPvd.connect(PxPvdTransport,);
+            pxPhysics = physX.PxCreatePhysics(version, pxFoundation, new physX.PxTolerancesScale(), true, gPvd);
+            physX.PxInitExtensions(pxPhysics, gPvd);
+        } else {
+            pxPhysics = physX.CreateDefaultPhysics(pxFoundation, new physX.PxTolerancesScale());
+            physX.InitDefaultExtensions(pxPhysics);
+        }
 
-        physX.PxInitExtensions(pxPhysics, null);
+
+
         pxPhysicsCreateUtil._physX = physX;
         pxPhysicsCreateUtil._pxFoundation = pxFoundation;
         pxPhysicsCreateUtil._pxPhysics = pxPhysics;

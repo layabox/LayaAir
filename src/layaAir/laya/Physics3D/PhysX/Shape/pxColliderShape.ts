@@ -19,7 +19,7 @@ export enum ShapeFlag {
 }
 
 export class pxColliderShape implements IColliderShape {
-
+    static _shapePool:Map<number,pxColliderShape> = new Map();
     static _pxShapeID: number = 0;
 
     static transform = {
@@ -57,6 +57,7 @@ export class pxColliderShape implements IColliderShape {
             new pxPhysicsCreateUtil._physX.PxShapeFlags(this._shapeFlags)
         );
         this._pxShape.setUUID(this._id);
+        pxColliderShape._shapePool.set(this._id,this);
     }
 
     private _modifyFlag(flag: ShapeFlag, value: boolean): void {
@@ -100,7 +101,7 @@ export class pxColliderShape implements IColliderShape {
 
     destroy(): void {
         this._pxShape.release();
-
+        pxColliderShape._shapePool.delete(this._id);
         this._pxMaterials.forEach(element => {
             element.destroy();
         });
