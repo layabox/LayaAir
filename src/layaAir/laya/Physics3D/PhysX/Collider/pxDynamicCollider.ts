@@ -85,7 +85,7 @@ export class pxDynamicCollider extends pxCollider implements IDynamicCollider {
 
     private static _tempRotation = new Quaternion();
 
-    IsKinematic:boolean = false;
+    IsKinematic: boolean = false;
 
     constructor(manager: pxPhysicsManager) {
         super(manager);

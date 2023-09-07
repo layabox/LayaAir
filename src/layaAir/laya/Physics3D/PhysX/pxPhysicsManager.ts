@@ -10,6 +10,29 @@ import { pxCollider, pxColliderType } from "./Collider/pxCollider";
 import { pxDynamicCollider } from "./Collider/pxDynamicCollider";
 import { pxPhysicsCreateUtil } from "./pxPhysicsCreateUtil";
 
+
+export enum partFlag {
+
+    eSOLVE_CONTACT = (1 << 0),
+    eMODIFY_CONTACTS = (1 << 1),
+    eNOTIFY_TOUCH_FOUND = (1 << 2),
+    eNOTIFY_TOUCH_PERSISTS = (1 << 3),
+    eNOTIFY_TOUCH_LOST = (1 << 4),
+    eNOTIFY_TOUCH_CCD = (1 << 5),
+    eNOTIFY_THRESHOLD_FORCE_FOUND = (1 << 6),
+    eNOTIFY_THRESHOLD_FORCE_PERSISTS = (1 << 7),
+    eNOTIFY_THRESHOLD_FORCE_LOST = (1 << 8),
+    eNOTIFY_CONTACT_POINTS = (1 << 9),
+    eDETECT_DISCRETE_CONTACT = (1 << 10),
+    eDETECT_CCD_CONTACT = (1 << 11),
+    ePRE_SOLVER_VELOCITY = (1 << 12),
+    ePOST_SOLVER_VELOCITY = (1 << 13),
+    eCONTACT_EVENT_POSE = (1 << 14),
+    eNEXT_FREE = (1 << 15),        //!< For internal use only.
+    eCONTACT_DEFAULT = eSOLVE_CONTACT | eDETECT_DISCRETE_CONTACT,
+    eTRIGGER_DEFAULT = eNOTIFY_TOUCH_FOUND | eNOTIFY_TOUCH_LOST | eDETECT_DISCRETE_CONTACT
+};
+
 export class pxPhysicsManager implements IPhysicsManager {
     /** @internal 引擎更新物理列表*/
     _physicsUpdateList = new PhysicsUpdateList();
@@ -23,19 +46,51 @@ export class pxPhysicsManager implements IPhysicsManager {
     constructor(physicsSettings: PhysicsSettings) {
         //TODO 事件
         const triggerCallback = {
-            onContactBegin: (index1: number, index2: number) => {
+
+            onWake: (wakeActors: any) => {
+                //加到更新队列
+                //Vector<int>  ActorUUID
+            },
+
+            onSleep: (sleepActors: any) => {
+                //移除更新队列
 
             },
-            onContactEnd: (index1: number, index2: number) => {
+
+            onContactBegin: (startContacts: any) => {
+                //Vector< LayaContactPairInfo>
+                //Vector<int>  ActorUUID
+                // struct{
+                //     PxU32 pxShape0;
+                //     PxU32 pxShape1;
+                //     PxU8 contactCount;
+                //     PxContactPairPoint contactPoint0;
+                //     PxContactPairPoint contactPoint1;
+                //     PxContactPairPoint contactPoint2;
+                //     PxContactPairPoint contactPoint3;
+                // }
+                //     struct PxContactPairPoint{
+                //"position",&PxContactPairPoint::position)
+                //"normal",&PxContactPairPoint::normal)
+                //"impulse",&PxContactPairPoint::impulse);
+                //}
+            },
+            onContactEnd: (onContactEnd: any) => {
 
             },
-            onContactPersist: (index1: number, index2: number) => {
+            onContactPersist: (onContactPersist: any) => {
 
             },
-            onTriggerBegin: (index1: number, index2: number) => {
+            onTriggerBegin: (startTrigger: any) => {
 
+                //vector<LayaTriggerInfo>
+                // value_object<LayaTriggerInfo>("LayaTriggerInfo")
+                // .field("triggerShape",&LayaTriggerInfo::triggerShape)
+                // .field("triggerActor",&LayaTriggerInfo::triggerActor)
+                // .field("otherShape",&LayaTriggerInfo::otherShape)
+                // .field("otherActor",&LayaTriggerInfo::otherActor);
             },
-            onTriggerEnd: (index1: number, index2: number) => {
+            onTriggerEnd: (lostTrigger: any) => {
 
             }
         };
@@ -131,8 +186,8 @@ export class pxPhysicsManager implements IPhysicsManager {
         //update dynamic
         this._updatePhysicsTransformToRender();
     }
-    rayCast?(ray: Ray, outHitResult: HitResult, distance?: number, collisonGroup?: number, collisionMask?: number): boolean {
-        //TODO
+    rayCast(ray: Ray, outHitResult: HitResult, distance?: number, collisonGroup?: number, collisionMask?: number): boolean {
+        this._pxScene.raycastCloset(ray.origin, ray.direction, collisionMask);
         return false;
     }
     rayCastAll?(ray: Ray, out: HitResult[], distance: number, collisonGroup?: number, collisionMask?: number): boolean {

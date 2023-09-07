@@ -15,7 +15,8 @@ export enum pxColliderType {
 
 export class pxCollider implements ICollider {
 
-
+    static _ActorPool: Map<number, pxCollider> = new Map();
+    static _pxActorID: number = 0;
     private static _tempTransform: {
         translation: Vector3;
         rotation: Quaternion;
@@ -48,6 +49,8 @@ export class pxCollider implements ICollider {
 
     _enableProcessCollisions = false;
 
+    _id: number;
+
     /** @internal */
     protected _transformFlag = 2147483647 /*int.MAX_VALUE*/;
 
@@ -60,6 +63,7 @@ export class pxCollider implements ICollider {
 
     constructor(manager: pxPhysicsManager) {
         this._physicsManager = manager;
+        this._id = pxCollider._pxActorID++;
     }
 
     getCapable(value: number): boolean {
@@ -113,6 +117,8 @@ export class pxCollider implements ICollider {
         this.owner = node;
         this._transform = node.transform;
         this._initCollider();
+        pxCollider._ActorPool.set(this._id, this);
+        this._pxActor.setUUID(this._id);
     }
 
     protected _initCollider() {
