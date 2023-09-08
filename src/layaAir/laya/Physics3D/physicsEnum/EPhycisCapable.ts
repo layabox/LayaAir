@@ -10,5 +10,6 @@ export enum EPhysicsCapable {
     Physics_ConeColliderShape,  // 圆锥碰撞形状
     Physics_MeshColliderShape,  // 网格碰撞形状 // _bt TODO暂不支持
     Physics_CompoundColliderShape,  // 组合碰撞形状 // _bt TODO暂不支持
-    Physics_Joint
+    Physics_Joint,
+    Physics_FixedJoint
 }

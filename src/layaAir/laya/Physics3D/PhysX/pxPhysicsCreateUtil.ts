@@ -19,6 +19,7 @@ import { ISphereColliderShape } from "../interface/Shape/ISphereColliderShape";
 import { EPhysicsCapable } from "../physicsEnum/EPhycisCapable";
 import { pxDynamicCollider } from "./Collider/pxDynamicCollider";
 import { pxStaticCollider } from "./Collider/pxStaticCollider";
+import { pxFixedJoint } from "./Joint/PxFixedJoint";
 import { pxBoxColliderShape } from "./Shape/pxBoxColliderShape";
 import { pxCapsuleColliderShape } from "./Shape/pxCapsuleColliderShape";
 import { pxSphereColliderShape } from "./Shape/pxSphereColliderShape";
@@ -114,9 +115,9 @@ export class pxPhysicsCreateUtil implements IPhysicsCreateUtil {
         return null;
     }
 
-    createFixedJoint(manager: IPhysicsManager): IFixedJoint {
+    createFixedJoint(manager: pxPhysicsManager): IFixedJoint {
         //TODO
-        return null;
+        return new pxFixedJoint(manager);
     }
 
     createHingeJoint(manager: IPhysicsManager): IHingeJoint {

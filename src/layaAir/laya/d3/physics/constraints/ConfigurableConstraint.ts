@@ -82,10 +82,7 @@ export class ConfigurableConstraint extends ConstraintComponent {
      * 创建一个<code>ConfigurableConstraint</code>实例	可设置的约束组件
      */
     constructor() {
-        super(ConstraintComponent.CONSTRAINT_D6_SPRING_CONSTRAINT_TYPE);
-        // var bt = Physics3D._bullet;
-        // this._btAxis = bt.btVector3_create(0, 0.0, 1);
-        // this._btSecondaryAxis = bt.btVector3_create(0.0, 1.0, 0.0);
+        super();
     }
 
     /**
@@ -330,43 +327,12 @@ export class ConfigurableConstraint extends ConstraintComponent {
     }
 
     /**
-     * 设置锚点
-     */
-    set anchor(value: Vector3) {
-        value.cloneTo(this._anchor);
-        this.setFrames();
-    }
-
-    get anchor() {
-        return this._anchor;
-    }
-
-    /**
-     * 设置链接锚点
-     */
-    set connectAnchor(value: Vector3) {
-        value.cloneTo(this._connectAnchor);
-        this.setFrames();
-    }
-
-    get connectAnchor(): Vector3 {
-        return this._connectAnchor;
-    }
-
-    /**
      * 设置对象自然旋转的局部轴主轴，axis2为副轴
      * @param axis1 
      * @param axis2 
      */
     setAxis(axis: Vector3, secondaryAxis: Vector3): void {
-        // if (!this._btConstraint)
-        //     return;
-        // var bt = Physics3D._bullet;
-        // this._axis.setValue(axis.x, axis.y, axis.y);
-        // this._secondaryAxis.setValue(secondaryAxis.x, secondaryAxis.y, secondaryAxis.z);
-        // bt.btVector3_setValue(this._btAxis, axis.x, axis.y, axis.z);
-        // bt.btVector3_setValue(this._btSecondaryAxis, secondaryAxis.x, secondaryAxis.y, secondaryAxis.z);
-        // bt.btGeneric6DofSpring2Constraint_setAxis(this._btConstraint, this._btAxis, this._btSecondaryAxis);
+    
     }
 
     /**
@@ -374,79 +340,41 @@ export class ConfigurableConstraint extends ConstraintComponent {
      * 当LOCKED或者FREE的时候,low,high就没有用了
      */
     setLimit(axis: number, motionType: number, low?: number, high?: number): void {
-        // if (!this._btConstraint)
-        //     return;
-        // var bt = Physics3D._bullet;
-        // switch (motionType) {
-        //     case ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED:
-        //         bt.btGeneric6DofSpring2Constraint_setLimit(this._btConstraint, axis, 0, 0);
-        //         break;
-        //     case ConfigurableConstraint.CONFIG_MOTION_TYPE_LIMITED:
-        //         if (low < high)
-        //             bt.btGeneric6DofSpring2Constraint_setLimit(this._btConstraint, axis, low, high);
-        //         break;
-        //     case ConfigurableConstraint.CONFIG_MOTION_TYPE_FREE:
-        //         bt.btGeneric6DofSpring2Constraint_setLimit(this._btConstraint, axis, 1, 0);
-        //         break;
-        //     default:
-        //         throw "No Type of Axis Motion";
-        // }
+    
     }
     /**
      * @internal
      */
     setSpring(axis: number, springValue: number, limitIfNeeded: boolean = true): void {
-        // if (!this._btConstraint)
-        //     return;
-        // var bt = Physics3D._bullet;
-        // var enableSpring: Boolean = springValue > 0;
-        // bt.btGeneric6DofSpring2Constraint_enableSpring(this._btConstraint, axis, enableSpring);
-        // if (enableSpring)
-        //     bt.btGeneric6DofSpring2Constraint_setStiffness(this._btConstraint, axis, springValue, limitIfNeeded);
+    
     }
     /**
      * @internal
      */
     setBounce(axis: number, bounce: number): void {
-        // if (!this._btConstraint)
-        //     return;
-        // var bt = Physics3D._bullet;
-        // bounce = bounce <= 0 ? 0 : bounce;
-        // bt.btGeneric6DofSpring2Constraint_setBounce(this._btConstraint, axis, bounce);
     }
 
     /**
      * @internal
      */
     setDamping(axis: number, damp: number, limitIfNeeded: boolean = true): void {
-        // if (!this._btConstraint)
-        //     return;
-        // var bt = Physics3D._bullet;
-        // damp = damp <= 0 ? 0 : damp;
-        // bt.btGeneric6DofSpring2Constraint_setDamping(this._btConstraint, axis, damp, limitIfNeeded);
     }
     /**
      * TODO
      * @internal
      */
     setEquilibriumPoint(axis: number, equilibriumPoint: number): void {
-        // var bt = Physics3D._bullet;
-        // bt.btGeneric6DofSpring2Constraint_setEquilibriumPoint(this._btConstraint, axis, equilibriumPoint);
     }
     /**
      * @internal
      */
     enableMotor(axis: number, isEnableMotor: boolean): void {
-        // var bt = Physics3D._bullet;
-        // bt.btGeneric6DofSpring2Constraint_enableMotor(this._btConstraint, axis, isEnableMotor);
     }
     /**
      * TODO
      * @internal
      */
     setServo(axis: number, onOff: boolean): void {
-        // var bt = Physics3D._bullet;
-        // bt.btGeneric6DofSpring2Constraint_setServo(this._btConstraint, axis, onOff);
     }
     /**
      * TODO

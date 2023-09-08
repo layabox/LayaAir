@@ -82,7 +82,7 @@ export class PhysicsWorld_ConstraintFixedJoint {
 		fixedConstraint.anchor = new Vector3(0, 0, 0);
 		fixedConstraint.connectAnchor = new Vector3(0, 2, 0);
 		box.addComponent(FixedEventTest);
-		fixedConstraint.setConnectRigidBody(rigidBody, rigidBody2);
+		//fixedConstraint.setConnectRigidBody(rigidBody, rigidBody2);
 
 	}
 

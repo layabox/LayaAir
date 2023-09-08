@@ -4,7 +4,6 @@ import { PhysicsCombineMode } from "../../../d3/physics/PhysicsColliderComponent
 import { Quaternion } from "../../../maths/Quaternion";
 import { Vector3 } from "../../../maths/Vector3";
 import { ICollider } from "../../interface/ICollider";
-import { EColliderCapable } from "../../physicsEnum/EColliderCapable";
 import { pxColliderShape } from "../Shape/pxColliderShape";
 import { pxPhysicsManager } from "../pxPhysicsManager";
 export enum pxColliderType {

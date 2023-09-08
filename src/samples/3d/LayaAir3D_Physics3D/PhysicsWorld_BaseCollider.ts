@@ -21,15 +21,9 @@ import { Vector4 } from "laya/maths/Vector4";
 import { Texture2D } from "laya/resource/Texture2D";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
-import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { URL } from "laya/net/URL";
-import { InputManager } from "laya/events/InputManager";
 import { Event } from "laya/events/Event";
-import { Sprite3D } from "laya/d3/core/Sprite3D";
-import { pxPhysicsCreateUtil } from "laya/Physics3D/PhysX/pxPhysicsCreateUtil";
-import { pxPhysicsManager } from "laya/Physics3D/PhysX/pxPhysicsManager";
-import { Quaternion } from "laya/maths/Quaternion";
 export class PhysicsWorld_BaseCollider {
 	private scene: Scene3D;
 	private tmpVector: Vector3 = new Vector3(0, 0, 0);
@@ -107,69 +101,16 @@ export class PhysicsWorld_BaseCollider {
 				case 2:
 					this.addCapsule();
 					break;
-				case 3:
-					this.addCone();
-					break;
-				case 4:
-					this.addCylinder();
-					break;
+				// case 3:
+				// 	this.addCone();
+				// 	break;
+				// case 4:
+				// 	this.addCylinder();
+				// 	break;
 				default:
 					break;
 			}
 		});
-	}
-
-	addPhybySDK() {
-		// var sX: number = Math.random() * 0.75 + 0.25;
-		// var sY: number = Math.random() * 0.75 + 0.25;
-		// var sZ: number = Math.random() * 0.75 + 0.25;
-
-		//let createUtil = Laya3D.PhysicsCreateUtil as pxPhysicsCreateUtil;
-		//@ts-ignore
-		let phyScene = (this.scene.physicsSimulation as pxPhysicsManager)._pxScene;
-		//@ts-ignore
-		let pxGeometry = new pxPhysicsCreateUtil._physX.PxBoxGeometry(
-			1.0 / 2,
-			1.0 / 2,
-			1.0 / 2
-		);
-		let transform = {
-			translation: new Vector3(0, 50, 0),
-			rotation: new Quaternion()
-		};
-		//@ts-ignore
-		let dynamic = pxPhysicsCreateUtil._pxPhysics.createRigidDynamic(transform);
-
-		//@ts-ignore
-		let _pxMaterial = pxPhysicsCreateUtil._pxPhysics.createMaterial(0.5, 0.5, 0.6);
-		//@ts-ignore
-		let shape = pxPhysicsCreateUtil._pxPhysics.createShape(pxGeometry, _pxMaterial, true, new pxPhysicsCreateUtil._physX.PxShapeFlags(1 << 0));
-		
-		dynamic.setMassAndUpdateInertia(10);
-		dynamic.setMassAndUpdateInertia(1);
-		dynamic.attachShape(shape);
-		phyScene.addActor(dynamic, null);
-		
-		
-
-		//@ts-ignore
-		window.rig = dynamic;
-
-
-		Laya.timer.loop(1000, this, function (): void {
-			//@ts-ignore
-			let transform = window.rig.getGlobalPose();
-			console.log(transform.translation.x + "," + transform.translation.y + "," + transform.translation.z);
-		});
-		// PxReal aa = PxReal(size) ;
-		//  PxTransform localTm(PxVec3(PxReal(0.0) , PxReal(aa), 0) );
-		// 	//PxTransform localTm(PxVec3(PxReal(j*2) - PxReal(size-i), PxReal(i*2+1), 0) * halfExtent);
-		// 	PxRigidDynamic* body = gPhysics->createRigidDynamic(t.transform(localTm));
-		// 	body->attachShape(*shape);
-		// 	PxRigidBodyExt::updateMassAndInertia(*body, 10.0f);
-		// 	gScene->addActor(*body);
-
-		// shape->release();
 	}
 
 	addBox(): void {

@@ -50,15 +50,6 @@ export class btPhysicsCreateUtil implements IPhysicsCreateUtil {
     initialize(): Promise<void> {
         let physics3D: Function = (window as any).Physics3D;
         physics3D(Math.max(16, Config3D.defaultPhysicsMemory) * 16, new BulletInteractive(null, null)).then(() => {
-            //     StaticPlaneColliderShape.__init__();
-            // ColliderShape.__init__();
-            // CompoundColliderShape.__init__();
-            // PhysicsComponent.__init__();
-            // PhysicsSimulation.__init__();
-            // BoxColliderShape.__init__();
-            // CylinderColliderShape.__init__();
-            // CharacterController.__init__();
-            // Rigidbody3D.__init__();
             btPhysicsCreateUtil._bt = (window as any).Physics3D;
             this.initPhysicsCapable();
             btPhysicsManager.init();

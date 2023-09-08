@@ -10,15 +10,15 @@ export interface IJoint {
   setOwner(value: Node): void;
 
   /**
-   * The connected collider.
+   * the Collider
+   * @param owner 
    */
-  setConnectedCollider(owner: ICollider, other: ICollider): void;
+  setCollider(owner: ICollider): void
 
   /**
-   * The connected anchor position.
-   * @remarks If connectedCollider is set, this anchor is relative offset, or the anchor is world position.
+   * The connected collider.
    */
-  setConnectedAnchor(ownerValue: Vector3, otherValue: Vector3): void;
+  setConnectedCollider(owner: ICollider): void;
 
   /**
    *  The scale to apply to the inverse mass of collider 0 for resolving this constraint.
@@ -49,4 +49,33 @@ export interface IJoint {
    * The maximum torque the joint can apply before breaking.
    */
   setBreakTorque(value: number): void;
+
+  /**
+   * set Actor0 local anchor/Frame Pos
+   * @param pos 
+   */
+  setLocalPos(pos: Vector3): void;
+
+  /**
+   * set Actor1 local anchor/Frame Pos
+   * @param pos 
+   */
+  setConnectLocalPos(pos: Vector3): void;
+
+  /**
+   * get linear force
+   */
+  getlinearForce(): Vector3;
+
+  /**
+   * get angular force
+   */
+  getAngularForce(): Vector3;
+  
+  /**
+   * is breaked
+   */
+  isValid(): boolean;
+
+  isEnable(value:boolean):void
 }

@@ -232,8 +232,6 @@ export class pxDynamicCollider extends pxCollider implements IDynamicCollider {
         this._pxActor.addTorque({ x: torque.x, y: torque.y, z: torque.z });
     }
 
-
-
     sleep(): void {
         return this._pxActor.putToSleep();
     }

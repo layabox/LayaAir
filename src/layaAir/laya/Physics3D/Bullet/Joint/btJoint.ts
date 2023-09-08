@@ -1,5 +1,6 @@
 import { Sprite3D } from "../../../d3/core/Sprite3D";
 import { Vector3 } from "../../../maths/Vector3";
+import { ICollider } from "../../interface/ICollider";
 import { IJoint } from "../../interface/Joint/IJoint";
 import { EJointCapable } from "../../physicsEnum/EJointCapable";
 import { btCollider } from "../Collider/btCollider";
@@ -101,6 +102,30 @@ export class btJoint implements IJoint {
         this._manager = manager;
         this.initJoint();
     }
+    setCollider(owner: ICollider): void {
+        throw new Error("Method not implemented.");
+    }
+    setConnectedCollider(owner: ICollider): void {
+        throw new Error("Method not implemented.");
+    }
+    setLocalPos(pos: Vector3): void {
+        throw new Error("Method not implemented.");
+    }
+    setConnectLocalPos(pos: Vector3): void {
+        throw new Error("Method not implemented.");
+    }
+    getlinearForce(): Vector3 {
+        throw new Error("Method not implemented.");
+    }
+    getAngularForce(): Vector3 {
+        throw new Error("Method not implemented.");
+    }
+    isValid(): boolean {
+        throw new Error("Method not implemented.");
+    }
+    isEnable(value: boolean): void {
+        throw new Error("Method not implemented.");
+    }
 
     private initJoint() {
         let bt = btPhysicsCreateUtil._bt;
@@ -129,7 +154,7 @@ export class btJoint implements IJoint {
         var isBreakForce: Boolean = this._breakForce != -1 && (Vector3.scalarLength(this._currentForce) > this._breakForce);
         var isBreakTorque: Boolean = this._breakTorque != -1 && (Vector3.scalarLength(this._currentTorque) > this._breakTorque);
         if (isBreakForce || isBreakTorque) {
-            this.setConnectedCollider(null, null);
+            this.setConnectedCollider(null);
             return true;
         }
         return false;
@@ -148,9 +173,7 @@ export class btJoint implements IJoint {
         this._getJointFeedBack = true;
     }
 
-    setConnectedCollider(owner: btCollider, other: btCollider): void {
-        throw new Error("Method not implemented.");
-    }
+    
 
     setConnectedAnchor(ownerValue: Vector3, otherValue: Vector3): void {
         this._anchor = ownerValue;

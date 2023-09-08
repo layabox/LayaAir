@@ -80,7 +80,7 @@ export class PhysicsWorld_ConfigurableJoint {
 		(<BlinnPhongMaterial>boxB.meshRenderer.material).albedoColor = new Color(1, 0, 0, 1);
 		var boxBRigid: Rigidbody3D = boxB.getComponent(Rigidbody3D);
 		var configurableJoint: ConfigurableConstraint = boxA.addComponent(ConfigurableConstraint);
-		configurableJoint.setConnectRigidBody(boxARigid, boxBRigid);
+		// configurableJoint.setConnectRigidBody(boxARigid, boxBRigid);
 		configurableJoint.anchor = new Vector3(0, -3, 0);
 		configurableJoint.connectAnchor = new Vector3(0, 0, 0);
 
@@ -107,7 +107,7 @@ export class PhysicsWorld_ConfigurableJoint {
 		var boxBRigid: Rigidbody3D = boxB.getComponent(Rigidbody3D);
 
 		var configurableJoint: ConfigurableConstraint = boxA.addComponent(ConfigurableConstraint);
-		configurableJoint.setConnectRigidBody(boxARigid, boxBRigid);
+		// configurableJoint.setConnectRigidBody(boxARigid, boxBRigid);
 		configurableJoint.anchor = new Vector3(0, -3, 0);
 		configurableJoint.connectAnchor = new Vector3(0, 0, 0);
 
@@ -134,7 +134,7 @@ export class PhysicsWorld_ConfigurableJoint {
 		var boxBRigid: Rigidbody3D = boxB.getComponent(Rigidbody3D);
 
 		var configurableJoint: ConfigurableConstraint = boxA.addComponent(ConfigurableConstraint);
-		configurableJoint.setConnectRigidBody(boxARigid, boxBRigid);
+		// configurableJoint.setConnectRigidBody(boxARigid, boxBRigid);
 		configurableJoint.anchor = new Vector3(0, -2, 0);
 		configurableJoint.connectAnchor = new Vector3(0, 0, 0);
 
@@ -157,7 +157,7 @@ export class PhysicsWorld_ConfigurableJoint {
 		var boxBRigid: Rigidbody3D = boxB.getComponent(Rigidbody3D);
 
 		var configurableJoint: ConfigurableConstraint = boxA.addComponent(ConfigurableConstraint);
-		configurableJoint.setConnectRigidBody(boxARigid, boxBRigid);
+		// configurableJoint.setConnectRigidBody(boxARigid, boxBRigid);
 		configurableJoint.anchor = new Vector3(0, -2, 0);
 		configurableJoint.connectAnchor = new Vector3(0, 0, 0);
 
@@ -182,7 +182,7 @@ export class PhysicsWorld_ConfigurableJoint {
 		var boxBRigid: Rigidbody3D = boxB.getComponent(Rigidbody3D);
 
 		var configurableJoint: ConfigurableConstraint = boxA.addComponent(ConfigurableConstraint);
-		configurableJoint.setConnectRigidBody(boxARigid, boxBRigid);
+		// configurableJoint.setConnectRigidBody(boxARigid, boxBRigid);
 		configurableJoint.anchor = new Vector3(0, -2, 0);
 		configurableJoint.connectAnchor = new Vector3(0, 0, 0);
 
@@ -207,7 +207,7 @@ export class PhysicsWorld_ConfigurableJoint {
 		var boxBRigid: Rigidbody3D = boxB.getComponent(Rigidbody3D);
 
 		var configurableJoint: ConfigurableConstraint = boxA.addComponent(ConfigurableConstraint);
-		configurableJoint.setConnectRigidBody(boxARigid, boxBRigid);
+		// configurableJoint.setConnectRigidBody(boxARigid, boxBRigid);
 		configurableJoint.anchor = new Vector3(0, -2, 0);
 		configurableJoint.connectAnchor = new Vector3(0, 0, 0);
 
@@ -232,7 +232,7 @@ export class PhysicsWorld_ConfigurableJoint {
 		var boxBRigid: Rigidbody3D = boxB.getComponent(Rigidbody3D);
 
 		var configurableJoint: ConfigurableConstraint = boxA.addComponent(ConfigurableConstraint);
-		configurableJoint.setConnectRigidBody(boxARigid, boxBRigid);
+		// configurableJoint.setConnectRigidBody(boxARigid, boxBRigid);
 		configurableJoint.anchor = new Vector3(0, -1, 0);
 		configurableJoint.connectAnchor = new Vector3(0, 1, 0);
 
@@ -254,7 +254,7 @@ export class PhysicsWorld_ConfigurableJoint {
 		var boxBRigid: Rigidbody3D = boxB.getComponent(Rigidbody3D);
 
 		var configurableJoint: ConfigurableConstraint = boxA.addComponent(ConfigurableConstraint);
-		configurableJoint.setConnectRigidBody(boxARigid, boxBRigid);
+		// configurableJoint.setConnectRigidBody(boxARigid, boxBRigid);
 		configurableJoint.anchor = new Vector3(0, 0, 0);
 		configurableJoint.connectAnchor = new Vector3(-6, 0, 0);
 
@@ -275,7 +275,7 @@ export class PhysicsWorld_ConfigurableJoint {
 		(<BlinnPhongMaterial>boxB.meshRenderer.material).albedoColor = new Color(1, 0, 0, 1);
 		var boxBRigid: Rigidbody3D = boxB.getComponent(Rigidbody3D);
 		var configurableJoint: ConfigurableConstraint = boxA.addComponent(ConfigurableConstraint);
-		configurableJoint.setConnectRigidBody(boxARigid, boxBRigid);
+		// configurableJoint.setConnectRigidBody(boxARigid, boxBRigid);
 		configurableJoint.anchor = new Vector3(0, 0, 0);
 		configurableJoint.connectAnchor = new Vector3(-5, 0, 0);
 
@@ -301,7 +301,7 @@ export class PhysicsWorld_ConfigurableJoint {
 		(<BlinnPhongMaterial>boxB.meshRenderer.material).albedoColor = new Color(1, 0, 0, 1);
 		var boxBRigid: Rigidbody3D = boxB.getComponent(Rigidbody3D);
 		var configurableJoint: ConfigurableConstraint = boxA.addComponent(ConfigurableConstraint);
-		configurableJoint.setConnectRigidBody(boxARigid, boxBRigid);
+		// //configurableJoint.setConnectRigidBody(boxARigid, boxBRigid);
 		configurableJoint.anchor = new Vector3(0, 0, 0);
 		configurableJoint.connectAnchor = new Vector3(-5, 0, 0);
 
@@ -327,7 +327,7 @@ export class PhysicsWorld_ConfigurableJoint {
 		var boxBRigid: Rigidbody3D = boxB.getComponent(Rigidbody3D);
 
 		var configurableJoint: ConfigurableConstraint = boxA.addComponent(ConfigurableConstraint);
-		configurableJoint.setConnectRigidBody(boxARigid, boxBRigid);
+		// //configurableJoint.setConnectRigidBody(boxARigid, boxBRigid);
 		configurableJoint.anchor = new Vector3(0, 0, 0);
 		configurableJoint.connectAnchor = new Vector3(0, 3, 0);
 
