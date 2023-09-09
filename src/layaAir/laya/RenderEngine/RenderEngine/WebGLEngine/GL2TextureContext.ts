@@ -11,6 +11,7 @@ import { TextureFormat } from "../../RenderEnum/TextureFormat";
 import { KTXTextureInfo } from "../../KTXTextureInfo";
 import { RenderCapable } from "../../RenderEnum/RenderCapable";
 import { ITexture3DContext } from "../../RenderInterface/ITextureContext";
+import { ILaya } from "../../../../ILaya";
 
 /**
  * 将继承修改为类似 WebGLRenderingContextBase, WebGLRenderingContextOverloads 多继承 ?
@@ -45,6 +46,8 @@ export class GL2TextureContext extends GLTextureContext implements ITexture3DCon
     }
 
     glTextureParam(format: TextureFormat, useSRGB: boolean) {
+        ILaya.Browser.onAlipayMiniGame && (useSRGB = false);
+
         let gl = this._gl;
         this._glParam.internalFormat = null;
         this._glParam.format = null;
@@ -183,6 +186,8 @@ export class GL2TextureContext extends GLTextureContext implements ITexture3DCon
     }
 
     glRenderBufferParam(format: RenderTargetFormat, useSRGB: boolean): { internalFormat: number; attachment: number; } {
+        ILaya.Browser.onAlipayMiniGame && (useSRGB = false);
+        
         let gl = this._gl;
         switch (format) {
             case RenderTargetFormat.DEPTH_16:
@@ -211,6 +216,8 @@ export class GL2TextureContext extends GLTextureContext implements ITexture3DCon
     }
 
     glRenderTextureParam(format: RenderTargetFormat, useSRGB: boolean) {
+        ILaya.Browser.onAlipayMiniGame && (useSRGB = false);
+
         let gl = this._gl;
         this._glParam.internalFormat = null;
         this._glParam.format = null;

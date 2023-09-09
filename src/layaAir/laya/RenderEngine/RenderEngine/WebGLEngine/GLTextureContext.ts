@@ -15,6 +15,7 @@ import { WebGLEngine } from "./WebGLEngine";
 import { DDSTextureInfo } from "../../DDSTextureInfo";
 import { HDRTextureInfo } from "../../HDRTextureInfo";
 import { KTXTextureInfo } from "../../KTXTextureInfo";
+import { ILaya } from "../../../../ILaya";
 
 export class GLTextureContext extends GLObject implements ITextureContext {
     protected _sRGB: any;
@@ -49,6 +50,7 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         };
 
     glTextureParam(format: TextureFormat, useSRGB: boolean) {
+        ILaya.Browser.onAlipayMiniGame && (useSRGB = false);
         let gl = this._gl;
 
         this._glParam.internalFormat = null;
@@ -189,6 +191,7 @@ export class GLTextureContext extends GLObject implements ITextureContext {
 
     // todo srgb ?
     glRenderTextureParam(format: RenderTargetFormat, useSRGB: boolean) {
+        ILaya.Browser.onAlipayMiniGame && (useSRGB = false);
         let gl = this._gl;
 
         this._glParam.internalFormat = null;
