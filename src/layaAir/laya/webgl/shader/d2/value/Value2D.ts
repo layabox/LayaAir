@@ -117,7 +117,7 @@ export class Value2D {
         if (this.textureHost) {
             if (this.textureHost instanceof RenderTexture2D) {
                 textrueReadGamma = (this.textureHost as RenderTexture2D).gammaCorrection != 1;
-            } else if (this.textureHost instanceof Texture) {
+            } else if (this.textureHost instanceof Texture && (this.textureHost as Texture).bitmap) {
                 textrueReadGamma = (this.textureHost as Texture).bitmap.gammaCorrection != 1;
             }
         }
