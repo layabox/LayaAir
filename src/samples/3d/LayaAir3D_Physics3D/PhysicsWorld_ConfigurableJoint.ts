@@ -84,16 +84,16 @@ export class PhysicsWorld_ConfigurableJoint {
 		configurableJoint.anchor = new Vector3(0, -3, 0);
 		configurableJoint.connectAnchor = new Vector3(0, 0, 0);
 
-		configurableJoint.minLinearLimit = new Vector3(-3, 0, 0);
-		configurableJoint.maxLinearLimit = new Vector3(3, 0, 0);
-		configurableJoint.XMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LIMITED;
-		configurableJoint.YMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
-		configurableJoint.ZMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
-		configurableJoint.angularXMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
-		configurableJoint.angularYMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
-		configurableJoint.angularZMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
-		configurableJoint.linearLimitSpring = new Vector3(100, 0, 0);
-		configurableJoint.linearDamp = new Vector3(0, 0, 0);
+		// configurableJoint.minLinearLimit = new Vector3(-3, 0, 0);
+		// configurableJoint.maxLinearLimit = new Vector3(3, 0, 0);
+		// configurableJoint.XMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LIMITED;
+		// configurableJoint.YMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
+		// configurableJoint.ZMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
+		// configurableJoint.angularXMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
+		// configurableJoint.angularYMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
+		// configurableJoint.angularZMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
+		// configurableJoint.linearLimitSpring = new Vector3(100, 0, 0);
+		// configurableJoint.linearDamp = new Vector3(0, 0, 0);
 	}
 
 
@@ -111,16 +111,16 @@ export class PhysicsWorld_ConfigurableJoint {
 		configurableJoint.anchor = new Vector3(0, -3, 0);
 		configurableJoint.connectAnchor = new Vector3(0, 0, 0);
 
-		configurableJoint.minLinearLimit = new Vector3(-2, 0, 0);
-		configurableJoint.maxLinearLimit = new Vector3(2, 0, 0);
-		configurableJoint.XMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LIMITED;
-		configurableJoint.YMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
-		configurableJoint.ZMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
-		configurableJoint.angularXMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
-		configurableJoint.angularYMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
-		configurableJoint.angularZMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
+		// configurableJoint.minLinearLimit = new Vector3(-2, 0, 0);
+		// configurableJoint.maxLinearLimit = new Vector3(2, 0, 0);
+		// configurableJoint.XMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LIMITED;
+		// configurableJoint.YMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
+		// configurableJoint.ZMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
+		// configurableJoint.angularXMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
+		// configurableJoint.angularYMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
+		// configurableJoint.angularZMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
 
-		configurableJoint.linearBounce = new Vector3(0.5, 0, 0);
+		// configurableJoint.linearBounce = new Vector3(0.5, 0, 0);
 		boxBRigid.applyImpulse(new Vector3(100, 0, 0));
 
 	}
@@ -138,14 +138,14 @@ export class PhysicsWorld_ConfigurableJoint {
 		configurableJoint.anchor = new Vector3(0, -2, 0);
 		configurableJoint.connectAnchor = new Vector3(0, 0, 0);
 
-		configurableJoint.minLinearLimit = new Vector3(0, -2, 0);
-		configurableJoint.maxLinearLimit = new Vector3(0, 10, 0);
-		configurableJoint.XMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
-		configurableJoint.YMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LIMITED;
-		configurableJoint.ZMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
-		configurableJoint.angularXMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
-		configurableJoint.angularYMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
-		configurableJoint.angularZMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
+		// configurableJoint.minLinearLimit = new Vector3(0, -2, 0);
+		// configurableJoint.maxLinearLimit = new Vector3(0, 10, 0);
+		// configurableJoint.XMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
+		// configurableJoint.YMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LIMITED;
+		// configurableJoint.ZMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
+		// configurableJoint.angularXMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
+		// configurableJoint.angularYMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
+		// configurableJoint.angularZMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
 	}
 
 	rotateAngularX(): void {
@@ -161,14 +161,14 @@ export class PhysicsWorld_ConfigurableJoint {
 		configurableJoint.anchor = new Vector3(0, -2, 0);
 		configurableJoint.connectAnchor = new Vector3(0, 0, 0);
 
-		configurableJoint.minAngularLimit = new Vector3(-2, 0, 0);
-		configurableJoint.maxAngularLimit = new Vector3(2, 0, 0);
-		configurableJoint.XMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
-		configurableJoint.YMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
-		configurableJoint.ZMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
-		configurableJoint.angularXMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_FREE;
-		configurableJoint.angularYMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
-		configurableJoint.angularZMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
+		// configurableJoint.minAngularLimit = new Vector3(-2, 0, 0);
+		// configurableJoint.maxAngularLimit = new Vector3(2, 0, 0);
+		// configurableJoint.XMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
+		// configurableJoint.YMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
+		// configurableJoint.ZMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
+		// configurableJoint.angularXMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_FREE;
+		// configurableJoint.angularYMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
+		// configurableJoint.angularZMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
 		boxBRigid.angularVelocity = new Vector3(5, 0, 0);
 
 	}
@@ -186,14 +186,14 @@ export class PhysicsWorld_ConfigurableJoint {
 		configurableJoint.anchor = new Vector3(0, -2, 0);
 		configurableJoint.connectAnchor = new Vector3(0, 0, 0);
 
-		configurableJoint.minAngularLimit = new Vector3(0, 0, -1);
-		configurableJoint.maxAngularLimit = new Vector3(0, 0, 1);
-		configurableJoint.XMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
-		configurableJoint.YMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
-		configurableJoint.ZMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
-		configurableJoint.angularXMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
-		configurableJoint.angularYMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
-		configurableJoint.angularZMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LIMITED;
+		// configurableJoint.minAngularLimit = new Vector3(0, 0, -1);
+		// configurableJoint.maxAngularLimit = new Vector3(0, 0, 1);
+		// configurableJoint.XMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
+		// configurableJoint.YMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
+		// configurableJoint.ZMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
+		// configurableJoint.angularXMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
+		// configurableJoint.angularYMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
+		// configurableJoint.angularZMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LIMITED;
 		boxBRigid.angularVelocity = new Vector3(0.0, 0, 0.5);
 
 	}
@@ -211,14 +211,14 @@ export class PhysicsWorld_ConfigurableJoint {
 		configurableJoint.anchor = new Vector3(0, -2, 0);
 		configurableJoint.connectAnchor = new Vector3(0, 0, 0);
 
-		configurableJoint.minAngularLimit = new Vector3(0, -1, 0);
-		configurableJoint.maxAngularLimit = new Vector3(0, 1, 0);
-		configurableJoint.XMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
-		configurableJoint.YMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
-		configurableJoint.ZMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
-		configurableJoint.angularXMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
-		configurableJoint.angularYMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LIMITED;
-		configurableJoint.angularZMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
+		// configurableJoint.minAngularLimit = new Vector3(0, -1, 0);
+		// configurableJoint.maxAngularLimit = new Vector3(0, 1, 0);
+		// configurableJoint.XMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
+		// configurableJoint.YMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
+		// configurableJoint.ZMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
+		// configurableJoint.angularXMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
+		// configurableJoint.angularYMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LIMITED;
+		// configurableJoint.angularZMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
 		boxBRigid.angularVelocity = new Vector3(0.0, 0.5, 0);
 
 	}
@@ -236,12 +236,12 @@ export class PhysicsWorld_ConfigurableJoint {
 		configurableJoint.anchor = new Vector3(0, -1, 0);
 		configurableJoint.connectAnchor = new Vector3(0, 1, 0);
 
-		configurableJoint.XMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
-		configurableJoint.YMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
-		configurableJoint.ZMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
-		configurableJoint.angularXMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_FREE;
-		configurableJoint.angularYMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_FREE;
-		configurableJoint.angularZMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_FREE;
+		// configurableJoint.XMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
+		// configurableJoint.YMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
+		// configurableJoint.ZMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
+		// configurableJoint.angularXMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_FREE;
+		// configurableJoint.angularYMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_FREE;
+		// configurableJoint.angularZMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_FREE;
 		boxBRigid.angularVelocity = new Vector3(20, 2, 10);
 	}
 
@@ -258,12 +258,12 @@ export class PhysicsWorld_ConfigurableJoint {
 		configurableJoint.anchor = new Vector3(0, 0, 0);
 		configurableJoint.connectAnchor = new Vector3(-6, 0, 0);
 
-		configurableJoint.XMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
-		configurableJoint.YMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
-		configurableJoint.ZMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
-		configurableJoint.angularXMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
-		configurableJoint.angularYMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
-		configurableJoint.angularZMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_FREE;
+		// configurableJoint.XMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
+		// configurableJoint.YMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
+		// configurableJoint.ZMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
+		// configurableJoint.angularXMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
+		// configurableJoint.angularYMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
+		// configurableJoint.angularZMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_FREE;
 
 	}
 
@@ -279,14 +279,14 @@ export class PhysicsWorld_ConfigurableJoint {
 		configurableJoint.anchor = new Vector3(0, 0, 0);
 		configurableJoint.connectAnchor = new Vector3(-5, 0, 0);
 
-		configurableJoint.minLinearLimit = new Vector3(-2, 0, 0);
-		configurableJoint.maxLinearLimit = new Vector3(2, 0, 0);
-		configurableJoint.XMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LIMITED;
-		configurableJoint.YMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
-		configurableJoint.ZMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
-		configurableJoint.angularXMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
-		configurableJoint.angularYMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
-		configurableJoint.angularZMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
+		// configurableJoint.minLinearLimit = new Vector3(-2, 0, 0);
+		// configurableJoint.maxLinearLimit = new Vector3(2, 0, 0);
+		// configurableJoint.XMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LIMITED;
+		// configurableJoint.YMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
+		// configurableJoint.ZMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
+		// configurableJoint.angularXMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
+		// configurableJoint.angularYMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
+		// configurableJoint.angularZMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
 
 		boxBRigid.linearVelocity = new Vector3(1.0, 0.0, 0);
 
@@ -305,14 +305,14 @@ export class PhysicsWorld_ConfigurableJoint {
 		configurableJoint.anchor = new Vector3(0, 0, 0);
 		configurableJoint.connectAnchor = new Vector3(-5, 0, 0);
 
-		configurableJoint.minLinearLimit = new Vector3(0, -3, 0);
-		configurableJoint.maxLinearLimit = new Vector3(0, 3, 0);
-		configurableJoint.XMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
-		configurableJoint.YMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LIMITED;
-		configurableJoint.ZMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
-		configurableJoint.angularXMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
-		configurableJoint.angularYMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
-		configurableJoint.angularZMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
+		// configurableJoint.minLinearLimit = new Vector3(0, -3, 0);
+		// configurableJoint.maxLinearLimit = new Vector3(0, 3, 0);
+		// configurableJoint.XMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
+		// configurableJoint.YMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LIMITED;
+		// configurableJoint.ZMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
+		// configurableJoint.angularXMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
+		// configurableJoint.angularYMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
+		// configurableJoint.angularZMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
 
 		boxBRigid.linearVelocity = new Vector3(0.0, 1.0, 0);
 
@@ -331,17 +331,16 @@ export class PhysicsWorld_ConfigurableJoint {
 		configurableJoint.anchor = new Vector3(0, 0, 0);
 		configurableJoint.connectAnchor = new Vector3(0, 3, 0);
 
-		configurableJoint.minLinearLimit = new Vector3(0, 0, -4);
-		configurableJoint.maxLinearLimit = new Vector3(0, 0, 4);
-		configurableJoint.XMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
-		configurableJoint.YMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
-		configurableJoint.ZMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LIMITED;
-		configurableJoint.angularXMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
-		configurableJoint.angularYMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
-		configurableJoint.angularZMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
+		// configurableJoint.minLinearLimit = new Vector3(0, 0, -4);
+		// configurableJoint.maxLinearLimit = new Vector3(0, 0, 4);
+		// configurableJoint.XMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
+		// configurableJoint.YMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
+		// configurableJoint.ZMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LIMITED;
+		// configurableJoint.angularXMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
+		// configurableJoint.angularYMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
+		// configurableJoint.angularZMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
 
 		boxBRigid.linearVelocity = new Vector3(0.0, 0.0, 4);
-
 	}
 
 	addRigidBodyBox(pos: Vector3, scale: number): MeshSprite3D {

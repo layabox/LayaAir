@@ -14,7 +14,7 @@ const _tempV32 = new Vector3();
  */
 export class Matrix3x3 implements IClone {
     static readonly DEFAULT: Readonly<Matrix3x3> = new Matrix3x3();
-
+    static Temp: Matrix3x3 = new Matrix3x3();
     /**
      * 通过四元数创建旋转矩阵。
      * @param rotation 旋转四元数。

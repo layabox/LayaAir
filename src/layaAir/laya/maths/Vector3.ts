@@ -10,6 +10,7 @@ import { Quaternion } from "./Quaternion";
 export class Vector3 implements IClone {
     /**@internal	*/
     static _tempVector4 = new Vector4();
+    static _tempVector3 = new Vector3();
 
     static readonly ZERO: Readonly<Vector3> = new Vector3(0.0, 0.0, 0.0);
     static readonly ONE: Readonly<Vector3> = new Vector3(1.0, 1.0, 1.0);
