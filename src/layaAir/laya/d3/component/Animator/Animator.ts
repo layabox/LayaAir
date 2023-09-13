@@ -94,7 +94,7 @@ export class Animator extends Component {
 
 
     set controller(val: AnimatorController) {
-        
+
         this._controller = val;
         if (this._controller) {
             this._controller.updateTo(this);
@@ -989,6 +989,7 @@ export class Animator extends Component {
             if (nodeOwner) {
                 var srcIndex: number = srcDataIndices[i];
                 var destIndex: number = destDataIndices[i];
+                if (-1 == srcIndex && -1 == destIndex) continue;
                 var srcValue: any = srcIndex !== -1 ? srcRealtimeDatas[srcIndex] : destNodeOwners[destIndex].defaultValue;
                 var desValue: any = destIndex !== -1 ? destRealtimeDatas[destIndex] : srcNodeOwners[srcIndex].defaultValue;
                 if (!desValue) {
@@ -999,6 +1000,7 @@ export class Animator extends Component {
                 }
             }
         }
+
     }
 
 
@@ -1351,7 +1353,7 @@ export class Animator extends Component {
                     this._updatePlayer(crossState, crossPlayStateInfo, delta * crossScale * crossSpeed, crossClip.islooping, i);
                     var crossWeight: number = ((crossPlayStateInfo._elapsedTime - startPlayTime) / crossScale) / crossDuratuion;
                     var needUpdateFinishcurrentState = false;
-                    if (crossWeight >= 1.0) {
+                    if (crossWeight >= 1.0 || crossState._realtimeDatas.length != controllerLayer._crossNodesOwnersCount || controllerLayer._destCrossClipNodeIndices.length != controllerLayer._crossNodesOwnersCount) {
                         if (needRender) {
                             this._updateClipDatas(crossState, addtive, crossPlayStateInfo, controllerLayer.avatarMask);
                             this._setClipDatasToNode(crossState, addtive, controllerLayer.defaultWeight, i === 0, controllerLayer);
@@ -1519,7 +1521,7 @@ export class Animator extends Component {
                 }
             }
             var scripts: AnimatorStateScript[] = animatorState._scripts!;
-            animatorState._eventStart(this,layerIndex);
+            animatorState._eventStart(this, layerIndex);
 
         }
         else {
@@ -1649,7 +1651,7 @@ export class Animator extends Component {
                     crossPlayStateInfo!._resetPlayState(destClip._duration * normalizedTime, controllerLayer._crossDuration);
                 else
                     crossPlayStateInfo!._resetPlayState(0.0, controllerLayer._crossDuration);
-                destAnimatorState._eventStart(this,layerIndex);
+                destAnimatorState._eventStart(this, layerIndex);
             }
             else {
                 console.warn("Invalid name " + layerIndex + ".");

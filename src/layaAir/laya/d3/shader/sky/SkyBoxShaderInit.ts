@@ -35,6 +35,8 @@ export class SkyBoxShaderInit {
         let pass = subShader.addShaderPass(SkyboxVS, SkyboxFS);
         pass.renderState.depthTest = RenderState.DEPTHTEST_LEQUAL;
         pass.renderState.cull = CullMode.Back;
+        pass.renderState.depthWrite = false;
+        pass.renderState.stencilWrite = false;
         pass.statefirst = true;
 
 
