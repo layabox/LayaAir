@@ -307,7 +307,7 @@ export class UI3D extends BaseRender {
         if (target)
             return target;
         else
-            return this._uisprite;
+            return null;
     }
 
     /**
