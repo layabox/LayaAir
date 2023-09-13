@@ -81,7 +81,7 @@ export class pxDynamicCollider extends pxCollider implements IDynamicCollider {
         this._dynamicCapableMap.set(EColliderCapable.RigidBody_WorldOrientation, true);
     }
 
-    private static _tempTranslation = new Vector3();
+    static _tempTranslation = new Vector3();
 
     private static _tempRotation = new Quaternion();
 

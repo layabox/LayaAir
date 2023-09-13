@@ -41,6 +41,9 @@ export class pxPhysicsManager implements IPhysicsManager {
     /** @internal */
     _pxScene: any;
 
+    //
+    _pxcontrollerManager:any;//PxControllerManager*
+
     private _gravity: Vector3 = new Vector3(0, -9.81, 0);
 
     constructor(physicsSettings: PhysicsSettings) {
@@ -99,6 +102,8 @@ export class pxPhysicsManager implements IPhysicsManager {
         const sceneDesc = pxPhysicsCreateUtil._physX.getDefaultSceneDesc(pxPhysics.getTolerancesScale(), 0, physXSimulationCallbackInstance);
         this._pxScene = pxPhysics.createScene(sceneDesc);
         this.setGravity(this._gravity);
+        //controller
+        this._pxcontrollerManager = this._pxScene.createControllerManager(this._pxScene);
     }
 
     setGravity(gravity: Vector3): void {
@@ -106,11 +111,13 @@ export class pxPhysicsManager implements IPhysicsManager {
     }
 
     private _addCharactorCollider(charactorCollider: pxCharactorCollider): void {
-        //TODO
+        charactorCollider._createController();
+        this._dynamicUpdateList.add(charactorCollider);
     }
 
     private _removeCharactorCollider(charactorCollider: pxCharactorCollider): void {
-        //TODO
+        charactorCollider._createController();
+        this._dynamicUpdateList.remove(charactorCollider);
     }
 
     addCollider(collider: ICollider): void {
@@ -125,8 +132,7 @@ export class pxPhysicsManager implements IPhysicsManager {
                 !(collider as pxDynamicCollider).IsKinematic && this._dynamicUpdateList.add(collider);
                 break;
             case pxColliderType.CharactorCollider:
-                //TODO:
-                this._addCharactorCollider(collider);
+                this._addCharactorCollider(collider as pxCharactorCollider);
                 break;
         }
         pxcollider._isSimulate = true;
@@ -148,7 +154,7 @@ export class pxPhysicsManager implements IPhysicsManager {
                 break;
             case pxColliderType.CharactorCollider:
                 //TODO:
-                this._removeCharactorCollider(pxcollider);
+                this._removeCharactorCollider(pxcollider as pxCharactorCollider);
                 break;
         }
         pxcollider._isSimulate = false;

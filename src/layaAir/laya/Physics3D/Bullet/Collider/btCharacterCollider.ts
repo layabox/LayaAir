@@ -5,6 +5,7 @@ import { Vector3 } from "../../../maths/Vector3";
 import { btPhysicsManager } from "../btPhysicsManager";
 import { ECharacterCapable } from "../../physicsEnum/ECharacterCapable";
 import { btColliderShape } from "../Shape/btColliderShape";
+import { PhysicsCombineMode } from "../../../d3/physics/PhysicsColliderComponent";
 
 export class btCharacterCollider extends btCollider implements ICharacterController {
 
@@ -52,6 +53,36 @@ export class btCharacterCollider extends btCollider implements ICharacterControl
         bt.btCollisionObject_setCollisionFlags(ghostObject, btPhysicsManager.COLLISIONFLAGS_CHARACTER_OBJECT);
         this._btCollider = ghostObject;
     }
+    setShapelocalOffset(value: Vector3): void {
+        throw new Error("Method not implemented.");
+    }
+    setSkinWidth?(width: number): void {
+        throw new Error("Method not implemented.");
+    }
+    setPosition(value: Vector3): void {
+        throw new Error("Method not implemented.");
+    }
+    setRadius?(value: number): void {
+        throw new Error("Method not implemented.");
+    }
+    setHeight?(value: number): void {
+        throw new Error("Method not implemented.");
+    }
+    setminDistance(value: number): void {
+        throw new Error("Method not implemented.");
+    }
+    setDynamicFriction?(value: number): void {
+        throw new Error("Method not implemented.");
+    }
+    setStaticFriction?(value: number): void {
+        throw new Error("Method not implemented.");
+    }
+    setFrictionCombine?(value: PhysicsCombineMode): void {
+        throw new Error("Method not implemented.");
+    }
+    setBounceCombine?(value: PhysicsCombineMode): void {
+        throw new Error("Method not implemented.");
+    }
 
     static getCharacterCapable(value: ECharacterCapable): boolean {
         return btCharacterCollider._characterCapableMap.get(value);
@@ -59,13 +90,13 @@ export class btCharacterCollider extends btCollider implements ICharacterControl
 
     static initCapable(): void {
         this._characterCapableMap = new Map();
-        this._characterCapableMap.set(ECharacterCapable.Charcater_AllowSleep, false);
+        // this._characterCapableMap.set(ECharacterCapable.Charcater_AllowSleep, false);
         this._characterCapableMap.set(ECharacterCapable.Charcater_Gravity, true);
         this._characterCapableMap.set(ECharacterCapable.Charcater_CollisionGroup, true);
-        this._characterCapableMap.set(ECharacterCapable.Charcater_Friction, true);
-        this._characterCapableMap.set(ECharacterCapable.Charcater_Restitution, true);
-        this._characterCapableMap.set(ECharacterCapable.Charcater_RollingFriction, true);
-        this._characterCapableMap.set(ECharacterCapable.Charcater_AllowTrigger, false);
+        // this._characterCapableMap.set(ECharacterCapable.Charcater_Friction, true);
+        // this._characterCapableMap.set(ECharacterCapable.Charcater_Restitution, true);
+        // this._characterCapableMap.set(ECharacterCapable.Charcater_RollingFriction, true);
+        // this._characterCapableMap.set(ECharacterCapable.Charcater_AllowTrigger, false);
         this._characterCapableMap.set(ECharacterCapable.Charcater_WorldPosition, true);
         this._characterCapableMap.set(ECharacterCapable.Charcater_Move, true);
         this._characterCapableMap.set(ECharacterCapable.Charcater_Jump, true);
@@ -73,7 +104,7 @@ export class btCharacterCollider extends btCollider implements ICharacterControl
         this._characterCapableMap.set(ECharacterCapable.Character_UpDirection, true);
         this._characterCapableMap.set(ECharacterCapable.Character_FallSpeed, true);
         this._characterCapableMap.set(ECharacterCapable.Character_SlopeLimit, true);
-        this._characterCapableMap.set(ECharacterCapable.Character_PushForce, true);
+        // this._characterCapableMap.set(ECharacterCapable.Character_PushForce, true);
     }
 
     protected getColliderType(): btColliderType {

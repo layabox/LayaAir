@@ -9,7 +9,6 @@ import { Transform3D } from "../../core/Transform3D";
 import { Scene3D } from "../../core/scene/Scene3D";
 import { EPhysicsCapable } from "../../../Physics3D/physicsEnum/EPhycisCapable";
 
-
 /**
  * <code>ConfigurableConstraint</code>类用于可设置的约束组件
  */

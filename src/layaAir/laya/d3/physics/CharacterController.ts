@@ -1,4 +1,3 @@
-import { Utils3D } from "../utils/Utils3D";
 import { Component } from "../../components/Component";
 import { Vector3 } from "../../maths/Vector3";
 import { Scene3D } from "../core/scene/Scene3D";
@@ -22,17 +21,18 @@ export class CharacterController extends PhysicsColliderComponent {
     private _upAxis = new Vector3(0, 1, 0);
     /**@internal */
     private _maxSlope = 90.0;	// 45度容易在地形上卡住
-    /**@internal */
-    private _jumpSpeed = 10.0;
-    /**@internal */
-    private _fallSpeed = 55.0;
     /** @internal */
-    private _gravity = new Vector3(0, -9.8 * 3, 0);
+    private _gravity = new Vector3(0, -9.8, 0);
     /**@internal */
-    private _pushForce = 1;
-    /** @internal */
-    protected _colliderShape: CapsuleColliderShape;
-
+    private _radius: number = 0.5;
+    /**@internal */
+    private _height: number = 2;
+    /**@internal */
+    private _offset: Vector3 = new Vector3();
+    /**@internal */
+    private _contactOffset: number;
+    /**@internal */
+    private _minDistance: number = 0;
     /**
      * @override
      * @internal
@@ -48,44 +48,61 @@ export class CharacterController extends PhysicsColliderComponent {
     }
 
     /**
-     * 角色降落速度。
+     * 胶囊半径。
      */
-    get fallSpeed(): number {
-        return this._fallSpeed;
+    get radius(): number {
+        return this._radius;
     }
 
-    set fallSpeed(value: number) {
-        if (this.collider.getCapable(ECharacterCapable.Character_FallSpeed)) {
-            this._collider && this._collider.setfallSpeed(value);
+    set radius(value: number) {
+        this._radius = value;
+        if (this.collider.getCapable(ECharacterCapable.Character_Radius)) {
+            this._collider && this._collider.setRadius(this._radius);
         }
     }
 
     /**
-     * 角色与其他物体碰撞的时候，产生的推力的大小
+     * 重力。
      */
-    set pushForce(v: number) {
-        this._pushForce = v;
-        if (this.collider.getCapable(ECharacterCapable.Character_PushForce)) {
-            this._collider && this._collider.setpushForce(v);
-        }
+    get height(): number {
+        return this._height;
     }
 
-    get pushForce() {
-        return this._pushForce;
+    set height(value: number) {
+        this._height = value;
+        if (this.collider.getCapable(ECharacterCapable.Character_Height)) {
+            this._collider && this._collider.setHeight(this._height);
+        }
     }
 
     /**
-     * 角色跳跃速度。
+     * 重力。
      */
-    get jumpSpeed(): number {
-        return this._jumpSpeed;
+    get minDistance(): number {
+        return this._height;
     }
 
-    set jumpSpeed(value: number) {
-        if (this.collider.getCapable(ECharacterCapable.Charcater_Jump)) {
-            this._jumpSpeed = value;
+    set minDistance(value: number) {
+        this._height = value;
+        if (this.collider.getCapable(ECharacterCapable.Character_Height)) {
+            this._collider && this._collider.setHeight(this._height);
         }
     }
+
+    /**
+     * 碰撞偏移
+     */
+    get centerOffset(): Vector3 {
+        return this._gravity;
+    }
+
+    set centerOffset(value: Vector3) {
+        this._offset = value;
+        if (this.collider.getCapable(ECharacterCapable.Character_offset)) {
+            this._collider && this._collider.setShapelocalOffset(this._offset);
+        }
+    }
+
 
     /**
      * 重力。
@@ -98,6 +115,20 @@ export class CharacterController extends PhysicsColliderComponent {
         this._gravity = value;
         if (this.collider.getCapable(ECharacterCapable.Charcater_Gravity)) {
             this._collider && this._collider.setGravity(value);
+        }
+    }
+
+    /**
+    * 碰撞偏移。
+    */
+    get skinWidth(): number {
+        return this._contactOffset;
+    }
+
+    set skinWidth(value: number) {
+        this._contactOffset = value;
+        if (this.collider.getCapable(ECharacterCapable.Character_Skin)) {
+            this._collider && this._collider.setSkinWidth(value);
         }
     }
 
@@ -152,7 +183,7 @@ export class CharacterController extends PhysicsColliderComponent {
 
     set position(v: Vector3) {
         if (this.collider.getCapable(ECharacterCapable.Charcater_WorldPosition)) {
-            this._collider && this._collider.setWorldPosition(v);
+            this._collider && this._collider.setPosition(v);
         }
     }
 
@@ -194,24 +225,10 @@ export class CharacterController extends PhysicsColliderComponent {
             if (velocity) {
                 this._collider && this._collider.jump(velocity);
             } else {
-                Utils3D._tempV0.set(0, this._jumpSpeed, 0)
-                this._collider && this._collider.jump(Utils3D._tempV0);
+                //                Utils3D._tempV0.set(0, this._jumpSpeed, 0)
+                this._collider && this._collider.jump(velocity);
             }
         }
-    }
-
-    /**
-     * 碰撞形状
-     */
-    get colliderShape(): CapsuleColliderShape {
-        return this._colliderShape;
-    }
-    set colliderShape(value: CapsuleColliderShape) {
-        if (this._colliderShape == value && this._colliderShape)
-            return;
-        this._colliderShape && this._colliderShape.destroy();
-        this._colliderShape = value;
-        this._collider && this._collider.setColliderShape(value._shape);
     }
 
     /**
@@ -225,8 +242,6 @@ export class CharacterController extends PhysicsColliderComponent {
         destCharacterController.stepHeight = this._stepHeight;
         destCharacterController.upAxis = this._upAxis;
         destCharacterController.maxSlope = this._maxSlope;
-        destCharacterController.jumpSpeed = this._jumpSpeed;
-        destCharacterController.fallSpeed = this._fallSpeed;
         destCharacterController.gravity = this._gravity;
     }
 }
