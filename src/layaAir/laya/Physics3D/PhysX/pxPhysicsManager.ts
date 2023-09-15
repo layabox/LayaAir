@@ -42,7 +42,7 @@ export class pxPhysicsManager implements IPhysicsManager {
     _pxScene: any;
 
     //
-    _pxcontrollerManager:any;//PxControllerManager*
+    _pxcontrollerManager: any;//PxControllerManager*
 
     private _gravity: Vector3 = new Vector3(0, -9.81, 0);
 
@@ -102,8 +102,11 @@ export class pxPhysicsManager implements IPhysicsManager {
         const sceneDesc = pxPhysicsCreateUtil._physX.getDefaultSceneDesc(pxPhysics.getTolerancesScale(), 0, physXSimulationCallbackInstance);
         this._pxScene = pxPhysics.createScene(sceneDesc);
         this.setGravity(this._gravity);
-        //controller
         this._pxcontrollerManager = this._pxScene.createControllerManager(this._pxScene);
+        if (pxPhysicsCreateUtil._physXPVD) {
+            this._pxScene.setPVDClient();
+        }
+
     }
 
     setGravity(gravity: Vector3): void {
@@ -168,6 +171,18 @@ export class pxPhysicsManager implements IPhysicsManager {
             //physicCollider.inPhysicUpdateListIndex = -1;//置空索引
         }
         //this._physicsUpdateList.length = 0;//清空物理更新队列
+    }
+
+
+    private functiontest() {
+        let a = new Float32Array(30);
+        var length = 30 * 4;
+        var ptr = pxPhysicsCreateUtil._allocator.allocate(4 * length, 0, 0, 0); // Get buffer from emscripten.
+        var buffer = new Float32Array(pxPhysicsCreateUtil._physX.HEAPF32.buffer, ptr, 30);
+        for (var i = 0; i < length; i++) {
+            buffer[i] = i + 20;
+        }
+        let vecpointer = pxPhysicsCreateUtil._physX.wrapPointer(ptr, pxPhysicsCreateUtil._physX.PxVec3);//PXVec3
     }
 
 

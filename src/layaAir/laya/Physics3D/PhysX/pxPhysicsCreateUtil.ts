@@ -37,10 +37,14 @@ export class pxPhysicsCreateUtil implements IPhysicsCreateUtil {
     static _pxFoundation: any;
     // /** @internal PhysX physics object */
     static _pxPhysics: any;
+
+    static _allocator: any;
     /**@internal pvd */
     static _pvd: any;
     /**@internal */
     static _PxPvdTransport: any;
+
+    static _tolerancesScale: any;
 
     protected _physicsEngineCapableMap: Map<any, any>;
 
@@ -81,15 +85,16 @@ export class pxPhysicsCreateUtil implements IPhysicsCreateUtil {
         const defaultErrorCallback = new physX.PxDefaultErrorCallback();
         const allocator = new physX.PxDefaultAllocator();
         const pxFoundation = physX.PxCreateFoundation(version, allocator, defaultErrorCallback);
+        pxPhysicsCreateUtil._tolerancesScale = new physX.PxTolerancesScale();
         let pxPhysics;
         if (pxPhysicsCreateUtil._physXPVD) {
             let gPvd = physX.PxCreatePvd(pxFoundation);
             let socketsuccess = physX.CreatepvdTransport(5425, 10, gPvd);
             //gPvd.connect(PxPvdTransport,);
-            pxPhysics = physX.PxCreatePhysics(version, pxFoundation, new physX.PxTolerancesScale(), true, gPvd);
+            pxPhysics = physX.PxCreatePhysics(version, pxFoundation, pxPhysicsCreateUtil._tolerancesScale, true, gPvd);
             physX.PxInitExtensions(pxPhysics, gPvd);
         } else {
-            pxPhysics = physX.CreateDefaultPhysics(pxFoundation, new physX.PxTolerancesScale());
+            pxPhysics = physX.CreateDefaultPhysics(pxFoundation, pxPhysicsCreateUtil._tolerancesScale);
             physX.InitDefaultExtensions(pxPhysics);
         }
         pxPhysicsCreateUtil._physX = physX;
