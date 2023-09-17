@@ -51,7 +51,7 @@ export class PerformanceTest_Cartoon2 {
 	constructor(maincls: typeof Main) {
 		this.Main = maincls;
 		Laya.init(1280, 720).then(() => {
-			Stat.enable();
+			//Stat.enable();
 
 			this.image = new Image();
 			this.image.skin = "res/cartoon2/background.jpg";

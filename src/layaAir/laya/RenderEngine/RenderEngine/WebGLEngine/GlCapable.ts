@@ -34,12 +34,26 @@ export class GlCapable {
         //anistropic
         value = !!(this.getExtension(WebGLExtension.EXT_texture_filter_anisotropic));
         this._capabilityMap.set(RenderCapable.Texture_anisotropic, value);
+
+        // half float renderable
         if (isWebgl2) {
-            value = !!this.getExtension(WebGLExtension.EXT_color_buffer_float);
-        } else {
-            value = (!!this.getExtension(WebGLExtension.OES_texture_half_float)) && (!!this.getExtension(WebGLExtension.OES_texture_half_float_linear));
+            value = !!this.getExtension(WebGLExtension.EXT_color_buffer_float) || !!this.getExtension(WebGLExtension.EXT_color_buffer_half_float);
+        }
+        else {
+            value = ((!!this.getExtension(WebGLExtension.OES_texture_half_float)) || (!!this.getExtension(WebGLExtension.EXT_color_buffer_half_float))) && (!!this.getExtension(WebGLExtension.OES_texture_half_float_linear));
         }
         this._capabilityMap.set(RenderCapable.RenderTextureFormat_R16G16B16A16, value);
+
+        // float renderable
+        if (isWebgl2) {
+            value = !!this.getExtension(WebGLExtension.EXT_color_buffer_float) && !!this.getExtension(WebGLExtension.OES_texture_float_linear);
+        }
+        else {
+            // OES_texture_float implicitly enables the WEBGL_color_buffer_float extension (if supported)
+            value = (!!this.getExtension(WebGLExtension.OES_texture_float)) && (!!this.getExtension(WebGLExtension.OES_texture_float_linear));
+        }
+        this._capabilityMap.set(RenderCapable.RenderTextureFormat_R32G32B32A32, value);
+
         value = isWebgl2 || (!!this.getExtension(WebGLExtension.WEBGL_depth_texture));
         this._capabilityMap.set(RenderCapable.RenderTextureFormat_Depth, value);
         value = isWebgl2;
@@ -66,7 +80,7 @@ export class GlCapable {
         this._capabilityMap.set(RenderCapable.Texture_SRGB, value);
         value = (!!this.getExtension(WebGLExtension.OES_texture_float_linear));
         this._capabilityMap.set(RenderCapable.Texture_FloatLinearFiltering, value);
-        value = (!!this.getExtension(WebGLExtension.OES_texture_half_float_linear));
+        value = isWebgl2 || (!!this.getExtension(WebGLExtension.OES_texture_half_float_linear));
         this._capabilityMap.set(RenderCapable.Texture_HalfFloatLinearFiltering, value);
         value = isWebgl2;
         this._capabilityMap.set(RenderCapable.MSAA, value);
@@ -95,11 +109,11 @@ export class GlCapable {
         setExtensionMap(WebGLExtension.WEBGL_compressed_texture_astc, _compressedTextureASTC, this._extensionMap);
         const _oesTextureFloatLinear = this._getExtension("OES_texture_float_linear");
         setExtensionMap(WebGLExtension.OES_texture_float_linear, _oesTextureFloatLinear, this._extensionMap);
+        const _extColorBufferHalfFloat = this._getExtension("EXT_color_buffer_half_float");
+        setExtensionMap(WebGLExtension.EXT_color_buffer_half_float, _extColorBufferHalfFloat, this._extensionMap);
         if (isWebgl2) {
             const _extColorBufferFloat = this._getExtension("EXT_color_buffer_float");
             setExtensionMap(WebGLExtension.EXT_color_buffer_float, _extColorBufferFloat, this._extensionMap);
-            const _extColorBufferHalfFloat = this._getExtension("EXT_color_buffer_half_float");
-            setExtensionMap(WebGLExtension.EXT_color_buffer_half_float, _extColorBufferHalfFloat, this._extensionMap);
         } else {
             VertexArrayObject;//强制引用
             if ((window as any)._setupVertexArrayObject) //兼容VAO

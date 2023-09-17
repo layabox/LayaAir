@@ -1071,6 +1071,7 @@ export class Animator extends Component {
             if (nodeOwner) {
                 var srcIndex: number = srcDataIndices[i];
                 var destIndex: number = destDataIndices[i];
+                if (-1 == srcIndex && -1 == destIndex) continue;
                 var srcValue: any = srcIndex !== -1 ? srcRealtimeDatas[srcIndex] : destNodeOwners[destIndex].defaultValue;
                 var desValue: any = destIndex !== -1 ? destRealtimeDatas[destIndex] : srcNodeOwners[srcIndex].defaultValue;
                 if (!desValue) {
@@ -1081,6 +1082,7 @@ export class Animator extends Component {
                 }
             }
         }
+
     }
 
 
@@ -1433,7 +1435,7 @@ export class Animator extends Component {
                     this._updatePlayer(crossState, crossPlayStateInfo, delta * crossScale * crossSpeed, crossClip.islooping, i);
                     var crossWeight: number = ((crossPlayStateInfo._elapsedTime - startPlayTime) / crossScale) / crossDuratuion;
                     var needUpdateFinishcurrentState = false;
-                    if (crossWeight >= 1.0) {
+                    if (crossWeight >= 1.0 || crossState._realtimeDatas.length != controllerLayer._crossNodesOwnersCount || controllerLayer._destCrossClipNodeIndices.length != controllerLayer._crossNodesOwnersCount) {
                         if (needRender) {
                             this._updateClipDatas(crossState, addtive, crossPlayStateInfo, controllerLayer.avatarMask);
                             this._setClipDatasToNode(crossState, addtive, controllerLayer.defaultWeight, i === 0, controllerLayer);

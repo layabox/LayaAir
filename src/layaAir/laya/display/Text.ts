@@ -1181,7 +1181,7 @@ export class Text extends Sprite {
 
                     // 如果最后一个是中文则直接截断，否则找空格或者-来拆分
                     let ccode = newLine.charCodeAt(newLine.length - 1);
-                    if (ccode < 0x4e00 || ccode > 0x9fa5) {
+                    if (isEnglishChar(ccode)) {
                         //按照英文单词字边界截取 因此将会无视中文
                         let execResult = wordBoundaryTest.exec(newLine);// 找不是 空格和标点符号的
                         if (execResult) {
@@ -1624,6 +1624,12 @@ function testEmoji(str: string) {
     if (null == str) return false;
     return emojiTest.test(str);
 }
+function isEnglishChar(unicode:number):boolean {
+    return (unicode >= 65 && unicode <= 90) ||  // A-Z
+           (unicode >= 97 && unicode <= 122) || // a-z
+           unicode === 39; // 单引号
+  }
+  
 
 const wordBoundaryTest = /(?:[^\s\!-\/])+$/;
 const normalizeCR = /\r\n/g;

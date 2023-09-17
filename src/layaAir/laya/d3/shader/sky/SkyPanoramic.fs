@@ -1,6 +1,6 @@
 #define SHADER_NAME SkyPanoramicVS
 
-#define PI 3.14159265359
+#include "Color.glsl";
 
 varying vec3 v_Texcoord;
 varying vec2 v_Image180ScaleAndCutoff;
@@ -25,8 +25,13 @@ void main()
     tc = (tc + v_Layout3DScaleAndOffset.xy) * v_Layout3DScaleAndOffset.zw;
 
     mediump vec4 tex = texture2D(u_Texture, tc);
+#ifdef Gamma_u_Texture
+    tex = gammaToLinear(tex);
+#endif // Gamma_u_Texture
     mediump vec3 c = tex.xyz;
     c = c * u_TintColor.rgb * c_ColorSpace.rgb;
     c *= u_Exposure;
     gl_FragColor = vec4(c, 1.0);
+
+    gl_FragColor = outputTransform(gl_FragColor);
 }

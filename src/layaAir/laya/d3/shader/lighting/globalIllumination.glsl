@@ -219,9 +219,11 @@ vec3 getBakedLightmapColor(in vec2 lightmapUV, in vec3 normalWS)
 {
     vec4 lightmapSampler = texture2D(u_LightMap, lightmapUV);
 	// todo lightmap rgbm encode color space
-	#ifdef Gamma_u_LightMap
+    lightmapSampler.rgb =  decodeRGBM(lightmapSampler,5.0);
+
+	//#ifdef Gamma_u_LightMap
     lightmapSampler = gammaToLinear(lightmapSampler);
-	#endif // Gamma_u_LightMap
+	//#endif // Gamma_u_LightMap
 
 	#ifdef LIGHTMAP_DIRECTIONAL
     lightmapSampler.rgb = DecodeDirectionalLightmap(lightmapUV, lightmapSampler.rgb, normalWS);

@@ -88,4 +88,6 @@ void main()
 #endif // FOG
 
     gl_FragColor = vec4(surfaceColor, surface.alpha);
+
+    gl_FragColor = outputTransform(gl_FragColor);
 }

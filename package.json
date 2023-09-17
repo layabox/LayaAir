@@ -6,7 +6,7 @@
     "scripts": {
         "start": "npm-run-all clean copyShaders --parallel watchShaders watchSamples",
         "build": "gulp build",
-        "buildDoc": "cd src/generateDoc&&cmd /k run.bat",
+        "buildDoc": "cd scripts&&cmd /k run.bat",
         "watchShaders": "copy-and-watch --skip-initial-copy --watch src/**/*.{glsl,vs,fs} bin/tsc/",
         "watchSamples": "cd ./src/samples && tsc -b --force --watch",
         "clean": "rimraf ./bin/tsc",
@@ -41,7 +41,7 @@
         "rollup-plugin-glsl": "^1.3.0",
         "rollup-plugin-sourcemaps": "^0.6.3",
         "socket.io": "^4.1.3",
-        "typedoc": "^0.15.0",
+        "typedoc": "^0.23.0",
         "typescript": "^4.6.4"
     },
     "repository": {
