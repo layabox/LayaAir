@@ -80,6 +80,8 @@ export class InstanceRenderElement extends RenderElement {
             if (pass._pipelineMode !== context.pipelineMode)
                 continue;
             var comDef: DefineDatas = RenderElement._compileDefine;
+
+            // todo
             context.sceneShaderData._defineDatas.cloneTo(comDef);
             if(this.render){
                 comDef.addDefineDatas(this.render._shaderValues._defineDatas);

@@ -231,6 +231,7 @@ export class WebGLEngine implements IRenderEngine {
         for (var i: number = 0; i < names.length; i++) {
             try {
                 gl = canvas.getContext(names[i], this._config);
+                // gl.drawingBufferColorSpace = "display-p3";
             } catch (e) {
             }
             if (gl) {

@@ -383,11 +383,11 @@ ${uniformglsl}`;
 		var renderState: RenderState = (<ShaderPass>this._shaderPass).renderState;
 		var depthWrite: any = (renderState.depthWrite ?? datas[Shader3D.DEPTH_WRITE]) ?? RenderState.Default.depthWrite;
 		RenderStateContext.setDepthMask(depthWrite);
-		if (depthTest === RenderState.DEPTHTEST_OFF)
+		var depthTest: any = (renderState.depthTest ?? datas[Shader3D.DEPTH_TEST]) ?? RenderState.Default.depthTest;
+		if (depthTest == RenderState.DEPTHTEST_OFF)
 			RenderStateContext.setDepthTest(false);
 		else {
 			RenderStateContext.setDepthTest(true);
-			var depthTest: any = (renderState.depthTest ?? datas[Shader3D.DEPTH_TEST]) ?? RenderState.Default.depthTest;
 			RenderStateContext.setDepthFunc(depthTest);
 		}
 		//Stencil

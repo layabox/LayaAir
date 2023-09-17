@@ -42,8 +42,6 @@ export class Texture2D extends BaseTexture {
     static normalTexture: Texture2D = null;
     /**错误纹理 */
     static errorTexture: Texture2D = null;
-    /**Default Toggle Texture */
-    static defalutUITexture: Texture2D = null;
 
     /**
      * @internal
@@ -94,23 +92,6 @@ export class Texture2D extends BaseTexture {
 
         Texture2D.normalTexture.lock = true;
         Texture2D.normalTexture.name = "Default_Normal";
-
-        pixels = new Uint8Array(12);
-        pixels[0] = 255;
-        pixels[1] = 255;
-        pixels[2] = 255;
-        pixels[3] = 255;
-        pixels[4] = 255;
-        pixels[5] = 255;
-        pixels[6] = 128;
-        pixels[7] = 255;
-        pixels[8] = 128;
-        pixels[9] = 128;
-        pixels[10] = 0;
-        pixels[11] = 255;
-        Texture2D.defalutUITexture = new Texture2D(1, 3, TextureFormat.R8G8B8, false, false);
-        Texture2D.defalutUITexture.setPixelsData(pixels, false, false);
-        Texture2D.defalutUITexture.lock = true;//锁住资源防止被资源管理释放
         Texture2D.errorTexture = Texture2D.whiteTexture;
     }
 

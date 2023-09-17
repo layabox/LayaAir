@@ -27,7 +27,7 @@ void main()
 #ifdef DIFFUSEMAP
     vec4 colorT = texture2D(u_texture, v_TextureCoordinate);
     #ifdef Gamma_u_texture
-        colorT = gammaToLinear(colorT);
+    colorT = gammaToLinear(colorT);
     #endif // Gamma_u_SpecularTexture
     #ifdef TINTCOLOR
     color *= colorT * u_Tintcolor * c_ColorSpace * v_Color;
@@ -55,4 +55,5 @@ void main()
 #endif // FOG
     gl_FragColor = color;
 
+    gl_FragColor = outputTransform(gl_FragColor);
 }

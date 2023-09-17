@@ -692,7 +692,7 @@ var spine;
                 .setAttachment(attachmentName == null ? null : skeleton.getAttachment(this.slotIndex, attachmentName));
         }
         setAttachment(skeleton, slot, attachmentName) {
-            slot.attachment = attachmentName == null ? null : skeleton.getAttachment(this.slotIndex, attachmentName);
+            slot.setAttachment(attachmentName == null ? null : skeleton.getAttachment(this.slotIndex, attachmentName));
         }
     }
     spine.AttachmentTimeline = AttachmentTimeline;
@@ -1472,7 +1472,7 @@ var spine;
                 var slot = slots[i];
                 if (slot.attachmentState == setupState) {
                     var attachmentName = slot.data.attachmentName;
-                    slot.attachment = (attachmentName == null ? null : skeleton.getAttachment(slot.data.index, attachmentName));
+                    slot.setAttachment(attachmentName == null ? null : skeleton.getAttachment(slot.data.index, attachmentName));
                 }
             }
             this.unkeyedState += 2;
@@ -2203,7 +2203,7 @@ var spine;
                     success(path, data);
                 this.toLoad--;
                 this.loaded++;
-            }, (status, responseText) => {
+            }, (state, responseText) => {
                 this.errors[path] = `Couldn't load binary ${path}: status ${status}, ${responseText}`;
                 if (error)
                     error(path, `Couldn't load binary ${path}: status ${status}, ${responseText}`);

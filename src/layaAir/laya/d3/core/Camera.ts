@@ -684,6 +684,7 @@ export class Camera extends BaseCamera {
         this._calculateProjectionMatrix();
         ILaya.stage.on(Event.RESIZE, this, this._onScreenSizeChanged);
         this.transform.on(Event.TRANSFORM_CHANGED, this, this._onTransformChanged);
+        this.opaquePass = false;
     }
 
     /**
@@ -775,6 +776,7 @@ export class Camera extends BaseCamera {
         camera.orthographicVerticalSize = this.orthographicVerticalSize;
         camera.opaquePass = this.opaquePass;
         camera._cameraEventCommandBuffer = this._cameraEventCommandBuffer;
+        camera.opaquePass = this.opaquePass;
         //Object.assign(camera._cameraEventCommandBuffer, this._cameraEventCommandBuffer);
         return camera;
     }

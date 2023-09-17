@@ -1,5 +1,7 @@
 #define SHADER_NAME BlurVFS
 
+#include "Color.glsl";
+
 varying vec2 v_Texcoord0;
 
 // todo 3 & 5
@@ -7,8 +9,8 @@ const int kTapCount = 3;
 float kOffsets[3];
 float kCoeffs[3];
 
-
-vec4 Blur(vec2 dir, float premultiply) {
+vec4 Blur(vec2 dir, float premultiply)
+{
 
     kOffsets[0] = -1.33333333;
     kOffsets[1] = 0.00000000;
@@ -22,6 +24,9 @@ vec4 Blur(vec2 dir, float premultiply) {
     // ivec2 positionSS = ivec2(u_SourceSize.xy * uv);
 
     vec4 halfColor = texture2D(u_MainTex, uv);
+#ifdef Gamma_u_MainTex
+    halfColor = gammaToLinear(halfColor);
+#endif // Gamma_u_MainTex
     float samp0CoC = halfColor.a;
 
     float maxRadius = u_CoCParams.z;
@@ -29,21 +34,27 @@ vec4 Blur(vec2 dir, float premultiply) {
 
     vec4 acc = vec4(0.0);
 
-    for (int i = 0; i < kTapCount; i++) {
-        vec2 sampCoord = uv + kOffsets[i] * offset;
-        vec4 samp = texture2D(u_MainTex, sampCoord);
-        float sampCoC = samp.w;
-        vec3 sampColor = samp.xyz;
+    for (int i = 0; i < kTapCount; i++)
+	{
+	    vec2 sampCoord = uv + kOffsets[i] * offset;
+	    vec4 samp = texture2D(u_MainTex, sampCoord);
+#ifdef Gamma_u_MainTex
+	    samp = gammaToLinear(samp);
+#endif // Gamma_u_MainTex
+	    float sampCoC = samp.w;
+	    vec3 sampColor = samp.xyz;
 
-        float weight = clamp(1.0 - (samp0CoC - sampCoC), 0.0, 1.0);
-        acc += vec4(sampColor, 1.0) * kCoeffs[i] * weight;
-    }
+	    float weight = clamp(1.0 - (samp0CoC - sampCoC), 0.0, 1.0);
+	    acc += vec4(sampColor, 1.0) * kCoeffs[i] * weight;
+	}
 
     acc.xyz /= acc.w + 1e-4;
     return vec4(acc.xyz, 1.0);
 }
 
-void main() {
+void main()
+{
     gl_FragColor = Blur(vec2(0.0, 1.0), 0.0);
-    // gl_FragColor = texture2D(u_MainTex, v_Texcoord0);
+
+    gl_FragColor = outputTransform(gl_FragColor);
 }

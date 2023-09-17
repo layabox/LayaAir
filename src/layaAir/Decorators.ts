@@ -7,6 +7,8 @@ export type EnumDescriptor = {
     [index: string]: any,
 }[] | any[] | Object | string;
 
+export type PropertType = string | Function | Object | [PropertType] | ["Record", PropertType];
+
 export interface PropertyDescriptor {
     /** 属性名称。一般不需要设定。 */
     name: string;
@@ -17,7 +19,7 @@ export interface PropertyDescriptor {
      * 其他对象类型可以直接使用类名，但要注意该类必须有使用regClass装饰器。也支持枚举类型。枚举类型不需要regClass。
      * 如果不提供type，表示只用于ui样式，没有实际对应数据，和不会序列化
      */
-    type: string | Function | Object | [string | Function] | ["Record", string | Function];
+    type: PropertType;
     /** 标题。如果不提供，则使用name。 */
     caption: string;
     /** 提示文字 */
@@ -55,7 +57,7 @@ export interface PropertyDescriptor {
      * 2. 这里的data为当前组件的对象数据，data.a与data.b属性字段的a与b就是指当前组件中的a与b属性值，通过这种方法取到组件对象数据中的属性值，用于条件判断，作用于当前属性是否隐藏。
      */
     hidden: boolean | string;
-    
+
     /** 只读控制。
      * 1. 可以用表达式，通过将条件表达式放到字符串里，获得布尔类型的运算结果，例如"!data.a && !data.b"，表示属性a和属性b均为空时，条件成立（true），该属性只读。
      * 2. 这里的data为当前组件的对象数据，data.a与data.b属性字段的a与b就是指当前组件中的a与b属性值，通过这种方法取到组件对象数据中的属性值，用于条件判断，作用于当前属性是否隐藏。
@@ -71,6 +73,8 @@ export interface PropertyDescriptor {
 
     /** 是否序列化 */
     serializable: boolean;
+    /** 属性在不参与序列化时，如果它的数据可能受其他可序列化的属性影响，在这里填写其他属性名称。这通常用于判断预制体属性是否覆盖。*/
+    affectBy?: string;
 
     /** 是否多行文本输入 */
     multiline: boolean;
@@ -199,4 +203,4 @@ export function runInEditor(constructor: Function): void { }
  * 使用这个装饰器，可以使属性显示在编辑器属性设置面板上，并且能序列化保存。
  * @param info 属性的类型，如: Number,"number",[Number],["Record", Number]等。或传递对象描述详细信息，例如{ type: "string", multiline: true }。
  */
-export function property(info: string | Array<any> | Function | Object | Partial<PropertyDescriptor>): any { return dummy; }
+export function property(info: PropertType | Partial<PropertyDescriptor>): any { return dummy; }

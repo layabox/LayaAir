@@ -14,6 +14,7 @@ import { BlurEffect } from "./BlurShader/BlurEffect";
 import Client from "../../Client";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 import { Matrix4x4 } from "laya/maths/Matrix4x4";
+import { URL } from "laya/net/URL";
 
 export class PostProcess_Blur {
 	/**实例类型*/

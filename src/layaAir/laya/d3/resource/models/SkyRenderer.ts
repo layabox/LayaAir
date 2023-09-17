@@ -57,9 +57,6 @@ export class SkyRenderer {
             this._renderElement.material = value;
             if (value) {
                 value._addReference();
-                value.depthTest = CompareFunction.LessEqual;
-                value.depthWrite = false;
-                value.stencilWrite = false;
                 this._renderElement.renderSubShader = this._material._shader.getSubShaderAt(0);
             }
             else
