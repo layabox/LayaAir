@@ -176,7 +176,7 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
     * @internal
     */
     private _updateMass(mass: number): void {
-        if (this._btCollider && this._btColliderShape) {
+        if (this._btCollider && this._btColliderShape && this._btColliderShape._btShape) {
             let bt = btPhysicsCreateUtil._bt;
             bt.btCollisionShape_calculateLocalInertia(this._btColliderShape._btShape, mass, btRigidBodyCollider._btInertia);
             bt.btRigidBody_setMassProps(this._btCollider, mass, btRigidBodyCollider._btInertia);

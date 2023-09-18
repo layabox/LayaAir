@@ -56,7 +56,7 @@ export class pxDynamicCollider extends pxCollider implements IDynamicCollider {
     static initCapable(): void {
         this._dynamicCapableMap = new Map();
         this._dynamicCapableMap.set(EColliderCapable.Collider_AllowTrigger, true);
-        this._dynamicCapableMap.set(EColliderCapable.Collider_CollisionGroup, false);
+        this._dynamicCapableMap.set(EColliderCapable.Collider_CollisionGroup, true);
         this._dynamicCapableMap.set(EColliderCapable.Collider_Restitution, true);
         this._dynamicCapableMap.set(EColliderCapable.Collider_DynamicFriction, true);
         this._dynamicCapableMap.set(EColliderCapable.Collider_StaticFriction, true);

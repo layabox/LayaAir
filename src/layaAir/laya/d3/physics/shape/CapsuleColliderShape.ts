@@ -78,9 +78,9 @@ export class CapsuleColliderShape extends Physics3DColliderShape {
 	 * @override
 	 */
 	protected _createShape() {
-		if(Laya3D.PhysicsCreateUtil.getPhysicsCapable(EPhysicsCapable.Physics_BoxColliderShape))
+		if (Laya3D.PhysicsCreateUtil.getPhysicsCapable(EPhysicsCapable.Physics_CapsuleColliderShape))
 			this._shape = Laya3D.PhysicsCreateUtil.createCapsuleColliderShape();
-		else{
+		else {
 			throw "CapsuleColliderShape: cant enable CapsuleColliderShape"
 		}
 	}

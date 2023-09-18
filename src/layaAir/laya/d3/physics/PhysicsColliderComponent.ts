@@ -11,6 +11,9 @@ import { SphereColliderShape } from "./shape/SphereColliderShape";
 import { CapsuleColliderShape } from "./shape/CapsuleColliderShape";
 import { EColliderCapable } from "../../Physics3D/physicsEnum/EColliderCapable";
 import { Node } from "../../display/Node";
+import { MeshColliderShape } from "./shape/MeshColliderShape";
+import { ConeColliderShape } from "./shape/ConeColliderShape";
+import { CylinderColliderShape } from "./shape/CylinderColliderShape";
 
 /**
  * Describes how physics materials of the colliding objects are combined.
@@ -275,7 +278,7 @@ export class PhysicsColliderComponent extends Component {
         }
     }
 
-    initCollider(){
+    initCollider() {
         this._initCollider();
         this._collider.setOwner(this.owner);
         this.restitution = this._restitution;
@@ -293,11 +296,11 @@ export class PhysicsColliderComponent extends Component {
     }
 
     protected _onAdded(): void {
-        if(!this.owner.scene){
-            this.owner.on(Node.EVENT_SET_ACTIVESCENE,this._onAdded);
-        }else{
+        if (!this.owner.scene) {
+            this.owner.on(Node.EVENT_SET_ACTIVESCENE, this, this._onAdded);
+        } else {
             this.initCollider();
-            this.owner.off(Node.EVENT_SET_ACTIVESCENE,this._onAdded);
+            this.owner.off(Node.EVENT_SET_ACTIVESCENE, this, this._onAdded);
         }
     }
 
@@ -384,15 +387,14 @@ export class PhysicsColliderComponent extends Component {
                 colliderShape = new CapsuleColliderShape(shapeData.radius, shapeData.height, shapeData.orientation);
                 break;
             case "MeshColliderShape":
-                //var meshCollider: MeshColliderShape = new MeshColliderShape();
-                //shapeData.mesh && (meshCollider.mesh = Loader.getRes(shapeData.mesh));
-                //colliderShape = meshCollider;
+                // colliderShape = new MeshColliderShape();
+                throw "MeshColliderShape is not Implement"
                 break;
             case "ConeColliderShape":
-                //colliderShape = new ConeColliderShape(shapeData.radius, shapeData.height, shapeData.orientation);
+                colliderShape = new ConeColliderShape(shapeData.radius, shapeData.height, shapeData.orientation);
                 break;
             case "CylinderColliderShape":
-                //colliderShape = new CylinderColliderShape(shapeData.radius, shapeData.height, shapeData.orientation);
+                colliderShape = new CylinderColliderShape(shapeData.radius, shapeData.height, shapeData.orientation);
                 break;
             default:
                 throw "unknown shape type.";

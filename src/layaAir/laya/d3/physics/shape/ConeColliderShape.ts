@@ -2,6 +2,7 @@
 import { Laya3D } from "../../../../Laya3D";
 import { LayaEnv } from "../../../../LayaEnv";
 import { IConeColliderShape } from "../../../Physics3D/interface/Shape/IConeColliderShape";
+import { EPhysicsCapable } from "../../../Physics3D/physicsEnum/EPhycisCapable";
 import { Physics3DColliderShape } from "./Physics3DColliderShape";
 /**
  * <code>ConeColliderShape</code> 类用于创建圆锥碰撞器。
@@ -70,7 +71,11 @@ export class ConeColliderShape extends Physics3DColliderShape {
 	 * @override
 	 */
 	protected _createShape() {
-		this._shape = Laya3D.PhysicsCreateUtil.createConeColliderShape();
+		if (Laya3D.PhysicsCreateUtil.getPhysicsCapable(EPhysicsCapable.Physics_ConeColliderShape)) {
+			this._shape = Laya3D.PhysicsCreateUtil.createConeColliderShape();
+		} else {
+			throw "ConeColliderShape: cant enable ConeColliderShape"
+		}
 	}
 
 	/**

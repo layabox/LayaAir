@@ -14,7 +14,7 @@ import { pxPhysicsCreateUtil } from "./pxPhysicsCreateUtil";
 export enum partFlag {
 
     eSOLVE_CONTACT = (1 << 0),
-    eMODIFY_CONTACTS = (1 << 1),
+    eNODIFY_CONTACTS = (1 << 1),
     eNOTIFY_TOUCH_FOUND = (1 << 2),
     eNOTIFY_TOUCH_PERSISTS = (1 << 3),
     eNOTIFY_TOUCH_LOST = (1 << 4),

@@ -82,4 +82,11 @@ export class btCapsuleColliderShape extends btColliderShape implements ICapsuleC
         super.setWorldScale(fixScale);
     }
 
+    destroy(): void {
+        super.destroy();
+        this._radius = null;
+        this._length = null;
+        this._orientation = null;
+    }
+
 }

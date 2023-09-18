@@ -12,7 +12,7 @@ export class btCylinderColliderShape extends btColliderShape implements ICylinde
     /**@internal */
     private _orientation: number = btColliderShape.SHAPEORIENTATION_UPY;
 
-    private _btSize:any;
+    private _btSize: any;
     constructor() {
         super();
         let bt = btPhysicsCreateUtil._bt;
@@ -28,15 +28,15 @@ export class btCylinderColliderShape extends btColliderShape implements ICylinde
         switch (this._orientation) {
             case btColliderShape.SHAPEORIENTATION_UPX:
                 bt.btVector3_setValue(this._btSize, this._length / 2, this._radius, this._radius);
-				this._btShape = bt.btCylinderShapeX_create(this._btSize);
+                this._btShape = bt.btCylinderShapeX_create(this._btSize);
                 break;
             case btColliderShape.SHAPEORIENTATION_UPY:
                 bt.btVector3_setValue(this._btSize, this._radius, this._length / 2, this._radius);
-				this._btShape = bt.btCylinderShape_create(this._btSize);
+                this._btShape = bt.btCylinderShape_create(this._btSize);
                 break;
             case btColliderShape.SHAPEORIENTATION_UPZ:
                 bt.btVector3_setValue(this._btSize, this._radius, this._radius, this._length / 2);
-				this._btShape = bt.btCylinderShapeZ_create(this._btSize);
+                this._btShape = bt.btCylinderShapeZ_create(this._btSize);
                 break;
             default:
                 throw "CapsuleColliderShape:unknown orientation.";
@@ -65,5 +65,12 @@ export class btCylinderColliderShape extends btColliderShape implements ICylinde
             return;
         this._orientation = upAxis;
         this._createShape();
+    }
+
+    destroy(): void {
+        super.destroy();
+        this._radius = null;
+        this._length = null;
+        this._orientation = null;
     }
 }
