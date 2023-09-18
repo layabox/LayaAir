@@ -27,4 +27,8 @@ export class pxSphereColliderShape extends pxColliderShape implements ISphereCol
         this.setRadius(this._radius);
     }
 
+    destroy(): void {
+        super.destroy();
+        this._radius = null;
+    }
 }

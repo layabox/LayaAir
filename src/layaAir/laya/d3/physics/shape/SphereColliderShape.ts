@@ -37,7 +37,7 @@ export class SphereColliderShape extends Physics3DColliderShape {
 
 	/**@internal */
 	protected _createShape() {
-		if(Laya3D.PhysicsCreateUtil.getPhysicsCapable(EPhysicsCapable.Physics_BoxColliderShape))
+		if (Laya3D.PhysicsCreateUtil.getPhysicsCapable(EPhysicsCapable.Physics_SphereColliderShape))
 			this._shape = Laya3D.PhysicsCreateUtil.createSphereColliderShape()
 		else
 			throw "SphereColliderShape: cant enable SphereColliderShape";
