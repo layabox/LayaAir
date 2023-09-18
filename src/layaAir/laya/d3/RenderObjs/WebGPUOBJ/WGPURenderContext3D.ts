@@ -9,6 +9,8 @@ import { Viewport } from "../../math/Viewport";
 import { WGPURenderElementObJ } from "./WGPURenderElementObJ";
 import { WGPUShaderData } from "./WGPUShaderData";
 import { WebGPUInternalRT } from "../../../RenderEngine/RenderEngine/WebGPUEngine/WebGPUInternalRT";
+import { IRenderElement } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderElement";
+import { ShaderData } from "../../../RenderEngine/RenderShader/ShaderData";
 
 export class WGPURenderContext3D implements IRenderContext3D {
     
@@ -57,6 +59,7 @@ export class WGPURenderContext3D implements IRenderContext3D {
         this.renderPassDec = new WebGPURenderPassDescriptor();
         this.device = (LayaGL.renderEngine as WebGPUEngine )._device;
     }
+    configShaderData: ShaderData;
     
     /**设置IRenderContext */
     applyContext(cameraUpdateMark: number): void{

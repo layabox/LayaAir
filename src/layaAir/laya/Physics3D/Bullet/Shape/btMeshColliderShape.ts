@@ -56,6 +56,15 @@ export class btMeshColliderShape extends btColliderShape implements IMeshCollide
 	constructor() {
 		super();
 	}
+	setPhysicsMeshFromMesh(value: Mesh): void {
+		throw new Error("Method not implemented.");
+	}
+	setConvexMesh(value: Mesh): void {
+		throw new Error("Method not implemented.");
+	}
+	setLimitVertex(limit: number): void {
+		throw new Error("Method not implemented.");
+	}
 
 	createPhysicsMeshFromMesh(value: Mesh): number {
 		let bt = btPhysicsCreateUtil._bt;

@@ -68,8 +68,6 @@ export class MeshColliderShape extends Physics3DColliderShape {
 	 */
 	constructor() {
 		super();
-
-
 	}
 
 	/**
