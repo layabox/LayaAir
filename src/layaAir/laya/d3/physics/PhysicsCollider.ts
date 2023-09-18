@@ -24,10 +24,10 @@ export class PhysicsCollider extends PhysicsColliderComponent {
      */
     protected _initCollider() {
         this._physicsManager = ((<Scene3D>this.owner._scene))._physicsManager;
-        if (Laya3D.enablePhysics&&this._physicsManager&&Laya3D.PhysicsCreateUtil.getPhysicsCapable(EPhysicsCapable.Physics_StaticCollider)) {    
+        if (Laya3D.enablePhysics && this._physicsManager && Laya3D.PhysicsCreateUtil.getPhysicsCapable(EPhysicsCapable.Physics_StaticCollider)) {
             this._collider = Laya3D.PhysicsCreateUtil.createStaticCollider(this._physicsManager);
         }
-        else{
+        else {
             throw "PhysicsCollider:cant enable PhysicsCollider";
         }
     }
@@ -45,8 +45,8 @@ export class PhysicsCollider extends PhysicsColliderComponent {
 
     set isTrigger(value: boolean) {
         this._isTrigger = value;
-        if(this._collider.getCapable(EColliderCapable.Collider_AllowTrigger)){
-            this._collider.setTrigger && this._collider.setTrigger(value);
+        if (this._collider && this._collider.getCapable(EColliderCapable.Collider_AllowTrigger)) {
+            this._collider.setTrigger(value);
         }
     }
 

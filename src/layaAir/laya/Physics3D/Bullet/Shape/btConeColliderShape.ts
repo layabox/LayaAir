@@ -60,4 +60,11 @@ export class btConeColliderShape extends btColliderShape implements IConeCollide
         this._orientation = upAxis;
         this._createShape();
     }
+
+    destroy(): void {
+        super.destroy();
+        this._radius = null;
+        this._length = null;
+        this._orientation = null;
+    }
 }

@@ -53,11 +53,12 @@ export class pxPhysicsManager implements IPhysicsManager {
             onWake: (wakeActors: any) => {
                 //加到更新队列
                 //Vector<int>  ActorUUID
+                console.log(wakeActors);
             },
 
             onSleep: (sleepActors: any) => {
                 //移除更新队列
-
+                console.log(sleepActors);
             },
 
             onContactBegin: (startContacts: any) => {
@@ -77,12 +78,13 @@ export class pxPhysicsManager implements IPhysicsManager {
                 //"normal",&PxContactPairPoint::normal)
                 //"impulse",&PxContactPairPoint::impulse);
                 //}
+                console.log(startContacts);
             },
             onContactEnd: (onContactEnd: any) => {
-
+                console.log(onContactEnd);
             },
             onContactPersist: (onContactPersist: any) => {
-
+                console.log(onContactPersist);
             },
             onTriggerBegin: (startTrigger: any) => {
 
@@ -92,9 +94,10 @@ export class pxPhysicsManager implements IPhysicsManager {
                 // .field("triggerActor",&LayaTriggerInfo::triggerActor)
                 // .field("otherShape",&LayaTriggerInfo::otherShape)
                 // .field("otherActor",&LayaTriggerInfo::otherActor);
+                console.log(startTrigger);
             },
             onTriggerEnd: (lostTrigger: any) => {
-
+                console.log(lostTrigger);
             }
         };
         const pxPhysics = pxPhysicsCreateUtil._pxPhysics;
