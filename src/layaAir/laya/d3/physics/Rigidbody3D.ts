@@ -62,8 +62,8 @@ export class Rigidbody3D extends PhysicsColliderComponent {
 
     set mass(value: number) {
         this._mass = value;
-        if (this.collider.getCapable(EColliderCapable.RigidBody_Mass)) {
-            this._collider && this._collider.setMass(value);
+        if (this._collider && this.collider.getCapable(EColliderCapable.RigidBody_Mass)) {
+            this._collider.setMass(value);
         }
     }
 
@@ -76,8 +76,8 @@ export class Rigidbody3D extends PhysicsColliderComponent {
 
     set isKinematic(value: boolean) {
         this._isKinematic = value;
-        if (this.collider.getCapable(EColliderCapable.RigidBody_AllowKinematic)) {
-            this._collider && this._collider.setIsKinematic(value);
+        if (this._collider && this.collider.getCapable(EColliderCapable.RigidBody_AllowKinematic)) {
+            this._collider.setIsKinematic(value);
         }
     }
 
@@ -90,8 +90,8 @@ export class Rigidbody3D extends PhysicsColliderComponent {
 
     set linearDamping(value: number) {
         this._linearDamping = value;
-        if (this.collider.getCapable(EColliderCapable.RigidBody_LinearDamp)) {
-            this._collider && this._collider.setLinearDamping(value);
+        if (this._collider && this.collider.getCapable(EColliderCapable.RigidBody_LinearDamp)) {
+            this._collider.setLinearDamping(value);
         }
     }
 
@@ -104,8 +104,8 @@ export class Rigidbody3D extends PhysicsColliderComponent {
 
     set angularDamping(value: number) {
         this._angularDamping = value;
-        if (this.collider.getCapable(EColliderCapable.RigidBody_AngularDamp)) {
-            this._collider && this._collider.setAngularDamping(value);
+        if (this._collider && this.collider.getCapable(EColliderCapable.RigidBody_AngularDamp)) {
+            this._collider.setAngularDamping(value);
         }
     }
 
@@ -118,8 +118,8 @@ export class Rigidbody3D extends PhysicsColliderComponent {
 
     set gravity(value: Vector3) {
         this._gravity = value;
-        if (this.collider.getCapable(EColliderCapable.RigidBody_Gravity)) {
-            this._collider && this._collider.setInertiaTensor(value);
+        if (this._collider && this.collider.getCapable(EColliderCapable.RigidBody_Gravity)) {
+            this._collider.setInertiaTensor(value);
         }
     }
 
@@ -132,8 +132,8 @@ export class Rigidbody3D extends PhysicsColliderComponent {
 
     set linearFactor(value: Vector3) {
         this._linearFactor = value;
-        if (this.collider.getCapable(EColliderCapable.RigidBody_LinearFactor)) {
-            this._collider && this._collider.setConstraints(this._linearFactor, this.angularFactor);
+        if (this._collider && this.collider.getCapable(EColliderCapable.RigidBody_LinearFactor)) {
+            this._collider.setConstraints(this._linearFactor, this.angularFactor);
         }
     }
 
@@ -146,8 +146,8 @@ export class Rigidbody3D extends PhysicsColliderComponent {
 
     set linearVelocity(value: Vector3) {
         this._linearVelocity = value;
-        if (this.collider.getCapable(EColliderCapable.RigidBody_LinearVelocity)) {
-            this._collider && this._collider.setLinearVelocity(value);
+        if (this._collider && this.collider.getCapable(EColliderCapable.RigidBody_LinearVelocity)) {
+            this._collider.setLinearVelocity(value);
         }
     }
 
@@ -160,8 +160,8 @@ export class Rigidbody3D extends PhysicsColliderComponent {
 
     set angularFactor(value: Vector3) {
         this._angularFactor = value;
-        if (this.collider.getCapable(EColliderCapable.RigidBody_AngularFactor)) {
-            this._collider && this._collider.setConstraints(this._linearFactor, this.angularFactor);
+        if (this._collider && this.collider.getCapable(EColliderCapable.RigidBody_AngularFactor)) {
+            this._collider.setConstraints(this._linearFactor, this.angularFactor);
         }
     }
 
@@ -174,8 +174,8 @@ export class Rigidbody3D extends PhysicsColliderComponent {
 
     set angularVelocity(value: Vector3) {
         this._angularVelocity = value;
-        if (this.collider.getCapable(EColliderCapable.RigidBody_AngularVelocity)) {
-            this._collider && this._collider.setAngularVelocity(value);
+        if (this._collider && this.collider.getCapable(EColliderCapable.RigidBody_AngularVelocity)) {
+            this._collider.setAngularVelocity(value);
         }
     }
 
@@ -188,8 +188,8 @@ export class Rigidbody3D extends PhysicsColliderComponent {
 
     set sleepThreshold(value: number) {
         this._sleepThreshold = value;
-        if (this.collider.getCapable(EColliderCapable.RigidBody_SleepThreshold)) {
-            this._collider && this._collider.setSleepThreshold(value);
+        if (this._collider && this.collider.getCapable(EColliderCapable.RigidBody_SleepThreshold)) {
+            this._collider.setSleepThreshold(value);
         }
     }
 
@@ -197,14 +197,14 @@ export class Rigidbody3D extends PhysicsColliderComponent {
      * 直接设置物理位置
      */
     set position(pos: Vector3) {
-        if (this.collider.getCapable(EColliderCapable.RigidBody_WorldPosition)) {
-            this._collider && this._collider.setWorldPosition(pos)
+        if (this._collider && this.collider.getCapable(EColliderCapable.RigidBody_WorldPosition)) {
+            this._collider.setWorldPosition(pos)
         }
     }
 
     set orientation(q: Quaternion) {
-        if (this.collider.getCapable(EColliderCapable.RigidBody_WorldOrientation)) {
-            this._collider && this._collider.setWorldRotation(q);
+        if (this._collider && this.collider.getCapable(EColliderCapable.RigidBody_WorldOrientation)) {
+            this._collider.setWorldRotation(q);
         }
     }
 
@@ -216,8 +216,8 @@ export class Rigidbody3D extends PhysicsColliderComponent {
     }
     public set trigger(value: boolean) {
         this._trigger = value;
-        if (this.collider.getCapable(EColliderCapable.Collider_AllowTrigger)) {
-            this._collider && this._collider.setTrigger(value);
+        if (this._collider && this.collider.getCapable(EColliderCapable.Collider_AllowTrigger)) {
+            this._collider.setTrigger(value);
         }
     }
 
@@ -226,7 +226,6 @@ export class Rigidbody3D extends PhysicsColliderComponent {
     }
 
     protected _onAdded(): void {
-
         super._onAdded();
         this.mass = this._mass;
         this.linearFactor = this._linearFactor;
@@ -272,8 +271,8 @@ export class Rigidbody3D extends PhysicsColliderComponent {
      * @param	localOffset 偏移,如果为null则为中心点
      */
     applyForce(force: Vector3, localOffset: Vector3 = null): void {
-        if (this.collider.getCapable(EColliderCapable.RigidBody_ApplyForce)) {
-            this._collider && this._collider.addForce(force, PhysicsForceMode.Force, localOffset);
+        if (this._collider && this.collider.getCapable(EColliderCapable.RigidBody_ApplyForce)) {
+            this._collider.addForce(force, PhysicsForceMode.Force, localOffset);
         }
     }
 
@@ -282,8 +281,8 @@ export class Rigidbody3D extends PhysicsColliderComponent {
      * @param	torque 扭转力。
      */
     applyTorque(torque: Vector3): void {
-        if (this.collider.getCapable(EColliderCapable.RigidBody_ApplyTorque)) {
-            this._collider && this._collider.addTorque(torque, PhysicsForceMode.Force);
+        if (this._collider && this.collider.getCapable(EColliderCapable.RigidBody_ApplyTorque)) {
+            this._collider.addTorque(torque, PhysicsForceMode.Force);
         }
     }
 
@@ -293,8 +292,8 @@ export class Rigidbody3D extends PhysicsColliderComponent {
      * @param   localOffset 偏移,如果为null则为中心点。
      */
     applyImpulse(impulse: Vector3, localOffset: Vector3 = null): void {
-        if (this.collider.getCapable(EColliderCapable.RigidBody_ApplyImpulse)) {
-            this._collider && this._collider.addForce(impulse, PhysicsForceMode.Impulse, localOffset);
+        if (this._collider && this.collider.getCapable(EColliderCapable.RigidBody_ApplyImpulse)) {
+            this._collider.addForce(impulse, PhysicsForceMode.Impulse, localOffset);
         }
     }
 
@@ -303,8 +302,8 @@ export class Rigidbody3D extends PhysicsColliderComponent {
      * @param	torqueImpulse
      */
     applyTorqueImpulse(torqueImpulse: Vector3): void {
-        if (this.collider.getCapable(EColliderCapable.RigidBody_ApplyTorqueImpulse)) {
-            this._collider && this._collider.addTorque(torqueImpulse, PhysicsForceMode.Impulse);
+        if (this._collider && this.collider.getCapable(EColliderCapable.RigidBody_ApplyTorqueImpulse)) {
+            this._collider.addTorque(torqueImpulse, PhysicsForceMode.Impulse);
         }
     }
 
@@ -312,8 +311,8 @@ export class Rigidbody3D extends PhysicsColliderComponent {
      * 唤醒刚体。
      */
     wakeUp(): void {
-        if (this.collider.getCapable(EColliderCapable.RigidBody_AllowSleep)) {
-            this._collider && this._collider.wakeUp();
+        if (this._collider && this.collider.getCapable(EColliderCapable.RigidBody_AllowSleep)) {
+            this._collider.wakeUp();
         }
     }
 

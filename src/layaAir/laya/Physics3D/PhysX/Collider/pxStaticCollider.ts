@@ -18,7 +18,7 @@ export class pxStaticCollider extends pxCollider implements IStaticCollider {
     static initCapable(): void {
         this._staticCapableMap = new Map();
         this._staticCapableMap.set(EColliderCapable.Collider_AllowTrigger, true);
-        this._staticCapableMap.set(EColliderCapable.Collider_CollisionGroup, false);
+        this._staticCapableMap.set(EColliderCapable.Collider_CollisionGroup, true);
         this._staticCapableMap.set(EColliderCapable.Collider_Friction, false);
         this._staticCapableMap.set(EColliderCapable.Collider_Restitution, true);
         this._staticCapableMap.set(EColliderCapable.Collider_RollingFriction, false);
