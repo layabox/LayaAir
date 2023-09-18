@@ -9,16 +9,16 @@ import { pxPhysicsCreateUtil } from "../pxPhysicsCreateUtil";
 import { pxJoint } from "./pxJoint";
 
 export class pxD6Joint extends pxJoint implements ID6Joint {
-    
+
     /**@internal temp V3 */
     static tempV3 = new Vector3();
 
     /**@internal axis */
     private _axis: Vector3 = new Vector3();
-    
+
     /**@internal */
     private _SecondaryAxis: Vector3 = new Vector3();
-    
+
     /**@internal */
     private _axisRotationQuaternion = new Quaternion();
 
@@ -67,7 +67,7 @@ export class pxD6Joint extends pxJoint implements ID6Joint {
     setMotion(axis: D6Axis, motionType: D6MotionType): void {
         this._pxJoint.setMotion(axis, motionType);
     }
-    
+
     /**
      * set Distance Limit
      * @param limit 
@@ -129,7 +129,7 @@ export class pxD6Joint extends pxJoint implements ID6Joint {
      */
     setDrive(index: D6Drive, stiffness: number, damping: number, forceLimit: number): void {
         let acceleration: number = 0;//TODO 1 accleration Mode
-        this._pxJoint.setDrive(stiffness, damping, forceLimit, acceleration);
+        this._pxJoint.setDrive(stiffness, index, damping, forceLimit, acceleration);
     }
 
     /**

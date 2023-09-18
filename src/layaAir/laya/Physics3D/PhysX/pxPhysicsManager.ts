@@ -102,7 +102,7 @@ export class pxPhysicsManager implements IPhysicsManager {
         const sceneDesc = pxPhysicsCreateUtil._physX.getDefaultSceneDesc(pxPhysics.getTolerancesScale(), 0, physXSimulationCallbackInstance);
         this._pxScene = pxPhysics.createScene(sceneDesc);
         this.setGravity(this._gravity);
-        this._pxcontrollerManager = this._pxScene.createControllerManager(this._pxScene);
+        this._pxcontrollerManager = this._pxScene.createControllerManager();
         if (pxPhysicsCreateUtil._physXPVD) {
             this._pxScene.setPVDClient();
         }
