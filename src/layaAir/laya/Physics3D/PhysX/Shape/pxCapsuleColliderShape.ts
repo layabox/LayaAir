@@ -73,4 +73,11 @@ export class pxCapsuleColliderShape extends pxColliderShape implements ICapsuleC
         this.setHeight(this._halfHeight);
         this.setRadius(this._radius);
     }
+
+    destroy(): void {
+        super.destroy();
+        this._radius = null;
+        this._halfHeight = null;
+        this._upAxis = null;
+    }
 }
