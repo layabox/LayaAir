@@ -1,6 +1,7 @@
 import { Sprite3D } from "../../../d3/core/Sprite3D";
 import { Transform3D } from "../../../d3/core/Transform3D";
 import { PhysicsCombineMode } from "../../../d3/physics/PhysicsColliderComponent";
+import { Physics3DUtils } from "../../../d3/utils/Physics3DUtils";
 import { Quaternion } from "../../../maths/Quaternion";
 import { Vector3 } from "../../../maths/Vector3";
 import { ICollider } from "../../interface/ICollider";
@@ -37,6 +38,10 @@ export class pxCollider implements ICollider {
 
     _isSimulate: boolean = false;//是否已经生效
 
+    _canCollisionWith: number;
+
+    _collisionGroup: number;
+
     _shape: pxColliderShape;
 
     _physicsManager: pxPhysicsManager;
@@ -61,6 +66,8 @@ export class pxCollider implements ICollider {
     private _frictionCombine: PhysicsCombineMode = PhysicsCombineMode.Average;
 
     constructor(manager: pxPhysicsManager) {
+        this._collisionGroup = Physics3DUtils.PHYSXDEFAULTMASKVALUE;
+        this._canCollisionWith = Physics3DUtils.PHYSXDEFAULTMASKVALUE;
         this._physicsManager = manager;
         this._id = pxCollider._pxActorID++;
     }
@@ -99,6 +106,8 @@ export class pxCollider implements ICollider {
         this.setStaticFriction(this._staticFriction);
         this.setBounciness(this._bounciness);
         this.setDynamicFriction(this._dynamicFriction);
+        this.setCollisionGroup(this._collisionGroup);
+        this.setCanCollideWith(this._canCollisionWith);
     }
 
     destroy(): void {
@@ -106,10 +115,12 @@ export class pxCollider implements ICollider {
         this._destroyed = true;
     }
     setCollisionGroup(value: number): void {
-        //TODO
+        this._collisionGroup = value;
+        this._shape.setSimulationFilterData(this._collisionGroup, this._canCollisionWith);
     }
     setCanCollideWith(value: number): void {
-        //TODO
+        this._canCollisionWith = value;
+        this._shape.setSimulationFilterData(this._collisionGroup, this._canCollisionWith);
     }
 
     setOwner(node: Sprite3D): void {

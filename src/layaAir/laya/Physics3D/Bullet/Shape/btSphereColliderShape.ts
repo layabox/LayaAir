@@ -28,4 +28,9 @@ export class btSphereColliderShape extends btColliderShape implements ISphereCol
         this._radius = radius;
         this._createShape();
     }
+
+    destroy(): void {
+        super.destroy();
+        this._radius = null;
+    }
 }

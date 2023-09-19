@@ -1,7 +1,3 @@
-import { Vector3 } from "../../maths/Vector3";
-import { PhysicsColliderComponent } from "../physics/PhysicsColliderComponent"
-
-
 /**
  * <code>Physics</code> 类用于简单物理检测。
  */
@@ -40,6 +36,8 @@ export class Physics3DUtils {
 	static COLLISIONFILTERGROUP_CUSTOMFILTER10: number = 0x8000;
 	/**所有过滤 */
 	static COLLISIONFILTERGROUP_ALLFILTER: number = -1;
+	/**PHYSX默认分组 */
+	static PHYSXDEFAULTMASKVALUE: number = 0xffffffff;
 }
 
 

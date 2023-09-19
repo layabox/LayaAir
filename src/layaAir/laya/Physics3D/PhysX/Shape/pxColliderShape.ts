@@ -1,8 +1,10 @@
+import { Physics3DUtils } from "../../../d3/utils/Physics3DUtils";
 import { Quaternion } from "../../../maths/Quaternion";
 import { Vector3 } from "../../../maths/Vector3";
 import { IColliderShape } from "../../interface/Shape/IColliderShape";
 import { pxCollider } from "../Collider/pxCollider";
 import { pxPhysicsCreateUtil } from "../pxPhysicsCreateUtil";
+import { partFlag } from "../pxPhysicsManager";
 import { pxPhysicsMaterial } from "../pxPhysicsMaterial";
 
 
@@ -18,10 +20,10 @@ export enum ShapeFlag {
     TRIGGER_SHAPE = 1 << 2
 }
 export interface pxFilterData {
-    world0?: number,
-    world1?: number,
-    world2?: number,
-    world3?: number,
+    word0?: number,
+    word1?: number,
+    word2?: number,
+    word3?: number,
 }
 export class pxColliderShape implements IColliderShape {
     static _shapePool: Map<number, pxColliderShape> = new Map();
@@ -50,7 +52,7 @@ export class pxColliderShape implements IColliderShape {
     _id: number;
 
     //过滤数据  0 group  1 mask  2事件
-    filterData: pxFilterData = { world0: 0xffffffff, world1: 0xffffffff, world2: 0, world3: 0 };//PxFilterData
+    filterData: pxFilterData = { word0: Physics3DUtils.PHYSXDEFAULTMASKVALUE, word1: Physics3DUtils.PHYSXDEFAULTMASKVALUE, word2: 0, word3: 0 };//PxFilterData
 
     /**
      * @override
@@ -109,8 +111,9 @@ export class pxColliderShape implements IColliderShape {
 
     setSimulationFilterData(colliderGroup: number, colliderMask: number) {
         //这里把查询和碰撞检测设置到一起
-        this.filterData.world0 = colliderGroup;
-        this.filterData.world1 = colliderMask;
+        this.filterData.word0 = colliderGroup;
+        this.filterData.word1 = colliderMask;
+        this.filterData.word2 = partFlag.eCONTACT_DEFAULT;
         this._pxShape.setSimulationFilterData(this.filterData);
         this._pxShape.setQueryFilterData(this.filterData);
     }
@@ -121,7 +124,9 @@ export class pxColliderShape implements IColliderShape {
         //PxPairFlag::eCONTACT_DEFAULT | PxPairFlag::eNOTIFY_TOUCH_FOUND | PxPairFlag::eNOTIFY_TOUCH_LOST | PxPairFlag::eNOTIFY_TOUCH_PERSISTS|PxPairFlag::eNOTIFY_CONTACT_POINTS)
         //trigger
         //PxPairFlag::eTRIGGER_DEFAULT
-        this.filterData.world2 = filterWorld2Number;
+        this.filterData.word2 = filterWorld2Number;
+        this._pxShape.setSimulationFilterData(this.filterData);
+        this._pxShape.setQueryFilterData(this.filterData);
     }
 
 
