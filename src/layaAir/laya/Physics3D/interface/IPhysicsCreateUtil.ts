@@ -13,6 +13,7 @@ import { IBoxColliderShape } from "./Shape/IBoxColliderShape";
 import { ICapsuleColliderShape } from "./Shape/ICapsuleColliderShape";
 import { IConeColliderShape } from "./Shape/IConeColliderShape";
 import { ICylinderColliderShape } from "./Shape/ICylinderColliderShape";
+import { IHeightFieldShape } from "./Shape/IHeightFieldShape";
 import { IMeshColliderShape } from "./Shape/IMeshColliderShape";
 import { IPlaneColliderShape } from "./Shape/IPlaneColliderShape";
 import { ISphereColliderShape } from "./Shape/ISphereColliderShape";
@@ -125,4 +126,9 @@ export interface IPhysicsCreateUtil {
      * create Cone Collider Shape
      */
     createConeColliderShape?(): IConeColliderShape;
+
+    /**
+     * create Height Field Collider
+     */
+    createHeightFieldShape?(): IHeightFieldShape;
 }

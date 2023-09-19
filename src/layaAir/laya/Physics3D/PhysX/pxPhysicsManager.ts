@@ -41,12 +41,15 @@ export class pxPhysicsManager implements IPhysicsManager {
     /** @internal */
     _pxScene: any;
 
+    /**fixedTimeStep */
+    fixedTime: number = 1.0 / 60.0;
     //
     _pxcontrollerManager: any;//PxControllerManager*
 
     private _gravity: Vector3 = new Vector3(0, -9.81, 0);
 
     constructor(physicsSettings: PhysicsSettings) {
+
         //TODO 事件
         const triggerCallback = {
 
@@ -106,6 +109,7 @@ export class pxPhysicsManager implements IPhysicsManager {
         if (pxPhysicsCreateUtil._physXPVD) {
             this._pxScene.setPVDClient();
         }
+        this.fixedTime = physicsSettings.fixedTimeStep;
 
     }
 

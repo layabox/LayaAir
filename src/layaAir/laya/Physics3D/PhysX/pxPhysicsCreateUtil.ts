@@ -25,6 +25,7 @@ import { pxD6Joint } from "./Joint/pxD6Joint";
 import { pxRevoluteJoint } from "./Joint/pxRevoluteJoint";
 import { pxBoxColliderShape } from "./Shape/pxBoxColliderShape";
 import { pxCapsuleColliderShape } from "./Shape/pxCapsuleColliderShape";
+import { pxHeightFieldShape } from "./Shape/pxHeightFieldShape";
 import { pxSphereColliderShape } from "./Shape/pxSphereColliderShape";
 import { pxPhysicsManager } from "./pxPhysicsManager";
 
@@ -164,6 +165,10 @@ export class pxPhysicsCreateUtil implements IPhysicsCreateUtil {
 
     createConeColliderShape?(): IConeColliderShape {
         return null;
+    }
+
+    createHeightFieldShape(): pxHeightFieldShape {
+        return new pxHeightFieldShape();
     }
 }
 

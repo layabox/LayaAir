@@ -390,7 +390,8 @@ export class Scene3D extends Sprite implements ISubmit {
     private _fogMode: FogMode;
     /**@internal */
     private _sceneReflectionProb: ReflectionProbe;
-
+    /**@internal */
+    private _physicsStepTime: number = 0;
     /**@internal */
     _sunColor: Color = new Color(1.0, 1.0, 1.0);
     /**@interanl */
@@ -806,6 +807,7 @@ export class Scene3D extends Sprite implements ISubmit {
         this.ambientColor = new Color(0.212, 0.227, 0.259);
     }
 
+
     /**
      *@internal
      */
@@ -813,15 +815,18 @@ export class Scene3D extends Sprite implements ISubmit {
         var delta: number = this.timer._delta / 1000;
         this._time += delta;
         this._shaderValues.setNumber(Scene3D.TIME, this._time);
-
         //Physics
         if (LayaEnv.isPlaying) {
-            let physicsManager = this._physicsManager;
-            if (Laya3D.enablePhysics && Stat.enablePhysicsUpdate) {
-                physicsManager.update(delta);
+            this._physicsStepTime += delta;
+            if (this._physicsStepTime > Scene3D.physicsSettings.fixedTimeStep) {
+
+                let physicsManager = this._physicsManager;
+                if (Laya3D.enablePhysics && Stat.enablePhysicsUpdate) {
+                    physicsManager.update(this._physicsStepTime);
+                }
+                this._physicsStepTime = 0;
             }
         }
-
         if (this._volumeManager.needreCaculateAllRenderObjects())
             this._volumeManager.reCaculateAllRenderObjects(this._sceneRenderManager.list);
         else
