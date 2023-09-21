@@ -7,12 +7,19 @@ import { Vector3 } from "../../../maths/Vector3";
 import { ICollider } from "../../interface/ICollider";
 import { pxColliderShape } from "../Shape/pxColliderShape";
 import { pxPhysicsManager } from "../pxPhysicsManager";
+
 export enum pxColliderType {
     RigidbodyCollider,
     CharactorCollider,
     StaticCollider
 }
 
+export enum pxActorFlag {
+    eVISUALIZATION = (1 << 0),//Enable debug renderer for this actor
+    eDISABLE_GRAVITY = (1 << 1),//Disables scene gravity for this actor
+    eSEND_SLEEP_NOTIFIES = (1 << 2),//Enables the sending of PxSimulationEventCallback::onWake() and PxSimulationEventCallback::onSleep() notify events
+    eDISABLE_SIMULATION = (1 << 3),//Disables simulation for the actor
+}
 export class pxCollider implements ICollider {
 
     static _ActorPool: Map<number, pxCollider> = new Map();
@@ -70,6 +77,10 @@ export class pxCollider implements ICollider {
         this._canCollisionWith = Physics3DUtils.PHYSXDEFAULTMASKVALUE;
         this._physicsManager = manager;
         this._id = pxCollider._pxActorID++;
+    }
+
+    protected setActorFlag(flag: pxActorFlag, value: boolean) {
+        this._pxActor.setActorFlag(flag, value);
     }
 
     getCapable(value: number): boolean {
