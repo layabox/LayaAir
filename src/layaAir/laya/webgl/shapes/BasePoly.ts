@@ -1,27 +1,30 @@
+import { Vector2 } from "../../maths/Vector2";
+
 export class BasePoly {
 
     private static tempData: any[] = new Array(256);
+    private static vec2: Vector2;
 
-	/**
-	 * 构造线的三角形数据。根据一个位置数组生成vb和ib
-	 * @param	p
-	 * @param	indices
-	 * @param	lineWidth
-	 * @param	indexBase				顶点开始的值，ib中的索引会加上这个
-	 * @param	outVertex
-	 * @return
-	 */
+    /**
+     * 构造线的三角形数据。根据一个位置数组生成vb和ib
+     * @param	p
+     * @param	indices
+     * @param	lineWidth
+     * @param	indexBase				顶点开始的值，ib中的索引会加上这个
+     * @param	outVertex
+     * @return
+     */
     static createLine2(p: any[], indices: any[], lineWidth: number, indexBase: number, outVertex: any[], loop: boolean): any[] {
 
         if (p.length < 4) return null;
         var points: any[] = BasePoly.tempData.length > (p.length + 2) ? BasePoly.tempData : new Array(p.length + 2);	//可能有loop，所以+2
         points[0] = p[0]; points[1] = p[1];
-		/*
-		var points:Array = p.concat();
-		if (loop) {
-			points.push(points[0], points[1]);
-		}
-		*/
+        /*
+        var points:Array = p.concat();
+        if (loop) {
+            points.push(points[0], points[1]);
+        }
+        */
         var newlen: number = 2;	//points的下标，也是points的实际长度
         var i: number = 0;
         var length: number = p.length;
@@ -40,23 +43,16 @@ export class BasePoly {
         length = newlen / 2;	//points可能有多余的点，所以要用inew来表示
         var w: number = lineWidth / 2;
 
-        var px: number, py: number, p1x: number, p1y: number, p2x: number, p2y: number, p3x: number, p3y: number;
-        var perpx: number, perpy: number, perp2x: number, perp2y: number, perp3x: number, perp3y: number;
-        var a1: number, b1: number, c1: number, a2: number, b2: number, c2: number;
-        var denom: number, pdist: number, dist: number;
+        var p1x: number, p1y: number, p2x: number, p2y: number, p3x: number, p3y: number;
 
         p1x = points[0];
         p1y = points[1];
         p2x = points[2];
         p2y = points[3];
+        let startIndex = result.length;
 
-        perpx = -(p1y - p2y);
-        perpy = p1x - p2x;
-        dist = Math.sqrt(perpx * perpx + perpy * perpy);
-        perpx = perpx / dist * w;
-        perpy = perpy / dist * w;
-
-        result.push(p1x - perpx, p1y - perpy, p1x + perpx, p1y + perpy);
+        this.vec2 = this.getNormal(p1x, p1y, p2x, p2y, w, this.vec2);
+        result.push(p1x - this.vec2.x, p1y - this.vec2.y, p1x + this.vec2.x, p1y + this.vec2.y);
         for (i = 1; i < length - 1; i++) {
             p1x = points[(i - 1) * 2];
             p1y = points[(i - 1) * 2 + 1];
@@ -65,34 +61,7 @@ export class BasePoly {
             p3x = points[(i + 1) * 2];
             p3y = points[(i + 1) * 2 + 1];
 
-            perpx = -(p1y - p2y);
-            perpy = p1x - p2x;
-            dist = Math.sqrt(perpx * perpx + perpy * perpy);
-            perpx = perpx / dist * w;
-            perpy = perpy / dist * w;
-
-            perp2x = -(p2y - p3y);
-            perp2y = p2x - p3x;
-            dist = Math.sqrt(perp2x * perp2x + perp2y * perp2y);
-            perp2x = perp2x / dist * w;
-            perp2y = perp2y / dist * w;
-
-            a1 = (-perpy + p1y) - (-perpy + p2y);
-            b1 = (-perpx + p2x) - (-perpx + p1x);
-            c1 = (-perpx + p1x) * (-perpy + p2y) - (-perpx + p2x) * (-perpy + p1y);
-            a2 = (-perp2y + p3y) - (-perp2y + p2y);
-            b2 = (-perp2x + p2x) - (-perp2x + p3x);
-            c2 = (-perp2x + p3x) * (-perp2y + p2y) - (-perp2x + p2x) * (-perp2y + p3y);
-            denom = a1 * b2 - a2 * b1;
-            if (Math.abs(denom) < 0.1) {
-                denom += 10.1;
-                result.push(p2x - perpx, p2y - perpy, p2x + perpx, p2y + perpy);
-                continue;
-            }
-            px = (b1 * c2 - b2 * c1) / denom;
-            py = (a2 * c1 - a1 * c2) / denom;
-            pdist = (px - p2x) * (px - p2x) + (py - p2y) + (py - p2y);
-            result.push(px, py, p2x - (px - p2x), p2y - (py - p2y));
+            this._setMiddleVertexs(p1x, p1y, p2x, p2y, p3x, p3y, w, result, this.vec2);
         }
 
         p1x = points[newlen - 4];
@@ -100,48 +69,89 @@ export class BasePoly {
         p2x = points[newlen - 2];
         p2y = points[newlen - 1];
 
-        perpx = -(p1y - p2y);
-        perpy = p1x - p2x;
-        dist = Math.sqrt(perpx * perpx + perpy * perpy);
-        perpx = perpx / dist * w;
-        perpy = perpy / dist * w;
 
-        result.push(p2x - perpx, p2y - perpy, p2x + perpx, p2y + perpy);
+        if (p2x == points[0] && p2y == points[1]) {
+            p3x = points[2];
+            p3y = points[3];
+            this._setMiddleVertexs(p1x, p1y, p2x, p2y, p3x, p3y, w, result, this.vec2);
+            let len = result.length;
+            result[startIndex] = result[len - 4];
+            result[startIndex + 1] = result[len - 3];
+            result[startIndex + 2] = result[len - 2];
+            result[startIndex + 3] = result[len - 1];
+
+        } else {
+            this.vec2 = this.getNormal(p1x, p1y, p2x, p2y, w, this.vec2);
+            result.push(p2x - this.vec2.x, p2y - this.vec2.y, p2x + this.vec2.x, p2y + this.vec2.y);
+        }
         for (i = 1; i < length; i++) {
             indices.push(indexBase + (i - 1) * 2, indexBase + (i - 1) * 2 + 1, indexBase + i * 2 + 1, indexBase + i * 2 + 1, indexBase + i * 2, indexBase + (i - 1) * 2);
         }
 
         return result;
     }
+    private static _setMiddleVertexs(x1: number, y1: number, x2: number, y2: number, x3: number, y3: number, w: number, vertexs: number[], out: Vector2) {
+        this.getNormal(x1, y1, x2, y2, w, out);
+        let perpx = out.x;
+        let perpy = out.y;
+        this.getNormal(x2, y2, x3, y3, w, out);
+        let perp2x = out.x;
+        let perp2y = out.y;
 
-	/**
-	 * 相邻的两段线，边界会相交，这些交点可以作为三角形的顶点。有两种可选，一种是采用左左,右右交点，一种是采用 左右，左右交点。当两段线夹角很小的时候，如果采用
-	 * 左左，右右会产生很长很长的交点，这时候就要采用左右左右交点，相当于把尖角截断。
-	 * 当采用左左右右交点的时候，直接用切线的垂线。采用左右左右的时候，用切线
-	 * 切线直接采用两个方向的平均值。不能用3-1的方式，那样垂线和下一段可能都在同一方向（例如都在右方）
-	 * 注意把重合的点去掉
-	 * @param	path
-	 * @param	color
-	 * @param	width
-	 * @param	loop
-	 * @param	outvb
-	 * @param	vbstride  顶点占用几个float,(bytelength/4)
-	 * @param	outib
-	 * test:
-	 * 横线
-	 * [100,100, 400,100]
-	 * 竖线
-	 * [100,100, 100,400]
-	 * 直角
-	 * [100,100, 400,100, 400,400]
-	 * 重合点
-	 * [100,100,100,100,400,100]
-	 * 同一直线上的点
-	 * [100,100,100,200,100,3000]
-	 * 像老式电视的左边不封闭的图形
-	 * [98,176,  163,178, 95,66, 175,177, 198,178, 252,56, 209,178,  248,175,  248,266,  209,266, 227,277, 203,280, 188,271,  150,271, 140,283, 122,283, 131,268, 99,268]
-	 * 
-	 */
+        let a1 = (-perpy + y1) - (-perpy + y2);
+        let b1 = (-perpx + x2) - (-perpx + x1);
+        let c1 = (-perpx + x1) * (-perpy + y2) - (-perpx + x2) * (-perpy + y1);
+        let a2 = (-perp2y + y3) - (-perp2y + y2);
+        let b2 = (-perp2x + x2) - (-perp2x + x3);
+        let c2 = (-perp2x + x3) * (-perp2y + y2) - (-perp2x + x2) * (-perp2y + y3);
+        let denom = a1 * b2 - a2 * b1;
+
+        let px = (b1 * c2 - b2 * c1) / denom;
+        let py = (a2 * c1 - a1 * c2) / denom;
+        vertexs.push(px, py, x2 - (px - x2), y2 - (py - y2));
+    }
+
+    static getNormal(x1: number, y1: number, x2: number, y2: number, w: number, out?: Vector2) {
+        if (!out) {
+            out = new Vector2();
+        }
+
+        let perpx = y2 - y1;
+        let perpy = x1 - x2;
+        let dist = Math.sqrt(perpx * perpx + perpy * perpy);
+        out.x = perpx / dist * w;
+        out.y = perpy / dist * w;
+        return out;
+    }
+
+    /**
+     * 相邻的两段线，边界会相交，这些交点可以作为三角形的顶点。有两种可选，一种是采用左左,右右交点，一种是采用 左右，左右交点。当两段线夹角很小的时候，如果采用
+     * 左左，右右会产生很长很长的交点，这时候就要采用左右左右交点，相当于把尖角截断。
+     * 当采用左左右右交点的时候，直接用切线的垂线。采用左右左右的时候，用切线
+     * 切线直接采用两个方向的平均值。不能用3-1的方式，那样垂线和下一段可能都在同一方向（例如都在右方）
+     * 注意把重合的点去掉
+     * @param	path
+     * @param	color
+     * @param	width
+     * @param	loop
+     * @param	outvb
+     * @param	vbstride  顶点占用几个float,(bytelength/4)
+     * @param	outib
+     * test:
+     * 横线
+     * [100,100, 400,100]
+     * 竖线
+     * [100,100, 100,400]
+     * 直角
+     * [100,100, 400,100, 400,400]
+     * 重合点
+     * [100,100,100,100,400,100]
+     * 同一直线上的点
+     * [100,100,100,200,100,3000]
+     * 像老式电视的左边不封闭的图形
+     * [98,176,  163,178, 95,66, 175,177, 198,178, 252,56, 209,178,  248,175,  248,266,  209,266, 227,277, 203,280, 188,271,  150,271, 140,283, 122,283, 131,268, 99,268]
+     * 
+     */
     //TODO:coverage
     static createLineTriangle(path: any[], color: number, width: number, loop: boolean, outvb: Float32Array, vbstride: number, outib: Uint16Array): void {
 
@@ -210,9 +220,9 @@ export class BasePoly {
         }
         ci = 0;
 
-		/**
-		 * 根据前后两段的方向，计算垂线的方向，根据这个方向和任意一边的dxdy的垂线的点积为w/2可以得到长度。就可以得到增加的点
-		 */
+        /**
+         * 根据前后两段的方向，计算垂线的方向，根据这个方向和任意一边的dxdy的垂线的点积为w/2可以得到长度。就可以得到增加的点
+         */
         //如果相邻两段朝向的dot值接近-1，则表示反向了，需要改成切
 
         for (i = 0; i < pointnum; i++) {
