@@ -43,10 +43,7 @@ export class BasePoly {
         length = newlen / 2;	//points可能有多余的点，所以要用inew来表示
         var w: number = lineWidth / 2;
 
-        var px: number, py: number, p1x: number, p1y: number, p2x: number, p2y: number, p3x: number, p3y: number;
-        var perpx: number, perpy: number, perp2x: number, perp2y: number, perp3x: number, perp3y: number;
-        var a1: number, b1: number, c1: number, a2: number, b2: number, c2: number;
-        var denom: number, pdist: number, dist: number;
+        var p1x: number, p1y: number, p2x: number, p2y: number, p3x: number, p3y: number;
 
         p1x = points[0];
         p1y = points[1];
@@ -65,35 +62,6 @@ export class BasePoly {
             p3y = points[(i + 1) * 2 + 1];
 
             this._setMiddleVertexs(p1x, p1y, p2x, p2y, p3x, p3y, w, result, this.vec2);
-
-            // perpx = -(p1y - p2y);
-            // perpy = p1x - p2x;
-            // dist = Math.sqrt(perpx * perpx + perpy * perpy);
-            // perpx = perpx / dist * w;
-            // perpy = perpy / dist * w;
-
-            // perp2x = -(p2y - p3y);
-            // perp2y = p2x - p3x;
-            // dist = Math.sqrt(perp2x * perp2x + perp2y * perp2y);
-            // perp2x = perp2x / dist * w;
-            // perp2y = perp2y / dist * w;
-
-            // a1 = (-perpy + p1y) - (-perpy + p2y);
-            // b1 = (-perpx + p2x) - (-perpx + p1x);
-            // c1 = (-perpx + p1x) * (-perpy + p2y) - (-perpx + p2x) * (-perpy + p1y);
-            // a2 = (-perp2y + p3y) - (-perp2y + p2y);
-            // b2 = (-perp2x + p2x) - (-perp2x + p3x);
-            // c2 = (-perp2x + p3x) * (-perp2y + p2y) - (-perp2x + p2x) * (-perp2y + p3y);
-            // denom = a1 * b2 - a2 * b1;
-            // if (Math.abs(denom) < 0.1) {
-            //     denom += 10.1;
-            //     result.push(p2x - perpx, p2y - perpy, p2x + perpx, p2y + perpy);
-            //     continue;
-            // }
-            // px = (b1 * c2 - b2 * c1) / denom;
-            // py = (a2 * c1 - a1 * c2) / denom;
-            // pdist = (px - p2x) * (px - p2x) + (py - p2y) + (py - p2y);
-            // result.push(px, py, p2x - (px - p2x), p2y - (py - p2y));
         }
 
         p1x = points[newlen - 4];
@@ -116,14 +84,6 @@ export class BasePoly {
             this.vec2 = this.getNormal(p1x, p1y, p2x, p2y, w, this.vec2);
             result.push(p2x - this.vec2.x, p2y - this.vec2.y, p2x + this.vec2.x, p2y + this.vec2.y);
         }
-
-        // perpx = -(p1y - p2y);
-        // perpy = p1x - p2x;
-        // dist = Math.sqrt(perpx * perpx + perpy * perpy);
-        // perpx = perpx / dist * w;
-        // perpy = perpy / dist * w;
-
-        // result.push(p2x - perpx, p2y - perpy, p2x + perpx, p2y + perpy);
         for (i = 1; i < length; i++) {
             indices.push(indexBase + (i - 1) * 2, indexBase + (i - 1) * 2 + 1, indexBase + i * 2 + 1, indexBase + i * 2 + 1, indexBase + i * 2, indexBase + (i - 1) * 2);
         }
