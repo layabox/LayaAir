@@ -53,32 +53,32 @@ export class Script extends Component {
     }
 
     /**
-     * 开始碰撞时执行
+     * 3D物理触发器事件与2D物理碰撞事件，开始碰撞时执行
      */
     onTriggerEnter?(other: PhysicsComponent | ColliderBase, self?: ColliderBase, contact?: any): void;
 
     /**
-     * 持续碰撞时执行
+     * 3D物理触发器事件与2D物理碰撞事件，持续碰撞时执行
      */
     onTriggerStay?(other: PhysicsComponent | ColliderBase, self?: ColliderBase, contact?: any): void;
 
     /**
-     * 结束碰撞时执行
+     * 3D物理触发器事件与2D物理碰撞事件，结束碰撞时执行
      */
     onTriggerExit?(other: PhysicsComponent | ColliderBase, self?: ColliderBase, contact?: any): void;
 
     /**
-     * 开始碰撞时执行
+     * 3D物理碰撞器事件（不适用2D），开始碰撞时执行
      */
     onCollisionEnter?(collision: Collision): void;
 
     /**
-     * 持续碰撞时执行
+     * 3D物理碰撞器事件（不适用2D），持续碰撞时执行
      */
     onCollisionStay?(collision: Collision): void;
 
     /**
-     * 结束碰撞时执行
+     *3D物理碰撞器事件（不适用2D），结束碰撞时执行
      */
     onCollisionExit?(collision: Collision): void;
 
