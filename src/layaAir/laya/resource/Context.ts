@@ -286,7 +286,7 @@ export class Context {
     /**@internal */
     _drawCircle(x: number, y: number, radius: number, fillColor: any, lineColor: any, lineWidth: number, vid: number): void {
         this.beginPath(true);
-        this.arc(x, y, radius, 0, Context.PI2);
+        this.arc(x, y, radius, 0, Context.PI2, false, true, 40);
         this.closePath();
         //绘制
         this._fillAndStroke(fillColor, lineColor, lineWidth);
@@ -2229,7 +2229,7 @@ export class Context {
         }
     }
 
-    arc(cx: number, cy: number, r: number, startAngle: number, endAngle: number, counterclockwise: boolean = false, b: boolean = true): void {
+    arc(cx: number, cy: number, r: number, startAngle: number, endAngle: number, counterclockwise: boolean = false, b: boolean = true, minNum = 10): void {
         /* TODO 缓存还没想好
         if (mId != -1) {
             var tShape:IShape = VectorGraphManager.getInstance().shapeDic[this.mId];
@@ -2269,7 +2269,7 @@ export class Context {
         var sy: number = this.getMatScaleY();
         var sr: number = r * (sx > sy ? sx : sy);
         var cl: number = 2 * Math.PI * sr;
-        ndivs = (Math.max(cl / 10, 10)) | 0;
+        ndivs = (Math.max(cl / minNum, minNum)) | 0;
 
         hda = (da / ndivs) / 2.0;
         kappa = Math.abs(4 / 3 * (1 - Math.cos(hda)) / Math.sin(hda));
