@@ -25,6 +25,7 @@ import { pxD6Joint } from "./Joint/pxD6Joint";
 import { pxRevoluteJoint } from "./Joint/pxRevoluteJoint";
 import { pxBoxColliderShape } from "./Shape/pxBoxColliderShape";
 import { pxCapsuleColliderShape } from "./Shape/pxCapsuleColliderShape";
+import { pxMeshColliderShape } from "./Shape/pxMeshColliderShape";
 import { pxHeightFieldShape } from "./Shape/pxHeightFieldShape";
 import { pxSphereColliderShape } from "./Shape/pxSphereColliderShape";
 import { pxPhysicsManager } from "./pxPhysicsManager";
@@ -60,7 +61,8 @@ export class pxPhysicsCreateUtil implements IPhysicsCreateUtil {
         this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_CapsuleColliderShape, true);
         this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_CylinderColliderShape, false);
         this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_ConeColliderShape, false);
-        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_MeshColliderShape, false);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_MeshColliderShape, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.physics_heightFieldColliderShape, true);
         this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_CompoundColliderShape, false);
     }
 
@@ -101,6 +103,7 @@ export class pxPhysicsCreateUtil implements IPhysicsCreateUtil {
         pxPhysicsCreateUtil._physX = physX;
         pxPhysicsCreateUtil._pxFoundation = pxFoundation;
         pxPhysicsCreateUtil._pxPhysics = pxPhysics;
+        pxPhysicsCreateUtil._allocator = allocator;
     }
 
     createPhysicsManger(physicsSettings: PhysicsSettings): pxPhysicsManager {
@@ -156,7 +159,7 @@ export class pxPhysicsCreateUtil implements IPhysicsCreateUtil {
     }
 
     createMeshColliderShape?(): IMeshColliderShape {
-        return null;
+        return new pxMeshColliderShape();
     }
 
     createCylinderColliderShape?(): ICylinderColliderShape {

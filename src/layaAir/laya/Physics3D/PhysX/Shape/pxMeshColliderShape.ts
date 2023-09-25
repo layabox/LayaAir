@@ -4,6 +4,7 @@ import { Quaternion } from "../../../maths/Quaternion";
 import { Vector3 } from "../../../maths/Vector3";
 import { IMeshColliderShape } from "../../interface/Shape/IMeshColliderShape";
 import { pxPhysicsCreateUtil } from "../pxPhysicsCreateUtil";
+import { pxPhysicsMaterial } from "../pxPhysicsMaterial";
 import { pxColliderShape } from "./pxColliderShape";
 
 export enum PxConvexFlag {
@@ -29,66 +30,138 @@ export enum PxMeshGeometryFlag {
     //!< For detailed specifications of this flag for meshes and heightfields please refer to the Geometry Query section of the user guide.
 };
 
-export class pxBoxColliderShape extends pxColliderShape implements IMeshColliderShape {
+export class pxMeshColliderShape extends pxColliderShape implements IMeshColliderShape {
     private _limitvertex = 10;
     private _mesh: Mesh;
     private _convex: boolean;
     private _meshScale: any;
     constructor() {
         super();
-        this._meshScale = pxPhysicsCreateUtil._physX.PxMeshScale(Vector3.ONE, Quaternion.DEFAULT);
+        this._meshScale = new pxPhysicsCreateUtil._physX.PxMeshScale(Vector3.ONE, Quaternion.DEFAULT);
     }
 
-    private _getMeshPosition(): Array<Vector3> {
+    private _getMeshPosition(): any {
         let posArray = new Array<Vector3>();
         this._mesh.getPositions(posArray);
-        return posArray;
+        let vecpointer = new pxPhysicsCreateUtil._physX.PxVec3Vector();
+        posArray.forEach((vec: Vector3, index: number) => {
+            vecpointer.push_back(vec);
+        })
+        return vecpointer;
     }
 
     private _getIndices() {
-        let indexArray;
-        if (this._mesh.indexFormat == IndexFormat.UInt16) {
-            indexArray = this._mesh.getIndices();
+        let physX = pxPhysicsCreateUtil._physX;
+        let indexCount = this._mesh.indexCount;
+        let indices = this._mesh.getIndices();
+        let traCount = indexCount / 3;
+        let ptr = null;
+        let buffer: Uint16Array | Uint32Array = null;
+        if (indices instanceof Uint32Array) {
+            ptr = physX._malloc(4 * indexCount);
+            buffer = new Uint32Array(physX.HEAPU32.buffer, ptr, indexCount);
+        } else {
+            ptr = pxPhysicsCreateUtil._physX._malloc(2 * indexCount);
+            buffer = new Uint16Array(physX.HEAPU16.buffer, ptr, indexCount);
         }
-        return indexArray;
+        for (var i = 0; i < traCount; i++) {
+            let index = i * 3;
+            buffer[index] = indices[index];
+            buffer[index + 1] = indices[index + 2];
+            buffer[index + 2] = indices[index + 1];
+        }
+        return ptr;
     }
 
-    private _getMeshScale() {
-        this._meshScale.scale = this._pxCollider.owner.transform.getWorldLossyScale();
-    }
 
     private _createConvexMeshGeometry() {
-        if (this._mesh._convexMesh) {
-            //PxConvexMesh *createConvexMeshFromBuffer(PxVec3* vertices, PxU32 vertCount, PxPhysics &physics,PxU32 VetexLimit,PxTolerancesScale &scale,int ConvexFlags) 
-            let vecArray = this._getMeshPosition();
-            //trans VecArray
-            this._mesh._convexMesh = pxPhysicsCreateUtil._physX.createConvexMeshFromBuffer(vecArray, vecArray.length, pxPhysicsCreateUtil._physX, this._limitvertex, pxPhysicsCreateUtil._tolerancesScale, PxConvexFlag.eCOMPUTE_CONVEX);
+        if (!this._mesh._convexMesh) {
+            let vecpointer = this._getMeshPosition();
+            this._mesh._convexMesh = pxPhysicsCreateUtil._physX.createConvexMeshFromBuffer(vecpointer, pxPhysicsCreateUtil._pxPhysics, this._limitvertex, pxPhysicsCreateUtil._tolerancesScale, PxConvexFlag.eCOMPUTE_CONVEX);
+            vecpointer.delete();
         }
-        this._getMeshScale();
-        this._pxGeometry = pxPhysicsCreateUtil._physX.PxConvexMeshGeometry(this._mesh._convexMesh, this._meshScale, PxConvexMeshGeometryFlag.eTIGHT_BOUNDS);
-        this._pxShape && this._pxCollider._pxActor.detachShape(this._pxShape, true);
+        let flags = new pxPhysicsCreateUtil._physX.PxConvexMeshGeometryFlags(PxConvexMeshGeometryFlag.eTIGHT_BOUNDS);
+        this._pxGeometry = new pxPhysicsCreateUtil._physX.PxConvexMeshGeometry(this._mesh._convexMesh, this._meshScale, flags);
+        if (this._pxShape && this._pxCollider)
+            this._pxCollider._pxActor.detachShape(this._pxShape, true);
+        else if (this._pxShape) {
+            this._pxShape.release();
+        }
+
         this._createShape();
     }
 
     private _createTrianggleMeshGeometry() {
-        if (this._mesh._triangleMesh) {
-            // PxTriangleMesh *createTriMesh(PxVec3* vertices,
-            //     PxU32 vertCount,
-            //     int indices,
-            //     PxU32 indexCount,
-            //     bool isU16,
-            //     PxTolerancesScale &scale,
-            //     PxPhysics &physics) 
-            let vecArray = this._getMeshPosition();
-            let indices = this._getIndices();
-            //TODO trans VecArray
-            //TODO trans indices
-            this._mesh._triangleMesh = pxPhysicsCreateUtil._physX.createTriMesh(vecArray, vecArray.length, indices, indices.length, (indices instanceof Uint16Array) ? true : false, pxPhysicsCreateUtil._tolerancesScale, pxPhysicsCreateUtil._pxPhysics);
+        if (!this._mesh._triangleMesh) {
+            //trans VecArray
+            let vecpointer = this._getMeshPosition();
+            //trans indices
+            let indicespointer = this._getIndices();
+
+            this._mesh._triangleMesh = pxPhysicsCreateUtil._physX.createTriMesh(vecpointer, indicespointer, this._mesh.indexCount, this._mesh.indexFormat == IndexFormat.UInt32 ? false : true, pxPhysicsCreateUtil._tolerancesScale, pxPhysicsCreateUtil._pxPhysics);
+            vecpointer.delete();
+            pxPhysicsCreateUtil._physX._free(indicespointer);
         }
-        this._getMeshScale();
-        this._pxGeometry = pxPhysicsCreateUtil._physX.PxTriangleMeshGeometry(this._mesh._triangleMesh, this._meshScale, PxMeshGeometryFlag.eTIGHT_BOUNDS);
-        this._pxShape && this._pxCollider._pxActor.detachShape(this._pxShape, true);
+        let flags = new pxPhysicsCreateUtil._physX.PxMeshGeometryFlags(PxMeshGeometryFlag.eTIGHT_BOUNDS);
+        this._pxGeometry = new pxPhysicsCreateUtil._physX.PxTriangleMeshGeometry(this._mesh._triangleMesh, this._meshScale, flags);
+        if (this._pxShape && this._pxCollider)
+            this._pxCollider._pxActor.detachShape(this._pxShape, true);
+        else if (this._pxShape) {
+            this._pxShape.release();
+        }
         this._createShape();
+    }
+
+    /**
+     * @override
+     */
+    protected _createShape() {
+        if (this._id == null) {
+            this._id = pxColliderShape._pxShapeID++;
+        }
+        if (!this._pxMaterials[0]) {
+            this._pxMaterials[0] = new pxPhysicsMaterial();
+        }
+        this._pxShape = pxPhysicsCreateUtil._pxPhysics.createShape(
+            this._pxGeometry,
+            this._pxMaterials[0]._pxMaterial,
+            true,
+            new pxPhysicsCreateUtil._physX.PxShapeFlags(this._shapeFlags)
+        );
+        this._pxShape.setUUID(this._id);
+        pxColliderShape._shapePool.set(this._id, this);
+        this._reConfigShape();
+    }
+
+    private _reConfigShape() {
+        if (this._pxCollider) {
+            this.setSimulationFilterData(this._pxCollider._collisionGroup, this._pxCollider._canCollisionWith);
+            this.setOffset(this._offset);
+            this._pxCollider._pxActor.attachShape(this._pxShape);
+        }
+    }
+
+
+    private _setScale(scale: Vector3) {
+        if (scale.equal(this._scale))
+            return;
+        scale.cloneTo(this._scale);
+        this._meshScale.scale = this._scale;
+        if (this._convex)
+            this._createConvexMeshGeometry();
+        else
+            this._createTrianggleMeshGeometry();
+
+    }
+
+    setOffset(position: Vector3): void {
+        if (!this._pxCollider) return;
+        position.cloneTo(this._offset);
+        const transform = pxColliderShape.transform;
+        this._setScale(this._pxCollider.owner.transform.getWorldLossyScale());
+        if (this._pxCollider.owner)
+            Vector3.multiply(position, this._scale, transform.translation);
+        this._pxShape.setLocalPose(transform);
     }
 
 
@@ -107,5 +180,7 @@ export class pxBoxColliderShape extends pxColliderShape implements IMeshCollider
         if (this._convex)
             this._createConvexMeshGeometry();
     }
+
+
 
 }

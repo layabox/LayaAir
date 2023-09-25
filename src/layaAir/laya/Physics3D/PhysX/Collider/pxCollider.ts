@@ -8,12 +8,18 @@ import { ICollider } from "../../interface/ICollider";
 import { pxColliderShape } from "../Shape/pxColliderShape";
 import { pxPhysicsManager } from "../pxPhysicsManager";
 
+/**
+ * collider type
+ */
 export enum pxColliderType {
     RigidbodyCollider,
     CharactorCollider,
     StaticCollider
 }
 
+/**
+ *physX actor flag
+ */
 export enum pxActorFlag {
     eVISUALIZATION = (1 << 0),//Enable debug renderer for this actor
     eDISABLE_GRAVITY = (1 << 1),//Disables scene gravity for this actor
@@ -22,8 +28,13 @@ export enum pxActorFlag {
 }
 export class pxCollider implements ICollider {
 
+    /**@internal pool of Actor */
     static _ActorPool: Map<number, pxCollider> = new Map();
+
+    /**@internal UUid of pxActor */
     static _pxActorID: number = 0;
+
+    /**temp tranform object */
     private static _tempTransform: {
         translation: Vector3;
         rotation: Quaternion;
@@ -31,35 +42,47 @@ export class pxCollider implements ICollider {
 
     /**@internal */
     owner: Sprite3D;
+
     /**@internal */
     componentEnable: boolean;
 
+    /**actor */
     _pxActor: any;
 
+    /**owner transform */
     _transform: Transform3D;
 
+    /**type data */
     _type: pxColliderType = pxColliderType.StaticCollider;
 
     /**触发器 */
     _isTrigger: boolean;
 
+    /**@internal */
     _isSimulate: boolean = false;//是否已经生效
 
+    /**can collision Group*/
     _canCollisionWith: number;
 
+    /**collision group */
     _collisionGroup: number;
 
+    /**pxshape */
     _shape: pxColliderShape;
 
+    /**manager */
     _physicsManager: pxPhysicsManager;
 
+    /**check destroy */
     _destroyed: boolean = false;
 
     //update list index
     inPhysicUpdateListIndex: number = -1;
 
+    /**@internal */
     _enableProcessCollisions = false;
 
+    /**id */
     _id: number;
 
     /** @internal */
@@ -67,9 +90,13 @@ export class pxCollider implements ICollider {
 
     //material 这里material本身是shape行为，为了统一，暂时架构为colllider行为
     private _bounciness: number = 0.1;
+    /** @internal */
     private _dynamicFriction: number = 0.1;
+    /** @internal */
     private _staticFriction: number = 0.1;
+    /** @internal */
     private _bounceCombine: PhysicsCombineMode = PhysicsCombineMode.Average;
+    /** @internal */
     private _frictionCombine: PhysicsCombineMode = PhysicsCombineMode.Average;
 
     constructor(manager: pxPhysicsManager) {
