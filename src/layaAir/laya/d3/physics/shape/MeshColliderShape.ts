@@ -1,6 +1,8 @@
 import { Mesh } from "../../resource/models/Mesh";
 import { Physics3DColliderShape } from "./Physics3DColliderShape";
 import { IMeshColliderShape } from "../../../Physics3D/interface/Shape/IMeshColliderShape";
+import { Laya3D } from "../../../../Laya3D";
+import { EPhysicsCapable } from "../../../Physics3D/physicsEnum/EPhycisCapable";
 
 /**
  * <code>MeshColliderShape</code> 类用于创建网格碰撞器。
@@ -58,8 +60,10 @@ export class MeshColliderShape extends Physics3DColliderShape {
 	}
 
 	set convex(value: boolean) {
-		if (value != this._convex)
-			this._convex = value;
+		if (value == this._convex){
+			return;
+		}
+		this._convex = value;
 		this._changeShape();
 	}
 
@@ -68,6 +72,17 @@ export class MeshColliderShape extends Physics3DColliderShape {
 	 */
 	constructor() {
 		super();
+	}
+
+	/**
+	 * @override
+	 */
+	protected _createShape() {
+		if (Laya3D.PhysicsCreateUtil.getPhysicsCapable(EPhysicsCapable.Physics_MeshColliderShape))
+			this._shape = Laya3D.PhysicsCreateUtil.createMeshColliderShape();
+		else {
+			throw "MeshColliderShape: cant enable MeshColliderShape";
+		}
 	}
 
 	/**

@@ -37,6 +37,7 @@ export class pxMeshColliderShape extends pxColliderShape implements IMeshCollide
     private _meshScale: any;
     constructor() {
         super();
+        this._convex = false;
         this._meshScale = new pxPhysicsCreateUtil._physX.PxMeshScale(Vector3.ONE, Quaternion.DEFAULT);
     }
 
@@ -51,26 +52,22 @@ export class pxMeshColliderShape extends pxColliderShape implements IMeshCollide
     }
 
     private _getIndices() {
-        let physX = pxPhysicsCreateUtil._physX;
         let indexCount = this._mesh.indexCount;
         let indices = this._mesh.getIndices();
         let traCount = indexCount / 3;
-        let ptr = null;
-        let buffer: Uint16Array | Uint32Array = null;
+        let data = null
         if (indices instanceof Uint32Array) {
-            ptr = physX._malloc(4 * indexCount);
-            buffer = new Uint32Array(physX.HEAPU32.buffer, ptr, indexCount);
+            data= pxPhysicsCreateUtil.createUint32Array(indexCount);
         } else {
-            ptr = pxPhysicsCreateUtil._physX._malloc(2 * indexCount);
-            buffer = new Uint16Array(physX.HEAPU16.buffer, ptr, indexCount);
+            data = pxPhysicsCreateUtil.createUint16Array(indexCount);
         }
         for (var i = 0; i < traCount; i++) {
             let index = i * 3;
-            buffer[index] = indices[index];
-            buffer[index + 1] = indices[index + 2];
-            buffer[index + 2] = indices[index + 1];
+            data.buffer[index] = indices[index];
+            data.buffer[index + 1] = indices[index + 2];
+            data.buffer[index + 2] = indices[index + 1];
         }
-        return ptr;
+        return data;
     }
 
 
@@ -96,11 +93,11 @@ export class pxMeshColliderShape extends pxColliderShape implements IMeshCollide
             //trans VecArray
             let vecpointer = this._getMeshPosition();
             //trans indices
-            let indicespointer = this._getIndices();
+            let indicesData = this._getIndices();
 
-            this._mesh._triangleMesh = pxPhysicsCreateUtil._physX.createTriMesh(vecpointer, indicespointer, this._mesh.indexCount, this._mesh.indexFormat == IndexFormat.UInt32 ? false : true, pxPhysicsCreateUtil._tolerancesScale, pxPhysicsCreateUtil._pxPhysics);
+            this._mesh._triangleMesh = pxPhysicsCreateUtil._physX.createTriMesh(vecpointer, indicesData.ptr, this._mesh.indexCount, this._mesh.indexFormat == IndexFormat.UInt32 ? false : true, pxPhysicsCreateUtil._tolerancesScale, pxPhysicsCreateUtil._pxPhysics);
             vecpointer.delete();
-            pxPhysicsCreateUtil._physX._free(indicespointer);
+            pxPhysicsCreateUtil.freeBuffer(indicesData);
         }
         let flags = new pxPhysicsCreateUtil._physX.PxMeshGeometryFlags(PxMeshGeometryFlag.eTIGHT_BOUNDS);
         this._pxGeometry = new pxPhysicsCreateUtil._physX.PxTriangleMeshGeometry(this._mesh._triangleMesh, this._meshScale, flags);
@@ -167,11 +164,13 @@ export class pxMeshColliderShape extends pxColliderShape implements IMeshCollide
 
     setPhysicsMeshFromMesh(value: Mesh): void {
         this._mesh = value;
+        this._convex = false;
         this._createTrianggleMeshGeometry();
     }
 
     setConvexMesh(value: Mesh): void {
         this._mesh = value;
+        this._convex = true;
         this._createConvexMeshGeometry();
     }
 
