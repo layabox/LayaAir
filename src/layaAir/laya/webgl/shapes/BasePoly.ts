@@ -35,7 +35,7 @@ export class BasePoly {
             }
         }
         //如果终点和起点没有重合，且要求loop的情况的处理
-        if (loop && Math.abs(p[0] - points[newlen - 2]) + Math.abs(p[1] - points[newlen - 1]) > 0.01) {
+        if (loop && Math.abs(p[0] - points[newlen - 2]) + Math.abs(p[1] - points[newlen - 1]) > 0) {
             points[newlen++] = p[0]; points[newlen++] = p[1];
         }
 
@@ -105,6 +105,12 @@ export class BasePoly {
         let b2 = (-perp2x + x2) - (-perp2x + x3);
         let c2 = (-perp2x + x3) * (-perp2y + y2) - (-perp2x + x2) * (-perp2y + y3);
         let denom = a1 * b2 - a2 * b1;
+        denom = a1 * b2 - a2 * b1;
+        if (Math.abs(denom) < 0.1) {
+            denom += 10.1;
+            vertexs.push(x2 - perpx, y2 - perpy, x2 + perpx, y2 + perpy);
+            return;
+        }
 
         let px = (b1 * c2 - b2 * c1) / denom;
         let py = (a2 * c1 - a1 * c2) / denom;
