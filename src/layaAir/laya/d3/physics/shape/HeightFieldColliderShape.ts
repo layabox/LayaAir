@@ -1,8 +1,9 @@
-import { Laya3D } from "../../../../../../Laya3D";
-import { IHeightFieldShape } from "../../../../../Physics3D/interface/Shape/IHeightFieldShape";
-import { EPhysicsCapable } from "../../../../../Physics3D/physicsEnum/EPhycisCapable";
-import { Vector3 } from "../../../../../maths/Vector3";
-import { BaseShape } from "./BaseShape";
+import { Laya3D } from "../../../../Laya3D";
+import { IHeightFieldShape } from "../../../Physics3D/interface/Shape/IHeightFieldShape";
+import { EPhysicsCapable } from "../../../Physics3D/physicsEnum/EPhycisCapable";
+import { Vector3 } from "../../../maths/Vector3";
+import { Physics3DColliderShape } from "./Physics3DColliderShape";
+
 
 /**
  * 高度场数据
@@ -22,7 +23,7 @@ export interface heightFieldData {
 /**
  * 此类描述高度场物理碰撞
  */
-export class HeightFieldColliderShape extends BaseShape {
+export class HeightFieldColliderShape extends Physics3DColliderShape {
     /**@internal */
     _shape: IHeightFieldShape;
     /**@internal */
@@ -45,7 +46,7 @@ export class HeightFieldColliderShape extends BaseShape {
         if (Laya3D.PhysicsCreateUtil.getPhysicsCapable(EPhysicsCapable.physics_heightFieldColliderShape))
             this._shape = Laya3D.PhysicsCreateUtil.createHeightFieldShape();
         else {
-            throw "BoxColliderShape: cant enable BoxColliderShape";
+            throw "HeightFieldColliderShape: cant enable HeightFieldColliderShape";
         }
     }
 }

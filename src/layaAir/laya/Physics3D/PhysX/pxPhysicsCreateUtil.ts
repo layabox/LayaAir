@@ -173,6 +173,32 @@ export class pxPhysicsCreateUtil implements IPhysicsCreateUtil {
     createHeightFieldShape(): pxHeightFieldShape {
         return new pxHeightFieldShape();
     }
+
+    static createFloat32Array(length:number):{ptr:number,buffer:Float32Array}{
+        let ptr = this._physX._malloc(4 * length);
+        const buffer = new Float32Array(this._physX.HEAPF32.buffer, ptr, length);
+        return {ptr:ptr,buffer:buffer}
+    }
+
+    static createUint32Array(length:number):{ptr:number,buffer:Uint32Array}{
+        let ptr = this._physX._malloc(4 * length);
+        const buffer = new Uint32Array(this._physX.HEAPU32.buffer, ptr, length);
+        return {ptr:ptr,buffer:buffer}
+    }
+    static createUint16Array(length:number):{ptr:number,buffer:Uint16Array}{
+        let ptr = this._physX._malloc(2 * length);
+        const buffer = new Uint16Array(this._physX.HEAPU16.buffer, ptr, length);
+        return {ptr:ptr,buffer:buffer}
+    }
+    static createUint8Array(length:number):{ptr:number,buffer:Uint8Array}{
+        let ptr = this._physX._malloc(length);
+        const buffer = new Uint8Array(this._physX.HEAPU8.buffer, ptr, length);
+        return {ptr:ptr,buffer:buffer}
+    }
+
+    static freeBuffer(data:any){
+        this._physX._free(data.ptr);
+    }
 }
 
 Laya3D.PhysicsCreateUtil = new pxPhysicsCreateUtil()
