@@ -70,6 +70,8 @@ export class PhysicsColliderComponent extends Component {
     protected _physicsManager: IPhysicsManager;
     /**@internal */
     protected _collider: ICollider;
+    /**@internal */
+    protected _eventsArray: string[];
 
     get collider(): ICollider {
         return this._collider;
@@ -84,8 +86,8 @@ export class PhysicsColliderComponent extends Component {
 
     set restitution(value: number) {
         this._restitution = value;
-        if (this._collider.getCapable(EColliderCapable.Collider_Restitution)) {
-            this._collider.setBounciness && this._collider.setBounciness(value);
+        if (this._collider && this._collider.getCapable(EColliderCapable.Collider_Restitution)) {
+            this._collider.setBounciness(value);
         }
     }
 
@@ -98,8 +100,8 @@ export class PhysicsColliderComponent extends Component {
 
     set friction(value: number) {
         this._friction = value;
-        if (this._collider.getCapable(EColliderCapable.Collider_Friction)) {
-            this._collider.setfriction && this._collider.setfriction(value);
+        if (this._collider && this._collider.getCapable(EColliderCapable.Collider_Friction)) {
+            this._collider.setfriction(value);
         }
         //this._btColliderObject && ILaya3D.Physics3D._bullet.btCollisionObject_setFriction(this._btColliderObject, value);
     }
@@ -113,8 +115,8 @@ export class PhysicsColliderComponent extends Component {
 
     set rollingFriction(value: number) {
         this._rollingFriction = value;
-        if (this._collider.getCapable(EColliderCapable.Collider_RollingFriction)) {
-            this._collider.setRollingFriction && this._collider.setRollingFriction(value);
+        if (this._collider && this._collider.getCapable(EColliderCapable.Collider_RollingFriction)) {
+            this._collider.setRollingFriction(value);
         }
     }
 
@@ -126,8 +128,8 @@ export class PhysicsColliderComponent extends Component {
     }
 
     set dynamicFriction(value: number) {
-        if (this._collider.getCapable(EColliderCapable.Collider_DynamicFriction)) {
-            this._collider.setDynamicFriction && this._collider.setDynamicFriction(value);
+        if (this._collider && this._collider.getCapable(EColliderCapable.Collider_DynamicFriction)) {
+            this._collider.setDynamicFriction(value);
         }
     }
 
@@ -140,8 +142,8 @@ export class PhysicsColliderComponent extends Component {
 
     set staticFriction(value: number) {
         this._staticFriction = value
-        if (this._collider.getCapable(EColliderCapable.Collider_StaticFriction)) {
-            this._collider.setStaticFriction && this._collider.setStaticFriction(value);
+        if (this._collider && this._collider.getCapable(EColliderCapable.Collider_StaticFriction)) {
+            this._collider.setStaticFriction(value);
         }
     }
 
@@ -150,8 +152,8 @@ export class PhysicsColliderComponent extends Component {
      */
     set frictionCombine(value: PhysicsCombineMode) {
         this._frictionCombine = value;
-        if (this._collider.getCapable(EColliderCapable.Collider_FrictionCombine)) {
-            this._collider.setFrictionCombine && this._collider.setFrictionCombine(value);
+        if (this._collider && this._collider.getCapable(EColliderCapable.Collider_FrictionCombine)) {
+            this._collider.setFrictionCombine(value);
         }
     }
 
@@ -164,8 +166,8 @@ export class PhysicsColliderComponent extends Component {
      */
     set restitutionCombine(value: PhysicsCombineMode) {
         this._restitutionCombine = value;
-        if (this._collider.getCapable(EColliderCapable.Collider_BounceCombine)) {
-            this._collider.setBounceCombine && this._collider.setBounceCombine(value);
+        if (this._collider && this._collider.getCapable(EColliderCapable.Collider_BounceCombine)) {
+            this._collider.setBounceCombine(value);
         }
     }
 
@@ -227,7 +229,7 @@ export class PhysicsColliderComponent extends Component {
     }
 
     set collisionGroup(value: number) {
-        if (this._collider.getCapable(EColliderCapable.Collider_CollisionGroup)) {
+        if (this._collider && this._collider.getCapable(EColliderCapable.Collider_CollisionGroup)) {
             if (this._collisionGroup !== value) {
                 this._collisionGroup = value;
                 if (this._colliderShape && this._enabled) {
@@ -245,7 +247,7 @@ export class PhysicsColliderComponent extends Component {
     }
 
     set canCollideWith(value: number) {
-        if (this._collider.getCapable(EColliderCapable.Collider_CollisionGroup)) {
+        if (this._collider && this._collider.getCapable(EColliderCapable.Collider_CollisionGroup)) {
             if (this._canCollideWith !== value) {
                 this._canCollideWith = value;
                 if (this._colliderShape && this._enabled) {
@@ -281,9 +283,9 @@ export class PhysicsColliderComponent extends Component {
     initCollider() {
         this._initCollider();
         this._collider.setOwner(this.owner);
-        this.restitution = this._restitution;
-        this.friction = this._friction;
-        this.rollingFriction = this._rollingFriction;
+        // this.restitution = this._restitution;
+        // this.friction = this._friction;
+        // this.rollingFriction = this._rollingFriction;
         this.ccdMotionThreshold = this._ccdMotionThreshold;
         this.ccdSweptSphereRadius = this._ccdSweptSphereRadius;
         this.collisionGroup = this._collisionGroup;
@@ -295,6 +297,13 @@ export class PhysicsColliderComponent extends Component {
         //Override it
     }
 
+    /**
+     * @internal
+     */
+    protected _setEventFilter() {
+        // override it
+    }
+
     protected _onAdded(): void {
         if (!this.owner.scene) {
             this.owner.on(Node.EVENT_SET_ACTIVESCENE, this, this._onAdded);
@@ -302,6 +311,8 @@ export class PhysicsColliderComponent extends Component {
             this.initCollider();
             this.owner.off(Node.EVENT_SET_ACTIVESCENE, this, this._onAdded);
         }
+        this.owner.off(Event._Add_Script, this, this._setEventFilter);
+        this.owner.on(Event._Add_Script, this, this._setEventFilter);
     }
 
     protected _onEnable(): void {

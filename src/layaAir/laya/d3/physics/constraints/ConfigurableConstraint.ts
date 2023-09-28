@@ -1,6 +1,4 @@
 import { ConstraintComponent } from "./ConstraintComponent";
-import { Rigidbody3D } from "../Rigidbody3D";
-import { Sprite3D } from "../../core/Sprite3D";
 import { Vector3 } from "../../../maths/Vector3";
 import { Laya3D } from "../../../../Laya3D";
 import { D6Axis, D6Drive, D6MotionType, ID6Joint } from "../../../Physics3D/interface/Joint/ID6Joint";
@@ -53,30 +51,30 @@ export class ConfigurableConstraint extends ConstraintComponent {
     // private _linearDamper: Vector3 = new Vector3();
     //angular TwistLimit
     /**@internal */
-    private _twistUper: number;
+    private _twistUper: number = 0;
     /**@internal */
-    private _twistLower: number;
+    private _twistLower: number = 0;
     /**@internal */
-    private _twistBounceness: number;
+    private _twistBounceness: number = 0;
     /**@internal */
-    private _twistBounceThreshold: number;
+    private _twistBounceThreshold: number = 0;
     /**@internal */
-    private _twistStiffness: number;
+    private _twistStiffness: number = 0;
     /**@internal */
-    private _twistDamping: number
+    private _twistDamping: number = 0;
     //angular SwingLimit
     /**@internal */
-    private _ySwingAngleLimit: number;
+    private _ySwingAngleLimit: number = 0;
     /**@internal */
-    private _zSwingAngleLimit: number;
+    private _zSwingAngleLimit: number = 0;
     /**@internal */
-    private _Swingrestitution: number;
+    private _Swingrestitution: number = 0;
     /**@internal */
-    private _SwingbounceThreshold: number;
+    private _SwingbounceThreshold: number = 0;
     /**@internal */
-    private _SwingStiffness: number;
+    private _SwingStiffness: number = 0;
     /**@internal */
-    private _SwingDamping: number;
+    private _SwingDamping: number = 0;
     //drive
     //target
     /**@internal */
@@ -584,8 +582,6 @@ export class ConfigurableConstraint extends ConstraintComponent {
     get ZDriveForceLimit() {
         return this._linearDriveforceLimit.z;
     }
-
-
 
     public get angularXDriveForceLimit(): number {
         return this._angularXDriveForceLimit;

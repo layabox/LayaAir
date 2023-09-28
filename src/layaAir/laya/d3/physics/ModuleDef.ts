@@ -3,6 +3,8 @@ import { CharacterController } from "./CharacterController";
 import { ConfigurableConstraint } from "./constraints/ConfigurableConstraint";
 import { ConstraintComponent } from "./constraints/ConstraintComponent";
 import { FixedConstraint } from "./constraints/FixedConstraint";
+import { HingeConstraint } from "./constraints/HingeConstraint";
+import { SpringConstraint } from "./constraints/SpringConstraint";
 import { PhysicsCollider } from "./PhysicsCollider";
 import { PhysicsColliderComponent } from "./PhysicsColliderComponent";
 import { PhysicsUpdateList } from "./PhysicsUpdateList";
@@ -20,6 +22,9 @@ let c = ClassUtils.regClass;
 c("ConfigurableConstraint", ConfigurableConstraint);
 c("FixedConstraint", FixedConstraint);
 c("ConstraintComponent", ConstraintComponent);
+c("HingeConstraint", HingeConstraint);
+c("SpringConstraint", SpringConstraint);
+
 
 c("BoxColliderShape", BoxColliderShape);
 c("CapsuleColliderShape", CapsuleColliderShape);

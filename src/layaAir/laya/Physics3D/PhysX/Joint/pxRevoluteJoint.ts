@@ -31,7 +31,7 @@ export class pxRevoluteJoint extends pxJoint implements IHingeJoint {
     private _bouncenciness: number = 0;
 
     /**@internal */
-    private _bouncenMinVelocity: number = 1;
+    private _bouncenMinVelocity: number = 0;
 
     /**@internal */
     private _contactDistance: number = 0;
@@ -47,23 +47,23 @@ export class pxRevoluteJoint extends pxJoint implements IHingeJoint {
         this._localPos.cloneTo(transform.translation);
         const transform1 = pxJoint._tempTransform1;
         this._connectlocalPos.cloneTo(transform1.translation);
-        this._pxJoint = pxPhysicsCreateUtil._pxPhysics.createRevoluteJoint(this._collider._pxActor, transform, this._connectCollider._pxActor, transform1)
+        this._pxJoint = pxPhysicsCreateUtil._pxPhysics.createRevoluteJoint(this._collider._pxActor, transform.translation, transform.rotation, this._connectCollider._pxActor, transform1.translation, transform1.rotation);
         this._pxJoint.setUUID(this._id);
     }
 
     /**@internal */
     protected _setLocalPose(actor: number, position: Vector3): void {
-        this._pxJoint.setLocalPose(actor, position, this._axisRotationQuaternion);
+        this._pxJoint && this._pxJoint.setLocalPose(actor, position, this._axisRotationQuaternion);
     }
 
     /**@internal */
     private _setRevoluteJointFlag(flag: PxRevoluteJointFlag, value: boolean) {
-        this._pxJoint.setRevoluteJointFlag(flag, value);
+        this._pxJoint && this._pxJoint.setRevoluteJointFlag(flag, value);
     }
 
     /**@internal */
     private _setLimit(): void {
-        this._enableLimit && this._pxJoint.setLimit(this._lowerLimit, this._uperLimit, this._bouncenciness, this._bouncenMinVelocity, this._contactDistance);
+        this._enableLimit && this._pxJoint && this._pxJoint.setHardLimit(this._lowerLimit, this._uperLimit, this._contactDistance);
     }
 
     /**@internal */
@@ -151,11 +151,11 @@ export class pxRevoluteJoint extends pxJoint implements IHingeJoint {
 
     /**@internal */
     setDriveVelocity(velocity: number): void {
-        this._pxJoint.setDriveVelocity(velocity);
+        this._pxJoint && this._pxJoint.setDriveVelocity(velocity, true);
     }
 
     /**@internal */
     setDriveForceLimit(limit: number): void {
-        this._pxJoint.setDriveForceLimit(limit);
+        this._pxJoint && this._pxJoint.setDriveForceLimit(limit);
     }
 }

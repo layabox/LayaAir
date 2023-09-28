@@ -30,7 +30,7 @@ export class pxD6Joint extends pxJoint implements ID6Joint {
         this._localPos.cloneTo(transform.translation);
         const transform1 = pxJoint._tempTransform1;
         this._connectlocalPos.cloneTo(transform1.translation);
-        this._pxJoint = pxPhysicsCreateUtil._pxPhysics.createD6Joint(this._collider._pxActor, transform, this._connectCollider._pxActor, transform1)
+        this._pxJoint = pxPhysicsCreateUtil._pxPhysics.createD6Joint(this._collider._pxActor, transform.translation, transform.rotation, this._connectCollider._pxActor, transform1.translation, transform1.rotation);
         this._pxJoint.setUUID(this._id);
     }
 
@@ -40,7 +40,7 @@ export class pxD6Joint extends pxJoint implements ID6Joint {
      * @param position 
      */
     protected _setLocalPose(actor: number, position: Vector3): void {
-        this._pxJoint.setLocalPose(actor, position, this._axisRotationQuaternion);
+        this._pxJoint && this._pxJoint.setLocalPose(actor, position, this._axisRotationQuaternion);
     }
 
     /**
@@ -65,7 +65,7 @@ export class pxD6Joint extends pxJoint implements ID6Joint {
      * @param motionType 
      */
     setMotion(axis: D6Axis, motionType: D6MotionType): void {
-        this._pxJoint.setMotion(axis, motionType);
+        this._pxJoint && this._pxJoint.setMotion(axis, motionType);
     }
 
     /**
@@ -77,7 +77,7 @@ export class pxD6Joint extends pxJoint implements ID6Joint {
      * @param damp 
      */
     setDistanceLimit(limit: number, bounceness: number, bounceThreshold: number, spring: number, damp: number): void {
-        this._pxJoint.set(limit, bounceness, bounceThreshold, spring, damp);
+        this._pxJoint && this._pxJoint.setDistanceLimit(limit, bounceness, bounceThreshold, spring, damp);
     }
 
     /**
@@ -91,7 +91,7 @@ export class pxD6Joint extends pxJoint implements ID6Joint {
      * @param damping 
      */
     setLinearLimit(linearAxis: D6MotionType, upper: number, lower: number, bounceness: number, bounceThreshold: number, spring: number, damping: number): void {
-        this._pxJoint.setLinearLimit(linearAxis, lower, upper, bounceness, bounceThreshold, spring, damping);
+        this._pxJoint && this._pxJoint.setLinearLimit(linearAxis, lower, upper, bounceness, bounceThreshold, spring, damping);
     }
 
     /**
@@ -104,7 +104,7 @@ export class pxD6Joint extends pxJoint implements ID6Joint {
      * @param damping 
      */
     setTwistLimit(upper: number, lower: number, bounceness: number, bounceThreshold: number, spring: number, damping: number): void {
-        this._pxJoint.setTwistLimit(lower, upper, bounceness, bounceThreshold, spring, damping);
+        this._pxJoint && this._pxJoint.setTwistLimit(lower, upper, bounceness, bounceThreshold, spring, damping);
     }
 
     /**
@@ -117,7 +117,7 @@ export class pxD6Joint extends pxJoint implements ID6Joint {
      * @param damping 
      */
     setSwingLimit(yAngle: number, zAngle: number, bounceness: number, bounceThreshold: number, spring: number, damping: number): void {
-        this._pxJoint.setSwingLimit(yAngle, zAngle, bounceness, bounceThreshold, spring, damping);
+        this._pxJoint && this._pxJoint.setSwingLimit(yAngle, zAngle, bounceness, bounceThreshold, spring, damping);
     }
 
     /**
@@ -129,7 +129,7 @@ export class pxD6Joint extends pxJoint implements ID6Joint {
      */
     setDrive(index: D6Drive, stiffness: number, damping: number, forceLimit: number): void {
         let acceleration: number = 0;//TODO 1 accleration Mode
-        this._pxJoint.setDrive(stiffness, index, damping, forceLimit, acceleration);
+        this._pxJoint && this._pxJoint.setDrive(stiffness, index, damping, forceLimit, acceleration);
     }
 
     /**
@@ -138,7 +138,7 @@ export class pxD6Joint extends pxJoint implements ID6Joint {
      * @param rotate 
      */
     setDriveTransform(position: Vector3, rotate: Quaternion): void {
-        this._pxJoint.setDrivePosition(position, rotate);
+        this._pxJoint && this._pxJoint.setDrivePosition(position, rotate);
     }
 
     /**
@@ -147,7 +147,7 @@ export class pxD6Joint extends pxJoint implements ID6Joint {
      * @param angular 
      */
     setDriveVelocity(position: Vector3, angular: Vector3): void {
-        this._pxJoint.setDriveVelocity(position, angular);
+        this._pxJoint && this._pxJoint.setDriveVelocity(position, angular);
     }
 
     /**

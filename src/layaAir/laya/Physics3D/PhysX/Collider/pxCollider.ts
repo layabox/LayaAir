@@ -2,12 +2,12 @@ import { Sprite3D } from "../../../d3/core/Sprite3D";
 import { Transform3D } from "../../../d3/core/Transform3D";
 import { PhysicsCombineMode } from "../../../d3/physics/PhysicsColliderComponent";
 import { Physics3DUtils } from "../../../d3/utils/Physics3DUtils";
+import { Event } from "../../../events/Event";
 import { Quaternion } from "../../../maths/Quaternion";
 import { Vector3 } from "../../../maths/Vector3";
 import { ICollider } from "../../interface/ICollider";
 import { pxColliderShape } from "../Shape/pxColliderShape";
-import { pxPhysicsManager } from "../pxPhysicsManager";
-
+import { partFlag, pxPhysicsManager } from "../pxPhysicsManager";
 /**
  * collider type
  */
@@ -107,7 +107,7 @@ export class pxCollider implements ICollider {
     }
 
     protected setActorFlag(flag: pxActorFlag, value: boolean) {
-        this._pxActor.setActorFlag(flag, value);
+        this._pxActor.setCustomFlag(flag, value);
     }
 
     getCapable(value: number): boolean {
@@ -161,12 +161,41 @@ export class pxCollider implements ICollider {
         this._shape.setSimulationFilterData(this._collisionGroup, this._canCollisionWith);
     }
 
+    setEventFilter(events: []): void {
+        if (!this._shape) return;
+        let flag = partFlag.eCONTACT_DEFAULT | partFlag.eTRIGGER_DEFAULT;
+        for (let i = 0, j = events.length; i < j; i++) {
+            let value = events[i];
+            if (value == Event.TRIGGER_ENTER) {
+                flag = flag | partFlag.eTRIGGER_DEFAULT | partFlag.eNOTIFY_TOUCH_FOUND;
+            }
+            if (value == Event.TRIGGER_STAY) {
+                // flag = partFlag.eNOTIFY_TOUCH_PERSISTS;
+            }
+            if (value == Event.TRIGGER_EXIT) {
+                flag = flag | partFlag.eTRIGGER_DEFAULT | partFlag.eNOTIFY_TOUCH_LOST;
+            }
+            if (value == Event.COLLISION_ENTER) {
+                flag = flag | partFlag.eNOTIFY_TOUCH_PERSISTS | partFlag.eNOTIFY_CONTACT_POINTS;
+            }
+            if (value == Event.COLLISION_STAY) {
+                flag = flag | partFlag.eNOTIFY_TOUCH_PERSISTS;
+            }
+            if (value == Event.COLLISION_EXIT) {
+                flag = flag | partFlag.eNOTIFY_TOUCH_PERSISTS | partFlag.eNOTIFY_TOUCH_LOST;
+            }
+        }
+
+        this._shape && this._shape.setEventFilterData(flag);
+    }
+
     setOwner(node: Sprite3D): void {
         this.owner = node;
         this._transform = node.transform;
         this._initCollider();
         pxCollider._ActorPool.set(this._id, this);
         this._pxActor.setUUID(this._id);
+        this.setActorFlag(pxActorFlag.eSEND_SLEEP_NOTIFIES, true);
     }
 
     protected _initCollider() {

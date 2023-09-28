@@ -41,9 +41,14 @@ export class btJoint implements IJoint {
     static CONSTRAINT_CONSTRAINT_STOP_CFM = 4;
 
     /**@internal */
-    _connectedBody: btCollider;
+    _connectCollider: ICollider;
     /**@internal */
-    _ownBody: btCollider;
+    _collider: ICollider;
+
+    /**@internal */
+    _connectOwner: Sprite3D;
+    /**@internal */
+    owner: Sprite3D;
 
 
     /**@internal */
@@ -57,16 +62,13 @@ export class btJoint implements IJoint {
     /**@internal */
     _constraintType: number;
     _manager: btPhysicsManager;
-    _connectBody: btCollider;
     /** 连接的两个物体是否进行碰撞检测 */
     _disableCollisionsBetweenLinkedBodies = false;
 
     /**@internal */
-    owner: Sprite3D;
-    /**@internal */
-    _anchor: Vector3 = new Vector3();
+    _anchor: Vector3 = new Vector3(0);
     /** @internal */
-    _connectAnchor = new Vector3();
+    _connectAnchor = new Vector3(0);
     /**@internal */
     private _currentForce: Vector3 = new Vector3();
     /**@internal */
@@ -102,17 +104,43 @@ export class btJoint implements IJoint {
         this._manager = manager;
         this.initJoint();
     }
-    setCollider(owner: ICollider): void {
-        throw new Error("Method not implemented.");
+
+    protected _createJoint() {
+        //override it
     }
-    setConnectedCollider(owner: ICollider): void {
-        throw new Error("Method not implemented.");
+
+    setCollider(collider: btCollider): void {
+        if (collider == this._collider)
+            return;
+        this._collider = collider;
+        this._createJoint();
     }
+
+    setConnectedCollider(collider: btCollider): void {
+        if (collider == this._connectCollider)
+            return;
+        if (collider) {
+            this._connectOwner = collider.owner;
+        }
+        this._connectCollider = collider;
+        this._createJoint();
+    }
+
     setLocalPos(pos: Vector3): void {
-        throw new Error("Method not implemented.");
+        let bt = btPhysicsCreateUtil._bt;
+        this._anchor = pos;
+        bt.btVector3_setValue(this._btTempVector30, -this._anchor.x, this._anchor.y, this._anchor.z);
+        bt.btTransform_setOrigin(this._btTempTrans0, this._btTempVector30);
+        bt.btVector3_setValue(this._btTempVector31, -this._connectAnchor.x, this._connectAnchor.y, this._connectAnchor.z);
+        bt.btTransform_setOrigin(this._btTempTrans1, this._btTempVector31);
     }
     setConnectLocalPos(pos: Vector3): void {
-        throw new Error("Method not implemented.");
+        let bt = btPhysicsCreateUtil._bt;
+        this._connectAnchor = pos;
+        bt.btVector3_setValue(this._btTempVector30, -this._anchor.x, this._anchor.y, this._anchor.z);
+        bt.btTransform_setOrigin(this._btTempTrans0, this._btTempVector30);
+        bt.btVector3_setValue(this._btTempVector31, -this._connectAnchor.x, this._connectAnchor.y, this._connectAnchor.z);
+        bt.btTransform_setOrigin(this._btTempTrans1, this._btTempVector31);
     }
     getlinearForce(): Vector3 {
         throw new Error("Method not implemented.");
@@ -123,11 +151,18 @@ export class btJoint implements IJoint {
     isValid(): boolean {
         throw new Error("Method not implemented.");
     }
+
     isEnable(value: boolean): void {
-        throw new Error("Method not implemented.");
+        let bt = btPhysicsCreateUtil._bt;
+        bt.btTypedConstraint_setEnabled(this._btJoint, value);
     }
 
-    private initJoint() {
+    isCollision(value: boolean): void {
+        this._disableCollisionsBetweenLinkedBodies = !value;
+        this._createJoint();
+    }
+
+    protected initJoint() {
         let bt = btPhysicsCreateUtil._bt;
         this._breakForce = -1;
         this._breakTorque = -1;
@@ -136,8 +171,8 @@ export class btJoint implements IJoint {
         this._btTempTrans0 = bt.btTransform_create();
         this._btTempTrans1 = bt.btTransform_create();
         bt.btTransform_setIdentity(this._btTempTrans0);
-        bt.btTransform_setIdentity(this._btTempTrans1);
         bt.btTransform_setOrigin(this._btTempTrans0, this._btTempVector30);
+        bt.btTransform_setIdentity(this._btTempTrans1);
         bt.btTransform_setOrigin(this._btTempTrans1, this._btTempVector31);
     }
 
@@ -173,7 +208,7 @@ export class btJoint implements IJoint {
         this._getJointFeedBack = true;
     }
 
-    
+
 
     setConnectedAnchor(ownerValue: Vector3, otherValue: Vector3): void {
         this._anchor = ownerValue;

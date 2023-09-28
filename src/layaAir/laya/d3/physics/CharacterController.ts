@@ -33,18 +33,25 @@ export class CharacterController extends PhysicsColliderComponent {
     private _contactOffset: number;
     /**@internal */
     private _minDistance: number = 0;
+    /**@internal */
+    private _simGravity: Vector3 = new Vector3(0, -9.8 / 60, 0);
     /**
      * @override
      * @internal
      */
     protected _initCollider() {
+        this._physicsManager = (this.owner.scene as Scene3D).physicsSimulation;
         if (Laya3D.enablePhysics && this._physicsManager && Laya3D.PhysicsCreateUtil.getPhysicsCapable(EPhysicsCapable.Physics_CharacterCollider)) {
             this._physicsManager = ((<Scene3D>this.owner._scene))._physicsManager;
             this._collider = Laya3D.PhysicsCreateUtil.createCharacterController(this._physicsManager);
-            this.colliderShape = new CapsuleColliderShape();
         } else {
             throw "CharacterController: cant enable CharacterController"
         }
+    }
+
+    onUpdate(): void {
+        // physX need to simulate character Gravity.
+        this.move(this._simGravity);
     }
 
     /**
@@ -62,7 +69,7 @@ export class CharacterController extends PhysicsColliderComponent {
     }
 
     /**
-     * 重力。
+     * 高度。
      */
     get height(): number {
         return this._height;
@@ -76,16 +83,16 @@ export class CharacterController extends PhysicsColliderComponent {
     }
 
     /**
-     * 重力。
+     * 
      */
     get minDistance(): number {
-        return this._height;
+        return this._minDistance;
     }
 
     set minDistance(value: number) {
-        this._height = value;
-        if (this.collider.getCapable(ECharacterCapable.Character_Height)) {
-            this._collider && this._collider.setHeight(this._height);
+        this._minDistance = value;
+        if (this.collider.getCapable(ECharacterCapable.Character_minDistance)) {
+            this._collider && this._collider.setminDistance(this._minDistance);
         }
     }
 
@@ -93,7 +100,7 @@ export class CharacterController extends PhysicsColliderComponent {
      * 碰撞偏移
      */
     get centerOffset(): Vector3 {
-        return this._gravity;
+        return this._offset;
     }
 
     set centerOffset(value: Vector3) {

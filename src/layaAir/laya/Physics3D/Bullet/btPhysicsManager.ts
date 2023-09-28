@@ -509,8 +509,8 @@ export class btPhysicsManager implements IPhysicsManager {
             let constraintObj = this._currentConstraint[id] as btJoint;
             // TODO 这个只要发一次就行
             if (constraintObj._isBreakConstrained()) {
-                let bodya = constraintObj._ownBody.owner;
-                let bodyb = constraintObj._connectBody.owner;
+                let bodya = constraintObj.owner;
+                let bodyb = constraintObj._connectOwner;
                 bodya.event(Event.JOINT_BREAK);
                 bodyb.event(Event.JOINT_BREAK);
             }

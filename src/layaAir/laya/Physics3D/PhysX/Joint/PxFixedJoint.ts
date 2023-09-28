@@ -11,7 +11,7 @@ export class pxFixedJoint extends pxJoint implements IFixedJoint {
         this._localPos.cloneTo(transform.translation);
         const transform1 = pxJoint._tempTransform1;
         this._connectlocalPos.cloneTo(transform1.translation);
-        this._pxJoint = pxPhysicsCreateUtil._pxPhysics.createFixedJoint(this._collider._pxActor,transform,this._connectCollider._pxActor,transform1)
+        this._pxJoint = pxPhysicsCreateUtil._pxPhysics.createFixedJoint(this._collider._pxActor, transform.translation, transform.rotation, this._connectCollider._pxActor, transform1.translation, transform1.rotation);
         this._pxJoint.setUUID(this._id);
     }
 }

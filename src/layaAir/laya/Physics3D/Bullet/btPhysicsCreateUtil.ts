@@ -14,7 +14,7 @@ import { btRigidBodyCollider } from "./Collider/btRigidBodyCollider";
 import { btStaticCollider } from "./Collider/btStaticCollider";
 import { btCustomJoint } from "./Joint/btCustomJoint";
 import { btFixedJoint } from "./Joint/btFixedJoint";
-//import { btHingJoint } from "./Joint/btHingJoint";
+import { btHingeJoint } from "./Joint/btHingeJoint";
 import { btSpringJoint } from "./Joint/btSpringJoint";
 import { btBoxColliderShape } from "./Shape/btBoxColliderShape";
 import { btCapsuleColliderShape } from "./Shape/btCapsuleColliderShape";
@@ -25,9 +25,6 @@ import { BulletInteractive } from "./btInteractive";
 import { btPhysicsManager } from "./btPhysicsManager";
 
 export class btPhysicsCreateUtil implements IPhysicsCreateUtil {
-    createD6Joint(manager: IPhysicsManager): ID6Joint {
-        throw new Error("Method not implemented.");
-    }
     // capable map
     protected _physicsEngineCapableMap: Map<any, any>;
 
@@ -44,6 +41,11 @@ export class btPhysicsCreateUtil implements IPhysicsCreateUtil {
         this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_ConeColliderShape, true);
         this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_MeshColliderShape, false);
         this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_CompoundColliderShape, false);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_Joint, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_D6Joint, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_FixedJoint, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_SpringJoint, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_HingeJoint, true);
     }
 
     getPhysicsCapable(value: EPhysicsCapable): boolean {
@@ -93,13 +95,17 @@ export class btPhysicsCreateUtil implements IPhysicsCreateUtil {
     }
 
     createHingeJoint(manager: btPhysicsManager): IHingeJoint {
-        //return new btHingJoint(manager);
-        return null
+        return new btHingeJoint(manager);
     }
 
     createSpringJoint(manager: btPhysicsManager): btSpringJoint {
         return new btSpringJoint(manager);
     }
+
+    createD6Joint(manager: btPhysicsManager): ID6Joint {
+        return new btCustomJoint(manager);
+    }
+    
     createBoxColliderShape(): btBoxColliderShape {
         return new btBoxColliderShape();
     }
