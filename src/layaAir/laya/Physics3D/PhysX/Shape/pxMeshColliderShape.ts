@@ -31,7 +31,7 @@ export enum PxMeshGeometryFlag {
 };
 
 export class pxMeshColliderShape extends pxColliderShape implements IMeshColliderShape {
-    private _limitvertex = 10;
+    private _limitvertex = 100;
     private _mesh: Mesh;
     private _convex: boolean;
     private _meshScale: any;
@@ -39,6 +39,8 @@ export class pxMeshColliderShape extends pxColliderShape implements IMeshCollide
         super();
         this._convex = false;
         this._meshScale = new pxPhysicsCreateUtil._physX.PxMeshScale(Vector3.ONE, Quaternion.DEFAULT);
+        this._id = pxColliderShape._pxShapeID++;
+        this._pxMaterials[0] = new pxPhysicsMaterial();
     }
 
     private _getMeshPosition(): any {
@@ -57,7 +59,7 @@ export class pxMeshColliderShape extends pxColliderShape implements IMeshCollide
         let traCount = indexCount / 3;
         let data = null
         if (indices instanceof Uint32Array) {
-            data= pxPhysicsCreateUtil.createUint32Array(indexCount);
+            data = pxPhysicsCreateUtil.createUint32Array(indexCount);
         } else {
             data = pxPhysicsCreateUtil.createUint16Array(indexCount);
         }
@@ -72,6 +74,7 @@ export class pxMeshColliderShape extends pxColliderShape implements IMeshCollide
 
 
     private _createConvexMeshGeometry() {
+        if (!this._mesh) return;
         if (!this._mesh._convexMesh) {
             let vecpointer = this._getMeshPosition();
             this._mesh._convexMesh = pxPhysicsCreateUtil._physX.createConvexMeshFromBuffer(vecpointer, pxPhysicsCreateUtil._pxPhysics, this._limitvertex, pxPhysicsCreateUtil._tolerancesScale, PxConvexFlag.eCOMPUTE_CONVEX);
@@ -89,6 +92,7 @@ export class pxMeshColliderShape extends pxColliderShape implements IMeshCollide
     }
 
     private _createTrianggleMeshGeometry() {
+        if (!this._mesh) return;
         if (!this._mesh._triangleMesh) {
             //trans VecArray
             let vecpointer = this._getMeshPosition();
@@ -113,12 +117,6 @@ export class pxMeshColliderShape extends pxColliderShape implements IMeshCollide
      * @override
      */
     protected _createShape() {
-        if (this._id == null) {
-            this._id = pxColliderShape._pxShapeID++;
-        }
-        if (!this._pxMaterials[0]) {
-            this._pxMaterials[0] = new pxPhysicsMaterial();
-        }
         this._pxShape = pxPhysicsCreateUtil._pxPhysics.createShape(
             this._pxGeometry,
             this._pxMaterials[0]._pxMaterial,
@@ -154,11 +152,13 @@ export class pxMeshColliderShape extends pxColliderShape implements IMeshCollide
     setOffset(position: Vector3): void {
         if (!this._pxCollider) return;
         position.cloneTo(this._offset);
-        const transform = pxColliderShape.transform;
         this._setScale(this._pxCollider.owner.transform.getWorldLossyScale());
-        if (this._pxCollider.owner)
-            Vector3.multiply(position, this._scale, transform.translation);
-        this._pxShape.setLocalPose(transform);
+        if (this._pxShape) {
+            const transform = pxColliderShape.transform;
+            if (this._pxCollider.owner)
+                Vector3.multiply(position, this._scale, transform.translation);
+            this._pxShape.setLocalPose(transform);
+        }
     }
 
 
@@ -175,10 +175,9 @@ export class pxMeshColliderShape extends pxColliderShape implements IMeshCollide
     }
 
     setLimitVertex(limit: number): void {
-        this._limitvertex = limit;
-        if (this._convex)
-            this._createConvexMeshGeometry();
+
     }
+
 
 
 

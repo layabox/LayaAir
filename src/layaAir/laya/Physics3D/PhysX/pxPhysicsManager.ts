@@ -172,22 +172,9 @@ export class pxPhysicsManager implements IPhysicsManager {
         for (var i = 0, n = this._dynamicUpdateList.length; i < n; i++) {
             var physicCollider = elements[i] as pxDynamicCollider;
             physicCollider.getWorldTransform();
-            //physicCollider.inPhysicUpdateListIndex = -1;//置空索引
         }
-        //this._physicsUpdateList.length = 0;//清空物理更新队列
     }
 
-
-    private functiontest() {
-        let a = new Float32Array(30);
-        var length = 30 * 4;
-        var ptr = pxPhysicsCreateUtil._allocator.allocate(4 * length, 0, 0, 0); // Get buffer from emscripten.
-        var buffer = new Float32Array(pxPhysicsCreateUtil._physX.HEAPF32.buffer, ptr, 30);
-        for (var i = 0; i < length; i++) {
-            buffer[i] = i + 20;
-        }
-        let vecpointer = pxPhysicsCreateUtil._physX.wrapPointer(ptr, pxPhysicsCreateUtil._physX.PxVec3);//PXVec3
-    }
 
 
     /**
@@ -212,7 +199,7 @@ export class pxPhysicsManager implements IPhysicsManager {
         this._updatePhysicsTransformToRender();
     }
     rayCast(ray: Ray, outHitResult: HitResult, distance?: number, collisonGroup?: number, collisionMask?: number): boolean {
-        this._pxScene.raycastCloset(ray.origin, ray.direction, collisionMask);
+        this._pxScene.raycastCloset(ray.origin, ray.direction, 0);
         return false;
     }
     rayCastAll?(ray: Ray, out: HitResult[], distance: number, collisonGroup?: number, collisionMask?: number): boolean {
