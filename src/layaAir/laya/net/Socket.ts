@@ -130,8 +130,7 @@ export class Socket extends EventDispatcher {
      * @param isSecure  是否使用WebSocket安全协议wss，默认（false）使用普通协议ws
      */
     connect(host: string, port: number, isSecure: boolean = false): void {
-        var url: string = (isSecure) ? "wss" : "ws" + "://" + host + ":" + port;
-        this.connectByUrl(url);
+        this.connectByUrl(`${isSecure ? "wss" : "ws"}://${host}:${port}`);
     }
 
     /**
