@@ -30,6 +30,31 @@ export class Gradient implements IClone {
 	_rgbElements: Float32Array = null;
 
 	/**
+	 * 标准化数据
+	 */
+	normalizeData() {
+		if (this._rgbElements.length<8||this._colorRGBKeysCount == 1) {
+			let rgbElements = new Float32Array(this._maxColorRGBKeysCount * 4);
+			for(var i=0;i<2;i++){
+				rgbElements.set(this._rgbElements,i*4);
+				rgbElements[i*4] = i;
+			}
+			this._rgbElements = rgbElements;
+			this._colorRGBKeysCount = 2;
+		}
+
+		if (this._alphaElements.length<2||this._colorAlphaKeysCount == 1) {
+			let alphaElements = new Float32Array(this._maxColorAlphaKeysCount * 2);
+			for(var i=0;i<2;i++){
+				alphaElements.set(this._rgbElements,i*2);
+				alphaElements[i*2] = i;
+			}
+			this._alphaElements = alphaElements;
+			this._colorAlphaKeysCount = 2;
+		}
+	}
+
+	/**
 	 * 获取梯度模式。
 	 * @return  梯度模式。
 	 */
@@ -82,7 +107,7 @@ export class Gradient implements IClone {
 	 * @param maxColorRGBKeyCount 最大RGB帧个数。
 	 * @param maxColorAlphaKeyCount 最大Alpha帧个数。
 	 */
-	constructor(maxColorRGBKeyCount: number, maxColorAlphaKeyCount: number) {
+	constructor(maxColorRGBKeyCount: number = 4, maxColorAlphaKeyCount: number = 4) {
 		this._maxColorRGBKeysCount = maxColorRGBKeyCount;
 		this._maxColorAlphaKeysCount = maxColorAlphaKeyCount;
 		this._rgbElements = new Float32Array(maxColorRGBKeyCount * 4);
@@ -366,7 +391,7 @@ export class Gradient implements IClone {
 		var i: number, n: number;
 		destGradientDataColor._colorAlphaKeysCount = this._colorAlphaKeysCount;
 		let destAlphaElements = destGradientDataColor._alphaElements = new Float32Array(this._alphaElements.length);
-		
+
 		for (i = 0, n = this._alphaElements.length; i < n; i++)
 			destAlphaElements[i] = this._alphaElements[i];
 

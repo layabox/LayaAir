@@ -16,7 +16,7 @@ export class TrailSprite3D extends RenderableSprite3D {
 	/**
 	 * @internal
 	 */
-	static __init__(): void {}
+	static __init__(): void { }
 
 	/** @internal */
 	private _geometryFilter: TrailFilter;
@@ -95,6 +95,7 @@ export class TrailSprite3D extends RenderableSprite3D {
 			var alphaKey: any = alphaKeys[i];
 			colorGradient.addColorAlpha(alphaKey.time, alphaKey.value);
 		}
+		colorGradient.normalizeData();
 		filter.colorGradient = colorGradient;
 	}
 
