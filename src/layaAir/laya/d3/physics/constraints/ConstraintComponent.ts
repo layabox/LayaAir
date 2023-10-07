@@ -4,12 +4,15 @@ import { Vector3 } from "../../../maths/Vector3";
 import { IJoint } from "../../../Physics3D/interface/Joint/IJoint";
 import { Node } from "../../../display/Node";
 import { IPhysicsManager } from "../../../Physics3D/interface/IPhysicsManager";
+import { pxJoint } from "../../../Physics3D/PhysX/Joint/pxJoint";
 /**
  * <code>ConstraintComponent</code> 类用于创建约束的父类。
  */
 export class ConstraintComponent extends Component {
     /**@internal */
     _joint: IJoint;
+    /**@internal */
+    private _enableCollison: boolean = false;
     protected _physicsManager: IPhysicsManager;
     /**@internal */
     protected _ownCollider: Rigidbody3D;
@@ -22,14 +25,12 @@ export class ConstraintComponent extends Component {
      * instance joint
      */
     initJoint() {
-        if (this.connectedBody && this.ownBody) {
-            this._initJoint();
-            this._joint.setOwner(this.owner)
-            this._joint.setLocalPos(this._ownColliderLocalPos);
-            this._joint.setConnectLocalPos(this._ownColliderLocalPos);
-            this._joint.setBreakForce(this.breakForce);
-            this._joint.setBreakTorque(this._breakTorque);
-        }
+        this._initJoint();
+        this._joint.setOwner(this.owner)
+        this._joint.setLocalPos(this._ownColliderLocalPos);
+        this._joint.setConnectLocalPos(this._connectColliderLocalPos);
+        this._joint.setBreakForce(this.breakForce);
+        this._joint.setBreakTorque(this._breakTorque);
     }
 
     protected _initJoint() {
@@ -38,10 +39,11 @@ export class ConstraintComponent extends Component {
     }
 
     set connectedBody(value: Rigidbody3D) {
-        if (!value || this._ownCollider == value)
+        if (!value || this._connectCollider == value)
             return;
+        this._connectCollider = value;
         if (this._joint) {
-            this._joint.setCollider(value.collider);
+            this._joint.setConnectedCollider(value.collider);
         }
     }
 
@@ -134,6 +136,17 @@ export class ConstraintComponent extends Component {
     }
 
     /**
+     * 是否碰撞关节之间的内容
+     */
+    public get enableCollison(): boolean {
+        return this._enableCollison;
+    }
+    public set enableCollison(value: boolean) {
+        this._enableCollison = value;
+        this._joint.isCollision(value);
+    }
+
+    /**
      * 创建一个 <code>ConstraintComponent</code> 实例。
      */
     constructor() {
@@ -142,10 +155,10 @@ export class ConstraintComponent extends Component {
 
     protected _onAdded(): void {
         if (!this.owner.scene) {
-            this.owner.on(Node.EVENT_SET_ACTIVESCENE, this._onAdded);
+            this.owner.on(Node.EVENT_SET_ACTIVESCENE, this, this._onAdded);
         } else {
             this.initJoint();
-            this.owner.off(Node.EVENT_SET_ACTIVESCENE, this._onAdded);
+            this.owner.off(Node.EVENT_SET_ACTIVESCENE, this, this._onAdded);
         }
     }
 

@@ -71,11 +71,13 @@ export interface IJoint {
    * get angular force
    */
   getAngularForce(): Vector3;
-  
+
   /**
    * is breaked
    */
   isValid(): boolean;
 
-  isEnable(value:boolean):void
+  isEnable(value: boolean): void;
+
+  isCollision(value: boolean): void;
 }

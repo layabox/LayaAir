@@ -215,7 +215,7 @@ export class UI3D extends BaseRender {
         this._ui3DMat.materialRenderMode = MaterialRenderMode.RENDERMODE_OPAQUE;
         this._ui3DMat.cull = RenderState.CULL_BACK;
         this._matrix = new Matrix4x4();
-        this._scale = new Vector3();
+        this._scale = new Vector3(1.0, 1.0, 1.0);
     }
 
     /**

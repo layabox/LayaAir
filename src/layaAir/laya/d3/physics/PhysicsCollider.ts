@@ -4,6 +4,7 @@ import { EColliderCapable } from "../../Physics3D/physicsEnum/EColliderCapable";
 import { EPhysicsCapable } from "../../Physics3D/physicsEnum/EPhycisCapable";
 import { Scene3D } from "../core/scene/Scene3D";
 import { PhysicsColliderComponent } from "./PhysicsColliderComponent";
+import { Event } from "../../events/Event";
 
 /**
  * <code>PhysicsCollider</code> 类用于创建物理碰撞器。
@@ -47,6 +48,7 @@ export class PhysicsCollider extends PhysicsColliderComponent {
         this._isTrigger = value;
         if (this._collider && this._collider.getCapable(EColliderCapable.Collider_AllowTrigger)) {
             this._collider.setTrigger(value);
+            this._setEventFilter();
         }
     }
 
@@ -63,6 +65,35 @@ export class PhysicsCollider extends PhysicsColliderComponent {
         (data.isTrigger != null) && (this.isTrigger = data.isTrigger);
         super._parse(data);
         this._parseShape(data.shapes);
+    }
+
+    /**
+     * @internal
+     */
+    protected _setEventFilter() {
+        if (this._collider && this._collider.getCapable(EColliderCapable.Collider_EventFilter)) {
+            this._eventsArray = [];
+            // event 
+            if (this.isTrigger && this.owner.hasListener(Event.TRIGGER_ENTER)) {
+                this._eventsArray.push(Event.TRIGGER_ENTER);
+            }
+            if (this.isTrigger && this.owner.hasListener(Event.TRIGGER_STAY)) {
+                this._eventsArray.push(Event.TRIGGER_STAY);
+            }
+            if (this.isTrigger && this.owner.hasListener(Event.TRIGGER_EXIT)) {
+                this._eventsArray.push(Event.TRIGGER_EXIT);
+            }
+            if (this.owner.hasListener(Event.COLLISION_ENTER)) {
+                this._eventsArray.push(Event.COLLISION_ENTER);
+            }
+            if (this.owner.hasListener(Event.COLLISION_STAY)) {
+                this._eventsArray.push(Event.COLLISION_STAY);
+            }
+            if (this.owner.hasListener(Event.COLLISION_EXIT)) {
+                this._eventsArray.push(Event.COLLISION_EXIT);
+            }
+            this._collider.setEventFilter(this._eventsArray);
+        }
     }
 }
 

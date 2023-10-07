@@ -22,6 +22,7 @@ import { pxDynamicCollider } from "./Collider/pxDynamicCollider";
 import { pxStaticCollider } from "./Collider/pxStaticCollider";
 import { pxFixedJoint } from "./Joint/PxFixedJoint";
 import { pxD6Joint } from "./Joint/pxD6Joint";
+import { pxDistanceJoint } from "./Joint/pxDistanceJoint";
 import { pxRevoluteJoint } from "./Joint/pxRevoluteJoint";
 import { pxBoxColliderShape } from "./Shape/pxBoxColliderShape";
 import { pxCapsuleColliderShape } from "./Shape/pxCapsuleColliderShape";
@@ -29,6 +30,7 @@ import { pxMeshColliderShape } from "./Shape/pxMeshColliderShape";
 import { pxHeightFieldShape } from "./Shape/pxHeightFieldShape";
 import { pxSphereColliderShape } from "./Shape/pxSphereColliderShape";
 import { pxPhysicsManager } from "./pxPhysicsManager";
+import { pxCharactorCollider } from "./Collider/pxCharactorCollider";
 
 
 export class pxPhysicsCreateUtil implements IPhysicsCreateUtil {
@@ -55,7 +57,7 @@ export class pxPhysicsCreateUtil implements IPhysicsCreateUtil {
         this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_Gravity, true);
         this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_StaticCollider, true);
         this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_DynamicCollider, true);
-        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_CharacterCollider, false);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_CharacterCollider, true);
         this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_BoxColliderShape, true);
         this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_SphereColliderShape, true);
         this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_CapsuleColliderShape, true);
@@ -64,6 +66,11 @@ export class pxPhysicsCreateUtil implements IPhysicsCreateUtil {
         this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_MeshColliderShape, true);
         this._physicsEngineCapableMap.set(EPhysicsCapable.physics_heightFieldColliderShape, true);
         this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_CompoundColliderShape, false);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_Joint, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_FixedJoint, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_SpringJoint, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_HingeJoint, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_D6Joint, true);
     }
 
     getPhysicsCapable(value: EPhysicsCapable): boolean {
@@ -77,7 +84,7 @@ export class pxPhysicsCreateUtil implements IPhysicsCreateUtil {
             this.initPhysicsCapable();
             pxDynamicCollider.initCapable();
             pxStaticCollider.initCapable();
-
+            pxCharactorCollider.initCapable();
             return Promise.resolve();
         });
 
@@ -118,24 +125,20 @@ export class pxPhysicsCreateUtil implements IPhysicsCreateUtil {
         return new pxStaticCollider(manager);
     }
 
-    createCharacterController(manager: IPhysicsManager): ICharacterController {
-        //TODO
-        return null;
+    createCharacterController(manager: pxPhysicsManager): ICharacterController {
+        return new pxCharactorCollider(manager);
     }
 
     createFixedJoint(manager: pxPhysicsManager): IFixedJoint {
-        //TODO
         return new pxFixedJoint(manager);
     }
 
     createHingeJoint(manager: pxPhysicsManager): IHingeJoint {
-        //TODO
         return new pxRevoluteJoint(manager);
     }
 
-    createSpringJoint(manager: IPhysicsManager): ISpringJoint {
-        //TODO
-        return null;
+    createSpringJoint(manager: pxPhysicsManager): ISpringJoint {
+        return new pxDistanceJoint(manager);
     }
 
     createD6Joint(manager: pxPhysicsManager): ID6Joint {

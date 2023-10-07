@@ -54,34 +54,44 @@ export class btCharacterCollider extends btCollider implements ICharacterControl
         this._btCollider = ghostObject;
     }
     setShapelocalOffset(value: Vector3): void {
-        throw new Error("Method not implemented.");
+        // bullet no shapeoffset,need set collidershape
+        // throw new Error("Method not implemented.");
     }
     setSkinWidth?(width: number): void {
-        throw new Error("Method not implemented.");
+        // bullet no skinwidth
+        // throw new Error("Method not implemented.");
     }
     setPosition(value: Vector3): void {
-        throw new Error("Method not implemented.");
+        // bullet no direct setposition
+        // throw new Error("Method not implemented.");
     }
     setRadius?(value: number): void {
-        throw new Error("Method not implemented.");
+        // bullet no radius,need set collidershape
+        // throw new Error("Method not implemented.");
     }
     setHeight?(value: number): void {
-        throw new Error("Method not implemented.");
+        // bullet no height,need set collidershape
+        // throw new Error("Method not implemented.");
     }
     setminDistance(value: number): void {
-        throw new Error("Method not implemented.");
+        // bullet no mindistance
+        // throw new Error("Method not implemented.");
     }
     setDynamicFriction?(value: number): void {
-        throw new Error("Method not implemented.");
+        // bullet no dynamicFriction
+        // throw new Error("Method not implemented.");
     }
     setStaticFriction?(value: number): void {
-        throw new Error("Method not implemented.");
+        // bullet no staticFriction
+        // throw new Error("Method not implemented.");
     }
     setFrictionCombine?(value: PhysicsCombineMode): void {
-        throw new Error("Method not implemented.");
+        // bullet no frictionCombine
+        // throw new Error("Method not implemented.");
     }
     setBounceCombine?(value: PhysicsCombineMode): void {
-        throw new Error("Method not implemented.");
+        // bullet no bounceCombine
+        // throw new Error("Method not implemented.");
     }
 
     static getCharacterCapable(value: ECharacterCapable): boolean {
@@ -105,6 +115,11 @@ export class btCharacterCollider extends btCollider implements ICharacterControl
         this._characterCapableMap.set(ECharacterCapable.Character_FallSpeed, true);
         this._characterCapableMap.set(ECharacterCapable.Character_SlopeLimit, true);
         // this._characterCapableMap.set(ECharacterCapable.Character_PushForce, true);
+        this._characterCapableMap.set(ECharacterCapable.Character_Radius, false);
+        this._characterCapableMap.set(ECharacterCapable.Character_Height, false);
+        this._characterCapableMap.set(ECharacterCapable.Character_offset, false);
+        this._characterCapableMap.set(ECharacterCapable.Character_Skin, false);
+        this._characterCapableMap.set(ECharacterCapable.Character_minDistance, false);
     }
 
     protected getColliderType(): btColliderType {

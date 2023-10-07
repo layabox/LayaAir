@@ -152,6 +152,8 @@ export class Event {
     /**关节破坏 */
     static JOINT_BREAK = "jointbreak";
 
+    /**@internal */
+    static _Add_Script= "addscript";
     /**
      * 检测指定事件类型是否是鼠标事件。
      * @param	type 事件的类型。

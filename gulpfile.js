@@ -79,6 +79,8 @@ const packsDef = [
             './layaAir/laya/Physics3D/physicsEnum/**/*.*',
             './layaAir/laya/d3/physics/HitResult.ts',
             './layaAir/laya/d3/physics/PhysicsSettings.ts',
+            './layaAir/laya/d3/physics/Collision.ts',
+            './layaAir/laya/d3/physics/ContactPoint.ts',
         ],
     },
     {
@@ -89,9 +91,7 @@ const packsDef = [
             './layaAir/laya/d3/Physics3D.ts',
             './layaAir/laya/d3/physics/ModuleDef.ts',
             './layaAir/laya/d3/physics/CharacterController.ts',
-            './layaAir/laya/d3/physics/Collision.ts',
             './layaAir/laya/d3/physics/Constraint3D.ts',
-            './layaAir/laya/d3/physics/ContactPoint.ts',
             './layaAir/laya/d3/physics/PhysicsCollider.ts',
             './layaAir/laya/d3/physics/PhysicsColliderComponent.ts',
             './layaAir/laya/d3/physics/PhysicsUpdateList.ts',
@@ -117,7 +117,7 @@ const packsDef = [
             './layaAir/laya/Physics3D/Bullet/btInteractive.ts',
             './layaAir/laya/Physics3D/Bullet/CollisionTool.ts',
             './layaAir/laya/Physics3D/Bullet/btPhysicsManager.ts',
-            // './layaAir/laya/Physics3D/Bullet/**/*.*',        
+            './layaAir/laya/Physics3D/Bullet/**/*.*',        
         ],
     },
     {
@@ -126,11 +126,10 @@ const packsDef = [
             './layaAir/laya/Physics3D/PhysX/pxPhysicsCreateUtil.ts',
             './layaAir/laya/Physics3D/PhysX/Collider/**/*.*',
             './layaAir/laya/Physics3D/PhysX/Shape/**/*.*',
-            // './layaAir/laya/Physics3D/PhysX/Joint/**/*.*',
+            './layaAir/laya/Physics3D/PhysX/Joint/**/*.*',
             './layaAir/laya/Physics3D/PhysX/pxPhysicsManager.ts',
             './layaAir/laya/Physics3D/PhysX/pxPhysicsMaterial.ts',
-            // './layaAir/laya/Physics3D/PhysX/**/*.*',        
-            
+            './layaAir/laya/Physics3D/PhysX/**/*.*',
         ],
     },
     {
@@ -364,7 +363,7 @@ gulp.task("buildJs", async () => {
 // 去掉laya.physics3D.runtime.js
 gulp.task("copyJsLibs", async () => {
     return gulp.src([
-        './src/layaAir/jsLibs/laya.physics3D.wasm.wasm', './src/layaAir/jsLibs/*.js',
+        './src/layaAir/jsLibs/laya.physics3D.wasm.wasm', './src/layaAir/jsLibs/*.js', './src/layaAir/jsLibs/physx.release.wasm',
         '!./src/layaAir/jsLibs/{box2d.js,cannon.js,laya.physics3D.js,physx.release.js,laya.physics3D.runtime.js}'])    
         .pipe(gulp.dest('./build/libs'));
 });

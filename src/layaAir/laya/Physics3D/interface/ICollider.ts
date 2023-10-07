@@ -59,4 +59,6 @@ export interface ICollider {
     setFrictionCombine?(value: PhysicsCombineMode): void;
 
     setBounceCombine?(value: PhysicsCombineMode): void;
+
+    setEventFilter?(events: string[]): void;
 }

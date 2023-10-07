@@ -1,4 +1,7 @@
+import { Laya3D } from "../../../../Laya3D";
 import { ISpringJoint } from "../../../Physics3D/interface/Joint/ISpringJoint";
+import { EPhysicsCapable } from "../../../Physics3D/physicsEnum/EPhycisCapable";
+import { Scene3D } from "../../core/scene/Scene3D";
 import { ConstraintComponent } from "./ConstraintComponent";
 
 export class SpringConstraint extends ConstraintComponent {
@@ -7,13 +10,29 @@ export class SpringConstraint extends ConstraintComponent {
     /**@internal */
     private _minDistance: number = 0;
     /**@internal */
-    private _damping: number = 0;
+    private _damping: number = 0.2;
     /**@internal */
     private _maxDistance: number = Number.MAX_VALUE;
     /**@internal */
-    private _tolerance: number;
+    private _tolerance: number = 0.025;
     /**@internal */
-    private _stiffness: number;
+    private _stiffness: number = 10;
+
+    /**
+     * @internal
+     */
+    protected _initJoint(): void {
+        this._physicsManager = ((<Scene3D>this.owner._scene))._physicsManager;
+        if (Laya3D.enablePhysics && Laya3D.PhysicsCreateUtil.getPhysicsCapable(EPhysicsCapable.Physics_SpringJoint)) {
+            this._joint = Laya3D.PhysicsCreateUtil.createSpringJoint(this._physicsManager);
+        } else {
+            throw "SpringConstraint: cant enable SpringConstraint";
+        }
+    }
+
+    protected _onAdded(): void {
+        super._onAdded();
+    }
 
     /**
      * set spring min Distance
@@ -76,6 +95,6 @@ export class SpringConstraint extends ConstraintComponent {
         return this._damping;
     }
 
-    
+
 
 }

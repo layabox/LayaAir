@@ -96,19 +96,19 @@ export class pxJoint implements IJoint {
 
     /**@internal */
     isEnable(value: boolean): void {
-        this._pxJoint.setConstraintFlag(PxConstraintFlag.eCOLLISION_ENABLED, value);
+        this._pxJoint && this._pxJoint.setConstraintFlag(PxConstraintFlag.eDISABLE_CONSTRAINT, !value);
     }
 
     //actor0 & actor1 whether collision enable
     /**@internal */
     isCollision(value: boolean): void {
-        this._pxJoint.setConstraintFlag(PxConstraintFlag.eCOLLISION_ENABLED, value);
+        this._pxJoint && this._pxJoint.setConstraintFlag(PxConstraintFlag.eCOLLISION_ENABLED, value);
     }
 
     //Disabling preprocessing helps to stabilize impossible-to-fulfil configurations.
     /**@internal */
     isPreprocessiong(value: boolean): void {
-        this._pxJoint.setConstraintFlag(PxConstraintFlag.eDISABLE_PREPROCESSING, value);
+        this._pxJoint && this._pxJoint.setConstraintFlag(PxConstraintFlag.eDISABLE_PREPROCESSING, value);
     }
 
     /**@internal */
@@ -150,13 +150,13 @@ export class pxJoint implements IJoint {
 
     /**@internal */
     protected _setLocalPose(actor: number, position: Vector3): void {
-        this._pxJoint.setLocalPose(actor, position, Quaternion.DEFAULT);
+        this._pxJoint && this._pxJoint.setLocalPose(actor, position, Quaternion.DEFAULT);
     }
 
     /**@internal */
     setLocalPos(value: Vector3): void {
         value && value.cloneTo(this._localPos);
-        this._setLocalPose(0, this._localPos);
+        this._pxJoint && this._setLocalPose(0, this._localPos);
     }
 
     /**@internal */
@@ -167,34 +167,34 @@ export class pxJoint implements IJoint {
 
     /**@internal */
     setConnectedMassScale(value: number): void {
-        this._pxJoint.setInvMassScale0(1 / value);
+        this._pxJoint && this._pxJoint.setInvMassScale0(1 / value);
     }
 
     /**@internal */
     setConnectedInertiaScale(value: number): void {
-        this._pxJoint.setInvInertiaScale0(1 / value);
+        this._pxJoint && this._pxJoint.setInvInertiaScale0(1 / value);
     }
 
     /**@internal */
     setMassScale(value: number): void {
-        this._pxJoint.setInvMassScale1(1 / value);
+        this._pxJoint && this._pxJoint.setInvMassScale1(1 / value);
     }
 
     /**@internal */
     setInertiaScale(value: number): void {
-        this._pxJoint.setInvInertiaScale1(1 / value);
+        this._pxJoint && this._pxJoint.setInvInertiaScale1(1 / value);
     }
 
     /**@internal */
     setBreakForce(value: number): void {
         this._breakForce = value;
-        this._pxJoint.setBreakForce(this._breakForce, this._breakTorque);
+        this._pxJoint && this._pxJoint.setBreakForce(this._breakForce, this._breakTorque);
     }
 
     /**@internal */
     setBreakTorque(value: number): void {
         this._breakTorque = value;
-        this._pxJoint.setBreakForce(this._breakForce, this._breakTorque);
+        this._pxJoint && this._pxJoint.setBreakForce(this._breakForce, this._breakTorque);
     }
 
     /**@internal */
@@ -215,7 +215,7 @@ export class pxJoint implements IJoint {
     isValid(): boolean {
         return this._pxJoint.isValid()
     }
-    
+
     /**@internal */
     release() {
 

@@ -38,7 +38,7 @@ export class pxColliderShape implements IColliderShape {
 
     _scale: Vector3 = new Vector3(1, 1, 1);
 
-    _shapeFlags: ShapeFlag = ShapeFlag.SIMULATION_SHAPE;
+    _shapeFlags: ShapeFlag = ShapeFlag.SCENE_QUERY_SHAPE;
 
     /** @internal */
     _pxCollider: pxCollider;

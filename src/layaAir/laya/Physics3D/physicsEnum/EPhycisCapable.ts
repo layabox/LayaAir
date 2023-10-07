@@ -13,6 +13,7 @@ export enum EPhysicsCapable {
     physics_heightFieldColliderShape,
     Physics_Joint,
     Physics_FixedJoint,
+    Physics_SpringJoint,
     Physics_HingeJoint,
     Physics_D6Joint,
 }

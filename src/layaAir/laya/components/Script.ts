@@ -25,13 +25,13 @@ export class Script extends Component {
         let owner = this.owner;
         let func: Function;
 
-        if (func = this.onTriggerEnter) owner.on(Event.TRIGGER_ENTER, this, func);
-        if (func = this.onTriggerStay) owner.on(Event.TRIGGER_STAY, this, func);
-        if (func = this.onTriggerExit) owner.on(Event.TRIGGER_EXIT, this, func);
+        if (!(this.onTriggerEnter == Script.prototype.onTriggerEnter)) owner.on(Event.TRIGGER_ENTER, this, this.onTriggerEnter);
+        if (!(this.onTriggerStay == Script.prototype.onTriggerStay)) owner.on(Event.TRIGGER_STAY, this, this.onTriggerStay);
+        if (!(this.onTriggerExit == Script.prototype.onTriggerExit)) owner.on(Event.TRIGGER_EXIT, this, this.onTriggerExit);
 
-        if (func = this.onCollisionEnter) owner.on(Event.COLLISION_ENTER, this, func);
-        if (func = this.onCollisionStay) owner.on(Event.COLLISION_STAY, this, func);
-        if (func = this.onCollisionExit) owner.on(Event.COLLISION_EXIT, this, func);
+        if (!(this.onCollisionEnter == Script.prototype.onCollisionEnter)) owner.on(Event.COLLISION_ENTER, this, this.onCollisionEnter);
+        if (!(this.onCollisionStay == Script.prototype.onCollisionStay)) owner.on(Event.COLLISION_STAY, this, this.onCollisionStay);
+        if (!(this.onCollisionExit == Script.prototype.onCollisionExit)) owner.on(Event.COLLISION_EXIT, this, this.onCollisionExit);
         if (func = this.onJointBreak) owner.on(Event.JOINT_BREAK, this, func);
 
         if (func = this.onMouseDown) owner.on(Event.MOUSE_DOWN, this, func);
@@ -50,6 +50,7 @@ export class Script extends Component {
         if (func = this.onKeyDown) ILaya.stage.on(Event.KEY_DOWN, this, func);
         if (func = this.onKeyPress) ILaya.stage.on(Event.KEY_PRESS, this, func);
         if (func = this.onKeyUp) ILaya.stage.on(Event.KEY_UP, this, func);
+        owner.event(Event._Add_Script);
     }
 
     /**

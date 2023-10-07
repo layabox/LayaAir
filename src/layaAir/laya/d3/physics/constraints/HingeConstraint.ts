@@ -35,7 +35,7 @@ export class HingeConstraint extends ConstraintComponent {
 
     /**@internal */
     private _bounceMinVelocity: number = 0;
-    
+
     /**@internal */
     private _contactDistance: number = 0;
 
@@ -52,10 +52,10 @@ export class HingeConstraint extends ConstraintComponent {
      */
     protected _initJoint(): void {
         this._physicsManager = ((<Scene3D>this.owner._scene))._physicsManager;
-        if (Laya3D.enablePhysics && Laya3D.PhysicsCreateUtil.getPhysicsCapable(EPhysicsCapable.Physics_FixedJoint)) {
+        if (Laya3D.enablePhysics && Laya3D.PhysicsCreateUtil.getPhysicsCapable(EPhysicsCapable.Physics_HingeJoint)) {
             this._joint = Laya3D.PhysicsCreateUtil.createHingeJoint(this._physicsManager);
         } else {
-            throw "Rigidbody3D: cant enable Rigidbody3D";
+            throw "HingeConstraint: cant enable HingeConstraint";
         }
     }
 
@@ -79,10 +79,10 @@ export class HingeConstraint extends ConstraintComponent {
     * set Hinge Rotation Axis,value by local rigibody0 
     */
     set Axis(value: Vector3) {
-        value = value.normalize();//归一化轴
         if (!value || this._axis.equal(value)) {
             return;
         }
+        value = value.normalize();//归一化轴
         value.cloneTo(this._axis);
         this._joint && this._joint.setAxis(value);
     }
@@ -96,9 +96,9 @@ export class HingeConstraint extends ConstraintComponent {
      * @param lowerLimit 
      */
     set lowerLimit(value: number) {
-        value = value > this._uperLimit ? this._uperLimit : (value < (-Math.PI / 2) ? (-Math.PI) : value);
         this._lowerLimit = value;
-        this._joint && this._joint.setLowerLimit(this._lowerLimit);
+        let lowerValue = value < this._lowerLimit ? this._lowerLimit : (value < (-Math.PI / 2) ? (-Math.PI) : value);
+        this._joint && this._joint.setLowerLimit(lowerValue);
     }
 
     get lowerLimit() {
@@ -110,9 +110,9 @@ export class HingeConstraint extends ConstraintComponent {
      * @param lowerLimit 
      */
     set uperLimit(value: number) {
-        value = value < this.lowerLimit ? this.lowerLimit : (value > (Math.PI / 2) ? (Math.PI) : value);
         this._uperLimit = value;
-        this._joint && this._joint.setUpLimit(this._uperLimit);
+        let uperValue = value > this._uperLimit ? this._uperLimit : (value > (Math.PI / 2) ? (Math.PI) : value);
+        this._joint && this._joint.setUpLimit(uperValue);
     }
 
     get uperLimit(): number {
