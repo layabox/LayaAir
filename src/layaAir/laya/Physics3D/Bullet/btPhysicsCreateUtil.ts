@@ -46,6 +46,7 @@ export class btPhysicsCreateUtil implements IPhysicsCreateUtil {
         this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_FixedJoint, true);
         this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_SpringJoint, true);
         this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_HingeJoint, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_CreateCorveMesh, false);
     }
 
     getPhysicsCapable(value: EPhysicsCapable): boolean {
@@ -105,7 +106,7 @@ export class btPhysicsCreateUtil implements IPhysicsCreateUtil {
     createD6Joint(manager: btPhysicsManager): ID6Joint {
         return new btCustomJoint(manager);
     }
-    
+
     createBoxColliderShape(): btBoxColliderShape {
         return new btBoxColliderShape();
     }

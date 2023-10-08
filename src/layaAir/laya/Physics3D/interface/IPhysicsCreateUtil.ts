@@ -1,4 +1,5 @@
 import { PhysicsSettings } from "../../d3/physics/PhysicsSettings";
+import { Mesh } from "../../d3/resource/models/Mesh";
 import { EPhysicsCapable } from "../physicsEnum/EPhycisCapable";
 import { ICharacterController } from "./ICharacterController";
 import { IDynamicCollider } from "./IDynamicCollider";
@@ -131,4 +132,10 @@ export interface IPhysicsCreateUtil {
      * create Height Field Collider
      */
     createHeightFieldShape?(): IHeightFieldShape;
+
+
+    /**
+     * create Corve Mesh
+     */
+    createCorveMesh?(mesh: Mesh): Mesh;
 }

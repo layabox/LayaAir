@@ -283,9 +283,10 @@ export class PhysicsColliderComponent extends Component {
     initCollider() {
         this._initCollider();
         this._collider.setOwner(this.owner);
-        // this.restitution = this._restitution;
-        // this.friction = this._friction;
-        // this.rollingFriction = this._rollingFriction;
+        if (this._colliderShape) this._collider.setColliderShape(this._colliderShape._shape);
+        this.restitution = this._restitution;
+        this.friction = this._friction;
+        this.rollingFriction = this._rollingFriction;
         this.ccdMotionThreshold = this._ccdMotionThreshold;
         this.ccdSweptSphereRadius = this._ccdSweptSphereRadius;
         this.collisionGroup = this._collisionGroup;
