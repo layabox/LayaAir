@@ -23,6 +23,8 @@ import { BufferState } from "../../../webgl/utils/BufferState";
 import { VertexMesh } from "../../../RenderEngine/RenderShader/VertexMesh";
 import { MorphTargetData } from "./MorphTargetData";
 import { Config } from "../../../../Config";
+import { Laya3D } from "../../../../Laya3D";
+import { EPhysicsCapable } from "../../../Physics3D/physicsEnum/EPhycisCapable";
 /**
  * @internal
  */
@@ -62,6 +64,8 @@ export class Mesh extends Resource implements IClone {
     _convexMesh: any;
     /**@interanl */
     _triangleMesh: any;
+    /**@internal */
+    __convexMesh: Mesh;
     /**
       * @internal
       */
@@ -381,6 +385,7 @@ export class Mesh extends Resource implements IClone {
         this._boneNames = null;
         this._inverseBindPoses = null;
         this.morphTargetData && (this.morphTargetData.destroy());
+        this.__convexMesh && this.__convexMesh.destroy();
     }
 
     /**
@@ -784,6 +789,20 @@ export class Mesh extends Resource implements IClone {
         else {
             throw "Mesh:can't calculate bounds on subMesh,mesh's isReadable must be true.";
         }
+    }
+
+
+    /**
+     * 获得Corve模型
+     */
+    getCorveMesh(): Mesh {
+        if (this._convexMesh == null) {
+            return null;
+        }
+        if (this.__convexMesh == null && Laya3D._PhysicsCreateUtil && Laya3D._PhysicsCreateUtil.getPhysicsCapable(EPhysicsCapable.Physics_CreateCorveMesh)) {
+            this.__convexMesh = Laya3D._PhysicsCreateUtil.createCorveMesh(this);
+        }
+        return this.__convexMesh;
     }
 
 

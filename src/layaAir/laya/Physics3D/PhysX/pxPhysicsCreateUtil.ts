@@ -29,8 +29,13 @@ import { pxCapsuleColliderShape } from "./Shape/pxCapsuleColliderShape";
 import { pxMeshColliderShape } from "./Shape/pxMeshColliderShape";
 import { pxHeightFieldShape } from "./Shape/pxHeightFieldShape";
 import { pxSphereColliderShape } from "./Shape/pxSphereColliderShape";
+
 import { pxPhysicsManager } from "./pxPhysicsManager";
 import { pxCharactorCollider } from "./Collider/pxCharactorCollider";
+import { Mesh } from "../../d3/resource/models/Mesh";
+import { VertexMesh } from "../../RenderEngine/RenderShader/VertexMesh";
+import { VertexDeclaration } from "../../RenderEngine/VertexDeclaration";
+import { PrimitiveMesh } from "../../d3/resource/models/PrimitiveMesh";
 
 
 export class pxPhysicsCreateUtil implements IPhysicsCreateUtil {
@@ -71,6 +76,7 @@ export class pxPhysicsCreateUtil implements IPhysicsCreateUtil {
         this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_SpringJoint, true);
         this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_HingeJoint, true);
         this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_D6Joint, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_CreateCorveMesh, true);
     }
 
     getPhysicsCapable(value: EPhysicsCapable): boolean {
@@ -177,31 +183,70 @@ export class pxPhysicsCreateUtil implements IPhysicsCreateUtil {
         return new pxHeightFieldShape();
     }
 
-    static createFloat32Array(length:number):{ptr:number,buffer:Float32Array}{
+    createCorveMesh(mesh: Mesh): Mesh {
+        if (mesh._convexMesh == null) {
+            return null;
+        }
+        if ((<any>mesh).__convexMesh == null) {
+            let convexMesh = mesh._convexMesh;
+            let vertices = convexMesh.getVertices();
+            let vertexCount = vertices.size();
+            var vertexDeclaration: VertexDeclaration = VertexMesh.getVertexDeclaration("POSITION");
+            var vertexFloatStride: number = vertexDeclaration.vertexStride / 4;
+            var vertice: Float32Array = new Float32Array(vertexCount * vertexFloatStride);
+            for (var i = 0; i < vertexCount; i++) {
+                let index = i * 3;
+                let data = vertices.get(i);
+                vertice[index] = data.x;
+                vertice[index + 1] = data.y;
+                vertice[index + 2] = data.z;
+            }
+            let indexs = convexMesh.getIndexBuffer();
+            let polygons = convexMesh.getPolygons();
+            let triangles = []
+            for (var i = 0, n = polygons.size(); i < n;) {
+                let nbTris = polygons.get(i) - 2;
+                let mIndexBase = polygons.get(i + 1);
+                let vref0 = indexs.get(mIndexBase);
+                for (var j = 0; j < nbTris; j++) {
+                    let vref1 = indexs.get(mIndexBase + j + 1);
+                    let vref2 = indexs.get(mIndexBase + j + 2);
+                    triangles.push(vref0, vref1, vref2);
+                }
+                i += 2;
+            }
+            (<any>mesh).__convexMesh = PrimitiveMesh._createMesh(vertexDeclaration, vertice, new Uint16Array(triangles));
+        }
+        return (<any>mesh).__convexMesh;
+
+    }
+
+    static createFloat32Array(length: number): { ptr: number, buffer: Float32Array } {
         let ptr = this._physX._malloc(4 * length);
         const buffer = new Float32Array(this._physX.HEAPF32.buffer, ptr, length);
-        return {ptr:ptr,buffer:buffer}
+        return { ptr: ptr, buffer: buffer }
     }
 
-    static createUint32Array(length:number):{ptr:number,buffer:Uint32Array}{
+    static createUint32Array(length: number): { ptr: number, buffer: Uint32Array } {
         let ptr = this._physX._malloc(4 * length);
         const buffer = new Uint32Array(this._physX.HEAPU32.buffer, ptr, length);
-        return {ptr:ptr,buffer:buffer}
+        return { ptr: ptr, buffer: buffer }
     }
-    static createUint16Array(length:number):{ptr:number,buffer:Uint16Array}{
+    static createUint16Array(length: number): { ptr: number, buffer: Uint16Array } {
         let ptr = this._physX._malloc(2 * length);
         const buffer = new Uint16Array(this._physX.HEAPU16.buffer, ptr, length);
-        return {ptr:ptr,buffer:buffer}
+        return { ptr: ptr, buffer: buffer }
     }
-    static createUint8Array(length:number):{ptr:number,buffer:Uint8Array}{
+    static createUint8Array(length: number): { ptr: number, buffer: Uint8Array } {
         let ptr = this._physX._malloc(length);
         const buffer = new Uint8Array(this._physX.HEAPU8.buffer, ptr, length);
-        return {ptr:ptr,buffer:buffer}
+        return { ptr: ptr, buffer: buffer }
     }
 
-    static freeBuffer(data:any){
+    static freeBuffer(data: any) {
         this._physX._free(data.ptr);
     }
+
 }
 
 Laya3D.PhysicsCreateUtil = new pxPhysicsCreateUtil()
