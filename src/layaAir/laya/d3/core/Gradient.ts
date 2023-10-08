@@ -30,6 +30,41 @@ export class Gradient implements IClone {
 	_rgbElements: Float32Array = null;
 
 	/**
+	 * 获取颜色数据。
+	 * @return  颜色数据。
+	 */
+	get rgbElements():Float32Array{
+		if (this._colorRGBKeysCount<2) {
+			let rgbElements = new Float32Array(8);
+			rgbElements[1]=rgbElements[5] = this._rgbElements[1];
+			rgbElements[2]=rgbElements[6] = this._rgbElements[2];
+			rgbElements[3]=rgbElements[7] = this._rgbElements[3];
+			rgbElements[0] = 0;
+			rgbElements[4] = 1;
+			return rgbElements;
+		}else{
+			return this._rgbElements;
+		}
+	}
+	
+	/**
+	 * 获取 alpha数据。
+	 * @return  alpha数据。
+	 */
+	get alphaElements():Float32Array{
+		if (this._colorAlphaKeysCount<2) {
+			let alphaElements = new Float32Array(4);
+			alphaElements[1]=alphaElements[3] = this._alphaElements[1];
+			alphaElements[0] = 0;
+			alphaElements[2] = 1; 
+			return alphaElements;
+		}else{
+			return this._alphaElements;
+		}
+	}
+	
+
+	/**
 	 * 获取梯度模式。
 	 * @return  梯度模式。
 	 */
