@@ -62,7 +62,7 @@ export class Gradient implements IClone {
 	get alphaElements(): Float32Array {
 		if (this._colorAlphaKeysCount < 2) {
 			if (this.__alphaElements == null) {
-				this.__alphaElements = new Float32Array(8);
+				this.__alphaElements = new Float32Array(4);
 			}
 			let alphaElements = this.__alphaElements;
 			alphaElements[1] = alphaElements[3] = this._alphaElements[1];
