@@ -136,7 +136,6 @@ export class Shader extends BaseShader {
         super();
         if ((!vs) || (!ps)) throw "Shader Error";
         this._attribInfo = bindAttrib;
-        this._id = ++Shader._count;
         this._vs = vs;
         this._ps = ps;
         this._nameMap = nameMap ? nameMap : {};
