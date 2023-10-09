@@ -363,6 +363,7 @@ gulp.task("buildJs", async () => {
 // 去掉laya.physics3D.runtime.js
 gulp.task("copyJsLibs", async () => {
     return gulp.src([
+        './bin/physX/physx.release.wasm',
         './src/layaAir/jsLibs/laya.physics3D.wasm.wasm', './src/layaAir/jsLibs/*.js', './src/layaAir/jsLibs/physx.release.wasm',
         '!./src/layaAir/jsLibs/{box2d.js,cannon.js,laya.physics3D.js,physx.release.js,laya.physics3D.runtime.js}'])    
         .pipe(gulp.dest('./build/libs'));
@@ -392,7 +393,7 @@ gulp.task('concatPhysics3DTobtPhysics', () => {
 gulp.task('concatphysxReleaseTopxPhysics', () => {
     return gulp.src([
         './build/libs/laya.pxPhysics.js',
-        './src/layaAir/jsLibs/physx.release.js',
+        './bin/physX/physx.release.js',
     ])
         .pipe(concat('laya.pxPhysics.js'))
         .pipe(gulp.dest('./build/libs/'));

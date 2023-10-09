@@ -74,7 +74,7 @@ export class ConeColliderShape extends Physics3DColliderShape {
 		if (Laya3D.PhysicsCreateUtil.getPhysicsCapable(EPhysicsCapable.Physics_ConeColliderShape)) {
 			this._shape = Laya3D.PhysicsCreateUtil.createConeColliderShape();
 		} else {
-			throw "ConeColliderShape: cant enable ConeColliderShape"
+			console.error("ConeColliderShape: cant enable ConeColliderShape");
 		}
 	}
 

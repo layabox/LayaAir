@@ -71,8 +71,11 @@ export class ConstraintComponent extends Component {
     get currentForce(): Vector3 {
         if (this._joint)
             return this._joint.getlinearForce();
-        else
-            throw "joint is illegal";
+        else {
+            console.error("joint is illegal");
+            return null;
+        }
+
     }
 
     /**
@@ -81,8 +84,11 @@ export class ConstraintComponent extends Component {
     get currentTorque(): Vector3 {
         if (this._joint)
             return this._joint.getAngularForce();
-        else
-            throw "joint is illegal";
+        else {
+            console.error("joint is illegal");
+            return null;
+        }
+
     }
 
     /**

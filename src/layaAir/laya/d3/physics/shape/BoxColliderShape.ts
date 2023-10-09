@@ -32,7 +32,7 @@ export class BoxColliderShape extends Physics3DColliderShape {
 		if (Laya3D.PhysicsCreateUtil.getPhysicsCapable(EPhysicsCapable.Physics_BoxColliderShape))
 			this._shape = Laya3D.PhysicsCreateUtil.createBoxColliderShape();
 		else {
-			throw "BoxColliderShape: cant enable BoxColliderShape";
+			console.error("BoxColliderShape: cant enable BoxColliderShape");
 		}
 	}
 
