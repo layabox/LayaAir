@@ -46,7 +46,7 @@ export class HeightFieldColliderShape extends Physics3DColliderShape {
         if (Laya3D.PhysicsCreateUtil.getPhysicsCapable(EPhysicsCapable.physics_heightFieldColliderShape))
             this._shape = Laya3D.PhysicsCreateUtil.createHeightFieldShape();
         else {
-            throw "HeightFieldColliderShape: cant enable HeightFieldColliderShape";
+            console.error("HeightFieldColliderShape: cant enable HeightFieldColliderShape");
         }
     }
 }

@@ -399,8 +399,7 @@ export class PhysicsColliderComponent extends Component {
                 colliderShape = new CapsuleColliderShape(shapeData.radius, shapeData.height, shapeData.orientation);
                 break;
             case "MeshColliderShape":
-                // colliderShape = new MeshColliderShape();
-                throw "MeshColliderShape is not Implement"
+                colliderShape = new MeshColliderShape();
                 break;
             case "ConeColliderShape":
                 colliderShape = new ConeColliderShape(shapeData.radius, shapeData.height, shapeData.orientation);
@@ -409,7 +408,7 @@ export class PhysicsColliderComponent extends Component {
                 colliderShape = new CylinderColliderShape(shapeData.radius, shapeData.height, shapeData.orientation);
                 break;
             default:
-                throw "unknown shape type.";
+                console.error("unknown shape type.");
         }
         return null;//TODO
     }

@@ -74,7 +74,7 @@ export class CylinderColliderShape extends Physics3DColliderShape {
 		if (Laya3D.PhysicsCreateUtil.getPhysicsCapable(EPhysicsCapable.Physics_CylinderColliderShape)) {
 			this._shape = Laya3D.PhysicsCreateUtil.createCylinderColliderShape();
 		} else {
-			throw "CylinderColliderShape: cant enable CylinderColliderShape"
+			console.error("CylinderColliderShape: cant enable CylinderColliderShape");
 		}
 	}
 

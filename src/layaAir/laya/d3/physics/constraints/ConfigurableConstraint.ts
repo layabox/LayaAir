@@ -696,7 +696,7 @@ export class ConfigurableConstraint extends ConstraintComponent {
         if (Laya3D.enablePhysics && Laya3D.PhysicsCreateUtil.getPhysicsCapable(EPhysicsCapable.Physics_D6Joint)) {
             this._joint = Laya3D.PhysicsCreateUtil.createD6Joint(this._physicsManager);
         } else {
-            throw "Rigidbody3D: cant enable Rigidbody3D";
+            console.error("Rigidbody3D: cant enable Rigidbody3D");
         }
     }
 }

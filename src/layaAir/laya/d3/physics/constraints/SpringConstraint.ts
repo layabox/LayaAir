@@ -26,7 +26,7 @@ export class SpringConstraint extends ConstraintComponent {
         if (Laya3D.enablePhysics && Laya3D.PhysicsCreateUtil.getPhysicsCapable(EPhysicsCapable.Physics_SpringJoint)) {
             this._joint = Laya3D.PhysicsCreateUtil.createSpringJoint(this._physicsManager);
         } else {
-            throw "SpringConstraint: cant enable SpringConstraint";
+            console.error("SpringConstraint: cant enable SpringConstraint");
         }
     }
 

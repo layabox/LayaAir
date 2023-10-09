@@ -29,7 +29,7 @@ export class PhysicsCollider extends PhysicsColliderComponent {
             this._collider = Laya3D.PhysicsCreateUtil.createStaticCollider(this._physicsManager);
         }
         else {
-            throw "PhysicsCollider:cant enable PhysicsCollider";
+            console.error("PhysicsCollider:cant enable PhysicsCollider");
         }
     }
 
