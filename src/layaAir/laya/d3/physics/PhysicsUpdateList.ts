@@ -20,7 +20,7 @@ export class PhysicsUpdateList extends SingletonList<ICollider> {
     add(element: ICollider): void {
         var index: number = element.inPhysicUpdateListIndex;
         if (index !== -1)
-            throw "PhysicsUpdateList:element has  in  PhysicsUpdateList.";
+            console.error("PhysicsUpdateList:element has  in  PhysicsUpdateList.");
         this._add(element);
         element.inPhysicUpdateListIndex = this.length++;
     }

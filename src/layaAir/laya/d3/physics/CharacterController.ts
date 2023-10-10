@@ -45,7 +45,7 @@ export class CharacterController extends PhysicsColliderComponent {
             this._physicsManager = ((<Scene3D>this.owner._scene))._physicsManager;
             this._collider = Laya3D.PhysicsCreateUtil.createCharacterController(this._physicsManager);
         } else {
-            throw "CharacterController: cant enable CharacterController"
+            console.error("CharacterController: cant enable CharacterController");
         }
     }
 
