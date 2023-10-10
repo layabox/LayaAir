@@ -1,6 +1,6 @@
-import { Sprite } from "../display/Sprite";
+import { Sprite } from "../../display/Sprite";
 import { ColliderBase } from "./ColliderBase";
-import { Physics } from "./Physics";
+import { Physics } from "../Physics";
 
 /**
  * 2D矩形碰撞体
@@ -20,7 +20,7 @@ export class BoxCollider extends ColliderBase {
      */
     protected getDef(): any {
         if (!this._shape) {
-            this._shape = new (<any>window).box2d.b2PolygonShape();
+            this._shape = Physics.I._factory.create_boxColliderShape();
             this._setShape(false);
         }
         this.label = (this.label || "BoxCollider");
@@ -43,7 +43,13 @@ export class BoxCollider extends ColliderBase {
     private _setShape(re: boolean = true): void {
         var scaleX: number = ((this.owner as any)["scaleX"] || 1);
         var scaleY: number = ((this.owner as any)["scaleY"] || 1);
-        this._shape.SetAsBox(this._width / 2 / Physics.PIXEL_RATIO * scaleX, this._height / 2 / Physics.PIXEL_RATIO * scaleY, new (<any>window).box2d.b2Vec2((this._width / 2 + this._x) / Physics.PIXEL_RATIO * scaleX, (this._height / 2 + this._y) / Physics.PIXEL_RATIO * scaleY));
+        Physics.I._factory.set_collider_SetAsBox(this._shape, this._width / 2 / Physics.PIXEL_RATIO * scaleX,
+            this._height / 2 / Physics.PIXEL_RATIO * scaleY,
+            {
+                x: (this._width / 2 + this._x) / Physics.PIXEL_RATIO * scaleX,
+                y: (this._height / 2 + this._y) / Physics.PIXEL_RATIO * scaleY
+            }
+        );
         if (re) this.refresh();
     }
 

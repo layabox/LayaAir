@@ -2,7 +2,7 @@ import { Component } from "./Component";
 import { Event } from "../events/Event"
 import { Collision } from "../d3/physics/Collision";
 import { PhysicsColliderComponent } from "../d3/physics/PhysicsColliderComponent";
-import { ColliderBase } from "../physics/ColliderBase";
+import { ColliderBase } from "../physics/Collider2D/ColliderBase";
 import { Sprite3D } from "../d3/core/Sprite3D";
 import { Sprite } from "../display/Sprite";
 import { ILaya } from "../../ILaya";

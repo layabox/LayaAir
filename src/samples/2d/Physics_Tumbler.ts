@@ -4,7 +4,6 @@ import { Stage } from "laya/display/Stage";
 import { Browser } from "laya/utils/Browser";
 import { RigidBody } from "laya/physics/RigidBody";
 import { Main } from "./../Main";
-import { BoxCollider } from "laya/physics/BoxCollider";
 import { RevoluteJoint } from "laya/physics/joint/RevoluteJoint";
 import { Physics } from "laya/physics/Physics";
 import { PhysicsDebugDraw } from "laya/physics/PhysicsDebugDraw";
@@ -12,7 +11,7 @@ import { Stat } from "laya/utils/Stat";
 import { Label } from "laya/ui/Label";
 import { Event } from "laya/events/Event";
 import { Config } from "Config";
-
+import { BoxCollider } from "laya/physics/Collider2D/BoxCollider"
 
 export class Physics_Tumbler {
     private count = 0;

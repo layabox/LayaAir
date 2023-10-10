@@ -32,7 +32,8 @@ export class JointBase extends Component {
     }
 
     protected _onDisable(): void {
-        if (this._joint && this._joint.m_userData && !this._joint.m_userData.isDestroy) {
+        var _factory = Physics.I._factory;
+        if (this._joint && _factory.getJoint_userData(this._joint) && !_factory.getJoint_userData_destroy(this._joint)) {
             Physics.I._removeJoint(this._joint);
         }
         this._joint = null;

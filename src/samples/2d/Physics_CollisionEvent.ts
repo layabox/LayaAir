@@ -3,15 +3,16 @@ import { Laya } from "Laya";
 import { Sprite } from "laya/display/Sprite";
 import { Stage } from "laya/display/Stage";
 import { Event } from "laya/events/Event";
-import { ChainCollider } from "laya/physics/ChainCollider";
-import { CircleCollider } from "laya/physics/CircleCollider";
-import { ColliderBase } from "laya/physics/ColliderBase";
+
 import { MouseJoint } from "laya/physics/joint/MouseJoint";
 import { Physics } from "laya/physics/Physics";
 import { PhysicsDebugDraw } from "laya/physics/PhysicsDebugDraw";
 import { RigidBody } from "laya/physics/RigidBody";
 import { Stat } from "laya/utils/Stat";
 import { Main } from "../Main";
+import { CircleCollider } from "laya/physics/Collider2D/CircleCollider";
+import { ChainCollider } from "laya/physics/Collider2D/ChainCollider";
+import { ColliderBase } from "laya/physics/Collider2D/ColliderBase";
 
 /**
  * 

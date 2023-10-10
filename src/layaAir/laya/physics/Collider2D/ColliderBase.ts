@@ -1,6 +1,8 @@
-import { ILaya } from "../../ILaya";
-import { Component } from "../components/Component";
-import { RigidBody } from "./RigidBody";
+import { ILaya } from "../../../ILaya";
+import { Component } from "../../components/Component";
+import { FixtureBox2DDef } from "./ColliderStructInfo";
+import { Physics } from "../Physics";
+import { RigidBody } from "../RigidBody";
 
 /**
  * 碰撞体基类
@@ -20,7 +22,9 @@ export class ColliderBase extends Component {
     /**@private b2Shape对象*/
     protected _shape: any;
     /**@private b2FixtureDef对象 */
-    protected _def: any;
+    protected _def: FixtureBox2DDef;
+    /**@private box2D fixture Def */
+    protected _fixtureDef: any;
     /**[只读]b2Fixture对象 */
     fixture: any;
     /**[只读]刚体引用*/
@@ -35,12 +39,13 @@ export class ColliderBase extends Component {
     /**@private 获取碰撞体信息*/
     protected getDef(): any {
         if (!this._def) {
-            var def: any = new (<any>window).box2d.b2FixtureDef();
+            var def: any = new FixtureBox2DDef();
             def.density = this.density;
             def.friction = this.friction;
             def.isSensor = this.isSensor;
             def.restitution = this.restitution;
             def.shape = this._shape;
+            this._fixtureDef = Physics.I._factory.createFixtureDef(def);
             this._def = def;
         }
         return this._def;
@@ -64,12 +69,13 @@ export class ColliderBase extends Component {
     }
 
     protected _onDestroy() {
+        let factory = Physics.I._factory;
         if (this.rigidBody) {
             if (this.fixture) {
-                if (this.fixture.GetBody() == this.rigidBody._getOriBody()) {
-                    this.rigidBody.body.DestroyFixture(this.fixture);
+                if (factory.get_fixture_body(this.fixture) == this.rigidBody._getOriBody()) {
+                    factory.rigidBody_DestroyFixture(this.rigidBody.body, this.fixture);
                 }
-                //fixture.Destroy();
+                factory.destroy_fixture(this.fixture);
                 this.fixture = null;
             }
             this.rigidBody = null;
@@ -135,22 +141,27 @@ export class ColliderBase extends Component {
      * 碰撞体参数发生变化后，刷新物理世界碰撞信息
      */
     refresh(): void {
+        let factory = Physics.I._factory;
         if (this.enabled && this.rigidBody) {
             var body: any = this.rigidBody.body;
             if (this.fixture) {
                 //trace(fixture);
-                if (this.fixture.GetBody() == this.rigidBody.body) {
-                    this.rigidBody.body.DestroyFixture(this.fixture);
+                if (factory.get_fixture_body(this.fixture) == this.rigidBody.body) {
+                    factory.rigidBody_DestroyFixture(body, this.fixture);
                 }
-                this.fixture.Destroy();
+                factory.destroy_fixture(this.fixture);
                 this.fixture = null;
             }
             var def: any = this.getDef();
             def.filter.groupIndex = this.rigidBody.group;
             def.filter.categoryBits = this.rigidBody.category;
             def.filter.maskBits = this.rigidBody.mask;
-            this.fixture = body.CreateFixture(def);
-            this.fixture.collider = this;
+            factory.set_fixtureDef_GroupIndex(this._fixtureDef, this.rigidBody.group);
+            factory.set_fixtureDef_CategoryBits(this._fixtureDef, this.rigidBody.category);
+            factory.set_fixtureDef_maskBits(this._fixtureDef, this.rigidBody.mask);
+
+            this.fixture = factory.createfixture(body, this._fixtureDef);
+            factory.set_fixture_collider(this.fixture, this);
         }
     }
 

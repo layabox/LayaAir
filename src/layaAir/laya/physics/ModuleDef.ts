@@ -1,9 +1,9 @@
 import { ClassUtils } from "../utils/ClassUtils";
-import { BoxCollider } from "./BoxCollider";
-import { ChainCollider } from "./ChainCollider";
-import { CircleCollider } from "./CircleCollider";
-import { ColliderBase } from "./ColliderBase";
-import { EdgeCollider } from "./EdgeCollider";
+import { BoxCollider } from "./Collider2D/BoxCollider";
+import { ChainCollider } from "./Collider2D/ChainCollider";
+import { CircleCollider } from "./Collider2D/CircleCollider";
+import { ColliderBase } from "./Collider2D/ColliderBase";
+import { EdgeCollider } from "./Collider2D/EdgeCollider";
 import { DistanceJoint } from "./joint/DistanceJoint";
 import { GearJoint } from "./joint/GearJoint";
 import { JointBase } from "./joint/JointBase";
@@ -16,7 +16,7 @@ import { WeldJoint } from "./joint/WeldJoint";
 import { WheelJoint } from "./joint/WheelJoint";
 import { Physics } from "./Physics";
 import { PhysicsDebugDraw } from "./PhysicsDebugDraw";
-import { PolygonCollider } from "./PolygonCollider";
+import { PolygonCollider } from "./Collider2D/PolygonCollider";
 import { RigidBody } from "./RigidBody";
 
 let c = ClassUtils.regClass;

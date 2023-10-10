@@ -5,18 +5,19 @@ import { Laya } from "Laya";
 import { Sprite } from "laya/display/Sprite";
 import { Stage } from "laya/display/Stage";
 import { Event } from "laya/events/Event";
-import { BoxCollider } from "laya/physics/BoxCollider";
-import { ChainCollider } from "laya/physics/ChainCollider";
-import { CircleCollider } from "laya/physics/CircleCollider";
+
 import { DistanceJoint } from "laya/physics/joint/DistanceJoint";
 import { RevoluteJoint } from "laya/physics/joint/RevoluteJoint";
 import { Physics } from "laya/physics/Physics";
 import { PhysicsDebugDraw } from "laya/physics/PhysicsDebugDraw";
-import { PolygonCollider } from "laya/physics/PolygonCollider";
 import { RigidBody } from "laya/physics/RigidBody";
 import { Label } from "laya/ui/Label";
 import { Stat } from "laya/utils/Stat";
 import { Main } from "../Main";
+import { ChainCollider } from "laya/physics/Collider2D/ChainCollider";
+import { CircleCollider } from "laya/physics/Collider2D/CircleCollider";
+import { PolygonCollider } from "laya/physics/Collider2D/PolygonCollider";
+import { BoxCollider } from "laya/physics/Collider2D/BoxCollider";
 
 /**
  * 仿生兽

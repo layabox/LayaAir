@@ -1,6 +1,6 @@
-import { Sprite } from "../display/Sprite";
+import { Sprite } from "../../display/Sprite";
 import { ColliderBase } from "./ColliderBase";
-import { Physics } from "./Physics";
+import { Physics } from "../Physics";
 
 /**
  * 2D圆形碰撞体

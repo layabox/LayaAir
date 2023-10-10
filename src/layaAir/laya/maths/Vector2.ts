@@ -1,7 +1,10 @@
 import { IClone } from "../utils/IClone";
 import { MathUtils3D } from "./MathUtils3D";
 
-
+export interface IV2 {
+    x: number;
+    y: number;
+}
 /**
  * <code>Vector2</code> 类用于创建二维向量。
  */
@@ -10,7 +13,7 @@ export class Vector2 implements IClone {
     static readonly ZERO: Readonly<Vector2> = new Vector2(0.0, 0.0);
     /**一向量,禁止修改*/
     static readonly ONE: Readonly<Vector2> = new Vector2(1.0, 1.0);
-
+    static TempVector2 = new Vector2();
     /**X轴坐标*/
     x: number;
     /**Y轴坐标*/

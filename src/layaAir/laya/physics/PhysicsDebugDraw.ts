@@ -232,13 +232,11 @@ export class PhysicsDebugDraw extends Sprite {
     static enable(flags: number = 99): PhysicsDebugDraw {
         if (!PhysicsDebugDraw.I) {
             var debug: PhysicsDebugDraw = new PhysicsDebugDraw();
-            debug.world = Physics.I.world;
-            debug.world.SetDebugDraw(debug);
+            Physics.I.setDebugDraw(debug);
             debug.zOrder = 1000;
             debug.m_drawFlags = flags;
             ILaya.stage.addChild(debug);
             PhysicsDebugDraw.I = debug;
-
         }
         return debug;
     }

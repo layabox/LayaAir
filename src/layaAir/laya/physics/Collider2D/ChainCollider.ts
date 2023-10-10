@@ -1,41 +1,42 @@
 import { ColliderBase } from "./ColliderBase";
-import { Physics } from "./Physics";
+import { Physics } from "../Physics";
 
 /**
- * 2D多边形碰撞体，暂时不支持凹多边形，如果是凹多边形，先手动拆分为多个凸多边形
- * 节点个数最多是b2_maxPolygonVertices，这数值默认是8，所以点的数量不建议超过8个，也不能小于3个
+ * 2D线形碰撞体
  */
-export class PolygonCollider extends ColliderBase {
+export class ChainCollider extends ColliderBase {
     /**相对节点的x轴偏移*/
     private _x: number = 0;
     /**相对节点的y轴偏移*/
     private _y: number = 0;
     /**用逗号隔开的点的集合，格式：x,y,x,y ...*/
-    private _points: string = "50,0,100,100,0,100";
+    private _points: string = "0,0,100,0";
+    /**是否是闭环，注意不要有自相交的链接形状，它可能不能正常工作*/
+    private _loop: boolean = false;
     /**
      * @override
      */
     protected getDef(): any {
         if (!this._shape) {
-            this._shape = new (<any>window).box2d.b2PolygonShape();
+            this._shape = new (<any>window).box2d.b2ChainShape();
             this._setShape(false);
         }
-        this.label = (this.label || "PolygonCollider");
+        this.label = (this.label || "ChainCollider");
         return super.getDef();
     }
 
     private _setShape(re: boolean = true): void {
         var arr: any[] = this._points.split(",");
         var len: number = arr.length;
-        if (len < 6) throw "PolygonCollider points must be greater than 3";
-        if (len % 2 == 1) throw "PolygonCollider points lenth must a multiplier of 2";
+        if (len % 2 == 1) throw "ChainCollider points lenth must a multiplier of 2";
 
         var ps: any[] = [];
         for (var i: number = 0, n: number = len; i < n; i += 2) {
             ps.push(new (<any>window).box2d.b2Vec2((this._x + parseInt(arr[i])) / Physics.PIXEL_RATIO, (this._y + parseInt(arr[i + 1])) / Physics.PIXEL_RATIO));
         }
+        // this._shape.CreateChain的第三四个参数(prevVertex, &nextVertex)，参考原js版本，设置为0
+        this._loop ? this._shape.CreateLoop(ps, len / 2) : this._shape.CreateChain(ps, len / 2, new (<any>window).box2d.b2Vec2(0, 0), new (<any>window).box2d.b2Vec2(0, 0));
 
-        this._shape.Set(ps, len / 2);
         if (re) this.refresh();
     }
 
@@ -65,8 +66,18 @@ export class PolygonCollider extends ColliderBase {
     }
 
     set points(value: string) {
-        if (!value) throw "PolygonCollider points cannot be empty";
+        if (!value) throw "ChainCollider points cannot be empty";
         this._points = value;
+        if (this._shape) this._setShape();
+    }
+
+    /**是否是闭环，注意不要有自相交的链接形状，它可能不能正常工作*/
+    get loop(): boolean {
+        return this._loop;
+    }
+
+    set loop(value: boolean) {
+        this._loop = value;
         if (this._shape) this._setShape();
     }
 }
