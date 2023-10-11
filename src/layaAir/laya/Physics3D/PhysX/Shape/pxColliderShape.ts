@@ -54,6 +54,9 @@ export class pxColliderShape implements IColliderShape {
     //过滤数据  0 group  1 mask  2事件
     filterData: pxFilterData = { word0: Physics3DUtils.PHYSXDEFAULTMASKVALUE, word1: Physics3DUtils.PHYSXDEFAULTMASKVALUE, word2: 0, word3: 0 };//PxFilterData
 
+    constructor(){
+        
+    }
     /**
      * @override
      */
@@ -76,14 +79,14 @@ export class pxColliderShape implements IColliderShape {
 
     addToActor(collider: pxCollider) {
         if (this._pxCollider != collider) {
-            collider._pxActor.attachShape(this._pxShape);
+            if (this._pxShape) collider._pxActor.attachShape(this._pxShape);
             this._pxCollider = collider;
         }
     }
 
     removeFromActor(collider: pxCollider) {
         if (this._pxCollider == collider) {
-            collider._pxActor.detachShape(this._pxShape, true);
+            if (this._pxShape) collider._pxActor.detachShape(this._pxShape, true);
             this._pxCollider = null;
         }
     }
@@ -91,11 +94,13 @@ export class pxColliderShape implements IColliderShape {
     setOffset(position: Vector3): void {
         if (!this._pxCollider) return;
         position.cloneTo(this._offset);
-        const transform = pxColliderShape.transform;
-        this._pxCollider.owner.transform.getWorldLossyScale().cloneTo(this._scale);
-        if (this._pxCollider.owner)
-            Vector3.multiply(position, this._scale, transform.translation);
-        this._pxShape.setLocalPose(transform);
+        if (this._pxShape) {
+            const transform = pxColliderShape.transform;
+            this._pxCollider.owner.transform.getWorldLossyScale().cloneTo(this._scale);
+            if (this._pxCollider.owner)
+                Vector3.multiply(position, this._scale, transform.translation);
+            this._pxShape.setLocalPose(transform);
+        }
     }
 
     setIsTrigger(value: boolean): void {
@@ -106,7 +111,7 @@ export class pxColliderShape implements IColliderShape {
 
     _setShapeFlags(flags: ShapeFlag) {
         this._shapeFlags = flags;
-        this._pxShape.setFlags(new pxPhysicsCreateUtil._physX.PxShapeFlags(this._shapeFlags));
+        if (this._pxShape) this._pxShape.setFlags(new pxPhysicsCreateUtil._physX.PxShapeFlags(this._shapeFlags));
     }
 
     setSimulationFilterData(colliderGroup: number, colliderMask: number) {
@@ -114,8 +119,10 @@ export class pxColliderShape implements IColliderShape {
         this.filterData.word0 = colliderGroup;
         this.filterData.word1 = colliderMask;
         this.filterData.word2 = partFlag.eCONTACT_DEFAULT;
-        this._pxShape.setSimulationFilterData(this.filterData);
-        this._pxShape.setQueryFilterData(this.filterData);
+        if (this._pxShape) {
+            this._pxShape.setSimulationFilterData(this.filterData);
+            this._pxShape.setQueryFilterData(this.filterData);
+        }
     }
 
     //优化事件返回
@@ -125,16 +132,23 @@ export class pxColliderShape implements IColliderShape {
         //trigger
         //PxPairFlag::eTRIGGER_DEFAULT
         this.filterData.word2 = filterWorld2Number;
-        this._pxShape.setSimulationFilterData(this.filterData);
-        this._pxShape.setQueryFilterData(this.filterData);
+        if (this._pxShape) {
+            this._pxShape.setSimulationFilterData(this.filterData);
+            this._pxShape.setQueryFilterData(this.filterData);
+        }
+
     }
 
 
     destroy(): void {
-        this._pxShape.release();
+        if (this._pxShape) {
+            this._pxShape.release();
+            this._pxShape = undefined;
+        }
         pxColliderShape._shapePool.delete(this._id);
         this._pxMaterials.forEach(element => {
             element.destroy();
         });
+        this._pxMaterials.length = 0;
     }
 }
