@@ -34,12 +34,37 @@ export class btSpringJoint extends btJoint implements ISpringJoint {
             this._btJointFeedBackObj = bt.btJointFeedback_create(this._btJoint);
             bt.btTypedConstraint_setJointFeedback(this._btJoint, this._btJointFeedBackObj);
             bt.btTypedConstraint_setEnabled(this._btJoint, true);
+            this._initJointConstraintInfo();
             this._manager.addJoint(this);
         }
     }
+    /**
+         * @internal
+         */
+    _initJointConstraintInfo() {
+        let bt = btPhysicsCreateUtil._bt;
+        bt.btGeneric6DofSpring2Constraint_setLimit(this._btJoint, btSpringJoint.ANGULARSPRING_AXIS_X, 0, 0);
+        bt.btGeneric6DofSpring2Constraint_setLimit(this._btJoint, btSpringJoint.ANGULARSPRING_AXIS_Y, 0, 0);
+        bt.btGeneric6DofSpring2Constraint_setLimit(this._btJoint, btSpringJoint.ANGULARSPRING_AXIS_Z, 0, 0);
 
+        bt.btGeneric6DofSpring2Constraint_setLimit(this._btJoint, btSpringJoint.LINEARSPRING_AXIS_X, 0, 0);
+        bt.btGeneric6DofSpring2Constraint_setLimit(this._btJoint, btSpringJoint.LINEARSPRING_AXIS_Y, 0, 0);
+        bt.btGeneric6DofSpring2Constraint_setLimit(this._btJoint, btSpringJoint.LINEARSPRING_AXIS_Z, 0, 0);
+    }
     constructor(manager: btPhysicsManager) {
         super(manager);
+    }
+
+    setLocalPos(pos: Vector3): void {
+        super.setLocalPos(pos);
+        let bt = btPhysicsCreateUtil._bt;
+        this._btJoint && bt.btGeneric6DofSpring2Constraint_setFrames(this._btJoint, this._btTempTrans0, this._btTempTrans1);
+    }
+
+    setConnectLocalPos(pos: Vector3): void {
+        super.setConnectLocalPos(pos);
+        let bt = btPhysicsCreateUtil._bt;
+        this._btJoint && bt.btGeneric6DofSpring2Constraint_setFrames(this._btJoint, this._btTempTrans0, this._btTempTrans1);
     }
 
     setSwingOffset(value: Vector3): void {
