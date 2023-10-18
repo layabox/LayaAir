@@ -14,10 +14,10 @@ export class pxD6Joint extends pxJoint implements ID6Joint {
     static tempV3 = new Vector3();
 
     /**@internal axis */
-    private _axis: Vector3 = new Vector3();
+    private _axis: Vector3 = new Vector3(1, 0, 0);
 
     /**@internal */
-    private _SecondaryAxis: Vector3 = new Vector3();
+    private _SecondaryAxis: Vector3 = new Vector3(0, 1, 0);
 
     /**@internal */
     private _axisRotationQuaternion = new Quaternion();
@@ -31,7 +31,21 @@ export class pxD6Joint extends pxJoint implements ID6Joint {
         const transform1 = pxJoint._tempTransform1;
         this._connectlocalPos.cloneTo(transform1.translation);
         this._pxJoint = pxPhysicsCreateUtil._pxPhysics.createD6Joint(this._collider._pxActor, transform.translation, transform.rotation, this._connectCollider._pxActor, transform1.translation, transform1.rotation);
+        this._initAllConstrainInfo();
         this._pxJoint.setUUID(this._id);
+    }
+
+    /**
+     * @internal
+     */
+    _initAllConstrainInfo(): void {
+        this.setAxis(this._axis, this._SecondaryAxis);
+        this.setMotion(D6Axis.eFREE, D6MotionType.eX);
+        this.setMotion(D6Axis.eFREE, D6MotionType.eY);
+        this.setMotion(D6Axis.eFREE, D6MotionType.eZ);
+        this.setMotion(D6Axis.eFREE, D6MotionType.eTWIST);
+        this.setMotion(D6Axis.eFREE, D6MotionType.eSWING1);
+        this.setMotion(D6Axis.eFREE, D6MotionType.eSWING2);
     }
 
     /**
@@ -49,6 +63,8 @@ export class pxD6Joint extends pxJoint implements ID6Joint {
      * @param secendary 
      */
     setAxis(axis: Vector3, secendary: Vector3): void {
+        this._axis = axis;
+        this._SecondaryAxis = secendary;
         const xAxis = pxD6Joint.tempV3;
         const axisRotationQuaternion = this._axisRotationQuaternion;
         xAxis.set(1, 0, 0);
@@ -65,7 +81,7 @@ export class pxD6Joint extends pxJoint implements ID6Joint {
      * @param motionType 
      */
     setMotion(axis: D6Axis, motionType: D6MotionType): void {
-        this._pxJoint && this._pxJoint.setMotion(axis, motionType);
+        this._pxJoint && this._pxJoint.setMotion(motionType, axis);
     }
 
     /**
@@ -128,8 +144,8 @@ export class pxD6Joint extends pxJoint implements ID6Joint {
      * @param forceLimit 
      */
     setDrive(index: D6Drive, stiffness: number, damping: number, forceLimit: number): void {
-        let acceleration: number = 0;//TODO 1 accleration Mode
-        this._pxJoint && this._pxJoint.setDrive(stiffness, index, damping, forceLimit, acceleration);
+        let acceleration: number = PxD6JointDriveFlag.eACCELERATION;//TODO 1 accleration Mode
+        this._pxJoint && this._pxJoint.setDrive(index, stiffness, damping, forceLimit, acceleration);
     }
 
     /**

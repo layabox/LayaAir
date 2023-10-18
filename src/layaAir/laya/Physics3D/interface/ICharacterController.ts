@@ -59,7 +59,6 @@ export interface ICharacterController extends ICollider {
    */
   setGravity?(value: Vector3): void;
 
-
   /**
    * 设置角色的半径
    * @param value 
@@ -72,8 +71,12 @@ export interface ICharacterController extends ICollider {
    */
   setHeight?(value: number): void;
 
-
   setminDistance(value: number): void;
 
   setShapelocalOffset(value: Vector3): void;
+
+  /**
+   * 设置推开的力
+   */
+  setPushForce?(value: number): void;
 }
