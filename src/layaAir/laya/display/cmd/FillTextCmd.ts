@@ -16,20 +16,47 @@ export class FillTextCmd {
     /**
      * 开始绘制文本的 x 坐标位置（相对于画布）。
      */
-    x: number;
+    x: number = 0;
     /**
      * 开始绘制文本的 y 坐标位置（相对于画布）。
      */
-    y: number;
+    y: number = 0;
 
     private _text: string;
     private _wordText: WordText;
     private _font: string;
     private _color: string;
-    private _borderColor: string | null;
+    private _borderColor: string = '#000000';
     private _lineWidth: number;
     private _textAlign: number;
     private _fontObj: FontInfo;
+
+
+    set text(value: string) {
+        this._text = value;
+    }
+    get text() {
+        return this._text;
+    }
+    set borderColor(value: string) {
+        this._borderColor = value;
+    }
+    get borderColor() {
+        return this._borderColor;
+    }
+    set lineWidth(value: number) {
+        this._lineWidth = value;
+    }
+    get lineWidth() {
+        return this._lineWidth;
+    }
+    set textAlign(value: number) {
+        this._textAlign = value;
+    }
+    get textAlign() {
+        return this._textAlign;
+    }
+
 
     static create(text: string | WordText | null, x: number, y: number, font: string, color: string | null, textAlign: string, lineWidth: number, borderColor: string | null): FillTextCmd {
         var cmd: FillTextCmd = Pool.getItemByClass("FillTextCmd", FillTextCmd);
@@ -74,6 +101,13 @@ export class FillTextCmd {
     run(context: Context, gx: number, gy: number): void {
         if (ILaya.stage.isGlobalRepaint()) {
             this._wordText && this._wordText.cleanCache();
+        }
+        if (null == this._text) this._text = '';
+        if (null == this._fontObj) {
+            this.font = null;
+        }
+        if (null == this._color) {
+            this._color = '#ffffff';
         }
 
         context._fast_filltext(this._wordText || this._text, this.x + gx, this.y + gy, this._fontObj, this._color, this._borderColor, this._lineWidth, this._textAlign);
