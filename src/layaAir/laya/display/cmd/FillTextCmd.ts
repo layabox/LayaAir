@@ -26,39 +26,39 @@ export class FillTextCmd {
     private _wordText: WordText;
     private _font: string;
     private _color: string;
-    private _borderColor: string = '#000000';
-    private _lineWidth: number;
-    private _textAlign: number;
+    private _storkColor: string = '#000000';
+    private _stork: number;
+    private _align: number;
     private _fontObj: FontInfo;
 
-
+    
     set text(value: string) {
         this._text = value;
     }
     get text() {
         return this._text;
     }
-    set borderColor(value: string) {
-        this._borderColor = value;
+    set storkColor(value: string) {
+        this._storkColor = value;
     }
-    get borderColor() {
-        return this._borderColor;
+    get storkColor() {
+        return this._storkColor;
     }
-    set lineWidth(value: number) {
-        this._lineWidth = value;
+    set stork(value: number) {
+        this._stork = value;
     }
-    get lineWidth() {
-        return this._lineWidth;
+    get stork() {
+        return this._stork;
     }
-    set textAlign(value: number) {
-        this._textAlign = value;
+    set align(value: number) {
+        this._align = value;
     }
-    get textAlign() {
-        return this._textAlign;
+    get align() {
+        return this._align;
     }
 
 
-    static create(text: string | WordText | null, x: number, y: number, font: string, color: string | null, textAlign: string, lineWidth: number, borderColor: string | null): FillTextCmd {
+    static create(text: string | WordText | null, x: number, y: number, font: string, color: string | null, align: string, stork: number, storkColor: string | null): FillTextCmd {
         var cmd: FillTextCmd = Pool.getItemByClass("FillTextCmd", FillTextCmd);
         cmd._text = null;
         cmd._wordText = null;
@@ -66,18 +66,18 @@ export class FillTextCmd {
         cmd.y = y;
         cmd.font = font;
         cmd.color = color;
-        cmd._lineWidth = lineWidth;
-        cmd._borderColor = borderColor;
+        cmd._stork = stork;
+        cmd._storkColor = storkColor;
 
-        switch (textAlign) {
+        switch (align) {
             case 'center':
-                cmd._textAlign = Const.ENUM_TEXTALIGN_CENTER;
+                cmd._align = Const.ENUM_TEXTALIGN_CENTER;
                 break;
             case 'right':
-                cmd._textAlign = Const.ENUM_TEXTALIGN_RIGHT;
+                cmd._align = Const.ENUM_TEXTALIGN_RIGHT;
                 break;
             default:
-                cmd._textAlign = Const.ENUM_TEXTALIGN_DEFAULT;
+                cmd._align = Const.ENUM_TEXTALIGN_DEFAULT;
         }
 
         if (text instanceof WordText) {
@@ -110,7 +110,7 @@ export class FillTextCmd {
             this._color = '#ffffff';
         }
 
-        context._fast_filltext(this._wordText || this._text, this.x + gx, this.y + gy, this._fontObj, this._color, this._borderColor, this._lineWidth, this._textAlign);
+        context._fast_filltext(this._wordText || this._text, this.x + gx, this.y + gy, this._fontObj, this._color, this._storkColor, this._stork, this._align);
     }
 
     /**@private */
