@@ -71,15 +71,15 @@ export class WebXRExperienceHelper {
         }).then(() => {
             //webglSurport
             //@ts-ignore
-            return WebXRExperienceHelper.xr_Manager.initializeXRGL(sessionMode, LayaGL.renderEngine._gl);
+            return WebXRExperienceHelper.xr_Manager.initializeXRGL(sessionMode, LayaGL.renderEngine.gl);
         }).then(() => {
             //@ts-ignore
-            WebXRExperienceHelper.glInstance = LayaGL.renderEngine._gl;
+            WebXRExperienceHelper.glInstance = LayaGL.renderEngine.gl;
             return WebXRExperienceHelper.xr_Manager.updateRenderStateAsync({
                 depthFar: cameraInfo.depthFar,
                 depthNear: cameraInfo.depthNear,
                 //@ts-ignore
-                baseLayer: new XRWebGLLayer(WebXRExperienceHelper.xr_Manager.session, LayaGL.instance),
+                baseLayer: new XRWebGLLayer(WebXRExperienceHelper.xr_Manager.session, LayaGL.renderEngine.gl),
             });
         }).then(() => {
             WebXRExperienceHelper.xr_Manager.runXRRenderLoop();

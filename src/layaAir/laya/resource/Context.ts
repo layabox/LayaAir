@@ -286,9 +286,51 @@ export class Context {
     /**@internal */
     _drawCircle(x: number, y: number, radius: number, fillColor: any, lineColor: any, lineWidth: number, vid: number): void {
         this.beginPath(true);
-        this.arc(x, y, radius, 0, Context.PI2);
+        this.arc(x, y, radius, radius, 0, Context.PI2, false, true, 40);
         this.closePath();
         //绘制
+        this._fillAndStroke(fillColor, lineColor, lineWidth);
+    }
+    /**@internal */
+    _drawEllipse(x: number, y: number, width: number, height: number, fillColor: any, lineColor: any, lineWidth: number) {
+        this.beginPath(true);
+        this.arc(x, y, width, height, 0, Context.PI2, false, true, 40);
+        this.closePath();
+        this._fillAndStroke(fillColor, lineColor, lineWidth);
+    }
+    /**Math.PI*0.5的结果缓存 */
+    static HPI = Math.PI * 0.5;
+    /**@internal */
+    _drawRoundRect(x: number, y: number, width: number, height: number, lt: number, rt: number, lb: number, rb: number, fillColor: any, lineColor: any, lineWidth: number) {
+        this.beginPath(true);
+        var tPath = this._getPath();
+        if (0 >= lt) {
+            tPath.addPoint(x, y);
+        } else {
+            this.arc(x + lt, y + lt, lt, lt, Math.PI, Math.PI + Context.HPI);
+        }
+        let startX = x + width - rt;
+        if (0 >= rt) {
+            tPath.addPoint(startX, y);
+        } else {
+            this.arc(startX, y + rt, rt, rt, Math.PI + Context.HPI, Context.PI2);
+        }
+        startX = x + width - rb;
+        let startY = y + height - rb;
+        if (0 >= rb) {
+            tPath.addPoint(startX, startY);
+        } else {
+            this.arc(startX, startY, rb, rb, 0, Context.HPI);
+        }
+        startX = x + lb;
+        startY = y + height - lb;
+        if (0 >= lb) {
+            tPath.addPoint(startX, startY);
+        } else {
+            this.arc(startX, startY, lb, lb, Math.PI - Context.HPI, Math.PI);
+        }
+        tPath.addPoint(x, y + lt);
+        this.closePath();
         this._fillAndStroke(fillColor, lineColor, lineWidth);
     }
 
@@ -300,7 +342,7 @@ export class Context {
         //形成路径
         this.beginPath();
         this.moveTo(x, y);
-        this.arc(x, y, radius, startAngle, endAngle);
+        this.arc(x, y, radius, radius, startAngle, endAngle);
         this.closePath();
         //绘制
         this._fillAndStroke(fillColor, lineColor, lineWidth);
@@ -2232,7 +2274,7 @@ export class Context {
         }
     }
 
-    arc(cx: number, cy: number, r: number, startAngle: number, endAngle: number, counterclockwise: boolean = false, b: boolean = true): void {
+    arc(cx: number, cy: number, rx: number, ry: number, startAngle: number, endAngle: number, counterclockwise: boolean = false, b: boolean = true, minNum = 10): void {
         /* TODO 缓存还没想好
         if (mId != -1) {
             var tShape:IShape = VectorGraphManager.getInstance().shapeDic[this.mId];
@@ -2246,7 +2288,6 @@ export class Context {
         */
         var a: number = 0, da: number = 0, hda: number = 0, kappa: number = 0;
         var dx: number = 0, dy: number = 0, x: number = 0, y: number = 0, tanx: number = 0, tany: number = 0;
-        var px: number = 0, py: number = 0, ptanx: number = 0, ptany: number = 0;
         var i: number, ndivs: number, nvals: number;
 
         // Clamp angles
@@ -2270,9 +2311,9 @@ export class Context {
         }
         var sx: number = this.getMatScaleX();
         var sy: number = this.getMatScaleY();
-        var sr: number = r * (sx > sy ? sx : sy);
+        var sr: number = rx * (sx > sy ? sx : sy);
         var cl: number = 2 * Math.PI * sr;
-        ndivs = (Math.max(cl / 10, 10)) | 0;
+        ndivs = (Math.max(cl / minNum, minNum)) | 0;
 
         hda = (da / ndivs) / 2.0;
         kappa = Math.abs(4 / 3 * (1 - Math.cos(hda)) / Math.sin(hda));
@@ -2281,13 +2322,12 @@ export class Context {
 
         nvals = 0;
         var tPath: Path = this._getPath();
-        var _x1: number, _y1: number;
         for (i = 0; i <= ndivs; i++) {
             a = startAngle + da * (i / ndivs);
             dx = Math.cos(a);
             dy = Math.sin(a);
-            x = cx + dx * r;
-            y = cy + dy * r;
+            x = cx + dx * rx;
+            y = cy + dy * ry;
             if (x != this._path._lastOriX || y != this._path._lastOriY) {
                 //var _tx1:Number = x, _ty1:Number = y;
                 //x = _curMat.a * _tx1 + _curMat.c * _ty1 + _curMat.tx;
@@ -2297,8 +2337,8 @@ export class Context {
         }
         dx = Math.cos(endAngle);
         dy = Math.sin(endAngle);
-        x = cx + dx * r;
-        y = cy + dy * r;
+        x = cx + dx * rx;
+        y = cy + dy * ry;
         if (x != this._path._lastOriX || y != this._path._lastOriY) {
             //var _x2:Number = x, _y2:Number = y;
             //x = _curMat.a * _x2 + _curMat.c * _y2 + _curMat.tx;

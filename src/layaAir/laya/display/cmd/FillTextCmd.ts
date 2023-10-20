@@ -16,22 +16,49 @@ export class FillTextCmd {
     /**
      * 开始绘制文本的 x 坐标位置（相对于画布）。
      */
-    x: number;
+    x: number = 0;
     /**
      * 开始绘制文本的 y 坐标位置（相对于画布）。
      */
-    y: number;
+    y: number = 0;
 
     private _text: string;
     private _wordText: WordText;
     private _font: string;
     private _color: string;
-    private _borderColor: string | null;
-    private _lineWidth: number;
-    private _textAlign: number;
+    private _storkColor: string = '#000000';
+    private _stork: number;
+    private _align: number;
     private _fontObj: FontInfo;
 
-    static create(text: string | WordText | null, x: number, y: number, font: string, color: string | null, textAlign: string, lineWidth: number, borderColor: string | null): FillTextCmd {
+    
+    set text(value: string) {
+        this._text = value;
+    }
+    get text() {
+        return this._text;
+    }
+    set storkColor(value: string) {
+        this._storkColor = value;
+    }
+    get storkColor() {
+        return this._storkColor;
+    }
+    set stork(value: number) {
+        this._stork = value;
+    }
+    get stork() {
+        return this._stork;
+    }
+    set align(value: number) {
+        this._align = value;
+    }
+    get align() {
+        return this._align;
+    }
+
+
+    static create(text: string | WordText | null, x: number, y: number, font: string, color: string | null, align: string, stork: number, storkColor: string | null): FillTextCmd {
         var cmd: FillTextCmd = Pool.getItemByClass("FillTextCmd", FillTextCmd);
         cmd._text = null;
         cmd._wordText = null;
@@ -39,18 +66,18 @@ export class FillTextCmd {
         cmd.y = y;
         cmd.font = font;
         cmd.color = color;
-        cmd._lineWidth = lineWidth;
-        cmd._borderColor = borderColor;
+        cmd._stork = stork;
+        cmd._storkColor = storkColor;
 
-        switch (textAlign) {
+        switch (align) {
             case 'center':
-                cmd._textAlign = Const.ENUM_TEXTALIGN_CENTER;
+                cmd._align = Const.ENUM_TEXTALIGN_CENTER;
                 break;
             case 'right':
-                cmd._textAlign = Const.ENUM_TEXTALIGN_RIGHT;
+                cmd._align = Const.ENUM_TEXTALIGN_RIGHT;
                 break;
             default:
-                cmd._textAlign = Const.ENUM_TEXTALIGN_DEFAULT;
+                cmd._align = Const.ENUM_TEXTALIGN_DEFAULT;
         }
 
         if (text instanceof WordText) {
@@ -75,8 +102,15 @@ export class FillTextCmd {
         if (ILaya.stage.isGlobalRepaint()) {
             this._wordText && this._wordText.cleanCache();
         }
+        if (null == this._text) this._text = '';
+        if (null == this._fontObj) {
+            this.font = null;
+        }
+        if (null == this._color) {
+            this._color = '#ffffff';
+        }
 
-        context._fast_filltext(this._wordText || this._text, this.x + gx, this.y + gy, this._fontObj, this._color, this._borderColor, this._lineWidth, this._textAlign);
+        context._fast_filltext(this._wordText || this._text, this.x + gx, this.y + gy, this._fontObj, this._color, this._storkColor, this._stork, this._align);
     }
 
     /**@private */
