@@ -105,9 +105,9 @@ export class pxPhysicsManager implements IPhysicsManager {
             }
         };
         const pxPhysics = pxPhysicsCreateUtil._pxPhysics;
-        const physXSimulationCallbackInstance = pxPhysicsCreateUtil._physX.PxSimulationEventCallback.implement(triggerCallback);
-        const sceneDesc = pxPhysicsCreateUtil._physX.getDefaultSceneDesc(pxPhysics.getTolerancesScale(), 0, physXSimulationCallbackInstance);
-        this._pxScene = pxPhysics.createScene(sceneDesc);
+        pxPhysicsCreateUtil._physXSimulationCallbackInstance = pxPhysicsCreateUtil._physX.PxSimulationEventCallback.implement(triggerCallback);
+        pxPhysicsCreateUtil._sceneDesc = pxPhysicsCreateUtil._physX.getDefaultSceneDesc(pxPhysics.getTolerancesScale(), 0, pxPhysicsCreateUtil._physXSimulationCallbackInstance);
+        this._pxScene = pxPhysics.createScene(pxPhysicsCreateUtil._sceneDesc);
         this.setGravity(this._gravity);
         this._pxcontrollerManager = this._pxScene.createControllerManager();
         if (pxPhysicsCreateUtil._physXPVD) {

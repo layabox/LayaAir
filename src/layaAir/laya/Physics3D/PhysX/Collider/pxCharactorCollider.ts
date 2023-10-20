@@ -1,16 +1,13 @@
-import { PhysicsCombineMode } from "../../../d3/physics/PhysicsColliderComponent";
-import { Node } from "../../../display/Node";
 import { Quaternion } from "../../../maths/Quaternion";
 import { Vector3 } from "../../../maths/Vector3";
 import { ICharacterController } from "../../interface/ICharacterController";
-import { IColliderShape } from "../../interface/Shape/IColliderShape";
 import { ECharacterCapable } from "../../physicsEnum/ECharacterCapable";
 import { pxCapsuleColliderShape } from "../Shape/pxCapsuleColliderShape";
-import { ShapeFlag, pxColliderShape } from "../Shape/pxColliderShape";
 import { pxPhysicsCreateUtil } from "../pxPhysicsCreateUtil";
-import { pxPhysicsManager } from "../pxPhysicsManager";
+import { partFlag, pxPhysicsManager } from "../pxPhysicsManager";
 import { pxCollider, pxColliderType } from "./pxCollider";
 import { pxDynamicCollider } from "./pxDynamicCollider";
+import { Event } from "../../../events/Event";
 export enum ControllerNonWalkableMode {
     ePREVENT_CLIMBING,						//!< Stops character from climbing up non-walkable slopes, but doesn't move it otherwise
     ePREVENT_CLIMBING_AND_FORCE_SLIDING		//!< Stops character from climbing up non-walkable slopes, and forces it to slide down those slopes
@@ -56,6 +53,12 @@ export class pxCharactorCollider extends pxCollider implements ICharacterControl
     /**@internal */
     static _characterCapableMap: Map<any, any>;
 
+    /**@internal */
+    private _pushForce: number = 10;
+
+    /**@internal */
+    private _characterEvents: [] = [];
+
     constructor(manager: pxPhysicsManager) {
         super(manager);
         this._type = pxColliderType.CharactorCollider;
@@ -93,12 +96,13 @@ export class pxCharactorCollider extends pxCollider implements ICharacterControl
         this._characterCapableMap.set(ECharacterCapable.Character_UpDirection, true);
         this._characterCapableMap.set(ECharacterCapable.Character_FallSpeed, true);
         this._characterCapableMap.set(ECharacterCapable.Character_SlopeLimit, true);
-        // this._characterCapableMap.set(ECharacterCapable.Character_PushForce, true);
+        this._characterCapableMap.set(ECharacterCapable.Character_PushForce, true);
         this._characterCapableMap.set(ECharacterCapable.Character_Radius, true);
         this._characterCapableMap.set(ECharacterCapable.Character_Height, true);
         this._characterCapableMap.set(ECharacterCapable.Character_offset, true);
         this._characterCapableMap.set(ECharacterCapable.Character_Skin, true);
         this._characterCapableMap.set(ECharacterCapable.Character_minDistance, true);
+        this._characterCapableMap.set(ECharacterCapable.Character_EventFilter, true);
     }
 
     /**
@@ -113,13 +117,21 @@ export class pxCharactorCollider extends pxCollider implements ICharacterControl
         desc.radius = this._radius * Math.max(scale.x, scale.z);
         desc.height = this._height * scale.y;
         desc.climbingMode = 1; // constraint mode=
+        desc.setreportCallBackBehavior();
         this._pxNullShape = this._pxNullShape ? this._pxNullShape : new pxCapsuleColliderShape();
         desc.setMaterial(this._pxNullShape._pxMaterials[0]._pxMaterial);
         this._pxNullShape._pxCollider = this;
         this._pxController = this._physicsManager._pxcontrollerManager.createController(desc);
-        pxColliderShape._shapePool.set(this._id, this as any);
+        this._pxController.setShapeID(this._pxNullShape._id);
+        // pxColliderShape._shapePool.set(this._id, this as any);
         this.setPosition(this.owner.transform.position);
+        this.setStepOffset(this._stepOffset);
+        this.setUpDirection(this._upDirection);
+        this.setSlopeLimit(this._slopeLimit);
+        this.setGravity(this._gravity);
+        this.setPushForce(this._pushForce);
         this.setNonWalkableMode(this._nonWalkableMode);
+        this.setEventFilter(this._characterEvents);
         this._setCharacterCollisonFlag(ECharacterCollisionFlag.eCOLLISION_SIDES);
     }
 
@@ -166,6 +178,11 @@ export class pxCharactorCollider extends pxCollider implements ICharacterControl
 
     setGravity(value: Vector3): void {
         value.cloneTo(this._gravity);
+    }
+
+    setPushForce(value: number): void {
+        this._pushForce = value;
+        this._pxController && this._pxController.setPushForce(this._pushForce);
     }
 
     //update character by Physics engine
@@ -216,6 +233,27 @@ export class pxCharactorCollider extends pxCollider implements ICharacterControl
     setNonWalkableMode(value: ControllerNonWalkableMode) {
         this._nonWalkableMode = value;
         this._pxController && this._pxController.setNonWalkableMode(this._nonWalkableMode);
+    }
+
+    setEventFilter(events: []): void {
+        this._characterEvents = events;
+        if (!this._pxController) return;
+        let flag = partFlag.eCONTACT_DEFAULT;
+        for (let i = 0, j = events.length; i < j; i++) {
+            let value = events[i];
+            // no trigger event
+            if (value == Event.COLLISION_ENTER) {
+                flag = flag | partFlag.eNOTIFY_TOUCH_PERSISTS | partFlag.eNOTIFY_CONTACT_POINTS;
+            }
+            if (value == Event.COLLISION_STAY) {
+                flag = flag | partFlag.eNOTIFY_TOUCH_PERSISTS;
+            }
+            if (value == Event.COLLISION_EXIT) {
+                flag = flag | partFlag.eNOTIFY_TOUCH_PERSISTS | partFlag.eNOTIFY_TOUCH_LOST;
+            }
+        }
+
+        this._pxController && this._pxController.setEventFilter(flag);
     }
 
     release() {

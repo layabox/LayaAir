@@ -52,7 +52,10 @@ export class pxPhysicsCreateUtil implements IPhysicsCreateUtil {
     static _pvd: any;
     /**@internal */
     static _PxPvdTransport: any;
-
+    /**@internal */
+    static _physXSimulationCallbackInstance: any;
+    /**@internal */
+    static _sceneDesc: any;
     static _tolerancesScale: any;
 
     protected _physicsEngineCapableMap: Map<any, any>;

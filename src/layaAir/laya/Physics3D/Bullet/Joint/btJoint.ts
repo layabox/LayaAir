@@ -129,17 +129,17 @@ export class btJoint implements IJoint {
     setLocalPos(pos: Vector3): void {
         let bt = btPhysicsCreateUtil._bt;
         this._anchor = pos;
-        bt.btVector3_setValue(this._btTempVector30, -this._anchor.x, this._anchor.y, this._anchor.z);
+        bt.btVector3_setValue(this._btTempVector30, this._anchor.x, this._anchor.y, this._anchor.z);
+        bt.btVector3_setValue(this._btTempVector31, this._connectAnchor.x, this._connectAnchor.y, this._connectAnchor.z);
         bt.btTransform_setOrigin(this._btTempTrans0, this._btTempVector30);
-        bt.btVector3_setValue(this._btTempVector31, -this._connectAnchor.x, this._connectAnchor.y, this._connectAnchor.z);
         bt.btTransform_setOrigin(this._btTempTrans1, this._btTempVector31);
     }
     setConnectLocalPos(pos: Vector3): void {
         let bt = btPhysicsCreateUtil._bt;
         this._connectAnchor = pos;
-        bt.btVector3_setValue(this._btTempVector30, -this._anchor.x, this._anchor.y, this._anchor.z);
+        bt.btVector3_setValue(this._btTempVector30, this._anchor.x, this._anchor.y, this._anchor.z);
+        bt.btVector3_setValue(this._btTempVector31, this._connectAnchor.x, this._connectAnchor.y, this._connectAnchor.z);
         bt.btTransform_setOrigin(this._btTempTrans0, this._btTempVector30);
-        bt.btVector3_setValue(this._btTempVector31, -this._connectAnchor.x, this._connectAnchor.y, this._connectAnchor.z);
         bt.btTransform_setOrigin(this._btTempTrans1, this._btTempVector31);
     }
     getlinearForce(): Vector3 {
@@ -208,17 +208,6 @@ export class btJoint implements IJoint {
         this._getJointFeedBack = true;
     }
 
-
-
-    setConnectedAnchor(ownerValue: Vector3, otherValue: Vector3): void {
-        this._anchor = ownerValue;
-        this._connectAnchor = otherValue;
-        let bt = btPhysicsCreateUtil._bt;
-        btPhysicsManager._convertToBulletVec3(this._anchor, this._btTempVector30);
-        btPhysicsManager._convertToBulletVec3(this._connectAnchor, this._btTempVector31);
-        bt.btTransform_setOrigin(this._btTempTrans0, this._btTempVector30);
-        bt.btTransform_setOrigin(this._btTempTrans1, this._btTempVector31);
-    }
     setConnectedMassScale(value: number): void {
         throw new Error("Method not implemented.");
     }
