@@ -84,10 +84,18 @@ export class SpineSkeletonRenderer {
                 renderable.vertices = this.vertices;
                 renderable.numVertices = 4;
                 renderable.numFloats = clippedVertexSize << 2;
-                region.computeWorldVertices(slot.bone, renderable.vertices, 0, clippedVertexSize);
+                if ("4.1" == SpineTemplet.RuntimeVersion) {
+                    region.computeWorldVertices(slot as any, renderable.vertices, 0, clippedVertexSize);
+                } else {
+                    region.computeWorldVertices(slot.bone, renderable.vertices, 0, clippedVertexSize);
+                }
                 triangles = QUAD_TRIANGLES;
                 uvs = region.uvs;
-                name = region.region.renderObject.page.name;
+                if ("4.1" == SpineTemplet.RuntimeVersion) {
+                    name = (region.region as any).page.name;
+                } else {
+                    name = region.region.renderObject.page.name;
+                }
                 texture = this.templet.getTexture(name);
                 attachmentColor = region.color;
             } else if (attachment instanceof this.templet.ns.MeshAttachment) {
@@ -100,7 +108,11 @@ export class SpineSkeletonRenderer {
                 }
                 mesh.computeWorldVertices(slot, 0, mesh.worldVerticesLength, renderable.vertices, 0, clippedVertexSize);
                 triangles = mesh.triangles;
-                name = mesh.region.renderObject.page.name
+                if ("4.1" == SpineTemplet.RuntimeVersion) {
+                    name = (mesh.region as any).page.name;
+                } else {
+                    name = mesh.region.renderObject.page.name;
+                }
                 texture = this.templet.getTexture(name);
                 uvs = mesh.uvs;
                 attachmentColor = mesh.color;

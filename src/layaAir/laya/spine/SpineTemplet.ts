@@ -40,7 +40,7 @@ export class SpineTemplet extends Resource {
         this._basePath = URL.getPath(createURL);
         let version = this.getRuntimeVersion(desc);
         let parseAtlas;
-        if (version == "4.0")
+        if (version.startsWith('4.'))
             parseAtlas = this.parseAtlas4;
         else
             parseAtlas = this.parseAtlas3;

@@ -34,6 +34,7 @@ import { VectorGraphManager } from "../utils/VectorGraphManager"
 import { ILaya } from "../../ILaya";
 import { WordText } from "../utils/WordText";
 import { ColorUtils } from "../utils/ColorUtils";
+import { DrawEllipseCmd } from "./cmd/DrawEllipseCmd";
 
 /**
  * <code>Graphics</code> 类用于创建绘图显示对象。Graphics可以同时绘制多个位图或者矢量图，还可以结合save，restore，transform，scale，rotate，translate，alpha等指令对绘图效果进行变化。
@@ -542,6 +543,19 @@ export class Graphics {
      */
     drawCircle(x: number, y: number, radius: number, fillColor: any, lineColor: any = null, lineWidth: number = 1): DrawCircleCmd {
         return this.addCmd(DrawCircleCmd.create(x, y, radius, fillColor, lineColor, lineWidth));
+    }
+    /**
+     * 绘制椭圆形
+     * @param x         圆点X 轴位置。
+     * @param y         圆点Y 轴位置。
+     * @param width     横向半径。
+     * @param height    纵向半径。
+     * @param fillColor 填充颜色，或者填充绘图的渐变对象。
+     * @param lineColor （可选）边框颜色，或者填充绘图的渐变对象。
+     * @param lineWidth （可选）边框宽度。
+     */
+    drawEllipse(x: number, y: number, width: number, height: number, fillColor: any, lineColor: any, lineWidth: number): DrawEllipseCmd {
+        return this.addCmd(DrawEllipseCmd.create(x, y, width, height, fillColor, lineColor, lineWidth));
     }
 
     /**
