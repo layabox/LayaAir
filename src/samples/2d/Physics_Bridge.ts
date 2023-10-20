@@ -5,15 +5,14 @@ import { Stage } from "laya/display/Stage";
 import { Event } from "laya/events/Event";
 import { RevoluteJoint } from "laya/physics/joint/RevoluteJoint";
 import { Physics } from "laya/physics/Physics";
-import { PhysicsDebugDraw } from "laya/physics/PhysicsDebugDraw";
 import { RigidBody } from "laya/physics/RigidBody";
 import { Label } from "laya/ui/Label";
 import { Stat } from "laya/utils/Stat";
 import { Main } from "../Main";
 import { ChainCollider } from "laya/physics/Collider2D/ChainCollider";
 import { BoxCollider } from "laya/physics/Collider2D/BoxCollider";
-import { PolygonCollider } from "laya/physics/Collider2D/PolygonCollider";
 import { CircleCollider } from "laya/physics/Collider2D/CircleCollider";
+import { PolygonCollider } from "laya/physics/Collider2D/PolygonCollider";
 
 export class Physics_Bridge {
     Main: typeof Main = null;
@@ -25,13 +24,12 @@ export class Physics_Bridge {
         Config.isAntialias = true;
         Laya.init(1200, 700).then(() => {
             Stat.show();
-            Physics.enable();
-            PhysicsDebugDraw.enable();
+
             Laya.stage.alignV = Stage.ALIGN_MIDDLE;
             Laya.stage.alignH = Stage.ALIGN_CENTER;
             Laya.stage.scaleMode = Stage.SCALE_FIXED_AUTO;
             Laya.stage.bgColor = "#232628";
-
+            Physics.enable(null);
             this.createBridge();
             this.eventListener();
         });
@@ -111,18 +109,20 @@ export class Physics_Bridge {
         // 单击产生新的小球刚体
         Laya.stage.on(Event.CLICK, this, () => {
             let
-                targetX = (300 + Math.random() * 400) / Physics.PIXEL_RATIO, // [300, 700)
-                targetY = 500 / Physics.PIXEL_RATIO;
+                targetX = Physics.I._factory.layaToPhyValue((300 + Math.random() * 400)), // [300, 700)
+                targetY = Physics.I._factory.layaToPhyValue(500);
             let newBall = new Sprite();
             this.Main.box2D.addChild(newBall);
             let circleBody: RigidBody = newBall.addComponent(RigidBody);
             circleBody.bullet = true;
+            circleBody.type = "dynamic";
+
             let circleCollider: CircleCollider = newBall.addComponent(CircleCollider);
             circleCollider.radius = 5;
             circleCollider.x = Laya.stage.mouseX;
             circleCollider.y = Laya.stage.mouseY;
-            let circlePosx = circleCollider.x / Physics.PIXEL_RATIO;
-            let circlePosy = circleCollider.y / Physics.PIXEL_RATIO;
+            let circlePosx = Physics.I._factory.layaToPhyValue(circleCollider.x);
+            let circlePosy = Physics.I._factory.layaToPhyValue(circleCollider.y);
             let velocityX = targetX - circlePosx;
             let velocityY = targetY - circlePosy;
             circleBody.linearVelocity = { "x": velocityX * 3, "y": velocityY * 3 };

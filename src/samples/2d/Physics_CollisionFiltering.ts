@@ -6,7 +6,6 @@ import { Event } from "laya/events/Event";
 
 import { MouseJoint } from "laya/physics/joint/MouseJoint";
 import { Physics } from "laya/physics/Physics";
-import { PhysicsDebugDraw } from "laya/physics/PhysicsDebugDraw";
 
 import { RigidBody } from "laya/physics/RigidBody";
 import { Stat } from "laya/utils/Stat";
@@ -39,7 +38,6 @@ export class Physics_CollisionFiltering {
         Laya.init(1200, 700).then(() => {
             Stat.show();
             Physics.enable();
-            PhysicsDebugDraw.enable();
             Laya.stage.alignV = Stage.ALIGN_MIDDLE;
             Laya.stage.alignH = Stage.ALIGN_CENTER;
             Laya.stage.scaleMode = Stage.SCALE_FIXED_AUTO;

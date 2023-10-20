@@ -40,17 +40,19 @@ export class DistanceJoint extends JointBase {
             this.selfBody = this.selfBody || this.owner.getComponent(RigidBody);
             if (!this.selfBody) throw "selfBody can not be empty";
             var def = DistanceJoint._temp || (DistanceJoint._temp = new physics2D_DistancJointDef());
-            def.bodyA = this.otherBody ? this.otherBody.getBody() : Physics.I._emptyBody;
-            def.bodyB = this.selfBody.getBody();
-            def.localAnchorA.setValue(this.otherAnchor[0] / Physics.PIXEL_RATIO, this.otherAnchor[1] / Physics.PIXEL_RATIO);
-            def.localAnchorB.setValue(this.selfAnchor[0] / Physics.PIXEL_RATIO, this.selfAnchor[1] / Physics.PIXEL_RATIO);
+
+            def.bodyA = this.selfBody.getBody();
+            def.localAnchorA.setValue(this.selfAnchor[0], this.selfAnchor[1]);
+            def.bodyB = this.otherBody ? this.otherBody.getBody() : Physics.I._emptyBody;
+            def.localAnchorB.setValue(this.otherAnchor[0], this.otherAnchor[1]);
+
             def.dampingRatio = this._dampingRatio;
             def.frequency = this._frequency;
             def.collideConnected = this.collideConnected;
-            def.length = this._length / Physics.PIXEL_RATIO;
-            def.maxLength = this._maxLength / Physics.PIXEL_RATIO;
-            def.minLength = this._minLength / Physics.PIXEL_RATIO;
-            this._joint = Physics.I._factory.createDistanceJoint(def);
+            def.length = this._length;
+            def.maxLength = this._maxLength;
+            def.minLength = this._minLength;
+            this._joint = this._factory.createDistanceJoint(def);
         }
     }
 
@@ -61,7 +63,7 @@ export class DistanceJoint extends JointBase {
 
     set length(value: number) {
         this._length = value;
-        if (this._joint) Physics.I._factory.set_DistanceJoint_length(this._joint, value / Physics.PIXEL_RATIO);
+        if (this._joint) this._factory.set_DistanceJoint_length(this._joint, value);
     }
 
     /**约束的最小长度*/
@@ -71,7 +73,7 @@ export class DistanceJoint extends JointBase {
 
     set minLength(value: number) {
         this._minLength = value;
-        if (this._joint) Physics.I._factory.set_DistanceJoint_MinLength(this._joint, value / Physics.PIXEL_RATIO);
+        if (this._joint) this._factory.set_DistanceJoint_MinLength(this._joint, value);
     }
 
     /**约束的最大长度*/
@@ -81,7 +83,7 @@ export class DistanceJoint extends JointBase {
 
     set maxLength(value: number) {
         this._maxLength = value;
-        if (this._joint) Physics.I._factory.set_DistanceJoint_MaxLength(this._joint, value / Physics.PIXEL_RATIO);
+        if (this._joint) this._factory.set_DistanceJoint_MaxLength(this._joint, value);
     }
 
     /**弹簧系统的震动频率，可以视为弹簧的弹性系数，通常频率应该小于时间步长频率的一半*/
@@ -92,9 +94,7 @@ export class DistanceJoint extends JointBase {
     set frequency(value: number) {
         this._frequency = value;
         if (this._joint) {
-            let bodyA = this.otherBody ? this.otherBody.getBody() : Physics.I._emptyBody;
-            let bodyB = this.selfBody.getBody();
-            Physics.I._factory.set_DistanceJointStiffnessDamping(this._joint, bodyA, bodyB, this._frequency, this._dampingRatio);
+            this._factory.set_DistanceJointStiffnessDamping(this._joint, this._frequency, this._dampingRatio);
         }
     }
 
@@ -106,9 +106,7 @@ export class DistanceJoint extends JointBase {
     set damping(value: number) {
         this._dampingRatio = value;
         if (this._joint) {
-            let bodyA = this.otherBody ? this.otherBody.getBody() : Physics.I._emptyBody;
-            let bodyB = this.selfBody.getBody();
-            Physics.I._factory.set_DistanceJointStiffnessDamping(this._joint, bodyA, bodyB, this._frequency, this._dampingRatio);
+            this._factory.set_DistanceJointStiffnessDamping(this._joint, this._frequency, this._dampingRatio);
         }
     }
 }

@@ -17,7 +17,7 @@ export class PolygonCollider extends ColliderBase {
      */
     protected getDef(): any {
         if (!this._shape) {
-            this._shape = new (<any>window).box2d.b2PolygonShape();
+            this._shape = Physics.I._factory.create_PolygonShape();
             this._setShape(false);
         }
         this.label = (this.label || "PolygonCollider");
@@ -30,12 +30,7 @@ export class PolygonCollider extends ColliderBase {
         if (len < 6) throw "PolygonCollider points must be greater than 3";
         if (len % 2 == 1) throw "PolygonCollider points lenth must a multiplier of 2";
 
-        var ps: any[] = [];
-        for (var i: number = 0, n: number = len; i < n; i += 2) {
-            ps.push(new (<any>window).box2d.b2Vec2((this._x + parseInt(arr[i])) / Physics.PIXEL_RATIO, (this._y + parseInt(arr[i + 1])) / Physics.PIXEL_RATIO));
-        }
-
-        this._shape.Set(ps, len / 2);
+        Physics.I._factory.set_PolygonShape_data(this._shape, this._x, this._y, arr);
         if (re) this.refresh();
     }
 

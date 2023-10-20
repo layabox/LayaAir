@@ -152,9 +152,33 @@ const packsDef = [
     },
 
     {
-        'libName': 'physics',
+        'libName': 'physicsjs',
         'input': [
-            './layaAir/laya/physics/**/*.*'
+            './layaAir/laya/physics/Collider2D/*.*',
+            './layaAir/laya/physics/joint/*.*',
+            './layaAir/laya/physics/IPhysiscs2DFactory.ts',
+            './layaAir/laya/physics/ModuleDef.ts',
+            './layaAir/laya/physics/Physics.ts',
+            './layaAir/laya/physics/Physics2DOption.ts',
+            './layaAir/laya/physics/RigidBody.ts',
+            './layaAir/laya/physics/RigidBody2DInfo.ts',
+            './layaAir/laya/physics/PhysicsDebugDraw.ts',
+            './layaAir/laya/physics/factory/physics2DJSFactory.ts',
+        ],
+    },
+    {
+        'libName': 'physicswasm',
+        'input': [
+            './layaAir/laya/physics/Collider2D/*.*',
+            './layaAir/laya/physics/joint/*.*',
+            './layaAir/laya/physics/IPhysiscs2DFactory.ts',
+            './layaAir/laya/physics/ModuleDef.ts',
+            './layaAir/laya/physics/Physics.ts',
+            './layaAir/laya/physics/Physics2DOption.ts',
+            './layaAir/laya/physics/RigidBody.ts',
+            './layaAir/laya/physics/RigidBody2DInfo.ts',
+            './layaAir/laya/physics/PhysicsDebugDraw.ts',
+            './layaAir/laya/physics/factory/physics2DwasmFactory.ts',
         ],
     },
     {
@@ -363,17 +387,28 @@ gulp.task("buildJs", async () => {
 // 去掉laya.physics3D.runtime.js
 gulp.task("copyJsLibs", async () => {
     return gulp.src([
-        './src/layaAir/jsLibs/laya.physics3D.wasm.wasm', './src/layaAir/jsLibs/*.js', './src/layaAir/jsLibs/physx.release.wasm',
-        '!./src/layaAir/jsLibs/{box2d.js,cannon.js,laya.physics3D.js,physx.release.js,laya.physics3D.runtime.js}'])    
+        './src/layaAir/jsLibs/laya.physics3D.wasm.wasm', 
+        './src/layaAir/jsLibs/*.js', 
+        './src/layaAir/jsLibs/physx.release.wasm', 
+        './src/layaAir/jsLibs/Box2D.wasm',
+        '!./src/layaAir/jsLibs/{box2d.js,cannon.js,laya.physics3D.js,physx.release.js,laya.physics3D.runtime.js,Box2D_wasm.js}'])    
         .pipe(gulp.dest('./build/libs'));
 });
 
 //合并physics 和 box2d
-gulp.task('concatBox2dPhysics', () => {
+gulp.task('concatBox2djsPhysics', () => {
     return gulp.src([
         './src/layaAir/jsLibs/box2d.js',
-        './build/libs/laya.physics.js'])
-        .pipe(concat('laya.physics.js'))
+        './build/libs/laya.physicsjs.js'])
+        .pipe(concat('laya.physicsjs.js'))
+        .pipe(gulp.dest('./build/libs/'));
+});
+
+gulp.task('concatBox2dwasmPhysics', () => {
+    return gulp.src([
+        './src/layaAir/jsLibs/Box2D_wasm.js',
+        './build/libs/laya.physicswasm.js'])
+        .pipe(concat('laya.physicswasm.js'))
         .pipe(gulp.dest('./build/libs/'));
 });
 
@@ -512,7 +547,8 @@ gulp.task('genDts', () => {
 
 gulp.task('build',
     gulp.series('compile', 'buildJs', 'copyJsLibs',
-        'concatBox2dPhysics',
+        'concatBox2djsPhysics',
+        'concatBox2dwasmPhysics',
         'concatPhysics3DTobtPhysics',
         'concatphysxReleaseTopxPhysics',
         'genDts'));

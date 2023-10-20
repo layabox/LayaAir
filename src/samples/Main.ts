@@ -10,6 +10,11 @@ import { IndexView2D } from "./view/IndexView2D";
 import { IndexView3D } from "./view/IndexView3D";
 import { Texture } from "laya/resource/Texture";
 import Client from "./Client";
+import { Physics_Bridge } from "./2d/Physics_Bridge";
+import { Physics_Tumbler } from "./2d/Physics_Tumbler";
+import { Physics_Strandbeests } from "./2d/Physics_Strandbeests";
+import { Physics_CollisionEvent } from "./2d/Physics_CollisionEvent";
+import { Physics_CollisionFiltering } from "./2d/Physics_CollisionFiltering";
 
 export class Main {
     private static _box3D: Sprite;
@@ -95,10 +100,11 @@ export class Main {
             Main._indexView = new IndexView3D();
         }
 
-        Laya.stage.addChild(Main._indexView);
-        Main._indexView.left = 10;
-        Main._indexView.bottom = (window as any).viewtop || 50;
-        Main._indexView.mouseEnabled = Main._indexView.mouseThrough = true;
-        Main._indexView.switchFunc(0, 0);//切换到指定case
+        // Laya.stage.addChild(Main._indexView);
+        // Main._indexView.left = 10;
+        // Main._indexView.bottom = (window as any).viewtop || 50;
+        // Main._indexView.mouseEnabled = Main._indexView.mouseThrough = true;
+        // Main._indexView.switchFunc(0, 0);//切换到指定case
+        new Physics_CollisionEvent(Main)
     }
 }

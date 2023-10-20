@@ -17,7 +17,14 @@ import {pxPhysicsCreateUtil} from "laya/Physics3D/PhysX/pxPhysicsCreateUtil"
 import { Laya3D } from "Laya3D";
 import { PostProcessBloom } from "./3d/LayaAir3D_PostProcess/PostProcessBloom";
 import { PhysicsWorld_BaseCollider } from "./3d/LayaAir3D_Physics3D/PhysicsWorld_BaseCollider";
+import { physics2DwasmFactory} from "laya/physics/factory/physics2DwasmFactory";
+import { Main } from "./Main";
+import { Physics } from "laya/physics/Physics";
+import { physics2DJSFactory } from "laya/physics/factory/physics2DJSFactory";
 Resource.DEBUG = true;
 LayaGL.renderOBJCreate = new RenderOBJCreateUtil();
-Laya3D.PhysicsCreateUtil = new pxPhysicsCreateUtil();
-new PhysicsWorld_BaseCollider();
+Physics.I._factory = new physics2DJSFactory()
+// Physics.I._factory = new physics2DwasmFactory()
+// Laya3D.PhysicsCreateUtil = new pxPhysicsCreateUtil();
+// new PhysicsWorld_BaseCollider();
+new Main(false);

@@ -38,7 +38,7 @@ export class ColliderBase extends Component {
 
     /**@private 获取碰撞体信息*/
     protected getDef(): any {
-        if (!this._def) {
+        if (!this._fixtureDef) {
             var def: any = new FixtureBox2DDef();
             def.density = this.density;
             def.friction = this.friction;
@@ -48,7 +48,7 @@ export class ColliderBase extends Component {
             this._fixtureDef = Physics.I._factory.createFixtureDef(def);
             this._def = def;
         }
-        return this._def;
+        return this._fixtureDef;
     }
 
     protected _onEnable(): void {
@@ -152,15 +152,13 @@ export class ColliderBase extends Component {
                 factory.destroy_fixture(this.fixture);
                 this.fixture = null;
             }
-            var def: any = this.getDef();
-            def.filter.groupIndex = this.rigidBody.group;
-            def.filter.categoryBits = this.rigidBody.category;
-            def.filter.maskBits = this.rigidBody.mask;
-            factory.set_fixtureDef_GroupIndex(this._fixtureDef, this.rigidBody.group);
-            factory.set_fixtureDef_CategoryBits(this._fixtureDef, this.rigidBody.category);
-            factory.set_fixtureDef_maskBits(this._fixtureDef, this.rigidBody.mask);
+            let fixtureDef = this.getDef();
 
-            this.fixture = factory.createfixture(body, this._fixtureDef);
+            factory.set_fixtureDef_GroupIndex(fixtureDef, this.rigidBody.group);
+            factory.set_fixtureDef_CategoryBits(fixtureDef, this.rigidBody.category);
+            factory.set_fixtureDef_maskBits(fixtureDef, this.rigidBody.mask);
+            this.fixture = factory.createfixture(body, fixtureDef);
+
             factory.set_fixture_collider(this.fixture, this);
         }
     }

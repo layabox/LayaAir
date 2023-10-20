@@ -18,7 +18,7 @@ export class ChainCollider extends ColliderBase {
      */
     protected getDef(): any {
         if (!this._shape) {
-            this._shape = new (<any>window).box2d.b2ChainShape();
+            this._shape = Physics.I._factory.create_ChainShape();
             this._setShape(false);
         }
         this.label = (this.label || "ChainCollider");
@@ -30,12 +30,8 @@ export class ChainCollider extends ColliderBase {
         var len: number = arr.length;
         if (len % 2 == 1) throw "ChainCollider points lenth must a multiplier of 2";
 
-        var ps: any[] = [];
-        for (var i: number = 0, n: number = len; i < n; i += 2) {
-            ps.push(new (<any>window).box2d.b2Vec2((this._x + parseInt(arr[i])) / Physics.PIXEL_RATIO, (this._y + parseInt(arr[i + 1])) / Physics.PIXEL_RATIO));
-        }
-        // this._shape.CreateChain的第三四个参数(prevVertex, &nextVertex)，参考原js版本，设置为0
-        this._loop ? this._shape.CreateLoop(ps, len / 2) : this._shape.CreateChain(ps, len / 2, new (<any>window).box2d.b2Vec2(0, 0), new (<any>window).box2d.b2Vec2(0, 0));
+        Physics.I._factory.set_ChainShape_data(this._shape, this._x, this._y, arr, this._loop)
+
 
         if (re) this.refresh();
     }

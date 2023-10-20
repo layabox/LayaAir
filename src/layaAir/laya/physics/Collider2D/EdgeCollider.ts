@@ -16,7 +16,7 @@ export class EdgeCollider extends ColliderBase {
      */
     protected getDef(): any {
         if (!this._shape) {
-            this._shape = new (<any>window).box2d.b2EdgeShape();
+            this._shape = Physics.I._factory.create_EdgeShape()
             this._setShape(false);
         }
         this.label = (this.label || "EdgeCollider");
@@ -28,12 +28,8 @@ export class EdgeCollider extends ColliderBase {
         var len: number = arr.length;
         if (len % 2 == 1) throw "EdgeCollider points lenth must a multiplier of 2";
 
-        var ps: any[] = [];
-        for (var i: number = 0, n: number = len; i < n; i += 2) {
-            ps.push(new (<any>window).box2d.b2Vec2((this._x + parseInt(arr[i])) / Physics.PIXEL_RATIO, (this._y + parseInt(arr[i + 1])) / Physics.PIXEL_RATIO));
-        }
-        this._shape.SetTwoSided(ps[0], ps[1])
 
+        Physics.I._factory.set_EdgeShape_data(this._shape, this._x, this._y, arr);
         if (re) this.refresh();
     }
 

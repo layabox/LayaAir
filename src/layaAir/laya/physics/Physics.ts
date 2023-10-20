@@ -8,20 +8,19 @@ import { Vector2 } from "../maths/Vector2";
 import { IPhysiscs2DFactory } from "./IPhysiscs2DFactory";
 
 /**
- * 2D物理引擎，使用Box2d驱动
+ * 2D物理引擎
  */
 export class Physics extends EventDispatcher {
-    /**2D游戏默认单位为像素，物理默认单位为米，此值设置了像素和米的转换比率，默认50像素=1米*/
-    static PIXEL_RATIO: number = 50;
+
 
     /**@private */
     private static _I: Physics;
 
-    /**旋转迭代次数，增大数字会提高精度，但是会降低性能*/
-    velocityIterations: number = 8;
+    // /**旋转迭代次数，增大数字会提高精度，但是会降低性能*/
+    // velocityIterations: number = 8;
 
-    /**位置迭代次数，增大数字会提高精度，但是会降低性能*/
-    positionIterations: number = 3;
+    // /**位置迭代次数，增大数字会提高精度，但是会降低性能*/
+    // positionIterations: number = 3;
 
     /**@private 是否已经激活*/
     private _enabled: boolean;
@@ -52,8 +51,8 @@ export class Physics extends EventDispatcher {
        gravity:10,
        customUpdate:false 自己控制物理更新时机，自己调用Physics.update
      */
-    static enable(options: any = null): void {
-        Physics.I.start(options);
+    static enable(options: Physics2DOption = null) {
+        Physics.I.start(options)
     }
 
     /**
@@ -66,22 +65,16 @@ export class Physics extends EventDispatcher {
     start(options: Physics2DOption = null): void {
         if (!this._enabled) {
             this._enabled = true;
-
-            if (options) {
+            if (options == null) {
                 options = new Physics2DOption();
-                options.allowSleeping = false
-                options.gravity = new Vector2(0, 500 / Physics.PIXEL_RATIO);
-                options.customUpdate = true;
-                options.velocityIterations = 8;
-                options.positionIterations = 3;
             }
 
             //start 2d world
             this._factory.start(options);
             this.allowSleeping = options.allowSleeping;
-            this.velocityIterations = options.velocityIterations;
-            this.positionIterations = options.positionIterations;
-
+            if (options.debugDraw) {
+                this._factory.createDebugDraw(99);
+            }
             this._emptyBody || (this._emptyBody = this._createBody(null));
 
             if (!options.customUpdate && LayaEnv.isPlaying)
@@ -106,7 +99,7 @@ export class Physics extends EventDispatcher {
 
     /**@private */
     _createBody(def: any): any {
-        this._factory.createBody(def);
+        return this._factory.createBody(def);
     }
 
     /**@private */
@@ -123,6 +116,24 @@ export class Physics extends EventDispatcher {
     _removeJoint(joint: any): void {
         this._factory.removeJoint(joint);
     }
+
+    /**
+     * @private
+     * 显示物理绘制
+     */
+    showDebugDraw(flags?: number):void{
+        this._factory.createDebugDraw(flags);
+    }
+
+    /**
+     * @private
+     * 隐藏物理绘制
+     */
+    removeDebugDraw():void{
+        this._factory.removeDebugDraw();
+    }
+
+
 
     /**
      * 停止物理世界
@@ -181,7 +192,7 @@ export class Physics extends EventDispatcher {
         if (value) {
             //TODO：
             var p: Point = value.localToGlobal(Point.TEMP.setTo(0, 0));
-            this._factory.shiftOrigin(-p.x / Physics.PIXEL_RATIO, -p.y / Physics.PIXEL_RATIO);
+            this._factory.shiftOrigin(-p.x, -p.y);
         }
     }
 
@@ -191,12 +202,8 @@ export class Physics extends EventDispatcher {
     updatePhysicsByWorldRoot() {
         if (!!this.worldRoot) {
             var p: Point = this.worldRoot.localToGlobal(Point.TEMP.setTo(0, 0));
-            this._factory.shiftOrigin(-p.x / Physics.PIXEL_RATIO, -p.y / Physics.PIXEL_RATIO);
+            this._factory.shiftOrigin(-p.x, -p.y);
         }
-    }
-
-    setDebugDraw(drawDebug: any) {
-        this._factory.setDebugDraw(drawDebug);
     }
 }
 

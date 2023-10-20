@@ -63,11 +63,12 @@ export class RigidBody extends Component {
 
     private _createBody(): void {
         if (this._body || !this.owner) return;
+        let factory = Physics.I._factory;
         var sp: Sprite = (<Sprite>this.owner);
-        var point: Point = sp.localToGlobal(Point.TEMP.setTo(0, 0), false, Physics.I.worldRoot);
+        let point: Point = factory.getLayaPosition(sp, 0, 0);
         var defRigidBodyDef = new RigidBody2DInfo();
 
-        defRigidBodyDef.position.setValue(point.x / Physics.PIXEL_RATIO, point.y / Physics.PIXEL_RATIO);
+        defRigidBodyDef.position.setValue(point.x, point.y);
         defRigidBodyDef.angle = Utils.toRadian(sp.rotation);
         defRigidBodyDef.allowSleep = this._allowSleep;
         defRigidBodyDef.angularDamping = this._angularDamping;
@@ -76,15 +77,14 @@ export class RigidBody extends Component {
         defRigidBodyDef.fixedRotation = !this._allowRotation;
         defRigidBodyDef.gravityScale = this._gravityScale;
         defRigidBodyDef.linearDamping = this._linearDamping;
+        defRigidBodyDef.group = this.group;
         var obj: any = this._linearVelocity;
         if (obj && obj.x != 0 || obj.y != 0) {
-            //def.linearVelocity.setValue = new box2d.b2Vec2(obj.x, obj.y);
             defRigidBodyDef.linearVelocity.setValue(obj.x, obj.y);
         }
-        //def.type = box2d.b2BodyType["b2_" + this._type + "Body"];
         defRigidBodyDef.type = this._type;
 
-        this._body = Physics.I._factory.rigidBodyDef_Create(defRigidBodyDef);
+        this._body = factory.rigidBodyDef_Create(defRigidBodyDef);
         //查找碰撞体
         this.resetCollider(false);
     }
@@ -97,20 +97,20 @@ export class RigidBody extends Component {
         var _$this = this;
         this._createBody();
 
-        //监听节点变化，同步到物理世界
+        // 监听节点变化，同步到物理世界
         var sp: any = <Sprite>this.owner;
         //如果节点发生变化，则同步到物理世界（仅限节点本身，父节点发生变化不会自动同步）
         if (this.accessGetSetFunc(sp, "x", "set") && !sp._changeByRigidBody) {
             sp._changeByRigidBody = true;
             function setX(value: any): void {
                 _$this.accessGetSetFunc(sp, "x", "set")(value);
-                _$this._sysPosToPhysic();
+                _$this._sysNodeToPhysic();
             }
             this._overSet(sp, "x", setX);
 
             function setY(value: any): void {
                 _$this.accessGetSetFunc(sp, "y", "set")(value);
-                _$this._sysPosToPhysic();
+                _$this._sysNodeToPhysic();
             };
             this._overSet(sp, "y", setY);
 
@@ -187,23 +187,13 @@ export class RigidBody extends Component {
             factory.get_RigidBody_Position(this.body, pos);
             var ang: any = factory.get_RigidBody_Angle(this.body);
             var sp: any = (<Sprite>this.owner);
-
-            //if (label == "tank") console.log("get",ang);
             this.accessGetSetFunc(sp, "rotation", "set")(Utils.toAngle(ang) - (<Sprite>sp.parent).globalRotation);
-
-            // if (ang == 0) {
-            //     var point: Point = sp.globalToLocal(Point.TEMP.setTo(pos.x * IPhysics.Physics.PIXEL_RATIO + sp.pivotX, pos.y * IPhysics.Physics.PIXEL_RATIO + sp.pivotY), false, IPhysics.Physics.I.worldRoot);
-            //     point = sp.toParentPoint(point);
-            //     this.accessGetSetFunc(sp, "x", "set")(point.x);
-            //     this.accessGetSetFunc(sp, "y", "set")(point.y);
-            // } else {
-            var point = sp.globalToLocal(Point.TEMP.setTo(pos.x * Physics.PIXEL_RATIO, pos.y * Physics.PIXEL_RATIO), false, Physics.I.worldRoot);
+            var point = factory.getLayaPosition(sp, pos.x, pos.y, false);
             point.x += sp.pivotX;
             point.y += sp.pivotY;
             point = sp.toParentPoint(point);
             this.accessGetSetFunc(sp, "x", "set")(point.x);
             this.accessGetSetFunc(sp, "y", "set")(point.y);
-            // }
         }
     }
 
@@ -211,18 +201,11 @@ export class RigidBody extends Component {
     private _sysNodeToPhysic(): void {
         var factory = Physics.I._factory;
         var sp: Sprite = <Sprite>this.owner;
-        factory.set_RigidBody_Angle(this._body, Utils.toRadian(sp.rotation));
         var p: Point = sp.localToGlobal(Point.TEMP.setTo(0, 0), false, Physics.I.worldRoot);
-        factory.set_RigidBody_PositionXY(this._body, p.x / Physics.PIXEL_RATIO, p.y / Physics.PIXEL_RATIO);
+        factory.set_RigibBody_Transform(this._body, p.x, p.y, Utils.toRadian(sp.rotation));
     }
 
-    /**@private 同步节点坐标到物理世界*/
-    private _sysPosToPhysic(): void {
-        var sp: Sprite = <Sprite>this.owner;
-        var p: Point = sp.localToGlobal(Point.TEMP.setTo(0, 0), false, Physics.I.worldRoot);
-        var factory = Physics.I._factory;
-        factory.set_RigidBody_PositionXY(this.body, p.x / Physics.PIXEL_RATIO, p.y / Physics.PIXEL_RATIO);
-    }
+
 
     /**@private */
     private _overSet(sp: Node, prop: string, getfun: any): void {
@@ -322,7 +305,9 @@ export class RigidBody extends Component {
      */
     setAngle(value: any): void {
         if (!this._body) this._onAwake();
-        Physics.I._factory.set_RigidBody_Angle(this._body, value);
+        var factory = Physics.I._factory;
+        var p: Point = factory.getLayaPosition(<Sprite>this.owner, 0, 0, true);
+        factory.set_RigibBody_Transform(this._body, p.x, p.y, value);
         Physics.I._factory.set_rigidbody_Awake(this._body, true);
     }
 
@@ -337,8 +322,6 @@ export class RigidBody extends Component {
     getCenter(): any {
         if (!this._body) this._onAwake();
         var p: IV2 = Physics.I._factory.get_rigidBody_Center(this._body);
-        p.x = p.x * Physics.PIXEL_RATIO;
-        p.y = p.y * Physics.PIXEL_RATIO;
         return p;
     }
 
@@ -348,8 +331,6 @@ export class RigidBody extends Component {
     getWorldCenter(): any {
         if (!this._body) this._onAwake();
         var p: IV2 = Physics.I._factory.get_rigidBody_WorldCenter(this._body);
-        p.x = p.x * Physics.PIXEL_RATIO;
-        p.y = p.y * Physics.PIXEL_RATIO;
         return p;
     }
 
@@ -455,5 +436,25 @@ export class RigidBody extends Component {
     set bullet(value: boolean) {
         this._bullet = value;
         if (this._body) Physics.I._factory.set_rigidBody_bullet(this._body, value);
+    }
+
+    /** 
+     * 获得相对body的世界坐标
+     * @param x (单位： 像素)
+     * @param y (单位： 像素)
+    */
+    GetWorldPoint(x: number, y: number) {
+        if (this._body) return Physics.I._factory.get_rigidBody_WorldPoint(this._body, x, y);
+        else return null;
+    }
+
+    /** 
+     * 获得相对body的本地坐标
+     * @param x (单位： 像素)
+     * @param y (单位： 像素)
+    */
+    GetLocalPoint(x: number, y: number) {
+        if (this._body) return Physics.I._factory.get_rigidBody_LocalPoint(this._body, x, y);
+        else return null;
     }
 }
