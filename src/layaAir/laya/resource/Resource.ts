@@ -170,7 +170,7 @@ export class Resource extends EventDispatcher {
         this._destroyed = false;
         this._referenceCount = 0;
         if (managed == null || managed)
-            Resource._idResourcesMap[this.id] = this;
+            Resource._idResourcesMap[this._id] = this;
         this.lock = false;
         this.destroyedImmediately = true;
     }

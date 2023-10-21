@@ -410,7 +410,7 @@ export class Clip extends UIComponent {
     }
 
     /**
-     * 表示是否自动播放动画，若自动播放值为true,否则值为false;
+     * 表示是否自动播放切片动画，若自动播放值为true,否则值为false;
      * <p>可控制切片动画的播放、停止。</p>
      */
     get autoPlay(): boolean {
@@ -425,7 +425,7 @@ export class Clip extends UIComponent {
     }
 
     /**
-     * 表示动画播放间隔时间(以毫秒为单位)。
+     * 表示切片动画播放间隔时间(以毫秒为单位)。
      */
     get interval(): number {
         return this._interval;
@@ -439,8 +439,8 @@ export class Clip extends UIComponent {
     }
 
     /**
-     * 表示动画的当前播放状态。
-     * 如果动画正在播放中，则为true，否则为flash。
+     * 表示切片动画的当前播放状态。
+     * 如果切片动画正在播放中，则为true，否则为flash。
      */
     get isPlaying(): boolean {
         return this._isPlaying;
@@ -451,7 +451,7 @@ export class Clip extends UIComponent {
     }
 
     /**
-     * 播放动画。
+     * 播放切片动画。
      * @param	from	开始索引
      * @param	to		结束索引，-1为不限制
      */
@@ -483,7 +483,7 @@ export class Clip extends UIComponent {
     }
 
     /**
-     * 停止动画。
+     * 停止切片动画。
      */
     stop(): void {
         this._isPlaying = false;
