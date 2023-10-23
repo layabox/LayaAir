@@ -6,7 +6,7 @@ import { Vector2 } from "../maths/Vector2"
 export class Physics2DOption {
 
     /**设置是否允许休眠，休眠可以提高稳定性和性能，但通常会牺牲准确性*/
-    allowSleeping: boolean = true;
+    allowSleeping: boolean = false;
 
     /**重力 （单位：像素）*/
     gravity: Vector2 = new Vector2(0, 500);

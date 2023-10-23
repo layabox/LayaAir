@@ -5,7 +5,6 @@ import { Stage } from "laya/display/Stage";
 import { Event } from "laya/events/Event";
 
 import { MouseJoint } from "laya/physics/joint/MouseJoint";
-import { Physics } from "laya/physics/Physics";
 
 import { RigidBody } from "laya/physics/RigidBody";
 import { Stat } from "laya/utils/Stat";
@@ -14,6 +13,7 @@ import { BoxCollider } from "laya/physics/Collider2D/BoxCollider";
 import { ChainCollider } from "laya/physics/Collider2D/ChainCollider";
 import { PolygonCollider } from "laya/physics/Collider2D/PolygonCollider";
 import { CircleCollider } from "laya/physics/Collider2D/CircleCollider";
+import { Physics2D } from "laya/physics/Physics2D";
 /**
  * 碰撞过滤器
  */
@@ -37,7 +37,7 @@ export class Physics_CollisionFiltering {
         Config.isAntialias = true;
         Laya.init(1200, 700).then(() => {
             Stat.show();
-            Physics.enable();
+            Physics2D.enable();
             Laya.stage.alignV = Stage.ALIGN_MIDDLE;
             Laya.stage.alignH = Stage.ALIGN_CENTER;
             Laya.stage.scaleMode = Stage.SCALE_FIXED_AUTO;
@@ -163,5 +163,6 @@ export class Physics_CollisionFiltering {
         Laya.stage.off(Event.MOUSE_OUT, this, this.mouseUp);
         Laya.stage.off(Event.MOUSE_UP, this, this.destoryJoint);
         Laya.stage.off(Event.MOUSE_OUT, this, this.destoryJoint);
+        Physics2D.I.destroyWorld()
     }
 }

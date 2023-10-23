@@ -1,5 +1,5 @@
 import { ColliderBase } from "./ColliderBase";
-import { Physics } from "../Physics";
+import { Physics2D } from "../Physics2D";
 
 /**
  * 2D边框碰撞体
@@ -16,7 +16,7 @@ export class EdgeCollider extends ColliderBase {
      */
     protected getDef(): any {
         if (!this._shape) {
-            this._shape = Physics.I._factory.create_EdgeShape()
+            this._shape = Physics2D.I._factory.create_EdgeShape()
             this._setShape(false);
         }
         this.label = (this.label || "EdgeCollider");
@@ -29,7 +29,7 @@ export class EdgeCollider extends ColliderBase {
         if (len % 2 == 1) throw "EdgeCollider points lenth must a multiplier of 2";
 
 
-        Physics.I._factory.set_EdgeShape_data(this._shape, this._x, this._y, arr);
+        Physics2D.I._factory.set_EdgeShape_data(this._shape, this._x, this._y, arr);
         if (re) this.refresh();
     }
 

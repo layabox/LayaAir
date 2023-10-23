@@ -1,6 +1,5 @@
-import { Sprite } from "../../display/Sprite";
 import { ColliderBase } from "./ColliderBase";
-import { Physics } from "../Physics";
+import { Physics2D } from "../Physics2D";
 
 /**
  * 2D矩形碰撞体
@@ -20,7 +19,7 @@ export class BoxCollider extends ColliderBase {
      */
     protected getDef(): any {
         if (!this._shape) {
-            this._shape = Physics.I._factory.create_boxColliderShape();
+            this._shape = Physics2D.I._factory.create_boxColliderShape();
             this._setShape(false);
         }
         this.label = (this.label || "BoxCollider");
@@ -38,7 +37,7 @@ export class BoxCollider extends ColliderBase {
             x: (helfW + this._x) * scaleX,
             y: (heflH + this._y) * scaleY
         }
-        Physics.I._factory.set_collider_SetAsBox(this._shape, helfW, heflH, center);
+        Physics2D.I._factory.set_collider_SetAsBox(this._shape, helfW, heflH, center);
         if (re) this.refresh();
     }
 

@@ -1,7 +1,6 @@
 import { JointBase } from "./JointBase";
 import { Sprite } from "../../display/Sprite"
 import { Point } from "../../maths/Point"
-import { Physics } from "../Physics"
 import { RigidBody } from "../RigidBody"
 import { physics2D_WheelJointDef } from "./JointDefStructInfo";
 

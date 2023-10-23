@@ -1,5 +1,5 @@
 import { JointBase } from "./JointBase";
-import { Physics } from "../Physics"
+import { Physics2D } from "../Physics2D"
 import { RigidBody } from "../RigidBody"
 import { physics2D_DistancJointDef } from "./JointDefStructInfo";
 
@@ -43,7 +43,7 @@ export class DistanceJoint extends JointBase {
 
             def.bodyA = this.selfBody.getBody();
             def.localAnchorA.setValue(this.selfAnchor[0], this.selfAnchor[1]);
-            def.bodyB = this.otherBody ? this.otherBody.getBody() : Physics.I._emptyBody;
+            def.bodyB = this.otherBody ? this.otherBody.getBody() : Physics2D.I._emptyBody;
             def.localAnchorB.setValue(this.otherAnchor[0], this.otherAnchor[1]);
 
             def.dampingRatio = this._dampingRatio;
@@ -108,5 +108,15 @@ export class DistanceJoint extends JointBase {
         if (this._joint) {
             this._factory.set_DistanceJointStiffnessDamping(this._joint, this._frequency, this._dampingRatio);
         }
+    }
+
+    /**刚体当前长度*/
+    get jointLength(): number {
+        if (this._joint) {
+            return this._factory.phyToLayaValue(this.joint.GetLength())
+        } else {
+            return 0;
+        }
+
     }
 }

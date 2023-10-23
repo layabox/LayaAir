@@ -1,5 +1,4 @@
 import { JointBase } from "./JointBase";
-import { Physics } from "../Physics"
 import { RigidBody } from "../RigidBody"
 import { RevoluteJoint } from "./RevoluteJoint";
 import { PrismaticJoint } from "./PrismaticJoint";

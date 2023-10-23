@@ -2,11 +2,10 @@ import { JointBase } from "./JointBase";
 import { Sprite } from "../../display/Sprite"
 import { Event } from "../../events/Event"
 import { Point } from "../../maths/Point"
-import { Physics } from "../Physics"
+import { Physics2D } from "../Physics2D"
 import { RigidBody } from "../RigidBody"
 import { ILaya } from "../../../ILaya";
 import { physics2D_MouseJointJointDef } from "./JointDefStructInfo";
-import { Laya } from "../../../Laya";
 
 /**
  * 鼠标关节：鼠标关节用于通过鼠标来操控物体。它试图将物体拖向当前鼠标光标的位置。而在旋转方面就没有限制。
@@ -51,12 +50,12 @@ export class MouseJoint extends JointBase {
 
             var def: physics2D_MouseJointJointDef = MouseJoint._temp || (MouseJoint._temp = new physics2D_MouseJointJointDef());
             if (this.anchor) {
-                var anchorPos: Point = (<Sprite>this.selfBody.owner).localToGlobal(Point.TEMP.setTo(this.anchor[0], this.anchor[1]), false, Physics.I.worldRoot);
+                var anchorPos: Point = (<Sprite>this.selfBody.owner).localToGlobal(Point.TEMP.setTo(this.anchor[0], this.anchor[1]), false, Physics2D.I.worldRoot);
             } else {
-                anchorPos = Physics.I.worldRoot.globalToLocal(Point.TEMP.setTo(ILaya.stage.mouseX, ILaya.stage.mouseY));
+                anchorPos = Physics2D.I.worldRoot.globalToLocal(Point.TEMP.setTo(ILaya.stage.mouseX, ILaya.stage.mouseY));
             }
 
-            def.bodyA = Physics.I._emptyBody;
+            def.bodyA = Physics2D.I._emptyBody;
             def.bodyB = this.selfBody.getBody();
             def.target.setValue(anchorPos.x, anchorPos.y);
             def.maxForce = this._maxForce;
@@ -76,7 +75,7 @@ export class MouseJoint extends JointBase {
     }
 
     private onMouseMove(): void {
-        if (this._joint) this._factory.set_MouseJoint_target(this._joint, Physics.I.worldRoot.mouseX, Physics.I.worldRoot.mouseY)
+        if (this._joint) this._factory.set_MouseJoint_target(this._joint, Physics2D.I.worldRoot.mouseX, Physics2D.I.worldRoot.mouseY)
     }
 
     protected _onDisable(): void {

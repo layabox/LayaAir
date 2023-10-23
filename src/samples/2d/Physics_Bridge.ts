@@ -4,7 +4,6 @@ import { Sprite } from "laya/display/Sprite";
 import { Stage } from "laya/display/Stage";
 import { Event } from "laya/events/Event";
 import { RevoluteJoint } from "laya/physics/joint/RevoluteJoint";
-import { Physics } from "laya/physics/Physics";
 import { RigidBody } from "laya/physics/RigidBody";
 import { Label } from "laya/ui/Label";
 import { Stat } from "laya/utils/Stat";
@@ -13,11 +12,14 @@ import { ChainCollider } from "laya/physics/Collider2D/ChainCollider";
 import { BoxCollider } from "laya/physics/Collider2D/BoxCollider";
 import { CircleCollider } from "laya/physics/Collider2D/CircleCollider";
 import { PolygonCollider } from "laya/physics/Collider2D/PolygonCollider";
+import { Vector2 } from "laya/maths/Vector2";
+import { Physics2D } from "laya/physics/Physics2D";
 
 export class Physics_Bridge {
     Main: typeof Main = null;
     private ecount = 30;
     private label: Label;
+    private TempVec: Vector2 = new Vector2();
 
     constructor(maincls: typeof Main) {
         this.Main = maincls;
@@ -29,7 +31,7 @@ export class Physics_Bridge {
             Laya.stage.alignH = Stage.ALIGN_CENTER;
             Laya.stage.scaleMode = Stage.SCALE_FIXED_AUTO;
             Laya.stage.bgColor = "#232628";
-            Physics.enable(null);
+            Physics2D.enable();
             this.createBridge();
             this.eventListener();
         });
@@ -108,9 +110,8 @@ export class Physics_Bridge {
     eventListener() {
         // 单击产生新的小球刚体
         Laya.stage.on(Event.CLICK, this, () => {
-            let
-                targetX = Physics.I._factory.layaToPhyValue((300 + Math.random() * 400)), // [300, 700)
-                targetY = Physics.I._factory.layaToPhyValue(500);
+            let tempVec = this.TempVec;
+            let targetX = 300 + Math.random() * 400, targetY = 500;
             let newBall = new Sprite();
             this.Main.box2D.addChild(newBall);
             let circleBody: RigidBody = newBall.addComponent(RigidBody);
@@ -121,11 +122,12 @@ export class Physics_Bridge {
             circleCollider.radius = 5;
             circleCollider.x = Laya.stage.mouseX;
             circleCollider.y = Laya.stage.mouseY;
-            let circlePosx = Physics.I._factory.layaToPhyValue(circleCollider.x);
-            let circlePosy = Physics.I._factory.layaToPhyValue(circleCollider.y);
-            let velocityX = targetX - circlePosx;
-            let velocityY = targetY - circlePosy;
-            circleBody.linearVelocity = { "x": velocityX * 3, "y": velocityY * 3 };
+
+            tempVec.x = targetX - circleCollider.x;
+            tempVec.y = targetY - circleCollider.y;
+            Vector2.normalize(tempVec, tempVec);
+            Vector2.scale(tempVec, 25, tempVec);
+            circleBody.linearVelocity = tempVec.toArray();
             Laya.timer.frameOnce(120, this, function () {
                 newBall.destroy();
             });
@@ -141,5 +143,6 @@ export class Physics_Bridge {
     dispose() {
         Laya.stage.offAll(Event.CLICK);
         Laya.stage.removeChild(this.label);
+        Physics2D.I.destroyWorld();
     }
 }

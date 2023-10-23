@@ -1,7 +1,7 @@
 import { JointBase } from "./JointBase";
 import { Sprite } from "../../display/Sprite"
 import { Point } from "../../maths/Point"
-import { Physics } from "../Physics"
+import { Physics2D } from "../Physics2D"
 import { RigidBody } from "../RigidBody"
 import { physics2D_PrismaticJointDef } from "./JointDefStructInfo";
 
@@ -47,7 +47,7 @@ export class PrismaticJoint extends JointBase {
 
             var def: physics2D_PrismaticJointDef = PrismaticJoint._temp || (PrismaticJoint._temp = new physics2D_PrismaticJointDef());
             var anchorPos: Point = this._factory.getLayaPosition(<Sprite>this.selfBody.owner, this.anchor[0], this.anchor[1], true)
-            def.bodyA = this.otherBody ? this.otherBody.getBody() : Physics.I._emptyBody;
+            def.bodyA = this.otherBody ? this.otherBody.getBody() : Physics2D.I._emptyBody;
             def.bodyB = this.selfBody.getBody();
             def.anchor.setValue(anchorPos.x, anchorPos.y);
             def.axis.setValue(this.axis[0], this.axis[1]);

@@ -4,90 +4,125 @@ import { IV2, Vector2 } from "../maths/Vector2";
 import { ColliderBase } from "./Collider2D/ColliderBase";
 import { FixtureBox2DDef } from "./Collider2D/ColliderStructInfo";
 import { Physics2DOption } from "./Physics2DOption";
+import { PhysicsDebugDraw } from "./PhysicsDebugDraw";
 import { RigidBody2DInfo } from "./RigidBody2DInfo";
 import { physics2D_DistancJointDef, physics2D_GearJointDef, physics2D_MotorJointDef, physics2D_MouseJointJointDef, physics2D_PrismaticJointDef, physics2D_PulleyJointDef, physics2D_RevoluteJointDef, physics2D_WeldJointDef, physics2D_WheelJointDef } from "./joint/JointDefStructInfo";
 
 export interface IPhysiscs2DFactory {
+    /** 
+     * @internal
+     */
+    get drawFlags_none(): number;
 
     /** 
-     * @private
+     * @internal
+     */
+    get drawFlags_shapeBit(): number;
+
+    /** 
+     * @internal
+     */
+    get drawFlags_jointBit(): number;
+
+    /** 
+     * @internal
+     */
+    get drawFlags_aabbBit(): number;
+
+    /** 
+     * @internal
+     */
+    get drawFlags_pairBit(): number;
+
+    /** 
+     * @internal
+     */
+    get drawFlags_centerOfMassBit(): number;
+
+    /** 
+     * @internal
+     */
+    get drawFlags_all(): number;
+
+    /** 
+     * @internal
      */
     get box2d(): any;
 
     /** 
-     * @private
+     * @internal
      */
     get world(): any;
 
     /** 
-     * @private
+     * @internal
      */
-    get debugDraw(): Sprite;
+    get debugDraw(): PhysicsDebugDraw;
 
     /** 
-     * @private
+     * @internal
      */
     get PIXEL_RATIO(): number;
 
     /** 
-     * @private
+     * @internal
      */
     get velocityIterations(): number;
 
     /** 
-     * @private
+     * @internal
      */
     get positionIterations(): number;
 
     /** 
-     * @private
+     * @internal
      */
     get gravity(): any;
 
     /** 
-     * @private
+     * @internal
      */
     set gravity(value: Vector2);
 
     /** 
-     * @private
+     * @internal
      */
     get allowSleeping(): boolean;
 
     /** 
-     * @private
+     * @internal
      */
     set allowSleeping(value: boolean);
 
     /** 
-     * @private
+     * @internal
      */
     get bodyCount(): number;
 
     /** 
-     * @private
+     * @internal
      */
     get contactCount(): number;
 
     /** 
-     * @private
+     * @internal
      */
     get jointCount(): number;
 
     /**
-     * @private
+     * @internal
      * 渲染系统数据转换为物理系统数据 
      */
     layaToPhyValue(value: number): number;
 
     /**
-     * @private
+     * @internal
      * 物理系统数据转换为渲染系统数据 
      */
     phyToLayaValue(value: number): number;
 
     /** 
-     * @private
+     * @internal
      * 获得节点相对于物理根节点的坐标
      * @param node 节点
      * @param x (单位： 像素)
@@ -97,7 +132,7 @@ export interface IPhysiscs2DFactory {
     getLayaPosition(node: Sprite, x: number, y: number, localToGlobal?: boolean): Point;
 
     /** 
-     * @private
+     * @internal
      * 创建物理系统的Vec2
      * @param x (单位： 米)
      * @param y (单位： 米)
@@ -105,7 +140,7 @@ export interface IPhysiscs2DFactory {
     createPhyVec2(x: number, y: number): any;
 
     /** 
-     * @private
+     * @internal
      * 创建物理系统的Vec2
      * @param x (单位： 像素)
      * @param y (单位： 像素)
@@ -113,48 +148,67 @@ export interface IPhysiscs2DFactory {
     createPhyFromLayaVec2(x: number, y: number): any;
 
     /** 
-     * @private
+     * @internal
      * 初始化系统
      */
     initialize(): Promise<void>;
 
     /** 
-     * @private
+     * @internal
      * 创建物理场景
      */
     start(options: Physics2DOption): void;
 
+    /**
+    * @internal
+    * 销毁物理场景
+    * @param options 
+    */
+    destroyWorld(): void;
+
     /** 
-     * @private
+     * @internal
      * 更新物理
      */
     update(delta: number): void;
 
     /** 
-     * @private
+     * @internal
      */
     sendEvent(type: number, contact: any): void;
 
     /** 
-     * @private
+     * @internal
      * 创建物理绘制
      */
-    createDebugDraw(flags?: number): void;
+    createDebugDraw(flags: number): void;
 
     /** 
-     * @private
+     * @internal
      * 删除物理绘制
      */
     removeDebugDraw(): void;
 
     /** 
-     * @private
+     * @internal
      * 更新显示数据
      */
-    updataDebugFlag(flags:number):void;
+    setDebugFlag(flags: number): void;
 
     /** 
-     * @private
+     * @internal
+     * 显示标记
+     */
+    appendFlags(flags: number): void;
+
+    /** 
+     * @internal
+     * 清除标记
+     */
+    clearFlags(flags: number): void
+
+    /** 
+     * @internal
      * 移动世界中心点
      * @param x (单位： 像素)
      * @param y (单位： 像素)
@@ -162,415 +216,415 @@ export interface IPhysiscs2DFactory {
     shiftOrigin(x: number, y: number): void;
 
     /** 
-     * @private
+     * @internal
      */
     createBody(def: any): any;
 
     /** 
-     * @private
+     * @internal
      */
     removeBody(body: any): void;
 
     //---------------- Joint -------------------
 
     /** 
-     * @private
+     * @internal
      */
     createJoint(def: any, cls?: any): any;
 
     /** 
-     * @private
+     * @internal
      */
     removeJoint(joint: any): void;
 
     /** 
-     * @private
+     * @internal
      */
     getJoint_userData(joint: any): any;
 
     /** 
-     * @private
+     * @internal
      */
     getJoint_userData_destroy(joint: any): boolean;
 
     /** 
-     * @private
+     * @internal
      */
     set_Joint_EnableMotor(joint: any, enableMotor: boolean): void;
 
     /** 
-     * @private
+     * @internal
      */
     set_Joint_SetMotorSpeed(joint: any, motorSpeed: number): void;
 
     /** 
-     * @private
+     * @internal
      */
     set_Joint_SetMaxMotorTorque(joint: any, maxTorque: number): void;
 
     /** 
-     * @private
+     * @internal
      */
     set_Joint_EnableLimit(joint: any, enableLimit: boolean): void;
 
     /** 
-     * @private
+     * @internal
      */
     set_Joint_SetLimits(joint: any, lowerAngle: number, upperAngle: number): void;
 
     /** 
-     * @private
+     * @internal
      */
     set_Joint_frequencyAndDampingRatio(Joint: any, frequency: number, dampingRatio: number, isdamping: boolean): void;
 
     /** 
-     * @private
+     * @internal
      */
     createDistanceJoint(defStruct: physics2D_DistancJointDef): any;
 
     /** 
-     * @private
+     * @internal
      */
     set_DistanceJoint_length(joint: any, length: number): void;
 
     /** 
-     * @private
+     * @internal
      */
     set_DistanceJoint_MaxLength(joint: any, length: number): void;
 
     /** 
-     * @private
+     * @internal
      */
     set_DistanceJoint_MinLength(joint: any, length: number): void;
 
     /** 
-     * @private
+     * @internal
      */
     set_DistanceJointStiffnessDamping(joint: any, steffness: number, damping: number): void;
 
     /** 
-     * @private
+     * @internal
      */
     create_GearJoint(def: physics2D_GearJointDef): void;
 
     /** 
-     * @private
+     * @internal
      */
     set_GearJoint_SetRatio(joint: any, radio: number): void;
 
     /** 
-     * @private
+     * @internal
      */
     create_PulleyJoint(defStruct: physics2D_PulleyJointDef): void;
 
     /** 
-     * @private
+     * @internal
      */
     create_WheelJoint(defStruct: physics2D_WheelJointDef): void;
 
     /** 
-     * @private
+     * @internal
      */
     create_WeldJoint(defStruct: physics2D_WeldJointDef): void;
 
     /** 
-     * @private
+     * @internal
      */
     create_MouseJoint(def: physics2D_MouseJointJointDef): any;
 
     /** 
-     * @private
+     * @internal
      */
     set_MouseJoint_target(joint: any, x: number, y: number): void;
 
     /** 
-     * @private
+     * @internal
      */
     set_MouseJoint_frequencyAndDampingRatio(Joint: any, frequency: number, dampingRatio: number): void;
 
     /** 
-     * @private
+     * @internal
      */
     create_RevoluteJoint(def: physics2D_RevoluteJointDef): any;
 
     /** 
-     * @private
+     * @internal
      */
     create_MotorJoint(def: physics2D_MotorJointDef): any;
 
     /** 
-     * @private
+     * @internal
      */
     set_MotorJoint_linearOffset(join: any, x: number, y: number): void;
 
     /** 
-     * @private
+     * @internal
      */
     set_MotorJoint_SetAngularOffset(join: any, angular: number): void;
 
     /** 
-     * @private
+     * @internal
      */
     set_MotorJoint_SetMaxForce(join: any, maxForce: number): void;
 
     /** 
-     * @private
+     * @internal
      */
     set_MotorJoint_SetMaxTorque(joint: any, maxTorque: number): void;
 
     /** 
-     * @private
+     * @internal
      */
     set_MotorJoint_SetCorrectionFactor(joint: any, correctionFactor: number): void;
 
     /** 
-     * @private
+     * @internal
      */
     create_PrismaticJoint(def: physics2D_PrismaticJointDef): any;
 
     //----------------Collider-------------------
 
     /** 
-     * @private
+     * @internal
      */
     create_boxColliderShape(): any;
 
     /** 
-     * @private
+     * @internal
      */
     set_collider_SetAsBox(shape: any, x: number, y: number, pos: IV2): any
 
     /** 
-     * @private
+     * @internal
      */
     create_ChainShape(): any;
 
     /** 
-     * @private
+     * @internal
      */
     set_ChainShape_data(shape: any, x: number, y: number, arr: any[], loop: boolean): any;
 
     /** 
-     * @private
+     * @internal
      */
     create_CircleShape(): any;
 
     /** 
-     * @private
+     * @internal
      */
     set_CircleShape_radius(shape: any, radius: number): void;
 
     /** 
-     * @private
+     * @internal
      */
     set_CircleShape_pos(shape: any, x: number, y: number): void;
 
     /** 
-     * @private
+     * @internal
      */
     create_EdgeShape(): any;
 
     /** 
-     * @private
+     * @internal
      */
     set_EdgeShape_data(shape: any, x: number, y: number, arr: any[]): any;
 
     /** 
-     * @private
+     * @internal
      */
     create_PolygonShape(): any;
 
     /** 
-     * @private
+     * @internal
      */
     set_PolygonShape_data(shape: any, x: number, y: number, arr: any[]): any;
 
     //----------------fixture-------------------
 
     /** 
-     * @private
+     * @internal
      */
     createFixtureDef(fixtureDef: FixtureBox2DDef): any;
 
     /** 
-     * @private
+     * @internal
      */
     set_fixtureDef_GroupIndex(def: any, groupIndex: number): void;
 
     /** 
-     * @private
+     * @internal
      */
     set_fixtureDef_CategoryBits(def: any, categoryBits: number): void;
 
     /** 
-     * @private
+     * @internal
      */
     set_fixtureDef_maskBits(def: any, maskbits: number): void;
 
     /** 
-     * @private
+     * @internal
      */
     createfixture(body: any, def: any): void;
 
     /** 
-     * @private
+     * @internal
      */
     set_fixture_collider(fixture: any, instance: ColliderBase): void
 
     /** 
-     * @private
+     * @internal
      */
     get_fixture_body(fixture: any): any;
 
     /** 
-     * @private
+     * @internal
      */
     destroy_fixture(fixture: any): any;
 
     //----------------RigidBody-------------------   
 
     /** 
-     * @private
+     * @internal
      */
     rigidBody_DestroyFixture(body: any, fixture: any): any;
 
     /** 
-     * @private
+     * @internal
      */
     rigidBodyDef_Create(rigidbodyDef: RigidBody2DInfo): any;
 
     /** 
-     * @private
+     * @internal
      */
     get_RigidBody_Position(body: any, v2: Vector2): void;
 
     /** 
-     * @private
+     * @internal
      */
     get_RigidBody_Angle(body: any): number;
 
     /** 
-     * @private
+     * @internal
      */
     set_RigibBody_Transform(body: any, x: number, y: number, angle: number): void;
 
     /** 
-     * @private
+     * @internal
      */
     get_rigidBody_WorldPoint(body: any, x: number, y: number): IV2;
 
     /** 
-     * @private
+     * @internal
      */
     get_rigidBody_LocalPoint(body: any, x: number, y: number): IV2;
 
     /** 
-     * @private
+     * @internal
      */
     rigidBody_applyForce(body: any, force: IV2, position: IV2): void;
 
     /** 
-     * @private
+     * @internal
      */
     rigidBody_applyForceToCenter(body: any, force: IV2): void;
 
     /** 
-     * @private
+     * @internal
      */
     rigidbody_ApplyLinearImpulse(body: any, impulse: IV2, position: IV2): void;
 
     /** 
-     * @private
+     * @internal
      */
     rigidbody_ApplyLinearImpulseToCenter(body: any, impulse: IV2): void;
 
     /** 
-     * @private
+     * @internal
      */
     rigidbody_applyTorque(body: any, torque: number): void;
 
     /** 
-     * @private
+     * @internal
      */
     set_rigidbody_Velocity(body: any, velocity: IV2): void;
 
     /** 
-     * @private
+     * @internal
      */
     set_rigidbody_Awake(body: any, awake: boolean): void;
 
     /** 
-     * @private
+     * @internal
      */
     get_rigidbody_Mass(body: any): number;
 
     /** 
-     * @private
+     * @internal
      */
     get_rigidBody_Center(body: any): IV2;
 
     /** 
-     * @private
+     * @internal
      */
     get_rigidBody_IsAwake(body: any): boolean;
 
     /** 
-     * @private
+     * @internal
      */
     get_rigidBody_WorldCenter(body: any): IV2;
 
     /** 
-     * @private
+     * @internal
      */
     set_rigidBody_type(body: any, value: string): void;
 
     /** 
-     * @private
+     * @internal
      */
     set_rigidBody_gravityScale(body: any, value: number): void;
 
     /** 
-     * @private
+     * @internal
      */
     set_rigidBody_allowRotation(body: any, value: boolean): void;
 
     /** 
-     * @private
+     * @internal
      */
     set_rigidBody_allowSleep(body: any, value: boolean): void;
 
     /** 
-     * @private
+     * @internal
      */
     set_rigidBody_angularDamping(body: any, value: number): void;
 
     /** 
-     * @private
+     * @internal
      */
     get_rigidBody_angularVelocity(body: any): number;
 
     /** 
-     * @private
+     * @internal
      */
     set_rigidBody_angularVelocity(body: any, value: number): void;
 
     /** 
-     * @private
+     * @internal
      */
     set_rigidBody_linearDamping(body: any, value: number): void;
 
     /** 
-     * @private
+     * @internal
      */
     get_rigidBody_linearVelocity(body: any): IV2;
 
     /** 
-     * @private
+     * @internal
      */
     set_rigidBody_linearVelocity(body: any, value: IV2): void;
 
     /** 
-     * @private
+     * @internal
      */
     set_rigidBody_bullet(body: any, value: boolean): void;
 

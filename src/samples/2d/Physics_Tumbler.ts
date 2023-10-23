@@ -5,13 +5,13 @@ import { Browser } from "laya/utils/Browser";
 import { RigidBody } from "laya/physics/RigidBody";
 import { Main } from "./../Main";
 import { RevoluteJoint } from "laya/physics/joint/RevoluteJoint";
-import { Physics } from "laya/physics/Physics";
 import { Stat } from "laya/utils/Stat";
 import { Label } from "laya/ui/Label";
 import { Event } from "laya/events/Event";
 import { Config } from "Config";
 import { BoxCollider } from "laya/physics/Collider2D/BoxCollider"
 import { Physics2DOption } from "laya/physics/Physics2DOption";
+import { Physics2D } from "laya/physics/Physics2D";
 
 export class Physics_Tumbler {
     private count = 0;
@@ -24,13 +24,13 @@ export class Physics_Tumbler {
         this.Main = maincls;
         Config.isAntialias = true;
         Laya.init(Browser.clientWidth, Browser.clientHeight).then(() => {
-            Stat.hide();
+            Stat.show();
             Laya.stage.alignV = Stage.ALIGN_MIDDLE;
             Laya.stage.alignH = Stage.ALIGN_CENTER;
             Laya.stage.scaleMode = Stage.SCALE_FIXED_AUTO;
             Laya.stage.bgColor = "#232628";
 
-            Physics.enable();
+            Physics2D.enable();
             this.createBox();
             this.eventListener();
         });
@@ -110,5 +110,6 @@ export class Physics_Tumbler {
     dispose() {
         Laya.stage.offAll(Event.DOUBLE_CLICK);
         Laya.stage.removeChild(this.label);
+        Physics2D.I.destroyWorld()
     }
 }

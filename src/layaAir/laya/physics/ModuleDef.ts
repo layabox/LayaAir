@@ -14,14 +14,14 @@ import { PulleyJoint } from "./joint/PulleyJoint";
 import { RevoluteJoint } from "./joint/RevoluteJoint";
 import { WeldJoint } from "./joint/WeldJoint";
 import { WheelJoint } from "./joint/WheelJoint";
-import { Physics } from "./Physics";
+import { Physics2D } from "./Physics2D";
 import { PhysicsDebugDraw } from "./PhysicsDebugDraw";
 import { PolygonCollider } from "./Collider2D/PolygonCollider";
 import { RigidBody } from "./RigidBody";
 import { Physics2DOption } from "./Physics2DOption";
 
 let c = ClassUtils.regClass;
-c("Physics", Physics);
+c("Physics2D", Physics2D);
 c("PhysicsDebugDraw", PhysicsDebugDraw);
 c("ColliderBase", ColliderBase);
 c("BoxCollider", BoxCollider);

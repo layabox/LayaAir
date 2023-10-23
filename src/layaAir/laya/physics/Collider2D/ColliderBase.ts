@@ -1,7 +1,7 @@
 import { ILaya } from "../../../ILaya";
 import { Component } from "../../components/Component";
 import { FixtureBox2DDef } from "./ColliderStructInfo";
-import { Physics } from "../Physics";
+import { Physics2D } from "../Physics2D";
 import { RigidBody } from "../RigidBody";
 
 /**
@@ -45,7 +45,7 @@ export class ColliderBase extends Component {
             def.isSensor = this.isSensor;
             def.restitution = this.restitution;
             def.shape = this._shape;
-            this._fixtureDef = Physics.I._factory.createFixtureDef(def);
+            this._fixtureDef = Physics2D.I._factory.createFixtureDef(def);
             this._def = def;
         }
         return this._fixtureDef;
@@ -69,7 +69,7 @@ export class ColliderBase extends Component {
     }
 
     protected _onDestroy() {
-        let factory = Physics.I._factory;
+        let factory = Physics2D.I._factory;
         if (this.rigidBody) {
             if (this.fixture) {
                 if (factory.get_fixture_body(this.fixture) == this.rigidBody._getOriBody()) {
@@ -141,7 +141,7 @@ export class ColliderBase extends Component {
      * 碰撞体参数发生变化后，刷新物理世界碰撞信息
      */
     refresh(): void {
-        let factory = Physics.I._factory;
+        let factory = Physics2D.I._factory;
         if (this.enabled && this.rigidBody) {
             var body: any = this.rigidBody.body;
             if (this.fixture) {

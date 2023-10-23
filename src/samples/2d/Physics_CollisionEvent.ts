@@ -4,7 +4,6 @@ import { Sprite } from "laya/display/Sprite";
 import { Stage } from "laya/display/Stage";
 import { Event } from "laya/events/Event";
 import { MouseJoint } from "laya/physics/joint/MouseJoint";
-import { Physics } from "laya/physics/Physics";
 import { RigidBody } from "laya/physics/RigidBody";
 import { Stat } from "laya/utils/Stat";
 import { Main } from "../Main";
@@ -12,6 +11,7 @@ import { CircleCollider } from "laya/physics/Collider2D/CircleCollider";
 import { ColliderBase } from "laya/physics/Collider2D/ColliderBase";
 import { Vector2 } from "laya/maths/Vector2";
 import { ChainCollider } from "laya/physics/Collider2D/ChainCollider";
+import { Physics2D } from "laya/physics/Physics2D";
 
 /**
  * 
@@ -28,7 +28,7 @@ export class Physics_CollisionEvent {
         Config.isAntialias = true;
         Laya.init(1200, 700).then(() => {
             Stat.show();
-            Physics.enable();
+            Physics2D.enable();
             Laya.stage.alignV = Stage.ALIGN_MIDDLE;
             Laya.stage.alignH = Stage.ALIGN_CENTER;
             Laya.stage.scaleMode = Stage.SCALE_FIXED_AUTO;
@@ -102,8 +102,10 @@ export class Physics_CollisionEvent {
             }
 
             Vector2.normalize(vec, vec);
-            const F = Physics.I._factory.createPhyVec2(vec.x * 100, vec.y * 100);
-            bodyB.applyForce(position, F);
+            bodyB.applyForce(position, {
+                x:vec.x * 100, 
+                y:vec.y * 100
+            });
         }
     }
 
@@ -116,6 +118,10 @@ export class Physics_CollisionEvent {
     }
 
     dispose() {
+        let ground = this.sensorCollider.owner;
+        ground.off(Event.TRIGGER_ENTER, this, this.onTriggerEnter);
+        ground.off(Event.TRIGGER_EXIT, this, this.onTriggerExit);
         Laya.physicsTimer.clearAll(this);
+        Physics2D.I.destroyWorld()
     }
 }

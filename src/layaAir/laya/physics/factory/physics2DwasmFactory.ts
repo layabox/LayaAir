@@ -6,7 +6,7 @@ import { IV2, Vector2 } from "../../maths/Vector2";
 import { ColliderBase } from "../Collider2D/ColliderBase";
 import { FixtureBox2DDef } from "../Collider2D/ColliderStructInfo";
 import { IPhysiscs2DFactory } from "../IPhysiscs2DFactory";
-import { Physics } from "../Physics";
+import { Physics2D } from "../Physics2D";
 import { Physics2DOption } from "../Physics2DOption";
 import { PhysicsDebugDraw } from "../PhysicsDebugDraw";
 import { RigidBody2DInfo } from "../RigidBody2DInfo";
@@ -30,8 +30,8 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
     /**@internal  */
     _debugDraw: PhysicsDebugDraw;
 
-    /**@private  */
-    private _jsDraw:any;
+    /**@internal  */
+    private _jsDraw: any;
 
     /**@internal 旋转迭代次数，增大数字会提高精度，但是会降低性能*/
     _velocityIterations: number = 8;
@@ -75,52 +75,99 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
     /**@internal  */
     protected _tempPrismaticJointDef: any;
 
-    
+    /** 
+    * @internal
+    */
+    get drawFlags_none(): number {
+        return 0;
+    }
 
     /** 
-     * @private
+     * @internal
+     */
+    get drawFlags_shapeBit(): number {
+        return this._box2d.b2Draw.e_shapeBit;
+    }
+
+    /** 
+     * @internal
+     */
+    get drawFlags_jointBit(): number {
+        return this._box2d.b2Draw.e_jointBit;
+    }
+
+    /** 
+     * @internal
+     */
+    get drawFlags_aabbBit(): number {
+        return this._box2d.b2Draw.e_aabbBit;
+    }
+
+    /** 
+     * @internal
+     */
+    get drawFlags_pairBit(): number {
+        return this._box2d.b2Draw.e_pairBit;
+    }
+
+    /** 
+     * @internal
+     */
+    get drawFlags_centerOfMassBit(): number {
+        return this._box2d.b2Draw.e_centerOfMassBit;
+    }
+
+    /** 
+     * @internal
+     */
+    get drawFlags_all(): number {
+        return 63;
+    }
+
+    /** 
+     * @internal
      */
     get box2d(): any {
         return this._box2d;
     }
 
     /** 
-     * @private
+     * @internal
      */
     get world(): any {
         return this._world;
     }
 
     /** 
-     * @private
+     * @internal
      */
-    get debugDraw(): Sprite {
+    get debugDraw(): PhysicsDebugDraw {
         return this._debugDraw;
     }
 
     /** 
-     * @private
+     * @internal
      */
     get PIXEL_RATIO(): number {
         return this._PIXEL_RATIO;
     }
 
     /** 
-     * @private
+     * @internal
      */
     get velocityIterations(): number {
         return this._velocityIterations;
     }
 
     /** 
-     * @private
+     * @internal
      */
     get positionIterations(): number {
         return this._positionIterations;
     }
 
     /**
-     * @private
+     * @internal
      * 物理世界重力环境，默认值为{x:0,y:1}
      * 如果修改y方向重力方向向上，可以直接设置gravity.y=-1;
      */
@@ -134,7 +181,7 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
     }
 
     /**
-     * @private
+     * @internal
      * 设置是否允许休眠，休眠可以提高稳定性和性能，但通常会牺牲准确性
      */
     get allowSleeping(): boolean {
@@ -146,24 +193,24 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
     }
 
 
-    /**@private 获得刚体总数量*/
+    /**@internal 获得刚体总数量*/
     get bodyCount(): number {
         return this.world.GetBodyCount();
     }
 
-    /**@private 获得碰撞总数量*/
+    /**@internal 获得碰撞总数量*/
     get contactCount(): number {
         return this.world.GetContactCount();
     }
 
-    /**@private 获得关节总数量*/
+    /**@internal 获得关节总数量*/
     get jointCount(): number {
         return this.world.GetJointCount();
     }
 
 
     /**
-     * @private
+     * @internal
      * 渲染系统数据转换为物理系统数据 
      */
     layaToPhyValue(value: number): number {
@@ -171,7 +218,7 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
     }
 
     /**
-     * @private
+     * @internal
      * 物理系统数据转换为渲染系统数据 
      */
     phyToLayaValue(value: number): number {
@@ -179,7 +226,7 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
     }
 
     /** 
-     * @private
+     * @internal
      * 获得节点相对于物理根节点的坐标
      * @param node 节点
      * @param x (单位： 像素)
@@ -188,15 +235,15 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
      */
     getLayaPosition(node: Sprite, anchorx: number = 0, anchory: number = 0, localToGlobal: boolean = true): Point {
         if (localToGlobal) {
-            return node.localToGlobal(Point.TEMP.setTo(anchorx, anchory), false, Physics.I.worldRoot);
+            return node.localToGlobal(Point.TEMP.setTo(anchorx, anchory), false, Physics2D.I.worldRoot);
         } else {
-            return node.globalToLocal(Point.TEMP.setTo(anchorx, anchory), false, Physics.I.worldRoot);
+            return node.globalToLocal(Point.TEMP.setTo(anchorx, anchory), false, Physics2D.I.worldRoot);
         }
 
     }
 
     /** 
-     * @private
+     * @internal
      * 创建物理系统的Vec2
      * @param x (单位： 米)
      * @param y (单位： 米)
@@ -206,7 +253,7 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
     }
 
     /** 
-     * @private
+     * @internal
      * 创建物理系统的Vec2
      * @param x (单位： 像素)
      * @param y (单位： 像素)
@@ -246,14 +293,34 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
     }
 
     /**
+    * @internal
+    * destroy Box2D world
+    * @param options 
+    */
+    destroyWorld() {
+        let bodylist = this._world.GetBodyList();
+        while(!this.isNullData(bodylist)){
+            for(let fixture = bodylist.GetFixtureList();!this.isNullData(fixture);){
+                fixture.GetUserData().pointer = -1;
+                fixture = fixture.GetNext();
+            }
+            bodylist = bodylist.GetNext();
+        }
+        this.box2d.destroy(this._world)
+        this._world = null;
+        this._jsDraw = null;
+        if (this._debugDraw) this._debugDraw.removeSelf()
+        this._debugDraw = null;
+    }
+
+    /**
      * update Frame
      * @param delta 
      */
     update(delta: number): void {
 
         //set Physics Position from Engine TODO
-
-        this.world.Step(delta, this.velocityIterations, this.positionIterations, 3);
+        this._world & this._world.Step(delta, this.velocityIterations, this.positionIterations, 3);
 
         //set engine Position from Phyiscs TODO
     }
@@ -264,17 +331,25 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
      * @param contact 
      */
     sendEvent(type: number, contact: any): void {
-        var colliderA: any = contact.GetFixtureA().collider;
-        var colliderB: any = contact.GetFixtureB().collider;
-        var ownerA: any = colliderA.owner;
-        var ownerB: any = colliderB.owner;
+        if (contact.GetFixtureA() == null || contact.GetFixtureB() == null) {
+            return;
+        }
+        let colliderA: any = contact.GetFixtureA().collider;
+        let colliderB: any = contact.GetFixtureB().collider;
+        if(colliderA == null||colliderB == null){
+            return;
+        }
+        if (colliderA.destroyed || colliderB.destroyed) {
+            return;
+        }
+        let ownerA: any = colliderA.owner;
+        let ownerB: any = colliderB.owner;
         let __this = this;
         contact.getHitInfo = function (): any {
             var manifold: any = new this.box2d.b2WorldManifold();
             this.GetWorldManifold(manifold);
             //第一点？
-            var p: any = manifold.points[0];
-            var p: any = manifold.points[0];
+            let p: any = manifold.points[0];
             p.x = __this.phyToLayaValue(p.x);
             p.y = __this.phyToLayaValue(p.y);
             return manifold;
@@ -310,34 +385,36 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
     }
 
     /** 
-     * @private
+     * @internal
      * 创建物理绘制
      */
-    createDebugDraw(flags: number = 99) {
-        if(this._debugDraw) return ;
+    createDebugDraw(flags: number) {
+        if (this._debugDraw) return;
         this._debugDraw = new PhysicsDebugDraw(this);
         ILaya.stage.addChild(this._debugDraw);
         this._debugDraw.zOrder = 1000;
 
+        if (this._jsDraw == null) {
+            var jsDraw = this._jsDraw = new this.box2d.JSDraw();
+            jsDraw.SetFlags(flags);
+            jsDraw.DrawSegment = this.DrawSegment.bind(this);
+            jsDraw.DrawPolygon = this.DrawPolygon.bind(this);
+            jsDraw.DrawSolidPolygon = this.DrawSolidPolygon.bind(this);
+            jsDraw.DrawCircle = this.DrawCircle.bind(this);
+            jsDraw.DrawSolidCircle = this.DrawSolidCircle.bind(this);
+            jsDraw.DrawTransform = this.DrawTransform.bind(this);
+            jsDraw.DrawPoint = this.DrawPoint.bind(this);
+        }
 
-        var jsDraw =this._jsDraw= new this.box2d.JSDraw();
-        jsDraw.SetFlags(flags);
-        jsDraw.DrawSegment = this.DrawSegment.bind(this);
-        jsDraw.DrawPolygon = this.DrawPolygon.bind(this);
-        jsDraw.DrawSolidPolygon = this.DrawSolidPolygon.bind(this);
-        jsDraw.DrawCircle = this.DrawCircle.bind(this);
-        jsDraw.DrawSolidCircle = this.DrawSolidCircle.bind(this);
-        jsDraw.DrawTransform = this.DrawTransform.bind(this);
-        jsDraw.DrawPoint = this.DrawPoint.bind(this);
-        this.world.SetDebugDraw(jsDraw);
+        this.world.SetDebugDraw(this._jsDraw);
     }
 
     /** 
-     * @private
+     * @internal
      * 删除物理绘制
      */
-    removeDebugDraw(){
-        if(!this._debugDraw) return ;
+    removeDebugDraw() {
+        if (!this._debugDraw) return;
         this.world.SetDebugDraw(null);
         this._debugDraw.removeSelf()
         this._debugDraw.destroy()
@@ -345,21 +422,37 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
     }
 
     /** 
-     * @private
+     * @internal
      * 更新显示数据
      */
-    updataDebugFlag(flags:number):void{
-        this._jsDraw.SetFlags(flags);
+    setDebugFlag(flags: number): void {
+        if (this._jsDraw) this._jsDraw.SetFlags(flags);
     }
 
     /** 
-     * @private
+     * @internal
+     * 显示标记
+     */
+    appendFlags(flags: number): void {
+        if (this._jsDraw) this._jsDraw.AppendFlags(flags);
+    }
+
+    /** 
+     * @internal
+     * 清除标记
+     */
+    clearFlags(flags: number): void {
+        if (this._jsDraw) this._jsDraw.ClearFlags(flags);
+    }
+
+    /** 
+     * @internal
      * 移动世界中心点
      * @param x (单位： 像素)
      * @param y (单位： 像素)
      */
     shiftOrigin(x: number, y: number) {
-        this.world.ShiftOrigin({ x: x, y: y });
+        this._world & this.world.ShiftOrigin({ x: x, y: y });
     }
 
     /**
@@ -385,11 +478,7 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
      * @param body 
      */
     removeBody(body: any): void {
-        if (this.world) {
-            this.world.DestroyBody(body);
-        } else {
-            console.error('The physical engine should be initialized first.use "Physics.enable()"');
-        }
+        if (this.world) this.world.DestroyBody(body);
     }
 
     /**
@@ -417,25 +506,22 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
      * @param joint 
      */
     removeJoint(joint: any): void {
-        if (this.world) {
+        if (this.world)
             this.world.DestroyJoint(joint);
-        } else {
-            console.error('The physical engine should be initialized first.use "Physics.enable()"');
-        }
     }
 
     /** 
      * @param joint 
      */
     getJoint_userData(joint: any) {
-        return joint.m_userData;
+        return joint.GetUserData();
     }
 
     /** 
      * @param joint 
      */
     getJoint_userData_destroy(joint: any): boolean {
-        return joint.m_userData.isDestroy;
+        return joint.GetUserData().pointer == -1;
     }
 
     /** 
@@ -906,6 +992,7 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
         def.isSensor = fixtureDef.isSensor;
         def.restitution = fixtureDef.restitution;
         def.shape = fixtureDef.shape;
+        def.world = this._world;
         return this.castObject(def, this.box2d.b2FixtureDef);
     }
 
@@ -939,7 +1026,9 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
     * @param def 
     */
     createfixture(body: any, def: any) {
-        return body.CreateFixture(def);
+        let data = body.CreateFixture(def);
+        data.world = this._world;
+        return data;
     }
 
     /** 
@@ -961,7 +1050,7 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
      * @param fixture 
      */
     destroy_fixture(fixture: any) {
-        fixture.__destroy__();
+        if (fixture.world == this._world) fixture.__destroy__();
     }
 
     /** 
@@ -1240,7 +1329,7 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
         body.SetBullet(value);
     }
 
-    /**@private */
+    /**@internal */
     getbodyType(type: string): any {
         if (type == "dynamic") {
             return this.box2d.b2_dynamicBody;
@@ -1251,7 +1340,7 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
         }
     }
 
-    /**@private */
+    /**@internal */
     makeStyleString(color: any, alpha: number = -1) {
         let colorData = this.box2d.wrapPointer(color, this.box2d.b2Color);
         let r = (colorData.r * 255).toFixed(1);
@@ -1268,7 +1357,7 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
         return cv;
     }
 
-    /**@private */
+    /**@internal */
     private getBox2DPoints(vertices: any, vertexCount: any) {
         let i: number, len: number;
         len = vertices.length;
@@ -1280,25 +1369,25 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
         return points;
     }
 
-    /**@private */
+    /**@internal */
     DrawPolygon(vertices: any, vertexCount: any, color: any): void {
         let points: any[] = this.getBox2DPoints(vertices, vertexCount);
         this._debugDraw.mG.drawPoly(0, 0, points, null, this.makeStyleString(color, 1), this._debugDraw.lineWidth);
     }
 
-    /**@private */
+    /**@internal */
     DrawSolidPolygon(vertices: any, vertexCount: any, color: any): void {
         let points: any[] = this.getBox2DPoints(vertices, vertexCount);
         this._debugDraw.mG.drawPoly(0, 0, points, this.makeStyleString(color, 0.5), this.makeStyleString(color, 1), this._debugDraw.lineWidth);
     }
 
-    /**@private */
+    /**@internal */
     DrawCircle(center: any, radius: any, color: any): void {
         let centerV = this.box2d.wrapPointer(center, this.box2d.b2Vec2);
         this._debugDraw.mG.drawCircle(centerV.x, centerV.y, radius, null, this.makeStyleString(color, 1), this._debugDraw.lineWidth);
     }
 
-    /**@private */
+    /**@internal */
     DrawSolidCircle(center: any, radius: any, axis: any, color: any): void {
         center = this.box2d.wrapPointer(center, this.box2d.b2Vec2);
         axis = this.box2d.wrapPointer(axis, this.box2d.b2Vec2);
@@ -1308,14 +1397,14 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
         this._debugDraw.mG.drawLine(cx, cy, (cx + axis.x * radius), (cy + axis.y * radius), this.makeStyleString(color, 1), this._debugDraw.lineWidth);
     }
 
-    /**@private */
+    /**@internal */
     DrawSegment(p1: any, p2: any, color: any): void {
         p1 = this.box2d.wrapPointer(p1, this.box2d.b2Vec2);
         p2 = this.box2d.wrapPointer(p2, this.box2d.b2Vec2);
         this._debugDraw.mG.drawLine(p1.x, p1.y, p2.x, p2.y, this.makeStyleString(color, 1), this._debugDraw.lineWidth);
     }
 
-    /**@private */
+    /**@internal */
     DrawTransform(xf: any): void {
         xf = this.box2d.wrapPointer(xf, this.box2d.b2Transform);
         this._debugDraw.PushTransform(xf.p.x, xf.p.y, xf.q.GetAngle());
@@ -1324,8 +1413,9 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
         this._debugDraw.PopTransform();
     }
 
-    /**@private */
+    /**@internal */
     DrawPoint(p: any, size: any, color: any): void {
+        p = this.box2d.wrapPointer(p, this.box2d.b2Vec2);
         size *= this._debugDraw.camera.m_zoom;
         size /= this._debugDraw.camera.m_extent;
         var hsize: any = size / 2;
@@ -1333,17 +1423,17 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
         this._debugDraw.mG.drawRect(p.x - hsize, p.y - hsize, size, size, this.makeStyleString(color, 1), null);
     }
 
-    /**@private */
+    /**@internal */
     DrawString(x: any, y: any, message: any): void {
         this._debugDraw.textG.fillText(message, x, y, "15px DroidSans", this._debugDraw.DrawString_color, "left");
     }
 
-    /**@private */
+    /**@internal */
     DrawStringWorld(x: any, y: any, message: any): void {
         this.DrawString(x, y, message);
     }
 
-    /**@private */
+    /**@internal */
     DrawAABB(aabb: any, color: any): void {
         var x: number = aabb.lowerBound.x;
         var y: number = aabb.lowerBound.y;
@@ -1353,17 +1443,17 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
         this._debugDraw.mG.drawRect(x, y, w, h, null, this.makeStyleString(color, 1), this._debugDraw.lineWidth);
     }
 
-    /**@private */
+    /**@internal */
     getContactListener() {
         let box2d = this.box2d;
         let _this = this;
         var listner = new this.box2d.JSContactListener();
         listner.BeginContact = function (contact: any): void {
-            Physics.I._eventList.push(0, _this.castObject({ Zu: contact }, box2d.b2Contact));
+            Physics2D.I._eventList.push(0, box2d.wrapPointer(contact, box2d.b2Contact));
         }
 
         listner.EndContact = function (contact: any): void {
-            Physics.I._eventList.push(1, _this.castObject({ Zu: contact }, box2d.b2Contact));
+            Physics2D.I._eventList.push(1, box2d.wrapPointer(contact, box2d.b2Contact));
         }
 
         listner.PreSolve = function (contact: any, oldManifold: any): void {
@@ -1376,23 +1466,27 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
         return listner;
     }
 
-    /**@private */
+    /**@internal */
     getDestructionListener() {
         var listner = new this.box2d.JSDestructionListener();
-        listner.SayGoodbyeJoint = function (params: any): void {
-            params.m_userData && (params.m_userData.isDestroy = true);
+        let box2d = this.box2d;
+        listner.SayGoodbyeJoint = function (joint: any): void {
+            joint = box2d.wrapPointer(joint, box2d.b2Joint);
+            joint.GetUserData().pointer = -1;
         }
-        listner.SayGoodbyeFixture = function (params: any): void {
-
+        listner.SayGoodbyeFixture= function (fixture: any): void {
+            fixture = box2d.wrapPointer(fixture, box2d.b2Fixture);
+            fixture.GetUserData().pointer = -1;
         }
+        return listner;
     }
 
-    /**@private */
+    /**@internal */
     castObject(pointer: any, cls: any) {
         return this.box2d.castObject(pointer, cls)
     }
 
-    /**@private */
+    /**@internal */
     createWrapPointer(points: number[]): any {
         var len: number = points.length;
         var buffer = this.box2d._malloc(len * 4);
@@ -1404,7 +1498,7 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
         return this.box2d.wrapPointer(buffer, this.box2d.b2Vec2);
     }
 
-    /**@private */
+    /**@internal */
     b2LinearStiffness(def: any, frequencyHertz: number, dampingRatio: number, bodyA: any, bodyB: any) {
         const massA = bodyA.GetMass();
         const massB = bodyB.GetMass();
@@ -1424,7 +1518,7 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
     }
 
     /**
-     * @private 
+     * @internal 
      * Utility to compute rotational stiffness values frequency and damping ratio
     */
     b2AngularStiffness(def: any, frequencyHertz: number, dampingRatio: number, bodyA: any, bodyB: any) {
@@ -1446,11 +1540,15 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
     }
 
     /**
-     * @private 
+     * @internal 
     */
     getVec2Length(p1: any, p2: any) {
         return Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2))
     }
+
+    isNullData(data:any){
+        return this.box2d.compare(data,this.box2d.NULL)
+    }
 }
 
-Physics.I._factory = new physics2DwasmFactory()
+Physics2D.I._factory = new physics2DwasmFactory()

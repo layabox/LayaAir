@@ -8,7 +8,7 @@ import { Event } from "laya/events/Event";
 
 import { DistanceJoint } from "laya/physics/joint/DistanceJoint";
 import { RevoluteJoint } from "laya/physics/joint/RevoluteJoint";
-import { Physics } from "laya/physics/Physics";
+import { Physics2D } from "laya/physics/Physics2D";
 import { RigidBody } from "laya/physics/RigidBody";
 import { Label } from "laya/ui/Label";
 import { Stat } from "laya/utils/Stat";
@@ -17,6 +17,9 @@ import { ChainCollider } from "laya/physics/Collider2D/ChainCollider";
 import { CircleCollider } from "laya/physics/Collider2D/CircleCollider";
 import { PolygonCollider } from "laya/physics/Collider2D/PolygonCollider";
 import { BoxCollider } from "laya/physics/Collider2D/BoxCollider";
+import { Vector2 } from "laya/maths/Vector2";
+import { CheckBox } from "laya/ui/CheckBox";
+import { Handler } from "laya/utils/Handler";
 
 /**
  * 仿生兽
@@ -31,20 +34,23 @@ export class Physics_Strandbeests {
     private chassis: Sprite;
     private motorJoint: RevoluteJoint;
     private label: Label;
+    private TempVec: Vector2 = new Vector2();
 
+    private drawFlags:string[] = ["Shape","Joint","AABB","Pair","CenterOfMass"]
     constructor(maincls: typeof Main) {
         this.Main = maincls;
         Config.isAntialias = true;
         Laya.init(1200, 700).then(() => {
             Stat.show();
-            Physics.enable();
+            Physics2D.enable();
             Laya.stage.alignV = Stage.ALIGN_MIDDLE;
             Laya.stage.alignH = Stage.ALIGN_CENTER;
             Laya.stage.scaleMode = Stage.SCALE_FIXED_AUTO;
             Laya.stage.bgColor = "#232628";
 
             this.Construct();
-            this.eventListener();
+            // this.eventListener();
+            Laya.loader.load(["res/ui/checkbox (1).png"], Handler.create(this, this.eventListener));
         });
     }
 
@@ -166,7 +172,7 @@ export class Physics_Strandbeests {
         distanceJoint1.frequency = frequencyHz;
         distanceJoint1.damping = dampingRatio;
         leg1.addComponentInstance(distanceJoint1);
-        distanceJoint1.maxLength = distanceJoint1.minLength = distanceJoint1.length || Physics.I._factory.phyToLayaValue(distanceJoint1.joint.GetLength());
+        distanceJoint1.maxLength = distanceJoint1.minLength = distanceJoint1.length || distanceJoint1.jointLength;
 
         let distanceJoint2: DistanceJoint = new DistanceJoint();
         distanceJoint2.otherBody = legBody2;
@@ -174,7 +180,7 @@ export class Physics_Strandbeests {
         distanceJoint2.frequency = frequencyHz;
         distanceJoint2.damping = dampingRatio;
         leg1.addComponentInstance(distanceJoint2);
-        distanceJoint2.maxLength = distanceJoint2.minLength = distanceJoint2.length || Physics.I._factory.phyToLayaValue(distanceJoint2.joint.GetLength());
+        distanceJoint2.maxLength = distanceJoint2.minLength = distanceJoint2.length || distanceJoint2.jointLength;
 
         let localAnchor = wheelBody.GetLocalPoint((this.pos[0] + this.m_offset[0]), this.pos[1] + this.m_offset[1]);
         let anchor = [-localAnchor.x, -localAnchor.y];
@@ -186,7 +192,7 @@ export class Physics_Strandbeests {
         distanceJoint3.frequency = frequencyHz;
         distanceJoint3.damping = dampingRatio;
         leg1.addComponentInstance(distanceJoint3);
-        distanceJoint3.maxLength = distanceJoint3.minLength = distanceJoint3.length || Physics.I._factory.phyToLayaValue(distanceJoint3.joint.GetLength());
+        distanceJoint3.maxLength = distanceJoint3.minLength = distanceJoint3.length || distanceJoint3.jointLength;
 
         let distanceJoint4: DistanceJoint = new DistanceJoint();
         distanceJoint4.selfAnchor = B2Math.SubVV(p6, p4);
@@ -195,7 +201,7 @@ export class Physics_Strandbeests {
         distanceJoint4.frequency = frequencyHz;
         distanceJoint4.damping = dampingRatio;
         leg2.addComponentInstance(distanceJoint4);
-        distanceJoint4.maxLength = distanceJoint4.minLength = distanceJoint4.length || Physics.I._factory.phyToLayaValue(distanceJoint4.joint.GetLength());
+        distanceJoint4.maxLength = distanceJoint4.minLength = distanceJoint4.length || distanceJoint4.jointLength;
 
         let revoluteJoint: RevoluteJoint = new RevoluteJoint();
         revoluteJoint.otherBody = legBody2;
@@ -213,9 +219,7 @@ export class Physics_Strandbeests {
 
         // 单击产生新的小球刚体
         Laya.stage.on(Event.CLICK, this, () => {
-
-            const chassisBody = this.chassis.getComponent(RigidBody);
-            const chassisPos = chassisBody.getBody().GetPosition();
+            let tempVec = this.TempVec;
             let newBall = new Sprite();
             this.Main.box2D.addChild(newBall);
             let circleBody: RigidBody = newBall.addComponent(RigidBody);
@@ -223,11 +227,11 @@ export class Physics_Strandbeests {
             circleCollider.radius = 3 * this.scale;
             circleCollider.x = Laya.stage.mouseX;
             circleCollider.y = Laya.stage.mouseY;
-            let circlePosx = Physics.I._factory.layaToPhyValue(circleCollider.x);
-            let circlePosy = Physics.I._factory.layaToPhyValue(circleCollider.y);
-            let velocityX = chassisPos.x - circlePosx;
-            let velocityY = chassisPos.y - circlePosy;
-            circleBody.linearVelocity = { "x": velocityX * 5, "y": velocityY * 5 };
+            tempVec.x = this.chassis.x - circleCollider.x;
+            tempVec.y = this.chassis.y - circleCollider.y;
+            Vector2.normalize(tempVec, tempVec);
+            Vector2.scale(tempVec, 50, tempVec);
+            circleBody.linearVelocity = tempVec.toArray();
             Laya.timer.frameOnce(120, this, function () {
                 newBall.destroy();
             });
@@ -238,12 +242,53 @@ export class Physics_Strandbeests {
         label.right = 20;
         label.fontSize = 16;
         label.color = "#e69999";
+        for(var i = 0,n= this.drawFlags.length;i<n;i++){
+            this.createCheckBox(this.drawFlags[i],i==0,1300,70+50*i);
+        }
+        
+    }
+
+    private createCheckBox(lable:string,isselect:boolean,x:number,y:number) {
+		var cb: CheckBox = new CheckBox("res/ui/checkbox (1).png");
+		this.Main.box2D.addChild(cb);
+
+		cb.labelColors = "white";
+		cb.labelSize = 20;
+		cb.labelFont = "Microsoft YaHei";
+		cb.labelPadding = "3,0,0,5";
+        cb.x = x;
+        cb.y  = y;
+        cb.label = lable;
+        cb.selected = isselect;
+        cb.on("change", this, this.updateSelect, [cb]);
+	}
+
+    private updateSelect(checkBox: CheckBox){
+        let isselect = checkBox.selected;
+        switch(checkBox.label){
+            case "Shape":
+                Physics2D.drawShape = isselect;
+                break;
+            case "Joint":
+                Physics2D.drawJoint = isselect;
+                break;
+            case "AABB":
+                Physics2D.drawAABB = isselect;
+                break;
+            case "Pair":
+                Physics2D.drawPair = isselect;
+                break;
+            case "CenterOfMass":
+                Physics2D.drawCenterOfMass = isselect;
+                break;
+        }
     }
 
     dispose() {
         Laya.stage.offAll(Event.CLICK);
         Laya.stage.offAll(Event.DOUBLE_CLICK);
         Laya.stage.removeChild(this.label);
+        Physics2D.I.destroyWorld()
     }
 }
 

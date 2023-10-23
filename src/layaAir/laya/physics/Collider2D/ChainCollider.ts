@@ -1,5 +1,5 @@
 import { ColliderBase } from "./ColliderBase";
-import { Physics } from "../Physics";
+import { Physics2D } from "../Physics2D";
 
 /**
  * 2D线形碰撞体
@@ -18,7 +18,7 @@ export class ChainCollider extends ColliderBase {
      */
     protected getDef(): any {
         if (!this._shape) {
-            this._shape = Physics.I._factory.create_ChainShape();
+            this._shape = Physics2D.I._factory.create_ChainShape();
             this._setShape(false);
         }
         this.label = (this.label || "ChainCollider");
@@ -30,7 +30,7 @@ export class ChainCollider extends ColliderBase {
         var len: number = arr.length;
         if (len % 2 == 1) throw "ChainCollider points lenth must a multiplier of 2";
 
-        Physics.I._factory.set_ChainShape_data(this._shape, this._x, this._y, arr, this._loop)
+        Physics2D.I._factory.set_ChainShape_data(this._shape, this._x, this._y, arr, this._loop)
 
 
         if (re) this.refresh();

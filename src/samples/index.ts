@@ -12,19 +12,18 @@ import { Resource } from "laya/resource/Resource";
 import { LayaGL } from "laya/layagl/LayaGL";
 import { RenderOBJCreateUtil } from "laya/d3/RenderObjs/RenderObj/RenderOBJCreateUtil";
 import { SceneLoad1 } from "./3d/LayaAir3D_Scene3D/SceneLoad1";
-import {btPhysicsCreateUtil} from "laya/Physics3D/Bullet/btPhysicsCreateUtil"
-import {pxPhysicsCreateUtil} from "laya/Physics3D/PhysX/pxPhysicsCreateUtil"
+import { btPhysicsCreateUtil } from "laya/Physics3D/Bullet/btPhysicsCreateUtil"
+import { pxPhysicsCreateUtil } from "laya/Physics3D/PhysX/pxPhysicsCreateUtil"
 import { Laya3D } from "Laya3D";
 import { PostProcessBloom } from "./3d/LayaAir3D_PostProcess/PostProcessBloom";
 import { PhysicsWorld_BaseCollider } from "./3d/LayaAir3D_Physics3D/PhysicsWorld_BaseCollider";
-import { physics2DwasmFactory} from "laya/physics/factory/physics2DwasmFactory";
+import { physics2DwasmFactory } from "laya/physics/factory/physics2DwasmFactory";
 import { Main } from "./Main";
-import { Physics } from "laya/physics/Physics";
 import { physics2DJSFactory } from "laya/physics/factory/physics2DJSFactory";
+import { Physics2D } from "laya/physics/Physics2D";
 Resource.DEBUG = true;
 LayaGL.renderOBJCreate = new RenderOBJCreateUtil();
-Physics.I._factory = new physics2DJSFactory()
-// Physics.I._factory = new physics2DwasmFactory()
+Physics2D.I._factory = new physics2DwasmFactory();
 // Laya3D.PhysicsCreateUtil = new pxPhysicsCreateUtil();
 // new PhysicsWorld_BaseCollider();
 new Main(false);

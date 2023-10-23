@@ -1,6 +1,6 @@
 import { JointBase } from "./JointBase";
 import { Sprite } from "../../display/Sprite"
-import { Physics } from "../Physics"
+import { Physics2D } from "../Physics2D"
 import { RigidBody } from "../RigidBody"
 import { physics2D_RevoluteJointDef } from "./JointDefStructInfo";
 
@@ -42,7 +42,7 @@ export class RevoluteJoint extends JointBase {
             if (!this.selfBody) throw "selfBody can not be empty";
             var def: physics2D_RevoluteJointDef = RevoluteJoint._temp || (RevoluteJoint._temp = new physics2D_RevoluteJointDef());
             def.bodyA = this.selfBody.getBody();
-            def.bodyB = this.otherBody ? this.otherBody.getBody() : Physics.I._emptyBody;
+            def.bodyB = this.otherBody ? this.otherBody.getBody() : Physics2D.I._emptyBody;
 
             let global = this._factory.getLayaPosition(this.owner as Sprite, this.anchor[0], this.anchor[1]);
             def.anchor.setValue(global.x, global.y)

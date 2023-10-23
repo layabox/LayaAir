@@ -1,7 +1,7 @@
 import { JointBase } from "./JointBase";
 import { Sprite } from "../../display/Sprite"
 import { Point } from "../../maths/Point"
-import { Physics } from "../Physics"
+import { Physics2D } from "../Physics2D"
 import { RigidBody } from "../RigidBody"
 import { physics2D_PulleyJointDef } from "./JointDefStructInfo";
 
@@ -50,7 +50,7 @@ export class PulleyJoint extends JointBase {
             def.groundAnchorB.setValue(groundB.x, groundB.y);
             def.ratio = this.ratio;
             def.collideConnected = this.collideConnected;
-            this._joint = Physics.I._createJoint(def);
+            this._joint = Physics2D.I._factory.createJoint(def);
         }
     }
 }
