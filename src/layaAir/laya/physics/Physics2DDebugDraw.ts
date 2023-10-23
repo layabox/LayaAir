@@ -7,7 +7,7 @@ import { IPhysiscs2DFactory } from "./IPhysiscs2DFactory";
 /**
  * 物理辅助线
  */
-export class PhysicsDebugDraw extends Sprite {
+export class Physics2DDebugDraw extends Sprite {
     DrawString_color: string;
     Red: string;
     Green: string;

@@ -8,7 +8,7 @@ import { FixtureBox2DDef } from "../Collider2D/ColliderStructInfo";
 import { IPhysiscs2DFactory } from "../IPhysiscs2DFactory";
 import { Physics2D } from "../Physics2D";
 import { Physics2DOption } from "../Physics2DOption";
-import { PhysicsDebugDraw } from "../PhysicsDebugDraw";
+import { Physics2DDebugDraw } from "../Physics2DDebugDraw";
 import { RigidBody2DInfo } from "../RigidBody2DInfo";
 import { physics2D_DistancJointDef, physics2D_GearJointDef, physics2D_MotorJointDef, physics2D_MouseJointJointDef, physics2D_PrismaticJointDef, physics2D_PulleyJointDef, physics2D_RevoluteJointDef, physics2D_WeldJointDef, physics2D_WheelJointDef } from "../joint/JointDefStructInfo"
 
@@ -28,7 +28,7 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
     _world: any;
 
     /**@internal  */
-    _debugDraw: PhysicsDebugDraw;
+    _debugDraw: Physics2DDebugDraw;
 
     /**@internal  */
     private _jsDraw: any;
@@ -141,7 +141,7 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
     /** 
      * @internal
      */
-    get debugDraw(): PhysicsDebugDraw {
+    get debugDraw(): Physics2DDebugDraw {
         return this._debugDraw;
     }
 
@@ -390,7 +390,7 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
      */
     createDebugDraw(flags: number) {
         if (this._debugDraw) return;
-        this._debugDraw = new PhysicsDebugDraw(this);
+        this._debugDraw = new Physics2DDebugDraw(this);
         ILaya.stage.addChild(this._debugDraw);
         this._debugDraw.zOrder = 1000;
 
