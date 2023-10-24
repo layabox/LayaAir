@@ -1,15 +1,16 @@
 import { JointBase } from "./JointBase";
 import { Sprite } from "../../display/Sprite"
 import { Point } from "../../maths/Point"
-import { Physics } from "../Physics"
+import { Physics2D } from "../Physics2D"
 import { RigidBody } from "../RigidBody"
+import { physics2D_PulleyJointDef } from "./JointDefStructInfo";
 
 /**
  * 滑轮关节：它将两个物体接地(ground)并彼此连接，当一个物体上升，另一个物体就会下降
  */
 export class PulleyJoint extends JointBase {
     /**@private */
-    private static _temp: any;
+    private static _temp: physics2D_PulleyJointDef;
     /**[首次设置有效]关节的自身刚体*/
     selfBody: RigidBody;
     /**[首次设置有效]关节的连接刚体*/
@@ -36,20 +37,20 @@ export class PulleyJoint extends JointBase {
             this.selfBody = this.selfBody || this.owner.getComponent(RigidBody);
             if (!this.selfBody) throw "selfBody can not be empty";
 
-            var box2d: any = (<any>window).box2d;
-            var def: any = PulleyJoint._temp || (PulleyJoint._temp = new box2d.b2PulleyJointDef());
-            var posA: Point = ((<Sprite>this.otherBody.owner)).localToGlobal(Point.TEMP.setTo(this.otherAnchor[0], this.otherAnchor[1]), false, Physics.I.worldRoot);
-            var anchorVecA: any = new box2d.b2Vec2(posA.x / Physics.PIXEL_RATIO, posA.y / Physics.PIXEL_RATIO);
-            var posB: Point = ((<Sprite>this.selfBody.owner)).localToGlobal(Point.TEMP.setTo(this.selfAnchor[0], this.selfAnchor[1]), false, Physics.I.worldRoot);
-            var anchorVecB: any = new box2d.b2Vec2(posB.x / Physics.PIXEL_RATIO, posB.y / Physics.PIXEL_RATIO);
-            var groundA: Point = ((<Sprite>this.otherBody.owner)).localToGlobal(Point.TEMP.setTo(this.otherGroundPoint[0], this.otherGroundPoint[1]), false, Physics.I.worldRoot);
-            var groundVecA: any = new box2d.b2Vec2(groundA.x / Physics.PIXEL_RATIO, groundA.y / Physics.PIXEL_RATIO);
-            var groundB: Point = ((<Sprite>this.selfBody.owner)).localToGlobal(Point.TEMP.setTo(this.selfGroundPoint[0], this.selfGroundPoint[1]), false, Physics.I.worldRoot);
-            var groundVecB: any = new box2d.b2Vec2(groundB.x / Physics.PIXEL_RATIO, groundB.y / Physics.PIXEL_RATIO);
-
-            def.Initialize(this.otherBody.getBody(), this.selfBody.getBody(), groundVecA, groundVecB, anchorVecA, anchorVecB, this.ratio);
+            var def: physics2D_PulleyJointDef = PulleyJoint._temp || (PulleyJoint._temp = new physics2D_PulleyJointDef);
+            def.bodyA = this.otherBody.getBody();
+            def.bodyB = this.selfBody.getBody();
+            var posA: Point = this._factory.getLayaPosition(<Sprite>this.otherBody.owner, this.otherAnchor[0], this.otherAnchor[1], false);
+            def.localAnchorA.setValue(posA.x, posA.y);
+            var posB: Point = this._factory.getLayaPosition(<Sprite>this.selfBody.owner, this.selfAnchor[0], this.selfAnchor[1], false);
+            def.localAnchorB.setValue(posB.x, posB.y);
+            var groundA: Point = this._factory.getLayaPosition(<Sprite>this.otherBody.owner, this.otherGroundPoint[0], this.otherGroundPoint[1]);
+            def.groundAnchorA.setValue(groundA.x, groundA.y);
+            var groundB: Point = this._factory.getLayaPosition(<Sprite>this.selfBody.owner, this.selfGroundPoint[0], this.selfGroundPoint[1]);
+            def.groundAnchorB.setValue(groundB.x, groundB.y);
+            def.ratio = this.ratio;
             def.collideConnected = this.collideConnected;
-            this._joint = Physics.I._createJoint(def);
+            this._joint = Physics2D.I._factory.createJoint(def);
         }
     }
 }

@@ -1,6 +1,5 @@
-import { Sprite } from "../../display/Sprite";
 import { ColliderBase } from "./ColliderBase";
-import { Physics } from "../Physics";
+import { Physics2D } from "../Physics2D";
 
 /**
  * 2D矩形碰撞体
@@ -20,36 +19,25 @@ export class BoxCollider extends ColliderBase {
      */
     protected getDef(): any {
         if (!this._shape) {
-            this._shape = Physics.I._factory.create_boxColliderShape();
+            this._shape = Physics2D.I._factory.create_boxColliderShape();
             this._setShape(false);
         }
         this.label = (this.label || "BoxCollider");
         return super.getDef();
     }
 
-    /**
-     * @override 初始化设置为当前显示对象的宽和高
-     */
-    protected _onAdded(): void {
-        let node = this.owner as Sprite;
-        if (node && 0 < node.width && 0 < node.height) {
-            if (100 == this.width && 100 == this.height) {
-                this.width = node.width;
-                this.height = node.height;
-            }
-        }
-    }
+
 
     private _setShape(re: boolean = true): void {
         var scaleX: number = ((this.owner as any)["scaleX"] || 1);
         var scaleY: number = ((this.owner as any)["scaleY"] || 1);
-        Physics.I._factory.set_collider_SetAsBox(this._shape, this._width / 2 / Physics.PIXEL_RATIO * scaleX,
-            this._height / 2 / Physics.PIXEL_RATIO * scaleY,
-            {
-                x: (this._width / 2 + this._x) / Physics.PIXEL_RATIO * scaleX,
-                y: (this._height / 2 + this._y) / Physics.PIXEL_RATIO * scaleY
-            }
-        );
+        let helfW: number = this._width * 0.5;
+        let heflH: number = this._height * 0.5;
+        var center = {
+            x: (helfW + this._x) * scaleX,
+            y: (heflH + this._y) * scaleY
+        }
+        Physics2D.I._factory.set_collider_SetAsBox(this._shape, helfW, heflH, center);
         if (re) this.refresh();
     }
 

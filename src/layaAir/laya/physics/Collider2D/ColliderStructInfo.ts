@@ -4,4 +4,5 @@ export class FixtureBox2DDef{
     isSensor:boolean;
     restitution:number;
     shape:any;//Box2D Shape
+    groupIndex:number;
 }

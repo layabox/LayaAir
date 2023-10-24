@@ -3,7 +3,7 @@ import { Component } from "../components/Component"
 import { Sprite } from "..//display/Sprite"
 import { Point } from "../maths/Point"
 import { Utils } from "../utils/Utils"
-import { Physics } from "./Physics";
+import { Physics2D } from "./Physics2D";
 import { RigidBody2DInfo } from "./RigidBody2DInfo";
 import { IV2, Vector2 } from "../maths/Vector2";
 
@@ -14,7 +14,7 @@ import { IV2, Vector2 } from "../maths/Vector2";
  * 1.不支持绑定节点缩放
  * 2.不支持绑定节点的父节点缩放和旋转
  * 3.不支持实时控制父对象位移，IDE内父对象位移是可以的
- * 如果想整体位移物理世界，可以Physics.I.worldRoot=场景，然后移动场景即可
+ * 如果想整体位移物理世界，可以Physics2D.I.worldRoot=场景，然后移动场景即可
  * 可以通过IDE-"项目设置" 开启物理辅助线显示，或者通过代码PhysicsDebugDraw.enable();
  */
 export class RigidBody extends Component {
@@ -63,11 +63,12 @@ export class RigidBody extends Component {
 
     private _createBody(): void {
         if (this._body || !this.owner) return;
+        let factory = Physics2D.I._factory;
         var sp: Sprite = (<Sprite>this.owner);
-        var point: Point = sp.localToGlobal(Point.TEMP.setTo(0, 0), false, Physics.I.worldRoot);
+        let point: Point = factory.getLayaPosition(sp, 0, 0);
         var defRigidBodyDef = new RigidBody2DInfo();
 
-        defRigidBodyDef.position.setValue(point.x / Physics.PIXEL_RATIO, point.y / Physics.PIXEL_RATIO);
+        defRigidBodyDef.position.setValue(point.x, point.y);
         defRigidBodyDef.angle = Utils.toRadian(sp.rotation);
         defRigidBodyDef.allowSleep = this._allowSleep;
         defRigidBodyDef.angularDamping = this._angularDamping;
@@ -76,15 +77,14 @@ export class RigidBody extends Component {
         defRigidBodyDef.fixedRotation = !this._allowRotation;
         defRigidBodyDef.gravityScale = this._gravityScale;
         defRigidBodyDef.linearDamping = this._linearDamping;
+        defRigidBodyDef.group = this.group;
         var obj: any = this._linearVelocity;
         if (obj && obj.x != 0 || obj.y != 0) {
-            //def.linearVelocity.setValue = new box2d.b2Vec2(obj.x, obj.y);
             defRigidBodyDef.linearVelocity.setValue(obj.x, obj.y);
         }
-        //def.type = box2d.b2BodyType["b2_" + this._type + "Body"];
         defRigidBodyDef.type = this._type;
 
-        this._body = Physics.I._factory.rigidBodyDef_Create(defRigidBodyDef);
+        this._body = factory.rigidBodyDef_Create(defRigidBodyDef);
         //查找碰撞体
         this.resetCollider(false);
     }
@@ -97,20 +97,20 @@ export class RigidBody extends Component {
         var _$this = this;
         this._createBody();
 
-        //监听节点变化，同步到物理世界
+        // 监听节点变化，同步到物理世界
         var sp: any = <Sprite>this.owner;
         //如果节点发生变化，则同步到物理世界（仅限节点本身，父节点发生变化不会自动同步）
         if (this.accessGetSetFunc(sp, "x", "set") && !sp._changeByRigidBody) {
             sp._changeByRigidBody = true;
             function setX(value: any): void {
                 _$this.accessGetSetFunc(sp, "x", "set")(value);
-                _$this._sysPosToPhysic();
+                _$this._sysNodeToPhysic();
             }
             this._overSet(sp, "x", setX);
 
             function setY(value: any): void {
                 _$this.accessGetSetFunc(sp, "y", "set")(value);
-                _$this._sysPosToPhysic();
+                _$this._sysNodeToPhysic();
             };
             this._overSet(sp, "y", setY);
 
@@ -181,48 +181,31 @@ export class RigidBody extends Component {
 
     /**同步物理坐标到游戏坐标*/
     onUpdate(): void {
-        var factory = Physics.I._factory;
-        if (this.type != "static" && Physics.I._factory.get_rigidBody_IsAwake(this._body)) {
+        var factory = Physics2D.I._factory;
+        if (this.type != "static" && Physics2D.I._factory.get_rigidBody_IsAwake(this._body)) {
             var pos = Vector2.TempVector2;
             factory.get_RigidBody_Position(this.body, pos);
             var ang: any = factory.get_RigidBody_Angle(this.body);
             var sp: any = (<Sprite>this.owner);
-
-            //if (label == "tank") console.log("get",ang);
             this.accessGetSetFunc(sp, "rotation", "set")(Utils.toAngle(ang) - (<Sprite>sp.parent).globalRotation);
-
-            // if (ang == 0) {
-            //     var point: Point = sp.globalToLocal(Point.TEMP.setTo(pos.x * IPhysics.Physics.PIXEL_RATIO + sp.pivotX, pos.y * IPhysics.Physics.PIXEL_RATIO + sp.pivotY), false, IPhysics.Physics.I.worldRoot);
-            //     point = sp.toParentPoint(point);
-            //     this.accessGetSetFunc(sp, "x", "set")(point.x);
-            //     this.accessGetSetFunc(sp, "y", "set")(point.y);
-            // } else {
-            var point = sp.globalToLocal(Point.TEMP.setTo(pos.x * Physics.PIXEL_RATIO, pos.y * Physics.PIXEL_RATIO), false, Physics.I.worldRoot);
+            var point = factory.getLayaPosition(sp, pos.x, pos.y, false);
             point.x += sp.pivotX;
             point.y += sp.pivotY;
             point = sp.toParentPoint(point);
             this.accessGetSetFunc(sp, "x", "set")(point.x);
             this.accessGetSetFunc(sp, "y", "set")(point.y);
-            // }
         }
     }
 
     /**@private 同步节点坐标及旋转到物理世界*/
     private _sysNodeToPhysic(): void {
-        var factory = Physics.I._factory;
+        var factory = Physics2D.I._factory;
         var sp: Sprite = <Sprite>this.owner;
-        factory.set_RigidBody_Angle(this._body, Utils.toRadian(sp.rotation));
-        var p: Point = sp.localToGlobal(Point.TEMP.setTo(0, 0), false, Physics.I.worldRoot);
-        factory.set_RigidBody_PositionXY(this._body, p.x / Physics.PIXEL_RATIO, p.y / Physics.PIXEL_RATIO);
+        var p: Point = sp.localToGlobal(Point.TEMP.setTo(0, 0), false, Physics2D.I.worldRoot);
+        factory.set_RigibBody_Transform(this._body, p.x, p.y, Utils.toRadian(sp.rotation));
     }
 
-    /**@private 同步节点坐标到物理世界*/
-    private _sysPosToPhysic(): void {
-        var sp: Sprite = <Sprite>this.owner;
-        var p: Point = sp.localToGlobal(Point.TEMP.setTo(0, 0), false, Physics.I.worldRoot);
-        var factory = Physics.I._factory;
-        factory.set_RigidBody_PositionXY(this.body, p.x / Physics.PIXEL_RATIO, p.y / Physics.PIXEL_RATIO);
-    }
+
 
     /**@private */
     private _overSet(sp: Node, prop: string, getfun: any): void {
@@ -231,7 +214,7 @@ export class RigidBody extends Component {
 
     protected _onDisable(): void {
         //添加到物理世界
-        this._body && Physics.I._removeBody(this._body);
+        this._body && Physics2D.I._factory.removeBody(this._body);
         this._body = null;
         var owner: any = this.owner;
         if (owner._changeByRigidBody) {
@@ -267,7 +250,7 @@ export class RigidBody extends Component {
      */
     applyForce(position: IV2, force: IV2): void {
         if (!this._body) this._onAwake();
-        Physics.I._factory.rigidBody_applyForce(this._body, force, position);
+        Physics2D.I._factory.rigidBody_applyForce(this._body, force, position);
     }
 
     /**
@@ -276,7 +259,7 @@ export class RigidBody extends Component {
      */
     applyForceToCenter(force: IV2): void {
         if (!this._body) this._onAwake();
-        Physics.I._factory.rigidBody_applyForceToCenter(this._body, force);
+        Physics2D.I._factory.rigidBody_applyForceToCenter(this._body, force);
     }
 
     /**
@@ -286,7 +269,7 @@ export class RigidBody extends Component {
      */
     applyLinearImpulse(position: IV2, impulse: IV2): void {
         if (!this._body) this._onAwake();
-        Physics.I._factory.rigidbody_ApplyLinearImpulse(this._body, impulse, position);
+        Physics2D.I._factory.rigidbody_ApplyLinearImpulse(this._body, impulse, position);
     }
 
     /**
@@ -295,7 +278,7 @@ export class RigidBody extends Component {
      */
     applyLinearImpulseToCenter(impulse: IV2): void {
         if (!this._body) this._onAwake();
-        Physics.I._factory.rigidbody_ApplyLinearImpulseToCenter(this._body, impulse);
+        Physics2D.I._factory.rigidbody_ApplyLinearImpulseToCenter(this._body, impulse);
     }
 
     /**
@@ -304,7 +287,7 @@ export class RigidBody extends Component {
      */
     applyTorque(torque: number): void {
         if (!this._body) this._onAwake();
-        Physics.I._factory.rigidbody_applyTorque(this._body, torque);
+        Physics2D.I._factory.rigidbody_applyTorque(this._body, torque);
     }
 
     /**
@@ -313,7 +296,7 @@ export class RigidBody extends Component {
      */
     setVelocity(velocity: IV2): void {
         if (!this._body) this._onAwake();
-        Physics.I._factory.set_rigidBody_linearVelocity(this._body, velocity);
+        Physics2D.I._factory.set_rigidBody_linearVelocity(this._body, velocity);
     }
 
     /**
@@ -322,13 +305,15 @@ export class RigidBody extends Component {
      */
     setAngle(value: any): void {
         if (!this._body) this._onAwake();
-        Physics.I._factory.set_RigidBody_Angle(this._body, value);
-        Physics.I._factory.set_rigidbody_Awake(this._body, true);
+        var factory = Physics2D.I._factory;
+        var p: Point = factory.getLayaPosition(<Sprite>this.owner, 0, 0, true);
+        factory.set_RigibBody_Transform(this._body, p.x, p.y, value);
+        Physics2D.I._factory.set_rigidbody_Awake(this._body, true);
     }
 
     /**获得刚体质量*/
     getMass(): number {
-        return this._body ? Physics.I._factory.get_rigidbody_Mass(this._body) : 0;
+        return this._body ? Physics2D.I._factory.get_rigidbody_Mass(this._body) : 0;
     }
 
     /**
@@ -336,20 +321,16 @@ export class RigidBody extends Component {
      */
     getCenter(): any {
         if (!this._body) this._onAwake();
-        var p: IV2 = Physics.I._factory.get_rigidBody_Center(this._body);
-        p.x = p.x * Physics.PIXEL_RATIO;
-        p.y = p.y * Physics.PIXEL_RATIO;
+        var p: IV2 = Physics2D.I._factory.get_rigidBody_Center(this._body);
         return p;
     }
 
     /**
-     * 获得质心的世界坐标，相对于Physics.I.worldRoot节点
+     * 获得质心的世界坐标，相对于Physics2D.I.worldRoot节点
      */
     getWorldCenter(): any {
         if (!this._body) this._onAwake();
-        var p: IV2 = Physics.I._factory.get_rigidBody_WorldCenter(this._body);
-        p.x = p.x * Physics.PIXEL_RATIO;
-        p.y = p.y * Physics.PIXEL_RATIO;
+        var p: IV2 = Physics2D.I._factory.get_rigidBody_WorldCenter(this._body);
         return p;
     }
 
@@ -365,7 +346,7 @@ export class RigidBody extends Component {
 
     set type(value: string) {
         this._type = value;
-        if (this._body) Physics.I._factory.set_rigidBody_type(this.body, this._type);
+        if (this._body) Physics2D.I._factory.set_rigidBody_type(this.body, this._type);
     }
 
     /**重力缩放系数，设置为0为没有重力*/
@@ -375,7 +356,7 @@ export class RigidBody extends Component {
 
     set gravityScale(value: number) {
         this._gravityScale = value;
-        if (this._body) Physics.I._factory.set_rigidBody_gravityScale(this._body, value);
+        if (this._body) Physics2D.I._factory.set_rigidBody_gravityScale(this._body, value);
     }
 
     /**是否允许旋转，如果不希望刚体旋转，这设置为false*/
@@ -385,7 +366,7 @@ export class RigidBody extends Component {
 
     set allowRotation(value: boolean) {
         this._allowRotation = value;
-        if (this._body) Physics.I._factory.set_rigidBody_allowRotation(this._body, !value);
+        if (this._body) Physics2D.I._factory.set_rigidBody_allowRotation(this._body, !value);
     }
 
     /**是否允许休眠，允许休眠能提高性能*/
@@ -395,7 +376,7 @@ export class RigidBody extends Component {
 
     set allowSleep(value: boolean) {
         this._allowSleep = value;
-        if (this._body) Physics.I._factory.set_rigidBody_allowSleep(this._body, value);
+        if (this._body) Physics2D.I._factory.set_rigidBody_allowSleep(this._body, value);
     }
 
     /**旋转速度阻尼系数，范围可以在0到无穷大之间，0表示没有阻尼，无穷大表示满阻尼，通常阻尼的值应该在0到0.1之间*/
@@ -405,18 +386,18 @@ export class RigidBody extends Component {
 
     set angularDamping(value: number) {
         this._angularDamping = value;
-        if (this._body) Physics.I._factory.set_rigidBody_angularDamping(this._body, value);
+        if (this._body) Physics2D.I._factory.set_rigidBody_angularDamping(this._body, value);
     }
 
     /**角速度，设置会导致旋转*/
     get angularVelocity(): number {
-        if (this._body) return Physics.I._factory.get_rigidBody_angularVelocity(this._body);
+        if (this._body) return Physics2D.I._factory.get_rigidBody_angularVelocity(this._body);
         return this._angularVelocity;
     }
 
     set angularVelocity(value: number) {
         this._angularVelocity = value;
-        if (this._body) Physics.I._factory.set_rigidBody_angularVelocity(this.body, value);
+        if (this._body) Physics2D.I._factory.set_rigidBody_angularVelocity(this.body, value);
     }
 
     /**线性速度阻尼系数，范围可以在0到无穷大之间，0表示没有阻尼，无穷大表示满阻尼，通常阻尼的值应该在0到0.1之间*/
@@ -426,13 +407,13 @@ export class RigidBody extends Component {
 
     set linearDamping(value: number) {
         this._linearDamping = value;
-        if (this._body) Physics.I._factory.set_rigidBody_linearDamping(this._body, value);
+        if (this._body) Physics2D.I._factory.set_rigidBody_linearDamping(this._body, value);
     }
 
     /**线性运动速度，比如{x:5,y:5}*/
     get linearVelocity(): IV2 {
         if (this._body) {
-            var vec: IV2 = Physics.I._factory.get_rigidBody_linearVelocity(this._body);
+            var vec: IV2 = Physics2D.I._factory.get_rigidBody_linearVelocity(this._body);
             return { x: vec.x, y: vec.y };
         }
         return this._linearVelocity;
@@ -444,7 +425,7 @@ export class RigidBody extends Component {
             value = { x: value[0], y: value[1] };
         }
         this._linearVelocity = value;
-        if (this._body) Physics.I._factory.set_rigidBody_linearVelocity(this._body, value);
+        if (this._body) Physics2D.I._factory.set_rigidBody_linearVelocity(this._body, value);
     }
 
     /**是否高速移动的物体，设置为true，可以防止高速穿透*/
@@ -454,6 +435,26 @@ export class RigidBody extends Component {
 
     set bullet(value: boolean) {
         this._bullet = value;
-        if (this._body) Physics.I._factory.set_rigidBody_bullet(this._body, value);
+        if (this._body) Physics2D.I._factory.set_rigidBody_bullet(this._body, value);
+    }
+
+    /** 
+     * 获得相对body的世界坐标
+     * @param x (单位： 像素)
+     * @param y (单位： 像素)
+    */
+    GetWorldPoint(x: number, y: number) {
+        if (this._body) return Physics2D.I._factory.get_rigidBody_WorldPoint(this._body, x, y);
+        else return null;
+    }
+
+    /** 
+     * 获得相对body的本地坐标
+     * @param x (单位： 像素)
+     * @param y (单位： 像素)
+    */
+    GetLocalPoint(x: number, y: number) {
+        if (this._body) return Physics2D.I._factory.get_rigidBody_LocalPoint(this._body, x, y);
+        else return null;
     }
 }
