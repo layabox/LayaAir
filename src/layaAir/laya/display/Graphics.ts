@@ -34,6 +34,11 @@ import { VectorGraphManager } from "../utils/VectorGraphManager"
 import { ILaya } from "../../ILaya";
 import { WordText } from "../utils/WordText";
 import { ColorUtils } from "../utils/ColorUtils";
+import { Material } from "../d3/core/material/Material";
+import { LayaGL } from "../layagl/LayaGL";
+import { CommandUniformMap } from "../RenderEngine/CommandUniformMap";
+import { ShaderDataType } from "../RenderEngine/RenderShader/ShaderData";
+import { Value2D } from "../webgl/shader/d2/value/Value2D";
 
 /**
  * <code>Graphics</code> 类用于创建绘图显示对象。Graphics可以同时绘制多个位图或者矢量图，还可以结合save，restore，transform，scale，rotate，translate，alpha等指令对绘图效果进行变化。
@@ -41,6 +46,25 @@ import { ColorUtils } from "../utils/ColorUtils";
  * @see laya.display.Sprite#graphics
  */
 export class Graphics {
+
+    /**
+     * add global Uniform Data Map
+     * @param propertyID 
+     * @param propertyKey 
+     * @param uniformtype 
+     */
+    static add2DGlobalUniformData(propertyID: number, propertyKey: string, uniformtype: ShaderDataType) {
+        let sceneUniformMap: CommandUniformMap = LayaGL.renderOBJCreate.createGlobalUniformMap("Sprite2DGlobal");
+        sceneUniformMap.addShaderUniform(propertyID, propertyKey, uniformtype);
+    }
+
+    /**
+     * get global shaderData
+     */
+    static get globalShaderData() {
+        return Value2D.globalShaderData;
+    }
+
     /**@internal */
     _sp: Sprite | null = null;
     /**@internal */
@@ -152,6 +176,7 @@ export class Graphics {
     }
 
     set cmds(value) {
+        debugger;
         if (this._sp) {
             this._sp._renderType |= SpriteConst.GRAPHICS;
         }
@@ -210,6 +235,20 @@ export class Graphics {
     getBoundPoints(realSize: boolean = false): any[] {
         this._initGraphicBounds();
         return this._graphicBounds!.getBoundPoints(realSize);
+    }
+
+    private _material: Material;
+
+    set material(value: Material) {
+        if (this._material == value)
+            return;
+        this._material && this._material._removeReference();
+        this._material = value;
+        this._material._addReference();
+    }
+
+    get material() {
+        return this._material;
     }
 
     /**
@@ -464,6 +503,7 @@ export class Graphics {
      */
     _renderAll(sprite: Sprite, context: Context, x: number, y: number): void {
         context.sprite = sprite;
+        context.material = this._material;
         var cmds = this._cmds!;
         for (let i = 0, n = cmds.length; i < n; i++) {
             cmds[i].run(context, x, y);
@@ -475,6 +515,7 @@ export class Graphics {
      */
     _renderOne(sprite: Sprite, context: Context, x: number, y: number): void {
         context.sprite = sprite;
+        context.material = this._material;
         this._cmds[0].run(context, x, y);
     }
 

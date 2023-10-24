@@ -18,10 +18,9 @@ import { CacheManger } from "./laya/utils/CacheManger";
 import { ColorUtils } from "./laya/utils/ColorUtils";
 import { Timer } from "./laya/utils/Timer";
 import { ShaderDefines2D } from "./laya/webgl/shader/d2/ShaderDefines2D";
-import { SkinSV } from "./laya/webgl/shader/d2/skinAnishader/SkinSV";
 import { PrimitiveSV } from "./laya/webgl/shader/d2/value/PrimitiveSV";
 import { TextureSV } from "./laya/webgl/shader/d2/value/TextureSV";
-import { Value2D } from "./laya/webgl/shader/d2/value/Value2D";
+import { RenderSpriteData, Value2D } from "./laya/webgl/shader/d2/value/Value2D";
 import { RenderState2D } from "./laya/webgl/utils/RenderState2D";
 import { WebGL } from "./laya/webgl/WebGL";
 import { Mouse } from "./laya/utils/Mouse";
@@ -209,11 +208,9 @@ export class Laya {
         }
         Input.__init__();
         SoundManager.autoStopMusic = true;
-
-        Value2D._initone(ShaderDefines2D.TEXTURE2D, TextureSV);
-        Value2D._initone(ShaderDefines2D.TEXTURE2D | ShaderDefines2D.FILTERGLOW, TextureSV);
-        Value2D._initone(ShaderDefines2D.PRIMITIVE, PrimitiveSV);
-        Value2D._initone(ShaderDefines2D.SKINMESH, SkinSV);
+        //Init internal 2D Value2D
+        Value2D._initone(RenderSpriteData.Texture2D, TextureSV);
+        Value2D._initone(RenderSpriteData.Primitive, PrimitiveSV);
 
         let laya3D = (<any>window)["Laya3D"];
         if (laya3D) {

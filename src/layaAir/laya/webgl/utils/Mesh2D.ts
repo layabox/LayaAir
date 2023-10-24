@@ -22,7 +22,6 @@ export class Mesh2D {
     canReuse = false;	//用完以后，是删除还是回收。
 
     /**
-     * 
      * @param	stride
      * @param	vballoc  vb预分配的大小。主要是用来提高效率。防止不断的resizebfufer
      * @param	iballoc
@@ -93,7 +92,7 @@ export class Mesh2D {
             this._vao = new BufferState();
             //_vao.dbgid = _gvaoid++;
         }
-        this._vao.applyState([this._vb],this._ib);
+        this._vao.applyState([this._vb], this._ib);
         // var attribNum: number = this._attribInfo.length / 3;
         // var idx: number = 0;
         // for (var i: number = 0; i < attribNum; i++) {
@@ -113,8 +112,8 @@ export class Mesh2D {
      * @param	gl
      */
     useMesh(): void {
-        if((this._vao&&!this._vao.isbind())||this._ib.buffer2D._upload||this._vb.buffer2D._upload){
-            BufferState._curBindedBufferState&&BufferState._curBindedBufferState.unBind();
+        if ((this._vao && !this._vao.isbind()) || this._ib.buffer2D._upload || this._vb.buffer2D._upload) {
+            BufferState._curBindedBufferState && BufferState._curBindedBufferState.unBind();
         }
         //要先bind，在bufferData
         this._applied || this.configVAO();

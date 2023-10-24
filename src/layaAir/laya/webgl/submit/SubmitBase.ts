@@ -1,6 +1,6 @@
 import { ISubmit } from "./ISubmit";
 import { SubmitKey } from "./SubmitKey";
-import { Value2D } from "../shader/d2/value/Value2D"
+import { RenderSpriteData, Value2D } from "../shader/d2/value/Value2D"
 import { Mesh2D } from "../utils/Mesh2D"
 
 export class SubmitBase implements ISubmit {
@@ -34,7 +34,7 @@ export class SubmitBase implements ISubmit {
 
     clipInfoID: number = -1;	//用来比较clipinfo
     /**@internal */
-    _mesh: Mesh2D|null = null;			//代替 _vb,_ib
+    _mesh: Mesh2D | null = null;			//代替 _vb,_ib
     /**@internal */
     _blendFn: Function = null;
     protected _id: number = 0;
@@ -58,7 +58,7 @@ export class SubmitBase implements ISubmit {
 
     static __init__(): void {
         var s: SubmitBase = SubmitBase.RENDERBASE = new SubmitBase(-1);
-        s.shaderValue = new Value2D(0, 0);
+        s.shaderValue = new Value2D(RenderSpriteData.Zero);
         s.shaderValue.ALPHA = 1;
         s._ref = 0xFFFFFFFF;
     }

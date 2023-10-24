@@ -35,6 +35,8 @@ export class ShaderInstance {
 	/**@internal */
 	_materialUniformParamsMap: CommandEncoder;
 	/**@internal */
+	_sprite2DUniformParamsMap: CommandEncoder;
+	/**@internal */
 	private _customUniformParamsMap: any[] = [];
 
 	/**@internal */
@@ -54,11 +56,11 @@ export class ShaderInstance {
 	 * 创建一个 <code>ShaderInstance</code> 实例。
 	 */
 	constructor(shaderProcessInfo: ShaderProcessInfo, shaderPass: ShaderCompileDefineBase) {
-		shaderProcessInfo.is2D ? this._webGLShaderLanguageProcess2D(shaderProcessInfo.defineString, shaderProcessInfo.attributeMap, shaderProcessInfo.uniformMap, shaderProcessInfo.vs, shaderProcessInfo.ps)
-			: this._webGLShaderLanguageProcess3D(shaderProcessInfo.defineString, shaderProcessInfo.attributeMap, shaderProcessInfo.uniformMap, shaderProcessInfo.vs, shaderProcessInfo.ps);
+		// shaderProcessInfo.is2D ? this._webGLShaderLanguageProcess2D(shaderProcessInfo.defineString, shaderProcessInfo.attributeMap, shaderProcessInfo.uniformMap, shaderProcessInfo.vs, shaderProcessInfo.ps)
+		this._webGLShaderLanguageProcess3D(shaderProcessInfo.defineString, shaderProcessInfo.attributeMap, shaderProcessInfo.uniformMap, shaderProcessInfo.vs, shaderProcessInfo.ps);
 		if (this._renderShaderInstance._complete) {
 			this._shaderPass = shaderPass;
-			this._create();
+			shaderProcessInfo.is2D ? this._create2D() : this._create();
 		}
 	}
 
@@ -309,6 +311,30 @@ ${uniformglsl}`;
 				this._customUniformParamsMap || (this._customUniformParamsMap = []);
 				this._customUniformParamsMap[one.dataOffset] = one;
 			} else {
+				this._materialUniformParamsMap.addShaderUniform(one);
+			}
+		}
+	}
+
+	/**
+	 * @internal
+	 */
+	protected _create2D(): void {
+		this._sprite2DUniformParamsMap = new CommandEncoder();
+		this._materialUniformParamsMap = new CommandEncoder();
+		this._sceneUniformParamsMap = new CommandEncoder();
+		const sprite2DParms = LayaGL.renderOBJCreate.createGlobalUniformMap("Sprite2D");//分开，根据不同的Render
+		const sceneParms = LayaGL.renderOBJCreate.createGlobalUniformMap("Sprite2DGlobal");//分开，根据不同的Render
+		let i, n;
+		let data: ShaderVariable[] = this._renderShaderInstance.getUniformMap();
+		for (i = 0, n = data.length; i < n; i++) {
+			let one: ShaderVariable = data[i];
+			if (sprite2DParms.hasPtrID(one.dataOffset)) {
+				this._sprite2DUniformParamsMap.addShaderUniform(one);
+			} else if (sceneParms.hasPtrID(one.dataOffset)) {
+				this._sceneUniformParamsMap.addShaderUniform(one);
+			}
+			else {
 				this._materialUniformParamsMap.addShaderUniform(one);
 			}
 		}

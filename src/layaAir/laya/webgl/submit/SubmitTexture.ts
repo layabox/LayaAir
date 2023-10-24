@@ -2,9 +2,6 @@ import { SubmitBase } from "./SubmitBase";
 import { ColorFilter } from "../../filters/ColorFilter"
 import { Context } from "../../resource/Context"
 import { BlendMode } from "../canvas/BlendMode"
-import { BaseShader } from "../shader/BaseShader"
-import { Shader } from "../shader/Shader"
-import { ShaderDefines2D } from "../shader/d2/ShaderDefines2D"
 import { TextureSV } from "../shader/d2/value/TextureSV"
 import { Value2D } from "../shader/d2/value/Value2D"
 import { Mesh2D } from "../utils/Mesh2D"
@@ -13,10 +10,14 @@ import { LayaGL } from "../../layagl/LayaGL";
 import { MeshTopology } from "../../RenderEngine/RenderEnum/RenderPologyMode";
 import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
 import { Const } from "../../Const";
+import { Matrix4x4 } from "../../maths/Matrix4x4";
+import { Vector4 } from "../../maths/Vector4";
+import { Material } from "../../d3/core/material/Material";
 
 export class SubmitTexture extends SubmitBase {
     private static _poolSize: number = 0;
     private static POOL: SubmitTexture[] = [];
+    material: Material;
     constructor(renderType: number = SubmitBase.TYPE_2D) {
         super(renderType);
     }
@@ -43,32 +44,33 @@ export class SubmitTexture extends SubmitBase {
             if (!source) return 1;
         }
 
-        this._mesh.useMesh();
-        this.shaderValue.updateShaderData();
+        this._mesh.useMesh();//Mesh2D  ->    Geometry  Vao  Vb  ib
+
+        //bind Shader uploadData
+        this.shaderValue.updateShaderData();//Material   Shader   ShaderData
+
         //如果shader参数都相同，只要提交texture就行了
         var lastSubmit = <SubmitTexture>SubmitBase.preRender;
         var prekey = ((<SubmitBase>SubmitBase.preRender))._key;
-        if (this._key.blendShader === 0 && (this._key.submitType === prekey.submitType && this._key.blendShader === prekey.blendShader) && BaseShader.activeShader &&
-            (<SubmitBase>SubmitBase.preRender).clipInfoID == this.clipInfoID &&
-            lastSubmit.shaderValue.defines._value === this.shaderValue.defines._value && //shader define要相同. 
-            (this.shaderValue.defines._value & ShaderDefines2D.NOOPTMASK) == 0 //只有基本类型的shader走这个，像blur，glow，filltexture等都不要这样优化
-        ) {
-            (<Shader>BaseShader.activeShader).uploadTexture2D(source);
+        //         if (this._key.blendShader === 0 && (this._key.submitType === prekey.submitType && this._key.blendShader === prekey.blendShader) && BaseShader.activeShader &&
+        //             (<SubmitBase>SubmitBase.preRender).clipInfoID == this.clipInfoID &&
+        // //            lastSubmit.shaderValue.defines._value === this.shaderValue.defines._value && //shader define要相同. 
+        //             (this.shaderValue.defines.hasDefine(ShaderDefines2D.FILTERGLOW) || this.shaderValue.defines.hasDefine(ShaderDefines2D.FILTERBLUR)
+        //                 || this.shaderValue.defines.hasDefine(ShaderDefines2D.FILTERCOLOR) || this.shaderValue.defines.hasDefine(ShaderDefines2D.FILLTEXTURE))  //只有基本类型的shader走这个，像blur，glow，filltexture等都不要这样优化
+        //         ) {
+        //             (<Shader>BaseShader.activeShader).uploadTexture2D(source);
+        //         }
+        //         else {
+        if (BlendMode.activeBlendFunction !== this._blendFn) {
+            RenderStateContext.setBlend(true);
+            this._blendFn();
+            BlendMode.activeBlendFunction = this._blendFn;
         }
-        else {
-            if (BlendMode.activeBlendFunction !== this._blendFn) {
-                RenderStateContext.setBlend(true);
-                this._blendFn();
-                BlendMode.activeBlendFunction = this._blendFn;
-            }
-            this.shaderValue.texture = source;
-            this.shaderValue.upload();
-        }
-
+        this.shaderValue.texture = source;
+        this.shaderValue.upload(this.material);//Update Uniform
+        //}
+        //Draw
         LayaGL.renderDrawContext.drawElements2DTemp(MeshTopology.Triangles, this._numEle, IndexFormat.UInt16, this._startIdx);
-
-        // Stat.renderBatches++;
-        // Stat.trianglesFaces += this._numEle / 3;
         return 1;
     }
 
@@ -87,12 +89,15 @@ export class SubmitTexture extends SubmitBase {
         o._key.blendShader = blendType;
         o._blendFn = context._targets ? BlendMode.targetFns[blendType] : BlendMode.fns[blendType];
         o.shaderValue = sv;
+        o.material = context.material;
         //sv.setValue(context._shader2D);
         if (context._colorFiler) {
             var ft: ColorFilter = context._colorFiler;
-            sv.defines.add(ft.type);
-            (<TextureSV>sv).colorMat = ft._mat;
-            (<TextureSV>sv).colorAlpha = ft._alpha;
+            sv.defines.addDefine(ft.typeDefine);
+            Matrix4x4.TEMPMatrix0.cloneByArray(ft._mat);
+            (<TextureSV>sv).colorMat = Matrix4x4.TEMPMatrix0;
+            Vector4.tempVec4.setValue(ft._alpha[0], ft._alpha[1], ft._alpha[2], ft._alpha[3]);
+            (<TextureSV>sv).colorAlpha = Vector4.tempVec4;
         }
         return o;
     }

@@ -19,7 +19,6 @@ import { SpriteStyle } from "./css/SpriteStyle";
 import { Graphics } from "./Graphics";
 import { Node } from "./Node";
 import { SpriteConst } from "./SpriteConst";
-import { Stage } from "./Stage";
 import { RenderTexture2D } from "../resource/RenderTexture2D";
 import { Event } from "../events/Event";
 import { Dragging } from "../utils/Dragging";
@@ -65,148 +64,6 @@ import { IHitArea } from "../utils/IHitArea";
  * @eventType Event.DRAG_END
  * */
 /*[Event(name = "dragend", type = "laya.events.Event")]*/
-
-/**
- * <p> <code>Sprite</code> 是基本的显示图形的显示列表节点。 <code>Sprite</code> 默认没有宽高，默认不接受鼠标事件。通过 <code>graphics</code> 可以绘制图片或者矢量图，支持旋转，缩放，位移等操作。<code>Sprite</code>同时也是容器类，可用来添加多个子节点。</p>
- * <p>注意： <code>Sprite</code> 默认没有宽高，可以通过<code>getBounds</code>函数获取；也可手动设置宽高；还可以设置<code>autoSize=true</code>，然后再获取宽高。<code>Sprite</code>的宽高一般用于进行碰撞检测和排版，并不影响显示图像大小，如果需要更改显示图像大小，请使用 <code>scaleX</code> ， <code>scaleY</code> ， <code>scale</code>。</p>
- * <p> <code>Sprite</code> 默认不接受鼠标事件，即<code>mouseEnabled=false</code>，但是只要对其监听任意鼠标事件，会自动打开自己以及所有父对象的<code>mouseEnabled=true</code>。所以一般也无需手动设置<code>mouseEnabled</code>。</p>
- * <p>LayaAir引擎API设计精简巧妙。核心显示类只有一个<code>Sprite</code>。<code>Sprite</code>针对不同的情况做了渲染优化，所以保证一个类实现丰富功能的同时，又达到高性能。</p>
- *
- * @example <caption>创建了一个 <code>Sprite</code> 实例。</caption>
- * package
- * {
- * 	import laya.display.Sprite;
- * 	import laya.events.Event;
- *
- * 	public class Sprite_Example
- * 	{
- * 		private var sprite:Sprite;
- * 		private var shape:Sprite
- * 		public function Sprite_Example()
- * 		{
- * 			Laya.init(640, 800);//设置游戏画布宽高、渲染模式。
- * 			Laya.stage.bgColor = "#efefef";//设置画布的背景颜色。
- * 			onInit();
- * 		}
- * 		private function onInit():void
- * 		{
- * 			sprite = new Sprite();//创建一个 Sprite 类的实例对象 sprite 。
- * 			sprite.loadImage("resource/ui/bg.png");//加载并显示图片。
- * 			sprite.x = 200;//设置 sprite 对象相对于父容器的水平方向坐标值。
- * 			sprite.y = 200;//设置 sprite 对象相对于父容器的垂直方向坐标值。
- * 			sprite.pivotX = 0;//设置 sprite 对象的水平方法轴心点坐标。
- * 			sprite.pivotY = 0;//设置 sprite 对象的垂直方法轴心点坐标。
- * 			Laya.stage.addChild(sprite);//将此 sprite 对象添加到显示列表。
- * 			sprite.on(Event.CLICK, this, onClickSprite);//给 sprite 对象添加点击事件侦听。
-	
- * 			shape = new Sprite();//创建一个 Sprite 类的实例对象 sprite 。
- * 			shape.graphics.drawRect(0, 0, 100, 100, "#ccff00", "#ff0000", 2);//绘制一个有边框的填充矩形。
- * 			shape.x = 400;//设置 shape 对象相对于父容器的水平方向坐标值。
- * 			shape.y = 200;//设置 shape 对象相对于父容器的垂直方向坐标值。
- * 			shape.width = 100;//设置 shape 对象的宽度。
- * 			shape.height = 100;//设置 shape 对象的高度。
- * 			shape.pivotX = 50;//设置 shape 对象的水平方法轴心点坐标。
- * 			shape.pivotY = 50;//设置 shape 对象的垂直方法轴心点坐标。
- * 			Laya.stage.addChild(shape);//将此 shape 对象添加到显示列表。
- * 			shape.on(Event.CLICK, this, onClickShape);//给 shape 对象添加点击事件侦听。
- * 		}
- * 		private function onClickSprite():void
- * 		{
- * 			trace("点击 sprite 对象。");
- * 			sprite.rotation += 5;//旋转 sprite 对象。
- * 		}
- * 		private function onClickShape():void
- * 		{
- * 			trace("点击 shape 对象。");
- * 			shape.rotation += 5;//旋转 shape 对象。
- * 		}
- * 	}
- * }
- *
- * @example
- * var sprite;
- * var shape;
- * Sprite_Example();
- * function Sprite_Example()
- * {
- *     Laya.init(640, 800);//设置游戏画布宽高、渲染模式。
- *     Laya.stage.bgColor = "#efefef";//设置画布的背景颜色。
- *     onInit();
- * }
- * function onInit()
- * {
- *     sprite = new laya.display.Sprite();//创建一个 Sprite 类的实例对象 sprite 。
- *     sprite.loadImage("resource/ui/bg.png");//加载并显示图片。
- *     sprite.x = 200;//设置 sprite 对象相对于父容器的水平方向坐标值。
- *     sprite.y = 200;//设置 sprite 对象相对于父容器的垂直方向坐标值。
- *     sprite.pivotX = 0;//设置 sprite 对象的水平方法轴心点坐标。
- *     sprite.pivotY = 0;//设置 sprite 对象的垂直方法轴心点坐标。
- *     Laya.stage.addChild(sprite);//将此 sprite 对象添加到显示列表。
- *     sprite.on(Event.CLICK, this, onClickSprite);//给 sprite 对象添加点击事件侦听。
-	
- *     shape = new laya.display.Sprite();//创建一个 Sprite 类的实例对象 sprite 。
- *     shape.graphics.drawRect(0, 0, 100, 100, "#ccff00", "#ff0000", 2);//绘制一个有边框的填充矩形。
- *     shape.x = 400;//设置 shape 对象相对于父容器的水平方向坐标值。
- *     shape.y = 200;//设置 shape 对象相对于父容器的垂直方向坐标值。
- *     shape.width = 100;//设置 shape 对象的宽度。
- *     shape.height = 100;//设置 shape 对象的高度。
- *     shape.pivotX = 50;//设置 shape 对象的水平方法轴心点坐标。
- *     shape.pivotY = 50;//设置 shape 对象的垂直方法轴心点坐标。
- *     Laya.stage.addChild(shape);//将此 shape 对象添加到显示列表。
- *     shape.on(laya.events.Event.CLICK, this, onClickShape);//给 shape 对象添加点击事件侦听。
- * }
- * function onClickSprite()
- * {
- *     console.log("点击 sprite 对象。");
- *     sprite.rotation += 5;//旋转 sprite 对象。
- * }
- * function onClickShape()
- * {
- *     console.log("点击 shape 对象。");
- *     shape.rotation += 5;//旋转 shape 对象。
- * }
- *
- * @example
- * import Sprite = laya.display.Sprite;
- * class Sprite_Example {
- *     private sprite: Sprite;
- *     private shape: Sprite
- *     public Sprite_Example() {
- *         Laya.init(640, 800);//设置游戏画布宽高、渲染模式。
- *         Laya.stage.bgColor = "#efefef";//设置画布的背景颜色。
- *         this.onInit();
- *     }
- *     private onInit(): void {
- *         this.sprite = new Sprite();//创建一个 Sprite 类的实例对象 sprite 。
- *         this.sprite.loadImage("resource/ui/bg.png");//加载并显示图片。
- *         this.sprite.x = 200;//设置 sprite 对象相对于父容器的水平方向坐标值。
- *         this.sprite.y = 200;//设置 sprite 对象相对于父容器的垂直方向坐标值。
- *         this.sprite.pivotX = 0;//设置 sprite 对象的水平方法轴心点坐标。
- *         this.sprite.pivotY = 0;//设置 sprite 对象的垂直方法轴心点坐标。
- *         Laya.stage.addChild(this.sprite);//将此 sprite 对象添加到显示列表。
- *         this.sprite.on(laya.events.Event.CLICK, this, this.onClickSprite);//给 sprite 对象添加点击事件侦听。
-	
- *         this.shape = new Sprite();//创建一个 Sprite 类的实例对象 sprite 。
- *         this.shape.graphics.drawRect(0, 0, 100, 100, "#ccff00", "#ff0000", 2);//绘制一个有边框的填充矩形。
- *         this.shape.x = 400;//设置 shape 对象相对于父容器的水平方向坐标值。
- *         this.shape.y = 200;//设置 shape 对象相对于父容器的垂直方向坐标值。
- *         this.shape.width = 100;//设置 shape 对象的宽度。
- *         this.shape.height = 100;//设置 shape 对象的高度。
- *         this.shape.pivotX = 50;//设置 shape 对象的水平方法轴心点坐标。
- *         this.shape.pivotY = 50;//设置 shape 对象的垂直方法轴心点坐标。
- *         Laya.stage.addChild(this.shape);//将此 shape 对象添加到显示列表。
- *         this.shape.on(laya.events.Event.CLICK, this, this.onClickShape);//给 shape 对象添加点击事件侦听。
- *     }
- *     private onClickSprite(): void {
- *         console.log("点击 sprite 对象。");
- *         this.sprite.rotation += 5;//旋转 sprite 对象。
- *     }
- *     private onClickShape(): void {
- *         console.log("点击 shape 对象。");
- *         this.shape.rotation += 5;//旋转 shape 对象。
- *     }
- * }
- */
 export class Sprite extends Node {
     /**@internal */
     _x: number = 0;
@@ -424,6 +281,11 @@ export class Sprite extends Node {
         if (this._destroyed) return;
         if (this._x !== value) {
             this._setX(value);
+            //Global TODO
+            if (this.cacheGlobal) {
+                this._setGlobalCacheFlag(Sprite.Sprite_GlobalDeltaFlage_Position_X, true)
+                this._syncGlobalFlag(Sprite.Sprite_GlobalDeltaFlage_Position_X, true);
+            }
             //_setTranformChange();
             this.parentRepaint(SpriteConst.REPAINT_CACHE);
             var p: Sprite = this._cacheStyle.maskParent;
@@ -442,6 +304,11 @@ export class Sprite extends Node {
         if (this._destroyed) return;
         if (this._y !== value) {
             this._setY(value);
+            //Global TODO
+            if (this.cacheGlobal) {
+                this._setGlobalCacheFlag(Sprite.Sprite_GlobalDeltaFlage_Position_Y, true)
+                this._syncGlobalFlag(Sprite.Sprite_GlobalDeltaFlage_Position_Y, true);
+            }
             //_setTranformChange();
             this.parentRepaint(SpriteConst.REPAINT_CACHE);
             var p: Sprite = this._cacheStyle.maskParent;
@@ -1141,6 +1008,13 @@ export class Sprite extends Node {
                 if (p) {
                     p.repaint(SpriteConst.REPAINT_CACHE);
                 }
+                //Global TODO
+                if (this.cacheGlobal) {
+                    this._setGlobalCacheFlag(Sprite.Sprite_GlobalDeltaFlage_Position_X, true);
+                    this._setGlobalCacheFlag(Sprite.Sprite_GlobalDeltaFlage_Position_Y, true)
+                    this._syncGlobalFlag(Sprite.Sprite_GlobalDeltaFlage_Position_X, true);
+                    this._syncGlobalFlag(Sprite.Sprite_GlobalDeltaFlage_Position_Y, true);
+                }
             } else {
                 this.x = x;
                 this.y = y;
@@ -1653,7 +1527,7 @@ export class Sprite extends Node {
     }
 
     /**对舞台 <code>stage</code> 的引用。*/
-    get stage(): Stage {
+    get stage() {
         return ILaya.stage;
     }
 
@@ -1769,47 +1643,7 @@ export class Sprite extends Node {
         return this.globalToLocal(Point.TEMP.setTo(ILaya.stage.mouseX, ILaya.stage.mouseY));
     }
 
-    /**
-     * 获得相对于stage的全局X轴缩放值（会叠加父亲节点的缩放值）。
-     */
-    get globalScaleX(): number {
-        var scale: number = 1;
-        var ele: Sprite = this;
-        while (ele) {
-            if (ele === ILaya.stage) break;
-            scale *= ele.scaleX;
-            ele = (<Sprite>ele.parent);
-        }
-        return scale;
-    }
 
-    /**
-     * 获得相对于stage的全局旋转值（会叠加父亲节点的旋转值）。
-     */
-    get globalRotation(): number {
-        var angle: number = 0;
-        var ele: Sprite = this;
-        while (ele) {
-            if (ele === ILaya.stage) break;
-            angle += ele.rotation;
-            ele = (<Sprite>ele.parent);
-        }
-        return angle;
-    }
-
-    /**
-     * 获得相对于stage的全局Y轴缩放值（会叠加父亲节点的缩放值）。
-     */
-    get globalScaleY(): number {
-        var scale: number = 1;
-        var ele: Sprite = this;
-        while (ele) {
-            if (ele === ILaya.stage) break;
-            scale *= ele.scaleY;
-            ele = (<Sprite>ele.parent);
-        }
-        return scale;
-    }
 
     /**
      * 返回鼠标在此对象坐标系上的 X 轴坐标信息。
@@ -1920,6 +1754,287 @@ export class Sprite extends Node {
                 this.filters = (<any>this)._filters;
                 delete (<any>this)._filters;
             }
+        }
+    }
+
+
+    //GlobalTODO
+    //miner 为了不破坏之前的local性能架构，采用标致开启的方式来增加GlobalMode的更新系统，优化需要高频调用Global数据的
+    //因为此块功能比较集中，顾单独写在下方
+    /**@internal */
+    static Sprite_GlobalDeltaFlage_Position_X: number = 0x01;
+    /**@internal */
+    static Sprite_GlobalDeltaFlage_Position_Y: number = 0x02;
+    /**@internal */
+    static Sprite_GlobalDeltaFlage_Rotation: number = 0x04;
+    /**@internal */
+    static Sprite_GlobalDeltaFlage_Scale_X: number = 0x08;
+    /**@internal */
+    static Sprite_GlobalDeltaFlage_Scale_Y: number = 0x10;
+    /**@internal */
+    private _globalDeltaFlages: number = 0;
+    /**@internal */
+    private _cacheGlobal: boolean = false;
+    /**@internal */
+    private _globalPosx: number = 0.0;
+    /**@internal */
+    private _globalPosy: number = 0.0;
+    /**@internal */
+    private _globalRotate: number;
+    /**@internal */
+    private _globalScalex: number = 1.0;
+    /**@internal */
+    private _globalScaley: number = 1.0;
+
+    get cacheGlobal(): boolean {
+        return this._cacheGlobal;
+    }
+
+    /**
+     * @internal
+     * 设置cacheGlobal模式
+     * 此模式会获得更高的getGlobal属性性能
+     * 如果此节点为cacheGlobaltrue，那所有父节点直到根节点都会强制改为true
+     * 如果此节点改为false，将强制所有子节点的cacheGlobal改为false
+     */
+    set cacheGlobal(value: boolean) {
+        if (this._cacheGlobal == value)
+            return;
+        this._cacheGlobal = value;
+        if (value) {
+            //更新父节点
+            if (this._parent == ILaya.stage || !this._parent) {
+                return;
+            } else {
+                (this._parent as Sprite).cacheGlobal = value;
+            }
+        } else {
+            //更新子节点
+            this._children.forEach(element => {
+                (element as Sprite).cacheGlobal = value;
+            });
+        }
+    }
+
+
+    CustomMaterial() {
+
+    }
+
+    /**
+     * @internal
+     */
+    set globalPosX(value: number) {
+        if (!this._cacheGlobal) {
+            Point.TEMP.setTo(value, 0);
+            let point = this.globalToLocal(Point.TEMP, false, null);
+            point.x += this.pivotX;
+            point = this.toParentPoint(point);
+            this.x = point.x;
+        } else {
+            if (this._parent == ILaya.stage || !this._parent)
+                this._globalPosx = value;
+            else {
+                this._globalPosx = value;
+                this._setX((this._globalPosx - (this._parent as Sprite).globalPosX) / this.globalScaleX);
+            }
+            this._setGlobalCacheFlag(Sprite.Sprite_GlobalDeltaFlage_Position_X, false);
+            this._syncGlobalFlag(Sprite.Sprite_GlobalDeltaFlage_Position_X, true);
+        }
+    }
+
+    /**
+     * @internal
+     */
+    set globalPosY(value: number) {
+        if (!this._cacheGlobal) {
+            Point.TEMP.setTo(0, value);
+            let point = this.globalToLocal(Point.TEMP, false, null);
+            point.y += this.pivotY;
+            point = this.toParentPoint(point);
+            this.y = point.y;
+        } else {
+            if (this._parent == ILaya.stage || !this._parent)
+                this._globalPosy = value;
+            else {
+                this._globalPosx = value;
+                this._setY((this._globalPosy - (this._parent as Sprite).globalPosY) / this.globalScaleY);
+            }
+            this._setGlobalCacheFlag(Sprite.Sprite_GlobalDeltaFlage_Position_Y, false);
+            this._syncGlobalFlag(Sprite.Sprite_GlobalDeltaFlage_Position_Y, true);
+        }
+    }
+
+    /**
+     * 获得图元锚点世界位置
+     * @internal
+     */
+    get globalPosX(): number {
+        if (!this._cacheGlobal) {
+            let point = this.localToGlobal(Point.TEMP.setTo(0, 0), false, null);
+            return point.x;
+        } else {
+            if (this._getGlobalCacheFlag(Sprite.Sprite_GlobalDeltaFlage_Position_X)) {
+                this._setGlobalCacheFlag(Sprite.Sprite_GlobalDeltaFlage_Position_X, false);
+                if (this._parent == ILaya.stage || !this._parent)
+                    this._globalPosx = this._x;
+                else {
+                    this._globalPosx = (this._x - this.pivotX) * this.globalScaleX + (this.parent as Sprite).globalPosX;
+                }
+
+            }
+            return this._globalPosx;
+        }
+
+    }
+
+    /**
+     * 获得图元锚点世界位置
+     * @internal
+     */
+    get globalPosY(): number {
+        if (!this._cacheGlobal) {
+            let point = this.localToGlobal(Point.TEMP.setTo(0, 0), false, null);
+            return point.y;
+        } else {
+            if (this._getGlobalCacheFlag(Sprite.Sprite_GlobalDeltaFlage_Position_Y)) {
+                this._setGlobalCacheFlag(Sprite.Sprite_GlobalDeltaFlage_Position_Y, false);
+                if (this._parent == ILaya.stage || !this._parent)
+                    this._globalPosy = this._y;
+                else {
+                    this._globalPosy = (this._y - this.pivotY) * this.globalScaleY + (this.parent as Sprite).globalPosY;
+                }
+            }
+            return this._globalPosy;
+        }
+    }
+
+
+
+    /**
+     * @internal
+     * 获得相对于stage的全局旋转值（会叠加父亲节点的旋转值）。
+     */
+    get globalRotation(): number {
+        if (!this._cacheGlobal) {
+            //循环算法
+            var angle: number = 0;
+            var ele: Sprite = this;
+            while (ele) {
+                if (ele === ILaya.stage) break;
+                angle += ele.rotation;
+                ele = (<Sprite>ele.parent);
+            }
+            return angle;
+        } else {
+            if (this._getGlobalCacheFlag(Sprite.Sprite_GlobalDeltaFlage_Rotation)) {
+                this._setGlobalCacheFlag(Sprite.Sprite_GlobalDeltaFlage_Rotation, false);
+                if (this._parent == ILaya.stage || !this._parent)
+                    this._globalRotate = this.rotation;
+                else {
+                    this._globalRotate = this.rotation + (this.parent as Sprite).globalRotation;
+                }
+            }
+            return this._globalRotate;
+        }
+    }
+
+    /**@internal */
+    set globalRotation(value: number) {
+        this._globalRotate = value;
+        //set local
+
+        if (this._parent == ILaya.stage || !this._parent) {
+            this.rotation = value;
+        } else {
+            this.rotation = this.globalRotation - (this.parent as Sprite).globalRotation;
+        }
+        if (this._cacheGlobal) {
+            this._setGlobalCacheFlag(Sprite.Sprite_GlobalDeltaFlage_Rotation, false);
+            this._syncGlobalFlag(Sprite.Sprite_GlobalDeltaFlage_Rotation, true);
+        }
+    }
+
+    /**
+     * 获得相对于stage的全局X轴缩放值（会叠加父亲节点的缩放值）。
+     */
+    get globalScaleX(): number {
+        if (!this._cacheGlobal) {
+            var scale: number = 1;
+            var ele: Sprite = this;
+            while (ele) {
+                if (ele === ILaya.stage) break;
+                scale *= ele.scaleX;
+                ele = (<Sprite>ele.parent);
+            }
+            return scale;
+        } else {
+            if (!this._getGlobalCacheFlag(Sprite.Sprite_GlobalDeltaFlage_Scale_X)) {
+                this._setGlobalCacheFlag(Sprite.Sprite_GlobalDeltaFlage_Scale_X, false);
+                if (this._parent == ILaya.stage || !this._parent)
+                    this._globalScalex = this.scaleX;
+                else {
+                    this._globalScalex = this.scaleX * (this.parent as Sprite).globalScaleX;
+                }
+            }
+            return this._globalScalex;
+        }
+    }
+
+    /**
+     * 获得相对于stage的全局Y轴缩放值（会叠加父亲节点的缩放值）。
+     */
+    get globalScaleY(): number {
+        if (!this._cacheGlobal) {
+            var scale: number = 1;
+            var ele: Sprite = this;
+            while (ele) {
+                if (ele === ILaya.stage) break;
+                scale *= ele.scaleY;
+                ele = (<Sprite>ele.parent);
+            }
+            return scale;
+        } else {
+            if (!this._getGlobalCacheFlag(Sprite.Sprite_GlobalDeltaFlage_Scale_Y)) {
+                this._setGlobalCacheFlag(Sprite.Sprite_GlobalDeltaFlage_Scale_Y, false);
+                if (this._parent == ILaya.stage || !this._parent)
+                    this._globalScaley = this.scaleY;
+                else {
+                    this._globalScaley = this.scaleY * (this.parent as Sprite).globalScaleY;
+                }
+            }
+            return this._globalScaley;
+        }
+    }
+
+    /**
+     * @internal
+     */
+    private _getGlobalCacheFlag(type: number): boolean {
+        return (this._globalDeltaFlages & type) != 0;
+    }
+
+    /**
+     * @internal 
+     */
+    private _setGlobalCacheFlag(type: number, value: boolean): void {
+        if (value)
+            this._globalDeltaFlages |= type;
+        else
+            this._globalDeltaFlages &= ~type;
+    }
+
+    /**
+     * @internal
+     * @param flag 
+     * @param value 
+     */
+    _syncGlobalFlag(flag: number, value: boolean) {
+        if (this.cacheGlobal) {
+            this._children.forEach(element => {
+                (element as Sprite)._setGlobalCacheFlag(flag, value);
+                (element as Sprite)._syncGlobalFlag(flag, value);
+            });
         }
     }
 }
