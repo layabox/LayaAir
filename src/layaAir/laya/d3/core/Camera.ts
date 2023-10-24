@@ -1390,7 +1390,7 @@ export class Camera extends BaseCamera {
      * @override
      */
     destroy(destroyChild: boolean = true): void {
-        this._needInternalRenderTexture() && (!this._internalRenderTexture._inPool) && RenderTexture.recoverToPool(this._internalRenderTexture);
+        this._needInternalRenderTexture() && this._internalRenderTexture && (!this._internalRenderTexture._inPool) && RenderTexture.recoverToPool(this._internalRenderTexture);
         this._offScreenRenderTexture = null;
         this.transform.off(Event.TRANSFORM_CHANGED, this, this._onTransformChanged);
         ILaya.stage.off(Event.RESIZE, this, this._onScreenSizeChanged);

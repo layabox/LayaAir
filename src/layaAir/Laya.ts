@@ -37,6 +37,7 @@ import { URL } from "./laya/net/URL";
 import { RunDriver } from "./laya/utils/RunDriver";
 import { Config } from "./Config";
 import { Shader3D } from "./laya/RenderEngine/RenderShader/Shader3D";
+import { Physics2D } from "./laya/physics/Physics2D";
 
 /**
  * <code>Laya</code> 是全局对象的引用入口集。
@@ -55,6 +56,8 @@ export class Laya {
     static timer: Timer = null;
     /** 加载管理器的引用。*/
     static loader: Loader = null;
+    
+    static _enablePhysics2D:boolean = false;
     /** 当前引擎版本。*/
 
     /**@private Render 类的引用。*/
@@ -80,6 +83,15 @@ export class Laya {
      */
     static init(width: number, height: number, ...plugins: any[]): Promise<void>;
     static init(...args: any[]): Promise<void> {
+
+        if (Physics2D!=null&&Physics2D.I._factory&&!Laya._enablePhysics2D){
+            return new Promise<void>(resolve => {
+                Physics2D.I._factory.initialize().then(() => {
+                    Laya._enablePhysics2D = true;
+                    Laya.init(...args).then(resolve);
+                });
+            });
+        }
         if (_isinit)
             return Promise.resolve();
         _isinit = true;

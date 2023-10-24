@@ -12,4 +12,5 @@ export class RigidBody2DInfo {
     linearDamping: number;
     linearVelocity: Vector2 = new Vector2();
     type: string;
+    group: number;
 }

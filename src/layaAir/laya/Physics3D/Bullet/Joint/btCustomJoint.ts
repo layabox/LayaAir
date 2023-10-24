@@ -10,14 +10,35 @@ import { btJoint } from "./btJoint";
 
 export class btCustomJoint extends btJoint implements ID6Joint {
 
-    /**@internal 最小角度限制*/
-    _minAngularLimit: number = 0;
-    /**@internal 最大角度限制*/
-    _maxAngularLimit: number = 0;
+    /**@internal 最小X角度限制*/
+    _minAngularXLimit: number = 0;
+    /**@internal 最大X角度限制*/
+    _maxAngularXLimit: number = 0;
+    /**@internal 最小Y角度限制*/
+    _minAngularYLimit: number = 0;
+    /**@internal 最大Y角度限制*/
+    _maxAngularYLimit: number = 0;
+    /**@internal 最小Z角度限制*/
+    _minAngularZLimit: number = 0;
+    /**@internal 最大Z角度限制*/
+    _maxAngularZLimit: number = 0;
     /**@internal 最小距离限制*/
     _minLinearLimit: number = 0;
     /**@internal 最大距离限制*/
     _maxLinearLimit: number = 0;
+    /**@internal */
+    _linearXMotion: D6Axis = D6Axis.eFREE;
+    /**@internal */
+    _linearYMotion: D6Axis = D6Axis.eFREE;
+    /**@internal */
+    _linearZMotion: D6Axis = D6Axis.eFREE;
+    /**@internal */
+    _angularXMotion: D6Axis = D6Axis.eFREE;
+    /**@internal */
+    _angularYMotion: D6Axis = D6Axis.eFREE;
+    /**@internal */
+    _angularZMotion: D6Axis = D6Axis.eFREE;
+
     /**@internal 轴限制*/
     _axis: Vector3 = new Vector3(1, 0, 0);
     /**@internal 副轴限制*/
@@ -44,12 +65,44 @@ export class btCustomJoint extends btJoint implements ID6Joint {
             this._btJointFeedBackObj = bt.btJointFeedback_create(this._btJoint);
             bt.btTypedConstraint_setJointFeedback(this._btJoint, this._btJointFeedBackObj);
             bt.btTypedConstraint_setEnabled(this._btJoint, true);
+            this._initAllConstraintInfo();
             this._manager && this._manager.addJoint(this);
         }
     }
 
+    _initAllConstraintInfo(): void {
+        //MotionMode
+        this.setMotion(D6Axis.eLOCKED, D6MotionType.eX);
+        this.setMotion(D6Axis.eLOCKED, D6MotionType.eY);
+        this.setMotion(D6Axis.eLOCKED, D6MotionType.eZ);
+        this.setMotion(D6Axis.eLOCKED, D6MotionType.eTWIST);
+        this.setMotion(D6Axis.eLOCKED, D6MotionType.eSWING1);
+        this.setMotion(D6Axis.eLOCKED, D6MotionType.eSWING2);
+    }
+
     constructor(manager: btPhysicsManager) {
         super(manager);
+    }
+
+    /**
+     * TODO
+     * @internal
+     */
+    setEquilibriumPoint(axis: number, equilibriumPoint: number): void {
+        var bt = btPhysicsCreateUtil._bt;
+        bt.btGeneric6DofSpring2Constraint_setEquilibriumPoint(this._btJoint, axis, equilibriumPoint);
+    }
+
+    setLocalPos(pos: Vector3): void {
+        super.setLocalPos(pos);
+        let bt = btPhysicsCreateUtil._bt;
+        this._btJoint && bt.btGeneric6DofSpring2Constraint_setFrames(this._btJoint, this._btTempTrans0, this._btTempTrans1);
+    }
+
+    setConnectLocalPos(pos: Vector3): void {
+        super.setConnectLocalPos(pos);
+        let bt = btPhysicsCreateUtil._bt;
+        this._btJoint && bt.btGeneric6DofSpring2Constraint_setFrames(this._btJoint, this._btTempTrans0, this._btTempTrans1);
     }
 
     setAxis(axis: Vector3, secendary: Vector3): void {
@@ -61,7 +114,13 @@ export class btCustomJoint extends btJoint implements ID6Joint {
         bt.btGeneric6DofSpring2Constraint_setAxis(this._btJoint, this._btAxis, this._btsceondAxis);
     }
 
-    setMotion(axis: D6Axis, motionType: D6MotionType): void {
+    /**
+     * @internal
+     * 设置各个轴限制值
+     * @param axis 限制类型
+     * @param motionType 运动类型
+     */
+    _setLimit(axis: D6Axis, motionType: D6MotionType, low?: number, high?: number): void {
         let lowLimit = 0;
         let maxLimit = 0;
         if (motionType == D6MotionType.eX || motionType == D6MotionType.eY || motionType == D6MotionType.eZ) {
@@ -69,9 +128,19 @@ export class btCustomJoint extends btJoint implements ID6Joint {
             lowLimit = this._minLinearLimit;
             maxLimit = this._maxLinearLimit;
         } else {
-            // angular motion
-            lowLimit = this._minAngularLimit;
-            maxLimit = this._maxAngularLimit;
+            if (motionType == D6MotionType.eTWIST) {
+                // angular motion
+                lowLimit = this._minAngularXLimit;
+                maxLimit = this._maxAngularXLimit;
+            } else if (motionType == D6MotionType.eSWING1) {
+                // angular motion
+                lowLimit = this._minAngularYLimit;
+                maxLimit = this._maxAngularYLimit;
+            } else if (motionType == D6MotionType.eSWING2) {
+                // angular motion
+                lowLimit = this._minAngularZLimit;
+                maxLimit = this._maxAngularZLimit;
+            }
         }
         let bt = btPhysicsCreateUtil._bt;
         if (axis == D6Axis.eFREE) {
@@ -83,67 +152,165 @@ export class btCustomJoint extends btJoint implements ID6Joint {
         }
     }
 
-    setDistanceLimit(limit: number, bounceness: number, bounceThreshold: number, spring: number, damp: number): void {
+    /**
+     * @internal
+     * 设置各个轴的弹簧属性值
+     * @param axis 
+     * @param motionType 
+     * @param springValue 
+     * @param limitIfNeeded 
+     */
+    _setSpring(axis: D6Axis, motionType: D6MotionType, springValue: number, limitIfNeeded: boolean = true): void {
         let bt = btPhysicsCreateUtil._bt;
-        let axis = D6MotionType.eY;
-        // limit
-        bt.btGeneric6DofSpring2Constraint_setLimit(this._btJoint, axis, 0, limit);
+        var enableSpring: Boolean = springValue > 0 && axis == D6Axis.eLIMITED;
+        bt.btGeneric6DofSpring2Constraint_enableSpring(this._btJoint, motionType, enableSpring);
+        if (enableSpring)
+            bt.btGeneric6DofSpring2Constraint_setStiffness(this._btJoint, motionType, springValue, limitIfNeeded);
+    }
+
+    /**
+     * @internal
+     * 设置各个轴的弹力值
+     * @param axis 
+     * @param motionType 
+     * @param bounce 
+     */
+    _setBounce(axis: D6Axis, motionType: D6MotionType, bounce: number): void {
+        if (axis == D6Axis.eLIMITED) {
+            var bt = btPhysicsCreateUtil._bt
+            bounce = bounce <= 0 ? 0 : bounce;
+            bt.btGeneric6DofSpring2Constraint_setBounce(this._btJoint, motionType, bounce);
+        }
+    }
+
+    /**
+     * @internal
+     * 设置各个轴的阻尼值
+     * @param axis 
+     * @param motionType 
+     * @param damp 
+     * @param limitIfNeeded 
+     */
+    _setDamp(axis: D6Axis, motionType: D6MotionType, damp: number, limitIfNeeded: boolean = true): void {
+        if (axis == D6Axis.eLIMITED) {
+            var bt = btPhysicsCreateUtil._bt;
+            damp = damp <= 0 ? 0 : damp;
+            bt.btGeneric6DofSpring2Constraint_setDamping(this._btJoint, motionType, damp, limitIfNeeded);
+        }
+    }
+
+    setMotion(axis: D6Axis, motionType: D6MotionType): void {
+        switch (motionType) {
+            case D6MotionType.eX:
+                this._linearXMotion = axis;
+                break;
+            case D6MotionType.eY:
+                this._linearYMotion = axis;
+                break;
+            case D6MotionType.eZ:
+                this._linearZMotion = axis;
+                break;
+            case D6MotionType.eTWIST:
+                this._angularXMotion = axis;
+                break;
+            case D6MotionType.eSWING1:
+                this._angularYMotion = axis;
+                break;
+            case D6MotionType.eSWING2:
+                this._angularZMotion = axis;
+                break;
+            default:
+                break;
+        }
+        this._setLimit(axis, motionType);
+    }
+
+    setDistanceLimit(limit: number, bounceness: number, bounceThreshold: number, spring: number, damp: number): void {
+        this._minLinearLimit = -limit;
+        this._maxLinearLimit = limit;
+        // linear limit
+        this._setLimit(this._linearXMotion, D6MotionType.eX);
+        this._setLimit(this._linearYMotion, D6MotionType.eY);
+        this._setLimit(this._linearZMotion, D6MotionType.eZ);
+        // linear spring
+        this._setSpring(this._linearXMotion, D6MotionType.eX, spring);
+        this._setSpring(this._linearYMotion, D6MotionType.eX, spring);
+        this._setSpring(this._linearZMotion, D6MotionType.eX, spring);
         // bounce
-        bt.btGeneric6DofSpring2Constraint_setBounce(this._btJoint, axis, bounceness);
-        // spring
-        bt.btGeneric6DofSpring2Constraint_enableSpring(this._btJoint, axis, true);
-        bt.btGeneric6DofSpring2Constraint_setStiffness(this._btJoint, axis, spring, true);
+        this._setBounce(this._linearXMotion, D6MotionType.eX, bounceness);
+        this._setBounce(this._linearYMotion, D6MotionType.eY, bounceness);
+        this._setBounce(this._linearZMotion, D6MotionType.eZ, bounceness);
         // damp
-        bt.btGeneric6DofSpring2Constraint_setDamping(this._btJoint, axis, damp, true);
+        this._setDamp(this._linearXMotion, D6MotionType.eX, damp);
+        this._setDamp(this._linearYMotion, D6MotionType.eY, damp);
+        this._setDamp(this._linearZMotion, D6MotionType.eZ, damp);
+
     }
 
     setLinearLimit(linearAxis: D6MotionType, upper: number, lower: number, bounceness: number, bounceThreshold: number, spring: number, damping: number): void {
-        let bt = btPhysicsCreateUtil._bt;
-        bt.btGeneric6DofSpring2Constraint_setLimit(this._btJoint, linearAxis, lower, upper);
+        this._minLinearLimit = lower;
+        this._maxLinearLimit = upper;
+        // linear limit
+        this._setLimit(this._linearXMotion, linearAxis);
+        this._setLimit(this._linearYMotion, linearAxis);
+        this._setLimit(this._linearZMotion, linearAxis);
+        // linear spring
+        this._setSpring(this._linearXMotion, linearAxis, spring);
+        this._setSpring(this._linearYMotion, linearAxis, spring);
+        this._setSpring(this._linearZMotion, linearAxis, spring);
         // bounce
-        bt.btGeneric6DofSpring2Constraint_setBounce(this._btJoint, linearAxis, bounceness);
-        // spring
-        bt.btGeneric6DofSpring2Constraint_enableSpring(this._btJoint, linearAxis, true);
-        bt.btGeneric6DofSpring2Constraint_setStiffness(this._btJoint, linearAxis, spring, true);
+        this._setBounce(this._linearXMotion, linearAxis, bounceness);
+        this._setBounce(this._linearYMotion, linearAxis, bounceness);
+        this._setBounce(this._linearZMotion, linearAxis, bounceness);
         // damp
-        bt.btGeneric6DofSpring2Constraint_setDamping(this._btJoint, linearAxis, damping, true);
+        this._setDamp(this._linearXMotion, linearAxis, damping);
+        this._setDamp(this._linearYMotion, linearAxis, damping);
+        this._setDamp(this._linearZMotion, linearAxis, damping);
     }
 
     setTwistLimit(upper: number, lower: number, bounceness: number, bounceThreshold: number, spring: number, damping: number): void {
-        let bt = btPhysicsCreateUtil._bt;
-        let axis = D6MotionType.eTWIST;
-        bt.btGeneric6DofSpring2Constraint_setLimit(this._btJoint, axis, lower, upper);
+        this._minAngularYLimit = lower / Math.PI * 180;
+        this._maxAngularYLimit = upper / Math.PI * 180;
+        // angular limit
+        this._setLimit(this._angularXMotion, D6MotionType.eTWIST);
+        this._setLimit(this._angularYMotion, D6MotionType.eSWING1);
+        this._setLimit(this._angularZMotion, D6MotionType.eSWING2);
+        // angular spring
+        this._setSpring(this._angularXMotion, D6MotionType.eTWIST, spring);
+        this._setSpring(this._angularYMotion, D6MotionType.eSWING1, spring);
+        this._setSpring(this._angularZMotion, D6MotionType.eSWING2, spring);
         // bounce
-        bt.btGeneric6DofSpring2Constraint_setBounce(this._btJoint, axis, bounceness);
-        // spring
-        bt.btGeneric6DofSpring2Constraint_enableSpring(this._btJoint, axis, true);
-        bt.btGeneric6DofSpring2Constraint_setStiffness(this._btJoint, axis, spring, true);
+        this._setBounce(this._angularXMotion, D6MotionType.eTWIST, bounceness);
+        this._setBounce(this._angularYMotion, D6MotionType.eSWING1, bounceness);
+        this._setBounce(this._angularZMotion, D6MotionType.eSWING2, bounceness);
         // damp
-        bt.btGeneric6DofSpring2Constraint_setDamping(this._btJoint, axis, damping, true);
+        this._setDamp(this._angularXMotion, D6MotionType.eTWIST, damping);
+        this._setDamp(this._angularYMotion, D6MotionType.eSWING1, damping);
+        this._setDamp(this._angularZMotion, D6MotionType.eSWING2, damping);
     }
 
     setSwingLimit(yAngle: number, zAngle: number, bounceness: number, bounceThreshold: number, spring: number, damping: number): void {
-        let bt = btPhysicsCreateUtil._bt;
-        let axis = D6MotionType.eSWING1;
-        bt.btGeneric6DofSpring2Constraint_setLimit(this._btJoint, axis, 0, yAngle);
+        // swing angualr limit
+        this._minAngularYLimit = -yAngle / Math.PI * 180;
+        this._maxAngularYLimit = yAngle / Math.PI * 180;
+        this._minAngularZLimit = -zAngle / Math.PI * 180;
+        this._maxAngularZLimit = zAngle / Math.PI * 180;
+        // linear limit
+        this._setLimit(this._angularXMotion, D6MotionType.eTWIST);
+        this._setLimit(this._angularYMotion, D6MotionType.eSWING1);
+        this._setLimit(this._angularZMotion, D6MotionType.eSWING2);
+        // linear spring
+        this._setSpring(this._angularXMotion, D6MotionType.eTWIST, spring);
+        this._setSpring(this._angularYMotion, D6MotionType.eSWING1, spring);
+        this._setSpring(this._angularZMotion, D6MotionType.eSWING2, spring);
         // bounce
-        bt.btGeneric6DofSpring2Constraint_setBounce(this._btJoint, axis, bounceness);
-        // spring
-        bt.btGeneric6DofSpring2Constraint_enableSpring(this._btJoint, axis, true);
-        bt.btGeneric6DofSpring2Constraint_setStiffness(this._btJoint, axis, spring, true);
+        this._setBounce(this._angularXMotion, D6MotionType.eTWIST, bounceness);
+        this._setBounce(this._angularYMotion, D6MotionType.eSWING1, bounceness);
+        this._setBounce(this._angularZMotion, D6MotionType.eSWING2, bounceness);
         // damp
-        bt.btGeneric6DofSpring2Constraint_setDamping(this._btJoint, axis, damping, true);
-
-        axis = D6MotionType.eSWING2;
-        bt.btGeneric6DofSpring2Constraint_setLimit(this._btJoint, axis, 0, zAngle);
-        // bounce
-        bt.btGeneric6DofSpring2Constraint_setBounce(this._btJoint, axis, bounceness);
-        // spring
-        bt.btGeneric6DofSpring2Constraint_enableSpring(this._btJoint, axis, true);
-        bt.btGeneric6DofSpring2Constraint_setStiffness(this._btJoint, axis, spring, true);
-        // damp
-        bt.btGeneric6DofSpring2Constraint_setDamping(this._btJoint, axis, damping, true);
-
+        this._setDamp(this._angularXMotion, D6MotionType.eTWIST, damping);
+        this._setDamp(this._angularYMotion, D6MotionType.eSWING1, damping);
+        this._setDamp(this._angularZMotion, D6MotionType.eSWING2, damping);
     }
 
     setDrive(index: D6Drive, stiffness: number, damping: number, forceLimit: number): void {

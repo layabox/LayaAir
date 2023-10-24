@@ -8,8 +8,7 @@ import { Event } from "laya/events/Event";
 
 import { DistanceJoint } from "laya/physics/joint/DistanceJoint";
 import { RevoluteJoint } from "laya/physics/joint/RevoluteJoint";
-import { Physics } from "laya/physics/Physics";
-import { PhysicsDebugDraw } from "laya/physics/PhysicsDebugDraw";
+import { Physics2D } from "laya/physics/Physics2D";
 import { RigidBody } from "laya/physics/RigidBody";
 import { Label } from "laya/ui/Label";
 import { Stat } from "laya/utils/Stat";
@@ -18,6 +17,9 @@ import { ChainCollider } from "laya/physics/Collider2D/ChainCollider";
 import { CircleCollider } from "laya/physics/Collider2D/CircleCollider";
 import { PolygonCollider } from "laya/physics/Collider2D/PolygonCollider";
 import { BoxCollider } from "laya/physics/Collider2D/BoxCollider";
+import { Vector2 } from "laya/maths/Vector2";
+import { CheckBox } from "laya/ui/CheckBox";
+import { Handler } from "laya/utils/Handler";
 
 /**
  * 仿生兽
@@ -32,21 +34,23 @@ export class Physics_Strandbeests {
     private chassis: Sprite;
     private motorJoint: RevoluteJoint;
     private label: Label;
+    private TempVec: Vector2 = new Vector2();
 
+    private drawFlags:string[] = ["Shape","Joint","AABB","Pair","CenterOfMass"]
     constructor(maincls: typeof Main) {
         this.Main = maincls;
         Config.isAntialias = true;
         Laya.init(1200, 700).then(() => {
             Stat.show();
-            Physics.enable();
-            PhysicsDebugDraw.enable();
+            Physics2D.enable();
             Laya.stage.alignV = Stage.ALIGN_MIDDLE;
             Laya.stage.alignH = Stage.ALIGN_CENTER;
             Laya.stage.scaleMode = Stage.SCALE_FIXED_AUTO;
             Laya.stage.bgColor = "#232628";
 
             this.Construct();
-            this.eventListener();
+            // this.eventListener();
+            Laya.loader.load(["res/ui/checkbox (1).png"], Handler.create(this, this.eventListener));
         });
     }
 
@@ -57,9 +61,9 @@ export class Physics_Strandbeests {
         let rigidbody: RigidBody = new RigidBody();
         rigidbody.type = "static";
         ground.addComponentInstance(rigidbody);
-        let chainCollider: ChainCollider = ground.addComponent(ChainCollider);
+        let chainCollider: ChainCollider = new ChainCollider();
         chainCollider.points = "50,200,50,570,1050,570,1050,200";
-
+        ground.addComponentInstance(chainCollider);
         // Balls
         for (let i = 1; i <= 32; i++) {
             let small = new Sprite();
@@ -76,48 +80,52 @@ export class Physics_Strandbeests {
         this.Main.box2D.addChild(chassis);
         let chassisBody: RigidBody = chassis.addComponent(RigidBody);
         chassisBody.group = -1;
+
         let chassisCollider: BoxCollider = chassis.addComponent(BoxCollider);
         chassisCollider.density = 1;
         chassisCollider.width = 50 * this.scale;
         chassisCollider.height = 20 * this.scale;
-        chassisCollider.x = -25 * this.scale;
-        chassisCollider.y = -10 * this.scale;
+        chassisCollider.x = chassisCollider.width * -0.5;
+        chassisCollider.y = chassisCollider.height * -0.5;
 
         // Circle
         let wheel = this.wheel = new Sprite();
-        wheel.pos(this.pos[0] + this.pivot[0] + this.m_offset[0], this.pos[1] + this.pivot[1] + this.m_offset[1]); //.size(32, 32);
+        wheel.pos(chassis.x, chassis.y);
         this.Main.box2D.addChild(wheel);
         let wheelBody: RigidBody = wheel.addComponent(RigidBody);
         wheelBody.group = -1;
+
         let wheelCollider: CircleCollider = wheel.addComponent(CircleCollider);
         wheelCollider.density = 1;
         wheelCollider.radius = 16 * this.scale;
-        wheelCollider.x = -16 * this.scale;
-        wheelCollider.y = -16 * this.scale;
+
+
 
         // 转动关节
         let motorJoint: RevoluteJoint = this.motorJoint = new RevoluteJoint();
-        motorJoint.otherBody = wheelBody;
-        // motorJoint.anchor = this.pivot;
+        motorJoint.otherBody = chassisBody;
+        motorJoint.collideConnected = false;
         motorJoint.motorSpeed = 2.0;
         motorJoint.maxMotorTorque = 400.0;
         motorJoint.enableMotor = true;
-        chassis.addComponentInstance(motorJoint);
+        wheel.addComponentInstance(motorJoint);
 
         let wheelOriBody = wheelBody.getBody();
-        let wheelAnchor = [this.pivot[0], this.pivot[1] - 8 * this.scale];
+        let wheelAnchor = [chassis.x + this.pivot[0], chassis.y + this.pivot[1]];
         this.createLeg(-1, wheelAnchor);
         this.createLeg(1, wheelAnchor);
-        wheelOriBody.SetTransform(wheelOriBody.GetPosition(), 120.0 * Math.PI / 180.0);
+
+
+        wheelBody.setAngle(120.0 * Math.PI / 180.0);
         this.createLeg(-1.0, wheelAnchor);
         this.createLeg(1.0, wheelAnchor);
-        wheelOriBody.SetTransform(wheelOriBody.GetPosition(), -120.0 * Math.PI / 180.0);
+
+        wheelBody.setAngle(-120.0 * Math.PI / 180.0);
         this.createLeg(-1.0, wheelAnchor);
         this.createLeg(1.0, wheelAnchor);
     }
 
     createLeg(s: number, wheelAnchor) {
-        const box2d: any = (<any>window).box2d;
         const wheelBody: RigidBody = this.wheel.getComponent(RigidBody);
         const chassisBody: RigidBody = this.chassis.getComponent(RigidBody);
 
@@ -134,6 +142,7 @@ export class Physics_Strandbeests {
         let legBody1: RigidBody = leg1.addComponent(RigidBody);
         legBody1.angularDamping = 10;
         legBody1.group = -1;
+
         let legCollider1: PolygonCollider = leg1.addComponent(PolygonCollider);
         legCollider1.density = 1;
         let leg2 = new Sprite();
@@ -142,6 +151,7 @@ export class Physics_Strandbeests {
         let legBody2: RigidBody = leg2.addComponent(RigidBody);
         legBody2.angularDamping = 10;
         legBody2.group = -1;
+
         let legCollider2: PolygonCollider = leg2.addComponent(PolygonCollider);
         legCollider2.density = 1;
 
@@ -162,46 +172,46 @@ export class Physics_Strandbeests {
         distanceJoint1.frequency = frequencyHz;
         distanceJoint1.damping = dampingRatio;
         leg1.addComponentInstance(distanceJoint1);
-        distanceJoint1.maxLength = distanceJoint1.minLength = distanceJoint1.length || distanceJoint1.joint.GetLength() * Physics.PIXEL_RATIO;
+        distanceJoint1.maxLength = distanceJoint1.minLength = distanceJoint1.length || distanceJoint1.jointLength;
 
         let distanceJoint2: DistanceJoint = new DistanceJoint();
         distanceJoint2.otherBody = legBody2;
         distanceJoint2.selfAnchor = p3;
-        // distanceJoint2.otherAnchor = p4;
         distanceJoint2.frequency = frequencyHz;
         distanceJoint2.damping = dampingRatio;
         leg1.addComponentInstance(distanceJoint2);
-        distanceJoint2.maxLength = distanceJoint2.minLength = distanceJoint2.length || distanceJoint2.joint.GetLength() * Physics.PIXEL_RATIO;;
+        distanceJoint2.maxLength = distanceJoint2.minLength = distanceJoint2.length || distanceJoint2.jointLength;
 
-        let localAnchor = new box2d.b2Vec2();
-        wheelBody.getBody().GetLocalPoint({ 'x': (this.pos[0] + this.m_offset[0]) / Physics.PIXEL_RATIO, 'y': (this.pos[1] + this.m_offset[1]) / Physics.PIXEL_RATIO }, localAnchor);
-        let anchor = [-localAnchor.x * Physics.PIXEL_RATIO, -localAnchor.y * Physics.PIXEL_RATIO];
+        let localAnchor = wheelBody.GetLocalPoint((this.pos[0] + this.m_offset[0]), this.pos[1] + this.m_offset[1]);
+        let anchor = [-localAnchor.x, -localAnchor.y];
 
         let distanceJoint3: DistanceJoint = new DistanceJoint();
-        distanceJoint3.otherBody = wheelBody;
         distanceJoint3.selfAnchor = p3;
+        distanceJoint3.otherBody = wheelBody;
         distanceJoint3.otherAnchor = anchor; // 因为有旋转，localAnchor很难计算，使用绝对位置换算
         distanceJoint3.frequency = frequencyHz;
         distanceJoint3.damping = dampingRatio;
         leg1.addComponentInstance(distanceJoint3);
-        distanceJoint3.maxLength = distanceJoint3.minLength = distanceJoint3.length || distanceJoint3.joint.GetLength() * Physics.PIXEL_RATIO;;
+        distanceJoint3.maxLength = distanceJoint3.minLength = distanceJoint3.length || distanceJoint3.jointLength;
 
         let distanceJoint4: DistanceJoint = new DistanceJoint();
-        distanceJoint4.otherBody = wheelBody;
         distanceJoint4.selfAnchor = B2Math.SubVV(p6, p4);
+        distanceJoint4.otherBody = wheelBody;
         distanceJoint4.otherAnchor = anchor;
         distanceJoint4.frequency = frequencyHz;
         distanceJoint4.damping = dampingRatio;
         leg2.addComponentInstance(distanceJoint4);
-        distanceJoint4.maxLength = distanceJoint4.minLength = distanceJoint4.length || distanceJoint4.joint.GetLength() * Physics.PIXEL_RATIO;;
+        distanceJoint4.maxLength = distanceJoint4.minLength = distanceJoint4.length || distanceJoint4.jointLength;
 
         let revoluteJoint: RevoluteJoint = new RevoluteJoint();
         revoluteJoint.otherBody = legBody2;
         revoluteJoint.anchor = B2Math.AddVV(p4, this.pivot);
+        revoluteJoint.collideConnected = false;
         this.chassis.addComponentInstance(revoluteJoint);
     }
 
     eventListener() {
+
         // 双击屏幕，仿生机器人向相反方向运动
         Laya.stage.on(Event.DOUBLE_CLICK, this, () => {
             this.motorJoint.motorSpeed = -this.motorJoint.motorSpeed;
@@ -209,8 +219,7 @@ export class Physics_Strandbeests {
 
         // 单击产生新的小球刚体
         Laya.stage.on(Event.CLICK, this, () => {
-            const chassisBody = this.chassis.getComponent(RigidBody);
-            const chassisPos = chassisBody.getBody().GetPosition();
+            let tempVec = this.TempVec;
             let newBall = new Sprite();
             this.Main.box2D.addChild(newBall);
             let circleBody: RigidBody = newBall.addComponent(RigidBody);
@@ -218,11 +227,11 @@ export class Physics_Strandbeests {
             circleCollider.radius = 3 * this.scale;
             circleCollider.x = Laya.stage.mouseX;
             circleCollider.y = Laya.stage.mouseY;
-            let circlePosx = circleCollider.x / Physics.PIXEL_RATIO;
-            let circlePosy = circleCollider.y / Physics.PIXEL_RATIO;
-            let velocityX = chassisPos.x - circlePosx;
-            let velocityY = chassisPos.y - circlePosy;
-            circleBody.linearVelocity = { "x": velocityX * 5, "y": velocityY * 5 };
+            tempVec.x = this.chassis.x - circleCollider.x;
+            tempVec.y = this.chassis.y - circleCollider.y;
+            Vector2.normalize(tempVec, tempVec);
+            Vector2.scale(tempVec, 50, tempVec);
+            circleBody.linearVelocity = tempVec.toArray();
             Laya.timer.frameOnce(120, this, function () {
                 newBall.destroy();
             });
@@ -233,12 +242,53 @@ export class Physics_Strandbeests {
         label.right = 20;
         label.fontSize = 16;
         label.color = "#e69999";
+        for(var i = 0,n= this.drawFlags.length;i<n;i++){
+            this.createCheckBox(this.drawFlags[i],i==0,1300,70+50*i);
+        }
+        
+    }
+
+    private createCheckBox(lable:string,isselect:boolean,x:number,y:number) {
+		var cb: CheckBox = new CheckBox("res/ui/checkbox (1).png");
+		this.Main.box2D.addChild(cb);
+
+		cb.labelColors = "white";
+		cb.labelSize = 20;
+		cb.labelFont = "Microsoft YaHei";
+		cb.labelPadding = "3,0,0,5";
+        cb.x = x;
+        cb.y  = y;
+        cb.label = lable;
+        cb.selected = isselect;
+        cb.on("change", this, this.updateSelect, [cb]);
+	}
+
+    private updateSelect(checkBox: CheckBox){
+        let isselect = checkBox.selected;
+        switch(checkBox.label){
+            case "Shape":
+                Physics2D.drawShape = isselect;
+                break;
+            case "Joint":
+                Physics2D.drawJoint = isselect;
+                break;
+            case "AABB":
+                Physics2D.drawAABB = isselect;
+                break;
+            case "Pair":
+                Physics2D.drawPair = isselect;
+                break;
+            case "CenterOfMass":
+                Physics2D.drawCenterOfMass = isselect;
+                break;
+        }
     }
 
     dispose() {
         Laya.stage.offAll(Event.CLICK);
         Laya.stage.offAll(Event.DOUBLE_CLICK);
         Laya.stage.removeChild(this.label);
+        Physics2D.I.destroyWorld()
     }
 }
 

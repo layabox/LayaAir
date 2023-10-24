@@ -13,7 +13,7 @@ export class pxCollisionTool {
     static _tempV3: Vector3 = new Vector3();
     /**@internal */
     static _contactPoint: ContactPoint = new ContactPoint();
-    
+
     constructor() {
 
     }
@@ -49,6 +49,7 @@ export class pxCollisionTool {
                 // contact.distance = 
                 contact.normal = pxCollisionTool._tempV3.setValue(contactInfo.normal.x, contactInfo.normal.y, contactInfo.normal.z);
                 contact.positionOnA = contact.positionOnB = pxCollisionTool._tempV3.setValue(contactInfo.position.x, contactInfo.position.y, contactInfo.position.z);
+                collsion.contacts.push(contact);
             }
         }
         return collsion;

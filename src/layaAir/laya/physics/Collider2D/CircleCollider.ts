@@ -1,6 +1,6 @@
 import { Sprite } from "../../display/Sprite";
 import { ColliderBase } from "./ColliderBase";
-import { Physics } from "../Physics";
+import { Physics2D } from "../Physics2D";
 
 /**
  * 2D圆形碰撞体
@@ -19,7 +19,7 @@ export class CircleCollider extends ColliderBase {
      */
     protected getDef(): any {
         if (!this._shape) {
-            this._shape = new (<any>window).box2d.b2CircleShape();
+            this._shape = Physics2D.I._factory.create_CircleShape();
             this._setShape(false);
         }
         this.label = (this.label || "CircleCollider");
@@ -39,8 +39,8 @@ export class CircleCollider extends ColliderBase {
 
     private _setShape(re: boolean = true): void {
         var scale: number = (this.owner as any)["scaleX"] || 1;
-        this._shape.m_radius = this._radius / Physics.PIXEL_RATIO * scale;
-        this._shape.m_p.Set((this._radius + this._x) / Physics.PIXEL_RATIO * scale, (this._radius + this._y) / Physics.PIXEL_RATIO * scale);
+        Physics2D.I._factory.set_CircleShape_radius(this._shape, this.radius * scale);
+        Physics2D.I._factory.set_CircleShape_pos(this._shape, this._x * scale, this._y * scale)
         if (re) this.refresh();
     }
 

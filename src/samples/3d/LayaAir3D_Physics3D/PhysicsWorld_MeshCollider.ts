@@ -179,5 +179,3 @@ export class PhysicsWorld_MeshCollider {
 	}
 
 }
-
-

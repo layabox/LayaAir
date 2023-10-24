@@ -170,7 +170,8 @@ export class btCollider implements ICollider {
     }
 
     setColliderShape(shape: btColliderShape) {
-        if (shape == this._btColliderShape)
+        shape._btCollider = this;
+        if (shape == this._btColliderShape||shape._btShape == null)
             return;
         var lastColliderShape: btColliderShape = this._btColliderShape;
         this._btColliderShape = shape;
@@ -178,7 +179,6 @@ export class btCollider implements ICollider {
         if (shape) {
             if (this._btCollider) {
                 bt.btCollisionObject_setCollisionShape(this._btCollider, shape._btShape);
-                shape._btCollider = this;
                 let simulate = this._isSimulate;
                 simulate && this._physicsManager.removeCollider(this);//修改shape必须把Collison从物理世界中移除再重新添加
                 this._onShapeChange();//修改shape会计算惯性

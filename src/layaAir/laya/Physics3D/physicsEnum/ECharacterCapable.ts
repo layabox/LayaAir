@@ -13,10 +13,11 @@ export enum ECharacterCapable {
     Character_UpDirection,  // 角色向上方向
     Character_FallSpeed, // 下落速度
     Character_SlopeLimit,   // 坡度限制
-    //Character_PushForce,    // 碰撞其他物体的力
+    Character_PushForce,    // 碰撞其他物体的力
     Character_Radius,   // 坡度限制
     Character_Height,   // 坡度限制
     Character_offset,   // 坡度限制
     Character_Skin,   // 坡度限制
-    Character_minDistance
+    Character_minDistance,
+    Character_EventFilter, // 控制器事件过滤
 }

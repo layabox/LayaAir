@@ -1,5 +1,6 @@
 import { Component } from "../../components/Component"
-import { Physics } from "../Physics"
+import { IPhysiscs2DFactory } from "../IPhysiscs2DFactory";
+import { Physics2D } from "../Physics2D"
 
 /**
  * 关节基类
@@ -8,9 +9,10 @@ export class JointBase extends Component {
     /**原生关节对象*/
     protected _joint: any;
 
+    protected _factory: IPhysiscs2DFactory;
     constructor() {
         super();
-
+        this._factory = Physics2D.I._factory;
         this._singleton = false;
     }
 
@@ -32,9 +34,8 @@ export class JointBase extends Component {
     }
 
     protected _onDisable(): void {
-        var _factory = Physics.I._factory;
-        if (this._joint && _factory.getJoint_userData(this._joint) && !_factory.getJoint_userData_destroy(this._joint)) {
-            Physics.I._removeJoint(this._joint);
+        if (this._joint && this._factory.getJoint_userData(this._joint) && !this._factory.getJoint_userData_destroy(this._joint)) {
+            Physics2D.I._factory.removeJoint(this._joint);
         }
         this._joint = null;
     }

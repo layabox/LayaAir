@@ -63,4 +63,13 @@ export class Radio extends Button {
     set value(obj: any) {
         this._value = obj;
     }
+    protected changeClips(): void {
+        super.changeClips();
+        this._setWidth(this._width);
+    }
+    _setWidth(value: number): void {
+        if (!this._autoSize) {
+            this._text.width = this.width - this._text.x;
+        }
+    }
 }

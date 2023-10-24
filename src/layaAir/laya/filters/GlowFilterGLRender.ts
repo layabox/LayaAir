@@ -1,3 +1,5 @@
+import { BlendFactor } from "../RenderEngine/RenderEnum/BlendFactor"
+import { RenderStateContext } from "../RenderEngine/RenderStateContext"
 import { Matrix } from "../maths/Matrix"
 import { Vector4 } from "../maths/Vector4";
 import { Context } from "../resource/Context"
@@ -30,8 +32,8 @@ export class GlowFilterGLRender {
 		var svCP: Value2D = Value2D.create(RenderSpriteData.Texture2D);
 		var matI: Matrix = Matrix.TEMP.identity();
 		ctx.drawTarget(rt, 0, 0, w, h, matI, svBlur);	//先画模糊的底
-		ctx.drawTarget(rt, 0, 0, w, h, matI, svCP);		//再画原始图片
-
+		ctx.drawTarget(rt, 0, 0, w, h, matI, svCP, null, 9);		//再画原始图片,blend为9是为了解决文字边缘锯齿问题，主要是由于预乘alpha导致的，暂时先用这种方法解决
+		//ctx.drawTarget(rt, 0, 0, w, h, matI, svCP);
 	}
 }
 
