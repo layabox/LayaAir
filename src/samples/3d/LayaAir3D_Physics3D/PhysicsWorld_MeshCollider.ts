@@ -23,8 +23,6 @@ import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
-import { URL } from "laya/net/URL";
-import { PixelLineSprite3D } from "laya/d3/core/pixelLine/PixelLineSprite3D";
 
 export class PhysicsWorld_MeshCollider {
 
@@ -52,7 +50,6 @@ export class PhysicsWorld_MeshCollider {
 			mat.setForward(new Vector3(0.0, -0.8, -1.0));
 			directionLight.transform.worldMatrix = mat;
 			directionLight.color = new Color(1, 1, 1, 1);
-			URL.basePath += "sample-resource/";
 			Laya.loader.load(["res/threeDimen/staticModel/lizard/Assets/Lizard/lizard-lizard_geo.lm", "res/threeDimen/staticModel/lizard/Assets/Lizard/lizard_diff.png", "res/threeDimen/staticModel/lizard/Assets/Lizard/lizard_norm.png"], Handler.create(this, this.complete));
 		});
 	}
@@ -73,7 +70,6 @@ export class PhysicsWorld_MeshCollider {
 		var lizardCollider: PhysicsCollider = lizard.addComponent(PhysicsCollider);
 		var meshShape: MeshColliderShape = new MeshColliderShape();
 		meshShape.mesh = mesh;
-		meshShape.convex = true;
 		lizardCollider.colliderShape = meshShape;
 		lizardCollider.friction = 2;
 		lizardCollider.restitution = 0.3;
@@ -93,40 +89,13 @@ export class PhysicsWorld_MeshCollider {
 		lizard1.meshRenderer.material = mat;
 		var lizardCollider1: PhysicsCollider = lizard1.addComponent(PhysicsCollider);
 		var meshShape1: MeshColliderShape = new MeshColliderShape();
-		meshShape1.convex = true;
+		meshShape1.mesh = mesh;
 		lizardCollider1.colliderShape = meshShape1;
 		lizardCollider1.friction = 2;
 		lizardCollider1.restitution = 0.3;
-		meshShape1.mesh = mesh;
 
 		this.randomAddPhysicsSprite();
-		let lineSprite: PixelLineSprite3D = new PixelLineSprite3D(100000);
-		this.scene.addChild(lineSprite);
-		this.linearModel(mesh.getCorveMesh(), lineSprite, lizard1.transform.worldMatrix, Color.GREEN);
-		this.linearModel(mesh.getCorveMesh(), lineSprite, lizard.transform.worldMatrix, Color.GREEN);
 	}
-	private transVertex0: Vector3 = new Vector3();
-	private transVertex1: Vector3 = new Vector3();
-	private transVertex2: Vector3 = new Vector3();
-
-	linearModel(mesh: Mesh, lineSprite3D: PixelLineSprite3D, worldMatrix: Matrix4x4, color: Color): void {
-		var positions: Array<Vector3> = [];
-		mesh.getPositions(positions);
-		var indices = mesh.getSubMesh(0).getIndices();
-
-		for (var i: number = 0; i < indices.length; i += 3) {
-			var vertex0: Vector3 = positions[indices[i]];
-			var vertex1: Vector3 = positions[indices[i + 1]];
-			var vertex2: Vector3 = positions[indices[i + 2]];
-			Vector3.transformCoordinate(vertex0, worldMatrix, this.transVertex0);
-			Vector3.transformCoordinate(vertex1, worldMatrix, this.transVertex1);
-			Vector3.transformCoordinate(vertex2, worldMatrix, this.transVertex2);
-			lineSprite3D.addLine(this.transVertex0, this.transVertex1, color, color);
-			lineSprite3D.addLine(this.transVertex1, this.transVertex2, color, color);
-			lineSprite3D.addLine(this.transVertex2, this.transVertex0, color, color);
-		}
-	}
-
 
 	randomAddPhysicsSprite(): void {
 		Laya.timer.loop(1000, this, function (): void {
@@ -153,7 +122,7 @@ export class PhysicsWorld_MeshCollider {
 		var sZ: number = Math.random() * 0.75 + 0.25;
 		var box: MeshSprite3D = (<MeshSprite3D>this.scene.addChild(new MeshSprite3D(PrimitiveMesh.createBox(sX, sY, sZ))));
 		box.meshRenderer.material = new BlinnPhongMaterial();
-		Laya.loader.load("res/threeDimen/Physics/rocks.jpg").then((res) => {
+		Laya.loader.load("res/threeDimen/Physics/rocks.jpg").then((res)=>{
 			(box.meshRenderer.material as BlinnPhongMaterial).albedoTexture = res as Texture2D;
 		});
 		var transform: Transform3D = box.transform;
@@ -174,7 +143,7 @@ export class PhysicsWorld_MeshCollider {
 		var radius: number = Math.random() * 0.2 + 0.2;
 		var sphere: MeshSprite3D = (<MeshSprite3D>this.scene.addChild(new MeshSprite3D(PrimitiveMesh.createSphere(radius))));
 		sphere.meshRenderer.material = new BlinnPhongMaterial();
-		Laya.loader.load("res/threeDimen/Physics/plywood.jpg").then((res) => {
+		Laya.loader.load("res/threeDimen/Physics/plywood.jpg").then((res)=>{
 			(sphere.meshRenderer.material as BlinnPhongMaterial).albedoTexture = res as Texture2D;
 		});
 		var pos: Vector3 = sphere.transform.position;
@@ -190,10 +159,9 @@ export class PhysicsWorld_MeshCollider {
 	addCapsule(): void {
 		var raidius: number = Math.random() * 0.2 + 0.2;
 		var height: number = Math.random() * 0.5 + 0.8;
-		let mesh: Mesh = PrimitiveMesh.createCapsule(raidius, height)
-		var capsule: MeshSprite3D = (<MeshSprite3D>this.scene.addChild(new MeshSprite3D(mesh)));
+		var capsule: MeshSprite3D = (<MeshSprite3D>this.scene.addChild(new MeshSprite3D(PrimitiveMesh.createCapsule(raidius, height))));
 		capsule.meshRenderer.material = new BlinnPhongMaterial();
-		Laya.loader.load("res/threeDimen/Physics/wood.jpg").then((res) => {
+		Laya.loader.load("res/threeDimen/Physics/wood.jpg").then((res)=>{
 			(capsule.meshRenderer.material as BlinnPhongMaterial).albedoTexture = res as Texture2D;
 		});
 		var transform: Transform3D = capsule.transform;
@@ -205,15 +173,9 @@ export class PhysicsWorld_MeshCollider {
 		transform.rotationEuler = rotationEuler;
 
 		var rigidBody: Rigidbody3D = capsule.addComponent(Rigidbody3D);
-		var sphereShape: MeshColliderShape = new MeshColliderShape();
-		sphereShape.mesh = mesh;
-		sphereShape.convex = true;
+		var sphereShape: CapsuleColliderShape = new CapsuleColliderShape(raidius, height);
 		rigidBody.colliderShape = sphereShape;
 		rigidBody.mass = 10;
-		
-		
 	}
 
 }
-
-
