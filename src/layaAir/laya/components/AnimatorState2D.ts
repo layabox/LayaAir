@@ -19,6 +19,9 @@ export class AnimatorState2D extends EventDispatcher implements IClone {
     /**@internal */
     static EVENT_OnStateExit = "OnStateExit";
 
+    /**@internal */
+    static EVENT_OnStateLoop = 'OnStateLoop';
+
     /** @internal */
     private _referenceCount = 0;
 
@@ -128,6 +131,18 @@ export class AnimatorState2D extends EventDispatcher implements IClone {
         if (this._scripts) {
             for (let i = 0, n = this._scripts.length; i < n; i++) {
                 this._scripts[i].onStateExit();
+            }
+        }
+    }
+    /**
+     * @internal
+     */
+    _eventLoop() {
+        this.event(AnimatorState2D.EVENT_OnStateLoop);
+        if (this._scripts) {
+            for (let i = 0, n = this._scripts.length; i < n; i++) {
+                if (this._scripts[i].onStateLoop)
+                    this._scripts[i].onStateLoop();
             }
         }
     }
