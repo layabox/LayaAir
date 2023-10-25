@@ -265,7 +265,7 @@ export class Value2D {
             //default pass
             var shaderPass = this._defaultShader._subShaders[0]._passes;
 
-            if (shaderPass.length == 1) {
+            if (shaderPass.length >= 1) {
                 var pass = shaderPass[0];
                 //var comDef: DefineDatas = Value2D._compileDefine;
                 var shaderIns = pass.withCompile(this.defines._defineDatas, true);
