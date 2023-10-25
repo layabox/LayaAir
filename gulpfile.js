@@ -40,9 +40,9 @@ const packsDef = [
             './layaAir/laya/net/**/*.*',
 
             // './layaAir/laya/RenderEngine/**/*.*',
-            './layaAir/laya/RenderEngine/RenderEngine/NativeGLEngine/*.*',
-            './layaAir/laya/RenderEngine/RenderEngine/WebGLEngine/*.*',
-            // './layaAir/laya/RenderEngine/RenderEngine/WebGPUEngine/*.*',
+            './layaAir/laya/RenderEngine/RenderEngine/NativeGLEngine/**/*.*',
+            './layaAir/laya/RenderEngine/RenderEngine/WebGLEngine/**/*.*',
+            // './layaAir/laya/RenderEngine/RenderEngine/WebGPUEngine/**/*.*',
             './layaAir/laya/RenderEngine/RenderEnum/**/*.*',
             './layaAir/laya/RenderEngine/RenderInterface/**/*.*',
             './layaAir/laya/RenderEngine/RenderShader/**/*.*',
@@ -156,13 +156,6 @@ const packsDef = [
             './layaAir/laya/map/**/*.*'
         ],
     },
-    {
-        'libName': 'particle',
-        'input': [
-            './layaAir/laya/particle/**/*.*'
-        ],
-    },
-
     {
         'libName': 'physicsjs',
         'input': [
