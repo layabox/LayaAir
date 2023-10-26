@@ -2,7 +2,6 @@ import { Texture } from "../../../../resource/Texture"
 import { ShaderDefines2D } from "../ShaderDefines2D"
 import { RenderState2D } from "../../../utils/RenderState2D"
 import { RenderTexture2D } from "../../../../resource/RenderTexture2D"
-import { TextTexture } from "laya/webgl/text/TextTexture"
 import { Const } from "../../../../Const"
 import { ShaderData } from "../../../../RenderEngine/RenderShader/ShaderData"
 import { Shader3D } from "../../../../RenderEngine/RenderShader/Shader3D"
@@ -11,6 +10,7 @@ import { DefineDatas } from "../../../../RenderEngine/RenderShader/DefineDatas"
 import { Vector2 } from "../../../../maths/Vector2"
 import { Matrix4x4 } from "../../../../maths/Matrix4x4"
 import { Vector4 } from "../../../../maths/Vector4"
+import { TextTexture } from "../../../text/TextTexture"
 
 export enum RenderSpriteData {
     Zero,
