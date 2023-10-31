@@ -18,10 +18,9 @@ import { CacheManger } from "./laya/utils/CacheManger";
 import { ColorUtils } from "./laya/utils/ColorUtils";
 import { Timer } from "./laya/utils/Timer";
 import { ShaderDefines2D } from "./laya/webgl/shader/d2/ShaderDefines2D";
-import { SkinSV } from "./laya/webgl/shader/d2/skinAnishader/SkinSV";
 import { PrimitiveSV } from "./laya/webgl/shader/d2/value/PrimitiveSV";
 import { TextureSV } from "./laya/webgl/shader/d2/value/TextureSV";
-import { Value2D } from "./laya/webgl/shader/d2/value/Value2D";
+import { RenderSpriteData, Value2D } from "./laya/webgl/shader/d2/value/Value2D";
 import { RenderState2D } from "./laya/webgl/utils/RenderState2D";
 import { WebGL } from "./laya/webgl/WebGL";
 import { Mouse } from "./laya/utils/Mouse";
@@ -39,6 +38,7 @@ import { RunDriver } from "./laya/utils/RunDriver";
 import { Config } from "./Config";
 import { Shader3D } from "./laya/RenderEngine/RenderShader/Shader3D";
 import { Physics2D } from "./laya/physics/Physics2D";
+import { IPhysiscs2DFactory } from "./laya/physics/IPhysiscs2DFactory";
 
 /**
  * <code>Laya</code> 是全局对象的引用入口集。
@@ -58,8 +58,8 @@ export class Laya {
     /** 加载管理器的引用。*/
     static loader: Loader = null;
 
-    /** 是否开启了2D物理引擎*/
-    static _enablePhysics2D: boolean = false;
+     /** @internal 2d物理引擎创建类*/
+    static _physiscs2DFactory:IPhysiscs2DFactory;
 
     /** @internal 是否初始化完成2D物理引擎*/
     static _installPhysics2D: boolean = false;
@@ -89,9 +89,9 @@ export class Laya {
     static init(width: number, height: number, ...plugins: any[]): Promise<void>;
     static init(...args: any[]): Promise<void> {
 
-        if (Laya._enablePhysics2D && Physics2D.I._factory && !Laya._installPhysics2D) {
+        if (Laya._physiscs2DFactory && !Laya._installPhysics2D) {
             return new Promise<void>(resolve => {
-                Physics2D.I._factory.initialize().then(() => {
+                Laya._physiscs2DFactory.initialize().then(() => {
                     Laya._installPhysics2D = true;
                     Laya.init(...args).then(resolve);
                 });
@@ -225,11 +225,9 @@ export class Laya {
         }
         Input.__init__();
         SoundManager.autoStopMusic = true;
-
-        Value2D._initone(ShaderDefines2D.TEXTURE2D, TextureSV);
-        Value2D._initone(ShaderDefines2D.TEXTURE2D | ShaderDefines2D.FILTERGLOW, TextureSV);
-        Value2D._initone(ShaderDefines2D.PRIMITIVE, PrimitiveSV);
-        Value2D._initone(ShaderDefines2D.SKINMESH, SkinSV);
+        //Init internal 2D Value2D
+        Value2D._initone(RenderSpriteData.Texture2D, TextureSV);
+        Value2D._initone(RenderSpriteData.Primitive, PrimitiveSV);
 
         let laya3D = (<any>window)["Laya3D"];
         if (laya3D) {
@@ -259,6 +257,16 @@ export class Laya {
 
             return Promise.resolve();
         }
+    }
+
+    static set Physiscs2DFactory(value: IPhysiscs2DFactory) {
+        if (value && !this._physiscs2DFactory) {
+            this._physiscs2DFactory = value;
+        }
+    }
+
+    static get Physiscs2DFactory() {
+        return this._physiscs2DFactory;
     }
 
     static createRender(): Render {

@@ -57,7 +57,7 @@ export class Physics_CollisionEvent {
         for (let i = 0, len = this.count; i < len; i++) {
             let sp = new Sprite();
             this.Main.box2D.addChild(sp);
-            sp.pos(370 + i * 50, 200).size(40, 40);
+            sp.pos(350 + i * 50, 200).size(40, 40);
             let rb: RigidBody = sp.addComponent(RigidBody);
             this.bodys.push(rb);
             this.touching[i] = false;
@@ -91,7 +91,7 @@ export class Physics_CollisionEvent {
             let bodyA: RigidBody = this.sensorCollider.owner.getComponent(RigidBody);
             let bodyB: RigidBody = body.owner.getComponent(RigidBody);
             let position = bodyB.getWorldCenter();
-            let center = bodyA.GetWorldPoint(this.sensorCollider.x+100, this.sensorCollider.y+100)
+            let center = bodyA.GetWorldPoint(this.sensorCollider.x, this.sensorCollider.y)
             let x = center.x - position.x;
             let y = center.y - position.y;
             let vec: Vector2 = new Vector2(x, y);

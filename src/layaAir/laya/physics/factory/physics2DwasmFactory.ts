@@ -11,6 +11,7 @@ import { Physics2DOption } from "../Physics2DOption";
 import { Physics2DDebugDraw } from "../Physics2DDebugDraw";
 import { RigidBody2DInfo } from "../RigidBody2DInfo";
 import { physics2D_DistancJointDef, physics2D_GearJointDef, physics2D_MotorJointDef, physics2D_MouseJointJointDef, physics2D_PrismaticJointDef, physics2D_PulleyJointDef, physics2D_RevoluteJointDef, physics2D_WeldJointDef, physics2D_WheelJointDef } from "../joint/JointDefStructInfo"
+import { Laya } from "../../../Laya";
 
 const b2_maxFloat = 1E+37;
 
@@ -1546,9 +1547,12 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
         return Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2))
     }
 
+    /**
+     * @internal 
+    */
     isNullData(data: any) {
         return this.box2d.compare(data, this.box2d.NULL)
     }
 }
 
-Physics2D.I._factory = new physics2DwasmFactory()
+Laya.Physiscs2DFactory = new physics2DwasmFactory()

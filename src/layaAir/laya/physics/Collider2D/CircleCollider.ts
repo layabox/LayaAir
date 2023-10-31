@@ -6,8 +6,7 @@ import { Physics2D } from "../Physics2D";
  * 2D圆形碰撞体
  */
 export class CircleCollider extends ColliderBase {
-    /**@private */
-    private static _temp: any;
+
     /**相对节点的x轴偏移*/
     private _x: number = 0;
     /**相对节点的y轴偏移*/
@@ -42,7 +41,7 @@ export class CircleCollider extends ColliderBase {
         var scale: number = Math.max(node.scaleX, node.scaleY);
         let radius = this.radius * scale;
         Physics2D.I._factory.set_CircleShape_radius(this._shape, radius);
-        Physics2D.I._factory.set_CircleShape_pos(this._shape, radius + this._x * scale, radius + this._y * scale)
+        Physics2D.I._factory.set_CircleShape_pos(this._shape, this._x * scale, this._y * scale)
         if (re) this.refresh();
     }
 

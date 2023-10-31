@@ -97,10 +97,8 @@ export class Physics_Strandbeests {
 
         let wheelCollider: CircleCollider = wheel.addComponent(CircleCollider);
         wheelCollider.density = 1;
-        let r = wheelCollider.radius = 16 * this.scale;
-        //修改原因是因为CircleCollider 的中心点默认中间导致
-        wheelCollider.x = -r;
-        wheelCollider.y = -r;
+        wheelCollider.radius = 16 * this.scale;
+
 
 
 

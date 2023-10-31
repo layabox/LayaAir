@@ -50,6 +50,7 @@ export class Physics2D extends EventDispatcher {
        customUpdate:false 自己控制物理更新时机，自己调用Physics.update
      */
     static enable(options: Physics2DOption = null) {
+        Physics2D.I._factory = Laya.Physiscs2DFactory;
         Physics2D.I.start(options)
     }
 

@@ -10,6 +10,7 @@ import { RigidBody2DInfo } from "../RigidBody2DInfo";
 import { physics2D_DistancJointDef, physics2D_GearJointDef, physics2D_MotorJointDef, physics2D_MouseJointJointDef, physics2D_PrismaticJointDef, physics2D_PulleyJointDef, physics2D_RevoluteJointDef, physics2D_WeldJointDef, physics2D_WheelJointDef } from "../joint/JointDefStructInfo"
 import { Physics2DDebugDraw } from "../Physics2DDebugDraw";
 import { ILaya } from "../../../ILaya";
+import { Laya } from "../../../Laya";
 
 /**
  * 实现Box2D js 2.4.1 版本
@@ -815,7 +816,7 @@ export class physics2DJSFactory implements IPhysiscs2DFactory {
      * @returns
      */
     create_PrismaticJoint(def: physics2D_PrismaticJointDef): any {
-        this._tempPrismaticJointDef || (this._tempRevoluteJointDef = new this.box2d.b2PrismaticJointDef());
+        this._tempPrismaticJointDef || (this._tempPrismaticJointDef = new this.box2d.b2PrismaticJointDef());
         let tdef = this._tempPrismaticJointDef;
         let anchorVec = this.createPhyFromLayaVec2(def.anchor.x, def.anchor.y);
         let axis = this.createPhyVec2(def.axis.x, def.axis.y);
@@ -1457,4 +1458,4 @@ class DestructionListener {
     }
 }
 
-Physics2D.I._factory = new physics2DJSFactory()
+Laya.Physiscs2DFactory = new physics2DJSFactory()

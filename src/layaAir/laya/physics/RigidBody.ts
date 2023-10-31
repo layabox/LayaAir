@@ -87,7 +87,6 @@ export class RigidBody extends Component {
         this._body = factory.rigidBodyDef_Create(defRigidBodyDef);
         //查找碰撞体
         this.resetCollider(false);
-        Physics2D.I.addRigidBody(this);
     }
 
     protected _onAwake(): void {
@@ -277,6 +276,7 @@ export class RigidBody extends Component {
 
     set type(value: string) {
         this._type = value;
+        this._addToWorld();
         if (this._body) Physics2D.I._factory.set_rigidBody_type(this.body, this._type);
     }
 

@@ -3,7 +3,6 @@ import "laya/ModuleDef";
 import "laya/d3/ModuleDef";
 import "laya/d3/physics/ModuleDef";
 import "laya/ui/ModuleDef";
-import "laya/particle/ModuleDef";
 import "laya/ani/ModuleDef";
 import "laya/spine/ModuleDef";
 import "laya/gltf/glTFLoader";
@@ -20,13 +19,11 @@ import { PhysicsWorld_BaseCollider } from "./3d/LayaAir3D_Physics3D/PhysicsWorld
 import { physics2DwasmFactory } from "laya/physics/factory/physics2DwasmFactory";
 import { Main } from "./Main";
 import { physics2DJSFactory } from "laya/physics/factory/physics2DJSFactory";
-import { Physics2D } from "laya/physics/Physics2D";
 import { Laya } from "Laya";
 Resource.DEBUG = true;
 
 LayaGL.renderOBJCreate = new RenderOBJCreateUtil();
-Laya._enablePhysics2D = true;
-Physics2D.I._factory = new physics2DJSFactory();
+Laya.Physiscs2DFactory = new physics2DJSFactory();
 // Laya3D.PhysicsCreateUtil = new pxPhysicsCreateUtil();
 // new PhysicsWorld_BaseCollider();
 new Main(false);
