@@ -38,7 +38,16 @@ const packsDef = [
             './layaAir/laya/maths/**/*.*',
             './layaAir/laya/media/**/*.*',
             './layaAir/laya/net/**/*.*',
-            './layaAir/laya/RenderEngine/**/*.*',
+
+            // './layaAir/laya/RenderEngine/**/*.*',
+            './layaAir/laya/RenderEngine/RenderEngine/NativeGLEngine/**/*.*',
+            './layaAir/laya/RenderEngine/RenderEngine/WebGLEngine/**/*.*',
+            // './layaAir/laya/RenderEngine/RenderEngine/WebGPUEngine/**/*.*',
+            './layaAir/laya/RenderEngine/RenderEnum/**/*.*',
+            './layaAir/laya/RenderEngine/RenderInterface/**/*.*',
+            './layaAir/laya/RenderEngine/RenderShader/**/*.*',
+            './layaAir/laya/RenderEngine/*.*',
+            
             './layaAir/laya/renders/**/*.*',
             './layaAir/laya/resource/**/*.*',
             './layaAir/laya/system/**/*.*',
@@ -70,7 +79,10 @@ const packsDef = [
             './layaAir/laya/d3/MouseTouch.ts',
             './layaAir/laya/d3/Touch.ts',
             './layaAir/laya/d3/ModuleDef.ts',
-            './layaAir/laya/d3/RenderObjs/**/*.*',
+            //'./layaAir/laya/d3/RenderObjs/**/*.*',
+            './layaAir/laya/d3/RenderObjs/NativeOBJ/*.*',
+            './layaAir/laya/d3/RenderObjs/RenderObj/*.*',
+            
             './layaAir/laya/d3/ModuleDef.ts',
             './layaAir/ILaya3D.ts',
             './layaAir/Laya3D.ts',
@@ -144,13 +156,6 @@ const packsDef = [
             './layaAir/laya/map/**/*.*'
         ],
     },
-    {
-        'libName': 'particle',
-        'input': [
-            './layaAir/laya/particle/**/*.*'
-        ],
-    },
-
     {
         'libName': 'physics2d',
         'input': [

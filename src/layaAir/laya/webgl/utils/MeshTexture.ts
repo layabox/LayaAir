@@ -14,9 +14,9 @@ export class MeshTexture extends Mesh2D {
     private static _fixattriInfo: any[];
     private static _POOL: any[] = [];
 
-    static VertexDeclarition:VertexDeclaration;
+    static VertexDeclarition: VertexDeclaration;
 
-    
+
 
     static __init__(): void {
         MeshTexture._fixattriInfo = [5126/*gl.FLOAT*/, 4, 0,	//pos,uv
@@ -28,19 +28,19 @@ export class MeshTexture extends Mesh2D {
         super(MeshTexture.const_stride, 4, 4);	//x,y,u,v,rgba
         this.canReuse = true;
         this.setAttributes(MeshTexture._fixattriInfo);
-        if(!MeshTexture.VertexDeclarition)
-         MeshTexture.VertexDeclarition = new VertexDeclaration(24,[
-            new VertexElement(0,VertexElementFormat.Vector4,0),
-            new VertexElement(16,VertexElementFormat.Byte4,1),
-            new VertexElement(20,VertexElementFormat.Byte4,2),
-        ])
+        if (!MeshTexture.VertexDeclarition)
+            MeshTexture.VertexDeclarition = new VertexDeclaration(24, [
+                new VertexElement(0, VertexElementFormat.Vector4, 0),
+                new VertexElement(16, VertexElementFormat.Byte4, 1),
+                new VertexElement(20, VertexElementFormat.Byte4, 2),
+            ])
         this._vb.vertexDeclaration = MeshTexture.VertexDeclarition;
-        
+
     }
 
-	/**
-	 * 
-	 */
+    /**
+     * 
+     */
     static getAMesh(mainctx: boolean): MeshTexture {
         //console.log('getmesh');
         var ret: MeshTexture;
@@ -52,6 +52,14 @@ export class MeshTexture extends Mesh2D {
         return ret;
     }
 
+    /**
+     * 增加四个顶点
+     * @param vertices 
+     * @param uvs 
+     * @param idx 
+     * @param matrix 
+     * @param rgba 
+     */
     addData(vertices: Float32Array, uvs: Float32Array, idx: Uint16Array, matrix: Matrix, rgba: number): void {
         //vb
         var vb: VertexBuffer2D = this._vb;
@@ -95,7 +103,7 @@ export class MeshTexture extends Mesh2D {
         if (vertN > 0) {
             var end: number = stibid + sz;
             var si: number = 0;
-            for (i = stibid; i < end; i++ , si++) {
+            for (i = stibid; i < end; i++, si++) {
                 cidx[i] = idx[si] + vertN;
             }
         } else {

@@ -15,8 +15,7 @@ import { WebGLRTMgr } from "../resource/WebGLRTMgr";
 import { Stat } from "../utils/Stat";
 import { BlendMode } from "../webgl/canvas/BlendMode";
 import { WebGLCacheAsNormalCanvas } from "../webgl/canvas/WebGLCacheAsNormalCanvas";
-import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
-import { Value2D } from "../webgl/shader/d2/value/Value2D";
+import { RenderSpriteData, Value2D } from "../webgl/shader/d2/value/Value2D";
 import { SubmitCMD } from "../webgl/submit/SubmitCMD";
 import { LayaGLQuickRunner } from "./LayaGLQuickRunner";
 import { ILaya } from "../../ILaya";
@@ -203,7 +202,7 @@ export class RenderSprite {
                 if (width > 0 && height > 0) {
                     let px = x - sprite.pivotX + tex.offsetX * wRate;
                     let py = y - sprite.pivotY + tex.offsetY * hRate;
-
+                    context.material = sprite.graphics.material;
                     context.drawTexture(tex, px, py, width, height, 0xffffffff);
                 }
             }
@@ -350,6 +349,7 @@ export class RenderSprite {
         }
         var tRec: Rectangle = _cacheStyle.cacheRect;
         //Stage._dbgSprite.graphics.drawRect(x, y, 30,30, null, 'red');
+        context.material = sprite.graphics.material;
         context.drawCanvas(_cacheStyle.canvas, x + tRec.x, y + tRec.y, tRec.width, tRec.height);
     }
 
@@ -517,7 +517,7 @@ export class RenderSprite {
                 preBlendMode = ctx.globalCompositeOperation;
                 ctx.addRenderObject(SubmitCMD.create(["mask"], RenderSprite.setBlendMode, this));
 
-                let shaderValue: Value2D = Value2D.create(ShaderDefines2D.TEXTURE2D, 0);
+                let shaderValue: Value2D = Value2D.create(RenderSpriteData.Texture2D);
                 let uv = Texture.INV_UV;
                 //这个地方代码不要删除，为了解决在iphone6-plus上的诡异问题
                 //renderTarget + StencilBuffer + renderTargetSize < 32 就会变得超级卡

@@ -68,7 +68,7 @@ export class ShaderPass extends ShaderCompileDefineBase {
      * @override
      * @internal
      */
-    withCompile(compileDefine: DefineDatas): ShaderInstance {
+    withCompile(compileDefine: DefineDatas, IS2d: boolean = false): ShaderInstance {
         var debugDefineString: string[] = ShaderPass._debugDefineStrings;
         var debugDefineMask: number[] = ShaderPass._debugDefineMasks;
         var debugMaskLength: number;
@@ -101,7 +101,7 @@ export class ShaderPass extends ShaderCompileDefineBase {
             return shader;
 
         let shaderProcessInfo: ShaderProcessInfo = new ShaderProcessInfo();
-        shaderProcessInfo.is2D = false;
+        shaderProcessInfo.is2D = IS2d;
         shaderProcessInfo.vs = this._VS;
         shaderProcessInfo.ps = this._PS;
         shaderProcessInfo.attributeMap = this._owner._attributeMap;
@@ -131,7 +131,7 @@ export class ShaderPass extends ShaderCompileDefineBase {
                 else
                     defStr += debugDefineString[i] + ",";
             }
-            if(this.nodeCommonMap){
+            if (this.nodeCommonMap) {
                 for (var j = 0; j < this.nodeCommonMap.length; j++) {
                     spriteCommonNode += this.nodeCommonMap[j] + ",";
                 }

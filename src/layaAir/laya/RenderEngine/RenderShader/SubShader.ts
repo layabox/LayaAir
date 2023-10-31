@@ -17,7 +17,7 @@ export type AttributeMapType = { [name: string]: [number, ShaderDataType] };
  * <code>SubShader</code> 类用于创建SubShader。
  */
 export class SubShader {
-    public static IncludeUniformMap: any;
+    public static IncludeUniformMap: any = {};
 
     /**
      * 注册glsl所用到的Uniform
@@ -47,10 +47,6 @@ export class SubShader {
         'a_SimpleTextureParams': [VertexMesh.MESH_SIMPLEANIMATOR, ShaderDataType.Vector2]
     }
 
-    static __init__() {
-
-        SubShader.IncludeUniformMap = {};
-    }
 
     /**@internal */
     _attributeMap: AttributeMapType;

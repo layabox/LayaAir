@@ -273,4 +273,3 @@ export class Rectangle {
         return false;
     }
 }
-

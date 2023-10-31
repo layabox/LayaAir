@@ -1,19 +1,12 @@
 import { ILaya } from "./../../ILaya";
 import { Config } from "./../../Config";
-import { LayaGL } from "../layagl/LayaGL";
-import { WebGLMode } from "../RenderEngine/RenderEngine/WebGLEngine/GLEnum/WebGLMode";
-import { WebGlConfig } from "../RenderEngine/RenderEngine/WebGLEngine/WebGLConfig";
-import { RenderStateContext } from "../RenderEngine/RenderStateContext";
 import { Context } from "../resource/Context";
 import { HTMLCanvas } from "../resource/HTMLCanvas";
 import { BlendMode } from "../webgl/canvas/BlendMode";
 import { Shader2D } from "../webgl/shader/d2/Shader2D";
 import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
-import { Value2D } from "../webgl/shader/d2/value/Value2D";
 import { SubmitBase } from "../webgl/submit/SubmitBase";
 import { IRenderEngine } from "../RenderEngine/RenderInterface/IRenderEngine";
-import { WebGLEngine } from "../RenderEngine/RenderEngine/WebGLEngine/WebGLEngine";
-import { NativeWebGLEngine } from "../RenderEngine/RenderEngine/NativeGLEngine/NativeWebGLEngine";
 import { LayaEnv } from "../../LayaEnv";
 import { VertexElementFormat } from "./VertexElementFormat";
 
@@ -138,6 +131,7 @@ export class Render {
     initRender(canvas: HTMLCanvas, w: number, h: number): boolean {
 
         canvas.size(w, h);	//在ctx之后调用。
+        ShaderDefines2D.__init__();
         VertexElementFormat.__init__();
         Context.__init__();
         SubmitBase.__init__();
@@ -148,8 +142,7 @@ export class Render {
         Render._context = ctx;
         canvas._setContext(ctx);
 
-        ShaderDefines2D.__init__();
-        Value2D.__init__();
+
         Shader2D.__init__();
         BlendMode._init_();
 

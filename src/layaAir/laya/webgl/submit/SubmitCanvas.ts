@@ -1,6 +1,6 @@
 import { Matrix } from "../../maths/Matrix";
 import { Context } from "../../resource/Context";
-import { Value2D } from "../shader/d2/value/Value2D";
+import { RenderSpriteData, Value2D } from "../shader/d2/value/Value2D";
 import { RenderState2D } from "../utils/RenderState2D";
 import { SubmitBase } from "./SubmitBase";
 
@@ -23,14 +23,14 @@ export class SubmitCanvas extends SubmitBase {
         o._numEle = 0;
         var v: Value2D = o.shaderValue;
         v.alpha = alpha;
-        v.defines.setValue(0);
+        v.defines.clearDefine();
         filters && filters.length && v.setFilters(filters);
         return o;
     }
 
     constructor() {
         super(SubmitBase.TYPE_2D);
-        this.shaderValue = new Value2D(0, 0);
+        this.shaderValue = new Value2D(RenderSpriteData.Zero);
     }
 
     /**

@@ -282,6 +282,7 @@ export class Sprite extends Node {
         if (this._destroyed) return;
         if (this._x !== value) {
             this._setX(value);
+            //Global TODO
             if (this.cacheGlobal) {
                 this._setGlobalCacheFlag(Sprite.Sprite_GlobalDeltaFlage_Position_X, true)
                 this._syncGlobalFlag(Sprite.Sprite_GlobalDeltaFlage_Position_X, true);
@@ -304,6 +305,7 @@ export class Sprite extends Node {
         if (this._destroyed) return;
         if (this._y !== value) {
             this._setY(value);
+            //Global TODO
             if (this.cacheGlobal) {
                 this._setGlobalCacheFlag(Sprite.Sprite_GlobalDeltaFlage_Position_Y, true)
                 this._syncGlobalFlag(Sprite.Sprite_GlobalDeltaFlage_Position_Y, true);
@@ -1007,6 +1009,7 @@ export class Sprite extends Node {
                 if (p) {
                     p.repaint(SpriteConst.REPAINT_CACHE);
                 }
+                //Global TODO
                 if (this.cacheGlobal) {
                     this._setGlobalCacheFlag(Sprite.Sprite_GlobalDeltaFlage_Position_X, true);
                     this._setGlobalCacheFlag(Sprite.Sprite_GlobalDeltaFlage_Position_Y, true)
@@ -1944,7 +1947,7 @@ export class Sprite extends Node {
         if (this._parent == ILaya.stage || !this._parent) {
             this.rotation = value;
         } else {
-            this.rotation = this.globalRotation - (this.parent as Sprite).globalRotation;
+            this.rotation = this._globalRotate - (this.parent as Sprite).globalRotation;
         }
         if (this._cacheGlobal) {
             this._setGlobalCacheFlag(Sprite.Sprite_GlobalDeltaFlage_Rotation, false);

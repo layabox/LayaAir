@@ -9,8 +9,7 @@ import { RenderTexture2D } from "../resource/RenderTexture2D"
 import { Texture2D } from "../resource/Texture2D"
 import { WebGLRTMgr } from "../resource/WebGLRTMgr"
 import { BlendMode } from "../webgl/canvas/BlendMode"
-import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D"
-import { Value2D } from "../webgl/shader/d2/value/Value2D"
+import { RenderSpriteData, Value2D } from "../webgl/shader/d2/value/Value2D"
 import { SubmitCMD } from "../webgl/submit/SubmitCMD"
 import { ColorFilter } from "./ColorFilter";
 
@@ -35,7 +34,7 @@ export class Filter implements IFilter {
     /**@private 滤镜类型。*/
     get type(): number { return -1 }
 
-    static _filter = function (this:RenderSprite,sprite: Sprite, context: Context, x: number, y: number): void {
+    static _filter = function (this: RenderSprite, sprite: Sprite, context: Context, x: number, y: number): void {
         var webglctx: Context = context;
         var next: any = ((<RenderSprite>this))._next;
         if (next) {
@@ -49,7 +48,7 @@ export class Filter implements IFilter {
                 return;
             }
             //思路：依次遍历滤镜，每次滤镜都画到out的RenderTarget上，然后把out画取src的RenderTarget做原图，去叠加新的滤镜
-            var svCP: Value2D = Value2D.create(ShaderDefines2D.TEXTURE2D, 0);	//拷贝用shaderValue
+            var svCP: Value2D = Value2D.create(RenderSpriteData.Texture2D);	//拷贝用shaderValue
             var b: Rectangle;
 
             var p: Point = Point.TEMP;
@@ -124,7 +123,7 @@ export class Filter implements IFilter {
                             break;
                         case Filter.COLOR:
                             webglctx.setColorFilter((<ColorFilter>fil));
-                            webglctx.drawTarget(source, 0, 0, b.width, b.height, Matrix.EMPTY.identity(), Value2D.create(ShaderDefines2D.TEXTURE2D, 0));
+                            webglctx.drawTarget(source, 0, 0, b.width, b.height, Matrix.EMPTY.identity(), Value2D.create(RenderSpriteData.Texture2D));
                             webglctx.setColorFilter(null);
                             break;
                     }
