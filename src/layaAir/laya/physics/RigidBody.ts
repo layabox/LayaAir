@@ -65,9 +65,9 @@ export class RigidBody extends Component {
         if (this._body || !this.owner) return;
         let factory = Physics2D.I._factory;
         var sp: Sprite = (<Sprite>this.owner);
-        let point: Point = factory.getLayaPosition(sp, 0, 0);
+        
         var defRigidBodyDef = new RigidBody2DInfo();
-
+        let point: Point = factory.getLayaPosition(sp, sp.pivotX, sp.pivotY);
         defRigidBodyDef.position.setValue(point.x, point.y);
         defRigidBodyDef.angle = Utils.toRadian(sp.rotation);
         defRigidBodyDef.allowSleep = this._allowSleep;
