@@ -21,9 +21,12 @@ import { physics2DwasmFactory } from "laya/physics/factory/physics2DwasmFactory"
 import { Main } from "./Main";
 import { physics2DJSFactory } from "laya/physics/factory/physics2DJSFactory";
 import { Physics2D } from "laya/physics/Physics2D";
+import { Laya } from "Laya";
 Resource.DEBUG = true;
+
 LayaGL.renderOBJCreate = new RenderOBJCreateUtil();
-Physics2D.I._factory = new physics2DwasmFactory();
+Laya._enablePhysics2D = true;
+Physics2D.I._factory = new physics2DJSFactory();
 // Laya3D.PhysicsCreateUtil = new pxPhysicsCreateUtil();
 // new PhysicsWorld_BaseCollider();
 new Main(false);

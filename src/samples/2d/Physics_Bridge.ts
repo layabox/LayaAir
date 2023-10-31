@@ -26,7 +26,6 @@ export class Physics_Bridge {
         Config.isAntialias = true;
         Laya.init(1200, 700).then(() => {
             Stat.show();
-
             Laya.stage.alignV = Stage.ALIGN_MIDDLE;
             Laya.stage.alignH = Stage.ALIGN_CENTER;
             Laya.stage.scaleMode = Stage.SCALE_FIXED_AUTO;
@@ -41,12 +40,13 @@ export class Physics_Bridge {
         const startPosX = 250, startPosY = 450;
 
         let ground = new Sprite();
-        this.Main.box2D.addChild(ground);
+
         let groundBody: RigidBody = new RigidBody();
         groundBody.type = "static";
         ground.addComponentInstance(groundBody);
         let chainCollider: ChainCollider = ground.addComponent(ChainCollider);
-        chainCollider.points = "50,600,1050,600";
+        chainCollider.datas = [50, 600, 1050, 600];
+        this.Main.box2D.addChild(ground);
 
         let point1 = new Sprite();
         this.Main.box2D.addChild(point1);

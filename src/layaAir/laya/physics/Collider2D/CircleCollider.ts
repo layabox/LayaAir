@@ -38,9 +38,11 @@ export class CircleCollider extends ColliderBase {
     }
 
     private _setShape(re: boolean = true): void {
-        var scale: number = (this.owner as any)["scaleX"] || 1;
-        Physics2D.I._factory.set_CircleShape_radius(this._shape, this.radius * scale);
-        Physics2D.I._factory.set_CircleShape_pos(this._shape, this._x * scale, this._y * scale)
+        let node = this.owner as Sprite;
+        var scale: number = Math.max(node.scaleX, node.scaleY);
+        let radius = this.radius * scale;
+        Physics2D.I._factory.set_CircleShape_radius(this._shape, radius);
+        Physics2D.I._factory.set_CircleShape_pos(this._shape, radius + this._x * scale, radius + this._y * scale)
         if (re) this.refresh();
     }
 

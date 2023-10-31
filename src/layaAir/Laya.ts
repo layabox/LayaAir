@@ -57,8 +57,12 @@ export class Laya {
     static timer: Timer = null;
     /** 加载管理器的引用。*/
     static loader: Loader = null;
-    
-    static _enablePhysics2D:boolean = false;
+
+    /** 是否开启了2D物理引擎*/
+    static _enablePhysics2D: boolean = false;
+
+    /** @internal 是否初始化完成2D物理引擎*/
+    static _installPhysics2D: boolean = false;
     /** 当前引擎版本。*/
 
     /**@private Render 类的引用。*/
@@ -85,10 +89,10 @@ export class Laya {
     static init(width: number, height: number, ...plugins: any[]): Promise<void>;
     static init(...args: any[]): Promise<void> {
 
-        if (Physics2D!=null&&Physics2D.I._factory&&!Laya._enablePhysics2D){
+        if (Laya._enablePhysics2D && Physics2D.I._factory && !Laya._installPhysics2D) {
             return new Promise<void>(resolve => {
                 Physics2D.I._factory.initialize().then(() => {
-                    Laya._enablePhysics2D = true;
+                    Laya._installPhysics2D = true;
                     Laya.init(...args).then(resolve);
                 });
             });

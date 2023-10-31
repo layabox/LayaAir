@@ -46,7 +46,7 @@ export class Physics_CollisionEvent {
         groundBody.type = "static";
         ground.addComponentInstance(groundBody);
         let chainCollider: ChainCollider = ground.addComponent(ChainCollider);
-        chainCollider.points = "50,400,50,600,1050,600,1050,400";
+        chainCollider.datas = [50, 400, 50, 600, 1050, 600, 1050, 400];
 
         let sensorCollider: CircleCollider = this.sensorCollider = ground.addComponent(CircleCollider);
         sensorCollider.isSensor = true;
@@ -57,14 +57,12 @@ export class Physics_CollisionEvent {
         for (let i = 0, len = this.count; i < len; i++) {
             let sp = new Sprite();
             this.Main.box2D.addChild(sp);
-            sp.pos(350 + i * 50, 200).size(40, 40);
-            sp.width = sp.height = 40;
+            sp.pos(370 + i * 50, 200).size(40, 40);
             let rb: RigidBody = sp.addComponent(RigidBody);
             this.bodys.push(rb);
             this.touching[i] = false;
             rb.getBody().GetUserData().pointer = i;
             let circleCollider: CircleCollider = sp.addComponent(CircleCollider);
-            circleCollider.x = circleCollider.y = 20;
             circleCollider.radius = 20;
             sp.addComponent(MouseJoint);
         }
@@ -93,7 +91,7 @@ export class Physics_CollisionEvent {
             let bodyA: RigidBody = this.sensorCollider.owner.getComponent(RigidBody);
             let bodyB: RigidBody = body.owner.getComponent(RigidBody);
             let position = bodyB.getWorldCenter();
-            let center = bodyA.GetWorldPoint(this.sensorCollider.x, this.sensorCollider.y)
+            let center = bodyA.GetWorldPoint(this.sensorCollider.x+100, this.sensorCollider.y+100)
             let x = center.x - position.x;
             let y = center.y - position.y;
             let vec: Vector2 = new Vector2(x, y);
@@ -103,8 +101,8 @@ export class Physics_CollisionEvent {
 
             Vector2.normalize(vec, vec);
             bodyB.applyForce(position, {
-                x:vec.x * 100, 
-                y:vec.y * 100
+                x: vec.x * 100,
+                y: vec.y * 100
             });
         }
     }

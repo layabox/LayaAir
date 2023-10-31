@@ -40,17 +40,17 @@ export class PulleyJoint extends JointBase {
             var def: physics2D_PulleyJointDef = PulleyJoint._temp || (PulleyJoint._temp = new physics2D_PulleyJointDef);
             def.bodyA = this.otherBody.getBody();
             def.bodyB = this.selfBody.getBody();
-            var posA: Point = this._factory.getLayaPosition(<Sprite>this.otherBody.owner, this.otherAnchor[0], this.otherAnchor[1], false);
+            var posA: Point = this._factory.getLayaPosition(<Sprite>this.otherBody.owner, this.otherAnchor[0], this.otherAnchor[1], true);
             def.localAnchorA.setValue(posA.x, posA.y);
-            var posB: Point = this._factory.getLayaPosition(<Sprite>this.selfBody.owner, this.selfAnchor[0], this.selfAnchor[1], false);
+            var posB: Point = this._factory.getLayaPosition(<Sprite>this.selfBody.owner, this.selfAnchor[0], this.selfAnchor[1], true);
             def.localAnchorB.setValue(posB.x, posB.y);
-            var groundA: Point = this._factory.getLayaPosition(<Sprite>this.otherBody.owner, this.otherGroundPoint[0], this.otherGroundPoint[1]);
+            var groundA: Point = this._factory.getLayaPosition(<Sprite>this.otherBody.owner, this.otherGroundPoint[0], this.otherGroundPoint[1], true);
             def.groundAnchorA.setValue(groundA.x, groundA.y);
-            var groundB: Point = this._factory.getLayaPosition(<Sprite>this.selfBody.owner, this.selfGroundPoint[0], this.selfGroundPoint[1]);
+            var groundB: Point = this._factory.getLayaPosition(<Sprite>this.selfBody.owner, this.selfGroundPoint[0], this.selfGroundPoint[1], true);
             def.groundAnchorB.setValue(groundB.x, groundB.y);
             def.ratio = this.ratio;
             def.collideConnected = this.collideConnected;
-            this._joint = Physics2D.I._factory.createJoint(def);
+            this._joint = Physics2D.I._factory.create_PulleyJoint(def);
         }
     }
 }

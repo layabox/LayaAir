@@ -25,4 +25,16 @@ export class Physics2DOption {
 
     /**是否开启物理绘制*/
     debugDraw: boolean = true;
+
+    /**是否绘制形状*/
+    drawShape: boolean = true;
+
+    /**是否绘制关节*/
+    drawJoint: boolean = true;
+
+    /**是否绘制包围盒*/
+    drawAABB: boolean = false;
+
+    /**是否绘制质心*/
+    drawCenterOfMass: boolean = false;
 }

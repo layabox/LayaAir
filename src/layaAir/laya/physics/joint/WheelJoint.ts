@@ -22,7 +22,7 @@ export class WheelJoint extends JointBase {
     axis: any[] = [1, 0];
 
     /**弹簧系统的震动频率，可以视为弹簧的弹性系数，通常频率应该小于时间步长频率的一半*/
-    private _frequency: number = 5;
+    private _frequency: number = 1;
     /**刚体在回归到节点过程中受到的阻尼比，建议取值0~1*/
     private _dampingRatio: number = 0.7;
 
@@ -39,6 +39,7 @@ export class WheelJoint extends JointBase {
     private _lowerTranslation: number = 0;
     /**启用约束后，刚体移动范围的上限，是距离anchor的偏移量*/
     private _upperTranslation: number = 0;
+
 
     /**
      * @override
@@ -62,6 +63,8 @@ export class WheelJoint extends JointBase {
             def.enableLimit = this._enableLimit;
             def.lowerTranslation = this._lowerTranslation;
             def.upperTranslation = this._upperTranslation;
+            def.frequency = this._frequency;
+            def.dampingRatio = this._dampingRatio;
             this._joint = this._factory.create_WheelJoint(def);
         }
     }

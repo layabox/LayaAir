@@ -3,6 +3,7 @@ import { Sprite } from "../../display/Sprite"
 import { Physics2D } from "../Physics2D"
 import { RigidBody } from "../RigidBody"
 import { physics2D_RevoluteJointDef } from "./JointDefStructInfo";
+import { Utils } from "../../utils/Utils";
 
 /**
  * 旋转关节强制两个物体共享一个锚点，两个物体相对旋转
@@ -29,9 +30,9 @@ export class RevoluteJoint extends JointBase {
 
     /**是否对刚体的旋转范围加以约束*/
     private _enableLimit: boolean = false;
-    /**启用约束后，刚体旋转范围的下限弧度*/
+    /**启用约束后，刚体旋转范围的下限角度*/
     private _lowerAngle: number = 0;
-    /**启用约束后，刚体旋转范围的上限弧度*/
+    /**启用约束后，刚体旋转范围的上限角度*/
     private _upperAngle: number = 0;
     /**
      * @override
@@ -50,8 +51,8 @@ export class RevoluteJoint extends JointBase {
             def.motorSpeed = this._motorSpeed;
             def.maxMotorTorque = this._maxMotorTorque;
             def.enableLimit = this._enableLimit;
-            def.lowerAngle = this._lowerAngle;
-            def.upperAngle = this._upperAngle;
+            def.lowerAngle = Utils.toRadian(this._lowerAngle);
+            def.upperAngle = Utils.toRadian(this._upperAngle);
             def.collideConnected = this.collideConnected;
 
             this._joint = this._factory.create_RevoluteJoint(def);
@@ -98,23 +99,23 @@ export class RevoluteJoint extends JointBase {
         if (this._joint) this._factory.set_Joint_EnableLimit(this._joint, value);
     }
 
-    /**启用约束后，刚体旋转范围的下限弧度*/
+    /**启用约束后，刚体旋转范围的下限角度*/
     get lowerAngle(): number {
         return this._lowerAngle;
     }
 
     set lowerAngle(value: number) {
         this._lowerAngle = value;
-        if (this._joint) this._factory.set_Joint_SetLimits(this._joint, value, this._upperAngle);
+        if (this._joint) this._factory.set_Joint_SetLimits(this._joint, Utils.toRadian(value), Utils.toRadian(this._upperAngle));
     }
 
-    /**启用约束后，刚体旋转范围的上限弧度*/
+    /**启用约束后，刚体旋转范围的上限角度*/
     get upperAngle(): number {
         return this._upperAngle;
     }
 
     set upperAngle(value: number) {
         this._upperAngle = value;
-        if (this._joint) this._factory.set_Joint_SetLimits(this._joint, this._lowerAngle, value);
+        if (this._joint) this._factory.set_Joint_SetLimits(this._joint, Utils.toRadian(this._lowerAngle), Utils.toRadian(value));
     }
 }

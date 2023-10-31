@@ -46,9 +46,9 @@ export class PrismaticJoint extends JointBase {
             if (!this.selfBody) throw "selfBody can not be empty";
 
             var def: physics2D_PrismaticJointDef = PrismaticJoint._temp || (PrismaticJoint._temp = new physics2D_PrismaticJointDef());
+            def.bodyA = this.selfBody ? this.selfBody.getBody() : Physics2D.I._emptyBody;
+            def.bodyB = this.otherBody.getBody();
             var anchorPos: Point = this._factory.getLayaPosition(<Sprite>this.selfBody.owner, this.anchor[0], this.anchor[1], true)
-            def.bodyA = this.otherBody ? this.otherBody.getBody() : Physics2D.I._emptyBody;
-            def.bodyB = this.selfBody.getBody();
             def.anchor.setValue(anchorPos.x, anchorPos.y);
             def.axis.setValue(this.axis[0], this.axis[1]);
             def.enableMotor = this._enableMotor;

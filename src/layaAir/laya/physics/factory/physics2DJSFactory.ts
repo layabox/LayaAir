@@ -291,11 +291,11 @@ export class physics2DJSFactory implements IPhysiscs2DFactory {
      * destroy Box2D world
      * @param options 
      */
-    destroyWorld(){
+    destroyWorld() {
         this._world = null;
         this._world = null;
         this._jsDraw = null;
-        if(this._debugDraw) this._debugDraw.removeSelf()
+        if (this._debugDraw) this._debugDraw.removeSelf()
         this._debugDraw = null;
     }
 
@@ -307,7 +307,7 @@ export class physics2DJSFactory implements IPhysiscs2DFactory {
     update(delta: number): void {
 
         //set Physics Position from Engine TODO
-        if(!this.world) return;
+        if (!this.world) return;
         this.world.Step(delta, this.velocityIterations, this.positionIterations, 3);
 
         //set engine Position from Phyiscs TODO
@@ -458,7 +458,7 @@ export class physics2DJSFactory implements IPhysiscs2DFactory {
      * @param body 
      */
     removeBody(body: any): void {
-        if(this.world) this.world.DestroyBody(body);
+        if (this.world) this.world.DestroyBody(body);
     }
 
 
@@ -484,7 +484,7 @@ export class physics2DJSFactory implements IPhysiscs2DFactory {
      * @param joint 
      */
     removeJoint(joint: any): void {
-        if(this.world) this.world.DestroyJoint(joint);
+        if (this.world) this.world.DestroyJoint(joint);
     }
 
     /** 
@@ -572,7 +572,7 @@ export class physics2DJSFactory implements IPhysiscs2DFactory {
         def.collideConnected = defStruct.collideConnected;
 
         if (defStruct.length > 0) {
-            def.length = defStruct.length;
+            def.length = this.layaToPhyValue(defStruct.length);
         } else {
             var p1: any = def.bodyA.GetWorldPoint(def.localAnchorA, new this.box2d.b2Vec2());
             var p2: any = def.bodyB.GetWorldPoint(def.localAnchorB, new this.box2d.b2Vec2());
@@ -862,11 +862,11 @@ export class physics2DJSFactory implements IPhysiscs2DFactory {
      * @param arr 
      * @param loop 
      */
-    set_ChainShape_data(shape: any, x: number, y: number, arr: any[], loop: boolean) {
+    set_ChainShape_data(shape: any, x: number, y: number, arr: number[], loop: boolean) {
         let len = arr.length;
         var ps: any[] = [];
         for (var i: number = 0, n: number = len; i < n; i += 2) {
-            ps.push(this.createPhyFromLayaVec2(x + parseInt(arr[i]), y + parseInt(arr[i + 1])));
+            ps.push(this.createPhyFromLayaVec2(x + arr[i], y + arr[i + 1]));
         }
         loop ? shape.CreateLoop(ps, len / 2) : shape.CreateChain(ps, len / 2, new (<any>window).box2d.b2Vec2(0, 0), new (<any>window).box2d.b2Vec2(0, 0));
     }
@@ -909,11 +909,11 @@ export class physics2DJSFactory implements IPhysiscs2DFactory {
      * @param y 
      * @param arr 
      */
-    set_EdgeShape_data(shape: any, x: number, y: number, arr: any[]) {
+    set_EdgeShape_data(shape: any, x: number, y: number, arr: number[]) {
         let len = arr.length;
         var ps: any[] = [];
         for (var i: number = 0, n: number = len; i < n; i += 2) {
-            ps.push(this.createPhyFromLayaVec2(x + parseInt(arr[i]), y + parseInt(arr[i + 1])));
+            ps.push(this.createPhyFromLayaVec2(x + arr[i], y + arr[i + 1]));
         }
         shape.SetTwoSided(ps[0], ps[1])
     }
@@ -931,11 +931,11 @@ export class physics2DJSFactory implements IPhysiscs2DFactory {
      * @param y 
      * @param arr 
      */
-    set_PolygonShape_data(shape: any, x: number, y: number, arr: any[]) {
+    set_PolygonShape_data(shape: any, x: number, y: number, arr: number[]) {
         let len = arr.length;
         var ps: any[] = [];
         for (var i: number = 0, n: number = len; i < n; i += 2) {
-            ps.push(this.createPhyFromLayaVec2(x + parseInt(arr[i]), y + parseInt(arr[i + 1])));
+            ps.push(this.createPhyFromLayaVec2(x + arr[i], y + arr[i + 1]));
         }
         shape.Set(ps, len / 2);
     }

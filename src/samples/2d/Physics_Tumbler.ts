@@ -10,12 +10,10 @@ import { Label } from "laya/ui/Label";
 import { Event } from "laya/events/Event";
 import { Config } from "Config";
 import { BoxCollider } from "laya/physics/Collider2D/BoxCollider"
-import { Physics2DOption } from "laya/physics/Physics2DOption";
 import { Physics2D } from "laya/physics/Physics2D";
 
 export class Physics_Tumbler {
     private count = 0;
-    private box: Sprite;
     private totalBox = 200;
     private label: Label;
     Main: typeof Main = null;
@@ -39,13 +37,13 @@ export class Physics_Tumbler {
     createBox() {
         const width = 300, height = 20;
         const
-            posx = Browser.width / 2,
-            posy = Browser.height / 2;
+            posx = Laya.stage.width / 2,
+            posy = Laya.stage.height / 2;
 
-        let box = this.box = new Sprite();
+        let box = new Sprite();
         box.size(width + height * 2, width + height * 2);
         box.pivot(box.width / 2, box.height / 2);
-        box.pos(posx - box.pivotX, posy - box.pivotY);
+        box.pos(posx, posy);
         this.Main.box2D.addChild(box);
         let boxBody: RigidBody = box.addComponent(RigidBody);
 
@@ -79,14 +77,14 @@ export class Physics_Tumbler {
     }
 
     addMiniBox() {
-        let box = this.box;
         if (this.count >= this.totalBox) {
             return;
         }
+
         let sp = new Sprite();
         this.Main.box2D.addChild(sp);
-        sp.x = box.x;
-        sp.y = box.y;
+        sp.x = Laya.stage.width / 2;
+        sp.y = Laya.stage.height / 2;
         let boxBody = sp.addComponent(RigidBody);
         boxBody.type = "dynamic";
         let collider = sp.addComponent(BoxCollider);

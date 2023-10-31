@@ -59,7 +59,7 @@ export class Physics_CollisionFiltering {
         rigidbody.type = "static";
         let chainCollider: ChainCollider = house.addComponent(ChainCollider);
         chainCollider.loop = true;
-        chainCollider.points = "600,50,100,200,100,600,1100,600,1100,200";
+        chainCollider.datas = [600, 50, 100, 200, 100, 600, 1100, 600, 1100, 200];
     }
 
     createBox(posx, posy, width, height, ratio) {
@@ -85,7 +85,7 @@ export class Physics_CollisionFiltering {
         rigidbody.category = Physics_CollisionFiltering.k_triangleCategory;
         rigidbody.mask = Physics_CollisionFiltering.k_triangleMask;
         let polygonCollider: PolygonCollider = triangle.addComponent(PolygonCollider);
-        polygonCollider.points = `0,0,0,${side * ratio},${side * ratio},0`;
+        polygonCollider.datas = [0, 0, 0, side * ratio, side * ratio, 0];
         this.addGroup(rigidbody, ratio);
     }
 
