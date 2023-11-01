@@ -1358,7 +1358,7 @@ export class Animator extends Component {
                     var crossDuratuion: number = controllerLayer._crossDuration;
                     var startPlayTime: number = crossPlayStateInfo._startPlayTime;
                     var crossClipDuration: number = crossClip._duration - startPlayTime;
-                    var crossScale: number = crossDuratuion > crossClipDuration ? crossClipDuration / crossDuratuion : 1.0;//如果过度时间大于过度动作时间,则减慢速度
+                    var crossScale: number = (crossDuratuion > crossClipDuration && 0 != crossClipDuration) ? crossClipDuration / crossDuratuion : 1.0;//如果过度时间大于过度动作时间,则减慢速度
                     var crossSpeed: number = this._speed * crossState.speed;
                     this._updatePlayer(crossState, crossPlayStateInfo, delta * crossScale * crossSpeed, crossClip.islooping, i);
                     var crossWeight: number = ((crossPlayStateInfo._elapsedTime - startPlayTime) / crossScale) / crossDuratuion;
