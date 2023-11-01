@@ -35,6 +35,7 @@ import { ILaya } from "../../ILaya";
 import { WordText } from "../utils/WordText";
 import { ColorUtils } from "../utils/ColorUtils";
 import { DrawEllipseCmd } from "./cmd/DrawEllipseCmd";
+import { DrawRoundRectCmd } from "./cmd/DrawRoundRectCmd";
 
 /**
  * <code>Graphics</code> 类用于创建绘图显示对象。Graphics可以同时绘制多个位图或者矢量图，还可以结合save，restore，transform，scale，rotate，translate，alpha等指令对绘图效果进行变化。
@@ -533,6 +534,26 @@ export class Graphics {
     }
 
     /**
+     * 绘制圆角矩形
+     * @param x             开始绘制的 X 轴位置。
+     * @param y             开始绘制的 Y 轴位置。
+     * @param width         圆角矩形宽度。
+     * @param height        圆角矩形高度。
+     * @param lt            左上圆角
+     * @param rt            右上圆角
+     * @param lb            左下圆角
+     * @param rb            右下圆角
+     * @param fillColor     填充颜色，或者填充绘图的渐变对象。
+     * @param lineColor     （可选）边框颜色，或者填充绘图的渐变对象。
+     * @param lineWidth     （可选）边框宽度。
+     * @param percent       （可选）位置和大小是否是百分比值。
+     * @returns 
+     */
+    drawRoundRect(x: number, y: number, width: number, height: number, lt: number, rt: number, lb: number, rb: number, fillColor: any, lineColor: any = null, lineWidth: number = 1, percent?: boolean) {
+        return this.addCmd(DrawRoundRectCmd.create(x, y, width, height, lt, rt, lb, rb, fillColor, lineColor, lineWidth, percent));
+    }
+
+    /**
      * 绘制圆形。
      * @param x			圆点X 轴位置。
      * @param y			圆点Y 轴位置。
@@ -553,9 +574,10 @@ export class Graphics {
      * @param fillColor 填充颜色，或者填充绘图的渐变对象。
      * @param lineColor （可选）边框颜色，或者填充绘图的渐变对象。
      * @param lineWidth （可选）边框宽度。
+     * @param percent   （可选）位置和大小是否是百分比值。
      */
-    drawEllipse(x: number, y: number, width: number, height: number, fillColor: any, lineColor: any, lineWidth: number): DrawEllipseCmd {
-        return this.addCmd(DrawEllipseCmd.create(x, y, width, height, fillColor, lineColor, lineWidth));
+    drawEllipse(x: number, y: number, width: number, height: number, fillColor: any, lineColor: any, lineWidth: number, percent?: boolean): DrawEllipseCmd {
+        return this.addCmd(DrawEllipseCmd.create(x, y, width, height, fillColor, lineColor, lineWidth, percent));
     }
 
     /**
