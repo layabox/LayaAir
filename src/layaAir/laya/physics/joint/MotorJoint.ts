@@ -1,6 +1,7 @@
 import { JointBase } from "./JointBase";
 import { RigidBody } from "../RigidBody"
 import { physics2D_MotorJointDef } from "./JointDefStructInfo";
+import { Utils } from "../../utils/Utils";
 
 /**
  * 马达关节：用来限制两个刚体，使其相对位置和角度保持不变
@@ -36,10 +37,10 @@ export class MotorJoint extends JointBase {
             if (!this.selfBody) throw "selfBody can not be empty";
 
             var def: physics2D_MotorJointDef = MotorJoint._temp || (MotorJoint._temp = new physics2D_MotorJointDef());
-            def.bodyA = this.otherBody.getBody();
-            def.bodyB = this.selfBody.getBody();
+            def.bodyA = this.selfBody.getBody();
+            def.bodyB = this.otherBody.getBody();
             def.linearOffset.setValue(this._linearOffset[0], this._linearOffset[1]);
-            def.angularOffset = this._angularOffset;
+            def.angularOffset = Utils.toRadian(this._angularOffset);
             def.maxForce = this._maxForce;
             def.maxTorque = this._maxTorque;
             def.correctionFactor = this._correctionFactor;
@@ -67,7 +68,7 @@ export class MotorJoint extends JointBase {
 
     set angularOffset(value: number) {
         this._angularOffset = value;
-        if (this._joint) this._factory.set_MotorJoint_SetAngularOffset(this._joint, value);
+        if (this._joint) this._factory.set_MotorJoint_SetAngularOffset(this._joint, Utils.toRadian(value));
     }
 
     /**当selfBody偏离目标位置时，为使其恢复到目标位置，马达关节所施加的最大作用力*/

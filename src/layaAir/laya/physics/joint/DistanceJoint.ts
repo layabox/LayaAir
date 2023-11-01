@@ -2,11 +2,15 @@ import { JointBase } from "./JointBase";
 import { Physics2D } from "../Physics2D"
 import { RigidBody } from "../RigidBody"
 import { physics2D_DistancJointDef } from "./JointDefStructInfo";
+import { Sprite } from "../../display/Sprite";
+import { Point } from "../../maths/Point";
 
 /**
  * 距离关节：两个物体上面各自有一点，两点之间的距离固定不变
  */
 export class DistanceJoint extends JointBase {
+    /**@private */
+    private static _tempP: Point = new Point();
     /**@private */
     private static _temp: physics2D_DistancJointDef;
     /**[首次设置有效]关节的自身刚体*/
@@ -37,12 +41,20 @@ export class DistanceJoint extends JointBase {
      */
     protected _createJoint(): void {
         if (!this._joint) {
-            this.selfBody = this.selfBody || this.owner.getComponent(RigidBody);
+            let node = <Sprite>this.owner;
+            this.selfBody = this.selfBody || node.getComponent(RigidBody);
             if (!this.selfBody) throw "selfBody can not be empty";
+            let point = DistanceJoint._tempP;
+            point.setTo(this.selfAnchor[0], this.selfAnchor[1])
+            if (node.transform) {
+                node.transform.transformPointN(point)
+            } else {
+                point.x *= node.scaleX;
+                point.y *= node.scaleY;
+            }
             var def = DistanceJoint._temp || (DistanceJoint._temp = new physics2D_DistancJointDef());
-
             def.bodyA = this.selfBody.getBody();
-            def.localAnchorA.setValue(this.selfAnchor[0], this.selfAnchor[1]);
+            def.localAnchorA.setValue(point.x, point.y);
             def.bodyB = this.otherBody ? this.otherBody.getBody() : Physics2D.I._emptyBody;
             def.localAnchorB.setValue(this.otherAnchor[0], this.otherAnchor[1]);
 

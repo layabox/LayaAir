@@ -36,7 +36,7 @@ export class Physics_Strandbeests {
     private label: Label;
     private TempVec: Vector2 = new Vector2();
 
-    private drawFlags:string[] = ["Shape","Joint","AABB","Pair","CenterOfMass"]
+    private drawFlags: string[] = ["Shape", "Joint", "AABB", "Pair", "CenterOfMass"]
     constructor(maincls: typeof Main) {
         this.Main = maincls;
         Config.isAntialias = true;
@@ -98,6 +98,7 @@ export class Physics_Strandbeests {
         let wheelCollider: CircleCollider = wheel.addComponent(CircleCollider);
         wheelCollider.density = 1;
         wheelCollider.radius = 16 * this.scale;
+
 
 
 
@@ -221,14 +222,13 @@ export class Physics_Strandbeests {
         Laya.stage.on(Event.CLICK, this, () => {
             let tempVec = this.TempVec;
             let newBall = new Sprite();
+            newBall.pos(Laya.stage.mouseX, Laya.stage.mouseY);
             this.Main.box2D.addChild(newBall);
             let circleBody: RigidBody = newBall.addComponent(RigidBody);
             let circleCollider: CircleCollider = newBall.addComponent(CircleCollider);
             circleCollider.radius = 3 * this.scale;
-            circleCollider.x = Laya.stage.mouseX;
-            circleCollider.y = Laya.stage.mouseY;
-            tempVec.x = this.chassis.x - circleCollider.x;
-            tempVec.y = this.chassis.y - circleCollider.y;
+            tempVec.x = this.chassis.x - newBall.x;
+            tempVec.y = this.chassis.y - newBall.y;
             Vector2.normalize(tempVec, tempVec);
             Vector2.scale(tempVec, 50, tempVec);
             circleBody.linearVelocity = tempVec.toArray();
@@ -242,44 +242,44 @@ export class Physics_Strandbeests {
         label.right = 20;
         label.fontSize = 16;
         label.color = "#e69999";
-        for(var i = 0,n= this.drawFlags.length;i<n;i++){
-            this.createCheckBox(this.drawFlags[i],i==0,1300,70+50*i);
+        for (var i = 0, n = this.drawFlags.length; i < n; i++) {
+            this.createCheckBox(this.drawFlags[i], i <= 1, 1300, 70 + 50 * i);
         }
-        
+
     }
 
-    private createCheckBox(lable:string,isselect:boolean,x:number,y:number) {
-		var cb: CheckBox = new CheckBox("res/ui/checkbox (1).png");
-		this.Main.box2D.addChild(cb);
+    private createCheckBox(lable: string, isselect: boolean, x: number, y: number) {
+        var cb: CheckBox = new CheckBox("res/ui/checkbox (1).png");
+        this.Main.box2D.addChild(cb);
 
-		cb.labelColors = "white";
-		cb.labelSize = 20;
-		cb.labelFont = "Microsoft YaHei";
-		cb.labelPadding = "3,0,0,5";
+        cb.labelColors = "white";
+        cb.labelSize = 20;
+        cb.labelFont = "Microsoft YaHei";
+        cb.labelPadding = "3,0,0,5";
         cb.x = x;
-        cb.y  = y;
+        cb.y = y;
         cb.label = lable;
         cb.selected = isselect;
         cb.on("change", this, this.updateSelect, [cb]);
-	}
+    }
 
-    private updateSelect(checkBox: CheckBox){
+    private updateSelect(checkBox: CheckBox) {
         let isselect = checkBox.selected;
-        switch(checkBox.label){
+        switch (checkBox.label) {
             case "Shape":
-                Physics2D.drawShape = isselect;
+                Physics2D.I.drawShape = isselect;
                 break;
             case "Joint":
-                Physics2D.drawJoint = isselect;
+                Physics2D.I.drawJoint = isselect;
                 break;
             case "AABB":
-                Physics2D.drawAABB = isselect;
+                Physics2D.I.drawAABB = isselect;
                 break;
             case "Pair":
-                Physics2D.drawPair = isselect;
+                Physics2D.I.drawPair = isselect;
                 break;
             case "CenterOfMass":
-                Physics2D.drawCenterOfMass = isselect;
+                Physics2D.I.drawCenterOfMass = isselect;
                 break;
         }
     }

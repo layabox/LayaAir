@@ -4,6 +4,7 @@ import { Point } from "../../maths/Point"
 import { Physics2D } from "../Physics2D"
 import { RigidBody } from "../RigidBody"
 import { physics2D_PrismaticJointDef } from "./JointDefStructInfo";
+import { Utils } from "../../utils/Utils";
 
 /**
  * 平移关节：移动关节允许两个物体沿指定轴相对移动，它会阻止相对旋转
@@ -17,8 +18,12 @@ export class PrismaticJoint extends JointBase {
     otherBody: RigidBody;
     /**[首次设置有效]关节的控制点，是相对于自身刚体的左上角位置偏移*/
     anchor: any[] = [0, 0];
-    /**[首次设置有效]一个向量值，描述运动方向，比如1,0是沿X轴向右*/
-    axis: any[] = [1, 0];
+    /**
+     * @deprecated
+     * [首次设置有效]一个向量值，描述运动方向，比如1,0是沿X轴向右*/
+    _axis: any[] = [1, 0];
+    /**[首次设置有效]一个角度，描述运动方向，比如0是沿X轴向右*/
+    angle:number = 0;
     /**[首次设置有效]两个刚体是否可以发生碰撞，默认为false*/
     collideConnected: boolean = false;
 
@@ -46,11 +51,12 @@ export class PrismaticJoint extends JointBase {
             if (!this.selfBody) throw "selfBody can not be empty";
 
             var def: physics2D_PrismaticJointDef = PrismaticJoint._temp || (PrismaticJoint._temp = new physics2D_PrismaticJointDef());
+            def.bodyA = this.selfBody ? this.selfBody.getBody() : Physics2D.I._emptyBody;
+            def.bodyB = this.otherBody.getBody();
             var anchorPos: Point = this._factory.getLayaPosition(<Sprite>this.selfBody.owner, this.anchor[0], this.anchor[1], true)
-            def.bodyA = this.otherBody ? this.otherBody.getBody() : Physics2D.I._emptyBody;
-            def.bodyB = this.selfBody.getBody();
             def.anchor.setValue(anchorPos.x, anchorPos.y);
-            def.axis.setValue(this.axis[0], this.axis[1]);
+            let radian = Utils.toRadian(this.angle);
+            def.axis.setValue(Math.cos(radian), Math.sin(radian));
             def.enableMotor = this._enableMotor;
             def.motorSpeed = this._motorSpeed;
             def.maxMotorForce = this._maxMotorForce;
@@ -121,5 +127,17 @@ export class PrismaticJoint extends JointBase {
     set upperTranslation(value: number) {
         this._upperTranslation = value;
         if (this._joint) this._factory.set_Joint_SetLimits(this._joint, this._lowerTranslation, value);
+    }
+
+    /**
+     * @deprecated
+     * 启用约束后，刚体移动范围的上限，是距离anchor的偏移量*/
+    get axis():any{
+        return this._axis;
+    }
+
+    set axis(value:any){
+        this._axis = value;
+        this.angle = Utils.toAngle(Math.atan2(value[1],value[0]) );
     }
 }

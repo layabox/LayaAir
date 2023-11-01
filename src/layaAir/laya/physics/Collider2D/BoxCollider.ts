@@ -1,5 +1,7 @@
 import { ColliderBase } from "./ColliderBase";
 import { Physics2D } from "../Physics2D";
+import { Sprite } from "../../display/Sprite";
+
 
 /**
  * 2D矩形碰撞体
@@ -29,15 +31,16 @@ export class BoxCollider extends ColliderBase {
 
 
     private _setShape(re: boolean = true): void {
-        var scaleX: number = ((this.owner as any)["scaleX"] || 1);
-        var scaleY: number = ((this.owner as any)["scaleY"] || 1);
-        let helfW: number = this._width * 0.5;
-        let heflH: number = this._height * 0.5;
+        let node: Sprite = this.owner as Sprite;
+        var scaleX: number = node.scaleX;
+        var scaleY: number = node.scaleY;
+        let helfW: number = this._width * 0.5 * scaleX;
+        let helfH: number = this._height * 0.5 * scaleY;
         var center = {
-            x: (helfW + this._x) * scaleX,
-            y: (heflH + this._y) * scaleY
+            x: helfW + this._x * scaleX,
+            y: helfH + this._y * scaleY
         }
-        Physics2D.I._factory.set_collider_SetAsBox(this._shape, helfW, heflH, center);
+        Physics2D.I._factory.set_collider_SetAsBox(this._shape, helfW, helfH, center);
         if (re) this.refresh();
     }
 

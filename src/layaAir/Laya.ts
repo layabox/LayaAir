@@ -38,6 +38,7 @@ import { RunDriver } from "./laya/utils/RunDriver";
 import { Config } from "./Config";
 import { Shader3D } from "./laya/RenderEngine/RenderShader/Shader3D";
 import { Physics2D } from "./laya/physics/Physics2D";
+import { IPhysiscs2DFactory } from "./laya/physics/IPhysiscs2DFactory";
 
 /**
  * <code>Laya</code> 是全局对象的引用入口集。
@@ -56,8 +57,12 @@ export class Laya {
     static timer: Timer = null;
     /** 加载管理器的引用。*/
     static loader: Loader = null;
-    
-    static _enablePhysics2D:boolean = false;
+
+     /** @internal 2d物理引擎创建类*/
+    static _physiscs2DFactory:IPhysiscs2DFactory;
+
+    /** @internal 是否初始化完成2D物理引擎*/
+    static _installPhysics2D: boolean = false;
     /** 当前引擎版本。*/
 
     /**@private Render 类的引用。*/
@@ -84,10 +89,10 @@ export class Laya {
     static init(width: number, height: number, ...plugins: any[]): Promise<void>;
     static init(...args: any[]): Promise<void> {
 
-        if (Physics2D!=null&&Physics2D.I._factory&&!Laya._enablePhysics2D){
+        if (Laya._physiscs2DFactory && !Laya._installPhysics2D) {
             return new Promise<void>(resolve => {
-                Physics2D.I._factory.initialize().then(() => {
-                    Laya._enablePhysics2D = true;
+                Laya._physiscs2DFactory.initialize().then(() => {
+                    Laya._installPhysics2D = true;
                     Laya.init(...args).then(resolve);
                 });
             });
@@ -252,6 +257,16 @@ export class Laya {
 
             return Promise.resolve();
         }
+    }
+
+    static set Physiscs2DFactory(value: IPhysiscs2DFactory) {
+        if (value && !this._physiscs2DFactory) {
+            this._physiscs2DFactory = value;
+        }
+    }
+
+    static get Physiscs2DFactory() {
+        return this._physiscs2DFactory;
     }
 
     static createRender(): Render {

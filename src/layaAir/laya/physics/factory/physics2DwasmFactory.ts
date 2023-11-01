@@ -11,6 +11,7 @@ import { Physics2DOption } from "../Physics2DOption";
 import { Physics2DDebugDraw } from "../Physics2DDebugDraw";
 import { RigidBody2DInfo } from "../RigidBody2DInfo";
 import { physics2D_DistancJointDef, physics2D_GearJointDef, physics2D_MotorJointDef, physics2D_MouseJointJointDef, physics2D_PrismaticJointDef, physics2D_PulleyJointDef, physics2D_RevoluteJointDef, physics2D_WeldJointDef, physics2D_WheelJointDef } from "../joint/JointDefStructInfo"
+import { Laya } from "../../../Laya";
 
 const b2_maxFloat = 1E+37;
 
@@ -299,8 +300,8 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
     */
     destroyWorld() {
         let bodylist = this._world.GetBodyList();
-        while(!this.isNullData(bodylist)){
-            for(let fixture = bodylist.GetFixtureList();!this.isNullData(fixture);){
+        while (!this.isNullData(bodylist)) {
+            for (let fixture = bodylist.GetFixtureList(); !this.isNullData(fixture);) {
                 fixture.GetUserData().pointer = -1;
                 fixture = fixture.GetNext();
             }
@@ -336,7 +337,7 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
         }
         let colliderA: any = contact.GetFixtureA().collider;
         let colliderB: any = contact.GetFixtureB().collider;
-        if(colliderA == null||colliderB == null){
+        if (colliderA == null || colliderB == null) {
             return;
         }
         if (colliderA.destroyed || colliderB.destroyed) {
@@ -596,7 +597,7 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
         def.set_collideConnected(defStruct.collideConnected);
 
         if (defStruct.length > 0) {
-            def.length = defStruct.length;
+            def.length = this.layaToPhyValue(defStruct.length);
         } else {
             var p1: any = def.bodyA.GetWorldPoint(def.localAnchorA);
             let data = { x: p1.x, y: p1.y };
@@ -894,12 +895,12 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
      * @param arr 
      * @param loop 
      */
-    set_ChainShape_data(shape: any, x: number, y: number, arr: any[], loop: boolean) {
+    set_ChainShape_data(shape: any, x: number, y: number, arr: number[], loop: boolean) {
         let len = arr.length;
         var ps: any[] = [];
         for (var i: number = 0, n: number = len; i < n; i += 2) {
-            ps.push(x + parseInt(arr[i]))
-            ps.push(y + parseInt(arr[i + 1]))
+            ps.push(x + arr[i]);
+            ps.push(y + arr[i + 1]);
         }
         var ptr_wrapped = this.createWrapPointer(ps);
         if (loop) {
@@ -947,11 +948,11 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
      * @param y 
      * @param arr 
      */
-    set_EdgeShape_data(shape: any, x: number, y: number, arr: any[]) {
+    set_EdgeShape_data(shape: any, x: number, y: number, arr: number[]) {
         let len = arr.length;
         var ps: any[] = [];
         for (var i: number = 0, n: number = len; i < n; i += 2) {
-            ps.push(this.createPhyFromLayaVec2(x + parseInt(arr[i]), y + parseInt(arr[i + 1])));
+            ps.push(this.createPhyFromLayaVec2(x + arr[i], y + arr[i + 1]));
         }
         shape.SetTwoSided(ps[0], ps[1])
     }
@@ -970,12 +971,12 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
     * @param y 
     * @param arr 
     */
-    set_PolygonShape_data(shape: any, x: number, y: number, arr: any[]) {
+    set_PolygonShape_data(shape: any, x: number, y: number, arr: number[]) {
         let len = arr.length;
         var ps: any[] = [];
         for (var i: number = 0, n: number = len; i < n; i += 2) {
-            ps.push(x + parseInt(arr[i]))
-            ps.push(y + parseInt(arr[i + 1]))
+            ps.push(x + arr[i]);
+            ps.push(y + arr[i + 1]);
         }
         shape.Set(this.createWrapPointer(ps), len / 2);
     }
@@ -993,7 +994,7 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
         def.restitution = fixtureDef.restitution;
         def.shape = fixtureDef.shape;
         def.world = this._world;
-        return this.castObject(def, this.box2d.b2FixtureDef);
+        return def;
     }
 
     /** 
@@ -1474,7 +1475,7 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
             joint = box2d.wrapPointer(joint, box2d.b2Joint);
             joint.GetUserData().pointer = -1;
         }
-        listner.SayGoodbyeFixture= function (fixture: any): void {
+        listner.SayGoodbyeFixture = function (fixture: any): void {
             fixture = box2d.wrapPointer(fixture, box2d.b2Fixture);
             fixture.GetUserData().pointer = -1;
         }
@@ -1546,9 +1547,12 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
         return Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2))
     }
 
-    isNullData(data:any){
-        return this.box2d.compare(data,this.box2d.NULL)
+    /**
+     * @internal 
+    */
+    isNullData(data: any) {
+        return this.box2d.compare(data, this.box2d.NULL)
     }
 }
 
-Physics2D.I._factory = new physics2DwasmFactory()
+Laya.Physiscs2DFactory = new physics2DwasmFactory()

@@ -177,7 +177,6 @@ export class Graphics {
     }
 
     set cmds(value) {
-        debugger;
         if (this._sp) {
             this._sp._renderType |= SpriteConst.GRAPHICS;
         }

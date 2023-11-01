@@ -19,6 +19,7 @@ import { SpriteStyle } from "./css/SpriteStyle";
 import { Graphics } from "./Graphics";
 import { Node } from "./Node";
 import { SpriteConst } from "./SpriteConst";
+// import { Stage } from "./Stage";
 import { RenderTexture2D } from "../resource/RenderTexture2D";
 import { Event } from "../events/Event";
 import { Dragging } from "../utils/Dragging";
@@ -1758,7 +1759,6 @@ export class Sprite extends Node {
     }
 
 
-    //GlobalTODO
     //miner 为了不破坏之前的local性能架构，采用标致开启的方式来增加GlobalMode的更新系统，优化需要高频调用Global数据的
     //因为此块功能比较集中，顾单独写在下方
     /**@internal */
@@ -1780,7 +1780,7 @@ export class Sprite extends Node {
     /**@internal */
     private _globalPosy: number = 0.0;
     /**@internal */
-    private _globalRotate: number;
+    private _globalRotate: number = 0.0;
     /**@internal */
     private _globalScalex: number = 1.0;
     /**@internal */
@@ -1857,7 +1857,7 @@ export class Sprite extends Node {
             if (this._parent == ILaya.stage || !this._parent)
                 this._globalPosy = value;
             else {
-                this._globalPosx = value;
+                this._globalPosy = value;
                 this._setY((this._globalPosy - (this._parent as Sprite).globalPosY) / this.globalScaleY);
             }
             this._setGlobalCacheFlag(Sprite.Sprite_GlobalDeltaFlage_Position_Y, false);
@@ -1947,7 +1947,7 @@ export class Sprite extends Node {
         if (this._parent == ILaya.stage || !this._parent) {
             this.rotation = value;
         } else {
-            this.rotation = this.globalRotation - (this.parent as Sprite).globalRotation;
+            this.rotation = this._globalRotate - (this.parent as Sprite).globalRotation;
         }
         if (this._cacheGlobal) {
             this._setGlobalCacheFlag(Sprite.Sprite_GlobalDeltaFlage_Rotation, false);
@@ -2022,6 +2022,13 @@ export class Sprite extends Node {
             this._globalDeltaFlages |= type;
         else
             this._globalDeltaFlages &= ~type;
+    }
+
+    /**
+    * @internal 
+    */
+    get globalDeltaFlages(): number {
+        return this._globalDeltaFlages;
     }
 
     /**

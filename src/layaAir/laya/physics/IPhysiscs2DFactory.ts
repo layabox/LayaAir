@@ -402,7 +402,7 @@ export interface IPhysiscs2DFactory {
     /** 
      * @internal
      */
-    set_ChainShape_data(shape: any, x: number, y: number, arr: any[], loop: boolean): any;
+    set_ChainShape_data(shape: any, x: number, y: number, arr: number[], loop: boolean): any;
 
     /** 
      * @internal
@@ -427,7 +427,7 @@ export interface IPhysiscs2DFactory {
     /** 
      * @internal
      */
-    set_EdgeShape_data(shape: any, x: number, y: number, arr: any[]): any;
+    set_EdgeShape_data(shape: any, x: number, y: number, arr: number[]): any;
 
     /** 
      * @internal
@@ -437,7 +437,7 @@ export interface IPhysiscs2DFactory {
     /** 
      * @internal
      */
-    set_PolygonShape_data(shape: any, x: number, y: number, arr: any[]): any;
+    set_PolygonShape_data(shape: any, x: number, y: number, arr: number[]): any;
 
     //----------------fixture-------------------
 

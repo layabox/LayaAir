@@ -6,6 +6,9 @@ import { LayaEnv } from "../../LayaEnv";
 import { Physics2DOption } from "./Physics2DOption";
 import { Vector2 } from "../maths/Vector2";
 import { IPhysiscs2DFactory } from "./IPhysiscs2DFactory";
+import { SingletonList } from "../utils/SingletonList";
+import { RigidBody } from "./RigidBody";
+import { Laya } from "../../Laya";
 
 /**
  * 2D物理引擎
@@ -28,6 +31,8 @@ export class Physics2D extends EventDispatcher {
 
     _factory: IPhysiscs2DFactory;
 
+    _rigiBodyList: SingletonList<RigidBody>;
+
     /**全局物理单例*/
     static get I(): Physics2D {
         return Physics2D._I || (Physics2D._I = new Physics2D());
@@ -45,93 +50,78 @@ export class Physics2D extends EventDispatcher {
        customUpdate:false 自己控制物理更新时机，自己调用Physics.update
      */
     static enable(options: Physics2DOption = null) {
+        Physics2D.I._factory = Laya.Physiscs2DFactory;
         Physics2D.I.start(options)
     }
 
     /**
      * 设置物理绘制
      */
-    static enableDebugDraw(enable: boolean, flags: number = 99): void {
+    set enableDebugDraw(enable: boolean) {
         if (enable) {
-            this.I._factory.createDebugDraw(flags);
+            this._factory.createDebugDraw(this._factory.drawFlags_shapeBit);
         } else {
-            this.I._factory.removeDebugDraw();
+            this._factory.removeDebugDraw();
         }
-
-    }
-
-    /**
-     * 更新显示数据
-     */
-    static updataDebugFlag(flags: number): void {
-        this.I._factory.setDebugFlag(flags);
-    }
-
-    /**
-     * 开启全部绘制
-     */
-    static set drawAll(enable: boolean) {
-        if (enable) this.I._factory.setDebugFlag(this._I._factory.drawFlags_all);
-        else this.I._factory.setDebugFlag(this.I._factory.drawFlags_none);
     }
 
     /**
      * 是否绘制Shape
      */
-    static set drawShape(enable: boolean) {
-        let flag = this.I._factory.drawFlags_shapeBit;
+    set drawShape(enable: boolean) {
+        let flag = this._factory.drawFlags_shapeBit;
         if (enable) {
-            this.I._factory.appendFlags(flag);
+            this._factory.appendFlags(flag);
         } else {
-            this.I._factory.clearFlags(flag);
+            this._factory.clearFlags(flag);
         }
     }
 
     /**
      * 是否绘制Joint
      */
-    static set drawJoint(enable: boolean) {
-        let flag = this.I._factory.drawFlags_jointBit;
+    set drawJoint(enable: boolean) {
+        let flag = this._factory.drawFlags_jointBit;
         if (enable) {
-            this.I._factory.appendFlags(flag);
+            this._factory.appendFlags(flag);
         } else {
-            this.I._factory.clearFlags(flag);
+            this._factory.clearFlags(flag);
         }
     }
 
     /**
      * 是否绘制AABB
      */
-    static set drawAABB(enable: boolean) {
-        let flag = this.I._factory.drawFlags_aabbBit;
+    set drawAABB(enable: boolean) {
+        let flag = this._factory.drawFlags_aabbBit;
         if (enable) {
-            this.I._factory.appendFlags(flag);
+            this._factory.appendFlags(flag);
         } else {
-            this.I._factory.clearFlags(flag);
+            this._factory.clearFlags(flag);
         }
     }
 
     /**
     * 是否绘制Pair
     */
-    static set drawPair(enable: boolean) {
-        let flag = this.I._factory.drawFlags_pairBit;
+    set drawPair(enable: boolean) {
+        let flag = this._factory.drawFlags_pairBit;
         if (enable) {
-            this.I._factory.appendFlags(flag);
+            this._factory.appendFlags(flag);
         } else {
-            this.I._factory.clearFlags(flag);
+            this._factory.clearFlags(flag);
         }
     }
 
     /**
     * 是否绘制CenterOfMass
     */
-    static set drawCenterOfMass(enable: boolean) {
-        let flag = this.I._factory.drawFlags_centerOfMassBit;
+    set drawCenterOfMass(enable: boolean) {
+        let flag = this._factory.drawFlags_centerOfMassBit;
         if (enable) {
-            this.I._factory.appendFlags(flag);
+            this._factory.appendFlags(flag);
         } else {
-            this.I._factory.clearFlags(flag);
+            this._factory.clearFlags(flag);
         }
     }
 
@@ -157,35 +147,64 @@ export class Physics2D extends EventDispatcher {
         }
         if (!this._enabled) {
             this._enabled = true;
-            //start 2d world
             this._factory.start(options);
             this.allowSleeping = options.allowSleeping;
-            if (options.debugDraw) {
-                this._factory.createDebugDraw(this._factory.drawFlags_shapeBit);
-            }
             this._emptyBody = this._factory.createBody(null);
-        }else{
-            if (options.debugDraw) {
-                this._factory.setDebugFlag(this._factory.drawFlags_shapeBit);
-            }
+        } else {
             ILaya.physicsTimer.clear(this, this._update);
         }
+
+        if (options.debugDraw) {
+            this.enableDebugDraw = true;
+            this.drawShape = options.drawShape;
+            this.drawJoint = options.drawJoint;
+            this.drawAABB = options.drawAABB;
+            this.drawCenterOfMass = options.drawCenterOfMass;
+        } else {
+            this.enableDebugDraw = false;
+        }
+        if (!this._rigiBodyList) this._rigiBodyList = new SingletonList<RigidBody>();
+        else this._rigiBodyList.clean();
+
         if (!options.customUpdate && LayaEnv.isPlaying)
             ILaya.physicsTimer.frameLoop(1, this, this._update);
     }
 
+    addRigidBody(body: RigidBody) {
+        this._rigiBodyList.add(body);
+    }
+
+    removeRigidBody(body: RigidBody) {
+        this._rigiBodyList.remove(body);
+    }
+
     private _update(): void {
-        var delta = ILaya.timer.delta / 1000;
-        if (delta > .033) { // 时间步太长，会导致错误穿透
-            delta = .033;
-        }
+        //同步渲染坐标到物理坐标
+        this._updatePhysicsTransformFromRender();
+        //时间步太长，会导致错误穿透
+        var delta = Math.min(ILaya.timer.delta / 1000, 0.033);
         this._factory.update(delta);
+        //同步物理坐标到渲染坐标
+        this._updatePhysicsTransformToRender();
+        //同步事件
         var len: number = this._eventList.length;
         if (len > 0) {
             for (var i: number = 0; i < len; i += 2) {
                 this._factory.sendEvent(this._eventList[i], this._eventList[i + 1]);
             }
             this._eventList.length = 0;
+        }
+    }
+
+    _updatePhysicsTransformFromRender() {
+        for (var i = 0, n = this._rigiBodyList.length; i < n; i++) {
+            this._rigiBodyList.elements[i].updatePhysicsTransformFromRender()
+        }
+    }
+
+    _updatePhysicsTransformToRender() {
+        for (var i = 0, n = this._rigiBodyList.length; i < n; i++) {
+            this._rigiBodyList.elements[i].updatePhysicsTransformToRender()
         }
     }
 

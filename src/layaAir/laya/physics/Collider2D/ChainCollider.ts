@@ -9,8 +9,16 @@ export class ChainCollider extends ColliderBase {
     private _x: number = 0;
     /**相对节点的y轴偏移*/
     private _y: number = 0;
-    /**用逗号隔开的点的集合，格式：x,y,x,y ...*/
+
+    /**
+     * @deprecated
+     * 用逗号隔开的点的集合，格式：x,y,x,y ...
+     */
     private _points: string = "0,0,100,0";
+
+    /**顶点数据*/
+    private _datas: number[] = [];
+
     /**是否是闭环，注意不要有自相交的链接形状，它可能不能正常工作*/
     private _loop: boolean = false;
     /**
@@ -26,12 +34,10 @@ export class ChainCollider extends ColliderBase {
     }
 
     private _setShape(re: boolean = true): void {
-        var arr: any[] = this._points.split(",");
-        var len: number = arr.length;
+        var len: number = this._datas.length;
         if (len % 2 == 1) throw "ChainCollider points lenth must a multiplier of 2";
 
-        Physics2D.I._factory.set_ChainShape_data(this._shape, this._x, this._y, arr, this._loop)
-
+        Physics2D.I._factory.set_ChainShape_data(this._shape, this._x, this._y, this._datas, this._loop)
 
         if (re) this.refresh();
     }
@@ -56,7 +62,10 @@ export class ChainCollider extends ColliderBase {
         if (this._shape) this._setShape();
     }
 
-    /**用逗号隔开的点的集合，格式：x,y,x,y ...*/
+    /**
+     * @deprecated
+     * 用逗号隔开的点的集合，格式：x,y,x,y ...
+     */
     get points(): string {
         return this._points;
     }
@@ -64,6 +73,23 @@ export class ChainCollider extends ColliderBase {
     set points(value: string) {
         if (!value) throw "ChainCollider points cannot be empty";
         this._points = value;
+        var arr: any[] = this._points.split(",");
+        let length = arr.length;
+        this._datas = [];
+        for (var i: number = 0, n: number = length; i < n; i++) {
+            this._datas.push(parseInt(arr[i]))
+        }
+        if (this._shape) this._setShape();
+    }
+
+    /**顶点数据 x,y,x,y ...*/
+    get datas(): number[] {
+        return this._datas;
+    }
+
+    set datas(value: number[]) {
+        if (!value) throw "ChainCollider points cannot be empty";
+        this._datas = value;
         if (this._shape) this._setShape();
     }
 

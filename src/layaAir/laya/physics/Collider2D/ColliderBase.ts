@@ -52,10 +52,10 @@ export class ColliderBase extends Component {
     }
 
     protected _onEnable(): void {
-        if (this.rigidBody)
-            this.refresh();
-        else
-            ILaya.systemTimer.callLater(this, this._checkRigidBody);
+        // if (this.rigidBody)
+        //     this.refresh();
+        // else
+        ILaya.systemTimer.callLater(this, this._checkRigidBody);
     }
 
     private _checkRigidBody(): void {

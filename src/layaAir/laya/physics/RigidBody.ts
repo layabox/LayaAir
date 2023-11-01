@@ -65,9 +65,9 @@ export class RigidBody extends Component {
         if (this._body || !this.owner) return;
         let factory = Physics2D.I._factory;
         var sp: Sprite = (<Sprite>this.owner);
-        let point: Point = factory.getLayaPosition(sp, 0, 0);
+        
         var defRigidBodyDef = new RigidBody2DInfo();
-
+        let point: Point = factory.getLayaPosition(sp, sp.pivotX, sp.pivotY);
         defRigidBodyDef.position.setValue(point.x, point.y);
         defRigidBodyDef.angle = Utils.toRadian(sp.rotation);
         defRigidBodyDef.allowSleep = this._allowSleep;
@@ -90,76 +90,23 @@ export class RigidBody extends Component {
     }
 
     protected _onAwake(): void {
+        (<Sprite>this.owner).cacheGlobal = true;
         this._createBody();
+        this._addToWorld();
     }
 
     protected _onEnable(): void {
         var _$this = this;
         this._createBody();
-
-        // 监听节点变化，同步到物理世界
-        var sp: any = <Sprite>this.owner;
-        //如果节点发生变化，则同步到物理世界（仅限节点本身，父节点发生变化不会自动同步）
-        if (this.accessGetSetFunc(sp, "x", "set") && !sp._changeByRigidBody) {
-            sp._changeByRigidBody = true;
-            function setX(value: any): void {
-                _$this.accessGetSetFunc(sp, "x", "set")(value);
-                _$this._sysNodeToPhysic();
-            }
-            this._overSet(sp, "x", setX);
-
-            function setY(value: any): void {
-                _$this.accessGetSetFunc(sp, "y", "set")(value);
-                _$this._sysNodeToPhysic();
-            };
-            this._overSet(sp, "y", setY);
-
-            function setRotation(value: any): void {
-                _$this.accessGetSetFunc(sp, "rotation", "set")(value);
-                _$this._sysNodeToPhysic();
-            };
-            this._overSet(sp, "rotation", setRotation);
-
-            function setScaleX(value: any): void {
-                _$this.accessGetSetFunc(sp, "scaleX", "set")(value);
-                _$this.resetCollider(true);
-            };
-            this._overSet(sp, "scaleX", setScaleX);
-
-            function setScaleY(value: any): void {
-                _$this.accessGetSetFunc(sp, "scaleY", "set")(value);
-                _$this.resetCollider(true);
-            };
-            this._overSet(sp, "scaleY", setScaleY);
-        }
+        this._addToWorld();
     }
 
-    /**
-     * 获取对象某属性的get set方法
-     * 通过其本身无法获取该方法，只能从原型上获取
-     * @param obj 
-     * @param prop 
-     * @param accessor 
-     */
-    private accessGetSetFunc(obj: Node, prop: string, accessor: string): any {
-        if (["get", "set"].indexOf(accessor) === -1) { // includes
-            return;
+    protected _addToWorld() {
+        if (this.type != "static") {
+            Physics2D.I.addRigidBody(this);
+        } else {
+            Physics2D.I.removeRigidBody(this);
         }
-        let privateProp = `_$${accessor}_${prop}`;
-        if ((obj as any)[privateProp]) {
-            return (obj as any)[privateProp];
-        }
-        let ObjConstructor = obj.constructor;
-        let des;
-        while (ObjConstructor) {
-            des = Object.getOwnPropertyDescriptor(ObjConstructor.prototype, prop);
-            if (des && (des as any)[accessor]) { // 构造函数(包括原型的构造函数)有该属性
-                (obj as any)[privateProp] = (des as any)[accessor].bind(obj);
-                break;
-            }
-            ObjConstructor = Object.getPrototypeOf(ObjConstructor);
-        }
-        return (obj as any)[privateProp];
     }
 
     /**
@@ -179,52 +126,35 @@ export class RigidBody extends Component {
         }
     }
 
-    /**同步物理坐标到游戏坐标*/
-    onUpdate(): void {
+    /** 同步节点坐标及旋转到物理世界*/
+    updatePhysicsTransformFromRender(): void {
         var factory = Physics2D.I._factory;
-        if (this.type != "static" && Physics2D.I._factory.get_rigidBody_IsAwake(this._body)) {
-            var pos = Vector2.TempVector2;
-            factory.get_RigidBody_Position(this.body, pos);
-            var ang: any = factory.get_RigidBody_Angle(this.body);
-            var sp: any = (<Sprite>this.owner);
-            this.accessGetSetFunc(sp, "rotation", "set")(Utils.toAngle(ang) - (<Sprite>sp.parent).globalRotation);
-            var point = factory.getLayaPosition(sp, pos.x, pos.y, false);
-            point.x += sp.pivotX;
-            point.y += sp.pivotY;
-            point = sp.toParentPoint(point);
-            this.accessGetSetFunc(sp, "x", "set")(point.x);
-            this.accessGetSetFunc(sp, "y", "set")(point.y);
+        var sp: Sprite = <Sprite>this.owner;
+        if (sp.globalDeltaFlages > 0) {
+            factory.set_RigibBody_Transform(this._body, sp.globalPosX, sp.globalPosY, Utils.toRadian(sp.globalRotation));
         }
     }
 
-    /**@private 同步节点坐标及旋转到物理世界*/
-    private _sysNodeToPhysic(): void {
+    // /**@private 同步物理坐标到游戏坐标*/
+    updatePhysicsTransformToRender(): void {
         var factory = Physics2D.I._factory;
-        var sp: Sprite = <Sprite>this.owner;
-        var p: Point = sp.localToGlobal(Point.TEMP.setTo(0, 0), false, Physics2D.I.worldRoot);
-        factory.set_RigibBody_Transform(this._body, p.x, p.y, Utils.toRadian(sp.rotation));
+        if (Physics2D.I._factory.get_rigidBody_IsAwake(this._body)) {
+            var pos = Vector2.TempVector2;
+            factory.get_RigidBody_Position(this.body, pos);
+            var sp: Sprite = (<Sprite>this.owner);
+            sp.globalPosX = pos.x;
+            sp.globalPosY = pos.y;
+            sp.globalRotation = Utils.toAngle(factory.get_RigidBody_Angle(this.body));
+        }
     }
 
 
-
-    /**@private */
-    private _overSet(sp: Node, prop: string, getfun: any): void {
-        Object.defineProperty(sp, prop, { get: this.accessGetSetFunc(sp, prop, "get"), set: getfun, enumerable: false, configurable: true });;
-    }
 
     protected _onDisable(): void {
+        Physics2D.I.removeRigidBody(this);
         //添加到物理世界
         this._body && Physics2D.I._factory.removeBody(this._body);
         this._body = null;
-        var owner: any = this.owner;
-        if (owner._changeByRigidBody) {
-            this._overSet(owner, "x", this.accessGetSetFunc(owner, "x", "set"));
-            this._overSet(owner, "y", this.accessGetSetFunc(owner, "y", "set"));
-            this._overSet(owner, "rotation", this.accessGetSetFunc(owner, "rotation", "set"));
-            this._overSet(owner, "scaleX", this.accessGetSetFunc(owner, "scaleX", "set"));
-            this._overSet(owner, "scaleY", this.accessGetSetFunc(owner, "scaleY", "set"));
-            owner._changeByRigidBody = false;
-        }
     }
 
     /**获得原始body对象 */
@@ -346,6 +276,7 @@ export class RigidBody extends Component {
 
     set type(value: string) {
         this._type = value;
+        this._addToWorld();
         if (this._body) Physics2D.I._factory.set_rigidBody_type(this.body, this._type);
     }
 
