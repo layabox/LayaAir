@@ -2,7 +2,7 @@ import { KeyFrameValueType } from "../component/Animator/KeyframeNodeOwner";
 import { Keyframe } from "../core/Keyframe"
 
 /**
- * @internal
+ *<code>KeyframeNode</code> 类用于动画帧。
  */
 export class KeyframeNode {
 	private _ownerPath: string[] = [];

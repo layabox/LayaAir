@@ -1,7 +1,6 @@
 import { KeyframeNode } from "./KeyframeNode";
 
 /**
- * @internal
  * <code>KeyframeNodeList</code> 类用于创建KeyframeNode节点队列。
  */
 export class KeyframeNodeList {
