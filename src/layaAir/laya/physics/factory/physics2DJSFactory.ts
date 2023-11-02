@@ -276,8 +276,8 @@ export class physics2DJSFactory implements IPhysiscs2DFactory {
      * @param options 
      */
     start(options: Physics2DOption) {
-        this._PIXEL_RATIO = options.pixelTatio;
-        this._Re_PIXEL_RATIO = 1 / options.pixelTatio;
+        this._PIXEL_RATIO = options.pixelRatio;
+        this._Re_PIXEL_RATIO = 1 / options.pixelRatio;
         var gravity: any = this.createPhyFromLayaVec2(options.gravity.x, options.gravity.y);
         this._world = new this.box2d.b2World(gravity);
         this.world.SetDestructionListener(new DestructionListener());

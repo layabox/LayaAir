@@ -21,7 +21,7 @@ export class Physics2DOption {
     positionIterations: number = 3;
 
     /**2D游戏默认单位为像素，物理默认单位为米，此值设置了像素和米的转换比率，默认50像素=1米*/
-    pixelTatio: number = 50;
+    pixelRatio: number = 50;
 
     /**是否开启物理绘制*/
     debugDraw: boolean = true;
