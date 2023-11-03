@@ -10,7 +10,6 @@ import { RigidBody2DInfo } from "../RigidBody2DInfo";
 import { physics2D_DistancJointDef, physics2D_GearJointDef, physics2D_MotorJointDef, physics2D_MouseJointJointDef, physics2D_PrismaticJointDef, physics2D_PulleyJointDef, physics2D_RevoluteJointDef, physics2D_WeldJointDef, physics2D_WheelJointDef } from "../joint/JointDefStructInfo"
 import { Physics2DDebugDraw } from "../Physics2DDebugDraw";
 import { ILaya } from "../../../ILaya";
-import { Laya } from "../../../Laya";
 
 /**
  * 实现Box2D js 2.4.1 版本
@@ -273,18 +272,17 @@ export class physics2DJSFactory implements IPhysiscs2DFactory {
     /**
      * @internal
      * create Box2D world
-     * @param options 
      */
-    start(options: Physics2DOption) {
-        this._PIXEL_RATIO = options.pixelRatio;
-        this._Re_PIXEL_RATIO = 1 / options.pixelRatio;
-        var gravity: any = this.createPhyFromLayaVec2(options.gravity.x, options.gravity.y);
+    start() {
+        this._PIXEL_RATIO = Physics2DOption.pixelRatio;
+        this._Re_PIXEL_RATIO = 1 / Physics2DOption.pixelRatio;
+        var gravity: any = this.createPhyFromLayaVec2(Physics2DOption.gravity.x, Physics2DOption.gravity.y);
         this._world = new this.box2d.b2World(gravity);
         this.world.SetDestructionListener(new DestructionListener());
         this.world.SetContactListener(new ContactListener());
-        this.allowSleeping = options.allowSleeping == null ? true : options.allowSleeping;
-        this._velocityIterations = options.velocityIterations;
-        this._positionIterations = options.positionIterations;
+        this.allowSleeping = Physics2DOption.allowSleeping == null ? true : Physics2DOption.allowSleeping;
+        this._velocityIterations = Physics2DOption.velocityIterations;
+        this._positionIterations = Physics2DOption.positionIterations;
     }
 
     /**
@@ -1458,4 +1456,4 @@ class DestructionListener {
     }
 }
 
-Laya.Physiscs2DFactory = new physics2DJSFactory()
+Physics2D.I._factory = new physics2DJSFactory();

@@ -3,7 +3,6 @@ import { Point } from "../maths/Point";
 import { IV2, Vector2 } from "../maths/Vector2";
 import { ColliderBase } from "./Collider2D/ColliderBase";
 import { FixtureBox2DDef } from "./Collider2D/ColliderStructInfo";
-import { Physics2DOption } from "./Physics2DOption";
 import { Physics2DDebugDraw } from "./Physics2DDebugDraw";
 import { RigidBody2DInfo } from "./RigidBody2DInfo";
 import { physics2D_DistancJointDef, physics2D_GearJointDef, physics2D_MotorJointDef, physics2D_MouseJointJointDef, physics2D_PrismaticJointDef, physics2D_PulleyJointDef, physics2D_RevoluteJointDef, physics2D_WeldJointDef, physics2D_WheelJointDef } from "./joint/JointDefStructInfo";
@@ -157,7 +156,7 @@ export interface IPhysiscs2DFactory {
      * @internal
      * 创建物理场景
      */
-    start(options: Physics2DOption): void;
+    start(): void;
 
     /**
     * @internal

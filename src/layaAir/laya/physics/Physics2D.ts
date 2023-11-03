@@ -38,22 +38,6 @@ export class Physics2D extends EventDispatcher {
         return Physics2D._I || (Physics2D._I = new Physics2D());
     }
 
-    constructor() {
-        super();
-    }
-
-    /**
-     * 开启物理世界
-     * options值参考如下：
-       allowSleeping:true,
-       gravity:10,
-       customUpdate:false 自己控制物理更新时机，自己调用Physics.update
-     */
-    static enable(options: Physics2DOption = null) {
-        Physics2D.I._factory = Laya.Physiscs2DFactory;
-        Physics2D.I.start(options)
-    }
-
     /**
      * 设置物理绘制
      */
@@ -125,6 +109,17 @@ export class Physics2D extends EventDispatcher {
         }
     }
 
+    enable(): Promise<void> {
+        if (this._factory) {
+            return this._factory.initialize().then(() => {
+                this.start();
+                return Promise.resolve();
+            });
+        }
+        else
+            return Promise.resolve();
+    }
+
     /**
     * 销毁当前物理世界
     */
@@ -136,37 +131,30 @@ export class Physics2D extends EventDispatcher {
 
     /**
      * 开启物理世界
-     * options值参考如下：
-       allowSleeping:true,
-       gravity:10,
-       customUpdate:false 自己控制物理更新时机，自己调用Physics.update
      */
-    start(options: Physics2DOption = null): void {
-        if (options == null) {
-            options = new Physics2DOption();
-        }
+    start(): void {
         if (!this._enabled) {
             this._enabled = true;
-            this._factory.start(options);
-            this.allowSleeping = options.allowSleeping;
+            this._factory.start();
+            this.allowSleeping = Physics2DOption.allowSleeping;
             this._emptyBody = this._factory.createBody(null);
         } else {
             ILaya.physicsTimer.clear(this, this._update);
         }
 
-        if (options.debugDraw) {
+        if (Physics2DOption.debugDraw) {
             this.enableDebugDraw = true;
-            this.drawShape = options.drawShape;
-            this.drawJoint = options.drawJoint;
-            this.drawAABB = options.drawAABB;
-            this.drawCenterOfMass = options.drawCenterOfMass;
+            this.drawShape = Physics2DOption.drawShape;
+            this.drawJoint = Physics2DOption.drawJoint;
+            this.drawAABB = Physics2DOption.drawAABB;
+            this.drawCenterOfMass = Physics2DOption.drawCenterOfMass;
         } else {
             this.enableDebugDraw = false;
         }
         if (!this._rigiBodyList) this._rigiBodyList = new SingletonList<RigidBody>();
         else this._rigiBodyList.clean();
 
-        if (!options.customUpdate && LayaEnv.isPlaying)
+        if (!Physics2DOption.customUpdate && LayaEnv.isPlaying)
             ILaya.physicsTimer.frameLoop(1, this, this._update);
     }
 
@@ -280,3 +268,4 @@ export class Physics2D extends EventDispatcher {
     }
 }
 
+Laya._physiscs2D = Physics2D.I;

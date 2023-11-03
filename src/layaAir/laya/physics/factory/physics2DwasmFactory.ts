@@ -11,7 +11,6 @@ import { Physics2DOption } from "../Physics2DOption";
 import { Physics2DDebugDraw } from "../Physics2DDebugDraw";
 import { RigidBody2DInfo } from "../RigidBody2DInfo";
 import { physics2D_DistancJointDef, physics2D_GearJointDef, physics2D_MotorJointDef, physics2D_MouseJointJointDef, physics2D_PrismaticJointDef, physics2D_PulleyJointDef, physics2D_RevoluteJointDef, physics2D_WeldJointDef, physics2D_WheelJointDef } from "../joint/JointDefStructInfo"
-import { Laya } from "../../../Laya";
 
 const b2_maxFloat = 1E+37;
 
@@ -279,18 +278,17 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
 
     /**
      * create Box2D world
-     * @param options 
      */
-    start(options: Physics2DOption) {
-        this._PIXEL_RATIO = options.pixelRatio;
-        this._Re_PIXEL_RATIO = 1 / options.pixelRatio;
-        var gravity: any = this.createPhyFromLayaVec2(options.gravity.x, options.gravity.y);
+    start() {
+        this._PIXEL_RATIO = Physics2DOption.pixelRatio;
+        this._Re_PIXEL_RATIO = 1 / Physics2DOption.pixelRatio;
+        var gravity: any = this.createPhyFromLayaVec2(Physics2DOption.gravity.x, Physics2DOption.gravity.y);
         this._world = new this.box2d.b2World(gravity);
         this.world.SetDestructionListener(this.getDestructionListener());
         this.world.SetContactListener(this.getContactListener());
-        this.allowSleeping = options.allowSleeping == null ? true : options.allowSleeping;
-        this._velocityIterations = options.velocityIterations;
-        this._positionIterations = options.positionIterations;
+        this.allowSleeping = Physics2DOption.allowSleeping == null ? true : Physics2DOption.allowSleeping;
+        this._velocityIterations = Physics2DOption.velocityIterations;
+        this._positionIterations = Physics2DOption.positionIterations;
     }
 
     /**
@@ -1555,4 +1553,4 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
     }
 }
 
-Laya.Physiscs2DFactory = new physics2DwasmFactory()
+Physics2D.I._factory = new physics2DwasmFactory()

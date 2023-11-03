@@ -18,7 +18,6 @@ import { Physics2D } from "./Physics2D";
 import { Physics2DDebugDraw } from "./Physics2DDebugDraw";
 import { PolygonCollider } from "./Collider2D/PolygonCollider";
 import { RigidBody } from "./RigidBody";
-import { Physics2DOption } from "./Physics2DOption";
 
 let c = ClassUtils.regClass;
 c("Physics2D", Physics2D);
@@ -40,4 +39,3 @@ c("PulleyJoint", PulleyJoint);
 c("RevoluteJoint", RevoluteJoint);
 c("WeldJoint", WeldJoint);
 c("WheelJoint", WheelJoint);
-c("Physics2DOption", Physics2DOption);
