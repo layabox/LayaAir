@@ -17,7 +17,6 @@ import { Browser } from "./laya/utils/Browser";
 import { CacheManger } from "./laya/utils/CacheManger";
 import { ColorUtils } from "./laya/utils/ColorUtils";
 import { Timer } from "./laya/utils/Timer";
-import { ShaderDefines2D } from "./laya/webgl/shader/d2/ShaderDefines2D";
 import { PrimitiveSV } from "./laya/webgl/shader/d2/value/PrimitiveSV";
 import { TextureSV } from "./laya/webgl/shader/d2/value/TextureSV";
 import { RenderSpriteData, Value2D } from "./laya/webgl/shader/d2/value/Value2D";
@@ -37,8 +36,6 @@ import { URL } from "./laya/net/URL";
 import { RunDriver } from "./laya/utils/RunDriver";
 import { Config } from "./Config";
 import { Shader3D } from "./laya/RenderEngine/RenderShader/Shader3D";
-import { Physics2D } from "./laya/physics/Physics2D";
-import { IPhysiscs2DFactory } from "./laya/physics/IPhysiscs2DFactory";
 
 /**
  * <code>Laya</code> 是全局对象的引用入口集。
@@ -58,12 +55,8 @@ export class Laya {
     /** 加载管理器的引用。*/
     static loader: Loader = null;
 
-     /** @internal 2d物理引擎创建类*/
-    static _physiscs2DFactory:IPhysiscs2DFactory;
-
-    /** @internal 是否初始化完成2D物理引擎*/
-    static _installPhysics2D: boolean = false;
-    /** 当前引擎版本。*/
+    /** 2d物理引擎 @internal*/
+    static _physiscs2D: { enable: () => Promise<void> };
 
     /**@private Render 类的引用。*/
     static render: Render;
@@ -73,8 +66,6 @@ export class Laya {
     static isWXPosMsg: boolean = false;
     /**@internal */
     static WasmModules: { [key: string]: { exports: WebAssembly.Exports, memory: WebAssembly.Memory } } = {};
-
-
 
     /**
      * 初始化引擎。使用引擎需要先初始化引擎，否则可能会报错。
@@ -88,15 +79,6 @@ export class Laya {
      */
     static init(width: number, height: number, ...plugins: any[]): Promise<void>;
     static init(...args: any[]): Promise<void> {
-
-        if (Laya._physiscs2DFactory && !Laya._installPhysics2D) {
-            return new Promise<void>(resolve => {
-                Laya._physiscs2DFactory.initialize().then(() => {
-                    Laya._installPhysics2D = true;
-                    Laya.init(...args).then(resolve);
-                });
-            });
-        }
         if (_isinit)
             return Promise.resolve();
         _isinit = true;
@@ -229,22 +211,22 @@ export class Laya {
         Value2D._initone(RenderSpriteData.Texture2D, TextureSV);
         Value2D._initone(RenderSpriteData.Primitive, PrimitiveSV);
 
-        let laya3D = (<any>window)["Laya3D"];
-        if (laya3D) {
-            return laya3D.__init__().then(() => {
-                _onInitModuleCallbacks.forEach(c => c());
-                _onInitModuleCallbacks.length = 0;
+        let initPhysics2D = () => {
+            if (Laya._physiscs2D)
+                return Laya._physiscs2D.enable().then(() => init3D());
+            else
+                return init3D();
+        };
 
-                if (LayaEnv.afterInit) {
-                    if (LayaEnv.isPlaying)
-                        LayaEnv.afterInit();
-                    else
-                        LayaEnv.afterInit = null;
-                }
-                return Promise.resolve();
-            });
-        }
-        else {
+        let init3D = () => {
+            let laya3D = (<any>window)["Laya3D"];
+            if (laya3D)
+                return laya3D.__init__().then(() => complete());
+            else
+                return complete();
+        };
+
+        let complete = () => {
             _onInitModuleCallbacks.forEach(c => c());
             _onInitModuleCallbacks.length = 0;
 
@@ -256,17 +238,9 @@ export class Laya {
             }
 
             return Promise.resolve();
-        }
-    }
+        };
 
-    static set Physiscs2DFactory(value: IPhysiscs2DFactory) {
-        if (value && !this._physiscs2DFactory) {
-            this._physiscs2DFactory = value;
-        }
-    }
-
-    static get Physiscs2DFactory() {
-        return this._physiscs2DFactory;
+        return initPhysics2D();
     }
 
     static createRender(): Render {
