@@ -111,6 +111,8 @@ export class Mesh extends Resource implements IClone {
     _instanceWorldVertexBuffer: VertexBuffer3D
     /**@internal */
     _instanceSimpleAniVertexBuffer: VertexBuffer3D
+    /**@internal */
+    _instanceLightMapVertexBuffer: VertexBuffer3D
     /** @internal */
     _subMeshes: SubMesh[];
     /** @internal */
@@ -133,6 +135,9 @@ export class Mesh extends Resource implements IClone {
     instanceWorldMatrixData: Float32Array;
     /** @internal */
     instanceSimpleAnimatorData: Float32Array;
+
+    /** @internal */
+    instanceLightMapScaleOffsetData: Float32Array;
 
     morphTargetData: MorphTargetData;
 
@@ -371,8 +376,10 @@ export class Mesh extends Resource implements IClone {
         this._instanceBufferState && this._instanceBufferState.destroy();
         this._instanceWorldVertexBuffer && this._instanceWorldVertexBuffer.destroy();
         this._instanceSimpleAniVertexBuffer && this._instanceSimpleAniVertexBuffer.destroy();
+        this._instanceLightMapVertexBuffer && this._instanceLightMapVertexBuffer.destroy();
         this.instanceWorldMatrixData && (this.instanceWorldMatrixData = null);
         this.instanceSimpleAnimatorData && (this.instanceSimpleAnimatorData = null);
+        this.instanceLightMapScaleOffsetData && (this.instanceLightMapScaleOffsetData = null);
         this._setCPUMemory(0);
         this._setGPUMemory(0);
         this._bufferState = null;
@@ -430,6 +437,13 @@ export class Mesh extends Resource implements IClone {
                 instanceSimpleAnimatorBuffer.instanceBuffer = true;
                 this.instanceSimpleAnimatorData = new Float32Array(InstanceRenderElement.maxInstanceCount * 4);
                 vertexArray.push(instanceSimpleAnimatorBuffer);
+                break;
+            case Mesh.MESH_INSTANCEBUFFER_TYPE_NORMAL:
+                let instanceLightMapVertexBuffer = this._instanceLightMapVertexBuffer = LayaGL.renderOBJCreate.createVertexBuffer3D(InstanceRenderElement.maxInstanceCount * 4 * 4, BufferUsage.Dynamic, false);
+                instanceLightMapVertexBuffer.vertexDeclaration = VertexMesh.instanceLightMapScaleOffsetDeclaration;
+                instanceLightMapVertexBuffer.instanceBuffer = true;
+                this.instanceLightMapScaleOffsetData = new Float32Array(InstanceRenderElement.maxInstanceCount * 4);
+                vertexArray.push(instanceLightMapVertexBuffer);
                 break;
         }
         instanceBufferState.applyState(vertexArray, this._indexBuffer);
