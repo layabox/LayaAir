@@ -190,7 +190,7 @@ export class InstanceRenderElement extends RenderElement {
                     worldMatrixData.set(elements[i].transform.worldMatrix.elements, i * 16);
 
                 let haveLightMap: boolean = this.render._shaderValues.hasDefine(RenderableSprite3D.SAHDERDEFINE_LIGHTMAP);
-                if (haveLightMap) {
+                if (haveLightMap && mesh._instanceLightMapVertexBuffer) {
                     var lightMapData: Float32Array = (this._renderElementOBJ as InstanceRenderElementOBJ).getUpdateData(1, 4 * InstanceRenderElement.maxInstanceCount);
                     for (var i: number = 0; i < count; i++) {
                         let lightmapScaleOffset = elements[i]._baseRender.lightmapScaleOffset;
