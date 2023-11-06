@@ -35,30 +35,35 @@ export class VertexMesh {
 
 	//TODO：location不够
 	/**简单数据动画数据 */
-	static MESH_SIMPLEANIMATOR:number = 12;
+	static MESH_SIMPLEANIMATOR: number = 12;
+
+	/**光照贴图的缩放和偏移 */
+	static MESH_LIGHTMAPSCALEOFFSET: number = 13;
 	/**instanceworld顶点描述 */
 	static instanceWorldMatrixDeclaration: VertexDeclaration;
 	/**instanceSimple动画数据顶点描述 */
 	static instanceSimpleAnimatorDeclaration: VertexDeclaration;
+	/**instanceLightMap光照贴图的缩放和偏移顶点描述 */
+	static instanceLightMapScaleOffsetDeclaration: VertexDeclaration;
 
-	
+
 	/**自定义attribute instance 预留位*/
 	/**顶点自定义数据0 */
-	static MESH_CUSTOME0:number = 12;
+	static MESH_CUSTOME0: number = 12;
 	/**顶点自定义数据1 */
-	static MESH_CUSTOME1:number = 13;
+	static MESH_CUSTOME1: number = 13;
 	/**顶点自定义数据2 */
-	static MESH_CUSTOME2:number = 14;
+	static MESH_CUSTOME2: number = 14;
 	/**顶点自定义数据3 */
-	static MESH_CUSTOME3:number = 15;
+	static MESH_CUSTOME3: number = 15;
 
 
 
-	
+
 	/**@internal */
 	private static _vertexDeclarationMap: any = {};
 
-	
+
 
 
 	/**
@@ -70,8 +75,9 @@ export class VertexMesh {
 			new VertexElement(16, VertexElementFormat.Vector4, VertexMesh.MESH_WORLDMATRIX_ROW1),
 			new VertexElement(32, VertexElementFormat.Vector4, VertexMesh.MESH_WORLDMATRIX_ROW2),
 			new VertexElement(48, VertexElementFormat.Vector4, VertexMesh.MESH_WORLDMATRIX_ROW3)]);
-		
-		VertexMesh.instanceSimpleAnimatorDeclaration = new VertexDeclaration(16,[new VertexElement(0,VertexElementFormat.Vector4,VertexMesh.MESH_SIMPLEANIMATOR)]);
+
+		VertexMesh.instanceSimpleAnimatorDeclaration = new VertexDeclaration(16, [new VertexElement(0, VertexElementFormat.Vector4, VertexMesh.MESH_SIMPLEANIMATOR)]);
+		VertexMesh.instanceLightMapScaleOffsetDeclaration = new VertexDeclaration(16, [new VertexElement(0, VertexElementFormat.Vector4, VertexMesh.MESH_LIGHTMAPSCALEOFFSET)]);
 	}
 
 	/**

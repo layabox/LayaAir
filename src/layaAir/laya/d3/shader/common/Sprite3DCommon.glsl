@@ -5,9 +5,7 @@ uniform mat4 u_WorldMat;
 
 uniform vec4 u_WroldInvertFront; // x: invert front face
     
-    #ifdef LIGHTMAP
-uniform vec4 u_LightmapScaleOffset;
-    #endif // LIGHTMAP
+
 
 vec2 tranformLightMapUV(in vec2 texcoord, in vec4 tilingOffset)
 {

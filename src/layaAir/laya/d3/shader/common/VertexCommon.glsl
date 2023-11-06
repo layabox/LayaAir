@@ -27,6 +27,10 @@ struct Vertex {
     #ifdef COLOR
     vec4 vertexColor;
     #endif // COLOR
+
+    #ifdef LIGHTMAP
+    vec4 lightmapScaleOffset;
+	#endif LIGHTMAP
 };
 
 /**
@@ -72,6 +76,21 @@ vec4 getVertexTangent()
 }
     #endif // TANGENT
 
+    #ifdef LIGHTMAP
+#ifndef GPU_INSTANCE
+    uniform vec4 u_LightmapScaleOffset;
+#endif // GPU_INSTANCE
+
+vec4 getLightmapScaleOffset(){
+    
+    #ifdef GPU_INSTANCE
+        return a_LightmapScaleOffset;
+    #else
+        return u_LightmapScaleOffset;
+    #endif // GPU_INSTANCE
+}
+    #endif // LIGHTMAP
+
 void getVertexParams(inout Vertex vertex)
 {
     vertex.positionOS = getVertexPosition().xyz;
@@ -94,6 +113,10 @@ void getVertexParams(inout Vertex vertex)
     // consider vertexColor is gamma
     vertex.vertexColor = vec4(pow(a_Color.rgb, vec3(2.2)), a_Color.a);
     #endif // COLOR
+
+    #ifdef LIGHTMAP
+    vertex.lightmapScaleOffset = getLightmapScaleOffset();
+	#endif LIGHTMAP
 }
 
 #endif // VertexCommon_lib
