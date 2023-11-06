@@ -439,11 +439,14 @@ export class Mesh extends Resource implements IClone {
                 vertexArray.push(instanceSimpleAnimatorBuffer);
                 break;
             case Mesh.MESH_INSTANCEBUFFER_TYPE_NORMAL:
-                let instanceLightMapVertexBuffer = this._instanceLightMapVertexBuffer = LayaGL.renderOBJCreate.createVertexBuffer3D(InstanceRenderElement.maxInstanceCount * 4 * 4, BufferUsage.Dynamic, false);
-                instanceLightMapVertexBuffer.vertexDeclaration = VertexMesh.instanceLightMapScaleOffsetDeclaration;
-                instanceLightMapVertexBuffer.instanceBuffer = true;
-                this.instanceLightMapScaleOffsetData = new Float32Array(InstanceRenderElement.maxInstanceCount * 4);
-                vertexArray.push(instanceLightMapVertexBuffer);
+                //have uv1
+                if (this.getVertexDeclaration().getVertexElementByUsage(VertexMesh.MESH_TEXTURECOORDINATE1)) {
+                    let instanceLightMapVertexBuffer = this._instanceLightMapVertexBuffer = LayaGL.renderOBJCreate.createVertexBuffer3D(InstanceRenderElement.maxInstanceCount * 4 * 4, BufferUsage.Dynamic, false);
+                    instanceLightMapVertexBuffer.vertexDeclaration = VertexMesh.instanceLightMapScaleOffsetDeclaration;
+                    instanceLightMapVertexBuffer.instanceBuffer = true;
+                    this.instanceLightMapScaleOffsetData = new Float32Array(InstanceRenderElement.maxInstanceCount * 4);
+                    vertexArray.push(instanceLightMapVertexBuffer);
+                }
                 break;
         }
         instanceBufferState.applyState(vertexArray, this._indexBuffer);

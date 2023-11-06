@@ -32,7 +32,7 @@ export class InstanceBatchManager {
      * @param materialID 
      * @param subMeshID 
      * @param invertFace 
-     * @param invertFace 
+     * @param lightmapIndex 
      * @returns 
      */
     getInstanceBatchOpaquaMark(receiveShadow: boolean, materialID: number, subMeshID: number, invertFace: boolean, reflectionprob: number, lightmapIndex: number): BatchMark {
