@@ -12,6 +12,7 @@ import { InstanceRenderElementOBJ } from "../../RenderObjs/RenderObj/InstanceRen
 import { Mesh } from "../../resource/models/Mesh";
 import { Camera } from "../Camera";
 import { MeshSprite3DShaderDeclaration } from "../MeshSprite3DShaderDeclaration";
+import { RenderableSprite3D } from "../RenderableSprite3D";
 import { SimpleSkinnedMeshRenderer } from "../SimpleSkinnedMeshRenderer";
 import { Sprite3D } from "../Sprite3D";
 import { Transform3D } from "../Transform3D";
@@ -187,6 +188,20 @@ export class InstanceRenderElement extends RenderElement {
                 (this._renderElementOBJ as InstanceRenderElementOBJ).drawCount = count;
                 for (var i: number = 0; i < count; i++)
                     worldMatrixData.set(elements[i].transform.worldMatrix.elements, i * 16);
+
+                let haveLightMap: boolean = this.render._shaderValues.hasDefine(RenderableSprite3D.SAHDERDEFINE_LIGHTMAP);
+                if (haveLightMap) {
+                    var lightMapData: Float32Array = (this._renderElementOBJ as InstanceRenderElementOBJ).getUpdateData(1, 4 * InstanceRenderElement.maxInstanceCount);
+                    for (var i: number = 0; i < count; i++) {
+                        let lightmapScaleOffset = elements[i]._baseRender.lightmapScaleOffset;
+                        var offset: number = i * 4;
+                        lightMapData[offset] = lightmapScaleOffset.x;
+                        lightMapData[offset + 1] = lightmapScaleOffset.y;
+                        lightMapData[offset + 2] = lightmapScaleOffset.z;
+                        lightMapData[offset + 3] = lightmapScaleOffset.w;
+                    }
+                    (this._renderElementOBJ as InstanceRenderElementOBJ).addUpdateBuffer(mesh._instanceLightMapVertexBuffer, 4)
+                }
                 break;
         }
     }

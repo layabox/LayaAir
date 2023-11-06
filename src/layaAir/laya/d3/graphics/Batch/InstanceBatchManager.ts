@@ -32,14 +32,16 @@ export class InstanceBatchManager {
      * @param materialID 
      * @param subMeshID 
      * @param invertFace 
+     * @param lightmapIndex
      * @returns 
      */
-    getInstanceBatchOpaquaMark(receiveShadow: boolean, materialID: number, subMeshID: number, invertFace: boolean,reflectionprob:number):BatchMark{
+    getInstanceBatchOpaquaMark(receiveShadow: boolean, materialID: number, subMeshID: number, invertFace: boolean, reflectionprob: number, lightmapIndex: number): BatchMark {
         var data = this._getData(receiveShadow, this._instanceBatchOpaqueMarks);
         data = this._getData(materialID, data);
         data = this._getData(subMeshID, data);
-        data =this._getData(invertFace, data);
-        return this._getData(reflectionprob,data,BatchMark);
-        
+        data = this._getData(invertFace, data);
+        data = this._getData(lightmapIndex, data);
+        return this._getData(reflectionprob, data, BatchMark);
+
     }
 }
