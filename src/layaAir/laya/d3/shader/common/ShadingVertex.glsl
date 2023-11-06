@@ -52,7 +52,7 @@ void shadingPixelParams(inout PixelParams params, in Vertex vertex)
 
     #ifdef UV1
 	#ifdef LIGHTMAP
-    params.uv1 = tranformLightMapUV(vertex.texCoord1, u_LightmapScaleOffset);
+    params.uv1 = tranformLightMapUV(vertex.texCoord1, vertex.lightmapScaleOffset);
 	#endif LIGHTMAP
     #endif // UV1
 
