@@ -210,6 +210,7 @@ export class HierarchyParser {
 
         //生成树
         let k = 0;
+        let outNodeData: Array<any> = [];
         for (let i = 0; i < cnt; i++) {
             let nodeData = dataList[i];
             let node = allNodes[i];
@@ -223,7 +224,7 @@ export class HierarchyParser {
                             let m = k - num + j;
                             let n = outNodes[m];
                             if (n && !n.parent) { //是预制体新增
-                                let nodeData2 = dataList[i - num + j];
+                                let nodeData2 = outNodeData[m];
                                 let parentNode = findNodeInPrefab(node, nodeData2._$parent);
                                 if (parentNode) {
                                     let pos = nodeData2._$index;
@@ -255,6 +256,7 @@ export class HierarchyParser {
             }
 
             outNodes[k] = node;
+            outNodeData[k] = nodeData;
             k++;
         }
         outNodes.length = k;
