@@ -300,10 +300,6 @@ export class Laya {
         Laya.isNativeRender_enable = true;
         RenderState2D.width = Browser.window.innerWidth;
         RenderState2D.height = Browser.window.innerHeight;
-        Browser.measureText = function (txt: string, font: string): any {
-            (window as any)["conchTextCanvas"].font = font;
-            return (window as any)["conchTextCanvas"].measureText(txt);
-        }
 
         Stage.clear = function (color: string): void {
             Context.set2DRenderConfig();//渲染2D前要还原2D状态,否则可能受3D影响

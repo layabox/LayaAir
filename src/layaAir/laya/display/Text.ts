@@ -982,12 +982,8 @@ export class Text extends Sprite {
             if (bfont)
                 return bfont.getTextWidth(text, fontSize);
             else {
-                if (LayaEnv.isConch)
-                    return (window as any).conchTextCanvas.measureText(text).width;
-                else {
-                    let ret = ILaya.Browser.context.measureText(text);
-                    return ret ? ret.width : 100;
-                }
+                let ret = ILaya.Browser.context.measureText(text);
+                return ret ? ret.width : 100;
             }
         };
 
@@ -999,16 +995,9 @@ export class Text extends Sprite {
                 let ctxFont = (style.italic ? "italic " : "") + (style.bold ? "bold " : "") + fontSize + "px " + this._realFont;
                 (<any>style)._ctxFont = ctxFont; //缓存起来，避免renderText里又拼一次
 
-                let mr: any;
-                if (LayaEnv.isConch) {
-                    (window as any).conchTextCanvas.font = ctxFont;
-                    mr = (window as any).conchTextCanvas.measureText(Text._testWord);
-                }
-                else {
-                    ILaya.Browser.context.font = ctxFont;
-                    mr = ILaya.Browser.context.measureText(Text._testWord);
-                }
-
+                ILaya.Browser.context.font = ctxFont;
+                let mr: any = ILaya.Browser.context.measureText(Text._testWord);
+                
                 if (mr) {
                     charWidth = mr.width;
                     charHeight = Math.ceil(mr.height || fontSize);
