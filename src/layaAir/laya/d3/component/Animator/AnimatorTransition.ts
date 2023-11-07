@@ -3,7 +3,7 @@ import { AnimatorStateCondition } from "../../../components/AnimatorStateConditi
 import { AnimatorState } from "./AnimatorState";
 
 export class AnimatorTransition {
-    
+
     /**
      * @internal
      */
@@ -183,7 +183,7 @@ export class AnimatorTransition {
             return false;
         }
         if (this._conditions.length == 0) {
-            if(normalizeTime>this._exitTime)
+            if (normalizeTime >= this._exitTime)
                 return true;
         } else {
             if (this._exitByTime && normalizeTime < this._exitTime) {

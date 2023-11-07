@@ -85,7 +85,7 @@ export class TextRender {
         }
         if ((ILaya.Browser.onMiniGame || ILaya.Browser.onTTMiniGame || ILaya.Browser.onBLMiniGame || ILaya.Browser.onAlipayMiniGame || ILaya.Browser.onTBMiniGame) /*&& !Browser.onAndroid*/ && !bugIOS) TextRender.isWan1Wan = true; //android 微信下 字边缘发黑，所以不用getImageData了
         //TextRender.isWan1Wan = true;
-        this.charRender = LayaEnv.isConch ? (new CharRender_Native()) : (new CharRender_Canvas(2048, 2048, TextRender.scaleFontWithCtx, !TextRender.isWan1Wan, false));
+        this.charRender = new CharRender_Canvas(2048, 2048, TextRender.scaleFontWithCtx, !TextRender.isWan1Wan, false);
         TextRender.textRenderInst = this;
         ILaya.Laya['textRender'] = this;
         TextRender.atlasWidth2 = TextRender.atlasWidth * TextRender.atlasWidth;
@@ -185,13 +185,9 @@ export class TextRender {
         this.setFont(font);
         this.fontScaleX = this.fontScaleY = 1.0;
         if (TextRender.scaleFontWithCtx) {
-            let sx = 1;
-            let sy = 1;
+            let sx = ctx.getMatScaleX();
+            let sy = ctx.getMatScaleY();
 
-            if (!LayaEnv.isConch || ((window as any).conchTextCanvas.scale)) {
-                sx = ctx.getMatScaleX();
-                sy = ctx.getMatScaleY();
-            }
 
             if (sx < 1e-4 || sy < 1e-1)
                 return;
@@ -291,7 +287,7 @@ export class TextRender {
 
             } else {
                 // 如果要整句话渲染
-                var margin = LayaEnv.isConch ? 0 : (font._size / 3 | 0);  // margin保持与charrender_canvas的一致
+                var margin = (font._size / 3 | 0);  // margin保持与charrender_canvas的一致
                 var isotex = TextRender.noAtlas || (strWidth + margin + margin) * this.fontScaleX > TextRender.atlasWidth;	// 独立贴图还是大图集。需要考虑margin
                 ri = this.getCharRenderInfo(str, font, color, strokeColor, lineWidth, isotex);
                 // 整句渲染，则只有一个贴图
@@ -330,14 +326,12 @@ export class TextRender {
                 ri.touch();
                 ctx.drawTexAlign = true;
                 //ctx._drawTextureM(ri.tex.texture as Texture, startx +riSaved.x -ri.orix / fontScaleX , starty + riSaved.y -ri.oriy / fontScaleY , riSaved.w, riSaved.h, null, 1.0, ri.uv);
-                if (LayaEnv.isConch) {
-                    ctx._drawTextureM((<Texture>tex.texture), startx + riSaved.x - ri.orix, starty + riSaved.y - ri.oriy, riSaved.w, riSaved.h, null, 1.0, ri.uv, 0xffffffff);
-                } else {
-                    let t = tex as TextTexture;
-                    ctx._inner_drawTexture(t.texture, t.id,
-                        startx + riSaved.x - ri.orix, starty + riSaved.y - ri.oriy, riSaved.w, riSaved.h,
-                        mat, ri.uv, 1.0, isLastRender, 0xffffffff);
-                }
+
+                let t = tex as TextTexture;
+                ctx._inner_drawTexture(t.texture, t.id,
+                    startx + riSaved.x - ri.orix, starty + riSaved.y - ri.oriy, riSaved.w, riSaved.h,
+                     mat, ri.uv, 1.0, isLastRender, 0xffffffff);
+                
 
                 if ((<any>ctx).touches) {
                     (<any>ctx).touches.push(ri);
@@ -407,7 +401,7 @@ export class TextRender {
         this.charRender.scale(this.fontScaleX, this.fontScaleY);
         ri.char = str;
         ri.height = font._size;
-        var margin = LayaEnv.isConch ? 0 : (font._size / 3 | 0);	// 凑的。 注意这里不能乘以缩放，因为ctx会自动处理
+        var margin = (font._size / 3 | 0);	// 凑的。 注意这里不能乘以缩放，因为ctx会自动处理
         // 如果不存在，就要插入已有的，或者创建新的
         var imgdt: ImageData | null = null;
         // 先大约测量文字宽度 
@@ -741,30 +735,16 @@ export class TextRender {
         TextRender.tmpRI.height = TextRender.standardFontSize;
         this.charRender.fontsz = TextRender.standardFontSize;
         var bmpdt = this.charRender.getCharBmp('g', fontstr, 0, 'red', null, TextRender.tmpRI, orix, oriy, marginr, marginb);
-        // native 返回的是 textBitmap。 data直接是ArrayBuffer 
-        if (LayaEnv.isConch) {
-            //bmpdt.data.buffer = bmpdt.data;
-            (bmpdt as any).data = new Uint8ClampedArray(bmpdt.data);
-        }
         this.bmpData32 = new Uint32Array(bmpdt.data.buffer);
         //测量宽度是 tmpRI.width
         this.updateBbx(bmpdt, TextRender.pixelBBX, false);
         bmpdt = this.charRender.getCharBmp('有', fontstr, 0, 'red', null, TextRender.tmpRI, oriy, oriy, marginr, marginb);// '有'比'国'大
-        if (LayaEnv.isConch) {
-            //bmpdt.data.buffer = bmpdt.data;
-            (bmpdt as any).data = new Uint8ClampedArray(bmpdt.data);
-        }
         this.bmpData32 = new Uint32Array(bmpdt.data.buffer);
         // 国字的宽度就用系统测量的，不再用像素检测
         if (TextRender.pixelBBX[2] < orix + TextRender.tmpRI.width)
             TextRender.pixelBBX[2] = orix + TextRender.tmpRI.width;
         this.updateBbx(bmpdt, TextRender.pixelBBX, false);//TODO 改成 true
         // 原点在 16,16
-        if (LayaEnv.isConch) {
-            //runtime 的接口好像有问题，不认orix，oriy
-            orix = 0;
-            oriy = 0;
-        }
         var xoff = Math.max(orix - TextRender.pixelBBX[0], 0);
         var yoff = Math.max(oriy - TextRender.pixelBBX[1], 0);
         var bbxw = TextRender.pixelBBX[2] - TextRender.pixelBBX[0];

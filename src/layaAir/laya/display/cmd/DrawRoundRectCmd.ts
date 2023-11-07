@@ -4,7 +4,7 @@ import { ClassUtils } from "../../utils/ClassUtils";
 import { Pool } from "../../utils/Pool";
 
 export class DrawRoundRectCmd {
-    static ID: string = "DrawEllipse";
+    static ID: string = "DrawRoundRect";
     /**
      * 圆点X 轴位置。
      */
@@ -57,7 +57,7 @@ export class DrawRoundRectCmd {
 
 
     /**@private */
-    static create(x: number, y: number, width: number, height: number, lt: number, rt: number, lb: number, rb: number, fillColor: any, lineColor: any, lineWidth: number): DrawRoundRectCmd {
+    static create(x: number, y: number, width: number, height: number, lt: number, rt: number, lb: number, rb: number, fillColor: any, lineColor: any, lineWidth: number, percent?: boolean): DrawRoundRectCmd {
         var cmd = Pool.getItemByClass("DrawRoundRectCmd", DrawRoundRectCmd);
         cmd.x = x;
         cmd.y = y;
@@ -70,6 +70,7 @@ export class DrawRoundRectCmd {
         cmd.fillColor = fillColor;
         cmd.lineColor = lineColor;
         cmd.lineWidth = lineWidth;
+        cmd.percent = percent;
         return cmd;
     }
     /**
