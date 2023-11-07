@@ -135,6 +135,8 @@ export class Mesh extends Resource implements IClone {
     instanceWorldMatrixData: Float32Array;
     /** @internal */
     instanceSimpleAnimatorData: Float32Array;
+    /** @internal */
+    instanceLightMapScaleOffsetData: Float32Array;
 
     /** @internal */
     instanceLightMapScaleOffsetData: Float32Array;

@@ -52,7 +52,12 @@ export class AnimatorStateScript {
 	onStateExit(): void {
 
 	}
+	/**
+	 * 动画设置了循环的话，每次循环结束时执行
+	 */
+	onStateLoop(): void {
 
+	}
 }
 
 

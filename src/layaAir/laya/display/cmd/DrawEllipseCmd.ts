@@ -41,7 +41,7 @@ export class DrawEllipseCmd {
 
 
     /**@private */
-    static create(x: number, y: number, width: number, height: number, fillColor: any, lineColor: any, lineWidth: number): DrawEllipseCmd {
+    static create(x: number, y: number, width: number, height: number, fillColor: any, lineColor: any, lineWidth: number, percent?: boolean): DrawEllipseCmd {
         var cmd = Pool.getItemByClass("DrawEllipseCmd", DrawEllipseCmd);
         cmd.x = x;
         cmd.y = y;
@@ -50,6 +50,7 @@ export class DrawEllipseCmd {
         cmd.fillColor = fillColor;
         cmd.lineColor = lineColor;
         cmd.lineWidth = lineWidth;
+        cmd.percent = percent;
         return cmd;
     }
     /**

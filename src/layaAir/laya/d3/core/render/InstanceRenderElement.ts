@@ -192,8 +192,8 @@ export class InstanceRenderElement extends RenderElement {
                 (this._renderElementOBJ as InstanceRenderElementOBJ).drawCount = count;
                 for (var i: number = 0; i < count; i++)
                     worldMatrixData.set(elements[i].transform.worldMatrix.elements, i * 16);
-                
-                let haveLightMap:boolean = this.render._shaderValues.hasDefine(RenderableSprite3D.SAHDERDEFINE_LIGHTMAP);
+
+                let haveLightMap: boolean = this.render._shaderValues.hasDefine(RenderableSprite3D.SAHDERDEFINE_LIGHTMAP);
                 if (haveLightMap && mesh._instanceLightMapVertexBuffer) {
                     var lightMapData: Float32Array = (this._renderElementOBJ as InstanceRenderElementOBJ).getUpdateData(1, 4 * InstanceRenderElement.maxInstanceCount);
                     for (var i: number = 0; i < count; i++) {

@@ -107,14 +107,14 @@ export class Animator2D extends Component {
      * @param weight state权重
      * @param isFirstLayer 是否是第一层
      */
-    private _setClipDatasToNode(stateInfo: AnimatorState2D, additive: boolean, weight: number, isFirstLayer: boolean, controllerLayer: AnimatorControllerLayer2D = null): void {
+    private _setClipDatasToNode(stateInfo: AnimatorState2D, additive: boolean, weight: number, controllerLayer: AnimatorControllerLayer2D = null): void {
         var realtimeDatas = stateInfo._realtimeDatas;
         var nodes = stateInfo._clip!._nodes!;
         for (var i = 0, n = nodes.count; i < n; i++) {
             if (null == realtimeDatas[i]) continue;
             var node = nodes.getNodeByIndex(i);
             var o = this.getOwner(node);
-            o && this._applyFloat(o, additive, weight, isFirstLayer, realtimeDatas[i]);
+            o && this._applyFloat(o, additive, weight, realtimeDatas[i]);
         }
     }
 
@@ -126,7 +126,7 @@ export class Animator2D extends Component {
      * @param isFirstLayer 
      * @param data 
      */
-    private _applyFloat(o: { ower: Node, pro?: { ower: any, key: string, defVal: any } }, additive: boolean, weight: number, isFirstLayer: boolean, data: string | number | boolean): void {
+    private _applyFloat(o: { ower: Node, pro?: { ower: any, key: string, defVal: any } }, additive: boolean, weight: number, data: string | number | boolean): void {
         var pro = o.pro;
         if (pro && pro.ower) {
             if (additive && "number" == typeof data) {
@@ -324,6 +324,8 @@ export class Animator2D extends Component {
                     }
                 }
                 return;
+            } else {
+                animatorState._eventLoop();
             }
         }
     }
@@ -476,6 +478,46 @@ export class Animator2D extends Component {
         return ret;
     }
 
+    gotoAndStopByFrame(name: string, layerIndex: number, frame: number) {
+        var controllerLayer = this._controllerLayers[layerIndex];
+        if (controllerLayer) {
+            var animatorState = controllerLayer.getStateByName(name);
+            if (!animatorState || !animatorState._clip)
+                return;
+            var allFrame = animatorState._clip!._duration * animatorState._clip!._frameRate;
+            let normalizedTime = frame / allFrame;
+            if (1 < normalizedTime) normalizedTime = 1;
+            this.gotoAndStop(name, layerIndex, normalizedTime);
+        }
+    }
+
+    gotoAndStop(name: string, layerIndex: number, normalizedTime: number) {
+        var controllerLayer = this._controllerLayers[layerIndex];
+        if (controllerLayer) {
+            var animatorState = controllerLayer.getStateByName(name);
+            if (!animatorState || !animatorState._clip)
+                return;
+
+            var playStateInfo = controllerLayer._playStateInfo!;
+            var curPlayState = playStateInfo._currentState!;
+
+            var clipDuration = animatorState._clip!._duration;
+            var calclipduration = animatorState._clip!._duration * (animatorState.clipEnd - animatorState.clipStart);
+
+            playStateInfo._resetPlayState(clipDuration * normalizedTime, calclipduration);
+            playStateInfo._normalizedPlayTime = normalizedTime;
+            controllerLayer._playType = 0;
+            if (curPlayState !== animatorState) {
+                playStateInfo._currentState = animatorState;
+            }
+            animatorState._eventStart(this, layerIndex);
+            let addtive = controllerLayer.blendingMode != AnimatorControllerLayer2D.BLENDINGMODE_OVERRIDE;
+            this._updateClipDatas(animatorState, addtive, playStateInfo);
+            this._setClipDatasToNode(animatorState, addtive, controllerLayer.defaultWeight, controllerLayer);
+            this.stop();
+        }
+    }
+
     /**
      * 播放动画
      * @param name 动画名称
@@ -605,7 +647,7 @@ export class Animator2D extends Component {
                     if (needRender) {
                         this._updateClipDatas(animatorState, addtive, playStateInfo);
                         if (!finish) {
-                            this._setClipDatasToNode(animatorState, addtive, controllerLayer.defaultWeight, i == 0, controllerLayer);
+                            this._setClipDatasToNode(animatorState, addtive, controllerLayer.defaultWeight, controllerLayer);
                             this._updateEventScript(animatorState, playStateInfo);
                         }
                     }
