@@ -138,9 +138,6 @@ export class Mesh extends Resource implements IClone {
     /** @internal */
     instanceLightMapScaleOffsetData: Float32Array;
 
-    /** @internal */
-    instanceLightMapScaleOffsetData: Float32Array;
-
     morphTargetData: MorphTargetData;
 
     /** @internal */

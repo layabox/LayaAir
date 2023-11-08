@@ -9,10 +9,8 @@ import { FontInfo } from "../../utils/FontInfo"
 import { WordText } from "../../utils/WordText"
 import { CharRenderInfo } from "./CharRenderInfo"
 import { CharRender_Canvas } from "./CharRender_Canvas"
-import { CharRender_Native } from "./CharRender_Native"
 import { ICharRender } from "./ICharRender"
 import { ILaya } from "../../../ILaya";
-import { LayaEnv } from "../../../LayaEnv";
 import { Const } from "../../Const";
 
 export class TextRender {

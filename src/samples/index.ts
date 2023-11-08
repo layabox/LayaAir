@@ -20,10 +20,11 @@ import { physics2DwasmFactory } from "laya/physics/factory/physics2DwasmFactory"
 import { Main } from "./Main";
 import { physics2DJSFactory } from "laya/physics/factory/physics2DJSFactory";
 import { Laya } from "Laya";
+import { Physics2D } from "laya/physics/Physics2D";
 Resource.DEBUG = true;
 
 LayaGL.renderOBJCreate = new RenderOBJCreateUtil();
-Laya.Physiscs2DFactory = new physics2DJSFactory();
+//Physics2D.I._factory = new physics2DJSFactory();
 // Laya3D.PhysicsCreateUtil = new pxPhysicsCreateUtil();
 // new PhysicsWorld_BaseCollider();
 new Main(false);

@@ -28,7 +28,6 @@ export class Physics_CollisionEvent {
         Config.isAntialias = true;
         Laya.init(1200, 700).then(() => {
             Stat.show();
-            Physics2D.enable();
             Laya.stage.alignV = Stage.ALIGN_MIDDLE;
             Laya.stage.alignH = Stage.ALIGN_CENTER;
             Laya.stage.scaleMode = Stage.SCALE_FIXED_AUTO;

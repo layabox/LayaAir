@@ -28,7 +28,6 @@ export class Physics_Tumbler {
             Laya.stage.scaleMode = Stage.SCALE_FIXED_AUTO;
             Laya.stage.bgColor = "#232628";
 
-            Physics2D.enable();
             this.createBox();
             this.eventListener();
         });
