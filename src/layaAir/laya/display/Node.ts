@@ -53,15 +53,15 @@ export class Node extends EventDispatcher {
     /**@internal */
     _componentDriver?: ComponentDriver;
     /**@internal */
-    _is3D?: boolean;
-    _url?: string;
-    _extra?: INodeExtra;
+    _is3D: boolean;
+    _url: string;
+    _extra: INodeExtra;
 
     /**节点名称。*/
     name: string = "";
 
     /** 节点标签 */
-    tag?: string;
+    tag: string;
 
     /**
      * 如果节点从资源中创建，这里记录是他的url
@@ -106,7 +106,6 @@ export class Node extends EventDispatcher {
         this._extra = {};
     }
 
-    /**@internal */
     _setBit(type: number, value: boolean): void {
         if (type === NodeFlags.DISPLAY) {
             var preValue: boolean = this._getBit(type);
@@ -116,7 +115,6 @@ export class Node extends EventDispatcher {
         else this._bits &= ~type;
     }
 
-    /**@internal */
     _getBit(type: number): boolean {
         return (this._bits & type) != 0;
     }

@@ -142,14 +142,16 @@ class Texture2DLoader implements IResourceLoader {
                 options = Object.assign({ workerLoaderOptions: { premultiplyAlpha } }, options);
 
             return task.loader.fetch(url, "image", task.progress.createCallback(), options).then(img => {
+                if(!img)
+                    return null;
                 if (img instanceof ImageBitmap)
                     return img;
                 else
                     return createImageBitmap(img, options.workerLoaderOptions || { premultiplyAlpha });
-            }).then(bitmapimage => {
-                if (!bitmapimage)
+            }).then(img => {
+                if (!img)
                     return null;
-                let tex: BaseTexture = Texture2D._parseImage(bitmapimage, propertyParams, constructParams);
+                let tex: BaseTexture = Texture2D._parseImage(img, propertyParams, constructParams);
                 let obsoluteInst = <Texture2D>task.obsoluteInst;
                 if (obsoluteInst && Object.getPrototypeOf(obsoluteInst) == Object.getPrototypeOf(tex))
                     tex = this.move(obsoluteInst, tex);
