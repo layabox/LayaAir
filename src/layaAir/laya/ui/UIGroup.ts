@@ -313,6 +313,16 @@ export class UIGroup extends Box {
         }
     }
 
+
+    set labelAlign(value: string) {
+        if (this._labelAlign == value) return;
+        this._labelAlign = value;
+        this._setLabelChanged();
+    }
+    get labelAlign() {
+        return this._labelAlign;
+    }
+
     /**
      * <p>描边宽度（以像素为单位）。</p>
      * 默认值0，表示不描边。
