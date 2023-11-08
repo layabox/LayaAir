@@ -6,8 +6,8 @@ import { Shader2X } from "../Shader2X"
 import { ShaderDefines2D } from "../ShaderDefines2D"
 import { RenderState2D } from "../../../utils/RenderState2D"
 import { RenderTexture2D } from "../../../../resource/RenderTexture2D"
-import { TextTexture } from "laya/webgl/text/TextTexture"
 import { Const } from "../../../../Const"
+import { TextTexture } from "../../../text/TextTexture"
 
 export class Value2D {
     protected static _cache: any[] = [];
