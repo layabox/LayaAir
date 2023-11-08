@@ -32,7 +32,7 @@ export class Physics_CollisionEvent {
             Laya.stage.alignH = Stage.ALIGN_CENTER;
             Laya.stage.scaleMode = Stage.SCALE_FIXED_AUTO;
             Laya.stage.bgColor = "#232628";
-
+            Physics2D.I.start();
             this.createSensor();
         });
     }
