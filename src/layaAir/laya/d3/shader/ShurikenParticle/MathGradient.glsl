@@ -57,7 +57,7 @@ vec4 getColorFromGradient(in vec2 gradientAlphas[COLORCOUNT],
 		{
 		    vec2 lastGradientAlpha = gradientAlphas[i - 1];
 		    float lastAlphaKey = lastGradientAlpha.x;
-		    float age = (alphaAge - lastAlphaKey) / (alphaKey - lastAlphaKey);
+		    float age = clamp((alphaAge - lastAlphaKey) / (alphaKey - lastAlphaKey), 0.0, 1.0);
 		    overTimeColor.a = mix(lastGradientAlpha.y, gradientAlpha.y, age);
 		    break;
 		}
