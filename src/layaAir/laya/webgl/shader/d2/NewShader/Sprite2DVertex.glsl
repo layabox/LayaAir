@@ -101,7 +101,7 @@
         #endif
         
         #ifdef INVERTY
-		    gl_Position.y = -gl_Position.y;
+            glPosition.y = -glPosition.y;
         #endif
     }
 
