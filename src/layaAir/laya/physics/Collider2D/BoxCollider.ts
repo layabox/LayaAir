@@ -1,67 +1,35 @@
 import { ColliderBase } from "./ColliderBase";
 import { Physics2D } from "../Physics2D";
-import { Sprite } from "../../display/Sprite";
+import { PhysicsShape } from "./ColliderStructInfo";
 
 
 /**
  * 2D矩形碰撞体
  */
 export class BoxCollider extends ColliderBase {
-    /**相对节点的x轴偏移*/
-    private _x: number = 0;
-    /**相对节点的y轴偏移*/
-    private _y: number = 0;
+
     /**矩形宽度*/
     private _width: number = 100;
     /**矩形高度*/
     private _height: number = 100;
 
     /**
-     * @override
-     */
-    protected getDef(): any {
-        if (!this._shape) {
-            this._shape = Physics2D.I._factory.create_boxColliderShape();
-            this._setShape(false);
-        }
-        this.label = (this.label || "BoxCollider");
-        return super.getDef();
+    * 创建一个新的 <code>BoxCollider</code> 实例。
+    */
+    constructor() {
+        super();
+        this._physicShape = PhysicsShape.BoxShape;
     }
 
-
-
-    private _setShape(re: boolean = true): void {
-        let node: Sprite = this.owner as Sprite;
-        var scaleX: number = node.scaleX;
-        var scaleY: number = node.scaleY;
-        let helfW: number = this._width * 0.5 * scaleX;
-        let helfH: number = this._height * 0.5 * scaleY;
+    /**@override */
+    protected _setShapeData(shape: any): void {
+        let helfW: number = this._width * 0.5;
+        let helfH: number = this._height * 0.5;
         var center = {
-            x: helfW + this._x * scaleX,
-            y: helfH + this._y * scaleY
+            x: helfW + this.pivotoffx,
+            y: helfH + this.pivotoffy
         }
-        Physics2D.I._factory.set_collider_SetAsBox(this._shape, helfW, helfH, center);
-        if (re) this.refresh();
-    }
-
-    /**相对节点的x轴偏移*/
-    get x(): number {
-        return this._x;
-    }
-
-    set x(value: number) {
-        this._x = value;
-        if (this._shape) this._setShape();
-    }
-
-    /**相对节点的y轴偏移*/
-    get y(): number {
-        return this._y;
-    }
-
-    set y(value: number) {
-        this._y = value;
-        if (this._shape) this._setShape();
+        Physics2D.I._factory.set_collider_SetAsBox(shape, helfW, helfH, center, this.scaleX, this.scaleY);
     }
 
     /**矩形宽度*/
@@ -71,8 +39,9 @@ export class BoxCollider extends ColliderBase {
 
     set width(value: number) {
         if (value <= 0) throw "BoxCollider size cannot be less than 0";
+        if (this._width == value) return;
         this._width = value;
-        if (this._shape) this._setShape();
+        this._needupdataShapeAttribute();
     }
 
     /**矩形高度*/
@@ -82,14 +51,9 @@ export class BoxCollider extends ColliderBase {
 
     set height(value: number) {
         if (value <= 0) throw "BoxCollider size cannot be less than 0";
+        if (this._height == value) return;
         this._height = value;
-        if (this._shape) this._setShape();
+        this._needupdataShapeAttribute();
     }
 
-    /**@private 重置形状
-     * @override
-    */
-    resetShape(re: boolean = true): void {
-        this._setShape();
-    }
 }

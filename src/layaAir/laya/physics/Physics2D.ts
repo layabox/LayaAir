@@ -31,7 +31,10 @@ export class Physics2D extends EventDispatcher {
 
     _factory: IPhysiscs2DFactory;
 
+    /**@private 需要同步实时跟新数据列表*/
     _rigiBodyList: SingletonList<RigidBody>;
+    /**@private 需要同步物理数据的列表；使用后会及时释放*/
+    _updataattributeLists: SingletonList<RigidBody>;
 
     /**全局物理单例*/
     static get I(): Physics2D {
@@ -152,21 +155,42 @@ export class Physics2D extends EventDispatcher {
             this.enableDebugDraw = false;
         }
         if (!this._rigiBodyList) this._rigiBodyList = new SingletonList<RigidBody>();
-        else this._rigiBodyList.clean();
+        else this._rigiBodyList.clear();
+
+        if (!this._updataattributeLists) this._updataattributeLists = new SingletonList<RigidBody>();
+        else this._updataattributeLists.clear();
 
         if (!Physics2DOption.customUpdate && LayaEnv.isPlaying)
             ILaya.physicsTimer.frameLoop(1, this, this._update);
     }
 
+    /**@internal */
     addRigidBody(body: RigidBody) {
         this._rigiBodyList.add(body);
     }
 
+    /**@internal */
     removeRigidBody(body: RigidBody) {
         this._rigiBodyList.remove(body);
     }
 
+    /**@internal */
+    updataRigidBodyAttribute(body: RigidBody) {
+        this._updataattributeLists.add(body);
+    }
+
+    /**@internal */
+    removeRigidBodyAttribute(body: RigidBody) {
+        this._updataattributeLists.remove(body);
+    }
+
+    /**@private*/
     private _update(): void {
+        //同步物理属性
+        for (var i = 0, n = this._updataattributeLists.length; i < n; i++) {
+            this._updataattributeLists.elements[i].updatePhysicsAttribute()
+        }
+        this._updataattributeLists.clear()
         //同步渲染坐标到物理坐标
         this._updatePhysicsTransformFromRender();
         //时间步太长，会导致错误穿透
@@ -184,12 +208,14 @@ export class Physics2D extends EventDispatcher {
         }
     }
 
+    /**@private*/
     _updatePhysicsTransformFromRender() {
         for (var i = 0, n = this._rigiBodyList.length; i < n; i++) {
             this._rigiBodyList.elements[i].updatePhysicsTransformFromRender()
         }
     }
 
+    /**@private*/
     _updatePhysicsTransformToRender() {
         for (var i = 0, n = this._rigiBodyList.length; i < n; i++) {
             this._rigiBodyList.elements[i].updatePhysicsTransformToRender()
@@ -200,6 +226,8 @@ export class Physics2D extends EventDispatcher {
      * 停止物理世界
      */
     stop(): void {
+        this._rigiBodyList.clear();
+        this._updataattributeLists.clear();
         ILaya.physicsTimer.clear(this, this._update);
     }
 
