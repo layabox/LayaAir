@@ -65,9 +65,9 @@ export class RigidBody extends Component {
         if (this._body || !this.owner) return;
         let factory = Physics2D.I._factory;
         var sp: Sprite = (<Sprite>this.owner);
-        
+
         var defRigidBodyDef = new RigidBody2DInfo();
-        let point: Point = factory.getLayaPosition(sp, sp.pivotX, sp.pivotY);
+        let point: Point = factory.getLayaPosition(sp, sp.pivotX * sp.scaleX, sp.pivotY * sp.scaleY);
         defRigidBodyDef.position.setValue(point.x, point.y);
         defRigidBodyDef.angle = Utils.toRadian(sp.rotation);
         defRigidBodyDef.allowSleep = this._allowSleep;
@@ -85,44 +85,35 @@ export class RigidBody extends Component {
         defRigidBodyDef.type = this._type;
 
         this._body = factory.rigidBodyDef_Create(defRigidBodyDef);
-        //查找碰撞体
-        this.resetCollider(false);
+        Physics2D.I.addRigidBody(this);
+        this.needrefeshShape();
     }
 
     protected _onAwake(): void {
         (<Sprite>this.owner).cacheGlobal = true;
         this._createBody();
-        this._addToWorld();
     }
 
     protected _onEnable(): void {
-        var _$this = this;
         this._createBody();
-        this._addToWorld();
     }
 
-    protected _addToWorld() {
-        if (this.type != "static") {
-            Physics2D.I.addRigidBody(this);
-        } else {
-            Physics2D.I.removeRigidBody(this);
-        }
+    needrefeshShape() {
+        Physics2D.I.updataRigidBodyAttribute(this);
     }
 
-    /**
-     * 重置Collider
-     * @param	resetShape 是否先重置形状，比如缩放导致碰撞体变化
-     */
-    private resetCollider(resetShape: boolean): void {
-        //查找碰撞体
+    /** 同步节点坐标及旋转到物理世界*/
+    updatePhysicsAttribute(): void {
+        var factory = Physics2D.I._factory;
         var comps: any[] = this.owner.getComponents(ColliderBase);
         if (comps) {
             for (var i: number = 0, n: number = comps.length; i < n; i++) {
                 var collider: ColliderBase = comps[i];
                 collider.rigidBody = this;
-                if (resetShape) collider.resetShape();
-                else collider.refresh();
+                collider.refresh();
             }
+            factory.retSet_rigidBody_MassData(this._body);
+            factory.set_rigidbody_Awake(this._body, true);
         }
     }
 
@@ -137,13 +128,15 @@ export class RigidBody extends Component {
 
     // /**@private 同步物理坐标到游戏坐标*/
     updatePhysicsTransformToRender(): void {
+        if (this.type == "static") {
+            return;
+        }
         var factory = Physics2D.I._factory;
         if (Physics2D.I._factory.get_rigidBody_IsAwake(this._body)) {
             var pos = Vector2.TempVector2;
             factory.get_RigidBody_Position(this.body, pos);
             var sp: Sprite = (<Sprite>this.owner);
-            sp.globalPosX = pos.x;
-            sp.globalPosY = pos.y;
+            sp.setGlobalPos(pos.x, pos.y);
             sp.globalRotation = Utils.toAngle(factory.get_RigidBody_Angle(this.body));
         }
     }
@@ -152,6 +145,15 @@ export class RigidBody extends Component {
 
     protected _onDisable(): void {
         Physics2D.I.removeRigidBody(this);
+        Physics2D.I.removeRigidBodyAttribute(this);
+        //添加到物理世界
+        this._body && Physics2D.I._factory.removeBody(this._body);
+        this._body = null;
+    }
+
+    protected _onDestroy(): void {
+        Physics2D.I.removeRigidBody(this);
+        Physics2D.I.removeRigidBodyAttribute(this);
         //添加到物理世界
         this._body && Physics2D.I._factory.removeBody(this._body);
         this._body = null;
@@ -276,7 +278,6 @@ export class RigidBody extends Component {
 
     set type(value: string) {
         this._type = value;
-        this._addToWorld();
         if (this._body) Physics2D.I._factory.set_rigidBody_type(this.body, this._type);
     }
 
@@ -388,4 +389,5 @@ export class RigidBody extends Component {
         if (this._body) return Physics2D.I._factory.get_rigidBody_LocalPoint(this._body, x, y);
         else return null;
     }
+
 }
