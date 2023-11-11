@@ -1,14 +1,11 @@
 import { ColliderBase } from "./ColliderBase";
 import { Physics2D } from "../Physics2D";
+import { PhysicsShape } from "./ColliderStructInfo";
 
 /**
  * 2D线形碰撞体
  */
 export class ChainCollider extends ColliderBase {
-    /**相对节点的x轴偏移*/
-    private _x: number = 0;
-    /**相对节点的y轴偏移*/
-    private _y: number = 0;
 
     /**
      * @deprecated
@@ -21,45 +18,19 @@ export class ChainCollider extends ColliderBase {
 
     /**是否是闭环，注意不要有自相交的链接形状，它可能不能正常工作*/
     private _loop: boolean = false;
+
+    constructor() {
+        super();
+        this._physicShape = PhysicsShape.ChainShape;
+    }
+
     /**
-     * @override
-     */
-    protected getDef(): any {
-        if (!this._shape) {
-            this._shape = Physics2D.I._factory.create_ChainShape();
-            this._setShape(false);
-        }
-        this.label = (this.label || "ChainCollider");
-        return super.getDef();
-    }
-
-    private _setShape(re: boolean = true): void {
+    * @override
+    */
+    protected _setShapeData(shape: any): void {
         var len: number = this._datas.length;
-        if (len % 2 == 1) throw "ChainCollider points lenth must a multiplier of 2";
-
-        Physics2D.I._factory.set_ChainShape_data(this._shape, this._x, this._y, this._datas, this._loop)
-
-        if (re) this.refresh();
-    }
-
-    /**相对节点的x轴偏移*/
-    get x(): number {
-        return this._x;
-    }
-
-    set x(value: number) {
-        this._x = value;
-        if (this._shape) this._setShape();
-    }
-
-    /**相对节点的y轴偏移*/
-    get y(): number {
-        return this._y;
-    }
-
-    set y(value: number) {
-        this._y = value;
-        if (this._shape) this._setShape();
+        if (len % 2 == 1) throw "ChainCollider datas lenth must a multiplier of 2";
+        Physics2D.I._factory.set_ChainShape_data(shape, this.pivotoffx, this.pivotoffy, this._datas, this._loop, this.scaleX, this.scaleY);
     }
 
     /**
@@ -77,9 +48,9 @@ export class ChainCollider extends ColliderBase {
         let length = arr.length;
         this._datas = [];
         for (var i: number = 0, n: number = length; i < n; i++) {
-            this._datas.push(parseInt(arr[i]))
+            this._datas.push(parseInt(arr[i]));
         }
-        if (this._shape) this._setShape();
+        this._needupdataShapeAttribute();
     }
 
     /**顶点数据 x,y,x,y ...*/
@@ -88,9 +59,9 @@ export class ChainCollider extends ColliderBase {
     }
 
     set datas(value: number[]) {
-        if (!value) throw "ChainCollider points cannot be empty";
+        if (!value) throw "ChainCollider datas cannot be empty";
         this._datas = value;
-        if (this._shape) this._setShape();
+        this._needupdataShapeAttribute();
     }
 
     /**是否是闭环，注意不要有自相交的链接形状，它可能不能正常工作*/
@@ -99,7 +70,8 @@ export class ChainCollider extends ColliderBase {
     }
 
     set loop(value: boolean) {
+        if (this._loop == value) return;
         this._loop = value;
-        if (this._shape) this._setShape();
+        this._needupdataShapeAttribute();
     }
 }

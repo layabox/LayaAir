@@ -27,7 +27,7 @@ export class Physics_Tumbler {
             Laya.stage.alignH = Stage.ALIGN_CENTER;
             Laya.stage.scaleMode = Stage.SCALE_FIXED_AUTO;
             Laya.stage.bgColor = "#232628";
-
+            Physics2D.I.start();
             this.createBox();
             this.eventListener();
         });
@@ -41,8 +41,9 @@ export class Physics_Tumbler {
 
         let box = new Sprite();
         box.size(width + height * 2, width + height * 2);
-        box.pivot(box.width / 2, box.height / 2);
         box.pos(posx, posy);
+        box.anchorX = 0.5;
+        box.anchorY = 0.5;
         this.Main.box2D.addChild(box);
         let boxBody: RigidBody = box.addComponent(RigidBody);
 
@@ -60,8 +61,6 @@ export class Physics_Tumbler {
         box2Shape.y = width + height;
         box3Shape.width = height;
         box3Shape.height = width + height * 2;
-        box3Shape.x = 0;
-        box3Shape.y = 0;
         box4Shape.width = height;
         box4Shape.height = width + height * 2;
         box4Shape.x = width + height;

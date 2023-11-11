@@ -46,7 +46,7 @@ export class Physics_Strandbeests {
             Laya.stage.alignH = Stage.ALIGN_CENTER;
             Laya.stage.scaleMode = Stage.SCALE_FIXED_AUTO;
             Laya.stage.bgColor = "#232628";
-
+            Physics2D.I.start();
             this.Construct();
             // this.eventListener();
             Laya.loader.load(["res/ui/checkbox (1).png"], Handler.create(this, this.eventListener));
@@ -97,6 +97,7 @@ export class Physics_Strandbeests {
         let wheelCollider: CircleCollider = wheel.addComponent(CircleCollider);
         wheelCollider.density = 1;
         wheelCollider.radius = 16 * this.scale;
+        wheelCollider.x = wheelCollider.y = -wheelCollider.radius;
 
 
 

@@ -391,7 +391,7 @@ export interface IPhysiscs2DFactory {
     /** 
      * @internal
      */
-    set_collider_SetAsBox(shape: any, x: number, y: number, pos: IV2): any
+    set_collider_SetAsBox(shape: any, x: number, y: number, pos: IV2, scaleX: number, scaleY: number): any
 
     /** 
      * @internal
@@ -401,7 +401,7 @@ export interface IPhysiscs2DFactory {
     /** 
      * @internal
      */
-    set_ChainShape_data(shape: any, x: number, y: number, arr: number[], loop: boolean): any;
+    set_ChainShape_data(shape: any, x: number, y: number, arr: number[], loop: boolean, scaleX: number, scaleY: number): any;
 
     /** 
      * @internal
@@ -411,12 +411,12 @@ export interface IPhysiscs2DFactory {
     /** 
      * @internal
      */
-    set_CircleShape_radius(shape: any, radius: number): void;
+    set_CircleShape_radius(shape: any, radius: number, scale: number): void;
 
     /** 
      * @internal
      */
-    set_CircleShape_pos(shape: any, x: number, y: number): void;
+    set_CircleShape_pos(shape: any, x: number, y: number, scale: number): void;
 
     /** 
      * @internal
@@ -426,7 +426,7 @@ export interface IPhysiscs2DFactory {
     /** 
      * @internal
      */
-    set_EdgeShape_data(shape: any, x: number, y: number, arr: number[]): any;
+    set_EdgeShape_data(shape: any, x: number, y: number, arr: number[], scaleX: number, scaleY: number): any;
 
     /** 
      * @internal
@@ -436,7 +436,7 @@ export interface IPhysiscs2DFactory {
     /** 
      * @internal
      */
-    set_PolygonShape_data(shape: any, x: number, y: number, arr: number[]): any;
+    set_PolygonShape_data(shape: any, x: number, y: number, arr: number[], scaleX: number, scaleY: number): any;
 
     //----------------fixture-------------------
 
@@ -464,6 +464,11 @@ export interface IPhysiscs2DFactory {
      * @internal
      */
     createfixture(body: any, def: any): void;
+
+    /** 
+    * @internal
+    */
+    resetFixtureData(fixture: any, fixtureDef: FixtureBox2DDef): void;
 
     /** 
      * @internal
@@ -626,5 +631,10 @@ export interface IPhysiscs2DFactory {
      * @internal
      */
     set_rigidBody_bullet(body: any, value: boolean): void;
+
+    /** 
+    * @internal
+    */
+    retSet_rigidBody_MassData(body: any): void;
 
 }
