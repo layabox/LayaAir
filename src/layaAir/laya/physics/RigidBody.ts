@@ -67,8 +67,7 @@ export class RigidBody extends Component {
         var sp: Sprite = (<Sprite>this.owner);
 
         var defRigidBodyDef = new RigidBody2DInfo();
-        let point: Point = factory.getLayaPosition(sp, sp.pivotX * sp.scaleX, sp.pivotY * sp.scaleY);
-        defRigidBodyDef.position.setValue(point.x, point.y);
+        defRigidBodyDef.position.setValue(sp.globalPosX, sp.globalPosY);
         defRigidBodyDef.angle = Utils.toRadian(sp.rotation);
         defRigidBodyDef.allowSleep = this._allowSleep;
         defRigidBodyDef.angularDamping = this._angularDamping;

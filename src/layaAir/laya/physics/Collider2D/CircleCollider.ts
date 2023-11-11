@@ -1,4 +1,3 @@
-import { Sprite } from "../../display/Sprite";
 import { ColliderBase } from "./ColliderBase";
 import { Physics2D } from "../Physics2D";
 import { PhysicsShape } from "./ColliderStructInfo";
@@ -20,8 +19,7 @@ export class CircleCollider extends ColliderBase {
     * @override
     */
     protected _setShapeData(shape: any): void {
-        let node = this.owner as Sprite;
-        var scale: number = Math.max(node.scaleX, node.scaleY);
+        var scale: number = Math.max(this.scaleX, this.scaleY);
         let radius = this.radius;
         Physics2D.I._factory.set_CircleShape_radius(shape, radius, scale);
         Physics2D.I._factory.set_CircleShape_pos(shape, this.pivotoffx + radius, this.pivotoffy + radius, scale);
