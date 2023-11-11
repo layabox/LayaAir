@@ -1776,15 +1776,15 @@ export class Sprite extends Node {
     /**@internal */
     private _cacheGlobal: boolean = false;
     /**@internal */
-    private _globalPosx: number = 0.0;
+    private _globalPosx: number;
     /**@internal */
-    private _globalPosy: number = 0.0;
+    private _globalPosy: number;
     /**@internal */
-    private _globalRotate: number = 0.0;
+    private _globalRotate: number;
     /**@internal */
-    private _globalScalex: number = 1.0;
+    private _globalScalex: number;
     /**@internal */
-    private _globalScaley: number = 1.0;
+    private _globalScaley: number;
 
     get cacheGlobal(): boolean {
         return this._cacheGlobal;
@@ -1802,6 +1802,8 @@ export class Sprite extends Node {
             return;
         this._cacheGlobal = value;
         if (value) {
+            //缓存全局变量
+
             //更新父节点
             if (this._parent == ILaya.stage || !this._parent) {
                 return;
@@ -1866,6 +1868,29 @@ export class Sprite extends Node {
     }
 
     /**
+     * 设置图元锚点世界位置
+     * @internal
+     */
+    setGlobalPos(globalx: number, globaly: number) {
+        if (globalx == this._globalPosx && globaly == this.globalPosY) {
+            return;
+        }
+        Point.TEMP.setTo(globalx, globaly);
+        let point = this.globalToLocal(Point.TEMP, false, null);
+        this.toParentPoint(point);
+        this._setX(point.x);
+        this._setY(point.y);
+        if (this._cacheGlobal) {
+            this._globalPosx = globalx;
+            this._globalPosy = globaly;
+            this._setGlobalCacheFlag(Sprite.Sprite_GlobalDeltaFlage_Position_X, false);
+            this._syncGlobalFlag(Sprite.Sprite_GlobalDeltaFlage_Position_X, true);
+            this._setGlobalCacheFlag(Sprite.Sprite_GlobalDeltaFlage_Position_Y, false);
+            this._syncGlobalFlag(Sprite.Sprite_GlobalDeltaFlage_Position_Y, true);
+        }
+
+    }
+    /**
      * 获得图元锚点世界位置
      * @internal
      */
@@ -1874,12 +1899,12 @@ export class Sprite extends Node {
             let point = this.localToGlobal(Point.TEMP.setTo(0, 0), false, null);
             return point.x;
         } else {
-            if (this._getGlobalCacheFlag(Sprite.Sprite_GlobalDeltaFlage_Position_X)) {
+            if (this._globalPosx == undefined || this._getGlobalCacheFlag(Sprite.Sprite_GlobalDeltaFlage_Position_X)) {
                 this._setGlobalCacheFlag(Sprite.Sprite_GlobalDeltaFlage_Position_X, false);
                 if (this._parent == ILaya.stage || !this._parent)
                     this._globalPosx = this._x;
                 else {
-                    this._globalPosx = (this._x - this.pivotX) * this.globalScaleX + (this.parent as Sprite).globalPosX;
+                    this._globalPosx = (this._x - this.pivotX) * (this.parent as Sprite).globalScaleX + (this.parent as Sprite).globalPosX;
                 }
 
             }
@@ -1897,12 +1922,12 @@ export class Sprite extends Node {
             let point = this.localToGlobal(Point.TEMP.setTo(0, 0), false, null);
             return point.y;
         } else {
-            if (this._getGlobalCacheFlag(Sprite.Sprite_GlobalDeltaFlage_Position_Y)) {
+            if (this._globalPosy == undefined || this._getGlobalCacheFlag(Sprite.Sprite_GlobalDeltaFlage_Position_Y)) {
                 this._setGlobalCacheFlag(Sprite.Sprite_GlobalDeltaFlage_Position_Y, false);
                 if (this._parent == ILaya.stage || !this._parent)
                     this._globalPosy = this._y;
                 else {
-                    this._globalPosy = (this._y - this.pivotY) * this.globalScaleY + (this.parent as Sprite).globalPosY;
+                    this._globalPosy = (this._y - this.pivotY) * (this.parent as Sprite).globalScaleY + (this.parent as Sprite).globalPosY;
                 }
             }
             return this._globalPosy;
@@ -1927,7 +1952,7 @@ export class Sprite extends Node {
             }
             return angle;
         } else {
-            if (this._getGlobalCacheFlag(Sprite.Sprite_GlobalDeltaFlage_Rotation)) {
+            if (this._globalRotate == undefined || this._getGlobalCacheFlag(Sprite.Sprite_GlobalDeltaFlage_Rotation)) {
                 this._setGlobalCacheFlag(Sprite.Sprite_GlobalDeltaFlage_Rotation, false);
                 if (this._parent == ILaya.stage || !this._parent)
                     this._globalRotate = this.rotation;
@@ -1969,7 +1994,7 @@ export class Sprite extends Node {
             }
             return scale;
         } else {
-            if (!this._getGlobalCacheFlag(Sprite.Sprite_GlobalDeltaFlage_Scale_X)) {
+            if (this._globalScalex == undefined || !this._getGlobalCacheFlag(Sprite.Sprite_GlobalDeltaFlage_Scale_X)) {
                 this._setGlobalCacheFlag(Sprite.Sprite_GlobalDeltaFlage_Scale_X, false);
                 if (this._parent == ILaya.stage || !this._parent)
                     this._globalScalex = this.scaleX;
@@ -1995,7 +2020,7 @@ export class Sprite extends Node {
             }
             return scale;
         } else {
-            if (!this._getGlobalCacheFlag(Sprite.Sprite_GlobalDeltaFlage_Scale_Y)) {
+            if (this._globalScaley == undefined || !this._getGlobalCacheFlag(Sprite.Sprite_GlobalDeltaFlage_Scale_Y)) {
                 this._setGlobalCacheFlag(Sprite.Sprite_GlobalDeltaFlage_Scale_Y, false);
                 if (this._parent == ILaya.stage || !this._parent)
                     this._globalScaley = this.scaleY;

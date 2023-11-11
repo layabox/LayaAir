@@ -44,7 +44,6 @@ export class Physics_Tumbler {
         box.pos(posx, posy);
         box.anchorX = 0.5;
         box.anchorY = 0.5;
-        let off = -0.5 * box.width;
         this.Main.box2D.addChild(box);
         let boxBody: RigidBody = box.addComponent(RigidBody);
 
@@ -54,20 +53,18 @@ export class Physics_Tumbler {
         let box4Shape: BoxCollider = box.addComponent(BoxCollider);
         box1Shape.width = width + height * 2;
         box1Shape.height = height;
-        box1Shape.x = off;
-        box1Shape.y = off;
+        box1Shape.x = 0;
+        box1Shape.y = 0;
         box2Shape.width = width + height * 2;
         box2Shape.height = height;
-        box2Shape.x = off;
-        box2Shape.y = off + width + height;
+        box2Shape.x = 0;
+        box2Shape.y = width + height;
         box3Shape.width = height;
         box3Shape.height = width + height * 2;
-        box3Shape.x = off;
-        box3Shape.y = off;
         box4Shape.width = height;
         box4Shape.height = width + height * 2;
-        box4Shape.x = off + width + height;
-        box4Shape.y = off;
+        box4Shape.x = width + height;
+        box4Shape.y = 0;
 
         let revoluteJoint = new RevoluteJoint();
         revoluteJoint.anchor = [box.width / 2, box.width / 2];

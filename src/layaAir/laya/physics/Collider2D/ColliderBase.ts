@@ -1,13 +1,17 @@
-import { ILaya } from "../../../ILaya";
 import { Component } from "../../components/Component";
-import { FixtureBox2DDef } from "./ColliderStructInfo";
+import { FixtureBox2DDef, PhysicsShape } from "./ColliderStructInfo";
 import { Physics2D } from "../Physics2D";
 import { RigidBody } from "../RigidBody";
+import { Sprite } from "../../display/Sprite";
+
 
 /**
  * 碰撞体基类
  */
 export class ColliderBase extends Component {
+
+    /**FixtureBox2DDef 数据 */
+    private static TempDef: FixtureBox2DDef = new FixtureBox2DDef()
     /**是否是传感器，传感器能够触发碰撞事件，但不会产生碰撞反应*/
     private _isSensor: boolean = false;
     /**密度值，值可以为零或者是正数，建议使用相似的密度，这样做可以改善堆叠稳定性，默认值为10*/
@@ -18,71 +22,134 @@ export class ColliderBase extends Component {
     private _restitution: number = 0;
     /**标签*/
     label: string;
-
-    /**@private b2Shape对象*/
-    protected _shape: any;
-    /**@private b2FixtureDef对象 */
-    protected _def: FixtureBox2DDef;
     /**@private box2D fixture Def */
     protected _fixtureDef: any;
-    /**[只读]b2Fixture对象 */
+    /**@readonly[只读]b2Fixture对象 */
     fixture: any;
-    /**[只读]刚体引用*/
+    /**刚体引用*/
     rigidBody: RigidBody;
+    /**@internal shape类型标记*/
+    protected _physicShape: PhysicsShape;
+    /**@internal 用来标记是否已经同步了属性到物理*/
+    protected _isupdateToPhysiceWorld: boolean = false;
 
-    constructor() {
-        super();
+    /**相对节点的x轴偏移*/
+    private _x: number = 0;
+    /**相对节点的y轴偏移*/
+    private _y: number = 0;
 
-        this._singleton = false;
+    /**相对节点的x轴偏移*/
+    get x(): number {
+        return this._x;
     }
 
-    /**@private 获取碰撞体信息*/
-    protected getDef(): any {
-        if (!this._fixtureDef) {
-            var def: any = new FixtureBox2DDef();
-            def.density = this.density;
-            def.friction = this.friction;
-            def.isSensor = this.isSensor;
-            def.restitution = this.restitution;
-            def.shape = this._shape;
-            this._fixtureDef = Physics2D.I._factory.createFixtureDef(def);
-            this._def = def;
-        }
-        return this._fixtureDef;
+    set x(value: number) {
+        if (this._x == value) return;
+        this._x = value;
+        this._needupdataShapeAttribute();
+    }
+
+    /**相对节点的y轴偏移*/
+    get y(): number {
+        return this._y;
+    }
+
+    set y(value: number) {
+        if (this._y == value) return;
+        this._y = value;
+        this._needupdataShapeAttribute();
+    }
+
+    /**
+     * @internal
+     * 获得节点的全局缩放X
+     */
+    protected get scaleX(): number {
+        return (<Sprite>this.owner).globalScaleX;
+    }
+
+    /**
+     * @internal
+     * 获得节点的全局缩放Y
+     */
+    protected get scaleY(): number {
+        return (<Sprite>this.owner).globalScaleY;
+    }
+
+
+    /**
+     * 创建一个新的 <code>ColliderBase</code> 实例。
+     */
+    constructor() {
+        super();
+        this._singleton = false;
+        this._isupdateToPhysiceWorld = false;
+    }
+
+    /**@internal 设置shape数据 */
+    protected _setShapeData(shape: any): void {
+        throw ("ColliderBase: must override it.");
+    }
+
+    /**@internal 创建获得相对于描点x的偏移 */
+    protected get pivotoffx(): number {
+        return this._x - (<Sprite>this.owner).pivotX;
+    }
+
+    /**@internal 创建获得相对于描点y的偏移 */
+    protected get pivotoffy(): number {
+        return this._y - (<Sprite>this.owner).pivotY;
+    }
+
+    /**@private 创建Shape*/
+    protected createfixture(): any {
+        let factory = Physics2D.I._factory;
+        var body: any = this.rigidBody.body;
+        var def: any = ColliderBase.TempDef;
+        def.density = this.density;
+        def.friction = this.friction;
+        def.isSensor = this.isSensor;
+        def.restitution = this.restitution;
+        def.shape = this._physicShape;
+        let fixtureDef = factory.createFixtureDef(def);
+        this._setShapeData(fixtureDef._shape);
+        this.fixture = factory.createfixture(body, fixtureDef);
+    }
+
+    /**@private 设置shape属性*/
+    protected resetFixtureData() {
+        var def: any = ColliderBase.TempDef;
+        def.density = this.density;
+        def.friction = this.friction;
+        def.isSensor = this.isSensor;
+        def.restitution = this.restitution;
+        Physics2D.I._factory.resetFixtureData(this.fixture, def);
+        this._setShapeData(this.fixture.shape);
     }
 
     protected _onEnable(): void {
-        // if (this.rigidBody)
-        //     this.refresh();
-        // else
-        ILaya.systemTimer.callLater(this, this._checkRigidBody);
+        if (this.owner.getComponent(RigidBody)) {
+            this.rigidBody = this.owner.getComponent(RigidBody)
+            this._needupdataShapeAttribute();
+        }
     }
 
-    private _checkRigidBody(): void {
+    protected _onAwake(): void {
+        if (this.owner.getComponent(RigidBody)) {
+            this.rigidBody = this.owner.getComponent(RigidBody)
+            this._needupdataShapeAttribute();
+        }
+    }
+
+    /**通知rigidBody 更新shape 属性值 */
+    protected _needupdataShapeAttribute(): void {
+        this._isupdateToPhysiceWorld = false;
         if (!this.rigidBody) {
-            var comp: RigidBody = this.owner.getComponent(RigidBody);
-            if (comp) {
-                this.rigidBody = comp;
-                this.refresh();
-            }
+            return;
         }
+        this.rigidBody.needrefeshShape();
     }
 
-    protected _onDestroy() {
-        let factory = Physics2D.I._factory;
-        if (this.rigidBody) {
-            if (this.fixture) {
-                if (factory.get_fixture_body(this.fixture) == this.rigidBody._getOriBody()) {
-                    factory.rigidBody_DestroyFixture(this.rigidBody.body, this.fixture);
-                }
-                factory.destroy_fixture(this.fixture);
-                this.fixture = null;
-            }
-            this.rigidBody = null;
-            this._shape = null;
-            this._def = null;
-        }
-    }
 
     /**是否是传感器，传感器能够触发碰撞事件，但不会产生碰撞反应*/
     get isSensor(): boolean {
@@ -90,11 +157,9 @@ export class ColliderBase extends Component {
     }
 
     set isSensor(value: boolean) {
+        if (this._isSensor == value) return;
         this._isSensor = value;
-        if (this._def) {
-            this._def.isSensor = value;
-            this.refresh();
-        }
+        this._needupdataShapeAttribute();
     }
 
     /**密度值，值可以为零或者是正数，建议使用相似的密度，这样做可以改善堆叠稳定性，默认值为10*/
@@ -103,11 +168,9 @@ export class ColliderBase extends Component {
     }
 
     set density(value: number) {
+        if (this._density == value) return;
         this._density = value;
-        if (this._def) {
-            this._def.density = value;
-            this.refresh();
-        }
+        this._needupdataShapeAttribute();
     }
 
     /**摩擦力，取值范围0-1，值越大，摩擦越大，默认值为0.2*/
@@ -116,11 +179,9 @@ export class ColliderBase extends Component {
     }
 
     set friction(value: number) {
+        if (this._friction == value) return;
         this._friction = value;
-        if (this._def) {
-            this._def.friction = value;
-            this.refresh();
-        }
+        this._needupdataShapeAttribute();
     }
 
     /**弹性系数，取值范围0-1，值越大，弹性越大，默认值为0*/
@@ -129,11 +190,9 @@ export class ColliderBase extends Component {
     }
 
     set restitution(value: number) {
+        if (this._restitution == value) return;
         this._restitution = value;
-        if (this._def) {
-            this._def.restitution = value;
-            this.refresh();
-        }
+        this._needupdataShapeAttribute();
     }
 
     /**
@@ -141,33 +200,44 @@ export class ColliderBase extends Component {
      * 碰撞体参数发生变化后，刷新物理世界碰撞信息
      */
     refresh(): void {
-        let factory = Physics2D.I._factory;
-        if (this.enabled && this.rigidBody) {
-            var body: any = this.rigidBody.body;
-            if (this.fixture) {
-                //trace(fixture);
-                if (factory.get_fixture_body(this.fixture) == this.rigidBody.body) {
-                    factory.rigidBody_DestroyFixture(body, this.fixture);
-                }
-                factory.destroy_fixture(this.fixture);
-                this.fixture = null;
-            }
-            let fixtureDef = this.getDef();
-
-            factory.set_fixtureDef_GroupIndex(fixtureDef, this.rigidBody.group);
-            factory.set_fixtureDef_CategoryBits(fixtureDef, this.rigidBody.category);
-            factory.set_fixtureDef_maskBits(fixtureDef, this.rigidBody.mask);
-            this.fixture = factory.createfixture(body, fixtureDef);
-
-            factory.set_fixture_collider(this.fixture, this);
+        if (!this.enabled) {
+            return;
         }
+        if (this._isupdateToPhysiceWorld) {
+            return;
+        }
+        this._isupdateToPhysiceWorld = true;
+        let factory = Physics2D.I._factory;
+        if (!this.fixture) this.createfixture();
+        else this.resetFixtureData();
+        factory.set_fixtureDef_GroupIndex(this.fixture, this.rigidBody.group);
+        factory.set_fixtureDef_CategoryBits(this.fixture, this.rigidBody.category);
+        factory.set_fixtureDef_maskBits(this.fixture, this.rigidBody.mask);
+        factory.set_fixture_collider(this.fixture, this);
     }
 
-    /**
-     * @private
-     * 重置形状
-     */
-    resetShape(re: boolean = true): void {
 
+    protected _onDisable(): void {
+        let factory = Physics2D.I._factory;
+        if (this.fixture) {
+            if (factory.get_fixture_body(this.fixture) == this.rigidBody._getOriBody()) {
+                factory.rigidBody_DestroyFixture(this.rigidBody.body, this.fixture);
+            }
+            factory.destroy_fixture(this.fixture);
+            this.fixture = null;
+        }
+        this.rigidBody = null;
+    }
+
+    protected _onDestroy(): void {
+        let factory = Physics2D.I._factory;
+        if (this.fixture) {
+            if (factory.get_fixture_body(this.fixture) == this.rigidBody._getOriBody()) {
+                factory.rigidBody_DestroyFixture(this.rigidBody.body, this.fixture);
+            }
+            factory.destroy_fixture(this.fixture);
+            this.fixture = null;
+        }
+        this.rigidBody = null;
     }
 }

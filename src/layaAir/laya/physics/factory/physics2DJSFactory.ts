@@ -2,7 +2,7 @@ import { Sprite } from "../../display/Sprite";
 import { Point } from "../../maths/Point";
 import { IV2, Vector2 } from "../../maths/Vector2";
 import { ColliderBase } from "../Collider2D/ColliderBase";
-import { FixtureBox2DDef } from "../Collider2D/ColliderStructInfo";
+import { FixtureBox2DDef, PhysicsShape } from "../Collider2D/ColliderStructInfo";
 import { IPhysiscs2DFactory } from "../IPhysiscs2DFactory";
 import { Physics2D } from "../Physics2D";
 import { Physics2DOption } from "../Physics2DOption";
@@ -841,10 +841,10 @@ export class physics2DJSFactory implements IPhysiscs2DFactory {
     /** 
      * @internal
      */
-    set_collider_SetAsBox(shape: any, width: number, height: number, pos: IV2) {
-        width = this.layaToPhyValue(width);
-        height = this.layaToPhyValue(height);
-        shape.SetAsBox(width, height, this.createPhyFromLayaVec2(pos.x, pos.y), 0);
+    set_collider_SetAsBox(shape: any, width: number, height: number, pos: IV2, scaleX: number, scaleY: number) {
+        width = this.layaToPhyValue(width * scaleX);
+        height = this.layaToPhyValue(height * scaleY);
+        shape.SetAsBox(width, height, this.createPhyFromLayaVec2(pos.x * scaleX, pos.y * scaleY), 0);
     }
 
     /** 
@@ -861,11 +861,11 @@ export class physics2DJSFactory implements IPhysiscs2DFactory {
      * @param arr 
      * @param loop 
      */
-    set_ChainShape_data(shape: any, x: number, y: number, arr: number[], loop: boolean) {
+    set_ChainShape_data(shape: any, x: number, y: number, arr: number[], loop: boolean, scaleX: number, scaleY: number) {
         let len = arr.length;
         var ps: any[] = [];
         for (var i: number = 0, n: number = len; i < n; i += 2) {
-            ps.push(this.createPhyFromLayaVec2(x + arr[i], y + arr[i + 1]));
+            ps.push(this.createPhyFromLayaVec2((x + arr[i]) * scaleX, (y + arr[i + 1]) * scaleY));
         }
         loop ? shape.CreateLoop(ps, len / 2) : shape.CreateChain(ps, len / 2, new (<any>window).box2d.b2Vec2(0, 0), new (<any>window).box2d.b2Vec2(0, 0));
     }
@@ -882,8 +882,8 @@ export class physics2DJSFactory implements IPhysiscs2DFactory {
      * @param shape
      * @param radius 
      */
-    set_CircleShape_radius(shape: any, radius: number) {
-        shape.m_radius = this.layaToPhyValue(radius);
+    set_CircleShape_radius(shape: any, radius: number, scale: number) {
+        shape.m_radius = this.layaToPhyValue(radius * scale);
     }
 
     /** 
@@ -891,8 +891,8 @@ export class physics2DJSFactory implements IPhysiscs2DFactory {
      * @param x 
      * @param y 
      */
-    set_CircleShape_pos(shape: any, x: number, y: number) {
-        shape.m_p.Set(this.layaToPhyValue(x), this.layaToPhyValue(y));
+    set_CircleShape_pos(shape: any, x: number, y: number, scale: number) {
+        shape.m_p.Set(this.layaToPhyValue(x * scale), this.layaToPhyValue(y * scale));
     }
 
     /** 
@@ -908,11 +908,11 @@ export class physics2DJSFactory implements IPhysiscs2DFactory {
      * @param y 
      * @param arr 
      */
-    set_EdgeShape_data(shape: any, x: number, y: number, arr: number[]) {
+    set_EdgeShape_data(shape: any, x: number, y: number, arr: number[], scaleX: number, scaleY: number) {
         let len = arr.length;
         var ps: any[] = [];
         for (var i: number = 0, n: number = len; i < n; i += 2) {
-            ps.push(this.createPhyFromLayaVec2(x + arr[i], y + arr[i + 1]));
+            ps.push(this.createPhyFromLayaVec2((x + arr[i]) * scaleX, (y + arr[i + 1]) * scaleY));
         }
         shape.SetTwoSided(ps[0], ps[1])
     }
@@ -930,11 +930,11 @@ export class physics2DJSFactory implements IPhysiscs2DFactory {
      * @param y 
      * @param arr 
      */
-    set_PolygonShape_data(shape: any, x: number, y: number, arr: number[]) {
+    set_PolygonShape_data(shape: any, x: number, y: number, arr: number[], scaleX: number, scaleY: number) {
         let len = arr.length;
         var ps: any[] = [];
         for (var i: number = 0, n: number = len; i < n; i += 2) {
-            ps.push(this.createPhyFromLayaVec2(x + arr[i], y + arr[i + 1]));
+            ps.push(this.createPhyFromLayaVec2((x + arr[i]) * scaleX, (y + arr[i + 1]) * scaleY));
         }
         shape.Set(ps, len / 2);
     }
@@ -950,8 +950,25 @@ export class physics2DJSFactory implements IPhysiscs2DFactory {
         def.friction = fixtureDef.friction;
         def.isSensor = fixtureDef.isSensor;
         def.restitution = fixtureDef.restitution;
-        def.shape = fixtureDef.shape;
-        return def
+        switch (fixtureDef.shape) {
+            case PhysicsShape.BoxShape:
+                def.shape = this.create_boxColliderShape();
+                break;
+            case PhysicsShape.PolygonShape:
+                def.shape = this.create_PolygonShape();
+                break;
+            case PhysicsShape.ChainShape:
+                def.shape = this.create_ChainShape();
+                break;
+            case PhysicsShape.CircleShape:
+                def.shape = this.create_CircleShape();
+                break;
+            case PhysicsShape.EdgeShape:
+                def.shape = this.create_EdgeShape();
+                break;
+        }
+        def._shape = def.shape;
+        return def;
     }
 
     /** 
@@ -985,7 +1002,21 @@ export class physics2DJSFactory implements IPhysiscs2DFactory {
      * @returns
      */
     createfixture(body: any, def: any) {
-        return body.CreateFixture(def);
+        let data = body.CreateFixture(def);
+        data.world = this._world;
+        data.shape = data.GetShape();
+        data.filter = data.GetFilterData();
+        return data;
+    }
+
+    /** 
+     * @internal
+     */
+    resetFixtureData(fixture: any, fixtureDef: FixtureBox2DDef): void {
+        fixture.SetDensity(fixtureDef.density);
+        fixture.SetFriction(fixtureDef.friction);
+        fixture.SetSensor(fixtureDef.isSensor);
+        fixture.SetRestitution(fixtureDef.restitution);
     }
 
     /** 
@@ -1282,6 +1313,13 @@ export class physics2DJSFactory implements IPhysiscs2DFactory {
      */
     set_rigidBody_bullet(body: any, value: boolean) {
         body.SetBullet(value);
+    }
+
+    /**
+    * @param body 
+    */
+    retSet_rigidBody_MassData(body: any) {
+        body.ResetMassData()
     }
 
     /**@internal */
