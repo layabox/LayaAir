@@ -34,7 +34,7 @@ import { VectorGraphManager } from "../utils/VectorGraphManager"
 import { ILaya } from "../../ILaya";
 import { WordText } from "../utils/WordText";
 import { ColorUtils } from "../utils/ColorUtils";
-import { Material } from "../d3/core/material/Material";
+import type { Material } from "../d3/core/material/Material";
 import { LayaGL } from "../layagl/LayaGL";
 import { CommandUniformMap } from "../RenderEngine/CommandUniformMap";
 import { ShaderDataType } from "../RenderEngine/RenderShader/ShaderData";
@@ -77,6 +77,8 @@ export class Graphics {
     protected _vectorgraphArray: any[] | null = null;
     /**@private */
     private _graphicBounds: GraphicsBounds | null = null;
+
+    private _material: Material;
 
     constructor() {
         this._createData();
@@ -238,18 +240,23 @@ export class Graphics {
         return this._graphicBounds!.getBoundPoints(realSize);
     }
 
-    private _material: Material;
+    /**
+     * 
+     */
+    get material() {
+        return this._material;
+    }
 
+    /**
+     * 
+     */
     set material(value: Material) {
         if (this._material == value)
             return;
         this._material && this._material._removeReference();
         this._material = value;
-        this._material._addReference();
-    }
-
-    get material() {
-        return this._material;
+        if (value != null)
+            value._addReference();
     }
 
     /**
