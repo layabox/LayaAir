@@ -51,7 +51,7 @@ export class Node extends EventDispatcher {
     /**@internal */
     _conchData: any;
     /**@internal */
-    _componentDriver?: ComponentDriver;
+    _componentDriver: ComponentDriver;
     /**@internal */
     _is3D: boolean;
     _url: string;

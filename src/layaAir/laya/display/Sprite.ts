@@ -28,6 +28,7 @@ import { Scene } from "./Scene";
 import { LayaEnv } from "../../LayaEnv";
 import { SpriteUtils } from "../utils/SpriteUtils";
 import { IHitArea } from "../utils/IHitArea";
+import type { Material } from "../d3/core/material/Material";
 
 /**在显示对象上按下后调度。
  * @eventType Event.MOUSE_DOWN
@@ -975,6 +976,20 @@ export class Sprite extends Node {
             this._renderType &= ~SpriteConst.GRAPHICS;
         }
         this.repaint();
+    }
+
+    get material() {
+        return this._graphics?.material;
+    }
+
+    /**
+     * 
+     */
+    set material(value: Material) {
+        if (this._graphics == null && value == null)
+            return;
+
+        this.graphics.material = value;
     }
 
     /**
