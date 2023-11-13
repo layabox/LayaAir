@@ -5,6 +5,8 @@ import { IJoint } from "../../../Physics3D/interface/Joint/IJoint";
 import { Node } from "../../../display/Node";
 import { IPhysicsManager } from "../../../Physics3D/interface/IPhysicsManager";
 import { pxJoint } from "../../../Physics3D/PhysX/Joint/pxJoint";
+import { PhysicsCollider } from "../PhysicsCollider";
+import { PhysicsColliderComponent } from "../PhysicsColliderComponent";
 /**
  * <code>ConstraintComponent</code> 类用于创建约束的父类。
  */
@@ -15,8 +17,8 @@ export class ConstraintComponent extends Component {
     private _enableCollison: boolean = false;
     protected _physicsManager: IPhysicsManager;
     /**@internal */
-    protected _ownCollider: Rigidbody3D;
-    protected _connectCollider: Rigidbody3D;
+    protected _ownCollider: PhysicsColliderComponent;
+    protected _connectCollider: PhysicsColliderComponent;
     protected _breakForce: number = Number.MAX_VALUE;
     protected _breakTorque: number = Number.MAX_VALUE;
     protected _ownColliderLocalPos: Vector3 = new Vector3();
@@ -38,7 +40,7 @@ export class ConstraintComponent extends Component {
         //Override it
     }
 
-    set connectedBody(value: Rigidbody3D) {
+    set connectedBody(value: PhysicsColliderComponent) {
         if (!value || this._connectCollider == value)
             return;
         this._connectCollider = value;
@@ -47,16 +49,16 @@ export class ConstraintComponent extends Component {
         }
     }
 
-    get connectedBody(): Rigidbody3D {
+    get connectedBody(): PhysicsColliderComponent{
         return this._connectCollider;
     }
 
 
-    get ownBody(): Rigidbody3D {
+    get ownBody(): PhysicsColliderComponent {
         return this._ownCollider;
     }
 
-    set ownBody(value: Rigidbody3D) {
+    set ownBody(value: PhysicsColliderComponent) {
         if (!value || this._ownCollider == value)
             return;
         this._ownCollider = value;

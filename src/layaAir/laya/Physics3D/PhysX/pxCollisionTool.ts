@@ -8,7 +8,7 @@ import { pxColliderShape } from "./Shape/pxColliderShape";
  */
 export class pxCollisionTool {
     /**@internal */
-    static _collision: Collision = new Collision();
+    static _collisionPool: Collision[] = [];
     /**@internal */
     static _tempV3: Vector3 = new Vector3();
     /**@internal */
@@ -25,7 +25,7 @@ export class pxCollisionTool {
     static getCollision(pxCollsionData: any, isTrigger: boolean): Collision {
         let collisionData = pxCollsionData.get(0);
         if (!collisionData) return null;
-        let collsion = pxCollisionTool._collision;
+        let collsion = pxCollisionTool._collisionPool.length === 0 ? new Collision() : pxCollisionTool._collisionPool.pop();
         if (isTrigger) {
             // trigger
             let otherShape = pxColliderShape._shapePool.get(collisionData.otherShape);
@@ -53,5 +53,16 @@ export class pxCollisionTool {
             }
         }
         return collsion;
+    }
+
+    /**
+     * 回收Collision到pool,只有pool里面没有此元素才会回收
+     * @param value 
+     */
+    static reCoverCollision(value: Collision) {
+        // not in array
+        if (!pxCollisionTool._collisionPool.includes(value)) {
+            pxCollisionTool._collisionPool.push(value);
+        }
     }
 }
