@@ -249,7 +249,14 @@ export class Value2D {
         if (material) {
             //Custom Shader
             var shaderPass = material._shader._subShaders[0]._passes;
-            var pass = shaderPass[0];
+            
+            var pass;
+            for (var j: number = 0, m: number = shaderPass.length; j < m; j++) {
+                pass = shaderPass[j];
+                //NOTE:this will cause maybe a shader not render but do prepare before，but the developer can avoide this manual,for example shaderCaster=false.
+                if (pass._pipelineMode == "Forward")
+                    break;
+            }
             var comDef: DefineDatas = Value2D._compileDefine;
             this.defines._defineDatas.cloneTo(Value2D._compileDefine);
             //mateiral Define
@@ -266,7 +273,7 @@ export class Value2D {
             var shaderPass = this._defaultShader._subShaders[0]._passes;
 
             if (shaderPass.length >= 1) {
-                var pass = shaderPass[0];
+                pass = shaderPass[0];
                 //var comDef: DefineDatas = Value2D._compileDefine;
                 var shaderIns = pass.withCompile(this.defines._defineDatas, true);
                 shaderIns.bind();
