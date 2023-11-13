@@ -10,14 +10,13 @@ import { IV2, Vector2 } from "../maths/Vector2";
 /**
  * 2D刚体，显示对象通过RigidBody和物理世界进行绑定，保持物理和显示对象之间的位置同步
  * 物理世界的位置变化会自动同步到显示对象，显示对象本身的位移，旋转（父对象位移无效）也会自动同步到物理世界
- * 由于引擎限制，暂时不支持以下情形：
- * 1.不支持绑定节点缩放
- * 2.不支持绑定节点的父节点缩放和旋转
- * 3.不支持实时控制父对象位移，IDE内父对象位移是可以的
  * 如果想整体位移物理世界，可以Physics2D.I.worldRoot=场景，然后移动场景即可
- * 可以通过IDE-"项目设置" 开启物理辅助线显示，或者通过代码PhysicsDebugDraw.enable();
+ * 可以通过IDE-"项目设置"-"2D物理"-"是否开启2D物理绘制" 开启物理辅助线显示，或者通过代码Physics2D.I.enableDebugDraw=true;
  */
 export class RigidBody extends Component {
+
+    /** 用于判断节点属性更改时更新物理属性*/
+    private static changeFlag: number = Sprite.Sprite_GlobalDeltaFlage_Position_X | Sprite.Sprite_GlobalDeltaFlage_Position_Y | Sprite.Sprite_GlobalDeltaFlage_Rotation | Sprite.Sprite_GlobalDeltaFlage_Scale_X | Sprite.Sprite_GlobalDeltaFlage_Scale_Y
     /**
      * 刚体类型，支持三种类型static，dynamic和kinematic类型，默认为dynamic类型
      * static为静态类型，静止不动，不受重力影响，质量无限大，可以通过节点移动，旋转，缩放进行控制
@@ -61,6 +60,9 @@ export class RigidBody extends Component {
     /**[只读]原始刚体*/
     protected _body: any;
 
+    /**
+     * @private 
+     */
     private _createBody(): void {
         if (this._body || !this.owner) return;
         let factory = Physics2D.I._factory;
@@ -68,7 +70,7 @@ export class RigidBody extends Component {
 
         var defRigidBodyDef = new RigidBody2DInfo();
         defRigidBodyDef.position.setValue(sp.globalPosX, sp.globalPosY);
-        defRigidBodyDef.angle = Utils.toRadian(sp.rotation);
+        defRigidBodyDef.angle = Utils.toRadian(sp.globalRotation);
         defRigidBodyDef.allowSleep = this._allowSleep;
         defRigidBodyDef.angularDamping = this._angularDamping;
         defRigidBodyDef.angularVelocity = this._angularVelocity;
@@ -85,25 +87,36 @@ export class RigidBody extends Component {
 
         this._body = factory.rigidBodyDef_Create(defRigidBodyDef);
         Physics2D.I.addRigidBody(this);
-        this.needrefeshShape();
     }
 
+    /** @override */
     protected _onAwake(): void {
         (<Sprite>this.owner).cacheGlobal = true;
         this._createBody();
+        this.owner.on("GlobaChange", this, this._globalChangeHandler)
     }
 
+    /** @private */
+    private _globalChangeHandler(flag: number) {
+        if (flag & RigidBody.changeFlag) this.needrefeshShape()
+    }
+
+    /** @override */
     protected _onEnable(): void {
         this._createBody();
     }
 
+    /** @internal */
     needrefeshShape() {
         Physics2D.I.updataRigidBodyAttribute(this);
     }
 
-    /** 同步节点坐标及旋转到物理世界*/
+    /**@internal 同步节点坐标及旋转到物理世界*/
     updatePhysicsAttribute(): void {
         var factory = Physics2D.I._factory;
+        var sp: Sprite = <Sprite>this.owner;
+        sp.getGlobalMatrix();
+        factory.set_RigibBody_Transform(this._body, sp.globalPosX, sp.globalPosY, Utils.toRadian(sp.globalRotation));
         var comps: any[] = this.owner.getComponents(ColliderBase);
         if (comps) {
             for (var i: number = 0, n: number = comps.length; i < n; i++) {
@@ -116,16 +129,7 @@ export class RigidBody extends Component {
         }
     }
 
-    /** 同步节点坐标及旋转到物理世界*/
-    updatePhysicsTransformFromRender(): void {
-        var factory = Physics2D.I._factory;
-        var sp: Sprite = <Sprite>this.owner;
-        if (sp.globalDeltaFlages > 0) {
-            factory.set_RigibBody_Transform(this._body, sp.globalPosX, sp.globalPosY, Utils.toRadian(sp.globalRotation));
-        }
-    }
-
-    // /**@private 同步物理坐标到游戏坐标*/
+    /**@internal 同步物理坐标到游戏坐标*/
     updatePhysicsTransformToRender(): void {
         if (this.type == "static") {
             return;
@@ -140,19 +144,21 @@ export class RigidBody extends Component {
         }
     }
 
-
-
+    /** @override */
     protected _onDisable(): void {
         Physics2D.I.removeRigidBody(this);
         Physics2D.I.removeRigidBodyAttribute(this);
+        this.owner.off("GlobaChange", this, this._globalChangeHandler)
         //添加到物理世界
         this._body && Physics2D.I._factory.removeBody(this._body);
         this._body = null;
     }
 
+    /** @override */
     protected _onDestroy(): void {
         Physics2D.I.removeRigidBody(this);
         Physics2D.I.removeRigidBodyAttribute(this);
+        this.owner.off("GlobaChange", this, this._globalChangeHandler)
         //添加到物理世界
         this._body && Physics2D.I._factory.removeBody(this._body);
         this._body = null;
@@ -232,7 +238,7 @@ export class RigidBody extends Component {
 
     /**
      * 设置角度
-     * @param	value 单位为弧度
+     * @param	value 单位为角度
      */
     setAngle(value: any): void {
         if (!this._body) this._onAwake();
