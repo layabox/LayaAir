@@ -30,8 +30,6 @@ export class ColliderBase extends Component {
     rigidBody: RigidBody;
     /**@internal shape类型标记*/
     protected _physicShape: PhysicsShape;
-    /**@internal 用来标记是否已经同步了属性到物理*/
-    protected _isupdateToPhysiceWorld: boolean = false;
 
     /**相对节点的x轴偏移*/
     private _x: number = 0;
@@ -83,7 +81,6 @@ export class ColliderBase extends Component {
     constructor() {
         super();
         this._singleton = false;
-        this._isupdateToPhysiceWorld = false;
     }
 
     /**@internal 设置shape数据 */
@@ -143,7 +140,6 @@ export class ColliderBase extends Component {
 
     /**通知rigidBody 更新shape 属性值 */
     protected _needupdataShapeAttribute(): void {
-        this._isupdateToPhysiceWorld = false;
         if (!this.rigidBody) {
             return;
         }
@@ -203,10 +199,6 @@ export class ColliderBase extends Component {
         if (!this.enabled) {
             return;
         }
-        if (this._isupdateToPhysiceWorld) {
-            return;
-        }
-        this._isupdateToPhysiceWorld = true;
         let factory = Physics2D.I._factory;
         if (!this.fixture) this.createfixture();
         else this.resetFixtureData();
