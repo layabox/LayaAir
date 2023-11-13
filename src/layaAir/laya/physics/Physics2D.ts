@@ -186,13 +186,11 @@ export class Physics2D extends EventDispatcher {
 
     /**@private*/
     private _update(): void {
-        //同步物理属性
+        //同步渲染世界参数到物理世界
         for (var i = 0, n = this._updataattributeLists.length; i < n; i++) {
             this._updataattributeLists.elements[i].updatePhysicsAttribute()
         }
-        this._updataattributeLists.clear()
-        //同步渲染坐标到物理坐标
-        this._updatePhysicsTransformFromRender();
+        this._updataattributeLists.clear();
         //时间步太长，会导致错误穿透
         var delta = Math.min(ILaya.timer.delta / 1000, 0.033);
         this._factory.update(delta);
@@ -205,13 +203,6 @@ export class Physics2D extends EventDispatcher {
                 this._factory.sendEvent(this._eventList[i], this._eventList[i + 1]);
             }
             this._eventList.length = 0;
-        }
-    }
-
-    /**@private*/
-    _updatePhysicsTransformFromRender() {
-        for (var i = 0, n = this._rigiBodyList.length; i < n; i++) {
-            this._rigiBodyList.elements[i].updatePhysicsTransformFromRender()
         }
     }
 
