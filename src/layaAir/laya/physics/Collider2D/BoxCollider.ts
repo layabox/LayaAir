@@ -29,7 +29,7 @@ export class BoxCollider extends ColliderBase {
             x: helfW + this.pivotoffx,
             y: helfH + this.pivotoffy
         }
-        Physics2D.I._factory.set_collider_SetAsBox(shape, helfW, helfH, center, this.scaleX, this.scaleY);
+        Physics2D.I._factory.set_collider_SetAsBox(shape, helfW, helfH, center, Math.abs(this.scaleX), Math.abs(this.scaleY));
     }
 
     /**矩形宽度*/
