@@ -19,7 +19,7 @@ export class CircleCollider extends ColliderBase {
     * @override
     */
     protected _setShapeData(shape: any): void {
-        var scale: number = Math.max(this.scaleX, this.scaleY);
+        var scale: number = Math.max(Math.abs(this.scaleX), Math.abs(this.scaleY));
         let radius = this.radius;
         Physics2D.I._factory.set_CircleShape_radius(shape, radius, scale);
         Physics2D.I._factory.set_CircleShape_pos(shape, this.pivotoffx + radius, this.pivotoffy + radius, scale);
