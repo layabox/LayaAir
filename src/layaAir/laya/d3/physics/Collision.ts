@@ -22,6 +22,8 @@ export class Collision {
     /**@readonly*/
     other: ICollider;
 
+    /**@internal */
+    _inPool: boolean = false;
     /**
      * 创建一个 <code>Collision</code> 实例。
      */

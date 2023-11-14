@@ -3,9 +3,7 @@ import { PhysicsSettings } from "../../d3/physics/PhysicsSettings";
 import { ICharacterController } from "../interface/ICharacterController";
 import { IDynamicCollider } from "../interface/IDynamicCollider";
 import { IPhysicsCreateUtil } from "../interface/IPhysicsCreateUtil";
-import { IPhysicsManager } from "../interface/IPhysicsManager";
 import { IStaticCollider } from "../interface/IStaticCollider";
-import { ICustomJoint } from "../interface/Joint/ICustomJoint";
 import { ID6Joint } from "../interface/Joint/ID6Joint";
 import { IFixedJoint } from "../interface/Joint/IFixedJoint";
 import { IHingeJoint } from "../interface/Joint/IHingeJoint";
@@ -29,7 +27,6 @@ import { pxCapsuleColliderShape } from "./Shape/pxCapsuleColliderShape";
 import { pxMeshColliderShape } from "./Shape/pxMeshColliderShape";
 import { pxHeightFieldShape } from "./Shape/pxHeightFieldShape";
 import { pxSphereColliderShape } from "./Shape/pxSphereColliderShape";
-
 import { pxPhysicsManager } from "./pxPhysicsManager";
 import { pxCharactorCollider } from "./Collider/pxCharactorCollider";
 import { Mesh } from "../../d3/resource/models/Mesh";
@@ -40,6 +37,7 @@ import { PrimitiveMesh } from "../../d3/resource/models/PrimitiveMesh";
 
 export class pxPhysicsCreateUtil implements IPhysicsCreateUtil {
     static _physXPVD: boolean = false;
+    static _PxPvdPort: any = 5425;
     //** @internal PhysX wasm object */
     static _physX: any;
     // /** @internal PhysX Foundation SDK singleton class */
@@ -99,6 +97,58 @@ export class pxPhysicsCreateUtil implements IPhysicsCreateUtil {
 
     }
 
+    /**
+     * enable physX PVD need Socket transport
+     * @internal
+     * @param physX 
+     * @param pxFoundation 
+     */
+    _physxPVDSocketConnect(physX: any, pxFoundation: any): any {
+        var socket: WebSocket;
+        var queue: any = [];
+        const pvdTransport = physX.PxPvdTransport.implement({
+            connect: function () {
+                let url = 'ws://127.0.0.1:' + pxPhysicsCreateUtil._PxPvdPort;
+                socket = new WebSocket(url, ['binary'])
+                socket.onopen = (e) => {
+                    console.log('Connected to PhysX Debugger');
+                    //@ts-ignore
+                    queue.forEach(data => socket.send(data));
+                    queue = []
+                }
+                socket.onclose = () => {
+                }
+                return true
+            },
+            disconnect: function () {
+                console.log("Socket disconnect")
+            },
+            isConnected: function () {
+            },
+            write: function (inBytes: any, inLength: any) {
+                const data = physX.HEAPU8.slice(inBytes, inBytes + inLength)
+                if (socket.readyState === WebSocket.OPEN) {
+                    if (queue.length) {
+                        //@ts-ignore
+                        queue.forEach(data => socket.send(data));
+                        queue.length = 0;
+                    }
+                    socket.send(data);
+                } else {
+                    queue.push(data);
+                }
+                return true;
+            }
+        })
+
+        const gPvd = physX.PxCreatePvd(pxFoundation);
+        let socketsuccess = physX.MyCreatepvdTransport(pvdTransport, gPvd);
+        // console.log("PVD connect is " + socketsuccess);
+        pxPhysicsCreateUtil._pvd = gPvd;
+        pxPhysicsCreateUtil._PxPvdTransport = pvdTransport;
+        return gPvd;
+    }
+
     private _init(physX: any): void {
         const version = physX.PX_PHYSICS_VERSION;
         const defaultErrorCallback = new physX.PxDefaultErrorCallback();
@@ -107,10 +157,8 @@ export class pxPhysicsCreateUtil implements IPhysicsCreateUtil {
         pxPhysicsCreateUtil._tolerancesScale = new physX.PxTolerancesScale();
         let pxPhysics;
         if (pxPhysicsCreateUtil._physXPVD) {
-            let gPvd = physX.PxCreatePvd(pxFoundation);
-            let socketsuccess = physX.CreatepvdTransport(5425, 10, gPvd);
-            //gPvd.connect(PxPvdTransport,);
-            pxPhysics = physX.PxCreatePhysics(version, pxFoundation, pxPhysicsCreateUtil._tolerancesScale, true, gPvd);
+            let gPvd = this._physxPVDSocketConnect(physX, pxFoundation);
+            pxPhysics = physX.CreatePVDPhysics(pxFoundation, pxPhysicsCreateUtil._tolerancesScale, true, gPvd);
             physX.PxInitExtensions(pxPhysics, gPvd);
         } else {
             pxPhysics = physX.CreateDefaultPhysics(pxFoundation, pxPhysicsCreateUtil._tolerancesScale);
