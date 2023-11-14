@@ -291,9 +291,9 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
         bt.btVector3_setValue(btRigidBodyCollider._btGravity, value.x, value.y, value.z);
         bt.btRigidBody_setGravity(this._btCollider, btRigidBodyCollider._btGravity);
         if (value.equal(this._physicsManager._gravity)) {
-            this._setoverrideGravity(true);
-        } else {
             this._setoverrideGravity(false);
+        } else {
+            this._setoverrideGravity(true);
         }
 
     }
