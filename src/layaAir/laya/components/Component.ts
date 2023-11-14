@@ -248,7 +248,6 @@ export class Component {
                 this._resetComp();
                 Pool.recoverByClass(this);
             }
-            this._status = 4;
             return;
         }
 
