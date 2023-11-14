@@ -103,6 +103,7 @@ export class Submit extends SubmitBase {
         o.shaderValue = sv;
         var blendType = ctx._nBlendType;
         o._key.blendShader = blendType;
+        o.material = ctx.material;
         o._blendFn = ctx._targets ? BlendMode.targetFns[blendType] : BlendMode.fns[blendType];
         return o;
     }
