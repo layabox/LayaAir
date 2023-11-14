@@ -54,8 +54,8 @@ export class pxColliderShape implements IColliderShape {
     //过滤数据  0 group  1 mask  2事件
     filterData: pxFilterData = { word0: Physics3DUtils.PHYSXDEFAULTMASKVALUE, word1: Physics3DUtils.PHYSXDEFAULTMASKVALUE, word2: 0, word3: 0 };//PxFilterData
 
-    constructor(){
-        
+    constructor() {
+
     }
     /**
      * @override

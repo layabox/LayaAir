@@ -1,5 +1,7 @@
+import { Quaternion } from "../../../maths/Quaternion";
 import { Vector3 } from "../../../maths/Vector3";
 import { ICapsuleColliderShape } from "../../interface/Shape/ICapsuleColliderShape";
+import { pxCollider } from "../Collider/pxCollider";
 import { pxPhysicsCreateUtil } from "../pxPhysicsCreateUtil";
 import { pxColliderShape } from "./pxColliderShape";
 /**
@@ -20,12 +22,29 @@ export class pxCapsuleColliderShape extends pxColliderShape implements ICapsuleC
     /** @internal */
     _halfHeight: number = 0.5;
 
+    /**@internal in Physx capsule's height is X Axis, need to rotate*/
+    _rotation: Quaternion = new Quaternion(0, 0, 0.7071068, 0.7071068);
+
     private _upAxis: ColliderShapeUpAxis = ColliderShapeUpAxis.Y;
 
     constructor() {
         super();
         this._pxGeometry = new pxPhysicsCreateUtil._physX.PxCapsuleGeometry(this._radius, this._halfHeight);
         this._createShape();
+    }
+
+    /**
+     * @internal
+     * rotate capusle in physx, physx capsule heigth is X axis
+     */
+    _setCapsuleRotation() {
+        pxColliderShape.transform.rotation.setValue(this._rotation.x, this._rotation.y, this._rotation.z, this._rotation.w)
+        this._pxShape.setLocalPose(pxColliderShape.transform);
+    }
+
+    addToActor(collider: pxCollider): void {
+        super.addToActor(collider);
+        this._setCapsuleRotation();
     }
 
     setRadius(radius: number): void {

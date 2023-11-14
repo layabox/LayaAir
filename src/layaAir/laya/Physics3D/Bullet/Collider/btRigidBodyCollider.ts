@@ -132,6 +132,8 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
         this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_ApplyTorque, true);
         this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_ApplyImpulse, true);
         this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_ApplyTorqueImpulse, true);
+        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_WorldPosition, true);
+        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_WorldOrientation, true);
     }
 
     setWorldPosition(value: Vector3): void {
