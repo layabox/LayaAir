@@ -367,6 +367,7 @@ export class physics2DJSFactory implements IPhysiscs2DFactory {
      * 创建物理绘制
      */
     createDebugDraw(flags: number) {
+        if (this._debugDraw) return;
         let debug = this._debugDraw = new Physics2DDebugDraw(this);
         debug.zOrder = 1000;
         ILaya.stage.addChild(this._debugDraw);
