@@ -264,21 +264,34 @@ export class Browser {
 
         //强制修改meta标签，防止开发者写错
         var metas: any[] = doc.getElementsByTagName('meta');
-        var i: number = 0, flag: boolean = false, content: any = 'width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no';
-        while (i < metas.length) {
-            var meta: any = metas[i];
-            if (meta.name == 'viewport') {
-                meta.content = content;
-                flag = true;
+        let viewportContent: Record<string, string> = {
+            "width": "device-width",
+            "initial-scale": "1.0",
+            "minimum-scale": "1.0",
+            "maximum-scale": "1.0",
+            "user-scalable": "no"
+        };
+        let viewport: any;
+        for (const meta of metas) {
+            if (meta.name == "viewport") {
+                viewport = meta;
                 break;
             }
-            i++;
         }
-        if (!flag) {
-            meta = doc.createElement('meta');
-            meta.name = 'viewport', meta.content = content;
-            doc.getElementsByTagName('head')[0].appendChild(meta);
+        if (!viewport) {
+            viewport = doc.createElement('meta');
+            viewport.name = 'viewport';
+            doc.getElementsByTagName('head')[0]?.appendChild(viewport);
         }
+        else {
+            let arr: Array<string> = (viewport.content || "").split(",");
+            for (let ele of arr) {
+                let arr2 = ele.split("=");
+                if (!viewportContent[arr2[0].trim()])
+                    viewportContent[arr2[0]] = arr2[1];
+            }
+        }
+        viewport.content = Object.keys(viewportContent).map(k => k + "=" + viewportContent[k]);
 
         //处理兼容性			
         Browser.onMobile = (window as any).conch ? true : u.indexOf("Mobile") > -1;
@@ -471,6 +484,11 @@ export class Browser {
         var r: any = window.location.search.substring(1).match(reg);
         if (r != null) return unescape(r[2]);
         return null;
+    }
+
+    // Safari横屏工具栏偏移
+    static getSafariToolbarOffset() {
+        return (Browser.window.__innerHeight || Browser.document.body.clientHeight || Browser.document.documentElement.clientHeight) - Browser.window.innerHeight;
     }
 }
 
