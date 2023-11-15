@@ -1,3 +1,13 @@
+if (window.conch){
+	window.PHYSX = function(initialMemory, interactive) {
+	var fake = {};
+	fake.then = (complete) => {
+		return complete(window.physx);
+	};
+	return fake;
+	};
+}
+else {
 var PHYSX = (() => {
   var _scriptDir = typeof document !== 'undefined' && document.currentScript ? document.currentScript.src : undefined;
   if (typeof __filename !== 'undefined') _scriptDir = _scriptDir || __filename;
@@ -21,3 +31,4 @@ else if (typeof define === 'function' && define['amd'])
   define([], function() { return PHYSX; });
 else if (typeof exports === 'object')
   exports["PHYSX"] = PHYSX;
+}

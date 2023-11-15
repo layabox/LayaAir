@@ -214,10 +214,10 @@ export class PhysicsColliderComponent extends Component {
         if (!value || value == this._colliderShape) {
             return;
         }
+        this._colliderShape && this._colliderShape.destroy();
+        this._colliderShape = value;
         if (this._collider) {
             this._collider.setColliderShape(value._shape);
-            this._colliderShape && this._colliderShape.destroy();
-            this._colliderShape = value;
         }
     }
 

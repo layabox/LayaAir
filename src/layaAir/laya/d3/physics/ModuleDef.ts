@@ -15,6 +15,7 @@ import { CompoundColliderShape } from "./shape/CompoundColliderShape";
 import { ConeColliderShape } from "./shape/ConeColliderShape";
 import { CylinderColliderShape } from "./shape/CylinderColliderShape";
 import { MeshColliderShape } from "./shape/MeshColliderShape";
+import { Physics3DColliderShape } from "./shape/Physics3DColliderShape";
 import { SphereColliderShape } from "./shape/SphereColliderShape";
 
 let c = ClassUtils.regClass;
@@ -25,7 +26,7 @@ c("ConstraintComponent", ConstraintComponent);
 c("HingeConstraint", HingeConstraint);
 c("SpringConstraint", SpringConstraint);
 
-
+c("Physics3DColliderShape", Physics3DColliderShape);
 c("BoxColliderShape", BoxColliderShape);
 c("CapsuleColliderShape", CapsuleColliderShape);
 c("CompoundColliderShape", CompoundColliderShape);

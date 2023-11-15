@@ -1,3 +1,16 @@
+if (window.conch) {
+  window.Physics3D = function(initialMemory, interactive) {
+    window.conch.setGetWorldTransformFunction(interactive.getWorldTransform);
+    window.conch.setSetWorldTransformFunction(interactive.setWorldTransform);
+    var conchBullet = window.layaConchBullet;
+    conchBullet.then = (complete) => {
+      complete();
+    };
+    window.Physics3D = conchBullet;
+    return conchBullet;
+  };
+  }
+  else {
 window.Physics3D = function (pages, interactive) {
                 function init(initialMemory,interactive,exports){
                 var getWorldTransform=interactive.getWorldTransform;
@@ -99684,3 +99697,4 @@ exports.main = retasmFunc.main;
                 init(pages*64*1024,interactive,physics3D);
                 return physics3D;
                 }
+}
