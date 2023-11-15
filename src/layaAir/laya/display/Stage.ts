@@ -241,7 +241,7 @@ export class Stage extends Sprite {
 
             // Safari横屏工具栏偏移
             if (Browser.onSafari)
-                this._safariOffsetY = (Browser.window.__innerHeight || Browser.document.body.clientHeight || Browser.document.documentElement.clientHeight) - Browser.window.innerHeight;
+                this._safariOffsetY = Browser.getSafariToolbarOffset();
 
             if (this.screenAdaptationEnabled) {
                 this.event(Event.WILL_RESIZE);
