@@ -1,5 +1,3 @@
-import { Sprite } from "../../display/Sprite";
-import { Point } from "../../maths/Point";
 import { IV2, Vector2 } from "../../maths/Vector2";
 import { ColliderBase } from "../Collider2D/ColliderBase";
 import { FixtureBox2DDef, PhysicsShape } from "../Collider2D/ColliderStructInfo";
@@ -219,23 +217,6 @@ export class physics2DJSFactory implements IPhysiscs2DFactory {
      */
     phyToLayaValue(value: number): number {
         return value * this.PIXEL_RATIO;
-    }
-
-    /** 
-     * @internal
-     * 获得节点相对于物理根节点的坐标
-     * @param node 节点
-     * @param x (单位： 像素)
-     * @param y (单位： 像素)
-     * @param localToGlobal true :本地转全局 falsle：全局转本地
-     */
-    getLayaPosition(node: Sprite, anchorx: number = 0, anchory: number = 0, localToGlobal: boolean = true): Point {
-        if (localToGlobal) {
-            return node.localToGlobal(Point.TEMP.setTo(anchorx, anchory), false, Physics2D.I.worldRoot);
-        } else {
-            return node.globalToLocal(Point.TEMP.setTo(anchorx, anchory), false, Physics2D.I.worldRoot);
-        }
-
     }
 
     /** 
@@ -1033,13 +1014,6 @@ export class physics2DJSFactory implements IPhysiscs2DFactory {
      */
     get_fixture_body(fixture: any): any {
         return fixture.GetBody()
-    }
-
-    /** 
-     * @param fixture 
-     */
-    destroy_fixture(fixture: any) {
-        fixture.Destroy();
     }
 
     //----------------RigidBody-------------------   

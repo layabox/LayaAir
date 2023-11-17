@@ -67,7 +67,6 @@ export class RigidBody extends Component {
         if (this._body || !this.owner) return;
         let factory = Physics2D.I._factory;
         var sp: Sprite = (<Sprite>this.owner);
-
         var defRigidBodyDef = new RigidBody2DInfo();
         defRigidBodyDef.position.setValue(sp.globalPosX, sp.globalPosY);
         defRigidBodyDef.angle = Utils.toRadian(sp.globalRotation);
@@ -86,7 +85,22 @@ export class RigidBody extends Component {
         defRigidBodyDef.type = this._type;
 
         this._body = factory.rigidBodyDef_Create(defRigidBodyDef);
-        Physics2D.I.addRigidBody(this);
+        this._needrefeshShape();
+        this._updateBodyType()
+    }
+
+    /**
+     * @private 
+     * 同步Body 类型
+     */
+    private _updateBodyType() {
+        if (!this._body) return;
+        Physics2D.I._factory.set_rigidBody_type(this.body, this._type)
+        if (this.type == "static") {
+            Physics2D.I.removeRigidBody(this)
+        } else {
+            Physics2D.I.addRigidBody(this)
+        }
     }
 
     /** @override */
@@ -98,25 +112,28 @@ export class RigidBody extends Component {
 
     /** @private */
     private _globalChangeHandler(flag: number) {
-        if (flag & RigidBody.changeFlag) this.needrefeshShape()
+        if (flag & RigidBody.changeFlag) this._needrefeshShape()
     }
 
     /** @override */
     protected _onEnable(): void {
         this._createBody();
+        this.owner.on("GlobaChange", this, this._globalChangeHandler)
     }
 
-    /** @internal */
-    needrefeshShape() {
+    /** @internal 通知需要跟新对象属性；下一帧执行*/
+    _needrefeshShape() {
         Physics2D.I.updataRigidBodyAttribute(this);
     }
 
-    /**@internal 同步节点坐标及旋转到物理世界*/
+    /**
+     * @internal 
+     * 同步节点坐标及旋转到物理世界,由系统调用
+     */
     updatePhysicsAttribute(): void {
         var factory = Physics2D.I._factory;
-        var sp: Sprite = <Sprite>this.owner;
-        sp.getGlobalMatrix();
-        factory.set_RigibBody_Transform(this._body, sp.globalPosX, sp.globalPosY, Utils.toRadian(sp.globalRotation));
+        let point = this.GetWorldPoint(0, 0);
+        factory.set_RigibBody_Transform(this._body, point.x, point.y, Utils.toRadian((<Sprite>this.owner).globalRotation));
         var comps: any[] = this.owner.getComponents(ColliderBase);
         if (comps) {
             for (var i: number = 0, n: number = comps.length; i < n; i++) {
@@ -129,7 +146,10 @@ export class RigidBody extends Component {
         }
     }
 
-    /**@internal 同步物理坐标到游戏坐标*/
+    /**
+     * @internal 
+     * 同步物理坐标到游戏坐标,由系统调用
+     */
     updatePhysicsTransformToRender(): void {
         if (this.type == "static") {
             return;
@@ -243,9 +263,9 @@ export class RigidBody extends Component {
     setAngle(value: any): void {
         if (!this._body) this._onAwake();
         var factory = Physics2D.I._factory;
-        var p: Point = factory.getLayaPosition(<Sprite>this.owner, 0, 0, true);
+        const p = this.GetWorldPoint(0, 0);
         factory.set_RigibBody_Transform(this._body, p.x, p.y, value);
-        Physics2D.I._factory.set_rigidbody_Awake(this._body, true);
+        factory.set_rigidbody_Awake(this._body, true);
     }
 
     /**获得刚体质量*/
@@ -283,7 +303,7 @@ export class RigidBody extends Component {
 
     set type(value: string) {
         this._type = value;
-        if (this._body) Physics2D.I._factory.set_rigidBody_type(this.body, this._type);
+        this._updateBodyType()
     }
 
     /**重力缩放系数，设置为0为没有重力*/
@@ -381,8 +401,7 @@ export class RigidBody extends Component {
      * @param y (单位： 像素)
     */
     GetWorldPoint(x: number, y: number) {
-        if (this._body) return Physics2D.I._factory.get_rigidBody_WorldPoint(this._body, x, y);
-        else return null;
+        return (<Sprite>this.owner).getGlobalMatrix().transformPoint(Point.TEMP.setTo(x, y))
     }
 
     /** 
@@ -391,8 +410,7 @@ export class RigidBody extends Component {
      * @param y (单位： 像素)
     */
     GetLocalPoint(x: number, y: number) {
-        if (this._body) return Physics2D.I._factory.get_rigidBody_LocalPoint(this._body, x, y);
-        else return null;
+        return (<Sprite>this.owner).getGlobalMatrix().transformPoint(Point.TEMP.setTo(x, y))
     }
 
 }

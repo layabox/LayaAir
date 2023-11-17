@@ -1,5 +1,4 @@
 import { JointBase } from "./JointBase";
-import { Sprite } from "../../display/Sprite"
 import { Point } from "../../maths/Point"
 import { RigidBody } from "../RigidBody"
 import { physics2D_WeldJointDef } from "./JointDefStructInfo";
@@ -33,7 +32,7 @@ export class WeldJoint extends JointBase {
             if (!this.selfBody) throw "selfBody can not be empty";
 
             var def: physics2D_WeldJointDef = WeldJoint._temp || (WeldJoint._temp = new physics2D_WeldJointDef());
-            var anchorPos: Point = this._factory.getLayaPosition(<Sprite>this.selfBody.owner, this.anchor[0], this.anchor[1]);
+            var anchorPos: Point = this.selfBody.GetWorldPoint(this.anchor[0], this.anchor[1]);
             def.bodyA = this.otherBody.getBody();
             def.bodyB = this.selfBody.getBody();
             def.anchor.setValue(anchorPos.x, anchorPos.y);

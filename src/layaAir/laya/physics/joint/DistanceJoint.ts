@@ -44,19 +44,13 @@ export class DistanceJoint extends JointBase {
             let node = <Sprite>this.owner;
             this.selfBody = this.selfBody || node.getComponent(RigidBody);
             if (!this.selfBody) throw "selfBody can not be empty";
-            let point = DistanceJoint._tempP;
-            point.setTo(this.selfAnchor[0], this.selfAnchor[1])
-            if (node.transform) {
-                node.transform.transformPointN(point)
-            } else {
-                point.x *= node.scaleX;
-                point.y *= node.scaleY;
-            }
+            let point = this.getBodyAnchor(this.selfBody, this.selfAnchor[0], this.selfAnchor[1]);
             var def = DistanceJoint._temp || (DistanceJoint._temp = new physics2D_DistancJointDef());
             def.bodyA = this.selfBody.getBody();
             def.localAnchorA.setValue(point.x, point.y);
             def.bodyB = this.otherBody ? this.otherBody.getBody() : Physics2D.I._emptyBody;
-            def.localAnchorB.setValue(this.otherAnchor[0], this.otherAnchor[1]);
+            point = this.getBodyAnchor(this.otherBody, this.otherAnchor[0], this.otherAnchor[1]);
+            def.localAnchorB.setValue(point.x, point.y);
 
             def.dampingRatio = this._dampingRatio;
             def.frequency = this._frequency;
