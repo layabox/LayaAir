@@ -45,7 +45,7 @@ export class RevoluteJoint extends JointBase {
             def.bodyA = this.selfBody.getBody();
             def.bodyB = this.otherBody ? this.otherBody.getBody() : Physics2D.I._emptyBody;
 
-            let global = this._factory.getLayaPosition(this.owner as Sprite, this.anchor[0], this.anchor[1]);
+            let global = this.selfBody.GetWorldPoint(this.anchor[0], this.anchor[1]);
             def.anchor.setValue(global.x, global.y)
             def.enableMotor = this._enableMotor;
             def.motorSpeed = this._motorSpeed;

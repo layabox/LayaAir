@@ -67,7 +67,6 @@ export class Physics_Tumbler {
         box4Shape.y = 0;
 
         let revoluteJoint = new RevoluteJoint();
-        revoluteJoint.anchor = [box.width / 2, box.width / 2];
         revoluteJoint.motorSpeed = 0.05 * Math.PI;
         revoluteJoint.maxMotorTorque = 1e8;
         revoluteJoint.enableMotor = true;

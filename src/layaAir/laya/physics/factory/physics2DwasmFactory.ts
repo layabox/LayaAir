@@ -1,7 +1,5 @@
 
 import { ILaya } from "../../../ILaya";
-import { Sprite } from "../../display/Sprite";
-import { Point } from "../../maths/Point";
 import { IV2, Vector2 } from "../../maths/Vector2";
 import { ColliderBase } from "../Collider2D/ColliderBase";
 import { FixtureBox2DDef, PhysicsShape } from "../Collider2D/ColliderStructInfo";
@@ -238,23 +236,6 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
 
     /** 
      * @internal
-     * 获得节点相对于物理根节点的坐标
-     * @param node 节点
-     * @param x (单位： 像素)
-     * @param y (单位： 像素)
-     * @param localToGlobal true :本地转全局 falsle：全局转本地
-     */
-    getLayaPosition(node: Sprite, anchorx: number = 0, anchory: number = 0, localToGlobal: boolean = true): Point {
-        if (localToGlobal) {
-            return node.localToGlobal(Point.TEMP.setTo(anchorx, anchory), false, Physics2D.I.worldRoot);
-        } else {
-            return node.globalToLocal(Point.TEMP.setTo(anchorx, anchory), false, Physics2D.I.worldRoot);
-        }
-
-    }
-
-    /** 
-     * @internal
      * 创建物理系统的Vec2
      * @param x (单位： 米)
      * @param y (单位： 米)
@@ -293,6 +274,7 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
         this._Re_PIXEL_RATIO = 1 / Physics2DOption.pixelRatio;
         var gravity: any = this.createPhyFromLayaVec2(Physics2DOption.gravity.x, Physics2DOption.gravity.y);
         this._world = new this.box2d.b2World(gravity);
+        this._world.destroyed = false;
 
         this._tempVe21 = new this.box2d.b2Vec2();
         this._tempVe22 = new this.box2d.b2Vec2();
@@ -388,11 +370,16 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
             this._tempPrismaticJointDef = null;
         }
 
-        this.box2d.destroy(this._world)
-        this._world = null;
+        if (this._world) {
+            this.box2d.destroy(this._world)
+            this._world.destroyed = true;
+            this._world = null;
+        }
         this._jsDraw = null;
-        if (this._debugDraw) this._debugDraw.removeSelf()
-        this._debugDraw = null;
+        if (this._debugDraw) {
+            this._debugDraw.removeSelf()
+            this._debugDraw = null
+        }
     }
 
     /**
@@ -548,7 +535,9 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
         }
         def.userData = { pointer: 0 };
         if (this.world) {
-            return this.world.CreateBody(def);
+            let body = this.world.CreateBody(def);
+            body.world = this.world;
+            return body;
         } else {
             console.error('The physical engine should be initialized first.use "Physics.enable()"');
             return null;
@@ -560,7 +549,8 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
      * @param body 
      */
     removeBody(body: any): void {
-        if (this.world) this.world.DestroyBody(body);
+        let world = body.world;
+        if (!world.destroyed) world.DestroyBody(body);
     }
 
     /**
@@ -575,7 +565,7 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
                 joint = this.castObject(joint, cls)
             }
             joint.m_userData = {};
-            joint.m_userData.isDestroy = false;
+            joint.world = this._world;
             return joint;
         } else {
             console.error('The physical engine should be initialized first.use "Physics.enable()"');
@@ -588,8 +578,8 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
      * @param joint 
      */
     removeJoint(joint: any): void {
-        if (this.world)
-            this.world.DestroyJoint(joint);
+        if (joint && joint.world && !joint.world.destroyed)
+            joint.world.DestroyJoint(joint);
     }
 
     /** 
@@ -1142,19 +1132,13 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
         return fixture.GetBody()
     }
 
-    /** 
-     * @param fixture 
-     */
-    destroy_fixture(fixture: any) {
-        if (fixture.world == this._world) fixture.__destroy__();
-    }
 
     /** 
      * @param body 
      * @param fixture 
      */
     rigidBody_DestroyFixture(body: any, fixture: any) {
-        body.DestroyFixture(fixture);
+        if (body.world && !body.world.destroyed) body.DestroyFixture(fixture);
     }
 
     /** 

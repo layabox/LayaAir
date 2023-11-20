@@ -1,5 +1,3 @@
-import { Sprite } from "../display/Sprite";
-import { Point } from "../maths/Point";
 import { IV2, Vector2 } from "../maths/Vector2";
 import { ColliderBase } from "./Collider2D/ColliderBase";
 import { FixtureBox2DDef } from "./Collider2D/ColliderStructInfo";
@@ -120,15 +118,6 @@ export interface IPhysiscs2DFactory {
      */
     phyToLayaValue(value: number): number;
 
-    /** 
-     * @internal
-     * 获得节点相对于物理根节点的坐标
-     * @param node 节点
-     * @param x (单位： 像素)
-     * @param y (单位： 像素)
-     * @param localToGlobal true :本地转全局 falsle：全局转本地
-     */
-    getLayaPosition(node: Sprite, x: number, y: number, localToGlobal?: boolean): Point;
 
     /** 
      * @internal
@@ -479,11 +468,6 @@ export interface IPhysiscs2DFactory {
      * @internal
      */
     get_fixture_body(fixture: any): any;
-
-    /** 
-     * @internal
-     */
-    destroy_fixture(fixture: any): any;
 
     //----------------RigidBody-------------------   
 

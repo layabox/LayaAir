@@ -41,7 +41,7 @@ export class Physics_CollisionFiltering {
             Laya.stage.alignH = Stage.ALIGN_CENTER;
             Laya.stage.scaleMode = Stage.SCALE_FIXED_AUTO;
             Laya.stage.bgColor = "#232628";
-
+            Physics2D.I.start();
             this.createHouse();
             for (let i = 1; i <= 3; i++) {
                 this.createBox(300, 300, 20, 20, i);
@@ -93,7 +93,7 @@ export class Physics_CollisionFiltering {
         circle.on(Event.MOUSE_DOWN, this, this.mouseDown);
         this.Main.box2D.addChild(circle);
         circle.pos(posx, posy).size(radius * 2 * ratio, radius * 2 * ratio);
-        circle.pivot(0.5,0.5)
+        circle.pivot(0.5, 0.5)
         let rigidbody: RigidBody = circle.addComponent(RigidBody);
         rigidbody.category = Physics_CollisionFiltering.k_circleCategory;
         rigidbody.mask = Physics_CollisionFiltering.k_circleMask;

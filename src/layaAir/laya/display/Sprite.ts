@@ -668,7 +668,7 @@ export class Sprite extends Node {
 
     /**@internal */
     _setRotation(value: number): void {
-        this._style.rotation = value;
+        this.getStyle().rotation = value;
     }
 
     /**水平倾斜角度，默认值为0。以角度为单位。*/

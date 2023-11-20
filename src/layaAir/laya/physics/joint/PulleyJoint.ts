@@ -1,5 +1,4 @@
 import { JointBase } from "./JointBase";
-import { Sprite } from "../../display/Sprite"
 import { Point } from "../../maths/Point"
 import { Physics2D } from "../Physics2D"
 import { RigidBody } from "../RigidBody"
@@ -40,13 +39,13 @@ export class PulleyJoint extends JointBase {
             var def: physics2D_PulleyJointDef = PulleyJoint._temp || (PulleyJoint._temp = new physics2D_PulleyJointDef);
             def.bodyA = this.otherBody.getBody();
             def.bodyB = this.selfBody.getBody();
-            var posA: Point = this._factory.getLayaPosition(<Sprite>this.otherBody.owner, this.otherAnchor[0], this.otherAnchor[1], true);
+            var posA: Point = this.otherBody.GetWorldPoint(this.otherAnchor[0], this.otherAnchor[1]);
             def.localAnchorA.setValue(posA.x, posA.y);
-            var posB: Point = this._factory.getLayaPosition(<Sprite>this.selfBody.owner, this.selfAnchor[0], this.selfAnchor[1], true);
+            var posB: Point = this.selfBody.GetWorldPoint(this.selfAnchor[0], this.selfAnchor[1]);
             def.localAnchorB.setValue(posB.x, posB.y);
-            var groundA: Point = this._factory.getLayaPosition(<Sprite>this.otherBody.owner, this.otherGroundPoint[0], this.otherGroundPoint[1], true);
+            var groundA: Point = this.otherBody.GetWorldPoint(this.otherGroundPoint[0], this.otherGroundPoint[1]);
             def.groundAnchorA.setValue(groundA.x, groundA.y);
-            var groundB: Point = this._factory.getLayaPosition(<Sprite>this.selfBody.owner, this.selfGroundPoint[0], this.selfGroundPoint[1], true);
+            var groundB: Point = this.selfBody.GetWorldPoint(this.selfGroundPoint[0], this.selfGroundPoint[1]);
             def.groundAnchorB.setValue(groundB.x, groundB.y);
             def.ratio = this.ratio;
             def.collideConnected = this.collideConnected;

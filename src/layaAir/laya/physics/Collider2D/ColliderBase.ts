@@ -143,7 +143,7 @@ export class ColliderBase extends Component {
         if (!this.rigidBody) {
             return;
         }
-        this.rigidBody.needrefeshShape();
+        this.rigidBody._needrefeshShape();
     }
 
 
@@ -208,28 +208,12 @@ export class ColliderBase extends Component {
         factory.set_fixture_collider(this.fixture, this);
     }
 
-
     protected _onDisable(): void {
         let factory = Physics2D.I._factory;
-        if (this.fixture) {
-            if (factory.get_fixture_body(this.fixture) == this.rigidBody._getOriBody()) {
-                factory.rigidBody_DestroyFixture(this.rigidBody.body, this.fixture);
-            }
-            factory.destroy_fixture(this.fixture);
-            this.fixture = null;
+        if (this.fixture && this.rigidBody._getOriBody()) {
+            factory.rigidBody_DestroyFixture(this.rigidBody.body, this.fixture);
         }
-        this.rigidBody = null;
-    }
-
-    protected _onDestroy(): void {
-        let factory = Physics2D.I._factory;
-        if (this.fixture) {
-            if (factory.get_fixture_body(this.fixture) == this.rigidBody._getOriBody()) {
-                factory.rigidBody_DestroyFixture(this.rigidBody.body, this.fixture);
-            }
-            factory.destroy_fixture(this.fixture);
-            this.fixture = null;
-        }
+        this.fixture = null;
         this.rigidBody = null;
     }
 }
