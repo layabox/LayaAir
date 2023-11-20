@@ -10,7 +10,7 @@ import { InternalTexture } from "./InternalTexture";
 
 
 export interface ITextureContext {
-
+    needBitmap: boolean;
     /**
      * 为 Texture 创建 InternalTexture
      * @param width 

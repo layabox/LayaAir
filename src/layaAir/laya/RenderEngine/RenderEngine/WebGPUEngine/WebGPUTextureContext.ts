@@ -160,10 +160,12 @@ export enum GPUTextureUsage {
 
 export class WebGPUTextureContext extends WebGPUObject implements ITextureContext {
 
+    needBitmap: boolean;
     curBindWGPURT: WebGPUInternalRT;
 
     constructor(engine: WebGPUEngine) {
         super(engine);
+        this.needBitmap = true;
     }
     setTexture3DImageData(texture: InternalTexture, source: HTMLImageElement[] | HTMLCanvasElement[] | ImageBitmap[], depth: number, premultiplyAlpha: boolean, invertY: boolean): void {
         throw new Error("Method not implemented.");

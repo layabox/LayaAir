@@ -98,10 +98,9 @@ export class FixedEventTest extends Script {
 
 	onUpdate() {
 		if (this.fixedConstraint) {
-			var mass = this.fixedConstraint.connectedBody.mass;
-			this.fixedConstraint.connectedBody.mass = mass + 1;
+			var mass = (this.fixedConstraint.connectedBody as Rigidbody3D).mass;
+			(this.fixedConstraint.connectedBody as Rigidbody3D).mass = mass + 1;
 		}
-
 	}
 
 	onJointBreak() {
