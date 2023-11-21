@@ -1,7 +1,7 @@
-import { LayaGL } from "../../layagl/LayaGL";
 import { Matrix4x4 } from "../../maths/Matrix4x4";
 import { Vector3 } from "../../maths/Vector3";
 import { IClone } from "../../utils/IClone";
+import { Laya3DRender } from "../RenderObjs/Laya3DRender";
 import { BoundBox } from "./BoundBox";
 
 /**
@@ -135,7 +135,7 @@ export class Bounds implements IClone {
      * @param	max  max 最大坐标。
      */
     constructor(min?: Vector3, max?: Vector3) {
-        this._imp = LayaGL.renderOBJCreate.createBounds(min, max);
+        this._imp = Laya3DRender.renderOBJCreate.createBounds(min, max);
     }
 
     protected _getUpdateFlag(type: number): boolean {

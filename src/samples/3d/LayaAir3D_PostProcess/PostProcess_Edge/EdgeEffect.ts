@@ -11,13 +11,13 @@ import { RenderTargetFormat } from "laya/RenderEngine/RenderEnum/RenderTargetFor
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 import { ShaderData, ShaderDataType } from "laya/RenderEngine/RenderShader/ShaderData";
 import { ShaderDefine } from "laya/RenderEngine/RenderShader/ShaderDefine";
-import { LayaGL } from "laya/layagl/LayaGL";
 import { Vector3 } from "laya/maths/Vector3";
 import { Vector4 } from "laya/maths/Vector4";
 import { RenderTexture } from "laya/resource/RenderTexture";
 import { SubShader } from "laya/RenderEngine/RenderShader/SubShader";
 import { ShaderPass } from "laya/RenderEngine/RenderShader/ShaderPass";
 import { VertexMesh } from "laya/RenderEngine/RenderShader/VertexMesh";
+import { LayaGL } from "laya/layagl/LayaGL";
 
 export enum EdgeMode {
     ColorEdge = 0,

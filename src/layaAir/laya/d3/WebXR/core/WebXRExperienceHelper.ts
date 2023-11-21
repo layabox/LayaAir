@@ -1,4 +1,3 @@
-import { LayaGL } from "../../../layagl/LayaGL";
 import { Camera } from "../../core/Camera";
 import { WebXRCameraManager } from "./WebXRCameraManager";
 import { WebXRInputManager } from "./WebXRInputManager";

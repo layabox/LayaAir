@@ -1,7 +1,6 @@
 
 import { LayaGL } from "../../../layagl/LayaGL";
 import { Vector4 } from "../../../maths/Vector4";
-import { UploadMemoryManager } from "../../../RenderEngine/RenderEngine/NativeGLEngine/CommonMemory/UploadMemoryManager";
 import { IRenderTarget } from "../../../RenderEngine/RenderInterface/IRenderTarget";
 import { IRenderContext3D, PipelineMode } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderContext3D";
 import { ShaderData } from "../../../RenderEngine/RenderShader/ShaderData";

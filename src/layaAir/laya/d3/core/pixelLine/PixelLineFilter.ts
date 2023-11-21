@@ -1,4 +1,3 @@
-import { LayaGL } from "../../../layagl/LayaGL";
 import { Color } from "../../../maths/Color";
 import { Vector3 } from "../../../maths/Vector3";
 import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
@@ -7,6 +6,7 @@ import { MeshTopology } from "../../../RenderEngine/RenderEnum/RenderPologyMode"
 import { BufferState } from "../../../webgl/utils/BufferState";
 import { VertexBuffer3D } from "../../graphics/VertexBuffer3D";
 import { Bounds } from "../../math/Bounds";
+import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
 import { GeometryElement } from "../GeometryElement";
 import { RenderContext3D } from "../render/RenderContext3D";
 import { PixelLineData } from "./PixelLineData";
@@ -62,7 +62,7 @@ export class PixelLineFilter extends GeometryElement {
 		this._ownerRender = owner;
 		this._maxLineCount = maxLineCount;
 		this._vertices = new Float32Array(pointCount * this._floatCountPerVertices);
-		this._vertexBuffer = LayaGL.renderOBJCreate.createVertexBuffer3D(PixelLineVertex.vertexDeclaration.vertexStride * pointCount, BufferUsage.Static, false);
+		this._vertexBuffer = Laya3DRender.renderOBJCreate.createVertexBuffer3D(PixelLineVertex.vertexDeclaration.vertexStride * pointCount, BufferUsage.Static, false);
 		this._vertexBuffer.vertexDeclaration = PixelLineVertex.vertexDeclaration;
 
 		var bufferState = new BufferState();
@@ -97,7 +97,7 @@ export class PixelLineFilter extends GeometryElement {
 
 		var vertexCount: number = pointCount * this._floatCountPerVertices;
 		this._vertices = new Float32Array(vertexCount);
-		this._vertexBuffer = LayaGL.renderOBJCreate.createVertexBuffer3D(PixelLineVertex.vertexDeclaration.vertexStride * pointCount, BufferUsage.Static, false);
+		this._vertexBuffer = Laya3DRender.renderOBJCreate.createVertexBuffer3D(PixelLineVertex.vertexDeclaration.vertexStride * pointCount, BufferUsage.Static, false);
 		this._vertexBuffer.vertexDeclaration = PixelLineVertex.vertexDeclaration;
 
 		if (vertexCount < lastVertices.length) {//取最小长度,拷贝旧数据

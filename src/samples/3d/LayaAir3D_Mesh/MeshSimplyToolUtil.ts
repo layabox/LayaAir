@@ -1,9 +1,9 @@
 import { BufferUsage } from "laya/RenderEngine/RenderEnum/BufferTargetType";
 import { IndexFormat } from "laya/RenderEngine/RenderEnum/IndexFormat";
+import { Laya3DRender } from "laya/d3/RenderObjs/Laya3DRender";
 import { IndexBuffer3D } from "laya/d3/graphics/IndexBuffer3D";
 import { VertexBuffer3D } from "laya/d3/graphics/VertexBuffer3D";
 import { Mesh } from "laya/d3/resource/models/Mesh";
-import { LayaGL } from "laya/layagl/LayaGL";
 
 export class MeshSimplifyToolUtil {
     tool: any;
@@ -106,14 +106,14 @@ export class MeshSimplifyToolUtil {
     //TODO BlendShape LOD 
     private createNewMesh(orimesh:Mesh,vb,vertexDeclaration,ib,ibArray:Array<Uint16Array | Float32Array>){
         let mesh = orimesh.clone() as Mesh;
-        var vertexBuffer: VertexBuffer3D = LayaGL.renderOBJCreate.createVertexBuffer3D(vb.length * 4, BufferUsage.Static, true);
+        var vertexBuffer: VertexBuffer3D = Laya3DRender.renderOBJCreate.createVertexBuffer3D(vb.length * 4, BufferUsage.Static, true);
         vertexBuffer.vertexDeclaration = vertexDeclaration;
 		vertexBuffer.setData(vb.buffer);
         //@ts-ignore
         mesh._vertexBuffer = vertexBuffer;
 		//@ts-ignore
         mesh._vertexCount = vertexBuffer._byteLength / vertexDeclaration.vertexStride;
-		var indexBuffer: IndexBuffer3D = LayaGL.renderOBJCreate.createIndexBuffer3D(IndexFormat.UInt16, ib.length, BufferUsage.Static, true);
+		var indexBuffer: IndexBuffer3D = Laya3DRender.renderOBJCreate.createIndexBuffer3D(IndexFormat.UInt16, ib.length, BufferUsage.Static, true);
 		indexBuffer.setData(ib);
 		//@ts-ignore
         mesh._indexBuffer = indexBuffer;

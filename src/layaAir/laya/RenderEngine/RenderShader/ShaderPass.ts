@@ -1,12 +1,12 @@
 import { SubShader } from "./SubShader";
 import { ShaderCompileDefineBase, ShaderProcessInfo } from "../../webgl/utils/ShaderCompileDefineBase";
-import { LayaGL } from "../../layagl/LayaGL";
 import { DefineDatas } from "../../RenderEngine/RenderShader/DefineDatas";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { ShaderVariant } from "../../RenderEngine/RenderShader/ShaderVariantCollection";
 import { IShaderCompiledObj } from "../../webgl/utils/ShaderCompile";
 import { RenderState } from "./RenderState";
 import { ShaderInstance } from "./ShaderInstance";
+import { LayaGL } from "../../layagl/LayaGL";
 
 
 /**

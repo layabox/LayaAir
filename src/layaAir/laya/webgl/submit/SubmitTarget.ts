@@ -8,12 +8,12 @@ import { TextureSV } from "../shader/d2/value/TextureSV"
 import { Value2D } from "../shader/d2/value/Value2D"
 import { Mesh2D } from "../utils/Mesh2D"
 import { RenderStateContext } from "../../RenderEngine/RenderStateContext";
-import { LayaGL } from "../../layagl/LayaGL";
 import { MeshTopology } from "../../RenderEngine/RenderEnum/RenderPologyMode";
 import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
 import { Const } from "../../Const";
 import { Matrix4x4 } from "../../maths/Matrix4x4";
 import { Vector4 } from "../../maths/Vector4";
+import { LayaGL } from "../../layagl/LayaGL";
 
 export class SubmitTarget implements ISubmit {
     /**@internal */

@@ -20,9 +20,9 @@ import { VectorGraphManager } from "../utils/VectorGraphManager"
 import { RenderState2D } from "../webgl/utils/RenderState2D";
 import { Stat } from "../utils/Stat";
 import { ILaya } from "../../ILaya";
-import { LayaGL } from "../layagl/LayaGL";
 import { ComponentDriver } from "../components/ComponentDriver";
 import { LayaEnv } from "../../LayaEnv";
+import { LayaGL } from "../layagl/LayaGL";
 
 /**
  * stage大小经过重新调整时进行调度。

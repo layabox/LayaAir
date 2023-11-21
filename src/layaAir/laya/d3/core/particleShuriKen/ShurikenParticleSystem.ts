@@ -42,7 +42,6 @@ import { MeshTopology } from "../../../RenderEngine/RenderEnum/RenderPologyMode"
 import { ShaderData } from "../../../RenderEngine/RenderShader/ShaderData";
 import { VertexDeclaration } from "../../../RenderEngine/VertexDeclaration";
 import { DrawType } from "../../../RenderEngine/RenderEnum/DrawType";
-import { LayaGL } from "../../../layagl/LayaGL";
 import { IndexFormat } from "../../../RenderEngine/RenderEnum/IndexFormat";
 import { Bounds } from "../../math/Bounds";
 import { Quaternion } from "../../../maths/Quaternion";
@@ -52,6 +51,7 @@ import { Vector4 } from "../../../maths/Vector4";
 import { VertexElement } from "../../../renders/VertexElement";
 import { BufferState } from "../../../webgl/utils/BufferState";
 import { VertexMesh } from "../../../RenderEngine/RenderShader/VertexMesh";
+import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
 
 
 /**
@@ -1569,7 +1569,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
                     }
 
                     vbMemorySize = vertexDeclaration.vertexStride * lastVBVertexCount;
-                    this._vertexBuffer = LayaGL.renderOBJCreate.createVertexBuffer3D(vbMemorySize, BufferUsage.Dynamic, false);
+                    this._vertexBuffer = Laya3DRender.renderOBJCreate.createVertexBuffer3D(vbMemorySize, BufferUsage.Dynamic, false);
                     this._vertexBuffer.vertexDeclaration = vertexDeclaration;
                     this._vertices = new Float32Array(this._floatCountPerVertex * lastVBVertexCount);
 
@@ -1580,7 +1580,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
                     this._indexStride = mesh._indexBuffer.indexCount;
                     var indexDatas: Uint16Array = mesh._indexBuffer.getData();
                     var indexCount: number = this._bufferMaxParticles * this._indexStride;
-                    this._indexBuffer = LayaGL.renderOBJCreate.createIndexBuffer3D(IndexFormat.UInt16, indexCount, BufferUsage.Static, false);
+                    this._indexBuffer = Laya3DRender.renderOBJCreate.createIndexBuffer3D(IndexFormat.UInt16, indexCount, BufferUsage.Static, false);
                     indices = new Uint16Array(indexCount);
 
                     memorySize = vbMemorySize + indexCount * 2;
@@ -1603,7 +1603,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
                 this._timeIndex = 11;
                 this._vertexStride = 4;
                 vbMemorySize = vertexDeclaration.vertexStride * this._bufferMaxParticles * this._vertexStride;
-                this._vertexBuffer = LayaGL.renderOBJCreate.createVertexBuffer3D(vbMemorySize, BufferUsage.Dynamic, false);
+                this._vertexBuffer = Laya3DRender.renderOBJCreate.createVertexBuffer3D(vbMemorySize, BufferUsage.Dynamic, false);
                 this._vertexBuffer.vertexDeclaration = vertexDeclaration;
                 this._vertices = new Float32Array(this._floatCountPerVertex * this._bufferMaxParticles * this._vertexStride);
 
@@ -1635,7 +1635,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
                 }
 
                 this._indexStride = 6;
-                this._indexBuffer = LayaGL.renderOBJCreate.createIndexBuffer3D(IndexFormat.UInt16, this._bufferMaxParticles * 6, BufferUsage.Static, false);
+                this._indexBuffer = Laya3DRender.renderOBJCreate.createIndexBuffer3D(IndexFormat.UInt16, this._bufferMaxParticles * 6, BufferUsage.Static, false);
                 indices = new Uint16Array(this._bufferMaxParticles * 6);
                 for (i = 0; i < this._bufferMaxParticles; i++) {
                     indexOffset = i * 6;

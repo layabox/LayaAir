@@ -1,9 +1,6 @@
-import { ILaya3D } from "../../../../ILaya3D";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { Matrix4x4 } from "../../../maths/Matrix4x4";
 import { Vector3 } from "../../../maths/Vector3";
-import { CompareFunction } from "../../../RenderEngine/RenderEnum/CompareFunction";
-import { CullMode } from "../../../RenderEngine/RenderEnum/CullMode";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData";
 import { Camera } from "../../core/Camera";

@@ -2,7 +2,6 @@ import { CommandEncoder } from "../../../layagl/CommandEncoder";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { ShaderDataType, ShaderData } from "../../../RenderEngine/RenderShader/ShaderData";
 import { ShaderPass } from "../../../RenderEngine/RenderShader/ShaderPass";
-import { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
 import { ShaderCompileDefineBase } from "../../../webgl/utils/ShaderCompileDefineBase";
 
 

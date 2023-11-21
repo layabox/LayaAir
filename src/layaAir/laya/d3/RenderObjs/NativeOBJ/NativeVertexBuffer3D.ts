@@ -1,6 +1,6 @@
-import { LayaGL } from "../../../layagl/LayaGL";
 import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { VertexDeclaration } from "../../../RenderEngine/VertexDeclaration";
+import { LayaGL } from "../../../layagl/LayaGL";
 import { VertexBuffer3D } from "../../graphics/VertexBuffer3D";
 
 

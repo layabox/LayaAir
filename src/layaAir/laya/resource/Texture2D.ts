@@ -1,5 +1,4 @@
 import { ILaya } from "../../ILaya";
-import { LayaGL } from "../layagl/LayaGL";
 import { Handler } from "../utils/Handler";
 import { BaseTexture } from "./BaseTexture";
 import { Byte } from "../utils/Byte";
@@ -13,6 +12,7 @@ import { TextureDimension } from "../RenderEngine/RenderEnum/TextureDimension";
 import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
 import { LayaEnv } from "../../LayaEnv";
 import { HDREncodeFormat } from "../RenderEngine/RenderEnum/HDREncodeFormat";
+import { LayaGL } from "../layagl/LayaGL";
 
 export interface TexturePropertyParams {
     wrapModeU?: number,

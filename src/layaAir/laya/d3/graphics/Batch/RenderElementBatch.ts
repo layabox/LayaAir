@@ -1,4 +1,3 @@
-import { LayaGL } from "../../../layagl/LayaGL";
 import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
 import { SingletonList } from "../../../utils/SingletonList";
 import { RenderElement } from "../../core/render/RenderElement";
@@ -8,6 +7,7 @@ import { InstanceRenderElement } from "../../core/render/InstanceRenderElement";
 import { MeshInstanceGeometry } from "../MeshInstanceGeometry";
 import { SubMesh } from "../../resource/models/SubMesh";
 import { Config3D } from "../../../../Config3D";
+import { LayaGL } from "../../../layagl/LayaGL";
 
 export class RenderElementBatch {
     static instance: RenderElementBatch;

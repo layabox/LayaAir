@@ -1,4 +1,3 @@
-import { LayaGL } from "../../layagl/LayaGL"
 import { RenderInfo } from "../../renders/RenderInfo"
 import { Resource } from "../../resource/Resource"
 import { CharRenderInfo } from "./CharRenderInfo"
@@ -11,6 +10,7 @@ import { WrapMode } from "../../RenderEngine/RenderEnum/WrapMode";
 import { TextAtlas } from "./TextAtlas";
 import { LayaEnv } from "../../../LayaEnv";
 import { TextRender } from "./TextRender";
+import { LayaGL } from "../../layagl/LayaGL";
 
 export class TextTexture extends Resource {
     private static pool: any[] = new Array(10); // 回收用

@@ -8,7 +8,6 @@ import { ShaderData, ShaderDataDefaultValue, ShaderDataItem, ShaderDataType } fr
 import { ShaderDefine } from "../../../RenderEngine/RenderShader/ShaderDefine";
 import { UniformBufferObject } from "../../../RenderEngine/UniformBufferObject";
 import { IClone } from "../../../utils/IClone";
-import { LayaGL } from "../../../layagl/LayaGL";
 import { Config3D } from "../../../../Config3D";
 import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { ILaya } from "../../../../ILaya";
@@ -21,6 +20,7 @@ import { RenderState } from "../../../RenderEngine/RenderShader/RenderState";
 import { Event } from "../../../events/Event";
 import { Config } from "../../../../Config";
 import { Matrix3x3 } from "../../../maths/Matrix3x3";
+import { LayaGL } from "../../../layagl/LayaGL";
 
 export enum MaterialRenderMode {
     /**渲染状态_不透明。*/

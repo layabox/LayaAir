@@ -1,6 +1,5 @@
 import { Config3D } from "../../../Config3D"
 import { Component } from "../../components/Component"
-import { LayaGL } from "../../layagl/LayaGL"
 import { Matrix4x4 } from "../../maths/Matrix4x4"
 import { RenderCapable } from "../../RenderEngine/RenderEnum/RenderCapable"
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D"
@@ -21,6 +20,7 @@ import { RenderableSprite3D } from "./RenderableSprite3D"
 import { Sprite3D } from "./Sprite3D"
 import { Transform3D } from "./Transform3D"
 import { MeshUtil } from "../resource/models/MeshUtil"
+import { LayaGL } from "../../layagl/LayaGL"
 
 /**
  * <code>MeshRenderer</code> 类用于网格渲染器。

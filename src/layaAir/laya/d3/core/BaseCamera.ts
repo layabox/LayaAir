@@ -3,7 +3,6 @@ import { Event } from "../../events/Event";
 import { Loader } from "../../net/Loader";
 import { Config3D } from "../../../Config3D";
 import { IRenderEngine } from "../../RenderEngine/RenderInterface/IRenderEngine";
-import { LayaGL } from "../../layagl/LayaGL";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { ShaderData, ShaderDataType } from "../../RenderEngine/RenderShader/ShaderData";
 import { ShaderDefine } from "../../RenderEngine/RenderShader/ShaderDefine";
@@ -18,6 +17,7 @@ import { Color } from "../../maths/Color";
 import { Matrix4x4 } from "../../maths/Matrix4x4";
 import { Vector3 } from "../../maths/Vector3";
 import { SkyRenderer } from "../resource/models/SkyRenderer";
+import { LayaGL } from "../../layagl/LayaGL";
 
 /**
  * <code>BaseCamera</code> 类用于创建摄像机的父类。

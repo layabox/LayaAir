@@ -1,6 +1,6 @@
 
-import { LayaGL } from "../../../layagl/LayaGL";
 import { ShaderInstance } from "../../../RenderEngine/RenderShader/ShaderInstance";
+import { LayaGL } from "../../../layagl/LayaGL";
 import { SkinnedMeshSprite3D } from "../../core/SkinnedMeshSprite3D";
 import { RenderElementOBJ } from "./RenderElementOBJ";
 import { RenderGeometryElementOBJ } from "./RenderGeometryElementOBJ";

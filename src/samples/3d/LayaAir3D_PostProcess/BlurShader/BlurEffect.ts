@@ -15,13 +15,13 @@ import { FilterMode } from "laya/RenderEngine/RenderEnum/FilterMode";
 import { RenderTargetFormat } from "laya/RenderEngine/RenderEnum/RenderTargetFormat";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 import { ShaderData, ShaderDataType } from "laya/RenderEngine/RenderShader/ShaderData";
-import { LayaGL } from "laya/layagl/LayaGL";
 import { Vector4 } from "laya/maths/Vector4";
 import { RenderTexture } from "laya/resource/RenderTexture";
 import { RenderState } from "laya/RenderEngine/RenderShader/RenderState";
 import { ShaderPass } from "laya/RenderEngine/RenderShader/ShaderPass";
 import { SubShader } from "laya/RenderEngine/RenderShader/SubShader";
 import { VertexMesh } from "laya/RenderEngine/RenderShader/VertexMesh";
+import { LayaGL } from "laya/layagl/LayaGL";
 export class BlurEffect extends PostProcessEffect {
 
     static BLUR_TYPE_GaussianBlur: number = 0;

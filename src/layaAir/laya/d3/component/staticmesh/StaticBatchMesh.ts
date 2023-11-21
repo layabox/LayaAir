@@ -1,4 +1,3 @@
-import { LayaGL } from "../../../layagl/LayaGL";
 import { Matrix4x4 } from "../../../maths/Matrix4x4";
 import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { IndexFormat } from "../../../RenderEngine/RenderEnum/IndexFormat";
@@ -10,6 +9,7 @@ import { Sprite3D } from "../../core/Sprite3D";
 import { IndexBuffer3D } from "../../graphics/IndexBuffer3D";
 import { VertexBuffer3D } from "../../graphics/VertexBuffer3D";
 import { Bounds } from "../../math/Bounds";
+import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
 import { Utils3D } from "../../utils/Utils3D";
 import { StaticBatchSubMesh } from "./StaticBatchSubMesh";
 import { StaticMeshMergeInfo } from "./StaticMeshMergeInfo";
@@ -139,11 +139,11 @@ export class StaticBatchMesh {
             indexOffset += meshIndexData.length;
         }
 
-        let vertexBuffer = LayaGL.renderOBJCreate.createVertexBuffer3D(vertexData.byteLength, BufferUsage.Static, false);
+        let vertexBuffer = Laya3DRender.renderOBJCreate.createVertexBuffer3D(vertexData.byteLength, BufferUsage.Static, false);
         vertexBuffer.vertexDeclaration = vertexDec;
         vertexBuffer.setData(vertexData);
 
-        let indexBuffer = LayaGL.renderOBJCreate.createIndexBuffer3D(mergeIndexFormat, indexCount, BufferUsage.Static, false);
+        let indexBuffer = Laya3DRender.renderOBJCreate.createIndexBuffer3D(mergeIndexFormat, indexCount, BufferUsage.Static, false);
         indexBuffer.setData(indexArray);
 
         staticMesh.setBuffer(vertexBuffer, indexBuffer);

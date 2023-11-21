@@ -1,5 +1,4 @@
 import { ILaya } from "../../../../ILaya";
-import { LayaGL } from "../../../layagl/LayaGL";
 import { Loader } from "../../../net/Loader";
 import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { IndexFormat } from "../../../RenderEngine/RenderEnum/IndexFormat";
@@ -25,6 +24,7 @@ import { MorphTargetData } from "./MorphTargetData";
 import { Config } from "../../../../Config";
 import { Laya3D } from "../../../../Laya3D";
 import { EPhysicsCapable } from "../../../Physics3D/physicsEnum/EPhycisCapable";
+import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
 /**
  * @internal
  */
@@ -423,7 +423,7 @@ export class Mesh extends Resource implements IClone {
         let vertexArray = [];
         vertexArray.push(this._vertexBuffer);
         //new Instance VertexBuffer3D
-        let instanceBuffer3D: VertexBuffer3D = this._instanceWorldVertexBuffer = LayaGL.renderOBJCreate.createVertexBuffer3D(InstanceRenderElement.maxInstanceCount * 16 * 4, BufferUsage.Dynamic, false);;
+        let instanceBuffer3D: VertexBuffer3D = this._instanceWorldVertexBuffer = Laya3DRender.renderOBJCreate.createVertexBuffer3D(InstanceRenderElement.maxInstanceCount * 16 * 4, BufferUsage.Dynamic, false);;
         instanceBuffer3D.vertexDeclaration = VertexMesh.instanceWorldMatrixDeclaration;
         instanceBuffer3D.instanceBuffer = true;
         vertexArray.push(instanceBuffer3D);
@@ -431,7 +431,7 @@ export class Mesh extends Resource implements IClone {
         switch (instanceBufferStateType) {
             case Mesh.MESH_INSTANCEBUFFER_TYPE_SIMPLEANIMATOR:
                 //new SimpleVertexBuffer3D
-                let instanceSimpleAnimatorBuffer = this._instanceSimpleAniVertexBuffer = LayaGL.renderOBJCreate.createVertexBuffer3D(InstanceRenderElement.maxInstanceCount * 4 * 4, BufferUsage.Dynamic, false);
+                let instanceSimpleAnimatorBuffer = this._instanceSimpleAniVertexBuffer = Laya3DRender.renderOBJCreate.createVertexBuffer3D(InstanceRenderElement.maxInstanceCount * 4 * 4, BufferUsage.Dynamic, false);
                 instanceSimpleAnimatorBuffer.vertexDeclaration = VertexMesh.instanceSimpleAnimatorDeclaration;
                 instanceSimpleAnimatorBuffer.instanceBuffer = true;
                 this.instanceSimpleAnimatorData = new Float32Array(InstanceRenderElement.maxInstanceCount * 4);
@@ -440,7 +440,7 @@ export class Mesh extends Resource implements IClone {
             case Mesh.MESH_INSTANCEBUFFER_TYPE_NORMAL:
                 //have uv1
                 if (this.getVertexDeclaration().getVertexElementByUsage(VertexMesh.MESH_TEXTURECOORDINATE1)) {
-                    let instanceLightMapVertexBuffer = this._instanceLightMapVertexBuffer = LayaGL.renderOBJCreate.createVertexBuffer3D(InstanceRenderElement.maxInstanceCount * 4 * 4, BufferUsage.Dynamic, false);
+                    let instanceLightMapVertexBuffer = this._instanceLightMapVertexBuffer = Laya3DRender.renderOBJCreate.createVertexBuffer3D(InstanceRenderElement.maxInstanceCount * 4 * 4, BufferUsage.Dynamic, false);
                     instanceLightMapVertexBuffer.vertexDeclaration = VertexMesh.instanceLightMapScaleOffsetDeclaration;
                     instanceLightMapVertexBuffer.instanceBuffer = true;
                     this.instanceLightMapScaleOffsetData = new Float32Array(InstanceRenderElement.maxInstanceCount * 4);
@@ -761,7 +761,7 @@ export class Mesh extends Resource implements IClone {
         var indexBuffer: IndexBuffer3D = this._indexBuffer;
         if (this._indexFormat !== format || indexBuffer.indexCount !== indices.length) {//format chang and length chang will recreate the indexBuffer
             indexBuffer.destroy();
-            this._indexBuffer = indexBuffer = LayaGL.renderOBJCreate.createIndexBuffer3D(format, indices.length, BufferUsage.Static, this._isReadable);
+            this._indexBuffer = indexBuffer = Laya3DRender.renderOBJCreate.createIndexBuffer3D(format, indices.length, BufferUsage.Static, this._isReadable);
         }
         indexBuffer.setData(indices);
         this.indexFormat = format;
@@ -829,13 +829,13 @@ export class Mesh extends Resource implements IClone {
     cloneTo(destObject: any): void {//[实现IClone接口]
         var destMesh: Mesh = <Mesh>destObject;
         var vb: VertexBuffer3D = this._vertexBuffer;
-        var destVB: VertexBuffer3D = LayaGL.renderOBJCreate.createVertexBuffer3D(vb._byteLength, vb.bufferUsage, vb.canRead);
+        var destVB: VertexBuffer3D = Laya3DRender.renderOBJCreate.createVertexBuffer3D(vb._byteLength, vb.bufferUsage, vb.canRead);
         destVB.vertexDeclaration = vb.vertexDeclaration;
         destVB.setData(vb.getUint8Data().slice().buffer);
         destMesh._vertexBuffer = destVB;
         destMesh._vertexCount = this._vertexCount;
         var ib: IndexBuffer3D = this._indexBuffer;
-        var destIB: IndexBuffer3D = LayaGL.renderOBJCreate.createIndexBuffer3D(IndexFormat.UInt16, ib.indexCount, ib.bufferUsage, ib.canRead);
+        var destIB: IndexBuffer3D = Laya3DRender.renderOBJCreate.createIndexBuffer3D(IndexFormat.UInt16, ib.indexCount, ib.bufferUsage, ib.canRead);
         destIB.setData(ib.getData().slice());
         destMesh._indexBuffer = destIB;
 

@@ -1,6 +1,6 @@
-import { LayaGL } from "../../../layagl/LayaGL";
 import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { UniformBufferObject } from "../../../RenderEngine/UniformBufferObject";
+import { LayaGL } from "../../../layagl/LayaGL";
 
 
 export class NativeUniformBufferObject extends UniformBufferObject{

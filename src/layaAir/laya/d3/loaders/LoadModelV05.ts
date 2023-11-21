@@ -1,4 +1,3 @@
-import { LayaGL } from "../../layagl/LayaGL"
 import { Matrix4x4 } from "../../maths/Matrix4x4"
 import { Vector3 } from "../../maths/Vector3"
 import { BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType"
@@ -9,6 +8,7 @@ import { Byte } from "../../utils/Byte"
 import { HalfFloatUtils } from "../../utils/HalfFloatUtils"
 import { IndexBuffer3D } from "../graphics/IndexBuffer3D"
 import { VertexBuffer3D } from "../graphics/VertexBuffer3D"
+import { Laya3DRender } from "../RenderObjs/Laya3DRender"
 import { Mesh, skinnedMatrixCache } from "../resource/models/Mesh"
 import { MorphTarget, MorphTargetChannel } from "../resource/models/MorphTarget"
 import { MorphTargetData } from "../resource/models/MorphTargetData"
@@ -222,7 +222,7 @@ export class LoadModelV05 {
                     break;
             }
 
-            var vertexBuffer: VertexBuffer3D = LayaGL.renderOBJCreate.createVertexBuffer3D(vertexData.byteLength, BufferUsage.Static, true);
+            var vertexBuffer: VertexBuffer3D = Laya3DRender.renderOBJCreate.createVertexBuffer3D(vertexData.byteLength, BufferUsage.Static, true);
             vertexBuffer.vertexDeclaration = vertexDeclaration;
             vertexBuffer.setData(vertexData);
             var vertexCount: number = vertexBuffer._byteLength / vertexDeclaration.vertexStride;
@@ -245,7 +245,7 @@ export class LoadModelV05 {
         else
             ibDatas = new Uint16Array(arrayBuffer.slice(ibStart, ibStart + ibLength));
 
-        var indexBuffer: IndexBuffer3D = LayaGL.renderOBJCreate.createIndexBuffer3D(mesh.indexFormat, ibDatas.length, BufferUsage.Static, true);
+        var indexBuffer: IndexBuffer3D = Laya3DRender.renderOBJCreate.createIndexBuffer3D(mesh.indexFormat, ibDatas.length, BufferUsage.Static, true);
         indexBuffer.setData(ibDatas);
         mesh._indexBuffer = indexBuffer;
 

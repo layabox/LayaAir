@@ -82,7 +82,8 @@ const packsDef = [
             //'./layaAir/laya/d3/RenderObjs/**/*.*',
             './layaAir/laya/d3/RenderObjs/NativeOBJ/*.*',
             './layaAir/laya/d3/RenderObjs/RenderObj/*.*',
-
+            './layaAir/laya/d3/RenderObjs/IRenderEngine3DOBJFactory.ts',
+            './layaAir/laya/d3/RenderObjs/Laya3DRender.ts',
             './layaAir/laya/d3/ModuleDef.ts',
             './layaAir/ILaya3D.ts',
             './layaAir/Laya3D.ts',

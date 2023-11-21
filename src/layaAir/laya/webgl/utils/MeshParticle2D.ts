@@ -1,9 +1,9 @@
 import { Mesh2D } from "./Mesh2D";
-import { LayaGL } from "../../layagl/LayaGL";
 import { RenderParams } from "../../RenderEngine/RenderEnum/RenderParams";
 import { VertexDeclaration } from "../../RenderEngine/VertexDeclaration";
 import { VertexElementFormat } from "../../renders/VertexElementFormat";
 import { VertexElement } from "../../renders/VertexElement";
+import { LayaGL } from "../../layagl/LayaGL";
 
 /**
  * drawImage，fillRect等会用到的简单的mesh。每次添加必然是一个四边形。

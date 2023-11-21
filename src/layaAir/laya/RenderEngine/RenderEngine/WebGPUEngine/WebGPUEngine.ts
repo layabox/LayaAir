@@ -11,7 +11,6 @@ import { RenderStatisticsInfo } from "../../RenderEnum/RenderStatInfo";
 import { IRender2DContext } from "../../RenderInterface/IRender2DContext";
 import { IRenderDrawContext } from "../../RenderInterface/IRenderDrawContext";
 import { IRenderEngine } from "../../RenderInterface/IRenderEngine";
-import { IRenderOBJCreate } from "../../RenderInterface/IRenderOBJCreate";
 import { IRenderShaderInstance } from "../../RenderInterface/IRenderShaderInstance";
 import { IRenderVertexState } from "../../RenderInterface/IRenderVertexState";
 import { ShaderDataType } from "../../RenderShader/ShaderData";
@@ -29,12 +28,13 @@ import { RenderTargetFormat } from "../../RenderEnum/RenderTargetFormat";
 import { TextureDimension } from "../../RenderEnum/TextureDimension";
 import { WGPUBindGroupHelper } from "./WGPUBindGroupHelper";
 import { WGPURenderPipeline } from "../../../d3/RenderObjs/WebGPUOBJ/WebGPURenderPipelineHelper";
+import { IRenderEngineFactory } from "../../RenderInterface/IRenderEngineFactory";
 
 export class WebGPUEngine implements IRenderEngine {
     _canvas: HTMLCanvasElement;
     _context: GPUCanvasContext;
     _isShaderDebugMode: boolean;
-    _renderOBJCreateContext: IRenderOBJCreate;
+    _renderOBJCreateContext: IRenderEngineFactory;
     /**@internal */
     _IDCounter: number = 0;
     //bind viewport
@@ -214,12 +214,12 @@ export class WebGPUEngine implements IRenderEngine {
         this._webGPUTextureContext = new WebGPUTextureContext(this);
         this._supportCapatable = new WebGPUCapable(this);
         //offscreen canvans
-        this._cavansRT = new WebGPUInternalRT(this,RenderTargetFormat.R8G8B8A8,RenderTargetFormat.DEPTHSTENCIL_24_Plus,false,false,1);
-        let _offscreenTex = new WebGPUInternalTex(this,0,0,TextureDimension.Tex2D,false);
+        this._cavansRT = new WebGPUInternalRT(this, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.DEPTHSTENCIL_24_Plus, false, false, 1);
+        let _offscreenTex = new WebGPUInternalTex(this, 0, 0, TextureDimension.Tex2D, false);
         this._cavansRT.isOffscreenRT = true;
         _offscreenTex.resource = this._context.getCurrentTexture();
         this._cavansRT._textures.push(_offscreenTex);
-        this._cavansRT._depthTexture = this._webGPUTextureContext.createRenderTextureInternal(TextureDimension.Tex2D,this._canvas.width,this._canvas.height,RenderTargetFormat.DEPTHSTENCIL_24_Plus,false,false);
+        this._cavansRT._depthTexture = this._webGPUTextureContext.createRenderTextureInternal(TextureDimension.Tex2D, this._canvas.width, this._canvas.height, RenderTargetFormat.DEPTHSTENCIL_24_Plus, false, false);
 
         //limit TODO
         ///this._adapter 得到Webgpu限制
@@ -297,7 +297,7 @@ export class WebGPUEngine implements IRenderEngine {
     get2DRenderContext(): IRender2DContext {
         throw new Error("Method not implemented.");
     }
-    getCreateRenderOBJContext(): IRenderOBJCreate {
+    getCreateRenderOBJContext(): IRenderEngineFactory {
         //throw new Error("Method not implemented.");
         return null;
     }
@@ -389,35 +389,35 @@ export class WebGPUEngine implements IRenderEngine {
     /**
      * resize canvans
      */
-    resizeCavansRT(){
-        if(this._cavansRT._depthTexture.width != this._canvas.width||this._cavansRT._depthTexture.height != this._canvas.height){
+    resizeCavansRT() {
+        if (this._cavansRT._depthTexture.width != this._canvas.width || this._cavansRT._depthTexture.height != this._canvas.height) {
             this._cavansRT._depthTexture.resource.destroy();
-            this._cavansRT._depthTexture = this._webGPUTextureContext.createRenderTextureInternal(TextureDimension.Tex2D,this._canvas.width,this._canvas.height,RenderTargetFormat.DEPTHSTENCIL_24_Plus,false,false);
+            this._cavansRT._depthTexture = this._webGPUTextureContext.createRenderTextureInternal(TextureDimension.Tex2D, this._canvas.width, this._canvas.height, RenderTargetFormat.DEPTHSTENCIL_24_Plus, false, false);
         }
     }
 
 
     setRenderPassDescriptor(rt: WebGPUInternalRT, renderPassDec: WebGPURenderPassDescriptor) {
-        
+
         this.resizeCavansRT();
         let gpurt;
-        if(rt){
+        if (rt) {
             gpurt = rt;
-        }else{
+        } else {
             gpurt = this._cavansRT;
         }
         if (gpurt.loadClear) {
             let clearflag = gpurt.clearDes.clearFlag;
             //colorAttach
             renderPassDec.setColorAttachments(gpurt._textures as WebGPUInternalTex[], !!(clearflag & RenderClearFlag.Color), gpurt.clearDes.clearColor);
-            renderPassDec.setDepthAttachments(gpurt._depthTexture as WebGPUInternalTex,!!(clearflag & RenderClearFlag.Depth), gpurt.clearDes.clearDepth);//default 1.0
-            
+            renderPassDec.setDepthAttachments(gpurt._depthTexture as WebGPUInternalTex, !!(clearflag & RenderClearFlag.Depth), gpurt.clearDes.clearDepth);//default 1.0
+
         } else {
             renderPassDec.setColorAttachments(gpurt._textures as WebGPUInternalTex[], false);
             renderPassDec.setDepthAttachments(gpurt._depthTexture as WebGPUInternalTex, false);
         }
         this._cavansRT._textures[0].resource = this._context.getCurrentTexture();
-        if(rt.isOffscreenRT) (renderPassDec.des.colorAttachments as Array<GPURenderPassColorAttachment>)[0].view = this._context.getCurrentTexture().createView();
+        if (rt.isOffscreenRT) (renderPassDec.des.colorAttachments as Array<GPURenderPassColorAttachment>)[0].view = this._context.getCurrentTexture().createView();
     }
 
 

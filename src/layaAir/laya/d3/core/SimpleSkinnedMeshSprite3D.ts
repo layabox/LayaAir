@@ -8,10 +8,10 @@ import { Material } from "./material/Material";
 import { SimpleSkinnedMeshRenderer } from "./SimpleSkinnedMeshRenderer";
 import { Texture2D } from "../../resource/Texture2D";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
-import { LayaGL } from "../../layagl/LayaGL";
 import { Vector3 } from "../../maths/Vector3";
 import { Vector4 } from "../../maths/Vector4";
 import { ShaderDataType } from "../../RenderEngine/RenderShader/ShaderData";
+import { LayaGL } from "../../layagl/LayaGL";
 
 
 

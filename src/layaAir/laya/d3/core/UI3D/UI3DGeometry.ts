@@ -1,4 +1,3 @@
-import { LayaGL } from "../../../layagl/LayaGL";
 import { Matrix4x4 } from "../../../maths/Matrix4x4";
 import { Vector2 } from "../../../maths/Vector2";
 import { Vector3 } from "../../../maths/Vector3";
@@ -12,6 +11,7 @@ import { BufferState } from "../../../webgl/utils/BufferState";
 import { IndexBuffer3D } from "../../graphics/IndexBuffer3D";
 import { VertexBuffer3D } from "../../graphics/VertexBuffer3D";
 import { Bounds } from "../../math/Bounds";
+import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
 import { Utils3D } from "../../utils/Utils3D";
 import { GeometryElement } from "../GeometryElement";
 import { RenderContext3D } from "../render/RenderContext3D";
@@ -64,11 +64,11 @@ export class UI3DGeometry extends GeometryElement {
             halfLong, -halfWidth, 0, 0, 0, 1, 1, 1]);
         this._index = new Uint16Array([0, 1, 2, 3, 2, 1]);
         //VB
-        this._vertexBuffer = LayaGL.renderOBJCreate.createVertexBuffer3D(this._vertex.length * 4, BufferUsage.Dynamic, false);
+        this._vertexBuffer = Laya3DRender.renderOBJCreate.createVertexBuffer3D(this._vertex.length * 4, BufferUsage.Dynamic, false);
         this._vertexBuffer.vertexDeclaration = vertexDeclaration;
         this._vertexBuffer.setData(this._vertex.buffer);
         //IB
-        this._indexBuffer = LayaGL.renderOBJCreate.createIndexBuffer3D(IndexFormat.UInt16, this._index.length, BufferUsage.Static, false);
+        this._indexBuffer = Laya3DRender.renderOBJCreate.createIndexBuffer3D(IndexFormat.UInt16, this._index.length, BufferUsage.Static, false);
         this._indexBuffer.setData(this._index);
         //VAO
         this.bufferState = new BufferState();

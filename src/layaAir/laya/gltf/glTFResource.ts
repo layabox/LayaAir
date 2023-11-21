@@ -32,7 +32,6 @@ import { MorphTarget, MorphTargetChannel } from "../d3/resource/models/MorphTarg
 import { MorphTargetData } from "../d3/resource/models/MorphTargetData";
 import { SubMesh } from "../d3/resource/models/SubMesh";
 import { Node } from "../display/Node";
-import { LayaGL } from "../layagl/LayaGL";
 import { Matrix4x4 } from "../maths/Matrix4x4";
 import { Quaternion } from "../maths/Quaternion";
 import { Vector3 } from "../maths/Vector3";
@@ -48,6 +47,7 @@ import { PBRShaderLib } from "../d3/shader/pbr/PBRShaderLib";
 import { Laya } from "../../Laya";
 import { WrapMode } from "../RenderEngine/RenderEnum/WrapMode";
 import { ShaderDefine } from "../RenderEngine/RenderShader/ShaderDefine";
+import { Laya3DRender } from "../d3/RenderObjs/Laya3DRender";
 
 const maxSubBoneCount = 24;
 
@@ -1494,11 +1494,11 @@ export class glTFResource extends Prefab {
      * @param layaMesh 
      */
     private generateMesh(vertexArray: Float32Array, indexArray: Uint16Array | Uint32Array, vertexDeclaration: VertexDeclaration, ibFormat: IndexFormat, subDatas: PrimitiveSubMesh[], layaMesh: Mesh): void {
-        let vertexBuffer: VertexBuffer3D = LayaGL.renderOBJCreate.createVertexBuffer3D(vertexArray.byteLength, BufferUsage.Static, true);
+        let vertexBuffer: VertexBuffer3D = Laya3DRender.renderOBJCreate.createVertexBuffer3D(vertexArray.byteLength, BufferUsage.Static, true);
         vertexBuffer.vertexDeclaration = vertexDeclaration;
         vertexBuffer.setData(vertexArray.buffer);
 
-        let indexBuffer: IndexBuffer3D = LayaGL.renderOBJCreate.createIndexBuffer3D(ibFormat, indexArray.length, BufferUsage.Static, true);
+        let indexBuffer: IndexBuffer3D = Laya3DRender.renderOBJCreate.createIndexBuffer3D(ibFormat, indexArray.length, BufferUsage.Static, true);
         indexBuffer.setData(indexArray);
 
         layaMesh._indexFormat = ibFormat;

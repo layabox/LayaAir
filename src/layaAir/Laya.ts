@@ -3,7 +3,6 @@ import { Input } from "./laya/display/Input";
 import { Sprite } from "./laya/display/Sprite";
 import { Stage } from "./laya/display/Stage";
 import { InputManager } from "./laya/events/InputManager";
-import { LayaGL } from "./laya/layagl/LayaGL";
 import { SoundManager } from "./laya/media/SoundManager";
 import { Loader } from "./laya/net/Loader";
 import { LocalStorage } from "./laya/net/LocalStorage";
@@ -36,6 +35,7 @@ import { URL } from "./laya/net/URL";
 import { RunDriver } from "./laya/utils/RunDriver";
 import { Config } from "./Config";
 import { Shader3D } from "./laya/RenderEngine/RenderShader/Shader3D";
+import { LayaGL } from "./laya/layagl/LayaGL";
 
 /**
  * <code>Laya</code> 是全局对象的引用入口集。

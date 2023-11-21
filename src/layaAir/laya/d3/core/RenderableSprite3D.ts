@@ -3,8 +3,8 @@ import { Sprite3D } from "./Sprite3D";
 import { BaseRender } from "./render/BaseRender";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { ShaderDefine } from "../../RenderEngine/RenderShader/ShaderDefine";
+import { ShaderDataType } from "../../RenderEngine/RenderShader/ShaderData";
 import { LayaGL } from "../../layagl/LayaGL";
-import { ShaderData, ShaderDataType } from "../../RenderEngine/RenderShader/ShaderData";
 
 /**
  * @deprecated

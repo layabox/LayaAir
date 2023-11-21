@@ -1,14 +1,13 @@
 import { ILaya3D } from "../../../../ILaya3D";
-import { LayaGL } from "../../../layagl/LayaGL";
 import { Matrix4x4 } from "../../../maths/Matrix4x4";
 import { Vector4 } from "../../../maths/Vector4";
 import { IRenderContext3D } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderContext3D";
 import { DefineDatas } from "../../../RenderEngine/RenderShader/DefineDatas";
 import { ShaderInstance } from "../../../RenderEngine/RenderShader/ShaderInstance";
 import { ShaderPass } from "../../../RenderEngine/RenderShader/ShaderPass";
-import { RenderSprite } from "../../../renders/RenderSprite";
 import { SingletonList } from "../../../utils/SingletonList";
 import { MeshInstanceGeometry } from "../../graphics/MeshInstanceGeometry";
+import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
 import { InstanceRenderElementOBJ } from "../../RenderObjs/RenderObj/InstanceRenderElementOBJ";
 import { Mesh } from "../../resource/models/Mesh";
 import { Camera } from "../Camera";
@@ -70,7 +69,7 @@ export class InstanceRenderElement extends RenderElement {
     }
 
     protected _createRenderElementOBJ() {
-        this._renderElementOBJ = LayaGL.renderOBJCreate.createInstanceRenderElement();
+        this._renderElementOBJ = Laya3DRender.renderOBJCreate.createInstanceRenderElement();
     }
 
     compileShader(context: IRenderContext3D) {

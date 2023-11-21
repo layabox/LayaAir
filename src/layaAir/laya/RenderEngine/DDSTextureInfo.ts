@@ -1,6 +1,6 @@
-import { LayaGL } from "../layagl/LayaGL";
 import { RenderCapable } from "../RenderEngine/RenderEnum/RenderCapable";
 import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
+import { LayaGL } from "../layagl/LayaGL";
 
 const FOURCC_DXT1: number = 827611204;
 const FOURCC_DXT3 = 861165636;

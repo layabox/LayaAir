@@ -1,6 +1,5 @@
 import { Config3D } from "../../../Config3D";
 import { CommandEncoder } from "../../layagl/CommandEncoder";
-import { LayaGL } from "../../layagl/LayaGL";
 import { CullMode } from "../../RenderEngine/RenderEnum/CullMode";
 import { IRenderShaderInstance } from "../../RenderEngine/RenderInterface/IRenderShaderInstance";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
@@ -16,6 +15,7 @@ import { GLSLCodeGenerator } from "./GLSLCodeGenerator";
 import { RenderStateContext } from "../../RenderEngine/RenderStateContext";
 import { Stat } from "../../utils/Stat";
 import { RenderState } from "./RenderState";
+import { LayaGL } from "../../layagl/LayaGL";
 
 /**
  * <code>ShaderInstance</code> 类用于实现ShaderInstance。

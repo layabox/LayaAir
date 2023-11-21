@@ -5,12 +5,12 @@ import { ShaderData } from "../../../RenderEngine/RenderShader/ShaderData";
 import { Camera } from "../Camera";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { IRenderContext3D, PipelineMode } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderContext3D";
-import { LayaGL } from "../../../layagl/LayaGL";
 import { IRenderTarget } from "../../../RenderEngine/RenderInterface/IRenderTarget";
 import { Matrix4x4 } from "../../../maths/Matrix4x4";
 import { Vector4 } from "../../../maths/Vector4";
 import { ShaderInstance } from "../../../RenderEngine/RenderShader/ShaderInstance";
 import { ShaderDefine } from "../../../RenderEngine/RenderShader/ShaderDefine";
+import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
 
 /**
  * <code>RenderContext3D</code> 类用于实现渲染状态。
@@ -176,7 +176,7 @@ export class RenderContext3D {
      * 创建一个 <code>RenderContext3D</code> 实例。
      */
     constructor() {
-        this._contextOBJ = LayaGL.renderOBJCreate.createRenderContext3D();
+        this._contextOBJ = Laya3DRender.renderOBJCreate.createRenderContext3D();
     }
 
 }

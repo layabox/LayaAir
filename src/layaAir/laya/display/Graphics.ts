@@ -35,12 +35,12 @@ import { ILaya } from "../../ILaya";
 import { WordText } from "../utils/WordText";
 import { ColorUtils } from "../utils/ColorUtils";
 import type { Material } from "../d3/core/material/Material";
-import { LayaGL } from "../layagl/LayaGL";
 import { CommandUniformMap } from "../RenderEngine/CommandUniformMap";
 import { ShaderDataType } from "../RenderEngine/RenderShader/ShaderData";
 import { Value2D } from "../webgl/shader/d2/value/Value2D";
 import { DrawEllipseCmd } from "./cmd/DrawEllipseCmd";
 import { DrawRoundRectCmd } from "./cmd/DrawRoundRectCmd";
+import { LayaGL } from "../layagl/LayaGL";
 
 /**
  * <code>Graphics</code> 类用于创建绘图显示对象。Graphics可以同时绘制多个位图或者矢量图，还可以结合save，restore，transform，scale，rotate，translate，alpha等指令对绘图效果进行变化。

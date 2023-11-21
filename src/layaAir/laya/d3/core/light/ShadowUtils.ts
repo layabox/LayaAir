@@ -1,4 +1,3 @@
-import { LayaGL } from "../../../layagl/LayaGL";
 import { BoundFrustum, FrustumCorner } from "../../math/BoundFrustum";
 import { BoundSphere } from "../../math/BoundSphere";
 import { Plane } from "../../math/Plane";
@@ -20,6 +19,7 @@ import { Vector3 } from "../../../maths/Vector3";
 import { Vector4 } from "../../../maths/Vector4";
 import { RenderTexture } from "../../../resource/RenderTexture";
 import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTargetFormat";
+import { LayaGL } from "../../../layagl/LayaGL";
 
 /**
  * @internal
