@@ -127,14 +127,20 @@ export class ShaderParser {
      * get Shader Data
      */
     static getShaderBlock(source: string) {
-        let shaderData = source.substring(source.indexOf(shaderBlock[0]) + shaderBlock[0].length, source.indexOf(shaderBlock[1]));
-        let shaderObj;
+        let shaderObj: IShaderObjStructor = null;
         try {
+            let i1 = source.indexOf(shaderBlock[0]);
+            if (i1 == -1)
+                throw new Error(`no '${shaderBlock[0]}' tag`);
+            let i2 = source.indexOf(shaderBlock[1]);
+            if (i2 == -1)
+                throw new Error(`no '${shaderBlock[1]}' tag`);
+            let shaderData = source.substring(i1 + shaderBlock[0].length, i2);
             shaderObj = ParseJSON.parse(shaderData);//TODO new FIle parse(1、去掉繁琐的json格式报错，2、可以有注释)
-        } catch {
-            console.error("Shader describe Data error");
+        } catch (err: any) {
+            console.error("Shader parse error: " + err + "\n" + source.substring(0, 100) + "...");
         }
-        return shaderObj as IShaderObjStructor;
+        return shaderObj;
     }
 
     /**
@@ -143,17 +149,27 @@ export class ShaderParser {
      * @returns 
      */
     static getCGBlock(source: string): { [key: string]: string } {
-        let cgdata = source.substring(source.indexOf(CGBlock[0]), source.indexOf(CGBlock[1]));
-        let map = ShaderParser.compileToTree(split, cgdata, 0);
         let cgmap: { [key: string]: string } = {};
-        for (let i = 0, n = map.length; i < n; i++) {
-            let value = map[i];
-            if (value == split[0]) {
-                i += 1
-                let datavalue = map[i];
-                let key = ShaderParser.getMapKey(datavalue);
-                cgmap[key] = datavalue.slice(datavalue.indexOf("\n"), datavalue.length - 1);
+        try {
+            let i1 = source.indexOf(CGBlock[0]);
+            if (i1 == -1)
+                throw new Error(`no '${shaderBlock[0]}' tag`);
+            let i2 = source.indexOf(CGBlock[1]);
+            if (i2 == -1)
+                throw new Error(`no '${shaderBlock[1]}' tag`);
+            let cgdata = source.substring(i1, i2);
+            let map = ShaderParser.compileToTree(split, cgdata, 0);
+            for (let i = 0, n = map.length; i < n; i++) {
+                let value = map[i];
+                if (value == split[0]) {
+                    i += 1
+                    let datavalue = map[i];
+                    let key = ShaderParser.getMapKey(datavalue);
+                    cgmap[key] = datavalue.slice(datavalue.indexOf("\n"), datavalue.length - 1);
+                }
             }
+        } catch (err: any) {
+            console.error("Shader parse error: " + err + "\n" + source.substring(0, 100) + "...");
         }
         return cgmap;
     }
@@ -179,9 +195,19 @@ export class ShaderParser {
                 //TODO  这里的格式要重新理 "name":type or "name":[type,custom Attribute Location]
                 if (attributemap[i] instanceof Array) {
                     let dataArray = attributemap[i];
-                    attributemap[i] = [dataArray[1], ShaderParser.getShaderDataType(dataArray[0])];
+                    let type = ShaderParser.getShaderDataType(dataArray[0]);
+                    if (type == null) {
+                        console.warn(`${shaderObj.name}: unkown attribute type '${dataArray[0]}'`);
+                        continue;
+                    }
+                    attributemap[i] = [dataArray[1], type];
                 } else {
-                    attributemap[i] = [indexofAttribute, ShaderParser.getShaderDataType(attributemap[i])];
+                    let type = ShaderParser.getShaderDataType(attributemap[i]);
+                    if (type == null) {
+                        console.warn(`${shaderObj.name}: unkown attribute type '${attributemap[i]}'`);
+                        continue;
+                    }
+                    attributemap[i] = [indexofAttribute, type];
                     indexofAttribute++;
                 }
 
@@ -202,6 +228,11 @@ export class ShaderParser {
                     continue;
 
                 let dataType = ShaderParser.getShaderDataType(entry.type);
+                if (dataType == null) {
+                    console.warn(`${shaderObj.name}: unkown uniform type '${entry.type}'`);
+                    continue;
+                }
+
                 if (entry.default != null)
                     defaultmap[k] = ShaderParser.getDefaultData(dataType, entry.default);
 
