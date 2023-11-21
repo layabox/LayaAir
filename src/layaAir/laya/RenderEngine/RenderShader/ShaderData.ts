@@ -559,7 +559,7 @@ export class ShaderData implements IClone {
 				this.setBuffer(uniformIndex, <Float32Array>value);
 				break;
 			default:
-				throw "unkone shader data type.";
+				throw new Error(`unkown shader data type: ${type}`);
 		}
 	}
 

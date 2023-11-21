@@ -225,14 +225,25 @@ export class Shader3D {
     }
 
     static parse(data: IShaderObjStructor, basePath: string) {
-        if (!data.name || !data.uniformMap)
-            console.error("TODO");
+        if (!data.name)
+            console.warn("shader name is empty", data);
+        if (!data.uniformMap)
+            console.warn(`${data.name}: uniformMap is empty`);
+
         let shader = Shader3D.add(data.name, data.enableInstancing, data.supportReflectionProbe);
         let subshader = new SubShader(data.attributeMap ? data.attributeMap : SubShader.DefaultAttributeMap, data.uniformMap, data.defaultValue);
         shader.addSubShader(subshader);
         let passArray = data.shaderPass;
         for (var i in passArray) {
             let pass = passArray[i] as IShaderpassStructor;
+            if (!pass.VS) {
+                console.warn(`${data.name}: VS of pass ${i} is empty`);
+                continue;
+            }
+            if (!pass.FS) {
+                console.warn(`${data.name}: FS of pass ${i} is empty`);
+                continue;
+            }
             subshader._addShaderPass(ShaderCompile.compile(pass.VS, pass.FS, basePath), pass.pipeline);
         }
         return shader;
