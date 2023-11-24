@@ -7,7 +7,7 @@ import { AnimationClip } from "../../animation/AnimationClip";
 import { AnimatorStateScript } from "../../animation/AnimatorStateScript";
 import { KeyframeNode } from "../../animation/KeyframeNode";
 import { KeyframeNodeList } from "../../animation/KeyframeNodeList";
-import { Material } from "../../core/material/Material";
+import { Material } from "../../../resource/Material";
 import { RenderableSprite3D } from "../../core/RenderableSprite3D";
 import { Sprite3D } from "../../core/Sprite3D";
 import { Utils3D } from "../../utils/Utils3D";

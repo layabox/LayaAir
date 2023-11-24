@@ -17,7 +17,7 @@ import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
-import { Material } from "laya/d3/core/material/Material";
+import { Material } from "laya/resource/Material";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 import { Animator } from "laya/d3/component/Animator/Animator";
 import { Vector3 } from "laya/maths/Vector3";
@@ -53,7 +53,7 @@ export class LoadResourceDemo {
 			//批量预加载方式
 			this.PreloadingRes();
 
-			Laya.stage.on(Event.CLICK, this, ()=>{
+			Laya.stage.on(Event.CLICK, this, () => {
 				Resource.destroyUnusedResources();
 			})
 		});

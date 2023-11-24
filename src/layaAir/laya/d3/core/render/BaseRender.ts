@@ -2,7 +2,7 @@ import { RenderElement } from "./RenderElement";
 import { RenderContext3D } from "./RenderContext3D";
 import { RenderableSprite3D } from "../RenderableSprite3D"
 import { Transform3D } from "../Transform3D"
-import { Material } from "../material/Material"
+import { Material } from "../../../resource/Material";
 import { BoundFrustum } from "../../math/BoundFrustum"
 import { Event } from "../../../events/Event"
 import { Lightmap } from "../scene/Lightmap";

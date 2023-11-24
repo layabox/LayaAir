@@ -2,7 +2,7 @@ import { Laya } from "Laya";
 import { Camera, CameraClearFlags } from "laya/d3/core/Camera";
 import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
-import { Material } from "laya/d3/core/material/Material";
+import { Material } from "laya/resource/Material";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
@@ -38,9 +38,9 @@ export class CameraDemo {
 	private _clearColor: Vector4 = new Vector4(0, 0.2, 0.6, 1);
 
 	/**实例类型*/
-	private btype:any = "CameraDemo";
+	private btype: any = "CameraDemo";
 	/**场景内按钮类型*/
-	private stype:any = 0;
+	private stype: any = 0;
 
 	constructor() {
 		//初始化引擎
@@ -126,7 +126,7 @@ export class CameraDemo {
 		}));
 	}
 
-	stypeFun0(index:number = 0) {
+	stypeFun0(index: number = 0) {
 		this.index++;
 		if (this.index % 2 === 1) {
 			//正交投影属性设置
@@ -138,15 +138,15 @@ export class CameraDemo {
 			this.camera.orthographic = false;
 		}
 		index = this.index;
-		Client.instance.send({type:"next",btype:this.btype,stype:0,value:index});
+		Client.instance.send({ type: "next", btype: this.btype, stype: 0, value: index });
 	}
 
-	stypeFun1(index2:number = 0): void {
+	stypeFun1(index2: number = 0): void {
 		this.index2++;
 		if (this.index2 % 2 === 1) {
 			//设置相机的清除标识为天空盒
 			this.camera.clearFlag = CameraClearFlags.Sky;
-			Material.load("res/threeDimen/skyBox/skyBox2/skyBox2.lmat", Handler.create(this, ()=>{
+			Material.load("res/threeDimen/skyBox/skyBox2/skyBox2.lmat", Handler.create(this, () => {
 				//使用加载天空盒材质
 				var skyboxMaterial: Material = (<Material>Loader.getRes("res/threeDimen/skyBox/skyBox2/skyBox2.lmat"));
 				//获取相机的天空渲染器
@@ -156,13 +156,13 @@ export class CameraDemo {
 				//设置相机的天空渲染器的material
 				skyRenderer.material = skyboxMaterial;
 			}));
-			
+
 		} else {
 			//设置相机的清除标识为为固定颜色
 			this.camera.clearFlag = CameraClearFlags.SolidColor;
 		}
 		index2 = this.index2;
-		Client.instance.send({type:"next",btype:this.btype,stype:1,value:index2});
+		Client.instance.send({ type: "next", btype: this.btype, stype: 1, value: index2 });
 	}
 
 }

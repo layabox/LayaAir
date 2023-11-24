@@ -59,7 +59,7 @@ import { RenderTexture } from "./RenderTexture";
 import { Vector4 } from "../maths/Vector4";
 import { Vector2 } from "../maths/Vector2";
 import { TextureSV } from "../webgl/shader/d2/value/TextureSV";
-import { Material } from "../d3/core/material/Material";
+import { Material } from "./Material";
 import { LayaGL } from "../layagl/LayaGL";
 
 const defaultClipMatrix = new Matrix(Const.MAX_CLIP_SIZE, 0, 0, Const.MAX_CLIP_SIZE, 0, 0);

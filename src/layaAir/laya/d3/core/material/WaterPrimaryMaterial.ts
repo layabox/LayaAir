@@ -2,7 +2,7 @@ import { Vector4 } from "../../../maths/Vector4";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { ShaderDefine } from "../../../RenderEngine/RenderShader/ShaderDefine";
 import { BaseTexture } from "../../../resource/BaseTexture";
-import { Material } from "./Material";
+import { Material } from "../../../resource/Material";
 
 /**
  * <code>WaterPrimaryMaterial</code> 类用于实现水材质。

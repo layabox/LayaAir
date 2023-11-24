@@ -8,7 +8,7 @@ import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import { UnlitMaterial } from "laya/d3/core/material/UnlitMaterial";
 import { Viewport } from "laya/d3/math/Viewport";
-import { Material } from "laya/d3/core/material/Material";
+import { Material } from "laya/resource/Material";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { ShuriKenParticle3D } from "laya/d3/core/particleShuriKen/ShuriKenParticle3D";
 import { ShurikenParticleMaterial } from "laya/d3/core/particleShuriKen/ShurikenParticleMaterial";

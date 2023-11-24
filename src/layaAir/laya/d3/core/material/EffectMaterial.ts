@@ -2,7 +2,7 @@ import { Color } from "../../../maths/Color";
 import { Vector4 } from "../../../maths/Vector4";
 import { RenderState } from "../../../RenderEngine/RenderShader/RenderState";
 import { BaseTexture } from "../../../resource/BaseTexture";
-import { Material } from "./Material";
+import { Material } from "../../../resource/Material";
 import { UnlitMaterial } from "./UnlitMaterial";
 
 /**
@@ -12,7 +12,7 @@ export class EffectMaterial extends Material {
 	/** 默认材质，禁止修改*/
 	static defaultMaterial: EffectMaterial;
 
-	
+
 
 	/**
 	 * 获取颜色。
@@ -97,7 +97,7 @@ export class EffectMaterial extends Material {
 	 * 设置渲染模式。
 	 * 可以使用新的渲染状态
 	 */
-	 set renderMode(value: number) {
+	set renderMode(value: number) {
 		switch (value) {
 			case EffectMaterial.RENDERMODE_ADDTIVE:
 				this.renderQueue = Material.RENDERQUEUE_TRANSPARENT;

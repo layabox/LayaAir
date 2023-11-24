@@ -9,7 +9,7 @@ import BlurDownSampleFS from "./BlurDownSample.fs";
 import BlurDownSampleVS from "./BlurDownSample.vs";
 import BlurEdgeAdd from "./EdgeAdd.fs";
 import BlurEdgeSub from "./EdgeSub.fs";
-import { Material } from "laya/d3/core/material/Material";
+import { Material } from "laya/resource/Material";
 import { BaseTexture } from "laya/resource/BaseTexture";
 import { FilterMode } from "laya/RenderEngine/RenderEnum/FilterMode";
 import { RenderTargetFormat } from "laya/RenderEngine/RenderEnum/RenderTargetFormat";
@@ -216,7 +216,7 @@ export class BlurMaterial extends Material {
     static SHADERVALUE_SOURCETEXTURE0: number;
     static ShADERVALUE_SOURCETEXTURE1: number;
 
-    static __init__(){
+    static __init__() {
         BlurMaterial.SHADERVALUE_MAINTEX = Shader3D.propertyNameToID("u_MainTex");
         BlurMaterial.SHADERVALUE_TEXELSIZE = Shader3D.propertyNameToID("u_MainTex_TexelSize");
         BlurMaterial.SHADERVALUE_DOWNSAMPLEVALUE = Shader3D.propertyNameToID("u_DownSampleValue");

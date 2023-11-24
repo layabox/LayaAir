@@ -1,8 +1,7 @@
 import { Color } from "../../../maths/Color";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { ShaderDefine } from "../../../RenderEngine/RenderShader/ShaderDefine";
-
-import { Material } from "./Material";
+import { Material } from "../../../resource/Material";
 
 /**
  * <code>SkyProceduralMaterial</code> 类用于实现SkyProceduralMaterial材质。

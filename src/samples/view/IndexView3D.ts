@@ -124,6 +124,8 @@ import { GriendSkyAmbientDemo } from "../3d/LayaAir3D_Scene3D/GriendSkyAmbientDe
 import { Browser } from "laya/utils/Browser";
 import { ScrollType } from "laya/ui/Styles";
 import { PostProcess_LensFlare } from "../3d/LayaAir3D_PostProcess/PostPorcess_LensFlare";
+import { PhysicsWorld_ConstraintSpringJoint } from "../3d/LayaAir3D_Physics3D/PhysicsWorld_ConstraintSpringJoint";
+import { PhysicsWorld_ConstraintHingeJoint } from "../3d/LayaAir3D_Physics3D/PhysicsWorld_ConstraintHingeJoint";
 
 export class IndexView3D extends IndexViewUI {
 
@@ -140,32 +142,32 @@ export class IndexView3D extends IndexViewUI {
 	private m_length: number;
 	// performance合集先去掉
 	// CannonPhysics3D先去掉
-	private _comboxBigArr2: any[] = ['Resource', 'Scene3D', 'Camera', 'Lighting', 'Sprite3D', 'Mesh', 'Material', 'Texture', 'Animation3D', 'Physics3D', 'MouseLnteraction', 'Script', 'Sky', 'Particle3D', 'Trail', 'Shader', 'Advance', 'Demo','PostProcess','WebXR'];
+	private _comboxBigArr2: any[] = ['Resource', 'Scene3D', 'Camera', 'Lighting', 'Sprite3D', 'Mesh', 'Material', 'Texture', 'Animation3D', 'Physics3D', 'MouseLnteraction', 'Script', 'Sky', 'Particle3D', 'Trail', 'Shader', 'Advance', 'Demo', 'PostProcess', 'WebXR'];
 	//var s:Secne3DPlayer2D    
 	//AStarFindPath 删除
 	//VideoPlayIn3DWorld videoTexture现在跑不起来
 	// SeparableSSS_RenderDemo暂时去掉
 	// Scene2DPlayer3D暂时去掉
 	// Laya3DCombineHtml暂时去掉
-	private _advanceClsArr: any[] = [DrawTextTexture, Secne3DPlayer2D,VideoPlayIn3DWorld,CommandBuffer_Outline,CommandBuffer_BlurryGlass,CommandBuffer_DrawCustomInstance,CameraDepthModeTextureDemo,ReflectionProbeDemo];//PostProcessBloom,AStarFindPath,
-	private _advanceArr: any[] = ['DrawTextTexture', 'Secne3DPlayer2D','VideoPlayIn3DWorld','CommandBuffer_Outline','CommandBuffer_BlurryGlass','CommandBuffer_DrawCustomInstance','CameraDepthTextureDemo', 'ReflectionProbeDemo'];//'后期处理之泛光','寻路示例',
+	private _advanceClsArr: any[] = [DrawTextTexture, Secne3DPlayer2D, VideoPlayIn3DWorld, CommandBuffer_Outline, CommandBuffer_BlurryGlass, CommandBuffer_DrawCustomInstance, CameraDepthModeTextureDemo, ReflectionProbeDemo];//PostProcessBloom,AStarFindPath,
+	private _advanceArr: any[] = ['DrawTextTexture', 'Secne3DPlayer2D', 'VideoPlayIn3DWorld', 'CommandBuffer_Outline', 'CommandBuffer_BlurryGlass', 'CommandBuffer_DrawCustomInstance', 'CameraDepthTextureDemo', 'ReflectionProbeDemo'];//'后期处理之泛光','寻路示例',
 
-	private _postProcessClsArr:any[] = [PostProcessBloom,PostProcess_Blur,PostProcess_Edge,PostProcessDoF,ProstProcess_AO,PostProcess_LensFlare];
-	private _postProcessArr:any[] = ['PostProcessBloom','PostProcess_Blur','PostProcess_Edge','PostProcessDOF','PostProcessAO','PostProcess_LensFlare'];
+	private _postProcessClsArr: any[] = [PostProcessBloom, PostProcess_Blur, PostProcess_Edge, PostProcessDoF, ProstProcess_AO, PostProcess_LensFlare];
+	private _postProcessArr: any[] = ['PostProcessBloom', 'PostProcess_Blur', 'PostProcess_Edge', 'PostProcessDOF', 'PostProcessAO', 'PostProcess_LensFlare'];
 	// AnimationLayerBlend暂时去掉
 	// BoneLinkSprite3D暂时去掉
 	// MaterialAnimation暂时去掉
 	// SkinAnimationSample暂时去掉
-	private _animationClsArr: any[] = [AnimationEventByUnity, AnimatorDemo, AnimatorStateScriptDemo, CameraAnimation, RigidbodyAnimationDemo,SimpleSkinAnimationInstance,SkeletonMask];//AnimationEventByUnity,AnimationLayerBlend,BoneLinkSprite3D,RigidbodyAnimationDemo
+	private _animationClsArr: any[] = [AnimationEventByUnity, AnimatorDemo, AnimatorStateScriptDemo, CameraAnimation, RigidbodyAnimationDemo, SimpleSkinAnimationInstance, SkeletonMask];//AnimationEventByUnity,AnimationLayerBlend,BoneLinkSprite3D,RigidbodyAnimationDemo
 	private _animationArr: any[] = ["AnimationEventByUnity", 'Animator', "AnimatorStateScript", "CameraAnimation", "RigidbodyAnimation", "SimpleSkinAnimationInstance,SkinMask"];
 
 	private _cameraClsArr: any[] = [CameraDemo, CameraLayer, CameraLookAt, CameraRay, D3SpaceToD2Space, MultiCamera, OrthographicCamera, PickPixel, RenderTargetCamera];
 	private _cameraArr: any[] = ['Camera', 'CameraLayer', 'CameraLookAt', 'CameraRay', 'D3SpaceToD2Space', 'MultiCamera', 'OrthographicCamera', 'PickPixel', 'RenderTargetCamera'];
 	// GhostModelShow暂时去掉
-	private _demoClsArr: any[] = [DamagedHelmetModelShow, CerberusModelShow,GrassDemo];
-	private _demoArr: any[] = ['DamagedHelmetModelShow', 'CerberusModelShow','Grass'];
+	private _demoClsArr: any[] = [DamagedHelmetModelShow, CerberusModelShow, GrassDemo];
+	private _demoArr: any[] = ['DamagedHelmetModelShow', 'CerberusModelShow', 'Grass'];
 
-	private _lightingClsArr: any[] = [DirectionLightDemo, PointLightDemo, RealTimeShadow,SpotLightShadowMap,  SpotLightDemo, MultiLight];
+	private _lightingClsArr: any[] = [DirectionLightDemo, PointLightDemo, RealTimeShadow, SpotLightShadowMap, SpotLightDemo, MultiLight];
 	private _lightingArr: any[] = ['DirectionLight', 'PointLight', 'RealTimeShadow', 'SpotLightShadowMap', 'SpotLight', 'MultiLight'];
 	// Blinnphong_Transmission废弃
 	private _mterialClsArr: any[] = [BlinnPhong_DiffuseMap, BlinnPhong_NormalMap, BlinnPhong_SpecularMap, BlinnPhongMaterialLoad, EffectMaterialDemo, MaterialDemo, PBRMaterialDemo, UnlitMaterialDemo, StencilDemo];//BlinnPhong_DiffuseMap,BlinnPhong_NormalMap,BlinnPhong_SpecularMap,BlinnPhongMaterialLoad,EffectMaterialDemo,UnlitMaterialDemo
@@ -185,15 +187,16 @@ export class IndexView3D extends IndexViewUI {
 	private _performanceClsArr: any[] = [StaticBatchingTest, DynamicBatchTest];
 	private _performanceArr: any[] = ['StaticBatchingTest', 'DynamicBatchTest'];
 
-	private _physicsClsArr: any[] = [PhysicsWorld_BaseCollider, PhysicsWorld_BuildingBlocks, PhysicsWorld_Character, PhysicsWorld_CollisionFiflter, PhysicsWorld_CompoundCollider, PhysicsWorld_ContinueCollisionDetection, PhysicsWorld_Kinematic, PhysicsWorld_MeshCollider, PhysicsWorld_RayShapeCast, PhysicsWorld_TriggerAndCollisionEvent, PhysicsWorld_ConstraintFixedJoint, PhysicsWorld_ConfigurableJoint];
-	private _physicslArr: any[] = ['PhysicsWorld_BaseCollider', 'PhysicsWorld_BuildingBlocks', 'PhysicsWorld_Character', 'PhysicsWorld_CollisionFiflter', 'PhysicsWorld_CompoundCollider', 'PhysicsWorld_ContinueCollisionDetection', 'PhysicsWorld_Kinematic', 'PhysicsWorld_MeshCollider', 'PhysicsWorld_RayShapeCast', 'PhysicsWorld_TriggerAndCollisionEvent', 'PhysicsWorld_ConstraintFixedJoint', 'PhysicsWorld_ConfigurableJoint'];
+	// disable 'PhysicsWorld_CompoundCollider'
+	private _physicsClsArr: any[] = [PhysicsWorld_BaseCollider, PhysicsWorld_BuildingBlocks, PhysicsWorld_Character, PhysicsWorld_CollisionFiflter, PhysicsWorld_ContinueCollisionDetection, PhysicsWorld_Kinematic, PhysicsWorld_MeshCollider, PhysicsWorld_RayShapeCast, PhysicsWorld_TriggerAndCollisionEvent, PhysicsWorld_ConstraintFixedJoint, PhysicsWorld_ConstraintSpringJoint, PhysicsWorld_ConstraintHingeJoint, PhysicsWorld_ConfigurableJoint];
+	private _physicslArr: any[] = ['PhysicsWorld_BaseCollider', 'PhysicsWorld_BuildingBlocks', 'PhysicsWorld_Character', 'PhysicsWorld_CollisionFiflter', 'PhysicsWorld_ContinueCollisionDetection', 'PhysicsWorld_Kinematic', 'PhysicsWorld_MeshCollider', 'PhysicsWorld_RayShapeCast', 'PhysicsWorld_TriggerAndCollisionEvent', 'PhysicsWorld_ConstraintFixedJoint', 'PhysicsWorld_ConstraintSpringJoint', 'PhysicsWorld_ConstraintHingeJoint', 'PhysicsWorld_ConfigurableJoint'];
 
 	//LoadResourceDemo需要换一下示例，LoadGltfResource需要谷主查一下
 
-	private _resourceClsArr: any[] = [GarbageCollection, LoadResourceDemo,LoadGltfResource];
-	private _resourceArr: any[] = ['GarbageCollection', 'LoadResourceDemo','LoadGltfResource'];
+	private _resourceClsArr: any[] = [GarbageCollection, LoadResourceDemo, LoadGltfResource];
+	private _resourceArr: any[] = ['GarbageCollection', 'LoadResourceDemo', 'LoadGltfResource'];
 
-	private _scene3DClsArr: any[] = [EnvironmentalReflection, LightmapScene, SceneLoad1, ];
+	private _scene3DClsArr: any[] = [EnvironmentalReflection, LightmapScene, SceneLoad1,];
 	private _scene3DArr: any[] = ['EnvironmentalReflection', 'LightmapScene', 'SceneLoad1'];
 
 	private _scriptClsArr: any[] = [ScriptDemo];
@@ -208,13 +211,13 @@ export class IndexView3D extends IndexViewUI {
 	private _sprite3DClsArr: any[] = [PixelLineSprite3DDemo, SkinnedMeshSprite3DDemo, Sprite3DClone, Sprite3DLoad, Sprite3DParent, TransformDemo];
 	private _sprite3DArr: any[] = ['PixelLineSprite3D', 'SkinnedMeshSprite3D', "Sprite3DClone", 'Sprite3DLoad', 'Sprite3DParent', 'Transform'];
 
-	private _textureClsArr: any[] = [TextureDemo, HalfFloatTexture,TextureGPUCompression,GPUCompression_ETC2,GPUCompression_ASTC];
-	private _textureArr: any[] = ['Texture', 'HalfFloatTexture','TextureGPUCompression','ETC2Texture','ASTCTexture'];
+	private _textureClsArr: any[] = [TextureDemo, HalfFloatTexture, TextureGPUCompression, GPUCompression_ETC2, GPUCompression_ASTC];
+	private _textureArr: any[] = ['Texture', 'HalfFloatTexture', 'TextureGPUCompression', 'ETC2Texture', 'ASTCTexture'];
 
 	private _trailClsArr: any[] = [TrailDemo, TrailRender];
 	private _trailArr: any[] = ['Trail', 'TrailRender'];
-	
-	private _webXRClsArr:any[] = [WebXRStart,WebXRControllerDemo];
+
+	private _webXRClsArr: any[] = [WebXRStart, WebXRControllerDemo];
 	private _WebXRArr: any[] = ['WebXRStart', 'WebXRControllerDemo'];
 
 
@@ -237,23 +240,20 @@ export class IndexView3D extends IndexViewUI {
 	private initEvent(): void {
 		this.bigComBox.selectHandler = new Handler(this, this.onBigComBoxSelectHandler);
 		this.smallComBox.selectHandler = new Handler(this, this.onSmallBoxSelectHandler);
-		Laya.stage.on("next",this,this.onNext);
+		Laya.stage.on("next", this, this.onNext);
 	}
 
-	onNext(data:any)
-	{
-		if(data.hasOwnProperty("bigType"))
-		{
+	onNext(data: any) {
+		if (data.hasOwnProperty("bigType")) {
 			//示例切换
 			this.a_length = data.bigType;
-			var smallType:number = data.smallType;
+			var smallType: number = data.smallType;
 			this.switchFunc(this.a_length, smallType);
-		}else
-		{
-			var isMaster:any = parseInt(Browser.getQueryString("isMaster"))||0;
-			if(isMaster)return;
+		} else {
+			var isMaster: any = parseInt(Browser.getQueryString("isMaster")) || 0;
+			if (isMaster) return;
 			//示例内单独小类型切换
-			this._oldView && this._oldView['stypeFun'+data.stype] && this._oldView['stypeFun'+data.stype](data.value);
+			this._oldView && this._oldView['stypeFun' + data.stype] && this._oldView['stypeFun' + data.stype](data.value);
 		}
 	}
 
@@ -299,27 +299,23 @@ export class IndexView3D extends IndexViewUI {
 	private i: number = 0;
 	private nextBtn(): void {
 		//_bigIndex += 1;
-		var isMaster:any = Browser.getQueryString("isMaster");
-		var i_length:number;
+		var isMaster: any = Browser.getQueryString("isMaster");
+		var i_length: number;
 		this.a_length = this._bigIndex;
-		if (this.smallComBox.selectedIndex == this.b_length)
-		{
+		if (this.smallComBox.selectedIndex == this.b_length) {
 			this.a_length += 1;
 			i_length = 0;
 		}
-		else
-		{
-			i_length = this.smallComBox.selectedIndex+1;
+		else {
+			i_length = this.smallComBox.selectedIndex + 1;
 		}
-		var bigType:number = this.a_length;
-		var smallType:number = i_length;
-		if(Main.isOpenSocket && parseInt(isMaster)==1)
-		{
+		var bigType: number = this.a_length;
+		var smallType: number = i_length;
+		if (Main.isOpenSocket && parseInt(isMaster) == 1) {
 			//主控制推送
-			Client.instance.send({type:"next",bigType:bigType,smallType:smallType,isMaster:isMaster});
-		}else
-		{
-			
+			Client.instance.send({ type: "next", bigType: bigType, smallType: smallType, isMaster: isMaster });
+		} else {
+
 			this.switchFunc(this.a_length, i_length);
 		}
 
@@ -331,9 +327,8 @@ export class IndexView3D extends IndexViewUI {
 		if (this.btnOn && this.m_length != 0) {
 			return;
 		}
-		var isMaster:any = parseInt(Browser.getQueryString("isMaster"))||0;
-		if(Main.isOpenSocket && !this.btnOn && isMaster)
-		{
+		var isMaster: any = parseInt(Browser.getQueryString("isMaster")) || 0;
+		if (Main.isOpenSocket && !this.btnOn && isMaster) {
 			this.onDirectSwitch();
 		}
 		this.m_length += 1;
@@ -349,7 +344,7 @@ export class IndexView3D extends IndexViewUI {
 		}
 		else {
 
-			var _comboxBigArr2: any[] = ['Resource', 'Scene3D', 'Camera', 'Lighting', 'Sprite3D', 'Mesh', 'Material', 'Texture', 'Animation3D', 'Physics3D', 'MouseLnteraction', 'Sky', 'Script', 'Particle3D', 'Trail', 'Shader', 'Advance', 'Demo','PostProcess','WebXR'];
+			var _comboxBigArr2: any[] = ['Resource', 'Scene3D', 'Camera', 'Lighting', 'Sprite3D', 'Mesh', 'Material', 'Texture', 'Animation3D', 'Physics3D', 'MouseLnteraction', 'Sky', 'Script', 'Particle3D', 'Trail', 'Shader', 'Advance', 'Demo', 'PostProcess', 'WebXR'];
 			switch (this._bigIndex) {
 				case 0:
 					this._oldView = new this._resourceClsArr[index];
@@ -425,14 +420,14 @@ export class IndexView3D extends IndexViewUI {
 					break;
 				case 18:
 					this._oldView = new this._postProcessClsArr[index];
-					this.b_length = this._postProcessClsArr.length-1;
+					this.b_length = this._postProcessClsArr.length - 1;
 					break;
 				case 19:
 					this._oldView = new this._webXRClsArr[index];
-					this.b_length = this._webXRClsArr.length-1;
+					this.b_length = this._webXRClsArr.length - 1;
 					break;
 				// case 20:
-					
+
 				// this._oldView = new this._performanceClsArr[index];
 				// this.b_length = this._performanceClsArr.length - 1;
 				// break;
@@ -471,20 +466,19 @@ export class IndexView3D extends IndexViewUI {
 	 * @param smallListIndex 
 	 * @param isAutoSwitch 是否自动切换
 	 */
-	switchFunc(bigListIndex: number, smallListIndex: number,isAutoSwitch:boolean = true): void {
+	switchFunc(bigListIndex: number, smallListIndex: number, isAutoSwitch: boolean = true): void {
 		this.btnOn = true;
 		this.m_length = 0;
 		this.bigComBox.selectedIndex = bigListIndex;
-		this.onBigComBoxSelectHandler(bigListIndex, smallListIndex,isAutoSwitch);
+		this.onBigComBoxSelectHandler(bigListIndex, smallListIndex, isAutoSwitch);
 		this.btnOn = false;
 	}
 
 
-	private onBigComBoxSelectHandler(index: number, smallIndex: number = 0,isAutoSwitch:boolean = false): void {
-		if(this._bigIndex!=index){
-			var isMaster:any = parseInt(Browser.getQueryString("isMaster"))||0;
-			if(Main.isOpenSocket && !isAutoSwitch && isMaster)
-			{
+	private onBigComBoxSelectHandler(index: number, smallIndex: number = 0, isAutoSwitch: boolean = false): void {
+		if (this._bigIndex != index) {
+			var isMaster: any = parseInt(Browser.getQueryString("isMaster")) || 0;
+			if (Main.isOpenSocket && !isAutoSwitch && isMaster) {
 				this.onDirectSwitch();
 				return;
 			}
@@ -562,14 +556,13 @@ export class IndexView3D extends IndexViewUI {
 		this.smallComBox.selectedIndex = smallIndex;
 	}
 
-	onDirectSwitch()
-	{
-		var smallType:number = this.smallComBox.selectedIndex;
-		var bigType:number = this.bigComBox.selectedIndex;
-		if(this._bigIndex != this.bigComBox.selectedIndex)
+	onDirectSwitch() {
+		var smallType: number = this.smallComBox.selectedIndex;
+		var bigType: number = this.bigComBox.selectedIndex;
+		if (this._bigIndex != this.bigComBox.selectedIndex)
 			smallType = 0;
 		//主控制推送
-		Client.instance.send({type:"next",bigType:bigType,smallType:smallType});
+		Client.instance.send({ type: "next", bigType: bigType, smallType: smallType });
 	}
 }
 

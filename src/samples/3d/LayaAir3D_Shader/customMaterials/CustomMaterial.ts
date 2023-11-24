@@ -1,4 +1,4 @@
-import { Material, MaterialRenderMode } from "laya/d3/core/material/Material";
+import { Material, MaterialRenderMode } from "laya/resource/Material";
 
 /**
  * ...
