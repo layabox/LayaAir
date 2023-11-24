@@ -3,7 +3,7 @@ import { TrailRenderer } from "./TrailRenderer";
 import { FloatKeyframe } from "../FloatKeyframe"
 import { Gradient } from "../Gradient"
 import { RenderableSprite3D } from "../RenderableSprite3D"
-import { Material } from "../material/Material"
+import { Material } from "../../../resource/Material";
 import { Node } from "../../../display/Node"
 import { Loader } from "../../../net/Loader"
 import { Sprite3D } from "../Sprite3D";
@@ -16,7 +16,7 @@ export class TrailSprite3D extends RenderableSprite3D {
 	/**
 	 * @internal
 	 */
-	static __init__(): void {}
+	static __init__(): void { }
 
 	/** @internal */
 	private _geometryFilter: TrailFilter;

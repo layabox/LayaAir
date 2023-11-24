@@ -1,5 +1,5 @@
 import { Mesh } from "../../../resource/models/Mesh";
-import { Material } from "../../material/Material";
+import { Material } from "../../../../resource/Material";
 import { Command } from "./Command";
 import { CommandBuffer } from "./CommandBuffer";
 import { MeshRenderer } from "../../../core/MeshRenderer";

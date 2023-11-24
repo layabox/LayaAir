@@ -1,26 +1,27 @@
-import { Loader } from "../../../net/Loader";
-import { BaseTexture } from "../../../resource/BaseTexture";
-import { Resource } from "../../../resource/Resource";
-import { Handler } from "../../../utils/Handler";
-import { DefineDatas } from "../../../RenderEngine/RenderShader/DefineDatas";
-import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
-import { ShaderData, ShaderDataDefaultValue, ShaderDataItem, ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData";
-import { ShaderDefine } from "../../../RenderEngine/RenderShader/ShaderDefine";
-import { UniformBufferObject } from "../../../RenderEngine/UniformBufferObject";
-import { IClone } from "../../../utils/IClone";
-import { Config3D } from "../../../../Config3D";
-import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
-import { ILaya } from "../../../../ILaya";
-import { Color } from "../../../maths/Color";
-import { Matrix4x4 } from "../../../maths/Matrix4x4";
-import { Vector2 } from "../../../maths/Vector2";
-import { Vector3 } from "../../../maths/Vector3";
-import { Vector4 } from "../../../maths/Vector4";
-import { RenderState } from "../../../RenderEngine/RenderShader/RenderState";
-import { Event } from "../../../events/Event";
-import { Config } from "../../../../Config";
-import { Matrix3x3 } from "../../../maths/Matrix3x3";
-import { LayaGL } from "../../../layagl/LayaGL";
+import { Config } from "../../Config";
+import { Config3D } from "../../Config3D";
+import { ILaya } from "../../ILaya";
+import { BufferUsage } from "../RenderEngine/RenderEnum/BufferTargetType";
+import { DefineDatas } from "../RenderEngine/RenderShader/DefineDatas";
+import { RenderState } from "../RenderEngine/RenderShader/RenderState";
+import { Shader3D } from "../RenderEngine/RenderShader/Shader3D";
+import { ShaderData, ShaderDataType, ShaderDataItem, ShaderDataDefaultValue } from "../RenderEngine/RenderShader/ShaderData";
+import { ShaderDefine } from "../RenderEngine/RenderShader/ShaderDefine";
+import { UniformBufferObject } from "../RenderEngine/UniformBufferObject";
+import { LayaGL } from "../layagl/LayaGL";
+import { Color } from "../maths/Color";
+import { Matrix3x3 } from "../maths/Matrix3x3";
+import { Matrix4x4 } from "../maths/Matrix4x4";
+import { Vector2 } from "../maths/Vector2";
+import { Vector3 } from "../maths/Vector3";
+import { Vector4 } from "../maths/Vector4";
+import { Loader } from "../net/Loader";
+import { Handler } from "../utils/Handler";
+import { IClone } from "../utils/IClone";
+import { BaseTexture } from "./BaseTexture";
+import { Resource } from "./Resource";
+import { Event } from "../events/Event";
+
 
 export enum MaterialRenderMode {
     /**渲染状态_不透明。*/

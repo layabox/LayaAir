@@ -20,7 +20,7 @@ import { Color } from "laya/maths/Color";
 import { Matrix4x4 } from "laya/maths/Matrix4x4";
 import { Vector3 } from "laya/maths/Vector3";
 import { Vector4 } from "laya/maths/Vector4";
-
+import { D6Axis } from "laya/Physics3D/interface/Joint/ID6Joint";
 
 
 export class PhysicsWorld_ConfigurableJoint {
@@ -80,20 +80,24 @@ export class PhysicsWorld_ConfigurableJoint {
 		(<BlinnPhongMaterial>boxB.meshRenderer.material).albedoColor = new Color(1, 0, 0, 1);
 		var boxBRigid: Rigidbody3D = boxB.getComponent(Rigidbody3D);
 		var configurableJoint: ConfigurableConstraint = boxA.addComponent(ConfigurableConstraint);
-		// configurableJoint.setConnectRigidBody(boxARigid, boxBRigid);
+		configurableJoint.ownBody = boxARigid;
+		configurableJoint.connectedBody = boxBRigid;
 		configurableJoint.anchor = new Vector3(0, -3, 0);
 		configurableJoint.connectAnchor = new Vector3(0, 0, 0);
 
-		// configurableJoint.minLinearLimit = new Vector3(-3, 0, 0);
-		// configurableJoint.maxLinearLimit = new Vector3(3, 0, 0);
-		// configurableJoint.XMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LIMITED;
-		// configurableJoint.YMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
-		// configurableJoint.ZMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
-		// configurableJoint.angularXMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
-		// configurableJoint.angularYMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
-		// configurableJoint.angularZMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
-		// configurableJoint.linearLimitSpring = new Vector3(100, 0, 0);
-		// configurableJoint.linearDamp = new Vector3(0, 0, 0);
+		configurableJoint.distanceLimit = 3;
+
+		configurableJoint.XMotion = D6Axis.eLIMITED;
+		configurableJoint.YMotion = D6Axis.eLOCKED;
+		configurableJoint.ZMotion = D6Axis.eLOCKED;
+
+		configurableJoint.angularXMotion = D6Axis.eLOCKED;
+		configurableJoint.angularYMotion = D6Axis.eLOCKED;
+		configurableJoint.angularZMotion = D6Axis.eLOCKED;
+
+		configurableJoint.distanceSpring = 100;
+
+		boxBRigid.applyImpulse(new Vector3(100, 0, 0));
 	}
 
 
@@ -107,20 +111,22 @@ export class PhysicsWorld_ConfigurableJoint {
 		var boxBRigid: Rigidbody3D = boxB.getComponent(Rigidbody3D);
 
 		var configurableJoint: ConfigurableConstraint = boxA.addComponent(ConfigurableConstraint);
-		// configurableJoint.setConnectRigidBody(boxARigid, boxBRigid);
+		configurableJoint.ownBody = boxARigid;
+		configurableJoint.connectedBody = boxBRigid;
 		configurableJoint.anchor = new Vector3(0, -3, 0);
 		configurableJoint.connectAnchor = new Vector3(0, 0, 0);
 
-		// configurableJoint.minLinearLimit = new Vector3(-2, 0, 0);
-		// configurableJoint.maxLinearLimit = new Vector3(2, 0, 0);
-		// configurableJoint.XMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LIMITED;
-		// configurableJoint.YMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
-		// configurableJoint.ZMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
-		// configurableJoint.angularXMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
-		// configurableJoint.angularYMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
-		// configurableJoint.angularZMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
+		configurableJoint.distanceLimit = 2;
+		configurableJoint.XMotion = D6Axis.eLIMITED;
+		configurableJoint.YMotion = D6Axis.eLOCKED;
+		configurableJoint.ZMotion = D6Axis.eLOCKED;
 
-		// configurableJoint.linearBounce = new Vector3(0.5, 0, 0);
+		configurableJoint.angularXMotion = D6Axis.eLOCKED;
+		configurableJoint.angularYMotion = D6Axis.eLOCKED;
+		configurableJoint.angularZMotion = D6Axis.eLOCKED;
+
+		configurableJoint.distanceBounciness = 0.5;
+
 		boxBRigid.applyImpulse(new Vector3(100, 0, 0));
 
 	}
@@ -157,18 +163,21 @@ export class PhysicsWorld_ConfigurableJoint {
 		var boxBRigid: Rigidbody3D = boxB.getComponent(Rigidbody3D);
 
 		var configurableJoint: ConfigurableConstraint = boxA.addComponent(ConfigurableConstraint);
-		// configurableJoint.setConnectRigidBody(boxARigid, boxBRigid);
-		configurableJoint.anchor = new Vector3(0, -2, 0);
+		configurableJoint.ownBody = boxARigid;
+		configurableJoint.connectedBody = boxBRigid;
+		configurableJoint.anchor = new Vector3(0, -3, 0);
 		configurableJoint.connectAnchor = new Vector3(0, 0, 0);
 
-		// configurableJoint.minAngularLimit = new Vector3(-2, 0, 0);
-		// configurableJoint.maxAngularLimit = new Vector3(2, 0, 0);
-		// configurableJoint.XMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
-		// configurableJoint.YMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
-		// configurableJoint.ZMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
-		// configurableJoint.angularXMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_FREE;
-		// configurableJoint.angularYMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
-		// configurableJoint.angularZMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
+		configurableJoint.angularXMinLimit = -180;
+		configurableJoint.angularXMaxLimit = 180;
+		configurableJoint.XMotion = D6Axis.eLOCKED;
+		configurableJoint.YMotion = D6Axis.eLOCKED;
+		configurableJoint.ZMotion = D6Axis.eLOCKED;
+
+		configurableJoint.angularXMotion = D6Axis.eFREE;
+		configurableJoint.angularYMotion = D6Axis.eLOCKED;
+		configurableJoint.angularZMotion = D6Axis.eLOCKED;
+
 		boxBRigid.angularVelocity = new Vector3(5, 0, 0);
 
 	}
@@ -232,38 +241,45 @@ export class PhysicsWorld_ConfigurableJoint {
 		var boxBRigid: Rigidbody3D = boxB.getComponent(Rigidbody3D);
 
 		var configurableJoint: ConfigurableConstraint = boxA.addComponent(ConfigurableConstraint);
-		// configurableJoint.setConnectRigidBody(boxARigid, boxBRigid);
+		configurableJoint.ownBody = boxARigid;
+		configurableJoint.connectedBody = boxBRigid;
 		configurableJoint.anchor = new Vector3(0, -1, 0);
 		configurableJoint.connectAnchor = new Vector3(0, 1, 0);
 
-		// configurableJoint.XMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
-		// configurableJoint.YMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
-		// configurableJoint.ZMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
-		// configurableJoint.angularXMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_FREE;
-		// configurableJoint.angularYMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_FREE;
-		// configurableJoint.angularZMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_FREE;
+		configurableJoint.XMotion = D6Axis.eLOCKED;
+		configurableJoint.YMotion = D6Axis.eLOCKED;
+		configurableJoint.ZMotion = D6Axis.eLOCKED;
+
+		configurableJoint.angularXMotion = D6Axis.eFREE;
+		configurableJoint.angularYMotion = D6Axis.eFREE;
+		configurableJoint.angularZMotion = D6Axis.eFREE;
+
+		boxBRigid.angularVelocity = new Vector3(2, 2, 2);
 		boxBRigid.angularVelocity = new Vector3(20, 2, 10);
 	}
 
 	rotateAngularPoint(): void {
-		var boxA: MeshSprite3D = this.addRigidBodySphere(new Vector3(0, 15, 0), 1);
+		var boxA: MeshSprite3D = this.addRigidBodySphere(new Vector3(0, 10, 0), 1);
 		var boxARigid: Rigidbody3D = boxA.getComponent(Rigidbody3D);
 
-		var boxB: MeshSprite3D = this.addRigidBodyBox(new Vector3(6, 15, 0), 1);
+		var boxB: MeshSprite3D = this.addRigidBodyBox(new Vector3(6, 10, 0), 1);
 		(<BlinnPhongMaterial>boxB.meshRenderer.material).albedoColor = new Color(1, 0, 0, 1);
 		var boxBRigid: Rigidbody3D = boxB.getComponent(Rigidbody3D);
 
 		var configurableJoint: ConfigurableConstraint = boxA.addComponent(ConfigurableConstraint);
-		// configurableJoint.setConnectRigidBody(boxARigid, boxBRigid);
+		configurableJoint.ownBody = boxARigid;
+		configurableJoint.connectedBody = boxBRigid;
 		configurableJoint.anchor = new Vector3(0, 0, 0);
 		configurableJoint.connectAnchor = new Vector3(-6, 0, 0);
 
-		// configurableJoint.XMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
-		// configurableJoint.YMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
-		// configurableJoint.ZMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
-		// configurableJoint.angularXMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
-		// configurableJoint.angularYMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
-		// configurableJoint.angularZMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_FREE;
+		configurableJoint.AngleZLimit = 180;
+
+		configurableJoint.XMotion = D6Axis.eLOCKED;
+		configurableJoint.YMotion = D6Axis.eLOCKED;
+		configurableJoint.ZMotion = D6Axis.eLOCKED;
+		configurableJoint.angularXMotion = D6Axis.eLOCKED;
+		configurableJoint.angularYMotion = D6Axis.eLOCKED;
+		configurableJoint.angularZMotion = D6Axis.eLIMITED;
 
 	}
 
@@ -327,18 +343,20 @@ export class PhysicsWorld_ConfigurableJoint {
 		var boxBRigid: Rigidbody3D = boxB.getComponent(Rigidbody3D);
 
 		var configurableJoint: ConfigurableConstraint = boxA.addComponent(ConfigurableConstraint);
-		// //configurableJoint.setConnectRigidBody(boxARigid, boxBRigid);
+		configurableJoint.ownBody = boxARigid;
+		configurableJoint.connectedBody = boxBRigid;
 		configurableJoint.anchor = new Vector3(0, 0, 0);
 		configurableJoint.connectAnchor = new Vector3(0, 3, 0);
 
-		// configurableJoint.minLinearLimit = new Vector3(0, 0, -4);
-		// configurableJoint.maxLinearLimit = new Vector3(0, 0, 4);
-		// configurableJoint.XMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
-		// configurableJoint.YMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
-		// configurableJoint.ZMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LIMITED;
-		// configurableJoint.angularXMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
-		// configurableJoint.angularYMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
-		// configurableJoint.angularZMotion = ConfigurableConstraint.CONFIG_MOTION_TYPE_LOCKED;
+		configurableJoint.distanceLimit = 4;
+
+		configurableJoint.XMotion = D6Axis.eLOCKED;
+		configurableJoint.YMotion = D6Axis.eLOCKED;
+		configurableJoint.ZMotion = D6Axis.eLIMITED;
+
+		configurableJoint.angularXMotion = D6Axis.eLOCKED;
+		configurableJoint.angularYMotion = D6Axis.eLOCKED;
+		configurableJoint.angularZMotion = D6Axis.eLOCKED;
 
 		boxBRigid.linearVelocity = new Vector3(0.0, 0.0, 4);
 	}

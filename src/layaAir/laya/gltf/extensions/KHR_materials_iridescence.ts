@@ -4,7 +4,7 @@ import { IBatchProgress } from "../../net/BatchProgress";
 import { Texture2D } from "../../resource/Texture2D";
 import { glTFResource } from "../glTFResource";
 import { glTFExtension } from "./glTFExtension";
-import { Material } from "../../d3/core/material/Material";
+import { Material } from "../../resource/Material";
 import { PBRShaderLib } from "../../d3/shader/pbr/PBRShaderLib";
 import { glTFShader } from "../shader/glTFShader";
 

@@ -34,7 +34,7 @@ import { VectorGraphManager } from "../utils/VectorGraphManager"
 import { ILaya } from "../../ILaya";
 import { WordText } from "../utils/WordText";
 import { ColorUtils } from "../utils/ColorUtils";
-import type { Material } from "../d3/core/material/Material";
+import type { Material } from "../resource/Material";
 import { CommandUniformMap } from "../RenderEngine/CommandUniformMap";
 import { ShaderDataType } from "../RenderEngine/RenderShader/ShaderData";
 import { Value2D } from "../webgl/shader/d2/value/Value2D";

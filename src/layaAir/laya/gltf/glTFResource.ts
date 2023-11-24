@@ -1,7 +1,7 @@
 import { AnimationClip } from "../d3/animation/AnimationClip";
 import { KeyframeNode } from "../d3/animation/KeyframeNode";
 import { KeyframeNodeList } from "../d3/animation/KeyframeNodeList";
-import { Material, MaterialRenderMode } from "../d3/core/material/Material";
+import { Material, MaterialRenderMode } from "../resource/Material";
 import { PBRStandardMaterial } from "../d3/core/material/PBRStandardMaterial";
 import { Mesh, skinnedMatrixCache } from "../d3/resource/models/Mesh";
 import { URL } from "../net/URL";

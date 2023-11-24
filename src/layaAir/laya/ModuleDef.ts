@@ -48,6 +48,8 @@ import "./loaders/AnimationController2DLoader";
 import "./loaders/NullLoader";
 import "./loaders/BitmapFontLoader";
 import "./loaders/TTFFontLoader";
+import "./loaders/MaterialLoader";
+import "./loaders/ShaderLoader";
 import "./media/webaudio/WebAudioLoader";
 
 let c = ClassUtils.regClass;

@@ -1,8 +1,8 @@
-import { IResourceLoader, ILoadTask, Loader, ILoadURL } from "../../net/Loader";
-import { URL } from "../../net/URL";
-import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
-import { AssetDb } from "../../resource/AssetDb";
-import { Material } from "../core/material/Material";
+import { IResourceLoader, ILoadTask, ILoadURL, Loader } from "../net/Loader";
+import { URL } from "../net/URL";
+import { Shader3D } from "../RenderEngine/RenderShader/Shader3D";
+import { AssetDb } from "../resource/AssetDb";
+import { Material } from "../resource/Material";
 import { MaterialParser } from "./MaterialParser";
 
 class MaterialLoader implements IResourceLoader {

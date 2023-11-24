@@ -1,4 +1,4 @@
-import { Material } from "../material/Material"
+import { Material } from "../../../resource/Material";
 import { BaseTexture } from "../../../resource/BaseTexture"
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { ShaderDefine } from "../../../RenderEngine/RenderShader/ShaderDefine";

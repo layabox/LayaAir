@@ -18,7 +18,6 @@ export class CustomPostProcess_VolumeticLIghtScattering {
     constructor() {
         //初始化引擎
         Laya.init(0, 0).then(() => {
-            URL.basePath += "sample-resource/";
             Stat.show();
             Laya.stage.scaleMode = Stage.SCALE_FULL;
             Laya.stage.screenMode = Stage.SCREEN_NONE;

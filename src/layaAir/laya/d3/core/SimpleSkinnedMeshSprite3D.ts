@@ -4,7 +4,7 @@ import { Mesh } from "../resource/models/Mesh";
 import { MeshFilter } from "./MeshFilter";
 import { RenderableSprite3D } from "./RenderableSprite3D";
 import { Sprite3D } from "./Sprite3D";
-import { Material } from "./material/Material";
+import { Material } from "../../resource/Material";
 import { SimpleSkinnedMeshRenderer } from "./SimpleSkinnedMeshRenderer";
 import { Texture2D } from "../../resource/Texture2D";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
@@ -39,9 +39,9 @@ export class SimpleSkinnedMeshSprite3D extends RenderableSprite3D {
         SimpleSkinnedMeshSprite3D.SIMPLE_SIMPLEANIMATORTEXTURESIZE = Shader3D.propertyNameToID("u_SimpleAnimatorTextureSize");
 
         const commandUniform = LayaGL.renderOBJCreate.createGlobalUniformMap("SimpleSkinnedMesh");
-        commandUniform.addShaderUniform(SimpleSkinnedMeshSprite3D.SIMPLE_SIMPLEANIMATORTEXTURE, "u_SimpleAnimatorTexture",ShaderDataType.Texture2D);
-        commandUniform.addShaderUniform(SimpleSkinnedMeshSprite3D.SIMPLE_SIMPLEANIMATORPARAMS, "u_SimpleAnimatorParams",ShaderDataType.Vector4);
-        commandUniform.addShaderUniform(SimpleSkinnedMeshSprite3D.SIMPLE_SIMPLEANIMATORTEXTURESIZE, "u_SimpleAnimatorTextureSize",ShaderDataType.Float);
+        commandUniform.addShaderUniform(SimpleSkinnedMeshSprite3D.SIMPLE_SIMPLEANIMATORTEXTURE, "u_SimpleAnimatorTexture", ShaderDataType.Texture2D);
+        commandUniform.addShaderUniform(SimpleSkinnedMeshSprite3D.SIMPLE_SIMPLEANIMATORPARAMS, "u_SimpleAnimatorParams", ShaderDataType.Vector4);
+        commandUniform.addShaderUniform(SimpleSkinnedMeshSprite3D.SIMPLE_SIMPLEANIMATORTEXTURESIZE, "u_SimpleAnimatorTextureSize", ShaderDataType.Float);
     }
 
     /** @internal */

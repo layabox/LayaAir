@@ -1,6 +1,5 @@
-import { ILaya3D } from "../../../../../ILaya3D";
 import { Camera } from "../../Camera";
-import { Material } from "../../material/Material";
+import { Material } from "../../../../resource/Material";
 import { BaseRender } from "../BaseRender";
 import { RenderContext3D } from "../RenderContext3D";
 import { RenderElement } from "../RenderElement";

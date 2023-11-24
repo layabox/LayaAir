@@ -1,6 +1,6 @@
 import { Vector4 } from "../../../maths/Vector4";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
-import { Material } from "../material/Material";
+import { Material } from "../../../resource/Material";
 
 /**
  * <code>PixelLineMaterial</code> 类用于实现像素线材质。

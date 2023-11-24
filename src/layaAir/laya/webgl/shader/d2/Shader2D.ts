@@ -15,7 +15,7 @@ import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { ShaderCompile } from "../../utils/ShaderCompile";
 import { ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData";
 import { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
-import { Material } from "../../../d3/core/material/Material";
+import { Material } from "../../../resource/Material";
 
 export class Shader2D {
     /**@internal */

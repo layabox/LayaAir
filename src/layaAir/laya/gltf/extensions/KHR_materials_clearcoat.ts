@@ -1,4 +1,4 @@
-import { Material } from "../../d3/core/material/Material";
+import { Material } from "../../resource/Material";
 import { PBRMaterial } from "../../d3/core/material/PBRMaterial";
 import { PBRShaderLib } from "../../d3/shader/pbr/PBRShaderLib";
 import { IBatchProgress } from "../../net/BatchProgress";

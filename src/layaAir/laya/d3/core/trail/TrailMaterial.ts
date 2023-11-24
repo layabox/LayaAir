@@ -3,7 +3,7 @@ import { Vector4 } from "../../../maths/Vector4";
 import { RenderState } from "../../../RenderEngine/RenderShader/RenderState";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { BaseTexture } from "../../../resource/BaseTexture";
-import { Material, MaterialRenderMode } from "../material/Material";
+import { Material, MaterialRenderMode } from "../../../resource/Material";
 
 /**
  * <code>TrailMaterial</code> 类用于实现拖尾材质。
