@@ -105,6 +105,7 @@ export class Physics_Strandbeests {
         let wheelCollider: CircleCollider = wheel.addComponent(CircleCollider);
         wheelCollider.density = 1;
         wheelCollider.radius = 16 * this.scale;
+        wheelCollider.x = wheelCollider.y = -wheelCollider.radius;
 
 
 
