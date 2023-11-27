@@ -6,39 +6,40 @@ export class BlendMode {
     static activeBlendFunction: Function = null;
     /** @internal 这个不直接暴露给开发者*/
     static NAMES = [
-        "normal", 
-        "add", 
-        "multiply", 
-        "screen", 
-        "overlay", 
-        "light", 
-        "mask", 
+        "normal",
+        "add",
+        "multiply",
+        "screen",
+        "overlay",
+        "light",
+        "mask",
         "destination-out",
         "add_old"];
 
     /** @internal */
-    static TOINT:{[key:string]:number} = { 
-        "normal": 0, 
-        "add": 1, 
-        "multiply": 2, 
-        "screen": 3, 
-        "overlay": 4, 
-        "light": 5, 
-        "mask": 6, 
-        "destination-out": 7, 
+    static TOINT: { [key: string]: number } = {
+        "normal": 0,
+        "add": 1,
+        "multiply": 2,
+        "screen": 3,
+        "overlay": 4,
+        "light": 5,
+        "mask": 6,
+        "destination-out": 7,
         "lighter": 1,
         "lighter_old": 8,
-        "add_old":8};
+        "add_old": 8
+    };
 
-    static      NORMAL = "normal";					//0
-    static        MASK = "mask";					//6
-    static     LIGHTER = "lighter";					//1  
+    static NORMAL = "normal";					//0
+    static MASK = "mask";					//6
+    static LIGHTER = "lighter";					//1  
 
     static fns: any[];
     static targetFns: any[];
     /**@internal */
     static _init_(): void {
-        BlendMode.fns =       [
+        BlendMode.fns = [
             BlendMode.BlendNormal,      //0
             BlendMode.BlendAdd,         //1
             BlendMode.BlendMultiply,    //2
@@ -47,7 +48,8 @@ export class BlendMode {
             BlendMode.BlendLight,       //5
             BlendMode.BlendMask,        //6
             BlendMode.BlendDestinationOut,   //7
-            BlendMode.BlendAddOld         //8
+            BlendMode.BlendAddOld,         //8
+            BlendMode.BlendSourceAlpha,            //9
         ];
 
         BlendMode.targetFns = [
@@ -59,14 +61,15 @@ export class BlendMode {
             BlendMode.BlendLightTarget,     //5
             BlendMode.BlendMask,            //6
             BlendMode.BlendDestinationOut,  //7
-            BlendMode.BlendAddTargetOld     //8
+            BlendMode.BlendAddTargetOld,    //8
+            BlendMode.BlendSourceAlpha             //9
         ];
     }
 
     static BlendNormal(): void {
         //为了避免黑边，和canvas作为贴图的黑边
         RenderStateContext.setBlendFunc(BlendFactor.One, BlendFactor.OneMinusSourceAlpha);
-        
+
     }
 
     /**@internal 这个add感觉不合理，所以改成old了 */
@@ -91,7 +94,7 @@ export class BlendMode {
     }
 
     static BlendLight(): void {
-        RenderStateContext.setBlendFunc(BlendFactor.One,BlendFactor.One);
+        RenderStateContext.setBlendFunc(BlendFactor.One, BlendFactor.One);
     }
 
     static BlendNormalTarget(): void {
@@ -128,6 +131,9 @@ export class BlendMode {
 
     static BlendDestinationOut(): void {
         RenderStateContext.setBlendFunc(BlendFactor.Zero, BlendFactor.Zero);
+    }
+    static BlendSourceAlpha(): void {
+        RenderStateContext.setBlendFunc(BlendFactor.SourceAlpha, BlendFactor.OneMinusSourceAlpha);
     }
 }
 

@@ -2,7 +2,6 @@ import { Node } from "../../display/Node";
 import { Handler } from "../../utils/Handler";
 import { Transform3D } from "./Transform3D";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
-import { LayaGL } from "../../layagl/LayaGL";
 import { Stat } from "../../utils/Stat";
 import { Prefab } from "../../resource/HierarchyResource";
 import { ILaya } from "../../../ILaya";
@@ -14,6 +13,8 @@ import { Quaternion } from "../../maths/Quaternion";
 import { Vector3 } from "../../maths/Vector3";
 import { Scene3D } from "./scene/Scene3D";
 import { ShaderDataType } from "../../RenderEngine/RenderShader/ShaderData";
+import { LayaGL } from "../../layagl/LayaGL";
+import { Laya3DRender } from "../RenderObjs/Laya3DRender";
 
 /**
  * @internal
@@ -151,7 +152,7 @@ export class Sprite3D extends Node {
         super();
         this._id = ++Sprite3D._uniqueIDCounter;
         this._is3D = true;
-        this._transform = LayaGL.renderOBJCreate.createTransform(this);
+        this._transform = Laya3DRender.renderOBJCreate.createTransform(this);
         this._isStatic = isStatic ? StaticFlag.StaticBatch : StaticFlag.Normal;
         this.layer = 0;
         this.name = name ? name : "New Sprite3D";

@@ -17,6 +17,7 @@ import { HDRTextureInfo } from "../../HDRTextureInfo";
 import { KTXTextureInfo } from "../../KTXTextureInfo";
 
 export class GLTextureContext extends GLObject implements ITextureContext {
+
     protected _sRGB: any;
     protected _oesTextureHalfFloat: any;
     protected _compressdTextureS3tc_srgb: any;
@@ -25,9 +26,10 @@ export class GLTextureContext extends GLObject implements ITextureContext {
     protected _compressedTextureETC: any;
     protected _compressedTextureASTC: any;
     protected _webgl_depth_texture: any;
-
+    needBitmap: boolean;
     constructor(engine: WebGLEngine) {
         super(engine);
+        this.needBitmap = false;
         this._sRGB = this._engine._supportCapatable.getExtension(WebGLExtension.EXT_sRGB)
         this._oesTextureHalfFloat = this._engine._supportCapatable.getExtension(WebGLExtension.OES_texture_half_float)
         this._compressdTextureS3tc_srgb = this._engine._supportCapatable.getExtension(WebGLExtension.WEBGL_compressed_texture_s3tc_srgb)

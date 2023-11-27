@@ -5,12 +5,11 @@ import { Point } from "../maths/Point"
 import { Rectangle } from "../maths/Rectangle"
 import { RenderSprite } from "../renders/RenderSprite"
 import { BlendMode } from "../webgl/canvas/BlendMode"
-import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D"
-import { Value2D } from "../webgl/shader/d2/value/Value2D"
+import { RenderSpriteData, Value2D } from "../webgl/shader/d2/value/Value2D"
 import { ColorFilter } from "./ColorFilter";
 import { BlurFilter } from "./BlurFilter";
-import { LayaGL } from "../layagl/LayaGL";
 import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
+import { LayaGL } from "../layagl/LayaGL";
 
 /**
  * <code>Filter</code> 是滤镜基类。
@@ -33,7 +32,7 @@ export class NativeFilter implements IFilter {
     /**@private 滤镜类型。*/
     get type(): number { return -1 }
 
-    static _filter = function (this:RenderSprite,sprite: Sprite, context: any, x: number, y: number): void {
+    static _filter = function (this: RenderSprite, sprite: Sprite, context: any, x: number, y: number): void {
         var webglctx: any = context;
         var next: any = ((<RenderSprite>this))._next;
         if (next) {
@@ -47,7 +46,7 @@ export class NativeFilter implements IFilter {
                 return;
             }
             //思路：依次遍历滤镜，每次滤镜都画到out的RenderTarget上，然后把out画取src的RenderTarget做原图，去叠加新的滤镜
-            var svCP: Value2D = Value2D.create(ShaderDefines2D.TEXTURE2D, 0);	//拷贝用shaderValue
+            var svCP: Value2D = Value2D.create(RenderSpriteData.Texture2D);	//拷贝用shaderValue
             var b: Rectangle;
 
             var p: Point = Point.TEMP;
@@ -126,7 +125,7 @@ export class NativeFilter implements IFilter {
                             break;
                         case NativeFilter.COLOR:
                             webglctx.setColorFilter((<ColorFilter>fil));
-                            webglctx.drawTarget(source, 0, 0, b.width, b.height, Matrix.EMPTY.identity(), Value2D.create(ShaderDefines2D.TEXTURE2D, 0));
+                            webglctx.drawTarget(source, 0, 0, b.width, b.height, Matrix.EMPTY.identity(), Value2D.create(RenderSpriteData.Texture2D));
                             webglctx.setColorFilter(null);
                             break;
                     }

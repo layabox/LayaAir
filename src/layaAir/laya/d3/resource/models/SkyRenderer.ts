@@ -1,14 +1,11 @@
-import { ILaya3D } from "../../../../ILaya3D";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { Matrix4x4 } from "../../../maths/Matrix4x4";
 import { Vector3 } from "../../../maths/Vector3";
-import { CompareFunction } from "../../../RenderEngine/RenderEnum/CompareFunction";
-import { CullMode } from "../../../RenderEngine/RenderEnum/CullMode";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData";
 import { Camera } from "../../core/Camera";
 import { GeometryElement } from "../../core/GeometryElement";
-import { Material } from "../../core/material/Material";
+import { Material } from "../../../resource/Material";
 import { BaseRender } from "../../core/render/BaseRender";
 import { RenderContext3D } from "../../core/render/RenderContext3D";
 import { RenderElement } from "../../core/render/RenderElement";
@@ -155,7 +152,7 @@ export class SkyRenderer {
                 projectionMatrix.elements[14] = -0;//znear无穷小
 
             } else {
-                
+
                 var halfWidth: number = 0.2;
                 var halfHeight: number = halfWidth;
                 Matrix4x4.createOrthoOffCenter(-halfWidth, halfWidth, -halfHeight, halfHeight, camera.nearPlane, camera.farPlane, projectionMatrix);

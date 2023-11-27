@@ -1,4 +1,3 @@
-import { LayaGL } from "../../../layagl/LayaGL"
 import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType"
 import { DrawType } from "../../../RenderEngine/RenderEnum/DrawType"
 import { MeshTopology } from "../../../RenderEngine/RenderEnum/RenderPologyMode"
@@ -6,6 +5,7 @@ import { VertexDeclaration } from "../../../RenderEngine/VertexDeclaration"
 import { VertexElement } from "../../../renders/VertexElement"
 import { VertexElementFormat } from "../../../renders/VertexElementFormat"
 import { BufferState } from "../../../webgl/utils/BufferState"
+import { Laya3DRender } from "../../RenderObjs/Laya3DRender"
 import { VertexBuffer3D } from "../../graphics/VertexBuffer3D"
 import { GeometryElement } from "../GeometryElement"
 import { RenderContext3D } from "./RenderContext3D"
@@ -57,12 +57,12 @@ export class ScreenQuad extends GeometryElement {
 		super(MeshTopology.TriangleStrip, DrawType.DrawArray);
 		this.setDrawArrayParams(0, 4);
 		//顶点buffer
-		this._vertexBuffer = LayaGL.renderOBJCreate.createVertexBuffer3D(16 * 4, BufferUsage.Static, false);
+		this._vertexBuffer = Laya3DRender.renderOBJCreate.createVertexBuffer3D(16 * 4, BufferUsage.Static, false);
 		this._vertexBuffer.vertexDeclaration = ScreenQuad._vertexDeclaration;
 		this._vertexBuffer.setData(ScreenQuad._vertices.buffer);
 		this._bufferState.applyState([this._vertexBuffer], null);
 
-		this._vertexBufferInvertUV = LayaGL.renderOBJCreate.createVertexBuffer3D(16 * 4, BufferUsage.Static, false);
+		this._vertexBufferInvertUV = Laya3DRender.renderOBJCreate.createVertexBuffer3D(16 * 4, BufferUsage.Static, false);
 		this._vertexBufferInvertUV.vertexDeclaration = ScreenQuad._vertexDeclaration;
 		this._vertexBufferInvertUV.setData(ScreenQuad._verticesInvertUV.buffer);
 		this._bufferStateInvertUV.applyState([this._vertexBufferInvertUV], null);

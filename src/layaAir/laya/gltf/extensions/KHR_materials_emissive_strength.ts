@@ -1,4 +1,4 @@
-import { Material } from "../../d3/core/material/Material";
+import { Material } from "../../resource/Material";
 import { IBatchProgress } from "../../net/BatchProgress";
 import { glTFMaterial } from "../glTFInterface";
 import { glTFExtension } from "./glTFExtension";

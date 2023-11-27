@@ -3,7 +3,6 @@ import { Config3D } from "../../../Config3D";
 import { ILaya3D } from "../../../ILaya3D";
 import { Node } from "../../display/Node";
 import { Event } from "../../events/Event";
-import { LayaGL } from "../../layagl/LayaGL";
 import { BaseTexture } from "../../resource/BaseTexture";
 import { PostProcess } from "../component/PostProcess";
 import { DepthPass, DepthTextureMode } from "../depthMap/DepthPass";
@@ -39,8 +38,7 @@ import { Vector4 } from "../../maths/Vector4";
 import { RenderTexture } from "../../resource/RenderTexture";
 import { Stat } from "../../utils/Stat";
 import { WrapMode } from "../../RenderEngine/RenderEnum/WrapMode";
-import { ClearRenderTextureCMD } from "./render/command/ClearRenderTextureCMD";
-import { Color } from "../../maths/Color";
+import { LayaGL } from "../../layagl/LayaGL";
 
 /**
  * 相机清除标记。
@@ -1390,7 +1388,7 @@ export class Camera extends BaseCamera {
      * @override
      */
     destroy(destroyChild: boolean = true): void {
-        this._needInternalRenderTexture() && (!this._internalRenderTexture._inPool) && RenderTexture.recoverToPool(this._internalRenderTexture);
+        this._needInternalRenderTexture() && this._internalRenderTexture && (!this._internalRenderTexture._inPool) && RenderTexture.recoverToPool(this._internalRenderTexture);
         this._offScreenRenderTexture = null;
         this.transform.off(Event.TRANSFORM_CHANGED, this, this._onTransformChanged);
         ILaya.stage.off(Event.RESIZE, this, this._onScreenSizeChanged);

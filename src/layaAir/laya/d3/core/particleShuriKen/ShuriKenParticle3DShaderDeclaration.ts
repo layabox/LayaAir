@@ -1,8 +1,7 @@
-import { LayaGL } from "../../../layagl/LayaGL";
-import { CommandUniformMap } from "../../../RenderEngine/CommandUniformMap";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
-import { ShaderData, ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData";
+import { ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData";
 import { ShaderDefine } from "../../../RenderEngine/RenderShader/ShaderDefine";
+import { LayaGL } from "../../../layagl/LayaGL";
 
 /**
  * @internal

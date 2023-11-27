@@ -8,7 +8,7 @@ import { BaseTexture } from "../../../resource/BaseTexture";
 import { RenderTexture2D } from "../../../resource/RenderTexture2D";
 import { Plane } from "../../math/Plane";
 import { Ray } from "../../math/Ray";
-import { Material, MaterialRenderMode } from "../material/Material";
+import { Material, MaterialRenderMode } from "../../../resource/Material";
 import { MeshSprite3DShaderDeclaration } from "../MeshSprite3DShaderDeclaration";
 import { BaseRender } from "../render/BaseRender";
 import { RenderContext3D } from "../render/RenderContext3D";

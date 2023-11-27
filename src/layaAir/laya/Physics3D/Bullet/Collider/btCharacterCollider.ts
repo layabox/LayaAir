@@ -114,12 +114,13 @@ export class btCharacterCollider extends btCollider implements ICharacterControl
         this._characterCapableMap.set(ECharacterCapable.Character_UpDirection, true);
         this._characterCapableMap.set(ECharacterCapable.Character_FallSpeed, true);
         this._characterCapableMap.set(ECharacterCapable.Character_SlopeLimit, true);
-        // this._characterCapableMap.set(ECharacterCapable.Character_PushForce, true);
+        this._characterCapableMap.set(ECharacterCapable.Character_PushForce, true);
         this._characterCapableMap.set(ECharacterCapable.Character_Radius, false);
         this._characterCapableMap.set(ECharacterCapable.Character_Height, false);
         this._characterCapableMap.set(ECharacterCapable.Character_offset, false);
         this._characterCapableMap.set(ECharacterCapable.Character_Skin, false);
         this._characterCapableMap.set(ECharacterCapable.Character_minDistance, false);
+        this._characterCapableMap.set(ECharacterCapable.Character_EventFilter, false);
     }
 
     protected getColliderType(): btColliderType {
@@ -144,7 +145,7 @@ export class btCharacterCollider extends btCollider implements ICharacterControl
         this.setSlopeLimit(this._maxSlope);
         this.setGravity(this._gravity);
         bt.btKinematicCharacterController_setJumpAxis(this._btKinematicCharacter, 0, 1, 0);
-        this.setpushForce(this._pushForce);
+        this.setPushForce(this._pushForce);
     }
 
     setWorldPosition(value: Vector3): void {
@@ -199,7 +200,7 @@ export class btCharacterCollider extends btCollider implements ICharacterControl
         bt.btKinematicCharacterController_setFallSpeed(this._btKinematicCharacter, value);
     }
 
-    setpushForce(value: number): void {
+    setPushForce(value: number): void {
         this._pushForce = value;
         if (this._btCollider && this._btKinematicCharacter) {
             var bt = btPhysicsCreateUtil._bt;

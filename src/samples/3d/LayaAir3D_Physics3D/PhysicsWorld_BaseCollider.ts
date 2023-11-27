@@ -43,7 +43,6 @@ export class PhysicsWorld_BaseCollider {
 			Laya.stage.on(Event.KEY_DOWN, this, this.test);
 			//显示性能面板
 			Stat.show();
-			URL.basePath += "sample-resource/";
 			this.scene = (<Scene3D>Laya.stage.addChild(new Scene3D()));
 
 			//初始化照相机

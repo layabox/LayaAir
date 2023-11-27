@@ -1,6 +1,6 @@
-import { LayaGL } from "../../../layagl/LayaGL";
 import { ISceneRenderManager } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/ISceneRenderManager";
 import { SingletonList } from "../../../utils/SingletonList";
+import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
 import { BaseRender } from "../render/BaseRender";
 
 /**
@@ -14,7 +14,7 @@ export class SceneRenderManager {
      * 实例化一个场景管理节点
      */
     constructor() {
-        this._sceneManagerOBJ = LayaGL.renderOBJCreate.createSceneRenderManager();
+        this._sceneManagerOBJ = Laya3DRender.renderOBJCreate.createSceneRenderManager();
     }
 
     /**

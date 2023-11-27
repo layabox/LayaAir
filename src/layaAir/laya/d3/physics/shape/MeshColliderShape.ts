@@ -81,7 +81,7 @@ export class MeshColliderShape extends Physics3DColliderShape {
 		if (Laya3D.PhysicsCreateUtil.getPhysicsCapable(EPhysicsCapable.Physics_MeshColliderShape))
 			this._shape = Laya3D.PhysicsCreateUtil.createMeshColliderShape();
 		else {
-			throw "MeshColliderShape: cant enable MeshColliderShape";
+			console.error("MeshColliderShape: cant enable MeshColliderShape");
 		}
 	}
 

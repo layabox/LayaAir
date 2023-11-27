@@ -1,9 +1,8 @@
-import { LayaGL } from "../../../../layagl/LayaGL";
 import { BufferUsage } from "../../../../RenderEngine/RenderEnum/BufferTargetType";
 import { VertexBuffer } from "../../../../RenderEngine/VertexBuffer";
 import { VertexBuffer3D } from "../../../graphics/VertexBuffer3D";
 import { Mesh } from "../../../resource/models/Mesh";
-import { Material } from "../../material/Material";
+import { Material } from "../../../../resource/Material";
 import { Transform3D } from "../../Transform3D";
 import { Command } from "./Command";
 import { CommandBuffer } from "./CommandBuffer";
@@ -17,6 +16,7 @@ import { Camera } from "../../Camera";
 import { Matrix4x4 } from "../../../../maths/Matrix4x4";
 import { BufferState } from "../../../../webgl/utils/BufferState";
 import { VertexMesh } from "../../../../RenderEngine/RenderShader/VertexMesh";
+import { Laya3DRender } from "../../../RenderObjs/Laya3DRender";
 
 
 export class DrawMeshInstancedCMD extends Command {
@@ -87,11 +87,11 @@ export class DrawMeshInstancedCMD extends Command {
 
     constructor() {
         super();
-        this._transform = LayaGL.renderOBJCreate.createTransform(null);
+        this._transform = Laya3DRender.renderOBJCreate.createTransform(null);
         this._instanceRenderElementArray = [];
         this._instanceGeometryArray = [];
         this._instanceWorldMatrixData = new Float32Array(DrawMeshInstancedCMD.maxInstanceCount * 16);
-        this._instanceWorldMatrixBuffer = LayaGL.renderOBJCreate.createVertexBuffer3D(this._instanceWorldMatrixData.length * 4, BufferUsage.Dynamic, false);
+        this._instanceWorldMatrixBuffer = Laya3DRender.renderOBJCreate.createVertexBuffer3D(this._instanceWorldMatrixData.length * 4, BufferUsage.Dynamic, false);
         this._instanceWorldMatrixBuffer.vertexDeclaration = VertexMesh.instanceWorldMatrixDeclaration;
         this._instanceWorldMatrixBuffer.instanceBuffer = true;
         this._render = new BaseRender();

@@ -3,7 +3,7 @@ import { Texture2D } from "../../resource/Texture2D";
 import { glTFResource } from "../glTFResource";
 import { glTFExtension } from "./glTFExtension";
 
-import { Material } from "../../d3/core/material/Material";
+import { Material } from "../../resource/Material";
 import { PBRMaterial } from "../../d3/core/material/PBRMaterial";
 import * as glTF from "../glTFInterface";
 import { PBRShaderLib } from "../../d3/shader/pbr/PBRShaderLib";

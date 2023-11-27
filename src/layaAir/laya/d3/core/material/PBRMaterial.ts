@@ -1,5 +1,5 @@
 import { BaseTexture } from "../../../resource/BaseTexture";
-import { Material } from "./Material";
+import { Material } from "../../../resource/Material";
 import { PBRRenderQuality } from "./PBRRenderQuality";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { ShaderDefine } from "../../../RenderEngine/RenderShader/ShaderDefine";

@@ -5,7 +5,6 @@ import FragAO from "../../../shader/files/postProcess/ScalableAO/FragAO.fs";
 import AoBlurHorizontal from "../../../shader/files/postProcess/ScalableAO/AoBlurHorizontal.fs";
 import AOComposition from "../../../shader/files/postProcess/ScalableAO/AOComposition.fs";
 import AmbientOcclusion from "../../../shader/files/postProcess/ScalableAO/AmbientOcclusion.glsl";
-import { LayaGL } from "../../../../layagl/LayaGL";
 import { RenderTargetFormat } from "../../../../RenderEngine/RenderEnum/RenderTargetFormat";
 import { WrapMode } from "../../../../RenderEngine/RenderEnum/WrapMode";
 import { Shader3D } from "../../../../RenderEngine/RenderShader/Shader3D";
@@ -25,6 +24,7 @@ import { Vector4 } from "../../../../maths/Vector4";
 import { RenderTexture } from "../../../../resource/RenderTexture";
 import { SubShader } from "../../../../RenderEngine/RenderShader/SubShader";
 import { VertexMesh } from "../../../../RenderEngine/RenderShader/VertexMesh";
+import { LayaGL } from "../../../../layagl/LayaGL";
 
 /**
  * AO质量

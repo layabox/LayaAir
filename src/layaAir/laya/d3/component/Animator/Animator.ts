@@ -7,7 +7,7 @@ import { AnimationClip } from "../../animation/AnimationClip";
 import { AnimatorStateScript } from "../../animation/AnimatorStateScript";
 import { KeyframeNode } from "../../animation/KeyframeNode";
 import { KeyframeNodeList } from "../../animation/KeyframeNodeList";
-import { Material } from "../../core/material/Material";
+import { Material } from "../../../resource/Material";
 import { RenderableSprite3D } from "../../core/RenderableSprite3D";
 import { Sprite3D } from "../../core/Sprite3D";
 import { Utils3D } from "../../utils/Utils3D";
@@ -299,10 +299,18 @@ export class Animator extends Component {
         var playTime: number = normalizedTime % 1.0;
         playState._normalizedPlayTime = playTime < 0 ? playTime + 1.0 : playTime;
         playState._duration = clipDuration;
-        if ((!islooping && elapsedPlaybackTime >= clipDuration)) {
-            playState._finish = true;
-            playState._elapsedTime = clipDuration;
-            playState._normalizedPlayTime = 1.0;
+        if (elapsedPlaybackTime >= clipDuration) {
+            if (!islooping) {
+                playState._finish = true;
+                playState._elapsedTime = clipDuration;
+                playState._normalizedPlayTime = 1.0;
+            } else {
+                let loopNum = Math.floor(elapsedPlaybackTime / clipDuration);
+                let pLoopNum = Math.floor(lastElapsedTime / clipDuration);
+                if (pLoopNum != loopNum) {
+                    animatorState._eventLoop();
+                }
+            }
         }
 
         (!playState._finish) && animatorState._eventStateUpdate(playState._normalizedPlayTime);
@@ -1073,10 +1081,12 @@ export class Animator extends Component {
                 var destIndex: number = destDataIndices[i];
                 if (-1 == srcIndex && -1 == destIndex) continue;
                 var srcValue: any = srcIndex !== -1 ? srcRealtimeDatas[srcIndex] : destNodeOwners[destIndex].defaultValue;
+                if (null == srcValue) continue;
                 var desValue: any = destIndex !== -1 ? destRealtimeDatas[destIndex] : srcNodeOwners[srcIndex].defaultValue;
                 if (!desValue) {
                     desValue = srcNodeOwners[srcIndex].defaultValue;
                 }
+                if (null == desValue) continue;
                 if (!controllerLayer.avatarMask || controllerLayer.avatarMask.getTransformActive(nodeOwner.nodePath)) {
                     this._applyCrossData(nodeOwner, additive, weight, isFirstLayer, srcValue, desValue, crossWeight);
                 }
@@ -1430,12 +1440,12 @@ export class Animator extends Component {
                     var crossDuratuion: number = controllerLayer._crossDuration;
                     var startPlayTime: number = crossPlayStateInfo._startPlayTime;
                     var crossClipDuration: number = crossClip._duration - startPlayTime;
-                    var crossScale: number = crossDuratuion > crossClipDuration ? crossClipDuration / crossDuratuion : 1.0;//如果过度时间大于过度动作时间,则减慢速度
+                    var crossScale: number = (crossDuratuion > crossClipDuration && 0 != crossClipDuration) ? crossClipDuration / crossDuratuion : 1.0;//如果过度时间大于过度动作时间,则减慢速度
                     var crossSpeed: number = this._speed * crossState.speed;
                     this._updatePlayer(crossState, crossPlayStateInfo, delta * crossScale * crossSpeed, crossClip.islooping, i);
                     var crossWeight: number = ((crossPlayStateInfo._elapsedTime - startPlayTime) / crossScale) / crossDuratuion;
                     var needUpdateFinishcurrentState = false;
-                    if (crossWeight >= 1.0 || crossState._realtimeDatas.length != controllerLayer._crossNodesOwnersCount || controllerLayer._destCrossClipNodeIndices.length != controllerLayer._crossNodesOwnersCount) {
+                    if (crossWeight >= 1.0) {
                         if (needRender) {
                             this._updateClipDatas(crossState, addtive, crossPlayStateInfo, controllerLayer.avatarMask);
                             this._setClipDatasToNode(crossState, addtive, controllerLayer.defaultWeight, i === 0, controllerLayer);

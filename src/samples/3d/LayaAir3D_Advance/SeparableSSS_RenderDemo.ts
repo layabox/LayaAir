@@ -117,7 +117,7 @@ export class SeparableSSS_RenderDemo {
         let depthTexture = RenderTexture.createFromPool(viewPort.width, viewPort.height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.DEPTH_16, false, 1, true, true);
         buf.setRenderTarget(depthTexture);
         buf.clearRenderTarget(true, true, new Color(0.5, 0.5, 0.5, 1.0));
-        buf.drawMesh(character, this.blinnphongCharacter.transform.worldMatrix, this.characterBlinnphongMaterial, 0,0);
+        buf.drawMesh(character, this.blinnphongCharacter.transform.worldMatrix, this.characterBlinnphongMaterial, 0, 0);
         depthTexture = depthTexture.depthStencilTexture as RenderTexture;
         //将漫反射和高光分别画到两个RenderTexture
         //漫反射颜色
@@ -145,7 +145,7 @@ export class SeparableSSS_RenderDemo {
         buf.blitScreenQuadByMaterial(diffuseRenderTexture, blurRenderTexture, new Vector4(0, 0, 1.0, 1.0), this.sssssBlitMaterail, 0);
         buf.setShaderDataVector2(this.sssssBlitMaterail.shaderData, SeparableSSS_BlitMaterial.SHADERVALUE_BLURDIR, new Vector2(0.0, 10.0));
         buf.blitScreenQuadByMaterial(blurRenderTexture, diffuseRenderTexture, new Vector4(0.0, 0.0, 0.0, 0.0), this.sssssBlitMaterail, 0);
-        
+
         // buf.blitScreenQuad(diffuseRenderTexture, null);
 
         buf.setGlobalTexture(Shader3D.propertyNameToID("sssssDiffuseTexture"), diffuseRenderTexture);

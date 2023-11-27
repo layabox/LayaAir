@@ -5,6 +5,7 @@ import { Vector3 } from "../../../maths/Vector3";
 import { IDynamicCollider } from "../../interface/IDynamicCollider";
 import { EColliderCapable } from "../../physicsEnum/EColliderCapable";
 import { btColliderShape } from "../Shape/btColliderShape";
+import { btMeshColliderShape } from "../Shape/btMeshColliderShape";
 import { btPhysicsCreateUtil } from "../btPhysicsCreateUtil";
 import { btPhysicsManager } from "../btPhysicsManager";
 import { btCollider, btColliderType } from "./btCollider";
@@ -131,6 +132,8 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
         this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_ApplyTorque, true);
         this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_ApplyImpulse, true);
         this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_ApplyTorqueImpulse, true);
+        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_WorldPosition, true);
+        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_WorldOrientation, true);
     }
 
     setWorldPosition(value: Vector3): void {
@@ -218,6 +221,9 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
     protected _onShapeChange() {
         super._onShapeChange();
         if (this._mass <= 0) return;
+        if (this._btColliderShape instanceof btMeshColliderShape && !this._btColliderShape.convex) {
+            console.error("btRigidBodyCollider: TriangleMeshShap performance is poor, please use convex.")
+        }
         if (this._isKinematic) {
             this._updateMass(0);
         } else {
@@ -285,9 +291,9 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
         bt.btVector3_setValue(btRigidBodyCollider._btGravity, value.x, value.y, value.z);
         bt.btRigidBody_setGravity(this._btCollider, btRigidBodyCollider._btGravity);
         if (value.equal(this._physicsManager._gravity)) {
-            this._setoverrideGravity(true);
-        } else {
             this._setoverrideGravity(false);
+        } else {
+            this._setoverrideGravity(true);
         }
 
     }

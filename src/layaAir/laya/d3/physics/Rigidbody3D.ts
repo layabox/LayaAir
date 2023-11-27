@@ -50,7 +50,7 @@ export class Rigidbody3D extends PhysicsColliderComponent {
         if (Laya3D.enablePhysics && this._physicsManager && Laya3D.PhysicsCreateUtil.getPhysicsCapable(EPhysicsCapable.Physics_DynamicCollider)) {
             this._collider = Laya3D.PhysicsCreateUtil.createDynamicCollider(this._physicsManager);
         } else {
-            throw "Rigidbody3D: cant enable Rigidbody3D";
+            console.error("Rigidbody3D: cant enable Rigidbody3D");
         }
     }
 

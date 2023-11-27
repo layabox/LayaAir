@@ -1,7 +1,6 @@
 import { Config3D } from "../../../../Config3D";
 import { ILaya } from "../../../../ILaya";
 import { Sprite } from "../../../display/Sprite";
-import { LayaGL } from "../../../layagl/LayaGL";
 import { Loader } from "../../../net/Loader";
 import { Context } from "../../../resource/Context";
 import { Texture2D } from "../../../resource/Texture2D";
@@ -68,6 +67,8 @@ import { BufferState } from "../../../webgl/utils/BufferState";
 import { RenderTexture } from "../../../resource/RenderTexture";
 import { Laya3D } from "../../../../Laya3D";
 import { IPhysicsManager } from "../../../Physics3D/interface/IPhysicsManager";
+import { LayaGL } from "../../../layagl/LayaGL";
+import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
 
 export enum FogMode {
     Linear = 0, //Linear
@@ -418,9 +419,9 @@ export class Scene3D extends Sprite implements ISubmit {
     _key: SubmitKey = new SubmitKey();
 
     /** @internal */
-    _opaqueQueue: IRenderQueue = LayaGL.renderOBJCreate.createBaseRenderQueue(false);
+    _opaqueQueue: IRenderQueue = Laya3DRender.renderOBJCreate.createBaseRenderQueue(false);
     /** @internal */
-    _transparentQueue: IRenderQueue = LayaGL.renderOBJCreate.createBaseRenderQueue(true);
+    _transparentQueue: IRenderQueue = Laya3DRender.renderOBJCreate.createBaseRenderQueue(true);
     /** @internal */
     _cameraPool: BaseCamera[] = [];
 
@@ -793,7 +794,7 @@ export class Scene3D extends Sprite implements ISubmit {
             this._cullPass = new BVHCullPass();
         } else {
             this._sceneRenderManager = new SceneRenderManager();
-            this._cullPass = LayaGL.renderOBJCreate.createCullPass();
+            this._cullPass = Laya3DRender.renderOBJCreate.createCullPass();
         }
 
         if (Config3D.debugFrustumCulling) {

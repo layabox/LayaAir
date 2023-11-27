@@ -3,7 +3,6 @@ import { Input } from "./laya/display/Input";
 import { Sprite } from "./laya/display/Sprite";
 import { Stage } from "./laya/display/Stage";
 import { InputManager } from "./laya/events/InputManager";
-import { LayaGL } from "./laya/layagl/LayaGL";
 import { SoundManager } from "./laya/media/SoundManager";
 import { Loader } from "./laya/net/Loader";
 import { LocalStorage } from "./laya/net/LocalStorage";
@@ -17,11 +16,9 @@ import { Browser } from "./laya/utils/Browser";
 import { CacheManger } from "./laya/utils/CacheManger";
 import { ColorUtils } from "./laya/utils/ColorUtils";
 import { Timer } from "./laya/utils/Timer";
-import { ShaderDefines2D } from "./laya/webgl/shader/d2/ShaderDefines2D";
-import { SkinSV } from "./laya/webgl/shader/d2/skinAnishader/SkinSV";
 import { PrimitiveSV } from "./laya/webgl/shader/d2/value/PrimitiveSV";
 import { TextureSV } from "./laya/webgl/shader/d2/value/TextureSV";
-import { Value2D } from "./laya/webgl/shader/d2/value/Value2D";
+import { RenderSpriteData, Value2D } from "./laya/webgl/shader/d2/value/Value2D";
 import { RenderState2D } from "./laya/webgl/utils/RenderState2D";
 import { WebGL } from "./laya/webgl/WebGL";
 import { Mouse } from "./laya/utils/Mouse";
@@ -38,6 +35,8 @@ import { URL } from "./laya/net/URL";
 import { RunDriver } from "./laya/utils/RunDriver";
 import { Config } from "./Config";
 import { Shader3D } from "./laya/RenderEngine/RenderShader/Shader3D";
+import { LayaGL } from "./laya/layagl/LayaGL";
+import { Material } from "./laya/resource/Material";
 
 /**
  * <code>Laya</code> 是全局对象的引用入口集。
@@ -56,7 +55,9 @@ export class Laya {
     static timer: Timer = null;
     /** 加载管理器的引用。*/
     static loader: Loader = null;
-    /** 当前引擎版本。*/
+
+    /** 2d物理引擎 @internal*/
+    static _physiscs2D: { enable: () => Promise<void> };
 
     /**@private Render 类的引用。*/
     static render: Render;
@@ -66,8 +67,6 @@ export class Laya {
     static isWXPosMsg: boolean = false;
     /**@internal */
     static WasmModules: { [key: string]: { exports: WebAssembly.Exports, memory: WebAssembly.Memory } } = {};
-
-
 
     /**
      * 初始化引擎。使用引擎需要先初始化引擎，否则可能会报错。
@@ -203,34 +202,33 @@ export class Laya {
         RenderStateContext.__init__();
         MeshParticle2D.__init__();
         RenderSprite.__init__();
+        Material.__initDefine__();
         InputManager.__init__(stage, Render.canvas);
         if (!!(window as any).conch && "conchUseWXAdapter" in Browser.window) {
             Input.isAppUseNewInput = true;
         }
         Input.__init__();
         SoundManager.autoStopMusic = true;
+        //Init internal 2D Value2D
+        Value2D._initone(RenderSpriteData.Texture2D, TextureSV);
+        Value2D._initone(RenderSpriteData.Primitive, PrimitiveSV);
 
-        Value2D._initone(ShaderDefines2D.TEXTURE2D, TextureSV);
-        Value2D._initone(ShaderDefines2D.TEXTURE2D | ShaderDefines2D.FILTERGLOW, TextureSV);
-        Value2D._initone(ShaderDefines2D.PRIMITIVE, PrimitiveSV);
-        Value2D._initone(ShaderDefines2D.SKINMESH, SkinSV);
+        let initPhysics2D = () => {
+            if (Laya._physiscs2D)
+                return Laya._physiscs2D.enable().then(() => init3D());
+            else
+                return init3D();
+        };
 
-        let laya3D = (<any>window)["Laya3D"];
-        if (laya3D) {
-            return laya3D.__init__().then(() => {
-                _onInitModuleCallbacks.forEach(c => c());
-                _onInitModuleCallbacks.length = 0;
+        let init3D = () => {
+            let laya3D = (<any>window)["Laya3D"];
+            if (laya3D)
+                return laya3D.__init__().then(() => complete());
+            else
+                return complete();
+        };
 
-                if (LayaEnv.afterInit) {
-                    if (LayaEnv.isPlaying)
-                        LayaEnv.afterInit();
-                    else
-                        LayaEnv.afterInit = null;
-                }
-                return Promise.resolve();
-            });
-        }
-        else {
+        let complete = () => {
             _onInitModuleCallbacks.forEach(c => c());
             _onInitModuleCallbacks.length = 0;
 
@@ -242,7 +240,9 @@ export class Laya {
             }
 
             return Promise.resolve();
-        }
+        };
+
+        return initPhysics2D();
     }
 
     static createRender(): Render {
@@ -302,10 +302,6 @@ export class Laya {
         Laya.isNativeRender_enable = true;
         RenderState2D.width = Browser.window.innerWidth;
         RenderState2D.height = Browser.window.innerHeight;
-        Browser.measureText = function (txt: string, font: string): any {
-            (window as any)["conchTextCanvas"].font = font;
-            return (window as any)["conchTextCanvas"].measureText(txt);
-        }
 
         Stage.clear = function (color: string): void {
             Context.set2DRenderConfig();//渲染2D前要还原2D状态,否则可能受3D影响

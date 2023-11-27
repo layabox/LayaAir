@@ -1,4 +1,3 @@
-import { LayaGL } from "../layagl/LayaGL";
 import { TextureDimension } from "../RenderEngine/RenderEnum/TextureDimension";
 import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
 

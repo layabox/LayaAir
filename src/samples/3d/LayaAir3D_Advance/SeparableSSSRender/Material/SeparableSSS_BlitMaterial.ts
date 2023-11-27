@@ -1,4 +1,4 @@
-import { Material } from "laya/d3/core/material/Material";
+import { Material } from "laya/resource/Material";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 import { ShaderDataType } from "laya/RenderEngine/RenderShader/ShaderData";
 import { BaseTexture } from "laya/resource/BaseTexture";
@@ -33,7 +33,7 @@ export class SeparableSSS_BlitMaterial extends Material {
 		var attributeMap: { [name: string]: [number, ShaderDataType] } = {
 			'a_PositionTexcoord': [VertexMesh.MESH_POSITION0, ShaderDataType.Vector4]
 		};
-		var uniformMap: any  = {
+		var uniformMap: any = {
 			"u_MainTex": ShaderDataType.Texture2D,
 			"u_depthTex": ShaderDataType.Texture2D,
 			"u_blurDir": ShaderDataType.Vector2,

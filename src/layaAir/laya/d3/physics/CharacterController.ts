@@ -7,6 +7,7 @@ import { ICharacterController } from "../../Physics3D/interface/ICharacterContro
 import { CapsuleColliderShape } from "./shape/CapsuleColliderShape";
 import { ECharacterCapable } from "../../Physics3D/physicsEnum/ECharacterCapable";
 import { EPhysicsCapable } from "../../Physics3D/physicsEnum/EPhycisCapable";
+import { Event } from "../../events/Event";
 
 /**
  * <code>CharacterController</code> 类用于创建角色控制器。
@@ -35,6 +36,8 @@ export class CharacterController extends PhysicsColliderComponent {
     private _minDistance: number = 0;
     /**@internal */
     private _simGravity: Vector3 = new Vector3(0, -9.8 / 60, 0);
+    /**@internal */
+    private _pushForce: number = 1;
     /**
      * @override
      * @internal
@@ -45,7 +48,7 @@ export class CharacterController extends PhysicsColliderComponent {
             this._physicsManager = ((<Scene3D>this.owner._scene))._physicsManager;
             this._collider = Laya3D.PhysicsCreateUtil.createCharacterController(this._physicsManager);
         } else {
-            throw "CharacterController: cant enable CharacterController"
+            console.error("CharacterController: cant enable CharacterController");
         }
     }
 
@@ -195,6 +198,19 @@ export class CharacterController extends PhysicsColliderComponent {
     }
 
     /**
+     * 推动力大小
+     */
+    public get pushForce(): number {
+        return this._pushForce;
+    }
+    public set pushForce(value: number) {
+        this._pushForce = value;
+        if (this.collider && this.collider.getCapable(ECharacterCapable.Character_PushForce)) {
+            this._collider.setPushForce(value);
+        }
+    }
+
+    /**
      * 创建一个 <code>CharacterController</code> 实例。
      * @param stepheight 角色脚步高度。
      * @param upAxis 角色Up轴
@@ -250,6 +266,26 @@ export class CharacterController extends PhysicsColliderComponent {
         destCharacterController.upAxis = this._upAxis;
         destCharacterController.maxSlope = this._maxSlope;
         destCharacterController.gravity = this._gravity;
+    }
+
+    /**
+     * @internal
+     */
+    protected _setEventFilter() {
+        if (this._collider && this._collider.getCapable(ECharacterCapable.Character_EventFilter)) {
+            this._eventsArray = [];
+            // event 
+            if (this.owner.hasListener(Event.COLLISION_ENTER)) {
+                this._eventsArray.push(Event.COLLISION_ENTER);
+            }
+            if (this.owner.hasListener(Event.COLLISION_STAY)) {
+                this._eventsArray.push(Event.COLLISION_STAY);
+            }
+            if (this.owner.hasListener(Event.COLLISION_EXIT)) {
+                this._eventsArray.push(Event.COLLISION_EXIT);
+            }
+            this._collider.setEventFilter(this._eventsArray);
+        }
     }
 }
 

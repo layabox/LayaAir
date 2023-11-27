@@ -3,10 +3,10 @@ import { DrawType } from "../../../../../RenderEngine/RenderEnum/DrawType";
 import { IndexFormat } from "../../../../../RenderEngine/RenderEnum/IndexFormat";
 import { MeshTopology } from "../../../../../RenderEngine/RenderEnum/RenderPologyMode";
 import { VertexDeclaration } from "../../../../../RenderEngine/VertexDeclaration";
-import { LayaGL } from "../../../../../layagl/LayaGL";
 import { VertexElement } from "../../../../../renders/VertexElement";
 import { VertexElementFormat } from "../../../../../renders/VertexElementFormat";
 import { BufferState } from "../../../../../webgl/utils/BufferState";
+import { Laya3DRender } from "../../../../RenderObjs/Laya3DRender";
 import { IndexBuffer3D } from "../../../../graphics/IndexBuffer3D";
 import { VertexBuffer3D } from "../../../../graphics/VertexBuffer3D";
 import { GeometryElement } from "../../../GeometryElement";
@@ -65,15 +65,15 @@ export class LensFlareElementGeomtry extends GeometryElement {
      */
     private _createBuffer() {
         //VB
-        this._vertexBuffer = LayaGL.renderOBJCreate.createVertexBuffer3D(LensFlareElementGeomtry.lensQuadVertices.length * 4, BufferUsage.Dynamic, false);
+        this._vertexBuffer = Laya3DRender.renderOBJCreate.createVertexBuffer3D(LensFlareElementGeomtry.lensQuadVertices.length * 4, BufferUsage.Dynamic, false);
         this._vertexBuffer.vertexDeclaration = LensFlareElementGeomtry.vertexDeclaration;
         this._vertexBuffer.setData(LensFlareElementGeomtry.lensQuadVertices.buffer);
         //instanceVB
-        this._instanceVertexBuffer = LayaGL.renderOBJCreate.createVertexBuffer3D(LensFlareElementGeomtry.lensFlareElementMax * 4 * 4, BufferUsage.Dynamic, false);
+        this._instanceVertexBuffer = Laya3DRender.renderOBJCreate.createVertexBuffer3D(LensFlareElementGeomtry.lensFlareElementMax * 4 * 4, BufferUsage.Dynamic, false);
         this._instanceVertexBuffer.instanceBuffer = true;
         this._instanceVertexBuffer.vertexDeclaration = LensFlareElementGeomtry.instanceVertexDeclaration;
         //IB
-        this._indexBuffer = LayaGL.renderOBJCreate.createIndexBuffer3D(IndexFormat.UInt16, LensFlareElementGeomtry.lensQuadIndex.length, BufferUsage.Static, false);
+        this._indexBuffer = Laya3DRender.renderOBJCreate.createIndexBuffer3D(IndexFormat.UInt16, LensFlareElementGeomtry.lensQuadIndex.length, BufferUsage.Static, false);
         this._indexBuffer.setData(LensFlareElementGeomtry.lensQuadIndex);
         //VAO
         this.bufferState = new BufferState();

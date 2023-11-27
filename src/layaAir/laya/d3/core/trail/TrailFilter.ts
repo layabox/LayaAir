@@ -1,7 +1,6 @@
 import { Camera } from "../Camera";
 import { FloatKeyframe } from "../FloatKeyframe";
 import { GeometryElement } from "../GeometryElement";
-import { Gradient } from "../Gradient";
 import { GradientMode } from "../GradientMode";
 import { BaseRender } from "../render/BaseRender";
 import { RenderContext3D } from "../render/RenderContext3D";
@@ -11,22 +10,23 @@ import { TrailMaterial } from "./TrailMaterial";
 import { TrailRenderer } from "./TrailRenderer";
 import { Sprite3D } from "../Sprite3D";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
-import { LayaGL } from "../../../layagl/LayaGL";
 import { TrailAlignment } from "./TrailAlignment";
 import { TrailTextureMode } from "../TrailTextureMode";
 import { Color } from "../../../maths/Color";
 import { Vector3 } from "../../../maths/Vector3";
 import { ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData";
+import { Gradient } from "../Gradient";
+import { LayaGL } from "../../../layagl/LayaGL";
 
 
 /**
  * <code>TrailFilter</code> 类用于创建拖尾过滤器。
  */
 export class TrailFilter {
-	static CURTIME: number ;
-	static LIFETIME: number ;
-	static WIDTHCURVE: number ;
-	static WIDTHCURVEKEYLENGTH: number ;
+	static CURTIME: number;
+	static LIFETIME: number;
+	static WIDTHCURVE: number;
+	static WIDTHCURVEKEYLENGTH: number;
 
 	static __init__() {
 		TrailFilter.CURTIME = Shader3D.propertyNameToID("u_CurTime");
@@ -35,10 +35,10 @@ export class TrailFilter {
 		TrailFilter.WIDTHCURVEKEYLENGTH = Shader3D.propertyNameToID("u_WidthCurveKeyLength");
 
 		const spriteParms = LayaGL.renderOBJCreate.createGlobalUniformMap("TrailRender");
-		spriteParms.addShaderUniform(TrailFilter.CURTIME, "u_CurTime",ShaderDataType.Float);
-		spriteParms.addShaderUniform(TrailFilter.LIFETIME, "u_LifeTime",ShaderDataType.Float);
-		spriteParms.addShaderUniform(TrailFilter.WIDTHCURVE, "u_WidthCurve",ShaderDataType.Buffer);
-		spriteParms.addShaderUniform(TrailFilter.WIDTHCURVEKEYLENGTH, "u_WidthCurveKeyLength",ShaderDataType.Int);
+		spriteParms.addShaderUniform(TrailFilter.CURTIME, "u_CurTime", ShaderDataType.Float);
+		spriteParms.addShaderUniform(TrailFilter.LIFETIME, "u_LifeTime", ShaderDataType.Float);
+		spriteParms.addShaderUniform(TrailFilter.WIDTHCURVE, "u_WidthCurve", ShaderDataType.Buffer);
+		spriteParms.addShaderUniform(TrailFilter.WIDTHCURVEKEYLENGTH, "u_WidthCurveKeyLength", ShaderDataType.Int);
 	}
 
 	/**@internal */
@@ -155,6 +155,7 @@ export class TrailFilter {
 	 */
 	set colorGradient(value: Gradient) {
 		this._colorGradient = value;
+
 	}
 
 	/**
@@ -204,7 +205,7 @@ export class TrailFilter {
 	_update(state: RenderContext3D): void {
 		var render: BaseRender = this._ownerRender;
 		const scene = this._ownerRender.owner.scene
-		if(!scene)
+		if (!scene)
 			return;
 		this._curtime += scene.timer._delta / 1000;
 		//设置颜色

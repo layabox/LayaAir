@@ -42,7 +42,6 @@ import { MeshTopology } from "../../../RenderEngine/RenderEnum/RenderPologyMode"
 import { ShaderData } from "../../../RenderEngine/RenderShader/ShaderData";
 import { VertexDeclaration } from "../../../RenderEngine/VertexDeclaration";
 import { DrawType } from "../../../RenderEngine/RenderEnum/DrawType";
-import { LayaGL } from "../../../layagl/LayaGL";
 import { IndexFormat } from "../../../RenderEngine/RenderEnum/IndexFormat";
 import { Bounds } from "../../math/Bounds";
 import { Quaternion } from "../../../maths/Quaternion";
@@ -52,6 +51,7 @@ import { Vector4 } from "../../../maths/Vector4";
 import { VertexElement } from "../../../renders/VertexElement";
 import { BufferState } from "../../../webgl/utils/BufferState";
 import { VertexMesh } from "../../../RenderEngine/RenderShader/VertexMesh";
+import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
 
 
 /**
@@ -611,17 +611,19 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
                         shaDat.addDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_COLOROVERLIFETIME);
 
                         let gradientColor: Gradient = color.gradient;
-                        shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.COLOROVERLIFEGRADIENTALPHAS, gradientColor._alphaElements);
-                        shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.COLOROVERLIFEGRADIENTCOLORS, gradientColor._rgbElements);
+                        let alphaElements:Float32Array = gradientColor.alphaElements;
+                        let rgbElements:Float32Array = gradientColor.rgbElements;
+                        shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.COLOROVERLIFEGRADIENTALPHAS, alphaElements);
+                        shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.COLOROVERLIFEGRADIENTCOLORS, rgbElements);
                         let ranges = gradientColor._keyRanges;
                         ranges.setValue(1, 0, 1, 0);
-                        for (let index = 0; index < gradientColor.colorRGBKeysCount; index++) {
-                            let colorKey = gradientColor._rgbElements[index * 4];
+                        for (let index = 0,n = Math.min(2,gradientColor.colorRGBKeysCount); index < n; index++) {
+                            let colorKey = rgbElements[index * 4];
                             ranges.x = Math.min(ranges.x, colorKey);
                             ranges.y = Math.max(ranges.y, colorKey);
                         }
-                        for (let index = 0; index < gradientColor.colorAlphaKeysCount; index++) {
-                            let alphaKey = gradientColor._alphaElements[index * 2];
+                        for (let index = 0,n = Math.min(2,gradientColor.colorAlphaKeysCount); index < n; index++) {
+                            let alphaKey = alphaElements[index * 2];
                             ranges.z = Math.min(ranges.z, alphaKey);
                             ranges.w = Math.max(ranges.w, alphaKey);
                         }
@@ -639,33 +641,39 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 
                         let minGradientColor: Gradient = color.gradientMin;
                         let maxGradientColor: Gradient = color.gradientMax;
-                        shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.COLOROVERLIFEGRADIENTALPHAS, minGradientColor._alphaElements);
-                        shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.COLOROVERLIFEGRADIENTCOLORS, minGradientColor._rgbElements);
-                        shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.MAXCOLOROVERLIFEGRADIENTALPHAS, maxGradientColor._alphaElements);
-                        shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.MAXCOLOROVERLIFEGRADIENTCOLORS, maxGradientColor._rgbElements);
+
+                        let minalphaElements:Float32Array = minGradientColor.alphaElements;
+                        let minrgbElements:Float32Array = minGradientColor.rgbElements;
+
+                        let maxalphaElements:Float32Array = maxGradientColor.alphaElements;
+                        let maxrgbElements:Float32Array = maxGradientColor.rgbElements;
+                        shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.COLOROVERLIFEGRADIENTALPHAS, minalphaElements);
+                        shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.COLOROVERLIFEGRADIENTCOLORS, minrgbElements);
+                        shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.MAXCOLOROVERLIFEGRADIENTALPHAS, maxalphaElements);
+                        shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.MAXCOLOROVERLIFEGRADIENTCOLORS, maxrgbElements);
 
                         let minRanges = minGradientColor._keyRanges;
                         minRanges.setValue(1, 0, 1, 0);
-                        for (let index = 0; index < minGradientColor.colorRGBKeysCount; index++) {
-                            let colorKey = minGradientColor._rgbElements[index * 4];
+                        for (let index = 0,n = Math.max(2,minGradientColor.colorRGBKeysCount); index < n; index++) {
+                            let colorKey = minrgbElements[index * 4];
                             minRanges.x = Math.min(minRanges.x, colorKey);
                             minRanges.y = Math.max(minRanges.y, colorKey);
                         }
-                        for (let index = 0; index < minGradientColor.colorAlphaKeysCount; index++) {
-                            let alphaKey = minGradientColor._alphaElements[index * 2];
+                        for (let index = 0,n = Math.max(2,minGradientColor.colorAlphaKeysCount); index < n; index++) {
+                            let alphaKey = minalphaElements[index * 2];
                             minRanges.z = Math.min(minRanges.z, alphaKey);
                             minRanges.w = Math.max(minRanges.w, alphaKey);
                         }
                         shaDat.setVector(ShuriKenParticle3DShaderDeclaration.COLOROVERLIFEGRADIENTRANGES, minRanges);
                         let maxRanges = maxGradientColor._keyRanges;
                         maxRanges.setValue(1, 0, 1, 0);
-                        for (let index = 0; index < maxGradientColor.colorRGBKeysCount; index++) {
-                            let colorKey = maxGradientColor._rgbElements[index * 4];
+                        for (let index = 0,n = Math.max(2,maxGradientColor.colorRGBKeysCount); index < n; index++) {
+                            let colorKey = maxrgbElements[index * 4];
                             maxRanges.x = Math.min(maxRanges.x, colorKey);
                             maxRanges.y = Math.max(maxRanges.y, colorKey);
                         }
-                        for (let index = 0; index < maxGradientColor.colorAlphaKeysCount; index++) {
-                            let alphaKey = maxGradientColor._alphaElements[index * 2];
+                        for (let index = 0,n = Math.max(2,maxGradientColor.colorAlphaKeysCount); index < n; index++) {
+                            let alphaKey = maxalphaElements[index * 2];
                             maxRanges.z = Math.min(maxRanges.z, alphaKey);
                             maxRanges.w = Math.max(maxRanges.w, alphaKey);
                         }
@@ -1561,7 +1569,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
                     }
 
                     vbMemorySize = vertexDeclaration.vertexStride * lastVBVertexCount;
-                    this._vertexBuffer = LayaGL.renderOBJCreate.createVertexBuffer3D(vbMemorySize, BufferUsage.Dynamic, false);
+                    this._vertexBuffer = Laya3DRender.renderOBJCreate.createVertexBuffer3D(vbMemorySize, BufferUsage.Dynamic, false);
                     this._vertexBuffer.vertexDeclaration = vertexDeclaration;
                     this._vertices = new Float32Array(this._floatCountPerVertex * lastVBVertexCount);
 
@@ -1572,7 +1580,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
                     this._indexStride = mesh._indexBuffer.indexCount;
                     var indexDatas: Uint16Array = mesh._indexBuffer.getData();
                     var indexCount: number = this._bufferMaxParticles * this._indexStride;
-                    this._indexBuffer = LayaGL.renderOBJCreate.createIndexBuffer3D(IndexFormat.UInt16, indexCount, BufferUsage.Static, false);
+                    this._indexBuffer = Laya3DRender.renderOBJCreate.createIndexBuffer3D(IndexFormat.UInt16, indexCount, BufferUsage.Static, false);
                     indices = new Uint16Array(indexCount);
 
                     memorySize = vbMemorySize + indexCount * 2;
@@ -1595,7 +1603,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
                 this._timeIndex = 11;
                 this._vertexStride = 4;
                 vbMemorySize = vertexDeclaration.vertexStride * this._bufferMaxParticles * this._vertexStride;
-                this._vertexBuffer = LayaGL.renderOBJCreate.createVertexBuffer3D(vbMemorySize, BufferUsage.Dynamic, false);
+                this._vertexBuffer = Laya3DRender.renderOBJCreate.createVertexBuffer3D(vbMemorySize, BufferUsage.Dynamic, false);
                 this._vertexBuffer.vertexDeclaration = vertexDeclaration;
                 this._vertices = new Float32Array(this._floatCountPerVertex * this._bufferMaxParticles * this._vertexStride);
 
@@ -1627,7 +1635,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
                 }
 
                 this._indexStride = 6;
-                this._indexBuffer = LayaGL.renderOBJCreate.createIndexBuffer3D(IndexFormat.UInt16, this._bufferMaxParticles * 6, BufferUsage.Static, false);
+                this._indexBuffer = Laya3DRender.renderOBJCreate.createIndexBuffer3D(IndexFormat.UInt16, this._bufferMaxParticles * 6, BufferUsage.Static, false);
                 indices = new Uint16Array(this._bufferMaxParticles * 6);
                 for (i = 0; i < this._bufferMaxParticles; i++) {
                     indexOffset = i * 6;

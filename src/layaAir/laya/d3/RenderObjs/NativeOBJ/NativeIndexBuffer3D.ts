@@ -1,6 +1,6 @@
-import { LayaGL } from "../../../layagl/LayaGL";
 import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { IndexFormat } from "../../../RenderEngine/RenderEnum/IndexFormat";
+import { LayaGL } from "../../../layagl/LayaGL";
 import { IndexBuffer3D } from "../../graphics/IndexBuffer3D";
 
 

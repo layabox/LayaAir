@@ -55,7 +55,7 @@ export class HingeConstraint extends ConstraintComponent {
         if (Laya3D.enablePhysics && Laya3D.PhysicsCreateUtil.getPhysicsCapable(EPhysicsCapable.Physics_HingeJoint)) {
             this._joint = Laya3D.PhysicsCreateUtil.createHingeJoint(this._physicsManager);
         } else {
-            throw "HingeConstraint: cant enable HingeConstraint";
+            console.error("HingeConstraint: cant enable HingeConstraint");
         }
     }
 

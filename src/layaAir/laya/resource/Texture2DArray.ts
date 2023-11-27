@@ -1,7 +1,7 @@
-import { LayaGL } from "../layagl/LayaGL";
 import { TextureDimension } from "../RenderEngine/RenderEnum/TextureDimension";
 import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
 import { ITexture3DContext } from "../RenderEngine/RenderInterface/ITextureContext";
+import { LayaGL } from "../layagl/LayaGL";
 import { BaseTexture } from "./BaseTexture";
 
 /**

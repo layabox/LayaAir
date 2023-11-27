@@ -1,4 +1,3 @@
-import { LayaGL } from "../../../layagl/LayaGL";
 import { Color } from "../../../maths/Color";
 import { MathUtils3D } from "../../../maths/MathUtils3D";
 import { Matrix4x4 } from "../../../maths/Matrix4x4";
@@ -11,6 +10,7 @@ import { Resource } from "../../../resource/Resource";
 import { BufferState } from "../../../webgl/utils/BufferState";
 import { VertexBuffer3D } from "../../graphics/VertexBuffer3D";
 import { Bounds } from "../../math/Bounds";
+import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
 import { Camera } from "../Camera";
 import { GeometryElement } from "../GeometryElement";
 import { Gradient } from "../Gradient";
@@ -115,9 +115,9 @@ export class TrailGeometry extends GeometryElement {
 		var memorySize: number = vertexbuffer1Size + vertexbuffer2Size;
 		this._vertices1 = new Float32Array(vertexCount * this._floatCountPerVertices1);
 		this._vertices2 = new Float32Array(vertexCount * this._floatCountPerVertices2);
-		this._vertexBuffer1 = LayaGL.renderOBJCreate.createVertexBuffer3D(vertexbuffer1Size, BufferUsage.Dynamic, false);
+		this._vertexBuffer1 = Laya3DRender.renderOBJCreate.createVertexBuffer3D(vertexbuffer1Size, BufferUsage.Dynamic, false);
 		this._vertexBuffer1.vertexDeclaration = vertexDeclaration1;
-		this._vertexBuffer2 = LayaGL.renderOBJCreate.createVertexBuffer3D(vertexbuffer2Size, BufferUsage.Dynamic, false);
+		this._vertexBuffer2 = Laya3DRender.renderOBJCreate.createVertexBuffer3D(vertexbuffer2Size, BufferUsage.Dynamic, false);
 		this._vertexBuffer2.vertexDeclaration = vertexDeclaration2;
 
 		vertexBuffers.push(this._vertexBuffer1);

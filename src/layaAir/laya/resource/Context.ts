@@ -1,7 +1,6 @@
 import { ILaya } from "../../ILaya";
 import { Sprite } from "../display/Sprite";
 import { ColorFilter } from "../filters/ColorFilter";
-import { LayaGL } from "../layagl/LayaGL";
 import { Bezier } from "../maths/Bezier";
 import { Matrix } from "../maths/Matrix";
 import { Point } from "../maths/Point";
@@ -30,7 +29,7 @@ import { BaseShader } from "../webgl/shader/BaseShader";
 import { Shader2D } from "../webgl/shader/d2/Shader2D";
 import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
 import { SkinMeshBuffer } from "../webgl/shader/d2/skinAnishader/SkinMeshBuffer";
-import { Value2D } from "../webgl/shader/d2/value/Value2D";
+import { RenderSpriteData, Value2D } from "../webgl/shader/d2/value/Value2D";
 import { BasePoly } from "../webgl/shapes/BasePoly";
 import { Earcut } from "../webgl/shapes/Earcut";
 import { ISubmit } from "../webgl/submit/ISubmit";
@@ -57,6 +56,11 @@ import { NativeContext } from "./NativeContext";
 import { Const } from "../Const";
 import { Color } from "../maths/Color";
 import { RenderTexture } from "./RenderTexture";
+import { Vector4 } from "../maths/Vector4";
+import { Vector2 } from "../maths/Vector2";
+import { TextureSV } from "../webgl/shader/d2/value/TextureSV";
+import { Material } from "./Material";
+import { LayaGL } from "../layagl/LayaGL";
 
 const defaultClipMatrix = new Matrix(Const.MAX_CLIP_SIZE, 0, 0, Const.MAX_CLIP_SIZE, 0, 0);
 
@@ -119,6 +123,14 @@ export class Context {
 
     /**@private */
     $transform(a: number, b: number, c: number, d: number, tx: number, ty: number): void {
+    }
+
+    set material(value: Material) {
+        this._shader2D.material = value;
+    }
+
+    get material() {
+        return this._shader2D.material;
     }
 
 
@@ -286,9 +298,51 @@ export class Context {
     /**@internal */
     _drawCircle(x: number, y: number, radius: number, fillColor: any, lineColor: any, lineWidth: number, vid: number): void {
         this.beginPath(true);
-        this.arc(x, y, radius, 0, Context.PI2);
+        this.arc(x, y, radius, radius, 0, Context.PI2, false, true, 40);
         this.closePath();
         //绘制
+        this._fillAndStroke(fillColor, lineColor, lineWidth);
+    }
+    /**@internal */
+    _drawEllipse(x: number, y: number, width: number, height: number, fillColor: any, lineColor: any, lineWidth: number) {
+        this.beginPath(true);
+        this.arc(x, y, width, height, 0, Context.PI2, false, true, 40);
+        this.closePath();
+        this._fillAndStroke(fillColor, lineColor, lineWidth);
+    }
+    /**Math.PI*0.5的结果缓存 */
+    static HPI = Math.PI * 0.5;
+    /**@internal */
+    _drawRoundRect(x: number, y: number, width: number, height: number, lt: number, rt: number, lb: number, rb: number, fillColor: any, lineColor: any, lineWidth: number) {
+        this.beginPath(true);
+        var tPath = this._getPath();
+        if (0 >= lt) {
+            tPath.addPoint(x, y);
+        } else {
+            this.arc(x + lt, y + lt, lt, lt, Math.PI, Math.PI + Context.HPI);
+        }
+        let startX = x + width - rt;
+        if (0 >= rt) {
+            tPath.addPoint(startX, y);
+        } else {
+            this.arc(startX, y + rt, rt, rt, Math.PI + Context.HPI, Context.PI2);
+        }
+        startX = x + width - rb;
+        let startY = y + height - rb;
+        if (0 >= rb) {
+            tPath.addPoint(startX, startY);
+        } else {
+            this.arc(startX, startY, rb, rb, 0, Context.HPI);
+        }
+        startX = x + lb;
+        startY = y + height - lb;
+        if (0 >= lb) {
+            tPath.addPoint(startX, startY);
+        } else {
+            this.arc(startX, startY, lb, lb, Math.PI - Context.HPI, Math.PI);
+        }
+        tPath.addPoint(x, y + lt);
+        this.closePath();
         this._fillAndStroke(fillColor, lineColor, lineWidth);
     }
 
@@ -300,7 +354,7 @@ export class Context {
         //形成路径
         this.beginPath();
         this.moveTo(x, y);
-        this.arc(x, y, radius, startAngle, endAngle);
+        this.arc(x, y, radius, radius, startAngle, endAngle);
         this.closePath();
         //绘制
         this._fillAndStroke(fillColor, lineColor, lineWidth);
@@ -363,10 +417,10 @@ export class Context {
 
     static const2DRenderCMD: RenderStateCommand;
     static set2DRenderConfig(): void {
-        
+
         if (!Context.const2DRenderCMD) {
             const cmd = Context.const2DRenderCMD = LayaGL.renderEngine.createRenderStateComand();
-            if(cmd){
+            if (cmd) {
                 cmd.addCMD(RenderStateType.BlendType, true);
                 //WebGLContext.setBlendEquation(gl, gl.FUNC_ADD);
                 cmd.addCMD(RenderStateType.BlendEquation, BlendEquationSeparate.ADD);
@@ -383,7 +437,7 @@ export class Context {
                 cmd.addCMD(RenderStateType.FrontFace, CullMode.Front);
             }
         }
-        Context.const2DRenderCMD&&Context.const2DRenderCMD.applyCMD();
+        Context.const2DRenderCMD && Context.const2DRenderCMD.applyCMD();
         RenderTexture.currentActive && RenderTexture.currentActive._end();
         // WebGLContext.setBlend(gl, true);//还原2D设置
         // WebGLContext.setBlendEquation(gl, gl.FUNC_ADD);
@@ -516,8 +570,6 @@ export class Context {
         this.clearColor.b = b;
         this.clearColor.a = a;
         LayaGL.renderEngine.clearRenderTexture(RenderClearFlag.Color, this.clearColor, 1);
-        // gl.clearColor(r, g, b, a);
-        // gl.clear(gl.COLOR_BUFFER_BIT);
     }
 
     //TODO:coverage
@@ -721,10 +773,6 @@ export class Context {
         return this._lastMatScaleY;
     }
 
-    //TODO
-    setFillColor(color: number): void {
-        this._fillColor = color;
-    }
     getFillColor(): number {
         return this._fillColor;
     }
@@ -883,7 +931,7 @@ export class Context {
             this._mesh.addQuad(this._transedPoints, Texture.NO_UV, rgba, false);
             //if (GlUtils.fillRectImgVb(_mesh._vb, _clipRect, x, y, width, height, Texture.DEF_UV, _curMat, rgba,this)){
             if (!sameKey) {
-                submit = this._curSubmit = SubmitTexture.create(this, this._mesh, Value2D.create(ShaderDefines2D.TEXTURE2D, 0));
+                submit = this._curSubmit = SubmitTexture.create(this, this._mesh, Value2D.create(RenderSpriteData.Texture2D));
                 this._submits[this._submits._length++] = submit;
                 this._copyClipInfo(submit, this._globalClipMatrix);
                 if (!this._lastTex || this._lastTex.destroyed) {
@@ -930,7 +978,7 @@ export class Context {
     }
 
     /**@internal */
-    _fillTexture(texture: Texture, texw: number, texh: number, texuvRect: any[], x: number, y: number, width: number, height: number, type: string, offsetx: number, offsety: number, color: number): void {
+    _fillTexture(texture: Texture, texw: number, texh: number, texuvRect: number[], x: number, y: number, width: number, height: number, type: string, offsetx: number, offsety: number, color: number): void {
         var submit: Submit = this._curSubmit;
         var sameKey: boolean = false;
         if (this._mesh.vertNum + 4 > Context._MAXVERTNUM) {
@@ -993,11 +1041,13 @@ export class Context {
 
             this._mesh.addQuad(this._transedPoints, uv, rgba, true);
 
-            var sv: Value2D = Value2D.create(ShaderDefines2D.TEXTURE2D, 0);
+            var sv = Value2D.create(RenderSpriteData.Texture2D) as TextureSV;
             //这个优化先不要了，因为没太弄明白wrapmode的设置，总是不起作用。
             //if(texture.uvrect[2]<1.0||texture.uvrect[3]<1.0)//这表示是大图集中的一部分，只有这时候才用特殊shader
-            sv.defines.add(ShaderDefines2D.FILLTEXTURE);
-            ((<any>sv)).u_TexRange = texuvRect.concat();
+            sv.defines.addDefine(ShaderDefines2D.FILLTEXTURE);
+            var arry = texuvRect.concat();
+            Vector4.tempVec4.setValue(arry[0], arry[1], arry[2], arry[3]);
+            sv.u_TexRange = Vector4.tempVec4;
             submit = this._curSubmit = SubmitTexture.create(this, this._mesh, sv);
             this._submits[this._submits._length++] = submit;
             this._copyClipInfo(submit, this._globalClipMatrix);
@@ -1042,57 +1092,6 @@ export class Context {
             const color = typeof colors[i] === 'number' ? colors[i] : 0xffffffff;
             this._inner_drawTexture(tex, bmpid, pos[ipos++] + tx, pos[ipos++] + ty, 0, 0, null, null, 1.0, false, color);
         }
-
-        /*
-        var pre:Rectangle = _clipRect;
-        _clipRect = MAXCLIPRECT;
-        if (!_drawTextureM(tex, pos[0], pos[1], tex.width, tex.height,null, 1)) {
-            throw "drawTextures err";
-            return;
-        }
-        _clipRect = pre;
-        
-        Stat.drawCall++;//= pos.length / 2;
-        
-        if (pos.length < 4)
-            return;
-        
-        var finalVB:VertexBuffer2D = _curSubmit._vb || _vb;
-        var sx:Number = _curMat.a, sy:Number = _curMat.d;
-        var vpos:int = finalVB._byteLength >> 2;// + Context._RECTVBSIZE;
-        finalVB.byteLength = finalVB._byteLength + (pos.length / 2 - 1) * Context._RECTVBSIZEBYTE;
-        var vbdata:Float32Array = finalVB.getFloat32Array();
-        for (var i:int = 2, sz:int = pos.length; i < sz; i += 2) {
-            GlUtils.copyPreImgVb(finalVB,vpos, (pos[i] - pos[i - 2]) * sx, (pos[i + 1] - pos[i - 1]) * sy,vbdata);
-            _curSubmit._numEle += 6;
-            vpos += Context._RECTVBSIZE;
-        }
-        */
-    }
-
-    /**
-     * 为drawTexture添加一个新的submit。类型是 SubmitTexture
-     * @param	vbSize
-     * @param	alpha
-     * @param	webGLImg
-     * @param	tex
-     */
-    //TODO:coverage
-    private _drawTextureAddSubmit(imgid: number, tex: Texture): void {
-        //var alphaBack:Number = shader.ALPHA;
-        //shader.ALPHA *= alpha;
-
-        var submit: SubmitTexture = null;
-        submit = SubmitTexture.create(this, this._mesh, Value2D.create(ShaderDefines2D.TEXTURE2D, 0));
-        this._submits[this._submits._length++] = submit;
-        submit.shaderValue.textureHost = tex;
-        //submit._key.copyFrom2(_submitKey, SubmitBase.KEY_DRAWTEXTURE, imgid);
-        submit._key.other = imgid;
-        //submit._key.alpha = shader.ALPHA;
-        submit._renderType = SubmitBase.TYPE_TEXTURE;
-        this._curSubmit = submit;
-
-        //shader.ALPHA = alphaBack;
     }
 
     /**@internal */
@@ -1130,14 +1129,17 @@ export class Context {
     */
     /**@internal */
     _copyClipInfo(submit: SubmitBase, clipInfo: Matrix): void {
-        var cm: any[] = submit.shaderValue.clipMatDir;
-        cm[0] = clipInfo.a; cm[1] = clipInfo.b; cm[2] = clipInfo.c; cm[3] = clipInfo.d;
-        var cmp: any[] = submit.shaderValue.clipMatPos;
-        cmp[0] = clipInfo.tx; cmp[1] = clipInfo.ty;
+        var cm: Vector4 = submit.shaderValue.clipMatDir;
+        cm.x = clipInfo.a; cm.y = clipInfo.b; cm.z = clipInfo.c; cm.w = clipInfo.d;
+        submit.shaderValue.clipMatDir = cm;
+        var cmp: Vector2 = submit.shaderValue.clipMatPos;
+        cmp.x = clipInfo.tx; cmp.y = clipInfo.ty;
+        submit.shaderValue.clipMatPos = cmp;
         submit.clipInfoID = this._clipInfoID;
 
         if (this._clipInCache) {
-            submit.shaderValue.clipOff[0] = 1;
+            submit.shaderValue.clipOff.x = 1;
+            submit.shaderValue.clipOff = submit.shaderValue.clipOff;
         }
     }
 
@@ -1169,7 +1171,7 @@ export class Context {
             //sameKey = false;
         }
 
-        var submit: SubmitTexture = SubmitTexture.create(this, this._mesh, Value2D.create(ShaderDefines2D.TEXTURE2D, 0));
+        var submit: SubmitTexture = SubmitTexture.create(this, this._mesh, Value2D.create(RenderSpriteData.Texture2D));
         this._submits[this._submits._length++] = this._curSubmit = submit;
         submit.shaderValue.textureHost = tex;
         this._copyClipInfo(submit, this._globalClipMatrix);
@@ -1283,7 +1285,7 @@ export class Context {
         {
             mesh.addQuad(ops, uv, rgba, true);
             if (!sameKey) {
-                this._submits[this._submits._length++] = this._curSubmit = submit = SubmitTexture.create(this, mesh, Value2D.create(ShaderDefines2D.TEXTURE2D, 0));
+                this._submits[this._submits._length++] = this._curSubmit = submit = SubmitTexture.create(this, mesh, Value2D.create(RenderSpriteData.Texture2D));
                 submit.shaderValue.textureHost = tex;
                 submit._key.other = imgid;
                 this._copyClipInfo(submit, this._globalClipMatrix);
@@ -1680,7 +1682,7 @@ export class Context {
         }
         if (!sameKey) {
             //添加一个新的submit
-            var submit: SubmitTexture = this._curSubmit = SubmitTexture.create(this, triMesh, Value2D.create(ShaderDefines2D.TEXTURE2D, 0));
+            var submit: SubmitTexture = this._curSubmit = SubmitTexture.create(this, triMesh, Value2D.create(RenderSpriteData.Texture2D));
             submit.shaderValue.textureHost = tex;
             submit._renderType = SubmitBase.TYPE_TEXTURE;
             submit._key.submitType = SubmitBase.KEY_TRIANGLES;
@@ -1836,7 +1838,7 @@ export class Context {
         var renderList: any[] = this._submits;
         var ret: number = ((<any>renderList))._length;
         end < 0 && (end = ((<any>renderList))._length);
-        var submit: Submit = SubmitBase.RENDERBASE;
+        var submit = SubmitBase.RENDERBASE;
         while (start < end) {
             this._renderNextSubmitIndex = start + 1;
             if (renderList[start] === SubmitBase.RENDERBASE) {
@@ -2000,7 +2002,7 @@ export class Context {
 
     private addVGSubmit(mesh: Mesh2D): Submit {
         //elenum设为0，后面再加
-        var submit: Submit = Submit.createShape(this, mesh, 0, Value2D.create(ShaderDefines2D.PRIMITIVE, 0));
+        var submit: Submit = Submit.createShape(this, mesh, 0, Value2D.create(RenderSpriteData.Primitive));
         //submit._key.clear();
         //submit._key.blendShader = _submitKey.blendShader;	//TODO 这个在哪里赋值的啊
         submit._key.submitType = SubmitBase.KEY_VG;
@@ -2232,7 +2234,7 @@ export class Context {
         }
     }
 
-    arc(cx: number, cy: number, r: number, startAngle: number, endAngle: number, counterclockwise: boolean = false, b: boolean = true): void {
+    arc(cx: number, cy: number, rx: number, ry: number, startAngle: number, endAngle: number, counterclockwise: boolean = false, b: boolean = true, minNum = 10): void {
         /* TODO 缓存还没想好
         if (mId != -1) {
             var tShape:IShape = VectorGraphManager.getInstance().shapeDic[this.mId];
@@ -2246,7 +2248,6 @@ export class Context {
         */
         var a: number = 0, da: number = 0, hda: number = 0, kappa: number = 0;
         var dx: number = 0, dy: number = 0, x: number = 0, y: number = 0, tanx: number = 0, tany: number = 0;
-        var px: number = 0, py: number = 0, ptanx: number = 0, ptany: number = 0;
         var i: number, ndivs: number, nvals: number;
 
         // Clamp angles
@@ -2270,9 +2271,9 @@ export class Context {
         }
         var sx: number = this.getMatScaleX();
         var sy: number = this.getMatScaleY();
-        var sr: number = r * (sx > sy ? sx : sy);
+        var sr: number = rx * (sx > sy ? sx : sy);
         var cl: number = 2 * Math.PI * sr;
-        ndivs = (Math.max(cl / 10, 10)) | 0;
+        ndivs = (Math.max(cl / minNum, minNum)) | 0;
 
         hda = (da / ndivs) / 2.0;
         kappa = Math.abs(4 / 3 * (1 - Math.cos(hda)) / Math.sin(hda));
@@ -2281,13 +2282,12 @@ export class Context {
 
         nvals = 0;
         var tPath: Path = this._getPath();
-        var _x1: number, _y1: number;
         for (i = 0; i <= ndivs; i++) {
             a = startAngle + da * (i / ndivs);
             dx = Math.cos(a);
             dy = Math.sin(a);
-            x = cx + dx * r;
-            y = cy + dy * r;
+            x = cx + dx * rx;
+            y = cy + dy * ry;
             if (x != this._path._lastOriX || y != this._path._lastOriY) {
                 //var _tx1:Number = x, _ty1:Number = y;
                 //x = _curMat.a * _tx1 + _curMat.c * _ty1 + _curMat.tx;
@@ -2297,8 +2297,8 @@ export class Context {
         }
         dx = Math.cos(endAngle);
         dy = Math.sin(endAngle);
-        x = cx + dx * r;
-        y = cy + dy * r;
+        x = cx + dx * rx;
+        y = cy + dy * ry;
         if (x != this._path._lastOriX || y != this._path._lastOriY) {
             //var _x2:Number = x, _y2:Number = y;
             //x = _curMat.a * _x2 + _curMat.c * _y2 + _curMat.tx;

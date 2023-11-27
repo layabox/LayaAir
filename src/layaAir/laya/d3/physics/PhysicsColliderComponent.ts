@@ -214,10 +214,10 @@ export class PhysicsColliderComponent extends Component {
         if (!value || value == this._colliderShape) {
             return;
         }
+        this._colliderShape && this._colliderShape.destroy();
+        this._colliderShape = value;
         if (this._collider) {
             this._collider.setColliderShape(value._shape);
-            this._colliderShape && this._colliderShape.destroy();
-            this._colliderShape = value;
         }
     }
 
@@ -283,6 +283,7 @@ export class PhysicsColliderComponent extends Component {
     initCollider() {
         this._initCollider();
         this._collider.setOwner(this.owner);
+        if (this._colliderShape) this._collider.setColliderShape(this._colliderShape._shape);
         // this.restitution = this._restitution;
         // this.friction = this._friction;
         // this.rollingFriction = this._rollingFriction;
@@ -398,8 +399,7 @@ export class PhysicsColliderComponent extends Component {
                 colliderShape = new CapsuleColliderShape(shapeData.radius, shapeData.height, shapeData.orientation);
                 break;
             case "MeshColliderShape":
-                // colliderShape = new MeshColliderShape();
-                throw "MeshColliderShape is not Implement"
+                colliderShape = new MeshColliderShape();
                 break;
             case "ConeColliderShape":
                 colliderShape = new ConeColliderShape(shapeData.radius, shapeData.height, shapeData.orientation);
@@ -408,7 +408,7 @@ export class PhysicsColliderComponent extends Component {
                 colliderShape = new CylinderColliderShape(shapeData.radius, shapeData.height, shapeData.orientation);
                 break;
             default:
-                throw "unknown shape type.";
+                console.error("unknown shape type.");
         }
         return null;//TODO
     }

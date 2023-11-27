@@ -1,4 +1,5 @@
 import { Const } from "../../Const";
+import { Material } from "../../resource/Material";
 import { LayaGL } from "../../layagl/LayaGL";
 import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
 import { MeshTopology } from "../../RenderEngine/RenderEnum/RenderPologyMode";
@@ -13,7 +14,7 @@ export class Submit extends SubmitBase {
 
     protected static _poolSize: number = 0;
     protected static POOL: Submit[] = [];
-
+    material: Material;
     constructor(renderType: number = SubmitBase.TYPE_2D) {
         super(renderType);
     }
@@ -32,11 +33,8 @@ export class Submit extends SubmitBase {
             this.shaderValue.texture = source;
         }
 
-        this._mesh.useMesh();
-        //_ib._bind_upload() || _ib._bind();
-        //_vb._bind_upload() || _vb._bind();
-
-        this.shaderValue.upload();
+        this._mesh.useMesh();//bind 顶点
+        this.shaderValue.upload(this.material);//绑定shader，uploadMaterial
 
         if (BlendMode.activeBlendFunction !== this._blendFn) {
             RenderStateContext.setBlend(true);
@@ -49,7 +47,7 @@ export class Submit extends SubmitBase {
 
         return 1;
     }
-    
+
     /**
      * @override
      */
@@ -81,7 +79,7 @@ export class Submit extends SubmitBase {
         var blendType = context._nBlendType;
         o._blendFn = context._targets ? BlendMode.targetFns[blendType] : BlendMode.fns[blendType];
         o.shaderValue = sv;
-        o.shaderValue.setValue(context._shader2D);
+        o.material = context.material;
         var filters: any[] = context._shader2D.filters;
         filters && o.shaderValue.setFilters(filters);
         return o;
@@ -103,9 +101,9 @@ export class Submit extends SubmitBase {
         o._startIdx = mesh.indexNum * 2;
         o._ref = 1;
         o.shaderValue = sv;
-        o.shaderValue.setValue(ctx._shader2D);
         var blendType = ctx._nBlendType;
         o._key.blendShader = blendType;
+        o.material = ctx.material;
         o._blendFn = ctx._targets ? BlendMode.targetFns[blendType] : BlendMode.fns[blendType];
         return o;
     }

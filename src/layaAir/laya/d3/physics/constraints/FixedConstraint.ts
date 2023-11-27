@@ -22,7 +22,7 @@ export class FixedConstraint extends ConstraintComponent {
         if (Laya3D.enablePhysics && Laya3D.PhysicsCreateUtil.getPhysicsCapable(EPhysicsCapable.Physics_FixedJoint)) {
             this._joint = Laya3D.PhysicsCreateUtil.createFixedJoint(this._physicsManager);
         } else {
-            throw "Rigidbody3D: cant enable Rigidbody3D";
+            console.error("Rigidbody3D: cant enable Rigidbody3D");
         }
     }
 
@@ -32,7 +32,7 @@ export class FixedConstraint extends ConstraintComponent {
     }
 
     protected _onDisable(): void {
-        if(this._joint)
+        if (this._joint)
             this._joint.isEnable(false);
     }
 }

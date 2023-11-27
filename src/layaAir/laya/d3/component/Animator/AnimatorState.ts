@@ -23,6 +23,11 @@ export class AnimatorState extends EventDispatcher implements IClone {
      * 动画事件 更新时调用
      */
     static EVENT_OnStateUpdate = "OnStateUpdate";
+
+    /**
+    * 动画事件 循环完成时调用
+    */
+    static EVENT_OnStateLoop = 'OnStateLoop';
     /**
      * 动画事件 离开时调用
      */
@@ -195,6 +200,19 @@ export class AnimatorState extends EventDispatcher implements IClone {
         if (this._scripts) {
             for (var i = 0, n = this._scripts.length; i < n; i++)
                 this._scripts[i].onStateUpdate(value);
+        }
+    }
+
+    /**
+     * @internal
+     */
+    _eventLoop() {
+        this.event(AnimatorState.EVENT_OnStateLoop);
+        if (this._scripts) {
+            for (let i = 0, n = this._scripts.length; i < n; i++) {
+                if (this._scripts[i].onStateLoop)
+                    this._scripts[i].onStateLoop();
+            }
         }
     }
 

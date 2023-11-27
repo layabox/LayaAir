@@ -105,9 +105,9 @@ export class pxPhysicsManager implements IPhysicsManager {
             }
         };
         const pxPhysics = pxPhysicsCreateUtil._pxPhysics;
-        const physXSimulationCallbackInstance = pxPhysicsCreateUtil._physX.PxSimulationEventCallback.implement(triggerCallback);
-        const sceneDesc = pxPhysicsCreateUtil._physX.getDefaultSceneDesc(pxPhysics.getTolerancesScale(), 0, physXSimulationCallbackInstance);
-        this._pxScene = pxPhysics.createScene(sceneDesc);
+        pxPhysicsCreateUtil._physXSimulationCallbackInstance = pxPhysicsCreateUtil._physX.PxSimulationEventCallback.implement(triggerCallback);
+        pxPhysicsCreateUtil._sceneDesc = pxPhysicsCreateUtil._physX.getDefaultSceneDesc(pxPhysics.getTolerancesScale(), 0, pxPhysicsCreateUtil._physXSimulationCallbackInstance);
+        this._pxScene = pxPhysics.createScene(pxPhysicsCreateUtil._sceneDesc);
         this.setGravity(this._gravity);
         this._pxcontrollerManager = this._pxScene.createControllerManager();
         if (pxPhysicsCreateUtil._physXPVD) {
@@ -229,6 +229,7 @@ export class pxPhysicsManager implements IPhysicsManager {
             ownerA.event(Event.COLLISION_ENTER, value);
             value.other = value._colliderA;
             ownerB.event(Event.COLLISION_ENTER, value);
+            pxCollisionTool.reCoverCollision(value);
         });
 
         this._contactCollisionsPersist.forEach((value: Collision, key: number) => {
@@ -239,6 +240,7 @@ export class pxPhysicsManager implements IPhysicsManager {
             ownerA.event(Event.COLLISION_STAY, value);
             value.other = value._colliderA;
             ownerB.event(Event.COLLISION_STAY, value);
+            pxCollisionTool.reCoverCollision(value);
         });
 
         this._contactCollisionsEnd.forEach((value: Collision, key: number) => {
@@ -249,6 +251,7 @@ export class pxPhysicsManager implements IPhysicsManager {
             ownerA.event(Event.COLLISION_EXIT, value);
             value.other = value._colliderA;
             ownerB.event(Event.COLLISION_EXIT, value);
+            pxCollisionTool.reCoverCollision(value);
         });
         // trigger
         this._triggerCollisionsBegin.forEach((value: Collision, key: number) => {
@@ -259,6 +262,7 @@ export class pxPhysicsManager implements IPhysicsManager {
             ownerA.event(Event.TRIGGER_ENTER, value);
             // value.other = value._colliderA;
             ownerB.event(Event.TRIGGER_ENTER, value);
+            pxCollisionTool.reCoverCollision(value);
         });
 
         this._triggerCollisionsPersist.forEach((value: Collision, key: number) => {
@@ -269,6 +273,7 @@ export class pxPhysicsManager implements IPhysicsManager {
             ownerA.event(Event.TRIGGER_STAY, value);
             // value.other = value._colliderA;
             ownerB.event(Event.TRIGGER_STAY, value);
+            pxCollisionTool.reCoverCollision(value);
         });
 
         this._triggerCollisionsEnd.forEach((value: Collision, key: number) => {
@@ -279,6 +284,7 @@ export class pxPhysicsManager implements IPhysicsManager {
             ownerA.event(Event.TRIGGER_EXIT, value);
             // value.other = value._colliderA;
             ownerB.event(Event.TRIGGER_EXIT, value);
+            pxCollisionTool.reCoverCollision(value);
         });
 
         this._contactCollisionsBegin.clear();

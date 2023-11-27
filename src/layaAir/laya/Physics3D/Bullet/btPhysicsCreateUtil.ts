@@ -1,11 +1,13 @@
 import { Config3D } from "../../../Config3D";
 import { Laya3D } from "../../../Laya3D";
+import { VertexMesh } from "../../RenderEngine/RenderShader/VertexMesh";
+import { VertexDeclaration } from "../../RenderEngine/VertexDeclaration";
 import { PhysicsSettings } from "../../d3/physics/PhysicsSettings";
+import { Mesh } from "../../d3/resource/models/Mesh";
+import { PrimitiveMesh } from "../../d3/resource/models/PrimitiveMesh";
 import { IPhysicsCreateUtil } from "../interface/IPhysicsCreateUtil";
-import { IPhysicsManager } from "../interface/IPhysicsManager";
 import { ID6Joint } from "../interface/Joint/ID6Joint";
 import { IHingeJoint } from "../interface/Joint/IHingeJoint";
-import { IMeshColliderShape } from "../interface/Shape/IMeshColliderShape";
 import { IPlaneColliderShape } from "../interface/Shape/IPlaneColliderShape";
 import { EPhysicsCapable } from "../physicsEnum/EPhycisCapable";
 import { btCharacterCollider } from "./Collider/btCharacterCollider";
@@ -20,6 +22,7 @@ import { btBoxColliderShape } from "./Shape/btBoxColliderShape";
 import { btCapsuleColliderShape } from "./Shape/btCapsuleColliderShape";
 import { btConeColliderShape } from "./Shape/btConeColliderShape";
 import { btCylinderColliderShape } from "./Shape/btCylinderColliderShape";
+import { btMeshColliderShape } from "./Shape/btMeshColliderShape";
 import { btSphereColliderShape } from "./Shape/btSphereColliderShape";
 import { BulletInteractive } from "./btInteractive";
 import { btPhysicsManager } from "./btPhysicsManager";
@@ -29,6 +32,7 @@ export class btPhysicsCreateUtil implements IPhysicsCreateUtil {
     protected _physicsEngineCapableMap: Map<any, any>;
 
     initPhysicsCapable(): void {
+
         this._physicsEngineCapableMap = new Map();
         this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_Gravity, true);
         this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_StaticCollider, true);
@@ -39,13 +43,14 @@ export class btPhysicsCreateUtil implements IPhysicsCreateUtil {
         this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_CapsuleColliderShape, true);
         this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_CylinderColliderShape, true);
         this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_ConeColliderShape, true);
-        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_MeshColliderShape, false);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_MeshColliderShape, true);
         this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_CompoundColliderShape, false);
         this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_Joint, true);
         this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_D6Joint, true);
         this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_FixedJoint, true);
         this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_SpringJoint, true);
         this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_HingeJoint, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_CreateCorveMesh, true);
     }
 
     getPhysicsCapable(value: EPhysicsCapable): boolean {
@@ -65,6 +70,7 @@ export class btPhysicsCreateUtil implements IPhysicsCreateUtil {
             btRigidBodyCollider.__init__();
             btStaticCollider.__init__();
             btCharacterCollider.__init__();
+            btMeshColliderShape.__init__();
             return Promise.resolve();
         }
         );
@@ -105,7 +111,7 @@ export class btPhysicsCreateUtil implements IPhysicsCreateUtil {
     createD6Joint(manager: btPhysicsManager): ID6Joint {
         return new btCustomJoint(manager);
     }
-    
+
     createBoxColliderShape(): btBoxColliderShape {
         return new btBoxColliderShape();
     }
@@ -118,8 +124,8 @@ export class btPhysicsCreateUtil implements IPhysicsCreateUtil {
         return new btCapsuleColliderShape();
     }
 
-    createMeshColliderShape(): IMeshColliderShape {
-        throw new Error("Method not implemented.");
+    createMeshColliderShape(): btMeshColliderShape {
+        return new btMeshColliderShape();
     }
 
     createPlaneColliderShape(): IPlaneColliderShape {
@@ -132,6 +138,35 @@ export class btPhysicsCreateUtil implements IPhysicsCreateUtil {
 
     createConeColliderShape(): btConeColliderShape {
         return new btConeColliderShape();
+    }
+
+    createCorveMesh(mesh: Mesh): Mesh {
+        if (mesh._convexMesh == null) {
+            return null;
+        }
+        let bt = btPhysicsCreateUtil._bt;
+        if ((<any>mesh).__convexMesh == null) {
+            let convexMesh = mesh._convexMesh;
+            let vertexCount = bt.btShapeHull_numVertices(convexMesh);
+            let indexCount = bt.btShapeHull_numIndices(convexMesh);
+            var vertexDeclaration: VertexDeclaration = VertexMesh.getVertexDeclaration("POSITION");
+            var vertexFloatStride: number = vertexDeclaration.vertexStride / 4;
+            var vertice: Float32Array = new Float32Array(vertexCount * vertexFloatStride);
+            let triangles: number[] = []
+            for (var i = 0; i < vertexCount; i++) {
+                let index = i * 3;
+                let vector3 = bt.btShapeHull_getVertexPointer(convexMesh, i);
+                vertice[index] = bt.btVector3_x(vector3);
+                vertice[index + 1] = bt.btVector3_y(vector3);
+                vertice[index + 2] = bt.btVector3_z(vector3);
+            }
+            for (var i = 0; i < indexCount; i++) {
+                triangles.push(bt.btShapeHull_getIndexPointer(convexMesh, i));
+            }
+            (<any>mesh).__convexMesh = PrimitiveMesh._createMesh(vertexDeclaration, vertice, new Uint16Array(triangles));
+        }
+        return (<any>mesh).__convexMesh;
+
     }
 }
 

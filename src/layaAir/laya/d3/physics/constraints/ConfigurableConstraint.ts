@@ -128,12 +128,12 @@ export class ConfigurableConstraint extends ConstraintComponent {
 
     //Linear Drive Y
     private _setDriveLinearY() {
-        this._joint.setDrive(D6Drive.eY, this._linearDriveForce.x, this._linearDriveDamping.y, this._linearDriveforceLimit.y);
+        this._joint.setDrive(D6Drive.eY, this._linearDriveForce.y, this._linearDriveDamping.y, this._linearDriveforceLimit.y);
     }
 
     //Linear Drive Z
     private _setDriveLinearZ() {
-        this._joint.setDrive(D6Drive.eZ, this._linearDriveForce.x, this._linearDriveDamping.z, this._linearDriveforceLimit.z);
+        this._joint.setDrive(D6Drive.eZ, this._linearDriveForce.z, this._linearDriveDamping.z, this._linearDriveforceLimit.z);
     }
 
     private _setAngularXDrive() {
@@ -241,6 +241,9 @@ export class ConfigurableConstraint extends ConstraintComponent {
         return this._zMotion;
     }
 
+    /**
+     * X 角度motion
+     */
     set angularXMotion(value: D6Axis) {
         this._angularXMotion = value;
         this._joint.setMotion(value, D6MotionType.eTWIST);
@@ -250,6 +253,9 @@ export class ConfigurableConstraint extends ConstraintComponent {
         return this._angularXMotion;
     }
 
+    /**
+     * Y 角度motion
+     */
     set angularYMotion(value: D6Axis) {
         this._angularYMotion = value;
         this._joint.setMotion(value, D6MotionType.eSWING1);
@@ -259,6 +265,9 @@ export class ConfigurableConstraint extends ConstraintComponent {
         return this._angularYMotion;
     }
 
+    /**
+     * Z 角度motion
+     */
     set angularZMotion(value: D6Axis) {
         this._angularZMotion = value;
         this._joint.setMotion(value, D6MotionType.eSWING2);
@@ -267,8 +276,6 @@ export class ConfigurableConstraint extends ConstraintComponent {
     get angularZMotion() {
         return this._angularZMotion;
     }
-
-
 
     set distanceLimit(value: number) {
         if (value < 0)
@@ -392,7 +399,6 @@ export class ConfigurableConstraint extends ConstraintComponent {
 
     //angular SwingLimit
 
-    /**@internal */
     set AngleYLimit(value: number) {
         value = Math.min(180, Math.max(0, value));
         this._ySwingAngleLimit = value;
@@ -400,7 +406,7 @@ export class ConfigurableConstraint extends ConstraintComponent {
     }
 
     get AngleYLimit() {
-        return this._ySwingAngleLimit
+        return this._ySwingAngleLimit;
     }
 
     set AngleZLimit(value: number) {
@@ -696,7 +702,7 @@ export class ConfigurableConstraint extends ConstraintComponent {
         if (Laya3D.enablePhysics && Laya3D.PhysicsCreateUtil.getPhysicsCapable(EPhysicsCapable.Physics_D6Joint)) {
             this._joint = Laya3D.PhysicsCreateUtil.createD6Joint(this._physicsManager);
         } else {
-            throw "Rigidbody3D: cant enable Rigidbody3D";
+            console.error("Rigidbody3D: cant enable Rigidbody3D");
         }
     }
 }

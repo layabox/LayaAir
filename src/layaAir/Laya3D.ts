@@ -2,7 +2,6 @@ import { Config3D } from "./Config3D";
 import { ILaya3D } from "./ILaya3D";
 import { PostProcess } from "./laya/d3/component/PostProcess";
 import { BlinnPhongMaterial } from "./laya/d3/core/material/BlinnPhongMaterial";
-import { Material } from "./laya/d3/core/material/Material";
 import { PBRMaterial } from "./laya/d3/core/material/PBRMaterial";
 import { PBRStandardMaterial } from "./laya/d3/core/material/PBRStandardMaterial";
 import { SkyBoxMaterial } from "./laya/d3/core/material/SkyBoxMaterial";
@@ -35,7 +34,6 @@ import { SkyBox } from "./laya/d3/resource/models/SkyBox";
 import { SkyDome } from "./laya/d3/resource/models/SkyDome";
 import { TextureCube } from "./laya/resource/TextureCube";
 import { ShaderInit3D } from "./laya/d3/shader/ShaderInit3D";
-import { LayaGL } from "./laya/layagl/LayaGL";
 import { Texture2D } from "./laya/resource/Texture2D";
 import { WebGL } from "./laya/webgl/WebGL";
 import { ShadowUtils } from "./laya/d3/core/light/ShadowUtils";
@@ -55,14 +53,12 @@ import { SkyPanoramicMaterial } from "./laya/d3/core/material/SkyPanoramicMateri
 import { BloomEffect } from "./laya/d3/core/render/PostEffect/BloomEffect";
 import { ScalableAO } from "./laya/d3/core/render/PostEffect/ScalableAO";
 import { GaussianDoF } from "./laya/d3/core/render/PostEffect/GaussianDoF";
-import { LayaEnv } from "./LayaEnv";
-import { NativeRenderOBJCreateUtil } from "./laya/d3/RenderObjs/NativeOBJ/NativeRenderOBJCreateUtil";
-import { SubShader } from "./laya/RenderEngine/RenderShader/SubShader";
 import { VertexMesh } from "./laya/RenderEngine/RenderShader/VertexMesh";
 import { RenderTexture } from "./laya/resource/RenderTexture";
 import { ColorGradEffect } from "./laya/d3/core/render/PostEffect/ColorGradEffect";
 import { LensFlareEffect } from "./laya/d3/core/render/PostEffect/LensFlares/LensFlareEffect";
 import { IPhysicsCreateUtil } from "./laya/Physics3D/interface/IPhysicsCreateUtil";
+import { LayaGL } from "./laya/layagl/LayaGL";
 
 /**
  * <code>Laya3D</code> 类用于初始化3D设置。
@@ -121,7 +117,6 @@ export class Laya3D {
                 });
             }
         }
-        Laya3D.createRenderObjInit();
         // if (LayaEnv.isConch && !(window as any).conchConfig.conchWebGL) {
         //     var skinnedMeshRender: any = SkinnedMeshRenderer;
         //     skinnedMeshRender.prototype._computeSkinnedData = skinnedMeshRender.prototype._computeSkinnedDataForNative;
@@ -147,7 +142,6 @@ export class Laya3D {
 
         ILaya3D.Scene3D = Scene3D;
         ILaya3D.Laya3D = Laya3D;
-        SubShader.__init__();
         VertexMesh.__init__();
         VertexShurikenParticleBillboard.__init__();
         VertexShurikenParticleMesh.__init__();
@@ -190,7 +184,6 @@ export class Laya3D {
         ShadowUtils.init();
         RenderContext3D.__init__();
         RenderTexture.configRenderContextInstance(RenderContext3D._instance);
-        Material.__initDefine__();
         BlinnPhongMaterial.__initDefine__();
         SkyProceduralMaterial.__initDefine__();
         UnlitMaterial.__initDefine__();
@@ -210,16 +203,6 @@ export class Laya3D {
         HalfFloatUtils.__init__();
 
         return Promise.resolve();
-    }
-
-    static createRenderObjInit() {
-        if (LayaEnv.isConch && !(window as any).conchConfig.conchWebGL) {
-            LayaGL.renderEngine._renderOBJCreateContext = new NativeRenderOBJCreateUtil();
-            LayaGL.renderOBJCreate = LayaGL.renderEngine.getCreateRenderOBJContext();
-        } else {
-            //TODO
-        }
-
     }
 }
 

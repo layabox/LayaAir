@@ -9,19 +9,19 @@ import BlurDownSampleFS from "./BlurDownSample.fs";
 import BlurDownSampleVS from "./BlurDownSample.vs";
 import BlurEdgeAdd from "./EdgeAdd.fs";
 import BlurEdgeSub from "./EdgeSub.fs";
-import { Material } from "laya/d3/core/material/Material";
+import { Material } from "laya/resource/Material";
 import { BaseTexture } from "laya/resource/BaseTexture";
 import { FilterMode } from "laya/RenderEngine/RenderEnum/FilterMode";
 import { RenderTargetFormat } from "laya/RenderEngine/RenderEnum/RenderTargetFormat";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 import { ShaderData, ShaderDataType } from "laya/RenderEngine/RenderShader/ShaderData";
-import { LayaGL } from "laya/layagl/LayaGL";
 import { Vector4 } from "laya/maths/Vector4";
 import { RenderTexture } from "laya/resource/RenderTexture";
 import { RenderState } from "laya/RenderEngine/RenderShader/RenderState";
 import { ShaderPass } from "laya/RenderEngine/RenderShader/ShaderPass";
 import { SubShader } from "laya/RenderEngine/RenderShader/SubShader";
 import { VertexMesh } from "laya/RenderEngine/RenderShader/VertexMesh";
+import { LayaGL } from "laya/layagl/LayaGL";
 export class BlurEffect extends PostProcessEffect {
 
     static BLUR_TYPE_GaussianBlur: number = 0;
@@ -216,7 +216,7 @@ export class BlurMaterial extends Material {
     static SHADERVALUE_SOURCETEXTURE0: number;
     static ShADERVALUE_SOURCETEXTURE1: number;
 
-    static __init__(){
+    static __init__() {
         BlurMaterial.SHADERVALUE_MAINTEX = Shader3D.propertyNameToID("u_MainTex");
         BlurMaterial.SHADERVALUE_TEXELSIZE = Shader3D.propertyNameToID("u_MainTex_TexelSize");
         BlurMaterial.SHADERVALUE_DOWNSAMPLEVALUE = Shader3D.propertyNameToID("u_DownSampleValue");

@@ -5,7 +5,6 @@ import { InternalRenderTarget } from "../RenderEngine/RenderInterface/InternalRe
 import { IRenderTarget } from "../RenderEngine/RenderInterface/IRenderTarget";
 import { Color } from "../maths/Color";
 import { LayaGL } from "../layagl/LayaGL";
-import { InternalTexture } from "../RenderEngine/RenderInterface/InternalTexture";
 
 /**
  * <code>RenderTexture</code> 类用于创建渲染目标。

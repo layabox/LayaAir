@@ -1,8 +1,8 @@
-import { LayaGL } from "../layagl/LayaGL";
 import { DDSTextureInfo } from "../RenderEngine/DDSTextureInfo";
 import { KTXTextureInfo } from "../RenderEngine/KTXTextureInfo";
 import { TextureDimension } from "../RenderEngine/RenderEnum/TextureDimension";
 import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
+import { LayaGL } from "../layagl/LayaGL";
 import { BaseTexture } from "./BaseTexture";
 
 export enum TextureCubeFace {

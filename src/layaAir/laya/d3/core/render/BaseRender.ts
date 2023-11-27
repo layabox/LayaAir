@@ -2,7 +2,7 @@ import { RenderElement } from "./RenderElement";
 import { RenderContext3D } from "./RenderContext3D";
 import { RenderableSprite3D } from "../RenderableSprite3D"
 import { Transform3D } from "../Transform3D"
-import { Material } from "../material/Material"
+import { Material } from "../../../resource/Material";
 import { BoundFrustum } from "../../math/BoundFrustum"
 import { Event } from "../../../events/Event"
 import { Lightmap } from "../scene/Lightmap";
@@ -12,7 +12,6 @@ import { Component } from "../../../components/Component";
 import { Sprite3D } from "../Sprite3D";
 import { ShaderData, ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData";
 import { TransLargeUBOUtils } from "../TransLargeUBOUtils";
-import { LayaGL } from "../../../layagl/LayaGL";
 import { IBaseRenderNode } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IBaseRenderNode";
 import { SubUniformBufferData } from "../../../RenderEngine/SubUniformBufferData";
 import { Stat } from "../../../utils/Stat";
@@ -25,12 +24,13 @@ import { NodeFlags } from "../../../Const";
 import { Sprite3DRenderDeclaration } from "./Sprite3DRenderDeclaration";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { BatchRender } from "../../component/Volume/BatchVolume/BatchRender";
-import { ILaya3D } from "../../../../ILaya3D";
 import { IBoundsCell } from "../../math/IBoundsCell";
 import { Matrix4x4 } from "../../../maths/Matrix4x4";
 import { Vector3 } from "../../../maths/Vector3";
 import { Vector4 } from "../../../maths/Vector4";
 import { VertexMesh } from "../../../RenderEngine/RenderShader/VertexMesh";
+import { LayaGL } from "../../../layagl/LayaGL";
+import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
 
 export enum RenderBitFlag {
     RenderBitFlag_CullFlag = 0,
@@ -504,7 +504,7 @@ export class BaseRender extends Component implements IBoundsCell {
     }
 
     protected _createBaseRenderNode(): IBaseRenderNode {
-        return LayaGL.renderOBJCreate.createBaseRenderNode();
+        return Laya3DRender.renderOBJCreate.createBaseRenderNode();
     }
 
     private _changeLayer(layer: number) {

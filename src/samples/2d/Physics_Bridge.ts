@@ -3,35 +3,34 @@ import { Laya } from "Laya";
 import { Sprite } from "laya/display/Sprite";
 import { Stage } from "laya/display/Stage";
 import { Event } from "laya/events/Event";
-import { BoxCollider } from "laya/physics/BoxCollider";
-import { ChainCollider } from "laya/physics/ChainCollider";
-import { CircleCollider } from "laya/physics/CircleCollider";
 import { RevoluteJoint } from "laya/physics/joint/RevoluteJoint";
-import { Physics } from "laya/physics/Physics";
-import { PhysicsDebugDraw } from "laya/physics/PhysicsDebugDraw";
-import { PolygonCollider } from "laya/physics/PolygonCollider";
 import { RigidBody } from "laya/physics/RigidBody";
 import { Label } from "laya/ui/Label";
 import { Stat } from "laya/utils/Stat";
 import { Main } from "../Main";
+import { ChainCollider } from "laya/physics/Collider2D/ChainCollider";
+import { BoxCollider } from "laya/physics/Collider2D/BoxCollider";
+import { CircleCollider } from "laya/physics/Collider2D/CircleCollider";
+import { PolygonCollider } from "laya/physics/Collider2D/PolygonCollider";
+import { Vector2 } from "laya/maths/Vector2";
+import { Physics2D } from "laya/physics/Physics2D";
 
 export class Physics_Bridge {
     Main: typeof Main = null;
     private ecount = 30;
     private label: Label;
+    private TempVec: Vector2 = new Vector2();
 
     constructor(maincls: typeof Main) {
         this.Main = maincls;
         Config.isAntialias = true;
         Laya.init(1200, 700).then(() => {
             Stat.show();
-            Physics.enable();
-            PhysicsDebugDraw.enable();
             Laya.stage.alignV = Stage.ALIGN_MIDDLE;
             Laya.stage.alignH = Stage.ALIGN_CENTER;
             Laya.stage.scaleMode = Stage.SCALE_FIXED_AUTO;
             Laya.stage.bgColor = "#232628";
-
+            Physics2D.I.start();
             this.createBridge();
             this.eventListener();
         });
@@ -41,12 +40,13 @@ export class Physics_Bridge {
         const startPosX = 250, startPosY = 450;
 
         let ground = new Sprite();
-        this.Main.box2D.addChild(ground);
+
         let groundBody: RigidBody = new RigidBody();
         groundBody.type = "static";
         ground.addComponentInstance(groundBody);
         let chainCollider: ChainCollider = ground.addComponent(ChainCollider);
-        chainCollider.points = "50,600,1050,600";
+        chainCollider.datas = [50, 600, 1050, 600];
+        this.Main.box2D.addChild(ground);
 
         let point1 = new Sprite();
         this.Main.box2D.addChild(point1);
@@ -110,22 +110,24 @@ export class Physics_Bridge {
     eventListener() {
         // 单击产生新的小球刚体
         Laya.stage.on(Event.CLICK, this, () => {
-            let
-                targetX = (300 + Math.random() * 400) / Physics.PIXEL_RATIO, // [300, 700)
-                targetY = 500 / Physics.PIXEL_RATIO;
+            let tempVec = this.TempVec;
+            let targetX = 300 + Math.random() * 400, targetY = 500;
             let newBall = new Sprite();
             this.Main.box2D.addChild(newBall);
             let circleBody: RigidBody = newBall.addComponent(RigidBody);
             circleBody.bullet = true;
+            circleBody.type = "dynamic";
+
             let circleCollider: CircleCollider = newBall.addComponent(CircleCollider);
             circleCollider.radius = 5;
             circleCollider.x = Laya.stage.mouseX;
             circleCollider.y = Laya.stage.mouseY;
-            let circlePosx = circleCollider.x / Physics.PIXEL_RATIO;
-            let circlePosy = circleCollider.y / Physics.PIXEL_RATIO;
-            let velocityX = targetX - circlePosx;
-            let velocityY = targetY - circlePosy;
-            circleBody.linearVelocity = { "x": velocityX * 3, "y": velocityY * 3 };
+
+            tempVec.x = targetX - circleCollider.x;
+            tempVec.y = targetY - circleCollider.y;
+            Vector2.normalize(tempVec, tempVec);
+            Vector2.scale(tempVec, 25, tempVec);
+            circleBody.linearVelocity = tempVec.toArray();
             Laya.timer.frameOnce(120, this, function () {
                 newBall.destroy();
             });
@@ -141,5 +143,6 @@ export class Physics_Bridge {
     dispose() {
         Laya.stage.offAll(Event.CLICK);
         Laya.stage.removeChild(this.label);
+        Physics2D.I.destroyWorld();
     }
 }

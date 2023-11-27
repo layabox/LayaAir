@@ -1,6 +1,6 @@
 import { ILaya } from "../../ILaya";
-import { LayaGL } from "../layagl/LayaGL";
 import { RenderStatisticsInfo } from "../RenderEngine/RenderEnum/RenderStatInfo";
+import { LayaGL } from "../layagl/LayaGL";
 import { Browser } from "./Browser";
 import { ClassUtils } from "./ClassUtils";
 import { IStatUI, StatToggleUIParams, StatUIParams } from "./IStatUI";

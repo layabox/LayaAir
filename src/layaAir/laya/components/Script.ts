@@ -2,7 +2,7 @@ import { Component } from "./Component";
 import { Event } from "../events/Event"
 import { Collision } from "../d3/physics/Collision";
 import { PhysicsColliderComponent } from "../d3/physics/PhysicsColliderComponent";
-import { ColliderBase } from "../physics/ColliderBase";
+import { ColliderBase } from "../physics/Collider2D/ColliderBase";
 import { Sprite3D } from "../d3/core/Sprite3D";
 import { Sprite } from "../display/Sprite";
 import { ILaya } from "../../ILaya";
@@ -54,32 +54,32 @@ export class Script extends Component {
     }
 
     /**
-     * 开始碰撞时执行
+     * 3D物理触发器事件与2D物理碰撞事件，开始碰撞时执行
      */
     onTriggerEnter?(other: PhysicsColliderComponent | ColliderBase, self?: ColliderBase, contact?: any): void;
 
     /**
-     * 持续碰撞时执行
+     * 3D物理触发器事件与2D物理碰撞事件，持续碰撞时执行
      */
     onTriggerStay?(other: PhysicsColliderComponent | ColliderBase, self?: ColliderBase, contact?: any): void;
 
     /**
-     * 结束碰撞时执行
+     * 3D物理触发器事件与2D物理碰撞事件，结束碰撞时执行
      */
     onTriggerExit?(other: PhysicsColliderComponent | ColliderBase, self?: ColliderBase, contact?: any): void;
 
     /**
-     * 开始碰撞时执行
+     * 3D物理碰撞器事件（不适用2D），开始碰撞时执行
      */
     onCollisionEnter?(collision: Collision): void;
 
     /**
-     * 持续碰撞时执行
+     * 3D物理碰撞器事件（不适用2D），持续碰撞时执行
      */
     onCollisionStay?(collision: Collision): void;
 
     /**
-     * 结束碰撞时执行
+     *3D物理碰撞器事件（不适用2D），结束碰撞时执行
      */
     onCollisionExit?(collision: Collision): void;
 
