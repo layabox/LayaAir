@@ -11,7 +11,7 @@ import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
 import { Const } from "../../Const";
 import { Matrix4x4 } from "../../maths/Matrix4x4";
 import { Vector4 } from "../../maths/Vector4";
-import { Material } from "../../d3/core/material/Material";
+import { Material } from "../../resource/Material";
 import { Laya } from "../../../Laya";
 import { LayaGL } from "../../layagl/LayaGL";
 

@@ -5,7 +5,7 @@ import { MeshFilter } from "./MeshFilter";
 import { RenderableSprite3D } from "./RenderableSprite3D";
 import { SkinnedMeshRenderer } from "./SkinnedMeshRenderer";
 import { Sprite3D } from "./Sprite3D";
-import { Material } from "./material/Material";
+import { Material } from "../../resource/Material";
 import { SkinnedMeshSprite3DShaderDeclaration } from "./SkinnedMeshSprite3DShaderDeclaration";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { Vector3 } from "../../maths/Vector3";
@@ -30,7 +30,7 @@ export class SkinnedMeshSprite3D extends RenderableSprite3D {
         SkinnedMeshSprite3DShaderDeclaration.SHADERDEFINE_SIMPLEBONE = Shader3D.getDefineByName("SIMPLEBONE");
         const commandUniform = LayaGL.renderOBJCreate.createGlobalUniformMap("Custom");
         SkinnedMeshSprite3D.BONES = Shader3D.propertyNameToID("u_Bones");
-        commandUniform.addShaderUniform(SkinnedMeshSprite3D.BONES, "u_Bones",ShaderDataType.Buffer);
+        commandUniform.addShaderUniform(SkinnedMeshSprite3D.BONES, "u_Bones", ShaderDataType.Buffer);
     }
 
     /** @internal */

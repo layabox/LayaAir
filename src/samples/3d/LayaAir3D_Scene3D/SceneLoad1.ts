@@ -17,7 +17,6 @@ export class SceneLoad1 {
 			Stat.show();
 			Laya.stage.scaleMode = Stage.SCALE_FULL;
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
-			URL.basePath += "sample-resource/";
 			Shader3D.debugMode = true;
 			//加载场景
 			Scene3D.load("res/threeDimen/scene/LayaScene_dudeScene/Conventional/dudeScene.ls", Handler.create(this, function (scene: Scene3D): void {

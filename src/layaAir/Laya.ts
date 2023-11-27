@@ -36,6 +36,7 @@ import { RunDriver } from "./laya/utils/RunDriver";
 import { Config } from "./Config";
 import { Shader3D } from "./laya/RenderEngine/RenderShader/Shader3D";
 import { LayaGL } from "./laya/layagl/LayaGL";
+import { Material } from "./laya/resource/Material";
 
 /**
  * <code>Laya</code> 是全局对象的引用入口集。
@@ -201,6 +202,7 @@ export class Laya {
         RenderStateContext.__init__();
         MeshParticle2D.__init__();
         RenderSprite.__init__();
+        Material.__initDefine__();
         InputManager.__init__(stage, Render.canvas);
         if (!!(window as any).conch && "conchUseWXAdapter" in Browser.window) {
             Input.isAppUseNewInput = true;

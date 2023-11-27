@@ -1,6 +1,6 @@
 import UnityGrassVS from "./shader/GrassShaderVS.vs";
 import UnityGrassFS from "./shader/GrassShaderFS.fs";
-import { Material } from "laya/d3/core/material/Material";
+import { Material } from "laya/resource/Material";
 import { BaseTexture } from "laya/resource/BaseTexture";
 import { Loader } from "laya/net/Loader";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
@@ -50,53 +50,53 @@ export class GrassMaterial extends Material {
 
     static __init__(): void {
 
-        GrassMaterial.WINDAINTENSITY= Shader3D.propertyNameToID("u_WindAIntensity");
-        GrassMaterial.WINDAFREQUECY= Shader3D.propertyNameToID("u_WindAFrequency");
-        GrassMaterial.WINDATILING= Shader3D.propertyNameToID("u_WindATiling");
-        GrassMaterial.WINDAWRAP= Shader3D.propertyNameToID("u_WindAWrap");
-        GrassMaterial.WINDBINTENSITY= Shader3D.propertyNameToID("u_WindBIntensity");
-        GrassMaterial.WINDBFREQUECY= Shader3D.propertyNameToID("u_WindBFrequency");
-        GrassMaterial.WINDBTILING= Shader3D.propertyNameToID("u_WindBTiling");
-        GrassMaterial.WINDBWRAP= Shader3D.propertyNameToID("u_WindBWrap");
-        GrassMaterial.WINDCINTENSITY= Shader3D.propertyNameToID("u_WindCIntensity");
-        GrassMaterial.WINDCFREQUECY= Shader3D.propertyNameToID("u_WindCFrequency");
-        GrassMaterial.WINDCTILING= Shader3D.propertyNameToID("u_WindCTiling");
-        GrassMaterial.WINDCWRAP= Shader3D.propertyNameToID("u_WindCWrap");
+        GrassMaterial.WINDAINTENSITY = Shader3D.propertyNameToID("u_WindAIntensity");
+        GrassMaterial.WINDAFREQUECY = Shader3D.propertyNameToID("u_WindAFrequency");
+        GrassMaterial.WINDATILING = Shader3D.propertyNameToID("u_WindATiling");
+        GrassMaterial.WINDAWRAP = Shader3D.propertyNameToID("u_WindAWrap");
+        GrassMaterial.WINDBINTENSITY = Shader3D.propertyNameToID("u_WindBIntensity");
+        GrassMaterial.WINDBFREQUECY = Shader3D.propertyNameToID("u_WindBFrequency");
+        GrassMaterial.WINDBTILING = Shader3D.propertyNameToID("u_WindBTiling");
+        GrassMaterial.WINDBWRAP = Shader3D.propertyNameToID("u_WindBWrap");
+        GrassMaterial.WINDCINTENSITY = Shader3D.propertyNameToID("u_WindCIntensity");
+        GrassMaterial.WINDCFREQUECY = Shader3D.propertyNameToID("u_WindCFrequency");
+        GrassMaterial.WINDCTILING = Shader3D.propertyNameToID("u_WindCTiling");
+        GrassMaterial.WINDCWRAP = Shader3D.propertyNameToID("u_WindCWrap");
         //grass hight width
-        GrassMaterial.GRASSHEIGHT= Shader3D.propertyNameToID("u_grassHeight");
-        GrassMaterial.GRASSWIDTH= Shader3D.propertyNameToID("u_grassWidth");
+        GrassMaterial.GRASSHEIGHT = Shader3D.propertyNameToID("u_grassHeight");
+        GrassMaterial.GRASSWIDTH = Shader3D.propertyNameToID("u_grassWidth");
         //grass Bound 必须和草系统里面的UV相同才能得到很好的效果
-        GrassMaterial.GRASSBOUND= Shader3D.propertyNameToID("u_BoundSize");
+        GrassMaterial.GRASSBOUND = Shader3D.propertyNameToID("u_BoundSize");
         //地面颜色
-        GrassMaterial.GROUNDCOLOR= Shader3D.propertyNameToID("u_GroundColor");
-        GrassMaterial.ALBEDOTEXTURE= Shader3D.propertyNameToID("u_albedoTexture");
+        GrassMaterial.GROUNDCOLOR = Shader3D.propertyNameToID("u_GroundColor");
+        GrassMaterial.ALBEDOTEXTURE = Shader3D.propertyNameToID("u_albedoTexture");
 
         var attributeMap: any = {
             'a_Position': [VertexMesh.MESH_POSITION0, ShaderDataType.Vector4],
             'a_Normal': [VertexMesh.MESH_NORMAL0, ShaderDataType.Vector3],
             'a_privotPosition': [VertexMesh.MESH_CUSTOME0, ShaderDataType.Vector3]
         };
-        var uniformMap:any = {
-            "u_WindAIntensity":ShaderDataType.Float,
-            "u_WindAFrequency":ShaderDataType.Float,
-            "u_WindATiling":ShaderDataType.Vector2,
-            "u_WindAWrap":ShaderDataType.Vector2,
+        var uniformMap: any = {
+            "u_WindAIntensity": ShaderDataType.Float,
+            "u_WindAFrequency": ShaderDataType.Float,
+            "u_WindATiling": ShaderDataType.Vector2,
+            "u_WindAWrap": ShaderDataType.Vector2,
 
-            "u_WindBIntensity":ShaderDataType.Float,
-            "u_WindBFrequency":ShaderDataType.Float,
-            "u_WindBTiling":ShaderDataType.Vector2,
-            "u_WindBWrap":ShaderDataType.Vector2,
+            "u_WindBIntensity": ShaderDataType.Float,
+            "u_WindBFrequency": ShaderDataType.Float,
+            "u_WindBTiling": ShaderDataType.Vector2,
+            "u_WindBWrap": ShaderDataType.Vector2,
 
-            "u_WindCIntensity":ShaderDataType.Float,
-            "u_WindCFrequency":ShaderDataType.Float,
-            "u_WindCTiling":ShaderDataType.Vector2,
-            "u_WindCWrap":ShaderDataType.Vector2,
+            "u_WindCIntensity": ShaderDataType.Float,
+            "u_WindCFrequency": ShaderDataType.Float,
+            "u_WindCTiling": ShaderDataType.Vector2,
+            "u_WindCWrap": ShaderDataType.Vector2,
             //grass
-            "u_grassHeight":ShaderDataType.Float,
-            "u_grassWidth":ShaderDataType.Float,
-            "u_BoundSize":ShaderDataType.Vector4,
-            "u_GroundColor":ShaderDataType.Vector3,
-            "u_albedoTexture":ShaderDataType.Texture2D
+            "u_grassHeight": ShaderDataType.Float,
+            "u_grassWidth": ShaderDataType.Float,
+            "u_BoundSize": ShaderDataType.Vector4,
+            "u_GroundColor": ShaderDataType.Vector3,
+            "u_albedoTexture": ShaderDataType.Texture2D
         }
         var shader: Shader3D = Shader3D.add("GrassShader", false, false);
         var subShader: SubShader = new SubShader(attributeMap, uniformMap);

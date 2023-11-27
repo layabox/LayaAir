@@ -2,7 +2,6 @@ import { Config3D } from "./Config3D";
 import { ILaya3D } from "./ILaya3D";
 import { PostProcess } from "./laya/d3/component/PostProcess";
 import { BlinnPhongMaterial } from "./laya/d3/core/material/BlinnPhongMaterial";
-import { Material } from "./laya/d3/core/material/Material";
 import { PBRMaterial } from "./laya/d3/core/material/PBRMaterial";
 import { PBRStandardMaterial } from "./laya/d3/core/material/PBRStandardMaterial";
 import { SkyBoxMaterial } from "./laya/d3/core/material/SkyBoxMaterial";
@@ -185,7 +184,6 @@ export class Laya3D {
         ShadowUtils.init();
         RenderContext3D.__init__();
         RenderTexture.configRenderContextInstance(RenderContext3D._instance);
-        Material.__initDefine__();
         BlinnPhongMaterial.__initDefine__();
         SkyProceduralMaterial.__initDefine__();
         UnlitMaterial.__initDefine__();

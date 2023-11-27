@@ -1,4 +1,4 @@
-import { Material } from "laya/d3/core/material/Material";
+import { Material } from "laya/resource/Material";
 import { Color } from "laya/maths/Color";
 import { RenderState } from "laya/RenderEngine/RenderShader/RenderState";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";

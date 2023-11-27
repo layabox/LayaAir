@@ -24,7 +24,6 @@ export class UnlitMaterialDemo {
 
 	constructor() {
 		Laya.init(0, 0).then(() => {
-			URL.basePath += "sample-resource/";
 			Laya.stage.scaleMode = Stage.SCALE_FULL;
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
 			Stat.show();
