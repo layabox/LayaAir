@@ -233,18 +233,23 @@ export class Shader3D {
         let shader = Shader3D.add(data.name, data.enableInstancing, data.supportReflectionProbe);
         let subshader = new SubShader(data.attributeMap ? data.attributeMap : SubShader.DefaultAttributeMap, data.uniformMap, data.defaultValue);
         shader.addSubShader(subshader);
-        let passArray = data.shaderPass;
-        for (var i in passArray) {
-            let pass = passArray[i] as IShaderpassStructor;
-            if (!pass.VS) {
+        let passDataArray = data.shaderPass;
+        for (var i in passDataArray) {
+            let passData = passDataArray[i] as IShaderpassStructor;
+            if (!passData.VS) {
                 console.warn(`${data.name}: VS of pass ${i} is empty`);
                 continue;
             }
-            if (!pass.FS) {
+            if (!passData.FS) {
                 console.warn(`${data.name}: FS of pass ${i} is empty`);
                 continue;
             }
-            subshader._addShaderPass(ShaderCompile.compile(pass.VS, pass.FS, basePath), pass.pipeline);
+
+            let shaderPass = subshader._addShaderPass(ShaderCompile.compile(passData.VS, passData.FS, basePath), passData.pipeline);
+
+            shaderPass.statefirst = passData.statefirst ?? false;
+
+            ShaderCompile.getRenderState(passData.renderState, shaderPass.renderState);
         }
         return shader;
     }
