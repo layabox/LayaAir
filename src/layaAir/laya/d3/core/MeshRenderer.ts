@@ -419,6 +419,7 @@ export class MeshRenderer extends BaseRender {
      */
     _renderUpdate(context: RenderContext3D, transform: Transform3D): void {
         this._applyReflection();
+        this._applyLightProb();
         this._mesh.morphTargetData && this._applyMorphdata();
         var element: SubMeshRenderElement = <SubMeshRenderElement>context.renderElement;
         let trans = transform ? transform : this._transform;

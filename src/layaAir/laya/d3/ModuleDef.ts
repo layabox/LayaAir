@@ -208,14 +208,6 @@ c("SkinnedMeshRenderer", SkinnedMeshRenderer);
 c("SimpleSkinnedMeshRenderer", SimpleSkinnedMeshRenderer);
 c("SkyRenderer", SkyRenderer);
 
-// c("BoxColliderShape", BoxColliderShape);
-// c("CapsuleColliderShape", CapsuleColliderShape);
-// c("ConeColliderShape", ConeColliderShape);
-// c("CylinderColliderShape", CylinderColliderShape);
-// c("SphereColliderShape", SphereColliderShape);
-//c("MeshColliderShape", MeshColliderShape);
-//c("CompoundColliderShape", CompoundColliderShape);
-
 c("PostProcess", PostProcess);
 c("PostProcessEffect", PostProcessEffect);
 c("BloomEffect", BloomEffect);
