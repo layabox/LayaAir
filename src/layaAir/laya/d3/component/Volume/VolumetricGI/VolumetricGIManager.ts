@@ -1,3 +1,4 @@
+import { render } from "../../../../../Laya";
 import { SingletonList } from "../../../../utils/SingletonList";
 import { BaseRender } from "../../../core/render/BaseRender";
 import { Sprite3DRenderDeclaration } from "../../../core/render/Sprite3DRenderDeclaration";
@@ -19,6 +20,7 @@ export class VolumetricGIManager implements IVolumeManager {
     removeVolumetricGI(renderer: BaseRender) {
         let shaderData = renderer._shaderValues;
         shaderData.removeDefine(Sprite3DRenderDeclaration.SHADERDEFINE_VOLUMETRICGI);
+        renderer.lightProb = null;
     }
 
     add(volume: VolumetricGI): void {
@@ -61,7 +63,7 @@ export class VolumetricGIManager implements IVolumeManager {
         }
 
         if (currentVolume) {
-            currentVolume.applyVolumetricGI(renderer._shaderValues);
+            renderer.lightProb = currentVolume;
         }
         else {
             this.removeVolumetricGI(renderer);
@@ -71,8 +73,7 @@ export class VolumetricGIManager implements IVolumeManager {
     handleMotionlist(motionObjects: SingletonList<BaseRender>): void {
         for (let index = 0; index < motionObjects.length; index++) {
             let render = motionObjects.elements[index];
-            // todo 判断render 是否使用 VolumetricGI
-            if (true) {
+            if (render._surportVolumetricGI) {
                 this._updateRenderObject(render);
             }
         }
@@ -82,8 +83,7 @@ export class VolumetricGIManager implements IVolumeManager {
     reCaculateAllRenderObjects(renders: SingletonList<BaseRender>): void {
         for (let index = 0; index < renders.length; index++) {
             let render = renders.elements[index];
-            // todo 判断是否使用 VolumetricGI 
-            if (true) {
+            if (render._surportVolumetricGI) {
                 this._updateRenderObject(render);
             }
         }
