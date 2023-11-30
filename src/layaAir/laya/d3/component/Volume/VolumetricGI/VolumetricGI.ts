@@ -60,6 +60,15 @@ export class VolumetricGI extends Volume {
     }
 
     /**
+    * @inheritDoc
+    * @override
+    */
+    protected _onEnable(): void {
+        super._onEnable();
+        this._updateMark = ILaya3D.Scene3D._updateMark;
+    }
+
+    /**
      * light probe texture
      */
     get irradiance(): Texture2D {

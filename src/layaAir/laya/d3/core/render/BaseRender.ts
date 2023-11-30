@@ -505,8 +505,8 @@ export class BaseRender extends Component implements IBoundsCell {
         }
         this._lightProbUpdateMark = -1;
         this._lightProb = volumetricGI;
-        if (this.lightmapIndex >= 0) {
-            this._lightProb.applyVolumetricGI(this._shaderValues)
+        if (this.lightmapIndex < 0) {
+            this._lightProb && this._lightProb.applyVolumetricGI(this._shaderValues)
         };
         this._getIrradientMode();
     }
