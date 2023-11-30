@@ -1,11 +1,6 @@
-import { Vector3 } from "../../../maths/Vector3";
 import { IJoint } from "./IJoint";
 
 export interface ISpringJoint extends IJoint {
-    /**
-   * The swing offset.
-   */
-    setSwingOffset(value: Vector3): void;
 
     /**
      * Set the allowed minimum distance for the joint.

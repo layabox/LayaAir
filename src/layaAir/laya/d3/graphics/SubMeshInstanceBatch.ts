@@ -1,4 +1,3 @@
-import { LayaGL } from "../../layagl/LayaGL";
 import { GeometryElement } from "../core/GeometryElement";
 import { RenderContext3D } from "../core/render/RenderContext3D";
 import { SubMeshRenderElement } from "../core/render/SubMeshRenderElement";
@@ -9,6 +8,7 @@ import { MeshTopology } from "../../RenderEngine/RenderEnum/RenderPologyMode";
 import { DrawType } from "../../RenderEngine/RenderEnum/DrawType";
 import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
 import { VertexMesh } from "../../RenderEngine/RenderShader/VertexMesh";
+import { Laya3DRender } from "../RenderObjs/Laya3DRender";
 
 /**
  * 是否要删除
@@ -43,11 +43,11 @@ export class SubMeshInstanceBatch extends GeometryElement {
 	constructor() {
 		super(MeshTopology.Triangles, DrawType.DrawElementInstance);
 		this.indexFormat = IndexFormat.UInt16;
-		this.instanceWorldMatrixBuffer = LayaGL.renderOBJCreate.createVertexBuffer3D(this.instanceWorldMatrixData.length * 4, BufferUsage.Dynamic, false);
+		this.instanceWorldMatrixBuffer = Laya3DRender.renderOBJCreate.createVertexBuffer3D(this.instanceWorldMatrixData.length * 4, BufferUsage.Dynamic, false);
 		this.instanceWorldMatrixBuffer.vertexDeclaration = VertexMesh.instanceWorldMatrixDeclaration;
 		this.instanceWorldMatrixBuffer.instanceBuffer = true;
 		//SImpleAnimator
-		this.instanceSimpleAnimatorBuffer = LayaGL.renderOBJCreate.createVertexBuffer3D(this.instanceSimpleAnimatorData.length * 4, BufferUsage.Dynamic, false);
+		this.instanceSimpleAnimatorBuffer = Laya3DRender.renderOBJCreate.createVertexBuffer3D(this.instanceSimpleAnimatorData.length * 4, BufferUsage.Dynamic, false);
 		this.instanceSimpleAnimatorBuffer.vertexDeclaration = VertexMesh.instanceSimpleAnimatorDeclaration;
 		this.instanceSimpleAnimatorBuffer.instanceBuffer = true;
 	}

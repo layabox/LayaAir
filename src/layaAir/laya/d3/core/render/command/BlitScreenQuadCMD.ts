@@ -1,4 +1,3 @@
-import { LayaGL } from "../../../../layagl/LayaGL";
 import { Shader3D } from "../../../../RenderEngine/RenderShader/Shader3D";
 import { ShaderData } from "../../../../RenderEngine/RenderShader/ShaderData";
 import { BaseTexture } from "../../../../resource/BaseTexture";
@@ -13,6 +12,7 @@ import { CommandBuffer } from "./CommandBuffer";
 import { Camera } from "../../Camera";
 import { Vector4 } from "../../../../maths/Vector4";
 import { RenderTexture } from "../../../../resource/RenderTexture";
+import { Laya3DRender } from "../../../RenderObjs/Laya3DRender";
 
 export class BlitScreenQuadCMD extends Command {
 	/**@internal */
@@ -70,7 +70,7 @@ export class BlitScreenQuadCMD extends Command {
 
 	constructor() {
 		super();
-		this._transform3D = LayaGL.renderOBJCreate.createTransform(null);
+		this._transform3D = Laya3DRender.renderOBJCreate.createTransform(null);
 		this._renderElement = new RenderElement();
 		this._renderElement.setTransform(this._transform3D);
 		this._renderElement.setGeometry(ScreenQuad.instance);

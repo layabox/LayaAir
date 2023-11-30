@@ -5,13 +5,16 @@ import { IPhysicsManager } from "../interface/IPhysicsManager";
 import { btJoint } from "./Joint/btJoint";
 import { btCollider, btColliderType } from "./Collider/btCollider";
 import { btPhysicsCreateUtil } from "./btPhysicsCreateUtil";
-import { PhysicsUpdateList } from "./PhysicsUpdateList";
 import { btCharacterCollider } from "./Collider/btCharacterCollider";
 import { CollisionTool } from "./CollisionTool";
 import { Collision } from "../../d3/physics/Collision";
 import { ContactPoint } from "../../d3/physics/ContactPoint";
 import { Event } from "../../events/Event";
 import { HitResult } from "../../d3/physics/HitResult";
+import { EPhysicsCapable } from "../physicsEnum/EPhycisCapable";
+import { Physics3DUtils } from "../../d3/utils/Physics3DUtils";
+import { PhysicsUpdateList } from "../../d3/physics/PhysicsUpdateList";
+import { ICollider } from "../interface/ICollider";
 
 export class btPhysicsManager implements IPhysicsManager {
     /**默认碰撞组 */
@@ -215,6 +218,8 @@ export class btPhysicsManager implements IPhysicsManager {
     _physicsUpdateList = new PhysicsUpdateList();
     _characters: btCharacterCollider[] = [];
 
+    // capable map
+    protected _physicsEngineCapableMap: Map<any, any>;
 
     constructor(physicsSettings: PhysicsSettings) {
         let bt = this._bt = btPhysicsCreateUtil._bt;
@@ -252,6 +257,7 @@ export class btPhysicsManager implements IPhysicsManager {
         this._btAllConvexResultCallback = bt.AllConvexResultCallback_create(this._btVector3Zero, this._btVector3Zero);//TODO:是否优化C++
 
         bt.btGImpactCollisionAlgorithm_RegisterAlgorithm(this._btDispatcher);//注册算法
+        this.initPhysicsCapable();  // 初始化物理能力
     }
 
     //TODO
@@ -307,7 +313,7 @@ export class btPhysicsManager implements IPhysicsManager {
         for (var i = 0, n = this._physicsUpdateList.length; i < n; i++) {
             var physicCollider: btCollider = elements[i];
             physicCollider._derivePhysicsTransformation(false);
-            physicCollider._inPhysicUpdateListIndex = -1;//置空索引
+            physicCollider.inPhysicUpdateListIndex = -1;//置空索引
         }
         this._physicsUpdateList.length = 0;//清空物理更新队列
     }
@@ -503,8 +509,8 @@ export class btPhysicsManager implements IPhysicsManager {
             let constraintObj = this._currentConstraint[id] as btJoint;
             // TODO 这个只要发一次就行
             if (constraintObj._isBreakConstrained()) {
-                let bodya = constraintObj._ownBody.owner;
-                let bodyb = constraintObj._connectBody.owner;
+                let bodya = constraintObj.owner;
+                let bodyb = constraintObj._connectOwner;
                 bodya.event(Event.JOINT_BREAK);
                 bodyb.event(Event.JOINT_BREAK);
             }
@@ -523,7 +529,6 @@ export class btPhysicsManager implements IPhysicsManager {
         }
     }
 
-
     /**
      * debugger Function
      * @param value 
@@ -531,6 +536,25 @@ export class btPhysicsManager implements IPhysicsManager {
     enableDebugDrawer(value: boolean) {
         let bt = btPhysicsCreateUtil._bt;
         bt.btDynamicsWorld_enableDebugDrawer(this._btDiscreteDynamicsWorld, value);
+    }
+
+    getPhysicsCapable(value: EPhysicsCapable): boolean {
+        return this._physicsEngineCapableMap.get(value);
+    }
+
+    initPhysicsCapable(): void {
+        this._physicsEngineCapableMap = new Map();
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_Gravity, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_StaticCollider, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_DynamicCollider, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_CharacterCollider, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_BoxColliderShape, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_SphereColliderShape, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_CapsuleColliderShape, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_CylinderColliderShape, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_ConeColliderShape, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_MeshColliderShape, false);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_CompoundColliderShape, false);
     }
 
     /**
@@ -548,40 +572,42 @@ export class btPhysicsManager implements IPhysicsManager {
     }
 
 
-    addCollider(collider: btCollider): void {
-        collider._derivePhysicsTransformation(true);
-        switch (collider._type) {
+    addCollider(collider: ICollider): void {
+        let btcollider = collider as btCollider;
+        btcollider._derivePhysicsTransformation(true);
+        switch (btcollider._type) {
             case btColliderType.StaticCollider:
-                this._bt.btCollisionWorld_addCollisionObject(this._btCollisionWorld, collider._btCollider, collider._collisionGroup, collider._canCollideWith);
+                this._bt.btCollisionWorld_addCollisionObject(this._btCollisionWorld, btcollider._btCollider, btcollider._collisionGroup, btcollider._canCollideWith);
                 break;
             case btColliderType.RigidbodyCollider:
-                this._addRigidBody(collider);
+                this._addRigidBody(btcollider);
                 break;
             case btColliderType.CharactorCollider:
-                this._addCharacter(collider as btCharacterCollider);
+                this._addCharacter(btcollider as btCharacterCollider);
                 //TODO:
                 break;
         }
-        collider._isSimulate = true;
+        btcollider._isSimulate = true;
 
     }
 
-    removeCollider(collider: btCollider): void {
-        if (collider._inPhysicUpdateListIndex !== -1)
-            this._physicsUpdateList.remove(collider);
-        switch (collider._type) {
+    removeCollider(collider: ICollider): void {
+        let btcollider = collider as btCollider;
+        if (btcollider.inPhysicUpdateListIndex !== -1)
+            this._physicsUpdateList.remove(btcollider);
+        switch (btcollider._type) {
             case btColliderType.StaticCollider:
-                this._bt.btCollisionWorld_removeCollisionObject(this._btCollisionWorld, collider._btCollider);
+                this._bt.btCollisionWorld_removeCollisionObject(this._btCollisionWorld, btcollider._btCollider);
                 break;
             case btColliderType.RigidbodyCollider:
-                this._removeRigidBody(collider);
+                this._removeRigidBody(btcollider);
                 break;
             case btColliderType.CharactorCollider:
                 //TODO:
-                this._removeCharacter(collider as btCharacterCollider);
+                this._removeCharacter(btcollider as btCharacterCollider);
                 break;
         }
-        collider._isSimulate = false;
+        btcollider._isSimulate = false;
     }
 
     addJoint(joint: btJoint) {
@@ -596,7 +622,7 @@ export class btPhysicsManager implements IPhysicsManager {
         if (!this._btDiscreteDynamicsWorld)
             throw "Cannot perform this action when the physics engine is set to CollisionsOnly";
         // this._nativeDiscreteDynamicsWorld.removeConstraint(constraint._nativeConstraint);
-        this._bt._bullet.btCollisionWorld_removeConstraint(this._btDiscreteDynamicsWorld, joint._btJoint);
+        this._bt.btCollisionWorld_removeConstraint(this._btDiscreteDynamicsWorld, joint._btJoint);
         delete this._currentConstraint[joint._id];
     }
 
@@ -614,7 +640,7 @@ export class btPhysicsManager implements IPhysicsManager {
         this.dispatchCollideEvent();
     }
 
-    rayCast(ray: Ray, outHitResult: HitResult, distance: number, collisonGroup: number, collisionMask: number): boolean {
+    rayCast(ray: Ray, outHitResult: HitResult, distance: number = 2147483647/*Int.MAX_VALUE*/, collisonGroup: number = Physics3DUtils.COLLISIONFILTERGROUP_ALLFILTER, collisionMask: number = Physics3DUtils.COLLISIONFILTERGROUP_ALLFILTER): boolean {
         var from = ray.origin;
         var to = btPhysicsManager._tempVector30;
         Vector3.normalize(ray.direction, to);
@@ -660,7 +686,7 @@ export class btPhysicsManager implements IPhysicsManager {
     }
 
 
-    rayCastAll(ray: Ray, out: HitResult[], distance: number, collisonGroup: number, collisionMask: number): boolean {
+    rayCastAll(ray: Ray, out: HitResult[], distance: number = 2147483647/*Int.MAX_VALUE*/, collisonGroup: number = Physics3DUtils.COLLISIONFILTERGROUP_ALLFILTER, collisionMask: number = Physics3DUtils.COLLISIONFILTERGROUP_ALLFILTER): boolean {
         var from = ray.origin;
         var to = btPhysicsManager._tempVector30;
         Vector3.normalize(ray.direction, to);
@@ -731,6 +757,7 @@ export class btPhysicsManager implements IPhysicsManager {
         this._btDispatcher = null;
         bt.btDefaultCollisionConfiguration_destroy(this._btCollisionConfiguration);
         this._btCollisionConfiguration = null;
+        this._physicsEngineCapableMap = null;
     }
 
     /**

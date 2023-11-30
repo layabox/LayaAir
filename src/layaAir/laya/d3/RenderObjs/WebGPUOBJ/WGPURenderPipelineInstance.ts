@@ -10,7 +10,7 @@ import { RenderState } from "../../../RenderEngine/RenderShader/RenderState";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { ShaderData, ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData";
 import { ShaderPass } from "../../../RenderEngine/RenderShader/ShaderPass";
-import { SubShader, UniformMapType } from "../../../RenderEngine/RenderShader/SubShader";
+import { UniformMapType } from "../../../RenderEngine/RenderShader/SubShader";
 import { VertexAttributeLayout } from "../../../RenderEngine/VertexAttributeLayout";
 import { CommandEncoder } from "../../../layagl/CommandEncoder";
 import { LayaGL } from "../../../layagl/LayaGL";
@@ -56,7 +56,7 @@ export class WGPURenderPipelineInstance {
         this._shaderInstance = new WebGPUShaderInstance(this.engine);
         this._shaderInstance._WGSLShaderLanguageProcess3D(shaderProcessInfo.vs, shaderProcessInfo.ps);
         //temp test
-        if(true){
+        if (true) {
             this.testCreateSceneCommandEncoder();
             this.testCreateCameraCommandEncoder();
             this.testCreateSpriteCommandEncoder();
@@ -247,7 +247,7 @@ export class WGPURenderPipelineInstance {
                     forntFace = CullMode.Back;
                 break;
         }
-        return WGPUPrimitiveState.getPrimitiveState(mode, indexformat, forntFace,false);
+        return WGPUPrimitiveState.getPrimitiveState(mode, indexformat, forntFace, false);
     }
 
     /**

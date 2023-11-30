@@ -10,7 +10,7 @@ import { WebGLExtension } from "./GLEnum/WebGLExtension";
 import { GLObject } from "./GLObject";
 import { WebGLEngine } from "./WebGLEngine";
 
-
+/** @internal */
 export class WebGLInternalTex extends GLObject implements InternalTexture {
 
     _gl: WebGLRenderingContext | WebGL2RenderingContext;
@@ -20,6 +20,7 @@ export class WebGLInternalTex extends GLObject implements InternalTexture {
 
     readonly width: number;
     readonly height: number;
+    readonly depth: number;
     readonly isPotSize: boolean;
 
     private _mipmap: boolean;
@@ -57,19 +58,23 @@ export class WebGLInternalTex extends GLObject implements InternalTexture {
         this._engine._addStatisticsInfo(RenderStatisticsInfo.TextureMemeory, this._gpuMemory);
     }
 
-    constructor(engine: WebGLEngine, target: number, width: number, height: number, dimension: TextureDimension, mipmap: boolean, useSRGBLoader: boolean, gammaCorrection: number) {
+    constructor(engine: WebGLEngine, target: number, width: number, height: number, depth: number, dimension: TextureDimension, mipmap: boolean, useSRGBLoader: boolean, gammaCorrection: number) {
         super(engine);
 
         this.resource = this._gl.createTexture();
 
         this.width = width;
         this.height = height;
+        this.depth = depth;
 
         const isPot = (value: number): boolean => {
             return (value & (value - 1)) === 0;
         }
 
         this.isPotSize = isPot(width) && isPot(height);
+        if (dimension == TextureDimension.Tex3D) {
+            this.isPotSize = this.isPotSize && isPot(this.depth);
+        }
 
         this._mipmap = mipmap && this.isPotSize;
         this._mipmapCount = this._mipmap ? Math.max(Math.ceil(Math.log2(width)) + 1, Math.ceil(Math.log2(height)) + 1) : 1;

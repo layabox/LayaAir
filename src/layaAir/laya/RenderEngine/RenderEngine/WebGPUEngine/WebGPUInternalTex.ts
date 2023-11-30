@@ -13,6 +13,7 @@ export class WebGPUInternalTex extends WebGPUObject implements InternalTexture {
     target: number;//可能没有用了
     width: number;
     height: number;
+    depth: number;
     mipmap: boolean;
     mipmapCount: number;
     webGPUFormat: GPUTextureFormat;
@@ -30,8 +31,8 @@ export class WebGPUInternalTex extends WebGPUObject implements InternalTexture {
     gammaCorrection: number;//TODO
 
 
-    _cacheBindGroup:GPUBindGroup;
-    _cacheSampler:GPUSampler;
+    _cacheBindGroup: GPUBindGroup;
+    _cacheSampler: GPUSampler;
 
     //constructor(engine: WebGPUEngine, target: number, width: number, height: number, dimension: TextureDimension, mipmap: boolean, useSRGBLoader: boolean, gammaCorrection: number){
     constructor(engine: WebGPUEngine, width: number, height: number, dimension: TextureDimension, mipmap: boolean) {
@@ -51,11 +52,11 @@ export class WebGPUInternalTex extends WebGPUObject implements InternalTexture {
         this.webgpuSampler = this._engine._samplerContext.getcacheSampler(this.webGPUSamplerParams);
     }
 
-    get textureView():GPUTextureView{
-        let des:GPUTextureViewDescriptor = {
-            mipLevelCount:0,
+    get textureView(): GPUTextureView {
+        let des: GPUTextureViewDescriptor = {
+            mipLevelCount: 0,
         }
-        if(!this.view){
+        if (!this.view) {
             this.view = this.resource.createView();
             //let descriptor:GPUTextureViewDescriptor = {format:this.webGPUFormat,dimension:this.descriptor.dimension,baseMipLevel:this.baseMipmapLevel,mipLevelCount:this.mipmapCount}
         }
@@ -144,7 +145,7 @@ export class WebGPUInternalTex extends WebGPUObject implements InternalTexture {
             this.webGPUSamplerParams.anisoLevel = value;
         }
         this._anisoLevel = value;
-      //todo anisolevel
+        //todo anisolevel
     }
 
     private _compareMode: TextureCompareMode;

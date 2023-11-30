@@ -3,7 +3,7 @@ import { BaseRender } from "../../core/render/BaseRender";
 import { Bounds } from "../../math/Bounds";
 import { IVolumeManager } from "./IVolumeManager";
 import { ReflectionProbeManager } from "./reflectionProbe/ReflectionProbeManager";
-import { Volume} from "./Volume";
+import { Volume } from "./Volume";
 import { VolumetricGIManager } from "./VolumetricGI/VolumetricGIManager";
 
 
@@ -27,7 +27,7 @@ export class VolumeManager implements IVolumeManager {
     /** @internal */
     _needUpdateAllRender: boolean = false;
     /** 有些Volume需要特殊的管理能力 */
-    private _regVolumeManager: { [key: number]: IVolumeManager } = {};
+    _regVolumeManager: { [key: number]: IVolumeManager } = {};
 
     /**@internal 反射探针管理*/
     _reflectionProbeManager: ReflectionProbeManager;
@@ -123,10 +123,11 @@ export class VolumeManager implements IVolumeManager {
         for (var i: number = 0, n: number = this._motionObjects.length; i < n; i++) {
             this._updateRenderObject(elements[i]);
         }
-        //miner特殊管理TODO 更新所有动态物体
-        this.reflectionProbeManager.handleMotionlist(this._motionObjects);
 
-        this.volumetricGIManager.handleMotionlist(this._motionObjects);
+        if (!this.reflectionProbeManager._needUpdateAllRender)
+            this.reflectionProbeManager.handleMotionlist(this._motionObjects);
+        if (!this.volumetricGIManager._needUpdateAllRender)
+            this.volumetricGIManager.handleMotionlist(this._motionObjects);
 
         this.clearMotionObjects();
     }

@@ -44,6 +44,7 @@ export class PhysicsWorld_RayShapeCast {
 	//创建射线的起始点
 	private from: Vector3 = new Vector3(0, 1, 10);
 	private to: Vector3 = new Vector3(0, 1, -5);
+	private dir: Vector3 = new Vector3(0, 0, -1);
 	private _albedoColor: Color = new Color(1.0, 1.0, 1.0, 0.5);
 	private _position: Vector3 = new Vector3(0, 0, 0);
 	//private mat1: BlinnPhongMaterial;
@@ -51,14 +52,14 @@ export class PhysicsWorld_RayShapeCast {
 	private tex: Texture2D;
 	private tex1: Texture2D;
 
-	private changeActionButton0:Button;
-	private changeActionButton1:Button;
-	private changeActionButton2:Button;
+	private changeActionButton0: Button;
+	private changeActionButton1: Button;
+	private changeActionButton2: Button;
 
 	/**实例类型*/
-	private btype:any = "PhysicsWorld_RayShapeCast";
+	private btype: any = "PhysicsWorld_RayShapeCast";
 	/**场景内按钮类型*/
-	private stype:any = 0;
+	private stype: any = 0;
 	constructor() {
 		//初始化引擎
 		Laya.init(0, 0).then(() => {
@@ -115,10 +116,10 @@ export class PhysicsWorld_RayShapeCast {
 			for (var i: number = 0; i < 60; i++) {
 				this.addBox();
 				this.addCapsule();
-			}			
+			}
 			this.loadUI();
 		});
-		
+
 	}
 
 
@@ -153,7 +154,7 @@ export class PhysicsWorld_RayShapeCast {
 		}));
 	}
 
-	stypeFun0(label:string = "射线模式") {
+	stypeFun0(label: string = "射线模式") {
 		this.castType++;
 		this.castType %= 4;
 		switch (this.castType) {
@@ -161,22 +162,25 @@ export class PhysicsWorld_RayShapeCast {
 				this.changeActionButton0.label = "射线模式";
 				break;
 			case 1:
+				return;
 				this.changeActionButton0.label = "盒子模式";
 				break;
 			case 2:
+				return;
 				this.changeActionButton0.label = "球模式";
 				break;
 			case 3:
+				return;
 				this.changeActionButton0.label = "胶囊模式";
 				break;
 		}
 
 		label = this.changeActionButton0.label;
-		Client.instance.send({type:"next",btype:this.btype,stype:0,value:label});	
+		Client.instance.send({ type: "next", btype: this.btype, stype: 0, value: label });
 
 	}
 
-	stypeFun1(label:string = "不穿透") {
+	stypeFun1(label: string = "不穿透") {
 		if (this.castAll) {
 			this.changeActionButton1.label = "不穿透";
 			this.castAll = false;
@@ -185,12 +189,12 @@ export class PhysicsWorld_RayShapeCast {
 			this.castAll = true;
 		}
 		label = this.changeActionButton1.label;
-		Client.instance.send({type:"next",btype:this.btype,stype:1,value:label});
+		Client.instance.send({ type: "next", btype: this.btype, stype: 1, value: label });
 	}
 
-	stypeFun2(castType:number = 0) {
+	stypeFun2(castType: number = 0) {
 		if (this.hitResult.succeeded)
-				((<BlinnPhongMaterial>((<MeshSprite3D>this.hitResult.collider.owner)).meshRenderer.sharedMaterial)).albedoColor = new Color(1.0, 1.0, 1.0, 1.0);
+			((<BlinnPhongMaterial>((<MeshSprite3D>this.hitResult.collider.owner)).meshRenderer.sharedMaterial)).albedoColor = new Color(1.0, 1.0, 1.0, 1.0);
 
 		if (this.hitResults.length > 0) {
 			for (var i: number = 0, n: number = this.hitResults.length; i < n; i++)
@@ -211,22 +215,25 @@ export class PhysicsWorld_RayShapeCast {
 				var lineSprite: PixelLineSprite3D = (<PixelLineSprite3D>this.scene.addChild(new PixelLineSprite3D(1)));
 				//设置射线的起始点和颜色
 				lineSprite.addLine(this.from, this.to, Color.RED, Color.RED);
+				this.ray.origin = this.from;
+				this.ray.direction = this.dir;
 				this.debugSprites.push(lineSprite);
 				if (this.castAll) {
 					//进行射线检测,检测所有碰撞的物体
-					//this.scene.physicsSimulation.raycastAllFromTo(this.from, this.to, this.hitResults);
+					this.scene.physicsSimulation.rayCastAll(this.ray, this.hitResults);
 					//遍历射线检测的结果
 					for (i = 0, n = this.hitResults.length; i < n; i++)
 						//将射线碰撞到的物体设置为红色
 						((<BlinnPhongMaterial>((<MeshSprite3D>this.hitResults[i].collider.owner)).meshRenderer.sharedMaterial)).albedoColor = new Color(1.0, 0.0, 0.0, 1.0);
 				} else {
 					//进行射线检测,检测第一个碰撞物体
-					//this.scene.physicsSimulation.raycastFromTo(this.from, this.to, this.hitResult);
+					this.scene.physicsSimulation.rayCast(this.ray, this.hitResult, 15);
 					//将检测到的物体设置为红色
 					((<BlinnPhongMaterial>((<MeshSprite3D>this.hitResult.collider.owner)).meshRenderer.sharedMaterial)).albedoColor = new Color(1.0, 0.0, 0.0, 1.0);
 				}
 				break;
 			case 1:
+				return;
 				//创建盒型碰撞器
 				var boxCollider: BoxColliderShape = new BoxColliderShape(1.0, 1.0, 1.0);
 				for (i = 0; i < 21; i++) {
@@ -247,7 +254,7 @@ export class PhysicsWorld_RayShapeCast {
 				//使用盒型碰撞器进行形状检测
 				if (this.castAll) {
 					//进行形状检测,检测所有碰撞的物体
-					
+
 					//this.scene.physicsSimulation(boxCollider, this.from, this.to, this.hitResults);
 					//遍历检测到的所有物体，并将其设置为红色
 					for (i = 0, n = this.hitResults.length; i < n; i++)
@@ -259,6 +266,7 @@ export class PhysicsWorld_RayShapeCast {
 				}
 				break;
 			case 2:
+				return;
 				//创建球型碰撞器
 				var sphereCollider: SphereColliderShape = new SphereColliderShape(0.5);
 				for (i = 0; i < 41; i++) {
@@ -284,6 +292,7 @@ export class PhysicsWorld_RayShapeCast {
 				}
 				break;
 			case 3:
+				return;
 				//创建胶囊型碰撞器
 				var capsuleCollider: CapsuleColliderShape = new CapsuleColliderShape(0.25, 1.0);
 				for (i = 0; i < 41; i++) {
@@ -299,19 +308,19 @@ export class PhysicsWorld_RayShapeCast {
 				//使用胶囊碰撞器进行形状检测
 				if (this.castAll) {
 					//进行形状检测,检测所有碰撞的物体
-				//	this.scene.physicsSimulation.shapeCastAll(capsuleCollider, this.from, this.to, this.hitResults);
+					//	this.scene.physicsSimulation.shapeCastAll(capsuleCollider, this.from, this.to, this.hitResults);
 					for (i = 0, n = this.hitResults.length; i < n; i++)
 						((<BlinnPhongMaterial>((<MeshSprite3D>this.hitResults[i].collider.owner)).meshRenderer.sharedMaterial)).albedoColor = new Color(1.0, 0.0, 0.0, 1.0);
 				} else {
 					//进行形状检测,检测第一个碰撞物体
-		//			if (this.scene.physicsSimulation.shapeCast(capsuleCollider, this.from, this.to, this.hitResult))
-		//				((<BlinnPhongMaterial>((<MeshSprite3D>this.hitResult.collider.owner)).meshRenderer.sharedMaterial)).albedoColor = new Color(1.0, 0.0, 0.0, 1.0);
+					//			if (this.scene.physicsSimulation.shapeCast(capsuleCollider, this.from, this.to, this.hitResult))
+					//				((<BlinnPhongMaterial>((<MeshSprite3D>this.hitResult.collider.owner)).meshRenderer.sharedMaterial)).albedoColor = new Color(1.0, 0.0, 0.0, 1.0);
 				}
 				break;
 		}
 
 		castType = this.castType;
-		Client.instance.send({type:"next",btype:this.btype,stype:2,value:castType});
+		Client.instance.send({ type: "next", btype: this.btype, stype: 2, value: castType });
 	}
 
 	addBox(): void {

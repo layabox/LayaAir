@@ -14,6 +14,7 @@ import Client from "../../Client";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { BloomEffect } from "laya/d3/core/render/PostEffect/BloomEffect"
 import { Color } from "laya/maths/Color";
+import { URL } from "laya/net/URL";
 
 export class PostProcessBloom {
 	camera: Camera = null;
@@ -27,6 +28,7 @@ export class PostProcessBloom {
 	 *@private
 	 */
 	constructor() {
+		
 		//初始化引擎
 		Laya.init(0, 0).then(() => {
 			Stat.show();

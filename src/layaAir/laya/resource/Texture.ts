@@ -21,7 +21,7 @@ export class Texture extends Resource {
     static readonly INV_UV = new Float32Array([0, 1, 1.0, 1, 1.0, 0.0, 0, 0.0]);
 
     /**@private uv的范围*/
-    uvrect: any[] = [0, 0, 1, 1]; //startu,startv, urange,vrange
+    uvrect: number[] = [0, 0, 1, 1]; //startu,startv, urange,vrange
     /**@private */
     private _bitmap: BaseTexture;
     /**@internal */

@@ -4,7 +4,7 @@ import { Matrix4x4 } from "../../../maths/Matrix4x4";
 import { Vector3 } from "../../../maths/Vector3";
 import { Vector4 } from "../../../maths/Vector4";
 import { ShaderData } from "../../../RenderEngine/RenderShader/ShaderData";
-import { Material } from "../material/Material";
+import { Material } from "../../../resource/Material";
 import { MeshSprite3DShaderDeclaration } from "../MeshSprite3DShaderDeclaration";
 import { BaseRender } from "../render/BaseRender";
 import { RenderContext3D } from "../render/RenderContext3D";

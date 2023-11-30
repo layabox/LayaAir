@@ -1,10 +1,10 @@
 import { Ray } from "../../d3/math/Ray";
 import { HitResult } from "../../d3/physics/HitResult";
 import { Vector3 } from "../../maths/Vector3";
+import { EPhysicsCapable } from "../physicsEnum/EPhycisCapable";
 import { ICollider } from "./ICollider";
 
 export interface IPhysicsManager {
-  
   /**
   * Set gravity.
   * @param gravity - Physics gravity
@@ -47,7 +47,7 @@ export interface IPhysicsManager {
    * @param collisonGroup 
    * @param collisionMask 
    */
-  rayCastAll?(ray: Ray, out: HitResult[], distance: number, collisonGroup?: number, collisionMask?: number): boolean;
+  rayCastAll?(ray: Ray, out: HitResult[], distance?: number, collisonGroup?: number, collisionMask?: number): boolean;
 
   /**
    * debugger

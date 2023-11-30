@@ -1,11 +1,9 @@
-import { LayaGL } from "../layagl/LayaGL";
 import { BlendEquationSeparate } from "../RenderEngine/RenderEnum/BlendEquationSeparate";
 import { BlendFactor } from "../RenderEngine/RenderEnum/BlendFactor";
-import { BlendType } from "../RenderEngine/RenderEnum/BlendType";
 import { CompareFunction } from "../RenderEngine/RenderEnum/CompareFunction";
-import { RenderStateType } from "../RenderEngine/RenderEnum/RenderStateType";
 import { StencilOperation } from "../RenderEngine/RenderEnum/StencilOperation";
 import { RenderStateCommand } from "../RenderEngine/RenderStateCommand";
+import { LayaGL } from "../layagl/LayaGL";
 import { WebGLEngine } from "./RenderEngine/WebGLEngine/WebGLEngine";
 /**
  * @private

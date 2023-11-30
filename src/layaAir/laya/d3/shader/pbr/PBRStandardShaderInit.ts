@@ -72,6 +72,7 @@ export class PBRStandardShaderInit {
         };
 
         let shader = Shader3D.add("PBR", true, true);
+        shader._surportVolumetricGI = true;
         let subShader = new SubShader(SubShader.DefaultAttributeMap, uniformMap, defaultValue);
         shader.addSubShader(subShader);
         let shadingPass = subShader.addShaderPass(PBRStandardVS, PBRStandardFS);

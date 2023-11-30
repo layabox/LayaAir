@@ -1,5 +1,5 @@
-import { LayaGL } from "../layagl/LayaGL";
 import { RenderParams } from "../RenderEngine/RenderEnum/RenderParams";
+import { LayaGL } from "../layagl/LayaGL";
 
 
 /**

@@ -3,12 +3,13 @@ import { WebGPUEngine } from "../../../RenderEngine/RenderEngine/WebGPUEngine/We
 import { WebGPURenderCommandEncoder } from "../../../RenderEngine/RenderEngine/WebGPUEngine/WebGPURenderCommandEncoder";
 import { IRenderTarget } from "../../../RenderEngine/RenderInterface/IRenderTarget";
 import { IRenderContext3D, PipelineMode } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderContext3D";
-import { LayaGL } from "../../../layagl/LayaGL";
 import { Vector4 } from "../../../maths/Vector4";
 import { Viewport } from "../../math/Viewport";
 import { WGPURenderElementObJ } from "./WGPURenderElementObJ";
 import { WGPUShaderData } from "./WGPUShaderData";
 import { WebGPUInternalRT } from "../../../RenderEngine/RenderEngine/WebGPUEngine/WebGPUInternalRT";
+import { ShaderData } from "../../../RenderEngine/RenderShader/ShaderData";
+import { LayaGL } from "../../../layagl/LayaGL";
 
 export class WGPURenderContext3D implements IRenderContext3D {
     
@@ -57,6 +58,7 @@ export class WGPURenderContext3D implements IRenderContext3D {
         this.renderPassDec = new WebGPURenderPassDescriptor();
         this.device = (LayaGL.renderEngine as WebGPUEngine )._device;
     }
+    configShaderData: ShaderData;
     
     /**设置IRenderContext */
     applyContext(cameraUpdateMark: number): void{

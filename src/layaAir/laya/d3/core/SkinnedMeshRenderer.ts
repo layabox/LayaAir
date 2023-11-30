@@ -10,7 +10,7 @@ import { RenderContext3D } from "./render/RenderContext3D";
 import { SkinnedMeshSprite3DShaderDeclaration } from "./SkinnedMeshSprite3DShaderDeclaration";
 import { Component } from "../../components/Component";
 import { SkinRenderElement } from "./render/SkinRenderElement";
-import { Material } from "./material/Material";
+import { Material } from "../../resource/Material";
 import { BlinnPhongMaterial } from "./material/BlinnPhongMaterial";
 import { Scene3D } from "./scene/Scene3D";
 import { Bounds } from "../math/Bounds";

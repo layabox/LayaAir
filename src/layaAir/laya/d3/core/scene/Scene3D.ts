@@ -1,7 +1,6 @@
 import { Config3D } from "../../../../Config3D";
 import { ILaya } from "../../../../ILaya";
 import { Sprite } from "../../../display/Sprite";
-import { LayaGL } from "../../../layagl/LayaGL";
 import { Loader } from "../../../net/Loader";
 import { Context } from "../../../resource/Context";
 import { Texture2D } from "../../../resource/Texture2D";
@@ -68,6 +67,10 @@ import { BufferState } from "../../../webgl/utils/BufferState";
 import { RenderTexture } from "../../../resource/RenderTexture";
 import { Laya3D } from "../../../../Laya3D";
 import { IPhysicsManager } from "../../../Physics3D/interface/IPhysicsManager";
+import { LayaGL } from "../../../layagl/LayaGL";
+import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
+import { IElementComponentManager } from "./IScenceComponentManager";
+import { ISceneRenderManager } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/ISceneRenderManager";
 
 export enum FogMode {
     Linear = 0, //Linear
@@ -164,7 +167,7 @@ export class Scene3D extends Sprite implements ISubmit {
     /**@internal */
     static mainCavansViewPort: Viewport = new Viewport(0, 0, 1, 1);
 
-
+    static componentManagerMap: Map<string, any> = new Map();
 
     /**
      * 场景更新标记
@@ -175,6 +178,11 @@ export class Scene3D extends Sprite implements ISubmit {
 
     static get _updateMark(): number {
         return Scene3D.__updateMark;
+    }
+
+
+    static regManager(type: string, cla: any) {
+        Scene3D.componentManagerMap.set(type, cla);
     }
 
     /**
@@ -320,7 +328,7 @@ export class Scene3D extends Sprite implements ISubmit {
         if (Config3D._uniformBlock)
             configShaderValue.add(Shader3D.SHADERDEFINE_ENUNIFORMBLOCK);
 
-        Laya3D.enablePhysics && (Scene3D.physicsSettings = new PhysicsSettings());
+        Scene3D.physicsSettings = new PhysicsSettings();
 
         let supportFloatTex = LayaGL.renderEngine.getCapable(RenderCapable.TextureFormat_R32G32B32A32);
         if (supportFloatTex) {
@@ -390,7 +398,8 @@ export class Scene3D extends Sprite implements ISubmit {
     private _fogMode: FogMode;
     /**@internal */
     private _sceneReflectionProb: ReflectionProbe;
-
+    /**@internal */
+    private _physicsStepTime: number = 0;
     /**@internal */
     _sunColor: Color = new Color(1.0, 1.0, 1.0);
     /**@interanl */
@@ -417,9 +426,9 @@ export class Scene3D extends Sprite implements ISubmit {
     _key: SubmitKey = new SubmitKey();
 
     /** @internal */
-    _opaqueQueue: IRenderQueue = LayaGL.renderOBJCreate.createBaseRenderQueue(false);
+    _opaqueQueue: IRenderQueue = Laya3DRender.renderOBJCreate.createBaseRenderQueue(false);
     /** @internal */
-    _transparentQueue: IRenderQueue = LayaGL.renderOBJCreate.createBaseRenderQueue(true);
+    _transparentQueue: IRenderQueue = Laya3DRender.renderOBJCreate.createBaseRenderQueue(true);
     /** @internal */
     _cameraPool: BaseCamera[] = [];
 
@@ -444,6 +453,10 @@ export class Scene3D extends Sprite implements ISubmit {
     _renderByEditor: boolean;
     /** @internal */
     _scene2D: Scene;
+
+    componentElementMap: Map<string, IElementComponentManager> = new Map();
+
+
 
     /**
      * Scene3D所属的2D场景，使用IDE编辑的场景载入后具有此属性。
@@ -792,7 +805,7 @@ export class Scene3D extends Sprite implements ISubmit {
             this._cullPass = new BVHCullPass();
         } else {
             this._sceneRenderManager = new SceneRenderManager();
-            this._cullPass = LayaGL.renderOBJCreate.createCullPass();
+            this._cullPass = Laya3DRender.renderOBJCreate.createCullPass();
         }
 
         if (Config3D.debugFrustumCulling) {
@@ -804,6 +817,11 @@ export class Scene3D extends Sprite implements ISubmit {
 
         this._sceneReflectionProb.reflectionIntensity = 1.0;
         this.ambientColor = new Color(0.212, 0.227, 0.259);
+
+        Scene3D.componentManagerMap.forEach((key, val) => {
+            let cla: any = val;
+            this.componentElementMap.set(key, new cla());
+        });
     }
 
     /**
@@ -813,15 +831,18 @@ export class Scene3D extends Sprite implements ISubmit {
         var delta: number = this.timer._delta / 1000;
         this._time += delta;
         this._shaderValues.setNumber(Scene3D.TIME, this._time);
-
         //Physics
         if (LayaEnv.isPlaying) {
-            let physicsManager = this._physicsManager;
-            if (Laya3D.enablePhysics && Stat.enablePhysicsUpdate) {
-                physicsManager.update(delta);
+            this._physicsStepTime += delta;
+            if (this._physicsStepTime > Scene3D.physicsSettings.fixedTimeStep) {
+
+                let physicsManager = this._physicsManager;
+                if (Laya3D.enablePhysics && Stat.enablePhysicsUpdate) {
+                    physicsManager.update(this._physicsStepTime);
+                }
+                this._physicsStepTime = 0;
             }
         }
-
         if (this._volumeManager.needreCaculateAllRenderObjects())
             this._volumeManager.reCaculateAllRenderObjects(this._sceneRenderManager.list);
         else
@@ -1241,7 +1262,13 @@ export class Scene3D extends Sprite implements ISubmit {
                 break;
         }
 
-        LayaGL.renderEngine.clearRenderTexture(clearConst, camera._linearClearColor, 1);
+        // todo other color gamut
+        let clearColor = camera._linearClearColor;
+        if (renderTex.gammaCorrection != 1) {
+            clearColor = camera.clearColor;
+        }
+
+        LayaGL.renderEngine.clearRenderTexture(clearConst, clearColor, 1);
     }
 
     /**
@@ -1451,6 +1478,14 @@ export class Scene3D extends Sprite implements ISubmit {
         this._volumeManager.destroy();
         this._componentDriver.callDestroy();
 
+    }
+
+    /**
+     * 获得某个组件的管理器
+     * @param type 
+     */
+    getComponentElementManager(type: string) {
+        return this.componentElementMap.get(type);
     }
 
     /**

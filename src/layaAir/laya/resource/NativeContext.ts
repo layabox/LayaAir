@@ -1,7 +1,6 @@
 import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
 import { Const } from "../Const";
 import { ColorFilter } from "../filters/ColorFilter";
-import { LayaGL } from "../layagl/LayaGL";
 import { Matrix } from "../maths/Matrix";
 import { BlendEquationSeparate } from "../RenderEngine/RenderEnum/BlendEquationSeparate";
 import { BlendFactor } from "../RenderEngine/RenderEnum/BlendFactor";
@@ -21,6 +20,7 @@ import { BufferState } from "../webgl/utils/BufferState";
 import { RenderTexture } from "./RenderTexture";
 import { NativeRenderTexture2D } from "./NativeRenderTexture2D";
 import { Point } from "../maths/Point";
+import { LayaGL } from "../layagl/LayaGL";
 
 /**
  * @internal

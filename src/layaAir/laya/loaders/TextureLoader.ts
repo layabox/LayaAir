@@ -14,6 +14,7 @@ import { Utils } from "../utils/Utils";
 import { RenderTexture } from "../resource/RenderTexture";
 import { VideoTexture } from "../media/VideoTexture";
 import { LayaEnv } from "../../LayaEnv";
+import { LayaGL } from "../layagl/LayaGL";
 
 var internalResources: Record<string, Texture2D>;
 
@@ -142,10 +143,14 @@ class Texture2DLoader implements IResourceLoader {
                 options = Object.assign({ workerLoaderOptions: { premultiplyAlpha } }, options);
 
             return task.loader.fetch(url, "image", task.progress.createCallback(), options).then(img => {
-                if (img instanceof ImageBitmap)
+                if (LayaGL.textureContext.needBitmap) {
+                    if (img instanceof ImageBitmap)
+                        return img;
+                    else
+                        return createImageBitmap(img, options.workerLoaderOptions || { premultiplyAlpha });
+                } else {
                     return img;
-                else
-                    return createImageBitmap(img, options.workerLoaderOptions || { premultiplyAlpha });
+                }
             }).then(bitmapimage => {
                 if (!bitmapimage)
                     return null;

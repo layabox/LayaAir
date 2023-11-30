@@ -1,4 +1,3 @@
-import { LayaGL } from "../../layagl/LayaGL";
 import { BaseCamera } from "../core/BaseCamera";
 import { Camera } from "../core/Camera";
 import { ShadowCascadesMode } from "../core/light/ShadowCascadesMode";
@@ -32,6 +31,7 @@ import { Vector3 } from "../../maths/Vector3";
 import { Vector4 } from "../../maths/Vector4";
 import { RenderTexture } from "../../resource/RenderTexture";
 import { Scene3D } from "../core/scene/Scene3D";
+import { LayaGL } from "../../layagl/LayaGL";
 
 /**
  * @internal

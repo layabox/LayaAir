@@ -1,5 +1,6 @@
 import { Sprite } from "../display/Sprite"
 import { Button } from "./Button"
+import { Styles } from "./Styles";
 import { UIGroup } from "./UIGroup"
 
 /**
@@ -81,6 +82,10 @@ import { UIGroup } from "./UIGroup"
  * }
  */
 export class Tab extends UIGroup {
+    constructor() {
+        super();
+        this._stateNum = Styles.buttonStateNum;
+    }
 
     /**
      * @private

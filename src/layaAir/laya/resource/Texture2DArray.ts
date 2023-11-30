@@ -1,7 +1,7 @@
-import { LayaGL } from "../layagl/LayaGL";
 import { TextureDimension } from "../RenderEngine/RenderEnum/TextureDimension";
 import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
 import { ITexture3DContext } from "../RenderEngine/RenderInterface/ITextureContext";
+import { LayaGL } from "../layagl/LayaGL";
 import { BaseTexture } from "./BaseTexture";
 
 /**
@@ -9,7 +9,7 @@ import { BaseTexture } from "./BaseTexture";
  */
 export class Texture2DArray extends BaseTexture {
 
-    readonly depth: number;
+    depth: number;
 
     constructor(width: number, height: number, depth: number, format: TextureFormat, mipmap: boolean = true, canRead: boolean, sRGB: boolean = false) {
         super(width, height, format);
@@ -18,7 +18,9 @@ export class Texture2DArray extends BaseTexture {
 
         this.depth = depth;
 
-        this._texture = LayaGL.textureContext.createTextureInternal(this._dimension, width, height, format, mipmap, sRGB, false);
+        let context = <ITexture3DContext>LayaGL.textureContext;
+
+        this._texture = context.createTexture3DInternal(this._dimension, width, height, depth, format, mipmap, sRGB, false);
 
         return;
     }
@@ -41,10 +43,10 @@ export class Texture2DArray extends BaseTexture {
      * @param premultiplyAlpha 是否预乘 alpha
      * @param invertY 是否反转图像 Y 轴
      */
-    setPixlesData(source: ArrayBufferView, premultiplyAlpha: boolean, invertY: boolean) {
+    setPixelsData(source: ArrayBufferView, premultiplyAlpha: boolean, invertY: boolean) {
         let texture = this._texture;
         let context = <ITexture3DContext>LayaGL.textureContext;
-        context.setTexture3DPixlesData(texture, source, this.depth, premultiplyAlpha, invertY)
+        context.setTexture3DPixelsData(texture, source, this.depth, premultiplyAlpha, invertY)
     }
 
     /**

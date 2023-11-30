@@ -2,7 +2,7 @@ import { Component } from "./Component";
 import { Event } from "../events/Event"
 import { Collision } from "../d3/physics/Collision";
 import { PhysicsColliderComponent } from "../d3/physics/PhysicsColliderComponent";
-import { ColliderBase } from "../physics/ColliderBase";
+import { ColliderBase } from "../physics/Collider2D/ColliderBase";
 import { Sprite3D } from "../d3/core/Sprite3D";
 import { Sprite } from "../display/Sprite";
 import { ILaya } from "../../ILaya";
@@ -25,13 +25,13 @@ export class Script extends Component {
         let owner = this.owner;
         let func: Function;
 
-        if (func = this.onTriggerEnter) owner.on(Event.TRIGGER_ENTER, this, func);
-        if (func = this.onTriggerStay) owner.on(Event.TRIGGER_STAY, this, func);
-        if (func = this.onTriggerExit) owner.on(Event.TRIGGER_EXIT, this, func);
+        if (!(this.onTriggerEnter == Script.prototype.onTriggerEnter)) owner.on(Event.TRIGGER_ENTER, this, this.onTriggerEnter);
+        if (!(this.onTriggerStay == Script.prototype.onTriggerStay)) owner.on(Event.TRIGGER_STAY, this, this.onTriggerStay);
+        if (!(this.onTriggerExit == Script.prototype.onTriggerExit)) owner.on(Event.TRIGGER_EXIT, this, this.onTriggerExit);
 
-        if (func = this.onCollisionEnter) owner.on(Event.COLLISION_ENTER, this, func);
-        if (func = this.onCollisionStay) owner.on(Event.COLLISION_STAY, this, func);
-        if (func = this.onCollisionExit) owner.on(Event.COLLISION_EXIT, this, func);
+        if (!(this.onCollisionEnter == Script.prototype.onCollisionEnter)) owner.on(Event.COLLISION_ENTER, this, this.onCollisionEnter);
+        if (!(this.onCollisionStay == Script.prototype.onCollisionStay)) owner.on(Event.COLLISION_STAY, this, this.onCollisionStay);
+        if (!(this.onCollisionExit == Script.prototype.onCollisionExit)) owner.on(Event.COLLISION_EXIT, this, this.onCollisionExit);
         if (func = this.onJointBreak) owner.on(Event.JOINT_BREAK, this, func);
 
         if (func = this.onMouseDown) owner.on(Event.MOUSE_DOWN, this, func);
@@ -50,35 +50,36 @@ export class Script extends Component {
         if (func = this.onKeyDown) ILaya.stage.on(Event.KEY_DOWN, this, func);
         if (func = this.onKeyPress) ILaya.stage.on(Event.KEY_PRESS, this, func);
         if (func = this.onKeyUp) ILaya.stage.on(Event.KEY_UP, this, func);
+        owner.event(Event._Add_Script);
     }
 
     /**
-     * 开始碰撞时执行
+     * 3D物理触发器事件与2D物理碰撞事件，开始碰撞时执行
      */
     onTriggerEnter?(other: PhysicsColliderComponent | ColliderBase, self?: ColliderBase, contact?: any): void;
 
     /**
-     * 持续碰撞时执行
+     * 3D物理触发器事件与2D物理碰撞事件，持续碰撞时执行
      */
     onTriggerStay?(other: PhysicsColliderComponent | ColliderBase, self?: ColliderBase, contact?: any): void;
 
     /**
-     * 结束碰撞时执行
+     * 3D物理触发器事件与2D物理碰撞事件，结束碰撞时执行
      */
     onTriggerExit?(other: PhysicsColliderComponent | ColliderBase, self?: ColliderBase, contact?: any): void;
 
     /**
-     * 开始碰撞时执行
+     * 3D物理碰撞器事件（不适用2D），开始碰撞时执行
      */
     onCollisionEnter?(collision: Collision): void;
 
     /**
-     * 持续碰撞时执行
+     * 3D物理碰撞器事件（不适用2D），持续碰撞时执行
      */
     onCollisionStay?(collision: Collision): void;
 
     /**
-     * 结束碰撞时执行
+     *3D物理碰撞器事件（不适用2D），结束碰撞时执行
      */
     onCollisionExit?(collision: Collision): void;
 

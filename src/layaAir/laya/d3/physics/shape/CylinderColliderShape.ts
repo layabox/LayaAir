@@ -2,6 +2,7 @@
 import { Laya3D } from "../../../../Laya3D";
 import { LayaEnv } from "../../../../LayaEnv";
 import { ICylinderColliderShape } from "../../../Physics3D/interface/Shape/ICylinderColliderShape";
+import { EPhysicsCapable } from "../../../Physics3D/physicsEnum/EPhycisCapable";
 import { Physics3DColliderShape } from "./Physics3DColliderShape";
 
 /**
@@ -70,7 +71,11 @@ export class CylinderColliderShape extends Physics3DColliderShape {
 	 * @override
 	 */
 	protected _createShape() {
-		this._shape = Laya3D.PhysicsCreateUtil.createCylinderColliderShape();
+		if (Laya3D.PhysicsCreateUtil.getPhysicsCapable(EPhysicsCapable.Physics_CylinderColliderShape)) {
+			this._shape = Laya3D.PhysicsCreateUtil.createCylinderColliderShape();
+		} else {
+			console.error("CylinderColliderShape: cant enable CylinderColliderShape");
+		}
 	}
 
 	/**

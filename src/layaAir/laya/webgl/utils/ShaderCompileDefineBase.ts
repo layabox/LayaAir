@@ -1,18 +1,18 @@
-import { LayaGL } from "../../layagl/LayaGL";
 import { DefineDatas } from "../../RenderEngine/RenderShader/DefineDatas";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { ShaderDataType } from "../../RenderEngine/RenderShader/ShaderData";
 import { ShaderInstance } from "../../RenderEngine/RenderShader/ShaderInstance";
 import { SubShader, UniformMapType } from "../../RenderEngine/RenderShader/SubShader";
+import { LayaGL } from "../../layagl/LayaGL";
 import { IShaderCompiledObj } from "./ShaderCompile";
 import { ShaderNode } from "./ShaderNode";
-export class ShaderProcessInfo{
-    defineString:string[];
-    vs:ShaderNode;
-    ps: ShaderNode; 
-    attributeMap: { [name: string]: [number, ShaderDataType]};
-    uniformMap:UniformMapType;
-    is2D:boolean;
+export class ShaderProcessInfo {
+    defineString: string[];
+    vs: ShaderNode;
+    ps: ShaderNode;
+    attributeMap: { [name: string]: [number, ShaderDataType] };
+    uniformMap: UniformMapType;
+    is2D: boolean;
     //....其他数据
 };
 export class ShaderCompileDefineBase {
@@ -37,7 +37,7 @@ export class ShaderCompileDefineBase {
     /** @internal */
     name: string;
 
-    nodeCommonMap:Array<string>;
+    nodeCommonMap: Array<string>;
     /** @internal */
     protected _cacheSharders: { [key: number]: { [key: number]: { [key: number]: ShaderInstance } } } = {};
 
@@ -112,14 +112,14 @@ export class ShaderCompileDefineBase {
         var defineString: string[] = ShaderCompileDefineBase._defineString;
         //TODO
         Shader3D._getNamesByDefineData(compileDefine, defineString);
-        let shaderProcessInfo:ShaderProcessInfo = new ShaderProcessInfo();
+        let shaderProcessInfo: ShaderProcessInfo = new ShaderProcessInfo();
         shaderProcessInfo.is2D = true;
         shaderProcessInfo.vs = this._VS;
         shaderProcessInfo.ps = this._PS;
         shaderProcessInfo.attributeMap = this._owner._attributeMap;
         shaderProcessInfo.uniformMap = this._owner._uniformMap;
         shaderProcessInfo.defineString = defineString;
-        
+
         shader = LayaGL.renderOBJCreate.createShaderInstance(shaderProcessInfo, this);
 
         cacheShaders[cacheKey] = shader;

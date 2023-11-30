@@ -1,6 +1,7 @@
 import { Laya3D } from "../../../../Laya3D";
 import { LayaEnv } from "../../../../LayaEnv";
 import { ICapsuleColliderShape } from "../../../Physics3D/interface/Shape/ICapsuleColliderShape";
+import { EPhysicsCapable } from "../../../Physics3D/physicsEnum/EPhycisCapable";
 import { Physics3DColliderShape } from "./Physics3DColliderShape";
 /**
  * <code>CapsuleColliderShape</code> 类用于创建胶囊形状碰撞器。
@@ -67,7 +68,6 @@ export class CapsuleColliderShape extends Physics3DColliderShape {
 	 * @param orientation 胶囊体方向。
 	 */
 	constructor(radius: number = 0.5, length: number = 2, orientation: number = Physics3DColliderShape.SHAPEORIENTATION_UPY) {
-
 		super();
 		this.radius = radius;
 		this.length = length;
@@ -78,7 +78,11 @@ export class CapsuleColliderShape extends Physics3DColliderShape {
 	 * @override
 	 */
 	protected _createShape() {
-		this._shape = Laya3D.PhysicsCreateUtil.createCapsuleColliderShape()
+		if (Laya3D.PhysicsCreateUtil.getPhysicsCapable(EPhysicsCapable.Physics_CapsuleColliderShape))
+			this._shape = Laya3D.PhysicsCreateUtil.createCapsuleColliderShape();
+		else {
+			console.error("CapsuleColliderShape: cant enable CapsuleColliderShape");
+		}
 	}
 
 	/**

@@ -3,16 +3,16 @@ import { RenderContext3D } from "./RenderContext3D"
 import { Camera } from "../Camera"
 import { GeometryElement } from "../GeometryElement"
 import { Transform3D } from "../Transform3D"
-import { Material } from "../material/Material"
+import { Material } from "../../../resource/Material"
 import { IRenderElement } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderElement"
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D"
 import { DefineDatas } from "../../../RenderEngine/RenderShader/DefineDatas"
-import { LayaGL } from "../../../layagl/LayaGL"
 import { IRenderContext3D } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderContext3D"
 import { ILaya3D } from "../../../../ILaya3D"
 import { ShaderInstance } from "../../../RenderEngine/RenderShader/ShaderInstance"
 import { ShaderPass } from "../../../RenderEngine/RenderShader/ShaderPass"
 import { SubShader } from "../../../RenderEngine/RenderShader/SubShader"
+import { Laya3DRender } from "../../RenderObjs/Laya3DRender"
 
 /**
  * <code>RenderElement</code> 类用于实现渲染元素。
@@ -118,7 +118,7 @@ export class RenderElement {
     }
 
     protected _createRenderElementOBJ() {
-        this._renderElementOBJ = LayaGL.renderOBJCreate.createRenderElement();
+        this._renderElementOBJ = Laya3DRender.renderOBJCreate.createRenderElement();
     }
 
     /**
@@ -158,11 +158,16 @@ export class RenderElement {
 
             var comDef: DefineDatas = RenderElement._compileDefine;
 
+            // context.configShaderData._defineDatas.cloneTo(comDef);
+
             if (context.sceneShaderData) {
                 context.sceneShaderData._defineDatas.cloneTo(comDef);
             } else {
                 Shader3D._configDefineValues.cloneTo(comDef);
             }
+
+            comDef.addDefineDatas(context.configShaderData._defineDatas);
+
             context.cameraShaderData && comDef.addDefineDatas(context.cameraShaderData._defineDatas);
             if (this.render) {
                 comDef.addDefineDatas(this.render._shaderValues._defineDatas);

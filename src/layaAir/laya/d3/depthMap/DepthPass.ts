@@ -1,5 +1,4 @@
 import { Config3D } from "../../../Config3D";
-import { LayaGL } from "../../layagl/LayaGL";
 import { Camera } from "../core/Camera";
 import { RenderContext3D } from "../core/render/RenderContext3D";
 import { RenderTargetFormat } from "../../RenderEngine/RenderEnum/RenderTargetFormat";
@@ -16,6 +15,7 @@ import { DepthCasterData } from "./DepthCasterData";
 import { Color } from "../../maths/Color";
 import { Vector4 } from "../../maths/Vector4";
 import { RenderTexture } from "../../resource/RenderTexture";
+import { LayaGL } from "../../layagl/LayaGL";
 
 
 /**

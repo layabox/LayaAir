@@ -1,12 +1,13 @@
 import * as glTF from "../glTFInterface";
 
-import { Material } from "../../d3/core/material/Material";
+import { Material } from "../../resource/Material";
 import { IBatchProgress } from "../../net/BatchProgress";
 import { Texture2D } from "../../resource/Texture2D";
 import { glTFExtension } from "./glTFExtension";
 import { glTFResource } from "../glTFResource";
 import { glTFShader } from "../shader/glTFShader";
 import { Vector3 } from "../../maths/Vector3";
+import { PBRShaderLib } from "../../d3/shader/pbr/PBRShaderLib";
 
 const ExtensionName = "KHR_materials_volume";
 
@@ -62,7 +63,7 @@ export class KHR_materials_volume implements glTFExtension {
     additionMaterialProperties(glTFMaterial: glTF.glTFMaterial, material: Material): void {
         let extension: glTF.glTFMaterialVolume = glTFMaterial.extensions.KHR_materials_volume;
 
-        material.setDefine(glTFShader.Define_Volume, true);
+        material.setDefine(PBRShaderLib.DEFINE_THICKNESS, true);
 
         let thicknessFactor = extension.thicknessFactor ?? 0.0;
         let attenuationDistance = extension.attenuationDistance ?? 65504.0;

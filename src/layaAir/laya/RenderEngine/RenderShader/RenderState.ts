@@ -65,7 +65,7 @@ export class RenderState {
 	static BLENDEQUATION_MAX: number = BlendEquationSeparate.MAX;
 
 	/**深度测试函数枚举_关闭深度测试。*/
-	static DEPTHTEST_OFF: number = 0/*WebGLContext.NEVER*/;//TODO:什么鬼
+	static DEPTHTEST_OFF: number = CompareFunction.Off;/*WebGLContext.NEVER*/;//TODO:什么鬼
 	/**深度测试函数枚举_从不通过。*/
 	static DEPTHTEST_NEVER: number = CompareFunction.Never/*WebGLContext.NEVER*/;
 	/**深度测试函数枚举_小于时通过。*/
@@ -84,7 +84,7 @@ export class RenderState {
 	static DEPTHTEST_ALWAYS: number = CompareFunction.Always/*WebGLContext.ALWAYS*/;
 
 
-	static STENCILTEST_OFF: number = 0;
+	static STENCILTEST_OFF: number = CompareFunction.Off;
 	/**深度测试函数枚举_从不通过。*/
 	static STENCILTEST_NEVER: number = CompareFunction.Never/*WebGLContext.NEVER*/;
 	/**深度测试函数枚举_小于时通过。*/
@@ -199,19 +199,43 @@ export class RenderState {
 		this.stencilRef = null;
 		this.stencilTest = null;
 		this.stencilWrite = null;
-		this.stencilOp = null;
+		this.stencilOp.set(null, null, null);
+	}
+
+	/**
+	 * 克隆
+	 * @param dest 
+	 */
+	cloneTo(dest: RenderState) {
+		dest.cull = this.cull;
+		dest.blend = this.blend;
+		dest.srcBlend = this.srcBlend;
+		dest.dstBlend = this.dstBlend;
+		dest.srcBlendRGB = this.srcBlendRGB;
+		dest.dstBlendRGB = this.dstBlendRGB;
+		dest.srcBlendAlpha = this.srcBlendAlpha;
+		dest.dstBlendAlpha = this.dstBlendAlpha;
+		dest.blendEquation = this.blendEquation;
+		dest.blendEquationRGB = this.blendEquationRGB;
+		dest.blendEquationAlpha = this.blendEquationAlpha;
+		dest.depthTest = this.depthTest;
+		dest.depthWrite = this.depthWrite;
+		dest.stencilRef = this.stencilRef;
+		dest.stencilTest = this.stencilTest;
+		dest.stencilWrite = this.stencilWrite;
+		this.stencilOp.cloneTo(dest.stencilOp);
 	}
 
 
-	// /**
-	//  * 克隆。
-	//  * @return	 克隆副本。
-	//  */
-	// clone(): any {
-	// 	var dest: RenderState = new RenderState();
-	// 	this.cloneTo(dest);
-	// 	return dest;
-	// }
+	/**
+	 * 克隆。
+	 * @return	 克隆副本。
+	 */
+	clone(): RenderState {
+		var dest: RenderState = new RenderState();
+		this.cloneTo(dest);
+		return dest;
+	}
 
 }
 

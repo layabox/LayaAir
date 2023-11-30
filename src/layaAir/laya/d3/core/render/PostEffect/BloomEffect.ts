@@ -11,7 +11,6 @@ import CompositeVS from "../../../shader/files/postProcess/Bloom/Composite.vs";
 import SamplingGLSL from "../../../shader/files/postProcess/Sampling.glsl";
 import StdLibGLSL from "../../../shader/files/postProcess/StdLib.glsl";
 import ColorsGLSL from "../../../shader/files/postProcess/Colors.glsl";
-import { LayaGL } from "../../../../layagl/LayaGL";
 import { FilterMode } from "../../../../RenderEngine/RenderEnum/FilterMode";
 import { RenderTargetFormat } from "../../../../RenderEngine/RenderEnum/RenderTargetFormat";
 import { Shader3D } from "../../../../RenderEngine/RenderShader/Shader3D";
@@ -29,6 +28,7 @@ import { RenderTexture } from "../../../../resource/RenderTexture";
 import { RenderState } from "../../../../RenderEngine/RenderShader/RenderState";
 import { SubShader } from "../../../../RenderEngine/RenderShader/SubShader";
 import { VertexMesh } from "../../../../RenderEngine/RenderShader/VertexMesh";
+import { LayaGL } from "../../../../layagl/LayaGL";
 
 /**
  * <code>BloomEffect</code> 类用于创建泛光效果。
@@ -378,14 +378,14 @@ export class BloomEffect extends PostProcessEffect {
 		this.clamp = 65472;
 		this.diffusion = 7;
 		this.anamorphicRatio = 0;
-		this.color = new Color(1.0,1.0,1.0,1.0);
+		this.color = new Color(1.0, 1.0, 1.0, 1.0);
 
 	}
 
 	/**
 	 * 添加到后期处理栈时,会调用
 	 */
-	effectInit(postprocess:PostProcess) {
+	effectInit(postprocess: PostProcess) {
 		super.effectInit(postprocess);
 		this._shader = Shader3D.find("PostProcessBloom");
 		this._pyramid = new Array(BloomEffect.MAXPYRAMIDSIZE * 2);
@@ -404,7 +404,7 @@ export class BloomEffect extends PostProcessEffect {
 	/**
 	 * 释放Effect
 	 */
-	release(postprocess:PostProcess) {
+	release(postprocess: PostProcess) {
 		super.release(postprocess);
 		this._shader = null;
 		this._pyramid = [];

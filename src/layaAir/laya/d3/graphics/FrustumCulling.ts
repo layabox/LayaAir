@@ -1,11 +1,11 @@
 import { Plane } from "../math/Plane";
-import { LayaGL } from "../../layagl/LayaGL";
 import { ICameraCullInfo } from "../../RenderEngine/RenderInterface/RenderPipelineInterface/ICameraCullInfo";
 import { IShadowCullInfo } from "../../RenderEngine/RenderInterface/RenderPipelineInterface/IShadowCullInfo";
 import { Bounds } from "../math/Bounds";
 import { ContainmentType } from "../math/ContainmentType";
 import { CollisionUtils } from "../math/CollisionUtils";
 import { Vector3 } from "../../maths/Vector3";
+import { Laya3DRender } from "../RenderObjs/Laya3DRender";
 
 /**
  * @internal
@@ -25,8 +25,8 @@ export class FrustumCulling {
 	 * @internal
 	 */
 	static __init__(): void {
-		FrustumCulling._cameraCullInfo = LayaGL.renderOBJCreate.createCameraCullInfo();
-		FrustumCulling._shadowCullInfo = LayaGL.renderOBJCreate.createShadowCullInfo();
+		FrustumCulling._cameraCullInfo = Laya3DRender.renderOBJCreate.createCameraCullInfo();
+		FrustumCulling._shadowCullInfo = Laya3DRender.renderOBJCreate.createShadowCullInfo();
 	}
 
 	// /**

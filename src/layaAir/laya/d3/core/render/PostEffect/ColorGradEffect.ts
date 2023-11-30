@@ -9,7 +9,7 @@ import { ShaderDefine } from "../../../../RenderEngine/RenderShader/ShaderDefine
 import { SubShader } from "../../../../RenderEngine/RenderShader/SubShader";
 import { VertexMesh } from "../../../../RenderEngine/RenderShader/VertexMesh";
 import { RenderTexture } from "../../../../resource/RenderTexture";
-import { Material } from "../../material/Material";
+import { Material } from "../../../../resource/Material";
 import { CommandBuffer } from "../command/CommandBuffer";
 import { PostProcessEffect } from "../PostProcessEffect";
 import { PostProcessRenderContext } from "../PostProcessRenderContext";
@@ -97,7 +97,7 @@ export class ColorGradEffect extends PostProcessEffect {
 	private _splitShadow: Vector3 = new Vector3(0.5, 0.5, 0.5);
 	private _splitBalance: number = 0;//-1-1
 	private _splithighlights: Vector3 = new Vector3(0.5, 0.5, 0.5);
-	private _u_SplitShadow: Vector4 = new Vector4(0,0,0);
+	private _u_SplitShadow: Vector4 = new Vector4(0, 0, 0);
 
 	// shadows, midtones, highlights
 	private _enableSMH: boolean = false;
@@ -137,10 +137,10 @@ export class ColorGradEffect extends PostProcessEffect {
 	private _colorFilter = new Color(1, 1, 1);//正片叠底
 	/**@internal */
 	private _HueShift = 0;//-0.5-0.5 色相HueSatCon.x
-	
+
 	/**@internal */
 	private _saturation = 1;//0-2饱和度HueSatCon.y
-	
+
 	/**@internal _HueShift,_saturation,_contrast*/
 	private _HueSatCon: Vector4 = new Vector4(0, 1, 1, 0);
 
@@ -473,7 +473,7 @@ export class ColorGradEffect extends PostProcessEffect {
 		return this._colorFilter;
 	}
 
-	public set colorFilter(value:Color) {
+	public set colorFilter(value: Color) {
 		this._needBuildLUT = true;
 		value.cloneTo(this._colorFilter);
 	}
@@ -536,18 +536,18 @@ export class ColorGradEffect extends PostProcessEffect {
 
 
 
-	private default_balance = new Vector3(1,1,1);
-	private default_splitShadow = new Vector4(0.5,0.5,0.5,0.0);
-	private default_splithighlights = new Vector3(0.5,0.5,0.5);
-	private default_shadow = new Vector3(1,1,1);
-	private default_midtones = new Vector3(1,1,1);
-	private default_highlight = new Vector3(1,1,1);
-	private default_limint = new Vector4(0.0,0.3,0.55,1.0);
-	private default_lift = new Vector3(0,0,0);
-	private default_gamma = new Vector3(1,1,1);
-	private default_gain = new Vector3(1,1,1);
-	private default_ColorFilter = new Color(1,1,1,1);
-	private default_HueSatCon = new Vector4(0,1,1,0);
+	private default_balance = new Vector3(1, 1, 1);
+	private default_splitShadow = new Vector4(0.5, 0.5, 0.5, 0.0);
+	private default_splithighlights = new Vector3(0.5, 0.5, 0.5);
+	private default_shadow = new Vector3(1, 1, 1);
+	private default_midtones = new Vector3(1, 1, 1);
+	private default_highlight = new Vector3(1, 1, 1);
+	private default_limint = new Vector4(0.0, 0.3, 0.55, 1.0);
+	private default_lift = new Vector3(0, 0, 0);
+	private default_gamma = new Vector3(1, 1, 1);
+	private default_gain = new Vector3(1, 1, 1);
+	private default_ColorFilter = new Color(1, 1, 1, 1);
+	private default_HueSatCon = new Vector4(0, 1, 1, 0);
 	/**
 	 * @internal
 	 * 生成LUT纹理
@@ -559,55 +559,55 @@ export class ColorGradEffect extends PostProcessEffect {
 		let lutWidth = this.lutSize * this.lutSize;
 		let lutParams = new Vector4(lutHeight, 0.5 / lutWidth, 0.5 / lutHeight, lutHeight / (lutHeight - 1));
 		this._lutBuilderMat.setVector4("u_LutParams", lutParams);
-		
-		if(this.enableBalance){
-			this._ColorBalanceToLMSCoeffs(this.temperature,this.tint);
+
+		if (this.enableBalance) {
+			this._ColorBalanceToLMSCoeffs(this.temperature, this.tint);
 			this._lutBuilderMat.setVector3("u_ColorBalance", this._balance);
-		}else{
+		} else {
 			this._lutBuilderMat.setVector3("u_ColorBalance", this.default_balance);
 		}
 
-		if(this.enableSplitTone){
-			this._u_SplitShadow.setValue(this._splitShadow.x,this._splitShadow.y,this._splitShadow.z,this.splitBalance);
+		if (this.enableSplitTone) {
+			this._u_SplitShadow.setValue(this._splitShadow.x, this._splitShadow.y, this._splitShadow.z, this.splitBalance);
 			this._lutBuilderMat.setVector4("u_SplitShadows", this._u_SplitShadow);
 			this._lutBuilderMat.setVector3("u_Splithighlights", this._splithighlights);
-		}else{
+		} else {
 			this._lutBuilderMat.setVector4("u_SplitShadows", this.default_splitShadow);
 			this._lutBuilderMat.setVector3("u_Splithighlights", this.default_splithighlights);
 		}
 
-		if(this.enableSMH){
+		if (this.enableSMH) {
 			this._lutBuilderMat.setVector3("u_Shadows", this._shadows);
 			this._lutBuilderMat.setVector3("u_Midtones", this._midtones);
 			this._lutBuilderMat.setVector3("u_Highlights", this._highlights);
 			this._lutBuilderMat.setVector4("u_Limits", this._limits);
-		}else{
+		} else {
 			this._lutBuilderMat.setVector3("u_Shadows", this.default_shadow);
 			this._lutBuilderMat.setVector3("u_Midtones", this.default_midtones);
 			this._lutBuilderMat.setVector3("u_Highlights", this.default_highlight);
 			this._lutBuilderMat.setVector4("u_Limits", this.default_limint);
 		}
-		if(this._enableLiftGammaGain){
+		if (this._enableLiftGammaGain) {
 			this._lutBuilderMat.setVector3("u_Lift", this._lift);
 			this._lutBuilderMat.setVector3("u_Gamma", this._gamma);
 			this._lutBuilderMat.setVector3("u_Gain", this._gain);
-		}else{
+		} else {
 			this._lutBuilderMat.setVector3("u_Lift", this.default_lift);
 			this._lutBuilderMat.setVector3("u_Gamma", this.default_gamma);
 			this._lutBuilderMat.setVector3("u_Gain", this.default_gain);
 		}
-		if(this.enableColorAdjust){
+		if (this.enableColorAdjust) {
 			//_HueShift,_saturation,_contrast
-			this._HueSatCon.setValue(this._HueShift,this.saturation,this._contrast,0.0);
-			this._lutBuilderMat.setColor("u_ColorFilter",this._colorFilter);
-			this._lutBuilderMat.setVector4("u_HueSatCon",this._HueSatCon);
-		}else{
-			this._lutBuilderMat.setColor("u_ColorFilter",this.default_ColorFilter);
-			this._lutBuilderMat.setVector4("u_HueSatCon",this.default_HueSatCon);
+			this._HueSatCon.setValue(this._HueShift, this.saturation, this._contrast, 0.0);
+			this._lutBuilderMat.setColor("u_ColorFilter", this._colorFilter);
+			this._lutBuilderMat.setVector4("u_HueSatCon", this._HueSatCon);
+		} else {
+			this._lutBuilderMat.setColor("u_ColorFilter", this.default_ColorFilter);
+			this._lutBuilderMat.setVector4("u_HueSatCon", this.default_HueSatCon);
 		}
 
-		
-		
+
+
 		if (this._toneMapping == ToneMappingType.ACES) {
 			this._lutBuilderMat.addDefine(ColorGradEffect.SHADERDEFINE_ACES);
 		} else {
@@ -622,7 +622,7 @@ export class ColorGradEffect extends PostProcessEffect {
 	/**
 	 * 添加到后期处理栈时,会调用
 	 */
-	effectInit(postprocess:PostProcess) {
+	effectInit(postprocess: PostProcess) {
 		super.effectInit(postprocess);
 		this._lutBuilderMat.setShaderName("LUTBuilder");
 		this._LUTShader = Shader3D.find("blitLUTShader");
@@ -635,7 +635,7 @@ export class ColorGradEffect extends PostProcessEffect {
 	/**
 	 * 释放Effect
 	 */
-	release(postprocess:PostProcess) {
+	release(postprocess: PostProcess) {
 		super.release(postprocess);
 		postprocess._enableColorGrad = false;
 		postprocess._ColorGradEffect = null;
@@ -651,7 +651,7 @@ export class ColorGradEffect extends PostProcessEffect {
 		let cmd: CommandBuffer = context.command;
 		let source: RenderTexture = context.indirectTarget;
 		if (true) {
-			this._blitlutParams.setValue(1 / this._lutTex.width, 1 / this._lutTex.height, this._lutTex.height - 1,this.enableColorAdjust?this._postExposure:1);
+			this._blitlutParams.setValue(1 / this._lutTex.width, 1 / this._lutTex.height, this._lutTex.height - 1, this.enableColorAdjust ? this._postExposure : 1);
 			this._lutBuilderMat.removeDefine(ColorGradEffect.SHADERDEFINE_CUSTOMLUT);
 			this._lutShaderData.setTexture(ColorGradEffect.SHADERVALUE_LUT, this._lutTex);
 			this._lutShaderData.setVector(ColorGradEffect.SHADERVALUE_LUTPARAMS, this._blitlutParams);

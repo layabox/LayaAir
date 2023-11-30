@@ -1,5 +1,4 @@
 import { BaseTexture } from "../resource/BaseTexture";
-import { LayaGL } from "../layagl/LayaGL";
 import { ILaya } from "../../ILaya";
 import { Utils } from "../utils/Utils";
 import { URL } from "../net/URL";
@@ -13,6 +12,7 @@ import { Texture2D } from "../resource/Texture2D";
 import { AssetDb } from "../resource/AssetDb";
 import { Event as LayaEvent } from "../events/Event";
 import { Browser } from "../utils/Browser";
+import { LayaGL } from "../layagl/LayaGL";
 
 
 /**

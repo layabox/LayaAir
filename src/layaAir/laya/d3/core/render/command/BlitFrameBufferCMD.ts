@@ -1,4 +1,3 @@
-import { LayaGL } from "../../../../layagl/LayaGL";
 import { BaseTexture } from "../../../../resource/BaseTexture";
 import { Viewport } from "../../../math/Viewport";
 import { RenderContext3D } from "../RenderContext3D";
@@ -8,12 +7,13 @@ import { Shader3D } from "../../../../RenderEngine/RenderShader/Shader3D";
 import { ShaderData } from "../../../../RenderEngine/RenderShader/ShaderData";
 import { RenderElement } from "../RenderElement";
 import { Transform3D } from "../../Transform3D";
-import { ShaderDefine } from "../../../../RenderEngine/RenderShader/ShaderDefine";
 import { Camera } from "../../Camera";
 import { Vector4 } from "../../../../maths/Vector4";
 import { RenderTexture } from "../../../../resource/RenderTexture";
 import { ShaderPass } from "../../../../RenderEngine/RenderShader/ShaderPass";
 import { SubShader } from "../../../../RenderEngine/RenderShader/SubShader";
+import { LayaGL } from "../../../../layagl/LayaGL";
+import { Laya3DRender } from "../../../RenderObjs/Laya3DRender";
 
 
 /**
@@ -25,13 +25,13 @@ export class BlitFrameBufferCMD {
 	/** @internal */
 	private static _defaultOffsetScale: Vector4 = new Vector4(0, 0, 1, 1);
 	/** @internal */
-	static shaderdata:ShaderData;
+	static shaderdata: ShaderData;
+
 	/** @internal */
-	private static GAMMAOUT:ShaderDefine;
 	static __init__(): void {
 		BlitFrameBufferCMD.shaderdata = LayaGL.renderOBJCreate.createShaderData(null);
-		BlitFrameBufferCMD.GAMMAOUT = Shader3D.getDefineByName("GAMMAOUT");
 	}
+
 	/**
    * 渲染命令集
    * @param source 
@@ -48,8 +48,8 @@ export class BlitFrameBufferCMD {
 		cmd._source = source;
 		cmd._dest = dest;
 		cmd._offsetScale = offsetScale;
-		cmd.setshader(shader,subShader,shaderData);
-		cmd._source&& cmd._texture_size.setValue(source.width,source.height,1.0/source.width,1.0/source.height);
+		cmd.setshader(shader, subShader, shaderData);
+		cmd._source && cmd._texture_size.setValue(source.width, source.height, 1.0 / source.width, 1.0 / source.height);
 		//cmd._shader = shader;
 		//cmd._shaderData = shaderData;
 		//cmd._subShader = subShader;
@@ -63,7 +63,7 @@ export class BlitFrameBufferCMD {
 	/**@internal 偏移缩放*/
 	private _offsetScale: Vector4 = null;
 	/**@internal */
-	_texture_size:Vector4 = null;
+	_texture_size: Vector4 = null;
 	/**@internal 渲染shader*/
 	private _shader: Shader3D = null;
 	/**@internal 渲染数据*/
@@ -75,28 +75,28 @@ export class BlitFrameBufferCMD {
 	// /**@internal */
 	// private _sourceTexelSize: Vector4 = new Vector4();
 	/**@internal */
-	private _renderElement:RenderElement;
-    /**@internal */
-	private _transform3D:Transform3D;
-	constructor(){
-        this._transform3D = LayaGL.renderOBJCreate.createTransform(null);
-        this._renderElement = new RenderElement();
-        this._renderElement.setTransform(this._transform3D);
+	private _renderElement: RenderElement;
+	/**@internal */
+	private _transform3D: Transform3D;
+	constructor() {
+		this._transform3D = Laya3DRender.renderOBJCreate.createTransform(null);
+		this._renderElement = new RenderElement();
+		this._renderElement.setTransform(this._transform3D);
 		this._renderElement.setGeometry(ScreenQuad.instance);
 		this._texture_size = new Vector4();
-    }
+	}
 
-	set shaderData(value:ShaderData){
-        this._shaderData = value||BlitFrameBufferCMD.shaderdata;
-        this._renderElement._renderElementOBJ._materialShaderData = this._shaderData;
-    }
+	set shaderData(value: ShaderData) {
+		this._shaderData = value || BlitFrameBufferCMD.shaderdata;
+		this._renderElement._renderElementOBJ._materialShaderData = this._shaderData;
+	}
 
-	setshader(shader:Shader3D,subShader:number,shaderData:ShaderData){
-        this._shader = shader|| Command._screenShader;
-        this._subShader = subShader||0;
+	setshader(shader: Shader3D, subShader: number, shaderData: ShaderData) {
+		this._shader = shader || Command._screenShader;
+		this._subShader = subShader || 0;
 		this.shaderData = shaderData;
-        this._renderElement.renderSubShader = this._shader.getSubShaderAt(this._subShader);
-    }
+		this._renderElement.renderSubShader = this._shader.getSubShaderAt(this._subShader);
+	}
 
 	/**
 	 * @inheritDoc
@@ -112,34 +112,35 @@ export class BlitFrameBufferCMD {
 		var viewport = this._viewPort;
 
 		let vph = RenderContext3D.clientHeight - viewport.y - viewport.height;
-		
+
 		// LayaGL.renderEngine.viewport(viewport.x, vph, viewport.width, viewport.height);
 		// LayaGL.renderEngine.scissor(viewport.x, vph, viewport.width, viewport.height);
 		let context = RenderContext3D._instance;
 		context.changeViewport(viewport.x, vph, viewport.width, viewport.height);
-        context.changeScissor(viewport.x, vph, viewport.width, viewport.height);
+		context.changeScissor(viewport.x, vph, viewport.width, viewport.height);
 
 		shaderData.setTexture(Command.SCREENTEXTURE_ID, source);
 		shaderData.setVector(Command.SCREENTEXTUREOFFSETSCALE_ID, this._offsetScale || BlitFrameBufferCMD._defaultOffsetScale);
-		source && (shaderData.setVector(Command.MAINTEXTURE_TEXELSIZE_ID,this._texture_size));
+		source && (shaderData.setVector(Command.MAINTEXTURE_TEXELSIZE_ID, this._texture_size));
 		//this._sourceTexelSize.setValue(1.0 / source.width, 1.0 / source.height, source.width, source.height);
 		(RenderTexture.currentActive) && (RenderTexture.currentActive._end());
-		if(!dest){
-			shaderData.addDefine(BlitFrameBufferCMD.GAMMAOUT);
-		}else{
+
+		if (dest) {
 			dest._start();
-			shaderData.removeDefine(BlitFrameBufferCMD.GAMMAOUT);
+			shaderData.removeDefine(RenderContext3D.GammaCorrect);
 		}
-		//LayaGL.textureContext.bindRenderTarget(null);
+		else {
+			shaderData.addDefine(RenderContext3D.GammaCorrect);
+		}
 		var subShader: SubShader = shader.getSubShaderAt(this._subShader);
 		var passes: ShaderPass[] = subShader._passes;
-		ScreenQuad.instance.invertY =false;
+		ScreenQuad.instance.invertY = false;
 
 		context.destTarget = dest;
-        context._contextOBJ.applyContext(Camera._updateMark);
+		context._contextOBJ.applyContext(Camera._updateMark);
 		context.drawRenderElement(this._renderElement);
 		//RenderContext3D._instance.invertY ? ScreenQuad.instance.renderInvertUV() : ScreenQuad.instance.render();
-		
+
 
 	}
 

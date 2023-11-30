@@ -1,5 +1,4 @@
 import { VertexPositionTexture0 } from "../../graphics/Vertex/VertexPositionTexture0"
-import { LayaGL } from "../../../layagl/LayaGL"
 import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { MeshTopology } from "../../../RenderEngine/RenderEnum/RenderPologyMode";
 import { VertexDeclaration } from "../../../RenderEngine/VertexDeclaration";
@@ -8,6 +7,7 @@ import { DrawType } from "../../../RenderEngine/RenderEnum/DrawType";
 import { RenderContext3D } from "../../core/render/RenderContext3D";
 import { IndexFormat } from "../../../RenderEngine/RenderEnum/IndexFormat";
 import { BufferState } from "../../../webgl/utils/BufferState";
+import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
 
 /**
  * <code>SkyDome</code> 类用于创建天空盒。
@@ -97,9 +97,9 @@ export class SkyDome extends GeometryElement {
 			}
 		}
 
-		let vertexBuffer = LayaGL.renderOBJCreate.createVertexBuffer3D(vertices.length * 4, BufferUsage.Static, false);
+		let vertexBuffer = Laya3DRender.renderOBJCreate.createVertexBuffer3D(vertices.length * 4, BufferUsage.Static, false);
 		vertexBuffer.vertexDeclaration = vertexDeclaration;
-		let indexBuffer = LayaGL.renderOBJCreate.createIndexBuffer3D(IndexFormat.UInt16, indices.length, BufferUsage.Static, false);
+		let indexBuffer = Laya3DRender.renderOBJCreate.createIndexBuffer3D(IndexFormat.UInt16, indices.length, BufferUsage.Static, false);
 		vertexBuffer.setData(vertices.buffer);
 		indexBuffer.setData(indices);
 

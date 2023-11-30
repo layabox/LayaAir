@@ -1,8 +1,8 @@
-import { LayaGL } from "../../layagl/LayaGL";
 import { IndexBuffer } from "../../RenderEngine/IndexBuffer";
 import { IRenderVertexState } from "../../RenderEngine/RenderInterface/IRenderVertexState";
 import { VertexAttributeLayout } from "../../RenderEngine/VertexAttributeLayout";
 import { VertexBuffer } from "../../RenderEngine/VertexBuffer";
+import { LayaGL } from "../../layagl/LayaGL";
 
 
 

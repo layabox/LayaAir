@@ -1,11 +1,12 @@
 import { PhysicsSettings } from "../../d3/physics/PhysicsSettings";
-import { Vector3 } from "../../maths/Vector3";
+import { Mesh } from "../../d3/resource/models/Mesh";
+import { EPhysicsCapable } from "../physicsEnum/EPhycisCapable";
 import { ICharacterController } from "./ICharacterController";
 import { IDynamicCollider } from "./IDynamicCollider";
 import { IPhysicsManager } from "./IPhysicsManager";
-import { IPhysicsMaterial } from "./IPhysicsMaterial";
 import { IStaticCollider } from "./IStaticCollider";
 import { ICustomJoint } from "./Joint/ICustomJoint";
+import { ID6Joint } from "./Joint/ID6Joint";
 import { IFixedJoint } from "./Joint/IFixedJoint";
 import { IHingeJoint } from "./Joint/IHingeJoint";
 import { ISpringJoint } from "./Joint/ISpringJoint";
@@ -13,6 +14,7 @@ import { IBoxColliderShape } from "./Shape/IBoxColliderShape";
 import { ICapsuleColliderShape } from "./Shape/ICapsuleColliderShape";
 import { IConeColliderShape } from "./Shape/IConeColliderShape";
 import { ICylinderColliderShape } from "./Shape/ICylinderColliderShape";
+import { IHeightFieldShape } from "./Shape/IHeightFieldShape";
 import { IMeshColliderShape } from "./Shape/IMeshColliderShape";
 import { IPlaneColliderShape } from "./Shape/IPlaneColliderShape";
 import { ISphereColliderShape } from "./Shape/ISphereColliderShape";
@@ -22,6 +24,17 @@ export interface IPhysicsCreateUtil {
      * 初始化物理
      */
     initialize(): Promise<void>;
+
+    /**
+     * set PhysicsEngine Capable
+     */
+    initPhysicsCapable(): void;
+
+    /**
+     * get PhysicsEngine Capable
+     * @param value 
+     */
+    getPhysicsCapable(value: EPhysicsCapable): boolean;
 
     /**
      * 创建物理管理类
@@ -65,7 +78,7 @@ export interface IPhysicsCreateUtil {
     /**
      * Create Custom Joint
      */
-    createCustomJoint(manager: IPhysicsManager): ICustomJoint;
+    createD6Joint(manager: IPhysicsManager): ID6Joint;
 
     //Shape
     /**
@@ -114,4 +127,15 @@ export interface IPhysicsCreateUtil {
      * create Cone Collider Shape
      */
     createConeColliderShape?(): IConeColliderShape;
+
+    /**
+     * create Height Field Collider
+     */
+    createHeightFieldShape?(): IHeightFieldShape;
+
+
+    /**
+     * create Corve Mesh
+     */
+    createCorveMesh?(mesh: Mesh): Mesh;
 }

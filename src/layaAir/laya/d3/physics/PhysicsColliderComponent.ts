@@ -6,10 +6,14 @@ import { BoxColliderShape } from "./shape/BoxColliderShape";
 import { Event } from "../../events/Event";
 import { Scene3D } from "../core/scene/Scene3D";
 import { IPhysicsManager } from "../../Physics3D/interface/IPhysicsManager";
-//import { CompoundColliderShape } from "./shape/CompoundColliderShape";
 import { Physics3DColliderShape } from "./shape/Physics3DColliderShape";
 import { SphereColliderShape } from "./shape/SphereColliderShape";
 import { CapsuleColliderShape } from "./shape/CapsuleColliderShape";
+import { EColliderCapable } from "../../Physics3D/physicsEnum/EColliderCapable";
+import { Node } from "../../display/Node";
+import { MeshColliderShape } from "./shape/MeshColliderShape";
+import { ConeColliderShape } from "./shape/ConeColliderShape";
+import { CylinderColliderShape } from "./shape/CylinderColliderShape";
 
 /**
  * Describes how physics materials of the colliding objects are combined.
@@ -25,7 +29,7 @@ export enum PhysicsCombineMode {
     Maximum
 }
 
-export enum PhysicsForceMode{
+export enum PhysicsForceMode {
     Force,
     Impulse
 }
@@ -35,25 +39,25 @@ export enum PhysicsForceMode{
 export class PhysicsColliderComponent extends Component {
 
     /** @internal */
-    private _restitution = 0.0;
+    protected _restitution = 0.0;
     /** @internal */
-    private _friction = 0.5;
+    protected _friction = 0.5;
     /** @internal */
-    private _rollingFriction = 0.0;
+    protected _rollingFriction = 0.0;
     /**@internal */
-    private _dynamicFriction = 0.0;
+    protected _dynamicFriction = 0.0;
     /**@internal */
-    private _staticFriction = 0.0;
+    protected _staticFriction = 0.0;
     /**@internal */
-    private _frictionCombine = 0.0;
+    protected _frictionCombine = 0.0;
     /**@internal */
-    private _restitutionCombine = 0.0;
+    protected _restitutionCombine = 0.0;
     /** @internal */
-    private _ccdMotionThreshold = 0.0;
+    protected _ccdMotionThreshold = 0.0;
     /** @internal */
-    private _ccdSweptSphereRadius = 0.0;
+    protected _ccdSweptSphereRadius = 0.0;
     /** @internal */
-    protected _collisionGroup: number =   0x1;
+    protected _collisionGroup: number = 0x1;
     /** @internal */
     protected _canCollideWith: number = -1;
     /** @internal */
@@ -66,6 +70,13 @@ export class PhysicsColliderComponent extends Component {
     protected _physicsManager: IPhysicsManager;
     /**@internal */
     protected _collider: ICollider;
+    /**@internal */
+    protected _eventsArray: string[];
+
+    get collider(): ICollider {
+        return this._collider;
+    }
+
     /**
      * 弹力。也叫Bounciness
      */
@@ -75,8 +86,9 @@ export class PhysicsColliderComponent extends Component {
 
     set restitution(value: number) {
         this._restitution = value;
-        //this._btColliderObject && ILaya3D.Physics3D._bullet.btCollisionObject_setRestitution(this._btColliderObject, value);
-        this._collider.setBounciness && this._collider.setBounciness(value);
+        if (this._collider && this._collider.getCapable(EColliderCapable.Collider_Restitution)) {
+            this._collider.setBounciness(value);
+        }
     }
 
     /**
@@ -88,7 +100,9 @@ export class PhysicsColliderComponent extends Component {
 
     set friction(value: number) {
         this._friction = value;
-        this._collider.setfriction && this._collider.setfriction(value);
+        if (this._collider && this._collider.getCapable(EColliderCapable.Collider_Friction)) {
+            this._collider.setfriction(value);
+        }
         //this._btColliderObject && ILaya3D.Physics3D._bullet.btCollisionObject_setFriction(this._btColliderObject, value);
     }
 
@@ -101,8 +115,9 @@ export class PhysicsColliderComponent extends Component {
 
     set rollingFriction(value: number) {
         this._rollingFriction = value;
-        this._collider.setRollingFriction && this._collider.setRollingFriction(value);
-        //this._btColliderObject && ILaya3D.Physics3D._bullet.btCollisionObject_setRollingFriction(this._btColliderObject, value);
+        if (this._collider && this._collider.getCapable(EColliderCapable.Collider_RollingFriction)) {
+            this._collider.setRollingFriction(value);
+        }
     }
 
     /**
@@ -113,7 +128,9 @@ export class PhysicsColliderComponent extends Component {
     }
 
     set dynamicFriction(value: number) {
-        this._collider.setDynamicFriction && this._collider.setDynamicFriction(value);
+        if (this._collider && this._collider.getCapable(EColliderCapable.Collider_DynamicFriction)) {
+            this._collider.setDynamicFriction(value);
+        }
     }
 
     /**
@@ -125,7 +142,9 @@ export class PhysicsColliderComponent extends Component {
 
     set staticFriction(value: number) {
         this._staticFriction = value
-        this._collider.setStaticFriction && this._collider.setStaticFriction(value);
+        if (this._collider && this._collider.getCapable(EColliderCapable.Collider_StaticFriction)) {
+            this._collider.setStaticFriction(value);
+        }
     }
 
     /**
@@ -133,7 +152,9 @@ export class PhysicsColliderComponent extends Component {
      */
     set frictionCombine(value: PhysicsCombineMode) {
         this._frictionCombine = value;
-        this._collider.setFrictionCombine && this._collider.setFrictionCombine(value);
+        if (this._collider && this._collider.getCapable(EColliderCapable.Collider_FrictionCombine)) {
+            this._collider.setFrictionCombine(value);
+        }
     }
 
     get frictionCombine() {
@@ -145,7 +166,9 @@ export class PhysicsColliderComponent extends Component {
      */
     set restitutionCombine(value: PhysicsCombineMode) {
         this._restitutionCombine = value;
-        this._collider.setBounceCombine && this._collider.setBounceCombine(value);
+        if (this._collider && this._collider.getCapable(EColliderCapable.Collider_BounceCombine)) {
+            this._collider.setBounceCombine(value);
+        }
     }
 
     get restitutionCombine() {
@@ -191,10 +214,10 @@ export class PhysicsColliderComponent extends Component {
         if (!value || value == this._colliderShape) {
             return;
         }
+        this._colliderShape && this._colliderShape.destroy();
+        this._colliderShape = value;
         if (this._collider) {
             this._collider.setColliderShape(value._shape);
-            this._colliderShape && this._colliderShape.destroy();
-            this._colliderShape = value;
         }
     }
 
@@ -206,10 +229,12 @@ export class PhysicsColliderComponent extends Component {
     }
 
     set collisionGroup(value: number) {
-        if (this._collisionGroup !== value) {
-            this._collisionGroup = value;
-            if (this._colliderShape && this._enabled) {
-                this._collider.setCollisionGroup(value);
+        if (this._collider && this._collider.getCapable(EColliderCapable.Collider_CollisionGroup)) {
+            if (this._collisionGroup !== value) {
+                this._collisionGroup = value;
+                if (this._colliderShape && this._enabled) {
+                    this._collider.setCollisionGroup(value);
+                }
             }
         }
     }
@@ -222,19 +247,20 @@ export class PhysicsColliderComponent extends Component {
     }
 
     set canCollideWith(value: number) {
-        if (this._canCollideWith !== value) {
-            this._canCollideWith = value;
-            if (this._colliderShape && this._enabled) {
-                this._collider.setCanCollideWith(value);
+        if (this._collider && this._collider.getCapable(EColliderCapable.Collider_CollisionGroup)) {
+            if (this._canCollideWith !== value) {
+                this._canCollideWith = value;
+                if (this._colliderShape && this._enabled) {
+                    this._collider.setCanCollideWith(value);
+                }
             }
         }
     }
 
     constructor() {
         super();
+
     }
-
-
 
     /**
      * @internal
@@ -254,27 +280,47 @@ export class PhysicsColliderComponent extends Component {
         }
     }
 
-    protected _initCollider() {
-        //createCollider
-        //Override it
-    }
-
-    protected _onAdded(): void {
+    initCollider() {
         this._initCollider();
         this._collider.setOwner(this.owner);
-        this.restitution = this._restitution;
-        this.friction = this._friction;
-        this.rollingFriction = this._rollingFriction;
+        if (this._colliderShape) this._collider.setColliderShape(this._colliderShape._shape);
+        // this.restitution = this._restitution;
+        // this.friction = this._friction;
+        // this.rollingFriction = this._rollingFriction;
         this.ccdMotionThreshold = this._ccdMotionThreshold;
         this.ccdSweptSphereRadius = this._ccdSweptSphereRadius;
         this.collisionGroup = this._collisionGroup;
         this.canCollideWith = this._canCollideWith;
     }
 
+    protected _initCollider() {
+        //createCollider
+        //Override it
+    }
+
+    /**
+     * @internal
+     */
+    protected _setEventFilter() {
+        // override it
+    }
+
+    protected _onAdded(): void {
+        if (!this.owner.scene) {
+            this.owner.on(Node.EVENT_SET_ACTIVESCENE, this, this._onAdded);
+        } else {
+            this.initCollider();
+            this.owner.off(Node.EVENT_SET_ACTIVESCENE, this, this._onAdded);
+        }
+        this.owner.off(Event._Add_Script, this, this._setEventFilter);
+        this.owner.on(Event._Add_Script, this, this._setEventFilter);
+    }
+
     protected _onEnable(): void {
         (<Sprite3D>this.owner).transform.on(Event.TRANSFORM_CHANGED, this, this._onTransformChanged);
         this._physicsManager = ((<Scene3D>this.owner._scene))._physicsManager;
         //ILaya3D.Physics3D._bullet.btCollisionObject_setContactProcessingThreshold(this._btColliderObject, 0);
+        this._collider && (this._collider.componentEnable = true);
         if (this._colliderShape) {
             this._physicsManager.addCollider(this._collider);
         }
@@ -282,6 +328,7 @@ export class PhysicsColliderComponent extends Component {
 
     protected _onDisable(): void {
         (<Sprite3D>this.owner).transform.off(Event.TRANSFORM_CHANGED, this, this._onTransformChanged);
+        this._collider && (this._collider.componentEnable = false);
         if (this._colliderShape) {
             this._physicsManager.removeCollider(this._collider);
         }
@@ -352,18 +399,16 @@ export class PhysicsColliderComponent extends Component {
                 colliderShape = new CapsuleColliderShape(shapeData.radius, shapeData.height, shapeData.orientation);
                 break;
             case "MeshColliderShape":
-                //var meshCollider: MeshColliderShape = new MeshColliderShape();
-                //shapeData.mesh && (meshCollider.mesh = Loader.getRes(shapeData.mesh));
-                //colliderShape = meshCollider;
+                colliderShape = new MeshColliderShape();
                 break;
             case "ConeColliderShape":
-                //colliderShape = new ConeColliderShape(shapeData.radius, shapeData.height, shapeData.orientation);
+                colliderShape = new ConeColliderShape(shapeData.radius, shapeData.height, shapeData.orientation);
                 break;
             case "CylinderColliderShape":
-                //colliderShape = new CylinderColliderShape(shapeData.radius, shapeData.height, shapeData.orientation);
+                colliderShape = new CylinderColliderShape(shapeData.radius, shapeData.height, shapeData.orientation);
                 break;
             default:
-                throw "unknown shape type.";
+                console.error("unknown shape type.");
         }
         return null;//TODO
     }

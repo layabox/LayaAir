@@ -1,7 +1,6 @@
 
 import { LayaGL } from "../../../layagl/LayaGL";
 import { Vector4 } from "../../../maths/Vector4";
-import { UploadMemoryManager } from "../../../RenderEngine/RenderEngine/NativeGLEngine/CommonMemory/UploadMemoryManager";
 import { IRenderTarget } from "../../../RenderEngine/RenderInterface/IRenderTarget";
 import { IRenderContext3D, PipelineMode } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderContext3D";
 import { ShaderData } from "../../../RenderEngine/RenderShader/ShaderData";
@@ -18,6 +17,7 @@ export class NativeRenderContext3DOBJ implements IRenderContext3D {
     //scissor
     private _scissor: Vector4;
 
+    private _confifShaderData: ShaderData;
     //Camera Shader Data
     private _cameraShaderData: ShaderData;
     //scene Shader Data
@@ -88,6 +88,15 @@ export class NativeRenderContext3DOBJ implements IRenderContext3D {
 
     get pipelineMode(): PipelineMode {
         return this._nativeObj.pipelineMode;
+    }
+
+    get configShaderData(): ShaderData {
+        return this._confifShaderData;
+    }
+
+    set configShaderData(value: ShaderData) {
+        this._confifShaderData = value;
+        this._nativeObj.configShaderData = value ? (value as any)._nativeObj : null;
     }
 
     set globalShaderData(globalShaderData: ShaderData) {

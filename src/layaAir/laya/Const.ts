@@ -14,7 +14,6 @@ export class Const {
 }
 
 /**
- * @private
  * 节点标志
  */
 export class NodeFlags {

@@ -29,6 +29,12 @@ export enum ReflectionProbeMode {
  * @miner
  */
 export class ReflectionProbe extends Volume {
+	static reflectionCount: number = 0;
+	/**获取一个全局唯一ID。*/
+	static getID(): number {
+		return ReflectionProbe.reflectionCount++;
+	}
+
 	//因为纹理数量问题 暂不支持探针混合
 	static TEMPVECTOR3: Vector3 = new Vector3();
 	/** 默认解码数据 */
@@ -59,6 +65,9 @@ export class ReflectionProbe extends Volume {
 	/**修改了值，需要更新shader，需要和updateMask对应 */
 	_updateMark: number;
 
+	/**@internal */
+	_reflectionProbeID: number;
+
 	constructor() {
 		super();
 		this._importance = 0;
@@ -67,6 +76,7 @@ export class ReflectionProbe extends Volume {
 		this._reflectionIntensity = 1.0;
 		this.boundsMax = new Vector3(5, 5, 5);
 		this.boundsMin = new Vector3(-5, -5, -5);
+		this._reflectionProbeID = ReflectionProbe.getID();
 	}
 
 

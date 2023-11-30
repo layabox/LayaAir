@@ -1,7 +1,6 @@
 import { LayaGL } from "../../layagl/LayaGL";
 import { ShaderCompile } from "../../webgl/utils/ShaderCompile";
 import { DefineDatas } from "./DefineDatas";
-import { ShaderData } from "./ShaderData";
 import { ShaderDefine } from "./ShaderDefine";
 import { ShaderPass } from "./ShaderPass";
 import { ShaderVariant, ShaderVariantCollection } from "./ShaderVariantCollection";
@@ -23,6 +22,8 @@ export interface IShaderpassStructor {
     VSPath?: string,//TODO
     FSPath?: string,//TODO
     pipeline?: string,
+    statefirst?: boolean;
+    renderState?: Record<string, string | boolean | number | string[]>
 
 }
 /**
@@ -224,15 +225,31 @@ export class Shader3D {
     }
 
     static parse(data: IShaderObjStructor, basePath: string) {
-        if (!data.name || !data.uniformMap)
-            console.error("TODO");
+        if (!data.name)
+            console.warn("shader name is empty", data);
+        if (!data.uniformMap)
+            console.warn(`${data.name}: uniformMap is empty`);
+
         let shader = Shader3D.add(data.name, data.enableInstancing, data.supportReflectionProbe);
         let subshader = new SubShader(data.attributeMap ? data.attributeMap : SubShader.DefaultAttributeMap, data.uniformMap, data.defaultValue);
         shader.addSubShader(subshader);
-        let passArray = data.shaderPass;
-        for (var i in passArray) {
-            let pass = passArray[i] as IShaderpassStructor;
-            subshader._addShaderPass(ShaderCompile.compile(pass.VS, pass.FS, basePath), pass.pipeline);
+        let passDataArray = data.shaderPass;
+        for (var i in passDataArray) {
+            let passData = passDataArray[i] as IShaderpassStructor;
+            if (!passData.VS) {
+                console.warn(`${data.name}: VS of pass ${i} is empty`);
+                continue;
+            }
+            if (!passData.FS) {
+                console.warn(`${data.name}: FS of pass ${i} is empty`);
+                continue;
+            }
+
+            let shaderPass = subshader._addShaderPass(ShaderCompile.compile(passData.VS, passData.FS, basePath), passData.pipeline);
+
+            shaderPass.statefirst = passData.statefirst ?? false;
+
+            ShaderCompile.getRenderState(passData.renderState, shaderPass.renderState);
         }
         return shader;
     }
@@ -243,6 +260,8 @@ export class Shader3D {
     _enableInstancing: boolean = false;
     /**@internal */
     _supportReflectionProbe: boolean = false;
+    /**@internal */
+    _surportVolumetricGI:boolean = false;
     /**@internal */
     _subShaders: SubShader[] = [];
 

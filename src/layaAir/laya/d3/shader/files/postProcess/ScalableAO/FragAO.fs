@@ -1,10 +1,4 @@
-#if defined(GL_FRAGMENT_PRECISION_HIGH)
-precision highp float;
-#else
-precision mediump float;
-#endif
-
-#define SHADER_NAME OcclusionEstimation:FS
+#define SHADER_NAME OcclusionEstimationFS
 
 #include "DepthNormalUtil.glsl";
 
@@ -15,7 +9,7 @@ precision mediump float;
 // Check if the camera is perspective.
 // (returns 1.0 when orthographic)
 float CheckPerspective(float x)
-{   
+{
     // todo ortho
     return mix(x, 1.0, 0.0);
 }
@@ -27,7 +21,8 @@ vec3 ReconstructViewPos(vec2 uv, float depth, vec2 p11_22, vec2 p13_31)
 
 // Pseudo random number generator with 2D coordinates
 // https://stackoverflow.com/questions/12964279/whats-the-origin-of-this-glsl-rand-one-liner
-float UVRandom(float u, float v) {
+float UVRandom(float u, float v)
+{
     float f = dot(vec2(12.9898, 78.233), vec2(u, v));
     return fract(43758.5453 * sin(f));
 }
@@ -49,16 +44,16 @@ float GradientNoise(vec2 uv)
 }
 
 // Sample point picker
-vec3 PickSamplePoint(vec2 uv, float index) 
+vec3 PickSamplePoint(vec2 uv, float index)
 {
-    #if defined(FIX_SAMPLING_PATTERN)
-        float gn = GradientNoise(uv * DOWNSAMPLE);
-        float u = fract(UVRandom(0.0, index + uv.x * 1e-10) + gn) * 2.0 - 1.0;
-        float theta = (UVRandom(1.0, index + uv.x * 1e-10) + gn) * TWO_PI;
-    #else
-        float u = UVRandom(uv.x + u_PlugTime.x, uv.y + index) * 2.0 - 1.0;
-        float theta = UVRandom(-uv.x - u_PlugTime.x, uv.y + index) * TWO_PI;
-    #endif
+#if defined(FIX_SAMPLING_PATTERN)
+    float gn = GradientNoise(uv * DOWNSAMPLE);
+    float u = fract(UVRandom(0.0, index + uv.x * 1e-10) + gn) * 2.0 - 1.0;
+    float theta = (UVRandom(1.0, index + uv.x * 1e-10) + gn) * TWO_PI;
+#else
+    float u = UVRandom(uv.x + u_PlugTime.x, uv.y + index) * 2.0 - 1.0;
+    float theta = UVRandom(-uv.x - u_PlugTime.x, uv.y + index) * TWO_PI;
+#endif
 
     vec3 v = vec3(CosSin(theta) * sqrt(1.0 - u * u), u);
     float l = sqrt((index + 1.0) / float(SAMPLE_COUNT)) * RADIUS;
@@ -81,27 +76,28 @@ void main()
 
     float ao = 0.0;
 
-    for (int s = 0; s < int(SAMPLE_COUNT); s++) {
-        float s_float = float(s);
-        vec3 v_s1 = PickSamplePoint(uv, s_float);
+    for (int s = 0; s < int(SAMPLE_COUNT); s++)
+	{
+	    float s_float = float(s);
+	    vec3 v_s1 = PickSamplePoint(uv, s_float);
 
-        v_s1 = faceforward(v_s1, -norm_o, v_s1);
-        vec3 vpos_s1 = vpos_o + v_s1;
+	    v_s1 = faceforward(v_s1, -norm_o, v_s1);
+	    vec3 vpos_s1 = vpos_o + v_s1;
 
-        // Reproject the sample point
-        vec3 spos_s1 = proj * vpos_s1;
-        vec2 uv_s1_01 = (spos_s1.xy / CheckPerspective(vpos_s1.z) + 1.0) * 0.5;
+	    // Reproject the sample point
+	    vec3 spos_s1 = proj * vpos_s1;
+	    vec2 uv_s1_01 = (spos_s1.xy / CheckPerspective(vpos_s1.z) + 1.0) * 0.5;
 
-        float depth_s1 = SampleDepth(uv_s1_01);
+	    float depth_s1 = SampleDepth(uv_s1_01);
 
-        vec3 vpos_s2 = ReconstructViewPos(uv_s1_01, depth_s1, p11_22, p13_31);
-        vec3 v_s2 = vpos_s2 - vpos_o;
+	    vec3 vpos_s2 = ReconstructViewPos(uv_s1_01, depth_s1, p11_22, p13_31);
+	    vec3 v_s2 = vpos_s2 - vpos_o;
 
-        float a1 = max(dot(v_s2, norm_o) - kBeta * depth_o, 0.0);
-        float a2 = dot(v_s2, v_s2) + EPSILON;
+	    float a1 = max(dot(v_s2, norm_o) - kBeta * depth_o, 0.0);
+	    float a2 = dot(v_s2, v_s2) + EPSILON;
 
-        ao += a1 / a2;
-    }
+	    ao += a1 / a2;
+	}
 
     ao *= RADIUS;
 
@@ -111,8 +107,8 @@ void main()
 }
 
 /**
-    0.8741,     0,          0,          0, 
-    0,          1.7320,     0,          0, 
-    0,          0,          -1.0152,    -1, 
+    0.8741,     0,          0,          0,
+    0,          1.7320,     0,          0,
+    0,          0,          -1.0152,    -1,
     0,          0,          -0.3046,    0
 **/

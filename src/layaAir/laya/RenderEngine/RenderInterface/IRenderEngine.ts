@@ -11,7 +11,7 @@ import { RenderStateCommand } from "../RenderStateCommand";
 import { IRender2DContext } from "./IRender2DContext";
 import { IRenderBuffer } from "./IRenderBuffer";
 import { IRenderDrawContext } from "./IRenderDrawContext";
-import { IRenderOBJCreate } from "./IRenderOBJCreate";
+import { IRenderEngineFactory } from "./IRenderEngineFactory";
 import { IRenderShaderInstance } from "./IRenderShaderInstance";
 import { IRenderVertexState } from "./IRenderVertexState";
 import { ITextureContext } from "./ITextureContext";
@@ -21,7 +21,7 @@ export interface IRenderEngine {
     /**@internal */
     _isShaderDebugMode: boolean;
     /**@internal */
-    _renderOBJCreateContext:IRenderOBJCreate;
+    _renderOBJCreateContext: IRenderEngineFactory;
     initRenderEngine(canvas: any): void;
 
     applyRenderStateCMD(cmd: RenderStateCommand): void;
@@ -43,19 +43,19 @@ export interface IRenderEngine {
     //TODO 先写完测试，这种封装过于死板
     getDrawContext(): IRenderDrawContext;
     get2DRenderContext(): IRender2DContext;
-    getCreateRenderOBJContext(): IRenderOBJCreate;
+    getCreateRenderOBJContext(): IRenderEngineFactory;
     /**@internal */
     uploadUniforms(shader: IRenderShaderInstance, commandEncoder: CommandEncoder, shaderData: any, uploadUnTexture: boolean): number;
     /**@internal */
     uploadCustomUniforms(shader: IRenderShaderInstance, custom: any[], index: number, data: any): number;
-    createRenderStateComand():RenderStateCommand;
+    createRenderStateComand(): RenderStateCommand;
     createShaderInstance(vs: string, ps: string, attributeMap: { [name: string]: [number, ShaderDataType] }): IRenderShaderInstance
     createBuffer(targetType: BufferTargetType, bufferUsageType: BufferUsage): IRenderBuffer;
     createVertexState(): IRenderVertexState;
     getUBOPointer(name: string): number;
     /**@internal */
-    clearStatisticsInfo(info:RenderStatisticsInfo):void;
+    clearStatisticsInfo(info: RenderStatisticsInfo): void;
     /**@internal */
-    getStatisticsInfo(info:RenderStatisticsInfo):number;
+    getStatisticsInfo(info: RenderStatisticsInfo): number;
     unbindVertexState(): void;
 }

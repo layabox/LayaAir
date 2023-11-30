@@ -8,10 +8,12 @@ import { TextureSV } from "../shader/d2/value/TextureSV"
 import { Value2D } from "../shader/d2/value/Value2D"
 import { Mesh2D } from "../utils/Mesh2D"
 import { RenderStateContext } from "../../RenderEngine/RenderStateContext";
-import { LayaGL } from "../../layagl/LayaGL";
 import { MeshTopology } from "../../RenderEngine/RenderEnum/RenderPologyMode";
 import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
 import { Const } from "../../Const";
+import { Matrix4x4 } from "../../maths/Matrix4x4";
+import { Vector4 } from "../../maths/Vector4";
+import { LayaGL } from "../../layagl/LayaGL";
 
 export class SubmitTarget implements ISubmit {
     /**@internal */
@@ -37,11 +39,9 @@ export class SubmitTarget implements ISubmit {
 
         var target = this.srcRT;
         if (target) {//??为什么会出现为空的情况
-            this.shaderValue.texture = target._getSource();
+            this.shaderValue.textureHost = target;
             this.shaderValue.upload();
             this.blend();
-            // Stat.renderBatches++;
-            // Stat.trianglesFaces += this._numEle / 3;
             LayaGL.renderDrawContext.drawElements2DTemp(MeshTopology.Triangles, this._numEle, IndexFormat.UInt16, this._startIdx);
         }
         return 1;
@@ -77,12 +77,13 @@ export class SubmitTarget implements ISubmit {
         o.blendType = context._nBlendType;
         o._key.blendShader = o.blendType;
         o.shaderValue = sv;
-        o.shaderValue.setValue(context._shader2D);
         if (context._colorFiler) {
             var ft: ColorFilter = context._colorFiler;
-            sv.defines.add(ft.type);
-            (<TextureSV>sv).colorMat = ft._mat;
-            (<TextureSV>sv).colorAlpha = ft._alpha;
+            sv.defines.addDefine(ft.typeDefine);
+            Matrix4x4.TEMPMatrix0.cloneByArray(ft._mat);
+            (<TextureSV>sv).colorMat = Matrix4x4.TEMPMatrix0;
+            Vector4.tempVec4.setValue(ft._alpha[0], ft._alpha[1], ft._alpha[2], ft._alpha[3]);
+            (<TextureSV>sv).colorAlpha = Vector4.tempVec4;
         }
         return o;
     }

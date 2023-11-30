@@ -34,6 +34,13 @@ import { VectorGraphManager } from "../utils/VectorGraphManager"
 import { ILaya } from "../../ILaya";
 import { WordText } from "../utils/WordText";
 import { ColorUtils } from "../utils/ColorUtils";
+import type { Material } from "../resource/Material";
+import { CommandUniformMap } from "../RenderEngine/CommandUniformMap";
+import { ShaderDataType } from "../RenderEngine/RenderShader/ShaderData";
+import { Value2D } from "../webgl/shader/d2/value/Value2D";
+import { DrawEllipseCmd } from "./cmd/DrawEllipseCmd";
+import { DrawRoundRectCmd } from "./cmd/DrawRoundRectCmd";
+import { LayaGL } from "../layagl/LayaGL";
 
 /**
  * <code>Graphics</code> 类用于创建绘图显示对象。Graphics可以同时绘制多个位图或者矢量图，还可以结合save，restore，transform，scale，rotate，translate，alpha等指令对绘图效果进行变化。
@@ -41,6 +48,25 @@ import { ColorUtils } from "../utils/ColorUtils";
  * @see laya.display.Sprite#graphics
  */
 export class Graphics {
+
+    /**
+     * add global Uniform Data Map
+     * @param propertyID 
+     * @param propertyKey 
+     * @param uniformtype 
+     */
+    static add2DGlobalUniformData(propertyID: number, propertyKey: string, uniformtype: ShaderDataType) {
+        let sceneUniformMap: CommandUniformMap = LayaGL.renderOBJCreate.createGlobalUniformMap("Sprite2DGlobal");
+        sceneUniformMap.addShaderUniform(propertyID, propertyKey, uniformtype);
+    }
+
+    /**
+     * get global shaderData
+     */
+    static get globalShaderData() {
+        return Value2D.globalShaderData;
+    }
+
     /**@internal */
     _sp: Sprite | null = null;
     /**@internal */
@@ -51,6 +77,8 @@ export class Graphics {
     protected _vectorgraphArray: any[] | null = null;
     /**@private */
     private _graphicBounds: GraphicsBounds | null = null;
+
+    private _material: Material;
 
     constructor() {
         this._createData();
@@ -210,6 +238,25 @@ export class Graphics {
     getBoundPoints(realSize: boolean = false): any[] {
         this._initGraphicBounds();
         return this._graphicBounds!.getBoundPoints(realSize);
+    }
+
+    /**
+     * 
+     */
+    get material() {
+        return this._material;
+    }
+
+    /**
+     * 
+     */
+    set material(value: Material) {
+        if (this._material == value)
+            return;
+        this._material && this._material._removeReference();
+        this._material = value;
+        if (value != null)
+            value._addReference();
     }
 
     /**
@@ -464,6 +511,7 @@ export class Graphics {
      */
     _renderAll(sprite: Sprite, context: Context, x: number, y: number): void {
         context.sprite = sprite;
+        context.material = this._material;
         var cmds = this._cmds!;
         for (let i = 0, n = cmds.length; i < n; i++) {
             cmds[i].run(context, x, y);
@@ -475,6 +523,7 @@ export class Graphics {
      */
     _renderOne(sprite: Sprite, context: Context, x: number, y: number): void {
         context.sprite = sprite;
+        context.material = this._material;
         this._cmds[0].run(context, x, y);
     }
 
@@ -532,6 +581,26 @@ export class Graphics {
     }
 
     /**
+     * 绘制圆角矩形
+     * @param x             开始绘制的 X 轴位置。
+     * @param y             开始绘制的 Y 轴位置。
+     * @param width         圆角矩形宽度。
+     * @param height        圆角矩形高度。
+     * @param lt            左上圆角
+     * @param rt            右上圆角
+     * @param lb            左下圆角
+     * @param rb            右下圆角
+     * @param fillColor     填充颜色，或者填充绘图的渐变对象。
+     * @param lineColor     （可选）边框颜色，或者填充绘图的渐变对象。
+     * @param lineWidth     （可选）边框宽度。
+     * @param percent       （可选）位置和大小是否是百分比值。
+     * @returns 
+     */
+    drawRoundRect(x: number, y: number, width: number, height: number, lt: number, rt: number, lb: number, rb: number, fillColor: any, lineColor: any = null, lineWidth: number = 1, percent?: boolean) {
+        return this.addCmd(DrawRoundRectCmd.create(x, y, width, height, lt, rt, lb, rb, fillColor, lineColor, lineWidth, percent));
+    }
+
+    /**
      * 绘制圆形。
      * @param x			圆点X 轴位置。
      * @param y			圆点Y 轴位置。
@@ -542,6 +611,20 @@ export class Graphics {
      */
     drawCircle(x: number, y: number, radius: number, fillColor: any, lineColor: any = null, lineWidth: number = 1): DrawCircleCmd {
         return this.addCmd(DrawCircleCmd.create(x, y, radius, fillColor, lineColor, lineWidth));
+    }
+    /**
+     * 绘制椭圆形
+     * @param x         圆点X 轴位置。
+     * @param y         圆点Y 轴位置。
+     * @param width     横向半径。
+     * @param height    纵向半径。
+     * @param fillColor 填充颜色，或者填充绘图的渐变对象。
+     * @param lineColor （可选）边框颜色，或者填充绘图的渐变对象。
+     * @param lineWidth （可选）边框宽度。
+     * @param percent   （可选）位置和大小是否是百分比值。
+     */
+    drawEllipse(x: number, y: number, width: number, height: number, fillColor: any, lineColor: any, lineWidth: number, percent?: boolean): DrawEllipseCmd {
+        return this.addCmd(DrawEllipseCmd.create(x, y, width, height, fillColor, lineColor, lineWidth, percent));
     }
 
     /**

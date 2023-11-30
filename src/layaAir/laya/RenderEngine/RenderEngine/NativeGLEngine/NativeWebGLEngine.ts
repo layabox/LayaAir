@@ -18,12 +18,12 @@ import { NativeGLRender2DContext } from "./NativeGLRender2DContext";
 import { NativeGLTextureContext } from "./NativeGLTextureContext";
 import { NativeGLVertexState } from "./NativeGLVertexState";
 import { WebGlConfig } from "../WebGLEngine/WebGLConfig";
-import { IRenderOBJCreate } from "../../RenderInterface/IRenderOBJCreate";
 import { NativeGLRenderDrawContext } from "./NativeGLRenderDrawContext";
 import { ShaderDataType } from "../../RenderShader/ShaderData";
 import { RenderStatisticsInfo } from "../../RenderEnum/RenderStatInfo";
 import { Color } from "../../../maths/Color";
 import { NativeRenderStateCommand } from "./NativeRenderStateCommand";
+import { IRenderEngineFactory } from "../../RenderInterface/IRenderEngineFactory";
 
 
 /**
@@ -45,7 +45,7 @@ export class NativeWebGLEngine implements IRenderEngine {
   private _GL2DRenderContext: NativeGLRender2DContext;
 
   /**@internal */
-  _renderOBJCreateContext:IRenderOBJCreate;
+  _renderOBJCreateContext:IRenderEngineFactory;
 
   _nativeObj: any;
 
@@ -186,7 +186,7 @@ export class NativeWebGLEngine implements IRenderEngine {
     return this._GL2DRenderContext;
   }
 
-  getCreateRenderOBJContext(): IRenderOBJCreate {
+  getCreateRenderOBJContext(): IRenderEngineFactory {
     return this._renderOBJCreateContext;
   }
 

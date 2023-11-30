@@ -1,5 +1,4 @@
 import { ILaya3D } from "../../../../ILaya3D";
-import { LayaGL } from "../../../layagl/LayaGL";
 import { Matrix4x4 } from "../../../maths/Matrix4x4";
 import { Vector4 } from "../../../maths/Vector4";
 import { IRenderContext3D } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderContext3D";
@@ -8,10 +7,12 @@ import { ShaderInstance } from "../../../RenderEngine/RenderShader/ShaderInstanc
 import { ShaderPass } from "../../../RenderEngine/RenderShader/ShaderPass";
 import { SingletonList } from "../../../utils/SingletonList";
 import { MeshInstanceGeometry } from "../../graphics/MeshInstanceGeometry";
+import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
 import { InstanceRenderElementOBJ } from "../../RenderObjs/RenderObj/InstanceRenderElementOBJ";
 import { Mesh } from "../../resource/models/Mesh";
 import { Camera } from "../Camera";
 import { MeshSprite3DShaderDeclaration } from "../MeshSprite3DShaderDeclaration";
+import { RenderableSprite3D } from "../RenderableSprite3D";
 import { SimpleSkinnedMeshRenderer } from "../SimpleSkinnedMeshRenderer";
 import { Sprite3D } from "../Sprite3D";
 import { Transform3D } from "../Transform3D";
@@ -68,7 +69,7 @@ export class InstanceRenderElement extends RenderElement {
     }
 
     protected _createRenderElementOBJ() {
-        this._renderElementOBJ = LayaGL.renderOBJCreate.createInstanceRenderElement();
+        this._renderElementOBJ = Laya3DRender.renderOBJCreate.createInstanceRenderElement();
     }
 
     compileShader(context: IRenderContext3D) {
@@ -80,14 +81,16 @@ export class InstanceRenderElement extends RenderElement {
             if (pass._pipelineMode !== context.pipelineMode)
                 continue;
             var comDef: DefineDatas = RenderElement._compileDefine;
+
+            // todo
             context.sceneShaderData._defineDatas.cloneTo(comDef);
-            if(this.render){
+            if (this.render) {
                 comDef.addDefineDatas(this.render._shaderValues._defineDatas);
                 pass.nodeCommonMap = this.render._commonUniformMap;
-            }else{
+            } else {
                 pass.nodeCommonMap = null;
             }
-            
+
 
             comDef.addDefineDatas(this._renderElementOBJ._materialShaderData._defineDatas);
             //add Instance Define
@@ -188,6 +191,20 @@ export class InstanceRenderElement extends RenderElement {
                 (this._renderElementOBJ as InstanceRenderElementOBJ).drawCount = count;
                 for (var i: number = 0; i < count; i++)
                     worldMatrixData.set(elements[i].transform.worldMatrix.elements, i * 16);
+
+                let haveLightMap: boolean = this.render._shaderValues.hasDefine(RenderableSprite3D.SAHDERDEFINE_LIGHTMAP);
+                if (haveLightMap && mesh._instanceLightMapVertexBuffer) {
+                    var lightMapData: Float32Array = (this._renderElementOBJ as InstanceRenderElementOBJ).getUpdateData(1, 4 * InstanceRenderElement.maxInstanceCount);
+                    for (var i: number = 0; i < count; i++) {
+                        let lightmapScaleOffset = elements[i]._baseRender.lightmapScaleOffset;
+                        var offset: number = i * 4;
+                        lightMapData[offset] = lightmapScaleOffset.x;
+                        lightMapData[offset + 1] = lightmapScaleOffset.y;
+                        lightMapData[offset + 2] = lightmapScaleOffset.z;
+                        lightMapData[offset + 3] = lightmapScaleOffset.w;
+                    }
+                    (this._renderElementOBJ as InstanceRenderElementOBJ).addUpdateBuffer(mesh._instanceLightMapVertexBuffer, 4)
+                }
                 break;
         }
     }

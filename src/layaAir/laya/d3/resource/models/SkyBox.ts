@@ -1,4 +1,3 @@
-import { LayaGL } from "../../../layagl/LayaGL";
 import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { DrawType } from "../../../RenderEngine/RenderEnum/DrawType";
 import { IndexFormat } from "../../../RenderEngine/RenderEnum/IndexFormat";
@@ -6,6 +5,7 @@ import { MeshTopology } from "../../../RenderEngine/RenderEnum/RenderPologyMode"
 import { VertexMesh } from "../../../RenderEngine/RenderShader/VertexMesh";
 import { VertexDeclaration } from "../../../RenderEngine/VertexDeclaration";
 import { BufferState } from "../../../webgl/utils/BufferState";
+import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
 import { GeometryElement } from "../../core/GeometryElement";
 import { RenderContext3D } from "../../core/render/RenderContext3D";
 
@@ -40,9 +40,9 @@ export class SkyBox extends GeometryElement {
 			3, 6, 2, 6, 3, 7, //前
 			0, 5, 4, 5, 0, 1]);//后
 		var verDec: VertexDeclaration = VertexMesh.getVertexDeclaration("POSITION");
-		let vertexBuffer = LayaGL.renderOBJCreate.createVertexBuffer3D(verDec.vertexStride * 8, BufferUsage.Static, false);
+		let vertexBuffer = Laya3DRender.renderOBJCreate.createVertexBuffer3D(verDec.vertexStride * 8, BufferUsage.Static, false);
 		vertexBuffer.vertexDeclaration = verDec;
-		let indexBuffer = LayaGL.renderOBJCreate.createIndexBuffer3D(IndexFormat.UInt8, 36, BufferUsage.Static, false);
+		let indexBuffer = Laya3DRender.renderOBJCreate.createIndexBuffer3D(IndexFormat.UInt8, 36, BufferUsage.Static, false);
 		vertexBuffer.setData(vertices);
 		indexBuffer.setData(indices);
 		this.bufferState = new BufferState();

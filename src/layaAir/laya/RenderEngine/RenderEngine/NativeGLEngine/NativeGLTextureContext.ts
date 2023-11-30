@@ -16,11 +16,13 @@ import { KTXTextureInfo } from "../../KTXTextureInfo";
 import { InternalRenderTarget } from "../../RenderInterface/InternalRenderTarget";
 
 export class NativeGLTextureContext extends NativeGLObject implements ITextureContext {
+    needBitmap: boolean;
     protected _native: any;
 
     constructor(engine: NativeWebGLEngine, native: any) {
         super(engine);
         this._native = native;
+        this.needBitmap = false;
     }
 
     createTextureInternal(dimension: TextureDimension, width: number, height: number, format: TextureFormat, generateMipmap: boolean, sRGB: boolean): InternalTexture {
@@ -35,7 +37,7 @@ export class NativeGLTextureContext extends NativeGLObject implements ITextureCo
         this._native.setTexturePixelsData(texture, source, premultiplyAlpha, invertY);
     }
 
-    initVideoTextureData(texture: InternalTexture): void{
+    initVideoTextureData(texture: InternalTexture): void {
         this._native.initVideoTextureData(texture);
     }
 
@@ -43,12 +45,12 @@ export class NativeGLTextureContext extends NativeGLObject implements ITextureCo
         this._native.setTextureSubPixelsData(texture, source, mipmapLevel, generateMipmap, xOffset, yOffset, width, height, premultiplyAlpha, invertY);
     }
 
-    setTextureSubImageData(texture: InternalTexture, source: HTMLImageElement | HTMLCanvasElement | ImageBitmap, x: number, y: number, premultiplyAlpha: boolean, invertY: boolean): void{
+    setTextureSubImageData(texture: InternalTexture, source: HTMLImageElement | HTMLCanvasElement | ImageBitmap, x: number, y: number, premultiplyAlpha: boolean, invertY: boolean): void {
         throw new Error("setTextureSubImageData Method not implemented.");
     }
 
     setTexture3DImageData(texture: InternalTexture, source: HTMLImageElement[] | HTMLCanvasElement[] | ImageBitmap[], depth: number, premultiplyAlpha: boolean, invertY: boolean): void {
-        this._native.setTexture3DImageData(texture, (source as any[]).map(function(s) { return s._nativeObj}), depth, premultiplyAlpha, invertY);
+        this._native.setTexture3DImageData(texture, (source as any[]).map(function (s) { return s._nativeObj }), depth, premultiplyAlpha, invertY);
     }
 
     setTexture3DPixlesData(texture: InternalTexture, source: ArrayBufferView, depth: number, premultiplyAlpha: boolean, invertY: boolean): void {

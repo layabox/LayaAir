@@ -1,15 +1,15 @@
 import { JointBase } from "./JointBase";
-import { Sprite } from "../../display/Sprite"
 import { Point } from "../../maths/Point"
-import { Physics } from "../Physics"
 import { RigidBody } from "../RigidBody"
+import { physics2D_WheelJointDef } from "./JointDefStructInfo";
+import { Utils } from "../../utils/Utils";
 
 /**
  * 轮子关节：围绕节点旋转，包含弹性属性，使得刚体在节点位置发生弹性偏移
  */
 export class WheelJoint extends JointBase {
     /**@private */
-    private static _temp: any;
+    private static _temp: physics2D_WheelJointDef;
     /**[首次设置有效]关节的自身刚体*/
     selfBody: RigidBody;
     /**[首次设置有效]关节的连接刚体*/
@@ -18,11 +18,15 @@ export class WheelJoint extends JointBase {
     anchor: any[] = [0, 0];
     /**[首次设置有效]两个刚体是否可以发生碰撞，默认为false*/
     collideConnected: boolean = false;
-    /**[首次设置有效]一个向量值，描述运动方向，比如1,0是沿X轴向右*/
-    axis: any[] = [1, 0];
+    /**
+     * @deprecated
+     * [首次设置有效]一个向量值，描述运动方向，比如1,0是沿X轴向右*/
+    _axis: any[] = [1, 0];
+    /**[首次设置有效]一个角度，描述运动方向，比如0是沿X轴向右*/
+    angle: number = 0;
 
     /**弹簧系统的震动频率，可以视为弹簧的弹性系数，通常频率应该小于时间步长频率的一半*/
-    private _frequency: number = 5;
+    private _frequency: number = 1;
     /**刚体在回归到节点过程中受到的阻尼比，建议取值0~1*/
     private _dampingRatio: number = 0.7;
 
@@ -33,13 +37,14 @@ export class WheelJoint extends JointBase {
     /**启用马达后，可以施加的最大扭距，如果最大扭矩太小，会导致不旋转*/
     private _maxMotorTorque: number = 10000;
 
-     /**是否对刚体的移动范围加以约束*/
-     private _enableLimit: boolean = true;
-     /**启用约束后，刚体移动范围的下限，是距离anchor的偏移量*/
-     private _lowerTranslation: number = 0;
-     /**启用约束后，刚体移动范围的上限，是距离anchor的偏移量*/
-     private _upperTranslation: number = 0;
-     
+    /**是否对刚体的移动范围加以约束*/
+    private _enableLimit: boolean = true;
+    /**启用约束后，刚体移动范围的下限，是距离anchor的偏移量*/
+    private _lowerTranslation: number = 0;
+    /**启用约束后，刚体移动范围的上限，是距离anchor的偏移量*/
+    private _upperTranslation: number = 0;
+
+
     /**
      * @override
      */
@@ -49,23 +54,23 @@ export class WheelJoint extends JointBase {
             this.selfBody = this.selfBody || this.owner.getComponent(RigidBody);
             if (!this.selfBody) throw "selfBody can not be empty";
 
-            var box2d: any = (<any>window).box2d;
-            var def: any = WheelJoint._temp || (WheelJoint._temp = new box2d.b2WheelJointDef());
-            var anchorPos: Point = (<Sprite>this.selfBody.owner).localToGlobal(Point.TEMP.setTo(this.anchor[0], this.anchor[1]), false, Physics.I.worldRoot);
-            var anchorVec: any = new box2d.b2Vec2(anchorPos.x / Physics.PIXEL_RATIO, anchorPos.y / Physics.PIXEL_RATIO);
-            def.Initialize(this.otherBody.getBody(), this.selfBody.getBody(), anchorVec, new box2d.b2Vec2(this.axis[0], this.axis[1]));
+            var def: physics2D_WheelJointDef = WheelJoint._temp || (WheelJoint._temp = new physics2D_WheelJointDef());
+            var anchorPos: Point = this.selfBody.GetWorldPoint(this.anchor[0], this.anchor[1]);
+            def.anchor.setValue(anchorPos.x, anchorPos.y);
+            let radian = Utils.toRadian(this.angle);
+            def.axis.setValue(Math.cos(radian), Math.sin(radian));
+            def.bodyA = this.otherBody.getBody();
+            def.bodyB = this.selfBody.getBody();;
             def.enableMotor = this._enableMotor;
             def.motorSpeed = this._motorSpeed;
             def.maxMotorTorque = this._maxMotorTorque;
-            box2d.b2LinearStiffness(def, this._frequency, this._dampingRatio, def.bodyA, def.bodyB);
-            // def.stiffness = this._stiffness;
-            // def.damping = this._damping;
             def.collideConnected = this.collideConnected;
             def.enableLimit = this._enableLimit;
-            def.lowerTranslation = this._lowerTranslation / Physics.PIXEL_RATIO;
-            def.upperTranslation = this._upperTranslation / Physics.PIXEL_RATIO;
-
-            this._joint = Physics.I._createJoint(def);
+            def.lowerTranslation = this._lowerTranslation;
+            def.upperTranslation = this._upperTranslation;
+            def.frequency = this._frequency;
+            def.dampingRatio = this._dampingRatio;
+            this._joint = this._factory.create_WheelJoint(def);
         }
     }
 
@@ -77,14 +82,7 @@ export class WheelJoint extends JointBase {
     set frequency(value: number) {
         this._frequency = value;
         if (this._joint) {
-            let out: any = {};
-            let box2d: any = (<any>window).box2d;
-            let bodyA = this.otherBody ? this.otherBody.getBody() : Physics.I._emptyBody;
-            let bodyB = this.selfBody.getBody();
-            box2d.b2LinearStiffness(out, this._frequency, this._dampingRatio, bodyA, bodyB);
-
-            this._joint.SetStiffness(out.stiffness);
-            this._joint.SetDamping(out.damping);
+            this._factory.set_Joint_frequencyAndDampingRatio(this._joint, this._frequency, this._dampingRatio, false)
         }
     }
 
@@ -96,14 +94,7 @@ export class WheelJoint extends JointBase {
     set damping(value: number) {
         this._dampingRatio = value;
         if (this._joint) {
-            let out: any = {};
-            let box2d: any = (<any>window).box2d;
-            let bodyA = this.otherBody ? this.otherBody.getBody() : Physics.I._emptyBody;
-            let bodyB = this.selfBody.getBody();
-            box2d.b2LinearStiffness(out, this._frequency, this._dampingRatio, bodyA, bodyB);
-
-            // this._joint.SetStiffness(out.stiffness); // 修改 dampingRatio 最终只影响 damping
-            this._joint.SetDamping(out.damping);
+            this._factory.set_Joint_frequencyAndDampingRatio(this._joint, this._frequency, this._dampingRatio, true)
         }
     }
 
@@ -114,7 +105,7 @@ export class WheelJoint extends JointBase {
 
     set enableMotor(value: boolean) {
         this._enableMotor = value;
-        if (this._joint) this._joint.EnableMotor(value);
+        if (this._joint) this._factory.set_Joint_EnableMotor(this._joint, value);
     }
 
     /**启用马达后，可以达到的最大旋转速度*/
@@ -124,7 +115,7 @@ export class WheelJoint extends JointBase {
 
     set motorSpeed(value: number) {
         this._motorSpeed = value;
-        if (this._joint) this._joint.SetMotorSpeed(value);
+        if (this._joint) this._factory.set_Joint_SetMotorSpeed(this._joint, value);
     }
 
     /**启用马达后，可以施加的最大扭距，如果最大扭矩太小，会导致不旋转*/
@@ -134,7 +125,7 @@ export class WheelJoint extends JointBase {
 
     set maxMotorTorque(value: number) {
         this._maxMotorTorque = value;
-        if (this._joint) this._joint.SetMaxMotorTorque(value);
+        if (this._joint) this._factory.set_Joint_SetMaxMotorTorque(this._joint, value);
     }
 
     /**是否对刚体的移动范围加以约束*/
@@ -144,7 +135,7 @@ export class WheelJoint extends JointBase {
 
     set enableLimit(value: boolean) {
         this._enableLimit = value;
-        if (this._joint) this._joint.EnableLimit(value);
+        if (this._joint) this._factory.set_Joint_EnableLimit(this._joint, value);
     }
 
     /**启用约束后，刚体移动范围的下限，是距离anchor的偏移量*/
@@ -154,7 +145,7 @@ export class WheelJoint extends JointBase {
 
     set lowerTranslation(value: number) {
         this._lowerTranslation = value;
-        if (this._joint) this._joint.SetLimits(value, this._upperTranslation);
+        if (this._joint) this._factory.set_Joint_SetLimits(this._joint, value, this._upperTranslation);
     }
 
     /**启用约束后，刚体移动范围的上限，是距离anchor的偏移量*/
@@ -164,6 +155,18 @@ export class WheelJoint extends JointBase {
 
     set upperTranslation(value: number) {
         this._upperTranslation = value;
-        if (this._joint) this._joint.SetLimits(this._lowerTranslation, value);
+        if (this._joint) this._factory.set_Joint_SetLimits(this._joint, this._lowerTranslation, value);
+    }
+
+    /**
+     * @deprecated
+     * 启用约束后，刚体移动范围的上限，是距离anchor的偏移量*/
+    get axis(): any {
+        return this._axis;
+    }
+
+    set axis(value: any) {
+        this._axis = value;
+        this.angle = Utils.toAngle(Math.atan2(value[1], value[0]));
     }
 }

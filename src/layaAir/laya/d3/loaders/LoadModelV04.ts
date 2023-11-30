@@ -4,12 +4,12 @@ import { VertexBuffer3D } from "../graphics/VertexBuffer3D"
 import { Mesh, skinnedMatrixCache } from "../resource/models/Mesh"
 import { SubMesh } from "../resource/models/SubMesh"
 import { Byte } from "../../utils/Byte"
-import { LayaGL } from "../../layagl/LayaGL";
 import { BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType"
 import { VertexDeclaration } from "../../RenderEngine/VertexDeclaration"
 import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat"
 import { Matrix4x4 } from "../../maths/Matrix4x4"
 import { VertexMesh } from "../../RenderEngine/RenderShader/VertexMesh"
+import { Laya3DRender } from "../RenderObjs/Laya3DRender"
 
 /**
  * @internal
@@ -137,7 +137,7 @@ export class LoadModelV04 {
 			if (!vertexDeclaration)
 				throw new Error("LoadModelV03: unknown vertexDeclaration.");
 
-			var vertexBuffer: VertexBuffer3D = LayaGL.renderOBJCreate.createVertexBuffer3D(vbDatas.length * 4, BufferUsage.Static, true);
+			var vertexBuffer: VertexBuffer3D = Laya3DRender.renderOBJCreate.createVertexBuffer3D(vbDatas.length * 4, BufferUsage.Static, true);
 			vertexBuffer.vertexDeclaration = vertexDeclaration;
 			vertexBuffer.setData(vbDatas.buffer);
 			LoadModelV04._mesh._vertexBuffer = vertexBuffer;
@@ -148,7 +148,7 @@ export class LoadModelV04 {
 		var ibStart: number = offset + LoadModelV04._readData.getUint32();
 		var ibLength: number = LoadModelV04._readData.getUint32();
 		var ibDatas: Uint16Array = new Uint16Array(arrayBuffer.slice(ibStart, ibStart + ibLength));
-		var indexBuffer: IndexBuffer3D = LayaGL.renderOBJCreate.createIndexBuffer3D(IndexFormat.UInt16, ibLength / 2,BufferUsage.Static, true);
+		var indexBuffer: IndexBuffer3D = Laya3DRender.renderOBJCreate.createIndexBuffer3D(IndexFormat.UInt16, ibLength / 2, BufferUsage.Static, true);
 		indexBuffer.setData(ibDatas);
 		LoadModelV04._mesh._indexBuffer = indexBuffer;
 		memorySize += indexBuffer.indexCount * 2;
@@ -172,7 +172,7 @@ export class LoadModelV04 {
 		var bindPoseFloatCount: number = bindPoseDatas.length;
 		var bindPoseBuffer: ArrayBuffer = LoadModelV04._mesh._inverseBindPosesBuffer = new ArrayBuffer(bindPoseFloatCount * 4);//TODO:[NATIVE]临时
 		LoadModelV04._mesh._inverseBindPoses = [];
-		if(bindPoseFloatCount!=0) 
+		if (bindPoseFloatCount != 0)
 			LoadModelV04._mesh._instanceBufferStateType = Mesh.MESH_INSTANCEBUFFER_TYPE_SIMPLEANIMATOR;
 		else
 			LoadModelV04._mesh._instanceBufferStateType = Mesh.MESH_INSTANCEBUFFER_TYPE_NORMAL;

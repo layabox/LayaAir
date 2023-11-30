@@ -152,6 +152,8 @@ export class Event {
     /**关节破坏 */
     static JOINT_BREAK = "jointbreak";
 
+    /**@internal */
+    static _Add_Script= "addscript";
     /**
      * 检测指定事件类型是否是鼠标事件。
      * @param	type 事件的类型。
@@ -294,5 +296,5 @@ export class Event {
 const MOUSE_EVENTS = new Set<string>([
     Event.MOUSE_DOWN, Event.MOUSE_UP, Event.MOUSE_MOVE, Event.CLICK, Event.DOUBLE_CLICK,
     Event.RIGHT_CLICK, Event.RIGHT_MOUSE_DOWN, Event.RIGHT_MOUSE_UP,
-    Event.MOUSE_OVER, Event.MOUSE_OUT, Event.MOUSE_WHEEL
+    Event.MOUSE_OVER, Event.MOUSE_OUT, Event.MOUSE_WHEEL, Event.MOUSE_DRAG, Event.MOUSE_DRAG_END
 ]);

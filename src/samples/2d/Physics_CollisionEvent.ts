@@ -3,15 +3,15 @@ import { Laya } from "Laya";
 import { Sprite } from "laya/display/Sprite";
 import { Stage } from "laya/display/Stage";
 import { Event } from "laya/events/Event";
-import { ChainCollider } from "laya/physics/ChainCollider";
-import { CircleCollider } from "laya/physics/CircleCollider";
-import { ColliderBase } from "laya/physics/ColliderBase";
 import { MouseJoint } from "laya/physics/joint/MouseJoint";
-import { Physics } from "laya/physics/Physics";
-import { PhysicsDebugDraw } from "laya/physics/PhysicsDebugDraw";
 import { RigidBody } from "laya/physics/RigidBody";
 import { Stat } from "laya/utils/Stat";
 import { Main } from "../Main";
+import { CircleCollider } from "laya/physics/Collider2D/CircleCollider";
+import { ColliderBase } from "laya/physics/Collider2D/ColliderBase";
+import { Vector2 } from "laya/maths/Vector2";
+import { ChainCollider } from "laya/physics/Collider2D/ChainCollider";
+import { Physics2D } from "laya/physics/Physics2D";
 
 /**
  * 
@@ -28,25 +28,24 @@ export class Physics_CollisionEvent {
         Config.isAntialias = true;
         Laya.init(1200, 700).then(() => {
             Stat.show();
-            Physics.enable();
-            PhysicsDebugDraw.enable();
             Laya.stage.alignV = Stage.ALIGN_MIDDLE;
             Laya.stage.alignH = Stage.ALIGN_CENTER;
             Laya.stage.scaleMode = Stage.SCALE_FIXED_AUTO;
             Laya.stage.bgColor = "#232628";
-
+            Physics2D.I.start();
             this.createSensor();
         });
     }
 
     createSensor() {
         let ground = new Sprite();
+
         this.Main.box2D.addChild(ground);
         let groundBody: RigidBody = new RigidBody();
         groundBody.type = "static";
         ground.addComponentInstance(groundBody);
         let chainCollider: ChainCollider = ground.addComponent(ChainCollider);
-        chainCollider.points = "50,400,50,600,1050,600,1050,400";
+        chainCollider.datas = [50, 400, 50, 600, 1050, 600, 1050, 400];
 
         let sensorCollider: CircleCollider = this.sensorCollider = ground.addComponent(CircleCollider);
         sensorCollider.isSensor = true;
@@ -61,7 +60,7 @@ export class Physics_CollisionEvent {
             let rb: RigidBody = sp.addComponent(RigidBody);
             this.bodys.push(rb);
             this.touching[i] = false;
-            rb.getBody().SetUserData({ 'pointer': i });
+            rb.getBody().GetUserData().pointer = i;
             let circleCollider: CircleCollider = sp.addComponent(CircleCollider);
             circleCollider.radius = 20;
             sp.addComponent(MouseJoint);
@@ -81,7 +80,6 @@ export class Physics_CollisionEvent {
     }
 
     onTriggerStay() {
-        const box2d: any = (<any>window).box2d;
         // 遍历所有刚体
         let bodys = this.bodys, body: RigidBody;
         for (let i = 0, len = this.count; i < len; i++) {
@@ -91,18 +89,20 @@ export class Physics_CollisionEvent {
             }
             let bodyA: RigidBody = this.sensorCollider.owner.getComponent(RigidBody);
             let bodyB: RigidBody = body.owner.getComponent(RigidBody);
-            let bodyOriA = bodyA.getBody();
-            let bodyOriB = bodyB.getBody();
-            let position = bodyOriB.GetPosition();
-            // let center = bodyOriA.GetPosition();
-            let center = new box2d.b2Vec2((450 + 100) / Physics.PIXEL_RATIO, (300 + 100) / Physics.PIXEL_RATIO);
-            const d = box2d.b2Vec2.SubVV(center, position, new box2d.b2Vec2());
-            if (d.LengthSquared() < 1E-5) {
+            let position = bodyB.getWorldCenter();
+            let center = bodyA.GetWorldPoint(this.sensorCollider.x, this.sensorCollider.y)
+            let x = center.x - position.x;
+            let y = center.y - position.y;
+            let vec: Vector2 = new Vector2(x, y);
+            if (Vector2.scalarLength(vec) < 1E-5) {
                 continue;
             }
-            d.Normalize();
-            const F = new box2d.b2Vec2(d.x * 100, d.y * 100);
-            bodyB.applyForce(position, F);
+
+            Vector2.normalize(vec, vec);
+            bodyB.applyForce(position, {
+                x: vec.x * 100,
+                y: vec.y * 100
+            });
         }
     }
 
@@ -115,6 +115,10 @@ export class Physics_CollisionEvent {
     }
 
     dispose() {
+        let ground = this.sensorCollider.owner;
+        ground.off(Event.TRIGGER_ENTER, this, this.onTriggerEnter);
+        ground.off(Event.TRIGGER_EXIT, this, this.onTriggerExit);
         Laya.physicsTimer.clearAll(this);
+        Physics2D.I.destroyWorld()
     }
 }

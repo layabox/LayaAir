@@ -3,6 +3,11 @@
 
     #include "PBRLighting.glsl";
 
+    #ifdef THICKNESS
+// xyz: world scale, w: length(xyz)
+varying vec4 v_WorldScale;
+    #endif // THICKNESS
+
 void getPixelInfo(inout PixelInfo info, const in PixelParams pixel, const in Surface surface)
 {
     info.positionWS = pixel.positionWS;
@@ -55,6 +60,10 @@ void getPixelInfo(inout PixelInfo info, const in PixelParams pixel, const in Sur
     info.at = mix(surface.roughness, 1.0, pow2(surface.anisotropy));
     info.ab = surface.roughness;
     #endif // ANISOTROPIC
+
+    #ifdef THICKNESS
+    info.worldScale = v_WorldScale;
+    #endif // THICKNESS
 
     #ifdef LIGHTMAP
 	#ifdef UV1

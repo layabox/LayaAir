@@ -2,6 +2,8 @@ import { Filter } from "./Filter";
 import { GlowFilterGLRender } from "./GlowFilterGLRender";
 import { ColorUtils } from "../utils/ColorUtils"
 import { BlurFilter } from "./BlurFilter";
+import { ShaderDefine } from "../RenderEngine/RenderShader/ShaderDefine";
+import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
 
 /**
  *  发光滤镜(也可以当成阴影滤使用）
@@ -11,9 +13,9 @@ export class GlowFilter extends Filter {
     /**数据的存储，顺序R,G,B,A,blurWidth,offX,offY;*/
     private _elements: Float32Array = new Float32Array(9);
     /**@internal */
-    _sv_blurInfo1: any[] = new Array(4);	//给shader用
+    _sv_blurInfo1: number[] = new Array(4);	//给shader用
     /**@internal */
-    _sv_blurInfo2: any[] = [0, 0, 1, 0];
+    _sv_blurInfo2: number[] = [0, 0, 1, 0];
     /**滤镜的颜色*/
     private _color: ColorUtils;
     /**@internal */
@@ -48,6 +50,11 @@ export class GlowFilter extends Filter {
      */
     get type(): number {
         return BlurFilter.GLOW;
+    }
+
+    /**@internal */
+    get typeDefine(): ShaderDefine {
+        return ShaderDefines2D.FILTERGLOW;
     }
 
     /**@private */

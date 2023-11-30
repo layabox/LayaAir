@@ -3,17 +3,17 @@ import { Laya } from "Laya";
 import { Sprite } from "laya/display/Sprite";
 import { Stage } from "laya/display/Stage";
 import { Event } from "laya/events/Event";
-import { BoxCollider } from "laya/physics/BoxCollider";
-import { ChainCollider } from "laya/physics/ChainCollider";
-import { CircleCollider } from "laya/physics/CircleCollider";
+
 import { MouseJoint } from "laya/physics/joint/MouseJoint";
-import { Physics } from "laya/physics/Physics";
-import { PhysicsDebugDraw } from "laya/physics/PhysicsDebugDraw";
-import { PolygonCollider } from "laya/physics/PolygonCollider";
+
 import { RigidBody } from "laya/physics/RigidBody";
 import { Stat } from "laya/utils/Stat";
 import { Main } from "../Main";
-
+import { BoxCollider } from "laya/physics/Collider2D/BoxCollider";
+import { ChainCollider } from "laya/physics/Collider2D/ChainCollider";
+import { PolygonCollider } from "laya/physics/Collider2D/PolygonCollider";
+import { CircleCollider } from "laya/physics/Collider2D/CircleCollider";
+import { Physics2D } from "laya/physics/Physics2D";
 /**
  * 碰撞过滤器
  */
@@ -37,13 +37,11 @@ export class Physics_CollisionFiltering {
         Config.isAntialias = true;
         Laya.init(1200, 700).then(() => {
             Stat.show();
-            Physics.enable();
-            PhysicsDebugDraw.enable();
             Laya.stage.alignV = Stage.ALIGN_MIDDLE;
             Laya.stage.alignH = Stage.ALIGN_CENTER;
             Laya.stage.scaleMode = Stage.SCALE_FIXED_AUTO;
             Laya.stage.bgColor = "#232628";
-
+            Physics2D.I.start();
             this.createHouse();
             for (let i = 1; i <= 3; i++) {
                 this.createBox(300, 300, 20, 20, i);
@@ -60,7 +58,7 @@ export class Physics_CollisionFiltering {
         rigidbody.type = "static";
         let chainCollider: ChainCollider = house.addComponent(ChainCollider);
         chainCollider.loop = true;
-        chainCollider.points = "600,50,100,200,100,600,1100,600,1100,200";
+        chainCollider.datas = [600, 50, 100, 200, 100, 600, 1100, 600, 1100, 200];
     }
 
     createBox(posx, posy, width, height, ratio) {
@@ -86,7 +84,7 @@ export class Physics_CollisionFiltering {
         rigidbody.category = Physics_CollisionFiltering.k_triangleCategory;
         rigidbody.mask = Physics_CollisionFiltering.k_triangleMask;
         let polygonCollider: PolygonCollider = triangle.addComponent(PolygonCollider);
-        polygonCollider.points = `0,0,0,${side * ratio},${side * ratio},0`;
+        polygonCollider.datas = [0, 0, 0, side * ratio, side * ratio, 0];
         this.addGroup(rigidbody, ratio);
     }
 
@@ -95,6 +93,7 @@ export class Physics_CollisionFiltering {
         circle.on(Event.MOUSE_DOWN, this, this.mouseDown);
         this.Main.box2D.addChild(circle);
         circle.pos(posx, posy).size(radius * 2 * ratio, radius * 2 * ratio);
+        circle.pivot(0.5, 0.5)
         let rigidbody: RigidBody = circle.addComponent(RigidBody);
         rigidbody.category = Physics_CollisionFiltering.k_circleCategory;
         rigidbody.mask = Physics_CollisionFiltering.k_circleMask;
@@ -164,5 +163,6 @@ export class Physics_CollisionFiltering {
         Laya.stage.off(Event.MOUSE_OUT, this, this.mouseUp);
         Laya.stage.off(Event.MOUSE_UP, this, this.destoryJoint);
         Laya.stage.off(Event.MOUSE_OUT, this, this.destoryJoint);
+        Physics2D.I.destroyWorld()
     }
 }

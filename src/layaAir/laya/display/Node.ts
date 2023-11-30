@@ -35,6 +35,8 @@ const ARRAY_EMPTY: any[] = [];
  *  <code>Node</code> 类是可放在显示列表中的所有对象的基类。该显示列表管理 Laya 运行时中显示的所有对象。使用 Node 类排列显示列表中的显示对象。Node 对象可以有子显示对象。
  */
 export class Node extends EventDispatcher {
+    static EVENT_SET_ACTIVESCENE: string = "ActiveScene";
+    static EVENT_SET_IN_ACTIVESCENE: string = "InActiveScene";
     /**@private */
     private _bits: number = 0;
     /**@private */
@@ -49,17 +51,17 @@ export class Node extends EventDispatcher {
     /**@internal */
     _conchData: any;
     /**@internal */
-    _componentDriver?: ComponentDriver;
+    _componentDriver: ComponentDriver;
     /**@internal */
-    _is3D?: boolean;
-    _url?: string;
-    _extra?: INodeExtra;
+    _is3D: boolean;
+    _url: string;
+    _extra: INodeExtra;
 
     /**节点名称。*/
     name: string = "";
 
     /** 节点标签 */
-    tag?: string;
+    tag: string;
 
     /**
      * 如果节点从资源中创建，这里记录是他的url
@@ -104,7 +106,6 @@ export class Node extends EventDispatcher {
         this._extra = {};
     }
 
-    /**@internal */
     _setBit(type: number, value: boolean): void {
         if (type === NodeFlags.DISPLAY) {
             var preValue: boolean = this._getBit(type);
@@ -114,7 +115,6 @@ export class Node extends EventDispatcher {
         else this._bits &= ~type;
     }
 
-    /**@internal */
     _getBit(type: number): boolean {
         return (this._bits & type) != 0;
     }
@@ -705,6 +705,7 @@ export class Node extends EventDispatcher {
      * @private
      */
     protected _onActiveInScene(): void {
+        this.event(Node.EVENT_SET_ACTIVESCENE, this._scene);
         //override it.
     }
 
@@ -712,6 +713,7 @@ export class Node extends EventDispatcher {
      * @private
      */
     protected _onInActiveInScene(): void {
+        this.event(Node.EVENT_SET_IN_ACTIVESCENE, this._scene);
         //override it.
     }
 

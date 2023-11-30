@@ -1,4 +1,3 @@
-import { LayaGL } from "../../../layagl/LayaGL";
 import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
 import { SingletonList } from "../../../utils/SingletonList";
 import { RenderElement } from "../../core/render/RenderElement";
@@ -8,6 +7,7 @@ import { InstanceRenderElement } from "../../core/render/InstanceRenderElement";
 import { MeshInstanceGeometry } from "../MeshInstanceGeometry";
 import { SubMesh } from "../../resource/models/SubMesh";
 import { Config3D } from "../../../../Config3D";
+import { LayaGL } from "../../../layagl/LayaGL";
 
 export class RenderElementBatch {
     static instance: RenderElementBatch;
@@ -51,10 +51,10 @@ export class RenderElementBatch {
                 elements.add(element);
             }
             else if (Config3D.enableDynamicBatch && LayaGL.renderEngine.getCapable(RenderCapable.DrawElement_Instance)) {
-                if (element._subShader._owner._enableInstancing && element._baseRender.lightmapIndex < 0) {
+                if (element._subShader._owner._enableInstancing) {
                     var insManager = this._instanceBatchManager;
-                    let invertFrontFace = element._transform ? element._transform._isFrontFaceInvert : false;
-                    var insBatchMarks = insManager.getInstanceBatchOpaquaMark(element._baseRender._receiveShadow, element._material._id, element._geometry._id, invertFrontFace, element._baseRender._probReflection ? element._baseRender._probReflection._id : -1);
+                    //let invertFrontFace = element._transform ? element._transform._isFrontFaceInvert : false;
+                    var insBatchMarks = insManager.getInstanceBatchOpaquaMark(element);
                     if (insManager.updateCountMark === insBatchMarks.updateMark) {
                         //can batch
                         var insBatchIndex: number = insBatchMarks.indexInList;
@@ -88,7 +88,7 @@ export class RenderElementBatch {
                             elementArray[insBatchIndex] = instanceRenderElement;
                             insBatchMarks.batched = true;
                             instanceRenderElement._isUpdataData = true;
-                            instanceRenderElement._invertFrontFace = invertFrontFace;
+                            instanceRenderElement._invertFrontFace = element._transform ? element._transform._isFrontFaceInvert : false;;
                         }
                     } else {
                         insBatchMarks.updateMark = insManager.updateCountMark;

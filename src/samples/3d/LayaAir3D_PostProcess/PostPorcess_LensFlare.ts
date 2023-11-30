@@ -28,7 +28,6 @@ export class PostProcess_LensFlare {
             Stat.show();
             //初始化3D场景
             var scene: Scene3D = (<Scene3D>Laya.stage.addChild(new Scene3D()));
-
             //初始化天空渲染器
             var skyRenderer: SkyRenderer = scene.skyRenderer;
             //创建天空盒mesh

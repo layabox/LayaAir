@@ -3,6 +3,8 @@ import { btPhysicsCreateUtil } from "../btPhysicsCreateUtil";
 import { ICharacterController } from "../../interface/ICharacterController";
 import { Vector3 } from "../../../maths/Vector3";
 import { btPhysicsManager } from "../btPhysicsManager";
+import { ECharacterCapable } from "../../physicsEnum/ECharacterCapable";
+import { btColliderShape } from "../Shape/btColliderShape";
 import { PhysicsCombineMode } from "../../../d3/physics/PhysicsColliderComponent";
 
 export class btCharacterCollider extends btCollider implements ICharacterController {
@@ -13,7 +15,7 @@ export class btCharacterCollider extends btCollider implements ICharacterControl
     /**@internal */
     _btKinematicCharacter: number = null;
     /** @internal */
-    private _stepHeight: number;
+    private _stepHeight: number = 0.1;
     /** @internal */
     private _upAxis = new Vector3(0, 1, 0);
     /**@internal */
@@ -26,16 +28,106 @@ export class btCharacterCollider extends btCollider implements ICharacterControl
     /**@internal */
     private _pushForce = 1;
 
-    protected getColliderType(): btColliderType {
-        return btColliderType.CharactorCollider;
+    /**@internal */
+    static _characterCapableMap: Map<any, any>;
+
+    /** @internal */
+    componentEnable: boolean;
+
+    static __init__(): void {
+        let bt = btPhysicsCreateUtil._bt;
+        btCharacterCollider._btTempVector30 = bt.btVector3_create(0, 0, 0);
+        btCharacterCollider.initCapable();
     }
 
-    protected _initCollider() {
+    getCapable(value: number): boolean {
+        return btCharacterCollider.getCharacterCapable(value);
+    }
+
+    constructor(physicsManager: btPhysicsManager) {
+        super(physicsManager);
+        this._enableProcessCollisions = true;  // not support trigger
         var bt = btPhysicsCreateUtil._bt;
         var ghostObject: number = bt.btPairCachingGhostObject_create();
         bt.btCollisionObject_setUserIndex(ghostObject, this._id);
         bt.btCollisionObject_setCollisionFlags(ghostObject, btPhysicsManager.COLLISIONFLAGS_CHARACTER_OBJECT);
         this._btCollider = ghostObject;
+    }
+    setShapelocalOffset(value: Vector3): void {
+        // bullet no shapeoffset,need set collidershape
+        // throw new Error("Method not implemented.");
+    }
+    setSkinWidth?(width: number): void {
+        // bullet no skinwidth
+        // throw new Error("Method not implemented.");
+    }
+    setPosition(value: Vector3): void {
+        // bullet no direct setposition
+        // throw new Error("Method not implemented.");
+    }
+    setRadius?(value: number): void {
+        // bullet no radius,need set collidershape
+        // throw new Error("Method not implemented.");
+    }
+    setHeight?(value: number): void {
+        // bullet no height,need set collidershape
+        // throw new Error("Method not implemented.");
+    }
+    setminDistance(value: number): void {
+        // bullet no mindistance
+        // throw new Error("Method not implemented.");
+    }
+    setDynamicFriction?(value: number): void {
+        // bullet no dynamicFriction
+        // throw new Error("Method not implemented.");
+    }
+    setStaticFriction?(value: number): void {
+        // bullet no staticFriction
+        // throw new Error("Method not implemented.");
+    }
+    setFrictionCombine?(value: PhysicsCombineMode): void {
+        // bullet no frictionCombine
+        // throw new Error("Method not implemented.");
+    }
+    setBounceCombine?(value: PhysicsCombineMode): void {
+        // bullet no bounceCombine
+        // throw new Error("Method not implemented.");
+    }
+
+    static getCharacterCapable(value: ECharacterCapable): boolean {
+        return btCharacterCollider._characterCapableMap.get(value);
+    }
+
+    static initCapable(): void {
+        this._characterCapableMap = new Map();
+        // this._characterCapableMap.set(ECharacterCapable.Charcater_AllowSleep, false);
+        this._characterCapableMap.set(ECharacterCapable.Charcater_Gravity, true);
+        this._characterCapableMap.set(ECharacterCapable.Charcater_CollisionGroup, true);
+        // this._characterCapableMap.set(ECharacterCapable.Charcater_Friction, true);
+        // this._characterCapableMap.set(ECharacterCapable.Charcater_Restitution, true);
+        // this._characterCapableMap.set(ECharacterCapable.Charcater_RollingFriction, true);
+        // this._characterCapableMap.set(ECharacterCapable.Charcater_AllowTrigger, false);
+        this._characterCapableMap.set(ECharacterCapable.Charcater_WorldPosition, true);
+        this._characterCapableMap.set(ECharacterCapable.Charcater_Move, true);
+        this._characterCapableMap.set(ECharacterCapable.Charcater_Jump, true);
+        this._characterCapableMap.set(ECharacterCapable.Charcater_StepOffset, true);
+        this._characterCapableMap.set(ECharacterCapable.Character_UpDirection, true);
+        this._characterCapableMap.set(ECharacterCapable.Character_FallSpeed, true);
+        this._characterCapableMap.set(ECharacterCapable.Character_SlopeLimit, true);
+        this._characterCapableMap.set(ECharacterCapable.Character_PushForce, true);
+        this._characterCapableMap.set(ECharacterCapable.Character_Radius, false);
+        this._characterCapableMap.set(ECharacterCapable.Character_Height, false);
+        this._characterCapableMap.set(ECharacterCapable.Character_offset, false);
+        this._characterCapableMap.set(ECharacterCapable.Character_Skin, false);
+        this._characterCapableMap.set(ECharacterCapable.Character_minDistance, false);
+        this._characterCapableMap.set(ECharacterCapable.Character_EventFilter, false);
+    }
+
+    protected getColliderType(): btColliderType {
+        return btColliderType.CharactorCollider;
+    }
+
+    protected _initCollider() {
         super._initCollider();
     }
 
@@ -47,13 +139,13 @@ export class btCharacterCollider extends btCollider implements ICharacterControl
 
         var btUpAxis: number = btCharacterCollider._btTempVector30;
         bt.btVector3_setValue(btUpAxis, this._upAxis.x, this._upAxis.y, this._upAxis.z);
-        this._btKinematicCharacter = bt.btKinematicCharacterController_create(this._btCollider, this._btCollider._btShape, this._stepHeight, btUpAxis);
+        this._btKinematicCharacter = bt.btKinematicCharacterController_create(this._btCollider, this._btColliderShape._btShape, this._stepHeight, btUpAxis);
         //bt.btKinematicCharacterController_setUseGhostSweepTest(this._btKinematicCharacter, false);
         this.setfallSpeed(this._fallSpeed);
         this.setSlopeLimit(this._maxSlope);
         this.setGravity(this._gravity);
         bt.btKinematicCharacterController_setJumpAxis(this._btKinematicCharacter, 0, 1, 0);
-        this.setpushForce(this._pushForce);
+        this.setPushForce(this._pushForce);
     }
 
     setWorldPosition(value: Vector3): void {
@@ -108,9 +200,9 @@ export class btCharacterCollider extends btCollider implements ICharacterControl
         bt.btKinematicCharacterController_setFallSpeed(this._btKinematicCharacter, value);
     }
 
-    setpushForce(value: number): void {
+    setPushForce(value: number): void {
         this._pushForce = value;
-        if (this._btCollider) {
+        if (this._btCollider && this._btKinematicCharacter) {
             var bt = btPhysicsCreateUtil._bt;
             bt.btKinematicCharacterController_setPushForce(this._btKinematicCharacter, value);
         }
@@ -139,5 +231,9 @@ export class btCharacterCollider extends btCollider implements ICharacterControl
                 cb(comp);
             }
         }
+    }
+
+    setColliderShape(shape: btColliderShape): void {
+        super.setColliderShape(shape);
     }
 }

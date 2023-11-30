@@ -1,4 +1,3 @@
-import { LayaGL } from "../../../layagl/LayaGL";
 import { Matrix4x4 } from "../../../maths/Matrix4x4";
 import { Vector2 } from "../../../maths/Vector2";
 import { Vector3 } from "../../../maths/Vector3";
@@ -12,6 +11,7 @@ import { BufferState } from "../../../webgl/utils/BufferState";
 import { IndexBuffer3D } from "../../graphics/IndexBuffer3D";
 import { VertexBuffer3D } from "../../graphics/VertexBuffer3D";
 import { Bounds } from "../../math/Bounds";
+import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
 import { Utils3D } from "../../utils/Utils3D";
 import { GeometryElement } from "../GeometryElement";
 import { RenderContext3D } from "../render/RenderContext3D";
@@ -44,7 +44,6 @@ export class UI3DGeometry extends GeometryElement {
         this._bound = new Bounds();
         this._createBuffer();
         this.indexFormat = IndexFormat.UInt16;
-        this._positionArray = [new Vector3(), new Vector3(), new Vector3(), new Vector3()];
     }
 
     /**@internal */
@@ -58,24 +57,29 @@ export class UI3DGeometry extends GeometryElement {
     private _createBuffer() {
         var vertexDeclaration: VertexDeclaration = VertexMesh.getVertexDeclaration("POSITION,NORMAL,UV");
         var halfLong: number = 1 / 2;
-        var halfWidth: number = 1 / 2 * 100;
+        var halfWidth: number = 1 / 2;
         this._vertex = new Float32Array([-halfLong, halfWidth, 0, 0, 0, 1, 0, 0,
             halfLong, halfWidth, 0, 0, 0, 1, 1, 0,
         -halfLong, -halfWidth, 0, 0, 0, 1, 0, 1,
             halfLong, -halfWidth, 0, 0, 0, 1, 1, 1]);
         this._index = new Uint16Array([0, 1, 2, 3, 2, 1]);
         //VB
-        this._vertexBuffer = LayaGL.renderOBJCreate.createVertexBuffer3D(this._vertex.length * 4, BufferUsage.Dynamic, false);
+        this._vertexBuffer = Laya3DRender.renderOBJCreate.createVertexBuffer3D(this._vertex.length * 4, BufferUsage.Dynamic, false);
         this._vertexBuffer.vertexDeclaration = vertexDeclaration;
         this._vertexBuffer.setData(this._vertex.buffer);
         //IB
-        this._indexBuffer = LayaGL.renderOBJCreate.createIndexBuffer3D(IndexFormat.UInt16, this._index.length, BufferUsage.Static, false);
+        this._indexBuffer = Laya3DRender.renderOBJCreate.createIndexBuffer3D(IndexFormat.UInt16, this._index.length, BufferUsage.Static, false);
         this._indexBuffer.setData(this._index);
         //VAO
         this.bufferState = new BufferState();
         this.bufferState.applyState([this._vertexBuffer], this._indexBuffer);
-        this._bound.setExtent(new Vector3(0.5, 0.5, 0.05));
+        this._bound.setExtent(new Vector3(halfLong, halfWidth, halfLong));
         this._bound.setCenter(new Vector3(0, 0, 0));
+        this._positionArray = [new Vector3(), new Vector3(), new Vector3(), new Vector3()];
+        this._positionArray[0].set(-halfWidth, halfLong, 0.0);
+        this._positionArray[1].set(halfWidth, halfLong, 0.0);
+        this._positionArray[2].set(-halfWidth, -halfLong, 0.0);
+        this._positionArray[3].set(halfWidth, -halfLong, 0.0);
     }
 
     /**
@@ -109,6 +113,40 @@ export class UI3DGeometry extends GeometryElement {
         Vector3.add(this._positionArray[3], worldPos, this._positionArray[3]);
         this._changeVertex(size);
     }
+
+
+    /**
+     * @internal
+     * reset view vertex data
+     */
+    _resizeVertexData(size: Vector2): void {
+        var halfwidth = size.x / 2;
+        var halfhight = size.y / 2;
+        // if (viewMode) {
+        //     UI3DGeometry.tempV0.set(-halfwidth, halfhight, 0.0);
+        //     Utils3D.billboardTrans(UI3DGeometry.tempV0, cameraDir, cameraUp, this._positionArray[0]);
+        //     UI3DGeometry.tempV0.set(halfwidth, halfhight, 0.0);
+        //     Utils3D.billboardTrans(UI3DGeometry.tempV0, cameraDir, cameraUp, this._positionArray[1]);
+        //     UI3DGeometry.tempV0.set(-halfwidth, -halfhight, 0.0);
+        //     Utils3D.billboardTrans(UI3DGeometry.tempV0, cameraDir, cameraUp, this._positionArray[2]);
+        //     UI3DGeometry.tempV0.set(halfwidth, -halfhight, 0.0);
+        //     Utils3D.billboardTrans(UI3DGeometry.tempV0, cameraDir, cameraUp, this._positionArray[3]);
+        //     this._vertex[3] = this._vertex[11] = this._vertex[19] = this._vertex[27] = -cameraDir.x;
+        //     this._vertex[4] = this._vertex[12] = this._vertex[20] = this._vertex[28] = -cameraDir.y;
+        //     this._vertex[5] = this._vertex[13] = this._vertex[21] = this._vertex[29] = -cameraDir.z;
+        // } else {
+        this._positionArray[0].set(-halfwidth, halfhight, 0.0);
+        this._positionArray[1].set(halfwidth, halfhight, 0.0);
+        this._positionArray[2].set(-halfwidth, -halfhight, 0.0);
+        this._positionArray[3].set(halfwidth, -halfhight, 0.0);
+        // }
+        // Vector3.add(this._positionArray[0], worldPos, this._positionArray[0]);
+        // Vector3.add(this._positionArray[1], worldPos, this._positionArray[1]);
+        // Vector3.add(this._positionArray[2], worldPos, this._positionArray[2]);
+        // Vector3.add(this._positionArray[3], worldPos, this._positionArray[3]);
+        this._changeVertex(size);
+    }
+
 
     /**
      * @internal

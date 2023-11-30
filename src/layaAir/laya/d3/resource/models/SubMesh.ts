@@ -1,4 +1,3 @@
-import { LayaGL } from "../../../layagl/LayaGL";
 import { GeometryElement } from "../../core/GeometryElement";
 import { RenderContext3D } from "../../core/render/RenderContext3D";
 import { IndexBuffer3D } from "../../graphics/IndexBuffer3D";
@@ -9,6 +8,7 @@ import { MeshTopology } from "../../../RenderEngine/RenderEnum/RenderPologyMode"
 import { DrawType } from "../../../RenderEngine/RenderEnum/DrawType";
 import { IndexFormat } from "../../../RenderEngine/RenderEnum/IndexFormat";
 import { SkinnedMeshRenderer } from "../../core/SkinnedMeshRenderer";
+import { LayaGL } from "../../../layagl/LayaGL";
 
 
 /**

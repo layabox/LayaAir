@@ -13,13 +13,12 @@ export class SkinMeshForGraphic extends MeshData {
      */
     constructor() {
         super();
-
-
     }
-	/**
-	 * 矩阵
-	 */
-    transform: Matrix|null;
+
+    /**
+     * 矩阵
+     */
+    transform: Matrix | null;
 
     /**
      * 创建Texture MeshData
@@ -34,7 +33,6 @@ export class SkinMeshForGraphic extends MeshData {
         }
         var _ps: any[] = ps || [0, 1, 3, 3, 1, 2];
         this.texture = texture;
-
         this.indexes = new Uint16Array(_ps);
         this.vertices = new Float32Array(verticles);
         this.uvs = new Float32Array(uvs);

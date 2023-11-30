@@ -1,7 +1,7 @@
 import { IRender2DContext } from "../RenderEngine/RenderInterface/IRender2DContext";
 import { IRenderDrawContext } from "../RenderEngine/RenderInterface/IRenderDrawContext";
 import { IRenderEngine } from "../RenderEngine/RenderInterface/IRenderEngine";
-import { IRenderOBJCreate } from "../RenderEngine/RenderInterface/IRenderOBJCreate";
+import { IRenderEngineFactory } from "../RenderEngine/RenderInterface/IRenderEngineFactory";
 import { ITextureContext } from "../RenderEngine/RenderInterface/ITextureContext";
 
 /**
@@ -12,5 +12,5 @@ export class LayaGL {
     static renderEngine: IRenderEngine;
     static render2DContext: IRender2DContext;
     static renderDrawContext: IRenderDrawContext;
-    static renderOBJCreate: IRenderOBJCreate;
+    static renderOBJCreate: IRenderEngineFactory;
 }

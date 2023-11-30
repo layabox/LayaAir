@@ -27,7 +27,7 @@ export class WGPURenderElementObJ implements IRenderElement {
 
     _invertFront: boolean;
 
-    constructor(){
+    constructor() {
         this._shaderInstances = new SingletonList();
     }
 
@@ -46,7 +46,7 @@ export class WGPURenderElementObJ implements IRenderElement {
                 if (!shaderIns.complete)
                     continue;
 
-                let targets:WebGPUInternalRT = context.internalRT;
+                let targets: WebGPUInternalRT = context.internalRT;
                 let blendState = shaderIns.getBlendState(this._materialShaderData);
                 let depthStencilState = shaderIns.getDepthStencilState(this._materialShaderData, targets);
                 let primitiveState = shaderIns.getPrimitiveState(this._materialShaderData, forceInvertFace, this._invertFront, this._geometry.mode, this._geometry.indexFormat);
@@ -54,36 +54,36 @@ export class WGPURenderElementObJ implements IRenderElement {
                 let pipeline = shaderIns.getGPURenderPipeline(blendState, depthStencilState, primitiveState, val, targets);
                 //bind Pipeline
                 renderEncoder.setPipeline(pipeline);
-                
+
                 //set BindGroup
                 var switchUpdateMark: boolean = (updateMark !== shaderIns._uploadMark);
                 var uploadScene: boolean = (shaderIns._uploadScene !== sceneID) || switchUpdateMark;
                 //Scene
                 if (uploadScene) {
-                    sceneShaderData && shaderIns.uploadUniforms(shaderIns._sceneUniformParamsMap, sceneShaderData,renderEncoder);
+                    sceneShaderData && shaderIns.uploadUniforms(shaderIns._sceneUniformParamsMap, sceneShaderData, renderEncoder);
                     shaderIns._uploadScene = sceneID;
                 }
                 //render
                 if (this._renderShaderData) {
                     var uploadSprite3D: boolean = (shaderIns._uploadRender !== this._renderShaderData) || switchUpdateMark;
                     if (uploadSprite3D) {
-                        shaderIns.uploadUniforms(shaderIns._spriteUniformParamsMap, this._renderShaderData,renderEncoder);
+                        shaderIns.uploadUniforms(shaderIns._spriteUniformParamsMap, this._renderShaderData, renderEncoder);
                         shaderIns._uploadRender = this._renderShaderData;
                     }
                 }
                 //camera
                 var uploadCamera: boolean = shaderIns._uploadCameraShaderValue !== cameraShaderData || switchUpdateMark;
                 if (uploadCamera) {
-                    cameraShaderData && shaderIns.uploadUniforms(shaderIns._cameraUniformParamsMap, cameraShaderData,renderEncoder);
+                    cameraShaderData && shaderIns.uploadUniforms(shaderIns._cameraUniformParamsMap, cameraShaderData, renderEncoder);
                     shaderIns._uploadCameraShaderValue = cameraShaderData;
                 }
                 //material
                 var uploadMaterial: boolean = (shaderIns._uploadMaterial !== this._materialShaderData) || switchUpdateMark;
                 if (uploadMaterial) {
-                    shaderIns.uploadUniforms(shaderIns._materialUniformParamsMap, this._materialShaderData,renderEncoder);
+                    shaderIns.uploadUniforms(shaderIns._materialUniformParamsMap, this._materialShaderData, renderEncoder);
                     shaderIns._uploadMaterial = this._materialShaderData;
                     //GlobalData
-                    context.globalShaderData && shaderIns.uploadUniforms(shaderIns._materialUniformParamsMap, context.globalShaderData,renderEncoder);
+                    context.globalShaderData && shaderIns.uploadUniforms(shaderIns._materialUniformParamsMap, context.globalShaderData, renderEncoder);
                 }
                 renderEncoder.applyGeometry(this._geometry);
                 // //renderData update

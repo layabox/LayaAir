@@ -1,7 +1,7 @@
 import { RenderableSprite3D } from "./RenderableSprite3D";
 import { MeshFilter } from "./MeshFilter";
 import { MeshRenderer } from "./MeshRenderer";
-import { Material } from "./material/Material";
+import { Material } from "../../resource/Material";
 import { Mesh } from "../resource/models/Mesh"
 import { Node } from "../../display/Node"
 import { Loader } from "../../net/Loader";

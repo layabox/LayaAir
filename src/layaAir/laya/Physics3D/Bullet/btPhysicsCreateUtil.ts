@@ -1,24 +1,61 @@
 import { Config3D } from "../../../Config3D";
+import { Laya3D } from "../../../Laya3D";
+import { VertexMesh } from "../../RenderEngine/RenderShader/VertexMesh";
+import { VertexDeclaration } from "../../RenderEngine/VertexDeclaration";
 import { PhysicsSettings } from "../../d3/physics/PhysicsSettings";
+import { Mesh } from "../../d3/resource/models/Mesh";
+import { PrimitiveMesh } from "../../d3/resource/models/PrimitiveMesh";
 import { IPhysicsCreateUtil } from "../interface/IPhysicsCreateUtil";
-import { ICustomJoint } from "../interface/Joint/ICustomJoint";
-import { IFixedJoint } from "../interface/Joint/IFixedJoint";
+import { ID6Joint } from "../interface/Joint/ID6Joint";
 import { IHingeJoint } from "../interface/Joint/IHingeJoint";
-import { ISpringJoint } from "../interface/Joint/ISpringJoint";
-import { IMeshColliderShape } from "../interface/Shape/IMeshColliderShape";
 import { IPlaneColliderShape } from "../interface/Shape/IPlaneColliderShape";
+import { EPhysicsCapable } from "../physicsEnum/EPhycisCapable";
 import { btCharacterCollider } from "./Collider/btCharacterCollider";
+import { btCollider } from "./Collider/btCollider";
 import { btRigidBodyCollider } from "./Collider/btRigidBodyCollider";
 import { btStaticCollider } from "./Collider/btStaticCollider";
+import { btCustomJoint } from "./Joint/btCustomJoint";
+import { btFixedJoint } from "./Joint/btFixedJoint";
+import { btHingeJoint } from "./Joint/btHingeJoint";
+import { btSpringJoint } from "./Joint/btSpringJoint";
 import { btBoxColliderShape } from "./Shape/btBoxColliderShape";
 import { btCapsuleColliderShape } from "./Shape/btCapsuleColliderShape";
 import { btConeColliderShape } from "./Shape/btConeColliderShape";
 import { btCylinderColliderShape } from "./Shape/btCylinderColliderShape";
+import { btMeshColliderShape } from "./Shape/btMeshColliderShape";
 import { btSphereColliderShape } from "./Shape/btSphereColliderShape";
 import { BulletInteractive } from "./btInteractive";
 import { btPhysicsManager } from "./btPhysicsManager";
 
 export class btPhysicsCreateUtil implements IPhysicsCreateUtil {
+    // capable map
+    protected _physicsEngineCapableMap: Map<any, any>;
+
+    initPhysicsCapable(): void {
+
+        this._physicsEngineCapableMap = new Map();
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_Gravity, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_StaticCollider, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_DynamicCollider, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_CharacterCollider, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_BoxColliderShape, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_SphereColliderShape, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_CapsuleColliderShape, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_CylinderColliderShape, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_ConeColliderShape, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_MeshColliderShape, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_CompoundColliderShape, false);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_Joint, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_D6Joint, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_FixedJoint, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_SpringJoint, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_HingeJoint, true);
+        this._physicsEngineCapableMap.set(EPhysicsCapable.Physics_CreateCorveMesh, true);
+    }
+
+    getPhysicsCapable(value: EPhysicsCapable): boolean {
+        return this._physicsEngineCapableMap.get(value);
+    }
 
     /**@internal */
     static _bt: any;
@@ -26,16 +63,14 @@ export class btPhysicsCreateUtil implements IPhysicsCreateUtil {
     initialize(): Promise<void> {
         let physics3D: Function = (window as any).Physics3D;
         physics3D(Math.max(16, Config3D.defaultPhysicsMemory) * 16, new BulletInteractive(null, null)).then(() => {
-            //     StaticPlaneColliderShape.__init__();
-            // ColliderShape.__init__();
-            // CompoundColliderShape.__init__();
-            // PhysicsComponent.__init__();
-            // PhysicsSimulation.__init__();
-            // BoxColliderShape.__init__();
-            // CylinderColliderShape.__init__();
-            // CharacterController.__init__();
-            // Rigidbody3D.__init__();
             btPhysicsCreateUtil._bt = (window as any).Physics3D;
+            this.initPhysicsCapable();
+            btPhysicsManager.init();
+            btCollider.__init__();
+            btRigidBodyCollider.__init__();
+            btStaticCollider.__init__();
+            btCharacterCollider.__init__();
+            btMeshColliderShape.__init__();
             return Promise.resolve();
         }
         );
@@ -43,37 +78,38 @@ export class btPhysicsCreateUtil implements IPhysicsCreateUtil {
         return Promise.resolve();
     }
 
+
+
     createPhysicsManger(physicsSettings: PhysicsSettings): btPhysicsManager {
         return new btPhysicsManager(physicsSettings);
     }
 
-
-    createDynamicCollider(manager:btPhysicsManager): btRigidBodyCollider {
+    createDynamicCollider(manager: btPhysicsManager): btRigidBodyCollider {
         return new btRigidBodyCollider(manager);
     }
 
-    createStaticCollider(manager:btPhysicsManager): btStaticCollider {
+    createStaticCollider(manager: btPhysicsManager): btStaticCollider {
         return new btStaticCollider(manager);
     }
 
-    createCharacterController(manager:btPhysicsManager): btCharacterCollider {
+    createCharacterController(manager: btPhysicsManager): btCharacterCollider {
         return new btCharacterCollider(manager);
     }
 
-    createFixedJoint(manager:btPhysicsManager): IFixedJoint {
-        throw new Error("Method not implemented.");
+    createFixedJoint(manager: btPhysicsManager): btFixedJoint {
+        return new btFixedJoint(manager);
     }
 
-    createHingeJoint(manager:btPhysicsManager): IHingeJoint {
-        throw new Error("Method not implemented.");
+    createHingeJoint(manager: btPhysicsManager): IHingeJoint {
+        return new btHingeJoint(manager);
     }
 
-    createSpringJoint(manager:btPhysicsManager): ISpringJoint {
-        throw new Error("Method not implemented.");
+    createSpringJoint(manager: btPhysicsManager): btSpringJoint {
+        return new btSpringJoint(manager);
     }
 
-    createCustomJoint(manager:btPhysicsManager): ICustomJoint {
-        throw new Error("Method not implemented.");
+    createD6Joint(manager: btPhysicsManager): ID6Joint {
+        return new btCustomJoint(manager);
     }
 
     createBoxColliderShape(): btBoxColliderShape {
@@ -88,8 +124,8 @@ export class btPhysicsCreateUtil implements IPhysicsCreateUtil {
         return new btCapsuleColliderShape();
     }
 
-    createMeshColliderShape(): IMeshColliderShape {
-        throw new Error("Method not implemented.");
+    createMeshColliderShape(): btMeshColliderShape {
+        return new btMeshColliderShape();
     }
 
     createPlaneColliderShape(): IPlaneColliderShape {
@@ -103,4 +139,36 @@ export class btPhysicsCreateUtil implements IPhysicsCreateUtil {
     createConeColliderShape(): btConeColliderShape {
         return new btConeColliderShape();
     }
+
+    createCorveMesh(mesh: Mesh): Mesh {
+        if (mesh._convexMesh == null) {
+            return null;
+        }
+        let bt = btPhysicsCreateUtil._bt;
+        if ((<any>mesh).__convexMesh == null) {
+            let convexMesh = mesh._convexMesh;
+            let vertexCount = bt.btShapeHull_numVertices(convexMesh);
+            let indexCount = bt.btShapeHull_numIndices(convexMesh);
+            var vertexDeclaration: VertexDeclaration = VertexMesh.getVertexDeclaration("POSITION");
+            var vertexFloatStride: number = vertexDeclaration.vertexStride / 4;
+            var vertice: Float32Array = new Float32Array(vertexCount * vertexFloatStride);
+            let triangles: number[] = []
+            for (var i = 0; i < vertexCount; i++) {
+                let index = i * 3;
+                let vector3 = bt.btShapeHull_getVertexPointer(convexMesh, i);
+                vertice[index] = bt.btVector3_x(vector3);
+                vertice[index + 1] = bt.btVector3_y(vector3);
+                vertice[index + 2] = bt.btVector3_z(vector3);
+            }
+            for (var i = 0; i < indexCount; i++) {
+                triangles.push(bt.btShapeHull_getIndexPointer(convexMesh, i));
+            }
+            (<any>mesh).__convexMesh = PrimitiveMesh._createMesh(vertexDeclaration, vertice, new Uint16Array(triangles));
+        }
+        return (<any>mesh).__convexMesh;
+
+    }
 }
+
+
+Laya3D.PhysicsCreateUtil = new btPhysicsCreateUtil();

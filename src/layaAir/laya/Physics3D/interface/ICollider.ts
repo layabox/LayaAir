@@ -3,9 +3,20 @@ import { Node } from "../../display/Node";
 import { PhysicsCombineMode } from "../../d3/physics/PhysicsColliderComponent";
 
 export interface ICollider {
+    owner: Node;
+    inPhysicUpdateListIndex: number;
+    /**
+     * @internal
+     * component is enable
+     */
+    componentEnable: boolean;
 
-    owner:Node
-    
+    /**
+     * get capable
+     * @param value 
+     */
+    getCapable(value: number): boolean;
+
     setColliderShape(shape: IColliderShape): void;
 
     /**
@@ -33,7 +44,7 @@ export interface ICollider {
     /**
      * transform Change
      */
-    transformChanged(flag:number): void;
+    transformChanged(flag: number): void;
 
     setBounciness?(value: number): void;
 
@@ -45,7 +56,9 @@ export interface ICollider {
 
     setStaticFriction?(value: number): void;
 
-    setFrictionCombine?(value:PhysicsCombineMode): number;
+    setFrictionCombine?(value: PhysicsCombineMode): void;
 
-    setBounceCombine?(value:PhysicsCombineMode): number;
+    setBounceCombine?(value: PhysicsCombineMode): void;
+
+    setEventFilter?(events: string[]): void;
 }

@@ -1,6 +1,4 @@
 import { Config } from "../../Config";
-import { Config3D } from "../../Config3D";
-import { LayaGL } from "../layagl/LayaGL";
 import { FilterMode } from "../RenderEngine/RenderEnum/FilterMode";
 import { HDREncodeFormat } from "../RenderEngine/RenderEnum/HDREncodeFormat";
 import { TextureCompareMode } from "../RenderEngine/RenderEnum/TextureCompareMode";
@@ -8,6 +6,7 @@ import { TextureDimension } from "../RenderEngine/RenderEnum/TextureDimension";
 import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
 import { WrapMode } from "../RenderEngine/RenderEnum/WrapMode";
 import { InternalTexture } from "../RenderEngine/RenderInterface/InternalTexture";
+import { LayaGL } from "../layagl/LayaGL";
 import { Resource } from "./Resource";
 
 /**

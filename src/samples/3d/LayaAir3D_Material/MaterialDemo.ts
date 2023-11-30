@@ -1,7 +1,7 @@
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
-import { Material } from "laya/d3/core/material/Material";
+import { Material } from "laya/resource/Material";
 import { PBRStandardMaterial } from "laya/d3/core/material/PBRStandardMaterial";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
@@ -80,7 +80,7 @@ export class MaterialDemo {
 	stypeFun0(index: number = 0): void {
 		this.index++;
 		if (this.index % 2 === 1) {
-			Laya.loader.load("res/threeDimen/texture/earth.png").then(()=>{
+			Laya.loader.load("res/threeDimen/texture/earth.png").then(() => {
 				var pbrStandardMaterial = new PBRStandardMaterial();
 				//获取新的纹理
 				var pbrTexture = Loader.getTexture2D("res/threeDimen/texture/earth.png");

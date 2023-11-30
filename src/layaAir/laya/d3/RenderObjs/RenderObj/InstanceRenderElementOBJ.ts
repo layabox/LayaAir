@@ -1,6 +1,5 @@
-
-import { LayaGL } from "../../../layagl/LayaGL";
 import { ShaderInstance } from "../../../RenderEngine/RenderShader/ShaderInstance";
+import { LayaGL } from "../../../layagl/LayaGL";
 import { VertexBuffer3D } from "../../graphics/VertexBuffer3D";
 import { RenderElementOBJ } from "./RenderElementOBJ";
 

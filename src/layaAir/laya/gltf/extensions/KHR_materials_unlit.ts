@@ -1,6 +1,6 @@
 import * as glTF from "../glTFInterface";
 
-import { Material } from "../../d3/core/material/Material";
+import { Material } from "../../resource/Material";
 import { glTFExtension } from "./glTFExtension";
 import { UnlitMaterial } from "../../d3/core/material/UnlitMaterial";
 import { glTFResource } from "../glTFResource";

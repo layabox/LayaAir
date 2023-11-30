@@ -21,10 +21,9 @@ import { Vector4 } from "laya/maths/Vector4";
 import { Texture2D } from "laya/resource/Texture2D";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
-import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { URL } from "laya/net/URL";
-
+import { Event } from "laya/events/Event";
 export class PhysicsWorld_BaseCollider {
 	private scene: Scene3D;
 	private tmpVector: Vector3 = new Vector3(0, 0, 0);
@@ -41,10 +40,9 @@ export class PhysicsWorld_BaseCollider {
 
 			Laya.stage.scaleMode = Stage.SCALE_FULL;
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
-
+			Laya.stage.on(Event.KEY_DOWN, this, this.test);
 			//显示性能面板
 			Stat.show();
-			URL.basePath += "sample-resource/";
 			this.scene = (<Scene3D>Laya.stage.addChild(new Scene3D()));
 
 			//初始化照相机
@@ -77,7 +75,7 @@ export class PhysicsWorld_BaseCollider {
 			//平面添加物理碰撞体组件
 			var planeStaticCollider: PhysicsCollider = plane.addComponent(PhysicsCollider);
 			//创建盒子形状碰撞器
-			var planeShape: BoxColliderShape = new BoxColliderShape(10, 0, 10);
+			var planeShape: BoxColliderShape = new BoxColliderShape(10, 0.1, 10);
 			//物理碰撞体设置形状
 			planeStaticCollider.colliderShape = planeShape;
 			//物理碰撞体设置摩擦力
@@ -91,7 +89,7 @@ export class PhysicsWorld_BaseCollider {
 
 	randomAddPhysicsSprite(): void {
 		Laya.timer.loop(1000, this, function (): void {
-			var random: number = Math.floor(Math.random() * 5) % 5;
+			var random: number = Math.floor(Math.random() * 3) % 3;
 			switch (random) {
 				case 0:
 					this.addBox();
@@ -102,12 +100,12 @@ export class PhysicsWorld_BaseCollider {
 				case 2:
 					this.addCapsule();
 					break;
-				case 3:
-					this.addCone();
-					break;
-				case 4:
-					this.addCylinder();
-					break;
+				// case 3:
+				// 	this.addCone();
+				// 	break;
+				// case 4:
+				// 	this.addCylinder();
+				// 	break;
 				default:
 					break;
 			}
@@ -142,6 +140,16 @@ export class PhysicsWorld_BaseCollider {
 		rigidBody.colliderShape = boxShape;
 		//设置刚体的质量
 		rigidBody.mass = 10;
+		(window as any).rig = rigidBody;
+	}
+
+	test() {
+		//console.log("hah");
+		//let rigidBody = (window as any).rig as Rigidbody3D;
+		//let v = new Vector3(1, 0, 0);
+		// (rigidBody.owner as Sprite3D).transform.position.vadd(v, v);
+		// rigidBody.position = v;
+		//rigidBody.applyForce(new Vector3(1000, 0, 0));
 	}
 
 	addSphere(): void {

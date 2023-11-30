@@ -26,7 +26,7 @@ export class WebGPURenderCommandEncoder {
     curGeometry: IRenderGeometryElement;
 
     cachemap: { [key: number]: GPUBindGroup } = {};
-    obb:any;
+    obb: any;
 
     constructor() {
         this.engine = LayaGL.renderEngine as WebGPUEngine;
@@ -59,7 +59,7 @@ export class WebGPURenderCommandEncoder {
      * @param geometry 
      */
     applyGeometry(geometry: IRenderGeometryElement) {
-        
+
         if (geometry != this.curGeometry) {
             this.curGeometry = geometry;
             let state = geometry.bufferState;
@@ -218,7 +218,7 @@ export class WebGPURenderCommandEncoder {
     //         usage: GPUBufferUsage.INDEX,
     //         mappedAtCreation: true,
     //       });
-          
+
     //      const mapping = new Uint16Array(indexBuffer.getMappedRange()).set(indices);
     //     indexBuffer.unmap();
 

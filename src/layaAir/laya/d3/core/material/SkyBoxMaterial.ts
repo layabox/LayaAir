@@ -1,7 +1,7 @@
 import { Color } from "../../../maths/Color";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { TextureCube } from "../../../resource/TextureCube";
-import { Material } from "./Material";
+import { Material } from "../../../resource/Material";
 
 /**
  * <code>SkyBoxMaterial</code> 类用于实现SkyBoxMaterial材质。

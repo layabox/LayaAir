@@ -65,10 +65,8 @@ export class btCollider implements ICollider {
 
     _type: btColliderType;
 
-    _manager: btPhysicsManager;
-
     //update list index
-    _inPhysicUpdateListIndex: number;
+    inPhysicUpdateListIndex: number = -1;
 
     _id: number;
 
@@ -83,6 +81,8 @@ export class btCollider implements ICollider {
 
     _transform: Transform3D;
 
+    /**@internal */
+    componentEnable: boolean;
     /** @internal */
     protected _restitution = 0.0;
     /** @internal */
@@ -115,7 +115,10 @@ export class btCollider implements ICollider {
         this._enableProcessCollisions = false;
         btCollider._physicObjectsMap[this._id] = this;
         this._type = this.getColliderType();
-        
+    }
+
+    getCapable(value: number): boolean {
+        return null;
     }
 
     setOwner(node: Sprite3D): void {
@@ -123,7 +126,6 @@ export class btCollider implements ICollider {
         this._transform = node.transform;
         this._initCollider();
     }
-
 
     setCollisionGroup(value: number) {
         if (value != this._collisionGroup) {
@@ -135,7 +137,7 @@ export class btCollider implements ICollider {
 
     setCanCollideWith(value: number) {
         if (value != this._canCollideWith) {
-            this._collisionGroup = value;
+            this._canCollideWith = value;
             this._physicsManager.removeCollider(this);
             this._physicsManager.addCollider(this);
         }
@@ -168,7 +170,8 @@ export class btCollider implements ICollider {
     }
 
     setColliderShape(shape: btColliderShape) {
-        if (shape == this._btColliderShape)
+        shape._btCollider = this;
+        if (shape == this._btColliderShape||shape._btShape == null)
             return;
         var lastColliderShape: btColliderShape = this._btColliderShape;
         this._btColliderShape = shape;
@@ -176,11 +179,10 @@ export class btCollider implements ICollider {
         if (shape) {
             if (this._btCollider) {
                 bt.btCollisionObject_setCollisionShape(this._btCollider, shape._btShape);
-                shape._btCollider = this;
                 let simulate = this._isSimulate;
                 simulate && this._physicsManager.removeCollider(this);//修改shape必须把Collison从物理世界中移除再重新添加
                 this._onShapeChange();//修改shape会计算惯性
-                if (simulate) {
+                if ((simulate || !lastColliderShape) && this.componentEnable) {
                     this._derivePhysicsTransformation(true);
                     this._physicsManager.addCollider(this);
                 }
@@ -342,7 +344,7 @@ export class btCollider implements ICollider {
 
     transformChanged(flag: number): void {
         this._transformFlag = flag;
-        if (this._inPhysicUpdateListIndex == -1 && !this._enableProcessCollisions) {
+        if (this.inPhysicUpdateListIndex == -1 && !this._enableProcessCollisions) {
             this._physicsManager._physicsUpdateList.add(this);
         }
     }

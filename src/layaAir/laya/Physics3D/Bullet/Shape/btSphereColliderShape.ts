@@ -25,6 +25,12 @@ export class btSphereColliderShape extends btColliderShape implements ISphereCol
     setRadius(radius: number): void {
         if (this._radius == radius)
             return;
+        this._radius = radius;
         this._createShape();
+    }
+
+    destroy(): void {
+        super.destroy();
+        this._radius = null;
     }
 }

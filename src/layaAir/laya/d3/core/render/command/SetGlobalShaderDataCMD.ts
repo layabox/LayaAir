@@ -2,13 +2,13 @@ import { Command } from "./Command";
 import { BaseTexture } from "../../../../resource/BaseTexture";
 import { CommandBuffer } from "./CommandBuffer";
 import { RenderContext3D } from "../RenderContext3D";
-import { LayaGL } from "../../../../layagl/LayaGL";
 import { ShaderDataItem, ShaderDataType } from "../../../../RenderEngine/RenderShader/ShaderData";
 import { Color } from "../../../../maths/Color";
 import { Matrix4x4 } from "../../../../maths/Matrix4x4";
 import { Vector2 } from "../../../../maths/Vector2";
 import { Vector3 } from "../../../../maths/Vector3";
 import { Vector4 } from "../../../../maths/Vector4";
+import { LayaGL } from "../../../../layagl/LayaGL";
 
 /**
  * @internal

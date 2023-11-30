@@ -1,8 +1,11 @@
-import { PhysicsCombineMode, PhysicsForceMode } from "../../../d3/physics/PhysicsColliderComponent";
+import { PhysicsForceMode } from "../../../d3/physics/PhysicsColliderComponent";
+import { MeshColliderShape } from "../../../d3/physics/shape/MeshColliderShape";
 import { Quaternion } from "../../../maths/Quaternion";
 import { Vector3 } from "../../../maths/Vector3";
 import { IDynamicCollider } from "../../interface/IDynamicCollider";
+import { EColliderCapable } from "../../physicsEnum/EColliderCapable";
 import { btColliderShape } from "../Shape/btColliderShape";
+import { btMeshColliderShape } from "../Shape/btMeshColliderShape";
 import { btPhysicsCreateUtil } from "../btPhysicsCreateUtil";
 import { btPhysicsManager } from "../btPhysicsManager";
 import { btCollider, btColliderType } from "./btCollider";
@@ -28,6 +31,9 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
     private static _btImpulseOffset: number;
     /** @internal */
     private static _btGravity: number;
+
+    /**@internal */
+    static _rigidBodyCapableMap: Map<any, any>;
     /**
     * @internal
     */
@@ -41,8 +47,10 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
         btRigidBodyCollider._btImpulseOffset = bt.btVector3_create(0, 0, 0);
         btRigidBodyCollider._btGravity = bt.btVector3_create(0, 0, 0);
         btRigidBodyCollider._btTransform0 = bt.btTransform_create();
+        btRigidBodyCollider.initCapable();
     }
-
+    /**@internal */
+    componentEnable: boolean;
     /** @internal */
     private _btLayaMotionState: number;
     /** @internal */
@@ -71,11 +79,63 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
     private _angularFactor = new Vector3(1, 1, 1);
     /** @internal */
     private _detectCollisions = true;
+    /**@internal TODO*/
+    private _allowSleep: boolean = false;
+
 
     constructor(manager: btPhysicsManager) {
         super(manager);
     }
-    
+
+    getCapable(value: number): boolean {
+        return btRigidBodyCollider.getRigidBodyCapable(value);
+    }
+
+    static getRigidBodyCapable(value: EColliderCapable): boolean {
+        return this._rigidBodyCapableMap.get(value);
+    }
+
+    static initCapable(): void {
+        this._rigidBodyCapableMap = new Map();
+        this._rigidBodyCapableMap.set(EColliderCapable.Collider_AllowTrigger, true);
+        this._rigidBodyCapableMap.set(EColliderCapable.Collider_CollisionGroup, true);
+        this._rigidBodyCapableMap.set(EColliderCapable.Collider_Friction, true);
+        this._rigidBodyCapableMap.set(EColliderCapable.Collider_Restitution, true);
+        this._rigidBodyCapableMap.set(EColliderCapable.Collider_RollingFriction, true);
+        this._rigidBodyCapableMap.set(EColliderCapable.Collider_DynamicFriction, false);
+        this._rigidBodyCapableMap.set(EColliderCapable.Collider_StaticFriction, false);
+        this._rigidBodyCapableMap.set(EColliderCapable.Collider_BounceCombine, false);
+        this._rigidBodyCapableMap.set(EColliderCapable.Collider_FrictionCombine, false);
+        this._rigidBodyCapableMap.set(EColliderCapable.Collider_EventFilter, false);
+
+        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_AllowSleep, false);
+        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_Gravity, true);
+        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_LinearDamp, true);
+        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_AngularDamp, true);
+        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_LinearVelocity, true);
+        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_AngularVelocity, true);
+        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_Mass, true);
+        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_InertiaTensor, true);
+        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_MassCenter, true);
+        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_MaxAngularVelocity, false);
+        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_MaxDepenetrationVelocity, false);
+        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_SleepThreshold, false);
+        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_SleepAngularVelocity, false);
+        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_SolverIterations, false);
+        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_AllowDetectionMode, true);
+        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_AllowKinematic, true);
+        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_LinearFactor, true);
+        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_AngularFactor, true);
+        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_ApplyForce, true);
+        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_ClearForce, true);
+        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_ApplyForceWithOffset, true);
+        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_ApplyTorque, true);
+        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_ApplyImpulse, true);
+        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_ApplyTorqueImpulse, true);
+        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_WorldPosition, true);
+        this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_WorldOrientation, true);
+    }
+
     setWorldPosition(value: Vector3): void {
         let bt = btPhysicsCreateUtil._bt;
         var btColliderObject = this._btCollider;
@@ -87,7 +147,11 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
         var btColliderObject = this._btCollider;
         bt.btRigidBody_setCenterOfMassOrientation(btColliderObject, value.x, value.y, value.z, value.w);
     }
-  
+
+    sleep(): void {
+        this._allowSleep = true;
+    }
+
     protected getColliderType() {
         return this._type = btColliderType.RigidbodyCollider;
 
@@ -116,10 +180,10 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
     * @internal
     */
     private _updateMass(mass: number): void {
-        if (this._btCollider && this._btColliderShape) {
+        if (this._btCollider && this._btColliderShape && this._btColliderShape._btShape) {
             let bt = btPhysicsCreateUtil._bt;
             bt.btCollisionShape_calculateLocalInertia(this._btColliderShape._btShape, mass, btRigidBodyCollider._btInertia);
-            bt.btRigidBody_setMassProps(this._btColliderShape, mass, btRigidBodyCollider._btInertia);
+            bt.btRigidBody_setMassProps(this._btCollider, mass, btRigidBodyCollider._btInertia);
             bt.btRigidBody_updateInertiaTensor(this._btCollider); //this was the major headache when I had to debug Slider and Hinge constraint
         }
     }
@@ -148,15 +212,18 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
 
         this.setMass(this._mass);
         this.setConstraints(this._linearFactor, this._angularFactor);
-        this.setLinearDamping(this._linearDamping)
+        this.setLinearDamping(this._linearDamping);
         this.setAngularDamping(this._angularDamping);
-        this.setInertiaTensor(this._gravity);
         this.setIsKinematic(this._isKinematic);
+        this.setInertiaTensor(this._gravity);
     }
 
     protected _onShapeChange() {
         super._onShapeChange();
         if (this._mass <= 0) return;
+        if (this._btColliderShape instanceof btMeshColliderShape && !this._btColliderShape.convex) {
+            console.error("btRigidBodyCollider: TriangleMeshShap performance is poor, please use convex.")
+        }
         if (this._isKinematic) {
             this._updateMass(0);
         } else {
@@ -181,6 +248,21 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
     }
 
     setLinearVelocity(value: Vector3): void {
+        this._linearVelocity = value;
+        let bt = btPhysicsCreateUtil._bt;
+        if (this._btCollider) {
+            var btValue: number = btRigidBodyCollider._btTempVector30;
+            btPhysicsManager._convertToBulletVec3(value, btValue);
+            (this.isSleeping()) && (this.wakeUp());//可能会因睡眠导致设置线速度无效
+            bt.btRigidBody_setLinearVelocity(this._btCollider, btValue);
+        }
+    }
+
+    /**
+     * 设置睡眠刚体线速度阈值
+     * @param value 
+     */
+    setSleepLinearVelocity(value: Vector3): void {
         let bt = btPhysicsCreateUtil._bt;
         bt.btRigidBody_setSleepingThresholds(this._btCollider, value, bt.btRigidBody_getAngularSleepingThreshold(this._btCollider));
     }
@@ -209,9 +291,9 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
         bt.btVector3_setValue(btRigidBodyCollider._btGravity, value.x, value.y, value.z);
         bt.btRigidBody_setGravity(this._btCollider, btRigidBodyCollider._btGravity);
         if (value.equal(this._physicsManager._gravity)) {
-            this._setoverrideGravity(true);
-        } else {
             this._setoverrideGravity(false);
+        } else {
+            this._setoverrideGravity(true);
         }
 
     }
@@ -262,14 +344,12 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
         canInSimulation && this._physicsManager.addCollider(this);
     }
 
-
-
     setIsKinematic(value: boolean): void {
         this._isKinematic = value;
         //this._controlBySimulation = !value;//isKinematic not controll by Simulation
         let bt = btPhysicsCreateUtil._bt;
         let oldSimulate = this._isSimulate;
-        oldSimulate && this._manager.removeCollider(this);
+        oldSimulate && this._physicsManager.removeCollider(this);
         var natColObj: any = this._btCollider;
         var flags: number = bt.btCollisionObject_getCollisionFlags(natColObj);
         if (value) {
@@ -313,6 +393,22 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
         bt.btRigidBody_setAngularFactor(this._btCollider, btValue);
         //}
     }
+
+    setTrigger(value: boolean): void {
+        this._isTrigger = value;
+        let bt = btPhysicsCreateUtil._bt;
+        if (this._btCollider) {
+            var flags: number = bt.btCollisionObject_getCollisionFlags(this._btCollider);
+            if (value) {
+                if ((flags & btPhysicsManager.COLLISIONFLAGS_NO_CONTACT_RESPONSE) === 0)
+                    bt.btCollisionObject_setCollisionFlags(this._btCollider, flags | btPhysicsManager.COLLISIONFLAGS_NO_CONTACT_RESPONSE);
+            } else {
+                if ((flags & btPhysicsManager.COLLISIONFLAGS_NO_CONTACT_RESPONSE) !== 0)
+                    bt.btCollisionObject_setCollisionFlags(this._btCollider, flags ^ btPhysicsManager.COLLISIONFLAGS_NO_CONTACT_RESPONSE);
+            }
+        }
+    }
+
     /**
      * 应用作用力。
      * @param	force 作用力。
@@ -447,9 +543,9 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
     }
 
     setColliderShape(shape: btColliderShape) {
-        if (shape instanceof btColliderShape) {
+        if (shape instanceof MeshColliderShape) {
             console.error("RigidBody3D is not support MeshColliderShape");
-            shape = null
+            shape = null;
         }
         super.setColliderShape(shape);
     }
@@ -458,7 +554,6 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
         let bt = btPhysicsCreateUtil._bt;
         bt.btMotionState_destroy(this._btLayaMotionState);
         super.destroy();
-
     }
 
 }

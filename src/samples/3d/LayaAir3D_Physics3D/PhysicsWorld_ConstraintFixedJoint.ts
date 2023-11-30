@@ -82,7 +82,8 @@ export class PhysicsWorld_ConstraintFixedJoint {
 		fixedConstraint.anchor = new Vector3(0, 0, 0);
 		fixedConstraint.connectAnchor = new Vector3(0, 2, 0);
 		box.addComponent(FixedEventTest);
-		fixedConstraint.setConnectRigidBody(rigidBody, rigidBody2);
+		fixedConstraint.ownBody = rigidBody;
+		fixedConstraint.connectedBody = rigidBody2;
 
 	}
 
@@ -98,10 +99,9 @@ export class FixedEventTest extends Script {
 
 	onUpdate() {
 		if (this.fixedConstraint) {
-			var mass = this.fixedConstraint.connectedBody.mass;
-			this.fixedConstraint.connectedBody.mass = mass + 1;
+			var mass = (this.fixedConstraint.connectedBody as Rigidbody3D).mass;
+			(this.fixedConstraint.connectedBody as Rigidbody3D).mass = mass + 1;
 		}
-
 	}
 
 	onJointBreak() {

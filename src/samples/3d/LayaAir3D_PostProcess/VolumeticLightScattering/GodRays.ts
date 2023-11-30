@@ -5,9 +5,6 @@ import { VertexMesh } from "laya/RenderEngine/RenderShader/VertexMesh";
 import { PostProcessEffect } from "laya/d3/core/render/PostProcessEffect";
 import { PostProcessRenderContext } from "laya/d3/core/render/PostProcessRenderContext";
 import { CommandBuffer } from "laya/d3/core/render/command/CommandBuffer";
-import { DepthTextureMode } from "laya/d3/depthMap/DepthPass";
-import { Viewport } from "laya/d3/math/Viewport";
-import { LayaGL } from "laya/layagl/LayaGL";
 import { BaseTexture } from "laya/resource/BaseTexture";
 import { RenderTexture } from "laya/resource/RenderTexture";
 import BlitVS from "./FarBlitScreen.vs";
@@ -24,6 +21,7 @@ import { Matrix4x4 } from "laya/maths/Matrix4x4";
 import { Vector3 } from "laya/maths/Vector3";
 import { Vector2 } from "laya/maths/Vector2";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
+import { LayaGL } from "laya/layagl/LayaGL";
 
 export class GodRay extends PostProcessEffect {
     static init() {

@@ -14,7 +14,7 @@ class TTFFontLoader implements IResourceLoader {
         if (LayaEnv.isConch) {
             return task.loader.fetch(task.url, "arraybuffer").then(data => {
                 if (data)
-                    (window as any)["conchTextCanvas"].setFontFaceFromBuffer(fontName, data);
+                    (window as any)["conch"].registerFont(fontName, data);
                 return { family: fontName };
             });
         }

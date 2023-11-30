@@ -75,6 +75,23 @@ export class Quaternion implements IClone {
         out.w = lw * rw - d;
     }
 
+    /**
+   * Calculate a quaternion rotates around an arbitrary axis.
+   * @param axis - The axis
+   * @param rad - The rotation angle in radians
+   * @param out - The quaternion after rotate
+   */
+    static rotationAxisAngle(axis: Vector3, rad: number, out: Quaternion): void {
+        const normalAxis = Vector3._tempVector3
+        Vector3.normalize(axis, normalAxis);
+        rad *= 0.5;
+        const s = Math.sin(rad);
+        out.x = normalAxis.x * s;
+        out.y = normalAxis.y * s;
+        out.z = normalAxis.z * s;
+        out.w = Math.cos(rad);
+    }
+
     private static arcTanAngle(x: number, y: number): number {
         if (x == 0) {
             if (y == 1)
