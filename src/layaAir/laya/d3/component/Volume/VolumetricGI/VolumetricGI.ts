@@ -9,7 +9,11 @@ import { Volume } from "../Volume";
 import { VolumeManager } from "../VolumeManager";
 
 export class VolumetricGI extends Volume {
-
+    static volumetricCount: number = 0;
+    /**获取一个全局唯一ID。*/
+    static getID(): number {
+        return VolumetricGI.volumetricCount++;
+    }
     /**@internal */
     private _probeCounts: Vector3;
 
@@ -40,6 +44,8 @@ export class VolumetricGI extends Volume {
     /**@internal */
     _updateMark: number;
 
+    /**@internal */
+    _volumetricProbeID: number
     /**
      * <code>实例化一个体积光照探针<code>
      */
@@ -47,8 +53,10 @@ export class VolumetricGI extends Volume {
         super();
         this._type = VolumeManager.VolumetricGIType;
         this._probeCounts = new Vector3();
-        this.probeStep = new Vector3();
+        this._probeStep = new Vector3();
         this._params = new Vector4(8, 16, 0, 0);
+        this._volumetricProbeID = VolumetricGI.getID();
+        this._intensity = 1;
     }
 
     /**
@@ -136,7 +144,7 @@ export class VolumetricGI extends Volume {
     }
 
     /**
-     * 设置反射探针强度
+     * 设置反射数量
      */
     get probeCounts(): Vector3 {
         return this._probeCounts;
@@ -148,10 +156,10 @@ export class VolumetricGI extends Volume {
         this._updateMark = ILaya3D.Scene3D._updateMark;
     }
     /**
- * 设置反射探针强度
- */
+     * 设置反射探针间隔
+     */
     get probeStep(): Vector3 {
-        return this._probeCounts;
+        return this._probeStep;
     }
 
     set probeStep(value: Vector3) {
@@ -176,6 +184,7 @@ export class VolumetricGI extends Volume {
 
         shaderData.setTexture(RenderableSprite3D.VOLUMETRICGI_IRRADIANCE, this.irradiance);
         shaderData.setTexture(RenderableSprite3D.VOLUMETRICGI_DISTANCE, this.distance);
+        shaderData.setNumber(RenderableSprite3D.AMBIENTINTENSITY, this._intensity);
     }
 
     /**

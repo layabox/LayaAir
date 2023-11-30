@@ -63,7 +63,7 @@ export class StaticInstanceBatchRender extends BatchRender {
         let elements = render._renderElements;
         for (var i = 0, n = elements.length; i < n; i++) {
             let element = elements[i];
-            var insBatchMarks = this._batchManager.getInstanceBatchOpaquaMark(element.render.receiveShadow, element.material.id, element._geometry._id, element.transform ? element.transform._isFrontFaceInvert : false, element.render._probReflection ? element.render._probReflection.id : -1, element.render.lightmapIndex);
+            var insBatchMarks = this._batchManager.getInstanceBatchOpaquaMark(element);
             if (insBatchMarks.indexInList == -1) {
                 insBatchMarks.indexInList = this._insBatchMarksNums.length;
                 this._insBatchMarksNums.push(0);
@@ -79,7 +79,7 @@ export class StaticInstanceBatchRender extends BatchRender {
      * @returns 
      */
     private _batchOneElement(element: RenderElement, render: BaseRender) {
-        var insBatchMarks = this._batchManager.getInstanceBatchOpaquaMark(element.render.receiveShadow, element.material.id, element._geometry._id, element.transform ? element.transform._isFrontFaceInvert : false, element.render._probReflection ? element.render._probReflection.id : -1, element.render.lightmapIndex);
+        var insBatchMarks = this._batchManager.getInstanceBatchOpaquaMark(element);
         if (insBatchMarks.indexInList == -1)
             return;
         let instanceelement: InstanceRenderElement = this._insElementMarksArray[insBatchMarks.indexInList];
@@ -108,7 +108,7 @@ export class StaticInstanceBatchRender extends BatchRender {
      * @returns 
      */
     private _removeOneElement(element: RenderElement, render: BaseRender) {
-        var insBatchMarks = this._batchManager.getInstanceBatchOpaquaMark(element.render.receiveShadow, element.material.id, element._geometry._id, element.transform ? element.transform._isFrontFaceInvert : false, element.render._probReflection ? element.render._probReflection.id : -1, element.render.lightmapIndex);
+        var insBatchMarks = this._batchManager.getInstanceBatchOpaquaMark(element);
         if (insBatchMarks.indexInList == -1)
             return;
         let instanceelement: InstanceRenderElement = element._batchElement as InstanceRenderElement;
@@ -180,7 +180,7 @@ export class StaticInstanceBatchRender extends BatchRender {
         let elements = render._renderElements;
         for (var i = 0, n = elements.length; i < n; i++) {
             let element = elements[i];
-            var insBatchMarks = this._batchManager.getInstanceBatchOpaquaMark(element.render.receiveShadow, element.material.id, element._geometry._id, element.transform ? element.transform._isFrontFaceInvert : false, element.render._probReflection ? element.render._probReflection.id : -1, element.render.lightmapIndex);
+            var insBatchMarks = this._batchManager.getInstanceBatchOpaquaMark(element);
             if (this._insBatchMarksNums[insBatchMarks.indexInList] < this._instanceBatchminNums || element.material.renderQueue >= 3000) {
                 return false;
             }

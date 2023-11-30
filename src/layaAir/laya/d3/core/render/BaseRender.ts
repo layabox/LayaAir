@@ -712,7 +712,7 @@ export class BaseRender extends Component implements IBoundsCell {
      * @returns 
      */
     _applyLightProb() {
-        if (this.lightmapIndex >= 0 && this._lightProb) return;
+        if (this.lightmapIndex >= 0 || !this._lightProb) return;
         if (this._lightProb._updateMark != this._lightProbUpdateMark) {
             this._lightProbUpdateMark = this._lightProb._updateMark;
             this._lightProb.applyVolumetricGI(this._shaderValues);
