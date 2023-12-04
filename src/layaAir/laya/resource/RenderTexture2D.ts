@@ -40,9 +40,9 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
     }
 
     /** @private */
-    private _depthStencilFormat: number;
+    _depthStencilFormat: number;
     /** @private */
-    private _colorFormat: RenderTargetFormat;
+    _colorFormat: RenderTargetFormat;
 
     /**@internal */
     _mgrKey: number = 0;	//给WebGLRTMgr用的
