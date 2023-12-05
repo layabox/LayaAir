@@ -10,7 +10,7 @@ import { SpotLight } from "./core/light/SpotLight";
 import { BlinnPhongMaterial } from "./core/material/BlinnPhongMaterial";
 import { EffectMaterial } from "./core/material/EffectMaterial";
 import { ExtendTerrainMaterial } from "./core/material/ExtendTerrainMaterial";
-import { Material } from "./core/material/Material";
+import { Material } from "../resource/Material";
 import { PBRStandardMaterial } from "./core/material/PBRStandardMaterial";
 import { SkyBoxMaterial } from "./core/material/SkyBoxMaterial";
 import { SkyPanoramicMaterial } from "./core/material/SkyPanoramicMaterial";
@@ -108,6 +108,7 @@ import "./loaders/ShaderLoader";
 import "./loaders/GLSLLoader";
 import "./loaders/AnimationControllerLoader";
 import { LensFlareData, LensFlareEffect, LensFlareElement } from "./core/render/PostEffect/LensFlares/LensFlareEffect";
+
 
 
 

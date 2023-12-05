@@ -38,6 +38,7 @@ const packsDef = [
             './layaAir/laya/maths/**/*.*',
             './layaAir/laya/media/**/*.*',
             './layaAir/laya/net/**/*.*',
+            "./layaAir/laya/bp/**/*.*",
 
             // './layaAir/laya/RenderEngine/**/*.*',
             './layaAir/laya/RenderEngine/RenderEngine/NativeGLEngine/**/*.*',
