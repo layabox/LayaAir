@@ -48,13 +48,14 @@ export class BPRuntime implements INodeManger<BPRuntimeBaseNode>,IBPRutime{
         }
     }
 
-    runByContext(context: IRunAble, currentIndex: number) {
+    runByContext(context: IRunAble, currentIndex: number,enableDebugPause:boolean=true) {
         for (let i = currentIndex, n = this.excuteAbleList.length; i < n;) {
             const bpNode = this.excuteAbleList[i];
-            let index = bpNode.step(context, true, this);
+            let index = bpNode.step(context, true, this,enableDebugPause);
+            enableDebugPause=true;
             if (index instanceof BPPromise) {
                 index.wait((mis: BPPromise) => {
-                    this.runByContext(context, mis.curIndex);
+                    this.runByContext(context, mis.curIndex,enableDebugPause);
                 })
                 return;
             }

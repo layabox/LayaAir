@@ -2,6 +2,7 @@ import { IRunAble } from "../interface/IRunAble";
 import { BPPinRuntime } from "../BPPinRuntime";
 import { BPRuntimeBaseNode } from "../node/BPRuntimeBaseNode";
 import { BPRunBase } from "./BPRunBase";
+import { IBPRutime } from "../interface/IBPRutime";
 
 export class BPExcuteNode extends BPRunBase implements IRunAble {
     owner: any;
@@ -9,6 +10,11 @@ export class BPExcuteNode extends BPRunBase implements IRunAble {
         super();
         this.owner = data;
 
+    }
+    debuggerPause: boolean;
+    pushBack(index: number): void {
+        debugger;
+        //throw new Error("Method not implemented.");
     }
     getSelf() {
         return this.owner;
@@ -23,7 +29,7 @@ export class BPExcuteNode extends BPRunBase implements IRunAble {
     getCode(): string {
         return "";
     }
-    beginExcute(runtimeNode: BPRuntimeBaseNode): boolean {
+    beginExcute(runtimeNode: BPRuntimeBaseNode,runner:IBPRutime,enableDebugPause:boolean): boolean {
         //throw new Error("Method not implemented.");
         if (this.listNode.indexOf(runtimeNode) == -1) {
             this.listNode.push(runtimeNode);

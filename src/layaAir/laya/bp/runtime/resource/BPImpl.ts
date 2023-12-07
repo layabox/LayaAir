@@ -15,6 +15,7 @@ export class BPImpl extends Resource{
 
         this.api = api;
         this.data = data;
+        debugger;
         this.version = version
     }
 

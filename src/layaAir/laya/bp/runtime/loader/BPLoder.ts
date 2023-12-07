@@ -33,4 +33,4 @@ export class BPLoaer implements IResourceLoader{
 }
 
 
-Loader.registerLoader([BPConst.EXT],BPLoaer); 
+Loader.registerLoader([BPConst.EXT],BPLoaer,Loader.JSON); 

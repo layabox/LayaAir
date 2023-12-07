@@ -20,7 +20,7 @@ export class BPParserAPI{
     public static parse(data:any, options?:Record<string,any>,errors?:Array<any>):Node|Component{
         errors = errors || errorList;
         let result:Node | Component;
-        let extendsPath = data._$extends as string;
+        let extendsPath = data.extends as string;
         let runtime:any;
         if (extendsPath.startsWith("res://")) {
             extendsPath = extendsPath.substring(6);
@@ -128,7 +128,7 @@ export class BPParserAPI{
                             errors.push(new Error(`unknown type '${pstr}'`));
                         }
                     }
-                    else if (pstr = nodeData._$extends) {
+                    else if (pstr = nodeData.extends) {
                         
                         let cls: any = runtime ?? ClassUtils.getClass(pstr);
                         if (cls) {

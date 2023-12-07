@@ -8,14 +8,32 @@ import { IBPRutime } from "../interface/IBPRutime";
 
 export class BPSequenceNode extends BPComplexNode {
 
-    next(context: IRunAble,parmsArray: any[],runner:IBPRutime): number {
-        this.outExcutes.forEach(item=>{
-           let jj= (item.linkTo[0] as BPPinRuntime);
-           if(jj){
-                runner.runByContext(context,jj.owner.index);
-               //item.excute(context);
-           }
-        });
+    next(context: IRunAble, parmsArray: any[], runner: IBPRutime): number {
+        for (let i = 0, n = this.outExcutes.length; i < n; i++) {
+            let item = this.outExcutes[i];
+            let jj = (item.linkTo[0] as BPPinRuntime);
+            if (jj) {
+                if(context.debuggerPause){
+                    debugger;
+                    context.pushBack(jj.owner.index);
+                }
+                else{
+                    runner.runByContext(context, jj.owner.index);
+                }
+                //item.excute(context);
+            }
+        }
+
+        // this.outExcutes.forEach(item=>{
+        //    let jj= (item.linkTo[0] as BPPinRuntime);
+        //    if(jj){
+        //         runner.runByContext(context,jj.owner.index);
+        //         if(context.debuggerPause){
+        //             debugger;
+        //         }
+        //        //item.excute(context);
+        //    }
+        // });
         return BPConst.MAX_CODELINE;
         //this.outExcute.excute(context);
     }

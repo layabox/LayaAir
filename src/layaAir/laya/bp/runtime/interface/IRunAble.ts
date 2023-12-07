@@ -1,10 +1,15 @@
 import { BPPinRuntime } from "../BPPinRuntime";
 import { BPRuntimeBaseNode } from "../node/BPRuntimeBaseNode";
+import { IBPRutime } from "./IBPRutime";
 
 export interface IRunAble {
+    debuggerPause:boolean;
+
+    pushBack(index:number):void;
+
     readonly vars: { [key: string]: any };
 
-    beginExcute(runtimeNode: BPRuntimeBaseNode): boolean;
+    beginExcute(runtimeNode: BPRuntimeBaseNode,runner:IBPRutime,enableDebugPause:boolean): boolean;
 
     endExcute(runtimeNode: BPRuntimeBaseNode): void;
 

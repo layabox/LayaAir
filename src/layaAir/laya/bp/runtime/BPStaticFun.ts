@@ -30,9 +30,11 @@ export class BPStaticFun {
 
     static async waitTime(second:number){
         return new Promise((resolve,rejects)=>{
-            // Laya.timer.once(second,this,()=>{
-            //     resolve(true);
-            // })
+            setTimeout(() => {
+                console.log(">>>>>>>>before");
+                resolve(true);
+                console.log(">>>>>>>>after");
+            }, second);
         });
     }
 

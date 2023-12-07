@@ -64,6 +64,7 @@ export class BPFactory {
             this.regFunction("branch", BPStaticFun.branch);
 
             this.regFunction("add",BPStaticFun.add);
+            this.regFunction("waitTime",BPStaticFun.waitTime);
 
             //this.regFunction("test",BPBaseTest.prototype.test,true);
 
@@ -85,6 +86,7 @@ export class BPFactory {
                         super(...args);
                         //Object.assign(this, properties);
                         this.context = new BPExcuteNode(this);
+                        //this.context = new BPExcuteDebuggerNode(this);
                     }
 
                     onAwake() {

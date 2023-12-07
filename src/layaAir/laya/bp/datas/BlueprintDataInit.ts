@@ -111,5 +111,15 @@ export const BlueprintDataList: TBPCNode[] = [
                 type: "object",
             }
         ],
-    }
+    },
+    {
+        name: "waitTime",
+        type: BPType.Function,
+        input: [
+            {
+                name: "second",
+                type: "number",
+            }
+        ],
+    },
 ]

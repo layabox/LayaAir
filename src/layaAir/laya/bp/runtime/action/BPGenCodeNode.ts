@@ -4,6 +4,10 @@ import { BPRuntimeBaseNode } from "../node/BPRuntimeBaseNode";
 import { BPRunBase } from "./BPRunBase";
 
 export class BPGenCodeNode extends BPRunBase implements IRunAble {
+    debuggerPause: boolean;
+    pushBack(index: number): void {
+        throw new Error("Method not implemented.");
+    }
     getSelf() {
         throw new Error("Method not implemented.");
     }

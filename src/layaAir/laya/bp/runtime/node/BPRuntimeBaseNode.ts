@@ -46,9 +46,9 @@ export class BPRuntimeBaseNode extends BPNode<BPPinRuntime> {
 
 
 
-    step(context: IRunAble, fromExcute: boolean,runner:IBPRutime): number| BPPromise {
-        if (fromExcute && context.beginExcute(this)) {
-            return -1;
+    step(context: IRunAble, fromExcute: boolean,runner:IBPRutime,enableDebugPause:boolean): number| BPPromise {
+        if (fromExcute && context.beginExcute(this,runner,enableDebugPause)) {
+            return BPConst.MAX_CODELINE;
         }
         let _parmsArray:any[] = [];
 

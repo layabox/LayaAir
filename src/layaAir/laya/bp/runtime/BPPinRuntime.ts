@@ -11,12 +11,12 @@ export class BPPinRuntime extends BPPin implements IOutParm {
     owner: BPRuntimeBaseNode;
 
     step(context: IRunAble) {
-        this.owner.step(context, false,null);
+        this.owner.step(context, false,null,false);
         //(this.linkTo[0] as PinRuntime).owner.step(context);
     }
 
     excute(context: IRunAble,runner:IBPRutime) {
-        (this.linkTo[0] as BPPinRuntime)?.owner.step(context, true,runner);
+        (this.linkTo[0] as BPPinRuntime)?.owner.step(context, true,runner,true);
     }
 
     setValue(value: any): void {
