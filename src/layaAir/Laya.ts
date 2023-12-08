@@ -38,6 +38,7 @@ import { URL } from "./laya/net/URL";
 import { RunDriver } from "./laya/utils/RunDriver";
 import { Config } from "./Config";
 import { Shader3D } from "./laya/RenderEngine/RenderShader/Shader3D";
+import { DrawStyle } from "./laya/webgl/canvas/DrawStyle";
 
 /**
  * <code>Laya</code> 是全局对象的引用入口集。
@@ -202,7 +203,8 @@ export class Laya {
         Value2D._initone(ShaderDefines2D.TEXTURE2D | ShaderDefines2D.FILTERGLOW, TextureSV);
         Value2D._initone(ShaderDefines2D.PRIMITIVE, PrimitiveSV);
         Value2D._initone(ShaderDefines2D.SKINMESH, SkinSV);
-
+        ColorUtils._initDefault();
+        DrawStyle._Defaultinit();
         if (laya3D) {
             return laya3D.__init__().then(() => {
                 _onInitModuleCallbacks.forEach(c => c());
