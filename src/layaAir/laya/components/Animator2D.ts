@@ -766,7 +766,7 @@ export class Animator2D extends Component {
      * @param value 值
      */
     setParamsBool(name: string, value: boolean) {
-        this._parameters[name] = { name: name, type: AniParmType.Float, value: value };
+        this._parameters[name] = { name: name, type: AniParmType.Bool, value: value };
     }
 
     /**
