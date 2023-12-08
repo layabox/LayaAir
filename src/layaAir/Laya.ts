@@ -37,6 +37,7 @@ import { Config } from "./Config";
 import { Shader3D } from "./laya/RenderEngine/RenderShader/Shader3D";
 import { LayaGL } from "./laya/layagl/LayaGL";
 import { Material } from "./laya/resource/Material";
+import { DrawStyle } from "./laya/webgl/canvas/DrawStyle";
 
 /**
  * <code>Laya</code> 是全局对象的引用入口集。
@@ -212,7 +213,8 @@ export class Laya {
         //Init internal 2D Value2D
         Value2D._initone(RenderSpriteData.Texture2D, TextureSV);
         Value2D._initone(RenderSpriteData.Primitive, PrimitiveSV);
-
+        ColorUtils._initDefault();
+        DrawStyle._Defaultinit();
         let initPhysics2D = () => {
             if (Laya._physiscs2D)
                 return Laya._physiscs2D.enable().then(() => init3D());
