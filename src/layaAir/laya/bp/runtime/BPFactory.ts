@@ -1,5 +1,5 @@
 //import { BPBaseTest } from "../../build/BPBaseTest";
-import { BPType, TBPCNode, TBPNode } from "../datas/types/BlueprintTypes";
+import { BPType, TBPCNode, TBPNode, TBPVarProperty } from "../datas/types/BlueprintTypes";
 
 import { TBPNodeData, TBPNodeDef } from "../core/type/TBluePrint";
 
@@ -65,6 +65,9 @@ export class BPFactory {
 
             this.regFunction("add",BPStaticFun.add);
             this.regFunction("waitTime",BPStaticFun.waitTime);
+            this.regFunction("get",BPStaticFun.getVariable);
+
+            this.regFunction("set",BPStaticFun.setVariable);
 
             //this.regFunction("test",BPBaseTest.prototype.test,true);
 
@@ -75,7 +78,7 @@ export class BPFactory {
     }
 
 
-    static createClsNew<T>(name: string, cls: T, bpjson: TBPNode[]): T {
+    static createClsNew<T>(name: string, cls: T, bpjson: TBPNode[],varMap:Record<string, TBPVarProperty>): T {
         function classFactory(className: string, SuperClass: any) {
             return {
                 [className]: class extends SuperClass {
@@ -86,6 +89,13 @@ export class BPFactory {
                         super(...args);
                         //Object.assign(this, properties);
                         this.context = new BPExcuteNode(this);
+                        let varMap=this.bp.varMap;
+                        if(varMap){
+                            for(let str in varMap){
+                                this.context.setVar(str,varMap[str].value);
+                                //a[str]
+                            }
+                        }
                         //this.context = new BPExcuteDebuggerNode(this);
                     }
 
@@ -102,7 +112,7 @@ export class BPFactory {
         let c=function(node:TBPNode):TBPCNode{
             return BPUtil.getConstNode("Node",node) as TBPCNode;
         }
-        bp.parseNew(bpjson,c);
+        bp.parseNew(bpjson,c,varMap);
         Object.defineProperty(newClass, 'name', { value: name });
         return newClass as unknown as T;
     }

@@ -1,4 +1,4 @@
-import { TBPCNode, TBPNode } from "../datas/types/BlueprintTypes";
+import { TBPCNode, TBPNode, TBPVarProperty } from "../datas/types/BlueprintTypes";
 import { EBlueNodeType } from "../core/EBluePrint";
 import { INodeManger } from "../core/interface/INodeManger";
 import { TBPNodeData } from "../core/type/TBluePrint";
@@ -16,6 +16,8 @@ export class BPRuntime implements INodeManger<BPRuntimeBaseNode>,IBPRutime{
     nodeMap: Map<any, BPRuntimeBaseNode>;
 
     eventMap: Map<any, BPEventNode>;
+
+    varMap:Record<string, TBPVarProperty>;
 
     excuteAbleList: BPRuntimeBaseNode[];
     constructor() {
@@ -65,7 +67,8 @@ export class BPRuntime implements INodeManger<BPRuntimeBaseNode>,IBPRutime{
         }
     }
 
-    parseNew(bpjson:Array<TBPNode>,getCNodeByNode:(node:TBPNode)=>TBPCNode){
+    parseNew(bpjson:Array<TBPNode>,getCNodeByNode:(node:TBPNode)=>TBPCNode,varMap:Record<string, TBPVarProperty>){
+        this.varMap=varMap;
         //pin create
         bpjson.forEach(item => {
             let d = BPFactory.instance.createNew(getCNodeByNode(item));

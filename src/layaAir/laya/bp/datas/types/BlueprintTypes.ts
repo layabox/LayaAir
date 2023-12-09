@@ -35,6 +35,7 @@ export interface TBPStageData {
 export interface TBPVarProperty {
     name: string,
     aliasName?: string,
+    value?: any,
     type: string,
     desc?: string,
 }
@@ -111,6 +112,8 @@ export interface TBPNode {
     id: number;
     ver?: number;
     /** constData的id号 */
+    /**如果是var类型定义，则会有这个值 */
+    varName?: string;
     cid: string;
     /**所有UI所用到的数据 */
     uiData?: {

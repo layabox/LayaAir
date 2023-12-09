@@ -1,12 +1,22 @@
+import { TBPNode } from "../../datas/types/BlueprintTypes";
+import { INodeManger } from "../../core/interface/INodeManger";
 import { BPPinRuntime } from "../BPPinRuntime";
 import { IRunAble } from "../interface/IRunAble";
 import { BPFunNode } from "./BPFunNode";
+import { BPRuntimeBaseNode } from "./BPRuntimeBaseNode";
 
 export class BPSetVarNode extends BPFunNode {
     protected _parmsArray: any[];
+    private _varKey:string;
     constructor() {
         super();
         this._parmsArray = [];
+    }
+
+    
+    parseLinkDataNew(node: TBPNode, manger: INodeManger<BPRuntimeBaseNode>){
+        this._varKey=node.varName;
+        super.parseLinkDataNew(node,manger);
     }
     step(context: IRunAble, fromExcute: boolean): number {
         this._parmsArray.length = 0;
@@ -21,7 +31,7 @@ export class BPSetVarNode extends BPFunNode {
             context.parmFromSelf(varPin, this._parmsArray);
         }
 
-        context.parmFromCustom(this._parmsArray, varPin.name, '"' + varPin.name + '"');
+        context.parmFromCustom(this._parmsArray, this._varKey, '"' + this._varKey + '"');
 
         context.parmFromCustom(this._parmsArray, context, "context");
 
