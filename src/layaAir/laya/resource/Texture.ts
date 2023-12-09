@@ -222,9 +222,9 @@ export class Texture extends Resource {
     set bitmap(value: BaseTexture) {
         if (this._bitmap == value)
             return;
-        this._bitmap && this._bitmap._removeReference();
+        this._bitmap && this._bitmap._removeReference(this._referenceCount);
         this._bitmap = value;
-        value && (value._addReference());
+        value && (value._addReference(this._referenceCount));
     }
 
     /**
@@ -237,6 +237,22 @@ export class Texture extends Resource {
         super(false);
         let bitmap = (source instanceof Texture) ? source.bitmap : source;
         this.setTo(bitmap, uv, sourceWidth, sourceHeight);
+    }
+
+    /**
+     * @internal
+     */
+    _addReference(count: number = 1): void {
+        super._addReference(count);
+        this._bitmap && this._bitmap._addReference(count);
+    }
+
+    /**
+     * @internal
+     */
+    _removeReference(count: number = 1): void {
+        this._bitmap && this._bitmap._removeReference(count);
+        super._removeReference(count);
     }
 
     /**
@@ -441,7 +457,7 @@ export class Texture extends Resource {
         let bit = this._bitmap;
         this._bitmap = null;
         if (bit)
-            bit._removeReference();
+            bit._removeReference(this._referenceCount);
     }
 
     /**
