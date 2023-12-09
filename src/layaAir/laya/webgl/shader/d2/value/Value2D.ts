@@ -23,10 +23,14 @@ export class Value2D {
 
     static create(mainType: number, subType: number): Value2D {
         var types: any = Value2D._cache[mainType | subType];
-        if (types._length)
-            return types[--types._length];
-        else
+        if (types._length) {
+            let value: Value2D = types[--types._length];
+            value.resetValue();
+            return value;
+        }
+        else {
             return new Value2D._typeClass[mainType | subType](subType);
+        }
     }
 
 
@@ -182,6 +186,13 @@ export class Value2D {
     clear(): void {
         this.defines._value = this.subID;
         this.clipOff[0] = 0;
+    }
+
+    /**
+     * 重设Value2D内容
+     */
+    resetValue(): void {
+        this.textureHost = null;
     }
 
     release(): void {

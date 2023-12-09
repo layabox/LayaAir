@@ -29,7 +29,7 @@ import { VertexMesh } from "../../../../RenderEngine/RenderShader/VertexMesh";
 /**
  * AO质量
  */
-export enum AOQUALITY{
+export enum AOQUALITY {
     /**高 */
     High,
     /**中 */
@@ -83,9 +83,9 @@ export class ScalableAO extends PostProcessEffect {
 
         ScalableAO.AOParams = Shader3D.propertyNameToID('u_AOParams');
         ScalableAO.SourceTex = Shader3D.propertyNameToID('u_SourceTex');
-        ScalableAO.SHADERDEFINE_AOHigh =Shader3D.getDefineByName("AO_High");
-        ScalableAO.SHADERDEFINE_AOMEDIUM =Shader3D.getDefineByName("AO_MEDIUM");
-        ScalableAO.SHADERDEFINE_LOWEST =Shader3D.getDefineByName("AO_LOWEST");
+        ScalableAO.SHADERDEFINE_AOHigh = Shader3D.getDefineByName("AO_High");
+        ScalableAO.SHADERDEFINE_AOMEDIUM = Shader3D.getDefineByName("AO_MEDIUM");
+        ScalableAO.SHADERDEFINE_LOWEST = Shader3D.getDefineByName("AO_LOWEST");
         Shader3D.addInclude("AmbientOcclusion.glsl", AmbientOcclusion);
         //scalableAoShader
         let attributeMap: any = {
@@ -135,7 +135,7 @@ export class ScalableAO extends PostProcessEffect {
     /**@internal */
     private _aoParams: Vector3 = new Vector3();
 
-    private _aoQuality:AOQUALITY = AOQUALITY.MEDIUM;
+    private _aoQuality: AOQUALITY = AOQUALITY.MEDIUM;
 
     /**
      * 实例化一个AO效果类
@@ -192,13 +192,13 @@ export class ScalableAO extends PostProcessEffect {
     /**
      * ao质量
      */
-    get aoQuality(){
+    get aoQuality() {
         return this._aoQuality;
     }
 
-    set aoQuality(value:AOQUALITY){
+    set aoQuality(value: AOQUALITY) {
         this._aoQuality = value;
-        switch(value){
+        switch (value) {
             case AOQUALITY.High:
                 this._shaderData.addDefine(ScalableAO.SHADERDEFINE_AOHigh);
                 this._shaderData.removeDefine(ScalableAO.SHADERDEFINE_AOMEDIUM);
@@ -216,7 +216,7 @@ export class ScalableAO extends PostProcessEffect {
                 break;
         }
     }
-    
+
     /**
      * @override
      */
@@ -269,7 +269,7 @@ export class ScalableAO extends PostProcessEffect {
         cmd.blitScreenTriangle(blurTex, finalTex, null, this._aoBlurHorizontalShader, this._shaderData, 0);
         //blur Composition
         cmd.setShaderDataTexture(shaderData, ScalableAO.aoTexture, finalTex);
-        cmd.blitScreenTriangle(context.source, context.destination, null, this._aoComposition, this._shaderData, 0);
+        cmd.blitScreenTriangle(context.indirectTarget, context.destination, null, this._aoComposition, this._shaderData, 0);
         //context.source = blurTex;
         context.deferredReleaseTextures.push(finalTex);
         context.deferredReleaseTextures.push(blurTex);

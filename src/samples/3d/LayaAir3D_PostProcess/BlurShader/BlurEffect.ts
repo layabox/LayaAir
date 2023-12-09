@@ -199,7 +199,7 @@ export class BlurEffect extends PostProcessEffect {
             this._tempRenderTexture[i * 2 + 2] = blurTexture;
         }
         context.source = lastDownTexture;
-        cmd.blitScreenTriangle(context.source, context.destination);
+        cmd.blitScreenTriangle(context.indirectTarget, context.destination);
         var maxTexture = this._blurIterations * 2 + 1;
         //释放渲染纹理
         for (i = 0; i < maxTexture; i++) {
@@ -216,7 +216,7 @@ export class BlurMaterial extends Material {
     static SHADERVALUE_SOURCETEXTURE0: number;
     static ShADERVALUE_SOURCETEXTURE1: number;
 
-    static __init__(){
+    static __init__() {
         BlurMaterial.SHADERVALUE_MAINTEX = Shader3D.propertyNameToID("u_MainTex");
         BlurMaterial.SHADERVALUE_TEXELSIZE = Shader3D.propertyNameToID("u_MainTex_TexelSize");
         BlurMaterial.SHADERVALUE_DOWNSAMPLEVALUE = Shader3D.propertyNameToID("u_DownSampleValue");
