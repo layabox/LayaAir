@@ -28,7 +28,7 @@ export class BPStaticFun {
         return context.setVar(name, value);
     }
 
-    static async waitTime(second:number){
+    static waitTime(second:number):Promise<boolean>{
         return new Promise((resolve,rejects)=>{
             setTimeout(() => {
                 console.log(">>>>>>>>before");
