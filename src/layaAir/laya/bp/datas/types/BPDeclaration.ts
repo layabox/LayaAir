@@ -4,7 +4,7 @@ type TBPDeclaration = {
     /** 当前描述名 */
     name: string;
     /** 当前描述的具体类型 */
-    type: string;
+    type: string,
     /** 继承的类型数组，按次序从为父类的父类  */
     extends?: string[];
     /** 实现的接口名 */
@@ -13,13 +13,12 @@ type TBPDeclaration = {
     props?: TBPDeclarationProp[];
     /** 该描述的方法列表 */
     funcs?: TBPDeclarationFunction[];
-    optional?:boolean;
     /** 构造函数 */
-    constructor?: TBPDeclarationConstructor;
+    construct?: TBPDeclarationConstructor;
 }
 
 type TBPDeclarationConstructor = {
-    params?: TBPDeclaration[];
+    params?: TBPDeclarationParam[];
 }
 
 type TBPDeclarationProp = {
@@ -51,7 +50,7 @@ type TBPDeclarationFunction = {
     /** 方法的返回类型 */
     return: string;
     /** 方法的参数列表 */
-    params?: TBPDeclaration[];
+    params?: TBPDeclarationParam[];
     /** 是否是受保护的 */
     isProtected?: boolean;
     /** 是否是静态函数 */
@@ -71,4 +70,6 @@ type TBPDeclarationParam = {
     type: string;
     /** 是否为可选项 */
     optional?: boolean;
+    /** 是否为...方法 */
+    dotdotdot?:boolean;
 }
