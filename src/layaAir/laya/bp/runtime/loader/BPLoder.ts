@@ -27,10 +27,10 @@ export class BPLoaer implements IResourceLoader{
         let links = HierarchyParser.collectResourceLinks(data,basePath);
 
         return task.loader.load(links,null,task.progress.createCallback()).then((resArray:any[])=>{
-            return new BPImpl(BPParserAPI,data,version);
+            return new BPImpl(BPParserAPI,data ,version);
         });
     }
 }
 
 
-Loader.registerLoader([BPConst.EXT],BPLoaer,Loader.JSON); 
+Loader.registerLoader([BPConst.EXT],BPLoaer, BPConst.TYPE); 

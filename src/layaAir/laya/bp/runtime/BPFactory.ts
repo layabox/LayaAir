@@ -1,5 +1,5 @@
 //import { BPBaseTest } from "../../build/BPBaseTest";
-import { BPType, TBPCNode, TBPNode, TBPVarProperty } from "../datas/types/BlueprintTypes";
+import { BPType, TBPCNode, TBPNode, TBPStageData, TBPVarProperty } from "../datas/types/BlueprintTypes";
 
 import { TBPNodeData, TBPNodeDef } from "../core/type/TBluePrint";
 
@@ -78,7 +78,10 @@ export class BPFactory {
     }
 
 
-    static createClsNew<T>(name: string, cls: T, bpjson: TBPNode[],varMap:Record<string, TBPVarProperty>): T {
+    static createClsNew<T>(name: string, cls: T, data: TBPStageData ): T {
+        let bpjson: TBPNode[] = data.arr ;
+        let varMap:Record<string, TBPVarProperty> = data.varMap;
+
         function classFactory(className: string, SuperClass: any) {
             return {
                 [className]: class extends SuperClass {
