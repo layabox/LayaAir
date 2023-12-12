@@ -21,7 +21,6 @@ export enum ComponentType {
 
 export interface TBPStageData {
     //events: string[],
-    autoID: number,
     uiData?: {
         /**场景的x坐标位置 */
         x: number;
@@ -31,21 +30,29 @@ export interface TBPStageData {
         scale: number;
     },
     arr: Array<TBPNode>;
+    /**保存的时候不会有这个值，这是build的时候传值用的 */
+    varMap?: Record<string, TBPVarProperty>;
 }
 export interface TBPVarProperty {
     name: string,
     aliasName?: string,
     value?: any,
-    type: string,
+    type: TypeParameter,
     desc?: string,
+}
+export interface TBPProperty {
+    title?: string,
+    type: string,
+    data: any,
 }
 /**
  * 蓝图数据最终的保存结构
  */
 export interface TBPSaveData {
-    extends: string,
+    autoID: number,
+    _$type: string,
     blueprintMap: Record<string, TBPStageData>,
-    variable: Record<string, TBPVarProperty>,
+    variable: TBPVarProperty[],
 }
 export interface TBPCOutput {
     /** 插槽名称 */
@@ -112,9 +119,9 @@ export interface TBPNode {
     id: number;
     ver?: number;
     /** constData的id号 */
+    cid: string;
     /**如果是var类型定义，则会有这个值 */
     varName?: string;
-    cid: string;
     /**所有UI所用到的数据 */
     uiData?: {
         /**数据的x坐标位置 */
@@ -132,10 +139,11 @@ export interface TBPNode {
     output?: Record<string, TBPOutput>;
 }
 
-export type TypeParameter = string | [TypeParameter] | ["Record", TypeParameter];
+export type TypeParameter = string | [TypeParameter] | ["Record", TypeParameter] | ["Map", TypeParameter];
 
 export type TypeExtendsData = Record<string, Record<string,
     {
+        extends?: string,
         return?: TypeParameter,
         parameter?: { name: string, type: TypeParameter }[],
-    }>>;
+    } | string>>;
