@@ -98,6 +98,30 @@ export class HierarchyParser {
                         node = res.create({ inPrefab: true, prefabNodeDict: prefabNodeDict, overrideData: overrideData2 }, errors);
                     }
                 }
+                else if (nodeData._$blueprint){
+                    let uuid = nodeData._$blueprint._$uuid;
+                    let res = Loader.getRes(URL.getResURLByUUID(uuid));
+                    if (res) {
+                        let overrideData2: Array<any> = [];
+                        let testId = nodeData._$id;
+                        if (overrideData) {
+                            for (let i = 0, n = overrideData.length; i < n; i++) {
+                                let arr = overrideData[i];
+                                if (arr && arr.length > 0) {
+                                    overrideData2[i] = arr.filter(d => {
+                                        let od = d._$override || d._$parent;
+                                        return Array.isArray(od) && od.length > n - i && od[n - i - 1] == testId;
+                                    });
+                                }
+                                else
+                                    overrideData2[i] = arr;
+                            }
+                        }
+
+                        overrideData2.push(nodeData._$child);
+                        node = res.create( { prefabNodeDict: prefabNodeDict, overrideData: overrideData2 } , errors);
+                    }
+                }
                 else if (pstr = nodeData._$type) {
                     let cls: any = runtime ?? ClassUtils.getClass(pstr);
                     if (cls) {

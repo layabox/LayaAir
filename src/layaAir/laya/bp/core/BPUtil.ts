@@ -1,6 +1,8 @@
+import { Browser } from "../../utils/Browser";
 import { BlueprintDataList } from "../datas/BlueprintDataInit";
 import { extendsData } from "../datas/BlueprintExtends";
 import { BPType, TBPCNode, TBPNode } from "../datas/types/BlueprintTypes";
+import { BPFactory } from "../runtime/BPFactory";
 export class BPUtil {
     private static _constNode: Record<string, TBPCNode>;
     private static _constExtNode: Record<string, Record<string, TBPCNode>> = {};
@@ -118,6 +120,13 @@ export class BPUtil {
                 let funcs = o.funcs;
                 for (let i = funcs.length - 1; i >= 0; i--) {
                     let fun = funcs[i];
+                    let funName = fun.name;
+                    let cls = Browser.window.Laya[ext];
+                    let func = fun.isStatic ? cls[funName]: cls.prototype[funName];
+                    if (!func) {
+                        debugger
+                    }
+                    BPFactory.regFunction(funName,func,!fun.isStatic);
                     if (fun.isPublic || fun.isProtected) {
                         let cdata: TBPCNode = {
                             name: fun.name,

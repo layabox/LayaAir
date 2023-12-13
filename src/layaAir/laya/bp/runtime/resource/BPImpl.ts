@@ -1,10 +1,11 @@
 
+import { LayaEnv } from "../../../../LayaEnv";
 import { HierarchyLoader } from "../../../loaders/HierarchyLoader";
 import { HierarchyParser } from "../../../loaders/HierarchyParser";
 import { IHierarchyParserAPI } from "../../../resource/PrefabImpl";
 import { Resource } from "../../../resource/Resource";
 import { ClassUtils } from "../../../utils/ClassUtils";
-import { TBPNode } from "../../datas/types/BlueprintTypes";
+import { TBPNode, TBPVarProperty } from "../../datas/types/BlueprintTypes";
 import { BPFactory } from "../BPFactory";
 
 export class BPImpl extends Resource{
@@ -44,7 +45,16 @@ export class BPImpl extends Resource{
             if (lhData._$ver != null)
                 api = HierarchyParser;
 
-            result  = api.parse(lhData , options, errors); 
+            result = api.parse(lhData , options, errors); 
+            if (Array.isArray(result)) {
+                if (result.length == 1) {
+                    result[0].url = this.url;
+                }
+                result = result[0];
+            }
+            else {
+                result.url = this.url;
+            }
         }
         
         return result;
@@ -58,20 +68,30 @@ export class BPImpl extends Resource{
             return ;
         }
 
-        let map = this.data.blueprintMap;
-        let arr:TBPNode[] = [];
-
-        for (const key in map) {
-           let item = map[key];
-           arr.push.apply(arr,item.arr);
+        if (!LayaEnv.isPlaying) {
+            ClassUtils.regClass(this.uuid , runtime);
+        }else{
+            BPFactory.__init__();
+            let map = this.data.blueprintMap;
+            let arr:TBPNode[] = [];
+    
+            for (const key in map) {
+               let item = map[key];
+               arr.push.apply(arr,item.arr);
+            }
+            let varMap:Record<string,TBPVarProperty> = {}
+            this.data.variable.forEach((ele:any) => {
+                varMap[ele.name] = ele;
+            });
+            
+            let cls = BPFactory.createClsNew(this.uuid,runtime,{
+                varMap,
+                arr
+            });
+            this.data.lhData._$type = this.uuid;
+            ClassUtils.regClass(this.uuid,cls);
         }
 
-        let cls = BPFactory.createClsNew(this.uuid,runtime,{
-            varMap:this.data.variable,
-            arr
-        });
-
-        ClassUtils.regClass(this.uuid,cls);
     }
 
     protected _disposeResource(): void {
