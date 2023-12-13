@@ -27,7 +27,7 @@ export class BPLoaer implements IResourceLoader{
         let links = HierarchyParser.collectResourceLinks(data,basePath);
 
         return task.loader.load(links,null,task.progress.createCallback()).then((resArray:any[])=>{
-            return new BPImpl(BPParserAPI,data ,version);
+            return new BPImpl(data ,version);
         });
     }
 }

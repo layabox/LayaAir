@@ -1,8 +1,11 @@
 
+import { HierarchyLoader } from "../../../loaders/HierarchyLoader";
+import { HierarchyParser } from "../../../loaders/HierarchyParser";
+import { IHierarchyParserAPI } from "../../../resource/PrefabImpl";
 import { Resource } from "../../../resource/Resource";
 import { ClassUtils } from "../../../utils/ClassUtils";
+import { TBPNode } from "../../datas/types/BlueprintTypes";
 import { BPFactory } from "../BPFactory";
-import { IBPParserAPI } from "./BPParserAPI";
 
 export class BPImpl extends Resource{
     public readonly version:number;
@@ -10,14 +13,11 @@ export class BPImpl extends Resource{
     /** @private */
     public data:any;
 
-    public api:IBPParserAPI;
-
     public state:-1|0|1 = 0;
 
-    constructor(api:IBPParserAPI , data:any, version?:number){
+    constructor( data:any, version?:number){
         super();
 
-        this.api = api;
         this.data = data;
         this.version = version
     }
@@ -37,7 +37,16 @@ export class BPImpl extends Resource{
             return null;
         }
 
-        let result = this.api.parse(this.data,options,errors);
+        let result;
+        if (this.data.lhData) {
+            let api:IHierarchyParserAPI;
+            let lhData = this.data.lhData;
+            if (lhData._$ver != null)
+                api = HierarchyParser;
+
+            result  = api.parse(lhData , options, errors); 
+        }
+        
         return result;
     }
 
@@ -48,6 +57,25 @@ export class BPImpl extends Resource{
             this.state = -1;
             return ;
         }
-        BPFactory.createClsNew(this.uuid,runtime,this.data)
+
+        let map = this.data.blueprintMap;
+        let arr:TBPNode[] = [];
+
+        for (const key in map) {
+           let item = map[key];
+           arr.push.apply(arr,item.arr);
+        }
+
+        let cls = BPFactory.createClsNew(this.uuid,runtime,{
+            varMap:this.data.variable,
+            arr
+        });
+
+        ClassUtils.regClass(this.uuid,cls);
+    }
+
+    protected _disposeResource(): void {
+        super._disposeResource();
+        delete ClassUtils._classMap[this.uuid];
     }
 }

@@ -12,7 +12,7 @@ export const BlueprintDataList: TBPCNode[] = [
         ],
     },
     {
-        name: "getValue",
+        name: "get",
         menuPath: "none",
         type: BPType.GetValue,
         output: [
@@ -22,11 +22,26 @@ export const BlueprintDataList: TBPCNode[] = [
         ],
     },
     {
-        name: "setValue",
+        name: "set",
         menuPath: "none",
         type: BPType.SetValue,
+        input: [
+            {
+                name: "execute",
+                type: "exec",
+            },
+            {
+                name: 'set',
+                type: "any",
+            },
+        ],
         output: [
             {
+                name: "then",
+                type: "exec"
+            },
+            {
+                name: "return",
                 type: "any",
             }
         ],
@@ -73,19 +88,9 @@ export const BlueprintDataList: TBPCNode[] = [
         ]
     },
     {
-        name: "Node_onAwake",
-        type: BPType.Event,
-        output: [
-            {
-                name: "then",
-                type: "exec"
-            }
-        ]
-    },
-    {
-        name:"sequnece",
-        type:BPType.Sequnece,
-        input:[
+        name: "sequnece",
+        type: BPType.Sequnece,
+        input: [
             {
                 name: "execute",
                 type: "exec",
@@ -103,8 +108,8 @@ export const BlueprintDataList: TBPCNode[] = [
         ]
     },
     {
-        name:"test",
-        type:BPType.Function,
+        name: "test",
+        type: BPType.Function,
         input: [
             {
                 name: "target",
