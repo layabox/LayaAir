@@ -7,7 +7,8 @@ export enum BPType {
     ///
     Pure,
     Branch,
-    Sequnece
+    Sequnece,
+    NewTarget
 }
 export enum ComponentType {
     boolean = "boolean",
@@ -21,6 +22,7 @@ export enum ComponentType {
 
 export interface TBPStageData {
     //events: string[],
+    name: string,
     uiData?: {
         /**场景的x坐标位置 */
         x: number;
@@ -39,6 +41,7 @@ export interface TBPVarProperty {
     value?: any,
     type: TypeParameter,
     desc?: string,
+    const?: boolean,
 }
 export interface TBPProperty {
     title?: string,
@@ -50,9 +53,12 @@ export interface TBPProperty {
  */
 export interface TBPSaveData {
     autoID: number,
-    _$type: string,
-    blueprintMap: Record<string, TBPStageData>,
+    extends:string,
+    //_$type: string,
+    //blueprintMap: Record<string, TBPStageData>,
+    blueprintArr: TBPStageData[],
     variable: TBPVarProperty[],
+    functions: TBPStageData[],
 }
 export interface TBPCOutput {
     /** 插槽名称 */
@@ -99,6 +105,8 @@ export interface TBPConnType {
 export interface TBPCNode {
     /**程序中用到的名字 */
     name: string,
+    /**来源的类 */
+    target?: string,
     /** 数据唯一的id号,可以不写，默认为name*/
     id?: string,
     /**该节点的类型 */

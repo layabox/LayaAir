@@ -1,12 +1,14 @@
 import { Browser } from "../../utils/Browser";
 import { BlueprintDataList } from "../datas/BlueprintDataInit";
 import { extendsData } from "../datas/BlueprintExtends";
-import { BPType, TBPCNode, TBPNode } from "../datas/types/BlueprintTypes";
+import { BPType, TBPCNode, TBPNode, TBPSaveData, TBPVarProperty } from "../datas/types/BlueprintTypes";
 import { BPFactory } from "../runtime/BPFactory";
 export class BPUtil {
     private static _constNode: Record<string, TBPCNode>;
     private static _constExtNode: Record<string, Record<string, TBPCNode>> = {};
+    private static _allConstNode: Record<string, TBPCNode> = {};
     static extendsNode: Record<string, TBPCNode[]> = {};
+    static constVars: Record<string, TBPVarProperty[]> = {};
 
     private static defFunOut = {
         name: "then",
@@ -18,15 +20,27 @@ export class BPUtil {
     };
     private static defEventOut = BPUtil.defFunOut;
 
-
+    static getDefaultConstNode() {
+        return this._constNode;
+    }
+    static getConstExtNode() {
+        return this._constExtNode;
+    }
+    static getAllConstNode() {
+        return this._allConstNode;
+    }
 
     static getConstNode(ext: string, node?: TBPNode) {
         BPUtil.initConstNode(ext);
         if (null == node) {
-            return this._constExtNode[ext];
+            let ret = this._constExtNode[ext];
+            if (null == ret) {
+                return this._constNode;
+            }
         }
         //TODO 以后会有对version的判断逻辑
-        return this.getConstNodeByID(ext, node.cid);
+        return this._allConstNode[node.cid];
+        //return this.getConstNodeByID(ext, node.cid);
     }
     static isEmptyObj(o: any) {
         for (let k in o) {
@@ -43,7 +57,15 @@ export class BPUtil {
 
 
     static getConstNodeByID(ext: string, cid: string, ver?: number) {
-        return this._constExtNode[ext][cid];
+        let cnode = this._constExtNode[ext];
+        if (null == cnode) {
+            cnode = this._constNode;
+        }
+        let ret = cnode[cid];
+        if (null == ret) {
+            ret = this._constNode[cid];
+        }
+        return ret;
     }
     static clone<T>(obj: T): T {
         if (null == obj) return obj;
@@ -102,71 +124,113 @@ export class BPUtil {
                     }
                 }
             }
+            this._allConstNode = { ...this._constNode };
         }
         if (null == this._constExtNode[ext]) {
-            let arr = this.getExtendsNode(ext);
-            this._constExtNode[ext] = { ...this._constNode };
-            let obj = this._constExtNode[ext];
-            for (let i = arr.length - 1; i >= 0; i--) {
-                obj[arr[i].id] = arr[i];
-            }
+            this.getExtendsNode(ext);
+            // this._constExtNode[ext] = { ...this._constNode };
+            // let obj = this._constExtNode[ext];
+            // for (let i = arr.length - 1; i >= 0; i--) {
+            //     obj[arr[i].id] = arr[i];
+            // }
         }
     }
-    private static getExtendsNode(ext: string) {
-        if (null == this.extendsNode[ext]) {
-            this.extendsNode[ext] = [];
-            let o = extendsData[ext];
-            if (o && o.funcs) {
-                let funcs = o.funcs;
-                for (let i = funcs.length - 1; i >= 0; i--) {
-                    let fun = funcs[i];
-                    let funName = fun.name;
-                    let cls = Browser.window.Laya[ext];
-                    let func = fun.isStatic ? cls[funName]: cls.prototype[funName];
-                    if (!func) {
-                        debugger
-                    }
-                    BPFactory.regFunction(funName,func,!fun.isStatic);
-                    if (fun.isPublic || fun.isProtected) {
-                        let cdata: TBPCNode = {
-                            name: fun.name,
-                            id: fun.name,
-                            type: BPType.Function,
-                            output: [
-                                BPUtil.defEventOut,
-                            ]
-                        }
 
-                        if (0 == fun.name.indexOf("on") && 'on' != fun.name) {
-                            //TODO 暂时以on开头的都是Event
-                            cdata.type = BPType.Event;
-                        }
+    static getVariable(data: TBPSaveData) {
+        let arr = [...data.variable];
+        let carr = BPUtil.constVars[data.extends];
+        if (null != carr) {
+            arr.push(...carr);
+        }
+        return arr;
+    }
 
-                        let params = fun.params;
-                        if (params && 0 < params.length) {
-                            cdata.input = [...params];
+    private static getExtendsNode(str: string) {
+        if (null == this._constExtNode[str]) {
+            for (let ext in extendsData) {
+                let cls = Browser.window.Laya[ext];
+
+                if (!cls) {
+                    continue;
+                }
+                this.extendsNode[ext] = [];
+                this._constExtNode[ext] = {};
+                let o = extendsData[ext];
+
+                if (o && o.props) {
+                    let arr = o.props;
+                    for (let i = arr.length - 1; i >= 0; i--) {
+                        let po = arr[i];
+                        if (po.isStatic) continue;
+                        if (null == this.constVars[ext]) {
+                            this.constVars[ext] = [];
                         }
-                        if (null == cdata.input) cdata.input = [];
-                        if (!fun.isStatic) {
-                            cdata.input.unshift({
-                                name: "target",
-                                type: ext,
-                            });
-                        }
-                        cdata.input.unshift(BPUtil.defFunIn);
-                        if ('void' != fun.return) {
-                            cdata.output.push({
-                                name: "return",
-                                type: fun.return,
-                            });
-                        }
-                        this.extendsNode[ext].push(cdata);
+                        let anyObj = po as any;
+                        anyObj.const = true;
+                        this.constVars[ext].push(anyObj);
                     }
                 }
-            } else {
-                console.warn("没有找到继承:", ext);
+
+                if (o && o.funcs) {
+                    let funcs = o.funcs;
+                    for (let i = funcs.length - 1; i >= 0; i--) {
+                        let fun = funcs[i];
+                        let funName = fun.name;
+                        let func = fun.isStatic ? cls[funName] : cls.prototype[funName];
+                        if (!func) {
+                            //debugger
+                        }
+                        let id=ext + "_" + fun.name;
+                        BPFactory.regFunction(id, func, !fun.isStatic);
+                        if (fun.isPublic || fun.isProtected) {
+                            let cdata: TBPCNode = {
+                                menuPath: ext,
+                                target: ext,
+                                name: fun.name,
+                                id: id,
+                                type: BPType.Function,
+                                output: [
+                                    BPUtil.defEventOut,
+                                ]
+                            }
+
+                            if (0 == fun.name.indexOf("on") && 'on' != fun.name) {
+                                //TODO 暂时以on开头的都是Event
+                                cdata.type = BPType.Event;
+                            }
+
+                            let params = fun.params;
+                            if (params && 0 < params.length) {
+                                cdata.input = [...params];
+                            }
+
+                            if (cdata.type == BPType.Function) {
+                                if (null == cdata.input) cdata.input = [];
+                                if (!fun.isStatic) {
+                                    cdata.input.unshift({
+                                        name: "target",
+                                        type: ext,
+                                    });
+                                }
+                                cdata.input.unshift(BPUtil.defFunIn);
+                                if ('void' != fun.return) {
+                                    cdata.output.push({
+                                        name: "return",
+                                        type: fun.return,
+                                    });
+                                }
+                            }
+                            this.extendsNode[ext].push(cdata);
+                            this._constExtNode[ext][cdata.id] = cdata;
+                        }
+                    }
+                } else {
+                    console.warn("没有找到继承:", ext);
+                }
+
+                this._allConstNode = { ...this._allConstNode, ...this._constExtNode[ext] };
             }
         }
-        return this.extendsNode[ext];
+        //return this.extendsNode[ret];
     }
 }

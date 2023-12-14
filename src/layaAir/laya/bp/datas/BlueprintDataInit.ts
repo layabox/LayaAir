@@ -127,4 +127,29 @@ export const BlueprintDataList: TBPCNode[] = [
             }
         ],
     },
+    {
+        name:"makeVector3",
+        type:BPType.NewTarget,
+        target:"Vector3",
+        input: [
+            {
+                name: "x",
+                type: "number",
+            },
+            {
+                name: "y",
+                type: "number",
+            },
+            {
+                name: "z",
+                type: "number",
+            }
+        ],
+        output: [
+            {
+                name: "return",
+                type: "Vector3"
+            }
+        ]
+    }
 ]

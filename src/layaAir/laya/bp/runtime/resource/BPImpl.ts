@@ -72,7 +72,7 @@ export class BPImpl extends Resource{
             ClassUtils.regClass(this.uuid , runtime);
         }else{
             BPFactory.__init__();
-            let map = this.data.blueprintMap;
+            let map = this.data.blueprintArr;
             let arr:TBPNode[] = [];
     
             for (const key in map) {
@@ -85,6 +85,7 @@ export class BPImpl extends Resource{
             });
             
             let cls = BPFactory.createClsNew(this.uuid,runtime,{
+                name:"",
                 varMap,
                 arr
             });

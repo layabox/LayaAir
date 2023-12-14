@@ -64,7 +64,7 @@ export abstract class BPNode<T extends BPPin>{
         }
 
         this.setType(type);
-        let arr=BPFactory.getFunction(def.name);
+        let arr=BPFactory.getFunction(def.id||def.name);
         this.setFunction(arr?arr[0]:null,arr?arr[1]:false);
         if (def.input) {
             this.addInput(def.input as any);

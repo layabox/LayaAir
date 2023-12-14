@@ -15,6 +15,7 @@ import { BPRuntimeBaseNode } from "./node/BPRuntimeBaseNode";
 import { BPSequenceNode } from "./node/BPSequenceNode";
 import { BPSetVarNode } from "./node/BPSetVarNode";
 import { BPUtil } from "../core/BPUtil";
+import { BPNewTargetNode } from "./node/BPNewTargetNode";
 
 export class BPFactory {
     private static _funMap: Map<string, [Function,boolean]>;
@@ -59,6 +60,7 @@ export class BPFactory {
             this.regBPClassNew(BPType.SetValue, BPSetVarNode);
             this.regBPClassNew(BPType.Branch, BPComplexNode);
             this.regBPClassNew(BPType.Sequnece, BPSequenceNode);
+            this.regBPClassNew(BPType.NewTarget ,BPNewTargetNode);
 
             this.regFunction("printString", BPStaticFun.print);
             this.regFunction("branch", BPStaticFun.branch);
