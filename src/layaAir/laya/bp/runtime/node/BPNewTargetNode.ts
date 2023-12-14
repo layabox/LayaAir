@@ -8,31 +8,31 @@ import { IRunAble } from "../interface/IRunAble";
 import { BPRuntimeBaseNode } from "./BPRuntimeBaseNode";
 
 export class BPNewTargetNode extends BPRuntimeBaseNode {
-    cls:ClassDecorator;
+    cls: ClassDecorator;
 
-    parseNew(def: TBPCNode){
+    parseNew(def: TBPCNode) {
         super.parseNew(def);
-        let arr= def.target.split(".");
-        if(arr.length==0){
-           this.cls= ClassUtils.getClass(arr[0]);
+        let arr = def.target.split(".");
+        if (arr.length == 1) {
+            this.cls = ClassUtils.getClass(arr[0]);
         }
-        else{
-            let cls=Browser.window;
-            arr.forEach(value=>{
-                cls=cls[value];
+        else {
+            let cls = Browser.window;
+            arr.forEach(value => {
+                cls = cls[value];
             })
-            this.cls=cls;
+            this.cls = cls;
         }
-        if(!this.cls){
-            console.warn("regclass not find " +arr[0]);
+        if (!this.cls) {
+            console.warn("regclass not find " + arr[0]);
         }
     }
 
-    step(context: IRunAble, fromExcute: boolean,runner:IBPRutime,enableDebugPause:boolean): number {
-        if (fromExcute && context.beginExcute(this,runner,enableDebugPause)) {
+    step(context: IRunAble, fromExcute: boolean, runner: IBPRutime, enableDebugPause: boolean): number {
+        if (fromExcute && context.beginExcute(this, runner, enableDebugPause)) {
             return BPConst.MAX_CODELINE;
         }
-        let _parmsArray:any[] = [];
+        let _parmsArray: any[] = [];
 
         const inputPins = this.inPutParmPins;
         for (let i = 0, n = inputPins.length; i < n; i++) {
@@ -49,13 +49,13 @@ export class BPNewTargetNode extends BPRuntimeBaseNode {
         context.parmFromOutPut(this.outPutParmPins, _parmsArray);
 
 
-        let result= Reflect.construct(this.cls,_parmsArray);
+        let result = Reflect.construct(this.cls, _parmsArray);
 
         this.outPutParmPins[0].setValue(result);
 
         if (fromExcute) {
             context.endExcute(this);
         }
-        return this.next(context, _parmsArray,runner);
+        return this.next(context, _parmsArray, runner);
     }
 }
