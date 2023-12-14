@@ -41,7 +41,7 @@ type TBPDeclarationProp = {
     /** 是否为只读参数 */
     isReadonly?: boolean;
     /** 是否来自父类 */
-    fromParent?: boolean;
+    fromParent?: string;
 }
 
 type TBPDeclarationFunction = {
@@ -60,7 +60,7 @@ type TBPDeclarationFunction = {
     /** 是否是公共函数 ，没有该字段 */
     isPublic?: boolean;
     /** 是否来自父类 */
-    fromParent?: boolean;
+    fromParent?: string;
 }
 
 type TBPDeclarationParam = {
