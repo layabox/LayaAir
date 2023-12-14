@@ -170,29 +170,63 @@ export class BPUtil {
                         this.constVars[ext].push(anyObj);
                     }
                 }
+                if (o && o.construct) {
+                    let cdata: TBPCNode = {
+                        menuPath: "CreateNew",
+                        name: ext,
+                        target: ext,
+                        id: ext,
+                        type: BPType.NewTarget,
+                        output: [
+                            {
+                                name: "return",
+                                type: ext,
+                            }
+                        ]
+                    }
+                    let params = o.construct.params;
+                    if (params) {
+                        cdata.input = []
+                        for (let i = 0, len = params.length; i < len; i++) {
+                            cdata.input.push(
+                                {
+                                    name: params[i].name,
+                                    type: params[i].type,
+                                }
+                            );
+                        }
+                    }
+
+                    this.extendsNode[ext].push(cdata);
+                    this._constExtNode[ext][cdata.id] = cdata;
+                    this._allConstNode[cdata.id] = cdata;
+                }
 
                 if (o && o.funcs) {
                     let funcs = o.funcs;
                     for (let i = funcs.length - 1; i >= 0; i--) {
                         let fun = funcs[i];
-                        let funName = fun.name;
-                        let func = fun.isStatic ? cls[funName] : cls.prototype[funName];
-                        if (!func) {
-                            //debugger
-                        }
-                        let id=ext + "_" + fun.name;
-                        BPFactory.regFunction(id, func, !fun.isStatic);
                         if (fun.isPublic || fun.isProtected) {
                             let cdata: TBPCNode = {
                                 menuPath: ext,
                                 target: ext,
                                 name: fun.name,
-                                id: id,
+                                id: ext + "_" + fun.name,
                                 type: BPType.Function,
                                 output: [
                                     BPUtil.defEventOut,
                                 ]
                             }
+                            if (fun.isStatic) {
+                                cdata.id += "_static";
+                                cdata.aliasName = fun.name + " (Static)";
+                            }
+                            let funName = fun.name;
+                            let func = fun.isStatic ? cls[funName] : cls.prototype[funName];
+                            if (!func) {
+                                //debugger
+                            }
+                            BPFactory.regFunction(cdata.id, func, !fun.isStatic);
 
                             if (0 == fun.name.indexOf("on") && 'on' != fun.name) {
                                 //TODO 暂时以on开头的都是Event
@@ -221,6 +255,22 @@ export class BPUtil {
                                 }
                             }
                             this.extendsNode[ext].push(cdata);
+
+                            if (null != this._constExtNode[ext][cdata.id]) {
+                                let index = 1;
+                                let newID = cdata.id + "(" + index + ")";
+                                while (true) {
+                                    if (null == this._constExtNode[ext][newID]) break;
+                                    index += 1;
+                                    newID = cdata.id + "(" + index + ")";
+                                }
+                                cdata.id = newID;
+                                let aliasName = cdata.name;
+                                if (null != cdata.aliasName) {
+                                    aliasName = cdata.aliasName;
+                                }
+                                cdata.aliasName = aliasName + " " + index;
+                            }
                             this._constExtNode[ext][cdata.id] = cdata;
                         }
                     }

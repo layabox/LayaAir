@@ -8,7 +8,7 @@ export enum BPType {
     Pure,
     Branch,
     Sequnece,
-    NewTarget
+    NewTarget,
 }
 export enum ComponentType {
     boolean = "boolean",
