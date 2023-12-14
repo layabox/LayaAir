@@ -160,7 +160,7 @@ export class Stat {
     public static textureMemory: number = 0;
     /**@internal */
     public static renderTextureMemory: number = 0;
-    /**@interanl */
+    /**@internal */
     public static bufferMemory: number = 0;
     /**@internal */
     public static uploadUniform: number = 0;
