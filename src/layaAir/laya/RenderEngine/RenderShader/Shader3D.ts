@@ -261,6 +261,8 @@ export class Shader3D {
     /**@internal */
     _supportReflectionProbe: boolean = false;
     /**@internal */
+    _surportVolumetricGI:boolean = false;
+    /**@internal */
     _subShaders: SubShader[] = [];
 
     /**
