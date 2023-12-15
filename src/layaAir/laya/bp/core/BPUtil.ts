@@ -1,4 +1,5 @@
 import { Browser } from "../../utils/Browser";
+import { ClassUtils } from "../../utils/ClassUtils";
 import { BlueprintDataList } from "../datas/BlueprintDataInit";
 import { extendsData } from "../datas/BlueprintExtends";
 import { BPType, TBPCNode, TBPNode, TBPSaveData, TBPVarProperty } from "../datas/types/BlueprintTypes";
@@ -148,7 +149,7 @@ export class BPUtil {
     private static getExtendsNode(str: string) {
         if (null == this._constExtNode[str]) {
             for (let ext in extendsData) {
-                let cls = Browser.window.Laya[ext];
+                let cls =  ClassUtils.getClass(ext) || Browser.window.Laya[ext];
 
                 if (!cls) {
                     continue;
