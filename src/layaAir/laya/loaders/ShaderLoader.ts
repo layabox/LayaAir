@@ -39,9 +39,7 @@ class ShaderLoader implements IResourceLoader {
                 for (let i in passArray) {
                     let pass = subshader._addShaderPass(compiledObjs[i], passArray[i].pipeline);
                     pass.statefirst = passArray[i].statefirst ?? false;
-                    if (pass.statefirst) {
-                        ShaderParser.getRenderState(passArray[i].renderState, pass.renderState);
-                    }
+                    ShaderCompile.getRenderState(passArray[i].renderState, pass.renderState);
                 }
                 return shader;
             });

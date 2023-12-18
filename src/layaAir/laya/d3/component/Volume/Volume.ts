@@ -146,6 +146,10 @@ export class Volume extends Component {
      */
     _VolumeChange() {
         this._volumeManager._needUpdateAllRender = true;
+        let reManager = this._volumeManager._regVolumeManager[this.type];
+        if (reManager) {
+            reManager._needUpdateAllRender = true;
+        }
         this._reCaculateBoundBox();
     }
 
