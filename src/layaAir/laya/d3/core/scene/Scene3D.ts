@@ -394,6 +394,8 @@ export class Scene3D extends Sprite implements ISubmit {
     /**@internal */
     private _physicsStepTime: number = 0;
     /**@internal */
+    _lightmapDirtyFlag:number = -1
+    /**@internal */
     _sunColor: Color = new Color(1.0, 1.0, 1.0);
     /**@interanl */
     _sundir: Vector3 = new Vector3();
@@ -726,7 +728,7 @@ export class Scene3D extends Sprite implements ISubmit {
         } else {
             maps.length = 0;
         }
-        this.event(Lightmap.ApplyLightmapEvent);
+        this._lightmapDirtyFlag = Scene3D._updateMark;
 
     }
 

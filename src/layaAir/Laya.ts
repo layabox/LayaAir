@@ -68,6 +68,17 @@ export class Laya {
     /**@internal */
     static WasmModules: { [key: string]: { exports: WebAssembly.Exports, memory: WebAssembly.Memory } } = {};
 
+    /**@internal */
+    static libPromiseArray: Promise<any>[] = [];
+
+    /**
+     * 注册初始化Laya3D的Promise函数
+     * @param fun 
+     */
+    static regLibPromiseArray(fun: Promise<any>) {
+        this.libPromiseArray.push(fun);
+    }
+
     /**
      * 初始化引擎。使用引擎需要先初始化引擎，否则可能会报错。
      */
@@ -241,8 +252,11 @@ export class Laya {
 
             return Promise.resolve();
         };
-
-        return initPhysics2D();
+        //load promise lib
+        const promiseQueue = Promise.all(Laya.libPromiseArray);
+        return promiseQueue.then(() => {
+            initPhysics2D();
+        });
     }
 
     static createRender(): Render {

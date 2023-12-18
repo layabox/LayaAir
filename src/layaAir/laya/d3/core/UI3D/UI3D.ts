@@ -332,7 +332,7 @@ export class UI3D extends BaseRender {
      * @internal
      */
     _renderUpdate(context: RenderContext3D, transform: Transform3D): void {
-        this._applyLightMapParams();
+        (this._lightmapDirtyFlag == this.owner.scene._lightmapDirtyFlag) && this._applyLightMapParams();
         this._applyReflection();
         this._setShaderValue(Sprite3D.WORLDMATRIX, ShaderDataType.Matrix4x4, this._matrix);
         this._worldParams.x = transform.getFrontFaceValue();

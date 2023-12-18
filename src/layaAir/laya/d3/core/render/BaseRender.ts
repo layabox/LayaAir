@@ -170,6 +170,9 @@ export class BaseRender extends Component implements IBoundsCell {
     _LOD: number = -1;
     /**@internal TODO*/
     _batchRender: BatchRender;
+
+    /**@internal */
+    protected _lightmapDirtyFlag: number = -1;
     /**@internal 如果这个值不是0,说明有一些条件使他不能加入渲染队列，例如如果是1，证明此节点被lod淘汰*/
     private _volume: Volume;
     /**@internal */
@@ -263,13 +266,14 @@ export class BaseRender extends Component implements IBoundsCell {
     }
 
     set lightmapIndex(value: number) {
-        if (value != -1) {
-            this._scene && this._scene.on(Lightmap.ApplyLightmapEvent, this, this._applyLightMapParams);
-        } else {
-            this._scene && this._scene.off(Lightmap.ApplyLightmapEvent, this, this._applyLightMapParams);
-        }
+        // if (value != -1) {
+        //     this._scene && this._scene.on(Lightmap.ApplyLightmapEvent, this, this._applyLightMapParams);
+        // } else {
+        //     this._scene && this._scene.off(Lightmap.ApplyLightmapEvent, this, this._applyLightMapParams);
+        // }
         this._lightmapIndex = value;
         this._scene && this._applyLightMapParams();
+      
     }
 
     /**
