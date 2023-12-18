@@ -437,6 +437,8 @@ export class btPhysicsManager implements IPhysicsManager {
                 contactPoint._colliderB = compb;
                 contactPoint.distance = 0;
                 contacts[0] = contactPoint;
+                let isTrigger = compa._isTrigger || compb._isTrigger;
+                collision._isTrigger = isTrigger;
                 this._currentFrameCollisions.push(collision);
             });
         }

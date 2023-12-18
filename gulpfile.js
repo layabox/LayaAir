@@ -17,8 +17,7 @@ const tscOutPath = "./bin/tsc/";
 const sourcemap = true;
 
 //编译新的库文件只需要在packsDef中配置一下新的库就可以了
-const packsDef = [
-    {
+const packsDef = [{
         'libName': "core",
         'input': [
             './layaAir/Decorators.ts',
@@ -238,8 +237,7 @@ const onwarn = warning => {
         msg = arr.join(" -> ");
         msg = "(C_D) " + msg;
         console.warn(msg);
-    }
-    else
+    } else
         console.warn(warning);
 }
 
@@ -252,17 +250,23 @@ gulp.task('compileLayaAir', () => {
 
     return merge(
         proj.src()
-            .pipe(sourcemaps.init())
-            .pipe(proj())
-            .pipe(sourcemaps.write('.', { sourceRoot: './', includeContent: false }))
-            .pipe(gulp.dest(tscOutPath + 'layaAir')),
+        .pipe(sourcemaps.init())
+        .pipe(proj())
+        .pipe(sourcemaps.write('.', {
+            sourceRoot: './',
+            includeContent: false
+        }))
+        .pipe(gulp.dest(tscOutPath + 'layaAir')),
 
         gulp.src([
             './src/layaAir/**/*.vs',
             './src/layaAir/**/*.fs',
             './src/layaAir/**/*.glsl',
-            './src/layaAir/**/*.wgsl'], { base: "src" })
-            .pipe(gulp.dest(tscOutPath))
+            './src/layaAir/**/*.wgsl'
+        ], {
+            base: "src"
+        })
+        .pipe(gulp.dest(tscOutPath))
     );
 });
 
@@ -301,7 +305,10 @@ gulp.task("buildJs", async () => {
                     if (!fileSet.has(importfile)) {
                         if (pkgDef.libName == "core")
                             console.warn(`external: ${path.relative(outPath, importer)} ==> ${path.relative(outPath, importfile)}`);
-                        return { id: 'Laya', external: true };
+                        return {
+                            id: 'Laya',
+                            external: true
+                        };
                     }
                 }
             },
@@ -330,7 +337,10 @@ gulp.task("buildJs", async () => {
             return '!' + pattern;
         }));
 
-        return matched.promise(patterns, { cwd: path.join(process.cwd(), "./src"), realpath: false });
+        return matched.promise(patterns, {
+            cwd: path.join(process.cwd(), "./src"),
+            realpath: false
+        });
     }
 
     for (let i = 0; i < packsDef.length; ++i) {
@@ -343,7 +353,9 @@ gulp.task("buildJs", async () => {
             input: mentry,
             output: {
                 extend: true,
-                globals: { 'Laya': 'Laya' }
+                globals: {
+                    'Laya': 'Laya'
+                }
             },
             external: ['Laya'],
             onwarn: onwarn,
@@ -363,7 +375,9 @@ gulp.task("buildJs", async () => {
             format: 'iife',
             esModule: false,
             name: 'Laya',
-            globals: { 'Laya': 'Laya' },
+            globals: {
+                'Laya': 'Laya'
+            },
             sourcemap: sourcemap
         };
         if (packsDef[i].libName != "core")
@@ -388,28 +402,30 @@ gulp.task("buildJs", async () => {
 //拷贝引擎的第三方js库
 gulp.task("copyJsLibs", async () => {
     return gulp.src([
-        //'./src/layaAir/jsLibs/bullet.wasm', 
-        './src/layaAir/jsLibs/*.js',
-        './src/layaAir/jsLibs/physx.release.wasm',
-        './src/layaAir/jsLibs/Box2D.wasm',
-        '!./src/layaAir/jsLibs/{Box2D.js,cannon.js,bullet.js,physx.release.js,Box2D.wasm.js,bullet.wasm.js}'])
+            './src/layaAir/jsLibs/bullet.wasm',
+            './src/layaAir/jsLibs/*.js',
+            './src/layaAir/jsLibs/physx.release.wasm',
+            './src/layaAir/jsLibs/physx.release.js.mem',
+            './src/layaAir/jsLibs/Box2D.wasm',
+            '!./src/layaAir/jsLibs/{Box2D.js,cannon.js,bullet.js,physx.release.js,Box2D.wasm.js,bullet.wasm.js}'
+        ])
         .pipe(gulp.dest('./build/libs'));
 });
 
 //合并physics2D 和 box2d
 gulp.task('buildBox2dPhysics', () => {
     return gulp.src([
-        './build/libs/laya.box2D.js',
-        './src/layaAir/jsLibs/Box2D.js',
-    ]).pipe(concat('laya.box2D.js'))
+            './build/libs/laya.box2D.js',
+            './src/layaAir/jsLibs/Box2D.js',
+        ]).pipe(concat('laya.box2D.js'))
         .pipe(gulp.dest('./build/libs/'));
 });
 
 gulp.task('buildBox2dWasmPhysics', () => {
     return gulp.src([
-        './build/libs/laya.box2D.wasm.js',
-        './src/layaAir/jsLibs/Box2D.wasm.js',
-    ]).pipe(concat('laya.box2D.wasm.js'))
+            './build/libs/laya.box2D.wasm.js',
+            './src/layaAir/jsLibs/Box2D.wasm.js',
+        ]).pipe(concat('laya.box2D.wasm.js'))
         .pipe(gulp.dest('./build/libs/'));
 });
 
@@ -417,18 +433,37 @@ gulp.task('buildBox2dWasmPhysics', () => {
 //合并bullet物理引擎库 和 编译出来的physics.bullet.js
 gulp.task('buildBulletPhysics', () => {
     return gulp.src([
-        './build/libs/laya.bullet.js',
-        './src/layaAir/jsLibs/bullet.js',
-    ]).pipe(concat('laya.bullet.js'))
+            './build/libs/laya.bullet.js',
+            './src/layaAir/jsLibs/bullet.js',
+        ]).pipe(concat('laya.bullet.js'))
+        .pipe(gulp.dest('./build/libs/'));
+});
+
+//合并bullet的wasm物理库 和 编译出来的physics.bullet.js
+gulp.task('buildBulletWASMPhysics', () => {
+    return gulp.src([
+            './build/libs/laya.bullet.js',
+            './src/layaAir/jsLibs/bullet.wasm.js',
+        ]).pipe(concat('laya.bullet.wasm.js'))
+        .pipe(gulp.dest('./build/libs/'));
+});
+
+//合并physX的wasm物理引擎库 和 编译出来的physics.physX.js
+gulp.task('buildPhysXWASMPhysics', () => {
+    return gulp.src([
+            './build/libs/laya.physX.js',
+            './src/layaAir/jsLibs/physx.wasm.js',
+        ])
+        .pipe(concat('laya.physX.wasm.js'))
         .pipe(gulp.dest('./build/libs/'));
 });
 
 //合并physX物理引擎库 和 编译出来的physics.physX.js
 gulp.task('buildPhysXPhysics', () => {
     return gulp.src([
-        './build/libs/laya.physX.js',
-        './src/layaAir/jsLibs/physx.release.js',
-    ])
+            './build/libs/laya.physX.js',
+            './src/layaAir/jsLibs/physx.release.js',
+        ])
         .pipe(concat('laya.physX.js'))
         .pipe(gulp.dest('./build/libs/'));
 });
@@ -463,8 +498,7 @@ gulp.task('genDts', () => {
                 if (replacement != null) {
                     code += replacement;
                     skip(node);
-                }
-                else {
+                } else {
                     ts.forEachChild(node, visit);
                 }
             }
@@ -475,7 +509,10 @@ gulp.task('genDts', () => {
             return code;
         }
 
-        let files = await matched.promise("./build/temp/**/*.d.ts", { realpath: true, nosort: false });
+        let files = await matched.promise("./build/temp/**/*.d.ts", {
+            realpath: true,
+            nosort: false
+        });
         for (let file of files) {
             let inNamespace = !file.endsWith("Laya.d.ts") && !file.endsWith("Laya3D.d.ts");
             let code = fs.readFileSync(file, "utf-8");
@@ -484,18 +521,14 @@ gulp.task('genDts', () => {
             function visitNode(node) {
                 if (node.kind == SyntaxKind.ImportDeclaration || node.kind == SyntaxKind.ImportEqualsDeclaration) { //删除所有import语句
                     return '';
-                }
-                else if (node.kind == SyntaxKind.ExportDeclaration) { //something like "export xx;"
+                } else if (node.kind == SyntaxKind.ExportDeclaration) { //something like "export xx;"
                     return '';
-                }
-                else if (node.kind == SyntaxKind.ExportKeyword) { //删除所有export语句
+                } else if (node.kind == SyntaxKind.ExportKeyword) { //删除所有export语句
                     let code = declarationFile.text.slice(node.pos, node.end);
                     return code.substring(0, code.length - 6);
-                }
-                else if ((node.kind == SyntaxKind.DeclareKeyword || node.kind == SyntaxKind.ModuleDeclaration) && inNamespace) { //删除declare
+                } else if ((node.kind == SyntaxKind.DeclareKeyword || node.kind == SyntaxKind.ModuleDeclaration) && inNamespace) { //删除declare
                     return '';
-                }
-                else if (node.kind == SyntaxKind.TypeReference) {
+                } else if (node.kind == SyntaxKind.TypeReference) {
                     let code = declarationFile.text.slice(node.pos, node.end);
                     code = code.substring(1);
                     if (!inNamespace && code.indexOf(".") == -1 && !code.startsWith("Promise"))
@@ -513,8 +546,7 @@ gulp.task('genDts', () => {
             if (inNamespace) {
                 let lines = content.split("\n");
                 dtsContents.push(lines.map(l => "    " + l).join("\n"));
-            }
-            else
+            } else
                 dtsContentsTop.push(content);
         }
 
@@ -548,6 +580,8 @@ gulp.task('build',
     gulp.series('compile', 'buildJs', 'copyJsLibs',
         'buildBox2dPhysics',
         'buildBox2dWasmPhysics',
+        'buildBulletWASMPhysics',
         'buildBulletPhysics',
+        'buildPhysXWASMPhysics',
         'buildPhysXPhysics',
         'genDts'));
