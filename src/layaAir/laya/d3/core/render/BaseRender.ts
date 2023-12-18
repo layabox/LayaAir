@@ -281,7 +281,6 @@ export class BaseRender extends Component implements IBoundsCell {
     }
 
     set lightmapIndex(value: number) {
-        }
         this._lightmapIndex = value;
         this._scene && this._applyLightMapParams();
         this._getIrradientMode();
