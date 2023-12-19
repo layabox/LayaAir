@@ -4,7 +4,7 @@ import { RenderState } from "../../../RenderEngine/RenderShader/RenderState";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { ShaderDefine } from "../../../RenderEngine/RenderShader/ShaderDefine";
 import { BaseTexture } from "../../../resource/BaseTexture";
-import { Material } from "./Material";
+import { Material } from "../../../resource/Material";
 
 /**
  * <code>UnlitMaterial</code> 类用于实现不受光照影响的材质。

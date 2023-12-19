@@ -1,5 +1,5 @@
 import { Const } from "../../Const";
-import { Material } from "../../d3/core/material/Material";
+import { Material } from "../../resource/Material";
 import { LayaGL } from "../../layagl/LayaGL";
 import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
 import { MeshTopology } from "../../RenderEngine/RenderEnum/RenderPologyMode";

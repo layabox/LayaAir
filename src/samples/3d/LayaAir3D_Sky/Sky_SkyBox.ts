@@ -7,7 +7,7 @@ import { Stage } from "laya/display/Stage";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
-import { Material } from "laya/d3/core/material/Material";
+import { Material } from "laya/resource/Material";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { Event } from "laya/events/Event";
 import { SkyDome } from "laya/d3/resource/models/SkyDome";
@@ -15,13 +15,12 @@ import { Color } from "laya/maths/Color";
 import { Vector3 } from "laya/maths/Vector3";
 import { URL } from "laya/net/URL";
 export class Sky_SkyBox {
-	public camerad:Camera;
+	public camerad: Camera;
 	constructor() {
 		//初始化引擎
 		Laya.init(0, 0).then(() => {
 			Laya.stage.scaleMode = Stage.SCALE_FULL;
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
-			URL.basePath += "sample-resource/";
 			//显示性能面板
 			Stat.show();
 			//创建场景

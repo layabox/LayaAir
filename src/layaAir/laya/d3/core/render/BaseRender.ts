@@ -2,7 +2,7 @@ import { RenderElement } from "./RenderElement";
 import { RenderContext3D } from "./RenderContext3D";
 import { RenderableSprite3D } from "../RenderableSprite3D"
 import { Transform3D } from "../Transform3D"
-import { Material } from "../material/Material"
+import { Material } from "../../../resource/Material";
 import { BoundFrustum } from "../../math/BoundFrustum"
 import { Event } from "../../../events/Event"
 import { Lightmap } from "../scene/Lightmap";
@@ -31,6 +31,7 @@ import { Vector4 } from "../../../maths/Vector4";
 import { VertexMesh } from "../../../RenderEngine/RenderShader/VertexMesh";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
+import { VolumetricGI } from "../../component/Volume/VolumetricGI/VolumetricGI";
 
 export enum RenderBitFlag {
     RenderBitFlag_CullFlag = 0,
@@ -39,6 +40,12 @@ export enum RenderBitFlag {
     RenderBitFlag_InstanceBatch = 3,
     RenderBitFlag_VertexMergeBatch = 4,
 
+}
+
+export enum IrradianceMode {
+    LightMap,
+    VolumetricGI,
+    Common
 }
 /**
  * <code>Render</code> 类用于渲染器的父类，抽象类不允许实例。
@@ -146,10 +153,18 @@ export class BaseRender extends Component implements IBoundsCell {
     _probReflection: ReflectionProbe;
     /**@internal 属于更新反射探针的标志 */
     _probeReflectionUpdateMark: number = -1;
+    /**@internal 是否需要lightProbe*/
+    _lightProb: VolumetricGI;
+    /**@internal */
+    _lightProbUpdateMark: number = -1;
     /** @internal 材质是否支持反射探针*/
     _surportReflectionProbe: boolean = false;
+    /**@internal */
+    _surportVolumetricGI: boolean = false;
     /** @internal 设置是反射探针模式 off  simple */
     _reflectionMode: number = ReflectionProbeMode.simple;
+    /**@internal */
+    _irradientMode: IrradianceMode;
     /** @internal */
     _shaderValues: ShaderData;
     /**@internal */
@@ -170,6 +185,9 @@ export class BaseRender extends Component implements IBoundsCell {
     _LOD: number = -1;
     /**@internal TODO*/
     _batchRender: BatchRender;
+
+    /**@internal */
+    protected _lightmapDirtyFlag: number = -1;
     /**@internal 如果这个值不是0,说明有一些条件使他不能加入渲染队列，例如如果是1，证明此节点被lod淘汰*/
     private _volume: Volume;
     /**@internal */
@@ -263,13 +281,16 @@ export class BaseRender extends Component implements IBoundsCell {
     }
 
     set lightmapIndex(value: number) {
-        if (value != -1) {
-            this._scene && this._scene.on(Lightmap.ApplyLightmapEvent, this, this._applyLightMapParams);
-        } else {
-            this._scene && this._scene.off(Lightmap.ApplyLightmapEvent, this, this._applyLightMapParams);
-        }
         this._lightmapIndex = value;
         this._scene && this._applyLightMapParams();
+        this._getIrradientMode();
+    }
+
+    /**
+     * 光照功能查询
+     */
+    get irradientMode() {
+        return this._irradientMode;
     }
 
     /**
@@ -301,7 +322,7 @@ export class BaseRender extends Component implements IBoundsCell {
 
     set material(value: Material) {
         this.sharedMaterial = value;
-        this._isSupportReflection();
+        this._isSupportRenderFeature();
     }
 
     /**
@@ -320,7 +341,7 @@ export class BaseRender extends Component implements IBoundsCell {
 
     set materials(value: Material[]) {
         this.sharedMaterials = value;
-        this._isSupportReflection();
+        this._isSupportRenderFeature();
     }
 
     /**
@@ -339,7 +360,7 @@ export class BaseRender extends Component implements IBoundsCell {
             var renderElement: RenderElement = this._renderElements[0];
             (renderElement) && (renderElement.material = value);
         }
-        this._isSupportReflection();
+        this._isSupportRenderFeature();
     }
 
     /**
@@ -378,7 +399,7 @@ export class BaseRender extends Component implements IBoundsCell {
         } else {
             throw new Error("BaseRender: shadredMaterials value can't be null.");
         }
-        this._isSupportReflection();
+        this._isSupportRenderFeature();
     }
 
     /**
@@ -472,7 +493,22 @@ export class BaseRender extends Component implements IBoundsCell {
         } else {
             this._probReflection.applyReflectionShaderData(this._shaderValues);
         }
+        this._getIrradientMode();
     }
+
+    set lightProb(volumetricGI: VolumetricGI) {
+        if (this._lightProb == volumetricGI) {
+            return;
+        }
+        this._lightProbUpdateMark = -1;
+        this._lightProb = volumetricGI;
+        if (this.lightmapIndex < 0) {
+            this._lightProb && this._lightProb.applyVolumetricGI(this._shaderValues)
+        };
+        this._getIrradientMode();
+    }
+
+
 
     /**
      * 创建一个新的 <code>BaseRender</code> 实例。
@@ -497,6 +533,16 @@ export class BaseRender extends Component implements IBoundsCell {
         this._rendernode.renderbitFlag = 0;
         this._rendernode.staticMask = 1;
         this._worldParams = new Vector4(1.0, 0.0, 0.0, 0.0);
+    }
+
+    private _getIrradientMode() {
+        if (this.lightmapIndex >= 0) {
+            this._irradientMode = IrradianceMode.LightMap;
+        } else if (this.lightProb) {
+            this._irradientMode = IrradianceMode.VolumetricGI;
+        } else {
+
+        }
     }
 
     protected _getcommonUniformMap(): Array<string> {
@@ -571,15 +617,19 @@ export class BaseRender extends Component implements IBoundsCell {
     /**
      * @internal
      */
-    private _isSupportReflection() {
-        let pre = this._surportReflectionProbe;
+    private _isSupportRenderFeature() {
+        //surportReflectionProbe
+        let preReflection = this._surportReflectionProbe;
+        let prelightprob = this._surportVolumetricGI;
         this._surportReflectionProbe = false;
+        this._surportVolumetricGI = false;
         var sharedMats: Material[] = this._sharedMaterials;
         for (var i: number = 0, n: number = sharedMats.length; i < n; i++) {
             var mat: Material = sharedMats[i];
             this._surportReflectionProbe ||= (this._surportReflectionProbe || (mat && mat._shader._supportReflectionProbe));//TODO：最后一个判断是否合理
+            this._surportVolumetricGI ||= (this._surportVolumetricGI || (mat && mat._shader._surportVolumetricGI));
         }
-        if (!pre && this._surportReflectionProbe)//如果变成支持Reflection
+        if ((!preReflection && this._surportReflectionProbe) || (!prelightprob && this._surportVolumetricGI))//如果变成支持Reflection
             this._addReflectionProbeUpdate();
     }
 
@@ -654,6 +704,22 @@ export class BaseRender extends Component implements IBoundsCell {
         }
     }
 
+    /**
+     * apply lightProb
+     * @returns 
+     */
+    _applyLightProb() {
+        if (this.lightmapIndex >= 0 || !this._lightProb) return;
+        if (this._lightProb._updateMark != this._lightProbUpdateMark) {
+            this._lightProbUpdateMark = this._lightProb._updateMark;
+            this._lightProb.applyVolumetricGI(this._shaderValues);
+        }
+    }
+
+    /**
+     * apply reflection
+     * @returns 
+     */
     _applyReflection() {
         if (!this._probReflection) return;
         if (this._probReflection._updateMark != this._probeReflectionUpdateMark) {
@@ -668,7 +734,7 @@ export class BaseRender extends Component implements IBoundsCell {
     _setBelongScene(scene: any): void {
         this._scene = scene;
         this._onWorldMatNeedChange(1);
-        this._isSupportReflection();
+        this._isSupportRenderFeature();
         this._batchRender && this._batchRender._batchOneRender(this);
         this.lightmapIndex = this.lightmapIndex;
         Stat.renderNode++;

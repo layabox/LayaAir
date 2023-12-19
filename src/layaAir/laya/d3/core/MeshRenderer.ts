@@ -9,7 +9,7 @@ import { VertexMesh } from "../../RenderEngine/RenderShader/VertexMesh"
 import { Mesh } from "../resource/models/Mesh"
 import { MorphTargetChannel } from "../resource/models/MorphTarget"
 import { BlinnPhongMaterial } from "./material/BlinnPhongMaterial"
-import { Material } from "./material/Material"
+import { Material } from "../../resource/Material"
 import { MeshFilter } from "./MeshFilter"
 import { MeshSprite3DShaderDeclaration } from "./MeshSprite3DShaderDeclaration"
 import { BaseRender } from "./render/BaseRender"
@@ -418,7 +418,9 @@ export class MeshRenderer extends BaseRender {
      * @internal
      */
     _renderUpdate(context: RenderContext3D, transform: Transform3D): void {
+        (this._lightmapDirtyFlag == this.owner.scene._lightmapDirtyFlag) && this._applyLightMapParams();
         this._applyReflection();
+        this._applyLightProb();
         this._mesh.morphTargetData && this._applyMorphdata();
         var element: SubMeshRenderElement = <SubMeshRenderElement>context.renderElement;
         let trans = transform ? transform : this._transform;

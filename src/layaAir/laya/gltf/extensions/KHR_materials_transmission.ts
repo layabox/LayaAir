@@ -1,6 +1,6 @@
 import * as glTF from "../glTFInterface";
 
-import { Material, MaterialRenderMode } from "../../d3/core/material/Material";
+import { Material, MaterialRenderMode } from "../../resource/Material";
 import { IBatchProgress } from "../../net/BatchProgress";
 import { Texture2D } from "../../resource/Texture2D";
 import { glTFExtension } from "./glTFExtension";

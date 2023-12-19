@@ -2,7 +2,6 @@ import { Config3D } from "./Config3D";
 import { ILaya3D } from "./ILaya3D";
 import { PostProcess } from "./laya/d3/component/PostProcess";
 import { BlinnPhongMaterial } from "./laya/d3/core/material/BlinnPhongMaterial";
-import { Material } from "./laya/d3/core/material/Material";
 import { PBRMaterial } from "./laya/d3/core/material/PBRMaterial";
 import { PBRStandardMaterial } from "./laya/d3/core/material/PBRStandardMaterial";
 import { SkyBoxMaterial } from "./laya/d3/core/material/SkyBoxMaterial";
@@ -118,10 +117,6 @@ export class Laya3D {
                 });
             }
         }
-        // if (LayaEnv.isConch && !(window as any).conchConfig.conchWebGL) {
-        //     var skinnedMeshRender: any = SkinnedMeshRenderer;
-        //     skinnedMeshRender.prototype._computeSkinnedData = skinnedMeshRender.prototype._computeSkinnedDataForNative;
-        // }
         Config3D._multiLighting = Config3D.enableMultiLight && LayaGL.renderEngine.getCapable(RenderCapable.TextureFormat_R32G32B32A32);
         Config3D._uniformBlock = Config3D.enableUniformBufferObject && LayaGL.renderEngine.getCapable(RenderCapable.UnifromBufferObject);
 
@@ -185,7 +180,6 @@ export class Laya3D {
         ShadowUtils.init();
         RenderContext3D.__init__();
         RenderTexture.configRenderContextInstance(RenderContext3D._instance);
-        Material.__initDefine__();
         BlinnPhongMaterial.__initDefine__();
         SkyProceduralMaterial.__initDefine__();
         UnlitMaterial.__initDefine__();

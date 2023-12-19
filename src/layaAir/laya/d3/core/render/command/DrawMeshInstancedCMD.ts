@@ -2,7 +2,7 @@ import { BufferUsage } from "../../../../RenderEngine/RenderEnum/BufferTargetTyp
 import { VertexBuffer } from "../../../../RenderEngine/VertexBuffer";
 import { VertexBuffer3D } from "../../../graphics/VertexBuffer3D";
 import { Mesh } from "../../../resource/models/Mesh";
-import { Material } from "../../material/Material";
+import { Material } from "../../../../resource/Material";
 import { Transform3D } from "../../Transform3D";
 import { Command } from "./Command";
 import { CommandBuffer } from "./CommandBuffer";

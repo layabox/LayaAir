@@ -5,7 +5,7 @@ import { SetRenderTargetCMD } from "./SetRenderTargetCMD";
 import { Command } from "./Command";
 import { BaseTexture } from "../../../../resource/BaseTexture";
 import { Mesh } from "../../../resource/models/Mesh";
-import { Material } from "../../material/Material";
+import { Material } from "../../../../resource/Material";
 import { SetShaderDataCMD } from "./SetShaderDataCMD";
 import { DrawMeshCMD } from "./DrawMeshCMD";
 import { RenderContext3D } from "../RenderContext3D";
@@ -34,7 +34,7 @@ export class CommandBuffer {
 	/**@internal */
 	_name: string
 	/**@internal */
-	private _shadow:boolean = false;
+	private _shadow: boolean = false;
 	/**@internal */
 	_camera: Camera = null;
 	/**@internal */
@@ -46,7 +46,7 @@ export class CommandBuffer {
 	/**
 	 * 创建一个 <code>CommandBuffer</code> 实例。
 	 */
-	constructor(name: string = null,shadowCaster:boolean = false) {
+	constructor(name: string = null, shadowCaster: boolean = false) {
 		this._name = name;
 		this._shadow = shadowCaster;
 	}
@@ -55,15 +55,15 @@ export class CommandBuffer {
 		return this._name;
 	}
 
-	get casterShadow(){
+	get casterShadow() {
 		return this._shadow;
 	}
-	
-	set context(value:RenderContext3D){
+
+	set context(value: RenderContext3D) {
 		this._context = value;
 	}
 
-	get context(){
+	get context() {
 		return this._context;
 	}
 
@@ -73,7 +73,7 @@ export class CommandBuffer {
 	_apply(): void {
 		for (var i: number = 0, n: number = this._commands.length; i < n; i++)
 			this._commands[i].run();
-		Stat.cmdDrawCall+=this._commands.length;
+		Stat.cmdDrawCall += this._commands.length;
 	}
 
 	_applyOne(): boolean {
@@ -362,7 +362,7 @@ export class CommandBuffer {
 	 * add 自定义的渲染命令
 	 * @param command 
 	 */
-	addCustomCMD(command:Command){
+	addCustomCMD(command: Command) {
 		command._commandBuffer = this;
 		this._commands.push(command);
 	}

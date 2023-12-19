@@ -36,6 +36,7 @@ import { RunDriver } from "./laya/utils/RunDriver";
 import { Config } from "./Config";
 import { Shader3D } from "./laya/RenderEngine/RenderShader/Shader3D";
 import { LayaGL } from "./laya/layagl/LayaGL";
+import { Material } from "./laya/resource/Material";
 
 /**
  * <code>Laya</code> 是全局对象的引用入口集。
@@ -66,6 +67,17 @@ export class Laya {
     static isWXPosMsg: boolean = false;
     /**@internal */
     static WasmModules: { [key: string]: { exports: WebAssembly.Exports, memory: WebAssembly.Memory } } = {};
+
+    /**@internal */
+    static libPromiseArray: Promise<any>[] = [];
+
+    /**
+     * 注册初始化Laya3D的Promise函数
+     * @param fun 
+     */
+    static regLibPromiseArray(fun: Promise<any>) {
+        this.libPromiseArray.push(fun);
+    }
 
     /**
      * 初始化引擎。使用引擎需要先初始化引擎，否则可能会报错。
@@ -201,6 +213,7 @@ export class Laya {
         RenderStateContext.__init__();
         MeshParticle2D.__init__();
         RenderSprite.__init__();
+        Material.__initDefine__();
         InputManager.__init__(stage, Render.canvas);
         if (!!(window as any).conch && "conchUseWXAdapter" in Browser.window) {
             Input.isAppUseNewInput = true;
@@ -239,8 +252,11 @@ export class Laya {
 
             return Promise.resolve();
         };
-
-        return initPhysics2D();
+        //load promise lib
+        const promiseQueue = Promise.all(Laya.libPromiseArray);
+        return promiseQueue.then(() => {
+            initPhysics2D();
+        });
     }
 
     static createRender(): Render {

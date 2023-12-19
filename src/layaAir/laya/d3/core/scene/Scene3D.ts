@@ -69,6 +69,8 @@ import { Laya3D } from "../../../../Laya3D";
 import { IPhysicsManager } from "../../../Physics3D/interface/IPhysicsManager";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
+import { IElementComponentManager } from "./IScenceComponentManager";
+import { ISceneRenderManager } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/ISceneRenderManager";
 
 export enum FogMode {
     Linear = 0, //Linear
@@ -165,7 +167,7 @@ export class Scene3D extends Sprite implements ISubmit {
     /**@internal */
     static mainCavansViewPort: Viewport = new Viewport(0, 0, 1, 1);
 
-
+    static componentManagerMap: Map<string, any> = new Map();
 
     /**
      * 场景更新标记
@@ -176,6 +178,11 @@ export class Scene3D extends Sprite implements ISubmit {
 
     static get _updateMark(): number {
         return Scene3D.__updateMark;
+    }
+
+
+    static regManager(type: string, cla: any) {
+        Scene3D.componentManagerMap.set(type, cla);
     }
 
     /**
@@ -394,6 +401,8 @@ export class Scene3D extends Sprite implements ISubmit {
     /**@internal */
     private _physicsStepTime: number = 0;
     /**@internal */
+    _lightmapDirtyFlag:number = -1
+    /**@internal */
     _sunColor: Color = new Color(1.0, 1.0, 1.0);
     /**@interanl */
     _sundir: Vector3 = new Vector3();
@@ -446,6 +455,10 @@ export class Scene3D extends Sprite implements ISubmit {
     _renderByEditor: boolean;
     /** @internal */
     _scene2D: Scene;
+
+    componentElementMap: Map<string, IElementComponentManager> = new Map();
+
+
 
     /**
      * Scene3D所属的2D场景，使用IDE编辑的场景载入后具有此属性。
@@ -726,7 +739,7 @@ export class Scene3D extends Sprite implements ISubmit {
         } else {
             maps.length = 0;
         }
-        this.event(Lightmap.ApplyLightmapEvent);
+        this._lightmapDirtyFlag = Scene3D._updateMark;
 
     }
 
@@ -806,8 +819,12 @@ export class Scene3D extends Sprite implements ISubmit {
 
         this._sceneReflectionProb.reflectionIntensity = 1.0;
         this.ambientColor = new Color(0.212, 0.227, 0.259);
-    }
 
+        Scene3D.componentManagerMap.forEach((key, val) => {
+            let cla: any = val;
+            this.componentElementMap.set(key, new cla());
+        });
+    }
 
     /**
      *@internal
@@ -1463,6 +1480,14 @@ export class Scene3D extends Sprite implements ISubmit {
         this._volumeManager.destroy();
         this._componentDriver.callDestroy();
 
+    }
+
+    /**
+     * 获得某个组件的管理器
+     * @param type 
+     */
+    getComponentElementManager(type: string) {
+        return this.componentElementMap.get(type);
     }
 
     /**

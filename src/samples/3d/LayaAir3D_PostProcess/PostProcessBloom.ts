@@ -34,7 +34,6 @@ export class PostProcessBloom {
 			Stat.show();
 			Laya.stage.scaleMode = Stage.SCALE_FULL;
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
-			URL.basePath += "sample-resource/";
 			//加载场景
 			Scene3D.load("res/threeDimen/scene/LayaScene_BloomScene/Conventional/BloomScene.ls", Handler.create(this, function (scene: Scene3D): void {
 				Laya.stage.addChild(scene);

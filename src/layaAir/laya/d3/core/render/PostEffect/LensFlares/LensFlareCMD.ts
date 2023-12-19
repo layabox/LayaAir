@@ -5,7 +5,7 @@ import { Utils } from "../../../../../utils/Utils";
 import { Laya3DRender } from "../../../../RenderObjs/Laya3DRender";
 import { Camera } from "../../../Camera";
 import { Transform3D } from "../../../Transform3D";
-import { Material, MaterialRenderMode } from "../../../material/Material";
+import { Material, MaterialRenderMode } from "../../../../../resource/Material";
 import { RenderContext3D } from "../../RenderContext3D";
 import { RenderElement } from "../../RenderElement";
 import { Command } from "../../command/Command";

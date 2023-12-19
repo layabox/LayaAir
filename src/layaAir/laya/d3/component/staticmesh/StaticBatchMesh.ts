@@ -4,7 +4,7 @@ import { IndexFormat } from "../../../RenderEngine/RenderEnum/IndexFormat";
 import { VertexMesh } from "../../../RenderEngine/RenderShader/VertexMesh";
 import { BufferState } from "../../../webgl/utils/BufferState";
 import { BlinnPhongMaterial } from "../../core/material/BlinnPhongMaterial";
-import { Material } from "../../core/material/Material";
+import { Material } from "../../../resource/Material";
 import { Sprite3D } from "../../core/Sprite3D";
 import { IndexBuffer3D } from "../../graphics/IndexBuffer3D";
 import { VertexBuffer3D } from "../../graphics/VertexBuffer3D";

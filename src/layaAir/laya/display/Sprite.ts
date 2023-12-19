@@ -28,7 +28,7 @@ import { Scene } from "./Scene";
 import { LayaEnv } from "../../LayaEnv";
 import { SpriteUtils } from "../utils/SpriteUtils";
 import { IHitArea } from "../utils/IHitArea";
-import type { Material } from "../d3/core/material/Material";
+import type { Material } from "../resource/Material";
 
 /**在显示对象上按下后调度。
  * @eventType Event.MOUSE_DOWN

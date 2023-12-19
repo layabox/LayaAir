@@ -1,6 +1,6 @@
 import * as glTF from "../glTFInterface";
 
-import { Material } from "../../d3/core/material/Material";
+import { Material } from "../../resource/Material";
 import { PBRShaderLib } from "../../d3/shader/pbr/PBRShaderLib";
 import { glTFResource } from "../glTFResource";
 import { glTFExtension } from "./glTFExtension";

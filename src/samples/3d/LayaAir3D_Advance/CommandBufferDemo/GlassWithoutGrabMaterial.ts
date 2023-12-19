@@ -1,4 +1,4 @@
-import { Material } from "laya/d3/core/material/Material";
+import { Material } from "laya/resource/Material";
 import GlassShaderVS from "./GlassShader.vs";
 import GlassShaderFS from "./GlassShader.fs";
 import { BaseTexture } from "laya/resource/BaseTexture";
