@@ -1,15 +1,16 @@
 export enum BPType {
-    Event,
-    Function,
-    Operator,
-    GetValue,
-    SetValue,
+    Event = "event",
+    Function = "function",
+    Pure = "pure",
     ///
-    Pure,
-    Branch,
-    Sequnece,
-    NewTarget,
+    Operator = "operator",
+    GetValue = "getvalue",
+    SetValue = "setvalue",
+    Branch = "branch",
+    Sequnece = "sequnece",
+    NewTarget = "newtarget",
 }
+
 export enum ComponentType {
     boolean = "boolean",
     number = "number",

@@ -162,7 +162,7 @@ export class BPUtil {
                     let arr = o.props;
                     for (let i = arr.length - 1; i >= 0; i--) {
                         let po = arr[i];
-                        if (po.isStatic) continue;
+                        if (po.modifiers.isStatic) continue;
                         if (null == this.constVars[ext]) {
                             this.constVars[ext] = [];
                         }
@@ -207,7 +207,7 @@ export class BPUtil {
                     let funcs = o.funcs;
                     for (let i = funcs.length - 1; i >= 0; i--) {
                         let fun = funcs[i];
-                        if (fun.isPublic || fun.isProtected) {
+                        if (fun.modifiers.isPublic || fun.modifiers.isProtected) {
                             let cdata: TBPCNode = {
                                 menuPath: ext,
                                 target: ext,
@@ -218,16 +218,16 @@ export class BPUtil {
                                     BPUtil.defEventOut,
                                 ]
                             }
-                            if (fun.isStatic) {
+                            if (fun.modifiers.isStatic) {
                                 cdata.id += "_static";
                                 cdata.aliasName = fun.name + " (Static)";
                             }
                             let funName = fun.name;
-                            let func = fun.isStatic ? cls[funName] : cls.prototype[funName];
+                            let func = fun.modifiers.isStatic ? cls[funName] : cls.prototype[funName];
                             if (!func) {
                                 //debugger
                             }
-                            BPFactory.regFunction(cdata.id, func, !fun.isStatic);
+                            BPFactory.regFunction(cdata.id, func, !fun.modifiers.isStatic);
 
                             if (0 == fun.name.indexOf("on") && 'on' != fun.name) {
                                 //TODO 暂时以on开头的都是Event
@@ -241,7 +241,7 @@ export class BPUtil {
 
                             if (cdata.type == BPType.Function) {
                                 if (null == cdata.input) cdata.input = [];
-                                if (!fun.isStatic) {
+                                if (!fun.modifiers.isStatic) {
                                     cdata.input.unshift({
                                         name: "target",
                                         type: ext,
