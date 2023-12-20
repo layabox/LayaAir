@@ -53,7 +53,7 @@ export abstract class BPNode<T extends BPPin>{
             case BPType.GetValue:
                 type = EBlueNodeType.GetVariable;
                 break;
-            case BPType.Sequnece:
+            case BPType.Sequence:
                 type = EBlueNodeType.Sequnece;
                 break;
             case BPType.Branch:

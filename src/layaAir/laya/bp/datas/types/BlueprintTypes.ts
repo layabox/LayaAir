@@ -7,7 +7,7 @@ export enum BPType {
     GetValue = "getvalue",
     SetValue = "setvalue",
     Branch = "branch",
-    Sequnece = "sequnece",
+    Sequence = "sequence",
     NewTarget = "newtarget",
 }
 

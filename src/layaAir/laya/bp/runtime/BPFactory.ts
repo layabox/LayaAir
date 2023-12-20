@@ -59,7 +59,7 @@ export class BPFactory {
             this.regBPClassNew(BPType.GetValue, BPGetVarNode);
             this.regBPClassNew(BPType.SetValue, BPSetVarNode);
             this.regBPClassNew(BPType.Branch, BPComplexNode);
-            this.regBPClassNew(BPType.Sequnece, BPSequenceNode);
+            this.regBPClassNew(BPType.Sequence, BPSequenceNode);
             this.regBPClassNew(BPType.NewTarget ,BPNewTargetNode);
 
             this.regFunction("printString", BPStaticFun.print);
