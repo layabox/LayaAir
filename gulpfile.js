@@ -101,7 +101,6 @@ const packsDef = [{
         'input': [
             './layaAir/laya/d3/physics/constraints/**/*.*',
             './layaAir/laya/d3/physics/shape/**/*.*',
-            './layaAir/laya/d3/Physics3D.ts',
             './layaAir/laya/d3/physics/ModuleDef.ts',
             './layaAir/laya/d3/physics/CharacterController.ts',
             './layaAir/laya/d3/physics/Constraint3D.ts',
