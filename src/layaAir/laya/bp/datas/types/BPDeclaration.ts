@@ -173,7 +173,7 @@ function initDeclaration(name:string , cls:Function){
 export function bpRegClass( options : BPDecoratorsOptionClass){
     
     return function(target: any){
-        if (options.propertType != "class") {
+        if (options.propertType && options.propertType != "class") {
             console.error("BP:RegProp Fail :" , options.name ,  " , propertType is not class!");
             return ;
         }
