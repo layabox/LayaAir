@@ -2550,6 +2550,4 @@ interface ClipNode {
     propertyChangePath?: string;
 }
 
-Laya.onInitModule(() => {
-    glTFShader.init();
-});
+Laya.addInitCallback(() => glTFShader.init());
