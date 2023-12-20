@@ -248,10 +248,10 @@ export class BPUtil {
                                     });
                                 }
                                 cdata.input.unshift(BPUtil.defFunIn);
-                                if ('void' != fun.return) {
+                                if ('void' != fun.returnType) {
                                     cdata.output.push({
                                         name: "return",
-                                        type: fun.return,
+                                        type: fun.returnType,
                                     });
                                 }
                             }

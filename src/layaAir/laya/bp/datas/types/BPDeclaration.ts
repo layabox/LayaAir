@@ -1,9 +1,8 @@
-import { PropertType } from "../../../../Decorators";
 import { BPType } from "./BlueprintTypes";
 
-type TBPDecoratorsPropertType = "function"|"property"|"class" | "constructor";
+type TBPDecoratorsPropertType = "function" | "property" | "class" | "constructor" | "accessor";
 
-type TBPDecoratorsFuncType = BPType.Pure|BPType.Function|BPType.Event;
+type TBPDecoratorsFuncType = "pure" | "function" | "event" | BPType.Pure | BPType.Function | BPType.Event;
 
 
 /** 修饰符 */
@@ -87,7 +86,7 @@ type TBPDeclarationFunction = {
     /** 方法的参数列表 */
     params?: TBPDeclarationParam[];
     /** 方法的返回类型 */
-    return: string;
+    returnType: string;
 
     /** 注册的原始方法 */
     originFunc?:Function;
@@ -122,21 +121,26 @@ type TBPDeclarationParam = {
 
 
 export interface BPDecoratorsOptionBase{
-    /** 注册名称 */
-    name:string;
     /** 标题，如果不提供将使用name */
-    caption:string;
+    caption?:string;
     /** 注册对象成员类型 */
-    propertType:TBPDecoratorsPropertType;
+    propertType?:TBPDecoratorsPropertType;
     /** 修饰符 */
     modifiers?:BPModifiers;
     /** 分类 */
-    catalog:string;
+    catalog?:string;
+    /** 提示内容 */
+    tips?:string;
+}
+
+export interface BPDecoratorsOptionClass extends BPDecoratorsOptionBase{
+    /** 注册名称 */
+    name:string;
 }
 
 export interface BPDecoratorsOptionFunction extends BPDecoratorsOptionBase{
-    /** 方法或者构造函数参数 */
-    params?:TBPDeclarationParam[];
+    /** 方法或者构造函数参数，必填 */
+    params:TBPDeclarationParam[];
     /** 
      * 方法分类
      * @default BPType.Function
@@ -145,20 +149,195 @@ export interface BPDecoratorsOptionFunction extends BPDecoratorsOptionBase{
     /**
      * 返回类型
      */
-    returnType:PropertType;
+    returnType:string;
 }
 
 export interface BPDecoratorsOptionProp extends BPDecoratorsOptionBase{
     /** 参数类型 */
-    type:PropertType;
+    type:string;
 }
 
+
+var bpUserMap : Map<Function,TBPDeclaration> = new Map;
+function initDeclaration(name:string , cls:Function){
+    let declare:TBPDeclaration = {
+        name,
+        type:"class"
+    }
+    bpUserMap.set(cls,declare);
+    return declare;
+}
 /**
  * 蓝图装饰器
  */
-export function blueprintReg( name:string , options? : BPDecoratorsOptionBase){
+export function bpRegClass( options : BPDecoratorsOptionClass){
+    
+    return function(target: any){
+        if (options.propertType != "class") {
+            console.error("BP:RegProp Fail :" , options.name ,  " , propertType is not class!");
+            return ;
+        }
+    
+        let declare = bpUserMap.get(target);
+        if (!declare) {
+            initDeclaration(options.name , target );
+        }else{
+            declare.name = options.name;
+        }
+    }
+}
 
-    return function(target: any, propertyKey: string, descriptor: PropertyDescriptor){
+/**
+ * 蓝图装饰器,属性
+ */
+export function bpRegProperty( options : BPDecoratorsOptionProp){   
 
+    return function(target: any, propertyKey: string){
+
+        if (options.propertType  && options.propertType != "property") {
+            console.error("BP:Reg Property Fail :" , propertyKey ,  " , propertType is not property!");
+            return
+        }
+    
+        let declare = bpUserMap.get(target);
+        if (!declare) {
+            declare = initDeclaration( "" , target );
+        }
+
+        let prop:TBPDeclarationProp = {
+            name: propertyKey,
+            type : options.type,
+            caption : options.caption,
+            catalog : options.catalog,
+            modifiers : options.modifiers,
+            tips : options.tips
+        };
+
+        if (!declare.props) {
+            declare.props = [];
+        }
+        declare.props.push(prop);
+    }
+}
+
+/**
+ * 蓝图装饰器，方法包括getset
+ */
+export function bpRegFunction( options : BPDecoratorsOptionFunction){
+
+    return function(target: any, propertyKey: string, descriptor: any){
+
+        if (options.propertType && 
+            options.propertType != "constructor" && options.propertType != "function") {
+            console.error("BP:Reg Function Fail :" ,propertyKey ,  " , propertType is not function or constructor!");
+            return;
+        }
+
+        let declare = bpUserMap.get(target);
+        if (!declare) {
+            declare = initDeclaration( "" , target );
+        }
+
+        if (options.propertType == "constructor") {
+            let construct:TBPDeclarationConstructor = {
+                params:options.params,
+
+            }
+            declare.construct = construct;            
+        }else{
+            let func:TBPDeclarationFunction = {
+                name:propertyKey,
+                type: options.type || BPType.Function,
+                returnType: options.returnType,
+                caption: options.caption,
+                catalog: options.catalog,
+                modifiers: options.modifiers,
+                tips: options.tips,
+                params:options.params,
+            }
+
+            // func.originFunc = descriptor.value
+            if (!declare.funcs) {
+                declare.funcs = [];
+            }
+    
+            declare.funcs.push(func);
+        }
+    }
+}
+
+/**
+ * 蓝图装饰器，方法包括
+ */
+export function bpRegAccessor( options : BPDecoratorsOptionFunction){
+    
+    return function(target: any, propertyKey: string, descriptor: any){
+
+        if (options.propertType  && options.propertType != "property") {
+            console.error("BP:Reg Accessor Fail :" , propertyKey ,  " , propertType is not property!");
+            return;
+        }
+
+        let declare = bpUserMap.get(target);
+        if (!declare) {
+            declare = initDeclaration( "" , target );
+        }
+
+        let prop:TBPDeclarationProp = {
+            name:propertyKey,
+            type: options.type,
+            caption: options.caption,
+            catalog: options.catalog,
+            modifiers: options.modifiers,
+            tips: options.tips,
+        }
+        // if (options) {
+        //     prop 
+        // }else{
+        //     prop = {
+        //         name:propertyKey,
+        //         type:"any"
+        //     }
+        // }
+
+        if(descriptor.get){
+            prop.getter = true;
+        }
+
+        if (descriptor.set) {
+            prop.setter = true;
+        }
+
+        if (prop.getter && !prop.setter) {
+            if (!prop.modifiers) {
+                prop.modifiers = {}
+            }
+            prop.modifiers.isReadonly = true;
+        }
+
+        if (!declare.props) {
+            declare.props = [];
+        }
+        declare.props.push(prop);
+    }
+}
+
+function dummy() { }
+
+export function bpRegister( options: BPDecoratorsOptionBase ){
+    switch (options.propertType) {
+        case "function":
+            return bpRegFunction(options as BPDecoratorsOptionFunction);
+        case "class":
+            return bpRegClass(options as BPDecoratorsOptionClass);
+        case "property":
+            return bpRegProperty(options as BPDecoratorsOptionProp);
+        case "constructor":
+            return bpRegFunction(options as BPDecoratorsOptionFunction);
+        case "accessor":
+            return bpRegAccessor(options as BPDecoratorsOptionFunction);
+        default:
+            console.log("UNKNOW PropertType!");
+            return dummy;
     }
 }
