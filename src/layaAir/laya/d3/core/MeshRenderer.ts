@@ -421,29 +421,11 @@ export class MeshRenderer extends BaseRender {
         this._applyReflection();
         this._applyLightProb();
         this._mesh.morphTargetData && this._applyMorphdata();
-        var element: SubMeshRenderElement = <SubMeshRenderElement>context.renderElement;
         let trans = transform ? transform : this._transform;
         this._setShaderValue(Sprite3D.WORLDMATRIX, ShaderDataType.Matrix4x4, trans.worldMatrix);
         this._worldParams.x = trans.getFrontFaceValue();
         this._setShaderValue(Sprite3D.WORLDINVERTFRONT, ShaderDataType.Vector4, this._worldParams);
         return;
-    }
-    /**
-     * @internal
-     * @override
-     */
-    _revertBatchRenderUpdate(context: RenderContext3D): void {
-        var element: SubMeshRenderElement = (<SubMeshRenderElement>context.renderElement);
-        switch (element.renderType) {
-            case RenderElement.RENDERTYPE_STATICBATCH:
-                if (this._revertStaticBatchDefineUV1)
-                    this._shaderValues.removeDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_UV1);
-                this._shaderValues.setVector(RenderableSprite3D.LIGHTMAPSCALEOFFSET, this.lightmapScaleOffset);
-                break;
-            case RenderElement.RENDERTYPE_INSTANCEBATCH:
-                this._shaderValues.removeDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_GPU_INSTANCE);
-                break;
-        }
     }
 
     protected _onDestroy() {
