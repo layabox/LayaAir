@@ -88,8 +88,8 @@ export const BlueprintDataList: TBPCNode[] = [
         ]
     },
     {
-        name: "sequnece",
-        type: BPType.Sequnece,
+        name: "sequence",
+        type: BPType.Sequence,
         input: [
             {
                 name: "execute",

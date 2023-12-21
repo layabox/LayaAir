@@ -158,7 +158,7 @@ export interface BPDecoratorsOptionProp extends BPDecoratorsOptionBase{
 }
 
 
-var bpUserMap : Map<Function,TBPDeclaration> = new Map;
+export var bpUserMap : Map<Function,TBPDeclaration> = new Map;
 function initDeclaration(name:string , cls:Function){
     let declare:TBPDeclaration = {
         name,
@@ -174,11 +174,11 @@ export function bpRegClass( options : BPDecoratorsOptionClass){
     
     return function(target: any){
         if (options.propertType && options.propertType != "class") {
-            console.error("BP:RegProp Fail :" , options.name ,  " , propertType is not class!");
+            console.error("BP:Reg class Fail :" , options.name ,  " , propertType is not class!");
             return ;
         }
     
-        let declare = bpUserMap.get(target);
+        let declare = bpUserMap.get(target.prototype);
         if (!declare) {
             initDeclaration(options.name , target );
         }else{
