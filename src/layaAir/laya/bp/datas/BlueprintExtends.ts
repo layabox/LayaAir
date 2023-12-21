@@ -32,6 +32,12 @@ import { TBPDeclaration } from "./types/BPDeclaration";
 //     }
 // }
 
+/**
+ * 开发者自定义相关
+ */
+export const customData : Record<string , TBPDeclaration> = {
+}
+
 export const extendsData: Record<string, TBPDeclaration> = {
     "Sprite3D": {
         "module": "Laya",
