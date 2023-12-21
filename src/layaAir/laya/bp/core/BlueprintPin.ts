@@ -1,13 +1,13 @@
 import { EPinDirection, EPinType } from "./EBluePrint";
 import { TBPPinDef } from "./type/TBluePrint";
 
-export class BPPin {
+export class BlueprintPin {
     //方向
     direction: EPinDirection;
     id: string;
     name: string;
     type: EPinType;
-    linkTo: BPPin[];
+    linkTo: BlueprintPin[];
     value: any;
     constructor() {
         this.linkTo = [];
@@ -18,7 +18,7 @@ export class BPPin {
         this.type=def.type=="exec"?EPinType.Exec:EPinType.Other;
     }
 
-    startLinkTo(e: BPPin) {
+    startLinkTo(e: BlueprintPin) {
         this.linkTo.push(e);
         if (e.linkTo.indexOf(this) == -1) {
             e.linkTo.push(this);

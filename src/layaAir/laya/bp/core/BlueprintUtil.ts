@@ -3,8 +3,8 @@ import { ClassUtils } from "../../utils/ClassUtils";
 import { BlueprintDataList } from "../datas/BlueprintDataInit";
 import { extendsData } from "../datas/BlueprintExtends";
 import { BPType, TBPCNode, TBPNode, TBPSaveData, TBPVarProperty } from "../datas/types/BlueprintTypes";
-import { BPFactory } from "../runtime/BPFactory";
-export class BPUtil {
+import { BlueprintFactory } from "../runtime/BlueprintFactory";
+export class BlueprintUtil {
     private static _constNode: Record<string, TBPCNode>;
     private static _constExtNode: Record<string, Record<string, TBPCNode>> = {};
     private static _allConstNode: Record<string, TBPCNode> = {};
@@ -19,7 +19,7 @@ export class BPUtil {
         name: "execute",
         type: "exec",
     };
-    private static defEventOut = BPUtil.defFunOut;
+    private static defEventOut = BlueprintUtil.defFunOut;
 
     static getDefaultConstNode() {
         return this._constNode;
@@ -32,7 +32,7 @@ export class BPUtil {
     }
 
     static getConstNode(ext: string, node?: TBPNode) {
-        BPUtil.initConstNode(ext);
+        BlueprintUtil.initConstNode(ext);
         if (null == node) {
             let ret = this._constExtNode[ext];
             if (null == ret) {
@@ -95,9 +95,9 @@ export class BPUtil {
 
                 if (BPType.Function == o.type) {
                     if (input) {
-                        input.unshift(BPUtil.defFunIn);
+                        input.unshift(BlueprintUtil.defFunIn);
                     } else {
-                        input = [BPUtil.defFunIn];
+                        input = [BlueprintUtil.defFunIn];
                         o.input = input;
                     }
                 }
@@ -118,9 +118,9 @@ export class BPUtil {
 
                 if (BPType.Function == o.type) {
                     if (output) {
-                        output.unshift(BPUtil.defFunOut);
+                        output.unshift(BlueprintUtil.defFunOut);
                     } else {
-                        output = [BPUtil.defFunOut];
+                        output = [BlueprintUtil.defFunOut];
                         o.output = output;
                     }
                 }
@@ -139,7 +139,7 @@ export class BPUtil {
 
     static getVariable(data: TBPSaveData) {
         let arr = [...data.variable];
-        let carr = BPUtil.constVars[data.extends];
+        let carr = BlueprintUtil.constVars[data.extends];
         if (null != carr) {
             arr.push(...carr);
         }
@@ -215,7 +215,7 @@ export class BPUtil {
                                 id: ext + "_" + fun.name,
                                 type: BPType.Function,
                                 output: [
-                                    BPUtil.defEventOut,
+                                    BlueprintUtil.defEventOut,
                                 ]
                             }
                             if (fun.modifiers.isStatic) {
@@ -227,7 +227,7 @@ export class BPUtil {
                             if (!func) {
                                 //debugger
                             }
-                            BPFactory.regFunction(cdata.id, func, !fun.modifiers.isStatic);
+                            BlueprintFactory.regFunction(cdata.id, func, !fun.modifiers.isStatic);
 
                             if (0 == fun.name.indexOf("on") && 'on' != fun.name) {
                                 //TODO 暂时以on开头的都是Event
@@ -247,7 +247,7 @@ export class BPUtil {
                                         type: ext,
                                     });
                                 }
-                                cdata.input.unshift(BPUtil.defFunIn);
+                                cdata.input.unshift(BlueprintUtil.defFunIn);
                                 if ('void' != fun.returnType) {
                                     cdata.output.push({
                                         name: "return",

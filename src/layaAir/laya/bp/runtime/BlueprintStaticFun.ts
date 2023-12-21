@@ -1,18 +1,18 @@
 import { rejects } from "assert";
 import { resolve } from "path";
 import { IOutParm } from "../core/interface/IOutParm";
-import { BPPinRuntime } from "./BPPinRuntime";
+import { BlueprintPinRuntime } from "./BlueprintPinRuntime";
 import { IRunAble } from "./interface/IRunAble";
 
 /**
  * 
  */
-export class BPStaticFun {
-    static branch(input: boolean, outExcutes: BPPinRuntime[]): BPPinRuntime {
+export class BlueprintStaticFun {
+    static branch(input: boolean, outExcutes: BlueprintPinRuntime[]): BlueprintPinRuntime {
         return input ? outExcutes[0] : outExcutes[1];
     }
 
-    static switchFun(input: any, outExcutes: BPPinRuntime[]): BPPinRuntime {
+    static switchFun(input: any, outExcutes: BlueprintPinRuntime[]): BlueprintPinRuntime {
         return outExcutes.find((item) => item.name == input) || outExcutes.find((item) => item.name == "default");
     }
 

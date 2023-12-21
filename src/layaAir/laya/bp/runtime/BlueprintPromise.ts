@@ -1,18 +1,18 @@
-export class BPPromise {
+export class BlueprintPromise {
     curIndex:number;
 
-    static create():BPPromise{
-        return new BPPromise();
+    static create():BlueprintPromise{
+        return new BlueprintPromise();
     }
 
     private _completed:boolean;
 
-    private _callback:(mis:BPPromise)=>void;
+    private _callback:(mis:BlueprintPromise)=>void;
     /**
     * 等待行为完成回调
     * @param callback 完成回调接口
     */
-    wait(callback: (mis:BPPromise)=>void): void {
+    wait(callback: (mis:BlueprintPromise)=>void): void {
         this._callback = callback;
         if (this._completed) {
             callback(this);

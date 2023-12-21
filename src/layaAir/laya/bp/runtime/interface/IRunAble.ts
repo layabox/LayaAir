@@ -1,5 +1,5 @@
-import { BPPinRuntime } from "../BPPinRuntime";
-import { BPRuntimeBaseNode } from "../node/BPRuntimeBaseNode";
+import { BlueprintPinRuntime } from "../BlueprintPinRuntime";
+import { BlueprintRuntimeBaseNode } from "../node/BlueprintRuntimeBaseNode";
 import { IBPRutime } from "./IBPRutime";
 
 export interface IRunAble {
@@ -9,19 +9,19 @@ export interface IRunAble {
 
     readonly vars: { [key: string]: any };
 
-    beginExcute(runtimeNode: BPRuntimeBaseNode,runner:IBPRutime,enableDebugPause:boolean): boolean;
+    beginExcute(runtimeNode: BlueprintRuntimeBaseNode,runner:IBPRutime,enableDebugPause:boolean): boolean;
 
-    endExcute(runtimeNode: BPRuntimeBaseNode): void;
+    endExcute(runtimeNode: BlueprintRuntimeBaseNode): void;
 
-    parmFromOtherPin(current: BPPinRuntime, from: BPPinRuntime, parmsArray: any[]): void;
+    parmFromOtherPin(current: BlueprintPinRuntime, from: BlueprintPinRuntime, parmsArray: any[]): void;
 
-    parmFromSelf(current: BPPinRuntime, parmsArray: any[]): void;
+    parmFromSelf(current: BlueprintPinRuntime, parmsArray: any[]): void;
 
-    parmFromOutPut(outPutParmPins: BPPinRuntime[], parmsArray: any[]): void;
+    parmFromOutPut(outPutParmPins: BlueprintPinRuntime[], parmsArray: any[]): void;
 
     parmFromCustom(parmsArray: any[], parm: any, parmname: string): void;
 
-    excuteFun(nativeFun: Function, outPutParmPins: BPPinRuntime[],caller:any, parmsArray: any[]): any;
+    excuteFun(nativeFun: Function, outPutParmPins: BlueprintPinRuntime[],caller:any, parmsArray: any[]): any;
 
     getCode(): string;
 

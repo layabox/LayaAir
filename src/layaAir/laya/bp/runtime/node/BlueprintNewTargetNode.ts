@@ -1,13 +1,13 @@
 import { Browser } from "../../../utils/Browser";
 import { ClassUtils } from "../../../utils/ClassUtils";
-import { BPConst } from "../../core/BPConst";
+import { BlueprintConst } from "../../core/BlueprintConst";
 import { TBPCNode } from "../../datas/types/BlueprintTypes";
-import { BPPinRuntime } from "../BPPinRuntime";
+import { BlueprintPinRuntime } from "../BlueprintPinRuntime";
 import { IBPRutime } from "../interface/IBPRutime";
 import { IRunAble } from "../interface/IRunAble";
-import { BPRuntimeBaseNode } from "./BPRuntimeBaseNode";
+import { BlueprintRuntimeBaseNode } from "./BlueprintRuntimeBaseNode";
 
-export class BPNewTargetNode extends BPRuntimeBaseNode {
+export class BlueprintNewTargetNode extends BlueprintRuntimeBaseNode {
     cls: ClassDecorator;
 
     parseNew(def: TBPCNode) {
@@ -30,7 +30,7 @@ export class BPNewTargetNode extends BPRuntimeBaseNode {
 
     step(context: IRunAble, fromExcute: boolean, runner: IBPRutime, enableDebugPause: boolean): number {
         if (fromExcute && context.beginExcute(this, runner, enableDebugPause)) {
-            return BPConst.MAX_CODELINE;
+            return BlueprintConst.MAX_CODELINE;
         }
         let _parmsArray: any[] = [];
 
@@ -39,8 +39,8 @@ export class BPNewTargetNode extends BPRuntimeBaseNode {
             const curInput = inputPins[i];
             let from = curInput.linkTo[0];
             if (from) {
-                (from as BPPinRuntime).step(context);
-                context.parmFromOtherPin(curInput, from as BPPinRuntime, _parmsArray);
+                (from as BlueprintPinRuntime).step(context);
+                context.parmFromOtherPin(curInput, from as BlueprintPinRuntime, _parmsArray);
             }
             else {
                 context.parmFromSelf(curInput, _parmsArray);

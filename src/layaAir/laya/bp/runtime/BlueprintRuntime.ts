@@ -3,23 +3,23 @@ import { EBlueNodeType } from "../core/EBluePrint";
 import { INodeManger } from "../core/interface/INodeManger";
 import { TBPNodeData } from "../core/type/TBluePrint";
 
-import { BPFactory } from "./BPFactory";
-import { BPPinRuntime } from "./BPPinRuntime";
-import { BPPromise } from "./BPPromise";
+import { BlueprintFactory } from "./BlueprintFactory";
+import { BlueprintPinRuntime } from "./BlueprintPinRuntime";
+import { BlueprintPromise } from "./BlueprintPromise";
 import { IBPRutime } from "./interface/IBPRutime";
 import { IRunAble } from "./interface/IRunAble";
-import { BPEventNode } from "./node/BPEventNode";
-import { BPRuntimeBaseNode } from "./node/BPRuntimeBaseNode";
+import { BlueprintEventNode } from "./node/BlueprintEventNode";
+import { BlueprintRuntimeBaseNode } from "./node/BlueprintRuntimeBaseNode";
 
-export class BPRuntime implements INodeManger<BPRuntimeBaseNode>,IBPRutime{
+export class BlueprintRuntime implements INodeManger<BlueprintRuntimeBaseNode>,IBPRutime{
 
-    nodeMap: Map<any, BPRuntimeBaseNode>;
+    nodeMap: Map<any, BlueprintRuntimeBaseNode>;
 
-    eventMap: Map<any, BPEventNode>;
+    eventMap: Map<any, BlueprintEventNode>;
 
     varMap:Record<string, TBPVarProperty>;
 
-    excuteAbleList: BPRuntimeBaseNode[];
+    excuteAbleList: BlueprintRuntimeBaseNode[];
     constructor() {
         this.nodeMap = new Map();
         this.eventMap = new Map();
@@ -27,11 +27,11 @@ export class BPRuntime implements INodeManger<BPRuntimeBaseNode>,IBPRutime{
     }
  
 
-    append(node: BPRuntimeBaseNode) {
+    append(node: BlueprintRuntimeBaseNode) {
         this.nodeMap.set(node.nid, node);
         switch (node.type) {
             case EBlueNodeType.Event:
-                this.eventMap.set(node.name, node as BPEventNode);
+                this.eventMap.set(node.name, node as BlueprintEventNode);
                 break;
         }
     }
@@ -55,8 +55,8 @@ export class BPRuntime implements INodeManger<BPRuntimeBaseNode>,IBPRutime{
             const bpNode = this.excuteAbleList[i];
             let index = bpNode.step(context, true, this,enableDebugPause);
             enableDebugPause=true;
-            if (index instanceof BPPromise) {
-                index.wait((mis: BPPromise) => {
+            if (index instanceof BlueprintPromise) {
+                index.wait((mis: BlueprintPromise) => {
                     this.runByContext(context, mis.curIndex,enableDebugPause);
                 })
                 return;
@@ -71,7 +71,7 @@ export class BPRuntime implements INodeManger<BPRuntimeBaseNode>,IBPRutime{
         this.varMap=varMap;
         //pin create
         bpjson.forEach(item => {
-            let d = BPFactory.instance.createNew(getCNodeByNode(item));
+            let d = BlueprintFactory.instance.createNew(getCNodeByNode(item));
             d.nid = item.id;
             this.append(d);
         });
@@ -84,7 +84,7 @@ export class BPRuntime implements INodeManger<BPRuntimeBaseNode>,IBPRutime{
         this.optimize();
     }
 
-    private _addNode(value: BPRuntimeBaseNode): boolean {
+    private _addNode(value: BlueprintRuntimeBaseNode): boolean {
         if (this.excuteAbleList.indexOf(value) == -1) {
             value.index = this.excuteAbleList.length;
             this.excuteAbleList.push(value);
@@ -98,14 +98,14 @@ export class BPRuntime implements INodeManger<BPRuntimeBaseNode>,IBPRutime{
 
     optimize() {
         this.eventMap.forEach(value => {
-            let stack: BPRuntimeBaseNode[] = [value];
+            let stack: BlueprintRuntimeBaseNode[] = [value];
             while (stack.length > 0) {
                 const node = stack.pop();
                 if (this._addNode(node) && node.outExcutes) {
                     node.optimize();
                     node.outExcutes.forEach(item => {
                         if (item.linkTo && item.linkTo[0]) {
-                            stack.push((item.linkTo[0] as BPPinRuntime).owner);
+                            stack.push((item.linkTo[0] as BlueprintPinRuntime).owner);
                         }
                     })
                 }
@@ -130,7 +130,7 @@ export class BPRuntime implements INodeManger<BPRuntimeBaseNode>,IBPRutime{
 //         return result;
     }
 
-    getNodeById(id: any): BPRuntimeBaseNode {
+    getNodeById(id: any): BlueprintRuntimeBaseNode {
         return this.nodeMap.get(id);
     }
 }

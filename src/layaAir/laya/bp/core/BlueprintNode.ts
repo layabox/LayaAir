@@ -1,12 +1,12 @@
 
 import { BPType, TBPCNode, TBPNode } from "../datas/types/BlueprintTypes";
-import { BPFactory } from "../runtime/BPFactory";
-import { BPPin } from "./BPPin";
+import { BlueprintFactory } from "../runtime/BlueprintFactory";
+import { BlueprintPin } from "./BlueprintPin";
 import { EBlueNodeType, EPinDirection } from "./EBluePrint";
 import { INodeManger } from "./interface/INodeManger";
 import { TBPNodeDef, TBPPinData, TBPPinDef } from "./type/TBluePrint";
 
-export abstract class BPNode<T extends BPPin>{
+export abstract class BlueprintNode<T extends BlueprintPin>{
     static ExecInput: TBPPinDef[] = [{
         name: "execute",
         type: "exec"
@@ -64,7 +64,7 @@ export abstract class BPNode<T extends BPPin>{
         }
 
         this.setType(type);
-        let arr=BPFactory.getFunction(def.id||def.name);
+        let arr=BlueprintFactory.getFunction(def.id||def.name);
         this.setFunction(arr?arr[0]:null,arr?arr[1]:false);
         if (def.input) {
             this.addInput(def.input as any);
@@ -94,7 +94,7 @@ export abstract class BPNode<T extends BPPin>{
     //     }
     // }
 
-    parseLinkDataNew(node: TBPNode, manger: INodeManger<BPNode<T>>) {
+    parseLinkDataNew(node: TBPNode, manger: INodeManger<BlueprintNode<T>>) {
         if (node.input) {//输入pin
             for (const key in node.input) {
                 let pin = this.getPinByName(key);

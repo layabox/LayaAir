@@ -1,10 +1,10 @@
 import { IRunAble } from "../interface/IRunAble";
-import { BPPinRuntime } from "../BPPinRuntime";
-import { BPRuntimeBaseNode } from "../node/BPRuntimeBaseNode";
-import { BPExcuteNode } from "./BPExcuteNode";
+import { BlueprintPinRuntime } from "../BlueprintPinRuntime";
+import { BlueprintRuntimeBaseNode } from "../node/BlueprintRuntimeBaseNode";
+import { BlueprintExcuteNode } from "./BlueprintExcuteNode";
 import { IBPRutime } from "../interface/IBPRutime";
 
-export class BPExcuteDebuggerNode extends BPExcuteNode implements IRunAble {
+export class BlueprintExcuteDebuggerNode extends BlueprintExcuteNode implements IRunAble {
     private _indexList:number[]=[];
     
     pushBack(index: number): void {
@@ -21,7 +21,7 @@ export class BPExcuteDebuggerNode extends BPExcuteNode implements IRunAble {
         }
     }
 
-    beginExcute(runtimeNode: BPRuntimeBaseNode,runner:IBPRutime,enableDebugPause:boolean): boolean{
+    beginExcute(runtimeNode: BlueprintRuntimeBaseNode,runner:IBPRutime,enableDebugPause:boolean): boolean{
     //throw new Error("Method not implemented.");
         if(enableDebugPause){
             this.debuggerPause=true;
@@ -53,7 +53,7 @@ export class BPExcuteDebuggerNode extends BPExcuteNode implements IRunAble {
         }
     }
 
-    excuteFun(nativeFun: Function, outPutParmPins: BPPinRuntime[],caller:any, parmsArray: any[]): void {
+    excuteFun(nativeFun: Function, outPutParmPins: BlueprintPinRuntime[],caller:any, parmsArray: any[]): void {
     
         super.excuteFun(nativeFun, outPutParmPins,caller, parmsArray);
 

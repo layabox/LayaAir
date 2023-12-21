@@ -1,10 +1,10 @@
 import { IRunAble } from "../interface/IRunAble";
-import { BPPinRuntime } from "../BPPinRuntime";
-import { BPRuntimeBaseNode } from "../node/BPRuntimeBaseNode";
-import { BPRunBase } from "./BPRunBase";
+import { BlueprintPinRuntime } from "../BlueprintPinRuntime";
+import { BlueprintRuntimeBaseNode } from "../node/BlueprintRuntimeBaseNode";
+import { BlueprintRunBase } from "./BlueprintRunBase";
 import { IBPRutime } from "../interface/IBPRutime";
 
-export class BPExcuteNode extends BPRunBase implements IRunAble {
+export class BlueprintExcuteNode extends BlueprintRunBase implements IRunAble {
     owner: any;
     constructor(data: any) {
         super();
@@ -29,7 +29,7 @@ export class BPExcuteNode extends BPRunBase implements IRunAble {
     getCode(): string {
         return "";
     }
-    beginExcute(runtimeNode: BPRuntimeBaseNode,runner:IBPRutime,enableDebugPause:boolean): boolean {
+    beginExcute(runtimeNode: BlueprintRuntimeBaseNode,runner:IBPRutime,enableDebugPause:boolean): boolean {
         //throw new Error("Method not implemented.");
         if (this.listNode.indexOf(runtimeNode) == -1) {
             this.listNode.push(runtimeNode);
@@ -44,7 +44,7 @@ export class BPExcuteNode extends BPRunBase implements IRunAble {
         }
 
     }
-    endExcute(runtimeNode: BPRuntimeBaseNode): void {
+    endExcute(runtimeNode: BlueprintRuntimeBaseNode): void {
         //throw new Error("Method not implemented.");
     }
     parmFromCustom(parmsArray: any[], parm: any, parmname: string): void {
@@ -53,22 +53,22 @@ export class BPExcuteNode extends BPRunBase implements IRunAble {
 
     vars: { [key: string]: any; } = {};
 
-    parmFromOtherPin(current: BPPinRuntime, from: BPPinRuntime, parmsArray: any[]): void {
+    parmFromOtherPin(current: BlueprintPinRuntime, from: BlueprintPinRuntime, parmsArray: any[]): void {
         parmsArray.push(from.getValue());
     }
 
-    parmFromSelf(current: BPPinRuntime, parmsArray: any[]): void {
+    parmFromSelf(current: BlueprintPinRuntime, parmsArray: any[]): void {
         parmsArray.push(current.getValue());
     }
 
-    parmFromOutPut(outPutParmPins: BPPinRuntime[], parmsArray: any[]): void {
+    parmFromOutPut(outPutParmPins: BlueprintPinRuntime[], parmsArray: any[]): void {
         for (let i = 0, n = outPutParmPins.length; i < n; i++) {
             let out = outPutParmPins[i];
             parmsArray.push(out);
         }
     }
 
-    excuteFun(nativeFun: Function, outPutParmPins: BPPinRuntime[],caller:any, parmsArray: any[]): any {
+    excuteFun(nativeFun: Function, outPutParmPins: BlueprintPinRuntime[],caller:any, parmsArray: any[]): any {
         let result = nativeFun.apply(caller, parmsArray);
         if ( result != undefined&&!(result instanceof Promise)) {
             outPutParmPins[0].setValue(result);

@@ -6,9 +6,9 @@ import { IHierarchyParserAPI } from "../../../resource/PrefabImpl";
 import { Resource } from "../../../resource/Resource";
 import { ClassUtils } from "../../../utils/ClassUtils";
 import { TBPNode, TBPVarProperty } from "../../datas/types/BlueprintTypes";
-import { BPFactory } from "../BPFactory";
+import { BlueprintFactory } from "../BlueprintFactory";
 
-export class BPImpl extends Resource{
+export class BlueprintImpl extends Resource{
     public readonly version:number;
 
     /** @private */
@@ -71,7 +71,7 @@ export class BPImpl extends Resource{
         if (!LayaEnv.isPlaying) {
             ClassUtils.regClass(this.uuid , runtime);
         }else{
-            BPFactory.__init__();
+            BlueprintFactory.__init__();
             let map = this.data.blueprintArr;
             let arr:TBPNode[] = [];
     
@@ -84,7 +84,7 @@ export class BPImpl extends Resource{
                 varMap[ele.name] = ele;
             });
             
-            let cls = BPFactory.createClsNew(this.uuid,runtime,{
+            let cls = BlueprintFactory.createClsNew(this.uuid,runtime,{
                 name:"",
                 varMap,
                 arr

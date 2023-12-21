@@ -1,4 +1,4 @@
-export class BPConst{
+export class BlueprintConst{
     static MAX_CODELINE:number=Number.MAX_VALUE ;
 
     static VERSION:number = 1;

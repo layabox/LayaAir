@@ -1,14 +1,14 @@
-import { BPPin } from "../core/BPPin";
+import { BlueprintPin } from "../core/BlueprintPin";
 import { IOutParm } from "../core/interface/IOutParm";
 import { IBPRutime } from "./interface/IBPRutime";
 import { IRunAble } from "./interface/IRunAble";
-import { BPRuntimeBaseNode } from "./node/BPRuntimeBaseNode";
+import { BlueprintRuntimeBaseNode } from "./node/BlueprintRuntimeBaseNode";
 
-export class BPPinRuntime extends BPPin implements IOutParm {
+export class BlueprintPinRuntime extends BlueprintPin implements IOutParm {
     /**
      * 所属节点
     */
-    owner: BPRuntimeBaseNode;
+    owner: BlueprintRuntimeBaseNode;
 
     step(context: IRunAble) {
         this.owner.step(context, false,null,false);
@@ -16,7 +16,7 @@ export class BPPinRuntime extends BPPin implements IOutParm {
     }
 
     excute(context: IRunAble,runner:IBPRutime) {
-        (this.linkTo[0] as BPPinRuntime)?.owner.step(context, true,runner,true);
+        (this.linkTo[0] as BlueprintPinRuntime)?.owner.step(context, true,runner,true);
     }
 
     setValue(value: any): void {

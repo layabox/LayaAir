@@ -1,15 +1,15 @@
-import { BPNode } from "../../core/BPNode";
-import { BPConst } from "../../core/BPConst";
+import { BlueprintNode } from "../../core/BlueprintNode";
+import { BlueprintConst } from "../../core/BlueprintConst";
 import { EBlueNodeType, EPinDirection, EPinType } from "../../core/EBluePrint";
-import { BPPinRuntime } from "../BPPinRuntime";
+import { BlueprintPinRuntime } from "../BlueprintPinRuntime";
 import { IRunAble } from "../interface/IRunAble";
-import { BPRuntimeBaseNode } from "./BPRuntimeBaseNode";
+import { BlueprintRuntimeBaseNode } from "./BlueprintRuntimeBaseNode";
 
-export class BPEventNode extends BPRuntimeBaseNode {
+export class BlueprintEventNode extends BlueprintRuntimeBaseNode {
     /**
      * 输出引脚
      */
-    outExcute: BPPinRuntime;
+    outExcute: BlueprintPinRuntime;
 
     setType(type: EBlueNodeType) {
         super.setType(type)
@@ -17,12 +17,12 @@ export class BPEventNode extends BPRuntimeBaseNode {
     }
 
     next(context: IRunAble): number {
-        return this.staticNext ? this.staticNext.index : BPConst.MAX_CODELINE;
+        return this.staticNext ? this.staticNext.index : BlueprintConst.MAX_CODELINE;
         //return (this.outExcute.linkTo[0] as BPPinRuntime).owner.index; 
         //this.outExcute.excute(context);
     }
 
-    addPin(pin: BPPinRuntime) {
+    addPin(pin: BlueprintPinRuntime) {
         super.addPin(pin);
         if (pin.type == EPinType.Exec && pin.direction == EPinDirection.Output) {
             this.outExcute = pin;
@@ -38,7 +38,7 @@ export class BPEventNode extends BPRuntimeBaseNode {
     optimize() {
         let linkto = this.outExcute.linkTo;
         if (linkto[0]) {
-            this.staticNext = (linkto[0] as BPPinRuntime).owner;
+            this.staticNext = (linkto[0] as BlueprintPinRuntime).owner;
         }
         else {
             this.staticNext = null;
