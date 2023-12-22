@@ -51,8 +51,8 @@ import "./loaders/TTFFontLoader";
 import "./loaders/MaterialLoader";
 import "./loaders/ShaderLoader";
 import "./media/webaudio/WebAudioLoader";
-import { BPRuntime } from "./bp/runtime/BPRuntime";
-import { BPFactory } from "./bp/runtime/BPFactory";
+import { BlueprintRuntime } from "./bp/runtime/BlueprintRuntime";
+import { BlueprintFactory } from "./bp/runtime/BlueprintFactory";
 
 let c = ClassUtils.regClass;
 
@@ -101,6 +101,6 @@ c("Matrix", Matrix);
 c("Matrix3x3", Matrix3x3);
 c("Matrix4x4", Matrix4x4);
 
-c("BPRuntime",BPRuntime);
+c("BPRuntime",BlueprintRuntime);
 
-c("BPFactory",BPFactory);
+c("BPFactory",BlueprintFactory);
