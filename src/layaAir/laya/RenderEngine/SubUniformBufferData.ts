@@ -4,10 +4,10 @@ export class SubUniformBufferData extends UnifromBufferData{
     /**@internal */
     _offset:number;
 
-    /**@internal */
+    /**@interanl */
     _isInPool:boolean = false;
 
-    /**@internal */
+    /**@interanl */
     _needUpdate:boolean = false;
 
     /**@internal */

@@ -32,7 +32,7 @@ export class pxJoint implements IJoint {
     /**@internal */
     static _pxJointID: number = 0;
 
-    /**@internal */
+    /**@interanl */
     static _tempTransform0: {
         translation: Vector3;
         rotation: Quaternion;

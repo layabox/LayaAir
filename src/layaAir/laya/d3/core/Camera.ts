@@ -645,12 +645,14 @@ export class Camera extends BaseCamera {
             return;
         this._canBlitDepth = value;
         this._cacheDepth = value;
-        this._internalRenderTexture && RenderTexture.recoverToPool(this._internalRenderTexture);
-        (!this._internalRenderTexture._inPool) && (this._internalRenderTexture = RenderTexture.createFromPool(this.viewport.width, this.viewport.height, this._getRenderTextureFormat(), this.depthTextureFormat,false, this.msaa ? 4 : 1, this._canBlitDepth, this._needRenderGamma(this._getRenderTextureFormat())));
-        if (!value) {
+        if (value)
+            this._internalRenderTexture && (this._internalRenderTexture.generateDepthTexture = true);
+        else {
+            this._internalRenderTexture && (this._internalRenderTexture.generateDepthTexture = false);
             if (this._cacheDepthTexture)
                 this._cacheDepthTexture._inPool ? 0 : RenderTexture.recoverToPool(this._cacheDepthTexture);
         }
+
     }
     get enableBlitDepth() {
         return this._canBlitDepth;

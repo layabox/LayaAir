@@ -58,7 +58,7 @@ class Texture2DLoader implements IResourceLoader {
         if (meta) {
             let platform = Browser.platform;
             let fileIndex = meta.platforms?.[platform] || 0;
-            let fileInfo = meta.files[fileIndex];
+            let fileInfo = meta.files?.[fileIndex] || {};
             if (fileInfo.file) {
                 url = AssetDb.inst.getSubAssetURL(url, task.uuid, fileInfo.file, fileInfo.ext);
                 ext = fileInfo.ext;

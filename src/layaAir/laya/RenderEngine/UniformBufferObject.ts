@@ -50,7 +50,7 @@ export class UniformBufferObject extends Buffer {
         return base._mapArray[index];
     }
 
-    /**@internal */
+    /**@interanl */
     _glPointer: number;
 
     /**@internal */

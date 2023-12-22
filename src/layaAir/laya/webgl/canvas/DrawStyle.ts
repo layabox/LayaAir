@@ -1,10 +1,8 @@
 import { ColorUtils } from "../../utils/ColorUtils"
 
 export class DrawStyle {
-    static DEFAULT: DrawStyle;
-    static _Defaultinit() {
-        DrawStyle.DEFAULT = new DrawStyle("#000000");
-    }
+    static DEFAULT: DrawStyle = new DrawStyle("#000000")
+
     _color: ColorUtils;
 
     static create(value: any): DrawStyle {

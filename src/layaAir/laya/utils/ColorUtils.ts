@@ -14,7 +14,7 @@ export class ColorUtils {
     /**@private */
 
     /**@private */
-    private static _DEFAULT: any;
+    private static _DEFAULT: any = ColorUtils._initDefault();
 
     /**rgba 取值范围0-1*/
     //TODO:delete？

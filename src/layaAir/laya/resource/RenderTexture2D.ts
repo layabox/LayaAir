@@ -40,9 +40,9 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
     }
 
     /** @private */
-    _depthStencilFormat: number;
+    private _depthStencilFormat: number;
     /** @private */
-    _colorFormat: RenderTargetFormat;
+    private _colorFormat: RenderTargetFormat;
 
     /**@internal */
     _mgrKey: number = 0;	//给WebGLRTMgr用的
@@ -101,7 +101,7 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
     }
     /**深度模板纹理 */
     depthStencilTexture: BaseTexture;
-
+    
     _renderTarget: InternalRenderTarget;
     /**是否是CameraTarget */
     _isCameraTarget: boolean;
@@ -287,11 +287,8 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
      * @param height 高度。
      * @return 像素数据。
      */
-    getData(x: number, y: number, width: number, height: number, out: Uint8Array | Float32Array = null): ArrayBufferView {
-        if (!out)
-            return LayaGL.textureContext.getRenderTextureData(this._renderTarget, x, y, width, height);
-        else
-            return LayaGL.textureContext.readRenderTargetPixelData(this._renderTarget, x, y, width, height, out);
+    getData(x: number, y: number, width: number, height: number): ArrayBufferView {
+        return LayaGL.textureContext.getRenderTextureData(this._renderTarget, x, y, width, height);
     }
 
     /**

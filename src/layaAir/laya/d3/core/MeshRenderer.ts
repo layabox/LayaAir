@@ -69,7 +69,7 @@ export class MeshRenderer extends BaseRender {
         return new SubMeshRenderElement();
     }
 
-    /**@internal */
+    /**@intermal */
     getMesh() {
         return this._mesh;
     }
@@ -418,6 +418,7 @@ export class MeshRenderer extends BaseRender {
      * @internal
      */
     _renderUpdate(context: RenderContext3D, transform: Transform3D): void {
+        (this._lightmapDirtyFlag == this.owner?.scene?._lightmapDirtyFlag) && this._applyLightMapParams();
         this._applyReflection();
         this._applyLightProb();
         this._mesh.morphTargetData && this._applyMorphdata();
@@ -425,7 +426,6 @@ export class MeshRenderer extends BaseRender {
         this._setShaderValue(Sprite3D.WORLDMATRIX, ShaderDataType.Matrix4x4, trans.worldMatrix);
         this._worldParams.x = trans.getFrontFaceValue();
         this._setShaderValue(Sprite3D.WORLDINVERTFRONT, ShaderDataType.Vector4, this._worldParams);
-        return;
     }
 
     protected _onDestroy() {

@@ -930,19 +930,31 @@ export class Stage extends Sprite {
         var document: any = Browser.document;
         var canvas: any = Render.canvas;
         if (value) {
-            canvas.addEventListener('mousedown', this._requestFullscreen);
-            canvas.addEventListener('touchstart', this._requestFullscreen);
-            document.addEventListener("fullscreenchange", this._fullScreenChanged);
-            document.addEventListener("mozfullscreenchange", this._fullScreenChanged);
-            document.addEventListener("webkitfullscreenchange", this._fullScreenChanged);
-            document.addEventListener("msfullscreenchange", this._fullScreenChanged);
+            canvas.addEventListener('mousedown', requestFullscreen);
+            canvas.addEventListener('touchstart', requestFullscreen);
+            document.addEventListener("fullscreenchange", fullScreenChanged);
+            document.addEventListener("mozfullscreenchange", fullScreenChanged);
+            document.addEventListener("webkitfullscreenchange", fullScreenChanged);
+            document.addEventListener("msfullscreenchange", fullScreenChanged);
         } else {
-            canvas.removeEventListener('mousedown', this._requestFullscreen);
-            canvas.removeEventListener('touchstart', this._requestFullscreen);
-            document.removeEventListener("fullscreenchange", this._fullScreenChanged);
-            document.removeEventListener("mozfullscreenchange", this._fullScreenChanged);
-            document.removeEventListener("webkitfullscreenchange", this._fullScreenChanged);
-            document.removeEventListener("msfullscreenchange", this._fullScreenChanged);
+            canvas.removeEventListener('mousedown', requestFullscreen);
+            canvas.removeEventListener('touchstart', requestFullscreen);
+            document.removeEventListener("fullscreenchange", fullScreenChanged);
+            document.removeEventListener("mozfullscreenchange", fullScreenChanged);
+            document.removeEventListener("webkitfullscreenchange", fullScreenChanged);
+            document.removeEventListener("msfullscreenchange", fullScreenChanged);
+        }
+    }
+
+    /**退出全屏模式*/
+    exitFullscreen(): void {
+        var document: any = Browser.document;
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        } else if (document.mozCancelFullScreen) {
+            document.mozCancelFullScreen();
+        } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
         }
     }
 
@@ -978,37 +990,6 @@ export class Stage extends Sprite {
     }
 
     /**@private */
-    private _requestFullscreen(): void {
-        var element: any = Browser.document.documentElement;
-        if (element.requestFullscreen) {
-            element.requestFullscreen();
-        } else if (element.mozRequestFullScreen) {
-            element.mozRequestFullScreen();
-        } else if (element.webkitRequestFullscreen) {
-            element.webkitRequestFullscreen();
-        } else if (element.msRequestFullscreen) {
-            element.msRequestFullscreen();
-        }
-    }
-
-    /**@private */
-    private _fullScreenChanged(): void {
-        this.event(Event.FULL_SCREEN_CHANGE);
-    }
-
-    /**退出全屏模式*/
-    exitFullscreen(): void {
-        var document: any = Browser.document;
-        if (document.exitFullscreen) {
-            document.exitFullscreen();
-        } else if (document.mozCancelFullScreen) {
-            document.mozCancelFullScreen();
-        } else if (document.webkitExitFullscreen) {
-            document.webkitExitFullscreen();
-        }
-    }
-
-    /**@private */
     isGlobalRepaint(): boolean {
         return this._globalRepaintGet;
     }
@@ -1017,4 +998,25 @@ export class Stage extends Sprite {
     setGlobalRepaint(): void {
         this._globalRepaintSet = true;
     }
+}
+
+function requestFullscreen(): void {
+    var element: any = Browser.document.documentElement;
+    if (element.requestFullscreen) {
+        element.requestFullscreen();
+    } else if (element.mozRequestFullScreen) {
+        element.mozRequestFullScreen();
+    } else if (element.webkitRequestFullscreen) {
+        element.webkitRequestFullscreen();
+    } else if (element.msRequestFullscreen) {
+        element.msRequestFullscreen();
+    }
+
+    var canvas: any = Render.canvas;
+    canvas.removeEventListener('mousedown', requestFullscreen);
+    canvas.removeEventListener('touchstart', requestFullscreen);
+}
+
+function fullScreenChanged(): void {
+    ILaya.stage.event(Event.FULL_SCREEN_CHANGE);
 }
