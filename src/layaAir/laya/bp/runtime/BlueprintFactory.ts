@@ -3,29 +3,29 @@ import { BPType, TBPCNode, TBPNode, TBPStageData, TBPVarProperty } from "../data
 
 import { TBPNodeData, TBPNodeDef } from "../core/type/TBluePrint";
 
-import { BPExcuteNode } from "./action/BPExcuteNode";
-import { BPRuntime } from "./BPRuntime";
-import { BPStaticFun } from "./BPStaticFun";
+import { BlueprintExcuteNode } from "./action/BlueprintExcuteNode";
+import { BlueprintRuntime } from "./BlueprintRuntime";
+import { BlueprintStaticFun } from "./BlueprintStaticFun";
 import { IRunAble } from "./interface/IRunAble";
-import { BPComplexNode } from "./node/BPComplexNode";
-import { BPEventNode } from "./node/BPEventNode";
-import { BPFunNode } from "./node/BPFunNode";
-import { BPGetVarNode } from "./node/BPGetVarNode";
-import { BPRuntimeBaseNode } from "./node/BPRuntimeBaseNode";
-import { BPSequenceNode } from "./node/BPSequenceNode";
-import { BPSetVarNode } from "./node/BPSetVarNode";
-import { BPUtil } from "../core/BPUtil";
-import { BPNewTargetNode } from "./node/BPNewTargetNode";
+import { BlueprintComplexNode } from "./node/BlueprintComplexNode";
+import { BlueprintEventNode } from "./node/BlueprintEventNode";
+import { BlueprintFunNode } from "./node/BlueprintFunNode";
+import { BlueprintGetVarNode } from "./node/BlueprintGetVarNode";
+import { BlueprintRuntimeBaseNode } from "./node/BlueprintRuntimeBaseNode";
+import { BlueprintSequenceNode } from "./node/BlueprintSequenceNode";
+import { BlueprintSetVarNode } from "./node/BlueprintSetVarNode";
+import { BlueprintUtil } from "../core/BlueprintUtil";
+import { BlueprintNewTargetNode } from "./node/BlueprintNewTargetNode";
 
-export class BPFactory {
+export class BlueprintFactory {
     private static _funMap: Map<string, [Function,boolean]>;
 
-    private static _instance: BPFactory;
+    private static _instance: BlueprintFactory;
 
     private static _isInited: boolean;
 
     //新格式
-    private static _bpNewMap: Map<BPType, new () => BPRuntimeBaseNode>;
+    private static _bpNewMap: Map<BPType, new () => BlueprintRuntimeBaseNode>;
     static bpNewMap: Map<string, TBPCNode> = new Map();
 
 
@@ -34,7 +34,7 @@ export class BPFactory {
      * @param type 
      * @param cls 
      */
-    static regBPClassNew(type: BPType, cls: new () => BPRuntimeBaseNode) {
+    static regBPClassNew(type: BPType, cls: new () => BlueprintRuntimeBaseNode) {
         this._bpNewMap.set(type, cls);
     }
 
@@ -52,24 +52,24 @@ export class BPFactory {
             this._isInited = true;
 
             this._bpNewMap = new Map();
-            this.regBPClassNew(BPType.Event, BPEventNode);
-            this.regBPClassNew(BPType.Pure, BPRuntimeBaseNode);
-            this.regBPClassNew(BPType.Operator, BPRuntimeBaseNode);
-            this.regBPClassNew(BPType.Function, BPFunNode);
-            this.regBPClassNew(BPType.GetValue, BPGetVarNode);
-            this.regBPClassNew(BPType.SetValue, BPSetVarNode);
-            this.regBPClassNew(BPType.Branch, BPComplexNode);
-            this.regBPClassNew(BPType.Sequence, BPSequenceNode);
-            this.regBPClassNew(BPType.NewTarget ,BPNewTargetNode);
+            this.regBPClassNew(BPType.Event, BlueprintEventNode);
+            this.regBPClassNew(BPType.Pure, BlueprintRuntimeBaseNode);
+            this.regBPClassNew(BPType.Operator, BlueprintRuntimeBaseNode);
+            this.regBPClassNew(BPType.Function, BlueprintFunNode);
+            this.regBPClassNew(BPType.GetValue, BlueprintGetVarNode);
+            this.regBPClassNew(BPType.SetValue, BlueprintSetVarNode);
+            this.regBPClassNew(BPType.Branch, BlueprintComplexNode);
+            this.regBPClassNew(BPType.Sequence, BlueprintSequenceNode);
+            this.regBPClassNew(BPType.NewTarget ,BlueprintNewTargetNode);
 
-            this.regFunction("printString", BPStaticFun.print);
-            this.regFunction("branch", BPStaticFun.branch);
+            this.regFunction("printString", BlueprintStaticFun.print);
+            this.regFunction("branch", BlueprintStaticFun.branch);
 
-            this.regFunction("add",BPStaticFun.add);
-            this.regFunction("waitTime",BPStaticFun.waitTime);
-            this.regFunction("get",BPStaticFun.getVariable);
+            this.regFunction("add",BlueprintStaticFun.add);
+            this.regFunction("waitTime",BlueprintStaticFun.waitTime);
+            this.regFunction("get",BlueprintStaticFun.getVariable);
 
-            this.regFunction("set",BPStaticFun.setVariable);
+            this.regFunction("set",BlueprintStaticFun.setVariable);
 
             //this.regFunction("test",BPBaseTest.prototype.test,true);
 
@@ -87,13 +87,13 @@ export class BPFactory {
         function classFactory(className: string, SuperClass: any) {
             return {
                 [className]: class extends SuperClass {
-                    bp: BPRuntime;
+                    bp: BlueprintRuntime;
 
                     context: IRunAble;
                     constructor(...args: any) {
                         super(...args);
                         //Object.assign(this, properties);
-                        this.context = new BPExcuteNode(this);
+                        this.context = new BlueprintExcuteNode(this);
                         let varMap=this.bp.varMap;
                         if(varMap){
                             for(let str in varMap){
@@ -112,10 +112,10 @@ export class BPFactory {
         }
 
         let newClass = classFactory(name, cls);
-        let bp = newClass.prototype.bp = new BPRuntime();
+        let bp = newClass.prototype.bp = new BlueprintRuntime();
         // debugger;
         let c=function(node:TBPNode):TBPCNode{
-            return BPUtil.getConstNode("Node",node) as TBPCNode;
+            return BlueprintUtil.getConstNode("Node",node) as TBPCNode;
         }
         bp.parseNew(bpjson,c,varMap);
         Object.defineProperty(newClass, 'name', { value: name });
@@ -123,15 +123,15 @@ export class BPFactory {
     }
 
 
-    static get instance(): BPFactory {
+    static get instance(): BlueprintFactory {
         if (!this._instance) {
-            this._instance = new BPFactory();
+            this._instance = new BlueprintFactory();
         }
         return this._instance;
     }
 
     createNew(config: TBPCNode) {
-        let cls = BPFactory._bpNewMap.get(config.type);
+        let cls = BlueprintFactory._bpNewMap.get(config.type);
         let result = new cls();
         result.parseNew(config);
         return result;

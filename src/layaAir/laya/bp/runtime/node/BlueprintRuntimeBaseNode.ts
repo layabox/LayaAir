@@ -1,53 +1,53 @@
 import { EPinType, EPinDirection } from "../../core/EBluePrint";
-import { BPNode } from "../../core/BPNode";
+import { BlueprintNode } from "../../core/BlueprintNode";
 import { TBPPinDef } from "../../core/type/TBluePrint";
-import { BPPinRuntime } from "../BPPinRuntime";
-import { IRunAble } from "../../runtime/interface/IRunAble";
-import { BPPromise } from "../BPPromise";
-import { BPConst } from "../../core/BPConst";
+import { BlueprintPinRuntime } from "../BlueprintPinRuntime";
+import { IRunAble } from "../interface/IRunAble";
+import { BlueprintPromise } from "../BlueprintPromise";
+import { BlueprintConst } from "../../core/BlueprintConst";
 import { IBPRutime } from "../interface/IBPRutime";
 
-export class BPRuntimeBaseNode extends BPNode<BPPinRuntime> {
+export class BlueprintRuntimeBaseNode extends BlueprintNode<BlueprintPinRuntime> {
     index: number;
-    staticNext: BPRuntimeBaseNode;//下一个节点
-    private static _EMPTY: BPPinRuntime[] = [];
+    staticNext: BlueprintRuntimeBaseNode;//下一个节点
+    private static _EMPTY: BlueprintPinRuntime[] = [];
     nativeFun: Function;
     isMember:boolean; 
     funcode: string;
     /**
      * 输入参数列表 
      */
-    inPutParmPins: BPPinRuntime[];
+    inPutParmPins: BlueprintPinRuntime[];
     /**
      * 输出参数列表
      */
-    outPutParmPins: BPPinRuntime[];
+    outPutParmPins: BlueprintPinRuntime[];
 
-    nextNode: BPRuntimeBaseNode;
+    nextNode: BlueprintRuntimeBaseNode;
 
     /**
      * 输出引脚
     */
-    outExcutes: BPPinRuntime[];
+    outExcutes: BlueprintPinRuntime[];
 
 
     constructor() {
         super();
-        this.inPutParmPins = BPRuntimeBaseNode._EMPTY;
-        this.outPutParmPins = BPRuntimeBaseNode._EMPTY;
+        this.inPutParmPins = BlueprintRuntimeBaseNode._EMPTY;
+        this.outPutParmPins = BlueprintRuntimeBaseNode._EMPTY;
         // this._parmsArray=[];
     }
 
-    createPin(def: TBPPinDef): BPPinRuntime {
-        let pin = new BPPinRuntime();
+    createPin(def: TBPPinDef): BlueprintPinRuntime {
+        let pin = new BlueprintPinRuntime();
         pin.parse(def);
         return pin;
     }
 
 
-    step(context: IRunAble, fromExcute: boolean,runner:IBPRutime,enableDebugPause:boolean): number| BPPromise {
+    step(context: IRunAble, fromExcute: boolean,runner:IBPRutime,enableDebugPause:boolean): number| BlueprintPromise {
         if (fromExcute && context.beginExcute(this,runner,enableDebugPause)) {
-            return BPConst.MAX_CODELINE;
+            return BlueprintConst.MAX_CODELINE;
         }
         let _parmsArray:any[] = [];
 
@@ -56,8 +56,8 @@ export class BPRuntimeBaseNode extends BPNode<BPPinRuntime> {
             const curInput = inputPins[i];
             let from = curInput.linkTo[0];
             if (from) {
-                (from as BPPinRuntime).step(context);
-                context.parmFromOtherPin(curInput, from as BPPinRuntime, _parmsArray);
+                (from as BlueprintPinRuntime).step(context);
+                context.parmFromOtherPin(curInput, from as BlueprintPinRuntime, _parmsArray);
             }
             else {
                 context.parmFromSelf(curInput, _parmsArray);
@@ -71,7 +71,7 @@ export class BPRuntimeBaseNode extends BPNode<BPPinRuntime> {
             }
             let result=context.excuteFun(this.nativeFun, this.outPutParmPins,caller,_parmsArray);
             if(result instanceof Promise){
-                let promise=BPPromise.create();
+                let promise=BlueprintPromise.create();
                 result.then((value)=>{
                     promise.curIndex=this.next(context,_parmsArray,runner);
                     promise.complete();
@@ -88,22 +88,22 @@ export class BPRuntimeBaseNode extends BPNode<BPPinRuntime> {
     }
 
     next(context: IRunAble, parmsArray: any[],runner:IBPRutime): number {
-        return BPConst.MAX_CODELINE;
+        return BlueprintConst.MAX_CODELINE;
     }
 
-    addPin(pin: BPPinRuntime) {
+    addPin(pin: BlueprintPinRuntime) {
         pin.owner = this;
         super.addPin(pin);
         if (pin.type == EPinType.Other) {
             switch (pin.direction) {
                 case EPinDirection.Input:
-                    if (this.inPutParmPins == BPRuntimeBaseNode._EMPTY) {
+                    if (this.inPutParmPins == BlueprintRuntimeBaseNode._EMPTY) {
                         this.inPutParmPins = [];
                     }
                     this.inPutParmPins.push(pin);
                     break;
                 case EPinDirection.Output:
-                    if (this.outPutParmPins == BPRuntimeBaseNode._EMPTY) {
+                    if (this.outPutParmPins == BlueprintRuntimeBaseNode._EMPTY) {
                         this.outPutParmPins = [];
                     }
                     this.outPutParmPins.push(pin);

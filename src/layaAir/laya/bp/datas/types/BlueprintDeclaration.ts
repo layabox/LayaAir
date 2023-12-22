@@ -1,3 +1,4 @@
+import { customData } from "../BlueprintExtends";
 import { BPType } from "./BlueprintTypes";
 
 type TBPDecoratorsPropertType = "function" | "property" | "class" | "constructor" | "accessor";
@@ -158,7 +159,8 @@ export interface BPDecoratorsOptionProp extends BPDecoratorsOptionBase{
 }
 
 
-export var bpUserMap : Map<Function,TBPDeclaration> = new Map;
+var bpUserMap : Map<Function,TBPDeclaration> = new Map;
+
 function initDeclaration(name:string , cls:Function){
     let declare:TBPDeclaration = {
         name,
@@ -184,6 +186,7 @@ export function bpRegClass( options : BPDecoratorsOptionClass){
         }else{
             declare.name = options.name;
         }
+        customData[options.name] = declare;
     }
 }
 
@@ -233,7 +236,7 @@ export function bpRegFunction( options : BPDecoratorsOptionFunction){
             return;
         }
 
-        let declare = bpUserMap.get(target);
+        let declare = bpUserMap.get(target.prototype);
         if (!declare) {
             declare = initDeclaration( "" , target );
         }
@@ -256,7 +259,8 @@ export function bpRegFunction( options : BPDecoratorsOptionFunction){
                 params:options.params,
             }
 
-            // func.originFunc = descriptor.value
+            // func.originFunc = descriptor.value;
+
             if (!declare.funcs) {
                 declare.funcs = [];
             }

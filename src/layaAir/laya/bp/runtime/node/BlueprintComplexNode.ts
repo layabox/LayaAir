@@ -1,15 +1,15 @@
 
 import { IRunAble } from "../interface/IRunAble";
 import { EPinDirection, EPinType } from "../../core/EBluePrint";
-import { BPPinRuntime } from "../BPPinRuntime";
-import { BPRuntimeBaseNode } from "./BPRuntimeBaseNode";
+import { BlueprintPinRuntime } from "../BlueprintPinRuntime";
+import { BlueprintRuntimeBaseNode } from "./BlueprintRuntimeBaseNode";
 import { IBPRutime } from "../interface/IBPRutime";
 
-export class BPComplexNode extends BPRuntimeBaseNode {
+export class BlueprintComplexNode extends BlueprintRuntimeBaseNode {
     /**
      * 输入引脚
      */
-    inExcutes: BPPinRuntime[];
+    inExcutes: BlueprintPinRuntime[];
 
     constructor() {
         super();
@@ -21,15 +21,15 @@ export class BPComplexNode extends BPRuntimeBaseNode {
         //context.find()
         let result = this.find(parmsArray[0], this.outExcutes);
 
-        return (result.linkTo[0] as BPPinRuntime).owner.index;
+        return (result.linkTo[0] as BlueprintPinRuntime).owner.index;
 
         // result.excute(context);
         //this.outExcute.excute(context);
     }
 
-    find: (input: any, outExcutes: BPPinRuntime[]) => BPPinRuntime;
+    find: (input: any, outExcutes: BlueprintPinRuntime[]) => BlueprintPinRuntime;
 
-    addPin(pin: BPPinRuntime) {
+    addPin(pin: BlueprintPinRuntime) {
         super.addPin(pin);
         if (pin.type == EPinType.Exec) {
             if (pin.direction == EPinDirection.Input) {
@@ -44,6 +44,6 @@ export class BPComplexNode extends BPRuntimeBaseNode {
     setFunction(fun: Function) {
         this.nativeFun = null;
         this.funcode = fun?.name;
-        this.find = fun as (input: any, outExcutes: BPPinRuntime[]) => BPPinRuntime;
+        this.find = fun as (input: any, outExcutes: BlueprintPinRuntime[]) => BlueprintPinRuntime;
     }
 }

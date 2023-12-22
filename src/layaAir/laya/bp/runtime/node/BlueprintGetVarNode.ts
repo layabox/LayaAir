@@ -1,12 +1,12 @@
 import { TBPNode } from "../../datas/types/BlueprintTypes";
-import { BPConst } from "../../core/BPConst";
-import { BPNode } from "../../core/BPNode";
+import { BlueprintConst } from "../../core/BlueprintConst";
+import { BlueprintNode } from "../../core/BlueprintNode";
 import { INodeManger } from "../../core/interface/INodeManger";
-import { IRunAble } from "../../runtime/interface/IRunAble";
-import { BPStaticFun } from "../BPStaticFun";
-import { BPRuntimeBaseNode } from "./BPRuntimeBaseNode";
+import { IRunAble } from "../interface/IRunAble";
+import { BlueprintStaticFun } from "../BlueprintStaticFun";
+import { BlueprintRuntimeBaseNode } from "./BlueprintRuntimeBaseNode";
 
-export class BPGetVarNode extends BPRuntimeBaseNode {
+export class BlueprintGetVarNode extends BlueprintRuntimeBaseNode {
     protected _parmsArray: any[];
 
     private _varKey:string;
@@ -15,7 +15,7 @@ export class BPGetVarNode extends BPRuntimeBaseNode {
         this._parmsArray = [];
     }
 
-    parseLinkDataNew(node: TBPNode, manger: INodeManger<BPRuntimeBaseNode>){
+    parseLinkDataNew(node: TBPNode, manger: INodeManger<BlueprintRuntimeBaseNode>){
         this._varKey=node.varName;
         super.parseLinkDataNew(node,manger);
     }
@@ -27,12 +27,12 @@ export class BPGetVarNode extends BPRuntimeBaseNode {
         context.parmFromCustom(this._parmsArray, context, "context");
 
         if (this.nativeFun) {
-            let result=context.excuteFun(this.nativeFun, this.outPutParmPins,BPStaticFun,this._parmsArray);
+            let result=context.excuteFun(this.nativeFun, this.outPutParmPins,BlueprintStaticFun,this._parmsArray);
             if(result==undefined){
                 this.outPutParmPins[0].setValue(result);
             }
         }
-        return BPConst.MAX_CODELINE;
+        return BlueprintConst.MAX_CODELINE;
     }
 
 }

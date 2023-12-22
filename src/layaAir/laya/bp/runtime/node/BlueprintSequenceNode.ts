@@ -1,17 +1,17 @@
 
 import { IRunAble } from "../interface/IRunAble";
 import { EPinDirection, EPinType } from "../../core/EBluePrint";
-import { BPPinRuntime } from "../BPPinRuntime";
-import { BPComplexNode } from "./BPComplexNode";
-import { BPConst } from "../../core/BPConst";
+import { BlueprintPinRuntime } from "../BlueprintPinRuntime";
+import { BlueprintComplexNode } from "./BlueprintComplexNode";
+import { BlueprintConst } from "../../core/BlueprintConst";
 import { IBPRutime } from "../interface/IBPRutime";
 
-export class BPSequenceNode extends BPComplexNode {
+export class BlueprintSequenceNode extends BlueprintComplexNode {
 
     next(context: IRunAble, parmsArray: any[], runner: IBPRutime): number {
         for (let i = 0, n = this.outExcutes.length; i < n; i++) {
             let item = this.outExcutes[i];
-            let jj = (item.linkTo[0] as BPPinRuntime);
+            let jj = (item.linkTo[0] as BlueprintPinRuntime);
             if (jj) {
                 if(context.debuggerPause){
                     debugger;
@@ -34,7 +34,7 @@ export class BPSequenceNode extends BPComplexNode {
         //        //item.excute(context);
         //    }
         // });
-        return BPConst.MAX_CODELINE;
+        return BlueprintConst.MAX_CODELINE;
         //this.outExcute.excute(context);
     }
 

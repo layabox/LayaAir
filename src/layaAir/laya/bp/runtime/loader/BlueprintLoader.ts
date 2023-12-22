@@ -1,14 +1,13 @@
-import { BPImpl } from "../resource/BPImpl";
-import { BPParserAPI } from "../resource/BPParserAPI";
+import { BlueprintImpl } from "../resource/BlueprintImpl";
 
-import { BPConst } from "../../core/BPConst";
+import { BlueprintConst } from "../../core/BlueprintConst";
 import { ILoadTask, IResourceLoader, Loader } from "../../../net/Loader";
 import { HierarchyParser } from "../../../loaders/HierarchyParser";
 import { URL } from "../../../net/URL";
 
-export class BPLoaer implements IResourceLoader{
+export class BlueprintLoaer implements IResourceLoader{
 
-    load(task: ILoadTask):Promise<BPImpl>{
+    load(task: ILoadTask):Promise<BlueprintImpl>{
         return task.loader.fetch(task.url,"json",task.progress.createCallback(0.2),task.options).then(data =>{
             if (!data) return null;
             if (data._$ver != null) {
@@ -20,17 +19,17 @@ export class BPLoaer implements IResourceLoader{
         })
     }
 
-    private _parse( task:ILoadTask , data:any , version: number ):Promise<BPImpl>{
+    private _parse( task:ILoadTask , data:any , version: number ):Promise<BlueprintImpl>{
         // return new Sprite3D;
         let basePath = URL.getPath(task.url);
         //引擎精灵解析
         let links = HierarchyParser.collectResourceLinks(data,basePath);
 
         return task.loader.load(links,null,task.progress.createCallback()).then((resArray:any[])=>{
-            return new BPImpl(data ,version);
+            return new BlueprintImpl(data ,version);
         });
     }
 }
 
 
-Loader.registerLoader([BPConst.EXT],BPLoaer, BPConst.TYPE); 
+Loader.registerLoader([BlueprintConst.EXT],BlueprintLoaer, BlueprintConst.TYPE); 

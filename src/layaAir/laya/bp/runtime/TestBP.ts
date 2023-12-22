@@ -1,12 +1,12 @@
 import { EBlueNodeType, EPinDirection, EPinType } from "../core/EBluePrint";
 import { TBPNodeData, TBPNodeDef } from "../core/type/TBluePrint";
-import { BPPinRuntime } from "./BPPinRuntime";
-import { BPRuntime } from "./BPRuntime";
-import { BPStaticFun } from "./BPStaticFun";
-import { BPFactory } from "./BPFactory";
-import { BPExcuteNode } from "./action/BPExcuteNode";
-import { BPGenCodeNode } from "./action/BPGenCodeNode";
-import { BPExcuteDebuggerNode } from "./action/BPExcuteDebuggerNode";
+import { BlueprintPinRuntime } from "./BlueprintPinRuntime";
+import { BlueprintRuntime } from "./BlueprintRuntime";
+import { BlueprintStaticFun } from "./BlueprintStaticFun";
+import { BlueprintFactory } from "./BlueprintFactory";
+import { BlueprintExcuteNode } from "./action/BlueprintExcuteNode";
+import { BlueprintGenCodeNode } from "./action/BlueprintGenCodeNode";
+import { BlueprintExcuteDebuggerNode } from "./action/BlueprintExcuteDebuggerNode";
 import { BPType, TBPNode } from "../datas/types/BlueprintTypes";
 //import { TBPNode } from "../interface/BlueprintTypes";
 
@@ -310,7 +310,7 @@ export class TestBluePrint {
     }
 
     testBPNode() {
-        BPFactory.__init__();
+        BlueprintFactory.__init__();
 
         // let cls=BPFactory.createCls("TestBP", Laya.Node, bpjson);
 

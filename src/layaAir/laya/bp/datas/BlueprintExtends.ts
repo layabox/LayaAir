@@ -1,6 +1,6 @@
 // import { TypeExtendsData } from "./types/BlueprintTypes";
 
-import { TBPDeclaration } from "./types/BPDeclaration";
+import { TBPDeclaration } from "./types/BlueprintDeclaration";
 
 // export const extendsData: TypeExtendsData = {
 //     Node: {
@@ -32,6 +32,12 @@ import { TBPDeclaration } from "./types/BPDeclaration";
 //     }
 // }
 
+/**
+ * 开发者自定义相关
+ */
+export const customData : Record<string , TBPDeclaration> = {
+}
+
 export const extendsData: Record<string, TBPDeclaration> = {
     "Sprite3D": {
         "module": "Laya",
@@ -41,7 +47,17 @@ export const extendsData: Record<string, TBPDeclaration> = {
             "Node",
             "EventDispatcher"
         ],
-        "props": [],
+        "props": [
+            {
+                "modifiers": {
+                    "isPublic": true,
+                    "isReadonly": true
+                },
+                "name": "transform",
+                "getter": true,
+                "type": "Transform3D"
+            }
+        ],
         "funcs": [
             {
                 "name": "instantiate",

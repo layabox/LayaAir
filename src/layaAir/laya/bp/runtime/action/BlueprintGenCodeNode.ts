@@ -1,9 +1,9 @@
-import { BPPinRuntime } from "../BPPinRuntime";
+import { BlueprintPinRuntime } from "../BlueprintPinRuntime";
 import { IRunAble } from "../interface/IRunAble";
-import { BPRuntimeBaseNode } from "../node/BPRuntimeBaseNode";
-import { BPRunBase } from "./BPRunBase";
+import { BlueprintRuntimeBaseNode } from "../node/BlueprintRuntimeBaseNode";
+import { BlueprintRunBase } from "./BlueprintRunBase";
 
-export class BPGenCodeNode extends BPRunBase implements IRunAble {
+export class BlueprintGenCodeNode extends BlueprintRunBase implements IRunAble {
     debuggerPause: boolean;
     pushBack(index: number): void {
         throw new Error("Method not implemented.");
@@ -20,7 +20,7 @@ export class BPGenCodeNode extends BPRunBase implements IRunAble {
     setVar(name: string, value: any): void {
         throw new Error("Method not implemented.");
     }
-    find(input: any, outExcutes: BPPinRuntime[]): BPPinRuntime {
+    find(input: any, outExcutes: BlueprintPinRuntime[]): BlueprintPinRuntime {
         throw new Error("Method not implemented.");
     }
     codes: string[][] = [];
@@ -29,7 +29,7 @@ export class BPGenCodeNode extends BPRunBase implements IRunAble {
 
     blockMap: Map<number, any> = new Map();
 
-    beginExcute(runtimeNode: BPRuntimeBaseNode): boolean {
+    beginExcute(runtimeNode: BlueprintRuntimeBaseNode): boolean {
         let index = this.listNode.indexOf(runtimeNode);
         if (index == -1) {
             this.listNode.push(runtimeNode);
@@ -48,32 +48,32 @@ export class BPGenCodeNode extends BPRunBase implements IRunAble {
         }
     }
 
-    endExcute(runtimeNode: BPRuntimeBaseNode): void {
+    endExcute(runtimeNode: BlueprintRuntimeBaseNode): void {
         if (this.currentFun) {
             this.codes.push(this.currentFun);
             this.currentFun = null;
         }
     }
 
-    parmFromOtherPin(current: BPPinRuntime, from: BPPinRuntime, parmsArray: any[]): void {
+    parmFromOtherPin(current: BlueprintPinRuntime, from: BlueprintPinRuntime, parmsArray: any[]): void {
         let last = this.currentFun.pop();
         last = "let " + current.name + current.owner.id + " = " + last;
         this.currentFun.push(last);
         parmsArray.push(current.name + current.owner.id);
     }
 
-    parmFromSelf(current: BPPinRuntime, parmsArray: any[]): void {
+    parmFromSelf(current: BlueprintPinRuntime, parmsArray: any[]): void {
         parmsArray.push(current.getValueCode());
     }
 
-    parmFromOutPut(outPutParmPins: BPPinRuntime[], parmsArray: any[]): void {
+    parmFromOutPut(outPutParmPins: BlueprintPinRuntime[], parmsArray: any[]): void {
     }
 
     parmFromCustom(parmsArray: any[], parm: any, parmname: string): void {
         parmsArray.push(parmname);
     }
 
-    excuteFun(nativeFun: Function, outPutParmPins: BPPinRuntime[], parmsArray: any[]): void {
+    excuteFun(nativeFun: Function, outPutParmPins: BlueprintPinRuntime[], parmsArray: any[]): void {
 
         let a = (nativeFun.name + "(" + parmsArray.join(",") + ");");
         this.currentFun.push(a);
