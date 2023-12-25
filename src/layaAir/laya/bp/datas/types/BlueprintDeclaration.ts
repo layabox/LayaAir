@@ -1,3 +1,4 @@
+import { regClass } from "../../../../Decorators";
 import { Component } from "../../../components/Component";
 import { Node } from "../../../display/Node";
 import { customData } from "../BlueprintExtends";
@@ -140,6 +141,8 @@ export interface BPDecoratorsOptionBase{
 export interface BPDecoratorsOptionClass extends BPDecoratorsOptionBase{
     /** 注册名称 */
     name:string;
+    /** 唯一识别id */
+    uuid?:string;
 }
 
 export interface BPDecoratorsOptionFunction extends BPDecoratorsOptionBase{
@@ -179,8 +182,10 @@ function initDeclaration(name:string , cls:Function){
     bpUserMap.set(cls,declare);
     return declare;
 }
+
 /**
  * 蓝图装饰器
+ * @param options
  */
 export function bpRegClass( options : BPDecoratorsOptionClass){
     
@@ -196,7 +201,8 @@ export function bpRegClass( options : BPDecoratorsOptionClass){
         }else{
             declare.name = options.name;
         }
-        customData[options.name] = declare;
+        //以uuid为识别
+        customData[options.uuid] = declare;
     }
 }
 

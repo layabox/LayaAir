@@ -39,6 +39,349 @@ export const customData : Record<string , TBPDeclaration> = {
 }
 
 export const extendsData: Record<string, TBPDeclaration> = {
+    "Script": {
+        "module": "Laya",
+        "name": "Script",
+        "extends": [
+            "Component"
+        ],
+        "props": [],
+        "funcs": [
+            {
+                "name": "onTriggerEnter",
+                "type": "event",
+                "modifiers": {
+                    "isPublic": true
+                },
+                "params": [
+                    {
+                        "name": "other",
+                        "type": "PhysicsColliderComponent|ColliderBase"
+                    },
+                    {
+                        "name": "self",
+                        "type": "ColliderBase",
+                        "optional": true
+                    },
+                    {
+                        "name": "contact",
+                        "type": "any",
+                        "optional": true
+                    }
+                ],
+                "returnType": "void"
+            },
+            {
+                "name": "onTriggerStay",
+                "type": "event",
+                "modifiers": {
+                    "isPublic": true
+                },
+                "params": [
+                    {
+                        "name": "other",
+                        "type": "PhysicsColliderComponent|ColliderBase"
+                    },
+                    {
+                        "name": "self",
+                        "type": "ColliderBase",
+                        "optional": true
+                    },
+                    {
+                        "name": "contact",
+                        "type": "any",
+                        "optional": true
+                    }
+                ],
+                "returnType": "void"
+            },
+            {
+                "name": "onTriggerExit",
+                "type": "event",
+                "modifiers": {
+                    "isPublic": true
+                },
+                "params": [
+                    {
+                        "name": "other",
+                        "type": "PhysicsColliderComponent|ColliderBase"
+                    },
+                    {
+                        "name": "self",
+                        "type": "ColliderBase",
+                        "optional": true
+                    },
+                    {
+                        "name": "contact",
+                        "type": "any",
+                        "optional": true
+                    }
+                ],
+                "returnType": "void"
+            },
+            {
+                "name": "onCollisionEnter",
+                "type": "event",
+                "modifiers": {
+                    "isPublic": true
+                },
+                "params": [
+                    {
+                        "name": "collision",
+                        "type": "Collision"
+                    }
+                ],
+                "returnType": "void"
+            },
+            {
+                "name": "onCollisionStay",
+                "type": "event",
+                "modifiers": {
+                    "isPublic": true
+                },
+                "params": [
+                    {
+                        "name": "collision",
+                        "type": "Collision"
+                    }
+                ],
+                "returnType": "void"
+            },
+            {
+                "name": "onCollisionExit",
+                "type": "event",
+                "modifiers": {
+                    "isPublic": true
+                },
+                "params": [
+                    {
+                        "name": "collision",
+                        "type": "Collision"
+                    }
+                ],
+                "returnType": "void"
+            },
+            {
+                "name": "onJointBreak",
+                "type": "event",
+                "modifiers": {
+                    "isPublic": true
+                },
+                "returnType": "void"
+            },
+            {
+                "name": "onMouseDown",
+                "type": "event",
+                "modifiers": {
+                    "isPublic": true
+                },
+                "params": [
+                    {
+                        "name": "evt",
+                        "type": "Event"
+                    }
+                ],
+                "returnType": "void"
+            },
+            {
+                "name": "onMouseUp",
+                "type": "event",
+                "modifiers": {
+                    "isPublic": true
+                },
+                "params": [
+                    {
+                        "name": "evt",
+                        "type": "Event"
+                    }
+                ],
+                "returnType": "void"
+            },
+            {
+                "name": "onRightMouseDown",
+                "type": "event",
+                "modifiers": {
+                    "isPublic": true
+                },
+                "params": [
+                    {
+                        "name": "evt",
+                        "type": "Event"
+                    }
+                ],
+                "returnType": "void"
+            },
+            {
+                "name": "onRightMouseUp",
+                "type": "event",
+                "modifiers": {
+                    "isPublic": true
+                },
+                "params": [
+                    {
+                        "name": "evt",
+                        "type": "Event"
+                    }
+                ],
+                "returnType": "void"
+            },
+            {
+                "name": "onMouseMove",
+                "type": "event",
+                "modifiers": {
+                    "isPublic": true
+                },
+                "params": [
+                    {
+                        "name": "evt",
+                        "type": "Event"
+                    }
+                ],
+                "returnType": "void"
+            },
+            {
+                "name": "onMouseOver",
+                "type": "event",
+                "modifiers": {
+                    "isPublic": true
+                },
+                "params": [
+                    {
+                        "name": "evt",
+                        "type": "Event"
+                    }
+                ],
+                "returnType": "void"
+            },
+            {
+                "name": "onMouseOut",
+                "type": "event",
+                "modifiers": {
+                    "isPublic": true
+                },
+                "params": [
+                    {
+                        "name": "evt",
+                        "type": "Event"
+                    }
+                ],
+                "returnType": "void"
+            },
+            {
+                "name": "onMouseDrag",
+                "type": "event",
+                "modifiers": {
+                    "isPublic": true
+                },
+                "params": [
+                    {
+                        "name": "evt",
+                        "type": "Event"
+                    }
+                ],
+                "returnType": "void"
+            },
+            {
+                "name": "onMouseDragEnd",
+                "type": "event",
+                "modifiers": {
+                    "isPublic": true
+                },
+                "params": [
+                    {
+                        "name": "evt",
+                        "type": "Event"
+                    }
+                ],
+                "returnType": "void"
+            },
+            {
+                "name": "onMouseClick",
+                "type": "event",
+                "modifiers": {
+                    "isPublic": true
+                },
+                "params": [
+                    {
+                        "name": "evt",
+                        "type": "Event"
+                    }
+                ],
+                "returnType": "void"
+            },
+            {
+                "name": "onMouseDoubleClick",
+                "type": "event",
+                "modifiers": {
+                    "isPublic": true
+                },
+                "params": [
+                    {
+                        "name": "evt",
+                        "type": "Event"
+                    }
+                ],
+                "returnType": "void"
+            },
+            {
+                "name": "onMouseRightClick",
+                "type": "event",
+                "modifiers": {
+                    "isPublic": true
+                },
+                "params": [
+                    {
+                        "name": "evt",
+                        "type": "Event"
+                    }
+                ],
+                "returnType": "void"
+            },
+            {
+                "name": "onKeyDown",
+                "type": "event",
+                "modifiers": {
+                    "isPublic": true
+                },
+                "params": [
+                    {
+                        "name": "evt",
+                        "type": "Event"
+                    }
+                ],
+                "returnType": "void"
+            },
+            {
+                "name": "onKeyPress",
+                "type": "event",
+                "modifiers": {
+                    "isPublic": true
+                },
+                "params": [
+                    {
+                        "name": "evt",
+                        "type": "Event"
+                    }
+                ],
+                "returnType": "void"
+            },
+            {
+                "name": "onKeyUp",
+                "type": "event",
+                "modifiers": {
+                    "isPublic": true
+                },
+                "params": [
+                    {
+                        "name": "evt",
+                        "type": "Event"
+                    }
+                ],
+                "returnType": "void"
+            }
+        ],
+        "type": "Component"
+    },
     "Sprite3D": {
         "module": "Laya",
         "name": "Sprite3D",
@@ -92,6 +435,22 @@ export const extendsData: Record<string, TBPDeclaration> = {
                     }
                 ],
                 "returnType": "Sprite3D"
+            },
+            {
+                "name": "destroy",
+                "type": "function",
+                "modifiers": {
+                    "isPublic": true
+                },
+                "params": [
+                    {
+                        "name": "destroyChild",
+                        "type": "boolean",
+                        "optional": true
+                    }
+                ],
+                "returnType": "void",
+                "fromParent": "Node"
             },
             {
                 "name": "onDestroy",

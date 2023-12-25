@@ -104,9 +104,9 @@ export class BlueprintFactory {
                         //this.context = new BPExcuteDebuggerNode(this);
                     }
 
-                    onAwake() {
-                        this.bp.run(this.context, "onAwake", null);
-                    }
+                    // onAwake() {
+                    //     this.bp.run(this.context, "onAwake", null);
+                    // }
                 }
             }[className];
         }
@@ -118,8 +118,14 @@ export class BlueprintFactory {
             return BlueprintUtil.getConstNode("Node",node) as TBPCNode;
         }
         bp.parseNew(bpjson,c,varMap);
+        this.initEventFunc(name , newClass);
         Object.defineProperty(newClass, 'name', { value: name });
+
         return newClass as unknown as T;
+    }
+
+    static initEventFunc(name:string,cls:Function){ // todo
+        // let obj = BlueprintUtil.getConstExtNode
     }
 
 
