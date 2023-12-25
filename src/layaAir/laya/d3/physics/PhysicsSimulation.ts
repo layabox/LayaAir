@@ -798,36 +798,43 @@ export class PhysicsSimulation {
             }
         }
 
-        // 角色的碰撞需要特殊处理一下。由于在角色流程中有可能已经解决了碰撞，导致发现不了碰撞，所以特殊处理
-        for (var i = 0, n = this._characters.length; i < n; i++) {
-            var character = this._characters[i];
-
-            //取出所有碰撞对象
-            character.getOverlappingObj(body => {
-                // 如果body也是角色则忽略，因为每个角色都会遍历到
-                if (body instanceof CharacterController) return;
-                let compa = character;
-                let compb = body;
-                if (character.id > body.id) {
-                    compa = body as any;
-                    compb = character as any;
+        // 角色的碰撞需要特殊处理一下。由于在角色流程中有可能已经解决了碰撞，导致发现不了碰撞，所以特殊处理,不使用AABB检测碰撞了
+        let _characters = this._characters;
+        for (let i = 0, n = _characters.length; i < n; i++) {
+            let character = _characters[i];
+            let btkc = character._btKinematicCharacter;
+            let collisionObjs = bt.btKinematicCharacterController_AllHitInfo_get_m_collisionObjects(btkc);
+            let count = bt.tBtCollisionObjectArray_size(collisionObjs) as number;
+            if (count > 0) {
+                for (let j = 0; j < count; j++) {
+                    let colobj = bt.tBtCollisionObjectArray_at(collisionObjs, j);
+                    if (colobj == 0) continue;
+                    let collider = PhysicsComponent._physicObjectsMap[bt.btCollisionObject_getUserIndex(colobj)];
+                    if (!collider) continue;
+                    let compa = character;
+                    let compb = collider;
+                    if (character._id > collider._id) {
+                        compa = collider as any;
+                        compb = character as any;
+                    }
+                    let collision = this._collisionsUtils.getCollision(compa, compb);
+                    // a和b已经有碰撞了，则忽略
+                    if (collision._updateFrame === loopCount) return;
+                    let contacts = collision.contacts;
+                    contacts.length = 1;	// 反正是假的，只记录一个假的碰撞点
+                    collision._setUpdateFrame(loopCount);
+                    // 添加假的碰撞点
+                    var contactPoint = this._collisionsUtils.getContactPoints();
+                    contactPoint.colliderA = compa;
+                    contactPoint.colliderB = compb;
+                    contactPoint.distance = 0;
+                    contacts[0] = contactPoint;
+                    let isTrigger = (compa as any).isTrigger || compb.isTrigger;
+                    collision._isTrigger = isTrigger;
+                    this._currentFrameCollisions.push(collision);
                 }
-                let collision = this._collisionsUtils.getCollision(compa, compb);
-                // a和b已经有碰撞了，则忽略
-                if (collision._updateFrame === loopCount) return;
-                let contacts = collision.contacts;
-                contacts.length = 1;	// 反正是假的，只记录一个假的碰撞点
-                collision._setUpdateFrame(loopCount);
-                // 添加假的碰撞点
-                var contactPoint = this._collisionsUtils.getContactPoints();
-                contactPoint.colliderA = compa;
-                contactPoint.colliderB = compb;
-                contactPoint.distance = 0;
-                contacts[0] = contactPoint;
-                this._currentFrameCollisions.push(collision);
-            });
+            }
         }
-
     }
 
 
