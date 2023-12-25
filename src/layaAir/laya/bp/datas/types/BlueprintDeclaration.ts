@@ -1,3 +1,5 @@
+import { Component } from "../../../components/Component";
+import { Node } from "../../../display/Node";
 import { customData } from "../BlueprintExtends";
 import { BPType } from "./BlueprintTypes";
 
@@ -5,6 +7,7 @@ type TBPDecoratorsPropertType = "function" | "property" | "class" | "constructor
 
 type TBPDecoratorsFuncType = "pure" | "function" | "event" | BPType.Pure | BPType.Function | BPType.Event;
 
+type TBPDeclarationType = "Node"|"Component"|"";
 
 /** 修饰符 */
 type BPModifiers = {
@@ -26,7 +29,7 @@ export type TBPDeclaration = {
     /** 当前描述名 */
     name: string;
     /** 当前描述的具体类型 */
-    type: string,
+    type: TBPDeclarationType,
     /** 继承的类型数组，按次序从为父类的父类  */
     extends?: string[];
     /** 实现的接口名 */
@@ -162,9 +165,16 @@ export interface BPDecoratorsOptionProp extends BPDecoratorsOptionBase{
 var bpUserMap : Map<Function,TBPDeclaration> = new Map;
 
 function initDeclaration(name:string , cls:Function){
+    let type:TBPDeclarationType = "Component";
+    if (cls instanceof Node) {
+        type = "Node";
+    }
+    // else if (cls instanceof Component) {
+    //     type = "Component";
+    // }
     let declare:TBPDeclaration = {
         name,
-        type:"class"
+        type
     }
     bpUserMap.set(cls,declare);
     return declare;

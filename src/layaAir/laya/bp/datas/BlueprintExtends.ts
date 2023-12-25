@@ -42,7 +42,6 @@ export const extendsData: Record<string, TBPDeclaration> = {
     "Sprite3D": {
         "module": "Laya",
         "name": "Sprite3D",
-        "type": "class",
         "extends": [
             "Node",
             "EventDispatcher"
@@ -130,12 +129,12 @@ export const extendsData: Record<string, TBPDeclaration> = {
                 "returnType": "void",
                 "fromParent": "Node"
             }
-        ]
+        ],
+        "type": "Node"
     },
     "Transform3D": {
         "module": "Laya",
         "name": "Transform3D",
-        "type": "class",
         "extends": [
             "EventDispatcher"
         ],
@@ -194,12 +193,12 @@ export const extendsData: Record<string, TBPDeclaration> = {
                 ],
                 "returnType": "void"
             }
-        ]
+        ],
+        "type": ""
     },
     "Matrix4x4": {
         "module": "Laya",
         "name": "Matrix4x4",
-        "type": "class",
         "implements": [
             "IClone"
         ],
@@ -339,12 +338,12 @@ export const extendsData: Record<string, TBPDeclaration> = {
                     "optional": true
                 }
             ]
-        }
+        },
+        "type": ""
     },
     "Vector3": {
         "module": "Laya",
         "name": "Vector3",
-        "type": "class",
         "implements": [
             "IClone"
         ],
@@ -390,12 +389,12 @@ export const extendsData: Record<string, TBPDeclaration> = {
                     "optional": true
                 }
             ]
-        }
+        },
+        "type": ""
     },
     "Vector4": {
         "module": "Laya",
         "name": "Vector4",
-        "type": "class",
         "implements": [
             "IClone"
         ],
@@ -453,6 +452,7 @@ export const extendsData: Record<string, TBPDeclaration> = {
                 }
             ]
         },
-        "funcs": []
+        "funcs": [],
+        "type": ""
     }
 }
