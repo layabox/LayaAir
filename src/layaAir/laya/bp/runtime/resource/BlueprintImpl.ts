@@ -42,8 +42,8 @@ export class BlueprintImpl extends Resource{
         if (this.data.lhData) {
             let api:IHierarchyParserAPI;
             let lhData = this.data.lhData;
-            if (lhData._$ver != null)
-                api = HierarchyParser;
+            api = HierarchyParser;
+           
 
             result = api.parse(lhData , options, errors); 
             if (Array.isArray(result)) {
