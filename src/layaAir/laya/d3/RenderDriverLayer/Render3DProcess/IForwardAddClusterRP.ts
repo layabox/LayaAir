@@ -26,6 +26,6 @@ export interface IForwardAddClusterRP{
     depthTarget:RenderTexture;
     depthNormalTarget:RenderTexture;
     //TODO
-    skyRenderNode:IBaseRenderNode
+    skyRenderNode:IBaseRenderNode;
     depthTextureMode:DepthTextureMode;
 }

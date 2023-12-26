@@ -177,7 +177,6 @@ export class GLESDirectLightShadowCastRP implements IDirectLightShadowRP {
         context.pipelineMode = "ShadowCaster";
         var shadowMap = this.destTarget
         context.renderTarget = shadowMap;
-        //var light = this._light;
         //需要把shadowmap clear Depth;
         for (var i: number = 0, n: number = this._cascadeCount; i < n; i++) {
             var sliceData: ShadowSliceData = this._shadowSliceDatas[i];

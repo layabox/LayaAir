@@ -14,8 +14,8 @@ export interface IRenderContext3D {
     sceneData: ShaderData;
     cameraData: ShaderData;
     renderTarget: RenderTexture;
-    viewPort: Viewport;
-    scissor: Vector4;
+    setViewPort(value:Viewport):void;
+    setScissor(value:Vector4):void;
     sceneUpdataMask: number;
     cameraUpdateMask: number;
     pipelineMode: PipelineMode;

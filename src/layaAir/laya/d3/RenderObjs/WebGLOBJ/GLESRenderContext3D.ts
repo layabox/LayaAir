@@ -68,21 +68,11 @@ export class GLESRenderContext3D implements IRenderContext3D {
         this._renderTarget = value;
     }
 
-
-    get viewPort(): Viewport {
-        return this._viewPort;
-    }
-
-    set viewPort(value: Viewport) {
+    setViewPort(value: Viewport) {
         this._viewPort = value;
     }
 
-
-    get scissor(): Vector4 {
-        return this._scissor;
-    }
-
-    set scissor(value: Vector4) {
+    setScissor(value: Vector4) {
         this._scissor = value;
     }
 
@@ -143,8 +133,8 @@ export class GLESRenderContext3D implements IRenderContext3D {
         var elements = list.elements;
         //for pre;
         //for render;
-        for (var i: number = 0, n: number = list.length; i < n; i++){
-           //elements[i]._render(this);//render
+        for (var i: number = 0, n: number = list.length; i < n; i++) {
+            //elements[i]._render(this);//render
         }
         this._end();
         return 0;
