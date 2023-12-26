@@ -8,6 +8,7 @@ import { RigidBody2DInfo } from "../RigidBody2DInfo";
 import { physics2D_DistancJointDef, physics2D_GearJointDef, physics2D_MotorJointDef, physics2D_MouseJointJointDef, physics2D_PrismaticJointDef, physics2D_PulleyJointDef, physics2D_RevoluteJointDef, physics2D_WeldJointDef, physics2D_WheelJointDef } from "../joint/JointDefStructInfo"
 import { Physics2DDebugDraw } from "../Physics2DDebugDraw";
 import { ILaya } from "../../../ILaya";
+import { Browser } from "../../utils/Browser";
 
 /**
  * 实现Box2D js 2.4.1 版本
@@ -255,9 +256,9 @@ export class physics2DJSFactory implements IPhysiscs2DFactory {
      * create Box2D world
      */
     start() {
-        this._PIXEL_RATIO = Physics2DOption.pixelRatio;
-        this._Re_PIXEL_RATIO = 1 / Physics2DOption.pixelRatio;
-        var gravity: any = this.createPhyFromLayaVec2(Physics2DOption.gravity.x, Physics2DOption.gravity.y);
+        this._PIXEL_RATIO = Physics2DOption.pixelRatio * Browser.pixelRatio;
+        this._Re_PIXEL_RATIO = 1 / this._PIXEL_RATIO;
+        var gravity: any = this.createPhyVec2(Physics2DOption.gravity.x, Physics2DOption.gravity.y);
         this._world = new this.box2d.b2World(gravity);
         this.world.SetDestructionListener(new DestructionListener());
         this.world.SetContactListener(new ContactListener());
@@ -1386,6 +1387,7 @@ export class physics2DJSFactory implements IPhysiscs2DFactory {
     DrawPoint(p: any, size: any, color: any): void {
         size *= this._debugDraw.camera.m_zoom;
         size /= this._debugDraw.camera.m_extent;
+        size /= Browser.pixelRatio;
         var hsize: any = size / 2;
 
         this._debugDraw.mG.drawRect(p.x - hsize, p.y - hsize, size, size, color.MakeStyleString(), null);
