@@ -29,6 +29,9 @@ export class BlueprintImpl extends Resource{
     _setCreateURL(url: string, uuid?: string): void {
         super._setCreateURL(url,uuid);
         ClassUtils.regClass(this.uuid , this.cls);
+        if (this.data && this.data.lhData) {
+            this.data.lhData._$type = this.uuid;
+        }
     }
 
     create(options?: Record<string, any>, errors?: any[]){
@@ -89,7 +92,6 @@ export class BlueprintImpl extends Resource{
                 varMap,
                 arr
             });
-            this.data.lhData._$type = this.uuid;
             this.cls = cls;
         }
     }
