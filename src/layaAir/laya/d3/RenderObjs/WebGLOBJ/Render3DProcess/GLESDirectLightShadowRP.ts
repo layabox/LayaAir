@@ -203,14 +203,14 @@ export class GLESDirectLightShadowCastRP implements IDirectLightShadowRP {
             if (renderList.elements.length > 0) {// if one cascade have anything to render.
                 Viewport._tempViewport.set(offsetX, offsetY, resolution, resolution);
                 Vector4.tempVec4.setValue(offsetX + 1, offsetY + 1, resolution - 2, resolution - 2);
-                context.viewPort = Viewport._tempViewport;
-                context.scissor = Vector4.tempVec4;
+                context.setViewPort(Viewport._tempViewport);
+                context.setScissor(Vector4.tempVec4);
             }
             else {
                 Viewport._tempViewport.set(offsetX, offsetY, resolution, resolution);
-                context.viewPort = Viewport._tempViewport;
+                context.setViewPort(Viewport._tempViewport);
                 Vector4.tempVec4.setValue(offsetX, offsetY, resolution, resolution);
-                context.scissor = Vector4.tempVec4;
+                context.setScissor(Vector4.tempVec4);
             }
             context.setClearData(RenderClearFlag.Depth, Color.BLACK, 1, 0);
             Stat.depthCastDrawCall += context.drawRenderElementList(renderList);//阴影均为非透明队列
