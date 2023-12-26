@@ -24,6 +24,7 @@ export enum StaticFlag {
     StaticBatch = 1 << 1,
 }
 
+/** @BPmeta */
 /**
  * <code>Sprite3D</code> 类用于实现3D精灵。
  */
@@ -47,6 +48,7 @@ export class Sprite3D extends Node {
         Sprite3D.sprite3DCommandUniformMap.addShaderUniform(Sprite3D.WORLDINVERTFRONT, "u_WroldInvertFront",ShaderDataType.Vector4);
     }
 
+    /** @BPmeta  */
     /**
      * 创建精灵的克隆实例。
      * @param	original  原始精灵。
@@ -132,6 +134,7 @@ export class Sprite3D extends Node {
         this.event(Event.staticMask, this._isStatic);
     }
 
+    /** @BPmeta */
     /**
      * 精灵变换。
      */

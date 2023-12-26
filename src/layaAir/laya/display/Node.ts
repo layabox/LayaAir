@@ -174,6 +174,7 @@ export class Node extends EventDispatcher {
         return (this._hideFlags & flag) != 0;
     }
 
+    /** @BPmeta */
     /**
      * <p>销毁此对象。destroy对象默认会把自己从父节点移除，并且清理自身引用关系，等待js自动垃圾回收机制回收。destroy后不能再使用。</p>
      * <p>destroy时会移除自身的事情监听，自身的timer监听，移除子对象及从父节点移除自己。</p>
@@ -197,6 +198,7 @@ export class Node extends EventDispatcher {
         this.offAll();
     }
 
+    /** @BPmeta {"type":"event"} */
     /**
      * 销毁时执行
      * 此方法为虚方法，使用时重写覆盖即可
@@ -717,6 +719,7 @@ export class Node extends EventDispatcher {
         //override it.
     }
 
+    /** @BPmeta {"type":"event"} */
     /**
     * 组件被激活后执行，此时所有节点和组件均已创建完毕，次方法只执行一次
     * 此方法为虚方法，使用时重写覆盖即可
@@ -725,6 +728,7 @@ export class Node extends EventDispatcher {
         //this.name  && trace("onAwake node ", this.name);
     }
 
+    /** @BPmeta {"type":"event"} */
     /**
      * 组件被启用后执行，比如节点被添加到舞台后
      * 此方法为虚方法，使用时重写覆盖即可
@@ -733,6 +737,7 @@ export class Node extends EventDispatcher {
         //this.name  && trace("onEnable node ", this.name);
     }
 
+    /** @BPmeta {"type":"event"} */
     /**
      * 组件被禁用时执行，比如从节点从舞台移除后
      * 此方法为虚方法，使用时重写覆盖即可
