@@ -1,13 +1,30 @@
 var WASI_STDOUT_FILENO = 1;
 var WASI_ESUCCESS = 0;
+function locateFile(path) {
+  return scriptDirectory + path;
+}
+let scriptDirectory = document.currentScript.src;
+scriptDirectory = scriptDirectory.substr(0, scriptDirectory.replace(/[?#].*/, "").lastIndexOf("/") + 1)
 
+if (window.conch) {
+  window.Physics3D = function(initialMemory, interactive) {
+    window.conch.setGetWorldTransformFunction(interactive.getWorldTransform);
+    window.conch.setSetWorldTransformFunction(interactive.setWorldTransform);
+    var conchBullet = window.layaConchBullet;
+    conchBullet.then = (complete) => {
+      complete();
+    };
+    window.Physics3D = conchBullet;
+    return conchBullet;
+  };
+  }
+  else{
 window.Physics3D = function (initialMemory, interactive) {
   var mem;
   return new Promise((resolve) => {
     mem = new WebAssembly.Memory({ initial: initialMemory });
-    fetch("bullet.wasm").then((response) => {
+    fetch(locateFile("bullet.wasm")).then((response) => {
       response.arrayBuffer().then((buffer) => {
-
         WebAssembly.instantiate(buffer, {
           LayaAirInteractive: interactive,
           wasi_snapshot_preview1: {
@@ -59,3 +76,4 @@ window.Physics3D = function (initialMemory, interactive) {
     });
   });
 };
+  }
