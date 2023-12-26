@@ -31,7 +31,7 @@ export interface IRenderEngine {
     colorMask(r: boolean, g: boolean, b: boolean, a: boolean): void;
     copySubFrameBuffertoTex(texture: BaseTexture, level: number, xoffset: number, yoffset: number, x: number, y: number, width: number, height: number): void;
     bindTexture(texture: BaseTexture): void;
-    clearRenderTexture(clearFlag: RenderClearFlag | number, clearcolor: Color, clearDepth: number): void;
+    clearRenderTexture(clearFlag: RenderClearFlag | number, clearcolor: Color, clearDepth: number,clearStencilValue:number): void;
     scissorTest(value: boolean): void;
 
     propertyNameToID(name: string): number;

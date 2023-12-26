@@ -10,10 +10,10 @@ import { ShaderDefine } from "../../RenderEngine/RenderShader/ShaderDefine"
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D"
 import { ShaderData } from "../../RenderEngine/RenderShader/ShaderData"
 import { RenderTargetFormat } from "../../RenderEngine/RenderEnum/RenderTargetFormat"
-import { DepthTextureMode } from "../depthMap/DepthPass"
 import { RenderTexture } from "../../resource/RenderTexture"
 import { ColorGradEffect } from "../core/render/PostEffect/ColorGradEffect"
 import { LayaGL } from "../../layagl/LayaGL"
+import { DepthTextureMode } from "../RenderDriverLayer/Render3DProcess/IForwardAddClusterRP"
 
 /**
  * <code>PostProcess</code> 类用于创建后期处理组件。

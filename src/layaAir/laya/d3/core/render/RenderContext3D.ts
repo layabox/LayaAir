@@ -64,26 +64,6 @@ export class RenderContext3D {
     /**@internal */
     set destTarget(value: IRenderTarget) {
         this._contextOBJ.destTarget = value;
-
-        // todo ohter color gamut
-        // let sRGBGammaOut = false;
-        // if (value) {
-        //     // todo 
-        //     if (value._renderTarget._textures[0].gammaCorrection == 2.2) {
-        //         sRGBGammaOut = true;
-        //     }
-        // }
-        // else {
-        //     // 直接输出到屏幕, 默认srgb gamma 2.2
-        //     sRGBGammaOut = true;
-        // }
-
-        // if (sRGBGammaOut) {
-        //     this._contextOBJ.configShaderData.addDefine(RenderContext3D.GammaCorrect);
-        // }
-        // else {
-        //     this._contextOBJ.configShaderData.removeDefine(RenderContext3D.GammaCorrect);
-        // }
     }
 
     /** @internal */

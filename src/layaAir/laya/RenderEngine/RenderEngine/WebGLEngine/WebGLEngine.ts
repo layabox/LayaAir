@@ -329,7 +329,7 @@ export class WebGLEngine implements IRenderEngine {
 
 
 
-    clearRenderTexture(clearFlag: RenderClearFlag, clearcolor: Color = null, clearDepth: number = 1) {
+    clearRenderTexture(clearFlag: RenderClearFlag, clearcolor: Color = null, clearDepth: number = 1,clearStencilValue = 0) {
         var flag: number;
         //this.gl.enable(this._gl.SCISSOR_TEST)
         if (clearFlag & RenderClearFlag.Color) {
@@ -348,7 +348,7 @@ export class WebGLEngine implements IRenderEngine {
             flag |= this._context.DEPTH_BUFFER_BIT;
         }
         if (clearFlag & RenderClearFlag.Stencil) {
-            this._context.clearStencil(0);
+            this._context.clearStencil(clearStencilValue);
             this._GLRenderState.setStencilMask(true);
             flag |= this._context.STENCIL_BUFFER_BIT;
         }

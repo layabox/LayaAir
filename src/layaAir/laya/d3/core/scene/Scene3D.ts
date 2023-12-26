@@ -401,7 +401,7 @@ export class Scene3D extends Sprite implements ISubmit {
     /**@internal */
     private _physicsStepTime: number = 0;
     /**@internal */
-    _lightmapDirtyFlag:number = -1
+    _lightmapDirtyFlag: number = -1
     /**@internal */
     _sunColor: Color = new Color(1.0, 1.0, 1.0);
     /**@interanl */
@@ -1270,7 +1270,7 @@ export class Scene3D extends Sprite implements ISubmit {
             clearColor = camera.clearColor;
         }
 
-        LayaGL.renderEngine.clearRenderTexture(clearConst, clearColor, 1);
+        LayaGL.renderEngine.clearRenderTexture(clearConst, clearColor, 1, 0);
     }
 
     /**

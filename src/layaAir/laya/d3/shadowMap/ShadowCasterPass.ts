@@ -219,7 +219,7 @@ export class ShadowCasterPass {
         cameraSV.setMatrix4x4(BaseCamera.VIEWMATRIX, shadowSliceData.viewMatrix);
         cameraSV.setMatrix4x4(BaseCamera.PROJECTMATRIX, shadowSliceData.projectionMatrix);
         cameraSV.setMatrix4x4(BaseCamera.VIEWPROJECTMATRIX, shadowSliceData.viewProjectMatrix);
-        shaderValues.setMatrix4x4(BaseCamera.VIEWPROJECTMATRIX, shadowSliceData.viewProjectMatrix);
+        shaderValues.setMatrix4x4(BaseCamera.VIEWPROJECTMATRIX, shadowSliceData.viewProjectMatrix);//TODO  为什么Scene也需要viewProjectMatrix
         context.viewMatrix = shadowSliceData.viewMatrix;
         context.projectionMatrix = shadowSliceData.projectionMatrix;
         context.projectionViewMatrix = shadowSliceData.viewProjectMatrix;

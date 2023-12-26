@@ -16,27 +16,15 @@ import { Color } from "../../maths/Color";
 import { Vector4 } from "../../maths/Vector4";
 import { RenderTexture } from "../../resource/RenderTexture";
 import { LayaGL } from "../../layagl/LayaGL";
+import { DepthTextureMode } from "../RenderDriverLayer/Render3DProcess/IForwardAddClusterRP";
 
 
-/**
- * 深度贴图模式
- */
-export enum DepthTextureMode {
-    /**不生成深度贴图 */
-    None = 0,
-    /**生成深度贴图 */
-    Depth = 1,
-    /**生成深度+法线贴图 */
-    DepthNormals = 2,
-    /**是否应渲染运动矢量  TODO*/
-    DepthAndDepthNormals = 3,
-    MotionVectors = 4,
-}
+
 /**
  * <code>ShadowCasterPass</code> 类用于实现阴影渲染管线
  */
 export class DepthPass {
-    private static SHADOW_BIAS: Vector4 = new Vector4();
+    static SHADOW_BIAS: Vector4 = new Vector4();
     /** @internal */
     static DEPTHPASS: ShaderDefine;
     /** @internal */

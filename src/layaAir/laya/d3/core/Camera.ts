@@ -5,7 +5,7 @@ import { Node } from "../../display/Node";
 import { Event } from "../../events/Event";
 import { BaseTexture } from "../../resource/BaseTexture";
 import { PostProcess } from "../component/PostProcess";
-import { DepthPass, DepthTextureMode } from "../depthMap/DepthPass";
+import { DepthPass } from "../depthMap/DepthPass";
 import { Cluster } from "../graphics/renderPath/Cluster";
 import { BoundFrustum } from "../math/BoundFrustum";
 import { Ray } from "../math/Ray";
@@ -39,6 +39,7 @@ import { RenderTexture } from "../../resource/RenderTexture";
 import { Stat } from "../../utils/Stat";
 import { WrapMode } from "../../RenderEngine/RenderEnum/WrapMode";
 import { LayaGL } from "../../layagl/LayaGL";
+import { DepthTextureMode } from "../RenderDriverLayer/Render3DProcess/IForwardAddClusterRP";
 
 /**
  * 相机清除标记。
