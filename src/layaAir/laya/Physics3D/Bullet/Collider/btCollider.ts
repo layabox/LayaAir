@@ -344,7 +344,7 @@ export class btCollider implements ICollider {
 
     transformChanged(flag: number): void {
         this._transformFlag = flag;
-        if (this.inPhysicUpdateListIndex == -1 && !this._enableProcessCollisions) {
+        if (this.inPhysicUpdateListIndex == -1 && this._enableProcessCollisions) {
             this._physicsManager._physicsUpdateList.add(this);
         }
     }
