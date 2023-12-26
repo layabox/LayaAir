@@ -15,24 +15,23 @@ export class BlueprintImpl extends Resource{
     public data:any;
 
     public state:-1|0|1 = 0;
+    /** @internal */
+    private cls:Function;
 
     constructor( data:any, version?:number){
         super();
 
         this.data = data;
         this.version = version
+        this.initClass();
     }
 
     _setCreateURL(url: string, uuid?: string): void {
         super._setCreateURL(url,uuid);
-        //todo
+        ClassUtils.regClass(this.uuid , this.cls);
     }
 
     create(options?: Record<string, any>, errors?: any[]){
-        if (!this.state) {
-            this.initClass();
-        }
-
         if (this.state == -1) {
             console.error("JSON Extends is undefined!");
             return null;
@@ -63,13 +62,14 @@ export class BlueprintImpl extends Resource{
     public initClass(){
         let extendClass = this.data.extends;
         let runtime = ClassUtils.getClass(extendClass);
+
         if (!runtime) {
             this.state = -1;
             return ;
         }
 
         if (!LayaEnv.isPlaying) {
-            ClassUtils.regClass(this.uuid , runtime);
+            this.cls = runtime;
         }else{
             BlueprintFactory.__init__();
             let map = this.data.blueprintArr;
@@ -90,9 +90,8 @@ export class BlueprintImpl extends Resource{
                 arr
             });
             this.data.lhData._$type = this.uuid;
-            ClassUtils.regClass(this.uuid,cls);
+            this.cls = cls;
         }
-
     }
 
     protected _disposeResource(): void {
