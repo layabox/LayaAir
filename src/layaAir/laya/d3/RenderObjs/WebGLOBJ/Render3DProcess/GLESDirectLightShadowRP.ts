@@ -303,7 +303,4 @@ export class GLESDirectLightShadowCastRP implements IDirectLightShadowRP {
         cameraSV.setMatrix4x4(BaseCamera.VIEWPROJECTMATRIX, shadowSliceData.viewProjectMatrix);
         shaderValues.setMatrix4x4(BaseCamera.VIEWPROJECTMATRIX, shadowSliceData.viewProjectMatrix);
     }
-
-
-
 }

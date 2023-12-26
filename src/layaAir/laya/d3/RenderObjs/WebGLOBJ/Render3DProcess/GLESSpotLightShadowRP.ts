@@ -10,6 +10,7 @@ import { Vector4 } from "../../../../maths/Vector4";
 import { RenderTexture } from "../../../../resource/RenderTexture";
 import { SingletonList } from "../../../../utils/SingletonList";
 import { Stat } from "../../../../utils/Stat";
+import { IBaseRenderNode } from "../../../RenderDriverLayer/Render3DNode/IBaseRenderNode";
 import { ISpotLightShadowRP } from "../../../RenderDriverLayer/Render3DProcess/ISpotLightShadowRP";
 import { BaseCamera } from "../../../core/BaseCamera";
 import { Camera } from "../../../core/Camera";
@@ -101,7 +102,7 @@ export class GLESSpotLightShadowRP implements ISpotLightShadowRP {
         this._getSpotLightShadowData(shadowSpotData, this._shadowResolution, this._shadowParams, this._shadowSpotMatrices, this._shadowSpotMapSize);
     }
 
-    render(context: GLESRenderContext3D): void {
+    render(context: GLESRenderContext3D, list: SingletonList<IBaseRenderNode>): void {
         var shaderValues: ShaderData = context.sceneData;
         context.pipelineMode = "ShadowCaster";
         context.renderTarget = this.destTarget;
