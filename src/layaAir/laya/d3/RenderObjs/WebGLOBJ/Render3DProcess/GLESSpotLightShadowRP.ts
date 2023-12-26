@@ -102,6 +102,11 @@ export class GLESSpotLightShadowRP implements ISpotLightShadowRP {
         this._getSpotLightShadowData(shadowSpotData, this._shadowResolution, this._shadowParams, this._shadowSpotMatrices, this._shadowSpotMapSize);
     }
 
+    /**
+     * render
+     * @param context 
+     * @param list 
+     */
     render(context: GLESRenderContext3D, list: SingletonList<IBaseRenderNode>): void {
         var shaderValues: ShaderData = context.sceneData;
         context.pipelineMode = "ShadowCaster";
@@ -153,6 +158,11 @@ export class GLESSpotLightShadowRP implements ISpotLightShadowRP {
         shadowSpotData.cameraCullInfo.position = out;
     }
 
+    /**
+     * get shadow bias
+     * @param shadowResolution 
+     * @param out 
+     */
     private _getShadowBias(shadowResolution: number, out: Vector4): void {
         // For perspective projections, shadow texel size varies with depth
         // It will only work well if done in receiver side in the pixel shader. Currently We
@@ -203,10 +213,10 @@ export class GLESSpotLightShadowRP implements ISpotLightShadowRP {
     }
 
     /**
-   * 设置聚光接受阴影的模式
-   * @internal
-   * @param shaderValues 渲染数据
-   */
+     * 设置聚光接受阴影的模式
+     * @internal
+     * @param shaderValues 渲染数据
+     */
     private _applyRenderData(sceneData: ShaderData, cameraData: ShaderData): void {
         var spotLight: SpotLightCom = <SpotLightCom>this._light;
         switch (spotLight.shadowMode) {
@@ -228,8 +238,4 @@ export class GLESSpotLightShadowRP implements ISpotLightShadowRP {
         sceneData.setVector(ShadowCasterPass.SHADOW_SPOTMAP_SIZE, this._shadowSpotMapSize);
         sceneData.setVector(ShadowCasterPass.SHADOW_PARAMS, this._shadowParams);
     }
-
-
-
-
 }

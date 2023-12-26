@@ -52,8 +52,8 @@ export class GLESForwardAddClusterRP implements IForwardAddClusterRP {
     /**@internal */
     depthTextureMode: DepthTextureMode;
 
-    opaqueTexture:RenderTexture;
-    enableOpaqueTexture:boolean;
+    opaqueTexture: RenderTexture;
+    enableOpaqueTexture: boolean;
 
 
     /**@internal TODO delete*/
@@ -106,8 +106,8 @@ export class GLESForwardAddClusterRP implements IForwardAddClusterRP {
         shadervalue.setVector(DepthPass.DEFINE_SHADOW_BIAS, Vector4.ZERO);
         Viewport._tempViewport.set(viewport.x, viewport.y, viewport.width, viewport.height);
         Vector4.tempVec4.setValue(viewport.x, viewport.y, viewport.width, viewport.height);
-        context.viewPort = Viewport._tempViewport;
-        context.scissor = Vector4.tempVec4;
+        context.setViewPort(Viewport._tempViewport);
+        context.setScissor(Vector4.tempVec4);
         context.setClearData(RenderClearFlag.Depth, Color.BLACK, 1, 0);
         context.renderTarget = this.depthTarget;
         //this.opaqueList.render();
@@ -133,8 +133,8 @@ export class GLESForwardAddClusterRP implements IForwardAddClusterRP {
         var viewport = this.camera.viewport;
         Viewport._tempViewport.set(viewport.x, viewport.y, viewport.width, viewport.height);
         Vector4.tempVec4.setValue(viewport.x, viewport.y, viewport.width, viewport.height);
-        context.viewPort = Viewport._tempViewport;
-        context.scissor = Vector4.tempVec4;
+        context.setViewPort(Viewport._tempViewport);
+        context.setScissor(Vector4.tempVec4);
         context.setClearData(RenderClearFlag.Color | RenderClearFlag.Depth, this._defaultNormalDepthColor, 1, 0);
         context.renderTarget = this.depthNormalTarget;
         //this.opaqueList.render();
@@ -142,7 +142,7 @@ export class GLESForwardAddClusterRP implements IForwardAddClusterRP {
     }
 
 
-    private opaqueTexturePass(){
+    private opaqueTexturePass() {
         // var blit: BlitScreenQuadCMD = BlitScreenQuadCMD.create(currentTarget, this._opaqueTexture);
         // blit.setContext(renderContext);
         // blit.run();
@@ -159,10 +159,10 @@ export class GLESForwardAddClusterRP implements IForwardAddClusterRP {
         //this.enableOpaque && this.opaqueList; TODO
         this._rendercmd(this.beforeSkyboxCmds, context);
         //context.drawRenderElementOne(this.skyRenderNode);
-        if(this.enableOpaque){
+        if (this.enableOpaque) {
             this.opaqueTexturePass();
         }
-        this._rendercmd(this.beforeTransparentCmds,context);
+        this._rendercmd(this.beforeTransparentCmds, context);
         this._recoverRenderContext3D(context);
         //this.transparent &&this.transparent.render;
     }
@@ -179,8 +179,8 @@ export class GLESForwardAddClusterRP implements IForwardAddClusterRP {
     private _recoverRenderContext3D(context: GLESRenderContext3D) {
         const cacheViewPor = Camera._context3DViewPortCatch;
         const cacheScissor = Camera._contextScissorPortCatch;
-        context.viewPort = cacheViewPor;
-        context.scissor = cacheScissor;
+        context.setViewPort(cacheViewPor);
+        context.setScissor(cacheScissor);
         context.renderTarget = this.destTarget;
 
     }
