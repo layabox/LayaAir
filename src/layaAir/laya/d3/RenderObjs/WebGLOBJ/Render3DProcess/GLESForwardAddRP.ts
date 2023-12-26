@@ -5,6 +5,9 @@ import { GLESForwardAddClusterRP } from "./GLESForwardAddClusterRP";
 import { GLESSpotLightShadowRP } from "./GLESSpotLightShadowRP";
 
 export class GLESForwardAddRP implements IForwardAddRP {
+    setAfterEventCmd(value: CommandBuffer[]): void {
+       this.afterEventCmd = value;
+    }
     /**是否开启阴影 */
     shadowCastPass: boolean;
 

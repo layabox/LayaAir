@@ -6,21 +6,19 @@ import { TextureCube } from "../../../resource/TextureCube";
 import { AmbientMode } from "../../core/scene/AmbientMode";
 import { Bounds } from "../../math/Bounds";
 
-export interface IReflectionProbeData{
+export interface IReflectionProbeData {
 
-    boxProjection:boolean;
-    probePosition:Vector3;
-    bound:Bounds;
-    ambientMode:AmbientMode ;
-    abientColor:Color ;
-    iblTex:TextureCube;//textureCube id
-    ambientSH:Float32Array;
-    ambientIntensity:number;
-    reflectionIntensity:number;
-
+    boxProjection: boolean;
+    bound: Bounds;
+    ambientMode: AmbientMode;
+    ambientSH: Float32Array;
+    ambientIntensity: number;
+    reflectionIntensity: number;
+    reflectionTexture: TextureCube;
+    iblTex: TextureCube;//textureCube id
     //Legency 
-    shCoefficients:Vector4[];
-    reflectionTexture:TextureCube;
-  
-    applyRenderData(data:ShaderData):number;
+    setShCoefficients(value: Vector4[]): void;
+    setprobePosition(value: Vector3): void;
+    setAmbientColor(value: Color): void;
+    applyRenderData(data: ShaderData): number;
 }

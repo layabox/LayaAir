@@ -15,8 +15,10 @@ import { GLESRenderContext3D } from "../GLESRenderContext3D";
 import { GLESRenderQueueList } from "./GLESRenderListQueue";
 
 export class GLESForwardAddClusterRP implements IForwardAddClusterRP {
+
     /** @internal*/
     static _context3DViewPortCatch: Viewport = new Viewport(0, 0, 0, 0);
+    /** @internal*/
     static _contextScissorPortCatch: Vector4 = new Vector4(0, 0, 0, 0);
     /**@internal */
     cameraCullInfo: CameraCullInfo
@@ -67,6 +69,19 @@ export class GLESForwardAddClusterRP implements IForwardAddClusterRP {
 
     private _zBufferParams: Vector4;
     private _defaultNormalDepthColor = new Color(0.5, 0.5, 1.0, 0.0);
+
+    setCameraCullInfo(value: CameraCullInfo): void {
+        this.cameraCullInfo = value;
+    }
+    setBeforeForwardCmds(value: CommandBuffer[]): void {
+        this.beforeForwardCmds = value;
+    }
+    setBeforeSkyboxCmds(value: CommandBuffer[]): void {
+        this.beforeSkyboxCmds = value;
+    }
+    setBeforeTransparentCmds(value: CommandBuffer[]): void {
+        this.beforeTransparentCmds = value;
+    }
 
     /**
      * 渲染主流程（TODO:其他两个pass合并MulTargetRT）

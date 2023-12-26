@@ -7,10 +7,10 @@ export interface IVolumetricGIData{
     distance:number;
     normalBias:number;
     viewBais:number;
-    probeCounts:Vector3;
-    probeStep:Vector3;
     bound:Bounds;
     intensity:number;
+    setProbeCounts(value:Vector3):void;
+    setProbeStep(value:Vector3):void;
     applyRenderData(data:ShaderData):number;
 
 }

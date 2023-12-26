@@ -1,3 +1,4 @@
+import { ICameraCullInfo } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/ICameraCullInfo";
 import { RenderTexture } from "../../../resource/RenderTexture";
 import { CameraCullInfo } from "../../RenderObjs/RenderObj/CameraCullInfo";
 import { CommandBuffer } from "../../core/render/command/CommandBuffer"
@@ -17,15 +18,14 @@ export enum DepthTextureMode {
     MotionVectors = 4,
 }
 
-export interface IForwardAddClusterRP{
-    cameraCullInfo:CameraCullInfo
-    beforeForwardCmds:Array<CommandBuffer>;
-    beforeSkyboxCmds:Array<CommandBuffer>;
-    beforeTransparentCmds:Array<CommandBuffer>;
-    destTarget:RenderTexture;
-    depthTarget:RenderTexture;
-    depthNormalTarget:RenderTexture;
-    //TODO
-    skyRenderNode:IBaseRenderNode;
-    depthTextureMode:DepthTextureMode;
+export interface IForwardAddClusterRP {
+    destTarget: RenderTexture;
+    depthTarget: RenderTexture;
+    depthNormalTarget: RenderTexture;
+    skyRenderNode: IBaseRenderNode;
+    depthTextureMode: DepthTextureMode;
+    setCameraCullInfo(value: ICameraCullInfo): void;
+    setBeforeForwardCmds(value: Array<CommandBuffer>): void;
+    setBeforeSkyboxCmds(value: Array<CommandBuffer>): void;
+    setBeforeTransparentCmds(value: Array<CommandBuffer>): void;
 }
