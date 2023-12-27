@@ -80,7 +80,7 @@ export class BlueprintFactory {
     }
 
 
-    static createClsNew<T>(name: string, cls: T, data: TBPStageData ): T {
+    static createClsNew<T>(name: string, parentName:string  ,cls: T, data: TBPStageData ): T {
         let bpjson: TBPNode[] = data.arr ;
         let varMap:Record<string, TBPVarProperty> = data.varMap;
 
@@ -118,14 +118,27 @@ export class BlueprintFactory {
             return BlueprintUtil.getConstNode("Node",node) as TBPCNode;
         }
         bp.parseNew(bpjson,c,varMap);
-        this.initEventFunc(name , newClass);
+        this.initEventFunc(parentName , newClass);
         Object.defineProperty(newClass, 'name', { value: name });
 
         return newClass as unknown as T;
     }
 
-    static initEventFunc(name:string,cls:Function){ // todo
-        // let obj = BlueprintUtil.getConstExtNode
+    static initEventFunc(parent:string,cls:Function){ // todo
+        let dec = BlueprintUtil.getDeclaration(parent);
+        if (dec && dec.funcs) { 
+            for (let i = 0 , len = dec.funcs.length; i < len; i++) {
+                let func = dec.funcs[i];
+                if (func.type == "event") {
+                    let funcName = func.name;
+                    let originFunc:Function = cls.prototype[funcName];
+                    cls.prototype[funcName] = function(){
+                        originFunc && originFunc.call(this,arguments);
+                        this.bp.run(this.context, funcName, Array.from(arguments));
+                    }
+                }                
+            }
+        } 
     }
 
 

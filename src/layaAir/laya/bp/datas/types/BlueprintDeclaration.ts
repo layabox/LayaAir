@@ -8,7 +8,7 @@ type TBPDecoratorsPropertType = "function" | "property" | "class" | "constructor
 
 type TBPDecoratorsFuncType = "pure" | "function" | "event" | BPType.Pure | BPType.Function | BPType.Event;
 
-type TBPDeclarationType = "Node"|"Component"|"";
+type TBPDeclarationType = "Node"|"Component"|"Others";
 
 /** 修饰符 */
 type BPModifiers = {
@@ -168,9 +168,11 @@ export interface BPDecoratorsOptionProp extends BPDecoratorsOptionBase{
 var bpUserMap : Map<Function,TBPDeclaration> = new Map;
 
 function initDeclaration(name:string , cls:Function){
-    let type:TBPDeclarationType = "Component";
+    let type:TBPDeclarationType = "Others";
     if (cls instanceof Node) {
         type = "Node";
+    }else if (cls instanceof Component) {
+        type = "Component"
     }
     // else if (cls instanceof Component) {
     //     type = "Component";

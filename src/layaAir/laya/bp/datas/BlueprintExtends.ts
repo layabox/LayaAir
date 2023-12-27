@@ -553,7 +553,7 @@ export const extendsData: Record<string, TBPDeclaration> = {
                 "returnType": "void"
             }
         ],
-        "type": ""
+        "type": "Others"
     },
     "Matrix4x4": {
         "module": "Laya",
@@ -698,7 +698,7 @@ export const extendsData: Record<string, TBPDeclaration> = {
                 }
             ]
         },
-        "type": ""
+        "type": "Others"
     },
     "Vector3": {
         "module": "Laya",
@@ -749,7 +749,7 @@ export const extendsData: Record<string, TBPDeclaration> = {
                 }
             ]
         },
-        "type": ""
+        "type": "Others"
     },
     "Vector4": {
         "module": "Laya",
@@ -812,6 +812,6 @@ export const extendsData: Record<string, TBPDeclaration> = {
             ]
         },
         "funcs": [],
-        "type": ""
+        "type": "Others"
     }
 }

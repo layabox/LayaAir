@@ -24,7 +24,7 @@ export class BlueprintLoaer implements IResourceLoader{
         let basePath = URL.getPath(task.url);
         //引擎精灵解析
         let links = HierarchyParser.collectResourceLinks(data,basePath);
-
+        data.uuid = task.uuid;
         return task.loader.load(links,null,task.progress.createCallback()).then((resArray:any[])=>{
             return new BlueprintImpl(data ,version);
         });

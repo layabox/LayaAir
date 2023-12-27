@@ -1,7 +1,8 @@
 import { Browser } from "../../utils/Browser";
 import { ClassUtils } from "../../utils/ClassUtils";
 import { BlueprintDataList } from "../datas/BlueprintDataInit";
-import { extendsData } from "../datas/BlueprintExtends";
+import { customData, extendsData } from "../datas/BlueprintExtends";
+import { TBPDeclaration } from "../datas/types/BlueprintDeclaration";
 import { BPType, TBPCNode, TBPNode, TBPSaveData, TBPVarProperty } from "../datas/types/BlueprintTypes";
 import { BlueprintFactory } from "../runtime/BlueprintFactory";
 export class BlueprintUtil {
@@ -54,6 +55,10 @@ export class BlueprintUtil {
         var dy = y2 - y1;
         var dist = Math.sqrt(dx * dx + dy * dy);
         return dist;
+    }
+
+    static getDeclaration(name:string):TBPDeclaration{
+        return extendsData[name] ? extendsData[name]:customData[name];
     }
 
 

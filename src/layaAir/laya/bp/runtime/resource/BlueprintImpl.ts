@@ -15,23 +15,23 @@ export class BlueprintImpl extends Resource{
     public data:any;
 
     public state:-1|0|1 = 0;
-    /** @internal */
-    private cls:Function;
+    /** */
+    private _cls: Function;
+    public get cls(): Function {
+        return this._cls;
+    }
 
     constructor( data:any, version?:number){
         super();
 
         this.data = data;
-        this.version = version
+        this.version = version;
+        this.uuid = data.uuid;
         this.initClass();
     }
 
     _setCreateURL(url: string, uuid?: string): void {
         super._setCreateURL(url,uuid);
-        ClassUtils.regClass(this.uuid , this.cls);
-        if (this.data && this.data.lhData) {
-            this.data.lhData._$type = this.uuid;
-        }
     }
 
     create(options?: Record<string, any>, errors?: any[]){
@@ -72,7 +72,7 @@ export class BlueprintImpl extends Resource{
         }
 
         if (!LayaEnv.isPlaying) {
-            this.cls = runtime;
+            this._cls = runtime;
         }else{
             BlueprintFactory.__init__();
             let map = this.data.blueprintArr;
@@ -87,13 +87,15 @@ export class BlueprintImpl extends Resource{
                 varMap[ele.name] = ele;
             });
             
-            let cls = BlueprintFactory.createClsNew(this.uuid,runtime,{
-                name:"",
+            let cls = BlueprintFactory.createClsNew(this.uuid , extendClass  , runtime,{
+                name:this.uuid,
                 varMap,
                 arr
             });
-            this.cls = cls;
+            this.data.lhData._$type = this.uuid;
+            this._cls = cls;
         }
+        ClassUtils.regClass(this.uuid , this.cls);
     }
 
     protected _disposeResource(): void {
