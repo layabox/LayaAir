@@ -1,6 +1,5 @@
 
 import { RenderClearFlag } from "../../../../RenderEngine/RenderEnum/RenderClearFlag";
-import { IRenderElement } from "../../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderElement";
 import { ShaderData } from "../../../../RenderEngine/RenderShader/ShaderData";
 import { Color } from "../../../../maths/Color";
 import { MathUtils3D } from "../../../../maths/MathUtils3D";
@@ -24,6 +23,9 @@ import { Viewport } from "../../../math/Viewport";
 import { ShadowCasterPass } from "../../../shadowMap/ShadowCasterPass";
 import { CameraCullInfo } from "../../RenderObj/CameraCullInfo";
 import { GLESRenderContext3D } from "../GLESRenderContext3D";
+import { GLESBaseRenderNode } from "../Render3DNode/GLESBaseRenderNode";
+import { GLESCullUtil } from "./GLESRenderUtil.ts/GLESCullUtil";
+import { GLESRenderQueueList } from "./GLESRenderUtil.ts/GLESRenderListQueue";
 export class ShadowSpotData {
     cameraShaderValue: ShaderData;
     position: Vector3 = new Vector3;
@@ -74,6 +76,8 @@ export class GLESSpotLightShadowRP implements ISpotLightShadowRP {
     /**@internal */
     private _shadowBias: Vector4;
 
+    private _renderQueue: GLESRenderQueueList;
+
     set light(value: SpotLightCom) {
         this._light = value;
         this._shadowResolution = value._shadowResolution;
@@ -91,7 +95,7 @@ export class GLESSpotLightShadowRP implements ISpotLightShadowRP {
     }
 
     constructor() {
-
+        this._renderQueue = new GLESRenderQueueList(false);
     }
 
     /**
@@ -107,20 +111,20 @@ export class GLESSpotLightShadowRP implements ISpotLightShadowRP {
      * @param context 
      * @param list 
      */
-    render(context: GLESRenderContext3D, list: SingletonList<IBaseRenderNode>): void {
+    render(context: GLESRenderContext3D, list: SingletonList<GLESBaseRenderNode>): void {
         var shaderValues: ShaderData = context.sceneData;
         context.pipelineMode = "ShadowCaster";
-        context.renderTarget = this.destTarget;
+        context.setRenderTarget(this.destTarget);
         var shadowSpotData: ShadowSpotData = this._shadowSpotData;
         this._getShadowBias(shadowSpotData.resolution, this._shadowBias);
         this._setupShadowCasterShaderValues(shaderValues, shadowSpotData, this._shadowParams, this._shadowBias);
         //cull
-        //scene._sportLightShadowCull(shadowSpotData.cameraCullInfo, context);
-        var renderList: SingletonList<IRenderElement>;
+        GLESCullUtil.cullingSpotShadow(shadowSpotData.cameraCullInfo, list, this._renderQueue);
+
         context.cameraData = shadowSpotData.cameraShaderValue;
         Camera._updateMark++;
         context.cameraUpdateMask = Camera._updateMark;
-        if (renderList.elements.length > 0) {
+        if (this._renderQueue._elements.length > 0) {
             Viewport._tempViewport.set(shadowSpotData.offsetX, shadowSpotData.offsetY, shadowSpotData.resolution, shadowSpotData.resolution);
             Vector4.tempVec4.setValue(shadowSpotData.offsetX, shadowSpotData.offsetY, shadowSpotData.resolution, shadowSpotData.resolution);
         } else {
@@ -128,7 +132,7 @@ export class GLESSpotLightShadowRP implements ISpotLightShadowRP {
             Vector4.tempVec4.setValue(shadowSpotData.offsetX, shadowSpotData.offsetY, shadowSpotData.resolution, shadowSpotData.resolution);
         }
         context.setClearData(RenderClearFlag.Depth, Color.BLACK, 1, 0);
-        Stat.depthCastDrawCall += context.drawRenderElementList(renderList);//阴影均为非透明队列
+        this._renderQueue.renderQueue(context);
         this._applyCasterPassCommandBuffer(context);
         this._applyRenderData(context.sceneData, context.cameraData);
     }

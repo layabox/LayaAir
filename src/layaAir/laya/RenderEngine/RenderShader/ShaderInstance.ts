@@ -50,7 +50,7 @@ export class ShaderInstance {
 	/**@internal CamneraTOD*/
 	_uploadCameraShaderValue: ShaderData;
 	/**@internal SceneIDTODO*/
-	_uploadScene: any;
+	_uploadScene: ShaderData;
 
 	/**
 	 * 创建一个 <code>ShaderInstance</code> 实例。

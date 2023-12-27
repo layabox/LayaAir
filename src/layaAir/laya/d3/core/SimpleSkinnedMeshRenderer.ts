@@ -121,8 +121,6 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
      * @internal
      */
     _renderUpdate(context: RenderContext3D, transform: Transform3D): void {
-        var element: SubMeshRenderElement = <SubMeshRenderElement>context.renderElement;
-
         if (this.rootBone) {
             var worldMat: Matrix4x4 = (this.rootBone as Sprite3D).transform.worldMatrix;
             if (this._subUniformBufferData) {

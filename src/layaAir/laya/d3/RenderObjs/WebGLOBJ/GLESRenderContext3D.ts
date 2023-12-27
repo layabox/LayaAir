@@ -1,4 +1,5 @@
 import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFlag";
+import { InternalRenderTarget } from "../../../RenderEngine/RenderInterface/InternalRenderTarget";
 import { PipelineMode } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderContext3D";
 import { IRenderElement } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderElement";
 import { ShaderData } from "../../../RenderEngine/RenderShader/ShaderData";
@@ -10,15 +11,17 @@ import { SingletonList } from "../../../utils/SingletonList";
 import { IRenderContext3D } from "../../RenderDriverLayer/IRenderContext3D";
 import { IBaseRenderNode } from "../../RenderDriverLayer/Render3DNode/IBaseRenderNode";
 import { Viewport } from "../../math/Viewport";
+import { RenderElementOBJ } from "../RenderObj/RenderElementOBJ";
 
 
 export class GLESRenderContext3D implements IRenderContext3D {
+    private _globalShaderData: ShaderData;
     /**@internal */
     private _sceneData: ShaderData;
     /**@internal */
     private _cameraData: ShaderData;
     /**@internal */
-    private _renderTarget: RenderTexture;
+    private _renderTarget: InternalRenderTarget;
     /**@internal */
     private _viewPort: Viewport;
     /**@internal */
@@ -58,15 +61,25 @@ export class GLESRenderContext3D implements IRenderContext3D {
         this._cameraData = value;
     }
 
-
-    get renderTarget(): RenderTexture {
-        return this._renderTarget;
+    get globalShaderData(): ShaderData {
+        return this._globalShaderData;
     }
 
-    set renderTarget(value: RenderTexture) {
+    set globalShaderData(value: ShaderData) {
+        this._globalShaderData = value;
+    }
+
+    setRenderTarget(value: RenderTexture) {
         this._clearFlag = RenderClearFlag.Nothing;
-        this._renderTarget = value;
+        this._renderTarget = value._renderTarget;
     }
+
+    set nativeRenderTarget(value: RenderTexture) {
+        let nativecontext3D: any;
+        nativecontext3D.set_renderTarget(value._renderTarget)
+    }
+
+
 
     setViewPort(value: Viewport) {
         this._viewPort = value;
@@ -127,30 +140,31 @@ export class GLESRenderContext3D implements IRenderContext3D {
         return 0;
     }
 
-    drawRenderElementList(list: SingletonList<IRenderElement>): number {
+    drawRenderElementList(list: SingletonList<RenderElementOBJ>): number {
         this._bindRenderTarget();
         this._start();
-        var elements = list.elements;
-        //for pre;
-        //for render;
+        let elements = list.elements;
         for (var i: number = 0, n: number = list.length; i < n; i++) {
-            //elements[i]._render(this);//render
+            elements[i]._preUpdatePre(this);//render
+        }
+        for (var i: number = 0, n: number = list.length; i < n; i++) {
+            elements[i]._render(this);//render
         }
         this._end();
         return 0;
     }
 
-    drawRenderElementOne(node: IRenderElement): number {
+    drawRenderElementOne(node: RenderElementOBJ): number {
         this._bindRenderTarget();
         this._start();
-        //node preRender;
-        //node render;
+        node._preUpdatePre(this);
+        node._render(this);
         this._end();
         return 0;
     }
 
     private _bindRenderTarget() {
-        this._renderTarget && this._renderTarget._start();
+        this._renderTarget && LayaGL.textureContext.bindRenderTarget(this._renderTarget);;
     }
 
     private _start() {

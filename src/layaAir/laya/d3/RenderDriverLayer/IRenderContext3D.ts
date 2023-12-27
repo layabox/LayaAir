@@ -8,15 +8,17 @@ import { SingletonList } from "../../utils/SingletonList";
 import { Viewport } from "../math/Viewport";
 
 export interface IRenderContext3D {
+    globalShaderData: ShaderData;
     sceneData: ShaderData;
     cameraData: ShaderData;
-    renderTarget: RenderTexture;
-    setViewPort(value:Viewport):void;
-    setScissor(value:Vector4):void;
+
     sceneUpdataMask: number;
     cameraUpdateMask: number;
     pipelineMode: PipelineMode;
     invertY: boolean;
+    setRenderTarget(value: RenderTexture): void;
+    setViewPort(value: Viewport): void;
+    setScissor(value: Vector4): void;
     setClearData(clearFlag: number, clolor: Color, depth: number, stencil: number): number;
     drawRenderElementList(list: SingletonList<IRenderElement>): number;
     drawRenderElementOne(node: IRenderElement): number;

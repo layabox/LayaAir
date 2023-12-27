@@ -214,21 +214,21 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
         this._createRenderTarget();
     }
 
-    _start() {
-        RenderTexture._configInstance.invertY = this._isCameraTarget;
-        if (RenderTexture._currentActive != this) {
-            RenderTexture._currentActive && RenderTexture._currentActive._end();
-            RenderTexture._currentActive = this;
-            LayaGL.textureContext.bindRenderTarget(this._renderTarget);
-        }
-    }
+    // _start() {
+    //     RenderTexture._configInstance.invertY = this._isCameraTarget;
+    //     if (RenderTexture._currentActive != this) {
+    //         RenderTexture._currentActive && RenderTexture._currentActive._end();
+    //         RenderTexture._currentActive = this;
+    //         LayaGL.textureContext.bindRenderTarget(this._renderTarget);
+    //     }
+    // }
 
-    _end() {
-        RenderTexture._currentActive = null;
+    // _end() {
+    //     RenderTexture._currentActive = null;
 
-        LayaGL.textureContext.unbindRenderTarget(this._renderTarget);
-        (this._isCameraTarget) && (RenderTexture._configInstance.invertY = false);
-    }
+    //     LayaGL.textureContext.unbindRenderTarget(this._renderTarget);
+    //     (this._isCameraTarget) && (RenderTexture._configInstance.invertY = false);
+    // }
 
     getData(xOffset: number, yOffset: number, width: number, height: number, out: Uint8Array | Float32Array): Uint8Array | Float32Array {
         LayaGL.textureContext.readRenderTargetPixelData(this._renderTarget, xOffset, yOffset, width, height, out);
@@ -237,9 +237,9 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
 
     protected _disposeResource(): void {
 
-        if (RenderTexture._currentActive == this) {
-            this._end();
-        }
+        // if (RenderTexture._currentActive == this) {
+        //     this._end();
+        // }
 
         this._renderTarget.dispose();
         this._renderTarget = null;

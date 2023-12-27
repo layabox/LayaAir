@@ -51,6 +51,6 @@ export class RenderContext3DOBJ implements IRenderContext3D {
     }
 
     drawRenderElement(renderelemt: RenderElementOBJ): void {
-        renderelemt._render(this);
+        //renderelemt._render(this);
     }
 }

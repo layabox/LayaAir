@@ -8,8 +8,6 @@ import { Vector3 } from "../../../../maths/Vector3";
 import { Vector4 } from "../../../../maths/Vector4";
 import { RenderTexture } from "../../../../resource/RenderTexture";
 import { SingletonList } from "../../../../utils/SingletonList";
-import { Stat } from "../../../../utils/Stat";
-import { IBaseRenderNode } from "../../../RenderDriverLayer/Render3DNode/IBaseRenderNode";
 import { IDirectLightShadowRP } from "../../../RenderDriverLayer/Render3DProcess/IDirectLightShadowRP";
 import { BaseCamera } from "../../../core/BaseCamera";
 import { Camera } from "../../../core/Camera";
@@ -26,6 +24,9 @@ import { Viewport } from "../../../math/Viewport";
 import { ShadowCasterPass } from "../../../shadowMap/ShadowCasterPass";
 import { ShadowSliceData } from "../../../shadowMap/ShadowSliceData";
 import { GLESRenderContext3D } from "../GLESRenderContext3D";
+import { GLESBaseRenderNode } from "../Render3DNode/GLESBaseRenderNode";
+import { GLESCullUtil } from "./GLESRenderUtil.ts/GLESCullUtil";
+import { GLESRenderQueueList } from "./GLESRenderUtil.ts/GLESRenderListQueue";
 
 export class ShadowCullInfo {
     position: Vector3;
@@ -103,6 +104,8 @@ export class GLESDirectLightShadowCastRP implements IDirectLightShadowRP {
     private _shadowCullInfo: ShadowCullInfo;
 
     /**@internal */
+    private _renderQueue: GLESRenderQueueList;
+    /**@internal */
     set light(value: DirectionLightCom) {
         this._light = value;
         var lightWorld: Matrix4x4 = Matrix4x4.TEMPMatrix0;
@@ -146,6 +149,7 @@ export class GLESDirectLightShadowCastRP implements IDirectLightShadowRP {
         this._lightSide = new Vector3();
         this._lightForward = new Vector3();
         this._cascadesSplitDistance = new Array(GLESDirectLightShadowCastRP._maxCascades + 1);
+        this._renderQueue = new GLESRenderQueueList(false);
     }
 
     update(context: GLESRenderContext3D): void {
@@ -169,14 +173,13 @@ export class GLESDirectLightShadowCastRP implements IDirectLightShadowRP {
                 ShadowUtils.applySliceTransform(sliceData, this._shadowMapWidth, this._shadowMapHeight, i, shadowMatrices);
         }
         ShadowUtils.prepareShadowReceiverShaderValues(this._shadowStrength, this._shadowMapWidth, this._shadowMapHeight, this._shadowSliceDatas, this._cascadeCount, this._shadowMapSize, this._shadowParams, shadowMatrices, boundSpheres);
-
     }
 
-    render(context: GLESRenderContext3D, list: SingletonList<IBaseRenderNode>): void {
+    render(context: GLESRenderContext3D, list: SingletonList<GLESBaseRenderNode>): void {
         var shaderValues: ShaderData = context.sceneData;
         context.pipelineMode = "ShadowCaster";
         var shadowMap = this.destTarget
-        context.renderTarget = shadowMap;
+        context.setRenderTarget(shadowMap);
         //需要把shadowmap clear Depth;
         for (var i: number = 0, n: number = this._cascadeCount; i < n; i++) {
             var sliceData: ShadowSliceData = this._shadowSliceDatas[i];
@@ -188,9 +191,9 @@ export class GLESDirectLightShadowCastRP implements IDirectLightShadowRP {
             shadowCullInfo.cullPlaneCount = sliceData.cullPlaneCount;
             shadowCullInfo.cullSphere = sliceData.splitBoundSphere;
             shadowCullInfo.direction = this._lightForward;
-            //cull TODO
-            //scene._directLightShadowCull(shadowCullInfo, context);
-            var renderList: SingletonList<IRenderElement>;
+            //cull
+            GLESCullUtil.culldirectLightShadow(shadowCullInfo, list, this._renderQueue);
+
             context.cameraData = sliceData.cameraShaderValue;
             Camera._updateMark++;
             context.cameraUpdateMask = Camera._updateMark;
@@ -200,7 +203,7 @@ export class GLESDirectLightShadowCastRP implements IDirectLightShadowRP {
             var offsetY: number = sliceData.offsetY;
 
 
-            if (renderList.elements.length > 0) {// if one cascade have anything to render.
+            if (this._renderQueue._elements.length > 0) {// if one cascade have anything to render.
                 Viewport._tempViewport.set(offsetX, offsetY, resolution, resolution);
                 Vector4.tempVec4.setValue(offsetX + 1, offsetY + 1, resolution - 2, resolution - 2);
                 context.setViewPort(Viewport._tempViewport);
@@ -213,7 +216,7 @@ export class GLESDirectLightShadowCastRP implements IDirectLightShadowRP {
                 context.setScissor(Vector4.tempVec4);
             }
             context.setClearData(RenderClearFlag.Depth, Color.BLACK, 1, 0);
-            Stat.depthCastDrawCall += context.drawRenderElementList(renderList);//阴影均为非透明队列
+            this._renderQueue.renderQueue(context);
             this._applyCasterPassCommandBuffer(context);
         }
         this._applyRenderData(context.sceneData, context.cameraData);

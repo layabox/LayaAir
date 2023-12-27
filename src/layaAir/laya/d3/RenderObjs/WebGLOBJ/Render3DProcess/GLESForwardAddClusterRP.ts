@@ -12,7 +12,9 @@ import { DepthPass } from "../../../depthMap/DepthPass";
 import { Viewport } from "../../../math/Viewport";
 import { CameraCullInfo } from "../../RenderObj/CameraCullInfo";
 import { GLESRenderContext3D } from "../GLESRenderContext3D";
-import { GLESRenderQueueList } from "./GLESRenderListQueue";
+import { GLESBaseRenderNode } from "../Render3DNode/GLESBaseRenderNode";
+import { GLESCullUtil } from "./GLESRenderUtil.ts/GLESCullUtil";
+import { GLESRenderQueueList } from "./GLESRenderUtil.ts/GLESRenderListQueue";
 
 export class GLESForwardAddClusterRP implements IForwardAddClusterRP {
 
@@ -70,6 +72,11 @@ export class GLESForwardAddClusterRP implements IForwardAddClusterRP {
     private _zBufferParams: Vector4;
     private _defaultNormalDepthColor = new Color(0.5, 0.5, 1.0, 0.0);
 
+    constructor() {
+        this.opaqueList = new GLESRenderQueueList(false);
+        this.transparent = new GLESRenderQueueList(true);
+    }
+
     setCameraCullInfo(value: CameraCullInfo): void {
         this.cameraCullInfo = value;
     }
@@ -88,12 +95,13 @@ export class GLESForwardAddClusterRP implements IForwardAddClusterRP {
      * @param context 
      * @param list 
      */
-    render(context: GLESRenderContext3D, list: SingletonList<IBaseRenderNode>): void {
+    render(context: GLESRenderContext3D, list: SingletonList<GLESBaseRenderNode>): void {
         Camera._updateMark++;
-        //裁剪cull
-        //更新数据
-        //得到opaqueList
-        //得到transparentList
+        this.opaqueList.clear();
+        this.transparent.clear();
+        //裁剪cull TODO 自定义
+        GLESCullUtil.cullByCameraCullInfo(this.cameraCullInfo, list, this.opaqueList, this.transparent)
+        //更新数据 TODO
         if ((this.depthTextureMode & DepthTextureMode.Depth) != 0) {
             this._renderDepthPass(context);
         }
@@ -102,10 +110,7 @@ export class GLESForwardAddClusterRP implements IForwardAddClusterRP {
         }
         this.viewPort.cloneTo(GLESForwardAddClusterRP._context3DViewPortCatch);
         this.scissor.cloneTo(GLESForwardAddClusterRP._contextScissorPortCatch);
-
         this._mainPass(context);
-
-
     }
 
     /**
@@ -124,8 +129,8 @@ export class GLESForwardAddClusterRP implements IForwardAddClusterRP {
         context.setViewPort(Viewport._tempViewport);
         context.setScissor(Vector4.tempVec4);
         context.setClearData(RenderClearFlag.Depth, Color.BLACK, 1, 0);
-        context.renderTarget = this.depthTarget;
-        //this.opaqueList.render();
+        context.setRenderTarget(this.depthTarget);
+        this.opaqueList.renderQueue(context);
         //渲染完后传入使用的参数
         var far = this.camera.farPlane;
         var near = this.camera.nearPlane;
@@ -151,13 +156,14 @@ export class GLESForwardAddClusterRP implements IForwardAddClusterRP {
         context.setViewPort(Viewport._tempViewport);
         context.setScissor(Vector4.tempVec4);
         context.setClearData(RenderClearFlag.Color | RenderClearFlag.Depth, this._defaultNormalDepthColor, 1, 0);
-        context.renderTarget = this.depthNormalTarget;
-        //this.opaqueList.render();
+        context.setRenderTarget(this.depthNormalTarget);
+        this.opaqueList.renderQueue(context);
         context.cameraData.setTexture(DepthPass.DEPTHNORMALSTEXTURE, this.depthNormalTarget);
     }
 
 
     private opaqueTexturePass() {
+        //TODO
         // var blit: BlitScreenQuadCMD = BlitScreenQuadCMD.create(currentTarget, this._opaqueTexture);
         // blit.setContext(renderContext);
         // blit.run();
@@ -166,12 +172,10 @@ export class GLESForwardAddClusterRP implements IForwardAddClusterRP {
 
     private _mainPass(context: GLESRenderContext3D): void {
         context.pipelineMode = this.pipelineMode;
-
-
         this._rendercmd(this.beforeForwardCmds, context);
 
         this._recoverRenderContext3D(context);
-        //this.enableOpaque && this.opaqueList; TODO
+        this.enableOpaque && this.opaqueList.renderQueue(context);
         this._rendercmd(this.beforeSkyboxCmds, context);
         //context.drawRenderElementOne(this.skyRenderNode);
         if (this.enableOpaque) {
@@ -196,7 +200,6 @@ export class GLESForwardAddClusterRP implements IForwardAddClusterRP {
         const cacheScissor = Camera._contextScissorPortCatch;
         context.setViewPort(cacheViewPor);
         context.setScissor(cacheScissor);
-        context.renderTarget = this.destTarget;
-
+        context.setRenderTarget(this.destTarget);
     }
 }

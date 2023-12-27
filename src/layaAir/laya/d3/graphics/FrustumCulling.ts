@@ -51,7 +51,7 @@ export class FrustumCulling {
 	 * @param cullInfo 
 	 * @returns 
 	 */
-	static cullingRenderBounds(bounds: Bounds, cullInfo: IShadowCullInfo): boolean {
+	static cullingRenderBounds(bounds: Bounds, cullInfo: any): boolean {
 		var cullPlaneCount: number = cullInfo.cullPlaneCount;
 		var cullPlanes: Plane[] = cullInfo.cullPlanes;
 

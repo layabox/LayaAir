@@ -1,10 +1,10 @@
-import { IBaseRenderNode } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IBaseRenderNode";
 import { RenderTexture } from "../../../resource/RenderTexture";
 import { SingletonList } from "../../../utils/SingletonList";
 import { Camera } from "../../core/Camera";
 import { DirectionLightCom } from "../../core/light/DirectionLightCom";
 import { ShadowCascadesMode } from "../../core/light/ShadowCascadesMode";
 import { IRenderContext3D } from "../IRenderContext3D";
+import { IBaseRenderNode } from "../Render3DNode/IBaseRenderNode";
 
 export interface IDirectLightShadowRP {
     light: DirectionLightCom;
