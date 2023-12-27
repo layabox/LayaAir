@@ -35,7 +35,7 @@ export class btBoxColliderShape extends btColliderShape implements IBoxColliderS
     }
 
     setSize(size: Vector3): void {
-        if (!size.equal(this._size)) {
+        if (!this._btShape && !size.equal(this._size)) {
             this._size.setValue(size.x, size.y, size.z);
             this.changeBoxShape();
         }
