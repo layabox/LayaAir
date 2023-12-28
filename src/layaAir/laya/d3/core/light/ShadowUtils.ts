@@ -150,8 +150,8 @@ export class ShadowUtils {
 
         // depth and normal bias scale is in shadowmap texel size in world space
         var texelSize: number = frustumSize / shadowResolution;
-        var depthBias: number = -light._shadowDepthBias * texelSize;
-        var normalBias: number = -light._shadowNormalBias * texelSize;
+        var depthBias: number = -light.shadowDepthBias * texelSize;
+        var normalBias: number = -light.shadowNormalBias * texelSize;
 
         if (light.shadowMode == ShadowMode.SoftHigh) {
             // TODO: depth and normal bias assume sample is no more than 1 texel away from shadowmap
@@ -420,7 +420,7 @@ export class ShadowUtils {
     /**
      * @internal
      */
-    static prepareShadowReceiverShaderValues(shadowStrength:number, shadowMapWidth: number, shadowMapHeight: number, shadowSliceDatas: ShadowSliceData[], cascadeCount: number, shadowMapSize: Vector4, shadowParams: Vector4, shadowMatrices: Float32Array, splitBoundSpheres: Float32Array): void {
+    static prepareShadowReceiverShaderValues(shadowStrength: number, shadowMapWidth: number, shadowMapHeight: number, shadowSliceDatas: ShadowSliceData[], cascadeCount: number, shadowMapSize: Vector4, shadowParams: Vector4, shadowMatrices: Float32Array, splitBoundSpheres: Float32Array): void {
         shadowMapSize.setValue(1.0 / shadowMapWidth, 1.0 / shadowMapHeight, shadowMapWidth, shadowMapHeight);
         shadowParams.setValue(shadowStrength, 0.0, 0.0, 0.0);
         if (cascadeCount > 1) {

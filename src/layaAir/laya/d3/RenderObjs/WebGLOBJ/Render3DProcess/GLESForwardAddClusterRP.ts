@@ -102,12 +102,12 @@ export class GLESForwardAddClusterRP implements IForwardAddClusterRP {
      * @param context 
      * @param list 
      */
-    render(context: GLESRenderContext3D, list: SingletonList<GLESBaseRenderNode>): void {
+    render(context: GLESRenderContext3D, list: GLESBaseRenderNode[], count: number): void {
         Camera._updateMark++;
         this.opaqueList.clear();
         this.transparent.clear();
         //裁剪cull TODO 自定义
-        GLESCullUtil.cullByCameraCullInfo(this.cameraCullInfo, list, this.opaqueList, this.transparent)
+        GLESCullUtil.cullByCameraCullInfo(this.cameraCullInfo, list, count, this.opaqueList, this.transparent)
         //更新数据 TODO
         if ((this.depthTextureMode & DepthTextureMode.Depth) != 0) {
             this._renderDepthPass(context);

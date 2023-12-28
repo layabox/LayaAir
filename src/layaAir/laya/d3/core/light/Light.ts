@@ -28,7 +28,7 @@ export enum LightMode {
  */
 export class Light extends Component {
     /**@internal 下沉数据集合 */
-    _dataModule: IDirectLightData | ISpotLightData;
+    protected _dataModule: IDirectLightData | ISpotLightData;
     /** @internal */
     protected _shadowMode: ShadowMode = ShadowMode.None;
 
@@ -38,18 +38,6 @@ export class Light extends Component {
     _intensityColor: Vector3;
     /** @internal */
     _intensity: number;
-    /** @internal */
-    _shadowResolution: number = 2048;
-    /** @internal */
-    _shadowDistance: number = 50.0;
-    /** @internal */
-    _shadowDepthBias: number = 1.0;
-    /** @internal */
-    _shadowNormalBias: number = 1.0;
-    /** @internal */
-    _shadowNearPlane: number = 0.1;
-    /** @internal */
-    _shadowStrength: number = 1.0;
     /** @internal */
     _lightmapBakedType: LightMode;
     /** @internal */
@@ -141,11 +129,11 @@ export class Light extends Component {
      * 阴影视锥的近裁面。
      */
     get shadowNearPlane(): number {
-        return this._shadowNearPlane;
+        return this._dataModule.shadowNearPlane;
     }
 
     set shadowNearPlane(value: number) {
-        this._shadowNearPlane = value;
+        this._dataModule.shadowNearPlane = value;
     }
 
     /**
@@ -180,9 +168,15 @@ export class Light extends Component {
         return this._lightType;
     }
 
+    /**@internal */
     _setOwner(node: Sprite3D): void {
         super._setOwner(node);
         this._dataModule.transform = (this.owner as Sprite3D).transform;
+    }
+
+    /**@internal */
+    _getRenderDataModule() {
+        return this._dataModule;
     }
 
     /**
@@ -190,12 +184,17 @@ export class Light extends Component {
      */
     constructor() {
         super();
-
         this.runInEditor = true;
         this._intensity = 1.0;
         this._intensityColor = new Vector3();
         this.color = new Color(1.0, 1.0, 1.0, 1.0);
         this._lightmapBakedType = LightMode.realTime;
+        this.shadowResolution = 2048;
+        this.shadowDistance = 50.0;
+        this.shadowDepthBias = 1.0;
+        this.shadowNormalBias = 1.0;
+        this.shadowNearPlane = 0.1;
+        this.shadowStrength = 1.0;
     }
 
     /**

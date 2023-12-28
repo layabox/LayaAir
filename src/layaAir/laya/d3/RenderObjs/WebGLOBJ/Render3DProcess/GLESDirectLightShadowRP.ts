@@ -9,6 +9,7 @@ import { Vector4 } from "../../../../maths/Vector4";
 import { RenderTexture } from "../../../../resource/RenderTexture";
 import { SingletonList } from "../../../../utils/SingletonList";
 import { IDirectLightShadowRP } from "../../../RenderDriverLayer/Render3DProcess/IDirectLightShadowRP";
+import { IDirectLightData } from "../../../RenderDriverLayer/RenderModuleData/IDirectLightData";
 import { BaseCamera } from "../../../core/BaseCamera";
 import { Camera } from "../../../core/Camera";
 import { Sprite3D } from "../../../core/Sprite3D";
@@ -25,6 +26,7 @@ import { ShadowCasterPass } from "../../../shadowMap/ShadowCasterPass";
 import { ShadowSliceData } from "../../../shadowMap/ShadowSliceData";
 import { GLESRenderContext3D } from "../GLESRenderContext3D";
 import { GLESBaseRenderNode } from "../Render3DNode/GLESBaseRenderNode";
+import { GLESDirectLight } from "../RenderModuleData/GLESDirectLight";
 import { GLESCullUtil } from "./GLESRenderUtil.ts/GLESCullUtil";
 import { GLESRenderQueueList } from "./GLESRenderUtil.ts/GLESRenderListQueue";
 
@@ -50,30 +52,13 @@ export class GLESDirectLightShadowCastRP implements IDirectLightShadowRP {
     shadowCasterCommanBuffer: CommandBuffer[];
 
     /**light */
-    /**@internal */
-    private _light: DirectionLightCom;
+    private _light: GLESDirectLight
     /**@internal */
     private _lightup: Vector3;
     /**@internal */
     private _lightSide: Vector3;
     /**@internal */
     private _lightForward: Vector3;
-    /**@internal */
-    private _atlasResolution: number;
-    /**@internal */
-    private _shadowDistance: number;
-    /**@internal */
-    private _shadowTwoCascadeSplits: number;
-    /**@internal */
-    private _shadowFourCascadeSplits: Vector3;
-    /**@internal */
-    private _shadowStrength: number;
-    /**@internal */
-    private _shadowDepthBias: number;
-    /**@internal */
-    private _shadowNormalBias: number;
-    /**@internal */
-    private _shadowMode: ShadowMode;
 
     //caculate data
     /**@internal 分割distance*/
@@ -107,41 +92,37 @@ export class GLESDirectLightShadowCastRP implements IDirectLightShadowRP {
     private _renderQueue: GLESRenderQueueList;
     /**@internal */
     set light(value: DirectionLightCom) {
-        this._light = value;
+        this._light = value._getRenderDataModule() as GLESDirectLight;
         var lightWorld: Matrix4x4 = Matrix4x4.TEMPMatrix0;
         var lightWorldE: Float32Array = lightWorld.elements;
         var lightUp: Vector3 = this._lightup;
         var lightSide: Vector3 = this._lightSide;
         var lightForward: Vector3 = this._lightForward;
-        Matrix4x4.createFromQuaternion((this._light.owner as Sprite3D)._transform.rotation, lightWorld);
+        Matrix4x4.createFromQuaternion(this._light.transform.rotation, lightWorld);
         lightSide.setValue(lightWorldE[0], lightWorldE[1], lightWorldE[2]);
         lightUp.setValue(lightWorldE[4], lightWorldE[5], lightWorldE[6]);
         lightForward.setValue(-lightWorldE[8], -lightWorldE[9], -lightWorldE[10]);
         //设置分辨率
-        this._atlasResolution = this._light._shadowResolution;
-        var cascadesMode = this.shadowCastMode = this._light._shadowCascadesMode;
+        var atlasResolution = this._light.shadowResolution;
+        var cascadesMode = this.shadowCastMode = this._light.shadowCascadesMode;
         var shadowTileResolution: number;
 
         if (cascadesMode == ShadowCascadesMode.NoCascades) {
             this._cascadeCount = 1;
-            this._shadowTileResolution = this._atlasResolution;
-            this._shadowMapWidth = this._atlasResolution;
-            this._shadowMapHeight = this._atlasResolution;
+            this._shadowTileResolution = atlasResolution;
+            this._shadowMapWidth = atlasResolution;
+            this._shadowMapHeight = atlasResolution;
         }
         else {
             this._cascadeCount = cascadesMode == ShadowCascadesMode.TwoCascades ? 2 : 4;
-            this._shadowTileResolution = ShadowUtils.getMaxTileResolutionInAtlas(this._atlasResolution, this._atlasResolution, this._cascadeCount);
+            this._shadowTileResolution = ShadowUtils.getMaxTileResolutionInAtlas(atlasResolution, atlasResolution, this._cascadeCount);
             this._shadowMapWidth = shadowTileResolution * 2;
             this._shadowMapHeight = cascadesMode == ShadowCascadesMode.TwoCascades ? shadowTileResolution : shadowTileResolution * 2;
         }
-        this._shadowTwoCascadeSplits = this._light._shadowTwoCascadeSplits;
-        this._shadowFourCascadeSplits = this._light._shadowFourCascadeSplits;
+        var shadowTwoCascadeSplits = this._light.shadowTwoCascadeSplits;
+        var shadowFourCascadeSplits = this._light._shadowFourCascadeSplits;
         this.destTarget && RenderTexture.recoverToPool(this.destTarget);// TODO 优化
         this.destTarget = ShadowUtils.getTemporaryShadowTexture(this._shadowMapWidth, this._shadowMapHeight, ShadowMapFormat.bit16);
-    }
-
-    get light() {
-        return this._light;
     }
 
     constructor() {
@@ -156,10 +137,10 @@ export class GLESDirectLightShadowCastRP implements IDirectLightShadowRP {
         var splitDistance: number[] = this._cascadesSplitDistance;
         var frustumPlanes: Plane[] = this._frustumPlanes;
         var cameraNear: number = this.camera.nearPlane;
-        var shadowFar: number = Math.min(this.camera.farPlane, this._shadowDistance);
+        var shadowFar: number = Math.min(this.camera.farPlane, this._light.shadowDistance);
         var shadowMatrices: Float32Array = this._shadowMatrices;
         var boundSpheres: Float32Array = this._splitBoundSpheres;
-        ShadowUtils.getCascadesSplitDistance(this._shadowTwoCascadeSplits, this._shadowFourCascadeSplits, cameraNear, shadowFar, this.camera.fieldOfView * MathUtils3D.Deg2Rad, this.camera.aspectRatio, this.shadowCastMode, splitDistance);
+        ShadowUtils.getCascadesSplitDistance(this._light.shadowTwoCascadeSplits, this._light._shadowFourCascadeSplits, cameraNear, shadowFar, this.camera.fieldOfView * MathUtils3D.Deg2Rad, this.camera.aspectRatio, this.shadowCastMode, splitDistance);
         ShadowUtils.getCameraFrustumPlanes(this.camera.projectionViewMatrix, frustumPlanes);
         var forward: Vector3 = Vector3._tempVector3;
         this.camera._transform.getForward(forward);
@@ -168,11 +149,11 @@ export class GLESDirectLightShadowCastRP implements IDirectLightShadowRP {
             var sliceData: ShadowSliceData = this._shadowSliceDatas[i];
             sliceData.sphereCenterZ = ShadowUtils.getBoundSphereByFrustum(splitDistance[i], splitDistance[i + 1], this.camera.fieldOfView * MathUtils3D.Deg2Rad, this.camera.aspectRatio, this.camera._transform.position, forward, sliceData.splitBoundSphere);
             ShadowUtils.getDirectionLightShadowCullPlanes(frustumPlanes, i, splitDistance, cameraNear, this._lightForward, sliceData);
-            ShadowUtils.getDirectionalLightMatrices(this._lightup, this._lightSide, this._lightForward, i, this._light._shadowNearPlane, this._shadowTileResolution, sliceData, shadowMatrices);
+            ShadowUtils.getDirectionalLightMatrices(this._lightup, this._lightSide, this._lightForward, i, this._light.shadowNearPlane, this._shadowTileResolution, sliceData, shadowMatrices);
             if (this._cascadeCount > 1)
                 ShadowUtils.applySliceTransform(sliceData, this._shadowMapWidth, this._shadowMapHeight, i, shadowMatrices);
         }
-        ShadowUtils.prepareShadowReceiverShaderValues(this._shadowStrength, this._shadowMapWidth, this._shadowMapHeight, this._shadowSliceDatas, this._cascadeCount, this._shadowMapSize, this._shadowParams, shadowMatrices, boundSpheres);
+        ShadowUtils.prepareShadowReceiverShaderValues(this._light.shadowStrength, this._shadowMapWidth, this._shadowMapHeight, this._shadowSliceDatas, this._cascadeCount, this._shadowMapSize, this._shadowParams, shadowMatrices, boundSpheres);
     }
 
     render(context: GLESRenderContext3D, list: GLESBaseRenderNode[], count: number): void {
@@ -228,7 +209,7 @@ export class GLESDirectLightShadowCastRP implements IDirectLightShadowRP {
      * @param camera 
      */
     private _applyRenderData(scene: ShaderData, camera: ShaderData) {
-        var light: DirectionLightCom = <DirectionLightCom>this._light;
+        var light: GLESDirectLight = this._light;
         if (light.shadowCascadesMode !== ShadowCascadesMode.NoCascades)
             scene.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_CASCADE);
         else
@@ -276,10 +257,10 @@ export class GLESDirectLightShadowCastRP implements IDirectLightShadowRP {
 
         // depth and normal bias scale is in shadowmap texel size in world space
         var texelSize: number = frustumSize / shadowResolution;
-        var depthBias: number = -this._shadowDepthBias * texelSize;
-        var normalBias: number = -this._shadowNormalBias * texelSize;
+        var depthBias: number = -this._light.shadowDepthBias * texelSize;
+        var normalBias: number = -this._light.shadowNormalBias * texelSize;
 
-        if (this._shadowMode == ShadowMode.SoftHigh) {
+        if (this._light.shadowMode == ShadowMode.SoftHigh) {
             // TODO: depth and normal bias assume sample is no more than 1 texel away from shadowmap
             // This is not true with PCF. Ideally we need to do either
             // cone base bias (based on distance to center sample)

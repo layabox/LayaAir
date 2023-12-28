@@ -10,12 +10,12 @@ import { ShadowCullInfo } from "../GLESDirectLightShadowRP";
 import { GLESRenderQueueList } from "./GLESRenderListQueue";
 
 export class GLESCullUtil {
-    static cullByCameraCullInfo(cameraCullInfo: CameraCullInfo, list: SingletonList<GLESBaseRenderNode>, opaqueList: GLESRenderQueueList, transparent: GLESRenderQueueList) {
-        var renders = list.elements;
+    static cullByCameraCullInfo(cameraCullInfo: CameraCullInfo, list: GLESBaseRenderNode[], count: number, opaqueList: GLESRenderQueueList, transparent: GLESRenderQueueList) {
+        var renders = list;
         var boundFrustum: BoundFrustum = cameraCullInfo.boundFrustum;
         var cullMask: number = cameraCullInfo.cullingMask;
         let staticMask = cameraCullInfo.staticMask;
-        for (var i: number = 0, n: number = list.length; i < n; i++) {
+        for (var i: number = 0, n: number = count; i < n; i++) {
             var render = renders[i];
             var canPass: boolean;
             canPass = (Math.pow(2, render.layer) & cullMask) != 0 && render.enable && (render.renderbitFlag == 0);

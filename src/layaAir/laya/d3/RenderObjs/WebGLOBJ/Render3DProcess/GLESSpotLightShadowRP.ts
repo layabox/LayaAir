@@ -7,7 +7,6 @@ import { Matrix4x4 } from "../../../../maths/Matrix4x4";
 import { Vector3 } from "../../../../maths/Vector3";
 import { Vector4 } from "../../../../maths/Vector4";
 import { RenderTexture } from "../../../../resource/RenderTexture";
-import { SingletonList } from "../../../../utils/SingletonList";
 import { ISpotLightShadowRP } from "../../../RenderDriverLayer/Render3DProcess/ISpotLightShadowRP";
 import { BaseCamera } from "../../../core/BaseCamera";
 import { Camera } from "../../../core/Camera";
@@ -22,6 +21,7 @@ import { ShadowCasterPass } from "../../../shadowMap/ShadowCasterPass";
 import { CameraCullInfo } from "../../RenderObj/CameraCullInfo";
 import { GLESRenderContext3D } from "../GLESRenderContext3D";
 import { GLESBaseRenderNode } from "../Render3DNode/GLESBaseRenderNode";
+import { GLESSpotLight } from "../RenderModuleData/GLESSpotLight";
 import { GLESCullUtil } from "./GLESRenderUtil.ts/GLESCullUtil";
 import { GLESRenderQueueList } from "./GLESRenderUtil.ts/GLESRenderListQueue";
 export class ShadowSpotData {
@@ -42,7 +42,7 @@ export class GLESSpotLightShadowRP implements ISpotLightShadowRP {
     shadowCasterCommanBuffer: CommandBuffer[];
     /**light */
     /**@internal */
-    private _light: SpotLightCom;
+    private _light: GLESSpotLight;
     /**@internal */
     private _lightPos: Vector3;
     /**@internal */
@@ -77,19 +77,15 @@ export class GLESSpotLightShadowRP implements ISpotLightShadowRP {
     private _renderQueue: GLESRenderQueueList;
 
     set light(value: SpotLightCom) {
-        this._light = value;
-        this._shadowResolution = value._shadowResolution;
-        this._lightWorldMatrix = (value.owner as Sprite3D).transform.worldMatrix;
-        this._lightPos = (value.owner as Sprite3D)._transform.position;
-        this._spotAngle = value.spotAngle;
-        this._spotRange = value.range;
-        this._shadowStrength = value.shadowStrength;
+        this._light = value._getRenderDataModule() as GLESSpotLight;
+        this._shadowResolution =  this._light.shadowResolution;
+        this._lightWorldMatrix =  this._light.getWorldMatrix(this._lightWorldMatrix);
+        this._lightPos = this._light.transform.position;
+        this._spotAngle =  this._light.spotAngle;
+        this._spotRange =  this._light.spotRange;
+        this._shadowStrength =  this._light.shadowStrength;
         this.destTarget && RenderTexture.recoverToPool(this.destTarget);// TODO 优化
         this.destTarget = ShadowUtils.getTemporaryShadowTexture(this._shadowResolution, this._shadowResolution, ShadowMapFormat.bit16);
-    }
-
-    get light() {
-        return this._light;
     }
 
     constructor() {
@@ -220,7 +216,7 @@ export class GLESSpotLightShadowRP implements ISpotLightShadowRP {
      * @param shaderValues 渲染数据
      */
     private _applyRenderData(sceneData: ShaderData, cameraData: ShaderData): void {
-        var spotLight: SpotLightCom = <SpotLightCom>this._light;
+        var spotLight: GLESSpotLight = this._light;
         switch (spotLight.shadowMode) {
             case ShadowMode.Hard:
                 sceneData.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SPOT_SOFT_SHADOW_HIGH);
