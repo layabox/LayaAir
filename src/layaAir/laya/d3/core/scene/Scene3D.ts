@@ -21,7 +21,6 @@ import { BaseCamera } from "../BaseCamera";
 import { Camera, CameraClearFlags } from "../Camera";
 import { AlternateLightQueue, LightQueue } from "../light/LightQueue";
 import { RenderContext3D } from "../render/RenderContext3D";
-import { RenderElement } from "../render/RenderElement";
 import { Lightmap } from "./Lightmap";
 import { Scene3DShaderDeclaration } from "./Scene3DShaderDeclaration";
 import { ShadowCasterPass } from "../../shadowMap/ShadowCasterPass";
@@ -426,11 +425,6 @@ export class Scene3D extends Sprite implements ISubmit {
     _sceneUniformObj: UniformBufferObject;
     /** @internal */
     _key: SubmitKey = new SubmitKey();
-
-    /** @internal */
-    _opaqueQueue: IRenderQueue = Laya3DRender.renderOBJCreate.createBaseRenderQueue(false);
-    /** @internal */
-    _transparentQueue: IRenderQueue = Laya3DRender.renderOBJCreate.createBaseRenderQueue(true);
     /** @internal */
     _cameraPool: BaseCamera[] = [];
 
@@ -782,7 +776,6 @@ export class Scene3D extends Sprite implements ISubmit {
             }
             this._shaderValues._addCheckUBO(UniformBufferObject.UBONAME_SCENE, this._sceneUniformObj, this._sceneUniformData);
             this._shaderValues.setUniformBuffer(Scene3D.SCENEUNIFORMBLOCK, this._sceneUniformObj);
-
             //ShadowUniformBlock
             //Scene3D._shadowCasterPass
             this._shaderValues._addCheckUBO(UniformBufferObject.UBONAME_SHADOW, Scene3D._shadowCasterPass._castDepthBufferOBJ, Scene3D._shadowCasterPass._castDepthBufferData);
@@ -804,7 +797,7 @@ export class Scene3D extends Sprite implements ISubmit {
             bvhConfig.limit_size = Config3D.BVH_limit_size;
             bvhConfig.max_SpatialCount = Config3D.BVH_max_SpatialCount;
             this._sceneRenderManager = new BVHSceneRenderManager(bvhConfig);
-            this._cullPass = new BVHCullPass();
+            //this._cullPass = new BVHCullPass();
         } else {
             this._sceneRenderManager = new SceneRenderManager();
             this._cullPass = Laya3DRender.renderOBJCreate.createCullPass();
@@ -1149,69 +1142,6 @@ export class Scene3D extends Sprite implements ISubmit {
     /**
      * @internal
      */
-    _preCulling(context: RenderContext3D, camera: Camera): void {
-        this._clearRenderQueue();
-        var cameraCullInfo: ICameraCullInfo = FrustumCulling._cameraCullInfo;
-        var cameraPos = cameraCullInfo.position = camera._transform.position;
-        cameraCullInfo.cullingMask = camera.cullingMask;
-        cameraCullInfo.staticMask = camera.staticMask;
-        cameraCullInfo.boundFrustum = camera.boundFrustum;
-        cameraCullInfo.useOcclusionCulling = camera.useOcclusionCulling;
-        this._cullPass.cullByCameraCullInfo(cameraCullInfo, this.sceneRenderableManager);
-        //addQueue
-        let list = this._cullPass.cullList;
-        let element = list.elements;
-        for (let i: number = 0; i < list.length; i++) {
-            let render = element[i];
-            render.distanceForSort = Vector3.distance(render.bounds.getCenter(), cameraPos);//TODO:合并计算浪费,或者合并后取平均值
-            var elements: RenderElement[] = render._renderElements;
-            for (var j: number = 0, m: number = elements.length; j < m; j++)
-                elements[j]._update(this, context, context.customShader, context.replaceTag);
-        }
-    }
-
-    /**
-     * @internal
-     * @param cullInfo 
-     * @param context 
-     */
-    _directLightShadowCull(cullInfo: IShadowCullInfo, context: RenderContext3D) {
-        this._clearRenderQueue();
-        const position: Vector3 = cullInfo.position;
-        this._cullPass.cullByShadowCullInfo(cullInfo, this.sceneRenderableManager);
-        let list = this._cullPass.cullList;
-        let element = list.elements;
-        for (let i: number = 0; i < list.length; i++) {
-            let render = element[i];
-            render.distanceForSort = Vector3.distance(render.bounds.getCenter(), position);//TODO:合并计算浪费,或者合并后取平均值
-            var elements: RenderElement[] = render._renderElements;
-            for (var j: number = 0, m: number = elements.length; j < m; j++)
-                elements[j]._update(this, context, null, null);
-        }
-    }
-
-    /**
-     * @internal
-     * @param cameraCullInfo 
-     * @param context 
-     */
-    _sportLightShadowCull(cameraCullInfo: ICameraCullInfo, context: RenderContext3D) {
-        this._clearRenderQueue();
-        this._cullPass.cullingSpotShadow(cameraCullInfo, this.sceneRenderableManager);
-        let list = this._cullPass.cullList;
-        let element = list.elements;
-        for (var i: number = 0, n: number = list.length; i < n; i++) {
-            var render = element[i];
-            render.distanceForSort = Vector3.distance(render.bounds.getCenter(), cameraCullInfo.position);
-            var elements: RenderElement[] = render._renderElements;
-            for (var j: number = 0, m: number = elements.length; j < m; j++)
-                elements[j]._update(this, context, null, null);
-        }
-    }
-
-    /**
-     * @internal
-     */
     _clear(state: RenderContext3D): void {
         var viewport: Viewport = state.viewport;
         var camera: Camera = <Camera>state.camera;
@@ -1271,35 +1201,6 @@ export class Scene3D extends Sprite implements ISubmit {
         }
 
         LayaGL.renderEngine.clearRenderTexture(clearConst, clearColor, 1, 0);
-    }
-
-    /**
-     * @internal 渲染Scene的各个管线
-     */
-    _renderScene(context: RenderContext3D, renderFlag: number): void {
-        var camera: Camera = <Camera>context.camera;
-        switch (renderFlag) {
-            case Scene3D.SCENERENDERFLAG_RENDERQPAQUE:
-                Stat.opaqueDrawCall += this._opaqueQueue.renderQueue(context);
-                break;
-            case Scene3D.SCENERENDERFLAG_SKYBOX:
-                if (camera.clearFlag === CameraClearFlags.Sky) {
-                    if (camera.skyRenderer._isAvailable())
-                        camera.skyRenderer._render(context);
-                    else if (this._skyRenderer._isAvailable())
-                        this._skyRenderer._render(context);
-                }
-                break;
-            case Scene3D.SCENERENDERFLAG_RENDERTRANSPARENT:
-                Stat.transDrawCall += this._transparentQueue.renderQueue(context);
-                if (Config3D.debugFrustumCulling) {
-                    // var renderElements: RenderElement[] = this._debugTool._render._renderElements;
-                    // for (var i: number = 0, n: number = renderElements.length; i < n; i++) {
-                    //     context.drawRenderElement(renderElements[i]);
-                    // }
-                }
-                break;
-        }
     }
 
     /**
@@ -1400,12 +1301,7 @@ export class Scene3D extends Sprite implements ISubmit {
      * @internal
      */
     _addRenderObject(render: any): void {
-        // if (this._octree && render._supportOctree) {
-        // 	this._octree.addRender(render);
-        // } else {
-        //this._renders.add(render);
         this._sceneRenderManager.addRenderObject(render);
-        // }
         render._addReflectionProbeUpdate();
     }
 
@@ -1413,30 +1309,7 @@ export class Scene3D extends Sprite implements ISubmit {
      * @internal
      */
     _removeRenderObject(render: any): void {
-        // if (this._octree && render._supportOctree) {
-        // 	this._octree.removeRender(render);
-        // } else {
         this._sceneRenderManager.removeRenderObject(render);
-        //this._renders.remove(render);
-        // }
-    }
-
-    /**
-     * @internal
-     */
-    _getRenderQueue(index: number): IRenderQueue {
-        if (index <= 2500)//2500作为队列临界点
-            return this._opaqueQueue;
-        else
-            return this._transparentQueue;
-    }
-
-    /**
-     * @internal
-     */
-    _clearRenderQueue(): void {
-        this._opaqueQueue.clear();
-        this._transparentQueue.clear();
     }
 
     /**
@@ -1456,8 +1329,6 @@ export class Scene3D extends Sprite implements ISubmit {
         this._spotLights = null;
         this._alternateLights = null;
         this._shaderValues.destroy();
-        this._opaqueQueue.destroy();
-        this._transparentQueue.destroy();
         (RenderContext3D._instance.scene == this) && (RenderContext3D._instance.scene = null);
         this._shaderValues = null;
         this.sceneRenderableManager.destroy();
@@ -1523,7 +1394,7 @@ export class Scene3D extends Sprite implements ISubmit {
             else
                 camera.enableBuiltInRenderTexture = true;
 
-            camera.enableRender && camera.render();
+            camera.enableRender && camera.activeInHierarchy && camera.render(this);
             Scene3D._blitTransRT = null;
 
             if (camera.enableRender && !camera.renderTarget) {

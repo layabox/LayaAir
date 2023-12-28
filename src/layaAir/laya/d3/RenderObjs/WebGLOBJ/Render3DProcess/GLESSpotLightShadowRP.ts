@@ -8,8 +8,6 @@ import { Vector3 } from "../../../../maths/Vector3";
 import { Vector4 } from "../../../../maths/Vector4";
 import { RenderTexture } from "../../../../resource/RenderTexture";
 import { SingletonList } from "../../../../utils/SingletonList";
-import { Stat } from "../../../../utils/Stat";
-import { IBaseRenderNode } from "../../../RenderDriverLayer/Render3DNode/IBaseRenderNode";
 import { ISpotLightShadowRP } from "../../../RenderDriverLayer/Render3DProcess/ISpotLightShadowRP";
 import { BaseCamera } from "../../../core/BaseCamera";
 import { Camera } from "../../../core/Camera";

@@ -471,7 +471,7 @@ export class BaseCamera extends Sprite3D {
      * @param	shader 着色器。
      * @param   replacementTag 着色器替换标记。
      */
-    render(shader: Shader3D = null, replacementTag: string = null): void {
+    render(scene: Scene3D): void {
     }
 
     /**

@@ -4,10 +4,11 @@ import { IBaseRenderNode } from "../../../RenderDriverLayer/Render3DNode/IBaseRe
 import { IForwardAddRP } from "../../../RenderDriverLayer/Render3DProcess/IForwardAddRP";
 import { IRender3DProcess } from "../../../RenderDriverLayer/Render3DProcess/IRender3DProcess";
 import { GLESRenderContext3D } from "../GLESRenderContext3D";
+import { GLESBaseRenderNode } from "../Render3DNode/GLESBaseRenderNode";
 import { GLESForwardAddRP } from "./GLESForwardAddRP";
 
 export class GLESRender3DProcess implements IRender3DProcess {
-    renderFowarAddCameraPass(context: GLESRenderContext3D, renderpass: GLESForwardAddRP, list: SingletonList<IBaseRenderNode>): void {
+    renderFowarAddCameraPass(context: GLESRenderContext3D, renderpass: GLESForwardAddRP, list: SingletonList<GLESBaseRenderNode>): void {
         //先渲染ShadowTexture
         if (renderpass.shadowCastPass) {
             if (renderpass.enableDirectLightShadow) {
@@ -20,8 +21,6 @@ export class GLESRender3DProcess implements IRender3DProcess {
             }
         }
         renderpass.renderpass.render(context, list);
-        //PostProcess
-        //afterEverything cmd
     }
 
 }

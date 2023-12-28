@@ -4,7 +4,6 @@ import { RenderContext3D } from "./render/RenderContext3D";
 import { Transform3D } from "./Transform3D";
 import { SubMeshRenderElement } from "./render/SubMeshRenderElement";
 import { Sprite3D } from "./Sprite3D";
-import { RenderElement } from "./render/RenderElement";
 import { SkinnedMeshSprite3DShaderDeclaration } from "./SkinnedMeshSprite3DShaderDeclaration";
 import { Mesh } from "../resource/models/Mesh";
 import { Texture2D } from "../../resource/Texture2D";

@@ -62,8 +62,15 @@ export class GLESForwardAddClusterRP implements IForwardAddClusterRP {
 
     /**@internal TODO delete*/
     camera: Camera;
-    viewPort: Viewport;
-    scissor: Vector4;
+    private _viewPort: Viewport;
+    setViewPort(value: Viewport) {
+        value.cloneTo(this._viewPort);
+    };
+
+    private _scissor: Vector4;
+    setScissor(value: Vector4) {
+        value.cloneTo(this._scissor);
+    }
 
 
     private opaqueList: GLESRenderQueueList;
@@ -108,8 +115,8 @@ export class GLESForwardAddClusterRP implements IForwardAddClusterRP {
         if ((this.depthTextureMode & DepthTextureMode.DepthNormals) != 0) {
             this._renderDepthNormalPass(context);
         }
-        this.viewPort.cloneTo(GLESForwardAddClusterRP._context3DViewPortCatch);
-        this.scissor.cloneTo(GLESForwardAddClusterRP._contextScissorPortCatch);
+        this._viewPort.cloneTo(GLESForwardAddClusterRP._context3DViewPortCatch);
+        this._scissor.cloneTo(GLESForwardAddClusterRP._contextScissorPortCatch);
         this._mainPass(context);
     }
 

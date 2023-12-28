@@ -8,7 +8,6 @@ import { GeometryElement } from "../../core/GeometryElement";
 import { Material } from "../../../resource/Material";
 import { BaseRender } from "../../core/render/BaseRender";
 import { RenderContext3D } from "../../core/render/RenderContext3D";
-import { RenderElement } from "../../core/render/RenderElement";
 import { Scene3D } from "../../core/scene/Scene3D";
 import { SkyBox } from "./SkyBox";
 import { SkyDome } from "./SkyDome";

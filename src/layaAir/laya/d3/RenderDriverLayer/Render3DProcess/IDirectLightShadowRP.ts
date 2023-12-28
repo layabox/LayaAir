@@ -8,9 +8,8 @@ import { IBaseRenderNode } from "../Render3DNode/IBaseRenderNode";
 
 export interface IDirectLightShadowRP {
     light: DirectionLightCom;
-    shadowCastMode: ShadowCascadesMode;
     camera: Camera;
     destTarget: RenderTexture;
-    update(context: IRenderContext3D): void;
-    render(context: IRenderContext3D, list: SingletonList<IBaseRenderNode>): void;
+    // update(context: IRenderContext3D): void;
+    // render(context: IRenderContext3D, list: SingletonList<IBaseRenderNode>): void;
 }

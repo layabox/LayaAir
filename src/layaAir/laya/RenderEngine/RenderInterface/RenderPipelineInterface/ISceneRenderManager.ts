@@ -1,3 +1,4 @@
+import { IBaseRenderNode } from "../../../d3/RenderDriverLayer/Render3DNode/IBaseRenderNode";
 import { BaseRender } from "../../../d3/core/render/BaseRender";
 import { SingletonList } from "../../../utils/SingletonList";
 
@@ -7,6 +8,7 @@ import { SingletonList } from "../../../utils/SingletonList";
 export interface ISceneRenderManager {
 
     list: SingletonList<BaseRender>;
+    baseRenderList:SingletonList<IBaseRenderNode>
 
     /**
      * add one BaseRender

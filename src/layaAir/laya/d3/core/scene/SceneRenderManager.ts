@@ -1,5 +1,6 @@
 import { ISceneRenderManager } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/ISceneRenderManager";
 import { SingletonList } from "../../../utils/SingletonList";
+import { IBaseRenderNode } from "../../RenderDriverLayer/Render3DNode/IBaseRenderNode";
 import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
 import { BaseRender } from "../render/BaseRender";
 
@@ -9,7 +10,7 @@ import { BaseRender } from "../render/BaseRender";
 export class SceneRenderManager {
     /**@internal */
     protected _sceneManagerOBJ: ISceneRenderManager;
-    
+
     /**
      * 实例化一个场景管理节点
      */
@@ -26,6 +27,10 @@ export class SceneRenderManager {
 
     set list(value: SingletonList<BaseRender>) {
         this._sceneManagerOBJ.list = value;
+    }
+
+    get renderBaselist(): SingletonList<IBaseRenderNode> {
+        return this._sceneManagerOBJ.baseRenderList;
     }
 
     /**

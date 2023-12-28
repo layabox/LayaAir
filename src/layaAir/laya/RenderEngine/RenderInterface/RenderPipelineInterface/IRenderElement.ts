@@ -10,6 +10,7 @@ export interface IRenderElement {
     _geometry: IRenderGeometryElement;
     _shaderInstances: SingletonList<ShaderInstance>;
     _materialShaderData: ShaderData;
+    _materialRenderQueue: number;
     _renderShaderData: ShaderData;
     _transform: Transform3D;
     _isRender: boolean;

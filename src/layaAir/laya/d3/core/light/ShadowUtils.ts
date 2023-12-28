@@ -8,7 +8,6 @@ import { ShadowMode } from "./ShadowMode";
 import { Light, LightType } from "./Light";
 import { SpotLightCom } from "./SpotLightCom";
 import { Sprite3D } from "../Sprite3D";
-import { DirectionLightCom } from "./DirectionLightCom";
 import { FilterMode } from "../../../RenderEngine/RenderEnum/FilterMode";
 import { WrapMode } from "../../../RenderEngine/RenderEnum/WrapMode";
 import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
