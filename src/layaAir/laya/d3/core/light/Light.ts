@@ -6,6 +6,8 @@ import { Component } from "../../../components/Component";
 import { Color } from "../../../maths/Color";
 import { Matrix4x4 } from "../../../maths/Matrix4x4";
 import { Vector3 } from "../../../maths/Vector3";
+import { ISpotLightData } from "../../RenderDriverLayer/RenderModuleData/ISpotLightData";
+import { IDirectLightData } from "../../RenderDriverLayer/RenderModuleData/IDirectLightData";
 
 
 export enum LightType {
@@ -25,12 +27,13 @@ export enum LightMode {
  * <code>LightSprite</code> 类用于创建灯光的父类。
  */
 export class Light extends Component {
-
+    /**@internal 下沉数据集合 */
+    _dataModule: IDirectLightData | ISpotLightData;
     /** @internal */
     protected _shadowMode: ShadowMode = ShadowMode.None;
 
     /** @internal */
-    _isAlternate: boolean = false;
+    private _isAlternate: boolean = false;
     /** @internal */
     _intensityColor: Vector3;
     /** @internal */
@@ -72,66 +75,66 @@ export class Light extends Component {
      * 阴影模式。
      */
     get shadowMode(): ShadowMode {
-        return this._shadowMode;
+        return this._dataModule.shadowMode;
     }
 
     set shadowMode(value: ShadowMode) {
-        this._shadowMode = value
+        this._dataModule.shadowMode = value
     }
 
     /**
      * 最大阴影距离。
      */
     get shadowDistance(): number {
-        return this._shadowDistance;
+        return this._dataModule.shadowDistance;
     }
 
     set shadowDistance(value: number) {
-        this._shadowDistance = value;
+        this._dataModule.shadowDistance = value;
     }
 
     /**
      * 阴影贴图分辨率。
      */
     get shadowResolution(): number {
-        return this._shadowResolution;
+        return this._dataModule.shadowResolution;
     }
 
     set shadowResolution(value: number) {
-        this._shadowResolution = value;
+        this._dataModule.shadowResolution = value;
     }
 
     /**
      * 阴影深度偏差。
      */
     get shadowDepthBias(): number {
-        return this._shadowDepthBias;
+        return this._dataModule.shadowDepthBias;
     }
 
     set shadowDepthBias(value: number) {
-        this._shadowDepthBias = value;
+        this._dataModule.shadowDepthBias = value;
     }
 
     /**
      * 阴影法线偏差。
      */
     get shadowNormalBias(): number {
-        return this._shadowNormalBias;
+        return this._dataModule.shadowNormalBias;
     }
 
     set shadowNormalBias(value: number) {
-        this._shadowNormalBias = value;
+        this._dataModule.shadowNormalBias = value;
     }
 
     /**
      * 阴影强度。
      */
     get shadowStrength(): number {
-        return this._shadowStrength;
+        return this._dataModule.shadowStrength;
     }
 
     set shadowStrength(value: number) {
-        this._shadowStrength = value;
+        this._dataModule.shadowStrength = value;
     }
 
     /**
@@ -175,6 +178,11 @@ export class Light extends Component {
 
     get lightType() {
         return this._lightType;
+    }
+
+    _setOwner(node: Sprite3D): void {
+        super._setOwner(node);
+        this._dataModule.transform = (this.owner as Sprite3D).transform;
     }
 
     /**

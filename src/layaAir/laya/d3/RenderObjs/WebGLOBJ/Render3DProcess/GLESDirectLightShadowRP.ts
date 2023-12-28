@@ -175,7 +175,7 @@ export class GLESDirectLightShadowCastRP implements IDirectLightShadowRP {
         ShadowUtils.prepareShadowReceiverShaderValues(this._shadowStrength, this._shadowMapWidth, this._shadowMapHeight, this._shadowSliceDatas, this._cascadeCount, this._shadowMapSize, this._shadowParams, shadowMatrices, boundSpheres);
     }
 
-    render(context: GLESRenderContext3D, list: SingletonList<GLESBaseRenderNode>): void {
+    render(context: GLESRenderContext3D, list: GLESBaseRenderNode[], count: number): void {
         var shaderValues: ShaderData = context.sceneData;
         context.pipelineMode = "ShadowCaster";
         var shadowMap = this.destTarget
@@ -192,7 +192,7 @@ export class GLESDirectLightShadowCastRP implements IDirectLightShadowRP {
             shadowCullInfo.cullSphere = sliceData.splitBoundSphere;
             shadowCullInfo.direction = this._lightForward;
             //cull
-            GLESCullUtil.culldirectLightShadow(shadowCullInfo, list, this._renderQueue);
+            GLESCullUtil.culldirectLightShadow(shadowCullInfo, list, count, this._renderQueue);
 
             context.cameraData = sliceData.cameraShaderValue;
             Camera._updateMark++;

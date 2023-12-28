@@ -1,4 +1,3 @@
-import { RenderElement } from "./RenderElement";
 import { RenderContext3D } from "./RenderContext3D";
 import { RenderableSprite3D } from "../RenderableSprite3D"
 import { Transform3D } from "../Transform3D"

@@ -44,10 +44,10 @@ export class GLESCullUtil {
 
 
 
-    static culldirectLightShadow(shadowCullInfo: ShadowCullInfo, list: SingletonList<GLESBaseRenderNode>, opaqueList: GLESRenderQueueList) {
+    static culldirectLightShadow(shadowCullInfo: ShadowCullInfo, list: GLESBaseRenderNode[], count: number, opaqueList: GLESRenderQueueList) {
         opaqueList.clear();
-        var renders = list.elements;
-        for (var i: number = 0, n: number = list.length; i < n; i++) {
+        var renders = list;
+        for (var i: number = 0, n: number = count; i < n; i++) {
             var render = renders[i];
             var canPass: boolean = render.shadowCullPass();
             if (canPass) {
@@ -68,11 +68,11 @@ export class GLESCullUtil {
     }
 
 
-    static cullingSpotShadow(cameraCullInfo: CameraCullInfo, list: SingletonList<GLESBaseRenderNode>, opaqueList: GLESRenderQueueList) {
+    static cullingSpotShadow(cameraCullInfo: CameraCullInfo, list: GLESBaseRenderNode[], count: number, opaqueList: GLESRenderQueueList) {
         opaqueList.clear();
-        let renders = list.elements;
+        let renders = list;
         let boundFrustum: BoundFrustum = cameraCullInfo.boundFrustum;
-        for (let i = 0, n = list.length; i < n; i++) {
+        for (let i = 0, n = count; i < n; i++) {
             let render = renders[i];
             let canPass: boolean = render.shadowCullPass();
             render.preUpdateRenderData();

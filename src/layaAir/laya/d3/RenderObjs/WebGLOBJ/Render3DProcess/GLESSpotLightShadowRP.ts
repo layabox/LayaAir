@@ -109,7 +109,7 @@ export class GLESSpotLightShadowRP implements ISpotLightShadowRP {
      * @param context 
      * @param list 
      */
-    render(context: GLESRenderContext3D, list: SingletonList<GLESBaseRenderNode>): void {
+    render(context: GLESRenderContext3D, list: GLESBaseRenderNode[], count: number): void {
         var shaderValues: ShaderData = context.sceneData;
         context.pipelineMode = "ShadowCaster";
         context.setRenderTarget(this.destTarget);
@@ -117,7 +117,7 @@ export class GLESSpotLightShadowRP implements ISpotLightShadowRP {
         this._getShadowBias(shadowSpotData.resolution, this._shadowBias);
         this._setupShadowCasterShaderValues(shaderValues, shadowSpotData, this._shadowParams, this._shadowBias);
         //cull
-        GLESCullUtil.cullingSpotShadow(shadowSpotData.cameraCullInfo, list, this._renderQueue);
+        GLESCullUtil.cullingSpotShadow(shadowSpotData.cameraCullInfo, list, count, this._renderQueue);
 
         context.cameraData = shadowSpotData.cameraShaderValue;
         Camera._updateMark++;

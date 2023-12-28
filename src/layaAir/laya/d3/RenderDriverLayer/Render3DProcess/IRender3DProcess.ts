@@ -4,5 +4,5 @@ import { IBaseRenderNode } from "../Render3DNode/IBaseRenderNode";
 import { IForwardAddRP } from "./IForwardAddRP";
 
 export interface IRender3DProcess{
-    renderFowarAddCameraPass(context:IRenderContext3D,renderpass:IForwardAddRP,list:SingletonList<IBaseRenderNode>):void;
+    renderFowarAddCameraPass(context:IRenderContext3D,renderpass:IForwardAddRP,list:IBaseRenderNode[],count:number):void;
 }

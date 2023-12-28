@@ -7,11 +7,10 @@ export interface IDirectLightData {
     transform: Transform3D;
     shadowResolution: number;
     shadowDistance: number;
-    shadowTwoCascadeSplits: number;
+    shadowMode: ShadowMode;
     shadowStrength: number;
     shadowDepthBias: number;
     shadowNormalBias: number;
-    shadowMode: ShadowMode;
-    setColor(value: Color): void;
+    shadowTwoCascadeSplits: number;
     setShadowFourCascadeSplits(value: Vector3): void;
 }
