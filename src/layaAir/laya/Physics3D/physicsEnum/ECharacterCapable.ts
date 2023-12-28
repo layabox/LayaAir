@@ -20,4 +20,5 @@ export enum ECharacterCapable {
     Character_Skin,   // 坡度限制
     Character_minDistance,
     Character_EventFilter, // 控制器事件过滤
+    Character_SimulateGravity,  // 模拟角色控制器重力
 }

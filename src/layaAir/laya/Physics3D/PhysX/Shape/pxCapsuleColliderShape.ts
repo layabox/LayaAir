@@ -80,7 +80,7 @@ export class pxCapsuleColliderShape extends pxColliderShape implements ICapsuleC
     }
 
     setUpAxis(upAxis: number): void {
-        if (this._upAxis == upAxis)
+        if (this._pxShape && this._upAxis == upAxis)
             return;
         this._upAxis = upAxis;
         this.setHeight(this._halfHeight);

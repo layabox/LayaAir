@@ -72,7 +72,7 @@ export class btColliderShape implements IColliderShape {
     }
 
     setWorldScale(scale: Vector3): void {
-        if (this._worldScale.equal(scale))
+        if (this._btShape && this._worldScale.equal(scale))
             return;
         scale.cloneTo(this._worldScale);
         let bt = btPhysicsCreateUtil._bt;
