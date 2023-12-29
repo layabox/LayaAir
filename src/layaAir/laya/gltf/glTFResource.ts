@@ -258,7 +258,6 @@ export class glTFResource extends Prefab {
     }
 
     /**
-     * @internal
      * @param data 
      * @param createURL 
      * @param progress 
