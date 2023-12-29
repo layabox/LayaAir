@@ -173,7 +173,7 @@ export class Laya {
         MeshVG.__init__();
         MeshTexture.__init__();
 
-        Laya.render = new Render(0, 0, Browser.mainCanvas);
+        Laya.render = Laya.createRender();
         render = Laya.render;
         stage.size(stageConfig.designWidth, stageConfig.designHeight);
         if (stageConfig.scaleMode)
@@ -206,6 +206,15 @@ export class Laya {
         //Init internal 2D Value2D
         Value2D._initone(RenderSpriteData.Texture2D, TextureSV);
         Value2D._initone(RenderSpriteData.Primitive, PrimitiveSV);
+    }
+
+    /**
+     * hook function
+     * @internal
+     * @returns 
+     */
+    static createRender(): Render {
+        return new Render(0, 0, Browser.mainCanvas);
     }
 
     /**
