@@ -51,8 +51,7 @@ export class BlueprintNewTargetNode extends BlueprintRuntimeBaseNode {
 
         let result = Reflect.construct(this.cls, _parmsArray);
 
-        this.outPutParmPins[0].setValue(result);
-
+        context.setPinData(this.outPutParmPins[0],result);
         if (fromExcute) {
             context.endExcute(this);
         }

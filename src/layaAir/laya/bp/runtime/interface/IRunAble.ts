@@ -37,4 +37,6 @@ export interface IRunAble {
     initData(nodeMap:Map<number,BlueprintRuntimeBaseNode>):void;
 
     getDataById(nid:number):RuntimeNodeData;
+
+    setPinData(pin: BlueprintPinRuntime,value:any):void;
 }

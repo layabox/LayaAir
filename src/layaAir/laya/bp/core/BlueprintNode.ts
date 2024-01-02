@@ -64,8 +64,8 @@ export abstract class BlueprintNode<T extends BlueprintPin>{
         }
 
         this.setType(type);
-        let arr=BlueprintFactory.getFunction(def.id||def.name);
-        this.setFunction(arr?arr[0]:null,arr?arr[1]:false);
+        let arr = BlueprintFactory.getFunction(def.id || def.name);
+        this.setFunction(arr ? arr[0] : null, arr ? arr[1] : false);
         if (def.input) {
             this.addInput(def.input as any);
         }
@@ -122,7 +122,7 @@ export abstract class BlueprintNode<T extends BlueprintPin>{
     }
 
 
-    setFunction(fun: Function,isMember:boolean) {
+    setFunction(fun: Function, isMember: boolean) {
 
     }
 
@@ -135,8 +135,7 @@ export abstract class BlueprintNode<T extends BlueprintPin>{
             let pin = this.createPin(item);
             pin.direction = EPinDirection.Input;
             this.addPin(pin);
-            //pin.nid=
-            pin.nid= (this.pins.length-1)
+            pin.id = this.nid + "_" + (this.pins.length - 1);
         })
 
     }
@@ -146,7 +145,7 @@ export abstract class BlueprintNode<T extends BlueprintPin>{
             let pin = this.createPin(item);
             pin.direction = EPinDirection.Output;
             this.addPin(pin);
-            pin.nid= (this.pins.length-1);
+            pin.id = this.nid + "_" + (this.pins.length - 1);
         })
     }
 

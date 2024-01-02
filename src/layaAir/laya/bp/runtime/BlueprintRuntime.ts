@@ -44,7 +44,7 @@ export class BlueprintRuntime implements INodeManger<BlueprintRuntimeBaseNode>, 
         if (event) {
             if (parms) {
                 parms.forEach((value, index) => {
-                    event.inPutParmPins[index].setValue(value);
+                    context.setPinData(event.inPutParmPins[index], value);
                 })
             }
             this.runByContext(context, event.index);
@@ -74,8 +74,7 @@ export class BlueprintRuntime implements INodeManger<BlueprintRuntimeBaseNode>, 
         this.varMap = varMap;
         //pin create
         bpjson.forEach(item => {
-            let d = BlueprintFactory.instance.createNew(getCNodeByNode(item));
-            d.nid = item.id;
+            let d = BlueprintFactory.instance.createNew(getCNodeByNode(item),item.id);
             this.append(d);
         });
         // debugger;

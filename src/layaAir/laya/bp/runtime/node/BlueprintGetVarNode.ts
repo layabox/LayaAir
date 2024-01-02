@@ -28,7 +28,7 @@ export class BlueprintGetVarNode extends BlueprintRuntimeBaseNode {
         if (this.nativeFun) {
             let result = context.excuteFun(this.nativeFun, this.outPutParmPins, BlueprintStaticFun, _parmsArray);
             if (result == undefined) {
-                this.outPutParmPins[0].setValue(result);
+                context.setPinData(this.outPutParmPins[0],result);
             }
         }
         return BlueprintConst.MAX_CODELINE;

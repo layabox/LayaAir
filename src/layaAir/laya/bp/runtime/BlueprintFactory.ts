@@ -18,7 +18,7 @@ import { BlueprintUtil } from "../core/BlueprintUtil";
 import { BlueprintNewTargetNode } from "./node/BlueprintNewTargetNode";
 
 export class BlueprintFactory {
-    private static _funMap: Map<string, [Function,boolean]>;
+    private static _funMap: Map<string, [Function, boolean]>;
 
     private static _instance: BlueprintFactory;
 
@@ -38,8 +38,8 @@ export class BlueprintFactory {
         this._bpNewMap.set(type, cls);
     }
 
-    static regFunction(fname: string, fun: Function,isMember:boolean=false) {
-        this._funMap.set(fname, [fun,isMember]);
+    static regFunction(fname: string, fun: Function, isMember: boolean = false) {
+        this._funMap.set(fname, [fun, isMember]);
     }
 
     static getFunction(fname: string) {
@@ -60,16 +60,16 @@ export class BlueprintFactory {
             this.regBPClassNew(BPType.SetValue, BlueprintSetVarNode);
             this.regBPClassNew(BPType.Branch, BlueprintComplexNode);
             this.regBPClassNew(BPType.Sequence, BlueprintSequenceNode);
-            this.regBPClassNew(BPType.NewTarget ,BlueprintNewTargetNode);
+            this.regBPClassNew(BPType.NewTarget, BlueprintNewTargetNode);
 
             this.regFunction("printString", BlueprintStaticFun.print);
             this.regFunction("branch", BlueprintStaticFun.branch);
 
-            this.regFunction("add",BlueprintStaticFun.add);
-            this.regFunction("waitTime",BlueprintStaticFun.waitTime);
-            this.regFunction("get",BlueprintStaticFun.getVariable);
+            this.regFunction("add", BlueprintStaticFun.add);
+            this.regFunction("waitTime", BlueprintStaticFun.waitTime);
+            this.regFunction("get", BlueprintStaticFun.getVariable);
 
-            this.regFunction("set",BlueprintStaticFun.setVariable);
+            this.regFunction("set", BlueprintStaticFun.setVariable);
 
             //this.regFunction("test",BPBaseTest.prototype.test,true);
 
@@ -80,9 +80,9 @@ export class BlueprintFactory {
     }
 
 
-    static createClsNew<T>(name: string, parentName:string  ,cls: T, data: TBPStageData ): T {
-        let bpjson: TBPNode[] = data.arr ;
-        let varMap:Record<string, TBPVarProperty> = data.varMap;
+    static createClsNew<T>(name: string, parentName: string, cls: T, data: TBPStageData): T {
+        let bpjson: TBPNode[] = data.arr;
+        let varMap: Record<string, TBPVarProperty> = data.varMap;
 
         function classFactory(className: string, SuperClass: any) {
             return {
@@ -94,10 +94,10 @@ export class BlueprintFactory {
                         super(...args);
                         //Object.assign(this, properties);
                         this.context = new BlueprintExcuteNode(this);
-                        let varMap=this.bp.varMap;
-                        if(varMap){
-                            for(let str in varMap){
-                                this.context.setVar(str,varMap[str].value);
+                        let varMap = this.bp.varMap;
+                        if (varMap) {
+                            for (let str in varMap) {
+                                this.context.setVar(str, varMap[str].value);
                                 //a[str]
                             }
                         }
@@ -114,31 +114,31 @@ export class BlueprintFactory {
         let newClass = classFactory(name, cls);
         let bp = newClass.prototype.bp = new BlueprintRuntime();
         // debugger;
-        let c=function(node:TBPNode):TBPCNode{
-            return BlueprintUtil.getConstNode("Node",node) as TBPCNode;
+        let c = function (node: TBPNode): TBPCNode {
+            return BlueprintUtil.getConstNode("Node", node) as TBPCNode;
         }
-        bp.parseNew(bpjson,c,varMap);
-        this.initEventFunc(parentName , newClass);
+        bp.parseNew(bpjson, c, varMap);
+        this.initEventFunc(parentName, newClass);
         Object.defineProperty(newClass, 'name', { value: name });
 
         return newClass as unknown as T;
     }
 
-    static initEventFunc(parent:string,cls:Function){ // todo
+    static initEventFunc(parent: string, cls: Function) { // todo
         let dec = BlueprintUtil.getDeclaration(parent);
-        if (dec && dec.funcs) { 
-            for (let i = 0 , len = dec.funcs.length; i < len; i++) {
+        if (dec && dec.funcs) {
+            for (let i = 0, len = dec.funcs.length; i < len; i++) {
                 let func = dec.funcs[i];
                 if (func.type == "event") {
                     let funcName = func.name;
-                    let originFunc:Function = cls.prototype[funcName];
-                    cls.prototype[funcName] = function(){
-                        originFunc && originFunc.call(this,arguments);
+                    let originFunc: Function = cls.prototype[funcName];
+                    cls.prototype[funcName] = function () {
+                        originFunc && originFunc.call(this, arguments);
                         this.bp.run(this.context, funcName, Array.from(arguments));
                     }
-                }                
+                }
             }
-        } 
+        }
     }
 
 
@@ -149,9 +149,10 @@ export class BlueprintFactory {
         return this._instance;
     }
 
-    createNew(config: TBPCNode) {
+    createNew(config: TBPCNode, id: number) {
         let cls = BlueprintFactory._bpNewMap.get(config.type);
         let result = new cls();
+        result.nid = id;
         result.parseNew(config);
         return result;
     }

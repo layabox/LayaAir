@@ -4,7 +4,7 @@ import { IBPRutime } from "./interface/IBPRutime";
 import { IRunAble } from "./interface/IRunAble";
 import { BlueprintRuntimeBaseNode } from "./node/BlueprintRuntimeBaseNode";
 
-export class BlueprintPinRuntime extends BlueprintPin implements IOutParm {
+export class BlueprintPinRuntime extends BlueprintPin{
     /**
      * 所属节点
     */
@@ -17,14 +17,6 @@ export class BlueprintPinRuntime extends BlueprintPin implements IOutParm {
 
     excute(context: IRunAble,runner:IBPRutime) {
         (this.linkTo[0] as BlueprintPinRuntime)?.owner.step(context, true,runner,true);
-    }
-
-    setValue(value: any): void {
-        this.value = value;
-    }
-
-    getValue(): any {
-        return this.value;
     }
 
     getValueCode(): any {

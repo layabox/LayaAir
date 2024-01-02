@@ -1,14 +1,15 @@
+import { IOutParm } from "../../core/interface/IOutParm";
+
 export class RuntimeNodeData {
     parmsArray: any[];
 
-    pinsValue: Map<number, RuntimePinData>
     constructor() {
-        this.pinsValue = new Map();
         this.parmsArray=[];
     }
 }
 
-export class RuntimePinData {
+export class RuntimePinData implements IOutParm {
+    name: string;
     value: any;
     setValue(value:any){
         this.value=value;

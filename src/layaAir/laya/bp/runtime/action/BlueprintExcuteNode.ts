@@ -7,7 +7,14 @@ import { RuntimeNodeData, RuntimePinData } from "./RuntimeNodeData";
 
 export class BlueprintExcuteNode extends BlueprintRunBase implements IRunAble {
     owner: any;
-    dataMap: Map<number, RuntimeNodeData>;
+    /**
+     * 节点数据区Map
+     */
+    nodeMap: Map<number, RuntimeNodeData>;
+    /**
+     * 引脚数据Map
+     */
+    pinMap: Map<string, RuntimePinData>;
     private _inited: boolean;
 
 
@@ -17,17 +24,27 @@ export class BlueprintExcuteNode extends BlueprintRunBase implements IRunAble {
 
     }
     getDataById(nid: number): RuntimeNodeData {
-       return this.dataMap.get(nid);
+        return this.nodeMap.get(nid);
     }
+
+    setPinData(pin: BlueprintPinRuntime, value: any): void {
+        this.pinMap.get(pin.id).setValue(value);
+    }
+
     initData(nodeMap: Map<number, BlueprintRuntimeBaseNode>): void {
         if (!this._inited) {
-            let dataMap = this.dataMap = new Map();
+            let dataMap = this.nodeMap = new Map();
+            let pinMap = this.pinMap = new Map();
             nodeMap.forEach((value, key) => {
                 let rdata = new RuntimeNodeData();
                 dataMap.set(key, rdata);
                 value.pins.forEach(pin => {
                     let pinData = new RuntimePinData();
-                    rdata.pinsValue.set(pin.nid, pinData);
+                    pinData.name = pin.name;
+                    if (pin.value != undefined) {
+                        pinData.value = pin.value;
+                    }
+                    pinMap.set(pin.id, pinData);
                 })
             })
             this._inited = true;
@@ -76,24 +93,25 @@ export class BlueprintExcuteNode extends BlueprintRunBase implements IRunAble {
     vars: { [key: string]: any; } = {};
 
     parmFromOtherPin(current: BlueprintPinRuntime, from: BlueprintPinRuntime, parmsArray: any[]): void {
-        parmsArray.push(from.getValue());
+        parmsArray.push(this.pinMap.get(from.id).getValue());
     }
 
     parmFromSelf(current: BlueprintPinRuntime, parmsArray: any[]): void {
-        parmsArray.push(current.getValue());
+        parmsArray.push(this.pinMap.get(current.id).getValue());
     }
 
     parmFromOutPut(outPutParmPins: BlueprintPinRuntime[], parmsArray: any[]): void {
         for (let i = 0, n = outPutParmPins.length; i < n; i++) {
             let out = outPutParmPins[i];
-            parmsArray.push(out);
+            parmsArray.push(this.pinMap.get(out.id));
         }
     }
 
     excuteFun(nativeFun: Function, outPutParmPins: BlueprintPinRuntime[], caller: any, parmsArray: any[]): any {
         let result = nativeFun.apply(caller, parmsArray);
         if (result != undefined && !(result instanceof Promise)) {
-            outPutParmPins[0].setValue(result);
+            this.pinMap.get(outPutParmPins[0].id).setValue(result);
+            //outPutParmPins[0].setValue(result);
         }
         return result;
     }

@@ -5,6 +5,9 @@ import { BlueprintRunBase } from "./BlueprintRunBase";
 import { RuntimeNodeData } from "./RuntimeNodeData";
 
 export class BlueprintGenCodeNode extends BlueprintRunBase implements IRunAble {
+    setPinData(pin: BlueprintPinRuntime, value: any): void {
+        throw new Error("Method not implemented.");
+    }
     getDataById(nid: number): RuntimeNodeData {
         throw new Error("Method not implemented.");
     }
