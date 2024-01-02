@@ -745,6 +745,10 @@ export class Node extends EventDispatcher {
     onDisable(): void {
         //trace("onDisable node", this.name);
     }
+    /** @BPmeta {"type":"event"} */
+    onTest(a:number,str:string):void{
+
+    }
 
     /**
      * @internal

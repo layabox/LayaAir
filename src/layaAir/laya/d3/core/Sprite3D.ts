@@ -297,7 +297,7 @@ export class Sprite3D extends Node {
             Sprite3D._parseSprite3DInstance(srcRoot, dstRoot, srcChildren[i], dstChildren[i])
         scrSprite._cloneTo(dstSprite, srcRoot, dstRoot);
     }
-
+    /** @BPmeta */
     /**
      * 克隆。
      * @return	 克隆副本。
