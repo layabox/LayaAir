@@ -2,6 +2,8 @@
 import { LayaEnv } from "../../../../LayaEnv";
 import { HierarchyLoader } from "../../../loaders/HierarchyLoader";
 import { HierarchyParser } from "../../../loaders/HierarchyParser";
+import { ILoadTask } from "../../../net/Loader";
+import { URL } from "../../../net/URL";
 import { IHierarchyParserAPI } from "../../../resource/PrefabImpl";
 import { Resource } from "../../../resource/Resource";
 import { ClassUtils } from "../../../utils/ClassUtils";
@@ -21,17 +23,15 @@ export class BlueprintImpl extends Resource{
         return this._cls;
     }
 
-    constructor( data:any, version?:number){
+    constructor( data:any , task:ILoadTask , version?:number){
         super();
 
         this.data = data;
         this.version = version;
-        this.uuid = data.uuid;
+        this.uuid = task.uuid;
+        this.url = task.url;
+        this.name = URL.getFileName(task.url);
         this.initClass();
-    }
-
-    _setCreateURL(url: string, uuid?: string): void {
-        super._setCreateURL(url,uuid);
     }
 
     create(options?: Record<string, any>, errors?: any[]){
@@ -45,7 +45,7 @@ export class BlueprintImpl extends Resource{
             let api:IHierarchyParserAPI;
             let lhData = this.data.lhData;
             api = HierarchyParser;
-           
+            this.data.lhData._$type = this.uuid;
 
             result = api.parse(lhData , options, errors); 
             if (Array.isArray(result)) {
@@ -71,7 +71,7 @@ export class BlueprintImpl extends Resource{
             return ;
         }
 
-        if (!LayaEnv.isPlaying) {
+        if (!LayaEnv.isPlaying && this.data.lhData) {
             this._cls = runtime;
         }else{
             BlueprintFactory.__init__();
@@ -92,7 +92,7 @@ export class BlueprintImpl extends Resource{
                 varMap,
                 arr
             });
-            this.data.lhData._$type = this.uuid;
+            
             this._cls = cls;
         }
         ClassUtils.regClass(this.uuid , this.cls);

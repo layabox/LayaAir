@@ -291,7 +291,7 @@ export function bpRegFunction( options : BPDecoratorsOptionFunction){
 /**
  * 蓝图装饰器，方法包括
  */
-export function bpRegAccessor( options : BPDecoratorsOptionFunction){
+export function bpRegAccessor( options : BPDecoratorsOptionProp){
     
     return function(target: any, propertyKey: string, descriptor: any){
 
@@ -357,7 +357,7 @@ export function bpRegister( options: BPDecoratorsOptionBase ){
         case "constructor":
             return bpRegFunction(options as BPDecoratorsOptionFunction);
         case "accessor":
-            return bpRegAccessor(options as BPDecoratorsOptionFunction);
+            return bpRegAccessor(options as BPDecoratorsOptionProp);
         default:
             console.log("UNKNOW PropertType!");
             return dummy;
