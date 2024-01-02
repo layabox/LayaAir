@@ -30,11 +30,14 @@ export class BlueprintRuntimeBaseNode extends BlueprintNode<BlueprintPinRuntime>
     */
     outExcutes: BlueprintPinRuntime[];
 
+    tryExcute:(context: IRunAble, fromExcute: boolean,runner:IBPRutime,enableDebugPause:boolean)=> number| BlueprintPromise;
+
 
     constructor() {
         super();
         this.inPutParmPins = BlueprintRuntimeBaseNode._EMPTY;
         this.outPutParmPins = BlueprintRuntimeBaseNode._EMPTY;
+        this.tryExcute=this.step;
         // this._parmsArray=[];
     }
 

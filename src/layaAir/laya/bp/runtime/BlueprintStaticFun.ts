@@ -31,10 +31,8 @@ export class BlueprintStaticFun {
     static waitTime(second:number):Promise<boolean>{
         return new Promise((resolve,rejects)=>{
             setTimeout(() => {
-                console.log(">>>>>>>>before");
                 resolve(true);
-                console.log(">>>>>>>>after");
-            }, second);
+            }, second*1000);
         });
     }
 

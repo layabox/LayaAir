@@ -5,6 +5,8 @@ import { BlueprintPinRuntime } from "../BlueprintPinRuntime";
 import { BlueprintRuntimeBaseNode } from "./BlueprintRuntimeBaseNode";
 import { BlueprintConst } from "../../core/BlueprintConst";
 import { BlueprintNode } from "../../core/BlueprintNode";
+import { IBPRutime } from "../interface/IBPRutime";
+import { BlueprintPromise } from "../BlueprintPromise";
 
 export class BlueprintFunNode extends BlueprintRuntimeBaseNode {
     /**
@@ -15,6 +17,15 @@ export class BlueprintFunNode extends BlueprintRuntimeBaseNode {
      * 输出引脚
      */
     outExcute: BlueprintPinRuntime;
+
+    constructor(){
+        super();
+        this.tryExcute=this.emptyExcute;
+    }
+
+    emptyExcute(context: IRunAble, fromExcute: boolean,runner:IBPRutime,enableDebugPause:boolean): number| BlueprintPromise{
+        return BlueprintConst.MAX_CODELINE;
+    }
 
     setType(type: EBlueNodeType){
         super.setType(type);
