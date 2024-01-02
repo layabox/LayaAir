@@ -437,6 +437,14 @@ export const extendsData: Record<string, TBPDeclaration> = {
                 "returnType": "Sprite3D"
             },
             {
+                "name": "clone",
+                "type": "function",
+                "modifiers": {
+                    "isPublic": true
+                },
+                "returnType": "Node"
+            },
+            {
                 "name": "destroy",
                 "type": "function",
                 "modifiers": {
@@ -485,6 +493,25 @@ export const extendsData: Record<string, TBPDeclaration> = {
                 "modifiers": {
                     "isPublic": true
                 },
+                "returnType": "void",
+                "fromParent": "Node"
+            },
+            {
+                "name": "onTest",
+                "type": "event",
+                "modifiers": {
+                    "isPublic": true
+                },
+                "params": [
+                    {
+                        "name": "a",
+                        "type": "number"
+                    },
+                    {
+                        "name": "str",
+                        "type": "string"
+                    }
+                ],
                 "returnType": "void",
                 "fromParent": "Node"
             }
