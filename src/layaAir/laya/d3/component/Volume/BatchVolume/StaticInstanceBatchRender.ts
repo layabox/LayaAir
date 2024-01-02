@@ -2,7 +2,6 @@ import { SingletonList } from "../../../../utils/SingletonList";
 import { BaseRender, RenderBitFlag } from "../../../core/render/BaseRender";
 import { BatchMark } from "../../../core/render/BatchMark";
 import { InstanceRenderElement } from "../../../core/render/InstanceRenderElement";
-import { RenderElement } from "../../../core/render/RenderElement";
 import { InstanceBatchManager } from "../../../graphics/Batch/InstanceBatchManager";
 import { MeshInstanceGeometry } from "../../../graphics/MeshInstanceGeometry";
 import { Bounds } from "../../../math/Bounds";

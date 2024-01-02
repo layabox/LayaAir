@@ -40,15 +40,11 @@ import { UniformBufferObject } from "../../../RenderEngine/UniformBufferObject";
 import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTargetFormat";
 import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFlag";
 import { ICullPass } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/ICullPass";
-import { FrustumCulling } from "../../graphics/FrustumCulling";
-import { IShadowCullInfo } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IShadowCullInfo";
-import { ICameraCullInfo } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/ICameraCullInfo";
 import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { Prefab } from "../../../resource/HierarchyResource";
 import { Stat } from "../../../utils/Stat";
 import { CommandUniformMap } from "../../../RenderEngine/CommandUniformMap";
 import { ComponentDriver } from "../../../components/ComponentDriver";
-import { IRenderQueue } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderQueue";
 import { LayaEnv } from "../../../../LayaEnv";
 import { SceneRenderManager } from "./SceneRenderManager";
 import { VolumeManager } from "../../component/Volume/VolumeManager";
@@ -56,9 +52,6 @@ import { UI3DManager } from "../UI3D/UI3DManager";
 import { Scene } from "../../../display/Scene";
 import { ReflectionProbe } from "../../component/Volume/reflectionProbe/ReflectionProbe";
 import { AmbientMode } from "./AmbientMode";
-import { BVHSpatialConfig } from "./bvh/SpatialManager";
-import { BVHSceneRenderManager } from "./BVHSceneRenderManager/BVHSceneRenderManager";
-import { BVHCullPass } from "./BVHSceneRenderManager/BVHCullPass";
 import { Color } from "../../../maths/Color";
 import { Vector3 } from "../../../maths/Vector3";
 import { Vector4 } from "../../../maths/Vector4";
@@ -67,9 +60,7 @@ import { RenderTexture } from "../../../resource/RenderTexture";
 import { Laya3D } from "../../../../Laya3D";
 import { IPhysicsManager } from "../../../Physics3D/interface/IPhysicsManager";
 import { LayaGL } from "../../../layagl/LayaGL";
-import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
 import { IElementComponentManager } from "./IScenceComponentManager";
-import { ISceneRenderManager } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/ISceneRenderManager";
 
 export enum FogMode {
     Linear = 0, //Linear
@@ -791,17 +782,7 @@ export class Scene3D extends Sprite implements ISubmit {
         this.GIRotate = 0;
 
         this._scene = this;
-        if (Config3D.useBVHCull) {
-            let bvhConfig = new BVHSpatialConfig();
-            bvhConfig.Min_BVH_Build_Nums = Config3D.BVH_Min_Build_nums;
-            bvhConfig.limit_size = Config3D.BVH_limit_size;
-            bvhConfig.max_SpatialCount = Config3D.BVH_max_SpatialCount;
-            this._sceneRenderManager = new BVHSceneRenderManager(bvhConfig);
-            //this._cullPass = new BVHCullPass();
-        } else {
-            this._sceneRenderManager = new SceneRenderManager();
-            this._cullPass = Laya3DRender.renderOBJCreate.createCullPass();
-        }
+        this._sceneRenderManager = new SceneRenderManager();
 
         if (Config3D.debugFrustumCulling) {
         }
@@ -928,7 +909,7 @@ export class Scene3D extends Sprite implements ISubmit {
                 this._directionLights.normalLightOrdering(sunLightIndex);
                 for (var i: number = 0; i < dirCount; i++, curCount++) {
                     var dirLight: DirectionLightCom = dirElements[i];
-                    var dir: Vector3 = dirLight._direction;
+                    var dir: Vector3 = dirLight.direction;
                     var intCor: Vector3 = dirLight._intensityColor;
                     var off: number = floatWidth * curCount;
                     intCor.x = Color.gammaToLinearSpace(dirLight.color.r);
@@ -997,7 +978,7 @@ export class Scene3D extends Sprite implements ISubmit {
                 this._spotLights.normalLightOrdering(mainSpotLightIndex)
                 for (var i: number = 0; i < spoCount; i++, curCount++) {
                     var spoLight: SpotLightCom = spoElements[i];
-                    var dir: Vector3 = spoLight._direction;
+                    var dir: Vector3 = spoLight.direction;
                     var pos: Vector3 = (spoLight.owner as Sprite3D).transform.position;
                     var intCor: Vector3 = spoLight._intensityColor;
                     var off: number = floatWidth * curCount;
@@ -1040,14 +1021,14 @@ export class Scene3D extends Sprite implements ISubmit {
                 dirLight._intensityColor.z = Color.gammaToLinearSpace(dirLight.color.b);
                 Vector3.scale(dirLight._intensityColor, dirLight._intensity, dirLight._intensityColor);
 
-                (dirLight.owner as Sprite3D).transform.worldMatrix.getForward(dirLight._direction);
-                Vector3.normalize(dirLight._direction, dirLight._direction);
+                (dirLight.owner as Sprite3D).transform.worldMatrix.getForward(dirLight.direction);
+                Vector3.normalize(dirLight.direction, dirLight.direction);
                 shaderValues.setVector3(Scene3D.LIGHTDIRCOLOR, dirLight._intensityColor);
-                shaderValues.setVector3(Scene3D.LIGHTDIRECTION, dirLight._direction);
+                shaderValues.setVector3(Scene3D.LIGHTDIRECTION, dirLight.direction);
                 shaderValues.setInt(Scene3D.LIGHTMODE, dirLight._lightmapBakedType);
                 if (i == 0) {
                     this._sunColor = dirLight.color;
-                    this._sundir = dirLight._direction;
+                    this._sundir = dirLight.direction;
                 }
                 // this._setShaderValue(Scene3D.SUNLIGHTDIRCOLOR, dirLight._intensityColor);
                 // this._setShaderValue(Scene3D.SUNLIGHTDIRECTION, dirLight._direction);
@@ -1081,9 +1062,9 @@ export class Scene3D extends Sprite implements ISubmit {
                 Vector3.scale(spotLight._intensityColor, spotLight._intensity, spotLight._intensityColor);
                 shaderValues.setVector3(Scene3D.SPOTLIGHTCOLOR, spotLight._intensityColor);
                 shaderValues.setVector3(Scene3D.SPOTLIGHTPOS, (spotLight.owner as Sprite3D).transform.position);
-                (spotLight.owner as Sprite3D).transform.worldMatrix.getForward(spotLight._direction);
-                Vector3.normalize(spotLight._direction, spotLight._direction);
-                shaderValues.setVector3(Scene3D.SPOTLIGHTDIRECTION, spotLight._direction);
+                (spotLight.owner as Sprite3D).transform.worldMatrix.getForward(spotLight.direction);
+                Vector3.normalize(spotLight.direction, spotLight.direction);
+                shaderValues.setVector3(Scene3D.SPOTLIGHTDIRECTION, spotLight.direction);
                 shaderValues.setNumber(Scene3D.SPOTLIGHTRANGE, spotLight.range);
                 shaderValues.setNumber(Scene3D.SPOTLIGHTSPOTANGLE, spotLight.spotAngle * Math.PI / 180);
                 shaderValues.setInt(Scene3D.SPOTLIGHTMODE, spotLight._lightmapBakedType);
@@ -1381,13 +1362,7 @@ export class Scene3D extends Sprite implements ISubmit {
         this._prepareSceneToRender();
         var i: number, n: number, n1: number;
         Scene3D._updateMark++;
-        // if (this._sceneUniformData) {
-        // 	this._sceneUniformObj && this._sceneUniformObj.setDataByUniformBufferData(this._sceneUniformData);
-        // }
         for (i = 0, n = this._cameraPool.length, n1 = n - 1; i < n; i++) {
-            // if (Render.supportWebGLPlusRendering)
-            // 	ShaderData.setRuntimeValueMode((i == n1) ? true : false);
-
             var camera: Camera = (<Camera>this._cameraPool[i]);
             if (camera.renderTarget)
                 (camera.enableBuiltInRenderTexture = false);//TODO:可能会有性能问题
@@ -1406,7 +1381,6 @@ export class Scene3D extends Sprite implements ISubmit {
             if (!camera._cacheDepth) {
                 camera.enableRender && camera._needInternalRenderTexture() && (!camera._internalRenderTexture._inPool) && RenderTexture.recoverToPool(camera._internalRenderTexture);
             }
-
         }
         Context.set2DRenderConfig();//还原2D配置
         RenderTexture.clearPool();

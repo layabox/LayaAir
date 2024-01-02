@@ -4,7 +4,6 @@ import { GeometryElement } from "../GeometryElement";
 import { GradientMode } from "../GradientMode";
 import { BaseRender } from "../render/BaseRender";
 import { RenderContext3D } from "../render/RenderContext3D";
-import { RenderElement } from "../render/RenderElement";
 import { TrailGeometry } from "./TrailGeometry";
 import { TrailMaterial } from "./TrailMaterial";
 import { TrailRenderer } from "./TrailRenderer";
