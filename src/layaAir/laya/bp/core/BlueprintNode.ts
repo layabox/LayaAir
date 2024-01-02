@@ -135,6 +135,8 @@ export abstract class BlueprintNode<T extends BlueprintPin>{
             let pin = this.createPin(item);
             pin.direction = EPinDirection.Input;
             this.addPin(pin);
+            //pin.nid=
+            pin.nid= (this.pins.length-1)
         })
 
     }
@@ -144,6 +146,7 @@ export abstract class BlueprintNode<T extends BlueprintPin>{
             let pin = this.createPin(item);
             pin.direction = EPinDirection.Output;
             this.addPin(pin);
+            pin.nid= (this.pins.length-1);
         })
     }
 

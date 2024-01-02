@@ -49,7 +49,8 @@ export class BlueprintRuntimeBaseNode extends BlueprintNode<BlueprintPinRuntime>
         if (fromExcute && context.beginExcute(this,runner,enableDebugPause)) {
             return BlueprintConst.MAX_CODELINE;
         }
-        let _parmsArray:any[] = [];
+        let _parmsArray:any[] = context.getDataById(this.nid).parmsArray;
+        _parmsArray.length=0;
 
         const inputPins = this.inPutParmPins;
         for (let i = 0, n = inputPins.length; i < n; i++) {

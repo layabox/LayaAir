@@ -10,22 +10,24 @@ import { IBPRutime } from "./interface/IBPRutime";
 import { IRunAble } from "./interface/IRunAble";
 import { BlueprintEventNode } from "./node/BlueprintEventNode";
 import { BlueprintRuntimeBaseNode } from "./node/BlueprintRuntimeBaseNode";
+import { RuntimeNodeData } from "./action/RuntimeNodeData";
 
-export class BlueprintRuntime implements INodeManger<BlueprintRuntimeBaseNode>,IBPRutime{
+export class BlueprintRuntime implements INodeManger<BlueprintRuntimeBaseNode>, IBPRutime {
 
     nodeMap: Map<any, BlueprintRuntimeBaseNode>;
 
     eventMap: Map<any, BlueprintEventNode>;
 
-    varMap:Record<string, TBPVarProperty>;
+    varMap: Record<string, TBPVarProperty>;
 
     excuteAbleList: BlueprintRuntimeBaseNode[];
+
     constructor() {
         this.nodeMap = new Map();
         this.eventMap = new Map();
         this.excuteAbleList = [];
     }
- 
+
 
     append(node: BlueprintRuntimeBaseNode) {
         this.nodeMap.set(node.nid, node);
@@ -37,6 +39,7 @@ export class BlueprintRuntime implements INodeManger<BlueprintRuntimeBaseNode>,I
     }
 
     run(context: IRunAble, eventName: string, parms: any[]) {
+        context.initData(this.nodeMap);
         let event = this.eventMap.get(eventName);
         if (event) {
             if (parms) {
@@ -50,14 +53,14 @@ export class BlueprintRuntime implements INodeManger<BlueprintRuntimeBaseNode>,I
         }
     }
 
-    runByContext(context: IRunAble, currentIndex: number,enableDebugPause:boolean=true) {
+    runByContext(context: IRunAble, currentIndex: number, enableDebugPause: boolean = true) {
         for (let i = currentIndex, n = this.excuteAbleList.length; i < n;) {
             const bpNode = this.excuteAbleList[i];
-            let index = bpNode.step(context, true, this,enableDebugPause);
-            enableDebugPause=true;
+            let index = bpNode.step(context, true, this, enableDebugPause);
+            enableDebugPause = true;
             if (index instanceof BlueprintPromise) {
                 index.wait((mis: BlueprintPromise) => {
-                    this.runByContext(context, mis.curIndex,enableDebugPause);
+                    this.runByContext(context, mis.curIndex, enableDebugPause);
                 })
                 return;
             }
@@ -67,8 +70,8 @@ export class BlueprintRuntime implements INodeManger<BlueprintRuntimeBaseNode>,I
         }
     }
 
-    parseNew(bpjson:Array<TBPNode>,getCNodeByNode:(node:TBPNode)=>TBPCNode,varMap:Record<string, TBPVarProperty>){
-        this.varMap=varMap;
+    parseNew(bpjson: Array<TBPNode>, getCNodeByNode: (node: TBPNode) => TBPCNode, varMap: Record<string, TBPVarProperty>) {
+        this.varMap = varMap;
         //pin create
         bpjson.forEach(item => {
             let d = BlueprintFactory.instance.createNew(getCNodeByNode(item));
@@ -115,19 +118,19 @@ export class BlueprintRuntime implements INodeManger<BlueprintRuntimeBaseNode>,I
     }
 
     toCode(context: IRunAble) {
-//         let result = "";
-//         this.eventMap.forEach(item => {
-//             item.outExcute.excute(context);
-//             let code = context.getCode();;
-//             let name = item.name;
-//             let a =
-//                 `this.owner.${name}=function(){
-// ${code}
-// }
-// `
-//             result += a;
-//         })
-//         return result;
+        //         let result = "";
+        //         this.eventMap.forEach(item => {
+        //             item.outExcute.excute(context);
+        //             let code = context.getCode();;
+        //             let name = item.name;
+        //             let a =
+        //                 `this.owner.${name}=function(){
+        // ${code}
+        // }
+        // `
+        //             result += a;
+        //         })
+        //         return result;
     }
 
     getNodeById(id: any): BlueprintRuntimeBaseNode {

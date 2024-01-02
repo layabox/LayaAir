@@ -2,8 +2,15 @@ import { BlueprintPinRuntime } from "../BlueprintPinRuntime";
 import { IRunAble } from "../interface/IRunAble";
 import { BlueprintRuntimeBaseNode } from "../node/BlueprintRuntimeBaseNode";
 import { BlueprintRunBase } from "./BlueprintRunBase";
+import { RuntimeNodeData } from "./RuntimeNodeData";
 
 export class BlueprintGenCodeNode extends BlueprintRunBase implements IRunAble {
+    getDataById(nid: number): RuntimeNodeData {
+        throw new Error("Method not implemented.");
+    }
+    initData(nodeMap: Map<number, BlueprintRuntimeBaseNode>): void {
+        throw new Error("Method not implemented.");
+    }
     debuggerPause: boolean;
     pushBack(index: number): void {
         throw new Error("Method not implemented.");

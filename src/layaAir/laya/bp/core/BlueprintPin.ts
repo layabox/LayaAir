@@ -5,6 +5,7 @@ export class BlueprintPin {
     //方向
     direction: EPinDirection;
     id: string;
+    nid:number;//内部ID
     name: string;
     type: EPinType;
     linkTo: BlueprintPin[];

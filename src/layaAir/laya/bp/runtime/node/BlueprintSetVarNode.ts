@@ -6,37 +6,36 @@ import { BlueprintFunNode } from "./BlueprintFunNode";
 import { BlueprintRuntimeBaseNode } from "./BlueprintRuntimeBaseNode";
 
 export class BlueprintSetVarNode extends BlueprintFunNode {
-    protected _parmsArray: any[];
-    private _varKey:string;
+    private _varKey: string;
     constructor() {
         super();
-        this._parmsArray = [];
     }
 
-    
-    parseLinkDataNew(node: TBPNode, manger: INodeManger<BlueprintRuntimeBaseNode>){
-        this._varKey=node.varName;
-        super.parseLinkDataNew(node,manger);
+
+    parseLinkDataNew(node: TBPNode, manger: INodeManger<BlueprintRuntimeBaseNode>) {
+        this._varKey = node.varName;
+        super.parseLinkDataNew(node, manger);
     }
     step(context: IRunAble, fromExcute: boolean): number {
-        this._parmsArray.length = 0;
+        let _parmsArray: any[] = context.getDataById(this.nid).parmsArray;
+        _parmsArray.length = 0;
         const varPin = this.inPutParmPins[0];
 
         let from = varPin.linkTo[0];
         if (from) {
             (from as BlueprintPinRuntime).step(context);
-            context.parmFromOtherPin(varPin, from as BlueprintPinRuntime, this._parmsArray);
+            context.parmFromOtherPin(varPin, from as BlueprintPinRuntime, _parmsArray);
         }
         else {
-            context.parmFromSelf(varPin, this._parmsArray);
+            context.parmFromSelf(varPin, _parmsArray);
         }
 
-        context.parmFromCustom(this._parmsArray, this._varKey, '"' + this._varKey + '"');
+        context.parmFromCustom(_parmsArray, this._varKey, '"' + this._varKey + '"');
 
-        context.parmFromCustom(this._parmsArray, context, "context");
+        context.parmFromCustom(_parmsArray, context, "context");
 
         if (this.nativeFun) {
-            context.excuteFun(this.nativeFun, this.outPutParmPins, BlueprintFunNode, this._parmsArray);
+            context.excuteFun(this.nativeFun, this.outPutParmPins, BlueprintFunNode, _parmsArray);
         }
         return this.next(context);
     }

@@ -1,3 +1,4 @@
+import { RuntimeNodeData } from "../action/RuntimeNodeData";
 import { BlueprintPinRuntime } from "../BlueprintPinRuntime";
 import { BlueprintRuntimeBaseNode } from "../node/BlueprintRuntimeBaseNode";
 import { IBPRutime } from "./IBPRutime";
@@ -32,4 +33,8 @@ export interface IRunAble {
     reCall(index:number):void;
 
     getSelf():any;
+
+    initData(nodeMap:Map<number,BlueprintRuntimeBaseNode>):void;
+
+    getDataById(nid:number):RuntimeNodeData;
 }
