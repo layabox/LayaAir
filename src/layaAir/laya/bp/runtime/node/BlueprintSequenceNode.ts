@@ -1,6 +1,5 @@
 
 import { IRunAble } from "../interface/IRunAble";
-import { EPinDirection, EPinType } from "../../core/EBluePrint";
 import { BlueprintPinRuntime } from "../BlueprintPinRuntime";
 import { BlueprintComplexNode } from "./BlueprintComplexNode";
 import { BlueprintConst } from "../../core/BlueprintConst";
@@ -11,14 +10,14 @@ export class BlueprintSequenceNode extends BlueprintComplexNode {
     next(context: IRunAble, parmsArray: any[], runner: IBPRutime): number {
         for (let i = 0, n = this.outExcutes.length; i < n; i++) {
             let item = this.outExcutes[i];
-            let jj = (item.linkTo[0] as BlueprintPinRuntime);
-            if (jj) {
+            let pin = (item.linkTo[0] as BlueprintPinRuntime);
+            if (pin) {
                 if(context.debuggerPause){
                     debugger;
-                    context.pushBack(jj.owner.index);
+                    context.pushBack(pin.owner.index);
                 }
                 else{
-                    runner.runByContext(context, jj.owner.index);
+                    runner.runByContext(context, pin.owner.index);
                 }
                 //item.excute(context);
             }
