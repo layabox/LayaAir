@@ -11,9 +11,10 @@ export class BlueprintEventNode extends BlueprintRuntimeBaseNode {
      */
     outExcute: BlueprintPinRuntime;
 
-    setType(type: EBlueNodeType) {
-        super.setType(type)
-        // this.addOutput(BPNode.ExecOutput);
+    setFunction(fun: Function, isMember: boolean) {
+        this.nativeFun = null;
+        this.isMember = isMember;
+        this.funcode = fun?.name;
     }
 
     next(context: IRunAble): number {

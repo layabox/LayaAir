@@ -44,7 +44,7 @@ export class BlueprintRuntime implements INodeManger<BlueprintRuntimeBaseNode>, 
         if (event) {
             if (parms) {
                 parms.forEach((value, index) => {
-                    context.setPinData(event.inPutParmPins[index], value);
+                    context.setPinData(event.outPutParmPins[index], value);
                 })
             }
             this.runByContext(context, event.index);
