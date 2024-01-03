@@ -169,8 +169,6 @@ export class Scene3D extends Sprite implements ISubmit {
 
     static componentManagerMap: Map<string, any> = new Map();
 
-    navigation:null
-
     /**
      * 场景更新标记
      */
@@ -402,6 +400,8 @@ export class Scene3D extends Sprite implements ISubmit {
     private _sceneReflectionProb: ReflectionProbe;
     /**@internal */
     private _physicsStepTime: number = 0;
+    /**@internal */
+    _lightmapDirtyFlag:number = -1
     /**@internal */
     _sunColor: Color = new Color(1.0, 1.0, 1.0);
     /**@internal */
@@ -739,7 +739,7 @@ export class Scene3D extends Sprite implements ISubmit {
         } else {
             maps.length = 0;
         }
-        this.event(Lightmap.ApplyLightmapEvent);
+        this._lightmapDirtyFlag = Scene3D._updateMark;
 
     }
 

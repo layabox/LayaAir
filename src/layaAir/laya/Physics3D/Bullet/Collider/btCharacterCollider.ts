@@ -6,6 +6,7 @@ import { btPhysicsManager } from "../btPhysicsManager";
 import { ECharacterCapable } from "../../physicsEnum/ECharacterCapable";
 import { btColliderShape } from "../Shape/btColliderShape";
 import { PhysicsCombineMode } from "../../../d3/physics/PhysicsColliderComponent";
+import { btCapsuleColliderShape } from "../Shape/btCapsuleColliderShape";
 
 export class btCharacterCollider extends btCollider implements ICharacterController {
 
@@ -46,7 +47,7 @@ export class btCharacterCollider extends btCollider implements ICharacterControl
 
     constructor(physicsManager: btPhysicsManager) {
         super(physicsManager);
-        this._enableProcessCollisions = true;  // not support trigger
+        this._enableProcessCollisions = true;
         var bt = btPhysicsCreateUtil._bt;
         var ghostObject: number = bt.btPairCachingGhostObject_create();
         bt.btCollisionObject_setUserIndex(ghostObject, this._id);
@@ -66,12 +67,10 @@ export class btCharacterCollider extends btCollider implements ICharacterControl
         // throw new Error("Method not implemented.");
     }
     setRadius?(value: number): void {
-        // bullet no radius,need set collidershape
-        // throw new Error("Method not implemented.");
+        this._btColliderShape && (this._btColliderShape as btCapsuleColliderShape).setRadius(value);
     }
     setHeight?(value: number): void {
-        // bullet no height,need set collidershape
-        // throw new Error("Method not implemented.");
+        this._btColliderShape && (this._btColliderShape as btCapsuleColliderShape).setHeight(value);
     }
     setminDistance(value: number): void {
         // bullet no mindistance
@@ -115,12 +114,13 @@ export class btCharacterCollider extends btCollider implements ICharacterControl
         this._characterCapableMap.set(ECharacterCapable.Character_FallSpeed, true);
         this._characterCapableMap.set(ECharacterCapable.Character_SlopeLimit, true);
         this._characterCapableMap.set(ECharacterCapable.Character_PushForce, true);
-        this._characterCapableMap.set(ECharacterCapable.Character_Radius, false);
-        this._characterCapableMap.set(ECharacterCapable.Character_Height, false);
+        this._characterCapableMap.set(ECharacterCapable.Character_Radius, true);
+        this._characterCapableMap.set(ECharacterCapable.Character_Height, true);
         this._characterCapableMap.set(ECharacterCapable.Character_offset, false);
         this._characterCapableMap.set(ECharacterCapable.Character_Skin, false);
         this._characterCapableMap.set(ECharacterCapable.Character_minDistance, false);
         this._characterCapableMap.set(ECharacterCapable.Character_EventFilter, false);
+        this._characterCapableMap.set(ECharacterCapable.Character_SimulateGravity, false);
     }
 
     protected getColliderType(): btColliderType {

@@ -4,7 +4,9 @@ export class LayaEnv {
     static isPreview: boolean = false;
     static isConch: boolean = (<any>window).conch != null;
 
+    /** @deprecated Uses Laya.addBeforeInitCallback */
     static beforeInit: (stageConfig: IStageConfig) => void;
+    /** @deprecated Use Laya.addAfterInitCallback */
     static afterInit: () => void;
 }
 
