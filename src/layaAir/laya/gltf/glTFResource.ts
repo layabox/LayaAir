@@ -258,7 +258,6 @@ export class glTFResource extends Prefab {
     }
 
     /**
-     * @internal
      * @param data 
      * @param createURL 
      * @param progress 
@@ -2550,6 +2549,4 @@ interface ClipNode {
     propertyChangePath?: string;
 }
 
-Laya.onInitModule(() => {
-    glTFShader.init();
-});
+Laya.addInitCallback(() => glTFShader.init());

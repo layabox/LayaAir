@@ -38,7 +38,7 @@ export class BlitScreenQuadCMD extends Command {
 		cmd = BlitScreenQuadCMD._pool.length > 0 ? BlitScreenQuadCMD._pool.pop() : new BlitScreenQuadCMD();
 		cmd._source = source;
 		cmd._dest = dest;
-		cmd._offsetScale = offsetScale;
+		offsetScale && offsetScale.cloneTo(cmd._offsetScale);
 		cmd.setshader(shader, subShader, shaderData);
 		// cmd._shader = shader;
 		// cmd.shaderData = shaderData;
@@ -52,7 +52,7 @@ export class BlitScreenQuadCMD extends Command {
 	/**@internal */
 	private _dest: RenderTexture = null;
 	/**@internal */
-	private _offsetScale: Vector4 = null;
+	private _offsetScale: Vector4 = new Vector4();
 	/**@internal */
 	private _shader: Shader3D = null;
 	/**@internal */
@@ -117,7 +117,7 @@ export class BlitScreenQuadCMD extends Command {
 			context.changeScissor(viewport.x, vpY, viewport.width, vpH);
 		}
 		shaderData.setTexture(Command.SCREENTEXTURE_ID, source);
-		shaderData.setVector(Command.SCREENTEXTUREOFFSETSCALE_ID, this._offsetScale || BlitScreenQuadCMD._defaultOffsetScale);
+		shaderData.setVector(Command.SCREENTEXTUREOFFSETSCALE_ID, this._offsetScale);
 		this._sourceTexelSize.setValue(1.0 / source.width, 1.0 / source.height, source.width, source.height);
 		shaderData.setVector(Command.MAINTEXTURE_TEXELSIZE_ID, this._sourceTexelSize);
 		context.destTarget = dest;
@@ -136,7 +136,7 @@ export class BlitScreenQuadCMD extends Command {
 		BlitScreenQuadCMD._pool.push(this);
 		this._source = null;
 		this._dest = null;
-		this._offsetScale = null;
+		BlitScreenQuadCMD._defaultOffsetScale.cloneTo(this._offsetScale);
 		this._shader = null;
 		this._shaderData = null;
 		super.recover();

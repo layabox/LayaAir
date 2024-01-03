@@ -81,6 +81,7 @@ export class pxColliderShape implements IColliderShape {
         if (this._pxCollider != collider) {
             if (this._pxShape) collider._pxActor.attachShape(this._pxShape);
             this._pxCollider = collider;
+            this.setOffset(this._offset);
         }
     }
 
@@ -92,8 +93,8 @@ export class pxColliderShape implements IColliderShape {
     }
 
     setOffset(position: Vector3): void {
-        if (!this._pxCollider) return;
         position.cloneTo(this._offset);
+        if (!this._pxCollider) return;
         if (this._pxShape) {
             const transform = pxColliderShape.transform;
             this._pxCollider.owner.transform.getWorldLossyScale().cloneTo(this._scale);

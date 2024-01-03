@@ -39,7 +39,6 @@ export class btStaticCollider extends btCollider implements IStaticCollider {
 
     setTrigger(value: boolean): void {
         this._isTrigger = value;
-        this._enableProcessCollisions = !this._isTrigger;
         let bt = btPhysicsCreateUtil._bt;
         if (this._btCollider) {
             var flags: number = bt.btCollisionObject_getCollisionFlags(this._btCollider);
@@ -63,7 +62,7 @@ export class btStaticCollider extends btCollider implements IStaticCollider {
 
     constructor(physicsManager: btPhysicsManager) {
         super(physicsManager);
-        this._enableProcessCollisions = !this._isTrigger;
+        this._enableProcessCollisions = false;
     }
 
 

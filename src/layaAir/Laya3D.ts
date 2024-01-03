@@ -59,6 +59,7 @@ import { ColorGradEffect } from "./laya/d3/core/render/PostEffect/ColorGradEffec
 import { LensFlareEffect } from "./laya/d3/core/render/PostEffect/LensFlares/LensFlareEffect";
 import { IPhysicsCreateUtil } from "./laya/Physics3D/interface/IPhysicsCreateUtil";
 import { LayaGL } from "./laya/layagl/LayaGL";
+import { Laya } from "./Laya";
 
 /**
  * <code>Laya3D</code> 类用于初始化3D设置。
@@ -104,23 +105,7 @@ export class Laya3D {
     /**
      *@internal
      */
-    static __init__(checkPhysics?: boolean): Promise<void> {
-        if (checkPhysics !== false) {
-            if (!Laya3D._PhysicsCreateUtil)
-                Laya3D._enablePhysics = false;
-            else {
-                Laya3D._enablePhysics = true;
-                return new Promise<void>(resolve => {
-                    Laya3D._PhysicsCreateUtil.initialize().then(() => {
-                        Laya3D.__init__(false).then(resolve);
-                    });
-                });
-            }
-        }
-        // if (LayaEnv.isConch && !(window as any).conchConfig.conchWebGL) {
-        //     var skinnedMeshRender: any = SkinnedMeshRenderer;
-        //     skinnedMeshRender.prototype._computeSkinnedData = skinnedMeshRender.prototype._computeSkinnedDataForNative;
-        // }
+    static __init__() {
         Config3D._multiLighting = Config3D.enableMultiLight && LayaGL.renderEngine.getCapable(RenderCapable.TextureFormat_R32G32B32A32);
         Config3D._uniformBlock = Config3D.enableUniformBufferObject && LayaGL.renderEngine.getCapable(RenderCapable.UnifromBufferObject);
 
@@ -201,10 +186,22 @@ export class Laya3D {
         ScreenQuad.__init__();
         FrustumCulling.__init__();
         HalfFloatUtils.__init__();
+    }
 
-        return Promise.resolve();
+    /**
+     *@internal
+    */
+    static __initPhysics__(): Promise<void> {
+        if (!Laya3D._PhysicsCreateUtil) {
+            Laya3D._enablePhysics = false;
+            return Promise.resolve();
+        }
+        else {
+            Laya3D._enablePhysics = true;
+            return Laya3D._PhysicsCreateUtil.initialize();
+        }
     }
 }
 
 (window as any).Laya3D = Laya3D;
-
+Laya.addInitCallback(() => Laya3D.__initPhysics__());

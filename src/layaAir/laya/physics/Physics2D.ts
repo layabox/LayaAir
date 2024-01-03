@@ -234,8 +234,8 @@ export class Physics2D extends EventDispatcher {
     }
 
     /**
-     * 物理世界重力环境，默认值为{x:0,y:1}
-     * 如果修改y方向重力方向向上，可以直接设置gravity.y=-1;
+     * 物理世界重力环境，默认值为{x:0,y:10}
+     * 如果修改y方向重力方向向上，可以直接设置gravity.y=-10;
      */
     get gravity(): any {
         return this._factory.gravity;
@@ -287,4 +287,4 @@ export class Physics2D extends EventDispatcher {
     }
 }
 
-Laya._physiscs2D = Physics2D.I;
+Laya.addInitCallback(() => Physics2D.I.enable());

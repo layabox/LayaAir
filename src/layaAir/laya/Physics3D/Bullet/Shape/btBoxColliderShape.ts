@@ -6,7 +6,7 @@ import { btColliderShape } from "./btColliderShape";
 export class btBoxColliderShape extends btColliderShape implements IBoxColliderShape {
     /** @internal */
     private _btSize: number;
-    /** @interanl */
+    /** @internal */
     private _size: Vector3;
 
     constructor() {
@@ -35,10 +35,11 @@ export class btBoxColliderShape extends btColliderShape implements IBoxColliderS
     }
 
     setSize(size: Vector3): void {
-        if (!size.equal(this._size)) {
-            this._size.setValue(size.x, size.y, size.z);
-            this.changeBoxShape();
+        if (this._btShape && size.equal(this._size)) {
+            return;
         }
+        this._size.setValue(size.x, size.y, size.z);
+        this.changeBoxShape();
     }
 
     destroy(): void {

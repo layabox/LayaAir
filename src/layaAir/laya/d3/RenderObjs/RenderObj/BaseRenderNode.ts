@@ -6,7 +6,7 @@ import { Bounds } from "../../math/Bounds";
 
 export class BaseRenderNode implements IBaseRenderNode {
    
-    /**@interanl */
+    /**@internal */
     boundsChange: boolean;
     /**@internal ID */
     renderId: number;
