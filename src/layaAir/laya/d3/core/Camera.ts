@@ -822,7 +822,7 @@ export class Camera extends BaseCamera {
      * @internal
      */
     _needInternalRenderTexture(): boolean {
-        return (this._postProcess && this._postProcess.enable) || this._enableHDR || this._needBuiltInRenderTexture ? true : false;//condition of internal RT
+        return  this._needBuiltInRenderTexture ;//condition of internal RT
     }
 
     /**
@@ -1131,12 +1131,12 @@ export class Camera extends BaseCamera {
         this._applyCommandBuffer(CameraEventFlags.BeforeImageEffect, context);
         (renderTex) && (renderTex._end());
 
-        if (needInternalRT && Stat.enablePostprocess) {
+        if (Stat.enablePostprocess) {
             if (this._postProcess && this._postProcess.enable) {
                 this._postProcess.commandContext = context;
                 this._postProcess._render(this);
                 this._postProcess._applyPostProcessCommandBuffers();
-            } else if (this._enableHDR || this._needBuiltInRenderTexture) {
+            } else if (this._needBuiltInRenderTexture) {
                 var canvasWidth: number = this._getCanvasWidth(), canvasHeight: number = this._getCanvasHeight();
                 if (this._offScreenRenderTexture) {
                     this._screenOffsetScale.setValue(viewport.x / canvasWidth, (canvasHeight - viewport.y - viewport.height) / canvasHeight, viewport.width / canvasWidth, viewport.height / canvasHeight);
