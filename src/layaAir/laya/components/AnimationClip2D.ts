@@ -9,7 +9,6 @@ import { Byte } from "../utils/Byte";
 export class AnimationClip2D extends Resource {
 
     /**
-     * @internal
      * @param data 
      * @returns 
      */

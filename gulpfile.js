@@ -406,7 +406,7 @@ gulp.task("copyJsLibs", async () => {
             './src/layaAir/jsLibs/physx.release.wasm',
             './src/layaAir/jsLibs/physx.release.js.mem',
             './src/layaAir/jsLibs/Box2D.wasm',
-            '!./src/layaAir/jsLibs/{Box2D.js,cannon.js,bullet.js,physx.release.js,Box2D.wasm.js,bullet.wasm.js}'
+            '!./src/layaAir/jsLibs/{Box2D.js,cannon.js,bullet.js,physx.release.js,Box2D.wasm.js,bullet.wasm.js,physx.wasm.js}'
         ])
         .pipe(gulp.dest('./build/libs'));
 });

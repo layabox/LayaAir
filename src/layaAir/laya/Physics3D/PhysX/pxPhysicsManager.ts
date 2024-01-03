@@ -3,6 +3,7 @@ import { Collision } from "../../d3/physics/Collision";
 import { HitResult } from "../../d3/physics/HitResult";
 import { PhysicsSettings } from "../../d3/physics/PhysicsSettings";
 import { PhysicsUpdateList } from "../../d3/physics/PhysicsUpdateList";
+import { Physics3DUtils } from "../../d3/utils/Physics3DUtils";
 import { Event } from "../../events/Event";
 import { Vector3 } from "../../maths/Vector3";
 import { ICollider } from "../interface/ICollider";
@@ -340,13 +341,15 @@ export class pxPhysicsManager implements IPhysicsManager {
         // update Events
         this._updatePhysicsEvents();
     }
-    rayCast(ray: Ray, outHitResult: HitResult, distance?: number, collisonGroup?: number, collisionMask?: number): boolean {
-        this._pxScene.raycastCloset(ray.origin, ray.direction, 0);
-        return false;
+    rayCast(ray: Ray, outHitResult: HitResult, distance:number = 1000000, collisonGroup: number = 1 << 4, collisionMask: number = Physics3DUtils.COLLISIONFILTERGROUP_ALLFILTER): boolean {
+        let result: any = this._pxScene.raycastCloset(ray.origin, ray.direction, distance, collisonGroup);
+        pxCollisionTool.getRayCastResult(outHitResult, result);
+        return outHitResult.succeeded;
     }
-    rayCastAll?(ray: Ray, out: HitResult[], distance: number, collisonGroup?: number, collisionMask?: number): boolean {
-        //TODO
-        return false;
+    rayCastAll?(ray: Ray, out: HitResult[], distance:number = 1000000, collisonGroup: number = 1 << 4, collisionMask: number = Physics3DUtils.COLLISIONFILTERGROUP_ALLFILTER): boolean {
+        let results: any = this._pxScene.raycastAllHits(ray.origin, ray.direction, distance, collisonGroup);
+        pxCollisionTool.getRayCastResults(out, results);
+        return (out.length >= 1 ? true : false);
     }
 
     sphereQuery?(pos: Vector3, radius: number, result: ICollider[], collisionmask: number): void {

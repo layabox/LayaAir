@@ -41,21 +41,21 @@ export class btConeColliderShape extends btColliderShape implements IConeCollide
     }
 
     setRadius(radius: number): void {
-        if (this._radius == radius)
+        if (this._btShape && this._radius == radius)
             return;
         this._radius = radius;
         this._createShape();
     }
 
     setHeight(height: number): void {
-        if (this._length == height)
+        if (this._btShape && this._length == height)
             return;
         this._length = height;
         this._createShape();
     }
 
     setUpAxis(upAxis: number): void {
-        if (this._orientation == upAxis)
+        if (this._btShape && this._orientation == upAxis)
             return;
         this._orientation = upAxis;
         this._createShape();

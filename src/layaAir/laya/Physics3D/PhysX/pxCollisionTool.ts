@@ -1,6 +1,8 @@
 import { Collision } from "../../d3/physics/Collision";
 import { ContactPoint } from "../../d3/physics/ContactPoint";
+import { HitResult } from "../../d3/physics/HitResult";
 import { Vector3 } from "../../maths/Vector3";
+import { pxCollider } from "./Collider/pxCollider";
 import { pxColliderShape } from "./Shape/pxColliderShape";
 
 /**
@@ -9,6 +11,8 @@ import { pxColliderShape } from "./Shape/pxColliderShape";
 export class pxCollisionTool {
     /**@internal */
     static _collisionPool: Collision[] = [];
+    /**@internal */
+    static _hitPool: HitResult[] = [];
     /**@internal */
     static _tempV3: Vector3 = new Vector3();
     /**@internal */
@@ -57,6 +61,59 @@ export class pxCollisionTool {
     }
 
     /**
+     * 转换physX的LayaQuaryResult到HitResult类型
+     * @param out
+     * @param quaryResult 
+     * @returns 
+     */
+    static getRayCastResult(out: HitResult, quaryResult: any): HitResult {
+        if (quaryResult.Quary) {
+            out.succeeded = quaryResult.Quary;
+            let normal = out.normal;
+            normal.x = quaryResult.normal.x;
+            normal.y = quaryResult.normal.y;
+            normal.z = quaryResult.normal.z;
+            let hitPos = out.point;
+            hitPos.x = quaryResult.position.x;
+            hitPos.y = quaryResult.position.y;
+            hitPos.z = quaryResult.position.z;
+            out.collider = pxCollider._ActorPool.get(quaryResult.ActorUUID);
+        }
+        return out;
+    }
+
+    /**
+     * 转换所有physX的LayaQuaryResult到HitResult类型
+     * @param out 
+     * @param quaryResults
+     * @returns 
+     */
+    static getRayCastResults(out: HitResult[], quaryResults: any): HitResult[] {
+        let quarySize: number = quaryResults.size();
+        if (quarySize <= 0) return out;
+        out.length = 0;
+        for (let i = 0; i < quarySize; i++) {
+            let result: any = quaryResults.get(i);
+            let outItem: HitResult = pxCollisionTool._hitPool.length === 0 ? new HitResult() : pxCollisionTool._hitPool.pop();
+            outItem._inPool = false;
+            if (result) {
+                outItem.succeeded = result.Quary;
+                let normal: any = outItem.normal;
+                normal.x = result.normal.x;
+                normal.y = result.normal.y;
+                normal.z = result.normal.z;
+                let hitPos: any = outItem.point;
+                hitPos.x = result.position.x;
+                hitPos.y = result.position.y;
+                hitPos.z = result.position.z;
+                outItem.collider = pxCollider._ActorPool.get(result.ActorUUID);
+                out.push(outItem);
+            }
+        }
+        return out;
+    }
+
+    /**
      * 回收Collision到pool
      * @param value 
      */
@@ -64,6 +121,17 @@ export class pxCollisionTool {
         if (!value._inPool) {
             value._inPool = true;
             pxCollisionTool._collisionPool.push(value);
+        }
+    }
+
+    /**
+     * 回收HitResult到pool
+     * @param value 
+     */
+    static reCoverHitresults(value: HitResult) {
+        if (!value._inPool) {
+            value._inPool = true;
+            pxCollisionTool._hitPool.push(value);
         }
     }
 }
