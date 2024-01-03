@@ -2544,10 +2544,46 @@ export class Context {
 
         var uv = tex.uv, w: number = tex.bitmap.width, h: number = tex.bitmap.height;
 
+        let ox = tex.offsetX;
+        let oy = tex.offsetY;
+
+        let sw = tex.sourceWidth;
+        let sh = tex.sourceHeight;
+
+        let ow = sw - tex.width - ox;
+        let oh = sh - tex.height - oy;
+
         var top: number = sizeGrid[0];
+        top -= oy;
+        if (0 > top) {
+            oy += top;
+            top = 0;
+        }
+        ty += oy;
+
         var left: number = sizeGrid[3];
+        left -= ox;
+        if (0 > left) {
+            ox += left;
+            left = 0;
+        }
+        tx += ox;
+
         var right: number = sizeGrid[1];
+        right -= ow;
+        if (0 > right) {
+            ow += right;
+            right = 0;
+        }
         var bottom: number = sizeGrid[2];
+        bottom -= oh;
+        if (0 > bottom) {
+            oh += bottom;
+            bottom = 0;
+        }
+        width -= ox + ow;
+        height -= oy + oh;
+
         var repeat: boolean = sizeGrid[4];
         var needClip: boolean = false;
 
