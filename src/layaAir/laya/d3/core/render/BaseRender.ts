@@ -238,7 +238,7 @@ export class BaseRender extends Component implements IBoundsCell {
     /**@internal */
     _distanceForSort: number;
 
-    /**@interface */
+    /**@internal */
     _receiveShadow: boolean;
 
     get renderNode(): IBaseRenderNode {
@@ -281,6 +281,7 @@ export class BaseRender extends Component implements IBoundsCell {
     }
 
     set lightmapIndex(value: number) {
+		this._lightmapDirtyFlag = -1;
         this._lightmapIndex = value;
         this._scene && this._applyLightMapParams();
         this._getIrradientMode();

@@ -1,4 +1,6 @@
+import { Laya } from "../../../../Laya";
 import { LayaEnv } from "../../../../LayaEnv";
+import { Event } from "../../../events/Event";
 import { CommandEncoder } from "../../../layagl/CommandEncoder";
 import { Color } from "../../../maths/Color";
 import { Vector4 } from "../../../maths/Vector4";
@@ -254,6 +256,12 @@ export class WebGLEngine implements IRenderEngine {
         this._GLTextureContext = this.isWebGL2 ? new GL2TextureContext(this) : new GLTextureContext(this);
         this._GLRenderDrawContext = new GLRenderDrawContext(this);
         this._GL2DRenderContext = new GLRender2DContext(this);
+        canvas.addEventListener("webglcontextlost", this.webglContextLost)
+    }
+
+    webglContextLost(e: any) {
+        console.log("lost webgl context");
+        Laya.stage.event("GraphicContextLost", e);
     }
 
     private _initBindBufferMap() {
