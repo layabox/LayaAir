@@ -1138,7 +1138,7 @@ export class Sprite extends Node {
      *
      * var htmlCanvas:HTMLCanvas = sprite.drawToCanvas(100, 100, 0, 0);//把精灵绘制到canvas上面
      * htmlCanvas.toBase64("image/png",0.9);//打印图片base64信息，可以发给服务器或者保存为图片
-     *
+     * @deprecated
      * @param	canvasWidth 画布宽度。
      * @param	canvasHeight 画布高度。
      * @param	x 绘制的 X 轴偏移量。
@@ -1174,6 +1174,7 @@ export class Sprite extends Node {
 
 
     /**
+     * @deprecated
      * @private
      * 绘制到画布。
      */

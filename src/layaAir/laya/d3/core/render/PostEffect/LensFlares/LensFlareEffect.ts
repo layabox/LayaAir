@@ -190,7 +190,7 @@ export class LensFlareData extends Resource {
  * lens Flare Element
  */
 export class LensFlareEffect extends PostProcessEffect {
-    /**@interal */
+    /**@internal */
     static SHADERDEFINE_AUTOROTATE: ShaderDefine;
 
     /**

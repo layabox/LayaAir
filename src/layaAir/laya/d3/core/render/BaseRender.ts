@@ -238,7 +238,7 @@ export class BaseRender extends Component implements IBoundsCell {
     /**@internal */
     _distanceForSort: number;
 
-    /**@interface */
+    /**@internal */
     _receiveShadow: boolean;
 
     get renderNode(): IBaseRenderNode {

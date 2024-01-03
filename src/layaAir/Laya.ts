@@ -37,12 +37,14 @@ import { Config } from "./Config";
 import { Shader3D } from "./laya/RenderEngine/RenderShader/Shader3D";
 import { LayaGL } from "./laya/layagl/LayaGL";
 import { Material } from "./laya/resource/Material";
+import { DrawStyle } from "./laya/webgl/canvas/DrawStyle";
 
 /**
  * <code>Laya</code> 是全局对象的引用入口集。
  * Laya类引用了一些常用的全局对象，比如Laya.stage：舞台，Laya.timer：时间管理器，Laya.loader：加载管理器，使用时注意大小写。
  */
 export class Laya {
+    /*[COMPILER OPTIONS:normal]*/
     /** 舞台对象的引用。*/
     static stage: Stage = null;
 
@@ -55,31 +57,33 @@ export class Laya {
     /** 加载管理器的引用。*/
     static loader: Loader = null;
 
+    /** 2d物理引擎 @internal*/
+    static _physiscs2D: { enable: () => Promise<void> };
+
     /**@private Render 类的引用。*/
     static render: Render;
-
-    private static _inited = false;
-    private static _initCallbacks: Array<() => void | Promise<void>> = [];
-    private static _beforeInitCallbacks: Array<(stageConfig: IStageConfig) => void | Promise<void>> = [];
-    private static _afterInitCallbacks: Array<() => void | Promise<void>> = [];
+    /**是否是微信小游戏子域，默认为false**/
+    static isWXOpenDataContext: boolean = false;
+    /**微信小游戏是否需要在主域中自动将加载的文本数据自动传递到子域，默认 false**/
+    static isWXPosMsg: boolean = false;
+    /**@internal */
+    static WasmModules: { [key: string]: { exports: WebAssembly.Exports, memory: WebAssembly.Memory } } = {};
 
     /**
-     * 初始化引擎。使用引擎需要先初始化引擎。
+     * 初始化引擎。使用引擎需要先初始化引擎，否则可能会报错。
      */
     static init(stageConfig?: IStageConfig): Promise<void>;
     /**
-     * 初始化引擎。使用引擎需要先初始化引擎。
+     * 初始化引擎。使用引擎需要先初始化引擎，否则可能会报错。
      * @param	width 初始化的游戏窗口宽度，又称设计宽度。
-     * @param	height 初始化的游戏窗口高度，又称设计高度。
+     * @param	height	初始化的游戏窗口高度，又称设计高度。
+     * @param	plugins 参数已失效。
      */
-    static init(width: number, height: number): Promise<void>;
+    static init(width: number, height: number, ...plugins: any[]): Promise<void>;
     static init(...args: any[]): Promise<void> {
-        if (Laya._inited)
+        if (_isinit)
             return Promise.resolve();
-        Laya._inited = true;
-
-        if (!WebGL.enable())
-            throw new Error("Must support webGL!");
+        _isinit = true;
 
         let stageConfig: IStageConfig;
         if (typeof (args[0]) === "number") {
@@ -91,20 +95,28 @@ export class Laya {
         else
             stageConfig = args[0];
 
+        ArrayBuffer.prototype.slice || (ArrayBuffer.prototype.slice = arrayBufferSlice);
+        Float32Array.prototype.slice || (Float32Array.prototype.slice = float32ArraySlice);
+        Uint16Array.prototype.slice || (Uint16Array.prototype.slice = uint16ArraySlice);
+        Uint8Array.prototype.slice || (Uint8Array.prototype.slice = uint8ArraySlice);
+
         Browser.__init__();
         URL.__init__();
 
         let laya3D = (<any>window)["Laya3D"];
         if (laya3D) {
+            if (!WebGL.enable())
+                return Promise.reject("Must support webGL!");
+
             RunDriver.changeWebGLSize = laya3D._changeWebGLSize;
             Render.is3DMode = true;
         }
 
         // 创建主画布
         //这个其实在Render中感觉更合理，但是runtime要求第一个canvas是主画布，所以必须在下面的那个离线画布之前
-        let mainCanv = Browser.mainCanvas = new HTMLCanvas(true);
+        var mainCanv = Browser.mainCanvas = new HTMLCanvas(true);
         //Render._mainCanvas = mainCanv;
-        let style: any = mainCanv.source.style;
+        var style: any = mainCanv.source.style;
         style.position = 'absolute';
         style.top = style.left = "0px";
         style.background = "#000000";
@@ -113,67 +125,64 @@ export class Laya {
             Browser.container.appendChild(mainCanv.source);//xiaosong add
         }
 
+        // 创建离屏画布
+        //创建离线画布
         Browser.canvas = new HTMLCanvas(true);
         Browser.context = <CanvasRenderingContext2D>(Browser.canvas.getContext('2d') as any);
         Browser.supportWebAudio = SoundManager.__init__();
         Browser.supportLocalStorage = LocalStorage.__init__();
 
-        systemTimer = new Timer(false);
-        physicsTimer = new Timer(false);
-        timer = new Timer(false);
-        loader = new Loader();
+        //temp TODO 以后分包
+        Laya.systemTimer = new Timer(false);
+        systemTimer = Timer.gSysTimer = Laya.systemTimer;
+        Laya.physicsTimer = new Timer(false);
+        Laya.timer = new Timer(false);
 
-        Laya.systemTimer = Timer.gSysTimer = systemTimer;
-        Laya.timer = timer;
-        Laya.physicsTimer = physicsTimer;
-        Laya.loader = loader;
+        ILaya.systemTimer = Laya.systemTimer;
+        timer = ILaya.timer = Laya.timer;
+        physicsTimer = ILaya.physicsTimer = Laya.physicsTimer;
 
-        ILaya.systemTimer = systemTimer;
-        ILaya.physicsTimer = physicsTimer;
-        ILaya.timer = timer;
-        ILaya.loader = loader;
+        Laya.loader = new Loader();
+        ILaya.Laya = Laya;
+        loader = ILaya.loader = Laya.loader;
 
         WeakObject.__init__();
         Mouse.__init__();
+
+        if (LayaEnv.beforeInit) {
+            if (LayaEnv.isPlaying)
+                LayaEnv.beforeInit(stageConfig);
+            else
+                LayaEnv.beforeInit = null;
+        }
 
         if (LayaEnv.isConch) {
             Laya.enableNative();
         }
         CacheManger.beginCheck();
 
-        let steps: Array<() => any> = [];
+        stage = Laya.stage = new Stage();
+        ILaya.stage = Laya.stage;
 
-        if (LayaEnv.beforeInit)
-            steps.push(() => LayaEnv.beforeInit(stageConfig));
-        steps.push(() => Promise.all(Laya._beforeInitCallbacks.map(func => func(stageConfig))));
-
-        steps.push(() => LayaGL.renderOBJCreate.createEngine(null, Browser.mainCanvas));
-        steps.push(() => Laya.initRender2D(stageConfig));
-        if (laya3D)
-            steps.push(() => laya3D.__init__());
-        steps.push(() => Promise.all(Laya._initCallbacks.map(func => func())));
-
-        steps.push(() => Promise.all(Laya._afterInitCallbacks.map(func => func())));
-
-        if (LayaEnv.afterInit)
-            steps.push(() => LayaEnv.afterInit());
-
-        let p = Promise.resolve();
-        for (let step of steps)
-            p = p.then(step);
-
-        return p;
-    }
-
-    static initRender2D(stageConfig: IStageConfig) {
-        stage = ((<any>window)).stage = ILaya.stage = Laya.stage = new Stage();
-
+        if (LayaEnv.isConch && (window as any).conch.setGlobalRepaint) {
+            (window as any).conch.setGlobalRepaint(stage.setGlobalRepaint.bind(stage));
+        }
         Shader3D.init();
         MeshQuadTexture.__int__();
         MeshVG.__init__();
         MeshTexture.__init__();
 
-        Laya.render = Laya.createRender();
+
+        return LayaGL.renderOBJCreate.createEngine(null, Browser.mainCanvas).then(() => {
+            return Laya.initRender2D(stageConfig);
+        })
+    }
+
+    //createEngine
+    //initRender2D
+
+    static initRender2D(stageConfig: IStageConfig): Promise<void> {
+        Laya.render = new Render(0, 0, Browser.mainCanvas);
         render = Laya.render;
         stage.size(stageConfig.designWidth, stageConfig.designHeight);
         if (stageConfig.scaleMode)
@@ -189,9 +198,7 @@ export class Laya {
         else if (stageConfig.backgroundColor)
             stage.bgColor = stageConfig.backgroundColor;
 
-        if (LayaEnv.isConch && (window as any).conch.setGlobalRepaint) {
-            (window as any).conch.setGlobalRepaint(stage.setGlobalRepaint.bind(stage));
-        }
+        ((<any>window)).stage = stage;
 
         RenderStateContext.__init__();
         MeshParticle2D.__init__();
@@ -206,15 +213,46 @@ export class Laya {
         //Init internal 2D Value2D
         Value2D._initone(RenderSpriteData.Texture2D, TextureSV);
         Value2D._initone(RenderSpriteData.Primitive, PrimitiveSV);
+        ColorUtils._initDefault();
+        DrawStyle._Defaultinit();
+        let initPhysics2D = () => {
+            if (Laya._physiscs2D)
+                return Laya._physiscs2D.enable().then(() => init3D());
+            else
+                return init3D();
+        };
+
+        let init3D = () => {
+            let laya3D = (<any>window)["Laya3D"];
+            if (laya3D)
+                return laya3D.__init__().then(() => complete());
+            else
+                return complete();
+        };
+
+        let complete = () => {
+            _onInitModuleCallbacks.forEach(c => c());
+            _onInitModuleCallbacks.length = 0;
+
+            if (LayaEnv.afterInit) {
+                if (LayaEnv.isPlaying)
+                    LayaEnv.afterInit();
+                else
+                    LayaEnv.afterInit = null;
+            }
+
+            return Promise.resolve();
+        };
+
+        return initPhysics2D();
     }
 
-    /**
-     * hook function
-     * @internal
-     * @returns 
-     */
     static createRender(): Render {
         return new Render(0, 0, Browser.mainCanvas);
+    }
+
+    static addWasmModule(id: string, exports: WebAssembly.Exports, memory: WebAssembly.Memory) {
+        Laya.WasmModules[id] = { exports, memory };
     }
 
     /**
@@ -320,35 +358,74 @@ export class Laya {
             return this._texture;
         }
     }
-    /**
-     * 引擎各个模块，例如物理，寻路等，如果有初始化逻辑可以在这里注册初始化函数。开发者一般不直接使用。
-     * @param callback 模块的初始化函数
-     */
-    static addInitCallback(callback: () => void | Promise<void>) {
-        Laya._initCallbacks.push(callback);
-    }
 
     /**
-     * 在引擎初始化前执行自定义逻辑。此时Stage尚未创建，因为可以修改stageConfig实现动态舞台配置。
-     * @param callback 
+     * @internal
+     * 引擎各个模块如果需要初始化逻辑可以在这里注册回调函数。
+     * @param callback
      */
-    static addBeforeInitCallback(callback: (stageConfig: IStageConfig) => void | Promise<void>): void {
-        Laya._beforeInitCallbacks.push(callback);
-    }
-
-    /**
-     * 在引擎初始化后执行自定义逻辑
-     * @param callback 
-     */
-    static addAfterInitCallback(callback: () => void | Promise<void>): void {
-        Laya._afterInitCallbacks.push(callback);
+    static onInitModule(callback: () => void) {
+        if (_isinit)
+            callback();
+        else
+            _onInitModuleCallbacks.push(callback);
     }
 }
 
-ILaya.Laya = Laya;
+function arrayBufferSlice(this: ArrayBuffer, start: number, end: number): ArrayBuffer {
+    var arrU8List: Uint8Array = new Uint8Array(this, start, end - start);
+    var newU8List: Uint8Array = new Uint8Array(arrU8List.length);
+    newU8List.set(arrU8List);
+    return newU8List.buffer;
+}
+
+function uint8ArraySlice(this: Uint8Array): Uint8Array {
+    var sz: number = this.length;
+    var dec: Uint8Array = new Uint8Array(this.length);
+    for (var i: number = 0; i < sz; i++) dec[i] = this[i];
+    return dec;
+}
+
+function float32ArraySlice(this: Float32Array): Float32Array {
+    var sz: number = this.length;
+    var dec: Float32Array = new Float32Array(this.length);
+    for (var i: number = 0; i < sz; i++) dec[i] = this[i];
+    return dec;
+}
+
+function uint16ArraySlice(this: Uint16Array, ...arg: any[]): Uint16Array {
+    var sz: number;
+    var dec: Uint16Array;
+    var i: number;
+    if (arg.length === 0) {
+        sz = this.length;
+        dec = new Uint16Array(sz);
+        for (i = 0; i < sz; i++)
+            dec[i] = this[i];
+
+    } else if (arg.length === 2) {
+        var start: number = arg[0];
+        var end: number = arg[1];
+
+        if (end > start) {
+            sz = end - start;
+            dec = new Uint16Array(sz);
+            for (i = start; i < end; i++)
+                dec[i - start] = this[i];
+        } else {
+            dec = new Uint16Array(0);
+        }
+    }
+    return dec;
+}
+
+
 ILaya.Loader = Loader;
 ILaya.Context = Context;
 ILaya.Browser = Browser;
+
+var _isinit = false;
+var _onInitModuleCallbacks: Array<() => void> = [];
 
 /**@internal */
 export var init = Laya.init;
@@ -365,10 +442,10 @@ export var loader: Loader;
 /**@internal */
 export var render: Render;
 /**@internal */
+export var isWXOpenDataContext: boolean;
+/**@internal */
+export var isWXPosMsg: boolean;
+/**@internal */
 export var alertGlobalError = Laya.alertGlobalError;
 /**@internal */
 export var enableDebugPanel = Laya.enableDebugPanel;
-
-export var addInitCallback = Laya.addInitCallback;
-export var addBeforeInitCallback = Laya.addBeforeInitCallback;
-export var addAfterInitCallback = Laya.addAfterInitCallback;
