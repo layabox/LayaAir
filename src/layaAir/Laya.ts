@@ -197,7 +197,6 @@ export class Laya {
         MeshParticle2D.__init__();
         RenderSprite.__init__();
         Material.__initDefine__();
-        DrawStyle._Defaultinit();
         InputManager.__init__(stage, Render.canvas);
         if (!!(window as any).conch && "conchUseWXAdapter" in Browser.window) {
             Input.isAppUseNewInput = true;
