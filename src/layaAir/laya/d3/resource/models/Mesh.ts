@@ -62,7 +62,7 @@ export class Mesh extends Resource implements IClone {
     // private static _nativeTempVector32: number;
     /**@internal */
     _convexMesh: any;
-    /**@internal */
+    /**@interanl */
     _triangleMesh: any;
     /**@internal */
     __convexMesh: Mesh;

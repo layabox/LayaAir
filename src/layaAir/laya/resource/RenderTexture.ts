@@ -106,7 +106,7 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
         return this._generateDepthTexture;
     }
     public set generateDepthTexture(value: boolean) {
-        this._generateDepthTexture = value;
+
         // todo  重复 设置
         if (value && !this._depthStencilTexture) {
             // todo  base texture format 移出构造函数

@@ -5,7 +5,7 @@ import { pxColliderShape } from "./pxColliderShape";
 
 export class pxBoxColliderShape extends pxColliderShape implements IBoxColliderShape {
     private static _tempHalfExtents = new Vector3();
-    /** @internal */
+    /** @interanl */
     private _size: Vector3;
 
     constructor() {

@@ -169,8 +169,6 @@ export class Scene3D extends Sprite implements ISubmit {
 
     static componentManagerMap: Map<string, any> = new Map();
 
-    navigation:null
-
     /**
      * 场景更新标记
      */
@@ -406,7 +404,7 @@ export class Scene3D extends Sprite implements ISubmit {
     _lightmapDirtyFlag:number = -1
     /**@internal */
     _sunColor: Color = new Color(1.0, 1.0, 1.0);
-    /**@internal */
+    /**@interanl */
     _sundir: Vector3 = new Vector3();
     /**@internal*/
     _id = Scene3D.sceneID++;
@@ -422,7 +420,7 @@ export class Scene3D extends Sprite implements ISubmit {
     _collsionTestList: number[] = [];
     /** @internal */
     _shaderValues: ShaderData;
-    /** @internal */
+    /** @interanl */
     _sceneUniformData: UnifromBufferData;
     /** @internal */
     _sceneUniformObj: UniformBufferObject;

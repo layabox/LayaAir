@@ -20,13 +20,13 @@ export class StaticInstanceBatchRender extends BatchRender {
     /**@internal  记录每个BatchMask对应的Instance的数量*/
     private _insBatchMarksNums: number[] = [];
 
-    /**@internal */
+    /**@interal */
     private _insElementMarksArray: InstanceRenderElement[] = [];
 
-    /**@internal batch rule:Batch min count*/
+    /**@interal batch rule:Batch min count*/
     private _instanceBatchminNums: number = 10;
 
-    /**@internal cache udpate element*/
+    /**@interal cache udpate element*/
     private _updateChangeElement: InstanceRenderElement[] = [];
 
     /**

@@ -142,6 +142,14 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
 
     }
 
+    /**
+     * @inheritDoc
+     * @override
+     * @internal
+     */
+    _renderUpdateWithCamera(context: RenderContext3D, transform: Transform3D): void {
+    }
+
     _cloneTo(dest: Component): void {
         let render = dest as SimpleSkinnedMeshRenderer;
         render.simpleAnimatorOffset = this.simpleAnimatorOffset;
