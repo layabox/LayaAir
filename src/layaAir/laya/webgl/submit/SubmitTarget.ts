@@ -38,6 +38,7 @@ export class SubmitTarget implements ISubmit {
         var target = this.srcRT;
         if (target) {//??为什么会出现为空的情况
             this.shaderValue.texture = target._getSource();
+            this.shaderValue.textureHost = target;
             this.shaderValue.upload();
             this.blend();
             // Stat.renderBatches++;
