@@ -1,8 +1,9 @@
-import { IRenderElement } from "../../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderElement";
 import { ShaderData } from "../../../../RenderEngine/RenderShader/ShaderData";
 import { Vector4 } from "../../../../maths/Vector4";
 import { Material } from "../../../../resource/Material";
 import { IBaseRenderNode } from "../../../RenderDriverLayer/Render3DNode/IBaseRenderNode";
+import { ReflectionProbeMode } from "../../../component/Volume/reflectionProbe/ReflectionProbe";
+import { RenderableSprite3D } from "../../../core/RenderableSprite3D";
 import { Transform3D } from "../../../core/Transform3D";
 import { IrradianceMode } from "../../../core/render/BaseRender";
 import { BoundFrustum } from "../../../math/BoundFrustum";
@@ -40,7 +41,8 @@ export class GLESBaseRenderNode implements IBaseRenderNode {
     lightProbUpdateMark: number;
     irradientMode: IrradianceMode;
     //material 设置相关
-    _renderelements: RenderElementOBJ[];
+    renderelements: RenderElementOBJ[];
+    _commonUniformMap: string[];
     setWorldParams(value: Vector4) {
 
     }
@@ -50,10 +52,10 @@ export class GLESBaseRenderNode implements IBaseRenderNode {
     }
 
     setOneMaterial(index: number, mat: Material): void {
-        if (!this._renderelements[index])
+        if (!this.renderelements[index])
             return;
-        this._renderelements[index]._materialShaderData = mat.shaderData;
-        this._renderelements[index]._materialRenderQueue;
+        this.renderelements[index]._materialShaderData = mat.shaderData;
+        this.renderelements[index]._materialRenderQueue;
     }
 
 
@@ -62,7 +64,10 @@ export class GLESBaseRenderNode implements IBaseRenderNode {
     }
 
     setCommonUniformMap(value: string[]) {
-
+        this._commonUniformMap.length = 0;
+        value.forEach(element => {
+            this._commonUniformMap.push(element);
+        });
     }
 
     preUpdateRenderData() {
@@ -108,19 +113,15 @@ export class GLESBaseRenderNode implements IBaseRenderNode {
 
 
     /**
-   * @internal
-   * 全局贴图
-   */
+     * @internal
+     * 全局贴图
+     */
     _applyLightMapParams(): void {
-        if (!this._scene) return;
-        var lightMaps: Lightmap[] = this._scene.lightmaps;
-        var shaderValues: ShaderData = this._shaderValues;
-        var lightmapIndex: number = this._lightmapIndex;
-        if (lightmapIndex >= 0 && lightmapIndex < lightMaps.length) {
-            shaderValues.setVector(RenderableSprite3D.LIGHTMAPSCALEOFFSET, this._lightmapScaleOffset);
-            var lightMap: Lightmap = lightMaps[lightmapIndex];
+        if (!this.lightmap) {
+            var lightMap: GLESLightmap = this.lightmap;
+            var shaderValues: ShaderData = this.shaderData;
+            shaderValues.setVector(RenderableSprite3D.LIGHTMAPSCALEOFFSET, this.lightmapScaleOffset);
             shaderValues.setTexture(RenderableSprite3D.LIGHTMAP, lightMap.lightmapColor);
-            shaderValues.setVector(RenderableSprite3D.LIGHTMAPSCALEOFFSET, this._);
             shaderValues.addDefine(RenderableSprite3D.SAHDERDEFINE_LIGHTMAP);
             if (lightMap.lightmapDirection) {
                 shaderValues.setTexture(RenderableSprite3D.LIGHTMAP_DIRECTION, lightMap.lightmapDirection);
@@ -140,10 +141,10 @@ export class GLESBaseRenderNode implements IBaseRenderNode {
     * @returns 
     */
     _applyLightProb() {
-        if (this.lightmapIndex >= 0 || !this._lightProb) return;
-        if (this._lightProb._updateMark != this._lightProbUpdateMark) {
-            this._lightProbUpdateMark = this._lightProb._updateMark;
-            this._lightProb.applyVolumetricGI(this._shaderValues);
+        if (this.lightmapIndex >= 0 || !this.volumetricGI) return;
+        if (this.volumetricGI.updateMark != this.lightProbUpdateMark) {
+            this.lightProbUpdateMark = this.volumetricGI.updateMark;
+            this.volumetricGI.applyRenderData(this.shaderData);
         }
     }
 
@@ -152,26 +153,27 @@ export class GLESBaseRenderNode implements IBaseRenderNode {
      * @returns 
      */
     _applyReflection() {
-        if (!this._probReflection || this._baseRenderNode.reflectionMode == ReflectionProbeMode.off) return;
-        if (this._probReflection._updateMark != this._probeReflectionUpdateMark) {
-            this._probeReflectionUpdateMark = this._probReflection._updateMark;
-            this._probReflection.applyReflectionShaderData(this._shaderValues);
+        if (!this.probeReflection || this.reflectionMode == ReflectionProbeMode.off) return;
+        if (this.probeReflection.updateMark != this.probeReflectionUpdateMark) {
+            this.probeReflectionUpdateMark = this.probeReflection.updateMark;
+            this.probeReflection.applyRenderData(this.shaderData);
         }
     }
 
-    destroy(){
-        
+    destroy() {
+        this.renderelements.forEach(element => {
+            element._destroy();
+        });
+        this.baseGeometryBounds = null;
+        this.transform = null;
+        this.lightmapScaleOffset = null;
+        this.lightmap = null;
+        this.probeReflection = null;
+        this.volumetricGI = null;
+        this.renderelements.length = 0;
+        this.renderelements = null;
+        this._commonUniformMap.length = 0;
+        this._commonUniformMap = null;
     }
-    // /**
-    // * @internal
-    // */
-    // _renderUpdate(context: RenderContext3D, transform: Transform3D): void {
-    // }
-
-    // /**
-    //  * @internal
-    //  */
-    // _renderUpdateWithCamera(context: RenderContext3D, transform: Transform3D): void {
-    // }
 
 }

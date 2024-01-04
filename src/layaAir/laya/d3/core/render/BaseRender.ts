@@ -29,6 +29,7 @@ import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
 import { VolumetricGI } from "../../component/Volume/VolumetricGI/VolumetricGI";
 import { IBaseRenderNode } from "../../RenderDriverLayer/Render3DNode/IBaseRenderNode";
 import { Stat } from "../../../utils/Stat";
+import { Scene3D } from "../scene/Scene3D";
 
 export enum RenderBitFlag {
     RenderBitFlag_CullFlag = 0,
@@ -234,6 +235,7 @@ export class BaseRender extends Component {
 
     set lightmapIndex(value: number) {
         this._baseRenderNode.lightmapIndex = value;
+        this._baseRenderNode.lightmap = (this._scene as Scene3D).lightmaps[value]
         //this._scene && this._applyLightMapParams(); todo miner
         this._getIrradientMode();
     }

@@ -1165,7 +1165,7 @@ export class Camera extends BaseCamera {
 
         scene._componentDriver.callPreRender();
         this._preRenderMainPass(context, scene, needInternalRT, viewport);
-        this._Render3DProcess.renderFowarAddCameraPass(context._contextOBJ, this._ForwardAddRP, scene.sceneRenderableManager.renderBaselist);
+        this._Render3DProcess.renderFowarAddCameraPass(context._contextOBJ, this._ForwardAddRP, scene.sceneRenderableManager.renderBaselist.elements, scene.sceneRenderableManager.renderBaselist.length);
         // this._renderMainPass(context, viewport, scene, shader, replacementTag, needInternalRT);
         this._aftRenderMainPass(this._ForwardAddRP.shadowCastPass);
         scene._componentDriver.callPostRender();

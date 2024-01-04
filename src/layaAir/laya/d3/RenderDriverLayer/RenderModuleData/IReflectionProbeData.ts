@@ -16,9 +16,11 @@ export interface IReflectionProbeData {
     reflectionIntensity: number;
     reflectionTexture: TextureCube;
     iblTex: TextureCube;//textureCube id
+    updateMark: number;
+    iblTexRGBD: boolean;
     //Legency 
     setShCoefficients(value: Vector4[]): void;
     setprobePosition(value: Vector3): void;
     setAmbientColor(value: Color): void;
-    applyRenderData(data: ShaderData): number;
+    applyRenderData(data: ShaderData): void;
 }
