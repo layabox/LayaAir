@@ -95,7 +95,7 @@ export class MeshRenderer extends BaseRender {
     }
 
     protected _changeVertexDefine(mesh: Mesh) {
-        var defineDatas: ShaderData = this._shaderValues;
+        var defineDatas: ShaderData = this._baseRenderNode.shaderData;
         var lastValue: Mesh = this._mesh;
         if (lastValue) {
             this._getMeshDefine(lastValue, MeshFilter._meshVerticeDefine);
@@ -111,12 +111,14 @@ export class MeshRenderer extends BaseRender {
     }
 
     private _morphTargetValues: Record<string, number> = {}
+
     /**
      * @internal
      */
     public get morphTargetValues(): Record<string, number> {
         return this._morphTargetValues;
     }
+
     /**
      * @internal
      */
@@ -153,6 +155,7 @@ export class MeshRenderer extends BaseRender {
      */
     protected _applyMorphdata() {
         let mesh = this._mesh;
+        let shaderData = this._baseRenderNode.shaderData;
         if (this._morphWeightChange && mesh) {
 
             let morphData = mesh.morphTargetData;
@@ -189,10 +192,10 @@ export class MeshRenderer extends BaseRender {
             this.morphTargetActiveCount = Math.min(activeIndex, Config3D.maxMorphTargetCount);
 
             if (LayaGL.renderEngine.getCapable(RenderCapable.Texture3D)) {
-                this._shaderValues.setInt(RenderableSprite3D.MorphActiveCount, this.morphTargetActiveCount);
+                shaderData.setInt(RenderableSprite3D.MorphActiveCount, this.morphTargetActiveCount);
 
-                this._shaderValues.setBuffer(RenderableSprite3D.MorphActiceTargets, this.morphTargetActiveIndex);
-                this._shaderValues.setBuffer(RenderableSprite3D.MorphActiveWeights, this.morphTargetActiveWeight);
+                shaderData.setBuffer(RenderableSprite3D.MorphActiceTargets, this.morphTargetActiveIndex);
+                shaderData.setBuffer(RenderableSprite3D.MorphActiveWeights, this.morphTargetActiveWeight);
             }
             else {
                 // todo
@@ -209,7 +212,7 @@ export class MeshRenderer extends BaseRender {
      * @param mesh 
      */
     protected _changeMorphData(mesh: Mesh) {
-        let shaderData = this._shaderValues;
+        let shaderData = this._baseRenderNode.shaderData;
         let oldMesh = this._mesh;
 
         // todo

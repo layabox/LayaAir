@@ -3,7 +3,6 @@ import { PipelineMode } from "../../../../RenderEngine/RenderInterface/RenderPip
 import { Color } from "../../../../maths/Color";
 import { Vector4 } from "../../../../maths/Vector4";
 import { RenderTexture } from "../../../../resource/RenderTexture";
-import { SingletonList } from "../../../../utils/SingletonList";
 import { IBaseRenderNode } from "../../../RenderDriverLayer/Render3DNode/IBaseRenderNode";
 import { DepthTextureMode, IForwardAddClusterRP } from "../../../RenderDriverLayer/Render3DProcess/IForwardAddClusterRP";
 import { Camera } from "../../../core/Camera";
@@ -107,7 +106,7 @@ export class GLESForwardAddClusterRP implements IForwardAddClusterRP {
         this.opaqueList.clear();
         this.transparent.clear();
         //裁剪cull TODO 自定义
-        GLESCullUtil.cullByCameraCullInfo(this.cameraCullInfo, list, count, this.opaqueList, this.transparent)
+        GLESCullUtil.cullByCameraCullInfo(this.cameraCullInfo, list, count, this.opaqueList, this.transparent, context)
         //更新数据 TODO
         if ((this.depthTextureMode & DepthTextureMode.Depth) != 0) {
             this._renderDepthPass(context);

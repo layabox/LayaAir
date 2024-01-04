@@ -78,12 +78,12 @@ export class GLESSpotLightShadowRP implements ISpotLightShadowRP {
 
     set light(value: SpotLightCom) {
         this._light = value._getRenderDataModule() as GLESSpotLight;
-        this._shadowResolution =  this._light.shadowResolution;
-        this._lightWorldMatrix =  this._light.getWorldMatrix(this._lightWorldMatrix);
+        this._shadowResolution = this._light.shadowResolution;
+        this._lightWorldMatrix = this._light.getWorldMatrix(this._lightWorldMatrix);
         this._lightPos = this._light.transform.position;
-        this._spotAngle =  this._light.spotAngle;
-        this._spotRange =  this._light.spotRange;
-        this._shadowStrength =  this._light.shadowStrength;
+        this._spotAngle = this._light.spotAngle;
+        this._spotRange = this._light.spotRange;
+        this._shadowStrength = this._light.shadowStrength;
         this.destTarget && RenderTexture.recoverToPool(this.destTarget);// TODO 优化
         this.destTarget = ShadowUtils.getTemporaryShadowTexture(this._shadowResolution, this._shadowResolution, ShadowMapFormat.bit16);
     }
@@ -113,8 +113,7 @@ export class GLESSpotLightShadowRP implements ISpotLightShadowRP {
         this._getShadowBias(shadowSpotData.resolution, this._shadowBias);
         this._setupShadowCasterShaderValues(shaderValues, shadowSpotData, this._shadowParams, this._shadowBias);
         //cull
-        GLESCullUtil.cullingSpotShadow(shadowSpotData.cameraCullInfo, list, count, this._renderQueue);
-
+        GLESCullUtil.cullingSpotShadow(shadowSpotData.cameraCullInfo, list, count, this._renderQueue, context);
         context.cameraData = shadowSpotData.cameraShaderValue;
         Camera._updateMark++;
         context.cameraUpdateMask = Camera._updateMark;

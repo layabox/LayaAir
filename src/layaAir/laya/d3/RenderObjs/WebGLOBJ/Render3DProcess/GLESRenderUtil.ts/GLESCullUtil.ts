@@ -1,16 +1,15 @@
 import { Vector3 } from "../../../../../maths/Vector3";
-import { SingletonList } from "../../../../../utils/SingletonList";
 import { Stat } from "../../../../../utils/Stat";
 import { FrustumCulling } from "../../../../graphics/FrustumCulling";
 import { BoundFrustum } from "../../../../math/BoundFrustum";
 import { CameraCullInfo } from "../../../RenderObj/CameraCullInfo";
-import { RenderElementOBJ } from "../../../RenderObj/RenderElementOBJ";
+import { GLESRenderContext3D } from "../../GLESRenderContext3D";
 import { GLESBaseRenderNode } from "../../Render3DNode/GLESBaseRenderNode";
 import { ShadowCullInfo } from "../GLESDirectLightShadowRP";
 import { GLESRenderQueueList } from "./GLESRenderListQueue";
 
 export class GLESCullUtil {
-    static cullByCameraCullInfo(cameraCullInfo: CameraCullInfo, list: GLESBaseRenderNode[], count: number, opaqueList: GLESRenderQueueList, transparent: GLESRenderQueueList) {
+    static cullByCameraCullInfo(cameraCullInfo: CameraCullInfo, list: GLESBaseRenderNode[], count: number, opaqueList: GLESRenderQueueList, transparent: GLESRenderQueueList, context: GLESRenderContext3D) {
         var renders = list;
         var boundFrustum: BoundFrustum = cameraCullInfo.boundFrustum;
         var cullMask: number = cameraCullInfo.cullingMask;
@@ -23,9 +22,10 @@ export class GLESCullUtil {
             if (canPass) {
                 Stat.frustumCulling++;
                 //needRender 方案有问题 会造成native和js的差异
-                if (!cameraCullInfo.useOcclusionCulling || render._needRender(boundFrustum)) {
+                if (!cameraCullInfo.useOcclusionCulling || render._needRender(boundFrustum))//NEEDRENDER TS OR NATIVE
+                {
                     render.distanceForSort = Vector3.distance(render.bounds.getCenter(), cameraCullInfo.position);
-                    render.preUpdateRenderData();
+                    render._renderUpdatePre(context);//TS OR Native
                     let elments = render.renderelements;
                     if (elments.length == 1) {//js 优化
                         if (elments[0]._materialRenderQueue > 2500) transparent.addRenderElement(elments[0]);
@@ -44,7 +44,7 @@ export class GLESCullUtil {
 
 
 
-    static culldirectLightShadow(shadowCullInfo: ShadowCullInfo, list: GLESBaseRenderNode[], count: number, opaqueList: GLESRenderQueueList) {
+    static culldirectLightShadow(shadowCullInfo: ShadowCullInfo, list: GLESBaseRenderNode[], count: number, opaqueList: GLESRenderQueueList, context: GLESRenderContext3D) {
         opaqueList.clear();
         var renders = list;
         for (var i: number = 0, n: number = count; i < n; i++) {
@@ -55,7 +55,7 @@ export class GLESCullUtil {
                 let pass = FrustumCulling.cullingRenderBounds(render.bounds, shadowCullInfo);
                 if (pass) {
                     render.distanceForSort = Vector3.distance(render.bounds.getCenter(), shadowCullInfo.position);//TODO:合并计算浪费,或者合并后取平均值
-                    render.preUpdateRenderData();
+                    render._renderUpdatePre(context);//TS OR Native
                     var elements = render.renderelements
                     for (var j: number = 0, m: number = elements.length; j < m; j++) {
                         var element = elements[j];
@@ -68,14 +68,14 @@ export class GLESCullUtil {
     }
 
 
-    static cullingSpotShadow(cameraCullInfo: CameraCullInfo, list: GLESBaseRenderNode[], count: number, opaqueList: GLESRenderQueueList) {
+    static cullingSpotShadow(cameraCullInfo: CameraCullInfo, list: GLESBaseRenderNode[], count: number, opaqueList: GLESRenderQueueList, context: GLESRenderContext3D) {
         opaqueList.clear();
         let renders = list;
         let boundFrustum: BoundFrustum = cameraCullInfo.boundFrustum;
         for (let i = 0, n = count; i < n; i++) {
             let render = renders[i];
             let canPass: boolean = render.shadowCullPass();
-            render.preUpdateRenderData();
+            render._renderUpdatePre(context);//TS OR Native
             if (canPass) {
                 Stat.frustumCulling++;
                 render.distanceForSort = Vector3.distance(render.bounds.getCenter(), cameraCullInfo.position);
