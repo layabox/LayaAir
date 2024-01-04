@@ -33,7 +33,7 @@ export class BlueprintUtil {
     }
 
     static getConstNode(ext: string, node?: TBPNode) {
-        BlueprintUtil.initConstNode(ext);
+        this.initConstNode();
         if (null == node) {
             let ret = this._constExtNode[ext];
             if (null == ret) {
@@ -44,21 +44,9 @@ export class BlueprintUtil {
         return this._allConstNode[node.cid];
         //return this.getConstNodeByID(ext, node.cid);
     }
-    static isEmptyObj(o: any) {
-        for (let k in o) {
-            return false;
-        }
-        return true;
-    }
-    static getDist(x1: number, y1: number, x2: number, y2: number) {
-        var dx = x2 - x1;
-        var dy = y2 - y1;
-        var dist = Math.sqrt(dx * dx + dy * dy);
-        return dist;
-    }
 
-    static getDeclaration(name:string):TBPDeclaration{
-        return extendsData[name] ? extendsData[name]:customData[name];
+    static getDeclaration(name: string): TBPDeclaration {
+        return extendsData[name] ? extendsData[name] : customData[name];
     }
 
 
@@ -73,11 +61,7 @@ export class BlueprintUtil {
         }
         return ret;
     }
-    static clone<T>(obj: T): T {
-        if (null == obj) return obj;
-        return JSON.parse(JSON.stringify(obj));
-    }
-    static initConstNode(ext: string) {
+    static initConstNode() {
         if (null == this._constNode) {
             this._constNode = {};
 
@@ -131,14 +115,7 @@ export class BlueprintUtil {
                 }
             }
             this._allConstNode = { ...this._constNode };
-        }
-        if (null == this._constExtNode[ext]) {
-            this.getExtendsNode(ext);
-            // this._constExtNode[ext] = { ...this._constNode };
-            // let obj = this._constExtNode[ext];
-            // for (let i = arr.length - 1; i >= 0; i--) {
-            //     obj[arr[i].id] = arr[i];
-            // }
+            this.initExtendsNode();
         }
     }
 
@@ -151,142 +128,146 @@ export class BlueprintUtil {
         return arr;
     }
 
-    private static getExtendsNode(str: string) {
-        if (null == this._constExtNode[str]) {
-            for (let ext in extendsData) {
-                let cls =  ClassUtils.getClass(ext) || Browser.window.Laya[ext];
+    private static initExtendsNode() {
+        for (let ext in extendsData) {
+            let cls = ClassUtils.getClass(ext) || Browser.window.Laya[ext];
 
-                if (!cls) {
-                    continue;
-                }
-                this.extendsNode[ext] = [];
-                this._constExtNode[ext] = {};
-                let o = extendsData[ext];
+            if (!cls) {
+                continue;
+            }
+            this.extendsNode[ext] = [];
+            this._constExtNode[ext] = {};
+            let o = extendsData[ext];
 
-                if (o && o.props) {
-                    let arr = o.props;
-                    for (let i = arr.length - 1; i >= 0; i--) {
-                        let po = arr[i];
-                        if (po.modifiers.isStatic) continue;
-                        if (null == this.constVars[ext]) {
-                            this.constVars[ext] = [];
-                        }
-                        let anyObj = po as any;
-                        anyObj.const = true;
-                        this.constVars[ext].push(anyObj);
+            if (o && o.props) {
+                let arr = o.props;
+                for (let i = arr.length - 1; i >= 0; i--) {
+                    let po = arr[i];
+                    if (po.modifiers.isStatic) continue;
+                    if (null == this.constVars[ext]) {
+                        this.constVars[ext] = [];
                     }
+                    let anyObj = po as any;
+                    anyObj.const = true;
+                    this.constVars[ext].push(anyObj);
                 }
-                if (o && o.construct) {
-                    let cdata: TBPCNode = {
-                        menuPath: "CreateNew",
-                        name: ext,
-                        target: ext,
-                        id: ext,
-                        type: BPType.NewTarget,
-                        output: [
+            }
+            if (o && o.construct) {
+                let cdata: TBPCNode = {
+                    menuPath: "CreateNew",
+                    name: ext,
+                    target: ext,
+                    id: ext,
+                    type: BPType.NewTarget,
+                    output: [
+                        {
+                            name: "return",
+                            type: ext,
+                        }
+                    ]
+                }
+                let params = o.construct.params;
+                if (params) {
+                    cdata.input = []
+                    for (let i = 0, len = params.length; i < len; i++) {
+                        cdata.input.push(
                             {
-                                name: "return",
-                                type: ext,
+                                name: params[i].name,
+                                type: params[i].type,
                             }
-                        ]
+                        );
                     }
-                    let params = o.construct.params;
-                    if (params) {
-                        cdata.input = []
-                        for (let i = 0, len = params.length; i < len; i++) {
-                            cdata.input.push(
-                                {
-                                    name: params[i].name,
-                                    type: params[i].type,
-                                }
-                            );
-                        }
-                    }
-
-                    this.extendsNode[ext].push(cdata);
-                    this._constExtNode[ext][cdata.id] = cdata;
-                    this._allConstNode[cdata.id] = cdata;
                 }
 
-                if (o && o.funcs) {
-                    let funcs = o.funcs;
-                    for (let i = funcs.length - 1; i >= 0; i--) {
-                        let fun = funcs[i];
-                        if (fun.modifiers.isPublic || fun.modifiers.isProtected) {
-                            let cdata: TBPCNode = {
-                                menuPath: ext,
-                                target: ext,
-                                name: fun.name,
-                                id: ext + "_" + fun.name,
-                                type: BPType.Function,
-                                output: [
-                                    BlueprintUtil.defEventOut,
-                                ]
-                            }
-                            if (fun.modifiers.isStatic) {
-                                cdata.id += "_static";
-                                cdata.aliasName = fun.name + " (Static)";
-                            }
-                            let funName = fun.name;
-                            let func = fun.modifiers.isStatic ? cls[funName] : cls.prototype[funName];
-                            if (!func) {
-                                //debugger
-                            }
-                            BlueprintFactory.regFunction(cdata.id, func, !fun.modifiers.isStatic);
+                this.extendsNode[ext].push(cdata);
+                this._constExtNode[ext][cdata.id] = cdata;
+                this._allConstNode[cdata.id] = cdata;
+            }
 
-                            if (0 == fun.name.indexOf("on") && 'on' != fun.name) {
-                                //TODO 暂时以on开头的都是Event
-                                cdata.type = BPType.Event;
-                            }
+            if (o && o.funcs) {
+                let funcs = o.funcs;
+                for (let i = funcs.length - 1; i >= 0; i--) {
+                    let fun = funcs[i];
+                    if (fun.modifiers.isPublic || fun.modifiers.isProtected) {
+                        let cdata: TBPCNode = {
+                            menuPath: ext,
+                            target: ext,
+                            name: fun.name,
+                            id: ext + "_" + fun.name,
+                            type: BPType.Function,
+                            output: [
+                                BlueprintUtil.defEventOut,
+                            ]
+                        }
+                        if (fun.modifiers.isStatic) {
+                            cdata.id += "_static";
+                            cdata.aliasName = fun.name + " (Static)";
+                        }
+                        if (BPType.Event == fun.type) {
+                            cdata.type = BPType.Event;
+                        }
+                        let funName = fun.name;
+                        let func = fun.modifiers.isStatic ? cls[funName] : cls.prototype[funName];
+                        if (!func) {
+                            //debugger
+                        }
+                        BlueprintFactory.regFunction(cdata.id, func, !fun.modifiers.isStatic);
 
-                            let params = fun.params;
-                            if (params && 0 < params.length) {
+                        if (0 == fun.name.indexOf("on") && 'on' != fun.name) {
+                            //TODO 暂时以on开头的都是Event
+                            cdata.type = BPType.Event;
+                        }
+
+                        let params = fun.params;
+                        if (params && 0 < params.length) {
+                            if (BPType.Event == cdata.type) {
+                                cdata.output.push(...params);
+                            } else {
                                 cdata.input = [...params];
                             }
-
-                            if (cdata.type == BPType.Function) {
-                                if (null == cdata.input) cdata.input = [];
-                                if (!fun.modifiers.isStatic) {
-                                    cdata.input.unshift({
-                                        name: "target",
-                                        type: ext,
-                                    });
-                                }
-                                cdata.input.unshift(BlueprintUtil.defFunIn);
-                                if ('void' != fun.returnType) {
-                                    cdata.output.push({
-                                        name: "return",
-                                        type: fun.returnType,
-                                    });
-                                }
-                            }
-                            this.extendsNode[ext].push(cdata);
-
-                            if (null != this._constExtNode[ext][cdata.id]) {
-                                let index = 1;
-                                let newID = cdata.id + "(" + index + ")";
-                                while (true) {
-                                    if (null == this._constExtNode[ext][newID]) break;
-                                    index += 1;
-                                    newID = cdata.id + "(" + index + ")";
-                                }
-                                cdata.id = newID;
-                                let aliasName = cdata.name;
-                                if (null != cdata.aliasName) {
-                                    aliasName = cdata.aliasName;
-                                }
-                                cdata.aliasName = aliasName + " " + index;
-                            }
-                            this._constExtNode[ext][cdata.id] = cdata;
                         }
-                    }
-                } else {
-                    console.warn("没有找到继承:", ext);
-                }
 
-                this._allConstNode = { ...this._allConstNode, ...this._constExtNode[ext] };
+                        if (cdata.type == BPType.Function) {
+                            if (null == cdata.input) cdata.input = [];
+                            if (!fun.modifiers.isStatic) {
+                                cdata.input.unshift({
+                                    name: "target",
+                                    type: ext,
+                                });
+                            }
+                            cdata.input.unshift(BlueprintUtil.defFunIn);
+                            if ('void' != fun.returnType) {
+                                cdata.output.push({
+                                    name: "return",
+                                    type: fun.returnType,
+                                });
+                            }
+                        }
+                        this.extendsNode[ext].push(cdata);
+
+                        if (null != this._constExtNode[ext][cdata.id]) {
+                            let index = 1;
+                            let newID = cdata.id + "(" + index + ")";
+                            while (true) {
+                                if (null == this._constExtNode[ext][newID]) break;
+                                index += 1;
+                                newID = cdata.id + "(" + index + ")";
+                            }
+                            cdata.id = newID;
+                            let aliasName = cdata.name;
+                            if (null != cdata.aliasName) {
+                                aliasName = cdata.aliasName;
+                            }
+                            cdata.aliasName = aliasName + " " + index;
+                        }
+                        this._constExtNode[ext][cdata.id] = cdata;
+                    }
+                }
+            } else {
+                console.warn("没有找到继承:", ext);
             }
+
+            this._allConstNode = { ...this._allConstNode, ...this._constExtNode[ext] };
         }
-        //return this.extendsNode[ret];
     }
 }
