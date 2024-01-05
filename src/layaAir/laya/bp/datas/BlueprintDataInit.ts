@@ -151,5 +151,33 @@ export const BlueprintDataList: TBPCNode[] = [
                 type: "Vector3"
             }
         ]
-    }
+    },
+    {
+        name: "event_event",
+        type: BPType.Event,
+        output: [
+            {
+                name: "eventFun",
+                type: BPType.EventFunction
+            },
+            {
+                name: "then",
+                type: "exec"
+            },
+        ]
+    },
+    {
+        name: "event_on",
+        type: BPType.Function,
+        input: [
+            {
+                name: "eventFun",
+                type: BPType.EventFunction
+            }
+        ]
+    },
+    {
+        name: "event_call",
+        type: BPType.Function,
+    },
 ]

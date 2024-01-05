@@ -1,6 +1,8 @@
+
 export enum BPType {
     Event = "event",
     Function = "function",
+    EventFunction = 'eventFunction',
     Pure = "pure",
     ///
     Operator = "operator",
@@ -32,17 +34,25 @@ export interface TBPStageData {
         /**场景的缩放 */
         scale: number;
     },
+    /**是否是当前显示的节点 */
+    isShow?: boolean;
     arr: Array<TBPNode>;
     /**保存的时候不会有这个值，这是build的时候传值用的 */
-    varMap?: Record<string, TBPVarProperty>;
+    dataMap?: Record<string, TBPVarProperty | TBPEventProperty>;
 }
 export interface TBPVarProperty {
+    id: string,
     name: string,
     aliasName?: string,
     value?: any,
     type: TypeParameter,
     desc?: string,
     const?: boolean,
+}
+export interface TBPEventProperty {
+    id: string,
+    name: string,
+    input: TBPVarProperty[],
 }
 export interface TBPProperty {
     title?: string,
@@ -54,12 +64,14 @@ export interface TBPProperty {
  */
 export interface TBPSaveData {
     autoID: number,
-    extends:string,
+    extends: string,
     //_$type: string,
     //blueprintMap: Record<string, TBPStageData>,
     blueprintArr: TBPStageData[],
     variable: TBPVarProperty[],
     functions: TBPStageData[],
+    events: TBPEventProperty[],
+    lhData?: any,
 }
 export interface TBPCOutput {
     /** 插槽名称 */
@@ -127,10 +139,12 @@ export interface TBPNode {
     /** 数据唯一的id号*/
     id: number;
     ver?: number;
+    /**dispatcher的名字 */
+    name?: string;
     /** constData的id号 */
     cid: string;
-    /**如果是var类型定义，则会有这个值 */
-    varName?: string;
+    /**var或者event的id */
+    dataId?: string;
     /**所有UI所用到的数据 */
     uiData?: {
         /**数据的x坐标位置 */

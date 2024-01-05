@@ -7,23 +7,23 @@ import { URL } from "../../../net/URL";
 import { IHierarchyParserAPI } from "../../../resource/PrefabImpl";
 import { Resource } from "../../../resource/Resource";
 import { ClassUtils } from "../../../utils/ClassUtils";
-import { TBPNode, TBPVarProperty } from "../../datas/types/BlueprintTypes";
+import { TBPEventProperty, TBPNode, TBPVarProperty } from "../../datas/types/BlueprintTypes";
 import { BlueprintFactory } from "../BlueprintFactory";
 
-export class BlueprintImpl extends Resource{
-    public readonly version:number;
+export class BlueprintImpl extends Resource {
+    public readonly version: number;
 
     /** @private */
-    public data:any;
+    public data: any;
 
-    public state:-1|0|1 = 0;
+    public state: -1 | 0 | 1 = 0;
     /** */
     private _cls: Function;
     public get cls(): Function {
         return this._cls;
     }
 
-    constructor( data:any , task:ILoadTask , version?:number){
+    constructor(data: any, task: ILoadTask, version?: number) {
         super();
 
         this.data = data;
@@ -34,7 +34,7 @@ export class BlueprintImpl extends Resource{
         this.initClass();
     }
 
-    create(options?: Record<string, any>, errors?: any[]){
+    create(options?: Record<string, any>, errors?: any[]) {
         if (this.state == -1) {
             console.error("JSON Extends is undefined!");
             return null;
@@ -42,12 +42,12 @@ export class BlueprintImpl extends Resource{
 
         let result;
         if (this.data.lhData) {
-            let api:IHierarchyParserAPI;
+            let api: IHierarchyParserAPI;
             let lhData = this.data.lhData;
             api = HierarchyParser;
             this.data.lhData._$type = this.uuid;
 
-            result = api.parse(lhData , options, errors); 
+            result = api.parse(lhData, options, errors);
             if (Array.isArray(result)) {
                 if (result.length == 1) {
                     result[0].url = this.url;
@@ -58,44 +58,49 @@ export class BlueprintImpl extends Resource{
                 result.url = this.url;
             }
         }
-        
+
         return result;
     }
 
-    public initClass(){
+    public initClass() {
         let extendClass = this.data.extends;
         let runtime = ClassUtils.getClass(extendClass);
 
         if (!runtime) {
             this.state = -1;
-            return ;
+            return;
         }
 
         if (!LayaEnv.isPlaying && this.data.lhData) {
             this._cls = runtime;
-        }else{
+        } else {
             BlueprintFactory.__init__();
             let map = this.data.blueprintArr;
-            let arr:TBPNode[] = [];
-    
+            let arr: TBPNode[] = [];
+
             for (const key in map) {
-               let item = map[key];
-               arr.push.apply(arr,item.arr);
+                let item = map[key];
+                arr.push.apply(arr, item.arr);
             }
-            let varMap:Record<string,TBPVarProperty> = {}
-            this.data.variable.forEach((ele:any) => {
-                varMap[ele.name] = ele;
-            });
-            
-            let cls = BlueprintFactory.createClsNew(this.uuid , extendClass  , runtime,{
-                name:this.uuid,
-                varMap,
+            let dataMap: Record<string, TBPVarProperty | TBPEventProperty> = {}
+            if (this.data.variable)
+                this.data.variable.forEach((ele: any) => {
+                    dataMap[ele.id] = ele;
+                });
+            if (this.data.events)
+                this.data.events.array.forEach((ele: any) => {
+                    dataMap[ele.id] = ele;
+                });
+
+            let cls = BlueprintFactory.createClsNew(this.uuid, extendClass, runtime, {
+                name: this.uuid,
+                dataMap,
                 arr
             });
-            
+
             this._cls = cls;
         }
-        ClassUtils.regClass(this.uuid , this.cls);
+        ClassUtils.regClass(this.uuid, this.cls);
     }
 
     protected _disposeResource(): void {

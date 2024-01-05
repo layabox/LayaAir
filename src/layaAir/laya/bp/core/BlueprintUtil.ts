@@ -3,7 +3,7 @@ import { ClassUtils } from "../../utils/ClassUtils";
 import { BlueprintDataList } from "../datas/BlueprintDataInit";
 import { customData, extendsData } from "../datas/BlueprintExtends";
 import { TBPDeclaration } from "../datas/types/BlueprintDeclaration";
-import { BPType, TBPCNode, TBPNode, TBPSaveData, TBPVarProperty } from "../datas/types/BlueprintTypes";
+import { BPType, TBPCNode, TBPNode, TBPSaveData, TBPStageData, TBPVarProperty } from "../datas/types/BlueprintTypes";
 import { BlueprintFactory } from "../runtime/BlueprintFactory";
 export class BlueprintUtil {
     private static _constNode: Record<string, TBPCNode>;
@@ -31,8 +31,14 @@ export class BlueprintUtil {
     static getAllConstNode() {
         return this._allConstNode;
     }
-
-    static getConstNode(ext: string, node?: TBPNode) {
+    static getDataByID(id: string, data: TBPStageData) {
+        return data.dataMap[id];
+    }
+    static clone<T>(obj: T): T {
+        if (null == obj) return obj;
+        return JSON.parse(JSON.stringify(obj));
+    }
+    static getConstNode(ext: string, node?: TBPNode, stageData?: TBPStageData) {
         this.initConstNode();
         if (null == node) {
             let ret = this._constExtNode[ext];
@@ -40,8 +46,44 @@ export class BlueprintUtil {
                 return this._constNode;
             }
         }
+        if (null != node.dataId) {
+            let ret = this._allConstNode[node.dataId];
+            if (null == ret) {
+                ret = this._allConstNode[node.cid];
+                if (stageData) {
+                    let data: any = this.getDataByID(node.dataId, stageData);
+                    if (data && data.input && 0 < data.input.length && (BPType.Event == ret.type || 'event_call' == ret.name)) {
+                        ret = this.clone(ret);
+                        if (BPType.Event == ret.type) {
+                            let arr = data.input;
+                            for (let i = 0, len = arr.length; i < len; i++) {
+                                if (null == arr[i].name || "" == arr[i].name.trim()) continue;
+                                ret.output.push(
+                                    arr[i]
+                                );
+                            }
+                        } else {
+                            let arr = data.input;
+                            for (let i = 0, len = arr.length; i < len; i++) {
+                                if (null == arr[i].name || "" == arr[i].name.trim()) continue;
+                                ret.input.push(
+                                    arr[i]
+                                );
+                            }
+                        }
+                        this._allConstNode[node.dataId] = ret;
+                    }
+
+                }
+            }
+            return ret;
+        } else {
+            return this._allConstNode[node.cid];
+        }
+
+
         //TODO 以后会有对version的判断逻辑
-        return this._allConstNode[node.cid];
+        //return this._allConstNode[node.cid];
         //return this.getConstNodeByID(ext, node.cid);
     }
 
