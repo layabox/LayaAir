@@ -1,6 +1,7 @@
 import { ShaderData } from "../../../../RenderEngine/RenderShader/ShaderData";
 import { Vector4 } from "../../../../maths/Vector4";
 import { Material } from "../../../../resource/Material";
+import { IRenderContext3D } from "../../../RenderDriverLayer/IRenderContext3D";
 import { IBaseRenderNode } from "../../../RenderDriverLayer/Render3DNode/IBaseRenderNode";
 import { ReflectionProbeMode } from "../../../component/Volume/reflectionProbe/ReflectionProbe";
 import { RenderableSprite3D } from "../../../core/RenderableSprite3D";
@@ -15,90 +16,37 @@ import { GLESReflectionProbe } from "../RenderModuleData/GLESReflectionProb";
 import { GLESVolumetricGI } from "../RenderModuleData/GLESVolumetricGI";
 
 export class GLESBaseRenderNode implements IBaseRenderNode {
-    baseGeometryBounds: Bounds;
     boundsChange: boolean;
-
-    transform: Transform3D;
     distanceForSort: number;
-
     sortingFudge: number;
     castShadow: boolean;
     enable: boolean;
     renderbitFlag: number;
     layer: number;
-    _bounds: Bounds;
     customCull: boolean;//TODO
     customCullResoult: boolean;//TODO
     staticMask: number;
-    shaderData: ShaderData;
-    lightmapScaleOffset: Vector4 = new Vector4(1, 1, 0, 0);
     lightmapIndex: number;
-    lightmap: GLESLightmap;
-    probeReflection: GLESReflectionProbe;
     probeReflectionUpdateMark: number;
     reflectionMode: number;
-    volumetricGI: GLESVolumetricGI;
     lightProbUpdateMark: number;
     irradientMode: IrradianceMode;
-    //material 设置相关
     renderelements: RenderElementOBJ[];
-    _commonUniformMap: string[];
-    setWorldParams(value: Vector4) {
+    lightmapScaleOffset: Vector4;
+    lightmap: GLESLightmap;
+    probeReflection: GLESReflectionProbe;
+    volumetricGI: GLESVolumetricGI;
+    shaderData: ShaderData;
+    baseGeometryBounds: Bounds;
+    transform: Transform3D;
+    private _worldParams: Vector4;
+    private _bounds: Bounds;
+    private _commonUniformMap: string[];
 
-    }
-
-    setRenderelements(value: RenderElementOBJ[]): void {
-
-    }
-
-    setOneMaterial(index: number, mat: Material): void {
-        if (!this.renderelements[index])
-            return;
-        this.renderelements[index]._materialShaderData = mat.shaderData;
-        this.renderelements[index]._materialRenderQueue;
-    }
-
-
-    setLightmapScaleOffset(value: Vector4) {
-
-    }
-
-    setCommonUniformMap(value: string[]) {
-        this._commonUniformMap.length = 0;
-        value.forEach(element => {
-            this._commonUniformMap.push(element);
-        });
-    }
-
-    preUpdateRenderData() {
-        //update Sprite ShaderData
-        //update geometry data(TODO)
-    }
 
     /**
-     * @internal
+     * get bounds
      */
-    _renderUpdatePre(context: GLESRenderContext3D): void {
-
-    }
-
-    _needRender(boundFrustum: BoundFrustum): boolean {
-        return true;
-    }
-
-    shadowCullPass(): boolean {
-        return this.castShadow && this.enable && (this.renderbitFlag == 0);
-    }
-
-    addOneRenderElement() {
-
-    }
-
-
-    set bounds(value: Bounds) {
-        this._bounds = value;
-    }
-
     get bounds() {
         if (this.boundsChange) {
             this._calculateBoundingBox();
@@ -107,6 +55,93 @@ export class GLESBaseRenderNode implements IBaseRenderNode {
         return this._bounds;
     }
 
+    set bounds(value: Bounds) {
+        this._bounds = value;
+    }
+
+    constructor() {
+        this.renderelements = [];
+        this._commonUniformMap = [];
+        this._worldParams = new Vector4(1, 0, 0, 0);
+        this.lightmapScaleOffset = new Vector4(1, 1, 0, 0);
+
+    }
+
+    /**
+     * context3D:GLESRenderContext3D
+     * @internal
+     */
+    _renderUpdatePre: (context3D: IRenderContext3D) => void;
+
+    /** @internal*/
+    _needRender: (boundFrustum: BoundFrustum) => boolean;
+
+    /**
+     * @internal
+     * @param value 
+     */
+    setWorldParams(value: Vector4) {
+        value.cloneTo(this._worldParams);
+    }
+
+    /**
+     * @internal
+     * @param value 
+     */
+    setRenderelements(value: RenderElementOBJ[]): void {
+        this.renderelements.length = 0;
+        for (var i = 0; i < value.length; i++) {
+            this.renderelements.push(value[i]);
+        }
+    }
+
+    /**
+     * @internal
+     * @param index 
+     * @param mat 
+     * @returns 
+     */
+    setOneMaterial(index: number, mat: Material): void {
+        if (!this.renderelements[index])
+            return;
+        this.renderelements[index]._materialShaderData = mat.shaderData;
+        this.renderelements[index]._materialRenderQueue;
+    }
+
+    /**
+     * @internal
+     * @param value 
+     */
+    setLightmapScaleOffset(value: Vector4) {
+        value && value.cloneTo(this.lightmapScaleOffset);
+    }
+
+    /**@internal */
+    setCommonUniformMap(value: string[]) {
+        this._commonUniformMap.length = 0;
+        value.forEach(element => {
+            this._commonUniformMap.push(element);
+        });
+    }
+
+    /**
+     * @internal
+     * @returns 
+     */
+    shadowCullPass(): boolean {
+        return this.castShadow && this.enable && (this.renderbitFlag == 0);
+    }
+
+    /**
+     * @internal
+     */
+    addOneRenderElement() {
+
+    }
+
+    /**
+     * @internal
+     */
     protected _calculateBoundingBox() {
         this.baseGeometryBounds._tranform(this.transform.worldMatrix, this.bounds)
     }

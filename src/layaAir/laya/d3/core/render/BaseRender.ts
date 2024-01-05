@@ -73,6 +73,7 @@ export class BaseRender extends Component {
         // if (Config3D._config._uniformBlock)
         // 	BaseRender.initRenderableLargeUniformBlock();
     }
+
     /**
       * @internal
       * @param mesh 
@@ -106,6 +107,12 @@ export class BaseRender extends Component {
         return define;
     }
 
+    /**
+     * change vertex shaderDefine
+     * @param oldMesh 
+     * @param mesh 
+     * @param defineDatas 
+     */
     static changeVertexDefine(oldMesh: Mesh, mesh: Mesh, defineDatas: ShaderData) {
 
         var lastValue: Mesh = oldMesh;
@@ -121,6 +128,9 @@ export class BaseRender extends Component {
         }
     }
 
+    /**
+     * define Init
+     */
     static shaderValueInit() {
         Sprite3DRenderDeclaration.SHADERDEFINE_GI_LEGACYIBL = Shader3D.getDefineByName("GI_LEGACYIBL");
         Sprite3DRenderDeclaration.SHADERDEFINE_GI_IBL = Shader3D.getDefineByName("GI_IBL");
@@ -130,36 +140,53 @@ export class BaseRender extends Component {
         Sprite3DRenderDeclaration.SHADERDEFINE_VOLUMETRICGI = Shader3D.getDefineByName("VOLUMETRICGI");
     }
 
-    //renderData
-    /**@internal */
+    /**@internal renderData*/
     _baseRenderNode: IBaseRenderNode;
+
     /** @internal */
     _sharedMaterials: Material[] = [];
+
     /** @internal */
     _scene: any;//Scene3D
+
     /** @internal */
     _sceneUpdateMark: number = -1;
+
     /** @internal 属于相机的标记*/
     _updateMark: number = -1;
+
     /** @internal 是否需要反射探针*/
     _probReflection: ReflectionProbe;
+
     /** @internal 材质是否支持反射探针*/
     _surportReflectionProbe: boolean = false;
+
     /** @internal */
     _lightProb: VolumetricGI;
+
     /**@internal */
     _surportVolumetricGI: boolean = false;
+
     /**@internal motion list index，not motion is -1*/
     _motionIndexList: number = -1;
+
     /**@internal TODO*/
     _LOD: number = -1;
+
     /**@internal TODO*/
     _batchRender: BatchRender;
+
     /**@interface */
     _receiveShadow: boolean;
 
     /**@internal */
     protected _lightmapDirtyFlag: number = -1;
+
+    /** @internal */
+    protected _bounds: Bounds;
+
+    /**@internal */
+    protected _transform: Transform3D;
 
     /**@internal 如果这个值不是0,说明有一些条件使他不能加入渲染队列，例如如果是1，证明此节点被lod淘汰*/
     private _volume: Volume;
@@ -170,15 +197,11 @@ export class BaseRender extends Component {
     /** @internal */
     private _materialsInstance: boolean[];
 
-    /** @internal */
-    protected _bounds: Bounds;
-
-    /**@internal */
-    protected _transform: Transform3D;
-
     /**@internal */
     private _renderid: number;
 
+    /**@internal */
+    private _lightmapScaleOffset: Vector4 = new Vector4();
 
     /**排序矫正值。*/
     set sortingFudge(value: number) {
@@ -189,10 +212,16 @@ export class BaseRender extends Component {
         return this._baseRenderNode.sortingFudge;
     }
 
+    /**
+     * 渲染标签
+     */
     get renderbitFlag() {
         return this._baseRenderNode.renderbitFlag;
     }
 
+    /**
+     * 包围盒改动
+     */
     set boundsChange(value: boolean) {
         this._baseRenderNode.boundsChange = value
     }
@@ -201,10 +230,16 @@ export class BaseRender extends Component {
         return this._baseRenderNode.boundsChange;
     }
 
+    /**
+     * 渲染数据
+     */
     get renderNode(): IBaseRenderNode {
         return this._baseRenderNode;
     }
 
+    /**
+     * 内部计算的距离排序值
+     */
     set distanceForSort(value: number) {
         this._baseRenderNode.distanceForSort = value;
     }
@@ -241,13 +276,12 @@ export class BaseRender extends Component {
     }
 
     /**
-     * 光照功能查询
+     * 间接光照功能查询
      */
     get irradientMode() {
         return this._baseRenderNode.lightmapIndex;
     }
 
-    private _lightmapScaleOffset: Vector4 = new Vector4();
     /**
      * 光照贴图的缩放和偏移。
      */
@@ -259,8 +293,6 @@ export class BaseRender extends Component {
         value.cloneTo(this._lightmapScaleOffset);
         this._baseRenderNode.setLightmapScaleOffset(this._lightmapScaleOffset);
     }
-
-
 
     /**
      * 返回第一个材质。
@@ -281,7 +313,7 @@ export class BaseRender extends Component {
     }
 
     /**
-     * 浅拷贝材质列表。
+     * 返回所以渲染材质
      */
     get sharedMaterials(): Material[] {
         return this._sharedMaterials.slice();
@@ -325,6 +357,13 @@ export class BaseRender extends Component {
         return this._baseRenderNode.bounds;
     }
 
+    /**
+     * 是否接收阴影属性
+     */
+    get receiveShadow(): boolean {
+        return this._receiveShadow;
+    }
+
     set receiveShadow(value: boolean) {
         if (this._receiveShadow !== value) {
             this._receiveShadow = value;
@@ -333,13 +372,6 @@ export class BaseRender extends Component {
             else
                 this._baseRenderNode.shaderData.removeDefine(RenderableSprite3D.SHADERDEFINE_RECEIVE_SHADOW);
         }
-    }
-
-    /**
-     * 是否接收阴影属性
-     */
-    get receiveShadow(): boolean {
-        return this._receiveShadow;
     }
 
     /**
@@ -356,15 +388,22 @@ export class BaseRender extends Component {
     /**
      * 反射模式
      */
-    set reflectionMode(value: ReflectionProbeMode) {
-        this._baseRenderNode.reflectionMode = value = value;
-    }
-
     get reflectionMode(): ReflectionProbeMode {
         return this._baseRenderNode.reflectionMode;
     }
 
+    set reflectionMode(value: ReflectionProbeMode) {
+        this._baseRenderNode.reflectionMode = value = value;
+    }
 
+
+
+    /**
+     * 获得所属包围盒
+     */
+    get volume(): Volume {
+        return this._volume;
+    }
 
     set volume(value: Volume) {
         if (!value) {//value = null,
@@ -383,14 +422,14 @@ export class BaseRender extends Component {
         }
     }
 
-    get volume(): Volume {
-        return this._volume;
-    }
-
     /**
      * @internal
      * 设置反射球
      */
+    get probReflection() {
+        return this._probReflection;
+    }
+
     set probReflection(voluemProbe: ReflectionProbe) {
         if (this._probReflection == voluemProbe)
             return;
@@ -404,6 +443,13 @@ export class BaseRender extends Component {
             this._baseRenderNode.shaderData.setNumber(RenderableSprite3D.IBLROUGHNESSLEVEL, 0);
         };
         this._getIrradientMode();
+    }
+
+    /**
+     * 设置探针
+     */
+    get lightProbe(): VolumetricGI {
+        return this._lightProb;
     }
 
     set lightProb(volumetricGI: VolumetricGI) {
@@ -439,33 +485,37 @@ export class BaseRender extends Component {
         this._baseRenderNode.staticMask = 1;
     }
 
-    private _getIrradientMode() {
-        if (this.lightmapIndex >= 0) {
-            this._baseRenderNode.irradientMode = IrradianceMode.LightMap;
-        } else if (this.lightProb) {
-            this._baseRenderNode.irradientMode = IrradianceMode.VolumetricGI;
-        } else {
-
-        }
+    /**
+     * @internal
+     * BaseRender motion
+     */
+    protected _onWorldMatNeedChange(flag: number): void {
+        this.boundsChange = true;
+        this._addReflectionProbeUpdate();
+        this._batchRender && this._batchRender._updateOneRender(this);
     }
 
+    /**
+     * overrid it
+     * @returns 
+     */
     protected _getcommonUniformMap(): Array<string> {
         return ["Sprite3D"];
     }
 
+    /**
+     * override it
+     * @returns 
+     */
     protected _createBaseRenderNode(): IBaseRenderNode {
         //return Laya3DRender.renderOBJCreate.createBaseRenderNode();//TODO miner
         return null;
     }
 
-    private _changeLayer(layer: number) {
-        this._baseRenderNode.layer = layer;
-    }
-
-    private _changeStaticMask(staticmask: number) {
-        this._baseRenderNode.staticMask = staticmask;
-    }
-
+    /**
+     * overrid it
+     * @internal
+     */
     protected _onAdded(): void {
         this._transform = (this.owner as Sprite3D).transform;
         (this.owner as Sprite3D)._isRenderNode++;
@@ -475,6 +525,10 @@ export class BaseRender extends Component {
         this._changeStaticMask((this.owner as Sprite3D)._isStatic);
     }
 
+    /**
+     * overrid it
+     * @internal
+     */
     protected _onEnable(): void {
         super._onEnable();
         if (this.owner) {
@@ -488,6 +542,10 @@ export class BaseRender extends Component {
         this._setBelongScene(this.owner.scene);
     }
 
+    /**
+     * override it
+     * @internal
+     */
     protected _onDisable(): void {
         if (this.owner) {
             (this.owner as Sprite3D).transform.off(Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange);//如果为合并BaseRender,owner可能为空
@@ -497,6 +555,59 @@ export class BaseRender extends Component {
         this.owner.scene._removeRenderObject(this);
         this._setUnBelongScene();
         this.volume = null;
+    }
+
+    /**
+     * override it
+     * @internal
+     */
+    protected _onDestroy() {
+        if (this.owner as Sprite3D)
+            (this.owner as Sprite3D)._isRenderNode--;
+        (this._motionIndexList !== -1) && (this._scene._sceneRenderManager.removeMotionObject(this));
+        (this._scene) && this._scene.sceneRenderableManager.removeRenderObject(this);
+        this._baseRenderNode.destroy();
+        var i: number = 0, n: number = 0;
+        for (i = 0, n = this._sharedMaterials.length; i < n; i++) {
+            let m = this._sharedMaterials[i];
+            m && !m.destroyed && m._removeReference();
+        }
+        this._sharedMaterials = null;
+        this._bounds = null;
+        this._lightmapScaleOffset = null;
+        this._scene = null;
+        this._transform = null;
+        this._batchRender = null;
+    }
+
+    /**
+     * @internal
+     * 确定间接光模式
+     */
+    private _getIrradientMode() {
+        if (this.lightmapIndex >= 0) {
+            this._baseRenderNode.irradientMode = IrradianceMode.LightMap;
+        } else if (this.lightProb) {
+            this._baseRenderNode.irradientMode = IrradianceMode.VolumetricGI;
+        } else {
+
+        }
+    }
+
+    /**
+     * @internal
+     * @param layer 
+     */
+    private _changeLayer(layer: number) {
+        this._baseRenderNode.layer = layer;
+    }
+
+    /**
+     * @internal
+     * @param staticmask 
+     */
+    private _changeStaticMask(staticmask: number) {
+        this._baseRenderNode.staticMask = staticmask;
     }
 
     /**
@@ -539,26 +650,6 @@ export class BaseRender extends Component {
     }
 
     /**
-     * @internal
-     * BaseRender motion
-     */
-    protected _onWorldMatNeedChange(flag: number): void {
-        this.boundsChange = true;
-        this._addReflectionProbeUpdate();
-        this._batchRender && this._batchRender._updateOneRender(this);
-    }
-
-    /**
-     * 设置渲染flag,每一位都代表不同的淘汰原因，1表示lod淘汰
-     */
-    setRenderbitFlag(flag: number, pass: boolean) {
-        if (pass)
-            this._baseRenderNode.renderbitFlag |= (1 << flag);
-        else
-            this._baseRenderNode.renderbitFlag &= ~(1 << flag);
-    }
-
-    /**
      * 渲染器添加到更新反射探针队列
      * @internal
      */
@@ -567,10 +658,8 @@ export class BaseRender extends Component {
         this._scene && this._scene._volumeManager.addMotionObject(this);
     }
 
-
-
-
     /**
+     * 设置所属Scene调用此方法
      * @internal
      */
     _setBelongScene(scene: any): void {
@@ -583,6 +672,7 @@ export class BaseRender extends Component {
     }
 
     /**
+     * 从Scene移除会调用此方法
      * @internal
      */
     _setUnBelongScene() {
@@ -599,31 +689,11 @@ export class BaseRender extends Component {
      * @param boundFrustum 裁剪。
      */
     _needRender(boundFrustum: BoundFrustum, context: RenderContext3D): boolean {
+        //TODO miner
         if (boundFrustum)
             return boundFrustum.intersects(this.bounds);
         else
             return true;
-    }
-
-
-
-    protected _onDestroy() {
-        if (this.owner as Sprite3D)
-            (this.owner as Sprite3D)._isRenderNode--;
-        (this._motionIndexList !== -1) && (this._scene._sceneRenderManager.removeMotionObject(this));
-        (this._scene) && this._scene.sceneRenderableManager.removeRenderObject(this);
-        this._baseRenderNode.destroy();
-        var i: number = 0, n: number = 0;
-        for (i = 0, n = this._sharedMaterials.length; i < n; i++) {
-            let m = this._sharedMaterials[i];
-            m && !m.destroyed && m._removeReference();
-        }
-        this._sharedMaterials = null;
-        this._bounds = null;
-        this._lightmapScaleOffset = null;
-        this._scene = null;
-        this._transform = null;
-        this._batchRender = null;
     }
 
     /**
@@ -640,9 +710,15 @@ export class BaseRender extends Component {
         render.sortingFudge = this.sortingFudge;
     }
 
-
-
-
+    /**
+    * 设置渲染flag,每一位都代表不同的淘汰原因，1表示lod淘汰
+    */
+    setRenderbitFlag(flag: number, pass: boolean) {
+        if (pass)
+            this._baseRenderNode.renderbitFlag |= (1 << flag);
+        else
+            this._baseRenderNode.renderbitFlag &= ~(1 << flag);
+    }
 
 
     //-------------------------------------deprecated----------------------------------

@@ -173,7 +173,7 @@ export class GLESDirectLightShadowCastRP implements IDirectLightShadowRP {
             shadowCullInfo.cullSphere = sliceData.splitBoundSphere;
             shadowCullInfo.direction = this._lightForward;
             //cull
-            GLESCullUtil.culldirectLightShadow(shadowCullInfo, list, count, this._renderQueue);
+            GLESCullUtil.culldirectLightShadow(shadowCullInfo, list, count, this._renderQueue, context);
 
             context.cameraData = sliceData.cameraShaderValue;
             Camera._updateMark++;
