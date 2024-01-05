@@ -13,7 +13,7 @@ export class BlueprintGetVarNode extends BlueprintRuntimeBaseNode {
     }
 
     parseLinkDataNew(node: TBPNode, manger: INodeManger<BlueprintRuntimeBaseNode>) {
-        this._varKey = node.varName;
+        this._varKey = node.dataId;
         super.parseLinkDataNew(node, manger);
     }
 

@@ -13,7 +13,7 @@ export class BlueprintSetVarNode extends BlueprintFunNode {
 
 
     parseLinkDataNew(node: TBPNode, manger: INodeManger<BlueprintRuntimeBaseNode>) {
-        this._varKey = node.varName;
+        this._varKey = node.dataId;
         super.parseLinkDataNew(node, manger);
     }
     step(context: IRunAble, fromExcute: boolean): number {
