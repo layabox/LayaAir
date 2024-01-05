@@ -89,6 +89,8 @@ export class BlueprintFactory {
                 [className]: class extends SuperClass {
                     bp: BlueprintRuntime;
 
+                    __eventList__: string[];
+
                     context: IRunAble;
                     constructor(...args: any) {
                         super(...args);
@@ -101,7 +103,19 @@ export class BlueprintFactory {
                                 //a[str]
                             }
                         }
+                        this._bp_init_();
                         //this.context = new BPExcuteDebuggerNode(this);
+                    }
+
+                    _bp_init_() {
+                        if (this.__eventList__) {
+                            this.__eventList__.forEach(value => {
+                                let _this=this;
+                                this.on(value,this, function() {
+                                    _this.bp.run(_this.context, value, Array.from(arguments));
+                                })
+                            })
+                        }
                     }
 
                     // onAwake() {
@@ -130,8 +144,14 @@ export class BlueprintFactory {
             for (let i = 0, len = dec.funcs.length; i < len; i++) {
                 let func = dec.funcs[i];
                 if (func.type == "event") {
+                    let eventList = cls.prototype.__eventList__;
+                    if (!eventList) {
+                        eventList = cls.prototype.__eventList__ = [];
+                    }
+
                     let funcName = func.name;
                     let originFunc: Function = cls.prototype[funcName];
+                    eventList.push(funcName);
                     cls.prototype[funcName] = function () {
                         originFunc && originFunc.call(this, arguments);
                         this.bp.run(this.context, funcName, Array.from(arguments));

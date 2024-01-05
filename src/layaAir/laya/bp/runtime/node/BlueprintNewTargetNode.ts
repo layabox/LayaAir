@@ -39,7 +39,7 @@ export class BlueprintNewTargetNode extends BlueprintRuntimeBaseNode {
             const curInput = inputPins[i];
             let from = curInput.linkTo[0];
             if (from) {
-                (from as BlueprintPinRuntime).step(context);
+                (from as BlueprintPinRuntime).step(context,runner);
                 context.parmFromOtherPin(curInput, from as BlueprintPinRuntime, _parmsArray);
             }
             else {

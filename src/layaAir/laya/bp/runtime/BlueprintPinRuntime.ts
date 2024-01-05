@@ -10,8 +10,8 @@ export class BlueprintPinRuntime extends BlueprintPin{
     */
     owner: BlueprintRuntimeBaseNode;
 
-    step(context: IRunAble) {
-        this.owner.tryExcute(context, false,null,false);
+    step(context: IRunAble,runner:IBPRutime) {
+        this.owner.tryExcute(context, false,runner,false,this);
         //(this.linkTo[0] as PinRuntime).owner.step(context);
     }
 

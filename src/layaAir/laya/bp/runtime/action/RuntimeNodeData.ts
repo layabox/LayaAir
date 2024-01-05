@@ -2,6 +2,8 @@ import { IOutParm } from "../../core/interface/IOutParm";
 
 export class RuntimeNodeData {
     parmsArray: any[];
+    
+    callFun:Function;
 
     constructor() {
         this.parmsArray=[];
