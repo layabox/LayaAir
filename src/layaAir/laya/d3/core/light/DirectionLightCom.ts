@@ -10,7 +10,7 @@ import { IDirectLightData } from "../../RenderDriverLayer/RenderModuleData/IDire
  */
 export class DirectionLightCom extends Light {
 	/**@internal */
-	protected _dataModule: IDirectLightData;
+	_dataModule: IDirectLightData;
 	/** @internal */
 	private _direction: Vector3 = new Vector3();
 

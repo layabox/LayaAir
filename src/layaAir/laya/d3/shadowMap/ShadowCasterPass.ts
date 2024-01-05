@@ -142,8 +142,8 @@ export class ShadowCasterPass {
     getDirectLightShadowMap(light: DirectionLightCom) {
         var shadowMapWidth;
         var shadowMapHeight;
-        var atlasResolution: number = light._shadowResolution;
-        var cascadesMode: ShadowCascadesMode = light._shadowCascadesMode;
+        var atlasResolution: number = light.shadowResolution;
+        var cascadesMode: ShadowCascadesMode = light.shadowCascadesMode;
         var cascadesCount: number;
         var shadowTileResolution: number;
         if (cascadesMode == ShadowCascadesMode.NoCascades) {
@@ -164,7 +164,7 @@ export class ShadowCasterPass {
 
     getSpotLightShadowPassData(light: SpotLightCom) {
         this._shadowSpotLightMap && RenderTexture.recoverToPool(this._shadowSpotLightMap);
-        var shadowResolution: number = light._shadowResolution;
+        var shadowResolution: number = light.shadowResolution;
         var shadowMapWidth = shadowResolution;
         var shadowMapHeight = shadowResolution;
         this._shadowSpotLightMap = ShadowUtils.getTemporaryShadowTexture(shadowMapWidth, shadowMapHeight, ShadowMapFormat.bit16);
