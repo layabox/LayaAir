@@ -11,6 +11,7 @@ export class BlueprintUtil {
     private static _allConstNode: Record<string, TBPCNode> = {};
     static extendsNode: Record<string, TBPCNode[]> = {};
     static constVars: Record<string, TBPVarProperty[]> = {};
+    static constAllVars: Record<string, TBPVarProperty> = {};
 
     private static defFunOut = {
         name: "then",
@@ -32,7 +33,11 @@ export class BlueprintUtil {
         return this._allConstNode;
     }
     static getDataByID(id: string, data: TBPStageData) {
-        return data.dataMap[id];
+        let ret = data.dataMap[id];
+        if (null == ret) {
+            ret = this.constAllVars[id];
+        }
+        return ret;
     }
     static clone<T>(obj: T): T {
         if (null == obj) return obj;
@@ -186,12 +191,17 @@ export class BlueprintUtil {
                 for (let i = arr.length - 1; i >= 0; i--) {
                     let po = arr[i];
                     if (po.modifiers.isStatic) continue;
+
                     if (null == this.constVars[ext]) {
                         this.constVars[ext] = [];
                     }
                     let anyObj = po as any;
+                    if (null == anyObj.id) {
+                        anyObj.id = 'var_' + ext + "_" + anyObj.name;
+                    }
                     anyObj.const = true;
                     this.constVars[ext].push(anyObj);
+                    this.constAllVars[anyObj.id] = anyObj;
                 }
             }
             if (o && o.construct) {
