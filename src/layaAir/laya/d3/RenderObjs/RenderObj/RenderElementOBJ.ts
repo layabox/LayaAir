@@ -23,6 +23,7 @@ export class RenderElementOBJ implements IRenderElement {
     _shaderInstances: SingletonList<ShaderInstance>;
 
     _materialShaderData: ShaderData;
+    
     _materialRenderQueue: number;
 
     _renderShaderData: ShaderData;
@@ -52,8 +53,8 @@ export class RenderElementOBJ implements IRenderElement {
         this._invertFront = this._getInvertFront();
     }
 
-    private _getInvertFront():boolean{
-        let transform =  this._owner.transform;
+    private _getInvertFront(): boolean {
+        let transform = this._owner.transform;
         return transform ? transform._isFrontFaceInvert : false;
     }
 

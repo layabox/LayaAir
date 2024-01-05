@@ -111,7 +111,6 @@ export class GLESBaseRenderNode implements IBaseRenderNode {
         this.baseGeometryBounds._tranform(this.transform.worldMatrix, this.bounds)
     }
 
-
     /**
      * @internal
      * 全局贴图
@@ -160,6 +159,9 @@ export class GLESBaseRenderNode implements IBaseRenderNode {
         }
     }
 
+    /**
+     * destroy
+     */
     destroy() {
         this.renderelements.forEach(element => {
             element._destroy();
