@@ -27,6 +27,7 @@ export class GLESBaseRenderNode implements IBaseRenderNode {
     customCullResoult: boolean;//TODO
     staticMask: number;
     lightmapIndex: number;
+    lightmapDirtyFlag: number;
     probeReflectionUpdateMark: number;
     reflectionMode: number;
     lightProbUpdateMark: number;
@@ -39,9 +40,9 @@ export class GLESBaseRenderNode implements IBaseRenderNode {
     shaderData: ShaderData;
     baseGeometryBounds: Bounds;
     transform: Transform3D;
-    private _worldParams: Vector4;
+    _worldParams: Vector4;
     private _bounds: Bounds;
-    private _commonUniformMap: string[];
+    _commonUniformMap: string[];
 
 
     /**
@@ -64,17 +65,28 @@ export class GLESBaseRenderNode implements IBaseRenderNode {
         this._commonUniformMap = [];
         this._worldParams = new Vector4(1, 0, 0, 0);
         this.lightmapScaleOffset = new Vector4(1, 1, 0, 0);
-
+        this._calculateBoundingBox = this._ownerCalculateBoundingBox;
     }
 
     /**
      * context3D:GLESRenderContext3D
      * @internal
      */
-    _renderUpdatePre: (context3D: IRenderContext3D) => void;
+    _renderUpdatePre: (context3D: GLESRenderContext3D) => void;//属性 
 
-    /** @internal*/
-    _needRender: (boundFrustum: BoundFrustum) => boolean;
+    _calculateBoundingBox: () => void;
+
+    /**
+     * 视锥检测包围盒
+     * @param boundFrustum 
+     * @returns 
+     */
+    _needRender(boundFrustum: BoundFrustum): boolean {
+        if (boundFrustum)
+            return boundFrustum.intersects(this.bounds);
+        else
+            return true;
+    }
 
     /**
      * @internal
@@ -86,9 +98,9 @@ export class GLESBaseRenderNode implements IBaseRenderNode {
 
     /**
      * @internal
-     * @param value 
+     * @param value :RenderElementObj
      */
-    setRenderelements(value: RenderElementOBJ[]): void {
+    setRenderelements(value: any[]): void {
         this.renderelements.length = 0;
         for (var i = 0; i < value.length; i++) {
             this.renderelements.push(value[i]);
@@ -135,14 +147,7 @@ export class GLESBaseRenderNode implements IBaseRenderNode {
     /**
      * @internal
      */
-    addOneRenderElement() {
-
-    }
-
-    /**
-     * @internal
-     */
-    protected _calculateBoundingBox() {
+    _ownerCalculateBoundingBox() {
         this.baseGeometryBounds._tranform(this.transform.worldMatrix, this.bounds)
     }
 

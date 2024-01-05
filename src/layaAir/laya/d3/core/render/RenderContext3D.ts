@@ -11,6 +11,9 @@ import { ShaderInstance } from "../../../RenderEngine/RenderShader/ShaderInstanc
 import { ShaderDefine } from "../../../RenderEngine/RenderShader/ShaderDefine";
 import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
 import { IRenderContext3D } from "../../RenderDriverLayer/IRenderContext3D";
+import { RenderElement } from "./RenderElement";
+import { BaseRender } from "./BaseRender";
+import { IRenderElement } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderElement";
 
 /**
  * <code>RenderContext3D</code> 类用于实现渲染状态。
@@ -54,31 +57,21 @@ export class RenderContext3D {
     configPipeLineMode: PipelineMode = "Forward";
     /**@internal contextOBJ*/
     _contextOBJ: IRenderContext3D;
-    /**@internal */
-    get destTarget(): IRenderTarget {
-        return this._contextOBJ.destTarget;
-    }
+
 
     /**@internal */
     set destTarget(value: IRenderTarget) {
-        this._contextOBJ.destTarget = value;
+        this._contextOBJ.setRenderTarget(value._renderTarget);
     }
 
-    /** @internal */
-    get viewport(): Viewport {
-        return this._contextOBJ.viewPort;
-    }
+
 
     set viewport(value: Viewport) {
-        value.cloneTo(this._contextOBJ.viewPort);
-    }
-    /** @internal */
-    get scissor(): Vector4 {
-        return this._contextOBJ.scissor;
+        this._contextOBJ.setViewPort(value);
     }
 
     set scissor(value: Vector4) {
-        value.cloneTo(this._contextOBJ.scissor);
+        this._contextOBJ.setScissor(value);
     }
 
     /** @internal */
@@ -100,22 +93,22 @@ export class RenderContext3D {
     }
     //Camera Shader Data
     get cameraShaderValue(): ShaderData {
-        return this._contextOBJ.cameraShaderData;
+        return this._contextOBJ.cameraData;
     }
 
     set cameraShaderValue(value: ShaderData) {
-        this._contextOBJ.cameraShaderData = value;
+        this._contextOBJ.cameraData = value;
     }
 
     /** @internal */
     set scene(value: Scene3D) {
         if (value) {
-            this._contextOBJ.sceneID = value._id;
-            this._contextOBJ.sceneShaderData = value._shaderValues;
+            //this._contextOBJ.sceneModuleData = value._scenemoduleData; TODO miner
+            this._contextOBJ.sceneData = value._shaderValues;
             this._scene = value;
         } else {
-            this._contextOBJ.sceneID = -1;
-            this._contextOBJ.sceneShaderData = null;
+            this._contextOBJ.sceneModuleData = null;
+            this._contextOBJ.sceneData = null;
             this._scene = null;
         }
 
@@ -136,19 +129,15 @@ export class RenderContext3D {
     }
 
     applyContext(cameraUpdateMark: number) {
-        this._contextOBJ.applyContext(cameraUpdateMark);
+        this._contextOBJ.cameraUpdateMask = cameraUpdateMark;
     }
 
     /**
      * 渲染一个
      * @param renderelemt 
      */
-    drawRenderElement(renderelemt: RenderElement): void {
-        renderelemt.material && renderelemt._convertSubShader(this.customShader, this.replaceTag);
-        if (!renderelemt.renderSubShader)
-            return;
-        renderelemt._renderUpdatePre(this);
-        this._contextOBJ.drawRenderElement(renderelemt._renderElementOBJ);
+    drawRenderElement(renderelemt: IRenderElement): void {
+        this._contextOBJ.drawRenderElementOne(renderelemt);
     }
     /**
      * 创建一个 <code>RenderContext3D</code> 实例。

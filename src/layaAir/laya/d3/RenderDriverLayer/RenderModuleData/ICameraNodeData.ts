@@ -9,3 +9,7 @@ export interface ICameraNodeData {
     aspectRatio: number;
     setProjectionViewMatrix(value: Matrix4x4): void;
 }
+
+export interface ISceneNodeData{
+    lightmapDirtyFlag:number;
+}

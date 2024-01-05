@@ -20,6 +20,10 @@ import { Sprite3D } from "./Sprite3D"
 import { Transform3D } from "./Transform3D"
 import { MeshUtil } from "../resource/models/MeshUtil"
 import { LayaGL } from "../../layagl/LayaGL"
+import { IRenderElement } from "../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderElement"
+import { RenderElement } from "./render/RenderElement"
+import { IMeshRenderNode } from "../RenderDriverLayer/Render3DNode/IMeshRenderNode"
+import { Laya3DRender } from "../RenderObjs/Laya3DRender"
 
 /**
  * <code>MeshRenderer</code> 类用于网格渲染器。
@@ -53,12 +57,15 @@ export class MeshRenderer extends BaseRender {
 
     private _morphWeightChange: boolean = true;
 
+    private _moduleData: IMeshRenderNode;
+
     /**
      * 创建一个新的 <code>MeshRender</code> 实例。
      */
     constructor() {
         super();
         this._projectionViewWorldMatrix = new Matrix4x4();
+        //this._moduleData = Laya3DRender.renderOBJCreate();TODO miner
     }
 
     /**
@@ -306,6 +313,20 @@ export class MeshRenderer extends BaseRender {
     }
 
     /**
+     * set BaseRenderElement
+     * @param mesh 
+     */
+    private _setRenderElements() {
+        let arrayElement: IRenderElement[] = [];
+        this._renderElements.forEach(element => {
+            arrayElement.push(element._renderElementOBJ);
+        });
+        this._baseRenderNode.setRenderelements(arrayElement)
+    }
+
+
+    private _renderElements: RenderElement[] = [];
+    /**
      * @internal
      */
     _onMeshChange(mesh: Mesh): void {
@@ -313,7 +334,10 @@ export class MeshRenderer extends BaseRender {
             this._changeVertexDefine(mesh);
             this._changeMorphData(mesh);
             this._mesh = mesh;
-            this.geometryBounds = mesh.bounds;
+            if (mesh.morphTargetData)
+                this.geometryBounds = mesh.morphTargetData.bounds
+            else
+                this.geometryBounds = mesh.bounds;
             var count: number = mesh.subMeshCount;
             this._renderElements.length = count;
             for (var i: number = 0; i < count; i++) {
@@ -331,6 +355,7 @@ export class MeshRenderer extends BaseRender {
         } else if (!mesh) {
             this._renderElements.forEach
             this._renderElements.forEach(element => {
+                element._renderElementOBJ._destroy();
                 element.destroy();
             });
             this._renderElements.length = 0;
@@ -339,11 +364,21 @@ export class MeshRenderer extends BaseRender {
             this._changeMorphData(null);
         }
         this.boundsChange = true;
-        // if (this._octreeNode && this._indexInOctreeMotionList === -1) {
-        // 	this._octreeNode.getManagerNode().addMotionObject(this);
-        // }
+        this._setRenderElements();
     }
 
+    _renderUpdate(context: RenderContext3D): void {
+        this._mesh.morphTargetData && this._applyMorphdata();
+        if (this._renderElements.length == 1) {
+            this._renderElements[0]._renderElementOBJ._isRender = this._renderElements[0]._geometry._prepareRender(context);
+            this._renderElements[0]._geometry._updateRenderParams(context);
+        } else {
+            for (var i = 0, n = this._renderElements.length; i < n; i++) {
+                this._renderElements[i]._renderElementOBJ._isRender = this._renderElements[i]._geometry._prepareRender(context);
+                this._renderElements[i]._geometry._updateRenderParams(context);
+            }
+        }
+    }
 
     /**
      * @internal
@@ -391,43 +426,7 @@ export class MeshRenderer extends BaseRender {
             this._renderElements.length = 0;
         }
         this.boundsChange = true;
-        // if (this._octreeNode && this._indexInOctreeMotionList === -1) {
-        // 	this._octreeNode.getManagerNode().addMotionObject(this);
-        // }
-    }
-
-    /**
-     * @inheritDoc
-     * @override
-     * @internal
-     */
-    protected _calculateBoundingBox(): void {
-        var sharedMesh: Mesh = this._mesh;
-        if (sharedMesh) {
-            var worldMat: Matrix4x4 = this._transform.worldMatrix;
-            if (sharedMesh.morphTargetData) {
-                sharedMesh.morphTargetData.bounds._tranform(worldMat, this._bounds);
-            }
-            else {
-                sharedMesh.bounds._tranform(worldMat, this._bounds);
-            }
-        }
-    }
-
-    /**
-     * @inheritDoc
-     * @override
-     * @internal
-     */
-    _renderUpdate(context: RenderContext3D, transform: Transform3D): void {
-        (this._lightmapDirtyFlag == this.owner?.scene?._lightmapDirtyFlag) && this._applyLightMapParams();
-        this._applyReflection();
-        this._applyLightProb();
-        this._mesh.morphTargetData && this._applyMorphdata();
-        let trans = transform ? transform : this._transform;
-        this._setShaderValue(Sprite3D.WORLDMATRIX, ShaderDataType.Matrix4x4, trans.worldMatrix);
-        this._worldParams.x = trans.getFrontFaceValue();
-        this._setShaderValue(Sprite3D.WORLDINVERTFRONT, ShaderDataType.Vector4, this._worldParams);
+        this._setRenderElements();
     }
 
     protected _onDestroy() {

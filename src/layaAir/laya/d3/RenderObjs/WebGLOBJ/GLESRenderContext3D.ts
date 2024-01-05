@@ -1,7 +1,6 @@
 import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFlag";
 import { InternalRenderTarget } from "../../../RenderEngine/RenderInterface/InternalRenderTarget";
 import { PipelineMode } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderContext3D";
-import { IRenderElement } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderElement";
 import { ShaderData } from "../../../RenderEngine/RenderShader/ShaderData";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { Color } from "../../../maths/Color";
@@ -9,15 +8,18 @@ import { Vector4 } from "../../../maths/Vector4";
 import { RenderTexture } from "../../../resource/RenderTexture";
 import { SingletonList } from "../../../utils/SingletonList";
 import { IRenderContext3D } from "../../RenderDriverLayer/IRenderContext3D";
-import { IBaseRenderNode } from "../../RenderDriverLayer/Render3DNode/IBaseRenderNode";
 import { Viewport } from "../../math/Viewport";
 import { RenderElementOBJ } from "../RenderObj/RenderElementOBJ";
+import { GLESCameraNodeData, GLESSceneNodeData } from "./RenderModuleData/GLESOtherModuleData";
 
 
 export class GLESRenderContext3D implements IRenderContext3D {
     private _globalShaderData: ShaderData;
     /**@internal */
     private _sceneData: ShaderData;
+    /**@internal */
+    private _sceneModuleData: GLESSceneNodeData;
+    private _cameraModuleData: GLESCameraNodeData;
     /**@internal */
     private _cameraData: ShaderData;
     /**@internal */
@@ -61,6 +63,23 @@ export class GLESRenderContext3D implements IRenderContext3D {
         this._cameraData = value;
     }
 
+    get sceneModuleData(): GLESSceneNodeData {
+        return this._sceneModuleData;
+    }
+
+    set sceneModuleData(value: GLESSceneNodeData) {
+        this._sceneModuleData = value;
+    }
+
+
+    get cameraModuleData(): GLESCameraNodeData {
+        return this._cameraModuleData;
+    }
+
+    set cameraModuleData(value: GLESCameraNodeData) {
+        this._cameraModuleData = value;
+    }
+
     get globalShaderData(): ShaderData {
         return this._globalShaderData;
     }
@@ -69,9 +88,9 @@ export class GLESRenderContext3D implements IRenderContext3D {
         this._globalShaderData = value;
     }
 
-    setRenderTarget(value: RenderTexture) {
+    setRenderTarget(value: InternalRenderTarget) {
         this._clearFlag = RenderClearFlag.Nothing;
-        this._renderTarget = value._renderTarget;
+        this._renderTarget = value;
     }
 
     set nativeRenderTarget(value: RenderTexture) {

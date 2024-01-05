@@ -40,10 +40,7 @@ export interface IBaseRenderNode {
     */
     _renderUpdatePre: (context3D: IRenderContext3D) => void;
 
-    /**
-     * @internal
-     */
-    _needRender: (boundFrustum: BoundFrustum) => boolean;
+    _calculateBoundingBox: () => void;
 
     /**
      * @internal
@@ -65,7 +62,7 @@ export interface IBaseRenderNode {
 
 
     setCommonUniformMap(value: string[]): void;
-    //
+    
     setOneMaterial(index: number, mat: Material): void;
 
     destroy(): void;

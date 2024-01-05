@@ -70,8 +70,6 @@ export class BaseRender extends Component {
      */
     static __init__() {
         BaseRender.shaderValueInit();
-        // if (Config3D._config._uniformBlock)
-        // 	BaseRender.initRenderableLargeUniformBlock();
     }
 
     /**
@@ -510,6 +508,16 @@ export class BaseRender extends Component {
     protected _createBaseRenderNode(): IBaseRenderNode {
         //return Laya3DRender.renderOBJCreate.createBaseRenderNode();//TODO miner
         return null;
+    }
+
+    /**
+     * protected
+     * @param context 
+     */
+    _renderUpdate(context: RenderContext3D) {
+        //TODO update Geometry
+        //TODO update GeometryBounds
+        // one update by one Frame
     }
 
     /**

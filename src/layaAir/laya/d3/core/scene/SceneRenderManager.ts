@@ -3,6 +3,7 @@ import { SingletonList } from "../../../utils/SingletonList";
 import { IBaseRenderNode } from "../../RenderDriverLayer/Render3DNode/IBaseRenderNode";
 import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
 import { BaseRender } from "../render/BaseRender";
+import { RenderContext3D } from "../render/RenderContext3D";
 
 /**
  * <code>类用来实现场景渲染节点管理<code/>
@@ -62,6 +63,14 @@ export class SceneRenderManager {
      */
     updateMotionObjects(): void {
         this._sceneManagerOBJ.updateMotionObjects();
+    }
+
+    renderUpdate():void{
+        var context: RenderContext3D = RenderContext3D._instance;
+        let lists = this._sceneManagerOBJ.list.elements;
+        for(let i = 0,n = this.list.length;i<n;i++){
+            lists[i].renderUpdate(context);
+        }
     }
 
     /**

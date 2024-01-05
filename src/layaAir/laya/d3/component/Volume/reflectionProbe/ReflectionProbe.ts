@@ -39,6 +39,7 @@ export class ReflectionProbe extends Volume {
 	static TEMPVECTOR3: Vector3 = new Vector3();
 	/** 默认解码数据 */
 	static defaultTextureHDRDecodeValues: Vector4 = new Vector4(1.0, 1.0, 0.0, 0.0);
+	
 	/** 盒子反射是否开启 */
 	private _boxProjection: boolean = false;
 	/** 包围盒 */

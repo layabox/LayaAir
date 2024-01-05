@@ -831,7 +831,7 @@ export class Scene3D extends Sprite implements ISubmit {
         this._componentDriver.callDestroy();
 
         this._sceneRenderManager.updateMotionObjects();
-
+        this._sceneRenderManager.renderUpdate();
         if (!this._renderByEditor)
             this._UI3DManager.update();
     }
