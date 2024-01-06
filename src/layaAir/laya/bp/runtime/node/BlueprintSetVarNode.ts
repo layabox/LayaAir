@@ -1,10 +1,12 @@
 import { TBPNode } from "../../datas/types/BlueprintTypes";
 import { INodeManger } from "../../core/interface/INodeManger";
-import { BlueprintPinRuntime } from "../BlueprintPinRuntime";
+
 import { IRunAble } from "../interface/IRunAble";
 import { BlueprintFunNode } from "./BlueprintFunNode";
 import { BlueprintRuntimeBaseNode } from "./BlueprintRuntimeBaseNode";
 import { IBPRutime } from "../interface/IBPRutime";
+import { BlueprintUtil } from "../../core/BlueprintUtil";
+import { BlueprintPinRuntime } from "../BlueprintPinRuntime";
 
 export class BlueprintSetVarNode extends BlueprintFunNode {
     private _varKey: string;
@@ -14,7 +16,7 @@ export class BlueprintSetVarNode extends BlueprintFunNode {
 
 
     parseLinkDataNew(node: TBPNode, manger: INodeManger<BlueprintRuntimeBaseNode>) {
-        this._varKey = node.dataId;
+        this._varKey = BlueprintUtil.constAllVars[node.dataId].name;
         super.parseLinkDataNew(node, manger);
     }
     step(context: IRunAble, fromExcute: boolean, runner: IBPRutime,enableDebugPause:boolean): number {

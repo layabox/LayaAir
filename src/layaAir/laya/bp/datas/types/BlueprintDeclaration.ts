@@ -11,7 +11,7 @@ type TBPDecoratorsFuncType = "pure" | "function" | "event" | BPType.Pure | BPTyp
 type TBPDeclarationType = "Node"|"Component"|"Others";
 
 /** 修饰符 */
-type BPModifiers = {
+export type BPModifiers = {
     /** 是否是私有 */
     isPrivate?: boolean;
     /** 是否是公有 */

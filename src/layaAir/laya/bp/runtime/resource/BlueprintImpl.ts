@@ -83,12 +83,14 @@ export class BlueprintImpl extends Resource {
                 arr.push.apply(arr, item.arr);
             }
             let dataMap: Record<string, TBPVarProperty | TBPEventProperty> = {}
+            let varMap: Record<string, TBPVarProperty> = {};
             if (this.data.variable)
                 this.data.variable.forEach((ele: any) => {
                     dataMap[ele.id] = ele;
+                    varMap[ele.id] = ele;
                 });
             if (this.data.events)
-                this.data.events.array.forEach((ele: any) => {
+                this.data.events.forEach((ele: any) => {
                     dataMap[ele.id] = ele;
                 });
 
@@ -96,7 +98,7 @@ export class BlueprintImpl extends Resource {
                 name: this.uuid,
                 dataMap,
                 arr
-            });
+            }, varMap);
 
             this._cls = cls;
         }

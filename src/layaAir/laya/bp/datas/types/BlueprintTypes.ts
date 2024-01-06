@@ -1,8 +1,9 @@
+import { BPModifiers } from "./BlueprintDeclaration";
 
 export enum BPType {
     Event = "event",
     Function = "function",
-    EventFunction = 'eventFunction',
+    BPEvent = 'bpEvent',
     Pure = "pure",
     ///
     Operator = "operator",
@@ -118,6 +119,9 @@ export interface TBPConnType {
 export interface TBPCNode {
     /**程序中用到的名字 */
     name: string,
+
+    /** 修饰符 */
+    modifiers?: BPModifiers;
     /**来源的类 */
     target?: string,
     /** 数据唯一的id号,可以不写，默认为name*/

@@ -4,6 +4,9 @@ export const BlueprintDataList: TBPCNode[] = [
     {
         name: "printString",
         type: BPType.Function,
+        modifiers: {
+            isStatic: true,
+        },
         input: [
             {
                 name: "str",
@@ -128,9 +131,9 @@ export const BlueprintDataList: TBPCNode[] = [
         ],
     },
     {
-        name:"makeVector3",
-        type:BPType.NewTarget,
-        target:"Vector3",
+        name: "makeVector3",
+        type: BPType.NewTarget,
+        target: "Vector3",
         input: [
             {
                 name: "x",
@@ -154,11 +157,12 @@ export const BlueprintDataList: TBPCNode[] = [
     },
     {
         name: "event_event",
+        menuPath: "none",
         type: BPType.Event,
         output: [
             {
                 name: "eventFun",
-                type: BPType.EventFunction
+                type: BPType.BPEvent
             },
             {
                 name: "then",
@@ -168,16 +172,18 @@ export const BlueprintDataList: TBPCNode[] = [
     },
     {
         name: "event_on",
+        menuPath: "none",
         type: BPType.Function,
         input: [
             {
                 name: "eventFun",
-                type: BPType.EventFunction
+                type: BPType.BPEvent
             }
         ]
     },
     {
         name: "event_call",
+        menuPath: "none",
         type: BPType.Function,
     },
 ]

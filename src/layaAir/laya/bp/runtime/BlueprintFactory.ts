@@ -80,9 +80,8 @@ export class BlueprintFactory {
     }
 
 
-    static createClsNew<T>(name: string, parentName: string, cls: T, data: TBPStageData): T {
+    static createClsNew<T>(name: string, parentName: string, cls: T, data: TBPStageData, varMap: Record<string, TBPVarProperty>): T {
         let bpjson: TBPNode[] = data.arr;
-        let dataMap = data.dataMap;
 
         function classFactory(className: string, SuperClass: any) {
             return {
@@ -110,8 +109,8 @@ export class BlueprintFactory {
                     _bp_init_() {
                         if (this.__eventList__) {
                             this.__eventList__.forEach(value => {
-                                let _this=this;
-                                this.on(value,this, function() {
+                                let _this = this;
+                                this.on(value, this, function () {
                                     _this.bp.run(_this.context, value, Array.from(arguments));
                                 })
                             })
@@ -131,8 +130,7 @@ export class BlueprintFactory {
         let c = function (node: TBPNode): TBPCNode {
             return BlueprintUtil.getConstNode("Node", node, data) as TBPCNode;
         }
-        //TODO 这里不再是varMap
-        bp.parseNew(bpjson, c, {});
+        bp.parseNew(bpjson, c, varMap);
         this.initEventFunc(parentName, newClass);
         Object.defineProperty(newClass, 'name', { value: name });
 

@@ -5,6 +5,7 @@ import { INodeManger } from "../../core/interface/INodeManger";
 import { IRunAble } from "../interface/IRunAble";
 import { BlueprintStaticFun } from "../BlueprintStaticFun";
 import { BlueprintRuntimeBaseNode } from "./BlueprintRuntimeBaseNode";
+import { BlueprintUtil } from "../../core/BlueprintUtil";
 
 export class BlueprintGetVarNode extends BlueprintRuntimeBaseNode {
     private _varKey: string;
@@ -13,7 +14,7 @@ export class BlueprintGetVarNode extends BlueprintRuntimeBaseNode {
     }
 
     parseLinkDataNew(node: TBPNode, manger: INodeManger<BlueprintRuntimeBaseNode>) {
-        this._varKey = node.dataId;
+        this._varKey = BlueprintUtil.constAllVars[node.dataId].name;
         super.parseLinkDataNew(node, manger);
     }
 
@@ -28,7 +29,7 @@ export class BlueprintGetVarNode extends BlueprintRuntimeBaseNode {
         if (this.nativeFun) {
             let result = context.excuteFun(this.nativeFun, this.outPutParmPins, BlueprintStaticFun, _parmsArray);
             if (result == undefined) {
-                context.setPinData(this.outPutParmPins[0],result);
+                context.setPinData(this.outPutParmPins[0], result);
             }
         }
         return BlueprintConst.MAX_CODELINE;

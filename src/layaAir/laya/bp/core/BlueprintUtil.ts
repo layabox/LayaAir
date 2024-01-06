@@ -21,6 +21,10 @@ export class BlueprintUtil {
         name: "execute",
         type: "exec",
     };
+    private static defTarget = {
+        name: "target",
+        type: "any",
+    }
     private static defEventOut = BlueprintUtil.defFunOut;
 
     static getDefaultConstNode() {
@@ -131,9 +135,15 @@ export class BlueprintUtil {
 
                 if (BPType.Function == o.type) {
                     if (input) {
+                        if (null == o.modifiers || !o.modifiers.isStatic) {
+                            input.unshift(BlueprintUtil.defTarget);
+                        }
                         input.unshift(BlueprintUtil.defFunIn);
                     } else {
                         input = [BlueprintUtil.defFunIn];
+                        if (null == o.modifiers || !o.modifiers.isStatic) {
+                            input.push(BlueprintUtil.defTarget);
+                        }
                         o.input = input;
                     }
                 }

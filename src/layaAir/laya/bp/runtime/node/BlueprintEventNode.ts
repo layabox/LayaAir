@@ -42,13 +42,11 @@ export class BlueprintEventNode extends BlueprintRuntimeBaseNode {
                 })
                 runner.runByContext(context,cid,enableDebugPause);
             }
-            debugger;
         }
         return BlueprintConst.MAX_CODELINE;
     }
 
     step(context: IRunAble, fromExcute: boolean,runner:IBPRutime,enableDebugPause:boolean): number| BlueprintPromise {
-        debugger;
         if (fromExcute && context.beginExcute(this,runner,enableDebugPause)) {
             return BlueprintConst.MAX_CODELINE;
         }
