@@ -194,6 +194,22 @@ export const BlueprintDataList: TBPCNode[] = [
         ]
     },
     {
+        name: "event_off",
+        menuPath: "none",
+        type: BPType.Function,
+        input: [
+            {
+                name: "event",
+                type: "bpFun"
+            }
+        ]
+    },
+    {
+        name: "event_offAll",
+        menuPath: "none",
+        type: BPType.Function,
+    },
+    {
         name: "event_call",
         menuPath: "none",
         type: BPType.Function,
