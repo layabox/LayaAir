@@ -52,6 +52,9 @@ export const BlueprintDataList: TBPCNode[] = [
     {
         name: "add",
         type: BPType.Operator,
+        modifiers: {
+            isStatic: true,
+        },
         input: [
             {
                 type: "number",
@@ -69,6 +72,9 @@ export const BlueprintDataList: TBPCNode[] = [
     {
         name: "branch",
         type: BPType.Branch,
+        modifiers: {
+            isStatic: true,
+        },
         input: [
             {
                 name: "execute",
@@ -93,6 +99,9 @@ export const BlueprintDataList: TBPCNode[] = [
     {
         name: "sequence",
         type: BPType.Sequence,
+        modifiers: {
+            isStatic: true,
+        },
         input: [
             {
                 name: "execute",
@@ -123,6 +132,9 @@ export const BlueprintDataList: TBPCNode[] = [
     {
         name: "waitTime",
         type: BPType.Function,
+        modifiers: {
+            isStatic: true,
+        },
         input: [
             {
                 name: "second",
@@ -130,39 +142,39 @@ export const BlueprintDataList: TBPCNode[] = [
             }
         ],
     },
-    {
-        name: "makeVector3",
-        type: BPType.NewTarget,
-        target: "Vector3",
-        input: [
-            {
-                name: "x",
-                type: "number",
-            },
-            {
-                name: "y",
-                type: "number",
-            },
-            {
-                name: "z",
-                type: "number",
-            }
-        ],
-        output: [
-            {
-                name: "return",
-                type: "Vector3"
-            }
-        ]
-    },
+    // {
+    //     name: "makeVector3",
+    //     type: BPType.NewTarget,
+    //     target: "Vector3",
+    //     input: [
+    //         {
+    //             name: "x",
+    //             type: "number",
+    //         },
+    //         {
+    //             name: "y",
+    //             type: "number",
+    //         },
+    //         {
+    //             name: "z",
+    //             type: "number",
+    //         }
+    //     ],
+    //     output: [
+    //         {
+    //             name: "return",
+    //             type: "Vector3"
+    //         }
+    //     ]
+    // },
     {
         name: "event_event",
         menuPath: "none",
         type: BPType.Event,
         output: [
             {
-                name: "eventFun",
-                type: BPType.BPEvent
+                name: "event",
+                type: "bpFun"
             },
             {
                 name: "then",
@@ -176,8 +188,8 @@ export const BlueprintDataList: TBPCNode[] = [
         type: BPType.Function,
         input: [
             {
-                name: "eventFun",
-                type: BPType.BPEvent
+                name: "event",
+                type: "bpFun"
             }
         ]
     },

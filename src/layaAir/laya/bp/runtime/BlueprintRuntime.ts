@@ -1,4 +1,4 @@
-import { TBPCNode, TBPNode, TBPVarProperty } from "../datas/types/BlueprintTypes";
+import { TBPCNode, TBPEventProperty, TBPNode, TBPVarProperty } from "../datas/types/BlueprintTypes";
 import { EBlueNodeType } from "../core/EBluePrint";
 import { INodeManger } from "../core/interface/INodeManger";
 import { TBPNodeData } from "../core/type/TBluePrint";
@@ -19,6 +19,8 @@ export class BlueprintRuntime implements INodeManger<BlueprintRuntimeBaseNode>, 
     eventMap: Map<any, BlueprintEventNode>;
 
     varMap: Record<string, TBPVarProperty>;
+
+    dataMap: Record<string, TBPVarProperty | TBPEventProperty>
 
     excuteAbleList: BlueprintRuntimeBaseNode[];
 

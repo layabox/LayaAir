@@ -7,6 +7,8 @@ import { BlueprintConst } from "../../core/BlueprintConst";
 import { BlueprintNode } from "../../core/BlueprintNode";
 import { IBPRutime } from "../interface/IBPRutime";
 import { BlueprintPromise } from "../BlueprintPromise";
+import { TBPEventProperty, TBPNode } from "../../datas/types/BlueprintTypes";
+import { INodeManger } from "../../core/interface/INodeManger";
 
 export class BlueprintFunNode extends BlueprintRuntimeBaseNode {
     /**
@@ -18,6 +20,8 @@ export class BlueprintFunNode extends BlueprintRuntimeBaseNode {
      */
     outExcute: BlueprintPinRuntime;
 
+    eventName:string;
+
     constructor(){
         super();
         this.tryExcute=this.emptyExcute;
@@ -25,6 +29,17 @@ export class BlueprintFunNode extends BlueprintRuntimeBaseNode {
 
     emptyExcute(context: IRunAble, fromExcute: boolean,runner:IBPRutime,enableDebugPause:boolean): number| BlueprintPromise{
         return BlueprintConst.MAX_CODELINE;
+    }
+
+    parseLinkDataNew(node: TBPNode, manger: INodeManger<BlueprintRuntimeBaseNode>) {
+        if (node.dataId) {
+            this.eventName = (manger.dataMap[node.dataId] as TBPEventProperty).name;
+            this.hookParam=this.hookParamEventName;
+        }
+        super.parseLinkDataNew(node, manger);
+    }
+    hookParamEventName(context: IRunAble,parmsArray: any[]){
+        parmsArray.unshift(this.eventName);
     }
 
     setType(type: EBlueNodeType){

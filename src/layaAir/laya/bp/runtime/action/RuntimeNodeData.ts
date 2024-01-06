@@ -5,6 +5,8 @@ export class RuntimeNodeData {
     
     callFun:Function;
 
+    eventName:string;
+
     constructor() {
         this.parmsArray=[];
     }

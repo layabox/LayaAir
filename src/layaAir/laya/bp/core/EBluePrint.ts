@@ -28,6 +28,7 @@ export enum EBlueNodeType {
  */
 export enum EPinType {
     Exec,
+    BPFun,
     Other
 }
 

@@ -3,19 +3,40 @@ import { TBPPinDef } from "./type/TBluePrint";
 
 export class BlueprintPin {
     //方向
-    direction: EPinDirection;
+    private _direction: EPinDirection;
+    public get direction(): EPinDirection {
+        return this._direction;
+    }
+    public set direction(value: EPinDirection) {
+        //BPFun当为输入引脚时 需要放入到参数列表
+        if (value == EPinDirection.Input && this.type == EPinType.BPFun) {
+            this.type = EPinType.Other;
+        }
+        this._direction = value;
+    }
     id: string;
     name: string;
     type: EPinType;
+    otype: string;
     linkTo: BlueprintPin[];
     value: any;
     constructor() {
         this.linkTo = [];
     }
 
-    parse(def: TBPPinDef){
-        this.name=def.name;
-        this.type=def.type=="exec"?EPinType.Exec:EPinType.Other;
+    parse(def: TBPPinDef) {
+        this.name = def.name;
+        this.otype = def.type;
+        switch (def.type) {
+            case "exec":
+                this.type = EPinType.Exec;
+                break;
+            case "bpFun":
+                this.type = EPinType.BPFun;
+                break;
+            default:
+                this.type = EPinType.Other;
+        }
     }
 
     startLinkTo(e: BlueprintPin) {

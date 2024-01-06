@@ -56,7 +56,8 @@ export class BlueprintUtil {
             }
         }
         if (null != node.dataId) {
-            let ret = this._allConstNode[node.dataId];
+            let dataId = node.cid + "_" + node.dataId;
+            let ret = this._allConstNode[dataId];
             if (null == ret) {
                 ret = this._allConstNode[node.cid];
                 if (stageData) {
@@ -80,7 +81,7 @@ export class BlueprintUtil {
                                 );
                             }
                         }
-                        this._allConstNode[node.dataId] = ret;
+                        this._allConstNode[dataId] = ret;
                     }
 
                 }

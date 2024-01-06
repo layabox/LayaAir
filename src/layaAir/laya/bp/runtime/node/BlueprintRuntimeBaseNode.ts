@@ -12,7 +12,7 @@ export class BlueprintRuntimeBaseNode extends BlueprintNode<BlueprintPinRuntime>
     staticNext: BlueprintRuntimeBaseNode;//下一个节点
     private static _EMPTY: BlueprintPinRuntime[] = [];
     nativeFun: Function;
-    isMember:boolean; 
+    isMember: boolean;
     funcode: string;
     /**
      * 输入参数列表 
@@ -30,14 +30,13 @@ export class BlueprintRuntimeBaseNode extends BlueprintNode<BlueprintPinRuntime>
     */
     outExcutes: BlueprintPinRuntime[];
 
-    tryExcute:(context: IRunAble, fromExcute: boolean,runner:IBPRutime,enableDebugPause:boolean,fromPin:BlueprintPinRuntime)=> number| BlueprintPromise;
-
+    tryExcute: (context: IRunAble, fromExcute: boolean, runner: IBPRutime, enableDebugPause: boolean, fromPin: BlueprintPinRuntime) => number | BlueprintPromise;
 
     constructor() {
         super();
         this.inPutParmPins = BlueprintRuntimeBaseNode._EMPTY;
         this.outPutParmPins = BlueprintRuntimeBaseNode._EMPTY;
-        this.tryExcute=this.step;
+        this.tryExcute = this.step;
         // this._parmsArray=[];
     }
 
@@ -47,20 +46,24 @@ export class BlueprintRuntimeBaseNode extends BlueprintNode<BlueprintPinRuntime>
         return pin;
     }
 
+    hookParam(context: IRunAble,parmsArray: any[]) {
 
-    step(context: IRunAble, fromExcute: boolean,runner:IBPRutime,enableDebugPause:boolean): number| BlueprintPromise {
-        if (fromExcute && context.beginExcute(this,runner,enableDebugPause)) {
+    }
+
+
+    step(context: IRunAble, fromExcute: boolean, runner: IBPRutime, enableDebugPause: boolean): number | BlueprintPromise {
+        if (fromExcute && context.beginExcute(this, runner, enableDebugPause)) {
             return BlueprintConst.MAX_CODELINE;
         }
-        let _parmsArray:any[] = context.getDataById(this.nid).parmsArray;
-        _parmsArray.length=0;
+        let _parmsArray: any[] = context.getDataById(this.nid).parmsArray;
+        _parmsArray.length = 0;
 
         const inputPins = this.inPutParmPins;
         for (let i = 0, n = inputPins.length; i < n; i++) {
             const curInput = inputPins[i];
             let from = curInput.linkTo[0];
             if (from) {
-                (from as BlueprintPinRuntime).step(context,runner);
+                (from as BlueprintPinRuntime).step(context, runner);
                 context.parmFromOtherPin(curInput, from as BlueprintPinRuntime, _parmsArray);
             }
             else {
@@ -69,15 +72,16 @@ export class BlueprintRuntimeBaseNode extends BlueprintNode<BlueprintPinRuntime>
         }
         context.parmFromOutPut(this.outPutParmPins, _parmsArray);
         if (this.nativeFun) {
-            let caller=null;
-            if(this.isMember){
-                caller=_parmsArray.shift()||context.getSelf();
+            let caller = null;
+            if (this.isMember) {
+                caller = _parmsArray.shift() || context.getSelf();
             }
-            let result=context.excuteFun(this.nativeFun, this.outPutParmPins,caller,_parmsArray);
-            if(result instanceof Promise){
-                let promise=BlueprintPromise.create();
-                result.then((value)=>{
-                    promise.curIndex=this.next(context,_parmsArray,runner);
+            this.hookParam(context,_parmsArray);
+            let result = context.excuteFun(this.nativeFun, this.outPutParmPins, caller, _parmsArray);
+            if (result instanceof Promise) {
+                let promise = BlueprintPromise.create();
+                result.then((value) => {
+                    promise.curIndex = this.next(context, _parmsArray, runner);
                     promise.complete();
                     promise.recover();
                 })
@@ -88,10 +92,10 @@ export class BlueprintRuntimeBaseNode extends BlueprintNode<BlueprintPinRuntime>
         if (fromExcute) {
             context.endExcute(this);
         }
-        return this.next(context, _parmsArray,runner);
+        return this.next(context, _parmsArray, runner);
     }
 
-    next(context: IRunAble, parmsArray: any[],runner:IBPRutime): number {
+    next(context: IRunAble, parmsArray: any[], runner: IBPRutime): number {
         return BlueprintConst.MAX_CODELINE;
     }
 
@@ -120,9 +124,9 @@ export class BlueprintRuntimeBaseNode extends BlueprintNode<BlueprintPinRuntime>
 
     }
 
-    setFunction(fun: Function,isMember:boolean) {
+    setFunction(fun: Function, isMember: boolean) {
         this.nativeFun = fun;
-        this.isMember=isMember;
+        this.isMember = isMember;
         this.funcode = fun?.name;
     }
 

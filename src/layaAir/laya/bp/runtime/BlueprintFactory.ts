@@ -16,6 +16,7 @@ import { BlueprintSequenceNode } from "./node/BlueprintSequenceNode";
 import { BlueprintSetVarNode } from "./node/BlueprintSetVarNode";
 import { BlueprintUtil } from "../core/BlueprintUtil";
 import { BlueprintNewTargetNode } from "./node/BlueprintNewTargetNode";
+import { RuntimeNodeData } from "./action/RuntimeNodeData";
 
 export class BlueprintFactory {
     private static _funMap: Map<string, [Function, boolean]>;
@@ -64,6 +65,18 @@ export class BlueprintFactory {
 
             this.regFunction("printString", BlueprintStaticFun.print);
             this.regFunction("branch", BlueprintStaticFun.branch);
+            this.regFunction("event_on", function (eventName:string,cb: Function) {
+                //@ts-ignore
+                this.on(eventName,this,cb);
+
+            }, true);
+
+            this.regFunction("event_call", function (eventName: string,...args:any[]) {
+                //@ts-ignore
+                this.event(eventName,args);
+
+            }, true);
+
 
             this.regFunction("add", BlueprintStaticFun.add);
             this.regFunction("waitTime", BlueprintStaticFun.waitTime);
@@ -82,6 +95,7 @@ export class BlueprintFactory {
 
     static createClsNew<T>(name: string, parentName: string, cls: T, data: TBPStageData, varMap: Record<string, TBPVarProperty>): T {
         let bpjson: TBPNode[] = data.arr;
+
 
         function classFactory(className: string, SuperClass: any) {
             return {
@@ -126,6 +140,7 @@ export class BlueprintFactory {
 
         let newClass = classFactory(name, cls);
         let bp = newClass.prototype.bp = new BlueprintRuntime();
+        bp.dataMap = data.dataMap;
         // debugger;
         let c = function (node: TBPNode): TBPCNode {
             return BlueprintUtil.getConstNode("Node", node, data) as TBPCNode;

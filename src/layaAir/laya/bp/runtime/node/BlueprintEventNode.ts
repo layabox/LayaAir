@@ -6,6 +6,9 @@ import { IRunAble } from "../interface/IRunAble";
 import { BlueprintRuntimeBaseNode } from "./BlueprintRuntimeBaseNode";
 import { IBPRutime } from "../interface/IBPRutime";
 import { BlueprintPromise } from "../BlueprintPromise";
+import { BlueprintUtil } from "../../core/BlueprintUtil";
+import { INodeManger } from "../../core/interface/INodeManger";
+import { TBPEventProperty, TBPNode } from "../../datas/types/BlueprintTypes";
 
 export class BlueprintEventNode extends BlueprintRuntimeBaseNode {
     /**
@@ -13,9 +16,21 @@ export class BlueprintEventNode extends BlueprintRuntimeBaseNode {
      */
     outExcute: BlueprintPinRuntime;
 
-    constructor(){
+    eventName: string;
+
+    constructor() {
         super();
-        this.tryExcute=this.emptyExcute;
+        this.tryExcute = this.emptyExcute;
+    }
+
+    parseLinkDataNew(node: TBPNode, manger: INodeManger<BlueprintRuntimeBaseNode>) {
+        if (node.dataId) {
+            this.eventName = (manger.dataMap[node.dataId] as TBPEventProperty).name;
+        }
+        else {
+            this.eventName = node.name;
+        }
+        super.parseLinkDataNew(node, manger);
     }
 
     setFunction(fun: Function, isMember: boolean) {
@@ -29,25 +44,27 @@ export class BlueprintEventNode extends BlueprintRuntimeBaseNode {
 
     // }
 
-    
-    emptyExcute(context: IRunAble, fromExcute: boolean,runner:IBPRutime,enableDebugPause:boolean,fromPin:BlueprintPinRuntime): number| BlueprintPromise{
-        if(fromPin){
-            let data=context.getDataById(this.nid);
-            let cid=this.index;
-            let _this=this;
-            data.callFun=data.callFun||function(){
-                let parms=  Array.from(arguments);
+
+    emptyExcute(context: IRunAble, fromExcute: boolean, runner: IBPRutime, enableDebugPause: boolean, fromPin: BlueprintPinRuntime): number | BlueprintPromise {
+        if (fromPin && fromPin.otype == "bpFun") {
+            let data = context.getDataById(this.nid);
+            let cid = this.index;
+            let _this = this;
+            data.eventName = this.eventName;
+            data.callFun = data.callFun || function () {
+                let parms = Array.from(arguments);
                 parms.forEach((value, index) => {
                     context.setPinData(_this.outPutParmPins[index], value);
                 })
-                runner.runByContext(context,cid,enableDebugPause);
+                runner.runByContext(context, cid, enableDebugPause);
             }
+            context.setPinData(fromPin, data.callFun);
         }
         return BlueprintConst.MAX_CODELINE;
     }
 
-    step(context: IRunAble, fromExcute: boolean,runner:IBPRutime,enableDebugPause:boolean): number| BlueprintPromise {
-        if (fromExcute && context.beginExcute(this,runner,enableDebugPause)) {
+    step(context: IRunAble, fromExcute: boolean, runner: IBPRutime, enableDebugPause: boolean): number | BlueprintPromise {
+        if (fromExcute && context.beginExcute(this, runner, enableDebugPause)) {
             return BlueprintConst.MAX_CODELINE;
         }
         // let _parmsArray:any[] = context.getDataById(this.nid).parmsArray;
