@@ -71,37 +71,37 @@ export class BlueprintImpl extends Resource {
             return;
         }
 
-        if (!LayaEnv.isPlaying && this.data.lhData) {
-            this._cls = runtime;
-        } else {
-            BlueprintFactory.__init__();
-            let map = this.data.blueprintArr;
-            let arr: TBPNode[] = [];
+        // if (!LayaEnv.isPlaying && this.data.lhData) {
+        //     this._cls = runtime;
+        // } else {
+        //     BlueprintFactory.__init__();
+        let map = this.data.blueprintArr;
+        let arr: TBPNode[] = [];
 
-            for (const key in map) {
-                let item = map[key];
-                arr.push.apply(arr, item.arr);
-            }
-            let dataMap: Record<string, TBPVarProperty | TBPEventProperty> = {}
-            let varMap: Record<string, TBPVarProperty> = {};
-            if (this.data.variable)
-                this.data.variable.forEach((ele: any) => {
-                    dataMap[ele.id] = ele;
-                    varMap[ele.id] = ele;
-                });
-            if (this.data.events)
-                this.data.events.forEach((ele: any) => {
-                    dataMap[ele.id] = ele;
-                });
-
-            let cls = BlueprintFactory.createClsNew(this.uuid, extendClass, runtime, {
-                name: this.uuid,
-                dataMap,
-                arr
-            }, varMap);
-
-            this._cls = cls;
+        for (const key in map) {
+            let item = map[key];
+            arr.push.apply(arr, item.arr);
         }
+        let dataMap: Record<string, TBPVarProperty | TBPEventProperty> = {}
+        let varMap: Record<string, TBPVarProperty> = {};
+        if (this.data.variable)
+            this.data.variable.forEach((ele: any) => {
+                dataMap[ele.id] = ele;
+                varMap[ele.id] = ele;
+            });
+        if (this.data.events)
+            this.data.events.forEach((ele: any) => {
+                dataMap[ele.id] = ele;
+            });
+
+        let cls = BlueprintFactory.createClsNew(this.uuid, extendClass, runtime, {
+            name: this.uuid,
+            dataMap,
+            arr
+        }, varMap);
+
+        this._cls = cls;
+        // }
         ClassUtils.regClass(this.uuid, this.cls);
     }
 

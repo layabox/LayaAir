@@ -96,7 +96,7 @@ export class BlueprintUtil {
         //return this.getConstNodeByID(ext, node.cid);
     }
 
-    static getDeclaration(name: string): TBPDeclaration {
+    static getDeclaration(name:string):TBPDeclaration{
         return extendsData[name] ? extendsData[name] : customData[name];
     }
 

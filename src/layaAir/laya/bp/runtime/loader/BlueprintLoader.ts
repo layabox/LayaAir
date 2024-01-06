@@ -2,8 +2,8 @@ import { BlueprintImpl } from "../resource/BlueprintImpl";
 
 import { BlueprintConst } from "../../core/BlueprintConst";
 import { ILoadTask, IResourceLoader, Loader } from "../../../net/Loader";
-import { HierarchyParser } from "../../../loaders/HierarchyParser";
 import { URL } from "../../../net/URL";
+import { HierarchyLoader } from "../../../loaders/HierarchyLoader";
 
 export class BlueprintLoaer implements IResourceLoader{
 
@@ -23,7 +23,7 @@ export class BlueprintLoaer implements IResourceLoader{
         // return new Sprite3D;
         let basePath = URL.getPath(task.url);
         //引擎精灵解析
-        let links = HierarchyParser.collectResourceLinks(data,basePath);
+        let links = HierarchyLoader.v3.collectResourceLinks(data,basePath);
         
         return task.loader.load(links,null,task.progress.createCallback()).then((resArray:any[])=>{
             return new BlueprintImpl(data , task ,version);

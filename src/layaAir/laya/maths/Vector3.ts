@@ -4,7 +4,7 @@ import { MathUtils3D } from "./MathUtils3D";
 import { IClone } from "../utils/IClone";
 import { Quaternion } from "./Quaternion";
 
-/** @BPmeta */
+
 /**
  * <code>Vector3</code> 类用于创建三维向量。
  */
@@ -323,17 +323,17 @@ export class Vector3 implements IClone {
         return MathUtils3D.nearEqual(a.x, b.x) && MathUtils3D.nearEqual(a.y, b.y) && MathUtils3D.nearEqual(a.z, b.z);
     }
 
-    /** @BPmeta */
+    
     /**X轴坐标*/
     x: number;
-    /** @BPmeta */
+    
     /**Y轴坐标*/
     y: number;
-    /** @BPmeta */
+    
     /**Z轴坐标*/
     z: number;
     
-    /** @BPmeta */
+    
     /**
      * 创建一个 <code>Vector3</code> 实例。
      * @param	x  X轴坐标。

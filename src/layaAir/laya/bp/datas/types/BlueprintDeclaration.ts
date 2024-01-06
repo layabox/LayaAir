@@ -4,11 +4,11 @@ import { Node } from "../../../display/Node";
 import { customData } from "../BlueprintExtends";
 import { BPType } from "./BlueprintTypes";
 
-type TBPDecoratorsPropertType = "function" | "property" | "class" | "constructor" | "accessor";
+export type TBPDecoratorsPropertType = "function" | "property" | "class" | "constructor" | "accessor";
 
-type TBPDecoratorsFuncType = "pure" | "function" | "event" | BPType.Pure | BPType.Function | BPType.Event;
+export type TBPDecoratorsFuncType = "pure" | "function" | "event" | BPType.Pure | BPType.Function | BPType.Event;
 
-type TBPDeclarationType = "Node"|"Component"|"Others";
+export type TBPDeclarationType = "Node"|"Component"|"Others";
 
 /** 修饰符 */
 export type BPModifiers = {
@@ -50,7 +50,7 @@ export type TBPDeclaration = {
 }
 
 
-type TBPDeclarationConstructor = {
+export type TBPDeclarationConstructor = {
     params?: TBPDeclarationParam[];
     /** 显示名称，没有默认使用name */
     caption?:string;
@@ -60,7 +60,7 @@ type TBPDeclarationConstructor = {
     tips?:string;
 }
 
-type TBPDeclarationProp = {
+export type TBPDeclarationProp = {
     /** 变量名称 */
     name: string;
     /** 变量类型 */
@@ -81,7 +81,7 @@ type TBPDeclarationProp = {
     tips?:string;
 }
 
-type TBPDeclarationFunction = {
+export type TBPDeclarationFunction = {
     /** 方法名称 */
     name: string;
     /** 具体方法类型 */
@@ -107,7 +107,7 @@ type TBPDeclarationFunction = {
     tips?:string;
 }
 
-type TBPDeclarationParam = {
+export type TBPDeclarationParam = {
     /** 参数名称 */
     name: string;
     /** 参数类型 */
