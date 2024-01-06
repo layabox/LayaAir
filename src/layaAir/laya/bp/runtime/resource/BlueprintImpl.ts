@@ -1,7 +1,5 @@
 
-import { LayaEnv } from "../../../../LayaEnv";
 import { HierarchyLoader } from "../../../loaders/HierarchyLoader";
-import { HierarchyParser } from "../../../loaders/HierarchyParser";
 import { ILoadTask } from "../../../net/Loader";
 import { URL } from "../../../net/URL";
 import { IHierarchyParserAPI } from "../../../resource/PrefabImpl";
@@ -44,7 +42,7 @@ export class BlueprintImpl extends Resource {
         if (this.data.lhData) {
             let api: IHierarchyParserAPI;
             let lhData = this.data.lhData;
-            api = HierarchyParser;
+            api = HierarchyLoader.v3;
             this.data.lhData._$type = this.uuid;
 
             result = api.parse(lhData, options, errors);
