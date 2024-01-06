@@ -66,15 +66,25 @@ export class BlueprintFactory {
 
             this.regFunction("printString", BlueprintStaticFun.print);
             this.regFunction("branch", BlueprintStaticFun.branch);
-            this.regFunction("event_on", function (eventName:string,cb: Function) {
+            this.regFunction("event_on", function (eventName: string, cb: Function) {
                 //@ts-ignore
-                this.on(eventName,this,cb);
+                this.on(eventName, this, cb);
 
             }, true);
 
-            this.regFunction("event_call", function (eventName: string,...args:any[]) {
+            this.regFunction("event_call", function (eventName: string, ...args: any[]) {
                 //@ts-ignore
-                this.event(eventName,args);
+                this.event(eventName, args);
+
+            }, true);
+            this.regFunction("event_off", function (eventName: string, cb: Function) {
+                //@ts-ignore
+                this.off(eventName, this, cb);
+
+            }, true);
+            this.regFunction("event_offAll", function (eventName: string, cb: Function) {
+                //@ts-ignore
+                this.offAll(eventName);
 
             }, true);
 
