@@ -17,6 +17,7 @@ import { BlueprintSetVarNode } from "./node/BlueprintSetVarNode";
 import { BlueprintUtil } from "../core/BlueprintUtil";
 import { BlueprintNewTargetNode } from "./node/BlueprintNewTargetNode";
 import { RuntimeNodeData } from "./action/RuntimeNodeData";
+import { LayaEnv } from "../../../LayaEnv";
 
 export class BlueprintFactory {
     private static _funMap: Map<string, [Function, boolean]>;
@@ -153,6 +154,9 @@ export class BlueprintFactory {
     }
 
     static initEventFunc(parent: string, cls: Function) { // todo
+        if (!LayaEnv.isPlaying) {
+            return
+        }
         let dec = BlueprintUtil.getDeclaration(parent);
         if (dec && dec.funcs) {
             for (let i = 0, len = dec.funcs.length; i < len; i++) {

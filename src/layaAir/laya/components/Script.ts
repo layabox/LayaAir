@@ -7,7 +7,7 @@ import { Sprite3D } from "../d3/core/Sprite3D";
 import { Sprite } from "../display/Sprite";
 import { ILaya } from "../../ILaya";
 
-/** @BPmeta */
+
 /**
  * <code>Script</code> 类用于创建脚本的父类，该类为抽象类，不允许实例。
  */
@@ -54,133 +54,133 @@ export class Script extends Component {
         owner.event(Event._Add_Script);
     }
 
-    /** @BPmeta {"type":"event"} */
+    
     /**
      * 3D物理触发器事件与2D物理碰撞事件，开始碰撞时执行
      */
     onTriggerEnter?(other: PhysicsColliderComponent | ColliderBase, self?: ColliderBase, contact?: any): void;
 
-    /** @BPmeta {"type":"event"} */
+    
     /**
      * 3D物理触发器事件与2D物理碰撞事件，持续碰撞时执行
      */
     onTriggerStay?(other: PhysicsColliderComponent | ColliderBase, self?: ColliderBase, contact?: any): void;
 
-    /** @BPmeta {"type":"event"} */
+    
     /**
      * 3D物理触发器事件与2D物理碰撞事件，结束碰撞时执行
      */
     onTriggerExit?(other: PhysicsColliderComponent | ColliderBase, self?: ColliderBase, contact?: any): void;
 
-    /** @BPmeta {"type":"event"} */
+    
     /**
      * 3D物理碰撞器事件（不适用2D），开始碰撞时执行
      */
     onCollisionEnter?(collision: Collision): void;
 
-    /** @BPmeta {"type":"event"} */
+    
     /**
      * 3D物理碰撞器事件（不适用2D），持续碰撞时执行
      */
     onCollisionStay?(collision: Collision): void;
 
-    /** @BPmeta {"type":"event"} */
+    
     /**
      *3D物理碰撞器事件（不适用2D），结束碰撞时执行
      */
     onCollisionExit?(collision: Collision): void;
 
-    /** @BPmeta {"type":"event"} */
+    
     /**
      * 关节破坏时执行此方法
      */
     onJointBreak?(): void;
 
-    /** @BPmeta {"type":"event"} */
+    
     /**
      * 鼠标按下时执行
      */
     onMouseDown?(evt: Event): void;
 
-    /** @BPmeta {"type":"event"} */
+    
     /**
      * 鼠标抬起时执行
      */
     onMouseUp?(evt: Event): void;
 
-    /** @BPmeta {"type":"event"} */
+    
     /**
      * 鼠标右键或中键按下时执行
      */
     onRightMouseDown?(evt: Event): void;
 
-    /** @BPmeta {"type":"event"} */
+    
     /**
      * 鼠标右键或中键抬起时执行
      */
     onRightMouseUp?(evt: Event): void;
 
-    /** @BPmeta {"type":"event"} */
+    
     /**
      * 鼠标在节点上移动时执行
      */
     onMouseMove?(evt: Event): void;
 
-    /** @BPmeta {"type":"event"} */
+    
     /**
      * 鼠标进入节点时执行
      */
     onMouseOver?(evt: Event): void;
 
-    /** @BPmeta {"type":"event"} */
+    
     /**
      * 鼠标离开节点时执行
      */
     onMouseOut?(evt: Event): void;
 
-    /** @BPmeta {"type":"event"} */
+    
     /**
      * 鼠标按住一个物体后，拖拽时执行
      */
     onMouseDrag?(evt: Event): void;
 
-    /** @BPmeta {"type":"event"} */
+    
     /**
      * 鼠标按住一个物体，拖拽一定距离，释放鼠标按键后执行
      */
     onMouseDragEnd?(evt: Event): void;
 
-    /** @BPmeta {"type":"event"} */
+    
     /**
      * 鼠标点击时执行
      */
     onMouseClick?(evt: Event): void;
 
-    /** @BPmeta {"type":"event"} */
+    
     /**
      * 鼠标双击时执行
      */
     onMouseDoubleClick?(evt: Event): void;
 
-    /** @BPmeta {"type":"event"} */
+    
     /**
      * 鼠标右键点击时执行
      */
     onMouseRightClick?(evt: Event): void;
 
-    /** @BPmeta {"type":"event"} */
+    
     /**
      * 键盘按下时执行
      */
     onKeyDown?(evt: Event): void;
 
-    /** @BPmeta {"type":"event"} */
+    
     /**
      * 键盘产生一个字符时执行
      */
     onKeyPress?(evt: Event): void;
 
-    /** @BPmeta {"type":"event"} */
+    
     /**
      * 键盘抬起时执行
      */
