@@ -173,7 +173,7 @@ const packsDef = [{
     {
         'libName': 'box2D',
         'input': [
-            './layaAir/laya/physics/factory/physics2DJSFactory.ts',
+            './layaAir/laya/physics/factory/physics2DwasmFactory.ts',
         ],
     },
     {
@@ -404,8 +404,8 @@ gulp.task("copyJsLibs", async () => {
             './src/layaAir/jsLibs/*.js',
             './src/layaAir/jsLibs/physx.release.wasm',
             './src/layaAir/jsLibs/physx.release.js.mem',
-            './src/layaAir/jsLibs/Box2D.wasm',
-            '!./src/layaAir/jsLibs/{Box2D.js,cannon.js,bullet.js,physx.release.js,Box2D.wasm.js,bullet.wasm.js,physx.wasm.js}'
+             './src/layaAir/jsLibs/laya.Box2D.wasm.wasm',
+            '!./src/layaAir/jsLibs/{laya.Box2D.js,cannon.js,bullet.js,physx.release.js,laya.Box2D.wasm.js,bullet.wasm.js,physx.wasm.js}'
         ])
         .pipe(gulp.dest('./build/libs'));
 });
@@ -414,7 +414,7 @@ gulp.task("copyJsLibs", async () => {
 gulp.task('buildBox2dPhysics', () => {
     return gulp.src([
             './build/libs/laya.box2D.js',
-            './src/layaAir/jsLibs/Box2D.js',
+            './src/layaAir/jsLibs/laya.Box2D.js',
         ]).pipe(concat('laya.box2D.js'))
         .pipe(gulp.dest('./build/libs/'));
 });
@@ -422,7 +422,7 @@ gulp.task('buildBox2dPhysics', () => {
 gulp.task('buildBox2dWasmPhysics', () => {
     return gulp.src([
             './build/libs/laya.box2D.wasm.js',
-            './src/layaAir/jsLibs/Box2D.wasm.js',
+            './src/layaAir/jsLibs/laya.Box2D.wasm.js',
         ]).pipe(concat('laya.box2D.wasm.js'))
         .pipe(gulp.dest('./build/libs/'));
 });
