@@ -16,17 +16,18 @@ export class BlueprintSetVarNode extends BlueprintFunNode {
 
 
     parseLinkDataNew(node: TBPNode, manger: INodeManger<BlueprintRuntimeBaseNode>) {
-        this._varKey = BlueprintUtil.constAllVars[node.dataId].name;
+        let cfg = manger.dataMap[node.dataId];
+        this._varKey = cfg ? cfg.name : BlueprintUtil.constAllVars[node.dataId].name;
         super.parseLinkDataNew(node, manger);
     }
-    step(context: IRunAble, fromExcute: boolean, runner: IBPRutime,enableDebugPause:boolean): number {
+    step(context: IRunAble, fromExcute: boolean, runner: IBPRutime, enableDebugPause: boolean): number {
         let _parmsArray: any[] = context.getDataById(this.nid).parmsArray;
         _parmsArray.length = 0;
         const varPin = this.inPutParmPins[0];
 
         let from = varPin.linkTo[0];
         if (from) {
-            (from as BlueprintPinRuntime).step(context,runner);
+            (from as BlueprintPinRuntime).step(context, runner);
             context.parmFromOtherPin(varPin, from as BlueprintPinRuntime, _parmsArray);
         }
         else {

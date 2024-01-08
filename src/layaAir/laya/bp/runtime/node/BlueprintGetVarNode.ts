@@ -14,7 +14,8 @@ export class BlueprintGetVarNode extends BlueprintRuntimeBaseNode {
     }
 
     parseLinkDataNew(node: TBPNode, manger: INodeManger<BlueprintRuntimeBaseNode>) {
-        this._varKey = BlueprintUtil.constAllVars[node.dataId].name;
+        let cfg = manger.dataMap[node.dataId];
+        this._varKey = cfg ? cfg.name : BlueprintUtil.constAllVars[node.dataId].name;
         super.parseLinkDataNew(node, manger);
     }
 
