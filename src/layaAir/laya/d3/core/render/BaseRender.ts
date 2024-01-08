@@ -4,7 +4,6 @@ import { Transform3D } from "../Transform3D"
 import { Material } from "../../../resource/Material";
 import { BoundFrustum } from "../../math/BoundFrustum"
 import { Event } from "../../../events/Event"
-import { Lightmap } from "../scene/Lightmap";
 import { MeshSprite3DShaderDeclaration } from "../../../d3/core/MeshSprite3DShaderDeclaration";
 import { TextureCube } from "../../../resource/TextureCube";
 import { Component } from "../../../components/Component";
@@ -20,16 +19,15 @@ import { NodeFlags } from "../../../Const";
 import { Sprite3DRenderDeclaration } from "./Sprite3DRenderDeclaration";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { BatchRender } from "../../component/Volume/BatchVolume/BatchRender";
-import { Matrix4x4 } from "../../../maths/Matrix4x4";
 import { Vector3 } from "../../../maths/Vector3";
 import { Vector4 } from "../../../maths/Vector4";
 import { VertexMesh } from "../../../RenderEngine/RenderShader/VertexMesh";
-import { LayaGL } from "../../../layagl/LayaGL";
-import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
 import { VolumetricGI } from "../../component/Volume/VolumetricGI/VolumetricGI";
 import { IBaseRenderNode } from "../../RenderDriverLayer/Render3DNode/IBaseRenderNode";
 import { Stat } from "../../../utils/Stat";
 import { Scene3D } from "../scene/Scene3D";
+import { RenderElement } from "./RenderElement";
+import { IRenderElement } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderElement";
 
 export enum RenderBitFlag {
     RenderBitFlag_CullFlag = 0,
@@ -200,6 +198,8 @@ export class BaseRender extends Component {
 
     /**@internal */
     private _lightmapScaleOffset: Vector4 = new Vector4();
+
+    _renderElements: RenderElement[] = [];
 
     /**排序矫正值。*/
     set sortingFudge(value: number) {
@@ -484,6 +484,18 @@ export class BaseRender extends Component {
     }
 
     /**
+  * set BaseRenderElement
+  * @param mesh 
+  */
+    protected _setRenderElements() {
+        let arrayElement: IRenderElement[] = [];
+        this._renderElements.forEach(element => {
+            arrayElement.push(element._renderElementOBJ);
+        });
+        this._baseRenderNode.setRenderelements(arrayElement)
+    }
+
+    /**
      * @internal
      * BaseRender motion
      */
@@ -514,7 +526,7 @@ export class BaseRender extends Component {
      * protected
      * @param context 
      */
-    _renderUpdate(context: RenderContext3D) {
+    renderUpdate(context: RenderContext3D) {
         //TODO update Geometry
         //TODO update GeometryBounds
         // one update by one Frame

@@ -121,10 +121,10 @@ export class BlitScreenQuadCMD extends Command {
 		this._sourceTexelSize.setValue(1.0 / source.width, 1.0 / source.height, source.width, source.height);
 		shaderData.setVector(Command.MAINTEXTURE_TEXELSIZE_ID, this._sourceTexelSize);
 		context.destTarget = dest;
-		context._contextOBJ.applyContext(Camera._updateMark);
+		context._contextOBJ.cameraUpdateMask = Camera._updateMark;
 		// ScreenQuad.instance.invertY = dest ? dest._isCameraTarget : false;
 		ScreenQuad.instance.invertY = context.invertY;
-		context.drawRenderElement(this._renderElement);
+		//context.drawRenderElement(this._renderElement);
 		Stat.blitDrawCall++;
 	}
 

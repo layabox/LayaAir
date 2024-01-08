@@ -9,7 +9,6 @@ import { RenderTargetFormat } from "../../../../RenderEngine/RenderEnum/RenderTa
 import { WrapMode } from "../../../../RenderEngine/RenderEnum/WrapMode";
 import { Shader3D } from "../../../../RenderEngine/RenderShader/Shader3D";
 import { ShaderDataType, ShaderData } from "../../../../RenderEngine/RenderShader/ShaderData";
-import { DepthTextureMode } from "../../../depthMap/DepthPass";
 import { Viewport } from "../../../math/Viewport";
 import { Camera } from "../../Camera";
 import { CommandBuffer } from "../command/CommandBuffer";
@@ -25,6 +24,7 @@ import { RenderTexture } from "../../../../resource/RenderTexture";
 import { SubShader } from "../../../../RenderEngine/RenderShader/SubShader";
 import { VertexMesh } from "../../../../RenderEngine/RenderShader/VertexMesh";
 import { LayaGL } from "../../../../layagl/LayaGL";
+import { DepthTextureMode } from "../../../RenderDriverLayer/Render3DProcess/IForwardAddClusterRP";
 
 /**
  * AO质量

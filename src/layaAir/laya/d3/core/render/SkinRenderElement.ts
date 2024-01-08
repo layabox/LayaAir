@@ -1,4 +1,4 @@
-import { IRenderContext3D } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderContext3D";
+import { IRenderContext3D } from "../../RenderDriverLayer/IRenderContext3D";
 import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
 import { SkinRenderElementOBJ } from "../../RenderObjs/RenderObj/SkinRenderElementOBJ";
 import { SkinnedMeshRenderer } from "../SkinnedMeshRenderer";
@@ -16,7 +16,7 @@ export class SkinRenderElement extends RenderElement{
     /**@internal */
 	set render(value:SkinnedMeshRenderer){
 		this._baseRender = value;
-		this._renderElementOBJ._renderShaderData = value._shaderValues;
+		this._renderElementOBJ._renderShaderData = value._baseRenderNode.shaderData;
 	}
 
     get render():SkinnedMeshRenderer{
@@ -36,6 +36,6 @@ export class SkinRenderElement extends RenderElement{
 	}
 
     _render(context:IRenderContext3D): void {
-		this._renderElementOBJ._render(context);
+		//this._renderElementOBJ._render(context);
     }
 }

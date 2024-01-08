@@ -95,7 +95,7 @@ export class DrawMeshInstancedCMD extends Command {
         this._instanceWorldMatrixBuffer.vertexDeclaration = VertexMesh.instanceWorldMatrixDeclaration;
         this._instanceWorldMatrixBuffer.instanceBuffer = true;
         this._render = new BaseRender();
-        this._render._shaderValues.addDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_GPU_INSTANCE);
+        this._render._baseRenderNode.shaderData.addDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_GPU_INSTANCE);
 
     }
 
@@ -113,7 +113,7 @@ export class DrawMeshInstancedCMD extends Command {
 
         if (this._mesh == value)
             return;
-        BaseRender.changeVertexDefine(this._mesh, value, this._render._shaderValues);
+        BaseRender.changeVertexDefine(this._mesh, value, this._render._baseRenderNode.shaderData);
         this._mesh = value;
         if (!this._mesh)
             return;
@@ -225,7 +225,7 @@ export class DrawMeshInstancedCMD extends Command {
     run(): void {
         //update blockData
         let context = RenderContext3D._instance;
-        context._contextOBJ.applyContext(Camera._updateMark);
+        context._contextOBJ.cameraUpdateMask = Camera._updateMark;
         let propertyMap = this._instanceProperty._propertyMap;
         for (let i in propertyMap) {
             //更新自定义Instancebuffer
@@ -236,11 +236,11 @@ export class DrawMeshInstancedCMD extends Command {
         if (this._subMeshIndex == -1) {
             for (let i = 0, n = submeshs.length; i < n; i++) {
                 let element = this._instanceRenderElementArray[i];
-                context.drawRenderElement(element);
+                //context.drawRenderElement(element);
             }
         } else {
             let element = this._instanceRenderElementArray[0];
-            context.drawRenderElement(element);
+            //context.drawRenderElement(element);
         }
     }
 

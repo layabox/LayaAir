@@ -3,15 +3,10 @@ import { Resource } from "../../resource/Resource";
 import { ShaderCompileDefineBase, ShaderProcessInfo } from "../../webgl/utils/ShaderCompileDefineBase";
 import { CommandUniformMap } from "../CommandUniformMap";
 import { BufferUsage } from "../RenderEnum/BufferTargetType";
-import { DrawType } from "../RenderEnum/DrawType";
-import { MeshTopology } from "../RenderEnum/RenderPologyMode";
 import { RenderState } from "../RenderShader/RenderState";
 import { ShaderData } from "../RenderShader/ShaderData";
 import { RenderStateCommand } from "../RenderStateCommand";
 import { UniformBufferObject } from "../UniformBufferObject";
-import { IBaseRenderNode } from "./RenderPipelineInterface/IBaseRenderNode";
-import { IRenderContext3D } from "./RenderPipelineInterface/IRenderContext3D";
-import { IRenderGeometryElement } from "./RenderPipelineInterface/IRenderGeometryElement";
 
 export interface IRenderEngineFactory {
 

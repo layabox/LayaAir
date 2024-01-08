@@ -210,7 +210,7 @@ export class UI3D extends BaseRender {
         this._shellSprite._setBit(NodeFlags.DISPLAYED_INSTAGE, true);
         this._shellSprite._setBit(NodeFlags.ACTIVE_INHIERARCHY, true);
         this._shellSprite._parent = ILaya.stage;
-        this._shaderValues.addDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_UV0);
+        this._baseRenderNode.shaderData.addDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_UV0);
         this._ui3DMat = new UnlitMaterial();
         this._ui3DMat.materialRenderMode = MaterialRenderMode.RENDERMODE_OPAQUE;
         this._ui3DMat.cull = RenderState.CULL_BACK;
@@ -332,10 +332,10 @@ export class UI3D extends BaseRender {
      * @internal
      */
     _renderUpdate(context: RenderContext3D, transform: Transform3D): void {
-        this._applyReflection();
-        this._setShaderValue(Sprite3D.WORLDMATRIX, ShaderDataType.Matrix4x4, this._matrix);
-        this._worldParams.x = transform.getFrontFaceValue();
-        this._setShaderValue(Sprite3D.WORLDINVERTFRONT, ShaderDataType.Vector4, this._worldParams);
+        // this._applyReflection();
+        // this._setShaderValue(Sprite3D.WORLDMATRIX, ShaderDataType.Matrix4x4, this._matrix);
+        // this._worldParams.x = transform.getFrontFaceValue();
+        // this._setShaderValue(Sprite3D.WORLDINVERTFRONT, ShaderDataType.Vector4, this._worldParams);
     }
 
     /** 

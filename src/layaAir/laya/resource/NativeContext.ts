@@ -227,7 +227,7 @@ export class NativeContext {
             cmd.addCMD(RenderStateType.FrontFace, CullMode.Front);
         }
         NativeContext.const2DRenderCMD.applyCMD();
-        RenderTexture.currentActive && RenderTexture.currentActive._end();
+        //RenderTexture.currentActive && RenderTexture.currentActive._end();
         (window as any).set2DRenderConfig();
         BufferState._curBindedBufferState && BufferState._curBindedBufferState.unBind();
     }

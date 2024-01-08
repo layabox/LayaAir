@@ -43,16 +43,16 @@ export class ClearRenderTextureCMD extends Command {
 	 * @override
 	 */
 	run(): void {
-		var flag: number;
-		// var backgroundColor: Color = this._backgroundColor;
-		let linearBgColor = this._linearbackgroundColor;
-		if (this._clearDepth && this._clearColor) {
-			LayaGL.renderEngine.clearRenderTexture(RenderClearFlag.Color | RenderClearFlag.Depth, linearBgColor, this._depth);
-		} else if (this._clearDepth) {
-			LayaGL.renderEngine.clearRenderTexture(RenderClearFlag.Depth, linearBgColor, this._depth);
-		} else if (this._clearColor) {
-			LayaGL.renderEngine.clearRenderTexture(RenderClearFlag.Color, linearBgColor, this._depth);
-		}
+		// var flag: number;
+		// // var backgroundColor: Color = this._backgroundColor;
+		// let linearBgColor = this._linearbackgroundColor;
+		// if (this._clearDepth && this._clearColor) {
+		// 	LayaGL.renderEngine.clearRenderTexture(RenderClearFlag.Color | RenderClearFlag.Depth, linearBgColor, this._depth);
+		// } else if (this._clearDepth) {
+		// 	LayaGL.renderEngine.clearRenderTexture(RenderClearFlag.Depth, linearBgColor, this._depth);
+		// } else if (this._clearColor) {
+		// 	LayaGL.renderEngine.clearRenderTexture(RenderClearFlag.Color, linearBgColor, this._depth);
+		// }
 	}
 
 	/**

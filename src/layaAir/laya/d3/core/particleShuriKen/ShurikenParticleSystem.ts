@@ -362,9 +362,9 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
     set shape(value: BaseShape) {
         if (this._shape !== value) {
             if (value && value.enable)
-                this._ownerRender._shaderValues.addDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_SHAPE);
+                this._ownerRender._baseRenderNode.shaderData.addDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_SHAPE);
             else
-                this._ownerRender._shaderValues.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_SHAPE);
+                this._ownerRender._baseRenderNode.shaderData.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_SHAPE);
             this._shape = value;
         }
     }
@@ -541,7 +541,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
     }
 
     set velocityOverLifetime(value: VelocityOverLifetime) {
-        var shaDat: ShaderData = this._ownerRender._shaderValues;
+        var shaDat: ShaderData = this._ownerRender._baseRenderNode.shaderData;
 
         shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_VELOCITYOVERLIFETIMECONSTANT);
         shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_VELOCITYOVERLIFETIMECURVE);
@@ -596,7 +596,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
     }
 
     set colorOverLifetime(value: ColorOverLifetime) {
-        var shaDat: ShaderData = this._ownerRender._shaderValues;
+        var shaDat: ShaderData = this._ownerRender._baseRenderNode.shaderData;
 
         shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_COLOROVERLIFETIME);
         shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_RANDOMCOLOROVERLIFETIME);
@@ -611,18 +611,18 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
                         shaDat.addDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_COLOROVERLIFETIME);
 
                         let gradientColor: Gradient = color.gradient;
-                        let alphaElements:Float32Array = gradientColor.alphaElements;
-                        let rgbElements:Float32Array = gradientColor.rgbElements;
+                        let alphaElements: Float32Array = gradientColor.alphaElements;
+                        let rgbElements: Float32Array = gradientColor.rgbElements;
                         shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.COLOROVERLIFEGRADIENTALPHAS, alphaElements);
                         shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.COLOROVERLIFEGRADIENTCOLORS, rgbElements);
                         let ranges = gradientColor._keyRanges;
                         ranges.setValue(1, 0, 1, 0);
-                        for (let index = 0,n = Math.min(2,gradientColor.colorRGBKeysCount); index < n; index++) {
+                        for (let index = 0, n = Math.min(2, gradientColor.colorRGBKeysCount); index < n; index++) {
                             let colorKey = rgbElements[index * 4];
                             ranges.x = Math.min(ranges.x, colorKey);
                             ranges.y = Math.max(ranges.y, colorKey);
                         }
-                        for (let index = 0,n = Math.min(2,gradientColor.colorAlphaKeysCount); index < n; index++) {
+                        for (let index = 0, n = Math.min(2, gradientColor.colorAlphaKeysCount); index < n; index++) {
                             let alphaKey = alphaElements[index * 2];
                             ranges.z = Math.min(ranges.z, alphaKey);
                             ranges.w = Math.max(ranges.w, alphaKey);
@@ -642,11 +642,11 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
                         let minGradientColor: Gradient = color.gradientMin;
                         let maxGradientColor: Gradient = color.gradientMax;
 
-                        let minalphaElements:Float32Array = minGradientColor.alphaElements;
-                        let minrgbElements:Float32Array = minGradientColor.rgbElements;
+                        let minalphaElements: Float32Array = minGradientColor.alphaElements;
+                        let minrgbElements: Float32Array = minGradientColor.rgbElements;
 
-                        let maxalphaElements:Float32Array = maxGradientColor.alphaElements;
-                        let maxrgbElements:Float32Array = maxGradientColor.rgbElements;
+                        let maxalphaElements: Float32Array = maxGradientColor.alphaElements;
+                        let maxrgbElements: Float32Array = maxGradientColor.rgbElements;
                         shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.COLOROVERLIFEGRADIENTALPHAS, minalphaElements);
                         shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.COLOROVERLIFEGRADIENTCOLORS, minrgbElements);
                         shaDat.setBuffer(ShuriKenParticle3DShaderDeclaration.MAXCOLOROVERLIFEGRADIENTALPHAS, maxalphaElements);
@@ -654,12 +654,12 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
 
                         let minRanges = minGradientColor._keyRanges;
                         minRanges.setValue(1, 0, 1, 0);
-                        for (let index = 0,n = Math.max(2,minGradientColor.colorRGBKeysCount); index < n; index++) {
+                        for (let index = 0, n = Math.max(2, minGradientColor.colorRGBKeysCount); index < n; index++) {
                             let colorKey = minrgbElements[index * 4];
                             minRanges.x = Math.min(minRanges.x, colorKey);
                             minRanges.y = Math.max(minRanges.y, colorKey);
                         }
-                        for (let index = 0,n = Math.max(2,minGradientColor.colorAlphaKeysCount); index < n; index++) {
+                        for (let index = 0, n = Math.max(2, minGradientColor.colorAlphaKeysCount); index < n; index++) {
                             let alphaKey = minalphaElements[index * 2];
                             minRanges.z = Math.min(minRanges.z, alphaKey);
                             minRanges.w = Math.max(minRanges.w, alphaKey);
@@ -667,12 +667,12 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
                         shaDat.setVector(ShuriKenParticle3DShaderDeclaration.COLOROVERLIFEGRADIENTRANGES, minRanges);
                         let maxRanges = maxGradientColor._keyRanges;
                         maxRanges.setValue(1, 0, 1, 0);
-                        for (let index = 0,n = Math.max(2,maxGradientColor.colorRGBKeysCount); index < n; index++) {
+                        for (let index = 0, n = Math.max(2, maxGradientColor.colorRGBKeysCount); index < n; index++) {
                             let colorKey = maxrgbElements[index * 4];
                             maxRanges.x = Math.min(maxRanges.x, colorKey);
                             maxRanges.y = Math.max(maxRanges.y, colorKey);
                         }
-                        for (let index = 0,n = Math.max(2,maxGradientColor.colorAlphaKeysCount); index < n; index++) {
+                        for (let index = 0, n = Math.max(2, maxGradientColor.colorAlphaKeysCount); index < n; index++) {
                             let alphaKey = maxalphaElements[index * 2];
                             maxRanges.z = Math.min(maxRanges.z, alphaKey);
                             maxRanges.w = Math.max(maxRanges.w, alphaKey);
@@ -702,7 +702,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
     }
 
     set sizeOverLifetime(value: SizeOverLifetime) {
-        var shaDat: ShaderData = this._ownerRender._shaderValues;
+        var shaDat: ShaderData = this._ownerRender._baseRenderNode.shaderData;
 
         shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_SIZEOVERLIFETIMECURVE);
         shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_SIZEOVERLIFETIMECURVESEPERATE);
@@ -764,7 +764,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
     }
 
     set rotationOverLifetime(value: RotationOverLifetime) {
-        var shaDat: ShaderData = this._ownerRender._shaderValues;
+        var shaDat: ShaderData = this._ownerRender._baseRenderNode.shaderData;
 
         shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_ROTATIONOVERLIFETIME);
         shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_ROTATIONOVERLIFETIMESEPERATE);
@@ -854,7 +854,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
     }
 
     set textureSheetAnimation(value: TextureSheetAnimation) {
-        var shaDat: ShaderData = this._ownerRender._shaderValues;
+        var shaDat: ShaderData = this._ownerRender._baseRenderNode.shaderData;
 
         shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_TEXTURESHEETANIMATIONCURVE);
         shaDat.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_TEXTURESHEETANIMATIONRANDOMCURVE);

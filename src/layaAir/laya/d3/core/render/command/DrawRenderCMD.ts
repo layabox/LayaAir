@@ -43,7 +43,7 @@ export class DrawRenderCMD extends Command {
     private _elementRender(renderElement: RenderElement, context: RenderContext3D): void {
         renderElement.renderSubShader = this._material._shader.getSubShaderAt(this._subShaderIndex);//TODO
         renderElement.material = this._material;
-        context.drawRenderElement(renderElement);
+        //context.drawRenderElement(renderElement);
     }
 
     set material(value: Material) {
@@ -61,7 +61,7 @@ export class DrawRenderCMD extends Command {
             throw "This render command material cannot be empty";
         this.setContext(this._commandBuffer._context);
         var context = this._context;
-        context._contextOBJ.applyContext(Camera._updateMark);
+       // context._contextOBJ.applyContext(Camera._updateMark);
         var renderElements = this._render._renderElements;
         for (var i: number = 0, n = renderElements.length; i < n; i++) {
             var renderelement = renderElements[i];

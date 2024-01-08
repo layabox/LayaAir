@@ -39,7 +39,7 @@ export class PixelLineRenderer extends BaseRender {
         super();
         this._projectionViewWorldMatrix = new Matrix4x4();
         this._pixelLineFilter = new PixelLineFilter(this, 20);
-        this._shaderValues.addDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_COLOR);
+        this._baseRenderNode.shaderData.addDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_COLOR);
     }
 
     private _lines: PixelLineData[] = [];
@@ -116,17 +116,17 @@ export class PixelLineRenderer extends BaseRender {
      * @internal
      */
     _renderUpdateWithCamera(context: RenderContext3D, transform: Transform3D): void {//TODO:整理_renderUpdate
-        var projectionView: Matrix4x4 = context.projectionViewMatrix;
-        var sv: ShaderData = this._shaderValues;
-        if (transform) {
-            var worldMat: Matrix4x4 = transform.worldMatrix;
-            sv.setMatrix4x4(Sprite3D.WORLDMATRIX, worldMat);
-            this._worldParams.x = transform.getFrontFaceValue();
-            sv.setVector(Sprite3D.WORLDINVERTFRONT, this._worldParams);
-        } else {
-            sv.setMatrix4x4(Sprite3D.WORLDMATRIX, Matrix4x4.DEFAULT);
-            sv.setVector(Sprite3D.WORLDINVERTFRONT, Vector4.UnitX);
-        }
+        // var projectionView: Matrix4x4 = context.projectionViewMatrix;
+        // var sv: ShaderData = this._shaderValues;
+        // if (transform) {
+        //     var worldMat: Matrix4x4 = transform.worldMatrix;
+        //     sv.setMatrix4x4(Sprite3D.WORLDMATRIX, worldMat);
+        //     this._worldParams.x = transform.getFrontFaceValue();
+        //     sv.setVector(Sprite3D.WORLDINVERTFRONT, this._worldParams);
+        // } else {
+        //     sv.setMatrix4x4(Sprite3D.WORLDMATRIX, Matrix4x4.DEFAULT);
+        //     sv.setVector(Sprite3D.WORLDINVERTFRONT, Vector4.UnitX);
+        // }
     }
 
     /**

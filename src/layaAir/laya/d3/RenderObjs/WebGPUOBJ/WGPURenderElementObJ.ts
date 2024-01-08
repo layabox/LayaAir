@@ -1,5 +1,4 @@
 import { WebGPUInternalRT } from "../../../RenderEngine/RenderEngine/WebGPUEngine/WebGPUInternalRT";
-import { IBaseRenderNode } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IBaseRenderNode";
 import { IRenderElement } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderElement";
 import { IRenderGeometryElement } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderGeometryElement";
 import { ShaderInstance } from "../../../RenderEngine/RenderShader/ShaderInstance";
@@ -9,7 +8,7 @@ import { WGPURenderContext3D } from "./WGPURenderContext3D";
 import { WGPURenderPipelineInstance } from "./WGPURenderPipelineInstance";
 import { WGPUShaderData } from "./WGPUShaderData";
 
-export class WGPURenderElementObJ implements IRenderElement {
+export class WGPURenderElementObJ  {
 
     _geometry: IRenderGeometryElement;
 
@@ -23,7 +22,7 @@ export class WGPURenderElementObJ implements IRenderElement {
 
     _isRender: boolean;
 
-    _owner: IBaseRenderNode;
+   // _owner: IBaseRenderNode;
 
     _invertFront: boolean;
 

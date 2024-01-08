@@ -7,6 +7,7 @@ export class GLESMeshRenderNode extends GLESBaseRenderNode implements IMeshRende
     constructor() {
         super();
         this._calculateBoundingBox = this._ownerCalculateBoundingBox;
+        //@ts-ignore
         this._renderUpdatePre = this._renderUpdate;
     }
 

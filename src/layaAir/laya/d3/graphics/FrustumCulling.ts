@@ -21,14 +21,6 @@ export class FrustumCulling {
 	/**@internal */
 	private static _tempV31: Vector3 = new Vector3();
 
-	/**
-	 * @internal
-	 */
-	static __init__(): void {
-		FrustumCulling._cameraCullInfo = Laya3DRender.renderOBJCreate.createCameraCullInfo();
-		FrustumCulling._shadowCullInfo = Laya3DRender.renderOBJCreate.createShadowCullInfo();
-	}
-
 	// /**
 	//  * @internal
 	//  */

@@ -2,7 +2,6 @@ import { WebGPURenderPassDescriptor } from "../../../RenderEngine/RenderEngine/W
 import { WebGPUEngine } from "../../../RenderEngine/RenderEngine/WebGPUEngine/WebGPUEngine";
 import { WebGPURenderCommandEncoder } from "../../../RenderEngine/RenderEngine/WebGPUEngine/WebGPURenderCommandEncoder";
 import { IRenderTarget } from "../../../RenderEngine/RenderInterface/IRenderTarget";
-import { IRenderContext3D, PipelineMode } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderContext3D";
 import { Vector4 } from "../../../maths/Vector4";
 import { Viewport } from "../../math/Viewport";
 import { WGPURenderElementObJ } from "./WGPURenderElementObJ";
@@ -10,8 +9,9 @@ import { WGPUShaderData } from "./WGPUShaderData";
 import { WebGPUInternalRT } from "../../../RenderEngine/RenderEngine/WebGPUEngine/WebGPUInternalRT";
 import { ShaderData } from "../../../RenderEngine/RenderShader/ShaderData";
 import { LayaGL } from "../../../layagl/LayaGL";
+import { PipelineMode } from "../../RenderDriverLayer/IRenderContext3D";
 
-export class WGPURenderContext3D implements IRenderContext3D {
+export class WGPURenderContext3D {
     
     device:GPUDevice;//TODO
     //dest Texture
@@ -60,19 +60,19 @@ export class WGPURenderContext3D implements IRenderContext3D {
     }
     configShaderData: ShaderData;
     
-    /**设置IRenderContext */
-    applyContext(cameraUpdateMark: number): void{
-        this.destTarget && this.destTarget._start();
-        this._startRender();
-        this.cameraUpdateMark = cameraUpdateMark;
-    }
+    // /**设置IRenderContext */
+    // applyContext(cameraUpdateMark: number): void{
+    //     this.destTarget && this.destTarget._start();
+    //     this._startRender();
+    //     this.cameraUpdateMark = cameraUpdateMark;
+    // }
 
-    /**draw one element by context */
-    drawRenderElement(renderelemt: WGPURenderElementObJ): void{
-        this.destTarget && this.destTarget._start();
-        this._startRender();
-        this.end();
-    }
+    // /**draw one element by context */
+    // drawRenderElement(renderelemt: WGPURenderElementObJ): void{
+    //     this.destTarget && this.destTarget._start();
+    //     this._startRender();
+    //     this.end();
+    // }
 
     /**end Encoder orcall submit render*/
     end(){

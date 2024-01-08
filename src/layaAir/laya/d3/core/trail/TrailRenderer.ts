@@ -1,7 +1,5 @@
 import { Sprite3D } from "../Sprite3D"
-import { Transform3D } from "../Transform3D"
 import { BaseRender } from "../render/BaseRender"
-import { RenderContext3D } from "../render/RenderContext3D"
 import { TrailFilter } from "./TrailFilter";
 import { FloatKeyframe } from "../FloatKeyframe";
 import { Gradient } from "../Gradient";
@@ -10,6 +8,7 @@ import { Bounds } from "../../math/Bounds";
 import { TrailTextureMode } from "../TrailTextureMode"
 import { TrailAlignment } from "./TrailAlignment"
 import { Matrix4x4 } from "../../../maths/Matrix4x4";
+import { RenderContext3D } from "../render/RenderContext3D";
 
 /**
  * <code>TrailRenderer</code> 类用于创建拖尾渲染器。
@@ -26,12 +25,11 @@ export class TrailRenderer extends BaseRender {
      */
     constructor() {
         super();
-        this._supportOctree = false;
 
     }
 
-    protected _getcommonUniformMap():Array<string>{
-        return ["Sprite3D","TrailRender"];
+    protected _getcommonUniformMap(): Array<string> {
+        return ["Sprite3D", "TrailRender"];
     }
 
 
@@ -149,7 +147,7 @@ export class TrailRenderer extends BaseRender {
         (this.owner as Sprite3D)._transform.position.cloneTo(this._trailFilter._lastPosition);//激活时需要重置上次位置
     }
 
-    onUpdate(): void {
+    renderUpdate(context: RenderContext3D) {
         this._calculateBoundingBox();
     }
 
@@ -169,15 +167,6 @@ export class TrailRenderer extends BaseRender {
         let context = RenderContext3D._instance;
         this.boundsChange = false;
         this._trailFilter._update(context);
-    }
-
-    /**
-     * @inheritDoc
-     * @internal
-     * @override
-     */
-    _renderUpdate(state: RenderContext3D, transform: Transform3D): void {
-        super._renderUpdate(state, transform);
     }
 
     clear(): void {

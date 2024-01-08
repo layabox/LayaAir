@@ -1,8 +1,8 @@
 import { RenderClearFlag } from "../../../../RenderEngine/RenderEnum/RenderClearFlag";
-import { PipelineMode } from "../../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderContext3D";
 import { Color } from "../../../../maths/Color";
 import { Vector4 } from "../../../../maths/Vector4";
 import { RenderTexture } from "../../../../resource/RenderTexture";
+import { PipelineMode } from "../../../RenderDriverLayer/IRenderContext3D";
 import { IBaseRenderNode } from "../../../RenderDriverLayer/Render3DNode/IBaseRenderNode";
 import { DepthTextureMode, IForwardAddClusterRP } from "../../../RenderDriverLayer/Render3DProcess/IForwardAddClusterRP";
 import { Camera } from "../../../core/Camera";
@@ -135,7 +135,7 @@ export class GLESForwardAddClusterRP implements IForwardAddClusterRP {
         context.setViewPort(Viewport._tempViewport);
         context.setScissor(Vector4.tempVec4);
         context.setClearData(RenderClearFlag.Depth, Color.BLACK, 1, 0);
-        context.setRenderTarget(this.depthTarget);
+        context.setRenderTarget(this.depthTarget._renderTarget);
         this.opaqueList.renderQueue(context);
         //渲染完后传入使用的参数
         var far = this.camera.farPlane;
@@ -162,7 +162,7 @@ export class GLESForwardAddClusterRP implements IForwardAddClusterRP {
         context.setViewPort(Viewport._tempViewport);
         context.setScissor(Vector4.tempVec4);
         context.setClearData(RenderClearFlag.Color | RenderClearFlag.Depth, this._defaultNormalDepthColor, 1, 0);
-        context.setRenderTarget(this.depthNormalTarget);
+        context.setRenderTarget(this.depthNormalTarget._renderTarget);
         this.opaqueList.renderQueue(context);
         context.cameraData.setTexture(DepthPass.DEPTHNORMALSTEXTURE, this.depthNormalTarget);
     }
@@ -206,6 +206,6 @@ export class GLESForwardAddClusterRP implements IForwardAddClusterRP {
         const cacheScissor = Camera._contextScissorPortCatch;
         context.setViewPort(cacheViewPor);
         context.setScissor(cacheScissor);
-        context.setRenderTarget(this.destTarget);
+        context.setRenderTarget(this.destTarget._renderTarget);
     }
 }

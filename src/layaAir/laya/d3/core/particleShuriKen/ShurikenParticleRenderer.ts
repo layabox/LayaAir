@@ -61,7 +61,7 @@ export class ShurikenParticleRenderer extends BaseRender {
 
     set renderMode(value: number) {
         if (this._renderMode !== value) {
-            var defineDatas: ShaderData = this._shaderValues;
+            var defineDatas: ShaderData = this._baseRenderNode.shaderData;
             switch (this._renderMode) {
                 case 0:
                     defineDatas.removeDefine(ShuriKenParticle3DShaderDeclaration.SHADERDEFINE_RENDERMODE_BILLBOARD);
@@ -126,7 +126,6 @@ export class ShurikenParticleRenderer extends BaseRender {
     constructor() {
         super();
         this.renderMode = 0;
-        this._supportOctree = false;
     }
 
     protected _getcommonUniformMap(): Array<string> {
@@ -230,7 +229,7 @@ export class ShurikenParticleRenderer extends BaseRender {
      */
     _renderUpdate(context: RenderContext3D, transfrom: Transform3D): void {
         var particleSystem: ShurikenParticleSystem = this._particleSystem;
-        var sv: ShaderData = this._shaderValues;
+        var sv: ShaderData = this._baseRenderNode.shaderData;
         var transform: Transform3D = (this.owner as Sprite3D).transform;
         switch (particleSystem.simulationSpace) {
             case 0: //World

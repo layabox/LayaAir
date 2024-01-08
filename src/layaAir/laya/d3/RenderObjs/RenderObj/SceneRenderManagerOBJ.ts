@@ -1,5 +1,6 @@
 import { ISceneRenderManager } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/ISceneRenderManager";
 import { SingletonList } from "../../../utils/SingletonList";
+import { IBaseRenderNode } from "../../RenderDriverLayer/Render3DNode/IBaseRenderNode";
 import { BaseRender } from "../../core/render/BaseRender";
 
 
@@ -10,6 +11,7 @@ export class SceneRenderManagerOBJ implements ISceneRenderManager {
     constructor() {
 
     }
+    baseRenderList: SingletonList<IBaseRenderNode>;
 
     get list() {
         return this._renders;

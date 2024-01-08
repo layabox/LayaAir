@@ -122,7 +122,7 @@ export class LensFlareCMD extends Command {
         var context = RenderContext3D._instance;
         this._materials.setFloat("u_aspectRatio", context.camera.viewport.height / context.camera.viewport.width);
         context.applyContext(Camera._updateMark);
-        context.drawRenderElement(this._renderElement);
+        //context.drawRenderElement(this._renderElement);
         Stat.blitDrawCall++;
     }
 

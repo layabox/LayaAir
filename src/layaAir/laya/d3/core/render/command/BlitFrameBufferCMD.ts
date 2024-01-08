@@ -123,22 +123,22 @@ export class BlitFrameBufferCMD {
 		shaderData.setVector(Command.SCREENTEXTUREOFFSETSCALE_ID, this._offsetScale || BlitFrameBufferCMD._defaultOffsetScale);
 		source && (shaderData.setVector(Command.MAINTEXTURE_TEXELSIZE_ID, this._texture_size));
 		//this._sourceTexelSize.setValue(1.0 / source.width, 1.0 / source.height, source.width, source.height);
-		(RenderTexture.currentActive) && (RenderTexture.currentActive._end());
+		// (RenderTexture.currentActive) && (RenderTexture.currentActive._end());
 
-		if (dest) {
-			dest._start();
-			shaderData.removeDefine(RenderContext3D.GammaCorrect);
-		}
-		else {
-			shaderData.addDefine(RenderContext3D.GammaCorrect);
-		}
-		var subShader: SubShader = shader.getSubShaderAt(this._subShader);
-		var passes: ShaderPass[] = subShader._passes;
-		ScreenQuad.instance.invertY = false;
+		// if (dest) {
+		// 	dest._start();
+		// 	shaderData.removeDefine(RenderContext3D.GammaCorrect);
+		// }
+		// else {
+		// 	shaderData.addDefine(RenderContext3D.GammaCorrect);
+		// }
+		// var subShader: SubShader = shader.getSubShaderAt(this._subShader);
+		// var passes: ShaderPass[] = subShader._passes;
+		// ScreenQuad.instance.invertY = false;
 
-		context.destTarget = dest;
-		context._contextOBJ.applyContext(Camera._updateMark);
-		context.drawRenderElement(this._renderElement);
+		// context.destTarget = dest;
+		// context._contextOBJ.applyContext(Camera._updateMark);
+		// context.drawRenderElement(this._renderElement);
 		//RenderContext3D._instance.invertY ? ScreenQuad.instance.renderInvertUV() : ScreenQuad.instance.render();
 
 

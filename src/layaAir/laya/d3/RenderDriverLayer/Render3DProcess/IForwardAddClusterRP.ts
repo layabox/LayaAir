@@ -1,10 +1,10 @@
 import { ICameraCullInfo } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/ICameraCullInfo";
-import { PipelineMode } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderContext3D";
 import { Vector4 } from "../../../maths/Vector4";
 import { RenderTexture } from "../../../resource/RenderTexture";
 import { CameraCullInfo } from "../../RenderObjs/RenderObj/CameraCullInfo";
 import { CommandBuffer } from "../../core/render/command/CommandBuffer"
 import { Viewport } from "../../math/Viewport";
+import { PipelineMode } from "../IRenderContext3D";
 import { IBaseRenderNode } from "../Render3DNode/IBaseRenderNode";
 /**
  * 深度贴图模式

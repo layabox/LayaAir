@@ -337,7 +337,7 @@ export class LensFlareEffect extends PostProcessEffect {
     caculateDirCenter(camera: Camera) {
         //center caculate start
         // lightDirection
-        (this._light as DirectionLightCom)._direction.cloneTo(this._tempV3);
+        (this._light as DirectionLightCom).direction.cloneTo(this._tempV3);
         // lightDir revert
         Vector3.scale(this._tempV3, -10, this._tempV3);
         // offset of light to camera

@@ -1,16 +1,12 @@
 import { Component } from "../../components/Component";
 import { Node } from "../../display/Node";
 import { Camera } from "../core/Camera";
-import { DirectionLight } from "../core/light/DirectionLight";
-import { PointLight } from "../core/light/PointLight";
-import { SpotLight } from "../core/light/SpotLight";
 import { MeshSprite3D } from "../core/MeshSprite3D";
 import { ShuriKenParticle3D } from "../core/particleShuriKen/ShuriKenParticle3D";
 import { RenderableSprite3D } from "../core/RenderableSprite3D";
 import { Scene3D } from "../core/scene/Scene3D";
 import { SkinnedMeshSprite3D } from "../core/SkinnedMeshSprite3D";
 import { Sprite3D } from "../core/Sprite3D";
-import { TrailSprite3D } from "../core/trail/TrailSprite3D";
 import { ClassUtils } from "../../utils/ClassUtils";
 import { SimpleSkinnedMeshSprite3D } from "../core/SimpleSkinnedMeshSprite3D";
 import { ILoadURL, Loader } from "../../net/Loader";
@@ -53,18 +49,6 @@ class HierarchyParserV2 {
                 break;
             case "Camera":
                 node = new Camera();
-                break;
-            case "DirectionLight":
-                node = new DirectionLight();
-                break;
-            case "PointLight":
-                node = new PointLight();
-                break;
-            case "SpotLight":
-                node = new SpotLight();
-                break;
-            case "TrailSprite3D":
-                node = new TrailSprite3D();
                 break;
             case "ReflectionProbe":
                 node = new Sprite3D();
@@ -188,18 +172,6 @@ class HierarchyParserV2 {
                 break;
             case "Camera":
                 node = new Camera();
-                break;
-            case "DirectionLight":
-                node = new DirectionLight();
-                break;
-            case "PointLight":
-                node = new PointLight();
-                break;
-            case "SpotLight":
-                node = new SpotLight();
-                break;
-            case "TrailSprite3D":
-                node = new TrailSprite3D();
                 break;
             default:
                 throw new Error(`Unidentified node type ${nodeData.type}`);

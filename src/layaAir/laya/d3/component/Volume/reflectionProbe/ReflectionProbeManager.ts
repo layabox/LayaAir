@@ -98,7 +98,7 @@ export class ReflectionProbeManager implements IVolumeManager {
         let render: BaseRender;
         for (var i: number = 0, n: number = motionObjects.length; i < n; i++) {
             render = elements[i];
-            if (render._surportReflectionProbe && render._reflectionMode == 1) {
+            if (render._surportReflectionProbe && render.reflectionMode == 1) {
                 this._updateRenderObject(elements[i]);
             }
         }
@@ -115,7 +115,7 @@ export class ReflectionProbeManager implements IVolumeManager {
         let render: BaseRender;
         for (var i: number = 0, n: number = baseRenders.length; i < n; i++) {
             render = elements[i];
-            if (render._surportReflectionProbe && render._reflectionMode == 1) {
+            if (render._surportReflectionProbe && render.reflectionMode == 1) {
                 this._updateRenderObject(render);
             }
             this._needUpdateAllRender = false;

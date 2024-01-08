@@ -3,16 +3,13 @@ import { Viewport } from "../../math/Viewport"
 import { ShaderData } from "../../../RenderEngine/RenderShader/ShaderData";
 import { Camera } from "../Camera";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
-import { PipelineMode } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderContext3D";
 import { IRenderTarget } from "../../../RenderEngine/RenderInterface/IRenderTarget";
 import { Matrix4x4 } from "../../../maths/Matrix4x4";
 import { Vector4 } from "../../../maths/Vector4";
 import { ShaderInstance } from "../../../RenderEngine/RenderShader/ShaderInstance";
 import { ShaderDefine } from "../../../RenderEngine/RenderShader/ShaderDefine";
 import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
-import { IRenderContext3D } from "../../RenderDriverLayer/IRenderContext3D";
-import { RenderElement } from "./RenderElement";
-import { BaseRender } from "./BaseRender";
+import { IRenderContext3D, PipelineMode } from "../../RenderDriverLayer/IRenderContext3D";
 import { IRenderElement } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderElement";
 
 /**

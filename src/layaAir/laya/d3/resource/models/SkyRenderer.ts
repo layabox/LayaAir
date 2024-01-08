@@ -11,6 +11,7 @@ import { RenderContext3D } from "../../core/render/RenderContext3D";
 import { Scene3D } from "../../core/scene/Scene3D";
 import { SkyBox } from "./SkyBox";
 import { SkyDome } from "./SkyDome";
+import { RenderElement } from "../../core/render/RenderElement";
 
 /**
  * <code>SkyRenderer</code> 类用于实现天空渲染器。
@@ -114,8 +115,8 @@ export class SkyRenderer {
             var camera = context.camera;
             var scene: Scene3D = context.scene;
             var projectionMatrix: Matrix4x4 = SkyRenderer._tempMatrix1;
-            this._renderData._shaderValues.setColor(SkyRenderer.SUNLIGHTDIRCOLOR, scene._sunColor);
-            this._renderData._shaderValues.setVector3(SkyRenderer.SUNLIGHTDIRECTION, scene._sundir);
+            this._renderData._baseRenderNode.shaderData.setColor(SkyRenderer.SUNLIGHTDIRCOLOR, scene._sunColor);
+            this._renderData._baseRenderNode.shaderData.setVector3(SkyRenderer.SUNLIGHTDIRECTION, scene._sundir);
             //无穷投影矩阵算法,DirectX右手坐标系推导
             //http://terathon.com/gdc07_lengyel.pdf
 
@@ -163,9 +164,9 @@ export class SkyRenderer {
             }
 
 
-            context._contextOBJ.applyContext(Camera._updateMark);
-            context.drawRenderElement(this._renderElement);
-            camera._applyViewProject(context, camera.viewMatrix, camera.projectionMatrix);
+            // context._contextOBJ.applyContext(Camera._updateMark);
+            // context.drawRenderElement(this._renderElement);
+            // camera._applyViewProject(context, camera.viewMatrix, camera.projectionMatrix);
         }
     }
 

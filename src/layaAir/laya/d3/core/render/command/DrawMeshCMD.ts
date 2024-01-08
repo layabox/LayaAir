@@ -92,19 +92,19 @@ export class DrawMeshCMD extends Command {
      * @override
      */
     run(): void {
-        var context = RenderContext3D._instance;
-        this._meshRender.probReflection = context.scene.sceneReflectionProb;
-        context._contextOBJ.applyContext(Camera._updateMark);
-        let submeshs = this._mesh._subMeshes
-        if (this._subMeshIndex == -1) {
-            for (let i = 0, n = submeshs.length; i < n; i++) {
-                let element = this._renderElemnts[i];
-                context.drawRenderElement(element);
-            }
-        } else {
-            let element = this._renderElemnts[this._subMeshIndex];
-            context.drawRenderElement(element);
-        }
+        // var context = RenderContext3D._instance;
+        // this._meshRender.probReflection = context.scene.sceneReflectionProb;
+        // context._contextOBJ.applyContext(Camera._updateMark);
+        // let submeshs = this._mesh._subMeshes
+        // if (this._subMeshIndex == -1) {
+        //     for (let i = 0, n = submeshs.length; i < n; i++) {
+        //         let element = this._renderElemnts[i];
+        //         context.drawRenderElement(element);
+        //     }
+        // } else {
+        //     let element = this._renderElemnts[this._subMeshIndex];
+        //     context.drawRenderElement(element);
+        // }
     }
 
     /**

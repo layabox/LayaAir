@@ -1,13 +1,12 @@
 import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFlag";
 import { InternalRenderTarget } from "../../../RenderEngine/RenderInterface/InternalRenderTarget";
-import { PipelineMode } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderContext3D";
 import { ShaderData } from "../../../RenderEngine/RenderShader/ShaderData";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { Color } from "../../../maths/Color";
 import { Vector4 } from "../../../maths/Vector4";
 import { RenderTexture } from "../../../resource/RenderTexture";
 import { SingletonList } from "../../../utils/SingletonList";
-import { IRenderContext3D } from "../../RenderDriverLayer/IRenderContext3D";
+import { IRenderContext3D, PipelineMode } from "../../RenderDriverLayer/IRenderContext3D";
 import { Viewport } from "../../math/Viewport";
 import { RenderElementOBJ } from "../RenderObj/RenderElementOBJ";
 import { GLESCameraNodeData, GLESSceneNodeData } from "./RenderModuleData/GLESOtherModuleData";

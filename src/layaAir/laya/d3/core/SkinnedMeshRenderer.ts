@@ -102,7 +102,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
     constructor() {
         super();
         this._localBounds = new Bounds(Vector3.ZERO, Vector3.ZERO);
-        this._shaderValues.addDefine(SkinnedMeshSprite3DShaderDeclaration.SHADERDEFINE_BONE);
+        this._baseRenderNode.shaderData.addDefine(SkinnedMeshSprite3DShaderDeclaration.SHADERDEFINE_BONE);
     }
 
 
@@ -305,19 +305,19 @@ export class SkinnedMeshRenderer extends MeshRenderer {
      * @internal
      */
     _renderUpdate(context: RenderContext3D, transform: Transform3D): void {
-        this._applyReflection();
-        if (this.bones.length > 0) {
-            this._computeSkinnedData();
-            this._shaderValues.setMatrix4x4(Sprite3D.WORLDMATRIX, Matrix4x4.DEFAULT);
-            this._worldParams.x = 1;
-            this._shaderValues.setVector(Sprite3D.WORLDINVERTFRONT, this._worldParams);
-        } else {
-            this._shaderValues.setMatrix4x4(Sprite3D.WORLDMATRIX, transform.worldMatrix);
-            this._worldParams.x = transform.getFrontFaceValue();
-            this._shaderValues.setVector(Sprite3D.WORLDINVERTFRONT, this._worldParams);
-        }
+        // this._applyReflection();
+        // if (this.bones.length > 0) {
+        //     this._computeSkinnedData();
+        //     this._shaderValues.setMatrix4x4(Sprite3D.WORLDMATRIX, Matrix4x4.DEFAULT);
+        //     this._worldParams.x = 1;
+        //     this._shaderValues.setVector(Sprite3D.WORLDINVERTFRONT, this._worldParams);
+        // } else {
+        //     this._shaderValues.setMatrix4x4(Sprite3D.WORLDMATRIX, transform.worldMatrix);
+        //     this._worldParams.x = transform.getFrontFaceValue();
+        //     this._shaderValues.setVector(Sprite3D.WORLDINVERTFRONT, this._worldParams);
+        // }
 
-        this._mesh.morphTargetData && this._applyMorphdata();
+        // this._mesh.morphTargetData && this._applyMorphdata();
     }
 
     // /**

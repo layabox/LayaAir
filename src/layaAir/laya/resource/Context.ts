@@ -438,7 +438,7 @@ export class Context {
             }
         }
         Context.const2DRenderCMD && Context.const2DRenderCMD.applyCMD();
-        RenderTexture.currentActive && RenderTexture.currentActive._end();
+        //RenderTexture.currentActive && RenderTexture.currentActive._end();
         // WebGLContext.setBlend(gl, true);//还原2D设置
         // WebGLContext.setBlendEquation(gl, gl.FUNC_ADD);
         // BlendMode.activeBlendFunction = null;// 防止submit不设置blend
@@ -569,7 +569,7 @@ export class Context {
         this.clearColor.g = g;
         this.clearColor.b = b;
         this.clearColor.a = a;
-        LayaGL.renderEngine.clearRenderTexture(RenderClearFlag.Color, this.clearColor, 1);
+        LayaGL.renderEngine.clearRenderTexture(RenderClearFlag.Color, this.clearColor, 1, 0);
     }
 
     //TODO:coverage

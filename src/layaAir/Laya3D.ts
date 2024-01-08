@@ -20,9 +20,7 @@ import { Scene3D } from "./laya/d3/core/scene/Scene3D";
 import { SkinnedMeshSprite3D } from "./laya/d3/core/SkinnedMeshSprite3D";
 import { Sprite3D } from "./laya/d3/core/Sprite3D";
 import { TrailMaterial } from "./laya/d3/core/trail/TrailMaterial";
-import { TrailSprite3D } from "./laya/d3/core/trail/TrailSprite3D";
 import { VertexTrail } from "./laya/d3/core/trail/VertexTrail";
-import { FrustumCulling } from "./laya/d3/graphics/FrustumCulling";
 import { SubMeshInstanceBatch } from "./laya/d3/graphics/SubMeshInstanceBatch";
 import { VertexPositionTerrain } from "./laya/d3/graphics/Vertex/VertexPositionTerrain";
 import { VertexPositionTexture0 } from "./laya/d3/graphics/Vertex/VertexPositionTexture0";
@@ -157,7 +155,6 @@ export class Laya3D {
         SimpleSkinnedMeshSprite3D.__init__();
         TrailFilter.__init__();
         ShuriKenParticle3D.__init__();
-        TrailSprite3D.__init__();
         PostProcess.__init__();
         Scene3D.__init__();
         ShadowCasterPass.__init__();
@@ -184,7 +181,6 @@ export class Laya3D {
         SkyBox.__init__();
         SkyDome.__init__();
         ScreenQuad.__init__();
-        FrustumCulling.__init__();
         HalfFloatUtils.__init__();
     }
 

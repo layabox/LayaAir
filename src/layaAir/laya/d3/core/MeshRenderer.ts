@@ -17,13 +17,11 @@ import { RenderContext3D } from "./render/RenderContext3D"
 import { SubMeshRenderElement } from "./render/SubMeshRenderElement"
 import { RenderableSprite3D } from "./RenderableSprite3D"
 import { Sprite3D } from "./Sprite3D"
-import { Transform3D } from "./Transform3D"
 import { MeshUtil } from "../resource/models/MeshUtil"
 import { LayaGL } from "../../layagl/LayaGL"
 import { IRenderElement } from "../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderElement"
 import { RenderElement } from "./render/RenderElement"
 import { IMeshRenderNode } from "../RenderDriverLayer/Render3DNode/IMeshRenderNode"
-import { Laya3DRender } from "../RenderObjs/Laya3DRender"
 
 /**
  * <code>MeshRenderer</code> 类用于网格渲染器。
@@ -312,20 +310,10 @@ export class MeshRenderer extends BaseRender {
 
     }
 
-    /**
-     * set BaseRenderElement
-     * @param mesh 
-     */
-    private _setRenderElements() {
-        let arrayElement: IRenderElement[] = [];
-        this._renderElements.forEach(element => {
-            arrayElement.push(element._renderElementOBJ);
-        });
-        this._baseRenderNode.setRenderelements(arrayElement)
-    }
+ 
 
 
-    private _renderElements: RenderElement[] = [];
+  
     /**
      * @internal
      */
@@ -367,7 +355,7 @@ export class MeshRenderer extends BaseRender {
         this._setRenderElements();
     }
 
-    _renderUpdate(context: RenderContext3D): void {
+    renderUpdate(context: RenderContext3D): void {
         this._mesh.morphTargetData && this._applyMorphdata();
         if (this._renderElements.length == 1) {
             this._renderElements[0]._renderElementOBJ._isRender = this._renderElements[0]._geometry._prepareRender(context);

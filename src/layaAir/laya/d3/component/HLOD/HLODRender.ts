@@ -64,7 +64,7 @@ export class HLODRender extends BaseRender {
      * change Render Mesh
      */
     private _changeMesh(lodMesh: HLODBatchMesh) {
-        var defineDatas: ShaderData = this._shaderValues;
+        var defineDatas: ShaderData = this._baseRenderNode.shaderData;
         this.boundsChange = true;
         let meshDefines = MeshFilter._meshVerticeDefine;
         if (this.curHLODRS) {
@@ -92,7 +92,7 @@ export class HLODRender extends BaseRender {
      */
     _applyLightMapParams() {
         if (!this._scene) return;
-        var shaderValues = this._shaderValues;
+        var shaderValues = this._baseRenderNode.shaderData;
         var lightMap = this._curHLODRS.lightmap;
         if (lightMap && lightMap.lightmapColor) {
             shaderValues.setTexture(RenderableSprite3D.LIGHTMAP, lightMap.lightmapColor);
@@ -136,17 +136,17 @@ export class HLODRender extends BaseRender {
     _renderUpdate(context: RenderContext3D, transform: Transform3D): void {
         this._applyLightMapParams();
         // // todo 若有根节点, 在这里更新 worldmatrix
-        this._setShaderValue(Sprite3D.WORLDMATRIX, ShaderDataType.Matrix4x4, this._transform.worldMatrix);
+        this._baseRenderNode.shaderData.setMatrix4x4(Sprite3D.WORLDMATRIX, this._transform.worldMatrix);
     }
 
     _needRender(boundFrustum: BoundFrustum, context: RenderContext3D): boolean {
-        if (boundFrustum){
-            if(boundFrustum.intersects(this.bounds)){
+        if (boundFrustum) {
+            if (boundFrustum.intersects(this.bounds)) {
                 let hodMesh = this.curHLODRS.HLODMesh.drawSubMeshs;
-                let lodbatchMesh =this._curHLODRS.HLODMesh.batchSubMeshInfo;
+                let lodbatchMesh = this._curHLODRS.HLODMesh.batchSubMeshInfo;
                 hodMesh.length = 0;
-                for(let i = 0,n = this._curSubBatchMeshBounds.length;i<n;i++){
-                    if(boundFrustum.intersects(this._curSubBatchMeshBounds[i])){
+                for (let i = 0, n = this._curSubBatchMeshBounds.length; i < n; i++) {
+                    if (boundFrustum.intersects(this._curSubBatchMeshBounds[i])) {
                         hodMesh.push(lodbatchMesh[i]);
                     }
                 }
@@ -154,7 +154,7 @@ export class HLODRender extends BaseRender {
                 // let position = context.camera.transform.position;
                 // let oriPisition = (this.owner as Sprite3D)
                 // hodMesh = hodMesh.sort((a,b)=>{
-                    
+
                 //     return 10;
                 // });
                 this._curHLODRS.HLODMesh.drawSubMeshs = hodMesh;
@@ -162,7 +162,7 @@ export class HLODRender extends BaseRender {
             }
             else
                 return false
-        }else{
+        } else {
             return true;
         }
     }

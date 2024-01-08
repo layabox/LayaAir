@@ -72,7 +72,7 @@ export class GLESBaseRenderNode implements IBaseRenderNode {
      * context3D:GLESRenderContext3D
      * @internal
      */
-    _renderUpdatePre: (context3D: GLESRenderContext3D) => void;//属性 
+    _renderUpdatePre: (context3D: IRenderContext3D) => void;//属性 
 
     _calculateBoundingBox: () => void;
 

@@ -1,37 +1,17 @@
 import { BaseCamera } from "../core/BaseCamera";
-import { Camera } from "../core/Camera";
 import { ShadowCascadesMode } from "../core/light/ShadowCascadesMode";
-import { ShadowMode } from "../core/light/ShadowMode";
 import { ShadowMapFormat, ShadowUtils } from "../core/light/ShadowUtils";
-import { RenderContext3D } from "../core/render/RenderContext3D";
-import { Scene3DShaderDeclaration } from "../core/scene/Scene3DShaderDeclaration";
-import { Plane } from "../math/Plane";
-import { Light, LightType } from "../core/light/Light";
-import { DirectionLightCom } from "../core/light/DirectionLightCom";
-import { Sprite3D } from "../core/Sprite3D";
 import { SpotLightCom } from "../core/light/SpotLightCom";
 import { Config3D } from "../../../Config3D";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
-import { ShaderData, ShaderDataType } from "../../RenderEngine/RenderShader/ShaderData";
+import { ShaderDataType } from "../../RenderEngine/RenderShader/ShaderData";
 import { UnifromBufferData } from "../../RenderEngine/UniformBufferData";
 import { UniformBufferObject } from "../../RenderEngine/UniformBufferObject";
-import { BoundFrustum } from "../math/BoundFrustum";
-import { ShadowSliceData, ShadowSpotData } from "./ShadowSliceData";
-import { RenderClearFlag } from "../../RenderEngine/RenderEnum/RenderClearFlag";
-import { Viewport } from "../math/Viewport";
-import { IShadowCullInfo } from "../../RenderEngine/RenderInterface/RenderPipelineInterface/IShadowCullInfo";
-import { FrustumCulling } from "../graphics/FrustumCulling";
 import { BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
-import { Stat } from "../../utils/Stat";
-import { ShadowLightType } from "./ShadowLightType";
 import { DepthCasterData } from "../depthMap/DepthCasterData";
-import { MathUtils3D } from "../../maths/MathUtils3D";
-import { Matrix4x4 } from "../../maths/Matrix4x4";
-import { Vector3 } from "../../maths/Vector3";
-import { Vector4 } from "../../maths/Vector4";
 import { RenderTexture } from "../../resource/RenderTexture";
-import { Scene3D } from "../core/scene/Scene3D";
 import { LayaGL } from "../../layagl/LayaGL";
+import { DirectionLightCom } from "../core/light/DirectionLightCom";
 
 /**
  * @internal
