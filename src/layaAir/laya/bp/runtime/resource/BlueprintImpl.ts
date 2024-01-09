@@ -21,6 +21,8 @@ export class BlueprintImpl extends Resource {
         return this._cls;
     }
 
+    public typeName:string;
+
     constructor(data: any, task: ILoadTask, version?: number) {
         super();
 
@@ -28,6 +30,7 @@ export class BlueprintImpl extends Resource {
         this.version = version;
         this.uuid = task.uuid;
         this.url = task.url;
+        this.typeName = this.uuid + "_propType";
         this.name = URL.getFileName(task.url);
         this.initClass();
     }
@@ -101,10 +104,12 @@ export class BlueprintImpl extends Resource {
         this._cls = cls;
         // }
         ClassUtils.regClass(this.uuid, this.cls);
+        ClassUtils.regClass(this.typeName, Object);
     }
 
     protected _disposeResource(): void {
         super._disposeResource();
         delete ClassUtils._classMap[this.uuid];
+        delete ClassUtils._classMap[this.typeName];
     }
 }
