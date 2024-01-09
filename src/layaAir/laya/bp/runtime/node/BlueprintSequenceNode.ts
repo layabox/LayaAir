@@ -14,10 +14,10 @@ export class BlueprintSequenceNode extends BlueprintComplexNode {
             if (pin) {
                 if(context.debuggerPause){
                     debugger;
-                    context.pushBack(pin.owner.index);
+                    context.pushBack(pin.owner);
                 }
                 else{
-                    runner.runByContext(context, pin.owner.index);
+                    runner.runByContext(context, pin.owner);
                 }
                 //item.excute(context);
             }

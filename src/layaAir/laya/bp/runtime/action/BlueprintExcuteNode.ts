@@ -4,6 +4,7 @@ import { BlueprintRuntimeBaseNode } from "../node/BlueprintRuntimeBaseNode";
 import { BlueprintRunBase } from "./BlueprintRunBase";
 import { IBPRutime } from "../interface/IBPRutime";
 import { RuntimeNodeData, RuntimePinData } from "./RuntimeNodeData";
+import { IExcuteListInfo } from "../../core/interface/IExcuteListInfo";
 
 export class BlueprintExcuteNode extends BlueprintRunBase implements IRunAble {
     owner: any;
@@ -51,7 +52,7 @@ export class BlueprintExcuteNode extends BlueprintRunBase implements IRunAble {
         }
     }
     debuggerPause: boolean;
-    pushBack(index: number): void {
+    pushBack(excuteNode: IExcuteListInfo): void {
         debugger;
         //throw new Error("Method not implemented.");
     }

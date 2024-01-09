@@ -1,3 +1,4 @@
+import { IExcuteListInfo } from "../../core/interface/IExcuteListInfo";
 import { RuntimeNodeData } from "../action/RuntimeNodeData";
 import { BlueprintPinRuntime } from "../BlueprintPinRuntime";
 import { BlueprintRuntimeBaseNode } from "../node/BlueprintRuntimeBaseNode";
@@ -6,7 +7,7 @@ import { IBPRutime } from "./IBPRutime";
 export interface IRunAble {
     debuggerPause:boolean;
 
-    pushBack(index:number):void;
+    pushBack(excuteNode:IExcuteListInfo):void;
 
     readonly vars: { [key: string]: any };
 

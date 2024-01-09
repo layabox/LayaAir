@@ -5,11 +5,11 @@ import { IRunAble } from "../interface/IRunAble";
 import { BlueprintFunNode } from "./BlueprintFunNode";
 
 export class BlueprintCustomFunNode extends BlueprintFunNode {
-    functionID: string;
+    functionID: number;
 
     protected onParseLinkData(node: TBPNode, manger: INodeManger<BlueprintFunNode>) {
         if (node.dataId) {
-            this.functionID = "";
+            this.functionID = 0;
             //this.eventName = (manger.dataMap[node.dataId] as TBPEventProperty).name;
         }
     }

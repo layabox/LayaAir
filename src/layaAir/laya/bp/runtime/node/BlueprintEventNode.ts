@@ -47,7 +47,6 @@ export class BlueprintEventNode extends BlueprintRuntimeBaseNode {
     emptyExcute(context: IRunAble, fromExcute: boolean, runner: IBPRutime, enableDebugPause: boolean, fromPin: BlueprintPinRuntime): number | BlueprintPromise {
         if (fromPin && fromPin.otype == "bpFun") {
             let data = context.getDataById(this.nid);
-            let cid = this.index;
             let _this = this;
             data.eventName = this.eventName;
             data.callFun = data.callFun || function () {
@@ -55,7 +54,7 @@ export class BlueprintEventNode extends BlueprintRuntimeBaseNode {
                 parms.forEach((value, index) => {
                     context.setPinData(_this.outPutParmPins[index], value);
                 })
-                runner.runByContext(context, cid, enableDebugPause);
+                runner.runByContext(context, _this, enableDebugPause);
             }
             context.setPinData(fromPin, data.callFun);
         }

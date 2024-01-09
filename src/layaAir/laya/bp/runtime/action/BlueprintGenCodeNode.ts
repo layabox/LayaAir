@@ -1,3 +1,4 @@
+import { IExcuteListInfo } from "../../core/interface/IExcuteListInfo";
 import { BlueprintPinRuntime } from "../BlueprintPinRuntime";
 import { IRunAble } from "../interface/IRunAble";
 import { BlueprintRuntimeBaseNode } from "../node/BlueprintRuntimeBaseNode";
@@ -15,7 +16,7 @@ export class BlueprintGenCodeNode extends BlueprintRunBase implements IRunAble {
         throw new Error("Method not implemented.");
     }
     debuggerPause: boolean;
-    pushBack(index: number): void {
+    pushBack(excuteNode: IExcuteListInfo): void {
         throw new Error("Method not implemented.");
     }
     getSelf() {
@@ -49,8 +50,8 @@ export class BlueprintGenCodeNode extends BlueprintRunBase implements IRunAble {
         }
         else {
             let code = "while(true){\n";
-            for (let i=index; i < this.codes.length; i++) {
-                code += this.codes[i].join('\n')+"\n";
+            for (let i = index; i < this.codes.length; i++) {
+                code += this.codes[i].join('\n') + "\n";
             }
             code += "}\n";
             this.blockMap.set(index, { end: this.codes.length - 1, code: code });
@@ -98,11 +99,11 @@ export class BlueprintGenCodeNode extends BlueprintRunBase implements IRunAble {
         for (let i = 0, n = this.codes.length; i < n; i++) {
             let m = this.blockMap.get(i);
             if (m) {
-                code+=m.code;
-                i=m.end;
+                code += m.code;
+                i = m.end;
             }
-            else{
-                code+=this.codes[i].join("\n")+"\n";
+            else {
+                code += this.codes[i].join("\n") + "\n";
             }
         }
         return code;

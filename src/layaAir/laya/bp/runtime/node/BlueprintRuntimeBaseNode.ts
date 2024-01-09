@@ -6,9 +6,17 @@ import { IRunAble } from "../interface/IRunAble";
 import { BlueprintPromise } from "../BlueprintPromise";
 import { BlueprintConst } from "../../core/BlueprintConst";
 import { IBPRutime } from "../interface/IBPRutime";
+import { IExcuteListInfo } from "../../core/interface/IExcuteListInfo";
 
-export class BlueprintRuntimeBaseNode extends BlueprintNode<BlueprintPinRuntime> {
+export class BlueprintRuntimeBaseNode extends BlueprintNode<BlueprintPinRuntime> implements IExcuteListInfo {
+    /**
+     * 在excuteAbleList中的索引
+     */
     index: number;
+    /**
+     * excuteAbleList 的 map索引
+     */
+    listIndex: number | Symbol;
     staticNext: BlueprintRuntimeBaseNode;//下一个节点
     private static _EMPTY: BlueprintPinRuntime[] = [];
     nativeFun: Function;
@@ -46,7 +54,7 @@ export class BlueprintRuntimeBaseNode extends BlueprintNode<BlueprintPinRuntime>
         return pin;
     }
 
-    protected excuteFun(context: IRunAble,caller:any,parmsArray: any[]) {
+    protected excuteFun(context: IRunAble, caller: any, parmsArray: any[]) {
         return context.excuteFun(this.nativeFun, this.outPutParmPins, caller, parmsArray);
     }
 
@@ -76,11 +84,12 @@ export class BlueprintRuntimeBaseNode extends BlueprintNode<BlueprintPinRuntime>
             if (this.isMember) {
                 caller = _parmsArray.shift() || context.getSelf();
             }
-            let result = this.excuteFun(context,caller,_parmsArray);
+            let result = this.excuteFun(context, caller, _parmsArray);
             if (result instanceof Promise) {
                 let promise = BlueprintPromise.create();
                 result.then((value) => {
-                    promise.curIndex = this.next(context, _parmsArray, runner);
+                    promise.index = this.next(context, _parmsArray, runner);
+                    promise.listIndex = this.listIndex;
                     promise.complete();
                     promise.recover();
                 })
