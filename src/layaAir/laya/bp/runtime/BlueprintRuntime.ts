@@ -105,8 +105,8 @@ export class BlueprintRuntime implements INodeManger<BlueprintRuntimeBaseNode>, 
         this.varMap = varMap;
         //pin create
         bpjson.forEach(item => {
-            let d = BlueprintFactory.instance.createNew(getCNodeByNode(item), item.id);
-            this.append(d);
+            let node = BlueprintFactory.instance.createNew(getCNodeByNode(item), item.id);
+            this.append(node);
         });
         // debugger;
 
@@ -119,8 +119,8 @@ export class BlueprintRuntime implements INodeManger<BlueprintRuntimeBaseNode>, 
 
     parseFunction(funId: string, bpjson: Array<TBPNode>, getCNodeByNode: (node: TBPNode) => TBPCNode) {
         bpjson.forEach(item => {
-            let d = BlueprintFactory.instance.createNew(getCNodeByNode(item), item.id);
-            this.append(d);
+            let node = BlueprintFactory.instance.createNew(getCNodeByNode(item), item.id);
+            this.append(node);
         });
         bpjson.forEach(item => {
             // debugger;
