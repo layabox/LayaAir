@@ -150,6 +150,23 @@ export class BlueprintFactory {
                         }
                     }
 
+                    get _bp_contextData(){
+                        let out:any = {}
+                        for (const key in this.bp.varMap) {
+                            let prop = this.bp.varMap[key];
+                            out[prop.name] = this.context.getVar(prop.name);
+                        }
+                        return out
+                    }
+
+                    set _bp_contextData(value:any){
+                        if (!value)
+                            return
+                        for (const key in value) {
+                            this.context.setVar(key,value[key]);
+                        }
+                    }
+
                     // onAwake() {
                     //     this.bp.run(this.context, "onAwake", null);
                     // }
@@ -166,6 +183,7 @@ export class BlueprintFactory {
         }
         bp.parse(bpjson, c, varMap);
         this.initEventFunc(parentName, newClass);
+        this.initClassHook(parentName, newClass);
         Object.defineProperty(newClass, 'name', { value: name });
 
         return newClass as unknown as T;
@@ -188,13 +206,18 @@ export class BlueprintFactory {
                     let funcName = func.name;
                     let originFunc: Function = cls.prototype[funcName];
                     eventList.push(funcName);
-                    cls.prototype[funcName] = function () {
-                        originFunc && originFunc.call(this, arguments);
-                        this.bp.run(this.context, funcName, Array.from(arguments));
+                    cls.prototype[funcName] = function (...args:any[]) {
+                        originFunc && originFunc.call(this, args);
+                        this.bp.run(this.context, funcName, args);
                     }
                 }
             }
         }
+    }
+
+    //给编辑时的钩子
+    static initClassHook(parent: string, cls: Function){
+        
     }
 
 
