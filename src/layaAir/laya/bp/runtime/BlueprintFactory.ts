@@ -112,7 +112,7 @@ export class BlueprintFactory {
     }
 
 
-    static createClsNew<T>(name: string, parentName: string, cls: T, data: TBPStageData, varMap: Record<string, TBPVarProperty>): T {
+    static createClsNew<T>(name: string, parentName: string, cls: T, data: TBPStageData, funs: TBPStageData[], varMap: Record<string, TBPVarProperty>): T {
         let bpjson: TBPNode[] = data.arr;
 
 
@@ -165,6 +165,9 @@ export class BlueprintFactory {
             return BlueprintUtil.getConstNode("Node", node, data) as TBPCNode;
         }
         bp.parse(bpjson, c, varMap);
+        funs.forEach(fun => {
+            bp.parseFunction(fun.id, fun.arr, c);
+        })
         this.initEventFunc(parentName, newClass);
         Object.defineProperty(newClass, 'name', { value: name });
 

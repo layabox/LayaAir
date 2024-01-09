@@ -5,14 +5,14 @@ import { URL } from "../../../net/URL";
 import { IHierarchyParserAPI } from "../../../resource/PrefabImpl";
 import { Resource } from "../../../resource/Resource";
 import { ClassUtils } from "../../../utils/ClassUtils";
-import { TBPEventProperty, TBPNode, TBPVarProperty } from "../../datas/types/BlueprintTypes";
+import { TBPEventProperty, TBPNode, TBPSaveData, TBPVarProperty } from "../../datas/types/BlueprintTypes";
 import { BlueprintFactory } from "../BlueprintFactory";
 
 export class BlueprintImpl extends Resource {
     public readonly version: number;
 
     /** @private */
-    public data: any;
+    public data: TBPSaveData;
 
     public state: -1 | 0 | 1 = 0;
     /** */
@@ -96,7 +96,7 @@ export class BlueprintImpl extends Resource {
             name: this.uuid,
             dataMap,
             arr
-        }, varMap);
+        }, this.data.functions, varMap);
 
         this._cls = cls;
         // }

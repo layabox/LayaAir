@@ -13,8 +13,8 @@ export enum BPType {
     Sequence = "sequence",
     NewTarget = "newtarget",
     CustomFun = "customFun",
-    CustomFunStart="customFunStart",
-    CustomFunReturn="customFunReturn"
+    CustomFunStart = "customFunStart",
+    CustomFunReturn = "customFunReturn"
 }
 
 export enum ComponentType {
@@ -29,6 +29,7 @@ export enum ComponentType {
 
 export interface TBPStageData {
     //events: string[],
+    id: number,
     name: string,
     uiData?: {
         /**场景的x坐标位置 */

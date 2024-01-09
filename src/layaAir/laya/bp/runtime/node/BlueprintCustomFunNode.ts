@@ -19,7 +19,8 @@ export class BlueprintCustomFunNode extends BlueprintFunNode {
         if (caller && caller.context) {
             return caller.bp.runCustomFun(caller.context, this.functionID, parmsArray);
         }
-        return context.excuteFun(this.nativeFun, this.outPutParmPins, caller, parmsArray);
+        return null;
+        //return context.excuteFun(this.nativeFun, this.outPutParmPins, caller, parmsArray);
     }
 
 
