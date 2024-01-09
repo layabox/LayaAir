@@ -236,4 +236,25 @@ export const BlueprintDataList: TBPCNode[] = [
             }
         ]
     },
+    {
+        name: "custom_fun",
+        menuPath: "none",
+        type: BPType.CustomFun,
+        input: [
+            {
+                name: "execute",
+                type: "exec",
+            },
+            {
+                name: "target",
+                type: "object",
+            },
+        ],
+        output: [
+            {
+                name: "then",
+                type: "exec"
+            },
+        ]
+    },
 ]
