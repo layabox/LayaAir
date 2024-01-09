@@ -23,14 +23,13 @@ export class BlueprintEventNode extends BlueprintRuntimeBaseNode {
         this.tryExcute = this.emptyExcute;
     }
 
-    parseLinkDataNew(node: TBPNode, manger: INodeManger<BlueprintRuntimeBaseNode>) {
+    protected onParseLinkData(node:TBPNode,manger: INodeManger<BlueprintEventNode>){
         if (node.dataId) {
             this.eventName = (manger.dataMap[node.dataId] as TBPEventProperty).name;
         }
         else {
             this.eventName = node.name;
         }
-        super.parseLinkDataNew(node, manger);
     }
 
     setFunction(fun: Function, isMember: boolean) {

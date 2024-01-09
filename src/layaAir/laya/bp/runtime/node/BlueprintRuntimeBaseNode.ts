@@ -46,8 +46,8 @@ export class BlueprintRuntimeBaseNode extends BlueprintNode<BlueprintPinRuntime>
         return pin;
     }
 
-    hookParam(context: IRunAble,parmsArray: any[]) {
-
+    protected excuteFun(context: IRunAble,caller:any,parmsArray: any[]) {
+        return context.excuteFun(this.nativeFun, this.outPutParmPins, caller, parmsArray);
     }
 
 
@@ -76,8 +76,7 @@ export class BlueprintRuntimeBaseNode extends BlueprintNode<BlueprintPinRuntime>
             if (this.isMember) {
                 caller = _parmsArray.shift() || context.getSelf();
             }
-            this.hookParam(context,_parmsArray);
-            let result = context.excuteFun(this.nativeFun, this.outPutParmPins, caller, _parmsArray);
+            let result = this.excuteFun(context,caller,_parmsArray);
             if (result instanceof Promise) {
                 let promise = BlueprintPromise.create();
                 result.then((value) => {

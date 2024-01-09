@@ -10,8 +10,8 @@ import { BlueprintRuntimeBaseNode } from "./BlueprintRuntimeBaseNode";
 export class BlueprintNewTargetNode extends BlueprintRuntimeBaseNode {
     cls: ClassDecorator;
 
-    parseNew(def: TBPCNode) {
-        super.parseNew(def);
+    parse(def: TBPCNode) {
+        super.parse(def);
         let arr = def.target.split(".");
         if (arr.length == 1) {
             this.cls = ClassUtils.getClass(arr[0]);

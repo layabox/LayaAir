@@ -32,7 +32,7 @@ export abstract class BlueprintNode<T extends BlueprintPin>{
         this.pins.push(pin);
     }
 
-    parseNew(def: TBPCNode) {
+    parse(def: TBPCNode) {
         this.name = def.name;
         //this.id = def.id;
         let type: EBlueNodeType;
@@ -94,7 +94,8 @@ export abstract class BlueprintNode<T extends BlueprintPin>{
     //     }
     // }
 
-    parseLinkDataNew(node: TBPNode, manger: INodeManger<BlueprintNode<T>>) {
+    parseLinkData(node: TBPNode, manger: INodeManger<BlueprintNode<T>>) {
+        this.onParseLinkData(node, manger);
         if (node.input) {//输入pin
             for (const key in node.input) {
                 let pin = this.getPinByName(key);
@@ -119,6 +120,10 @@ export abstract class BlueprintNode<T extends BlueprintPin>{
                 }
             }
         }
+    }
+
+    protected onParseLinkData(node: TBPNode, manger: INodeManger<BlueprintNode<T>>) {
+
     }
 
 

@@ -201,7 +201,7 @@ export class BlueprintFactory {
         let cls = BlueprintFactory._bpNewMap.get(config.type);
         let result = new cls();
         result.nid = id;
-        result.parseNew(config);
+        result.parse(config);
         return result;
     }
 }

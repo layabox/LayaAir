@@ -20,29 +20,30 @@ export class BlueprintFunNode extends BlueprintRuntimeBaseNode {
      */
     outExcute: BlueprintPinRuntime;
 
-    eventName:string;
+    eventName: string;
 
-    constructor(){
+    constructor() {
         super();
-        this.tryExcute=this.emptyExcute;
+        this.tryExcute = this.emptyExcute;
     }
 
-    emptyExcute(context: IRunAble, fromExcute: boolean,runner:IBPRutime,enableDebugPause:boolean): number| BlueprintPromise{
+    emptyExcute(context: IRunAble, fromExcute: boolean, runner: IBPRutime, enableDebugPause: boolean): number | BlueprintPromise {
         return BlueprintConst.MAX_CODELINE;
     }
 
-    parseLinkDataNew(node: TBPNode, manger: INodeManger<BlueprintRuntimeBaseNode>) {
+    protected onParseLinkData(node: TBPNode, manger: INodeManger<BlueprintRuntimeBaseNode>) {
         if (node.dataId) {
             this.eventName = (manger.dataMap[node.dataId] as TBPEventProperty).name;
-            this.hookParam=this.hookParamEventName;
+            this.excuteFun = this.excuteHookFun;
         }
-        super.parseLinkDataNew(node, manger);
-    }
-    hookParamEventName(context: IRunAble,parmsArray: any[]){
-        parmsArray.unshift(this.eventName);
     }
 
-    setType(type: EBlueNodeType){
+    private excuteHookFun(context: IRunAble, caller: any, parmsArray: any[]) {
+        parmsArray.unshift(this.eventName);
+        return context.excuteFun(this.nativeFun, this.outPutParmPins, caller, parmsArray);
+    }
+
+    setType(type: EBlueNodeType) {
         super.setType(type);
         // this.addInput(BPNode.ExecInput);
         // this.addOutput(BPNode.ExecOutput);

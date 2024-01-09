@@ -83,7 +83,7 @@ export class BlueprintRuntime implements INodeManger<BlueprintRuntimeBaseNode>, 
 
         bpjson.forEach(item => {
             // debugger;
-            this.getNodeById(item.id).parseLinkDataNew(item, this);
+            this.getNodeById(item.id).parseLinkData(item, this);
         });
         this.optimize();
     }

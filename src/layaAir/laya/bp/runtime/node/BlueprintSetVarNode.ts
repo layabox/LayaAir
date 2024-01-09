@@ -13,13 +13,12 @@ export class BlueprintSetVarNode extends BlueprintFunNode {
     constructor() {
         super();
     }
-
-
-    parseLinkDataNew(node: TBPNode, manger: INodeManger<BlueprintRuntimeBaseNode>) {
+    
+    protected onParseLinkData(node: TBPNode, manger: INodeManger<BlueprintRuntimeBaseNode>) {
         let cfg = manger.dataMap[node.dataId];
         this._varKey = cfg ? cfg.name : BlueprintUtil.constAllVars[node.dataId].name;
-        super.parseLinkDataNew(node, manger);
     }
+    
     step(context: IRunAble, fromExcute: boolean, runner: IBPRutime, enableDebugPause: boolean): number {
         let _parmsArray: any[] = context.getDataById(this.nid).parmsArray;
         _parmsArray.length = 0;
