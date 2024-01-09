@@ -1,8 +1,6 @@
 import { Laya } from "Laya";
-import { Laya3D } from "Laya3D";
 import { Camera } from "laya/d3/core/Camera"
 import { Sprite3D } from "laya/d3/core/Sprite3D"
-import { DirectionLight } from "laya/d3/core/light/DirectionLight"
 import { Scene3D } from "laya/d3/core/scene/Scene3D"
 import { Stage } from "laya/display/Stage"
 import { Text } from "laya/display/Text"
@@ -42,10 +40,12 @@ export class MultiTouch {
 		//旋转相机
 		camera.transform.rotate(new Vector3(-15, 0, 0), true, false);
 
-		//创建平行光
-		var directionLight: DirectionLight = (<DirectionLight>scene.addChild(new DirectionLight()));
+		let directionLight = new Sprite3D();
+		let dircom = directionLight.addComponent(DirectionLightCom);
+		scene.addChild(directionLight);
+
 		//设置平行光颜色
-		directionLight.color = new Color(0.6, 0.6, 0.6, 1);
+		dircom.color = new Color(0.6, 0.6, 0.6, 1);
 
 		//加载小猴子精灵
 		var monkey: Sprite3D = Loader.createNodes("res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh");
@@ -76,6 +76,7 @@ import { InputManager } from "laya/events/InputManager";
 import { Color } from "laya/maths/Color";
 import { Vector2 } from "laya/maths/Vector2";
 import { Vector3 } from "laya/maths/Vector3";
+import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
 
 class MonkeyScript extends Script {
 

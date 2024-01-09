@@ -1,11 +1,8 @@
 
 import { Laya } from "Laya";
 import { Stage } from "laya/display/Stage";
-import { Laya3D } from "Laya3D";
 import { Camera } from "laya/d3/core/Camera";
 import { LightSprite } from "laya/d3/core/light/LightSprite";
-import { PointLight } from "laya/d3/core/light/PointLight";
-import { SpotLight } from "laya/d3/core/light/SpotLight";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Transform3D } from "laya/d3/core/Transform3D";
 import { Handler } from "laya/utils/Handler";
@@ -14,10 +11,13 @@ import { Stat } from "laya/utils/Stat";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { Script } from "laya/components/Script";
 import { Vector3 } from "laya/maths/Vector3";
+import { Sprite3D } from "laya/d3/core/Sprite3D";
+import { PointLightCom } from "laya/d3/core/light/PointLightCom";
+import { SpotLightCom } from "laya/d3/core/light/SpotLightCom";
 
 class LightMoveScript extends Script {
 	forward: Vector3 = new Vector3();
-	lights: LightSprite[] = [];
+	lights: Sprite3D[] = [];
 	offsets: Vector3[] = [];
 	moveRanges: Vector3[] = [];
 
@@ -51,27 +51,33 @@ export class MultiLight {
 				camera.transform.localPosition = new Vector3(8.937199060699333, 61.364798067809126, -66.77836086472654);
 
 				var moveScript: LightMoveScript = camera.addComponent(LightMoveScript);
-				var moverLights: LightSprite[] = moveScript.lights;
+				var moverLights: Sprite3D[] = moveScript.lights;
 				var offsets: Vector3[] = moveScript.offsets;
 				var moveRanges: Vector3[] = moveScript.moveRanges;
 				moverLights.length = 15;
 				for (var i: number = 0; i < 15; i++) {
-					var pointLight: PointLight = (<PointLight>scene.addChild(new PointLight()));
-					pointLight.range = 2.0 + Math.random() * 8.0;
-					pointLight.color.setValue(Math.random(), Math.random(), Math.random(), 1);
-					pointLight.intensity = 6.0 + Math.random() * 8;
-					moverLights[i] = pointLight;
-					offsets[i] = new Vector3((Math.random() - 0.5) * 10, pointLight.range * 0.75, (Math.random() - 0.5) * 10);
+
+					let pointlightSprite = new Sprite3D();
+					let pointcom = pointlightSprite.addComponent(PointLightCom);
+					scene.addChild(pointlightSprite);
+
+					pointcom.range = 2.0 + Math.random() * 8.0;
+					pointcom.color.setValue(Math.random(), Math.random(), Math.random(), 1);
+					pointcom.intensity = 6.0 + Math.random() * 8;
+					moverLights[i] = pointlightSprite;
+					offsets[i] = new Vector3((Math.random() - 0.5) * 10, pointcom.range * 0.75, (Math.random() - 0.5) * 10);
 					moveRanges[i] = new Vector3((Math.random() - 0.5) * 40, 0, (Math.random() - 0.5) * 40);
 				}
+				let spotLight = new Sprite3D();
+				let spotCom = spotLight.addComponent(SpotLightCom);
+				scene.addChild(spotLight);
 
-				var spotLight: SpotLight = (<SpotLight>scene.addChild(new SpotLight()));
 				spotLight.transform.localPosition = new Vector3(0.0, 9.0, -35.0);
 				spotLight.transform.localRotationEuler = new Vector3(-15.0, 180.0, 0.0);
-				spotLight.color.setValue(Math.random(), Math.random(), Math.random(), 1);
-				spotLight.range = 50;
-				spotLight.intensity = 15;
-				spotLight.spotAngle = 60;
+				spotCom.color.setValue(Math.random(), Math.random(), Math.random(), 1);
+				spotCom.range = 50;
+				spotCom.intensity = 15;
+				spotCom.spotAngle = 60;
 			}));
 		});
 

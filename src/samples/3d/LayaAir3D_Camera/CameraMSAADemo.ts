@@ -1,6 +1,5 @@
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
-import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
@@ -18,6 +17,7 @@ import { CameraMoveScript } from "../common/CameraMoveScript";
 import { Event } from "laya/events/Event";
 import { Matrix4x4 } from "laya/maths/Matrix4x4";
 import { Vector3 } from "laya/maths/Vector3";
+import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
 
 /**
  * ...
@@ -54,9 +54,12 @@ export class CameraMSAADemo {
         camera.transform.rotate(new Vector3(-15, 0, 0), true, false);
         camera.addComponent(CameraMoveScript);
         this.camera = camera;
-        var directionLight: DirectionLight = (<DirectionLight>this.scene.addChild(new DirectionLight()));
+        let directionLight = new Sprite3D();
+        let dircom = directionLight.addComponent(DirectionLightCom);
+        this.scene.addChild(directionLight);
+
         //方向光的颜色
-        directionLight.color.setValue(0.5, 0.5, 0.5, 1);
+        dircom.color.setValue(0.5, 0.5, 0.5, 1);
         //设置平行光的方向
         var mat: Matrix4x4 = directionLight.transform.worldMatrix;
         mat.setForward(new Vector3(-1.0, -1.0, -1.0));

@@ -1,6 +1,6 @@
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
-import { DirectionLight } from "laya/d3/core/light/DirectionLight";
+import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
 import { MeshRenderer } from "laya/d3/core/MeshRenderer";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
@@ -33,12 +33,15 @@ export class BlinnPhong_NormalMap {
 			camera.transform.translate(new Vector3(0, 0.6, 1.1));
 			camera.transform.rotate(new Vector3(-30, 0, 0), true, false);
 
-			var directionLight: DirectionLight = (<DirectionLight>this.scene.addChild(new DirectionLight()));
+			let directlightSprite = new Sprite3D();
+			let dircom = directlightSprite.addComponent(DirectionLightCom);
+			this.scene.addChild(directlightSprite);
+
 			//设置平行光的方向
-			var mat: Matrix4x4 = directionLight.transform.worldMatrix;
+			var mat: Matrix4x4 = directlightSprite.transform.worldMatrix;
 			mat.setForward(new Vector3(0.0, -0.8, -1.0));
-			directionLight.transform.worldMatrix = mat;
-			directionLight.color.setValue(1, 1, 1, 1);
+			directlightSprite.transform.worldMatrix = mat;
+			dircom.color.setValue(1, 1, 1, 1);
 
 			Laya.loader.load("res/threeDimen/staticModel/lizard/lizard.lh", Handler.create(this, this.onComplete), null, Loader.HIERARCHY);
 		});

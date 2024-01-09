@@ -1,6 +1,5 @@
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
-import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { Material } from "laya/resource/Material";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
@@ -11,6 +10,8 @@ import { Vector3 } from "laya/maths/Vector3";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
+import { Sprite3D } from "laya/d3/core/Sprite3D";
+import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
 
 /**
  * ...
@@ -32,8 +33,12 @@ export class BlinnPhongMaterialLoad {
 			camera.transform.translate(new Vector3(0, 0.9, 1.5));
 			camera.transform.rotate(new Vector3(-15, 0, 0), true, false);
 
-			var directionLight: DirectionLight = (<DirectionLight>scene.addChild(new DirectionLight()));
-			directionLight.color.setValue(0.6, 0.6, 0.6, 1);
+			//var directionLight: DirectionLight = (<DirectionLight>scene.addChild(new DirectionLight()));
+			//创建方向光
+			let directlightSprite = new Sprite3D();
+			let dircom = directlightSprite.addComponent(DirectionLightCom);
+			scene.addChild(directlightSprite);
+			dircom.color.setValue(0.6, 0.6, 0.6, 1);
 
 			Mesh.load("res/threeDimen/skinModel/LayaMonkey/Assets/LayaMonkey/LayaMonkey-LayaMonkey.lm", Handler.create(this, function (mesh: Mesh): void {
 				var layaMonkey: MeshSprite3D = (<MeshSprite3D>scene.addChild(new MeshSprite3D(mesh)));

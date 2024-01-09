@@ -1,6 +1,6 @@
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
-import { DirectionLight } from "laya/d3/core/light/DirectionLight";
+import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
@@ -54,8 +54,11 @@ export class PhysicsWorld_BuildingBlocks {
 			this.camera.transform.translate(new Vector3(4.5, 6, 4.5));
 			this.camera.transform.rotate(new Vector3(-30, 45, 0), true, false);
 
-			var directionLight: DirectionLight = (<DirectionLight>this.scene.addChild(new DirectionLight()));
-			directionLight.color = new Color(1, 1, 1, 1);
+			let directionLight = new Sprite3D();
+			let dircom = directionLight.addComponent(DirectionLightCom);
+			this.scene.addChild(directionLight);
+		
+			dircom.color = new Color(1, 1, 1, 1);
 			var mat: Matrix4x4 = directionLight.transform.worldMatrix;
 			mat.setForward(new Vector3(-1.0, -1.0, 1.0));
 			directionLight.transform.worldMatrix = mat;

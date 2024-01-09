@@ -1,6 +1,5 @@
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
-import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
 import { Stage } from "laya/display/Stage";
@@ -15,6 +14,7 @@ import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import Client from "../../Client";
 import { CameraMoveScript } from "../common/CameraMoveScript";
+import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
 
 export class Sprite3DParent {
 	private sprite3D: Sprite3D;
@@ -51,9 +51,11 @@ export class Sprite3DParent {
 			camera.addComponent(CameraMoveScript);
 
 			//添加光照
-			var directionLight: DirectionLight = (<DirectionLight>this.scene.addChild(new DirectionLight()));
-			directionLight.color = new Color(1, 1, 1, 1);
-			directionLight.transform.rotate(new Vector3(-3.14 / 3, 0, 0));
+			let directlightSprite = new Sprite3D();
+			let dircom = directlightSprite.addComponent(DirectionLightCom);
+			this.scene.addChild(directlightSprite);
+			dircom.color = new Color(1, 1, 1, 1);
+			directlightSprite.transform.rotate(new Vector3(-3.14 / 3, 0, 0));
 
 			//预加载所有资源
 			var resource: any[] = ["res/threeDimen/skinModel/LayaMonkey2/LayaMonkey.lh", "res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh"];

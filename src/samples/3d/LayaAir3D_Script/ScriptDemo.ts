@@ -1,6 +1,5 @@
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
-import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
@@ -14,6 +13,8 @@ import { PBRStandardMaterial } from "laya/d3/core/material/PBRStandardMaterial";
 import { Color } from "laya/maths/Color";
 import { Matrix4x4 } from "laya/maths/Matrix4x4";
 import { Vector3 } from "laya/maths/Vector3";
+import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
+import { Sprite3D } from "laya/d3/core/Sprite3D";
 
 export class ScriptDemo {
     private _translate: Vector3 = new Vector3(0, 3, 3);
@@ -37,15 +38,17 @@ export class ScriptDemo {
             camera.transform.translate(this._translate);
             //旋转摄影机方向
             camera.transform.rotate(this._rotation, true, false);
-            //添加方向光
-            var directionLight: DirectionLight = (<DirectionLight>scene.addChild(new DirectionLight()));
+            //创建方向光
+            let directlightSprite = new Sprite3D();
+            let dircom = directlightSprite.addComponent(DirectionLightCom);
+            scene.addChild(directlightSprite);
             //设置灯光漫反射颜色
-            var lightColor: Color = directionLight.color;
+            var lightColor: Color = dircom.color;
             lightColor.setValue(0.6, 0.6, 0.6, 1);
             //设置平行光的方向
-            var mat: Matrix4x4 = directionLight.transform.worldMatrix;
+            var mat: Matrix4x4 = directlightSprite.transform.worldMatrix;
             mat.setForward(this._forward);
-            directionLight.transform.worldMatrix = mat;
+            directlightSprite.transform.worldMatrix = mat;
             //添加自定义模型
             var box: MeshSprite3D = (<MeshSprite3D>scene.addChild(new MeshSprite3D(PrimitiveMesh.createBox(1, 1, 1), "MOs")));
             //设置模型的旋转

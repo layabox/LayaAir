@@ -1,6 +1,6 @@
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
-import { DirectionLight } from "laya/d3/core/light/DirectionLight";
+import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
 import { Stage } from "laya/display/Stage";
@@ -9,7 +9,6 @@ import { Vector4 } from "laya/maths/Vector4";
 import { Image } from "laya/ui/Image";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
-import { Laya3D } from "Laya3D";
 
 export class D3SpaceToD2Space {
 
@@ -40,9 +39,10 @@ export class D3SpaceToD2Space {
 			this.camera.transform.translate(this._translate);
 			this.camera.transform.rotate(this._rotation, true, false);
 
-			//创建平行光
-			var directionLight: DirectionLight = (<DirectionLight>this.scene.addChild(new DirectionLight()));
-
+			//方向光
+			let directlightSprite = new Sprite3D();
+			let dircom = directlightSprite.addComponent(DirectionLightCom);
+			this.scene.addChild(directlightSprite);
 			var completeHandler: Handler = Handler.create(this, this.onComplete);
 
 			Laya.loader.load("res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh", completeHandler);

@@ -1,6 +1,5 @@
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
-import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Mesh } from "laya/d3/resource/models/Mesh";
@@ -14,6 +13,8 @@ import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { MultiplePassOutlineMaterial } from "./customMaterials/MultiplePassOutlineMaterial";
+import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
+import { Sprite3D } from "laya/d3/core/Sprite3D";
 
 export class Shader_MultiplePassOutline {
 	private rotation: Vector3 = new Vector3(0, 0.01, 0);
@@ -35,9 +36,10 @@ export class Shader_MultiplePassOutline {
 			camera.addComponent(CameraMoveScript);
 
 			//创建平行光
-			var directionLight: DirectionLight = new DirectionLight();
-			scene.addChild(directionLight);
-			directionLight.color = new Color(1, 1, 1, 1);
+			let directlightSprite = new Sprite3D();
+			let dircom = directlightSprite.addComponent(DirectionLightCom);
+			scene.addChild(directlightSprite);
+			dircom.color = new Color(1, 1, 1, 1);
 			Mesh.load("res/threeDimen/skinModel/LayaMonkey/Assets/LayaMonkey/LayaMonkey-LayaMonkey.lm", Handler.create(this, function (mesh: Mesh): void {
 				var layaMonkey: MeshSprite3D = (<MeshSprite3D>scene.addChild(new MeshSprite3D(mesh)));
 				layaMonkey.transform.localScale = new Vector3(0.3, 0.3, 0.3);

@@ -1,6 +1,5 @@
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
-import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
 import { Stage } from "laya/display/Stage";
@@ -11,7 +10,6 @@ import { Button } from "laya/ui/Button";
 import { Browser } from "laya/utils/Browser";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
-import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { AnimatorStateScriptTest } from "../common/AnimatorStateScriptTest";
 import Client from "../../Client";
@@ -20,6 +18,7 @@ import { AnimatorState } from "laya/d3/component/Animator/AnimatorState";
 import { Color } from "laya/maths/Color";
 import { Matrix4x4 } from "laya/maths/Matrix4x4";
 import { Vector3 } from "laya/maths/Vector3";
+import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
 
 /**
  * ...
@@ -72,12 +71,14 @@ export class AnimatorStateScriptDemo {
 		camera.transform.translate(this._translate);
 		camera.transform.rotate(this._rotation, true, false);
 		camera.addComponent(CameraMoveScript);
+		let directlightSprite = new Sprite3D();
+		let dircom = directlightSprite.addComponent(DirectionLightCom);
+		this.scene.addChild(directlightSprite);
 
-		var directionLight: DirectionLight = (<DirectionLight>this.scene.addChild(new DirectionLight()));
 		//设置平行光的方向
-		var mat: Matrix4x4 = directionLight.transform.worldMatrix;
+		var mat: Matrix4x4 = directlightSprite.transform.worldMatrix;
 		mat.setForward(this._forward);
-		directionLight.transform.worldMatrix = mat;
+		directlightSprite.transform.worldMatrix = mat;
 
 		//初始化角色精灵
 		var role: Sprite3D = (<Sprite3D>this.scene.addChild(new Sprite3D()));

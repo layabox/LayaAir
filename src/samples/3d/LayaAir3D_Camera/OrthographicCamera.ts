@@ -1,13 +1,12 @@
 import { Laya } from "Laya";
 import { Camera, CameraClearFlags } from "laya/d3/core/Camera";
-import { DirectionLight } from "laya/d3/core/light/DirectionLight";
+import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
 import { Stage } from "laya/display/Stage";
 import { Vector3 } from "laya/maths/Vector3";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
-import { Laya3D } from "Laya3D";
 
 export class OrthographicCamera {
 
@@ -33,7 +32,10 @@ export class OrthographicCamera {
 			camera.clearFlag = CameraClearFlags.SolidColor;
 			//正交投影垂直矩阵尺寸
 			camera.orthographicVerticalSize = 10;
-			var directionLight: DirectionLight = (<DirectionLight>scene.addChild(new DirectionLight()));
+
+			let directlightSprite = new Sprite3D();
+			let dircom = directlightSprite.addComponent(DirectionLightCom);
+			scene.addChild(directlightSprite);
 			Sprite3D.load("res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh", Handler.create(this, function (layaMonkey: Sprite3D): void {
 				scene.addChild(layaMonkey);
 				layaMonkey.transform.localScale = new Vector3(10, 10, 10);

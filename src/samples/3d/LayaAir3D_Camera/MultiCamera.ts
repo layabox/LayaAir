@@ -1,6 +1,5 @@
 import { Laya } from "Laya";
 import { Camera, CameraClearFlags } from "laya/d3/core/Camera";
-import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { Material } from "laya/resource/Material";
 import { SkyBoxMaterial } from "laya/d3/core/material/SkyBoxMaterial";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
@@ -15,6 +14,7 @@ import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
+import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
 
 /**
  * ...
@@ -59,8 +59,10 @@ export class MultiCamera {
 			}));
 
 			//添加平行光
-			var directionLight: DirectionLight = (<DirectionLight>scene.addChild(new DirectionLight()));
 
+			let directlightSprite = new Sprite3D();
+			let dircom = directlightSprite.addComponent(DirectionLightCom);
+			scene.addChild(directlightSprite);
 			//加载资源
 			Sprite3D.load("res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh", Handler.create(this, function (sp: Sprite3D): void {
 				var layaMonkey: Sprite3D = (<Sprite3D>scene.addChild(sp));

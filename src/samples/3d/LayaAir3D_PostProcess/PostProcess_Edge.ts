@@ -1,11 +1,9 @@
 import { Laya } from "Laya";
-import { Laya3D } from "Laya3D";
 import { Stage } from "laya/display/Stage";
 import { Stat } from "laya/utils/Stat";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Handler } from "laya/utils/Handler";
 import { Camera } from "laya/d3/core/Camera";
-import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { CameraMoveScript } from "../../3d/common/CameraMoveScript";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
@@ -14,7 +12,6 @@ import { Sprite3D } from "laya/d3/core/Sprite3D";
 import { Loader } from "laya/net/Loader";
 import { HSlider } from "laya/ui/HSlider";
 import { Button } from "laya/ui/Button";
-import { DepthTextureMode } from "laya/d3/depthMap/DepthPass";
 import { EdgeEffect, EdgeMode } from "./PostProcess_Edge/EdgeEffect";
 import { Browser } from "laya/utils/Browser";
 import { Event } from "laya/events/Event";
@@ -23,6 +20,8 @@ import { Color } from "laya/maths/Color";
 import { Matrix4x4 } from "laya/maths/Matrix4x4";
 import { Quaternion } from "laya/maths/Quaternion";
 import { Vector3 } from "laya/maths/Vector3";
+import { DepthTextureMode } from "laya/d3/RenderDriverLayer/Render3DProcess/IForwardAddClusterRP";
+import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
 
 export class PostProcess_Edge {
 
@@ -67,7 +66,7 @@ export class PostProcess_Edge {
         let cube: MeshSprite3D = new MeshSprite3D(PrimitiveMesh.createBox(1, 1, 1), "Cube");
         this.scene.addChild(cube);
         cube.transform.position = new Vector3(0, 3, 0);
-        
+
         this.camera.depthTextureMode |= DepthTextureMode.DepthNormals;
 
         let dude: Sprite3D = Loader.createNodes("res/threeDimen/skinModel/dude/dude.lh");
@@ -91,12 +90,14 @@ export class PostProcess_Edge {
         for (let index = 0; index < dirLightDirections.length; index++) {
             let dir: Vector3 = dirLightDirections[index];
             Vector3.normalize(dir, dirLightDirections[index]);
-            let dirLight: DirectionLight = new DirectionLight();
-            this.scene.addChild(dirLight);
-            var mat: Matrix4x4 = dirLight.transform.worldMatrix;
+
+            let directlightSprite = new Sprite3D();
+            let dircom = directlightSprite.addComponent(DirectionLightCom);
+            this.scene.addChild(directlightSprite);
+            var mat: Matrix4x4 = directlightSprite.transform.worldMatrix;
             mat.setForward(dirLightDirections[index]);
-            dirLight.transform.worldMatrix = mat;
-            dirLight.color = lightColor;
+            directlightSprite.transform.worldMatrix = mat;
+            dircom.color = lightColor;
         }
 
     }

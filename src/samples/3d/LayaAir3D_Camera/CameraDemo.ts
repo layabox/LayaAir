@@ -1,6 +1,5 @@
 import { Laya } from "Laya";
 import { Camera, CameraClearFlags } from "laya/d3/core/Camera";
-import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
 import { Material } from "laya/resource/Material";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
@@ -21,6 +20,7 @@ import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import Client from "../../Client";
 import { CameraMoveScript } from "../common/CameraMoveScript";
+import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
 
 
 /**
@@ -75,11 +75,13 @@ export class CameraDemo {
 		this.camera.addComponent(CameraMoveScript);
 		scene.addChild(this.camera);
 
-		//添加平行光
-		var directionLight: DirectionLight = (<DirectionLight>scene.addChild(new DirectionLight()));
+		let directlightSprite = new Sprite3D();
+		let dircom = directlightSprite.addComponent(DirectionLightCom);
+		scene.addChild(directlightSprite);
+		
 		//设置平行光颜色
-		directionLight.color.setValue(1, 1, 1, 1);
-		directionLight.transform.rotate(this._rotation2);
+		dircom.color.setValue(1, 1, 1, 1);
+		directlightSprite.transform.rotate(this._rotation2);
 
 		var sprite: Sprite3D = new Sprite3D;
 		scene.addChild(sprite);

@@ -1,8 +1,5 @@
 import { Laya } from "Laya";
-import { Animator } from "laya/d3/component/Animator/Animator";
-import { AnimatorState } from "laya/d3/component/Animator/AnimatorState";
 import { Camera } from "laya/d3/core/Camera";
-import { PointLight } from "laya/d3/core/light/PointLight";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
 import { Stage } from "laya/display/Stage";
@@ -13,6 +10,7 @@ import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
+import { PointLightCom } from "laya/d3/core/light/PointLightCom";
 
 /**
  * ...
@@ -43,12 +41,15 @@ export class PointLightDemo {
 			camera.addComponent(CameraMoveScript);
 
 			//创建点光源
-			var pointLight: PointLight = (<PointLight>scene.addChild(new PointLight()));
+			let pointLight = new Sprite3D();
+			let pointCom = pointLight.addComponent(PointLightCom);
+			scene.addChild(pointLight);
 			//点光源的颜色
-			pointLight.color = new Color(1.0, 0.5, 0.0, 1);
-			pointLight.transform.position = new Vector3(0.4, 0.4, 0.0);
+			pointCom.color = new Color(1.0, 0.5, 0.0, 1);
 			//设置点光源的范围
-			pointLight.range = 3.0;
+			pointCom.range = 3.0;
+			pointLight.transform.position = new Vector3(0.4, 0.4, 0.0);
+
 
 			//加载地面
 			Sprite3D.load("res/threeDimen/staticModel/grid/plane.lh", Handler.create(this, function (sprite: Sprite3D): void {

@@ -1,6 +1,5 @@
 import { Laya } from "Laya";
 import { Camera, CameraEventFlags } from "laya/d3/core/Camera";
-import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { CommandBuffer } from "laya/d3/core/render/command/CommandBuffer";
 import { DrawMeshInstancedCMD } from "laya/d3/core/render/command/DrawMeshInstancedCMD";
 import { InstanceLocation, MaterialInstancePropertyBlock } from "laya/d3/core/render/command/MaterialInstancePropertyBlock";
@@ -11,7 +10,6 @@ import { Button } from "laya/ui/Button";
 import { Browser } from "laya/utils/Browser";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
-import { Laya3D } from "Laya3D";
 import { Event } from "laya/events/Event";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { CustomInstanceMaterial } from "./DrawCustomInstanceDemo/CustomInstanceMaterial";
@@ -22,6 +20,8 @@ import { Matrix4x4 } from "laya/maths/Matrix4x4";
 import { Quaternion } from "laya/maths/Quaternion";
 import { Vector3 } from "laya/maths/Vector3";
 import { Vector4 } from "laya/maths/Vector4";
+import { Sprite3D } from "laya/d3/core/Sprite3D";
+import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
 
 export class CommandBuffer_DrawCustomInstance{
     mat:CustomInstanceMaterial;
@@ -65,13 +65,15 @@ export class CommandBuffer_DrawCustomInstance{
             this.mat = new CustomInstanceMaterial();
             //camera.enableHDR = true;
             //创建方向光
-            let directionLight: DirectionLight = (<DirectionLight>scene.addChild(new DirectionLight()));
+            let directlightSprite = new Sprite3D();
+			let dircom = directlightSprite.addComponent(DirectionLightCom);
+			scene.addChild(directlightSprite);
             //方向光的颜色
-            directionLight.color = new Color(1, 1, 1, 1);
+            dircom.color = new Color(1, 1, 1, 1);
             //设置平行光的方向
-            let mat: Matrix4x4 = directionLight.transform.worldMatrix;
+            let mat: Matrix4x4 = directlightSprite.transform.worldMatrix;
             mat.setForward(new Vector3(-1.0, -1.0, -1.0));
-            directionLight.transform.worldMatrix = mat;
+            directlightSprite.transform.worldMatrix = mat;
         
             //创建CommandBuffer命令流
             this.createCommandBuffer(camera);

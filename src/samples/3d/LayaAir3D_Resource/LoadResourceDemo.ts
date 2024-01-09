@@ -1,7 +1,6 @@
 import { Laya } from "Laya";
 import { AnimationClip } from "laya/d3/animation/AnimationClip";
 import { Camera, CameraClearFlags } from "laya/d3/core/Camera";
-import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
@@ -27,6 +26,7 @@ import { Quaternion } from "laya/maths/Quaternion";
 import { Event } from "laya/events/Event";
 import { Resource } from "laya/resource/Resource";
 import { SkyDome } from "laya/d3/resource/models/SkyDome";
+import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
 
 /**
  * ...
@@ -75,9 +75,11 @@ export class LoadResourceDemo {
 			//相机视角控制组件(脚本)
 			camera.addComponent(CameraMoveScript);
 			//添加光照
-			var directionLight: DirectionLight = (<DirectionLight>this._scene.addChild(new DirectionLight()));
-			directionLight.color = new Color(1, 1, 1, 1);
-			directionLight.transform.rotate(new Vector3(-1.14 / 3, 0, 0));
+			let directlightSprite = new Sprite3D();
+			let dircom = directlightSprite.addComponent(DirectionLightCom);
+			this._scene.addChild(directlightSprite);
+			dircom.color = new Color(1, 1, 1, 1);
+			directlightSprite.transform.rotate(new Vector3(-1.14 / 3, 0, 0));
 
 			//材质加载
 			Material.load("res/threeDimen/skyBox/skyBox2/skyBox2.lmat", Handler.create(this, (mat: Material) => {
@@ -185,10 +187,12 @@ export class LoadResourceDemo {
 		camera.addComponent(CameraMoveScript);
 
 		//添加光照
-		var directionLight: DirectionLight = (<DirectionLight>this._scene.addChild(new DirectionLight()));
+		let directlightSprite = new Sprite3D();
+		let dircom = directlightSprite.addComponent(DirectionLightCom);
+		this._scene.addChild(directlightSprite);
 		//光照颜色
-		directionLight.color = new Color(1, 1, 1, 1);
-		directionLight.transform.rotate(new Vector3(-3.14 / 3, 0, 0));
+		dircom.color = new Color(1, 1, 1, 1);
+		directlightSprite.transform.rotate(new Vector3(-3.14 / 3, 0, 0));
 
 		//使用材质
 		var skyboxMaterial: Material = <Material>Loader.getRes("res/threeDimen/skyBox/skyBox2/skyBox2.lmat");

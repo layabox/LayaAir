@@ -1,7 +1,5 @@
 import { Laya } from "Laya";
-import { BaseCamera } from "laya/d3/core/BaseCamera";
 import { Camera, CameraClearFlags } from "laya/d3/core/Camera";
-import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
@@ -18,6 +16,7 @@ import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import Client from "../../Client";
 import { CameraMoveScript } from "../common/CameraMoveScript";
+import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
 /**
  * ...
  * @author ...
@@ -38,9 +37,9 @@ export class CameraLookAt {
 	private _up: Vector3 = new Vector3(0, 1, 0);
 
 	/**实例类型*/
-	private btype:any = "CameraLookAt";
+	private btype: any = "CameraLookAt";
 	/**场景内按钮类型*/
-	private stype:any = 0;
+	private stype: any = 0;
 	constructor() {
 		//初始化引擎
 		Laya.init(0, 0).then(() => {
@@ -76,11 +75,13 @@ export class CameraLookAt {
 		this.camera.addComponent(CameraMoveScript);
 		scene.addChild(this.camera);
 
-		//添加平行光
-		var directionLight: DirectionLight = (<DirectionLight>scene.addChild(new DirectionLight()));
+		let directlightSprite = new Sprite3D();
+		let dircom = directlightSprite.addComponent(DirectionLightCom);
+		scene.addChild(directlightSprite);
+
 		//设置平行光颜色
-		directionLight.color.setValue(1, 1, 1, 1);
-		directionLight.transform.rotate(this._rotation2);
+		dircom.color.setValue(1, 1, 1, 1);
+		directlightSprite.transform.rotate(this._rotation2);
 
 		var sprite: Sprite3D = new Sprite3D;
 		scene.addChild(sprite);
@@ -128,7 +129,7 @@ export class CameraLookAt {
 
 		}));
 	}
-	stypeFun0(index:number = 0) {
+	stypeFun0(index: number = 0) {
 		this.index++;
 		if (this.index % 3 === 1) {
 			//摄像机捕捉模型目标
@@ -144,7 +145,7 @@ export class CameraLookAt {
 		}
 
 		index = this.index;
-		Client.instance.send({type:"next",btype:this.btype,stype:0,value:index})
+		Client.instance.send({ type: "next", btype: this.btype, stype: 0, value: index })
 	}
 
 }

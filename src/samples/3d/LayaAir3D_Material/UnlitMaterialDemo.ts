@@ -1,6 +1,5 @@
 import { Laya } from "Laya";
 import { Camera, CameraClearFlags } from "laya/d3/core/Camera";
-import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
 import { UnlitMaterial } from "laya/d3/core/material/UnlitMaterial";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
@@ -15,6 +14,8 @@ import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import { URL } from "laya/net/URL";
 import { Color } from "laya/maths/Color";
+import { Sprite3D } from "laya/d3/core/Sprite3D";
+import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
 /**
  * ...
  * @author ...
@@ -35,8 +36,11 @@ export class UnlitMaterialDemo {
 			camera.transform.rotate(new Vector3(-15, 0, 0), true, false);
 			camera.clearFlag = CameraClearFlags.Sky;
 
-			var directionLight: DirectionLight = (<DirectionLight>scene.addChild(new DirectionLight()));
-			directionLight.color.setValue(1, 1, 1, 1);
+			let directionLight = new Sprite3D();
+			let dircom = directionLight.addComponent(DirectionLightCom);
+			scene.addChild(directionLight);
+
+			dircom.color.setValue(1, 1, 1, 1);
 
 			//创建一个公用的sphereMesh
 			var sphereMesh: Mesh = PrimitiveMesh.createSphere();

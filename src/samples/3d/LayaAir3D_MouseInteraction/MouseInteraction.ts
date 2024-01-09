@@ -1,7 +1,6 @@
 import { Laya } from "Laya";
 import { Script } from "laya/components/Script";
 import { Camera } from "laya/d3/core/Camera";
-import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
 import { MeshFilter } from "laya/d3/core/MeshFilter";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
@@ -25,6 +24,7 @@ import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { Event } from "laya/events/Event";
+import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
 
 
 /**
@@ -61,8 +61,12 @@ export class MouseInteraction {
 			this._camera.addComponent(CameraMoveScript);
 
 			//添加光照
-			var directionLight: DirectionLight = (<DirectionLight>this._scene.addChild(new DirectionLight()));
-			directionLight.color = new Color(1, 1, 1, 1);
+			//添加平行光
+			let directionLight = new Sprite3D();
+			let dircom = directionLight.addComponent(DirectionLightCom);
+			this._scene.addChild(directionLight);
+			// var directionLight: DirectionLight = (<DirectionLight>this._scene.addChild(new DirectionLight()));
+			dircom.color = new Color(1, 1, 1, 1);
 			directionLight.transform.rotate(new Vector3(-3.14 / 3, 0, 0));
 
 			//批量预加载资源

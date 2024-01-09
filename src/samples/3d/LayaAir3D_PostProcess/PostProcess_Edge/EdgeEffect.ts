@@ -5,7 +5,6 @@ import EdgeEffectFS from "./shader/EdgeEffectFS.fs";
 import { CommandBuffer } from "laya/d3/core/render/command/CommandBuffer";
 import { Viewport } from "laya/d3/math/Viewport";
 import { Camera } from "laya/d3/core/Camera";
-import { DepthTextureMode } from "laya/d3/depthMap/DepthPass";
 import { FilterMode } from "laya/RenderEngine/RenderEnum/FilterMode";
 import { RenderTargetFormat } from "laya/RenderEngine/RenderEnum/RenderTargetFormat";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
@@ -18,6 +17,7 @@ import { SubShader } from "laya/RenderEngine/RenderShader/SubShader";
 import { ShaderPass } from "laya/RenderEngine/RenderShader/ShaderPass";
 import { VertexMesh } from "laya/RenderEngine/RenderShader/VertexMesh";
 import { LayaGL } from "laya/layagl/LayaGL";
+import { DepthTextureMode } from "laya/d3/RenderDriverLayer/Render3DProcess/IForwardAddClusterRP";
 
 export enum EdgeMode {
     ColorEdge = 0,

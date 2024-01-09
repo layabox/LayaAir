@@ -1,9 +1,10 @@
 import { Laya } from "Laya";
 import { Camera, CameraClearFlags } from "laya/d3/core/Camera";
-import { DirectionLight } from "laya/d3/core/light/DirectionLight";
+import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
+import { Sprite3D } from "laya/d3/core/Sprite3D";
 import { Mesh } from "laya/d3/resource/models/Mesh";
 import { PrimitiveMesh } from "laya/d3/resource/models/PrimitiveMesh";
 import { Stage } from "laya/display/Stage";
@@ -31,8 +32,11 @@ export class BlinnPhong_DiffuseMap {
 			camera.transform.rotate(new Vector3(-15, 0, 0), true, false);
 			camera.clearFlag = CameraClearFlags.Sky;
 
-			var directionLight: DirectionLight = (<DirectionLight>scene.addChild(new DirectionLight()));
-			directionLight.color.setValue(1, 1, 1, 1);
+			let directlightSprite = new Sprite3D();
+			let dircom = directlightSprite.addComponent(DirectionLightCom);
+			scene.addChild(directlightSprite);
+
+			dircom.color.setValue(1, 1, 1, 1);
 
 			//创建一个SphereMesh
 			var sphereMesh: Mesh = PrimitiveMesh.createSphere();

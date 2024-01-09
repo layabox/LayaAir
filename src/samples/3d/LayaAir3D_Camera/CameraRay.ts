@@ -1,6 +1,5 @@
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
-import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
@@ -24,6 +23,8 @@ import { Laya3D } from "Laya3D";
 import Client from "../../Client";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { Physics3DUtils } from "laya/d3/utils/Physics3DUtils";
+import { Sprite3D } from "laya/d3/core/Sprite3D";
+import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
 
 
 
@@ -58,7 +59,7 @@ export class CameraRay {
 
 	constructor() {
 		//初始化引擎,使用物理的wasm库需要调用回调的方式来初始化
-		Laya.init(0, 0, null, Handler.create(this, () => {
+		Laya.init(0, 0).then(() => {
 			Laya.stage.scaleMode = Stage.SCALE_FULL;
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
 			//显示性能面板
@@ -73,12 +74,15 @@ export class CameraRay {
 			this.camera.addComponent(CameraMoveScript);
 
 			//方向光
-			var directionLight: DirectionLight = (<DirectionLight>this.scene.addChild(new DirectionLight()));
-			directionLight.color.setValue(0.6, 0.6, 0.6, 1);
+			let directlightSprite = new Sprite3D();
+			let dircom = directlightSprite.addComponent(DirectionLightCom);
+			this.scene.addChild(directlightSprite);
+
+			dircom.color.setValue(0.6, 0.6, 0.6, 1);
 			//设置平行光的方向
-			var mat: Matrix4x4 = directionLight.transform.worldMatrix;
+			var mat: Matrix4x4 = directlightSprite.transform.worldMatrix;
 			mat.setForward(this._forward);
-			directionLight.transform.worldMatrix = mat;
+			directlightSprite.transform.worldMatrix = mat;
 
 			//平面
 			var plane: MeshSprite3D = (<MeshSprite3D>this.scene.addChild(new MeshSprite3D(PrimitiveMesh.createPlane(10, 10, 10, 10))));
@@ -105,7 +109,7 @@ export class CameraRay {
 			this.addMouseEvent();
 			//射线初始化（必须初始化）
 			this._ray = new Ray(new Vector3(0, 0, 0), new Vector3(0, 0, 0));
-		}));
+		});
 	}
 	addBoxXYZ(x: number, y: number, z: number): void {
 		var mat1: BlinnPhongMaterial = new BlinnPhongMaterial();

@@ -1,6 +1,5 @@
 import { Laya } from "Laya";
 import { Camera, CameraClearFlags } from "laya/d3/core/Camera";
-import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { Material } from "laya/resource/Material";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
@@ -14,6 +13,8 @@ import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
+import { Sprite3D } from "laya/d3/core/Sprite3D";
+import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
 
 export class SceneLoad2 {
 	constructor() {
@@ -66,15 +67,18 @@ export class SceneLoad2 {
 				}));
 
 				//创建方向光
-				var light: DirectionLight = (<DirectionLight>scene.addChild(new DirectionLight()));
+				let directlightSprite = new Sprite3D();
+				let dircom = directlightSprite.addComponent(DirectionLightCom);
+				scene.addChild(directlightSprite);
+
 				//移动灯光位置
-				light.transform.translate(new Vector3(0, 2, 5));
+				directlightSprite.transform.translate(new Vector3(0, 2, 5));
 				//调整灯光方向
-				var mat: Matrix4x4 = light.transform.worldMatrix;
+				var mat: Matrix4x4 = directlightSprite.transform.worldMatrix;
 				mat.setForward(new Vector3(0, -5, 1));
-				light.transform.worldMatrix = mat;
+				directlightSprite.transform.worldMatrix = mat;
 				//设置灯光漫反射颜色
-				light.color = new Color(0.3, 0.3, 0.3, 1);
+				dircom.color = new Color(0.3, 0.3, 0.3, 1);
 
 				//激活场景中的两个子节点
 				((<MeshSprite3D>scene.getChildByName('Scenes').getChildByName('HeightMap'))).active = false;

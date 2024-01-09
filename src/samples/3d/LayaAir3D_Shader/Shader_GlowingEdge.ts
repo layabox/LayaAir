@@ -1,6 +1,5 @@
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
-import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { SkinnedMeshSprite3D } from "laya/d3/core/SkinnedMeshSprite3D";
@@ -21,6 +20,7 @@ import { Color } from "laya/maths/Color";
 import { Vector3 } from "laya/maths/Vector3";
 import { ShaderPass } from "laya/RenderEngine/RenderShader/ShaderPass";
 import { SubShader } from "laya/RenderEngine/RenderShader/SubShader";
+import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
 
 
 
@@ -50,9 +50,10 @@ export class Shader_GlowingEdge {
 			camera.addComponent(CameraMoveScript);
 
 			//创建平行光
-			var directionLight: DirectionLight = new DirectionLight();
-			scene.addChild(directionLight);
-			directionLight.color = new Color(1, 1, 1, 1);
+			let directlightSprite = new Sprite3D();
+			let dircom = directlightSprite.addComponent(DirectionLightCom);
+			scene.addChild(directlightSprite);
+			dircom.color = new Color(1, 1, 1, 1);
 			scene.ambientColor = new Color(1.0, 0.0, 0.0);
 
 			//加载精灵

@@ -1,6 +1,6 @@
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
-import { DirectionLight } from "laya/d3/core/light/DirectionLight";
+import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
 import { Stage } from "laya/display/Stage";
@@ -11,7 +11,6 @@ import { Loader } from "laya/net/Loader";
 import { Image } from "laya/ui/Image";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
-import { Laya3D } from "Laya3D";
 
 export class Secne3DPlayer2D {
 
@@ -41,10 +40,13 @@ export class Secne3DPlayer2D {
 			this._camera.transform.translate(this._translate);
 			this._camera.transform.rotate(this._rotation, true, false);
 
+			let directlightSprite = new Sprite3D();
+			let dircom = directlightSprite.addComponent(DirectionLightCom);
+			this._scene.addChild(directlightSprite);
+
 			//创建平行光
-			var directionLight: DirectionLight = (<DirectionLight>this._scene.addChild(new DirectionLight()));
-			directionLight.color = new Color(1, 1, 1, 1);
-			directionLight.transform.rotate(this._rotation);
+			dircom.color = new Color(1, 1, 1, 1);
+			directlightSprite.transform.rotate(this._rotation);
 			//加载精灵
 			Laya.loader.load("res/threeDimen/staticModel/grid/plane.lh", Handler.create(this, this.onComplete));
 		});

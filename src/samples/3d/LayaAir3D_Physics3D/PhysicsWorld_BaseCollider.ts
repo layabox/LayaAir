@@ -1,6 +1,5 @@
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
-import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
@@ -24,6 +23,8 @@ import { Stat } from "laya/utils/Stat";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { URL } from "laya/net/URL";
 import { Event } from "laya/events/Event";
+import { Sprite3D } from "laya/d3/core/Sprite3D";
+import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
 export class PhysicsWorld_BaseCollider {
 	private scene: Scene3D;
 	private tmpVector: Vector3 = new Vector3(0, 0, 0);
@@ -52,8 +53,10 @@ export class PhysicsWorld_BaseCollider {
 			camera.addComponent(CameraMoveScript);
 
 			//方向光
-			var directionLight: DirectionLight = (<DirectionLight>this.scene.addChild(new DirectionLight()));
-			directionLight.color = new Color(0.6, 0.6, 0.6, 1);
+			let directionLight = new Sprite3D();
+			let dircom = directionLight.addComponent(DirectionLightCom);
+			this.scene.addChild(directionLight);
+			dircom.color = new Color(0.6, 0.6, 0.6, 1);
 			//设置平行光的方向
 			var mat: Matrix4x4 = directionLight.transform.worldMatrix;
 			mat.setForward(new Vector3(-1.0, -1.0, -1.0));

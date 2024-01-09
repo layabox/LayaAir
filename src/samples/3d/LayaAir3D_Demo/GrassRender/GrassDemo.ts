@@ -1,6 +1,5 @@
 import { Laya } from "Laya";
 import { Camera, CameraClearFlags } from "laya/d3/core/Camera";
-import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Stage } from "laya/display/Stage";
 import { Matrix4x4 } from "laya/maths/Matrix4x4";
@@ -12,6 +11,8 @@ import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../../common/CameraMoveScript";
 import { GrassRenderManager } from "./GrassRenderManager";
+import { Sprite3D } from "laya/d3/core/Sprite3D";
+import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
 
 /**
  * 此类用来渲染草地
@@ -52,11 +53,13 @@ export class GrassDemo{
 		this.camera.transform.position = new Vector3( -45.56605299366802, 7.79715240971953,9.329663960933718);
 
 		//初始化平行光
-		var directionLight: DirectionLight = (<DirectionLight>scene.addChild(new DirectionLight()));
+		let directlightSprite = new Sprite3D();
+		let dircom = directlightSprite.addComponent(DirectionLightCom);
+		scene.addChild(directlightSprite);
 		//设置平行光的方向
-		var mat: Matrix4x4 = directionLight.transform.worldMatrix;
+		var mat: Matrix4x4 = directlightSprite.transform.worldMatrix;
 		mat.setForward(new Vector3(-1.0, -1.0, -1.0));
-        directionLight.transform.worldMatrix = mat;
+        directlightSprite.transform.worldMatrix = mat;
     }
 
 

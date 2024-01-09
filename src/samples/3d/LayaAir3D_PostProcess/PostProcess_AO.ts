@@ -1,7 +1,6 @@
 import { Laya } from "Laya";
 import { PostProcess } from "laya/d3/component/PostProcess";
 import { Camera } from "laya/d3/core/Camera";
-import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
@@ -21,6 +20,7 @@ import { ScalableAO } from "laya/d3/core/render/PostEffect/ScalableAO";
 import { Color } from "laya/maths/Color";
 import { Matrix4x4 } from "laya/maths/Matrix4x4";
 import { Vector3 } from "laya/maths/Vector3";
+import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
 
 export class ProstProcess_AO {
     scene: Scene3D;
@@ -49,13 +49,15 @@ export class ProstProcess_AO {
         camera.transform.rotate(new Vector3(-15, 0, 0), true, false);
         camera.addComponent(CameraMoveScript);
         this.camera = camera;
-        var directionLight: DirectionLight = (<DirectionLight>this.scene.addChild(new DirectionLight()));
+        let directlightSprite = new Sprite3D();
+        let dircom = directlightSprite.addComponent(DirectionLightCom);
+        this.scene.addChild(directlightSprite);
         //方向光的颜色
-        directionLight.color = new Color(0.5, 0.5, 0.5, 1.0);
+        dircom.color = new Color(0.5, 0.5, 0.5, 1.0);
         //设置平行光的方向
-        var mat: Matrix4x4 = directionLight.transform.worldMatrix;
+        var mat: Matrix4x4 = directlightSprite.transform.worldMatrix;
         mat.setForward(new Vector3(-1.0, -1.0, -1.0));
-        directionLight.transform.worldMatrix = mat;
+        directlightSprite.transform.worldMatrix = mat;
         this.addObjectInScene(this.scene);
         this.addPostProcess(camera);
         this.loadUI();
@@ -131,7 +133,7 @@ export class ProstProcess_AO {
         this.postProcess = postProcess;
         let ao: ScalableAO = new ScalableAO();
         ao.radius = 0.15;
-        ao.aoColor = new Color(0.0, 0.0, 0.0,0.0);
+        ao.aoColor = new Color(0.0, 0.0, 0.0, 0.0);
         ao.intensity = 0.5;
         postProcess.addEffect(ao);
     }

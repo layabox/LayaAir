@@ -1,6 +1,5 @@
 import { Laya } from "Laya";
 import { Camera, CameraClearFlags } from "laya/d3/core/Camera";
-import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { Material } from "laya/resource/Material";
 import { PBRStandardMaterial } from "laya/d3/core/material/PBRStandardMaterial";
 import { SkyBoxMaterial } from "laya/d3/core/material/SkyBoxMaterial";
@@ -19,6 +18,7 @@ import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
+import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
 
 export class EnvironmentalReflection {
 	private rotation: Vector3 = new Vector3(0, 0.01, 0);
@@ -70,8 +70,10 @@ export class EnvironmentalReflection {
 				});
 			}));
 			//创建平行光
-			var directionLight: DirectionLight = <DirectionLight>scene.addChild(new DirectionLight());
-			directionLight.color = new Color(0.6, 0.6, 0.6, 1);
+			let directlightSprite = new Sprite3D();
+			let dircom = directlightSprite.addComponent(DirectionLightCom);
+			scene.addChild(directlightSprite);
+			dircom.color = new Color(0.6, 0.6, 0.6, 1);
 
 			//加载Mesh
 			Mesh.load("res/threeDimen/staticModel/teapot/teapot-Teapot001.lm", Handler.create(this, function (mesh: Mesh): void {

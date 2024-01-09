@@ -1,7 +1,6 @@
 import { Laya } from "Laya";
 import { Animator } from "laya/d3/component/Animator/Animator";
 import { Camera } from "laya/d3/core/Camera";
-import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
 import { Stage } from "laya/display/Stage";
@@ -15,6 +14,7 @@ import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import Client from "../../Client";
 import { CameraMoveScript } from "../common/CameraMoveScript";
+import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
 
 /**
  * ...
@@ -30,9 +30,9 @@ export class SkinAnimationSample {
 	private _forward: Vector3 = new Vector3(-1.0, -1.0, -1.0);
 
 	/**实例类型*/
-	private btype:any = "SkinAnimationSample";
+	private btype: any = "SkinAnimationSample";
 	/**场景内按钮类型*/
-	private stype:any = 0;
+	private stype: any = 0;
 
 	constructor() {
 		Laya.init(0, 0).then(() => {
@@ -47,12 +47,15 @@ export class SkinAnimationSample {
 			camera.transform.rotate(this._rotation, true, false);
 			camera.addComponent(CameraMoveScript);
 
-			var directionLight: DirectionLight = (<DirectionLight>scene.addChild(new DirectionLight()));
+			let directlightSprite = new Sprite3D();
+			let dircom = directlightSprite.addComponent(DirectionLightCom);
+			scene.addChild(directlightSprite);
+
 			//设置平行光的方向
-			var mat: Matrix4x4 = directionLight.transform.worldMatrix;
+			var mat: Matrix4x4 = directlightSprite.transform.worldMatrix;
 			mat.setForward(this._forward);
-			directionLight.transform.worldMatrix = mat;
-			directionLight.color.setValue(1, 1, 1, 1);
+			directlightSprite.transform.worldMatrix = mat;
+			dircom.color.setValue(1, 1, 1, 1);
 
 			Sprite3D.load("res/threeDimen/skinModel/Zombie/Plane.lh", Handler.create(this, function (plane: Sprite3D): void {
 				scene.addChild(plane);
@@ -81,11 +84,11 @@ export class SkinAnimationSample {
 		}));
 	}
 
-	stypeFun0(curStateIndex:number) {
+	stypeFun0(curStateIndex: number) {
 		//根据名称播放动画
 		this.zombieAnimator.play(this.clipName[++this.curStateIndex % this.clipName.length]);
 		curStateIndex = this.curStateIndex;
-		Client.instance.send({type:"next",btype:this.btype,stype:0,value:curStateIndex});
+		Client.instance.send({ type: "next", btype: this.btype, stype: 0, value: curStateIndex });
 	}
 
 }

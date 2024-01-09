@@ -1,6 +1,5 @@
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
-import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Sprite3D } from "laya/d3/core/Sprite3D";
@@ -13,9 +12,9 @@ import { Button } from "laya/ui/Button";
 import { Browser } from "laya/utils/Browser";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
-import { Laya3D } from "Laya3D";
 import Client from "../../Client";
 import { CameraMoveScript } from "../common/CameraMoveScript";
+import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
 /**
  * 精灵图层示例
  * @author ...
@@ -32,9 +31,9 @@ export class CameraLayer {
 	private _position: Vector3 = new Vector3(0.0, 0, 0.5);
 
 	/**实例类型*/
-	private btype:any = "CameraLayer";
+	private btype: any = "CameraLayer";
 	/**场景内按钮类型*/
-	private stype:any = 0;
+	private stype: any = 0;
 	constructor() {
 		//初始化引擎
 		Laya.init(0, 0).then(() => {
@@ -57,11 +56,14 @@ export class CameraLayer {
 			this.camera.removeAllLayers();
 			//添加显示图层(为相机添加一个蒙版)
 			this.camera.addLayer(5);
-
+			let directlightSprite = new Sprite3D();
+			let dircom = directlightSprite.addComponent(DirectionLightCom);
+			this._scene.addChild(directlightSprite);
 			//添加平行光
-			var directionLight: DirectionLight = (<DirectionLight>this._scene.addChild(new DirectionLight()));
-			directionLight.color.setValue(1, 1, 1, 1);
-			directionLight.transform.rotate(this._rotation2);
+
+			dircom.color.setValue(1, 1, 1, 1);
+			dircom.color = dircom.color;
+			directlightSprite.transform.rotate(this._rotation2);
 
 			Laya.loader.load(["res/threeDimen/staticModel/grid/plane.lh",
 				"res/threeDimen/skinModel/LayaMonkey/LayaMonkey.lh"], Handler.create(this, this.onComplete));
@@ -129,13 +131,13 @@ export class CameraLayer {
 		}));
 	}
 
-	stypeFun0 (layerIndex:number = 0): void {
+	stypeFun0(layerIndex: number = 0): void {
 		this.camera.removeAllLayers();
 		this.layerIndex++;
 		this.camera.addLayer(this.layerIndex % 4);
 		this.camera.addLayer(5);
 		layerIndex = this.layerIndex;
-		Client.instance.send({type:"next",btype:this.btype,stype:0,value:layerIndex});
+		Client.instance.send({ type: "next", btype: this.btype, stype: 0, value: layerIndex });
 	}
 
 }

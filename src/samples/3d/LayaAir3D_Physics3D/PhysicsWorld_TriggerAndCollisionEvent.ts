@@ -1,6 +1,5 @@
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
-import { DirectionLight } from "laya/d3/core/light/DirectionLight";
 import { BlinnPhongMaterial } from "laya/d3/core/material/BlinnPhongMaterial";
 import { MeshRenderer } from "laya/d3/core/MeshRenderer";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
@@ -26,6 +25,7 @@ import { Matrix4x4 } from "laya/maths/Matrix4x4";
 import { Vector3 } from "laya/maths/Vector3";
 import { Vector4 } from "laya/maths/Vector4";
 import { PhysicsColliderComponent } from "laya/d3/physics/PhysicsColliderComponent";
+import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
 
 export class PhysicsWorld_TriggerAndCollisionEvent {
 
@@ -60,13 +60,14 @@ export class PhysicsWorld_TriggerAndCollisionEvent {
 			this.camera.transform.rotate(new Vector3(-30, 0, 0), true, false);
 
 			//创建相机
-			var directionLight = new DirectionLight();
-			this.scene.addChild(directionLight);
-			directionLight.color = new Color(1, 1, 1, 1);
+			let directlightSprite = new Sprite3D();
+			let dircom = directlightSprite.addComponent(DirectionLightCom);
+			this.scene.addChild(directlightSprite);
+			dircom.color = new Color(1, 1, 1, 1);
 			//设置平行光的方向
-			var mat: Matrix4x4 = directionLight.transform.worldMatrix;
+			var mat: Matrix4x4 = directlightSprite.transform.worldMatrix;
 			mat.setForward(new Vector3(-1.0, -1.0, 1.0));
-			directionLight.transform.worldMatrix = mat;
+			directlightSprite.transform.worldMatrix = mat;
 
 			//创建地面
 			this.plane = (<MeshSprite3D>this.scene.addChild(new MeshSprite3D(PrimitiveMesh.createPlane(20, 20, 10, 10))));
