@@ -1,3 +1,4 @@
+import { IBluePrintSubclass } from "../../core/interface/IBluePrintSubclass";
 import { INodeManger } from "../../core/interface/INodeManger";
 import { TBPEventProperty, TBPNode } from "../../datas/types/BlueprintTypes";
 import { IRunAble } from "../interface/IRunAble";
@@ -13,14 +14,17 @@ export class BlueprintCustomFunNode extends BlueprintFunNode {
         }
     }
 
-    protected excuteFun(context: IRunAble, caller: any, parmsArray: any[]) {
+    protected excuteFun(context: IRunAble, caller: IBluePrintSubclass, parmsArray: any[]) {
         //TODO 
+        if (caller && caller.context) {
+            return caller.bp.runCustomFun(caller.context, this.functionID, parmsArray);
+        }
         return context.excuteFun(this.nativeFun, this.outPutParmPins, caller, parmsArray);
     }
 
 
     setFunction(fun: Function, isMember: boolean) {
-        this.nativeFun = fun;
+        this.nativeFun = this.customFun;//fun;
         this.isMember = isMember;
         this.funcode = fun?.name;
     }

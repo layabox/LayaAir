@@ -12,6 +12,9 @@ export enum BPType {
     Branch = "branch",
     Sequence = "sequence",
     NewTarget = "newtarget",
+    CustomFun = "customFun",
+    CustomFunStart="customFunStart",
+    CustomFunReturn="customFunReturn"
 }
 
 export enum ComponentType {

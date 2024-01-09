@@ -18,6 +18,10 @@ import { BlueprintUtil } from "../core/BlueprintUtil";
 import { BlueprintNewTargetNode } from "./node/BlueprintNewTargetNode";
 import { RuntimeNodeData } from "./action/RuntimeNodeData";
 import { LayaEnv } from "../../../LayaEnv";
+import { IBluePrintSubclass } from "../core/interface/IBluePrintSubclass";
+import { BlueprintCustomFunNode } from "./node/BlueprintCustomFunNode";
+import { BlueprintCustomFunStart } from "./node/BlueprintCustomFunStart";
+import { BlueprintCustomFunReturn } from "./node/BlueprintCustomFunReturn";
 
 export class BlueprintFactory {
     private static _funMap: Map<string, [Function, boolean]>;
@@ -63,6 +67,10 @@ export class BlueprintFactory {
             this.regBPClassNew(BPType.Branch, BlueprintComplexNode);
             this.regBPClassNew(BPType.Sequence, BlueprintSequenceNode);
             this.regBPClassNew(BPType.NewTarget, BlueprintNewTargetNode);
+            this.regBPClassNew(BPType.CustomFun, BlueprintCustomFunNode);
+            this.regBPClassNew(BPType.CustomFunStart, BlueprintCustomFunStart);
+            this.regBPClassNew(BPType.CustomFunReturn, BlueprintCustomFunReturn);
+
 
             this.regFunction("printString", BlueprintStaticFun.print);
             this.regFunction("branch", BlueprintStaticFun.branch);
@@ -110,7 +118,7 @@ export class BlueprintFactory {
 
         function classFactory(className: string, SuperClass: any) {
             return {
-                [className]: class extends SuperClass {
+                [className]: class extends SuperClass implements IBluePrintSubclass {
                     bp: BlueprintRuntime;
 
                     __eventList__: string[];
@@ -123,7 +131,7 @@ export class BlueprintFactory {
                         let varMap = this.bp.varMap;
                         if (varMap) {
                             for (let str in varMap) {
-                                this.context.setVar(str, varMap[str].value);
+                                this.context.setVar(varMap[str].name, varMap[str].value);
                                 //a[str]
                             }
                         }
@@ -156,7 +164,7 @@ export class BlueprintFactory {
         let c = function (node: TBPNode): TBPCNode {
             return BlueprintUtil.getConstNode("Node", node, data) as TBPCNode;
         }
-        bp.parseNew(bpjson, c, varMap);
+        bp.parse(bpjson, c, varMap);
         this.initEventFunc(parentName, newClass);
         Object.defineProperty(newClass, 'name', { value: name });
 

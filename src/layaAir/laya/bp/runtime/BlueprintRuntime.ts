@@ -11,12 +11,17 @@ import { IRunAble } from "./interface/IRunAble";
 import { BlueprintEventNode } from "./node/BlueprintEventNode";
 import { BlueprintRuntimeBaseNode } from "./node/BlueprintRuntimeBaseNode";
 import { RuntimeNodeData } from "./action/RuntimeNodeData";
+import { BlueprintCustomFunStart } from "./node/BlueprintCustomFunStart";
 
 export class BlueprintRuntime implements INodeManger<BlueprintRuntimeBaseNode>, IBPRutime {
 
     nodeMap: Map<any, BlueprintRuntimeBaseNode>;
 
     eventMap: Map<any, BlueprintEventNode>;
+    /**
+     * 自定义函数列表
+     */
+    customFunMap: Map<string, BlueprintCustomFunStart>;
 
     varMap: Record<string, TBPVarProperty>;
 
@@ -24,10 +29,14 @@ export class BlueprintRuntime implements INodeManger<BlueprintRuntimeBaseNode>, 
 
     excuteAbleList: BlueprintRuntimeBaseNode[];
 
+    funRuntimeList: Map<string, BlueprintRuntimeBaseNode[]>;
+
     constructor() {
         this.nodeMap = new Map();
         this.eventMap = new Map();
+        this.customFunMap = new Map();
         this.excuteAbleList = [];
+        this.funRuntimeList = new Map();
     }
 
 
@@ -55,6 +64,26 @@ export class BlueprintRuntime implements INodeManger<BlueprintRuntimeBaseNode>, 
         }
     }
 
+    /**
+     * 执行自定义函数
+     * @param context 
+     * @param funName 
+     * @param parms 
+     */
+    runCustomFun(context: IRunAble, funName: string, parms: any[]) {
+        let fun = this.customFunMap.get(funName);
+        if (fun) {
+            if (parms) {
+                parms.forEach((value, index) => {
+                    context.setPinData(fun.outPutParmPins[index], value);
+                })
+            }
+            this.runByContext(context, fun.index);
+            //  event.outExcute.excute(context);
+            //let root=event.outExcute.linkTo
+        }
+    }
+
     runByContext(context: IRunAble, currentIndex: number, enableDebugPause: boolean = true) {
         for (let i = currentIndex, n = this.excuteAbleList.length; i < n;) {
             const bpNode = this.excuteAbleList[i];
@@ -72,11 +101,11 @@ export class BlueprintRuntime implements INodeManger<BlueprintRuntimeBaseNode>, 
         }
     }
 
-    parseNew(bpjson: Array<TBPNode>, getCNodeByNode: (node: TBPNode) => TBPCNode, varMap: Record<string, TBPVarProperty>) {
+    parse(bpjson: Array<TBPNode>, getCNodeByNode: (node: TBPNode) => TBPCNode, varMap: Record<string, TBPVarProperty>) {
         this.varMap = varMap;
         //pin create
         bpjson.forEach(item => {
-            let d = BlueprintFactory.instance.createNew(getCNodeByNode(item),item.id);
+            let d = BlueprintFactory.instance.createNew(getCNodeByNode(item), item.id);
             this.append(d);
         });
         // debugger;
@@ -88,10 +117,26 @@ export class BlueprintRuntime implements INodeManger<BlueprintRuntimeBaseNode>, 
         this.optimize();
     }
 
-    private _addNode(value: BlueprintRuntimeBaseNode): boolean {
-        if (this.excuteAbleList.indexOf(value) == -1) {
-            value.index = this.excuteAbleList.length;
-            this.excuteAbleList.push(value);
+    parseFunction(funId: string, bpjson: Array<TBPNode>, getCNodeByNode: (node: TBPNode) => TBPCNode) {
+        bpjson.forEach(item => {
+            let d = BlueprintFactory.instance.createNew(getCNodeByNode(item), item.id);
+            this.append(d);
+        });
+        bpjson.forEach(item => {
+            // debugger;
+            this.getNodeById(item.id).parseLinkData(item, this);
+        });
+        let funExcuteList: BlueprintRuntimeBaseNode[] = [];
+        let funnode = this.getNodeById(bpjson[0].id) as BlueprintCustomFunStart;
+        this.funRuntimeList.set(funId, funExcuteList);
+        this.customFunMap.set(funId, funnode);
+        this.optimizeByStart(funnode, funExcuteList);
+    }
+
+    private _addNode(value: BlueprintRuntimeBaseNode, excuteAbleList: BlueprintRuntimeBaseNode[]): boolean {
+        if (excuteAbleList.indexOf(value) == -1) {
+            value.index = excuteAbleList.length;
+            excuteAbleList.push(value);
             return true;
         }
         else {
@@ -100,20 +145,25 @@ export class BlueprintRuntime implements INodeManger<BlueprintRuntimeBaseNode>, 
 
     }
 
+    optimizeByStart(value: BlueprintRuntimeBaseNode, excuteAbleList: BlueprintRuntimeBaseNode[]) {
+        let stack: BlueprintRuntimeBaseNode[] = [value];
+        while (stack.length > 0) {
+            const node = stack.pop();
+            if (this._addNode(node, excuteAbleList) && node.outExcutes) {
+                node.optimize();
+                node.outExcutes.forEach(item => {
+                    if (item.linkTo && item.linkTo[0]) {
+                        stack.push((item.linkTo[0] as BlueprintPinRuntime).owner);
+                    }
+                })
+            }
+        }
+    }
+
+
     optimize() {
         this.eventMap.forEach(value => {
-            let stack: BlueprintRuntimeBaseNode[] = [value];
-            while (stack.length > 0) {
-                const node = stack.pop();
-                if (this._addNode(node) && node.outExcutes) {
-                    node.optimize();
-                    node.outExcutes.forEach(item => {
-                        if (item.linkTo && item.linkTo[0]) {
-                            stack.push((item.linkTo[0] as BlueprintPinRuntime).owner);
-                        }
-                    })
-                }
-            }
+            this.optimizeByStart(value, this.excuteAbleList);
             // let 
         });
     }
