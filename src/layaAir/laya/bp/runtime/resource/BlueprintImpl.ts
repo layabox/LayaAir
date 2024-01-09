@@ -96,6 +96,7 @@ export class BlueprintImpl extends Resource {
             });
 
         let cls = BlueprintFactory.createClsNew(this.uuid, extendClass, runtime, {
+            id:0,
             name: this.uuid,
             dataMap,
             arr
