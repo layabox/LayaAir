@@ -71,7 +71,7 @@ export class BlueprintRuntime implements INodeManger<BlueprintRuntimeBaseNode>, 
      * @param funName 
      * @param parms 
      */
-    runCustomFun(context: IRunAble, funId: number, parms: any[]) {
+    runCustomFun(context: IRunAble, funId: number, parms: any[],cb:Function) {
         let fun = this.customFunMap.get(funId);
         if (fun) {
             if (parms) {
@@ -79,14 +79,14 @@ export class BlueprintRuntime implements INodeManger<BlueprintRuntimeBaseNode>, 
                     context.setPinData(fun.outPutParmPins[index], value);
                 })
             }
-            return this.runByContext(context, fun);
+            return this.runByContext(context, fun,true,cb);
             //  event.outExcute.excute(context);
             //let root=event.outExcute.linkTo
         }
         return null;
     }
 
-    runByContext(context: IRunAble, node: IExcuteListInfo, enableDebugPause: boolean = true):boolean {
+    runByContext(context: IRunAble, node: IExcuteListInfo, enableDebugPause: boolean = true,cb:Function=null):boolean {
         const currentIndex = node.index;
         const excuteAbleList = this.excuteRuntimeList.get(node.listIndex);
 
@@ -96,7 +96,7 @@ export class BlueprintRuntime implements INodeManger<BlueprintRuntimeBaseNode>, 
             enableDebugPause = true;
             if (index instanceof BlueprintPromise) {
                 index.wait((mis: BlueprintPromise) => {
-                    this.runByContext(context, mis, enableDebugPause);
+                    this.runByContext(context, mis, enableDebugPause,cb);
                 })
                 return false;
             }
@@ -104,6 +104,7 @@ export class BlueprintRuntime implements INodeManger<BlueprintRuntimeBaseNode>, 
                 i = index;
             }
         }
+        cb&&cb();
         return true;
     }
 
