@@ -79,13 +79,14 @@ export class BlueprintRuntime implements INodeManger<BlueprintRuntimeBaseNode>, 
                     context.setPinData(fun.outPutParmPins[index], value);
                 })
             }
-            this.runByContext(context, fun);
+            return this.runByContext(context, fun);
             //  event.outExcute.excute(context);
             //let root=event.outExcute.linkTo
         }
+        return null;
     }
 
-    runByContext(context: IRunAble, node: IExcuteListInfo, enableDebugPause: boolean = true) {
+    runByContext(context: IRunAble, node: IExcuteListInfo, enableDebugPause: boolean = true):boolean {
         const currentIndex = node.index;
         const excuteAbleList = this.excuteRuntimeList.get(node.listIndex);
 
@@ -97,12 +98,13 @@ export class BlueprintRuntime implements INodeManger<BlueprintRuntimeBaseNode>, 
                 index.wait((mis: BlueprintPromise) => {
                     this.runByContext(context, mis, enableDebugPause);
                 })
-                return;
+                return false;
             }
             else {
                 i = index;
             }
         }
+        return true;
     }
 
     parse(bpjson: Array<TBPNode>, getCNodeByNode: (node: TBPNode) => TBPCNode, varMap: Record<string, TBPVarProperty>) {

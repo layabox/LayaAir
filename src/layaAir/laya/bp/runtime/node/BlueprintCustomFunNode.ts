@@ -9,7 +9,8 @@ export class BlueprintCustomFunNode extends BlueprintFunNode {
 
     protected onParseLinkData(node: TBPNode, manger: INodeManger<BlueprintFunNode>) {
         if (node.dataId) {
-            this.functionID = 0;
+            this.functionID = node.dataId as any as number;
+            this.isMember = true;
             //this.eventName = (manger.dataMap[node.dataId] as TBPEventProperty).name;
         }
     }
@@ -17,7 +18,14 @@ export class BlueprintCustomFunNode extends BlueprintFunNode {
     protected excuteFun(context: IRunAble, caller: IBluePrintSubclass, parmsArray: any[]) {
         //TODO 
         if (caller && caller.context) {
-            return caller.bp.runCustomFun(caller.context, this.functionID, parmsArray);
+            let result = caller.bp.runCustomFun(caller.context, this.functionID, parmsArray);
+            if (result === false) {
+                let primise = new Promise((resolve, reject) => {
+
+
+                });
+                return primise;
+            }
         }
         return null;
         //return context.excuteFun(this.nativeFun, this.outPutParmPins, caller, parmsArray);
