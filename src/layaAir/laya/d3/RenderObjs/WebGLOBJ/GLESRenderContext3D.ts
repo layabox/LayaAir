@@ -9,7 +9,7 @@ import { SingletonList } from "../../../utils/SingletonList";
 import { IRenderContext3D, PipelineMode } from "../../RenderDriverLayer/IRenderContext3D";
 import { Viewport } from "../../math/Viewport";
 import { RenderElementOBJ } from "../RenderObj/RenderElementOBJ";
-import { GLESCameraNodeData, GLESSceneNodeData } from "./RenderModuleData/GLESOtherModuleData";
+import { GLESCameraNodeData, GLESSceneNodeData } from "./RenderModuleData/GLESModuleData";
 
 
 export class GLESRenderContext3D implements IRenderContext3D {

@@ -18,6 +18,7 @@ import { LayaEnv } from "../../../../LayaEnv";
 import { Vector2 } from "../../../maths/Vector2";
 import { Vector3 } from "../../../maths/Vector3";
 import { LayaGL } from "../../../layagl/LayaGL";
+import { IRenderContext3D } from "../../RenderDriverLayer/IRenderContext3D";
 
 
 /**
@@ -157,7 +158,6 @@ export class ShurikenParticleRenderer extends BaseRender {
 
     protected _onDisable(): void {
         super._onDisable();
-
         Stat.particleRenderNode--;
         (this._particleSystem.isAlive) && (this._particleSystem.simulate(0, true));
     }
@@ -167,7 +167,7 @@ export class ShurikenParticleRenderer extends BaseRender {
      * @internal
      * @override
      */
-    protected _calculateBoundingBox(): void {
+    _calculateBoundingBox(): void {
         var particleSystem: ShurikenParticleSystem = this._particleSystem;
         var bounds: Bounds;
         if (particleSystem._useCustomBounds) {
@@ -227,7 +227,7 @@ export class ShurikenParticleRenderer extends BaseRender {
      * @internal
      * @override
      */
-    _renderUpdate(context: RenderContext3D, transfrom: Transform3D): void {
+    _renderUpdate(context: IRenderContext3D): void {
         var particleSystem: ShurikenParticleSystem = this._particleSystem;
         var sv: ShaderData = this._baseRenderNode.shaderData;
         var transform: Transform3D = (this.owner as Sprite3D).transform;

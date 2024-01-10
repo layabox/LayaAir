@@ -1,10 +1,9 @@
 import { ILaya3D } from "../../../../../ILaya3D";
 import { Vector3 } from "../../../../maths/Vector3";
 import { Vector4 } from "../../../../maths/Vector4";
-import { ShaderData } from "../../../../RenderEngine/RenderShader/ShaderData";
 import { Texture2D } from "../../../../resource/Texture2D";
-import { Sprite3DRenderDeclaration } from "../../../core/render/Sprite3DRenderDeclaration";
-import { RenderableSprite3D } from "../../../core/RenderableSprite3D";
+import { IVolumetricGIData } from "../../../RenderDriverLayer/RenderModuleData/IVolumetricGIData";
+import { Laya3DRender } from "../../../RenderObjs/Laya3DRender";
 import { Volume } from "../Volume";
 import { VolumeManager } from "../VolumeManager";
 
@@ -14,15 +13,12 @@ export class VolumetricGI extends Volume {
     static getID(): number {
         return VolumetricGI.volumetricCount++;
     }
+    /** @internal IDE*/
+    probeLocations: Float32Array;
     /**@internal */
     private _probeCounts: Vector3;
-
     /**@internal */
     private _probeStep: Vector3;
-
-    /** @internal */
-    probeLocations: Float32Array;
-
     /**
      * @internal
      * x: irradiance probe texel size
@@ -31,21 +27,11 @@ export class VolumetricGI extends Volume {
      * w: viewBias
      */
     private _params: Vector4;
-
-    /**@internal */
-    private _irradiance: Texture2D;
-
-    /**@internal */
-    private _distance: Texture2D;
-
-    /**密度 */
-    private _intensity: number;
-
-    /**@internal */
-    _updateMark: number;
-
     /**@internal */
     _volumetricProbeID: number
+    /**@internal */
+    _dataModule: IVolumetricGIData;
+
     /**
      * <code>实例化一个体积光照探针<code>
      */
@@ -55,8 +41,10 @@ export class VolumetricGI extends Volume {
         this._probeCounts = new Vector3();
         this._probeStep = new Vector3();
         this._params = new Vector4(8, 16, 0, 0);
+        this._dataModule = Laya3DRender.renderOBJCreate.createVolumetricGI();
+        this._dataModule.setParams(this._params);
         this._volumetricProbeID = VolumetricGI.getID();
-        this._intensity = 1;
+        this._dataModule.intensity = 1;
     }
 
     /**
@@ -65,40 +53,40 @@ export class VolumetricGI extends Volume {
     */
     protected _onEnable(): void {
         super._onEnable();
-        this._updateMark = ILaya3D.Scene3D._updateMark;
+        this._dataModule.updateMark = ILaya3D.Scene3D._updateMark;
     }
 
     /**
      * light probe texture
      */
     get irradiance(): Texture2D {
-        return this._irradiance;
+        return this._dataModule.irradiance;
     }
 
     set irradiance(value: Texture2D) {
-        if (this._irradiance == value)
+        if (this._dataModule.irradiance == value)
             return;
-        this._irradiance && (this.irradiance._removeReference());
+        this._dataModule.irradiance && (this.irradiance._removeReference());
         value && (value._addReference());
-        this._irradiance = value;
-        this._updateMark = ILaya3D.Scene3D._updateMark;
+        this._dataModule.irradiance = value;
+        this._dataModule.updateMark = ILaya3D.Scene3D._updateMark;
     }
 
     /**
      * distance texture
      */
     get distance(): Texture2D {
-        return this._distance;
+        return this._dataModule.distance;
     }
 
     set distance(value: Texture2D) {
-        if (this._distance == value)
+        if (this._dataModule.distance == value)
             return;
-        this._distance && (this._distance._removeReference());
+        this._dataModule.distance && (this._dataModule.distance._removeReference());
         value && (value._addReference());
 
-        this._distance = value;
-        this._updateMark = ILaya3D.Scene3D._updateMark;
+        this._dataModule.distance = value;
+        this._dataModule.updateMark = ILaya3D.Scene3D._updateMark;
     }
 
     /**
@@ -110,7 +98,8 @@ export class VolumetricGI extends Volume {
 
     set normalBias(value: number) {
         this._params.z = value;
-        this._updateMark = ILaya3D.Scene3D._updateMark;
+        this._dataModule.setParams(this._params);
+        this._dataModule.updateMark = ILaya3D.Scene3D._updateMark;
     }
 
     /**
@@ -122,7 +111,8 @@ export class VolumetricGI extends Volume {
 
     set viewBias(value: number) {
         this._params.w = value;
-        this._updateMark = ILaya3D.Scene3D._updateMark;
+        this._dataModule.setParams(this._params);
+        this._dataModule.updateMark = ILaya3D.Scene3D._updateMark;
     }
 
     /**
@@ -143,13 +133,13 @@ export class VolumetricGI extends Volume {
      * 设置反射探针强度
      */
     get intensity(): number {
-        return this._intensity;
+        return this._dataModule.intensity;
     }
 
     set intensity(value: number) {
-        if (value == this._intensity) return;
+        if (value == this._dataModule.intensity) return;
         value = Math.max(value, 0.0);
-        this._updateMark = ILaya3D.Scene3D._updateMark;
+        this._dataModule.updateMark = ILaya3D.Scene3D._updateMark;
     }
 
     /**
@@ -162,7 +152,8 @@ export class VolumetricGI extends Volume {
     set probeCounts(value: Vector3) {
         if (value.equal(this._probeCounts)) return;
         value.cloneTo(this._probeCounts);
-        this._updateMark = ILaya3D.Scene3D._updateMark;
+        this._dataModule.setProbeCounts(value);
+        this._dataModule.updateMark = ILaya3D.Scene3D._updateMark;
     }
     /**
      * 设置反射探针间隔
@@ -174,26 +165,8 @@ export class VolumetricGI extends Volume {
     set probeStep(value: Vector3) {
         if (value.equal(this._probeStep)) return;
         value.cloneTo(this._probeStep);
-        this._updateMark = ILaya3D.Scene3D._updateMark;
-    }
-
-    /**
-     * @interanl
-     * upload volumetric GI data
-     * @param shaderData 
-     */
-    applyVolumetricGI(shaderData: ShaderData) {
-        shaderData.addDefine(Sprite3DRenderDeclaration.SHADERDEFINE_VOLUMETRICGI);
-
-        shaderData.setVector3(RenderableSprite3D.VOLUMETRICGI_PROBECOUNTS, this._probeCounts);
-        shaderData.setVector3(RenderableSprite3D.VOLUMETRICGI_PROBESTEPS, this._probeStep);
-
-        shaderData.setVector3(RenderableSprite3D.VOLUMETRICGI_PROBESTARTPOS, this.bounds.getMin());
-        shaderData.setVector(RenderableSprite3D.VOLUMETRICGI_PROBEPARAMS, this._params);
-
-        shaderData.setTexture(RenderableSprite3D.VOLUMETRICGI_IRRADIANCE, this.irradiance);
-        shaderData.setTexture(RenderableSprite3D.VOLUMETRICGI_DISTANCE, this.distance);
-        shaderData.setNumber(RenderableSprite3D.AMBIENTINTENSITY, this._intensity);
+        this._dataModule.setProbeStep(value);
+        this._dataModule.updateMark = ILaya3D.Scene3D._updateMark;
     }
 
     /**

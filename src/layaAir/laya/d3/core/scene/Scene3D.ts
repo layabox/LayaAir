@@ -39,7 +39,6 @@ import { UnifromBufferData, UniformBufferParamsType } from "../../../RenderEngin
 import { UniformBufferObject } from "../../../RenderEngine/UniformBufferObject";
 import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTargetFormat";
 import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFlag";
-import { ICullPass } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/ICullPass";
 import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { Prefab } from "../../../resource/HierarchyResource";
 import { Stat } from "../../../utils/Stat";
@@ -425,8 +424,6 @@ export class Scene3D extends Sprite implements ISubmit {
     _UI3DManager: UI3DManager = new UI3DManager();
     /**@internal */
     _sceneRenderManager: SceneRenderManager;
-    /**@internal */
-    _cullPass: ICullPass;
     /** 当前创建精灵所属遮罩层。*/
     currentCreationLayer: number = Math.pow(2, 0);
     /** 是否启用灯光。*/
@@ -462,13 +459,6 @@ export class Scene3D extends Sprite implements ISubmit {
 
     get sceneRenderableManager(): SceneRenderManager {
         return this._sceneRenderManager;
-    }
-
-    /**
-     * set ICullPass
-     */
-    set cullPass(cullPass: ICullPass) {
-        this._cullPass = cullPass;
     }
 
     /**
@@ -1182,100 +1172,6 @@ export class Scene3D extends Sprite implements ISubmit {
         }
 
         LayaGL.renderEngine.clearRenderTexture(clearConst, clearColor, 1, 0);
-    }
-
-    /**
-     * @inheritDoc
-     * @override
-     * @internal
-     */
-    _parse(data: any, spriteMap: any): void {
-        var lightMapsData: any[] = data.lightmaps;
-        if (lightMapsData) {
-            var lightMapCount: number = lightMapsData.length;
-            var lightmaps: Lightmap[] = new Array(lightMapCount);
-            for (var i: number = 0; i < lightMapCount; i++) {
-                var lightMap: Lightmap = new Lightmap();
-                var lightMapData: any = lightMapsData[i];
-                if (lightMapData.path) {//兼容
-                    lightMap.lightmapColor = Loader.getTexture2D(lightMapData.path);
-                }
-                else {
-                    lightMap.lightmapColor = Loader.getTexture2D(lightMapData.color.path);
-                    if (lightMapData.direction)
-                        lightMap.lightmapDirection = Loader.getTexture2D(lightMapData.direction.path);
-                }
-                lightmaps[i] = lightMap;
-            }
-            this.lightmaps = lightmaps;
-        }
-        var skyData: any = data.sky;
-        if (skyData) {
-            this._skyRenderer.material = Loader.getRes(skyData.material.path);
-            switch (skyData.mesh) {
-                case "SkyBox":
-                    this._skyRenderer.mesh = SkyBox.instance;
-                    break;
-                case "SkyDome":
-                    this._skyRenderer.mesh = SkyDome.instance;
-                    break;
-                default:
-                    this.skyRenderer.mesh = SkyBox.instance;
-            }
-        }
-        this.enableFog = data.enableFog;
-        this.fogStart = data.fogStart;
-        this.fogRange = data.fogRange;
-        var fogColorData: any[] = data.fogColor;
-        if (fogColorData) {
-            var fogCol: Color = this.fogColor;
-            fogCol.fromArray(fogColorData);
-            this.fogColor = fogCol;
-        }
-        // 环境光 模式
-        var ambientModeData: AmbientMode = data.ambientMode;
-        // 单颜色
-        var ambientColorData: any[] = data.ambientColor;
-        if (ambientColorData) {
-            var ambCol: Color = this.ambientColor;
-            ambCol.fromArray(ambientColorData);
-            this.ambientColor = ambCol;
-        }
-        if (ambientModeData == AmbientMode.TripleColor) {
-            // 三颜色
-            let ambientSkyColor: number[] = data.ambientSkyColor;
-            let tempV3sky = new Vector3();
-            tempV3sky.fromArray(ambientSkyColor);
-
-            let ambientEquatorColor: number[] = data.ambientEquatorColor;
-            let tempV3Equaltor = new Vector3();
-            tempV3Equaltor.fromArray(ambientEquatorColor);
-
-            let ambientGroundColor: number[] = data.ambientGroundColor;
-            let tempV3Ground = new Vector3();
-            tempV3Ground.fromArray(ambientGroundColor);
-
-            this._sceneReflectionProb.setGradientAmbient(tempV3sky, tempV3Equaltor, tempV3Ground);
-        }
-        // skybox
-        var ambientSphericalHarmonicsData: Array<number> = data.ambientSphericalHarmonics;
-        if (ambientSphericalHarmonicsData) {
-            var ambientSH: SphericalHarmonicsL2 = new SphericalHarmonicsL2();
-            for (var i: number = 0; i < 3; i++) {
-                var off: number = i * 9;
-                ambientSH.setCoefficients(i, ambientSphericalHarmonicsData[off], ambientSphericalHarmonicsData[off + 1], ambientSphericalHarmonicsData[off + 2], ambientSphericalHarmonicsData[off + 3], ambientSphericalHarmonicsData[off + 4], ambientSphericalHarmonicsData[off + 5], ambientSphericalHarmonicsData[off + 6], ambientSphericalHarmonicsData[off + 7], ambientSphericalHarmonicsData[off + 8]);
-            }
-            this._sceneReflectionProb.ambientSphericalHarmonics = ambientSH;
-        }
-        (ambientModeData != undefined) && (this.ambientMode = ambientModeData);
-        var reflectionData: string = data.reflection;
-        (reflectionData != undefined) && (this._sceneReflectionProb.reflectionTexture = Loader.getRes(reflectionData));
-        var reflectionDecodingFormatData: number = data.reflectionDecodingFormat;
-        (reflectionDecodingFormatData != undefined) && (this._sceneReflectionProb.reflectionDecodingFormat = reflectionDecodingFormatData);
-        var ambientSphericalHarmonicsIntensityData: number = data.ambientSphericalHarmonicsIntensity;
-        (ambientSphericalHarmonicsIntensityData != undefined) && (this._sceneReflectionProb.ambientIntensity = ambientSphericalHarmonicsIntensityData);
-        var reflectionIntensityData: number = data.reflectionIntensity;
-        (reflectionIntensityData != undefined) && (this._sceneReflectionProb.reflectionIntensity = reflectionIntensityData);
     }
 
     /**

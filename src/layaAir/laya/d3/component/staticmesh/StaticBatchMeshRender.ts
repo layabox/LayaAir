@@ -10,6 +10,7 @@ import { RenderContext3D } from "../../core/render/RenderContext3D";
 import { Sprite3D } from "../../core/Sprite3D";
 import { Transform3D } from "../../core/Transform3D";
 import { BoundFrustum } from "../../math/BoundFrustum";
+import { IRenderContext3D } from "../../RenderDriverLayer/IRenderContext3D";
 import { StaticBatchMesh } from "./StaticBatchMesh";
 import { StaticBatchMeshRenderElement } from "./StaticBatchMeshRenderElement";
 import { StaticMeshMergeInfo } from "./StaticMeshMergeInfo";
@@ -86,7 +87,7 @@ export class StaticBatchMeshRender extends BaseRender {
         // this._bounds.setExtent(Vector3.ONE);
     }
 
-    _renderUpdate(context: RenderContext3D, transform: Transform3D): void {
+    _renderUpdate(context: IRenderContext3D): void {
         // this._applyLightMapParams();
         // // todo 若有根节点, 在这里更新 worldmatrix
         // this._setShaderValue(Sprite3D.WORLDMATRIX, ShaderDataType.Matrix4x4, Matrix4x4.DEFAULT);

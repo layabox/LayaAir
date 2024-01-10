@@ -1,11 +1,10 @@
 import { Vector3 } from "../../../maths/Vector3";
 import { NativeMemory } from "../../../RenderEngine/RenderEngine/NativeGLEngine/CommonMemory/NativeMemory";
-import { IShadowCullInfo } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IShadowCullInfo";
 import { BoundSphere } from "../../math/BoundSphere";
 import { Plane } from "../../math/Plane";
 
 
-export class NativeShadowCullInfo implements IShadowCullInfo {
+export class NativeShadowCullInfo{
 
     private _position: Vector3;
 

@@ -1,7 +1,6 @@
-import { ICameraCullInfo } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/ICameraCullInfo";
 import { Vector4 } from "../../../maths/Vector4";
 import { RenderTexture } from "../../../resource/RenderTexture";
-import { CameraCullInfo } from "../../RenderObjs/RenderObj/CameraCullInfo";
+import { Camera } from "../../core/Camera";
 import { CommandBuffer } from "../../core/render/command/CommandBuffer"
 import { Viewport } from "../../math/Viewport";
 import { PipelineMode } from "../IRenderContext3D";
@@ -54,7 +53,7 @@ export interface IForwardAddClusterRP {
     /**@internal */
     opaqueTexture: RenderTexture;
 
-    setCameraCullInfo(value: ICameraCullInfo): void;
+    setCameraCullInfo(value: Camera): void;
     setViewPort(value: Viewport): void;
     setScissor(value: Vector4): void;
     setBeforeForwardCmds(value: Array<CommandBuffer>): void;

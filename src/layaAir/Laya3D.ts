@@ -165,7 +165,6 @@ export class Laya3D {
         Camera.__init__();
         ShadowUtils.init();
         RenderContext3D.__init__();
-        RenderTexture.configRenderContextInstance(RenderContext3D._instance);
         BlinnPhongMaterial.__initDefine__();
         SkyProceduralMaterial.__initDefine__();
         UnlitMaterial.__initDefine__();

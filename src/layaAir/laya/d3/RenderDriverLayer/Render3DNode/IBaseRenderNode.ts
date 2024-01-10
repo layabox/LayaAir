@@ -4,7 +4,6 @@ import { Vector4 } from "../../../maths/Vector4";
 import { Material } from "../../../resource/Material";
 import { Transform3D } from "../../core/Transform3D";
 import { IrradianceMode } from "../../core/render/BaseRender";
-import { BoundFrustum } from "../../math/BoundFrustum";
 import { Bounds } from "../../math/Bounds";
 import { IRenderContext3D } from "../IRenderContext3D";
 import { ILightMapData } from "../RenderModuleData/ILightMapData";
@@ -35,11 +34,10 @@ export interface IBaseRenderNode {
     lightProbUpdateMark: number;
     irradientMode: IrradianceMode;
 
-    /**
-    * @internal
-    */
+    /**@internal */
     _renderUpdatePre: (context3D: IRenderContext3D) => void;
 
+    /**@internal */
     _calculateBoundingBox: () => void;
 
     /**
@@ -60,10 +58,22 @@ export interface IBaseRenderNode {
      */
     setLightmapScaleOffset(value: Vector4): void;
 
-
+    /**
+     * @internal
+     * @param value 
+     */
     setCommonUniformMap(value: string[]): void;
-    
+
+    /**
+     * @internal
+     * @param index 
+     * @param mat 
+     */
     setOneMaterial(index: number, mat: Material): void;
 
+    /**
+     * @override
+     * @internal
+     */
     destroy(): void;
 }

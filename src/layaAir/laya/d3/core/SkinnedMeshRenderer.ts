@@ -17,6 +17,7 @@ import { Bounds } from "../math/Bounds";
 import { Matrix4x4 } from "../../maths/Matrix4x4";
 import { Vector3 } from "../../maths/Vector3";
 import { BoundFrustum } from "../math/BoundFrustum";
+import { IRenderContext3D } from "../RenderDriverLayer/IRenderContext3D";
 /**
  * <code>SkinMeshRenderer</code> 类用于蒙皮渲染器。
  */
@@ -279,7 +280,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
      * @override
      * @internal
      */
-    protected _calculateBoundingBox(): void {//TODO:是否可直接在boundingSphere属性计算优化
+    _calculateBoundingBox(): void {//TODO:是否可直接在boundingSphere属性计算优化
         if (this._cacheRootBone)
             this._localBounds._tranform(this._cacheRootBone.transform.worldMatrix, this._bounds);
         else
@@ -304,7 +305,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
      * @override
      * @internal
      */
-    _renderUpdate(context: RenderContext3D, transform: Transform3D): void {
+    _renderUpdate(context: IRenderContext3D): void {
         // this._applyReflection();
         // if (this.bones.length > 0) {
         //     this._computeSkinnedData();

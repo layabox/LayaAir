@@ -1,5 +1,5 @@
 import { IBaseRenderNode } from "./IBaseRenderNode";
 
-export interface IMeshRenderNode{
+export interface IMeshRenderNode extends IBaseRenderNode{
     
 }

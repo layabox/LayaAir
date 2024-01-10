@@ -103,7 +103,7 @@ export class PixelLineRenderer extends BaseRender {
      * @override
      * @internal
      */
-    protected _calculateBoundingBox(): void {
+    _calculateBoundingBox(): void {
         var worldMat: Matrix4x4 = (this.owner as Sprite3D).transform.worldMatrix;
         var lineFilter: PixelLineFilter = this._pixelLineFilter;
         lineFilter._reCalculateBound();
@@ -139,7 +139,7 @@ export class PixelLineRenderer extends BaseRender {
         (renderElement) || (renderElement = renderObjects[index] = new RenderElement());
         renderElement.setTransform((this.owner as Sprite3D)._transform);
         renderElement.setGeometry(this._pixelLineFilter);
-        renderElement.render = this;
+        renderElement._baseRender = this;
         renderElement.material = material;
     }
 

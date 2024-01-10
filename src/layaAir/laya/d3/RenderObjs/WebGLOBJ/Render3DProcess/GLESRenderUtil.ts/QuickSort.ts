@@ -1,8 +1,5 @@
-import { ISortPass } from "../../../../../RenderEngine/RenderInterface/RenderPipelineInterface/ISortPass";
 import { SingletonList } from "../../../../../utils/SingletonList";
-import { RenderElement } from "../../../../core/render/RenderElement";
 import { RenderElementOBJ } from "../../../RenderObj/RenderElementOBJ";
-import { GLESBaseRenderNode } from "../../Render3DNode/GLESBaseRenderNode";
 
 export class QuickSort {
 	private elementArray: SingletonList<RenderElementOBJ>;

@@ -1,6 +1,5 @@
 import { Vector3 } from "../../../maths/Vector3";
 import { NativeMemory } from "../../../RenderEngine/RenderEngine/NativeGLEngine/CommonMemory/NativeMemory";
-import { ICameraCullInfo } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/ICameraCullInfo";
 import { BoundFrustum } from "../../math/BoundFrustum";
 import { Plane } from "../../math/Plane";
 
@@ -8,7 +7,7 @@ import { Plane } from "../../math/Plane";
 /**
  * camera裁剪数据
  */
-export class NativeCameraCullInfo implements ICameraCullInfo {
+export class NativeCameraCullInfo{
 	/**位置 */
 	private _position: Vector3;
 

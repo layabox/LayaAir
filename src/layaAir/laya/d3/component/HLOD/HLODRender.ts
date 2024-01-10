@@ -1,5 +1,6 @@
 import { ShaderData, ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData";
 import { Matrix4x4 } from "../../../maths/Matrix4x4";
+import { IRenderContext3D } from "../../RenderDriverLayer/IRenderContext3D";
 import { MeshFilter } from "../../core/MeshFilter";
 import { RenderableSprite3D } from "../../core/RenderableSprite3D";
 import { Sprite3D } from "../../core/Sprite3D";
@@ -133,7 +134,7 @@ export class HLODRender extends BaseRender {
      * @param context 
      * @param transform 
      */
-    _renderUpdate(context: RenderContext3D, transform: Transform3D): void {
+    _renderUpdate(context: IRenderContext3D): void {
         this._applyLightMapParams();
         // // todo 若有根节点, 在这里更新 worldmatrix
         this._baseRenderNode.shaderData.setMatrix4x4(Sprite3D.WORLDMATRIX, this._transform.worldMatrix);

@@ -48,6 +48,9 @@ export class GLESReflectionProbe implements IReflectionProbeData {
         this._probePosition = new Vector3();
         this._ambientColor = new Color();
     }
+    setAmbientSH(value: Float32Array): void {
+        throw new Error("Method not implemented.");
+    }
     /**@internal */
     setShCoefficients(value: Vector4[]): void {
         this._shCoefficients.length = 0;
@@ -79,7 +82,6 @@ export class GLESReflectionProbe implements IReflectionProbeData {
             data.setVector3(RenderableSprite3D.REFLECTIONCUBE_PROBEPOSITION, this._probePosition);
             data.setVector3(RenderableSprite3D.REFLECTIONCUBE_PROBEBOXMAX, this.bound.getMax());
             data.setVector3(RenderableSprite3D.REFLECTIONCUBE_PROBEBOXMIN, this.bound.getMin());
-
         }
         if (this.ambientMode == AmbientMode.SolidColor) {
             data.removeDefine(Sprite3DRenderDeclaration.SHADERDEFINE_GI_LEGACYIBL);
@@ -94,24 +96,6 @@ export class GLESReflectionProbe implements IReflectionProbeData {
             };
             this.iblTexRGBD ? data.addDefine(Sprite3DRenderDeclaration.SHADERDEFINE_IBL_RGBD) : data.removeDefine(Sprite3DRenderDeclaration.SHADERDEFINE_IBL_RGBD);
             this.ambientSH && data.setBuffer(RenderableSprite3D.AMBIENTSH, this.ambientSH);
-        } else {//Legency
-            data.removeDefine(Sprite3DRenderDeclaration.SHADERDEFINE_GI_IBL);
-            data.addDefine(Sprite3DRenderDeclaration.SHADERDEFINE_GI_LEGACYIBL);
-            if (this.reflectionTexture) {
-                data.setTexture(RenderableSprite3D.REFLECTIONTEXTURE, this.reflectionTexture ? this.reflectionTexture : TextureCube.blackTexture);
-                data.setVector(RenderableSprite3D.REFLECTIONCUBE_HDR_PARAMS, this._reflectionHDRParams);
-            }
-
-            if (this._shCoefficients) {
-                data.setVector(RenderableSprite3D.AMBIENTSHAR, this._shCoefficients[0]);
-                data.setVector(RenderableSprite3D.AMBIENTSHAG, this._shCoefficients[1]);
-                data.setVector(RenderableSprite3D.AMBIENTSHAB, this._shCoefficients[2]);
-                data.setVector(RenderableSprite3D.AMBIENTSHBR, this._shCoefficients[3]);
-                data.setVector(RenderableSprite3D.AMBIENTSHBG, this._shCoefficients[4]);
-                data.setVector(RenderableSprite3D.AMBIENTSHBB, this._shCoefficients[5]);
-                data.setVector(RenderableSprite3D.AMBIENTSHC, this._shCoefficients[6]);
-            }
-
         }
         data.setNumber(RenderableSprite3D.AMBIENTINTENSITY, this.ambientIntensity);
         data.setNumber(RenderableSprite3D.REFLECTIONINTENSITY, this.reflectionIntensity);

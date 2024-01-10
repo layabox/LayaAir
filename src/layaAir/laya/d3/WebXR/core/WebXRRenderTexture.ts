@@ -37,22 +37,4 @@ export class WebXRRenderTexture extends RenderTexture {
 	protected _create(width: number, height: number): void {
 	}
 
-	/**
-	 * @internal
-	 */
-	_start(): void {
-		var gl: WebGLRenderingContext =  WebXRExperienceHelper.glInstance;
-		gl.bindFramebuffer(gl.FRAMEBUFFER, this._frameBuffer);
-		RenderTexture._currentActive = this;
-	}
-
-	/**
-	 * @internal
-	 */
-	_end(): void {
-		var gl: WebGLRenderingContext = WebXRExperienceHelper.glInstance;
-		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-		RenderTexture._currentActive = null;
-	}
-
 }

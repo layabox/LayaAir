@@ -3,6 +3,7 @@ import { ShadowCascadesMode } from "./ShadowCascadesMode";
 import { Light, LightType } from "./Light";
 import { Vector3 } from "../../../maths/Vector3";
 import { IDirectLightData } from "../../RenderDriverLayer/RenderModuleData/IDirectLightData";
+import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
 
 
 /**
@@ -76,6 +77,10 @@ export class DirectionLightCom extends Light {
 		this._lightType = LightType.Directional;
 		this.shadowFourCascadeSplits = new Vector3(1.0 / 15, 3.0 / 15.0, 7.0 / 15.0);
 		this.shadowTwoCascadeSplits = 1.0 / 3.0;
+	}
+
+	protected _creatModuleData() {
+		this._dataModule = Laya3DRender.renderOBJCreate.createDirectLight();
 	}
 
 	/**

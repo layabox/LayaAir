@@ -9,8 +9,6 @@ import { Transform3D } from "../../core/Transform3D";
 import { IndexBuffer3D } from "../../graphics/IndexBuffer3D";
 import { VertexBuffer3D } from "../../graphics/VertexBuffer3D";
 import { BoundsImpl } from "../../math/BoundsImpl";
-import { IRenderEngine3DOBJFactory } from "../IRenderEngine3DOBJFactory";
-import { CameraCullInfo } from "../RenderObj/CameraCullInfo";
 import { InstanceRenderElementOBJ } from "../RenderObj/InstanceRenderElementOBJ";
 import { RenderGeometryElementOBJ } from "../RenderObj/RenderGeometryElementOBJ";
 import { SceneRenderManagerOBJ } from "../RenderObj/SceneRenderManagerOBJ";
@@ -68,15 +66,6 @@ export class WGPURenderEngine3DOBJFactory {
     // createSortPass(): QuickSort {
     //     return new QuickSort();
     // }
-
-    
-    createShadowCullInfo(): ShadowCullInfo {
-        return new ShadowCullInfo();
-    }
-
-    createCameraCullInfo(): CameraCullInfo {
-        return new CameraCullInfo();
-    }
     
     createRenderGeometry(mode: MeshTopology, drayType: DrawType): IRenderGeometryElement {
         return new RenderGeometryElementOBJ(mode, drayType);

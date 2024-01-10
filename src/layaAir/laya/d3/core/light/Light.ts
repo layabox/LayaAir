@@ -168,22 +168,15 @@ export class Light extends Component {
         return this._lightType;
     }
 
-    /**@internal */
-    _setOwner(node: Sprite3D): void {
-        super._setOwner(node);
-        this._dataModule.transform = (this.owner as Sprite3D).transform;
-    }
+   
 
-    /**@internal */
-    _getRenderDataModule() {
-        return this._dataModule;
-    }
-
+  
     /**
      * 创建一个 <code>LightSprite</code> 实例。
      */
     constructor() {
         super();
+        this._creatModuleData();
         this.runInEditor = true;
         this._intensity = 1.0;
         this._intensityColor = new Vector3();
@@ -195,6 +188,21 @@ export class Light extends Component {
         this.shadowNormalBias = 1.0;
         this.shadowNearPlane = 0.1;
         this.shadowStrength = 1.0;
+    }
+
+    protected _creatModuleData(){
+        //overrid it
+    }
+
+     /**@internal */
+     _setOwner(node: Sprite3D): void {
+        super._setOwner(node);
+        this._dataModule.transform = (this.owner as Sprite3D).transform;
+    }
+
+    /**@internal */
+    _getRenderDataModule() {
+        return this._dataModule;
     }
 
     /**

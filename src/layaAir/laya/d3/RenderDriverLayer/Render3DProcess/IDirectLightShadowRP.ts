@@ -1,15 +1,9 @@
-import { RenderTexture } from "../../../resource/RenderTexture";
-import { SingletonList } from "../../../utils/SingletonList";
-import { Camera } from "../../core/Camera";
-import { DirectionLightCom } from "../../core/light/DirectionLightCom";
-import { ShadowCascadesMode } from "../../core/light/ShadowCascadesMode";
-import { IRenderContext3D } from "../IRenderContext3D";
-import { IBaseRenderNode } from "../Render3DNode/IBaseRenderNode";
+import { InternalRenderTarget } from "../../../RenderEngine/RenderInterface/InternalRenderTarget";
+import { IDirectLightData } from "../RenderModuleData/IDirectLightData";
+import { ICameraNodeData } from "../RenderModuleData/IModuleData";
 
 export interface IDirectLightShadowRP {
-    light: DirectionLightCom;
-    camera: Camera;
-    destTarget: RenderTexture;
-    // update(context: IRenderContext3D): void;
-    // render(context: IRenderContext3D, list: SingletonList<IBaseRenderNode>): void;
+    light: IDirectLightData;
+    camera: ICameraNodeData;
+    destTarget: InternalRenderTarget;
 }

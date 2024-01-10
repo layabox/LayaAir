@@ -22,6 +22,8 @@ import { LayaGL } from "../../layagl/LayaGL"
 import { IRenderElement } from "../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderElement"
 import { RenderElement } from "./render/RenderElement"
 import { IMeshRenderNode } from "../RenderDriverLayer/Render3DNode/IMeshRenderNode"
+import { Laya3DRender } from "../RenderObjs/Laya3DRender"
+import { IBaseRenderNode } from "../RenderDriverLayer/Render3DNode/IBaseRenderNode"
 
 /**
  * <code>MeshRenderer</code> 类用于网格渲染器。
@@ -64,6 +66,16 @@ export class MeshRenderer extends BaseRender {
         super();
         this._projectionViewWorldMatrix = new Matrix4x4();
         //this._moduleData = Laya3DRender.renderOBJCreate();TODO miner
+    }
+
+
+
+    /**
+     * override it
+     * @returns 
+     */
+    protected _createBaseRenderNode():IMeshRenderNode {
+        return Laya3DRender.renderOBJCreate.createMeshRenderNode();
     }
 
     /**
@@ -310,10 +322,10 @@ export class MeshRenderer extends BaseRender {
 
     }
 
- 
 
 
-  
+
+
     /**
      * @internal
      */

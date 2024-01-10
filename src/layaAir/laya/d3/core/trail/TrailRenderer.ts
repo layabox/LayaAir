@@ -163,7 +163,7 @@ export class TrailRenderer extends BaseRender {
      * @internal
      * @override
      */
-    protected _calculateBoundingBox(): void {
+    _calculateBoundingBox(): void {
         let context = RenderContext3D._instance;
         this.boundsChange = false;
         this._trailFilter._update(context);

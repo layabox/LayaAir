@@ -3,6 +3,7 @@ import { Light, LightType } from "./Light";
 import { Component } from "../../../components/Component";
 import { Vector3 } from "../../../maths/Vector3";
 import { ISpotLightData } from "../../RenderDriverLayer/RenderModuleData/ISpotLightData";
+import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
 
 /**
  * <code>SpotLight</code> 类用于创建聚光。
@@ -57,6 +58,10 @@ export class SpotLightCom extends Light {
 		this.range = 10.0;
 		this._direction = new Vector3();
 		this._lightType = LightType.Spot;
+	}
+
+	protected _creatModuleData() {
+		this._dataModule = Laya3DRender.renderOBJCreate.createSpotLight();
 	}
 
 	/**

@@ -12,6 +12,7 @@ import { ShaderDataType } from "../../RenderEngine/RenderShader/ShaderData";
 import { Matrix4x4 } from "../../maths/Matrix4x4";
 import { Vector2 } from "../../maths/Vector2";
 import { Vector4 } from "../../maths/Vector4";
+import { IRenderContext3D } from "../RenderDriverLayer/IRenderContext3D";
 
 export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
     /**@internal 解决循环引用 */
@@ -119,7 +120,7 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
      * @override
      * @internal
      */
-    _renderUpdate(context: RenderContext3D, transform: Transform3D): void {
+    _renderUpdate(context: IRenderContext3D): void {
         // if (this.rootBone) {
         //     var worldMat: Matrix4x4 = (this.rootBone as Sprite3D).transform.worldMatrix;
         //     if (this._subUniformBufferData) {

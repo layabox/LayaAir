@@ -193,7 +193,7 @@ export class StaticInstanceBatchRender extends BatchRender {
      * @internal
      * 重新计算包围盒
      */
-    protected _calculateBoundingBox() {
+    _calculateBoundingBox() {
         let bound = this._bounds;
         for (let i = 0, n = this._batchList.length; i < n; i++) {
             if (i == 0) {

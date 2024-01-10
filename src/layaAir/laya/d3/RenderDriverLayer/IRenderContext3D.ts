@@ -5,7 +5,7 @@ import { Color } from "../../maths/Color";
 import { Vector4 } from "../../maths/Vector4";
 import { SingletonList } from "../../utils/SingletonList";
 import { Viewport } from "../math/Viewport";
-import { ICameraNodeData, ISceneNodeData } from "./RenderModuleData/ICameraNodeData";
+import { ICameraNodeData, ISceneNodeData } from "./RenderModuleData/IModuleData";
 export type PipelineMode = "Forward" | "ShadowCaster" | "DepthNormal" | string;
 export interface IRenderContext3D {
     globalShaderData: ShaderData;

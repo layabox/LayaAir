@@ -40,10 +40,16 @@ export class GLESBaseRenderNode implements IBaseRenderNode {
     shaderData: ShaderData;
     baseGeometryBounds: Bounds;
     transform: Transform3D;
-    _worldParams: Vector4;
+    protected _worldParams: Vector4;
+    protected _commonUniformMap: string[];
     private _bounds: Bounds;
-    _commonUniformMap: string[];
+    /**
+    * context3D:GLESRenderContext3D
+    * @internal
+    */
+    _renderUpdatePre: (context3D: IRenderContext3D) => void;//属性 
 
+    _calculateBoundingBox: () => void;
 
     /**
      * get bounds
@@ -68,13 +74,7 @@ export class GLESBaseRenderNode implements IBaseRenderNode {
         this._calculateBoundingBox = this._ownerCalculateBoundingBox;
     }
 
-    /**
-     * context3D:GLESRenderContext3D
-     * @internal
-     */
-    _renderUpdatePre: (context3D: IRenderContext3D) => void;//属性 
 
-    _calculateBoundingBox: () => void;
 
     /**
      * 视锥检测包围盒
@@ -148,7 +148,7 @@ export class GLESBaseRenderNode implements IBaseRenderNode {
      * @internal
      */
     _ownerCalculateBoundingBox() {
-        this.baseGeometryBounds._tranform(this.transform.worldMatrix, this.bounds)
+        this.baseGeometryBounds._tranform(this.transform.worldMatrix, this._bounds)
     }
 
     /**

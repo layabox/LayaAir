@@ -1,11 +1,29 @@
 import { Plane } from "../math/Plane";
 import { ShaderData } from "../../RenderEngine/RenderShader/ShaderData";
-import { ICameraCullInfo } from "../../RenderEngine/RenderInterface/RenderPipelineInterface/ICameraCullInfo";
 import { BoundSphere } from "../math/BoundSphere";
 import { Matrix4x4 } from "../../maths/Matrix4x4";
 import { Vector3 } from "../../maths/Vector3";
 import { LayaGL } from "../../layagl/LayaGL";
-import { Laya3DRender } from "../RenderObjs/Laya3DRender";
+import { BoundFrustum } from "../math/BoundFrustum";
+
+
+
+
+/**
+ * camera裁剪数据
+ */
+export class CameraCullInfo {
+    /**位置 */
+    position: Vector3;
+    /**是否遮挡剔除 */
+    useOcclusionCulling: Boolean;
+    /**锥体包围盒 */
+    boundFrustum: BoundFrustum;
+    /**遮挡标记 */
+    cullingMask: number;
+    /**静态标记 */
+    staticMask: number;
+}
 
 /**
  * @internal
@@ -39,6 +57,6 @@ export class ShadowSpotData {
     viewMatrix: Matrix4x4 = new Matrix4x4();
     projectionMatrix: Matrix4x4 = new Matrix4x4();
     viewProjectMatrix: Matrix4x4 = new Matrix4x4();
-    cameraCullInfo: ICameraCullInfo = Laya3DRender.renderOBJCreate.createCameraCullInfo();
+    cameraCullInfo: CameraCullInfo = new CameraCullInfo();
 
 }

@@ -28,6 +28,9 @@ import { Stat } from "../../../utils/Stat";
 import { Scene3D } from "../scene/Scene3D";
 import { RenderElement } from "./RenderElement";
 import { IRenderElement } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderElement";
+import { IRenderContext3D } from "../../RenderDriverLayer/IRenderContext3D";
+import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
+import { LayaGL } from "../../../layagl/LayaGL";
 
 export enum RenderBitFlag {
     RenderBitFlag_CullFlag = 0,
@@ -268,7 +271,7 @@ export class BaseRender extends Component {
 
     set lightmapIndex(value: number) {
         this._baseRenderNode.lightmapIndex = value;
-        this._baseRenderNode.lightmap = (this._scene as Scene3D).lightmaps[value]
+        (value != -1) && (this._baseRenderNode.lightmap = (this._scene as Scene3D).lightmaps[value]);
         //this._scene && this._applyLightMapParams(); todo miner
         this._getIrradientMode();
     }
@@ -428,12 +431,12 @@ export class BaseRender extends Component {
         return this._probReflection;
     }
 
-    set probReflection(voluemProbe: ReflectionProbe) {
-        if (this._probReflection == voluemProbe)
+    set probReflection(value: ReflectionProbe) {
+        if (this._probReflection == value)
             return;
         this._baseRenderNode.probeReflectionUpdateMark = -1;//initial update mask
-        this._probReflection = voluemProbe;
-        //this._baseRenderNode.volumetricGI = voluemProbe.renderModuleData;TODO miner
+        this._probReflection = value;
+        this._baseRenderNode.probeReflection = value._dataModule;
         if (this._baseRenderNode.reflectionMode == ReflectionProbeMode.off) {
             this._baseRenderNode.shaderData.removeDefine(Sprite3DRenderDeclaration.SHADERDEFINE_SPECCUBE_BOX_PROJECTION);
             this._baseRenderNode.shaderData.addDefine(Sprite3DRenderDeclaration.SHADERDEFINE_GI_IBL);
@@ -464,9 +467,9 @@ export class BaseRender extends Component {
      */
     constructor() {
         super();
-
         this._baseRenderNode = this._createBaseRenderNode();
         this._baseRenderNode.setCommonUniformMap(this._getcommonUniformMap());
+        this._baseRenderNode.shaderData = LayaGL.renderOBJCreate.createShaderData(null);
         //this._rendernode.owner = this;
         this._renderid = ++BaseRender._uniqueIDCounter;
         this._baseRenderNode.bounds = this._bounds = new Bounds(Vector3.ZERO, Vector3.ZERO);
@@ -475,14 +478,28 @@ export class BaseRender extends Component {
         this.lightmapIndex = -1;
         this.receiveShadow = false;
         this._baseRenderNode.sortingFudge = 0.0;
-        // this._customCull = this._needRender !== BaseRender.prototype._needRender;todo miner
+        if (!!this._calculateBoundingBox) {
+            this._baseRenderNode._calculateBoundingBox = this._calculateBoundingBox;
+        }
+        if (!!this._renderUpdate) {
+            this._baseRenderNode._renderUpdatePre = this._renderUpdate;
+        }
         this.runInEditor = true;
         this._asynNative = true;
         this.boundsChange = true;
         this._baseRenderNode.renderbitFlag = 0;
         this._baseRenderNode.staticMask = 1;
     }
+    /**
+     * 每一帧计算包围盒会调用的函数
+     */
+    _calculateBoundingBox?(): void;
 
+    /**
+     * 每一帧渲染前更新SpriteShaderData的调用函数
+     * @param context3D 
+     */
+    _renderUpdate?(context3D: IRenderContext3D): void;
     /**
   * set BaseRenderElement
   * @param mesh 
@@ -518,8 +535,7 @@ export class BaseRender extends Component {
      * @returns 
      */
     protected _createBaseRenderNode(): IBaseRenderNode {
-        //return Laya3DRender.renderOBJCreate.createBaseRenderNode();//TODO miner
-        return null;
+        return Laya3DRender.renderOBJCreate.createBaseRenderNode();
     }
 
     /**
@@ -527,9 +543,7 @@ export class BaseRender extends Component {
      * @param context 
      */
     renderUpdate(context: RenderContext3D) {
-        //TODO update Geometry
-        //TODO update GeometryBounds
-        // one update by one Frame
+
     }
 
     /**

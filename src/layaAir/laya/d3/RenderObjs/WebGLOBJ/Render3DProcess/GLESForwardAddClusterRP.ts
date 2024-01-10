@@ -9,7 +9,7 @@ import { Camera } from "../../../core/Camera";
 import { CommandBuffer } from "../../../core/render/command/CommandBuffer";
 import { DepthPass } from "../../../depthMap/DepthPass";
 import { Viewport } from "../../../math/Viewport";
-import { CameraCullInfo } from "../../RenderObj/CameraCullInfo";
+import { CameraCullInfo } from "../../../shadowMap/ShadowSliceData";
 import { GLESRenderContext3D } from "../GLESRenderContext3D";
 import { GLESBaseRenderNode } from "../Render3DNode/GLESBaseRenderNode";
 import { GLESCullUtil } from "./GLESRenderUtil.ts/GLESCullUtil";
@@ -22,7 +22,7 @@ export class GLESForwardAddClusterRP implements IForwardAddClusterRP {
     /** @internal*/
     static _contextScissorPortCatch: Vector4 = new Vector4(0, 0, 0, 0);
     /**@internal */
-    cameraCullInfo: CameraCullInfo
+    cameraCullInfo: CameraCullInfo;
     /**@internal */
     beforeForwardCmds: Array<CommandBuffer>;
     /**@internal */
@@ -81,10 +81,15 @@ export class GLESForwardAddClusterRP implements IForwardAddClusterRP {
     constructor() {
         this.opaqueList = new GLESRenderQueueList(false);
         this.transparent = new GLESRenderQueueList(true);
+        this.cameraCullInfo = new CameraCullInfo();
     }
 
-    setCameraCullInfo(value: CameraCullInfo): void {
-        this.cameraCullInfo = value;
+    setCameraCullInfo(value: Camera): void {
+        this.cameraCullInfo.position = value._transform.position;
+        this.cameraCullInfo.cullingMask = value.cullingMask;
+        this.cameraCullInfo.staticMask = value.staticMask;
+        this.cameraCullInfo.boundFrustum = value.boundFrustum;
+        this.cameraCullInfo.useOcclusionCulling = value.useOcclusionCulling;
     }
     setBeforeForwardCmds(value: CommandBuffer[]): void {
         this.beforeForwardCmds = value;

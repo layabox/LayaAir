@@ -9,18 +9,6 @@ import { BaseTexture } from "./BaseTexture";
 
 export class RenderTexture extends BaseTexture implements IRenderTarget {
 
-    // todo 记录当前 绑定 rt  位置不放在这里
-    protected static _currentActive: RenderTexture = null;
-
-    static get currentActive(): RenderTexture {
-        return RenderTexture._currentActive;
-    }
-
-    protected static _configInstance: any = {};
-    static configRenderContextInstance(value: any) {
-        RenderTexture._configInstance = value;
-    }
-
     private static _pool: RenderTexture[] = [];
     private static _poolMemory: number = 0;
 

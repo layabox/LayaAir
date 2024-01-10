@@ -3,6 +3,7 @@ import { WGPUShaderVariable } from "../../../RenderEngine/RenderEngine/WebGPUEng
 import { WebGPUBuffer } from "../../../RenderEngine/RenderEngine/WebGPUEngine/WebGPUBuffer";
 import { WebGPUEngine } from "../../../RenderEngine/RenderEngine/WebGPUEngine/WebGPUEngine";
 import { WebGPUInternalTex } from "../../../RenderEngine/RenderEngine/WebGPUEngine/WebGPUInternalTex";
+import { InternalRenderTarget } from "../../../RenderEngine/RenderInterface/InternalRenderTarget";
 import { ShaderData } from "../../../RenderEngine/RenderShader/ShaderData";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { Color } from "../../../maths/Color";

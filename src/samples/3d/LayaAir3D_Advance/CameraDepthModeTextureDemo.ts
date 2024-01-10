@@ -50,8 +50,8 @@ export class CameraDepthModeTextureDemo {
     onPreLoadFinish() {
         this.scene = Laya.stage.addChild(new Scene3D()) as Scene3D;
         this.scene.ambientColor = new Color(0.858, 0.858, 0.858);
-        this.scene.sceneReflectionProb.reflectionTexture = Loader.getRes("res/threeDimen/LayaScene_depthNormalScene/Conventional/Assets/Scenes/depthNormalSceneGIReflection.ltcb.ls") as TextureCube;
-        this.scene.sceneReflectionProb.reflectionDecodingFormat = 1;
+        //this.scene.sceneReflectionProb.reflectionTexture = Loader.getRes("res/threeDimen/LayaScene_depthNormalScene/Conventional/Assets/Scenes/depthNormalSceneGIReflection.ltcb.ls") as TextureCube;
+        //this.scene.sceneReflectionProb.reflectionDecodingFormat = 1;
         this.scene.sceneReflectionProb.reflectionIntensity = 1;
         this.depthNormalPlane = this.scene.addChild(Loader.createNodes("res/threeDimen/LayaScene_depthNormalScene/Conventional/depthNormalPlane.lh")) as MeshSprite3D;
         this.depthPlane = this.scene.addChild(Loader.createNodes("res/threeDimen/LayaScene_depthNormalScene/Conventional/depthPlane.lh")) as MeshSprite3D;

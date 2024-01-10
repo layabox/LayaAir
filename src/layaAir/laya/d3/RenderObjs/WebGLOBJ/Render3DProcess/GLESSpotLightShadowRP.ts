@@ -18,7 +18,7 @@ import { CommandBuffer } from "../../../core/render/command/CommandBuffer";
 import { Scene3DShaderDeclaration } from "../../../core/scene/Scene3DShaderDeclaration";
 import { Viewport } from "../../../math/Viewport";
 import { ShadowCasterPass } from "../../../shadowMap/ShadowCasterPass";
-import { CameraCullInfo } from "../../RenderObj/CameraCullInfo";
+import { CameraCullInfo } from "../../../shadowMap/ShadowSliceData";
 import { GLESRenderContext3D } from "../GLESRenderContext3D";
 import { GLESBaseRenderNode } from "../Render3DNode/GLESBaseRenderNode";
 import { GLESSpotLight } from "../RenderModuleData/GLESSpotLight";

@@ -2,7 +2,7 @@ import { Vector3 } from "../../../../../maths/Vector3";
 import { Stat } from "../../../../../utils/Stat";
 import { FrustumCulling } from "../../../../graphics/FrustumCulling";
 import { BoundFrustum } from "../../../../math/BoundFrustum";
-import { CameraCullInfo } from "../../../RenderObj/CameraCullInfo";
+import { CameraCullInfo } from "../../../../shadowMap/ShadowSliceData";
 import { GLESRenderContext3D } from "../../GLESRenderContext3D";
 import { GLESBaseRenderNode } from "../../Render3DNode/GLESBaseRenderNode";
 import { ShadowCullInfo } from "../GLESDirectLightShadowRP";
@@ -67,6 +67,7 @@ export class GLESCullUtil {
         }
     }
 
+    
 
     static cullingSpotShadow(cameraCullInfo: CameraCullInfo, list: GLESBaseRenderNode[], count: number, opaqueList: GLESRenderQueueList, context: GLESRenderContext3D) {
         opaqueList.clear();

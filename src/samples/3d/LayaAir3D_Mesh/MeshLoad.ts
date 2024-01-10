@@ -15,13 +15,13 @@ import { Button } from "laya/ui/Button";
 import { Browser } from "laya/utils/Browser";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
-import { Laya3D } from "Laya3D";
 import Client from "../../Client";
 import { Tool } from "../common/Tool";
 import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
-
+import { URL } from "laya/net/URL";
 /**
  * ...
+ * 
  * @author
  */
 export class MeshLoad {
@@ -44,7 +44,7 @@ export class MeshLoad {
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
 			//显示性能面板
 			Stat.show();
-
+			URL.basePath += "sample-resource/";
 			//创建场景
 			var scene: Scene3D = (<Scene3D>Laya.stage.addChild(new Scene3D()));
 

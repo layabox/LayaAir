@@ -25,6 +25,7 @@ import { NodeFlags } from "../../../Const";
 import { ILaya } from "../../../../ILaya";
 import { RenderState } from "../../../RenderEngine/RenderShader/RenderState";
 import { LayaEnv } from "../../../../LayaEnv";
+import { IRenderContext3D } from "../../RenderDriverLayer/IRenderContext3D";
 
 /**
  * <code>BaseCamera</code> 类用于创建摄像机的父类。
@@ -331,7 +332,7 @@ export class UI3D extends BaseRender {
      * @override
      * @internal
      */
-    _renderUpdate(context: RenderContext3D, transform: Transform3D): void {
+    _renderUpdate(context: IRenderContext3D): void {
         // this._applyReflection();
         // this._setShaderValue(Sprite3D.WORLDMATRIX, ShaderDataType.Matrix4x4, this._matrix);
         // this._worldParams.x = transform.getFrontFaceValue();
@@ -378,7 +379,7 @@ export class UI3D extends BaseRender {
      * @override
      * @internal
      */
-    protected _calculateBoundingBox(): void {
+    _calculateBoundingBox(): void {
         var worldMat: Matrix4x4 = this._transform.worldMatrix;
         this._geometry.bounds._tranform(worldMat, this._bounds);
     }

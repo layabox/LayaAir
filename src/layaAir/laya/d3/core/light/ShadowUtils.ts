@@ -393,29 +393,29 @@ export class ShadowUtils {
         Utils3D._mulMatrixArray(ShadowUtils._shadowMapScaleOffsetMatrix.elements, viewProjectMatrix.elements, 0, shadowMatrices, cascadeIndex * 16);
     }
 
-    /** 
-    * @internal
-    */
-    static getSpotLightShadowData(shadowSpotData: ShadowSpotData, spotLight: SpotLightCom, resolution: number, shadowParams: Vector4, shadowSpotMatrices: Matrix4x4, shadowMapSize: Vector4) {
-        var out: Vector3 = shadowSpotData.position = (spotLight.owner as Sprite3D).transform.position;
-        shadowSpotData.resolution = resolution;
-        shadowMapSize.setValue(1.0 / resolution, 1.0 / resolution, resolution, resolution);
-        shadowSpotData.offsetX = 0;
-        shadowSpotData.offsetY = 0;
+    // /** 
+    // * @internal
+    // */
+    // static getSpotLightShadowData(shadowSpotData: ShadowSpotData, spotLight: SpotLightCom, resolution: number, shadowParams: Vector4, shadowSpotMatrices: Matrix4x4, shadowMapSize: Vector4) {
+    //     var out: Vector3 = shadowSpotData.position = (spotLight.owner as Sprite3D).transform.position;
+    //     shadowSpotData.resolution = resolution;
+    //     shadowMapSize.setValue(1.0 / resolution, 1.0 / resolution, resolution, resolution);
+    //     shadowSpotData.offsetX = 0;
+    //     shadowSpotData.offsetY = 0;
 
-        var spotWorldMatrix: Matrix4x4 = spotLight.lightWorldMatrix;
-        var viewMatrix: Matrix4x4 = shadowSpotData.viewMatrix;
-        var projectMatrix: Matrix4x4 = shadowSpotData.projectionMatrix;
-        var viewProjectMatrix: Matrix4x4 = shadowSpotData.viewProjectMatrix;
-        var BoundFrustum: BoundFrustum = shadowSpotData.cameraCullInfo.boundFrustum;
-        spotWorldMatrix.invert(viewMatrix);
-        Matrix4x4.createPerspective(3.1416 * spotLight.spotAngle / 180.0, 1, 0.1, spotLight.range, projectMatrix);
-        shadowParams.y = spotLight.shadowStrength;
-        Matrix4x4.multiply(projectMatrix, viewMatrix, viewProjectMatrix);
-        BoundFrustum.matrix = viewProjectMatrix;
-        viewProjectMatrix.cloneTo(shadowSpotMatrices);
-        shadowSpotData.cameraCullInfo.position = out;
-    }
+    //     var spotWorldMatrix: Matrix4x4 = spotLight.lightWorldMatrix;
+    //     var viewMatrix: Matrix4x4 = shadowSpotData.viewMatrix;
+    //     var projectMatrix: Matrix4x4 = shadowSpotData.projectionMatrix;
+    //     var viewProjectMatrix: Matrix4x4 = shadowSpotData.viewProjectMatrix;
+    //     var BoundFrustum: BoundFrustum = shadowSpotData.cameraCullInfo.boundFrustum;
+    //     spotWorldMatrix.invert(viewMatrix);
+    //     Matrix4x4.createPerspective(3.1416 * spotLight.spotAngle / 180.0, 1, 0.1, spotLight.range, projectMatrix);
+    //     shadowParams.y = spotLight.shadowStrength;
+    //     Matrix4x4.multiply(projectMatrix, viewMatrix, viewProjectMatrix);
+    //     BoundFrustum.matrix = viewProjectMatrix;
+    //     viewProjectMatrix.cloneTo(shadowSpotMatrices);
+    //     shadowSpotData.cameraCullInfo.position = out;
+    // }
 
     /**
      * @internal

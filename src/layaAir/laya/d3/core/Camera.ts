@@ -39,6 +39,9 @@ import { LayaGL } from "../../layagl/LayaGL";
 import { DepthTextureMode } from "../RenderDriverLayer/Render3DProcess/IForwardAddClusterRP";
 import { IForwardAddRP } from "../RenderDriverLayer/Render3DProcess/IForwardAddRP";
 import { IRender3DProcess } from "../RenderDriverLayer/Render3DProcess/IRender3DProcess";
+import { ICameraNodeData } from "../RenderDriverLayer/RenderModuleData/IModuleData";
+import { Laya3DRender } from "../RenderObjs/Laya3DRender";
+import { ShadowCasterPass } from "../shadowMap/ShadowCasterPass";
 
 /**
  * 相机清除标记。
@@ -352,6 +355,8 @@ export class Camera extends BaseCamera {
     /**cache 上一帧纹理 */
     _cacheDepthTexture: RenderTexture;
 
+    _renderDataModule: ICameraNodeData;
+
     /**
      * 横纵比。
      */
@@ -649,6 +654,7 @@ export class Camera extends BaseCamera {
      */
     constructor(aspectRatio: number = 0, nearPlane: number = 0.3, farPlane: number = 1000) {
         super(nearPlane, farPlane);
+        this._renderDataModule = Laya3DRender.renderOBJCreate.createCameraModuleData();
         this._viewMatrix = new Matrix4x4();
         this._projectionMatrix = new Matrix4x4();
         this._projectionViewMatrix = new Matrix4x4();
@@ -1149,9 +1155,11 @@ export class Camera extends BaseCamera {
             var needDirShadowCasterPass: boolean = mainDirectLight && mainDirectLight.shadowMode !== ShadowMode.None && ShadowUtils.supportShadow();
             this._ForwardAddRP.enableDirectLightShadow = needDirShadowCasterPass;
             if (needDirShadowCasterPass) {
-                this._ForwardAddRP.directLightShadowPass.camera = this;
-                this._ForwardAddRP.directLightShadowPass.light = mainDirectLight;
-                this._ForwardAddRP.directLightShadowPass.destTarget = ILaya3D.Scene3D._shadowCasterPass.getDirectLightShadowMap(mainDirectLight);
+                this._ForwardAddRP.directLightShadowPass.camera = this._renderDataModule;
+                this._ForwardAddRP.directLightShadowPass.light = mainDirectLight._dataModule;
+                let dirlightShadowmap = ILaya3D.Scene3D._shadowCasterPass.getDirectLightShadowMap(mainDirectLight);
+                this._ForwardAddRP.directLightShadowPass.destTarget =dirlightShadowmap._renderTarget;
+                scene._shaderValues.setTexture(ShadowCasterPass.SHADOW_MAP, dirlightShadowmap);
             }
 
             //spotLight ShadowCaster
@@ -1166,7 +1174,6 @@ export class Camera extends BaseCamera {
         scene._componentDriver.callPreRender();
         this._preRenderMainPass(context, scene, needInternalRT, viewport);
         this._Render3DProcess.renderFowarAddCameraPass(context._contextOBJ, this._ForwardAddRP, scene.sceneRenderableManager.renderBaselist.elements, scene.sceneRenderableManager.renderBaselist.length);
-        // this._renderMainPass(context, viewport, scene, shader, replacementTag, needInternalRT);
         this._aftRenderMainPass(this._ForwardAddRP.shadowCastPass);
         scene._componentDriver.callPostRender();
     }
