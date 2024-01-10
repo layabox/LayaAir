@@ -218,7 +218,10 @@ export class pxJoint implements IJoint {
 
     /**@internal */
     release() {
-
+        if (this._pxJoint) {
+            this._pxJoint.release();
+            this._pxJoint = null;
+        }
     }
 
 }

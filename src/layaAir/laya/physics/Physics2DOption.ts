@@ -7,7 +7,7 @@ export class Physics2DOption {
     static allowSleeping: boolean = false;
 
     /**重力 （单位：像素）*/
-    static gravity = { x: 0, y: 500 };
+    static gravity = { x: 0, y: 9.8 };
 
     /**是否由外部跟新*/
     static customUpdate: boolean = false;

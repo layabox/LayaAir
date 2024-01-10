@@ -1,6 +1,5 @@
 import { ICollider } from "../../Physics3D/interface/ICollider";
 import { Vector3 } from "../../maths/Vector3";
-import { PhysicsColliderComponent } from "./PhysicsColliderComponent"
 
 /**
  * <code>HitResult</code> 类用于实现射线检测或形状扫描的结果。
@@ -16,6 +15,9 @@ export class HitResult {
     normal: Vector3 = new Vector3();
     /** 碰撞分数。 */
     hitFraction: number = 0;
+
+    /**@internal */
+    _inPool: boolean = false;
 
     /**
      * 创建一个 <code>HitResult</code> 实例。
