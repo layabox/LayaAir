@@ -358,8 +358,6 @@ export class Scene3D extends Sprite implements ISubmit, ICreateResource {
 
 	/** 当前创建精灵所属遮罩层。*/
 	currentCreationLayer: number = Math.pow(2, 0);
-	/** 是否启用灯光。*/
-	enableLight: boolean = true;
 
 	/** @internal */
 	_debugTool: PixelLineSprite3D;
