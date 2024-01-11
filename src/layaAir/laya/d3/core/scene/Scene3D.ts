@@ -1,7 +1,6 @@
 import { Config3D } from "../../../../Config3D";
 import { ILaya } from "../../../../ILaya";
 import { Sprite } from "../../../display/Sprite";
-import { Loader } from "../../../net/Loader";
 import { Context } from "../../../resource/Context";
 import { Texture2D } from "../../../resource/Texture2D";
 import { Handler } from "../../../utils/Handler";
@@ -9,11 +8,8 @@ import { Timer } from "../../../utils/Timer";
 import { ISubmit } from "../../../webgl/submit/ISubmit";
 import { SubmitKey } from "../../../webgl/submit/SubmitKey";
 import { Cluster } from "../../graphics/renderPath/Cluster";
-import { SphericalHarmonicsL2 } from "../../graphics/SphericalHarmonicsL2";
 import { Viewport } from "../../math/Viewport";
 import { PhysicsSettings } from "../../physics/PhysicsSettings";
-import { SkyBox } from "../../resource/models/SkyBox";
-import { SkyDome } from "../../resource/models/SkyDome";
 import { SkyRenderer } from "../../resource/models/SkyRenderer";
 import { TextureCube } from "../../../resource/TextureCube";
 import { Utils3D } from "../../utils/Utils3D";
@@ -60,6 +56,8 @@ import { Laya3D } from "../../../../Laya3D";
 import { IPhysicsManager } from "../../../Physics3D/interface/IPhysicsManager";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { IElementComponentManager } from "./IScenceComponentManager";
+import { ISceneNodeData } from "../../RenderDriverLayer/RenderModuleData/IModuleData";
+import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
 
 export enum FogMode {
     Linear = 0, //Linear
@@ -390,8 +388,6 @@ export class Scene3D extends Sprite implements ISubmit {
     /**@internal */
     private _physicsStepTime: number = 0;
     /**@internal */
-    _lightmapDirtyFlag: number = -1
-    /**@internal */
     _sunColor: Color = new Color(1.0, 1.0, 1.0);
     /**@interanl */
     _sundir: Vector3 = new Vector3();
@@ -440,7 +436,7 @@ export class Scene3D extends Sprite implements ISubmit {
 
     componentElementMap: Map<string, IElementComponentManager> = new Map();
 
-
+    _sceneModuleData:ISceneNodeData;
 
     /**
      * Scene3D所属的2D场景，使用IDE编辑的场景载入后具有此属性。
@@ -714,7 +710,7 @@ export class Scene3D extends Sprite implements ISubmit {
         } else {
             maps.length = 0;
         }
-        this._lightmapDirtyFlag = Scene3D._updateMark;
+        this._sceneModuleData.lightmapDirtyFlag =  Scene3D._updateMark
 
     }
 
@@ -739,7 +735,7 @@ export class Scene3D extends Sprite implements ISubmit {
         this._is3D = true;
         this._componentDriver = new ComponentDriver();
         this._timer = ILaya.timer;
-
+        this._sceneModuleData = Laya3DRender.renderOBJCreate.createSceneModuleData();
         if (LayaEnv.isConch && !(window as any).conchConfig.conchWebGL) {
             this._nativeObj = new (window as any).conchSubmitScene3D(this.renderSubmit.bind(this));
         }
@@ -820,7 +816,7 @@ export class Scene3D extends Sprite implements ISubmit {
         this._componentDriver.callLateUpdate();
         this._componentDriver.callDestroy();
 
-        this._sceneRenderManager.updateMotionObjects();
+        //this._sceneRenderManager.updateMotionObjects();
         this._sceneRenderManager.renderUpdate();
         if (!this._renderByEditor)
             this._UI3DManager.update();

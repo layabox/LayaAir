@@ -33,7 +33,7 @@ export class RenderElementOBJ implements IRenderElement {
 
     _isRender: boolean;
 
-    _owner: any;//GLESRenderNode
+    _owner: GLESBaseRenderNode;//GLESRenderNode
 
     _invertFront: boolean;
 
@@ -55,7 +55,7 @@ export class RenderElementOBJ implements IRenderElement {
     }
 
     private _getInvertFront(): boolean {
-        let transform = this._owner.transform;
+        let transform = this._owner?.transform;
         return transform ? transform._isFrontFaceInvert : false;
     }
 
@@ -125,14 +125,11 @@ export class RenderElementOBJ implements IRenderElement {
 
             var comDef: DefineDatas = RenderElementOBJ._compileDefine;
 
-            // context.configShaderData._defineDatas.cloneTo(comDef);
-
             if (context.sceneData) {
                 context.sceneData._defineDatas.cloneTo(comDef);
             } else {
-                //Shader3D._configDefineValues.cloneTo(comDef);TODO
+                context._globalConfigShaderData.cloneTo(comDef);
             }
-            comDef.addDefineDatas(context.globalShaderData._defineDatas);
 
             context.cameraData && comDef.addDefineDatas(context.cameraData._defineDatas);
             if (this._renderShaderData) {

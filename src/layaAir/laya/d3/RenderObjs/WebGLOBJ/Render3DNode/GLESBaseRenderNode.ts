@@ -41,7 +41,7 @@ export class GLESBaseRenderNode implements IBaseRenderNode {
     baseGeometryBounds: Bounds;
     transform: Transform3D;
     protected _worldParams: Vector4;
-    protected _commonUniformMap: string[];
+    _commonUniformMap: string[];
     private _bounds: Bounds;
     /**
     * context3D:GLESRenderContext3D
@@ -100,10 +100,11 @@ export class GLESBaseRenderNode implements IBaseRenderNode {
      * @internal
      * @param value :RenderElementObj
      */
-    setRenderelements(value: any[]): void {
+    setRenderelements(value: RenderElementOBJ[]): void {
         this.renderelements.length = 0;
         for (var i = 0; i < value.length; i++) {
             this.renderelements.push(value[i]);
+            value[i]._owner = this;
         }
     }
 

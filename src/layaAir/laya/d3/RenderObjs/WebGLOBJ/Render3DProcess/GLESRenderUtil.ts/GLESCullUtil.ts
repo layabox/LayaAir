@@ -17,7 +17,7 @@ export class GLESCullUtil {
         for (var i: number = 0, n: number = count; i < n; i++) {
             var render = renders[i];
             var canPass: boolean;
-            canPass = (Math.pow(2, render.layer) & cullMask) != 0 && render.enable && (render.renderbitFlag == 0);
+            canPass = (Math.pow(2, render.layer) & cullMask) != 0 && (render.renderbitFlag == 0);
             canPass = canPass && ((render.staticMask & staticMask) != 0);
             if (canPass) {
                 Stat.frustumCulling++;

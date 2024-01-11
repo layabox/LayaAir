@@ -58,7 +58,7 @@ export class RenderContext3D {
 
     /**@internal */
     set destTarget(value: IRenderTarget) {
-        this._contextOBJ.setRenderTarget(value._renderTarget);
+        this._contextOBJ.setRenderTarget(value ? value._renderTarget : null);
     }
 
 
@@ -103,6 +103,7 @@ export class RenderContext3D {
             //this._contextOBJ.sceneModuleData = value._scenemoduleData; TODO miner
             this._contextOBJ.sceneData = value._shaderValues;
             this._scene = value;
+            this._contextOBJ.sceneModuleData = value._sceneModuleData;
         } else {
             this._contextOBJ.sceneModuleData = null;
             this._contextOBJ.sceneData = null;

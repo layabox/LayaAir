@@ -12,6 +12,7 @@ import { Viewport } from "../../../math/Viewport";
 import { CameraCullInfo } from "../../../shadowMap/ShadowSliceData";
 import { GLESRenderContext3D } from "../GLESRenderContext3D";
 import { GLESBaseRenderNode } from "../Render3DNode/GLESBaseRenderNode";
+import { GLESCameraNodeData } from "../RenderModuleData/GLESModuleData";
 import { GLESCullUtil } from "./GLESRenderUtil.ts/GLESCullUtil";
 import { GLESRenderQueueList } from "./GLESRenderUtil.ts/GLESRenderListQueue";
 
@@ -58,9 +59,12 @@ export class GLESForwardAddClusterRP implements IForwardAddClusterRP {
     opaqueTexture: RenderTexture;
     enableOpaqueTexture: boolean;
 
+    clearColor: Color;
+    clearFlag: number;
 
-    /**@internal TODO delete*/
-    camera: Camera;
+    /**@internal */
+    camera: GLESCameraNodeData;
+
     private _viewPort: Viewport;
     setViewPort(value: Viewport) {
         value.cloneTo(this._viewPort);
@@ -76,12 +80,17 @@ export class GLESForwardAddClusterRP implements IForwardAddClusterRP {
     private transparent: GLESRenderQueueList;
 
     private _zBufferParams: Vector4;
-    private _defaultNormalDepthColor = new Color(0.5, 0.5, 1.0, 0.0);
+    private _defaultNormalDepthColor;
 
     constructor() {
         this.opaqueList = new GLESRenderQueueList(false);
         this.transparent = new GLESRenderQueueList(true);
         this.cameraCullInfo = new CameraCullInfo();
+        this._zBufferParams = new Vector4();
+        this._scissor = new Vector4();
+        this._viewPort = new Viewport();
+        this._defaultNormalDepthColor = new Color(0.5, 0.5, 1.0, 0.0);
+        this.clearColor = new Color();
     }
 
     setCameraCullInfo(value: Camera): void {
@@ -131,7 +140,7 @@ export class GLESForwardAddClusterRP implements IForwardAddClusterRP {
      */
     private _renderDepthPass(context: GLESRenderContext3D): void {
         context.pipelineMode = this.depthPipelineMode;
-        var viewport = this.camera.viewport;
+        var viewport = this._viewPort;
         var shadervalue = context.sceneData;
         shadervalue.addDefine(DepthPass.DEPTHPASS);
         shadervalue.setVector(DepthPass.DEFINE_SHADOW_BIAS, Vector4.ZERO);
@@ -143,8 +152,8 @@ export class GLESForwardAddClusterRP implements IForwardAddClusterRP {
         context.setRenderTarget(this.depthTarget._renderTarget);
         this.opaqueList.renderQueue(context);
         //渲染完后传入使用的参数
-        var far = this.camera.farPlane;
-        var near = this.camera.nearPlane;
+        var far = this.camera.farplane;
+        var near = this.camera.nearplane;
         this._zBufferParams.setValue(1.0 - far / near, far / near, (near - far) / (near * far), 1 / near);
         context.cameraData.setVector(DepthPass.DEFINE_SHADOW_BIAS, DepthPass.SHADOW_BIAS);
         context.cameraData.setTexture(DepthPass.DEPTHTEXTURE, this.depthTarget);
@@ -159,9 +168,8 @@ export class GLESForwardAddClusterRP implements IForwardAddClusterRP {
      */
     private _renderDepthNormalPass(context: GLESRenderContext3D): void {
         context.pipelineMode = this.depthNormalPipelineMode;
-        this.depthNormalTarget;
         //传入shader该传的值
-        var viewport = this.camera.viewport;
+        var viewport = this._viewPort;
         Viewport._tempViewport.set(viewport.x, viewport.y, viewport.width, viewport.height);
         Vector4.tempVec4.setValue(viewport.x, viewport.y, viewport.width, viewport.height);
         context.setViewPort(Viewport._tempViewport);
@@ -184,8 +192,8 @@ export class GLESForwardAddClusterRP implements IForwardAddClusterRP {
     private _mainPass(context: GLESRenderContext3D): void {
         context.pipelineMode = this.pipelineMode;
         this._rendercmd(this.beforeForwardCmds, context);
-
         this._recoverRenderContext3D(context);
+        context.setClearData(this.clearFlag, this.clearColor, 1, 0);
         this.enableOpaque && this.opaqueList.renderQueue(context);
         this._rendercmd(this.beforeSkyboxCmds, context);
         //context.drawRenderElementOne(this.skyRenderNode);
@@ -207,8 +215,8 @@ export class GLESForwardAddClusterRP implements IForwardAddClusterRP {
     }
 
     private _recoverRenderContext3D(context: GLESRenderContext3D) {
-        const cacheViewPor = Camera._context3DViewPortCatch;
-        const cacheScissor = Camera._contextScissorPortCatch;
+        const cacheViewPor = GLESForwardAddClusterRP._context3DViewPortCatch;
+        const cacheScissor = GLESForwardAddClusterRP._contextScissorPortCatch;
         context.setViewPort(cacheViewPor);
         context.setScissor(cacheScissor);
         context.setRenderTarget(this.destTarget._renderTarget);

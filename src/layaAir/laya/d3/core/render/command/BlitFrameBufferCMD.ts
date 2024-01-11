@@ -10,8 +10,6 @@ import { Transform3D } from "../../Transform3D";
 import { Camera } from "../../Camera";
 import { Vector4 } from "../../../../maths/Vector4";
 import { RenderTexture } from "../../../../resource/RenderTexture";
-import { ShaderPass } from "../../../../RenderEngine/RenderShader/ShaderPass";
-import { SubShader } from "../../../../RenderEngine/RenderShader/SubShader";
 import { LayaGL } from "../../../../layagl/LayaGL";
 import { Laya3DRender } from "../../../RenderObjs/Laya3DRender";
 
@@ -78,11 +76,13 @@ export class BlitFrameBufferCMD {
 	private _renderElement: RenderElement;
 	/**@internal */
 	private _transform3D: Transform3D;
+
 	constructor() {
 		this._transform3D = Laya3DRender.renderOBJCreate.createTransform(null);
 		this._renderElement = new RenderElement();
 		this._renderElement.setTransform(this._transform3D);
 		this._renderElement.setGeometry(ScreenQuad.instance);
+		this._renderElement._renderElementOBJ._isRender = true;
 		this._texture_size = new Vector4();
 	}
 
@@ -107,43 +107,28 @@ export class BlitFrameBufferCMD {
 			return;
 		var source = this._source;
 		var dest = this._dest;
-		var shader: Shader3D = this._shader;
 		var shaderData: ShaderData = this._shaderData;
 		var viewport = this._viewPort;
-
 		let vph = RenderContext3D.clientHeight - viewport.y - viewport.height;
-
-		// LayaGL.renderEngine.viewport(viewport.x, vph, viewport.width, viewport.height);
-		// LayaGL.renderEngine.scissor(viewport.x, vph, viewport.width, viewport.height);
 		let context = RenderContext3D._instance;
 		context.changeViewport(viewport.x, vph, viewport.width, viewport.height);
 		context.changeScissor(viewport.x, vph, viewport.width, viewport.height);
-
 		shaderData.setTexture(Command.SCREENTEXTURE_ID, source);
 		shaderData.setVector(Command.SCREENTEXTUREOFFSETSCALE_ID, this._offsetScale || BlitFrameBufferCMD._defaultOffsetScale);
 		source && (shaderData.setVector(Command.MAINTEXTURE_TEXELSIZE_ID, this._texture_size));
-		//this._sourceTexelSize.setValue(1.0 / source.width, 1.0 / source.height, source.width, source.height);
-		// (RenderTexture.currentActive) && (RenderTexture.currentActive._end());
 
-		// if (dest) {
-		// 	dest._start();
-		// 	shaderData.removeDefine(RenderContext3D.GammaCorrect);
-		// }
-		// else {
-		// 	shaderData.addDefine(RenderContext3D.GammaCorrect);
-		// }
-		// var subShader: SubShader = shader.getSubShaderAt(this._subShader);
-		// var passes: ShaderPass[] = subShader._passes;
-		// ScreenQuad.instance.invertY = false;
-
-		// context.destTarget = dest;
-		// context._contextOBJ.applyContext(Camera._updateMark);
-		// context.drawRenderElement(this._renderElement);
+		if (dest) {
+			shaderData.removeDefine(RenderContext3D.GammaCorrect);
+		}
+		else {
+			shaderData.addDefine(RenderContext3D.GammaCorrect);
+		}
+		ScreenQuad.instance.invertY = false;
+		context.destTarget = dest;
+		context._contextOBJ.cameraUpdateMask = Camera._updateMark;
+		context.drawRenderElement(this._renderElement._renderElementOBJ);
 		//RenderContext3D._instance.invertY ? ScreenQuad.instance.renderInvertUV() : ScreenQuad.instance.render();
-
-
 	}
-
 	/**
 	 * @inheritDoc
 	 * @override

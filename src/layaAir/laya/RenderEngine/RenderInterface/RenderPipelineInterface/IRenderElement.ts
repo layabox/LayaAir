@@ -5,6 +5,7 @@ import { IRenderGeometryElement } from "./IRenderGeometryElement";
 import { ShaderInstance } from "../../RenderShader/ShaderInstance";
 import { IBaseRenderNode } from "../../../d3/RenderDriverLayer/Render3DNode/IBaseRenderNode";
 import { IRenderContext3D } from "../../../d3/RenderDriverLayer/IRenderContext3D";
+import { SubShader } from "../../RenderShader/SubShader";
 
 export interface IRenderElement {
     _geometry: IRenderGeometryElement;
@@ -15,6 +16,7 @@ export interface IRenderElement {
     _transform: Transform3D;
     _isRender: boolean;
     _owner: IBaseRenderNode;
+    _subShader: SubShader;
     _invertFront: boolean;
     _render(context: IRenderContext3D): void;
     _addShaderInstance(shader: ShaderInstance): void;

@@ -1,5 +1,7 @@
 import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFlag";
 import { InternalRenderTarget } from "../../../RenderEngine/RenderInterface/InternalRenderTarget";
+import { DefineDatas } from "../../../RenderEngine/RenderShader/DefineDatas";
+import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { ShaderData } from "../../../RenderEngine/RenderShader/ShaderData";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { Color } from "../../../maths/Color";
@@ -143,11 +145,14 @@ export class GLESRenderContext3D implements IRenderContext3D {
         this._invertY = value;
     }
 
+    _globalConfigShaderData: DefineDatas;
+
     /**
      * <code>GLESRenderContext3D<code/>
      */
     constructor() {
         this._clearColor = new Color();
+        this._globalConfigShaderData = Shader3D._configDefineValues;
     }
 
     setClearData(clearFlag: number, color: Color, depth: number, stencil: number): number {
@@ -182,7 +187,11 @@ export class GLESRenderContext3D implements IRenderContext3D {
     }
 
     private _bindRenderTarget() {
-        this._renderTarget && LayaGL.textureContext.bindRenderTarget(this._renderTarget);;
+        if(this._renderTarget){
+            LayaGL.textureContext.bindRenderTarget(this._renderTarget);
+        }else{
+            LayaGL.textureContext.bindoutScreenTarget();
+        }
     }
 
     private _start() {

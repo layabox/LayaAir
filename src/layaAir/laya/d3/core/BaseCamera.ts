@@ -213,7 +213,7 @@ export class BaseCamera extends Sprite3D {
     /**@internal 相机最远处的开合高度*/
     private _yrange: number;
     /** 视野。*/
-    private _fieldOfView: number;
+    protected _fieldOfView: number;
     /** 正交投影的垂直尺寸。*/
     private _orthographicVerticalSize: number;
     /** skyRender */
@@ -290,7 +290,6 @@ export class BaseCamera extends Sprite3D {
     set nearPlane(value: number) {
         this._nearPlane = value;
         this._calculateProjectionMatrix();
-
     }
 
     /**

@@ -1183,7 +1183,10 @@ export class GLTextureContext extends GLObject implements ITextureContext {
         return TextureCompareMode.None;
     }
 
+    currentActiveRT: WebGLInternalRT;
+
     bindRenderTarget(renderTarget: WebGLInternalRT, faceIndex: number = 0): void {
+        this.currentActiveRT && this.unbindRenderTarget(this.currentActiveRT);
         let gl = this._gl;
         let framebuffer = renderTarget._framebuffer;
 
@@ -1193,17 +1196,17 @@ export class GLTextureContext extends GLObject implements ITextureContext {
             let texture = <WebGLInternalTex>renderTarget._textures[0];
             gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_CUBE_MAP_POSITIVE_X + faceIndex, texture.resource, 0);
         }
-
+        this.currentActiveRT = renderTarget;
     }
 
     bindoutScreenTarget(): void {
-        let gl = this._gl;
-        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        if (this.currentActiveRT) {
+            this.unbindRenderTarget(this.currentActiveRT);
+        }
     }
 
     unbindRenderTarget(renderTarget: WebGLInternalRT): void {
         let gl = renderTarget._gl;
-
         if (renderTarget._generateMipmap) {
             renderTarget._textures.forEach(tex => {
                 let target = (<WebGLInternalTex>tex).target;
@@ -1212,8 +1215,8 @@ export class GLTextureContext extends GLObject implements ITextureContext {
                 this._engine._bindTexture(target, null);
             });
         }
-
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        this.currentActiveRT = null;
     }
 
     createRenderTextureInternal(dimension: TextureDimension, width: number, height: number, format: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean): WebGLInternalTex {

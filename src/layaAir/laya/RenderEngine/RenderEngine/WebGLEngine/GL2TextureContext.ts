@@ -1127,7 +1127,9 @@ export class GL2TextureContext extends GLTextureContext implements ITexture3DCon
 
     }
 
+
     bindRenderTarget(renderTarget: WebGLInternalRT, faceIndex: number = 0): void {
+        this.currentActiveRT && this.unbindRenderTarget(this.currentActiveRT);
         let gl = this._gl;
 
         if (renderTarget._isCube) {
@@ -1145,6 +1147,7 @@ export class GL2TextureContext extends GLTextureContext implements ITexture3DCon
 
             gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
         }
+        this.currentActiveRT = renderTarget;
     }
 
     unbindRenderTarget(renderTarget: WebGLInternalRT): void {
@@ -1177,5 +1180,6 @@ export class GL2TextureContext extends GLTextureContext implements ITexture3DCon
             });
         }
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        this.currentActiveRT = null;
     }
 }

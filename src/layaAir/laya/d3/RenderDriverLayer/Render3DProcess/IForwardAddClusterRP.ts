@@ -1,3 +1,4 @@
+import { Color } from "../../../maths/Color";
 import { Vector4 } from "../../../maths/Vector4";
 import { RenderTexture } from "../../../resource/RenderTexture";
 import { Camera } from "../../core/Camera";
@@ -5,6 +6,7 @@ import { CommandBuffer } from "../../core/render/command/CommandBuffer"
 import { Viewport } from "../../math/Viewport";
 import { PipelineMode } from "../IRenderContext3D";
 import { IBaseRenderNode } from "../Render3DNode/IBaseRenderNode";
+import { ICameraNodeData } from "../RenderModuleData/IModuleData";
 /**
  * 深度贴图模式
  */
@@ -52,6 +54,12 @@ export interface IForwardAddClusterRP {
     depthTextureMode: DepthTextureMode;
     /**@internal */
     opaqueTexture: RenderTexture;
+    /**@internal */
+    camera: ICameraNodeData;
+    /**@internal */
+    clearColor: Color;
+    /**@internal */
+    clearFlag: number;
 
     setCameraCullInfo(value: Camera): void;
     setViewPort(value: Viewport): void;

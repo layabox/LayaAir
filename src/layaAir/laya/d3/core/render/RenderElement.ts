@@ -64,6 +64,7 @@ export class RenderElement {
      */
     set renderSubShader(value: SubShader) {
         this._subShader = value;
+        this._renderElementOBJ._subShader = value;
     }
 
     get renderSubShader(): SubShader {
@@ -102,6 +103,7 @@ export class RenderElement {
      */
     setTransform(transform: Transform3D): void {
         this.transform = transform;
+        this._renderElementOBJ._transform = transform;
     }
 
     /**

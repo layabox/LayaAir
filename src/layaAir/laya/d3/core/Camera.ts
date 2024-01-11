@@ -42,6 +42,7 @@ import { IRender3DProcess } from "../RenderDriverLayer/Render3DProcess/IRender3D
 import { ICameraNodeData } from "../RenderDriverLayer/RenderModuleData/IModuleData";
 import { Laya3DRender } from "../RenderObjs/Laya3DRender";
 import { ShadowCasterPass } from "../shadowMap/ShadowCasterPass";
+import { RenderClearFlag } from "../../RenderEngine/RenderEnum/RenderClearFlag";
 
 /**
  * 相机清除标记。
@@ -357,6 +358,37 @@ export class Camera extends BaseCamera {
 
     _renderDataModule: ICameraNodeData;
 
+    private _ForwardAddRP: IForwardAddRP;
+
+    private _Render3DProcess: IRender3DProcess;
+
+    set nearPlane(value: number) {
+        super.nearPlane = value;
+        this._renderDataModule.nearplane = value;
+    }
+
+    get nearPlane() {
+        return this._nearPlane;
+    }
+
+    set farPlane(value: number) {
+        super.farPlane = value;
+        this._renderDataModule.farplane = value;
+    }
+
+    get farPlane() {
+        return this._farPlane;
+    }
+
+    set fieldOfView(value: number) {
+        super.fieldOfView = value;
+        this._renderDataModule.fieldOfView = value;
+    }
+
+    get fieldOfView() {
+        return this._fieldOfView;
+    }
+
     /**
      * 横纵比。
      */
@@ -372,6 +404,7 @@ export class Camera extends BaseCamera {
         if (value < 0)
             throw new Error("Camera: the aspect ratio has to be a positive real number.");
         this._aspectRatio = value;
+        this._renderDataModule.aspectRatio = value;
         this._calculateProjectionMatrix();
     }
 
@@ -512,6 +545,7 @@ export class Camera extends BaseCamera {
      */
     get projectionViewMatrix(): Matrix4x4 {
         Matrix4x4.multiply(this.projectionMatrix, this.viewMatrix, this._projectionViewMatrix);
+        this._renderDataModule.setProjectionViewMatrix(this._projectionViewMatrix);
         return this._projectionViewMatrix;
     }
 
@@ -655,6 +689,9 @@ export class Camera extends BaseCamera {
     constructor(aspectRatio: number = 0, nearPlane: number = 0.3, farPlane: number = 1000) {
         super(nearPlane, farPlane);
         this._renderDataModule = Laya3DRender.renderOBJCreate.createCameraModuleData();
+        this._ForwardAddRP = Laya3DRender.renderDriverPassCreate.createForwardAddRP();
+        this._Render3DProcess = Laya3DRender.renderDriverPassCreate.createRender3DProcess();
+        this._renderDataModule.transform = this.transform;
         this._viewMatrix = new Matrix4x4();
         this._projectionMatrix = new Matrix4x4();
         this._projectionViewMatrix = new Matrix4x4();
@@ -859,6 +896,7 @@ export class Camera extends BaseCamera {
         }
         else {
             Matrix4x4.multiply(proMat, viewMat, this._projectionViewMatrix);
+            this._renderDataModule.setProjectionViewMatrix(this._projectionViewMatrix);
             projectView = this._projectionViewMatrix;
         }
 
@@ -1075,16 +1113,12 @@ export class Camera extends BaseCamera {
 
             this._shaderValues.setVector(BaseCamera.OPAQUETEXTUREPARAMS, opaqueTexParams);
         }
-
-
-
         var blit: BlitScreenQuadCMD = BlitScreenQuadCMD.create(currentTarget, this._opaqueTexture);
         blit.setContext(renderContext);
         blit.run();
         blit.recover();
     }
-    private _ForwardAddRP: IForwardAddRP;
-    private _Render3DProcess: IRender3DProcess;
+
 
     /**
      * @override
@@ -1128,6 +1162,38 @@ export class Camera extends BaseCamera {
         else
             context.invertY = false;
         this._ForwardAddRP.renderpass.destTarget = renderTex;
+        //clear Color
+        {
+            let clearColor = this._linearClearColor;
+            if (renderTex.gammaCorrection != 1) {
+                clearColor = this.clearColor;
+            }
+            var clearFlag: number = this.clearFlag;
+            if (clearFlag === CameraClearFlags.Sky && !(this.skyRenderer._isAvailable()))
+                clearFlag = CameraClearFlags.SolidColor;
+            let clearConst: number = 0;
+            let stencilFlag = renderTex.depthStencilFormat == RenderTargetFormat.DEPTHSTENCIL_24_8 ? RenderClearFlag.Stencil : 0;
+            switch (clearFlag) {
+                case CameraClearFlags.SolidColor:
+                    clearConst = RenderClearFlag.Color | RenderClearFlag.Depth | stencilFlag;
+                    break;
+                case CameraClearFlags.DepthOnly:
+                case CameraClearFlags.Sky:
+                    clearConst = RenderClearFlag.Depth | stencilFlag;
+                    break;
+                case CameraClearFlags.Nothing:
+                    clearConst = 0;
+                    break;
+                case CameraClearFlags.ColorOnly:
+                    clearConst = RenderClearFlag.Color;
+                    break;
+            }
+
+            this._ForwardAddRP.renderpass.clearColor = clearColor;
+            this._ForwardAddRP.renderpass.clearFlag = clearConst;
+        }
+
+
         this._ForwardAddRP.renderpass.pipelineMode = context.configPipeLineMode;
         this._ForwardAddRP.renderpass.setViewPort(this.viewport);
         Vector4.tempVec4.setValue(this.viewport.x, this.viewport.y, this.viewport.width, this.viewport.height);
@@ -1141,15 +1207,14 @@ export class Camera extends BaseCamera {
         this._ForwardAddRP.renderpass.setBeforeForwardCmds(this._cameraEventCommandBuffer[CameraEventFlags.BeforeForwardOpaque]);
         this._ForwardAddRP.renderpass.setBeforeTransparentCmds(this._cameraEventCommandBuffer[CameraEventFlags.BeforeTransparent]);
         this._ForwardAddRP.setAfterEventCmd(this._cameraEventCommandBuffer[CameraEventFlags.BeforeTransparent]);
+        this._ForwardAddRP.renderpass.setCameraCullInfo(this);
         //postProcess TODO;
 
         //shadowCaster 是否渲染阴影Pass
         if (Scene3D._updateMark % scene._ShadowMapupdateFrequency != 0 || (!Stat.enableShadow)) {
-            if (this._ForwardAddRP.shadowCastPass) {
-                this._ForwardAddRP.shadowCastPass = false;
-            } else {
-                this._ForwardAddRP.shadowCastPass = true;
-            }
+            this._ForwardAddRP.shadowCastPass = false;
+        } else {
+            this._ForwardAddRP.shadowCastPass = true;
             //DirectLight ShadowCaster
             var mainDirectLight: DirectionLightCom = scene._mainDirectionLight;
             var needDirShadowCasterPass: boolean = mainDirectLight && mainDirectLight.shadowMode !== ShadowMode.None && ShadowUtils.supportShadow();
@@ -1158,13 +1223,12 @@ export class Camera extends BaseCamera {
                 this._ForwardAddRP.directLightShadowPass.camera = this._renderDataModule;
                 this._ForwardAddRP.directLightShadowPass.light = mainDirectLight._dataModule;
                 let dirlightShadowmap = ILaya3D.Scene3D._shadowCasterPass.getDirectLightShadowMap(mainDirectLight);
-                this._ForwardAddRP.directLightShadowPass.destTarget =dirlightShadowmap._renderTarget;
+                this._ForwardAddRP.directLightShadowPass.destTarget = dirlightShadowmap._renderTarget;
                 scene._shaderValues.setTexture(ShadowCasterPass.SHADOW_MAP, dirlightShadowmap);
             }
-
             //spotLight ShadowCaster
             var spotMainLight = scene._mainSpotLight;
-            var spotneedShadowCasterPass: boolean = spotMainLight && spotMainLight.shadowMode !== ShadowMode.None && ShadowUtils.supportShadow() && Stat.enableShadow;
+            var spotneedShadowCasterPass: boolean = spotMainLight && spotMainLight.shadowMode !== ShadowMode.None && ShadowUtils.supportShadow();
             if (spotneedShadowCasterPass) {
                 this._ForwardAddRP.enableSpotLightShadowPass = spotneedShadowCasterPass;
                 this._ForwardAddRP.spotLightShadowPass.destTarget = ILaya3D.Scene3D._shadowCasterPass.getSpotLightShadowPassData(spotMainLight);

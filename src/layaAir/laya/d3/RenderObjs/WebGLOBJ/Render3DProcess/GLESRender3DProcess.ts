@@ -1,7 +1,3 @@
-import { SingletonList } from "../../../../utils/SingletonList";
-import { IRenderContext3D } from "../../../RenderDriverLayer/IRenderContext3D";
-import { IBaseRenderNode } from "../../../RenderDriverLayer/Render3DNode/IBaseRenderNode";
-import { IForwardAddRP } from "../../../RenderDriverLayer/Render3DProcess/IForwardAddRP";
 import { IRender3DProcess } from "../../../RenderDriverLayer/Render3DProcess/IRender3DProcess";
 import { GLESRenderContext3D } from "../GLESRenderContext3D";
 import { GLESBaseRenderNode } from "../Render3DNode/GLESBaseRenderNode";
@@ -22,5 +18,4 @@ export class GLESRender3DProcess implements IRender3DProcess {
         }
         renderpass.renderpass.render(context, list, count);
     }
-
 }

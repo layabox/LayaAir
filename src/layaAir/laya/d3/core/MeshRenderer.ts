@@ -74,7 +74,7 @@ export class MeshRenderer extends BaseRender {
      * override it
      * @returns 
      */
-    protected _createBaseRenderNode():IMeshRenderNode {
+    protected _createBaseRenderNode(): IMeshRenderNode {
         return Laya3DRender.renderOBJCreate.createMeshRenderNode();
     }
 
@@ -348,6 +348,7 @@ export class MeshRenderer extends BaseRender {
                     this.owner && renderElement.setTransform((this.owner as Sprite3D)._transform);
                     renderElement.render = this;
                     renderElement.material = material ? material : BlinnPhongMaterial.defaultMaterial;//确保有材质,由默认材质代替。
+                    renderElement.renderSubShader = renderElement.material.shader.getSubShaderAt(0);//TODO
                 }
                 renderElement.setGeometry(mesh.getSubMesh(i));
             }
