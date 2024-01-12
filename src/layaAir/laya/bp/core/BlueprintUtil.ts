@@ -66,19 +66,70 @@ export class BlueprintUtil {
                         ret = this.clone(ret);
                         if (BPType.Event == ret.type) {
                             let arr = data.input;
-                            for (let i = 0, len = arr.length; i < len; i++) {
-                                if (null == arr[i].name || "" == arr[i].name.trim()) continue;
-                                ret.output.push(
-                                    arr[i]
-                                );
-                            }
+                            if (arr)
+                                for (let i = 0, len = arr.length; i < len; i++) {
+                                    if (null == arr[i].name || "" == arr[i].name.trim()) continue;
+                                    ret.output.push(
+                                        arr[i]
+                                    );
+                                }
                         } else {
                             let arr = data.input;
-                            for (let i = 0, len = arr.length; i < len; i++) {
-                                if (null == arr[i].name || "" == arr[i].name.trim()) continue;
-                                ret.input.push(
-                                    arr[i]
-                                );
+                            if (arr)
+                                for (let i = 0, len = arr.length; i < len; i++) {
+                                    if (null == arr[i].name || "" == arr[i].name.trim()) continue;
+                                    ret.input.push(
+                                        arr[i]
+                                    );
+                                }
+                        }
+                        this._allConstNode[dataId] = ret;
+                    } else if (data) {
+                        if (BPType.CustomFun == ret.type) {
+                            ret = this.clone(ret);
+                            let arr = data.input;
+                            if (arr) {
+                                if (null == ret.input) ret.input = [];
+                                for (let i = 0, len = arr.length; i < len; i++) {
+                                    if (null == arr[i].name || "" == arr[i].name.trim()) continue;
+                                    ret.input.push(
+                                        arr[i]
+                                    );
+                                }
+                            }
+                            arr = data.output;
+                            if (arr) {
+                                if (null == ret.output) ret.output = [];
+                                for (let i = 0, len = arr.length; i < len; i++) {
+                                    if (null == arr[i].name || "" == arr[i].name.trim()) continue;
+                                    ret.output.push(
+                                        arr[i]
+                                    );
+                                }
+                            }
+                        } else if (BPType.CustomFunReturn == ret.type) {
+                            ret = this.clone(ret);
+                            let arr = data.output;
+                            if (arr) {
+                                if (null == ret.input) ret.input = [];
+                                for (let i = 0, len = arr.length; i < len; i++) {
+                                    if (null == arr[i].name || "" == arr[i].name.trim()) continue;
+                                    ret.input.push(
+                                        arr[i]
+                                    );
+                                }
+                            }
+                        } else if (BPType.CustomFunStart == ret.type) {
+                            ret = this.clone(ret);
+                            let arr = data.input;
+                            if (arr) {
+                                if (null == ret.output) ret.output = [];
+                                for (let i = 0, len = arr.length; i < len; i++) {
+                                    if (null == arr[i].name || "" == arr[i].name.trim()) continue;
+                                    ret.output.push(
+                                        arr[i]
+                                    );
+                                }
                             }
                         }
                         this._allConstNode[dataId] = ret;
@@ -97,7 +148,7 @@ export class BlueprintUtil {
         //return this.getConstNodeByID(ext, node.cid);
     }
 
-    static getDeclaration(name:string):TBPDeclaration{
+    static getDeclaration(name: string): TBPDeclaration {
         return extendsData[name] ? extendsData[name] : customData[name];
     }
 
