@@ -188,6 +188,7 @@ export class GLESBaseRenderNode implements IBaseRenderNode {
         }
     }
 
+    
     /**
      * apply reflection
      * @returns 
