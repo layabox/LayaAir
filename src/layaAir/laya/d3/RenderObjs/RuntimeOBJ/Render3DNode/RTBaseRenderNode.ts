@@ -7,15 +7,14 @@ import { IBaseRenderNode } from "../../../RenderDriverLayer/Render3DNode/IBaseRe
 import { ILightMapData } from "../../../RenderDriverLayer/RenderModuleData/ILightMapData";
 import { IReflectionProbeData } from "../../../RenderDriverLayer/RenderModuleData/IReflectionProbeData";
 import { IVolumetricGIData } from "../../../RenderDriverLayer/RenderModuleData/IVolumetricGIData";
-import { Transform3D } from "../../../core/Transform3D";
 import { IrradianceMode } from "../../../core/render/BaseRender";
 import { Bounds } from "../../../math/Bounds";
 import { NativeTransform3D } from "../../NativeOBJ/NativeTransform3D";
 
 export class RTBaseRenderNode implements IBaseRenderNode {
     protected _BasenativeObj: any;
-    private _transform: Transform3D;
-    public get transform(): Transform3D {
+    private _transform: NativeTransform3D;
+    public get transform(): NativeTransform3D {
         return this._transform;
     }
     public set transform(value: NativeTransform3D) {
@@ -190,13 +189,13 @@ export class RTBaseRenderNode implements IBaseRenderNode {
     }
 
     setWorldParams(value: Vector4): void {
-        
+
     }
 
     setLightmapScaleOffset(value: Vector4): void {
 
     }
-    
+
     setCommonUniformMap(value: string[]): void {
 
     }

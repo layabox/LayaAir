@@ -1,4 +1,3 @@
-import { Color } from "../../../../maths/Color";
 import { Vector3 } from "../../../../maths/Vector3";
 import { IDirectLightData } from "../../../RenderDriverLayer/RenderModuleData/IDirectLightData";
 import { Transform3D } from "../../../core/Transform3D";

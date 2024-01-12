@@ -20,10 +20,10 @@ export class GLESSpotLight implements ISpotLightData {
         value.cloneTo(this._direction);
     }
 
-    getWorldMatrix(out:Matrix4x4){
+    getWorldMatrix(out: Matrix4x4) {
         var position = this.transform.position;
         var quaterian = this.transform.rotation;
-        Matrix4x4.createAffineTransformation(position, quaterian, Vector3.ONE,out);
+        Matrix4x4.createAffineTransformation(position, quaterian, Vector3.ONE, out);
         return out;
     }
 

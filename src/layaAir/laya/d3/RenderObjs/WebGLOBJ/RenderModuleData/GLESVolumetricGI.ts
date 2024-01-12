@@ -34,7 +34,7 @@ export class GLESVolumetricGI implements IVolumetricGIData {
         value.cloneTo(this._probeCounts);
     }
 
-    setProbeStep(value: Vector3): void {
+    setProbeStep(value: Vector3): void { 
         value.cloneTo(this._probeStep);
     }
 
