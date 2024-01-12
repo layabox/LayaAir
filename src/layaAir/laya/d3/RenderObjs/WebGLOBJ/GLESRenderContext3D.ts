@@ -10,7 +10,7 @@ import { RenderTexture } from "../../../resource/RenderTexture";
 import { SingletonList } from "../../../utils/SingletonList";
 import { IRenderContext3D, PipelineMode } from "../../RenderDriverLayer/IRenderContext3D";
 import { Viewport } from "../../math/Viewport";
-import { RenderElementOBJ } from "../RenderObj/RenderElementOBJ";
+import { GLESRenderElementOBJ } from "./GLESRenderElementOBJ";
 import { GLESCameraNodeData, GLESSceneNodeData } from "./RenderModuleData/GLESModuleData";
 
 
@@ -163,7 +163,7 @@ export class GLESRenderContext3D implements IRenderContext3D {
         return 0;
     }
 
-    drawRenderElementList(list: SingletonList<RenderElementOBJ>): number {
+    drawRenderElementList(list: SingletonList<GLESRenderElementOBJ>): number {
         this._bindRenderTarget();
         this._start();
         let elements = list.elements;
@@ -177,7 +177,7 @@ export class GLESRenderContext3D implements IRenderContext3D {
         return 0;
     }
 
-    drawRenderElementOne(node: RenderElementOBJ): number {
+    drawRenderElementOne(node: GLESRenderElementOBJ): number {
         this._bindRenderTarget();
         this._start();
         node._preUpdatePre(this);
@@ -187,9 +187,9 @@ export class GLESRenderContext3D implements IRenderContext3D {
     }
 
     private _bindRenderTarget() {
-        if(this._renderTarget){
+        if (this._renderTarget) {
             LayaGL.textureContext.bindRenderTarget(this._renderTarget);
-        }else{
+        } else {
             LayaGL.textureContext.bindoutScreenTarget();
         }
     }

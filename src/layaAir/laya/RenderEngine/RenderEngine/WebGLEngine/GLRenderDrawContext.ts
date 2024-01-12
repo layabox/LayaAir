@@ -1,4 +1,4 @@
-import { RenderGeometryElementOBJ } from "../../../d3/RenderObjs/RenderObj/RenderGeometryElementOBJ";
+import { RenderGeometryElementOBJ } from "../../../d3/RenderObjs/WebGLOBJ/RenderGeometryElementOBJ";
 import { DrawType } from "../../RenderEnum/DrawType";
 import { IndexFormat } from "../../RenderEnum/IndexFormat";
 import { MeshTopology } from "../../RenderEnum/RenderPologyMode";

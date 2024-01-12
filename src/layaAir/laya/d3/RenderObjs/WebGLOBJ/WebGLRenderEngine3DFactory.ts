@@ -19,21 +19,21 @@ import { Transform3D } from "../../core/Transform3D";
 import { IndexBuffer3D } from "../../graphics/IndexBuffer3D";
 import { VertexBuffer3D } from "../../graphics/VertexBuffer3D";
 import { BoundsImpl } from "../../math/BoundsImpl";
-import { IRenderEngine3DOBJFactory } from "../IRenderEngine3DOBJFactory";
+import { IRenderEngine3DOBJFactory } from "../../RenderDriverLayer/IRenderEngine3DOBJFactory";
 import { Laya3DRender } from "../Laya3DRender";
-import { GLESRenderContext3D } from "../WebGLOBJ/GLESRenderContext3D";
-import { GLESBaseRenderNode } from "../WebGLOBJ/Render3DNode/GLESBaseRenderNode";
-import { GLESMeshRenderNode } from "../WebGLOBJ/Render3DNode/GLESMeshRenderNode";
-import { GLESDirectLight } from "../WebGLOBJ/RenderModuleData/GLESDirectLight";
-import { GLESCameraNodeData, GLESSceneNodeData } from "../WebGLOBJ/RenderModuleData/GLESModuleData";
-import { GLESReflectionProbe } from "../WebGLOBJ/RenderModuleData/GLESReflectionProb";
-import { GLESSpotLight } from "../WebGLOBJ/RenderModuleData/GLESSpotLight";
-import { GLESVolumetricGI } from "../WebGLOBJ/RenderModuleData/GLESVolumetricGI";
-import { InstanceRenderElementOBJ } from "./InstanceRenderElementOBJ";
-import { RenderElementOBJ } from "./RenderElementOBJ";
+import { GLESRenderContext3D } from "./GLESRenderContext3D";
+import { GLESBaseRenderNode } from "./Render3DNode/GLESBaseRenderNode";
+import { GLESMeshRenderNode } from "./Render3DNode/GLESMeshRenderNode";
+import { GLESDirectLight } from "./RenderModuleData/GLESDirectLight";
+import { GLESCameraNodeData, GLESSceneNodeData } from "./RenderModuleData/GLESModuleData";
+import { GLESReflectionProbe } from "./RenderModuleData/GLESReflectionProb";
+import { GLESSpotLight } from "./RenderModuleData/GLESSpotLight";
+import { GLESVolumetricGI } from "./RenderModuleData/GLESVolumetricGI";
+import { InstanceRenderElementOBJ } from "../RenderObj/InstanceRenderElementOBJ";
 import { RenderGeometryElementOBJ } from "./RenderGeometryElementOBJ";
-import { SceneRenderManagerOBJ } from "./SceneRenderManagerOBJ";
-import { SkinRenderElementOBJ } from "./SkinRenderElementOBJ";
+import { SceneRenderManagerOBJ } from "../RenderObj/SceneRenderManagerOBJ";
+import { SkinRenderElementOBJ } from "../RenderObj/SkinRenderElementOBJ";
+import { GLESRenderElementOBJ } from "./GLESRenderElementOBJ";
 
 export class WebGLRenderEngine3DFactory implements IRenderEngine3DOBJFactory {
     createCameraModuleData(): ICameraNodeData {
@@ -52,7 +52,7 @@ export class WebGLRenderEngine3DFactory implements IRenderEngine3DOBJFactory {
     }
 
     createRenderElement(): IRenderElement {
-        return new RenderElementOBJ();
+        return new GLESRenderElementOBJ();
     }
 
     createSkinRenderElement(): IRenderElement {

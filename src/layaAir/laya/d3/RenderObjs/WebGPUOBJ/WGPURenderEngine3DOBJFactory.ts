@@ -10,9 +10,8 @@ import { IndexBuffer3D } from "../../graphics/IndexBuffer3D";
 import { VertexBuffer3D } from "../../graphics/VertexBuffer3D";
 import { BoundsImpl } from "../../math/BoundsImpl";
 import { InstanceRenderElementOBJ } from "../RenderObj/InstanceRenderElementOBJ";
-import { RenderGeometryElementOBJ } from "../RenderObj/RenderGeometryElementOBJ";
+import { RenderGeometryElementOBJ } from "../WebGLOBJ/RenderGeometryElementOBJ";
 import { SceneRenderManagerOBJ } from "../RenderObj/SceneRenderManagerOBJ";
-import { ShadowCullInfo } from "../RenderObj/ShadowCullInfo";
 import { SkinRenderElementOBJ } from "../RenderObj/SkinRenderElementOBJ";
 import { WGPURenderContext3D } from "./WGPURenderContext3D";
 import { WGPURenderElementObJ } from "./WGPURenderElementObJ";
@@ -57,15 +56,6 @@ export class WGPURenderEngine3DOBJFactory {
     createSceneRenderManager(): SceneRenderManagerOBJ {
         return new SceneRenderManagerOBJ();
     }
-
-    // createCullPass(): CullPassBase {
-    //     return new CullPassBase();
-    // }
-
-       
-    // createSortPass(): QuickSort {
-    //     return new QuickSort();
-    // }
     
     createRenderGeometry(mode: MeshTopology, drayType: DrawType): IRenderGeometryElement {
         return new RenderGeometryElementOBJ(mode, drayType);

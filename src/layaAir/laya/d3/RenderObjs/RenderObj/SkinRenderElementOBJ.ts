@@ -2,10 +2,10 @@
 import { ShaderInstance } from "../../../RenderEngine/RenderShader/ShaderInstance";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { SkinnedMeshSprite3D } from "../../core/SkinnedMeshSprite3D";
-import { RenderElementOBJ } from "./RenderElementOBJ";
-import { RenderGeometryElementOBJ } from "./RenderGeometryElementOBJ";
+import { GLESRenderElementOBJ } from "../WebGLOBJ/GLESRenderElementOBJ";
+import { RenderGeometryElementOBJ } from "../WebGLOBJ/RenderGeometryElementOBJ";
 
-export class SkinRenderElementOBJ extends RenderElementOBJ {
+export class SkinRenderElementOBJ extends GLESRenderElementOBJ {
 
     skinnedData: Float32Array[];
 

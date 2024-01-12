@@ -1,12 +1,12 @@
 import { SingletonList } from "../../../../../utils/SingletonList";
-import { RenderElementOBJ } from "../../../RenderObj/RenderElementOBJ";
 import { GLESRenderContext3D } from "../../GLESRenderContext3D";
+import { GLESRenderElementOBJ } from "../../GLESRenderElementOBJ";
 import { QuickSort } from "./QuickSort";
 
 
 export class GLESRenderQueueList {
     /** @internal */
-    _elements: SingletonList<RenderElementOBJ> = new SingletonList<RenderElementOBJ>();
+    _elements: SingletonList<GLESRenderElementOBJ> = new SingletonList<GLESRenderElementOBJ>();
     private quickSort: QuickSort;
     private _isTransparent: boolean;
 
@@ -15,7 +15,7 @@ export class GLESRenderQueueList {
         this.quickSort = new QuickSort();
     }
 
-    addRenderElement(renderelement: RenderElementOBJ) {
+    addRenderElement(renderelement: GLESRenderElementOBJ) {
         this._elements.add(renderelement);
     }
 

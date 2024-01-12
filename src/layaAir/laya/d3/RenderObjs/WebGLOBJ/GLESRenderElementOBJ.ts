@@ -9,11 +9,11 @@ import { LayaGL } from "../../../layagl/LayaGL";
 import { SingletonList } from "../../../utils/SingletonList";
 import { IRenderContext3D } from "../../RenderDriverLayer/IRenderContext3D";
 import { Transform3D } from "../../core/Transform3D";
-import { GLESRenderContext3D } from "../WebGLOBJ/GLESRenderContext3D";
-import { GLESBaseRenderNode } from "../WebGLOBJ/Render3DNode/GLESBaseRenderNode";
+import { GLESRenderContext3D } from "./GLESRenderContext3D";
+import { GLESBaseRenderNode } from "./Render3DNode/GLESBaseRenderNode";
 
 
-export class RenderElementOBJ implements IRenderElement {
+export class GLESRenderElementOBJ implements IRenderElement {
     /** @internal */
     static _compileDefine: DefineDatas = new DefineDatas();
 
@@ -123,7 +123,7 @@ export class RenderElementOBJ implements IRenderElement {
             if (pass._pipelineMode !== context.pipelineMode)
                 continue;
 
-            var comDef: DefineDatas = RenderElementOBJ._compileDefine;
+            var comDef: DefineDatas = GLESRenderElementOBJ._compileDefine;
 
             if (context.sceneData) {
                 context.sceneData._defineDatas.cloneTo(comDef);

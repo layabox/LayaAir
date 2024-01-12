@@ -9,8 +9,8 @@ import { Transform3D } from "../../../core/Transform3D";
 import { IrradianceMode } from "../../../core/render/BaseRender";
 import { BoundFrustum } from "../../../math/BoundFrustum";
 import { Bounds } from "../../../math/Bounds";
-import { RenderElementOBJ } from "../../RenderObj/RenderElementOBJ";
 import { GLESRenderContext3D } from "../GLESRenderContext3D";
+import { GLESRenderElementOBJ } from "../GLESRenderElementOBJ";
 import { GLESLightmap } from "../RenderModuleData/GLESLightmap";
 import { GLESReflectionProbe } from "../RenderModuleData/GLESReflectionProb";
 import { GLESVolumetricGI } from "../RenderModuleData/GLESVolumetricGI";
@@ -32,7 +32,7 @@ export class GLESBaseRenderNode implements IBaseRenderNode {
     reflectionMode: number;
     lightProbUpdateMark: number;
     irradientMode: IrradianceMode;
-    renderelements: RenderElementOBJ[];
+    renderelements: GLESRenderElementOBJ[];
     lightmapScaleOffset: Vector4;
     lightmap: GLESLightmap;
     probeReflection: GLESReflectionProbe;
@@ -100,7 +100,7 @@ export class GLESBaseRenderNode implements IBaseRenderNode {
      * @internal
      * @param value :RenderElementObj
      */
-    setRenderelements(value: RenderElementOBJ[]): void {
+    setRenderelements(value: GLESRenderElementOBJ[]): void {
         this.renderelements.length = 0;
         for (var i = 0; i < value.length; i++) {
             this.renderelements.push(value[i]);
