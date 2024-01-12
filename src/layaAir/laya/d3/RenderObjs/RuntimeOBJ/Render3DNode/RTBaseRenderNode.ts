@@ -12,8 +12,7 @@ import { IrradianceMode } from "../../../core/render/BaseRender";
 import { Bounds } from "../../../math/Bounds";
 
 export class RTBaseRenderNode implements IBaseRenderNode {
-    private _nativeObj: any;
-
+    protected _nativeObj: any;
     private _transform: Transform3D;
     public get transform(): Transform3D {
         return this._transform;
@@ -172,9 +171,14 @@ export class RTBaseRenderNode implements IBaseRenderNode {
     _renderUpdatePre: (context3D: IRenderContext3D) => void;
     _calculateBoundingBox: () => void;
 
+    //create runtime Node
+    protected _getNativeObj() {
+        this._nativeObj = new (window as any).conchRTBaseRenderNode();
+    }
+
     constructor() {
-        //create runtime Node
-        this._nativeObj = new (window as any).conchBaseRenderNode();
+   
+        this._nativeObj = this._getNativeObj();
     }
 
     setWorldParams(value: Vector4): void {
