@@ -36,7 +36,7 @@ export class BlueprintUtil {
     static getAllConstNode() {
         return this._allConstNode;
     }
-    static getDataByID(id: string, data: TBPStageData) {
+    static getDataByID(id: string | number, data: TBPStageData) {
         let ret = data.dataMap[id];
         if (null == ret) {
             ret = this.constAllVars[id];

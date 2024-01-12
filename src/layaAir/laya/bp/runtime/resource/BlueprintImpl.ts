@@ -21,7 +21,7 @@ export class BlueprintImpl extends Resource {
         return this._cls;
     }
 
-    public typeName:string;
+    public typeName: string;
 
     constructor(data: any, task: ILoadTask, version?: number) {
         super();
@@ -95,8 +95,14 @@ export class BlueprintImpl extends Resource {
                 dataMap[ele.id] = ele;
             });
 
+        if (this.data.functions) {
+            this.data.functions.forEach((ele: any) => {
+                dataMap[ele.id] = ele;
+            })
+        }
+
         let cls = BlueprintFactory.createClsNew(this.uuid, extendClass, runtime, {
-            id:0,
+            id: 0,
             name: this.uuid,
             dataMap,
             arr
