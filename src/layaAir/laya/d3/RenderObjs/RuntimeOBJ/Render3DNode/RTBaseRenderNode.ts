@@ -1,3 +1,4 @@
+import { NativeShaderData } from "../../../../RenderEngine/RenderEngine/NativeGLEngine/NativeShaderData";
 import { IRenderElement } from "../../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderElement";
 import { ShaderData } from "../../../../RenderEngine/RenderShader/ShaderData";
 import { Vector4 } from "../../../../maths/Vector4";
@@ -9,10 +10,10 @@ import { IReflectionProbeData } from "../../../RenderDriverLayer/RenderModuleDat
 import { IVolumetricGIData } from "../../../RenderDriverLayer/RenderModuleData/IVolumetricGIData";
 import { IrradianceMode } from "../../../core/render/BaseRender";
 import { Bounds } from "../../../math/Bounds";
+import { NativeBounds } from "../../NativeOBJ/NativeBounds";
 import { NativeTransform3D } from "../../NativeOBJ/NativeTransform3D";
 
 export class RTBaseRenderNode implements IBaseRenderNode {
-    protected _BasenativeObj: any;
     private _transform: NativeTransform3D;
     public get transform(): NativeTransform3D {
         return this._transform;
@@ -21,104 +22,95 @@ export class RTBaseRenderNode implements IBaseRenderNode {
         this._nativeObj.set_transform(value._nativeObj);
         this._transform = value;
     }
-    private _distanceForSort: number;
     public get distanceForSort(): number {
-        return this._distanceForSort;
+        return this._nativeObj._distanceForSort;
     }
     public set distanceForSort(value: number) {
-        this._nativeObj.set_distanceForSort(value);
-        this._distanceForSort = value;
+        this._nativeObj._distanceForSort = value;
     }
-    private _sortingFudge: number;
     public get sortingFudge(): number {
-        return this._sortingFudge;
+        return this._nativeObj._sortingFudge;
     }
     public set sortingFudge(value: number) {
-        this._sortingFudge = value;
+        this._nativeObj._sortingFudge = value;
     }
-    private _castShadow: boolean;
     public get castShadow(): boolean {
-        return this._castShadow;
+        return this._nativeObj._castShadow;
     }
     public set castShadow(value: boolean) {
-        this._castShadow = value;
+        this._nativeObj._castShadow = value;
     }
-    private _enable: boolean;
     public get enable(): boolean {
-        return this._enable;
+        return this._nativeObj._enable;
     }
     public set enable(value: boolean) {
-        this._enable = value;
+        this._nativeObj._enable = value;
     }
-    private _renderbitFlag: number;
     public get renderbitFlag(): number {
-        return this._renderbitFlag;
+        return this._nativeObj._renderbitFlag;
     }
     public set renderbitFlag(value: number) {
-        this._renderbitFlag = value;
+        this._nativeObj._renderbitFlag = value;
     }
-    private _layer: number;
     public get layer(): number {
-        return this._layer;
+        return this._nativeObj._layer;
     }
     public set layer(value: number) {
-        this._layer = value;
+        this._nativeObj._layer = value;
     }
-    private _bounds: Bounds;
+    private _bounds: NativeBounds;
     public get bounds(): Bounds {
-        return this._bounds;
+        return this._bounds as unknown as Bounds;
     }
-    public set bounds(value: Bounds) {
+    public set bounds(value: NativeBounds) {
         this._bounds = value;
+        this._nativeObj._bounds = value._nativeObj;
     }
-    private _baseGeometryBounds: Bounds;
+    private _baseGeometryBounds: NativeBounds;
     public get baseGeometryBounds(): Bounds {
-        return this._baseGeometryBounds;
+        return this._baseGeometryBounds as unknown as Bounds;
     }
-    public set baseGeometryBounds(value: Bounds) {
+    public set baseGeometryBounds(value: NativeBounds) {
         this._baseGeometryBounds = value;
+        this._nativeObj.set_baseGeometryBounds(value._nativeObj);
     }
-    private _boundsChange: boolean;
     public get boundsChange(): boolean {
-        return this._boundsChange;
+        return this._nativeObj._boundsChange;
     }
     public set boundsChange(value: boolean) {
-        this._boundsChange = value;
+        this._nativeObj._boundsChange = value;
     }
-    private _customCull: boolean;
     public get customCull(): boolean {
-        return this._customCull;
+        return this._nativeObj._customCull;
     }
     public set customCull(value: boolean) {
-        this._customCull = value;
+        this._nativeObj._customCull = value;
     }
-    private _customCullResoult: boolean;
     public get customCullResoult(): boolean {
-        return this._customCullResoult;
+        return this._nativeObj._customCullResoult;
     }
     public set customCullResoult(value: boolean) {
-        this._customCullResoult = value;
+        this._nativeObj._customCullResoult = value;
     }
-    private _staticMask: number;
     public get staticMask(): number {
-        return this._staticMask;
+        return this._nativeObj._staticMask;
     }
     public set staticMask(value: number) {
-        this._staticMask = value;
+        this._nativeObj._staticMask = value;
     }
-    private _shaderData: ShaderData;
+    private _shaderData: NativeShaderData;
     public get shaderData(): ShaderData {
         return this._shaderData;
     }
-    public set shaderData(value: ShaderData) {
+    public set shaderData(value: NativeShaderData) {
         this._shaderData = value;
+        this._nativeObj.set_shaderData(value._nativeObj);
     }
-    private _lightmapIndex: number;
     public get lightmapIndex(): number {
-        return this._lightmapIndex;
+        return this._nativeObj._lightmapIndex;
     }
     public set lightmapIndex(value: number) {
-        this._lightmapIndex = value;
+        this._nativeObj._lightmapIndex = value;
     }
     private _lightmap: ILightMapData;
     public get lightmap(): ILightMapData {
@@ -134,19 +126,17 @@ export class RTBaseRenderNode implements IBaseRenderNode {
     public set probeReflection(value: IReflectionProbeData) {
         this._probeReflection = value;
     }
-    private _probeReflectionUpdateMark: number;
     public get probeReflectionUpdateMark(): number {
-        return this._probeReflectionUpdateMark;
+        return this._nativeObj._probeReflectionUpdateMark;
     }
     public set probeReflectionUpdateMark(value: number) {
-        this._probeReflectionUpdateMark = value;
+        this._nativeObj._probeReflectionUpdateMark = value;
     }
-    private _reflectionMode: number;
     public get reflectionMode(): number {
-        return this._reflectionMode;
+        return this._nativeObj._reflectionMode;
     }
     public set reflectionMode(value: number) {
-        this._reflectionMode = value;
+        this._nativeObj._reflectionMode = value;
     }
     private _volumetricGI: IVolumetricGIData;
     public get volumetricGI(): IVolumetricGIData {
@@ -155,12 +145,11 @@ export class RTBaseRenderNode implements IBaseRenderNode {
     public set volumetricGI(value: IVolumetricGIData) {
         this._volumetricGI = value;
     }
-    private _lightProbUpdateMark: number;
     public get lightProbUpdateMark(): number {
-        return this._lightProbUpdateMark;
+        return this._nativeObj._lightProbUpdateMark;
     }
     public set lightProbUpdateMark(value: number) {
-        this._lightProbUpdateMark = value;
+        this._nativeObj._lightProbUpdateMark = value;
     }
     private _irradientMode: IrradianceMode;
     public get irradientMode(): IrradianceMode {
@@ -168,6 +157,7 @@ export class RTBaseRenderNode implements IBaseRenderNode {
     }
     public set irradientMode(value: IrradianceMode) {
         this._irradientMode = value;
+        this._nativeObj._irradientMode = value;
     }
 
     _renderUpdatePre: (context3D: IRenderContext3D) => void;
