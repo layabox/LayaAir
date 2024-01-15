@@ -1231,7 +1231,9 @@ export class Camera extends BaseCamera {
             var spotneedShadowCasterPass: boolean = spotMainLight && spotMainLight.shadowMode !== ShadowMode.None && ShadowUtils.supportShadow();
             if (spotneedShadowCasterPass) {
                 this._ForwardAddRP.enableSpotLightShadowPass = spotneedShadowCasterPass;
-                this._ForwardAddRP.spotLightShadowPass.destTarget = ILaya3D.Scene3D._shadowCasterPass.getSpotLightShadowPassData(spotMainLight);
+                let spotShadowMap = ILaya3D.Scene3D._shadowCasterPass.getSpotLightShadowPassData(spotMainLight);
+                
+                this._ForwardAddRP.spotLightShadowPass.destTarget = spotShadowMap._renderTarget;
             }
         }
 

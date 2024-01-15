@@ -1,10 +1,7 @@
-import { ShaderData } from "../../../../RenderEngine/RenderShader/ShaderData";
 import { Vector3 } from "../../../../maths/Vector3";
 import { Vector4 } from "../../../../maths/Vector4";
 import { Texture2D } from "../../../../resource/Texture2D";
 import { IVolumetricGIData } from "../../../RenderDriverLayer/RenderModuleData/IVolumetricGIData";
-import { RenderableSprite3D } from "../../../core/RenderableSprite3D";
-import { Sprite3DRenderDeclaration } from "../../../core/render/Sprite3DRenderDeclaration";
 import { Bounds } from "../../../math/Bounds";
 
 export class RTVolumetricGI implements IVolumetricGIData {

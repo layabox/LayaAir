@@ -11,7 +11,6 @@ export class GLESMeshRenderNode extends GLESBaseRenderNode implements IMeshRende
         this._renderUpdatePre = this._renderUpdate;
     }
 
-
     /**
      * @inheritDoc
      * @override

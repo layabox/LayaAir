@@ -1,4 +1,5 @@
 import { RenderClearFlag } from "../../../../RenderEngine/RenderEnum/RenderClearFlag";
+import { InternalRenderTarget } from "../../../../RenderEngine/RenderInterface/InternalRenderTarget";
 import { Color } from "../../../../maths/Color";
 import { Vector4 } from "../../../../maths/Vector4";
 import { RenderTexture } from "../../../../resource/RenderTexture";
@@ -37,17 +38,17 @@ export class GLESForwardAddClusterRP implements IForwardAddClusterRP {
     enableTransparent: boolean;
 
     /**@internal */
-    destTarget: RenderTexture;
+    destTarget: InternalRenderTarget;
     /**@internal */
     pipelineMode: PipelineMode;
 
     /**@internal */
-    depthTarget: RenderTexture;
+    depthTarget: InternalRenderTarget;
     /**@internal */
     depthPipelineMode: PipelineMode;
 
     /**@internal */
-    depthNormalTarget: RenderTexture;
+    depthNormalTarget: InternalRenderTarget;
     /**@internal */
     depthNormalPipelineMode: PipelineMode
 
@@ -56,7 +57,7 @@ export class GLESForwardAddClusterRP implements IForwardAddClusterRP {
     /**@internal */
     depthTextureMode: DepthTextureMode;
 
-    opaqueTexture: RenderTexture;
+    opaqueTexture: InternalRenderTarget;
     enableOpaqueTexture: boolean;
 
     clearColor: Color;

@@ -1,6 +1,6 @@
+import { InternalRenderTarget } from "../../../RenderEngine/RenderInterface/InternalRenderTarget";
 import { Color } from "../../../maths/Color";
 import { Vector4 } from "../../../maths/Vector4";
-import { RenderTexture } from "../../../resource/RenderTexture";
 import { Camera } from "../../core/Camera";
 import { CommandBuffer } from "../../core/render/command/CommandBuffer"
 import { Viewport } from "../../math/Viewport";
@@ -34,17 +34,17 @@ export interface IForwardAddClusterRP {
     enableOpaqueTexture: boolean;
 
     /**@internal */
-    destTarget: RenderTexture;
+    destTarget: InternalRenderTarget;
     /**@internal */
     pipelineMode: PipelineMode;
 
     /**@internal */
-    depthTarget: RenderTexture;
+    depthTarget: InternalRenderTarget;
     /**@internal */
     depthPipelineMode: PipelineMode;
 
     /**@internal */
-    depthNormalTarget: RenderTexture;
+    depthNormalTarget: InternalRenderTarget;
     /**@internal */
     depthNormalPipelineMode: PipelineMode
 
@@ -53,7 +53,7 @@ export interface IForwardAddClusterRP {
     /**@internal */
     depthTextureMode: DepthTextureMode;
     /**@internal */
-    opaqueTexture: RenderTexture;
+    opaqueTexture: InternalRenderTarget;
     /**@internal */
     camera: ICameraNodeData;
     /**@internal */

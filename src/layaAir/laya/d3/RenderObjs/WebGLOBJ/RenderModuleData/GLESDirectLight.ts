@@ -19,12 +19,17 @@ export class GLESDirectLight implements IDirectLightData {
     _shadowFourCascadeSplits: Vector3;
     _direction: Vector3;
 
+    constructor() {
+        this._shadowFourCascadeSplits = new Vector3();
+        this._direction = new Vector3();
+    }
+
     setShadowFourCascadeSplits(value: Vector3): void {
-        throw new Error("Method not implemented.");
+        value && value.cloneTo(this._shadowFourCascadeSplits);
     }
 
     setDirection(value: Vector3): void {
-        throw new Error("Method not implemented.");
+        value && value.cloneTo(this._direction)
     }
 
 }

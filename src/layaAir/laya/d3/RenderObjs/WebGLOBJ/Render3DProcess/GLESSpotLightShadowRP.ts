@@ -1,5 +1,6 @@
 
 import { RenderClearFlag } from "../../../../RenderEngine/RenderEnum/RenderClearFlag";
+import { InternalRenderTarget } from "../../../../RenderEngine/RenderInterface/InternalRenderTarget";
 import { ShaderData } from "../../../../RenderEngine/RenderShader/ShaderData";
 import { Color } from "../../../../maths/Color";
 import { MathUtils3D } from "../../../../maths/MathUtils3D";
@@ -37,7 +38,7 @@ export class ShadowSpotData {
 }
 export class GLESSpotLightShadowRP implements ISpotLightShadowRP {
     /**@internal */
-    destTarget: RenderTexture;
+    destTarget: InternalRenderTarget;
     /**@internal */
     shadowCasterCommanBuffer: CommandBuffer[];
     /**light */
@@ -84,8 +85,8 @@ export class GLESSpotLightShadowRP implements ISpotLightShadowRP {
         this._spotAngle = this._light.spotAngle;
         this._spotRange = this._light.spotRange;
         this._shadowStrength = this._light.shadowStrength;
-        this.destTarget && RenderTexture.recoverToPool(this.destTarget);// TODO 优化
-        this.destTarget = ShadowUtils.getTemporaryShadowTexture(this._shadowResolution, this._shadowResolution, ShadowMapFormat.bit16);
+        // this.destTarget && RenderTexture.recoverToPool(this.destTarget);// TODO 优化
+        //this.destTarget = ShadowUtils.getTemporaryShadowTexture(this._shadowResolution, this._shadowResolution, ShadowMapFormat.bit16);
     }
 
     constructor() {
