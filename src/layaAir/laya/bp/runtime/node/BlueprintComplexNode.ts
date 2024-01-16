@@ -4,6 +4,7 @@ import { EPinDirection, EPinType } from "../../core/EBluePrint";
 import { BlueprintPinRuntime } from "../BlueprintPinRuntime";
 import { BlueprintRuntimeBaseNode } from "./BlueprintRuntimeBaseNode";
 import { IBPRutime } from "../interface/IBPRutime";
+import { BlueprintConst } from "../../core/BlueprintConst";
 
 export class BlueprintComplexNode extends BlueprintRuntimeBaseNode {
     /**
@@ -20,8 +21,10 @@ export class BlueprintComplexNode extends BlueprintRuntimeBaseNode {
     next(context: IRunAble, parmsArray: any[], runner: IBPRutime, enableDebugPause: boolean, runId: number): number{
         //context.find()
         let result = this.find(parmsArray[0], this.outExcutes);
-
-        return (result.linkTo[0] as BlueprintPinRuntime).owner.index;
+        if(result.linkTo.length){
+            return (result.linkTo[0] as BlueprintPinRuntime).owner.index;    
+        }
+        return BlueprintConst.MAX_CODELINE;
 
         // result.excute(context);
         //this.outExcute.excute(context);
