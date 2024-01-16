@@ -6,7 +6,6 @@ import { MathUtils3D } from "../../../../maths/MathUtils3D";
 import { Matrix4x4 } from "../../../../maths/Matrix4x4";
 import { Vector3 } from "../../../../maths/Vector3";
 import { Vector4 } from "../../../../maths/Vector4";
-import { RenderTexture } from "../../../../resource/RenderTexture";
 import { IDirectLightShadowRP } from "../../../RenderDriverLayer/Render3DProcess/IDirectLightShadowRP";
 import { BaseCamera } from "../../../core/BaseCamera";
 import { Camera } from "../../../core/Camera";

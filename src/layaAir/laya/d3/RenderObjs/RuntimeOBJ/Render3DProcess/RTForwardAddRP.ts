@@ -1,7 +1,4 @@
-import { IDirectLightShadowRP } from "../../../RenderDriverLayer/Render3DProcess/IDirectLightShadowRP";
-import { IForwardAddClusterRP } from "../../../RenderDriverLayer/Render3DProcess/IForwardAddClusterRP";
 import { IForwardAddRP } from "../../../RenderDriverLayer/Render3DProcess/IForwardAddRP";
-import { ISpotLightShadowRP } from "../../../RenderDriverLayer/Render3DProcess/ISpotLightShadowRP";
 import { CommandBuffer } from "../../../core/render/command/CommandBuffer";
 import { RTDirectLightShadowCastRP } from "./RTDirectLightShadowRP";
 import { RTForwardAddClusterRP } from "./RTForwardAddClusterRP";
