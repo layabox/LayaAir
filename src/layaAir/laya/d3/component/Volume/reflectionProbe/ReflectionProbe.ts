@@ -205,17 +205,19 @@ export class ReflectionProbe extends Volume {
 
 	}
 
+	private _iblTex: TextureCube;
 	/**
 	 * Image base Light
 	 */
 	public get iblTex(): TextureCube {
-		return this._dataModule.iblTex;
+		return this._iblTex;
 	}
 
 	public set iblTex(value: TextureCube) {
-		if (this.iblTex == value) return;
-		if (this.iblTex) this.iblTex._removeReference();
-		this._dataModule.iblTex = value;
+		if (this._iblTex == value) return;
+		if (this._iblTex) this._iblTex._removeReference();
+		this._iblTex = value;
+		this._dataModule.iblTex = value._texture;
 		if (value)
 			value._addReference();
 		this._dataModule.updateMark = ILaya3D.Scene3D._updateMark;
@@ -257,7 +259,8 @@ export class ReflectionProbe extends Volume {
 	 * @override
 	 */
 	protected _onDestroy() {
-
+		this.iblTex = null;
+		this._dataModule.destroy();
 	}
 
 	/**

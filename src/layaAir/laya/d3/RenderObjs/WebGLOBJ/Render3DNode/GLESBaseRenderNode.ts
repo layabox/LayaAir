@@ -161,10 +161,10 @@ export class GLESBaseRenderNode implements IBaseRenderNode {
             var lightMap: GLESLightmap = this.lightmap;
             var shaderValues: ShaderData = this.shaderData;
             shaderValues.setVector(RenderableSprite3D.LIGHTMAPSCALEOFFSET, this.lightmapScaleOffset);
-            shaderValues.setTexture(RenderableSprite3D.LIGHTMAP, lightMap.lightmapColor);
+            shaderValues._setInternalTexture(RenderableSprite3D.LIGHTMAP, lightMap.lightmapColor);
             shaderValues.addDefine(RenderableSprite3D.SAHDERDEFINE_LIGHTMAP);
             if (lightMap.lightmapDirection) {
-                shaderValues.setTexture(RenderableSprite3D.LIGHTMAP_DIRECTION, lightMap.lightmapDirection);
+                shaderValues._setInternalTexture(RenderableSprite3D.LIGHTMAP_DIRECTION, lightMap.lightmapDirection);
                 shaderValues.addDefine(RenderableSprite3D.SHADERDEFINE_LIGHTMAP_DIRECTIONAL);
             }
             else {
@@ -188,7 +188,7 @@ export class GLESBaseRenderNode implements IBaseRenderNode {
         }
     }
 
-    
+
     /**
      * apply reflection
      * @returns 

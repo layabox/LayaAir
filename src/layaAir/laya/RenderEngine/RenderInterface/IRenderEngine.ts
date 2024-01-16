@@ -1,6 +1,5 @@
 import { CommandEncoder } from "../../layagl/CommandEncoder";
 import { Color } from "../../maths/Color";
-import { BaseTexture } from "../../resource/BaseTexture";
 import { BufferTargetType, BufferUsage } from "../RenderEnum/BufferTargetType";
 import { RenderCapable } from "../RenderEnum/RenderCapable";
 import { RenderClearFlag } from "../RenderEnum/RenderClearFlag";
@@ -15,6 +14,7 @@ import { IRenderEngineFactory } from "./IRenderEngineFactory";
 import { IRenderShaderInstance } from "./IRenderShaderInstance";
 import { IRenderVertexState } from "./IRenderVertexState";
 import { ITextureContext } from "./ITextureContext";
+import { InternalTexture } from "./InternalTexture";
 
 export interface IRenderEngine {
     _context: any;
@@ -29,9 +29,8 @@ export interface IRenderEngine {
     viewport(x: number, y: number, width: number, height: number): void;
     scissor(x: number, y: number, width: number, height: number): void;
     colorMask(r: boolean, g: boolean, b: boolean, a: boolean): void;
-    copySubFrameBuffertoTex(texture: BaseTexture, level: number, xoffset: number, yoffset: number, x: number, y: number, width: number, height: number): void;
-    bindTexture(texture: BaseTexture): void;
-    clearRenderTexture(clearFlag: RenderClearFlag | number, clearcolor: Color, clearDepth: number,clearStencilValue:number): void;
+    copySubFrameBuffertoTex(texture: InternalTexture, level: number, xoffset: number, yoffset: number, x: number, y: number, width: number, height: number): void;
+    clearRenderTexture(clearFlag: RenderClearFlag | number, clearcolor: Color, clearDepth: number, clearStencilValue: number): void;
     scissorTest(value: boolean): void;
 
     propertyNameToID(name: string): number;

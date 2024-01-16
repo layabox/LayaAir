@@ -1,3 +1,4 @@
+import { InternalTexture } from "../../../../RenderEngine/RenderInterface/InternalTexture";
 import { Vector3 } from "../../../../maths/Vector3";
 import { Vector4 } from "../../../../maths/Vector4";
 import { Texture2D } from "../../../../resource/Texture2D";
@@ -5,18 +6,18 @@ import { IVolumetricGIData } from "../../../RenderDriverLayer/RenderModuleData/I
 import { Bounds } from "../../../math/Bounds";
 
 export class RTVolumetricGI implements IVolumetricGIData {
-    private _irradiance: Texture2D;
-    public get irradiance(): Texture2D {
+    private _irradiance: InternalTexture;
+    public get irradiance(): InternalTexture {
         return this._irradiance;
     }
-    public set irradiance(value: Texture2D) {
+    public set irradiance(value: InternalTexture) {
         this._irradiance = value;
     }
-    private _distance: Texture2D;
-    public get distance(): Texture2D {
+    private _distance: InternalTexture;
+    public get distance(): InternalTexture {
         return this._distance;
     }
-    public set distance(value: Texture2D) {
+    public set distance(value: InternalTexture) {
         this._distance = value;
     }
     private _bound: Bounds;

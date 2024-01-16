@@ -56,36 +56,37 @@ export class VolumetricGI extends Volume {
         this._dataModule.updateMark = ILaya3D.Scene3D._updateMark;
     }
 
+    private _irradiance: Texture2D;
     /**
      * light probe texture
      */
     get irradiance(): Texture2D {
-        return this._dataModule.irradiance;
+        return this._irradiance;
     }
 
     set irradiance(value: Texture2D) {
-        if (this._dataModule.irradiance == value)
+        if (this._irradiance == value)
             return;
-        this._dataModule.irradiance && (this.irradiance._removeReference());
+        this._irradiance && (this._irradiance._removeReference());
         value && (value._addReference());
-        this._dataModule.irradiance = value;
+        this._dataModule.irradiance = value._texture;
         this._dataModule.updateMark = ILaya3D.Scene3D._updateMark;
     }
 
+    private _distance: Texture2D;
     /**
      * distance texture
      */
     get distance(): Texture2D {
-        return this._dataModule.distance;
+        return this._distance;
     }
 
     set distance(value: Texture2D) {
-        if (this._dataModule.distance == value)
+        if (this._distance == value)
             return;
-        this._dataModule.distance && (this._dataModule.distance._removeReference());
+        this._distance && (this._distance._removeReference());
         value && (value._addReference());
-
-        this._dataModule.distance = value;
+        this._dataModule.distance = value._texture;
         this._dataModule.updateMark = ILaya3D.Scene3D._updateMark;
     }
 

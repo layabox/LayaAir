@@ -1,3 +1,4 @@
+import { InternalTexture } from "../../../../RenderEngine/RenderInterface/InternalTexture";
 import { ShaderData } from "../../../../RenderEngine/RenderShader/ShaderData";
 import { Color } from "../../../../maths/Color";
 import { Vector3 } from "../../../../maths/Vector3";
@@ -23,9 +24,9 @@ export class GLESReflectionProbe implements IReflectionProbeData {
     /**@internal */
     reflectionIntensity: number;
     /**@internal */
-    reflectionTexture: TextureCube;
+    reflectionTexture: InternalTexture;
     /**@internal */
-    iblTex: TextureCube;
+    iblTex: InternalTexture;
     /**@internal */
     updateMark: number;
     /**@internal */
@@ -38,11 +39,22 @@ export class GLESReflectionProbe implements IReflectionProbeData {
     private _probePosition: Vector3;
     /**@internal */
     private _ambientColor: Color;
+    
     /**@internal */
     constructor() {
         this._shCoefficients = [];
         this._probePosition = new Vector3();
         this._ambientColor = new Color();
+    }
+
+    /**
+     * @internal
+     */
+    destroy(): void {
+        this.bound = null;
+        delete this._shCoefficients;
+        delete this.ambientSH;
+
     }
     /**@internal */
     setAmbientSH(value: Float32Array): void {
@@ -88,7 +100,7 @@ export class GLESReflectionProbe implements IReflectionProbeData {
             data.addDefine(Sprite3DRenderDeclaration.SHADERDEFINE_GI_IBL);
             data.removeDefine(Sprite3DRenderDeclaration.SHADERDEFINE_GI_LEGACYIBL);
             if (this.iblTex) {
-                data.setTexture(RenderableSprite3D.IBLTEX, this.iblTex);
+                data._setInternalTexture(RenderableSprite3D.IBLTEX, this.iblTex);
                 data.setNumber(RenderableSprite3D.IBLROUGHNESSLEVEL, this.iblTex.maxMipmapLevel);
             };
             this.iblTexRGBD ? data.addDefine(Sprite3DRenderDeclaration.SHADERDEFINE_IBL_RGBD) : data.removeDefine(Sprite3DRenderDeclaration.SHADERDEFINE_IBL_RGBD);

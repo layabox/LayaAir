@@ -18,6 +18,7 @@ import { ICameraNodeData, ISceneNodeData } from "./RenderModuleData/IModuleData"
 import { IReflectionProbeData } from "./RenderModuleData/IReflectionProbeData";
 import { ISpotLightData } from "./RenderModuleData/ISpotLightData";
 import { IVolumetricGIData } from "./RenderModuleData/IVolumetricGIData";
+import { ILightMapData } from "./RenderModuleData/ILightMapData";
 
 
 export interface IRenderEngine3DOBJFactory {
@@ -48,6 +49,8 @@ export interface IRenderEngine3DOBJFactory {
     createVolumetricGI(): IVolumetricGIData;
 
     createReflectionProbe(): IReflectionProbeData;
+
+    createLightmapData():ILightMapData;
 
     createDirectLight(): IDirectLightData;
 

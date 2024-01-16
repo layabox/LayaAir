@@ -29,6 +29,7 @@ import { TextureDimension } from "../../RenderEnum/TextureDimension";
 import { WGPUBindGroupHelper } from "./WGPUBindGroupHelper";
 import { WGPURenderPipeline } from "../../../d3/RenderObjs/WebGPUOBJ/WebGPURenderPipelineHelper";
 import { IRenderEngineFactory } from "../../RenderInterface/IRenderEngineFactory";
+import { InternalTexture } from "../../RenderInterface/InternalTexture";
 
 export class WebGPUEngine implements IRenderEngine {
     _canvas: HTMLCanvasElement;
@@ -260,11 +261,8 @@ export class WebGPUEngine implements IRenderEngine {
     colorMask(r: boolean, g: boolean, b: boolean, a: boolean): void {
         //TODO
     }
-    copySubFrameBuffertoTex(texture: BaseTexture, level: number, xoffset: number, yoffset: number, x: number, y: number, width: number, height: number): void {
+    copySubFrameBuffertoTex(texture: InternalTexture, level: number, xoffset: number, yoffset: number, x: number, y: number, width: number, height: number): void {
         //TODO
-    }
-    bindTexture(texture: BaseTexture): void {
-        // No Use
     }
 
 

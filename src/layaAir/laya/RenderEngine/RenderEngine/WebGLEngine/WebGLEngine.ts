@@ -2,12 +2,12 @@ import { LayaEnv } from "../../../../LayaEnv";
 import { CommandEncoder } from "../../../layagl/CommandEncoder";
 import { Color } from "../../../maths/Color";
 import { Vector4 } from "../../../maths/Vector4";
-import { BaseTexture } from "../../../resource/BaseTexture";
 import { BufferTargetType, BufferUsage } from "../../RenderEnum/BufferTargetType";
 import { RenderCapable } from "../../RenderEnum/RenderCapable";
 import { RenderClearFlag } from "../../RenderEnum/RenderClearFlag";
 import { RenderParams } from "../../RenderEnum/RenderParams";
 import { RenderStatisticsInfo } from "../../RenderEnum/RenderStatInfo";
+import { InternalTexture } from "../../RenderInterface/InternalTexture";
 import { IRender2DContext } from "../../RenderInterface/IRender2DContext";
 import { IRenderBuffer } from "../../RenderInterface/IRenderBuffer";
 import { IRenderDrawContext } from "../../RenderInterface/IRenderDrawContext";
@@ -285,10 +285,6 @@ export class WebGLEngine implements IRenderEngine {
         }
     }
 
-    bindTexture(texture: BaseTexture) {
-        this._bindTexture(texture._texture.target, texture._getSource());
-    }
-
     applyRenderStateCMD(cmd: RenderStateCommand): void {
         this._GLRenderState.applyRenderStateCommand(cmd);
     }
@@ -329,7 +325,7 @@ export class WebGLEngine implements IRenderEngine {
 
 
 
-    clearRenderTexture(clearFlag: RenderClearFlag, clearcolor: Color = null, clearDepth: number = 1,clearStencilValue = 0) {
+    clearRenderTexture(clearFlag: RenderClearFlag, clearcolor: Color = null, clearDepth: number = 1, clearStencilValue = 0) {
         var flag: number;
         //this.gl.enable(this._gl.SCISSOR_TEST)
         if (clearFlag & RenderClearFlag.Color) {
@@ -357,9 +353,9 @@ export class WebGLEngine implements IRenderEngine {
         //this._gl.disable(this._gl.SCISSOR_TEST);
     }
 
-    copySubFrameBuffertoTex(texture: BaseTexture, level: number, xoffset: number, yoffset: number, x: number, y: number, width: number, height: number) {
-        this._bindTexture(texture._texture.target, texture._getSource());
-        this._context.copyTexSubImage2D(texture._texture.target, level, xoffset, yoffset, x, y, width, height);
+    copySubFrameBuffertoTex(texture: InternalTexture, level: number, xoffset: number, yoffset: number, x: number, y: number, width: number, height: number) {
+        this._bindTexture(texture.target, texture.resource);
+        this._context.copyTexSubImage2D(texture.target, level, xoffset, yoffset, x, y, width, height);
     }
 
     colorMask(r: boolean, g: boolean, b: boolean, a: boolean): void {

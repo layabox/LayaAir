@@ -1,3 +1,4 @@
+import { InternalTexture } from "../../../../RenderEngine/RenderInterface/InternalTexture";
 import { ShaderData } from "../../../../RenderEngine/RenderShader/ShaderData";
 import { Vector3 } from "../../../../maths/Vector3";
 import { Vector4 } from "../../../../maths/Vector4";
@@ -10,8 +11,8 @@ import { Bounds } from "../../../math/Bounds";
 export class GLESVolumetricGI implements IVolumetricGIData {
     private _probeCounts: Vector3 = new Vector3();
     private _probeStep: Vector3 = new Vector3();
-    irradiance: Texture2D;
-    distance: Texture2D;
+    irradiance: InternalTexture;
+    distance: InternalTexture;
     bound: Bounds;
     intensity: number;
     updateMark: number;
@@ -34,7 +35,7 @@ export class GLESVolumetricGI implements IVolumetricGIData {
         value.cloneTo(this._probeCounts);
     }
 
-    setProbeStep(value: Vector3): void { 
+    setProbeStep(value: Vector3): void {
         value.cloneTo(this._probeStep);
     }
 
@@ -44,8 +45,8 @@ export class GLESVolumetricGI implements IVolumetricGIData {
         data.setVector3(RenderableSprite3D.VOLUMETRICGI_PROBESTEPS, this._probeStep);
         data.setVector3(RenderableSprite3D.VOLUMETRICGI_PROBESTARTPOS, this.bound.getMin());
         data.setVector(RenderableSprite3D.VOLUMETRICGI_PROBEPARAMS, this._params);
-        data.setTexture(RenderableSprite3D.VOLUMETRICGI_IRRADIANCE, this.irradiance);
-        data.setTexture(RenderableSprite3D.VOLUMETRICGI_DISTANCE, this.distance);
+        data._setInternalTexture(RenderableSprite3D.VOLUMETRICGI_IRRADIANCE, this.irradiance);
+        data._setInternalTexture(RenderableSprite3D.VOLUMETRICGI_DISTANCE, this.distance);
         data.setNumber(RenderableSprite3D.AMBIENTINTENSITY, this.intensity);
     }
 }

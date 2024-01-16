@@ -15,6 +15,7 @@ import { Vector2 } from "../../maths/Vector2";
 import { Vector3 } from "../../maths/Vector3";
 import { Vector4 } from "../../maths/Vector4";
 import { Matrix3x3 } from "../../maths/Matrix3x3";
+import { InternalTexture } from "../RenderInterface/InternalTexture";
 type uboParams = { ubo: UniformBufferObject; uboBuffer: UnifromBufferData };
 export enum ShaderDataType {
 	Int,
@@ -467,6 +468,26 @@ export class ShaderData implements IClone {
 		lastValue && lastValue._removeReference();
 		value && value._addReference();
 	}
+
+	/**@internal */
+	_setInternalTexture(index: number, value: InternalTexture) {
+		var lastValue: InternalTexture = this._data[index];
+		if (value) {
+			let shaderDefine = ShaderDefine._texGammaDefine[index];
+			if (shaderDefine && value && value.gammaCorrection > 1) {
+				this.addDefine(shaderDefine);
+			}
+			else {
+				// todo 自动的
+				shaderDefine && this.removeDefine(shaderDefine);
+			}
+		}
+		//维护Reference
+		this._data[index] = value;
+		// lastValue && lastValue._removeReference();
+		// value && value._addReference();
+	}
+
 	/**
 	 * 获取纹理。
 	 * @param	index shader索引。
@@ -724,5 +745,4 @@ export class ShaderData implements IClone {
 		this._uniformBufferDatas = null;
 		this._uniformBuffersMap = null;
 	}
-
 }

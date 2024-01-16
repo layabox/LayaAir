@@ -24,6 +24,7 @@ import { RenderStatisticsInfo } from "../../RenderEnum/RenderStatInfo";
 import { Color } from "../../../maths/Color";
 import { NativeRenderStateCommand } from "./NativeRenderStateCommand";
 import { IRenderEngineFactory } from "../../RenderInterface/IRenderEngineFactory";
+import { InternalTexture } from "../../RenderInterface/InternalTexture";
 
 
 /**
@@ -45,7 +46,7 @@ export class NativeWebGLEngine implements IRenderEngine {
   private _GL2DRenderContext: NativeGLRender2DContext;
 
   /**@internal */
-  _renderOBJCreateContext:IRenderEngineFactory;
+  _renderOBJCreateContext: IRenderEngineFactory;
 
   _nativeObj: any;
 
@@ -55,7 +56,7 @@ export class NativeWebGLEngine implements IRenderEngine {
   constructor(config: WebGlConfig, webglMode: WebGLMode = WebGLMode.Auto) {
     this._nativeObj = new (window as any).conchWebGLEngine(webglMode);
   }
-  
+
   createRenderStateComand(): RenderStateCommand {
     return new NativeRenderStateCommand();
   }
@@ -147,8 +148,8 @@ export class NativeWebGLEngine implements IRenderEngine {
       this._nativeObj.clearRenderTexture(clearFlag, false, Color.BLACK.r, Color.BLACK.g, Color.BLACK.b, Color.BLACK.a, clearDepth);
   }
 
-  copySubFrameBuffertoTex(texture: BaseTexture, level: number, xoffset: number, yoffset: number, x: number, y: number, width: number, height: number) {
-    this._nativeObj.copySubFrameBuffertoTex(texture._texture, level, xoffset, yoffset, x, y, width, height);
+  copySubFrameBuffertoTex(texture: InternalTexture, level: number, xoffset: number, yoffset: number, x: number, y: number, width: number, height: number) {
+    this._nativeObj.copySubFrameBuffertoTex(texture, level, xoffset, yoffset, x, y, width, height);
   }
 
   colorMask(r: boolean, g: boolean, b: boolean, a: boolean): void {
@@ -204,7 +205,7 @@ export class NativeWebGLEngine implements IRenderEngine {
   uploadCustomUniforms(shader: IRenderShaderInstance, custom: any[], index: number, data: any): number {
     throw new Error("Method not implemented.");
   }
-  unbindVertexState(): void{
+  unbindVertexState(): void {
     this._nativeObj.unbindVertexState && this._nativeObj.unbindVertexState();
   }
 }

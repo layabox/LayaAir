@@ -34,8 +34,13 @@ import { RenderGeometryElementOBJ } from "./RenderGeometryElementOBJ";
 import { SceneRenderManagerOBJ } from "../RenderObj/SceneRenderManagerOBJ";
 import { SkinRenderElementOBJ } from "../RenderObj/SkinRenderElementOBJ";
 import { GLESRenderElementOBJ } from "./GLESRenderElementOBJ";
+import { ILightMapData } from "../../RenderDriverLayer/RenderModuleData/ILightMapData";
+import { GLESLightmap } from "./RenderModuleData/GLESLightmap";
 
 export class WebGLRenderEngine3DFactory implements IRenderEngine3DOBJFactory {
+    createLightmapData(): ILightMapData {
+        return new GLESLightmap();
+    }
     createCameraModuleData(): ICameraNodeData {
         return new GLESCameraNodeData();
     }

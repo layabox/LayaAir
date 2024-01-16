@@ -1,6 +1,6 @@
+import { InternalTexture } from "../../../RenderEngine/RenderInterface/InternalTexture";
 import { Color } from "../../../maths/Color";
 import { Vector3 } from "../../../maths/Vector3";
-import { TextureCube } from "../../../resource/TextureCube";
 import { AmbientMode } from "../../core/scene/AmbientMode";
 import { Bounds } from "../../math/Bounds";
 
@@ -18,9 +18,9 @@ export interface IReflectionProbeData {
     /**@internal */
     reflectionIntensity: number;
     /**@internal */
-    reflectionTexture: TextureCube;
+    reflectionTexture: InternalTexture;//textureCube
     /**@internal */
-    iblTex: TextureCube;//textureCube id
+    iblTex: InternalTexture;//textureCube
     /**@internal */
     updateMark: number;
     /**@internal */
@@ -30,5 +30,7 @@ export interface IReflectionProbeData {
     /**@internal */
     setAmbientColor(value: Color): void;
     /**@internal */
-    setAmbientSH(value: Float32Array): void
+    setAmbientSH(value: Float32Array): void;
+    /**@internal */
+    destroy(): void;
 }

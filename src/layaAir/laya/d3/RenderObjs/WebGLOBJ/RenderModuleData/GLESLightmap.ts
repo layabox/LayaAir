@@ -1,8 +1,14 @@
-import { Texture2D } from "../../../../resource/Texture2D";
+import { InternalTexture } from "../../../../RenderEngine/RenderInterface/InternalTexture";
 import { ILightMapData } from "../../../RenderDriverLayer/RenderModuleData/ILightMapData";
 
-export class GLESLightmap implements ILightMapData{
-    lightmapColor: Texture2D;
-    lightmapDirection: Texture2D;
-
+export class GLESLightmap implements ILightMapData {
+    /**@internal */
+    lightmapColor: InternalTexture;
+    /**@internal */
+    lightmapDirection: InternalTexture;
+    /**@internal */
+    destroy(): void {
+        this.lightmapColor = null;
+        this.lightmapDirection = null;
+    }
 }

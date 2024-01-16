@@ -15,17 +15,22 @@ import { NativeTransform3D } from "../../NativeOBJ/NativeTransform3D";
 
 export class RTBaseRenderNode implements IBaseRenderNode {
     private _transform: NativeTransform3D;
+    
     public get transform(): NativeTransform3D {
         return this._transform;
     }
+
     public set transform(value: NativeTransform3D) {
         this._nativeObj.set_transform(value._nativeObj);
         this._transform = value;
     }
+
     public get distanceForSort(): number {
         return this._nativeObj._distanceForSort;
     }
+    private _distanceForsSort:number
     public set distanceForSort(value: number) {
+        this._nativeObj.distanceForSort
         this._nativeObj._distanceForSort = value;
     }
     public get sortingFudge(): number {

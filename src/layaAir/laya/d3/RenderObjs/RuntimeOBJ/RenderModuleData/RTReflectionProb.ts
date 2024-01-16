@@ -1,3 +1,4 @@
+import { InternalTexture } from "../../../../RenderEngine/RenderInterface/InternalTexture";
 import { Color } from "../../../../maths/Color";
 import { Vector3 } from "../../../../maths/Vector3";
 import { TextureCube } from "../../../../resource/TextureCube";
@@ -48,18 +49,18 @@ export class RTReflectionProb implements IReflectionProbeData {
     public set reflectionIntensity(value: number) {
         this._reflectionIntensity = value;
     }
-    private _reflectionTexture: TextureCube;
-    public get reflectionTexture(): TextureCube {
+    private _reflectionTexture: InternalTexture;
+    public get reflectionTexture(): InternalTexture {
         return this._reflectionTexture;
     }
-    public set reflectionTexture(value: TextureCube) {
+    public set reflectionTexture(value: InternalTexture) {
         this._reflectionTexture = value;
     }
-    private _iblTex: TextureCube;
-    public get iblTex(): TextureCube {
+    private _iblTex: InternalTexture;
+    public get iblTex(): InternalTexture {
         return this._iblTex;
     }
-    public set iblTex(value: TextureCube) {
+    public set iblTex(value: InternalTexture) {
         this._iblTex = value;
     }
     private _updateMark: number;
@@ -90,6 +91,10 @@ export class RTReflectionProb implements IReflectionProbeData {
 
     constructor() {
         this._nativeObj = new (window as any).conchRTReflectionProb();
+    }
+
+    destroy(): void {
+        //todo
     }
 
 }
