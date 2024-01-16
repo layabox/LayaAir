@@ -394,7 +394,7 @@ export class BaseRender extends Component {
     }
 
     set reflectionMode(value: ReflectionProbeMode) {
-        this._baseRenderNode.reflectionMode = value = value;
+        this._baseRenderNode.reflectionMode = value;
     }
 
 
@@ -478,6 +478,7 @@ export class BaseRender extends Component {
         this.lightmapIndex = -1;
         this.receiveShadow = false;
         this._baseRenderNode.sortingFudge = 0.0;
+        this.reflectionMode = ReflectionProbeMode.simple;
         if (!!this._calculateBoundingBox) {
             this._baseRenderNode._calculateBoundingBox = this._calculateBoundingBox;
         }

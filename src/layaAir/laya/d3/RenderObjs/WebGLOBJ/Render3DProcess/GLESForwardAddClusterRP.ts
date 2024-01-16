@@ -2,7 +2,6 @@ import { RenderClearFlag } from "../../../../RenderEngine/RenderEnum/RenderClear
 import { InternalRenderTarget } from "../../../../RenderEngine/RenderInterface/InternalRenderTarget";
 import { Color } from "../../../../maths/Color";
 import { Vector4 } from "../../../../maths/Vector4";
-import { RenderTexture } from "../../../../resource/RenderTexture";
 import { PipelineMode } from "../../../RenderDriverLayer/IRenderContext3D";
 import { IBaseRenderNode } from "../../../RenderDriverLayer/Render3DNode/IBaseRenderNode";
 import { DepthTextureMode, IForwardAddClusterRP } from "../../../RenderDriverLayer/Render3DProcess/IForwardAddClusterRP";
@@ -150,14 +149,14 @@ export class GLESForwardAddClusterRP implements IForwardAddClusterRP {
         context.setViewPort(Viewport._tempViewport);
         context.setScissor(Vector4.tempVec4);
         context.setClearData(RenderClearFlag.Depth, Color.BLACK, 1, 0);
-        context.setRenderTarget(this.depthTarget._renderTarget);
+        context.setRenderTarget(this.depthTarget);
         this.opaqueList.renderQueue(context);
         //渲染完后传入使用的参数
         var far = this.camera.farplane;
         var near = this.camera.nearplane;
         this._zBufferParams.setValue(1.0 - far / near, far / near, (near - far) / (near * far), 1 / near);
         context.cameraData.setVector(DepthPass.DEFINE_SHADOW_BIAS, DepthPass.SHADOW_BIAS);
-        context.cameraData.setTexture(DepthPass.DEPTHTEXTURE, this.depthTarget);
+
         context.cameraData.setVector(DepthPass.DEPTHZBUFFERPARAMS, this._zBufferParams);
         shadervalue.removeDefine(DepthPass.DEPTHPASS);
     }
@@ -176,9 +175,9 @@ export class GLESForwardAddClusterRP implements IForwardAddClusterRP {
         context.setViewPort(Viewport._tempViewport);
         context.setScissor(Vector4.tempVec4);
         context.setClearData(RenderClearFlag.Color | RenderClearFlag.Depth, this._defaultNormalDepthColor, 1, 0);
-        context.setRenderTarget(this.depthNormalTarget._renderTarget);
+        context.setRenderTarget(this.depthNormalTarget);
         this.opaqueList.renderQueue(context);
-        context.cameraData.setTexture(DepthPass.DEPTHNORMALSTEXTURE, this.depthNormalTarget);
+
     }
 
 
@@ -220,6 +219,7 @@ export class GLESForwardAddClusterRP implements IForwardAddClusterRP {
         const cacheScissor = GLESForwardAddClusterRP._contextScissorPortCatch;
         context.setViewPort(cacheViewPor);
         context.setScissor(cacheScissor);
-        context.setRenderTarget(this.destTarget._renderTarget);
+        context.setRenderTarget(this.destTarget);
     }
+    
 }

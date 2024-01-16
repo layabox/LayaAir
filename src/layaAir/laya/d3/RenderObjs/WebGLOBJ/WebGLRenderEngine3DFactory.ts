@@ -59,10 +59,9 @@ export class WebGLRenderEngine3DFactory implements IRenderEngine3DOBJFactory {
         return new SkinRenderElementOBJ();
     }
 
-    createInstanceRenderElement() {
-        return new InstanceRenderElementOBJ();
-    }
-
+    // createInstanceRenderElement() {
+    //     return new InstanceRenderElementOBJ();
+    // }
 
     createVertexBuffer3D(byteLength: number, bufferUsage: BufferUsage, canRead: boolean = false) {
         return new VertexBuffer3D(byteLength, bufferUsage, canRead);
@@ -95,10 +94,10 @@ export class WebGLRenderEngine3DFactory implements IRenderEngine3DOBJFactory {
     createVolumetricGI(): IVolumetricGIData {
         return new GLESVolumetricGI();
     }
-    createReflectionProbe(): IReflectionProbeData {
+    createReflectionProbe(): GLESReflectionProbe {
         return new GLESReflectionProbe();
     }
-    createDirectLight(): IDirectLightData {
+    createDirectLight(): GLESDirectLight {
         return new GLESDirectLight();
     }
     createSpotLight(): ISpotLightData {

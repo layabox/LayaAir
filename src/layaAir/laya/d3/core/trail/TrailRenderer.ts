@@ -25,7 +25,7 @@ export class TrailRenderer extends BaseRender {
      */
     constructor() {
         super();
-
+        this._baseRenderNode._renderUpdatePre = null;
     }
 
     protected _getcommonUniformMap(): Array<string> {
@@ -150,6 +150,8 @@ export class TrailRenderer extends BaseRender {
     renderUpdate(context: RenderContext3D) {
         this._calculateBoundingBox();
     }
+
+
 
     /**
      * 包围盒,只读,不允许修改其值。

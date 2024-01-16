@@ -6,7 +6,7 @@ import "laya/ui/ModuleDef";
 import "laya/ani/ModuleDef";
 import "laya/spine/ModuleDef";
 import "laya/gltf/glTFLoader";
-import "laya/d3/RenderObjs/RenderObj/WebGLRenderEngine3DFactory"
+import "laya/d3/RenderObjs/WebGLOBJ/WebGLRenderEngine3DFactory"
 
 import { Resource } from "laya/resource/Resource";
 import { Main } from "./Main";

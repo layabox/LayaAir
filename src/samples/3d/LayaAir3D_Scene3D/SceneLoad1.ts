@@ -6,21 +6,24 @@ import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
-import {GLESRenderDriverPassFactory} from "laya/d3/RenderObjs/WebGLOBJ/GLESRenderDriverPassFactory";
+import { GLESRenderDriverPassFactory } from "laya/d3/RenderObjs/WebGLOBJ/GLESRenderDriverPassFactory";
 import { Laya3DRender } from "laya/d3/RenderObjs/Laya3DRender";
+import { WebGLRenderEngine3DFactory } from "laya/d3/RenderObjs/WebGLOBJ/WebGLRenderEngine3DFactory"
 export class SceneLoad1 {
 	constructor() {
+		Laya3DRender.renderDriverPassCreate = new GLESRenderDriverPassFactory();
+		Laya3DRender.renderOBJCreate = new WebGLRenderEngine3DFactory();
 		//初始化引擎
 		Laya.init(0, 0).then(() => {
 			Stat.show();
 			Laya.stage.scaleMode = Stage.SCALE_FULL;
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
 			Shader3D.debugMode = true;
-			Laya3DRender.renderDriverPassCreate = new GLESRenderDriverPassFactory();
+
 			this.loadIDEResourcePakage();
 			// //加载场景
 			// Scene3D.load("res/threeDimen/scene/LayaScene_dudeScene/Conventional/dudeScene.ls", Handler.create(this, function (scene: Scene3D): void {
-		// 	(<Scene3D>Laya.stage.addChild(scene));
+			// 	(<Scene3D>Laya.stage.addChild(scene));
 
 			// 	// //获取场景中的相机
 			// 	var camera: Camera = (<Camera>scene.getChildByName("Main Camera"));

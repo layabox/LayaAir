@@ -109,7 +109,7 @@ export class GLESSpotLightShadowRP implements ISpotLightShadowRP {
     render(context: GLESRenderContext3D, list: GLESBaseRenderNode[], count: number): void {
         var shaderValues: ShaderData = context.sceneData;
         context.pipelineMode = "ShadowCaster";
-        context.setRenderTarget(this.destTarget._renderTarget);
+        context.setRenderTarget(this.destTarget);
         var shadowSpotData: ShadowSpotData = this._shadowSpotData;
         this._getShadowBias(shadowSpotData.resolution, this._shadowBias);
         this._setupShadowCasterShaderValues(shaderValues, shadowSpotData, this._shadowParams, this._shadowBias);
@@ -231,7 +231,6 @@ export class GLESSpotLightShadowRP implements ISpotLightShadowRP {
                 sceneData.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SPOT_SOFT_SHADOW_LOW);
                 break;
         }
-        sceneData.setTexture(ShadowCasterPass.SHADOW_SPOTMAP, this.destTarget);
         sceneData.setMatrix4x4(ShadowCasterPass.SHADOW_SPOTMATRICES, this._shadowSpotMatrices)
         sceneData.setVector(ShadowCasterPass.SHADOW_SPOTMAP_SIZE, this._shadowSpotMapSize);
         sceneData.setVector(ShadowCasterPass.SHADOW_PARAMS, this._shadowParams);

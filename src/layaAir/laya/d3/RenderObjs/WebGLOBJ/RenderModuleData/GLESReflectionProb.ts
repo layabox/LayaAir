@@ -30,16 +30,12 @@ export class GLESReflectionProbe implements IReflectionProbeData {
     updateMark: number;
     /**@internal */
     iblTexRGBD: boolean;
-
     /**@internal */
     private _reflectionHDRParams: Vector4
-
     /**@internal */
     private _shCoefficients: Vector4[];
-
     /**@internal */
     private _probePosition: Vector3;
-
     /**@internal */
     private _ambientColor: Color;
     /**@internal */
@@ -48,6 +44,7 @@ export class GLESReflectionProbe implements IReflectionProbeData {
         this._probePosition = new Vector3();
         this._ambientColor = new Color();
     }
+    /**@internal */
     setAmbientSH(value: Float32Array): void {
         throw new Error("Method not implemented.");
     }

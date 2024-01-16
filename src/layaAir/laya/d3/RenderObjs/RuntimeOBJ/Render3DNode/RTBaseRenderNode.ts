@@ -58,21 +58,21 @@ export class RTBaseRenderNode implements IBaseRenderNode {
     public set layer(value: number) {
         this._nativeObj._layer = value;
     }
-    private _bounds: NativeBounds;
+    private _bounds: Bounds;
     public get bounds(): Bounds {
-        return this._bounds as unknown as Bounds;
+        return this._bounds as Bounds;
     }
-    public set bounds(value: NativeBounds) {
+    public set bounds(value: Bounds) {
         this._bounds = value;
-        this._nativeObj._bounds = value._nativeObj;
+        this._nativeObj._bounds = value._imp._nativeObj;
     }
-    private _baseGeometryBounds: NativeBounds;
+    private _baseGeometryBounds: Bounds;
     public get baseGeometryBounds(): Bounds {
-        return this._baseGeometryBounds as unknown as Bounds;
+        return this._baseGeometryBounds;
     }
-    public set baseGeometryBounds(value: NativeBounds) {
+    public set baseGeometryBounds(value: Bounds) {
         this._baseGeometryBounds = value;
-        this._nativeObj.set_baseGeometryBounds(value._nativeObj);
+        //this._nativeObj.set_baseGeometryBounds(value._nativeObj);
     }
     public get boundsChange(): boolean {
         return this._nativeObj._boundsChange;
@@ -99,7 +99,7 @@ export class RTBaseRenderNode implements IBaseRenderNode {
         this._nativeObj._staticMask = value;
     }
     private _shaderData: NativeShaderData;
-    public get shaderData(): ShaderData {
+    public get shaderData(): NativeShaderData {
         return this._shaderData;
     }
     public set shaderData(value: NativeShaderData) {

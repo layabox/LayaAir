@@ -29,7 +29,7 @@ export interface IRenderEngine3DOBJFactory {
 
     createSkinRenderElement(): IRenderElement;
 
-    createInstanceRenderElement(): IRenderElement;
+   // createInstanceRenderElement(): IRenderElement;
 
     createVertexBuffer3D(byteLength: number, bufferUsage: BufferUsage, canRead: boolean): VertexBuffer3D;
 

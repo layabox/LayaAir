@@ -69,7 +69,7 @@ export class InstanceRenderElement extends RenderElement {
     }
 
     protected _createRenderElementOBJ() {
-        this._renderElementOBJ = Laya3DRender.renderOBJCreate.createInstanceRenderElement();
+       // this._renderElementOBJ = Laya3DRender.renderOBJCreate.createInstanceRenderElement();
     }
 
     compileShader(context: IRenderContext3D) {

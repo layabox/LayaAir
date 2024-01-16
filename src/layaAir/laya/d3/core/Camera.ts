@@ -1037,20 +1037,23 @@ export class Camera extends BaseCamera {
             // todo
             if (!this.canblitDepth || !this._internalRenderTexture.depthStencilTexture) {
                 Camera.depthPass.getTarget(this, DepthTextureMode.Depth, this._depthTextureFormat);
-                this._ForwardAddRP.renderpass.depthTarget = this._depthTexture as RenderTexture;
+                this._ForwardAddRP.renderpass.depthTarget = (this._depthTexture as RenderTexture)._renderTarget;
+                this._shaderValues.setTexture(DepthPass.DEPTHTEXTURE, this._depthTexture);
             }
             else {
 
                 this.depthTexture = this._cacheDepthTexture.depthStencilTexture;
                 //@ts-ignore;
                 Camera.depthPass._depthTexture = this.depthTexture;
+                this._shaderValues.setTexture(DepthPass.DEPTHTEXTURE, this.depthTexture);
                 Camera.depthPass._setupDepthModeShaderValue(DepthTextureMode.Depth, this);
                 cameraDepthMode &= ~DepthTextureMode.Depth;
             }
         }
         if ((cameraDepthMode & DepthTextureMode.DepthNormals) != 0) {
             Camera.depthPass.getTarget(this, DepthTextureMode.DepthNormals, this._depthTextureFormat);
-            this._ForwardAddRP.renderpass.depthNormalTarget = this.depthNormalTexture;
+            this._ForwardAddRP.renderpass.depthNormalTarget = this.depthNormalTexture._renderTarget;
+            this._shaderValues.setTexture(DepthPass.DEPTHNORMALSTEXTURE, this.depthNormalTexture);
         }
         this._ForwardAddRP.renderpass.depthTextureMode = cameraDepthMode;
     }
@@ -1161,7 +1164,7 @@ export class Camera extends BaseCamera {
             context.invertY = true;
         else
             context.invertY = false;
-        this._ForwardAddRP.renderpass.destTarget = renderTex;
+        this._ForwardAddRP.renderpass.destTarget = renderTex._renderTarget;
         //clear Color
         {
             let clearColor = this._linearClearColor;
@@ -1232,7 +1235,7 @@ export class Camera extends BaseCamera {
             if (spotneedShadowCasterPass) {
                 this._ForwardAddRP.enableSpotLightShadowPass = spotneedShadowCasterPass;
                 let spotShadowMap = ILaya3D.Scene3D._shadowCasterPass.getSpotLightShadowPassData(spotMainLight);
-                
+                scene._shaderValues.setTexture(ShadowCasterPass.SHADOW_SPOTMAP, spotShadowMap);
                 this._ForwardAddRP.spotLightShadowPass.destTarget = spotShadowMap._renderTarget;
             }
         }
