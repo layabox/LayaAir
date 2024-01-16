@@ -1,4 +1,4 @@
-import { TBPCNode, TBPEventProperty, TBPNode, TBPVarProperty } from "../datas/types/BlueprintTypes";
+import { BPType, TBPCNode, TBPEventProperty, TBPNode, TBPVarProperty } from "../datas/types/BlueprintTypes";
 import { EBlueNodeType } from "../core/EBluePrint";
 import { INodeManger } from "../core/interface/INodeManger";
 import { TBPNodeData } from "../core/type/TBluePrint";
@@ -13,6 +13,7 @@ import { BlueprintRuntimeBaseNode } from "./node/BlueprintRuntimeBaseNode";
 import { RuntimeNodeData } from "./action/RuntimeNodeData";
 import { BlueprintCustomFunStart } from "./node/BlueprintCustomFunStart";
 import { IExcuteListInfo } from "../core/interface/IExcuteListInfo";
+import { BlueprintCustomFunReturn, BlueprintCustomFunReturnContext } from "./node/BlueprintCustomFunReturn";
 
 
 const mainScope = Symbol("mainScope");
@@ -25,17 +26,23 @@ export class BlueprintRuntime implements INodeManger<BlueprintRuntimeBaseNode>, 
      * 自定义函数列表
      */
     customFunMap: Map<number, BlueprintCustomFunStart>;
+    /**
+     * 自定义函数返回节点列表
+     */
+    customFunReturnMap: Map<number, BlueprintCustomFunReturn>;
 
     varMap: Record<string, TBPVarProperty>;
 
     dataMap: Record<string, TBPVarProperty | TBPEventProperty>
 
     excuteRuntimeList: Map<number | Symbol, BlueprintRuntimeBaseNode[]>;
+    private _maxID: number = 0;
 
     constructor() {
         this.nodeMap = new Map();
         this.eventMap = new Map();
         this.customFunMap = new Map();
+        this.customFunReturnMap = new Map();
         this.excuteRuntimeList = new Map();
         this.excuteRuntimeList.set(mainScope, [])
     }
@@ -44,22 +51,23 @@ export class BlueprintRuntime implements INodeManger<BlueprintRuntimeBaseNode>, 
     append(node: BlueprintRuntimeBaseNode) {
         this.nodeMap.set(node.nid, node);
         switch (node.type) {
-            case EBlueNodeType.Event:
+            case BPType.Event:
                 this.eventMap.set(node.name, node as BlueprintEventNode);
                 break;
         }
     }
 
-    run(context: IRunAble, eventName: string, parms: any[]) {
-        context.initData(this.nodeMap);
+    run(context: IRunAble, eventName: string, parms: any[], cb: Function) {
+        context.initData(mainScope, this.nodeMap);
         let event = this.eventMap.get(eventName);
         if (event) {
+            this._maxID++;
             if (parms) {
                 parms.forEach((value, index) => {
-                    context.setPinData(event.outPutParmPins[index], value);
+                    context.setPinData(event.outPutParmPins[index], value, this._maxID);
                 })
             }
-            this.runByContext(context, event);
+            this.runByContext(context, event, true, cb, this._maxID);
             //  event.outExcute.excute(context);
             //let root=event.outExcute.linkTo
         }
@@ -71,32 +79,50 @@ export class BlueprintRuntime implements INodeManger<BlueprintRuntimeBaseNode>, 
      * @param funName 
      * @param parms 
      */
-    runCustomFun(context: IRunAble, funId: number, parms: any[],cb:Function) {
+    runCustomFun(context: IRunAble, funId: number, parms: any[], cb: Function, runId: number) {
+        context.initData(funId, this.nodeMap);
         let fun = this.customFunMap.get(funId);
         if (fun) {
+            this._maxID++;
+            let curRunId=this._maxID;
+            let returnNode = this.customFunReturnMap.get(funId);
+            if (returnNode) {
+                let data = context.getDataById(returnNode.nid) as BlueprintCustomFunReturnContext;
+                let result: any[] = [];
+                data.returnMap.set(curRunId, result);
+                data.runIdMap.set(curRunId, runId);
+                for (let i = fun.outPutParmPins.length; i < parms.length; i++) {
+                    result.push(parms[i]);
+                }
+            }
+
             if (parms) {
-                parms.forEach((value, index) => {
-                    context.setPinData(fun.outPutParmPins[index], value);
+                fun.outPutParmPins.forEach((value, index) => {
+                    context.setPinData(value, parms[index], curRunId);
                 })
             }
-            return this.runByContext(context, fun,true,cb);
+
+            return this.runByContext(context, fun, true, cb, curRunId);
             //  event.outExcute.excute(context);
             //let root=event.outExcute.linkTo
         }
         return null;
     }
 
-    runByContext(context: IRunAble, node: IExcuteListInfo, enableDebugPause: boolean = true,cb:Function=null):boolean {
+    runByContext(context: IRunAble, node: IExcuteListInfo, enableDebugPause: boolean, cb: Function, runId: number): boolean {
+        if (runId == -1) {
+            runId = ++this._maxID;
+        }
         const currentIndex = node.index;
         const excuteAbleList = this.excuteRuntimeList.get(node.listIndex);
 
         for (let i = currentIndex, n = excuteAbleList.length; i < n;) {
             const bpNode = excuteAbleList[i];
-            let index = bpNode.step(context, true, this, enableDebugPause);
+            let index = bpNode.step(context, true, this, enableDebugPause, runId);
             enableDebugPause = true;
             if (index instanceof BlueprintPromise) {
                 index.wait((mis: BlueprintPromise) => {
-                    this.runByContext(context, mis, enableDebugPause,cb);
+                    this.runByContext(context, mis, enableDebugPause, cb, runId);
                 })
                 return false;
             }
@@ -104,7 +130,7 @@ export class BlueprintRuntime implements INodeManger<BlueprintRuntimeBaseNode>, 
                 i = index;
             }
         }
-        cb&&cb();
+        cb && cb();
         return true;
     }
 
@@ -131,12 +157,18 @@ export class BlueprintRuntime implements INodeManger<BlueprintRuntimeBaseNode>, 
         });
         bpjson.forEach(item => {
             // debugger;
-            this.getNodeById(item.id).parseLinkData(item, this);
+            let itemNode = this.getNodeById(item.id) as BlueprintCustomFunReturn;
+            if (itemNode.type == BPType.CustomFunReturn) {
+                this.customFunReturnMap.set(funId, itemNode);
+            }
+            itemNode.parseLinkData(item, this);
         });
         let funExcuteList: BlueprintRuntimeBaseNode[] = [];
         let funnode = this.getNodeById(bpjson[0].id) as BlueprintCustomFunStart;
         this.excuteRuntimeList.set(funId, funExcuteList);
         this.customFunMap.set(funId, funnode);
+
+
         this.optimizeByStart(funnode, funExcuteList, funId);
     }
 

@@ -19,7 +19,7 @@ export abstract class BlueprintNode<T extends BlueprintPin>{
     id: string;
     nid: number;
     name: string;
-    type: EBlueNodeType;
+    type: BPType;
 
     pins: T[];
     constructor() {
@@ -35,35 +35,35 @@ export abstract class BlueprintNode<T extends BlueprintPin>{
     parse(def: TBPCNode) {
         this.name = def.name;
         //this.id = def.id;
-        let type: EBlueNodeType;
-        switch (def.type) {
-            case BPType.Event:
-                type = EBlueNodeType.Event;
-                break;
-            case BPType.Function:
-                type = EBlueNodeType.Fun;
-                break;
-            case BPType.Operator:
-            case BPType.Pure:
-                type = EBlueNodeType.Pure;
-                break;
-            case BPType.SetValue:
-                type = EBlueNodeType.SetVarialbe;
-                break;
-            case BPType.GetValue:
-                type = EBlueNodeType.GetVariable;
-                break;
-            case BPType.Sequence:
-                type = EBlueNodeType.Sequnece;
-                break;
-            case BPType.Branch:
-                type = EBlueNodeType.Branch;
-                break;
-            default:
-                type = EBlueNodeType.Unknow;
-        }
+        // let type: EBlueNodeType;
+        // switch (def.type) {
+        //     case BPType.Event:
+        //         type = EBlueNodeType.Event;
+        //         break;
+        //     case BPType.Function:
+        //         type = EBlueNodeType.Fun;
+        //         break;
+        //     case BPType.Operator:
+        //     case BPType.Pure:
+        //         type = EBlueNodeType.Pure;
+        //         break;
+        //     case BPType.SetValue:
+        //         type = EBlueNodeType.SetVarialbe;
+        //         break;
+        //     case BPType.GetValue:
+        //         type = EBlueNodeType.GetVariable;
+        //         break;
+        //     case BPType.Sequence:
+        //         type = EBlueNodeType.Sequnece;
+        //         break;
+        //     case BPType.Branch:
+        //         type = EBlueNodeType.Branch;
+        //         break;
+        //     default:
+        //         type = EBlueNodeType.Unknow;
+        // }
 
-        this.setType(type);
+        this.setType(def.type);
         let arr = BlueprintFactory.getFunction(def.id || def.name);
         this.setFunction(arr ? arr[0] : null, arr ? arr[1] : false);
         if (def.input) {
@@ -131,7 +131,7 @@ export abstract class BlueprintNode<T extends BlueprintPin>{
 
     }
 
-    setType(type: EBlueNodeType) {
+    setType(type: BPType) {
         this.type = type;
     }
 

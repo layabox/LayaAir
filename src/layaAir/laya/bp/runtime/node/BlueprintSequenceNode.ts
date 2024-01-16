@@ -7,17 +7,17 @@ import { IBPRutime } from "../interface/IBPRutime";
 
 export class BlueprintSequenceNode extends BlueprintComplexNode {
 
-    next(context: IRunAble, parmsArray: any[], runner: IBPRutime): number {
+    next(context: IRunAble, parmsArray: any[], runner: IBPRutime, enableDebugPause: boolean, runId: number): number {
         for (let i = 0, n = this.outExcutes.length; i < n; i++) {
             let item = this.outExcutes[i];
             let pin = (item.linkTo[0] as BlueprintPinRuntime);
             if (pin) {
-                if(context.debuggerPause){
+                if (context.debuggerPause) {
                     debugger;
                     context.pushBack(pin.owner);
                 }
-                else{
-                    runner.runByContext(context, pin.owner);
+                else {
+                    runner.runByContext(context, pin.owner, enableDebugPause, null, runId);
                 }
                 //item.excute(context);
             }

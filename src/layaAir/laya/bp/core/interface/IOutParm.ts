@@ -1,4 +1,4 @@
 export interface IOutParm {
-    readonly name:string;
-    setValue(value: any): void;
+    readonly name: string;
+    setValue(runId: number, value: any): void;
 }

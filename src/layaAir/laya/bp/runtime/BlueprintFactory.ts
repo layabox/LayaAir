@@ -21,7 +21,7 @@ import { LayaEnv } from "../../../LayaEnv";
 import { IBluePrintSubclass } from "../core/interface/IBluePrintSubclass";
 import { BlueprintCustomFunNode } from "./node/BlueprintCustomFunNode";
 import { BlueprintCustomFunStart } from "./node/BlueprintCustomFunStart";
-import { BlueprintCustomFunReturn } from "./node/BlueprintCustomFunReturn";
+import { BlueprintCustomFunReturn, BlueprintCustomFunReturnContext } from "./node/BlueprintCustomFunReturn";
 
 export class BlueprintFactory {
     private static _funMap: Map<string, [Function, boolean]>;
@@ -31,7 +31,9 @@ export class BlueprintFactory {
     private static _isInited: boolean;
 
     //新格式
-    private static _bpNewMap: Map<BPType, new () => BlueprintRuntimeBaseNode>;
+    private static _bpMap: Map<BPType, new () => BlueprintRuntimeBaseNode>;
+    //上下文
+    private static _bpContextMap: Map<BPType, new () => RuntimeNodeData>;
     static bpNewMap: Map<string, TBPCNode> = new Map();
 
 
@@ -40,8 +42,8 @@ export class BlueprintFactory {
      * @param type 
      * @param cls 
      */
-    static regBPClassNew(type: BPType, cls: new () => BlueprintRuntimeBaseNode) {
-        this._bpNewMap.set(type, cls);
+    static regBPClass(type: BPType, cls: new () => BlueprintRuntimeBaseNode) {
+        this._bpMap.set(type, cls);
     }
 
     static regFunction(fname: string, fun: Function, isMember: boolean = false) {
@@ -52,24 +54,35 @@ export class BlueprintFactory {
         return this._funMap.get(fname);
     }
 
+    static regBPContextData(type: BPType, cls: new () => RuntimeNodeData) {
+        this._bpContextMap.set(type, cls);
+    }
+
+    static getBPContextData(type: BPType):new () => RuntimeNodeData {
+        return this._bpContextMap.get(type) || RuntimeNodeData;
+    }
+
     static __init__() {
         if (!this._isInited) {
             this._funMap = new Map();
             this._isInited = true;
 
-            this._bpNewMap = new Map();
-            this.regBPClassNew(BPType.Event, BlueprintEventNode);
-            this.regBPClassNew(BPType.Pure, BlueprintRuntimeBaseNode);
-            this.regBPClassNew(BPType.Operator, BlueprintRuntimeBaseNode);
-            this.regBPClassNew(BPType.Function, BlueprintFunNode);
-            this.regBPClassNew(BPType.GetValue, BlueprintGetVarNode);
-            this.regBPClassNew(BPType.SetValue, BlueprintSetVarNode);
-            this.regBPClassNew(BPType.Branch, BlueprintComplexNode);
-            this.regBPClassNew(BPType.Sequence, BlueprintSequenceNode);
-            this.regBPClassNew(BPType.NewTarget, BlueprintNewTargetNode);
-            this.regBPClassNew(BPType.CustomFun, BlueprintCustomFunNode);
-            this.regBPClassNew(BPType.CustomFunStart, BlueprintCustomFunStart);
-            this.regBPClassNew(BPType.CustomFunReturn, BlueprintCustomFunReturn);
+            this._bpMap = new Map();
+            this._bpContextMap = new Map();
+            this.regBPClass(BPType.Event, BlueprintEventNode);
+            this.regBPClass(BPType.Pure, BlueprintRuntimeBaseNode);
+            this.regBPClass(BPType.Operator, BlueprintRuntimeBaseNode);
+            this.regBPClass(BPType.Function, BlueprintFunNode);
+            this.regBPClass(BPType.GetValue, BlueprintGetVarNode);
+            this.regBPClass(BPType.SetValue, BlueprintSetVarNode);
+            this.regBPClass(BPType.Branch, BlueprintComplexNode);
+            this.regBPClass(BPType.Sequence, BlueprintSequenceNode);
+            this.regBPClass(BPType.NewTarget, BlueprintNewTargetNode);
+            this.regBPClass(BPType.CustomFun, BlueprintCustomFunNode);
+            this.regBPClass(BPType.CustomFunStart, BlueprintCustomFunStart);
+            this.regBPClass(BPType.CustomFunReturn, BlueprintCustomFunReturn);
+
+            this.regBPContextData(BPType.CustomFunReturn,BlueprintCustomFunReturnContext);
 
 
             this.regFunction("printString", BlueprintStaticFun.print);
@@ -144,14 +157,14 @@ export class BlueprintFactory {
                             this.__eventList__.forEach(value => {
                                 let _this = this;
                                 this.on(value, this, function () {
-                                    _this.bp.run(_this.context, value, Array.from(arguments));
+                                    _this.bp.run(_this.context, value, Array.from(arguments),null);
                                 })
                             })
                         }
                     }
 
-                    get _bp_contextData(){
-                        let out:any = {}
+                    get _bp_contextData() {
+                        let out: any = {}
                         for (const key in this.bp.varMap) {
                             let prop = this.bp.varMap[key];
                             out[prop.name] = this.context.getVar(prop.name);
@@ -159,11 +172,11 @@ export class BlueprintFactory {
                         return out
                     }
 
-                    set _bp_contextData(value:any){
+                    set _bp_contextData(value: any) {
                         if (!value)
                             return
                         for (const key in value) {
-                            this.context.setVar(key,value[key]);
+                            this.context.setVar(key, value[key]);
                         }
                     }
 
@@ -209,7 +222,7 @@ export class BlueprintFactory {
                     let funcName = func.name;
                     let originFunc: Function = cls.prototype[funcName];
                     eventList.push(funcName);
-                    cls.prototype[funcName] = function (...args:any[]) {
+                    cls.prototype[funcName] = function (...args: any[]) {
                         originFunc && originFunc.call(this, args);
                         this.bp.run(this.context, funcName, args);
                     }
@@ -219,8 +232,8 @@ export class BlueprintFactory {
     }
 
     //给编辑时的钩子
-    static initClassHook(parent: string, cls: Function){
-        
+    static initClassHook(parent: string, cls: Function) {
+
     }
 
 
@@ -232,7 +245,7 @@ export class BlueprintFactory {
     }
 
     createNew(config: TBPCNode, id: number) {
-        let cls = BlueprintFactory._bpNewMap.get(config.type);
+        let cls = BlueprintFactory._bpMap.get(config.type);
         let result = new cls();
         result.nid = id;
         result.parse(config);

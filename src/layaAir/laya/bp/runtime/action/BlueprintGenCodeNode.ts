@@ -6,15 +6,20 @@ import { BlueprintRunBase } from "./BlueprintRunBase";
 import { RuntimeNodeData } from "./RuntimeNodeData";
 
 export class BlueprintGenCodeNode extends BlueprintRunBase implements IRunAble {
-    setPinData(pin: BlueprintPinRuntime, value: any): void {
+    initData(key: number | Symbol, nodeMap: Map<number, BlueprintRuntimeBaseNode>): void {
+        throw new Error("Method not implemented.");
+    }
+    getPinData(pin: BlueprintPinRuntime) {
+        throw new Error("Method not implemented.");
+    }
+    setPinData(pin: BlueprintPinRuntime, value: any, runId: number): void {
         throw new Error("Method not implemented.");
     }
     getDataById(nid: number): RuntimeNodeData {
         throw new Error("Method not implemented.");
     }
-    initData(nodeMap: Map<number, BlueprintRuntimeBaseNode>): void {
-        throw new Error("Method not implemented.");
-    }
+
+
     debuggerPause: boolean;
     pushBack(excuteNode: IExcuteListInfo): void {
         throw new Error("Method not implemented.");
@@ -66,14 +71,14 @@ export class BlueprintGenCodeNode extends BlueprintRunBase implements IRunAble {
         }
     }
 
-    parmFromOtherPin(current: BlueprintPinRuntime, from: BlueprintPinRuntime, parmsArray: any[]): void {
+    parmFromOtherPin(current: BlueprintPinRuntime, from: BlueprintPinRuntime, parmsArray: any[], runId: number): void {
         let last = this.currentFun.pop();
         last = "let " + current.name + current.owner.id + " = " + last;
         this.currentFun.push(last);
         parmsArray.push(current.name + current.owner.id);
     }
 
-    parmFromSelf(current: BlueprintPinRuntime, parmsArray: any[]): void {
+    parmFromSelf(current: BlueprintPinRuntime, parmsArray: any[], runId: number): void {
         parmsArray.push(current.getValueCode());
     }
 
@@ -84,7 +89,7 @@ export class BlueprintGenCodeNode extends BlueprintRunBase implements IRunAble {
         parmsArray.push(parmname);
     }
 
-    excuteFun(nativeFun: Function, outPutParmPins: BlueprintPinRuntime[], parmsArray: any[]): void {
+    excuteFun(nativeFun: Function, outPutParmPins: BlueprintPinRuntime[], caller: any, parmsArray: any[], runId: number): void {
 
         let a = (nativeFun.name + "(" + parmsArray.join(",") + ");");
         this.currentFun.push(a);

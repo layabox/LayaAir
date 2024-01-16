@@ -5,39 +5,41 @@ import { BlueprintRuntimeBaseNode } from "../node/BlueprintRuntimeBaseNode";
 import { IBPRutime } from "./IBPRutime";
 
 export interface IRunAble {
-    debuggerPause:boolean;
+    debuggerPause: boolean;
 
-    pushBack(excuteNode:IExcuteListInfo):void;
+    pushBack(excuteNode: IExcuteListInfo): void;
 
     readonly vars: { [key: string]: any };
 
-    beginExcute(runtimeNode: BlueprintRuntimeBaseNode,runner:IBPRutime,enableDebugPause:boolean): boolean;
+    beginExcute(runtimeNode: BlueprintRuntimeBaseNode, runner: IBPRutime, enableDebugPause: boolean): boolean;
 
     endExcute(runtimeNode: BlueprintRuntimeBaseNode): void;
 
-    parmFromOtherPin(current: BlueprintPinRuntime, from: BlueprintPinRuntime, parmsArray: any[]): void;
+    parmFromOtherPin(current: BlueprintPinRuntime, from: BlueprintPinRuntime, parmsArray: any[],runId:number): void;
 
-    parmFromSelf(current: BlueprintPinRuntime, parmsArray: any[]): void;
+    parmFromSelf(current: BlueprintPinRuntime, parmsArray: any[],runId:number): void;
 
     parmFromOutPut(outPutParmPins: BlueprintPinRuntime[], parmsArray: any[]): void;
 
     parmFromCustom(parmsArray: any[], parm: any, parmname: string): void;
 
-    excuteFun(nativeFun: Function, outPutParmPins: BlueprintPinRuntime[],caller:any, parmsArray: any[]): any;
+    excuteFun(nativeFun: Function, outPutParmPins: BlueprintPinRuntime[], caller: any, parmsArray: any[],runId:number): any;
 
     getCode(): string;
 
     getVar(name: string): any;
 
-    setVar(name: string, value: any):void;
+    setVar(name: string, value: any): void;
 
-    reCall(index:number):void;
+    reCall(index: number): void;
 
-    getSelf():any;
+    getSelf(): any;
 
-    initData(nodeMap:Map<number,BlueprintRuntimeBaseNode>):void;
+    initData(key: number | Symbol, nodeMap: Map<number, BlueprintRuntimeBaseNode>): void;
 
-    getDataById(nid:number):RuntimeNodeData;
+    getDataById(nid: number): RuntimeNodeData;
 
-    setPinData(pin: BlueprintPinRuntime,value:any):void;
+    setPinData(pin: BlueprintPinRuntime, value: any, runId: number): void;
+
+    getPinData(pin: BlueprintPinRuntime, runId: number): any;
 }

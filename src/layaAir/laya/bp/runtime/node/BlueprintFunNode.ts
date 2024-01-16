@@ -38,18 +38,13 @@ export class BlueprintFunNode extends BlueprintRuntimeBaseNode {
         }
     }
 
-    private excuteHookFun(context: IRunAble, caller: any, parmsArray: any[]) {
+    private excuteHookFun(context: IRunAble, caller: any, parmsArray: any[],runId:number) {
         parmsArray.unshift(this.eventName);
-        return context.excuteFun(this.nativeFun, this.outPutParmPins, caller, parmsArray);
+        return context.excuteFun(this.nativeFun, this.outPutParmPins, caller, parmsArray,runId);
     }
 
-    setType(type: EBlueNodeType) {
-        super.setType(type);
-        // this.addInput(BPNode.ExecInput);
-        // this.addOutput(BPNode.ExecOutput);
-    }
 
-    next(context: IRunAble): number {
+    next(context: IRunAble, parmsArray: any[], runner: IBPRutime, enableDebugPause: boolean, runId: number): number {
         // this.outPutParmPins.forEach(item=>{
         //     //if(item.linkTo.)
         // })

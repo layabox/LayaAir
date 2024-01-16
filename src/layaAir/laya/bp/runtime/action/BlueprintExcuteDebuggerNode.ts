@@ -28,10 +28,10 @@ export class BlueprintExcuteDebuggerNode extends BlueprintExcuteNode implements 
             this.debuggerPause = true;
             this._doNext = () => {
                 this.debuggerPause = false;
-                runner.runByContext(this, runtimeNode, false);
+                runner.runByContext(this, runtimeNode, false, null, -1);
                 if (!this.debuggerPause) {
                     if (this._nodeList.length > 0) {
-                        runner.runByContext(this, this._nodeList.pop(), true);
+                        runner.runByContext(this, this._nodeList.pop(), true, null, -1);
                     }
                 }
             }
@@ -53,9 +53,9 @@ export class BlueprintExcuteDebuggerNode extends BlueprintExcuteNode implements 
         }
     }
 
-    excuteFun(nativeFun: Function, outPutParmPins: BlueprintPinRuntime[], caller: any, parmsArray: any[]): void {
+    excuteFun(nativeFun: Function, outPutParmPins: BlueprintPinRuntime[], caller: any, parmsArray: any[],runId:number): void {
 
-        super.excuteFun(nativeFun, outPutParmPins, caller, parmsArray);
+        super.excuteFun(nativeFun, outPutParmPins, caller, parmsArray,runId);
 
     }
 

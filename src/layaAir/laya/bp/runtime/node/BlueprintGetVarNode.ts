@@ -6,6 +6,7 @@ import { IRunAble } from "../interface/IRunAble";
 import { BlueprintStaticFun } from "../BlueprintStaticFun";
 import { BlueprintRuntimeBaseNode } from "./BlueprintRuntimeBaseNode";
 import { BlueprintUtil } from "../../core/BlueprintUtil";
+import { IBPRutime } from "../interface/IBPRutime";
 
 export class BlueprintGetVarNode extends BlueprintRuntimeBaseNode {
     private _varKey: string;
@@ -18,8 +19,8 @@ export class BlueprintGetVarNode extends BlueprintRuntimeBaseNode {
         this._varKey = cfg ? cfg.name : BlueprintUtil.constAllVars[node.dataId].name;
     }
 
-    step(context: IRunAble, fromExcute: boolean): number {
-        let _parmsArray: any[] = context.getDataById(this.nid).parmsArray;
+    step(context: IRunAble, fromExcute: boolean, runner: IBPRutime, enableDebugPause: boolean, runId: number): number {
+        let _parmsArray: any[] = context.getDataById(this.nid).getParamsArray(runId);
 
         _parmsArray.length = 0;
         const varPin = this.outPutParmPins[0];
@@ -27,9 +28,9 @@ export class BlueprintGetVarNode extends BlueprintRuntimeBaseNode {
         context.parmFromCustom(_parmsArray, context, "context");
 
         if (this.nativeFun) {
-            let result = context.excuteFun(this.nativeFun, this.outPutParmPins, BlueprintStaticFun, _parmsArray);
+            let result = context.excuteFun(this.nativeFun, this.outPutParmPins, BlueprintStaticFun, _parmsArray,runId);
             if (result == undefined) {
-                context.setPinData(this.outPutParmPins[0], result);
+                context.setPinData(this.outPutParmPins[0], result, runId);
             }
         }
         return BlueprintConst.MAX_CODELINE;

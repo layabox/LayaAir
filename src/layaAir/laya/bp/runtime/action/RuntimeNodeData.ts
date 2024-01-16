@@ -1,26 +1,50 @@
 import { IOutParm } from "../../core/interface/IOutParm";
 
 export class RuntimeNodeData {
-    parmsArray: any[];
-    
-    callFun:Function;
+    map: Map<number, any[]>;
 
-    eventName:string;
+    parmsArray: any[];
+
+    callFun: Function;
+
+    eventName: string;
 
     constructor() {
-        this.parmsArray=[];
+        this.map = new Map();
+    }
+
+    getParamsArray(runId: number): any[] {
+        let result = this.map.get(runId);
+        if (!result) {
+            result = [];
+            this.map.set(runId, result);
+        }
+        return result;
     }
 }
 
 export class RuntimePinData implements IOutParm {
     name: string;
-    value: any;
-    setValue(value:any){
-        this.value=value;
+    private value: any;
+    private valueMap: Map<number, any>;
+    constructor() {
+        this.valueMap = new Map();
+    }
+    initValue(value: any) {
+        this.value = value;
+        this.getValue = this.getValueOnly;
     }
 
-    getValue():any{
+    setValue(runId: number, value: any) {
+        this.valueMap.set(runId, value);
+    }
+
+    private getValueOnly(runId: number): any {
         return this.value;
+    }
+
+    getValue(runId: number): any {
+        return this.valueMap.get(runId);
     }
 
 }

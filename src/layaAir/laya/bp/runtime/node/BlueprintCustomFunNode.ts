@@ -15,16 +15,17 @@ export class BlueprintCustomFunNode extends BlueprintFunNode {
         }
     }
 
-    protected excuteFun(context: IRunAble, caller: IBluePrintSubclass, parmsArray: any[]) {
+    protected excuteFun(context: IRunAble, caller: IBluePrintSubclass, parmsArray: any[],runId: number) {
         //TODO 
         if (caller && caller.context) {
             let primise:Promise<any>;
             let cb:any;
-            let result = caller.bp.runCustomFun(caller.context, this.functionID, parmsArray,()=>{
+            let result:any;
+            result = caller.bp.runCustomFun(caller.context, this.functionID, parmsArray,()=>{
                 if(result===false&&cb){
                     cb();
                 }
-            });
+            },runId);
             if (result === false) {
                 primise = new Promise((resolve, reject) => {
                     cb=resolve;
