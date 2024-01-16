@@ -160,8 +160,12 @@ export class RTBaseRenderNode implements IBaseRenderNode {
         this._nativeObj._irradientMode = value;
     }
 
-    _renderUpdatePre: (context3D: IRenderContext3D) => void;
-    _calculateBoundingBox: () => void;
+    public set _renderUpdatePre(value: (context3D: IRenderContext3D) => void) {
+        this._nativeObj.set_renderUpdatePre(value);
+    }
+    public set _calculateBoundingBox(value: () => void) {
+        this._nativeObj._calculateBoundingBox(value);
+    }
 
     private _nativeObj: any;
     //create runtime Node
@@ -175,27 +179,27 @@ export class RTBaseRenderNode implements IBaseRenderNode {
 
 
     setRenderelements(value: IRenderElement[]): void {
-
+        //TODO
     }
 
     setWorldParams(value: Vector4): void {
-
+        this._nativeObj.set_worldParams(value);
     }
 
     setLightmapScaleOffset(value: Vector4): void {
-
+        this._nativeObj.set_lightmapScaleOffset(value);
     }
 
     setCommonUniformMap(value: string[]): void {
-
+        this._nativeObj.set_commonUniformMap(value);
     }
 
     setOneMaterial(index: number, mat: Material): void {
-
+        //TODO
     }
 
     destroy(): void {
-        //destroy runtime node
+        this._nativeObj.destroy();
     }
 
 }
