@@ -18,6 +18,12 @@ export const BlueprintDataList: TBPCNode[] = [
         name: "get",
         menuPath: "none",
         type: BPType.GetValue,
+        input: [
+            {
+                name: 'target',
+                type: 'any',
+            }
+        ],
         output: [
             {
                 type: "any",
@@ -32,6 +38,10 @@ export const BlueprintDataList: TBPCNode[] = [
             {
                 name: "execute",
                 type: "exec",
+            },
+            {
+                name: 'target',
+                type: 'any',
             },
             {
                 name: 'set',
