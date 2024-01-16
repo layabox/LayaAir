@@ -843,6 +843,11 @@ export class Mesh extends Resource implements IClone {
             for (i = 0; i < inverseBindPoses.length; i++)
                 destInverseBindPoses[i] = inverseBindPoses[i];
         }
+        if (this._inverseBindPosesBuffer) {
+            let length = this._inverseBindPosesBuffer.byteLength;
+            destMesh._inverseBindPosesBuffer = new ArrayBuffer(length);
+            new Uint8Array(destMesh._inverseBindPosesBuffer).set(new Uint8Array(this._inverseBindPosesBuffer));
+        }
 
         var cacheLength: number = this._skinnedMatrixCaches.length;
         destMesh._skinnedMatrixCaches.length = cacheLength;
