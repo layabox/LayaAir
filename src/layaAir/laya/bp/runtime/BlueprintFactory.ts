@@ -153,14 +153,14 @@ export class BlueprintFactory {
                     }
 
                     _bp_init_() {
-                        if (this.__eventList__) {
+                        /* if (this.__eventList__) {
                             this.__eventList__.forEach(value => {
                                 let _this = this;
                                 this.on(value, this, function () {
                                     _this[BlueprintFactory.bpSymbol].run(_this[BlueprintFactory.contextSymbol], value, Array.from(arguments),null);
                                 })
                             })
-                        }
+                        } */
                     }
 
                     get _bp_contextData() {
