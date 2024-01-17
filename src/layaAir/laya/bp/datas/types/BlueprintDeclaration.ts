@@ -189,7 +189,7 @@ function initDeclaration(name:string , cls:Function){
  * 蓝图装饰器
  * @param options
  */
-export function bpRegClass( options : BPDecoratorsOptionClass){
+export function bpClass( options : BPDecoratorsOptionClass){
     
     return function(target: any){
         if (options.propertType && options.propertType != "class") {
@@ -211,7 +211,7 @@ export function bpRegClass( options : BPDecoratorsOptionClass){
 /**
  * 蓝图装饰器,属性
  */
-export function bpRegProperty( options : BPDecoratorsOptionProp){   
+export function bpProperty( options : BPDecoratorsOptionProp){   
 
     return function(target: any, propertyKey: string){
 
@@ -244,7 +244,7 @@ export function bpRegProperty( options : BPDecoratorsOptionProp){
 /**
  * 蓝图装饰器，方法包括getset
  */
-export function bpRegFunction( options : BPDecoratorsOptionFunction){
+export function bpFunction( options : BPDecoratorsOptionFunction){
 
     return function(target: any, propertyKey: string, descriptor: any){
 
@@ -291,7 +291,7 @@ export function bpRegFunction( options : BPDecoratorsOptionFunction){
 /**
  * 蓝图装饰器，方法包括
  */
-export function bpRegAccessor( options : BPDecoratorsOptionProp){
+export function bpAccessor( options : BPDecoratorsOptionProp){
     
     return function(target: any, propertyKey: string, descriptor: any){
 
@@ -346,18 +346,18 @@ export function bpRegAccessor( options : BPDecoratorsOptionProp){
 
 function dummy() { }
 
-export function bpRegister( options: BPDecoratorsOptionBase ){
+export function bpister( options: BPDecoratorsOptionBase ){
     switch (options.propertType) {
         case "function":
-            return bpRegFunction(options as BPDecoratorsOptionFunction);
+            return bpFunction(options as BPDecoratorsOptionFunction);
         case "class":
-            return bpRegClass(options as BPDecoratorsOptionClass);
+            return bpClass(options as BPDecoratorsOptionClass);
         case "property":
-            return bpRegProperty(options as BPDecoratorsOptionProp);
+            return bpProperty(options as BPDecoratorsOptionProp);
         case "constructor":
-            return bpRegFunction(options as BPDecoratorsOptionFunction);
+            return bpFunction(options as BPDecoratorsOptionFunction);
         case "accessor":
-            return bpRegAccessor(options as BPDecoratorsOptionProp);
+            return bpAccessor(options as BPDecoratorsOptionProp);
         default:
             console.log("UNKNOW PropertType!");
             return dummy;
