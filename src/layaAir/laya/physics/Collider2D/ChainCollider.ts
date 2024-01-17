@@ -1,6 +1,7 @@
 import { ColliderBase } from "./ColliderBase";
 import { Physics2D } from "../Physics2D";
 import { PhysicsShape } from "./ColliderStructInfo";
+import { Sprite } from "../../display/Sprite";
 
 /**
  * 2D线形碰撞体
@@ -39,6 +40,10 @@ export class ChainCollider extends ColliderBase {
      */
     get points(): string {
         return this._points;
+    }
+    onAdded() {
+        let sp = this.owner as Sprite;
+        this._datas.push(0, 0, sp.width, 0, 0, sp.height, sp.width, sp.height);
     }
 
     set points(value: string) {
