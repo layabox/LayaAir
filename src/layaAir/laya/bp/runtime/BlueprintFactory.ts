@@ -24,6 +24,8 @@ import { BlueprintCustomFunStart } from "./node/BlueprintCustomFunStart";
 import { BlueprintCustomFunReturn, BlueprintCustomFunReturnContext } from "./node/BlueprintCustomFunReturn";
 
 export class BlueprintFactory {
+    public static readonly bpSymbol:unique symbol=Symbol("bpruntime");
+    public static readonly contextSymbol:unique symbol=Symbol("context");
     private static _funMap: Map<string, [Function, boolean]>;
 
     private static _instance: BlueprintFactory;
@@ -132,19 +134,17 @@ export class BlueprintFactory {
         function classFactory(className: string, SuperClass: any) {
             return {
                 [className]: class extends SuperClass implements IBluePrintSubclass {
-                    bp: BlueprintRuntime;
-
                     __eventList__: string[];
-
-                    context: IRunAble;
+                    [BlueprintFactory.bpSymbol]:BlueprintRuntime;
+                    [BlueprintFactory.contextSymbol] :IRunAble;
                     constructor(...args: any) {
                         super(...args);
                         //Object.assign(this, properties);
-                        this.context = new BlueprintExcuteNode(this);
-                        let varMap = this.bp.varMap;
+                        this[BlueprintFactory.contextSymbol] = new BlueprintExcuteNode(this);
+                        let varMap = this[BlueprintFactory.bpSymbol].varMap;
                         if (varMap) {
                             for (let str in varMap) {
-                                this.context.setVar(varMap[str].name, varMap[str].value);
+                                this[BlueprintFactory.contextSymbol].setVar(varMap[str].name, varMap[str].value);
                                 //a[str]
                             }
                         }
@@ -157,17 +157,18 @@ export class BlueprintFactory {
                             this.__eventList__.forEach(value => {
                                 let _this = this;
                                 this.on(value, this, function () {
-                                    _this.bp.run(_this.context, value, Array.from(arguments),null);
+                                    _this[BlueprintFactory.bpSymbol].run(_this[BlueprintFactory.contextSymbol], value, Array.from(arguments),null);
                                 })
                             })
                         }
                     }
 
                     get _bp_contextData() {
-                        let out: any = {}
-                        for (const key in this.bp.varMap) {
-                            let prop = this.bp.varMap[key];
-                            out[prop.name] = this.context.getVar(prop.name);
+                        let out: any = {};
+                        let bp=this[BlueprintFactory.bpSymbol];
+                        for (const key in bp.varMap) {
+                            let prop = bp.varMap[key];
+                            out[prop.name] = this[BlueprintFactory.contextSymbol].getVar(prop.name);
                         }
                         return out
                     }
@@ -176,7 +177,7 @@ export class BlueprintFactory {
                         if (!value)
                             return
                         for (const key in value) {
-                            this.context.setVar(key, value[key]);
+                            this[BlueprintFactory.contextSymbol].setVar(key, value[key]);
                         }
                     }
 
@@ -188,7 +189,7 @@ export class BlueprintFactory {
         }
 
         let newClass = classFactory(name, cls);
-        let bp = newClass.prototype.bp = new BlueprintRuntime();
+        let bp = newClass.prototype[BlueprintFactory.bpSymbol] = new BlueprintRuntime();
         bp.dataMap = data.dataMap;
         // debugger;
         let c = function (node: TBPNode): TBPCNode {
@@ -224,7 +225,7 @@ export class BlueprintFactory {
                     eventList.push(funcName);
                     cls.prototype[funcName] = function (...args: any[]) {
                         originFunc && originFunc.call(this, args);
-                        this.bp.run(this.context, funcName, args);
+                        this[BlueprintFactory.bpSymbol].run(this[BlueprintFactory.contextSymbol], funcName, args);
                     }
                 }
             }

@@ -1,6 +1,7 @@
 import { IBluePrintSubclass } from "../../core/interface/IBluePrintSubclass";
 import { INodeManger } from "../../core/interface/INodeManger";
 import { TBPEventProperty, TBPNode } from "../../datas/types/BlueprintTypes";
+import { BlueprintFactory } from "../BlueprintFactory";
 import { IRunAble } from "../interface/IRunAble";
 import { BlueprintFunNode } from "./BlueprintFunNode";
 
@@ -17,11 +18,11 @@ export class BlueprintCustomFunNode extends BlueprintFunNode {
 
     protected excuteFun(context: IRunAble, caller: IBluePrintSubclass, parmsArray: any[],runId: number) {
         //TODO 
-        if (caller && caller.context) {
+        if (caller && caller[BlueprintFactory.contextSymbol]) {
             let primise:Promise<any>;
             let cb:any;
             let result:any;
-            result = caller.bp.runCustomFun(caller.context, this.functionID, parmsArray,()=>{
+            result = caller[BlueprintFactory.bpSymbol].runCustomFun(caller[BlueprintFactory.contextSymbol], this.functionID, parmsArray,()=>{
                 if(result===false&&cb){
                     cb();
                 }

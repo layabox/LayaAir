@@ -82,7 +82,8 @@ export class BlueprintExcuteNode extends BlueprintRunBase implements IRunAble {
     }
 
     setVar(name: string, value: any) {
-        this.vars[name] = value;
+        let obj = this.vars[name] === undefined ? this.owner : this.vars;
+        obj[name] = value;
     }
     getVar(name: string) {
         return this.vars[name] === undefined ? this.owner[name] : this.vars[name];
