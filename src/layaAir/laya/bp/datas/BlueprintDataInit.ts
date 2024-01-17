@@ -140,6 +140,26 @@ export const BlueprintDataList: TBPCNode[] = [
         ],
     },
     {
+        name: "equal",
+        type: BPType.Operator,
+        modifiers: {
+            isStatic: true,
+        },
+        input: [
+            {
+                type: "number",
+            },
+            {
+                type: "number",
+            },
+        ],
+        output: [
+            {
+                type: "number",
+            },
+        ]
+    },
+    {
         name: "waitTime",
         type: BPType.Function,
         modifiers: {

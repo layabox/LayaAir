@@ -87,6 +87,7 @@ export class BlueprintFactory {
             this.regBPContextData(BPType.CustomFunReturn,BlueprintCustomFunReturnContext);
 
 
+            this.regFunction("equal", BlueprintStaticFun.equal);
             this.regFunction("printString", BlueprintStaticFun.print);
             this.regFunction("branch", BlueprintStaticFun.branch);
             this.regFunction("event_on", function (eventName: string, cb: Function) {
