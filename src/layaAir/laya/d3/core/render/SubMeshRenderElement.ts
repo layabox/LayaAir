@@ -70,7 +70,7 @@ export class SubMeshRenderElement extends RenderElement{
 	setGeometry(geometry: GeometryElement): void {
 		if (this._geometry !== geometry) {
 			this._geometry = geometry;
-			this._renderElementOBJ._geometry = geometry._geometryElementOBj;
+			this._renderElementOBJ.geometry = geometry._geometryElementOBj;
 		}
 	}
 

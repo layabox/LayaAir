@@ -15,17 +15,17 @@ export class SkinRenderElementOBJ extends GLESRenderElementOBJ {
 
     /** 更新数据并且 */
     drawGeometry(shaderIns: ShaderInstance) {
-        let length = this._shaderInstances.length;
-        let element = this._geometry.drawParams.elements;
+        let length = this.shaderInstances.length;
+        let element = this.geometry.drawParams.elements;
         if (!this.skinnedData)
             return;
-        this._geometry.bufferState.bind();
+        this.geometry.bufferState.bind();
         for (var i: number = 0, n: number = length; i < n; i++) {
-            for (var j = 0, m = this._geometry.drawParams.length / 2; j < m; j++) {
+            for (var j = 0, m = this.geometry.drawParams.length / 2; j < m; j++) {
                 var subSkinnedDatas: Float32Array = this.skinnedData[j];
                 shaderIns.uploadCustomUniform(SkinnedMeshSprite3D.BONES, subSkinnedDatas);
                 var offset = j * 2;
-                LayaGL.renderDrawContext.drawElements((this._geometry as RenderGeometryElementOBJ)._glmode, element[offset + 1], (this._geometry as RenderGeometryElementOBJ)._glindexFormat, element[offset]);
+                LayaGL.renderDrawContext.drawElements((this.geometry as RenderGeometryElementOBJ)._glmode, element[offset + 1], (this.geometry as RenderGeometryElementOBJ)._glindexFormat, element[offset]);
             }
         }
     }

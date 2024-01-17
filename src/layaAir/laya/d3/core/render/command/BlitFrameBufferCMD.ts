@@ -82,13 +82,13 @@ export class BlitFrameBufferCMD {
 		this._renderElement = new RenderElement();
 		this._renderElement.setTransform(this._transform3D);
 		this._renderElement.setGeometry(ScreenQuad.instance);
-		this._renderElement._renderElementOBJ._isRender = true;
+		this._renderElement._renderElementOBJ.isRender = true;
 		this._texture_size = new Vector4();
 	}
 
 	set shaderData(value: ShaderData) {
 		this._shaderData = value || BlitFrameBufferCMD.shaderdata;
-		this._renderElement._renderElementOBJ._materialShaderData = this._shaderData;
+		this._renderElement._renderElementOBJ.materialShaderData = this._shaderData;
 	}
 
 	setshader(shader: Shader3D, subShader: number, shaderData: ShaderData) {

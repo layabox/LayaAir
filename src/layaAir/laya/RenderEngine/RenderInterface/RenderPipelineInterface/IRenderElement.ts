@@ -3,23 +3,17 @@ import { Transform3D } from "../../../d3/core/Transform3D";
 import { IRenderGeometryElement } from "./IRenderGeometryElement";
 import { ShaderInstance } from "../../RenderShader/ShaderInstance";
 import { IBaseRenderNode } from "../../../d3/RenderDriverLayer/Render3DNode/IBaseRenderNode";
-import { IRenderContext3D } from "../../../d3/RenderDriverLayer/IRenderContext3D";
 import { SubShader } from "../../RenderShader/SubShader";
 import { ShaderData } from "../ShaderData";
 
 export interface IRenderElement {
-    _geometry: IRenderGeometryElement;
-    _shaderInstances: SingletonList<ShaderInstance>;
-    _materialShaderData: ShaderData;
-    _materialRenderQueue: number;
-    _renderShaderData: ShaderData;
-    _transform: Transform3D;
-    _isRender: boolean;
-    _owner: IBaseRenderNode;
-    _subShader: SubShader;
-    _invertFront: boolean;
-    _render(context: IRenderContext3D): void;
-    _addShaderInstance(shader: ShaderInstance): void;
-    _clearShaderInstance(): void;
-    _destroy(): void;
+    geometry: IRenderGeometryElement;
+    materialShaderData: ShaderData;
+    materialRenderQueue: number;
+    renderShaderData: ShaderData;
+    transform: Transform3D;
+    isRender: boolean;
+    owner: IBaseRenderNode;
+    subShader: SubShader;
+    destroy(): void;
 }

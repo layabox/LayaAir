@@ -1,121 +1,117 @@
-// import { UploadMemoryManager } from "../../../RenderEngine/RenderEngine/NativeGLEngine/CommonMemory/UploadMemoryManager";
-// import { NativeShaderData } from "../../../RenderEngine/RenderEngine/NativeGLEngine/NativeShaderData";
-// import { IBaseRenderNode } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IBaseRenderNode";
-// import { IRenderContext3D } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderContext3D";
-// import { IRenderElement } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderElement";
-// import { IRenderGeometryElement } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderGeometryElement";
-// import { ShaderInstance } from "../../../RenderEngine/RenderShader/ShaderInstance";
-// import { LayaGL } from "../../../layagl/LayaGL";
-// import { SingletonList } from "../../../utils/SingletonList";
-// import { Transform3D } from "../../core/Transform3D";
-// export enum RenderElementType {
-//     Base = 0,
-//     Skin = 1,
-//     Instance = 2,
-// }
-// export class NativeRenderElementOBJ implements IRenderElement {
+import { NativeShaderData } from "../../../RenderEngine/RenderEngine/NativeGLEngine/NativeShaderData";
+import { IRenderElement } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderElement";
+import { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
+import { LayaGL } from "../../../layagl/LayaGL";
+import { RTBaseRenderNode } from "../RuntimeOBJ/Render3DNode/RTBaseRenderNode";
+import { NativeRenderGeometryElementOBJ } from "./NativeRenderGeometryElementOBJ";
+import { NativeTransform3D } from "./NativeTransform3D";
+export enum RenderElementType {
+    Base = 0,
+    Skin = 1,
+    Instance = 2,
+}
+export class NativeRenderElementOBJ implements IRenderElement {
 
-//     private geometry: IRenderGeometryElement;
+    private _geometry: NativeRenderGeometryElementOBJ;
 
-//     private materialShaderData: NativeShaderData;
+    private _materialShaderData: NativeShaderData;
 
-//     private renderShaderData: NativeShaderData;
+    private _renderShaderData: NativeShaderData;
 
-//     private transform: Transform3D;
+    private _transform: NativeTransform3D;
 
-//     //private isRender: boolean;
+    _isRender: boolean;
 
-//     private owner: IBaseRenderNode;
+    set geometry(data: NativeRenderGeometryElementOBJ) {
+        this._geometry = data;
+        this._nativeObj._geometry = (data as any)._nativeObj;
+    }
 
-//     set _geometry(data: IRenderGeometryElement) {
-//         this.geometry = data;
-//         this._nativeObj._geometry = (data as any)._nativeObj;
-//     }
 
-//     get _geometry(): IRenderGeometryElement {
-//         return this.geometry;
-//     }
+    get geometry(): NativeRenderGeometryElementOBJ {
+        return this._geometry;
+    }
 
-//     set _materialShaderData(data: NativeShaderData) {
-//         this.materialShaderData = data;
-//         this._nativeObj._materialShaderData = data ? (data as any)._nativeObj : null;
-//     }
+    set materialShaderData(data: NativeShaderData) {
+        this._materialShaderData = data;
+        this._nativeObj._materialShaderData = data ? (data as any)._nativeObj : null;
+    }
 
-//     get _materialShaderData(): NativeShaderData {
-//         return this.materialShaderData;
-//     }
+    get materialShaderData(): NativeShaderData {
+        return this._materialShaderData;
+    }
 
-//     set _renderShaderData(data: NativeShaderData) {
-//         this.renderShaderData = data;
-//         this._nativeObj._renderShaderData = data ? (data as any)._nativeObj : null;
-//     }
+    set renderShaderData(data: NativeShaderData) {
+        this._renderShaderData = data;
+        this._nativeObj._renderShaderData = data ? (data as any)._nativeObj : null;
+    }
 
-//     get _renderShaderData(): NativeShaderData {
-//         return this.renderShaderData;
-//     }
+    get renderShaderData(): NativeShaderData {
+        return this._renderShaderData;
+    }
 
-//     set _transform(data: Transform3D) {
-//         this.transform = data;
-//         this._nativeObj._transform = data ? (data as any)._nativeObj : null;
-//     }
+    set transform(data: NativeTransform3D) {
+        this._transform = data;
+        this._nativeObj._transform = data ? (data as any)._nativeObj : null;
+    }
 
-//     get _transform(): Transform3D {
-//         return this.transform;
-//     }
+    get transform(): NativeTransform3D {
+        return this._transform;
+    }
 
-//     get _isRender(): boolean {
-//         return this._nativeObj._isRender;
-//     }
+    get isRender(): boolean {
+        return this._nativeObj._isRender;
+    }
 
-//     set _isRender(data: boolean) {
-//         this._nativeObj._isRender = data;
-//     }
+    set isRender(data: boolean) {
+        this._nativeObj._isRender = data;
+    }
 
-//     get _invertFront(): boolean {
-//         return this._nativeObj._invertFront;
-//     }
+    private _materialRenderQueue: number;
+    public get materialRenderQueue(): number {
+        return this._materialRenderQueue;
+    }
+    public set materialRenderQueue(value: number) {
+        this._materialRenderQueue = value;
+    }
 
-//     set _invertFront(data: boolean) {
-//         this._nativeObj._invertFront = data;
-//     }
+    private _owner: RTBaseRenderNode;
+    public get owner(): RTBaseRenderNode {
+        return this._owner;
+    }
+    public set owner(value: RTBaseRenderNode) {
+        this._owner = value;
+    }
 
-//     _nativeObj: any;
-//     _shaderInstances: SingletonList<ShaderInstance>;
-//     constructor() { 
-//         this._shaderInstances = new SingletonList();
-//         this.init();
-//     }
-//     init(): void {
-       
-//         this._nativeObj = new (window as any).conchRenderElement(RenderElementType.Base, (LayaGL.renderEngine as any)._nativeObj);
-//     }
+    private _subShader: SubShader;
+    public get subShader(): SubShader {
+        return this._subShader;
+    }
+    public set subShader(value: SubShader) {
+        this._subShader = value;
+        //这里绑定compileShader的方法
+    }
 
-//     _owner: IBaseRenderNode;
+    _nativeObj: any;
 
-//     _addShaderInstance(shader: ShaderInstance) {
-//         this._shaderInstances.add(shader);
-//         this._nativeObj._addShaderInstance((shader as any)._nativeObj);
-//     }
+    constructor() {
+        this.init();
+    }
 
-//     _clearShaderInstance() {
-//         this._shaderInstances.length = 0;
-//         this._nativeObj._clearShaderInstance();
-//     }
-//     /**
-//      * render RenderElement
-//      * @param renderqueue 
-//      */
-//     _render(context: IRenderContext3D): void {
-//         UploadMemoryManager.syncRenderMemory();//同步数据
-//         this._nativeObj._render((context as any)._nativeObj);
-//     }
+    destroy(): void {
+        throw new Error("Method not implemented.");
+    }
 
-//     _destroy() {
-//         this._nativeObj._destroy();
-//         this.geometry = null;
-//         this._shaderInstances = null; 
-//         this.materialShaderData = null;
-//         this.renderShaderData = null;
-//         this.transform = null;
-//     }
-// }
+    protected init(): void {
+        this._nativeObj = new (window as any).conchRenderElement(RenderElementType.Base, (LayaGL.renderEngine as any)._nativeObj);
+    }
+
+
+    _destroy() {
+        this._nativeObj._destroy();
+        this.geometry = null;
+        this.materialShaderData = null;
+        this.renderShaderData = null;
+        this.transform = null;
+    }
+}

@@ -28,12 +28,12 @@ export class GLESCullUtil {
                     render._renderUpdatePre(context);//TS OR Native
                     let elments = render.renderelements;
                     if (elments.length == 1) {//js 优化
-                        if (elments[0]._materialRenderQueue > 2500) transparent.addRenderElement(elments[0]);
+                        if (elments[0].materialRenderQueue > 2500) transparent.addRenderElement(elments[0]);
                         else opaqueList.addRenderElement(elments[0]);
                     } else {
                         for (var j: number = 0, m: number = elments.length; j < m; j++) {
                             var element = elments[j];
-                            if (element._materialRenderQueue > 2500) transparent.addRenderElement(element);
+                            if (element.materialRenderQueue > 2500) transparent.addRenderElement(element);
                             else opaqueList.addRenderElement(element);
                         }
                     }
@@ -59,7 +59,7 @@ export class GLESCullUtil {
                     var elements = render.renderelements
                     for (var j: number = 0, m: number = elements.length; j < m; j++) {
                         var element = elements[j];
-                        if (element._materialRenderQueue < 2500)
+                        if (element.materialRenderQueue < 2500)
                             opaqueList.addRenderElement(element);
                     }
                 }
@@ -67,7 +67,7 @@ export class GLESCullUtil {
         }
     }
 
-    
+
 
     static cullingSpotShadow(cameraCullInfo: CameraCullInfo, list: GLESBaseRenderNode[], count: number, opaqueList: GLESRenderQueueList, context: GLESRenderContext3D) {
         opaqueList.clear();
@@ -84,7 +84,7 @@ export class GLESCullUtil {
                     let elements = render.renderelements;
                     for (var j: number = 0, m: number = elements.length; j < m; j++) {
                         var element = elements[j];
-                        if (element._materialRenderQueue < 2500)
+                        if (element.materialRenderQueue < 2500)
                             opaqueList.addRenderElement(element);
                     }
                 }

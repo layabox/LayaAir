@@ -8,7 +8,6 @@ import { Camera } from "laya/d3/core/Camera";
 import { FilterMode } from "laya/RenderEngine/RenderEnum/FilterMode";
 import { RenderTargetFormat } from "laya/RenderEngine/RenderEnum/RenderTargetFormat";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
-import { ShaderData, ShaderDataType } from "laya/RenderEngine/RenderShader/ShaderData";
 import { ShaderDefine } from "laya/RenderEngine/RenderShader/ShaderDefine";
 import { Vector3 } from "laya/maths/Vector3";
 import { Vector4 } from "laya/maths/Vector4";
@@ -18,6 +17,7 @@ import { ShaderPass } from "laya/RenderEngine/RenderShader/ShaderPass";
 import { VertexMesh } from "laya/RenderEngine/RenderShader/VertexMesh";
 import { LayaGL } from "laya/layagl/LayaGL";
 import { DepthTextureMode } from "laya/d3/RenderDriverLayer/Render3DProcess/IForwardAddClusterRP";
+import { ShaderData, ShaderDataType } from "laya/RenderEngine/RenderInterface/ShaderData";
 
 export enum EdgeMode {
     ColorEdge = 0,

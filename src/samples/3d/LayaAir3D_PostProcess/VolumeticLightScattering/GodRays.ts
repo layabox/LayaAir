@@ -1,5 +1,4 @@
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
-import { ShaderData, ShaderDataType } from "laya/RenderEngine/RenderShader/ShaderData";
 import { SubShader } from "laya/RenderEngine/RenderShader/SubShader";
 import { VertexMesh } from "laya/RenderEngine/RenderShader/VertexMesh";
 import { PostProcessEffect } from "laya/d3/core/render/PostProcessEffect";
@@ -22,6 +21,7 @@ import { Vector3 } from "laya/maths/Vector3";
 import { Vector2 } from "laya/maths/Vector2";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { LayaGL } from "laya/layagl/LayaGL";
+import { ShaderDataType, ShaderData } from "laya/RenderEngine/RenderInterface/ShaderData";
 
 export class GodRay extends PostProcessEffect {
     static init() {

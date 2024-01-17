@@ -63,10 +63,10 @@ export class QuickSort {
 	 * @internal
 	 */
 	private _compare(left: GLESRenderElementOBJ, right: GLESRenderElementOBJ): number {
-		var renderQueue: number = left._materialRenderQueue - right._materialRenderQueue;
+		var renderQueue: number = left.materialRenderQueue - right.materialRenderQueue;
 		if (renderQueue === 0) {
-			var sort: number = this.isTransparent ? right._owner.distanceForSort - left._owner.distanceForSort : left._owner.distanceForSort - right._owner.distanceForSort;
-			return sort + right._owner.sortingFudge - left._owner.sortingFudge;
+			var sort: number = this.isTransparent ? right.owner.distanceForSort - left.owner.distanceForSort : left.owner.distanceForSort - right.owner.distanceForSort;
+			return sort + right.owner.sortingFudge - left.owner.sortingFudge;
 		} else {
 			return renderQueue;
 		}

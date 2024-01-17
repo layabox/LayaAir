@@ -354,7 +354,7 @@ export class MeshRenderer extends BaseRender {
         } else if (!mesh) {
             this._renderElements.forEach
             this._renderElements.forEach(element => {
-                element._renderElementOBJ._destroy();
+                element._renderElementOBJ.destroy();
                 element.destroy();
             });
             this._renderElements.length = 0;
@@ -369,11 +369,11 @@ export class MeshRenderer extends BaseRender {
     renderUpdate(context: RenderContext3D): void {
         this._mesh.morphTargetData && this._applyMorphdata();
         if (this._renderElements.length == 1) {
-            this._renderElements[0]._renderElementOBJ._isRender = this._renderElements[0]._geometry._prepareRender(context);
+            this._renderElements[0]._renderElementOBJ.isRender = this._renderElements[0]._geometry._prepareRender(context);
             this._renderElements[0]._geometry._updateRenderParams(context);
         } else {
             for (var i = 0, n = this._renderElements.length; i < n; i++) {
-                this._renderElements[i]._renderElementOBJ._isRender = this._renderElements[i]._geometry._prepareRender(context);
+                this._renderElements[i]._renderElementOBJ.isRender = this._renderElements[i]._geometry._prepareRender(context);
                 this._renderElements[i]._geometry._updateRenderParams(context);
             }
         }

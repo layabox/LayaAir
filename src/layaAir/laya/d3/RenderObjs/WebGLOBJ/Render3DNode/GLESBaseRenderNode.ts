@@ -9,7 +9,6 @@ import { Transform3D } from "../../../core/Transform3D";
 import { IrradianceMode } from "../../../core/render/BaseRender";
 import { BoundFrustum } from "../../../math/BoundFrustum";
 import { Bounds } from "../../../math/Bounds";
-import { GLESRenderContext3D } from "../GLESRenderContext3D";
 import { GLESRenderElementOBJ } from "../GLESRenderElementOBJ";
 import { GLESLightmap } from "../RenderModuleData/GLESLightmap";
 import { GLESReflectionProbe } from "../RenderModuleData/GLESReflectionProb";
@@ -104,7 +103,7 @@ export class GLESBaseRenderNode implements IBaseRenderNode {
         this.renderelements.length = 0;
         for (var i = 0; i < value.length; i++) {
             this.renderelements.push(value[i]);
-            value[i]._owner = this;
+            value[i].owner = this;
         }
     }
 
@@ -117,8 +116,8 @@ export class GLESBaseRenderNode implements IBaseRenderNode {
     setOneMaterial(index: number, mat: Material): void {
         if (!this.renderelements[index])
             return;
-        this.renderelements[index]._materialShaderData = mat.shaderData as WebShaderData;
-        this.renderelements[index]._materialRenderQueue;
+        this.renderelements[index].materialShaderData = mat.shaderData as WebShaderData;
+        this.renderelements[index].materialRenderQueue;
     }
 
     /**
@@ -206,7 +205,7 @@ export class GLESBaseRenderNode implements IBaseRenderNode {
      */
     destroy() {
         this.renderelements.forEach(element => {
-            element._destroy();
+            element.destroy();
         });
         this.baseGeometryBounds = null;
         this.transform = null;

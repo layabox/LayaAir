@@ -35,12 +35,12 @@ export class RenderElement {
     /** @internal */
     set transform(value: Transform3D) {
         this._transform = value;
-        this._renderElementOBJ._transform = value;
+        this._renderElementOBJ.transform = value;
     }
 
     /**@internal */
     get transform(): Transform3D {
-        return this._renderElementOBJ._transform;
+        return this._renderElementOBJ.transform;
     }
 
     /**
@@ -50,7 +50,7 @@ export class RenderElement {
         // todo debug 临时
         if (value) {
             this._material = value;
-            this._renderElementOBJ._materialShaderData = value.shaderData;
+            this._renderElementOBJ.materialShaderData = value.shaderData;
         }
     }
 
@@ -64,7 +64,7 @@ export class RenderElement {
      */
     set renderSubShader(value: SubShader) {
         this._subShader = value;
-        this._renderElementOBJ._subShader = value;
+        this._renderElementOBJ.subShader = value;
     }
 
     get renderSubShader(): SubShader {
@@ -81,7 +81,7 @@ export class RenderElement {
     /**@internal */
     set render(value: BaseRender) {
         this._baseRender = value;
-        this._renderElementOBJ._renderShaderData = value._baseRenderNode.shaderData;
+        this._renderElementOBJ.renderShaderData = value._baseRenderNode.shaderData;
     }
 
     get render(): BaseRender {
@@ -103,7 +103,7 @@ export class RenderElement {
      */
     setTransform(transform: Transform3D): void {
         this.transform = transform;
-        this._renderElementOBJ._transform = transform;
+        this._renderElementOBJ.transform = transform;
     }
 
     /**
@@ -111,52 +111,8 @@ export class RenderElement {
      */
     setGeometry(geometry: GeometryElement): void {
         this._geometry = geometry;
-        this._renderElementOBJ._geometry = geometry._geometryElementOBj;
+        this._renderElementOBJ.geometry = geometry._geometryElementOBj;
     }
-
-    // /**
-    //  * pre update data
-    //  * @param context 
-    //  */
-    // _renderUpdatePre(context: RenderContext3D) {
-    //     var sceneMark: number = ILaya3D.Scene3D._updateMark;
-    //     var transform: Transform3D = this.transform;
-    //     context.renderElement = this;
-    //     //model local
-    //     var modelDataRender: boolean = (!!this._baseRender) ? (sceneMark !== this._baseRender._sceneUpdateMark || this.renderType !== this._baseRender._updateRenderType) : false;
-    //     if (modelDataRender) {
-    //         this._baseRender._renderUpdate(context, transform);
-    //         this._baseRender._sceneUpdateMark = sceneMark;
-    //     }
-    //     //camera
-    //     var updateMark: number = Camera._updateMark;
-    //     var updateRender: boolean = (!!this._baseRender) ? (updateMark !== this._baseRender._updateMark || this.renderType !== this._baseRender._updateRenderType) : false;
-    //     if (updateRender) {//此处处理更新为裁剪和合并后的，可避免浪费
-    //         this._baseRender._renderUpdateWithCamera(context, transform);
-    //         this._baseRender._updateMark = updateMark;
-    //         this._baseRender._updateRenderType = this.renderType;
-    //     }
-
-    //     const subUbo = (!!this._baseRender) ? this._baseRender._subUniformBufferData : false;
-    //     if (subUbo) {
-    //         subUbo._needUpdate && BaseRender._transLargeUbO.updateSubData(subUbo);
-    //     }
-    //     //context.shader = this._renderElementOBJ._subShader;
-    //     this._renderElementOBJ._isRender = this._geometry._prepareRender(context);
-    //     this._geometry._updateRenderParams(context);
-
-
-
-    //     this.compileShader(context._contextOBJ);
-    //     this._renderElementOBJ._invertFront = this.getInvertFront();
-    // }
-
-    // /**
-    //  * @internal
-    //  */
-    // _render(context: IRenderContext3D): void {
-    //     this._renderElementOBJ._render(context);
-    // }
 
     /**
      * @internal

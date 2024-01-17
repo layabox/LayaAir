@@ -78,7 +78,7 @@ export class BlitScreenQuadCMD extends Command {
 
 	set shaderData(value: ShaderData) {
 		this._shaderData = value || Command._screenShaderData;
-		this._renderElement._renderElementOBJ._materialShaderData = this._shaderData;
+		this._renderElement._renderElementOBJ.materialShaderData = this._shaderData;
 	}
 
 	setshader(shader: Shader3D, subShader: number, shaderData: ShaderData) {

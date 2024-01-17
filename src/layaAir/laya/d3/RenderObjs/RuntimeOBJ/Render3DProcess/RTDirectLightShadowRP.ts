@@ -31,5 +31,4 @@ export class RTDirectLightShadowCastRP implements IDirectLightShadowRP {
     constructor(){
         this._nativeObj = new (window as any).conchRTDirectLightShadowCastRP();
     }
-  
 }

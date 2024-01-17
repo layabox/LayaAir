@@ -58,7 +58,7 @@ export class InstanceRenderElementOBJ extends GLESRenderElementOBJ {
             buffer.orphanStorage();
             buffer.setData(data.buffer, 0, 0, this.drawCount * this._updateDataNum[i] * 4);
         }
-        LayaGL.renderDrawContext.drawGeometryElement(this._geometry);
+        LayaGL.renderDrawContext.drawGeometryElement(this.geometry);
     }
 
     clear() {
