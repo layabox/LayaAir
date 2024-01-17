@@ -42,6 +42,7 @@ export class ChainCollider extends ColliderBase {
         return this._points;
     }
     onAdded() {
+        super.onAdded();
         let sp = this.owner as Sprite;
         this._datas.push(0, 0, sp.width, 0, 0, sp.height, sp.width, sp.height);
     }

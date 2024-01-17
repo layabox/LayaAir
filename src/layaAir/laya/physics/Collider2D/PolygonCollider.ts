@@ -23,6 +23,7 @@ export class PolygonCollider extends ColliderBase {
         this._physicShape = PhysicsShape.PolygonShape;
     }
     onAdded() {
+        super.onAdded();
         let sp = this.owner as Sprite;
         this._datas.push(0, 0, sp.width, sp.height * 0.5, 0, sp.height);
     }
