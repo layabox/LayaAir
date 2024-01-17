@@ -212,7 +212,13 @@ const packsDef = [{
         'input': [
             './extensions/performanceTool/**/*.*'
         ],
-    }
+    },
+    {
+        'libName': "navMesh",
+        'input': [
+            './layaAir/laya/d3/core/navigation/**/**.ts'
+        ],
+    },
 ];
 
 /*
@@ -405,7 +411,8 @@ gulp.task("copyJsLibs", async () => {
             './src/layaAir/jsLibs/physx.release.wasm',
             './src/layaAir/jsLibs/physx.release.js.mem',
             './src/layaAir/jsLibs/laya.Box2D.wasm.wasm',
-            '!./src/layaAir/jsLibs/{laya.Box2D.js,cannon.js,bullet.js,physx.release.js,laya.Box2D.wasm.js,bullet.wasm.js,physx.wasm.js}'
+	        './src/layaAir/jsLibs/recast-navigation.wasm',
+            '!./src/layaAir/jsLibs/{laya.Box2D.js,cannon.js,bullet.js,physx.release.js,laya.Box2D.wasm.js,bullet.wasm.js,physx.wasm.js,recast-navigation.js}'
         ])
         .pipe(gulp.dest('./build/libs'));
 });
@@ -443,6 +450,14 @@ gulp.task('buildBulletWASMPhysics', () => {
             './build/libs/laya.bullet.js',
             './src/layaAir/jsLibs/bullet.wasm.js',
         ]).pipe(concat('laya.bullet.wasm.js'))
+        .pipe(gulp.dest('./build/libs/'));
+});
+
+gulp.task('buildNavMesh', () => {
+    return gulp.src([
+        './src/layaAir/jsLibs/recast-navigation.js',
+        './build/libs/laya.navMesh.js',
+    ]).pipe(concat('laya.navMesh.js'))
         .pipe(gulp.dest('./build/libs/'));
 });
 
@@ -582,4 +597,5 @@ gulp.task('build',
         'buildBulletPhysics',
         'buildPhysXWASMPhysics',
         'buildPhysXPhysics',
+        'buildNavMesh',
         'genDts'));
