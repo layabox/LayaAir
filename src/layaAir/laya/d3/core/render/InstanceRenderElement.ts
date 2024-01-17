@@ -211,7 +211,6 @@ export class InstanceRenderElement extends RenderElement {
     }
     recover(): void {
         InstanceRenderElement._pool.push(this);
-        this.render._updateRenderType = this.oriRendertype;
         this._isInPool = true;
     }
 }
