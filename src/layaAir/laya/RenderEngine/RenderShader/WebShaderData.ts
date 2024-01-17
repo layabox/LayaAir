@@ -1,67 +1,23 @@
-import { BaseTexture } from "../../resource/BaseTexture";
-import { Resource } from "../../resource/Resource";
-import { DefineDatas } from "./DefineDatas";
-import { ShaderDefine } from "./ShaderDefine";
-import { IClone } from "../../utils/IClone";
-import { UniformBufferObject } from "../UniformBufferObject";
-import {
-	UniformBufferParamsType,
-	UnifromBufferData,
-} from "../UniformBufferData";
 import { Color } from "../../maths/Color";
+import { Matrix3x3 } from "../../maths/Matrix3x3";
 import { Matrix4x4 } from "../../maths/Matrix4x4";
 import { Quaternion } from "../../maths/Quaternion";
 import { Vector2 } from "../../maths/Vector2";
 import { Vector3 } from "../../maths/Vector3";
 import { Vector4 } from "../../maths/Vector4";
-import { Matrix3x3 } from "../../maths/Matrix3x3";
+import { BaseTexture } from "../../resource/BaseTexture";
+import { Resource } from "../../resource/Resource";
 import { InternalTexture } from "../RenderInterface/InternalTexture";
-type uboParams = { ubo: UniformBufferObject; uboBuffer: UnifromBufferData };
-export enum ShaderDataType {
-	Int,
-	Bool,
-	Float,
-	Vector2,
-	Vector3,
-	Vector4,
-	Color,
-	Matrix4x4,
-	Texture2D,
-	TextureCube,
-	Buffer,
-	Matrix3x3,
-}
-
-export type ShaderDataItem = number | boolean | Vector2 | Vector3 | Vector4 | Color | Matrix4x4 | BaseTexture | Float32Array | Matrix3x3;
-
-export function ShaderDataDefaultValue(type: ShaderDataType) {
-	switch (type) {
-		case ShaderDataType.Int:
-			return 0;
-		case ShaderDataType.Bool:
-			return false;
-		case ShaderDataType.Float:
-			return 0;
-		case ShaderDataType.Vector2:
-			return Vector2.ZERO;
-		case ShaderDataType.Vector3:
-			return Vector3.ZERO;
-		case ShaderDataType.Vector4:
-			return Vector4.ZERO;
-		case ShaderDataType.Color:
-			return Color.BLACK;
-		case ShaderDataType.Matrix4x4:
-			return Matrix4x4.DEFAULT;
-		case ShaderDataType.Matrix3x3:
-			return Matrix3x3.DEFAULT;
-	}
-	return null;
-}
+import { ShaderData, ShaderDataItem, ShaderDataType, uboParams } from "../RenderInterface/ShaderData";
+import { UnifromBufferData, UniformBufferParamsType } from "../UniformBufferData";
+import { UniformBufferObject } from "../UniformBufferObject";
+import { DefineDatas } from "./DefineDatas";
+import { ShaderDefine } from "./ShaderDefine";
 
 /**
  * 着色器数据类。
  */
-export class ShaderData implements IClone {
+export class WebShaderData extends ShaderData {
 	/**@internal 反向找Material*/
 	protected _ownerResource: Resource = null;
 
@@ -97,15 +53,25 @@ export class ShaderData implements IClone {
 		return this._uniformBuffersMap;
 	}
 
-
+	_releaseUBOData() {
+		if (!this._uniformBufferDatas) {
+			return;
+		}
+		for (let value of this._uniformBufferDatas.values()) {
+			value.ubo._updateDataInfo.destroy();
+			value.ubo.destroy();
+			value.ubo._updateDataInfo = null;
+		}
+		this._uniformBufferDatas.clear();
+		this._uniformBuffersMap.clear();
+	}
 
 	/**
 	 * @internal	
 	 */
 	constructor(ownerResource: Resource = null) {
-		this._ownerResource = ownerResource;
+		super(ownerResource);
 		this._initData();
-
 		this._uniformBufferDatas = new Map();
 		this._uniformBuffersMap = new Map();
 	}
@@ -156,6 +122,10 @@ export class ShaderData implements IClone {
 	 */
 	addDefine(define: ShaderDefine): void {
 		this._defineDatas.add(define);
+	}
+
+	addDefines(define: DefineDatas): void {
+		this._defineDatas.addDefineDatas(define);
 	}
 
 	/**
@@ -630,8 +600,8 @@ export class ShaderData implements IClone {
 	 * 克隆。
 	 * @param	destObject 克隆源。
 	 */
-	cloneTo(destObject: ShaderData): void {
-		var dest: ShaderData = <ShaderData>destObject;
+	cloneTo(destObject: WebShaderData): void {
+		var dest: WebShaderData = <WebShaderData>destObject;
 		var destData: { [key: string]: number | boolean | Vector2 | Vector3 | Vector4 | Matrix3x3 | Matrix4x4 | BaseTexture } = dest._data;
 		for (var k in this._data) {//TODO:需要优化,杜绝is判断，慢
 			var value: any = this._data[k];
@@ -689,6 +659,10 @@ export class ShaderData implements IClone {
 		dest.applyUBO = true;
 	}
 
+	getDefineData(): DefineDatas {
+		return this._defineDatas;
+	}
+
 	/**
 	 * clone UBO Data
 	 * @internal
@@ -705,7 +679,7 @@ export class ShaderData implements IClone {
 	 * @return	 克隆副本。
 	 */
 	clone(): any {
-		var dest: ShaderData = new ShaderData();
+		var dest: WebShaderData = new WebShaderData();
 		this.cloneTo(dest);
 		return dest;
 	}

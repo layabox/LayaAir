@@ -30,7 +30,6 @@ import { FilterMode } from "../../../RenderEngine/RenderEnum/FilterMode";
 import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
 import { DefineDatas } from "../../../RenderEngine/RenderShader/DefineDatas";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
-import { ShaderData, ShaderDataItem, ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData";
 import { UnifromBufferData, UniformBufferParamsType } from "../../../RenderEngine/UniformBufferData";
 import { UniformBufferObject } from "../../../RenderEngine/UniformBufferObject";
 import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTargetFormat";
@@ -58,6 +57,7 @@ import { LayaGL } from "../../../layagl/LayaGL";
 import { IElementComponentManager } from "./IScenceComponentManager";
 import { ISceneNodeData } from "../../RenderDriverLayer/RenderModuleData/IModuleData";
 import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
+import { ShaderDataType, ShaderData, ShaderDataItem } from "../../../RenderEngine/RenderInterface/ShaderData";
 
 export enum FogMode {
     Linear = 0, //Linear
@@ -436,7 +436,7 @@ export class Scene3D extends Sprite implements ISubmit {
 
     componentElementMap: Map<string, IElementComponentManager> = new Map();
 
-    _sceneModuleData:ISceneNodeData;
+    _sceneModuleData: ISceneNodeData;
 
     /**
      * Scene3D所属的2D场景，使用IDE编辑的场景载入后具有此属性。
@@ -710,7 +710,7 @@ export class Scene3D extends Sprite implements ISubmit {
         } else {
             maps.length = 0;
         }
-        this._sceneModuleData.lightmapDirtyFlag =  Scene3D._updateMark
+        this._sceneModuleData.lightmapDirtyFlag = Scene3D._updateMark
 
     }
 
@@ -743,7 +743,7 @@ export class Scene3D extends Sprite implements ISubmit {
             this._physicsManager = Laya3D.PhysicsCreateUtil.createPhysicsManger(Scene3D.physicsSettings);
 
         this._shaderValues = LayaGL.renderOBJCreate.createShaderData(null);
-        this._shaderValues._defineDatas.addDefineDatas(Shader3D._configDefineValues);
+        this._shaderValues.addDefines(Shader3D._configDefineValues);
         if (Config3D._uniformBlock) {
             //SceneUniformBlock
             this._sceneUniformObj = UniformBufferObject.getBuffer(UniformBufferObject.UBONAME_SCENE, 0);

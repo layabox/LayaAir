@@ -7,9 +7,9 @@ import { Viewport } from "../../math/Viewport";
 import { WGPURenderElementObJ } from "./WGPURenderElementObJ";
 import { WGPUShaderData } from "./WGPUShaderData";
 import { WebGPUInternalRT } from "../../../RenderEngine/RenderEngine/WebGPUEngine/WebGPUInternalRT";
-import { ShaderData } from "../../../RenderEngine/RenderShader/ShaderData";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { PipelineMode } from "../../RenderDriverLayer/IRenderContext3D";
+import { ShaderData } from "../../../RenderEngine/RenderInterface/ShaderData";
 
 export class WGPURenderContext3D {
     

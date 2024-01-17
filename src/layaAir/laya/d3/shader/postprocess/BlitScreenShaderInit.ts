@@ -1,5 +1,4 @@
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
-import { ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData";
 import BlitVS from "./BlitScreen.vs";
 import BlitFS from "./BlitScreen.fs";
 import FXAA from "./FastApproximateAntiAliasing.glsl";
@@ -12,6 +11,7 @@ import TonemappingGLSL from "./Tonemapping.glsl";
 import LUTGLSL from "./LUT.glsl";
 
 import LUTBuilderFS from "./LUTBuilder.fs";
+import { ShaderDataType } from "../../../RenderEngine/RenderInterface/ShaderData";
 
 export class BlitScreenShaderInit {
 

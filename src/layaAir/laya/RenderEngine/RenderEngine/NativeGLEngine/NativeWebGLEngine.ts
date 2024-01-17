@@ -19,12 +19,12 @@ import { NativeGLTextureContext } from "./NativeGLTextureContext";
 import { NativeGLVertexState } from "./NativeGLVertexState";
 import { WebGlConfig } from "../WebGLEngine/WebGLConfig";
 import { NativeGLRenderDrawContext } from "./NativeGLRenderDrawContext";
-import { ShaderDataType } from "../../RenderShader/ShaderData";
 import { RenderStatisticsInfo } from "../../RenderEnum/RenderStatInfo";
 import { Color } from "../../../maths/Color";
 import { NativeRenderStateCommand } from "./NativeRenderStateCommand";
 import { IRenderEngineFactory } from "../../RenderInterface/IRenderEngineFactory";
 import { InternalTexture } from "../../RenderInterface/InternalTexture";
+import { ShaderDataType } from "../../RenderInterface/ShaderData";
 
 
 /**

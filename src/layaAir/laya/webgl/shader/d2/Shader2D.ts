@@ -12,10 +12,9 @@ import Sprite2DVertex from './NewShader/Sprite2DVertex.glsl';
 import Sprite2DShaderInfo from './NewShader/Sprite2DShaderInfo.glsl';
 
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
-import { ShaderCompile } from "../../utils/ShaderCompile";
-import { ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData";
 import { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
 import { Material } from "../../../resource/Material";
+import { ShaderDataType } from "../../../RenderEngine/RenderInterface/ShaderData";
 
 export class Shader2D {
     /**@internal */

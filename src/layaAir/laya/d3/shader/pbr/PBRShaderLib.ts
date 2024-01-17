@@ -8,9 +8,9 @@ import PBRVertexGLSL from "./pbrVertex.glsl";
 import PBRFragGLSL from "./pbrFrag.glsl";
 import PBRMetallicGLSL from "./pbrMetallicFrag.glsl";
 import { PBRDefaultDFG } from "./PBRDefaultDFG";
-import { ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData";
 import { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
 import { ShaderDefine } from "../../../RenderEngine/RenderShader/ShaderDefine";
+import { ShaderDataType } from "../../../RenderEngine/RenderInterface/ShaderData";
 
 export class PBRShaderLib {
 

@@ -13,7 +13,6 @@ import { IRenderDrawContext } from "../../RenderInterface/IRenderDrawContext";
 import { IRenderEngine } from "../../RenderInterface/IRenderEngine";
 import { IRenderShaderInstance } from "../../RenderInterface/IRenderShaderInstance";
 import { IRenderVertexState } from "../../RenderInterface/IRenderVertexState";
-import { ShaderDataType } from "../../RenderShader/ShaderData";
 import { RenderStateCommand } from "../../RenderStateCommand";
 import { WebGPUBuffer } from "./WebGPUBuffer";
 import { WebGPUConfig } from "./WebGPUConfig";
@@ -30,6 +29,7 @@ import { WGPUBindGroupHelper } from "./WGPUBindGroupHelper";
 import { WGPURenderPipeline } from "../../../d3/RenderObjs/WebGPUOBJ/WebGPURenderPipelineHelper";
 import { IRenderEngineFactory } from "../../RenderInterface/IRenderEngineFactory";
 import { InternalTexture } from "../../RenderInterface/InternalTexture";
+import { ShaderDataType } from "../../RenderInterface/ShaderData";
 
 export class WebGPUEngine implements IRenderEngine {
     _canvas: HTMLCanvasElement;

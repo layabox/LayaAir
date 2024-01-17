@@ -1,4 +1,4 @@
-import { ShaderData } from "../../../../RenderEngine/RenderShader/ShaderData";
+import { WebShaderData } from "../../../../RenderEngine/RenderShader/WebShaderData";
 import { Vector4 } from "../../../../maths/Vector4";
 import { Material } from "../../../../resource/Material";
 import { IRenderContext3D } from "../../../RenderDriverLayer/IRenderContext3D";
@@ -37,7 +37,7 @@ export class GLESBaseRenderNode implements IBaseRenderNode {
     lightmap: GLESLightmap;
     probeReflection: GLESReflectionProbe;
     volumetricGI: GLESVolumetricGI;
-    shaderData: ShaderData;
+    shaderData: WebShaderData;
     baseGeometryBounds: Bounds;
     transform: Transform3D;
     protected _worldParams: Vector4;
@@ -117,7 +117,7 @@ export class GLESBaseRenderNode implements IBaseRenderNode {
     setOneMaterial(index: number, mat: Material): void {
         if (!this.renderelements[index])
             return;
-        this.renderelements[index]._materialShaderData = mat.shaderData;
+        this.renderelements[index]._materialShaderData = mat.shaderData as WebShaderData;
         this.renderelements[index]._materialRenderQueue;
     }
 
@@ -159,7 +159,7 @@ export class GLESBaseRenderNode implements IBaseRenderNode {
     _applyLightMapParams(): void {
         if (!this.lightmap) {
             var lightMap: GLESLightmap = this.lightmap;
-            var shaderValues: ShaderData = this.shaderData;
+            var shaderValues: WebShaderData = this.shaderData;
             shaderValues.setVector(RenderableSprite3D.LIGHTMAPSCALEOFFSET, this.lightmapScaleOffset);
             shaderValues._setInternalTexture(RenderableSprite3D.LIGHTMAP, lightMap.lightmapColor);
             shaderValues.addDefine(RenderableSprite3D.SAHDERDEFINE_LIGHTMAP);

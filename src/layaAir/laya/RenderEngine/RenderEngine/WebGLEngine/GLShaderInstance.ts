@@ -7,13 +7,13 @@ import { Vector4 } from "../../../maths/Vector4";
 import { BaseTexture } from "../../../resource/BaseTexture";
 import { Texture2D } from "../../../resource/Texture2D";
 import { IRenderShaderInstance } from "../../RenderInterface/IRenderShaderInstance";
-import { ShaderDataType } from "../../RenderShader/ShaderData";
 import { ShaderVariable } from "../../RenderShader/ShaderVariable";
 import { UniformBufferObject } from "../../UniformBufferObject";
 import { GLObject } from "./GLObject";
 import { WebGLEngine } from "./WebGLEngine";
 import { Matrix3x3 } from "../../../maths/Matrix3x3";
 import { InternalTexture } from "../../RenderInterface/InternalTexture";
+import { ShaderDataType } from "../../RenderInterface/ShaderData";
 
 
 export class GLShaderInstance extends GLObject implements IRenderShaderInstance {

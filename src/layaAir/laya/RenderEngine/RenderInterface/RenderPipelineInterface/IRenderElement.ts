@@ -1,11 +1,11 @@
 import { SingletonList } from "../../../utils/SingletonList";
 import { Transform3D } from "../../../d3/core/Transform3D";
-import { ShaderData } from "../../RenderShader/ShaderData";
 import { IRenderGeometryElement } from "./IRenderGeometryElement";
 import { ShaderInstance } from "../../RenderShader/ShaderInstance";
 import { IBaseRenderNode } from "../../../d3/RenderDriverLayer/Render3DNode/IBaseRenderNode";
 import { IRenderContext3D } from "../../../d3/RenderDriverLayer/IRenderContext3D";
 import { SubShader } from "../../RenderShader/SubShader";
+import { ShaderData } from "../ShaderData";
 
 export interface IRenderElement {
     _geometry: IRenderGeometryElement;

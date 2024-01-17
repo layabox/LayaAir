@@ -12,9 +12,9 @@ import { Matrix4x4 } from "../../maths/Matrix4x4";
 import { Quaternion } from "../../maths/Quaternion";
 import { Vector3 } from "../../maths/Vector3";
 import { Scene3D } from "./scene/Scene3D";
-import { ShaderDataType } from "../../RenderEngine/RenderShader/ShaderData";
 import { LayaGL } from "../../layagl/LayaGL";
 import { Laya3DRender } from "../RenderObjs/Laya3DRender";
+import { ShaderDataType } from "../../RenderEngine/RenderInterface/ShaderData";
 
 /**
  * @internal

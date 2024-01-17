@@ -1,8 +1,8 @@
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
-import { ShaderDataItem, ShaderDataType } from "../../RenderEngine/RenderShader/ShaderData";
 import { ShaderDefine } from "../../RenderEngine/RenderShader/ShaderDefine";
 import { UniformBufferParamsType, UnifromBufferData } from "../../RenderEngine/UniformBufferData";
 import { IShaderCompiledObj, ShaderCompile } from "../../webgl/utils/ShaderCompile";
+import { ShaderDataItem, ShaderDataType } from "../RenderInterface/ShaderData";
 import { ShaderPass } from "./ShaderPass";
 import { VertexMesh } from "./VertexMesh";
 

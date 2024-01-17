@@ -1,6 +1,5 @@
 import { NativeShaderData } from "../../../../RenderEngine/RenderEngine/NativeGLEngine/NativeShaderData";
 import { IRenderElement } from "../../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderElement";
-import { ShaderData } from "../../../../RenderEngine/RenderShader/ShaderData";
 import { Vector4 } from "../../../../maths/Vector4";
 import { Material } from "../../../../resource/Material";
 import { IRenderContext3D } from "../../../RenderDriverLayer/IRenderContext3D";
@@ -10,7 +9,6 @@ import { IReflectionProbeData } from "../../../RenderDriverLayer/RenderModuleDat
 import { IVolumetricGIData } from "../../../RenderDriverLayer/RenderModuleData/IVolumetricGIData";
 import { IrradianceMode } from "../../../core/render/BaseRender";
 import { Bounds } from "../../../math/Bounds";
-import { NativeBounds } from "../../NativeOBJ/NativeBounds";
 import { NativeTransform3D } from "../../NativeOBJ/NativeTransform3D";
 
 export class RTBaseRenderNode implements IBaseRenderNode {
@@ -28,7 +26,7 @@ export class RTBaseRenderNode implements IBaseRenderNode {
     public get distanceForSort(): number {
         return this._nativeObj._distanceForSort;
     }
-    private _distanceForsSort:number
+
     public set distanceForSort(value: number) {
         this._nativeObj.distanceForSort
         this._nativeObj._distanceForSort = value;

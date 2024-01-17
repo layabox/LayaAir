@@ -16,8 +16,9 @@ import { IRenderEngineFactory } from "../../RenderInterface/IRenderEngineFactory
 import { IRenderShaderInstance } from "../../RenderInterface/IRenderShaderInstance";
 import { IRenderVertexState } from "../../RenderInterface/IRenderVertexState";
 import { ITextureContext } from "../../RenderInterface/ITextureContext";
-import { ShaderData, ShaderDataType } from "../../RenderShader/ShaderData";
+import { ShaderDataType } from "../../RenderInterface/ShaderData";
 import { ShaderVariable } from "../../RenderShader/ShaderVariable";
+import { WebShaderData } from "../../RenderShader/WebShaderData";
 import { RenderStateCommand } from "../../RenderStateCommand";
 import { GL2TextureContext } from "./GL2TextureContext";
 import { GLBuffer } from "./GLBuffer";
@@ -434,7 +435,7 @@ export class WebGLEngine implements IRenderEngine {
     /**
      * @internal
      */
-    uploadUniforms(shader: GLShaderInstance, commandEncoder: CommandEncoder, shaderData: ShaderData, uploadUnTexture: boolean): number {
+    uploadUniforms(shader: GLShaderInstance, commandEncoder: CommandEncoder, shaderData: WebShaderData, uploadUnTexture: boolean): number {
         shaderData.applyUBO && shaderData.applyUBOData();
         var data: any = shaderData._data;
         var shaderUniform: any[] = commandEncoder.getArrayData();

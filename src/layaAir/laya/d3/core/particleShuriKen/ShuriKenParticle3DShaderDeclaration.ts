@@ -1,5 +1,5 @@
+import { ShaderDataType } from "../../../RenderEngine/RenderInterface/ShaderData";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
-import { ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData";
 import { ShaderDefine } from "../../../RenderEngine/RenderShader/ShaderDefine";
 import { LayaGL } from "../../../layagl/LayaGL";
 

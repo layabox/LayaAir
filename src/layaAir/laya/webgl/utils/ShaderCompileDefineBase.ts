@@ -1,6 +1,6 @@
+import { ShaderDataType } from "../../RenderEngine/RenderInterface/ShaderData";
 import { DefineDatas } from "../../RenderEngine/RenderShader/DefineDatas";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
-import { ShaderDataType } from "../../RenderEngine/RenderShader/ShaderData";
 import { ShaderInstance } from "../../RenderEngine/RenderShader/ShaderInstance";
 import { SubShader, UniformMapType } from "../../RenderEngine/RenderShader/SubShader";
 import { LayaGL } from "../../layagl/LayaGL";

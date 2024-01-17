@@ -1,4 +1,3 @@
-import { ShaderDataItem } from "../../RenderShader/ShaderData";
 
 export class WGPUBindGroup {
     /**@internal*/

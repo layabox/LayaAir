@@ -1,6 +1,6 @@
 import { RenderClearFlag } from "../../../../RenderEngine/RenderEnum/RenderClearFlag";
 import { InternalRenderTarget } from "../../../../RenderEngine/RenderInterface/InternalRenderTarget";
-import { ShaderData } from "../../../../RenderEngine/RenderShader/ShaderData";
+import { WebShaderData } from "../../../../RenderEngine/RenderShader/WebShaderData";
 import { Color } from "../../../../maths/Color";
 import { MathUtils3D } from "../../../../maths/MathUtils3D";
 import { Matrix4x4 } from "../../../../maths/Matrix4x4";
@@ -11,7 +11,7 @@ import { BaseCamera } from "../../../core/BaseCamera";
 import { Camera } from "../../../core/Camera";
 import { ShadowCascadesMode } from "../../../core/light/ShadowCascadesMode";
 import { ShadowMode } from "../../../core/light/ShadowMode";
-import { ShadowMapFormat, ShadowUtils } from "../../../core/light/ShadowUtils";
+import { ShadowUtils } from "../../../core/light/ShadowUtils";
 import { CommandBuffer } from "../../../core/render/command/CommandBuffer";
 import { Scene3DShaderDeclaration } from "../../../core/scene/Scene3DShaderDeclaration";
 import { BoundSphere } from "../../../math/BoundSphere";
@@ -149,7 +149,7 @@ export class GLESDirectLightShadowCastRP implements IDirectLightShadowRP {
     }
 
     render(context: GLESRenderContext3D, list: GLESBaseRenderNode[], count: number): void {
-        var shaderValues: ShaderData = context.sceneData;
+        var shaderValues: WebShaderData = context.sceneData;
         context.pipelineMode = "ShadowCaster";
         var shadowMap = this.destTarget
         context.setRenderTarget(shadowMap);
@@ -167,7 +167,7 @@ export class GLESDirectLightShadowCastRP implements IDirectLightShadowRP {
             //cull
             GLESCullUtil.culldirectLightShadow(shadowCullInfo, list, count, this._renderQueue, context);
 
-            context.cameraData = sliceData.cameraShaderValue;
+            context.cameraData = sliceData.cameraShaderValue as WebShaderData;
             Camera._updateMark++;
             context.cameraUpdateMask = Camera._updateMark;
 
@@ -200,7 +200,7 @@ export class GLESDirectLightShadowCastRP implements IDirectLightShadowRP {
      * @param scene 
      * @param camera 
      */
-    private _applyRenderData(scene: ShaderData, camera: ShaderData) {
+    private _applyRenderData(scene: WebShaderData, camera: WebShaderData) {
         var light: GLESDirectLight = this._light;
         if (light.shadowCascadesMode !== ShadowCascadesMode.NoCascades)
             scene.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_CASCADE);
@@ -268,10 +268,10 @@ export class GLESDirectLightShadowCastRP implements IDirectLightShadowRP {
     * 设置阴影级联数据模式
     * @internal
     */
-    private _setupShadowCasterShaderValues(shaderValues: ShaderData, shadowSliceData: ShadowSliceData, LightParam: Vector3, shadowBias: Vector4): void {
+    private _setupShadowCasterShaderValues(shaderValues: WebShaderData, shadowSliceData: ShadowSliceData, LightParam: Vector3, shadowBias: Vector4): void {
         shaderValues.setVector(ShadowCasterPass.SHADOW_BIAS, shadowBias);
         shaderValues.setVector3(ShadowCasterPass.SHADOW_LIGHT_DIRECTION, LightParam);
-        var cameraSV: ShaderData = shadowSliceData.cameraShaderValue;//TODO:should optimization with shader upload.
+        var cameraSV: WebShaderData = shadowSliceData.cameraShaderValue as WebShaderData;//TODO:should optimization with shader upload.
         cameraSV.setMatrix4x4(BaseCamera.VIEWMATRIX, shadowSliceData.viewMatrix);
         cameraSV.setMatrix4x4(BaseCamera.PROJECTMATRIX, shadowSliceData.projectionMatrix);
         cameraSV.setMatrix4x4(BaseCamera.VIEWPROJECTMATRIX, shadowSliceData.viewProjectMatrix);

@@ -1,15 +1,10 @@
 import { Event } from "../../events/Event";
 import { SkinnedMeshRenderer } from "./SkinnedMeshRenderer";
-import { RenderContext3D } from "./render/RenderContext3D";
-import { Transform3D } from "./Transform3D";
 import { SubMeshRenderElement } from "./render/SubMeshRenderElement";
-import { Sprite3D } from "./Sprite3D";
 import { SkinnedMeshSprite3DShaderDeclaration } from "./SkinnedMeshSprite3DShaderDeclaration";
 import { Mesh } from "../resource/models/Mesh";
 import { Texture2D } from "../../resource/Texture2D";
 import { Component } from "../../components/Component";
-import { ShaderDataType } from "../../RenderEngine/RenderShader/ShaderData";
-import { Matrix4x4 } from "../../maths/Matrix4x4";
 import { Vector2 } from "../../maths/Vector2";
 import { Vector4 } from "../../maths/Vector4";
 import { IRenderContext3D } from "../RenderDriverLayer/IRenderContext3D";

@@ -13,10 +13,10 @@ import { TrailAlignment } from "./TrailAlignment";
 import { TrailTextureMode } from "../TrailTextureMode";
 import { Color } from "../../../maths/Color";
 import { Vector3 } from "../../../maths/Vector3";
-import { ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData";
 import { Gradient } from "../Gradient";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { RenderElement } from "../render/RenderElement";
+import { ShaderDataType } from "../../../RenderEngine/RenderInterface/ShaderData";
 
 
 /**

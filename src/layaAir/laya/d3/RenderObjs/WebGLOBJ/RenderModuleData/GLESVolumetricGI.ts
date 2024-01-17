@@ -1,8 +1,7 @@
 import { InternalTexture } from "../../../../RenderEngine/RenderInterface/InternalTexture";
-import { ShaderData } from "../../../../RenderEngine/RenderShader/ShaderData";
+import { WebShaderData } from "../../../../RenderEngine/RenderShader/WebShaderData";
 import { Vector3 } from "../../../../maths/Vector3";
 import { Vector4 } from "../../../../maths/Vector4";
-import { Texture2D } from "../../../../resource/Texture2D";
 import { IVolumetricGIData } from "../../../RenderDriverLayer/RenderModuleData/IVolumetricGIData";
 import { RenderableSprite3D } from "../../../core/RenderableSprite3D";
 import { Sprite3DRenderDeclaration } from "../../../core/render/Sprite3DRenderDeclaration";
@@ -39,7 +38,7 @@ export class GLESVolumetricGI implements IVolumetricGIData {
         value.cloneTo(this._probeStep);
     }
 
-    applyRenderData(data: ShaderData): void {
+    applyRenderData(data: WebShaderData): void {
         data.addDefine(Sprite3DRenderDeclaration.SHADERDEFINE_VOLUMETRICGI);
         data.setVector3(RenderableSprite3D.VOLUMETRICGI_PROBECOUNTS, this._probeCounts);
         data.setVector3(RenderableSprite3D.VOLUMETRICGI_PROBESTEPS, this._probeStep);

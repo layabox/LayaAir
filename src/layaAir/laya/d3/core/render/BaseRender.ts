@@ -8,7 +8,6 @@ import { MeshSprite3DShaderDeclaration } from "../../../d3/core/MeshSprite3DShad
 import { TextureCube } from "../../../resource/TextureCube";
 import { Component } from "../../../components/Component";
 import { Sprite3D } from "../Sprite3D";
-import { ShaderData, ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData";
 import { TransLargeUBOUtils } from "../TransLargeUBOUtils";
 import { Bounds } from "../../math/Bounds";
 import { Volume } from "../../component/Volume/Volume";
@@ -31,6 +30,7 @@ import { IRenderElement } from "../../../RenderEngine/RenderInterface/RenderPipe
 import { IRenderContext3D } from "../../RenderDriverLayer/IRenderContext3D";
 import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
 import { LayaGL } from "../../../layagl/LayaGL";
+import { ShaderData } from "../../../RenderEngine/RenderInterface/ShaderData";
 
 export enum RenderBitFlag {
     RenderBitFlag_CullFlag = 0,

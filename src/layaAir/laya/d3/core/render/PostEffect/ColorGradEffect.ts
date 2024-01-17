@@ -4,7 +4,6 @@ import { FilterMode } from "../../../../RenderEngine/RenderEnum/FilterMode";
 import { RenderTargetFormat } from "../../../../RenderEngine/RenderEnum/RenderTargetFormat";
 import { WrapMode } from "../../../../RenderEngine/RenderEnum/WrapMode";
 import { Shader3D } from "../../../../RenderEngine/RenderShader/Shader3D";
-import { ShaderData, ShaderDataType } from "../../../../RenderEngine/RenderShader/ShaderData";
 import { ShaderDefine } from "../../../../RenderEngine/RenderShader/ShaderDefine";
 import { SubShader } from "../../../../RenderEngine/RenderShader/SubShader";
 import { VertexMesh } from "../../../../RenderEngine/RenderShader/VertexMesh";
@@ -21,6 +20,7 @@ import { RenderContext3D } from "../RenderContext3D";
 import { Color } from "../../../../maths/Color";
 import { PostProcess } from "../../../component/PostProcess";
 import { LayaGL } from "../../../../layagl/LayaGL";
+import { ShaderData, ShaderDataType } from "../../../../RenderEngine/RenderInterface/ShaderData";
 
 export enum ToneMappingType {
 	None,

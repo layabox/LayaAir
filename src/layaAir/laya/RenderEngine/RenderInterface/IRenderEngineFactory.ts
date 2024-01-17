@@ -4,9 +4,9 @@ import { ShaderCompileDefineBase, ShaderProcessInfo } from "../../webgl/utils/Sh
 import { CommandUniformMap } from "../CommandUniformMap";
 import { BufferUsage } from "../RenderEnum/BufferTargetType";
 import { RenderState } from "../RenderShader/RenderState";
-import { ShaderData } from "../RenderShader/ShaderData";
 import { RenderStateCommand } from "../RenderStateCommand";
 import { UniformBufferObject } from "../UniformBufferObject";
+import { ShaderData } from "./ShaderData";
 
 export interface IRenderEngineFactory {
 

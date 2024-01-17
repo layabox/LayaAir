@@ -11,7 +11,6 @@ import { PostProcessRenderContext } from "../../../core/render/PostProcessRender
 import { FilterMode } from "../../../../RenderEngine/RenderEnum/FilterMode";
 import { RenderTargetFormat } from "../../../../RenderEngine/RenderEnum/RenderTargetFormat";
 import { Shader3D } from "../../../../RenderEngine/RenderShader/Shader3D";
-import { ShaderData, ShaderDataType } from "../../../../RenderEngine/RenderShader/ShaderData";
 import { ShaderDefine } from "../../../../RenderEngine/RenderShader/ShaderDefine";
 import { Vector3 } from "../../../../maths/Vector3";
 import { Vector4 } from "../../../../maths/Vector4";
@@ -20,6 +19,7 @@ import { SubShader } from "../../../../RenderEngine/RenderShader/SubShader";
 import { VertexMesh } from "../../../../RenderEngine/RenderShader/VertexMesh";
 import { LayaGL } from "../../../../layagl/LayaGL";
 import { DepthTextureMode } from "../../../RenderDriverLayer/Render3DProcess/IForwardAddClusterRP";
+import { ShaderDataType, ShaderData } from "../../../../RenderEngine/RenderInterface/ShaderData";
 
 /**
  *  <code>BloomEffect</code> 类用于创建环境光遮罩效果。

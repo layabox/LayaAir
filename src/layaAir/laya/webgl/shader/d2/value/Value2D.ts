@@ -3,7 +3,6 @@ import { ShaderDefines2D } from "../ShaderDefines2D"
 import { RenderState2D } from "../../../utils/RenderState2D"
 import { RenderTexture2D } from "../../../../resource/RenderTexture2D"
 import { Const } from "../../../../Const"
-import { ShaderData } from "../../../../RenderEngine/RenderShader/ShaderData"
 import { Shader3D } from "../../../../RenderEngine/RenderShader/Shader3D"
 import { Material } from "../../../../resource/Material"
 import { DefineDatas } from "../../../../RenderEngine/RenderShader/DefineDatas"
@@ -11,6 +10,8 @@ import { Vector2 } from "../../../../maths/Vector2"
 import { Matrix4x4 } from "../../../../maths/Matrix4x4"
 import { Vector4 } from "../../../../maths/Vector4"
 import { TextTexture } from "../../../text/TextTexture"
+import { ShaderData } from "../../../../RenderEngine/RenderInterface/ShaderData"
+import { LayaGL } from "../../../../layagl/LayaGL"
 
 export enum RenderSpriteData {
     Zero,
@@ -30,7 +31,7 @@ export class Value2D {
         Value2D._typeClass[type] = classT;
         Value2D._cache[type] = [];
         Value2D._cache[type]._length = 0;
-        Value2D.globalShaderData = new ShaderData();
+        Value2D.globalShaderData = LayaGL.renderOBJCreate.createShaderData(null);
     }
 
     static TEMPMAT4_ARRAY: any[] = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
@@ -48,7 +49,7 @@ export class Value2D {
             return new Value2D._typeClass[mainType]();
     }
 
-    defines: ShaderData = new ShaderData();
+    defines: ShaderData;
 
     _defaultShader: Shader3D;
     //TODO
@@ -165,6 +166,7 @@ export class Value2D {
     }//Vector2
 
     constructor(mainID: RenderSpriteData) {
+        this.defines = LayaGL.renderOBJCreate.createShaderData(null);
         this.mainID = mainID;
         this.textureHost = null;
         this.texture = null;
@@ -172,7 +174,7 @@ export class Value2D {
         //this.color = null;
         //this.strokeStyle = null;
         //this.colorAdd = null;
-
+        
         this.clipMatDir = this._clipMatDir;
         this.clipMatPos = this._clipMatpos;
         this.clipOff = this._clipOff;
@@ -183,7 +185,6 @@ export class Value2D {
             this._inClassCache._length = 0;
         }
         this.clear();
-
     }
 
     /**
@@ -249,7 +250,7 @@ export class Value2D {
         if (material) {
             //Custom Shader
             var shaderPass = material._shader._subShaders[0]._passes;
-            
+
             var pass;
             for (var j: number = 0, m: number = shaderPass.length; j < m; j++) {
                 pass = shaderPass[j];
@@ -258,11 +259,11 @@ export class Value2D {
                     break;
             }
             var comDef: DefineDatas = Value2D._compileDefine;
-            this.defines._defineDatas.cloneTo(Value2D._compileDefine);
+            this.defines.getDefineData().cloneTo(Value2D._compileDefine);
             //mateiral Define
             Value2D._compileDefine.addDefineDatas(material._defineDatas);
             //Global Define
-            Value2D._compileDefine.addDefineDatas(Value2D.globalShaderData._defineDatas);
+            Value2D._compileDefine.addDefineDatas(Value2D.globalShaderData.getDefineData());
             var shaderIns = pass.withCompile(Value2D._compileDefine, true);
             shaderIns.bind();
             shaderIns.uploadUniforms(shaderIns._sprite2DUniformParamsMap, this.defines, true);
@@ -275,7 +276,7 @@ export class Value2D {
             if (shaderPass.length >= 1) {
                 pass = shaderPass[0];
                 //var comDef: DefineDatas = Value2D._compileDefine;
-                var shaderIns = pass.withCompile(this.defines._defineDatas, true);
+                var shaderIns = pass.withCompile(this.defines.getDefineData(), true);
                 shaderIns.bind();
                 shaderIns.uploadUniforms(shaderIns._sprite2DUniformParamsMap, this.defines, true);
             } else {

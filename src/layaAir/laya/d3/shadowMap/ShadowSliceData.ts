@@ -1,10 +1,10 @@
 import { Plane } from "../math/Plane";
-import { ShaderData } from "../../RenderEngine/RenderShader/ShaderData";
 import { BoundSphere } from "../math/BoundSphere";
 import { Matrix4x4 } from "../../maths/Matrix4x4";
 import { Vector3 } from "../../maths/Vector3";
 import { LayaGL } from "../../layagl/LayaGL";
 import { BoundFrustum } from "../math/BoundFrustum";
+import { ShaderData } from "../../RenderEngine/RenderInterface/ShaderData";
 
 
 

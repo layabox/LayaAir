@@ -80,7 +80,7 @@ export class TextureSV extends Value2D {
     clear(): void {
         this.texture = null;
         //this.shader = null;
-        this.defines._defineDatas.clear();
+        this.defines.getDefineData().clear();
 
     }
 }

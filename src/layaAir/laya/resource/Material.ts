@@ -5,7 +5,6 @@ import { BufferUsage } from "../RenderEngine/RenderEnum/BufferTargetType";
 import { DefineDatas } from "../RenderEngine/RenderShader/DefineDatas";
 import { RenderState } from "../RenderEngine/RenderShader/RenderState";
 import { Shader3D } from "../RenderEngine/RenderShader/Shader3D";
-import { ShaderData, ShaderDataType, ShaderDataItem, ShaderDataDefaultValue } from "../RenderEngine/RenderShader/ShaderData";
 import { ShaderDefine } from "../RenderEngine/RenderShader/ShaderDefine";
 import { UniformBufferObject } from "../RenderEngine/UniformBufferObject";
 import { LayaGL } from "../layagl/LayaGL";
@@ -21,6 +20,7 @@ import { IClone } from "../utils/IClone";
 import { BaseTexture } from "./BaseTexture";
 import { Resource } from "./Resource";
 import { Event } from "../events/Event";
+import { ShaderData, ShaderDataDefaultValue, ShaderDataItem, ShaderDataType } from "../RenderEngine/RenderInterface/ShaderData";
 
 
 export enum MaterialRenderMode {
@@ -374,7 +374,7 @@ export class Material extends Resource implements IClone {
      */
     get MaterialDefine(): Array<string> {
         let shaderDefineArray = new Array<string>();
-        let defineData = this._shaderValues._defineDatas;
+        let defineData = this._shaderValues.getDefineData();
         Shader3D._getNamesByDefineData(defineData, shaderDefineArray);
         return shaderDefineArray;
     }
@@ -505,16 +505,7 @@ export class Material extends Resource implements IClone {
      * @returns 
      */
     private _releaseUBOData() {
-        if (!this._shaderValues.uniformBufferDatas) {
-            return;
-        }
-        for (let value of this._shaderValues.uniformBufferDatas.values()) {
-            value.ubo._updateDataInfo.destroy();
-            value.ubo.destroy();
-            value.ubo._updateDataInfo = null;
-        }
-        this._shaderValues.uniformBufferDatas.clear();
-        this._shaderValues.uniformBuffersMap.clear();
+        this._shaderValues._releaseUBOData();
     }
 
     /**
@@ -1095,7 +1086,7 @@ export class Material extends Resource implements IClone {
     }
 
     get _defineDatas(): DefineDatas {
-        return this._shaderValues._defineDatas;
+        return this._shaderValues.getDefineData();
     }
 
     /**

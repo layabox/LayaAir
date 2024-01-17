@@ -1,6 +1,7 @@
 import { CommandEncoder } from "../../../layagl/CommandEncoder";
 import { LayaGL } from "../../../layagl/LayaGL";
-import { ShaderDataType, ShaderData } from "../../../RenderEngine/RenderShader/ShaderData";
+import { NativeShaderData } from "../../../RenderEngine/RenderEngine/NativeGLEngine/NativeShaderData";
+import { ShaderDataType } from "../../../RenderEngine/RenderInterface/ShaderData";
 import { ShaderPass } from "../../../RenderEngine/RenderShader/ShaderPass";
 import { ShaderCompileDefineBase } from "../../../webgl/utils/ShaderCompileDefineBase";
 
@@ -30,7 +31,7 @@ export class NativeShaderInstance/* extends ShaderInstance */ {
 		for (var k in attributeMap) {
 			pConchAttributeMap.setAttributeValue(k, attributeMap[k][0]);
 		}
-		
+
 		var stateMap: { [stateID: number]: number } = {};
 		for (var s in stateMap) {
 			pConchAttributeMap.setStateValue(parseInt(s), stateMap[s]);
@@ -52,7 +53,7 @@ export class NativeShaderInstance/* extends ShaderInstance */ {
 		return this._nativeObj.bind();
 	}
 
-	uploadUniforms(shaderUniform: CommandEncoder, shaderDatas: ShaderData, uploadUnTexture: boolean) {
+	uploadUniforms(shaderUniform: CommandEncoder, shaderDatas: NativeShaderData, uploadUnTexture: boolean) {
 		this._nativeObj.uploadUniforms(shaderUniform, (shaderDatas as any)._nativeObj, uploadUnTexture);
 	}
 
@@ -78,11 +79,11 @@ export class NativeShaderInstance/* extends ShaderInstance */ {
 		return (UniformParamsMapType.Material as unknown as CommandEncoder);
 	}
 
-	uploadRenderStateBlendDepth(shaderDatas: ShaderData): void {
+	uploadRenderStateBlendDepth(shaderDatas: NativeShaderData): void {
 		this._nativeObj.uploadRenderStateBlendDepth((shaderDatas as any)._nativeObj);
 	}
 
-	uploadRenderStateFrontFace(shaderDatas: ShaderData, isTarget: boolean, invertFront: boolean): void {
+	uploadRenderStateFrontFace(shaderDatas: NativeShaderData, isTarget: boolean, invertFront: boolean): void {
 		this._nativeObj.uploadRenderStateFrontFace((shaderDatas as any)._nativeObj, isTarget, invertFront);
 	}
 }

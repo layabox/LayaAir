@@ -8,19 +8,19 @@ import { WebGLEngine } from "../../../RenderEngine/RenderEngine/WebGLEngine/WebG
 import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { IRenderEngineFactory } from "../../../RenderEngine/RenderInterface/IRenderEngineFactory";
 import { RenderState } from "../../../RenderEngine/RenderShader/RenderState";
-import { ShaderData } from "../../../RenderEngine/RenderShader/ShaderData";
 import { ShaderInstance } from "../../../RenderEngine/RenderShader/ShaderInstance";
 import { RenderStateCommand } from "../../../RenderEngine/RenderStateCommand";
 import { UniformBufferObject } from "../../../RenderEngine/UniformBufferObject";
 import { ShaderCompileDefineBase, ShaderProcessInfo } from "../../../webgl/utils/ShaderCompileDefineBase";
+import { WebShaderData } from "../../RenderShader/WebShaderData";
 
 export class WebGLRenderEngineFactory implements IRenderEngineFactory {
 
     /**@internal */
     private globalBlockMap: any = {};
 
-    createShaderData(): ShaderData {
-        return new ShaderData();
+    createShaderData(): WebShaderData {
+        return new WebShaderData();
     }  
 
  

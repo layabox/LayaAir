@@ -4,7 +4,6 @@ import { RenderContext3D } from "../RenderContext3D";
 import { ScreenQuad } from "../ScreenQuad";
 import { Command } from "./Command";
 import { Shader3D } from "../../../../RenderEngine/RenderShader/Shader3D";
-import { ShaderData } from "../../../../RenderEngine/RenderShader/ShaderData";
 import { RenderElement } from "../RenderElement";
 import { Transform3D } from "../../Transform3D";
 import { Camera } from "../../Camera";
@@ -12,6 +11,7 @@ import { Vector4 } from "../../../../maths/Vector4";
 import { RenderTexture } from "../../../../resource/RenderTexture";
 import { LayaGL } from "../../../../layagl/LayaGL";
 import { Laya3DRender } from "../../../RenderObjs/Laya3DRender";
+import { ShaderData } from "../../../../RenderEngine/RenderInterface/ShaderData";
 
 
 /**

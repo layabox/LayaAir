@@ -1,5 +1,5 @@
 
-import { ShaderDataType } from "../../RenderEngine/RenderShader/ShaderData";
+import { ShaderDataType } from "../RenderInterface/ShaderData";
 import { UniformMapType } from "./SubShader";
 
 /**

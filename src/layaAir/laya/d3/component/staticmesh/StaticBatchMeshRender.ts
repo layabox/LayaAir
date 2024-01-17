@@ -1,14 +1,10 @@
-import { Matrix4x4 } from "../../../maths/Matrix4x4";
-import { Vector4 } from "../../../maths/Vector4";
-import { ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData";
+
 import { ShaderDefine } from "../../../RenderEngine/RenderShader/ShaderDefine";
 import { VertexMesh } from "../../../RenderEngine/RenderShader/VertexMesh";
 import { MeshFilter } from "../../core/MeshFilter";
 import { MeshSprite3DShaderDeclaration } from "../../core/MeshSprite3DShaderDeclaration";
 import { BaseRender, RenderBitFlag } from "../../core/render/BaseRender";
 import { RenderContext3D } from "../../core/render/RenderContext3D";
-import { Sprite3D } from "../../core/Sprite3D";
-import { Transform3D } from "../../core/Transform3D";
 import { BoundFrustum } from "../../math/BoundFrustum";
 import { IRenderContext3D } from "../../RenderDriverLayer/IRenderContext3D";
 import { StaticBatchMesh } from "./StaticBatchMesh";

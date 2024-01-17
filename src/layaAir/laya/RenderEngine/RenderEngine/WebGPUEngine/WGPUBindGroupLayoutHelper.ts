@@ -1,7 +1,7 @@
 import { LayaGL } from "../../../layagl/LayaGL";
 import { CommandUniformMap } from "../../CommandUniformMap";
+import { ShaderDataType } from "../../RenderInterface/ShaderData";
 import { Shader3D } from "../../RenderShader/Shader3D";
-import { ShaderDataType } from "../../RenderShader/ShaderData";
 import { WGPUShaderVariable } from "./WGPUShaderVariable";
 import { WebGPUEngine } from "./WebGPUEngine";
 

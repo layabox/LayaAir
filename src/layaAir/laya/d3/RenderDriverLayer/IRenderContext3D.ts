@@ -1,6 +1,6 @@
 import { InternalRenderTarget } from "../../RenderEngine/RenderInterface/InternalRenderTarget";
 import { IRenderElement } from "../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderElement";
-import { ShaderData } from "../../RenderEngine/RenderShader/ShaderData";
+import { ShaderData } from "../../RenderEngine/RenderInterface/ShaderData";
 import { Color } from "../../maths/Color";
 import { Vector4 } from "../../maths/Vector4";
 import { SingletonList } from "../../utils/SingletonList";

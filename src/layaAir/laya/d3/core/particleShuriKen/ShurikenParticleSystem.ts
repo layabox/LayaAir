@@ -39,7 +39,6 @@ import { VertexShuriKenParticle } from "../../graphics/Vertex/VertexShuriKenPart
 import { Sprite3D } from "../Sprite3D";
 import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { MeshTopology } from "../../../RenderEngine/RenderEnum/RenderPologyMode";
-import { ShaderData } from "../../../RenderEngine/RenderShader/ShaderData";
 import { VertexDeclaration } from "../../../RenderEngine/VertexDeclaration";
 import { DrawType } from "../../../RenderEngine/RenderEnum/DrawType";
 import { IndexFormat } from "../../../RenderEngine/RenderEnum/IndexFormat";
@@ -52,6 +51,7 @@ import { VertexElement } from "../../../renders/VertexElement";
 import { BufferState } from "../../../webgl/utils/BufferState";
 import { VertexMesh } from "../../../RenderEngine/RenderShader/VertexMesh";
 import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
+import { ShaderData } from "../../../RenderEngine/RenderInterface/ShaderData";
 
 
 /**

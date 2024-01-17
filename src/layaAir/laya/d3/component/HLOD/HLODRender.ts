@@ -1,4 +1,5 @@
-import { ShaderData, ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData";
+
+import { ShaderData } from "../../../RenderEngine/RenderInterface/ShaderData";
 import { Matrix4x4 } from "../../../maths/Matrix4x4";
 import { IRenderContext3D } from "../../RenderDriverLayer/IRenderContext3D";
 import { MeshFilter } from "../../core/MeshFilter";

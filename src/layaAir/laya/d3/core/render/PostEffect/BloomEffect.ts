@@ -14,7 +14,6 @@ import ColorsGLSL from "../../../shader/files/postProcess/Colors.glsl";
 import { FilterMode } from "../../../../RenderEngine/RenderEnum/FilterMode";
 import { RenderTargetFormat } from "../../../../RenderEngine/RenderEnum/RenderTargetFormat";
 import { Shader3D } from "../../../../RenderEngine/RenderShader/Shader3D";
-import { ShaderDataType, ShaderData } from "../../../../RenderEngine/RenderShader/ShaderData";
 import { Texture2D } from "../../../../resource/Texture2D";
 import { PostProcess } from "../../../component/PostProcess";
 import { Viewport } from "../../../math/Viewport";
@@ -29,6 +28,7 @@ import { RenderState } from "../../../../RenderEngine/RenderShader/RenderState";
 import { SubShader } from "../../../../RenderEngine/RenderShader/SubShader";
 import { VertexMesh } from "../../../../RenderEngine/RenderShader/VertexMesh";
 import { LayaGL } from "../../../../layagl/LayaGL";
+import { ShaderDataType, ShaderData } from "../../../../RenderEngine/RenderInterface/ShaderData";
 
 /**
  * <code>BloomEffect</code> 类用于创建泛光效果。

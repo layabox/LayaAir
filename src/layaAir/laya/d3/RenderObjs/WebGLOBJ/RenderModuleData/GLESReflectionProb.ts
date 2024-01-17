@@ -1,5 +1,5 @@
 import { InternalTexture } from "../../../../RenderEngine/RenderInterface/InternalTexture";
-import { ShaderData } from "../../../../RenderEngine/RenderShader/ShaderData";
+import { WebShaderData } from "../../../../RenderEngine/RenderShader/WebShaderData";
 import { Color } from "../../../../maths/Color";
 import { Vector3 } from "../../../../maths/Vector3";
 import { Vector4 } from "../../../../maths/Vector4";
@@ -82,7 +82,7 @@ export class GLESReflectionProbe implements IReflectionProbeData {
         value && value.cloneTo(this._ambientColor);
     }
     /**@internal */
-    applyRenderData(data: ShaderData): void {
+    applyRenderData(data: WebShaderData): void {
         //boxProjection
         if (!this.boxProjection) {
             data.removeDefine(Sprite3DRenderDeclaration.SHADERDEFINE_SPECCUBE_BOX_PROJECTION);

@@ -4,7 +4,6 @@ import { ShadowMapFormat, ShadowUtils } from "../core/light/ShadowUtils";
 import { SpotLightCom } from "../core/light/SpotLightCom";
 import { Config3D } from "../../../Config3D";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
-import { ShaderDataType } from "../../RenderEngine/RenderShader/ShaderData";
 import { UnifromBufferData } from "../../RenderEngine/UniformBufferData";
 import { UniformBufferObject } from "../../RenderEngine/UniformBufferObject";
 import { BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
@@ -12,6 +11,7 @@ import { DepthCasterData } from "../depthMap/DepthCasterData";
 import { RenderTexture } from "../../resource/RenderTexture";
 import { LayaGL } from "../../layagl/LayaGL";
 import { DirectionLightCom } from "../core/light/DirectionLightCom";
+import { ShaderDataType } from "../../RenderEngine/RenderInterface/ShaderData";
 
 /**
  * @internal

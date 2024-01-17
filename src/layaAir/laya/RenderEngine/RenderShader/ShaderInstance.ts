@@ -3,7 +3,6 @@ import { CommandEncoder } from "../../layagl/CommandEncoder";
 import { CullMode } from "../../RenderEngine/RenderEnum/CullMode";
 import { IRenderShaderInstance } from "../../RenderEngine/RenderInterface/IRenderShaderInstance";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
-import { ShaderData, ShaderDataType } from "../../RenderEngine/RenderShader/ShaderData";
 import { ShaderPass } from "../../RenderEngine/RenderShader/ShaderPass";
 import { ShaderVariable } from "../../RenderEngine/RenderShader/ShaderVariable";
 import { UniformMapType } from "../../RenderEngine/RenderShader/SubShader";
@@ -16,6 +15,7 @@ import { RenderStateContext } from "../../RenderEngine/RenderStateContext";
 import { Stat } from "../../utils/Stat";
 import { RenderState } from "./RenderState";
 import { LayaGL } from "../../layagl/LayaGL";
+import { ShaderData, ShaderDataType } from "../RenderInterface/ShaderData";
 
 /**
  * <code>ShaderInstance</code> 类用于实现ShaderInstance。

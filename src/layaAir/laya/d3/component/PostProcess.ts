@@ -1,4 +1,3 @@
-import { ILaya } from "../../../ILaya"
 import { Texture2D } from "../../resource/Texture2D"
 import { Camera } from "../core/Camera"
 import { CommandBuffer } from "../core/render/command/CommandBuffer"
@@ -8,12 +7,12 @@ import { Viewport } from "../math/Viewport"
 import { RenderContext3D } from "../core/render/RenderContext3D"
 import { ShaderDefine } from "../../RenderEngine/RenderShader/ShaderDefine"
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D"
-import { ShaderData } from "../../RenderEngine/RenderShader/ShaderData"
 import { RenderTargetFormat } from "../../RenderEngine/RenderEnum/RenderTargetFormat"
 import { RenderTexture } from "../../resource/RenderTexture"
 import { ColorGradEffect } from "../core/render/PostEffect/ColorGradEffect"
 import { LayaGL } from "../../layagl/LayaGL"
 import { DepthTextureMode } from "../RenderDriverLayer/Render3DProcess/IForwardAddClusterRP"
+import { ShaderData } from "../../RenderEngine/RenderInterface/ShaderData"
 
 /**
  * <code>PostProcess</code> 类用于创建后期处理组件。

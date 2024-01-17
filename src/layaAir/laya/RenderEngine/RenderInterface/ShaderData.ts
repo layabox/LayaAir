@@ -1,58 +1,88 @@
-import { Color } from "../../../maths/Color";
-import { Matrix3x3 } from "../../../maths/Matrix3x3";
-import { Matrix4x4 } from "../../../maths/Matrix4x4";
-import { Quaternion } from "../../../maths/Quaternion";
-import { Vector2 } from "../../../maths/Vector2";
-import { Vector3 } from "../../../maths/Vector3";
-import { Vector4 } from "../../../maths/Vector4";
-import { BaseTexture } from "../../../resource/BaseTexture";
-import { Resource } from "../../../resource/Resource";
-import { InternalTexture } from "../../RenderInterface/InternalTexture";
-import { ShaderData, ShaderDataItem, ShaderDataType } from "../../RenderInterface/ShaderData";
-import { DefineDatas } from "../../RenderShader/DefineDatas";
-import { ShaderDefine } from "../../RenderShader/ShaderDefine";
-import { UnifromBufferData } from "../../UniformBufferData";
-import { UniformBufferObject } from "../../UniformBufferObject";
+import { Color } from "../../maths/Color";
+import { Matrix3x3 } from "../../maths/Matrix3x3";
+import { Matrix4x4 } from "../../maths/Matrix4x4";
+import { Quaternion } from "../../maths/Quaternion";
+import { Vector2 } from "../../maths/Vector2";
+import { Vector3 } from "../../maths/Vector3";
+import { Vector4 } from "../../maths/Vector4";
+import { BaseTexture } from "../../resource/BaseTexture";
+import { Resource } from "../../resource/Resource";
+import { IClone } from "../../utils/IClone";
+import { DefineDatas } from "../RenderShader/DefineDatas";
+import { ShaderDefine } from "../RenderShader/ShaderDefine";
+import { UnifromBufferData } from "../UniformBufferData";
+import { UniformBufferObject } from "../UniformBufferObject";
+import { InternalTexture } from "./InternalTexture";
 
-
-export enum NativeShaderDataType {
-    Number32,
+export type uboParams = { ubo: UniformBufferObject; uboBuffer: UnifromBufferData };
+export enum ShaderDataType {
+    Int,
+    Bool,
+    Float,
     Vector2,
     Vector3,
     Vector4,
+    Color,
     Matrix4x4,
-    Number32Array,
-    Texture,
-    ShaderDefine,
-    UBO,
+    Texture2D,
+    TextureCube,
+    Buffer,
+    Matrix3x3,
 }
 
-export class NativeShaderData extends ShaderData {
-    nativeObjID: number;
-    _nativeObj: any;
+export type ShaderDataItem = number | boolean | Vector2 | Vector3 | Vector4 | Color | Matrix4x4 | BaseTexture | Float32Array | Matrix3x3;
 
+export function ShaderDataDefaultValue(type: ShaderDataType) {
+    switch (type) {
+        case ShaderDataType.Int:
+            return 0;
+        case ShaderDataType.Bool:
+            return false;
+        case ShaderDataType.Float:
+            return 0;
+        case ShaderDataType.Vector2:
+            return Vector2.ZERO;
+        case ShaderDataType.Vector3:
+            return Vector3.ZERO;
+        case ShaderDataType.Vector4:
+            return Vector4.ZERO;
+        case ShaderDataType.Color:
+            return Color.BLACK;
+        case ShaderDataType.Matrix4x4:
+            return Matrix4x4.DEFAULT;
+        case ShaderDataType.Matrix3x3:
+            return Matrix3x3.DEFAULT;
+    }
+    return null;
+}
+
+/**
+ * 着色器数据类。
+ */
+export class ShaderData implements IClone {
+    /**@internal */
+    protected _ownerResource: Resource;
     /**
      * @internal	
      */
     constructor(ownerResource: Resource = null) {
-        super(ownerResource)
-        // this._initData();
-        this._nativeObj = new (window as any).conchShaderData();
-
+        this._ownerResource = ownerResource;
     }
+
+
     /**
-         * @internal
-         * 增加一个UBO Block
-         * @param key 
-         * @param ubo 
-         * @param uboData 
-         */
+     * @internal
+     * 增加一个UBO Block
+     * @param key 
+     * @param ubo 
+     * @param uboData 
+     */
     _addCheckUBO(key: string, ubo: UniformBufferObject, uboData: UnifromBufferData) {
-        //throw new Error("Method not implemented.");
+        throw new Error("Method not implemented.");
     }
 
     _releaseUBOData() {
-        //throw new Error("Method not implemented.");
+        throw new Error("Method not implemented.");
     }
 
 
@@ -77,7 +107,7 @@ export class NativeShaderData extends ShaderData {
 
     addDefines(define: DefineDatas): void {
         throw new Error("Method not implemented.");
-    }
+	}
 
     /**
      * 移除Shader宏定义。
@@ -296,7 +326,6 @@ export class NativeShaderData extends ShaderData {
      * @param	value 纹理。
      */
     setTexture(index: number, value: BaseTexture): void {
-        
         throw new Error("Method not implemented.");
     }
 
@@ -349,45 +378,47 @@ export class NativeShaderData extends ShaderData {
         throw new Error("Method not implemented.");
     }
 
-    cloneTo(destObject: NativeShaderData) {
-        // var dest: NativeShaderData = <NativeShaderData>destObject;
-        // for (var k in this._data) {//TODO:需要优化,杜绝is判断，慢
-        //     var value: any = this._data[k];
-        //     if (value != null) {
-        //         if (typeof (value) == 'boolean') {
-        //             destObject.setBool((k as any), value);
-        //         } else if (typeof (value) == 'number') {
-        //             destObject.setNumber(k as any, <number>value);
-        //         } else if (value instanceof Vector2) {
-        //             destObject.setVector2(k as any, <Vector2>value);
-        //         } else if (value instanceof Vector3) {
-        //             destObject.setVector3(k as any, <Vector3>value);
-        //         } else if (value instanceof Vector4) {
-        //             destObject.setVector(k as any, <Vector4>value);
-        //         } else if (value instanceof Matrix4x4) {
-        //             destObject.setMatrix4x4(k as any, <Matrix4x4>value);
-        //         } else if (value instanceof BaseTexture) {
-        //             destObject.setTexture(k as any, value);
-        //         }
-        //     }
-        // }
-        // this._defineDatas.cloneTo(dest._defineDatas);
-        // this._gammaColorMap.forEach((color, index) => {
-        //     destObject._gammaColorMap.set(index, color.clone());
-        // })
+    /**
+     * get shader data
+     * @deprecated
+     * @param index uniform ID
+     * @returns 
+     */
+    getValueData(index: number): any {
+        throw new Error("Method not implemented.");
     }
+
+    /**
+     * 克隆。
+     * @param	destObject 克隆源。
+     */
+    cloneTo(destObject: ShaderData): void {
+        throw new Error("Method not implemented.");
+    }
+
+    /**
+     * clone UBO Data
+     * @internal
+     * @param uboDatas 
+     */
+    _cloneUBO(uboDatas: Map<string, uboParams>) {
+        throw new Error("Method not implemented.");
+    }
+
     /**
      * 克隆。
      * @return	 克隆副本。
      */
     clone(): any {
-        var dest: NativeShaderData = new NativeShaderData();
-        this.cloneTo(dest);
-        return dest;
+        throw new Error("Method not implemented.");
     }
+
+    reset() {
+        throw new Error("Method not implemented.");
+    }
+
     destroy(): void {
-        super.destroy();
-        this._nativeObj.destroy();
-        this._nativeObj = null;
+        throw new Error("Method not implemented.");
     }
 }
+

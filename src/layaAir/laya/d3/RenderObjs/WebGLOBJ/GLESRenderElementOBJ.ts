@@ -1,10 +1,10 @@
 import { IRenderElement } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderElement";
 import { IRenderGeometryElement } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderGeometryElement";
 import { DefineDatas } from "../../../RenderEngine/RenderShader/DefineDatas";
-import { ShaderData } from "../../../RenderEngine/RenderShader/ShaderData";
 import { ShaderInstance } from "../../../RenderEngine/RenderShader/ShaderInstance";
 import { ShaderPass } from "../../../RenderEngine/RenderShader/ShaderPass";
 import { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
+import { WebShaderData } from "../../../RenderEngine/RenderShader/WebShaderData";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { SingletonList } from "../../../utils/SingletonList";
 import { IRenderContext3D } from "../../RenderDriverLayer/IRenderContext3D";
@@ -23,11 +23,11 @@ export class GLESRenderElementOBJ implements IRenderElement {
 
     _shaderInstances: SingletonList<ShaderInstance>;
 
-    _materialShaderData: ShaderData;
+    _materialShaderData: WebShaderData;
 
     _materialRenderQueue: number;
 
-    _renderShaderData: ShaderData;
+    _renderShaderData: WebShaderData;
 
     _transform: Transform3D;
 
@@ -67,8 +67,8 @@ export class GLESRenderElementOBJ implements IRenderElement {
     _render(context: IRenderContext3D): void {
         var forceInvertFace: boolean = context.invertY;
         var updateMark: number = context.cameraUpdateMask;
-        var sceneShaderData: ShaderData = context.sceneData;
-        var cameraShaderData: ShaderData = context.cameraData;
+        var sceneShaderData = context.sceneData as WebShaderData;
+        var cameraShaderData = context.cameraData as WebShaderData;
         if (this._isRender) {
             var passes: ShaderInstance[] = this._shaderInstances.elements;
             for (var j: number = 0, m: number = this._shaderInstances.length; j < m; j++) {

@@ -3,10 +3,10 @@ import UnlitFS from "./Unlit.fs";
 import DepthVS from "../depth/Depth.vs";
 import DepthFS from "../depth/Depth.fs";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
-import { ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData";
 import { Color } from "../../../maths/Color";
 import { Vector4 } from "../../../maths/Vector4";
 import { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
+import { ShaderDataType } from "../../../RenderEngine/RenderInterface/ShaderData";
 
 
 export class UnlitShaderInit {

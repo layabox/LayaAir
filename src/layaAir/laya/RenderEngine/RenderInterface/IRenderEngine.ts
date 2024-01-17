@@ -5,7 +5,6 @@ import { RenderCapable } from "../RenderEnum/RenderCapable";
 import { RenderClearFlag } from "../RenderEnum/RenderClearFlag";
 import { RenderParams } from "../RenderEnum/RenderParams";
 import { RenderStatisticsInfo } from "../RenderEnum/RenderStatInfo";
-import { ShaderDataType } from "../RenderShader/ShaderData";
 import { RenderStateCommand } from "../RenderStateCommand";
 import { IRender2DContext } from "./IRender2DContext";
 import { IRenderBuffer } from "./IRenderBuffer";
@@ -15,6 +14,7 @@ import { IRenderShaderInstance } from "./IRenderShaderInstance";
 import { IRenderVertexState } from "./IRenderVertexState";
 import { ITextureContext } from "./ITextureContext";
 import { InternalTexture } from "./InternalTexture";
+import { ShaderDataType } from "./ShaderData";
 
 export interface IRenderEngine {
     _context: any;

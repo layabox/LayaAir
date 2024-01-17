@@ -2,7 +2,6 @@ import { LayaGL } from "../../../layagl/LayaGL";
 import { Matrix4x4 } from "../../../maths/Matrix4x4";
 import { Vector3 } from "../../../maths/Vector3";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
-import { ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData";
 import { Camera } from "../../core/Camera";
 import { GeometryElement } from "../../core/GeometryElement";
 import { Material } from "../../../resource/Material";
@@ -12,6 +11,7 @@ import { Scene3D } from "../../core/scene/Scene3D";
 import { SkyBox } from "./SkyBox";
 import { SkyDome } from "./SkyDome";
 import { RenderElement } from "../../core/render/RenderElement";
+import { ShaderDataType } from "../../../RenderEngine/RenderInterface/ShaderData";
 
 /**
  * <code>SkyRenderer</code> 类用于实现天空渲染器。

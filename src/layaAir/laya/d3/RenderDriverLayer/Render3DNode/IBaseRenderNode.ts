@@ -1,5 +1,5 @@
 import { IRenderElement } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderElement";
-import { ShaderData } from "../../../RenderEngine/RenderShader/ShaderData";
+import { ShaderData } from "../../../RenderEngine/RenderInterface/ShaderData";
 import { Vector4 } from "../../../maths/Vector4";
 import { Material } from "../../../resource/Material";
 import { Transform3D } from "../../core/Transform3D";

@@ -142,12 +142,9 @@ export class UniformBufferObject extends Buffer {
         var needSubData: boolean = !(bufferOffset == 0 && byteCount == this.byteLength);
         if (needSubData) {
             var subData: Uint8Array = new Uint8Array(buffer.buffer, bufferOffset, byteCount);
-            //bufferSubData(this._bufferType, bufferOffset, subData);
             this._glBuffer.setData(subData,bufferOffset);
         }
         else {
-            // let gl = (LayaGL.instance as WebGL2RenderingContext);                                                 
-            // gl.bufferSubData(this._bufferType, bufferOffset, buffer, 0, buffer.length);
             this._glBuffer.setDataEx(buffer,bufferOffset,buffer.length);
         }
     }
@@ -176,9 +173,7 @@ export class UniformBufferObject extends Buffer {
         let datalength = bufferData.getbyteLength();//offset
         let reallength = bufferData._realByte;//update Count
         bufferData._resetUpdateFlag();
-        //let gl = (LayaGL.instance as WebGL2RenderingContext);
         this.bind();
-        //gl.bufferSubData(this._bufferType, offset * datalength, bufferData._buffer, 0, reallength / 4);
         this._glBuffer.setDataEx(bufferData._buffer,offset * datalength,reallength / 4);
     }
 

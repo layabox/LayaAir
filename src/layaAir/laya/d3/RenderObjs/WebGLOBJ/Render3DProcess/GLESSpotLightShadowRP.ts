@@ -1,7 +1,7 @@
 
 import { RenderClearFlag } from "../../../../RenderEngine/RenderEnum/RenderClearFlag";
 import { InternalRenderTarget } from "../../../../RenderEngine/RenderInterface/InternalRenderTarget";
-import { ShaderData } from "../../../../RenderEngine/RenderShader/ShaderData";
+import { WebShaderData } from "../../../../RenderEngine/RenderShader/WebShaderData";
 import { Color } from "../../../../maths/Color";
 import { MathUtils3D } from "../../../../maths/MathUtils3D";
 import { Matrix4x4 } from "../../../../maths/Matrix4x4";
@@ -26,7 +26,7 @@ import { GLESSpotLight } from "../RenderModuleData/GLESSpotLight";
 import { GLESCullUtil } from "./GLESRenderUtil.ts/GLESCullUtil";
 import { GLESRenderQueueList } from "./GLESRenderUtil.ts/GLESRenderListQueue";
 export class ShadowSpotData {
-    cameraShaderValue: ShaderData;
+    cameraShaderValue: WebShaderData;
     position: Vector3 = new Vector3;
     offsetX: number;
     offsetY: number;
@@ -107,7 +107,7 @@ export class GLESSpotLightShadowRP implements ISpotLightShadowRP {
      * @param list 
      */
     render(context: GLESRenderContext3D, list: GLESBaseRenderNode[], count: number): void {
-        var shaderValues: ShaderData = context.sceneData;
+        var shaderValues: WebShaderData = context.sceneData;
         context.pipelineMode = "ShadowCaster";
         context.setRenderTarget(this.destTarget);
         var shadowSpotData: ShadowSpotData = this._shadowSpotData;
@@ -190,10 +190,10 @@ export class GLESSpotLightShadowRP implements ISpotLightShadowRP {
         out.setValue(depthBias, normalBias, 0.0, 0.0);
     }
 
-    private _setupShadowCasterShaderValues(shaderValues: ShaderData, shadowSliceData: ShadowSpotData, shadowparams: Vector4, shadowBias: Vector4): void {
+    private _setupShadowCasterShaderValues(shaderValues: WebShaderData, shadowSliceData: ShadowSpotData, shadowparams: Vector4, shadowBias: Vector4): void {
         shaderValues.setVector(ShadowCasterPass.SHADOW_BIAS, shadowBias);
         shaderValues.setVector(ShadowCasterPass.SHADOW_PARAMS, shadowparams);
-        var cameraSV: ShaderData = shadowSliceData.cameraShaderValue;//TODO:should optimization with shader upload.
+        var cameraSV: WebShaderData = shadowSliceData.cameraShaderValue;//TODO:should optimization with shader upload.
         cameraSV.setMatrix4x4(BaseCamera.VIEWMATRIX, shadowSliceData.viewMatrix);
         cameraSV.setMatrix4x4(BaseCamera.PROJECTMATRIX, shadowSliceData.projectionMatrix);
         cameraSV.setMatrix4x4(BaseCamera.VIEWPROJECTMATRIX, shadowSliceData.viewProjectMatrix);
@@ -217,7 +217,7 @@ export class GLESSpotLightShadowRP implements ISpotLightShadowRP {
      * @internal
      * @param shaderValues 渲染数据
      */
-    private _applyRenderData(sceneData: ShaderData, cameraData: ShaderData): void {
+    private _applyRenderData(sceneData: WebShaderData, cameraData: WebShaderData): void {
         var spotLight: GLESSpotLight = this._light;
         switch (spotLight.shadowMode) {
             case ShadowMode.Hard:

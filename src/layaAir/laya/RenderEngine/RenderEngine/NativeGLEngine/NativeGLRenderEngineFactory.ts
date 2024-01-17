@@ -2,10 +2,10 @@ import { NativeRenderStateCommand } from "../../../RenderEngine/RenderEngine/Nat
 import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { IRenderEngineFactory } from "../../../RenderEngine/RenderInterface/IRenderEngineFactory";
 import { RenderState } from "../../../RenderEngine/RenderShader/RenderState";
-import { ShaderData } from "../../../RenderEngine/RenderShader/ShaderData";
 import { ShaderInstance } from "../../../RenderEngine/RenderShader/ShaderInstance";
 import { UniformBufferObject } from "../../../RenderEngine/UniformBufferObject";
 import { ShaderCompileDefineBase, ShaderProcessInfo } from "../../../webgl/utils/ShaderCompileDefineBase";
+import { ShaderData } from "../../RenderInterface/ShaderData";
 import { NativeCommandUniformMap } from "./NativeCommandUniformMap";
 import { NativeRenderState } from "./NativeRenderState";
 import { NativeShaderData } from "./NativeShaderData";

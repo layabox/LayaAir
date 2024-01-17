@@ -2,10 +2,10 @@
 import LensFlareVS from "../../../../shader/files/postProcess/LensFlare/LensFlare.vs";
 import LensFlareFS from "../../../../shader/files/postProcess/LensFlare/LensFlare.fs";
 import { Shader3D } from "../../../../../RenderEngine/RenderShader/Shader3D";
-import { ShaderDataType } from "../../../../../RenderEngine/RenderShader/ShaderData";
 import { SubShader } from "../../../../../RenderEngine/RenderShader/SubShader";
 import { Color } from "../../../../../maths/Color";
 import { LensFlareElementGeomtry } from "./LensFlareGeometry";
+import { ShaderDataType } from "../../../../../RenderEngine/RenderInterface/ShaderData";
 
 export class LensFlareShaderInit {
 

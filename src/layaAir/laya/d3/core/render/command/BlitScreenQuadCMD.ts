@@ -1,5 +1,4 @@
 import { Shader3D } from "../../../../RenderEngine/RenderShader/Shader3D";
-import { ShaderData } from "../../../../RenderEngine/RenderShader/ShaderData";
 import { BaseTexture } from "../../../../resource/BaseTexture";
 import { Stat } from "../../../../utils/Stat";
 import { Viewport } from "../../../math/Viewport";
@@ -13,6 +12,7 @@ import { Camera } from "../../Camera";
 import { Vector4 } from "../../../../maths/Vector4";
 import { RenderTexture } from "../../../../resource/RenderTexture";
 import { Laya3DRender } from "../../../RenderObjs/Laya3DRender";
+import { ShaderData } from "../../../../RenderEngine/RenderInterface/ShaderData";
 
 export class BlitScreenQuadCMD extends Command {
 	/**@internal */

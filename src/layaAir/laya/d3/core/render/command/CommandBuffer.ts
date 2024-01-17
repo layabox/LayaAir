@@ -17,7 +17,6 @@ import { DrawMeshInstancedCMD } from "./DrawMeshInstancedCMD";
 import { MaterialInstancePropertyBlock } from "./MaterialInstancePropertyBlock";
 import { RenderCapable } from "../../../../RenderEngine/RenderEnum/RenderCapable";
 import { Shader3D } from "../../../../RenderEngine/RenderShader/Shader3D";
-import { ShaderData, ShaderDataType } from "../../../../RenderEngine/RenderShader/ShaderData";
 import { Stat } from "../../../../utils/Stat";
 import { Color } from "../../../../maths/Color";
 import { Matrix4x4 } from "../../../../maths/Matrix4x4";
@@ -26,6 +25,7 @@ import { Vector3 } from "../../../../maths/Vector3";
 import { Vector4 } from "../../../../maths/Vector4";
 import { RenderTexture } from "../../../../resource/RenderTexture";
 import { LayaGL } from "../../../../layagl/LayaGL";
+import { ShaderData, ShaderDataType } from "../../../../RenderEngine/RenderInterface/ShaderData";
 
 /**
  * <code>CommandBuffer</code> 类用于创建命令流。

@@ -8,7 +8,6 @@ import AmbientOcclusion from "../../../shader/files/postProcess/ScalableAO/Ambie
 import { RenderTargetFormat } from "../../../../RenderEngine/RenderEnum/RenderTargetFormat";
 import { WrapMode } from "../../../../RenderEngine/RenderEnum/WrapMode";
 import { Shader3D } from "../../../../RenderEngine/RenderShader/Shader3D";
-import { ShaderDataType, ShaderData } from "../../../../RenderEngine/RenderShader/ShaderData";
 import { Viewport } from "../../../math/Viewport";
 import { Camera } from "../../Camera";
 import { CommandBuffer } from "../command/CommandBuffer";
@@ -25,6 +24,7 @@ import { SubShader } from "../../../../RenderEngine/RenderShader/SubShader";
 import { VertexMesh } from "../../../../RenderEngine/RenderShader/VertexMesh";
 import { LayaGL } from "../../../../layagl/LayaGL";
 import { DepthTextureMode } from "../../../RenderDriverLayer/Render3DProcess/IForwardAddClusterRP";
+import { ShaderDataType, ShaderData } from "../../../../RenderEngine/RenderInterface/ShaderData";
 
 /**
  * AO质量

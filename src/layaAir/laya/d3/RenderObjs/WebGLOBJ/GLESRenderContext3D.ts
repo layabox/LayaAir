@@ -2,7 +2,7 @@ import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFla
 import { InternalRenderTarget } from "../../../RenderEngine/RenderInterface/InternalRenderTarget";
 import { DefineDatas } from "../../../RenderEngine/RenderShader/DefineDatas";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
-import { ShaderData } from "../../../RenderEngine/RenderShader/ShaderData";
+import { WebShaderData } from "../../../RenderEngine/RenderShader/WebShaderData";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { Color } from "../../../maths/Color";
 import { Vector4 } from "../../../maths/Vector4";
@@ -15,14 +15,14 @@ import { GLESCameraNodeData, GLESSceneNodeData } from "./RenderModuleData/GLESMo
 
 
 export class GLESRenderContext3D implements IRenderContext3D {
-    private _globalShaderData: ShaderData;
+    private _globalShaderData: WebShaderData;
     /**@internal */
-    private _sceneData: ShaderData;
+    private _sceneData: WebShaderData;
     /**@internal */
     private _sceneModuleData: GLESSceneNodeData;
     private _cameraModuleData: GLESCameraNodeData;
     /**@internal */
-    private _cameraData: ShaderData;
+    private _cameraData: WebShaderData;
     /**@internal */
     private _renderTarget: InternalRenderTarget;
     /**@internal */
@@ -47,20 +47,20 @@ export class GLESRenderContext3D implements IRenderContext3D {
     private _clearStencil: number;
 
 
-    get sceneData(): ShaderData {
+    get sceneData(): WebShaderData {
         return this._sceneData;
     }
 
-    set sceneData(value: ShaderData) {
+    set sceneData(value: WebShaderData) {
         this._sceneData = value;
     }
 
 
-    get cameraData(): ShaderData {
+    get cameraData(): WebShaderData {
         return this._cameraData;
     }
 
-    set cameraData(value: ShaderData) {
+    set cameraData(value: WebShaderData) {
         this._cameraData = value;
     }
 
@@ -81,11 +81,11 @@ export class GLESRenderContext3D implements IRenderContext3D {
         this._cameraModuleData = value;
     }
 
-    get globalShaderData(): ShaderData {
+    get globalShaderData(): WebShaderData {
         return this._globalShaderData;
     }
 
-    set globalShaderData(value: ShaderData) {
+    set globalShaderData(value: WebShaderData) {
         this._globalShaderData = value;
     }
 

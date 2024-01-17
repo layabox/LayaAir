@@ -11,7 +11,6 @@ import { Sprite3D } from "../Sprite3D";
 import { ShurikenParticleMaterial } from "./ShurikenParticleMaterial";
 import { Component } from "../../../components/Component";
 import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
-import { ShaderData, ShaderDataType } from "../../../RenderEngine/RenderShader/ShaderData";
 import { Stat } from "../../../utils/Stat";
 import { Bounds } from "../../math/Bounds";
 import { LayaEnv } from "../../../../LayaEnv";
@@ -19,6 +18,7 @@ import { Vector2 } from "../../../maths/Vector2";
 import { Vector3 } from "../../../maths/Vector3";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { IRenderContext3D } from "../../RenderDriverLayer/IRenderContext3D";
+import { ShaderData, ShaderDataType } from "../../../RenderEngine/RenderInterface/ShaderData";
 
 
 /**
