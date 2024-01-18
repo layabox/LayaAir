@@ -1,6 +1,7 @@
 import { Browser } from "../../../utils/Browser";
 import { ClassUtils } from "../../../utils/ClassUtils";
 import { BlueprintConst } from "../../core/BlueprintConst";
+import { IRuntimeDataManger } from "../../core/interface/IRuntimeDataManger";
 import { TBPCNode } from "../../datas/types/BlueprintTypes";
 import { BlueprintPinRuntime } from "../BlueprintPinRuntime";
 import { IBPRutime } from "../interface/IBPRutime";
@@ -28,33 +29,33 @@ export class BlueprintNewTargetNode extends BlueprintRuntimeBaseNode {
         }
     }
 
-    step(context: IRunAble, fromExcute: boolean, runner: IBPRutime, enableDebugPause: boolean, runId: number): number {
+    step(context: IRunAble, runTimeData: IRuntimeDataManger, fromExcute: boolean, runner: IBPRutime, enableDebugPause: boolean, runId: number): number {
         if (fromExcute && context.beginExcute(this, runner, enableDebugPause)) {
             return BlueprintConst.MAX_CODELINE;
         }
-        let _parmsArray: any[] = context.getDataById(this.nid).getParamsArray(runId);;
+        let _parmsArray: any[] = runTimeData.getDataById(this.nid).getParamsArray(runId);;
         _parmsArray.length = 0;
         const inputPins = this.inPutParmPins;
         for (let i = 0, n = inputPins.length; i < n; i++) {
             const curInput = inputPins[i];
             let from = curInput.linkTo[0];
             if (from) {
-                (from as BlueprintPinRuntime).step(context, runner,runId);
-                context.parmFromOtherPin(curInput, from as BlueprintPinRuntime, _parmsArray,runId);
+                (from as BlueprintPinRuntime).step(context, runTimeData, runner, runId);
+                context.parmFromOtherPin(curInput, runTimeData, from as BlueprintPinRuntime, _parmsArray, runId);
             }
             else {
-                context.parmFromSelf(curInput, _parmsArray,runId);
+                context.parmFromSelf(curInput, runTimeData, _parmsArray, runId);
             }
         }
-        context.parmFromOutPut(this.outPutParmPins, _parmsArray);
+        context.parmFromOutPut(this.outPutParmPins, runTimeData, _parmsArray);
 
 
         let result = Reflect.construct(this.cls, _parmsArray);
 
-        context.setPinData(this.outPutParmPins[0], result,runId);
+        runTimeData.setPinData(this.outPutParmPins[0], result, runId);
         if (fromExcute) {
             context.endExcute(this);
         }
-        return this.next(context, _parmsArray, runner, enableDebugPause, runId);
+        return this.next(context, runTimeData, _parmsArray, runner, enableDebugPause, runId);
     }
 }

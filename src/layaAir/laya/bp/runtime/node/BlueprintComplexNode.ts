@@ -5,6 +5,7 @@ import { BlueprintPinRuntime } from "../BlueprintPinRuntime";
 import { BlueprintRuntimeBaseNode } from "./BlueprintRuntimeBaseNode";
 import { IBPRutime } from "../interface/IBPRutime";
 import { BlueprintConst } from "../../core/BlueprintConst";
+import { IRuntimeDataManger } from "../../core/interface/IRuntimeDataManger";
 
 export class BlueprintComplexNode extends BlueprintRuntimeBaseNode {
     /**
@@ -18,7 +19,7 @@ export class BlueprintComplexNode extends BlueprintRuntimeBaseNode {
         this.outExcutes = [];
     }
 
-    next(context: IRunAble, parmsArray: any[], runner: IBPRutime, enableDebugPause: boolean, runId: number): number{
+    next(context: IRunAble, runTimeData: IRuntimeDataManger, parmsArray: any[], runner: IBPRutime, enableDebugPause: boolean, runId: number): number{
         //context.find()
         let result = this.find(this.outExcutes, ...parmsArray);
         if(result.linkTo.length){

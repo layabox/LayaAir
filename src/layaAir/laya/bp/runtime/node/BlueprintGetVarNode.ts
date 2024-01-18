@@ -8,6 +8,7 @@ import { BlueprintRuntimeBaseNode } from "./BlueprintRuntimeBaseNode";
 import { BlueprintUtil } from "../../core/BlueprintUtil";
 import { IBPRutime } from "../interface/IBPRutime";
 import { BlueprintPinRuntime } from "../BlueprintPinRuntime";
+import { IRuntimeDataManger } from "../../core/interface/IRuntimeDataManger";
 
 export class BlueprintGetVarNode extends BlueprintRuntimeBaseNode {
     private _varKey: string;
@@ -20,9 +21,9 @@ export class BlueprintGetVarNode extends BlueprintRuntimeBaseNode {
         this._varKey = cfg ? cfg.name : BlueprintUtil.constAllVars[node.dataId].name;
     }
 
-    step(context: IRunAble, fromExcute: boolean, runner: IBPRutime, enableDebugPause: boolean, runId: number): number {
+    step(context: IRunAble,runTimeData:IRuntimeDataManger, fromExcute: boolean, runner: IBPRutime, enableDebugPause: boolean, runId: number): number {
         
-        let _parmsArray: any[] = context.getDataById(this.nid).getParamsArray(runId);
+        let _parmsArray: any[] = runTimeData.getDataById(this.nid).getParamsArray(runId);
         _parmsArray.length = 0;
         
         const inputPins = this.inPutParmPins;
@@ -30,11 +31,11 @@ export class BlueprintGetVarNode extends BlueprintRuntimeBaseNode {
         if(curInput){
             let from = curInput.linkTo[0];
             if (from) {
-                (from as BlueprintPinRuntime).step(context, runner, runId);
-                context.parmFromOtherPin(curInput, from as BlueprintPinRuntime, _parmsArray, runId);
+                (from as BlueprintPinRuntime).step(context,runTimeData, runner, runId);
+                context.parmFromOtherPin(curInput,runTimeData, from as BlueprintPinRuntime, _parmsArray, runId);
             }
             else {
-                context.parmFromSelf(curInput, _parmsArray, runId);
+                context.parmFromSelf(curInput,runTimeData, _parmsArray, runId);
             }
         }
         else{
@@ -46,9 +47,9 @@ export class BlueprintGetVarNode extends BlueprintRuntimeBaseNode {
         context.parmFromCustom(_parmsArray, context, "context");
 
         if (this.nativeFun) {
-            let result = context.excuteFun(this.nativeFun, this.outPutParmPins, BlueprintStaticFun, _parmsArray, runId);
+            let result = context.excuteFun(this.nativeFun, this.outPutParmPins, runTimeData,BlueprintStaticFun, _parmsArray, runId);
             if (result == undefined) {
-                context.setPinData(this.outPutParmPins[0], result, runId);
+                runTimeData.setPinData(this.outPutParmPins[0], result, runId);
             }
         }
         return BlueprintConst.MAX_CODELINE;

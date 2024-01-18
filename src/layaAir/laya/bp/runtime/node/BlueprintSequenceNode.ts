@@ -4,10 +4,11 @@ import { BlueprintPinRuntime } from "../BlueprintPinRuntime";
 import { BlueprintComplexNode } from "./BlueprintComplexNode";
 import { BlueprintConst } from "../../core/BlueprintConst";
 import { IBPRutime } from "../interface/IBPRutime";
+import { IRuntimeDataManger } from "../../core/interface/IRuntimeDataManger";
 
 export class BlueprintSequenceNode extends BlueprintComplexNode {
 
-    next(context: IRunAble, parmsArray: any[], runner: IBPRutime, enableDebugPause: boolean, runId: number): number {
+    next(context: IRunAble, runTimeData: IRuntimeDataManger, parmsArray: any[], runner: IBPRutime, enableDebugPause: boolean, runId: number): number {
         for (let i = 0, n = this.outExcutes.length; i < n; i++) {
             let item = this.outExcutes[i];
             let pin = (item.linkTo[0] as BlueprintPinRuntime);
@@ -17,7 +18,7 @@ export class BlueprintSequenceNode extends BlueprintComplexNode {
                     context.pushBack(pin.owner);
                 }
                 else {
-                    runner.runByContext(context, pin.owner, enableDebugPause, null, runId);
+                    runner.runByContext(context, runTimeData, pin.owner, enableDebugPause, null, runId);
                 }
                 //item.excute(context);
             }

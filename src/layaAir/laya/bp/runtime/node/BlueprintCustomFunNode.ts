@@ -1,5 +1,6 @@
 import { IBluePrintSubclass } from "../../core/interface/IBluePrintSubclass";
 import { INodeManger } from "../../core/interface/INodeManger";
+import { IRuntimeDataManger } from "../../core/interface/IRuntimeDataManger";
 import { TBPEventProperty, TBPNode } from "../../datas/types/BlueprintTypes";
 import { BlueprintFactory } from "../BlueprintFactory";
 import { IRunAble } from "../interface/IRunAble";
@@ -16,20 +17,20 @@ export class BlueprintCustomFunNode extends BlueprintFunNode {
         }
     }
 
-    protected excuteFun(context: IRunAble, caller: IBluePrintSubclass, parmsArray: any[],runId: number) {
+    protected excuteFun(context: IRunAble, runTimeData: IRuntimeDataManger, caller: IBluePrintSubclass, parmsArray: any[], runId: number) {
         //TODO 
         if (caller && caller[BlueprintFactory.contextSymbol]) {
-            let primise:Promise<any>;
-            let cb:any;
-            let result:any;
-            result = caller[BlueprintFactory.bpSymbol].runCustomFun(caller[BlueprintFactory.contextSymbol], this.functionID, parmsArray,()=>{
-                if(result===false&&cb){
+            let primise: Promise<any>;
+            let cb: any;
+            let result: any;
+            result = caller[BlueprintFactory.bpSymbol].runCustomFun(caller[BlueprintFactory.contextSymbol], this.functionID, parmsArray, () => {
+                if (result === false && cb) {
                     cb();
                 }
-            },runId);
+            }, runId);
             if (result === false) {
                 primise = new Promise((resolve, reject) => {
-                    cb=resolve;
+                    cb = resolve;
                 });
                 return primise;
             }

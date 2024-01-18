@@ -1,4 +1,5 @@
 import { IExcuteListInfo } from "../../core/interface/IExcuteListInfo";
+import { IRuntimeDataManger } from "../../core/interface/IRuntimeDataManger";
 import { BlueprintPinRuntime } from "../BlueprintPinRuntime";
 import { IRunAble } from "../interface/IRunAble";
 import { BlueprintRuntimeBaseNode } from "../node/BlueprintRuntimeBaseNode";
@@ -6,19 +7,12 @@ import { BlueprintRunBase } from "./BlueprintRunBase";
 import { RuntimeNodeData } from "./RuntimeNodeData";
 
 export class BlueprintGenCodeNode extends BlueprintRunBase implements IRunAble {
+    getDataMangerByID(id: number | symbol): IRuntimeDataManger {
+        throw new Error("Method not implemented.");
+    }
     initData(key: number | Symbol, nodeMap: Map<number, BlueprintRuntimeBaseNode>): void {
         throw new Error("Method not implemented.");
     }
-    getPinData(pin: BlueprintPinRuntime) {
-        throw new Error("Method not implemented.");
-    }
-    setPinData(pin: BlueprintPinRuntime, value: any, runId: number): void {
-        throw new Error("Method not implemented.");
-    }
-    getDataById(nid: number): RuntimeNodeData {
-        throw new Error("Method not implemented.");
-    }
-
 
     debuggerPause: boolean;
     pushBack(excuteNode: IExcuteListInfo): void {
@@ -71,25 +65,25 @@ export class BlueprintGenCodeNode extends BlueprintRunBase implements IRunAble {
         }
     }
 
-    parmFromOtherPin(current: BlueprintPinRuntime, from: BlueprintPinRuntime, parmsArray: any[], runId: number): void {
+    parmFromOtherPin(current: BlueprintPinRuntime, runtimeDataMgr: IRuntimeDataManger, from: BlueprintPinRuntime, parmsArray: any[], runId: number): void {
         let last = this.currentFun.pop();
         last = "let " + current.name + current.owner.id + " = " + last;
         this.currentFun.push(last);
         parmsArray.push(current.name + current.owner.id);
     }
 
-    parmFromSelf(current: BlueprintPinRuntime, parmsArray: any[], runId: number): void {
+    parmFromSelf(current: BlueprintPinRuntime, runtimeDataMgr: IRuntimeDataManger, parmsArray: any[], runId: number): void {
         parmsArray.push(current.getValueCode());
     }
 
-    parmFromOutPut(outPutParmPins: BlueprintPinRuntime[], parmsArray: any[]): void {
+    parmFromOutPut(outPutParmPins: BlueprintPinRuntime[], runtimeDataMgr: IRuntimeDataManger, parmsArray: any[]): void {
     }
 
     parmFromCustom(parmsArray: any[], parm: any, parmname: string): void {
         parmsArray.push(parmname);
     }
 
-    excuteFun(nativeFun: Function, outPutParmPins: BlueprintPinRuntime[], caller: any, parmsArray: any[], runId: number): void {
+    excuteFun(nativeFun: Function, outPutParmPins: BlueprintPinRuntime[], runtimeDataMgr: IRuntimeDataManger, caller: any, parmsArray: any[], runId: number): void {
 
         let a = (nativeFun.name + "(" + parmsArray.join(",") + ");");
         this.currentFun.push(a);
