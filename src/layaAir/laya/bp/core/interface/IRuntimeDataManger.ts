@@ -8,5 +8,5 @@ export interface IRuntimeDataManger {
 
     getPinData(pin: BlueprintPinRuntime, runId: number): any;
 
-    getRuntimePinById(id:string):RuntimePinData 
+    getRuntimePinById(id:string):RuntimePinData; 
 }

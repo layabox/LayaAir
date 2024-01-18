@@ -5,10 +5,13 @@ import { BlueprintComplexNode } from "./BlueprintComplexNode";
 import { BlueprintConst } from "../../core/BlueprintConst";
 import { IBPRutime } from "../interface/IBPRutime";
 import { IRuntimeDataManger } from "../../core/interface/IRuntimeDataManger";
+import { BlueprintPromise } from "../BlueprintPromise";
 
 export class BlueprintSequenceNode extends BlueprintComplexNode {
 
     next(context: IRunAble, runTimeData: IRuntimeDataManger, parmsArray: any[], runner: IBPRutime, enableDebugPause: boolean, runId: number): number {
+        let first = true;
+        let arr: Promise<any>[] = [];
         for (let i = 0, n = this.outExcutes.length; i < n; i++) {
             let item = this.outExcutes[i];
             let pin = (item.linkTo[0] as BlueprintPinRuntime);
@@ -18,24 +21,38 @@ export class BlueprintSequenceNode extends BlueprintComplexNode {
                     context.pushBack(pin.owner);
                 }
                 else {
-                    runner.runByContext(context, runTimeData, pin.owner, enableDebugPause, null, runId);
+                    let cb: any;
+                    let result: boolean;
+                    result = runner.runByContext(context, runTimeData, pin.owner, enableDebugPause, () => {
+                        if (result === false && cb) {
+                            cb();
+                        }
+                    }, /*first ? runId : */-1);
+
+                    if (result === false) {
+                        let promise = new Promise((resolve) => {
+                            cb = resolve;
+                        })
+                        arr.push(promise);
+                    }
                 }
+                first = false;
                 //item.excute(context);
             }
         }
-
-        // this.outExcutes.forEach(item=>{
-        //    let jj= (item.linkTo[0] as BPPinRuntime);
-        //    if(jj){
-        //         runner.runByContext(context,jj.owner.index);
-        //         if(context.debuggerPause){
-        //             debugger;
-        //         }
-        //        //item.excute(context);
-        //    }
-        // });
-        return BlueprintConst.MAX_CODELINE;
-        //this.outExcute.excute(context);
+        if(arr.length>0){
+            let promise = BlueprintPromise.create();
+            Promise.all(arr).then((value) => {
+                promise.index = BlueprintConst.MAX_CODELINE;
+                promise.listIndex = this.listIndex;
+                promise.complete();
+                promise.recover();
+            })
+            return promise as any;
+        }
+        else{
+            return BlueprintConst.MAX_CODELINE; 
+        }
     }
 
     setFunction(fun: Function) {

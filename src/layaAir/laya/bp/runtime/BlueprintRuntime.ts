@@ -93,6 +93,7 @@ export class BlueprintRuntime {
 }
 
 class BluePrintBlock implements INodeManger<BlueprintRuntimeBaseNode>, IBPRutime {
+    private poolIds: number[];
     protected _maxID: number;
     /**
      * block ID 注释
@@ -116,6 +117,7 @@ class BluePrintBlock implements INodeManger<BlueprintRuntimeBaseNode>, IBPRutime
         this._maxID = 0;
         this.excuteList = [];
         this.nodeMap = new Map();
+        this.poolIds = [];
     }
 
 
@@ -185,10 +187,20 @@ class BluePrintBlock implements INodeManger<BlueprintRuntimeBaseNode>, IBPRutime
         return false;
     }
 
+    protected getRunID() {
+        //console.log(">>>>>>>>>>获取节点ID");
+        if (this.poolIds.length > 0) {
+            return this.poolIds.pop();
+        }
+        else {
+            return ++this._maxID;
+        }
+    }
+
 
     runByContext(context: IRunAble, runTimeData: IRuntimeDataManger, node: IExcuteListInfo, enableDebugPause: boolean, cb: Function, runId: number): boolean {
         if (runId == -1) {
-            runId = ++this._maxID;
+            runId = this.getRunID();
         }
         const currentIndex = node.index;
         const excuteAbleList = this.excuteList;
@@ -208,6 +220,8 @@ class BluePrintBlock implements INodeManger<BlueprintRuntimeBaseNode>, IBPRutime
             }
         }
         cb && cb();
+        this.poolIds.push(runId);
+        //console.log(">>>>>>>>>>>>>runID over:" + runId);
         return true;
     }
 }
@@ -238,15 +252,15 @@ class BluePrintMainBlock extends BluePrintBlock {
         context.initData(this.id, this.nodeMap);
         let event = this.eventMap.get(eventName);
         if (event) {
-            this._maxID++;
+            let curRunId = this.getRunID();
             let runtimeDataMgr = context.getDataMangerByID(this.id);
             if (parms) {
                 parms.forEach((value, index) => {
-                    runtimeDataMgr.setPinData(event.outPutParmPins[index], value, this._maxID);
+                    runtimeDataMgr.setPinData(event.outPutParmPins[index], value, curRunId);
                 })
             }
 
-            this.runByContext(context, runtimeDataMgr, event, true, cb, this._maxID);
+            this.runByContext(context, runtimeDataMgr, event, true, cb, curRunId);
             //  event.outExcute.excute(context);
             //let root=event.outExcute.linkTo
             return true;
@@ -287,8 +301,7 @@ class BluePrintFunBlock extends BluePrintBlock {
         let fun = this.funStart;
         if (fun) {
             let runtimeDataMgr = context.getDataMangerByID(this.id);
-            this._maxID++;
-            let curRunId = this._maxID;
+            let curRunId = this.getRunID();
             let returnNode = this.funEnds[0];
             if (returnNode) {
                 let data = runtimeDataMgr.getDataById(returnNode.nid) as BlueprintCustomFunReturnContext;
