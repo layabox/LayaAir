@@ -64,27 +64,14 @@ export class ShaderPass extends ShaderCompileDefineBase {
         Shader3D.debugShaderVariantCollection.add(dbugShaderVariantInfo);
     }
 
-    /**
-     * @override
-     * @internal
-     */
-    withCompile(compileDefine: DefineDatas, IS2d: boolean = false): ShaderInstance {
-        var debugDefineString: string[] = ShaderPass._debugDefineStrings;
-        var debugDefineMask: number[] = ShaderPass._debugDefineMasks;
-        var debugMaskLength: number;
+    private _getCacheShader(compileDefine: DefineDatas) {
         compileDefine._intersectionDefineDatas(this._validDefine);
-        if (Shader3D.debugMode) {//add shader variant info to debug ShaderVariantCollection
-            debugMaskLength = compileDefine._length;
-            this._addDebugShaderVariantCollection(compileDefine, debugDefineString, debugDefineMask);
-        }
-
         var cacheShaders: any = this._cacheSharders;
         var maskLength: number = compileDefine._length;
         if (maskLength > this._cacheShaderHierarchy) {//扩充已缓存ShaderMap
             this._resizeCacheShaderMap(cacheShaders, 0, maskLength);
             this._cacheShaderHierarchy = maskLength;
         }
-
         var mask: Array<number> = compileDefine._mask;
         var endIndex: number = compileDefine._length - 1;
         var maxEndIndex: number = this._cacheShaderHierarchy - 1;
@@ -97,9 +84,11 @@ export class ShaderPass extends ShaderCompileDefineBase {
 
         var cacheKey: number = endIndex < maxEndIndex ? 0 : mask[maxEndIndex];
         var shader: ShaderInstance = cacheShaders[cacheKey];
-        if (shader)
-            return shader;
+        return shader;
+    }
 
+    private _createShaderInstance(IS2d: boolean, compileDefine: DefineDatas): ShaderInstance {
+        var shader: ShaderInstance;
         let shaderProcessInfo: ShaderProcessInfo = new ShaderProcessInfo();
         shaderProcessInfo.is2D = IS2d;
         shaderProcessInfo.vs = this._VS;
@@ -112,8 +101,49 @@ export class ShaderPass extends ShaderCompileDefineBase {
         shaderProcessInfo.defineString = defineString;
 
         shader = LayaGL.renderOBJCreate.createShaderInstance(shaderProcessInfo, this);
+        return shader;
+    }
+    
 
-        cacheShaders[cacheKey] = shader;
+    /**
+     * @override
+     * @internal
+     */
+    withCompile(compileDefine: DefineDatas, IS2d: boolean = false): ShaderInstance {
+
+        // compileDefine._intersectionDefineDatas(this._validDefine);
+
+
+        // var cacheShaders: any = this._cacheSharders;
+        // var maskLength: number = compileDefine._length;
+        // if (maskLength > this._cacheShaderHierarchy) {//扩充已缓存ShaderMap
+        //     this._resizeCacheShaderMap(cacheShaders, 0, maskLength);
+        //     this._cacheShaderHierarchy = maskLength;
+        // }
+
+        // var mask: Array<number> = compileDefine._mask;
+        // var endIndex: number = compileDefine._length - 1;
+        // var maxEndIndex: number = this._cacheShaderHierarchy - 1;
+        // for (var i: number = 0; i < maxEndIndex; i++) {
+        //     var subMask: number = endIndex < i ? 0 : mask[i];
+        //     var subCacheShaders = cacheShaders[subMask];
+        //     (subCacheShaders) || (cacheShaders[subMask] = subCacheShaders = {});
+        //     cacheShaders = subCacheShaders;
+        // }
+
+        // var cacheKey: number = endIndex < maxEndIndex ? 0 : mask[maxEndIndex];
+        // var shader: ShaderInstance = cacheShaders[cacheKey];
+        var shader: ShaderInstance = this._getCacheShader(compileDefine);
+        if (shader)
+            return shader;
+        var debugDefineString: string[] = ShaderPass._debugDefineStrings;
+        var debugDefineMask: number[] = ShaderPass._debugDefineMasks;
+        var debugMaskLength: number;
+        if (Shader3D.debugMode) {//add shader variant info to debug ShaderVariantCollection
+            debugMaskLength = compileDefine._length;
+            this._addDebugShaderVariantCollection(compileDefine, debugDefineString, debugDefineMask);
+        }
+        //cacheShaders[cacheKey] = this._createShaderInstance(IS2d, compileDefine);
 
         if (Shader3D.debugMode) {
             var defStr: string = "";

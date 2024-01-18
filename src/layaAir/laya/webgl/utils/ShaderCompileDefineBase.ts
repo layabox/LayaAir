@@ -78,14 +78,8 @@ export class ShaderCompileDefineBase {
      * @internal
      */
     withCompile(compileDefine: DefineDatas): ShaderInstance {
-        var debugDefineString: string[] = ShaderCompileDefineBase._debugDefineString;
-        var debugDefineMask: number[] = ShaderCompileDefineBase._debugDefineMask;
-        var debugMaskLength: number;
+
         compileDefine._intersectionDefineDatas(this._validDefine);
-        if (Shader3D.debugMode) {//add shader variant info to debug ShaderVariantCollection
-            debugMaskLength = compileDefine._length;
-        }
-        //compileDefine.addDefineDatas(Scene3D._configDefineValues);
 
         var cacheShaders: any = this._cacheSharders;
         var maskLength: number = compileDefine._length;
@@ -109,6 +103,12 @@ export class ShaderCompileDefineBase {
         if (shader)
             return shader;
 
+        var debugDefineString: string[] = ShaderCompileDefineBase._debugDefineString;
+        var debugDefineMask: number[] = ShaderCompileDefineBase._debugDefineMask;
+        var debugMaskLength: number;
+        if (Shader3D.debugMode) {//add shader variant info to debug ShaderVariantCollection
+            debugMaskLength = compileDefine._length;
+        }
         var defineString: string[] = ShaderCompileDefineBase._defineString;
         //TODO
         Shader3D._getNamesByDefineData(compileDefine, defineString);

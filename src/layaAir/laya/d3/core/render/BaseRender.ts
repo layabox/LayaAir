@@ -480,10 +480,10 @@ export class BaseRender extends Component {
         this._baseRenderNode.sortingFudge = 0.0;
         this.reflectionMode = ReflectionProbeMode.simple;
         if (!!this._calculateBoundingBox) {
-            this._baseRenderNode._calculateBoundingBox = this._calculateBoundingBox;
+            this._baseRenderNode.set_renderUpdatePreCall(this, this._calculateBoundingBox);
         }
         if (!!this._renderUpdate) {
-            this._baseRenderNode._renderUpdatePre = this._renderUpdate;
+            this._baseRenderNode.set_renderUpdatePreCall(this, this._renderUpdate);
         }
         this.runInEditor = true;
         this._asynNative = true;

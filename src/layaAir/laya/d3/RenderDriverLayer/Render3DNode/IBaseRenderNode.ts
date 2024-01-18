@@ -5,7 +5,6 @@ import { Material } from "../../../resource/Material";
 import { Transform3D } from "../../core/Transform3D";
 import { IrradianceMode } from "../../core/render/BaseRender";
 import { Bounds } from "../../math/Bounds";
-import { IRenderContext3D } from "../IRenderContext3D";
 import { ILightMapData } from "../RenderModuleData/ILightMapData";
 import { IReflectionProbeData } from "../RenderModuleData/IReflectionProbeData";
 import { IVolumetricGIData } from "../RenderModuleData/IVolumetricGIData";
@@ -33,12 +32,8 @@ export interface IBaseRenderNode {
     volumetricGI: IVolumetricGIData;
     lightProbUpdateMark: number;
     irradientMode: IrradianceMode;
-
-    /**@internal */
-    _renderUpdatePre: (context3D: IRenderContext3D) => void;
-
-    /**@internal */
-    _calculateBoundingBox: () => void;
+    set_renderUpdatePreCall(call: any, fun: any): void;
+    set_caculateBoundingBox(call: any, fun: any): void;
 
     /**
      * @internal

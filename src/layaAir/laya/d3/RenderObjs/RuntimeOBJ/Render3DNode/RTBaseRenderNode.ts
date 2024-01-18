@@ -13,7 +13,7 @@ import { NativeTransform3D } from "../../NativeOBJ/NativeTransform3D";
 
 export class RTBaseRenderNode implements IBaseRenderNode {
     private _transform: NativeTransform3D;
-    
+
     public get transform(): NativeTransform3D {
         return this._transform;
     }
@@ -163,11 +163,31 @@ export class RTBaseRenderNode implements IBaseRenderNode {
         this._nativeObj._irradientMode = value;
     }
 
-    public set _renderUpdatePre(value: (context3D: IRenderContext3D) => void) {
-        this._nativeObj.set_renderUpdatePre(value);
+
+    private _caculateBoundingBoxbindFun: any;
+    
+    private _renderUpdatePrebindFun: any;
+
+    /**
+     * 设置更新数据
+     * @param call 
+     * @param fun 
+     */
+    set_renderUpdatePreCall(call: any, fun: any): void {
+        this._renderUpdatePrebindFun = fun.bind(call);
+        this._nativeObj.set_renderUpdatePre(this._renderUpdatePrebindFun);
     }
-    public set _calculateBoundingBox(value: () => void) {
-        this._nativeObj._calculateBoundingBox(value);
+
+    /**
+     * 设置更新包围盒方法
+     * @param call 
+     * @param fun 
+     */
+    set_caculateBoundingBox(call: any, fun: any): void {
+       
+        this._caculateBoundingBoxbindFun = fun.bind(call);
+        this._nativeObj._calculateBoundingBox(  this._caculateBoundingBoxbindFun);
+        //native
     }
 
     private _nativeObj: any;

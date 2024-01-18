@@ -42,13 +42,25 @@ export class GLESBaseRenderNode implements IBaseRenderNode {
     protected _worldParams: Vector4;
     _commonUniformMap: string[];
     private _bounds: Bounds;
+    private _caculateBoundingBoxCall: any;
+    private _caculateBoundingBoxFun: any;
+    private _renderUpdatePreCall: any;
+    private _renderUpdatePreFun: any;
+
     /**
     * context3D:GLESRenderContext3D
     * @internal
     */
-    _renderUpdatePre: (context3D: IRenderContext3D) => void;//属性 
+    _renderUpdatePre(context3D: IRenderContext3D): void {
+        this._renderUpdatePreCall.call(this._renderUpdatePreFun, context3D);
+    }
 
-    _calculateBoundingBox: () => void;
+    _calculateBoundingBox() {
+        this._caculateBoundingBoxCall.call(this._caculateBoundingBoxFun);
+    }
+
+
+
 
     /**
      * get bounds
@@ -70,9 +82,28 @@ export class GLESBaseRenderNode implements IBaseRenderNode {
         this._commonUniformMap = [];
         this._worldParams = new Vector4(1, 0, 0, 0);
         this.lightmapScaleOffset = new Vector4(1, 1, 0, 0);
-        this._calculateBoundingBox = this._ownerCalculateBoundingBox;
+        this.set_caculateBoundingBox(this, this._ownerCalculateBoundingBox);
     }
 
+    /**
+     * 设置更新数据
+     * @param call 
+     * @param fun 
+     */
+    set_renderUpdatePreCall(call: any, fun: any): void {
+        this._renderUpdatePreCall = call;
+        this._renderUpdatePreFun = fun;
+    }
+
+    /**
+     * 设置更新包围盒方法
+     * @param call 
+     * @param fun 
+     */
+    set_caculateBoundingBox(call: any, fun: any): void {
+        this._caculateBoundingBoxCall = call;
+        this._caculateBoundingBoxFun = fun;
+    }
 
 
     /**

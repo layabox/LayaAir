@@ -25,7 +25,6 @@ export class TrailRenderer extends BaseRender {
      */
     constructor() {
         super();
-        this._baseRenderNode._renderUpdatePre = null;
     }
 
     protected _getcommonUniformMap(): Array<string> {
