@@ -74,14 +74,14 @@ export class RTSpotLight implements ISpotLightData {
     public set spotAngle(value: number) {
         this._spotAngle = value;
     }
-    private _nativeObj: any;
+    _nativeObj: any;
 
     constructor() {
         this._nativeObj = new (window as any).conchRTSpotLight();
     }
 
     setDirection(value: Vector3): void {
-        throw new Error("Method not implemented.");
+ 
     }
 
 }

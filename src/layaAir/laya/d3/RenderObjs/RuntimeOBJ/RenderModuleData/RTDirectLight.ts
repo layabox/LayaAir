@@ -3,7 +3,6 @@ import { IDirectLightData } from "../../../RenderDriverLayer/RenderModuleData/ID
 import { ShadowCascadesMode } from "../../../core/light/ShadowCascadesMode";
 import { ShadowMode } from "../../../core/light/ShadowMode";
 import { NativeTransform3D } from "../../NativeOBJ/NativeTransform3D";
-
 export class RTDirectLight implements IDirectLightData {
 
     public get shadowNearPlane(): number {

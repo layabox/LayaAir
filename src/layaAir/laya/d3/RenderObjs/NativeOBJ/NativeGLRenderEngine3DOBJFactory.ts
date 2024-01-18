@@ -3,79 +3,84 @@ import { DrawType } from "../../../RenderEngine/RenderEnum/DrawType";
 import { IndexFormat } from "../../../RenderEngine/RenderEnum/IndexFormat";
 import { MeshTopology } from "../../../RenderEngine/RenderEnum/RenderPologyMode";
 import { IRenderElement } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderElement";
-import { IRenderGeometryElement } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderGeometryElement";
-import { ISceneRenderManager } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/ISceneRenderManager";
 import { Vector3 } from "../../../maths/Vector3";
-import { IRenderContext3D } from "../../RenderDriverLayer/IRenderContext3D";
 import { IRenderEngine3DOBJFactory } from "../../RenderDriverLayer/IRenderEngine3DOBJFactory";
-import { IBaseRenderNode } from "../../RenderDriverLayer/Render3DNode/IBaseRenderNode";
-import { IMeshRenderNode } from "../../RenderDriverLayer/Render3DNode/IMeshRenderNode";
-import { IDirectLightData } from "../../RenderDriverLayer/RenderModuleData/IDirectLightData";
-import { ILightMapData } from "../../RenderDriverLayer/RenderModuleData/ILightMapData";
 import { ICameraNodeData, ISceneNodeData } from "../../RenderDriverLayer/RenderModuleData/IModuleData";
-import { IReflectionProbeData } from "../../RenderDriverLayer/RenderModuleData/IReflectionProbeData";
 import { ISpotLightData } from "../../RenderDriverLayer/RenderModuleData/ISpotLightData";
-import { IVolumetricGIData } from "../../RenderDriverLayer/RenderModuleData/IVolumetricGIData";
 import { Sprite3D } from "../../core/Sprite3D";
 import { IndexBuffer3D } from "../../graphics/IndexBuffer3D";
 import { VertexBuffer3D } from "../../graphics/VertexBuffer3D";
+import { SceneRenderManagerOBJ } from "../RenderObj/SceneRenderManagerOBJ";
+import { RTRendercontext3D } from "../RuntimeOBJ/RTRenderContext3D";
+import { RTBaseRenderNode } from "../RuntimeOBJ/Render3DNode/RTBaseRenderNode";
+import { RTMeshRenderNode } from "../RuntimeOBJ/Render3DNode/RTMeshRenderNode";
+import { RTDirectLight } from "../RuntimeOBJ/RenderModuleData/RTDirectLight";
+import { RTSpotLight } from "../RuntimeOBJ/RenderModuleData/RTSpotLight"
+import { RTLightmapData } from "../RuntimeOBJ/RenderModuleData/RTLightmap";
+import { RTCameraNodeData, RTSceneNodeData } from "../RuntimeOBJ/RenderModuleData/RTModuleData";
+import { RTReflectionProb } from "../RuntimeOBJ/RenderModuleData/RTReflectionProb";
+import { RTVolumetricGI } from "../RuntimeOBJ/RenderModuleData/RTVolumetricGI";
+import { NativeBounds } from "./NativeBounds";
+import { NativeIndexBuffer3D } from "./NativeIndexBuffer3D";
 import { NativeRenderElementOBJ } from "./NativeRenderElementOBJ";
+import { NativeRenderGeometryElementOBJ } from "./NativeRenderGeometryElementOBJ";
 import { NativeTransform3D } from "./NativeTransform3D";
+import { NativeVertexBuffer3D } from "./NativeVertexBuffer3D";
 
-export class NativeGLRenderEngine3DOBJFactory implements IRenderEngine3DOBJFactory{
+export class NativeGLRenderEngine3DOBJFactory implements IRenderEngine3DOBJFactory {
     createTransform(owner: Sprite3D): NativeTransform3D {
-      return new NativeTransform3D(owner);
+        return new NativeTransform3D(owner);
     }
-    createBounds(min: Vector3, max: Vector3) {
-        throw new Error("Method not implemented.");
+    createBounds(min: Vector3, max: Vector3): NativeBounds {
+        return new NativeBounds(min, max);
     }
     createRenderElement(): NativeRenderElementOBJ {
-       return new NativeRenderElementOBJ();
+        return new NativeRenderElementOBJ();
     }
     createSkinRenderElement(): IRenderElement {
-       return null;//TODO
+        return null;//TODO
     }
     createVertexBuffer3D(byteLength: number, bufferUsage: BufferUsage, canRead: boolean): VertexBuffer3D {
-        throw new Error("Method not implemented.");
+        return new NativeVertexBuffer3D(byteLength, bufferUsage, canRead);
     }
     createIndexBuffer3D(indexType: IndexFormat, indexCount: number, bufferUsage: BufferUsage, canRead: boolean): IndexBuffer3D {
-        throw new Error("Method not implemented.");
+        return new NativeIndexBuffer3D(indexType, indexCount, bufferUsage, canRead);
     }
-    createSceneRenderManager(): ISceneRenderManager {
-        throw new Error("Method not implemented.");
+    createSceneRenderManager(): SceneRenderManagerOBJ {
+        return new SceneRenderManagerOBJ();
     }
-    createRenderGeometry(mode: MeshTopology, drayType: DrawType): IRenderGeometryElement {
-        throw new Error("Method not implemented.");
+    createRenderGeometry(mode: MeshTopology, drayType: DrawType): NativeRenderGeometryElementOBJ {
+        return new NativeRenderGeometryElementOBJ(mode, drayType);
     }
-    createBaseRenderNode(): IBaseRenderNode {
-        throw new Error("Method not implemented.");
+    createBaseRenderNode(): RTBaseRenderNode {
+        return new RTBaseRenderNode();
     }
-    createMeshRenderNode(): IMeshRenderNode {
-        throw new Error("Method not implemented.");
+    createMeshRenderNode(): RTMeshRenderNode {
+        return new RTMeshRenderNode();
     }
-    createRenderContext3D(): IRenderContext3D {
-        throw new Error("Method not implemented.");
+    createRenderContext3D(): RTRendercontext3D {
+        return new RTRendercontext3D()
     }
-    createVolumetricGI(): IVolumetricGIData {
-        throw new Error("Method not implemented.");
+    createVolumetricGI(): RTVolumetricGI {
+        return new RTVolumetricGI();
     }
-    createReflectionProbe(): IReflectionProbeData {
-        throw new Error("Method not implemented.");
+    createReflectionProbe(): RTReflectionProb {
+        return new RTReflectionProb();
     }
-    createLightmapData(): ILightMapData {
-        throw new Error("Method not implemented.");
+    createLightmapData(): RTLightmapData {
+        return new RTLightmapData();
     }
-    createDirectLight(): IDirectLightData {
-        throw new Error("Method not implemented.");
+    createDirectLight(): RTDirectLight {
+        return new RTDirectLight();
     }
     createSpotLight(): ISpotLightData {
-        throw new Error("Method not implemented.");
+        return new RTSpotLight();
     }
     createCameraModuleData(): ICameraNodeData {
-        throw new Error("Method not implemented.");
+        return new RTCameraNodeData();
     }
     createSceneModuleData(): ISceneNodeData {
-        throw new Error("Method not implemented.");
+        return new RTSceneNodeData();
     }
-  
+
 }

@@ -18,6 +18,10 @@ import { Matrix4x4 } from "../../maths/Matrix4x4";
 import { Vector3 } from "../../maths/Vector3";
 import { BoundFrustum } from "../math/BoundFrustum";
 import { IRenderContext3D } from "../RenderDriverLayer/IRenderContext3D";
+
+export class aaaa{
+    
+}
 /**
  * <code>SkinMeshRenderer</code> 类用于蒙皮渲染器。
  */

@@ -32,6 +32,7 @@ export interface IBaseRenderNode {
     volumetricGI: IVolumetricGIData;
     lightProbUpdateMark: number;
     irradientMode: IrradianceMode;
+    
     set_renderUpdatePreCall(call: any, fun: any): void;
     set_caculateBoundingBox(call: any, fun: any): void;
 

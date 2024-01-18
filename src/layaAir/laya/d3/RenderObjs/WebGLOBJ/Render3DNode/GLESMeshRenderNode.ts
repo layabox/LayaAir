@@ -6,9 +6,7 @@ import { GLESBaseRenderNode } from "./GLESBaseRenderNode";
 export class GLESMeshRenderNode extends GLESBaseRenderNode implements IMeshRenderNode {
     constructor() {
         super();
-        this._calculateBoundingBox = this._ownerCalculateBoundingBox;
-        //@ts-ignore
-        this._renderUpdatePre = this._renderUpdate;
+        this.set_renderUpdatePreCall(this, this._renderUpdate);
     }
 
     /**

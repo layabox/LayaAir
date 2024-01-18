@@ -127,7 +127,7 @@ export class SubMesh extends GeometryElement {
 		// 		this.setDrawElemenParams(this._subIndexBufferCount[i], this._subIndexBufferStart[i] * byteCount);
 		// 	}
 		// } else {
-			this.setDrawElemenParams(this._indexCount, this._indexStart * byteCount);
+		this.setDrawElemenParams(this._indexCount, this._indexStart * byteCount);
 		// }
 	}
 
