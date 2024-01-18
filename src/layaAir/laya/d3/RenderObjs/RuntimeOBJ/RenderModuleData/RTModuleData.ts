@@ -45,17 +45,16 @@ export class RTCameraNodeData implements ICameraNodeData {
     }
 
     setProjectionViewMatrix(value: Matrix4x4): void {
-        throw new Error("Method not implemented.");
+        value && this._nativeObj.setProjectionViewMatrix(value.elements);
     }
 }
 
 export class RTSceneNodeData implements ISceneNodeData {
-    private _lightmapDirtyFlag: number;
     public get lightmapDirtyFlag(): number {
-        return this._lightmapDirtyFlag;
+        return this._nativeObj._lightmapDirtyFlag;
     }
     public set lightmapDirtyFlag(value: number) {
-        this._lightmapDirtyFlag = value;
+        this._nativeObj._lightmapDirtyFlag = value;
     }
 
     private _nativeObj: any;

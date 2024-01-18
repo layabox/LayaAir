@@ -118,6 +118,7 @@ export class NativeShaderData extends ShaderData {
      */
     setBool(index: number, value: boolean): void {
         throw new Error("Method not implemented.");
+        this._nativeObj.setBool(index, value);
     }
 
     /**
@@ -136,6 +137,7 @@ export class NativeShaderData extends ShaderData {
      */
     setInt(index: number, value: number): void {
         throw new Error("Method not implemented.");
+        this._nativeObj.setInt(index, value);
     }
 
     /**
@@ -154,6 +156,7 @@ export class NativeShaderData extends ShaderData {
      */
     setNumber(index: number, value: number): void {
         throw new Error("Method not implemented.");
+        this._nativeObj.setNumber(index, value);
     }
 
     /**
@@ -172,6 +175,7 @@ export class NativeShaderData extends ShaderData {
      */
     setVector2(index: number, value: Vector2): void {
         throw new Error("Method not implemented.");
+        this._nativeObj.setVector2(index, value);
     }
 
     /**
@@ -190,6 +194,7 @@ export class NativeShaderData extends ShaderData {
      */
     setVector3(index: number, value: Vector3): void {
         throw new Error("Method not implemented.");
+        this._nativeObj.setVector3(index, value);
     }
 
     /**
@@ -208,6 +213,7 @@ export class NativeShaderData extends ShaderData {
      */
     setVector(index: number, value: Vector4): void {
         throw new Error("Method not implemented.");
+        this._nativeObj.setVector(index, value);
     }
 
     /**
@@ -226,6 +232,7 @@ export class NativeShaderData extends ShaderData {
      */
     setColor(index: number, value: Color): void {
         throw new Error("Method not implemented.");
+        this._nativeObj.setColor(index, value);
     }
 
     /**
@@ -252,6 +259,7 @@ export class NativeShaderData extends ShaderData {
      */
     setMatrix4x4(index: number, value: Matrix4x4): void {
         throw new Error("Method not implemented.");
+        this._nativeObj.setMatrix4x4(index, value);
     }
 
     /**
@@ -270,6 +278,7 @@ export class NativeShaderData extends ShaderData {
      */
     setMatrix3x3(index: number, value: Matrix3x3): void {
         throw new Error("Method not implemented.");
+        this._nativeObj.setMatrix3x3(index, value);
     }
 
     /**
@@ -288,6 +297,7 @@ export class NativeShaderData extends ShaderData {
      */
     setBuffer(index: number, value: Float32Array): void {
         throw new Error("Method not implemented.");
+        this._nativeObj.setBuffer(index, value);
     }
 
     /**
@@ -375,6 +385,7 @@ export class NativeShaderData extends ShaderData {
         // this._gammaColorMap.forEach((color, index) => {
         //     destObject._gammaColorMap.set(index, color.clone());
         // })
+        this._nativeObj.cloneTo(destObject._nativeObj);
     }
     /**
      * 克隆。
