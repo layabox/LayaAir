@@ -401,7 +401,7 @@ export class Scene3D extends Sprite implements ISubmit {
     /**@internal */
     private _physicsStepTime: number = 0;
     /**@internal */
-    _lightmapDirtyFlag:number = -1
+    _lightmapDirtyFlag: number = -1
     /**@internal */
     _sunColor: Color = new Color(1.0, 1.0, 1.0);
     /**@internal */
@@ -456,7 +456,10 @@ export class Scene3D extends Sprite implements ISubmit {
     /** @internal */
     _scene2D: Scene;
 
+    /** @internal */
     componentElementMap: Map<string, IElementComponentManager> = new Map();
+    //init ComponentManager Data
+    private _componentElementDatasMap: any = {};
 
 
 
@@ -820,10 +823,21 @@ export class Scene3D extends Sprite implements ISubmit {
         this._sceneReflectionProb.reflectionIntensity = 1.0;
         this.ambientColor = new Color(0.212, 0.227, 0.259);
 
-        Scene3D.componentManagerMap.forEach((key, val) => {
+        Scene3D.componentManagerMap.forEach((val, key) => {
             let cla: any = val;
             this.componentElementMap.set(key, new cla());
         });
+    }
+
+    set componentElementDatasMap(value: any) {
+        this._componentElementDatasMap = value;
+        this.componentElementMap.forEach((value, key) => {
+            value.Init(this._componentElementDatasMap[key])
+        });
+    }
+
+    get componentElementDatasMap(): any {
+        return this._componentElementDatasMap;
     }
 
     /**
@@ -849,6 +863,10 @@ export class Scene3D extends Sprite implements ISubmit {
             this._volumeManager.reCaculateAllRenderObjects(this._sceneRenderManager.list);
         else
             this._volumeManager.handleMotionlist();
+
+        this.componentElementMap.forEach((value) => {
+            value.update(delta);
+        });
 
         this._componentDriver.callStart();
         this._componentDriver.callUpdate();

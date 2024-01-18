@@ -11,17 +11,83 @@ import { Handler } from "../utils/Handler"
  * <code>ViewStack</code> 类用于视图堆栈类，用于视图的显示等设置处理。
  */
 export class ViewStack extends Box {
-    /**@private */
+    /**@internal */
     protected _items: any[];
-    /**@private */
+    /**@internal */
     protected _setIndexHandler: Handler = Handler.create(this, this.setIndex, null, false);
-    /**@private */
+    /**@internal */
     protected _selectedIndex: number;
+
+    /**
+     * 表示当前视图索引。
+     */
+    get selectedIndex(): number {
+        return this._selectedIndex;
+    }
+
+    set selectedIndex(value: number) {
+        if (this._selectedIndex != value) {
+            this.setSelect(this._selectedIndex, false);
+            this._selectedIndex = value;
+            this.setSelect(this._selectedIndex, true);
+        }
+    }
+
+    /**
+     * 获取或设置当前选择的项对象。
+     */
+    get selection(): Node {
+        return this._selectedIndex > -1 && this._selectedIndex < this._items.length ? this._items[this._selectedIndex] : null;
+    }
+
+    set selection(value: Node) {
+        this.selectedIndex = this._items.indexOf(value);
+    }
+
+    /**
+     *  索引设置处理器。
+     * <p>默认回调参数：index:int</p>
+     */
+    get setIndexHandler(): Handler {
+        return this._setIndexHandler;
+    }
+
+    set setIndexHandler(value: Handler) {
+        this._setIndexHandler = value;
+    }
+
+    /**
+     * 视图集合数组。
+     */
+    get items(): any[] {
+        return this._items;
+    }
 
     constructor() {
         super();
 
         this._items = [];
+    }
+
+    /**
+     * @internal
+     * 通过对象的索引设置项对象的 <code>selected</code> 属性值。
+     * @param index 需要设置的对象的索引。
+     * @param selected 表示对象的选中状态。
+     */
+    protected setSelect(index: number, selected: boolean): void {
+        if (this._items && index > -1 && index < this._items.length) {
+            this._items[index].visible = selected;
+        }
+    }
+
+    /**
+     * @internal
+     * 设置属性<code>selectedIndex</code>的值。
+     * @param index 选中项索引值。
+     */
+    protected setIndex(index: number): void {
+        this.selectedIndex = index;
     }
 
     /**
@@ -76,72 +142,6 @@ export class ViewStack extends Box {
             this._items.push(item);
             item.visible = (i == this._selectedIndex);
         }
-    }
-
-    /**
-     * 表示当前视图索引。
-     */
-    get selectedIndex(): number {
-        return this._selectedIndex;
-    }
-
-    set selectedIndex(value: number) {
-        if (this._selectedIndex != value) {
-            this.setSelect(this._selectedIndex, false);
-            this._selectedIndex = value;
-            this.setSelect(this._selectedIndex, true);
-        }
-    }
-
-    /**
-     * @private
-     * 通过对象的索引设置项对象的 <code>selected</code> 属性值。
-     * @param index 需要设置的对象的索引。
-     * @param selected 表示对象的选中状态。
-     */
-    protected setSelect(index: number, selected: boolean): void {
-        if (this._items && index > -1 && index < this._items.length) {
-            this._items[index].visible = selected;
-        }
-    }
-
-    /**
-     * 获取或设置当前选择的项对象。
-     */
-    get selection(): Node {
-        return this._selectedIndex > -1 && this._selectedIndex < this._items.length ? this._items[this._selectedIndex] : null;
-    }
-
-    set selection(value: Node) {
-        this.selectedIndex = this._items.indexOf(value);
-    }
-
-    /**
-     *  索引设置处理器。
-     * <p>默认回调参数：index:int</p>
-     */
-    get setIndexHandler(): Handler {
-        return this._setIndexHandler;
-    }
-
-    set setIndexHandler(value: Handler) {
-        this._setIndexHandler = value;
-    }
-
-    /**
-     * @private
-     * 设置属性<code>selectedIndex</code>的值。
-     * @param index 选中项索引值。
-     */
-    protected setIndex(index: number): void {
-        this.selectedIndex = index;
-    }
-
-    /**
-     * 视图集合数组。
-     */
-    get items(): any[] {
-        return this._items;
     }
 
     /**

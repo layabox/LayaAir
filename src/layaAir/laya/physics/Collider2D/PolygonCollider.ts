@@ -9,6 +9,7 @@ import { PhysicsShape } from "./ColliderStructInfo";
 export class PolygonCollider extends ColliderBase {
 
     /**
+     * @internal
      * @deprecated
      * 用逗号隔开的点的集合，格式：x,y,x,y ...
      */
@@ -22,10 +23,8 @@ export class PolygonCollider extends ColliderBase {
         this._physicShape = PhysicsShape.PolygonShape;
     }
 
-    /**
-    * @override
-    */
-    protected _setShapeData(shape: any): void {
+    /**@internal 设置碰撞体数据*/
+    _setShapeData(shape: any): void {
         var len: number = this.datas.length;
         if (len < 6) throw "PolygonCollider points must be greater than 3";
         if (len % 2 == 1) throw "PolygonCollider points lenth must a multiplier of 2";

@@ -7,11 +7,25 @@ import { ILaya } from "../../ILaya";
  * 在2.0里，View继承自Scene类，但这是不合理的，Scene是一个2D+3D的大概念。所以在3.0里请忽略这个继承。
  */
 export class View extends Scene {
-    /**@private 兼容老版本*/
+
+    /**@internal 兼容老版本*/
     static uiMap: any = {};
+
+    /**
+     * @internal 兼容老版本
+     * 注册UI配置信息，比如注册一个路径为"test/TestPage"的页面，UI内容是IDE生成的json
+     * @param	url		UI的路径
+     * @param	json	UI内容
+     */
+    static regUI(url: string, json: any): void {
+        ILaya.loader.cacheRes(url, json);
+    }
+
+
     /**@internal */
     _watchMap: any = {};
-    /**@private 控件的数据源。 */
+
+    /**@internal 控件的数据源。 */
     protected _dataSource: any;
 
     constructor() {
@@ -23,18 +37,7 @@ export class View extends Scene {
         this.createChildren();
     }
 
-    /**
-     * @private 兼容老版本
-     * 注册UI配置信息，比如注册一个路径为"test/TestPage"的页面，UI内容是IDE生成的json
-     * @param	url		UI的路径
-     * @param	json	UI内容
-     */
-    static regUI(url: string, json: any): void {
-        ILaya.loader.cacheRes(url, json);
-    }
-
-
-    /**@private */
+    /**@internal */
     changeData(key: string): void {
         let arr: any[] = this._watchMap[key];
         if (!arr) return;

@@ -4,6 +4,8 @@ import { UIComponent } from "./UIComponent";
  * <code>Box</code> 类是一个控件容器类。
  */
 export class Box extends UIComponent {
+
+    /**@internal */
     private _bgColor: string;
 
     /**
@@ -31,4 +33,5 @@ export class Box extends UIComponent {
         this.graphics.clear();
         this.graphics.drawRect(0, 0, 1, 1, this._bgColor, null, null, true);
     }
+
 }

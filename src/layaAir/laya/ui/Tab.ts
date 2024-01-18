@@ -88,7 +88,7 @@ export class Tab extends UIGroup {
     }
 
     /**
-     * @private
+     * @internal
      * @inheritDoc
      * @override
      */

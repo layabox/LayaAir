@@ -26,15 +26,15 @@ export class VBox extends LayoutBox {
     public isSortItem: boolean = false;
 
     /**
-     * @override
+     * @internal
      */
     _setWidth(value: number) {
         super._setWidth(value);
         this.callLater(this.changeItems);
     }
 
-
     /** 
+     * @internal
      * @inheritDoc	
      * @override
     */

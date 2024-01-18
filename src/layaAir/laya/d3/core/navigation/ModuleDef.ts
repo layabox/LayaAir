@@ -1,0 +1,28 @@
+import { ClassUtils } from "../../../utils/ClassUtils";
+import { AreaMask } from "./AreaMask";
+import { NavAgent } from "./Component/NavAgent";
+import { NavMeshModifierVolume } from "./Component/NavMeshModifierVolume";
+import { NavMeshSurface } from "./Component/NavMeshSurface";
+import { NavModifileSurface } from "./Component/NavModifileSurface";
+import { NavNavMeshLink } from "./Component/NavNavMeshLink";
+import { NavObstacles } from "./Component/NavObstacles";
+import { NavMesh } from "./NavMesh";
+import { NavMeshGrid } from "./NavMeshGrid";
+import { NavigationManager } from "./NavigationManager";
+import { NavigationUtils } from "./NavigationUtils";
+import { RecastConfig } from "./RecastConfig";
+
+let c = ClassUtils.regClass;
+c("NavAgent", NavAgent);
+c("NavigationUtils", NavigationUtils);
+c("NavMeshSurface", NavMeshSurface);
+c("NavigationManager", NavigationManager);
+c("NavMesh", NavMesh);
+c("NavMeshGrid", NavMeshGrid);
+c("RecastConfig", RecastConfig);
+c("NavMeshSurface", NavMeshSurface);
+c("NavModifileSurface", NavModifileSurface);
+c("NavNavMeshLink", NavNavMeshLink);
+c("NavObstacles", NavObstacles);
+c("AreaMask", AreaMask);
+c("NavMeshModifierVolume", NavMeshModifierVolume);

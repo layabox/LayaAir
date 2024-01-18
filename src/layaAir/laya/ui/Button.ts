@@ -160,133 +160,82 @@ export class Button extends UIComponent implements ISelect {
      *     console.log("button.selected = ", button.selected);
      * }
      */
+
     toggle: boolean;
+
     /**
-     * @private
+     * @internal
      * 按钮上的文本。
      */
     protected _text: Text;
     /**
-     * @private
+     * @internal
      * 按钮文本标签的颜色值。
      */
     protected _labelColors: string[];
     /**
-     * @private
+     * @internal
      * 按钮文本标签描边的颜色值。
      */
     protected _strokeColors: string[];
     /**
-     * @private
+     * @internal
      * 按钮的状态值。
      */
     protected _state: number = 0;
     /**
-     * @private
+     * @internal
      * 表示按钮的选中状态。
      */
     protected _selected: boolean;
 
+    /**@internal */
     protected _skin: string;
 
     /**
-     * @private
+     * @internal
      * 指定此显示对象是否自动计算并改变大小等属性。
      */
     protected _autoSize: boolean = true;
+
     /**
-     * @private
+     * @internal
      * 按钮的状态数。
      */
     protected _stateNum: number;
     /**
-     * @private
+     * @internal
      * 按钮的点击事件函数。
      */
     protected _clickHandler: Handler;
+
     /**
-     * @private
+     * @internal
      */
     protected _stateChanged: boolean = false;
 
+    /**
+     * @internal
+     */
     declare _graphics: AutoBitmap;
 
     /**
-     * 创建一个新的 <code>Button</code> 类实例。
-     * @param skin 皮肤资源地址。
-     * @param label 按钮的文本内容。
+     * @internal
+     * 对象的状态值。
+     * @see #stateMap
      */
-    constructor(skin: string = null, label: string = "") {
-        super();
-        this._labelColors = Styles.buttonLabelColors;
-        this._stateNum = Styles.buttonStateNum;
-
-        if (skin)
-            this.skin = skin;
-        this.label = label;
+    protected get state(): number {
+        return this._state;
     }
 
     /**
-     * @inheritDoc 
-     * @override
+     * @internal
      */
-    destroy(destroyChild: boolean = true): void {
-        super.destroy(destroyChild);
-        this._text && this._text.destroy(destroyChild);
-        this._text = null;
-        this._clickHandler = null;
-        this._labelColors = this._strokeColors = null;
-    }
-
-    /**
-     * @inheritDoc 
-     * @override
-     */
-    protected createChildren(): void {
-        this.setGraphics(new AutoBitmap(), true);
-    }
-
-    /**@private */
-    protected createText(): void {
-        if (!this._text) {
-            this._text = new Text();
-            this._text.overflow = Text.HIDDEN;
-            this._text.align = "center";
-            this._text.valign = "middle";
-            this._text.width = this._width;
-            this._text.height = this._height;
-            this._text.hideFlags = HideFlags.HideAndDontSave;
+    protected set state(value: number) {
+        if (this._state != value) {
+            this._state = value;
+            this._setStateChanged();
         }
-    }
-
-    /**@inheritDoc 
-     * @override
-    */
-    protected initialize(): void {
-        if (this._mouseState !== 1) {
-            this.mouseEnabled = true;
-            this._setBit(NodeFlags.HAS_MOUSE, true);
-        }
-        this.on(Event.MOUSE_OVER, this, this.onMouse);
-        this.on(Event.MOUSE_OUT, this, this.onMouse);
-        this.on(Event.MOUSE_DOWN, this, this.onMouse);
-        this.on(Event.MOUSE_UP, this, this.onMouse);
-        this.on(Event.CLICK, this, this.onMouse);
-    }
-
-    /**
-     * 对象的 <code>Event.MOUSE_OVER、Event.MOUSE_OUT、Event.MOUSE_DOWN、Event.MOUSE_UP、Event.CLICK</code> 事件侦听处理函数。
-     * @param e Event 对象。
-     */
-    protected onMouse(e: Event): void {
-        if (this.toggle === false && this._selected) return;
-        let type = e ? e.type : Event.CLICK;
-        if (type === Event.CLICK) {
-            this.toggle && (this.selected = !this._selected);
-            this._clickHandler && this._clickHandler.run();
-            return;
-        }
-        !this._selected && (this.state = stateMap[type]);
     }
 
     /**
@@ -304,34 +253,6 @@ export class Button extends UIComponent implements ISelect {
             return;
 
         this._setSkin(value);
-    }
-
-    _setSkin(url: string): Promise<void> {
-        this._skin = url;
-        if (url) {
-            if (this._skinBaseUrl)
-                url = URL.formatURL(url, this._skinBaseUrl);
-            let tex = Loader.getRes(url);
-            if (!tex)
-                return ILaya.loader.load(url, Loader.IMAGE).then(tex => this._skinLoaded(tex));
-            else {
-                this._skinLoaded(tex);
-                return Promise.resolve();
-            }
-        }
-        else {
-            this._skinLoaded(null);
-            return Promise.resolve();
-        }
-    }
-
-    protected _skinLoaded(tex: any): void {
-        this._graphics.source = tex;
-        if (tex)
-            this.callLater(this.changeClips);
-        this._setStateChanged();
-        this._sizeChanged();
-        this.event(Event.LOADED);
     }
 
     /**
@@ -364,59 +285,6 @@ export class Button extends UIComponent implements ISelect {
                 this._setStateChanged();
             }
         }
-    }
-
-    /**
-     * @private
-     * 对象的资源切片发生改变。
-     */
-    protected changeClips(): void {
-        let width: number = 0, height: number = 0;
-
-        let img: Texture = Loader.getRes(this._skin);
-        if (!img) {
-            console.log(`lose skin ${this._skin}`);
-            return;
-        }
-
-        width = img.sourceWidth;
-        height = img.sourceHeight / (img._stateNum || this._stateNum);
-
-        if (this._autoSize) {
-            this._graphics.width = this._isWidthSet ? this._width : width;
-            this._graphics.height = this._isHeightSet ? this._height : height;
-            if (this._text) {
-                this._text.width = this._graphics.width;
-                this._text.height = this._graphics.height;
-            }
-        } else {
-            if (this._text) {
-                this._text.x = width;
-                this._text.height = height;
-            }
-        }
-    }
-
-    /**
-     * @inheritDoc
-     * @override
-     */
-    protected measureWidth(): number {
-        if (this._skin)
-            this.runCallLater(this.changeClips);
-        if (this._autoSize) return this._graphics.width;
-        this.runCallLater(this.changeState);
-        return this._graphics.width + (this._text ? this._text.width : 0);
-    }
-
-    /**
-     * @inheritDoc
-     * @override
-     */
-    protected measureHeight(): number {
-        if (this._skin)
-            this.runCallLater(this.changeClips);
-        return this._text ? Math.max(this._graphics.height, this._text.height) : this._graphics.height;
     }
 
     /**
@@ -453,36 +321,6 @@ export class Button extends UIComponent implements ISelect {
         }
     }
 
-    /**
-     * 对象的状态值。
-     * @see #stateMap
-     */
-    protected get state(): number {
-        return this._state;
-    }
-
-    protected set state(value: number) {
-        if (this._state != value) {
-            this._state = value;
-            this._setStateChanged();
-        }
-    }
-
-    /**
-     * @private
-     * 改变对象的状态。
-     */
-    protected changeState(): void {
-        this._stateChanged = false;
-        if (this._skin)
-            this.runCallLater(this.changeClips);
-        let index = Math.max(this._state, 0);
-        this._graphics.setState(index, this._stateNum);
-        if (this.label) {
-            this._text.color = this._labelColors[index];
-            if (this._strokeColors) this._text.strokeColor = this._strokeColors[index];
-        }
-    }
 
     /**
      * 表示按钮各个状态下的文本颜色。
@@ -668,7 +506,156 @@ export class Button extends UIComponent implements ISelect {
             this._graphics.sizeGrid = null;
     }
 
+    /**图标x,y偏移，格式：100,100*/
+    get iconOffset(): string {
+        return this._graphics._offset ? this._graphics._offset.join(",") : null;
+    }
+
+    set iconOffset(value: string) {
+        if (value)
+            this._graphics._offset = UIUtils.fillArray([1, 1], value, Number);
+        else
+            this._graphics._offset = [];
+    }
+
     /**
+     * 创建一个新的 <code>Button</code> 类实例。
+     * @param skin 皮肤资源地址。
+     * @param label 按钮的文本内容。
+     */
+    constructor(skin: string = null, label: string = "") {
+        super();
+        this._labelColors = Styles.buttonLabelColors;
+        this._stateNum = Styles.buttonStateNum;
+
+        if (skin)
+            this.skin = skin;
+        this.label = label;
+    }
+
+    /**
+   * @internal
+   * @inheritDoc
+   * @override
+   */
+    protected measureWidth(): number {
+        if (this._skin)
+            this.runCallLater(this.changeClips);
+        if (this._autoSize) return this._graphics.width;
+        this.runCallLater(this.changeState);
+        return this._graphics.width + (this._text ? this._text.width : 0);
+    }
+
+    /**
+     * @internal
+     * @inheritDoc
+     * @override
+     */
+    protected measureHeight(): number {
+        if (this._skin)
+            this.runCallLater(this.changeClips);
+        return this._text ? Math.max(this._graphics.height, this._text.height) : this._graphics.height;
+    }
+
+    /**
+     * @inheritDoc 
+     * @override
+     */
+    destroy(destroyChild: boolean = true): void {
+        super.destroy(destroyChild);
+        this._text && this._text.destroy(destroyChild);
+        this._text = null;
+        this._clickHandler = null;
+        this._labelColors = this._strokeColors = null;
+    }
+
+    /**
+     * @internal
+     * @inheritDoc 
+     * @override
+     */
+    protected createChildren(): void {
+        this.setGraphics(new AutoBitmap(), true);
+    }
+
+    /**@internal */
+    protected createText(): void {
+        if (!this._text) {
+            this._text = new Text();
+            this._text.overflow = Text.HIDDEN;
+            this._text.align = "center";
+            this._text.valign = "middle";
+            this._text.width = this._width;
+            this._text.height = this._height;
+            this._text.hideFlags = HideFlags.HideAndDontSave;
+        }
+    }
+
+    /**
+     * @internal 
+     * @override
+    */
+    protected initialize(): void {
+        if (this._mouseState !== 1) {
+            this.mouseEnabled = true;
+            this._setBit(NodeFlags.HAS_MOUSE, true);
+        }
+        this.on(Event.MOUSE_OVER, this, this.onMouse);
+        this.on(Event.MOUSE_OUT, this, this.onMouse);
+        this.on(Event.MOUSE_DOWN, this, this.onMouse);
+        this.on(Event.MOUSE_UP, this, this.onMouse);
+        this.on(Event.CLICK, this, this.onMouse);
+    }
+
+    /**
+     * 对象的 <code>Event.MOUSE_OVER、Event.MOUSE_OUT、Event.MOUSE_DOWN、Event.MOUSE_UP、Event.CLICK</code> 事件侦听处理函数。
+     * @internal
+     * @param e Event 对象。
+     */
+    protected onMouse(e: Event): void {
+        if (this.toggle === false && this._selected) return;
+        let type = e ? e.type : Event.CLICK;
+        if (type === Event.CLICK) {
+            this.toggle && (this.selected = !this._selected);
+            this._clickHandler && this._clickHandler.run();
+            return;
+        }
+        !this._selected && (this.state = stateMap[type]);
+    }
+
+    /**@internal */
+    _setSkin(url: string): Promise<void> {
+        this._skin = url;
+        if (url) {
+            if (this._skinBaseUrl)
+                url = URL.formatURL(url, this._skinBaseUrl);
+            let tex = Loader.getRes(url);
+            if (!tex)
+                return ILaya.loader.load(url, Loader.IMAGE).then(tex => this._skinLoaded(tex));
+            else {
+                this._skinLoaded(tex);
+                return Promise.resolve();
+            }
+        }
+        else {
+            this._skinLoaded(null);
+            return Promise.resolve();
+        }
+    }
+
+    /**@internal */
+    protected _skinLoaded(tex: any): void {
+        this._graphics.source = tex;
+        if (tex)
+            this.callLater(this.changeClips);
+        this._setStateChanged();
+        this._sizeChanged();
+        this.event(Event.LOADED);
+    }
+
+
+    /**
+     * @internal
      * @inheritDoc 
      * @override
      */
@@ -681,6 +668,7 @@ export class Button extends UIComponent implements ISelect {
     }
 
     /**
+     * @internal
      * @inheritDoc 
      * @override
      */
@@ -689,6 +677,61 @@ export class Button extends UIComponent implements ISelect {
         if (this._autoSize) {
             this._graphics.height = value;
             this._text && (this._text.height = value);
+        }
+    }
+
+    /**
+     * @internal
+     * 对象的资源切片发生改变。
+     */
+    protected changeClips(): void {
+        let width: number = 0, height: number = 0;
+
+        let img: Texture = Loader.getRes(this._skin);
+        if (!img) {
+            console.log(`lose skin ${this._skin}`);
+            return;
+        }
+
+        width = img.sourceWidth;
+        height = img.sourceHeight / (img._stateNum || this._stateNum);
+
+        if (this._autoSize) {
+            this._graphics.width = this._isWidthSet ? this._width : width;
+            this._graphics.height = this._isHeightSet ? this._height : height;
+            if (this._text) {
+                this._text.width = this._graphics.width;
+                this._text.height = this._graphics.height;
+            }
+        } else {
+            if (this._text) {
+                this._text.x = width;
+                this._text.height = height;
+            }
+        }
+    }
+
+    /**
+     * @internal
+     * 改变对象的状态。
+     */
+    protected changeState(): void {
+        this._stateChanged = false;
+        if (this._skin)
+            this.runCallLater(this.changeClips);
+        let index = Math.max(this._state, 0);
+        this._graphics.setState(index, this._stateNum);
+        if (this.label) {
+            this._text.color = this._labelColors[index];
+            if (this._strokeColors) this._text.strokeColor = this._strokeColors[index];
+        }
+    }
+
+    /**@internal */
+    protected _setStateChanged(): void {
+        if (!this._stateChanged) {
+            this._stateChanged = true;
+            this.callLater(this.changeState);
         }
     }
 
@@ -705,25 +748,6 @@ export class Button extends UIComponent implements ISelect {
             super.set_dataSource(value);
     }
 
-    /**图标x,y偏移，格式：100,100*/
-    get iconOffset(): string {
-        return this._graphics._offset ? this._graphics._offset.join(",") : null;
-    }
-
-    set iconOffset(value: string) {
-        if (value)
-            this._graphics._offset = UIUtils.fillArray([1, 1], value, Number);
-        else
-            this._graphics._offset = [];
-    }
-
-    /**@private */
-    protected _setStateChanged(): void {
-        if (!this._stateChanged) {
-            this._stateChanged = true;
-            this.callLater(this.changeState);
-        }
-    }
 }
 
 const stateMap: any = { "mouseup": 0, "mouseover": 1, "mousedown": 2, "mouseout": 0 };

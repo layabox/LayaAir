@@ -156,7 +156,7 @@ export class Dialog extends View {
     /**对话框内的某个按钮命名为ok，点击此按钮则会关闭*/
     static OK: string = "ok";
 
-    /**@private 表示对话框管理器。*/
+    /**@internal 表示对话框管理器。*/
     private static _manager: DialogManager;
 
     /**对话框管理容器，所有的对话框都在该容器内，并且受管理器管理，可以自定义自己的管理器，来更改窗口管理的流程。
@@ -168,6 +168,50 @@ export class Dialog extends View {
     static set manager(value: DialogManager) {
         Dialog._manager = value;
     }
+
+    /**
+     * 设置锁定界面，在界面未准备好前显示锁定界面，准备完毕后则移除锁定层，如果为空则什么都不显示
+     * @param	view 锁定界面内容
+     */
+    static setLockView(view: UIComponent): void {
+        Dialog.manager.setLockView(view);
+    }
+
+    /**
+     * 锁定所有层，显示加载条信息，防止下面内容被点击
+     */
+    static lock(value: boolean): void {
+        Dialog.manager.lock(value);
+    }
+
+    /**关闭所有对话框。*/
+    static closeAll(): void {
+        Dialog.manager.closeAll();
+    }
+
+    /**
+     * 根据组获取对话框集合
+     * @param	group 组名称
+     * @return	对话框数组
+     */
+    static getDialogsByGroup(group: string): any[] {
+        return Dialog.manager.getDialogsByGroup(group);
+    }
+
+    /**
+     * 根据组关闭所有弹出框
+     * @param	group 需要关闭的组名称
+     */
+    static closeByGroup(group: string): any[] {
+        return Dialog.manager.closeByGroup(group);
+    }
+
+    /**@internal */
+    private _dragArea: Rectangle;
+    /**@internal */
+    _param: any;
+    /**@internal */
+    _effectTween: Tween;
 
     /**
      * 对话框被关闭时会触发的回调函数处理器。
@@ -194,29 +238,6 @@ export class Dialog extends View {
     isPopupCenter: boolean = true;
     /**关闭类型，点击name为"close"，"cancel"，"sure"，"no"，"yes"，"no"的按钮时，会自动记录点击按钮的名称*/
     closeType: string;
-    /**@private */
-    private _dragArea: Rectangle;
-    /**@internal */
-    _param: any;
-    /**@internal */
-    _effectTween: Tween;
-
-    constructor() {
-        super();
-        this.popupEffect = Dialog.manager.popupEffectHandler;
-        this.closeEffect = Dialog.manager.closeEffectHandler;
-        this._dealDragArea();
-        this.on(Event.CLICK, this, this._onClick);
-    }
-
-    /**@private 提取拖拽区域*/
-    protected _dealDragArea(): void {
-        var dragTarget: Sprite = (<Sprite>this.getChildByName("drag"));
-        if (dragTarget) {
-            this.dragArea = dragTarget._x + "," + dragTarget._y + "," + dragTarget.width + "," + dragTarget.height;
-            dragTarget.removeSelf();
-        }
-    }
 
     /**
      * 用来指定对话框的拖拽区域。默认值为"0,0,0,0"。
@@ -240,14 +261,53 @@ export class Dialog extends View {
         }
     }
 
-    /**@private */
+    /**弹出框的显示状态；如果弹框处于显示中，则为true，否则为false;*/
+    get isPopup(): boolean {
+        return this.parent != null;
+    }
+
+    /**
+     * @inheritDoc 
+     * @override
+     */
+    set zOrder(value: number) {
+        super.zOrder = value;
+        Dialog.manager._checkMask();
+    }
+
+    /**
+     * @inheritDoc 
+     * @override
+     */
+    get zOrder() {
+        return super.zOrder;
+    }
+
+    constructor() {
+        super();
+        this.popupEffect = Dialog.manager.popupEffectHandler;
+        this.closeEffect = Dialog.manager.closeEffectHandler;
+        this._dealDragArea();
+        this.on(Event.CLICK, this, this._onClick);
+    }
+
+    /**@internal 提取拖拽区域*/
+    protected _dealDragArea(): void {
+        var dragTarget: Sprite = (<Sprite>this.getChildByName("drag"));
+        if (dragTarget) {
+            this.dragArea = dragTarget._x + "," + dragTarget._y + "," + dragTarget.width + "," + dragTarget.height;
+            dragTarget.removeSelf();
+        }
+    }
+
+    /**@internal */
     private _onMouseDown(e: Event): void {
         var point: Point = this.getMousePoint();
         if (this._dragArea.contains(point.x, point.y)) this.startDrag();
         else this.stopDrag();
     }
 
-    /**@private 处理默认点击事件*/
+    /**@internal 处理默认点击事件*/
     protected _onClick(e: Event): void {
         var btn: Button = (<Button>e.target);
         if (btn) {
@@ -315,69 +375,11 @@ export class Dialog extends View {
         this._open(true, closeOther, showEffect);
     }
 
-    /**@private */
+    /**@internal */
     protected _open(modal: boolean, closeOther: boolean, showEffect: boolean): void {
         this.isModal = modal;
         this.isShowEffect = showEffect;
         Dialog.manager.lock(true);
         this.open(closeOther);
-    }
-
-    /**弹出框的显示状态；如果弹框处于显示中，则为true，否则为false;*/
-    get isPopup(): boolean {
-        return this.parent != null;
-    }
-
-    /**
-     * @inheritDoc 
-     * @override
-     */
-    set zOrder(value: number) {
-        super.zOrder = value;
-        Dialog.manager._checkMask();
-    }
-    /**
-     * @inheritDoc 
-     * @override
-     */
-    get zOrder() {
-        return super.zOrder;
-    }
-
-    /**
-     * 设置锁定界面，在界面未准备好前显示锁定界面，准备完毕后则移除锁定层，如果为空则什么都不显示
-     * @param	view 锁定界面内容
-     */
-    static setLockView(view: UIComponent): void {
-        Dialog.manager.setLockView(view);
-    }
-
-    /**
-     * 锁定所有层，显示加载条信息，防止下面内容被点击
-     */
-    static lock(value: boolean): void {
-        Dialog.manager.lock(value);
-    }
-
-    /**关闭所有对话框。*/
-    static closeAll(): void {
-        Dialog.manager.closeAll();
-    }
-
-    /**
-     * 根据组获取对话框集合
-     * @param	group 组名称
-     * @return	对话框数组
-     */
-    static getDialogsByGroup(group: string): any[] {
-        return Dialog.manager.getDialogsByGroup(group);
-    }
-
-    /**
-     * 根据组关闭所有弹出框
-     * @param	group 需要关闭的组名称
-     */
-    static closeByGroup(group: string): any[] {
-        return Dialog.manager.closeByGroup(group);
     }
 }

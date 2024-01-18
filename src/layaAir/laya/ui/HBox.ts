@@ -22,14 +22,8 @@ export class HBox extends LayoutBox {
      */
     static BOTTOM: string = "bottom";
 
-    /** 
-     * @inheritDoc	
-     * @override
-     */
-    protected sortItem(items: any[]): void {
-        if (items) items.sort(function (a: any, b: any): number { return a.x - b.x; });
-    }
     /**
+     * @internal
      * @inheritDoc	
      * @override
      */
@@ -39,6 +33,16 @@ export class HBox extends LayoutBox {
     }
 
     /** 
+     * @internal
+     * @inheritDoc	
+     * @override
+     */
+    protected sortItem(items: any[]): void {
+        if (items) items.sort(function (a: any, b: any): number { return a.x - b.x; });
+    }
+
+    /** 
+     * @internal
      * @inheritDoc	
      * @override
      */
