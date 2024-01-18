@@ -187,7 +187,7 @@ export class RTBaseRenderNode implements IBaseRenderNode {
     set_caculateBoundingBox(call: any, fun: any): void {
 
         this._caculateBoundingBoxbindFun = fun.bind(call);
-        this._nativeObj._calculateBoundingBox(this._caculateBoundingBoxbindFun);
+        this._nativeObj.set_calculateBoundingBox(this._caculateBoundingBoxbindFun);
         //native
     }
 

@@ -94,13 +94,6 @@ export class GLESRenderContext3D implements IRenderContext3D {
         this._renderTarget = value;
     }
 
-    set nativeRenderTarget(value: RenderTexture) {
-        let nativecontext3D: any;
-        nativecontext3D.set_renderTarget(value._renderTarget)
-    }
-
-
-
     setViewPort(value: Viewport) {
         this._viewPort = value;
     }
