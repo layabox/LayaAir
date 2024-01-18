@@ -8,6 +8,7 @@ import { ILightMapData } from "../../../RenderDriverLayer/RenderModuleData/ILigh
 import { IReflectionProbeData } from "../../../RenderDriverLayer/RenderModuleData/IReflectionProbeData";
 import { IVolumetricGIData } from "../../../RenderDriverLayer/RenderModuleData/IVolumetricGIData";
 import { IrradianceMode } from "../../../core/render/BaseRender";
+import { RenderContext3D } from "../../../core/render/RenderContext3D";
 import { Bounds } from "../../../math/Bounds";
 import { NativeTransform3D } from "../../NativeOBJ/NativeTransform3D";
 
@@ -165,7 +166,7 @@ export class RTBaseRenderNode implements IBaseRenderNode {
 
 
     private _caculateBoundingBoxbindFun: any;
-    
+
     private _renderUpdatePrebindFun: any;
 
     /**
@@ -174,7 +175,7 @@ export class RTBaseRenderNode implements IBaseRenderNode {
      * @param fun 
      */
     set_renderUpdatePreCall(call: any, fun: any): void {
-        this._renderUpdatePrebindFun = fun.bind(call);
+        this._renderUpdatePrebindFun = fun.bind(call, RenderContext3D._instance._contextOBJ);
         this._nativeObj.set_renderUpdatePre(this._renderUpdatePrebindFun);
     }
 
@@ -184,9 +185,9 @@ export class RTBaseRenderNode implements IBaseRenderNode {
      * @param fun 
      */
     set_caculateBoundingBox(call: any, fun: any): void {
-       
+
         this._caculateBoundingBoxbindFun = fun.bind(call);
-        this._nativeObj._calculateBoundingBox(  this._caculateBoundingBoxbindFun);
+        this._nativeObj._calculateBoundingBox(this._caculateBoundingBoxbindFun);
         //native
     }
 
