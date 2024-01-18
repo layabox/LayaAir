@@ -287,4 +287,74 @@ export const BlueprintDataList: TBPCNode[] = [
             },
         ]
     },
+    {
+        name: "expression",
+        type: BPType.Pure,
+        input: [
+            {
+                name: 'caller',
+                type: 'any',
+            },
+            {
+                name: "str",
+                type: "string",
+            }
+        ],
+        output: [
+            {
+                type: "any",
+            },
+        ],
+    },
+    {
+        name: "as",
+        type: BPType.Assertion,
+        input: [
+            {
+                name: 'target',
+                type: 'any',
+            },
+            {
+                name: "type",
+                type: "any",
+            }
+        ],
+        output: [
+            {
+                name: "then",
+                type: "any",
+            },
+        ],
+    },
+    {
+        name: "instanceof",
+        type: BPType.Branch,
+        modifiers: {
+            isStatic: true,
+        },
+        input: [
+            {
+                name: "execute",
+                type: "exec",
+            },
+            {
+                name: 'target',
+                type: 'any',
+            },
+            {
+                name: "type",
+                type: "any",
+            },
+        ],
+        output: [
+            {
+                name: "true",
+                type: "exec",
+            },
+            {
+                name: "false",
+                type: "exec",
+            },
+        ]
+    },
 ]

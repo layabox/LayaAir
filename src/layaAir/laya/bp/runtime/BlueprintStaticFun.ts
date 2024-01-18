@@ -7,11 +7,11 @@ import { IRunAble } from "./interface/IRunAble";
  * 
  */
 export class BlueprintStaticFun {
-    static branch(input: boolean, outExcutes: BlueprintPinRuntime[]): BlueprintPinRuntime {
+    static branch(outExcutes: BlueprintPinRuntime[], input: boolean): BlueprintPinRuntime {
         return input ? outExcutes[0] : outExcutes[1];
     }
 
-    static switchFun(input: any, outExcutes: BlueprintPinRuntime[]): BlueprintPinRuntime {
+    static switchFun(outExcutes: BlueprintPinRuntime[], input: any): BlueprintPinRuntime {
         return outExcutes.find((item) => item.name == input) || outExcutes.find((item) => item.name == "default");
     }
 
@@ -71,5 +71,19 @@ export class BlueprintStaticFun {
 
     static equal(a: any, b: any): any {
         return a == b;
+    }
+
+    static expression() {
+        return true;
+    }
+
+    static typeInstanceof(outExcutes: BlueprintPinRuntime[], target: any, type: any) {
+        let b;
+        if (typeof (type) == 'string') {
+            b = typeof (target) == type;
+        } else {
+            b = target instanceof type;
+        }
+        return b ? outExcutes[0] : outExcutes[1];
     }
 }
