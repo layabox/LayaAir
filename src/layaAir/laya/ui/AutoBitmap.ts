@@ -32,6 +32,9 @@ export class AutoBitmap extends Graphics {
     private _drawGridCmd: Draw9GridTextureCmd | DrawTextureCmd;
     uv: number[] = null;
 
+    /**
+     * 网格数据
+     */
     get sizeGrid(): number[] {
         return this._sizeGrid;
     }
@@ -94,6 +97,9 @@ export class AutoBitmap extends Graphics {
         }
     }
 
+    /**
+     * 颜色
+     */
     get color() {
         return this._color;
     }
@@ -186,6 +192,9 @@ export class AutoBitmap extends Graphics {
         this._offset = null;
     }
 
+    /**
+     * @internal
+     */
     setState(index: number, numStates: number) {
         this._stateIndex = index;
         this._stateNum = numStates;

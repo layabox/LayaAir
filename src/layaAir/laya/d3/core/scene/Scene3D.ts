@@ -458,7 +458,8 @@ export class Scene3D extends Sprite implements ISubmit {
 
     /** @internal */
     componentElementMap: Map<string, IElementComponentManager> = new Map();
-    //init ComponentManager Data
+
+    /** @internal */
     private _componentElementDatasMap: any = {};
 
 
@@ -829,6 +830,10 @@ export class Scene3D extends Sprite implements ISubmit {
         });
     }
 
+
+    /**
+     * @internal
+     */
     set componentElementDatasMap(value: any) {
         this._componentElementDatasMap = value;
         this.componentElementMap.forEach((value, key) => {

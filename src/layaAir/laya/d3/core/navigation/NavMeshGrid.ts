@@ -4,9 +4,6 @@ import { Bounds } from "../../math/Bounds";
 import { NavTileData } from "./NavTileData";
 import { RecastConfig } from "./RecastConfig";
 
-/**
- * 
- */
 export class NavMeshGrid {
     /**@internal */
     private _config: RecastConfig;
@@ -23,10 +20,12 @@ export class NavMeshGrid {
     /**@internal */
     private _bordWidth: number = 0;
 
-
+    get tileWidth() {
+        return this._config.tileSize * this._config.cellSize;
+    }
 
     /**
-     * <code>实例化一个NavMesh组件<code>
+     * <code>实例化一个NavMeshGrid组件<code>
      */
     constructor(config: RecastConfig, bound: Bounds) {
         this._config = config;
@@ -52,10 +51,11 @@ export class NavMeshGrid {
         this._cellSize.x = Math.ceil((max.z - min.z) / cellSize);
     }
 
-    get tileWidth() {
-        return this._config.tileSize * this._config.cellSize;
-    }
 
+
+    /**
+     * refeachConfig
+     */
     public refeachConfig(tile: NavTileData) {
         tile._boundBox.cloneTo(this._bounds);
         this._updateBound()
@@ -109,6 +109,8 @@ export class NavMeshGrid {
 
     /**
     * get tile index of map by position
+    * @param x  世界坐标x
+    * @param z  世界坐标z
     */
     getTileIndexByPos(x: number, z: number): number {
         return this.getTileIndex(this.getTileXIndex(x), this.getTileZIndex(z));
@@ -158,19 +160,29 @@ export class NavMeshGrid {
         return this.maxXTileCount * this.maxZTileCount;
     }
 
+    /**
+     * get max x tiles number
+     */
     public get maxXTileCount(): number {
         return this._tileSize.x;
     }
 
+    /**
+     * get max z tiles number
+     */
     public get maxZTileCount(): number {
         return this._tileSize.y;
     }
 
-
+    /**
+    * get max x cell number
+    */
     public get maxXCellCount(): number {
         return this._cellSize.x;
     }
-
+    /**
+     * get max z cell number
+     */
     public get maxZCellCount(): number {
         return this._cellSize.y;
     }

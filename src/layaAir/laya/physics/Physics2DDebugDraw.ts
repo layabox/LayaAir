@@ -4,8 +4,9 @@ import { Sprite } from "../display/Sprite"
 import { Vector2 } from "../maths/Vector2";
 import { Context } from "../resource/Context"
 import { IPhysiscs2DFactory } from "./IPhysiscs2DFactory";
+
 /**
- * 物理辅助线
+ * @internal 物理辅助线
  */
 export class Physics2DDebugDraw extends Sprite {
 
@@ -27,25 +28,45 @@ export class Physics2DDebugDraw extends Sprite {
     /**@protected */
     protected _lineWidth: number;
 
+    /**
+     * 文本颜色
+     */
     DrawString_color: string;
 
+    /**
+     * 红色
+     */
     Red: string;
 
+    /**
+    * 绿色
+    */
     Green: string;
 
+    /**
+     * 绘制形状
+     */
     get mG(): Graphics {
         return this._mG;
     }
 
+    /**
+     * 绘制文本
+     */
     get textG(): Graphics {
         return this._textG;
     }
-
+    /**
+     * 线段宽度
+     */
     get lineWidth(): number {
         return this._lineWidth;
     }
 
 
+    /**
+     * camera
+     */
     get camera(): any {
         return this._camera;
     }
@@ -95,12 +116,20 @@ export class Physics2DDebugDraw extends Sprite {
         super.render(ctx, x, y);
     }
 
+    /**
+     * @internal
+     * 设置画布的矩阵
+     */
     PushTransform(tx: number, ty: number, angle: number): void {
         this._mG.save();
         this._mG.translate(tx, ty);
         this._mG.rotate(angle);
     }
 
+    /**
+     * @internal
+     * 还原画布的矩阵
+     */
     PopTransform(): void {
         this._mG.restore();
     }

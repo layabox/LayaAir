@@ -17,18 +17,6 @@ export class EdgeCollider extends ColliderBase {
     /**@internal 顶点数据*/
     private _datas: number[] = [0, 0, 100, 0];
 
-    constructor() {
-        super();
-        this._physicShape = PhysicsShape.EdgeShape;
-    }
-
-    /**@internal 设置碰撞体数据*/
-    _setShapeData(shape: any): void {
-        var len: number = this._datas.length;
-        if (len % 2 == 1) throw "EdgeCollider points lenth must a multiplier of 2";
-        Physics2D.I._factory.set_EdgeShape_data(shape, this.pivotoffx, this.pivotoffy, this._datas, this.scaleX, this.scaleY);
-    }
-
     /**
      * @deprecated
      * 用逗号隔开的点的集合，注意只有两个点，格式：x,y,x,y*/
@@ -57,5 +45,17 @@ export class EdgeCollider extends ColliderBase {
         if (!value) throw "EdgeCollider points cannot be empty";
         this._datas = value;
         this._needupdataShapeAttribute();
+    }
+
+    constructor() {
+        super();
+        this._physicShape = PhysicsShape.EdgeShape;
+    }
+
+    /**@internal 设置碰撞体数据*/
+    _setShapeData(shape: any): void {
+        var len: number = this._datas.length;
+        if (len % 2 == 1) throw "EdgeCollider points lenth must a multiplier of 2";
+        Physics2D.I._factory.set_EdgeShape_data(shape, this.pivotoffx, this.pivotoffy, this._datas, this.scaleX, this.scaleY);
     }
 }

@@ -32,7 +32,7 @@ export class NavModifleBase extends Component {
     /**@internal */
     private _areaFlags: string = NavigationManager.defaltUnWalk;
 
-
+    /**@internal */
     get dtNavTileCache(): any {
         return this._dtNavTileCache;
     }

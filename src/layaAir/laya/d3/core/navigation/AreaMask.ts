@@ -5,10 +5,16 @@ export class AreaMask {
     private _excludeflag: number;
     private _areaFlagMap: Map<string, NavAreaFlag>;
 
+    /**
+     * excludeflag
+     */
     get excludeflag(): number {
         return this._excludeflag;
     }
 
+    /**
+    * flag
+    */
     get flag(): number {
         return this._flags;
     }

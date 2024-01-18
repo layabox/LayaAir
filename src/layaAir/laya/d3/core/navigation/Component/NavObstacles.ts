@@ -15,7 +15,6 @@ export enum NavObstaclesMeshType {
     Num
 }
 
-
 let createObstacleData = function (slices: number, radiusOff: number = 0): NavTileCache {
     let vertexs = new Float32Array(slices * 6);
     const triCount = (slices - 1) * 4;

@@ -7,7 +7,6 @@ import { Vector3 } from "../../../maths/Vector3";
 import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
 import { IndexBuffer3D } from "../../graphics/IndexBuffer3D";
 import { VertexBuffer3D } from "../../graphics/VertexBuffer3D";
-import { Bounds } from "../../math/Bounds";
 import { Mesh } from "../../resource/models/Mesh";
 import { PrimitiveMesh } from "../../resource/models/PrimitiveMesh";
 import { NavMesh } from "./NavMesh";
@@ -30,19 +29,6 @@ export class NavigationUtils {
     static _TemprefPoint1: any;
 
     /**
-     * @internal
-     * @param bound 
-     * @param cellSize 
-     * @returns 
-     */
-    static calGridSize(bound: Bounds, cellSize: number) {
-        return {
-            sizex: Math.round((bound.max.x - bound.min.x) / cellSize),
-            sizey: Math.round((bound.max.z - bound.min.z) / cellSize)
-        }
-    }
-
-    /**
      * @interanl
      * @param fllowPath 
      * @param index 
@@ -56,6 +42,7 @@ export class NavigationUtils {
         fllowPath[index] = navData;
     }
 
+    /**@internal  */
     static inRange(v1: number[], v2: number[], radius: number, height: number, offIndex: number) {
         const dx = v2[0] - v1[offIndex];
         const dy = v2[1] - v1[offIndex + 1];
@@ -63,10 +50,12 @@ export class NavigationUtils {
         return (dx * dx + dz * dz) < radius * radius && Math.abs(dy) < height;
     }
 
+    /**@internal  */
     static isFlags(data: number, flag: any): number {
         return data & flag.value;
     }
 
+    /**@internal  */
     static addVector3ToArray(vec1: Vector3, vec2: Vector3, scale: number) {
         let dest: number[] = [];
         dest[0] = vec1.x + vec2.x * scale;
@@ -75,6 +64,7 @@ export class NavigationUtils {
         return dest;
     }
 
+    /**@internal  */
     static getSteerTarget(navMesh: NavMesh, startRef: any, endRef: any, minTargetDist: number, paths: number[], pathSize: number, out: Vector3) {
         const navQuery = navMesh.navQuery;
         let data = navQuery.findStraightPath(startRef, endRef, paths, pathSize, 3);
@@ -101,6 +91,7 @@ export class NavigationUtils {
         };
     }
 
+    /**@internal  */
     static dtMergeCorridorStartMoved(path: number[], npath: number, maxPath: number, visited: number[], nvisited: number) {
         let furthestPath = -1;
         let furthestVisited = -1;
@@ -131,6 +122,7 @@ export class NavigationUtils {
         return req + size;
     }
 
+    /**@internal  */
     static findFllowPath(navMesh: NavMesh, filter: any, startPos: Vector3, endPos: Vector3, steplength: number, minTarget: number, fllowPath: NavigationPathData[]) {
         const navQuery = navMesh.navQuery;
         const namesh = navMesh.navMesh;
@@ -224,6 +216,7 @@ export class NavigationUtils {
         fllowPath.length = m_nsmoothPath;
     }
 
+    /**@internal  */
     static getTitleData(title: any, vbDatas: number[], center: Vector3, ibs: number[]): void {
         let header: any = title.getheader();
         if (!header) return null;
@@ -263,6 +256,11 @@ export class NavigationUtils {
         }
     }
 
+    /**
+     * create navMesh tile to Laya Mesh 
+     * @param navMesh 
+     * @param mesh
+     */
     static creageDebugMesh(navMesh: NavMesh, mesh: Mesh) {
         let m_navMesh = navMesh.navMesh;
         let tileCount = m_navMesh.getMaxTiles();
@@ -285,6 +283,7 @@ export class NavigationUtils {
         return mesh;
     }
 
+    /**@internal  */
     static resetMesh(mesh: Mesh, vertexDeclaration: VertexDeclaration, vertices: Float32Array, indices: Uint16Array) {
         var vertexBuffer: VertexBuffer3D = Laya3DRender.renderOBJCreate.createVertexBuffer3D(vertices.length * 4, BufferUsage.Static, true);
         vertexBuffer.vertexDeclaration = vertexDeclaration;
@@ -316,16 +315,7 @@ export class NavigationUtils {
         mesh._setGPUMemory(memorySize);
     }
 
-    static createUint8Buffer(length: number) {
-        let ptr = this._recast._malloc(length);
-        const buffer = new Uint8Array(this._recast.HEAPU8.buffer, ptr, length);
-        return { ptr: ptr, buffer: buffer }
-    }
-
-    static freeBuffer(data: any) {
-        this._recast._free(data.ptr);
-    }
-
+    /**@internal  */
     static initialize(Recast: any) {
         NavigationUtils._recast = Recast;
         NavigationUtils._dtCrowdAgentParams = new Recast.dtCrowdAgentParams();
@@ -349,26 +339,42 @@ export class NavigationUtils {
         return new this._recast.dtNavMeshQuery();
     }
 
+    /**
+     * create RefPointData
+     * @return any
+     */
     static createRefPointData(): any {
         return new this._recast.dtRefPointData();
     }
 
+    /**
+    * create MeshOffLink
+    * @return any
+    */
     static createMeshOffLink(): any {
         return new this._recast.dtOffMeshConnection()
     }
 
+    /**
+    * create ConvexVolum
+    * @return any
+    */
     static createConvexVolume(): any {
         return new this._recast.dtConvexVolume()
     }
 
+    /**
+     * create QueryFilter
+     * @return any
+     */
     static createQueryFilter(): any {
         return new this._recast.dtQueryFilter();
     }
 
-    static getCrowdAgentParams(): any {
-        return this._dtCrowdAgentParams;
-    }
-
+    /**
+     * create Crowd
+     * @return any
+     */
     static createCrowd(): any {
         return new this._recast.dtCrowd();
     }
@@ -389,22 +395,45 @@ export class NavigationUtils {
         return new this._recast.dtNavTileCache();
     }
 
+    /**
+    * get CrowdAgentParams  
+    * @return any
+    */
+    static getCrowdAgentParams(): any {
+        return this._dtCrowdAgentParams;
+    }
+
+    /**
+     * free NavMeshQuery
+     */
     static freeNavMeshQuery(data: any) {
         this._recast.dtFreeNavMeshQuery(data);
     }
 
+    /**
+     * free NavMesh
+     */
     static freeNavMesh(data: any) {
         this._recast.dtFreeNavMesh(data);
     }
 
+    /**
+     * free Crowd
+     */
     static freeCrowd(data: any) {
         this._recast.dtFreeCrowd(data);
     }
 
+    /**
+     * free any other
+     */
     static free(data: any) {
         this._recast.dtFree(data);
     }
 
+    /**
+     * check Status is Succeed
+     */
     static statusSucceed(data: any): boolean {
         return this._recast.dtStatusSucceed(status)
     }
