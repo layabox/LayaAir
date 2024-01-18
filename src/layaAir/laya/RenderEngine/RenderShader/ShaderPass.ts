@@ -87,6 +87,21 @@ export class ShaderPass extends ShaderCompileDefineBase {
         return shader;
     }
 
+    private setCacheShader(compileDefine: DefineDatas, shader: ShaderInstance) {
+        var cacheShaders: any = this._cacheSharders;
+        var mask: Array<number> = compileDefine._mask;
+        var endIndex: number = compileDefine._length - 1;
+        var maxEndIndex: number = this._cacheShaderHierarchy - 1;
+        for (var i: number = 0; i < maxEndIndex; i++) {
+            var subMask: number = endIndex < i ? 0 : mask[i];
+            var subCacheShaders = cacheShaders[subMask];
+            (subCacheShaders) || (cacheShaders[subMask] = subCacheShaders = {});
+            cacheShaders = subCacheShaders;
+        }
+        var cacheKey: number = endIndex < maxEndIndex ? 0 : mask[maxEndIndex];
+        cacheShaders[cacheKey] = shader;
+    }
+
     private _createShaderInstance(IS2d: boolean, compileDefine: DefineDatas): ShaderInstance {
         var shader: ShaderInstance;
         let shaderProcessInfo: ShaderProcessInfo = new ShaderProcessInfo();
@@ -103,7 +118,9 @@ export class ShaderPass extends ShaderCompileDefineBase {
         shader = LayaGL.renderOBJCreate.createShaderInstance(shaderProcessInfo, this);
         return shader;
     }
-    
+
+
+
 
     /**
      * @override
@@ -143,8 +160,8 @@ export class ShaderPass extends ShaderCompileDefineBase {
             debugMaskLength = compileDefine._length;
             this._addDebugShaderVariantCollection(compileDefine, debugDefineString, debugDefineMask);
         }
-        //cacheShaders[cacheKey] = this._createShaderInstance(IS2d, compileDefine);
-
+        shader = this._createShaderInstance(IS2d, compileDefine);
+        this.setCacheShader(compileDefine, shader);
         if (Shader3D.debugMode) {
             var defStr: string = "";
             var defCommonStr: string = "";
