@@ -4,6 +4,7 @@ import { BlueprintRuntimeBaseNode } from "../node/BlueprintRuntimeBaseNode";
 import { BlueprintExcuteNode } from "./BlueprintExcuteNode";
 import { IBPRutime } from "../interface/IBPRutime";
 import { IExcuteListInfo } from "../../core/interface/IExcuteListInfo";
+import { IRuntimeDataManger } from "../../core/interface/IRuntimeDataManger";
 
 export class BlueprintExcuteDebuggerNode extends BlueprintExcuteNode implements IRunAble {
     private _nodeList: IExcuteListInfo[] = [];
@@ -28,10 +29,11 @@ export class BlueprintExcuteDebuggerNode extends BlueprintExcuteNode implements 
             this.debuggerPause = true;
             this._doNext = () => {
                 this.debuggerPause = false;
-                runner.runByContext(this, runtimeNode, false, null, -1);
+                let runtimeDataMgr = this.getDataMangerByID(runtimeNode.listIndex);
+                runner.runByContext(this, runtimeDataMgr, runtimeNode, false, null, -1);
                 if (!this.debuggerPause) {
                     if (this._nodeList.length > 0) {
-                        runner.runByContext(this, this._nodeList.pop(), true, null, -1);
+                        runner.runByContext(this, runtimeDataMgr, this._nodeList.pop(), true, null, -1);
                     }
                 }
             }
@@ -53,9 +55,9 @@ export class BlueprintExcuteDebuggerNode extends BlueprintExcuteNode implements 
         }
     }
 
-    excuteFun(nativeFun: Function, outPutParmPins: BlueprintPinRuntime[], caller: any, parmsArray: any[],runId:number): void {
+    excuteFun(nativeFun: Function, outPutParmPins: BlueprintPinRuntime[], runTimeData: IRuntimeDataManger, caller: any, parmsArray: any[], runId: number): void {
 
-        super.excuteFun(nativeFun, outPutParmPins, caller, parmsArray,runId);
+        super.excuteFun(nativeFun, outPutParmPins, runTimeData, caller, parmsArray, runId);
 
     }
 

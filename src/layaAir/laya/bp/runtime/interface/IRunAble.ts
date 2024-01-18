@@ -1,4 +1,5 @@
 import { IExcuteListInfo } from "../../core/interface/IExcuteListInfo";
+import { IRuntimeDataManger } from "../../core/interface/IRuntimeDataManger";
 import { RuntimeNodeData } from "../action/RuntimeNodeData";
 import { BlueprintPinRuntime } from "../BlueprintPinRuntime";
 import { BlueprintRuntimeBaseNode } from "../node/BlueprintRuntimeBaseNode";
@@ -15,15 +16,15 @@ export interface IRunAble {
 
     endExcute(runtimeNode: BlueprintRuntimeBaseNode): void;
 
-    parmFromOtherPin(current: BlueprintPinRuntime, from: BlueprintPinRuntime, parmsArray: any[],runId:number): void;
+    parmFromOtherPin(current: BlueprintPinRuntime,runtimeDataMgr:IRuntimeDataManger, from: BlueprintPinRuntime, parmsArray: any[],runId:number): void;
 
-    parmFromSelf(current: BlueprintPinRuntime, parmsArray: any[],runId:number): void;
+    parmFromSelf(current: BlueprintPinRuntime,runtimeDataMgr:IRuntimeDataManger, parmsArray: any[],runId:number): void;
 
-    parmFromOutPut(outPutParmPins: BlueprintPinRuntime[], parmsArray: any[]): void;
+    parmFromOutPut(outPutParmPins: BlueprintPinRuntime[],runtimeDataMgr:IRuntimeDataManger, parmsArray: any[]): void;
 
     parmFromCustom(parmsArray: any[], parm: any, parmname: string): void;
 
-    excuteFun(nativeFun: Function, outPutParmPins: BlueprintPinRuntime[], caller: any, parmsArray: any[],runId:number): any;
+    excuteFun(nativeFun: Function, outPutParmPins: BlueprintPinRuntime[],runtimeDataMgr:IRuntimeDataManger, caller: any, parmsArray: any[],runId:number): any;
 
     getCode(): string;
 
@@ -37,9 +38,5 @@ export interface IRunAble {
 
     initData(key: number | Symbol, nodeMap: Map<number, BlueprintRuntimeBaseNode>): void;
 
-    getDataById(nid: number): RuntimeNodeData;
-
-    setPinData(pin: BlueprintPinRuntime, value: any, runId: number): void;
-
-    getPinData(pin: BlueprintPinRuntime, runId: number): any;
+    getDataMangerByID(id:symbol|number):IRuntimeDataManger;
 }

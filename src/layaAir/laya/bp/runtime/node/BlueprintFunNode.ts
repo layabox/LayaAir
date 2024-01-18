@@ -9,6 +9,7 @@ import { IBPRutime } from "../interface/IBPRutime";
 import { BlueprintPromise } from "../BlueprintPromise";
 import { TBPEventProperty, TBPNode } from "../../datas/types/BlueprintTypes";
 import { INodeManger } from "../../core/interface/INodeManger";
+import { IRuntimeDataManger } from "../../core/interface/IRuntimeDataManger";
 
 export class BlueprintFunNode extends BlueprintRuntimeBaseNode {
     /**
@@ -27,7 +28,7 @@ export class BlueprintFunNode extends BlueprintRuntimeBaseNode {
         this.tryExcute = this.emptyExcute;
     }
 
-    emptyExcute(context: IRunAble, fromExcute: boolean, runner: IBPRutime, enableDebugPause: boolean): number | BlueprintPromise {
+    emptyExcute(context: IRunAble, runTimeData: IRuntimeDataManger, fromExcute: boolean, runner: IBPRutime, enableDebugPause: boolean): number | BlueprintPromise {
         return BlueprintConst.MAX_CODELINE;
     }
 
@@ -38,13 +39,13 @@ export class BlueprintFunNode extends BlueprintRuntimeBaseNode {
         }
     }
 
-    private excuteHookFun(context: IRunAble, caller: any, parmsArray: any[],runId:number) {
+    private excuteHookFun(context: IRunAble, runTimeData: IRuntimeDataManger, caller: any, parmsArray: any[], runId: number) {
         parmsArray.unshift(this.eventName);
-        return context.excuteFun(this.nativeFun, this.outPutParmPins, caller, parmsArray,runId);
+        return context.excuteFun(this.nativeFun, this.outPutParmPins, runTimeData, caller, parmsArray, runId);
     }
 
 
-    next(context: IRunAble, parmsArray: any[], runner: IBPRutime, enableDebugPause: boolean, runId: number): number {
+    next(context: IRunAble, runTimeData: IRuntimeDataManger, parmsArray: any[], runner: IBPRutime, enableDebugPause: boolean, runId: number): number {
         // this.outPutParmPins.forEach(item=>{
         //     //if(item.linkTo.)
         // })
