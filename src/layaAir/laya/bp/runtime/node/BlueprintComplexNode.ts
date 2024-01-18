@@ -20,7 +20,7 @@ export class BlueprintComplexNode extends BlueprintRuntimeBaseNode {
 
     next(context: IRunAble, parmsArray: any[], runner: IBPRutime, enableDebugPause: boolean, runId: number): number{
         //context.find()
-        let result = this.find(parmsArray[0], this.outExcutes);
+        let result = this.find(this.outExcutes, ...parmsArray);
         if(result.linkTo.length){
             return (result.linkTo[0] as BlueprintPinRuntime).owner.index;    
         }
@@ -30,7 +30,7 @@ export class BlueprintComplexNode extends BlueprintRuntimeBaseNode {
         //this.outExcute.excute(context);
     }
 
-    find: (input: any, outExcutes: BlueprintPinRuntime[]) => BlueprintPinRuntime;
+    find: (outExcutes: BlueprintPinRuntime[],...args:any) => BlueprintPinRuntime;
 
     addPin(pin: BlueprintPinRuntime) {
         super.addPin(pin);

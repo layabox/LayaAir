@@ -1,10 +1,14 @@
 import { BPModifiers } from "./BlueprintDeclaration";
 
+
+
+
 export enum BPType {
     Event = "event",
     Function = "function",
     BPEvent = 'bpEvent',
     Pure = "pure",
+    Class = "class",
     ///
     Operator = "operator",
     GetValue = "getvalue",
@@ -14,7 +18,9 @@ export enum BPType {
     NewTarget = "newtarget",
     CustomFun = "customFun",
     CustomFunStart = "customFunStart",
-    CustomFunReturn = "customFunReturn"
+    CustomFunReturn = "customFunReturn",
+    Expression = "expression",
+    Assertion = "Assertion"
 }
 
 export enum ComponentType {

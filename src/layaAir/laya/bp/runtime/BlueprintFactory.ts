@@ -118,6 +118,8 @@ export class BlueprintFactory {
             this.regFunction("get", BlueprintStaticFun.getVariable);
 
             this.regFunction("set", BlueprintStaticFun.setVariable);
+            this.regFunction("expression", BlueprintStaticFun.expression);
+            this.regFunction("instanceof", BlueprintStaticFun.typeInstanceof);
 
             //this.regFunction("test",BPBaseTest.prototype.test,true);
 
