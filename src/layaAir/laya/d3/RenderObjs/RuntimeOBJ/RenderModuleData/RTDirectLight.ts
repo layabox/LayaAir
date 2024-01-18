@@ -1,24 +1,23 @@
 import { Vector3 } from "../../../../maths/Vector3";
 import { IDirectLightData } from "../../../RenderDriverLayer/RenderModuleData/IDirectLightData";
-import { Transform3D } from "../../../core/Transform3D";
 import { ShadowCascadesMode } from "../../../core/light/ShadowCascadesMode";
 import { ShadowMode } from "../../../core/light/ShadowMode";
 import { NativeTransform3D } from "../../NativeOBJ/NativeTransform3D";
 
 export class RTDirectLight implements IDirectLightData {
-    private _shadowNearPlane: number;
+
     public get shadowNearPlane(): number {
-        return this._shadowNearPlane;
+        return this._nativeObj._shadowNearPlane;
     }
     public set shadowNearPlane(value: number) {
-        this._shadowNearPlane = value;
+        this._nativeObj._shadowNearPlane = value;
     }
-    private _shadowCascadesMode: ShadowCascadesMode;
+
     public get shadowCascadesMode(): ShadowCascadesMode {
-        return this._shadowCascadesMode;
+        return this._nativeObj._shadowCascadesMode;
     }
     public set shadowCascadesMode(value: ShadowCascadesMode) {
-        this._shadowCascadesMode = value;
+        this._nativeObj._shadowCascadesMode = value;
     }
     private _transform: NativeTransform3D;
     public get transform(): NativeTransform3D {
@@ -26,66 +25,66 @@ export class RTDirectLight implements IDirectLightData {
     }
     public set transform(value: NativeTransform3D) {
         this._transform = value;
+        this._nativeObj.setTransform(value._nativeObj);
     }
-    private _shadowResolution: number;
+
     public get shadowResolution(): number {
-        return this._shadowResolution;
+        return this._nativeObj._shadowResolution;
     }
     public set shadowResolution(value: number) {
-        this._shadowResolution = value;
+        this._nativeObj._shadowResolution = value;
     }
-    private _shadowDistance: number;
+
     public get shadowDistance(): number {
-        return this._shadowDistance;
+        return this._nativeObj._shadowDistance;
     }
     public set shadowDistance(value: number) {
-        this._shadowDistance = value;
+        this._nativeObj._shadowDistance = value;
     }
-    private _shadowMode: ShadowMode;
+
     public get shadowMode(): ShadowMode {
-        return this._shadowMode;
+        return this._nativeObj._shadowMode;
     }
     public set shadowMode(value: ShadowMode) {
-        this._shadowMode = value;
+        this._nativeObj._shadowMode = value;
     }
-    private _shadowStrength: number;
+
     public get shadowStrength(): number {
-        return this._shadowStrength;
+        return this._nativeObj._shadowStrength;
     }
     public set shadowStrength(value: number) {
-        this._shadowStrength = value;
+        this._nativeObj._shadowStrength = value;
     }
-    private _shadowDepthBias: number;
     public get shadowDepthBias(): number {
-        return this._shadowDepthBias;
+        return this._nativeObj._shadowDepthBias;
     }
     public set shadowDepthBias(value: number) {
-        this._shadowDepthBias = value;
+        this._nativeObj._shadowDepthBias = value;
     }
-    private _shadowNormalBias: number;
+
     public get shadowNormalBias(): number {
-        return this._shadowNormalBias;
+        return this._nativeObj._shadowNormalBias;
     }
     public set shadowNormalBias(value: number) {
-        this._shadowNormalBias = value;
+        this._nativeObj._shadowNormalBias = value;
     }
-    private _shadowTwoCascadeSplits: number;
+
     public get shadowTwoCascadeSplits(): number {
-        return this._shadowTwoCascadeSplits;
+        return this._nativeObj._shadowTwoCascadeSplits;
     }
     public set shadowTwoCascadeSplits(value: number) {
-        this._shadowTwoCascadeSplits = value;
+        this._nativeObj._shadowTwoCascadeSplits = value;
     }
 
     setShadowFourCascadeSplits(value: Vector3): void {
-        throw new Error("Method not implemented.");
+        value && this._nativeObj.setShadowFourCascadeSplits(value);
     }
 
     setDirection(value: Vector3): void {
-        throw new Error("Method not implemented.");
+        value && this._nativeObj.setDirection(value);
     }
 
-    private _nativeObj: any;
+    _nativeObj: any;
 
     constructor() {
         this._nativeObj = new (window as any).conchRTDirectLight();

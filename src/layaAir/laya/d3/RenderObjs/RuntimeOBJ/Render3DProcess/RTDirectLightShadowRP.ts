@@ -2,7 +2,7 @@ import { InternalRenderTarget } from "../../../../RenderEngine/RenderInterface/I
 import { IDirectLightShadowRP } from "../../../RenderDriverLayer/Render3DProcess/IDirectLightShadowRP";
 import { IDirectLightData } from "../../../RenderDriverLayer/RenderModuleData/IDirectLightData";
 import { ICameraNodeData } from "../../../RenderDriverLayer/RenderModuleData/IModuleData";
-
+import { RTDirectLight } from "../RenderModuleData/RTDirectLight";
 
 
 export class RTDirectLightShadowCastRP implements IDirectLightShadowRP {
@@ -10,8 +10,9 @@ export class RTDirectLightShadowCastRP implements IDirectLightShadowRP {
     public get light(): IDirectLightData {
         return this._light;
     }
-    public set light(value: IDirectLightData) {
+    public set light(value: RTDirectLight) {
         this._light = value;
+        this._nativeObj.set_light(value._nativeObj);
     }
     private _camera: ICameraNodeData;
     public get camera(): ICameraNodeData {
@@ -26,8 +27,9 @@ export class RTDirectLightShadowCastRP implements IDirectLightShadowRP {
     }
     public set destTarget(value: InternalRenderTarget) {
         this._destTarget = value;
+        this._nativeObj.set_destTarget(value);
     }
-    private _nativeObj: any;
+    _nativeObj: any;
     constructor(){
         this._nativeObj = new (window as any).conchRTDirectLightShadowCastRP();
     }
