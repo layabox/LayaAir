@@ -76,7 +76,7 @@ export class RTBaseRenderNode implements IBaseRenderNode {
     }
     public set baseGeometryBounds(value: Bounds) {
         this._baseGeometryBounds = value;
-        //this._nativeObj.set_baseGeometryBounds(value._nativeObj);
+        //TODO this._nativeObj.set_baseGeometryBounds(value._nativeObj);
     }
     public get boundsChange(): boolean {
         return this._nativeObj._boundsChange;
