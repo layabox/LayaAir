@@ -3,64 +3,44 @@ import { Physics2D } from "../Physics2D"
 import { RigidBody } from "../RigidBody"
 import { physics2D_DistancJointDef } from "./JointDefStructInfo";
 import { Sprite } from "../../display/Sprite";
-import { Point } from "../../maths/Point";
 
 /**
  * 距离关节：两个物体上面各自有一点，两点之间的距离固定不变
  */
 export class DistanceJoint extends JointBase {
-    /**@private */
-    private static _tempP: Point = new Point();
-    /**@private */
-    private static _temp: physics2D_DistancJointDef;
-    /**[首次设置有效]关节的自身刚体*/
-    selfBody: RigidBody;
-    /**[首次设置有效]关节的连接刚体，可不设置，默认为左上角空刚体*/
-    otherBody: RigidBody;
-    /**[首次设置有效]自身刚体链接点，是相对于自身刚体的左上角位置偏移*/
-    selfAnchor: any[] = [0, 0];
-    /**[首次设置有效]链接刚体链接点，是相对于otherBody的左上角位置偏移*/
-    otherAnchor: any[] = [0, 0];
-    /**[首次设置有效]两个刚体是否可以发生碰撞，默认为false*/
-    collideConnected: boolean = false;
 
-    /**约束的目标静止长度*/
+    /**@internal */
+    private static _temp: physics2D_DistancJointDef;
+
+    /**@internal 约束的目标静止长度*/
     private _length: number = 0;
-    /**约束的最小长度，-1表示使用默认值*/
+
+    /**@internal 约束的最小长度，-1表示使用默认值*/
     private _maxLength: number = -1;
-    /**约束的最大长度，-1表示使用默认值*/
+
+    /**@internal 约束的最大长度，-1表示使用默认值*/
     private _minLength: number = -1;
 
-    /**弹簧系统的震动频率，可以视为弹簧的弹性系数，通常频率应该小于时间步长频率的一半*/
+    /**@internal 弹簧系统的震动频率，可以视为弹簧的弹性系数，通常频率应该小于时间步长频率的一半*/
     private _frequency: number = 1;
-    /**刚体在回归到节点过程中受到的阻尼比，建议取值0~1*/
+
+    /**@internal 刚体在回归到节点过程中受到的阻尼比，建议取值0~1*/
     private _dampingRatio: number = 0;
 
-    /**
-     * @override
-     */
-    protected _createJoint(): void {
-        if (!this._joint) {
-            let node = <Sprite>this.owner;
-            this.selfBody = this.selfBody || node.getComponent(RigidBody);
-            if (!this.selfBody) throw "selfBody can not be empty";
-            let point = this.getBodyAnchor(this.selfBody, this.selfAnchor[0], this.selfAnchor[1]);
-            var def = DistanceJoint._temp || (DistanceJoint._temp = new physics2D_DistancJointDef());
-            def.bodyA = this.selfBody.getBody();
-            def.localAnchorA.setValue(point.x, point.y);
-            def.bodyB = this.otherBody ? this.otherBody.getBody() : Physics2D.I._emptyBody;
-            point = this.getBodyAnchor(this.otherBody, this.otherAnchor[0], this.otherAnchor[1]);
-            def.localAnchorB.setValue(point.x, point.y);
+    /**[首次设置有效]关节的自身刚体*/
+    selfBody: RigidBody;
 
-            def.dampingRatio = this._dampingRatio;
-            def.frequency = this._frequency;
-            def.collideConnected = this.collideConnected;
-            def.length = this._length;
-            def.maxLength = this._maxLength;
-            def.minLength = this._minLength;
-            this._joint = this._factory.createDistanceJoint(def);
-        }
-    }
+    /**[首次设置有效]关节的连接刚体，可不设置，默认为左上角空刚体*/
+    otherBody: RigidBody;
+
+    /**[首次设置有效]自身刚体链接点，是相对于自身刚体的左上角位置偏移*/
+    selfAnchor: any[] = [0, 0];
+
+    /**[首次设置有效]链接刚体链接点，是相对于otherBody的左上角位置偏移*/
+    otherAnchor: any[] = [0, 0];
+
+    /**[首次设置有效]两个刚体是否可以发生碰撞，默认为false*/
+    collideConnected: boolean = false;
 
     /**约束的目标静止长度*/
     get length(): number {
@@ -124,5 +104,33 @@ export class DistanceJoint extends JointBase {
             return 0;
         }
 
+    }
+
+    constructor() {
+        super();
+    }
+
+    /**@internal */
+    _createJoint(): void {
+        if (!this._joint) {
+            let node = <Sprite>this.owner;
+            this.selfBody = this.selfBody || node.getComponent(RigidBody);
+            if (!this.selfBody) throw "selfBody can not be empty";
+            let point = this._getBodyAnchor(this.selfBody, this.selfAnchor[0], this.selfAnchor[1]);
+            var def = DistanceJoint._temp || (DistanceJoint._temp = new physics2D_DistancJointDef());
+            def.bodyA = this.selfBody.getBody();
+            def.localAnchorA.setValue(point.x, point.y);
+            def.bodyB = this.otherBody ? this.otherBody.getBody() : Physics2D.I._emptyBody;
+            point = this._getBodyAnchor(this.otherBody, this.otherAnchor[0], this.otherAnchor[1]);
+            def.localAnchorB.setValue(point.x, point.y);
+
+            def.dampingRatio = this._dampingRatio;
+            def.frequency = this._frequency;
+            def.collideConnected = this.collideConnected;
+            def.length = this._length;
+            def.maxLength = this._maxLength;
+            def.minLength = this._minLength;
+            this._joint = this._factory.createDistanceJoint(def);
+        }
     }
 }

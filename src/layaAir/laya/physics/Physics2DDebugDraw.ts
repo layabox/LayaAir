@@ -8,23 +8,47 @@ import { IPhysiscs2DFactory } from "./IPhysiscs2DFactory";
  * 物理辅助线
  */
 export class Physics2DDebugDraw extends Sprite {
-    DrawString_color: string;
-    Red: string;
-    Green: string;
-    /**@protected */
+
+    /**@internal */
     protected _camera: any;
 
-    /**@protected */
+    /**@internal */
     protected _mG: Graphics;
-    /**@private */
+
+    /**@internal */
     private _textSp: Sprite;
-    /**@protected */
+
+    /**@internal */
     protected _textG: Graphics;
-    /**@protected */
+
+    /**@internal */
     protected _factory: IPhysiscs2DFactory;
 
     /**@protected */
     protected _lineWidth: number;
+
+    DrawString_color: string;
+
+    Red: string;
+
+    Green: string;
+
+    get mG(): Graphics {
+        return this._mG;
+    }
+
+    get textG(): Graphics {
+        return this._textG;
+    }
+
+    get lineWidth(): number {
+        return this._lineWidth;
+    }
+
+
+    get camera(): any {
+        return this._camera;
+    }
 
     constructor(factory: IPhysiscs2DFactory) {
         super();
@@ -47,18 +71,8 @@ export class Physics2DDebugDraw extends Sprite {
         this.addChild(this._textSp);
     }
 
-    /**@private 
-     * @override
-    */
-    render(ctx: Context, x: number, y: number): void {
-        this._renderToGraphic();
-        super.render(ctx, x, y);
-    }
-
-
-
-    /**@private */
-    private _renderToGraphic(): void {
+    /**@internal */
+    _renderToGraphic(): void {
         if (this._factory.world) {
             this._textG.clear();
             this._mG.clear();
@@ -73,6 +87,13 @@ export class Physics2DDebugDraw extends Sprite {
         }
     }
 
+    /**
+     * @override
+    */
+    render(ctx: Context, x: number, y: number): void {
+        this._renderToGraphic();
+        super.render(ctx, x, y);
+    }
 
     PushTransform(tx: number, ty: number, angle: number): void {
         this._mG.save();
@@ -84,20 +105,4 @@ export class Physics2DDebugDraw extends Sprite {
         this._mG.restore();
     }
 
-    get mG(): Graphics {
-        return this._mG;
-    }
-
-    get textG(): Graphics {
-        return this._textG;
-    }
-
-    get lineWidth(): number {
-        return this._lineWidth;
-    }
-
-
-    get camera(): any {
-        return this._camera;
-    }
 }

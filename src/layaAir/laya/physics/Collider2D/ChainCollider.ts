@@ -8,15 +8,16 @@ import { PhysicsShape } from "./ColliderStructInfo";
 export class ChainCollider extends ColliderBase {
 
     /**
+     * @internal
      * @deprecated
      * 用逗号隔开的点的集合，格式：x,y,x,y ...
      */
     private _points: string = "0,0,100,0";
 
-    /**顶点数据*/
+    /**@internal 顶点数据*/
     private _datas: number[] = [];
 
-    /**是否是闭环，注意不要有自相交的链接形状，它可能不能正常工作*/
+    /**@internal 是否是闭环，注意不要有自相交的链接形状，它可能不能正常工作*/
     private _loop: boolean = false;
 
     constructor() {
@@ -24,10 +25,8 @@ export class ChainCollider extends ColliderBase {
         this._physicShape = PhysicsShape.ChainShape;
     }
 
-    /**
-    * @override
-    */
-    protected _setShapeData(shape: any): void {
+    /**@internal 设置碰撞体数据*/
+    _setShapeData(shape: any): void {
         var len: number = this._datas.length;
         if (len % 2 == 1) throw "ChainCollider datas lenth must a multiplier of 2";
         Physics2D.I._factory.set_ChainShape_data(shape, this.pivotoffx, this.pivotoffy, this._datas, this._loop, this.scaleX, this.scaleY);

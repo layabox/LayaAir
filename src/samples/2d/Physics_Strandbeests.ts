@@ -94,8 +94,6 @@ export class Physics_Strandbeests {
 
         // Circle
         let wheel = this.wheel = new Sprite();
-        wheel.width = wheel.height = 2 * 16 * this.scale;
-        wheel.anchorX = wheel.anchorY = 0.5;
 
         wheel.pos(chassis.x, chassis.y);
         this.Main.box2D.addChild(wheel);
@@ -105,9 +103,6 @@ export class Physics_Strandbeests {
         let wheelCollider: CircleCollider = wheel.addComponent(CircleCollider);
         wheelCollider.density = 1;
         wheelCollider.radius = 16 * this.scale;
-        wheelCollider.x = wheelCollider.y = -wheelCollider.radius;
-
-
 
 
         // 转动关节
@@ -131,10 +126,10 @@ export class Physics_Strandbeests {
     }
 
     private getDistance(body: RigidBody, p: number[], body1: RigidBody, p1: number[]) {
-        let g1 = body.GetWorldPoint(p[0], p[1]);
+        let g1 = body.getWorldPoint(p[0], p[1]);
         let x = g1.x;
         let y = g1.y;
-        g1 = body1.GetWorldPoint(p1[0], p1[1]);
+        g1 = body1.getWorldPoint(p1[0], p1[1]);
         return Math.sqrt(Math.pow(g1.x - x, 2) + Math.pow(g1.y - y, 2))
     }
 

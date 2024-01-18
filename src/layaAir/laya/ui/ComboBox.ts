@@ -90,72 +90,72 @@ import { HideFlags } from "../Const";
  *
  */
 export class ComboBox extends UIComponent {
-    /**@private */
+    /**@internal */
     protected _visibleNum: number = 6;
     /**
-     * @private
+     * @internal
      */
     protected _button: Button;
     /**
-     * @private
+     * @internal
      */
     protected _list: List;
     /**
-     * @private
+     * @internal
      */
     protected _isOpen: boolean;
     /**
-     * @private
+     * @internal
      */
     protected _itemColors: string[];
     /**
-     * @private
+     * @internal
      */
     protected _itemPadding: number[];
     /**
-     * @private
+     * @internal
      */
     protected _itemSize: number = 12;
     /**
-     * @private
+     * @internal
      */
     protected _labels: string[] = [];
     /**
-     * @private
+     * @internal
      * 下拉提示文本
      */
     protected _defaultLabel: string = '';
     /**
-     * @private
+     * @internal
      */
     protected _selectedIndex: number = -1;
     /**
-     * @private
+     * @internal
      */
     protected _selectHandler: Handler;
     /**
-     * @private 下拉框列表单元的高度
+     * @internal 下拉框列表单元的高度
      */
     protected _itemHeight: number;
     /**
-     * @private
+     * @internal
      */
     protected _listHeight: number;
     /**
-     * @private
+     * @internal
      */
     protected _listChanged: boolean;
     /**
-     * @private
+     * @internal
      */
     protected _itemChanged: boolean;
     /**
-     * @private
+     * @internal
      */
     protected _scrollBarSkin: string;
     protected _scrollType: ScrollType = 0;
     /**
-     * @private
+     * @internal
      */
     protected _isCustomList: boolean;
     /**
@@ -163,84 +163,6 @@ export class ComboBox extends UIComponent {
      */
     itemRender: any = null;
 
-    /**
-     * 创建一个新的 <code>ComboBox</code> 组件实例。
-     * @param skin 皮肤资源地址。
-     * @param labels 下拉列表的标签集字符串。以逗号做分割，如"item0,item1,item2,item3,item4,item5"。
-     */
-    constructor(skin: string = null, labels: string = null) {
-        super();
-
-        this._itemColors = Styles.comboBoxItemColors;
-        this._itemPadding = [3, 3, 3, 3];
-
-        this.skin = skin;
-        this.labels = labels;
-    }
-
-    /**
-     * @inheritDoc 
-     * @override
-    */
-    destroy(destroyChild: boolean = true): void {
-        ILaya.stage.off(Event.MOUSE_DOWN, this, this.removeList);
-        ILaya.stage.off(Event.MOUSE_WHEEL, this, this._onStageMouseWheel);
-        super.destroy(destroyChild);
-        this._button && this._button.destroy(destroyChild);
-        this._list && this._list.destroy(destroyChild);
-        this._button = null;
-        this._list = null;
-        this._itemColors = null;
-        this._itemPadding = null;
-        this._itemHeight = null;
-        this._labels = null;
-        this._selectHandler = null;
-        this._defaultLabel = null;
-    }
-
-    /**
-     * @inheritDoc 
-     * @override
-    */
-    protected createChildren(): void {
-        this._button = new Button();
-        this._button.hideFlags = HideFlags.HideAndDontSave;
-        this._button.text.align = "left";
-        this._button.labelPadding = "0,0,0,5";
-        this._button.on(Event.MOUSE_DOWN, this, this.onButtonMouseDown);
-        this.addChild(this._button);
-    }
-
-    private _createList(): void {
-        this._list = new List();
-        this._list.hideFlags = HideFlags.HideAndDontSave;
-        this._list.scrollType = this._scrollType;
-        if (this._scrollBarSkin)
-            this._list.vScrollBarSkin = this._scrollBarSkin;
-        this._setListEvent(this._list);
-    }
-
-    private _setListEvent(list: List): void {
-        this._list.selectEnable = true;
-        this._list.on(Event.MOUSE_DOWN, this, this.onListDown);
-        this._list.mouseHandler = Handler.create(this, this.onlistItemMouse, null, false);
-        if (this._list.scrollBar) this._list.scrollBar.on(Event.MOUSE_DOWN, this, this.onScrollBarDown);
-    }
-
-    /**
-     * @private
-     */
-    private onListDown(e: Event): void {
-        e.stopPropagation();
-    }
-
-    private onScrollBarDown(e: Event): void {
-        e.stopPropagation();
-    }
-
-    private onButtonMouseDown(e: Event): void {
-        this.callLater(this.switchTo, [!this._isOpen]);
-    }
 
     get skin(): string {
         return this._button.skin;
@@ -253,86 +175,6 @@ export class ComboBox extends UIComponent {
         }
     }
 
-    /**
-     * @inheritDoc 
-     * @override
-    */
-    protected measureWidth(): number {
-        return this._button.width;
-    }
-
-    /**
-     * @inheritDoc 
-     * @override
-    */
-    protected measureHeight(): number {
-        return this._button.height;
-    }
-
-    /**
-     * @private
-     */
-    protected changeList(): void {
-        this._listChanged = false;
-        var labelWidth: number = this.width - 2;
-        var labelColor: string = this._itemColors[2];
-        this._itemHeight = (this._itemHeight) ? this._itemHeight : this._itemSize + 6;
-        let _padding: string = (this.itemPadding) ? this.itemPadding : "3,3,3,3";
-        this._list.itemRender = this.itemRender || { type: "Box", child: [{ type: "Label", props: { name: "label", x: 1, padding: _padding, width: labelWidth, height: this._itemHeight, fontSize: this._itemSize, color: labelColor } }] };
-        this._list.repeatY = this._visibleNum;
-        this._list.refresh();
-    }
-
-    /**
-     * @private
-     * 下拉列表的鼠标事件响应函数。
-     */
-    protected onlistItemMouse(e: Event, index: number): void {
-        let type: string = e.type;
-        if (type === Event.MOUSE_OVER || type === Event.MOUSE_OUT) {
-            if (this._isCustomList) return;
-            let box = this._list.getCell(index);
-            if (!box) return;
-            let label: Label = (<Label>box.getChildByName("label"));
-            if (label) {
-                if (type === Event.ROLL_OVER) {
-                    label.bgColor = this._itemColors[0];
-                    label.color = this._itemColors[1];
-                } else {
-                    label.bgColor = null;
-                    label.color = this._itemColors[2];
-                }
-            }
-        } else if (type === Event.CLICK) {
-            this.selectedIndex = index;
-            this.isOpen = false;
-        }
-    }
-
-    /**
-     * @private
-     */
-    private switchTo(value: boolean): void {
-        this.isOpen = value;
-    }
-
-    /**
-     * 更改下拉列表的打开状态。
-     */
-    protected changeOpen(): void {
-        this.isOpen = !this._isOpen;
-    }
-
-    /**
-     * @inheritDoc 
-     * @override
-     */
-    _setWidth(value: number) {
-        super._setWidth(value);
-        this._button.width = this._width;
-        this._itemChanged = true;
-        this._listChanged = true;
-    }
 
     /**
      * 下拉列表文本的边距Padding
@@ -346,14 +188,6 @@ export class ComboBox extends UIComponent {
         this._itemPadding = UIUtils.fillArray(this._itemPadding, value, Number);
     }
 
-    /**
-     * @inheritDoc 
-     * @override
-     */
-    _setHeight(value: number) {
-        super._setHeight(value);
-        this._button.height = this._height;
-    }
 
     /**
      * 标签集合字符串。
@@ -372,35 +206,6 @@ export class ComboBox extends UIComponent {
         this._itemChanged = true;
     }
 
-    /**
-     * 更改下拉列表。
-     */
-    protected changeItem(): void {
-        this._itemChanged = false;
-        //显示边框
-        this._listHeight = this._labels.length > 0 ? Math.min(this._visibleNum, this._labels.length) * this._itemHeight : this._itemHeight;
-        if (!this._isCustomList) {
-            //填充背景
-            var g: Graphics = this._list.graphics;
-            g.clear();
-            g.drawRect(0, 0, this.width - 1, this._listHeight, this._itemColors[4], this._itemColors[3]);
-        }
-
-        //填充数据
-        let a: any[] = this._list.array || [];
-        a.length = 0;
-        for (let i = 0, n = this._labels.length; i < n; i++) {
-            a.push({ label: this._labels[i] });
-        }
-        this._list.size(this.width, this._listHeight);
-        this._list.array = a;
-
-        //if (_visibleNum > a.length) {
-        //_list.height = _listHeight;
-        //} else {
-        //_list.height = 0;
-        //}
-    }
 
     /**
      * 表示选择的下拉列表项的索引。
@@ -421,10 +226,6 @@ export class ComboBox extends UIComponent {
             this.event(Event.CHANGE, Event.EMPTY);
             this._selectHandler && this._selectHandler.runWith(this._selectedIndex);
         }
-    }
-
-    private changeSelected(): void {
-        this._button.label = this.selectedLabel;
     }
 
     /**
@@ -547,20 +348,6 @@ export class ComboBox extends UIComponent {
         }
     }
 
-    private _onStageMouseWheel(e: Event): void {
-        if (!this._list || this._list.contains(e.target)) return;
-        this.removeList(null);
-    }
-
-    /**
-     * 关闭下拉列表。
-     */
-    protected removeList(e: Event): void {
-        ILaya.stage.off(Event.MOUSE_DOWN, this, this.removeList);
-        ILaya.stage.off(Event.MOUSE_WHEEL, this, this._onStageMouseWheel);
-        this.isOpen = false;
-    }
-
     /**
      * 滚动类型
      */
@@ -626,20 +413,6 @@ export class ComboBox extends UIComponent {
             this._setListEvent(value);
             this._itemHeight = value.getCell(0).height + value.spaceY;
         }
-    }
-
-    /**
-     * @inheritDoc 
-     * @override
-    */
-    set_dataSource(value: any): void {
-        this._dataSource = value;
-        if (typeof (value) == 'number' || typeof (value) == 'string')
-            this.selectedIndex = parseInt(value as string);
-        else if (value instanceof Array)
-            this.labels = ((<any[]>value)).join(",");
-        else
-            super.set_dataSource(value);
     }
 
     /**
@@ -713,5 +486,265 @@ export class ComboBox extends UIComponent {
 
     set stateNum(value: number) {
         this._button.stateNum = value
+    }
+
+    /**
+     * 创建一个新的 <code>ComboBox</code> 组件实例。
+     * @param skin 皮肤资源地址。
+     * @param labels 下拉列表的标签集字符串。以逗号做分割，如"item0,item1,item2,item3,item4,item5"。
+     */
+    constructor(skin: string = null, labels: string = null) {
+        super();
+
+        this._itemColors = Styles.comboBoxItemColors;
+        this._itemPadding = [3, 3, 3, 3];
+
+        this.skin = skin;
+        this.labels = labels;
+    }
+
+    /**
+     * @inheritDoc 
+     * @override
+    */
+    protected createChildren(): void {
+        this._button = new Button();
+        this._button.hideFlags = HideFlags.HideAndDontSave;
+        this._button.text.align = "left";
+        this._button.labelPadding = "0,0,0,5";
+        this._button.on(Event.MOUSE_DOWN, this, this.onButtonMouseDown);
+        this.addChild(this._button);
+    }
+
+    /**
+     * @internal
+     */
+    private _createList(): void {
+        this._list = new List();
+        this._list.hideFlags = HideFlags.HideAndDontSave;
+        this._list.scrollType = this._scrollType;
+        if (this._scrollBarSkin)
+            this._list.vScrollBarSkin = this._scrollBarSkin;
+        this._setListEvent(this._list);
+    }
+
+    /**
+     * @internal
+     */
+    private _setListEvent(list: List): void {
+        this._list.selectEnable = true;
+        this._list.on(Event.MOUSE_DOWN, this, this.onListDown);
+        this._list.mouseHandler = Handler.create(this, this.onlistItemMouse, null, false);
+        if (this._list.scrollBar) this._list.scrollBar.on(Event.MOUSE_DOWN, this, this.onScrollBarDown);
+    }
+
+
+    /**
+     * @internal
+     * @inheritDoc 
+     * @override
+     */
+    _setWidth(value: number) {
+        super._setWidth(value);
+        this._button.width = this._width;
+        this._itemChanged = true;
+        this._listChanged = true;
+    }
+
+    /**
+     * @internal
+     * @inheritDoc 
+     * @override
+     */
+    _setHeight(value: number) {
+        super._setHeight(value);
+        this._button.height = this._height;
+    }
+
+    /**
+     * @internal
+     */
+    private _onStageMouseWheel(e: Event): void {
+        if (!this._list || this._list.contains(e.target)) return;
+        this.removeList(null);
+    }
+
+    /**
+     * @internal
+     * 关闭下拉列表。
+     */
+    protected removeList(e: Event): void {
+        ILaya.stage.off(Event.MOUSE_DOWN, this, this.removeList);
+        ILaya.stage.off(Event.MOUSE_WHEEL, this, this._onStageMouseWheel);
+        this.isOpen = false;
+    }
+
+    /**
+     * @internal
+     */
+    private onListDown(e: Event): void {
+        e.stopPropagation();
+    }
+
+    /**
+     * @internal
+     */
+    private onScrollBarDown(e: Event): void {
+        e.stopPropagation();
+    }
+
+    /**
+     * @internal
+     */
+    private onButtonMouseDown(e: Event): void {
+        this.callLater(this.switchTo, [!this._isOpen]);
+    }
+
+
+    /**
+     * @internal
+     * @inheritDoc 
+     * @override
+    */
+    protected measureWidth(): number {
+        return this._button.width;
+    }
+
+    /**
+     * @internal
+     * @inheritDoc 
+     * @override
+    */
+    protected measureHeight(): number {
+        return this._button.height;
+    }
+
+    /**
+     * @internal
+     */
+    protected changeList(): void {
+        this._listChanged = false;
+        var labelWidth: number = this.width - 2;
+        var labelColor: string = this._itemColors[2];
+        this._itemHeight = (this._itemHeight) ? this._itemHeight : this._itemSize + 6;
+        let _padding: string = (this.itemPadding) ? this.itemPadding : "3,3,3,3";
+        this._list.itemRender = this.itemRender || { type: "Box", child: [{ type: "Label", props: { name: "label", x: 1, padding: _padding, width: labelWidth, height: this._itemHeight, fontSize: this._itemSize, color: labelColor } }] };
+        this._list.repeatY = this._visibleNum;
+        this._list.refresh();
+    }
+
+    /**
+     * @internal
+     * 下拉列表的鼠标事件响应函数。
+     */
+    protected onlistItemMouse(e: Event, index: number): void {
+        let type: string = e.type;
+        if (type === Event.MOUSE_OVER || type === Event.MOUSE_OUT) {
+            if (this._isCustomList) return;
+            let box = this._list.getCell(index);
+            if (!box) return;
+            let label: Label = (<Label>box.getChildByName("label"));
+            if (label) {
+                if (type === Event.ROLL_OVER) {
+                    label.bgColor = this._itemColors[0];
+                    label.color = this._itemColors[1];
+                } else {
+                    label.bgColor = null;
+                    label.color = this._itemColors[2];
+                }
+            }
+        } else if (type === Event.CLICK) {
+            this.selectedIndex = index;
+            this.isOpen = false;
+        }
+    }
+
+    /**
+     * @internal
+     */
+    private switchTo(value: boolean): void {
+        this.isOpen = value;
+    }
+
+    /**
+     * @internal
+     * 更改下拉列表的打开状态。
+     */
+    protected changeOpen(): void {
+        this.isOpen = !this._isOpen;
+    }
+
+    /**
+     * @internal
+     * 更改下拉列表。
+     */
+    protected changeItem(): void {
+        this._itemChanged = false;
+        //显示边框
+        this._listHeight = this._labels.length > 0 ? Math.min(this._visibleNum, this._labels.length) * this._itemHeight : this._itemHeight;
+        if (!this._isCustomList) {
+            //填充背景
+            var g: Graphics = this._list.graphics;
+            g.clear();
+            g.drawRect(0, 0, this.width - 1, this._listHeight, this._itemColors[4], this._itemColors[3]);
+        }
+
+        //填充数据
+        let a: any[] = this._list.array || [];
+        a.length = 0;
+        for (let i = 0, n = this._labels.length; i < n; i++) {
+            a.push({ label: this._labels[i] });
+        }
+        this._list.size(this.width, this._listHeight);
+        this._list.array = a;
+
+        //if (_visibleNum > a.length) {
+        //_list.height = _listHeight;
+        //} else {
+        //_list.height = 0;
+        //}
+    }
+
+
+    /**
+     * @internal
+     */
+    private changeSelected(): void {
+        this._button.label = this.selectedLabel;
+    }
+
+
+    /**
+     * @inheritDoc 
+     * @override
+    */
+    destroy(destroyChild: boolean = true): void {
+        ILaya.stage.off(Event.MOUSE_DOWN, this, this.removeList);
+        ILaya.stage.off(Event.MOUSE_WHEEL, this, this._onStageMouseWheel);
+        super.destroy(destroyChild);
+        this._button && this._button.destroy(destroyChild);
+        this._list && this._list.destroy(destroyChild);
+        this._button = null;
+        this._list = null;
+        this._itemColors = null;
+        this._itemPadding = null;
+        this._itemHeight = null;
+        this._labels = null;
+        this._selectHandler = null;
+        this._defaultLabel = null;
+    }
+
+    /**
+     * @inheritDoc 
+     * @override
+    */
+    set_dataSource(value: any): void {
+        this._dataSource = value;
+        if (typeof (value) == 'number' || typeof (value) == 'string')
+            this.selectedIndex = parseInt(value as string);
+        else if (value instanceof Array)
+            this.labels = ((<any[]>value)).join(",");
+        else
+            super.set_dataSource(value);
     }
 }

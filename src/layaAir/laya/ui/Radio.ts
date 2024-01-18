@@ -8,8 +8,20 @@ import { Button } from "./Button"
  */
 export class Radio extends Button {
 
-    /**@private */
+    /**@internal */
     protected _value: any;
+
+    /**
+     * 获取或设置 <code>Radio</code> 关联的可选用户定义值。
+     */
+    get value(): any {
+        return this._value != null ? this._value : this.label;
+    }
+
+    set value(obj: any) {
+        this._value = obj;
+    }
+
 
     /**
      * 创建一个新的 <code>Radio</code> 类实例。 
@@ -23,8 +35,15 @@ export class Radio extends Button {
         this._autoSize = false;
     }
 
+    /**@internal */
+    _setWidth(value: number): void {
+        if (!this._autoSize) {
+            this._text.width = this.width - this._text.x;
+        }
+    }
+
     /**
-     * @override
+     * @internal
      */
     protected preinitialize(): void {
         super.preinitialize();
@@ -33,6 +52,7 @@ export class Radio extends Button {
     }
 
     /**
+     * @internal
      * @inheritDoc 
      * @override
      * */
@@ -46,30 +66,17 @@ export class Radio extends Button {
     }
 
     /**
-     * @private
+     * @internal
      * 对象的<code>Event.CLICK</code>事件侦听处理函数。 
      */
     protected onClick(e: Event): void {
         this.selected = true;
     }
 
-    /**
-     * 获取或设置 <code>Radio</code> 关联的可选用户定义值。
-     */
-    get value(): any {
-        return this._value != null ? this._value : this.label;
-    }
-
-    set value(obj: any) {
-        this._value = obj;
-    }
+    /**@internal */
     protected changeClips(): void {
         super.changeClips();
         this._setWidth(this._width);
     }
-    _setWidth(value: number): void {
-        if (!this._autoSize) {
-            this._text.width = this.width - this._text.x;
-        }
-    }
+
 }

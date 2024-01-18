@@ -10,43 +10,24 @@ import { Clip } from "./Clip"
  * fontClip.value = "a1326";//显示"a1326"文字
  */
 export class FontClip extends Clip {
-    /**数值*/
+    /**@internal 数值*/
     protected _valueArr: string = '';
-    /**文字内容数组**/
+    /**@internal 文字内容数组**/
     protected _indexMap: Record<string, number> = null;
-    /**位图字体内容**/
+    /**@internal 位图字体内容**/
     protected _sheet: string = null;
-    /**@private */
+    /**@internal */
     protected _direction: string = "horizontal";
-    /**X方向间隙*/
+    /**@internal X方向间隙*/
     protected _spaceX: number = 0;
-    /**Y方向间隙*/
+    /**@internal Y方向间隙*/
     protected _spaceY: number = 0;
-    /**@private 水平对齐方式*/
+    /**@internal 水平对齐方式*/
     private _align: string = "left";
-    /**@private 显示文字宽*/
+    /**@internal 显示文字宽*/
     private _wordsW: number = 0;
-    /**@private 显示文字高*/
+    /**@internal 显示文字高*/
     private _wordsH: number = 0;
-
-    /**
-     * @param skin 位图字体皮肤
-     * @param sheet 位图字体内容，空格代表换行
-     */
-    constructor(skin: string = null, sheet: string = null) {
-        super();
-        if (skin) this.skin = skin;
-        if (sheet) this.sheet = sheet;
-    }
-
-    /**
-     * 资源加载完毕
-     */
-    protected loadComplete(url: string, img: Texture): void {
-        super.loadComplete(url, img);
-        this.callLater(this.changeValue);
-    }
-
 
     get index(): number {
         return this._index;
@@ -143,7 +124,47 @@ export class FontClip extends Clip {
         return this._align;
     }
 
-    /**渲染数值*/
+
+    /**
+     * @param skin 位图字体皮肤
+     * @param sheet 位图字体内容，空格代表换行
+     */
+    constructor(skin: string = null, sheet: string = null) {
+        super();
+        if (skin) this.skin = skin;
+        if (sheet) this.sheet = sheet;
+    }
+
+    /**
+     * @internal
+     * @inheritDoc 
+     * @override
+     */
+    _setWidth(value: number) {
+        super._setWidth(value);
+        this.callLater(this.changeValue);
+    }
+
+    /**
+     * @internal
+     * @inheritDoc 
+     * @override
+     */
+    _setHeight(value: number) {
+        super._setHeight(value);
+        this.callLater(this.changeValue);
+    }
+
+    /**
+     * @internal
+     * 资源加载完毕
+     */
+    protected loadComplete(url: string, img: Texture): void {
+        super.loadComplete(url, img);
+        this.callLater(this.changeValue);
+    }
+
+    /**@internal 渲染数值*/
     protected changeValue(): void {
         if (!this._sources) return;
         if (!this._valueArr) return;
@@ -196,30 +217,14 @@ export class FontClip extends Clip {
     }
 
     /**
-     * @inheritDoc 
-     * @override
-     */
-    _setWidth(value: number) {
-        super._setWidth(value);
-        this.callLater(this.changeValue);
-    }
-
-    /**
-     * @inheritDoc 
-     * @override
-     */
-    _setHeight(value: number) {
-        super._setHeight(value);
-        this.callLater(this.changeValue);
-    }
-
-    /**
+     * @internal
      * @override
      */
     protected measureWidth(): number {
         return this._wordsW;
     }
     /**
+     * @internal
      * @override
      */
     protected measureHeight(): number {

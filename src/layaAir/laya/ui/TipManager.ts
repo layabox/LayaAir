@@ -15,9 +15,21 @@ export class TipManager extends UIComponent {
     static tipTextColor: string = "#ffffff";
     static tipBackColor: string = "#111111";
     static tipDelay: number = 200;
+    /** @internal */
     private _tipBox: UIComponent;
+    /** @internal */
     private _tipText: Text;
+    /** @internal */
     private _defaultTipHandler: Function;
+
+    /**默认鼠标提示函数*/
+    get defaultTipHandler(): Function {
+        return this._defaultTipHandler;
+    }
+
+    set defaultTipHandler(value: Function) {
+        this._defaultTipHandler = value;
+    }
 
     constructor() {
         super();
@@ -32,7 +44,7 @@ export class TipManager extends UIComponent {
     }
 
     /**
-     * @private
+     * @internal
      */
     private _onStageHideTip(e: any): void {
         ILaya.timer.clear(this, this._showTip);
@@ -41,14 +53,14 @@ export class TipManager extends UIComponent {
     }
 
     /**
-     * @private
+     * @internal
      */
     private _onStageShowTip(data: any): void {
         ILaya.timer.once(TipManager.tipDelay, this, this._showTip, [data], true);
     }
 
     /**
-     * @private
+     * @internal
      */
     private _showTip(tip: any): void {
         if (typeof (tip) == 'string') {
@@ -70,21 +82,21 @@ export class TipManager extends UIComponent {
     }
 
     /**
-     * @private
+     * @internal
      */
     private _onStageMouseDown(e: Event): void {
         this.closeAll();
     }
 
     /**
-     * @private
+     * @internal
      */
     private _onStageMouseMove(e: Event): void {
         this._showToStage(this, TipManager.offsetX, TipManager.offsetY);
     }
 
     /**
-     * @private
+     * @internal
      */
     private _showToStage(dis: Sprite, offX: number = 0, offY: number = 0): void {
         var rec: Rectangle = dis.getBounds();
@@ -96,6 +108,19 @@ export class TipManager extends UIComponent {
         if (dis._y + rec.height > ILaya.stage.height) {
             dis.y -= rec.height + offY;
         }
+    }
+
+    /**
+    * @internal
+    */
+    private _showDefaultTip(text: string): void {
+        this._tipText.text = text;
+        var g: Graphics = this._tipBox.graphics;
+        g.clear(true);
+        g.drawRect(0, 0, this._tipText.width + 10, this._tipText.height + 10, TipManager.tipBackColor);
+        this.addChild(this._tipBox);
+        this._showToStage(this);
+        ILaya.stage.addChild(this);
     }
 
     /**关闭所有鼠标提示*/
@@ -115,25 +140,5 @@ export class TipManager extends UIComponent {
         ILaya.stage.addChild(this);
     }
 
-    /**
-     * @private
-     */
-    private _showDefaultTip(text: string): void {
-        this._tipText.text = text;
-        var g: Graphics = this._tipBox.graphics;
-        g.clear(true);
-        g.drawRect(0, 0, this._tipText.width + 10, this._tipText.height + 10, TipManager.tipBackColor);
-        this.addChild(this._tipBox);
-        this._showToStage(this);
-        ILaya.stage.addChild(this);
-    }
 
-    /**默认鼠标提示函数*/
-    get defaultTipHandler(): Function {
-        return this._defaultTipHandler;
-    }
-
-    set defaultTipHandler(value: Function) {
-        this._defaultTipHandler = value;
-    }
 }

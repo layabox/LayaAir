@@ -7,7 +7,7 @@ import { PhysicsShape } from "./ColliderStructInfo";
  */
 export class CircleCollider extends ColliderBase {
 
-    /**圆形半径，必须为正数*/
+    /**@internal 圆形半径，必须为正数*/
     private _radius: number = 50;
 
     constructor() {
@@ -15,14 +15,12 @@ export class CircleCollider extends ColliderBase {
         this._physicShape = PhysicsShape.CircleShape;
     }
 
-    /**
-    * @override
-    */
-    protected _setShapeData(shape: any): void {
+    /**@internal 设置碰撞体数据*/
+    _setShapeData(shape: any): void {
         var scale: number = Math.max(Math.abs(this.scaleX), Math.abs(this.scaleY));
         let radius = this.radius;
         Physics2D.I._factory.set_CircleShape_radius(shape, radius, scale);
-        Physics2D.I._factory.set_CircleShape_pos(shape, this.pivotoffx + radius, this.pivotoffy + radius, scale);
+        Physics2D.I._factory.set_CircleShape_pos(shape, this.x, this.y, scale);
     }
 
     /**圆形半径，必须为正数*/

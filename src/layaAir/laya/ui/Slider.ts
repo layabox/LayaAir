@@ -4,7 +4,6 @@ import { Image } from "./Image";
 import { Button } from "./Button";
 import { Event } from "../events/Event"
 import { Point } from "../maths/Point"
-import { Loader } from "../net/Loader"
 import { Handler } from "../utils/Handler"
 import { ILaya } from "../../ILaya";
 import { HideFlags } from "../Const";
@@ -36,8 +35,39 @@ import { SerializeUtil } from "../loaders/SerializeUtil";
  */
 export class Slider extends UIComponent {
 
-    /** @private 获取对 <code>Slider</code> 组件所包含的 <code>Label</code> 组件的引用。*/
+    /** @internal 获取对 <code>Slider</code> 组件所包含的 <code>Label</code> 组件的引用。*/
     static label: Label = null;// new Label(); 静态的可能还没有初始化
+    /**
+     * @internal
+     * 一个布尔值，指示是否显示进度条。
+     */
+    protected _showProgress: boolean = false;
+    /**@internal */
+    protected _allowClickBack: boolean;
+    /**@internal */
+    protected _max: number = 100;
+    /**@internal */
+    protected _min: number = 0;
+    /**@internal */
+    protected _tick: number = 1;
+    /**@internal */
+    protected _value: number = 0;
+    /**@internal */
+    protected _skin: string;
+    /**@internal */
+    protected _bg: Image;
+    /**@internal */
+    protected _progress: Image;
+    /**@internal */
+    protected _bar: Button;
+    /**@internal */
+    protected _tx: number;
+    /**@internal */
+    protected _ty: number;
+    /**@internal */
+    protected _maxMove: number;
+    /**@internal */
+    protected _globalSacle: Point;
 
     /**
      * 数据变化处理器。
@@ -57,367 +87,6 @@ export class Slider extends UIComponent {
      * @default true
      */
     showLabel: boolean = true;
-
-    /**
-     * 一个布尔值，指示是否显示进度条。
-     */
-    protected _showProgress: boolean = false;
-
-    /**@private */
-    protected _allowClickBack: boolean;
-    /**@private */
-    protected _max: number = 100;
-    /**@private */
-    protected _min: number = 0;
-    /**@private */
-    protected _tick: number = 1;
-    /**@private */
-    protected _value: number = 0;
-    /**@private */
-    protected _skin: string;
-    /**@private */
-    protected _bg: Image;
-    /**@private */
-    protected _progress: Image;
-    /**@private */
-    protected _bar: Button;
-    /**@private */
-    protected _tx: number;
-    /**@private */
-    protected _ty: number;
-    /**@private */
-    protected _maxMove: number;
-    /**@private */
-    protected _globalSacle: Point;
-
-    /**
-     * 创建一个新的 <code>Slider</code> 类示例。
-     * @param skin 皮肤。
-     */
-    constructor(skin: string = null) {
-        super();
-        if (!Slider.label) {
-            Slider.label = new Label();
-            Slider.label.hideFlags = HideFlags.HideAndDontSave;
-        }
-        this.skin = skin;
-    }
-
-    /**
-     *@inheritDoc
-     @override
-     */
-    destroy(destroyChild: boolean = true): void {
-        super.destroy(destroyChild);
-        this._bg && this._bg.destroy(destroyChild);
-        this._bar && this._bar.destroy(destroyChild);
-        this._progress && this._progress.destroy(destroyChild);
-        this._bg = null;
-        this._bar = null;
-        this._progress = null;
-        this.changeHandler = null;
-    }
-
-    /**
-     * @inheritDoc 
-     * @override
-    */
-    protected createChildren(): void {
-        this._bg = new Image();
-        this._bg.hideFlags = HideFlags.HideAndDontSave;
-        this.addChild(this._bg);
-
-        this._progress = new Image();
-        this._progress.hideFlags = HideFlags.HideAndDontSave;
-        this.addChildAt(this._progress, 1);
-
-        this._bar = new Button();
-        this._bar.hideFlags = HideFlags.HideAndDontSave;
-        this.addChild(this._bar);
-    }
-
-    /**
-     * @inheritDoc 
-     * @override
-    */
-    protected initialize(): void {
-        this._bar.on(Event.MOUSE_DOWN, this, this.onBarMouseDown);
-        this.allowClickBack = true;
-    }
-
-    /**
-     * @private
-     * 滑块的的 <code>Event.MOUSE_DOWN</code> 事件侦听处理函数。
-     */
-    protected onBarMouseDown(e: Event): void {
-        let stage = ILaya.stage;
-        this._globalSacle || (this._globalSacle = new Point());
-        this._globalSacle.setTo(this.globalScaleX || 0.01, this.globalScaleY || 0.01);
-
-        this._maxMove = this.isVertical ? (this.height - this._bar.height) : (this.width - this._bar.width);
-        this._tx = stage.mouseX;
-        this._ty = stage.mouseY;
-        stage.on(Event.MOUSE_MOVE, this, this.mouseMove);
-        stage.once(Event.MOUSE_UP, this, this.mouseUp);
-        stage.once(Event.MOUSE_OUT, this, this.mouseUp);
-        //显示提示
-        this.showValueText();
-    }
-
-    /**
-     * @private
-     * 显示标签。
-     */
-    protected showValueText(): void {
-        if (this.showLabel) {
-            var label: Label = Slider.label;
-            this.addChild(label);
-            label.textField.text = this._value + "";
-            if (this.isVertical) {
-                label.x = this._bar._x + 20;
-                label.y = (this._bar.height - label.height) * 0.5 + this._bar._y;
-            } else {
-                label.y = this._bar._y - 20;
-                label.x = (this._bar.width - label.width) * 0.5 + this._bar._x;
-            }
-        }
-    }
-
-    /**
-     * @private
-     * 隐藏标签。
-     */
-    protected hideValueText(): void {
-        Slider.label && Slider.label.removeSelf();
-    }
-
-    /**
-     * @private
-     */
-    private mouseUp(e: Event): void {
-        let stage = ILaya.stage;
-        stage.off(Event.MOUSE_MOVE, this, this.mouseMove);
-        stage.off(Event.MOUSE_UP, this, this.mouseUp);
-        stage.off(Event.MOUSE_OUT, this, this.mouseUp);
-        this.sendChangeEvent(Event.CHANGED);
-        this.hideValueText();
-    }
-
-    /**
-     * @private
-     */
-    private mouseMove(e: Event): void {
-        let stage = ILaya.stage;
-        var oldValue: number = this._value;
-        if (this.isVertical) {
-            this._bar.y += (stage.mouseY - this._ty) / this._globalSacle.y;
-            if (this._bar._y > this._maxMove) this._bar.y = this._maxMove;
-            else if (this._bar._y < 0) this._bar.y = 0;
-            this._value = this._bar._y / this._maxMove * (this._max - this._min) + this._min;
-            this._progress.height = this._bar._y + 0.5 * this._bar.height;
-        } else {
-            this._bar.x += (stage.mouseX - this._tx) / this._globalSacle.x;
-            if (this._bar._x > this._maxMove) this._bar.x = this._maxMove;
-            else if (this._bar._x < 0) this._bar.x = 0;
-            this._value = this._bar._x / this._maxMove * (this._max - this._min) + this._min;
-            this._progress.width = this._bar._x + 0.5 * this._bar.width;
-        }
-
-        this._tx = stage.mouseX;
-        this._ty = stage.mouseY;
-
-        if (this._tick != 0) {
-            var pow: number = Math.pow(10, (this._tick + "").length - 1);
-            this._value = Math.round(Math.round(this._value / this._tick) * this._tick * pow) / pow;
-        }
-
-        if (this._value != oldValue) {
-            this.sendChangeEvent();
-        }
-        this.showValueText();
-    }
-
-    /**
-     * @private
-     */
-    protected sendChangeEvent(type: string = Event.CHANGE): void {
-        this.event(type);
-        this.changeHandler && this.changeHandler.runWith(this._value);
-    }
-
-    /**
-     * @copy laya.ui.Image#skin
-     */
-    get skin(): string {
-        return this._skin;
-    }
-
-    set skin(value: string) {
-        if (value == "")
-            value = null;
-        if (this._skin == value)
-            return;
-
-        this._setSkin(value);
-    }
-
-    get showProgress(): boolean {
-        return this._showProgress;
-    }
-
-    set showProgress(value: boolean) {
-        this._showProgress = value;
-        if (value) {
-            if (this._skin && !SerializeUtil.isDeserializing)
-                this._setSkin(this._skin);
-        }
-        else
-            this._progress.skin = null;
-    }
-
-    _setSkin(url: string): Promise<void> {
-        this._skin = url;
-
-        if (url) {
-            return AssetDb.inst.resolveURL(url).then(url => {
-                if (this._destroyed)
-                    return null;
-
-                if (this._skinBaseUrl)
-                    url = URL.formatURL(url, this._skinBaseUrl);
-                let tasks = [
-                    this._bg._setSkin(url),
-                    this._bar._setSkin(Utils.replaceFileExtension(url, "$bar.png", true))
-                ];
-                if (this._showProgress)
-                    tasks.push(this._progress._setSkin(Utils.replaceFileExtension(url, "$progress.png", true)));
-                else
-                    this._progress.skin = null;
-
-                return Promise.all(tasks).then(() => this._skinLoaded());
-            });
-        }
-        else {
-            this._bg.skin = null;
-            this._bar.skin = null;
-            this._progress.skin = null;
-            this._skinLoaded();
-            return Promise.resolve();
-        }
-    }
-
-    protected _skinLoaded(): void {
-        this.setBarPoint();
-        this.callLater(this.changeValue);
-        this._sizeChanged();
-        this.event(Event.LOADED);
-    }
-
-    /**
-     * @private
-     * 设置滑块的位置信息。
-     */
-    protected setBarPoint(): void {
-        if (this.isVertical) this._bar.x = Math.round((this._bg.width - this._bar.width) * 0.5);
-        else this._bar.y = Math.round((this._bg.height - this._bar.height) * 0.5);
-    }
-
-    /**@inheritDoc @override*/
-    protected measureWidth(): number {
-        return Math.max(this._bg.width, this._bar.width);
-    }
-
-    /**
-     * @inheritDoc 
-     * @override
-    */
-    protected measureHeight(): number {
-        return Math.max(this._bg.height, this._bar.height);
-    }
-
-    /**
-     * @inheritDoc 
-     * @override
-    */
-    protected _sizeChanged(): void {
-        super._sizeChanged();
-        if (this.isVertical) this._bg.height = this.height;
-        else this._bg.width = this.width;
-        this.setBarPoint();
-        this.changeValue();
-    }
-
-    /**
-     * <p>当前实例的背景图（ <code>Image</code> ）和滑块按钮（ <code>Button</code> ）实例的有效缩放网格数据。</p>
-     * <p>数据格式："上边距,右边距,下边距,左边距,是否重复填充(值为0：不重复填充，1：重复填充)"，以逗号分隔。
-     * <ul><li>例如："4,4,4,4,1"</li></ul></p>
-     */
-    get sizeGrid(): string {
-        return this._bg.sizeGrid;
-    }
-
-    set sizeGrid(value: string) {
-        this._bg.sizeGrid = value;
-        this._bar.sizeGrid = value;
-        this._progress.sizeGrid = this._bar.sizeGrid;
-    }
-
-    /**
-     * 设置滑动条的信息。
-     * @param min 滑块的最小值。
-     * @param max 滑块的最小值。
-     * @param value 滑块的当前值。
-     */
-    setSlider(min: number, max: number, value: number): void {
-        this._value = -1;
-        this._min = min;
-        this._max = max > min ? max : min;
-        this.value = value < min ? min : value > max ? max : value;
-    }
-
-    /**
-     * 滑动的刻度值，滑动数值为tick的整数倍。默认值为1。
-     */
-    get tick(): number {
-        return this._tick;
-    }
-
-    set tick(value: number) {
-        if (this._tick != value) {
-            this._tick = value;
-            this.callLater(this.changeValue);
-        }
-    }
-
-    /**
-     * @private
-     * 改变滑块的位置值。
-     */
-    changeValue(): void {
-        if (this.tick != 0) {
-            var pow: number = Math.pow(10, (this._tick + "").length - 1);
-            this._value = Math.round(Math.round(this._value / this._tick) * this._tick * pow) / pow;
-        }
-
-        if (this._max >= this._min) {
-            this._value = this._value > this._max ? this._max : this._value < this._min ? this._min : this._value;
-        } else {
-            //当设置的最小值大于最大值的时候，滑动条会反向处理，滑动条限制也应反向处理。
-            this._value = this._value > this._min ? this._min : this._value < this._max ? this._max : this._value;
-        }
-
-        var num: number = this._max - this._min;
-        if (num === 0) num = 1;
-        if (this.isVertical) {
-            this._bar.y = (this._value - this._min) / num * (this.height - this._bar.height);
-            this._progress.height = this._bar._y + 0.5 * this._bar.height;
-        }
-        else {
-            this._bar.x = (this._value - this._min) / num * (this.width - this._bar.width);
-            this._progress.width = this._bar._x + 0.5 * this._bar.width;
-        }
-
-    }
 
     /**
      * 获取或设置表示最高位置的数字。 默认值为100。
@@ -481,13 +150,340 @@ export class Slider extends UIComponent {
     }
 
     /**
-     * @private
+     * @copy laya.ui.Image#skin
+     */
+    get skin(): string {
+        return this._skin;
+    }
+
+    set skin(value: string) {
+        if (value == "")
+            value = null;
+        if (this._skin == value)
+            return;
+
+        this._setSkin(value);
+    }
+
+    get showProgress(): boolean {
+        return this._showProgress;
+    }
+
+    set showProgress(value: boolean) {
+        this._showProgress = value;
+        if (value) {
+            if (this._skin && !SerializeUtil.isDeserializing)
+                this._setSkin(this._skin);
+        }
+        else
+            this._progress.skin = null;
+    }
+
+    /**
+     * <p>当前实例的背景图（ <code>Image</code> ）和滑块按钮（ <code>Button</code> ）实例的有效缩放网格数据。</p>
+     * <p>数据格式："上边距,右边距,下边距,左边距,是否重复填充(值为0：不重复填充，1：重复填充)"，以逗号分隔。
+     * <ul><li>例如："4,4,4,4,1"</li></ul></p>
+     */
+    get sizeGrid(): string {
+        return this._bg.sizeGrid;
+    }
+
+    set sizeGrid(value: string) {
+        this._bg.sizeGrid = value;
+        this._bar.sizeGrid = value;
+        this._progress.sizeGrid = this._bar.sizeGrid;
+    }
+
+    /**
+     * 滑动的刻度值，滑动数值为tick的整数倍。默认值为1。
+     */
+    get tick(): number {
+        return this._tick;
+    }
+
+    set tick(value: number) {
+        if (this._tick != value) {
+            this._tick = value;
+            this.callLater(this.changeValue);
+        }
+    }
+
+    /**
+     * 表示滑块按钮的引用。
+     */
+    get bar(): Button {
+        return this._bar;
+    }
+
+    /**
+     * 创建一个新的 <code>Slider</code> 类示例。
+     * @param skin 皮肤。
+     */
+    constructor(skin: string = null) {
+        super();
+        if (!Slider.label) {
+            Slider.label = new Label();
+            Slider.label.hideFlags = HideFlags.HideAndDontSave;
+        }
+        this.skin = skin;
+    }
+
+    /**
+     * @internal
+     * @inheritDoc 
+     * @override
+    */
+    protected _sizeChanged(): void {
+        super._sizeChanged();
+        if (this.isVertical) this._bg.height = this.height;
+        else this._bg.width = this.width;
+        this.setBarPoint();
+        this.changeValue();
+    }
+
+    /**@internal */
+    _setSkin(url: string): Promise<void> {
+        this._skin = url;
+
+        if (url) {
+            return AssetDb.inst.resolveURL(url).then(url => {
+                if (this._destroyed)
+                    return null;
+
+                if (this._skinBaseUrl)
+                    url = URL.formatURL(url, this._skinBaseUrl);
+                let tasks = [
+                    this._bg._setSkin(url),
+                    this._bar._setSkin(Utils.replaceFileExtension(url, "$bar.png", true))
+                ];
+                if (this._showProgress)
+                    tasks.push(this._progress._setSkin(Utils.replaceFileExtension(url, "$progress.png", true)));
+                else
+                    this._progress.skin = null;
+
+                return Promise.all(tasks).then(() => this._skinLoaded());
+            });
+        }
+        else {
+            this._bg.skin = null;
+            this._bar.skin = null;
+            this._progress.skin = null;
+            this._skinLoaded();
+            return Promise.resolve();
+        }
+    }
+
+    /**@internal */
+    protected _skinLoaded(): void {
+        this.setBarPoint();
+        this.callLater(this.changeValue);
+        this._sizeChanged();
+        this.event(Event.LOADED);
+    }
+
+    /**
+     * @internal
+     * @inheritDoc 
+     * @override
+    */
+    protected createChildren(): void {
+        this._bg = new Image();
+        this._bg.hideFlags = HideFlags.HideAndDontSave;
+        this.addChild(this._bg);
+
+        this._progress = new Image();
+        this._progress.hideFlags = HideFlags.HideAndDontSave;
+        this.addChildAt(this._progress, 1);
+
+        this._bar = new Button();
+        this._bar.hideFlags = HideFlags.HideAndDontSave;
+        this.addChild(this._bar);
+    }
+
+    /**
+     * @internal
+     * @inheritDoc 
+     * @override
+    */
+    protected initialize(): void {
+        this._bar.on(Event.MOUSE_DOWN, this, this.onBarMouseDown);
+        this.allowClickBack = true;
+    }
+
+    /**
+     * @internal
+     * 滑块的的 <code>Event.MOUSE_DOWN</code> 事件侦听处理函数。
+     */
+    protected onBarMouseDown(e: Event): void {
+        let stage = ILaya.stage;
+        this._globalSacle || (this._globalSacle = new Point());
+        this._globalSacle.setTo(this.globalScaleX || 0.01, this.globalScaleY || 0.01);
+
+        this._maxMove = this.isVertical ? (this.height - this._bar.height) : (this.width - this._bar.width);
+        this._tx = stage.mouseX;
+        this._ty = stage.mouseY;
+        stage.on(Event.MOUSE_MOVE, this, this.mouseMove);
+        stage.once(Event.MOUSE_UP, this, this.mouseUp);
+        stage.once(Event.MOUSE_OUT, this, this.mouseUp);
+        //显示提示
+        this.showValueText();
+    }
+
+    /**
+     * @internal
+     * 显示标签。
+     */
+    protected showValueText(): void {
+        if (this.showLabel) {
+            var label: Label = Slider.label;
+            this.addChild(label);
+            label.textField.text = this._value + "";
+            if (this.isVertical) {
+                label.x = this._bar._x + 20;
+                label.y = (this._bar.height - label.height) * 0.5 + this._bar._y;
+            } else {
+                label.y = this._bar._y - 20;
+                label.x = (this._bar.width - label.width) * 0.5 + this._bar._x;
+            }
+        }
+    }
+
+    /**
+     * @internal
+     * 隐藏标签。
+     */
+    protected hideValueText(): void {
+        Slider.label && Slider.label.removeSelf();
+    }
+
+    /**
+     * @internal
+     */
+    private mouseUp(e: Event): void {
+        let stage = ILaya.stage;
+        stage.off(Event.MOUSE_MOVE, this, this.mouseMove);
+        stage.off(Event.MOUSE_UP, this, this.mouseUp);
+        stage.off(Event.MOUSE_OUT, this, this.mouseUp);
+        this.sendChangeEvent(Event.CHANGED);
+        this.hideValueText();
+    }
+
+    /**
+     * @internal
+     */
+    private mouseMove(e: Event): void {
+        let stage = ILaya.stage;
+        var oldValue: number = this._value;
+        if (this.isVertical) {
+            this._bar.y += (stage.mouseY - this._ty) / this._globalSacle.y;
+            if (this._bar._y > this._maxMove) this._bar.y = this._maxMove;
+            else if (this._bar._y < 0) this._bar.y = 0;
+            this._value = this._bar._y / this._maxMove * (this._max - this._min) + this._min;
+            this._progress.height = this._bar._y + 0.5 * this._bar.height;
+        } else {
+            this._bar.x += (stage.mouseX - this._tx) / this._globalSacle.x;
+            if (this._bar._x > this._maxMove) this._bar.x = this._maxMove;
+            else if (this._bar._x < 0) this._bar.x = 0;
+            this._value = this._bar._x / this._maxMove * (this._max - this._min) + this._min;
+            this._progress.width = this._bar._x + 0.5 * this._bar.width;
+        }
+
+        this._tx = stage.mouseX;
+        this._ty = stage.mouseY;
+
+        if (this._tick != 0) {
+            var pow: number = Math.pow(10, (this._tick + "").length - 1);
+            this._value = Math.round(Math.round(this._value / this._tick) * this._tick * pow) / pow;
+        }
+
+        if (this._value != oldValue) {
+            this.sendChangeEvent();
+        }
+        this.showValueText();
+    }
+
+    /**
+     * @internal
+     */
+    protected sendChangeEvent(type: string = Event.CHANGE): void {
+        this.event(type);
+        this.changeHandler && this.changeHandler.runWith(this._value);
+    }
+
+    /**
+     * @internal
+     * 设置滑块的位置信息。
+     */
+    protected setBarPoint(): void {
+        if (this.isVertical) this._bar.x = Math.round((this._bg.width - this._bar.width) * 0.5);
+        else this._bar.y = Math.round((this._bg.height - this._bar.height) * 0.5);
+    }
+
+    /**@internal @inheritDoc @override*/
+    protected measureWidth(): number {
+        return Math.max(this._bg.width, this._bar.width);
+    }
+
+    /**
+     * @internal
+     * @inheritDoc 
+     * @override
+    */
+    protected measureHeight(): number {
+        return Math.max(this._bg.height, this._bar.height);
+    }
+
+    /**
+     * @internal
      * 滑动条的 <code>Event.MOUSE_DOWN</code> 事件侦听处理函数。
      */
     protected onBgMouseDown(e: Event): void {
         var point: Point = this._bg.getMousePoint();
         if (this.isVertical) this.value = point.y / (this.height - this._bar.height) * (this._max - this._min) + this._min;
         else this.value = point.x / (this.width - this._bar.width) * (this._max - this._min) + this._min;
+    }
+
+    /**
+     * 设置滑动条的信息。
+     * @param min 滑块的最小值。
+     * @param max 滑块的最小值。
+     * @param value 滑块的当前值。
+     */
+    setSlider(min: number, max: number, value: number): void {
+        this._value = -1;
+        this._min = min;
+        this._max = max > min ? max : min;
+        this.value = value < min ? min : value > max ? max : value;
+    }
+
+    /**
+     * @internal
+     * 改变滑块的位置值。
+     */
+    changeValue(): void {
+        if (this.tick != 0) {
+            var pow: number = Math.pow(10, (this._tick + "").length - 1);
+            this._value = Math.round(Math.round(this._value / this._tick) * this._tick * pow) / pow;
+        }
+
+        if (this._max >= this._min) {
+            this._value = this._value > this._max ? this._max : this._value < this._min ? this._min : this._value;
+        } else {
+            //当设置的最小值大于最大值的时候，滑动条会反向处理，滑动条限制也应反向处理。
+            this._value = this._value > this._min ? this._min : this._value < this._max ? this._max : this._value;
+        }
+
+        var num: number = this._max - this._min;
+        if (num === 0) num = 1;
+        if (this.isVertical) {
+            this._bar.y = (this._value - this._min) / num * (this.height - this._bar.height);
+            this._progress.height = this._bar._y + 0.5 * this._bar.height;
+        }
+        else {
+            this._bar.x = (this._value - this._min) / num * (this.width - this._bar.width);
+            this._progress.width = this._bar._x + 0.5 * this._bar.width;
+        }
+
     }
 
     /**
@@ -503,9 +499,17 @@ export class Slider extends UIComponent {
     }
 
     /**
-     * 表示滑块按钮的引用。
+     *@inheritDoc
+     @override
      */
-    get bar(): Button {
-        return this._bar;
+    destroy(destroyChild: boolean = true): void {
+        super.destroy(destroyChild);
+        this._bg && this._bg.destroy(destroyChild);
+        this._bar && this._bar.destroy(destroyChild);
+        this._progress && this._progress.destroy(destroyChild);
+        this._bg = null;
+        this._bar = null;
+        this._progress = null;
+        this.changeHandler = null;
     }
 }

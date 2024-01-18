@@ -13,298 +13,24 @@ import { ScrollType } from "./Styles";
  * <code>Panel</code> 是一个面板容器类。
  */
 export class Panel extends Box {
-    /**@private */
+    /**@internal */
     protected _content: Box;
-    /**@private */
+    /**@internal */
     protected _vScrollBar: VScrollBar;
-    /**@private */
+    /**@internal */
     protected _hScrollBar: HScrollBar;
-    /**@private */
+    /**@internal */
     protected _scrollChanged: boolean;
-    /**@private */
+    /**@internal */
     protected _usedCache: string = null;
-    /**@private */
+    /**@internal */
     protected _elasticEnabled: boolean = false;
-
+    /**@internal */
     protected _scrollType: ScrollType = 0;
+    /**@internal */
     protected _vScrollBarSkin: string;
+    /**@internal */
     protected _hScrollBarSkin: string;
-
-    /**
-     * 创建一个新的 <code>Panel</code> 类实例。
-     * <p>在 <code>Panel</code> 构造函数中设置属性width、height的值都为100。</p>
-     */
-    constructor() {
-        super();
-        this.width = this.height = 100;
-        //子对象缩放的情况下，优化会有问题，先屏蔽掉
-        //_content.optimizeScrollRect = true;
-    }
-
-    /**@inheritDoc @override*/
-    destroy(destroyChild: boolean = true): void {
-        super.destroy(destroyChild);
-        this._content && this._content.destroy(destroyChild);
-        this._vScrollBar && this._vScrollBar.destroy(destroyChild);
-        this._hScrollBar && this._hScrollBar.destroy(destroyChild);
-        this._vScrollBar = null;
-        this._hScrollBar = null;
-        this._content = null;
-    }
-
-    /**@inheritDoc @override*/
-    destroyChildren(): void {
-        this._content.destroyChildren();
-    }
-
-    /**@inheritDoc @override*/
-    protected createChildren(): void {
-        this._content = new Box();
-        this._content.hideFlags = HideFlags.HideAndDontSave;
-        super.addChild(this._content);
-    }
-
-    /**@inheritDoc @override*/
-    addChild<T extends Node>(child: T): T {
-        child.on(Event.RESIZE, this, this.onResize);
-        this._setScrollChanged();
-        return this._content.addChild(child);
-    }
-
-    /**
-     * @private
-     * 子对象的 <code>Event.RESIZE</code> 事件侦听处理函数。
-     */
-    private onResize(): void {
-        this._setScrollChanged();
-    }
-
-    /**@inheritDoc @override*/
-    addChildAt(child: Node, index: number): Node {
-        child.on(Event.RESIZE, this, this.onResize);
-        this._setScrollChanged();
-        return this._content.addChildAt(child, index);
-    }
-
-    /**@inheritDoc @override*/
-    removeChild(child: Node): Node {
-        child.off(Event.RESIZE, this, this.onResize);
-        this._setScrollChanged();
-        if (child._parent == this && this._children) {
-            let index = this._children.indexOf(child);
-            if (index != -1) {
-                this._children.splice(index, 1);
-                (<any>child)._setParent(null);
-            }
-            return child;
-        }
-        else
-            return this._content.removeChild(child);
-    }
-
-    /**@inheritDoc @override*/
-    removeChildAt(index: number): Node {
-        this.getChildAt(index).off(Event.RESIZE, this, this.onResize);
-        this._setScrollChanged();
-        return this._content.removeChildAt(index);
-    }
-
-    /**@inheritDoc @override*/
-    removeChildren(beginIndex: number = 0, endIndex: number = 0x7fffffff): Node {
-        this._content.removeChildren(beginIndex, endIndex);
-        this._setScrollChanged();
-        return this;
-    }
-
-    /**@inheritDoc @override*/
-    getChildAt(index: number): Node {
-        return this._content.getChildAt(index);
-    }
-
-    /**@inheritDoc @override*/
-    getChildByName(name: string): Node {
-        return this._content.getChildByName(name);
-    }
-
-    /**@inheritDoc @override*/
-    getChildIndex(child: Node): number {
-        return this._content.getChildIndex(child);
-    }
-
-    /**@inheritDoc @override*/
-    get numChildren(): number {
-        return this._content.numChildren;
-    }
-
-    /**@private */
-    private changeScroll(): void {
-        this._scrollChanged = false;
-        var contentW = this.contentWidth || 1;
-        var contentH = this.contentHeight || 1;
-
-        var vscroll = this._vScrollBar;
-        var hscroll = this._hScrollBar;
-
-        var vShow = vscroll && contentH > this._height;
-        var hShow = hscroll && contentW > this._width;
-        var showWidth = vShow ? this._width - vscroll.width : this._width;
-        var showHeight = hShow ? this._height - hscroll.height : this._height;
-
-        if (vscroll) {
-            vscroll.height = this._height - (hShow ? hscroll.height : 0);
-            vscroll.scrollSize = Math.max(this._height * 0.033, 1);
-            vscroll.thumbPercent = showHeight / contentH;
-            vscroll.setScroll(0, contentH - showHeight, vscroll.value);
-        }
-        if (hscroll) {
-            hscroll.width = this._width - (vShow ? vscroll.width : 0);
-            hscroll.scrollSize = Math.max(this._width * 0.033, 1);
-            hscroll.thumbPercent = showWidth / contentW;
-            hscroll.setScroll(0, contentW - showWidth, hscroll.value);
-        }
-    }
-
-    /**@inheritDoc @override*/
-    protected _sizeChanged(): void {
-        super._sizeChanged();
-        this.setContentSize(this._width, this._height);
-    }
-
-    /**
-     * @private
-     * 获取内容宽度（以像素为单位）。
-     */
-    get contentWidth(): number {
-        var max = 0;
-        for (var i = this._content.numChildren - 1; i > -1; i--) {
-            var comp = <Sprite>this._content.getChildAt(i);
-            max = Math.max(comp._x + comp.width * comp.scaleX - comp.pivotX, max);
-        }
-        return max;
-    }
-
-    /**
-     * @private
-     * 获取内容高度（以像素为单位）。
-     */
-    get contentHeight(): number {
-        let max = 0;
-        for (let i = this._content.numChildren - 1; i > -1; i--) {
-            let comp = <Sprite>this._content.getChildAt(i);
-            max = Math.max(comp._y + comp.height * comp.scaleY - comp.pivotY, max);
-        }
-        return max;
-    }
-
-    /**
-     * @private
-     * 设置内容的宽度、高度（以像素为单位）。
-     * @param width 宽度。
-     * @param height 高度。
-     */
-    private setContentSize(width: number, height: number): void {
-        let content = this._content;
-        content.width = width;
-        content.height = height;
-        content._style.scrollRect || (content.scrollRect = Rectangle.create());
-        content._style.scrollRect.setTo(0, 0, width, height);
-        content.scrollRect = content.scrollRect;
-    }
-
-    /**
-     * @inheritDoc
-     * @override
-     */
-    _setWidth(value: number) {
-        super._setWidth(value);
-        this._setScrollChanged();
-    }
-
-    /**@inheritDoc @override*/
-    _setHeight(value: number) {
-        super._setHeight(value);
-        this._setScrollChanged();
-    }
-
-
-    get scrollType() {
-        return this._scrollType;
-    }
-
-    set scrollType(value: ScrollType) {
-        this._scrollType = value;
-
-        if (this._scrollType == ScrollType.None) {
-            if (this._hScrollBar) {
-                this._hScrollBar.destroy();
-                this._hScrollBar = null;
-            }
-            if (this._vScrollBar) {
-                this._vScrollBar.destroy();
-                this._vScrollBar = null;
-            }
-        }
-        else if (this._scrollType == ScrollType.Horizontal) {
-            if (this._vScrollBar) {
-                this._vScrollBar.destroy();
-                this._vScrollBar = null;
-            }
-
-            if (this._hScrollBar)
-                this._hScrollBar.skin = this._hScrollBarSkin;
-            else
-                this.createHScrollBar();
-        }
-        else if (this._scrollType == ScrollType.Vertical) {
-            if (this._hScrollBar) {
-                this._hScrollBar.destroy();
-                this._hScrollBar = null;
-            }
-
-            if (this._vScrollBar)
-                this._vScrollBar.skin = this._vScrollBarSkin;
-            else
-                this.createVScrollBar();
-        }
-        else { //both
-            if (this._hScrollBar)
-                this._hScrollBar.skin = this._hScrollBarSkin;
-            else
-                this.createHScrollBar();
-            if (this._vScrollBar)
-                this._vScrollBar.skin = this._vScrollBarSkin;
-            else
-                this.createVScrollBar();
-        }
-    }
-
-    private createHScrollBar() {
-        let scrollBar = this._hScrollBar = new HScrollBar();
-        scrollBar.hideFlags = HideFlags.HideAndDontSave;
-        scrollBar.on(Event.CHANGE, this, this.onScrollBarChange, [scrollBar]);
-        scrollBar.target = this._content;
-        scrollBar.elasticDistance = this._elasticEnabled ? 200 : 0;
-        scrollBar.bottom = 0;
-        scrollBar._skinBaseUrl = this._skinBaseUrl;
-        scrollBar.skin = this._hScrollBarSkin;
-        scrollBar.on(Event.LOADED, this, this._setScrollChanged);
-        super.addChild(scrollBar);
-        this._setScrollChanged();
-    }
-
-    private createVScrollBar() {
-        let scrollBar = this._vScrollBar = new VScrollBar();
-        scrollBar.hideFlags = HideFlags.HideAndDontSave;
-        scrollBar.on(Event.CHANGE, this, this.onScrollBarChange, [scrollBar]);
-        scrollBar.target = this._content;
-        scrollBar.elasticDistance = this._elasticEnabled ? 200 : 0;
-        scrollBar.right = 0;
-        scrollBar._skinBaseUrl = this._skinBaseUrl;
-        scrollBar.skin = this._vScrollBarSkin;
-        scrollBar.on(Event.LOADED, this, this._setScrollChanged);
-        super.addChild(scrollBar);
-        this._setScrollChanged();
-    }
 
     /**
      * 垂直方向滚动条皮肤。
@@ -367,36 +93,33 @@ export class Panel extends Box {
         return this._content;
     }
 
+    /**@inheritDoc @override*/
+    get numChildren(): number {
+        return this._content.numChildren;
+    }
+
     /**
-     * @private
-     * 滚动条的<code><code>Event.MOUSE_DOWN</code>事件侦听处理函数。</code>事件侦听处理函数。
-     * @param scrollBar 滚动条对象。
-     * @param e Event 对象。
+     * 获取内容宽度（以像素为单位）。
      */
-    protected onScrollBarChange(scrollBar: ScrollBar): void {
-        var rect = this._content._style.scrollRect;
-        if (rect) {
-            var start = Math.round(scrollBar.value);
-            scrollBar.isVertical ? rect.y = start : rect.x = start;
-            this._content.scrollRect = rect;
+    get contentWidth(): number {
+        var max = 0;
+        for (var i = this._content.numChildren - 1; i > -1; i--) {
+            var comp = <Sprite>this._content.getChildAt(i);
+            max = Math.max(comp._x + comp.width * comp.scaleX - comp.pivotX, max);
         }
+        return max;
     }
 
     /**
-     * <p>滚动内容容器至设定的垂直、水平方向滚动条位置。</p>
-     * @param x 水平方向滚动条属性value值。滚动条位置数字。
-     * @param y 垂直方向滚动条属性value值。滚动条位置数字。
+     * 获取内容高度（以像素为单位）。
      */
-    scrollTo(x: number = 0, y: number = 0): void {
-        if (this.vScrollBar) this.vScrollBar.value = y;
-        if (this.hScrollBar) this.hScrollBar.value = x;
-    }
-
-    /**
-     * 刷新滚动内容。
-     */
-    refresh(): void {
-        this.changeScroll();
+    get contentHeight(): number {
+        let max = 0;
+        for (let i = this._content.numChildren - 1; i > -1; i--) {
+            let comp = <Sprite>this._content.getChildAt(i);
+            max = Math.max(comp._y + comp.height * comp.scaleY - comp.pivotY, max);
+        }
+        return max;
     }
 
     /**@inheritDoc @override*/
@@ -411,6 +134,7 @@ export class Panel extends Box {
             this._vScrollBar && this._vScrollBar.off(Event.START, this, this.onScrollStart);
         }
     }
+
     /**
      * @inheritDoc
      * @override
@@ -434,6 +158,91 @@ export class Panel extends Box {
         }
     }
 
+    get scrollType() {
+        return this._scrollType;
+    }
+
+    set scrollType(value: ScrollType) {
+        this._scrollType = value;
+
+        if (this._scrollType == ScrollType.None) {
+            if (this._hScrollBar) {
+                this._hScrollBar.destroy();
+                this._hScrollBar = null;
+            }
+            if (this._vScrollBar) {
+                this._vScrollBar.destroy();
+                this._vScrollBar = null;
+            }
+        }
+        else if (this._scrollType == ScrollType.Horizontal) {
+            if (this._vScrollBar) {
+                this._vScrollBar.destroy();
+                this._vScrollBar = null;
+            }
+
+            if (this._hScrollBar)
+                this._hScrollBar.skin = this._hScrollBarSkin;
+            else
+                this.createHScrollBar();
+        }
+        else if (this._scrollType == ScrollType.Vertical) {
+            if (this._hScrollBar) {
+                this._hScrollBar.destroy();
+                this._hScrollBar = null;
+            }
+
+            if (this._vScrollBar)
+                this._vScrollBar.skin = this._vScrollBarSkin;
+            else
+                this.createVScrollBar();
+        }
+        else { //both
+            if (this._hScrollBar)
+                this._hScrollBar.skin = this._hScrollBarSkin;
+            else
+                this.createHScrollBar();
+            if (this._vScrollBar)
+                this._vScrollBar.skin = this._vScrollBarSkin;
+            else
+                this.createVScrollBar();
+        }
+    }
+
+    /**
+     * 创建一个新的 <code>Panel</code> 类实例。
+     * <p>在 <code>Panel</code> 构造函数中设置属性width、height的值都为100。</p>
+     */
+    constructor() {
+        super();
+        this.width = this.height = 100;
+        //子对象缩放的情况下，优化会有问题，先屏蔽掉
+        //_content.optimizeScrollRect = true;
+    }
+
+    /**
+     * @internal
+     * @inheritDoc
+     * @override
+     */
+    _setWidth(value: number) {
+        super._setWidth(value);
+        this._setScrollChanged();
+    }
+
+    /**@internal @inheritDoc @override*/
+    _setHeight(value: number) {
+        super._setHeight(value);
+        this._setScrollChanged();
+    }
+
+    /**@internal @inheritDoc @override*/
+    protected _sizeChanged(): void {
+        super._sizeChanged();
+        this.setContentSize(this._width, this._height);
+    }
+
+    /**@internal */
     private onScrollStart(): void {
         this._usedCache || (this._usedCache = super.cacheAs);
         super.cacheAs = "none";
@@ -441,15 +250,213 @@ export class Panel extends Box {
         this._vScrollBar && this._vScrollBar.once(Event.END, this, this.onScrollEnd);
     }
 
+    /**@internal */
     private onScrollEnd(): void {
         super.cacheAs = this._usedCache;
     }
 
-    /**@private */
+    /**@internal */
     protected _setScrollChanged(): void {
         if (!this._scrollChanged) {
             this._scrollChanged = true;
             this.callLater(this.changeScroll);
         }
+    }
+
+    /**
+     * @internal
+     * 子对象的 <code>Event.RESIZE</code> 事件侦听处理函数。
+     */
+    private onResize(): void {
+        this._setScrollChanged();
+    }
+
+
+    /**@inheritDoc @override*/
+    protected createChildren(): void {
+        this._content = new Box();
+        this._content.hideFlags = HideFlags.HideAndDontSave;
+        super.addChild(this._content);
+    }
+
+    /**@internal */
+    private changeScroll(): void {
+        this._scrollChanged = false;
+        var contentW = this.contentWidth || 1;
+        var contentH = this.contentHeight || 1;
+
+        var vscroll = this._vScrollBar;
+        var hscroll = this._hScrollBar;
+
+        var vShow = vscroll && contentH > this._height;
+        var hShow = hscroll && contentW > this._width;
+        var showWidth = vShow ? this._width - vscroll.width : this._width;
+        var showHeight = hShow ? this._height - hscroll.height : this._height;
+
+        if (vscroll) {
+            vscroll.height = this._height - (hShow ? hscroll.height : 0);
+            vscroll.scrollSize = Math.max(this._height * 0.033, 1);
+            vscroll.thumbPercent = showHeight / contentH;
+            vscroll.setScroll(0, contentH - showHeight, vscroll.value);
+        }
+        if (hscroll) {
+            hscroll.width = this._width - (vShow ? vscroll.width : 0);
+            hscroll.scrollSize = Math.max(this._width * 0.033, 1);
+            hscroll.thumbPercent = showWidth / contentW;
+            hscroll.setScroll(0, contentW - showWidth, hscroll.value);
+        }
+    }
+
+    /**
+     * @internal
+     * 设置内容的宽度、高度（以像素为单位）。
+     * @param width 宽度。
+     * @param height 高度。
+     */
+    private setContentSize(width: number, height: number): void {
+        let content = this._content;
+        content.width = width;
+        content.height = height;
+        content._style.scrollRect || (content.scrollRect = Rectangle.create());
+        content._style.scrollRect.setTo(0, 0, width, height);
+        content.scrollRect = content.scrollRect;
+    }
+
+    /**@internal */
+    private createHScrollBar() {
+        let scrollBar = this._hScrollBar = new HScrollBar();
+        scrollBar.hideFlags = HideFlags.HideAndDontSave;
+        scrollBar.on(Event.CHANGE, this, this.onScrollBarChange, [scrollBar]);
+        scrollBar.target = this._content;
+        scrollBar.elasticDistance = this._elasticEnabled ? 200 : 0;
+        scrollBar.bottom = 0;
+        scrollBar._skinBaseUrl = this._skinBaseUrl;
+        scrollBar.skin = this._hScrollBarSkin;
+        scrollBar.on(Event.LOADED, this, this._setScrollChanged);
+        super.addChild(scrollBar);
+        this._setScrollChanged();
+    }
+
+    /**@internal */
+    private createVScrollBar() {
+        let scrollBar = this._vScrollBar = new VScrollBar();
+        scrollBar.hideFlags = HideFlags.HideAndDontSave;
+        scrollBar.on(Event.CHANGE, this, this.onScrollBarChange, [scrollBar]);
+        scrollBar.target = this._content;
+        scrollBar.elasticDistance = this._elasticEnabled ? 200 : 0;
+        scrollBar.right = 0;
+        scrollBar._skinBaseUrl = this._skinBaseUrl;
+        scrollBar.skin = this._vScrollBarSkin;
+        scrollBar.on(Event.LOADED, this, this._setScrollChanged);
+        super.addChild(scrollBar);
+        this._setScrollChanged();
+    }
+
+    /**
+     * @internal
+     * 滚动条的<code><code>Event.MOUSE_DOWN</code>事件侦听处理函数。</code>事件侦听处理函数。
+     * @param scrollBar 滚动条对象。
+     * @param e Event 对象。
+     */
+    protected onScrollBarChange(scrollBar: ScrollBar): void {
+        var rect = this._content._style.scrollRect;
+        if (rect) {
+            var start = Math.round(scrollBar.value);
+            scrollBar.isVertical ? rect.y = start : rect.x = start;
+            this._content.scrollRect = rect;
+        }
+    }
+
+    /**@inheritDoc @override*/
+    destroyChildren(): void {
+        this._content.destroyChildren();
+    }
+
+
+    /**@inheritDoc @override*/
+    addChild<T extends Node>(child: T): T {
+        child.on(Event.RESIZE, this, this.onResize);
+        this._setScrollChanged();
+        return this._content.addChild(child);
+    }
+
+    /**@inheritDoc @override*/
+    addChildAt(child: Node, index: number): Node {
+        child.on(Event.RESIZE, this, this.onResize);
+        this._setScrollChanged();
+        return this._content.addChildAt(child, index);
+    }
+
+    /**@inheritDoc @override*/
+    removeChild(child: Node): Node {
+        child.off(Event.RESIZE, this, this.onResize);
+        this._setScrollChanged();
+        if (child._parent == this && this._children) {
+            let index = this._children.indexOf(child);
+            if (index != -1) {
+                this._children.splice(index, 1);
+                (<any>child)._setParent(null);
+            }
+            return child;
+        }
+        else
+            return this._content.removeChild(child);
+    }
+
+    /**@inheritDoc @override*/
+    removeChildAt(index: number): Node {
+        this.getChildAt(index).off(Event.RESIZE, this, this.onResize);
+        this._setScrollChanged();
+        return this._content.removeChildAt(index);
+    }
+
+    /**@inheritDoc @override*/
+    removeChildren(beginIndex: number = 0, endIndex: number = 0x7fffffff): Node {
+        this._content.removeChildren(beginIndex, endIndex);
+        this._setScrollChanged();
+        return this;
+    }
+
+    /**@inheritDoc @override*/
+    getChildAt(index: number): Node {
+        return this._content.getChildAt(index);
+    }
+
+    /**@inheritDoc @override*/
+    getChildByName(name: string): Node {
+        return this._content.getChildByName(name);
+    }
+
+    /**@inheritDoc @override*/
+    getChildIndex(child: Node): number {
+        return this._content.getChildIndex(child);
+    }
+
+    /**
+     * <p>滚动内容容器至设定的垂直、水平方向滚动条位置。</p>
+     * @param x 水平方向滚动条属性value值。滚动条位置数字。
+     * @param y 垂直方向滚动条属性value值。滚动条位置数字。
+     */
+    scrollTo(x: number = 0, y: number = 0): void {
+        if (this.vScrollBar) this.vScrollBar.value = y;
+        if (this.hScrollBar) this.hScrollBar.value = x;
+    }
+
+    /**
+     * 刷新滚动内容。
+     */
+    refresh(): void {
+        this.changeScroll();
+    }
+
+    /**@inheritDoc @override*/
+    destroy(destroyChild: boolean = true): void {
+        super.destroy(destroyChild);
+        this._content && this._content.destroy(destroyChild);
+        this._vScrollBar && this._vScrollBar.destroy(destroyChild);
+        this._hScrollBar && this._hScrollBar.destroy(destroyChild);
+        this._vScrollBar = null;
+        this._hScrollBar = null;
+        this._content = null;
     }
 }

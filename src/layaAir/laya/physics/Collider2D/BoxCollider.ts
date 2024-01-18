@@ -8,9 +8,10 @@ import { PhysicsShape } from "./ColliderStructInfo";
  */
 export class BoxCollider extends ColliderBase {
 
-    /**矩形宽度*/
+    /**@internal 矩形宽度*/
     private _width: number = 100;
-    /**矩形高度*/
+
+    /**@internal 矩形高度*/
     private _height: number = 100;
 
     /**
@@ -21,8 +22,8 @@ export class BoxCollider extends ColliderBase {
         this._physicShape = PhysicsShape.BoxShape;
     }
 
-    /**@override */
-    protected _setShapeData(shape: any): void {
+    /**@internal 设置碰撞体数据*/
+    _setShapeData(shape: any): void {
         let helfW: number = this._width * 0.5;
         let helfH: number = this._height * 0.5;
         var center = {

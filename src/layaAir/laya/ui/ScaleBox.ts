@@ -5,8 +5,21 @@ import { ILaya } from "../../ILaya";
  * 自适应缩放容器，容器设置大小后，容器大小始终保持stage大小，子内容按照原始最小宽高比缩放
  */
 export class ScaleBox extends Box {
+    /**@internal */
     private _oldW: number = 0;
+    /**@internal */
     private _oldH: number = 0;
+
+    /**@internal */
+    private onResize(): void {
+        if (this.width > 0 && this.height > 0) {
+            let stage = ILaya.stage;
+            let scale = Math.min(stage.width / this._oldW, stage.height / this._oldH);
+            super.width = stage.width;
+            super.height = stage.height;
+            this.scale(scale, scale);
+        }
+    }
 
     /**
      * @override
@@ -20,16 +33,6 @@ export class ScaleBox extends Box {
      */
     onDisable(): void {
         ILaya.stage.off("resize", this, this.onResize);
-    }
-
-    private onResize(): void {
-        if (this.width > 0 && this.height > 0) {
-            let stage = ILaya.stage;
-            let scale = Math.min(stage.width / this._oldW, stage.height / this._oldH);
-            super.width = stage.width;
-            super.height = stage.height;
-            this.scale(scale, scale);
-        }
     }
     /**
      * @override

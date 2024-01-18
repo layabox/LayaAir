@@ -9,17 +9,27 @@ import { RigidBody } from "../RigidBody";
  * 关节基类
  */
 export class JointBase extends Component {
-    /**原生关节对象*/
+
+    /**@internal 原生关节对象*/
     protected _joint: any;
 
+    /**@internal */
     protected _factory: IPhysiscs2DFactory;
+
+    /**@readonly [只读]原生关节对象*/
+    get joint(): any {
+        if (!this._joint) this._createJoint();
+        return this._joint;
+    }
+
     constructor() {
         super();
         this._factory = Physics2D.I._factory;
         this._singleton = false;
     }
 
-    protected getBodyAnchor(body: RigidBody, anchorx: number, anchory: number): Point {
+    /**@internal */
+    _getBodyAnchor(body: RigidBody, anchorx: number, anchory: number): Point {
         Point.TEMP.setTo(anchorx, anchory)
         let node = <Sprite>body.owner;
         if (node) {
@@ -33,23 +43,21 @@ export class JointBase extends Component {
         return Point.TEMP;
     }
 
-    /**[只读]原生关节对象*/
-    get joint(): any {
-        if (!this._joint) this._createJoint();
-        return this._joint;
-    }
-
+    /**@internal */
     protected _onEnable(): void {
         this._createJoint();
     }
 
+    /**@internal */
     protected _onAwake(): void {
         this._createJoint();
     }
 
+    /**@internal */
     protected _createJoint(): void {
     }
 
+    /**@internal */
     protected _onDisable(): void {
         if (this._joint && this._factory.getJoint_userData(this._joint) && !this._factory.getJoint_userData_destroy(this._joint)) {
             Physics2D.I._factory.removeJoint(this._joint);
