@@ -1,8 +1,9 @@
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { ShaderDefine } from "../../RenderEngine/RenderShader/ShaderDefine";
 import { UniformBufferParamsType, UnifromBufferData } from "../../RenderEngine/UniformBufferData";
-import { ISubshaderData } from "../../d3/RenderDriverLayer/RenderModuleData/IModuleData";
+import { LayaGL } from "../../layagl/LayaGL";
 import { IShaderCompiledObj, ShaderCompile } from "../../webgl/utils/ShaderCompile";
+import { ISubshaderData } from "../RenderInterface/RenderPipelineInterface/IShaderInstance";
 import { ShaderDataItem, ShaderDataType } from "../RenderInterface/ShaderData";
 import { ShaderPass } from "./ShaderPass";
 import { VertexMesh } from "./VertexMesh";
@@ -86,6 +87,7 @@ export class SubShader {
      * @param	uniformMap  uniform属性表。
      */
     constructor(attributeMap: { [name: string]: [number, ShaderDataType] } = SubShader.DefaultAttributeMap, uniformMap: UniformMapType = {}, uniformDefaultValue: { [name: string]: ShaderDataItem } = null) {
+        this.moduleData = LayaGL.renderOBJCreate.createSubShaderData();
         this._attributeMap = attributeMap;
         this._uniformMap = uniformMap;
         this._uniformDefaultValue = uniformDefaultValue;
@@ -134,8 +136,9 @@ export class SubShader {
 
     _addShaderPass(compiledObj: IShaderCompiledObj, pipelineMode: string = "Forward"): ShaderPass {
         var shaderPass: ShaderPass = new ShaderPass(this, compiledObj);
-        shaderPass._pipelineMode = pipelineMode;
+        shaderPass.pipelineMode = pipelineMode;
         this._passes.push(shaderPass);
+        this.moduleData.addShaderPass(shaderPass.moduleData);
         this._addIncludeUniform(compiledObj.includeNames);
         return shaderPass;
     }

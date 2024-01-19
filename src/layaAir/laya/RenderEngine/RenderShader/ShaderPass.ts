@@ -6,7 +6,7 @@ import { ShaderVariant } from "../../RenderEngine/RenderShader/ShaderVariantColl
 import { IShaderCompiledObj } from "../../webgl/utils/ShaderCompile";
 import { RenderState } from "./RenderState";
 import { LayaGL } from "../../layagl/LayaGL";
-import { IShaderInstance } from "../RenderInterface/RenderPipelineInterface/IShaderInstance";
+import { IShaderInstance, IShaderPassData } from "../RenderInterface/RenderPipelineInterface/IShaderInstance";
 
 
 /**
@@ -23,13 +23,27 @@ export class ShaderPass extends ShaderCompileDefineBase {
     /** @internal */
     private _renderState: RenderState;
     /** @internal */
-    _tags: any = {};
-    /** @internal */
-    _pipelineMode: string;
+    private _pipelineMode: string;
+    public get pipelineMode(): string {
+        return this._pipelineMode;
+    }
+    public set pipelineMode(value: string) {
+        this._pipelineMode = value;
+        this.moduleData.pipelineMode = value;
+    }
     /**@internal */
     _nodeUniformCommonMap: Array<string>;
     /** 优先 ShaderPass 渲染状态 */
-    statefirst: boolean = false;
+    private _statefirst: boolean = false;
+    public get statefirst(): boolean {
+        return this._statefirst;
+    }
+    public set statefirst(value: boolean) {
+        this._statefirst = value;
+        this.moduleData.statefirst = value;
+    }
+
+    moduleData: IShaderPassData;
 
     /**
      * 渲染状态。
@@ -42,6 +56,8 @@ export class ShaderPass extends ShaderCompileDefineBase {
         super(owner, null, compiledObj);
         this._renderState = LayaGL.renderOBJCreate.createRenderState();
         this._renderState.setNull();
+        this.moduleData = LayaGL.renderOBJCreate.createShaderPass();
+        this.moduleData.validDefine = this._validDefine;
     }
 
     /**
@@ -64,105 +80,31 @@ export class ShaderPass extends ShaderCompileDefineBase {
         Shader3D.debugShaderVariantCollection.add(dbugShaderVariantInfo);
     }
 
-    private _getCacheShader(compileDefine: DefineDatas) {
-        compileDefine._intersectionDefineDatas(this._validDefine);
-        var cacheShaders: any = this._cacheSharders;
-        var maskLength: number = compileDefine._length;
-        if (maskLength > this._cacheShaderHierarchy) {//扩充已缓存ShaderMap
-            this._resizeCacheShaderMap(cacheShaders, 0, maskLength);
-            this._cacheShaderHierarchy = maskLength;
-        }
-        var mask: Array<number> = compileDefine._mask;
-        var endIndex: number = compileDefine._length - 1;
-        var maxEndIndex: number = this._cacheShaderHierarchy - 1;
-        for (var i: number = 0; i < maxEndIndex; i++) {
-            var subMask: number = endIndex < i ? 0 : mask[i];
-            var subCacheShaders = cacheShaders[subMask];
-            (subCacheShaders) || (cacheShaders[subMask] = subCacheShaders = {});
-            cacheShaders = subCacheShaders;
-        }
-
-        var cacheKey: number = endIndex < maxEndIndex ? 0 : mask[maxEndIndex];
-        var shader: IShaderInstance = cacheShaders[cacheKey];
-        return shader;
-    }
-
-    private setCacheShader(compileDefine: DefineDatas, shader: IShaderInstance) {
-        var cacheShaders: any = this._cacheSharders;
-        var mask: Array<number> = compileDefine._mask;
-        var endIndex: number = compileDefine._length - 1;
-        var maxEndIndex: number = this._cacheShaderHierarchy - 1;
-        for (var i: number = 0; i < maxEndIndex; i++) {
-            var subMask: number = endIndex < i ? 0 : mask[i];
-            var subCacheShaders = cacheShaders[subMask];
-            (subCacheShaders) || (cacheShaders[subMask] = subCacheShaders = {});
-            cacheShaders = subCacheShaders;
-        }
-        var cacheKey: number = endIndex < maxEndIndex ? 0 : mask[maxEndIndex];
-        cacheShaders[cacheKey] = shader;
-    }
-
-    private _createShaderInstance(IS2d: boolean, compileDefine: DefineDatas): IShaderInstance {
+    /**
+     * @internal
+     * @param IS2d 
+     * @param compileDefine 
+     * @returns 
+     */
+    static createShaderInstance(shaderpass: ShaderPass, IS2d: boolean, compileDefine: DefineDatas): IShaderInstance {
         var shader: IShaderInstance;
         let shaderProcessInfo: ShaderProcessInfo = new ShaderProcessInfo();
         shaderProcessInfo.is2D = IS2d;
-        shaderProcessInfo.vs = this._VS;
-        shaderProcessInfo.ps = this._PS;
-        shaderProcessInfo.attributeMap = this._owner._attributeMap;
-        shaderProcessInfo.uniformMap = this._owner._uniformMap;
-
+        shaderProcessInfo.vs = shaderpass._VS;
+        shaderProcessInfo.ps = shaderpass._PS;
+        shaderProcessInfo.attributeMap = shaderpass._owner._attributeMap;
+        shaderProcessInfo.uniformMap = shaderpass._owner._uniformMap;
         var defineString: string[] = ShaderPass._defineStrings;
         Shader3D._getNamesByDefineData(compileDefine, defineString);
         shaderProcessInfo.defineString = defineString;
+        shader = LayaGL.renderOBJCreate.createShaderInstance(shaderProcessInfo, shaderpass);
 
-        shader = LayaGL.renderOBJCreate.createShaderInstance(shaderProcessInfo, this);
-        return shader;
-    }
-
-
-
-
-    /**
-     * @override
-     * @internal
-     */
-    withCompile(compileDefine: DefineDatas, IS2d: boolean = false): IShaderInstance {
-
-        // compileDefine._intersectionDefineDatas(this._validDefine);
-
-
-        // var cacheShaders: any = this._cacheSharders;
-        // var maskLength: number = compileDefine._length;
-        // if (maskLength > this._cacheShaderHierarchy) {//扩充已缓存ShaderMap
-        //     this._resizeCacheShaderMap(cacheShaders, 0, maskLength);
-        //     this._cacheShaderHierarchy = maskLength;
-        // }
-
-        // var mask: Array<number> = compileDefine._mask;
-        // var endIndex: number = compileDefine._length - 1;
-        // var maxEndIndex: number = this._cacheShaderHierarchy - 1;
-        // for (var i: number = 0; i < maxEndIndex; i++) {
-        //     var subMask: number = endIndex < i ? 0 : mask[i];
-        //     var subCacheShaders = cacheShaders[subMask];
-        //     (subCacheShaders) || (cacheShaders[subMask] = subCacheShaders = {});
-        //     cacheShaders = subCacheShaders;
-        // }
-
-        // var cacheKey: number = endIndex < maxEndIndex ? 0 : mask[maxEndIndex];
-        // var shader: ShaderInstance = cacheShaders[cacheKey];
-        var shader: IShaderInstance = this._getCacheShader(compileDefine);
-        if (shader)
-            return shader;
-        var debugDefineString: string[] = ShaderPass._debugDefineStrings;
-        var debugDefineMask: number[] = ShaderPass._debugDefineMasks;
-        var debugMaskLength: number;
         if (Shader3D.debugMode) {//add shader variant info to debug ShaderVariantCollection
+            var debugDefineString: string[] = ShaderPass._debugDefineStrings;
+            var debugDefineMask: number[] = ShaderPass._debugDefineMasks;
+            var debugMaskLength: number;
             debugMaskLength = compileDefine._length;
-            this._addDebugShaderVariantCollection(compileDefine, debugDefineString, debugDefineMask);
-        }
-        shader = this._createShaderInstance(IS2d, compileDefine);
-        this.setCacheShader(compileDefine, shader);
-        if (Shader3D.debugMode) {
+            shaderpass._addDebugShaderVariantCollection(compileDefine, debugDefineString, debugDefineMask);
             var defStr: string = "";
             var defCommonStr: string = "";
             var defMask: string = "";
@@ -170,28 +112,39 @@ export class ShaderPass extends ShaderCompileDefineBase {
             for (var i: number = 0, n: number = debugMaskLength; i < n; i++) {
                 (i == n - 1) ? defMask += debugDefineMask[i] : defMask += debugDefineMask[i] + ",";
             }
-            // for (var i: number = 0, n: number = debugDefineString.length; i < n; i++){}
-            //     (i == n - 1) ? defStr += debugDefineString[i] : defStr += debugDefineString[i] + ",";
             for (var i: number = 0, n: number = debugDefineString.length; i < n; i++) {
                 if (Shader3D._configDefineValues.has(Shader3D.getDefineByName(debugDefineString[i])))
                     defCommonStr += debugDefineString[i] + ",";
                 else
                     defStr += debugDefineString[i] + ",";
             }
-            if (this.nodeCommonMap) {
-                for (var j = 0; j < this.nodeCommonMap.length; j++) {
-                    spriteCommonNode += this.nodeCommonMap[j] + ",";
+            if (shaderpass.nodeCommonMap) {
+                for (var j = 0; j < shaderpass.nodeCommonMap.length; j++) {
+                    spriteCommonNode += shaderpass.nodeCommonMap[j] + ",";
                 }
             }
-            console.log("%cLayaAir: Shader Compile Information---ShaderName:" + this._owner._owner._name +
-                " SubShaderIndex:" + this._owner._owner._subShaders.indexOf(this._owner) +
-                " PassIndex:" + this._owner._passes.indexOf(this) +
+            console.log("%cLayaAir: Shader Compile Information---ShaderName:" + shaderpass._owner._owner._name +
+                " SubShaderIndex:" + shaderpass._owner._owner._subShaders.indexOf(shaderpass._owner) +
+                " PassIndex:" + shaderpass._owner._passes.indexOf(shaderpass) +
                 " DefineMask:[" + defMask + "]" +
                 " DefineNames:[" + defStr + "]" +
                 " Environment Macro DefineNames:[" + defCommonStr + "]" +
                 "Sprite CommonNode:[" + spriteCommonNode + "]",
                 "color:green");
         }
+        return shader;
+    }
+
+    /**
+     * @override
+     * @internal
+     */
+    withCompile(compileDefine: DefineDatas, IS2d: boolean = false): IShaderInstance {
+        var shader: IShaderInstance = this.moduleData.getCacheShader(compileDefine);
+        if (shader)
+            return shader;
+        shader = ShaderPass.createShaderInstance(this, IS2d, compileDefine);
+        this.moduleData.setCacheShader(compileDefine, shader);
         return shader;
     }
 }

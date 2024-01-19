@@ -6,12 +6,16 @@ import { BufferUsage } from "../RenderEnum/BufferTargetType";
 import { RenderState } from "../RenderShader/RenderState";
 import { RenderStateCommand } from "../RenderStateCommand";
 import { UniformBufferObject } from "../UniformBufferObject";
-import { IShaderInstance } from "./RenderPipelineInterface/IShaderInstance";
+import { IShaderInstance, IShaderPassData, ISubshaderData } from "./RenderPipelineInterface/IShaderInstance";
 import { ShaderData } from "./ShaderData";
 
 export interface IRenderEngineFactory {
 
     createShaderInstance(shaderProcessInfo: ShaderProcessInfo, shaderPass: ShaderCompileDefineBase): IShaderInstance;
+
+    createSubShaderData():ISubshaderData;
+
+    createShaderPass():IShaderPassData;
 
     createShaderData(ownerResource: Resource): ShaderData;
 

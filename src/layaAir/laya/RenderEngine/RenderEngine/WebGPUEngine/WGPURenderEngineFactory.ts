@@ -10,9 +10,16 @@ import { UniformBufferObject } from "../../../RenderEngine/UniformBufferObject";
 import { WGPUShaderData } from "../../../d3/RenderObjs/WebGPUOBJ/WGPUShaderData";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { ShaderCompileDefineBase, ShaderProcessInfo } from "../../../webgl/utils/ShaderCompileDefineBase";
+import { ISubshaderData, IShaderPassData } from "../../RenderInterface/RenderPipelineInterface/IShaderInstance";
 
 
 export class WGPURenderEngineFactory implements IRenderEngineFactory {
+    createSubShaderData(): ISubshaderData {
+        throw new Error("Method not implemented.");
+    }
+    createShaderPass(): IShaderPassData {
+        throw new Error("Method not implemented.");
+    }
     /**@internal */
     private globalBlockMap: any = {};
 

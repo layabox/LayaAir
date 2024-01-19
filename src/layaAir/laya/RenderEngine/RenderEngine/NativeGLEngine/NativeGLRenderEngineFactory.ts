@@ -6,7 +6,9 @@ import { ShaderInstance } from "../../../RenderEngine/RenderShader/ShaderInstanc
 import { UniformBufferObject } from "../../../RenderEngine/UniformBufferObject";
 import { NativeShaderInstance } from "../../../d3/RenderObjs/NativeOBJ/NativeShaderInstance";
 import { ShaderCompileDefineBase, ShaderProcessInfo } from "../../../webgl/utils/ShaderCompileDefineBase";
+import { ISubshaderData, IShaderPassData } from "../../RenderInterface/RenderPipelineInterface/IShaderInstance";
 import { ShaderData } from "../../RenderInterface/ShaderData";
+import { ShaderPass } from "../../RenderShader/ShaderPass";
 import { NativeCommandUniformMap } from "./NativeCommandUniformMap";
 import { NativeRenderState } from "./NativeRenderState";
 import { NativeShaderData } from "./NativeShaderData";
@@ -14,14 +16,18 @@ import { NativeUniformBufferObject } from "./NativeUniformBufferObject";
 
 
 export class NativeGLRenderEngineFactory implements IRenderEngineFactory {
-
-
+    createSubShaderData(): ISubshaderData {
+        throw new Error("Method not implemented.");
+    }
+    createShaderPass(): IShaderPassData {
+        throw new Error("Method not implemented.");
+    }
 
     createShaderData(): ShaderData {
         return new NativeShaderData();
     }
 
-    createShaderInstance(shaderProcessInfo: ShaderProcessInfo, shaderPass: ShaderCompileDefineBase): any {
+    createShaderInstance(shaderProcessInfo: ShaderProcessInfo, shaderPass: ShaderPass): any {
         let shaderins = new NativeShaderInstance();
         shaderins._create(shaderProcessInfo, shaderPass);
         return shaderins;

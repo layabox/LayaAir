@@ -62,7 +62,7 @@ export class ShaderInstance implements IShaderInstance {
 		return this._renderShaderInstance._complete;
 	}
 
-	_create(shaderProcessInfo: ShaderProcessInfo, shaderPass: ShaderCompileDefineBase): void {
+	_create(shaderProcessInfo: ShaderProcessInfo, shaderPass: ShaderPass): void {
 		let shaderObj = GLSLCodeGenerator.GLShaderLanguageProcess3D(shaderProcessInfo.defineString, shaderProcessInfo.attributeMap, shaderProcessInfo.uniformMap, shaderProcessInfo.vs, shaderProcessInfo.ps);
 		this._renderShaderInstance = LayaGL.renderEngine.createShaderInstance(shaderObj.vs, shaderObj.fs, shaderProcessInfo.attributeMap);
 		if (this._renderShaderInstance._complete) {

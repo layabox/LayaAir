@@ -18,6 +18,8 @@ import { Matrix4x4 } from "../../maths/Matrix4x4";
 import { Vector3 } from "../../maths/Vector3";
 import { BoundFrustum } from "../math/BoundFrustum";
 import { IRenderContext3D } from "../RenderDriverLayer/IRenderContext3D";
+import { IBaseRenderNode } from "../RenderDriverLayer/Render3DNode/IBaseRenderNode";
+import { Laya3DRender } from "../RenderObjs/Laya3DRender";
 
 export class aaaa{
     
@@ -111,6 +113,14 @@ export class SkinnedMeshRenderer extends MeshRenderer {
     }
 
 
+    
+    /**
+     * override it
+     * @returns 
+     */
+    protected _createBaseRenderNode(): IBaseRenderNode {
+        return Laya3DRender.renderOBJCreate.createBaseRenderNode();
+    }
 
 
     protected _computeSkinnedData(): void {

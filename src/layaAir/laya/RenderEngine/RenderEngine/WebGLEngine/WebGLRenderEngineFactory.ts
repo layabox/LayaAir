@@ -11,20 +11,29 @@ import { RenderState } from "../../../RenderEngine/RenderShader/RenderState";
 import { ShaderInstance } from "../../../RenderEngine/RenderShader/ShaderInstance";
 import { RenderStateCommand } from "../../../RenderEngine/RenderStateCommand";
 import { UniformBufferObject } from "../../../RenderEngine/UniformBufferObject";
-import { ShaderCompileDefineBase, ShaderProcessInfo } from "../../../webgl/utils/ShaderCompileDefineBase";
+import { ShaderProcessInfo } from "../../../webgl/utils/ShaderCompileDefineBase";
+import { ISubshaderData, IShaderPassData } from "../../RenderInterface/RenderPipelineInterface/IShaderInstance";
+import { ShaderPass } from "../../RenderShader/ShaderPass";
 import { WebShaderData } from "../../RenderShader/WebShaderData";
+import { WebShaderPass, WebSubShader } from "../WebGPUEngine/WebModuleData";
 
 export class WebGLRenderEngineFactory implements IRenderEngineFactory {
-
     /**@internal */
     private globalBlockMap: any = {};
+
+    createSubShaderData(): ISubshaderData {
+        return new WebSubShader();
+    }
+    createShaderPass(): IShaderPassData {
+        return new WebShaderPass();
+    }
 
     createShaderData(): WebShaderData {
         return new WebShaderData();
     }
 
 
-    createShaderInstance(shaderProcessInfo: ShaderProcessInfo, shaderPass: ShaderCompileDefineBase): ShaderInstance {
+    createShaderInstance(shaderProcessInfo: ShaderProcessInfo, shaderPass: ShaderPass): ShaderInstance {
         let shaderins = new ShaderInstance();
         shaderins._create(shaderProcessInfo, shaderPass);
         return shaderins;
