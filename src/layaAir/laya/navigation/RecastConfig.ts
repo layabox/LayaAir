@@ -1,4 +1,5 @@
-import { IClone } from "../../../utils/IClone";
+import { IClone } from "../utils/IClone";
+
 
 /**
  * create Recast navMesh Config

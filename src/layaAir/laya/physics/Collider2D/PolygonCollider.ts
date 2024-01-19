@@ -18,19 +18,6 @@ export class PolygonCollider extends ColliderBase {
     /**顶点数据*/
     private _datas: number[] = [];
 
-    constructor() {
-        super();
-        this._physicShape = PhysicsShape.PolygonShape;
-    }
-
-    /**@internal 设置碰撞体数据*/
-    _setShapeData(shape: any): void {
-        var len: number = this.datas.length;
-        if (len < 6) throw "PolygonCollider points must be greater than 3";
-        if (len % 2 == 1) throw "PolygonCollider points lenth must a multiplier of 2";
-        Physics2D.I._factory.set_PolygonShape_data(shape, this.pivotoffx, this.pivotoffy, this.datas, this.scaleX, this.scaleY);
-    }
-
     /**
      * @deprecated
      * 用逗号隔开的点的集合，格式：x,y,x,y ...
@@ -60,5 +47,18 @@ export class PolygonCollider extends ColliderBase {
         if (!value) throw "PolygonCollider points cannot be empty";
         this._datas = value;
         this._needupdataShapeAttribute();
+    }
+
+    constructor() {
+        super();
+        this._physicShape = PhysicsShape.PolygonShape;
+    }
+
+    /**@internal 设置碰撞体数据*/
+    _setShapeData(shape: any): void {
+        var len: number = this.datas.length;
+        if (len < 6) throw "PolygonCollider points must be greater than 3";
+        if (len % 2 == 1) throw "PolygonCollider points lenth must a multiplier of 2";
+        Physics2D.I._factory.set_PolygonShape_data(shape, this.pivotoffx, this.pivotoffy, this.datas, this.scaleX, this.scaleY);
     }
 }

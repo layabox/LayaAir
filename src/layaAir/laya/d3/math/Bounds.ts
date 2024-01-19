@@ -49,6 +49,9 @@ export class Bounds implements IClone {
     /**@internal	*/
     _imp: any;
 
+    /**
+     * 最小点
+     */
     get min() {
         return this.getMin();
     }
@@ -57,6 +60,9 @@ export class Bounds implements IClone {
         this.setMin(value);
     }
 
+    /**
+     * 最大点
+     */
     get max() {
         return this.getMax();
     }

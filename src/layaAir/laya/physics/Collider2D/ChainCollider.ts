@@ -20,18 +20,6 @@ export class ChainCollider extends ColliderBase {
     /**@internal 是否是闭环，注意不要有自相交的链接形状，它可能不能正常工作*/
     private _loop: boolean = false;
 
-    constructor() {
-        super();
-        this._physicShape = PhysicsShape.ChainShape;
-    }
-
-    /**@internal 设置碰撞体数据*/
-    _setShapeData(shape: any): void {
-        var len: number = this._datas.length;
-        if (len % 2 == 1) throw "ChainCollider datas lenth must a multiplier of 2";
-        Physics2D.I._factory.set_ChainShape_data(shape, this.pivotoffx, this.pivotoffy, this._datas, this._loop, this.scaleX, this.scaleY);
-    }
-
     /**
      * @deprecated
      * 用逗号隔开的点的集合，格式：x,y,x,y ...
@@ -72,5 +60,17 @@ export class ChainCollider extends ColliderBase {
         if (this._loop == value) return;
         this._loop = value;
         this._needupdataShapeAttribute();
+    }
+
+    constructor() {
+        super();
+        this._physicShape = PhysicsShape.ChainShape;
+    }
+
+    /**@internal 设置碰撞体数据*/
+    _setShapeData(shape: any): void {
+        var len: number = this._datas.length;
+        if (len % 2 == 1) throw "ChainCollider datas lenth must a multiplier of 2";
+        Physics2D.I._factory.set_ChainShape_data(shape, this.pivotoffx, this.pivotoffy, this._datas, this._loop, this.scaleX, this.scaleY);
     }
 }

@@ -1,10 +1,9 @@
-
-import { Vector3 } from "../../../maths/Vector3";
-import { SingletonList } from "../../../utils/SingletonList";
-import { Bounds } from "../../math/Bounds";
-import { Ray } from "../../math/Ray";
-import { Mesh } from "../../resource/models/Mesh";
-import { Sprite3D } from "../Sprite3D";
+import { Sprite3D } from "../d3/core/Sprite3D";
+import { Bounds } from "../d3/math/Bounds";
+import { Ray } from "../d3/math/Ray";
+import { Mesh } from "../d3/resource/models/Mesh";
+import { Vector3 } from "../maths/Vector3";
+import { SingletonList } from "../utils/SingletonList";
 import { AreaMask } from "./AreaMask";
 import { NavAgent } from "./Component/NavAgent";
 import { NavMeshModifierVolume } from "./Component/NavMeshModifierVolume";
@@ -52,20 +51,20 @@ export class NavMesh {
     private _navcreateedTileMaps: Set<number>;
     /**@internal */
     private _delayCreates: Map<number, NavAgent[]>;
-
     private _fiterMap: Map<number, any>;
     /**@internal */
     private _debugMesh: Mesh;
-
     /** @internal */
     private _grid: NavMeshGrid;
 
     /** @internal */
     private _meshlinkOffList: SingletonList<NavNavMeshLink>;
+    /** @internal */
     private _meshlinkoffIdLists: number[];
 
     /** @internal */
     private _meshVolumeList: SingletonList<NavMeshModifierVolume>;
+    /** @internal */
     private _meshVolumeIdLists: number[];
 
 
@@ -106,6 +105,9 @@ export class NavMesh {
         return this._crowd;
     }
 
+    /**
+     * @internal
+     */
     get navTileGrid(): NavMeshGrid {
         return this._grid;
     }
@@ -318,8 +320,9 @@ export class NavMesh {
 
     /**
      * 获得当前点的Flag
-     * @param {*}
-     * @return {*}
+     * @param pos 世界坐标
+     * @param fiter 
+     * @return area
      */
     getPolyFlags(pos: Vector3, fiter: any = null): number {
         const posRef = this.findNearestPoly(pos, fiter);
@@ -328,8 +331,9 @@ export class NavMesh {
 
     /**
      * 获得当前点的AreaFlag
-     * @param {*}
-     * @return {*}
+     * @param pos 世界坐标
+     * @param fiter 
+     * @return area
      */
     getPolyArea(pos: Vector3, fiter: any = null): number {
         const posRef = this.findNearestPoly(pos, fiter);
@@ -338,10 +342,10 @@ export class NavMesh {
 
     /**
      * 查找最近点
-     * @param {*}
-     * @return {*}
+     * @param pos 世界坐标
+     * @param fiter 
      */
-    findNearestPoly(pos: Vector3, fiter: any = null) {
+    findNearestPoly(pos: Vector3, fiter: any = null): any {
         if (!fiter) fiter = this._defatfilter;
         return this._navQuery.findNearestPoly(pos.toArray(), this.extents, fiter);
     }

@@ -1,6 +1,7 @@
-import { Component } from "../../../../components/Component";
-import { Vector3 } from "../../../../maths/Vector3";
-import { Sprite3D } from "../../Sprite3D";
+
+import { Component } from "../../components/Component";
+import { Sprite3D } from "../../d3/core/Sprite3D";
+import { Vector3 } from "../../maths/Vector3";
 import { NavigationManager } from "../NavigationManager";
 import { NavMeshSurface } from "./NavMeshSurface";
 

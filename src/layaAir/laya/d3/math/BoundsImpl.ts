@@ -24,6 +24,9 @@ export class BoundsImpl implements IClone {
     /**@internal	*/
     _boundBox: BoundBox = new BoundBox(new Vector3(), new Vector3());
 
+    /**
+     * 最小点
+     */
     get min() {
         return this.getMin();
     }
@@ -32,6 +35,9 @@ export class BoundsImpl implements IClone {
         this.setMin(value);
     }
 
+    /**
+     * 最大点
+     */
     get max() {
         return this.getMax();
     }

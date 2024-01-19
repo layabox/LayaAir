@@ -1,10 +1,10 @@
 
-import { Laya } from "../../../../Laya";
-import { Vector3 } from "../../../maths/Vector3";
-import { SingletonList } from "../../../utils/SingletonList";
-import { Bounds } from "../../math/Bounds";
-import { IElementComponentManager } from "../scene/IScenceComponentManager";
-import { Scene3D } from "../scene/Scene3D";
+import { Laya } from "../../Laya";
+import { IElementComponentManager } from "../d3/core/scene/IScenceComponentManager";
+import { Scene3D } from "../d3/core/scene/Scene3D";
+import { Bounds } from "../d3/math/Bounds";
+import { Vector3 } from "../maths/Vector3";
+import { SingletonList } from "../utils/SingletonList";
 import { AreaMask } from "./AreaMask";
 import { NavMeshSurface } from "./Component/NavMeshSurface";
 import { NavNavMeshLink } from "./Component/NavNavMeshLink";
@@ -35,6 +35,19 @@ export class NavigationManager implements IElementComponentManager {
     /**@internal  */
     static readonly defaltJump: string = "jump";
 
+    /**
+     * 初始化系统，由系统内部调用
+     * @internal
+     */
+    static initialize(): Promise<void> {
+        return (window as any).Recast().then((Recast: any) => {
+            console.log("Recast loaded.");
+            NavigationUtils.initialize(Recast);
+            NavObstacles._init_();
+            return Promise.resolve();
+        });
+    }
+
     /**@interanl */
     name: string;
 
@@ -52,20 +65,6 @@ export class NavigationManager implements IElementComponentManager {
 
     /**@internal */
     _deflatAllMask: AreaMask;
-
-
-    /**
-     * 初始化系统，由系统内部调用
-     * @internal
-     */
-    static initialize(): Promise<void> {
-        return (window as any).Recast().then((Recast: any) => {
-            console.log("Recast loaded.");
-            NavigationUtils.initialize(Recast);
-            NavObstacles._init_();
-            return Promise.resolve();
-        });
-    }
 
     /**
      * <code>实例化一个Navigation管理器<code>
@@ -109,6 +108,20 @@ export class NavigationManager implements IElementComponentManager {
         this.regArea(area);
         this._deflatAllMask._setAreaMap(this._areaFlagMap);
         this._deflatAllMask.flag = 3;
+    }
+
+    /**
+    * 获得key值
+    * @internal
+    * @param {*}
+    * @return {*}
+    */
+    private _getLinkIdByNavMeshSurfaces(a: NavMeshSurface, b: NavMeshSurface): string {
+        if (a.id < b.id) {
+            return a.id + "_" + b.id;
+        } else {
+            return b.id + "_" + a.id;
+        }
     }
 
     /**
@@ -226,7 +239,8 @@ export class NavigationManager implements IElementComponentManager {
 
     /**
      * 根据两个不同的navMesh查找直接是否存在NavMeshLink
-      * @param from NavMeshSurface
+     * @internal 
+     * @param from NavMeshSurface
      * @param to NavMeshSurface
      * @returns NavNavMeshLink[]
      */
@@ -240,6 +254,7 @@ export class NavigationManager implements IElementComponentManager {
 
     /**
      * regist NavMeshSurface
+     * @internal
      * @param nav
      */
     public regNavMeshSurface(nav: NavMeshSurface) {
@@ -290,20 +305,6 @@ export class NavigationManager implements IElementComponentManager {
         return surfaces;
     }
 
-
-    /**
-     * 获得key值
-     * @internal
-     * @param {*}
-     * @return {*}
-     */
-    private _getLinkIdByNavMeshSurfaces(a: NavMeshSurface, b: NavMeshSurface): string {
-        if (a.id < b.id) {
-            return a.id + "_" + b.id;
-        } else {
-            return b.id + "_" + a.id;
-        }
-    }
 }
 
 //reg nav Component Manager

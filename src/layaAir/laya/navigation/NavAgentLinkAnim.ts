@@ -1,5 +1,5 @@
-import { Laya } from "../../../../Laya";
-import { Vector3 } from "../../../maths/Vector3";
+import { Laya } from "../../Laya";
+import { Vector3 } from "../maths/Vector3";
 import { NavMeshSurface } from "./Component/NavMeshSurface";
 
 /**@internal */

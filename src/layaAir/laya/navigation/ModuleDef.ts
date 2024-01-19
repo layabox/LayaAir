@@ -1,4 +1,4 @@
-import { ClassUtils } from "../../../utils/ClassUtils";
+import { ClassUtils } from "../utils/ClassUtils";
 import { AreaMask } from "./AreaMask";
 import { NavAgent } from "./Component/NavAgent";
 import { NavMeshModifierVolume } from "./Component/NavMeshModifierVolume";

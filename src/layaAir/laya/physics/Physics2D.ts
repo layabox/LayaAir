@@ -203,7 +203,7 @@ export class Physics2D extends EventDispatcher {
         }
     }
 
-    /**开启物理引擎 */
+    /**@internal 开启物理引擎 */
     enable(): Promise<void> {
         if (this._factory) {
             return this._factory.initialize().then(() => {
