@@ -56,7 +56,7 @@ export class ShaderPass extends ShaderCompileDefineBase {
         super(owner, null, compiledObj);
         this._renderState = LayaGL.renderOBJCreate.createRenderState();
         this._renderState.setNull();
-        this.moduleData = LayaGL.renderOBJCreate.createShaderPass();
+        this.moduleData = LayaGL.renderOBJCreate.createShaderPass(this);
         this.moduleData.validDefine = this._validDefine;
     }
 

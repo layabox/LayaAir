@@ -4,6 +4,7 @@ import { ShaderCompileDefineBase, ShaderProcessInfo } from "../../webgl/utils/Sh
 import { CommandUniformMap } from "../CommandUniformMap";
 import { BufferUsage } from "../RenderEnum/BufferTargetType";
 import { RenderState } from "../RenderShader/RenderState";
+import { ShaderPass } from "../RenderShader/ShaderPass";
 import { RenderStateCommand } from "../RenderStateCommand";
 import { UniformBufferObject } from "../UniformBufferObject";
 import { IShaderInstance, IShaderPassData, ISubshaderData } from "./RenderPipelineInterface/IShaderInstance";
@@ -13,9 +14,9 @@ export interface IRenderEngineFactory {
 
     createShaderInstance(shaderProcessInfo: ShaderProcessInfo, shaderPass: ShaderCompileDefineBase): IShaderInstance;
 
-    createSubShaderData():ISubshaderData;
+    createSubShaderData(): ISubshaderData;
 
-    createShaderPass():IShaderPassData;
+    createShaderPass(pass: ShaderPass): IShaderPassData;
 
     createShaderData(ownerResource: Resource): ShaderData;
 
@@ -27,6 +28,6 @@ export interface IRenderEngineFactory {
 
     createGlobalUniformMap(blockName: string): CommandUniformMap;
 
-    createEngine(config:Config,canvas:any):Promise<void>;
+    createEngine(config: Config, canvas: any): Promise<void>;
 }
 
