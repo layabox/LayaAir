@@ -70,7 +70,7 @@ export class GLESReflectionProbe implements IReflectionProbeData {
         });
     }
     /**@internal */
-    setprobePosition(value: Vector3): void {
+    setProbePosition(value: Vector3): void {
         value && value.cloneTo(this._probePosition);
     }
     /**@internal */

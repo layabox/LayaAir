@@ -8,71 +8,69 @@ export class RTSpotLight implements ISpotLightData {
         return this._transform;
     }
     public set transform(value: NativeTransform3D) {
-        this._nativeObj.set_transform(value._nativeObj);
+        this._nativeObj.setTransform(value._nativeObj);
         this._transform = value;
     }
-    private _shadowResolution: number;
+
     public get shadowResolution(): number {
-        return this._shadowResolution;
+        return this._nativeObj._shadowResolution;
     }
     public set shadowResolution(value: number) {
-        this._shadowResolution = value;
+        this._nativeObj._shadowResolution = value;
     }
-    private _shadowDistance: number;
+
     public get shadowDistance(): number {
-        return this._shadowDistance;
+        return this._nativeObj._shadowDistance;
     }
     public set shadowDistance(value: number) {
-        this._shadowDistance = value;
+        this._nativeObj._shadowDistance = value;
     }
-    private _shadowMode: ShadowMode;
+
     public get shadowMode(): ShadowMode {
-        return this._shadowMode;
+        return this._nativeObj._shadowMode;
     }
     public set shadowMode(value: ShadowMode) {
-        this._shadowMode = value;
+        this._nativeObj._shadowMode = value;
     }
-    private _shadowStrength: number;
+
     public get shadowStrength(): number {
-        return this._shadowStrength;
+        return this._nativeObj._shadowStrength;
     }
     public set shadowStrength(value: number) {
-        this._shadowStrength = value;
+        this._nativeObj._shadowStrength = value;
     }
-    private _shadowDepthBias: number;
+
     public get shadowDepthBias(): number {
-        return this._shadowDepthBias;
+        return this._nativeObj._shadowDepthBias;
     }
     public set shadowDepthBias(value: number) {
-        this._shadowDepthBias = value;
+        this._nativeObj._shadowDepthBias = value;
     }
-    private _shadowNormalBias: number;
+
     public get shadowNormalBias(): number {
-        return this._shadowNormalBias;
+        return this._nativeObj._shadowNormalBias;
     }
     public set shadowNormalBias(value: number) {
-        this._shadowNormalBias = value;
+        this._nativeObj._shadowNormalBias = value;
     }
-    private _shadowNearPlane: number;
     public get shadowNearPlane(): number {
-        return this._shadowNearPlane;
+        return this._nativeObj._shadowNearPlane;
     }
     public set shadowNearPlane(value: number) {
-        this._shadowNearPlane = value;
+        this._nativeObj._shadowNearPlane = value;
     }
-    private _spotRange: number;
+
     public get spotRange(): number {
-        return this._spotRange;
+        return this._nativeObj._spotRange;
     }
     public set spotRange(value: number) {
-        this._spotRange = value;
+        this._nativeObj._spotRange = value;
     }
-    private _spotAngle: number;
     public get spotAngle(): number {
-        return this._spotAngle;
+        return this._nativeObj._spotAngle;
     }
     public set spotAngle(value: number) {
-        this._spotAngle = value;
+        this._nativeObj._spotAngle = value;
     }
     _nativeObj: any;
 
@@ -81,7 +79,7 @@ export class RTSpotLight implements ISpotLightData {
     }
 
     setDirection(value: Vector3): void {
- 
+        this._nativeObj.setDirection(value);
     }
 
 }
