@@ -9,6 +9,8 @@ import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 import { GLESRenderDriverPassFactory } from "laya/d3/RenderObjs/WebGLOBJ/GLESRenderDriverPassFactory";
 import { Laya3DRender } from "laya/d3/RenderObjs/Laya3DRender";
 import { WebGLRenderEngine3DFactory } from "laya/d3/RenderObjs/WebGLOBJ/WebGLRenderEngine3DFactory"
+import { Sprite3D } from "laya/d3/core/Sprite3D";
+import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
 export class SceneLoad1 {
 	constructor() {
 		Laya3DRender.renderDriverPassCreate = new GLESRenderDriverPassFactory();
@@ -55,6 +57,9 @@ export class SceneLoad1 {
 
 			// //获取场景中的相机
 			var camera: Camera = (<Camera>scene.getChildByName("Main Camera"));
+			// let directionLight = new Sprite3D();
+			// let dircom = directionLight.addComponent(DirectionLightCom);
+			// scene.addChild(directionLight);
 			// //移动摄像机位置
 			// camera.transform.position = new Vector3(0, 0.81, -1.85);
 			// //旋转摄像机角度

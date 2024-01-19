@@ -21,6 +21,8 @@ export class UnlitMaterial extends Material {
 
 	static TILINGOFFSET: number;
 
+	static defaultMaterial: UnlitMaterial;
+
 	/**
 	 * @internal
 	 */

@@ -15,7 +15,9 @@ export class GLESMeshRenderNode extends GLESBaseRenderNode implements IMeshRende
      * @internal
      */
     _renderUpdate(context: GLESRenderContext3D): void {
-        (this.lightmapDirtyFlag == context.sceneModuleData?.lightmapDirtyFlag) && this._applyLightMapParams();
+        if (this.lightmapDirtyFlag) {
+            (this.lightmapDirtyFlag == context.sceneModuleData?.lightmapDirtyFlag) && this._applyLightMapParams();
+        }
         this._applyReflection();
         this._applyLightProb();
         let trans = this.transform;
