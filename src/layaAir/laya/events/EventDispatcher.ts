@@ -10,6 +10,11 @@ export class EventDispatcher {
     /**@private */
     private _events: Record<string, Delegate>;
 
+    /**
+     * @internal
+     * @protected
+     * @param type 
+     */
     protected onStartListeningToType(type: string) {
     }
 

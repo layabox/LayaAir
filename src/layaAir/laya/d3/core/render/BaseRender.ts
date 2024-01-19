@@ -107,6 +107,12 @@ export class BaseRender extends Component implements IBoundsCell {
         return define;
     }
 
+    /**
+     * 更改顶点宏定义
+     * @param oldMesh 旧Mesh 
+     * @param mesh 新Mesh
+     * @param defineDatas 数据  
+     */
     static changeVertexDefine(oldMesh: Mesh, mesh: Mesh, defineDatas: ShaderData) {
 
         var lastValue: Mesh = oldMesh;
@@ -122,6 +128,9 @@ export class BaseRender extends Component implements IBoundsCell {
         }
     }
 
+    /**
+     * 宏定义初始化
+     */
     static shaderValueInit() {
         Sprite3DRenderDeclaration.SHADERDEFINE_GI_LEGACYIBL = Shader3D.getDefineByName("GI_LEGACYIBL");
         Sprite3DRenderDeclaration.SHADERDEFINE_GI_IBL = Shader3D.getDefineByName("GI_IBL");
@@ -204,10 +213,16 @@ export class BaseRender extends Component implements IBoundsCell {
         return this._ratioIgnor;
     }
 
+    /**
+     * 获取渲染节点的渲染禁用位
+     */
     get renderbitFlag() {
         return this._rendernode.renderbitFlag;
     }
 
+    /**
+     * 包围盒是否更新
+     */
     set boundsChange(value: boolean) {
         this._rendernode.boundsChange = value
     }
@@ -241,10 +256,16 @@ export class BaseRender extends Component implements IBoundsCell {
     /**@internal */
     _receiveShadow: boolean;
 
+    /**
+     * 获取渲染节点
+     */
     get renderNode(): IBaseRenderNode {
         return this._rendernode;
     }
 
+    /**
+     * 排序距离
+     */
     set distanceForSort(value: number) {
         this._distanceForSort = value;
         this._rendernode.distanceForSort = value;
@@ -281,7 +302,7 @@ export class BaseRender extends Component implements IBoundsCell {
     }
 
     set lightmapIndex(value: number) {
-		this._lightmapDirtyFlag = -1;
+        this._lightmapDirtyFlag = -1;
         this._lightmapIndex = value;
         this._scene && this._applyLightMapParams();
         this._getIrradientMode();
@@ -454,8 +475,9 @@ export class BaseRender extends Component implements IBoundsCell {
         return this._reflectionMode;
     }
 
-
-
+    /**
+     * 体积光探针
+     */
     set volume(value: Volume) {
         if (!value) {//value = null,
             if (this._volume) {
@@ -497,6 +519,9 @@ export class BaseRender extends Component implements IBoundsCell {
         this._getIrradientMode();
     }
 
+    /**
+     * 设置全局体积光探针
+     */
     set lightProb(volumetricGI: VolumetricGI) {
         if (this._lightProb == volumetricGI) {
             return;
@@ -546,10 +571,20 @@ export class BaseRender extends Component implements IBoundsCell {
         }
     }
 
+    /**
+     * @internal
+     * @protected
+     * @returns 
+     */
     protected _getcommonUniformMap(): Array<string> {
         return ["Sprite3D"];
     }
 
+    /**
+     * @internal
+     * @protected
+     * @returns 
+     */
     protected _createBaseRenderNode(): IBaseRenderNode {
         return Laya3DRender.renderOBJCreate.createBaseRenderNode();
     }
@@ -562,6 +597,10 @@ export class BaseRender extends Component implements IBoundsCell {
         this._rendernode.staticMask = staticmask;
     }
 
+    /**
+     * @internal
+     * @protected
+     */
     protected _onAdded(): void {
         this._transform = (this.owner as Sprite3D).transform;
         (this.owner as Sprite3D)._isRenderNode++;
@@ -571,6 +610,10 @@ export class BaseRender extends Component implements IBoundsCell {
         this._changeStaticMask((this.owner as Sprite3D)._isStatic);
     }
 
+    /**
+     * @internal
+     * @protected
+     */
     protected _onEnable(): void {
         super._onEnable();
         if (this.owner) {
@@ -584,6 +627,10 @@ export class BaseRender extends Component implements IBoundsCell {
         this._setBelongScene(this.owner.scene);
     }
 
+    /**
+     * @internal
+     * @protected
+     */
     protected _onDisable(): void {
         if (this.owner) {
             (this.owner as Sprite3D).transform.off(Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange);//如果为合并BaseRender,owner可能为空
@@ -706,6 +753,7 @@ export class BaseRender extends Component implements IBoundsCell {
     }
 
     /**
+     * @internal
      * apply lightProb
      * @returns 
      */
@@ -718,6 +766,7 @@ export class BaseRender extends Component implements IBoundsCell {
     }
 
     /**
+     * @internal
      * apply reflection
      * @returns 
      */
@@ -795,6 +844,10 @@ export class BaseRender extends Component implements IBoundsCell {
     _renderUpdateWithCamera(context: RenderContext3D, transform: Transform3D): void {
     }
 
+    /**
+     * @internal
+     * @protected
+     */
     protected _onDestroy() {
         if (this.owner as Sprite3D)
             (this.owner as Sprite3D)._isRenderNode--;
@@ -825,6 +878,7 @@ export class BaseRender extends Component implements IBoundsCell {
     }
 
     /**
+     * @internal
      * @override
      * @param dest 
      */

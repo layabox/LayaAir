@@ -11,6 +11,9 @@ import { ILaya } from "../../ILaya";
  * <code>Script</code> 类用于创建脚本的父类，该类为抽象类，不允许实例。
  */
 export class Script extends Component {
+    /**
+     * 脚本所属精灵
+     */
     declare owner: Sprite | Sprite3D;
 
     /**
@@ -21,6 +24,10 @@ export class Script extends Component {
         return true;
     }
 
+    /**
+     * 设置脚本
+     * @internal
+     */
     protected setupScript(): void {
         let owner = this.owner;
         let func: Function;

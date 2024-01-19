@@ -90,9 +90,15 @@ export class Animator extends Component {
     /**@internal */
     private _finishSleep: boolean = false;
 
+    /**
+     * @internal
+     */
     _controller: AnimatorController;
 
 
+    /**
+     * 动画控制器
+     */
     set controller(val: AnimatorController) {
 
         this._controller = val;
@@ -104,8 +110,6 @@ export class Animator extends Component {
     get controller() {
         return this._controller;
     }
-
-
 
     /**
      * 动画的播放速度,1.0为正常播放速度。
@@ -137,6 +141,9 @@ export class Animator extends Component {
         this._lowUpdateDelty = value;
     }
 
+    /**
+     * 状态机动画层数量
+     */
     get controllerLayerCount(): number {
         return this._controllerLayers.length;
     }
@@ -1285,6 +1292,10 @@ export class Animator extends Component {
         }
     }
 
+    /**
+     * @internal
+     * @protected
+     */
     protected _onEnable(): void {
         for (let i = 0, n = this._controllerLayers.length; i < n; i++) {
             if (this._controllerLayers[i].playOnWake) {
@@ -1294,6 +1305,10 @@ export class Animator extends Component {
         }
     }
 
+    /**
+     * @internal
+     * @protected
+     */
     protected _onDestroy() {
         for (let i = 0, n = this._controllerLayers.length; i < n; i++)
             this._controllerLayers[i]._removeReference();

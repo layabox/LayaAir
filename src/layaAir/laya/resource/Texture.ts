@@ -15,7 +15,7 @@ const _rect2 = new Rectangle();
 export class Texture extends Resource {
     /**@private 默认 UV 信息。*/
     static readonly DEF_UV = new Float32Array([0, 0, 1.0, 0, 1.0, 1.0, 0, 1.0]);
-    /**@private */
+    /**@private 无 UV 信息*/
     static readonly NO_UV = new Float32Array([0, 0, 0, 0, 0, 0, 0, 0]);
     /**@private 反转 UV 信息。*/
     static readonly INV_UV = new Float32Array([0, 1, 1.0, 1, 1.0, 0.0, 0, 0.0]);
@@ -43,12 +43,21 @@ export class Texture extends Resource {
     url: string;
     /** UUID */
     uuid: string;
-    /** @private */
+    /**
+     * 缩放率 
+     * @private 
+     */
     scaleRate: number = 1;
 
-    /**九宫格*/
+    /**
+     * 九宫格
+     * @internal
+     */
     _sizeGrid?: Array<number>;
-    /**状态数量*/
+    /**
+     * 状态数量
+     * @internal
+     */
     _stateNum?: number;
 
     /**@internal */
@@ -402,10 +411,10 @@ export class Texture extends Resource {
 
     /**
      * 获取Texture上的某个区域的像素点
-     * @param	x
-     * @param	y
-     * @param	width
-     * @param	height
+     * @param	x x
+     * @param	y y
+     * @param	width 宽度
+     * @param	height 高度
      * @return  返回像素点集合
      */
     getPixels(x: number, y: number, width: number, height: number): Uint8Array {
@@ -435,13 +444,13 @@ export class Texture extends Resource {
         }
     }
 
+    /**
+     * 是否有效
+     */
     get valid(): boolean {
         return !this._destroyed && this._bitmap && !this._bitmap.destroyed;
     }
 
-    /**
-     * obsolute
-     */
     public get obsolute(): boolean {
         return this._obsolute || !this._bitmap || this._bitmap.destroyed || this._bitmap.obsolute;
     }
@@ -451,7 +460,8 @@ export class Texture extends Resource {
     }
 
     /**
-     * @private
+     * 销毁资源
+     * @internal
      */
     protected _disposeResource(): void {
         let bit = this._bitmap;

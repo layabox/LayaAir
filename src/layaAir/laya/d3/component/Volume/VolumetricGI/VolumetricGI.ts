@@ -9,6 +9,7 @@ import { Volume } from "../Volume";
 import { VolumeManager } from "../VolumeManager";
 
 export class VolumetricGI extends Volume {
+    /**体积全局光照探针个数 */
     static volumetricCount: number = 0;
     /**获取一个全局唯一ID。*/
     static getID(): number {
@@ -60,8 +61,10 @@ export class VolumetricGI extends Volume {
     }
 
     /**
-    * @inheritDoc
-    * @override
+     * @inheritdoc
+     * @internal
+     * @protected
+     * @override
     */
     protected _onEnable(): void {
         super._onEnable();
@@ -178,7 +181,7 @@ export class VolumetricGI extends Volume {
     }
 
     /**
-     * @interanl
+     * @internal
      * upload volumetric GI data
      * @param shaderData 
      */
@@ -197,7 +200,7 @@ export class VolumetricGI extends Volume {
     }
 
     /**
-     * @interanl
+     * @internal
      */
     _onDestroy() {
         // todo

@@ -9,14 +9,28 @@ import { BaseTexture } from "./BaseTexture";
 
 export class RenderTexture extends BaseTexture implements IRenderTarget {
 
-    // todo 记录当前 绑定 rt  位置不放在这里
+    /**
+     * todo 记录当前 绑定 rt  位置不放在这里
+     * @internal
+     */
     protected static _currentActive: RenderTexture = null;
 
+    /**
+     * 当前绑定的渲染纹理
+     */
     static get currentActive(): RenderTexture {
         return RenderTexture._currentActive;
     }
 
+    /**
+     * 配置渲染实例
+     * @internal
+     */
     protected static _configInstance: any = {};
+    /**
+     * 配置渲染上下文环境实例
+     * @param value 
+     */
     static configRenderContextInstance(value: any) {
         RenderTexture._configInstance = value;
     }
@@ -26,14 +40,14 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
 
     /**
      * 创建一个RenderTexture
-     * @param width
-     * @param height
-     * @param colorFormat
-     * @param depthFormat
-     * @param mipmap 
-     * @param multiSamples 
-     * @param depthTexture 
-     * @param sRGB 
+     * @param width 宽度
+     * @param height 高度
+     * @param colorFormat 颜色格式
+     * @param depthFormat 深度格式
+     * @param mipmap 是否生成多级纹理
+     * @param multiSamples 多采样次数
+     * @param depthTexture 是否生成深度纹理
+     * @param sRGB 是否sRGB空间
      * @returns 
      */
     static createFromPool(width: number, height: number, colorFormat: RenderTargetFormat, depthFormat: RenderTargetFormat, mipmap: boolean = false, multiSamples: number = 1, depthTexture: boolean = false, sRGB: boolean = false) {
@@ -60,6 +74,11 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
         return rt;
     }
 
+    /**
+     * 回收渲染纹理到对象池
+     * @param rt 渲染纹理
+     * @returns 
+     */
     static recoverToPool(rt: RenderTexture): void {
         if (rt._inPool || rt.destroyed)
             return;
@@ -68,6 +87,10 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
         rt._inPool = true;
     }
 
+    /**
+     * 清空对象池
+     * @returns 
+     */
     static clearPool() {
         if (RenderTexture._poolMemory < Config3D.defaultCacheRTMemory) {
             return;
@@ -95,13 +118,28 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
     }
 
 
+    /**
+     * 是否在对象池中
+     * @internal
+     */
     _inPool: boolean = false;
 
+    /**
+     * 是否是相机目标纹理
+     * @internal
+     */
     _isCameraTarget: boolean = false;
 
+    /**
+     * 渲染纹理
+     * @internal
+     */
     _renderTarget: InternalRenderTarget;
 
     private _generateDepthTexture: boolean = false;
+    /**
+     * 是否生成深度纹理贴图
+     */
     public get generateDepthTexture(): boolean {
         return this._generateDepthTexture;
     }
@@ -123,37 +161,71 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
 
         this._generateDepthTexture = value;
     }
-
+    /**
+     * @internal
+     * 深度与模板剔除纹理贴图
+     */
     private _depthStencilTexture: BaseTexture;
 
+    /**
+     * 深度与模板剔除纹理贴图
+     */
     get depthStencilTexture(): BaseTexture {
         return this._depthStencilTexture;
     }
 
+    /**
+     * 是否生成多级纹理
+     * @internal
+     */
     _generateMipmap: boolean;
-
+    /**
+     * 颜色格式
+     */
     get colorFormat(): RenderTargetFormat {
         return this._renderTarget.colorFormat;
     }
-
+    /**
+     * 深度与模板剔除的格式
+     * @internal
+     */
     protected _depthStencilFormat: RenderTargetFormat;
+    /**
+     * 深度与模板剔除的格式
+     */
     get depthStencilFormat(): RenderTargetFormat {
         return this._renderTarget.depthStencilFormat;
     }
 
+    /**
+     * 多采样次数
+     * @internal
+     */
     protected _multiSamples: number;
+    /**
+     * 多采样次数
+     */
     public get multiSamples(): number {
         return this._renderTarget._samples;
     }
 
+    /**
+     * 是否是立方体贴图
+     */
     get isCube(): boolean {
         return this._renderTarget._isCube;
     }
 
+    /**
+     * 采样次数
+     */
     get samples(): number {
         return this._renderTarget._samples;
     }
 
+    /**
+     * 是否生成多级纹理
+     */
     get generateMipmap(): boolean {
         return this._renderTarget._generateMipmap;
     }
@@ -183,6 +255,10 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
         this._createRenderTarget();
     }
 
+    /**
+     * 创建渲染纹理
+     * @internal
+     */
     _createRenderTarget() {
         this._dimension = TextureDimension.Tex2D;
         this._renderTarget = LayaGL.textureContext.createRenderTargetInternal(this.width, this.height, <RenderTargetFormat><any>this._format, this._depthStencilFormat, this._generateMipmap, this._gammaSpace, this._multiSamples);
@@ -214,6 +290,10 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
         this._createRenderTarget();
     }
 
+    /**
+     * 开始绑定
+     * @internal
+     */
     _start() {
         RenderTexture._configInstance.invertY = this._isCameraTarget;
         if (RenderTexture._currentActive != this) {
@@ -223,6 +303,10 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
         }
     }
 
+    /**
+     * 解除绑定
+     * @internal
+     */
     _end() {
         RenderTexture._currentActive = null;
 
@@ -230,11 +314,24 @@ export class RenderTexture extends BaseTexture implements IRenderTarget {
         (this._isCameraTarget) && (RenderTexture._configInstance.invertY = false);
     }
 
+    /**
+     * 获取渲染纹理的像素数据
+     * @param xOffset x偏移值
+     * @param yOffset y偏移值
+     * @param width 宽度
+     * @param height 高度
+     * @param out 输出
+     * @returns 二进制数据
+     */
     getData(xOffset: number, yOffset: number, width: number, height: number, out: Uint8Array | Float32Array): Uint8Array | Float32Array {
         LayaGL.textureContext.readRenderTargetPixelData(this._renderTarget, xOffset, yOffset, width, height, out);
         return out;
     }
 
+    /**
+     * 销毁资源
+     * @internal
+     */
     protected _disposeResource(): void {
 
         if (RenderTexture._currentActive == this) {

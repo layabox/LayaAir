@@ -30,11 +30,16 @@ export class SpringConstraint extends ConstraintComponent {
         }
     }
 
+    /**
+     * @internal
+     * @protected
+     */
     protected _onAdded(): void {
         super._onAdded();
     }
 
     /**
+     * 弹簧关节不受力的最小值
      * set spring min Distance
      */
     set minDistance(value: number) {
@@ -47,6 +52,7 @@ export class SpringConstraint extends ConstraintComponent {
     }
 
     /**
+     * 弹簧关节不受力的最大值
      * set spring max Distance
      */
     set maxDistance(value: number) {
@@ -59,6 +65,7 @@ export class SpringConstraint extends ConstraintComponent {
     }
 
     /**
+     * 弹簧的静止长度
      * set sprint default length
      * Set the error tolerance of the joint.
      */
@@ -72,6 +79,7 @@ export class SpringConstraint extends ConstraintComponent {
     }
 
     /**
+     * 弹簧关节的弹簧系数值
      * set spring stifness
      */
     set spring(value: number) {
@@ -84,6 +92,7 @@ export class SpringConstraint extends ConstraintComponent {
     }
 
     /**
+     * 弹簧关节的阻尼值
      * set damping in spring
      */
     set damping(value: number) {

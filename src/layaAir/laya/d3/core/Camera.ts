@@ -1,4 +1,3 @@
-
 import { Config3D } from "../../../Config3D";
 import { ILaya3D } from "../../../ILaya3D";
 import { Node } from "../../display/Node";
@@ -84,10 +83,16 @@ export class Camera extends BaseCamera {
     static _tempVector20: Vector2 = new Vector2();
     /** @internal*/
     static _context3DViewPortCatch: Viewport = new Viewport(0, 0, 0, 0);
+    /**@internal */
     static _contextScissorPortCatch: Vector4 = new Vector4(0, 0, 0, 0);
 
     /** @internal */
     static __updateMark: number = 0;
+
+    /**
+     * @internal
+     * 更新标志位
+     */
     static set _updateMark(value: number) {
         Camera.__updateMark = value;
     }
@@ -187,7 +192,7 @@ export class Camera extends BaseCamera {
     }
 
     /**
-     * 根据场景中的位置
+     * 根据场景中相机的位置绘制场景内容并返回
      * @param position 
      * @param scene 
      * @param renderCubeSize 
@@ -259,6 +264,16 @@ export class Camera extends BaseCamera {
         return pixels;
     }
 
+    /**
+     * 绘制指定场景的内容到立方体贴图
+     * @param camera 相机
+     * @param position 相机位置
+     * @param scene 指定的场景
+     * @param renderCubeSize 立方体贴图的大小
+     * @param format 立方体贴图的格式
+     * @param cullingMask 相机剔除遮罩
+     * @returns 立方体贴图
+     */
     static drawTextureCubeByScene(camera: Camera, position: Vector3, scene: Scene3D, renderCubeSize: number, format: TextureFormat, cullingMask: number = 0): TextureCube {
         camera.transform.position = position;
         let pixels = this.drawTextureCubePixelByScene(camera, scene, renderCubeSize, format, cullingMask);
@@ -337,7 +352,7 @@ export class Camera extends BaseCamera {
     _canBlitDepth: boolean = false;
     /**@internal */
     _internalCommandBuffer: CommandBuffer = new CommandBuffer();
-    /**深度贴图模式 */
+    /**@internal @protected 深度贴图模式 */
     protected _depthTextureFormat: RenderTargetFormat = RenderTargetFormat.DEPTH_16;
     /** 深度贴图*/
     private _depthTexture: BaseTexture;
@@ -367,9 +382,9 @@ export class Camera extends BaseCamera {
     enableRender: boolean = true;
     /**清除标记。*/
     clearFlag: CameraClearFlags = CameraClearFlags.SolidColor;
-    /**是否缓存上一帧的Depth纹理 */
+    /**@internal 是否缓存上一帧的Depth纹理 */
     _cacheDepth: boolean
-    /**cache 上一帧纹理 */
+    /**@internal cache 上一帧纹理 */
     _cacheDepthTexture: RenderTexture;
 
     /**
@@ -419,6 +434,9 @@ export class Camera extends BaseCamera {
         this._calculateProjectionMatrix();
     }
 
+    /**
+     * 相机显示宽度
+     */
     get clientWidth(): number {
         ILaya.stage.needUpdateCanvasSize();
         if (Config3D.customResolution)
@@ -427,6 +445,9 @@ export class Camera extends BaseCamera {
             return RenderContext3D.clientWidth * Config3D.pixelRatio | 0;
     }
 
+    /**
+     * 相机显示高度
+     */
     get clientHeight(): number {
         ILaya.stage.needUpdateCanvasSize();
         if (Config3D.customResolution)
@@ -646,7 +667,7 @@ export class Camera extends BaseCamera {
         this._canBlitDepth = value;
         this._cacheDepth = value;
         this._internalRenderTexture && RenderTexture.recoverToPool(this._internalRenderTexture);
-        (!this._internalRenderTexture._inPool) && (this._internalRenderTexture = RenderTexture.createFromPool(this.viewport.width, this.viewport.height, this._getRenderTextureFormat(), this.depthTextureFormat,false, this.msaa ? 4 : 1, this._canBlitDepth, this._needRenderGamma(this._getRenderTextureFormat())));
+        (!this._internalRenderTexture._inPool) && (this._internalRenderTexture = RenderTexture.createFromPool(this.viewport.width, this.viewport.height, this._getRenderTextureFormat(), this.depthTextureFormat, false, this.msaa ? 4 : 1, this._canBlitDepth, this._needRenderGamma(this._getRenderTextureFormat())));
         if (!value) {
             if (this._cacheDepthTexture)
                 this._cacheDepthTexture._inPool ? 0 : RenderTexture.recoverToPool(this._cacheDepthTexture);
@@ -655,6 +676,10 @@ export class Camera extends BaseCamera {
     get enableBlitDepth() {
         return this._canBlitDepth;
     }
+
+    /**
+     * 设置是否可以绘制深度贴图
+     */
     get canblitDepth() {
         return this._canBlitDepth && this._internalRenderTexture && this._internalRenderTexture.depthStencilFormat != null;
     }
@@ -726,6 +751,7 @@ export class Camera extends BaseCamera {
     }
 
     /**
+     * @internal
      *	通过蒙版值获取蒙版是否显示。
      * 	@param  layer 层。
      * 	@return 是否显示。
@@ -757,6 +783,10 @@ export class Camera extends BaseCamera {
         (enableHDR !== undefined) && (this.enableHDR = enableHDR);
     }
 
+    /**
+     * 克隆相机
+     * @returns 
+     */
     clone(): Camera {
         let camera = <Camera>super.clone();
         camera.clearFlag = this.clearFlag;
@@ -805,6 +835,7 @@ export class Camera extends BaseCamera {
     }
 
     /**
+     * @internal
      * 渲染结果是否是Gamma
      * @param rt 
      */
@@ -822,7 +853,7 @@ export class Camera extends BaseCamera {
      * @internal
      */
     _needInternalRenderTexture(): boolean {
-        return  this._needBuiltInRenderTexture ;//condition of internal RT
+        return this._needBuiltInRenderTexture;//condition of internal RT
     }
 
     /**
@@ -836,6 +867,7 @@ export class Camera extends BaseCamera {
     }
 
     /**
+     * @internal
      * update Camera Render
      * @param context 
      */
@@ -929,6 +961,7 @@ export class Camera extends BaseCamera {
 
 
     /**
+     * @internal
      * 调用渲染命令流
      * @param event 
      * @param renderTarget 
@@ -1158,6 +1191,11 @@ export class Camera extends BaseCamera {
         //     context.invertY = false;
     }
 
+    /**
+     * 重设渲染上下文的绑定渲染纹理
+     * @param context 渲染上下文
+     * @param renderTexture 绑定的渲染纹理
+     */
     recoverRenderContext3D(context: RenderContext3D, renderTexture: RenderTexture) {
         const cacheViewPor = Camera._context3DViewPortCatch;
         const cacheScissor = Camera._contextScissorPortCatch;
@@ -1235,6 +1273,11 @@ export class Camera extends BaseCamera {
     }
 
 
+    /**
+     * @internal
+     * @param currentTarget 当前绑定的渲染纹理 
+     * @param renderContext 渲染上下文
+     */
     _createOpaqueTexture(currentTarget: RenderTexture, renderContext: RenderContext3D) {
         if (!this._opaqueTexture) {
             let tex = this._getRenderTexture();

@@ -27,6 +27,9 @@ export class SoundNode extends Sprite {
         this.on(Event.REMOVED, this, this._onParentChange);
     }
 
+    /**
+     * 音频源
+     */
     get source() {
         return this._source;
     }
@@ -138,7 +141,6 @@ export class SoundNode extends Sprite {
     /**
      * 设置触发播放的事件
      * @param events
-     *
      */
     set playEvent(events: string) {
         this._playEvents = events;

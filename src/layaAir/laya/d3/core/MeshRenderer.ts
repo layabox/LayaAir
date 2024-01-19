@@ -95,6 +95,11 @@ export class MeshRenderer extends BaseRender {
         return define;
     }
 
+    /**
+     * @internal
+     * @protected
+     * @param mesh 
+     */
     protected _changeVertexDefine(mesh: Mesh) {
         var defineDatas: ShaderData = this._shaderValues;
         var lastValue: Mesh = this._mesh;
@@ -150,6 +155,8 @@ export class MeshRenderer extends BaseRender {
     }
 
     /**
+     * @internal
+     * @protected
      * 更新 morph target 数据
      */
     protected _applyMorphdata() {
@@ -206,6 +213,8 @@ export class MeshRenderer extends BaseRender {
     }
 
     /**
+     * @internal
+     * @protected
      * 更新 mesh 时 更新 morph target data (shader define)
      * @param mesh 
      */
@@ -428,12 +437,17 @@ export class MeshRenderer extends BaseRender {
         this._setShaderValue(Sprite3D.WORLDINVERTFRONT, ShaderDataType.Vector4, this._worldParams);
     }
 
+    /**
+     * @internal
+     * @protected
+     */
     protected _onDestroy() {
         super._onDestroy();
         this._morphTargetValues = null;
     }
 
     /**
+     * @internal
      * @override
      * @param dest 
      */

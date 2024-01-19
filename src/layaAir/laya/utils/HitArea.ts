@@ -14,7 +14,14 @@ const _ptPoint: Point = new Point();
  *
  */
 export class HitArea implements IHitArea {
+    /**
+     * @internal
+     */
     _hit: Graphics;
+
+    /**
+     * @internal
+     */
     _unHit: Graphics;
 
     /**
@@ -145,6 +152,9 @@ export class HitArea implements IHitArea {
         this._unHit = value;
     }
 
+    /**
+     * 序列化后调动
+     */
     onAfterDeserialize() {
         if (LayaEnv.isPlaying) {
             if ((<any>this)._hitCmds) {

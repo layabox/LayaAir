@@ -1,5 +1,3 @@
-
-
 import BlitScreenVS from "../../../shader/postprocess/BlitScreen.vs";
 import FragAO from "../../../shader/files/postProcess/ScalableAO/FragAO.fs";
 import AoBlurHorizontal from "../../../shader/files/postProcess/ScalableAO/AoBlurHorizontal.fs";

@@ -41,7 +41,7 @@ export class SeparableSSSRenderMaterial extends Material {
         super();
         this.setShaderName("SeparableRender");
         this.renderModeSet();
-        this._shaderValues.setVector(SeparableSSSRenderMaterial.TILINGOFFSET, new Vector4(1, 1, 0, 0));
+        this.shaderData.setVector(SeparableSSSRenderMaterial.TILINGOFFSET, new Vector4(1, 1, 0, 0));
     }
 
     //渲染模式

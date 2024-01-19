@@ -48,6 +48,8 @@ export class HingeConstraint extends ConstraintComponent {
     }
 
     /**
+     * @internal
+     * @protected
      * create joint
      */
     protected _initJoint(): void {
@@ -60,6 +62,8 @@ export class HingeConstraint extends ConstraintComponent {
     }
 
     /**
+     * @internal
+     * @protected
      * overrid it
      */
     protected _onEnable(): void {
@@ -68,6 +72,8 @@ export class HingeConstraint extends ConstraintComponent {
     }
 
     /**
+     * @internal
+     * @protected
      * overrid it
      */
     protected _onDisable(): void {
@@ -76,8 +82,9 @@ export class HingeConstraint extends ConstraintComponent {
     }
 
     /**
-    * set Hinge Rotation Axis,value by local rigibody0 
-    */
+     * 主轴
+     * set Hinge Rotation Axis,value by local rigibody0 
+     */
     set Axis(value: Vector3) {
         if (!value || this._axis.equal(value)) {
             return;
@@ -92,8 +99,8 @@ export class HingeConstraint extends ConstraintComponent {
     }
 
     /**
-     * set limitLower
-     * @param lowerLimit 
+     * 关节的最小限制值
+     * @param lowerLimit 最小限制值
      */
     set lowerLimit(value: number) {
         this._lowerLimit = value;
@@ -106,8 +113,8 @@ export class HingeConstraint extends ConstraintComponent {
     }
 
     /**
-     * set uperLimit
-     * @param lowerLimit 
+     * 关节的最大限制值
+     * @param lowerLimit 最大限制值
      */
     set uperLimit(value: number) {
         this._uperLimit = value;
@@ -119,8 +126,8 @@ export class HingeConstraint extends ConstraintComponent {
         return this._uperLimit;
     }
 
-
     /**
+     * 关节限制值后弹力值
      * @param value 
      */
     set bounceness(value: number) {
@@ -134,6 +141,7 @@ export class HingeConstraint extends ConstraintComponent {
     }
 
     /**
+     * 关节限制值后弹力反弹最小速度
      * @param value 
      */
     set bouncenMinVelocity(value: number) {
@@ -146,6 +154,7 @@ export class HingeConstraint extends ConstraintComponent {
     }
 
     /**
+     * 关节的接触距离值，距离值内持续碰撞
      * @param value 
      */
     set contactDistance(value: number) {
@@ -158,6 +167,7 @@ export class HingeConstraint extends ConstraintComponent {
     }
 
     /**
+     * 关节的旋转限制值
      * @param value 
      */
     set limit(value: boolean) {
@@ -170,6 +180,7 @@ export class HingeConstraint extends ConstraintComponent {
     }
 
     /**
+     * 是否自驱动
      * @param value 
      */
     set motor(value: boolean) {
@@ -182,6 +193,7 @@ export class HingeConstraint extends ConstraintComponent {
     }
 
     /**
+     * 自驱动加速(不保持恒定驱动速度)
      * @param value 
      */
     set freeSpin(value: boolean) {

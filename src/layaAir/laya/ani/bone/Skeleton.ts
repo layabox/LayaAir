@@ -45,7 +45,7 @@ import { LayaEnv } from "../../../LayaEnv";
  * 骨骼动画由<code>Templet</code>，<code>AnimationPlayer</code>，<code>Skeleton</code>三部分组成。
  */
 export class Skeleton extends Sprite {
-
+    /**@internal @protected */
     protected _source: string;
     /**@internal */
     protected _templet: Templet;//动画解析器

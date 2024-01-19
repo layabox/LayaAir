@@ -9,6 +9,9 @@ import { BaseTexture } from "./BaseTexture";
  */
 export class Texture2DArray extends BaseTexture {
 
+    /**
+     * 2D纹理数组层数
+     */
     depth: number;
 
     constructor(width: number, height: number, depth: number, format: TextureFormat, mipmap: boolean = true, canRead: boolean, sRGB: boolean = false) {
