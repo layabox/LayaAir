@@ -22,20 +22,25 @@ export class NativeShaderPass implements IShaderPassData {
     pipelineMode: string;
     statefirst: boolean;
     validDefine: DefineDatas = new DefineDatas();
-    private _createShaderInstanceFun: any;
+    private _createShaderInstanceFun: any;//想办法把这个传下去
     _nativeObj: any;
-
+    private _pass: ShaderPass;
     constructor(pass: ShaderPass) {
         this._nativeObj = new (window as any).conchShaderPass();
-        this._createShaderInstanceFun = ShaderPass.createShaderInstance.bind(null, pass, false, NativeShaderPass.TempDefine)
+        this._createShaderInstanceFun = this.nativeCreateShaderInstance.bind(this);
+    }
+
+    nativeCreateShaderInstance() {
+        let instance = ShaderPass.createShaderInstance(this._pass, false, NativeShaderPass.TempDefine) as NativeShaderInstance;
+        this.setCacheShader(NativeShaderPass.TempDefine, instance);
     }
 
     destory(): void {
-        throw new Error("Method not implemented.");
+        //TODO
     }
 
     setCacheShader(defines: DefineDatas, shaderInstance: NativeShaderInstance): void {
-        this._nativeObj.setCacheShader(defines,shaderInstance._nativeObj);
+        this._nativeObj.setCacheShader(defines, shaderInstance._nativeObj);
     }
 
     getCacheShader(defines: DefineDatas): NativeShaderInstance {
