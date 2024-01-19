@@ -322,7 +322,7 @@ export class AnimatorController2D extends Resource {
                         continue;
                     }
 
-                    let ato = this._getAnimatorTransition2D(o,idCatch,data);
+                    let ato = this._getAnimatorTransition2D(o, idCatch, data);
 
                     if (o.solo) {
                         sts.unshift(ato);

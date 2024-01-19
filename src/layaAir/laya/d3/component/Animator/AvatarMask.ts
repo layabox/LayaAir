@@ -14,25 +14,25 @@ export class AvatarMask {
 
     /**
      * 查找节点路径遮罩
-     * @param path 
-     * @returns 
+     * @param path 节点路径
+     * @returns
      */
     getTransformActive(path: string): boolean {
         return this._avatarPathMap[path];
     }
 
     /**
-     * 设置
-     * @param path 
-     * @param value 
+     * 设置遮罩
+     * @param path 节点路径 
+     * @param value
      */
-    setTransformActive(path: string, value: boolean) {
+    setTransformActive(path: string, value: boolean): void {
         this._avatarPathMap[path] = value;
     }
 
     /**
      * 获得遮罩信息
-     * @returns 
+     * @returns 遮罩信息
      */
     getAllTranfromPath() {
         return this._avatarPathMap;

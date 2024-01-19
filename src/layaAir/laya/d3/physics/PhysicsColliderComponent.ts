@@ -73,6 +73,9 @@ export class PhysicsColliderComponent extends Component {
     /**@internal */
     protected _eventsArray: string[];
 
+    /**
+     * 获取碰撞体
+     */
     get collider(): ICollider {
         return this._collider;
     }
@@ -280,6 +283,9 @@ export class PhysicsColliderComponent extends Component {
         }
     }
 
+    /**
+     * @internal
+     */
     initCollider() {
         this._initCollider();
         this._collider.setOwner(this.owner);
@@ -293,6 +299,10 @@ export class PhysicsColliderComponent extends Component {
         this.canCollideWith = this._canCollideWith;
     }
 
+    /**
+     * @internal
+     * @protected
+     */
     protected _initCollider() {
         //createCollider
         //Override it
@@ -305,6 +315,10 @@ export class PhysicsColliderComponent extends Component {
         // override it
     }
 
+    /**
+     * @internal
+     * @protected
+     */
     protected _onAdded(): void {
         if (!this.owner.scene) {
             this.owner.on(Node.EVENT_SET_ACTIVESCENE, this, this._onAdded);
@@ -316,6 +330,10 @@ export class PhysicsColliderComponent extends Component {
         this.owner.on(Event._Add_Script, this, this._setEventFilter);
     }
 
+    /**
+     * @internal
+     * @protected
+     */
     protected _onEnable(): void {
         (<Sprite3D>this.owner).transform.on(Event.TRANSFORM_CHANGED, this, this._onTransformChanged);
         this._physicsManager = ((<Scene3D>this.owner._scene))._physicsManager;
@@ -326,6 +344,10 @@ export class PhysicsColliderComponent extends Component {
         }
     }
 
+    /**
+     * @internal
+     * @protected
+     */
     protected _onDisable(): void {
         (<Sprite3D>this.owner).transform.off(Event.TRANSFORM_CHANGED, this, this._onTransformChanged);
         this._collider && (this._collider.componentEnable = false);
@@ -335,6 +357,10 @@ export class PhysicsColliderComponent extends Component {
         this._physicsManager = null;
     }
 
+    /**
+     * @internal
+     * @protected
+     */
     protected _onDestroy() {
         this._collider.destroy();
         this._colliderShape && this._colliderShape.destroy();

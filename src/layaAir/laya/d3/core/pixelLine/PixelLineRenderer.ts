@@ -44,6 +44,9 @@ export class PixelLineRenderer extends BaseRender {
 
     private _lines: PixelLineData[] = [];
 
+    /**
+     * 线段数据
+     */
     get pixelLinesDatas() {
         if (this._needUpdatelines) {
             this._updateLineDatas();
@@ -75,11 +78,19 @@ export class PixelLineRenderer extends BaseRender {
         return this._pixelLineFilter._lineCount;
     }
 
+    /**
+     * @internal
+     * @protected
+     */
     protected _onAdded(): void {
         super._onAdded();
         this._changeRenderObjects(0, PixelLineMaterial.defaultMaterial);
     }
 
+    /**
+     * @internal
+     * @protected
+     */
     protected _onEnable(): void {
         this._isRenderActive = true;
         if (this._pixelLineFilter._lineCount != 0) {
@@ -89,6 +100,10 @@ export class PixelLineRenderer extends BaseRender {
         this._setBelongScene(this.owner.scene);
     }
 
+    /**
+     * @internal
+     * @protected
+     */
     protected _onDisable(): void {
         if (this._pixelLineFilter && this._pixelLineFilter._lineCount != 0 && this._isRenderActive) {
             this.owner.scene._removeRenderObject(this);
@@ -130,6 +145,7 @@ export class PixelLineRenderer extends BaseRender {
     }
 
     /**
+     * @internal
      * @inheritDoc
      */
     _changeRenderObjects(index: number, material: Material): void {
@@ -272,6 +288,10 @@ export class PixelLineRenderer extends BaseRender {
         }
     }
 
+    /**
+     * @internal
+     * @protected
+     */
     protected _onDestroy() {
         this._pixelLineFilter.destroy();
         this._pixelLineFilter = null;
@@ -279,6 +299,7 @@ export class PixelLineRenderer extends BaseRender {
     }
 
     /**
+     * @internal
      * @override
      * @param dest 
      */

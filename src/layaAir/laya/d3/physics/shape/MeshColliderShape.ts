@@ -14,7 +14,7 @@ export class MeshColliderShape extends Physics3DColliderShape {
 	private _convex: boolean = false;
 	/** @internal */
 	private _convexVertexMax: number = 255;
-
+	/**@internal */
 	_shape: IMeshColliderShape;
 
 	/**
@@ -41,7 +41,7 @@ export class MeshColliderShape extends Physics3DColliderShape {
 	}
 
 	/**
-	 * 是否使用凸多边形。
+	 * 凸多边形最大值。
 	 */
 	get convexVertexMax(): number {
 		return this._convexVertexMax;
@@ -60,7 +60,7 @@ export class MeshColliderShape extends Physics3DColliderShape {
 	}
 
 	set convex(value: boolean) {
-		if (value == this._convex){
+		if (value == this._convex) {
 			return;
 		}
 		this._convex = value;
@@ -75,6 +75,7 @@ export class MeshColliderShape extends Physics3DColliderShape {
 	}
 
 	/**
+	 * @internal
 	 * @override
 	 */
 	protected _createShape() {
@@ -86,8 +87,10 @@ export class MeshColliderShape extends Physics3DColliderShape {
 	}
 
 	/**
+	 * 克隆数据到目标对象
 	 * @inheritDoc
 	 * @override
+	 * @param destObject 目标对象
 	 */
 	cloneTo(destObject: any): void {
 		var destMeshCollider: MeshColliderShape = (<MeshColliderShape>destObject);
@@ -98,6 +101,7 @@ export class MeshColliderShape extends Physics3DColliderShape {
 	}
 
 	/**
+	 * 克隆
 	 * @inheritDoc
 	 * @override
 	 */

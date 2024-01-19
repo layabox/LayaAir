@@ -25,6 +25,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
     /**@internal */
     protected _cacheMesh: Mesh;
 
+    /**@internal */
     _bones: Sprite3D[] = [];
 
     /**@internal */
@@ -105,9 +106,10 @@ export class SkinnedMeshRenderer extends MeshRenderer {
         this._shaderValues.addDefine(SkinnedMeshSprite3DShaderDeclaration.SHADERDEFINE_BONE);
     }
 
-
-
-
+    /**
+     * @internal
+     * @protected
+     */
     protected _computeSkinnedData(): void {
         if (this._cacheMesh) {
             var bindPoses: Matrix4x4[] = this._cacheMesh._inverseBindPoses;
@@ -145,6 +147,10 @@ export class SkinnedMeshRenderer extends MeshRenderer {
         }
     }
 
+    /**
+     * @internal
+     * @protected
+     */
     protected _computeSkinnedDataForNative(): void {
         if (this._cacheMesh) {
             var bindPoses: Matrix4x4[] = this._cacheMesh._inverseBindPoses;
@@ -286,6 +292,10 @@ export class SkinnedMeshRenderer extends MeshRenderer {
             this._localBounds._tranform((this.owner as Sprite3D).transform.worldMatrix, this._bounds);
     }
 
+    /**
+     * @internal
+     * @param scene 
+     */
     _setBelongScene(scene: Scene3D): void {
         super._setBelongScene(scene);
         Stat.skinRenderNode++;
@@ -393,6 +403,10 @@ export class SkinnedMeshRenderer extends MeshRenderer {
         super._cloneTo(dest);
     }
 
+    /**
+     * @internal
+     * @protected
+     */
     protected _onDestroy() {
         if (this._cacheRootBone)
             (!this._cacheRootBone._destroyed) && (this._cacheRootBone.transform.off(Event.TRANSFORM_CHANGED, this, this._onWorldMatNeedChange));

@@ -6,11 +6,14 @@ import { BlurFilterGLRender } from "./BlurFilterGLRender";
  */
 export class BlurFilter extends Filter {
 
-    /**模糊滤镜的强度(值越大，越不清晰 */
+    /**模糊滤镜的强度(值越大，越不清晰) */
     strength: number;
-    strength_sig2_2sig2_gauss1: number[] = [];//给shader用的。避免创建对象
-    strength_sig2_native: Float32Array;//给native用的
-    renderFunc: any;//
+    /**给shader用的。避免创建对象 */
+    strength_sig2_2sig2_gauss1: number[] = [];
+    /**给native用的 */
+    strength_sig2_native: Float32Array;
+    /**@internal */
+    renderFunc: any;
 
     /**
      * 模糊滤镜
@@ -31,6 +34,10 @@ export class BlurFilter extends Filter {
         return Filter.BLUR;
     }
 
+    /**
+     * Native使用，获取模糊强度
+     * @returns 
+     */
     getStrenth_sig2_2sig2_native(): Float32Array {
         if (!this.strength_sig2_native) {
             this.strength_sig2_native = new Float32Array(4);

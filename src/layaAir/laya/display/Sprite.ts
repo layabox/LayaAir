@@ -19,7 +19,6 @@ import { SpriteStyle } from "./css/SpriteStyle";
 import { Graphics } from "./Graphics";
 import { Node } from "./Node";
 import { SpriteConst } from "./SpriteConst";
-// import { Stage } from "./Stage";
 import { RenderTexture2D } from "../resource/RenderTexture2D";
 import { Event } from "../events/Event";
 import { Dragging } from "../utils/Dragging";
@@ -108,6 +107,9 @@ export class Sprite extends Node {
     /**@internal */
     _graphics: Graphics | null = null;
 
+    /**
+     * @internal
+     */
     _ownGraphics: boolean = false;
 
     /**
@@ -131,10 +133,14 @@ export class Sprite extends Node {
      */
     hitTestPrior: boolean = false;
 
-    /** 如果节点需要加载相关的皮肤，但放在不同域，这里可以设置 **/
+    /** 
+     * 如果节点需要加载相关的皮肤，但放在不同域，这里可以设置
+     * @internal
+     **/
     _skinBaseUrl: string;
 
     /**
+     * 销毁精灵
      * @inheritDoc 
      * @override
      */
@@ -158,6 +164,9 @@ export class Sprite extends Node {
         super();
     }
 
+    /**
+     * 获取所属的场景
+     */
     get scene(): Scene {
         return <Scene>this._scene;
     }
@@ -260,6 +269,10 @@ export class Sprite extends Node {
         this._repaint |= SpriteConst.REPAINT_CACHE;
     }
 
+    /**
+     * 获取重绘类型
+     * @returns 
+     */
     getRepaint(): number {
         return this._repaint;
     }
@@ -332,6 +345,9 @@ export class Sprite extends Node {
         this.set_width(value);
     }
 
+    /**
+     * @internal
+     */
     set_width(value: number): void {
         let flag = this._sizeFlag;
         if (value == null) {
@@ -352,6 +368,9 @@ export class Sprite extends Node {
         }
     }
 
+    /**
+     * @internal
+     */
     get_width(): number {
         if (!this.autoSize) return (this._width == 0 && (this._sizeFlag & 1) == 0 && this.texture) ? this.texture.width : this._width;
         if (this.texture) return this.texture.width;
@@ -372,7 +391,9 @@ export class Sprite extends Node {
         this.set_height(value);
     }
 
-    // for ts
+    /**
+     * @internal
+     */
     set_height(value: number): void {
         let flag = this._sizeFlag;
         if (value == null) {
@@ -392,6 +413,9 @@ export class Sprite extends Node {
             this._shouldRefreshLayout();
         }
     }
+    /**
+     * @internal
+     */
     get_height(): number {
         if (!this.autoSize) return (this._height == 0 && (this._sizeFlag & 2) == 0 && this.texture) ? this.texture.height : this._height;
         if (this.texture) return this.texture.height;
@@ -399,10 +423,16 @@ export class Sprite extends Node {
         return this.getSelfBounds().height;
     }
 
+    /**
+     * @internal
+     */
     get _isWidthSet() {
         return this._width != 0 || (this._sizeFlag & 1) != 0;
     }
 
+    /**
+     * @internal
+     */
     get _isHeightSet() {
         return this._height != 0 || (this._sizeFlag & 2) != 0;
     }
@@ -415,6 +445,10 @@ export class Sprite extends Node {
     _setHeight(value: number): void {
     }
 
+    /**
+     * @internal
+     * @protected
+     */
     protected _shouldRefreshLayout() {
     }
 
@@ -606,6 +640,9 @@ export class Sprite extends Node {
         this.set_scaleY(value);
     }
 
+    /**
+     * @internal
+     */
     set_scaleX(value: number): void {
         var style: SpriteStyle = this.getStyle();
         if (style.scaleX !== value) {
@@ -618,10 +655,16 @@ export class Sprite extends Node {
             this._shouldRefreshLayout();
         }
     }
+    /**
+     * @internal
+     */
     get_scaleX(): number {
         return this._style.scaleX;
     }
 
+    /**
+     * @internal
+     */
     set_scaleY(value: number): void {
         var style: SpriteStyle = this.getStyle();
         if (style.scaleY !== value) {
@@ -634,6 +677,9 @@ export class Sprite extends Node {
             this._shouldRefreshLayout();
         }
     }
+    /**
+     * @internal
+     */
     get_scaleY(): number {
         return this._style.scaleY;
     }
@@ -712,7 +758,10 @@ export class Sprite extends Node {
         return Matrix.create();
     }
 
-    /**@private */
+    /**
+     * @internal
+     * @protected 
+     */
     protected _adjustTransform(): Matrix {
         this._tfChanged = false;
         var style: SpriteStyle = this._style;
@@ -758,10 +807,16 @@ export class Sprite extends Node {
         this.set_transform(value);
     }
 
+    /**
+     * @internal
+     */
     get_transform(): Matrix {
         return this._tfChanged ? this._adjustTransform() : this._transform;
     }
 
+    /**
+     * @internal
+     */
     set_transform(value: Matrix): void {
         this._tfChanged = false;
         var m: Matrix = this._transform || (this._transform = this._createTransform());
@@ -839,6 +894,9 @@ export class Sprite extends Node {
         return this.get_anchorX();
     }
 
+    /**
+     * @internal
+     */
     get_anchorX(): number {
         return this._anchorX;
     }
@@ -847,6 +905,9 @@ export class Sprite extends Node {
         this.set_anchorX(value);
     }
 
+    /**
+     * @internal
+     */
     set_anchorX(value: number) {
         if (isNaN(value))
             value = null;
@@ -865,6 +926,9 @@ export class Sprite extends Node {
         return this.get_anchorY();
     }
 
+    /**
+     * @internal
+     */
     get_anchorY(): number {
         return this._anchorY;
     }
@@ -873,6 +937,9 @@ export class Sprite extends Node {
         this.set_anchorY(value);
     }
 
+    /**
+     * @internal
+     */
     set_anchorY(value: number) {
         if (isNaN(value))
             value = null;
@@ -921,10 +988,16 @@ export class Sprite extends Node {
         this.set_visible(value);
     }
 
+    /**
+     * @internal
+     */
     get_visible(): boolean {
         return this._visible;
     }
 
+    /**
+     * @internal 
+     */
     set_visible(value: boolean): void {
         if (this._visible !== value) {
             this._visible = value;
@@ -961,6 +1034,11 @@ export class Sprite extends Node {
         this.setGraphics(value, false);
     }
 
+    /**
+     * 设置Graphics显示对象
+     * @param value 显示对象
+     * @param transferOwnership  是否设置到所属节点上
+     */
     setGraphics(value: Graphics, transferOwnership: boolean) {
         if (this._graphics) {
             this._graphics._sp = null;
@@ -983,7 +1061,7 @@ export class Sprite extends Node {
     }
 
     /**
-     * 
+     * 2D精灵材质
      */
     set material(value: Material) {
         if (this._graphics == null && value == null)
@@ -1218,6 +1296,9 @@ export class Sprite extends Node {
         return canv;
     }
 
+    /**
+     * 绘制到Canvas的上下文
+     */
     static drawtocanvCtx: Context;
     /**
      * @private 
@@ -1433,6 +1514,11 @@ export class Sprite extends Node {
         return point;
     }
 
+    /**
+     * @internal
+     * @protected
+     * @param type 事件类型 
+     */
     protected onStartListeningToType(type: string) {
         super.onStartListeningToType(type);
 
@@ -1446,7 +1532,10 @@ export class Sprite extends Node {
         }
     }
 
-    /** @private */
+    /**
+     * @internal
+     * @protected
+     */
     protected _onDisplay(v?: boolean): void {
         if (this._mouseState !== 1) {
             var ele: Sprite = this;
@@ -1460,7 +1549,9 @@ export class Sprite extends Node {
         }
     }
 
-    /**@private 
+    /**
+     * @internal
+     * @protected 
      * @override
     */
     protected _setParent(value: Node): void {
@@ -1533,7 +1624,9 @@ export class Sprite extends Node {
         return (this._repaint & SpriteConst.REPAINT_CACHE) && this._cacheStyle.enableCanvasRender && this._cacheStyle.reCache;
     }
 
-    /**@private	
+    /**
+     * @internal
+     * @protected
      * @override
     */
     protected _childChanged(child: Node = null): void {
@@ -1761,6 +1854,9 @@ export class Sprite extends Node {
         this.parentRepaint(SpriteConst.REPAINT_CACHE);
     }
 
+    /**
+     * 绘制调用优化
+     */
     set drawCallOptimize(value: boolean) {
         this._setBit(NodeFlags.DRAWCALL_OPTIMIZE, value);
     }
@@ -1817,6 +1913,7 @@ export class Sprite extends Node {
     /**@internal */
     private _globalMatrix: Matrix;
 
+    /**@internal */
     get cacheGlobal(): boolean {
         return this._cacheGlobal;
     }
@@ -1869,6 +1966,9 @@ export class Sprite extends Node {
         return this._globalMatrix;
     }
 
+    /**
+     * 自定义材质
+     */
     CustomMaterial() {
 
     }

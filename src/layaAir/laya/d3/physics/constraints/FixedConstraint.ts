@@ -26,11 +26,19 @@ export class FixedConstraint extends ConstraintComponent {
         }
     }
 
+    /**
+     * @internal
+     * @protected
+     */
     protected _onEnable(): void {
         if (this._joint)
             this._joint.isEnable(true);
     }
 
+    /**
+     * @internal
+     * @protected
+     */
     protected _onDisable(): void {
         if (this._joint)
             this._joint.isEnable(false);

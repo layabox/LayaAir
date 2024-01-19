@@ -89,7 +89,7 @@ export class CharacterController extends PhysicsColliderComponent {
     }
 
     /**
-     * 
+     * 最小距离
      */
     get minDistance(): number {
         return this._minDistance;

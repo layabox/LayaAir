@@ -4,6 +4,7 @@ import { ClassUtils } from "../../utils/ClassUtils";
 import { Pool } from "../../utils/Pool";
 
 export class DrawEllipseCmd {
+    /**绘制椭圆CMD的标识符 */
     static ID: string = "DrawEllipse";
     /**
      * 圆点X 轴位置。
@@ -40,7 +41,7 @@ export class DrawEllipseCmd {
     percent: boolean;
 
 
-    /**@private */
+    /**@private 创建绘制椭圆CMD*/
     static create(x: number, y: number, width: number, height: number, fillColor: any, lineColor: any, lineWidth: number, percent?: boolean): DrawEllipseCmd {
         var cmd = Pool.getItemByClass("DrawEllipseCmd", DrawEllipseCmd);
         cmd.x = x;
@@ -53,6 +54,7 @@ export class DrawEllipseCmd {
         cmd.percent = percent;
         return cmd;
     }
+
     /**
      * 回收到对象池
      */
@@ -61,7 +63,8 @@ export class DrawEllipseCmd {
         this.lineColor = null;
         Pool.recover("DrawEllipseCmd", this);
     }
-    /**@private */
+
+    /**@private 执行cmd*/
     run(context: Context, gx: number, gy: number): void {
         let offset = (this.lineWidth >= 1 && this.lineColor) ? this.lineWidth / 2 : 0;
         if (this.percent && context.sprite) {
@@ -73,10 +76,16 @@ export class DrawEllipseCmd {
             context._drawEllipse(this.x + gx, this.y + gy, this.width - offset, this.height - offset, this.fillColor, this.lineColor, this.lineWidth);
         }
     }
-    /**@private */
+    /**@private 获取CMD的标识符*/
     get cmdID(): string {
         return DrawEllipseCmd.ID;
     }
+
+    /**
+     * 获取包围盒的顶点数据
+     * @param sp 绘制cmd的精灵
+     * @returns 
+     */
     getBoundPoints(sp?: { width: number, height?: number }): number[] {
         return Rectangle._getBoundPointS(this.x - this.width, this.y - this.height, this.width * 2, this.height * 2, this.percent ? sp : null);
     }

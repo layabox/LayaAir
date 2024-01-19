@@ -30,7 +30,7 @@ import { LayaEnv } from "../../../../LayaEnv";
  * <code>BaseCamera</code> 类用于创建摄像机的父类。
  */
 export class UI3D extends BaseRender {
-    /**@intrtnal */
+    /**@internal */
     static TempMatrix = new Matrix4x4();
     /**@internal */
     static temp0: Vector3 = new Vector3();
@@ -318,6 +318,7 @@ export class UI3D extends BaseRender {
     }
 
     /**
+     * @internal
      * get camera distance
      * @param rayOri 
      * @returns 

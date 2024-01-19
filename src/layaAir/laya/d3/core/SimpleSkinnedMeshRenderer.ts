@@ -4,7 +4,6 @@ import { RenderContext3D } from "./render/RenderContext3D";
 import { Transform3D } from "./Transform3D";
 import { SubMeshRenderElement } from "./render/SubMeshRenderElement";
 import { Sprite3D } from "./Sprite3D";
-import { RenderElement } from "./render/RenderElement";
 import { SkinnedMeshSprite3DShaderDeclaration } from "./SkinnedMeshSprite3DShaderDeclaration";
 import { Mesh } from "../resource/models/Mesh";
 import { Texture2D } from "../../resource/Texture2D";
@@ -79,6 +78,11 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
         this._shaderValues.addDefine(SkinnedMeshSprite3DShaderDeclaration.SHADERDEFINE_BONE);
     }
 
+    /**
+     * @internal
+     * @protected
+     * @returns 
+     */
     protected _getcommonUniformMap(): string[] {
         return ["Sprite3D", "SimpleSkinnedMesh"];
     }
@@ -142,6 +146,11 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
 
     }
 
+    /**
+     * @internal
+     * 克隆到目标
+     * @param dest 目标 
+     */
     _cloneTo(dest: Component): void {
         let render = dest as SimpleSkinnedMeshRenderer;
         render.simpleAnimatorOffset = this.simpleAnimatorOffset;
@@ -151,6 +160,8 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
     }
 
     /**
+     * @internal
+     * @protected
      * 删除节点
      */
     protected _onDestroy() {

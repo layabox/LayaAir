@@ -203,6 +203,9 @@ export class Rigidbody3D extends PhysicsColliderComponent {
         }
     }
 
+    /**
+     * 直接设置物理旋转
+     */
     set orientation(q: Quaternion) {
         if (this._collider && this.collider.getCapable(EColliderCapable.RigidBody_WorldOrientation)) {
             this._collider.setWorldRotation(q);
@@ -226,6 +229,10 @@ export class Rigidbody3D extends PhysicsColliderComponent {
         super();
     }
 
+    /**
+     * @internal
+     * @protected
+     */
     protected _onAdded(): void {
         super._onAdded();
         this.mass = this._mass;
@@ -237,6 +244,10 @@ export class Rigidbody3D extends PhysicsColliderComponent {
         this.isKinematic = this._isKinematic;
     }
 
+    /**
+     * @internal
+     * @protected
+     */
     protected _onDestroy() {
         super._onDestroy();
         this._btLayaMotionState = null;

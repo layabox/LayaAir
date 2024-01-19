@@ -30,7 +30,10 @@ export class AnimationClip extends Resource {
 	static _tempQuaternion0: Quaternion = new Quaternion();
 
 	/**
+	 * 动画数据解析为动画片段
+	 * @internal
 	 * @inheritDoc
+	 * @returns 动画片段
 	 */
 	static _parse(data: any): AnimationClip {
 		var clip = new AnimationClip();
@@ -674,6 +677,8 @@ export class AnimationClip extends Resource {
 	}
 
 	/**
+	 * 销毁资源
+	 * @internal
 	 * @inheritDoc
 	 * @override
 	 */

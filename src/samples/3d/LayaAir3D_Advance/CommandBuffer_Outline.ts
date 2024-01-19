@@ -128,12 +128,12 @@ export class CommandBuffer_Outline {
 		//vertical blur   使用blurMaterial材质的2SubShader
 		buf.blitScreenQuadByMaterial(blurTexture, downRenderTexture, null, blurMaterial, 2);
 		//在命令流里面插入设置图片命令流，在调用的时候会设置blurMaterial的图片数据
-		buf.setShaderDataTexture(blurMaterial._shaderValues, BlurMaterial.SHADERVALUE_SOURCETEXTURE0, downRenderTexture);
-		buf.setShaderDataTexture(blurMaterial._shaderValues, BlurMaterial.ShADERVALUE_SOURCETEXTURE1, subRendertexture);
+		buf.setShaderDataTexture(blurMaterial.shaderData, BlurMaterial.SHADERVALUE_SOURCETEXTURE0, downRenderTexture);
+		buf.setShaderDataTexture(blurMaterial.shaderData, BlurMaterial.ShADERVALUE_SOURCETEXTURE1, subRendertexture);
 		//caculate edge计算边缘图片
 		buf.blitScreenQuadByMaterial(blurTexture, renderTexture, null, blurMaterial, 3);
 		//重新传入图片
-		buf.setShaderDataTexture(blurMaterial._shaderValues, BlurMaterial.SHADERVALUE_SOURCETEXTURE0, renderTexture);
+		buf.setShaderDataTexture(blurMaterial.shaderData, BlurMaterial.SHADERVALUE_SOURCETEXTURE0, renderTexture);
 		//将camera渲染结果复制到subRendertexture，使用blurMaterial的4通道shader
 		buf.blitScreenQuadByMaterial(null, subRendertexture, null, blurMaterial, 4);
 		//将subRenderTexture重新赋值到camera的渲染结果上面

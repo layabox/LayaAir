@@ -7,6 +7,7 @@ import { Pool } from "../../utils/Pool"
  * 绘制矩形
  */
 export class DrawRectCmd {
+    /**绘制矩形CMD的标识符 */
     static ID: string = "DrawRect";
 
     /**
@@ -43,7 +44,7 @@ export class DrawRectCmd {
      */
     percent: boolean;
 
-    /**@private */
+    /**@private 创建绘制矩形的CMD*/
     static create(x: number, y: number, width: number, height: number, fillColor: any, lineColor: any, lineWidth: number, percent?: boolean): DrawRectCmd {
         var cmd: DrawRectCmd = Pool.getItemByClass("DrawRectCmd", DrawRectCmd);
         cmd.x = x;
@@ -66,7 +67,7 @@ export class DrawRectCmd {
         Pool.recover("DrawRectCmd", this);
     }
 
-    /**@private */
+    /**@private 执行绘制矩形CMD*/
     run(context: Context, gx: number, gy: number): void {
         let offset = (this.lineWidth >= 1 && this.lineColor) ? this.lineWidth / 2 : 0;
         let lineOffset = this.lineColor ? this.lineWidth : 0;
@@ -79,11 +80,16 @@ export class DrawRectCmd {
             context.drawRect(this.x + offset + gx, this.y + offset + gy, this.width - lineOffset, this.height - lineOffset, this.fillColor, this.lineColor, this.lineWidth);
     }
 
-    /**@private */
+    /**@private 获取绘制矩形CMD的标识符*/
     get cmdID(): string {
         return DrawRectCmd.ID;
     }
 
+    /**
+     * 获取包围盒的顶点数据
+     * @param sp 绘制cmd的精灵
+     * @returns 
+     */
     getBoundPoints(sp?: { width: number, height?: number }): number[] {
         return Rectangle._getBoundPointS(this.x, this.y, this.width, this.height, this.percent ? sp : null)
     }

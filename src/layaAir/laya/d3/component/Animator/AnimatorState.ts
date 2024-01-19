@@ -45,7 +45,10 @@ export class AnimatorState extends EventDispatcher implements IClone {
     /** @internal */
     _currentFrameIndices: Int16Array | null = null;
 
-    /**是否循环播放,为0时则使用_clip.islooping，1为循环，2为不循环 */
+    /**
+     * @internal
+     * 是否循环播放,为0时则使用_clip.islooping，1为循环，2为不循环
+     */
     _isLooping: 0 | 1 | 2 = 0;
 
     /**
@@ -64,6 +67,9 @@ export class AnimatorState extends EventDispatcher implements IClone {
     /**@internal 优先过渡列表only play this transition */
     _soloTransitions: AnimatorTransition[] = [];
 
+    /**
+     * 当前过渡内容
+     */
     curTransition: AnimatorTransition;
 
     /**名称。*/
@@ -127,6 +133,10 @@ export class AnimatorState extends EventDispatcher implements IClone {
             this._clip = value;
         }
     }
+
+    /**
+     * 是否循环
+     */
     get islooping() {
         if (0 != this._isLooping) {
             return 1 == this._isLooping;
@@ -135,7 +145,7 @@ export class AnimatorState extends EventDispatcher implements IClone {
     }
 
     /**
-     * IDE
+     * 动画过渡内容(IDE使用)
      */
     get transitions() {
         return this._transitions;
@@ -146,7 +156,7 @@ export class AnimatorState extends EventDispatcher implements IClone {
     }
 
     /**
-     * IDE
+     * 优先动画过渡内容(IDE使用)
      */
     get soloTransitions() {
         return this._soloTransitions;
