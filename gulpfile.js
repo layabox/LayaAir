@@ -220,7 +220,7 @@ const packsDef = [{
 {
     'libName': "navMesh",
     'input': [
-        './layaAir/laya/d3/core/navigation/**/**.ts'
+        './layaAir/laya/navigation/**/**.ts'
     ],
 },
 ];

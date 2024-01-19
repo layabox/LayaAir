@@ -1,10 +1,10 @@
 
-import { Component } from "../../../../components/Component";
-import { Matrix4x4 } from "../../../../maths/Matrix4x4";
-import { Quaternion } from "../../../../maths/Quaternion";
-import { Vector3 } from "../../../../maths/Vector3";
-import { Bounds } from "../../../math/Bounds";
-import { Scene3D } from "../../scene/Scene3D";
+import { Component } from "../../components/Component";
+import { Scene3D } from "../../d3/core/scene/Scene3D";
+import { Bounds } from "../../d3/math/Bounds";
+import { Matrix4x4 } from "../../maths/Matrix4x4";
+import { Quaternion } from "../../maths/Quaternion";
+import { Vector3 } from "../../maths/Vector3";
 import { NavTileCache } from "../NavTileData";
 import { NavigationManager } from "../NavigationManager";
 import { NavModifleBase } from "./NavModifleBase";

@@ -1,13 +1,13 @@
 
-import { Component } from "../../../../components/Component";
-import { Vector3 } from "../../../../maths/Vector3";
-import { Sprite3D } from "../../Sprite3D";
+import { Component } from "../../components/Component";
+import { Vector3 } from "../../maths/Vector3";
+import { Event } from "../../events/Event";
+import { Matrix4x4 } from "../../maths/Matrix4x4";
+import { Quaternion } from "../../maths/Quaternion";
+import { Bounds } from "../../d3/math/Bounds";
+import { Sprite3D } from "../../d3/core/Sprite3D";
 import { NavigationManager } from "../NavigationManager";
 import { NavMeshSurface } from "./NavMeshSurface";
-import { Event } from "../../../../events/Event";
-import { Matrix4x4 } from "../../../../maths/Matrix4x4";
-import { Quaternion } from "../../../../maths/Quaternion";
-import { Bounds } from "../../../math/Bounds";
 
 const tempVec3 = new Vector3();
 const tempBound = new Bounds(new Vector3(), new Vector3())

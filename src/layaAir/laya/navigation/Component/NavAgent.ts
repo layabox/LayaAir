@@ -1,16 +1,17 @@
 
-import { Component } from "../../../../components/Component";
-import { MathUtils3D } from "../../../../maths/MathUtils3D";
-import { Quaternion } from "../../../../maths/Quaternion";
-import { Vector3 } from "../../../../maths/Vector3";
-import { Sprite3D } from "../../Sprite3D";
-import { Scene3D } from "../../scene/Scene3D";
+import { Component } from "../../components/Component";
+import { MathUtils3D } from "../../maths/MathUtils3D";
+import { Quaternion } from "../../maths/Quaternion";
+import { Vector3 } from "../../maths/Vector3";
+import { Sprite3D } from "../../d3/core/Sprite3D";
+import { Scene3D } from "../../d3/core/scene/Scene3D";
 import { NavigationManager } from "../NavigationManager";
 import { NavigationPathData } from "../NavigationPathData";
 import { AreaMask } from "../AreaMask";
 import { NavAgentLinkAnim } from "../NavAgentLinkAnim";
 import { NavMeshSurface } from "./NavMeshSurface";
 import { NavNavMeshLink } from "./NavNavMeshLink";
+
 
 
 enum UpdateFlags {

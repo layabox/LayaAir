@@ -1,7 +1,8 @@
-import { Component } from "../../../../components/Component";
-import { Matrix4x4 } from "../../../../maths/Matrix4x4";
-import { TextResource } from "../../../../resource/TextResource";
-import { Bounds } from "../../../math/Bounds";
+
+import { Component } from "../../components/Component";
+import { Bounds } from "../../d3/math/Bounds";
+import { Matrix4x4 } from "../../maths/Matrix4x4";
+import { TextResource } from "../../resource/TextResource";
 import { NavTileData, NavTileCache } from "../NavTileData";
 import { NavModifleBase } from "./NavModifleBase";
 

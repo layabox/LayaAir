@@ -1,10 +1,10 @@
 
-import { Laya } from "../../../../Laya";
-import { Vector3 } from "../../../maths/Vector3";
-import { SingletonList } from "../../../utils/SingletonList";
-import { Bounds } from "../../math/Bounds";
-import { IElementComponentManager } from "../scene/IScenceComponentManager";
-import { Scene3D } from "../scene/Scene3D";
+import { Laya } from "../../Laya";
+import { IElementComponentManager } from "../d3/core/scene/IScenceComponentManager";
+import { Scene3D } from "../d3/core/scene/Scene3D";
+import { Bounds } from "../d3/math/Bounds";
+import { Vector3 } from "../maths/Vector3";
+import { SingletonList } from "../utils/SingletonList";
 import { AreaMask } from "./AreaMask";
 import { NavMeshSurface } from "./Component/NavMeshSurface";
 import { NavNavMeshLink } from "./Component/NavNavMeshLink";

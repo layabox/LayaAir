@@ -1,6 +1,6 @@
 
-import { Vector2 } from "../../../maths/Vector2";
-import { Bounds } from "../../math/Bounds";
+import { Bounds } from "../d3/math/Bounds";
+import { Vector2 } from "../maths/Vector2";
 import { NavTileData } from "./NavTileData";
 import { RecastConfig } from "./RecastConfig";
 

@@ -1,11 +1,12 @@
 
-import { Component } from "../../../../components/Component";
-import { Vector3 } from "../../../../maths/Vector3";
-import { TextResource } from "../../../../resource/TextResource";
-import { SingletonList } from "../../../../utils/SingletonList";
-import { Bounds } from "../../../math/Bounds";
-import { Sprite3D } from "../../Sprite3D";
-import { Scene3D } from "../../scene/Scene3D";
+import { Component } from "../../components/Component";
+import { Vector3 } from "../../maths/Vector3";
+import { Sprite3D } from "../../d3/core/Sprite3D";
+import { Scene3D } from "../../d3/core/scene/Scene3D";
+import { Bounds } from "../../d3/math/Bounds";
+import { TextResource } from "../../resource/TextResource";
+import { SingletonList } from "../../utils/SingletonList";
+
 import { NavMesh } from "../NavMesh";
 import { NavTileData } from "../NavTileData";
 import { NavigationManager } from "../NavigationManager";
@@ -13,6 +14,7 @@ import { NavigationUtils } from "../NavigationUtils";
 import { NavMeshModifierVolume } from "./NavMeshModifierVolume";
 import { NavModifleBase } from "./NavModifleBase";
 import { NavNavMeshLink } from "./NavNavMeshLink";
+
 
 
 /**

@@ -1,14 +1,14 @@
 
-import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
-import { IndexFormat } from "../../../RenderEngine/RenderEnum/IndexFormat";
-import { VertexMesh } from "../../../RenderEngine/RenderShader/VertexMesh";
-import { VertexDeclaration } from "../../../RenderEngine/VertexDeclaration";
-import { Vector3 } from "../../../maths/Vector3";
-import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
-import { IndexBuffer3D } from "../../graphics/IndexBuffer3D";
-import { VertexBuffer3D } from "../../graphics/VertexBuffer3D";
-import { Mesh } from "../../resource/models/Mesh";
-import { PrimitiveMesh } from "../../resource/models/PrimitiveMesh";
+import { BufferUsage } from "../RenderEngine/RenderEnum/BufferTargetType";
+import { IndexFormat } from "../RenderEngine/RenderEnum/IndexFormat";
+import { VertexMesh } from "../RenderEngine/RenderShader/VertexMesh";
+import { VertexDeclaration } from "../RenderEngine/VertexDeclaration";
+import { Laya3DRender } from "../d3/RenderObjs/Laya3DRender";
+import { IndexBuffer3D } from "../d3/graphics/IndexBuffer3D";
+import { VertexBuffer3D } from "../d3/graphics/VertexBuffer3D";
+import { Mesh } from "../d3/resource/models/Mesh";
+import { PrimitiveMesh } from "../d3/resource/models/PrimitiveMesh";
+import { Vector3 } from "../maths/Vector3";
 import { NavMesh } from "./NavMesh";
 import { NavigationPathData } from "./NavigationPathData";
 

@@ -1,7 +1,8 @@
-import { Vector3 } from "../../../maths/Vector3";
-import { TextResource } from "../../../resource/TextResource";
-import { Byte } from "../../../utils/Byte";
-import { Bounds } from "../../math/Bounds";
+
+import { Bounds } from "../d3/math/Bounds";
+import { Vector3 } from "../maths/Vector3";
+import { TextResource } from "../resource/TextResource";
+import { Byte } from "../utils/Byte";
 import { NavigationUtils } from "./NavigationUtils";
 
 

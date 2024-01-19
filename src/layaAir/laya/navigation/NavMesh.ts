@@ -1,10 +1,9 @@
-
-import { Vector3 } from "../../../maths/Vector3";
-import { SingletonList } from "../../../utils/SingletonList";
-import { Bounds } from "../../math/Bounds";
-import { Ray } from "../../math/Ray";
-import { Mesh } from "../../resource/models/Mesh";
-import { Sprite3D } from "../Sprite3D";
+import { Sprite3D } from "../d3/core/Sprite3D";
+import { Bounds } from "../d3/math/Bounds";
+import { Ray } from "../d3/math/Ray";
+import { Mesh } from "../d3/resource/models/Mesh";
+import { Vector3 } from "../maths/Vector3";
+import { SingletonList } from "../utils/SingletonList";
 import { AreaMask } from "./AreaMask";
 import { NavAgent } from "./Component/NavAgent";
 import { NavMeshModifierVolume } from "./Component/NavMeshModifierVolume";
