@@ -256,7 +256,7 @@ export class Value2D {
             for (var j: number = 0, m: number = shaderPass.length; j < m; j++) {
                 pass = shaderPass[j];
                 //NOTE:this will cause maybe a shader not render but do prepare before，but the developer can avoide this manual,for example shaderCaster=false.
-                if (pass._pipelineMode == "Forward")
+                if (pass.pipelineMode == "Forward")
                     break;
             }
             var comDef: DefineDatas = Value2D._compileDefine;

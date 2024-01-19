@@ -4,6 +4,8 @@ import { Matrix4x4 } from "../../../maths/Matrix4x4";
 import { Vector3 } from "../../../maths/Vector3";
 
 import { Material } from "../../../resource/Material";
+import { IMeshRenderNode } from "../../RenderDriverLayer/Render3DNode/IMeshRenderNode";
+import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
 import { MeshSprite3DShaderDeclaration } from "../MeshSprite3DShaderDeclaration";
 import { BaseRender } from "../render/BaseRender";
 import { RenderContext3D } from "../render/RenderContext3D";
@@ -39,6 +41,7 @@ export class PixelLineRenderer extends BaseRender {
         this._projectionViewWorldMatrix = new Matrix4x4();
         this._pixelLineFilter = new PixelLineFilter(this, 20);
         this._baseRenderNode.shaderData.addDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_COLOR);
+        this.geometryBounds = this._pixelLineFilter._bounds;
     }
 
     private _lines: PixelLineData[] = [];
@@ -97,16 +100,26 @@ export class PixelLineRenderer extends BaseRender {
         this._setUnBelongScene();
     }
 
+    protected _createBaseRenderNode(): IMeshRenderNode {
+        return Laya3DRender.renderOBJCreate.createMeshRenderNode();
+    }
+
     /**
      * @inheritDoc
      * @override
      * @internal
      */
     _calculateBoundingBox(): void {
-        var worldMat: Matrix4x4 = (this.owner as Sprite3D).transform.worldMatrix;
         var lineFilter: PixelLineFilter = this._pixelLineFilter;
         lineFilter._reCalculateBound();
-        lineFilter._bounds._tranform(worldMat, this._bounds);
+        this.geometryBounds = lineFilter._bounds;
+    }
+
+    renderUpdate(context: RenderContext3D): void {
+        this._renderElements.forEach(element => {
+            element._renderElementOBJ.isRender = element._geometry._prepareRender(context);
+            element._geometry._updateRenderParams(context);
+        })
     }
 
     /**
@@ -138,8 +151,10 @@ export class PixelLineRenderer extends BaseRender {
         (renderElement) || (renderElement = renderObjects[index] = new RenderElement());
         renderElement.setTransform((this.owner as Sprite3D)._transform);
         renderElement.setGeometry(this._pixelLineFilter);
-        renderElement._baseRender = this;
+        renderElement.render = this;
         renderElement.material = material;
+        renderElement.renderSubShader = renderElement.material.shader.getSubShaderAt(0);//TODO
+        this._setRenderElements();
     }
 
     /**

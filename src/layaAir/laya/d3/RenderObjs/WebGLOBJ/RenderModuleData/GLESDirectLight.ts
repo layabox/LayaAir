@@ -31,5 +31,4 @@ export class GLESDirectLight implements IDirectLightData {
     setDirection(value: Vector3): void {
         value && value.cloneTo(this._direction)
     }
-
 }

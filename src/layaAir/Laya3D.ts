@@ -58,6 +58,7 @@ import { LensFlareEffect } from "./laya/d3/core/render/PostEffect/LensFlares/Len
 import { IPhysicsCreateUtil } from "./laya/Physics3D/interface/IPhysicsCreateUtil";
 import { LayaGL } from "./laya/layagl/LayaGL";
 import { Laya } from "./Laya";
+import { PixelLineMaterial } from "./laya/d3/core/pixelLine/PixelLineMaterial";
 
 /**
  * <code>Laya3D</code> 类用于初始化3D设置。
@@ -175,6 +176,12 @@ export class Laya3D {
         BlitFrameBufferCMD.__init__();
         BlinnPhongMaterial.defaultMaterial = new BlinnPhongMaterial();
         BlinnPhongMaterial.defaultMaterial.lock = true;
+        UnlitMaterial.defaultMaterial = new UnlitMaterial();
+        UnlitMaterial.defaultMaterial.lock = true;
+        let pixelLineMaterial = new UnlitMaterial();
+        pixelLineMaterial.lock = true;
+        pixelLineMaterial.enableVertexColor = true;
+        PixelLineMaterial.defaultMaterial = pixelLineMaterial;
         Texture2D.__init__();
         TextureCube.__init__();
         SkyBox.__init__();

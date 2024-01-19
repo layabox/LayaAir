@@ -1,7 +1,6 @@
 import { InternalTexture } from "../../../../RenderEngine/RenderInterface/InternalTexture";
 import { Color } from "../../../../maths/Color";
 import { Vector3 } from "../../../../maths/Vector3";
-import { TextureCube } from "../../../../resource/TextureCube";
 import { IReflectionProbeData } from "../../../RenderDriverLayer/RenderModuleData/IReflectionProbeData";
 import { AmbientMode } from "../../../core/scene/AmbientMode";
 import { Bounds } from "../../../math/Bounds";

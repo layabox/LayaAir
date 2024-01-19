@@ -60,7 +60,7 @@ export class GLESDirectLightShadowCastRP implements IDirectLightShadowRP {
     /**@internal 分割distance*/
     private _cascadesSplitDistance: number[] = new Array(GLESDirectLightShadowCastRP._maxCascades + 1);
     /** @internal */
-    private _frustumPlanes: Plane[] = new Array();
+    private _frustumPlanes: Plane[];
     /** @internal */
     private _shadowMatrices: Float32Array = new Float32Array(16 * (GLESDirectLightShadowCastRP._maxCascades));
     /**@internal */
@@ -123,6 +123,7 @@ export class GLESDirectLightShadowCastRP implements IDirectLightShadowRP {
         this._lightForward = new Vector3();
         this._cascadesSplitDistance = new Array(GLESDirectLightShadowCastRP._maxCascades + 1);
         this._renderQueue = new GLESRenderQueueList(false);
+        this._frustumPlanes = new Array(new Plane(new Vector3(), 0), new Plane(new Vector3(), 0), new Plane(new Vector3(), 0), new Plane(new Vector3(), 0), new Plane(new Vector3(), 0), new Plane(new Vector3(), 0));
     }
 
     update(context: GLESRenderContext3D): void {

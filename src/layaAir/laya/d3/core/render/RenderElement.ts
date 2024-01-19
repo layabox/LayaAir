@@ -47,7 +47,6 @@ export class RenderElement {
      * set RenderElement Material/Shaderdata
      */
     set material(value: Material) {
-        // todo debug 临时
         if (value) {
             this._material = value;
             this._renderElementOBJ.materialShaderData = value.shaderData;

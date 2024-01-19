@@ -120,7 +120,7 @@ export class GLESRenderElementOBJ implements IRenderElement {
         for (var j: number = 0, m: number = passes.length; j < m; j++) {
             var pass: ShaderPass = passes[j];
             //NOTE:this will cause maybe a shader not render but do prepare before，but the developer can avoide this manual,for example shaderCaster=false.
-            if (pass._pipelineMode !== context.pipelineMode)
+            if (pass.pipelineMode !== context.pipelineMode)
                 continue;
 
             var comDef: DefineDatas = GLESRenderElementOBJ._compileDefine;
