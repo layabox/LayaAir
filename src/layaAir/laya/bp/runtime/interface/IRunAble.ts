@@ -32,6 +32,8 @@ export interface IRunAble {
 
     setVar(name: string, value: any): void;
 
+    initVar(name: string, value: any): void;
+
     reCall(index: number): void;
 
     getSelf(): any;

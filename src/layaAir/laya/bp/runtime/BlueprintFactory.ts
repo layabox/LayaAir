@@ -147,7 +147,7 @@ export class BlueprintFactory {
                         let varMap = this[BlueprintFactory.bpSymbol].varMap;
                         if (varMap) {
                             for (let str in varMap) {
-                                this[BlueprintFactory.contextSymbol].setVar(varMap[str].name, varMap[str].value);
+                                this[BlueprintFactory.contextSymbol].initVar(varMap[str].name, varMap[str].value);
                                 //a[str]
                             }
                         }

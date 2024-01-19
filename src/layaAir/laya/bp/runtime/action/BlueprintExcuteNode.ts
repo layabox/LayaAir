@@ -10,13 +10,14 @@ import { IRuntimeDataManger } from "../../core/interface/IRuntimeDataManger";
 
 export class BlueprintExcuteNode extends BlueprintRunBase implements IRunAble {
     owner: any;
-
+    varDefineMap: Map<string, boolean>;
     runtimeDataMgrMap: Map<number | symbol, RuntimeDataManger>;
 
 
     constructor(data: any) {
         super();
         this.owner = data;
+        this.varDefineMap = new Map;
         this.runtimeDataMgrMap = new Map;
     }
     getDataMangerByID(id: number | symbol): IRuntimeDataManger {
@@ -40,12 +41,18 @@ export class BlueprintExcuteNode extends BlueprintRunBase implements IRunAble {
         return this.owner;
     }
 
+    initVar(name: string, value: any): void {
+        this.vars[name] = value;
+        this.varDefineMap.set(name, true);
+    }
+
     setVar(name: string, value: any) {
-        let obj = this.vars[name] === undefined ? this.owner : this.vars;
+        let obj = this.varDefineMap.get(name) ? this.vars : this.owner;
         obj[name] = value;
     }
     getVar(name: string) {
-        return this.vars[name] === undefined ? this.owner[name] : this.vars[name];
+        let obj = this.varDefineMap.get(name) ? this.vars : this.owner;
+        return obj[name];
     }
     getCode(): string {
         return "";
@@ -125,7 +132,7 @@ class RuntimeDataManger implements IRuntimeDataManger {
         return this.nodeMap.get(nid);
     }
 
-    getRuntimePinById(id:string):RuntimePinData {
+    getRuntimePinById(id: string): RuntimePinData {
         return this.pinMap.get(id);
     }
 

@@ -27,6 +27,9 @@ export class BlueprintGenCodeNode extends BlueprintRunBase implements IRunAble {
     getVar(name: string) {
         throw new Error("Method not implemented.");
     }
+    initVar(name: string, value: any): void {
+        
+    }
     setVar(name: string, value: any): void {
         throw new Error("Method not implemented.");
     }
