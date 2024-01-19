@@ -12,17 +12,6 @@ export class SkinRenderElement extends RenderElement{
 	 */
 	_renderElementOBJ:SkinRenderElementOBJ;
 
-
-    /**@internal */
-	set render(value:SkinnedMeshRenderer){
-		this._baseRender = value;
-		//this._renderElementOBJ._renderShaderData = value._baseRenderNode.shaderData; TODO miner
-	}
-
-    get render():SkinnedMeshRenderer{
-		return this._baseRender as SkinnedMeshRenderer;
-	}
-
     setSkinData(value:Float32Array[]){
         this._renderElementOBJ.skinnedData = value;
     }

@@ -10,7 +10,7 @@ export class PixelLineMaterial extends Material {
 	static COLOR: number;
 
 	/** 默认材质，禁止修改*/
-	static defaultMaterial: PixelLineMaterial;
+	static defaultMaterial: Material;
 
 	/**
 	* @internal

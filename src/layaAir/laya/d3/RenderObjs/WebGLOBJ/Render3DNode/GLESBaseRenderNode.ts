@@ -43,9 +43,9 @@ export class GLESBaseRenderNode implements IBaseRenderNode {
     _commonUniformMap: string[];
     private _bounds: Bounds;
     private _caculateBoundingBoxCall: any;
-    private _caculateBoundingBoxFun: any;
+    private _caculateBoundingBoxFun: Function;
     private _renderUpdatePreCall: any;
-    private _renderUpdatePreFun: any;
+    private _renderUpdatePreFun: Function;
 
     /**
     * context3D:GLESRenderContext3D
@@ -149,6 +149,7 @@ export class GLESBaseRenderNode implements IBaseRenderNode {
             return;
         this.renderelements[index].materialShaderData = mat.shaderData as WebShaderData;
         this.renderelements[index].materialRenderQueue;
+        this.renderelements[index].subShader = mat.shader.getSubShaderAt(0);
     }
 
     /**
