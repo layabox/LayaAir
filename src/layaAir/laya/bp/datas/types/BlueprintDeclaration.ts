@@ -1,6 +1,7 @@
 import { regClass } from "../../../../Decorators";
 import { Component } from "../../../components/Component";
 import { Node } from "../../../display/Node";
+import { BlueprintUtil } from "../../core/BlueprintUtil";
 import { customData } from "../BlueprintExtends";
 import { BPType } from "./BlueprintTypes";
 
@@ -69,6 +70,8 @@ export type TBPDeclarationProp = {
     getter?: boolean;
     /** 是否有setter 方法 */
     setter?: boolean;
+    /** 泛型 */
+    typeParameters?:any;
     /** 修饰符 */
     modifiers?:BPModifiers;
     /** 是否来自父类 */
@@ -92,7 +95,8 @@ export type TBPDeclarationFunction = {
     params?: TBPDeclarationParam[];
     /** 方法的返回类型 */
     returnType: string;
-
+    /** 泛型 */
+    typeParameters?:any;
     /** 注册的原始方法 */
     originFunc?:Function;
 
@@ -204,7 +208,8 @@ export function bpClass( options : BPDecoratorsOptionClass){
             declare.name = options.name;
         }
         //以uuid为识别
-        customData[options.uuid] = declare;
+        // customData[options.uuid] = declare;
+        BlueprintUtil.addCustomData(options.uuid,declare);
     }
 }
 
