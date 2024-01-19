@@ -6,12 +6,11 @@ import { RTSpotLightShadowRP } from "./RTSpotLightShadowRP";
 
 
 export class RTForwardAddRP implements IForwardAddRP {
-    private _shadowCastPass: boolean;
     public get shadowCastPass(): boolean {
-        return this._shadowCastPass;
+        return this._nativeObj._shadowCastPass;
     }
     public set shadowCastPass(value: boolean) {
-        this._shadowCastPass = value;
+        this._nativeObj._shadowCastPass = value;
     }
     private _directLightShadowPass: RTDirectLightShadowCastRP;
     public get directLightShadowPass(): RTDirectLightShadowCastRP {
@@ -53,7 +52,7 @@ export class RTForwardAddRP implements IForwardAddRP {
         throw new Error("Method not implemented.");
     }
 
-    private _nativeObj: any;
+    _nativeObj: any;
 
     constructor() {
         this._nativeObj = new (window as any).conchRTForwardAddRP();

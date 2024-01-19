@@ -76,7 +76,7 @@ export class RTBaseRenderNode implements IBaseRenderNode {
     }
     public set baseGeometryBounds(value: Bounds) {
         this._baseGeometryBounds = value;
-        //TODO this._nativeObj.set_baseGeometryBounds(value._nativeObj);
+        //TODO this._nativeObj.setBaseGeometryBounds(value._nativeObj);
     }
     public get boundsChange(): boolean {
         return this._nativeObj._boundsChange;
@@ -108,7 +108,7 @@ export class RTBaseRenderNode implements IBaseRenderNode {
     }
     public set shaderData(value: NativeShaderData) {
         this._shaderData = value;
-        this._nativeObj.set_shaderData(value._nativeObj);
+        this._nativeObj.setShaderData(value._nativeObj);
     }
     public get lightmapIndex(): number {
         return this._nativeObj._lightmapIndex;
@@ -176,7 +176,7 @@ export class RTBaseRenderNode implements IBaseRenderNode {
      */
     set_renderUpdatePreCall(call: any, fun: any): void {
         this._renderUpdatePrebindFun = fun.bind(call, RenderContext3D._instance._contextOBJ);
-        this._nativeObj.set_renderUpdatePre(this._renderUpdatePrebindFun);
+        this._nativeObj.setRenderUpdatePre(this._renderUpdatePrebindFun);
     }
 
     /**
@@ -187,7 +187,7 @@ export class RTBaseRenderNode implements IBaseRenderNode {
     set_caculateBoundingBox(call: any, fun: any): void {
 
         this._caculateBoundingBoxbindFun = fun.bind(call);
-        this._nativeObj.set_calculateBoundingBox(this._caculateBoundingBoxbindFun);
+        this._nativeObj.setCalculateBoundingBox(this._caculateBoundingBoxbindFun);
         //native
     }
 
@@ -207,15 +207,15 @@ export class RTBaseRenderNode implements IBaseRenderNode {
     }
 
     setWorldParams(value: Vector4): void {
-        this._nativeObj.set_worldParams(value);
+        this._nativeObj.setWorldParams(value);
     }
 
     setLightmapScaleOffset(value: Vector4): void {
-        this._nativeObj.set_lightmapScaleOffset(value);
+        this._nativeObj.setLightmapScaleOffset(value);
     }
 
     setCommonUniformMap(value: string[]): void {
-        this._nativeObj.set_commonUniformMap(value);
+        this._nativeObj.setCommonUniformMap(value);
     }
 
     setOneMaterial(index: number, mat: Material): void {

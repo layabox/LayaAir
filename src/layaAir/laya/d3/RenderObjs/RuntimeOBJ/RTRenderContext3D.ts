@@ -8,7 +8,7 @@ import { IRenderContext3D } from "../../RenderDriverLayer/IRenderContext3D";
 import { Viewport } from "../../math/Viewport";
 import { RTCameraNodeData, RTSceneNodeData } from "./RenderModuleData/RTModuleData";
 
-export class RTRendercontext3D implements IRenderContext3D {
+export class RTRenderContext3D implements IRenderContext3D {
     private _globalShaderData: NativeShaderData;
     public get globalShaderData(): NativeShaderData {
         return this._globalShaderData;
@@ -93,7 +93,7 @@ export class RTRendercontext3D implements IRenderContext3D {
         throw new Error("Method not implemented.");
     }
 
-    private _nativeObj: any;
+   _nativeObj: any;
 
     constructor() {
         this._nativeObj = new (window as any).conchRTRenderContext3D();
