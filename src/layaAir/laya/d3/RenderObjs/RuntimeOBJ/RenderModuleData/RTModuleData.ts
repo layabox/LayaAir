@@ -1,45 +1,45 @@
 import { Matrix4x4 } from "../../../../maths/Matrix4x4";
 import { ICameraNodeData, ISceneNodeData } from "../../../RenderDriverLayer/RenderModuleData/IModuleData";
-import { Transform3D } from "../../../core/Transform3D";
+import { NativeTransform3D } from "../../NativeOBJ/NativeTransform3D";
 
 export class RTCameraNodeData implements ICameraNodeData {
-    private _transform: Transform3D;
-    public get transform(): Transform3D {
+    private _transform: NativeTransform3D;
+    public get transform(): NativeTransform3D {
         return this._transform;
     }
-    public set transform(value: Transform3D) {
+    public set transform(value: NativeTransform3D) {
         this._transform = value;
+        this._nativeObj.setTransform(value._nativeObj);
     }
-    private _farplane: number;
     public get farplane(): number {
-        return this._farplane;
+        return this._nativeObj._farplane;
     }
     public set farplane(value: number) {
-        this._farplane = value;
-    }
-    private _nearplane: number;
-    public get nearplane(): number {
-        return this._nearplane;
-    }
-    public set nearplane(value: number) {
-        this._nearplane = value;
-    }
-    private _fieldOfView: number;
-    public get fieldOfView(): number {
-        return this._fieldOfView;
-    }
-    public set fieldOfView(value: number) {
-        this._fieldOfView = value;
-    }
-    private _aspectRatio: number;
-    public get aspectRatio(): number {
-        return this._aspectRatio;
-    }
-    public set aspectRatio(value: number) {
-        this._aspectRatio = value;
+        this._nativeObj._farplane = value;
     }
 
-    private _nativeObj: any;
+    public get nearplane(): number {
+        return this._nativeObj._nearplane;
+    }
+    public set nearplane(value: number) {
+        this._nativeObj._nearplane = value;
+    }
+
+    public get fieldOfView(): number {
+        return this._nativeObj._fieldOfView;
+    }
+    public set fieldOfView(value: number) {
+        this._nativeObj._fieldOfView = value;
+    }
+
+    public get aspectRatio(): number {
+        return this._nativeObj._aspectRatio;
+    }
+    public set aspectRatio(value: number) {
+        this._nativeObj._aspectRatio = value;
+    }
+
+    _nativeObj: any;
     constructor() {
         this._nativeObj = new (window as any).conchRTCameraNodeData();
     }
@@ -57,7 +57,7 @@ export class RTSceneNodeData implements ISceneNodeData {
         this._nativeObj._lightmapDirtyFlag = value;
     }
 
-    private _nativeObj: any;
+    _nativeObj: any;
     constructor() {
         this._nativeObj = new (window as any).conchRTSceneNodeData();
     }

@@ -7,12 +7,11 @@ import { AmbientMode } from "../../../core/scene/AmbientMode";
 import { Bounds } from "../../../math/Bounds";
 
 export class RTReflectionProb implements IReflectionProbeData {
-    private _boxProjection: boolean;
     public get boxProjection(): boolean {
-        return this._boxProjection;
+        return this._nativeObj._boxProjection;
     }
     public set boxProjection(value: boolean) {
-        this._boxProjection = value;
+        this._nativeObj._boxProjection = value;
     }
     private _bound: Bounds;
     public get bound(): Bounds {
@@ -20,27 +19,27 @@ export class RTReflectionProb implements IReflectionProbeData {
     }
     public set bound(value: Bounds) {
         this._bound = value;
+        //TODO:  this._nativeObj.setBounds(value._nativeObj);
     }
-    private _ambientMode: AmbientMode;
+
     public get ambientMode(): AmbientMode {
-        return this._ambientMode;
+        return this._nativeObj._ambientMode;
     }
     public set ambientMode(value: AmbientMode) {
-        this._ambientMode = value;
+        this._nativeObj._ambientMode = value;
     }
-    private _ambientIntensity: number;
+
     public get ambientIntensity(): number {
-        return this._ambientIntensity;
+        return this._nativeObj._ambientIntensity;
     }
     public set ambientIntensity(value: number) {
-        this._ambientIntensity = value;
+        this._nativeObj._ambientIntensity = value;
     }
-    private _reflectionIntensity: number;
     public get reflectionIntensity(): number {
-        return this._reflectionIntensity;
+        return this._nativeObj._reflectionIntensity;
     }
     public set reflectionIntensity(value: number) {
-        this._reflectionIntensity = value;
+        this._nativeObj._reflectionIntensity = value;
     }
     private _reflectionTexture: InternalTexture;
     public get reflectionTexture(): InternalTexture {
@@ -56,38 +55,36 @@ export class RTReflectionProb implements IReflectionProbeData {
     public set iblTex(value: InternalTexture) {
         this._iblTex = value;
     }
-    private _updateMark: number;
     public get updateMark(): number {
-        return this._updateMark;
+        return this._nativeObj._updateMark;
     }
     public set updateMark(value: number) {
-        this._updateMark = value;
+        this._nativeObj._updateMark = value;
     }
-    private _iblTexRGBD: boolean;
     public get iblTexRGBD(): boolean {
-        return this._iblTexRGBD;
+        return this._nativeObj._iblTexRGBD;
     }
     public set iblTexRGBD(value: boolean) {
-        this._iblTexRGBD = value;
+        this._nativeObj._iblTexRGBD = value;
     }
-    setprobePosition(value: Vector3): void {
-        throw new Error("Method not implemented.");
+    setProbePosition(value: Vector3): void {
+        value && this._nativeObj.setProbePosition(value);
     }
     setAmbientColor(value: Color): void {
-        throw new Error("Method not implemented.");
+        value &&  this._nativeObj.setAmbientColor(value);
     }
     setAmbientSH(value: Float32Array): void {
         throw new Error("Method not implemented.");
     }
 
-    private _nativeObj: any;
+    _nativeObj: any;
 
     constructor() {
         this._nativeObj = new (window as any).conchRTReflectionProb();
     }
 
     destroy(): void {
-        //todo
+        this._nativeObj.destroy()
     }
 
 }

@@ -24,7 +24,7 @@ export interface IReflectionProbeData {
     /**@internal */
     iblTexRGBD: boolean;
     /**@internal */
-    setprobePosition(value: Vector3): void;
+    setProbePosition(value: Vector3): void;
     /**@internal */
     setAmbientColor(value: Color): void;
     /**@internal */

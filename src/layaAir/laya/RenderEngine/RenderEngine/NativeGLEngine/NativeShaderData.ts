@@ -37,7 +37,7 @@ export class NativeShaderData extends ShaderData {
     constructor(ownerResource: Resource = null) {
         super(ownerResource)
         // this._initData();
-        this._nativeObj = new (window as any).conchShaderData();
+        this._nativeObj = new (window as any).conchRTShaderData();
 
     }
     /**
