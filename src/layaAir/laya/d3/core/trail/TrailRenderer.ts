@@ -9,6 +9,9 @@ import { TrailTextureMode } from "../TrailTextureMode"
 import { TrailAlignment } from "./TrailAlignment"
 import { Matrix4x4 } from "../../../maths/Matrix4x4";
 import { RenderContext3D } from "../render/RenderContext3D";
+import { IBaseRenderNode } from "../../RenderDriverLayer/Render3DNode/IBaseRenderNode";
+import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
+import { IRenderContext3D } from "../../RenderDriverLayer/IRenderContext3D";
 
 /**
  * <code>TrailRenderer</code> 类用于创建拖尾渲染器。
@@ -32,8 +35,14 @@ export class TrailRenderer extends BaseRender {
     }
 
 
+    protected _createBaseRenderNode(): IBaseRenderNode {
+        return Laya3DRender.renderOBJCreate.createMeshRenderNode();
+    }
+
     protected _onAdded(): void {
+        super._onAdded();
         this._trailFilter = new TrailFilter(this);
+        this._setRenderElements();
     }
 
     /**
@@ -148,6 +157,13 @@ export class TrailRenderer extends BaseRender {
 
     renderUpdate(context: RenderContext3D) {
         this._calculateBoundingBox();
+
+        this._renderElements.forEach(element => {
+            let geometry = element._geometry;
+            element._renderElementOBJ.isRender = geometry._prepareRender(context);
+            geometry._updateRenderParams(context);
+        })
+
     }
 
 

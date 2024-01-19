@@ -194,6 +194,7 @@ export class TrailFilter {
 		element.setTransform((this._ownerRender.owner as Sprite3D)._transform);
 		element.render = render;
 		element.material = material;
+		element.renderSubShader = element.material.shader.getSubShaderAt(0);
 		this._trialGeometry = new TrailGeometry(this);
 		element.setGeometry(this._trialGeometry);
 		elements.push(element);
