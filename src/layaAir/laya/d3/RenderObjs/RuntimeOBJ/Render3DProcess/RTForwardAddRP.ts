@@ -18,13 +18,13 @@ export class RTForwardAddRP implements IForwardAddRP {
     }
     public set directLightShadowPass(value: RTDirectLightShadowCastRP) {
         this._directLightShadowPass = value;
+        this._nativeObj.setDirectLightShadowPass(value._nativeObj);
     }
-    private _enableDirectLightShadow: boolean;
     public get enableDirectLightShadow(): boolean {
-        return this._enableDirectLightShadow;
+        return this._nativeObj._enableDirectLightShadow;
     }
     public set enableDirectLightShadow(value: boolean) {
-        this._enableDirectLightShadow = value;
+        this._nativeObj._enableDirectLightShadow = value;
     }
     private _spotLightShadowPass: RTSpotLightShadowRP;
     public get spotLightShadowPass(): RTSpotLightShadowRP {
@@ -32,6 +32,7 @@ export class RTForwardAddRP implements IForwardAddRP {
     }
     public set spotLightShadowPass(value: RTSpotLightShadowRP) {
         this._spotLightShadowPass = value;
+        this._nativeObj.setSpotLightShadowPass(value._nativeObj);
     }
     private _enableSpotLightShadowPass: boolean;
     public get enableSpotLightShadowPass(): boolean {
@@ -46,6 +47,7 @@ export class RTForwardAddRP implements IForwardAddRP {
     }
     public set renderpass(value: RTForwardAddClusterRP) {
         this._renderpass = value;
+        this._nativeObj.setSpotLightShadowPass(value._nativeObj);
     }
 
     setAfterEventCmd(value: CommandBuffer[]): void {

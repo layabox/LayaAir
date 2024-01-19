@@ -11,7 +11,7 @@ export class RTDirectLightShadowCastRP implements IDirectLightShadowRP {
     }
     public set light(value: RTDirectLight) {
         this._light = value;
-        this._nativeObj.set_light(value._nativeObj);
+        this._nativeObj.setLight(value._nativeObj);
     }
     private _camera: ICameraNodeData;
     public get camera(): ICameraNodeData {
@@ -26,7 +26,7 @@ export class RTDirectLightShadowCastRP implements IDirectLightShadowRP {
     }
     public set destTarget(value: InternalRenderTarget) {
         this._destTarget = value;
-        this._nativeObj.set_destTarget(value);
+        this._nativeObj.setRenderTarget(value);
     }
     _nativeObj: any;
     constructor() {

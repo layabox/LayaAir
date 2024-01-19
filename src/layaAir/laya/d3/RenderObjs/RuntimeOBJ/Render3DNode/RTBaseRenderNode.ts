@@ -191,7 +191,7 @@ export class RTBaseRenderNode implements IBaseRenderNode {
         //native
     }
 
-    private _nativeObj: any;
+    _nativeObj: any;
     //create runtime Node
     protected _getNativeObj() {
         this._nativeObj = new (window as any).conchRTBaseRenderNode();

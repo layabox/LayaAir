@@ -11,6 +11,7 @@ export class RTSpotLightShadowRP implements ISpotLightShadowRP {
 
     public set light(value: SpotLightCom) {
         this._light = value;
+        //this._nativeObj.setLight(value._dataModule._nativeObj); todo
     }
 
     private _destTarget: InternalRenderTarget;
@@ -21,5 +22,10 @@ export class RTSpotLightShadowRP implements ISpotLightShadowRP {
     
     public set destTarget(value: InternalRenderTarget) {
         this._destTarget = value;
+        this._nativeObj.setRenderTarget(value);
+    }
+    _nativeObj: any;
+    constructor() {
+        this._nativeObj = new (window as any).conchRTSpotLightShadowRP();
     }
 }
