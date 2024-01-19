@@ -1,4 +1,5 @@
 
+import { ClassUtils } from "../../utils/ClassUtils";
 import { BPType, TBPCNode, TBPNode } from "../datas/types/BlueprintTypes";
 import { BlueprintFactory } from "../runtime/BlueprintFactory";
 import { BlueprintPin } from "./BlueprintPin";
@@ -103,6 +104,9 @@ export abstract class BlueprintNode<T extends BlueprintPin>{
 
                 if (item.value != undefined) {
                     pin.value = item.value;
+                }
+                else if(item.class != undefined){
+                    pin.value = ClassUtils.getClass(item.class);
                 }
             }
         }

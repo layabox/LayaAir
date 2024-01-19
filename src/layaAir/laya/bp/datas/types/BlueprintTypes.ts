@@ -113,6 +113,7 @@ export interface TBPInput {
     value?: any,
     /**插槽注释 */
     desc?: string,
+    class?: string,
 }
 export interface TBPConnType {
     /** 插槽连接到的另一个节点的id */
