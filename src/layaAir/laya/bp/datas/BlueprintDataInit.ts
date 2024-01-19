@@ -316,7 +316,7 @@ export const BlueprintDataList: TBPCNode[] = [
             },
             {
                 name: "type",
-                type: "any",
+                type: "Class",
             }
         ],
         output: [
@@ -343,7 +343,7 @@ export const BlueprintDataList: TBPCNode[] = [
             },
             {
                 name: "type",
-                type: "any",
+                type: "Class",
             },
         ],
         output: [
