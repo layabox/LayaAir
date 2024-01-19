@@ -52,11 +52,11 @@ export class GLESBaseRenderNode implements IBaseRenderNode {
     * @internal
     */
     _renderUpdatePre(context3D: IRenderContext3D): void {
-        this._renderUpdatePreCall.call(this._renderUpdatePreFun, context3D);
+        this._renderUpdatePreFun.call(this._renderUpdatePreCall, context3D);
     }
 
     _calculateBoundingBox() {
-        this._caculateBoundingBoxCall.call(this._caculateBoundingBoxFun);
+        this._caculateBoundingBoxFun.call(this._caculateBoundingBoxCall);
     }
 
 

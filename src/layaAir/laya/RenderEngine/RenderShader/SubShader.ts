@@ -1,6 +1,7 @@
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { ShaderDefine } from "../../RenderEngine/RenderShader/ShaderDefine";
 import { UniformBufferParamsType, UnifromBufferData } from "../../RenderEngine/UniformBufferData";
+import { ISubshaderData } from "../../d3/RenderDriverLayer/RenderModuleData/IModuleData";
 import { IShaderCompiledObj, ShaderCompile } from "../../webgl/utils/ShaderCompile";
 import { ShaderDataItem, ShaderDataType } from "../RenderInterface/ShaderData";
 import { ShaderPass } from "./ShaderPass";
@@ -74,6 +75,8 @@ export class SubShader {
     _owner: Shader3D;
     /**@internal */
     _flags: any = {};
+
+    moduleData: ISubshaderData;
     /**@internal */
     _passes: ShaderPass[] = [];
 
@@ -116,26 +119,6 @@ export class SubShader {
 
             }
         }
-    }
-
-    /**
-     * 添加标记。
-     * @param key 标记键。
-     * @param value 标记值。
-     */
-    setFlag(key: string, value: string): void {
-        if (value)
-            this._flags[key] = value;
-        else
-            delete this._flags[key];
-    }
-
-    /**
-     * 获取标记值。
-     * @return key 标记键。
-     */
-    getFlag(key: string): string {
-        return this._flags[key];
     }
 
     /**

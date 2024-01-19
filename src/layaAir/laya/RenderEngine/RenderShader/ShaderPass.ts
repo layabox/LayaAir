@@ -5,8 +5,8 @@ import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { ShaderVariant } from "../../RenderEngine/RenderShader/ShaderVariantCollection";
 import { IShaderCompiledObj } from "../../webgl/utils/ShaderCompile";
 import { RenderState } from "./RenderState";
-import { ShaderInstance } from "./ShaderInstance";
 import { LayaGL } from "../../layagl/LayaGL";
+import { IShaderInstance } from "../RenderInterface/RenderPipelineInterface/IShaderInstance";
 
 
 /**
@@ -83,11 +83,11 @@ export class ShaderPass extends ShaderCompileDefineBase {
         }
 
         var cacheKey: number = endIndex < maxEndIndex ? 0 : mask[maxEndIndex];
-        var shader: ShaderInstance = cacheShaders[cacheKey];
+        var shader: IShaderInstance = cacheShaders[cacheKey];
         return shader;
     }
 
-    private setCacheShader(compileDefine: DefineDatas, shader: ShaderInstance) {
+    private setCacheShader(compileDefine: DefineDatas, shader: IShaderInstance) {
         var cacheShaders: any = this._cacheSharders;
         var mask: Array<number> = compileDefine._mask;
         var endIndex: number = compileDefine._length - 1;
@@ -102,8 +102,8 @@ export class ShaderPass extends ShaderCompileDefineBase {
         cacheShaders[cacheKey] = shader;
     }
 
-    private _createShaderInstance(IS2d: boolean, compileDefine: DefineDatas): ShaderInstance {
-        var shader: ShaderInstance;
+    private _createShaderInstance(IS2d: boolean, compileDefine: DefineDatas): IShaderInstance {
+        var shader: IShaderInstance;
         let shaderProcessInfo: ShaderProcessInfo = new ShaderProcessInfo();
         shaderProcessInfo.is2D = IS2d;
         shaderProcessInfo.vs = this._VS;
@@ -126,7 +126,7 @@ export class ShaderPass extends ShaderCompileDefineBase {
      * @override
      * @internal
      */
-    withCompile(compileDefine: DefineDatas, IS2d: boolean = false): ShaderInstance {
+    withCompile(compileDefine: DefineDatas, IS2d: boolean = false): IShaderInstance {
 
         // compileDefine._intersectionDefineDatas(this._validDefine);
 
@@ -150,7 +150,7 @@ export class ShaderPass extends ShaderCompileDefineBase {
 
         // var cacheKey: number = endIndex < maxEndIndex ? 0 : mask[maxEndIndex];
         // var shader: ShaderInstance = cacheShaders[cacheKey];
-        var shader: ShaderInstance = this._getCacheShader(compileDefine);
+        var shader: IShaderInstance = this._getCacheShader(compileDefine);
         if (shader)
             return shader;
         var debugDefineString: string[] = ShaderPass._debugDefineStrings;

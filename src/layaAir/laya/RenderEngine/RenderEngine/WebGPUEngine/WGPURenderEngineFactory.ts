@@ -7,7 +7,6 @@ import { IRenderEngineFactory } from "../../../RenderEngine/RenderInterface/IRen
 import { RenderState } from "../../../RenderEngine/RenderShader/RenderState";
 import { RenderStateCommand } from "../../../RenderEngine/RenderStateCommand";
 import { UniformBufferObject } from "../../../RenderEngine/UniformBufferObject";
-import { WGPURenderPipelineInstance } from "../../../d3/RenderObjs/WebGPUOBJ/WGPURenderPipelineInstance";
 import { WGPUShaderData } from "../../../d3/RenderObjs/WebGPUOBJ/WGPUShaderData";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { ShaderCompileDefineBase, ShaderProcessInfo } from "../../../webgl/utils/ShaderCompileDefineBase";
@@ -21,13 +20,9 @@ export class WGPURenderEngineFactory implements IRenderEngineFactory {
         return new WGPUShaderData();
     }
 
-
-
-    createShaderInstance(shaderProcessInfo: ShaderProcessInfo, shaderPass: ShaderCompileDefineBase): WGPURenderPipelineInstance {
-        return new WGPURenderPipelineInstance(shaderProcessInfo, shaderPass);
+    createShaderInstance(shaderProcessInfo: ShaderProcessInfo, shaderPass: ShaderCompileDefineBase): any {
+        return {};
     }
-
-  
 
     createRenderStateComand(): RenderStateCommand {
         return new RenderStateCommand();
@@ -48,7 +43,7 @@ export class WGPURenderEngineFactory implements IRenderEngineFactory {
         return comMap;
     }
 
-    async createEngine(config: any, canvas: any){
+    async createEngine(config: any, canvas: any) {
         let gpuConfig = new WebGPUConfig();
         gpuConfig.alphaMode = Config.premultipliedAlpha ? "premultiplied" : "opaque";
         gpuConfig.colorSpace = "srgb";//TODO 这里感觉会出问题
@@ -60,8 +55,8 @@ export class WGPURenderEngineFactory implements IRenderEngineFactory {
                 gpuConfig.powerPreference = Config.powerPreference;
                 break;
         }
-        let engine = new WebGPUEngine(gpuConfig,canvas._source);
-        LayaGL.renderEngine= engine;
+        let engine = new WebGPUEngine(gpuConfig, canvas._source);
+        LayaGL.renderEngine = engine;
         await engine.initRenderEngine();
         LayaGL.textureContext = engine.getTextureContext();
         return Promise.resolve() as any;

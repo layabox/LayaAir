@@ -17,8 +17,7 @@ export class GLESReflectionProbe implements IReflectionProbeData {
     bound: Bounds;
     /**@internal */
     ambientMode: AmbientMode;
-    /**@internal */
-    ambientSH: Float32Array;
+
     /**@internal */
     ambientIntensity: number;
     /**@internal */
@@ -39,7 +38,8 @@ export class GLESReflectionProbe implements IReflectionProbeData {
     private _probePosition: Vector3;
     /**@internal */
     private _ambientColor: Color;
-    
+    /**@internal */
+    private _ambientSH: Float32Array;
     /**@internal */
     constructor() {
         this._shCoefficients = [];
@@ -53,12 +53,12 @@ export class GLESReflectionProbe implements IReflectionProbeData {
     destroy(): void {
         this.bound = null;
         delete this._shCoefficients;
-        delete this.ambientSH;
+        delete this._ambientSH;
 
     }
     /**@internal */
     setAmbientSH(value: Float32Array): void {
-        throw new Error("Method not implemented.");
+        this._ambientSH = value;
     }
     /**@internal */
     setShCoefficients(value: Vector4[]): void {
@@ -96,7 +96,7 @@ export class GLESReflectionProbe implements IReflectionProbeData {
             data.removeDefine(Sprite3DRenderDeclaration.SHADERDEFINE_GI_LEGACYIBL);
             data.removeDefine(Sprite3DRenderDeclaration.SHADERDEFINE_GI_IBL);
             data.setColor(RenderableSprite3D.AMBIENTCOLOR, this._ambientColor);
-        } else if (this.iblTex && this.ambientSH) {
+        } else if (this.iblTex && this._ambientSH) {
             data.addDefine(Sprite3DRenderDeclaration.SHADERDEFINE_GI_IBL);
             data.removeDefine(Sprite3DRenderDeclaration.SHADERDEFINE_GI_LEGACYIBL);
             if (this.iblTex) {
@@ -104,7 +104,7 @@ export class GLESReflectionProbe implements IReflectionProbeData {
                 data.setNumber(RenderableSprite3D.IBLROUGHNESSLEVEL, this.iblTex.maxMipmapLevel);
             };
             this.iblTexRGBD ? data.addDefine(Sprite3DRenderDeclaration.SHADERDEFINE_IBL_RGBD) : data.removeDefine(Sprite3DRenderDeclaration.SHADERDEFINE_IBL_RGBD);
-            this.ambientSH && data.setBuffer(RenderableSprite3D.AMBIENTSH, this.ambientSH);
+            this._ambientSH && data.setBuffer(RenderableSprite3D.AMBIENTSH,  this._ambientSH);
         }
         data.setNumber(RenderableSprite3D.AMBIENTINTENSITY, this.ambientIntensity);
         data.setNumber(RenderableSprite3D.REFLECTIONINTENSITY, this.reflectionIntensity);

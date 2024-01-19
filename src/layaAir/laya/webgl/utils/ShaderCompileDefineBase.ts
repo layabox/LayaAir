@@ -1,3 +1,4 @@
+import { IShaderInstance } from "../../RenderEngine/RenderInterface/RenderPipelineInterface/IShaderInstance";
 import { ShaderDataType } from "../../RenderEngine/RenderInterface/ShaderData";
 import { DefineDatas } from "../../RenderEngine/RenderShader/DefineDatas";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
@@ -77,7 +78,7 @@ export class ShaderCompileDefineBase {
     /**
      * @internal
      */
-    withCompile(compileDefine: DefineDatas): ShaderInstance {
+    withCompile(compileDefine: DefineDatas): IShaderInstance {
 
         compileDefine._intersectionDefineDatas(this._validDefine);
 
@@ -99,7 +100,7 @@ export class ShaderCompileDefineBase {
         }
 
         var cacheKey: number = endIndex < maxEndIndex ? 0 : mask[maxEndIndex];
-        var shader: ShaderInstance = cacheShaders[cacheKey];
+        var shader: IShaderInstance = cacheShaders[cacheKey];
         if (shader)
             return shader;
 

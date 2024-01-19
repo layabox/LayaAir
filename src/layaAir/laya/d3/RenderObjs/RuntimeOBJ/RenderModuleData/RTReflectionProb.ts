@@ -28,13 +28,6 @@ export class RTReflectionProb implements IReflectionProbeData {
     public set ambientMode(value: AmbientMode) {
         this._ambientMode = value;
     }
-    private _ambientSH: Float32Array;
-    public get ambientSH(): Float32Array {
-        return this._ambientSH;
-    }
-    public set ambientSH(value: Float32Array) {
-        this._ambientSH = value;
-    }
     private _ambientIntensity: number;
     public get ambientIntensity(): number {
         return this._ambientIntensity;

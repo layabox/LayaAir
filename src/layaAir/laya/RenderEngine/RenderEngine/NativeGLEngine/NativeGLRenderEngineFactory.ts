@@ -4,6 +4,7 @@ import { IRenderEngineFactory } from "../../../RenderEngine/RenderInterface/IRen
 import { RenderState } from "../../../RenderEngine/RenderShader/RenderState";
 import { ShaderInstance } from "../../../RenderEngine/RenderShader/ShaderInstance";
 import { UniformBufferObject } from "../../../RenderEngine/UniformBufferObject";
+import { NativeShaderInstance } from "../../../d3/RenderObjs/NativeOBJ/NativeShaderInstance";
 import { ShaderCompileDefineBase, ShaderProcessInfo } from "../../../webgl/utils/ShaderCompileDefineBase";
 import { ShaderData } from "../../RenderInterface/ShaderData";
 import { NativeCommandUniformMap } from "./NativeCommandUniformMap";
@@ -20,10 +21,10 @@ export class NativeGLRenderEngineFactory implements IRenderEngineFactory {
         return new NativeShaderData();
     }
 
-    createShaderInstance(shaderProcessInfo:ShaderProcessInfo, shaderPass: ShaderCompileDefineBase): ShaderInstance {
-        //return new NativeShaderInstance(vs, ps, attributeMap, shaderPass) as unknown as ShaderInstance;
-        //TODO
-        return null;
+    createShaderInstance(shaderProcessInfo: ShaderProcessInfo, shaderPass: ShaderCompileDefineBase): any {
+        let shaderins = new NativeShaderInstance();
+        shaderins._create(shaderProcessInfo, shaderPass);
+        return shaderins;
     }
 
     createRenderStateComand(): NativeRenderStateCommand {
@@ -37,11 +38,11 @@ export class NativeGLRenderEngineFactory implements IRenderEngineFactory {
         return new NativeUniformBufferObject(glPointer, name, bufferUsage, byteLength, isSingle);
     }
 
-    createGlobalUniformMap(blockName: string): NativeCommandUniformMap{
+    createGlobalUniformMap(blockName: string): NativeCommandUniformMap {
         return new NativeCommandUniformMap((window as any).conchCommandUniformMap.createGlobalUniformMap(blockName), blockName);
     }
 
-    createEngine(config:any,canvas:any){
+    createEngine(config: any, canvas: any) {
         //TODO:
         return Promise.resolve();
     }

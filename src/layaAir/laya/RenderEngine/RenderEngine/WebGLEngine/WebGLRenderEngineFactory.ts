@@ -21,14 +21,16 @@ export class WebGLRenderEngineFactory implements IRenderEngineFactory {
 
     createShaderData(): WebShaderData {
         return new WebShaderData();
-    }  
-
- 
-    createShaderInstance(shaderProcessInfo: ShaderProcessInfo, shaderPass: ShaderCompileDefineBase): ShaderInstance {
-        return new ShaderInstance(shaderProcessInfo, shaderPass);
     }
 
-    
+
+    createShaderInstance(shaderProcessInfo: ShaderProcessInfo, shaderPass: ShaderCompileDefineBase): ShaderInstance {
+        let shaderins = new ShaderInstance();
+        shaderins._create(shaderProcessInfo, shaderPass);
+        return shaderins;
+    }
+
+
     createRenderStateComand(): RenderStateCommand {
         return new RenderStateCommand();
     }
@@ -95,4 +97,4 @@ export class WebGLRenderEngineFactory implements IRenderEngineFactory {
         }
     }
 }
- 
+

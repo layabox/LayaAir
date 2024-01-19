@@ -12,8 +12,6 @@ export interface IReflectionProbeData {
     /**@internal */
     ambientMode: AmbientMode;
     /**@internal */
-    ambientSH: Float32Array;
-    /**@internal */
     ambientIntensity: number;
     /**@internal */
     reflectionIntensity: number;

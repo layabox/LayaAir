@@ -5,22 +5,19 @@ import { IRenderShaderInstance } from "../../RenderEngine/RenderInterface/IRende
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { ShaderPass } from "../../RenderEngine/RenderShader/ShaderPass";
 import { ShaderVariable } from "../../RenderEngine/RenderShader/ShaderVariable";
-import { UniformMapType } from "../../RenderEngine/RenderShader/SubShader";
 import { ShaderCompileDefineBase, ShaderProcessInfo } from "../../webgl/utils/ShaderCompileDefineBase";
-import { ShaderNode } from "../../webgl/utils/ShaderNode";
-import { WebGLEngine } from "../RenderEngine/WebGLEngine/WebGLEngine";
-import { RenderParams } from "../RenderEnum/RenderParams";
 import { GLSLCodeGenerator } from "./GLSLCodeGenerator";
 import { RenderStateContext } from "../../RenderEngine/RenderStateContext";
 import { Stat } from "../../utils/Stat";
 import { RenderState } from "./RenderState";
 import { LayaGL } from "../../layagl/LayaGL";
 import { ShaderData, ShaderDataType } from "../RenderInterface/ShaderData";
+import { IShaderInstance } from "../RenderInterface/RenderPipelineInterface/IShaderInstance";
 
 /**
  * <code>ShaderInstance</code> 类用于实现ShaderInstance。
  */
-export class ShaderInstance {
+export class ShaderInstance implements IShaderInstance {
 	/**@internal */
 	private _shaderPass: ShaderCompileDefineBase | ShaderPass;
 
@@ -55,13 +52,7 @@ export class ShaderInstance {
 	/**
 	 * 创建一个 <code>ShaderInstance</code> 实例。
 	 */
-	constructor(shaderProcessInfo: ShaderProcessInfo, shaderPass: ShaderCompileDefineBase) {
-		// shaderProcessInfo.is2D ? this._webGLShaderLanguageProcess2D(shaderProcessInfo.defineString, shaderProcessInfo.attributeMap, shaderProcessInfo.uniformMap, shaderProcessInfo.vs, shaderProcessInfo.ps)
-		this._webGLShaderLanguageProcess3D(shaderProcessInfo.defineString, shaderProcessInfo.attributeMap, shaderProcessInfo.uniformMap, shaderProcessInfo.vs, shaderProcessInfo.ps);
-		if (this._renderShaderInstance._complete) {
-			this._shaderPass = shaderPass;
-			shaderProcessInfo.is2D ? this._create2D() : this._create();
-		}
+	constructor() {
 	}
 
 	/**
@@ -71,224 +62,19 @@ export class ShaderInstance {
 		return this._renderShaderInstance._complete;
 	}
 
-	protected _webGLShaderLanguageProcess3D(defineString: string[],
-		attributeMap: { [name: string]: [number, ShaderDataType] },
-		uniformMap: UniformMapType, VS: ShaderNode, FS: ShaderNode) {
-
-		var clusterSlices = Config3D.lightClusterCount;
-		var defMap: any = {};
-
-		var vertexHead: string;
-		var fragmentHead: string;
-		var defineStr: string = "";
-
-		// 拼接 shader attribute
-		let useUniformBlock = Config3D._uniformBlock;
-		let attributeglsl = GLSLCodeGenerator.glslAttributeString(attributeMap);
-		let uniformglsl = GLSLCodeGenerator.glslUniformString(uniformMap, useUniformBlock);
-
-		if ((LayaGL.renderEngine as WebGLEngine).isWebGL2) {
-			defineString.push("GRAPHICS_API_GLES3");
-			vertexHead =
-				`#version 300 es
-#if defined(GL_FRAGMENT_PRECISION_HIGH)
-    precision highp float;
-    precision highp int;
-    precision highp sampler2DArray;
-    precision highp sampler3D;
-#else
-    precision mediump float;
-    precision mediump int;
-    precision mediump sampler2DArray;
-    precision mediump sampler3D;
-#endif
-layout(std140, column_major) uniform;
-#define attribute in
-#define varying out
-#define textureCube texture
-#define texture2D texture
-${attributeglsl}
-${uniformglsl}
-`;
-
-			fragmentHead =
-				`#version 300 es
-#if defined(GL_FRAGMENT_PRECISION_HIGH)
-    precision highp float;
-    precision highp int;
-    precision highp sampler2DArray;
-	precision highp sampler3D;
-#else
-    precision mediump float;
-    precision mediump int;
-    precision mediump sampler2DArray;
-	precision mediump sampler3D;
-#endif
-layout(std140, column_major) uniform;
-#define varying in
-out highp vec4 pc_fragColor;
-#define gl_FragColor pc_fragColor
-#define gl_FragDepthEXT gl_FragDepth
-#define texture2D texture
-#define textureCube texture
-#define texture2DProj textureProj
-#define texture2DLodEXT textureLod
-#define texture2DProjLodEXT textureProjLod
-#define textureCubeLodEXT textureLod
-#define texture2DGradEXT textureGrad
-#define texture2DProjGradEXT textureProjGrad
-#define textureCubeGradEXT textureGrad
-${uniformglsl}`;
+	_create(shaderProcessInfo: ShaderProcessInfo, shaderPass: ShaderCompileDefineBase): void {
+		let shaderObj = GLSLCodeGenerator.GLShaderLanguageProcess3D(shaderProcessInfo.defineString, shaderProcessInfo.attributeMap, shaderProcessInfo.uniformMap, shaderProcessInfo.vs, shaderProcessInfo.ps);
+		this._renderShaderInstance = LayaGL.renderEngine.createShaderInstance(shaderObj.vs, shaderObj.fs, shaderProcessInfo.attributeMap);
+		if (this._renderShaderInstance._complete) {
+			this._shaderPass = shaderPass;
+			shaderProcessInfo.is2D ? this._create2D() : this._create3D();
 		}
-		else {
-			vertexHead =
-				`#if defined(GL_FRAGMENT_PRECISION_HIGH)
-    precision highp float;
-    precision highp int;
-#else
-    precision mediump float;
-    precision mediump int;
-#endif
-${attributeglsl}
-${uniformglsl}`;
-			fragmentHead =
-				`#ifdef GL_EXT_shader_texture_lod
-    #extension GL_EXT_shader_texture_lod : enable
-#endif
-
-#ifdef GL_OES_standard_derivatives
-	#extension GL_OES_standard_derivatives : enable 
-#endif
-
-#if defined(GL_FRAGMENT_PRECISION_HIGH)
-    precision highp float;
-    precision highp int;
-#else
-    precision mediump float;
-    precision mediump int;
-#endif
-
-#if !defined(GL_EXT_shader_texture_lod)
-    #define texture1DLodEXT texture1D
-    #define texture2DLodEXT texture2D
-    #define texture2DProjLodEXT texture2DProj
-    #define texture3DLodEXT texture3D
-    #define textureCubeLodEXT textureCube
-#endif
-${uniformglsl}`;
-		}
-
-		// todo 
-		defineStr += "#define MAX_LIGHT_COUNT " + Config3D.maxLightCount + "\n";
-		defineStr += "#define MAX_LIGHT_COUNT_PER_CLUSTER " + Config3D._maxAreaLightCountPerClusterAverage + "\n";
-		defineStr += "#define CLUSTER_X_COUNT " + clusterSlices.x + "\n";
-		defineStr += "#define CLUSTER_Y_COUNT " + clusterSlices.y + "\n";
-		defineStr += "#define CLUSTER_Z_COUNT " + clusterSlices.z + "\n";
-		defineStr += "#define MORPH_MAX_COUNT " + Config3D.maxMorphTargetCount + "\n";
-		defineStr += "#define SHADER_CAPAILITY_LEVEL " + LayaGL.renderEngine.getParams(RenderParams.SHADER_CAPAILITY_LEVEL) + "\n";
-
-
-
-		for (var i: number = 0, n: number = defineString.length; i < n; i++) {
-			var def: string = defineString[i];
-			defineStr += "#define " + def + "\n";
-			defMap[def] = true;
-		}
-
-		var vs: any[] = VS.toscript(defMap, []);
-		var vsVersion: string = '';
-		if (vs[0].indexOf('#version') == 0) {
-			vsVersion = vs[0] + '\n';
-			vs.shift();
-		}
-
-		var ps: any[] = FS.toscript(defMap, []);
-		var psVersion: string = '';
-		if (ps[0].indexOf('#version') == 0) {
-			psVersion = ps[0] + '\n';
-			ps.shift();
-		};
-		let dstVS = vsVersion + vertexHead + defineStr + vs.join('\n');
-		let detFS = psVersion + fragmentHead + defineStr + ps.join('\n');
-		this._renderShaderInstance = LayaGL.renderEngine.createShaderInstance(dstVS, detFS, attributeMap);
 	}
 
-	protected _webGLShaderLanguageProcess2D(defineString: string[],
-		attributeMap: { [name: string]: [number, ShaderDataType] },
-		uniformMap: UniformMapType, VS: ShaderNode, FS: ShaderNode) {
-		var defMap: any = {};
-
-		var vertexHead: string;
-		var fragmentHead: string;
-		var defineStr: string = "";
-
-		if ((LayaGL.renderEngine as WebGLEngine).isWebGL2) {
-			vertexHead =
-				`#version 300 es\n
-                #define attribute in
-                #define varying out
-                #define textureCube texture
-                #define texture2D texture\n`;
-			fragmentHead =
-				`#version 300 es\n
-                #define varying in
-                out highp vec4 pc_fragColor;
-                #define gl_FragColor pc_fragColor
-                #define gl_FragDepthEXT gl_FragDepth
-                #define texture2D texture
-                #define textureCube texture
-                #define texture2DProj textureProj
-                #define texture2DLodEXT textureLod
-                #define texture2DProjLodEXT textureProjLod
-                #define textureCubeLodEXT textureLod
-                #define texture2DGradEXT textureGrad
-                #define texture2DProjGradEXT textureProjGrad
-                #define textureCubeGradEXT textureGrad\n`;
-		}
-		else {
-			vertexHead = ""
-			fragmentHead =
-				`#ifdef GL_EXT_shader_texture_lod
-                    #extension GL_EXT_shader_texture_lod : enable
-                #endif
-                #if !defined(GL_EXT_shader_texture_lod)
-                    #define texture1DLodEXT texture1D
-                    #define texture2DLodEXT texture2D
-                    #define texture2DProjLodEXT texture2DProj
-                    #define texture3DLodEXT texture3D
-                    #define textureCubeLodEXT textureCube
-                #endif\n`;
-		}
-
-
-		for (var i: number = 0, n: number = defineString.length; i < n; i++) {
-			var def: string = defineString[i];
-			defineStr += "#define " + def + "\n";
-			defMap[def] = true;
-		}
-
-		var vs: any[] = VS.toscript(defMap, []);
-		var vsVersion: string = '';
-		if (vs[0].indexOf('#version') == 0) {
-			vsVersion = vs[0] + '\n';
-			vs.shift();
-		}
-
-		var ps: any[] = FS.toscript(defMap, []);
-		var psVersion: string = '';
-		if (ps[0].indexOf('#version') == 0) {
-			psVersion = ps[0] + '\n';
-			ps.shift();
-		}
-
-		let dstVS = vsVersion + vertexHead + defineStr + vs.join('\n');
-		let detFS = psVersion + fragmentHead + defineStr + ps.join('\n');
-		this._renderShaderInstance = LayaGL.renderEngine.createShaderInstance(dstVS, detFS, attributeMap);
-	}
 	/**
 	 * @internal
 	 */
-	protected _create(): void {
+	protected _create3D(): void {
 		this._sceneUniformParamsMap = new CommandEncoder();
 		this._cameraUniformParamsMap = new CommandEncoder();
 		this._spriteUniformParamsMap = new CommandEncoder();
@@ -357,7 +143,7 @@ ${uniformglsl}`;
 	 * @inheritDoc
 	 * @override
 	 */
-	protected _disposeResource(): void {
+	_disposeResource(): void {
 		this._renderShaderInstance.destroy();
 		this._sceneUniformParamsMap = null;
 		this._cameraUniformParamsMap = null;

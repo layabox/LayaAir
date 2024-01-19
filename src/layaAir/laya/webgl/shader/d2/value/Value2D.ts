@@ -12,6 +12,7 @@ import { Vector4 } from "../../../../maths/Vector4"
 import { TextTexture } from "../../../text/TextTexture"
 import { ShaderData } from "../../../../RenderEngine/RenderInterface/ShaderData"
 import { LayaGL } from "../../../../layagl/LayaGL"
+import { ShaderInstance } from "../../../../RenderEngine/RenderShader/ShaderInstance"
 
 export enum RenderSpriteData {
     Zero,
@@ -174,7 +175,7 @@ export class Value2D {
         //this.color = null;
         //this.strokeStyle = null;
         //this.colorAdd = null;
-        
+
         this.clipMatDir = this._clipMatDir;
         this.clipMatPos = this._clipMatpos;
         this.clipOff = this._clipOff;
@@ -264,7 +265,7 @@ export class Value2D {
             Value2D._compileDefine.addDefineDatas(material._defineDatas);
             //Global Define
             Value2D._compileDefine.addDefineDatas(Value2D.globalShaderData.getDefineData());
-            var shaderIns = pass.withCompile(Value2D._compileDefine, true);
+            var shaderIns = pass.withCompile(Value2D._compileDefine, true) as unknown as ShaderInstance;
             shaderIns.bind();
             shaderIns.uploadUniforms(shaderIns._sprite2DUniformParamsMap, this.defines, true);
             shaderIns.uploadUniforms(shaderIns._sceneUniformParamsMap, Value2D.globalShaderData, true);
@@ -276,7 +277,7 @@ export class Value2D {
             if (shaderPass.length >= 1) {
                 pass = shaderPass[0];
                 //var comDef: DefineDatas = Value2D._compileDefine;
-                var shaderIns = pass.withCompile(this.defines.getDefineData(), true);
+                var shaderIns = pass.withCompile(this.defines.getDefineData(), true) as unknown as ShaderInstance;
                 shaderIns.bind();
                 shaderIns.uploadUniforms(shaderIns._sprite2DUniformParamsMap, this.defines, true);
             } else {

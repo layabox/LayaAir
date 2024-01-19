@@ -139,11 +139,10 @@ export class GLESRenderElementOBJ implements IRenderElement {
                 pass.nodeCommonMap = null;
             }
             comDef.addDefineDatas(this.materialShaderData._defineDatas);
-            var shaderIns: ShaderInstance = pass.withCompile(comDef);
+            var shaderIns = pass.withCompile(comDef) as ShaderInstance;
             this._addShaderInstance(shaderIns);
         }
     }
-
 
     drawGeometry(shaderIns: ShaderInstance) {
         LayaGL.renderDrawContext.drawGeometryElement(this.geometry);
