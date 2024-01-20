@@ -22,10 +22,11 @@ import { IBluePrintSubclass } from "../core/interface/IBluePrintSubclass";
 import { BlueprintCustomFunNode } from "./node/BlueprintCustomFunNode";
 import { BlueprintCustomFunStart } from "./node/BlueprintCustomFunStart";
 import { BlueprintCustomFunReturn, BlueprintCustomFunReturnContext } from "./node/BlueprintCustomFunReturn";
+import { BluePrintAsNode } from "./node/BlueprintAsNode";
 
 export class BlueprintFactory {
-    public static readonly bpSymbol:unique symbol=Symbol("bpruntime");
-    public static readonly contextSymbol:unique symbol=Symbol("context");
+    public static readonly bpSymbol: unique symbol = Symbol("bpruntime");
+    public static readonly contextSymbol: unique symbol = Symbol("context");
     private static _funMap: Map<string, [Function, boolean]>;
 
     private static _instance: BlueprintFactory;
@@ -60,7 +61,7 @@ export class BlueprintFactory {
         this._bpContextMap.set(type, cls);
     }
 
-    static getBPContextData(type: BPType):new () => RuntimeNodeData {
+    static getBPContextData(type: BPType): new () => RuntimeNodeData {
         return this._bpContextMap.get(type) || RuntimeNodeData;
     }
 
@@ -83,8 +84,9 @@ export class BlueprintFactory {
             this.regBPClass(BPType.CustomFun, BlueprintCustomFunNode);
             this.regBPClass(BPType.CustomFunStart, BlueprintCustomFunStart);
             this.regBPClass(BPType.CustomFunReturn, BlueprintCustomFunReturn);
+            this.regBPClass(BPType.Assertion, BluePrintAsNode);
 
-            this.regBPContextData(BPType.CustomFunReturn,BlueprintCustomFunReturnContext);
+            this.regBPContextData(BPType.CustomFunReturn, BlueprintCustomFunReturnContext);
 
 
             this.regFunction("equal", BlueprintStaticFun.equal);
@@ -138,8 +140,8 @@ export class BlueprintFactory {
             return {
                 [className]: class extends SuperClass implements IBluePrintSubclass {
                     __eventList__: string[];
-                    [BlueprintFactory.bpSymbol]:BlueprintRuntime;
-                    [BlueprintFactory.contextSymbol] :IRunAble;
+                    [BlueprintFactory.bpSymbol]: BlueprintRuntime;
+                    [BlueprintFactory.contextSymbol]: IRunAble;
                     constructor(...args: any) {
                         super(...args);
                         //Object.assign(this, properties);
@@ -168,7 +170,7 @@ export class BlueprintFactory {
 
                     get _bp_contextData() {
                         let out: any = {};
-                        let bp=this[BlueprintFactory.bpSymbol];
+                        let bp = this[BlueprintFactory.bpSymbol];
                         for (const key in bp.varMap) {
                             let prop = bp.varMap[key];
                             out[prop.name] = this[BlueprintFactory.contextSymbol].getVar(prop.name);
@@ -249,7 +251,7 @@ export class BlueprintFactory {
     }
 
     createNew(config: TBPCNode, id: number) {
-        let cls = BlueprintFactory._bpMap.get(config.type);
+        let cls = BlueprintFactory._bpMap.get(config.type) || BlueprintRuntimeBaseNode;
         let result = new cls();
         result.nid = id;
         result.parse(config);

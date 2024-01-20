@@ -12,6 +12,7 @@ import { BlueprintCustomFunStart } from "./node/BlueprintCustomFunStart";
 import { IExcuteListInfo } from "../core/interface/IExcuteListInfo";
 import { BlueprintCustomFunReturn, BlueprintCustomFunReturnContext } from "./node/BlueprintCustomFunReturn";
 import { IRuntimeDataManger } from "../core/interface/IRuntimeDataManger";
+import { BluePrintAsNode } from "./node/BlueprintAsNode";
 
 
 const mainScope = Symbol("mainScope");
@@ -112,12 +113,15 @@ class BluePrintBlock implements INodeManger<BlueprintRuntimeBaseNode>, IBPRutime
 
     dataMap: Record<string, TBPVarProperty | TBPEventProperty>;
 
+    private _asList: BluePrintAsNode[];
+
     constructor(id: symbol | number) {
         this.id = id;
         this._maxID = 0;
         this.excuteList = [];
         this.nodeMap = new Map();
         this.poolIds = [];
+        this._asList = [];
     }
 
 
@@ -154,7 +158,9 @@ class BluePrintBlock implements INodeManger<BlueprintRuntimeBaseNode>, IBPRutime
     }
 
     optimize() {
-
+        this._asList.forEach(value=>{
+            value.optimize();
+        });
     }
 
     protected onParse(bpjson: TBPNode[]) {
@@ -163,7 +169,6 @@ class BluePrintBlock implements INodeManger<BlueprintRuntimeBaseNode>, IBPRutime
 
     parse(bpjson: Array<TBPNode>, getCNodeByNode: (node: TBPNode) => TBPCNode, varMap: Record<string, TBPVarProperty>) {
         this.varMap = varMap;
-
         //pin create
         bpjson.forEach(item => {
             let node = BlueprintFactory.instance.createNew(getCNodeByNode(item), item.id);
@@ -181,6 +186,11 @@ class BluePrintBlock implements INodeManger<BlueprintRuntimeBaseNode>, IBPRutime
 
     append(node: BlueprintRuntimeBaseNode) {
         this.nodeMap.set(node.nid, node);
+        switch (node.type) {
+            case BPType.Assertion:
+                this._asList.push(node);
+                break;
+        }
     }
 
     run(context: IRunAble, eventName: string, parms: any[], cb: Function, runId: number): boolean {
@@ -233,6 +243,7 @@ class BluePrintMainBlock extends BluePrintBlock {
     }
     eventMap: Map<any, BlueprintEventNode>;
     optimize() {
+        super.optimize();
         this.eventMap.forEach(value => {
             this.optimizeByStart(value, this.excuteList);
             // let 
@@ -274,6 +285,7 @@ class BluePrintFunBlock extends BluePrintBlock {
 
     funEnds: BlueprintCustomFunReturn[] = [];
     optimize() {
+        super.optimize();
         this.optimizeByStart(this.funStart, this.excuteList);
     }
     protected onParse(bpjson: TBPNode[]) {
