@@ -28,6 +28,7 @@ export class NativeShaderPass implements IShaderPassData {
     constructor(pass: ShaderPass) {
         this._nativeObj = new (window as any).conchShaderPass();
         this._createShaderInstanceFun = this.nativeCreateShaderInstance.bind(this);
+        this._nativeObj.setCreateShaderInstanceFunction(this._createShaderInstanceFun);
     }
 
     nativeCreateShaderInstance() {

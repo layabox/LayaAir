@@ -1,6 +1,7 @@
 import { InternalRenderTarget } from "../../../../RenderEngine/RenderInterface/InternalRenderTarget";
 import { ISpotLightShadowRP } from "../../../RenderDriverLayer/Render3DProcess/ISpotLightShadowRP";
 import { SpotLightCom } from "../../../core/light/SpotLightCom";
+import { RTSpotLight } from "../RenderModuleData/RTSpotLight";
 
 export class RTSpotLightShadowRP implements ISpotLightShadowRP {
     private _light: SpotLightCom;
@@ -11,7 +12,7 @@ export class RTSpotLightShadowRP implements ISpotLightShadowRP {
 
     public set light(value: SpotLightCom) {
         this._light = value;
-        //this._nativeObj.setLight(value._dataModule._nativeObj); todo
+        this._nativeObj.setLight((value._dataModule as RTSpotLight)._nativeObj);
     }
 
     private _destTarget: InternalRenderTarget;

@@ -58,5 +58,8 @@ export class RTForwardAddRP implements IForwardAddRP {
 
     constructor() {
         this._nativeObj = new (window as any).conchRTForwardAddRP();
+        this.directLightShadowPass = new RTDirectLightShadowCastRP();
+        this.spotLightShadowPass = new RTSpotLightShadowRP();
+        this.renderpass = new RTForwardAddClusterRP();
     }
 }
