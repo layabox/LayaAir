@@ -209,7 +209,7 @@ export function bpClass( options : BPDecoratorsOptionClass){
         }
         //以uuid为识别
         // customData[options.uuid] = declare;
-        BlueprintUtil.addCustomData(options.uuid,declare);
+        //BlueprintUtil.addCustomData(options.uuid,declare);
     }
 }
 

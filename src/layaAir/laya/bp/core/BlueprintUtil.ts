@@ -238,7 +238,11 @@ export class BlueprintUtil {
     }
 
     private static initExtendsNode() {
-        for (let ext in extendsData) {
+        this.initNode(extendsData);
+        this.initNode(customData);
+    }
+    private static initNode(data: Record<string, TBPDeclaration>) {
+        for (let ext in data) {
             let cls = ClassUtils.getClass(ext) || Browser.window.Laya[ext];
 
             if (!cls) {
@@ -246,7 +250,7 @@ export class BlueprintUtil {
             }
             this.extendsNode[ext] = [];
             this._constExtNode[ext] = {};
-            let o = extendsData[ext];
+            let o = data[ext];
 
             if (o && o.props) {
                 let arr = o.props;
@@ -267,6 +271,7 @@ export class BlueprintUtil {
                 }
             }
             if (o && o.construct) {
+
                 let cdata: TBPCNode = {
                     menuPath: "CreateNew",
                     name: ext,
@@ -280,6 +285,7 @@ export class BlueprintUtil {
                         }
                     ]
                 }
+
                 let params = o.construct.params;
                 if (params) {
                     cdata.input = []
@@ -312,6 +318,9 @@ export class BlueprintUtil {
                             output: [
                                 BlueprintUtil.defEventOut,
                             ]
+                        }
+                        if (fun.typeParameters) {
+                            cdata.typePrameter = fun.typeParameters;
                         }
                         if (fun.modifiers.isStatic) {
                             cdata.id += "_static";
@@ -384,4 +393,7 @@ export class BlueprintUtil {
             this._allConstNode = { ...this._allConstNode, ...this._constExtNode[ext] };
         }
     }
+
+
+
 }

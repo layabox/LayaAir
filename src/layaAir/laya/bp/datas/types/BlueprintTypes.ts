@@ -131,6 +131,8 @@ export interface TBPCNode {
     /**程序中用到的名字 */
     name: string,
 
+    /**泛型的类型定义 */
+    typePrameter?: Record<string, { extends: string }>
     /** 修饰符 */
     modifiers?: BPModifiers;
     /**来源的类 */
