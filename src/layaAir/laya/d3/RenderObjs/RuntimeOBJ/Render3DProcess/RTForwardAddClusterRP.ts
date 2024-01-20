@@ -132,7 +132,7 @@ export class RTForwardAddClusterRP implements IForwardAddClusterRP {
         this._cameraCullInfo.staticMask = value.staticMask;
         this._cameraCullInfo.boundFrustum = value.boundFrustum;
         this._cameraCullInfo.useOcclusionCulling = value.useOcclusionCulling;
-        //TODO 
+        this._nativeObj.setCameraCullInfo(this._cameraCullInfo);
     }
 
     setViewPort(value: Viewport): void {
