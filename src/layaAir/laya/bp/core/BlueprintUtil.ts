@@ -320,7 +320,7 @@ export class BlueprintUtil {
                             ]
                         }
                         if (fun.typeParameters) {
-                            cdata.typePrameter = fun.typeParameters;
+                            cdata.typeParameters = fun.typeParameters;
                         }
                         if (fun.modifiers.isStatic) {
                             cdata.id += "_static";

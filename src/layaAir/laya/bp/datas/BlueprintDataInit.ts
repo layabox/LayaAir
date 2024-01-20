@@ -62,20 +62,23 @@ export const BlueprintDataList: TBPCNode[] = [
     {
         name: "add",
         type: BPType.Operator,
+        typeParameters: {
+            T: {extends:["string","number"]}
+        },
         modifiers: {
             isStatic: true,
         },
         input: [
             {
-                type: "number",
+                type: "T",
             },
             {
-                type: "number",
+                type: "T",
             },
         ],
         output: [
             {
-                type: "number",
+                type: "T",
             },
         ]
     },
@@ -309,6 +312,9 @@ export const BlueprintDataList: TBPCNode[] = [
     {
         name: "as",
         type: BPType.Assertion,
+        typeParameters: {
+            T: {}
+        },
         input: [
             {
                 name: 'target',
@@ -316,13 +322,13 @@ export const BlueprintDataList: TBPCNode[] = [
             },
             {
                 name: "type",
-                type: "Class",
+                type: "new()=>T",
             }
         ],
         output: [
             {
                 name: "then",
-                type: "any",
+                type: "T",
             },
         ],
     },
