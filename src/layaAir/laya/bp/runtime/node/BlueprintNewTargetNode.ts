@@ -33,20 +33,7 @@ export class BlueprintNewTargetNode extends BlueprintRuntimeBaseNode {
         if (fromExcute && context.beginExcute(this, runner, enableDebugPause)) {
             return BlueprintConst.MAX_CODELINE;
         }
-        let _parmsArray: any[] = runTimeData.getDataById(this.nid).getParamsArray(runId);;
-        _parmsArray.length = 0;
-        const inputPins = this.inPutParmPins;
-        for (let i = 0, n = inputPins.length; i < n; i++) {
-            const curInput = inputPins[i];
-            let from = curInput.linkTo[0];
-            if (from) {
-                (from as BlueprintPinRuntime).step(context, runTimeData, runner, runId);
-                context.parmFromOtherPin(curInput, runTimeData, from as BlueprintPinRuntime, _parmsArray, runId);
-            }
-            else {
-                context.parmFromSelf(curInput, runTimeData, _parmsArray, runId);
-            }
-        }
+        let _parmsArray: any[] = this.colloctParam(context, runTimeData, this.inPutParmPins, runner, runId);
         context.parmFromOutPut(this.outPutParmPins, runTimeData, _parmsArray);
 
 

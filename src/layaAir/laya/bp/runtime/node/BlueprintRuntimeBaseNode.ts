@@ -59,16 +59,9 @@ export class BlueprintRuntimeBaseNode extends BlueprintNode<BlueprintPinRuntime>
         return context.excuteFun(this.nativeFun, this.outPutParmPins, runTimeData, caller, parmsArray, runId);
     }
 
-
-    step(context: IRunAble, runTimeData: IRuntimeDataManger, fromExcute: boolean, runner: IBPRutime, enableDebugPause: boolean, runId: number): number | BlueprintPromise {
-        if (fromExcute && context.beginExcute(this, runner, enableDebugPause)) {
-            return BlueprintConst.MAX_CODELINE;
-        }
-
+    protected colloctParam(context: IRunAble, runTimeData: IRuntimeDataManger, inputPins: BlueprintPinRuntime[], runner: IBPRutime, runId: number) {
         let _parmsArray: any[] = runTimeData.getDataById(this.nid).getParamsArray(runId);;
         _parmsArray.length = 0;
-
-        const inputPins = this.inPutParmPins;
         for (let i = 0, n = inputPins.length; i < n; i++) {
             const curInput = inputPins[i];
             let from = curInput.linkTo[0];
@@ -80,11 +73,21 @@ export class BlueprintRuntimeBaseNode extends BlueprintNode<BlueprintPinRuntime>
                 context.parmFromSelf(curInput, runTimeData, _parmsArray, runId);
             }
         }
+        return _parmsArray;
+    }
+
+
+    step(context: IRunAble, runTimeData: IRuntimeDataManger, fromExcute: boolean, runner: IBPRutime, enableDebugPause: boolean, runId: number): number | BlueprintPromise {
+        if (fromExcute && context.beginExcute(this, runner, enableDebugPause)) {
+            return BlueprintConst.MAX_CODELINE;
+        }
+        let _parmsArray: any[] = this.colloctParam(context, runTimeData, this.inPutParmPins, runner, runId);
         context.parmFromOutPut(this.outPutParmPins, runTimeData, _parmsArray);
         if (this.nativeFun) {
             let caller = null;
             if (this.isMember) {
-                caller = _parmsArray.shift() || context.getSelf();
+                let temp = _parmsArray.shift();
+                caller = temp === undefined ? context.getSelf() : temp;
             }
             let result = this.excuteFun(context, runTimeData, caller, _parmsArray, runId);
             if (result instanceof Promise) {

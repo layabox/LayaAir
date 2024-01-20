@@ -21,20 +21,7 @@ export class BlueprintSetVarNode extends BlueprintFunNode {
     }
 
     step(context: IRunAble, runTimeData: IRuntimeDataManger, fromExcute: boolean, runner: IBPRutime, enableDebugPause: boolean, runId: number): number {
-        let _parmsArray: any[] = runTimeData.getDataById(this.nid).getParamsArray(runId);
-        _parmsArray.length = 0;
-        const inputPins = this.inPutParmPins;
-        for (let i = 0, n = inputPins.length; i < n; i++) {
-            const varPin = this.inPutParmPins[i];
-            let from = varPin.linkTo[0];
-            if (from) {
-                (from as BlueprintPinRuntime).step(context, runTimeData, runner, runId);
-                context.parmFromOtherPin(varPin, runTimeData, from as BlueprintPinRuntime, _parmsArray, runId);
-            }
-            else {
-                context.parmFromSelf(varPin, runTimeData, _parmsArray, runId);
-            }
-        }
+        let _parmsArray: any[] = this.colloctParam(context, runTimeData, this.inPutParmPins, runner, runId);
 
         context.parmFromCustom(_parmsArray, this._varKey, '"' + this._varKey + '"');
 
