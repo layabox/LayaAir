@@ -279,7 +279,7 @@ export class BlueprintUtil {
                 let arr = o.props;
                 for (let i = arr.length - 1; i >= 0; i--) {
                     let po = arr[i];
-                    if (po.modifiers.isStatic) continue;
+                    //if (po.modifiers.isStatic) continue;
 
                     if (null == this.constVars[ext]) {
                         this.constVars[ext] = [];

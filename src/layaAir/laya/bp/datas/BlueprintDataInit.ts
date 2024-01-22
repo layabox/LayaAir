@@ -4,6 +4,7 @@ export const BlueprintDataList: TBPCNode[] = [
     {
         name: "printString",
         type: BPType.Function,
+        menuPath: "system",
         modifiers: {
             isStatic: true,
         },
@@ -62,8 +63,9 @@ export const BlueprintDataList: TBPCNode[] = [
     {
         name: "add",
         type: BPType.Operator,
+        menuPath: "system",
         typeParameters: {
-            T: {extends:["string","number"]}
+            T: { extends: ["string", "number"] }
         },
         modifiers: {
             isStatic: true,
@@ -85,6 +87,7 @@ export const BlueprintDataList: TBPCNode[] = [
     {
         name: "branch",
         type: BPType.Branch,
+        menuPath: "system",
         modifiers: {
             isStatic: true,
         },
@@ -112,6 +115,7 @@ export const BlueprintDataList: TBPCNode[] = [
     {
         name: "sequence",
         type: BPType.Sequence,
+        menuPath: "system",
         modifiers: {
             isStatic: true,
         },
@@ -135,6 +139,7 @@ export const BlueprintDataList: TBPCNode[] = [
     {
         name: "test",
         type: BPType.Function,
+        menuPath: "system",
         input: [
             {
                 name: "target",
@@ -145,6 +150,7 @@ export const BlueprintDataList: TBPCNode[] = [
     {
         name: "equal",
         type: BPType.Operator,
+        menuPath: "system",
         modifiers: {
             isStatic: true,
         },
@@ -165,6 +171,7 @@ export const BlueprintDataList: TBPCNode[] = [
     {
         name: "waitTime",
         type: BPType.Function,
+        menuPath: "system",
         modifiers: {
             isStatic: true,
         },
@@ -292,6 +299,7 @@ export const BlueprintDataList: TBPCNode[] = [
     },
     {
         name: "expression",
+        menuPath: "system",
         type: BPType.Pure,
         input: [
             {
@@ -311,6 +319,7 @@ export const BlueprintDataList: TBPCNode[] = [
     },
     {
         name: "as",
+        menuPath: "system",
         type: BPType.Assertion,
         typeParameters: {
             T: {}
@@ -334,6 +343,7 @@ export const BlueprintDataList: TBPCNode[] = [
     },
     {
         name: "instanceof",
+        menuPath: "system",
         type: BPType.Branch,
         modifiers: {
             isStatic: true,
