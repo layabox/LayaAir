@@ -11,7 +11,7 @@ import { Sprite3D } from "../../core/Sprite3D";
 import { IndexBuffer3D } from "../../graphics/IndexBuffer3D";
 import { VertexBuffer3D } from "../../graphics/VertexBuffer3D";
 import { SceneRenderManagerOBJ } from "../RenderObj/SceneRenderManagerOBJ";
-import { RTRendercontext3D } from "../RuntimeOBJ/RTRenderContext3D";
+import { RTRenderContext3D } from "../RuntimeOBJ/RTRenderContext3D";
 import { RTBaseRenderNode } from "../RuntimeOBJ/Render3DNode/RTBaseRenderNode";
 import { RTMeshRenderNode } from "../RuntimeOBJ/Render3DNode/RTMeshRenderNode";
 import { RTDirectLight } from "../RuntimeOBJ/RenderModuleData/RTDirectLight";
@@ -58,8 +58,8 @@ export class NativeGLRenderEngine3DOBJFactory implements IRenderEngine3DOBJFacto
     createMeshRenderNode(): RTMeshRenderNode {
         return new RTMeshRenderNode();
     }
-    createRenderContext3D(): RTRendercontext3D {
-        return new RTRendercontext3D()
+    createRenderContext3D(): RTRenderContext3D {
+        return new RTRenderContext3D()
     }
     createVolumetricGI(): RTVolumetricGI {
         return new RTVolumetricGI();

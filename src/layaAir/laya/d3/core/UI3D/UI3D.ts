@@ -23,11 +23,16 @@ import { ILaya } from "../../../../ILaya";
 import { RenderState } from "../../../RenderEngine/RenderShader/RenderState";
 import { LayaEnv } from "../../../../LayaEnv";
 import { IRenderContext3D } from "../../RenderDriverLayer/IRenderContext3D";
+import { RenderContext3D } from "../render/RenderContext3D";
+import { Vector4 } from "../../../maths/Vector4";
 
 /**
  * <code>BaseCamera</code> 类用于创建摄像机的父类。
  */
 export class UI3D extends BaseRender {
+
+    declare owner: Sprite3D;
+
     /**@intrtnal */
     static TempMatrix = new Matrix4x4();
     /**@internal */
@@ -72,6 +77,8 @@ export class UI3D extends BaseRender {
     private _scale: Vector3;
     /**@internal */
     static _ray: Ray = new Ray(new Vector3(), new Vector3());
+
+    protected _worldParams: Vector4 = new Vector4();
 
     /**
      * 3D渲染的UI节点
@@ -227,9 +234,14 @@ export class UI3D extends BaseRender {
         element.setTransform((this.owner as Sprite3D)._transform);
         element.render = this;
         element.material = material;
+        element.renderSubShader = element.material.shader.getSubShaderAt(0);
         this._geometry = new UI3DGeometry(this);
         element.setGeometry(this._geometry);
         elements.push(element);
+
+        this._setRenderElements();
+
+        this.geometryBounds = this._geometry.bounds;
     }
 
     /**
@@ -324,16 +336,28 @@ export class UI3D extends BaseRender {
         return Vector3.distance(rayOri, (this.owner as Sprite3D).transform.position);
     }
 
-    /**
-     * @inheritDoc
-     * @override
-     * @internal
-     */
+    // /**
+    //  * @inheritDoc
+    //  * @override
+    //  * @internal
+    //  */
     _renderUpdate(context: IRenderContext3D): void {
-        // this._applyReflection();
-        // this._setShaderValue(Sprite3D.WORLDMATRIX, ShaderDataType.Matrix4x4, this._matrix);
-        // this._worldParams.x = transform.getFrontFaceValue();
-        // this._setShaderValue(Sprite3D.WORLDINVERTFRONT, ShaderDataType.Vector4, this._worldParams);
+        let shaderData = this._baseRenderNode.shaderData;
+        
+        shaderData.setMatrix4x4(Sprite3D.WORLDMATRIX, this._matrix);
+        
+        let transform = this.owner.transform;
+        let worldParams = this._worldParams;
+        worldParams.x = transform.getFrontFaceValue();
+        shaderData.setVector(Sprite3D.WORLDINVERTFRONT, worldParams);
+    }
+
+    renderUpdate(context: RenderContext3D): void {
+        this._renderElements.forEach(element => {
+            let geometry = element._geometry;
+            element._renderElementOBJ.isRender = geometry._prepareRender(context);
+            geometry._updateRenderParams(context)
+        })
     }
 
     /** 
