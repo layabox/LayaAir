@@ -13,6 +13,8 @@ export class BlueprintUtil {
     static constVars: Record<string, TBPVarProperty[]> = {};
     static constAllVars: Record<string, TBPVarProperty> = {};
 
+    private static _customModify = false;
+
     private static defFunOut = {
         name: "then",
         type: "exec",
@@ -148,6 +150,16 @@ export class BlueprintUtil {
         //return this.getConstNodeByID(ext, node.cid);
     }
 
+    /**
+     * hook
+     * @param name 
+     * @param data 
+     */
+    static addCustomData( name:string , data:TBPDeclaration){
+        customData[name] = data;
+        this._customModify = true;
+    }
+
     static getDeclaration(name: string): TBPDeclaration {
         return extendsData[name] ? extendsData[name] : customData[name];
     }
@@ -224,7 +236,17 @@ export class BlueprintUtil {
                 }
             }
             this._allConstNode = { ...this._constNode };
-            this.initExtendsNode();
+            this.initExtendsNode(extendsData);
+        }
+
+        if (this._customModify) {
+            // for (const key in customData) {
+            //     let dec = customData[key];
+            // }
+
+            this.initExtendsNode(customData);
+
+            this._customModify = false;
         }
     }
 
