@@ -236,7 +236,7 @@ export class BlueprintUtil {
                 }
             }
             this._allConstNode = { ...this._constNode };
-            this.initExtendsNode(extendsData);
+            this.initNode(extendsData);
         }
 
         if (this._customModify) {
@@ -244,7 +244,7 @@ export class BlueprintUtil {
             //     let dec = customData[key];
             // }
 
-            this.initExtendsNode(customData);
+            this.initNode(customData);
 
             this._customModify = false;
         }
@@ -263,6 +263,7 @@ export class BlueprintUtil {
         this.initNode(extendsData);
         this.initNode(customData);
     }
+
     private static initNode(data: Record<string, TBPDeclaration>) {
         for (let ext in data) {
             let cls = ClassUtils.getClass(ext) || Browser.window.Laya[ext];
