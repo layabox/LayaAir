@@ -8,36 +8,35 @@ import { ICameraNodeData } from "../../../RenderDriverLayer/RenderModuleData/IMo
 import { Camera } from "../../../core/Camera";
 import { CommandBuffer } from "../../../core/render/command/CommandBuffer";
 import { Viewport } from "../../../math/Viewport";
+import { CameraCullInfo } from "../../../shadowMap/ShadowSliceData";
+import { RTBaseRenderNode } from "../Render3DNode/RTBaseRenderNode";
+import { RTCameraNodeData } from "../RenderModuleData/RTModuleData";
 
 
 export class RTForwardAddClusterRP implements IForwardAddClusterRP {
-    private _enableOpaque: boolean;
     public get enableOpaque(): boolean {
-        return this._enableOpaque;
+        return this._nativeObj._enableOpaque;
     }
     public set enableOpaque(value: boolean) {
-        this._enableOpaque = value;
+        this._nativeObj._enableOpaque = value;
     }
-    private _enableCMD: boolean;
     public get enableCMD(): boolean {
-        return this._enableCMD;
+        return this._nativeObj._enableCMD;
     }
     public set enableCMD(value: boolean) {
-        this._enableCMD = value;
+        this._nativeObj._enableCMD = value;
     }
-    private _enableTransparent: boolean;
     public get enableTransparent(): boolean {
-        return this._enableTransparent;
+        return this._nativeObj._enableTransparent;
     }
     public set enableTransparent(value: boolean) {
-        this._enableTransparent = value;
+        this._nativeObj._enableTransparent = value;
     }
-    private _enableOpaqueTexture: boolean;
     public get enableOpaqueTexture(): boolean {
-        return this._enableOpaqueTexture;
+        return this._nativeObj._enableOpaqueTexture;
     }
     public set enableOpaqueTexture(value: boolean) {
-        this._enableOpaqueTexture = value;
+        this._nativeObj._enableOpaqueTexture = value;
     }
     private _destTarget: InternalRenderTarget;
     public get destTarget(): InternalRenderTarget {
@@ -45,13 +44,13 @@ export class RTForwardAddClusterRP implements IForwardAddClusterRP {
     }
     public set destTarget(value: InternalRenderTarget) {
         this._destTarget = value;
+        this._nativeObj.setDestTarget(value);
     }
-    private _pipelineMode: string;
     public get pipelineMode(): string {
-        return this._pipelineMode;
+        return this._nativeObj._pipelineMode;
     }
     public set pipelineMode(value: string) {
-        this._pipelineMode = value;
+        this._nativeObj._pipelineMode = value;
     }
     private _depthTarget: InternalRenderTarget;
     public get depthTarget(): InternalRenderTarget {
@@ -59,13 +58,13 @@ export class RTForwardAddClusterRP implements IForwardAddClusterRP {
     }
     public set depthTarget(value: InternalRenderTarget) {
         this._depthTarget = value;
+        this._nativeObj.setDepthTarget(value);
     }
-    private _depthPipelineMode: string;
     public get depthPipelineMode(): string {
-        return this._depthPipelineMode;
+        return this._nativeObj._depthPipelineMode;
     }
     public set depthPipelineMode(value: string) {
-        this._depthPipelineMode = value;
+        this._nativeObj._depthPipelineMode = value;
     }
     private _depthNormalTarget: InternalRenderTarget;
     public get depthNormalTarget(): InternalRenderTarget {
@@ -73,27 +72,27 @@ export class RTForwardAddClusterRP implements IForwardAddClusterRP {
     }
     public set depthNormalTarget(value: InternalRenderTarget) {
         this._depthNormalTarget = value;
+        this._nativeObj.setDepthNormalTarget(value);
     }
-    private _depthNormalPipelineMode: string;
     public get depthNormalPipelineMode(): string {
-        return this._depthNormalPipelineMode;
+        return this._nativeObj._depthNormalPipelineMode;
     }
     public set depthNormalPipelineMode(value: string) {
-        this._depthNormalPipelineMode = value;
+        this._nativeObj._depthNormalPipelineMode = value;
     }
-    private _skyRenderNode: IBaseRenderNode;
-    public get skyRenderNode(): IBaseRenderNode {
+    private _skyRenderNode: RTBaseRenderNode;
+    public get skyRenderNode(): RTBaseRenderNode {
         return this._skyRenderNode;
     }
-    public set skyRenderNode(value: IBaseRenderNode) {
+    public set skyRenderNode(value: RTBaseRenderNode) {
         this._skyRenderNode = value;
+        this._nativeObj.setSkyRenderNode(value._nativeObj);
     }
-    private _depthTextureMode: DepthTextureMode;
     public get depthTextureMode(): DepthTextureMode {
-        return this._depthTextureMode;
+        return this._nativeObj._depthTextureMode;
     }
     public set depthTextureMode(value: DepthTextureMode) {
-        this._depthTextureMode = value;
+        this._nativeObj._depthTextureMode = value;
     }
     private _opaqueTexture: InternalRenderTarget;
     public get opaqueTexture(): InternalRenderTarget {
@@ -101,13 +100,15 @@ export class RTForwardAddClusterRP implements IForwardAddClusterRP {
     }
     public set opaqueTexture(value: InternalRenderTarget) {
         this._opaqueTexture = value;
+        this._nativeObj.setOpaqueTexture(value);
     }
-    private _camera: ICameraNodeData;
-    public get camera(): ICameraNodeData {
+    private _camera: RTCameraNodeData;
+    public get camera(): RTCameraNodeData {
         return this._camera;
     }
-    public set camera(value: ICameraNodeData) {
+    public set camera(value: RTCameraNodeData) {
         this._camera = value;
+        this._nativeObj.setCameraNodeData(value);
     }
     private _clearColor: Color;
     public get clearColor(): Color {
@@ -115,25 +116,31 @@ export class RTForwardAddClusterRP implements IForwardAddClusterRP {
     }
     public set clearColor(value: Color) {
         this._clearColor = value;
+        this._nativeObj.setClearColor(value);
     }
-    private _clearFlag: number;
     public get clearFlag(): number {
-        return this._clearFlag;
+        return this._nativeObj._clearFlag;
     }
     public set clearFlag(value: number) {
-        this._clearFlag = value;
+        this._nativeObj._clearFlag = value;
     }
-
+    /**@internal */
+    _cameraCullInfo: CameraCullInfo;
     setCameraCullInfo(value: Camera): void {
-        throw new Error("Method not implemented.");
+        this._cameraCullInfo.position = value._transform.position;
+        this._cameraCullInfo.cullingMask = value.cullingMask;
+        this._cameraCullInfo.staticMask = value.staticMask;
+        this._cameraCullInfo.boundFrustum = value.boundFrustum;
+        this._cameraCullInfo.useOcclusionCulling = value.useOcclusionCulling;
+        this._nativeObj.setCameraCullInfo(this._cameraCullInfo);
     }
 
     setViewPort(value: Viewport): void {
-        throw new Error("Method not implemented.");
+        this._nativeObj.setViewport(value);
     }
 
     setScissor(value: Vector4): void {
-        throw new Error("Method not implemented.");
+        this._nativeObj.setScissor(value);
     }
 
     setBeforeForwardCmds(value: CommandBuffer[]): void {
@@ -148,10 +155,10 @@ export class RTForwardAddClusterRP implements IForwardAddClusterRP {
         throw new Error("Method not implemented.");
     }
 
-    private _nativeObj: any;
+    _nativeObj: any;
 
     constructor() {
-        this._nativeObj = new (window as any).conchRTVolumetricGI();
+        this._nativeObj = new (window as any).conchRTForwardAddClusterRP();
     }
 
 }

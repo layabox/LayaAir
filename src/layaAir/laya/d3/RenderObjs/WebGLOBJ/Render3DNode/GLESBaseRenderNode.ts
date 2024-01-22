@@ -39,7 +39,7 @@ export class GLESBaseRenderNode implements IBaseRenderNode {
     shaderData: WebShaderData;
     baseGeometryBounds: Bounds;
     transform: Transform3D;
-    protected _worldParams: Vector4;
+    _worldParams: Vector4;
     _commonUniformMap: string[];
     private _bounds: Bounds;
     private _caculateBoundingBoxCall: any;

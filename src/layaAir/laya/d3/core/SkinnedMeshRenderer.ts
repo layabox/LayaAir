@@ -22,8 +22,8 @@ import { IBaseRenderNode } from "../RenderDriverLayer/Render3DNode/IBaseRenderNo
 import { Laya3DRender } from "../RenderObjs/Laya3DRender";
 import { Vector4 } from "../../maths/Vector4";
 
-export class aaaa{
-    
+export class aaaa {
+
 }
 /**
  * <code>SkinMeshRenderer</code> 类用于蒙皮渲染器。
@@ -57,6 +57,9 @@ export class SkinnedMeshRenderer extends MeshRenderer {
     protected _skinnedMatrixCachesBufferForNative: Int32Array = null;
     /**@internal */
     protected _bonesTransformForNative: Transform3D[] = null;
+
+    protected _worldParams = new Vector4();
+
     /**
      * 局部边界。
      */
@@ -122,7 +125,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 
     // protected
 
-    
+
     /**
      * override it
      * @returns 
@@ -346,15 +349,17 @@ export class SkinnedMeshRenderer extends MeshRenderer {
 
     _renderUpdate(context3D: IRenderContext3D): void {
         let mat = this.owner.transform.worldMatrix;
+        let worldParams = this._worldParams;
+        worldParams.x = this.owner.transform.getFrontFaceValue();
         if (this._cacheRootBone) {
             mat = Matrix4x4.DEFAULT;
+            worldParams.x = 1;
         }
 
         let shaderData = this._baseRenderNode.shaderData;
 
         shaderData.setMatrix4x4(Sprite3D.WORLDMATRIX, mat);
-        // todo
-        shaderData.setVector(Sprite3D.WORLDINVERTFRONT, Vector4.ONE);
+        shaderData.setVector(Sprite3D.WORLDINVERTFRONT, worldParams);
 
     }
 

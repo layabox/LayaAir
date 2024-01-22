@@ -10,7 +10,7 @@ import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
  */
 export class SpotLightCom extends Light {
 	/**@internal */
-	protected _dataModule: ISpotLightData;
+	_dataModule: ISpotLightData;
 
 	/** @internal */
 	private _direction: Vector3;

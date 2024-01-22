@@ -20,14 +20,12 @@ export class RTReflectionProb implements IReflectionProbeData {
         this._bound = value;
         //TODO:  this._nativeObj.setBounds(value._nativeObj);
     }
-
     public get ambientMode(): AmbientMode {
         return this._nativeObj._ambientMode;
     }
     public set ambientMode(value: AmbientMode) {
         this._nativeObj._ambientMode = value;
     }
-
     public get ambientIntensity(): number {
         return this._nativeObj._ambientIntensity;
     }
@@ -46,6 +44,7 @@ export class RTReflectionProb implements IReflectionProbeData {
     }
     public set reflectionTexture(value: InternalTexture) {
         this._reflectionTexture = value;
+        this._nativeObj.setReflectionTexture(value);
     }
     private _iblTex: InternalTexture;
     public get iblTex(): InternalTexture {
@@ -53,6 +52,7 @@ export class RTReflectionProb implements IReflectionProbeData {
     }
     public set iblTex(value: InternalTexture) {
         this._iblTex = value;
+        this._nativeObj.setIblTex(value);
     }
     public get updateMark(): number {
         return this._nativeObj._updateMark;
@@ -70,10 +70,13 @@ export class RTReflectionProb implements IReflectionProbeData {
         value && this._nativeObj.setProbePosition(value);
     }
     setAmbientColor(value: Color): void {
-        value &&  this._nativeObj.setAmbientColor(value);
+        value && this._nativeObj.setAmbientColor(value);
     }
+    /**@internal */
+    private _ambientSH: Float32Array;
     setAmbientSH(value: Float32Array): void {
-        throw new Error("Method not implemented.");
+        this._ambientSH = value;
+        this._nativeObj.setAmbientSH(value);
     }
 
     _nativeObj: any;

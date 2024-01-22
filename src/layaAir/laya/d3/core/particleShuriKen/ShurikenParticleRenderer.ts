@@ -147,6 +147,8 @@ export class ShurikenParticleRenderer extends BaseRender {
         element.render = this;
         element.setGeometry(this._particleSystem);
         element.material = ShurikenParticleMaterial.defaultMaterial;
+
+        this._setRenderElements();
     }
 
     protected _onEnable(): void {
@@ -281,6 +283,14 @@ export class ShurikenParticleRenderer extends BaseRender {
         sv.setNumber(ShuriKenParticle3DShaderDeclaration.STRETCHEDBILLBOARDLENGTHSCALE, this.stretchedBillboardLengthScale);
         sv.setNumber(ShuriKenParticle3DShaderDeclaration.STRETCHEDBILLBOARDSPEEDSCALE, this.stretchedBillboardSpeedScale);
         sv.setNumber(ShuriKenParticle3DShaderDeclaration.CURRENTTIME, particleSystem._currentTime);
+    }
+
+    renderUpdate(context: RenderContext3D): void {
+        this._renderElements.forEach(element => {
+            element._renderElementOBJ.isRender = element._geometry._prepareRender(context);
+            element._geometry._prepareRender(context);
+            element._geometry._updateRenderParams(context);
+        })
     }
 
     /**
