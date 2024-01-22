@@ -155,7 +155,7 @@ export class BlueprintUtil {
      * @param name 
      * @param data 
      */
-    static addCustomData( name:string , data:TBPDeclaration){
+    static addCustomData(name: string, data: TBPDeclaration) {
         customData[name] = data;
         BlueprintUtil._customModify = true;
     }
@@ -334,6 +334,7 @@ export class BlueprintUtil {
                     if (fun.modifiers.isPublic || fun.modifiers.isProtected) {
                         let cdata: TBPCNode = {
                             menuPath: ext,
+                            modifiers: fun.modifiers,
                             target: ext,
                             name: fun.name,
                             id: ext + "_" + fun.name,
@@ -345,6 +346,7 @@ export class BlueprintUtil {
                         if (fun.typeParameters) {
                             cdata.typeParameters = fun.typeParameters;
                         }
+
                         if (fun.modifiers.isStatic) {
                             cdata.id += "_static";
                             cdata.aliasName = fun.name + " (Static)";
