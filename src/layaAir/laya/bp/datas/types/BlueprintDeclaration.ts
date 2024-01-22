@@ -248,6 +248,10 @@ export function bpProperty( options : BPDecoratorsOptionProp){
             tips : options.tips
         };
 
+        if (!prop.modifiers) {
+            prop.modifiers = {isPublic:true};
+        }
+
         if (!declare.props) {
             declare.props = [];
         }
@@ -262,8 +266,10 @@ export function bpFunction( options : BPDecoratorsOptionFunction){
 
     return function(target: any, propertyKey: string, descriptor: any){
 
-        if (options.propertType && 
-            options.propertType != "constructor" && options.propertType != "function") {
+        if (options.propertType 
+            && options.propertType != "constructor" 
+            && options.propertType != "function") 
+        {
             console.error("BP:Reg Function Fail :" ,propertyKey ,  " , propertType is not function or constructor!");
             return;
         }
@@ -291,6 +297,9 @@ export function bpFunction( options : BPDecoratorsOptionFunction){
                 params:options.params,
             }
 
+            if (!func.modifiers) {
+                func.modifiers = {isPublic:true};
+            }
             // func.originFunc = descriptor.value;
 
             if (!declare.funcs) {
