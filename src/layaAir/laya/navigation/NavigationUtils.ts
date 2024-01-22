@@ -29,7 +29,7 @@ export class NavigationUtils {
     static _TemprefPoint1: any;
 
     /**
-     * @interanl
+     * @internal
      * @param fllowPath 
      * @param index 
      * @param data 

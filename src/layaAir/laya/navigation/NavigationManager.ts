@@ -48,7 +48,7 @@ export class NavigationManager implements IElementComponentManager {
         });
     }
 
-    /**@interanl */
+    /**@internal */
     name: string;
 
     /**@internal */
