@@ -342,6 +342,7 @@ export class Animator2D extends Component {
         let clipDuration = clip!._duration;
         let time = playStateInfo._normalizedPlayTime * clipDuration;
         let frontPlay = playStateInfo._frontPlay;
+        let pTime = playStateInfo._parentPlayTime;
         let parentPlayTime = playStateInfo._parentPlayTime;
         if (null == parentPlayTime) {
             if (frontPlay) {
@@ -362,9 +363,11 @@ export class Animator2D extends Component {
             }
         }
 
-
         this._eventScript(events, parentPlayTime, time, frontPlay);
-        playStateInfo._parentPlayTime = time;
+        /**如果不相等，应该是event事件里面跳转了，被重置了动画 */
+        if(pTime == playStateInfo._parentPlayTime){
+            playStateInfo._parentPlayTime = time;
+        }
     }
     /**
     * @internal
