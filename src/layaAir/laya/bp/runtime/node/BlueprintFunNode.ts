@@ -1,10 +1,9 @@
 
 import { IRunAble } from "../interface/IRunAble";
-import { EBlueNodeType, EPinDirection, EPinType } from "../../core/EBluePrint";
+import { EPinDirection, EPinType } from "../../core/EBluePrint";
 import { BlueprintPinRuntime } from "../BlueprintPinRuntime";
 import { BlueprintRuntimeBaseNode } from "./BlueprintRuntimeBaseNode";
 import { BlueprintConst } from "../../core/BlueprintConst";
-import { BlueprintNode } from "../../core/BlueprintNode";
 import { IBPRutime } from "../interface/IBPRutime";
 import { BlueprintPromise } from "../BlueprintPromise";
 import { TBPEventProperty, TBPNode } from "../../datas/types/BlueprintTypes";
@@ -46,12 +45,7 @@ export class BlueprintFunNode extends BlueprintRuntimeBaseNode {
 
 
     next(context: IRunAble, runTimeData: IRuntimeDataManger, parmsArray: any[], runner: IBPRutime, enableDebugPause: boolean, runId: number): number {
-        // this.outPutParmPins.forEach(item=>{
-        //     //if(item.linkTo.)
-        // })
-        // this.outExcute.excute(context);
         return this.staticNext ? this.staticNext.index : BlueprintConst.MAX_CODELINE;
-        // return (this.outExcute.linkTo[0] as BPPinRuntime).owner.index;
     }
 
     addPin(pin: BlueprintPinRuntime) {

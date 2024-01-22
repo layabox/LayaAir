@@ -32,7 +32,6 @@ export class BlueprintRuntimeBaseNode extends BlueprintNode<BlueprintPinRuntime>
      */
     outPutParmPins: BlueprintPinRuntime[];
 
-    nextNode: BlueprintRuntimeBaseNode;
 
     /**
      * 输出引脚
