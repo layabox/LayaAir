@@ -147,6 +147,8 @@ export interface BPDecoratorsOptionClass extends BPDecoratorsOptionBase{
     name:string;
     /** 唯一识别id */
     uuid?:string;
+    /** 继承的父类 */
+    extends?:string;
 }
 
 export interface BPDecoratorsOptionFunction extends BPDecoratorsOptionBase{
@@ -183,8 +185,9 @@ function initDeclaration(name:string , cls:Function){
     // }
     let declare:TBPDeclaration = {
         name,
-        type
+        type,
     }
+
     bpUserMap.set(cls,declare);
     return declare;
 }
@@ -207,9 +210,15 @@ export function bpClass( options : BPDecoratorsOptionClass){
         }else{
             declare.name = options.name;
         }
+
+        if (options.extends) {
+            declare.extends = [options.extends];
+        }
+
+        bpUserMap.delete(target.prototype);
         //以uuid为识别
         // customData[options.uuid] = declare;
-        //BlueprintUtil.addCustomData(options.uuid,declare);
+        BlueprintUtil.addCustomData(options.uuid,declare);
     }
 }
 
@@ -346,25 +355,5 @@ export function bpAccessor( options : BPDecoratorsOptionProp){
             declare.props = [];
         }
         declare.props.push(prop);
-    }
-}
-
-function dummy() { }
-
-export function bpister( options: BPDecoratorsOptionBase ){
-    switch (options.propertType) {
-        case "function":
-            return bpFunction(options as BPDecoratorsOptionFunction);
-        case "class":
-            return bpClass(options as BPDecoratorsOptionClass);
-        case "property":
-            return bpProperty(options as BPDecoratorsOptionProp);
-        case "constructor":
-            return bpFunction(options as BPDecoratorsOptionFunction);
-        case "accessor":
-            return bpAccessor(options as BPDecoratorsOptionProp);
-        default:
-            console.log("UNKNOW PropertType!");
-            return dummy;
     }
 }
