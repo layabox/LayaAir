@@ -4,7 +4,7 @@ import { ShaderDefine } from "./ShaderDefine";
 /**
  * <code>DefineDatas</code> 类用于创建宏定义数据集合。
  */
-export class DefineDatas implements IClone {
+export class DefineDatas {
 	/** @internal */
 	_mask: Array<number> = [];
 	/** @internal */

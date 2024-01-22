@@ -1,5 +1,5 @@
 import { NativeShaderInstance } from "../../../d3/RenderObjs/NativeOBJ/NativeShaderInstance";
-import { IShaderInstance, IShaderPassData, ISubshaderData } from "../../RenderInterface/RenderPipelineInterface/IShaderInstance";
+import { IShaderPassData, ISubshaderData } from "../../RenderInterface/RenderPipelineInterface/IShaderInstance";
 import { DefineDatas } from "../../RenderShader/DefineDatas";
 import { ShaderPass } from "../../RenderShader/ShaderPass";
 

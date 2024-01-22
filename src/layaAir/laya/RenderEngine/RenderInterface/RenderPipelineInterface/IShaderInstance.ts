@@ -17,7 +17,6 @@ export interface IShaderPassData {
     destory(): void;
 }
 
-
 //subShader和shaderpass仅仅保留getCacheShader相关的数据
 export interface ISubshaderData {
     addShaderPass(pass: IShaderPassData): void;

@@ -26,9 +26,7 @@ export interface IRenderEngine {
 
     applyRenderStateCMD(cmd: RenderStateCommand): void;
 
-    viewport(x: number, y: number, width: number, height: number): void;
-    scissor(x: number, y: number, width: number, height: number): void;
-    colorMask(r: boolean, g: boolean, b: boolean, a: boolean): void;
+   
     copySubFrameBuffertoTex(texture: InternalTexture, level: number, xoffset: number, yoffset: number, x: number, y: number, width: number, height: number): void;
     clearRenderTexture(clearFlag: RenderClearFlag | number, clearcolor: Color, clearDepth: number, clearStencilValue: number): void;
     scissorTest(value: boolean): void;

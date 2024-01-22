@@ -30,6 +30,7 @@ export class RenderElement {
     _subShader: SubShader;
     /**@internal */
     _subShaderIndex: number = 0;
+    /**@internal */
     _transform: Transform3D;
 
     /** @internal */

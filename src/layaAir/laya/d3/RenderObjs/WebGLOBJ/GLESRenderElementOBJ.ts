@@ -21,7 +21,7 @@ export class GLESRenderElementOBJ implements IRenderElement {
 
     subShader: SubShader;
 
-    shaderInstances: SingletonList<ShaderInstance>;
+    private _shaderInstances: SingletonList<ShaderInstance>;
 
     materialShaderData: WebShaderData;
 
@@ -35,23 +35,23 @@ export class GLESRenderElementOBJ implements IRenderElement {
 
     owner: GLESBaseRenderNode;//GLESRenderNode
 
-    invertFront: boolean;
+    private _invertFront: boolean;
 
     constructor() {
-        this.shaderInstances = new SingletonList();
+        this._shaderInstances = new SingletonList();
     }
 
     _addShaderInstance(shader: ShaderInstance) {
-        this.shaderInstances.add(shader);
+        this._shaderInstances.add(shader);
     }
 
     _clearShaderInstance() {
-        this.shaderInstances.length = 0;
+        this._shaderInstances.length = 0;
     }
 
     _preUpdatePre(context: GLESRenderContext3D) {
         this._compileShader(context);
-        this.invertFront = this._getInvertFront();
+        this._invertFront = this._getInvertFront();
     }
 
     private _getInvertFront(): boolean {
@@ -70,8 +70,8 @@ export class GLESRenderElementOBJ implements IRenderElement {
         var sceneShaderData = context.sceneData as WebShaderData;
         var cameraShaderData = context.cameraData as WebShaderData;
         if (this.isRender) {
-            var passes: ShaderInstance[] = this.shaderInstances.elements;
-            for (var j: number = 0, m: number = this.shaderInstances.length; j < m; j++) {
+            var passes: ShaderInstance[] = this._shaderInstances.elements;
+            for (var j: number = 0, m: number = this._shaderInstances.length; j < m; j++) {
                 const shaderIns: ShaderInstance = passes[j];
                 if (!shaderIns.complete)
                     continue;
@@ -108,7 +108,7 @@ export class GLESRenderElementOBJ implements IRenderElement {
                 //renderData update
                 //TODO：Renderstate as a Object to less upload
                 shaderIns.uploadRenderStateBlendDepth(this.materialShaderData);
-                shaderIns.uploadRenderStateFrontFace(this.materialShaderData, forceInvertFace, this.invertFront);
+                shaderIns.uploadRenderStateFrontFace(this.materialShaderData, forceInvertFace, this._invertFront);
                 this.drawGeometry(shaderIns);
             }
         }
@@ -139,7 +139,12 @@ export class GLESRenderElementOBJ implements IRenderElement {
                 pass.nodeCommonMap = null;
             }
             comDef.addDefineDatas(this.materialShaderData._defineDatas);
+           
             var shaderIns = pass.withCompile(comDef) as ShaderInstance;
+            
+            //get shaderInstance
+            //create ShaderInstance
+
             this._addShaderInstance(shaderIns);
         }
     }
@@ -150,7 +155,7 @@ export class GLESRenderElementOBJ implements IRenderElement {
 
     destroy() {
         this.geometry = null;
-        this.shaderInstances = null;
+        this._shaderInstances = null;
         this.materialShaderData = null;
         this.renderShaderData = null;
         this.transform = null;
