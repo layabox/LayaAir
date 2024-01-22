@@ -157,7 +157,7 @@ export class BlueprintUtil {
      */
     static addCustomData( name:string , data:TBPDeclaration){
         customData[name] = data;
-        this._customModify = true;
+        BlueprintUtil._customModify = true;
     }
 
     static getDeclaration(name: string): TBPDeclaration {
@@ -410,7 +410,7 @@ export class BlueprintUtil {
                     }
                 }
             } else {
-                console.warn("没有找到继承:", ext);
+                console.log("该类型没有方法:", ext);
             }
 
             this._allConstNode = { ...this._allConstNode, ...this._constExtNode[ext] };
