@@ -1,4 +1,3 @@
-
 import { Component } from "../../components/Component";
 import { ShaderDefine } from "../../RenderEngine/RenderShader/ShaderDefine";
 import { Mesh } from "../resource/models/Mesh";
@@ -64,6 +63,10 @@ export class MeshFilter extends Component {
         }
     }
 
+    /**
+     * @internal
+     * @protected
+     */
     protected _onDestroy() {
         (this._sharedMesh) && (this._sharedMesh._removeReference(), this._sharedMesh = null);
     }

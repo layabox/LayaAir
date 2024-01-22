@@ -1,4 +1,3 @@
-import { ILaya } from "../../../ILaya"
 import { Texture2D } from "../../resource/Texture2D"
 import { Camera } from "../core/Camera"
 import { CommandBuffer } from "../core/render/command/CommandBuffer"

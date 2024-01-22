@@ -172,6 +172,7 @@ export class StaticInstanceBatchRender extends BatchRender {
 
     /**
      * 是否满足batch条件
+     * @internal
      * @override
      * @param render 
      * @returns 
@@ -208,6 +209,8 @@ export class StaticInstanceBatchRender extends BatchRender {
     }
 
     /**
+     * @internal
+     * @protected
      * destroy
      */
     protected _onDestroy() {

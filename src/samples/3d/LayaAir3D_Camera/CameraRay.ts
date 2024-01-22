@@ -58,7 +58,7 @@ export class CameraRay {
 
 	constructor() {
 		//初始化引擎,使用物理的wasm库需要调用回调的方式来初始化
-		Laya.init(0, 0, null, Handler.create(this, () => {
+		Laya.init(0, 0).then(() => {
 			Laya.stage.scaleMode = Stage.SCALE_FULL;
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
 			//显示性能面板
@@ -105,7 +105,7 @@ export class CameraRay {
 			this.addMouseEvent();
 			//射线初始化（必须初始化）
 			this._ray = new Ray(new Vector3(0, 0, 0), new Vector3(0, 0, 0));
-		}));
+		});
 	}
 	addBoxXYZ(x: number, y: number, z: number): void {
 		var mat1: BlinnPhongMaterial = new BlinnPhongMaterial();

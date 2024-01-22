@@ -54,7 +54,14 @@ export class Node extends EventDispatcher {
     _componentDriver: ComponentDriver;
     /**@internal */
     _is3D: boolean;
+    /**
+     * @internal
+     */
     _url: string;
+
+    /**
+     * @internal
+     */
     _extra: INodeExtra;
 
     /**节点名称。*/
@@ -77,6 +84,9 @@ export class Node extends EventDispatcher {
         this._url = path;
     }
 
+    /**
+     * 隐藏状态
+     */
     get hideFlags(): number {
         return this._hideFlags;
     }
@@ -106,6 +116,11 @@ export class Node extends EventDispatcher {
         this._extra = {};
     }
 
+    /**
+     * @internal
+     * @param type 
+     * @param value 
+     */
     _setBit(type: number, value: boolean): void {
         if (type === NodeFlags.DISPLAY) {
             var preValue: boolean = this._getBit(type);
@@ -115,6 +130,11 @@ export class Node extends EventDispatcher {
         else this._bits &= ~type;
     }
 
+    /**
+     * @internal
+     * @param type 
+     * @returns 
+     */
     _getBit(type: number): boolean {
         return (this._bits & type) != 0;
     }
@@ -136,12 +156,21 @@ export class Node extends EventDispatcher {
         }
     }
 
+    /**
+     * @internal
+     * @param type 
+     */
     protected onStartListeningToType(type: string) {
         if (type === Event.DISPLAY || type === Event.UNDISPLAY) {
             if (!this._getBit(NodeFlags.DISPLAY)) this._setBitUp(NodeFlags.DISPLAY);
         }
     }
 
+    /**
+     * 事件冒泡
+     * @param type 事件类型 
+     * @param data 事件数据
+     */
     bubbleEvent(type: string, data?: any) {
         let arr: Array<Node> = _bubbleChainPool.length > 0 ? _bubbleChainPool.pop() : [];
         arr.length = 0;
@@ -170,6 +199,11 @@ export class Node extends EventDispatcher {
         _bubbleChainPool.push(arr);
     }
 
+    /**
+     * 是否存在隐藏标志
+     * @param flag 隐藏标志
+     * @returns 
+     */
     hasHideFlag(flag: number): boolean {
         return (this._hideFlags & flag) != 0;
     }
@@ -336,6 +370,7 @@ export class Node extends EventDispatcher {
     /**
      * 子节点发生改变。
      * @private
+     * @internal
      * @param	child 子节点。
      */
     protected _childChanged(child: Node = null): void {
@@ -454,7 +489,10 @@ export class Node extends EventDispatcher {
         return false;
     };
 
-    /**@private */
+    /**
+     * @private
+     * @internal
+     */
     protected _setParent(value: Node): void {
         if (this._parent !== value) {
             if (value) {
@@ -632,12 +670,18 @@ export class Node extends EventDispatcher {
     }
 
     //============================组件化支持==============================
-    /** @private */
+    /** 
+     * @private
+     * @internal
+     */
     protected _components: Component[];
     /**@private */
     private _activeChangeScripts: Component[];
 
 
+    /**
+     * @internal
+     */
     _scene: Node;
 
     /**
@@ -689,6 +733,7 @@ export class Node extends EventDispatcher {
 
     /**
      * @private
+     * @internal
      */
     protected _onActive(): void {
         Stat.spriteCount++;
@@ -696,6 +741,7 @@ export class Node extends EventDispatcher {
 
     /**
      * @private
+     * @internal
      */
     protected _onInActive(): void {
         Stat.spriteCount--;
@@ -703,6 +749,7 @@ export class Node extends EventDispatcher {
 
     /**
      * @private
+     * @internal
      */
     protected _onActiveInScene(): void {
         this.event(Node.EVENT_SET_ACTIVESCENE, this._scene);
@@ -711,6 +758,7 @@ export class Node extends EventDispatcher {
 
     /**
      * @private
+     * @internal
      */
     protected _onInActiveInScene(): void {
         this.event(Node.EVENT_SET_IN_ACTIVESCENE, this._scene);
@@ -772,6 +820,11 @@ export class Node extends EventDispatcher {
         }
     }
 
+    /**
+     * @internal
+     * @param active 
+     * @param fromSetter 
+     */
     _processActive(active: boolean, fromSetter?: boolean) {
         (this._activeChangeScripts) || (this._activeChangeScripts = []);
         let arr = this._activeChangeScripts;
@@ -841,6 +894,7 @@ export class Node extends EventDispatcher {
 
     /**
      * @private
+     * @internal
      */
     protected _onAdded(): void {
         if (this._activeChangeScripts && this._activeChangeScripts.length !== 0) {
@@ -854,6 +908,7 @@ export class Node extends EventDispatcher {
 
     /**
      * @private
+     * @internal
      */
     protected _onRemoved(): void {
         if (this._activeChangeScripts && this._activeChangeScripts.length !== 0) {
@@ -911,6 +966,7 @@ export class Node extends EventDispatcher {
     /**
      * 组件列表发生改变。
      * @private
+     * @internal
      */
     protected _componentsChanged?(comp: Component, action: 0 | 1 | 2): void;
 

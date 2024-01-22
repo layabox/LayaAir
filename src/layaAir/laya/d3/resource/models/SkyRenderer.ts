@@ -32,6 +32,9 @@ export class SkyRenderer {
     private _renderData: BaseRender;
     static SUNLIGHTDIRECTION: number;
     static SUNLIGHTDIRCOLOR: number;
+    /**
+     * @internal
+     */
     static __init__() {
         SkyRenderer.SUNLIGHTDIRECTION = Shader3D.propertyNameToID("u_SunLight_direction");
         SkyRenderer.SUNLIGHTDIRCOLOR = Shader3D.propertyNameToID("u_SunLight_color");

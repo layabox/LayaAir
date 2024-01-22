@@ -222,8 +222,8 @@ export class StaticBatchVolume extends Volume {
     }
 
     /**
-     * @inheritDoc
-     * @override
+     * @internal
+     * @protected
      */
     protected _onEnable(): void {
         super._onEnable();
@@ -239,8 +239,8 @@ export class StaticBatchVolume extends Volume {
     }
 
     /**
-     * @inheritDoc
-     * @override
+     * @internal
+     * @protected
      */
     protected _onDisable(): void {
         super._onDisable();

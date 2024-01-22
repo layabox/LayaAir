@@ -1,4 +1,3 @@
-
 import BloomVS from "../../../shader/files/postProcess/Bloom/Bloom.vs";
 import BloomDownsample13PS from "../../../shader/files/postProcess/Bloom/BloomDownsample13.fs";
 import BloomDownsample4PS from "../../../shader/files/postProcess/Bloom/BloomDownsample4.fs";
@@ -143,6 +142,9 @@ export class BloomEffect extends PostProcessEffect {
 		BloomEffect.__initDefine__();
 	}
 
+	/**
+	 * shader初始化
+	 */
 	static CompositeInit() {
 		//PostProcessComposite
 		let attributeMap: any = {
@@ -170,6 +172,9 @@ export class BloomEffect extends PostProcessEffect {
 		renderState.blend = RenderState.BLEND_DISABLE;
 	}
 
+	/**
+	 * 初始化宏定义
+	 */
 	static __initDefine__() {
 		BloomEffect.SHADERVALUE_MAINTEX = Shader3D.propertyNameToID("u_MainTex");
 		BloomEffect.SHADERVALUE_AUTOEXPOSURETEX = Shader3D.propertyNameToID("u_AutoExposureTex");

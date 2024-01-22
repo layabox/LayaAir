@@ -79,6 +79,7 @@ export class CylinderColliderShape extends Physics3DColliderShape {
 	}
 
 	/**
+	 * 克隆
 	 * @inheritDoc
 	 * @override
 	 */

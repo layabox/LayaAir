@@ -7,6 +7,7 @@ import { Pool } from "../../utils/Pool"
  * 绘制圆形
  */
 export class DrawCircleCmd {
+    /**CMD标识符 */
     static ID: string = "DrawCircle";
 
     /**
@@ -39,7 +40,7 @@ export class DrawCircleCmd {
      */
     percent: boolean;
 
-    /**@private */
+    /**@private 创建绘制圆形CMD*/
     static create(x: number, y: number, radius: number, fillColor: any, lineColor: any, lineWidth: number): DrawCircleCmd {
         var cmd: DrawCircleCmd = Pool.getItemByClass("DrawCircleCmd", DrawCircleCmd);
         cmd.x = x;
@@ -60,7 +61,7 @@ export class DrawCircleCmd {
         Pool.recover("DrawCircleCmd", this);
     }
 
-    /**@private */
+    /**@private 执行cmd*/
     run(context: Context, gx: number, gy: number): void {
         let offset = (this.lineWidth >= 1 && this.lineColor) ? this.lineWidth / 2 : 0;
         if (this.percent && context.sprite) {
@@ -72,11 +73,16 @@ export class DrawCircleCmd {
             context._drawCircle(this.x + gx, this.y + gy, this.radius - offset, this.fillColor, this.lineColor, this.lineWidth, 0);
     }
 
-    /**@private */
+    /**@private 获取CMD标识符*/
     get cmdID(): string {
         return DrawCircleCmd.ID;
     }
 
+    /**
+     * 获取包围盒的顶点数据
+     * @param sp 绘制cmd的精灵
+     * @returns 
+     */
     getBoundPoints(sp?: { width: number, height?: number }): number[] {
         return Rectangle._getBoundPointS(this.x - this.radius, this.y - this.radius, this.radius + this.radius, this.radius + this.radius, this.percent ? sp : null);
     }

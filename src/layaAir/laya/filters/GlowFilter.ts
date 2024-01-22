@@ -57,7 +57,7 @@ export class GlowFilter extends Filter {
         return ShaderDefines2D.FILTERGLOW;
     }
 
-    /**@private */
+    /**@private Y偏移值*/
     get offY(): number {
         return this._elements[6];
     }
@@ -68,7 +68,7 @@ export class GlowFilter extends Filter {
         this._sv_blurInfo1[3] = -value;
     }
 
-    /**@private */
+    /**@private X偏移值*/
     get offX(): number {
         return this._elements[5];
     }
@@ -79,7 +79,7 @@ export class GlowFilter extends Filter {
         this._sv_blurInfo1[2] = value;
     }
 
-    /**@private */
+    /**@private 颜色值*/
     get color(): string {
         return this._color.strColor;
     }
@@ -94,7 +94,7 @@ export class GlowFilter extends Filter {
         return this._color.arrColor;
     }
 
-    /**@private */
+    /**@private 模糊值*/
     get blur(): number {
         return this._elements[4];
     }
@@ -105,6 +105,10 @@ export class GlowFilter extends Filter {
         this._sv_blurInfo1[0] = this._sv_blurInfo1[1] = value;
     }
 
+    /**
+     * Native使用，获取颜色
+     * @returns 
+     */
     getColorNative(): Float32Array {
         if (!this._color_native) {
             this._color_native = new Float32Array(4);
@@ -117,6 +121,11 @@ export class GlowFilter extends Filter {
         this._color_native[3] = color[3];
         return this._color_native;
     }
+
+    /**
+     * Native使用，获取模糊数据1
+     * @returns 
+     */
     getBlurInfo1Native(): Float32Array {
         if (!this._blurInof1_native) {
             this._blurInof1_native = new Float32Array(4);
@@ -127,6 +136,11 @@ export class GlowFilter extends Filter {
         this._blurInof1_native[3] = this.offY;
         return this._blurInof1_native;
     }
+
+    /**
+     * Native使用，获取模糊数据2
+     * @returns 
+     */
     getBlurInfo2Native(): Float32Array {
         if (!this._blurInof2_native) {
             this._blurInof2_native = new Float32Array(4);

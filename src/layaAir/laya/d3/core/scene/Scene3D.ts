@@ -166,10 +166,11 @@ export class Scene3D extends Sprite implements ISubmit {
     static _blitOffset: Vector4 = new Vector4();
     /**@internal */
     static mainCavansViewPort: Viewport = new Viewport(0, 0, 1, 1);
-
+    /**场景组件管理表 */
     static componentManagerMap: Map<string, any> = new Map();
 
     /**
+     * @internal
      * 场景更新标记
      */
     static set _updateMark(value: number) {
@@ -181,6 +182,11 @@ export class Scene3D extends Sprite implements ISubmit {
     }
 
 
+    /**
+     * 注册场景内的管理器
+     * @param type 管理器类型
+     * @param cla 实例
+     */
     static regManager(type: string, cla: any) {
         Scene3D.componentManagerMap.set(type, cla);
     }
@@ -361,11 +367,11 @@ export class Scene3D extends Sprite implements ISubmit {
         });
     }
 
-    /**ide配置文件使用 */
+    /**@internal ide配置文件使用 */
     _reflectionsSource: number = 0;
-    /**ide配置文件使用 */
+    /**@internal ide配置文件使用 */
     _reflectionsResolution: string = "256";
-    /**ide配置文件使用 */
+    /**@internal ide配置文件使用 */
     _reflectionsIblSamples = 128;
 
 
@@ -401,7 +407,7 @@ export class Scene3D extends Sprite implements ISubmit {
     /**@internal */
     private _physicsStepTime: number = 0;
     /**@internal */
-    _lightmapDirtyFlag: number = -1
+    _lightmapDirtyFlag:number = -1
     /**@internal */
     _sunColor: Color = new Color(1.0, 1.0, 1.0);
     /**@internal */
@@ -584,7 +590,7 @@ export class Scene3D extends Sprite implements ISubmit {
         this.fogParams = this._fogParams;
     }
 
-    /**@internal */
+    /**@internal 雾效参数*/
     get fogParams(): Vector4 {
         return this._shaderValues.getVector(Scene3D.FOGPARAMS);
     }
@@ -593,7 +599,9 @@ export class Scene3D extends Sprite implements ISubmit {
         this._shaderValues.setVector(Scene3D.FOGPARAMS, value);
     }
 
-    //0-2PI
+    /**
+     * 0-2PI
+     */
     set GIRotate(value: number) {
         this._shaderValues.setNumber(Scene3D.GIRotate, value);
     }
@@ -614,6 +622,9 @@ export class Scene3D extends Sprite implements ISubmit {
         this._sceneReflectionProb.ambientMode = value;
     }
 
+    /**
+     * 场景反射探针
+     */
     get sceneReflectionProb(): ReflectionProbe {
         return this._sceneReflectionProb;
     }
@@ -920,6 +931,7 @@ export class Scene3D extends Sprite implements ISubmit {
     }
 
     /**
+     * @internal
      * @inheritDoc
      * @override
      */
@@ -929,6 +941,7 @@ export class Scene3D extends Sprite implements ISubmit {
     }
 
     /**
+     * @internal
      * @inheritDoc
      * @override
      */
@@ -1126,10 +1139,14 @@ export class Scene3D extends Sprite implements ISubmit {
     }
 
     private _cullInfoCamera: Camera
+    /**
+     * 获取cullCamera
+     */
     get cullInfoCamera(): Camera {
         return this._cullInfoCamera;
     }
     /**
+     * @internal
      * scence外的Camera渲染场景,需要设置这个接口
      * @param camera 
      */

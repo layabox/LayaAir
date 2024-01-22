@@ -3,13 +3,9 @@ import { Texture2D } from "../../resource/Texture2D";
 import { PixelLineSprite3D } from "../core/pixelLine/PixelLineSprite3D";
 import { BoundBox } from "../math/BoundBox";
 import { TextureGenerator } from "../resource/TextureGenerator";
-import { ILaya3D } from "../../../ILaya3D";
-import { HTMLCanvas } from "../../resource/HTMLCanvas";
 import { TextureFormat } from "../../RenderEngine/RenderEnum/TextureFormat";
 import { FilterMode } from "../../RenderEngine/RenderEnum/FilterMode";
 import { WrapMode } from "../../RenderEngine/RenderEnum/WrapMode";
-import { RenderTargetFormat } from "../../RenderEngine/RenderEnum/RenderTargetFormat";
-import { LayaEnv } from "../../../LayaEnv";
 import { Bounds } from "../math/Bounds";
 import { Color } from "../../maths/Color";
 import { Matrix4x4 } from "../../maths/Matrix4x4";
@@ -17,7 +13,6 @@ import { Quaternion } from "../../maths/Quaternion";
 import { Vector3 } from "../../maths/Vector3";
 import { Vector4 } from "../../maths/Vector4";
 import { RenderTexture } from "../../resource/RenderTexture";
-import { RenderTexture2D } from "../../resource/RenderTexture2D";
 import { Utils } from "../../utils/Utils";
 
 /**
@@ -769,7 +764,7 @@ export class Utils3D {
     }
 
     /**
-     * @interanl
+     * @internal
      * @param rootSprite parentNode
      * @param invPath PathArray
      * @returns 

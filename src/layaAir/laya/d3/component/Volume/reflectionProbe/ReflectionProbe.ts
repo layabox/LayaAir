@@ -29,6 +29,7 @@ export enum ReflectionProbeMode {
  * @miner
  */
 export class ReflectionProbe extends Volume {
+	/**反射探针数量 */
 	static reflectionCount: number = 0;
 	/**获取一个全局唯一ID。*/
 	static getID(): number {
@@ -41,9 +42,9 @@ export class ReflectionProbe extends Volume {
 	static defaultTextureHDRDecodeValues: Vector4 = new Vector4(1.0, 1.0, 0.0, 0.0);
 	/** 盒子反射是否开启 */
 	private _boxProjection: boolean = false;
-	/** 包围盒 */
+	/** @internal @protected 包围盒 */
 	protected _bounds: Bounds;
-	/** 探针重要度 */
+	/**@internal @protected 探针重要度 */
 	protected _importance: number;
 	/**漫反射顔色 */
 	private _ambientColor: Color = new Color();
@@ -60,9 +61,9 @@ export class ReflectionProbe extends Volume {
 	/** @internal */
 	private _ambientMode: AmbientMode = AmbientMode.SolidColor;
 
-	/** 是否是场景探针 */
+	/**@internal 是否是场景探针 */
 	_isScene: boolean = false;
-	/**修改了值，需要更新shader，需要和updateMask对应 */
+	/**@internal 修改了值，需要更新shader，需要和updateMask对应 */
 	_updateMark: number;
 
 	/**@internal */
@@ -250,6 +251,10 @@ export class ReflectionProbe extends Volume {
 		this._updateMark = ILaya3D.Scene3D._updateMark;
 	}
 
+	/**
+	 * 设置反射数据
+	 * @param shaderData 
+	 */
 	applyReflectionShaderData(shaderData: ShaderData) {
 		//boxProjection
 		if (!this.boxProjection) {
@@ -298,25 +303,28 @@ export class ReflectionProbe extends Volume {
 	}
 
 	/**
-	* @inheritDoc
-	* @override
-	*/
+	 * @inheritdoc
+	 * @protected
+	 * @internal
+	 */
 	protected _onEnable(): void {
 		super._onEnable();
 		this._updateMark = ILaya3D.Scene3D._updateMark;
 	}
 
 	/**
-	 * @inheritDoc
-	 * @override
+	 * @inheritdoc
+	 * @internal
+	 * @protected
 	 */
 	protected _onDisable(): void {
 		super._onDisable();
 	}
 
 	/**
-	 * @inheritDoc
-	 * @override
+	 * @inheritdoc
+	 * @internal
+	 * @protected
 	 */
 	protected _onDestroy() {
 
@@ -399,6 +407,7 @@ export class ReflectionProbe extends Volume {
 
 	/**
 	* @deprecated
+	* 自定义反射贴图
 	*/
 	get customReflection(): TextureCube {
 		return this.reflectionTexture;

@@ -13,15 +13,12 @@ export class PhysicsCollider extends PhysicsColliderComponent {
     /** @internal */
     private _isTrigger: boolean = false;
 
-    /**
-     * @override
-     * @interanl
-     */
+    /**@override @internal */
     _collider: IStaticCollider;
 
     /**
+     * @internal
      * @override
-     * @interanl
      */
     protected _initCollider() {
         this._physicsManager = ((<Scene3D>this.owner._scene))._physicsManager;

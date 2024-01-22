@@ -28,6 +28,9 @@ export class TrailFilter {
 	static WIDTHCURVE: number;
 	static WIDTHCURVEKEYLENGTH: number;
 
+	/**
+	 * @internal
+	 */
 	static __init__() {
 		TrailFilter.CURTIME = Shader3D.propertyNameToID("u_CurTime");
 		TrailFilter.LIFETIME = Shader3D.propertyNameToID("u_LifeTime");
@@ -57,10 +60,11 @@ export class TrailFilter {
 	private _trialGeometry: GeometryElement;
 	/**@internal 拖尾总长度*/
 	_totalLength: number = 0;
-
+	/**@internal */
 	_ownerRender: TrailRenderer;
+	/**@internal */
 	_lastPosition: Vector3 = new Vector3();
-
+	/**@internal */
 	_curtime: number = 0;
 
 	/**轨迹准线。*/
@@ -263,6 +267,9 @@ export class TrailFilter {
 		this._colorGradient = null;
 	}
 
+	/**
+	 * 清除拖尾
+	 */
 	clear(): void {
 		(<TrailGeometry>this._trialGeometry).clear();
 		this._lastPosition.setValue(0, 0, 0);

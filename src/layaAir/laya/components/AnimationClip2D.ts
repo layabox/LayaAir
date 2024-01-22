@@ -9,8 +9,10 @@ import { Byte } from "../utils/Byte";
 export class AnimationClip2D extends Resource {
 
     /**
-     * @param data 
-     * @returns 
+     * 动画数据解析为2D动画片段
+     * @internal
+     * @param data 动画数据 
+     * @returns 2D动画片段
      */
     static _parse(data: ArrayBuffer): AnimationClip2D {
         var clip = new AnimationClip2D();
@@ -222,7 +224,7 @@ export class AnimationClip2D extends Resource {
 
     /**
      * 动画时长
-     * @returns 
+     * @returns 动画时长
      */
     duration() {
         return this._duration;
