@@ -1,8 +1,11 @@
 import { NavAreaFlag } from "./NavigationManager";
 
 export class AreaMask {
+    /**@internal */
     private _flags: number;
+    /**@internal */
     private _excludeflag: number;
+    /**@internal */
     private _areaFlagMap: Map<string, NavAreaFlag>;
 
     /**

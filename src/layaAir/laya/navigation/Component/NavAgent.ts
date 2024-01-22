@@ -40,11 +40,14 @@ export enum ObstacleAvoidanceType {
  * 类用来实例化一个寻路代理
  */
 export class NavAgent extends Component {
+    /**@internal */
     private static HelpTemp: Vector3 = new Vector3();
+    /**@internal */
     private static HelpTemp1: Vector3 = new Vector3();
+    /**@internal */
     private static HelpTemp2: Vector3 = new Vector3();
+    /**@internal */
     private static TempQuaternion: Quaternion = new Quaternion();
-
 
     /**@internal */
     private _agentType: string = NavigationManager.defaltAgentName;
@@ -64,7 +67,6 @@ export class NavAgent extends Component {
     _filter: any;
     /**@internal */
     _curentSpeed: Vector3;
-
     //move
     /**@internal 速度*/
     private _speed: number = 3.5;
@@ -78,8 +80,6 @@ export class NavAgent extends Component {
     private _Acceleration: number;
     /**@internal TODO*/
     private _autoBraking: boolean;
-
-
     //obstacles TODO
     /**@internal */
     private _radius: number = 0.5;
@@ -89,11 +89,11 @@ export class NavAgent extends Component {
     private _quality: ObstacleAvoidanceType = ObstacleAvoidanceType.MedQuality;
     /**@internal */
     private _priority: number = 0;
-
     /**@internal */
     private _destination: Vector3 = new Vector3();
-
+    /**@internal */
     private _fllowPath: NavigationPathData[];
+    /**@internal */
     private _baseOffset: number = 1;
 
     /**
