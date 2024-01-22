@@ -48,7 +48,6 @@ export class Sprite3D extends Node {
         Sprite3D.sprite3DCommandUniformMap.addShaderUniform(Sprite3D.WORLDINVERTFRONT, "u_WroldInvertFront",ShaderDataType.Vector4);
     }
 
-    /** @BPmeta  */
     /**
      * 创建精灵的克隆实例。
      * @param	original  原始精灵。
