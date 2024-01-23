@@ -204,6 +204,7 @@ export class BlueprintFactory {
         let c = function (node: TBPNode): TBPCNode {
             return BlueprintUtil.getConstNode("Node", node, data) as TBPCNode;
         }
+        bp.varMap = varMap;
         if (LayaEnv.isPlaying) {
             bp.parse(bpjson, c, varMap);
             funs.forEach(fun => {

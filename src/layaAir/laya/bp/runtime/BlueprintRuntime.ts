@@ -66,7 +66,6 @@ export class BlueprintRuntime {
     }
 
     parse(bpjson: Array<TBPNode>, getCNodeByNode: (node: TBPNode) => TBPCNode, varMap: Record<string, TBPVarProperty>) {
-        this.varMap = varMap;
         this.mainBlock.dataMap = this.dataMap;
         this.mainBlock.parse(bpjson, getCNodeByNode, varMap);
     }
