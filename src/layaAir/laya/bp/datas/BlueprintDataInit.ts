@@ -407,7 +407,7 @@ export const BlueprintDataList: TBPCNode[] = [
             },
             {
                 name: "type",
-                type: "Class",
+                type: "new()=>T",
             },
         ],
         output: [
