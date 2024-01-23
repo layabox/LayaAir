@@ -138,8 +138,9 @@ export class BlueprintImpl extends Resource {
                 let func: TBPDeclarationFunction = {
                     name: ele.name,
                     type: "function",
-                    params: [
-
+                    customId: ele.id,
+                    params:[
+                        
                     ],
                     modifiers: {
                         isPublic: true

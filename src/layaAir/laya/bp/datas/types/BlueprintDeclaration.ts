@@ -102,6 +102,8 @@ export type TBPDeclarationFunction = {
 
     /** 是否来自父类 */
     fromParent?: string;
+
+    customId?:number;
     
     /** 显示名称，没有默认使用name */
     caption?:string;
