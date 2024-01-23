@@ -119,8 +119,13 @@ export abstract class BlueprintNode<T extends BlueprintPin>{
                 for (let i = 0, len = infoArr.length; i < len; i++) {
                     let info = infoArr[i];
                     let nextNode = manger.getNodeById(info.nodeId);
-                    let pinnext = nextNode.getPinByName(info.id);
-                    pin.startLinkTo(pinnext);
+                    if(nextNode){
+                        let pinnext = nextNode.getPinByName(info.id);
+                        pin.startLinkTo(pinnext);
+                    }
+                    else{
+                        manger.pendingLink(pin,info);
+                    }
                 }
             }
         }
