@@ -6,7 +6,6 @@ var Box2D = (() => {
 function(moduleArg = {}) {
 
 // include: shell.js
-var process = undefined;
 // The Module object: Our interface to the outside world. We import
 // and export values on it. There are various ways Module can be used:
 // 1. Not defined. We create it here
@@ -22,6 +21,7 @@ var process = undefined;
 // can continue to use Module afterwards as well.
 var Module = moduleArg;
 
+ let process = undefined;
 // Set up the promise that indicates the Module is initialized
 var readyPromiseResolve, readyPromiseReject;
 Module['ready'] = new Promise((resolve, reject) => {
