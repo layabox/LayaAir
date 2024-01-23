@@ -248,10 +248,9 @@ export function bpProperty( options : BPDecoratorsOptionProp){
             tips : options.tips
         };
 
-        if (!prop.modifiers) {
-            prop.modifiers = {isPublic:true};
-        }
-
+        if (!prop.modifiers) prop.modifiers = { };
+        prop.modifiers.isPublic = true;
+        
         if (!declare.props) {
             declare.props = [];
         }
@@ -297,9 +296,8 @@ export function bpFunction( options : BPDecoratorsOptionFunction){
                 params:options.params,
             }
 
-            if (!func.modifiers) {
-                func.modifiers = {isPublic:true};
-            }
+            if (!func.modifiers) func.modifiers = { };
+            func.modifiers.isPublic = true;
             // func.originFunc = descriptor.value;
 
             if (!declare.funcs) {
