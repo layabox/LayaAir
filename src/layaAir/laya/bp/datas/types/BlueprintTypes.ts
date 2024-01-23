@@ -131,12 +131,16 @@ export interface TBPCNode {
     /**程序中用到的名字 */
     name: string,
 
+    caption?: string,
+
     /**泛型的类型定义 */
-    typeParameters?: Record<string, { extends?: string[]}>
+    typeParameters?: Record<string, { extends?: string[] }>
     /** 修饰符 */
     modifiers?: BPModifiers;
     /**来源的类 */
     target?: string,
+    /**target的别名 */
+    targetAliasName?: string,
     /** 数据唯一的id号,可以不写，默认为name*/
     id?: string,
     /**该节点的类型 */
