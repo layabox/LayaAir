@@ -9,10 +9,10 @@ import { BaseTexture } from "../../../resource/BaseTexture";
 import { Resource } from "../../../resource/Resource";
 import { InternalTexture } from "../../RenderInterface/InternalTexture";
 import { ShaderData, ShaderDataItem, ShaderDataType } from "../../RenderInterface/ShaderData";
-import { DefineDatas } from "../../RenderShader/DefineDatas";
 import { ShaderDefine } from "../../RenderShader/ShaderDefine";
 import { UnifromBufferData } from "../../UniformBufferData";
 import { UniformBufferObject } from "../../UniformBufferObject";
+import { NativeDefineDatas, NativeShaderDefine } from "./NativeModuleData";
 
 
 export enum NativeShaderDataType {
@@ -56,7 +56,7 @@ export class NativeShaderData extends ShaderData {
     }
 
 
-    getDefineData(): DefineDatas {
+    getDefineData(): NativeDefineDatas {
         throw new Error("Method not implemented.");
     }
 
@@ -71,11 +71,11 @@ export class NativeShaderData extends ShaderData {
      * 增加Shader宏定义。
      * @param value 宏定义。
      */
-    addDefine(define: ShaderDefine): void {
+    addDefine(define: NativeShaderDefine): void {
         throw new Error("Method not implemented.");
     }
 
-    addDefines(define: DefineDatas): void {
+    addDefines(define: NativeDefineDatas): void {
         throw new Error("Method not implemented.");
     }
 

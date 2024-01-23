@@ -1,25 +1,34 @@
 import { NativeRenderStateCommand } from "../../../RenderEngine/RenderEngine/NativeGLEngine/NativeRenderStateCommand";
 import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { IRenderEngineFactory } from "../../../RenderEngine/RenderInterface/IRenderEngineFactory";
-import { RenderState } from "../../../RenderEngine/RenderShader/RenderState";
 import { UniformBufferObject } from "../../../RenderEngine/UniformBufferObject";
 import { NativeShaderInstance } from "../../../d3/RenderObjs/NativeOBJ/NativeShaderInstance";
 import { ShaderProcessInfo } from "../../../webgl/utils/ShaderCompileDefineBase";
-import { ISubshaderData, IShaderPassData } from "../../RenderInterface/RenderPipelineInterface/IShaderInstance";
+import { IDefineDatas } from "../../RenderInterface/RenderPipelineInterface/IShaderInstance";
 import { ShaderData } from "../../RenderInterface/ShaderData";
 import { ShaderPass } from "../../RenderShader/ShaderPass";
 import { NativeCommandUniformMap } from "./NativeCommandUniformMap";
-import { NativeShaderPass, NativeSubShader } from "./NativeModuleData";
+import { NativeDefineDatas, NativeShaderDefine, NativeShaderPass, NativeSubShader } from "./NativeModuleData";
 import { NativeRenderState } from "./NativeRenderState";
 import { NativeShaderData } from "./NativeShaderData";
 import { NativeUniformBufferObject } from "./NativeUniformBufferObject";
 
 
 export class NativeGLRenderEngineFactory implements IRenderEngineFactory {
-    createSubShaderData(): ISubshaderData {
-       return new NativeSubShader();
+
+    createDefineDatas(): IDefineDatas {
+        return new NativeDefineDatas()
     }
-    createShaderPass(pass: ShaderPass): IShaderPassData {
+
+    createShaderDefine(index: number, value: number): NativeShaderDefine {
+        return new NativeShaderDefine(index, value);
+    }
+
+    createSubShaderData(): NativeSubShader {
+        return new NativeSubShader();
+    }
+
+    createShaderPass(pass: ShaderPass): NativeShaderPass {
         return new NativeShaderPass(pass);
     }
 
@@ -36,8 +45,8 @@ export class NativeGLRenderEngineFactory implements IRenderEngineFactory {
     createRenderStateComand(): NativeRenderStateCommand {
         return new NativeRenderStateCommand();
     }
-    createRenderState(): RenderState {
-        return new NativeRenderState() as unknown as RenderState;
+    createRenderState(): NativeRenderState {
+        return new NativeRenderState();
     }
 
     createUniformBufferObject(glPointer: number, name: string, bufferUsage: BufferUsage, byteLength: number, isSingle: boolean): UniformBufferObject {

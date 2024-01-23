@@ -1,12 +1,11 @@
 import { SubShader } from "./SubShader";
 import { ShaderCompileDefineBase, ShaderProcessInfo } from "../../webgl/utils/ShaderCompileDefineBase";
-import { DefineDatas } from "../../RenderEngine/RenderShader/DefineDatas";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { ShaderVariant } from "../../RenderEngine/RenderShader/ShaderVariantCollection";
 import { IShaderCompiledObj } from "../../webgl/utils/ShaderCompile";
 import { RenderState } from "./RenderState";
 import { LayaGL } from "../../layagl/LayaGL";
-import { IShaderInstance, IShaderPassData } from "../RenderInterface/RenderPipelineInterface/IShaderInstance";
+import { IDefineDatas, IShaderInstance, IShaderPassData } from "../RenderInterface/RenderPipelineInterface/IShaderInstance";
 
 
 /**
@@ -20,8 +19,8 @@ export class ShaderPass extends ShaderCompileDefineBase {
     private static _debugDefineStrings: string[] = [];
     /** @internal */
     private static _debugDefineMasks: number[] = [];
-    /** @internal */
-    private _renderState: RenderState;
+    // /** @internal */
+    // private _renderState: RenderState;
     /** @internal */
     private _pipelineMode: string;
     public get pipelineMode(): string {
@@ -49,13 +48,11 @@ export class ShaderPass extends ShaderCompileDefineBase {
      * 渲染状态。
      */
     get renderState(): RenderState {
-        return this._renderState;
+        return this.moduleData.renderState;
     }
 
     constructor(owner: SubShader, compiledObj: IShaderCompiledObj) {
         super(owner, null, compiledObj);
-        this._renderState = LayaGL.renderOBJCreate.createRenderState();
-        this._renderState.setNull();
         this.moduleData = LayaGL.renderOBJCreate.createShaderPass(this);
         this.moduleData.validDefine = this._validDefine;
     }
@@ -63,7 +60,7 @@ export class ShaderPass extends ShaderCompileDefineBase {
     /**
      * @internal
      */
-    _addDebugShaderVariantCollection(compileDefine: DefineDatas, outDebugDefines: string[], outDebugDefineMask: number[]): void {
+    _addDebugShaderVariantCollection(compileDefine: IDefineDatas, outDebugDefines: string[], outDebugDefineMask: number[]): void {
         var dbugShaderVariantInfo: ShaderVariant = Shader3D._debugShaderVariantInfo;
         var debugSubShader: SubShader = this._owner;
         var debugShader: Shader3D = debugSubShader._owner;
@@ -86,7 +83,7 @@ export class ShaderPass extends ShaderCompileDefineBase {
      * @param compileDefine 
      * @returns 
      */
-    static createShaderInstance(shaderpass: ShaderPass, IS2d: boolean, compileDefine: DefineDatas): IShaderInstance {
+    static createShaderInstance(shaderpass: ShaderPass, IS2d: boolean, compileDefine: IDefineDatas): IShaderInstance {
         var shader: IShaderInstance;
         let shaderProcessInfo: ShaderProcessInfo = new ShaderProcessInfo();
         shaderProcessInfo.is2D = IS2d;
@@ -139,7 +136,7 @@ export class ShaderPass extends ShaderCompileDefineBase {
      * @override
      * @internal
      */
-    withCompile(compileDefine: DefineDatas, IS2d: boolean = false): IShaderInstance {
+    withCompile(compileDefine: IDefineDatas, IS2d: boolean = false): IShaderInstance {
         var shader: IShaderInstance = this.moduleData.getCacheShader(compileDefine);
         if (shader)
             return shader;

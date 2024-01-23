@@ -1,4 +1,5 @@
-import { DefineDatas } from "./DefineDatas";
+
+import { IDefineDatas } from "../RenderInterface/RenderPipelineInterface/IShaderInstance";
 import { Shader3D } from "./Shader3D";
 import { ShaderPass } from "./ShaderPass";
 import { SubShader } from "./SubShader";
@@ -68,7 +69,7 @@ export class ShaderVariant {
             if (subShader) {
                 var pass: ShaderPass = subShader._passes[passIndex];
                 if (pass) {
-                    var validDefine: DefineDatas = pass._validDefine;
+                    var validDefine: IDefineDatas = pass._validDefine;
                     for (var i: number = 0, n: number = defineNames.length; i < n; i++) {
                         var defname: string = defineNames[i];
                         if (!validDefine.has(Shader3D.getDefineByName(defname)))

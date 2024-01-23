@@ -10,10 +10,17 @@ import { UniformBufferObject } from "../../../RenderEngine/UniformBufferObject";
 import { WGPUShaderData } from "../../../d3/RenderObjs/WebGPUOBJ/WGPUShaderData";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { ShaderCompileDefineBase, ShaderProcessInfo } from "../../../webgl/utils/ShaderCompileDefineBase";
-import { ISubshaderData, IShaderPassData } from "../../RenderInterface/RenderPipelineInterface/IShaderInstance";
+import { ISubshaderData, IShaderPassData, IDefineDatas } from "../../RenderInterface/RenderPipelineInterface/IShaderInstance";
+import { ShaderDefine } from "../../RenderShader/ShaderDefine";
 
 
 export class WGPURenderEngineFactory implements IRenderEngineFactory {
+    createDefineDatas(): IDefineDatas {
+        throw new Error("Method not implemented.");
+    }
+    createShaderDefine(): ShaderDefine {
+        throw new Error("Method not implemented.");
+    }
     createSubShaderData(): ISubshaderData {
         throw new Error("Method not implemented.");
     }

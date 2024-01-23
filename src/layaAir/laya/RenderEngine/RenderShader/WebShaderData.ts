@@ -11,7 +11,7 @@ import { InternalTexture } from "../RenderInterface/InternalTexture";
 import { ShaderData, ShaderDataItem, ShaderDataType, uboParams } from "../RenderInterface/ShaderData";
 import { UnifromBufferData, UniformBufferParamsType } from "../UniformBufferData";
 import { UniformBufferObject } from "../UniformBufferObject";
-import { DefineDatas } from "./DefineDatas";
+import { WebDefineDatas } from "./WebDefineDatas";
 import { ShaderDefine } from "./ShaderDefine";
 
 /**
@@ -29,7 +29,7 @@ export class WebShaderData extends ShaderData {
 	_data: any = null;
 
 	/** @internal */
-	_defineDatas: DefineDatas = new DefineDatas();
+	_defineDatas: WebDefineDatas = new WebDefineDatas();
 
 	/**@internal */
 	_uniformBufferDatas: Map<string, uboParams>;
@@ -124,7 +124,7 @@ export class WebShaderData extends ShaderData {
 		this._defineDatas.add(define);
 	}
 
-	addDefines(define: DefineDatas): void {
+	addDefines(define: WebDefineDatas): void {
 		this._defineDatas.addDefineDatas(define);
 	}
 
@@ -659,7 +659,7 @@ export class WebShaderData extends ShaderData {
 		dest.applyUBO = true;
 	}
 
-	getDefineData(): DefineDatas {
+	getDefineData(): WebDefineDatas {
 		return this._defineDatas;
 	}
 

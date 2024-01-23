@@ -1,6 +1,6 @@
 import { IRenderElement } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderElement";
 import { IRenderGeometryElement } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderGeometryElement";
-import { DefineDatas } from "../../../RenderEngine/RenderShader/DefineDatas";
+import { WebDefineDatas } from "../../../RenderEngine/RenderShader/WebDefineDatas";
 import { ShaderInstance } from "../../../RenderEngine/RenderShader/ShaderInstance";
 import { ShaderPass } from "../../../RenderEngine/RenderShader/ShaderPass";
 import { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
@@ -15,7 +15,7 @@ import { GLESBaseRenderNode } from "./Render3DNode/GLESBaseRenderNode";
 
 export class GLESRenderElementOBJ implements IRenderElement {
     /** @internal */
-    static _compileDefine: DefineDatas = new DefineDatas();
+    static _compileDefine: WebDefineDatas = new WebDefineDatas();
 
     geometry: IRenderGeometryElement;
 
@@ -123,7 +123,7 @@ export class GLESRenderElementOBJ implements IRenderElement {
             if (pass.pipelineMode !== context.pipelineMode)
                 continue;
 
-            var comDef: DefineDatas = GLESRenderElementOBJ._compileDefine;
+            var comDef = GLESRenderElementOBJ._compileDefine;
 
             if (context.sceneData) {
                 context.sceneData._defineDatas.cloneTo(comDef);

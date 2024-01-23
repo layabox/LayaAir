@@ -90,14 +90,12 @@ export class Camera extends BaseCamera {
     static _context3DViewPortCatch: Viewport = new Viewport(0, 0, 0, 0);
     static _contextScissorPortCatch: Vector4 = new Vector4(0, 0, 0, 0);
 
-    /** @internal */
-    static __updateMark: number = 0;
     static set _updateMark(value: number) {
-        Camera.__updateMark = value;
+        RenderContext3D._instance._contextOBJ.cameraUpdateMask = value;
     }
 
     static get _updateMark(): number {
-        return Camera.__updateMark;
+        return RenderContext3D._instance._contextOBJ.cameraUpdateMask;
     }
 
     /** @internal 深度贴图管线*/

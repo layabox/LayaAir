@@ -448,8 +448,10 @@ export class Context {
         // WebGLContext.setCullFace(gl, false);
         // WebGLContext.setFrontFace(gl, gl.CCW);
         RenderTexture2D.currentActive && RenderTexture2D.currentActive.end();
+       //@ts-ignore
         LayaGL.renderEngine.viewport(0, 0, RenderState2D.width, RenderState2D.height);//还原2D视口
         LayaGL.renderEngine.scissorTest(true);
+        //@ts-ignore
         LayaGL.renderEngine.scissor(0, 0, RenderState2D.width, RenderState2D.height);
     }
 
@@ -716,7 +718,9 @@ export class Context {
             //如果是主画布，要记录窗口大小
             //如果不是 TODO
             if (this.isMain) {
+                //@ts-ignore
                 LayaGL.renderEngine.viewport(0, 0, w, h);
+                //@ts-ignore
                 LayaGL.renderEngine.scissor(0, 0, w, h);
                 RenderState2D.width = w;
                 RenderState2D.height = h;

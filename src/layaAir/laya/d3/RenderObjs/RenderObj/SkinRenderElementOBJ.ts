@@ -15,6 +15,7 @@ export class SkinRenderElementOBJ extends GLESRenderElementOBJ {
 
     /** 更新数据并且 */
     drawGeometry(shaderIns: ShaderInstance) {
+        //@ts-ignore
         let length = this.shaderInstances.length;
         let element = this.geometry.drawParams.elements;
         if (!this.skinnedData)

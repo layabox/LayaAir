@@ -1,14 +1,9 @@
-import { ILaya3D } from "../../../../ILaya3D";
-import { Matrix4x4 } from "../../../maths/Matrix4x4";
-import { Vector4 } from "../../../maths/Vector4";
-import { DefineDatas } from "../../../RenderEngine/RenderShader/DefineDatas";
-import { ShaderInstance } from "../../../RenderEngine/RenderShader/ShaderInstance";
+
 import { ShaderPass } from "../../../RenderEngine/RenderShader/ShaderPass";
 import { SingletonList } from "../../../utils/SingletonList";
 import { MeshInstanceGeometry } from "../../graphics/MeshInstanceGeometry";
 import { IRenderContext3D } from "../../RenderDriverLayer/IRenderContext3D";
-import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
-import { InstanceRenderElementOBJ } from "../../RenderObjs/RenderObj/InstanceRenderElementOBJ";
+
 import { Mesh } from "../../resource/models/Mesh";
 import { Camera } from "../Camera";
 import { MeshSprite3DShaderDeclaration } from "../MeshSprite3DShaderDeclaration";

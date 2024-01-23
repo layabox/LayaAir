@@ -1,5 +1,6 @@
 import { IShaderInstance, IShaderPassData, ISubshaderData } from "../../RenderInterface/RenderPipelineInterface/IShaderInstance";
-import { DefineDatas } from "../../RenderShader/DefineDatas";
+import { WebDefineDatas } from "../../RenderShader/WebDefineDatas";
+import { RenderState } from "../../RenderShader/RenderState";
 
 export class WebSubShader implements ISubshaderData {
     destroy(): void {
@@ -11,19 +12,30 @@ export class WebSubShader implements ISubshaderData {
 export class WebShaderPass implements IShaderPassData {
     pipelineMode: string;
     statefirst: boolean;
-    private _validDefine: DefineDatas;
+    private _validDefine: WebDefineDatas;
+    private _renderState: RenderState;
+    public get renderState(): RenderState {
+        return this._renderState;
+    }
+    public set renderState(value: RenderState) {
+        this._renderState = value;
+    }
     /** @internal */
     protected _cacheShaderHierarchy: number = 1;
 
-    public get validDefine(): DefineDatas {
+    public get validDefine(): WebDefineDatas {
         return this._validDefine;
     }
-    public set validDefine(value: DefineDatas) {
+    public set validDefine(value: WebDefineDatas) {
         this._validDefine = value;
     }
     /** @internal */
     protected _cacheSharders: { [key: number]: { [key: number]: { [key: number]: IShaderInstance } } } = {};
 
+    constructor(){
+        this._renderState = new RenderState();
+        this._renderState.setNull(); 
+    }
     /**
     * @internal
     */
@@ -48,7 +60,7 @@ export class WebShaderPass implements IShaderPassData {
     }
 
 
-    setCacheShader(compileDefine: DefineDatas, shader: IShaderInstance): void {
+    setCacheShader(compileDefine: WebDefineDatas, shader: IShaderInstance): void {
         var cacheShaders: any = this._cacheSharders;
         var mask: Array<number> = compileDefine._mask;
         var endIndex: number = compileDefine._length - 1;
@@ -63,7 +75,7 @@ export class WebShaderPass implements IShaderPassData {
         cacheShaders[cacheKey] = shader;
     }
 
-    getCacheShader(compileDefine: DefineDatas): IShaderInstance {
+    getCacheShader(compileDefine: WebDefineDatas): IShaderInstance {
         compileDefine._intersectionDefineDatas(this._validDefine);//去掉没有用到的宏对变量的影响
         var cacheShaders: any = this._cacheSharders;
         var maskLength: number = compileDefine._length;

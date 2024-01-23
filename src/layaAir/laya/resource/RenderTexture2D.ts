@@ -189,7 +189,9 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
                 }
                 RenderTexture2D._currentActive = top.rt;
             }
+            //@ts-ignore
             LayaGL.renderEngine.viewport(0, 0, top.w, top.h);
+            //@ts-ignore
             LayaGL.renderEngine.scissor(0, 0, top.w, top.h);
             RenderState2D.width = top.w;
             RenderState2D.height = top.h;
@@ -213,7 +215,9 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
         //_readyed = true;	//这个没什么用。还会影响流程，比如我有时候并不调用end。所以直接改成true
         //
         ////if (_type == TYPE2D) {
+        //@ts-ignore
         LayaGL.renderEngine.viewport(0, 0, this._width, this._height);//外部设置
+        //@ts-ignore
         LayaGL.renderEngine.scissor(0, 0, this._width, this._height);//外部设置
         this._lastWidth = RenderState2D.width;
         this._lastHeight = RenderState2D.height;
@@ -252,7 +256,9 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
         // this._readyed = true;
         //if (_type == TYPE2D)//待调整
         //{
+        //@ts-ignore
         LayaGL.renderEngine.viewport(0, 0, this._lastWidth, this._lastHeight);
+        //@ts-ignore
         LayaGL.renderEngine.scissor(0, 0, this._lastWidth, this._lastHeight);
         RenderState2D.width = this._lastWidth;
         RenderState2D.height = this._lastHeight;

@@ -1,13 +1,12 @@
 import { WebGLEngine } from "../../../RenderEngine/RenderEngine/WebGLEngine/WebGLEngine";
 import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFlag";
 import { InternalRenderTarget } from "../../../RenderEngine/RenderInterface/InternalRenderTarget";
-import { DefineDatas } from "../../../RenderEngine/RenderShader/DefineDatas";
+import { WebDefineDatas } from "../../../RenderEngine/RenderShader/WebDefineDatas";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { WebShaderData } from "../../../RenderEngine/RenderShader/WebShaderData";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { Color } from "../../../maths/Color";
 import { Vector4 } from "../../../maths/Vector4";
-import { RenderTexture } from "../../../resource/RenderTexture";
 import { SingletonList } from "../../../utils/SingletonList";
 import { IRenderContext3D, PipelineMode } from "../../RenderDriverLayer/IRenderContext3D";
 import { Viewport } from "../../math/Viewport";
@@ -139,7 +138,7 @@ export class GLESRenderContext3D implements IRenderContext3D {
         this._invertY = value;
     }
 
-    _globalConfigShaderData: DefineDatas;
+    _globalConfigShaderData: WebDefineDatas;
 
     /**
      * <code>GLESRenderContext3D<code/>

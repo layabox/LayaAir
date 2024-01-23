@@ -2,7 +2,6 @@ import { Config } from "../../Config";
 import { Config3D } from "../../Config3D";
 import { ILaya } from "../../ILaya";
 import { BufferUsage } from "../RenderEngine/RenderEnum/BufferTargetType";
-import { DefineDatas } from "../RenderEngine/RenderShader/DefineDatas";
 import { RenderState } from "../RenderEngine/RenderShader/RenderState";
 import { Shader3D } from "../RenderEngine/RenderShader/Shader3D";
 import { ShaderDefine } from "../RenderEngine/RenderShader/ShaderDefine";
@@ -21,6 +20,7 @@ import { BaseTexture } from "./BaseTexture";
 import { Resource } from "./Resource";
 import { Event } from "../events/Event";
 import { ShaderData, ShaderDataDefaultValue, ShaderDataItem, ShaderDataType } from "../RenderEngine/RenderInterface/ShaderData";
+import { IDefineDatas } from "../RenderEngine/RenderInterface/RenderPipelineInterface/IShaderInstance";
 
 
 export enum MaterialRenderMode {
@@ -1085,7 +1085,7 @@ export class Material extends Resource implements IClone {
         return this.shaderData.getValueData(Shader3D.propertyNameToID(name));
     }
 
-    get _defineDatas(): DefineDatas {
+    get _defineDatas(): IDefineDatas {
         return this._shaderValues.getDefineData();
     }
 

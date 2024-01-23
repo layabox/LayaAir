@@ -116,8 +116,7 @@ export class GLESSpotLightShadowRP implements ISpotLightShadowRP {
         //cull
         GLESCullUtil.cullingSpotShadow(shadowSpotData.cameraCullInfo, list, count, this._renderQueue, context);
         context.cameraData = shadowSpotData.cameraShaderValue;
-        Camera._updateMark++;
-        context.cameraUpdateMask = Camera._updateMark;
+        context.cameraUpdateMask++;;
         //if (this._renderQueue._elements.length > 0) {
         Viewport._tempViewport.set(shadowSpotData.offsetX, shadowSpotData.offsetY, shadowSpotData.resolution, shadowSpotData.resolution);
         Vector4.tempVec4.setValue(shadowSpotData.offsetX, shadowSpotData.offsetY, shadowSpotData.resolution, shadowSpotData.resolution);

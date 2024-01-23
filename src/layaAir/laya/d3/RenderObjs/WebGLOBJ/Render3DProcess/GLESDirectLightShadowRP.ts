@@ -169,8 +169,7 @@ export class GLESDirectLightShadowCastRP implements IDirectLightShadowRP {
             GLESCullUtil.culldirectLightShadow(shadowCullInfo, list, count, this._renderQueue, context);
 
             context.cameraData = sliceData.cameraShaderValue as WebShaderData;
-            Camera._updateMark++;
-            context.cameraUpdateMask = Camera._updateMark;
+            context.cameraUpdateMask++;
 
             var resolution: number = sliceData.resolution;
             var offsetX: number = sliceData.offsetX;

@@ -122,44 +122,151 @@ export class RenderState {
 	static readonly Default: Readonly<RenderState> = new RenderState();
 
 	/**渲染剔除状态。*/
-	cull: number;
+	private _cull: number;
+	public get cull(): number {
+		return this._cull;
+	}
+	public set cull(value: number) {
+		this._cull = value;
+	}
 	/**透明混合。*/
-	blend: number;
+	private _blend: number;
+	public get blend(): number {
+		return this._blend;
+	}
+	public set blend(value: number) {
+		this._blend = value;
+	}
 	/**源混合参数,在blend为BLEND_ENABLE_ALL时生效。*/
-	srcBlend: number;
+	private _srcBlend: number;
+	public get srcBlend(): number {
+		return this._srcBlend;
+	}
+	public set srcBlend(value: number) {
+		this._srcBlend = value;
+	}
 	/**目标混合参数,在blend为BLEND_ENABLE_ALL时生效。*/
-	dstBlend: number;
+	private _dstBlend: number;
+	public get dstBlend(): number {
+		return this._dstBlend;
+	}
+	public set dstBlend(value: number) {
+		this._dstBlend = value;
+	}
 	/**RGB源混合参数,在blend为BLEND_ENABLE_SEPERATE时生效。*/
-	srcBlendRGB: number;
+	private _srcBlendRGB: number;
+	public get srcBlendRGB(): number {
+		return this._srcBlendRGB;
+	}
+	public set srcBlendRGB(value: number) {
+		this._srcBlendRGB = value;
+	}
 	/**RGB目标混合参数,在blend为BLEND_ENABLE_SEPERATE时生效。*/
-	dstBlendRGB: number;
+	private _dstBlendRGB: number;
+	public get dstBlendRGB(): number {
+		return this._dstBlendRGB;
+	}
+	public set dstBlendRGB(value: number) {
+		this._dstBlendRGB = value;
+	}
 	/**Alpha源混合参数,在blend为BLEND_ENABLE_SEPERATE时生效。*/
-	srcBlendAlpha: number;
+	private _srcBlendAlpha: number;
+	public get srcBlendAlpha(): number {
+		return this._srcBlendAlpha;
+	}
+	public set srcBlendAlpha(value: number) {
+		this._srcBlendAlpha = value;
+	}
 	/**Alpha目标混合参数,在blend为BLEND_ENABLE_SEPERATE时生效。*/
-	dstBlendAlpha: number;
+	private _dstBlendAlpha: number;
+	public get dstBlendAlpha(): number {
+		return this._dstBlendAlpha;
+	}
+	public set dstBlendAlpha(value: number) {
+		this._dstBlendAlpha = value;
+	}
 	/**混合方程。*/
-	blendEquation: number;
+	private _blendEquation: number;
+	public get blendEquation(): number {
+		return this._blendEquation;
+	}
+	public set blendEquation(value: number) {
+		this._blendEquation = value;
+	}
 	/**RGB混合方程。*/
-	blendEquationRGB: number;
+	private _blendEquationRGB: number;
+	public get blendEquationRGB(): number {
+		return this._blendEquationRGB;
+	}
+	public set blendEquationRGB(value: number) {
+		this._blendEquationRGB = value;
+	}
 	/**Alpha混合方程。*/
-	blendEquationAlpha: number;
+	private _blendEquationAlpha: number;
+	public get blendEquationAlpha(): number {
+		return this._blendEquationAlpha;
+	}
+	public set blendEquationAlpha(value: number) {
+		this._blendEquationAlpha = value;
+	}
 	/**深度测试函数。*/
-	depthTest: number;
+	private _depthTest: number;
+	public get depthTest(): number {
+		return this._depthTest;
+	}
+	public set depthTest(value: number) {
+		this._depthTest = value;
+	}
 	/**是否深度测试。*/
-	depthWrite: boolean;
+	private _depthWrite: boolean;
+	public get depthWrite(): boolean {
+		return this._depthWrite;
+	}
+	public set depthWrite(value: boolean) {
+		this._depthWrite = value;
+	}
 	/**是否模板写入 */
-	stencilWrite: boolean;
+	private _stencilWrite: boolean;
+	public get stencilWrite(): boolean {
+		return this._stencilWrite;
+	}
+	public set stencilWrite(value: boolean) {
+		this._stencilWrite = value;
+	}
 	/**是否开启模板测试 */
-	stencilTest: number;
+	private _stencilTest: number;
+	public get stencilTest(): number {
+		return this._stencilTest;
+	}
+	public set stencilTest(value: number) {
+		this._stencilTest = value;
+	}
 	/**模板值 一般会在0-255*/
-	stencilRef: number;
+	private _stencilRef: number;
+	public get stencilRef(): number {
+		return this._stencilRef;
+	}
+	public set stencilRef(value: number) {
+		this._stencilRef = value;
+	}
 	/**模板设置值 */
-	stencilOp: Vector3;
+	private _stencilOp: Vector3 = new Vector3();
+	public get stencilOp(): Vector3 {
+		return this._stencilOp;
+	}
+	public set stencilOp(value: Vector3) {
+		this._stencilOp = value;
+	}
+
+	protected createObj(){
+		//native TODO 历史包袱
+	}
 
 	/**
 	 * 创建一个 <code>RenderState</code> 实例。
 	 */
 	constructor() {
+		this.createObj();
 		this.cull = RenderState.CULL_BACK;
 		this.blend = RenderState.BLEND_DISABLE;
 		this.srcBlend = RenderState.BLENDPARAM_ONE;
@@ -183,6 +290,7 @@ export class RenderState {
 	 * @internal
 	 */
 	setNull() {
+
 		this.cull = null;
 		this.blend = null;
 		this.srcBlend = null;

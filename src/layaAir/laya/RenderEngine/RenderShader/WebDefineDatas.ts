@@ -1,25 +1,32 @@
-import { IClone } from "../../utils/IClone";
+import { IDefineDatas } from "../RenderInterface/RenderPipelineInterface/IShaderInstance";
 import { ShaderDefine } from "./ShaderDefine";
 
 /**
  * <code>DefineDatas</code> 类用于创建宏定义数据集合。
  */
-export class DefineDatas {
-	/** @internal */
+export class WebDefineDatas implements IDefineDatas {
+
+	/**
+	 * @internal
+	 */
 	_mask: Array<number> = [];
-	/** @internal */
+
+	/**
+	 * @internal
+	 */
 	_length: number = 0;
 
 	/**
 	 * 创建一个 <code>DefineDatas</code> 实例。
 	 */
 	constructor() {
+
 	}
 
 	/**
 	 * @internal
 	 */
-	_intersectionDefineDatas(define: DefineDatas): void {
+	_intersectionDefineDatas(define: WebDefineDatas): void {
 		var unionMask: Array<number> = define._mask;
 		var mask: Array<number> = this._mask;
 		for (var i: number = this._length - 1; i >= 0; i--) {
@@ -73,7 +80,7 @@ export class DefineDatas {
 	 * 添加宏定义集合。
 	 * @param define 宏定义集合。
 	 */
-	addDefineDatas(define: DefineDatas): void {
+	addDefineDatas(define: WebDefineDatas): void {
 		var addMask: Array<number> = define._mask;
 		var size: number = define._length;
 		var mask: Array<number> = this._mask;
@@ -98,7 +105,7 @@ export class DefineDatas {
 	 * 移除宏定义集合。
 	 * @param define 宏定义集合。
 	 */
-	removeDefineDatas(define: DefineDatas): void {
+	removeDefineDatas(define: WebDefineDatas): void {
 		var removeMask: Array<number> = define._mask;
 		var mask: Array<number> = this._mask;
 		var endIndex: number = this._length - 1;
@@ -139,7 +146,7 @@ export class DefineDatas {
 	 * @param	destObject 克隆源。
 	 */
 	cloneTo(destObject: any): void {
-		var destDefineData: DefineDatas = (<DefineDatas>destObject);
+		var destDefineData: WebDefineDatas = (<WebDefineDatas>destObject);
 		var destMask: Array<number> = destDefineData._mask;
 		var mask: Array<number> = this._mask;
 		var count: number = this._length;
@@ -154,7 +161,7 @@ export class DefineDatas {
 	 * @return	 克隆副本。
 	 */
 	clone(): any {
-		var dest: DefineDatas = new DefineDatas();
+		var dest: WebDefineDatas = new WebDefineDatas();
 		this.cloneTo(dest);
 		return dest;
 	}

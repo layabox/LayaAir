@@ -28,12 +28,9 @@ import { PointLightCom } from "../light/PointLightCom";
 import { SpotLightCom } from "../light/SpotLightCom";
 import { FilterMode } from "../../../RenderEngine/RenderEnum/FilterMode";
 import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
-import { DefineDatas } from "../../../RenderEngine/RenderShader/DefineDatas";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { UnifromBufferData, UniformBufferParamsType } from "../../../RenderEngine/UniformBufferData";
 import { UniformBufferObject } from "../../../RenderEngine/UniformBufferObject";
-import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTargetFormat";
-import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFlag";
 import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { Prefab } from "../../../resource/HierarchyResource";
 import { Stat } from "../../../utils/Stat";
@@ -145,8 +142,6 @@ export class Scene3D extends Sprite implements ISubmit {
     /** @internal */
     static SPOTLIGHTMODE: number;
     //------------------legacy lighting-------------------------------
-    /** @internal 场景更新标记*/
-    static __updateMark: number = 0;
     /** @internal*/
     static _blitTransRT: RenderTexture;
     /**@internal */
@@ -160,13 +155,12 @@ export class Scene3D extends Sprite implements ISubmit {
      * 场景更新标记
      */
     static set _updateMark(value: number) {
-        Scene3D.__updateMark = value;
+        RenderContext3D._instance._contextOBJ.cameraUpdateMask = value;
     }
 
     static get _updateMark(): number {
-        return Scene3D.__updateMark;
+        return RenderContext3D._instance._contextOBJ.cameraUpdateMask;
     }
-
 
     static regManager(type: string, cla: any) {
         Scene3D.componentManagerMap.set(type, cla);
@@ -305,7 +299,7 @@ export class Scene3D extends Sprite implements ISubmit {
             Scene3D._lightPixles = new Float32Array(maxLightCount * width * 4);
         }
         Scene3D.shaderValueInit();
-        var configShaderValue: DefineDatas = Shader3D._configDefineValues;
+        var configShaderValue = Shader3D._configDefineValues;
         if (!Config3D._multiLighting) {
             (configShaderValue.add(Shader3D.SHADERDEFINE_LEGACYSINGALLIGHTING));
             Scene3D.legacyLightingValueInit()
@@ -1104,70 +1098,6 @@ export class Scene3D extends Sprite implements ISubmit {
      */
     _removeCamera(camera: BaseCamera): void {
         this._cameraPool.splice(this._cameraPool.indexOf(camera), 1);
-    }
-
-    /**
-     * @internal
-     */
-    _clear(state: RenderContext3D): void {
-        var viewport: Viewport = state.viewport;
-        var camera: Camera = <Camera>state.camera;
-        var renderTex: RenderTexture = camera._getRenderTexture();
-        var vpX: number, vpY: number;
-        var vpW: number = viewport.width;
-        var vpH: number = viewport.height;
-        let needInternalRT = camera._needInternalRenderTexture();
-
-        if (needInternalRT) {
-            vpX = 0;
-            vpY = 0;
-        }
-        else {
-            if (camera.renderTarget) {
-                vpX = viewport.x;
-                vpY = viewport.y;
-            }
-            else {
-                vpX = viewport.x;
-                vpY = camera._getCanvasHeight() - viewport.y - vpH;
-            }
-        }
-
-        LayaGL.renderEngine.viewport(vpX, vpY, vpW, vpH);
-        LayaGL.renderEngine.scissor(vpX, vpY, vpW, vpH);
-        state.changeViewport(vpX, vpY, vpW, vpH);
-        state.changeScissor(vpX, vpY, vpW, vpH);
-        Camera._context3DViewPortCatch.set(vpX, vpY, vpW, vpH);
-        Camera._contextScissorPortCatch.setValue(vpX, vpY, vpW, vpH);
-
-        var clearFlag: number = camera.clearFlag;
-        if (clearFlag === CameraClearFlags.Sky && !(camera.skyRenderer._isAvailable() || this._skyRenderer._isAvailable()))
-            clearFlag = CameraClearFlags.SolidColor;
-        let clearConst: number = 0;
-        let stencilFlag = renderTex.depthStencilFormat == RenderTargetFormat.DEPTHSTENCIL_24_8 ? RenderClearFlag.Stencil : 0;
-        switch (clearFlag) {
-            case CameraClearFlags.SolidColor:
-                clearConst = RenderClearFlag.Color | RenderClearFlag.Depth | stencilFlag;
-                break;
-            case CameraClearFlags.DepthOnly:
-            case CameraClearFlags.Sky:
-                clearConst = RenderClearFlag.Depth | stencilFlag;
-                break;
-            case CameraClearFlags.Nothing:
-                clearConst = 0;
-                break;
-            case CameraClearFlags.ColorOnly:
-                clearConst = RenderClearFlag.Color;
-                break;
-        }
-
-        // todo other color gamut
-        let clearColor = camera._linearClearColor;
-        if (renderTex.gammaCorrection != 1) {
-            clearColor = camera.clearColor;
-        }
-
-        LayaGL.renderEngine.clearRenderTexture(clearConst, clearColor, 1, 0);
     }
 
     /**

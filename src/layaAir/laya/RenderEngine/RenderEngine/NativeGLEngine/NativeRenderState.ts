@@ -1,8 +1,8 @@
 import { Vector3 } from "../../../maths/Vector3";
-import { Vector4 } from "../../../maths/Vector4";
+import { RenderState } from "../../RenderShader/RenderState";
 
 
-export class NativeRenderState {
+export class NativeRenderState extends RenderState{
 	_nativeObj: any;
 
 	set cull(value: number) {
@@ -120,11 +120,26 @@ export class NativeRenderState {
 	set stencilOp(value: Vector3) {
 		this._nativeObj.setStencilOp(value.x, value.y, value.z);
 	}
+
 	setNull():void {
 		this._nativeObj.setNull();
 	}
-	constructor() {
+
+	protected createObj(): void {
 		this._nativeObj = new (window as any).conchRenderState();
+	}
+
+	constructor() {
+		super();
+	}
+	
+	cloneTo(dest: NativeRenderState): void {
+		this._nativeObj.cloneTo(dest._nativeObj);
+	}
+	clone(): RenderState {
+		let state = new NativeRenderState();
+		this.cloneTo(state);
+		return state;
 	}
 
 }

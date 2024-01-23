@@ -1,6 +1,6 @@
 import { LayaGL } from "../../layagl/LayaGL";
 import { ShaderCompile } from "../../webgl/utils/ShaderCompile";
-import { DefineDatas } from "./DefineDatas";
+import { IDefineDatas } from "../RenderInterface/RenderPipelineInterface/IShaderInstance";
 import { ShaderDefine } from "./ShaderDefine";
 import { ShaderPass } from "./ShaderPass";
 import { ShaderVariant, ShaderVariantCollection } from "./ShaderVariantCollection";
@@ -30,9 +30,9 @@ export interface IShaderpassStructor {
  * <code>Shader3D</code> 类用于创建Shader3D。
  */
 export class Shader3D {
-    static _configDefineValues = new DefineDatas();
+    static _configDefineValues:IDefineDatas;
     /**@internal */
-    private static _compileDefineDatas: DefineDatas = new DefineDatas();
+    private static _compileDefineDatas: IDefineDatas;
     /**渲染状态_剔除。*/
     static CULL: number;
     /**渲染状态_混合。*/
@@ -110,12 +110,15 @@ export class Shader3D {
 
     static init() {
         Shader3D.debugShaderVariantCollection = new ShaderVariantCollection();
+        Shader3D._configDefineValues = LayaGL.renderOBJCreate.createDefineDatas();
+        Shader3D._compileDefineDatas = LayaGL.renderOBJCreate.createDefineDatas();
+    
     }
 
     /**
      * @internal
      */
-    static _getNamesByDefineData(defineData: DefineDatas, out: Array<string>): void {
+    static _getNamesByDefineData(defineData: IDefineDatas, out: Array<string>): void {
         var maskMap: Array<{ [key: number]: string }> = Shader3D._maskMap;
         var mask: Array<number> = defineData._mask;
         out.length = 0;
@@ -192,7 +195,7 @@ export class Shader3D {
                 var pass: ShaderPass = subShader._passes[passIndex];
                 pass.nodeCommonMap = nodeCommonMap;
                 if (pass) {
-                    var compileDefineDatas: DefineDatas = Shader3D._compileDefineDatas;
+                    var compileDefineDatas = Shader3D._compileDefineDatas;
                     Shader3D._configDefineValues.cloneTo(compileDefineDatas);
                     for (var i: number = 0, n: number = defineNames.length; i < n; i++)
                         compileDefineDatas.add(Shader3D.getDefineByName(defineNames[i]));

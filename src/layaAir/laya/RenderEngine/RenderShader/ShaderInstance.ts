@@ -204,6 +204,7 @@ export class ShaderInstance implements IShaderInstance {
 		}
 		//Stencil
 		var stencilWrite: any = (renderState.stencilWrite ?? datas[Shader3D.STENCIL_WRITE]) ?? RenderState.Default.stencilWrite;
+		var stencilWrite: any = (renderState.stencilWrite ?? datas[Shader3D.STENCIL_WRITE]) ?? RenderState.Default.stencilWrite;
 		var stencilTest: any = (renderState.stencilTest ?? datas[Shader3D.STENCIL_TEST]) ?? RenderState.Default.stencilTest;
 		RenderStateContext.setStencilMask(stencilWrite);
 		if (stencilWrite) {

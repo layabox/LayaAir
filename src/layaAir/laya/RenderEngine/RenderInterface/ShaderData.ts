@@ -8,11 +8,11 @@ import { Vector4 } from "../../maths/Vector4";
 import { BaseTexture } from "../../resource/BaseTexture";
 import { Resource } from "../../resource/Resource";
 import { IClone } from "../../utils/IClone";
-import { DefineDatas } from "../RenderShader/DefineDatas";
 import { ShaderDefine } from "../RenderShader/ShaderDefine";
 import { UnifromBufferData } from "../UniformBufferData";
 import { UniformBufferObject } from "../UniformBufferObject";
 import { InternalTexture } from "./InternalTexture";
+import { IDefineDatas } from "./RenderPipelineInterface/IShaderInstance";
 
 export type uboParams = { ubo: UniformBufferObject; uboBuffer: UnifromBufferData };
 export enum ShaderDataType {
@@ -86,7 +86,7 @@ export class ShaderData implements IClone {
     }
 
 
-    getDefineData(): DefineDatas {
+    getDefineData(): IDefineDatas {
         throw new Error("Method not implemented.");
     }
 
@@ -105,7 +105,7 @@ export class ShaderData implements IClone {
         throw new Error("Method not implemented.");
     }
 
-    addDefines(define: DefineDatas): void {
+    addDefines(define: IDefineDatas): void {
         throw new Error("Method not implemented.");
 	}
 

@@ -5,7 +5,6 @@ import { RenderTexture2D } from "../../../../resource/RenderTexture2D"
 import { Const } from "../../../../Const"
 import { Shader3D } from "../../../../RenderEngine/RenderShader/Shader3D"
 import { Material } from "../../../../resource/Material"
-import { DefineDatas } from "../../../../RenderEngine/RenderShader/DefineDatas"
 import { Vector2 } from "../../../../maths/Vector2"
 import { Matrix4x4 } from "../../../../maths/Matrix4x4"
 import { Vector4 } from "../../../../maths/Vector4"
@@ -13,6 +12,7 @@ import { TextTexture } from "../../../text/TextTexture"
 import { ShaderData } from "../../../../RenderEngine/RenderInterface/ShaderData"
 import { LayaGL } from "../../../../layagl/LayaGL"
 import { ShaderInstance } from "../../../../RenderEngine/RenderShader/ShaderInstance"
+import { IDefineDatas } from "../../../../RenderEngine/RenderInterface/RenderPipelineInterface/IShaderInstance"
 
 export enum RenderSpriteData {
     Zero,
@@ -29,6 +29,7 @@ export class Value2D {
     protected static _typeClass: any = [];
 
     public static _initone(type: number, classT: any): void {
+        Value2D._compileDefine = LayaGL.renderOBJCreate.createDefineDatas();
         Value2D._typeClass[type] = classT;
         Value2D._cache[type] = [];
         Value2D._cache[type]._length = 0;
@@ -36,7 +37,7 @@ export class Value2D {
     }
 
     static TEMPMAT4_ARRAY: any[] = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
-    static _compileDefine: DefineDatas = new DefineDatas();
+    static _compileDefine: IDefineDatas;
     /**
      * 对象池概念
      * @param mainType 
@@ -259,7 +260,7 @@ export class Value2D {
                 if (pass.pipelineMode == "Forward")
                     break;
             }
-            var comDef: DefineDatas = Value2D._compileDefine;
+            var comDef = Value2D._compileDefine;
             this.defines.getDefineData().cloneTo(Value2D._compileDefine);
             //mateiral Define
             Value2D._compileDefine.addDefineDatas(material._defineDatas);

@@ -12,12 +12,20 @@ import { ShaderInstance } from "../../../RenderEngine/RenderShader/ShaderInstanc
 import { RenderStateCommand } from "../../../RenderEngine/RenderStateCommand";
 import { UniformBufferObject } from "../../../RenderEngine/UniformBufferObject";
 import { ShaderProcessInfo } from "../../../webgl/utils/ShaderCompileDefineBase";
-import { ISubshaderData, IShaderPassData } from "../../RenderInterface/RenderPipelineInterface/IShaderInstance";
+import { ISubshaderData, IShaderPassData, IDefineDatas } from "../../RenderInterface/RenderPipelineInterface/IShaderInstance";
+import { WebDefineDatas } from "../../RenderShader/WebDefineDatas";
+import { ShaderDefine } from "../../RenderShader/ShaderDefine";
 import { ShaderPass } from "../../RenderShader/ShaderPass";
 import { WebShaderData } from "../../RenderShader/WebShaderData";
 import { WebShaderPass, WebSubShader } from "../WebGPUEngine/WebModuleData";
 
 export class WebGLRenderEngineFactory implements IRenderEngineFactory {
+    createDefineDatas(): IDefineDatas {
+        return new WebDefineDatas();
+    }
+    createShaderDefine(index: number, value: number): ShaderDefine {
+        return new ShaderDefine(index, value);
+    }
     /**@internal */
     private globalBlockMap: any = {};
 

@@ -1,6 +1,5 @@
-import { IShaderInstance } from "../../RenderEngine/RenderInterface/RenderPipelineInterface/IShaderInstance";
+import { IDefineDatas, IShaderInstance } from "../../RenderEngine/RenderInterface/RenderPipelineInterface/IShaderInstance";
 import { ShaderDataType } from "../../RenderEngine/RenderInterface/ShaderData";
-import { DefineDatas } from "../../RenderEngine/RenderShader/DefineDatas";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { ShaderInstance } from "../../RenderEngine/RenderShader/ShaderInstance";
 import { SubShader, UniformMapType } from "../../RenderEngine/RenderShader/SubShader";
@@ -30,7 +29,7 @@ export class ShaderCompileDefineBase {
     /** @internal */
     _defs: Set<string>;
     /** @internal */
-    _validDefine: DefineDatas = new DefineDatas();
+    _validDefine: IDefineDatas;
 
     /** @internal */
     protected _owner: SubShader;
@@ -47,6 +46,7 @@ export class ShaderCompileDefineBase {
         this._VS = compiledObj.vsNode;
         this._PS = compiledObj.psNode;
         this._defs = compiledObj.defs;
+        this._validDefine = LayaGL.renderOBJCreate.createDefineDatas();
         for (let k of compiledObj.defs)
             this._validDefine.add(Shader3D.getDefineByName(k));
     }
@@ -55,7 +55,7 @@ export class ShaderCompileDefineBase {
     /**
      * @internal
      */
-    withCompile(compileDefine: DefineDatas): IShaderInstance {
+    withCompile(compileDefine: IDefineDatas): IShaderInstance {
         return null;
     }
 }
