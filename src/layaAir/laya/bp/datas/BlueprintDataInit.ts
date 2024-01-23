@@ -16,6 +16,51 @@ export const BlueprintDataList: TBPCNode[] = [
         ],
     },
     {
+        name: "static_get",
+        menuPath: "none",
+        type: BPType.GetValue,
+        input: [
+            {
+                name: 'target',
+                type: 'class',
+            }
+        ],
+        output: [
+            {
+                type: "any",
+            },
+        ],
+    },
+    {
+        name: "static_set",
+        menuPath: "none",
+        type: BPType.SetValue,
+        input: [
+            {
+                name: "execute",
+                type: "exec",
+            },
+            {
+                name: 'target',
+                type: 'class',
+            },
+            {
+                name: 'set',
+                type: "any",
+            },
+        ],
+        output: [
+            {
+                name: "then",
+                type: "exec"
+            },
+            {
+                name: "return",
+                type: "any",
+            }
+        ],
+    },
+    {
         name: "get",
         menuPath: "none",
         type: BPType.GetValue,
