@@ -345,10 +345,15 @@ export class BlueprintUtil {
                             targetAliasName: o.name,
                             name: fun.name,
                             id: ext + "_" + fun.name,
-                            type: isBp ? BPType.CustomFun : BPType.Function,
+                            type: BPType.Function,
                             output: [
                                 BlueprintUtil.defEventOut,
                             ]
+                        }
+                        if (null != fun.customId) {
+                            cdata.id = ext + "_" + fun.customId;
+                            cdata.type = BPType.CustomFun;
+                            cdata.customId = fun.customId;
                         }
                         if (fun.typeParameters) {
                             cdata.typeParameters = fun.typeParameters;
