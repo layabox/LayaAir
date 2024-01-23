@@ -226,13 +226,12 @@ export class Gradient implements IClone {
 					out.b = rgbElements[offset + 3];
 					return curIndex;
 				}
-
+				var right: number = rgbElements[offset + 4];
 				switch (this._mode) {
 					case GradientMode.Blend:
-						if (lerpFactor > left) {
-							var right: number = rgbElements[offset + 4];
+						if (lerpFactor > left && right) {
 							if (lerpFactor > right)
-								throw "Gradient:wrong startSearchIndex.";
+								continue;
 							var diff: number = right - left;
 							var y1: number = right - lerpFactor;
 							var y2: number = lerpFactor - left;
@@ -329,14 +328,12 @@ export class Gradient implements IClone {
 					outColor.a = alphaElements[offset + 1];
 					return curIndex;
 				}
-
+				var right: number = alphaElements[offset + 2];
 				switch (this._mode) {
 					case GradientMode.Blend:
-						if (lerpFactor > left) {
-							var right: number = alphaElements[offset + 2];
+						if (lerpFactor > left && right) {
 							if (lerpFactor > right)
-								throw "Gradient:wrong startSearchIndex.";
-
+								continue;
 							var diff: number = right - left;
 							var x1: number = right - lerpFactor;
 							var x2: number = lerpFactor - left;
