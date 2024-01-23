@@ -1,3 +1,4 @@
+import { NativeSubShader } from "../../../RenderEngine/RenderEngine/NativeGLEngine/NativeModuleData";
 import { NativeShaderData } from "../../../RenderEngine/RenderEngine/NativeGLEngine/NativeShaderData";
 import { IRenderElement } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderElement";
 import { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
@@ -5,11 +6,11 @@ import { LayaGL } from "../../../layagl/LayaGL";
 import { RTBaseRenderNode } from "../RuntimeOBJ/Render3DNode/RTBaseRenderNode";
 import { NativeRenderGeometryElementOBJ } from "./NativeRenderGeometryElementOBJ";
 import { NativeTransform3D } from "./NativeTransform3D";
-export enum RenderElementType {
+/*export enum RenderElementType {
     Base = 0,
     Skin = 1,
     Instance = 2,
-}
+}*/
 export class NativeRenderElementOBJ implements IRenderElement {
 
     private _geometry: NativeRenderGeometryElementOBJ;
@@ -24,9 +25,8 @@ export class NativeRenderElementOBJ implements IRenderElement {
 
     set geometry(data: NativeRenderGeometryElementOBJ) {
         this._geometry = data;
-        this._nativeObj._geometry = (data as any)._nativeObj;
+        this._nativeObj.setGeometry((data as any)._nativeObj);
     }
-
 
     get geometry(): NativeRenderGeometryElementOBJ {
         return this._geometry;
@@ -34,7 +34,7 @@ export class NativeRenderElementOBJ implements IRenderElement {
 
     set materialShaderData(data: NativeShaderData) {
         this._materialShaderData = data;
-        this._nativeObj._materialShaderData = data ? (data as any)._nativeObj : null;
+        this._nativeObj.setMaterialShaderData(data ? (data as any)._nativeObj : null);
     }
 
     get materialShaderData(): NativeShaderData {
@@ -43,7 +43,7 @@ export class NativeRenderElementOBJ implements IRenderElement {
 
     set renderShaderData(data: NativeShaderData) {
         this._renderShaderData = data;
-        this._nativeObj._renderShaderData = data ? (data as any)._nativeObj : null;
+        this._nativeObj.setRenderShaderData(data ? (data as any)._nativeObj : null);
     }
 
     get renderShaderData(): NativeShaderData {
@@ -66,13 +66,11 @@ export class NativeRenderElementOBJ implements IRenderElement {
     set isRender(data: boolean) {
         this._nativeObj._isRender = data;
     }
-
-    private _materialRenderQueue: number;
     public get materialRenderQueue(): number {
-        return this._materialRenderQueue;
+        return this._nativeObj._materialRenderQueue;
     }
     public set materialRenderQueue(value: number) {
-        this._materialRenderQueue = value;
+        this._nativeObj._materialRenderQueue = value;
     }
 
     private _owner: RTBaseRenderNode;
@@ -81,6 +79,7 @@ export class NativeRenderElementOBJ implements IRenderElement {
     }
     public set owner(value: RTBaseRenderNode) {
         this._owner = value;
+        this._nativeObj.setOwner(value._nativeObj);
     }
 
     private _subShader: SubShader;
@@ -89,7 +88,8 @@ export class NativeRenderElementOBJ implements IRenderElement {
     }
     public set subShader(value: SubShader) {
         this._subShader = value;
-        //这里绑定compileShader的方法
+        this._nativeObj.setSubShader((value.moduleData as any as NativeSubShader)._nativeObj);
+        //这里绑定compileShader的方法 todo
     }
 
     _nativeObj: any;
@@ -99,19 +99,14 @@ export class NativeRenderElementOBJ implements IRenderElement {
     }
 
     destroy(): void {
-        throw new Error("Method not implemented.");
-    }
-
-    protected init(): void {
-        this._nativeObj = new (window as any).conchRenderElement(RenderElementType.Base, (LayaGL.renderEngine as any)._nativeObj);
-    }
-
-
-    _destroy() {
-        this._nativeObj._destroy();
+        this._nativeObj.destroy();
         this.geometry = null;
         this.materialShaderData = null;
         this.renderShaderData = null;
         this.transform = null;
+    }
+
+    protected init(): void {
+        this._nativeObj = new (window as any).conchRenderElementOBJ();
     }
 }

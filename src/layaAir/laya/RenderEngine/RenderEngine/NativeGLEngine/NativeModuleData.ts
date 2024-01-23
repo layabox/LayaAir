@@ -5,7 +5,7 @@ import { ShaderPass } from "../../RenderShader/ShaderPass";
 
 export class NativeSubShader implements ISubshaderData {
 
-    private _nativeObj: any;
+    _nativeObj: any;
     constructor() {
         this._nativeObj = new (window as any).conchSubShader();
     }
