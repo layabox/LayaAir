@@ -1,6 +1,7 @@
 import { Browser } from "../../../utils/Browser";
 import { ClassUtils } from "../../../utils/ClassUtils";
 import { BlueprintConst } from "../../core/BlueprintConst";
+import { BlueprintUtil } from "../../core/BlueprintUtil";
 import { IRuntimeDataManger } from "../../core/interface/IRuntimeDataManger";
 import { TBPCNode } from "../../datas/types/BlueprintTypes";
 import { BlueprintPinRuntime } from "../BlueprintPinRuntime";
@@ -15,7 +16,7 @@ export class BlueprintNewTargetNode extends BlueprintRuntimeBaseNode {
         super.parse(def);
         let arr = def.target.split(".");
         if (arr.length == 1) {
-            this.cls = ClassUtils.getClass(arr[0]);
+            this.cls = BlueprintUtil.getClass(arr[0]);
         }
         else {
             let cls = Browser.window;

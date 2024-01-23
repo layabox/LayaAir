@@ -1,3 +1,4 @@
+import { Laya } from "../../../Laya";
 import { EventDispatcher } from "../../events/EventDispatcher";
 import { Browser } from "../../utils/Browser";
 import { ClassUtils } from "../../utils/ClassUtils";
@@ -272,7 +273,7 @@ export class BlueprintUtil {
 
     private static initNode(data: Record<string, TBPDeclaration>) {
         for (let ext in data) {
-            let cls = ClassUtils.getClass(ext) || Browser.window.Laya[ext];
+            let cls = BlueprintUtil.getClass(ext);
 
             if (!cls) {
                 continue;
@@ -385,7 +386,7 @@ export class BlueprintUtil {
                             }
                         }
 
-                        if (cdata.type == BPType.Function||cdata.type == BPType.CustomFun) {
+                        if (cdata.type == BPType.Function || cdata.type == BPType.CustomFun) {
                             if (null == cdata.input) cdata.input = [];
                             if (!fun.modifiers.isStatic) {
                                 cdata.input.unshift({
@@ -395,17 +396,17 @@ export class BlueprintUtil {
                             }
                             cdata.input.unshift(BlueprintUtil.defFunIn);
                             if ('void' != fun.returnType) {
-                               if(fun.returnType instanceof Array){
-                                fun.returnType.forEach(value=>{
-                                    cdata.output.push(value);
-                                })
-                               }
-                               else{
-                                cdata.output.push({
-                                    name: "return",
-                                    type: fun.returnType,
-                                });
-                               }
+                                if (fun.returnType instanceof Array) {
+                                    fun.returnType.forEach(value => {
+                                        cdata.output.push(value);
+                                    })
+                                }
+                                else {
+                                    cdata.output.push({
+                                        name: "return",
+                                        type: fun.returnType,
+                                    });
+                                }
                             }
                         }
                         this.extendsNode[ext].push(cdata);
@@ -436,6 +437,8 @@ export class BlueprintUtil {
         }
     }
 
-
+    static getClass(ext: any) {
+        return ClassUtils.getClass(ext) || Browser.window.Laya[ext];
+    }
 
 }

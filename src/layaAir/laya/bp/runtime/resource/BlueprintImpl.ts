@@ -71,7 +71,7 @@ export class BlueprintImpl extends Resource {
 
     public initClass() {
         let extendClass = this.data.extends;
-        let runtime = ClassUtils.getClass(extendClass);
+        let runtime = BlueprintUtil.getClass(extendClass);
 
         if (!runtime) {
             this.state = -1;

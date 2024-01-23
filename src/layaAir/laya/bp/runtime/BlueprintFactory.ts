@@ -122,8 +122,10 @@ export class BlueprintFactory {
             this.regFunction("add", BlueprintStaticFun.add);
             this.regFunction("waitTime", BlueprintStaticFun.waitTime);
             this.regFunction("get", BlueprintStaticFun.getVariable);
+            this.regFunction("static_get", BlueprintStaticFun.getVariable);
 
             this.regFunction("set", BlueprintStaticFun.setVariable);
+            this.regFunction("static_set", BlueprintStaticFun.setVariable);
             this.regFunction("expression", BlueprintStaticFun.expression);
             this.regFunction("instanceof", BlueprintStaticFun.typeInstanceof);
 
