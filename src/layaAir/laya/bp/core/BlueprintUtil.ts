@@ -265,12 +265,6 @@ export class BlueprintUtil {
         }
         return arr;
     }
-
-    private static initExtendsNode() {
-        this.initNode(extendsData);
-        this.initNode(customData);
-    }
-
     private static initNode(data: Record<string, TBPDeclaration>) {
         for (let ext in data) {
             let cls = BlueprintUtil.getClass(ext);
@@ -299,7 +293,8 @@ export class BlueprintUtil {
                     if (null == anyObj.id) {
                         anyObj.id = 'var_' + ext + "_" + anyObj.name;
                     }
-                    anyObj.const = true;
+                    anyObj.targetAliasName = o.name;
+                    anyObj.target = ext;
                     this.constVars[ext].push(anyObj);
                     this.constAllVars[anyObj.id] = anyObj;
                 }
@@ -343,10 +338,11 @@ export class BlueprintUtil {
                 for (let i = funcs.length - 1; i >= 0; i--) {
                     let fun = funcs[i];
                     if (fun.modifiers.isPublic || fun.modifiers.isProtected) {
+
                         let cdata: TBPCNode = {
-                            menuPath: ext,
                             modifiers: fun.modifiers,
                             target: ext,
+                            targetAliasName: o.name,
                             name: fun.name,
                             id: ext + "_" + fun.name,
                             type: isBp ? BPType.CustomFun : BPType.Function,
