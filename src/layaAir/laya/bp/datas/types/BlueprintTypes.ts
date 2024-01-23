@@ -163,11 +163,14 @@ export interface TBPNode {
     id: number;
     ver?: number;
     /**dispatcher的名字 */
+    /**当前的类 */
+    target?: string;
     name?: string;
     /** constData的id号 */
     cid: string;
     /**var或者event的id */
     dataId?: string;
+    customId?: number;
     /**所有UI所用到的数据 */
     uiData?: {
         /**数据的x坐标位置 */
