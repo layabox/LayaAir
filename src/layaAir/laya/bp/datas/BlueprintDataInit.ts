@@ -366,6 +366,9 @@ export const BlueprintDataList: TBPCNode[] = [
         name: "as",
         menuPath: "system",
         type: BPType.Assertion,
+        modifiers: {
+            isStatic: true,
+        },
         typeParameters: {
             T: {}
         },
