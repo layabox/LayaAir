@@ -26,7 +26,7 @@ export class BlueprintImpl extends Resource {
 
     public typeName: string;
 
-    public dec:TBPDeclaration;
+    public dec: TBPDeclaration;
 
     constructor(data: any, task: ILoadTask, version?: number) {
         super();
@@ -86,12 +86,12 @@ export class BlueprintImpl extends Resource {
         let arr: TBPNode[] = [];
 
         // TBPDeclaration
-        let dec:TBPDeclaration = {
-            type:"Node",
-            name:this.name,
-            props:[],
-            funcs:[],
-            extends:[this.data.extends]
+        let dec: TBPDeclaration = {
+            type: "Node",
+            name: this.name,
+            props: [],
+            funcs: [],
+            extends: [this.data.extends]
         }
 
         for (const key in map) {
@@ -102,17 +102,17 @@ export class BlueprintImpl extends Resource {
         let dataMap: Record<string, TBPVarProperty | TBPEventProperty> = {}
         let varMap: Record<string, TBPVarProperty> = {};
 
-        if (this.data.variable){
+        if (this.data.variable) {
             let decProps = dec.props;
             this.data.variable.forEach((ele) => {
                 dataMap[ele.id] = ele;
                 varMap[ele.id] = ele;
 
-                let decProp:TBPDeclarationProp = {
-                    name:ele.name,
-                    type:ele.type as string,
-                    modifiers:{
-                        isPublic:true
+                let decProp: TBPDeclarationProp = {
+                    name: ele.name,
+                    type: ele.type as string,
+                    modifiers: {
+                        isPublic: true
                     }
                 }
 
@@ -135,44 +135,43 @@ export class BlueprintImpl extends Resource {
                 //@ts-ignore
                 dataMap[ele.id] = ele;
 
-                let func:TBPDeclarationFunction = {
-                    name:ele.name,
-                    type:"function",
-                    params:[
-                        
+                let func: TBPDeclarationFunction = {
+                    name: ele.name,
+                    type: "function",
+                    params: [
+
                     ],
-                    modifiers:{
-                        isPublic:true
+                    modifiers: {
+                        isPublic: true
                     },
-                    returnType:"void"
+                    returnType: "void"
                 }
-    
+
                 //@ts-ignore
                 let inputs = ele.input;
                 if (inputs) {
                     let params = func.params;
-                    for (let j = 0 , len = inputs.length; j < len; j++) {
+                    for (let j = 0, len = inputs.length; j < len; j++) {
                         let input = inputs[j];
-                        let param :TBPDeclarationParam = {
-                            name:input.name,
-                            type:input.type
+                        let param: TBPDeclarationParam = {
+                            name: input.name,
+                            type: input.type
                         }
                         params.push(param);
                     }
                 }
-    
+
                 //@ts-ignore
                 let outputs = ele.output;
                 if (outputs) {
-                    let returnType:string = "{";
-                    for (let j = 0 , len = outputs.length; j < len; j++) {
+                    let returnType:any[] = [];
+                    for (let j = 0, len = outputs.length; j < len; j++) {
                         let output = outputs[j];
-                        if (j) returnType = returnType + ",";
-                        returnType = returnType + `${output.name}:${output.type}`;
+                        returnType.push({name:output.name,type:output.type});
                     }
-                    func.returnType = JSON.stringify(returnType);
+                    func.returnType = returnType;
                 }
-    
+
                 funcs.push(func);
             })
         }
@@ -194,7 +193,7 @@ export class BlueprintImpl extends Resource {
         ClassUtils.regClass(this.uuid, this.cls);
         ClassUtils.regClass(this.typeName, Object);
 
-        BlueprintUtil.addCustomData(this.uuid , dec);
+        BlueprintUtil.addCustomData(this.uuid, dec);
     }
 
     protected _disposeResource(): void {

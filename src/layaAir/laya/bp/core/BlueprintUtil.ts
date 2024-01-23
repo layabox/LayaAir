@@ -1,3 +1,4 @@
+import { EventDispatcher } from "../../events/EventDispatcher";
 import { Browser } from "../../utils/Browser";
 import { ClassUtils } from "../../utils/ClassUtils";
 import { BlueprintDataList } from "../datas/BlueprintDataInit";
@@ -12,6 +13,10 @@ export class BlueprintUtil {
     static extendsNode: Record<string, TBPCNode[]> = {};
     static constVars: Record<string, TBPVarProperty[]> = {};
     static constAllVars: Record<string, TBPVarProperty> = {};
+
+    static eventManger: EventDispatcher = new EventDispatcher();
+
+    static CustomClassFinish: string = "CustomClassFinish";
 
     private static _customModify = false;
 
@@ -158,6 +163,7 @@ export class BlueprintUtil {
     static addCustomData(name: string, data: TBPDeclaration) {
         customData[name] = data;
         BlueprintUtil._customModify = true;
+        BlueprintUtil.eventManger.event(BlueprintUtil.CustomClassFinish, name);
     }
 
     static getDeclaration(name: string): TBPDeclaration {
@@ -274,6 +280,10 @@ export class BlueprintUtil {
             this.extendsNode[ext] = [];
             this._constExtNode[ext] = {};
             let o = data[ext];
+            let isBp: boolean = false;
+            if (o && o.name.indexOf(".bp") != -1) {
+                isBp = true;
+            }
 
             if (o && o.props) {
                 let arr = o.props;
@@ -338,7 +348,7 @@ export class BlueprintUtil {
                             target: ext,
                             name: fun.name,
                             id: ext + "_" + fun.name,
-                            type: BPType.Function,
+                            type: isBp ? BPType.CustomFun : BPType.Function,
                             output: [
                                 BlueprintUtil.defEventOut,
                             ]
@@ -356,10 +366,10 @@ export class BlueprintUtil {
                         }
                         let funName = fun.name;
                         let func = fun.modifiers.isStatic ? cls[funName] : cls.prototype[funName];
-                        if (!func) {
+                        if (func) {
                             //debugger
+                            BlueprintFactory.regFunction(cdata.id, func, !fun.modifiers.isStatic, cls);
                         }
-                        BlueprintFactory.regFunction(cdata.id, func, !fun.modifiers.isStatic);
 
                         if (0 == fun.name.indexOf("on") && 'on' != fun.name) {
                             //TODO 暂时以on开头的都是Event
@@ -375,7 +385,7 @@ export class BlueprintUtil {
                             }
                         }
 
-                        if (cdata.type == BPType.Function) {
+                        if (cdata.type == BPType.Function||cdata.type == BPType.CustomFun) {
                             if (null == cdata.input) cdata.input = [];
                             if (!fun.modifiers.isStatic) {
                                 cdata.input.unshift({
@@ -385,10 +395,17 @@ export class BlueprintUtil {
                             }
                             cdata.input.unshift(BlueprintUtil.defFunIn);
                             if ('void' != fun.returnType) {
+                               if(fun.returnType instanceof Array){
+                                fun.returnType.forEach(value=>{
+                                    cdata.output.push(value);
+                                })
+                               }
+                               else{
                                 cdata.output.push({
                                     name: "return",
                                     type: fun.returnType,
                                 });
+                               }
                             }
                         }
                         this.extendsNode[ext].push(cdata);

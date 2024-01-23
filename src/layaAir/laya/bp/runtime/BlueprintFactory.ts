@@ -23,6 +23,7 @@ import { BlueprintCustomFunNode } from "./node/BlueprintCustomFunNode";
 import { BlueprintCustomFunStart } from "./node/BlueprintCustomFunStart";
 import { BlueprintCustomFunReturn, BlueprintCustomFunReturnContext } from "./node/BlueprintCustomFunReturn";
 import { BluePrintAsNode } from "./node/BlueprintAsNode";
+import { Laya } from "../../../Laya";
 
 export class BlueprintFactory {
     public static readonly bpSymbol: unique symbol = Symbol("bpruntime");
@@ -49,7 +50,10 @@ export class BlueprintFactory {
         this._bpMap.set(type, cls);
     }
 
-    static regFunction(fname: string, fun: Function, isMember: boolean = false) {
+    static regFunction(fname: string, fun: Function, isMember: boolean = false, cls: any = null) {
+        if (isMember == false && cls) {
+            fun = fun.bind(cls);
+        }
         this._funMap.set(fname, [fun, isMember]);
     }
 
@@ -200,12 +204,14 @@ export class BlueprintFactory {
         let c = function (node: TBPNode): TBPCNode {
             return BlueprintUtil.getConstNode("Node", node, data) as TBPCNode;
         }
-        bp.parse(bpjson, c, varMap);
-        funs.forEach(fun => {
-            bp.parseFunction(fun.id, fun.arr, c);
-        })
-        this.initEventFunc(parentName, newClass);
-        this.initClassHook(parentName, newClass);
+        if (LayaEnv.isPlaying) {
+            bp.parse(bpjson, c, varMap);
+            funs.forEach(fun => {
+                bp.parseFunction(fun.id, fun.arr, c);
+            })
+            this.initEventFunc(parentName, newClass);
+            this.initClassHook(parentName, newClass);
+        }
         Object.defineProperty(newClass, 'name', { value: name });
 
         return newClass as unknown as T;
