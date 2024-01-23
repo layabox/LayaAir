@@ -169,7 +169,7 @@ class BluePrintBlock implements INodeManger<BlueprintRuntimeBaseNode>, IBPRutime
     }
 
     clear() {
-        this._asList.length = 0;
+        //this._asList.length = 0;
         this.excuteList.length = 0;
     }
 
@@ -223,6 +223,7 @@ class BluePrintBlock implements INodeManger<BlueprintRuntimeBaseNode>, IBPRutime
             this._pendingClass.delete(name);
         }
         if (this._pendingClass.size == 0) {
+            BlueprintUtil.eventManger.offAllCaller(this);
             this.clear();
             this.optimize();
         }
@@ -232,6 +233,19 @@ class BluePrintBlock implements INodeManger<BlueprintRuntimeBaseNode>, IBPRutime
     parse(bpjson: Array<TBPNode>, getCNodeByNode: (node: TBPNode) => TBPCNode, varMap: Record<string, TBPVarProperty>) {
         this.varMap = varMap;
         //pin create
+
+        // for(let i:number=0,n:number=bpjson.length;i<n;i++){
+        //     let item=bpjson[i];
+        //     let itemdef = getCNodeByNode(item);
+        //     if(!itemdef){
+        //         BlueprintUtil.eventManger.on(BlueprintUtil.CustomClassFinish, this, this._onChangeParse, [getCNodeByNode]);
+        //         return;
+        //     }
+        //     else{
+        //         let node = BlueprintFactory.instance.createNew(itemdef, item.id);
+        //         this.append(node);
+        //     }
+        // }
         bpjson.forEach(item => {
             let itemdef = getCNodeByNode(item);
             if (!itemdef) {

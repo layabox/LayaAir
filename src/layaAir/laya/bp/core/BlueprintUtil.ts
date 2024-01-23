@@ -365,8 +365,8 @@ export class BlueprintUtil {
                         let func = fun.modifiers.isStatic ? cls[funName] : cls.prototype[funName];
                         if (func) {
                             //debugger
-                            BlueprintFactory.regFunction(cdata.id, func, !fun.modifiers.isStatic, cls);
                         }
+                        BlueprintFactory.regFunction(cdata.id, func, !fun.modifiers.isStatic, cls);
 
                         if (0 == fun.name.indexOf("on") && 'on' != fun.name) {
                             //TODO 暂时以on开头的都是Event
