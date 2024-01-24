@@ -71,15 +71,15 @@ export class RTSceneNodeData implements ISceneNodeData {
 
 export class RTSubShader implements ISubshaderData {
 
-    private _nativeObj: any;
+    _nativeObj: any;
     constructor() {
         this._nativeObj = new (window as any).conchSubShader();
     }
     destroy(): void {
-        //this._nativeObj.destroy  TODO
+        this._nativeObj.destroy();
     }
     addShaderPass(pass: RTShaderPass): void {
-        this._nativeObj.addShaderPass(pass._nativeObj);//TODO 
+        this._nativeObj.addShaderPass(pass._nativeObj);
     }
 }
 

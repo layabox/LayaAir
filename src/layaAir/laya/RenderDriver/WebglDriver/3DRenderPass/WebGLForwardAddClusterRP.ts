@@ -193,7 +193,12 @@ export class WebGLForwardAddClusterRP implements IForwardAddClusterRP {
         context.setClearData(this.clearFlag, this.clearColor, 1, 0);
         this.enableOpaque && this.opaqueList.renderQueue(context);
         this._rendercmd(this.beforeSkyboxCmds, context);
-        //context.drawRenderElementOne(this.skyRenderNode);
+
+        // if (this.skyRenderNode) {
+        //     let skyRenderNode = <GLESBaseRenderNode>this.skyRenderNode;
+        //     context.drawRenderElementOne(skyRenderNode.renderelements[0]);
+        // }
+
         if (this.enableOpaque) {
             this.opaqueTexturePass();
         }

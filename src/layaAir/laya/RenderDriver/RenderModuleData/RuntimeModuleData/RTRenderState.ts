@@ -118,7 +118,7 @@ export class RTRenderState extends RenderState {
 	}
 
 	set stencilOp(value: Vector3) {
-		this._nativeObj.setStencilOp(value.x, value.y, value.z);
+		this._nativeObj.setStencilOp(value);
 	}
 
 	setNull(): void {
@@ -131,6 +131,7 @@ export class RTRenderState extends RenderState {
 
 	constructor() {
 		super();
+		
 	}
 
 	cloneTo(dest: RTRenderState): void {

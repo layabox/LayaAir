@@ -5,11 +5,11 @@ import { NativeTransform3D } from "../../RenderModuleData/RuntimeModuleData/3D/N
 import { RTBaseRenderNode } from "../../RenderModuleData/RuntimeModuleData/3D/RTBaseRenderNode";
 import { RTShaderData } from "../../RenderModuleData/RuntimeModuleData/RTShaderData";
 
-export enum RenderElementType {
+/*export enum RenderElementType {
     Base = 0,
     Skin = 1,
     Instance = 2,
-}
+}*/
 export class GLESRenderElement3D implements IRenderElement3D {
 
     private _geometry: NativeRenderGeometryElementOBJ;
@@ -24,9 +24,8 @@ export class GLESRenderElement3D implements IRenderElement3D {
 
     set geometry(data: NativeRenderGeometryElementOBJ) {
         this._geometry = data;
-        this._nativeObj._geometry = (data as any)._nativeObj;
+        this._nativeObj.setGeometry((data as any)._nativeObj);
     }
-
 
     get geometry(): NativeRenderGeometryElementOBJ {
         return this._geometry;
@@ -34,7 +33,7 @@ export class GLESRenderElement3D implements IRenderElement3D {
 
     set materialShaderData(data: RTShaderData) {
         this._materialShaderData = data;
-        this._nativeObj._materialShaderData = data ? (data as any)._nativeObj : null;
+        this._nativeObj.setMaterialShaderData(data ? (data as any)._nativeObj : null);
     }
 
     get materialShaderData(): RTShaderData {
@@ -43,7 +42,7 @@ export class GLESRenderElement3D implements IRenderElement3D {
 
     set renderShaderData(data: RTShaderData) {
         this._renderShaderData = data;
-        this._nativeObj._renderShaderData = data ? (data as any)._nativeObj : null;
+        this._nativeObj.setRenderShaderData(data ? (data as any)._nativeObj : null);
     }
 
     get renderShaderData(): RTShaderData {
@@ -66,13 +65,11 @@ export class GLESRenderElement3D implements IRenderElement3D {
     set isRender(data: boolean) {
         this._nativeObj._isRender = data;
     }
-
-    private _materialRenderQueue: number;
     public get materialRenderQueue(): number {
-        return this._materialRenderQueue;
+        return this._nativeObj._materialRenderQueue;
     }
     public set materialRenderQueue(value: number) {
-        this._materialRenderQueue = value;
+        this._nativeObj._materialRenderQueue = value;
     }
 
     private _owner: RTBaseRenderNode;
@@ -81,6 +78,7 @@ export class GLESRenderElement3D implements IRenderElement3D {
     }
     public set owner(value: RTBaseRenderNode) {
         this._owner = value;
+        this._nativeObj.setOwner(value._nativeObj);
     }
 
     private _subShader: SubShader;
@@ -89,6 +87,7 @@ export class GLESRenderElement3D implements IRenderElement3D {
     }
     public set subShader(value: SubShader) {
         this._subShader = value;
+        this._nativeObj.setSubShader((value.moduleData as any as NativeSubShader)._nativeObj);
     }
 
     _nativeObj: any;
@@ -98,19 +97,14 @@ export class GLESRenderElement3D implements IRenderElement3D {
     }
 
     destroy(): void {
-        throw new Error("Method not implemented.");
-    }
-
-    protected init(): void {
-        //this._nativeObj = new (window as any).conchRenderElement(RenderElementType.Base, (LayaGL.renderEngine as any)._nativeObj);
-    }
-
-
-    _destroy() {
-        this._nativeObj._destroy();
+        this._nativeObj.destroy();
         this.geometry = null;
         this.materialShaderData = null;
         this.renderShaderData = null;
         this.transform = null;
+    }
+
+    protected init(): void {
+        this._nativeObj = new (window as any).conchRenderElementOBJ();
     }
 }

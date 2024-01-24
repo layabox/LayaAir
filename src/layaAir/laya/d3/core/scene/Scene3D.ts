@@ -812,6 +812,7 @@ export class Scene3D extends Sprite implements ISubmit {
 
         //this._sceneRenderManager.updateMotionObjects();
         this._sceneRenderManager.renderUpdate();
+        this.skyRenderer.renderUpdate(RenderContext3D._instance);
         if (!this._renderByEditor)
             this._UI3DManager.update();
     }

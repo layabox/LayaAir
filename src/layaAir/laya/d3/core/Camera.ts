@@ -1208,6 +1208,12 @@ export class Camera extends BaseCamera {
         this._ForwardAddRP.renderpass.setBeforeTransparentCmds(this._cameraEventCommandBuffer[CameraEventFlags.BeforeTransparent]);
         this._ForwardAddRP.setAfterEventCmd(this._cameraEventCommandBuffer[CameraEventFlags.BeforeTransparent]);
         this._ForwardAddRP.renderpass.setCameraCullInfo(this);
+        if (this.clearFlag == CameraClearFlags.Sky) {
+            this._ForwardAddRP.renderpass.skyRenderNode = scene.skyRenderer._baseRenderNode;
+        }
+        else {
+            this._ForwardAddRP.renderpass.skyRenderNode = null;
+        }
         //postProcess TODO;
 
         //shadowCaster 是否渲染阴影Pass

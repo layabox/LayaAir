@@ -572,7 +572,7 @@ export class BaseRender extends Component {
             this._changeLayer((this.owner as Sprite3D).layer);
             this._changeStaticMask((this.owner as Sprite3D)._isStatic);
         }
-        this.owner.scene._addRenderObject(this);
+        (<Scene3D>this.owner.scene)._addRenderObject(this);
         this._setBelongScene(this.owner.scene);
     }
 
