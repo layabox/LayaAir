@@ -1,7 +1,7 @@
 import { IBluePrintSubclass } from "../../core/interface/IBluePrintSubclass";
 import { INodeManger } from "../../core/interface/INodeManger";
 import { IRuntimeDataManger } from "../../core/interface/IRuntimeDataManger";
-import { TBPEventProperty, TBPNode } from "../../datas/types/BlueprintTypes";
+import { TBPNode } from "../../datas/types/BlueprintTypes";
 import { BlueprintFactory } from "../BlueprintFactory";
 import { IRunAble } from "../interface/IRunAble";
 import { BlueprintFunNode } from "./BlueprintFunNode";
@@ -10,8 +10,9 @@ export class BlueprintCustomFunNode extends BlueprintFunNode {
     functionID: number;
 
     protected onParseLinkData(node: TBPNode, manger: INodeManger<BlueprintFunNode>) {
-        if (node.dataId) {
-            this.functionID = node.dataId as any as number;
+        let id = node.dataId;
+        if (id) {
+            this.functionID = id as any as number;
             this.isMember = true;
             //this.eventName = (manger.dataMap[node.dataId] as TBPEventProperty).name;
         }

@@ -7,18 +7,38 @@ import { IRunAble } from "./interface/IRunAble";
  * 
  */
 export class BlueprintStaticFun {
+    /**
+     * @internal
+     * @param outExcutes 
+     * @param input 
+     * @returns 
+     */
     static branch(outExcutes: BlueprintPinRuntime[], input: boolean): BlueprintPinRuntime {
         return input ? outExcutes[0] : outExcutes[1];
     }
-
+    /**
+     * @private
+     * @param outExcutes 
+     * @param input 
+     * @returns 
+     */
     static switchFun(outExcutes: BlueprintPinRuntime[], input: any): BlueprintPinRuntime {
         return outExcutes.find((item) => item.name == input) || outExcutes.find((item) => item.name == "default");
     }
-
+    /**
+     * 打印
+     * @param str 
+     */
     static print(str: string) {
         console.log(str);
     }
-
+    /**
+     * @private
+     * @param target 
+     * @param name 
+     * @param context 
+     * @returns 
+     */
     static getVariable(target: IBluePrintSubclass, name: string, context: IRunAble): any {
         if (!target) {
             return context.getVar(name);
@@ -33,7 +53,13 @@ export class BlueprintStaticFun {
             }
         }
     }
-
+    /**
+     * @private
+     * @param target 
+     * @param value 
+     * @param name 
+     * @param context 
+     */
     static setVariable(target: IBluePrintSubclass, value: any, name: string, context: IRunAble): void {
         if (!target) {
             context.setVar(name, value);
@@ -48,7 +74,11 @@ export class BlueprintStaticFun {
             }
         }
     }
-
+    /**
+     * 
+     * @param second 
+     * @returns 
+     */
     static waitTime(second: number): Promise<boolean> {
         return new Promise((resolve, rejects) => {
             setTimeout(() => {
@@ -62,21 +92,41 @@ export class BlueprintStaticFun {
     //     //return a+b
     //     //return a+b;
     // }
-
-    static add(a: any, b: any): any {
-        return a + b;
+    /**
+     * 相加
+     * @param a 
+     * @param b 
+     * @returns 和
+     */
+    static add<T extends string|number>(a: T, b: T): T {
+        return a as any + b;
         //return a+b;
     }
 
-
+    /**
+     * 
+     * @param a 
+     * @param b 
+     * @returns 是否相同
+     */
     static equal(a: any, b: any): any {
         return a == b;
     }
 
+    /**
+     * @private
+     * @returns 
+     */
     static expression() {
         return true;
     }
-
+    /**
+     * @private
+     * @param target 
+     * @param value 
+     * @param name 
+     * @param context 
+     */
     static typeInstanceof(outExcutes: BlueprintPinRuntime[], target: any, type: any) {
         let b;
         if (typeof (type) == 'string') {

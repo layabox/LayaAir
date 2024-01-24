@@ -355,6 +355,13 @@ export class BlueprintUtil {
                                 BlueprintUtil.defEventOut,
                             ]
                         }
+                        switch (fun.type) {
+                            case BPType.Pure:
+                            case BPType.Function:
+                            case BPType.Event:
+                                cdata.type = fun.type as BPType;
+                                break;
+                        }
                         if (null != fun.customId) {
                             cdata.id = ext + "_" + fun.customId;
                             cdata.type = BPType.CustomFun;
@@ -368,9 +375,8 @@ export class BlueprintUtil {
                             cdata.id += "_static";
                             cdata.aliasName = fun.name + " (Static)";
                         }
-                        if (BPType.Event == fun.type) {
-                            cdata.type = BPType.Event;
-                        }
+
+                    
                         let funName = fun.name;
                         let func = fun.modifiers.isStatic ? cls[funName] : cls.prototype[funName];
                         if (func) {
@@ -392,7 +398,7 @@ export class BlueprintUtil {
                             }
                         }
 
-                        if (cdata.type == BPType.Function || cdata.type == BPType.CustomFun) {
+                        if (cdata.type == BPType.Function || cdata.type == BPType.CustomFun || cdata.type == BPType.Pure) {
                             if (null == cdata.input) cdata.input = [];
                             if (!fun.modifiers.isStatic) {
                                 cdata.input.unshift({
@@ -400,7 +406,13 @@ export class BlueprintUtil {
                                     type: ext,
                                 });
                             }
-                            cdata.input.unshift(BlueprintUtil.defFunIn);
+                            if(cdata.type == BPType.Pure){
+                                cdata.output.shift();
+                            }
+                            else{
+                                cdata.input.unshift(BlueprintUtil.defFunIn);
+                            }
+
                             if ('void' != fun.returnType) {
                                 if (fun.returnType instanceof Array) {
                                     fun.returnType.forEach(value => {
