@@ -51,7 +51,7 @@ export class BlueprintFactory {
     }
 
     static regFunction(fname: string, fun: Function, isMember: boolean = false, cls: any = null) {
-        if (isMember == false && cls) {
+        if (isMember == false && cls && fun) {
             fun = fun.bind(cls);
         }
         this._funMap.set(fname, [fun, isMember]);
