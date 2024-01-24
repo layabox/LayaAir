@@ -10,22 +10,33 @@ export class NativeSubShader implements ISubshaderData {
         this._nativeObj = new (window as any).conchSubShader();
     }
     destroy(): void {
-        //this._nativeObj.destroy  TODO
+        this._nativeObj.destroy();
     }
     addShaderPass(pass: NativeShaderPass): void {
-        this._nativeObj.addShaderPass(pass._nativeObj);//TODO 
+        this._nativeObj.addShaderPass(pass._nativeObj);
     }
 }
 
 export class NativeShaderPass implements IShaderPassData {
     static TempDefine: DefineDatas;//native 创建Shader要同步这个defineData
-    pipelineMode: string;
-    statefirst: boolean;
+    public get pipelineMode() {
+        return this._nativeObj._pipelineMode;
+    }
+    public set pipelineMode(value: string) {
+        this._nativeObj._pipelineMode = value;
+    }
+    public get statefirst() {
+        return this._nativeObj._statefirst;
+    }
+    public set statefirst(value: boolean) {
+        this._nativeObj._statefirst = value;
+    }
     validDefine: DefineDatas = new DefineDatas();
     private _createShaderInstanceFun: any;//想办法把这个传下去
     _nativeObj: any;
     private _pass: ShaderPass;
     constructor(pass: ShaderPass) {
+        this._pass = pass;
         this._nativeObj = new (window as any).conchShaderPass();
         this._createShaderInstanceFun = this.nativeCreateShaderInstance.bind(this);
         this._nativeObj.setCreateShaderInstanceFunction(this._createShaderInstanceFun);
@@ -37,7 +48,7 @@ export class NativeShaderPass implements IShaderPassData {
     }
 
     destory(): void {
-        //TODO
+        this._nativeObj.destroy();
     }
 
     setCacheShader(defines: DefineDatas, shaderInstance: NativeShaderInstance): void {

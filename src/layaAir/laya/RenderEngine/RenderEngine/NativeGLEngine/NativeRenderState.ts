@@ -118,7 +118,7 @@ export class NativeRenderState {
 	}
 
 	set stencilOp(value: Vector3) {
-		this._nativeObj.setStencilOp(value.x, value.y, value.z);
+		this._nativeObj.setStencilOp(value);
 	}
 	setNull():void {
 		this._nativeObj.setNull();
