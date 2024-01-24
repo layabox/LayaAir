@@ -296,6 +296,7 @@ export class BlueprintUtil {
                     }
                     anyObj.targetAliasName = o.name;
                     anyObj.target = ext;
+                    anyObj.const = true;
                     this.constVars[ext].push(anyObj);
                     this.constAllVars[anyObj.id] = anyObj;
                 }
