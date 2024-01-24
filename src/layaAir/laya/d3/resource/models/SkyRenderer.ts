@@ -11,7 +11,15 @@ import { Scene3D } from "../../core/scene/Scene3D";
 import { SkyBox } from "./SkyBox";
 import { SkyDome } from "./SkyDome";
 import { RenderElement } from "../../core/render/RenderElement";
-import { ShaderDataType } from "../../../RenderEngine/RenderInterface/ShaderData";
+import { ShaderData, ShaderDataType } from "../../../RenderEngine/RenderInterface/ShaderData";
+import { IBaseRenderNode } from "../../RenderDriverLayer/Render3DNode/IBaseRenderNode";
+import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
+import { Transform3D } from "../../core/Transform3D";
+import { BaseCamera } from "../../core/BaseCamera";
+
+const InvertYScaleMat = new Matrix4x4(1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+
+const ProjectionViewMat = new Matrix4x4();
 
 /**
  * <code>SkyRenderer</code> 类用于实现天空渲染器。
@@ -28,6 +36,11 @@ export class SkyRenderer {
     private _mesh: GeometryElement;
     /**@internal */
     private _renderElement: RenderElement;
+
+    /** @internal */
+    _baseRenderNode: IBaseRenderNode;
+
+    _cameraData: ShaderData;
 
     private _renderData: BaseRender;
     static SUNLIGHTDIRECTION: number;
@@ -55,6 +68,7 @@ export class SkyRenderer {
             if (value) {
                 value._addReference();
                 this._renderElement.renderSubShader = this._material._shader.getSubShaderAt(0);
+                this._baseRenderNode.setOneMaterial(0, value);
             }
             else
                 this._renderElement.renderSubShader = null;
@@ -97,6 +111,63 @@ export class SkyRenderer {
         this.mesh = SkyDome.instance;
         this._renderData = new BaseRender();
         this._renderElement.render = this._renderData;
+        this._baseRenderNode = Laya3DRender.renderOBJCreate.createBaseRenderNode();
+        this._baseRenderNode.transform = new Transform3D(null);
+        this._baseRenderNode.setRenderelements([this._renderElement._renderElementOBJ]);
+        this._baseRenderNode.set_renderUpdatePreCall(this, () => {
+
+            const apply = (viewMat: Matrix4x4, projMat: Matrix4x4) => {
+
+                let context = RenderContext3D._instance;
+
+                var scene: Scene3D = context.scene;
+                this._renderData._baseRenderNode.shaderData.setColor(SkyRenderer.SUNLIGHTDIRCOLOR, scene._sunColor);
+                this._renderData._baseRenderNode.shaderData.setVector3(SkyRenderer.SUNLIGHTDIRECTION, scene._sundir);
+
+                if (context.invertY) {
+                    Matrix4x4.multiply(InvertYScaleMat, projMat, projMat);
+                }
+
+                let projectView = ProjectionViewMat;
+                Matrix4x4.multiply(projMat, viewMat, projectView);
+
+                this._cameraData.setMatrix4x4(Camera.VIEWMATRIX, viewMat);
+                this._cameraData.setMatrix4x4(Camera.PROJECTMATRIX, projMat);
+                this._cameraData.setMatrix4x4(Camera.VIEWPROJECTMATRIX, projectView);
+            }
+
+            let camera = RenderContext3D._instance.camera;
+
+            camera._shaderValues.cloneTo(this._cameraData);
+
+            let viewMatrix = SkyRenderer._tempMatrix0;
+            let projectionMatrix = SkyRenderer._tempMatrix1;
+
+            camera.viewMatrix.cloneTo(viewMatrix);//视图矩阵逆矩阵的转置矩阵，移除平移和缩放
+            viewMatrix.setTranslationVector(Vector3.ZERO);
+            if (!camera.orthographic) {
+                camera.projectionMatrix.cloneTo(projectionMatrix);
+
+                var epsilon: number = 1e-6;
+                var yScale: number = 1.0 / Math.tan(3.1416 * camera.fieldOfView / 180 * 0.5);
+                projectionMatrix.elements[0] = yScale / camera.aspectRatio;
+                projectionMatrix.elements[5] = yScale;
+                projectionMatrix.elements[10] = epsilon - 1.0;
+                projectionMatrix.elements[11] = -1.0;
+                projectionMatrix.elements[14] = -0;//znear无穷小
+
+            } else {
+
+                var halfWidth: number = 0.2;
+                var halfHeight: number = halfWidth;
+                Matrix4x4.createOrthoOffCenter(-halfWidth, halfWidth, -halfHeight, halfHeight, camera.nearPlane, camera.farPlane, projectionMatrix);
+            }
+            if ((camera as any).isWebXR) {
+                apply(viewMatrix, camera.projectionMatrix);//TODO:优化 不应设置给Camera直接提交
+            } else {
+                apply(viewMatrix, projectionMatrix);//TODO:优化 不应设置给Camera直接提交
+            }
+        });
     }
 
     /**
@@ -107,6 +178,12 @@ export class SkyRenderer {
         return this._material && this._mesh ? true : false;
     }
 
+    renderUpdate(context: RenderContext3D) {
+        let geomettry = this.mesh;
+        this._renderElement._renderElementOBJ.isRender = geomettry._prepareRender(context);
+        geomettry._updateRenderParams(context);
+    }
+
     /**
      * @internal
      */
@@ -115,8 +192,7 @@ export class SkyRenderer {
             var camera = context.camera;
             var scene: Scene3D = context.scene;
             var projectionMatrix: Matrix4x4 = SkyRenderer._tempMatrix1;
-            this._renderData._baseRenderNode.shaderData.setColor(SkyRenderer.SUNLIGHTDIRCOLOR, scene._sunColor);
-            this._renderData._baseRenderNode.shaderData.setVector3(SkyRenderer.SUNLIGHTDIRECTION, scene._sundir);
+
             //无穷投影矩阵算法,DirectX右手坐标系推导
             //http://terathon.com/gdc07_lengyel.pdf
 
@@ -163,7 +239,6 @@ export class SkyRenderer {
                 camera._applyViewProject(context, viewMatrix, projectionMatrix);//TODO:优化 不应设置给Camera直接提交
             }
 
-
             // context._contextOBJ.applyContext(Camera._updateMark);
             // context.drawRenderElement(this._renderElement);
             // camera._applyViewProject(context, camera.viewMatrix, camera.projectionMatrix);
@@ -180,9 +255,9 @@ export class SkyRenderer {
             this._material = null;
         }
         this._renderData.destroy();
+        this._cameraData.destroy();
         this._renderElement.destroy();
-
-
+        this._baseRenderNode.destroy();
     }
 
 }

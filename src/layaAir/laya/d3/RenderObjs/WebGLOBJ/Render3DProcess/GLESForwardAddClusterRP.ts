@@ -11,6 +11,7 @@ import { DepthPass } from "../../../depthMap/DepthPass";
 import { Viewport } from "../../../math/Viewport";
 import { CameraCullInfo } from "../../../shadowMap/ShadowSliceData";
 import { GLESRenderContext3D } from "../GLESRenderContext3D";
+import { GLESRenderElementOBJ } from "../GLESRenderElementOBJ";
 import { GLESBaseRenderNode } from "../Render3DNode/GLESBaseRenderNode";
 import { GLESCameraNodeData } from "../RenderModuleData/GLESModuleData";
 import { GLESCullUtil } from "./GLESRenderUtil.ts/GLESCullUtil";
@@ -121,6 +122,7 @@ export class GLESForwardAddClusterRP implements IForwardAddClusterRP {
         this.transparent.clear();
         //裁剪cull TODO 自定义
         GLESCullUtil.cullByCameraCullInfo(this.cameraCullInfo, list, count, this.opaqueList, this.transparent, context)
+
         //更新数据 TODO
         if ((this.depthTextureMode & DepthTextureMode.Depth) != 0) {
             this._renderDepthPass(context);
@@ -196,7 +198,12 @@ export class GLESForwardAddClusterRP implements IForwardAddClusterRP {
         context.setClearData(this.clearFlag, this.clearColor, 1, 0);
         this.enableOpaque && this.opaqueList.renderQueue(context);
         this._rendercmd(this.beforeSkyboxCmds, context);
-        //context.drawRenderElementOne(this.skyRenderNode);
+
+        // if (this.skyRenderNode) {
+        //     let skyRenderNode = <GLESBaseRenderNode>this.skyRenderNode;
+        //     context.drawRenderElementOne(skyRenderNode.renderelements[0]);
+        // }
+
         if (this.enableOpaque) {
             this.opaqueTexturePass();
         }
@@ -221,5 +228,5 @@ export class GLESForwardAddClusterRP implements IForwardAddClusterRP {
         context.setScissor(cacheScissor);
         context.setRenderTarget(this.destTarget);
     }
-    
+
 }
