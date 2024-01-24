@@ -63,7 +63,10 @@ export class BlueprintUtil {
                 return this._constNode;
             }
         }
-        if (null != node.dataId) {
+        if (null != node.customId) {
+            let cid = node.target + "_" + node.customId;
+            return this._allConstNode[cid];
+        } else if (null != node.dataId) {
 
             let dataId = node.cid + "_" + node.dataId;
             let ret = this._allConstNode[dataId];
