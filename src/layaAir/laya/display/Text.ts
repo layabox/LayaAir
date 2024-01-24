@@ -380,17 +380,28 @@ export class Text extends Sprite {
         }
         else if (value && (Utils.getFileExtension(value) || value.startsWith("res://"))) {
             let t = value;
-            ILaya.loader.load(value).then(fontObj => {
-                if (!fontObj || this._realFont != t)
-                    return;
+            let fontObj = ILaya.loader.getRes(value);
+            if (!fontObj) {
+                ILaya.loader.load(value).then(fontObj => {
+                    if (!fontObj || this._realFont != t)
+                        return;
 
+                    if (fontObj instanceof BitmapFont)
+                        this._bitmapFont = fontObj;
+                    else
+                        this._realFont = fontObj.family;
+                    if (this._text)
+                        this.markChanged();
+                });
+            }
+            else {
                 if (fontObj instanceof BitmapFont)
                     this._bitmapFont = fontObj;
                 else
                     this._realFont = fontObj.family;
                 if (this._text)
                     this.markChanged();
-            });
+            }
         }
         else {
             this._realFont = (ILaya.Browser.onIPhone ? (Config.fontFamilyMap[value] || value) : value);
@@ -997,7 +1008,7 @@ export class Text extends Sprite {
 
                 ILaya.Browser.context.font = ctxFont;
                 let mr: any = ILaya.Browser.context.measureText(Text._testWord);
-                
+
                 if (mr) {
                     charWidth = mr.width;
                     charHeight = Math.ceil(mr.height || fontSize);
@@ -1613,12 +1624,12 @@ function testEmoji(str: string) {
     if (null == str) return false;
     return emojiTest.test(str);
 }
-function isEnglishChar(unicode:number):boolean {
+function isEnglishChar(unicode: number): boolean {
     return (unicode >= 65 && unicode <= 90) ||  // A-Z
-           (unicode >= 97 && unicode <= 122) || // a-z
-           unicode === 39; // 单引号
-  }
-  
+        (unicode >= 97 && unicode <= 122) || // a-z
+        unicode === 39; // 单引号
+}
+
 
 const wordBoundaryTest = /(?:[^\s\!-\/])+$/;
 const normalizeCR = /\r\n/g;
