@@ -52,9 +52,9 @@ import { Laya3D } from "../../../../Laya3D";
 import { IPhysicsManager } from "../../../Physics3D/interface/IPhysicsManager";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { IElementComponentManager } from "./IScenceComponentManager";
-import { ISceneNodeData } from "../../RenderDriverLayer/RenderModuleData/IModuleData";
+import { ISceneNodeData } from "../../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
+import { ShaderDataType, ShaderData, ShaderDataItem } from "../../../RenderDriver/RenderModuleData/Design/ShaderData";
 import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
-import { ShaderDataType, ShaderData, ShaderDataItem } from "../../../RenderEngine/RenderInterface/ShaderData";
 
 export enum FogMode {
     Linear = 0, //Linear
@@ -729,14 +729,14 @@ export class Scene3D extends Sprite implements ISubmit {
         this._is3D = true;
         this._componentDriver = new ComponentDriver();
         this._timer = ILaya.timer;
-        this._sceneModuleData = Laya3DRender.renderOBJCreate.createSceneModuleData();
+        this._sceneModuleData = Laya3DRender.Render3DModuleDataFactory.createSceneModuleData();
         if (LayaEnv.isConch && !(window as any).conchConfig.conchWebGL) {
             this._nativeObj = new (window as any).conchSubmitScene3D(this.renderSubmit.bind(this));
         }
         if (Laya3D.enablePhysics)
             this._physicsManager = Laya3D.PhysicsCreateUtil.createPhysicsManger(Scene3D.physicsSettings);
 
-        this._shaderValues = LayaGL.renderOBJCreate.createShaderData(null);
+        this._shaderValues = LayaGL.unitRenderModuleDataFactory.createShaderData(null);
         this._shaderValues.addDefines(Shader3D._configDefineValues);
         if (Config3D._uniformBlock) {
             //SceneUniformBlock

@@ -20,8 +20,8 @@ import { Color } from "laya/maths/Color";
 import { Matrix4x4 } from "laya/maths/Matrix4x4";
 import { Quaternion } from "laya/maths/Quaternion";
 import { Vector3 } from "laya/maths/Vector3";
-import { DepthTextureMode } from "laya/d3/RenderDriverLayer/Render3DProcess/IForwardAddClusterRP";
 import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
+import { DepthTextureMode } from "laya/resource/RenderTexture";
 
 export class PostProcess_Edge {
 

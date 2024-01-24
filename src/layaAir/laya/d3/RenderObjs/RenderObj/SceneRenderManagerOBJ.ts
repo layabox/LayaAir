@@ -1,6 +1,6 @@
+import { IBaseRenderNode } from "../../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
 import { ISceneRenderManager } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/ISceneRenderManager";
 import { SingletonList } from "../../../utils/SingletonList";
-import { IBaseRenderNode } from "../../RenderDriverLayer/Render3DNode/IBaseRenderNode";
 import { BaseRender } from "../../core/render/BaseRender";
 
 

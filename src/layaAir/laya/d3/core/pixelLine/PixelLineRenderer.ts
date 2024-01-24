@@ -2,9 +2,9 @@ import { Component } from "../../../components/Component";
 import { Color } from "../../../maths/Color";
 import { Matrix4x4 } from "../../../maths/Matrix4x4";
 import { Vector3 } from "../../../maths/Vector3";
+import { IMeshRenderNode } from "../../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
 
 import { Material } from "../../../resource/Material";
-import { IMeshRenderNode } from "../../RenderDriverLayer/Render3DNode/IMeshRenderNode";
 import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
 import { MeshSprite3DShaderDeclaration } from "../MeshSprite3DShaderDeclaration";
 import { BaseRender } from "../render/BaseRender";
@@ -101,7 +101,7 @@ export class PixelLineRenderer extends BaseRender {
     }
 
     protected _createBaseRenderNode(): IMeshRenderNode {
-        return Laya3DRender.renderOBJCreate.createMeshRenderNode();
+        return Laya3DRender.Render3DModuleDataFactory.createMeshRenderNode();
     }
 
     /**

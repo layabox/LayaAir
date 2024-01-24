@@ -8,13 +8,13 @@ import { RenderTargetFormat } from "../../RenderEnum/RenderTargetFormat";
 import { TextureCompareMode } from "../../RenderEnum/TextureCompareMode";
 import { TextureDimension } from "../../RenderEnum/TextureDimension";
 import { TextureFormat } from "../../RenderEnum/TextureFormat";
-import { InternalTexture } from "../../RenderInterface/InternalTexture";
 import { ITextureContext } from "../../RenderInterface/ITextureContext";
 import { GLObject } from "./GLObject";
 import { WebGLEngine } from "./WebGLEngine";
 import { DDSTextureInfo } from "../../DDSTextureInfo";
 import { HDRTextureInfo } from "../../HDRTextureInfo";
 import { KTXTextureInfo } from "../../KTXTextureInfo";
+import { InternalTexture } from "../../../RenderDriver/DriverDesign/RenderDevice/InternalTexture";
 
 export class GLTextureContext extends GLObject implements ITextureContext {
 

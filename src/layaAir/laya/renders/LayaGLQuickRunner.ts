@@ -1,3 +1,4 @@
+import { regClass } from "../../Decorators"
 import { NodeFlags } from "../Const"
 import { Sprite } from "../display/Sprite"
 import { SpriteConst } from "../display/SpriteConst"

@@ -2,12 +2,12 @@ import { BaseTexture } from "../../../resource/BaseTexture";
 import { Material } from "../../../resource/Material";
 import { PBRRenderQuality } from "./PBRRenderQuality";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
-import { ShaderDefine } from "../../../RenderEngine/RenderShader/ShaderDefine";
 import { Texture2D } from "../../../resource/Texture2D";
 import { Color } from "../../../maths/Color";
 import { Vector4 } from "../../../maths/Vector4";
-import { RenderState } from "../../../RenderEngine/RenderShader/RenderState";
 import { PBRShaderLib } from "../../shader/pbr/PBRShaderLib";
+import { ShaderDefine } from "../../../RenderDriver/RenderModuleData/Design/ShaderDefine";
+import { RenderState } from "../../../RenderDriver/RenderModuleData/Design/RenderState";
 
 /**
  * 渲染模式。

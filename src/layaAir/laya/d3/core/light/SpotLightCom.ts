@@ -2,8 +2,9 @@ import { Scene3D } from "../scene/Scene3D";
 import { Light, LightType } from "./Light";
 import { Component } from "../../../components/Component";
 import { Vector3 } from "../../../maths/Vector3";
-import { ISpotLightData } from "../../RenderDriverLayer/RenderModuleData/ISpotLightData";
+
 import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
+import { ISpotLightData } from "../../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
 
 /**
  * <code>SpotLight</code> 类用于创建聚光。
@@ -61,7 +62,7 @@ export class SpotLightCom extends Light {
 	}
 
 	protected _creatModuleData() {
-		this._dataModule = Laya3DRender.renderOBJCreate.createSpotLight();
+		this._dataModule = Laya3DRender.Render3DModuleDataFactory.createSpotLight();
 	}
 
 	/**

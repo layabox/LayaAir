@@ -1,7 +1,7 @@
+import { InternalRenderTarget } from "../../../RenderDriver/DriverDesign/RenderDevice/InternalRenderTarget";
+import { InternalTexture } from "../../../RenderDriver/DriverDesign/RenderDevice/InternalTexture";
 import { RenderStatisticsInfo } from "../../RenderEnum/RenderStatInfo";
 import { RenderTargetFormat } from "../../RenderEnum/RenderTargetFormat";
-import { InternalRenderTarget } from "../../RenderInterface/InternalRenderTarget";
-import { InternalTexture } from "../../RenderInterface/InternalTexture";
 import { GLObject } from "./GLObject";
 import { WebGLEngine } from "./WebGLEngine";
 

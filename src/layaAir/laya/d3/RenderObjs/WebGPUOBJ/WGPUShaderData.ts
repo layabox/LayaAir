@@ -1,9 +1,9 @@
+import { ShaderData } from "../../../RenderDriver/RenderModuleData/Design/ShaderData";
 import { WGPUBindGroupHelper } from "../../../RenderEngine/RenderEngine/WebGPUEngine/WGPUBindGroupHelper";
 import { WGPUShaderVariable } from "../../../RenderEngine/RenderEngine/WebGPUEngine/WGPUShaderVariable";
 import { WebGPUBuffer } from "../../../RenderEngine/RenderEngine/WebGPUEngine/WebGPUBuffer";
 import { WebGPUEngine } from "../../../RenderEngine/RenderEngine/WebGPUEngine/WebGPUEngine";
 import { WebGPUInternalTex } from "../../../RenderEngine/RenderEngine/WebGPUEngine/WebGPUInternalTex";
-import { ShaderData } from "../../../RenderEngine/RenderInterface/ShaderData";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { Color } from "../../../maths/Color";
 import { Matrix4x4 } from "../../../maths/Matrix4x4";

@@ -1,5 +1,5 @@
+import { ILightMapData } from "../../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
 import { Texture2D } from "../../../resource/Texture2D";
-import { ILightMapData } from "../../RenderDriverLayer/RenderModuleData/ILightMapData";
 import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
 
 /**
@@ -57,6 +57,6 @@ export class Lightmap {
      * @internal
      */
     constructor() {
-        this._dataModule = Laya3DRender.renderOBJCreate.createLightmapData();
+        this._dataModule = Laya3DRender.Render3DModuleDataFactory.createLightmapData();
     }
 }

@@ -23,8 +23,8 @@ import { RenderStatisticsInfo } from "../../RenderEnum/RenderStatInfo";
 import { Color } from "../../../maths/Color";
 import { NativeRenderStateCommand } from "./NativeRenderStateCommand";
 import { IRenderEngineFactory } from "../../RenderInterface/IRenderEngineFactory";
-import { InternalTexture } from "../../RenderInterface/InternalTexture";
-import { ShaderDataType } from "../../RenderInterface/ShaderData";
+import { InternalTexture } from "../../../RenderDriver/DriverDesign/RenderDevice/InternalTexture";
+import { ShaderDataType } from "../../../RenderDriver/RenderModuleData/Design/ShaderData";
 
 
 /**

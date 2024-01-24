@@ -3,7 +3,6 @@ import BlitVS from "./BlitScreen.vs";
 import BlitFS from "./BlitScreen.fs";
 import FXAA from "./FastApproximateAntiAliasing.glsl";
 import { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
-import { RenderState } from "../../../RenderEngine/RenderShader/RenderState";
 import { VertexMesh } from "../../../RenderEngine/RenderShader/VertexMesh";
 
 import ColorGradingGLSL from "./ColorGrading.glsl";
@@ -11,7 +10,8 @@ import TonemappingGLSL from "./Tonemapping.glsl";
 import LUTGLSL from "./LUT.glsl";
 
 import LUTBuilderFS from "./LUTBuilder.fs";
-import { ShaderDataType } from "../../../RenderEngine/RenderInterface/ShaderData";
+import { ShaderDataType } from "../../../RenderDriver/RenderModuleData/Design/ShaderData";
+import { RenderState } from "../../../RenderDriver/RenderModuleData/Design/RenderState";
 
 export class BlitScreenShaderInit {
 

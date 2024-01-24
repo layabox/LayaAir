@@ -6,11 +6,10 @@ import { IRenderTarget } from "../../../RenderEngine/RenderInterface/IRenderTarg
 import { Matrix4x4 } from "../../../maths/Matrix4x4";
 import { Vector4 } from "../../../maths/Vector4";
 import { ShaderInstance } from "../../../RenderEngine/RenderShader/ShaderInstance";
-import { ShaderDefine } from "../../../RenderEngine/RenderShader/ShaderDefine";
+import { PipelineMode, IRenderContext3D, IRenderElement3D } from "../../../RenderDriver/DriverDesign/3DRenderPass/I3DRenderPass";
+import { ShaderData } from "../../../RenderDriver/RenderModuleData/Design/ShaderData";
+import { ShaderDefine } from "../../../RenderDriver/RenderModuleData/Design/ShaderDefine";
 import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
-import { IRenderContext3D, PipelineMode } from "../../RenderDriverLayer/IRenderContext3D";
-import { IRenderElement } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderElement";
-import { ShaderData } from "../../../RenderEngine/RenderInterface/ShaderData";
 
 /**
  * <code>RenderContext3D</code> 类用于实现渲染状态。
@@ -134,14 +133,14 @@ export class RenderContext3D {
      * 渲染一个
      * @param renderelemt 
      */
-    drawRenderElement(renderelemt: IRenderElement): void {
+    drawRenderElement(renderelemt: IRenderElement3D): void {
         this._contextOBJ.drawRenderElementOne(renderelemt);
     }
     /**
      * 创建一个 <code>RenderContext3D</code> 实例。
      */
     constructor() {
-        this._contextOBJ = Laya3DRender.renderOBJCreate.createRenderContext3D();
+        this._contextOBJ = Laya3DRender.Render3DPassFactory.createRenderContext3D();
     }
 
 }

@@ -9,11 +9,11 @@ import { Stage } from "laya/display/Stage";
 import { Color } from "laya/maths/Color";
 import { Vector3 } from "laya/maths/Vector3";
 import { TextureFormat } from "laya/RenderEngine/RenderEnum/TextureFormat";
-import { RenderState } from "laya/RenderEngine/RenderShader/RenderState";
 import { Texture2D } from "laya/resource/Texture2D";
 import { Browser } from "laya/utils/Browser";
 import { Stat } from "laya/utils/Stat";
 import { CameraMoveScript } from "../common/CameraMoveScript";
+import { RenderState } from "laya/RenderDriver/RenderModuleData/Design/RenderState";
 
 
 export class DrawTextTexture {

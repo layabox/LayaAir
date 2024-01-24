@@ -1,10 +1,10 @@
 import { Material } from "../../../resource/Material";
 import { BaseTexture } from "../../../resource/BaseTexture"
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
-import { ShaderDefine } from "../../../RenderEngine/RenderShader/ShaderDefine";
 import { Color } from "../../../maths/Color";
 import { Vector4 } from "../../../maths/Vector4";
-import { RenderState } from "../../../RenderEngine/RenderShader/RenderState";
+import { RenderState } from "../../../RenderDriver/RenderModuleData/Design/RenderState";
+import { ShaderDefine } from "../../../RenderDriver/RenderModuleData/Design/ShaderDefine";
 
 
 /**

@@ -9,7 +9,6 @@ import { Loader } from "laya/net/Loader";
 import { Browser } from "laya/utils/Browser";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
-import { Laya3D } from "Laya3D";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { Event } from "laya/events/Event";
 import { Button } from "laya/ui/Button";
@@ -18,7 +17,7 @@ import { MeshRenderer } from "laya/d3/core/MeshRenderer";
 import { RenderTargetFormat } from "laya/RenderEngine/RenderEnum/RenderTargetFormat";
 import { Color } from "laya/maths/Color";
 import { Vector3 } from "laya/maths/Vector3";
-import { RenderState } from "laya/RenderEngine/RenderShader/RenderState";
+import { RenderState } from "laya/RenderDriver/RenderModuleData/Design/RenderState";
 /**
  * 模板测试示例
  * @author miner

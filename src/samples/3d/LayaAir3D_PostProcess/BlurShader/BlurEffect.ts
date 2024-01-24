@@ -16,12 +16,13 @@ import { RenderTargetFormat } from "laya/RenderEngine/RenderEnum/RenderTargetFor
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 import { Vector4 } from "laya/maths/Vector4";
 import { RenderTexture } from "laya/resource/RenderTexture";
-import { RenderState } from "laya/RenderEngine/RenderShader/RenderState";
+import { RenderState } from "laya/RenderDriver/RenderModuleData/Design/RenderState";
+import { ShaderDataType, ShaderData } from "laya/RenderDriver/RenderModuleData/Design/ShaderData";
 import { ShaderPass } from "laya/RenderEngine/RenderShader/ShaderPass";
 import { SubShader } from "laya/RenderEngine/RenderShader/SubShader";
 import { VertexMesh } from "laya/RenderEngine/RenderShader/VertexMesh";
 import { LayaGL } from "laya/layagl/LayaGL";
-import { ShaderData, ShaderDataType } from "laya/RenderEngine/RenderInterface/ShaderData";
+
 export class BlurEffect extends PostProcessEffect {
 
     static BLUR_TYPE_GaussianBlur: number = 0;
@@ -98,7 +99,7 @@ export class BlurEffect extends PostProcessEffect {
     /**@internal */
     private _shader: Shader3D = null;
     /**@internal */
-    private _shaderData: ShaderData = LayaGL.renderOBJCreate.createShaderData(null);
+    private _shaderData: ShaderData = LayaGL.unitRenderModuleDataFactory.createShaderData(null);
     /**@internal */
     private _downSampleNum: number = 1;
     /**@internal */

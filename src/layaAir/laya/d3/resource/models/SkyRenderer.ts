@@ -11,7 +11,7 @@ import { Scene3D } from "../../core/scene/Scene3D";
 import { SkyBox } from "./SkyBox";
 import { SkyDome } from "./SkyDome";
 import { RenderElement } from "../../core/render/RenderElement";
-import { ShaderDataType } from "../../../RenderEngine/RenderInterface/ShaderData";
+import { ShaderDataType } from "../../../RenderDriver/RenderModuleData/Design/ShaderData";
 
 /**
  * <code>SkyRenderer</code> 类用于实现天空渲染器。

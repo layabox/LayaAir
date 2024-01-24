@@ -1,4 +1,4 @@
-import { ShaderDefine } from "../../../RenderEngine/RenderShader/ShaderDefine";
+import { ShaderDefine } from "../../../RenderDriver/RenderModuleData/Design/ShaderDefine";
 
 /**
  * @internal

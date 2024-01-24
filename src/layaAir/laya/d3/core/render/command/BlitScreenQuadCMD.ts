@@ -2,7 +2,6 @@ import { Shader3D } from "../../../../RenderEngine/RenderShader/Shader3D";
 import { BaseTexture } from "../../../../resource/BaseTexture";
 import { Stat } from "../../../../utils/Stat";
 import { Viewport } from "../../../math/Viewport";
-import { Transform3D } from "../../Transform3D";
 import { RenderContext3D } from "../RenderContext3D";
 import { RenderElement } from "../RenderElement";
 import { ScreenQuad } from "../ScreenQuad";
@@ -12,7 +11,8 @@ import { Camera } from "../../Camera";
 import { Vector4 } from "../../../../maths/Vector4";
 import { RenderTexture } from "../../../../resource/RenderTexture";
 import { Laya3DRender } from "../../../RenderObjs/Laya3DRender";
-import { ShaderData } from "../../../../RenderEngine/RenderInterface/ShaderData";
+import { ShaderData } from "../../../../RenderDriver/RenderModuleData/Design/ShaderData";
+import { Transform3D } from "../../Transform3D";
 
 export class BlitScreenQuadCMD extends Command {
 	/**@internal */
@@ -70,7 +70,7 @@ export class BlitScreenQuadCMD extends Command {
 
 	constructor() {
 		super();
-		this._transform3D = Laya3DRender.renderOBJCreate.createTransform(null);
+		this._transform3D = Laya3DRender.Render3DModuleDataFactory.createTransform(null);
 		this._renderElement = new RenderElement();
 		this._renderElement.setTransform(this._transform3D);
 		this._renderElement.setGeometry(ScreenQuad.instance);

@@ -6,8 +6,8 @@ import { Component } from "../../../components/Component";
 import { Color } from "../../../maths/Color";
 import { Matrix4x4 } from "../../../maths/Matrix4x4";
 import { Vector3 } from "../../../maths/Vector3";
-import { ISpotLightData } from "../../RenderDriverLayer/RenderModuleData/ISpotLightData";
-import { IDirectLightData } from "../../RenderDriverLayer/RenderModuleData/IDirectLightData";
+import { IDirectLightData, ISpotLightData } from "../../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
+
 
 
 export enum LightType {

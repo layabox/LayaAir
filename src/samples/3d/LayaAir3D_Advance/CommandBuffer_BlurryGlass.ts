@@ -4,7 +4,6 @@ import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Stage } from "laya/display/Stage";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
-import { Laya3D } from "Laya3D";
 import { CommandBuffer } from "laya/d3/core/render/command/CommandBuffer";
 import { Viewport } from "laya/d3/math/Viewport";
 import { MeshSprite3D } from "laya/d3/core/MeshSprite3D";
@@ -18,7 +17,7 @@ import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 import { Vector4 } from "laya/maths/Vector4";
 import { RenderTexture } from "laya/resource/RenderTexture";
 import { LayaGL } from "laya/layagl/LayaGL";
-import { ShaderData } from "laya/RenderEngine/RenderInterface/ShaderData";
+import { ShaderData } from "laya/RenderDriver/RenderModuleData/Design/ShaderData";
 
 export class CommandBuffer_BlurryGlass {
 	mat: GlassWithoutGrabMaterial;
@@ -76,7 +75,7 @@ export class CommandBuffer_BlurryGlass {
 		buf.blitScreenTriangle(null, renderTexture);
 		//获得shader
 		var shader: Shader3D = Shader3D.find("blurEffect");
-		var shaderValue: ShaderData = LayaGL.renderOBJCreate.createShaderData(null);
+		var shaderValue: ShaderData = LayaGL.unitRenderModuleDataFactory.createShaderData(null);
 		//down Sample level设置降采样等级
 		var downSampleFactor: number = 4;
 		var downSampleWidth: number = viewPort.width / downSampleFactor;

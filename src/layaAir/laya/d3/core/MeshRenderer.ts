@@ -1,27 +1,28 @@
 import { Config3D } from "../../../Config3D"
 import { Component } from "../../components/Component"
+import { LayaGL } from "../../layagl/LayaGL"
 import { Matrix4x4 } from "../../maths/Matrix4x4"
+import { IMeshRenderNode } from "../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData"
+import { ShaderData } from "../../RenderDriver/RenderModuleData/Design/ShaderData"
+import { ShaderDefine } from "../../RenderDriver/RenderModuleData/Design/ShaderDefine"
 import { RenderCapable } from "../../RenderEngine/RenderEnum/RenderCapable"
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D"
-import { ShaderDefine } from "../../RenderEngine/RenderShader/ShaderDefine"
 import { VertexMesh } from "../../RenderEngine/RenderShader/VertexMesh"
-import { Mesh } from "../resource/models/Mesh"
-import { MorphTargetChannel } from "../resource/models/MorphTarget"
-import { BlinnPhongMaterial } from "./material/BlinnPhongMaterial"
 import { Material } from "../../resource/Material"
+import { Laya3DRender } from "../RenderObjs/Laya3DRender"
+import { Mesh } from "../resource/models/Mesh"
+import { MeshUtil } from "../resource/models/MeshUtil"
+import { MorphTargetChannel } from "../resource/models/MorphTarget"
 import { MeshFilter } from "./MeshFilter"
 import { MeshSprite3DShaderDeclaration } from "./MeshSprite3DShaderDeclaration"
-import { BaseRender } from "./render/BaseRender"
-import { RenderContext3D } from "./render/RenderContext3D"
-import { SubMeshRenderElement } from "./render/SubMeshRenderElement"
 import { RenderableSprite3D } from "./RenderableSprite3D"
 import { Sprite3D } from "./Sprite3D"
-import { MeshUtil } from "../resource/models/MeshUtil"
-import { LayaGL } from "../../layagl/LayaGL"
+import { BlinnPhongMaterial } from "./material/BlinnPhongMaterial"
+import { BaseRender } from "./render/BaseRender"
+import { RenderContext3D } from "./render/RenderContext3D"
 import { RenderElement } from "./render/RenderElement"
-import { IMeshRenderNode } from "../RenderDriverLayer/Render3DNode/IMeshRenderNode"
-import { Laya3DRender } from "../RenderObjs/Laya3DRender"
-import { ShaderData } from "../../RenderEngine/RenderInterface/ShaderData"
+import { SubMeshRenderElement } from "./render/SubMeshRenderElement"
+
 
 /**
  * <code>MeshRenderer</code> 类用于网格渲染器。
@@ -73,7 +74,7 @@ export class MeshRenderer extends BaseRender {
      * @returns 
      */
     protected _createBaseRenderNode(): IMeshRenderNode {
-        return Laya3DRender.renderOBJCreate.createMeshRenderNode();
+        return Laya3DRender.Render3DModuleDataFactory.createMeshRenderNode();
     }
 
     /**

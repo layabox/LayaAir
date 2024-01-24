@@ -1,8 +1,8 @@
 import { ILaya3D } from "../../../../../ILaya3D";
+import { IVolumetricGIData } from "../../../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
 import { Vector3 } from "../../../../maths/Vector3";
 import { Vector4 } from "../../../../maths/Vector4";
 import { Texture2D } from "../../../../resource/Texture2D";
-import { IVolumetricGIData } from "../../../RenderDriverLayer/RenderModuleData/IVolumetricGIData";
 import { Laya3DRender } from "../../../RenderObjs/Laya3DRender";
 import { Volume } from "../Volume";
 import { VolumeManager } from "../VolumeManager";
@@ -41,7 +41,7 @@ export class VolumetricGI extends Volume {
         this._probeCounts = new Vector3();
         this._probeStep = new Vector3();
         this._params = new Vector4(8, 16, 0, 0);
-        this._dataModule = Laya3DRender.renderOBJCreate.createVolumetricGI();
+        this._dataModule = Laya3DRender.Render3DModuleDataFactory.createVolumetricGI();
         this._dataModule.setParams(this._params);
         this._volumetricProbeID = VolumetricGI.getID();
         this._dataModule.intensity = 1;

@@ -12,7 +12,6 @@ import { Gradient } from "../Gradient";
 import { IClone } from "../../../utils/IClone";
 import { RenderContext3D } from "../render/RenderContext3D";
 import { Scene3D } from "../scene/Scene3D";
-import { Transform3D } from "../Transform3D";
 import { Burst } from "./module/Burst";
 import { ColorOverLifetime } from "./module/ColorOverLifetime";
 import { Emission } from "./module/Emission";
@@ -51,7 +50,7 @@ import { VertexElement } from "../../../renders/VertexElement";
 import { BufferState } from "../../../webgl/utils/BufferState";
 import { VertexMesh } from "../../../RenderEngine/RenderShader/VertexMesh";
 import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
-import { ShaderData } from "../../../RenderEngine/RenderInterface/ShaderData";
+import { ShaderData } from "../../../RenderDriver/RenderModuleData/Design/ShaderData";
 
 
 /**
@@ -1735,7 +1734,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
         if (nextFreeParticle === this._firstRetiredElement)
             return false;
 
-        var transform: Transform3D = this._owner.transform;
+        var transform = this._owner.transform;
         ShurikenParticleData.create(this, this._ownerRender);
 
         var particleAge: number = this._currentTime - time;

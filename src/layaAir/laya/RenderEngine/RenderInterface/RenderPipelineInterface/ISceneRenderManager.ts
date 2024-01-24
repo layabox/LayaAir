@@ -1,4 +1,4 @@
-import { IBaseRenderNode } from "../../../d3/RenderDriverLayer/Render3DNode/IBaseRenderNode";
+import { IBaseRenderNode } from "../../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
 import { BaseRender } from "../../../d3/core/render/BaseRender";
 import { SingletonList } from "../../../utils/SingletonList";
 

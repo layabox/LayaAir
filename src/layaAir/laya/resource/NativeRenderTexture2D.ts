@@ -1,10 +1,10 @@
 import { Texture2D } from "./Texture2D";
 import { BaseTexture } from "./BaseTexture"
 import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
-import { InternalRenderTarget } from "../RenderEngine/RenderInterface/InternalRenderTarget";
 import { IRenderTarget } from "../RenderEngine/RenderInterface/IRenderTarget";
 import { Color } from "../maths/Color";
 import { LayaGL } from "../layagl/LayaGL";
+import { InternalRenderTarget } from "../RenderDriver/DriverDesign/RenderDevice/InternalRenderTarget";
 
 /**
  * <code>RenderTexture</code> 类用于创建渲染目标。

@@ -1,6 +1,6 @@
-import { ShaderDataType } from "../../../RenderEngine/RenderInterface/ShaderData";
+import { ShaderDataType } from "../../../RenderDriver/RenderModuleData/Design/ShaderData";
+import { ShaderDefine } from "../../../RenderDriver/RenderModuleData/Design/ShaderDefine";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
-import { ShaderDefine } from "../../../RenderEngine/RenderShader/ShaderDefine";
 import { LayaGL } from "../../../layagl/LayaGL";
 
 export class ShaderDefines2D {

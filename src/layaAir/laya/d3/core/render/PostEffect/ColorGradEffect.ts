@@ -4,7 +4,6 @@ import { FilterMode } from "../../../../RenderEngine/RenderEnum/FilterMode";
 import { RenderTargetFormat } from "../../../../RenderEngine/RenderEnum/RenderTargetFormat";
 import { WrapMode } from "../../../../RenderEngine/RenderEnum/WrapMode";
 import { Shader3D } from "../../../../RenderEngine/RenderShader/Shader3D";
-import { ShaderDefine } from "../../../../RenderEngine/RenderShader/ShaderDefine";
 import { SubShader } from "../../../../RenderEngine/RenderShader/SubShader";
 import { VertexMesh } from "../../../../RenderEngine/RenderShader/VertexMesh";
 import { RenderTexture } from "../../../../resource/RenderTexture";
@@ -14,13 +13,15 @@ import { PostProcessEffect } from "../PostProcessEffect";
 import { PostProcessRenderContext } from "../PostProcessRenderContext";
 import BlitVS from "../../../../d3/shader/postprocess/BlitScreen.vs";
 import BlitLUTShader from "../../../../d3/shader/postprocess/BlitLUTScreen.fs";
-import { RenderState } from "../../../../RenderEngine/RenderShader/RenderState";
 import { Texture2D } from "../../../../resource/Texture2D";
 import { RenderContext3D } from "../RenderContext3D";
 import { Color } from "../../../../maths/Color";
 import { PostProcess } from "../../../component/PostProcess";
 import { LayaGL } from "../../../../layagl/LayaGL";
-import { ShaderData, ShaderDataType } from "../../../../RenderEngine/RenderInterface/ShaderData";
+import { ShaderDefine } from "../../../../RenderDriver/RenderModuleData/Design/ShaderDefine";
+import { ShaderData, ShaderDataType } from "../../../../RenderDriver/RenderModuleData/Design/ShaderData";
+import { RenderState } from "../../../../RenderDriver/RenderModuleData/Design/RenderState";
+
 
 export enum ToneMappingType {
 	None,
@@ -510,7 +511,7 @@ export class ColorGradEffect extends PostProcessEffect {
 		this._needBuildLUT = true;
 		this._toneMapping = ToneMappingType.None;
 		this._blitlutParams = new Vector4();
-		this._lutShaderData = LayaGL.renderOBJCreate.createShaderData(null);
+		this._lutShaderData = LayaGL.unitRenderModuleDataFactory.createShaderData();
 		this.lutSize = 32;
 		this._lutCommond = new CommandBuffer();
 		this._lutBuilderMat = new Material();

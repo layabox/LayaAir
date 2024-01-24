@@ -7,7 +7,7 @@ import { Texture2D } from "../../resource/Texture2D";
 import { Component } from "../../components/Component";
 import { Vector2 } from "../../maths/Vector2";
 import { Vector4 } from "../../maths/Vector4";
-import { IRenderContext3D } from "../RenderDriverLayer/IRenderContext3D";
+import { IRenderContext3D } from "../../RenderDriver/DriverDesign/3DRenderPass/I3DRenderPass";
 
 export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
     /**@internal 解决循环引用 */

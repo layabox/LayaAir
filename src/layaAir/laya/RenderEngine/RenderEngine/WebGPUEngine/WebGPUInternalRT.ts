@@ -1,6 +1,6 @@
+import { InternalRenderTarget } from "../../../RenderDriver/DriverDesign/RenderDevice/InternalRenderTarget";
 import { Color } from "../../../maths/Color";
 import { RenderTargetFormat } from "../../RenderEnum/RenderTargetFormat";
-import { InternalRenderTarget } from "../../RenderInterface/InternalRenderTarget";
 import { WebGPUEngine } from "./WebGPUEngine";
 import { WebGPUInternalTex } from "./WebGPUInternalTex";
 import { WebGPUObject } from "./WebGPUObject";

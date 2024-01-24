@@ -2,15 +2,14 @@ import { Config3D } from "../../../Config3D";
 import { Camera } from "../core/Camera";
 import { RenderTargetFormat } from "../../RenderEngine/RenderEnum/RenderTargetFormat";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
-import { ShaderDefine } from "../../RenderEngine/RenderShader/ShaderDefine";
 import { UnifromBufferData } from "../../RenderEngine/UniformBufferData";
 import { UniformBufferObject } from "../../RenderEngine/UniformBufferObject";
 import { Viewport } from "../math/Viewport";
 import { BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
 import { DepthCasterData } from "./DepthCasterData";
 import { Vector4 } from "../../maths/Vector4";
-import { RenderTexture } from "../../resource/RenderTexture";
-import { DepthTextureMode } from "../RenderDriverLayer/Render3DProcess/IForwardAddClusterRP";
+import { DepthTextureMode, RenderTexture } from "../../resource/RenderTexture";
+import { ShaderDefine } from "../../RenderDriver/RenderModuleData/Design/ShaderDefine";
 
 
 

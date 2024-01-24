@@ -1,3 +1,4 @@
+import { IUnitRenderModuleDataFactory } from "../RenderDriver/RenderModuleData/Design/IUnitRenderModuleDataFactory";
 import { IRender2DContext } from "../RenderEngine/RenderInterface/IRender2DContext";
 import { IRenderDrawContext } from "../RenderEngine/RenderInterface/IRenderDrawContext";
 import { IRenderEngine } from "../RenderEngine/RenderInterface/IRenderEngine";
@@ -13,4 +14,7 @@ export class LayaGL {
     static render2DContext: IRender2DContext;
     static renderDrawContext: IRenderDrawContext;
     static renderOBJCreate: IRenderEngineFactory;
+
+
+    static unitRenderModuleDataFactory:IUnitRenderModuleDataFactory;
 }

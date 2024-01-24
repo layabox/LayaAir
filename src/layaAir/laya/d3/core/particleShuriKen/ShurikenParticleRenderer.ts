@@ -2,7 +2,6 @@ import { BoundFrustum } from "../../math/BoundFrustum";
 import { Mesh } from "../../resource/models/Mesh";
 import { BaseRender } from "../render/BaseRender";
 import { RenderContext3D } from "../render/RenderContext3D";
-import { Transform3D } from "../Transform3D";
 import { ShurikenParticleSystem } from "./ShurikenParticleSystem";
 import { ShuriKenParticle3DShaderDeclaration } from "./ShuriKenParticle3DShaderDeclaration";
 import { ShurikenParticleInstanceSystem } from "./ShurikenParticleInstanceSystem";
@@ -17,8 +16,10 @@ import { LayaEnv } from "../../../../LayaEnv";
 import { Vector2 } from "../../../maths/Vector2";
 import { Vector3 } from "../../../maths/Vector3";
 import { LayaGL } from "../../../layagl/LayaGL";
-import { IRenderContext3D } from "../../RenderDriverLayer/IRenderContext3D";
-import { ShaderData, ShaderDataType } from "../../../RenderEngine/RenderInterface/ShaderData";
+import { ShaderData, ShaderDataType } from "../../../RenderDriver/RenderModuleData/Design/ShaderData";
+import { IRenderContext3D } from "../../../RenderDriver/DriverDesign/3DRenderPass/I3DRenderPass";
+import { Transform3D } from "../Transform3D";
+
 
 
 /**

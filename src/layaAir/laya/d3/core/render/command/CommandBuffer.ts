@@ -25,7 +25,7 @@ import { Vector3 } from "../../../../maths/Vector3";
 import { Vector4 } from "../../../../maths/Vector4";
 import { RenderTexture } from "../../../../resource/RenderTexture";
 import { LayaGL } from "../../../../layagl/LayaGL";
-import { ShaderData, ShaderDataType } from "../../../../RenderEngine/RenderInterface/ShaderData";
+import { ShaderData, ShaderDataType } from "../../../../RenderDriver/RenderModuleData/Design/ShaderData";
 
 /**
  * <code>CommandBuffer</code> 类用于创建命令流。

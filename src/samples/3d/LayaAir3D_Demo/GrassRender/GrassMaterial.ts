@@ -7,11 +7,12 @@ import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 import { Vector2 } from "laya/maths/Vector2";
 import { Vector3 } from "laya/maths/Vector3";
 import { Vector4 } from "laya/maths/Vector4";
-import { RenderState } from "laya/RenderEngine/RenderShader/RenderState";
+import { RenderState } from "laya/RenderDriver/RenderModuleData/Design/RenderState";
+import { ShaderDataType } from "laya/RenderDriver/RenderModuleData/Design/ShaderData";
 import { ShaderPass } from "laya/RenderEngine/RenderShader/ShaderPass";
 import { SubShader } from "laya/RenderEngine/RenderShader/SubShader";
 import { VertexMesh } from "laya/RenderEngine/RenderShader/VertexMesh";
-import { ShaderDataType } from "laya/RenderEngine/RenderInterface/ShaderData";
+
 
 export class GrassMaterial extends Material {
     static hasInited: boolean = false;

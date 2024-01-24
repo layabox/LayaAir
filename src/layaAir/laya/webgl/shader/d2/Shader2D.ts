@@ -14,7 +14,7 @@ import Sprite2DShaderInfo from './NewShader/Sprite2DShaderInfo.glsl';
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
 import { Material } from "../../../resource/Material";
-import { ShaderDataType } from "../../../RenderEngine/RenderInterface/ShaderData";
+import { ShaderDataType } from "../../../RenderDriver/RenderModuleData/Design/ShaderData";
 
 export class Shader2D {
     /**@internal */

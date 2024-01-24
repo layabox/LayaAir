@@ -1,10 +1,11 @@
+import { ISubshaderData } from "../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
+import { ShaderDataType, ShaderDataItem } from "../../RenderDriver/RenderModuleData/Design/ShaderData";
+import { ShaderDefine } from "../../RenderDriver/RenderModuleData/Design/ShaderDefine";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
-import { ShaderDefine } from "../../RenderEngine/RenderShader/ShaderDefine";
 import { UniformBufferParamsType, UnifromBufferData } from "../../RenderEngine/UniformBufferData";
+import { Laya3DRender } from "../../d3/RenderObjs/Laya3DRender";
 import { LayaGL } from "../../layagl/LayaGL";
 import { IShaderCompiledObj, ShaderCompile } from "../../webgl/utils/ShaderCompile";
-import { ISubshaderData } from "../RenderInterface/RenderPipelineInterface/IShaderInstance";
-import { ShaderDataItem, ShaderDataType } from "../RenderInterface/ShaderData";
 import { ShaderPass } from "./ShaderPass";
 import { VertexMesh } from "./VertexMesh";
 
@@ -87,7 +88,7 @@ export class SubShader {
      * @param	uniformMap  uniform属性表。
      */
     constructor(attributeMap: { [name: string]: [number, ShaderDataType] } = SubShader.DefaultAttributeMap, uniformMap: UniformMapType = {}, uniformDefaultValue: { [name: string]: ShaderDataItem } = null) {
-        this.moduleData = LayaGL.renderOBJCreate.createSubShaderData();
+        this.moduleData = Laya3DRender.Render3DModuleDataFactory.createSubShader();
         this._attributeMap = attributeMap;
         this._uniformMap = uniformMap;
         this._uniformDefaultValue = uniformDefaultValue;

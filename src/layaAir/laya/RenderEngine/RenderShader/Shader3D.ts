@@ -1,7 +1,7 @@
+import { IDefineDatas } from "../../RenderDriver/RenderModuleData/Design/IDefineDatas";
+import { ShaderDefine } from "../../RenderDriver/RenderModuleData/Design/ShaderDefine";
 import { LayaGL } from "../../layagl/LayaGL";
 import { ShaderCompile } from "../../webgl/utils/ShaderCompile";
-import { IDefineDatas } from "../RenderInterface/RenderPipelineInterface/IShaderInstance";
-import { ShaderDefine } from "./ShaderDefine";
 import { ShaderPass } from "./ShaderPass";
 import { ShaderVariant, ShaderVariantCollection } from "./ShaderVariantCollection";
 import { SubShader } from "./SubShader";
@@ -110,8 +110,8 @@ export class Shader3D {
 
     static init() {
         Shader3D.debugShaderVariantCollection = new ShaderVariantCollection();
-        Shader3D._configDefineValues = LayaGL.renderOBJCreate.createDefineDatas();
-        Shader3D._compileDefineDatas = LayaGL.renderOBJCreate.createDefineDatas();
+        Shader3D._configDefineValues = LayaGL.unitRenderModuleDataFactory.createDefineDatas();
+
     
     }
 

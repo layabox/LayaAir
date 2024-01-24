@@ -1,11 +1,9 @@
 import { WebGPUInternalRT } from "../../../RenderEngine/RenderEngine/WebGPUEngine/WebGPUInternalRT";
-import { IRenderElement } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderElement";
 import { IRenderGeometryElement } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderGeometryElement";
 import { ShaderInstance } from "../../../RenderEngine/RenderShader/ShaderInstance";
 import { SingletonList } from "../../../utils/SingletonList";
 import { Transform3D } from "../../core/Transform3D";
 import { WGPURenderContext3D } from "./WGPURenderContext3D";
-import { WGPURenderPipelineInstance } from "./WGPURenderPipelineInstance";
 import { WGPUShaderData } from "./WGPUShaderData";
 
 export class WGPURenderElementObJ  {

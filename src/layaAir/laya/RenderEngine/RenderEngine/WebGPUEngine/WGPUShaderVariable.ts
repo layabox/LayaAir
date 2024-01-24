@@ -1,4 +1,4 @@
-import { ShaderDataType } from "../../RenderInterface/ShaderData";
+import { ShaderDataType } from "../../../RenderDriver/RenderModuleData/Design/ShaderData";
 import { ShaderVariable } from "../../RenderShader/ShaderVariable";
 type UniformProperty = { id: number, propertyName: string, uniformtype?: ShaderDataType }
 export class WGPUShaderVariable extends ShaderVariable {

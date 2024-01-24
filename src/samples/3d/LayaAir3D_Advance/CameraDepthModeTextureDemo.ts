@@ -10,8 +10,7 @@ import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
 import { DepthMaterial } from "./DepthNormalShader/DepthMaterial";
 import { DepthNormalsMaterial } from "./DepthNormalShader/DepthNormalsMaterial";
-import { TextureCube } from "laya/resource/TextureCube";
-import { DepthTextureMode } from "laya/d3/RenderDriverLayer/Render3DProcess/IForwardAddClusterRP";
+import { DepthTextureMode } from "laya/resource/RenderTexture";
 
 /**
  * 示例用来展示获得的深度、深度法线贴图

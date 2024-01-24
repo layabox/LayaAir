@@ -9,10 +9,10 @@ import { Vector2 } from "../../../../maths/Vector2"
 import { Matrix4x4 } from "../../../../maths/Matrix4x4"
 import { Vector4 } from "../../../../maths/Vector4"
 import { TextTexture } from "../../../text/TextTexture"
-import { ShaderData } from "../../../../RenderEngine/RenderInterface/ShaderData"
 import { LayaGL } from "../../../../layagl/LayaGL"
 import { ShaderInstance } from "../../../../RenderEngine/RenderShader/ShaderInstance"
-import { IDefineDatas } from "../../../../RenderEngine/RenderInterface/RenderPipelineInterface/IShaderInstance"
+import { ShaderData } from "../../../../RenderDriver/RenderModuleData/Design/ShaderData"
+import { IDefineDatas } from "../../../../RenderDriver/RenderModuleData/Design/IDefineDatas"
 
 export enum RenderSpriteData {
     Zero,
@@ -29,11 +29,11 @@ export class Value2D {
     protected static _typeClass: any = [];
 
     public static _initone(type: number, classT: any): void {
-        Value2D._compileDefine = LayaGL.renderOBJCreate.createDefineDatas();
+        Value2D._compileDefine = LayaGL.unitRenderModuleDataFactory.createDefineDatas();
         Value2D._typeClass[type] = classT;
         Value2D._cache[type] = [];
         Value2D._cache[type]._length = 0;
-        Value2D.globalShaderData = LayaGL.renderOBJCreate.createShaderData(null);
+        Value2D.globalShaderData = LayaGL.unitRenderModuleDataFactory.createShaderData(null);
     }
 
     static TEMPMAT4_ARRAY: any[] = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
@@ -168,7 +168,7 @@ export class Value2D {
     }//Vector2
 
     constructor(mainID: RenderSpriteData) {
-        this.defines = LayaGL.renderOBJCreate.createShaderData(null);
+        this.defines = LayaGL.unitRenderModuleDataFactory.createShaderData(null);
         this.mainID = mainID;
         this.textureHost = null;
         this.texture = null;

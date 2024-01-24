@@ -1,8 +1,8 @@
+import { InternalTexture } from "../../../RenderDriver/DriverDesign/RenderDevice/InternalTexture";
 import { FilterMode } from "../../RenderEnum/FilterMode";
 import { TextureCompareMode } from "../../RenderEnum/TextureCompareMode";
 import { TextureDimension } from "../../RenderEnum/TextureDimension";
 import { WrapMode } from "../../RenderEnum/WrapMode";
-import { InternalTexture } from "../../RenderInterface/InternalTexture";
 import { WebGPUEngine } from "./WebGPUEngine";
 import { WebGPUObject } from "./WebGPUObject";
 import { WebGPUSamplerParams } from "./WebGPUSamplerContext";

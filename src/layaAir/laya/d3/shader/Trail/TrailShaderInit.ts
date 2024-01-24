@@ -5,7 +5,7 @@ import TrailFS from "./Trail.fs";
 import { Color } from "../../../maths/Color";
 import { Vector4 } from "../../../maths/Vector4";
 import { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
-import { ShaderDataType } from "../../../RenderEngine/RenderInterface/ShaderData";
+import { ShaderDataType } from "../../../RenderDriver/RenderModuleData/Design/ShaderData";
 export class TrailShaderInit {
     static init() {
         let attributeMap: { [name: string]: [number, ShaderDataType] } = {

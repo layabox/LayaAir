@@ -1,6 +1,7 @@
 import { Vector4 } from "../../../maths/Vector4";
+import { ShaderDefine } from "../../../RenderDriver/RenderModuleData/Design/ShaderDefine";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
-import { ShaderDefine } from "../../../RenderEngine/RenderShader/ShaderDefine";
+
 import { BaseTexture } from "../../../resource/BaseTexture";
 import { Material } from "../../../resource/Material";
 

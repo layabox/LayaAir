@@ -7,12 +7,10 @@ import { Mesh, skinnedMatrixCache } from "../d3/resource/models/Mesh";
 import { URL } from "../net/URL";
 import { Texture2D, TextureConstructParams, TexturePropertyParams } from "../resource/Texture2D";
 import * as glTF from "./glTFInterface";
-
 import { ILaya } from "../../ILaya";
 import { BufferUsage } from "../RenderEngine/RenderEnum/BufferTargetType";
 import { HDREncodeFormat } from "../RenderEngine/RenderEnum/HDREncodeFormat";
 import { IndexFormat } from "../RenderEngine/RenderEnum/IndexFormat";
-import { RenderState } from "../RenderEngine/RenderShader/RenderState";
 import { VertexMesh } from "../RenderEngine/RenderShader/VertexMesh";
 import { VertexDeclaration } from "../RenderEngine/VertexDeclaration";
 import { Animator } from "../d3/component/Animator/Animator";
@@ -46,8 +44,9 @@ import { glTFShader } from "./shader/glTFShader";
 import { PBRShaderLib } from "../d3/shader/pbr/PBRShaderLib";
 import { Laya } from "../../Laya";
 import { WrapMode } from "../RenderEngine/RenderEnum/WrapMode";
-import { ShaderDefine } from "../RenderEngine/RenderShader/ShaderDefine";
 import { Laya3DRender } from "../d3/RenderObjs/Laya3DRender";
+import { RenderState } from "../RenderDriver/RenderModuleData/Design/RenderState";
+import { ShaderDefine } from "../RenderDriver/RenderModuleData/Design/ShaderDefine";
 
 const maxSubBoneCount = 24;
 

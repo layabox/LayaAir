@@ -1,5 +1,5 @@
+import { InternalRenderTarget } from "../../RenderDriver/DriverDesign/RenderDevice/InternalRenderTarget";
 import { BaseTexture } from "../../resource/BaseTexture";
-import { InternalRenderTarget } from "./InternalRenderTarget";
 
 export interface IRenderTarget {
     _renderTarget: InternalRenderTarget;

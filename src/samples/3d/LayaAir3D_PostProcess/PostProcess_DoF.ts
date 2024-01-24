@@ -9,7 +9,7 @@ import { Handler } from "laya/utils/Handler";
 import { Loader } from "laya/net/Loader";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 import { GaussianDoF } from "laya/d3/core/render/PostEffect/GaussianDoF";
-import { DepthTextureMode } from "laya/d3/RenderDriverLayer/Render3DProcess/IForwardAddClusterRP";
+import { DepthTextureMode } from "laya/resource/RenderTexture";
 
 export class PostProcessDoF {
 

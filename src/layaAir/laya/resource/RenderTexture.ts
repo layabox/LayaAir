@@ -1,12 +1,26 @@
 import { Config3D } from "../../Config3D";
 import { LayaGL } from "../layagl/LayaGL";
+import { InternalRenderTarget } from "../RenderDriver/DriverDesign/RenderDevice/InternalRenderTarget";
 import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
 import { TextureDimension } from "../RenderEngine/RenderEnum/TextureDimension";
 import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
-import { InternalRenderTarget } from "../RenderEngine/RenderInterface/InternalRenderTarget";
 import { IRenderTarget } from "../RenderEngine/RenderInterface/IRenderTarget";
 import { BaseTexture } from "./BaseTexture";
 
+/**
+ * 深度贴图模式
+ */
+export enum DepthTextureMode {
+    /**不生成深度贴图 */
+    None = 0,
+    /**生成深度贴图 */
+    Depth = 1,
+    /**生成深度+法线贴图 */
+    DepthNormals = 2,
+    /**是否应渲染运动矢量  TODO*/
+    DepthAndDepthNormals = 3,
+    MotionVectors = 4,
+}
 export class RenderTexture extends BaseTexture implements IRenderTarget {
 
     private static _pool: RenderTexture[] = [];

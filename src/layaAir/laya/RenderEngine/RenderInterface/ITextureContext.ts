@@ -1,3 +1,5 @@
+import { InternalRenderTarget } from "../../RenderDriver/DriverDesign/RenderDevice/InternalRenderTarget";
+import { InternalTexture } from "../../RenderDriver/DriverDesign/RenderDevice/InternalTexture";
 import { DDSTextureInfo } from "../DDSTextureInfo";
 import { HDRTextureInfo } from "../HDRTextureInfo";
 import { KTXTextureInfo } from "../KTXTextureInfo";
@@ -5,8 +7,6 @@ import { RenderTargetFormat } from "../RenderEnum/RenderTargetFormat";
 import { TextureCompareMode } from "../RenderEnum/TextureCompareMode";
 import { TextureDimension } from "../RenderEnum/TextureDimension";
 import { TextureFormat } from "../RenderEnum/TextureFormat";
-import { InternalRenderTarget } from "./InternalRenderTarget";
-import { InternalTexture } from "./InternalTexture";
 
 
 export interface ITextureContext {

@@ -12,8 +12,8 @@ import { UniformBufferObject } from "../../UniformBufferObject";
 import { GLObject } from "./GLObject";
 import { WebGLEngine } from "./WebGLEngine";
 import { Matrix3x3 } from "../../../maths/Matrix3x3";
-import { InternalTexture } from "../../RenderInterface/InternalTexture";
-import { ShaderDataType } from "../../RenderInterface/ShaderData";
+import { ShaderDataType } from "../../../RenderDriver/RenderModuleData/Design/ShaderData";
+import { InternalTexture } from "../../../RenderDriver/DriverDesign/RenderDevice/InternalTexture";
 
 
 export class GLShaderInstance extends GLObject implements IRenderShaderInstance {

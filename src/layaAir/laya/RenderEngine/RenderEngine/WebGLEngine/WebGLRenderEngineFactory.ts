@@ -1,46 +1,29 @@
 
 import { Config } from "../../../../Config";
 import { LayaGL } from "../../../layagl/LayaGL";
+import { ISubshaderData, IShaderPassData } from "../../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
+import { IDefineDatas } from "../../../RenderDriver/RenderModuleData/Design/IDefineDatas";
+import { RenderState } from "../../../RenderDriver/RenderModuleData/Design/RenderState";
+import { ShaderDefine } from "../../../RenderDriver/RenderModuleData/Design/ShaderDefine";
+import { WebSubShader, WebShaderPass } from "../../../RenderDriver/RenderModuleData/WebModuleData/3D/WebModuleData";
+import { WebDefineDatas } from "../../../RenderDriver/RenderModuleData/WebModuleData/WebDefineDatas";
+import { WebShaderData } from "../../../RenderDriver/RenderModuleData/WebModuleData/WebShaderData";
 import { CommandUniformMap } from "../../../RenderEngine/CommandUniformMap";
 import { WebGLMode } from "../../../RenderEngine/RenderEngine/WebGLEngine/GLEnum/WebGLMode";
 import { WebGlConfig } from "../../../RenderEngine/RenderEngine/WebGLEngine/WebGLConfig";
 import { WebGLEngine } from "../../../RenderEngine/RenderEngine/WebGLEngine/WebGLEngine";
 import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { IRenderEngineFactory } from "../../../RenderEngine/RenderInterface/IRenderEngineFactory";
-import { RenderState } from "../../../RenderEngine/RenderShader/RenderState";
 import { ShaderInstance } from "../../../RenderEngine/RenderShader/ShaderInstance";
 import { RenderStateCommand } from "../../../RenderEngine/RenderStateCommand";
 import { UniformBufferObject } from "../../../RenderEngine/UniformBufferObject";
 import { ShaderProcessInfo } from "../../../webgl/utils/ShaderCompileDefineBase";
-import { ISubshaderData, IShaderPassData, IDefineDatas } from "../../RenderInterface/RenderPipelineInterface/IShaderInstance";
-import { WebDefineDatas } from "../../RenderShader/WebDefineDatas";
-import { ShaderDefine } from "../../RenderShader/ShaderDefine";
 import { ShaderPass } from "../../RenderShader/ShaderPass";
-import { WebShaderData } from "../../RenderShader/WebShaderData";
-import { WebShaderPass, WebSubShader } from "../WebGPUEngine/WebModuleData";
+
 
 export class WebGLRenderEngineFactory implements IRenderEngineFactory {
-    createDefineDatas(): IDefineDatas {
-        return new WebDefineDatas();
-    }
-    createShaderDefine(index: number, value: number): ShaderDefine {
-        return new ShaderDefine(index, value);
-    }
     /**@internal */
     private globalBlockMap: any = {};
-
-    createSubShaderData(): ISubshaderData {
-        return new WebSubShader();
-    }
-    createShaderPass(): IShaderPassData {
-        return new WebShaderPass();
-    }
-
-    createShaderData(): WebShaderData {
-        return new WebShaderData();
-    }
-
-
     createShaderInstance(shaderProcessInfo: ShaderProcessInfo, shaderPass: ShaderPass): ShaderInstance {
         let shaderins = new ShaderInstance();
         shaderins._create(shaderProcessInfo, shaderPass);
@@ -50,10 +33,6 @@ export class WebGLRenderEngineFactory implements IRenderEngineFactory {
 
     createRenderStateComand(): RenderStateCommand {
         return new RenderStateCommand();
-    }
-
-    createRenderState(): RenderState {
-        return new RenderState();
     }
 
     createUniformBufferObject(glPointer: number, name: string, bufferUsage: BufferUsage, byteLength: number, isSingle: boolean): UniformBufferObject {

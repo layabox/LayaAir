@@ -1,10 +1,10 @@
 import { BaseRender } from "./BaseRender"
 import { GeometryElement } from "../GeometryElement"
-import { Transform3D } from "../Transform3D"
-import { Material } from "../../../resource/Material"
-import { IRenderElement } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderElement"
 import { SubShader } from "../../../RenderEngine/RenderShader/SubShader"
 import { Laya3DRender } from "../../RenderObjs/Laya3DRender"
+import { IRenderElement3D } from "../../../RenderDriver/DriverDesign/3DRenderPass/I3DRenderPass";
+import { Material } from "../../../resource/Material";
+import { Transform3D } from "../Transform3D";
 
 /**
  * <code>RenderElement</code> 类用于实现渲染元素。
@@ -13,7 +13,7 @@ export class RenderElement {
     /**
      * 可提交底层的渲染节点
      */
-    _renderElementOBJ: IRenderElement;
+    _renderElementOBJ: IRenderElement3D;
     /** @internal */
     _geometry: GeometryElement;
     /** @internal */
@@ -89,7 +89,7 @@ export class RenderElement {
     }
 
     protected _createRenderElementOBJ() {
-        this._renderElementOBJ = Laya3DRender.renderOBJCreate.createRenderElement();
+        this._renderElementOBJ = Laya3DRender.Render3DPassFactory.createRenderElement3D();
     }
 
     /**

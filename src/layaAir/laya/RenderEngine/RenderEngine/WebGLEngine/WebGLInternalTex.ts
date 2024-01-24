@@ -1,3 +1,4 @@
+import { InternalTexture } from "../../../RenderDriver/DriverDesign/RenderDevice/InternalTexture";
 import { FilterMode } from "../../RenderEnum/FilterMode";
 import { RenderCapable } from "../../RenderEnum/RenderCapable";
 import { RenderParams } from "../../RenderEnum/RenderParams";
@@ -5,7 +6,6 @@ import { RenderStatisticsInfo } from "../../RenderEnum/RenderStatInfo";
 import { TextureCompareMode } from "../../RenderEnum/TextureCompareMode";
 import { TextureDimension } from "../../RenderEnum/TextureDimension";
 import { WrapMode } from "../../RenderEnum/WrapMode";
-import { InternalTexture } from "../../RenderInterface/InternalTexture";
 import { WebGLExtension } from "./GLEnum/WebGLExtension";
 import { GLObject } from "./GLObject";
 import { WebGLEngine } from "./WebGLEngine";

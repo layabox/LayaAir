@@ -6,14 +6,14 @@ import { RenderTargetFormat } from "../../RenderEnum/RenderTargetFormat";
 import { TextureCompareMode } from "../../RenderEnum/TextureCompareMode";
 import { TextureDimension } from "../../RenderEnum/TextureDimension";
 import { TextureFormat } from "../../RenderEnum/TextureFormat";
-import { InternalTexture } from "../../RenderInterface/InternalTexture";
 import { ITextureContext } from "../../RenderInterface/ITextureContext";
 import { NativeGLObject } from "./NativeGLObject";
 import { NativeWebGLEngine } from "./NativeWebGLEngine";
 import { DDSTextureInfo } from "../../DDSTextureInfo";
 import { HDRTextureInfo } from "../../HDRTextureInfo";
 import { KTXTextureInfo } from "../../KTXTextureInfo";
-import { InternalRenderTarget } from "../../RenderInterface/InternalRenderTarget";
+import { InternalRenderTarget } from "../../../RenderDriver/DriverDesign/RenderDevice/InternalRenderTarget";
+import { InternalTexture } from "../../../RenderDriver/DriverDesign/RenderDevice/InternalTexture";
 
 export class NativeGLTextureContext extends NativeGLObject implements ITextureContext {
     needBitmap: boolean;

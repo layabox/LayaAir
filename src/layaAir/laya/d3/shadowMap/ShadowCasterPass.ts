@@ -11,7 +11,7 @@ import { DepthCasterData } from "../depthMap/DepthCasterData";
 import { RenderTexture } from "../../resource/RenderTexture";
 import { LayaGL } from "../../layagl/LayaGL";
 import { DirectionLightCom } from "../core/light/DirectionLightCom";
-import { ShaderDataType } from "../../RenderEngine/RenderInterface/ShaderData";
+import { ShaderDataType } from "../../RenderDriver/RenderModuleData/Design/ShaderData";
 
 /**
  * @internal

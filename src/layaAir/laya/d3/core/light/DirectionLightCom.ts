@@ -2,8 +2,8 @@ import { Scene3D } from "../scene/Scene3D";
 import { ShadowCascadesMode } from "./ShadowCascadesMode";
 import { Light, LightType } from "./Light";
 import { Vector3 } from "../../../maths/Vector3";
-import { IDirectLightData } from "../../RenderDriverLayer/RenderModuleData/IDirectLightData";
 import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
+import { IDirectLightData } from "../../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
 
 
 /**
@@ -80,7 +80,7 @@ export class DirectionLightCom extends Light {
 	}
 
 	protected _creatModuleData() {
-		this._dataModule = Laya3DRender.renderOBJCreate.createDirectLight();
+		this._dataModule = Laya3DRender.Render3DModuleDataFactory.createDirectLight();
 	}
 
 	/**

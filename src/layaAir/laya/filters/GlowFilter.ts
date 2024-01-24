@@ -2,8 +2,8 @@ import { Filter } from "./Filter";
 import { GlowFilterGLRender } from "./GlowFilterGLRender";
 import { ColorUtils } from "../utils/ColorUtils"
 import { BlurFilter } from "./BlurFilter";
-import { ShaderDefine } from "../RenderEngine/RenderShader/ShaderDefine";
 import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
+import { ShaderDefine } from "../RenderDriver/RenderModuleData/Design/ShaderDefine";
 
 /**
  *  发光滤镜(也可以当成阴影滤使用）

@@ -11,7 +11,7 @@ import { TextureFormat } from "../../RenderEnum/TextureFormat";
 import { KTXTextureInfo } from "../../KTXTextureInfo";
 import { RenderCapable } from "../../RenderEnum/RenderCapable";
 import { ITexture3DContext } from "../../RenderInterface/ITextureContext";
-import { InternalTexture } from "../../RenderInterface/InternalTexture";
+import { InternalTexture } from "../../../RenderDriver/DriverDesign/RenderDevice/InternalTexture";
 
 /**
  * 将继承修改为类似 WebGLRenderingContextBase, WebGLRenderingContextOverloads 多继承 ?

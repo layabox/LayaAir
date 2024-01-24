@@ -5,7 +5,6 @@ import { SubMesh } from "../resource/models/SubMesh";
 import { Utils3D } from "../utils/Utils3D";
 import { MeshRenderer } from "./MeshRenderer";
 import { Sprite3D } from "./Sprite3D";
-import { Transform3D } from "./Transform3D";
 import { RenderContext3D } from "./render/RenderContext3D";
 import { SkinnedMeshSprite3DShaderDeclaration } from "./SkinnedMeshSprite3DShaderDeclaration";
 import { Component } from "../../components/Component";
@@ -17,10 +16,11 @@ import { Bounds } from "../math/Bounds";
 import { Matrix4x4 } from "../../maths/Matrix4x4";
 import { Vector3 } from "../../maths/Vector3";
 import { BoundFrustum } from "../math/BoundFrustum";
-import { IRenderContext3D } from "../RenderDriverLayer/IRenderContext3D";
-import { IBaseRenderNode } from "../RenderDriverLayer/Render3DNode/IBaseRenderNode";
 import { Laya3DRender } from "../RenderObjs/Laya3DRender";
 import { Vector4 } from "../../maths/Vector4";
+import { Transform3D } from "./Transform3D";
+import { IBaseRenderNode } from "../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
+import { IRenderContext3D } from "../../RenderDriver/DriverDesign/3DRenderPass/I3DRenderPass";
 
 export class aaaa {
 
@@ -131,7 +131,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
      * @returns 
      */
     protected _createBaseRenderNode(): IBaseRenderNode {
-        return Laya3DRender.renderOBJCreate.createBaseRenderNode();
+        return Laya3DRender.Render3DModuleDataFactory.createBaseRenderNode();
     }
 
 

@@ -8,7 +8,7 @@ import { Vector3 } from "../maths/Vector3";
 import { Vector4 } from "../maths/Vector4";
 import { Texture2D } from "../resource/Texture2D";
 import { TextureCube } from "../resource/TextureCube";
-import { ShaderDataType } from "../RenderEngine/RenderInterface/ShaderData";
+import { ShaderDataType } from "../RenderDriver/RenderModuleData/Design/ShaderData";
 
 
 const CGBlock: string[] = ["GLSL Start", "GLSL End"];

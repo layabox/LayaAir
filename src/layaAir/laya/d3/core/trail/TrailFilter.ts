@@ -16,7 +16,7 @@ import { Vector3 } from "../../../maths/Vector3";
 import { Gradient } from "../Gradient";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { RenderElement } from "../render/RenderElement";
-import { ShaderDataType } from "../../../RenderEngine/RenderInterface/ShaderData";
+import { ShaderDataType } from "../../../RenderDriver/RenderModuleData/Design/ShaderData";
 
 
 /**

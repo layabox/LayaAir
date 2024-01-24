@@ -11,7 +11,6 @@ import { Color } from "laya/maths/Color";
 import { Vector3 } from "laya/maths/Vector3";
 import { Loader } from "laya/net/Loader";
 import { RenderTargetFormat } from "laya/RenderEngine/RenderEnum/RenderTargetFormat";
-import { RenderState } from "laya/RenderEngine/RenderShader/RenderState";
 import { RenderTexture } from "laya/resource/RenderTexture";
 import { Button } from "laya/ui/Button";
 import { Browser } from "laya/utils/Browser";
@@ -20,6 +19,7 @@ import { Stat } from "laya/utils/Stat";
 import { Laya3D } from "Laya3D";
 import Client from "../../Client";
 import { CameraMoveScript } from "../common/CameraMoveScript";
+import { RenderState } from "laya/RenderDriver/RenderModuleData/Design/RenderState";
 
 export class RenderTargetCamera {
 

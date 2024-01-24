@@ -4,11 +4,9 @@ import { Command } from "./Command";
 import { CommandBuffer } from "./CommandBuffer";
 import { MeshRenderer } from "../../../core/MeshRenderer";
 import { RenderElement } from "../RenderElement";
-import { Transform3D } from "../../Transform3D";
-import { RenderContext3D } from "../RenderContext3D";
-import { Camera } from "../../Camera";
 import { Matrix4x4 } from "../../../../maths/Matrix4x4";
 import { Laya3DRender } from "../../../RenderObjs/Laya3DRender";
+import { Transform3D } from "../../Transform3D";
 /**
  * @internal
  * <code>SetShaderDataTextureCMD</code> 类用于创建设置渲染目标指令。
@@ -64,7 +62,7 @@ export class DrawMeshCMD extends Command {
      */
     constructor() {
         super();
-        this._transform = Laya3DRender.renderOBJCreate.createTransform(null);
+        this._transform = Laya3DRender.Render3DModuleDataFactory.createTransform(null);
         this._meshRender = new MeshRenderer();
     }
 

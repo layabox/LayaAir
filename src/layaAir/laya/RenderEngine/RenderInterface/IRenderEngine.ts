@@ -1,3 +1,5 @@
+import { InternalTexture } from "../../RenderDriver/DriverDesign/RenderDevice/InternalTexture";
+import { ShaderDataType } from "../../RenderDriver/RenderModuleData/Design/ShaderData";
 import { CommandEncoder } from "../../layagl/CommandEncoder";
 import { Color } from "../../maths/Color";
 import { BufferTargetType, BufferUsage } from "../RenderEnum/BufferTargetType";
@@ -13,8 +15,6 @@ import { IRenderEngineFactory } from "./IRenderEngineFactory";
 import { IRenderShaderInstance } from "./IRenderShaderInstance";
 import { IRenderVertexState } from "./IRenderVertexState";
 import { ITextureContext } from "./ITextureContext";
-import { InternalTexture } from "./InternalTexture";
-import { ShaderDataType } from "./ShaderData";
 
 export interface IRenderEngine {
     _context: any;

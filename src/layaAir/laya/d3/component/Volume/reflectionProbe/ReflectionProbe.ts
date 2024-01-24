@@ -8,8 +8,8 @@ import { AmbientMode } from "../../../core/scene/AmbientMode";
 import { Color } from "../../../../maths/Color";
 import { Vector3 } from "../../../../maths/Vector3";
 import { Vector4 } from "../../../../maths/Vector4";
-import { IReflectionProbeData } from "../../../RenderDriverLayer/RenderModuleData/IReflectionProbeData";
 import { Laya3DRender } from "../../../RenderObjs/Laya3DRender";
+import { IReflectionProbeData } from "../../../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
 
 
 /**
@@ -54,7 +54,7 @@ export class ReflectionProbe extends Volume {
 		super();
 		this._importance = 0;
 		this._type = VolumeManager.ReflectionProbeVolumeType;
-		this._dataModule = Laya3DRender.renderOBJCreate.createReflectionProbe();
+		this._dataModule = Laya3DRender.Render3DModuleDataFactory.createReflectionProbe();
 		this._dataModule.ambientIntensity = 1.0;
 		this._dataModule.reflectionIntensity = 1.0;
 		this.boundsMax = new Vector3(5, 5, 5);

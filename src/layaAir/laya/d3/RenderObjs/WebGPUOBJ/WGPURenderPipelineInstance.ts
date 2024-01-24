@@ -1,3 +1,5 @@
+import { RenderState } from "../../../RenderDriver/RenderModuleData/Design/RenderState";
+import { ShaderData, ShaderDataType } from "../../../RenderDriver/RenderModuleData/Design/ShaderData";
 import { WGPUShaderVariable } from "../../../RenderEngine/RenderEngine/WebGPUEngine/WGPUShaderVariable";
 import { WebGPUEngine } from "../../../RenderEngine/RenderEngine/WebGPUEngine/WebGPUEngine";
 import { WebGPUInternalRT } from "../../../RenderEngine/RenderEngine/WebGPUEngine/WebGPUInternalRT";
@@ -6,8 +8,7 @@ import { WebGPUShaderInstance } from "../../../RenderEngine/RenderEngine/WebGPUE
 import { CullMode } from "../../../RenderEngine/RenderEnum/CullMode";
 import { IndexFormat } from "../../../RenderEngine/RenderEnum/IndexFormat";
 import { MeshTopology } from "../../../RenderEngine/RenderEnum/RenderPologyMode";
-import { ShaderData, ShaderDataType } from "../../../RenderEngine/RenderInterface/ShaderData";
-import { RenderState } from "../../../RenderEngine/RenderShader/RenderState";
+
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { ShaderPass } from "../../../RenderEngine/RenderShader/ShaderPass";
 import { UniformMapType } from "../../../RenderEngine/RenderShader/SubShader";

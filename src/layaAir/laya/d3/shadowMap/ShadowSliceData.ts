@@ -4,8 +4,7 @@ import { Matrix4x4 } from "../../maths/Matrix4x4";
 import { Vector3 } from "../../maths/Vector3";
 import { LayaGL } from "../../layagl/LayaGL";
 import { BoundFrustum } from "../math/BoundFrustum";
-import { ShaderData } from "../../RenderEngine/RenderInterface/ShaderData";
-
+import { ShaderData } from "../../RenderDriver/RenderModuleData/Design/ShaderData";
 
 
 
@@ -30,7 +29,7 @@ export class CameraCullInfo {
  * 阴影分割数据。
  */
 export class ShadowSliceData {
-    cameraShaderValue: ShaderData = LayaGL.renderOBJCreate.createShaderData(null);
+    cameraShaderValue: ShaderData = LayaGL.unitRenderModuleDataFactory.createShaderData(null);
     position: Vector3 = new Vector3();
     offsetX: number;
     offsetY: number;
@@ -49,7 +48,7 @@ export class ShadowSliceData {
  * 聚光灯阴影数据。
  */
 export class ShadowSpotData {
-    cameraShaderValue: ShaderData = LayaGL.renderOBJCreate.createShaderData(null);
+    cameraShaderValue: ShaderData = LayaGL.unitRenderModuleDataFactory.createShaderData(null);
     position: Vector3 = new Vector3;
     offsetX: number;
     offsetY: number;

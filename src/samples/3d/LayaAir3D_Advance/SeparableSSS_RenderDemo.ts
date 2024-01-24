@@ -27,8 +27,7 @@ import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 import { Color } from "laya/maths/Color";
 import { Vector2 } from "laya/maths/Vector2";
 import { Vector4 } from "laya/maths/Vector4";
-import { RenderTexture } from "laya/resource/RenderTexture";
-import { DepthTextureMode } from "laya/d3/RenderDriverLayer/Render3DProcess/IForwardAddClusterRP";
+import { DepthTextureMode, RenderTexture } from "laya/resource/RenderTexture";
 
 export class SeparableSSS_RenderDemo {
     scene: Scene3D;

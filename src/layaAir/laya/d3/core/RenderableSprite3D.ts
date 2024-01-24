@@ -2,9 +2,11 @@ import { Node } from "../../display/Node";
 import { Sprite3D } from "./Sprite3D";
 import { BaseRender } from "./render/BaseRender";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
-import { ShaderDefine } from "../../RenderEngine/RenderShader/ShaderDefine";
+
 import { LayaGL } from "../../layagl/LayaGL";
-import { ShaderDataType } from "../../RenderEngine/RenderInterface/ShaderData";
+import { ShaderDefine } from "../../RenderDriver/RenderModuleData/Design/ShaderDefine";
+import { ShaderDataType } from "../../RenderDriver/RenderModuleData/Design/ShaderData";
+
 
 /**
  * @deprecated

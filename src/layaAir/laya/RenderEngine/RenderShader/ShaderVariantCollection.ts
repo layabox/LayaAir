@@ -1,5 +1,4 @@
-
-import { IDefineDatas } from "../RenderInterface/RenderPipelineInterface/IShaderInstance";
+import { IDefineDatas } from "../../RenderDriver/RenderModuleData/Design/IDefineDatas";
 import { Shader3D } from "./Shader3D";
 import { ShaderPass } from "./ShaderPass";
 import { SubShader } from "./SubShader";

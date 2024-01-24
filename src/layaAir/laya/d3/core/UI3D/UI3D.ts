@@ -20,11 +20,12 @@ import { Prefab } from "../../../resource/HierarchyResource";
 import { InputManager } from "../../../events/InputManager";
 import { NodeFlags } from "../../../Const";
 import { ILaya } from "../../../../ILaya";
-import { RenderState } from "../../../RenderEngine/RenderShader/RenderState";
-import { LayaEnv } from "../../../../LayaEnv";
-import { IRenderContext3D } from "../../RenderDriverLayer/IRenderContext3D";
+
 import { RenderContext3D } from "../render/RenderContext3D";
 import { Vector4 } from "../../../maths/Vector4";
+import { LayaEnv } from "../../../../LayaEnv";
+import { IRenderContext3D } from "../../../RenderDriver/DriverDesign/3DRenderPass/I3DRenderPass";
+import { RenderState } from "../../../RenderDriver/RenderModuleData/Design/RenderState";
 
 /**
  * <code>BaseCamera</code> 类用于创建摄像机的父类。

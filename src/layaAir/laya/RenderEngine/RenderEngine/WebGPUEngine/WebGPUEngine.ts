@@ -28,8 +28,8 @@ import { TextureDimension } from "../../RenderEnum/TextureDimension";
 import { WGPUBindGroupHelper } from "./WGPUBindGroupHelper";
 import { WGPURenderPipeline } from "../../../d3/RenderObjs/WebGPUOBJ/WebGPURenderPipelineHelper";
 import { IRenderEngineFactory } from "../../RenderInterface/IRenderEngineFactory";
-import { InternalTexture } from "../../RenderInterface/InternalTexture";
-import { ShaderDataType } from "../../RenderInterface/ShaderData";
+import { InternalTexture } from "../../../RenderDriver/DriverDesign/RenderDevice/InternalTexture";
+import { ShaderDataType } from "../../../RenderDriver/RenderModuleData/Design/ShaderData";
 
 export class WebGPUEngine implements IRenderEngine {
     _canvas: HTMLCanvasElement;

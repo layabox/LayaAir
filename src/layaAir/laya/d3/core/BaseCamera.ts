@@ -4,7 +4,6 @@ import { Loader } from "../../net/Loader";
 import { Config3D } from "../../../Config3D";
 import { IRenderEngine } from "../../RenderEngine/RenderInterface/IRenderEngine";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
-import { ShaderDefine } from "../../RenderEngine/RenderShader/ShaderDefine";
 import { UniformBufferParamsType, UnifromBufferData } from "../../RenderEngine/UniformBufferData";
 import { Scene3D } from "./scene/Scene3D";
 import { Sprite3D, StaticFlag } from "./Sprite3D";
@@ -17,7 +16,8 @@ import { Matrix4x4 } from "../../maths/Matrix4x4";
 import { Vector3 } from "../../maths/Vector3";
 import { SkyRenderer } from "../resource/models/SkyRenderer";
 import { LayaGL } from "../../layagl/LayaGL";
-import { ShaderDataType, ShaderData } from "../../RenderEngine/RenderInterface/ShaderData";
+import { ShaderDataType, ShaderData } from "../../RenderDriver/RenderModuleData/Design/ShaderData";
+import { ShaderDefine } from "../../RenderDriver/RenderModuleData/Design/ShaderDefine";
 
 /**
  * <code>BaseCamera</code> 类用于创建摄像机的父类。
@@ -361,7 +361,7 @@ export class BaseCamera extends Sprite3D {
      */
     constructor(nearPlane: number = 0.3, farPlane: number = 1000) {
         super();
-        this._shaderValues = LayaGL.renderOBJCreate.createShaderData(null);
+        this._shaderValues = LayaGL.unitRenderModuleDataFactory.createShaderData(null);
 
         this._linearClearColor = new Color();
         this.clearColor = new Color(100 / 255, 149 / 255, 237 / 255, 255 / 255);

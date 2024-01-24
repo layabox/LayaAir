@@ -1,9 +1,7 @@
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
-import { ShaderDefine } from "../../RenderEngine/RenderShader/ShaderDefine";
 import { SubShader } from "../../RenderEngine/RenderShader/SubShader";
 import { Vector3 } from "../../maths/Vector3";
 import { Vector4 } from "../../maths/Vector4";
-import { Texture2D } from "../../resource/Texture2D";
 
 import glTFMetallicRoughnessGLSL from "./glTFMetallicRoughness.glsl";
 import glTFPBRVS from "./glTFPBR.vs";
@@ -13,7 +11,8 @@ import DephtFS from "./glTFPBRDepth.fs";
 import DepthNormalVS from "./glTFPBRDepthNormal.vs";
 import DepthNormalFS from "./glTFPBRDepthNormal.fs";
 import { Matrix3x3 } from "../../maths/Matrix3x3";
-import { ShaderDataType } from "../../RenderEngine/RenderInterface/ShaderData";
+import { ShaderDefine } from "../../RenderDriver/RenderModuleData/Design/ShaderDefine";
+import { ShaderDataType } from "../../RenderDriver/RenderModuleData/Design/ShaderData";
 
 /**
  * @internal

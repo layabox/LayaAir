@@ -2,9 +2,7 @@ import { Config } from "../../Config";
 import { Config3D } from "../../Config3D";
 import { ILaya } from "../../ILaya";
 import { BufferUsage } from "../RenderEngine/RenderEnum/BufferTargetType";
-import { RenderState } from "../RenderEngine/RenderShader/RenderState";
 import { Shader3D } from "../RenderEngine/RenderShader/Shader3D";
-import { ShaderDefine } from "../RenderEngine/RenderShader/ShaderDefine";
 import { UniformBufferObject } from "../RenderEngine/UniformBufferObject";
 import { LayaGL } from "../layagl/LayaGL";
 import { Color } from "../maths/Color";
@@ -19,8 +17,11 @@ import { IClone } from "../utils/IClone";
 import { BaseTexture } from "./BaseTexture";
 import { Resource } from "./Resource";
 import { Event } from "../events/Event";
-import { ShaderData, ShaderDataDefaultValue, ShaderDataItem, ShaderDataType } from "../RenderEngine/RenderInterface/ShaderData";
-import { IDefineDatas } from "../RenderEngine/RenderInterface/RenderPipelineInterface/IShaderInstance";
+import { ShaderDefine } from "../RenderDriver/RenderModuleData/Design/ShaderDefine";
+import { ShaderData, ShaderDataDefaultValue, ShaderDataItem, ShaderDataType } from "../RenderDriver/RenderModuleData/Design/ShaderData";
+import { RenderState } from "../RenderDriver/RenderModuleData/Design/RenderState";
+import { IDefineDatas } from "../RenderDriver/RenderModuleData/Design/IDefineDatas";
+
 
 
 export enum MaterialRenderMode {
@@ -454,7 +455,7 @@ export class Material extends Resource implements IClone {
      */
     constructor() {
         super();
-        this._shaderValues = LayaGL.renderOBJCreate.createShaderData(this);
+        this._shaderValues = LayaGL.unitRenderModuleDataFactory.createShaderData(this);
         this.renderQueue = Material.RENDERQUEUE_OPAQUE;
         this.alphaTest = false;
         this.cull = RenderState.CULL_BACK;

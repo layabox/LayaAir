@@ -14,17 +14,16 @@ import { CommandBuffer } from "../command/CommandBuffer";
 import { PostProcessEffect } from "../PostProcessEffect";
 import { PostProcessRenderContext } from "../PostProcessRenderContext";
 import { BaseCamera } from "../../BaseCamera";
-import { ShaderDefine } from "../../../../RenderEngine/RenderShader/ShaderDefine";
 import { Color } from "../../../../maths/Color";
 import { Vector2 } from "../../../../maths/Vector2";
 import { Vector3 } from "../../../../maths/Vector3";
 import { Vector4 } from "../../../../maths/Vector4";
-import { RenderTexture } from "../../../../resource/RenderTexture";
+import { DepthTextureMode, RenderTexture } from "../../../../resource/RenderTexture";
 import { SubShader } from "../../../../RenderEngine/RenderShader/SubShader";
 import { VertexMesh } from "../../../../RenderEngine/RenderShader/VertexMesh";
 import { LayaGL } from "../../../../layagl/LayaGL";
-import { DepthTextureMode } from "../../../RenderDriverLayer/Render3DProcess/IForwardAddClusterRP";
-import { ShaderDataType, ShaderData } from "../../../../RenderEngine/RenderInterface/ShaderData";
+import { ShaderDataType, ShaderData } from "../../../../RenderDriver/RenderModuleData/Design/ShaderData";
+import { ShaderDefine } from "../../../../RenderDriver/RenderModuleData/Design/ShaderDefine";
 
 /**
  * AO质量
@@ -143,7 +142,7 @@ export class ScalableAO extends PostProcessEffect {
     constructor() {
         super();
         this._shader = Shader3D.find("ScalableAO");
-        this._shaderData = LayaGL.renderOBJCreate.createShaderData(null);
+        this._shaderData = LayaGL.unitRenderModuleDataFactory.createShaderData(null);
         this._aoParams = new Vector3(0.12, 0.15, 1);
         this._shaderData.setVector3(ScalableAO.AOParams, this._aoParams);
         this._shaderData.setVector(BaseCamera.DEPTHZBUFFERPARAMS, new Vector4());

@@ -1,12 +1,10 @@
-import { SingletonList } from "../../../utils/SingletonList";
-import { Transform3D } from "../../../d3/core/Transform3D";
 import { IRenderGeometryElement } from "./IRenderGeometryElement";
-import { ShaderInstance } from "../../RenderShader/ShaderInstance";
-import { IBaseRenderNode } from "../../../d3/RenderDriverLayer/Render3DNode/IBaseRenderNode";
 import { SubShader } from "../../RenderShader/SubShader";
-import { ShaderData } from "../ShaderData";
+import { IBaseRenderNode } from "../../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
+import { ShaderData } from "../../../RenderDriver/RenderModuleData/Design/ShaderData";
+import { Transform3D } from "../../../d3/core/Transform3D";
 
-export interface IRenderElement {
+export interface IRenderElement3D {
     geometry: IRenderGeometryElement;
     materialShaderData: ShaderData;
     materialRenderQueue: number;

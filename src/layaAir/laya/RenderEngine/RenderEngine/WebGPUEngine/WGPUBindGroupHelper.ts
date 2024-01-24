@@ -2,8 +2,7 @@ import { WGPUShaderVariable } from "./WGPUShaderVariable";
 import { WebGPUInternalTex } from "./WebGPUInternalTex";
 import { WGPUShaderData } from "../../../d3/RenderObjs/WebGPUOBJ/WGPUShaderData";
 import { WebGPUBuffer } from "./WebGPUBuffer";
-import { ShaderDataType } from "../../RenderInterface/ShaderData";
-
+import { ShaderDataType } from "../../../RenderDriver/RenderModuleData/Design/ShaderData";
 export class WGPUBindGroupHelper {
     static device: GPUDevice;
 

@@ -1,9 +1,9 @@
+import { WebGLRenderElement3D } from "../../../RenderDriver/WebglDriver/3DRenderPass/WebGLRenderElement3D";
 import { ShaderInstance } from "../../../RenderEngine/RenderShader/ShaderInstance";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { VertexBuffer3D } from "../../graphics/VertexBuffer3D";
-import { GLESRenderElementOBJ } from "../WebGLOBJ/GLESRenderElementOBJ";
 
-export class InstanceRenderElementOBJ extends GLESRenderElementOBJ {
+export class InstanceRenderElementOBJ extends WebGLRenderElement3D {
 
     /**@internal 当instance数量特别大时可能需要一段一段数据来画,所以需要更新顶点数据*/
     private _vertexBuffer3D: Array<VertexBuffer3D> = [];

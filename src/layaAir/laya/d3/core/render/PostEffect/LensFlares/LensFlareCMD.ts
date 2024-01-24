@@ -1,11 +1,11 @@
-import { RenderState } from "../../../../../RenderEngine/RenderShader/RenderState";
+import { RenderState } from "../../../../../RenderDriver/RenderModuleData/Design/RenderState";
 import { Vector2 } from "../../../../../maths/Vector2";
+import { Material, MaterialRenderMode } from "../../../../../resource/Material";
 import { Stat } from "../../../../../utils/Stat";
 import { Utils } from "../../../../../utils/Utils";
 import { Laya3DRender } from "../../../../RenderObjs/Laya3DRender";
 import { Camera } from "../../../Camera";
 import { Transform3D } from "../../../Transform3D";
-import { Material, MaterialRenderMode } from "../../../../../resource/Material";
 import { RenderContext3D } from "../../RenderContext3D";
 import { RenderElement } from "../../RenderElement";
 import { Command } from "../../command/Command";
@@ -46,7 +46,7 @@ export class LensFlareCMD extends Command {
      */
     constructor() {
         super();
-        this._transform3D = Laya3DRender.renderOBJCreate.createTransform(null);
+        this._transform3D = Laya3DRender.Render3DModuleDataFactory.createTransform(null);
         this._renderElement = new RenderElement();
         this._lensFlareGeometry = new LensFlareElementGeomtry();
         this._renderElement.setTransform(this._transform3D);

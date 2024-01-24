@@ -135,7 +135,7 @@ export class Bounds implements IClone {
      * @param	max  max 最大坐标。
      */
     constructor(min?: Vector3, max?: Vector3) {
-        this._imp = Laya3DRender.renderOBJCreate.createBounds(min, max);
+        this._imp = Laya3DRender.Render3DModuleDataFactory.createBounds(min, max);
     }
 
     protected _getUpdateFlag(type: number): boolean {

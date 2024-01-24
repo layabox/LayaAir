@@ -5,13 +5,14 @@ import { ScreenQuad } from "../ScreenQuad";
 import { Command } from "./Command";
 import { Shader3D } from "../../../../RenderEngine/RenderShader/Shader3D";
 import { RenderElement } from "../RenderElement";
-import { Transform3D } from "../../Transform3D";
-import { Camera } from "../../Camera";
+import { ShaderData } from "../../../../RenderDriver/RenderModuleData/Design/ShaderData";
+import { LayaGL } from "../../../../layagl/LayaGL";
 import { Vector4 } from "../../../../maths/Vector4";
 import { RenderTexture } from "../../../../resource/RenderTexture";
-import { LayaGL } from "../../../../layagl/LayaGL";
 import { Laya3DRender } from "../../../RenderObjs/Laya3DRender";
-import { ShaderData } from "../../../../RenderEngine/RenderInterface/ShaderData";
+import { Camera } from "../../Camera";
+import { Transform3D } from "../../Transform3D";
+
 
 
 /**
@@ -27,7 +28,7 @@ export class BlitFrameBufferCMD {
 
 	/** @internal */
 	static __init__(): void {
-		BlitFrameBufferCMD.shaderdata = LayaGL.renderOBJCreate.createShaderData(null);
+		BlitFrameBufferCMD.shaderdata = LayaGL.unitRenderModuleDataFactory.createShaderData(null);
 	}
 
 	/**
@@ -78,7 +79,7 @@ export class BlitFrameBufferCMD {
 	private _transform3D: Transform3D;
 
 	constructor() {
-		this._transform3D = Laya3DRender.renderOBJCreate.createTransform(null);
+		this._transform3D = Laya3DRender.Render3DModuleDataFactory.createTransform(null);
 		this._renderElement = new RenderElement();
 		this._renderElement.setTransform(this._transform3D);
 		this._renderElement.setGeometry(ScreenQuad.instance);

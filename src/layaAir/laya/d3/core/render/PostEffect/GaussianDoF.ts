@@ -11,15 +11,14 @@ import { PostProcessRenderContext } from "../../../core/render/PostProcessRender
 import { FilterMode } from "../../../../RenderEngine/RenderEnum/FilterMode";
 import { RenderTargetFormat } from "../../../../RenderEngine/RenderEnum/RenderTargetFormat";
 import { Shader3D } from "../../../../RenderEngine/RenderShader/Shader3D";
-import { ShaderDefine } from "../../../../RenderEngine/RenderShader/ShaderDefine";
-import { Vector3 } from "../../../../maths/Vector3";
-import { Vector4 } from "../../../../maths/Vector4";
-import { RenderTexture } from "../../../../resource/RenderTexture";
+import { ShaderDataType, ShaderData } from "../../../../RenderDriver/RenderModuleData/Design/ShaderData";
+import { ShaderDefine } from "../../../../RenderDriver/RenderModuleData/Design/ShaderDefine";
 import { SubShader } from "../../../../RenderEngine/RenderShader/SubShader";
 import { VertexMesh } from "../../../../RenderEngine/RenderShader/VertexMesh";
 import { LayaGL } from "../../../../layagl/LayaGL";
-import { DepthTextureMode } from "../../../RenderDriverLayer/Render3DProcess/IForwardAddClusterRP";
-import { ShaderDataType, ShaderData } from "../../../../RenderEngine/RenderInterface/ShaderData";
+import { Vector3 } from "../../../../maths/Vector3";
+import { Vector4 } from "../../../../maths/Vector4";
+import { DepthTextureMode, RenderTexture } from "../../../../resource/RenderTexture";
 
 /**
  *  <code>BloomEffect</code> 类用于创建环境光遮罩效果。
@@ -152,7 +151,7 @@ export class GaussianDoF extends PostProcessEffect {
     constructor() {
         super();
         this._shader = Shader3D.find("GaussianDoF");
-        this._shaderData = LayaGL.renderOBJCreate.createShaderData(null);
+        this._shaderData = LayaGL.unitRenderModuleDataFactory.createShaderData(null);
         this._shaderData.setVector3(GaussianDoF.COCPARAMS, new Vector3(10, 30, 1));
         this._zBufferParams = new Vector4();
         this._sourceSize = new Vector4();

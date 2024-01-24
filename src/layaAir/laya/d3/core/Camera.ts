@@ -19,7 +19,6 @@ import { BlitScreenQuadCMD } from "./render/command/BlitScreenQuadCMD";
 import { CommandBuffer } from "./render/command/CommandBuffer";
 import { RenderContext3D } from "./render/RenderContext3D";
 import { Scene3D } from "./scene/Scene3D";
-import { Transform3D } from "./Transform3D";
 import { FilterMode } from "../../RenderEngine/RenderEnum/FilterMode";
 import { RenderTargetFormat } from "../../RenderEngine/RenderEnum/RenderTargetFormat";
 import { RenderCapable } from "../../RenderEngine/RenderEnum/RenderCapable";
@@ -32,17 +31,17 @@ import { Quaternion } from "../../maths/Quaternion";
 import { Vector2 } from "../../maths/Vector2";
 import { Vector3 } from "../../maths/Vector3";
 import { Vector4 } from "../../maths/Vector4";
-import { RenderTexture } from "../../resource/RenderTexture";
+import { DepthTextureMode, RenderTexture } from "../../resource/RenderTexture";
 import { Stat } from "../../utils/Stat";
 import { WrapMode } from "../../RenderEngine/RenderEnum/WrapMode";
 import { LayaGL } from "../../layagl/LayaGL";
-import { DepthTextureMode } from "../RenderDriverLayer/Render3DProcess/IForwardAddClusterRP";
-import { IForwardAddRP } from "../RenderDriverLayer/Render3DProcess/IForwardAddRP";
-import { IRender3DProcess } from "../RenderDriverLayer/Render3DProcess/IRender3DProcess";
-import { ICameraNodeData } from "../RenderDriverLayer/RenderModuleData/IModuleData";
+
 import { Laya3DRender } from "../RenderObjs/Laya3DRender";
 import { ShadowCasterPass } from "../shadowMap/ShadowCasterPass";
 import { RenderClearFlag } from "../../RenderEngine/RenderEnum/RenderClearFlag";
+import { IForwardAddRP, IRender3DProcess } from "../../RenderDriver/DriverDesign/3DRenderPass/I3DRenderPass";
+import { ICameraNodeData } from "../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
+import { Transform3D } from "./Transform3D";
 
 /**
  * 相机清除标记。
@@ -686,9 +685,9 @@ export class Camera extends BaseCamera {
      */
     constructor(aspectRatio: number = 0, nearPlane: number = 0.3, farPlane: number = 1000) {
         super(nearPlane, farPlane);
-        this._renderDataModule = Laya3DRender.renderOBJCreate.createCameraModuleData();
-        this._ForwardAddRP = Laya3DRender.renderDriverPassCreate.createForwardAddRP();
-        this._Render3DProcess = Laya3DRender.renderDriverPassCreate.createRender3DProcess();
+        this._renderDataModule = Laya3DRender.Render3DModuleDataFactory.createCameraModuleData();
+        this._ForwardAddRP = Laya3DRender.Render3DPassFactory.createForwardAddRP();
+        this._Render3DProcess = Laya3DRender.Render3DPassFactory.createRender3DProcess();
         this._renderDataModule.transform = this.transform;
         this._viewMatrix = new Matrix4x4();
         this._projectionMatrix = new Matrix4x4();

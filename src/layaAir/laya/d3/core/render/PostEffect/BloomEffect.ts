@@ -24,11 +24,11 @@ import { BaseTexture } from "../../../../resource/BaseTexture";
 import { Color } from "../../../../maths/Color";
 import { Vector4 } from "../../../../maths/Vector4";
 import { RenderTexture } from "../../../../resource/RenderTexture";
-import { RenderState } from "../../../../RenderEngine/RenderShader/RenderState";
+import { RenderState } from "../../../../RenderDriver/RenderModuleData/Design/RenderState";
+import { ShaderDataType, ShaderData } from "../../../../RenderDriver/RenderModuleData/Design/ShaderData";
 import { SubShader } from "../../../../RenderEngine/RenderShader/SubShader";
 import { VertexMesh } from "../../../../RenderEngine/RenderShader/VertexMesh";
 import { LayaGL } from "../../../../layagl/LayaGL";
-import { ShaderDataType, ShaderData } from "../../../../RenderEngine/RenderInterface/ShaderData";
 
 /**
  * <code>BloomEffect</code> 类用于创建泛光效果。
@@ -182,7 +182,7 @@ export class BloomEffect extends PostProcessEffect {
 	/**@internal */
 	private _shader: Shader3D = null;
 	/**@internal */
-	private _shaderData: ShaderData = LayaGL.renderOBJCreate.createShaderData(null);
+	private _shaderData: ShaderData = LayaGL.unitRenderModuleDataFactory.createShaderData(null);
 	/**@internal */
 	private _linearColor: Color = new Color();
 	/**@internal */

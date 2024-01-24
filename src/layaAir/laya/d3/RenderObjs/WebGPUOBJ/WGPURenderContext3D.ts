@@ -4,12 +4,13 @@ import { WebGPURenderCommandEncoder } from "../../../RenderEngine/RenderEngine/W
 import { IRenderTarget } from "../../../RenderEngine/RenderInterface/IRenderTarget";
 import { Vector4 } from "../../../maths/Vector4";
 import { Viewport } from "../../math/Viewport";
-import { WGPURenderElementObJ } from "./WGPURenderElementObJ";
+
 import { WGPUShaderData } from "./WGPUShaderData";
 import { WebGPUInternalRT } from "../../../RenderEngine/RenderEngine/WebGPUEngine/WebGPUInternalRT";
 import { LayaGL } from "../../../layagl/LayaGL";
-import { PipelineMode } from "../../RenderDriverLayer/IRenderContext3D";
-import { ShaderData } from "../../../RenderEngine/RenderInterface/ShaderData";
+import { PipelineMode } from "../../../RenderDriver/DriverDesign/3DRenderPass/I3DRenderPass";
+import { ShaderData } from "../../../RenderDriver/RenderModuleData/Design/ShaderData";
+
 
 export class WGPURenderContext3D {
     

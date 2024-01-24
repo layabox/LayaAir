@@ -9,10 +9,10 @@ import { ShaderCompileDefineBase, ShaderProcessInfo } from "../../webgl/utils/Sh
 import { GLSLCodeGenerator } from "./GLSLCodeGenerator";
 import { RenderStateContext } from "../../RenderEngine/RenderStateContext";
 import { Stat } from "../../utils/Stat";
-import { RenderState } from "./RenderState";
 import { LayaGL } from "../../layagl/LayaGL";
-import { ShaderData, ShaderDataType } from "../RenderInterface/ShaderData";
 import { IShaderInstance } from "../RenderInterface/RenderPipelineInterface/IShaderInstance";
+import { RenderState } from "../../RenderDriver/RenderModuleData/Design/RenderState";
+import { ShaderData } from "../../RenderDriver/RenderModuleData/Design/ShaderData";
 
 /**
  * <code>ShaderInstance</code> 类用于实现ShaderInstance。

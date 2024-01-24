@@ -9,9 +9,8 @@ import { TrailTextureMode } from "../TrailTextureMode"
 import { TrailAlignment } from "./TrailAlignment"
 import { Matrix4x4 } from "../../../maths/Matrix4x4";
 import { RenderContext3D } from "../render/RenderContext3D";
-import { IBaseRenderNode } from "../../RenderDriverLayer/Render3DNode/IBaseRenderNode";
 import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
-import { IRenderContext3D } from "../../RenderDriverLayer/IRenderContext3D";
+import { IBaseRenderNode } from "../../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
 
 /**
  * <code>TrailRenderer</code> 类用于创建拖尾渲染器。
@@ -36,7 +35,7 @@ export class TrailRenderer extends BaseRender {
 
 
     protected _createBaseRenderNode(): IBaseRenderNode {
-        return Laya3DRender.renderOBJCreate.createMeshRenderNode();
+        return Laya3DRender.Render3DModuleDataFactory.createMeshRenderNode();
     }
 
     protected _onAdded(): void {

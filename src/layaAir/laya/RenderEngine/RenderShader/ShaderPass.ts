@@ -3,9 +3,12 @@ import { ShaderCompileDefineBase, ShaderProcessInfo } from "../../webgl/utils/Sh
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { ShaderVariant } from "../../RenderEngine/RenderShader/ShaderVariantCollection";
 import { IShaderCompiledObj } from "../../webgl/utils/ShaderCompile";
-import { RenderState } from "./RenderState";
 import { LayaGL } from "../../layagl/LayaGL";
-import { IDefineDatas, IShaderInstance, IShaderPassData } from "../RenderInterface/RenderPipelineInterface/IShaderInstance";
+import { IShaderPassData } from "../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
+import { RenderState } from "../../RenderDriver/RenderModuleData/Design/RenderState";
+import { IDefineDatas } from "../../RenderDriver/RenderModuleData/Design/IDefineDatas";
+import { IShaderInstance } from "../RenderInterface/RenderPipelineInterface/IShaderInstance";
+import { Laya3DRender } from "../../d3/RenderObjs/Laya3DRender";
 
 
 /**
@@ -53,7 +56,7 @@ export class ShaderPass extends ShaderCompileDefineBase {
 
     constructor(owner: SubShader, compiledObj: IShaderCompiledObj) {
         super(owner, null, compiledObj);
-        this.moduleData = LayaGL.renderOBJCreate.createShaderPass(this);
+        this.moduleData = Laya3DRender.Render3DModuleDataFactory.createShaderPass(this);
         this.moduleData.validDefine = this._validDefine;
     }
 

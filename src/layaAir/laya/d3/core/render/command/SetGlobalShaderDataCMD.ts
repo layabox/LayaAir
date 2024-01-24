@@ -8,7 +8,7 @@ import { Vector2 } from "../../../../maths/Vector2";
 import { Vector3 } from "../../../../maths/Vector3";
 import { Vector4 } from "../../../../maths/Vector4";
 import { LayaGL } from "../../../../layagl/LayaGL";
-import { ShaderDataItem, ShaderDataType } from "../../../../RenderEngine/RenderInterface/ShaderData";
+import { ShaderDataItem, ShaderDataType } from "../../../../RenderDriver/RenderModuleData/Design/ShaderData";
 
 /**
  * @internal
@@ -46,7 +46,7 @@ export class SetGlobalShaderDataCMD extends Command {
 		let context = RenderContext3D._instance;
 		let shaderData = context._contextOBJ.globalShaderData;
 		if(!shaderData)
-		shaderData = context._contextOBJ.globalShaderData = LayaGL.renderOBJCreate.createShaderData(null);
+		shaderData = context._contextOBJ.globalShaderData = LayaGL.unitRenderModuleDataFactory.createShaderData(null);
 		switch(this._dataType){
 			case ShaderDataType.Int:
 				shaderData.setInt(this._nameID,this._value as number);

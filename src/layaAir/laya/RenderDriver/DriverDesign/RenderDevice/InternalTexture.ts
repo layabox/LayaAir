@@ -1,0 +1,47 @@
+import { FilterMode } from "../../../RenderEngine/RenderEnum/FilterMode";
+import { TextureCompareMode } from "../../../RenderEngine/RenderEnum/TextureCompareMode";
+import { WrapMode } from "../../../RenderEngine/RenderEnum/WrapMode";
+
+
+/**
+ * 内部纹理对象
+ */
+export interface InternalTexture {
+
+    /**
+     * gpu texture object
+     */
+    resource: any;
+    target: number;
+
+    width: number;
+    height: number;
+    depth: number;
+    isPotSize: boolean;
+
+    mipmap: boolean;
+    mipmapCount: number;
+
+    filterMode: FilterMode;
+    wrapU: WrapMode;
+    wrapV: WrapMode;
+    wrapW: WrapMode;
+    anisoLevel: number;
+    baseMipmapLevel: number;
+    maxMipmapLevel: number;
+    compareMode: TextureCompareMode;
+
+    /**bytelength */
+    gpuMemory: number;
+
+    /**
+     * 是否使用 sRGB格式 加载图片数据
+     */
+    useSRGBLoad: boolean;
+    /**
+     * gamma 矫正值
+     */
+    gammaCorrection: number;
+
+    dispose(): void;
+}
