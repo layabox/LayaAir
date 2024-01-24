@@ -116,6 +116,8 @@ class BluePrintBlock implements INodeManger<BlueprintRuntimeBaseNode>, IBPRutime
 
     private _asList: BluePrintAsNode[];
 
+    private _pendingClass: Map<string, number[]>;
+
     constructor(id: symbol | number) {
         this.id = id;
         this._maxID = 0;
@@ -123,16 +125,7 @@ class BluePrintBlock implements INodeManger<BlueprintRuntimeBaseNode>, IBPRutime
         this.nodeMap = new Map();
         this.poolIds = [];
         this._asList = [];
-        this._pendingcode = new Map();
         this._pendingClass = new Map();
-    }
-    pendingLink(pin: BlueprintPin, config: TBPConnType): void {
-        let node = this._pendingcode.get(config.nodeId);
-        if (node) {
-            node.push([pin, config]);
-        }
-        //debugger;
-        // throw new Error("Method not implemented.");
     }
 
 
@@ -182,77 +175,27 @@ class BluePrintBlock implements INodeManger<BlueprintRuntimeBaseNode>, IBPRutime
     protected onParse(bpjson: TBPNode[]) {
 
     }
-    private _pendingcode: Map<number, any[]>;
 
-    private _pendingClass: Map<string, number[]>
-
-    private _onChangeParse(getCNodeByNode: (node: TBPNode) => TBPCNode, name: string) {
+    private _onReParse(bpjson: Array<TBPNode>, getCNodeByNode: (node: TBPNode) => TBPCNode, varMap: Record<string, TBPVarProperty>, name: string) {
         let result = this._pendingClass.get(name);
         if (result) {
-            result.forEach(value => {
-                let temp = this._pendingcode.get(value);
-                let item = temp[0];
-                let node = BlueprintFactory.instance.createNew(getCNodeByNode(item), item.id);
-                this.append(node);
-            });
-
-            result.forEach(value => {
-                let temp = this._pendingcode.get(value);
-                let item = temp[0];
-                
-                let node = this.getNodeById(item.id);
-                if (node) {
-                    node.parseLinkData(item, this);
-                }
-                // else {
-                //     debugger;
-                // }
-                for (let i = 1; i < temp.length; i++) {
-                    let pin: BlueprintPin = temp[i][0];
-                    let config: TBPConnType = temp[i][1];
-                    let nextNode = this.getNodeById(config.nodeId);
-                    if (nextNode) {
-                        let pinnext = nextNode.getPinByName(config.id);
-                        pin.startLinkTo(pinnext);
-                    }
-                    // else {
-                    //     debugger;
-                    // }
-                }
-            })
             this._pendingClass.delete(name);
         }
         if (this._pendingClass.size == 0) {
             BlueprintUtil.eventManger.offAllCaller(this);
-            this.clear();
-            this.optimize();
+            this.parse(bpjson, getCNodeByNode, varMap);
         }
-        //debugger;
     }
-
-    parse(bpjson: Array<TBPNode>, getCNodeByNode: (node: TBPNode) => TBPCNode, varMap: Record<string, TBPVarProperty>) {
-        this.varMap = varMap;
-        //pin create
-
-        // for(let i:number=0,n:number=bpjson.length;i<n;i++){
-        //     let item=bpjson[i];
-        //     let itemdef = getCNodeByNode(item);
-        //     if(!itemdef){
-        //         BlueprintUtil.eventManger.on(BlueprintUtil.CustomClassFinish, this, this._onChangeParse, [getCNodeByNode]);
-        //         return;
-        //     }
-        //     else{
-        //         let node = BlueprintFactory.instance.createNew(itemdef, item.id);
-        //         this.append(node);
-        //     }
-        // }
+    //check ready?
+    private _checkReady(bpjson: Array<TBPNode>, getCNodeByNode: (node: TBPNode) => TBPCNode, varMap: Record<string, TBPVarProperty>): boolean {
         bpjson.forEach(item => {
             let itemdef = getCNodeByNode(item);
             if (!itemdef) {
-                this._pendingcode.set(item.id, [item]);
-                let classID = item.cid.split("_")[0];//TODO
+                let classID = item.target;//TODO
+                if (!classID) {
+                    console.error("It's old style:" + item.name);
+                }
                 let pcls = this._pendingClass.get(classID);
-
                 if (pcls) {
                     pcls.push(item.id);
                 }
@@ -260,24 +203,31 @@ class BluePrintBlock implements INodeManger<BlueprintRuntimeBaseNode>, IBPRutime
                     this._pendingClass.set(classID, [item.id]);
                 }
             }
-            else {
-                let node = BlueprintFactory.instance.createNew(itemdef, item.id);
-                this.append(node);
-            }
+        });
+        if (this._pendingClass.size > 0) {
+            BlueprintUtil.eventManger.on(BlueprintUtil.CustomClassFinish, this, this._onReParse, [bpjson, getCNodeByNode, varMap]);
+            return false;
+        }
+        return true;
+    }
+
+    parse(bpjson: Array<TBPNode>, getCNodeByNode: (node: TBPNode) => TBPCNode, varMap: Record<string, TBPVarProperty>) {
+        this.varMap = varMap;
+        //check ready?
+        if (!this._checkReady(bpjson, getCNodeByNode, varMap)) return;
+        //pin create
+
+        bpjson.forEach(item => {
+            let node = BlueprintFactory.instance.createNew(getCNodeByNode(item), item.id);
+            this.append(node);
         });
         // debugger;
 
         bpjson.forEach(item => {
             // debugger;
-            let node = this.getNodeById(item.id);
-            if (node) {
-                node.parseLinkData(item, this);
-            }
+            this.getNodeById(item.id).parseLinkData(item, this);
         });
         this.onParse(bpjson);
-        if (this._pendingcode.size > 0) {
-            BlueprintUtil.eventManger.on(BlueprintUtil.CustomClassFinish, this, this._onChangeParse, [getCNodeByNode]);
-        }
         this.optimize();
     }
 

@@ -106,7 +106,7 @@ export abstract class BlueprintNode<T extends BlueprintPin>{
                 if (item.value != undefined) {
                     pin.value = item.value;
                 }
-                else if(item.class != undefined){
+                else if (item.class != undefined) {
                     pin.value = BlueprintUtil.getClass(item.class);
                 }
             }
@@ -120,12 +120,12 @@ export abstract class BlueprintNode<T extends BlueprintPin>{
                 for (let i = 0, len = infoArr.length; i < len; i++) {
                     let info = infoArr[i];
                     let nextNode = manger.getNodeById(info.nodeId);
-                    if(nextNode){
+                    if (nextNode) {
                         let pinnext = nextNode.getPinByName(info.id);
                         pin.startLinkTo(pinnext);
                     }
-                    else{
-                        manger.pendingLink(pin,info);
+                    else {
+                        console.error("can't find node ");
                     }
                 }
             }
