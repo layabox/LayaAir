@@ -19,6 +19,9 @@ export const BlueprintDataList: TBPCNode[] = [
         name: "static_get",
         menuPath: "none",
         type: BPType.GetValue,
+        modifiers: {
+            isStatic: true,
+        },
         input: [
             {
                 name: 'target',
@@ -35,6 +38,9 @@ export const BlueprintDataList: TBPCNode[] = [
         name: "static_set",
         menuPath: "none",
         type: BPType.SetValue,
+        modifiers: {
+            isStatic: true,
+        },
         input: [
             {
                 name: "execute",
@@ -346,6 +352,9 @@ export const BlueprintDataList: TBPCNode[] = [
         name: "expression",
         menuPath: "system",
         type: BPType.Pure,
+        modifiers: {
+            isStatic: true,
+        },
         input: [
             {
                 name: 'caller',
