@@ -128,7 +128,7 @@ export class btCollider implements ICollider {
     }
 
     setCollisionGroup(value: number) {
-        if (value != this._collisionGroup) {
+        if (value != this._collisionGroup && this._btColliderShape) {
             this._collisionGroup = value;
             this._physicsManager.removeCollider(this);
             this._physicsManager.addCollider(this);
@@ -136,7 +136,7 @@ export class btCollider implements ICollider {
     }
 
     setCanCollideWith(value: number) {
-        if (value != this._canCollideWith) {
+        if (value != this._canCollideWith && this._btColliderShape) {
             this._canCollideWith = value;
             this._physicsManager.removeCollider(this);
             this._physicsManager.addCollider(this);
@@ -171,7 +171,7 @@ export class btCollider implements ICollider {
 
     setColliderShape(shape: btColliderShape) {
         shape._btCollider = this;
-        if (shape == this._btColliderShape||shape._btShape == null)
+        if (shape == this._btColliderShape || shape._btShape == null)
             return;
         var lastColliderShape: btColliderShape = this._btColliderShape;
         this._btColliderShape = shape;

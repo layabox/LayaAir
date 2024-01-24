@@ -934,7 +934,7 @@ export class Loader extends EventDispatcher {
             } else if (ILaya.Browser.onKGMiniGame || ILaya.Browser.onVVMiniGame || ILaya.Browser.onQGMiniGame) {
                 // mi/vivo/oppo
                 plat = ILaya.Browser.window.qg;
-            } else if (ILaya.Browser.onAlipayMiniGame) {
+            } else if (ILaya.Browser.onAlipayMiniGame || ILaya.Browser.onTBMiniGame) {
                 // alipay
                 plat = ILaya.Browser.window.my;
             } else {
