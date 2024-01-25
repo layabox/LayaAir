@@ -32,6 +32,8 @@ export type TBPDeclaration = {
     name: string;
     /** 当前描述的具体类型 */
     type: TBPDeclarationType,
+    /** 能否被继承 */
+    canInherited?:boolean;
     /** 继承的类型数组，按次序从为父类的父类  */
     extends?: string[];
     /** 实现的接口名 */
