@@ -61,7 +61,7 @@ export class BlueprintUtil {
         this.initConstNode();
 
         if (null != node.dataId) {
-            let data = Loader.getRes(node.target) as BlueprintImpl;
+            let data =  BlueprintImpl.loadedBPData.get(node.target);
             if (data) {
                 return data.getConstNodeById(node.cid, node.dataId);
             }

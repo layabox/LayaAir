@@ -92,6 +92,7 @@ export class BlueprintRuntimeBaseNode extends BlueprintNode<BlueprintPinRuntime>
             if (result instanceof Promise) {
                 let promise = BlueprintPromise.create();
                 result.then((value) => {
+                    this.outPutParmPins[0] && runTimeData.setPinData(this.outPutParmPins[0], value, runId);
                     promise.index = this.next(context, runTimeData, _parmsArray, runner, enableDebugPause, runId);
                     promise.listIndex = this.listIndex;
                     promise.complete();

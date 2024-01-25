@@ -12,6 +12,8 @@ import { BPType, TBPEventProperty, TBPNode, TBPSaveData, TBPStageData, TBPVarPro
 import { BlueprintFactory } from "../BlueprintFactory";
 
 export class BlueprintImpl extends Resource {
+
+    static loadedBPData: Map<string, BlueprintImpl> = new Map();
     public readonly version: number;
 
     /** @private */
@@ -73,8 +75,17 @@ export class BlueprintImpl extends Resource {
     getConstNodeById(cid: string, dataId: string) {
         let id = cid + "_" + dataId;
         if (null != this._constData[id]) return this._constData[id];
+
+        if (null != BlueprintUtil.constAllVars[id]) return BlueprintUtil.constAllVars[id];
+
         let cdata = BlueprintUtil.clone(BlueprintUtil._constNode[cid]);
         let data = this._allData[dataId];
+        let setData = this._constData;
+
+        if (null == data) {
+            setData = BlueprintUtil.constAllVars;
+            data = BlueprintUtil.constAllVars[dataId];
+        }
 
         let arr = data.input;
         if (BPType.CustomFunReturn != cdata.type) {
@@ -82,8 +93,10 @@ export class BlueprintImpl extends Resource {
                 for (let i = 0, len = arr.length; i < len; i++) {
                     if (null == arr[i].name || "" == arr[i].name.trim()) continue;
                     if (BPType.Event == cdata.type || BPType.CustomFunStart == cdata.type) {
+                        if (null == cdata.output) cdata.output = [];
                         cdata.output.push(arr[i]);
                     } else {
+                        if (null == cdata.input) cdata.input = [];
                         cdata.input.push(arr[i]);
                     }
                 }
@@ -92,20 +105,21 @@ export class BlueprintImpl extends Resource {
         if (BPType.CustomFunStart != cdata.type && BPType.Event != cdata.type && 'event_call' != cdata.name) {
             arr = data.output;
             if (arr) {
-                if (null == data.output) data.output = [];
                 for (let i = 0, len = arr.length; i < len; i++) {
                     if (null == arr[i].name || "" == arr[i].name.trim()) continue;
                     if (BPType.CustomFunReturn == cdata.type) {
-                        data.input.push(arr[i]);
+                        if (null == cdata.input) cdata.input = [];
+                        cdata.input.push(arr[i]);
                     } else {
-                        data.output.push(arr[i]);
+                        if (null == cdata.output) cdata.output = [];
+                        cdata.output.push(arr[i]);
                     }
                 }
             }
         }
 
 
-        this._constData[id] = cdata;
+        setData[id] = cdata;
         return cdata;
     }
     private _initTarget(arr: TBPNode[]) {
@@ -227,6 +241,7 @@ export class BlueprintImpl extends Resource {
             })
         }
         this._allData = dataMap;
+        BlueprintImpl.loadedBPData.set(this.uuid, this);
         let cls = BlueprintFactory.createClsNew(this.uuid, extendClass, runtime, {
             id: 0,
             name: this.uuid,
