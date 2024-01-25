@@ -363,6 +363,9 @@ export class BlueprintUtil {
                                 BlueprintUtil.defEventOut,
                             ]
                         }
+                        if (null != fun.menuPath) {
+                            cdata.menuPath = fun.menuPath;
+                        }
                         switch (fun.type) {
                             case BPType.Pure:
                             case BPType.Function:

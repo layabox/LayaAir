@@ -87,6 +87,8 @@ export type TBPDeclarationProp = {
 export type TBPDeclarationFunction = {
     /** 方法名称 */
     name: string;
+    /**鼠标右键里面的菜单路径,如果填写none则代表不在菜单中显示 */
+    menuPath?:string;
     /** 具体方法类型 */
     type?:TBPDecoratorsFuncType;
     /** 修饰符 */
