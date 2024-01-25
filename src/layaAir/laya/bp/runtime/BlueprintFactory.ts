@@ -204,7 +204,7 @@ export class BlueprintFactory {
         bp.dataMap = data.dataMap;
         // debugger;
         let c = function (node: TBPNode): TBPCNode {
-            return BlueprintUtil.getConstNode("Node", node, data) as TBPCNode;
+            return BlueprintUtil.getConstNode("Node", node) as TBPCNode;
         }
         bp.varMap = varMap;
         if (LayaEnv.isPlaying) {

@@ -1,5 +1,6 @@
 import { Laya } from "../../../Laya";
 import { EventDispatcher } from "../../events/EventDispatcher";
+import { Loader } from "../../net/Loader";
 import { Browser } from "../../utils/Browser";
 import { ClassUtils } from "../../utils/ClassUtils";
 import { BlueprintDataList } from "../datas/BlueprintDataInit";
@@ -7,8 +8,9 @@ import { customData, extendsData } from "../datas/BlueprintExtends";
 import { TBPDeclaration } from "../datas/types/BlueprintDeclaration";
 import { BPType, TBPCNode, TBPNode, TBPSaveData, TBPStageData, TBPVarProperty } from "../datas/types/BlueprintTypes";
 import { BlueprintFactory } from "../runtime/BlueprintFactory";
+import { BlueprintImpl } from "../runtime/resource/BlueprintImpl";
 export class BlueprintUtil {
-    private static _constNode: Record<string, TBPCNode>;
+    static _constNode: Record<string, TBPCNode>;
     private static _constExtNode: Record<string, Record<string, TBPCNode>> = {};
     private static _allConstNode: Record<string, TBPCNode> = {};
     static extendsNode: Record<string, TBPCNode[]> = {};
@@ -55,114 +57,127 @@ export class BlueprintUtil {
         if (null == obj) return obj;
         return JSON.parse(JSON.stringify(obj));
     }
-    static getConstNode(ext: string, node?: TBPNode, stageData?: TBPStageData) {
+    static getConstNode(ext: string, node?: TBPNode) {
         this.initConstNode();
-        if (null == node) {
-            let ret = this._constExtNode[ext];
-            if (null == ret) {
-                return this._constNode;
+
+        if (null != node.dataId) {
+            let data = Loader.getRes(node.target) as BlueprintImpl;
+            if (data) {
+                return data.getConstNodeById(node.cid, node.dataId);
             }
-        }
-
-        let cdata = this._constNode[node.cid];
-        let isGetFromAllConst = true;
-        if (null != node.dataId && cdata && 'none' == cdata.menuPath) {
-            if (null == this._allConstNode[node.target + "_" + node.dataId]) {
-                //这里应该是需要动态创建const数据的get、set或者event
-                isGetFromAllConst = false;
-            }
-        }
-
-        if (isGetFromAllConst && null != node.target && node.target != stageData.name && null != node.dataId) {
-            let cid = node.target + "_" + node.dataId;
-            return this._allConstNode[cid];
-        } else if (null != node.dataId) {
-
-            let dataId = node.cid + "_" + node.dataId;
-            let ret = this._allConstNode[dataId];
-            if (null == ret) {
-                ret = this._allConstNode[node.cid];
-                if (stageData) {
-                    let data: any = this.getDataByID(node.dataId, stageData);
-                    if (data && data.input && 0 < data.input.length && (BPType.Event == ret.type || 'event_call' == ret.name)) {
-                        ret = this.clone(ret);
-                        if (BPType.Event == ret.type) {
-                            let arr = data.input;
-                            if (arr)
-                                for (let i = 0, len = arr.length; i < len; i++) {
-                                    if (null == arr[i].name || "" == arr[i].name.trim()) continue;
-                                    ret.output.push(
-                                        arr[i]
-                                    );
-                                }
-                        } else {
-                            let arr = data.input;
-                            if (arr)
-                                for (let i = 0, len = arr.length; i < len; i++) {
-                                    if (null == arr[i].name || "" == arr[i].name.trim()) continue;
-                                    ret.input.push(
-                                        arr[i]
-                                    );
-                                }
-                        }
-                        this._allConstNode[dataId] = ret;
-                    } else if (data) {
-                        if (BPType.CustomFun == ret.type) {
-                            ret = this.clone(ret);
-                            let arr = data.input;
-                            if (arr) {
-                                if (null == ret.input) ret.input = [];
-                                for (let i = 0, len = arr.length; i < len; i++) {
-                                    if (null == arr[i].name || "" == arr[i].name.trim()) continue;
-                                    ret.input.push(
-                                        arr[i]
-                                    );
-                                }
-                            }
-                            arr = data.output;
-                            if (arr) {
-                                if (null == ret.output) ret.output = [];
-                                for (let i = 0, len = arr.length; i < len; i++) {
-                                    if (null == arr[i].name || "" == arr[i].name.trim()) continue;
-                                    ret.output.push(
-                                        arr[i]
-                                    );
-                                }
-                            }
-                        } else if (BPType.CustomFunReturn == ret.type) {
-                            ret = this.clone(ret);
-                            let arr = data.output;
-                            if (arr) {
-                                if (null == ret.input) ret.input = [];
-                                for (let i = 0, len = arr.length; i < len; i++) {
-                                    if (null == arr[i].name || "" == arr[i].name.trim()) continue;
-                                    ret.input.push(
-                                        arr[i]
-                                    );
-                                }
-                            }
-                        } else if (BPType.CustomFunStart == ret.type) {
-                            ret = this.clone(ret);
-                            let arr = data.input;
-                            if (arr) {
-                                if (null == ret.output) ret.output = [];
-                                for (let i = 0, len = arr.length; i < len; i++) {
-                                    if (null == arr[i].name || "" == arr[i].name.trim()) continue;
-                                    ret.output.push(
-                                        arr[i]
-                                    );
-                                }
-                            }
-                        }
-                        this._allConstNode[dataId] = ret;
-                    }
-
-                }
-            }
-            return ret;
         } else {
             return this._allConstNode[node.cid];
         }
+
+
+
+
+        // if (null == node) {
+        //     let ret = this._constExtNode[ext];
+        //     if (null == ret) {
+        //         return this._constNode;
+        //     }
+        // }
+
+        // let cdata = this._constNode[node.cid];
+        // let isGetFromAllConst = true;
+        // if (null != node.dataId && cdata && 'none' == cdata.menuPath) {
+        //     if (null == this._allConstNode[node.target + "_" + node.dataId]) {
+        //         //这里应该是需要动态创建const数据的get、set或者event
+        //         isGetFromAllConst = false;
+        //     }
+        // }
+
+        // if (isGetFromAllConst && null != node.target && node.target != stageData.name && null != node.dataId) {
+        //     let cid = node.target + "_" + node.dataId;
+        //     return this._allConstNode[cid];
+        // } else if (null != node.dataId) {
+
+        //     let dataId = node.cid + "_" + node.dataId;
+        //     let ret = this._allConstNode[dataId];
+        //     if (null == ret) {
+        //         ret = this._allConstNode[node.cid];
+        //         if (stageData) {
+        //             let data: any = this.getDataByID(node.dataId, stageData);
+        //             if (data && data.input && 0 < data.input.length && (BPType.Event == ret.type || 'event_call' == ret.name)) {
+        //                 ret = this.clone(ret);
+        //                 if (BPType.Event == ret.type) {
+        //                     let arr = data.input;
+        //                     if (arr)
+        //                         for (let i = 0, len = arr.length; i < len; i++) {
+        //                             if (null == arr[i].name || "" == arr[i].name.trim()) continue;
+        //                             ret.output.push(
+        //                                 arr[i]
+        //                             );
+        //                         }
+        //                 } else {
+        //                     let arr = data.input;
+        //                     if (arr)
+        //                         for (let i = 0, len = arr.length; i < len; i++) {
+        //                             if (null == arr[i].name || "" == arr[i].name.trim()) continue;
+        //                             ret.input.push(
+        //                                 arr[i]
+        //                             );
+        //                         }
+        //                 }
+        //                 this._allConstNode[dataId] = ret;
+        //             } else if (data) {
+        //                 if (BPType.CustomFun == ret.type) {
+        //                     ret = this.clone(ret);
+        //                     let arr = data.input;
+        //                     if (arr) {
+        //                         if (null == ret.input) ret.input = [];
+        //                         for (let i = 0, len = arr.length; i < len; i++) {
+        //                             if (null == arr[i].name || "" == arr[i].name.trim()) continue;
+        //                             ret.input.push(
+        //                                 arr[i]
+        //                             );
+        //                         }
+        //                     }
+        //                     arr = data.output;
+        //                     if (arr) {
+        //                         if (null == ret.output) ret.output = [];
+        //                         for (let i = 0, len = arr.length; i < len; i++) {
+        //                             if (null == arr[i].name || "" == arr[i].name.trim()) continue;
+        //                             ret.output.push(
+        //                                 arr[i]
+        //                             );
+        //                         }
+        //                     }
+        //                 } else if (BPType.CustomFunReturn == ret.type) {
+        //                     ret = this.clone(ret);
+        //                     let arr = data.output;
+        //                     if (arr) {
+        //                         if (null == ret.input) ret.input = [];
+        //                         for (let i = 0, len = arr.length; i < len; i++) {
+        //                             if (null == arr[i].name || "" == arr[i].name.trim()) continue;
+        //                             ret.input.push(
+        //                                 arr[i]
+        //                             );
+        //                         }
+        //                     }
+        //                 } else if (BPType.CustomFunStart == ret.type) {
+        //                     ret = this.clone(ret);
+        //                     let arr = data.input;
+        //                     if (arr) {
+        //                         if (null == ret.output) ret.output = [];
+        //                         for (let i = 0, len = arr.length; i < len; i++) {
+        //                             if (null == arr[i].name || "" == arr[i].name.trim()) continue;
+        //                             ret.output.push(
+        //                                 arr[i]
+        //                             );
+        //                         }
+        //                     }
+        //                 }
+        //                 this._allConstNode[dataId] = ret;
+        //             }
+
+        //         }
+        //     }
+        //     return ret;
+        // } else {
+        //     return this._allConstNode[node.cid];
+        // }
 
 
         //TODO 以后会有对version的判断逻辑
@@ -261,10 +276,6 @@ export class BlueprintUtil {
         }
 
         if (this._customModify) {
-            // for (const key in customData) {
-            //     let dec = customData[key];
-            // }
-
             this.initNode(customData);
 
             this._customModify = false;
