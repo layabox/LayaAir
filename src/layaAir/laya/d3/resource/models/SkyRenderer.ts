@@ -11,11 +11,11 @@ import { Scene3D } from "../../core/scene/Scene3D";
 import { SkyBox } from "./SkyBox";
 import { SkyDome } from "./SkyDome";
 import { RenderElement } from "../../core/render/RenderElement";
-import { ShaderDataType } from "../../../RenderDriver/RenderModuleData/Design/ShaderData";
-import { IBaseRenderNode } from "../../RenderDriverLayer/Render3DNode/IBaseRenderNode";
+import { ShaderData, ShaderDataType } from "../../../RenderDriver/RenderModuleData/Design/ShaderData";
 import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
 import { Transform3D } from "../../core/Transform3D";
 import { BaseCamera } from "../../core/BaseCamera";
+import { IBaseRenderNode } from "../../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
 
 const InvertYScaleMat = new Matrix4x4(1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
 
@@ -111,7 +111,7 @@ export class SkyRenderer {
         this.mesh = SkyDome.instance;
         this._renderData = new BaseRender();
         this._renderElement.render = this._renderData;
-        this._baseRenderNode = Laya3DRender.renderOBJCreate.createBaseRenderNode();
+        this._baseRenderNode = Laya3DRender.Render3DModuleDataFactory.createBaseRenderNode();
         this._baseRenderNode.transform = new Transform3D(null);
         this._baseRenderNode.setRenderelements([this._renderElement._renderElementOBJ]);
         this._baseRenderNode.set_renderUpdatePreCall(this, () => {

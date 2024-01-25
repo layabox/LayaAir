@@ -2,14 +2,15 @@ import { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
 import { NativeRenderGeometryElementOBJ } from "../../../d3/RenderObjs/NativeOBJ/NativeRenderGeometryElementOBJ";
 import { IRenderElement3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { NativeTransform3D } from "../../RenderModuleData/RuntimeModuleData/3D/NativeTransform3D";
+import { RTSubShader } from "../../RenderModuleData/RuntimeModuleData/3D/RT3DRenderModuleData";
 import { RTBaseRenderNode } from "../../RenderModuleData/RuntimeModuleData/3D/RTBaseRenderNode";
 import { RTShaderData } from "../../RenderModuleData/RuntimeModuleData/RTShaderData";
 
-/*export enum RenderElementType {
+export enum RenderElementType {
     Base = 0,
     Skin = 1,
     Instance = 2,
-}*/
+}
 export class GLESRenderElement3D implements IRenderElement3D {
 
     private _geometry: NativeRenderGeometryElementOBJ;
@@ -87,7 +88,7 @@ export class GLESRenderElement3D implements IRenderElement3D {
     }
     public set subShader(value: SubShader) {
         this._subShader = value;
-        this._nativeObj.setSubShader((value.moduleData as any as NativeSubShader)._nativeObj);
+        this._nativeObj.setSubShader((value.moduleData as any as RTSubShader)._nativeObj);
     }
 
     _nativeObj: any;
