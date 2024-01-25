@@ -69,59 +69,57 @@ export class BlueprintImpl extends Resource {
 
         return result;
     }
-    private _constData: Record<string, any> = {};
-    private _allData: Record<string, any>;
+    constData: Record<string, any> = {};
+    allData: Record<string, any>;
 
-    getConstNodeById(cid: string, dataId: string) {
-        let id = cid + "_" + dataId;
-        if (null != this._constData[id]) return this._constData[id];
+    // getConstNodeById(cid: string, dataId: string) {
+    //     let id = cid + "_" + dataId;
+    //     if (null != this._constData[id]) return this._constData[id];
 
-        if (null != BlueprintUtil.constAllVars[id]) return BlueprintUtil.constAllVars[id];
+    //     let cdata = BlueprintUtil.clone(BlueprintUtil._constNode[cid]);
+    //     let data = this._allData[dataId];
+    //     let setData = this._constData;
 
-        let cdata = BlueprintUtil.clone(BlueprintUtil._constNode[cid]);
-        let data = this._allData[dataId];
-        let setData = this._constData;
+    //     if (null == data) {
+    //         setData = BlueprintUtil.constAllVars;
+    //         data = BlueprintUtil.constAllVars[dataId];
+    //     }
 
-        if (null == data) {
-            setData = BlueprintUtil.constAllVars;
-            data = BlueprintUtil.constAllVars[dataId];
-        }
-
-        let arr = data.input;
-        if (BPType.CustomFunReturn != cdata.type) {
-            if (arr) {
-                for (let i = 0, len = arr.length; i < len; i++) {
-                    if (null == arr[i].name || "" == arr[i].name.trim()) continue;
-                    if (BPType.Event == cdata.type || BPType.CustomFunStart == cdata.type) {
-                        if (null == cdata.output) cdata.output = [];
-                        cdata.output.push(arr[i]);
-                    } else {
-                        if (null == cdata.input) cdata.input = [];
-                        cdata.input.push(arr[i]);
-                    }
-                }
-            }
-        }
-        if (BPType.CustomFunStart != cdata.type && BPType.Event != cdata.type && 'event_call' != cdata.name) {
-            arr = data.output;
-            if (arr) {
-                for (let i = 0, len = arr.length; i < len; i++) {
-                    if (null == arr[i].name || "" == arr[i].name.trim()) continue;
-                    if (BPType.CustomFunReturn == cdata.type) {
-                        if (null == cdata.input) cdata.input = [];
-                        cdata.input.push(arr[i]);
-                    } else {
-                        if (null == cdata.output) cdata.output = [];
-                        cdata.output.push(arr[i]);
-                    }
-                }
-            }
-        }
+    //     let arr = data.input;
+    //     if (BPType.CustomFunReturn != cdata.type) {
+    //         if (arr) {
+    //             for (let i = 0, len = arr.length; i < len; i++) {
+    //                 if (null == arr[i].name || "" == arr[i].name.trim()) continue;
+    //                 if (BPType.Event == cdata.type || BPType.CustomFunStart == cdata.type) {
+    //                     if (null == cdata.output) cdata.output = [];
+    //                     cdata.output.push(arr[i]);
+    //                 } else {
+    //                     if (null == cdata.input) cdata.input = [];
+    //                     cdata.input.push(arr[i]);
+    //                 }
+    //             }
+    //         }
+    //     }
+    //     if (BPType.CustomFunStart != cdata.type && BPType.Event != cdata.type && 'event_call' != cdata.name) {
+    //         arr = data.output;
+    //         if (arr) {
+    //             for (let i = 0, len = arr.length; i < len; i++) {
+    //                 if (null == arr[i].name || "" == arr[i].name.trim()) continue;
+    //                 if (BPType.CustomFunReturn == cdata.type) {
+    //                     if (null == cdata.input) cdata.input = [];
+    //                     cdata.input.push(arr[i]);
+    //                 } else {
+    //                     if (null == cdata.output) cdata.output = [];
+    //                     cdata.output.push(arr[i]);
+    //                 }
+    //             }
+    //         }
+    //     }
 
 
-        setData[id] = cdata;
-        return cdata;
-    }
+    //     setData[id] = cdata;
+    //     return cdata;
+    // }
     private _initTarget(arr: TBPNode[]) {
         for (let i = arr.length - 1; i >= 0; i--) {
             if (null != arr[i].dataId && null == arr[i].target) {
@@ -240,7 +238,7 @@ export class BlueprintImpl extends Resource {
                 funcs.push(func);
             })
         }
-        this._allData = dataMap;
+        this.allData = dataMap;
         BlueprintImpl.loadedBPData.set(this.uuid, this);
         let cls = BlueprintFactory.createClsNew(this.uuid, extendClass, runtime, {
             id: 0,

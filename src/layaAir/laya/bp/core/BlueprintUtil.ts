@@ -59,18 +59,60 @@ export class BlueprintUtil {
     }
     static getConstNode(ext: string, node?: TBPNode) {
         this.initConstNode();
-
         if (null != node.dataId) {
-            let data =  BlueprintImpl.loadedBPData.get(node.target);
+            let id = node.cid + "_" + node.dataId;
+            if (null != this.constAllVars[id]) return this.constAllVars[id];
+            let cdata = this._constNode[node.cid];
+            let setData: any = this.constAllVars;
+            let data: any = this.constAllVars[node.dataId];
+            if (null == data) {
+                let obj = BlueprintImpl.loadedBPData.get(node.target);
+                if (obj) {
+                    setData = obj.constData;
+                    data = obj.allData[node.dataId];
+                }
+            }
             if (data) {
-                return data.getConstNodeById(node.cid, node.dataId);
+                cdata = this.clone(cdata);
+                let arr = data.input;
+                if (BPType.CustomFunReturn != cdata.type) {
+                    if (arr) {
+                        for (let i = 0, len = arr.length; i < len; i++) {
+                            if (null == arr[i].name || "" == arr[i].name.trim()) continue;
+                            if (BPType.Event == cdata.type || BPType.CustomFunStart == cdata.type) {
+                                if (null == cdata.output) cdata.output = [];
+                                cdata.output.push(arr[i]);
+                            } else {
+                                if (null == cdata.input) cdata.input = [];
+                                cdata.input.push(arr[i]);
+                            }
+                        }
+                    }
+                }
+                if (BPType.CustomFunStart != cdata.type && BPType.Event != cdata.type && 'event_call' != cdata.name) {
+                    arr = data.output;
+                    if (arr) {
+                        for (let i = 0, len = arr.length; i < len; i++) {
+                            if (null == arr[i].name || "" == arr[i].name.trim()) continue;
+                            if (BPType.CustomFunReturn == cdata.type) {
+                                if (null == cdata.input) cdata.input = [];
+                                cdata.input.push(arr[i]);
+                            } else {
+                                if (null == cdata.output) cdata.output = [];
+                                cdata.output.push(arr[i]);
+                            }
+                        }
+                    }
+                }
+                setData[id] = cdata;
+                return cdata;
             }
         } else {
             return this._allConstNode[node.cid];
         }
 
 
-
+        return null;
 
         // if (null == node) {
         //     let ret = this._constExtNode[ext];
