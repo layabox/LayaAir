@@ -108,7 +108,13 @@ export class BlueprintImpl extends Resource {
         this._constData[id] = cdata;
         return cdata;
     }
-
+    private _initTarget(arr: TBPNode[]) {
+        for (let i = arr.length - 1; i >= 0; i--) {
+            if (null != arr[i].dataId && null == arr[i].target) {
+                arr[i].target = this.uuid;
+            }
+        }
+    }
 
     public initClass() {
         let extendClass = this.data.extends;
@@ -138,6 +144,7 @@ export class BlueprintImpl extends Resource {
         for (const key in map) {
             let item = map[key];
             arr.push.apply(arr, item.arr);
+            this._initTarget(item.arr);
         }
 
         let dataMap: Record<string, TBPVarProperty | TBPEventProperty> = {}
@@ -175,6 +182,8 @@ export class BlueprintImpl extends Resource {
             this.data.functions.forEach((ele) => {
                 //@ts-ignore
                 dataMap[ele.id] = ele;
+
+                this._initTarget(ele.arr);
 
                 let func: TBPDeclarationFunction = {
                     name: ele.name,
