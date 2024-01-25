@@ -63,7 +63,15 @@ export class BlueprintUtil {
                 return this._constNode;
             }
         }
-        if (null != node.target && node.target != stageData.name && null != node.dataId) {
+
+        let cdata = this._constNode[node.cid];
+        let isGetFromAllConst = true;
+        if (null != node.dataId && cdata && 'none' == cdata.menuPath) {
+            //这里应该是需要动态创建const数据的get、set或者event
+            isGetFromAllConst = false;
+        }
+
+        if (isGetFromAllConst && null != node.target && node.target != stageData.name && null != node.dataId) {
             let cid = node.target + "_" + node.dataId;
             return this._allConstNode[cid];
         } else if (null != node.dataId) {
@@ -376,18 +384,13 @@ export class BlueprintUtil {
                             cdata.aliasName = fun.name + " (Static)";
                         }
 
-                    
+
                         let funName = fun.name;
                         let func = fun.modifiers.isStatic ? cls[funName] : cls.prototype[funName];
                         if (func) {
                             //debugger
                         }
                         BlueprintFactory.regFunction(cdata.id, func, !fun.modifiers.isStatic, cls);
-
-                        if (0 == fun.name.indexOf("on") && 'on' != fun.name) {
-                            //TODO 暂时以on开头的都是Event
-                            cdata.type = BPType.Event;
-                        }
 
                         let params = fun.params;
                         if (params && 0 < params.length) {
@@ -406,10 +409,10 @@ export class BlueprintUtil {
                                     type: ext,
                                 });
                             }
-                            if(cdata.type == BPType.Pure){
+                            if (cdata.type == BPType.Pure) {
                                 cdata.output.shift();
                             }
-                            else{
+                            else {
                                 cdata.input.unshift(BlueprintUtil.defFunIn);
                             }
 
