@@ -5,7 +5,7 @@ import { RTShaderDefine } from "./RTShaderDefine";
 
 export class RTDefineDatas implements IDefineDatas {
     _nativeobj: any;
-    constructor(value: any) {
+    constructor(value?: any) {
         if (value) {
             this._nativeobj = value;
         }
