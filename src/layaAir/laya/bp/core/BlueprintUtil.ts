@@ -67,8 +67,10 @@ export class BlueprintUtil {
         let cdata = this._constNode[node.cid];
         let isGetFromAllConst = true;
         if (null != node.dataId && cdata && 'none' == cdata.menuPath) {
-            //这里应该是需要动态创建const数据的get、set或者event
-            isGetFromAllConst = false;
+            if (null == this._allConstNode[node.target + "_" + node.dataId]) {
+                //这里应该是需要动态创建const数据的get、set或者event
+                isGetFromAllConst = false;
+            }
         }
 
         if (isGetFromAllConst && null != node.target && node.target != stageData.name && null != node.dataId) {
