@@ -509,7 +509,7 @@ export class BlueprintUtil {
                     }
                 }
             } else {
-                console.log("该类型没有方法:", ext);
+                // console.log("该类型没有方法:", ext);
             }
 
             this._allConstNode = { ...this._allConstNode, ...this._constExtNode[ext] };
