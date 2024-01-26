@@ -24,6 +24,9 @@ import { BlueprintCustomFunStart } from "./node/BlueprintCustomFunStart";
 import { BlueprintCustomFunReturn, BlueprintCustomFunReturnContext } from "./node/BlueprintCustomFunReturn";
 import { BluePrintAsNode } from "./node/BlueprintAsNode";
 import { Laya } from "../../../Laya";
+import { BlueprintExcuteDebuggerNode } from "./action/BlueprintExcuteDebuggerNode";
+import { Browser } from "../../utils/Browser";
+import { BlueprintDebuggerManager } from "./debugger/BlueprintDebuggerManager";
 
 export class BlueprintFactory {
     public static readonly bpSymbol: unique symbol = Symbol("bpruntime");
@@ -40,6 +43,7 @@ export class BlueprintFactory {
     private static _bpContextMap: Map<BPType, new () => RuntimeNodeData>;
     static bpNewMap: Map<string, TBPCNode> = new Map();
 
+    private static debuggerManager = new BlueprintDebuggerManager();
 
     /**
      * 根据节点类型创建相应的对象
@@ -151,7 +155,8 @@ export class BlueprintFactory {
                     constructor(...args: any) {
                         super(...args);
                         //Object.assign(this, properties);
-                        this[BlueprintFactory.contextSymbol] = new BlueprintExcuteNode(this);
+                        const isDebugger = Browser.getQueryString('isDebugger') == 'true';
+                        this[BlueprintFactory.contextSymbol] = isDebugger ? new BlueprintExcuteDebuggerNode(this) : new BlueprintExcuteNode(this);
                         let varMap = this[BlueprintFactory.bpSymbol].varMap;
                         if (varMap) {
                             for (let str in varMap) {
@@ -161,6 +166,9 @@ export class BlueprintFactory {
                         }
                         this._bp_init_();
                         //this.context = new BPExcuteDebuggerNode(this);
+                        if (isDebugger) {
+                            this[BlueprintFactory.contextSymbol].debuggerManager = BlueprintFactory.debuggerManager;
+                        }
                     }
 
                     _bp_init_() {

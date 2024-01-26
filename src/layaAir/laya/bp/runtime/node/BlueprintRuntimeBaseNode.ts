@@ -8,6 +8,8 @@ import { BlueprintConst } from "../../core/BlueprintConst";
 import { IBPRutime } from "../interface/IBPRutime";
 import { IExcuteListInfo } from "../../core/interface/IExcuteListInfo";
 import { IRuntimeDataManger } from "../../core/interface/IRuntimeDataManger";
+import { TBPCNode } from "../../datas/types/BlueprintTypes";
+import { BlueprintExcuteDebuggerNode } from "../action/BlueprintExcuteDebuggerNode";
 
 export class BlueprintRuntimeBaseNode extends BlueprintNode<BlueprintPinRuntime> implements IExcuteListInfo {
     /**
@@ -40,6 +42,7 @@ export class BlueprintRuntimeBaseNode extends BlueprintNode<BlueprintPinRuntime>
 
     tryExcute: (context: IRunAble, runTimeData: IRuntimeDataManger, fromExcute: boolean, runner: IBPRutime, enableDebugPause: boolean, runId: number, fromPin: BlueprintPinRuntime) => number | BlueprintPromise;
 
+    hasDebugger: boolean;
     constructor() {
         super();
         this.inPutParmPins = BlueprintRuntimeBaseNode._EMPTY;
@@ -78,7 +81,7 @@ export class BlueprintRuntimeBaseNode extends BlueprintNode<BlueprintPinRuntime>
 
     step(context: IRunAble, runTimeData: IRuntimeDataManger, fromExcute: boolean, runner: IBPRutime, enableDebugPause: boolean, runId: number): number | BlueprintPromise {
         if (fromExcute && context.beginExcute(this, runner, enableDebugPause)) {
-            return BlueprintConst.MAX_CODELINE;
+            return this.getDebuggerPromise(context)
         }
         let _parmsArray: any[] = this.colloctParam(context, runTimeData, this.inPutParmPins, runner, runId);
         context.parmFromOutPut(this.outPutParmPins, runTimeData, _parmsArray);
@@ -105,7 +108,7 @@ export class BlueprintRuntimeBaseNode extends BlueprintNode<BlueprintPinRuntime>
         if (fromExcute) {
             context.endExcute(this);
         }
-        return this.next(context, runTimeData, _parmsArray, runner, enableDebugPause, runId);
+        return this.next(context, runTimeData, _parmsArray, runner, true, runId);
     }
 
     next(context: IRunAble, runTimeData: IRuntimeDataManger, parmsArray: any[], runner: IBPRutime, enableDebugPause: boolean, runId: number): number {
@@ -147,4 +150,20 @@ export class BlueprintRuntimeBaseNode extends BlueprintNode<BlueprintPinRuntime>
 
     }
 
+    parse(def: TBPCNode): void {
+        super.parse(def);
+        this.hasDebugger = def.hasDebugger;
+    }
+
+    protected getDebuggerPromise(context: IRunAble) {
+        let promise = BlueprintPromise.create();
+        (context as BlueprintExcuteDebuggerNode).next = () => {
+            promise.index = this.index;
+            promise.listIndex = this.listIndex;
+            promise.enableDebugPause = false;
+            promise.complete();
+            promise.recover();
+        }
+        return promise;
+    }
 }

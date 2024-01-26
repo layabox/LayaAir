@@ -62,9 +62,9 @@ export class BlueprintEventNode extends BlueprintRuntimeBaseNode {
         return BlueprintConst.MAX_CODELINE;
     }
 
-    step(context: IRunAble,runTimeData:IRuntimeDataManger, fromExcute: boolean, runner: IBPRutime, enableDebugPause: boolean): number | BlueprintPromise {
+    step(context: IRunAble,runTimeData:IRuntimeDataManger, fromExcute: boolean, runner: IBPRutime, enableDebugPause: boolean, runId: number): number | BlueprintPromise {
         if (fromExcute && context.beginExcute(this, runner, enableDebugPause)) {
-            return BlueprintConst.MAX_CODELINE;
+            return this.getDebuggerPromise(context);
         }
         // let _parmsArray:any[] = context.getDataById(this.nid).parmsArray;
         // _parmsArray.length=0;

@@ -108,7 +108,12 @@ export class BlueprintUtil {
                 return cdata;
             }
         } else {
-            return this._allConstNode[node.cid];
+            let ret = this._allConstNode[node.cid];
+            if(node.hasDebugger){
+                ret = this.clone(ret);
+                ret.hasDebugger = true;
+            }
+            return ret;
         }
 
 
