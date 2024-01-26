@@ -1,7 +1,7 @@
-export enum MemoryDataType{
-   ShaderData,
-   TextureData,
-   VertexData,
-   IndexData,
-   BaseRenderData,
-}
+// export enum MemoryDataType{
+//    ShaderData,
+//    TextureData,
+//    VertexData,
+//    IndexData,
+//    BaseRenderData,
+// }

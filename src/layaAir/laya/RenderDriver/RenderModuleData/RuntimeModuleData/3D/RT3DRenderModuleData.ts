@@ -1,6 +1,6 @@
 import { ShaderPass } from "../../../../RenderEngine/RenderShader/ShaderPass";
 import { Matrix4x4 } from "../../../../maths/Matrix4x4";
-import { NativeShaderInstance } from "../../../OpenglESDriver/RenderDevice/NativeShaderInstance";
+import { IShaderInstance } from "../../../DriverDesign/RenderDevice/IShaderInstance";
 import { ICameraNodeData, ISceneNodeData, IShaderPassData, ISubshaderData } from "../../Design/3D/I3DRenderModuleData";
 import { IDefineDatas } from "../../Design/IDefineDatas";
 import { RTDefineDatas } from "../RTDefineDatas";
@@ -98,7 +98,7 @@ export class RTShaderPass implements IShaderPassData {
     renderState: RTRenderState;
 
     nativeCreateShaderInstance() {
-        let instance = ShaderPass.createShaderInstance(this._pass, false, RTShaderPass.TempDefine) as NativeShaderInstance;
+        let instance = ShaderPass.createShaderInstance(this._pass, false, RTShaderPass.TempDefine) as IShaderInstance;
         this.setCacheShader(RTShaderPass.TempDefine, instance);
     }
 
@@ -106,11 +106,12 @@ export class RTShaderPass implements IShaderPassData {
         //TODO
     }
 
-    setCacheShader(defines: IDefineDatas, shaderInstance: NativeShaderInstance): void {
+    setCacheShader(defines: IDefineDatas, shaderInstance: IShaderInstance): void {
+        //@ts-ignore
         this._nativeObj.setCacheShader(defines, shaderInstance._nativeObj);
     }
 
-    getCacheShader(defines: IDefineDatas): NativeShaderInstance {
+    getCacheShader(defines: IDefineDatas): IShaderInstance {
         //TODO  不会调用到
         return null;
     }

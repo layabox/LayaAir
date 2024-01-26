@@ -1,23 +1,20 @@
+import { DDSTextureInfo } from "../../../RenderEngine/DDSTextureInfo";
+import { HDRTextureInfo } from "../../../RenderEngine/HDRTextureInfo";
+import { KTXTextureInfo } from "../../../RenderEngine/KTXTextureInfo";
+import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTargetFormat";
+import { TextureCompareMode } from "../../../RenderEngine/RenderEnum/TextureCompareMode";
+import { TextureDimension } from "../../../RenderEngine/RenderEnum/TextureDimension";
+import { TextureFormat } from "../../../RenderEngine/RenderEnum/TextureFormat";
+import { ITextureContext } from "../../DriverDesign/RenderDevice/ITextureContext";
+import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRenderTarget";
+import { InternalTexture } from "../../DriverDesign/RenderDevice/InternalTexture";
 
-import { NativeGLObject } from "./NativeGLObject";
-import { NativeWebGLEngine } from "./NativeWebGLEngine";
-import { DDSTextureInfo } from "../../DDSTextureInfo";
-import { HDRTextureInfo } from "../../HDRTextureInfo";
-import { KTXTextureInfo } from "../../KTXTextureInfo";
-import { InternalRenderTarget } from "../../../RenderDriver/DriverDesign/RenderDevice/InternalRenderTarget";
-import { InternalTexture } from "../../../RenderDriver/DriverDesign/RenderDevice/InternalTexture";
-import { ITextureContext } from "../../../RenderDriver/DriverDesign/RenderDevice/ITextureContext";
-import { RenderTargetFormat } from "../../RenderEnum/RenderTargetFormat";
-import { TextureCompareMode } from "../../RenderEnum/TextureCompareMode";
-import { TextureDimension } from "../../RenderEnum/TextureDimension";
-import { TextureFormat } from "../../RenderEnum/TextureFormat";
 
-export class NativeGLTextureContext extends NativeGLObject implements ITextureContext {
+export class GLESTextureContext implements ITextureContext {
     needBitmap: boolean;
     protected _native: any;
 
-    constructor(engine: NativeWebGLEngine, native: any) {
-        super(engine);
+    constructor(engine: GLESTextureContext, native: any) {
         this._native = native;
         this.needBitmap = false;
     }

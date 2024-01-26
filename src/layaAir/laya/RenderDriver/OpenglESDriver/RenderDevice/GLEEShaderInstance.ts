@@ -1,14 +1,13 @@
 import { LayaGL } from "../../../layagl/LayaGL";
-import { IShaderInstance } from "../../../RenderDriver/DriverDesign/RenderDevice/IShaderInstance";
+import { IShaderInstance } from "../../DriverDesign/RenderDevice/IShaderInstance";
 import { GLSLCodeGenerator } from "../../../RenderEngine/RenderShader/GLSLCodeGenerator";
 import { ShaderPass } from "../../../RenderEngine/RenderShader/ShaderPass";
 import {  ShaderProcessInfo } from "../../../webgl/utils/ShaderCompileDefineBase";
-
 /**
  * @internal
  * <code>ShaderInstance</code> 类用于实现ShaderInstance。
  */
-export class NativeShaderInstance implements IShaderInstance {
+export class GLEEShaderInstance implements IShaderInstance {
 
 	_nativeObj: any;
 

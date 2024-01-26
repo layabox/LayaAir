@@ -4,8 +4,7 @@ import { NativeTransform3D } from "../../RenderModuleData/RuntimeModuleData/3D/N
 import { RTSubShader } from "../../RenderModuleData/RuntimeModuleData/3D/RT3DRenderModuleData";
 import { RTBaseRenderNode } from "../../RenderModuleData/RuntimeModuleData/3D/RTBaseRenderNode";
 import { RTShaderData } from "../../RenderModuleData/RuntimeModuleData/RTShaderData";
-import { NativeRenderGeometryElementOBJ } from "../RenderDevice/NativeRenderGeometryElementOBJ";
-
+import { GLESRenderGeometryElement } from "../RenderDevice/GLESRenderGeometryElement";
 export enum RenderElementType {
     Base = 0,
     Skin = 1,
@@ -13,7 +12,7 @@ export enum RenderElementType {
 }
 export class GLESRenderElement3D implements IRenderElement3D {
 
-    private _geometry: NativeRenderGeometryElementOBJ;
+    private _geometry: GLESRenderGeometryElement;
 
     private _materialShaderData: RTShaderData;
 
@@ -23,12 +22,12 @@ export class GLESRenderElement3D implements IRenderElement3D {
 
     _isRender: boolean;
 
-    set geometry(data: NativeRenderGeometryElementOBJ) {
+    set geometry(data: GLESRenderGeometryElement) {
         this._geometry = data;
         this._nativeObj.setGeometry((data as any)._nativeObj);
     }
 
-    get geometry(): NativeRenderGeometryElementOBJ {
+    get geometry(): GLESRenderGeometryElement {
         return this._geometry;
     }
 

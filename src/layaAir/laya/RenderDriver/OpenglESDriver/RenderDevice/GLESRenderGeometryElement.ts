@@ -1,14 +1,13 @@
-import { IRenderGeometryElement } from "../../../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
+import { IRenderGeometryElement } from "../../DriverDesign/RenderDevice/IRenderGeometryElement";
 import { DrawType } from "../../../RenderEngine/RenderEnum/DrawType";
 import { IndexFormat } from "../../../RenderEngine/RenderEnum/IndexFormat";
 import { MeshTopology } from "../../../RenderEngine/RenderEnum/RenderPologyMode";
 import { SingletonList } from "../../../utils/SingletonList";
-import { BufferState } from "../../../webgl/utils/BufferState";
 import { IBufferState } from "../../DriverDesign/RenderDevice/IBufferState";
 
 
 
-export class NativeRenderGeometryElementOBJ implements IRenderGeometryElement {
+export class GLESRenderGeometryElement implements IRenderGeometryElement {
   /**@internal */
   private _bufferState: IBufferState;
 
