@@ -5,10 +5,14 @@ import { RTShaderDefine } from "./RTShaderDefine";
 
 export class RTDefineDatas implements IDefineDatas {
     _nativeobj: any;
-    constructor() {
-        this._nativeobj = new (window as any).conchDefineDatas();
+    constructor(value?: any) {
+        if (value) {
+            this._nativeobj = value;
+        }
+        else {
+            this._nativeobj = new (window as any).conchRTDefineDatas();
+        }
     }
-    private __length: number;
     get _length(): number {
         return this._nativeobj._length;
     }
@@ -16,40 +20,46 @@ export class RTDefineDatas implements IDefineDatas {
     set _length(value: number) {
         this._nativeobj._length = value;
     }
-    _mask: number[];
+    get _mask(): number[] {
+        return this._nativeobj._mask;
+    }
+
+    set _mask(value: number[]) {
+        this._nativeobj._mask = value;
+    }
     /**
      * @internal
      */
     _intersectionDefineDatas(define: RTDefineDatas): void {
-        this._nativeobj
+        this._nativeobj._intersectionDefineDatas(define._nativeobj);
     }
 
     add(define: RTShaderDefine): void {
-        throw new Error("Method not implemented.");
+        this._nativeobj.add(define._nativeobj);
     }
     remove(define: RTShaderDefine): void {
-        throw new Error("Method not implemented.");
+        this._nativeobj.remove(define._nativeobj);
     }
     addDefineDatas(define: RTDefineDatas): void {
-        throw new Error("Method not implemented.");
+        this._nativeobj.addDefineDatas(define._nativeobj);
     }
     removeDefineDatas(define: RTDefineDatas): void {
-        throw new Error("Method not implemented.");
+        this._nativeobj.removeDefineDatas(define._nativeobj);
     }
     has(define: RTShaderDefine): boolean {
-        throw new Error("Method not implemented.");
+        return this._nativeobj.has(define._nativeobj);
     }
     clear(): void {
-        throw new Error("Method not implemented.");
+        this._nativeobj.clear();
     }
     cloneTo(destObject: RTDefineDatas): void {
-        throw new Error("Method not implemented.");
+        this._nativeobj.cloneTo(destObject._nativeobj);
     }
     clone(): RTDefineDatas {
-        throw new Error("Method not implemented.");
+        return new RTDefineDatas(this._nativeobj.clone());
     }
     destroy(): void {
-        throw new Error("Method not implemented.");
+        this._nativeobj.destroy();
     }
 
 }
