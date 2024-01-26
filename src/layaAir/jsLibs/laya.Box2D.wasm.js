@@ -1,5 +1,5 @@
 
-var Box2D = (() => {
+var Box2D = window.Box2D = (() => {
   var _scriptDir = typeof document !== 'undefined' && document.currentScript ? document.currentScript.src : undefined;
   
   return (
