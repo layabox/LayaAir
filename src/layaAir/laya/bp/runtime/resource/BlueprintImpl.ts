@@ -261,6 +261,14 @@ export class BlueprintImpl extends Resource {
         BlueprintUtil.addCustomData(this.uuid, dec);
     }
 
+    get obsolute(): boolean {
+        return false;
+    }
+
+    set obsolute(value: boolean) {
+        // this._obsolute = value;
+    }
+
     protected _disposeResource(): void {
         super._disposeResource();
         delete ClassUtils._classMap[this.uuid];
