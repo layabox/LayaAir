@@ -208,11 +208,11 @@ export class BlueprintFactory {
         }
         bp.varMap = varMap;
         if (LayaEnv.isPlaying) {
-            bp.parse(bpjson, c, varMap);
+            bp.parse(bpjson, c, varMap,newClass);
             funs.forEach(fun => {
                 bp.parseFunction(fun.id, fun.arr, c);
             })
-            this.initEventFunc(parentName, newClass);
+            //this.initEventFunc(parentName, newClass);
         }
         this.initClassHook(parentName, newClass);
         Object.defineProperty(newClass, 'name', { value: name });
@@ -220,31 +220,31 @@ export class BlueprintFactory {
         return newClass as unknown as T;
     }
 
-    static initEventFunc(parent: string, cls: Function) { // todo
-        if (!LayaEnv.isPlaying) {
-            return
-        }
-        let dec = BlueprintUtil.getDeclaration(parent);
-        if (dec && dec.funcs) {
-            for (let i = 0, len = dec.funcs.length; i < len; i++) {
-                let func = dec.funcs[i];
-                if (func.type == "event") {
-                    let eventList = cls.prototype.__eventList__;
-                    if (!eventList) {
-                        eventList = cls.prototype.__eventList__ = [];
-                    }
+    // static initEventFunc(parent: string, cls: Function) { // todo
+    //     if (!LayaEnv.isPlaying) {
+    //         return
+    //     }
+    //     let dec = BlueprintUtil.getDeclaration(parent);
+    //     if (dec && dec.funcs) {
+    //         for (let i = 0, len = dec.funcs.length; i < len; i++) {
+    //             let func = dec.funcs[i];
+    //             if (func.type == "event") {
+    //                 let eventList = cls.prototype.__eventList__;
+    //                 if (!eventList) {
+    //                     eventList = cls.prototype.__eventList__ = [];
+    //                 }
 
-                    let funcName = func.name;
-                    let originFunc: Function = cls.prototype[funcName];
-                    eventList.push(funcName);
-                    cls.prototype[funcName] = function (...args: any[]) {
-                        originFunc && originFunc.call(this, args);
-                        this[BlueprintFactory.bpSymbol].run(this[BlueprintFactory.contextSymbol], funcName, args);
-                    }
-                }
-            }
-        }
-    }
+    //                 let funcName = func.name;
+    //                 let originFunc: Function = cls.prototype[funcName];
+    //                 eventList.push(funcName);
+    //                 cls.prototype[funcName] = function (...args: any[]) {
+    //                     originFunc && originFunc.call(this, args);
+    //                     this[BlueprintFactory.bpSymbol].run(this[BlueprintFactory.contextSymbol], funcName, args);
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
 
     //给编辑时的钩子
     static initClassHook(parent: string, cls: Function) {
