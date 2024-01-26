@@ -49,13 +49,13 @@ export class BlueprintImpl extends Resource {
         }
 
         let result;
-        if (this.data.lhData) {
+        let source = this.data.source;
+        if (source) {
             let api: IHierarchyParserAPI;
-            let lhData = this.data.lhData;
             api = HierarchyLoader.v3;
-            this.data.lhData._$type = this.uuid;
+            source._$type = this.uuid;
 
-            result = api.parse(lhData, options, errors);
+            result = api.parse(source, options, errors);
             if (Array.isArray(result)) {
                 if (result.length == 1) {
                     result[0].url = this.url;

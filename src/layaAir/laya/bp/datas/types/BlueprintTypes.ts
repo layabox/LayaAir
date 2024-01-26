@@ -82,7 +82,7 @@ export interface TBPSaveData {
     variable: TBPVarProperty[],
     functions: TBPStageData[],
     events: TBPEventProperty[],
-    lhData?: any,
+    source?: any,
 }
 export interface TBPCOutput {
     /** 插槽名称 */
