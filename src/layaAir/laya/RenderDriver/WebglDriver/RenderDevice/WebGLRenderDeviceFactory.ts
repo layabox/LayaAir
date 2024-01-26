@@ -10,7 +10,7 @@ import { IRenderDeviceFactory } from "../../DriverDesign/RenderDevice/IRenderDev
 import { IRenderGeometryElement } from "../../DriverDesign/RenderDevice/IRenderGeometryElement";
 import { IShaderInstance } from "../../DriverDesign/RenderDevice/IShaderInstance";
 import { IVertexBuffer } from "../../DriverDesign/RenderDevice/IVertexBuffer";
-import { WebGLRenderGeometryElement } from "./RenderGeometryElementOBJ";
+import { WebGLRenderGeometryElement } from "./WebGLRenderGeometryElement";
 import { WebGLBufferState } from "./WebGLBufferState";
 import { WebGLIndexBuffer } from "./WebGLIndexBuffer";
 import { WebGLShaderInstance } from "./WebGLShaderInstance";

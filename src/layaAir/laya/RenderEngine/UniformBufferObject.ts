@@ -2,14 +2,13 @@ import { BufferUsage, BufferTargetType } from "./RenderEnum/BufferTargetType";
 import { SubUniformBufferData } from "./SubUniformBufferData";
 import { UniformBufferBase } from "./UniformBufferBase";
 import { UnifromBufferData } from "./UniformBufferData";
-import { Buffer } from "./Buffer";
 import { LayaGL } from "../layagl/LayaGL";
-import { GLBuffer } from "./RenderEngine/WebGLEngine/GLBuffer";
-import { IRenderBuffer } from "./RenderInterface/IRenderBuffer";
+import { WebGLEngine } from "../RenderDriver/WebglDriver/RenderDevice/WebGLEngine";
+import { GLBuffer } from "../RenderDriver/WebglDriver/RenderDevice/WebGLEngine/GLBuffer";
 /**
  * 类封装WebGL2UniformBufferObect
  */
-export class UniformBufferObject extends Buffer {
+export class UniformBufferObject {
     static UBONAME_SCENE = "SceneUniformBlock";
     static UBONAME_CAMERA = "CameraUniformBlock";
     static UBONAME_SPRITE3D = "SpriteUniformBlock";
@@ -28,7 +27,7 @@ export class UniformBufferObject extends Buffer {
      */
     static create(name: string, bufferUsage: number, bytelength: number, isSingle: boolean = false) {
         if (!UniformBufferObject._Map.get(name)) {
-            UniformBufferObject._Map.set(name, new UniformBufferBase(name, LayaGL.renderEngine.getUBOPointer(name), isSingle));
+            UniformBufferObject._Map.set(name, new UniformBufferBase(name, WebGLEngine.instance.getUBOPointer(name), isSingle));
         }
         let bufferBase = UniformBufferObject._Map.get(name);
         if (bufferBase._singgle && bufferBase._mapArray.length > 0) {
@@ -53,7 +52,7 @@ export class UniformBufferObject extends Buffer {
     }
 
 
-    _glBuffer: IRenderBuffer;//TODO
+    _glBuffer: GLBuffer;//TODO
     /**@interanl */
     _glPointer: number;
 
@@ -68,17 +67,21 @@ export class UniformBufferObject extends Buffer {
 
     /**all byte length */
     byteLength: number;
+    bufferType: BufferTargetType;
+    bufferUsage: BufferUsage;
 
     /**
      * @interanl
      */
     constructor(glPointer: number, name: string, bufferUsage: BufferUsage, byteLength: number, isSingle: boolean) {
-        super(BufferTargetType.UNIFORM_BUFFER, bufferUsage);
+        // super(BufferTargetType.UNIFORM_BUFFER, bufferUsage);
+        this.bufferType = BufferTargetType.UNIFORM_BUFFER;
+        this.bufferUsage = bufferUsage;
         this._glPointer = glPointer;
         this.byteLength = byteLength;
         this._name = name;
         this._isSingle = isSingle;
-        this._glBuffer = LayaGL.renderEngine.createBuffer(BufferTargetType.UNIFORM_BUFFER,bufferUsage);
+        this._glBuffer = WebGLEngine.instance.createBuffer(BufferTargetType.UNIFORM_BUFFER, bufferUsage);
         this.bind();
         if (this._isSingle)
             this._bindUniformBufferBase();
@@ -90,11 +93,7 @@ export class UniformBufferObject extends Buffer {
      * @internal
      */
     _bindUniformBufferBase() {
-        // const base = UniformBufferObject._Map.get(this._name);
-        // if (base._curUniformBuffer != this) {
         this._glBuffer.bindBufferBase(this._glPointer);
-        //base._curUniformBuffer = this;
-        // }
     }
 
     /**
@@ -104,7 +103,6 @@ export class UniformBufferObject extends Buffer {
     _bindBufferRange(offset: number, byteCount: number) {
         this.bind();
         this._glBuffer.bindBufferRange(this._glPointer, offset, byteCount);
-        //gl.bindBufferRange(gl.UNIFORM_BUFFER, this._glPointer, this._glBuffer, offset, byteCount);
     }
 
     /**
@@ -119,8 +117,8 @@ export class UniformBufferObject extends Buffer {
             this._glBuffer = null;
         }
         //create new
-        this._byteLength = this.byteLength = bytelength;
-        this._glBuffer = LayaGL.renderEngine.createBuffer(this._bufferType, this._bufferUsage);
+        this.byteLength = bytelength;
+        this._glBuffer = WebGLEngine.instance.createBuffer(this.bufferType, this.bufferUsage);
         if (this._isSingle)
             this._bindUniformBufferBase();
         this._glBuffer.setDataLength(this.byteLength);
@@ -186,6 +184,10 @@ export class UniformBufferObject extends Buffer {
      * @private
      */
     destroy(): void {
-        super.destroy();
+        //destroy
+        if (this._glBuffer) {
+            this._glBuffer.destroy();
+            this._glBuffer = null;
+        }
     }
 }

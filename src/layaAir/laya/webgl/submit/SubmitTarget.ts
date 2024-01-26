@@ -42,7 +42,7 @@ export class SubmitTarget implements ISubmit {
             this.shaderValue.textureHost = target;
             this.shaderValue.upload();
             this.blend();
-            LayaGL.renderDrawContext.drawElements2DTemp(MeshTopology.Triangles, this._numEle, IndexFormat.UInt16, this._startIdx);
+           // LayaGL.renderDrawContext.drawElements2DTemp(MeshTopology.Triangles, this._numEle, IndexFormat.UInt16, this._startIdx);
         }
         return 1;
     }

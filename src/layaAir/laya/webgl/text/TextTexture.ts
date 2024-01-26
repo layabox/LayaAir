@@ -2,7 +2,6 @@ import { RenderInfo } from "../../renders/RenderInfo"
 import { Resource } from "../../resource/Resource"
 import { CharRenderInfo } from "./CharRenderInfo"
 import { ILaya } from "../../../ILaya";
-import { IRender2DContext } from "../../RenderEngine/RenderInterface/IRender2DContext"
 import { Texture2D } from "../../resource/Texture2D";
 import { TextureFormat } from "../../RenderEngine/RenderEnum/TextureFormat";
 import { FilterMode } from "../../RenderEngine/RenderEnum/FilterMode";
@@ -16,7 +15,6 @@ export class TextTexture extends Resource {
     private static pool: any[] = new Array(10); // 回收用
     private static poolLen: number = 0;
     private static cleanTm: number = 0;
-    private _render2DContext: IRender2DContext;
 
     /**@internal */
     _source: Texture2D;	// webgl 贴图
@@ -42,7 +40,7 @@ export class TextTexture extends Resource {
         this._texH = textureH || TextRender.atlasWidth;
         this.bitmap.id = this.id;
         this.lock = true;//防止被资源管理清除
-        this._render2DContext = LayaGL.render2DContext;
+    //    this._render2DContext = LayaGL.render2DContext;
     }
 
     recreateResource(): void {

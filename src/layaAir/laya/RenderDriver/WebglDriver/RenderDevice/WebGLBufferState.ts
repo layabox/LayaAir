@@ -1,6 +1,6 @@
-import { GLVertexState } from "../../../RenderEngine/RenderEngine/WebGLEngine/GLVertexState";
-import { WebGLEngine } from "../../../RenderEngine/RenderEngine/WebGLEngine/WebGLEngine";
 import { IBufferState } from "../../DriverDesign/RenderDevice/IBufferState";
+import { WebGLEngine } from "./WebGLEngine";
+import { GLVertexState } from "./WebGLEngine/GLVertexState";
 import { WebGLIndexBuffer } from "./WebGLIndexBuffer";
 import { WebGLVertexBuffer } from "./WebGLVertexBuffer";
 

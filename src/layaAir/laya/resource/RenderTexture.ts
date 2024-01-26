@@ -1,10 +1,10 @@
 import { Config3D } from "../../Config3D";
 import { LayaGL } from "../layagl/LayaGL";
 import { InternalRenderTarget } from "../RenderDriver/DriverDesign/RenderDevice/InternalRenderTarget";
+import { IRenderTarget } from "../RenderDriver/DriverDesign/RenderDevice/IRenderTarget";
 import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
 import { TextureDimension } from "../RenderEngine/RenderEnum/TextureDimension";
 import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
-import { IRenderTarget } from "../RenderEngine/RenderInterface/IRenderTarget";
 import { BaseTexture } from "./BaseTexture";
 
 /**

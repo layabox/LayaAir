@@ -1,12 +1,11 @@
 import { IRenderGeometryElement } from "../../../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
 import { IndexFormat } from "../../RenderEnum/IndexFormat";
 import { MeshTopology } from "../../RenderEnum/RenderPologyMode";
-import { IRenderDrawContext } from "../../RenderInterface/IRenderDrawContext";
 import { NativeGLObject } from "./NativeGLObject";
 import { NativeWebGLEngine } from "./NativeWebGLEngine";
 
 //TODO
-export class NativeGLRenderDrawContext extends NativeGLObject implements IRenderDrawContext {
+export class NativeGLRenderDrawContext extends NativeGLObject {
     _nativeObj: any;
     constructor(engine: NativeWebGLEngine) {
         super(engine);

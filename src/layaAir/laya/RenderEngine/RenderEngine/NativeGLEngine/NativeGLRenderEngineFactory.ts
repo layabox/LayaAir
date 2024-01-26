@@ -1,7 +1,6 @@
+import { IRenderEngineFactory } from "../../../RenderDriver/DriverDesign/RenderDevice/IRenderEngineFactory";
 import { NativeShaderInstance } from "../../../RenderDriver/OpenglESDriver/RenderDevice/NativeShaderInstance";
-import { NativeRenderStateCommand } from "../../../RenderEngine/RenderEngine/NativeGLEngine/NativeRenderStateCommand";
 import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
-import { IRenderEngineFactory } from "../../../RenderEngine/RenderInterface/IRenderEngineFactory";
 import { UniformBufferObject } from "../../../RenderEngine/UniformBufferObject";
 import { ShaderProcessInfo } from "../../../webgl/utils/ShaderCompileDefineBase";
 import { ShaderPass } from "../../RenderShader/ShaderPass";
@@ -16,10 +15,6 @@ export class NativeGLRenderEngineFactory implements IRenderEngineFactory {
         let shaderins = new NativeShaderInstance();
         shaderins._create(shaderProcessInfo, shaderPass);
         return shaderins;
-    }
-
-    createRenderStateComand(): NativeRenderStateCommand {
-        return new NativeRenderStateCommand();
     }
 
 

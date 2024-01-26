@@ -1,4 +1,5 @@
 import { IDirectLightShadowRP, IForwardAddClusterRP, IForwardAddRP, IIndexBuffer3D, IRender3DProcess, IRenderContext3D, IRenderElement3D, ISpotLightShadowRP, IVertexBuffer3D } from "./I3DRenderPass";
+import { ISceneRenderManager } from "./ISceneRenderManager";
 
 export interface I3DRenderPassFactory {
 
@@ -24,4 +25,6 @@ export interface I3DRenderPassFactory {
     createRenderElement3D():IRenderElement3D;
         
     createSkinRenderElement(): IRenderElement3D;//TODO
+
+    createSceneRenderManager(): ISceneRenderManager;
 }

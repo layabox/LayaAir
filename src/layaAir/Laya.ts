@@ -262,7 +262,7 @@ export class Laya {
             Context.set2DRenderConfig();//渲染2D前要还原2D状态,否则可能受3D影响
             var c: any[] = ColorUtils.create(color).arrColor;
 
-            LayaGL.renderEngine.clearRenderTexture(RenderClearFlag.Color | RenderClearFlag.Depth, new Color(c[0], c[1], c[2], c[3]), 1, 0);
+           // LayaGL.renderEngine.clearRenderTexture(RenderClearFlag.Color | RenderClearFlag.Depth, new Color(c[0], c[1], c[2], c[3]), 1, 0);
             // if (c) gl.clearColor(c[0], c[1], c[2], c[3]);
             // gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT);
             RenderState2D.clear();

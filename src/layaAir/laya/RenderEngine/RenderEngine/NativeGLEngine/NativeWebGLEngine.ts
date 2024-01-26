@@ -1,29 +1,19 @@
-import { CommandEncoder } from "../../../layagl/CommandEncoder";
+import { IRenderEngine } from "../../../RenderDriver/DriverDesign/RenderDevice/IRenderEngine";
+import { IRenderEngineFactory } from "../../../RenderDriver/DriverDesign/RenderDevice/IRenderEngineFactory";
+import { ITextureContext } from "../../../RenderDriver/DriverDesign/RenderDevice/ITextureContext";
+import { InternalTexture } from "../../../RenderDriver/DriverDesign/RenderDevice/InternalTexture";
+import { ShaderDataType } from "../../../RenderDriver/RenderModuleData/Design/ShaderData";
+import { WebGLMode } from "../../../RenderDriver/WebglDriver/RenderDevice/WebGLEngine/GLEnum/WebGLMode";
+import { WebGlConfig } from "../../../RenderDriver/WebglDriver/RenderDevice/WebGLEngine/WebGLConfig";
+import { Color } from "../../../maths/Color";
 import { BaseTexture } from "../../../resource/BaseTexture";
-import { BufferTargetType, BufferUsage } from "../../RenderEnum/BufferTargetType";
 import { RenderCapable } from "../../RenderEnum/RenderCapable";
 import { RenderClearFlag } from "../../RenderEnum/RenderClearFlag";
 import { RenderParams } from "../../RenderEnum/RenderParams";
-import { IRender2DContext } from "../../RenderInterface/IRender2DContext";
-import { IRenderBuffer } from "../../RenderInterface/IRenderBuffer";
-import { IRenderDrawContext } from "../../RenderInterface/IRenderDrawContext";
-import { IRenderEngine } from "../../RenderInterface/IRenderEngine";
-import { IRenderShaderInstance } from "../../RenderInterface/IRenderShaderInstance";
-import { ITextureContext } from "../../RenderInterface/ITextureContext";
-import { RenderStateCommand } from "../../RenderStateCommand";
-import { NativeGL2TextureContext } from "./NativeGL2TextureContext";
-import { WebGLMode } from "../WebGLEngine/GLEnum/WebGLMode";
-import { NativeGLRender2DContext } from "./NativeGLRender2DContext";
-import { NativeGLTextureContext } from "./NativeGLTextureContext";
-import { WebGlConfig } from "../WebGLEngine/WebGLConfig";
-import { NativeGLRenderDrawContext } from "./NativeGLRenderDrawContext";
 import { RenderStatisticsInfo } from "../../RenderEnum/RenderStatInfo";
-import { Color } from "../../../maths/Color";
-import { NativeRenderStateCommand } from "./NativeRenderStateCommand";
-import { IRenderEngineFactory } from "../../RenderInterface/IRenderEngineFactory";
-import { InternalTexture } from "../../../RenderDriver/DriverDesign/RenderDevice/InternalTexture";
-import { ShaderDataType } from "../../../RenderDriver/RenderModuleData/Design/ShaderData";
-
+import { NativeGL2TextureContext } from "./NativeGL2TextureContext";
+import { NativeGLRenderDrawContext } from "./NativeGLRenderDrawContext";
+import { NativeGLTextureContext } from "./NativeGLTextureContext";
 
 /**
  * @private 封装Webgl
@@ -41,8 +31,6 @@ export class NativeWebGLEngine implements IRenderEngine {
   //Gl Draw
   private _GLRenderDrawContext: NativeGLRenderDrawContext;
 
-  private _GL2DRenderContext: NativeGLRender2DContext;
-
   /**@internal */
   _renderOBJCreateContext: IRenderEngineFactory;
 
@@ -55,9 +43,7 @@ export class NativeWebGLEngine implements IRenderEngine {
     this._nativeObj = new (window as any).conchWebGLEngine(webglMode);
   }
 
-  createRenderStateComand(): RenderStateCommand {
-    return new NativeRenderStateCommand();
-  }
+
   getUBOPointer(name: string): number {
     return this._nativeObj.getUBOPointer(name);
   }
@@ -118,10 +104,6 @@ export class NativeWebGLEngine implements IRenderEngine {
     throw new Error("Method not implemented.");
   }
 
-  applyRenderStateCMD(cmd: RenderStateCommand): void {
-    this._nativeObj.applyRenderStateCommand((cmd as any)._nativeObj);
-  }
-
   //get capable of webgl
   getCapable(capatableType: RenderCapable): boolean {
     return this._nativeObj.getCapable(capatableType);
@@ -159,12 +141,12 @@ export class NativeWebGLEngine implements IRenderEngine {
   }
 
 
-  createBuffer(targetType: BufferTargetType, bufferUsageType: BufferUsage): IRenderBuffer {
-    //TODO SourceManager
-    return new (window as any).conchGLBuffer(this._nativeObj, targetType, bufferUsageType);
-  }
+  // createBuffer(targetType: BufferTargetType, bufferUsageType: BufferUsage): IRenderBuffer {
+  //   //TODO SourceManager
+  //   return new (window as any).conchGLBuffer(this._nativeObj, targetType, bufferUsageType);
+  // }
 
-  createShaderInstance(vs: string, ps: string, attributeMap: { [name: string]: [number, ShaderDataType] }): IRenderShaderInstance {
+  createShaderInstance(vs: string, ps: string, attributeMap: { [name: string]: [number, ShaderDataType] }) {
     throw new Error("Method not implemented.");
   }
 
@@ -174,14 +156,7 @@ export class NativeWebGLEngine implements IRenderEngine {
     return this._GLTextureContext;
   }
 
-  //TODO 先写完测试，这种封装过于死板
-  getDrawContext(): IRenderDrawContext {
-    return this._GLRenderDrawContext;
-  }
 
-  get2DRenderContext(): IRender2DContext {
-    return this._GL2DRenderContext;
-  }
 
   getCreateRenderOBJContext(): IRenderEngineFactory {
     return this._renderOBJCreateContext;
@@ -195,12 +170,12 @@ export class NativeWebGLEngine implements IRenderEngine {
     throw new Error("Method not implemented.");
   }
 
-  uploadUniforms(shader: IRenderShaderInstance, commandEncoder: CommandEncoder, shaderData: any, uploadUnTexture: boolean): number {
-    throw new Error("Method not implemented.");
-  }
-  uploadCustomUniforms(shader: IRenderShaderInstance, custom: any[], index: number, data: any): number {
-    throw new Error("Method not implemented.");
-  }
+  // uploadUniforms(shader: IRenderShaderInstance, commandEncoder: CommandEncoder, shaderData: any, uploadUnTexture: boolean): number {
+  //   throw new Error("Method not implemented.");
+  // }
+  // uploadCustomUniforms(shader: IRenderShaderInstance, custom: any[], index: number, data: any): number {
+  //   throw new Error("Method not implemented.");
+  // }
   unbindVertexState(): void {
     this._nativeObj.unbindVertexState && this._nativeObj.unbindVertexState();
   }

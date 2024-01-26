@@ -1,4 +1,3 @@
-import { WebGLEngine } from "../../../RenderEngine/RenderEngine/WebGLEngine/WebGLEngine";
 import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFlag";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { Viewport } from "../../../d3/math/Viewport";
@@ -11,6 +10,7 @@ import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRe
 import { WebCameraNodeData, WebSceneNodeData } from "../../RenderModuleData/WebModuleData/3D/WebModuleData";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
 import { WebShaderData } from "../../RenderModuleData/WebModuleData/WebShaderData";
+import { WebGLEngine } from "../RenderDevice/WebGLEngine";
 import { WebGLRenderElement3D } from "./WebGLRenderElement3D";
 
 
@@ -188,10 +188,10 @@ export class WebGLRenderContext3D implements IRenderContext3D {
     }
 
     private _start() {
-        (LayaGL.renderEngine as WebGLEngine).viewport(this._viewPort.x, this._viewPort.y, this._viewPort.width, this._viewPort.height);
-        (LayaGL.renderEngine as WebGLEngine).scissor(this._scissor.x, this._scissor.y, this._scissor.z, this._scissor.w);
+        WebGLEngine.instance.viewport(this._viewPort.x, this._viewPort.y, this._viewPort.width, this._viewPort.height);
+        WebGLEngine.instance.scissor(this._scissor.x, this._scissor.y, this._scissor.z, this._scissor.w);
         if (this._clearFlag != RenderClearFlag.Nothing)
-            LayaGL.renderEngine.clearRenderTexture(this._clearFlag, this._clearColor, this._clearDepth, this._clearStencil);
+          WebGLEngine.instance.clearRenderTexture(this._clearFlag, this._clearColor, this._clearDepth, this._clearStencil);
     }
 
     private _end() {

@@ -8,7 +8,8 @@ import { IRenderElement3D, IRenderContext3D } from "../../DriverDesign/3DRenderP
 import { WebBaseRenderNode } from "../../RenderModuleData/WebModuleData/3D/WebBaseRenderNode";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
 import { WebShaderData } from "../../RenderModuleData/WebModuleData/WebShaderData";
-import { WebGLRenderGeometryElement } from "../RenderDevice/RenderGeometryElementOBJ";
+import { WebGLEngine } from "../RenderDevice/WebGLEngine";
+import { WebGLRenderGeometryElement } from "../RenderDevice/WebGLRenderGeometryElement";
 import { WebGLShaderInstance } from "../RenderDevice/WebGLShaderInstance";
 import { WebGLRenderContext3D } from "./WebGLRenderContext3D";
 
@@ -65,7 +66,7 @@ export class WebGLRenderElement3D implements IRenderElement3D {
      * context:GLESRenderContext3D
      * @param renderqueue 
      */
-    _render(context: IRenderContext3D): void {
+    _render(context: WebGLRenderContext3D): void {
         var forceInvertFace: boolean = context.invertY;
         var updateMark: number = context.cameraUpdateMask;
         var sceneShaderData = context.sceneData as WebShaderData;
@@ -151,7 +152,7 @@ export class WebGLRenderElement3D implements IRenderElement3D {
     }
 
     drawGeometry(shaderIns: WebGLShaderInstance) {
-        LayaGL.renderDrawContext.drawGeometryElement(this.geometry);
+       WebGLEngine.instance.getDrawContext().drawGeometryElement(this.geometry);
     }
 
     destroy() {

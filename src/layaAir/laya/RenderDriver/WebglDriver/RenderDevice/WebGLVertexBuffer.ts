@@ -1,8 +1,9 @@
-import { GLBuffer } from "../../../RenderEngine/RenderEngine/WebGLEngine/GLBuffer";
+
 import { BufferTargetType, BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { VertexDeclaration } from "../../../RenderEngine/VertexDeclaration";
-import { LayaGL } from "../../../layagl/LayaGL";
 import { IVertexBuffer } from "../../DriverDesign/RenderDevice/IVertexBuffer";
+import { WebGLEngine } from "./WebGLEngine";
+import { GLBuffer } from "./WebGLEngine/GLBuffer";
 
 export class WebGLVertexBuffer implements IVertexBuffer {
     _glBuffer: GLBuffer;
@@ -20,7 +21,7 @@ export class WebGLVertexBuffer implements IVertexBuffer {
     instanceBuffer: boolean;
 
     constructor(targetType: BufferTargetType, bufferUsageType: BufferUsage) {
-        this._glBuffer = LayaGL.renderEngine.createBuffer(targetType, bufferUsageType) as GLBuffer;
+        this._glBuffer = WebGLEngine.instance.createBuffer(targetType, bufferUsageType) as GLBuffer;
     }
 
     destory(): void {

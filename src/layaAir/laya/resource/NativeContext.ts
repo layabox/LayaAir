@@ -6,7 +6,6 @@ import { BlendEquationSeparate } from "../RenderEngine/RenderEnum/BlendEquationS
 import { BlendFactor } from "../RenderEngine/RenderEnum/BlendFactor";
 import { CullMode } from "../RenderEngine/RenderEnum/CullMode";
 import { RenderStateType } from "../RenderEngine/RenderEnum/RenderStateType";
-import { RenderStateCommand } from "../RenderEngine/RenderStateCommand";
 import { ColorUtils } from "../utils/ColorUtils";
 import { WordText } from "../utils/WordText";
 import { BlendMode } from "../webgl/canvas/BlendMode";
@@ -16,8 +15,6 @@ import { ISubmit } from "../webgl/submit/ISubmit";
 import { HTMLCanvas } from "./HTMLCanvas";
 import { RenderTexture2D } from "./RenderTexture2D";
 import { Texture } from "./Texture";
-import { BufferState } from "../webgl/utils/BufferState";
-import { RenderTexture } from "./RenderTexture";
 import { NativeRenderTexture2D } from "./NativeRenderTexture2D";
 import { Point } from "../maths/Point";
 import { LayaGL } from "../layagl/LayaGL";
@@ -206,27 +203,27 @@ export class NativeContext {
         this._nativeObj.destroy(keepRT);
     }
 
-    static const2DRenderCMD: RenderStateCommand;
+   // static const2DRenderCMD: RenderStateCommand;
     static set2DRenderConfig(): void {
 
-        if (!NativeContext.const2DRenderCMD) {
-            const cmd = NativeContext.const2DRenderCMD = LayaGL.renderEngine.createRenderStateComand();
-            cmd.addCMD(RenderStateType.BlendType, true);
-            //WebGLContext.setBlendEquation(gl, gl.FUNC_ADD);
-            cmd.addCMD(RenderStateType.BlendEquation, BlendEquationSeparate.ADD);
-            BlendMode.activeBlendFunction = null;// 防止submit不设置blend
-            //WebGLContext.setBlendFunc(gl, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
-            cmd.addCMD(RenderStateType.BlendFunc, [BlendFactor.One, BlendFactor.OneMinusSourceAlpha]);
-            //WebGLContext.setDepthTest(gl, false);
-            cmd.addCMD(RenderStateType.DepthTest, false);
-            //WebGLContext.setDepthMask(gl, true);
-            cmd.addCMD(RenderStateType.DepthMask, true);
-            //WebGLContext.setCullFace(gl, false);
-            cmd.addCMD(RenderStateType.CullFace, false);
-            //WebGLContext.setFrontFace(gl, gl.CCW);
-            cmd.addCMD(RenderStateType.FrontFace, CullMode.Front);
-        }
-        NativeContext.const2DRenderCMD.applyCMD();
+        // if (!NativeContext.const2DRenderCMD) {
+        //     const cmd = NativeContext.const2DRenderCMD = LayaGL.renderEngine.createRenderStateComand();
+        //     cmd.addCMD(RenderStateType.BlendType, true);
+        //     //WebGLContext.setBlendEquation(gl, gl.FUNC_ADD);
+        //     cmd.addCMD(RenderStateType.BlendEquation, BlendEquationSeparate.ADD);
+        //     BlendMode.activeBlendFunction = null;// 防止submit不设置blend
+        //     //WebGLContext.setBlendFunc(gl, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+        //     cmd.addCMD(RenderStateType.BlendFunc, [BlendFactor.One, BlendFactor.OneMinusSourceAlpha]);
+        //     //WebGLContext.setDepthTest(gl, false);
+        //     cmd.addCMD(RenderStateType.DepthTest, false);
+        //     //WebGLContext.setDepthMask(gl, true);
+        //     cmd.addCMD(RenderStateType.DepthMask, true);
+        //     //WebGLContext.setCullFace(gl, false);
+        //     cmd.addCMD(RenderStateType.CullFace, false);
+        //     //WebGLContext.setFrontFace(gl, gl.CCW);
+        //     cmd.addCMD(RenderStateType.FrontFace, CullMode.Front);
+        // }
+        // NativeContext.const2DRenderCMD.applyCMD();
         //RenderTexture.currentActive && RenderTexture.currentActive._end();
         (window as any).set2DRenderConfig();
        // BufferState._curBindedBufferState && BufferState._curBindedBufferState.unBind();

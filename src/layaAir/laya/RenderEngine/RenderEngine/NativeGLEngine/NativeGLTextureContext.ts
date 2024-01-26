@@ -1,12 +1,4 @@
 
-import { WebGLExtension } from "../WebGLEngine/GLEnum/WebGLExtension";
-import { FilterMode } from "../../RenderEnum/FilterMode";
-import { RenderCapable } from "../../RenderEnum/RenderCapable";
-import { RenderTargetFormat } from "../../RenderEnum/RenderTargetFormat";
-import { TextureCompareMode } from "../../RenderEnum/TextureCompareMode";
-import { TextureDimension } from "../../RenderEnum/TextureDimension";
-import { TextureFormat } from "../../RenderEnum/TextureFormat";
-import { ITextureContext } from "../../RenderInterface/ITextureContext";
 import { NativeGLObject } from "./NativeGLObject";
 import { NativeWebGLEngine } from "./NativeWebGLEngine";
 import { DDSTextureInfo } from "../../DDSTextureInfo";
@@ -14,6 +6,11 @@ import { HDRTextureInfo } from "../../HDRTextureInfo";
 import { KTXTextureInfo } from "../../KTXTextureInfo";
 import { InternalRenderTarget } from "../../../RenderDriver/DriverDesign/RenderDevice/InternalRenderTarget";
 import { InternalTexture } from "../../../RenderDriver/DriverDesign/RenderDevice/InternalTexture";
+import { ITextureContext } from "../../../RenderDriver/DriverDesign/RenderDevice/ITextureContext";
+import { RenderTargetFormat } from "../../RenderEnum/RenderTargetFormat";
+import { TextureCompareMode } from "../../RenderEnum/TextureCompareMode";
+import { TextureDimension } from "../../RenderEnum/TextureDimension";
+import { TextureFormat } from "../../RenderEnum/TextureFormat";
 
 export class NativeGLTextureContext extends NativeGLObject implements ITextureContext {
     needBitmap: boolean;

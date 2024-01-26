@@ -13,6 +13,7 @@ import { LayaGL } from "../../../../layagl/LayaGL"
 import { ShaderData } from "../../../../RenderDriver/RenderModuleData/Design/ShaderData"
 import { IDefineDatas } from "../../../../RenderDriver/RenderModuleData/Design/IDefineDatas"
 import { WebGLShaderInstance } from "../../../../RenderDriver/WebglDriver/RenderDevice/WebGLShaderInstance"
+import { WebShaderData } from "../../../../RenderDriver/RenderModuleData/WebModuleData/WebShaderData"
 
 export enum RenderSpriteData {
     Zero,
@@ -268,9 +269,9 @@ export class Value2D {
             Value2D._compileDefine.addDefineDatas(Value2D.globalShaderData.getDefineData());
             var shaderIns = pass.withCompile(Value2D._compileDefine, true) as WebGLShaderInstance;
             shaderIns.bind();
-            shaderIns.uploadUniforms(shaderIns._sprite2DUniformParamsMap, this.defines, true);
-            shaderIns.uploadUniforms(shaderIns._sceneUniformParamsMap, Value2D.globalShaderData, true);
-            shaderIns.uploadUniforms(shaderIns._materialUniformParamsMap, material.shaderData, true);
+            shaderIns.uploadUniforms(shaderIns._sprite2DUniformParamsMap, this.defines as WebShaderData, true);
+            shaderIns.uploadUniforms(shaderIns._sceneUniformParamsMap, Value2D.globalShaderData as WebShaderData, true);
+            shaderIns.uploadUniforms(shaderIns._materialUniformParamsMap, material.shaderData as WebShaderData, true);
         } else {
             //default pass
             var shaderPass = this._defaultShader._subShaders[0]._passes;
@@ -280,7 +281,7 @@ export class Value2D {
                 //var comDef: DefineDatas = Value2D._compileDefine;
                 var shaderIns = pass.withCompile(this.defines.getDefineData(), true) as unknown as WebGLShaderInstance;
                 shaderIns.bind();
-                shaderIns.uploadUniforms(shaderIns._sprite2DUniformParamsMap, this.defines, true);
+                shaderIns.uploadUniforms(shaderIns._sprite2DUniformParamsMap, this.defines as WebShaderData, true);
             } else {
                 //TODO 多pass情况
             }

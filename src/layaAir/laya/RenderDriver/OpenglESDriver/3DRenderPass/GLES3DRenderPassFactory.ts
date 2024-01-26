@@ -1,5 +1,7 @@
+import { SceneRenderManagerOBJ } from "../../../d3/core/scene/SceneRenderManagerOBJ";
 import { IIndexBuffer3D, IRenderElement3D, IVertexBuffer3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { I3DRenderPassFactory } from "../../DriverDesign/3DRenderPass/I3DRenderPassFactory";
+import { ISceneRenderManager } from "../../DriverDesign/3DRenderPass/ISceneRenderManager";
 import { GLESDirectLightShadowRP } from "./GLESDirectLightShadowRP";
 import { GLESForwardAddClusterRP } from "./GLESForwardAddClusterRP";
 import { GLESForwardAddRP } from "./GLESForwardAddRP";
@@ -10,6 +12,9 @@ import { GLESSkinRenderElement3D } from "./GLESSkinRenderElement3D";
 import { GLESSpotLightShadowRP } from "./GLESSpotLightShadowRP";
 
 export class GLES3DRenderPassFactory implements I3DRenderPassFactory {
+    createSceneRenderManager(): ISceneRenderManager {
+       return new SceneRenderManagerOBJ();
+    }
     createSkinRenderElement(): IRenderElement3D {
       return new GLESSkinRenderElement3D();
     }

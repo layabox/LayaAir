@@ -3,12 +3,12 @@ import { BaseTexture } from "./BaseTexture"
 import { BaseShader } from "../webgl/shader/BaseShader"
 import { RenderState2D } from "../webgl/utils/RenderState2D"
 import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
-import { IRenderTarget } from "../RenderEngine/RenderInterface/IRenderTarget";
 import { RenderClearFlag } from "../RenderEngine/RenderEnum/RenderClearFlag";
 import { NativeRenderTexture2D } from "./NativeRenderTexture2D";
 import { Color } from "../maths/Color";
 import { LayaGL } from "../layagl/LayaGL";
 import { InternalRenderTarget } from "../RenderDriver/DriverDesign/RenderDevice/InternalRenderTarget";
+import { IRenderTarget } from "../RenderDriver/DriverDesign/RenderDevice/IRenderTarget";
 /**
  * <code>RenderTexture</code> 类用于创建渲染目标。
  */

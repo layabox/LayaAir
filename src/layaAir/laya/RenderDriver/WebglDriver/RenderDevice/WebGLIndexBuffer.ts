@@ -1,9 +1,10 @@
-import { GLBuffer } from "../../../RenderEngine/RenderEngine/WebGLEngine/GLBuffer";
+
 import { BufferTargetType, BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { IndexFormat } from "../../../RenderEngine/RenderEnum/IndexFormat";
-import { LayaGL } from "../../../layagl/LayaGL";
 import { IIndexBuffer } from "../../DriverDesign/RenderDevice/IIndexBuffer";
 import { WebGLBufferState } from "./WebGLBufferState";
+import { WebGLEngine } from "./WebGLEngine";
+import { GLBuffer } from "./WebGLEngine/GLBuffer";
 
 export class WebGLIndexBuffer implements IIndexBuffer {
     _glBuffer: GLBuffer;
@@ -11,10 +12,10 @@ export class WebGLIndexBuffer implements IIndexBuffer {
     indexCount: number;
 
     constructor(targetType: BufferTargetType, bufferUsageType: BufferUsage) {
-        this._glBuffer = this._glBuffer = LayaGL.renderEngine.createBuffer(targetType, bufferUsageType) as GLBuffer;
+        this._glBuffer = this._glBuffer = WebGLEngine.instance.createBuffer(targetType, bufferUsageType) as GLBuffer;
     }
 
-   
+
     _setIndexData(data: number): void;
     _setIndexData(data: Uint32Array | Uint16Array | Uint8Array, bufferOffset: number): void;
     _setIndexData(data: Uint32Array | Uint16Array | Uint8Array | number, bufferOffset?: number): void {
@@ -44,7 +45,7 @@ export class WebGLIndexBuffer implements IIndexBuffer {
 
     destroy(): void {
         this._glBuffer.destroy();
-     }
+    }
 
 
 }

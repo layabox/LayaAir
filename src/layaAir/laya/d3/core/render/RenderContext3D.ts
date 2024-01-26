@@ -2,7 +2,6 @@ import { Scene3D } from "../scene/Scene3D"
 import { Viewport } from "../../math/Viewport"
 import { Camera } from "../Camera";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
-import { IRenderTarget } from "../../../RenderEngine/RenderInterface/IRenderTarget";
 import { Matrix4x4 } from "../../../maths/Matrix4x4";
 import { Vector4 } from "../../../maths/Vector4";
 import { PipelineMode, IRenderContext3D, IRenderElement3D } from "../../../RenderDriver/DriverDesign/3DRenderPass/I3DRenderPass";
@@ -10,6 +9,7 @@ import { ShaderData } from "../../../RenderDriver/RenderModuleData/Design/Shader
 import { ShaderDefine } from "../../../RenderDriver/RenderModuleData/Design/ShaderDefine";
 import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
 import { IShaderInstance } from "../../../RenderDriver/DriverDesign/RenderDevice/IShaderInstance";
+import { IRenderTarget } from "../../../RenderDriver/DriverDesign/RenderDevice/IRenderTarget";
 
 /**
  * <code>RenderContext3D</code> 类用于实现渲染状态。

@@ -1,7 +1,7 @@
 
 import { SkinnedMeshSprite3D } from "../../../d3/core/SkinnedMeshSprite3D";
-import { LayaGL } from "../../../layagl/LayaGL";
-import { WebGLRenderGeometryElement } from "../RenderDevice/RenderGeometryElementOBJ";
+import { WebGLEngine } from "../RenderDevice/WebGLEngine";
+import { WebGLRenderGeometryElement } from "../RenderDevice/WebGLRenderGeometryElement";
 import { WebGLShaderInstance } from "../RenderDevice/WebGLShaderInstance";
 import { WebGLRenderElement3D } from "./WebGLRenderElement3D";
 
@@ -27,7 +27,7 @@ export class WebGLSkinRenderElement3D extends WebGLRenderElement3D {
                 var subSkinnedDatas: Float32Array = this.skinnedData[j];
                 shaderIns.uploadCustomUniform(SkinnedMeshSprite3D.BONES, subSkinnedDatas);
                 var offset = j * 2;
-                LayaGL.renderDrawContext.drawElements((this.geometry as WebGLRenderGeometryElement)._glmode, element[offset + 1], (this.geometry as WebGLRenderGeometryElement)._glindexFormat, element[offset]);
+                WebGLEngine.instance.getDrawContext().drawElements((this.geometry as WebGLRenderGeometryElement)._glmode, element[offset + 1], (this.geometry as WebGLRenderGeometryElement)._glindexFormat, element[offset]);
             }
         }
     }

@@ -1,5 +1,5 @@
+import { ISceneRenderManager } from "../../../RenderDriver/DriverDesign/3DRenderPass/ISceneRenderManager";
 import { IBaseRenderNode } from "../../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
-import { ISceneRenderManager } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/ISceneRenderManager";
 import { SingletonList } from "../../../utils/SingletonList";
 import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
 import { BaseRender } from "../render/BaseRender";
@@ -16,7 +16,7 @@ export class SceneRenderManager {
      * 实例化一个场景管理节点
      */
     constructor() {
-        this._sceneManagerOBJ = Laya3DRender.renderOBJCreate.createSceneRenderManager();
+        this._sceneManagerOBJ = Laya3DRender.Render3DPassFactory.createSceneRenderManager();
     }
 
     /**

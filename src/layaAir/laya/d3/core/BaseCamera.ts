@@ -2,7 +2,6 @@ import { Node } from "../../display/Node";
 import { Event } from "../../events/Event";
 import { Loader } from "../../net/Loader";
 import { Config3D } from "../../../Config3D";
-import { IRenderEngine } from "../../RenderEngine/RenderInterface/IRenderEngine";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { UniformBufferParamsType, UnifromBufferData } from "../../RenderEngine/UniformBufferData";
 import { Scene3D } from "./scene/Scene3D";
@@ -18,6 +17,7 @@ import { SkyRenderer } from "../resource/models/SkyRenderer";
 import { LayaGL } from "../../layagl/LayaGL";
 import { ShaderDataType, ShaderData } from "../../RenderDriver/RenderModuleData/Design/ShaderData";
 import { ShaderDefine } from "../../RenderDriver/RenderModuleData/Design/ShaderDefine";
+import { IRenderEngine } from "../../RenderDriver/DriverDesign/RenderDevice/IRenderEngine";
 
 /**
  * <code>BaseCamera</code> 类用于创建摄像机的父类。

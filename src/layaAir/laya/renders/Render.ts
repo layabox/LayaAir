@@ -6,9 +6,9 @@ import { BlendMode } from "../webgl/canvas/BlendMode";
 import { Shader2D } from "../webgl/shader/d2/Shader2D";
 import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
 import { SubmitBase } from "../webgl/submit/SubmitBase";
-import { IRenderEngine } from "../RenderEngine/RenderInterface/IRenderEngine";
 import { LayaEnv } from "../../LayaEnv";
 import { VertexElementFormat } from "./VertexElementFormat";
+import { IRenderEngine } from "../RenderDriver/DriverDesign/RenderDevice/IRenderEngine";
 
 /**
  * <code>Render</code> 是渲染管理类。它是一个单例，可以使用 Laya.render 访问。

@@ -1,5 +1,5 @@
+
 import { CullMode } from "../../../RenderEngine/RenderEnum/CullMode";
-import { IRenderShaderInstance } from "../../../RenderEngine/RenderInterface/IRenderShaderInstance";
 import { GLSLCodeGenerator } from "../../../RenderEngine/RenderShader/GLSLCodeGenerator";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { ShaderPass } from "../../../RenderEngine/RenderShader/ShaderPass";
@@ -12,6 +12,9 @@ import { ShaderCompileDefineBase, ShaderProcessInfo } from "../../../webgl/utils
 import { IShaderInstance } from "../../DriverDesign/RenderDevice/IShaderInstance";
 import { RenderState } from "../../RenderModuleData/Design/RenderState";
 import { ShaderData } from "../../RenderModuleData/Design/ShaderData";
+import { WebShaderData } from "../../RenderModuleData/WebModuleData/WebShaderData";
+import { WebGLEngine } from "./WebGLEngine";
+import { GLShaderInstance } from "./WebGLEngine/GLShaderInstance";
 
 /**
  * <code>ShaderInstance</code> 类用于实现ShaderInstance。
@@ -20,7 +23,7 @@ export class WebGLShaderInstance implements IShaderInstance {
 	/**@internal */
 	private _shaderPass: ShaderCompileDefineBase | ShaderPass;
 
-	private _renderShaderInstance: IRenderShaderInstance;
+	private _renderShaderInstance: GLShaderInstance;
 
 	/**@internal */
 	_sceneUniformParamsMap: CommandEncoder;
@@ -63,7 +66,7 @@ export class WebGLShaderInstance implements IShaderInstance {
 
 	_create(shaderProcessInfo: ShaderProcessInfo, shaderPass: ShaderPass): void {
 		let shaderObj = GLSLCodeGenerator.GLShaderLanguageProcess3D(shaderProcessInfo.defineString, shaderProcessInfo.attributeMap, shaderProcessInfo.uniformMap, shaderProcessInfo.vs, shaderProcessInfo.ps);
-		this._renderShaderInstance = LayaGL.renderEngine.createShaderInstance(shaderObj.vs, shaderObj.fs, shaderProcessInfo.attributeMap);
+		this._renderShaderInstance = WebGLEngine.instance.createShaderInstance(shaderObj.vs, shaderObj.fs, shaderProcessInfo.attributeMap);
 		if (this._renderShaderInstance._complete) {
 			this._shaderPass = shaderPass;
 			shaderProcessInfo.is2D ? this._create2D() : this._create3D();
@@ -170,8 +173,8 @@ export class WebGLShaderInstance implements IShaderInstance {
 	 * @param shaderDatas 
 	 * @param uploadUnTexture 
 	 */
-	uploadUniforms(shaderUniform: CommandEncoder, shaderDatas: ShaderData, uploadUnTexture: boolean) {
-		Stat.uploadUniform += LayaGL.renderEngine.uploadUniforms(this._renderShaderInstance, shaderUniform, shaderDatas, uploadUnTexture);
+	uploadUniforms(shaderUniform: CommandEncoder, shaderDatas: WebShaderData, uploadUnTexture: boolean) {
+		Stat.uploadUniform +=WebGLEngine.instance.uploadUniforms(this._renderShaderInstance, shaderUniform, shaderDatas, uploadUnTexture);
 	}
 
 	/**
@@ -380,7 +383,7 @@ export class WebGLShaderInstance implements IShaderInstance {
 	 * @internal
 	 */
 	uploadCustomUniform(index: number, data: any): void {
-		LayaGL.renderEngine.uploadCustomUniforms(this._renderShaderInstance, this._customUniformParamsMap, index, data);
+		 WebGLEngine.instance.uploadCustomUniforms(this._renderShaderInstance, this._customUniformParamsMap, index, data);
 	}
 }
 
