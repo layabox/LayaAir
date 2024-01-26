@@ -1,3 +1,4 @@
+import { BlueprintPin } from "../../core/BlueprintPin";
 import { IOutParm } from "../../core/interface/IOutParm";
 import { IRuntimeDataManger } from "../../core/interface/IRuntimeDataManger";
 import { RuntimeNodeData } from "../action/RuntimeNodeData";
@@ -14,6 +15,11 @@ export class BlueprintCustomFunReturn extends BlueprintRuntimeBaseNode {
         return result;
     }
 
+    initData(runTimeData: IRuntimeDataManger, curRunId: number, runId: number, parms: any[], offset: number) {
+        let data = runTimeData.getDataById(this.nid) as BlueprintCustomFunReturnContext;
+        data.initData(curRunId, runId, parms, offset);
+    }
+
 }
 
 export class BlueprintCustomFunReturnContext extends RuntimeNodeData {
@@ -25,6 +31,15 @@ export class BlueprintCustomFunReturnContext extends RuntimeNodeData {
         this.runIdMap = new Map();
     }
 
+    initData(curRunId: number, runId: number, parms: any[], offset: number) {
+        let result: any[] = [];
+        this.returnMap.set(curRunId, result);
+        this.runIdMap.set(curRunId, runId);
+        for (let i = offset; i < parms.length; i++) {
+            result.push(parms[i]);
+        }
+    }
+
     returnResult(runId: number) {
         let result = this.returnMap.get(runId);
         let curRunId = this.runIdMap.get(runId);
@@ -33,6 +48,5 @@ export class BlueprintCustomFunReturnContext extends RuntimeNodeData {
                 parm.setValue(curRunId, this.getParamsArray(runId)[index]);
             })
         }
-
     }
 }

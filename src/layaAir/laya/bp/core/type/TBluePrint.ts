@@ -11,6 +11,7 @@ export type TBPNodeDef = {
 }
 
 export type TBPPinDef = {
+    id: string,
     name: string,
     type: string
 }
@@ -23,7 +24,7 @@ export type TBPNodeData = {
 }
 
 export type TBPLinkInfo = {
-    varname:string;
+    varname: string;
 }
 
 export type TBPPinData = {

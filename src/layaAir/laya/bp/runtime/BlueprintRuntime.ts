@@ -360,7 +360,7 @@ class BluePrintFunBlock extends BluePrintBlock {
         this.funStart = this.getNodeById(bpjson[0].id) as BlueprintCustomFunStart;
         this.excuteList.forEach(value => {
             if (value.type == BPType.CustomFunReturn) {
-                this.funEnds.push(value);
+                this.funEnds.push(value as BlueprintCustomFunReturn);
             }
         })
     }
@@ -370,7 +370,7 @@ class BluePrintFunBlock extends BluePrintBlock {
         this.funStart = this.getNodeById(bpjson[0].id) as BlueprintCustomFunStart;
         this.excuteList.forEach(value => {
             if (value.type == BPType.CustomFunReturn) {
-                this.funEnds.push(value);
+                this.funEnds.push(value as BlueprintCustomFunReturn);
             }
         })
     }
@@ -382,16 +382,9 @@ class BluePrintFunBlock extends BluePrintBlock {
         if (fun) {
             let runtimeDataMgr = context.getDataMangerByID(this.id);
             let curRunId = this.getRunID();
-            let returnNode = this.funEnds[0];
-            if (returnNode) {
-                let data = runtimeDataMgr.getDataById(returnNode.nid) as BlueprintCustomFunReturnContext;
-                let result: any[] = [];
-                data.returnMap.set(curRunId, result);
-                data.runIdMap.set(curRunId, runId);
-                for (let i = fun.outPutParmPins.length; i < parms.length; i++) {
-                    result.push(parms[i]);
-                }
-            }
+            this.funEnds.forEach(value=>{
+                value.initData(runtimeDataMgr,curRunId,runId,parms,fun.outPutParmPins.length);
+            })
 
             if (parms) {
                 fun.outPutParmPins.forEach((value, index) => {

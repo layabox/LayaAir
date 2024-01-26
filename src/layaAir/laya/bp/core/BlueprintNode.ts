@@ -9,15 +9,15 @@ import { INodeManger } from "./interface/INodeManger";
 import { TBPNodeDef, TBPPinData, TBPPinDef } from "./type/TBluePrint";
 
 export abstract class BlueprintNode<T extends BlueprintPin>{
-    static ExecInput: TBPPinDef[] = [{
-        name: "execute",
-        type: "exec"
-    }]
+    // static ExecInput: TBPPinDef[] = [{
+    //     name: "execute",
+    //     type: "exec"
+    // }]
 
-    static ExecOutput: TBPPinDef[] = [{
-        name: "then",
-        type: "exec"
-    }]
+    // static ExecOutput: TBPPinDef[] = [{
+    //     name: "then",
+    //     type: "exec"
+    // }]
     id: string;
     nid: number;
     name: string;
@@ -101,6 +101,10 @@ export abstract class BlueprintNode<T extends BlueprintPin>{
         if (node.input) {//输入pin
             for (const key in node.input) {
                 let pin = this.getPinByName(key);
+                if (!pin) {
+                    console.error("not find pin " + key);
+                    continue;
+                }
                 let item = node.input[key];
 
                 if (item.value != undefined) {
@@ -115,6 +119,10 @@ export abstract class BlueprintNode<T extends BlueprintPin>{
         if (node.output) {//输出pin
             for (const key in node.output) {
                 let pin = this.getPinByName(key);
+                if (!pin) {
+                    console.error("not find pin " + key);
+                    continue;
+                }
                 let item = node.output[key];
                 let infoArr = item.infoArr;
                 for (let i = 0, len = infoArr.length; i < len; i++) {
@@ -122,6 +130,10 @@ export abstract class BlueprintNode<T extends BlueprintPin>{
                     let nextNode = manger.getNodeById(info.nodeId);
                     if (nextNode) {
                         let pinnext = nextNode.getPinByName(info.id);
+                        if (!pinnext) {
+                            console.error("not find to pin " + key);
+                            continue;
+                        }
                         pin.startLinkTo(pinnext);
                     }
                     else {
@@ -164,8 +176,8 @@ export abstract class BlueprintNode<T extends BlueprintPin>{
         })
     }
 
-    getPinByName(name: string): T {
-        return this.pins.find((pin) => { return pin.name == name });
+    getPinByName(id: string): T {
+        return this.pins.find((pin) => { return pin.nid == id });
     }
 
 }

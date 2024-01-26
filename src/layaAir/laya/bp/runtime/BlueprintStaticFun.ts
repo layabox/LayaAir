@@ -23,7 +23,7 @@ export class BlueprintStaticFun {
      * @returns 
      */
     static switchFun(outExcutes: BlueprintPinRuntime[], input: any): BlueprintPinRuntime {
-        return outExcutes.find((item) => item.name == input) || outExcutes.find((item) => item.name == "default");
+        return outExcutes.find((item) => item.nid == input) || outExcutes.find((item) => item.nid == "default");
     }
     /**
      * 打印

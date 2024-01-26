@@ -16,6 +16,7 @@ export class BlueprintPin {
     }
     id: string;
     name: string;
+    nid: string;
     type: EPinType;
     otype: string;
     linkTo: BlueprintPin[];
@@ -26,6 +27,7 @@ export class BlueprintPin {
 
     parse(def: TBPPinDef) {
         this.name = def.name;
+        this.nid = def.id || def.name;
         this.otype = def.type;
         switch (def.type) {
             case "exec":
