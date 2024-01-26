@@ -218,7 +218,8 @@ export class BlueprintImpl extends Resource {
                         let input = inputs[j];
                         let param: TBPDeclarationParam = {
                             name: input.name,
-                            type: input.type
+                            type: input.type,
+                            id: input.id,
                         }
                         params.push(param);
                     }
@@ -230,7 +231,7 @@ export class BlueprintImpl extends Resource {
                     let returnType: any[] = [];
                     for (let j = 0, len = outputs.length; j < len; j++) {
                         let output = outputs[j];
-                        returnType.push({ name: output.name, type: output.type });
+                        returnType.push({ name: output.name, type: output.type, id: output.id });
                     }
                     func.returnType = returnType;
                 }

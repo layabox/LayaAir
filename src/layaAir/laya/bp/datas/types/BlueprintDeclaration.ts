@@ -118,6 +118,7 @@ export type TBPDeclarationFunction = {
 }
 
 export type TBPDeclarationParam = {
+    id?:number;
     /** 参数名称 */
     name: string;
     /** 参数类型 */
