@@ -65,8 +65,9 @@ export class BlueprintRuntime {
         return null;
     }
 
-    parse(bpjson: Array<TBPNode>, getCNodeByNode: (node: TBPNode) => TBPCNode, varMap: Record<string, TBPVarProperty>) {
+    parse(bpjson: Array<TBPNode>, getCNodeByNode: (node: TBPNode) => TBPCNode, varMap: Record<string, TBPVarProperty>, newCls: Function) {
         this.mainBlock.dataMap = this.dataMap;
+        this.mainBlock.cls = newCls;
         this.mainBlock.parse(bpjson, getCNodeByNode, varMap);
     }
 
@@ -186,6 +187,11 @@ class BluePrintBlock implements INodeManger<BlueprintRuntimeBaseNode>, IBPRutime
             this.parse(bpjson, getCNodeByNode, varMap);
         }
     }
+
+    protected onEventParse(eventName: string) {
+
+    }
+
     //check ready?
     private _checkReady(bpjson: Array<TBPNode>, getCNodeByNode: (node: TBPNode) => TBPCNode, varMap: Record<string, TBPVarProperty>): boolean {
         bpjson.forEach(item => {
@@ -201,6 +207,11 @@ class BluePrintBlock implements INodeManger<BlueprintRuntimeBaseNode>, IBPRutime
                 }
                 else {
                     this._pendingClass.set(classID, [item.id]);
+                }
+            }
+            else {
+                if (itemdef.type == BPType.Event && item.output && item.output["then"]) {
+                    this.onEventParse(itemdef.name);
                 }
             }
         });
@@ -268,7 +279,7 @@ class BluePrintBlock implements INodeManger<BlueprintRuntimeBaseNode>, IBPRutime
             enableDebugPause = true;
             if (index instanceof BlueprintPromise) {
                 index.wait((mis: BlueprintPromise) => {
-                    this.runByContext(context, runTimeData, mis, enableDebugPause, cb, runId);
+                    this.runByContext(context, runTimeData, mis, mis.enableDebugPause != undefined ? mis.enableDebugPause : enableDebugPause, cb, runId);
                 })
                 return false;
             }
@@ -289,12 +300,22 @@ class BluePrintMainBlock extends BluePrintBlock {
         this.eventMap = new Map();
     }
     eventMap: Map<any, BlueprintEventNode>;
+    cls: Function;
     optimize() {
         super.optimize();
         this.eventMap.forEach(value => {
             this.optimizeByStart(value, this.excuteList);
             // let 
         });
+    }
+
+    protected onEventParse(eventName: string) {
+        let cls = this.cls;
+        let originFunc: Function = cls.prototype[eventName];
+        cls.prototype[eventName] = function (...args: any[]) {
+            originFunc && originFunc.call(this, args);
+            this[BlueprintFactory.bpSymbol].run(this[BlueprintFactory.contextSymbol], eventName, args);
+        }
     }
 
     append(node: BlueprintRuntimeBaseNode) {

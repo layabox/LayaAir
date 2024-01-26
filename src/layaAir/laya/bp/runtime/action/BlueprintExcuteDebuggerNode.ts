@@ -5,15 +5,22 @@ import { BlueprintExcuteNode } from "./BlueprintExcuteNode";
 import { IBPRutime } from "../interface/IBPRutime";
 import { IExcuteListInfo } from "../../core/interface/IExcuteListInfo";
 import { IRuntimeDataManger } from "../../core/interface/IRuntimeDataManger";
+import { BlueprintDebuggerManager } from "../debugger/BlueprintDebuggerManager";
 
 export class BlueprintExcuteDebuggerNode extends BlueprintExcuteNode implements IRunAble {
+    debuggerPause: boolean;
+    debuggerManager: BlueprintDebuggerManager;
+
+    private _doNext: any;
     private _nodeList: IExcuteListInfo[] = [];
+
+    constructor(data: any) {
+        super(data);
+    }
 
     pushBack(excuteNode: IExcuteListInfo): void {
         this._nodeList.push(excuteNode);
     }
-    debuggerPause: boolean;
-    private _doNext: any;
 
     next() {
         let fun = this._doNext
@@ -26,20 +33,25 @@ export class BlueprintExcuteDebuggerNode extends BlueprintExcuteNode implements 
     beginExcute(runtimeNode: BlueprintRuntimeBaseNode, runner: IBPRutime, enableDebugPause: boolean): boolean {
         //throw new Error("Method not implemented.");
         if (enableDebugPause) {
-            this.debuggerPause = true;
-            this._doNext = () => {
-                this.debuggerPause = false;
-                let runtimeDataMgr = this.getDataMangerByID(runtimeNode.listIndex);
-                runner.runByContext(this, runtimeDataMgr, runtimeNode, false, null, -1);
-                if (!this.debuggerPause) {
-                    if (this._nodeList.length > 0) {
-                        runner.runByContext(this, runtimeDataMgr, this._nodeList.pop(), true, null, -1);
+            if (runtimeNode.hasDebugger || this.debuggerManager.debugging) {
+                this.debuggerPause = true;
+                this._doNext = () => {
+                    this.debuggerPause = false;
+                    let runtimeDataMgr = this.getDataMangerByID(runtimeNode.listIndex);
+                    runner.runByContext(this, runtimeDataMgr, runtimeNode, false, null, -1);
+                    if (!this.debuggerPause) {
+                        if (this._nodeList.length > 0) {
+                            runner.runByContext(this, runtimeDataMgr, this._nodeList.pop(), true, null, -1);
+                        }
                     }
                 }
+                console.log(this);
+                console.log(runtimeNode.name + "断住了");
+                this.debuggerManager.pause(this);
+                return true;
+            } else {
+                return false;
             }
-            console.log(this);
-            console.log(runtimeNode.name + "断住了");
-            return true;
         }
 
         if (this.listNode.indexOf(runtimeNode) == -1) {
@@ -50,14 +62,12 @@ export class BlueprintExcuteDebuggerNode extends BlueprintExcuteNode implements 
         }
         else {
             return false;
-            console.error("检测到有死循环");
-            return true;
         }
     }
 
-    excuteFun(nativeFun: Function, outPutParmPins: BlueprintPinRuntime[], runTimeData: IRuntimeDataManger, caller: any, parmsArray: any[], runId: number): void {
+    excuteFun(nativeFun: Function, outPutParmPins: BlueprintPinRuntime[], runTimeData: IRuntimeDataManger, caller: any, parmsArray: any[], runId: number) {
 
-        super.excuteFun(nativeFun, outPutParmPins, runTimeData, caller, parmsArray, runId);
+        return super.excuteFun(nativeFun, outPutParmPins, runTimeData, caller, parmsArray, runId);
 
     }
 
