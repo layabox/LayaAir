@@ -75,7 +75,7 @@ export class IndexBuffer3D {
 		}
 		var byteLength: number = this._indexTypeByteCount * indexCount;
 		this._byteLength = byteLength;
-		this._deviceBuffer._setIndexData(byteLength);
+		this._deviceBuffer._setIndexDataLength(byteLength);
 		if (canRead) {
 			switch (indexType) {
 				case IndexFormat.UInt32:
