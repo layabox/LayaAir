@@ -210,7 +210,7 @@ class BluePrintBlock implements INodeManger<BlueprintRuntimeBaseNode>, IBPRutime
                 }
             }
             else {
-                if (itemdef.type == BPType.Event) {
+                if (itemdef.type == BPType.Event && item.output && item.output["then"]) {
                     this.onEventParse(itemdef.name);
                 }
             }
