@@ -127,7 +127,7 @@ export class BlueprintStaticFun {
      * @param name 
      * @param context 
      */
-    static typeInstanceof(outExcutes: BlueprintPinRuntime[], target: any, type: any) {
+    static typeInstanceof<T>(outExcutes: BlueprintPinRuntime[], target: any, type:new()=>T ) {
         let b;
         if (typeof (type) == 'string') {
             b = typeof (target) == type;
