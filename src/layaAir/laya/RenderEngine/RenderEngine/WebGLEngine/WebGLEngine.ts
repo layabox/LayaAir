@@ -16,7 +16,6 @@ import { IRenderDrawContext } from "../../RenderInterface/IRenderDrawContext";
 import { IRenderEngine } from "../../RenderInterface/IRenderEngine";
 import { IRenderEngineFactory } from "../../RenderInterface/IRenderEngineFactory";
 import { IRenderShaderInstance } from "../../RenderInterface/IRenderShaderInstance";
-import { IRenderVertexState } from "../../RenderInterface/IRenderVertexState";
 import { ITextureContext } from "../../RenderInterface/ITextureContext";
 import { ShaderVariable } from "../../RenderShader/ShaderVariable";
 import { RenderStateCommand } from "../../RenderStateCommand";
@@ -127,7 +126,7 @@ export class WebGLEngine implements IRenderEngine {
 
     //GPU统计数据
     private _GLStatisticsInfo: Map<RenderStatisticsInfo, number> = new Map();
-
+    static instance:WebGLEngine;
     constructor(config: WebGlConfig, webglMode: WebGLMode = WebGLMode.Auto) {
         this._config = config;
         this._isWebGL2 = false;
@@ -137,6 +136,7 @@ export class WebGLEngine implements IRenderEngine {
         this._lastScissor = new Vector4(0, 0, 0, 0);
         this._webglMode = webglMode;
         this._initStatisticsInfo();
+        WebGLEngine.instance = this;
     }
 
     /**
@@ -378,7 +378,7 @@ export class WebGLEngine implements IRenderEngine {
         return new GLShaderInstance(this, vs, ps, attributeMap);
     }
 
-    createVertexState(): IRenderVertexState {
+    createVertexState(): GLVertexState {
         return new GLVertexState(this);
     }
 

@@ -9,14 +9,12 @@ import { IRenderBuffer } from "../../RenderInterface/IRenderBuffer";
 import { IRenderDrawContext } from "../../RenderInterface/IRenderDrawContext";
 import { IRenderEngine } from "../../RenderInterface/IRenderEngine";
 import { IRenderShaderInstance } from "../../RenderInterface/IRenderShaderInstance";
-import { IRenderVertexState } from "../../RenderInterface/IRenderVertexState";
 import { ITextureContext } from "../../RenderInterface/ITextureContext";
 import { RenderStateCommand } from "../../RenderStateCommand";
 import { NativeGL2TextureContext } from "./NativeGL2TextureContext";
 import { WebGLMode } from "../WebGLEngine/GLEnum/WebGLMode";
 import { NativeGLRender2DContext } from "./NativeGLRender2DContext";
 import { NativeGLTextureContext } from "./NativeGLTextureContext";
-import { NativeGLVertexState } from "./NativeGLVertexState";
 import { WebGlConfig } from "../WebGLEngine/WebGLConfig";
 import { NativeGLRenderDrawContext } from "./NativeGLRenderDrawContext";
 import { RenderStatisticsInfo } from "../../RenderEnum/RenderStatInfo";
@@ -170,9 +168,7 @@ export class NativeWebGLEngine implements IRenderEngine {
     throw new Error("Method not implemented.");
   }
 
-  createVertexState(): IRenderVertexState {
-    return new NativeGLVertexState(this);
-  }
+
 
   getTextureContext(): ITextureContext {
     return this._GLTextureContext;

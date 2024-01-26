@@ -1,23 +1,22 @@
-import { Config3D } from "../../../Config3D";
-import { CommandEncoder } from "../../layagl/CommandEncoder";
-import { CullMode } from "../../RenderEngine/RenderEnum/CullMode";
-import { IRenderShaderInstance } from "../../RenderEngine/RenderInterface/IRenderShaderInstance";
-import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
-import { ShaderPass } from "../../RenderEngine/RenderShader/ShaderPass";
-import { ShaderVariable } from "../../RenderEngine/RenderShader/ShaderVariable";
-import { ShaderCompileDefineBase, ShaderProcessInfo } from "../../webgl/utils/ShaderCompileDefineBase";
-import { GLSLCodeGenerator } from "./GLSLCodeGenerator";
-import { RenderStateContext } from "../../RenderEngine/RenderStateContext";
-import { Stat } from "../../utils/Stat";
-import { LayaGL } from "../../layagl/LayaGL";
-import { IShaderInstance } from "../RenderInterface/RenderPipelineInterface/IShaderInstance";
-import { RenderState } from "../../RenderDriver/RenderModuleData/Design/RenderState";
-import { ShaderData } from "../../RenderDriver/RenderModuleData/Design/ShaderData";
+import { CullMode } from "../../../RenderEngine/RenderEnum/CullMode";
+import { IRenderShaderInstance } from "../../../RenderEngine/RenderInterface/IRenderShaderInstance";
+import { GLSLCodeGenerator } from "../../../RenderEngine/RenderShader/GLSLCodeGenerator";
+import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
+import { ShaderPass } from "../../../RenderEngine/RenderShader/ShaderPass";
+import { ShaderVariable } from "../../../RenderEngine/RenderShader/ShaderVariable";
+import { RenderStateContext } from "../../../RenderEngine/RenderStateContext";
+import { CommandEncoder } from "../../../layagl/CommandEncoder";
+import { LayaGL } from "../../../layagl/LayaGL";
+import { Stat } from "../../../utils/Stat";
+import { ShaderCompileDefineBase, ShaderProcessInfo } from "../../../webgl/utils/ShaderCompileDefineBase";
+import { IShaderInstance } from "../../DriverDesign/RenderDevice/IShaderInstance";
+import { RenderState } from "../../RenderModuleData/Design/RenderState";
+import { ShaderData } from "../../RenderModuleData/Design/ShaderData";
 
 /**
  * <code>ShaderInstance</code> 类用于实现ShaderInstance。
  */
-export class ShaderInstance implements IShaderInstance {
+export class WebGLShaderInstance implements IShaderInstance {
 	/**@internal */
 	private _shaderPass: ShaderCompileDefineBase | ShaderPass;
 

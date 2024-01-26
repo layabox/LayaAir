@@ -11,17 +11,20 @@ import { WebGLRenderEngine3DFactory } from "laya/d3/RenderObjs/WebGLOBJ/WebGLRen
 import { WebUnitRenderModuleDataFactory } from "laya/RenderDriver/RenderModuleData/WebModuleData/WebUnitRenderModuleDataFactory"
 import { Web3DRenderModuleFactory } from "laya/RenderDriver/RenderModuleData/WebModuleData/3D/Web3DRenderModuleFactory"
 import {WebGL3DRenderPassFactory} from "laya/RenderDriver/WebglDriver/3DRenderPass/WebGL3DRenderPassFactory"
+import {WebGLRenderDeviceFactory} from "laya/RenderDriver/WebglDriver/RenderDevice/WebGLRenderDeviceFactory"
 import { LayaGL } from "laya/layagl/LayaGL";
 export class SceneLoad1 {
 	constructor() {
 		//Laya3DRender.renderDriverPassCreate = new GLESRenderDriverPassFactory();
 		LayaGL.unitRenderModuleDataFactory = new WebUnitRenderModuleDataFactory();
+		LayaGL.renderDeviceFactory = new WebGLRenderDeviceFactory();
 		Laya3DRender.renderOBJCreate = new WebGLRenderEngine3DFactory();
 		Laya3DRender.Render3DModuleDataFactory = new Web3DRenderModuleFactory();
 		Laya3DRender.Render3DPassFactory = new WebGL3DRenderPassFactory();
+
 		//初始化引擎
 		Laya.init(0, 0).then(() => {
-			Stat.show();
+			//Stat.show();
 			Laya.stage.scaleMode = Stage.SCALE_FULL;
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
 			Shader3D.debugMode = true;

@@ -1181,7 +1181,7 @@ export class Scene3D extends Sprite implements ISubmit {
      */
     renderSubmit(): number {
         if (this._renderByEditor) return 1;
-        BufferState._curBindedBufferState && BufferState._curBindedBufferState.unBind();
+        //BufferState._curBindedBufferState && BufferState._curBindedBufferState.unBind();
         this._prepareSceneToRender();
         var i: number, n: number, n1: number;
         Scene3D._updateMark++;

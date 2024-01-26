@@ -1577,7 +1577,7 @@ export class ShurikenParticleSystem extends GeometryElement implements IClone {
                     // }
 
                     this._indexStride = mesh._indexBuffer.indexCount;
-                    var indexDatas: Uint16Array = mesh._indexBuffer.getData();
+                    var indexDatas: Uint16Array = mesh._indexBuffer.getData() as Uint16Array;
                     var indexCount: number = this._bufferMaxParticles * this._indexStride;
                     this._indexBuffer = Laya3DRender.renderOBJCreate.createIndexBuffer3D(IndexFormat.UInt16, indexCount, BufferUsage.Static, false);
                     indices = new Uint16Array(indexCount);

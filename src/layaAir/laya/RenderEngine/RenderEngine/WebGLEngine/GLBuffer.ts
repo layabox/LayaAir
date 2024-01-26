@@ -108,22 +108,6 @@ export class GLBuffer extends GLObject implements IRenderBuffer {
         gl.bufferSubData(this._glTarget, offset, srcData as ArrayBufferView, 0, length);
         this.unbindBuffer();
     }
-    // setData(srcData: ArrayBuffer | ArrayBufferView | number, offset?: number, length?: number): void {
-    //     let gl = this._gl;
-    //     this.bindBuffer();
-    //     if (typeof srcData == "number") {
-    //         this._byteLength = srcData as number;
-    //         gl.bufferData(this._glTarget, this._byteLength, this._glUsage);
-    //     }
-    //     if (offset != undefined && length == undefined) {
-    //         gl.bufferSubData(this._glTarget, offset, <ArrayBufferView>srcData);
-    //     }
-    //     if(offset != undefined && length != undefined) {
-    //         gl.bufferSubData(this._glTarget, offset, srcData as ArrayBufferView, 0, length);
-    //     }
-    //     this.unbindBuffer();
-    // }
-
 
     //TODO:
     bindBufferBase(glPointer: number) {

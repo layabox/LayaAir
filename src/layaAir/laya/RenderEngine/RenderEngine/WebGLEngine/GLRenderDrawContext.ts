@@ -1,4 +1,4 @@
-import { RenderGeometryElementOBJ } from "../../../d3/RenderObjs/WebGLOBJ/RenderGeometryElementOBJ";
+import { WebGLRenderGeometryElement } from "../../../RenderDriver/WebglDriver/RenderDevice/RenderGeometryElementOBJ";
 import { DrawType } from "../../RenderEnum/DrawType";
 import { IndexFormat } from "../../RenderEnum/IndexFormat";
 import { MeshTopology } from "../../RenderEnum/RenderPologyMode";
@@ -132,7 +132,7 @@ export class GLRenderDrawContext extends GLObject implements IRenderDrawContext 
      * @internal
      * @param geometryElement 
      */
-    drawGeometryElement(geometryElement: RenderGeometryElementOBJ): void {
+    drawGeometryElement(geometryElement: WebGLRenderGeometryElement): void {
         geometryElement.bufferState.bind();
         let element = geometryElement.drawParams.elements;
         let length = geometryElement.drawParams.length;

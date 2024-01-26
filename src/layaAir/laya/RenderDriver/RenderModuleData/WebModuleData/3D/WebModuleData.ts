@@ -1,7 +1,7 @@
-import { IShaderInstance } from "../../../../RenderEngine/RenderInterface/RenderPipelineInterface/IShaderInstance";
 import { ShaderPass } from "../../../../RenderEngine/RenderShader/ShaderPass";
 import { Transform3D } from "../../../../d3/core/Transform3D";
 import { Matrix4x4 } from "../../../../maths/Matrix4x4";
+import { IShaderInstance } from "../../../DriverDesign/RenderDevice/IShaderInstance";
 import { ICameraNodeData, ISceneNodeData, IShaderPassData, ISubshaderData } from "../../Design/3D/I3DRenderModuleData";
 import { RenderState } from "../../Design/RenderState";
 import { WebDefineDatas } from "../WebDefineDatas";

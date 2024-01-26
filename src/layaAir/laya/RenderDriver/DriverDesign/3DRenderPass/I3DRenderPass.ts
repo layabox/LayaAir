@@ -1,4 +1,4 @@
-import { IRenderGeometryElement } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderGeometryElement";
+
 import { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
 import { Camera } from "../../../d3/core/Camera";
 import { Transform3D } from "../../../d3/core/Transform3D";
@@ -11,6 +11,7 @@ import { DepthTextureMode } from "../../../resource/RenderTexture";
 import { SingletonList } from "../../../utils/SingletonList";
 import { IDirectLightData, ICameraNodeData, IBaseRenderNode, ISceneNodeData } from "../../RenderModuleData/Design/3D/I3DRenderModuleData";
 import { ShaderData } from "../../RenderModuleData/Design/ShaderData";
+import { IRenderGeometryElement } from "../RenderDevice/IRenderGeometryElement";
 import { InternalRenderTarget } from "../RenderDevice/InternalRenderTarget";
 
 export interface ISpotLightShadowRP {

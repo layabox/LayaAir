@@ -2,18 +2,17 @@ import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { DrawType } from "../../../RenderEngine/RenderEnum/DrawType";
 import { IndexFormat } from "../../../RenderEngine/RenderEnum/IndexFormat";
 import { MeshTopology } from "../../../RenderEngine/RenderEnum/RenderPologyMode";
-import { IRenderGeometryElement } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderGeometryElement";
 import { Vector3 } from "../../../maths/Vector3";
 import { Sprite3D } from "../../core/Sprite3D";
 import { IndexBuffer3D } from "../../graphics/IndexBuffer3D";
 import { VertexBuffer3D } from "../../graphics/VertexBuffer3D";
 import { BoundsImpl } from "../../math/BoundsImpl";
 import { InstanceRenderElementOBJ } from "../RenderObj/InstanceRenderElementOBJ";
-import { RenderGeometryElementOBJ } from "../WebGLOBJ/RenderGeometryElementOBJ";
 import { SceneRenderManagerOBJ } from "../RenderObj/SceneRenderManagerOBJ";
 import { WGPURenderContext3D } from "./WGPURenderContext3D";
 import { WGPURenderElementObJ } from "./WGPURenderElementObJ";
 import { Transform3D } from "../../core/Transform3D";
+import { IRenderGeometryElement } from "../../../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
 
 export class WGPURenderEngine3DOBJFactory {
     createTransform(owner: Sprite3D): Transform3D {
@@ -57,7 +56,8 @@ export class WGPURenderEngine3DOBJFactory {
     }
     
     createRenderGeometry(mode: MeshTopology, drayType: DrawType): IRenderGeometryElement {
-        return new RenderGeometryElementOBJ(mode, drayType);
+        return null;
+        //return new RenderGeometryElementOBJ(mode, drayType);
     }
 
     // createBaseRenderNode(): BaseRenderNode {

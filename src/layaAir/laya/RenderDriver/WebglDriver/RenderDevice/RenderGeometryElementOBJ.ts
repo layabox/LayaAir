@@ -1,11 +1,12 @@
+import { IRenderGeometryElement } from "../../../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
 import { GLRenderDrawContext } from "../../../RenderEngine/RenderEngine/WebGLEngine/GLRenderDrawContext";
 import { DrawType } from "../../../RenderEngine/RenderEnum/DrawType";
 import { IndexFormat } from "../../../RenderEngine/RenderEnum/IndexFormat";
 import { MeshTopology } from "../../../RenderEngine/RenderEnum/RenderPologyMode";
-import { IRenderGeometryElement } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderGeometryElement";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { SingletonList } from "../../../utils/SingletonList";
 import { BufferState } from "../../../webgl/utils/BufferState";
+import { WebGLBufferState } from "./WebGLBufferState";
 
 export class FastSinglelist<T> extends SingletonList<T> {
 
@@ -21,9 +22,9 @@ export class FastSinglelist<T> extends SingletonList<T> {
 
 }
 
-export class RenderGeometryElementOBJ implements IRenderGeometryElement {
+export class WebGLRenderGeometryElement implements IRenderGeometryElement {
   /**@internal */
-  bufferState: BufferState;
+  bufferState: WebGLBufferState;
 
   /**@internal */
   private _mode: MeshTopology;

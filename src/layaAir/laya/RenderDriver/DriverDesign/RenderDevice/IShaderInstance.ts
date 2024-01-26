@@ -1,5 +1,5 @@
+import { ShaderPass } from "../../../RenderEngine/RenderShader/ShaderPass";
 import { ShaderProcessInfo } from "../../../webgl/utils/ShaderCompileDefineBase";
-import { ShaderPass } from "../../RenderShader/ShaderPass";
 
 export interface IShaderInstance {
     _create(shaderProcessInfo: ShaderProcessInfo, shaderPass: ShaderPass): void

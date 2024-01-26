@@ -1,8 +1,7 @@
+import { IShaderInstance } from "../../RenderDriver/DriverDesign/RenderDevice/IShaderInstance";
 import { IDefineDatas } from "../../RenderDriver/RenderModuleData/Design/IDefineDatas";
 import { ShaderDataType } from "../../RenderDriver/RenderModuleData/Design/ShaderData";
-import { IShaderInstance } from "../../RenderEngine/RenderInterface/RenderPipelineInterface/IShaderInstance";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
-import { ShaderInstance } from "../../RenderEngine/RenderShader/ShaderInstance";
 import { SubShader, UniformMapType } from "../../RenderEngine/RenderShader/SubShader";
 import { LayaGL } from "../../layagl/LayaGL";
 import { IShaderCompiledObj } from "./ShaderCompile";
@@ -38,8 +37,6 @@ export class ShaderCompileDefineBase {
     name: string;
 
     nodeCommonMap: Array<string>;
-    /** @internal */
-    protected _cacheSharders: { [key: number]: { [key: number]: { [key: number]: ShaderInstance } } } = {};
 
     constructor(owner: any, name: string, compiledObj: IShaderCompiledObj) {
         this._owner = owner;

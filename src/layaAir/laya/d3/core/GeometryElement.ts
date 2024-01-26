@@ -1,11 +1,11 @@
 import { RenderContext3D } from "./render/RenderContext3D"
-import { IRenderGeometryElement } from "../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderGeometryElement";
 import { MeshTopology } from "../../RenderEngine/RenderEnum/RenderPologyMode";
 import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
 import { DrawType } from "../../RenderEngine/RenderEnum/DrawType";
 import { BufferState } from "../../webgl/utils/BufferState";
-import { LayaGL } from "../../layagl/LayaGL";
 import { Laya3DRender } from "../RenderObjs/Laya3DRender";
+import { IRenderGeometryElement } from "../../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
+import { LayaGL } from "../../layagl/LayaGL";
 
 /**
  * <code>GeometryElement</code> 类用于实现几何体元素,该类为抽象类。
@@ -20,15 +20,17 @@ export class GeometryElement {
 	_geometryElementOBj: IRenderGeometryElement;
 	/** @internal */
 	_id: number;
+	protected _bufferState:BufferState;
 	/**
 	 * VAO OBJ
 	 */
 	set bufferState(value: BufferState) {
-		this._geometryElementOBj.bufferState = value;
+		this._geometryElementOBj.bufferState = value._deviceBufferState;
+		this._bufferState = value;
 	}
 
 	get bufferState(): BufferState {
-		return this._geometryElementOBj.bufferState;
+		return this._bufferState;
 	}
 
 	/**
@@ -93,7 +95,7 @@ export class GeometryElement {
 	 */
 	constructor(mode: MeshTopology, drawType: DrawType) {
 		this._destroyed = false;
-		this._geometryElementOBj = Laya3DRender.renderOBJCreate.createRenderGeometry(mode, drawType);
+		this._geometryElementOBj = LayaGL.renderDeviceFactory.createRenderGeometryElement(mode, drawType);
 		this._id = ++GeometryElement._uniqueIDCounter;
 	}
 

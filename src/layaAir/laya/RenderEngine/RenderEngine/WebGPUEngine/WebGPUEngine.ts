@@ -12,7 +12,6 @@ import { IRender2DContext } from "../../RenderInterface/IRender2DContext";
 import { IRenderDrawContext } from "../../RenderInterface/IRenderDrawContext";
 import { IRenderEngine } from "../../RenderInterface/IRenderEngine";
 import { IRenderShaderInstance } from "../../RenderInterface/IRenderShaderInstance";
-import { IRenderVertexState } from "../../RenderInterface/IRenderVertexState";
 import { RenderStateCommand } from "../../RenderStateCommand";
 import { WebGPUBuffer } from "./WebGPUBuffer";
 import { WebGPUConfig } from "./WebGPUConfig";
@@ -350,9 +349,7 @@ export class WebGPUEngine implements IRenderEngine {
         }
         return new WebGPUBuffer(this, usage, 0);
     }
-    createVertexState(): IRenderVertexState {
-        return null;
-    }
+
     getUBOPointer(name: string): number {
         throw new Error("Method not implemented.");
     }

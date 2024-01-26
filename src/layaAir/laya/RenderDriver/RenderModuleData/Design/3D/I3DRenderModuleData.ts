@@ -1,4 +1,3 @@
-import { IShaderInstance } from "../../../../RenderEngine/RenderInterface/RenderPipelineInterface/IShaderInstance";
 import { Transform3D } from "../../../../d3/core/Transform3D";
 import { ShadowCascadesMode } from "../../../../d3/core/light/ShadowCascadesMode";
 import { ShadowMode } from "../../../../d3/core/light/ShadowMode";
@@ -11,6 +10,7 @@ import { Vector3 } from "../../../../maths/Vector3";
 import { Vector4 } from "../../../../maths/Vector4";
 import { Material } from "../../../../resource/Material";
 import { IRenderElement3D } from "../../../DriverDesign/3DRenderPass/I3DRenderPass";
+import { IShaderInstance } from "../../../DriverDesign/RenderDevice/IShaderInstance";
 import { InternalTexture } from "../../../DriverDesign/RenderDevice/InternalTexture";
 import { IDefineDatas } from "../IDefineDatas";
 import { RenderState } from "../RenderState";

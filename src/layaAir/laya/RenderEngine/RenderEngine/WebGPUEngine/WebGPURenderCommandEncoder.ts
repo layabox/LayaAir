@@ -1,8 +1,8 @@
+import { IRenderGeometryElement } from "../../../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
 import { WGPURenderPipeline } from "../../../d3/RenderObjs/WebGPUOBJ/WebGPURenderPipelineHelper";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { DrawType } from "../../RenderEnum/DrawType";
 import { IndexFormat } from "../../RenderEnum/IndexFormat";
-import { IRenderGeometryElement } from "../../RenderInterface/RenderPipelineInterface/IRenderGeometryElement";
 import { WebGPUBuffer } from "./WebGPUBuffer";
 import { WebGPUEngine } from "./WebGPUEngine";
 
@@ -66,14 +66,14 @@ export class WebGPURenderCommandEncoder {
             let vertexbuffers = geometry.bufferState._vertexBuffers;
             let indexbuffer = geometry.bufferState._bindedIndexBuffer;
             for (let i = 0; i < vertexbuffers.length; i++) {
-                this.renderpassEncoder.setVertexBuffer(state.vertexlayout.VAElements[i][0].shaderLocation,
-                    (vertexbuffers[i]._glBuffer as WebGPUBuffer)._gpuBuffer);
+               // this.renderpassEncoder.setVertexBuffer(state.vertexlayout.VAElements[i][0].shaderLocation,
+                    //(vertexbuffers[i]._glBuffer as WebGPUBuffer)._gpuBuffer);
                 // this.renderpassEncoder.setVertexBuffer(state.vertexlayout.VAElements[i][0].shaderLocation,
                 //     (this.obb as any).vb);
             }
             if (indexbuffer) {
                 let format: GPUIndexFormat = (geometry.indexFormat == IndexFormat.UInt16) ? "uint16" : "uint32";
-                this.renderpassEncoder.setIndexBuffer((indexbuffer._glBuffer as WebGPUBuffer)._gpuBuffer, format);
+                //this.renderpassEncoder.setIndexBuffer((indexbuffer._glBuffer as WebGPUBuffer)._gpuBuffer, format);
                 // let format: GPUIndexFormat = (geometry.indexFormat == IndexFormat.UInt16) ? "uint16" : "uint32";
                 // this.renderpassEncoder.setIndexBuffer((this.obb as any).ib, format);
             }

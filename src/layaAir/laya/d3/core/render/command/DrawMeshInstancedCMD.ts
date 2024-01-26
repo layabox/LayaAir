@@ -159,8 +159,8 @@ export class DrawMeshInstancedCMD extends Command {
         }
         let instanceBufferState = this._instanceBufferState;
 
-        let vertexArray: Array<VertexBuffer> = [];
-        let meshVertexBuffer = this._mesh._bufferState._vertexBuffers;
+        let vertexArray: Array<VertexBuffer3D> = [];
+        let meshVertexBuffer = this._mesh._bufferState._vertexBuffers as VertexBuffer3D[];
         meshVertexBuffer.forEach(element => {
             vertexArray.push(element);
         });
@@ -186,7 +186,7 @@ export class DrawMeshInstancedCMD extends Command {
             worldMatrixData.set(this._matrixs[i].elements, i * 16);
         }
         let worldBuffer: VertexBuffer3D = this._instanceWorldMatrixBuffer;
-        worldBuffer.orphanStorage();
+        //worldBuffer.setData();
         worldBuffer.setData(worldMatrixData.buffer, 0, 0, count * 64);
     }
 

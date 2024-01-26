@@ -1,8 +1,8 @@
 import { LayaGL } from "../../../layagl/LayaGL";
-import { IShaderInstance } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IShaderInstance";
+import { IShaderInstance } from "../../../RenderDriver/DriverDesign/RenderDevice/IShaderInstance";
 import { GLSLCodeGenerator } from "../../../RenderEngine/RenderShader/GLSLCodeGenerator";
 import { ShaderPass } from "../../../RenderEngine/RenderShader/ShaderPass";
-import { ShaderCompileDefineBase, ShaderProcessInfo } from "../../../webgl/utils/ShaderCompileDefineBase";
+import {  ShaderProcessInfo } from "../../../webgl/utils/ShaderCompileDefineBase";
 
 /**
  * @internal

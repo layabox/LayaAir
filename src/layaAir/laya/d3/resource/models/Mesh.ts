@@ -711,7 +711,7 @@ export class Mesh extends Resource implements IClone {
      * 获取顶点声明。
      */
     getVertexDeclaration(): VertexDeclaration {
-        return this._vertexBuffer._vertexDeclaration;
+        return this._vertexBuffer.vertexDeclaration;
     }
 
     /**

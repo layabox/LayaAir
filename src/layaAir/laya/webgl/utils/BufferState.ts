@@ -1,8 +1,11 @@
-import { IndexBuffer } from "../../RenderEngine/IndexBuffer";
-import { IRenderVertexState } from "../../RenderEngine/RenderInterface/IRenderVertexState";
+import { IBufferState } from "../../RenderDriver/DriverDesign/RenderDevice/IBufferState";
+import { IVertexBuffer } from "../../RenderDriver/DriverDesign/RenderDevice/IVertexBuffer";
 import { VertexAttributeLayout } from "../../RenderEngine/VertexAttributeLayout";
-import { VertexBuffer } from "../../RenderEngine/VertexBuffer";
+import { IndexBuffer3D } from "../../d3/graphics/IndexBuffer3D";
+import { VertexBuffer3D } from "../../d3/graphics/VertexBuffer3D";
 import { LayaGL } from "../../layagl/LayaGL";
+import { IndexBuffer2D } from "./IndexBuffer2D";
+import { VertexBuffer2D } from "./VertexBuffer2D";
 
 
 
@@ -10,93 +13,52 @@ import { LayaGL } from "../../layagl/LayaGL";
  * <code>BufferState</code> 类用于实现渲染所需的Buffer状态集合。
  */
 export class BufferState {
-	static _curBindedBufferState: BufferState;
+	private static vertexBufferArray: IVertexBuffer[] = [];
 	/**@private [只读]*/
-	protected _nativeVertexArrayObject: IRenderVertexState;
+	_deviceBufferState: IBufferState;
 
 	/**@internal [只读]*/
-	_bindedIndexBuffer: IndexBuffer;
+	_bindedIndexBuffer: IndexBuffer3D | IndexBuffer2D;
 
 	/**@internal */
-	_vertexBuffers: VertexBuffer[];
+	_vertexBuffers: VertexBuffer3D[] | VertexBuffer2D[];
 
 	/**@internal */
-	vertexlayout: VertexAttributeLayout;
+	vertexlayout: VertexAttributeLayout;//WGPU 先不管
 
 	/**
 	 * 创建一个 <code>BufferState</code> 实例。
 	 */
 	constructor() {
-		this._nativeVertexArrayObject = LayaGL.renderEngine.createVertexState();
+		this._deviceBufferState = LayaGL.renderDeviceFactory.createBufferState();
 	}
 
-	protected applyVertexBuffers(): void {
-		this._nativeVertexArrayObject&&this._nativeVertexArrayObject.applyVertexBuffer(this._vertexBuffers);
-	}
-
-	protected applyIndexBuffers(): void {
-		this._nativeVertexArrayObject&&this._nativeVertexArrayObject.applyIndexBuffer(this._bindedIndexBuffer);
-	}
-
-
-	applyState(vertexBuffers: VertexBuffer[], indexBuffer: IndexBuffer | null) {
-		this.vertexlayout = VertexAttributeLayout.getVertexLayoutByPool(vertexBuffers);
+	applyState(vertexBuffers: VertexBuffer3D[] | VertexBuffer2D[], indexBuffer: IndexBuffer3D | IndexBuffer2D | null) {
+		//this.vertexlayout = VertexAttributeLayout.getVertexLayoutByPool(vertexBuffers);
 		this._vertexBuffers = vertexBuffers;
 		this._bindedIndexBuffer = indexBuffer;
-		if(!this._nativeVertexArrayObject)
+		if (!this._deviceBufferState)
 			return;
-		indexBuffer && indexBuffer.unbind();//清空绑定
-		this.bind();
-		this.applyVertexBuffers();
-		this.applyIndexBuffers();
-		this.unBind();
-		indexBuffer && indexBuffer.unbind();//清空绑定
-		
 
-	}
-
-	/**
-	 * @private
-	 */
-	bind(): void {
-		if(!this._nativeVertexArrayObject)
-			return;
-		this._nativeVertexArrayObject.bindVertexArray();
-		BufferState._curBindedBufferState = this;
-	}
-
-	/**
-	 * @private
-	 */
-	unBind(): void {
-		if(!this._nativeVertexArrayObject)
-			return;
-		if (BufferState._curBindedBufferState == this) {
-			this._nativeVertexArrayObject.unbindVertexArray();
-			BufferState._curBindedBufferState = null;
+		if (vertexBuffers.length == 1) {
+			BufferState.vertexBufferArray.length = 1;
+			BufferState.vertexBufferArray[0] = (vertexBuffers[0] as VertexBuffer3D)._deviceBuffer;
 		} else {
-			throw "BufferState: must call bind() function first.";
+			BufferState.vertexBufferArray.length = 0;
+			vertexBuffers.forEach(element => {
+				BufferState.vertexBufferArray.push((element as VertexBuffer3D)._deviceBuffer);
+			});
 		}
-	}
-
-	isbind(): boolean {
-		return (BufferState._curBindedBufferState == this);
-	}
-
-	static clearbindBufferState() {
-		LayaGL.renderEngine.unbindVertexState();
-		BufferState._curBindedBufferState = null;
+		this._deviceBufferState.applyState(BufferState.vertexBufferArray, indexBuffer ? (indexBuffer as IndexBuffer3D)._deviceBuffer : null);
 	}
 
 	/**
 	 * @private
 	 */
 	destroy(): void {
-		if(!this._nativeVertexArrayObject)
+		if (!this._deviceBufferState)
 			return;
-		this._nativeVertexArrayObject.destroy();
-		this._nativeVertexArrayObject = null;
+		this._deviceBufferState.destroy();
+		this._deviceBufferState = null;
 	}
 }
-
-

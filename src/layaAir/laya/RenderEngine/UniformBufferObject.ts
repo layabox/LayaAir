@@ -4,6 +4,8 @@ import { UniformBufferBase } from "./UniformBufferBase";
 import { UnifromBufferData } from "./UniformBufferData";
 import { Buffer } from "./Buffer";
 import { LayaGL } from "../layagl/LayaGL";
+import { GLBuffer } from "./RenderEngine/WebGLEngine/GLBuffer";
+import { IRenderBuffer } from "./RenderInterface/IRenderBuffer";
 /**
  * 类封装WebGL2UniformBufferObect
  */
@@ -33,7 +35,7 @@ export class UniformBufferObject extends Buffer {
             return null;
         } else {
             let ubo = LayaGL.renderOBJCreate.createUniformBufferObject(bufferBase._glPointerID, name, bufferUsage, bytelength, isSingle);
-            if(bufferBase._singgle) bufferBase.add(ubo);
+            if (bufferBase._singgle) bufferBase.add(ubo);
             return ubo;
         }
     }
@@ -50,6 +52,8 @@ export class UniformBufferObject extends Buffer {
         return base._mapArray[index];
     }
 
+
+    _glBuffer: IRenderBuffer;//TODO
     /**@interanl */
     _glPointer: number;
 
@@ -69,11 +73,12 @@ export class UniformBufferObject extends Buffer {
      * @interanl
      */
     constructor(glPointer: number, name: string, bufferUsage: BufferUsage, byteLength: number, isSingle: boolean) {
-        super(BufferTargetType.UNIFORM_BUFFER,bufferUsage);
+        super(BufferTargetType.UNIFORM_BUFFER, bufferUsage);
         this._glPointer = glPointer;
         this.byteLength = byteLength;
         this._name = name;
         this._isSingle = isSingle;
+        this._glBuffer = LayaGL.renderEngine.createBuffer(BufferTargetType.UNIFORM_BUFFER,bufferUsage);
         this.bind();
         if (this._isSingle)
             this._bindUniformBufferBase();
@@ -87,8 +92,8 @@ export class UniformBufferObject extends Buffer {
     _bindUniformBufferBase() {
         // const base = UniformBufferObject._Map.get(this._name);
         // if (base._curUniformBuffer != this) {
-            this._glBuffer.bindBufferBase(this._glPointer);
-            //base._curUniformBuffer = this;
+        this._glBuffer.bindBufferBase(this._glPointer);
+        //base._curUniformBuffer = this;
         // }
     }
 
@@ -98,7 +103,7 @@ export class UniformBufferObject extends Buffer {
      */
     _bindBufferRange(offset: number, byteCount: number) {
         this.bind();
-        this._glBuffer.bindBufferRange(this._glPointer,offset,byteCount);
+        this._glBuffer.bindBufferRange(this._glPointer, offset, byteCount);
         //gl.bindBufferRange(gl.UNIFORM_BUFFER, this._glPointer, this._glBuffer, offset, byteCount);
     }
 
@@ -107,7 +112,7 @@ export class UniformBufferObject extends Buffer {
      * @param bytelength 
      */
     _reset(bytelength: number) {
-        
+
         //destroy
         if (this._glBuffer) {
             this._glBuffer.destroy();
@@ -115,7 +120,7 @@ export class UniformBufferObject extends Buffer {
         }
         //create new
         this._byteLength = this.byteLength = bytelength;
-        this._glBuffer = LayaGL.renderEngine.createBuffer(this._bufferType,this._bufferUsage);
+        this._glBuffer = LayaGL.renderEngine.createBuffer(this._bufferType, this._bufferUsage);
         if (this._isSingle)
             this._bindUniformBufferBase();
         this._glBuffer.setDataLength(this.byteLength);
@@ -126,7 +131,7 @@ export class UniformBufferObject extends Buffer {
      * @override
      */
     bind(): boolean {
-       return this._glBuffer.bindBuffer();
+        return this._glBuffer.bindBuffer();
     }
 
     /**
@@ -142,10 +147,10 @@ export class UniformBufferObject extends Buffer {
         var needSubData: boolean = !(bufferOffset == 0 && byteCount == this.byteLength);
         if (needSubData) {
             var subData: Uint8Array = new Uint8Array(buffer.buffer, bufferOffset, byteCount);
-            this._glBuffer.setData(subData,bufferOffset);
+            this._glBuffer.setData(subData, bufferOffset);
         }
         else {
-            this._glBuffer.setDataEx(buffer,bufferOffset,buffer.length);
+            this._glBuffer.setDataEx(buffer, bufferOffset, buffer.length);
         }
     }
 
@@ -174,13 +179,13 @@ export class UniformBufferObject extends Buffer {
         let reallength = bufferData._realByte;//update Count
         bufferData._resetUpdateFlag();
         this.bind();
-        this._glBuffer.setDataEx(bufferData._buffer,offset * datalength,reallength / 4);
+        this._glBuffer.setDataEx(bufferData._buffer, offset * datalength, reallength / 4);
     }
 
     /**
-	 * @private
-	 */
-	destroy(): void {
-		super.destroy();
-	}
+     * @private
+     */
+    destroy(): void {
+        super.destroy();
+    }
 }

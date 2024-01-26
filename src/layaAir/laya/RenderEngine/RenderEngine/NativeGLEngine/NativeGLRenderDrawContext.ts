@@ -1,7 +1,7 @@
+import { IRenderGeometryElement } from "../../../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
 import { IndexFormat } from "../../RenderEnum/IndexFormat";
 import { MeshTopology } from "../../RenderEnum/RenderPologyMode";
 import { IRenderDrawContext } from "../../RenderInterface/IRenderDrawContext";
-import { IRenderGeometryElement } from "../../RenderInterface/RenderPipelineInterface/IRenderGeometryElement";
 import { NativeGLObject } from "./NativeGLObject";
 import { NativeWebGLEngine } from "./NativeWebGLEngine";
 

@@ -1,12 +1,12 @@
+import { DrawType } from "../../../RenderEngine/RenderEnum/DrawType";
+import { IndexFormat } from "../../../RenderEngine/RenderEnum/IndexFormat";
+import { MeshTopology } from "../../../RenderEngine/RenderEnum/RenderPologyMode";
 import { SingletonList } from "../../../utils/SingletonList";
-import { BufferState } from "../../../webgl/utils/BufferState";
-import { DrawType } from "../../RenderEnum/DrawType";
-import { IndexFormat } from "../../RenderEnum/IndexFormat";
-import { MeshTopology } from "../../RenderEnum/RenderPologyMode";
+import { IBufferState } from "./IBufferState";
 
 export interface IRenderGeometryElement{
     /**@internal */
-    bufferState:BufferState;
+    bufferState:IBufferState;
     /**@internal */
     mode:MeshTopology;
     /**@internal */

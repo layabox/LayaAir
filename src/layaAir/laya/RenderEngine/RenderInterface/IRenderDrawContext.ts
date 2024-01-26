@@ -1,6 +1,6 @@
+import { IRenderGeometryElement } from "../../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
 import { IndexFormat } from "../RenderEnum/IndexFormat";
 import { MeshTopology } from "../RenderEnum/RenderPologyMode";
-import { IRenderGeometryElement } from "./RenderPipelineInterface/IRenderGeometryElement";
 
 //TODO 先写完测试，这种封装过于死板
 export interface IRenderDrawContext {

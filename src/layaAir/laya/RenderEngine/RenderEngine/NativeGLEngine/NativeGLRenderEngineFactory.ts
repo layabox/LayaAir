@@ -1,8 +1,8 @@
+import { NativeShaderInstance } from "../../../RenderDriver/OpenglESDriver/RenderDevice/NativeShaderInstance";
 import { NativeRenderStateCommand } from "../../../RenderEngine/RenderEngine/NativeGLEngine/NativeRenderStateCommand";
 import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { IRenderEngineFactory } from "../../../RenderEngine/RenderInterface/IRenderEngineFactory";
 import { UniformBufferObject } from "../../../RenderEngine/UniformBufferObject";
-import { NativeShaderInstance } from "../../../d3/RenderObjs/NativeOBJ/NativeShaderInstance";
 import { ShaderProcessInfo } from "../../../webgl/utils/ShaderCompileDefineBase";
 import { ShaderPass } from "../../RenderShader/ShaderPass";
 import { NativeCommandUniformMap } from "./NativeCommandUniformMap";

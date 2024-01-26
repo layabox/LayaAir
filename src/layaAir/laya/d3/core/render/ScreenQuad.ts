@@ -44,7 +44,7 @@ export class ScreenQuad extends GeometryElement {
 	/** @internal */
 	private _vertexBuffer: VertexBuffer3D;
 	/** @internal */
-	private _bufferState: BufferState = new BufferState();
+	protected _bufferState: BufferState = new BufferState();
 	/** @internal */
 	private _vertexBufferInvertUV: VertexBuffer3D;
 	/** @internal */

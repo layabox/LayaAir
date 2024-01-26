@@ -13,7 +13,6 @@ import { IRenderBuffer } from "./IRenderBuffer";
 import { IRenderDrawContext } from "./IRenderDrawContext";
 import { IRenderEngineFactory } from "./IRenderEngineFactory";
 import { IRenderShaderInstance } from "./IRenderShaderInstance";
-import { IRenderVertexState } from "./IRenderVertexState";
 import { ITextureContext } from "./ITextureContext";
 
 export interface IRenderEngine {
@@ -48,7 +47,7 @@ export interface IRenderEngine {
     createRenderStateComand(): RenderStateCommand;
     createShaderInstance(vs: string, ps: string, attributeMap: { [name: string]: [number, ShaderDataType] }): IRenderShaderInstance
     createBuffer(targetType: BufferTargetType, bufferUsageType: BufferUsage): IRenderBuffer;
-    createVertexState(): IRenderVertexState;
+
     getUBOPointer(name: string): number;
     /**@internal */
     clearStatisticsInfo(info: RenderStatisticsInfo): void;

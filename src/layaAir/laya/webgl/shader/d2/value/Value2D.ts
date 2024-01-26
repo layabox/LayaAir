@@ -10,9 +10,9 @@ import { Matrix4x4 } from "../../../../maths/Matrix4x4"
 import { Vector4 } from "../../../../maths/Vector4"
 import { TextTexture } from "../../../text/TextTexture"
 import { LayaGL } from "../../../../layagl/LayaGL"
-import { ShaderInstance } from "../../../../RenderEngine/RenderShader/ShaderInstance"
 import { ShaderData } from "../../../../RenderDriver/RenderModuleData/Design/ShaderData"
 import { IDefineDatas } from "../../../../RenderDriver/RenderModuleData/Design/IDefineDatas"
+import { WebGLShaderInstance } from "../../../../RenderDriver/WebglDriver/RenderDevice/WebGLShaderInstance"
 
 export enum RenderSpriteData {
     Zero,
@@ -266,7 +266,7 @@ export class Value2D {
             Value2D._compileDefine.addDefineDatas(material._defineDatas);
             //Global Define
             Value2D._compileDefine.addDefineDatas(Value2D.globalShaderData.getDefineData());
-            var shaderIns = pass.withCompile(Value2D._compileDefine, true) as unknown as ShaderInstance;
+            var shaderIns = pass.withCompile(Value2D._compileDefine, true) as WebGLShaderInstance;
             shaderIns.bind();
             shaderIns.uploadUniforms(shaderIns._sprite2DUniformParamsMap, this.defines, true);
             shaderIns.uploadUniforms(shaderIns._sceneUniformParamsMap, Value2D.globalShaderData, true);
@@ -278,7 +278,7 @@ export class Value2D {
             if (shaderPass.length >= 1) {
                 pass = shaderPass[0];
                 //var comDef: DefineDatas = Value2D._compileDefine;
-                var shaderIns = pass.withCompile(this.defines.getDefineData(), true) as unknown as ShaderInstance;
+                var shaderIns = pass.withCompile(this.defines.getDefineData(), true) as unknown as WebGLShaderInstance;
                 shaderIns.bind();
                 shaderIns.uploadUniforms(shaderIns._sprite2DUniformParamsMap, this.defines, true);
             } else {

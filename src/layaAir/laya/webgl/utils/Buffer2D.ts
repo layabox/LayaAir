@@ -78,10 +78,10 @@ export class Buffer2D {
         if (this._uploadSize < this.constBuffer._buffer.byteLength) {
             this._uploadSize = this.constBuffer._buffer.byteLength;
 
-            this.constBuffer._glBuffer.setDataLength(this._uploadSize);
+            //this.constBuffer._glBuffer.setDataLength(this._uploadSize);
         }
-        this.constBuffer._glBuffer.setData(new Uint8Array(this.constBuffer._buffer.buffer, 0, this.constBuffer._byteLength), 0);
-        this.constBuffer.unbind();
+        //this.constBuffer._glBuffer.setData(new Uint8Array(this.constBuffer._buffer.buffer, 0, this.constBuffer._byteLength), 0);
+        //this.constBuffer.unbind();
     }
 
     //TODO:coverage
@@ -99,15 +99,15 @@ export class Buffer2D {
 
         if (this._uploadSize < this.constBuffer._buffer.byteLength) {
             this._uploadSize = this.constBuffer._buffer.byteLength;
-            this.constBuffer._glBuffer.setDataLength(this._uploadSize);
+            //this.constBuffer._glBuffer.setDataLength(this._uploadSize);
             //_setGPUMemory(_uploadSize);
         }
 
         if (dataStart || dataLength) {
             var subBuffer: ArrayBuffer = this.constBuffer._buffer.buffer.slice(dataStart, dataLength);
-            this.constBuffer._glBuffer.setData(subBuffer, offset);
+            //this.constBuffer._glBuffer.setData(subBuffer, offset);
         } else {
-            this.constBuffer._glBuffer.setData(this.constBuffer._buffer.buffer, offset);
+            //this.constBuffer._glBuffer.setData(this.constBuffer._buffer.buffer, offset);
         }
     }
 
@@ -135,7 +135,7 @@ export class Buffer2D {
         if (!this._upload)
             return false;
         this._upload = false;
-        this.constBuffer.bind();
+        //this.constBuffer.bind();
         this._bufferData();
         return true;
     }
@@ -146,7 +146,7 @@ export class Buffer2D {
             return false;
 
         this._upload = false;
-        this.constBuffer.bind();
+        //this.constBuffer.bind();
         this._bufferSubData(offset, dataStart, dataLength);
         return true;
     }
@@ -241,7 +241,7 @@ export class Buffer2D {
     //TODO:coverage
     subUpload(offset: number = 0, dataStart: number = 0, dataLength: number = 0): boolean {
         var scuess: boolean = this._bind_subUpload();
-        this.constBuffer.unbind();
+        //this.constBuffer.unbind();
         //gl.bindBuffer(this._bufferType, null);
         //if (this._bufferType == gl.ARRAY_BUFFER) Buffer._bindedVertexBuffer = null;
         //if (this._bufferType == gl.ELEMENT_ARRAY_BUFFER) Buffer._bindedIndexBuffer = null;

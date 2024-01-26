@@ -15,7 +15,7 @@ export class VertexDeclaration {
     /**@internal */
     private _vertexElementsDic: { [key: string]: VertexElement };
     /**@internal */
-    _shaderValues: { [key: number]: Int32Array };
+    _shaderValues: { [key: number]: Int32Array };//[{shaderlocationName}：{0:元素数，1：元素描述（Uint、byte等等），2：是否归一化，3:顶点字节跨度，4：顶点元素字节偏移}]
 
     /**@internal [只读]*/
     _vertexElements: Array<VertexElement>;

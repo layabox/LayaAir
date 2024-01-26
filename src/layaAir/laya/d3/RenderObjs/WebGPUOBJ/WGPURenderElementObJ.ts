@@ -1,6 +1,6 @@
+import { IRenderGeometryElement } from "../../../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
+import { IShaderInstance } from "../../../RenderDriver/DriverDesign/RenderDevice/IShaderInstance";
 import { WebGPUInternalRT } from "../../../RenderEngine/RenderEngine/WebGPUEngine/WebGPUInternalRT";
-import { IRenderGeometryElement } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderGeometryElement";
-import { ShaderInstance } from "../../../RenderEngine/RenderShader/ShaderInstance";
 import { SingletonList } from "../../../utils/SingletonList";
 import { Transform3D } from "../../core/Transform3D";
 import { WGPURenderContext3D } from "./WGPURenderContext3D";
@@ -10,7 +10,7 @@ export class WGPURenderElementObJ  {
 
     _geometry: IRenderGeometryElement;
 
-    _shaderInstances: SingletonList<ShaderInstance>;
+    _shaderInstances: SingletonList<IShaderInstance>;
 
     _materialShaderData: WGPUShaderData;
 
@@ -36,7 +36,7 @@ export class WGPURenderElementObJ  {
         var sceneShaderData: WGPUShaderData = context.sceneShaderData;
         var cameraShaderData: WGPUShaderData = context.cameraShaderData;
         if (this._isRender) {
-            var passes: ShaderInstance[] = this._shaderInstances.elements;
+            var passes: IShaderInstance[] = this._shaderInstances.elements;
             for (var j: number = 0, m: number = this._shaderInstances.length; j < m; j++) {
                 //@ts-ignore
                 const shaderIns = passes[j] as WGPURenderPipelineInstance;
@@ -47,10 +47,10 @@ export class WGPURenderElementObJ  {
                 let blendState = shaderIns.getBlendState(this._materialShaderData);
                 let depthStencilState = shaderIns.getDepthStencilState(this._materialShaderData, targets);
                 let primitiveState = shaderIns.getPrimitiveState(this._materialShaderData, forceInvertFace, this._invertFront, this._geometry.mode, this._geometry.indexFormat);
-                let val = shaderIns.getVertexAttributeLayout(this._geometry.bufferState.vertexlayout);
-                let pipeline = shaderIns.getGPURenderPipeline(blendState, depthStencilState, primitiveState, val, targets);
+                //let val = shaderIns.getVertexAttributeLayout(this._geometry.bufferState.vertexlayout);
+                //let pipeline = shaderIns.getGPURenderPipeline(blendState, depthStencilState, primitiveState, val, targets);
                 //bind Pipeline
-                renderEncoder.setPipeline(pipeline);
+                //renderEncoder.setPipeline(pipeline);
 
                 //set BindGroup
                 var switchUpdateMark: boolean = (updateMark !== shaderIns._uploadMark);
@@ -92,7 +92,7 @@ export class WGPURenderElementObJ  {
         }
 
     }
-    _addShaderInstance(shader: ShaderInstance): void {
+    _addShaderInstance(shader: IShaderInstance): void {
         this._shaderInstances.add(shader);
     }
     _clearShaderInstance(): void {

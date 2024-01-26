@@ -1,15 +1,16 @@
+import { IRenderGeometryElement } from "../../../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
 import { DrawType } from "../../../RenderEngine/RenderEnum/DrawType";
 import { IndexFormat } from "../../../RenderEngine/RenderEnum/IndexFormat";
 import { MeshTopology } from "../../../RenderEngine/RenderEnum/RenderPologyMode";
-import { IRenderGeometryElement } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderGeometryElement";
 import { SingletonList } from "../../../utils/SingletonList";
 import { BufferState } from "../../../webgl/utils/BufferState";
+import { IBufferState } from "../../DriverDesign/RenderDevice/IBufferState";
 
 
 
 export class NativeRenderGeometryElementOBJ implements IRenderGeometryElement {
   /**@internal */
-  private _bufferState: BufferState;
+  private _bufferState: IBufferState;
 
    /**@internal */
    drawParams: SingletonList<number>;
@@ -46,7 +47,7 @@ export class NativeRenderGeometryElementOBJ implements IRenderGeometryElement {
     this._nativeObj.clearRenderParams();
   }
 
-  set bufferState(value: BufferState) {
+  set bufferState(value: IBufferState) {
     this._bufferState = value;
     if (value) {
       this._nativeObj.bufferState = (value as any)._nativeVertexArrayObject._nativeObj;
@@ -56,7 +57,7 @@ export class NativeRenderGeometryElementOBJ implements IRenderGeometryElement {
     }
   }
 
-  get bufferState(): BufferState {
+  get bufferState(): IBufferState {
     return this._bufferState;
   }
 

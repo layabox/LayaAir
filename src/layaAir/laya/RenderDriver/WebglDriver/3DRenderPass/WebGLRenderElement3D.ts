@@ -1,5 +1,4 @@
-import { IRenderGeometryElement } from "../../../RenderEngine/RenderInterface/RenderPipelineInterface/IRenderGeometryElement";
-import { ShaderInstance } from "../../../RenderEngine/RenderShader/ShaderInstance";
+
 import { ShaderPass } from "../../../RenderEngine/RenderShader/ShaderPass";
 import { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
 import { Transform3D } from "../../../d3/core/Transform3D";
@@ -9,6 +8,8 @@ import { IRenderElement3D, IRenderContext3D } from "../../DriverDesign/3DRenderP
 import { WebBaseRenderNode } from "../../RenderModuleData/WebModuleData/3D/WebBaseRenderNode";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
 import { WebShaderData } from "../../RenderModuleData/WebModuleData/WebShaderData";
+import { WebGLRenderGeometryElement } from "../RenderDevice/RenderGeometryElementOBJ";
+import { WebGLShaderInstance } from "../RenderDevice/WebGLShaderInstance";
 import { WebGLRenderContext3D } from "./WebGLRenderContext3D";
 
 
@@ -17,11 +18,11 @@ export class WebGLRenderElement3D implements IRenderElement3D {
     /** @internal */
     static _compileDefine: WebDefineDatas = new WebDefineDatas();
 
-    geometry: IRenderGeometryElement;
+    geometry: WebGLRenderGeometryElement;
 
     subShader: SubShader;
 
-    private _shaderInstances: SingletonList<ShaderInstance>;
+    private _shaderInstances: SingletonList<WebGLShaderInstance>;
 
     materialShaderData: WebShaderData;
 
@@ -41,7 +42,7 @@ export class WebGLRenderElement3D implements IRenderElement3D {
         this._shaderInstances = new SingletonList();
     }
 
-    _addShaderInstance(shader: ShaderInstance) {
+    _addShaderInstance(shader: WebGLShaderInstance) {
         this._shaderInstances.add(shader);
     }
 
@@ -70,9 +71,9 @@ export class WebGLRenderElement3D implements IRenderElement3D {
         var sceneShaderData = context.sceneData as WebShaderData;
         var cameraShaderData = context.cameraData as WebShaderData;
         if (this.isRender) {
-            var passes: ShaderInstance[] = this._shaderInstances.elements;
+            var passes: WebGLShaderInstance[] = this._shaderInstances.elements;
             for (var j: number = 0, m: number = this._shaderInstances.length; j < m; j++) {
-                const shaderIns: ShaderInstance = passes[j];
+                const shaderIns: WebGLShaderInstance = passes[j];
                 if (!shaderIns.complete)
                     continue;
                 var switchShader: boolean = shaderIns.bind();
@@ -140,7 +141,7 @@ export class WebGLRenderElement3D implements IRenderElement3D {
             }
             comDef.addDefineDatas(this.materialShaderData._defineDatas);
            
-            var shaderIns = pass.withCompile(comDef) as ShaderInstance;
+            var shaderIns = pass.withCompile(comDef) as WebGLShaderInstance;
             
             //get shaderInstance
             //create ShaderInstance
@@ -149,7 +150,7 @@ export class WebGLRenderElement3D implements IRenderElement3D {
         }
     }
 
-    drawGeometry(shaderIns: ShaderInstance) {
+    drawGeometry(shaderIns: WebGLShaderInstance) {
         LayaGL.renderDrawContext.drawGeometryElement(this.geometry);
     }
 

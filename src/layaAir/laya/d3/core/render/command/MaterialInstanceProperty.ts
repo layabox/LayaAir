@@ -67,7 +67,7 @@ export class MaterialInstanceProperty {
 				}
 				break;
 		}
-		this._vertexBuffer.orphanStorage();
+		this._vertexBuffer._deviceBuffer.setDataLength(this._vertexBuffer._byteLength);
 		this._vertexBuffer.setData(instanceData.buffer, 0, 0, drawNums * 4 * stride);
 	}
 

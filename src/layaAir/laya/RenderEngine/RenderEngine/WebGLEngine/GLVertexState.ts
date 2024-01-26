@@ -1,20 +1,19 @@
-import { IndexBuffer } from "../../IndexBuffer";
-import { IRenderVertexState } from "../../RenderInterface/IRenderVertexState";
-import { VertexBuffer } from "../../VertexBuffer";
+import { WebGLIndexBuffer } from "../../../RenderDriver/WebglDriver/RenderDevice/WebGLIndexBuffer";
+import { WebGLVertexBuffer } from "../../../RenderDriver/WebglDriver/RenderDevice/WebGLVertexBuffer";
 import { VertexDeclaration } from "../../VertexDeclaration";
 import { WebGLExtension } from "./GLEnum/WebGLExtension";
 import { GLObject } from "./GLObject";
 import { WebGLEngine } from "./WebGLEngine";
 
 
-export class GLVertexState extends GLObject implements IRenderVertexState {
+export class GLVertexState extends GLObject{
     private _angleInstancedArrays: any;
     private _vaoExt: any | null;
     private _vao: WebGLVertexArrayObject | WebGLVertexArrayObjectOES;
 
     _vertexDeclaration: VertexDeclaration[] = [];
-    _bindedIndexBuffer: IndexBuffer;
-    _vertexBuffers: VertexBuffer[];
+    _bindedIndexBuffer: WebGLIndexBuffer;
+    _vertexBuffers: WebGLVertexBuffer[];
 
     constructor(engine: WebGLEngine) {
         super(engine);
@@ -78,7 +77,7 @@ export class GLVertexState extends GLObject implements IRenderVertexState {
             this._vaoExt.isVertexArrayOES(this._vao);
     }
 
-    applyVertexBuffer(vertexBuffer: VertexBuffer[]): void {
+    applyVertexBuffer(vertexBuffer: WebGLVertexBuffer[]): void {
         //Clear front VAO
         this.clearVAO();
         this._vertexBuffers = vertexBuffer;
@@ -117,7 +116,7 @@ export class GLVertexState extends GLObject implements IRenderVertexState {
         }
     }
 
-    applyIndexBuffer(indexBuffer: IndexBuffer | null): void {
+    applyIndexBuffer(indexBuffer: WebGLIndexBuffer | null): void {
         //需要强制更新IndexBuffer
 
         if (indexBuffer == null) {
@@ -125,7 +124,7 @@ export class GLVertexState extends GLObject implements IRenderVertexState {
         }
         if (this._engine._GLBindVertexArray == this) {
             if (this._bindedIndexBuffer !== indexBuffer) {
-                indexBuffer.bind();//TODO:可和vao合并bind
+                indexBuffer._glBuffer.bindBuffer();//TODO:可和vao合并bind
                 this._bindedIndexBuffer = indexBuffer;
             }
         } else {

@@ -20,9 +20,6 @@ export class VertexBuffer2D extends VertexBuffer {
         this.buffer2D = new Buffer2D(this);
         this._vertexStride = vertexStride;
         this._bufferUsage = bufferUsage;
-        //this._buffer = new Uint8Array(8);
-        //this._floatArray32 = new Float32Array(this._buffer);
-        //this._uint32Array = new Uint32Array(this._buffer);
     }
 
     getFloat32Array(): Float32Array {
@@ -67,7 +64,7 @@ export class VertexBuffer2D extends VertexBuffer {
      * @override
      */
     _bindForVAO(): void {
-        this._glBuffer.bindBuffer();
+        //this._glBuffer.bindBuffer();
     }
     /**
      * @override

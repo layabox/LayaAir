@@ -82,7 +82,7 @@ export class BaseRender extends Component {
         var define: number;
         for (var i: number = 0, n: number = mesh._subMeshes.length; i < n; i++) {
             var subMesh = mesh.getSubMesh(i);
-            var vertexElements: any[] = subMesh._vertexBuffer._vertexDeclaration._vertexElements;
+            var vertexElements: any[] = subMesh._vertexBuffer.vertexDeclaration._vertexElements;
             for (var j: number = 0, m: number = vertexElements.length; j < m; j++) {
                 var vertexElement = vertexElements[j];
                 var name: number = vertexElement._elementUsage;

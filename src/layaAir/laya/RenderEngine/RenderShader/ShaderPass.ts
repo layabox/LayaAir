@@ -7,8 +7,8 @@ import { LayaGL } from "../../layagl/LayaGL";
 import { IShaderPassData } from "../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
 import { RenderState } from "../../RenderDriver/RenderModuleData/Design/RenderState";
 import { IDefineDatas } from "../../RenderDriver/RenderModuleData/Design/IDefineDatas";
-import { IShaderInstance } from "../RenderInterface/RenderPipelineInterface/IShaderInstance";
 import { Laya3DRender } from "../../d3/RenderObjs/Laya3DRender";
+import { IShaderInstance } from "../../RenderDriver/DriverDesign/RenderDevice/IShaderInstance";
 
 
 /**
@@ -97,7 +97,7 @@ export class ShaderPass extends ShaderCompileDefineBase {
         var defineString: string[] = ShaderPass._defineStrings;
         Shader3D._getNamesByDefineData(compileDefine, defineString);
         shaderProcessInfo.defineString = defineString;
-        shader = LayaGL.renderOBJCreate.createShaderInstance(shaderProcessInfo, shaderpass);
+        shader = LayaGL.renderDeviceFactory.createShaderInstance(shaderProcessInfo, shaderpass);
 
         if (Shader3D.debugMode) {//add shader variant info to debug ShaderVariantCollection
             var debugDefineString: string[] = ShaderPass._debugDefineStrings;

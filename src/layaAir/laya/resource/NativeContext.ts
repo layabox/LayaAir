@@ -182,7 +182,7 @@ export class NativeContext {
         this.globalAlpha *= value;
     }
     flush(): void {
-        BufferState._curBindedBufferState && BufferState._curBindedBufferState.unBind();
+        //BufferState._curBindedBufferState && BufferState._curBindedBufferState.unBind();
         //this._nativeObj.flush();
         this._nativeObj.flushCommand();
         this._nativeObj.flush();
@@ -229,7 +229,7 @@ export class NativeContext {
         NativeContext.const2DRenderCMD.applyCMD();
         //RenderTexture.currentActive && RenderTexture.currentActive._end();
         (window as any).set2DRenderConfig();
-        BufferState._curBindedBufferState && BufferState._curBindedBufferState.unBind();
+       // BufferState._curBindedBufferState && BufferState._curBindedBufferState.unBind();
     }
     set globalCompositeOperation(value: string) {
         //this._nativeObj.globalCompositeOperation = value;

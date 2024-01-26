@@ -1,5 +1,6 @@
+import { IShaderInstance } from "../../../RenderDriver/DriverDesign/RenderDevice/IShaderInstance";
 import { WebGLRenderElement3D } from "../../../RenderDriver/WebglDriver/3DRenderPass/WebGLRenderElement3D";
-import { ShaderInstance } from "../../../RenderEngine/RenderShader/ShaderInstance";
+import { WebGLVertexBuffer } from "../../../RenderDriver/WebglDriver/RenderDevice/WebGLVertexBuffer";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { VertexBuffer3D } from "../../graphics/VertexBuffer3D";
 
@@ -47,12 +48,12 @@ export class InstanceRenderElementOBJ extends WebGLRenderElement3D {
      * draw geometry
      * @param shaderIns 
      */
-    drawGeometry(shaderIns: ShaderInstance) {
+    drawGeometry(shaderIns: IShaderInstance) {
         //当instance数量特别大时可能需要一段一段数据来画,所以需要更新顶点数据
         let data: Float32Array;
-        let buffer: VertexBuffer3D;
+        let buffer: WebGLVertexBuffer;
         for (let i = 0; i < this.updateNums; i++) {
-            buffer = this._vertexBuffer3D[i];
+            buffer = this._vertexBuffer3D[i]._deviceBuffer as WebGLVertexBuffer;
             if (!buffer) break;
             data = this._updateData[i];
             buffer.orphanStorage();

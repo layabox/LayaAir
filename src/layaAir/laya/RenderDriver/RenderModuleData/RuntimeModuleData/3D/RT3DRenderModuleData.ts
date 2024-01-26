@@ -1,6 +1,6 @@
 import { ShaderPass } from "../../../../RenderEngine/RenderShader/ShaderPass";
-import { NativeShaderInstance } from "../../../../d3/RenderObjs/NativeOBJ/NativeShaderInstance";
 import { Matrix4x4 } from "../../../../maths/Matrix4x4";
+import { NativeShaderInstance } from "../../../OpenglESDriver/RenderDevice/NativeShaderInstance";
 import { ICameraNodeData, ISceneNodeData, IShaderPassData, ISubshaderData } from "../../Design/3D/I3DRenderModuleData";
 import { IDefineDatas } from "../../Design/IDefineDatas";
 import { RTDefineDatas } from "../RTDefineDatas";

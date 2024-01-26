@@ -32,7 +32,7 @@ export class IndexBuffer2D extends IndexBuffer {
      */
     _bindForVAO(): void {
         
-        this._glBuffer.bindBuffer()
+        //this._glBuffer.bindBuffer()
     }
 
     destory(): void {
