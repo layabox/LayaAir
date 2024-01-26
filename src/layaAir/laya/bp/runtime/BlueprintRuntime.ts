@@ -268,7 +268,7 @@ class BluePrintBlock implements INodeManger<BlueprintRuntimeBaseNode>, IBPRutime
             enableDebugPause = true;
             if (index instanceof BlueprintPromise) {
                 index.wait((mis: BlueprintPromise) => {
-                    this.runByContext(context, runTimeData, mis, enableDebugPause, cb, runId);
+                    this.runByContext(context, runTimeData, mis, mis.enableDebugPause != undefined ? mis.enableDebugPause : enableDebugPause, cb, runId);
                 })
                 return false;
             }
