@@ -134,4 +134,10 @@ export class BlueprintEventNode extends BlueprintRuntimeBaseNode {
         }
     }
 
+    initData(runtimeDataMgr: IRuntimeDataManger, parms: any[], curRunId: number) {
+        this.outPutParmPins.forEach((value, index) => {
+            runtimeDataMgr.setPinData(value, parms[index], curRunId);
+        })
+    }
+
 }

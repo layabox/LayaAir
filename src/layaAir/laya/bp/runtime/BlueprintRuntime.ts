@@ -334,17 +334,11 @@ class BluePrintMainBlock extends BluePrintBlock {
             let curRunId = this.getRunID();
             let runtimeDataMgr = context.getDataMangerByID(this.id);
             if (parms) {
-                parms.forEach((value, index) => {
-                    runtimeDataMgr.setPinData(event.outPutParmPins[index], value, curRunId);
-                })
+                event.initData(runtimeDataMgr, parms, curRunId);
             }
-
-            this.runByContext(context, runtimeDataMgr, event, true, cb, curRunId);
-            //  event.outExcute.excute(context);
-            //let root=event.outExcute.linkTo
-            return true;
+            return this.runByContext(context, runtimeDataMgr, event, true, cb, curRunId);
         }
-        return false;
+        return null;
     }
 }
 
@@ -377,24 +371,17 @@ class BluePrintFunBlock extends BluePrintBlock {
 
     run(context: IRunAble, eventName: string, parms: any[], cb: Function, runId: number): boolean {
         context.initData(this.id, this.nodeMap);
-
         let fun = this.funStart;
         if (fun) {
             let runtimeDataMgr = context.getDataMangerByID(this.id);
             let curRunId = this.getRunID();
-            this.funEnds.forEach(value=>{
-                value.initData(runtimeDataMgr,curRunId,runId,parms,fun.outPutParmPins.length);
-            })
-
             if (parms) {
-                fun.outPutParmPins.forEach((value, index) => {
-                    runtimeDataMgr.setPinData(value, parms[index], curRunId);
+                this.funEnds.forEach(value => {
+                    value.initData(runtimeDataMgr, curRunId, runId, parms, fun.outPutParmPins.length);
                 })
+                fun.initData(runtimeDataMgr, parms, curRunId);
             }
-
             return this.runByContext(context, runtimeDataMgr, fun, true, cb, curRunId);
-            //  event.outExcute.excute(context);
-            //let root=event.outExcute.linkTo
         }
         return null;
     }
