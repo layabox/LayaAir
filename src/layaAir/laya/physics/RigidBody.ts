@@ -143,6 +143,7 @@ export class RigidBody extends Component {
             }
             factory.retSet_rigidBody_MassData(this._body);
             factory.set_rigidbody_Awake(this._body, true);
+            this.owner.event("shapeChange");
         }
     }
 
