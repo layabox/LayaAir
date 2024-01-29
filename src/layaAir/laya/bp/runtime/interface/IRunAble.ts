@@ -41,7 +41,7 @@ export interface IRunAble {
 
     getSelf(): any;
 
-    initData(key: number | Symbol, nodeMap: Map<number, BlueprintRuntimeBaseNode>): void;
+    initData(key: number | symbol, nodeMap: Map<number, BlueprintRuntimeBaseNode>): void;
 
     getDataMangerByID(id:symbol|number):IRuntimeDataManger;
 }

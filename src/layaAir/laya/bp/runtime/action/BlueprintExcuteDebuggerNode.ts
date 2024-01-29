@@ -35,7 +35,7 @@ export class BlueprintExcuteDebuggerNode extends BlueprintExcuteNode implements 
         if (enableDebugPause) {
             if (runtimeNode.hasDebugger || this.debuggerManager.debugging) {
                 this.debuggerPause = true;
-                this._doNext = () => {
+                /* this._doNext = () => {
                     this.debuggerPause = false;
                     let runtimeDataMgr = this.getDataMangerByID(runtimeNode.listIndex);
                     runner.runByContext(this, runtimeDataMgr, runtimeNode, false, null, -1);
@@ -44,10 +44,10 @@ export class BlueprintExcuteDebuggerNode extends BlueprintExcuteNode implements 
                             runner.runByContext(this, runtimeDataMgr, this._nodeList.pop(), true, null, -1);
                         }
                     }
-                }
+                } */
                 console.log(this);
                 console.log(runtimeNode.name + "断住了");
-                this.debuggerManager.pause(this);
+                this.debuggerManager.pause(this, runtimeNode);
                 return true;
             } else {
                 return false;
@@ -65,9 +65,9 @@ export class BlueprintExcuteDebuggerNode extends BlueprintExcuteNode implements 
         }
     }
 
-    excuteFun(nativeFun: Function, outPutParmPins: BlueprintPinRuntime[], runTimeData: IRuntimeDataManger, caller: any, parmsArray: any[], runId: number) {
+    excuteFun(nativeFun: Function, outPutParmPins: BlueprintPinRuntime[], runtimeDataMgr: IRuntimeDataManger, caller: any, parmsArray: any[], runId: number) {
 
-        return super.excuteFun(nativeFun, outPutParmPins, runTimeData, caller, parmsArray, runId);
+        return super.excuteFun(nativeFun, outPutParmPins, runtimeDataMgr, caller, parmsArray, runId);
 
     }
 

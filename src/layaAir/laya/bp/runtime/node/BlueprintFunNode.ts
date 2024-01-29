@@ -27,7 +27,7 @@ export class BlueprintFunNode extends BlueprintRuntimeBaseNode {
         this.tryExcute = this.emptyExcute;
     }
 
-    emptyExcute(context: IRunAble, runTimeData: IRuntimeDataManger, fromExcute: boolean, runner: IBPRutime, enableDebugPause: boolean): number | BlueprintPromise {
+    emptyExcute(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, fromExcute: boolean, runner: IBPRutime, enableDebugPause: boolean): number | BlueprintPromise {
         return BlueprintConst.MAX_CODELINE;
     }
 
@@ -38,13 +38,13 @@ export class BlueprintFunNode extends BlueprintRuntimeBaseNode {
         }
     }
 
-    private excuteHookFun(context: IRunAble, runTimeData: IRuntimeDataManger, caller: any, parmsArray: any[], runId: number) {
+    private excuteHookFun(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, caller: any, parmsArray: any[], runId: number) {
         parmsArray.unshift(this.eventName);
-        return context.excuteFun(this.nativeFun, this.outPutParmPins, runTimeData, caller, parmsArray, runId);
+        return context.excuteFun(this.nativeFun, this.outPutParmPins, runtimeDataMgr, caller, parmsArray, runId);
     }
 
 
-    next(context: IRunAble, runTimeData: IRuntimeDataManger, parmsArray: any[], runner: IBPRutime, enableDebugPause: boolean, runId: number): number {
+    next(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, parmsArray: any[], runner: IBPRutime, enableDebugPause: boolean, runId: number): number {
         return this.staticNext ? this.staticNext.index : BlueprintConst.MAX_CODELINE;
     }
 

@@ -19,17 +19,17 @@ export class BlueprintGetVarNode extends BlueprintRuntimeBaseNode {
         this._varKey = cfg ? cfg.name : BlueprintUtil.constAllVars[node.dataId].name;
     }
 
-    step(context: IRunAble, runTimeData: IRuntimeDataManger, fromExcute: boolean, runner: IBPRutime, enableDebugPause: boolean, runId: number): number {
+    step(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, fromExcute: boolean, runner: IBPRutime, enableDebugPause: boolean, runId: number): number {
 
-        let _parmsArray: any[] = this.colloctParam(context, runTimeData, this.inPutParmPins, runner, runId);
+        let _parmsArray: any[] = this.colloctParam(context, runtimeDataMgr, this.inPutParmPins, runner, runId);
 
         context.parmFromCustom(_parmsArray, this._varKey, '"' + this._varKey + '"');
         context.parmFromCustom(_parmsArray, context, "context");
 
         if (this.nativeFun) {
-            let result = context.excuteFun(this.nativeFun, this.outPutParmPins, runTimeData, BlueprintStaticFun, _parmsArray, runId);
+            let result = context.excuteFun(this.nativeFun, this.outPutParmPins, runtimeDataMgr, BlueprintStaticFun, _parmsArray, runId);
             if (result == undefined) {
-                runTimeData.setPinData(this.outPutParmPins[0], result, runId);
+                runtimeDataMgr.setPinData(this.outPutParmPins[0], result, runId);
             }
         }
         return BlueprintConst.MAX_CODELINE;

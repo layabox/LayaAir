@@ -3,7 +3,7 @@ import { IOutParm } from "../../core/interface/IOutParm";
 export class RuntimeNodeData {
     map: Map<number, any[]>;
 
-    parmsArray: any[];
+    //parmsArray: any[];
 
     callFun: Function;
 

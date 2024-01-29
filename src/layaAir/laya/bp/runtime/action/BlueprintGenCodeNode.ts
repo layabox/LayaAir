@@ -10,7 +10,7 @@ export class BlueprintGenCodeNode extends BlueprintRunBase implements IRunAble {
     getDataMangerByID(id: number | symbol): IRuntimeDataManger {
         throw new Error("Method not implemented.");
     }
-    initData(key: number | Symbol, nodeMap: Map<number, BlueprintRuntimeBaseNode>): void {
+    initData(key: number | symbol, nodeMap: Map<number, BlueprintRuntimeBaseNode>): void {
         throw new Error("Method not implemented.");
     }
 

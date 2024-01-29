@@ -8,7 +8,7 @@ export class BlueprintPromise implements IExcuteListInfo {
     /**
      * excuteAbleList 的 map索引
     */
-    listIndex: number | Symbol;
+    listIndex: number | symbol;
     
     enableDebugPause: boolean;
 

@@ -9,7 +9,7 @@ import { BlueprintPromise } from "../BlueprintPromise";
 
 export class BlueprintSequenceNode extends BlueprintComplexNode {
 
-    next(context: IRunAble, runTimeData: IRuntimeDataManger, parmsArray: any[], runner: IBPRutime, enableDebugPause: boolean, runId: number): number {
+    next(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, parmsArray: any[], runner: IBPRutime, enableDebugPause: boolean, runId: number): number {
         let first = true;
         let arr: Promise<any>[] = [];
         for (let i = 0, n = this.outExcutes.length; i < n; i++) {

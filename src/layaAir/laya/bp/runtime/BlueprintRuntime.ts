@@ -266,7 +266,7 @@ class BluePrintBlock implements INodeManger<BlueprintRuntimeBaseNode>, IBPRutime
     }
 
 
-    runByContext(context: IRunAble, runTimeData: IRuntimeDataManger, node: IExcuteListInfo, enableDebugPause: boolean, cb: Function, runId: number): boolean {
+    runByContext(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, node: IExcuteListInfo, enableDebugPause: boolean, cb: Function, runId: number): boolean {
         if (runId == -1) {
             runId = this.getRunID();
         }
@@ -275,11 +275,11 @@ class BluePrintBlock implements INodeManger<BlueprintRuntimeBaseNode>, IBPRutime
 
         for (let i = currentIndex, n = excuteAbleList.length; i < n;) {
             const bpNode = excuteAbleList[i];
-            let index = bpNode.step(context, runTimeData, true, this, enableDebugPause, runId);
+            let index = bpNode.step(context, runtimeDataMgr, true, this, enableDebugPause, runId);
             enableDebugPause = true;
             if (index instanceof BlueprintPromise) {
                 index.wait((mis: BlueprintPromise) => {
-                    this.runByContext(context, runTimeData, mis, mis.enableDebugPause != undefined ? mis.enableDebugPause : enableDebugPause, cb, runId);
+                    this.runByContext(context, runtimeDataMgr, mis, mis.enableDebugPause != undefined ? mis.enableDebugPause : enableDebugPause, cb, runId);
                 })
                 return false;
             }

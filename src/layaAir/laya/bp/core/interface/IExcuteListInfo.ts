@@ -6,5 +6,5 @@ export interface IExcuteListInfo {
     /**
     * excuteAbleList 的 map索引
     */
-    listIndex: number | Symbol;
+    listIndex: number | symbol;
 }

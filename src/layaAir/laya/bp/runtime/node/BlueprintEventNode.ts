@@ -45,7 +45,7 @@ export class BlueprintEventNode extends BlueprintRuntimeBaseNode {
     // }
 
 
-    emptyExcute(context: IRunAble,runTimeData:IRuntimeDataManger, fromExcute: boolean, runner: IBPRutime, enableDebugPause: boolean,runId: number, fromPin: BlueprintPinRuntime): number | BlueprintPromise {
+    emptyExcute(context: IRunAble,runtimeDataMgr: IRuntimeDataManger, fromExcute: boolean, runner: IBPRutime, enableDebugPause: boolean,runId: number, fromPin: BlueprintPinRuntime): number | BlueprintPromise {
         if (fromPin && fromPin.otype == "bpFun") {
             let data = runTimeData.getDataById(this.nid);
             let _this = this;
@@ -62,7 +62,7 @@ export class BlueprintEventNode extends BlueprintRuntimeBaseNode {
         return BlueprintConst.MAX_CODELINE;
     }
 
-    step(context: IRunAble,runTimeData:IRuntimeDataManger, fromExcute: boolean, runner: IBPRutime, enableDebugPause: boolean, runId: number): number | BlueprintPromise {
+    step(context: IRunAble,runtimeDataMgr: IRuntimeDataManger, fromExcute: boolean, runner: IBPRutime, enableDebugPause: boolean, runId: number): number | BlueprintPromise {
         if (fromExcute && context.beginExcute(this, runner, enableDebugPause)) {
             return this.getDebuggerPromise(context);
         }
@@ -105,7 +105,7 @@ export class BlueprintEventNode extends BlueprintRuntimeBaseNode {
         return this.next(context,runTimeData,null,null,false,-1);
     }
 
-    next(context: IRunAble, runTimeData: IRuntimeDataManger, parmsArray: any[], runner: IBPRutime, enableDebugPause: boolean, runId: number): number {
+    next(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, parmsArray: any[], runner: IBPRutime, enableDebugPause: boolean, runId: number): number {
         return this.staticNext ? this.staticNext.index : BlueprintConst.MAX_CODELINE;
         //return (this.outExcute.linkTo[0] as BPPinRuntime).owner.index; 
         //this.outExcute.excute(context);

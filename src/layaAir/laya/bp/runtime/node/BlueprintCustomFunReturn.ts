@@ -8,15 +8,15 @@ import { IRunAble } from "../interface/IRunAble";
 import { BlueprintRuntimeBaseNode } from "./BlueprintRuntimeBaseNode";
 
 export class BlueprintCustomFunReturn extends BlueprintRuntimeBaseNode {
-    step(context: IRunAble, runTimeData: IRuntimeDataManger, fromExcute: boolean, runner: IBPRutime, enableDebugPause: boolean, runId: number): number | BlueprintPromise {
-        let result = super.step(context, runTimeData, fromExcute, runner, enableDebugPause, runId);
-        let nodeContext = runTimeData.getDataById(this.nid) as BlueprintCustomFunReturnContext;
+    step(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, fromExcute: boolean, runner: IBPRutime, enableDebugPause: boolean, runId: number): number | BlueprintPromise {
+        let result = super.step(context, runtimeDataMgr, fromExcute, runner, enableDebugPause, runId);
+        let nodeContext = runtimeDataMgr.getDataById(this.nid) as BlueprintCustomFunReturnContext;
         nodeContext.returnResult(runId);
         return result;
     }
 
-    initData(runTimeData: IRuntimeDataManger, curRunId: number, runId: number, parms: any[], offset: number) {
-        let data = runTimeData.getDataById(this.nid) as BlueprintCustomFunReturnContext;
+    initData(runtimeDataMgr: IRuntimeDataManger, curRunId: number, runId: number, parms: any[], offset: number) {
+        let data = runtimeDataMgr.getDataById(this.nid) as BlueprintCustomFunReturnContext;
         data.initData(curRunId, runId, parms, offset);
     }
 

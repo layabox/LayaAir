@@ -19,7 +19,7 @@ export class BlueprintComplexNode extends BlueprintRuntimeBaseNode {
         this.outExcutes = [];
     }
 
-    next(context: IRunAble, runTimeData: IRuntimeDataManger, parmsArray: any[], runner: IBPRutime, enableDebugPause: boolean, runId: number): number{
+    next(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, parmsArray: any[], runner: IBPRutime, enableDebugPause: boolean, runId: number): number{
         //context.find()
         let result = this.find(this.outExcutes, ...parmsArray);
         if(result.linkTo.length){
