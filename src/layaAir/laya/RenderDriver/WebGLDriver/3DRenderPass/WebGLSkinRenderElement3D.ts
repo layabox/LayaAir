@@ -16,8 +16,7 @@ export class WebGLSkinRenderElement3D extends WebGLRenderElement3D {
 
     /** 更新数据并且 */
     drawGeometry(shaderIns: WebGLShaderInstance) {
-        //@ts-ignore
-        let length = this.shaderInstances.length;
+        let length = this._shaderInstances.length;
         let element = this.geometry.drawParams.elements;
         if (!this.skinnedData)
             return;

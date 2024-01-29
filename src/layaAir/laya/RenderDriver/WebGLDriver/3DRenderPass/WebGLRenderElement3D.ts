@@ -23,7 +23,7 @@ export class WebGLRenderElement3D implements IRenderElement3D {
 
     subShader: SubShader;
 
-    private _shaderInstances: SingletonList<WebGLShaderInstance>;
+    protected _shaderInstances: SingletonList<WebGLShaderInstance>;
 
     materialShaderData: WebShaderData;
 
