@@ -3,22 +3,21 @@ import { Camera } from "laya/d3/core/Camera";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { Stage } from "laya/display/Stage";
 import { Handler } from "laya/utils/Handler";
-import { Stat } from "laya/utils/Stat";
 import { CameraMoveScript } from "../common/CameraMoveScript";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 import { Laya3DRender } from "laya/d3/RenderObjs/Laya3DRender";
-import { WebGLRenderEngine3DFactory } from "laya/d3/RenderObjs/WebGLOBJ/WebGLRenderEngine3DFactory"
 import { WebUnitRenderModuleDataFactory } from "laya/RenderDriver/RenderModuleData/WebModuleData/WebUnitRenderModuleDataFactory"
 import { Web3DRenderModuleFactory } from "laya/RenderDriver/RenderModuleData/WebModuleData/3D/Web3DRenderModuleFactory"
 import {WebGL3DRenderPassFactory} from "laya/RenderDriver/WebglDriver/3DRenderPass/WebGL3DRenderPassFactory"
 import {WebGLRenderDeviceFactory} from "laya/RenderDriver/WebglDriver/RenderDevice/WebGLRenderDeviceFactory"
+import {LengencyRenderEngine3DFactory} from "laya/RenderDriver/DriverDesign/3DRenderPass/LengencyRenderEngine3DFactory"
 import { LayaGL } from "laya/layagl/LayaGL";
 export class SceneLoad1 {
 	constructor() {
 		//Laya3DRender.renderDriverPassCreate = new GLESRenderDriverPassFactory();
 		LayaGL.unitRenderModuleDataFactory = new WebUnitRenderModuleDataFactory();
 		LayaGL.renderDeviceFactory = new WebGLRenderDeviceFactory();
-		Laya3DRender.renderOBJCreate = new WebGLRenderEngine3DFactory();
+		Laya3DRender.renderOBJCreate = new LengencyRenderEngine3DFactory();
 		Laya3DRender.Render3DModuleDataFactory = new Web3DRenderModuleFactory();
 		Laya3DRender.Render3DPassFactory = new WebGL3DRenderPassFactory();
 
