@@ -33,7 +33,11 @@ export class BlueprintExcuteDebuggerNode extends BlueprintExcuteNode implements 
     beginExcute(runtimeNode: BlueprintRuntimeBaseNode, runner: IBPRutime, enableDebugPause: boolean): boolean {
         //throw new Error("Method not implemented.");
         if (enableDebugPause) {
-            if (runtimeNode.hasDebugger || this.debuggerManager.debugging) {
+            let b = runtimeNode.hasDebugger || this.debuggerManager.debugging;
+            if(!b){
+                b = this.getDataMangerByID(runtimeNode.listIndex).debuggerPause;
+            }
+            if (b) {
                 this.debuggerPause = true;
                 /* this._doNext = () => {
                     this.debuggerPause = false;

@@ -37,7 +37,9 @@ export class BlueprintDebuggerManager {
     }
 
     stepOver() {
-        this.context.next();
+        const runTimeData = this.context.getDataMangerByID(this.listInfo.listIndex);
+        runTimeData.debuggerPause = true;
+        this.resume();
     }
 
     clear() {
