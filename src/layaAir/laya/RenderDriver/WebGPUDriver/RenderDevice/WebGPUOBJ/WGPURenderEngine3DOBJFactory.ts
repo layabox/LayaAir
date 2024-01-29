@@ -10,7 +10,7 @@ import { VertexBuffer3D } from "../../../../d3/graphics/VertexBuffer3D";
 import { BoundsImpl } from "../../../../d3/math/BoundsImpl";
 import { Vector3 } from "../../../../maths/Vector3";
 import { IRenderGeometryElement } from "../../../DriverDesign/RenderDevice/IRenderGeometryElement";
-import { InstanceRenderElementOBJ } from "../../../WebglDriver/3DRenderPass/InstanceRenderElementOBJ";
+import { InstanceRenderElementOBJ } from "../../../WebGLDriver/3DRenderPass/InstanceRenderElementOBJ";
 import { WGPURenderContext3D } from "./WGPURenderContext3D";
 import { WGPURenderElementObJ } from "./WGPURenderElementObJ";
 

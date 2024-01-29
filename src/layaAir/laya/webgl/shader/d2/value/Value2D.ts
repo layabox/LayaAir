@@ -12,7 +12,7 @@ import { TextTexture } from "../../../text/TextTexture"
 import { LayaGL } from "../../../../layagl/LayaGL"
 import { ShaderData } from "../../../../RenderDriver/RenderModuleData/Design/ShaderData"
 import { IDefineDatas } from "../../../../RenderDriver/RenderModuleData/Design/IDefineDatas"
-import { WebGLShaderInstance } from "../../../../RenderDriver/WebglDriver/RenderDevice/WebGLShaderInstance"
+import { WebGLShaderInstance } from "../../../../RenderDriver/WebGLDriver/RenderDevice/WebGLShaderInstance"
 import { WebShaderData } from "../../../../RenderDriver/RenderModuleData/WebModuleData/WebShaderData"
 
 export enum RenderSpriteData {

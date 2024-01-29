@@ -1,4 +1,4 @@
-import { WebGLEngine } from "../RenderDriver/WebglDriver/RenderDevice/WebGLEngine";
+import { WebGLEngine } from "../RenderDriver/WebGLDriver/RenderDevice/WebGLEngine";
 import { BlendEquationSeparate } from "../RenderEngine/RenderEnum/BlendEquationSeparate";
 import { BlendFactor } from "../RenderEngine/RenderEnum/BlendFactor";
 import { CompareFunction } from "../RenderEngine/RenderEnum/CompareFunction";

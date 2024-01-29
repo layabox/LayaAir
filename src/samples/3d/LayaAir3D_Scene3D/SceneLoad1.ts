@@ -8,8 +8,8 @@ import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 import { Laya3DRender } from "laya/d3/RenderObjs/Laya3DRender";
 import { WebUnitRenderModuleDataFactory } from "laya/RenderDriver/RenderModuleData/WebModuleData/WebUnitRenderModuleDataFactory"
 import { Web3DRenderModuleFactory } from "laya/RenderDriver/RenderModuleData/WebModuleData/3D/Web3DRenderModuleFactory"
-import {WebGL3DRenderPassFactory} from "laya/RenderDriver/WebglDriver/3DRenderPass/WebGL3DRenderPassFactory"
-import {WebGLRenderDeviceFactory} from "laya/RenderDriver/WebglDriver/RenderDevice/WebGLRenderDeviceFactory"
+import {WebGL3DRenderPassFactory} from "laya/RenderDriver/WebGLDriver/3DRenderPass/WebGL3DRenderPassFactory"
+import {WebGLRenderDeviceFactory} from "laya/RenderDriver/WebGLDriver/RenderDevice/WebGLRenderDeviceFactory"
 import {LengencyRenderEngine3DFactory} from "laya/RenderDriver/DriverDesign/3DRenderPass/LengencyRenderEngine3DFactory"
 import { LayaGL } from "laya/layagl/LayaGL";
 export class SceneLoad1 {

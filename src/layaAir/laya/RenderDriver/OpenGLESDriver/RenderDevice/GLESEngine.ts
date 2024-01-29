@@ -5,8 +5,8 @@ import { IRenderEngine } from "../../DriverDesign/RenderDevice/IRenderEngine";
 import { IRenderEngineFactory } from "../../DriverDesign/RenderDevice/IRenderEngineFactory";
 import { ITextureContext } from "../../DriverDesign/RenderDevice/ITextureContext";
 import { InternalTexture } from "../../DriverDesign/RenderDevice/InternalTexture";
-import { WebGLMode } from "../../WebglDriver/RenderDevice/WebGLEngine/GLEnum/WebGLMode";
-import { WebGLConfig } from "../../WebglDriver/RenderDevice/WebGLEngine/WebGLConfig";
+import { WebGLMode } from "../../WebGLDriver/RenderDevice/WebGLEngine/GLEnum/WebGLMode";
+import { WebGLConfig } from "../../WebGLDriver/RenderDevice/WebGLEngine/WebGLConfig";
 
 
 /**

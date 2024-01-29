@@ -1,7 +1,7 @@
 
 import { Config } from "../../../../Config";
 import { LayaGL } from "../../../layagl/LayaGL";
-import { WebGLShaderInstance } from "../../../RenderDriver/WebglDriver/RenderDevice/WebGLShaderInstance";
+import { WebGLShaderInstance } from "../../../RenderDriver/WebGLDriver/RenderDevice/WebGLShaderInstance";
 import { CommandUniformMap } from "../../../RenderEngine/CommandUniformMap";
 import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { ShaderPass } from "../../../RenderEngine/RenderShader/ShaderPass";
