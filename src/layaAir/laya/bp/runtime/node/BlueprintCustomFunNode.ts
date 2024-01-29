@@ -18,13 +18,18 @@ export class BlueprintCustomFunNode extends BlueprintFunNode {
         }
     }
 
-    protected excuteFun(context: IRunAble, runTimeData: IRuntimeDataManger, caller: IBluePrintSubclass, parmsArray: any[], runId: number) {
+    protected excuteFun(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, caller: IBluePrintSubclass, parmsArray: any[], runId: number) {
         //TODO 
         if (caller && caller[BlueprintFactory.contextSymbol]) {
             let primise: Promise<any>;
             let cb: any;
             let result: any;
             result = caller[BlueprintFactory.bpSymbol].runCustomFun(caller[BlueprintFactory.contextSymbol], this.functionID, parmsArray, () => {
+                const _runTimeData = context.getDataMangerByID(this.functionID);
+                if (_runTimeData.debuggerPause) {
+                    _runTimeData.debuggerPause = false;
+                    context.debuggerManager.pause(context as any, this);
+                }
                 if (result === false && cb) {
                     cb();
                 }

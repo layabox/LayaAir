@@ -1,5 +1,8 @@
 import { Laya } from "../../../../Laya";
 import { InputManager } from "../../../events/InputManager";
+import { IExcuteListInfo } from "../../core/interface/IExcuteListInfo";
+import { BlueprintExcuteDebuggerNode } from "../action/BlueprintExcuteDebuggerNode";
+import { IRunAble } from "../interface/IRunAble";
 
 /**
  * 
@@ -8,25 +11,39 @@ import { InputManager } from "../../../events/InputManager";
  * @ data: 2024-01-15 15:40
  */
 export class BlueprintDebuggerManager {
-    currentStep: any;
+    context: BlueprintExcuteDebuggerNode;
+    listInfo: IExcuteListInfo;
     private _debugging: boolean;
 
-    pause(node: any) {
+    pause(context: BlueprintExcuteDebuggerNode, listInfo: IExcuteListInfo) {
         this.debugging = true;
-        this.currentStep = node;
+        this.context = context;
+        this.listInfo = listInfo;
     }
 
     resume() {
         this.debugging = false;
-        this.currentStep.next();
+        this.context.next();
+    }
+
+    stepOut() {
+        const runTimeData = this.context.getDataMangerByID(this.listInfo.listIndex);
+        runTimeData.debuggerPause = true;
+        this.resume();
     }
 
     stepInto() {
-        this.currentStep.next();
+        this.context.next();
     }
 
     stepOver() {
-        this.currentStep.next();
+        this.context.next();
+    }
+
+    clear() {
+        this.listInfo = null;
+        this.context = null;
+        this.debugging = false;
     }
 
     public get debugging(): boolean {
