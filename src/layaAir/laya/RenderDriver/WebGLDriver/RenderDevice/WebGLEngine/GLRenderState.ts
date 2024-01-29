@@ -5,17 +5,18 @@ import { CullMode } from "../../../../RenderEngine/RenderEnum/CullMode";
 import { StencilOperation } from "../../../../RenderEngine/RenderEnum/StencilOperation";
 import { WebGLEngine } from "../WebGLEngine";
 
+
 export class GLRenderState {
     //Depth
     /**@internal */
-    private _depthTest: boolean = true;
+    private _depthTest: boolean;
     /**@internal */
-    private _depthMask: boolean = true;
+    private _depthMask: boolean;
     /**@internal */
     private _depthFunc: number;
     //stencil
     /**@internal */
-    private _stencilTest: boolean = false;
+    private _stencilTest: boolean;
     /**@internal */
     private _stencilFunc: number;
     /**@internal */
@@ -30,7 +31,7 @@ export class GLRenderState {
     private _stencilOp_zpass: number;
     //blender
     /**@internal */
-    private _blend: boolean = false;
+    private _blend: boolean;
     /**@internal */
     private _blendEquation: number;
     /**@internal */
@@ -51,7 +52,7 @@ export class GLRenderState {
     private _dFactorAlpha: number;
     //cull
     /**@internal */
-    private _cullFace: boolean = false;
+    private _cullFace: boolean;
     /**@internal */
     private _frontFace: number;
 
@@ -67,7 +68,7 @@ export class GLRenderState {
     constructor(engine: WebGLEngine) {
         this._engine = engine;
         this._gl = this._engine.gl;
-        this._initState();
+        // this._initState();
     }
 
     /**
@@ -75,7 +76,7 @@ export class GLRenderState {
      */
     private _initState() {
         //TODO:并不完全
-        const gl = this._gl;
+        // todo 默认值设置
         this.setDepthFunc(CompareFunction.Less);
         this.setBlendEquationSeparate(BlendEquationSeparate.ADD, BlendEquationSeparate.ADD);
         this._blendEquation = BlendEquationSeparate.ADD;
