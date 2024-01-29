@@ -1,8 +1,6 @@
-import { regClass } from "../../../../Decorators";
 import { Component } from "../../../components/Component";
 import { Node } from "../../../display/Node";
 import { BlueprintUtil } from "../../core/BlueprintUtil";
-import { customData } from "../BlueprintExtends";
 import { BPType } from "./BlueprintTypes";
 
 export type TBPDecoratorsPropertType = "function" | "property" | "class" | "constructor" | "accessor";
@@ -36,6 +34,8 @@ export type TBPDeclaration = {
     canInherited?:boolean;
     /** 继承的类型数组，按次序从为父类的父类  */
     extends?: string[];
+    /** 事件相关 */
+    events?:TBPDeclarationEvent[];
     /** 实现的接口名 */
     implements?: string[];
     /** 该描述的属性列表 */
@@ -52,6 +52,24 @@ export type TBPDeclaration = {
     tips?:string;
 }
 
+export type TBPDeclarationEvent = {
+    name:string;
+    data?:TBPDeclarationEventData[];
+}
+
+export type TBPDeclarationEventData = {
+    id?:number;
+    /** 参数名称 */
+    name: string;
+    /** 参数类型 */
+    type: string;
+    /** 显示名称，没有默认使用name */
+    caption?:string;
+    /** 分组 */
+    catalog?:string;
+    /** 提示内容 */
+    tips?:string;
+}
 
 export type TBPDeclarationConstructor = {
     params?: TBPDeclarationParam[];
