@@ -720,8 +720,8 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
      */
     set_DistanceJointStiffnessDamping(joint: any, steffness: number, damping: number) {
         let out: any = {};
-        let bodyA = joint.bodyA;
-        let bodyB = joint.bodyB;
+        let bodyA = joint.GetBodyA();
+        let bodyB = joint.GetBodyB();
         this.box2d.b2LinearStiffness(out, steffness, damping, bodyA, bodyB);
         joint.SetStiffness(out.stiffness);
         joint.SetDamping(out.damping);
