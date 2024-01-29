@@ -126,7 +126,7 @@ export class Texture extends Resource {
         u2 - (1 - oriUV[4]) * inAltasUVWidth, v2 - (1 - oriUV[5]) * inAltasUVHeight,
         u1 + oriUV[6] * inAltasUVWidth, v2 - (1 - oriUV[7]) * inAltasUVHeight]);
 
-        var bitmapScale: number = ((<Texture>(bitmap as any))).scaleRate;
+        var bitmapScale: number = (<Texture>source).scaleRate;
         if (bitmapScale && bitmapScale != 1) {
             tex.sourceWidth /= bitmapScale;
             tex.sourceHeight /= bitmapScale;
