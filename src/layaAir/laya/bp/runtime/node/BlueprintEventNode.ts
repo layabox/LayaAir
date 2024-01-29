@@ -47,17 +47,17 @@ export class BlueprintEventNode extends BlueprintRuntimeBaseNode {
 
     emptyExcute(context: IRunAble,runtimeDataMgr: IRuntimeDataManger, fromExcute: boolean, runner: IBPRutime, enableDebugPause: boolean,runId: number, fromPin: BlueprintPinRuntime): number | BlueprintPromise {
         if (fromPin && fromPin.otype == "bpFun") {
-            let data = runTimeData.getDataById(this.nid);
+            let data = runtimeDataMgr.getDataById(this.nid);
             let _this = this;
             data.eventName = this.eventName;
             data.callFun = data.callFun || function () {
                 let parms = Array.from(arguments);
                 parms.forEach((value, index) => {
-                    runTimeData.setPinData(_this.outPutParmPins[index], value,runId);
+                    runtimeDataMgr.setPinData(_this.outPutParmPins[index], value,runId);
                 })
-                runner.runByContext(context,runTimeData, _this, enableDebugPause,null,-1);
+                runner.runByContext(context,runtimeDataMgr, _this, enableDebugPause,null,-1);
             }
-            runTimeData.setPinData(fromPin, data.callFun,runId);
+            runtimeDataMgr.setPinData(fromPin, data.callFun,runId);
         }
         return BlueprintConst.MAX_CODELINE;
     }
@@ -102,7 +102,7 @@ export class BlueprintEventNode extends BlueprintRuntimeBaseNode {
         if (fromExcute) {
             context.endExcute(this);
         }
-        return this.next(context,runTimeData,null,null,false,-1);
+        return this.next(context,runtimeDataMgr,null,null,false,-1);
     }
 
     next(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, parmsArray: any[], runner: IBPRutime, enableDebugPause: boolean, runId: number): number {

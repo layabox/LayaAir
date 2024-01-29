@@ -21,15 +21,15 @@ export class BlueprintSetVarNode extends BlueprintFunNode {
     }
 
     step(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, fromExcute: boolean, runner: IBPRutime, enableDebugPause: boolean, runId: number): number {
-        let _parmsArray: any[] = this.colloctParam(context, runTimeData, this.inPutParmPins, runner, runId);
+        let _parmsArray: any[] = this.colloctParam(context, runtimeDataMgr, this.inPutParmPins, runner, runId);
 
         context.parmFromCustom(_parmsArray, this._varKey, '"' + this._varKey + '"');
 
         context.parmFromCustom(_parmsArray, context, "context");
 
         if (this.nativeFun) {
-            context.excuteFun(this.nativeFun, this.outPutParmPins, runTimeData, BlueprintFunNode, _parmsArray, runId);
+            context.excuteFun(this.nativeFun, this.outPutParmPins, runtimeDataMgr, BlueprintFunNode, _parmsArray, runId);
         }
-        return this.next(context, runTimeData, _parmsArray, runner, enableDebugPause, runId);
+        return this.next(context, runtimeDataMgr, _parmsArray, runner, enableDebugPause, runId);
     }
 }

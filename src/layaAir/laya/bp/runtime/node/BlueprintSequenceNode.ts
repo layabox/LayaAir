@@ -23,7 +23,7 @@ export class BlueprintSequenceNode extends BlueprintComplexNode {
                 else {
                     let cb: any;
                     let result: boolean;
-                    result = runner.runByContext(context, runTimeData, pin.owner, enableDebugPause, () => {
+                    result = runner.runByContext(context, runtimeDataMgr, pin.owner, enableDebugPause, () => {
                         if (result === false && cb) {
                             cb();
                         }
