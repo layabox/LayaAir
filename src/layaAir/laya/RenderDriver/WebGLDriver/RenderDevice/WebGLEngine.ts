@@ -25,7 +25,7 @@ import { GLRenderState } from "./WebGLEngine/GLRenderState";
 import { GLShaderInstance } from "./WebGLEngine/GLShaderInstance";
 import { GLVertexState } from "./WebGLEngine/GLVertexState";
 import { GlCapable } from "./WebGLEngine/GlCapable";
-import { WebGlConfig } from "./WebGLEngine/WebGLConfig";
+import { WebGLConfig } from "./WebGLEngine/WebGLConfig";
 
 /**
  * 封装Webgl
@@ -34,7 +34,7 @@ export class WebGLEngine implements IRenderEngine {
 
     _context: WebGLRenderingContext | WebGL2RenderingContext;
 
-    private _config: WebGlConfig;
+    private _config: WebGLConfig;
 
     private _isWebGL2: boolean;
 
@@ -119,7 +119,7 @@ export class WebGLEngine implements IRenderEngine {
     //GPU统计数据
     private _GLStatisticsInfo: Map<RenderStatisticsInfo, number> = new Map();
     static instance:WebGLEngine;
-    constructor(config: WebGlConfig, webglMode: WebGLMode = WebGLMode.Auto) {
+    constructor(config: WebGLConfig, webglMode: WebGLMode = WebGLMode.Auto) {
         this._config = config;
         this._isWebGL2 = false;
         //init data

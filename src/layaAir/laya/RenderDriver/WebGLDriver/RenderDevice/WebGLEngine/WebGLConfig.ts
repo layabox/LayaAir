@@ -1,7 +1,7 @@
 /**
  * init Webgl option
  */
-export class WebGlConfig {
+export class WebGLConfig {
     stencil: boolean;
     alpha: boolean;
     depth: boolean;
