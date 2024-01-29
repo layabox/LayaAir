@@ -53,6 +53,7 @@ import "./loaders/ShaderLoader";
 import "./media/webaudio/WebAudioLoader";
 import { BlueprintRuntime } from "./bp/runtime/BlueprintRuntime";
 import { BlueprintFactory } from "./bp/runtime/BlueprintFactory";
+import { BehaviorTreeFactory } from "./bt/BehaviorTreeFactory";
 
 let c = ClassUtils.regClass;
 
@@ -104,3 +105,5 @@ c("Matrix4x4", Matrix4x4);
 c("BPRuntime",BlueprintRuntime);
 
 c("BPFactory",BlueprintFactory);
+
+c("BTFactory",BehaviorTreeFactory);

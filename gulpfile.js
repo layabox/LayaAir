@@ -42,6 +42,7 @@ const packsDef = [{
             './layaAir/laya/media/**/*.*',
             './layaAir/laya/net/**/*.*',
             "./layaAir/laya/bp/**/*.*",
+            "./layaAir/laya/bt/**/*.*",
 
             // './layaAir/laya/RenderEngine/**/*.*',
             './layaAir/laya/RenderEngine/RenderEngine/NativeGLEngine/**/*.*',
