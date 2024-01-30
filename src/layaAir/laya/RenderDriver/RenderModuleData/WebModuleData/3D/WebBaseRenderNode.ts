@@ -149,7 +149,7 @@ export class WebBaseRenderNode implements IBaseRenderNode {
         if (!this.renderelements[index])
             return;
         this.renderelements[index].materialShaderData = mat.shaderData as WebShaderData;
-        this.renderelements[index].materialRenderQueue;
+        this.renderelements[index].materialRenderQueue = mat.renderQueue;
         this.renderelements[index].subShader = mat.shader.getSubShaderAt(0);
     }
 

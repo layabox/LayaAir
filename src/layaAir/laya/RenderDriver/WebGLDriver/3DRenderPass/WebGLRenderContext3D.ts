@@ -146,6 +146,7 @@ export class WebGLRenderContext3D implements IRenderContext3D {
     constructor() {
         this._clearColor = new Color();
         this._globalConfigShaderData = Shader3D._configDefineValues;
+        this.cameraUpdateMask = 0;
     }
 
     setClearData(clearFlag: number, color: Color, depth: number, stencil: number): number {

@@ -42,6 +42,7 @@ import { RenderClearFlag } from "../../RenderEngine/RenderEnum/RenderClearFlag";
 import { IForwardAddRP, IRender3DProcess } from "../../RenderDriver/DriverDesign/3DRenderPass/I3DRenderPass";
 import { ICameraNodeData } from "../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
 import { Transform3D } from "./Transform3D";
+import { Scene3DShaderDeclaration } from "./scene/Scene3DShaderDeclaration";
 
 /**
  * 相机清除标记。
@@ -703,6 +704,11 @@ export class Camera extends BaseCamera {
         ILaya.stage.on(Event.RESIZE, this, this._onScreenSizeChanged);
         this.transform.on(Event.TRANSFORM_CHANGED, this, this._onTransformChanged);
         this.opaquePass = false;
+
+        this._renderDataModule.farplane = this.farPlane;
+        this._renderDataModule.nearplane = this.nearPlane;
+        this._renderDataModule.fieldOfView = this.fieldOfView;
+        this._renderDataModule.aspectRatio = this.aspectRatio;
     }
 
     /**
@@ -1226,20 +1232,29 @@ export class Camera extends BaseCamera {
             var needDirShadowCasterPass: boolean = mainDirectLight && mainDirectLight.shadowMode !== ShadowMode.None && ShadowUtils.supportShadow();
             this._ForwardAddRP.enableDirectLightShadow = needDirShadowCasterPass;
             if (needDirShadowCasterPass) {
+                scene._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW);
                 this._ForwardAddRP.directLightShadowPass.camera = this._renderDataModule;
                 this._ForwardAddRP.directLightShadowPass.light = mainDirectLight._dataModule;
                 let dirlightShadowmap = ILaya3D.Scene3D._shadowCasterPass.getDirectLightShadowMap(mainDirectLight);
                 this._ForwardAddRP.directLightShadowPass.destTarget = dirlightShadowmap._renderTarget;
                 scene._shaderValues.setTexture(ShadowCasterPass.SHADOW_MAP, dirlightShadowmap);
             }
+            else {
+                scene._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW);
+            }
+
             //spotLight ShadowCaster
             var spotMainLight = scene._mainSpotLight;
             var spotneedShadowCasterPass: boolean = spotMainLight && spotMainLight.shadowMode !== ShadowMode.None && ShadowUtils.supportShadow();
             if (spotneedShadowCasterPass) {
+                scene._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SPOT);
                 this._ForwardAddRP.enableSpotLightShadowPass = spotneedShadowCasterPass;
                 let spotShadowMap = ILaya3D.Scene3D._shadowCasterPass.getSpotLightShadowPassData(spotMainLight);
                 scene._shaderValues.setTexture(ShadowCasterPass.SHADOW_SPOTMAP, spotShadowMap);
                 this._ForwardAddRP.spotLightShadowPass.destTarget = spotShadowMap._renderTarget;
+            }
+            else {
+                scene._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SPOT);
             }
         }
 

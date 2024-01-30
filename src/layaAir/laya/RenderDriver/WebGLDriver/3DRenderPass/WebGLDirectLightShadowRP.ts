@@ -123,6 +123,7 @@ export class WebGLDirectLightShadowRP implements IDirectLightShadowRP {
         this._cascadesSplitDistance = new Array(WebGLDirectLightShadowRP._maxCascades + 1);
         this._renderQueue = new WebGLRenderListQueue(false);
         this._frustumPlanes = new Array(new Plane(new Vector3(), 0), new Plane(new Vector3(), 0), new Plane(new Vector3(), 0), new Plane(new Vector3(), 0), new Plane(new Vector3(), 0), new Plane(new Vector3(), 0));
+        this._shadowCullInfo = new ShadowCullInfo();
     }
 
     update(context: WebGLRenderContext3D): void {
@@ -153,6 +154,9 @@ export class WebGLDirectLightShadowRP implements IDirectLightShadowRP {
         context.pipelineMode = "ShadowCaster";
         var shadowMap = this.destTarget
         context.setRenderTarget(shadowMap);
+
+        let originCameraData = context.cameraData;
+
         //需要把shadowmap clear Depth;
         for (var i: number = 0, n: number = this._cascadeCount; i < n; i++) {
             var sliceData: ShadowSliceData = this._shadowSliceDatas[i];
@@ -192,6 +196,9 @@ export class WebGLDirectLightShadowRP implements IDirectLightShadowRP {
             this._applyCasterPassCommandBuffer(context);
         }
         this._applyRenderData(context.sceneData, context.cameraData);
+
+        context.cameraData = originCameraData;
+        context.cameraUpdateMask++;
     }
 
     /**

@@ -75,6 +75,7 @@ export class DirectionLightCom extends Light {
 	constructor() {
 		super();
 		this._lightType = LightType.Directional;
+		this.shadowCascadesMode = ShadowCascadesMode.NoCascades;
 		this.shadowFourCascadeSplits = new Vector3(1.0 / 15, 3.0 / 15.0, 7.0 / 15.0);
 		this.shadowTwoCascadeSplits = 1.0 / 3.0;
 	}

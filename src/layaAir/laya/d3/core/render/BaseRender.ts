@@ -199,6 +199,11 @@ export class BaseRender extends Component {
 
     _renderElements: RenderElement[] = [];
 
+    set enabled(value: boolean) {
+        super.enabled = value;
+        this._baseRenderNode.enable = value;
+    }
+
     /**排序矫正值。*/
     set sortingFudge(value: number) {
         this._baseRenderNode.sortingFudge = value;
@@ -469,6 +474,7 @@ export class BaseRender extends Component {
         this._renderid = ++BaseRender._uniqueIDCounter;
         this._baseRenderNode.bounds = this._bounds = new Bounds(Vector3.ZERO, Vector3.ZERO);
         this._enabled = true;
+        this._baseRenderNode.enable = true;
         this._materialsInstance = [];
         this.lightmapIndex = -1;
         this.receiveShadow = false;
@@ -485,6 +491,8 @@ export class BaseRender extends Component {
         this.boundsChange = true;
         this._baseRenderNode.renderbitFlag = 0;
         this._baseRenderNode.staticMask = 1;
+
+        this.castShadow = false;
     }
     /**
      * 每一帧计算包围盒会调用的函数
