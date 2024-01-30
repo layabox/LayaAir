@@ -106,8 +106,6 @@ export class SubMesh extends GeometryElement {
 	 */
 	_updateRenderParams(state: RenderContext3D): void {
 		var mesh: Mesh = this._mesh;
-
-		//var skinnedDatas: any[] = (state.renderElement && !!(state.renderElement.render)) ? (<SkinnedMeshRenderer>state.renderElement.render)._skinnedData : null;
 		var byteCount: number;
 		switch (mesh._indexFormat) {
 			case IndexFormat.UInt32:
@@ -122,13 +120,13 @@ export class SubMesh extends GeometryElement {
 		}
 		this.clearRenderParams();
 		this.bufferState = mesh._bufferState;
-		// if (skinnedDatas) {
-		// 	for (var i: number = 0, n: number = this._boneIndicesList.length; i < n; i++) {
-		// 		this.setDrawElemenParams(this._subIndexBufferCount[i], this._subIndexBufferStart[i] * byteCount);
-		// 	}
-		// } else {
-		this.setDrawElemenParams(this._indexCount, this._indexStart * byteCount);
-		// }
+		if (this._boneIndicesList && this._boneIndicesList.length > 1) {
+			for (var i: number = 0, n: number = this._boneIndicesList.length; i < n; i++) {
+				this.setDrawElemenParams(this._subIndexBufferCount[i], this._subIndexBufferStart[i] * byteCount);
+			}
+		} else {
+			this.setDrawElemenParams(this._indexCount, this._indexStart * byteCount);
+		}
 	}
 
 
