@@ -7,7 +7,7 @@ import {  ShaderProcessInfo } from "../../../webgl/utils/ShaderCompileDefineBase
  * @internal
  * <code>ShaderInstance</code> 类用于实现ShaderInstance。
  */
-export class GLEEShaderInstance implements IShaderInstance {
+export class GLESShaderInstance implements IShaderInstance {
 
 	_nativeObj: any;
 

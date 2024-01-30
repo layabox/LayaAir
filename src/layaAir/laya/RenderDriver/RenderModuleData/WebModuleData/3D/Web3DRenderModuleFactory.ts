@@ -59,7 +59,6 @@ export class Web3DRenderModuleFactory implements I3DRenderModuleFactory {
        return new WebSubShader();
     }
     
-
     createBaseRenderNode(): WebBaseRenderNode {
        return new WebBaseRenderNode();
     }

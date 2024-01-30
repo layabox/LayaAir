@@ -1193,7 +1193,7 @@ export class Camera extends BaseCamera {
             this._ForwardAddRP.renderpass.clearFlag = clearConst;
         }
 
-
+        
         this._ForwardAddRP.renderpass.pipelineMode = context.configPipeLineMode;
         this._ForwardAddRP.renderpass.setViewPort(this.viewport);
         Vector4.tempVec4.setValue(this.viewport.x, this.viewport.y, this.viewport.width, this.viewport.height);

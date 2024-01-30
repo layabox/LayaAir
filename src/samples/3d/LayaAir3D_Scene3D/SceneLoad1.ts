@@ -12,14 +12,17 @@ import {WebGL3DRenderPassFactory} from "laya/RenderDriver/WebglDriver/3DRenderPa
 import {WebGLRenderDeviceFactory} from "laya/RenderDriver/WebglDriver/RenderDevice/WebGLRenderDeviceFactory"
 import {LengencyRenderEngine3DFactory} from "laya/RenderDriver/DriverDesign/3DRenderPass/LengencyRenderEngine3DFactory"
 import { LayaGL } from "laya/layagl/LayaGL";
+import { WebGLRenderEngineFactory } from "laya/RenderDriver/WebglDriver/RenderDevice/WebGLRenderEngineFactory";
 export class SceneLoad1 {
 	constructor() {
 		//Laya3DRender.renderDriverPassCreate = new GLESRenderDriverPassFactory();
 		LayaGL.unitRenderModuleDataFactory = new WebUnitRenderModuleDataFactory();
 		LayaGL.renderDeviceFactory = new WebGLRenderDeviceFactory();
+		LayaGL.renderOBJCreate = new WebGLRenderEngineFactory();
 		Laya3DRender.renderOBJCreate = new LengencyRenderEngine3DFactory();
 		Laya3DRender.Render3DModuleDataFactory = new Web3DRenderModuleFactory();
 		Laya3DRender.Render3DPassFactory = new WebGL3DRenderPassFactory();
+		
 
 		//初始化引擎
 		Laya.init(0, 0).then(() => {

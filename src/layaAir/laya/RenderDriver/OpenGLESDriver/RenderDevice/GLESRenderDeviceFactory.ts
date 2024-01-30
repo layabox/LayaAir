@@ -10,7 +10,7 @@ import { IRenderDeviceFactory } from "../../DriverDesign/RenderDevice/IRenderDev
 import { IRenderGeometryElement } from "../../DriverDesign/RenderDevice/IRenderGeometryElement";
 import { IShaderInstance } from "../../DriverDesign/RenderDevice/IShaderInstance";
 import { IVertexBuffer } from "../../DriverDesign/RenderDevice/IVertexBuffer";
-import { GLEEShaderInstance } from "./GLEEShaderInstance";
+import { GLESShaderInstance } from "./GLESShaderInstance";
 import { GLESBufferState } from "./GLESBufferState";
 import { GLESIndexBuffer } from "./GLESIndexBuffer";
 import { GLESRenderGeometryElement } from "./GLESRenderGeometryElement";
@@ -18,7 +18,7 @@ import { GLESVertexBuffer } from "./GLESVertexBuffer";
 
 export class GLESRenderDeviceFactory implements IRenderDeviceFactory {
     createShaderInstance(shaderProcessInfo: ShaderProcessInfo, shaderPass: ShaderPass): IShaderInstance {
-        let shaderIns = new GLEEShaderInstance();
+        let shaderIns = new GLESShaderInstance();
         shaderIns._create(shaderProcessInfo, shaderPass);
         return shaderIns;
     }

@@ -1,5 +1,4 @@
 import { IDefineDatas } from "../Design/IDefineDatas";
-import { RTShaderData } from "./RTShaderData";
 import { RTShaderDefine } from "./RTShaderDefine";
 
 

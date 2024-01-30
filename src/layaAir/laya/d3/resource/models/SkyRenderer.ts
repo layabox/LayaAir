@@ -14,7 +14,6 @@ import { RenderElement } from "../../core/render/RenderElement";
 import { ShaderData, ShaderDataType } from "../../../RenderDriver/RenderModuleData/Design/ShaderData";
 import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
 import { Transform3D } from "../../core/Transform3D";
-import { BaseCamera } from "../../core/BaseCamera";
 import { IBaseRenderNode } from "../../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
 
 const InvertYScaleMat = new Matrix4x4(1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
@@ -130,7 +129,7 @@ export class SkyRenderer {
 
                 let projectView = ProjectionViewMat;
                 Matrix4x4.multiply(projMat, viewMat, projectView);
-
+               
                 this._cameraData.setMatrix4x4(Camera.VIEWMATRIX, viewMat);
                 this._cameraData.setMatrix4x4(Camera.PROJECTMATRIX, projMat);
                 this._cameraData.setMatrix4x4(Camera.VIEWPROJECTMATRIX, projectView);
@@ -238,10 +237,6 @@ export class SkyRenderer {
             } else {
                 camera._applyViewProject(context, viewMatrix, projectionMatrix);//TODO:优化 不应设置给Camera直接提交
             }
-
-            // context._contextOBJ.applyContext(Camera._updateMark);
-            // context.drawRenderElement(this._renderElement);
-            // camera._applyViewProject(context, camera.viewMatrix, camera.projectionMatrix);
         }
     }
 
