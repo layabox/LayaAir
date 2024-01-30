@@ -1199,7 +1199,7 @@ export class Camera extends BaseCamera {
             this._ForwardAddRP.renderpass.clearFlag = clearConst;
         }
 
-        
+
         this._ForwardAddRP.renderpass.pipelineMode = context.configPipeLineMode;
         this._ForwardAddRP.renderpass.setViewPort(this.viewport);
         Vector4.tempVec4.setValue(this.viewport.x, this.viewport.y, this.viewport.width, this.viewport.height);
@@ -1246,9 +1246,10 @@ export class Camera extends BaseCamera {
             //spotLight ShadowCaster
             var spotMainLight = scene._mainSpotLight;
             var spotneedShadowCasterPass: boolean = spotMainLight && spotMainLight.shadowMode !== ShadowMode.None && ShadowUtils.supportShadow();
+            this._ForwardAddRP.enableSpotLightShadowPass = spotneedShadowCasterPass;
             if (spotneedShadowCasterPass) {
                 scene._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SPOT);
-                this._ForwardAddRP.enableSpotLightShadowPass = spotneedShadowCasterPass;
+                this._ForwardAddRP.spotLightShadowPass.light = spotMainLight;
                 let spotShadowMap = ILaya3D.Scene3D._shadowCasterPass.getSpotLightShadowPassData(spotMainLight);
                 scene._shaderValues.setTexture(ShadowCasterPass.SHADOW_SPOTMAP, spotShadowMap);
                 this._ForwardAddRP.spotLightShadowPass.destTarget = spotShadowMap._renderTarget;
