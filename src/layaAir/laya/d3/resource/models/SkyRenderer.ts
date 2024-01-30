@@ -66,11 +66,9 @@ export class SkyRenderer {
             this._renderElement.material = value;
             if (value) {
                 value._addReference();
-                this._renderElement.renderSubShader = this._material._shader.getSubShaderAt(0);
-                this._baseRenderNode.setOneMaterial(0, value);
+                //this._renderElement.renderSubShader = this._material._shader.getSubShaderAt(0);
+                //this._baseRenderNode.setOneMaterial(0, value);
             }
-            else
-                this._renderElement.renderSubShader = null;
         }
     }
 

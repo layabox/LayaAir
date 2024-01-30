@@ -67,22 +67,26 @@ export interface IBaseRenderNode {
      */
     setCommonUniformMap(value: string[]): void;
 
-    /**
-     * @internal
-     * @param index 
-     * @param mat 
-     */
-    setOneMaterial(index: number, mat: Material): void;
+    // /**
+    //  * @internal
+    //  * @param index 
+    //  * @param mat 
+    //  */
+    // setOneMaterial(index: number, mat: Material): void;
 
     /**
      * @override
      * @internal
      */
     destroy(): void;
+
+    _applyLightProb(): void;
+
+    _applyReflection(): void;
 }
 
-export interface IMeshRenderNode extends IBaseRenderNode{
-    
+export interface IMeshRenderNode extends IBaseRenderNode {
+
 }
 
 //Light
@@ -94,7 +98,7 @@ export interface IDirectLightData {
     shadowStrength: number;
     shadowDepthBias: number;
     shadowNormalBias: number;
-    shadowNearPlane:number;
+    shadowNearPlane: number;
     shadowCascadesMode: ShadowCascadesMode;
     shadowTwoCascadeSplits: number;
     setShadowFourCascadeSplits(value: Vector3): void;

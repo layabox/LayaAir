@@ -263,7 +263,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
                     }
                     renderElement.render = this;
                     renderElement.material = material ? material : BlinnPhongMaterial.defaultMaterial;//确保有材质,由默认材质代替。
-                    renderElement.renderSubShader = renderElement.material.shader.getSubShaderAt(0);
+                    //renderElement.renderSubShader = renderElement.material.shader.getSubShaderAt(0);
                 }
                 renderElement.setGeometry(mesh.getSubMesh(i));
             }
@@ -355,7 +355,8 @@ export class SkinnedMeshRenderer extends MeshRenderer {
             mat = Matrix4x4.DEFAULT;
             worldParams.x = 1;
         }
-
+        this._baseRenderNode._applyLightProb();
+        this._baseRenderNode._applyReflection();
         let shaderData = this._baseRenderNode.shaderData;
 
         shaderData.setMatrix4x4(Sprite3D.WORLDMATRIX, mat);

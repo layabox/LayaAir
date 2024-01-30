@@ -308,7 +308,7 @@ export class BaseRender extends Component {
             this._sharedMaterials[0] = value;
             this._materialsInstance[0] = false;
             this._changeMaterialReference(lastValue, value);
-            this._baseRenderNode.setOneMaterial(0, value);
+            this._renderElements[0].material = value;
         }
         this._isSupportRenderFeature();
     }
@@ -338,7 +338,7 @@ export class BaseRender extends Component {
                 var mat: Material = value[i];
                 if (lastMat !== mat) {
                     materialsInstance[i] = false;
-                    this._baseRenderNode.setOneMaterial(i, mat);
+                    this._renderElements[i].material = mat;
                 }
                 if (mat) {
                     mat._addReference();

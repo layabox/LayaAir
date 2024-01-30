@@ -64,7 +64,7 @@ export class LensFlareCMD extends Command {
         this._materials.depthTest = RenderState.DEPTHTEST_ALWAYS;
         this._materials.cull = RenderState.CULL_NONE;
         this._renderElement.material = this._materials;
-        this._renderElement.renderSubShader = this._materials.shader.getSubShaderAt(0);
+        //this._renderElement.renderSubShader = this._materials.shader.getSubShaderAt(0);
         this._renderElement.subShaderIndex = 0;
 
     }

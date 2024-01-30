@@ -125,7 +125,7 @@ export class DrawMeshInstancedCMD extends Command {
                 element.setGeometry(geometry);
                 element.transform = this._transform;
                 element.material = this._material;
-                element.renderSubShader = this._material._shader.getSubShaderAt(this._subShaderIndex);
+               // element.renderSubShader = this._material._shader.getSubShaderAt(this._subShaderIndex);
                 element._subShaderIndex = this._subShaderIndex;
                 element.render = this._render;
 
@@ -139,7 +139,7 @@ export class DrawMeshInstancedCMD extends Command {
             element.transform = this._transform;
             element.material = this._material;
             element.render = this._render;
-            element.renderSubShader = this._material._shader.getSubShaderAt(this._subShaderIndex);
+            //element.renderSubShader = this._material._shader.getSubShaderAt(this._subShaderIndex);
             geometry.bufferState = this._instanceBufferState;
             geometry.instanceCount = this._drawnums;
         }

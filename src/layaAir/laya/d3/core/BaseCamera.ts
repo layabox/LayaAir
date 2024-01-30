@@ -5,7 +5,7 @@ import { Config3D } from "../../../Config3D";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { UniformBufferParamsType, UnifromBufferData } from "../../RenderEngine/UniformBufferData";
 import { Scene3D } from "./scene/Scene3D";
-import { Sprite3D, StaticFlag } from "./Sprite3D";
+import { Sprite3D } from "./Sprite3D";
 import { UniformBufferObject } from "../../RenderEngine/UniformBufferObject";
 import { BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
 import { ILaya } from "../../../ILaya";

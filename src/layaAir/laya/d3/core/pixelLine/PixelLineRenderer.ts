@@ -153,7 +153,7 @@ export class PixelLineRenderer extends BaseRender {
         renderElement.setGeometry(this._pixelLineFilter);
         renderElement.render = this;
         renderElement.material = material;
-        renderElement.renderSubShader = renderElement.material.shader.getSubShaderAt(0);//TODO
+        //renderElement.renderSubShader = renderElement.material.shader.getSubShaderAt(0);//TODO
         this._setRenderElements();
     }
 

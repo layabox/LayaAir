@@ -45,6 +45,8 @@ export class RenderElement {
         if (value) {
             this._material = value;
             this._renderElementOBJ.materialShaderData = value.shaderData;
+            this._renderElementOBJ.materialRenderQueue = value.renderQueue;
+            this._renderElementOBJ.subShader = this._subShader = value.shader.getSubShaderAt(0);
         }
     }
 
