@@ -24,11 +24,12 @@ export class BlueprintCustomFunNode extends BlueprintFunNode {
             let primise: Promise<any>;
             let cb: any;
             let result: any;
-            result = caller[BlueprintFactory.bpSymbol].runCustomFun(caller[BlueprintFactory.contextSymbol], this.functionID, parmsArray, () => {
-                const _runTimeData = context.getDataMangerByID(this.functionID);
+            let _funcContext = caller[BlueprintFactory.contextSymbol];
+            result = caller[BlueprintFactory.bpSymbol].runCustomFun(_funcContext, this.functionID, parmsArray, () => {
+                const _runTimeData = _funcContext.getDataMangerByID(this.functionID);
                 if (_runTimeData.debuggerPause) {
                     _runTimeData.debuggerPause = false;
-                    context.debuggerManager.pause(context as any, this);
+                    _funcContext.debuggerManager.pause(_funcContext as any, this);
                 }
                 if (result === false && cb) {
                     cb();
