@@ -35,7 +35,6 @@ import { ILaya } from "../../ILaya";
 import { WordText } from "../utils/WordText";
 import { ColorUtils } from "../utils/ColorUtils";
 import type { Material } from "../resource/Material";
-import { CommandUniformMap } from "../RenderEngine/CommandUniformMap";
 import { Value2D } from "../webgl/shader/d2/value/Value2D";
 import { DrawEllipseCmd } from "./cmd/DrawEllipseCmd";
 import { DrawRoundRectCmd } from "./cmd/DrawRoundRectCmd";
@@ -56,7 +55,7 @@ export class Graphics {
      * @param uniformtype 
      */
     static add2DGlobalUniformData(propertyID: number, propertyKey: string, uniformtype: ShaderDataType) {
-        let sceneUniformMap: CommandUniformMap = LayaGL.renderOBJCreate.createGlobalUniformMap("Sprite2DGlobal");
+        let sceneUniformMap = LayaGL.renderDeviceFactory.createGlobalUniformMap("Sprite2DGlobal");
         sceneUniformMap.addShaderUniform(propertyID, propertyKey, uniformtype);
     }
 

@@ -1,7 +1,6 @@
-
-import { CommandUniformMap } from "../../../../RenderEngine/CommandUniformMap";
 import { CommandEncoder } from "../../../../layagl/CommandEncoder";
 import { ShaderNode } from "../../../../webgl/utils/ShaderNode";
+import { CommandUniformMap } from "../../../DriverDesign/RenderDevice/CommandUniformMap";
 import { ShaderDataType } from "../../../RenderModuleData/Design/ShaderData";
 import { WebGPUEngine } from "./WebGPUEngine";
 import { WebGPUObject } from "./WebGPUObject";
@@ -22,16 +21,16 @@ export class WebGPUShaderInstance extends WebGPUObject {
     private _vsshader: GPUShaderModule;
     /**@internal fragmentModule*/
     private _psshader: GPUShaderModule;
-    
-    private _pipelineLayout:GPUPipelineLayout;
-    
+
+    private _pipelineLayout: GPUPipelineLayout;
+
     constructor(engine: WebGPUEngine) {
         super(engine);
-    
+
         this._uniformMap = [];
     }
 
-    _WGSLShaderLanguageProcess3D(vs:ShaderNode,fs:ShaderNode){
+    _WGSLShaderLanguageProcess3D(vs: ShaderNode, fs: ShaderNode) {
         //翻译vs
         //翻译fs
         //组织宏
@@ -105,7 +104,7 @@ export class WebGPUShaderInstance extends WebGPUObject {
     }
 
     getWGPUPipelineLayout(): GPUPipelineLayout {
-        if(!this._pipelineLayout){
+        if (!this._pipelineLayout) {
             let gpubindGroups = [];
             for (let i = 0, n = this._uniformMap.length; i < n; i++) {
                 gpubindGroups.push(this._uniformMap[i].groupLayout);

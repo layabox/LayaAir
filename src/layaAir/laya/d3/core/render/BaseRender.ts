@@ -7,7 +7,6 @@ import { MeshSprite3DShaderDeclaration } from "../../../d3/core/MeshSprite3DShad
 import { TextureCube } from "../../../resource/TextureCube";
 import { Component } from "../../../components/Component";
 import { Sprite3D } from "../Sprite3D";
-import { TransLargeUBOUtils } from "../TransLargeUBOUtils";
 import { Bounds } from "../../math/Bounds";
 import { Volume } from "../../component/Volume/Volume";
 import { ReflectionProbe, ReflectionProbeMode } from "../../component/Volume/reflectionProbe/ReflectionProbe";
@@ -61,9 +60,6 @@ export class BaseRender extends Component {
 
     /**@internal */
     static _defaultLightmapScaleOffset: Vector4 = new Vector4(1.0, 1.0, 0.0, 0.0);
-
-    /**@internal */
-    static _transLargeUbO: TransLargeUBOUtils;
 
     /**
      * BaseRender Init

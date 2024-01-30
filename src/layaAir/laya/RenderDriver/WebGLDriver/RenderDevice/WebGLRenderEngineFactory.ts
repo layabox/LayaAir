@@ -1,12 +1,8 @@
 
 import { Config } from "../../../../Config";
 import { LayaGL } from "../../../layagl/LayaGL";
-import { WebGLShaderInstance } from "../../../RenderDriver/WebGLDriver/RenderDevice/WebGLShaderInstance";
-import { CommandUniformMap } from "../../../RenderEngine/CommandUniformMap";
 import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
-import { ShaderPass } from "../../../RenderEngine/RenderShader/ShaderPass";
 import { UniformBufferObject } from "../../../RenderEngine/UniformBufferObject";
-import { ShaderProcessInfo } from "../../../webgl/utils/ShaderCompileDefineBase";
 import { IRenderEngineFactory } from "../../DriverDesign/RenderDevice/IRenderEngineFactory";
 import { WebGLEngine } from "./WebGLEngine";
 import { WebGLMode } from "./WebGLEngine/GLEnum/WebGLMode";
@@ -16,21 +12,9 @@ import { WebGLConfig } from "./WebGLEngine/WebGLConfig";
 export class WebGLRenderEngineFactory implements IRenderEngineFactory {
     /**@internal */
     private globalBlockMap: any = {};
-    createShaderInstance(shaderProcessInfo: ShaderProcessInfo, shaderPass: ShaderPass): WebGLShaderInstance {
-        let shaderins = new WebGLShaderInstance();
-        shaderins._create(shaderProcessInfo, shaderPass);
-        return shaderins;
-    }
 
     createUniformBufferObject(glPointer: number, name: string, bufferUsage: BufferUsage, byteLength: number, isSingle: boolean): UniformBufferObject {
         return new UniformBufferObject(glPointer, name, bufferUsage, byteLength, isSingle);
-    }
-
-    createGlobalUniformMap(blockName: string): CommandUniformMap {
-        let comMap = this.globalBlockMap[blockName];
-        if (!comMap)
-            comMap = this.globalBlockMap[blockName] = new CommandUniformMap(blockName);;
-        return comMap;
     }
 
     createEngine(config: any, canvas: any): Promise<void> {

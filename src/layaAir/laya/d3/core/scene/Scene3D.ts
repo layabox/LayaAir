@@ -34,7 +34,6 @@ import { UniformBufferObject } from "../../../RenderEngine/UniformBufferObject";
 import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { Prefab } from "../../../resource/HierarchyResource";
 import { Stat } from "../../../utils/Stat";
-import { CommandUniformMap } from "../../../RenderEngine/CommandUniformMap";
 import { ComponentDriver } from "../../../components/ComponentDriver";
 import { LayaEnv } from "../../../../LayaEnv";
 import { SceneRenderManager } from "./SceneRenderManager";
@@ -55,6 +54,7 @@ import { IElementComponentManager } from "./IScenceComponentManager";
 import { ISceneNodeData } from "../../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
 import { ShaderDataType, ShaderData, ShaderDataItem } from "../../../RenderDriver/RenderModuleData/Design/ShaderData";
 import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
+import { CommandUniformMap } from "../../../RenderDriver/DriverDesign/RenderDevice/CommandUniformMap";
 
 export enum FogMode {
     Linear = 0, //Linear
@@ -194,7 +194,7 @@ export class Scene3D extends Sprite implements ISubmit {
         Scene3D.TIME = Shader3D.propertyNameToID("u_Time");
         Scene3D.GIRotate = Shader3D.propertyNameToID("u_GIRotate");
         Scene3D.SCENEUNIFORMBLOCK = Shader3D.propertyNameToID(UniformBufferObject.UBONAME_SCENE);
-        let sceneUniformMap: CommandUniformMap = Scene3D.sceneUniformMap = LayaGL.renderOBJCreate.createGlobalUniformMap("Scene3D");
+        let sceneUniformMap: CommandUniformMap = Scene3D.sceneUniformMap = LayaGL.renderDeviceFactory.createGlobalUniformMap("Scene3D");
         if (Config3D._uniformBlock) {
 
             sceneUniformMap.addShaderBlockUniform(Scene3D.SCENEUNIFORMBLOCK, UniformBufferObject.UBONAME_SCENE, [

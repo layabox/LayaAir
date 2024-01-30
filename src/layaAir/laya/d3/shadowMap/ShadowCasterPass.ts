@@ -55,7 +55,7 @@ export class ShadowCasterPass {
         ShadowCasterPass.SHADOW_SPOTMAP = Shader3D.propertyNameToID("u_SpotShadowMap");
         ShadowCasterPass.SHADOW_SPOTMATRICES = Shader3D.propertyNameToID("u_SpotViewProjectMatrix");
 
-        const sceneUniformMap = LayaGL.renderOBJCreate.createGlobalUniformMap("Scene3D");
+        const sceneUniformMap = LayaGL.renderDeviceFactory.createGlobalUniformMap("Scene3D");
 
         if (Config3D._uniformBlock) {
             sceneUniformMap.addShaderBlockUniform(Shader3D.propertyNameToID(UniformBufferObject.UBONAME_SHADOW), UniformBufferObject.UBONAME_SHADOW, [

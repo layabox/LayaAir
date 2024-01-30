@@ -13,7 +13,6 @@ export class UniformBufferObject {
     static UBONAME_CAMERA = "CameraUniformBlock";
     static UBONAME_SPRITE3D = "SpriteUniformBlock";
     static UBONAME_SHADOW = "ShadowUniformBlock";
-    private static commonMap: string[] = ["CameraUniformBlock", "SceneUniformBlock", "SpriteUniformBlock", "ShadowUniformBlock"]
 
     /**@internal */
     private static _Map: Map<string, UniformBufferBase> = new Map<string, UniformBufferBase>();

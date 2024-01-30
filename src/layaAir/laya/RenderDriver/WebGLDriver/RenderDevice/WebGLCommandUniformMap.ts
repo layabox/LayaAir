@@ -1,13 +1,21 @@
-import { ShaderDataType } from "../RenderDriver/RenderModuleData/Design/ShaderData";
+import { CommandUniformMap, UniformProperty } from "../../DriverDesign/RenderDevice/CommandUniformMap";
+import { ShaderDataType } from "../../RenderModuleData/Design/ShaderData";
 
-type UniformProperty = { id: number, propertyName: string, uniformtype?: ShaderDataType }
-export class CommandUniformMap {
+export class WebGLCommandUniformMap extends CommandUniformMap {
 
 	/**@internal */
-	_idata: { [key: number]: { block?: Object, propertyName: string, uniformtype?: ShaderDataType, blockProperty?: UniformProperty[] } } = {};
+	_idata: {
+		[key: number]: {
+			block?: Object,
+			propertyName: string,
+			uniformtype?: ShaderDataType,
+			blockProperty?: UniformProperty[]
+		}
+	} = {};
 	_stateName: string;
 
 	constructor(stateName: string) {
+		super(stateName);
 		this._stateName = stateName;
 	}
 
@@ -40,7 +48,5 @@ export class CommandUniformMap {
 			this.addShaderUniform(element.id, element.propertyName, element.uniformtype, blockname);
 		});
 	}
-
-
 
 }

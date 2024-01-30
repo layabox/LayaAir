@@ -279,7 +279,7 @@ export class ShuriKenParticle3DShaderDeclaration {
 
 
 
-		let uniformMap = LayaGL.renderOBJCreate.createGlobalUniformMap("ShurikenSprite3D");
+		let uniformMap = LayaGL.renderDeviceFactory.createGlobalUniformMap("ShurikenSprite3D");
 		//TODO
 		uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.WORLDPOSITION, 'u_WorldPosition',ShaderDataType.Vector3),
 		uniformMap.addShaderUniform(ShuriKenParticle3DShaderDeclaration.WORLDROTATION, 'u_WorldRotation',ShaderDataType.Vector4);

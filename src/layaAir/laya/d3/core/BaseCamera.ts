@@ -8,7 +8,6 @@ import { Scene3D } from "./scene/Scene3D";
 import { Sprite3D, StaticFlag } from "./Sprite3D";
 import { UniformBufferObject } from "../../RenderEngine/UniformBufferObject";
 import { BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
-import { CommandUniformMap } from "../../RenderEngine/CommandUniformMap";
 import { ILaya } from "../../../ILaya";
 import { Color } from "../../maths/Color";
 import { Matrix4x4 } from "../../maths/Matrix4x4";
@@ -18,6 +17,7 @@ import { LayaGL } from "../../layagl/LayaGL";
 import { ShaderDataType, ShaderData } from "../../RenderDriver/RenderModuleData/Design/ShaderData";
 import { ShaderDefine } from "../../RenderDriver/RenderModuleData/Design/ShaderDefine";
 import { IRenderEngine } from "../../RenderDriver/DriverDesign/RenderDevice/IRenderEngine";
+import { CommandUniformMap } from "../../RenderDriver/DriverDesign/RenderDevice/CommandUniformMap";
 
 /**
  * <code>BaseCamera</code> 类用于创建摄像机的父类。
@@ -88,7 +88,7 @@ export class BaseCamera extends Sprite3D {
         BaseCamera.SHADERDEFINE_DEPTHNORMALS = Shader3D.getDefineByName("DEPTHNORMALSMAP");
         BaseCamera.SHADERDEFINE_ORTHOGRAPHIC = Shader3D.getDefineByName("CAMERAORTHOGRAPHIC");
         BaseCamera.SHADERDEFINE_FXAA = Shader3D.getDefineByName("FXAA");
-        let camerauniformMap = BaseCamera.cameraUniformMap = LayaGL.renderOBJCreate.createGlobalUniformMap("BaseCamera");
+        let camerauniformMap = BaseCamera.cameraUniformMap = LayaGL.renderDeviceFactory.createGlobalUniformMap("BaseCamera");
 
         BaseCamera.CAMERAPOS = Shader3D.propertyNameToID("u_CameraPos");
         BaseCamera.VIEWMATRIX = Shader3D.propertyNameToID("u_View");

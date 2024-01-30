@@ -4,7 +4,6 @@ import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { Stat } from "../../utils/Stat";
 import { Prefab } from "../../resource/HierarchyResource";
 import { ILaya } from "../../../ILaya";
-import { CommandUniformMap } from "../../RenderEngine/CommandUniformMap";
 import { NodeFlags } from "../../Const";
 import { Event } from "../../events/Event";
 import { Matrix4x4 } from "../../maths/Matrix4x4";
@@ -15,6 +14,7 @@ import { LayaGL } from "../../layagl/LayaGL";
 import { Laya3DRender } from "../RenderObjs/Laya3DRender";
 import { ShaderDataType } from "../../RenderDriver/RenderModuleData/Design/ShaderData";
 import { Transform3D } from "./Transform3D";
+import { CommandUniformMap } from "../../RenderDriver/DriverDesign/RenderDevice/CommandUniformMap";
 
 /**
  * @internal
@@ -42,7 +42,7 @@ export class Sprite3D extends Node {
     static __init__(): void {
         Sprite3D.WORLDMATRIX = Shader3D.propertyNameToID("u_WorldMat");
         Sprite3D.WORLDINVERTFRONT = Shader3D.propertyNameToID("u_WroldInvertFront");
-        Sprite3D.sprite3DCommandUniformMap = LayaGL.renderOBJCreate.createGlobalUniformMap("Sprite3D");
+        Sprite3D.sprite3DCommandUniformMap = LayaGL.renderDeviceFactory.createGlobalUniformMap("Sprite3D");
         Sprite3D.sprite3DCommandUniformMap.addShaderUniform(Sprite3D.WORLDMATRIX, "u_WorldMat",ShaderDataType.Matrix4x4);
         Sprite3D.sprite3DCommandUniformMap.addShaderUniform(Sprite3D.WORLDINVERTFRONT, "u_WroldInvertFront",ShaderDataType.Vector4);
     }

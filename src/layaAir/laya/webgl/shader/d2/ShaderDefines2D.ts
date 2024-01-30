@@ -105,7 +105,7 @@ export class ShaderDefines2D {
         ShaderDefines2D.UNIFORM_COLORADD = Shader3D.propertyNameToID("u_colorAdd");
         ShaderDefines2D.UNIFORM_TEXRANGE = Shader3D.propertyNameToID("u_TexRange");
 
-        const commandUniform = LayaGL.renderOBJCreate.createGlobalUniformMap("Sprite2D");
+        const commandUniform = LayaGL.renderDeviceFactory.createGlobalUniformMap("Sprite2D");
 
         commandUniform.addShaderUniform(ShaderDefines2D.UNIFORM_MMAT, "u_mmat", ShaderDataType.Matrix4x4);
         commandUniform.addShaderUniform(ShaderDefines2D.UNIFORM_CLIPMATDIR, "u_clipMatDir", ShaderDataType.Vector4);

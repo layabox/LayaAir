@@ -311,21 +311,21 @@ export class WGPURenderPipelineInstance {
 
     //test Create Scene CommandEncoder
     private testCreateSceneCommandEncoder() {
-        let uniformmap = LayaGL.renderOBJCreate.createGlobalUniformMap("testScene");
+       // let uniformmap = LayaGL.renderOBJCreate.createGlobalUniformMap("testScene");
         //uniformmap.addShaderUniform(Shader3D.propertyNameToID("u_Time"), "u_Time", ShaderDataType.Float);
-        this._shaderInstance.applyBindGroupLayout(uniformmap, this._sceneUniformParamsMap);
+        //this._shaderInstance.applyBindGroupLayout(uniformmap, this._sceneUniformParamsMap);
     }
 
     private testCreateCameraCommandEncoder() {
-        let uniformmap = LayaGL.renderOBJCreate.createGlobalUniformMap("testCamera");
-        uniformmap.addShaderUniform(Shader3D.propertyNameToID("u_ViewProjection"), "u_ViewProjection", ShaderDataType.Matrix4x4);
-        this._shaderInstance.applyBindGroupLayout(uniformmap, this._cameraUniformParamsMap);
+        // let uniformmap = LayaGL.renderOBJCreate.createGlobalUniformMap("testCamera");
+        // uniformmap.addShaderUniform(Shader3D.propertyNameToID("u_ViewProjection"), "u_ViewProjection", ShaderDataType.Matrix4x4);
+        // this._shaderInstance.applyBindGroupLayout(uniformmap, this._cameraUniformParamsMap);
     }
 
     private testCreateSpriteCommandEncoder() {
-        let uniformmap = LayaGL.renderOBJCreate.createGlobalUniformMap("testSprite3D");
-        uniformmap.addShaderUniform(Shader3D.propertyNameToID("u_WorldMat"), "u_WorldMat", ShaderDataType.Matrix4x4);
-        this._shaderInstance.applyBindGroupLayout(uniformmap, this._spriteUniformParamsMap);
+        // let uniformmap = LayaGL.renderOBJCreate.createGlobalUniformMap("testSprite3D");
+        // uniformmap.addShaderUniform(Shader3D.propertyNameToID("u_WorldMat"), "u_WorldMat", ShaderDataType.Matrix4x4);
+        // this._shaderInstance.applyBindGroupLayout(uniformmap, this._spriteUniformParamsMap);
     }
 
     private testMaterialUniformParamsMap(uniformMap: UniformMapType) {

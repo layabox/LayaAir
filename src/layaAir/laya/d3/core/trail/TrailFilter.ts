@@ -34,7 +34,7 @@ export class TrailFilter {
 		TrailFilter.WIDTHCURVE = Shader3D.propertyNameToID("u_WidthCurve");
 		TrailFilter.WIDTHCURVEKEYLENGTH = Shader3D.propertyNameToID("u_WidthCurveKeyLength");
 
-		const spriteParms = LayaGL.renderOBJCreate.createGlobalUniformMap("TrailRender");
+		const spriteParms = LayaGL.renderDeviceFactory.createGlobalUniformMap("TrailRender");
 		spriteParms.addShaderUniform(TrailFilter.CURTIME, "u_CurTime", ShaderDataType.Float);
 		spriteParms.addShaderUniform(TrailFilter.LIFETIME, "u_LifeTime", ShaderDataType.Float);
 		spriteParms.addShaderUniform(TrailFilter.WIDTHCURVE, "u_WidthCurve", ShaderDataType.Buffer);

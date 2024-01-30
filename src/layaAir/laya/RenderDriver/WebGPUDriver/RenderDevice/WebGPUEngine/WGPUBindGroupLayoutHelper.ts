@@ -1,7 +1,6 @@
-
-import { CommandUniformMap } from "../../../../RenderEngine/CommandUniformMap";
 import { Shader3D } from "../../../../RenderEngine/RenderShader/Shader3D";
 import { LayaGL } from "../../../../layagl/LayaGL";
+import { CommandUniformMap } from "../../../DriverDesign/RenderDevice/CommandUniformMap";
 import { ShaderDataType } from "../../../RenderModuleData/Design/ShaderData";
 import { WGPUShaderVariable } from "./WGPUShaderVariable";
 import { WebGPUEngine } from "./WebGPUEngine";
@@ -16,7 +15,7 @@ export class WGPUBindGroupLayoutHelper {
      * @returns 
      */
     static getBindGroupLayoutByMap(map: CommandUniformMap, out: WGPUShaderVariable[]) {
-        let data = map._idata;
+        let data:any = {};//map._idata as;
         out.length = 0;
 
         for (var i in data) {

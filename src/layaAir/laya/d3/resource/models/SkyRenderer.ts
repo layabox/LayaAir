@@ -47,7 +47,7 @@ export class SkyRenderer {
     static __init__() {
         SkyRenderer.SUNLIGHTDIRECTION = Shader3D.propertyNameToID("u_SunLight_direction");
         SkyRenderer.SUNLIGHTDIRCOLOR = Shader3D.propertyNameToID("u_SunLight_color");
-        const commandUniform = LayaGL.renderOBJCreate.createGlobalUniformMap("Sprite3D");
+        const commandUniform = LayaGL.renderDeviceFactory.createGlobalUniformMap("Sprite3D");
         commandUniform.addShaderUniform(SkyRenderer.SUNLIGHTDIRECTION, "u_SunLight_direction", ShaderDataType.Vector3);
         commandUniform.addShaderUniform(SkyRenderer.SUNLIGHTDIRCOLOR, "u_SunLight_color", ShaderDataType.Color);
     }

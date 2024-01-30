@@ -28,7 +28,7 @@ export class SkinnedMeshSprite3D extends RenderableSprite3D {
     static __init__(): void {
         SkinnedMeshSprite3DShaderDeclaration.SHADERDEFINE_BONE = Shader3D.getDefineByName("BONE");
         SkinnedMeshSprite3DShaderDeclaration.SHADERDEFINE_SIMPLEBONE = Shader3D.getDefineByName("SIMPLEBONE");
-        const commandUniform = LayaGL.renderOBJCreate.createGlobalUniformMap("Custom");
+        const commandUniform = LayaGL.renderDeviceFactory.createGlobalUniformMap("Custom");
         SkinnedMeshSprite3D.BONES = Shader3D.propertyNameToID("u_Bones");
         commandUniform.addShaderUniform(SkinnedMeshSprite3D.BONES, "u_Bones", ShaderDataType.Buffer);
     }
