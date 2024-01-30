@@ -27,6 +27,10 @@ export class CameraCullInfo {
     cullingMask: number;
     /**静态标记 */
     staticMask: number;
+
+    constructor() {
+        this.boundFrustum = new BoundFrustum(new Matrix4x4());
+    }
 }
 
 /**
@@ -68,21 +72,4 @@ export class ShadowSliceData {
         }
 
     }
-}
-
-/**
- * @internal
- * 聚光灯阴影数据。
- */
-export class ShadowSpotData {
-    cameraShaderValue: ShaderData = LayaGL.unitRenderModuleDataFactory.createShaderData(null);
-    position: Vector3 = new Vector3;
-    offsetX: number;
-    offsetY: number;
-    resolution: number;
-    viewMatrix: Matrix4x4 = new Matrix4x4();
-    projectionMatrix: Matrix4x4 = new Matrix4x4();
-    viewProjectMatrix: Matrix4x4 = new Matrix4x4();
-    cameraCullInfo: CameraCullInfo = new CameraCullInfo();
-
 }

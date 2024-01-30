@@ -1,7 +1,7 @@
 import { BoundFrustum, FrustumCorner } from "../../math/BoundFrustum";
 import { BoundSphere } from "../../math/BoundSphere";
 import { Plane } from "../../math/Plane";
-import { ShadowSliceData, ShadowSpotData } from "../../shadowMap/ShadowSliceData";
+import { ShadowSliceData } from "../../shadowMap/ShadowSliceData";
 import { Utils3D } from "../../utils/Utils3D";
 import { ShadowCascadesMode } from "./ShadowCascadesMode";
 import { ShadowMode } from "./ShadowMode";

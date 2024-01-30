@@ -1,4 +1,8 @@
+import { Config3D } from "../../../../Config3D";
+import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFlag";
+import { UnifromBufferData } from "../../../RenderEngine/UniformBufferData";
+import { UniformBufferObject } from "../../../RenderEngine/UniformBufferObject";
 import { BaseCamera } from "../../../d3/core/BaseCamera";
 import { ShadowMode } from "../../../d3/core/light/ShadowMode";
 import { SpotLightCom } from "../../../d3/core/light/SpotLightCom";
@@ -7,6 +11,7 @@ import { Scene3DShaderDeclaration } from "../../../d3/core/scene/Scene3DShaderDe
 import { Viewport } from "../../../d3/math/Viewport";
 import { ShadowCasterPass } from "../../../d3/shadowMap/ShadowCasterPass";
 import { CameraCullInfo } from "../../../d3/shadowMap/ShadowSliceData";
+import { LayaGL } from "../../../layagl/LayaGL";
 import { Color } from "../../../maths/Color";
 import { MathUtils3D } from "../../../maths/MathUtils3D";
 import { Matrix4x4 } from "../../../maths/Matrix4x4";
@@ -14,6 +19,7 @@ import { Vector3 } from "../../../maths/Vector3";
 import { Vector4 } from "../../../maths/Vector4";
 import { ISpotLightShadowRP } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRenderTarget";
+import { ISpotLightData } from "../../RenderModuleData/Design/3D/I3DRenderModuleData";
 import { WebBaseRenderNode } from "../../RenderModuleData/WebModuleData/3D/WebBaseRenderNode";
 import { WebSpotLight } from "../../RenderModuleData/WebModuleData/3D/WebSpotLight";
 import { WebShaderData } from "../../RenderModuleData/WebModuleData/WebShaderData";
@@ -31,6 +37,30 @@ export class ShadowSpotData {
     projectionMatrix: Matrix4x4 = new Matrix4x4();
     viewProjectMatrix: Matrix4x4 = new Matrix4x4();
     cameraCullInfo: CameraCullInfo;
+    cameraUBO: UniformBufferObject;
+    cameraUBData: UnifromBufferData;
+
+    constructor() {
+        this.cameraShaderValue = <WebShaderData>LayaGL.unitRenderModuleDataFactory.createShaderData(null);
+
+        if (Config3D._uniformBlock) {
+            let cameraUBO = UniformBufferObject.getBuffer(UniformBufferObject.UBONAME_CAMERA, 0);
+            let cameraUBData = BaseCamera.createCameraUniformBlock();
+
+            if (!cameraUBO) {
+                cameraUBO = UniformBufferObject.create(UniformBufferObject.UBONAME_CAMERA, BufferUsage.Dynamic, cameraUBData.getbyteLength(), false);
+            }
+
+            this.cameraShaderValue._addCheckUBO(UniformBufferObject.UBONAME_CAMERA, cameraUBO, cameraUBData);
+            this.cameraShaderValue.setUniformBuffer(BaseCamera.CAMERAUNIFORMBLOCK, cameraUBO);
+
+            this.cameraUBO = cameraUBO;
+            this.cameraUBData = cameraUBData;
+        }
+
+        this.cameraCullInfo = new CameraCullInfo();
+
+    }
 }
 export class WebGLSpotLightShadowRP implements ISpotLightShadowRP {
     /**@internal */
@@ -87,6 +117,10 @@ export class WebGLSpotLightShadowRP implements ISpotLightShadowRP {
 
     constructor() {
         this._renderQueue = new WebGLRenderListQueue(false);
+        this._shadowSpotData = new ShadowSpotData();
+        this._lightWorldMatrix = new Matrix4x4();
+        this._shadowParams = new Vector4();
+        this._shadowBias = new Vector4();
     }
 
     /**
@@ -103,6 +137,9 @@ export class WebGLSpotLightShadowRP implements ISpotLightShadowRP {
      * @param list 
      */
     render(context: WebGLRenderContext3D, list: WebBaseRenderNode[], count: number): void {
+
+        let originCameraData = context.cameraData;
+
         var shaderValues: WebShaderData = context.sceneData;
         context.pipelineMode = "ShadowCaster";
         context.setRenderTarget(this.destTarget);
@@ -122,10 +159,18 @@ export class WebGLSpotLightShadowRP implements ISpotLightShadowRP {
         //}
         context.setViewPort(Viewport._tempViewport);
         context.setScissor(Vector4.tempVec4);
+
+        if (shadowSpotData.cameraUBO && shadowSpotData.cameraUBData) {
+            shadowSpotData.cameraUBO.setDataByUniformBufferData(shadowSpotData.cameraUBData);
+        }
+
         context.setClearData(RenderClearFlag.Depth, Color.BLACK, 1, 0);
         this._renderQueue.renderQueue(context);
         this._applyCasterPassCommandBuffer(context);
         this._applyRenderData(context.sceneData, context.cameraData);
+
+        context.cameraData = originCameraData;
+        context.cameraUpdateMask++;
     }
 
 
@@ -169,8 +214,8 @@ export class WebGLSpotLightShadowRP implements ISpotLightShadowRP {
 
         // depth and normal bias scale is in shadowmap texel size in world space
         var texelSize: number = frustumSize / shadowResolution;
-        var depthBias: number = -this._shadowDepthBias * texelSize;
-        var normalBias: number = -this._shadowNormalBias * texelSize;
+        var depthBias: number = -this._light.shadowDepthBias * texelSize;
+        var normalBias: number = -this._light.shadowNormalBias * texelSize;
 
         if (this._shadowMode == ShadowMode.SoftHigh) {
             // TODO: depth and normal bias assume sample is no more than 1 texel away from shadowmap
