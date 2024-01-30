@@ -138,7 +138,7 @@ export class ShadowCasterPass {
             shadowMapHeight = cascadesMode == ShadowCascadesMode.TwoCascades ? shadowTileResolution : shadowTileResolution * 2;
         }
         this._shadowDirectLightMap && RenderTexture.recoverToPool(this._shadowDirectLightMap);
-        this._shadowDirectLightMap = ShadowUtils.getTemporaryShadowTexture(shadowMapHeight, shadowMapWidth, ShadowMapFormat.bit16);
+        this._shadowDirectLightMap = ShadowUtils.getTemporaryShadowTexture(shadowMapWidth, shadowMapHeight, ShadowMapFormat.bit16);
         return this._shadowDirectLightMap;
     }
 

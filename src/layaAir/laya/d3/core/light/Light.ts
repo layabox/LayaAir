@@ -188,6 +188,7 @@ export class Light extends Component {
         this.shadowNormalBias = 1.0;
         this.shadowNearPlane = 0.1;
         this.shadowStrength = 1.0;
+        this.shadowMode = ShadowMode.None;
     }
 
     protected _creatModuleData(){
