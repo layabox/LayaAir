@@ -189,6 +189,7 @@ export class WebGLRenderContext3D implements IRenderContext3D {
     }
 
     private _start() {
+        WebGLEngine.instance.scissorTest(true);
         WebGLEngine.instance.viewport(this._viewPort.x, this._viewPort.y, this._viewPort.width, this._viewPort.height);
         WebGLEngine.instance.scissor(this._scissor.x, this._scissor.y, this._scissor.z, this._scissor.w);
         if (this._clearFlag != RenderClearFlag.Nothing)
