@@ -8,11 +8,12 @@ import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 import { Laya3DRender } from "laya/d3/RenderObjs/Laya3DRender";
 import { WebUnitRenderModuleDataFactory } from "laya/RenderDriver/RenderModuleData/WebModuleData/WebUnitRenderModuleDataFactory"
 import { Web3DRenderModuleFactory } from "laya/RenderDriver/RenderModuleData/WebModuleData/3D/Web3DRenderModuleFactory"
-import {WebGL3DRenderPassFactory} from "laya/RenderDriver/WebGLDriver/3DRenderPass/WebGL3DRenderPassFactory"
-import {WebGLRenderDeviceFactory} from "laya/RenderDriver/WebGLDriver/RenderDevice/WebGLRenderDeviceFactory"
-import {LengencyRenderEngine3DFactory} from "laya/RenderDriver/DriverDesign/3DRenderPass/LengencyRenderEngine3DFactory"
+import { WebGL3DRenderPassFactory } from "laya/RenderDriver/WebGLDriver/3DRenderPass/WebGL3DRenderPassFactory"
+import { WebGLRenderDeviceFactory } from "laya/RenderDriver/WebGLDriver/RenderDevice/WebGLRenderDeviceFactory"
+import { LengencyRenderEngine3DFactory } from "laya/RenderDriver/DriverDesign/3DRenderPass/LengencyRenderEngine3DFactory"
 import { LayaGL } from "laya/layagl/LayaGL";
 import { WebGLRenderEngineFactory } from "laya/RenderDriver/WebGLDriver/RenderDevice/WebGLRenderEngineFactory";
+import { URL } from "laya/net/URL";
 export class SceneLoad1 {
 	constructor() {
 		//Laya3DRender.renderDriverPassCreate = new GLESRenderDriverPassFactory();
@@ -23,13 +24,13 @@ export class SceneLoad1 {
 		Laya3DRender.Render3DModuleDataFactory = new Web3DRenderModuleFactory();
 		Laya3DRender.Render3DPassFactory = new WebGL3DRenderPassFactory();
 		
-
 		//初始化引擎
 		Laya.init(0, 0).then(() => {
 			//Stat.show();
 			Laya.stage.scaleMode = Stage.SCALE_FULL;
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
 			Shader3D.debugMode = true;
+			URL.basePath = "sample-resource/web";
 
 			this.loadIDEResourcePakage();
 			// //加载场景
@@ -56,12 +57,12 @@ export class SceneLoad1 {
 	}
 
 	loadIDEResourcePakage() {
-		Laya.loader.loadPackage("sample-resource/web", null, null).then(this.loadSceneResource);
+		Laya.loader.loadPackage("").then(this.loadSceneResource);
 	}
 
 	loadSceneResource() {
 		//加载场景
-		Scene3D.load("sample-resource/web/test.ls", Handler.create(this, function (scene: Scene3D): void {
+		Scene3D.load("test.ls", Handler.create(this, function (scene: Scene3D): void {
 			(<Scene3D>Laya.stage.addChild(scene));
 
 			// //获取场景中的相机
