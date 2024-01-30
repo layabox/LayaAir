@@ -1,5 +1,5 @@
 import { IRenderContext3D, IRenderElement3D } from "../../../RenderDriver/DriverDesign/3DRenderPass/I3DRenderPass";
-import { WebGLSkinRenderElement3D } from "../../../RenderDriver/WebglDriver/3DRenderPass/WebGLSkinRenderElement3D";
+import { WebGLSkinRenderElement3D } from "../../../RenderDriver/WebGLDriver/3DRenderPass/WebGLSkinRenderElement3D";
 import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
 import { RenderElement } from "./RenderElement"
 /**

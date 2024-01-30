@@ -1,6 +1,6 @@
 import { IShaderInstance } from "../../../RenderDriver/DriverDesign/RenderDevice/IShaderInstance";
-import { WebGLRenderElement3D } from "../../../RenderDriver/WebglDriver/3DRenderPass/WebGLRenderElement3D";
-import { WebGLVertexBuffer } from "../../../RenderDriver/WebglDriver/RenderDevice/WebGLVertexBuffer";
+import { WebGLRenderElement3D } from "../../../RenderDriver/WebGLDriver/3DRenderPass/WebGLRenderElement3D";
+import { WebGLVertexBuffer } from "../../../RenderDriver/WebGLDriver/RenderDevice/WebGLVertexBuffer";
 import { VertexBuffer3D } from "../../../d3/graphics/VertexBuffer3D";
 import { WebGLEngine } from "../RenderDevice/WebGLEngine";
 //TODO  改成新的方式

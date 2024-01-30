@@ -1,7 +1,7 @@
 
 import { Config } from "../../../../Config";
 import { LayaGL } from "../../../layagl/LayaGL";
-import { WebGLShaderInstance } from "../../../RenderDriver/WebglDriver/RenderDevice/WebGLShaderInstance";
+import { WebGLShaderInstance } from "../../../RenderDriver/WebGLDriver/RenderDevice/WebGLShaderInstance";
 import { CommandUniformMap } from "../../../RenderEngine/CommandUniformMap";
 import { BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { ShaderPass } from "../../../RenderEngine/RenderShader/ShaderPass";
@@ -10,7 +10,7 @@ import { ShaderProcessInfo } from "../../../webgl/utils/ShaderCompileDefineBase"
 import { IRenderEngineFactory } from "../../DriverDesign/RenderDevice/IRenderEngineFactory";
 import { WebGLEngine } from "./WebGLEngine";
 import { WebGLMode } from "./WebGLEngine/GLEnum/WebGLMode";
-import { WebGlConfig } from "./WebGLEngine/WebGLConfig";
+import { WebGLConfig } from "./WebGLEngine/WebGLConfig";
 
 
 export class WebGLRenderEngineFactory implements IRenderEngineFactory {
@@ -35,7 +35,7 @@ export class WebGLRenderEngineFactory implements IRenderEngineFactory {
 
     createEngine(config: any, canvas: any): Promise<void> {
         let engine: WebGLEngine;
-        let glConfig: WebGlConfig = { stencil: Config.isStencil, alpha: Config.isAlpha, antialias: Config.isAntialias, premultipliedAlpha: Config.premultipliedAlpha, preserveDrawingBuffer: Config.preserveDrawingBuffer, depth: Config.isDepth, failIfMajorPerformanceCaveat: Config.isfailIfMajorPerformanceCaveat, powerPreference: Config.powerPreference };
+        let glConfig: WebGLConfig = { stencil: Config.isStencil, alpha: Config.isAlpha, antialias: Config.isAntialias, premultipliedAlpha: Config.premultipliedAlpha, preserveDrawingBuffer: Config.preserveDrawingBuffer, depth: Config.isDepth, failIfMajorPerformanceCaveat: Config.isfailIfMajorPerformanceCaveat, powerPreference: Config.powerPreference };
 
         //TODO  other engine
         const webglMode: WebGLMode = Config.useWebGL2 ? WebGLMode.Auto : WebGLMode.WebGL1;

@@ -3,8 +3,8 @@ import { SubUniformBufferData } from "./SubUniformBufferData";
 import { UniformBufferBase } from "./UniformBufferBase";
 import { UnifromBufferData } from "./UniformBufferData";
 import { LayaGL } from "../layagl/LayaGL";
-import { WebGLEngine } from "../RenderDriver/WebglDriver/RenderDevice/WebGLEngine";
-import { GLBuffer } from "../RenderDriver/WebglDriver/RenderDevice/WebGLEngine/GLBuffer";
+import { WebGLEngine } from "../RenderDriver/WebGLDriver/RenderDevice/WebGLEngine";
+import { GLBuffer } from "../RenderDriver/WebGLDriver/RenderDevice/WebGLEngine/GLBuffer";
 /**
  * 类封装WebGL2UniformBufferObect
  */

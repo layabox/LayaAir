@@ -5,6 +5,8 @@ import { IRenderEngine } from "../../DriverDesign/RenderDevice/IRenderEngine";
 import { IRenderEngineFactory } from "../../DriverDesign/RenderDevice/IRenderEngineFactory";
 import { ITextureContext } from "../../DriverDesign/RenderDevice/ITextureContext";
 import { InternalTexture } from "../../DriverDesign/RenderDevice/InternalTexture";
+import { WebGLMode } from "../../WebGLDriver/RenderDevice/WebGLEngine/GLEnum/WebGLMode";
+import { WebGLConfig } from "../../WebGLDriver/RenderDevice/WebGLEngine/WebGLConfig";
 
 
 /**
@@ -14,8 +16,12 @@ export class GLESEngine implements IRenderEngine {
   _context: any;
   _isShaderDebugMode: boolean;
   _renderOBJCreateContext: IRenderEngineFactory;
+  _nativeObj: any;
+  constructor(config: WebGLConfig, webglMode: WebGLMode = WebGLMode.Auto) {
+    this._nativeObj = new (window as any).conchGLESEngine(config, webglMode);
+  }
   initRenderEngine(canvas: any): void {
-    throw new Error("Method not implemented.");
+    this._nativeObj.initRenderEngine();
   }
   copySubFrameBuffertoTex(texture: InternalTexture, level: number, xoffset: number, yoffset: number, x: number, y: number, width: number, height: number): void {
     throw new Error("Method not implemented.");
