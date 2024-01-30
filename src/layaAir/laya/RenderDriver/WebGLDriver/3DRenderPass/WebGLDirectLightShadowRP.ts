@@ -100,7 +100,6 @@ export class WebGLDirectLightShadowRP implements IDirectLightShadowRP {
         //设置分辨率
         var atlasResolution = this._light.shadowResolution;
         var cascadesMode = this.shadowCastMode = this._light.shadowCascadesMode;
-        var shadowTileResolution: number;
 
         if (cascadesMode == ShadowCascadesMode.NoCascades) {
             this._cascadeCount = 1;
@@ -110,7 +109,8 @@ export class WebGLDirectLightShadowRP implements IDirectLightShadowRP {
         }
         else {
             this._cascadeCount = cascadesMode == ShadowCascadesMode.TwoCascades ? 2 : 4;
-            this._shadowTileResolution = ShadowUtils.getMaxTileResolutionInAtlas(atlasResolution, atlasResolution, this._cascadeCount);
+            let shadowTileResolution = ShadowUtils.getMaxTileResolutionInAtlas(atlasResolution, atlasResolution, this._cascadeCount);
+            this._shadowTileResolution = shadowTileResolution;
             this._shadowMapWidth = shadowTileResolution * 2;
             this._shadowMapHeight = cascadesMode == ShadowCascadesMode.TwoCascades ? shadowTileResolution : shadowTileResolution * 2;
         }
@@ -191,6 +191,11 @@ export class WebGLDirectLightShadowRP implements IDirectLightShadowRP {
                 Vector4.tempVec4.setValue(offsetX, offsetY, resolution, resolution);
                 context.setScissor(Vector4.tempVec4);
             }
+
+            if (sliceData.cameraUBO && sliceData.cameraUBData) {
+                sliceData.cameraUBO.setDataByUniformBufferData(sliceData.cameraUBData);
+            }
+
             context.setClearData(RenderClearFlag.Depth, Color.BLACK, 1, 0);
             this._renderQueue.renderQueue(context);
             this._applyCasterPassCommandBuffer(context);
