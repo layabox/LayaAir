@@ -69,8 +69,17 @@ export class BlueprintDebuggerManager {
 
     _loop: any;
     _originalfun: any;
+    _ohandleKeys: any;
+    _ohandleMouse: any;
+    _ohandleTouch: any;
     startDebugger() {
         this._originalfun = requestAnimationFrame;
+        this._ohandleKeys = InputManager.inst.handleKeys;
+        this._ohandleMouse = InputManager.inst.handleMouse;
+        this._ohandleTouch = InputManager.inst.handleTouch;
+        InputManager.inst.handleKeys = this.handleKeys.bind(this);
+        InputManager.inst.handleMouse = this.handleMouse.bind(this);
+        InputManager.inst.handleTouch = this.handleTouch.bind(this);
         window.requestAnimationFrame = this._requestAnimationFrame.bind(this);
     }
 
@@ -78,8 +87,15 @@ export class BlueprintDebuggerManager {
         if (this._originalfun) {
             window.requestAnimationFrame = this._originalfun;
             window.requestAnimationFrame(this._loop);
+
+            InputManager.inst.handleKeys = this._ohandleKeys;
+            InputManager.inst.handleMouse = this._ohandleMouse;
+            InputManager.inst.handleTouch = this._ohandleTouch;
         }
         this._originalfun = null;
+        this._ohandleKeys = null;
+        this._ohandleMouse = null;
+        this._ohandleTouch = null;
     }
 
     private _requestAnimationFrame(callback: any) {
@@ -88,5 +104,20 @@ export class BlueprintDebuggerManager {
             return null;
         }
         return this._originalfun(callback);
+    }
+
+    private handleKeys(ev: KeyboardEvent) {
+        if (this.debugging) return;
+        this._ohandleKeys(ev);
+    }
+
+    private handleMouse(ev: MouseEvent | WheelEvent, type: number) {
+        if (this.debugging) return;
+        this._ohandleMouse(ev, type);
+    }
+
+    private handleTouch(ev: TouchEvent, type: number) {
+        if (this.debugging) return;
+        this._ohandleTouch(ev, type);
     }
 }
