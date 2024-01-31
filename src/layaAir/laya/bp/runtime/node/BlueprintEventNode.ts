@@ -24,7 +24,7 @@ export class BlueprintEventNode extends BlueprintRuntimeBaseNode {
         this.tryExcute = this.emptyExcute;
     }
 
-    protected onParseLinkData(node:TBPNode,manger: INodeManger<BlueprintEventNode>){
+    protected onParseLinkData(node: TBPNode, manger: INodeManger<BlueprintEventNode>) {
         if (node.dataId) {
             this.eventName = (manger.dataMap[node.dataId] as TBPEventProperty).name;
         }
@@ -45,24 +45,25 @@ export class BlueprintEventNode extends BlueprintRuntimeBaseNode {
     // }
 
 
-    emptyExcute(context: IRunAble,runtimeDataMgr: IRuntimeDataManger, fromExcute: boolean, runner: IBPRutime, enableDebugPause: boolean,runId: number, fromPin: BlueprintPinRuntime): number | BlueprintPromise {
+    emptyExcute(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, fromExcute: boolean, runner: IBPRutime, enableDebugPause: boolean, runId: number, fromPin: BlueprintPinRuntime): number | BlueprintPromise {
         if (fromPin && fromPin.otype == "bpFun") {
             let data = runtimeDataMgr.getDataById(this.nid);
             let _this = this;
             data.eventName = this.eventName;
             data.callFun = data.callFun || function () {
                 let parms = Array.from(arguments);
+                let newRunId = runner.getRunID();
                 parms.forEach((value, index) => {
-                    runtimeDataMgr.setPinData(_this.outPutParmPins[index], value,runId);
+                    runtimeDataMgr.setPinData(_this.outPutParmPins[index], value, newRunId);
                 })
-                runner.runByContext(context,runtimeDataMgr, _this, enableDebugPause,null,-1);
+                runner.runByContext(context, runtimeDataMgr, _this, enableDebugPause, null, newRunId);
             }
-            runtimeDataMgr.setPinData(fromPin, data.callFun,runId);
+            runtimeDataMgr.setPinData(fromPin, data.callFun, runId);
         }
         return BlueprintConst.MAX_CODELINE;
     }
 
-    step(context: IRunAble,runtimeDataMgr: IRuntimeDataManger, fromExcute: boolean, runner: IBPRutime, enableDebugPause: boolean, runId: number): number | BlueprintPromise {
+    step(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, fromExcute: boolean, runner: IBPRutime, enableDebugPause: boolean, runId: number): number | BlueprintPromise {
         if (fromExcute && context.beginExcute(this, runner, enableDebugPause)) {
             return this.getDebuggerPromise(context);
         }
@@ -102,7 +103,7 @@ export class BlueprintEventNode extends BlueprintRuntimeBaseNode {
         if (fromExcute) {
             context.endExcute(this);
         }
-        return this.next(context,runtimeDataMgr,null,null,false,-1);
+        return this.next(context, runtimeDataMgr, null, null, false, -1);
     }
 
     next(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, parmsArray: any[], runner: IBPRutime, enableDebugPause: boolean, runId: number): number {

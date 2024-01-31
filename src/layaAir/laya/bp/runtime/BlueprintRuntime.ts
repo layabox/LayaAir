@@ -263,7 +263,7 @@ class BluePrintBlock implements INodeManger<BlueprintRuntimeBaseNode>, IBPRutime
         return false;
     }
 
-    protected getRunID() {
+    getRunID() {
         //console.log(">>>>>>>>>>获取节点ID");
         if (this.poolIds.length > 0) {
             return this.poolIds.pop();
