@@ -3,6 +3,7 @@ import { INodeManger } from "../../core/interface/INodeManger";
 import { IRuntimeDataManger } from "../../core/interface/IRuntimeDataManger";
 import { TBPNode } from "../../datas/types/BlueprintTypes";
 import { BlueprintFactory } from "../BlueprintFactory";
+import { BpDebuggerRunType } from "../debugger/BlueprintDebuggerManager";
 import { IRunAble } from "../interface/IRunAble";
 import { BlueprintFunNode } from "./BlueprintFunNode";
 
@@ -27,8 +28,8 @@ export class BlueprintCustomFunNode extends BlueprintFunNode {
             let _funcContext = caller[BlueprintFactory.contextSymbol];
             result = caller[BlueprintFactory.bpSymbol].runCustomFun(_funcContext, this.functionID, parmsArray, () => {
                 const _runTimeData = _funcContext.getDataMangerByID(this.functionID);
-                if (_runTimeData.debuggerPause) {
-                    _runTimeData.debuggerPause = false;
+                if (_runTimeData.debuggerPause == BpDebuggerRunType.stepOut) {
+                    _runTimeData.debuggerPause = BpDebuggerRunType.none;
                     _funcContext.debuggerManager.pause(_funcContext as any, this);
                 }
                 if (result === false && cb) {

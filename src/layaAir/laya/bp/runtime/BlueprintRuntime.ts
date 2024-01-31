@@ -15,6 +15,7 @@ import { IRuntimeDataManger } from "../core/interface/IRuntimeDataManger";
 import { BluePrintAsNode } from "./node/BlueprintAsNode";
 import { BlueprintPin } from "../core/BlueprintPin";
 import { BlueprintUtil } from "../core/BlueprintUtil";
+import { BlueprintConst } from "../core/BlueprintConst";
 
 
 const mainScope = Symbol("mainScope");
@@ -293,6 +294,11 @@ class BluePrintBlock implements INodeManger<BlueprintRuntimeBaseNode>, IBPRutime
             }
             else {
                 i = index;
+                if(index == BlueprintConst.MAX_CODELINE){
+                    if(mainScope == this.id && context.debuggerManager){
+                        context.debuggerManager.clear();
+                    }
+                }
             }
         }
         cb && cb();
@@ -321,8 +327,10 @@ class BluePrintMainBlock extends BluePrintBlock {
         let cls = this.cls;
         let originFunc: Function = cls.prototype[eventName];
         cls.prototype[eventName] = function (...args: any[]) {
+            const funcContext:IRunAble = this[BlueprintFactory.contextSymbol];
+            if(funcContext.debuggerManager && funcContext.debuggerManager.debugging) return;
             originFunc && originFunc.call(this, args);
-            this[BlueprintFactory.bpSymbol].run(this[BlueprintFactory.contextSymbol], eventName, args);
+            this[BlueprintFactory.bpSymbol].run(funcContext, eventName, args);
         }
     }
 
