@@ -340,65 +340,37 @@ export class BlueprintUtil {
     private static initNode(data: Record<string, TBPDeclaration>) {
         for (let ext in data) {
             let cls = BlueprintUtil.getClass(ext);
+            if (!cls) continue;
 
-            if (!cls) {
-                continue;
-            }
             this.extendsNode[ext] = [];
             this._constExtNode[ext] = {};
             let o = data[ext];
-            let isBp: boolean = false;
-            if (o && o.name.indexOf(".bp") != -1) {
-                isBp = true;
+            let isBp: boolean = o?.name.includes(".bp");
+
+            if (o?.props) {
+                this.constVars[ext] = this.constVars[ext] || [];
+                o.props.forEach((po: any) => {
+                    po.id = po.id || 'var_' + ext + "_" + po.name;
+                    po.targetAliasName = o.name;
+                    po.target = ext;
+                    po.const = true;
+                    this.constVars[ext].push(po);
+                    this.constAllVars[po.id] = po;
+                });
             }
 
-            if (o && o.props) {
-                let arr = o.props;
-                for (let i = arr.length - 1; i >= 0; i--) {
-                    let po = arr[i];
-                    //if (po.modifiers.isStatic) continue;
-
-                    if (null == this.constVars[ext]) {
-                        this.constVars[ext] = [];
-                    }
-                    let anyObj = po as any;
-                    if (null == anyObj.id) {
-                        anyObj.id = 'var_' + ext + "_" + anyObj.name;
-                    }
-                    anyObj.targetAliasName = o.name;
-                    anyObj.target = ext;
-                    anyObj.const = true;
-                    this.constVars[ext].push(anyObj);
-                    this.constAllVars[anyObj.id] = anyObj;
-                }
-            }
-            if (o && o.construct) {
-
+            if (o?.construct) {
                 let cdata: TBPCNode = {
                     menuPath: "CreateNew",
                     name: ext,
                     target: ext,
                     id: ext,
                     type: BPType.NewTarget,
-                    output: [
-                        {
-                            name: "return",
-                            type: ext,
-                        }
-                    ]
+                    output: [{ name: "return", type: ext }]
                 }
 
-                let params = o.construct.params;
-                if (params) {
-                    cdata.input = []
-                    for (let i = 0, len = params.length; i < len; i++) {
-                        cdata.input.push(
-                            {
-                                name: params[i].name,
-                                type: params[i].type,
-                            }
-                        );
-                    }
+                if (o.construct.params) {
+                    cdata.input = o.construct.params.map(param => ({ name: param.name, type: param.type }));
                 }
 
                 this.extendsNode[ext].push(cdata);
@@ -406,118 +378,74 @@ export class BlueprintUtil {
                 this._allConstNode[cdata.id] = cdata;
             }
 
-            if (o && o.funcs) {
-                let funcs = o.funcs;
-                for (let i = funcs.length - 1; i >= 0; i--) {
-                    let fun = funcs[i];
+            if (o?.funcs) {
+                o.funcs.forEach((fun: any) => {
                     if (fun.modifiers.isPublic || fun.modifiers.isProtected) {
-
-                        let cdata: TBPCNode = {
-                            modifiers: fun.modifiers,
-                            target: ext,
-                            targetAliasName: o.name,
-                            name: fun.name,
-                            id: ext + "_" + fun.name,
-                            type: BPType.Function,
-                            output: [
-                                BlueprintUtil.defEventOut,
-                            ]
-                        }
-                        if (null != fun.menuPath) {
-                            cdata.menuPath = fun.menuPath;
-                        }
-                        switch (fun.type) {
-                            case BPType.Pure:
-                            case BPType.Function:
-                            case BPType.Event:
-                                cdata.type = fun.type as BPType;
-                                break;
-                        }
-                        if (null != fun.customId) {
-                            cdata.id = ext + "_" + fun.customId;
-                            cdata.type = BPType.CustomFun;
-                            cdata.customId = fun.customId;
-                        }
-                        if (fun.typeParameters) {
-                            cdata.typeParameters = fun.typeParameters;
-                        }
-
-                        if (fun.modifiers.isStatic) {
-                            cdata.id += "_static";
-                            cdata.aliasName = fun.name + " (Static)";
-                        }
-
-
-                        let funName = fun.name;
-                        let func = fun.modifiers.isStatic ? cls[funName] : cls.prototype[funName];
-                        if (func) {
-                            //debugger
-                        }
+                        let cdata: TBPCNode = this.createCData(fun, ext, o.name);
+                        let func = fun.modifiers.isStatic ? cls[fun.name] : cls.prototype[fun.name];
                         BlueprintFactory.regFunction(cdata.id, func, !fun.modifiers.isStatic, cls);
 
-                        let params = fun.params;
-                        if (params && 0 < params.length) {
+                        if (fun.params && fun.params.length > 0) {
                             if (BPType.Event == cdata.type) {
-                                cdata.output.push(...params);
+                                cdata.output.push(...fun.params);
                             } else {
-                                cdata.input = [...params];
+                                cdata.input = [...fun.params];
                             }
                         }
 
-                        if (cdata.type == BPType.Function || cdata.type == BPType.CustomFun || cdata.type == BPType.Pure) {
-                            if (null == cdata.input) cdata.input = [];
-                            if (!fun.modifiers.isStatic) {
-                                cdata.input.unshift({
-                                    name: "target",
-                                    type: ext,
-                                });
-                            }
-                            if (cdata.type == BPType.Pure) {
-                                cdata.output.shift();
-                            }
-                            else {
-                                cdata.input.unshift(BlueprintUtil.defFunIn);
-                            }
-
-                            if ('void' != fun.returnType) {
-                                if (fun.returnType instanceof Array) {
-                                    fun.returnType.forEach(value => {
-                                        cdata.output.push(value);
-                                    })
-                                }
-                                else {
-                                    cdata.output.push({
-                                        name: "return",
-                                        type: fun.returnType,
-                                    });
-                                }
-                            }
-                        }
+                        this.handleCDataTypes(cdata, fun, ext);
                         this.extendsNode[ext].push(cdata);
-
-                        if (null != this._constExtNode[ext][cdata.id]) {
-                            let index = 1;
-                            let newID = cdata.id + "(" + index + ")";
-                            while (true) {
-                                if (null == this._constExtNode[ext][newID]) break;
-                                index += 1;
-                                newID = cdata.id + "(" + index + ")";
-                            }
-                            cdata.id = newID;
-                            let aliasName = cdata.name;
-                            if (null != cdata.aliasName) {
-                                aliasName = cdata.aliasName;
-                            }
-                            cdata.aliasName = aliasName + " " + index;
-                        }
                         this._constExtNode[ext][cdata.id] = cdata;
                     }
-                }
-            } else {
-                // console.log("该类型没有方法:", ext);
+                });
             }
 
             this._allConstNode = { ...this._allConstNode, ...this._constExtNode[ext] };
+        }
+    }
+
+    private static createCData(fun: any, ext: string, name: string): TBPCNode {
+        let cdata: TBPCNode = {
+            modifiers: fun.modifiers,
+            target: ext,
+            targetAliasName: name,
+            name: fun.name,
+            id: ext + "_" + fun.name,
+            type: BPType.Function,
+            output: [BlueprintUtil.defEventOut]
+        }
+
+        cdata.menuPath = fun.menuPath || cdata.menuPath;
+        cdata.type = [BPType.Pure, BPType.Function, BPType.Event].includes(fun.type) ? fun.type : cdata.type;
+        cdata.id = fun.customId ? ext + "_" + fun.customId : cdata.id;
+        cdata.type = fun.customId ? BPType.CustomFun : cdata.type;
+        cdata.customId = fun.customId || cdata.customId;
+        cdata.typeParameters = fun.typeParameters || cdata.typeParameters;
+        cdata.id = fun.modifiers.isStatic ? cdata.id + "_static" : cdata.id;
+        cdata.aliasName = fun.modifiers.isStatic ? fun.name + " (Static)" : cdata.aliasName;
+
+        return cdata;
+    }
+
+    private static handleCDataTypes(cdata: TBPCNode, fun: any, ext: string) {
+        if ([BPType.Function, BPType.CustomFun, BPType.Pure].includes(cdata.type)) {
+            cdata.input = cdata.input || [];
+            if (!fun.modifiers.isStatic) {
+                cdata.input.unshift({ name: "target", type: ext });
+            }
+            if (cdata.type == BPType.Pure) {
+                cdata.output.shift();
+            } else {
+                cdata.input.unshift(BlueprintUtil.defFunIn);
+            }
+
+            if ('void' != fun.returnType) {
+                if (fun.returnType instanceof Array) {
+                    cdata.output.push(...fun.returnType);
+                } else {
+                    cdata.output.push({ name: "return", type: fun.returnType });
+                }
+            }
         }
     }
 
