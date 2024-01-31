@@ -1,4 +1,4 @@
-import { BPType, TBPCNode, TBPConnType, TBPEventProperty, TBPNode, TBPVarProperty } from "../datas/types/BlueprintTypes";
+import { BPType, TBPCNode, TBPConnType, TBPEventProperty, TBPNode, TBPStageData, TBPVarProperty } from "../datas/types/BlueprintTypes";
 import { INodeManger } from "../core/interface/INodeManger";
 
 import { BlueprintFactory } from "./BlueprintFactory";
@@ -66,14 +66,18 @@ export class BlueprintRuntime {
         return null;
     }
 
-    parse(bpjson: Array<TBPNode>, getCNodeByNode: (node: TBPNode) => TBPCNode, varMap: Record<string, TBPVarProperty>, newCls: Function) {
+    parse(mainBlockData: TBPStageData, getCNodeByNode: (node: TBPNode) => TBPCNode, varMap: Record<string, TBPVarProperty>, newCls: Function) {
+        let bpjson: Array<TBPNode> = mainBlockData.arr;
+        this.mainBlock.name = mainBlockData.name;
         this.mainBlock.dataMap = this.dataMap;
         this.mainBlock.cls = newCls;
         this.mainBlock.parse(bpjson, getCNodeByNode, varMap);
     }
 
-    parseFunction(funId: number, bpjson: Array<TBPNode>, getCNodeByNode: (node: TBPNode) => TBPCNode) {
+    parseFunction(funData: TBPStageData, getCNodeByNode: (node: TBPNode) => TBPCNode) {
+        let funId: number = funData.id, bpjson: Array<TBPNode> = funData.arr;
         let fun = new BluePrintFunBlock(funId);
+        fun.name = funData.name;
         fun.dataMap = this.dataMap;
         fun.parse(bpjson, getCNodeByNode, this.varMap);
         this.funBlockMap.set(funId, fun);
@@ -103,6 +107,10 @@ class BluePrintBlock implements INodeManger<BlueprintRuntimeBaseNode>, IBPRutime
      * block ID 注释
      */
     id: symbol | number;
+    /**
+     * block 名称
+     */
+    name: string;
     /**
      * 节点Map
      */
