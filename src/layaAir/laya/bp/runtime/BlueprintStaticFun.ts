@@ -60,7 +60,7 @@ export class BlueprintStaticFun {
      * @param name 
      * @param context 
      */
-    static setVariable(target: IBluePrintSubclass, value: any, name: string, context: IRunAble): void {
+    static setVariable(target: IBluePrintSubclass, value: any, name: string, context: IRunAble): any {
         if (!target) {
             context.setVar(name, value);
         }
@@ -73,6 +73,7 @@ export class BlueprintStaticFun {
                 target[name] = value;
             }
         }
+        return value;
     }
     /**
      * 
