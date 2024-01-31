@@ -54,7 +54,7 @@ export type TBPDeclaration = {
 
 export type TBPDeclarationEvent = {
     name:string;
-    data?:TBPDeclarationEventData[];
+    params?:TBPDeclarationEventData[];
 }
 
 export type TBPDeclarationEventData = {

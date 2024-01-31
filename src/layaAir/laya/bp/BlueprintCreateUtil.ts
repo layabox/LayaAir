@@ -1,6 +1,7 @@
 import { Laya } from "../../Laya";
 import { JsonBinRead } from "../net/util/JsonBinRead";
 import { BlueprintConst } from "./core/BlueprintConst";
+import { BlueprintUtil } from "./core/BlueprintUtil";
 import { extendsData } from "./datas/BlueprintExtends";
 import { BlueprintFactory } from "./runtime/BlueprintFactory";
 
@@ -24,6 +25,7 @@ export class BlueprintCreateUtil{
                 extendsData[key] = json[key];
             }
             BlueprintFactory.__init__();
+            BlueprintUtil.initConstNode();
             return Promise.resolve();
         })
     }
