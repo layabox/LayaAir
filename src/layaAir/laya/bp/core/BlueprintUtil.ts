@@ -37,6 +37,8 @@ export class BlueprintUtil {
     }
     private static defEventOut = BlueprintUtil.defFunOut;
 
+    private static readonly funlike = [BPType.Function, BPType.CustomFun, BPType.Pure];
+
     static getDefaultConstNode() {
         return this._constNode;
     }
@@ -428,7 +430,7 @@ export class BlueprintUtil {
     }
 
     private static handleCDataTypes(cdata: TBPCNode, fun: any, ext: string) {
-        if ([BPType.Function, BPType.CustomFun, BPType.Pure].includes(cdata.type)) {
+        if (BlueprintUtil.funlike.includes(cdata.type)) {
             cdata.input = cdata.input || [];
             if (!fun.modifiers.isStatic) {
                 cdata.input.unshift({ name: "target", type: ext });
