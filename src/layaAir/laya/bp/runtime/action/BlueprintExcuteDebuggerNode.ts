@@ -5,7 +5,7 @@ import { BlueprintExcuteNode } from "./BlueprintExcuteNode";
 import { IBPRutime } from "../interface/IBPRutime";
 import { IExcuteListInfo } from "../../core/interface/IExcuteListInfo";
 import { IRuntimeDataManger } from "../../core/interface/IRuntimeDataManger";
-import { BlueprintDebuggerManager } from "../debugger/BlueprintDebuggerManager";
+import { BlueprintDebuggerManager, BpDebuggerRunType } from "../debugger/BlueprintDebuggerManager";
 
 export class BlueprintExcuteDebuggerNode extends BlueprintExcuteNode implements IRunAble {
     debuggerPause: boolean;
@@ -36,8 +36,8 @@ export class BlueprintExcuteDebuggerNode extends BlueprintExcuteNode implements 
             let b = runtimeNode.hasDebugger || this.debuggerManager.debugging;
             if(!b){
                 const runtimeDataMgr = this.getDataMangerByID(runtimeNode.listIndex);
-                b = runtimeDataMgr.debuggerPause;
-                runtimeDataMgr.debuggerPause = false;
+                b = runtimeDataMgr.debuggerPause == BpDebuggerRunType.stepOver;
+                if(b) runtimeDataMgr.debuggerPause = BpDebuggerRunType.none;
             }
             if (b) {
                 this.debuggerPause = true;

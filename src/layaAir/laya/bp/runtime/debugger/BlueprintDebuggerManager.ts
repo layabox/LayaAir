@@ -30,7 +30,7 @@ export class BlueprintDebuggerManager {
     }
 
     stepOut() {
-        this.runTimeData.debuggerPause = true;
+        this.runTimeData.debuggerPause = BpDebuggerRunType.stepOut;
         this.resume();
     }
 
@@ -39,13 +39,13 @@ export class BlueprintDebuggerManager {
     }
 
     stepOver() {
-        this.runTimeData.debuggerPause = true;
+        this.runTimeData.debuggerPause = BpDebuggerRunType.stepOver;
         this.resume();
     }
 
     clear() {
         if (this.runTimeData) {
-            this.runTimeData.debuggerPause = false;
+            this.runTimeData.debuggerPause = BpDebuggerRunType.none;
         }
         this.listInfo = null;
         this.context = null;
@@ -74,9 +74,9 @@ export class BlueprintDebuggerManager {
     _ohandleTouch: any;
     startDebugger() {
         this._originalfun = requestAnimationFrame;
-        this._ohandleKeys = InputManager.inst.handleKeys;
-        this._ohandleMouse = InputManager.inst.handleMouse;
-        this._ohandleTouch = InputManager.inst.handleTouch;
+        this._ohandleKeys = InputManager.inst.handleKeys.bind(InputManager.inst);
+        this._ohandleMouse = InputManager.inst.handleMouse.bind(InputManager.inst);
+        this._ohandleTouch = InputManager.inst.handleTouch.bind(InputManager.inst);
         InputManager.inst.handleKeys = this.handleKeys.bind(this);
         InputManager.inst.handleMouse = this.handleMouse.bind(this);
         InputManager.inst.handleTouch = this.handleTouch.bind(this);
@@ -120,4 +120,10 @@ export class BlueprintDebuggerManager {
         if (this.debugging) return;
         this._ohandleTouch(ev, type);
     }
+}
+
+export enum BpDebuggerRunType {
+    none,
+    stepOver,
+    stepOut
 }

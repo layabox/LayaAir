@@ -1,8 +1,9 @@
 import { RuntimeNodeData, RuntimePinData } from "../../runtime/action/RuntimeNodeData";
 import { BlueprintPinRuntime } from "../../runtime/BlueprintPinRuntime";
+import { BpDebuggerRunType } from "../../runtime/debugger/BlueprintDebuggerManager";
 
 export interface IRuntimeDataManger {
-    debuggerPause?: boolean;
+    debuggerPause?: BpDebuggerRunType;
     
     getDataById(nid: number): RuntimeNodeData;
 
