@@ -35,7 +35,9 @@ export class BlueprintExcuteDebuggerNode extends BlueprintExcuteNode implements 
         if (enableDebugPause) {
             let b = runtimeNode.hasDebugger || this.debuggerManager.debugging;
             if(!b){
-                b = this.getDataMangerByID(runtimeNode.listIndex).debuggerPause;
+                const runtimeDataMgr = this.getDataMangerByID(runtimeNode.listIndex);
+                b = runtimeDataMgr.debuggerPause;
+                runtimeDataMgr.debuggerPause = false;
             }
             if (b) {
                 this.debuggerPause = true;
