@@ -1252,7 +1252,9 @@ export class Text extends Sprite {
             //调整元素y位置
             cmd = curLine.cmd;
             while (cmd) {
-                cmd.y = Math.floor((lineHeight - cmd.height) * 0.5);
+                // cmd.y = Math.floor((lineHeight - cmd.height) * 0.5);
+                // CoderM: 这里不乘以0.5进行居中,否则超链接加图文混排一起使用的话会出现比较抽象的居中对齐现实效果
+                cmd.y = Math.floor((lineHeight - cmd.height));
                 cmd = cmd.next;
             }
 
