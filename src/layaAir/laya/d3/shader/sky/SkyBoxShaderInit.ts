@@ -5,7 +5,7 @@ import { Color } from "../../../maths/Color";
 import { AttributeMapType, SubShader } from "../../../RenderEngine/RenderShader/SubShader";
 import { VertexMesh } from "../../../RenderEngine/RenderShader/VertexMesh";
 import { CullMode } from "../../../RenderEngine/RenderEnum/CullMode";
-import { ShaderDataType } from "../../../RenderDriver/RenderModuleData/Design/ShaderData";
+import { ShaderDataType } from "../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { RenderState } from "../../../RenderDriver/RenderModuleData/Design/RenderState";
 
 export class SkyBoxShaderInit {

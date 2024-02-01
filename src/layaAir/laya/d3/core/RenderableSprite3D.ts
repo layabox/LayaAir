@@ -5,7 +5,7 @@ import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 
 import { LayaGL } from "../../layagl/LayaGL";
 import { ShaderDefine } from "../../RenderDriver/RenderModuleData/Design/ShaderDefine";
-import { ShaderDataType } from "../../RenderDriver/RenderModuleData/Design/ShaderData";
+import { ShaderDataType } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 
 
 /**

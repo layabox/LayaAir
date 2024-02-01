@@ -10,7 +10,7 @@ import { Vector4 } from "../../../maths/Vector4";
 import { DepthTextureMode } from "../../../resource/RenderTexture";
 import { SingletonList } from "../../../utils/SingletonList";
 import { IDirectLightData, ICameraNodeData, IBaseRenderNode, ISceneNodeData } from "../../RenderModuleData/Design/3D/I3DRenderModuleData";
-import { ShaderData } from "../../RenderModuleData/Design/ShaderData";
+import { ShaderData } from "../RenderDevice/ShaderData";
 import { IRenderGeometryElement } from "../RenderDevice/IRenderGeometryElement";
 import { InternalRenderTarget } from "../RenderDevice/InternalRenderTarget";
 

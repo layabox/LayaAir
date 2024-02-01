@@ -3,21 +3,21 @@ import { UniformBufferObject } from "../../../RenderEngine/UniformBufferObject";
 import { Color } from "../../../maths/Color";
 import { Matrix3x3 } from "../../../maths/Matrix3x3";
 import { Matrix4x4 } from "../../../maths/Matrix4x4";
-import { Quaternion } from "../../../maths/Quaternion";
 import { Vector2 } from "../../../maths/Vector2";
 import { Vector3 } from "../../../maths/Vector3";
 import { Vector4 } from "../../../maths/Vector4";
 import { BaseTexture } from "../../../resource/BaseTexture";
 import { Resource } from "../../../resource/Resource";
 import { InternalTexture } from "../../DriverDesign/RenderDevice/InternalTexture";
-import { ShaderData, uboParams, ShaderDataType, ShaderDataItem } from "../Design/ShaderData";
+import { WebGLEngine } from "../../WebGLDriver/RenderDevice/WebGLEngine";
+import { ShaderData, uboParams} from "../../DriverDesign/RenderDevice/ShaderData";
 import { ShaderDefine } from "../Design/ShaderDefine";
 import { WebDefineDatas } from "./WebDefineDatas";
 
 /**
  * 着色器数据类。
  */
-export class WebShaderData extends ShaderData {
+export class WebGLShaderData extends ShaderData {
 	/**@internal 反向找Material*/
 	protected _ownerResource: Resource = null;
 
@@ -424,7 +424,7 @@ export class WebShaderData extends ShaderData {
 	setTexture(index: number, value: BaseTexture): void {
 		var lastValue: BaseTexture = this._data[index];
 		if (value) {
-			let shaderDefine = ShaderDefine._texGammaDefine[index];
+			let shaderDefine = WebGLEngine._texGammaDefine[index];
 			if (shaderDefine && value && value.gammaCorrection > 1) {
 				this.addDefine(shaderDefine);
 			}
@@ -439,11 +439,10 @@ export class WebShaderData extends ShaderData {
 		value && value._addReference();
 	}
 
-	/**@internal */
 	_setInternalTexture(index: number, value: InternalTexture) {
 		var lastValue: InternalTexture = this._data[index];
 		if (value) {
-			let shaderDefine = ShaderDefine._texGammaDefine[index];
+			let shaderDefine = WebGLEngine._texGammaDefine[index];
 			if (shaderDefine && value && value.gammaCorrection > 1) {
 				this.addDefine(shaderDefine);
 			}
@@ -476,31 +475,6 @@ export class WebShaderData extends ShaderData {
 	}
 
 	/**
-	 * set shader data
-	 * @deprecated
-	 * @param index uniformID
-	 * @param value data
-	 */
-	setValueData(index: number, value: any) {
-		//Color 需要特殊处理
-		if (value instanceof Color) {
-			this.setColor(index, value);
-			return;
-		} else if (!value) {
-			//value null
-			this._data[index] = value;
-		} else if (!!value.clone) {
-			this._data[index] = value.clone();
-		} else this._data[index] = value;
-
-		let ubo = this._uniformBuffersMap.get(index);
-		if (ubo) {
-			this._uniformBufferDatas.get(ubo._name).uboBuffer._setData(index, this.getValueData(index));
-			this.applyUBO = true;
-		}
-	}
-
-	/**
 	 * 
 	 * @param index 
 	 * @param value 
@@ -513,95 +487,12 @@ export class WebShaderData extends ShaderData {
 		return this._data[index];
 	}
 
-	setShaderData(uniformIndex: number, type: ShaderDataType, value: ShaderDataItem | Quaternion) {
-		switch (type) {
-			case ShaderDataType.Int:
-				this.setInt(uniformIndex, <number>value);
-				break;
-			case ShaderDataType.Bool:
-				this.setBool(uniformIndex, <boolean>value);
-				break;
-			case ShaderDataType.Float:
-				this.setNumber(uniformIndex, <number>value);
-				break;
-			case ShaderDataType.Vector2:
-				this.setVector2(uniformIndex, <Vector2>value);
-				break;
-			case ShaderDataType.Vector3:
-				this.setVector3(uniformIndex, <Vector3>value);
-				break;
-			case ShaderDataType.Vector4:
-				this.setVector(uniformIndex, <Vector4>value);
-				break;
-			case ShaderDataType.Color:
-				this.setColor(uniformIndex, <Color>value);
-				break;
-			case ShaderDataType.Matrix4x4:
-				this.setMatrix4x4(uniformIndex, <Matrix4x4>value);
-				break;
-			case ShaderDataType.Matrix3x3:
-				this.setMatrix3x3(uniformIndex, <Matrix3x3>value);
-				break;
-			case ShaderDataType.Texture2D:
-			case ShaderDataType.TextureCube:
-				this.setTexture(uniformIndex, <BaseTexture>value);
-				break;
-			case ShaderDataType.Buffer:
-				this.setBuffer(uniformIndex, <Float32Array>value);
-				break;
-			default:
-				throw new Error(`unkown shader data type: ${type}`);
-		}
-	}
-
-	getShaderData(uniformIndex: number, type: ShaderDataType) {
-		switch (type) {
-			case ShaderDataType.Int:
-				return this.getInt(uniformIndex);
-			case ShaderDataType.Bool:
-				return this.getBool(uniformIndex);
-			case ShaderDataType.Float:
-				return this.getNumber(uniformIndex);
-			case ShaderDataType.Vector2:
-				return this.getVector2(uniformIndex);
-			case ShaderDataType.Vector3:
-				return this.getVector3(uniformIndex);
-			case ShaderDataType.Vector4:
-				return this.getVector(uniformIndex);
-			case ShaderDataType.Color:
-				return this.getColor(uniformIndex);
-			case ShaderDataType.Matrix4x4:
-				return this.getMatrix4x4(uniformIndex);
-			case ShaderDataType.Texture2D:
-			case ShaderDataType.TextureCube:
-				return this.getTexture(uniformIndex);
-			case ShaderDataType.Buffer:
-				return this.getBuffer(uniformIndex);
-			case ShaderDataType.Matrix3x3:
-				return this.getMatrix3x3(uniformIndex);
-			case ShaderDataType.Matrix4x4:
-				return this.getMatrix4x4(uniformIndex);
-			default:
-				throw "unkone shader data type.";
-		}
-	}
-
-	/**
-	 * get shader data
-	 * @deprecated
-	 * @param index uniform ID
-	 * @returns 
-	 */
-	getValueData(index: number): any {
-		return this._data[index];
-	}
-
 	/**
 	 * 克隆。
 	 * @param	destObject 克隆源。
 	 */
-	cloneTo(destObject: WebShaderData): void {
-		var dest: WebShaderData = <WebShaderData>destObject;
+	cloneTo(destObject: WebGLShaderData): void {
+		var dest: WebGLShaderData = <WebGLShaderData>destObject;
 		var destData: { [key: string]: number | boolean | Vector2 | Vector3 | Vector4 | Matrix3x3 | Matrix4x4 | BaseTexture } = dest._data;
 		for (var k in this._data) {//TODO:需要优化,杜绝is判断，慢
 			var value: any = this._data[k];
@@ -679,7 +570,7 @@ export class WebShaderData extends ShaderData {
 	 * @return	 克隆副本。
 	 */
 	clone(): any {
-		var dest: WebShaderData = new WebShaderData();
+		var dest: WebGLShaderData = new WebGLShaderData();
 		this.cloneTo(dest);
 		return dest;
 	}

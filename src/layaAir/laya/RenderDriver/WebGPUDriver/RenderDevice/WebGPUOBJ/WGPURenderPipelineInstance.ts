@@ -10,7 +10,7 @@ import { CommandEncoder } from "../../../../layagl/CommandEncoder";
 import { LayaGL } from "../../../../layagl/LayaGL";
 import { ShaderCompileDefineBase, ShaderProcessInfo } from "../../../../webgl/utils/ShaderCompileDefineBase";
 import { RenderState } from "../../../RenderModuleData/Design/RenderState";
-import { ShaderData, ShaderDataType } from "../../../RenderModuleData/Design/ShaderData";
+import { ShaderData, ShaderDataType } from "../../../DriverDesign/RenderDevice/ShaderData";
 import { WGPUShaderVariable } from "../WebGPUEngine/WGPUShaderVariable";
 import { WebGPUEngine } from "../WebGPUEngine/WebGPUEngine";
 import { WebGPUInternalRT } from "../WebGPUEngine/WebGPUInternalRT";

@@ -1,6 +1,6 @@
 
 import { Config3D } from "../../../Config3D";
-import { ShaderDataType } from "../../RenderDriver/RenderModuleData/Design/ShaderData";
+import { ShaderDataType } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { LayaGL } from "../../layagl/LayaGL";
 import { ShaderNode } from "../../webgl/utils/ShaderNode";
 import { RenderParams } from "../RenderEnum/RenderParams";

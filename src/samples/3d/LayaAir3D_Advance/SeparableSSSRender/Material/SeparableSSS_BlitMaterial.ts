@@ -10,7 +10,7 @@ import { Vector2 } from "laya/maths/Vector2";
 import { Vector3 } from "laya/maths/Vector3";
 import { Vector4 } from "laya/maths/Vector4";
 import { RenderState } from "laya/RenderDriver/RenderModuleData/Design/RenderState";
-import { ShaderDataType } from "laya/RenderDriver/RenderModuleData/Design/ShaderData";
+import { ShaderDataType } from "laya/RenderDriver/DriverDesign/RenderDevice/ShaderData";
 
 export class SeparableSSS_BlitMaterial extends Material {
 

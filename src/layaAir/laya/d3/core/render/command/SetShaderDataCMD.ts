@@ -7,7 +7,7 @@ import { Matrix4x4 } from "../../../../maths/Matrix4x4";
 import { Vector2 } from "../../../../maths/Vector2";
 import { Vector3 } from "../../../../maths/Vector3";
 import { Vector4 } from "../../../../maths/Vector4";
-import { ShaderData, ShaderDataItem, ShaderDataType } from "../../../../RenderDriver/RenderModuleData/Design/ShaderData";
+import { ShaderData, ShaderDataItem, ShaderDataType } from "../../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { ShaderDefine } from "../../../../RenderDriver/RenderModuleData/Design/ShaderDefine";
 
 /**

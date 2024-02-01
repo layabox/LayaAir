@@ -50,7 +50,7 @@ import { VertexElement } from "../../../renders/VertexElement";
 import { BufferState } from "../../../webgl/utils/BufferState";
 import { VertexMesh } from "../../../RenderEngine/RenderShader/VertexMesh";
 import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
-import { ShaderData } from "../../../RenderDriver/RenderModuleData/Design/ShaderData";
+import { ShaderData } from "../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 
 
 /**

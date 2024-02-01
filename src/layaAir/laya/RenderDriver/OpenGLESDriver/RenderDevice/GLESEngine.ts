@@ -5,6 +5,7 @@ import { IRenderEngine } from "../../DriverDesign/RenderDevice/IRenderEngine";
 import { IRenderEngineFactory } from "../../DriverDesign/RenderDevice/IRenderEngineFactory";
 import { ITextureContext } from "../../DriverDesign/RenderDevice/ITextureContext";
 import { InternalTexture } from "../../DriverDesign/RenderDevice/InternalTexture";
+import { ShaderDefine } from "../../RenderModuleData/Design/ShaderDefine";
 import { WebGLMode } from "../../WebGLDriver/RenderDevice/WebGLEngine/GLEnum/WebGLMode";
 import { WebGLConfig } from "../../WebGLDriver/RenderDevice/WebGLEngine/WebGLConfig";
 
@@ -19,6 +20,9 @@ export class GLESEngine implements IRenderEngine {
   _nativeObj: any;
   constructor(config: WebGLConfig, webglMode: WebGLMode = WebGLMode.Auto) {
     this._nativeObj = new (window as any).conchGLESEngine(config, webglMode);
+  }
+  addTexGammaDefine(key: number, value: ShaderDefine): void {
+    throw new Error("Method not implemented.");
   }
   initRenderEngine(canvas: any): void {
     this._nativeObj.initRenderEngine();

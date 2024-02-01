@@ -10,10 +10,9 @@ import { Matrix4x4 } from "../../../../maths/Matrix4x4"
 import { Vector4 } from "../../../../maths/Vector4"
 import { TextTexture } from "../../../text/TextTexture"
 import { LayaGL } from "../../../../layagl/LayaGL"
-import { ShaderData } from "../../../../RenderDriver/RenderModuleData/Design/ShaderData"
+import { ShaderData } from "../../../../RenderDriver/DriverDesign/RenderDevice/ShaderData"
 import { IDefineDatas } from "../../../../RenderDriver/RenderModuleData/Design/IDefineDatas"
 import { WebGLShaderInstance } from "../../../../RenderDriver/WebGLDriver/RenderDevice/WebGLShaderInstance"
-import { WebShaderData } from "../../../../RenderDriver/RenderModuleData/WebModuleData/WebShaderData"
 
 export enum RenderSpriteData {
     Zero,
@@ -34,7 +33,7 @@ export class Value2D {
         Value2D._typeClass[type] = classT;
         Value2D._cache[type] = [];
         Value2D._cache[type]._length = 0;
-        Value2D.globalShaderData = LayaGL.unitRenderModuleDataFactory.createShaderData(null);
+        Value2D.globalShaderData = LayaGL.renderDeviceFactory.createShaderData(null);
     }
 
     static TEMPMAT4_ARRAY: any[] = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
@@ -169,7 +168,7 @@ export class Value2D {
     }//Vector2
 
     constructor(mainID: RenderSpriteData) {
-        this.defines = LayaGL.unitRenderModuleDataFactory.createShaderData(null);
+        this.defines = LayaGL.renderDeviceFactory.createShaderData(null);
         this.mainID = mainID;
         this.textureHost = null;
         this.texture = null;
@@ -269,9 +268,9 @@ export class Value2D {
             Value2D._compileDefine.addDefineDatas(Value2D.globalShaderData.getDefineData());
             var shaderIns = pass.withCompile(Value2D._compileDefine, true) as WebGLShaderInstance;
             shaderIns.bind();
-            shaderIns.uploadUniforms(shaderIns._sprite2DUniformParamsMap, this.defines as WebShaderData, true);
-            shaderIns.uploadUniforms(shaderIns._sceneUniformParamsMap, Value2D.globalShaderData as WebShaderData, true);
-            shaderIns.uploadUniforms(shaderIns._materialUniformParamsMap, material.shaderData as WebShaderData, true);
+            shaderIns.uploadUniforms(shaderIns._sprite2DUniformParamsMap, this.defines as any, true);
+            shaderIns.uploadUniforms(shaderIns._sceneUniformParamsMap, Value2D.globalShaderData as any, true);
+            shaderIns.uploadUniforms(shaderIns._materialUniformParamsMap, material.shaderData as any, true);
         } else {
             //default pass
             var shaderPass = this._defaultShader._subShaders[0]._passes;
@@ -281,7 +280,7 @@ export class Value2D {
                 //var comDef: DefineDatas = Value2D._compileDefine;
                 var shaderIns = pass.withCompile(this.defines.getDefineData(), true) as unknown as WebGLShaderInstance;
                 shaderIns.bind();
-                shaderIns.uploadUniforms(shaderIns._sprite2DUniformParamsMap, this.defines as WebShaderData, true);
+                shaderIns.uploadUniforms(shaderIns._sprite2DUniformParamsMap, this.defines as any, true);
             } else {
                 //TODO 多pass情况
             }

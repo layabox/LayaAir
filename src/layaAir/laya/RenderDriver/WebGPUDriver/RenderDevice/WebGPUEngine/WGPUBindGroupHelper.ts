@@ -1,4 +1,4 @@
-import { ShaderDataType } from "../../../RenderModuleData/Design/ShaderData";
+import { ShaderDataType } from "../../../DriverDesign/RenderDevice/ShaderData";
 import { WGPUShaderData } from "../WebGPUOBJ/WGPUShaderData";
 import { WGPUShaderVariable } from "./WGPUShaderVariable";
 import { WebGPUBuffer } from "./WebGPUBuffer";

@@ -8,7 +8,6 @@ import { Camera } from "laya/d3/core/Camera";
 import { FilterMode } from "laya/RenderEngine/RenderEnum/FilterMode";
 import { RenderTargetFormat } from "laya/RenderEngine/RenderEnum/RenderTargetFormat";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
-import { ShaderData, ShaderDataType } from "laya/RenderDriver/RenderModuleData/Design/ShaderData";
 import { LayaGL } from "laya/layagl/LayaGL";
 import { ShaderDefine } from "laya/RenderDriver/RenderModuleData/Design/ShaderDefine";
 import { ShaderPass } from "laya/RenderEngine/RenderShader/ShaderPass";
@@ -17,6 +16,7 @@ import { VertexMesh } from "laya/RenderEngine/RenderShader/VertexMesh";
 import { Vector3 } from "laya/maths/Vector3";
 import { Vector4 } from "laya/maths/Vector4";
 import { RenderTexture, DepthTextureMode } from "laya/resource/RenderTexture";
+import { ShaderData, ShaderDataType } from "laya/RenderDriver/DriverDesign/RenderDevice/ShaderData";
 
 export enum EdgeMode {
     ColorEdge = 0,
@@ -27,7 +27,7 @@ export enum EdgeMode {
 export class EdgeEffect extends PostProcessEffect {
     private _shader: Shader3D = null;
     private static _isShaderInit: boolean = false;
-    private _shaderData: ShaderData = LayaGL.unitRenderModuleDataFactory.createShaderData(null);
+    private _shaderData: ShaderData = LayaGL.renderDeviceFactory.createShaderData(null);
     static DEPTHTEXTURE: number;
     static DEPTHNORMALTEXTURE: number;
     static DEPTHBUFFERPARAMS: number;

@@ -20,8 +20,14 @@ import { WebGLEngine } from "./WebGLEngine";
 import { WebGLMode } from "./WebGLEngine/GLEnum/WebGLMode";
 import { WebGLConfig } from "./WebGLEngine/WebGLConfig";
 import { WebGLCommandUniformMap } from "./WebGLCommandUniformMap";
+import { Resource } from "../../../resource/Resource";
+import { ShaderData } from "../../DriverDesign/RenderDevice/ShaderData";
+import { WebGLShaderData } from "../../RenderModuleData/WebModuleData/WebGLShaderData";
 
 export class WebGLRenderDeviceFactory implements IRenderDeviceFactory {
+    createShaderData(ownerResource?: Resource): ShaderData {
+        return new WebGLShaderData(ownerResource);
+    }
 
     createShaderInstance(shaderProcessInfo: ShaderProcessInfo, shaderPass: ShaderPass): IShaderInstance {
         let shaderIns = new WebGLShaderInstance();

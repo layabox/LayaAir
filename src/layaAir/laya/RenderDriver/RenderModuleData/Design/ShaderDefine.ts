@@ -3,11 +3,7 @@
  */
 export class ShaderDefine {
 
-	/**
-	 * @internal
-	 * 存储 texture uniform gamma define
-	 */
-	static _texGammaDefine: { [key: string]: ShaderDefine } = {};
+	
 
 	/**@internal */
 	_index: number;

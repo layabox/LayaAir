@@ -18,7 +18,7 @@ import { BaseTexture } from "./BaseTexture";
 import { Resource } from "./Resource";
 import { Event } from "../events/Event";
 import { ShaderDefine } from "../RenderDriver/RenderModuleData/Design/ShaderDefine";
-import { ShaderData, ShaderDataDefaultValue, ShaderDataItem, ShaderDataType } from "../RenderDriver/RenderModuleData/Design/ShaderData";
+import { ShaderData, ShaderDataDefaultValue, ShaderDataItem, ShaderDataType } from "../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { RenderState } from "../RenderDriver/RenderModuleData/Design/RenderState";
 import { IDefineDatas } from "../RenderDriver/RenderModuleData/Design/IDefineDatas";
 
@@ -455,7 +455,7 @@ export class Material extends Resource implements IClone {
      */
     constructor() {
         super();
-        this._shaderValues = LayaGL.unitRenderModuleDataFactory.createShaderData(this);
+        this._shaderValues = LayaGL.renderDeviceFactory.createShaderData(this);
         this.renderQueue = Material.RENDERQUEUE_OPAQUE;
         this.alphaTest = false;
         this.cull = RenderState.CULL_BACK;
@@ -1066,25 +1066,6 @@ export class Material extends Resource implements IClone {
     }
 
     //--------------------------------------------兼容-------------------------------------------------
-    /**
-     * 设置属性值
-     * @deprecated
-     * @param name 
-     * @param value 
-     */
-    setShaderPropertyValue(name: string, value: any) {
-        let propertyID = Shader3D.propertyNameToID(name);
-        this.shaderData.setValueData(propertyID, value);
-    }
-
-    /**
-     * 获取属性值
-     * @deprecated
-     * @param name 
-     */
-    getShaderPropertyValue(name: string): any {
-        return this.shaderData.getValueData(Shader3D.propertyNameToID(name));
-    }
 
     get _defineDatas(): IDefineDatas {
         return this._shaderValues.getDefineData();

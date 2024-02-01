@@ -19,16 +19,15 @@ import { Vector3 } from "../../../maths/Vector3";
 import { Vector4 } from "../../../maths/Vector4";
 import { ISpotLightShadowRP } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRenderTarget";
-import { ISpotLightData } from "../../RenderModuleData/Design/3D/I3DRenderModuleData";
 import { WebBaseRenderNode } from "../../RenderModuleData/WebModuleData/3D/WebBaseRenderNode";
 import { WebSpotLight } from "../../RenderModuleData/WebModuleData/3D/WebSpotLight";
-import { WebShaderData } from "../../RenderModuleData/WebModuleData/WebShaderData";
+import { WebGLShaderData } from "../../RenderModuleData/WebModuleData/WebGLShaderData";
 import { WebGLRenderContext3D } from "./WebGLRenderContext3D";
 import { WebGLCullUtil } from "./WebGLRenderUtil.ts/WebGLCullUtil";
 import { WebGLRenderListQueue } from "./WebGLRenderUtil.ts/WebGLRenderListQueue";
 
 export class ShadowSpotData {
-    cameraShaderValue: WebShaderData;
+    cameraShaderValue: WebGLShaderData;
     position: Vector3 = new Vector3;
     offsetX: number;
     offsetY: number;
@@ -41,7 +40,7 @@ export class ShadowSpotData {
     cameraUBData: UnifromBufferData;
 
     constructor() {
-        this.cameraShaderValue = <WebShaderData>LayaGL.unitRenderModuleDataFactory.createShaderData(null);
+        this.cameraShaderValue = <WebGLShaderData>LayaGL.renderDeviceFactory.createShaderData(null);
 
         if (Config3D._uniformBlock) {
             let cameraUBO = UniformBufferObject.getBuffer(UniformBufferObject.UBONAME_CAMERA, 0);
@@ -140,7 +139,7 @@ export class WebGLSpotLightShadowRP implements ISpotLightShadowRP {
 
         let originCameraData = context.cameraData;
 
-        var shaderValues: WebShaderData = context.sceneData;
+        var shaderValues: WebGLShaderData = context.sceneData;
         context.pipelineMode = "ShadowCaster";
         context.setRenderTarget(this.destTarget);
         var shadowSpotData: ShadowSpotData = this._shadowSpotData;
@@ -230,10 +229,10 @@ export class WebGLSpotLightShadowRP implements ISpotLightShadowRP {
         out.setValue(depthBias, normalBias, 0.0, 0.0);
     }
 
-    private _setupShadowCasterShaderValues(shaderValues: WebShaderData, shadowSliceData: ShadowSpotData, shadowparams: Vector4, shadowBias: Vector4): void {
+    private _setupShadowCasterShaderValues(shaderValues: WebGLShaderData, shadowSliceData: ShadowSpotData, shadowparams: Vector4, shadowBias: Vector4): void {
         shaderValues.setVector(ShadowCasterPass.SHADOW_BIAS, shadowBias);
         shaderValues.setVector(ShadowCasterPass.SHADOW_PARAMS, shadowparams);
-        var cameraSV: WebShaderData = shadowSliceData.cameraShaderValue;//TODO:should optimization with shader upload.
+        var cameraSV: WebGLShaderData = shadowSliceData.cameraShaderValue;//TODO:should optimization with shader upload.
         cameraSV.setMatrix4x4(BaseCamera.VIEWMATRIX, shadowSliceData.viewMatrix);
         cameraSV.setMatrix4x4(BaseCamera.PROJECTMATRIX, shadowSliceData.projectionMatrix);
         cameraSV.setMatrix4x4(BaseCamera.VIEWPROJECTMATRIX, shadowSliceData.viewProjectMatrix);
@@ -257,7 +256,7 @@ export class WebGLSpotLightShadowRP implements ISpotLightShadowRP {
      * @internal
      * @param shaderValues 渲染数据
      */
-    private _applyRenderData(sceneData: WebShaderData, cameraData: WebShaderData): void {
+    private _applyRenderData(sceneData: WebGLShaderData, cameraData: WebGLShaderData): void {
         var spotLight: WebSpotLight = this._light;
         switch (spotLight.shadowMode) {
             case ShadowMode.Hard:

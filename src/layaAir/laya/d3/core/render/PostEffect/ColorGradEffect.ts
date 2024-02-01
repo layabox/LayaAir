@@ -19,7 +19,7 @@ import { Color } from "../../../../maths/Color";
 import { PostProcess } from "../../../component/PostProcess";
 import { LayaGL } from "../../../../layagl/LayaGL";
 import { ShaderDefine } from "../../../../RenderDriver/RenderModuleData/Design/ShaderDefine";
-import { ShaderData, ShaderDataType } from "../../../../RenderDriver/RenderModuleData/Design/ShaderData";
+import { ShaderData, ShaderDataType } from "../../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { RenderState } from "../../../../RenderDriver/RenderModuleData/Design/RenderState";
 
 
@@ -511,7 +511,7 @@ export class ColorGradEffect extends PostProcessEffect {
 		this._needBuildLUT = true;
 		this._toneMapping = ToneMappingType.None;
 		this._blitlutParams = new Vector4();
-		this._lutShaderData = LayaGL.unitRenderModuleDataFactory.createShaderData();
+		this._lutShaderData = LayaGL.renderDeviceFactory.createShaderData(null);
 		this.lutSize = 32;
 		this._lutCommond = new CommandBuffer();
 		this._lutBuilderMat = new Material();

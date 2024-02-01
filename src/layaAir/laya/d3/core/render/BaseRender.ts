@@ -25,7 +25,7 @@ import { RenderElement } from "./RenderElement";
 import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { ShaderDefine } from "../../../RenderDriver/RenderModuleData/Design/ShaderDefine";
-import { ShaderData } from "../../../RenderDriver/RenderModuleData/Design/ShaderData";
+import { ShaderData } from "../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { IBaseRenderNode } from "../../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
 import { IRenderContext3D, IRenderElement3D } from "../../../RenderDriver/DriverDesign/3DRenderPass/I3DRenderPass";
 import { Transform3D } from "../Transform3D";
@@ -469,7 +469,7 @@ export class BaseRender extends Component {
         super();
         this._baseRenderNode = this._createBaseRenderNode();
         this._baseRenderNode.setCommonUniformMap(this._getcommonUniformMap());
-        this._baseRenderNode.shaderData = LayaGL.unitRenderModuleDataFactory.createShaderData();
+        this._baseRenderNode.shaderData = LayaGL.renderDeviceFactory.createShaderData(null);
         //this._rendernode.owner = this;
         this._renderid = ++BaseRender._uniqueIDCounter;
         this._baseRenderNode.bounds = this._bounds = new Bounds(Vector3.ZERO, Vector3.ZERO);

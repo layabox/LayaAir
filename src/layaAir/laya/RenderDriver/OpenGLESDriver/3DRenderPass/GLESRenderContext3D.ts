@@ -5,23 +5,23 @@ import { SingletonList } from "../../../utils/SingletonList";
 import { IRenderContext3D, IRenderElement3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRenderTarget";
 import { RTCameraNodeData, RTSceneNodeData } from "../../RenderModuleData/RuntimeModuleData/3D/RT3DRenderModuleData";
-import { RTShaderData } from "../../RenderModuleData/RuntimeModuleData/RTShaderData";
+import { GLESShaderData } from "../RenderDevice/GLESShaderData";
 
 
 export class GLESRenderContext3D implements IRenderContext3D {
-    private _globalShaderData: RTShaderData;
-    public get globalShaderData(): RTShaderData {
+    private _globalShaderData: GLESShaderData;
+    public get globalShaderData(): GLESShaderData {
         return this._globalShaderData;
     }
-    public set globalShaderData(value: RTShaderData) {
+    public set globalShaderData(value: GLESShaderData) {
         this._globalShaderData = value;
         this._nativeObj.setGlobalShaderData(value._nativeObj);
     }
-    private _sceneData: RTShaderData;
-    public get sceneData(): RTShaderData {
+    private _sceneData: GLESShaderData;
+    public get sceneData(): GLESShaderData {
         return this._sceneData;
     }
-    public set sceneData(value: RTShaderData) {
+    public set sceneData(value: GLESShaderData) {
         this._sceneData = value;
         this._nativeObj.setSceneData(value._nativeObj);
     }
@@ -41,11 +41,11 @@ export class GLESRenderContext3D implements IRenderContext3D {
         this._cameraModuleData = value;
         this._nativeObj.setCameraNodeData(value._nativeObj);
     }
-    private _cameraData: RTShaderData;
-    public get cameraData(): RTShaderData {
+    private _cameraData: GLESShaderData;
+    public get cameraData(): GLESShaderData {
         return this._cameraData;
     }
-    public set cameraData(value: RTShaderData) {
+    public set cameraData(value: GLESShaderData) {
         this._cameraData = value;
         this._nativeObj.setCameraData(value._nativeObj);
     }

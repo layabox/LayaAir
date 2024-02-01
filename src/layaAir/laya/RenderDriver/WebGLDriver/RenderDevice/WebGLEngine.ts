@@ -3,8 +3,7 @@ import { CommandEncoder } from "../../../layagl/CommandEncoder";
 import { Color } from "../../../maths/Color";
 import { Vector4 } from "../../../maths/Vector4";
 import { InternalTexture } from "../../../RenderDriver/DriverDesign/RenderDevice/InternalTexture";
-import { ShaderDataType } from "../../../RenderDriver/RenderModuleData/Design/ShaderData";
-import { WebShaderData } from "../../../RenderDriver/RenderModuleData/WebModuleData/WebShaderData";
+import { ShaderDataType } from "../../DriverDesign/RenderDevice/ShaderData";
 import { BufferTargetType, BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
 import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFlag";
@@ -26,11 +25,20 @@ import { GLShaderInstance } from "./WebGLEngine/GLShaderInstance";
 import { GLVertexState } from "./WebGLEngine/GLVertexState";
 import { GlCapable } from "./WebGLEngine/GlCapable";
 import { WebGLConfig } from "./WebGLEngine/WebGLConfig";
+import { ShaderDefine } from "../../RenderModuleData/Design/ShaderDefine";
+import { WebGLShaderData } from "../../RenderModuleData/WebModuleData/WebGLShaderData";
 
 /**
  * 封装Webgl
  */
 export class WebGLEngine implements IRenderEngine {
+
+    /**
+     * @internal
+     * 存储 texture uniform gamma define
+     */
+    static _texGammaDefine: { [key: number]: ShaderDefine } = {};
+
 
     _context: WebGLRenderingContext | WebGL2RenderingContext;
 
@@ -118,7 +126,7 @@ export class WebGLEngine implements IRenderEngine {
 
     //GPU统计数据
     private _GLStatisticsInfo: Map<RenderStatisticsInfo, number> = new Map();
-    static instance:WebGLEngine;
+    static instance: WebGLEngine;
     constructor(config: WebGLConfig, webglMode: WebGLMode = WebGLMode.Auto) {
         this._config = config;
         this._isWebGL2 = false;
@@ -129,6 +137,9 @@ export class WebGLEngine implements IRenderEngine {
         this._webglMode = webglMode;
         this._initStatisticsInfo();
         WebGLEngine.instance = this;
+    }
+    addTexGammaDefine(key: number, value: ShaderDefine): void {
+        WebGLEngine._texGammaDefine[key] = value;
     }
 
     /**
@@ -418,7 +429,7 @@ export class WebGLEngine implements IRenderEngine {
     /**
      * @internal
      */
-    uploadUniforms(shader: GLShaderInstance, commandEncoder: CommandEncoder, shaderData: WebShaderData, uploadUnTexture: boolean): number {
+    uploadUniforms(shader: GLShaderInstance, commandEncoder: CommandEncoder, shaderData: WebGLShaderData, uploadUnTexture: boolean): number {
         shaderData.applyUBO && shaderData.applyUBOData();
         var data: any = shaderData._data;
         var shaderUniform: any[] = commandEncoder.getArrayData();

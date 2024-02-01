@@ -12,7 +12,7 @@ import DepthNormalFS from "./PBRStandardDepthNormal.fs";
 import { Color } from "../../../maths/Color";
 import { Vector4 } from "../../../maths/Vector4";
 import { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
-import { ShaderDataType } from "../../../RenderDriver/RenderModuleData/Design/ShaderData";
+import { ShaderDataType } from "../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 
 
 export class PBRStandardShaderInit {

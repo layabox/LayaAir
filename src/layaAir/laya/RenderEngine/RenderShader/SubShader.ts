@@ -1,5 +1,5 @@
 import { ISubshaderData } from "../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
-import { ShaderDataType, ShaderDataItem } from "../../RenderDriver/RenderModuleData/Design/ShaderData";
+import { ShaderDataType, ShaderDataItem } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { ShaderDefine } from "../../RenderDriver/RenderModuleData/Design/ShaderDefine";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { UniformBufferParamsType, UnifromBufferData } from "../../RenderEngine/UniformBufferData";
@@ -117,7 +117,7 @@ export class SubShader {
                 if (unifromType == ShaderDataType.Texture2D || unifromType == ShaderDataType.TextureCube) {
                     let textureGammaDefine = Shader3D.getDefineByName(`Gamma_${key}`);
                     let uniformIndex = Shader3D.propertyNameToID(key);
-                    ShaderDefine._texGammaDefine[uniformIndex] = textureGammaDefine;
+                    LayaGL.renderEngine.addTexGammaDefine(uniformIndex, textureGammaDefine);
                 }
 
             }

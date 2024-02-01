@@ -6,8 +6,8 @@ import { Color } from "../../../../maths/Color";
 import { Vector3 } from "../../../../maths/Vector3";
 import { Vector4 } from "../../../../maths/Vector4";
 import { InternalTexture } from "../../../DriverDesign/RenderDevice/InternalTexture";
+import { ShaderData } from "../../../DriverDesign/RenderDevice/ShaderData";
 import { IReflectionProbeData } from "../../Design/3D/I3DRenderModuleData";
-import { WebShaderData } from "../WebShaderData";
 
 
 
@@ -83,7 +83,7 @@ export class WebReflectionProbe implements IReflectionProbeData {
         value && value.cloneTo(this._ambientColor);
     }
     /**@internal */
-    applyRenderData(data: WebShaderData): void {
+    applyRenderData(data: ShaderData): void {
         //boxProjection
         if (!this.boxProjection) {
             data.removeDefine(Sprite3DRenderDeclaration.SHADERDEFINE_SPECCUBE_BOX_PROJECTION);

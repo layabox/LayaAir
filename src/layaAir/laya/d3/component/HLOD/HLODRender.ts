@@ -1,5 +1,5 @@
 import { IRenderContext3D } from "../../../RenderDriver/DriverDesign/3DRenderPass/I3DRenderPass";
-import { ShaderData } from "../../../RenderDriver/RenderModuleData/Design/ShaderData";
+import { ShaderData } from "../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { Matrix4x4 } from "../../../maths/Matrix4x4";
 import { MeshFilter } from "../../core/MeshFilter";
 import { RenderableSprite3D } from "../../core/RenderableSprite3D";

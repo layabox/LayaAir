@@ -6,7 +6,7 @@ import { AttributeMapType, SubShader } from "../../../RenderEngine/RenderShader/
 import { VertexMesh } from "../../../RenderEngine/RenderShader/VertexMesh";
 import { CullMode } from "../../../RenderEngine/RenderEnum/CullMode";
 import { RenderState } from "../../../RenderDriver/RenderModuleData/Design/RenderState";
-import { ShaderDataType } from "../../../RenderDriver/RenderModuleData/Design/ShaderData";
+import { ShaderDataType } from "../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 
 export class SkyProceduralShaderInit {
     static init() {

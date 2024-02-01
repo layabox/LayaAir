@@ -11,7 +11,7 @@ import { DepthTextureMode, RenderTexture } from "../../resource/RenderTexture"
 import { ColorGradEffect } from "../core/render/PostEffect/ColorGradEffect"
 import { LayaGL } from "../../layagl/LayaGL"
 import { ShaderDefine } from "../../RenderDriver/RenderModuleData/Design/ShaderDefine"
-import { ShaderData } from "../../RenderDriver/RenderModuleData/Design/ShaderData"
+import { ShaderData } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderData"
 
 /**
  * <code>PostProcess</code> 类用于创建后期处理组件。
@@ -72,7 +72,7 @@ export class PostProcess {
     private _compositeShader: Shader3D = Shader3D.find("PostProcessComposite");
 
     /**@internal */
-    private _compositeShaderData: ShaderData = LayaGL.unitRenderModuleDataFactory.createShaderData();
+    private _compositeShaderData: ShaderData = LayaGL.renderDeviceFactory.createShaderData(null);
 
     /**@internal */
     private _effects: PostProcessEffect[] = [];

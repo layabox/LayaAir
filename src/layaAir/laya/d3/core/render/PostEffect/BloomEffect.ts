@@ -25,7 +25,7 @@ import { Color } from "../../../../maths/Color";
 import { Vector4 } from "../../../../maths/Vector4";
 import { RenderTexture } from "../../../../resource/RenderTexture";
 import { RenderState } from "../../../../RenderDriver/RenderModuleData/Design/RenderState";
-import { ShaderDataType, ShaderData } from "../../../../RenderDriver/RenderModuleData/Design/ShaderData";
+import { ShaderDataType, ShaderData } from "../../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { SubShader } from "../../../../RenderEngine/RenderShader/SubShader";
 import { VertexMesh } from "../../../../RenderEngine/RenderShader/VertexMesh";
 import { LayaGL } from "../../../../layagl/LayaGL";
@@ -182,7 +182,7 @@ export class BloomEffect extends PostProcessEffect {
 	/**@internal */
 	private _shader: Shader3D = null;
 	/**@internal */
-	private _shaderData: ShaderData = LayaGL.unitRenderModuleDataFactory.createShaderData(null);
+	private _shaderData: ShaderData = LayaGL.renderDeviceFactory.createShaderData(null);
 	/**@internal */
 	private _linearColor: Color = new Color();
 	/**@internal */

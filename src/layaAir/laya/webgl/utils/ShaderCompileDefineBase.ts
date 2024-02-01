@@ -1,6 +1,6 @@
 import { IShaderInstance } from "../../RenderDriver/DriverDesign/RenderDevice/IShaderInstance";
 import { IDefineDatas } from "../../RenderDriver/RenderModuleData/Design/IDefineDatas";
-import { ShaderDataType } from "../../RenderDriver/RenderModuleData/Design/ShaderData";
+import { ShaderDataType } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { SubShader, UniformMapType } from "../../RenderEngine/RenderShader/SubShader";
 import { LayaGL } from "../../layagl/LayaGL";

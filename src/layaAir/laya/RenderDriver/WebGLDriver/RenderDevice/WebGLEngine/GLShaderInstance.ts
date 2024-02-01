@@ -10,7 +10,7 @@ import { BaseTexture } from "../../../../resource/BaseTexture";
 import { Texture2D } from "../../../../resource/Texture2D";
 import { TextureCube } from "../../../../resource/TextureCube";
 import { InternalTexture } from "../../../DriverDesign/RenderDevice/InternalTexture";
-import { ShaderDataType } from "../../../RenderModuleData/Design/ShaderData";
+import { ShaderDataType } from "../../../DriverDesign/RenderDevice/ShaderData";
 import { WebGLEngine } from "../WebGLEngine";
 import { GLObject } from "./GLObject";
 

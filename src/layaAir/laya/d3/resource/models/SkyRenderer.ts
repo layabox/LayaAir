@@ -11,7 +11,7 @@ import { Scene3D } from "../../core/scene/Scene3D";
 import { SkyBox } from "./SkyBox";
 import { SkyDome } from "./SkyDome";
 import { RenderElement } from "../../core/render/RenderElement";
-import { ShaderData, ShaderDataType } from "../../../RenderDriver/RenderModuleData/Design/ShaderData";
+import { ShaderData, ShaderDataType } from "../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
 import { Transform3D } from "../../core/Transform3D";
 import { IBaseRenderNode } from "../../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";

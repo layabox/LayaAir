@@ -2,12 +2,11 @@
 import { ShaderPass } from "../../../RenderEngine/RenderShader/ShaderPass";
 import { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
 import { Transform3D } from "../../../d3/core/Transform3D";
-import { LayaGL } from "../../../layagl/LayaGL";
 import { SingletonList } from "../../../utils/SingletonList";
-import { IRenderElement3D, IRenderContext3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
+import { IRenderElement3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { WebBaseRenderNode } from "../../RenderModuleData/WebModuleData/3D/WebBaseRenderNode";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
-import { WebShaderData } from "../../RenderModuleData/WebModuleData/WebShaderData";
+import { WebGLShaderData } from "../../RenderModuleData/WebModuleData/WebGLShaderData";
 import { WebGLEngine } from "../RenderDevice/WebGLEngine";
 import { WebGLRenderGeometryElement } from "../RenderDevice/WebGLRenderGeometryElement";
 import { WebGLShaderInstance } from "../RenderDevice/WebGLShaderInstance";
@@ -25,11 +24,11 @@ export class WebGLRenderElement3D implements IRenderElement3D {
 
     protected _shaderInstances: SingletonList<WebGLShaderInstance>;
 
-    materialShaderData: WebShaderData;
+    materialShaderData: WebGLShaderData;
 
     materialRenderQueue: number;
 
-    renderShaderData: WebShaderData;
+    renderShaderData: WebGLShaderData;
 
     transform: Transform3D;
 
@@ -69,8 +68,8 @@ export class WebGLRenderElement3D implements IRenderElement3D {
     _render(context: WebGLRenderContext3D): void {
         var forceInvertFace: boolean = context.invertY;
         var updateMark: number = context.cameraUpdateMask;
-        var sceneShaderData = context.sceneData as WebShaderData;
-        var cameraShaderData = context.cameraData as WebShaderData;
+        var sceneShaderData = context.sceneData as WebGLShaderData;
+        var cameraShaderData = context.cameraData as WebGLShaderData;
         if (this.isRender) {
             var passes: WebGLShaderInstance[] = this._shaderInstances.elements;
             for (var j: number = 0, m: number = this._shaderInstances.length; j < m; j++) {

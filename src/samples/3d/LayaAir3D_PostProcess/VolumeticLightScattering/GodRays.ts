@@ -18,8 +18,8 @@ import { Vector3 } from "laya/maths/Vector3";
 import { Vector2 } from "laya/maths/Vector2";
 import { Scene3D } from "laya/d3/core/scene/Scene3D";
 import { LayaGL } from "laya/layagl/LayaGL";
-import { ShaderDataType, ShaderData } from "laya/RenderDriver/RenderModuleData/Design/ShaderData";
 import { RenderState } from "laya/RenderDriver/RenderModuleData/Design/RenderState";
+import { ShaderDataType, ShaderData } from "laya/RenderDriver/DriverDesign/RenderDevice/ShaderData";
 
 export class GodRay extends PostProcessEffect {
     static init() {
@@ -110,11 +110,11 @@ export class GodRay extends PostProcessEffect {
     constructor() {
         super();
         this.active = true;
-        this._godRayData = LayaGL.unitRenderModuleDataFactory.createShaderData(null);
+        this._godRayData = LayaGL.renderDeviceFactory.createShaderData(null);
         this._godRayShader = Shader3D.find("godRayScaller");
-        this._ocData = LayaGL.unitRenderModuleDataFactory.createShaderData(null);
+        this._ocData = LayaGL.renderDeviceFactory.createShaderData(null);
         this._ocShader = Shader3D.find("OcShader");
-        this._addData = LayaGL.unitRenderModuleDataFactory.createShaderData(null);
+        this._addData = LayaGL.renderDeviceFactory.createShaderData(null);
         this._addShader = Shader3D.find("AddShader");
         this.tempv2 = new Vector2();
         this.scatterColor = new Color(1.0, 1.0, 1.0, 1.0);

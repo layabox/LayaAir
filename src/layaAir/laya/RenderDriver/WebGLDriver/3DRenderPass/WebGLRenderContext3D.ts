@@ -9,20 +9,20 @@ import { IRenderContext3D, PipelineMode } from "../../DriverDesign/3DRenderPass/
 import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRenderTarget";
 import { WebCameraNodeData, WebSceneNodeData } from "../../RenderModuleData/WebModuleData/3D/WebModuleData";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
-import { WebShaderData } from "../../RenderModuleData/WebModuleData/WebShaderData";
+import { WebGLShaderData } from "../../RenderModuleData/WebModuleData/WebGLShaderData";
 import { WebGLEngine } from "../RenderDevice/WebGLEngine";
 import { WebGLRenderElement3D } from "./WebGLRenderElement3D";
 
 
 export class WebGLRenderContext3D implements IRenderContext3D {
-    private _globalShaderData: WebShaderData;
+    private _globalShaderData: WebGLShaderData;
     /**@internal */
-    private _sceneData: WebShaderData;
+    private _sceneData: WebGLShaderData;
     /**@internal */
     private _sceneModuleData: WebSceneNodeData;
     private _cameraModuleData: WebCameraNodeData;
     /**@internal */
-    private _cameraData: WebShaderData;
+    private _cameraData: WebGLShaderData;
     /**@internal */
     private _renderTarget: InternalRenderTarget;
     /**@internal */
@@ -47,20 +47,20 @@ export class WebGLRenderContext3D implements IRenderContext3D {
     private _clearStencil: number;
 
 
-    get sceneData(): WebShaderData {
+    get sceneData(): WebGLShaderData {
         return this._sceneData;
     }
 
-    set sceneData(value: WebShaderData) {
+    set sceneData(value: WebGLShaderData) {
         this._sceneData = value;
     }
 
 
-    get cameraData(): WebShaderData {
+    get cameraData(): WebGLShaderData {
         return this._cameraData;
     }
 
-    set cameraData(value: WebShaderData) {
+    set cameraData(value: WebGLShaderData) {
         this._cameraData = value;
     }
 
@@ -81,11 +81,11 @@ export class WebGLRenderContext3D implements IRenderContext3D {
         this._cameraModuleData = value;
     }
 
-    get globalShaderData(): WebShaderData {
+    get globalShaderData(): WebGLShaderData {
         return this._globalShaderData;
     }
 
-    set globalShaderData(value: WebShaderData) {
+    set globalShaderData(value: WebGLShaderData) {
         this._globalShaderData = value;
     }
 

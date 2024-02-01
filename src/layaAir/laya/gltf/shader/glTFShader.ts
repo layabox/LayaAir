@@ -12,7 +12,7 @@ import DepthNormalVS from "./glTFPBRDepthNormal.vs";
 import DepthNormalFS from "./glTFPBRDepthNormal.fs";
 import { Matrix3x3 } from "../../maths/Matrix3x3";
 import { ShaderDefine } from "../../RenderDriver/RenderModuleData/Design/ShaderDefine";
-import { ShaderDataType } from "../../RenderDriver/RenderModuleData/Design/ShaderData";
+import { ShaderDataType } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 
 /**
  * @internal

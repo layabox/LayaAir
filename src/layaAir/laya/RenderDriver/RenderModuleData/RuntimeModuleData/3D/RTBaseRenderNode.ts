@@ -5,11 +5,12 @@ import { Vector4 } from "../../../../maths/Vector4";
 import { Material } from "../../../../resource/Material";
 import { IRenderElement3D } from "../../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { IBaseRenderNode } from "../../Design/3D/I3DRenderModuleData";
-import { RTShaderData } from "../RTShaderData";
+import { GLESShaderData } from "../../../OpenglESDriver/RenderDevice/GLESShaderData";
 import { NativeTransform3D } from "./NativeTransform3D";
 import { RTLightmapData } from "./RTLightmap";
 import { RTReflectionProb } from "./RTReflectionProb";
 import { RTVolumetricGI } from "./RTVolumetricGI";
+import { ShaderData } from "../../../DriverDesign/RenderDevice/ShaderData";
 
 
 export class RTBaseRenderNode implements IBaseRenderNode {
@@ -102,13 +103,13 @@ export class RTBaseRenderNode implements IBaseRenderNode {
     public set staticMask(value: number) {
         this._nativeObj._staticMask = value;
     }
-    private _shaderData: RTShaderData;
-    public get shaderData(): RTShaderData {
+    private _shaderData: ShaderData;
+    public get shaderData(): ShaderData {
         return this._shaderData;
     }
-    public set shaderData(value: RTShaderData) {
+    public set shaderData(value: ShaderData) {
         this._shaderData = value;
-        this._nativeObj.setShaderData(value._nativeObj);
+        this._nativeObj.setShaderData((value as any)._nativeObj);
     }
     public get lightmapIndex(): number {
         return this._nativeObj._lightmapIndex;

@@ -14,7 +14,7 @@ import { IShaderInstance } from "../../../DriverDesign/RenderDevice/IShaderInsta
 import { InternalTexture } from "../../../DriverDesign/RenderDevice/InternalTexture";
 import { IDefineDatas } from "../IDefineDatas";
 import { RenderState } from "../RenderState";
-import { ShaderData } from "../ShaderData";
+import { ShaderData } from "../../../DriverDesign/RenderDevice/ShaderData";
 //3D Render Node
 export interface IBaseRenderNode {
     transform: Transform3D;

@@ -5,7 +5,7 @@ import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { Matrix4x4 } from "../../../maths/Matrix4x4";
 import { Vector4 } from "../../../maths/Vector4";
 import { PipelineMode, IRenderContext3D, IRenderElement3D } from "../../../RenderDriver/DriverDesign/3DRenderPass/I3DRenderPass";
-import { ShaderData } from "../../../RenderDriver/RenderModuleData/Design/ShaderData";
+import { ShaderData } from "../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { ShaderDefine } from "../../../RenderDriver/RenderModuleData/Design/ShaderDefine";
 import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
 import { IShaderInstance } from "../../../RenderDriver/DriverDesign/RenderDevice/IShaderInstance";

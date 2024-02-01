@@ -8,8 +8,8 @@ import { Bounds } from "../../../../d3/math/Bounds";
 import { Vector4 } from "../../../../maths/Vector4";
 import { Material } from "../../../../resource/Material";
 import { IRenderElement3D, IRenderContext3D } from "../../../DriverDesign/3DRenderPass/I3DRenderPass";
+import { ShaderData } from "../../../DriverDesign/RenderDevice/ShaderData";
 import { IBaseRenderNode } from "../../Design/3D/I3DRenderModuleData";
-import { WebShaderData } from "../WebShaderData";
 import { WebLightmap } from "./WebLightmap";
 import { WebReflectionProbe } from "./WebReflectionProb";
 import { WebVolumetricGI } from "./WebVolumetricGI";
@@ -37,7 +37,7 @@ export class WebBaseRenderNode implements IBaseRenderNode {
     lightmap: WebLightmap;
     probeReflection: WebReflectionProbe;
     volumetricGI: WebVolumetricGI;
-    shaderData: WebShaderData;
+    shaderData: ShaderData;
     baseGeometryBounds: Bounds;
     transform: Transform3D;
     _worldParams: Vector4;
@@ -148,7 +148,7 @@ export class WebBaseRenderNode implements IBaseRenderNode {
     setOneMaterial(index: number, mat: Material): void {
         if (!this.renderelements[index])
             return;
-        this.renderelements[index].materialShaderData = mat.shaderData as WebShaderData;
+        this.renderelements[index].materialShaderData = mat.shaderData;
         this.renderelements[index].materialRenderQueue = mat.renderQueue;
         this.renderelements[index].subShader = mat.shader.getSubShaderAt(0);
     }
@@ -191,7 +191,7 @@ export class WebBaseRenderNode implements IBaseRenderNode {
     _applyLightMapParams(): void {
         if (!this.lightmap) {
             var lightMap = this.lightmap;
-            var shaderValues: WebShaderData = this.shaderData;
+            var shaderValues = this.shaderData;
             shaderValues.setVector(RenderableSprite3D.LIGHTMAPSCALEOFFSET, this.lightmapScaleOffset);
             shaderValues._setInternalTexture(RenderableSprite3D.LIGHTMAP, lightMap.lightmapColor);
             shaderValues.addDefine(RenderableSprite3D.SAHDERDEFINE_LIGHTMAP);

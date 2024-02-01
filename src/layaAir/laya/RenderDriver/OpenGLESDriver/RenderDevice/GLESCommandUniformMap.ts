@@ -1,5 +1,5 @@
 import { CommandUniformMap, UniformProperty } from "../../DriverDesign/RenderDevice/CommandUniformMap";
-import { ShaderDataType } from "../../RenderModuleData/Design/ShaderData";
+import { ShaderDataType } from "../../DriverDesign/RenderDevice/ShaderData";
 
 export class GLESCommandUniformMap extends CommandUniformMap{
     _nativeObj:any;

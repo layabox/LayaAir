@@ -52,7 +52,7 @@ import { IPhysicsManager } from "../../../Physics3D/interface/IPhysicsManager";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { IElementComponentManager } from "./IScenceComponentManager";
 import { ISceneNodeData } from "../../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
-import { ShaderDataType, ShaderData, ShaderDataItem } from "../../../RenderDriver/RenderModuleData/Design/ShaderData";
+import { ShaderDataType, ShaderData, ShaderDataItem } from "../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
 import { CommandUniformMap } from "../../../RenderDriver/DriverDesign/RenderDevice/CommandUniformMap";
 
@@ -736,7 +736,7 @@ export class Scene3D extends Sprite implements ISubmit {
         if (Laya3D.enablePhysics)
             this._physicsManager = Laya3D.PhysicsCreateUtil.createPhysicsManger(Scene3D.physicsSettings);
 
-        this._shaderValues = LayaGL.unitRenderModuleDataFactory.createShaderData(null);
+        this._shaderValues = LayaGL.renderDeviceFactory.createShaderData(null);
         this._shaderValues.addDefines(Shader3D._configDefineValues);
         if (Config3D._uniformBlock) {
             //SceneUniformBlock

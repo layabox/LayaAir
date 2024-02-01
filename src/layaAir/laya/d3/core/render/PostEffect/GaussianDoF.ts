@@ -11,7 +11,7 @@ import { PostProcessRenderContext } from "../../../core/render/PostProcessRender
 import { FilterMode } from "../../../../RenderEngine/RenderEnum/FilterMode";
 import { RenderTargetFormat } from "../../../../RenderEngine/RenderEnum/RenderTargetFormat";
 import { Shader3D } from "../../../../RenderEngine/RenderShader/Shader3D";
-import { ShaderDataType, ShaderData } from "../../../../RenderDriver/RenderModuleData/Design/ShaderData";
+import { ShaderDataType, ShaderData } from "../../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { ShaderDefine } from "../../../../RenderDriver/RenderModuleData/Design/ShaderDefine";
 import { SubShader } from "../../../../RenderEngine/RenderShader/SubShader";
 import { VertexMesh } from "../../../../RenderEngine/RenderShader/VertexMesh";
@@ -151,7 +151,7 @@ export class GaussianDoF extends PostProcessEffect {
     constructor() {
         super();
         this._shader = Shader3D.find("GaussianDoF");
-        this._shaderData = LayaGL.unitRenderModuleDataFactory.createShaderData(null);
+        this._shaderData = LayaGL.renderDeviceFactory.createShaderData(null);
         this._shaderData.setVector3(GaussianDoF.COCPARAMS, new Vector3(10, 30, 1));
         this._zBufferParams = new Vector4();
         this._sourceSize = new Vector4();

@@ -8,9 +8,9 @@ import OutlineFS from "../customShader/outline.fs";
 import OutlineVS from "../customShader/outline.vs";
 import Outline02FS from "../customShader/outline02.fs";
 import Outline02VS from "../customShader/outline02.vs";
-import { ShaderDataType } from "laya/RenderDriver/RenderModuleData/Design/ShaderData";
 import { RenderState } from "laya/RenderDriver/RenderModuleData/Design/RenderState";
 import { ShaderDefine } from "laya/RenderDriver/RenderModuleData/Design/ShaderDefine";
+import { ShaderDataType } from "laya/RenderDriver/DriverDesign/RenderDevice/ShaderData";
 
 /**
  * ...

@@ -10,7 +10,7 @@ import TonemappingGLSL from "./Tonemapping.glsl";
 import LUTGLSL from "./LUT.glsl";
 
 import LUTBuilderFS from "./LUTBuilder.fs";
-import { ShaderDataType } from "../../../RenderDriver/RenderModuleData/Design/ShaderData";
+import { ShaderDataType } from "../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { RenderState } from "../../../RenderDriver/RenderModuleData/Design/RenderState";
 
 export class BlitScreenShaderInit {

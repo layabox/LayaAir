@@ -8,7 +8,7 @@ import { Vector4 } from "../../../../maths/Vector4";
 import { BaseTexture } from "../../../../resource/BaseTexture";
 import { Resource } from "../../../../resource/Resource";
 import { SingletonList } from "../../../../utils/SingletonList";
-import { ShaderData } from "../../../RenderModuleData/Design/ShaderData";
+import { ShaderData } from "../../../DriverDesign/RenderDevice/ShaderData";
 import { WGPUBindGroupHelper } from "../WebGPUEngine/WGPUBindGroupHelper";
 import { WGPUShaderVariable } from "../WebGPUEngine/WGPUShaderVariable";
 import { WebGPUBuffer } from "../WebGPUEngine/WebGPUBuffer";

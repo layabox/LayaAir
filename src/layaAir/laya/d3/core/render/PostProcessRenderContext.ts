@@ -2,7 +2,7 @@ import { Camera } from "../Camera"
 import { CommandBuffer } from "./command/CommandBuffer"
 import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTargetFormat";
 import { RenderTexture } from "../../../resource/RenderTexture";
-import { ShaderData } from "../../../RenderDriver/RenderModuleData/Design/ShaderData";
+import { ShaderData } from "../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 
 /**
  * * <code>PostProcessRenderContext</code> 类用于创建后期处理渲染上下文。

@@ -11,11 +11,11 @@ import { Stat } from "../../../utils/Stat";
 import { ShaderCompileDefineBase, ShaderProcessInfo } from "../../../webgl/utils/ShaderCompileDefineBase";
 import { IShaderInstance } from "../../DriverDesign/RenderDevice/IShaderInstance";
 import { RenderState } from "../../RenderModuleData/Design/RenderState";
-import { ShaderData } from "../../RenderModuleData/Design/ShaderData";
-import { WebShaderData } from "../../RenderModuleData/WebModuleData/WebShaderData";
+import { ShaderData } from "../../DriverDesign/RenderDevice/ShaderData";
 import { WebGLCommandUniformMap } from "./WebGLCommandUniformMap";
 import { WebGLEngine } from "./WebGLEngine";
 import { GLShaderInstance } from "./WebGLEngine/GLShaderInstance";
+import { WebGLShaderData } from "../../RenderModuleData/WebModuleData/WebGLShaderData";
 
 /**
  * <code>ShaderInstance</code> 类用于实现ShaderInstance。
@@ -174,7 +174,7 @@ export class WebGLShaderInstance implements IShaderInstance {
 	 * @param shaderDatas 
 	 * @param uploadUnTexture 
 	 */
-	uploadUniforms(shaderUniform: CommandEncoder, shaderDatas: WebShaderData, uploadUnTexture: boolean) {
+	uploadUniforms(shaderUniform: CommandEncoder, shaderDatas: WebGLShaderData, uploadUnTexture: boolean) {
 		Stat.uploadUniform += WebGLEngine.instance.uploadUniforms(this._renderShaderInstance, shaderUniform, shaderDatas, uploadUnTexture);
 	}
 

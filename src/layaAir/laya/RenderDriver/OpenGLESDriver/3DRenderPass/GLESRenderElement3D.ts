@@ -3,8 +3,8 @@ import { IRenderElement3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass"
 import { NativeTransform3D } from "../../RenderModuleData/RuntimeModuleData/3D/NativeTransform3D";
 import { RTSubShader } from "../../RenderModuleData/RuntimeModuleData/3D/RT3DRenderModuleData";
 import { RTBaseRenderNode } from "../../RenderModuleData/RuntimeModuleData/3D/RTBaseRenderNode";
-import { RTShaderData } from "../../RenderModuleData/RuntimeModuleData/RTShaderData";
 import { GLESRenderGeometryElement } from "../RenderDevice/GLESRenderGeometryElement";
+import { GLESShaderData } from "../RenderDevice/GLESShaderData";
 export enum RenderElementType {
     Base = 0,
     Skin = 1,
@@ -14,9 +14,9 @@ export class GLESRenderElement3D implements IRenderElement3D {
 
     private _geometry: GLESRenderGeometryElement;
 
-    private _materialShaderData: RTShaderData;
+    private _materialShaderData: GLESShaderData;
 
-    private _renderShaderData: RTShaderData;
+    private _renderShaderData: GLESShaderData;
 
     private _transform: NativeTransform3D;
 
@@ -31,21 +31,21 @@ export class GLESRenderElement3D implements IRenderElement3D {
         return this._geometry;
     }
 
-    set materialShaderData(data: RTShaderData) {
+    set materialShaderData(data: GLESShaderData) {
         this._materialShaderData = data;
         this._nativeObj.setMaterialShaderData(data ? (data as any)._nativeObj : null);
     }
 
-    get materialShaderData(): RTShaderData {
+    get materialShaderData(): GLESShaderData {
         return this._materialShaderData;
     }
 
-    set renderShaderData(data: RTShaderData) {
+    set renderShaderData(data: GLESShaderData) {
         this._renderShaderData = data;
         this._nativeObj.setRenderShaderData(data ? (data as any)._nativeObj : null);
     }
 
-    get renderShaderData(): RTShaderData {
+    get renderShaderData(): GLESShaderData {
         return this._renderShaderData;
     }
 

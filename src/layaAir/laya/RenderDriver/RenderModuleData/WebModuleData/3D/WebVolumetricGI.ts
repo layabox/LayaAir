@@ -5,8 +5,8 @@ import { Bounds } from "../../../../d3/math/Bounds";
 import { Vector3 } from "../../../../maths/Vector3";
 import { Vector4 } from "../../../../maths/Vector4";
 import { InternalTexture } from "../../../DriverDesign/RenderDevice/InternalTexture";
+import { ShaderData } from "../../../DriverDesign/RenderDevice/ShaderData";
 import { IVolumetricGIData } from "../../Design/3D/I3DRenderModuleData";
-import { WebShaderData } from "../WebShaderData";
 
 
 export class WebVolumetricGI implements IVolumetricGIData {
@@ -40,7 +40,7 @@ export class WebVolumetricGI implements IVolumetricGIData {
         value.cloneTo(this._probeStep);
     }
 
-    applyRenderData(data: WebShaderData): void {
+    applyRenderData(data: ShaderData): void {
         data.addDefine(Sprite3DRenderDeclaration.SHADERDEFINE_VOLUMETRICGI);
         data.setVector3(RenderableSprite3D.VOLUMETRICGI_PROBECOUNTS, this._probeCounts);
         data.setVector3(RenderableSprite3D.VOLUMETRICGI_PROBESTEPS, this._probeStep);

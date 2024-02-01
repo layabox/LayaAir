@@ -1,7 +1,7 @@
 import { CommandEncoder } from "../../../../layagl/CommandEncoder";
 import { ShaderNode } from "../../../../webgl/utils/ShaderNode";
 import { CommandUniformMap } from "../../../DriverDesign/RenderDevice/CommandUniformMap";
-import { ShaderDataType } from "../../../RenderModuleData/Design/ShaderData";
+import { ShaderDataType } from "../../../DriverDesign/RenderDevice/ShaderData";
 import { WebGPUEngine } from "./WebGPUEngine";
 import { WebGPUObject } from "./WebGPUObject";
 import { WGPUBindGroupLayoutHelper } from "./WGPUBindGroupLayoutHelper";

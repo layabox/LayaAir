@@ -16,7 +16,7 @@ import { LayaEnv } from "../../../../LayaEnv";
 import { Vector2 } from "../../../maths/Vector2";
 import { Vector3 } from "../../../maths/Vector3";
 import { LayaGL } from "../../../layagl/LayaGL";
-import { ShaderData, ShaderDataType } from "../../../RenderDriver/RenderModuleData/Design/ShaderData";
+import { ShaderData, ShaderDataType } from "../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { IRenderContext3D } from "../../../RenderDriver/DriverDesign/3DRenderPass/I3DRenderPass";
 import { Transform3D } from "../Transform3D";
 

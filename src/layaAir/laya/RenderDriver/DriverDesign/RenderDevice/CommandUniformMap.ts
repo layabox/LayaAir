@@ -1,4 +1,4 @@
-import { ShaderDataType } from "../../RenderModuleData/Design/ShaderData";
+import { ShaderDataType } from "./ShaderData";
 
 export type UniformProperty = { id: number, propertyName: string, uniformtype?: ShaderDataType }
 export class CommandUniformMap {

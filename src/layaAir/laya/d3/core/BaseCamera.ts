@@ -14,7 +14,7 @@ import { Matrix4x4 } from "../../maths/Matrix4x4";
 import { Vector3 } from "../../maths/Vector3";
 import { SkyRenderer } from "../resource/models/SkyRenderer";
 import { LayaGL } from "../../layagl/LayaGL";
-import { ShaderDataType, ShaderData } from "../../RenderDriver/RenderModuleData/Design/ShaderData";
+import { ShaderDataType, ShaderData } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { ShaderDefine } from "../../RenderDriver/RenderModuleData/Design/ShaderDefine";
 import { IRenderEngine } from "../../RenderDriver/DriverDesign/RenderDevice/IRenderEngine";
 import { CommandUniformMap } from "../../RenderDriver/DriverDesign/RenderDevice/CommandUniformMap";
@@ -361,7 +361,7 @@ export class BaseCamera extends Sprite3D {
      */
     constructor(nearPlane: number = 0.3, farPlane: number = 1000) {
         super();
-        this._shaderValues = LayaGL.unitRenderModuleDataFactory.createShaderData(null);
+        this._shaderValues = LayaGL.renderDeviceFactory.createShaderData(null);
 
         this._linearClearColor = new Color();
         this.clearColor = new Color(100 / 255, 149 / 255, 237 / 255, 255 / 255);

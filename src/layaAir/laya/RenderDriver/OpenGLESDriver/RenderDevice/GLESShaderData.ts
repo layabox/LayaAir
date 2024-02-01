@@ -2,20 +2,21 @@ import { UniformBufferObject } from "../../../RenderEngine/UniformBufferObject";
 import { Color } from "../../../maths/Color";
 import { Matrix3x3 } from "../../../maths/Matrix3x3";
 import { Matrix4x4 } from "../../../maths/Matrix4x4";
-import { Quaternion } from "../../../maths/Quaternion";
 import { Vector2 } from "../../../maths/Vector2";
 import { Vector3 } from "../../../maths/Vector3";
 import { Vector4 } from "../../../maths/Vector4";
 import { BaseTexture } from "../../../resource/BaseTexture";
 import { Resource } from "../../../resource/Resource";
 import { InternalTexture } from "../../DriverDesign/RenderDevice/InternalTexture";
-import { ShaderData, ShaderDataItem, ShaderDataType } from "../Design/ShaderData";
-import { RTDefineDatas } from "./RTDefineDatas";
-import { RTShaderDefine } from "./RTShaderDefine";
+import { ShaderData } from "../../DriverDesign/RenderDevice/ShaderData";
+import { RTDefineDatas } from "../../RenderModuleData/RuntimeModuleData/RTDefineDatas";
+import { RTShaderDefine } from "../../RenderModuleData/RuntimeModuleData/RTShaderDefine";
 
-export class RTShaderData extends ShaderData {
+export class GLESShaderData extends ShaderData {
     nativeObjID: number;
     _nativeObj: any;
+    _defineDatas: RTDefineDatas;
+    _textureData: { [key: number]: BaseTexture };
 
     /**
      * @internal	
@@ -23,18 +24,49 @@ export class RTShaderData extends ShaderData {
     constructor(ownerResource: Resource = null) {
         super(ownerResource)
         this._nativeObj = new (window as any).conchRTShaderData();
+        this._defineDatas = new RTDefineDatas(this._nativeObj.getOwnerDefineData());
+        this._textureData = {};
+    }
 
+    // /**
+    //  * @internal
+    //  * 增加一个UBO Block
+    //  * @param key 
+    //  * @param ubo 
+    //  * @param uboData 
+    //  */
+    // _addCheckUBO(key: string, ubo: UniformBufferObject, uboData: UnifromBufferData) {
+    //     throw new Error("Method not implemented.");//TODO
+    // }
+
+    // _releaseUBOData() {
+    //     throw new Error("Method not implemented.");//TODO
+    // }
+
+    /**
+    * 
+    * @param index 
+    * @param value 
+    */
+    setUniformBuffer(index: number, value: UniformBufferObject) {
+        //TODO
+    }
+
+    getUniformBuffer(index: number): UniformBufferObject {
+        //throw new Error("Method not implemented.");
+        //TODO
+        return null;
     }
 
     getDefineData(): RTDefineDatas {
-        throw new Error("Method not implemented.");
+        return this._defineDatas;
     }
 
     /**
      * @internal
      */
     getData(): any {
-        throw new Error("Method not implemented.");
+        //TODO  想个方案
     }
 
     /**
@@ -42,11 +74,11 @@ export class RTShaderData extends ShaderData {
      * @param value 宏定义。
      */
     addDefine(define: RTShaderDefine): void {
-        throw new Error("Method not implemented.");
+        this._defineDatas.add(define);
     }
 
     addDefines(define: RTDefineDatas): void {
-        throw new Error("Method not implemented.");
+        this._defineDatas.addDefineDatas(define);
     }
 
     /**
@@ -54,7 +86,7 @@ export class RTShaderData extends ShaderData {
      * @param value 宏定义。
      */
     removeDefine(define: RTShaderDefine): void {
-        throw new Error("Method not implemented.");
+        this._defineDatas.remove(define);
     }
 
     /**
@@ -62,14 +94,14 @@ export class RTShaderData extends ShaderData {
      * @param value 宏定义。
      */
     hasDefine(define: RTShaderDefine): boolean {
-        throw new Error("Method not implemented.");
+        return this._defineDatas.has(define);
     }
 
     /**
      * 清空宏定义。
      */
     clearDefine(): void {
-        throw new Error("Method not implemented.");
+        this._defineDatas.clear();
     }
 
     /**
@@ -78,7 +110,7 @@ export class RTShaderData extends ShaderData {
      * @return  布尔。
      */
     getBool(index: number): boolean {
-        throw new Error("Method not implemented.");
+        return this._nativeObj.getBool(index);
     }
 
     /**
@@ -87,7 +119,6 @@ export class RTShaderData extends ShaderData {
      * @param	value 布尔。
      */
     setBool(index: number, value: boolean): void {
-        throw new Error("Method not implemented.");
         this._nativeObj.setBool(index, value);
     }
 
@@ -97,7 +128,7 @@ export class RTShaderData extends ShaderData {
      * @return  整形。
      */
     getInt(index: number): number {
-        throw new Error("Method not implemented.");
+        return this._nativeObj.getInt(index);
     }
 
     /**
@@ -106,7 +137,6 @@ export class RTShaderData extends ShaderData {
      * @param	value 整形。
      */
     setInt(index: number, value: number): void {
-        throw new Error("Method not implemented.");
         this._nativeObj.setInt(index, value);
     }
 
@@ -116,7 +146,7 @@ export class RTShaderData extends ShaderData {
      * @return	浮点。
      */
     getNumber(index: number): number {
-        throw new Error("Method not implemented.");
+        return this._nativeObj.getNumber(index);
     }
 
     /**
@@ -125,7 +155,6 @@ export class RTShaderData extends ShaderData {
      * @param	value 浮点。
      */
     setNumber(index: number, value: number): void {
-        throw new Error("Method not implemented.");
         this._nativeObj.setNumber(index, value);
     }
 
@@ -135,7 +164,7 @@ export class RTShaderData extends ShaderData {
      * @return Vector2向量。
      */
     getVector2(index: number): Vector2 {
-        throw new Error("Method not implemented.");
+        return this._nativeObj.getVector2(index);
     }
 
     /**
@@ -144,7 +173,6 @@ export class RTShaderData extends ShaderData {
      * @param	value Vector2向量。
      */
     setVector2(index: number, value: Vector2): void {
-        throw new Error("Method not implemented.");
         this._nativeObj.setVector2(index, value);
     }
 
@@ -154,7 +182,7 @@ export class RTShaderData extends ShaderData {
      * @return Vector3向量。
      */
     getVector3(index: number): Vector3 {
-        throw new Error("Method not implemented.");
+        return this._nativeObj.setVector3(index);
     }
 
     /**
@@ -163,7 +191,6 @@ export class RTShaderData extends ShaderData {
      * @param	value Vector3向量。
      */
     setVector3(index: number, value: Vector3): void {
-        throw new Error("Method not implemented.");
         this._nativeObj.setVector3(index, value);
     }
 
@@ -173,7 +200,7 @@ export class RTShaderData extends ShaderData {
      * @return  向量。
      */
     getVector(index: number): Vector4 {
-        throw new Error("Method not implemented.");
+        return this._nativeObj.getVector(index);
     }
 
     /**
@@ -182,7 +209,6 @@ export class RTShaderData extends ShaderData {
      * @param	value 向量。
      */
     setVector(index: number, value: Vector4): void {
-        throw new Error("Method not implemented.");
         this._nativeObj.setVector(index, value);
     }
 
@@ -192,7 +218,7 @@ export class RTShaderData extends ShaderData {
      * @returns 颜色
      */
     getColor(index: number): Color {
-        throw new Error("Method not implemented.");
+        return this._nativeObj.gecColor(index);
     }
 
     /**
@@ -201,16 +227,7 @@ export class RTShaderData extends ShaderData {
      * @param value 颜色值
      */
     setColor(index: number, value: Color): void {
-        throw new Error("Method not implemented.");
         this._nativeObj.setColor(index, value);
-    }
-
-    /**
-     * @internal
-     * @param index 
-     */
-    getLinearColor(index: number): Vector4 {
-        throw new Error("Method not implemented.");
     }
 
     /**
@@ -219,7 +236,7 @@ export class RTShaderData extends ShaderData {
      * @return  矩阵。
      */
     getMatrix4x4(index: number): Matrix4x4 {
-        throw new Error("Method not implemented.");
+        return this._nativeObj.getMatrix4x4(index);
     }
 
     /**
@@ -228,7 +245,6 @@ export class RTShaderData extends ShaderData {
      * @param	value  矩阵。
      */
     setMatrix4x4(index: number, value: Matrix4x4): void {
-        throw new Error("Method not implemented.");
         this._nativeObj.setMatrix4x4(index, value);
     }
 
@@ -238,7 +254,7 @@ export class RTShaderData extends ShaderData {
      * @returns 
      */
     getMatrix3x3(index: number): Matrix3x3 {
-        throw new Error("Method not implemented.");
+        return this._nativeObj.getMatrix3x3(index);
     }
 
     /**
@@ -247,7 +263,6 @@ export class RTShaderData extends ShaderData {
      * @param value 
      */
     setMatrix3x3(index: number, value: Matrix3x3): void {
-        throw new Error("Method not implemented.");
         this._nativeObj.setMatrix3x3(index, value);
     }
 
@@ -257,7 +272,8 @@ export class RTShaderData extends ShaderData {
      * @return
      */
     getBuffer(index: number): Float32Array {
-        throw new Error("Method not implemented.");
+        return null;
+        //return this._nativeObj.getBuffer(index);
     }
 
     /**
@@ -266,8 +282,7 @@ export class RTShaderData extends ShaderData {
      * @param	value  buffer数据。
      */
     setBuffer(index: number, value: Float32Array): void {
-        throw new Error("Method not implemented.");
-        this._nativeObj.setBuffer(index, value);
+        this._nativeObj.setBuffer(index, value.buffer, value.buffer.byteLength);
     }
 
     /**
@@ -276,13 +291,17 @@ export class RTShaderData extends ShaderData {
      * @param	value 纹理。
      */
     setTexture(index: number, value: BaseTexture): void {
-        
-        throw new Error("Method not implemented.");
+        var lastValue: BaseTexture = this._textureData[index];
+        //维护Reference
+        this._textureData[index] = value;
+        this._setInternalTexture(index, value._texture);
+        lastValue && lastValue._removeReference();
+        value && value._addReference();
     }
 
     /**@internal */
     _setInternalTexture(index: number, value: InternalTexture) {
-        throw new Error("Method not implemented.");
+        this._nativeObj._setInternalTexture(index, value);
     }
 
     /**
@@ -291,53 +310,22 @@ export class RTShaderData extends ShaderData {
      * @return  纹理。
      */
     getTexture(index: number): BaseTexture {
-        throw new Error("Method not implemented.");
+        return this._textureData[index];
     }
 
     getSourceIndex(value: any): number {
         throw new Error("Method not implemented.");
     }
 
-    /**
-     * set shader data
-     * @deprecated
-     * @param index uniformID
-     * @param value data
-     */
-    setValueData(index: number, value: any) {
-        throw new Error("Method not implemented.");
-    }
-
-    /**
-     * 
-     * @param index 
-     * @param value 
-     */
-    setUniformBuffer(index: number, value: UniformBufferObject) {
-        throw new Error("Method not implemented.");
-    }
-
-    getUniformBuffer(index: number): UniformBufferObject {
-        throw new Error("Method not implemented.");
-    }
-
-    setShaderData(uniformIndex: number, type: ShaderDataType, value: ShaderDataItem | Quaternion) {
-        throw new Error("Method not implemented.");
-    }
-
-    getShaderData(uniformIndex: number, type: ShaderDataType): ShaderDataItem {
-        throw new Error("Method not implemented.");
-    }
-
-    cloneTo(destObject: RTShaderData) {
-        this._nativeObj.cloneTo(destObject._nativeObj);
+    cloneTo(destObject: GLESShaderData): void {
+       // this._nativeObj.cloneTo(destObject._nativeObj);
     }
     /**
      * 克隆。
      * @return	 克隆副本。
      */
     clone(): any {
-        var dest: RTShaderData = new RTShaderData();
+        var dest: GLESShaderData = new GLESShaderData();
         this.cloneTo(dest);
         return dest;
     }

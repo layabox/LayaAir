@@ -1,4 +1,4 @@
-import { ShaderData } from "../../../../RenderDriver/RenderModuleData/Design/ShaderData";
+import { ShaderData } from "../../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { Shader3D } from "../../../../RenderEngine/RenderShader/Shader3D";
 import { LayaGL } from "../../../../layagl/LayaGL";
 import { RenderContext3D } from "../RenderContext3D";
@@ -34,7 +34,7 @@ export class Command {
 	* @internal
 	*/
 	static __init__(): void {
-		Command._screenShaderData = LayaGL.unitRenderModuleDataFactory.createShaderData(null);
+		Command._screenShaderData = LayaGL.renderDeviceFactory.createShaderData(null);
 		Command._screenShader = Shader3D.find("BlitScreen");
 		Command.SCREENTEXTURE_ID = Shader3D.propertyNameToID(Command.SCREENTEXTURE_NAME);//todo：
 		Command.SCREENTEXTUREOFFSETSCALE_ID = Shader3D.propertyNameToID(Command.SCREENTEXTUREOFFSETSCALE_NAME);//todo：

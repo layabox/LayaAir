@@ -11,7 +11,7 @@ import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { Vector3 } from "../../maths/Vector3";
 import { Vector4 } from "../../maths/Vector4";
 import { LayaGL } from "../../layagl/LayaGL";
-import { ShaderDataType } from "../../RenderDriver/RenderModuleData/Design/ShaderData";
+import { ShaderDataType } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 
 /**
  * <code>SkinnedMeshSprite3D</code> 类用于绑点骨骼节点精灵。

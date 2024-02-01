@@ -20,7 +20,7 @@ import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRe
 import { WebBaseRenderNode } from "../../RenderModuleData/WebModuleData/3D/WebBaseRenderNode";
 import { WebDirectLight } from "../../RenderModuleData/WebModuleData/3D/WebDirectLight";
 import { WebCameraNodeData } from "../../RenderModuleData/WebModuleData/3D/WebModuleData";
-import { WebShaderData } from "../../RenderModuleData/WebModuleData/WebShaderData";
+import { WebGLShaderData } from "../../RenderModuleData/WebModuleData/WebGLShaderData";
 import { WebGLRenderContext3D } from "./WebGLRenderContext3D";
 import { WebGLCullUtil } from "./WebGLRenderUtil.ts/WebGLCullUtil";
 import { WebGLRenderListQueue } from "./WebGLRenderUtil.ts/WebGLRenderListQueue";
@@ -150,7 +150,7 @@ export class WebGLDirectLightShadowRP implements IDirectLightShadowRP {
     }
 
     render(context: WebGLRenderContext3D, list: WebBaseRenderNode[], count: number): void {
-        var shaderValues: WebShaderData = context.sceneData;
+        var shaderValues: WebGLShaderData = context.sceneData;
         context.pipelineMode = "ShadowCaster";
         var shadowMap = this.destTarget
         context.setRenderTarget(shadowMap);
@@ -171,7 +171,7 @@ export class WebGLDirectLightShadowRP implements IDirectLightShadowRP {
             //cull
             WebGLCullUtil.culldirectLightShadow(shadowCullInfo, list, count, this._renderQueue, context);
 
-            context.cameraData = sliceData.cameraShaderValue as WebShaderData;
+            context.cameraData = sliceData.cameraShaderValue as WebGLShaderData;
             context.cameraUpdateMask++;
 
             var resolution: number = sliceData.resolution;
@@ -211,7 +211,7 @@ export class WebGLDirectLightShadowRP implements IDirectLightShadowRP {
      * @param scene 
      * @param camera 
      */
-    private _applyRenderData(scene: WebShaderData, camera: WebShaderData) {
+    private _applyRenderData(scene: WebGLShaderData, camera: WebGLShaderData) {
         var light = this._light;
         if (light.shadowCascadesMode !== ShadowCascadesMode.NoCascades)
             scene.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_CASCADE);
@@ -279,10 +279,10 @@ export class WebGLDirectLightShadowRP implements IDirectLightShadowRP {
     * 设置阴影级联数据模式
     * @internal
     */
-    private _setupShadowCasterShaderValues(shaderValues: WebShaderData, shadowSliceData: ShadowSliceData, LightParam: Vector3, shadowBias: Vector4): void {
+    private _setupShadowCasterShaderValues(shaderValues: WebGLShaderData, shadowSliceData: ShadowSliceData, LightParam: Vector3, shadowBias: Vector4): void {
         shaderValues.setVector(ShadowCasterPass.SHADOW_BIAS, shadowBias);
         shaderValues.setVector3(ShadowCasterPass.SHADOW_LIGHT_DIRECTION, LightParam);
-        var cameraSV: WebShaderData = shadowSliceData.cameraShaderValue as WebShaderData;//TODO:should optimization with shader upload.
+        var cameraSV: WebGLShaderData = shadowSliceData.cameraShaderValue as WebGLShaderData;//TODO:should optimization with shader upload.
         cameraSV.setMatrix4x4(BaseCamera.VIEWMATRIX, shadowSliceData.viewMatrix);
         cameraSV.setMatrix4x4(BaseCamera.PROJECTMATRIX, shadowSliceData.projectionMatrix);
         cameraSV.setMatrix4x4(BaseCamera.VIEWPROJECTMATRIX, shadowSliceData.viewProjectMatrix);

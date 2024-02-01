@@ -11,7 +11,7 @@ import { Camera } from "../../Camera";
 import { Vector4 } from "../../../../maths/Vector4";
 import { RenderTexture } from "../../../../resource/RenderTexture";
 import { Laya3DRender } from "../../../RenderObjs/Laya3DRender";
-import { ShaderData } from "../../../../RenderDriver/RenderModuleData/Design/ShaderData";
+import { ShaderData } from "../../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { Transform3D } from "../../Transform3D";
 
 export class BlitScreenQuadCMD extends Command {

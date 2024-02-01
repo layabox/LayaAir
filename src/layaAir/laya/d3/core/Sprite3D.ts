@@ -12,7 +12,7 @@ import { Vector3 } from "../../maths/Vector3";
 import { Scene3D } from "./scene/Scene3D";
 import { LayaGL } from "../../layagl/LayaGL";
 import { Laya3DRender } from "../RenderObjs/Laya3DRender";
-import { ShaderDataType } from "../../RenderDriver/RenderModuleData/Design/ShaderData";
+import { ShaderDataType } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { Transform3D } from "./Transform3D";
 import { CommandUniformMap } from "../../RenderDriver/DriverDesign/RenderDevice/CommandUniformMap";
 

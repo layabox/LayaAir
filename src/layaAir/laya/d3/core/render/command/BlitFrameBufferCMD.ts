@@ -5,7 +5,7 @@ import { ScreenQuad } from "../ScreenQuad";
 import { Command } from "./Command";
 import { Shader3D } from "../../../../RenderEngine/RenderShader/Shader3D";
 import { RenderElement } from "../RenderElement";
-import { ShaderData } from "../../../../RenderDriver/RenderModuleData/Design/ShaderData";
+import { ShaderData } from "../../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { LayaGL } from "../../../../layagl/LayaGL";
 import { Vector4 } from "../../../../maths/Vector4";
 import { RenderTexture } from "../../../../resource/RenderTexture";
@@ -28,7 +28,7 @@ export class BlitFrameBufferCMD {
 
 	/** @internal */
 	static __init__(): void {
-		BlitFrameBufferCMD.shaderdata = LayaGL.unitRenderModuleDataFactory.createShaderData(null);
+		BlitFrameBufferCMD.shaderdata = LayaGL.renderDeviceFactory.createShaderData(null);
 	}
 
 	/**

@@ -10,9 +10,9 @@ import { Vector4 } from "../../../maths/Vector4";
 import { BaseTexture } from "../../../resource/BaseTexture";
 import { Resource } from "../../../resource/Resource";
 import { IClone } from "../../../utils/IClone";
-import { InternalTexture } from "../../DriverDesign/RenderDevice/InternalTexture";
-import { IDefineDatas } from "./IDefineDatas";
-import { ShaderDefine } from "./ShaderDefine";
+import { IDefineDatas } from "../../RenderModuleData/Design/IDefineDatas";
+import { ShaderDefine } from "../../RenderModuleData/Design/ShaderDefine";
+import { InternalTexture } from "./InternalTexture";
 
 
 export type uboParams = { ubo: UniformBufferObject; uboBuffer: UnifromBufferData };
@@ -108,7 +108,7 @@ export class ShaderData implements IClone {
 
     addDefines(define: IDefineDatas): void {
         throw new Error("Method not implemented.");
-	}
+    }
 
     /**
      * 移除Shader宏定义。
@@ -260,14 +260,6 @@ export class ShaderData implements IClone {
     }
 
     /**
-     * @internal
-     * @param index 
-     */
-    getLinearColor(index: number): Vector4 {
-        throw new Error("Method not implemented.");
-    }
-
-    /**
      * 获取矩阵。
      * @param	index shader索引。
      * @return  矩阵。
@@ -330,11 +322,6 @@ export class ShaderData implements IClone {
         throw new Error("Method not implemented.");
     }
 
-    /**@internal */
-    _setInternalTexture(index: number, value: InternalTexture) {
-        throw new Error("Method not implemented.");
-    }
-
     /**
      * 获取纹理。
      * @param	index shader索引。
@@ -345,16 +332,6 @@ export class ShaderData implements IClone {
     }
 
     getSourceIndex(value: any): number {
-        throw new Error("Method not implemented.");
-    }
-
-    /**
-     * set shader data
-     * @deprecated
-     * @param index uniformID
-     * @param value data
-     */
-    setValueData(index: number, value: any) {
         throw new Error("Method not implemented.");
     }
 
@@ -372,22 +349,85 @@ export class ShaderData implements IClone {
     }
 
     setShaderData(uniformIndex: number, type: ShaderDataType, value: ShaderDataItem | Quaternion) {
-        throw new Error("Method not implemented.");
+        switch (type) {
+            case ShaderDataType.Int:
+                this.setInt(uniformIndex, <number>value);
+                break;
+            case ShaderDataType.Bool:
+                this.setBool(uniformIndex, <boolean>value);
+                break;
+            case ShaderDataType.Float:
+                this.setNumber(uniformIndex, <number>value);
+                break;
+            case ShaderDataType.Vector2:
+                this.setVector2(uniformIndex, <Vector2>value);
+                break;
+            case ShaderDataType.Vector3:
+                this.setVector3(uniformIndex, <Vector3>value);
+                break;
+            case ShaderDataType.Vector4:
+                this.setVector(uniformIndex, <Vector4>value);
+                break;
+            case ShaderDataType.Color:
+                this.setColor(uniformIndex, <Color>value);
+                break;
+            case ShaderDataType.Matrix4x4:
+                this.setMatrix4x4(uniformIndex, <Matrix4x4>value);
+                break;
+            case ShaderDataType.Matrix3x3:
+                this.setMatrix3x3(uniformIndex, <Matrix3x3>value);
+                break;
+            case ShaderDataType.Texture2D:
+            case ShaderDataType.TextureCube:
+                this.setTexture(uniformIndex, <BaseTexture>value);
+                break;
+            case ShaderDataType.Buffer:
+                this.setBuffer(uniformIndex, <Float32Array>value);
+                break;
+            default:
+                throw new Error(`unkown shader data type: ${type}`);
+        }
     }
 
     getShaderData(uniformIndex: number, type: ShaderDataType): ShaderDataItem {
-        throw new Error("Method not implemented.");
+        switch (type) {
+            case ShaderDataType.Int:
+                return this.getInt(uniformIndex);
+            case ShaderDataType.Bool:
+                return this.getBool(uniformIndex);
+            case ShaderDataType.Float:
+                return this.getNumber(uniformIndex);
+            case ShaderDataType.Vector2:
+                return this.getVector2(uniformIndex);
+            case ShaderDataType.Vector3:
+                return this.getVector3(uniformIndex);
+            case ShaderDataType.Vector4:
+                return this.getVector(uniformIndex);
+            case ShaderDataType.Color:
+                return this.getColor(uniformIndex);
+            case ShaderDataType.Matrix4x4:
+                return this.getMatrix4x4(uniformIndex);
+            case ShaderDataType.Texture2D:
+            case ShaderDataType.TextureCube:
+                return this.getTexture(uniformIndex);
+            case ShaderDataType.Buffer:
+                return this.getBuffer(uniformIndex);
+            case ShaderDataType.Matrix3x3:
+                return this.getMatrix3x3(uniformIndex);
+            case ShaderDataType.Matrix4x4:
+                return this.getMatrix4x4(uniformIndex);
+            default:
+                throw "unkone shader data type.";
+        }
     }
 
     /**
-     * get shader data
-     * @deprecated
-     * @param index uniform ID
-     * @returns 
+     * @private
      */
-    getValueData(index: number): any {
+    _setInternalTexture(index: number, value: InternalTexture): void {
         throw new Error("Method not implemented.");
     }
+
 
     /**
      * 克隆。

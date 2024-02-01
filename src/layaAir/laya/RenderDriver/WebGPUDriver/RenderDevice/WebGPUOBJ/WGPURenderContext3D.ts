@@ -3,7 +3,7 @@ import { LayaGL } from "../../../../layagl/LayaGL";
 import { Vector4 } from "../../../../maths/Vector4";
 import { PipelineMode } from "../../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { IRenderTarget } from "../../../DriverDesign/RenderDevice/IRenderTarget";
-import { ShaderData } from "../../../RenderModuleData/Design/ShaderData";
+import { ShaderData } from "../../../DriverDesign/RenderDevice/ShaderData";
 import { WebGPUEngine } from "../WebGPUEngine/WebGPUEngine";
 import { WebGPUInternalRT } from "../WebGPUEngine/WebGPUInternalRT";
 import { WebGPURenderCommandEncoder } from "../WebGPUEngine/WebGPURenderCommandEncoder";

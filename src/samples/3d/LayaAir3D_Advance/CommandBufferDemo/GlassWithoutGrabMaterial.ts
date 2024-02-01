@@ -5,9 +5,9 @@ import { BaseTexture } from "laya/resource/BaseTexture";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 import { Vector4 } from "laya/maths/Vector4";
 import { RenderState } from "laya/RenderDriver/RenderModuleData/Design/RenderState";
-import { ShaderDataType } from "laya/RenderDriver/RenderModuleData/Design/ShaderData";
 import { SubShader } from "laya/RenderEngine/RenderShader/SubShader";
 import { VertexMesh } from "laya/RenderEngine/RenderShader/VertexMesh";
+import { ShaderDataType } from "laya/RenderDriver/DriverDesign/RenderDevice/ShaderData";
 
 export class GlassWithoutGrabMaterial extends Material {
     /** tintTexure */

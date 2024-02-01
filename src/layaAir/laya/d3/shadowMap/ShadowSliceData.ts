@@ -4,7 +4,7 @@ import { Matrix4x4 } from "../../maths/Matrix4x4";
 import { Vector3 } from "../../maths/Vector3";
 import { LayaGL } from "../../layagl/LayaGL";
 import { BoundFrustum } from "../math/BoundFrustum";
-import { ShaderData } from "../../RenderDriver/RenderModuleData/Design/ShaderData";
+import { ShaderData } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { Config3D } from "../../../Config3D";
 import { UniformBufferObject } from "../../RenderEngine/UniformBufferObject";
 import { BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
@@ -54,7 +54,7 @@ export class ShadowSliceData {
     sphereCenterZ: number;
 
     constructor() {
-        this.cameraShaderValue = LayaGL.unitRenderModuleDataFactory.createShaderData(null);
+        this.cameraShaderValue = LayaGL.renderDeviceFactory.createShaderData(null);
 
         if (Config3D._uniformBlock) {
             let cameraUBO = UniformBufferObject.getBuffer(UniformBufferObject.UBONAME_CAMERA, 0);
