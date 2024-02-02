@@ -24,9 +24,7 @@ import { BlueprintCustomFunStart } from "./node/BlueprintCustomFunStart";
 import { BlueprintCustomFunReturn, BlueprintCustomFunReturnContext } from "./node/BlueprintCustomFunReturn";
 import { BluePrintAsNode } from "./node/BlueprintAsNode";
 import { Laya } from "../../../Laya";
-import { BlueprintExcuteDebuggerNode } from "./action/BlueprintExcuteDebuggerNode";
 import { Browser } from "../../utils/Browser";
-import { BlueprintDebuggerManager } from "./debugger/BlueprintDebuggerManager";
 import { BluePrintBlockNode } from "./node/BlueprintBlockNode";
 import { BPMathLib } from "../BPMathLib";
 
@@ -45,7 +43,8 @@ export class BlueprintFactory {
     private static _bpContextMap: Map<BPType, new () => RuntimeNodeData>;
     static bpNewMap: Map<string, TBPCNode> = new Map();
 
-    private static debuggerManager = new BlueprintDebuggerManager();
+    static BPExcuteCls: any = BlueprintExcuteNode;
+    static BPRuntimeCls: any = BlueprintRuntime;
 
     /**
      * 根据节点类型创建相应的对象
@@ -160,8 +159,7 @@ export class BlueprintFactory {
                     constructor(...args: any) {
                         super(...args);
                         //Object.assign(this, properties);
-                        const isDebugger = Browser.getQueryString('isDebugger') == 'true';
-                        this[BlueprintFactory.contextSymbol] = isDebugger ? new BlueprintExcuteDebuggerNode(this) : new BlueprintExcuteNode(this);
+                        this[BlueprintFactory.contextSymbol] = new BlueprintFactory.BPExcuteCls(this);
                         let varMap = this[BlueprintFactory.bpSymbol].varMap;
                         if (varMap) {
                             for (let str in varMap) {
@@ -171,9 +169,6 @@ export class BlueprintFactory {
                         }
                         this._bp_init_();
                         //this.context = new BPExcuteDebuggerNode(this);
-                        if (isDebugger) {
-                            this[BlueprintFactory.contextSymbol].debuggerManager = BlueprintFactory.debuggerManager;
-                        }
                     }
 
                     _bp_init_() {
@@ -213,7 +208,7 @@ export class BlueprintFactory {
         }
 
         let newClass = classFactory(name, cls);
-        let bp = newClass.prototype[BlueprintFactory.bpSymbol] = new BlueprintRuntime();
+        let bp = newClass.prototype[BlueprintFactory.bpSymbol] = new BlueprintFactory.BPRuntimeCls();
         bp.dataMap = data.dataMap;
         // debugger;
         let c = function (node: TBPNode): TBPCNode {

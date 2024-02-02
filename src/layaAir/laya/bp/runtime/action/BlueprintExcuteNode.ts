@@ -7,6 +7,7 @@ import { RuntimeNodeData, RuntimePinData } from "./RuntimeNodeData";
 import { IExcuteListInfo } from "../../core/interface/IExcuteListInfo";
 import { BlueprintFactory } from "../BlueprintFactory";
 import { IRuntimeDataManger } from "../../core/interface/IRuntimeDataManger";
+import { BlueprintPromise } from "../BlueprintPromise";
 
 export class BlueprintExcuteNode extends BlueprintRunBase implements IRunAble {
     owner: any;
@@ -57,18 +58,16 @@ export class BlueprintExcuteNode extends BlueprintRunBase implements IRunAble {
     getCode(): string {
         return "";
     }
-    beginExcute(runtimeNode: BlueprintRuntimeBaseNode, runner: IBPRutime, enableDebugPause: boolean): boolean {
+    beginExcute(runtimeNode: BlueprintRuntimeBaseNode, runner: IBPRutime, enableDebugPause: boolean, fromPin: BlueprintPinRuntime): BlueprintPromise {
         //throw new Error("Method not implemented.");
         if (this.listNode.indexOf(runtimeNode) == -1) {
             this.listNode.push(runtimeNode);
             //super.beginExcute(runtimeNode);
             // this.currentFun=[];
-            return false;
+            return null;
         }
         else {
-            return false;
-            console.error("检测到有死循环");
-            return true;
+            return null;
         }
 
     }

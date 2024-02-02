@@ -1,6 +1,7 @@
 import { IExcuteListInfo } from "../../core/interface/IExcuteListInfo";
 import { IRuntimeDataManger } from "../../core/interface/IRuntimeDataManger";
 import { BlueprintPinRuntime } from "../BlueprintPinRuntime";
+import { BlueprintPromise } from "../BlueprintPromise";
 import { IRunAble } from "../interface/IRunAble";
 import { BlueprintRuntimeBaseNode } from "../node/BlueprintRuntimeBaseNode";
 import { BlueprintRunBase } from "./BlueprintRunBase";
@@ -42,13 +43,13 @@ export class BlueprintGenCodeNode extends BlueprintRunBase implements IRunAble {
 
     blockMap: Map<number, any> = new Map();
 
-    beginExcute(runtimeNode: BlueprintRuntimeBaseNode): boolean {
+    beginExcute(runtimeNode: BlueprintRuntimeBaseNode): BlueprintPromise {
         let index = this.listNode.indexOf(runtimeNode);
         if (index == -1) {
             this.listNode.push(runtimeNode);
             //super.beginExcute(runtimeNode);
             this.currentFun = [];
-            return false;
+            return null;
         }
         else {
             let code = "while(true){\n";
@@ -57,7 +58,7 @@ export class BlueprintGenCodeNode extends BlueprintRunBase implements IRunAble {
             }
             code += "}\n";
             this.blockMap.set(index, { end: this.codes.length - 1, code: code });
-            return true;
+            return null;
         }
     }
 

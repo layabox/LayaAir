@@ -2,20 +2,18 @@ import { IExcuteListInfo } from "../../core/interface/IExcuteListInfo";
 import { IRuntimeDataManger } from "../../core/interface/IRuntimeDataManger";
 import { RuntimeNodeData } from "../action/RuntimeNodeData";
 import { BlueprintPinRuntime } from "../BlueprintPinRuntime";
-import { BlueprintDebuggerManager } from "../debugger/BlueprintDebuggerManager";
+import { BlueprintPromise } from "../BlueprintPromise";
 import { BlueprintRuntimeBaseNode } from "../node/BlueprintRuntimeBaseNode";
 import { IBPRutime } from "./IBPRutime";
 
 export interface IRunAble {
     debuggerPause: boolean;
 
-    debuggerManager?: BlueprintDebuggerManager;
-
     pushBack(excuteNode: IExcuteListInfo): void;
 
     readonly vars: { [key: string]: any };
 
-    beginExcute(runtimeNode: BlueprintRuntimeBaseNode, runner: IBPRutime, enableDebugPause: boolean): boolean;
+    beginExcute(runtimeNode: BlueprintRuntimeBaseNode, runner: IBPRutime, enableDebugPause: boolean, fromPin: BlueprintPinRuntime): BlueprintPromise;
 
     endExcute(runtimeNode: BlueprintRuntimeBaseNode): void;
 
