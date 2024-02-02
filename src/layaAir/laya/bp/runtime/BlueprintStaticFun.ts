@@ -146,7 +146,7 @@ export class BlueprintStaticFun {
      * @param name 
      * @param context 
      */
-    static forEach(inputExcute: BlueprintPinRuntime, outExcutes: BlueprintPinRuntime[], outPutParmPins: BlueprintPinRuntime[], context: IRunAble, runner: IBPRutime, runtimeDataMgr: IRuntimeDataManger, runId: number, array: any[]) {
+    static forEach(inputExcute: BlueprintPinRuntime, inputExcutes: BlueprintPinRuntime[], outExcutes: BlueprintPinRuntime[], outPutParmPins: BlueprintPinRuntime[], context: IRunAble, runner: IBPRutime, runtimeDataMgr: IRuntimeDataManger, runId: number, array: any[]) {
         // if(inputExcute){
         //     runtimeDataMgr.setPinData(inputExcute, array, runId);
 
@@ -156,9 +156,89 @@ export class BlueprintStaticFun {
             runtimeDataMgr.setPinData(outPutParmPins[0], item, curRunId);
             runtimeDataMgr.setPinData(outPutParmPins[1], index, curRunId);
             let nextOwner = (outExcutes[0].linkTo[0] as BlueprintPinRuntime).owner;
-            nextOwner && runner.runByContext(context, runtimeDataMgr, nextOwner, false, null, curRunId,outExcutes[0].linkTo[0] as BlueprintPinRuntime);
+            nextOwner && runner.runByContext(context, runtimeDataMgr, nextOwner, false, null, curRunId, outExcutes[0].linkTo[0] as BlueprintPinRuntime);
             //outExcutes[0].excute(context,runtimeDataMgr,runner,curRunId);
         })
         return outExcutes[1].excute(context, runtimeDataMgr, runner, runId);
+    }
+
+
+    /**
+    * @private
+    * @param target 
+    * @param value 
+    * @param name 
+    * @param context 
+    */
+    static forEachWithBreak(inputExcute: BlueprintPinRuntime, inputExcutes: BlueprintPinRuntime[], outExcutes: BlueprintPinRuntime[], outPutParmPins: BlueprintPinRuntime[], context: IRunAble, runner: IBPRutime, runtimeDataMgr: IRuntimeDataManger, runId: number, array: any[]) {
+        if (inputExcute == inputExcutes[1]) {
+            runtimeDataMgr.getRuntimePinById(inputExcute.id).initValue(true);
+            return null;
+        }
+        for (let i = 0; i < array.length; i++) {
+            let curRunId = runner.getRunID();
+            runtimeDataMgr.setPinData(outPutParmPins[0], array[i], curRunId);
+            runtimeDataMgr.setPinData(outPutParmPins[1], i, curRunId);
+            let nextPin = (outExcutes[0].linkTo[0] as BlueprintPinRuntime);
+            let nextOwner = nextPin.owner;
+            nextOwner && runner.runByContext(context, runtimeDataMgr, nextOwner, false, null, curRunId, nextPin);
+            //outExcutes[0].excute(context,runtimeDataMgr,runner,curRunId);
+            if (runtimeDataMgr.getPinData(inputExcutes[1], runId)) {
+                runtimeDataMgr.getRuntimePinById(inputExcutes[1].id).initValue(false);
+                break;
+            }
+        }
+        return outExcutes[1].excute(context, runtimeDataMgr, runner, runId);
+    }
+
+
+    /**
+     * @private
+     * @param target 
+     * @param value 
+     * @param name 
+     * @param context 
+     */
+    static forLoop(inputExcute: BlueprintPinRuntime, inputExcutes: BlueprintPinRuntime[], outExcutes: BlueprintPinRuntime[], outPutParmPins: BlueprintPinRuntime[], context: IRunAble, runner: IBPRutime, runtimeDataMgr: IRuntimeDataManger, runId: number, firstIndex: number, lastIndex: number, step: number = 1) {
+        if (step <= 0) step = 1;
+        for (let i = firstIndex; i < lastIndex; i += step) {
+            let curRunId = runner.getRunID();
+            runtimeDataMgr.setPinData(outPutParmPins[0], i, curRunId);
+            let nextPin = (outExcutes[0].linkTo[0] as BlueprintPinRuntime);
+            let nextOwner = nextPin.owner;
+            nextOwner && runner.runByContext(context, runtimeDataMgr, nextOwner, false, null, curRunId, nextPin);
+            //outExcutes[0].excute(context,runtimeDataMgr,runner,curRunId);
+        }
+        return outExcutes[1].excute(context, runtimeDataMgr, runner, runId);
+    }
+
+     /**
+     * @private
+     * @param target 
+     * @param value 
+     * @param name 
+     * @param context 
+     */
+     static forLoopWithBreak(inputExcute: BlueprintPinRuntime, inputExcutes: BlueprintPinRuntime[], outExcutes: BlueprintPinRuntime[], outPutParmPins: BlueprintPinRuntime[], context: IRunAble, runner: IBPRutime, runtimeDataMgr: IRuntimeDataManger, runId: number, firstIndex: number, lastIndex: number, step: number = 1) {
+        if (inputExcute == inputExcutes[1]) {
+            runtimeDataMgr.getRuntimePinById(inputExcute.id).initValue(true);
+            return null;
+        }
+        else{
+            if (step <= 0) step = 1;
+            for (let i = firstIndex; i < lastIndex; i += step) {
+                let curRunId = runner.getRunID();
+                runtimeDataMgr.setPinData(outPutParmPins[0], i, curRunId);
+                let nextPin = (outExcutes[0].linkTo[0] as BlueprintPinRuntime);
+                let nextOwner = nextPin.owner;
+                nextOwner && runner.runByContext(context, runtimeDataMgr, nextOwner, false, null, curRunId, nextPin);
+                //outExcutes[0].excute(context,runtimeDataMgr,runner,curRunId);
+                if (runtimeDataMgr.getPinData(inputExcutes[1], runId)) {
+                    runtimeDataMgr.getRuntimePinById(inputExcutes[1].id).initValue(false);
+                    break;
+                }
+            }
+            return outExcutes[1].excute(context, runtimeDataMgr, runner, runId);
+        }
     }
 }

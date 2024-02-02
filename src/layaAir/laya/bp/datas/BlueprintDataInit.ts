@@ -466,4 +466,128 @@ export const BlueprintDataList: TBPCNode[] = [
             }
         ]
     },
+    {
+        name: "forEachWithBreak",
+        type: BPType.Block,
+        menuPath: "system",
+        modifiers: {
+            isStatic: true,
+        },
+        input: [
+            {
+                name: "execute",
+                type: "exec",
+            },
+            {
+                name: "array",
+                type: "array",
+            },
+            {
+                name: "break",
+                type: "exec",
+            }
+        ],
+        output: [
+            {
+                name: "loopBody",
+                type: "exec",
+            },
+            {
+                name: "element",
+                type: "any",
+            },
+            {
+                name: "index",
+                type: "number",
+            },
+            {
+                name: "completed",
+                type: "exec",
+            }
+        ]
+    },
+    {
+        name: "forLoop",
+        type: BPType.Block,
+        menuPath: "system",
+        modifiers: {
+            isStatic: true,
+        },
+        input: [
+            {
+                name: "execute",
+                type: "exec"
+            },
+            {
+                name: "firstIndex",
+                type: "number"
+            },
+            {
+                name: "lastIndex",
+                type: "number"
+            },
+            {
+                name: "step",
+                type: "number"
+            }
+        ],
+        output: [
+            {
+                name: "loopBody",
+                type: "exec",
+            },
+            {
+                name: "index",
+                type: "number",
+            },
+            {
+                name: "completed",
+                type: "exec",
+            }
+        ]
+    },
+    {
+        name: "forLoopWithBreak",
+        type: BPType.Block,
+        menuPath: "system",
+        modifiers: {
+            isStatic: true,
+        },
+        input: [
+            {
+                name: "execute",
+                type: "exec"
+            },
+            {
+                name: "firstIndex",
+                type: "number"
+            },
+            {
+                name: "lastIndex",
+                type: "number"
+            },
+            {
+                name: "step",
+                type: "number"
+            },
+            {
+                name: "break",
+                type: "exec"
+            }
+        ],
+        output: [
+            {
+                name: "loopBody",
+                type: "exec",
+            },
+            {
+                name: "index",
+                type: "number",
+            },
+            {
+                name: "completed",
+                type: "exec",
+            }
+        ]
+    },
 ]

@@ -105,6 +105,9 @@ export class BlueprintFactory {
             this.regFunction("printString", BlueprintStaticFun.print);
             this.regFunction("branch", BlueprintStaticFun.branch);
             this.regFunction("forEach", BlueprintStaticFun.forEach);
+            this.regFunction("forEachWithBreak", BlueprintStaticFun.forEachWithBreak);
+            this.regFunction("forLoop", BlueprintStaticFun.forLoop);
+            this.regFunction("forLoopWithBreak", BlueprintStaticFun.forLoopWithBreak);
             this.regFunction("event_on", function (eventName: string, cb: Function) {
                 //@ts-ignore
                 this.on(eventName, this, cb);

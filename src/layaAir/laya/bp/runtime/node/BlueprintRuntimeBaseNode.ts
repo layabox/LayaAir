@@ -102,7 +102,7 @@ export class BlueprintRuntimeBaseNode extends BlueprintNode<BlueprintPinRuntime>
                 let promise = BlueprintPromise.create();
                 result.then((value) => {
                     this.outPutParmPins[0] && runtimeDataMgr.setPinData(this.outPutParmPins[0], value, runId);
-                    let pin = this.next(context, runtimeDataMgr, _parmsArray, runner, enableDebugPause, runId);
+                    let pin = this.next(context, runtimeDataMgr, _parmsArray, runner, enableDebugPause, runId,fromPin);
                     promise.index = pin ? pin.owner.index : BlueprintConst.MAX_CODELINE;
                     promise.pin = pin;
                     promise.listIndex = this.listIndex;
@@ -116,10 +116,10 @@ export class BlueprintRuntimeBaseNode extends BlueprintNode<BlueprintPinRuntime>
         if (fromExcute) {
             context.endExcute(this);
         }
-        return this.next(context, runtimeDataMgr, _parmsArray, runner, true, runId);
+        return this.next(context, runtimeDataMgr, _parmsArray, runner, true, runId,fromPin);
     }
 
-    next(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, parmsArray: any[], runner: IBPRutime, enableDebugPause: boolean, runId: number): BlueprintPinRuntime {
+    next(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, parmsArray: any[], runner: IBPRutime, enableDebugPause: boolean, runId: number,fromPin:BlueprintPinRuntime): BlueprintPinRuntime {
         return null;
     }
 

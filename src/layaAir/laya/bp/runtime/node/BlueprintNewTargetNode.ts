@@ -30,9 +30,9 @@ export class BlueprintNewTargetNode extends BlueprintRuntimeBaseNode {
         }
     }
 
-    step(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, fromExcute: boolean, runner: IBPRutime, enableDebugPause: boolean, runId: number,fromPin:BlueprintPinRuntime): BlueprintPinRuntime {
+    step(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, fromExcute: boolean, runner: IBPRutime, enableDebugPause: boolean, runId: number, fromPin: BlueprintPinRuntime): BlueprintPinRuntime {
         if (fromExcute && context.beginExcute(this, runner, enableDebugPause)) {
-            this.getDebuggerPromise(context,fromPin);
+            this.getDebuggerPromise(context, fromPin);
         }
         let _parmsArray: any[] = this.colloctParam(context, runtimeDataMgr, this.inPutParmPins, runner, runId);
         context.parmFromOutPut(this.outPutParmPins, runtimeDataMgr, _parmsArray);
@@ -44,6 +44,6 @@ export class BlueprintNewTargetNode extends BlueprintRuntimeBaseNode {
         if (fromExcute) {
             context.endExcute(this);
         }
-        return this.next(context, runtimeDataMgr, _parmsArray, runner, enableDebugPause, runId);
+        return this.next(context, runtimeDataMgr, _parmsArray, runner, enableDebugPause, runId, fromPin);
     }
 }
