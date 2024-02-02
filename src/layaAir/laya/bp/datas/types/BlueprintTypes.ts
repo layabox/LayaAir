@@ -131,8 +131,10 @@ export interface TBPConnType {
 export interface TBPCNode {
     /**程序中用到的名字 */
     name: string,
+    /** */
+    bpType?: "function" | "event" | "prop" | "construct",
 
-    module?:string
+    module?: string
     /**如果是自定义函数会有这个id号 */
     customId?: number,
 
