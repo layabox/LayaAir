@@ -241,7 +241,7 @@ export class BlueprintData {
             type: BPType.Function,
             output: [this.defEventOut]
         }
-
+        cdata.menuPath = fun.menuPath;
         cdata.type = [BPType.Pure, BPType.Function, BPType.Event].includes(fun.type) ? fun.type : cdata.type;
         cdata.id = fun.customId ? ext + "_" + fun.customId : cdata.id;
         cdata.type = fun.customId ? BPType.CustomFun : cdata.type;
