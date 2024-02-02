@@ -2,20 +2,6 @@ import { BPType, TBPCNode } from "./types/BlueprintTypes";
 
 export const BlueprintDataList: TBPCNode[] = [
     {
-        name: "printString",
-        type: BPType.Function,
-        menuPath: "system",
-        modifiers: {
-            isStatic: true,
-        },
-        input: [
-            {
-                name: "str",
-                type: "string",
-            }
-        ],
-    },
-    {
         name: "static_get",
         menuPath: "none",
         type: BPType.GetValue,
@@ -112,30 +98,6 @@ export const BlueprintDataList: TBPCNode[] = [
         ],
     },
     {
-        name: "add",
-        type: BPType.Operator,
-        menuPath: "system",
-        typeParameters: {
-            T: { extends: ["string", "number"] }
-        },
-        modifiers: {
-            isStatic: true,
-        },
-        input: [
-            {
-                type: "T",
-            },
-            {
-                type: "T",
-            },
-        ],
-        output: [
-            {
-                type: "T",
-            },
-        ]
-    },
-    {
         name: "branch",
         type: BPType.Branch,
         menuPath: "system",
@@ -187,77 +149,6 @@ export const BlueprintDataList: TBPCNode[] = [
             },
         ]
     },
-    {
-        name: "test",
-        type: BPType.Function,
-        menuPath: "system",
-        input: [
-            {
-                name: "target",
-                type: "object",
-            }
-        ],
-    },
-    {
-        name: "equal",
-        type: BPType.Operator,
-        menuPath: "system",
-        modifiers: {
-            isStatic: true,
-        },
-        input: [
-            {
-                type: "number",
-            },
-            {
-                type: "number",
-            },
-        ],
-        output: [
-            {
-                type: "number",
-            },
-        ]
-    },
-    {
-        name: "waitTime",
-        type: BPType.Function,
-        menuPath: "system",
-        modifiers: {
-            isStatic: true,
-        },
-        input: [
-            {
-                name: "second",
-                type: "number",
-            }
-        ],
-    },
-    // {
-    //     name: "makeVector3",
-    //     type: BPType.NewTarget,
-    //     target: "Vector3",
-    //     input: [
-    //         {
-    //             name: "x",
-    //             type: "number",
-    //         },
-    //         {
-    //             name: "y",
-    //             type: "number",
-    //         },
-    //         {
-    //             name: "z",
-    //             type: "number",
-    //         }
-    //     ],
-    //     output: [
-    //         {
-    //             name: "return",
-    //             type: "Vector3"
-    //         }
-    //     ]
-    // },
     {
         name: "event_event",
         menuPath: "none",
