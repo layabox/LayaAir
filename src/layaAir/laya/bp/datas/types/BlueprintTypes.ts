@@ -14,6 +14,7 @@ export enum BPType {
     GetValue = "getvalue",
     SetValue = "setvalue",
     Branch = "branch",
+    Block ="Block",
     Sequence = "sequence",
     NewTarget = "newtarget",
     CustomFun = "customFun",

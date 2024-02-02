@@ -27,6 +27,8 @@ import { Laya } from "../../../Laya";
 import { BlueprintExcuteDebuggerNode } from "./action/BlueprintExcuteDebuggerNode";
 import { Browser } from "../../utils/Browser";
 import { BlueprintDebuggerManager } from "./debugger/BlueprintDebuggerManager";
+import { BluePrintBlockNode } from "./node/BlueprintBlockNode";
+import { BPMathLib } from "../BPMathLib";
 
 export class BlueprintFactory {
     public static readonly bpSymbol: unique symbol = Symbol("bpruntime");
@@ -74,6 +76,7 @@ export class BlueprintFactory {
     }
 
     static __init__() {
+        BPMathLib;
         if (!this._isInited) {
             this._funMap = new Map();
             this._isInited = true;
@@ -92,6 +95,7 @@ export class BlueprintFactory {
             this.regBPClass(BPType.CustomFun, BlueprintCustomFunNode);
             this.regBPClass(BPType.CustomFunStart, BlueprintCustomFunStart);
             this.regBPClass(BPType.CustomFunReturn, BlueprintCustomFunReturn);
+            this.regBPClass(BPType.Block, BluePrintBlockNode);
             this.regBPClass(BPType.Assertion, BluePrintAsNode);
 
             this.regBPContextData(BPType.CustomFunReturn, BlueprintCustomFunReturnContext);
@@ -100,6 +104,7 @@ export class BlueprintFactory {
             this.regFunction("equal", BlueprintStaticFun.equal);
             this.regFunction("printString", BlueprintStaticFun.print);
             this.regFunction("branch", BlueprintStaticFun.branch);
+            this.regFunction("forEach", BlueprintStaticFun.forEach);
             this.regFunction("event_on", function (eventName: string, cb: Function) {
                 //@ts-ignore
                 this.on(eventName, this, cb);
@@ -264,10 +269,10 @@ export class BlueprintFactory {
         return this._instance;
     }
 
-    createNew(config: TBPCNode, id: number) {
+    createNew(config: TBPCNode, item: TBPNode) {
         let cls = BlueprintFactory._bpMap.get(config.type) || BlueprintRuntimeBaseNode;
         let result = new cls();
-        result.nid = id;
+        result.nid = item.id;
         result.parse(config);
         return result;
     }

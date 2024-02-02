@@ -2,14 +2,15 @@ import { BlueprintPin } from "../../core/BlueprintPin";
 import { IOutParm } from "../../core/interface/IOutParm";
 import { IRuntimeDataManger } from "../../core/interface/IRuntimeDataManger";
 import { RuntimeNodeData } from "../action/RuntimeNodeData";
+import { BlueprintPinRuntime } from "../BlueprintPinRuntime";
 import { BlueprintPromise } from "../BlueprintPromise";
 import { IBPRutime } from "../interface/IBPRutime";
 import { IRunAble } from "../interface/IRunAble";
 import { BlueprintRuntimeBaseNode } from "./BlueprintRuntimeBaseNode";
 
 export class BlueprintCustomFunReturn extends BlueprintRuntimeBaseNode {
-    step(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, fromExcute: boolean, runner: IBPRutime, enableDebugPause: boolean, runId: number): number | BlueprintPromise {
-        let result = super.step(context, runtimeDataMgr, fromExcute, runner, enableDebugPause, runId);
+    step(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, fromExcute: boolean, runner: IBPRutime, enableDebugPause: boolean, runId: number,fromPin:BlueprintPinRuntime): BlueprintPinRuntime | BlueprintPromise {
+        let result = super.step(context, runtimeDataMgr, fromExcute, runner, enableDebugPause, runId,fromPin);
         let nodeContext = runtimeDataMgr.getDataById(this.nid) as BlueprintCustomFunReturnContext;
         nodeContext.returnResult(runId);
         return result;

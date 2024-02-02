@@ -58,10 +58,10 @@ export class BlueprintRuntime {
      * @param funName 
      * @param parms 
      */
-    runCustomFun(context: IRunAble, funId: number, parms: any[], cb: Function, runId: number) {
+    runCustomFun(context: IRunAble, funId: number, parms: any[], cb: Function, runId: number,fromPin:BlueprintPinRuntime) {
         let fun = this.funBlockMap.get(funId);
         if (fun) {
-            return fun.run(context, null, parms, cb, runId);
+            return fun.run(context, null, parms, cb, runId,fromPin);
         }
         return null;
     }
@@ -120,6 +120,8 @@ class BluePrintBlock implements INodeManger<BlueprintRuntimeBaseNode>, IBPRutime
      */
     excuteList: BlueprintRuntimeBaseNode[];
 
+    anonymousfuns: BlueprintEventNode[];
+
     varMap: Record<string, TBPVarProperty>;
 
     dataMap: Record<string, TBPVarProperty | TBPEventProperty>;
@@ -136,6 +138,7 @@ class BluePrintBlock implements INodeManger<BlueprintRuntimeBaseNode>, IBPRutime
         this.poolIds = [];
         this._asList = [];
         this._pendingClass = new Map();
+        this.anonymousfuns = [];
     }
 
 
@@ -179,6 +182,10 @@ class BluePrintBlock implements INodeManger<BlueprintRuntimeBaseNode>, IBPRutime
     optimize() {
         this._asList.forEach(value => {
             value.optimize();
+        });
+
+        this.anonymousfuns.forEach(value => {
+            this.optimizeByStart(value, this.excuteList);
         });
     }
 
@@ -238,8 +245,8 @@ class BluePrintBlock implements INodeManger<BlueprintRuntimeBaseNode>, IBPRutime
         //pin create
 
         bpjson.forEach(item => {
-            let node = BlueprintFactory.instance.createNew(getCNodeByNode(item), item.id);
-            this.append(node);
+            let node = BlueprintFactory.instance.createNew(getCNodeByNode(item), item);
+            this.append(node, item);
         });
         // debugger;
 
@@ -251,16 +258,21 @@ class BluePrintBlock implements INodeManger<BlueprintRuntimeBaseNode>, IBPRutime
         this.optimize();
     }
 
-    append(node: BlueprintRuntimeBaseNode) {
+    append(node: BlueprintRuntimeBaseNode, item: TBPNode) {
         this.nodeMap.set(node.nid, node);
         switch (node.type) {
             case BPType.Assertion:
                 this._asList.push(node);
                 break;
+            case BPType.Event:
+                if (item.dataId) {
+                    this.anonymousfuns.push(node as BlueprintEventNode);
+                }
+                break;
         }
     }
 
-    run(context: IRunAble, eventName: string, parms: any[], cb: Function, runId: number): boolean {
+    run(context: IRunAble, eventName: string, parms: any[], cb: Function, runId: number,fromPin:BlueprintPinRuntime): boolean {
         return false;
     }
 
@@ -275,30 +287,32 @@ class BluePrintBlock implements INodeManger<BlueprintRuntimeBaseNode>, IBPRutime
     }
 
 
-    runByContext(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, node: IExcuteListInfo, enableDebugPause: boolean, cb: Function, runId: number): boolean {
+    runByContext(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, node: IExcuteListInfo, enableDebugPause: boolean, cb: Function, runId: number,fromPin:BlueprintPinRuntime): boolean {
         if (runId == -1) {
             runId = this.getRunID();
         }
         const currentIndex = node.index;
         const excuteAbleList = this.excuteList;
-
+        //let fromPin: BlueprintPinRuntime;
         for (let i = currentIndex, n = excuteAbleList.length; i < n;) {
             const bpNode = excuteAbleList[i];
-            let index = bpNode.step(context, runtimeDataMgr, true, this, enableDebugPause, runId);
+            let index = bpNode.step(context, runtimeDataMgr, true, this, enableDebugPause, runId, fromPin);
             enableDebugPause = true;
-            if (index instanceof BlueprintPromise) {
+            if (index instanceof BlueprintPinRuntime) {
+                i = index.owner.index;
+                fromPin = index;
+            }
+            else if (index instanceof BlueprintPromise) {
                 index.wait((mis: BlueprintPromise) => {
-                    this.runByContext(context, runtimeDataMgr, mis, mis.enableDebugPause != undefined ? mis.enableDebugPause : enableDebugPause, cb, runId);
+                    this.runByContext(context, runtimeDataMgr, mis, mis.enableDebugPause != undefined ? mis.enableDebugPause : enableDebugPause, cb, runId,mis.pin);
                 })
                 return false;
             }
             else {
-                i = index;
-                if(index == BlueprintConst.MAX_CODELINE){
-                    if(mainScope == this.id && context.debuggerManager){
-                        context.debuggerManager.clear();
-                    }
+                if (mainScope == this.id && context.debuggerManager) {
+                    context.debuggerManager.clear();
                 }
+                break;
             }
         }
         cb && cb();
@@ -327,15 +341,15 @@ class BluePrintMainBlock extends BluePrintBlock {
         let cls = this.cls;
         let originFunc: Function = cls.prototype[eventName];
         cls.prototype[eventName] = function (...args: any[]) {
-            const funcContext:IRunAble = this[BlueprintFactory.contextSymbol];
-            if(funcContext.debuggerManager && funcContext.debuggerManager.debugging) return;
+            const funcContext: IRunAble = this[BlueprintFactory.contextSymbol];
+            if (funcContext.debuggerManager && funcContext.debuggerManager.debugging) return;
             originFunc && originFunc.call(this, args);
             this[BlueprintFactory.bpSymbol].run(funcContext, eventName, args);
         }
     }
 
-    append(node: BlueprintRuntimeBaseNode) {
-        super.append(node);
+    append(node: BlueprintRuntimeBaseNode, item: TBPNode) {
+        super.append(node, item);
         switch (node.type) {
             case BPType.Event:
                 this.eventMap.set(node.name, node as BlueprintEventNode);
@@ -352,7 +366,7 @@ class BluePrintMainBlock extends BluePrintBlock {
             if (parms) {
                 event.initData(runtimeDataMgr, parms, curRunId);
             }
-            return this.runByContext(context, runtimeDataMgr, event, true, cb, curRunId);
+            return this.runByContext(context, runtimeDataMgr, event, true, cb, curRunId,null);
         }
         return null;
     }
@@ -385,7 +399,7 @@ class BluePrintFunBlock extends BluePrintBlock {
         })
     }
 
-    run(context: IRunAble, eventName: string, parms: any[], cb: Function, runId: number): boolean {
+    run(context: IRunAble, eventName: string, parms: any[], cb: Function, runId: number,fromPin:BlueprintPinRuntime): boolean {
         context.initData(this.id, this.nodeMap);
         let fun = this.funStart;
         if (fun) {
@@ -397,7 +411,7 @@ class BluePrintFunBlock extends BluePrintBlock {
                 })
                 fun.initData(runtimeDataMgr, parms, curRunId);
             }
-            return this.runByContext(context, runtimeDataMgr, fun, true, cb, curRunId);
+            return this.runByContext(context, runtimeDataMgr, fun, true, cb, curRunId,fromPin);
         }
         return null;
     }

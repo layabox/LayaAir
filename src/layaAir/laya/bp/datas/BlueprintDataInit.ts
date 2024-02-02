@@ -430,4 +430,40 @@ export const BlueprintDataList: TBPCNode[] = [
             },
         ]
     },
+    {
+        name: "forEach",
+        type: BPType.Block,
+        menuPath: "system",
+        modifiers: {
+            isStatic: true,
+        },
+        input: [
+            {
+                name: "execute",
+                type: "exec",
+            },
+            {
+                name: "array",
+                type: "array",
+            },
+        ],
+        output: [
+            {
+                name: "loopBody",
+                type: "exec",
+            },
+            {
+                name: "element",
+                type: "any",
+            },
+            {
+                name: "index",
+                type: "number",
+            },
+            {
+                name: "completed",
+                type: "exec",
+            }
+        ]
+    },
 ]

@@ -27,10 +27,6 @@ export class BlueprintFunNode extends BlueprintRuntimeBaseNode {
         this.tryExcute = this.emptyExcute;
     }
 
-    emptyExcute(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, fromExcute: boolean, runner: IBPRutime, enableDebugPause: boolean): number | BlueprintPromise {
-        return BlueprintConst.MAX_CODELINE;
-    }
-
     protected onParseLinkData(node: TBPNode, manger: INodeManger<BlueprintRuntimeBaseNode>) {
         if (node.dataId) {
             this.eventName = (manger.dataMap[node.dataId] as TBPEventProperty).name;
@@ -38,14 +34,14 @@ export class BlueprintFunNode extends BlueprintRuntimeBaseNode {
         }
     }
 
-    private excuteHookFun(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, caller: any, parmsArray: any[], runId: number) {
+    private excuteHookFun(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, caller: any, parmsArray: any[], runId: number,fromPin:BlueprintPinRuntime) {
         parmsArray.unshift(this.eventName);
         return context.excuteFun(this.nativeFun, this.outPutParmPins, runtimeDataMgr, caller, parmsArray, runId);
     }
 
 
-    next(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, parmsArray: any[], runner: IBPRutime, enableDebugPause: boolean, runId: number): number {
-        return this.staticNext ? this.staticNext.index : BlueprintConst.MAX_CODELINE;
+    next(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, parmsArray: any[], runner: IBPRutime, enableDebugPause: boolean, runId: number): BlueprintPinRuntime {
+        return this.staticNext ? this.staticNext : null;
     }
 
     addPin(pin: BlueprintPinRuntime) {
@@ -66,11 +62,6 @@ export class BlueprintFunNode extends BlueprintRuntimeBaseNode {
 
     optimize() {
         let linkto = this.outExcute.linkTo;
-        if (linkto[0]) {
-            this.staticNext = (linkto[0] as BlueprintPinRuntime).owner;
-        }
-        else {
-            this.staticNext = null;
-        }
+        this.staticNext=linkto[0] as BlueprintPinRuntime;
     }
 }
