@@ -100,8 +100,8 @@ export class BlueprintFactory {
             this.regBPContextData(BPType.CustomFunReturn, BlueprintCustomFunReturnContext);
 
 
-            this.regFunction("equal", BlueprintStaticFun.equal);
-            this.regFunction("printString", BlueprintStaticFun.print);
+            //this.regFunction("equal", BlueprintStaticFun.equal);
+            //this.regFunction("printString", BlueprintStaticFun.print);
             this.regFunction("branch", BlueprintStaticFun.branch);
             this.regFunction("forEach", BlueprintStaticFun.forEach);
             this.regFunction("forEachWithBreak", BlueprintStaticFun.forEachWithBreak);
@@ -130,8 +130,8 @@ export class BlueprintFactory {
             }, true);
 
 
-            this.regFunction("add", BlueprintStaticFun.add);
-            this.regFunction("waitTime", BlueprintStaticFun.waitTime);
+          //  this.regFunction("add", BlueprintStaticFun.add);
+          //  this.regFunction("waitTime", BlueprintStaticFun.waitTime);
             this.regFunction("get", BlueprintStaticFun.getVariable);
             this.regFunction("static_get", BlueprintStaticFun.getVariable);
 
