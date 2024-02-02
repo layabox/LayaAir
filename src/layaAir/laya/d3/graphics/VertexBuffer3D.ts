@@ -15,9 +15,10 @@ export class VertexBuffer3D {
 	_byteLength: number;
 	/**@internal */
 	_deviceBuffer: IVertexBuffer;
+	_buffer: Float32Array | Uint16Array | Uint8Array | Uint32Array;
 	/** @internal */
 	_float32Reader: Float32Array | null = null;
-	_buffer: Float32Array | Uint16Array | Uint8Array | Uint32Array;
+	
 	bufferUsage:BufferUsage;
 	/**
 	 * 获取顶点声明。

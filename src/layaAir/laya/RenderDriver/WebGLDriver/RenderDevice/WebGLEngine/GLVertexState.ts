@@ -1,4 +1,4 @@
-import { VertexDeclaration } from "../../../../RenderEngine/VertexDeclaration";
+import { VertexDeclaration, VertexStateContext } from "../../../../RenderEngine/VertexDeclaration";
 import { WebGLEngine } from "../WebGLEngine";
 import { WebGLIndexBuffer } from "../WebGLIndexBuffer";
 import { WebGLVertexBuffer } from "../WebGLVertexBuffer";
@@ -7,12 +7,12 @@ import { GLObject } from "./GLObject";
 
 
 
-export class GLVertexState extends GLObject{
+export class GLVertexState extends GLObject {
     private _angleInstancedArrays: any;
     private _vaoExt: any | null;
     private _vao: WebGLVertexArrayObject | WebGLVertexArrayObjectOES;
 
-    _vertexDeclaration: VertexDeclaration[] = [];
+    _vertexDeclaration: { [key: number]: VertexStateContext }[] = [];
     _bindedIndexBuffer: WebGLIndexBuffer;
     _vertexBuffers: WebGLVertexBuffer[];
 
@@ -86,15 +86,15 @@ export class GLVertexState extends GLObject{
             this._vertexDeclaration.length = vertexBuffer.length;
             var i = 0;
             vertexBuffer.forEach(element => {
-                var verDec: VertexDeclaration = element.vertexDeclaration;
-                this._vertexDeclaration[i++] = element.vertexDeclaration;
-                var valueData: any = verDec._shaderValues;
+                var verDec = element._shaderValues;
+                this._vertexDeclaration[i++] = element._shaderValues;
+
                 element.bind();
-                for (var k in valueData) {
+                for (var k in verDec) {
                     var loc: number = parseInt(k);
-                    var attribute: any[] = valueData[k];
+                    var attribute = verDec[k];
                     this._gl.enableVertexAttribArray(loc);
-                    this._gl.vertexAttribPointer(loc, attribute[0], attribute[1], !!attribute[2], attribute[3], attribute[4]);
+                    this._gl.vertexAttribPointer(loc, attribute.elementCount, attribute.elementType, !!attribute.normalized, attribute.vertexStride, attribute.elementOffset);
                     if (element.instanceBuffer)
                         this.vertexAttribDivisor(loc, 1);
                 }
@@ -106,11 +106,10 @@ export class GLVertexState extends GLObject{
     }
 
     //绑定之前需要先处理了前面的
-    clearVAO(){
-        for(let i = 0,n=this._vertexDeclaration.length;i<n;i++){
-            var verDec: VertexDeclaration = this._vertexDeclaration[i];
-            var valueData: any = verDec._shaderValues;
-            for (var k in valueData) {
+    clearVAO() {
+        for (let i = 0, n = this._vertexDeclaration.length; i < n; i++) {
+            var verDec = this._vertexDeclaration[i];
+            for (var k in verDec) {
                 var loc: number = parseInt(k);
                 this._gl.disableVertexAttribArray(loc);
             }

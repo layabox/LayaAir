@@ -1,6 +1,6 @@
 
 import { BufferTargetType, BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
-import { VertexDeclaration } from "../../../RenderEngine/VertexDeclaration";
+import { VertexDeclaration, VertexStateContext } from "../../../RenderEngine/VertexDeclaration";
 import { IVertexBuffer } from "../../DriverDesign/RenderDevice/IVertexBuffer";
 import { WebGLEngine } from "./WebGLEngine";
 import { GLBuffer } from "./WebGLEngine/GLBuffer";
@@ -10,12 +10,16 @@ export class WebGLVertexBuffer implements IVertexBuffer {
 
     private _vertexDeclaration: VertexDeclaration;
 
+    /**@internal */
+    _shaderValues: { [key: number]: VertexStateContext };
+
     public get vertexDeclaration(): VertexDeclaration {
         return this._vertexDeclaration;
     }
 
     public set vertexDeclaration(value: VertexDeclaration) {
         this._vertexDeclaration = value;
+        this._shaderValues = this._vertexDeclaration._shaderValues;
     }
 
     instanceBuffer: boolean;
