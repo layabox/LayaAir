@@ -1,21 +1,13 @@
-import { Laya } from "../../../Laya";
 import { EventDispatcher } from "../../events/EventDispatcher";
-import { Loader } from "../../net/Loader";
 import { Browser } from "../../utils/Browser";
 import { ClassUtils } from "../../utils/ClassUtils";
-import { BlueprintDataList } from "../datas/BlueprintDataInit";
 import { customData, extendsData } from "../datas/BlueprintExtends";
 import { TBPDeclaration } from "../datas/types/BlueprintDeclaration";
 import { BPType, TBPCNode, TBPNode, TBPSaveData, TBPStageData, TBPVarProperty } from "../datas/types/BlueprintTypes";
-import { BlueprintFactory } from "../runtime/BlueprintFactory";
-import { BlueprintImpl } from "../runtime/resource/BlueprintImpl";
+import { BlueprintData } from "./BlueprintData";
 export class BlueprintUtil {
-    static _constNode: Record<string, TBPCNode>;
-    private static _constExtNode: Record<string, Record<string, TBPCNode>> = {};
-    private static _allConstNode: Record<string, TBPCNode> = {};
-    static extendsNode: Record<string, TBPCNode[]> = {};
-    static constVars: Record<string, TBPVarProperty[]> = {};
-    static constAllVars: Record<string, TBPVarProperty> = {};
+
+    static bpData: BlueprintData;
 
     static eventManger: EventDispatcher = new EventDispatcher();
 
@@ -23,215 +15,16 @@ export class BlueprintUtil {
 
     private static _customModify = false;
 
-    private static defFunOut = {
-        name: "then",
-        type: "exec",
-    };
-    private static defFunIn = {
-        name: "execute",
-        type: "exec",
-    };
-    private static defTarget = {
-        name: "target",
-        type: "any",
-    }
-    private static defEventOut = BlueprintUtil.defFunOut;
-
-    private static readonly funlike = [BPType.Function, BPType.CustomFun, BPType.Pure];
-
-    static getDefaultConstNode() {
-        return this._constNode;
-    }
-    static getConstExtNode() {
-        return this._constExtNode;
-    }
-    static getAllConstNode() {
-        return this._allConstNode;
-    }
-    static getDataByID(id: string | number, data: TBPStageData) {
-        let ret = data.dataMap[id];
-        if (null == ret) {
-            ret = this.constAllVars[id];
-        }
-        return ret;
-    }
     static clone<T>(obj: T): T {
         if (null == obj) return obj;
         return JSON.parse(JSON.stringify(obj));
     }
-    static getConstNode(ext: string, node?: TBPNode) {
+    static getConstNode(node?: TBPNode) {
         this.initConstNode();
-        if (null != node.dataId) {
-            let id = node.cid + "_" + node.dataId;
-            if (null != this.constAllVars[id]) return this.constAllVars[id];
-            let cdata = this._constNode[node.cid];
-            let setData: any = this.constAllVars;
-            let data: any = this.constAllVars[node.dataId];
-            if (null == data) {
-                let obj = BlueprintImpl.loadedBPData.get(node.target);
-                if (obj) {
-                    setData = obj.constData;
-                    data = obj.allData[node.dataId];
-                }
-            }
-            if (data) {
-                cdata = this.clone(cdata);
-                let arr = data.input;
-                if (BPType.CustomFunReturn != cdata.type) {
-                    if (arr) {
-                        for (let i = 0, len = arr.length; i < len; i++) {
-                            if (null == arr[i].name || "" == arr[i].name.trim()) continue;
-                            if (BPType.Event == cdata.type || BPType.CustomFunStart == cdata.type) {
-                                if (null == cdata.output) cdata.output = [];
-                                cdata.output.push(arr[i]);
-                            } else {
-                                if (null == cdata.input) cdata.input = [];
-                                cdata.input.push(arr[i]);
-                            }
-                        }
-                    }
-                }
-                if (BPType.CustomFunStart != cdata.type && BPType.Event != cdata.type && 'event_call' != cdata.name) {
-                    arr = data.output;
-                    if (arr) {
-                        for (let i = 0, len = arr.length; i < len; i++) {
-                            if (null == arr[i].name || "" == arr[i].name.trim()) continue;
-                            if (BPType.CustomFunReturn == cdata.type) {
-                                if (null == cdata.input) cdata.input = [];
-                                cdata.input.push(arr[i]);
-                            } else {
-                                if (null == cdata.output) cdata.output = [];
-                                cdata.output.push(arr[i]);
-                            }
-                        }
-                    }
-                }
-                setData[id] = cdata;
-                return cdata;
-            }
-        } else {
-            let ret = this._allConstNode[node.cid];
-            if(node.hasDebugger){
-                ret = this.clone(ret);
-                ret.hasDebugger = true;
-            }
-            return ret;
-        }
-
-
-        return null;
-
-        // if (null == node) {
-        //     let ret = this._constExtNode[ext];
-        //     if (null == ret) {
-        //         return this._constNode;
-        //     }
-        // }
-
-        // let cdata = this._constNode[node.cid];
-        // let isGetFromAllConst = true;
-        // if (null != node.dataId && cdata && 'none' == cdata.menuPath) {
-        //     if (null == this._allConstNode[node.target + "_" + node.dataId]) {
-        //         //这里应该是需要动态创建const数据的get、set或者event
-        //         isGetFromAllConst = false;
-        //     }
-        // }
-
-        // if (isGetFromAllConst && null != node.target && node.target != stageData.name && null != node.dataId) {
-        //     let cid = node.target + "_" + node.dataId;
-        //     return this._allConstNode[cid];
-        // } else if (null != node.dataId) {
-
-        //     let dataId = node.cid + "_" + node.dataId;
-        //     let ret = this._allConstNode[dataId];
-        //     if (null == ret) {
-        //         ret = this._allConstNode[node.cid];
-        //         if (stageData) {
-        //             let data: any = this.getDataByID(node.dataId, stageData);
-        //             if (data && data.input && 0 < data.input.length && (BPType.Event == ret.type || 'event_call' == ret.name)) {
-        //                 ret = this.clone(ret);
-        //                 if (BPType.Event == ret.type) {
-        //                     let arr = data.input;
-        //                     if (arr)
-        //                         for (let i = 0, len = arr.length; i < len; i++) {
-        //                             if (null == arr[i].name || "" == arr[i].name.trim()) continue;
-        //                             ret.output.push(
-        //                                 arr[i]
-        //                             );
-        //                         }
-        //                 } else {
-        //                     let arr = data.input;
-        //                     if (arr)
-        //                         for (let i = 0, len = arr.length; i < len; i++) {
-        //                             if (null == arr[i].name || "" == arr[i].name.trim()) continue;
-        //                             ret.input.push(
-        //                                 arr[i]
-        //                             );
-        //                         }
-        //                 }
-        //                 this._allConstNode[dataId] = ret;
-        //             } else if (data) {
-        //                 if (BPType.CustomFun == ret.type) {
-        //                     ret = this.clone(ret);
-        //                     let arr = data.input;
-        //                     if (arr) {
-        //                         if (null == ret.input) ret.input = [];
-        //                         for (let i = 0, len = arr.length; i < len; i++) {
-        //                             if (null == arr[i].name || "" == arr[i].name.trim()) continue;
-        //                             ret.input.push(
-        //                                 arr[i]
-        //                             );
-        //                         }
-        //                     }
-        //                     arr = data.output;
-        //                     if (arr) {
-        //                         if (null == ret.output) ret.output = [];
-        //                         for (let i = 0, len = arr.length; i < len; i++) {
-        //                             if (null == arr[i].name || "" == arr[i].name.trim()) continue;
-        //                             ret.output.push(
-        //                                 arr[i]
-        //                             );
-        //                         }
-        //                     }
-        //                 } else if (BPType.CustomFunReturn == ret.type) {
-        //                     ret = this.clone(ret);
-        //                     let arr = data.output;
-        //                     if (arr) {
-        //                         if (null == ret.input) ret.input = [];
-        //                         for (let i = 0, len = arr.length; i < len; i++) {
-        //                             if (null == arr[i].name || "" == arr[i].name.trim()) continue;
-        //                             ret.input.push(
-        //                                 arr[i]
-        //                             );
-        //                         }
-        //                     }
-        //                 } else if (BPType.CustomFunStart == ret.type) {
-        //                     ret = this.clone(ret);
-        //                     let arr = data.input;
-        //                     if (arr) {
-        //                         if (null == ret.output) ret.output = [];
-        //                         for (let i = 0, len = arr.length; i < len; i++) {
-        //                             if (null == arr[i].name || "" == arr[i].name.trim()) continue;
-        //                             ret.output.push(
-        //                                 arr[i]
-        //                             );
-        //                         }
-        //                     }
-        //                 }
-        //                 this._allConstNode[dataId] = ret;
-        //             }
-
-        //         }
-        //     }
-        //     return ret;
-        // } else {
-        //     return this._allConstNode[node.cid];
-        // }
-
-
-        //TODO 以后会有对version的判断逻辑
-        //return this._allConstNode[node.cid];
-        //return this.getConstNodeByID(ext, node.cid);
+        return this.bpData.getConstNode(node);
+    }
+    static getConstDataById(id: string) {
+        return this.bpData.allData[id];
     }
 
     /**
@@ -248,209 +41,15 @@ export class BlueprintUtil {
     static getDeclaration(name: string): TBPDeclaration {
         return extendsData[name] ? extendsData[name] : customData[name];
     }
-
-
-    static getConstNodeByID(ext: string, cid: string, ver?: number) {
-        let cnode = this._constExtNode[ext];
-        if (null == cnode) {
-            cnode = this._constNode;
-        }
-        let ret = cnode[cid];
-        if (null == ret) {
-            ret = this._constNode[cid];
-        }
-        return ret;
-    }
     static initConstNode() {
-        if (null == this._constNode) {
-            this._constNode = {};
-
-            let list = BlueprintDataList;
-            for (let i = list.length - 1; i >= 0; i--) {
-                let o = list[i];
-                if (null == o.id) o.id = o.name;
-                this._constNode[o.id] = o;
-
-                let input = o.input;
-                if (input) {
-                    for (let i = input.length - 1; i >= 0; i--) {
-                        let o = input[i];
-                        if (null == o.name) {
-                            o.name = String.fromCharCode(97 + i);
-                        }
-                    }
-                }
-
-
-                if (BPType.Function == o.type) {
-                    if (input) {
-                        if (null == o.modifiers || !o.modifiers.isStatic) {
-                            input.unshift(BlueprintUtil.defTarget);
-                        }
-                        input.unshift(BlueprintUtil.defFunIn);
-                    } else {
-                        input = [BlueprintUtil.defFunIn];
-                        if (null == o.modifiers || !o.modifiers.isStatic) {
-                            input.push(BlueprintUtil.defTarget);
-                        }
-                        o.input = input;
-                    }
-                }
-
-                let output = o.output;
-                if (output) {
-                    for (let i = output.length - 1; i >= 0; i--) {
-                        let o = output[i];
-                        if (null == o.name) {
-                            if (0 == i) {
-                                o.name = 'return';
-                            } else {
-                                throw "output插槽必须要有name！";
-                            }
-                        }
-                    }
-                }
-
-                if (BPType.Function == o.type) {
-                    if (output) {
-                        output.unshift(BlueprintUtil.defFunOut);
-                    } else {
-                        output = [BlueprintUtil.defFunOut];
-                        o.output = output;
-                    }
-                }
-            }
-            this._allConstNode = { ...this._constNode };
-            this.initNode(extendsData);
+        if (null == this.bpData) {
+            this.bpData = new BlueprintData();
         }
-
         if (this._customModify) {
-            this.initNode(customData);
-
+            this.bpData.initData(customData);
             this._customModify = false;
         }
     }
-
-    static getVariable(data: TBPSaveData) {
-        let arr = [...data.variable];
-        let carr = BlueprintUtil.constVars[data.extends];
-        if (null != carr) {
-            arr.push(...carr);
-        }
-        return arr;
-    }
-    private static initNode(data: Record<string, TBPDeclaration>) {
-        for (let ext in data) {
-            let cls = BlueprintUtil.getClass(ext);
-            if (!cls) continue;
-
-            this.extendsNode[ext] = [];
-            this._constExtNode[ext] = {};
-            let o = data[ext];
-            let isBp: boolean = o?.name.includes(".bp");
-
-            if (o?.props) {
-                this.constVars[ext] = this.constVars[ext] || [];
-                o.props.forEach((po: any) => {
-                    po.id = po.id || 'var_' + ext + "_" + po.name;
-                    po.targetAliasName = o.name;
-                    po.target = ext;
-                    po.const = true;
-                    this.constVars[ext].push(po);
-                    this.constAllVars[po.id] = po;
-                });
-            }
-
-            if (o?.construct) {
-                let cdata: TBPCNode = {
-                    menuPath: "CreateNew",
-                    name: ext,
-                    target: ext,
-                    id: ext,
-                    type: BPType.NewTarget,
-                    output: [{ name: "return", type: ext }]
-                }
-
-                if (o.construct.params) {
-                    cdata.input = o.construct.params.map(param => ({ name: param.name, type: param.type }));
-                }
-
-                this.extendsNode[ext].push(cdata);
-                this._constExtNode[ext][cdata.id] = cdata;
-                this._allConstNode[cdata.id] = cdata;
-            }
-
-            if (o?.funcs) {
-                o.funcs.forEach((fun: any) => {
-                    if (fun.modifiers.isPublic || fun.modifiers.isProtected) {
-                        let cdata: TBPCNode = this.createCData(fun, ext, o.name);
-                        let func = fun.modifiers.isStatic ? cls[fun.name] : cls.prototype[fun.name];
-                        BlueprintFactory.regFunction(cdata.id, func, !fun.modifiers.isStatic, cls);
-
-                        if (fun.params && fun.params.length > 0) {
-                            if (BPType.Event == cdata.type) {
-                                cdata.output.push(...fun.params);
-                            } else {
-                                cdata.input = [...fun.params];
-                            }
-                        }
-
-                        this.handleCDataTypes(cdata, fun, ext);
-                        this.extendsNode[ext].push(cdata);
-                        this._constExtNode[ext][cdata.id] = cdata;
-                    }
-                });
-            }
-
-            this._allConstNode = { ...this._allConstNode, ...this._constExtNode[ext] };
-        }
-    }
-
-    private static createCData(fun: any, ext: string, name: string): TBPCNode {
-        let cdata: TBPCNode = {
-            modifiers: fun.modifiers,
-            target: ext,
-            targetAliasName: name,
-            name: fun.name,
-            id: ext + "_" + fun.name,
-            type: BPType.Function,
-            output: [BlueprintUtil.defEventOut]
-        }
-
-        cdata.menuPath = fun.menuPath || cdata.menuPath;
-        cdata.type = [BPType.Pure, BPType.Function, BPType.Event].includes(fun.type) ? fun.type : cdata.type;
-        cdata.id = fun.customId ? ext + "_" + fun.customId : cdata.id;
-        cdata.type = fun.customId ? BPType.CustomFun : cdata.type;
-        cdata.customId = fun.customId || cdata.customId;
-        cdata.typeParameters = fun.typeParameters || cdata.typeParameters;
-        cdata.id = fun.modifiers.isStatic ? cdata.id + "_static" : cdata.id;
-        cdata.aliasName = fun.modifiers.isStatic ? fun.name + " (Static)" : cdata.aliasName;
-
-        return cdata;
-    }
-
-    private static handleCDataTypes(cdata: TBPCNode, fun: any, ext: string) {
-        if (BlueprintUtil.funlike.includes(cdata.type)) {
-            cdata.input = cdata.input || [];
-            if (!fun.modifiers.isStatic) {
-                cdata.input.unshift({ name: "target", type: ext });
-            }
-            if (cdata.type == BPType.Pure) {
-                cdata.output.shift();
-            } else {
-                cdata.input.unshift(BlueprintUtil.defFunIn);
-            }
-
-            if ('void' != fun.returnType) {
-                if (fun.returnType instanceof Array) {
-                    cdata.output.push(...fun.returnType);
-                } else {
-                    cdata.output.push({ name: "return", type: fun.returnType });
-                }
-            }
-        }
-    }
-
     static getClass(ext: any) {
         return ClassUtils.getClass(ext) || Browser.window.Laya[ext];
     }
