@@ -57,7 +57,7 @@ export class GodRay extends PostProcessEffect {
             "u_MainTex_TexelSize": ShaderDataType.Vector4, //x:width,y:height,z:1/width,w:1/height
             "u_Center": ShaderDataType.Vector2,
             "u_AspecTratio": ShaderDataType.Float,
-            "u_sunSize":ShaderDataType.Float
+            "u_sunSize": ShaderDataType.Float
         };
         let shaderOc = Shader3D.add("OcShader");
         subShader = new SubShader(attributeMap, uniformMapOc);
@@ -183,7 +183,7 @@ export class GodRay extends PostProcessEffect {
         let source: RenderTexture = context.camera._internalRenderTexture;
         this.getcenter(context.camera, context.camera.scene, source.width / source.height);
         //getOcTexture
-        let copyRT = RenderTexture.createFromPool(source.width, source.height, source.colorFormat, RenderTargetFormat.None, false, 1, false,true);
+        let copyRT = RenderTexture.createFromPool(source.width, source.height, source.colorFormat, RenderTargetFormat.None, false, 1, false, true);
         cmd.setRenderTarget(source);
         cmd.clearRenderTarget(true, false, Color.BLACK);
         cmd.blitScreenQuad(Texture2D.whiteTexture, source, null, this._ocShader, this._ocData);

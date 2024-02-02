@@ -17,6 +17,7 @@ import { InternalTexture } from "./InternalTexture";
 
 export type uboParams = { ubo: UniformBufferObject; uboBuffer: UnifromBufferData };
 export enum ShaderDataType {
+    None,
     Int,
     Bool,
     Float,
