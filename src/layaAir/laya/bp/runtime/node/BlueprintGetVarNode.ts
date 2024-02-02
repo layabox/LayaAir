@@ -7,6 +7,7 @@ import { BlueprintRuntimeBaseNode } from "./BlueprintRuntimeBaseNode";
 import { BlueprintUtil } from "../../core/BlueprintUtil";
 import { IBPRutime } from "../interface/IBPRutime";
 import { IRuntimeDataManger } from "../../core/interface/IRuntimeDataManger";
+import { BlueprintPinRuntime } from "../BlueprintPinRuntime";
 
 export class BlueprintGetVarNode extends BlueprintRuntimeBaseNode {
     private _varKey: string;
@@ -19,7 +20,7 @@ export class BlueprintGetVarNode extends BlueprintRuntimeBaseNode {
         this._varKey = cfg ? cfg.name : BlueprintUtil.getConstDataById(node.dataId).name;
     }
 
-    step(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, fromExcute: boolean, runner: IBPRutime, enableDebugPause: boolean, runId: number): number {
+    step(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, fromExcute: boolean, runner: IBPRutime, enableDebugPause: boolean, runId: number): BlueprintPinRuntime {
 
         let _parmsArray: any[] = this.colloctParam(context, runtimeDataMgr, this.inPutParmPins, runner, runId);
 
@@ -32,7 +33,7 @@ export class BlueprintGetVarNode extends BlueprintRuntimeBaseNode {
                 runtimeDataMgr.setPinData(this.outPutParmPins[0], result, runId);
             }
         }
-        return BlueprintConst.MAX_CODELINE;
+        return null;
     }
 
 }

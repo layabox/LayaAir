@@ -6,6 +6,7 @@ import { BlueprintRuntimeBaseNode } from "./BlueprintRuntimeBaseNode";
 import { IBPRutime } from "../interface/IBPRutime";
 import { BlueprintConst } from "../../core/BlueprintConst";
 import { IRuntimeDataManger } from "../../core/interface/IRuntimeDataManger";
+import { BlueprintPromise } from "../BlueprintPromise";
 
 export class BlueprintComplexNode extends BlueprintRuntimeBaseNode {
     /**
@@ -17,16 +18,16 @@ export class BlueprintComplexNode extends BlueprintRuntimeBaseNode {
         super();
         this.inExcutes = [];
         this.outExcutes = [];
+        this.tryExcute=this.emptyExcute;
     }
 
-    next(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, parmsArray: any[], runner: IBPRutime, enableDebugPause: boolean, runId: number): number{
+    next(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, parmsArray: any[], runner: IBPRutime, enableDebugPause: boolean, runId: number): BlueprintPinRuntime{
         //context.find()
         let result = this.find(this.outExcutes, ...parmsArray);
         if(result.linkTo.length){
-            return (result.linkTo[0] as BlueprintPinRuntime).owner.index;    
+            return (result.linkTo[0] as BlueprintPinRuntime);    
         }
-        return BlueprintConst.MAX_CODELINE;
-
+        return null;
         // result.excute(context);
         //this.outExcute.excute(context);
     }

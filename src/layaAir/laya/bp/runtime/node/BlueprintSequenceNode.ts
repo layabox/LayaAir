@@ -9,7 +9,7 @@ import { BlueprintPromise } from "../BlueprintPromise";
 
 export class BlueprintSequenceNode extends BlueprintComplexNode {
 
-    next(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, parmsArray: any[], runner: IBPRutime, enableDebugPause: boolean, runId: number): number {
+    next(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, parmsArray: any[], runner: IBPRutime, enableDebugPause: boolean, runId: number): BlueprintPinRuntime {
         let first = true;
         let arr: Promise<any>[] = [];
         for (let i = 0, n = this.outExcutes.length; i < n; i++) {
@@ -27,7 +27,7 @@ export class BlueprintSequenceNode extends BlueprintComplexNode {
                         if (result === false && cb) {
                             cb();
                         }
-                    }, /*first ? runId : */-1);
+                    }, /*first ? runId : */-1,pin);
 
                     if (result === false) {
                         let promise = new Promise((resolve) => {
@@ -51,7 +51,7 @@ export class BlueprintSequenceNode extends BlueprintComplexNode {
             return promise as any;
         }
         else{
-            return BlueprintConst.MAX_CODELINE; 
+            return null; 
         }
     }
 

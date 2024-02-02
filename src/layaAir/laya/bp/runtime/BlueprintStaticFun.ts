@@ -1,6 +1,8 @@
 import { IBluePrintSubclass } from "../core/interface/IBluePrintSubclass";
+import { IRuntimeDataManger } from "../core/interface/IRuntimeDataManger";
 import { BlueprintFactory } from "./BlueprintFactory";
 import { BlueprintPinRuntime } from "./BlueprintPinRuntime";
+import { IBPRutime } from "./interface/IBPRutime";
 import { IRunAble } from "./interface/IRunAble";
 
 /**
@@ -99,7 +101,7 @@ export class BlueprintStaticFun {
      * @param b 
      * @returns 和
      */
-    static add<T extends string|number>(a: T, b: T): T {
+    static add<T extends string | number>(a: T, b: T): T {
         return a as any + b;
         //return a+b;
     }
@@ -128,7 +130,7 @@ export class BlueprintStaticFun {
      * @param name 
      * @param context 
      */
-    static typeInstanceof<T>(outExcutes: BlueprintPinRuntime[], target: any, type:new()=>T ) {
+    static typeInstanceof<T>(outExcutes: BlueprintPinRuntime[], target: any, type: new () => T) {
         let b;
         if (typeof (type) == 'string') {
             b = typeof (target) == type;
@@ -136,5 +138,27 @@ export class BlueprintStaticFun {
             b = target instanceof type;
         }
         return b ? outExcutes[0] : outExcutes[1];
+    }
+    /**
+     * @private
+     * @param target 
+     * @param value 
+     * @param name 
+     * @param context 
+     */
+    static forEach(inputExcute: BlueprintPinRuntime, outExcutes: BlueprintPinRuntime[], outPutParmPins: BlueprintPinRuntime[], context: IRunAble, runner: IBPRutime, runtimeDataMgr: IRuntimeDataManger, runId: number, array: any[]) {
+        // if(inputExcute){
+        //     runtimeDataMgr.setPinData(inputExcute, array, runId);
+
+        // }
+        array.forEach((item, index) => {
+            let curRunId = runner.getRunID();
+            runtimeDataMgr.setPinData(outPutParmPins[0], item, curRunId);
+            runtimeDataMgr.setPinData(outPutParmPins[1], index, curRunId);
+            let nextOwner = (outExcutes[0].linkTo[0] as BlueprintPinRuntime).owner;
+            nextOwner && runner.runByContext(context, runtimeDataMgr, nextOwner, false, null, curRunId,outExcutes[0].linkTo[0] as BlueprintPinRuntime);
+            //outExcutes[0].excute(context,runtimeDataMgr,runner,curRunId);
+        })
+        return outExcutes[1].excute(context, runtimeDataMgr, runner, runId);
     }
 }

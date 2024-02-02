@@ -35,7 +35,7 @@ export class BlueprintCustomFunNode extends BlueprintFunNode {
                 if (result === false && cb) {
                     cb();
                 }
-            }, runId);
+            }, runId,null);
             if (result === false) {
                 primise = new Promise((resolve, reject) => {
                     cb = resolve;

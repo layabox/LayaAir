@@ -30,9 +30,9 @@ export class BlueprintNewTargetNode extends BlueprintRuntimeBaseNode {
         }
     }
 
-    step(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, fromExcute: boolean, runner: IBPRutime, enableDebugPause: boolean, runId: number): number {
+    step(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, fromExcute: boolean, runner: IBPRutime, enableDebugPause: boolean, runId: number,fromPin:BlueprintPinRuntime): BlueprintPinRuntime {
         if (fromExcute && context.beginExcute(this, runner, enableDebugPause)) {
-            return BlueprintConst.MAX_CODELINE;
+            this.getDebuggerPromise(context,fromPin);
         }
         let _parmsArray: any[] = this.colloctParam(context, runtimeDataMgr, this.inPutParmPins, runner, runId);
         context.parmFromOutPut(this.outPutParmPins, runtimeDataMgr, _parmsArray);
