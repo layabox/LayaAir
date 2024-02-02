@@ -1,14 +1,25 @@
+import { EPinDirection, EPinType } from "../../core/EBluePrint";
 import { IBluePrintSubclass } from "../../core/interface/IBluePrintSubclass";
 import { INodeManger } from "../../core/interface/INodeManger";
 import { IRuntimeDataManger } from "../../core/interface/IRuntimeDataManger";
 import { TBPNode } from "../../datas/types/BlueprintTypes";
 import { BlueprintFactory } from "../BlueprintFactory";
+import { BlueprintPinRuntime } from "../BlueprintPinRuntime";
 import { BpDebuggerRunType } from "../debugger/BlueprintDebuggerManager";
 import { IRunAble } from "../interface/IRunAble";
 import { BlueprintFunNode } from "./BlueprintFunNode";
 
 export class BlueprintCustomFunNode extends BlueprintFunNode {
+    /**
+     * 输入引脚
+     */
+    inExcutes: BlueprintPinRuntime[];
     functionID: number;
+
+    constructor() {
+        super();
+        this.inExcutes = [];
+    }
 
     protected onParseLinkData(node: TBPNode, manger: INodeManger<BlueprintFunNode>) {
         let id = node.dataId;
@@ -19,7 +30,7 @@ export class BlueprintCustomFunNode extends BlueprintFunNode {
         }
     }
 
-    protected excuteFun(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, caller: IBluePrintSubclass, parmsArray: any[], runId: number) {
+    protected excuteFun(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, caller: IBluePrintSubclass, parmsArray: any[], runId: number, fromPin: BlueprintPinRuntime) {
         //TODO 
         if (caller && caller[BlueprintFactory.contextSymbol]) {
             let primise: Promise<any>;
@@ -35,7 +46,7 @@ export class BlueprintCustomFunNode extends BlueprintFunNode {
                 if (result === false && cb) {
                     cb();
                 }
-            }, runId,null);
+            }, runId, this.inExcutes.indexOf(fromPin));
             if (result === false) {
                 primise = new Promise((resolve, reject) => {
                     cb = resolve;
@@ -45,6 +56,15 @@ export class BlueprintCustomFunNode extends BlueprintFunNode {
         }
         return null;
         //return context.excuteFun(this.nativeFun, this.outPutParmPins, caller, parmsArray);
+    }
+
+    addPin(pin: BlueprintPinRuntime) {
+        super.addPin(pin);
+        if (pin.type == EPinType.Exec) {
+            if (pin.direction == EPinDirection.Input) {
+                this.inExcutes.push(pin);
+            }
+        }
     }
 
 
