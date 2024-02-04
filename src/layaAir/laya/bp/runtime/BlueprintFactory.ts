@@ -43,8 +43,8 @@ export class BlueprintFactory {
     private static _bpContextMap: Map<BPType, new () => RuntimeNodeData>;
     static bpNewMap: Map<string, TBPCNode> = new Map();
 
-    static BPExcuteCls: any = BlueprintExcuteNode;
-    static BPRuntimeCls: any = BlueprintRuntime;
+    static BPExcuteCls: any;
+    static BPRuntimeCls: any;
 
     /**
      * 根据节点类型创建相应的对象
@@ -77,6 +77,10 @@ export class BlueprintFactory {
     static __init__() {
         BPMathLib;
         if (!this._isInited) {
+
+            this.BPRuntimeCls = BlueprintRuntime;
+            this.BPExcuteCls = BlueprintExcuteNode;
+
             this._funMap = new Map();
             this._isInited = true;
 
