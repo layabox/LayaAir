@@ -3,9 +3,6 @@ import { IRunAble } from "../interface/IRunAble";
 import { EPinDirection, EPinType } from "../../core/EBluePrint";
 import { BlueprintPinRuntime } from "../BlueprintPinRuntime";
 import { BlueprintRuntimeBaseNode } from "./BlueprintRuntimeBaseNode";
-import { BlueprintConst } from "../../core/BlueprintConst";
-import { IBPRutime } from "../interface/IBPRutime";
-import { BlueprintPromise } from "../BlueprintPromise";
 import { TBPEventProperty, TBPNode } from "../../datas/types/BlueprintTypes";
 import { INodeManger } from "../../core/interface/INodeManger";
 import { IRuntimeDataManger } from "../../core/interface/IRuntimeDataManger";
@@ -34,14 +31,14 @@ export class BlueprintFunNode extends BlueprintRuntimeBaseNode {
         }
     }
 
-    private excuteHookFun(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, caller: any, parmsArray: any[], runId: number,fromPin:BlueprintPinRuntime) {
+    private excuteHookFun(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, caller: any, parmsArray: any[], runId: number, fromPin: BlueprintPinRuntime) {
         parmsArray.unshift(this.eventName);
         return context.excuteFun(this.nativeFun, this.outPutParmPins, runtimeDataMgr, caller, parmsArray, runId);
     }
 
 
-    next(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, parmsArray: any[], runner: IBPRutime, enableDebugPause: boolean, runId: number): BlueprintPinRuntime {
-        return this.staticNext ? this.staticNext : null;
+    next(): BlueprintPinRuntime {
+        return this.staticNext;
     }
 
     addPin(pin: BlueprintPinRuntime) {
@@ -62,6 +59,6 @@ export class BlueprintFunNode extends BlueprintRuntimeBaseNode {
 
     optimize() {
         let linkto = this.outExcute.linkTo;
-        this.staticNext=linkto[0] as BlueprintPinRuntime;
+        this.staticNext = linkto[0] as BlueprintPinRuntime;
     }
 }

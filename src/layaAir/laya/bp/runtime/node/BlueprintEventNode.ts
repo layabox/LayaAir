@@ -1,12 +1,9 @@
-import { BlueprintNode } from "../../core/BlueprintNode";
-import { BlueprintConst } from "../../core/BlueprintConst";
-import { EBlueNodeType, EPinDirection, EPinType } from "../../core/EBluePrint";
+import { EPinDirection, EPinType } from "../../core/EBluePrint";
 import { BlueprintPinRuntime } from "../BlueprintPinRuntime";
 import { IRunAble } from "../interface/IRunAble";
 import { BlueprintRuntimeBaseNode } from "./BlueprintRuntimeBaseNode";
 import { IBPRutime } from "../interface/IBPRutime";
 import { BlueprintPromise } from "../BlueprintPromise";
-import { BlueprintUtil } from "../../core/BlueprintUtil";
 import { INodeManger } from "../../core/interface/INodeManger";
 import { TBPEventProperty, TBPNode } from "../../datas/types/BlueprintTypes";
 import { IRuntimeDataManger } from "../../core/interface/IRuntimeDataManger";
@@ -56,61 +53,22 @@ export class BlueprintEventNode extends BlueprintRuntimeBaseNode {
                 parms.forEach((value, index) => {
                     runtimeDataMgr.setPinData(_this.outPutParmPins[index], value, newRunId);
                 })
-                runner.runByContext(context, runtimeDataMgr, _this, enableDebugPause, null, newRunId,fromPin);
+                runner.runByContext(context, runtimeDataMgr, _this, enableDebugPause, null, newRunId, fromPin);
             }
             runtimeDataMgr.setPinData(fromPin, data.callFun, runId);
         }
         return null;
     }
 
-    step(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, fromExcute: boolean, runner: IBPRutime, enableDebugPause: boolean, runId: number,fromPin:BlueprintPinRuntime): BlueprintPinRuntime | BlueprintPromise {
+    step(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, fromExcute: boolean, runner: IBPRutime, enableDebugPause: boolean, runId: number, fromPin: BlueprintPinRuntime): BlueprintPinRuntime | BlueprintPromise {
         let result = fromExcute && context.beginExcute(this, runner, enableDebugPause, fromPin);
         if (result) {
             return result;
         }
-        // let _parmsArray:any[] = context.getDataById(this.nid).parmsArray;
-        // _parmsArray.length=0;
-
-        // const inputPins = this.inPutParmPins;
-        // for (let i = 0, n = inputPins.length; i < n; i++) {
-        //     const curInput = inputPins[i];
-        //     let from = curInput.linkTo[0];
-        //     if (from) {
-        //         (from as BlueprintPinRuntime).step(context);
-        //         context.parmFromOtherPin(curInput, from as BlueprintPinRuntime, _parmsArray);
-        //     }
-        //     else {
-        //         context.parmFromSelf(curInput, _parmsArray);
-        //     }
-        // }
-        // context.parmFromOutPut(this.outPutParmPins, _parmsArray);
-        // if (this.nativeFun) {
-        //     let caller=null;
-        //     if(this.isMember){
-        //         caller=_parmsArray.shift()||context.getSelf();
-        //     }
-        //     let result=context.excuteFun(this.nativeFun, this.outPutParmPins,caller,_parmsArray);
-        //     if(result instanceof Promise){
-        //         let promise=BlueprintPromise.create();
-        //         result.then((value)=>{
-        //             promise.curIndex=this.next(context,_parmsArray,runner);
-        //             promise.complete();
-        //             promise.recover();
-        //         })
-        //         return promise;
-        //     }
-
-        // }
         if (fromExcute) {
             context.endExcute(this);
         }
-        return this.next(context, runtimeDataMgr, null, null, false, -1);
-    }
-
-    next(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, parmsArray: any[], runner: IBPRutime, enableDebugPause: boolean, runId: number): BlueprintPinRuntime {
-        return this.staticNext ? this.staticNext : null;
-        //return (this.outExcute.linkTo[0] as BPPinRuntime).owner.index; 
-        //this.outExcute.excute(context);
+        return fromPin ? fromPin.linkTo[0] as BlueprintPinRuntime : this.staticNext;
     }
 
     addPin(pin: BlueprintPinRuntime) {
@@ -128,7 +86,7 @@ export class BlueprintEventNode extends BlueprintRuntimeBaseNode {
 
     optimize() {
         let linkto = this.outExcute.linkTo;
-        this.staticNext=linkto[0] as BlueprintPinRuntime;
+        this.staticNext = linkto[0] as BlueprintPinRuntime;
     }
 
     initData(runtimeDataMgr: IRuntimeDataManger, parms: any[], curRunId: number) {
