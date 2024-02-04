@@ -58,10 +58,10 @@ export class BlueprintRuntime {
      * @param funName 
      * @param parms 
      */
-    runCustomFun(context: IRunAble, funId: number, parms: any[], cb: Function, runId: number, execId: number) {
+    runCustomFun(context: IRunAble, funId: number, parms: any[], cb: Function, runId: number, execId: number, outExcutes: BlueprintPinRuntime[], runner: IBPRutime, oldRuntimeDataMgr: IRuntimeDataManger) {
         let fun = this.funBlockMap.get(funId);
         if (fun) {
-            return fun.run(context, null, parms, cb, runId, execId);
+            return fun.run(context, null, parms, cb, runId, execId, outExcutes, runner, oldRuntimeDataMgr);
         }
         return null;
     }
@@ -272,9 +272,9 @@ class BluePrintBlock implements INodeManger<BlueprintRuntimeBaseNode>, IBPRutime
         }
     }
 
-    run(context: IRunAble, eventName: string, parms: any[], cb: Function, runId: number, execId: number): boolean {
-        return false;
-    }
+    // run(context: IRunAble, eventName: string, parms: any[], cb: Function, runId: number, execId: number): boolean {
+    //     return false;
+    // }
 
     getRunID() {
         //console.log(">>>>>>>>>>获取节点ID");
@@ -399,7 +399,7 @@ class BluePrintFunBlock extends BluePrintBlock {
         })
     }
 
-    run(context: IRunAble, eventName: string, parms: any[], cb: Function, runId: number, execId: number): boolean {
+    run(context: IRunAble, eventName: string, parms: any[], cb: Function, runId: number, execId: number, outExcutes: BlueprintPinRuntime[], runner: IBPRutime, oldRuntimeDataMgr: IRuntimeDataManger): boolean {
         context.initData(this.id, this.nodeMap);
         let fun = this.funStart;
         if (fun) {
@@ -407,7 +407,7 @@ class BluePrintFunBlock extends BluePrintBlock {
             let curRunId = this.getRunID();
             if (parms) {
                 this.funEnds.forEach(value => {
-                    value.initData(runtimeDataMgr, curRunId, runId, parms, fun.outPutParmPins.length);
+                    value.initData(runtimeDataMgr, curRunId, runId, parms, fun.outPutParmPins.length, outExcutes, runner, oldRuntimeDataMgr);
                 })
                 fun.initData(runtimeDataMgr, parms, curRunId);
             }

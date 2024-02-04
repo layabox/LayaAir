@@ -63,7 +63,7 @@ export class BlueprintRuntimeBaseNode extends BlueprintNode<BlueprintPinRuntime>
         return pin;
     }
 
-    protected excuteFun(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, caller: any, parmsArray: any[], runId: number, fromPin: BlueprintPinRuntime) {
+    protected excuteFun(context: IRunAble, runtimeDataMgr: IRuntimeDataManger,runner: IBPRutime, caller: any, parmsArray: any[], runId: number, fromPin: BlueprintPinRuntime) {
         return context.excuteFun(this.nativeFun, this.outPutParmPins, runtimeDataMgr, caller, parmsArray, runId);
     }
 
@@ -97,7 +97,7 @@ export class BlueprintRuntimeBaseNode extends BlueprintNode<BlueprintPinRuntime>
                 let temp = _parmsArray.shift();
                 caller = temp === undefined ? context.getSelf() : temp;
             }
-            let result = this.excuteFun(context, runtimeDataMgr, caller, _parmsArray, runId, fromPin);
+            let result = this.excuteFun(context, runtimeDataMgr,runner, caller, _parmsArray, runId, fromPin);
             if (result instanceof Promise) {
                 let promise = BlueprintPromise.create();
                 result.then((value) => {

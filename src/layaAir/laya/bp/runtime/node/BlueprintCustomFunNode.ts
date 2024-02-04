@@ -6,6 +6,7 @@ import { TBPNode } from "../../datas/types/BlueprintTypes";
 import { BlueprintFactory } from "../BlueprintFactory";
 import { BlueprintPinRuntime } from "../BlueprintPinRuntime";
 import { BpDebuggerRunType } from "../debugger/BlueprintDebuggerManager";
+import { IBPRutime } from "../interface/IBPRutime";
 import { IRunAble } from "../interface/IRunAble";
 import { BlueprintFunNode } from "./BlueprintFunNode";
 
@@ -30,7 +31,7 @@ export class BlueprintCustomFunNode extends BlueprintFunNode {
         }
     }
 
-    protected excuteFun(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, caller: IBluePrintSubclass, parmsArray: any[], runId: number, fromPin: BlueprintPinRuntime) {
+    protected excuteFun(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, runner: IBPRutime, caller: IBluePrintSubclass, parmsArray: any[], runId: number, fromPin: BlueprintPinRuntime) {
         //TODO 
         if (caller && caller[BlueprintFactory.contextSymbol]) {
             let primise: Promise<any>;
@@ -46,7 +47,7 @@ export class BlueprintCustomFunNode extends BlueprintFunNode {
                 if (result === false && cb) {
                     cb();
                 }
-            }, runId, this.inExcutes.indexOf(fromPin));
+            }, runId, this.inExcutes.indexOf(fromPin), this.outExcutes, runner, runtimeDataMgr);
             if (result === false) {
                 primise = new Promise((resolve, reject) => {
                     cb = resolve;
@@ -64,6 +65,16 @@ export class BlueprintCustomFunNode extends BlueprintFunNode {
             if (pin.direction == EPinDirection.Input) {
                 this.inExcutes.push(pin);
             }
+        }
+    }
+
+    optimize() {
+        if (this.outExcutes.length == 1) {
+            let linkto = this.outExcute.linkTo;
+            this.staticNext = linkto[0] as BlueprintPinRuntime;
+        }
+        else {
+            this.staticNext = null;
         }
     }
 
