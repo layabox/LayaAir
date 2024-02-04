@@ -179,8 +179,9 @@ export class BlueprintData {
             }
             if (o?.events) {
                 o.events.forEach((eve: any) => {
-                    eve.id = eve.id || 'var_' + ext + "_" + eve.name;
+                    eve.id = eve.id || 'event_' + ext + "_" + eve.name;
                     eve.bpType = 'event';
+                    eve.input = eve.params;
                     eve.targetAliasName = o.name;
                     eve.target = ext;
                     eve.const = true;
