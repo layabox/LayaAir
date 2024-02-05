@@ -160,6 +160,6 @@ export class BlueprintRuntimeBaseNode extends BlueprintNode<BlueprintPinRuntime>
 
     parse(def: TBPCNode): void {
         super.parse(def);
-        this.hasDebugger = def.hasDebugger;
+        this.hasDebugger = !!def.debugType;
     }
 }

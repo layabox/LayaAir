@@ -100,7 +100,7 @@ export class BlueprintRuntime {
     }
 }
 
-class BluePrintBlock implements INodeManger<BlueprintRuntimeBaseNode>, IBPRutime {
+export class BluePrintBlock implements INodeManger<BlueprintRuntimeBaseNode>, IBPRutime {
     private poolIds: number[];
     protected _maxID: number;
     /**
@@ -319,7 +319,7 @@ class BluePrintBlock implements INodeManger<BlueprintRuntimeBaseNode>, IBPRutime
     }
 }
 
-class BluePrintMainBlock extends BluePrintBlock {
+export class BluePrintMainBlock extends BluePrintBlock {
     constructor(id: symbol) {
         super(id);
         this.eventMap = new Map();
@@ -380,7 +380,7 @@ class BluePrintMainBlock extends BluePrintBlock {
     }
 }
 
-class BluePrintFunBlock extends BluePrintBlock {
+export class BluePrintFunBlock extends BluePrintBlock {
     funStart: BlueprintCustomFunStart;
 
     funEnds: BlueprintCustomFunReturn[] = [];

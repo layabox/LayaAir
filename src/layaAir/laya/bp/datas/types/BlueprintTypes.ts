@@ -162,7 +162,7 @@ export interface TBPCNode {
     alt?: string;
     input?: TBPCInput[];
     output?: TBPCOutput[];
-    hasDebugger?: boolean;
+    debugType?: number;
 }
 export interface TBPNode {
     /** 数据唯一的id号*/
@@ -190,7 +190,7 @@ export interface TBPNode {
         /**是否显示desc的气泡 */
         isShowDesc?: boolean;
     },
-    hasDebugger?: boolean;
+    debugType?: number;
     input?: Record<string, TBPInput>;
     output?: Record<string, TBPOutput>;
 }
