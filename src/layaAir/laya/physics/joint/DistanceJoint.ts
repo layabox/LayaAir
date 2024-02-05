@@ -58,8 +58,26 @@ export class DistanceJoint extends JointBase {
             def.length = this._length;
             def.maxLength = this._maxLength;
             def.minLength = this._minLength;
+            if (this._length <= 0 && this._maxLength <= 0 && this._minLength <= 0) {
+
+            }
             this._joint = this._factory.createDistanceJoint(def);
+            this.selfBody.owner.on("shapeChange", this, this._refeahJoint);
+            if (this.otherBody) this.otherBody.owner.on("shapeChange", this, this._refeahJoint);
         }
+    }
+
+    /**@internal */
+    _refeahJoint(): void {
+        if (this._joint) {
+            this._factory.set_DistanceJointStiffnessDamping(this._joint, this._frequency, this._dampingRatio);
+        }
+    }
+
+    onDestroy(): void {
+        super.onDestroy();
+        this.selfBody.owner.off("shapeChange", this._refeahJoint);
+        if (this.otherBody) this.otherBody.owner.off("shapeChange", this._refeahJoint);
     }
 
     /**约束的目标静止长度*/

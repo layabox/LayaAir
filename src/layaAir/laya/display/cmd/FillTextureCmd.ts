@@ -53,6 +53,7 @@ export class FillTextureCmd {
     static create(texture: Texture, x: number, y: number, width: number, height: number, type: string, offset: Point, color: string): FillTextureCmd {
         var cmd: FillTextureCmd = Pool.getItemByClass("FillTextureCmd", FillTextureCmd);
         cmd.texture = texture;
+        texture._addReference();
         cmd.x = x;
         cmd.y = y;
         cmd.width = width;
@@ -67,6 +68,7 @@ export class FillTextureCmd {
      * 回收到对象池
      */
     recover(): void {
+        this.texture && this.texture._removeReference();
         this.texture = null;
         this.offset = null;
         Pool.recover("FillTextureCmd", this);

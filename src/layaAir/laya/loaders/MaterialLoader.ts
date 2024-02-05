@@ -62,6 +62,7 @@ class MaterialLoader implements IResourceLoader {
         obsoluteInst.setShaderName(mat._shader.name);
         mat._shaderValues.cloneTo(obsoluteInst._shaderValues);
         obsoluteInst.renderQueue = mat.renderQueue;
+        obsoluteInst.materialRenderMode = mat.materialRenderMode;
         obsoluteInst.obsolute = false;
         mat.destroy();
         return obsoluteInst;
