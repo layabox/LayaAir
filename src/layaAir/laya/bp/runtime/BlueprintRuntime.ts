@@ -71,7 +71,7 @@ export class BlueprintRuntime {
         this.mainBlock.name = mainBlockData.name;
         this.mainBlock.dataMap = this.dataMap;
         this.mainBlock.cls = newCls;
-        this.mainBlock.parse(bpjson, getCNodeByNode, varMap);
+        this.mainBlock.parse(bpjson, getCNodeByNode, null);
     }
 
     parseFunction(funData: TBPStageData, getCNodeByNode: (node: TBPNode) => TBPCNode) {
@@ -79,7 +79,8 @@ export class BlueprintRuntime {
         let fun = new BluePrintFunBlock(funId);
         fun.name = funData.name;
         fun.dataMap = this.dataMap;
-        fun.parse(bpjson, getCNodeByNode, this.varMap);
+        //TODO Function varMap
+        fun.parse(bpjson, getCNodeByNode, {});
         this.funBlockMap.set(funId, fun);
     }
 
@@ -122,7 +123,7 @@ class BluePrintBlock implements INodeManger<BlueprintRuntimeBaseNode>, IBPRutime
 
     anonymousfuns: BlueprintEventNode[];
 
-    varMap: Record<string, TBPVarProperty>;
+    //private varMap: Record<string, TBPVarProperty>;
 
     dataMap: Record<string, TBPVarProperty | TBPEventProperty>;
 
@@ -239,7 +240,7 @@ class BluePrintBlock implements INodeManger<BlueprintRuntimeBaseNode>, IBPRutime
     }
 
     parse(bpjson: Array<TBPNode>, getCNodeByNode: (node: TBPNode) => TBPCNode, varMap: Record<string, TBPVarProperty>) {
-        this.varMap = varMap;
+        //this.varMap = varMap;
         //check ready?
         if (!this._checkReady(bpjson, getCNodeByNode, varMap)) return;
         //pin create
@@ -358,7 +359,7 @@ class BluePrintMainBlock extends BluePrintBlock {
     }
 
     run(context: IRunAble, eventName: string, parms: any[], cb: Function, runId: number, execId: number): boolean {
-        context.initData(this.id, this.nodeMap);
+        context.initData(this.id, this.nodeMap,null);
         let event = this.eventMap.get(eventName);
         if (event) {
             let curRunId = this.getRunID();
@@ -373,6 +374,8 @@ class BluePrintMainBlock extends BluePrintBlock {
 }
 
 class BluePrintFunBlock extends BluePrintBlock {
+    localVarMap:Record<string, TBPVarProperty>;
+
     funStart: BlueprintCustomFunStart;
 
     funEnds: BlueprintCustomFunReturn[] = [];
@@ -390,6 +393,8 @@ class BluePrintFunBlock extends BluePrintBlock {
     }
 
     parse(bpjson: TBPNode[], getCNodeByNode: (node: TBPNode) => TBPCNode, varMap: Record<string, TBPVarProperty>): void {
+        this.localVarMap=varMap;
+        
         super.parse(bpjson, getCNodeByNode, varMap);
         this.funStart = this.getNodeById(bpjson[0].id) as BlueprintCustomFunStart;
         this.excuteList.forEach(value => {
@@ -400,7 +405,7 @@ class BluePrintFunBlock extends BluePrintBlock {
     }
 
     run(context: IRunAble, eventName: string, parms: any[], cb: Function, runId: number, execId: number, outExcutes: BlueprintPinRuntime[], runner: IBPRutime, oldRuntimeDataMgr: IRuntimeDataManger): boolean {
-        context.initData(this.id, this.nodeMap);
+        context.initData(this.id, this.nodeMap,this.localVarMap);
         let fun = this.funStart;
         if (fun) {
             let runtimeDataMgr = context.getDataMangerByID(this.id);

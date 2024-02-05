@@ -1,5 +1,6 @@
 import { IExcuteListInfo } from "../../core/interface/IExcuteListInfo";
 import { IRuntimeDataManger } from "../../core/interface/IRuntimeDataManger";
+import { TBPVarProperty } from "../../datas/types/BlueprintTypes";
 import { RuntimeNodeData } from "../action/RuntimeNodeData";
 import { BlueprintPinRuntime } from "../BlueprintPinRuntime";
 import { BlueprintDebuggerManager } from "../debugger/BlueprintDebuggerManager";
@@ -41,7 +42,7 @@ export interface IRunAble {
 
     getSelf(): any;
 
-    initData(key: number | symbol, nodeMap: Map<number, BlueprintRuntimeBaseNode>): void;
+    initData(key: number | symbol, nodeMap: Map<number, BlueprintRuntimeBaseNode>,localVarMap:Record<string, TBPVarProperty>): void;
 
     getDataMangerByID(id:symbol|number):IRuntimeDataManger;
 }

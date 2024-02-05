@@ -12,4 +12,8 @@ export interface IRuntimeDataManger {
     getPinData(pin: BlueprintPinRuntime, runId: number): any;
 
     getRuntimePinById(id: string): RuntimePinData;
+
+    getVar(name: string,runId: number): any;
+
+    setVar(name: string, value: any,runId: number): void;
 }
