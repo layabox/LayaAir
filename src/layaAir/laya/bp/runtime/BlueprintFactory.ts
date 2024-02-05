@@ -29,6 +29,8 @@ import { Browser } from "../../utils/Browser";
 import { BlueprintDebuggerManager } from "./debugger/BlueprintDebuggerManager";
 import { BluePrintBlockNode } from "./node/BlueprintBlockNode";
 import { BPMathLib } from "../BPMathLib";
+import { BlueprintGetTempVarNode } from "./node/BlueprintGetTempVarNode";
+import { BlueprintSetTempVarNode } from "./node/BlueprintSetTempVarNode";
 
 export class BlueprintFactory {
     public static readonly bpSymbol: unique symbol = Symbol("bpruntime");
@@ -89,6 +91,10 @@ export class BlueprintFactory {
             this.regBPClass(BPType.Function, BlueprintFunNode);
             this.regBPClass(BPType.GetValue, BlueprintGetVarNode);
             this.regBPClass(BPType.SetValue, BlueprintSetVarNode);
+
+            this.regBPClass(BPType.GetTmpValue, BlueprintGetTempVarNode);
+            this.regBPClass(BPType.SetTmpValue, BlueprintSetTempVarNode);
+
             this.regBPClass(BPType.Branch, BlueprintComplexNode);
             this.regBPClass(BPType.Sequence, BlueprintSequenceNode);
             this.regBPClass(BPType.NewTarget, BlueprintNewTargetNode);
@@ -135,8 +141,9 @@ export class BlueprintFactory {
           //  this.regFunction("waitTime", BlueprintStaticFun.waitTime);
             this.regFunction("get", BlueprintStaticFun.getVariable);
             this.regFunction("static_get", BlueprintStaticFun.getVariable);
-
             this.regFunction("set", BlueprintStaticFun.setVariable);
+            this.regFunction("tmp_get", BlueprintStaticFun.getTempVar);
+            this.regFunction("tmp_set", BlueprintStaticFun.setTempVar);
             this.regFunction("static_set", BlueprintStaticFun.setVariable);
             this.regFunction("expression", BlueprintStaticFun.expression);
             this.regFunction("instanceof", BlueprintStaticFun.typeInstanceof);

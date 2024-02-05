@@ -26,11 +26,11 @@ export class BlueprintExcuteNode extends BlueprintRunBase implements IRunAble {
         return this.runtimeDataMgrMap.get(id);
     }
 
-    initData(key: number | symbol, nodeMap: Map<number, BlueprintRuntimeBaseNode>,localVarMap:Record<string, TBPVarProperty>): void {
+    initData(key: number | symbol, nodeMap: Map<number, BlueprintRuntimeBaseNode>, localVarMap: Record<string, TBPVarProperty>): void {
         let runtimeDataMgr = this.runtimeDataMgrMap.get(key);
         if (!runtimeDataMgr) {
             runtimeDataMgr = new RuntimeDataManger(key);
-            runtimeDataMgr.initData(nodeMap,localVarMap);
+            runtimeDataMgr.initData(nodeMap, localVarMap);
             this.runtimeDataMgrMap.set(key, runtimeDataMgr);
         }
     }
@@ -133,6 +133,7 @@ class RuntimeDataManger implements IRuntimeDataManger {
     constructor(id: symbol | number) {
         this.id = id;
         this.localVarObj = {};
+        this.localVarMap = new Map();
     }
     debuggerPause?: BpDebuggerRunType;
 
@@ -172,7 +173,7 @@ class RuntimeDataManger implements IRuntimeDataManger {
 
 
 
-    initData(nodeMap: Map<number, BlueprintRuntimeBaseNode>,localVarMap:Record<string, TBPVarProperty>): void {
+    initData(nodeMap: Map<number, BlueprintRuntimeBaseNode>, localVarMap: Record<string, TBPVarProperty>): void {
         if (!this.isInit) {
             if (!this.nodeMap) {
                 this.nodeMap = new Map()
@@ -202,9 +203,9 @@ class RuntimeDataManger implements IRuntimeDataManger {
                     pinMap.set(pin.id, pinData);
                 })
             })
-            if(localVarMap){
-                for(let key in localVarMap){
-                    this.localVarObj[key] = localVarMap[key].value;
+            if (localVarMap) {
+                for (let key in localVarMap) {
+                    this.localVarObj[localVarMap[key].name] = localVarMap[key].value;
                 }
             }
             this.isInit = true;

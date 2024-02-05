@@ -13,6 +13,8 @@ export enum BPType {
     Operator = "operator",
     GetValue = "getvalue",
     SetValue = "setvalue",
+    GetTmpValue="getTmpValue",
+    SetTmpValue="setTmpValue",
     Branch = "branch",
     Block ="Block",
     Sequence = "sequence",
