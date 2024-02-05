@@ -5,6 +5,7 @@ import { IRuntimeDataManger } from "../../core/interface/IRuntimeDataManger";
 import { TBPNode } from "../../datas/types/BlueprintTypes";
 import { BlueprintFactory } from "../BlueprintFactory";
 import { BlueprintPinRuntime } from "../BlueprintPinRuntime";
+import { IBPRutime } from "../interface/IBPRutime";
 import { IRunAble } from "../interface/IRunAble";
 import { BlueprintFunNode } from "./BlueprintFunNode";
 
@@ -29,7 +30,7 @@ export class BlueprintCustomFunNode extends BlueprintFunNode {
         }
     }
 
-    protected excuteFun(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, caller: IBluePrintSubclass, parmsArray: any[], runId: number, fromPin: BlueprintPinRuntime) {
+    protected excuteFun(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, runner: IBPRutime, caller: IBluePrintSubclass, parmsArray: any[], runId: number, fromPin: BlueprintPinRuntime) {
         //TODO 
         if (caller && caller[BlueprintFactory.contextSymbol]) {
             let primise: Promise<any>;
@@ -38,7 +39,7 @@ export class BlueprintCustomFunNode extends BlueprintFunNode {
             let _funcContext = caller[BlueprintFactory.contextSymbol];
             result = caller[BlueprintFactory.bpSymbol].runCustomFun(_funcContext, this.functionID, parmsArray, () => {
                 this._excuteFun(_funcContext, cb);
-            }, runId, this.inExcutes.indexOf(fromPin));
+            }, runId, this.inExcutes.indexOf(fromPin), this.outExcutes, runner, runtimeDataMgr);
             if (result === false) {
                 primise = new Promise((resolve, reject) => {
                     cb = resolve;
@@ -62,6 +63,16 @@ export class BlueprintCustomFunNode extends BlueprintFunNode {
             if (pin.direction == EPinDirection.Input) {
                 this.inExcutes.push(pin);
             }
+        }
+    }
+
+    optimize() {
+        if (this.outExcutes.length == 1) {
+            let linkto = this.outExcute.linkTo;
+            this.staticNext = linkto[0] as BlueprintPinRuntime;
+        }
+        else {
+            this.staticNext = null;
         }
     }
 

@@ -6,6 +6,7 @@ import { BlueprintRuntimeBaseNode } from "./BlueprintRuntimeBaseNode";
 import { TBPEventProperty, TBPNode } from "../../datas/types/BlueprintTypes";
 import { INodeManger } from "../../core/interface/INodeManger";
 import { IRuntimeDataManger } from "../../core/interface/IRuntimeDataManger";
+import { IBPRutime } from "../interface/IBPRutime";
 
 export class BlueprintFunNode extends BlueprintRuntimeBaseNode {
     /**
@@ -31,7 +32,7 @@ export class BlueprintFunNode extends BlueprintRuntimeBaseNode {
         }
     }
 
-    private excuteHookFun(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, caller: any, parmsArray: any[], runId: number, fromPin: BlueprintPinRuntime) {
+    private excuteHookFun(context: IRunAble, runtimeDataMgr: IRuntimeDataManger,runner: IBPRutime, caller: any, parmsArray: any[], runId: number, fromPin: BlueprintPinRuntime) {
         parmsArray.unshift(this.eventName);
         return context.excuteFun(this.nativeFun, this.outPutParmPins, runtimeDataMgr, caller, parmsArray, runId);
     }
