@@ -152,8 +152,8 @@ export class BlueprintData {
             if (o?.props) {
                 o.props.forEach((po: any) => {
                     po.id = po.id || 'var_' + ext + "_" + po.name;
-                    po.targetAliasName = o.name;
-                    po.target = ext;
+                    po.targetAliasName = po.targetAliasName || o.name;
+                    po.target = po.target || ext;
                     po.bpType = 'prop';
                     po.const = true;
                     this.allData[po.id] = po;

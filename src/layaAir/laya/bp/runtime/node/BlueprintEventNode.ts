@@ -7,6 +7,7 @@ import { BlueprintPromise } from "../BlueprintPromise";
 import { INodeManger } from "../../core/interface/INodeManger";
 import { TBPEventProperty, TBPNode } from "../../datas/types/BlueprintTypes";
 import { IRuntimeDataManger } from "../../core/interface/IRuntimeDataManger";
+import { BlueprintUtil } from "../../core/BlueprintUtil";
 
 export class BlueprintEventNode extends BlueprintRuntimeBaseNode {
     /**
@@ -23,7 +24,7 @@ export class BlueprintEventNode extends BlueprintRuntimeBaseNode {
 
     protected onParseLinkData(node: TBPNode, manger: INodeManger<BlueprintEventNode>) {
         if (node.dataId) {
-            this.eventName = (manger.dataMap[node.dataId] as TBPEventProperty).name;
+            this.eventName = BlueprintUtil.bpData.allData[node.dataId].name;//(manger.dataMap[node.dataId] as TBPEventProperty).name;
         }
         else {
             this.eventName = node.name;
@@ -53,7 +54,11 @@ export class BlueprintEventNode extends BlueprintRuntimeBaseNode {
                 parms.forEach((value, index) => {
                     runtimeDataMgr.setPinData(_this.outPutParmPins[index], value, newRunId);
                 })
-                runner.runByContext(context, runtimeDataMgr, _this, enableDebugPause, null, newRunId, fromPin);
+
+                let nextPin=_this.outExcute.linkTo[0] as BlueprintPinRuntime;
+                if(nextPin){
+                    runner.runByContext(context, runtimeDataMgr, nextPin.owner, enableDebugPause, null, newRunId, nextPin);
+                }
             }
             runtimeDataMgr.setPinData(fromPin, data.callFun, runId);
         }

@@ -7,6 +7,7 @@ import { TBPEventProperty, TBPNode } from "../../datas/types/BlueprintTypes";
 import { INodeManger } from "../../core/interface/INodeManger";
 import { IRuntimeDataManger } from "../../core/interface/IRuntimeDataManger";
 import { IBPRutime } from "../interface/IBPRutime";
+import { BlueprintUtil } from "../../core/BlueprintUtil";
 
 export class BlueprintFunNode extends BlueprintRuntimeBaseNode {
     /**
@@ -27,7 +28,7 @@ export class BlueprintFunNode extends BlueprintRuntimeBaseNode {
 
     protected onParseLinkData(node: TBPNode, manger: INodeManger<BlueprintRuntimeBaseNode>) {
         if (node.dataId) {
-            this.eventName = (manger.dataMap[node.dataId] as TBPEventProperty).name;
+            this.eventName = BlueprintUtil.bpData.allData[node.dataId].name//(manger.dataMap[node.dataId] as TBPEventProperty).name;
             this.excuteFun = this.excuteHookFun;
         }
     }
