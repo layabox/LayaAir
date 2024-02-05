@@ -5,7 +5,6 @@ import { IRuntimeDataManger } from "../../core/interface/IRuntimeDataManger";
 import { TBPNode } from "../../datas/types/BlueprintTypes";
 import { BlueprintFactory } from "../BlueprintFactory";
 import { BlueprintPinRuntime } from "../BlueprintPinRuntime";
-import { BpDebuggerRunType } from "../debugger/BlueprintDebuggerManager";
 import { IBPRutime } from "../interface/IBPRutime";
 import { IRunAble } from "../interface/IRunAble";
 import { BlueprintFunNode } from "./BlueprintFunNode";
@@ -39,14 +38,7 @@ export class BlueprintCustomFunNode extends BlueprintFunNode {
             let result: any;
             let _funcContext = caller[BlueprintFactory.contextSymbol];
             result = caller[BlueprintFactory.bpSymbol].runCustomFun(_funcContext, this.functionID, parmsArray, () => {
-                const _runTimeData = _funcContext.getDataMangerByID(this.functionID);
-                if (_runTimeData.debuggerPause == BpDebuggerRunType.stepOut) {
-                    _runTimeData.debuggerPause = BpDebuggerRunType.none;
-                    _funcContext.debuggerManager.pause(_funcContext as any, this);
-                }
-                if (result === false && cb) {
-                    cb();
-                }
+                this._excuteFun(_funcContext, cb);
             }, runId, this.inExcutes.indexOf(fromPin), this.outExcutes, runner, runtimeDataMgr);
             if (result === false) {
                 primise = new Promise((resolve, reject) => {
@@ -57,6 +49,12 @@ export class BlueprintCustomFunNode extends BlueprintFunNode {
         }
         return null;
         //return context.excuteFun(this.nativeFun, this.outPutParmPins, caller, parmsArray);
+    }
+
+    protected _excuteFun(context: IRunAble, cb: any) {
+        if (cb) {
+            cb();
+        }
     }
 
     addPin(pin: BlueprintPinRuntime) {

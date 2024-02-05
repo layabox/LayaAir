@@ -101,7 +101,7 @@ export class BlueprintRuntime {
     }
 }
 
-class BluePrintBlock implements INodeManger<BlueprintRuntimeBaseNode>, IBPRutime {
+export class BluePrintBlock implements INodeManger<BlueprintRuntimeBaseNode>, IBPRutime {
     localVarMap: Record<string, TBPVarProperty>;
 
     private poolIds: number[];
@@ -312,9 +312,6 @@ class BluePrintBlock implements INodeManger<BlueprintRuntimeBaseNode>, IBPRutime
                 return false;
             }
             else {
-                if (mainScope == this.id && context.debuggerManager) {
-                    context.debuggerManager.clear();
-                }
                 break;
             }
         }
@@ -325,7 +322,7 @@ class BluePrintBlock implements INodeManger<BlueprintRuntimeBaseNode>, IBPRutime
     }
 }
 
-class BluePrintMainBlock extends BluePrintBlock {
+export class BluePrintMainBlock extends BluePrintBlock {
     constructor(id: symbol) {
         super(id);
         this.eventMap = new Map();
@@ -343,12 +340,23 @@ class BluePrintMainBlock extends BluePrintBlock {
     protected onEventParse(eventName: string) {
         let cls = this.cls;
         let originFunc: Function = cls.prototype[eventName];
+        let _this = this;
         cls.prototype[eventName] = function (...args: any[]) {
-            const funcContext: IRunAble = this[BlueprintFactory.contextSymbol];
-            if (funcContext.debuggerManager && funcContext.debuggerManager.debugging) return;
-            originFunc && originFunc.call(this, args);
-            this[BlueprintFactory.bpSymbol].run(funcContext, eventName, args);
+            //     const funcContext: IRunAble = this[BlueprintFactory.contextSymbol];
+            //     originFunc && originFunc.call(this, args);
+            //     this[BlueprintFactory.bpSymbol].run(funcContext, eventName, args);
+            _this._onEventParse(eventName, originFunc, this, ...args);
         }
+    }
+
+    protected _onEventParse(...args: any[]) {
+        const eventName = args.shift();
+        const originFunc = args.shift();
+        const caller = args.shift();
+        
+        const funcContext: IRunAble = caller[BlueprintFactory.contextSymbol];
+        originFunc && originFunc.call(this, args);
+        caller[BlueprintFactory.bpSymbol].run(funcContext, eventName, args);
     }
 
     append(node: BlueprintRuntimeBaseNode, item: TBPNode) {
@@ -375,7 +383,7 @@ class BluePrintMainBlock extends BluePrintBlock {
     }
 }
 
-class BluePrintFunBlock extends BluePrintBlock {
+export class BluePrintFunBlock extends BluePrintBlock {
 
 
     funStart: BlueprintCustomFunStart;

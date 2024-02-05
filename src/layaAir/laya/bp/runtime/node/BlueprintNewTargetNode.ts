@@ -5,6 +5,7 @@ import { BlueprintUtil } from "../../core/BlueprintUtil";
 import { IRuntimeDataManger } from "../../core/interface/IRuntimeDataManger";
 import { TBPCNode } from "../../datas/types/BlueprintTypes";
 import { BlueprintPinRuntime } from "../BlueprintPinRuntime";
+import { BlueprintPromise } from "../BlueprintPromise";
 import { IBPRutime } from "../interface/IBPRutime";
 import { IRunAble } from "../interface/IRunAble";
 import { BlueprintRuntimeBaseNode } from "./BlueprintRuntimeBaseNode";
@@ -30,15 +31,16 @@ export class BlueprintNewTargetNode extends BlueprintRuntimeBaseNode {
         }
     }
 
-    step(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, fromExcute: boolean, runner: IBPRutime, enableDebugPause: boolean, runId: number, fromPin: BlueprintPinRuntime): BlueprintPinRuntime {
-        if (fromExcute && context.beginExcute(this, runner, enableDebugPause)) {
-            this.getDebuggerPromise(context, fromPin);
+    step(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, fromExcute: boolean, runner: IBPRutime, enableDebugPause: boolean, runId: number, fromPin: BlueprintPinRuntime): BlueprintPinRuntime | BlueprintPromise {
+        let result = fromExcute && context.beginExcute(this, runner, enableDebugPause, fromPin);
+        if (result) {
+            return result;
         }
         let _parmsArray: any[] = this.colloctParam(context, runtimeDataMgr, this.inPutParmPins, runner, runId);
         context.parmFromOutPut(this.outPutParmPins, runtimeDataMgr, _parmsArray);
 
 
-        let result = Reflect.construct(this.cls, _parmsArray);
+        result = Reflect.construct(this.cls, _parmsArray);
 
         runtimeDataMgr.setPinData(this.outPutParmPins[0], result, runId);
         if (fromExcute) {

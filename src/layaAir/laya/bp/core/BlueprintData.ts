@@ -134,9 +134,9 @@ export class BlueprintData {
             }
         } else {
             let ret = this.allData[node.cid];
-            if (node.hasDebugger) {
+            if (node.debugType) {
                 ret = BlueprintUtil.clone(ret);
-                ret.hasDebugger = true;
+                ret.debugType = node.debugType;
             }
             return ret;
         }
