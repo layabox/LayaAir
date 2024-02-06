@@ -345,85 +345,47 @@ export class Animator extends Component {
     /**
      * @internal
      */
-    private _eventScript(events: AnimationEvent[], eventIndex: number, endTime: number, front: boolean, startTime = 0): number {
-        let scripts = this.owner.components;
-        if (front) {
-            endTime += startTime;
-            for (let n = events.length; eventIndex < n; eventIndex++) {
-                let event = events[eventIndex];
-                if (event.time <= endTime) {
-                    if (event.time >= startTime) {
-                        for (let j = 0, m = scripts.length; j < m; j++) {
-                            let script = scripts[j];
-                            if (script._isScript()) {
-                                let fun: Function = (script as any)[event.eventName];
-                                (fun) && (fun.apply(script, event.params));
-                            }
-                        }
-                    }
-                } else {
-                    break;
-                }
-            }
-        } else {
-            for (; eventIndex >= 0; eventIndex--) {
-                let event = events[eventIndex];
-                if (event.time >= endTime) {
-                    for (let j = 0, m = scripts.length; j < m; j++) {
-                        let script = scripts[j];
-                        if (script._isScript()) {
-                            let fun = (script as any)[event.eventName];
-                            (fun) && (fun.apply(script, event.params));
-                        }
-                    }
-                } else {
-                    break;
-                }
-            }
-        }
-        return eventIndex;
-    }
-
-    /**
-     * @internal
-     */
     private _updateEventScript(stateInfo: AnimatorState, playStateInfo: AnimatorPlayState): void {
         if (!this.owner._getBit(NodeFlags.HAS_SCRIPT))
             return;
 
         let clip = stateInfo._clip;
         let events = clip!._animationEvents;
+        if (!events || 0 == events.length) return;
         let clipDuration = clip!._duration;
-        let elapsedTime = playStateInfo._elapsedTime;
-        let time = elapsedTime % clipDuration;
-        let loopCount = Math.abs(Math.floor(elapsedTime / clipDuration) - Math.floor(playStateInfo._lastElapsedTime / clipDuration));//backPlay可能为负数
-
-        let frontPlay = playStateInfo._elapsedTime >= playStateInfo._lastElapsedTime;
-        if (playStateInfo._lastIsFront !== frontPlay) {
-            if (frontPlay)
-                playStateInfo._playEventIndex++;
-            else
-                playStateInfo._playEventIndex--;
-            playStateInfo._lastIsFront = frontPlay;
-        }
-        let preEventIndex = playStateInfo._playEventIndex;
-        if (frontPlay) {
-            let startTime = 0;
-            if (playStateInfo.animatorState && 0 != playStateInfo.animatorState.clipStart) {
-                startTime = playStateInfo.animatorState._clip!._duration * playStateInfo.animatorState.clipStart;
+        let time = playStateInfo._normalizedPlayTime * clipDuration;
+        let parentPlayTime = playStateInfo._parentPlayTime;
+        if (null == parentPlayTime) {
+            if (null == playStateInfo.animatorState) {
+                parentPlayTime = 0;
+            } else {
+                parentPlayTime = clipDuration * playStateInfo.animatorState.clipStart;
             }
-            let newEventIndex = this._eventScript(events, playStateInfo._playEventIndex, loopCount > 0 ? clipDuration : time, true, startTime);
-            (preEventIndex === playStateInfo._playEventIndex) && (playStateInfo._playEventIndex = newEventIndex);//这里打个补丁，在event中调用Play 需要重置eventindex，不能直接赋值
-            for (let i = 0, n = loopCount - 1; i < n; i++)
-                this._eventScript(events, 0, clipDuration, true, startTime);
-            (loopCount > 0 && time > 0) && (playStateInfo._playEventIndex = this._eventScript(events, 0, time, true, startTime));//if need cross loop,'time' must large than 0
-        } else {
-            let newEventIndex = this._eventScript(events, playStateInfo._playEventIndex, loopCount > 0 ? 0 : time, false);
-            (preEventIndex === playStateInfo._playEventIndex) && (playStateInfo._playEventIndex = newEventIndex);//这里打个补丁，在event中调用Play 需要重置eventindex，不能直接赋值
-            let eventIndex = events.length - 1;
-            for (let i = 0, n = loopCount - 1; i < n; i++)
-                this._eventScript(events, eventIndex, 0, false);
-            (loopCount > 0 && time > 0) && (playStateInfo._playEventIndex = this._eventScript(events, eventIndex, time, false));//if need cross loop,'time' must large than 0
+        }
+        if (time < parentPlayTime) {
+            this._eventScript(events, parentPlayTime, clipDuration * playStateInfo.animatorState.clipEnd);
+        }
+        this._eventScript(events, parentPlayTime, time);
+        playStateInfo._parentPlayTime = time;
+    }
+    /**
+    * @internal
+    */
+    private _eventScript(events: AnimationEvent[], parentPlayTime: number, currPlayTime: number) {
+        let scripts = this.owner.components;
+        for (let i = 0, len = events.length; i < len; i++) {
+            let e = events[i];
+            if (e.time > parentPlayTime && e.time <= currPlayTime) {
+                for (let j = 0, m = scripts.length; j < m; j++) {
+                    let script = scripts[j];
+                    if (script._isScript()) {
+                        let fun: Function = (script as any)[e.eventName];
+                        (fun) && (fun.apply(script, e.params));
+                    }
+                }
+            } else if (e.time > currPlayTime) {
+                break;
+            }
         }
     }
 
