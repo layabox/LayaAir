@@ -37,13 +37,13 @@ export class BlueprintStaticFun {
     /*
     * @private
     */
-    static getTempVar(/*todo delte*/target: IBluePrintSubclass,name: string, runtimeDataMgr: IRuntimeDataManger, runId: number) {
+    static getTempVar(name: string, runtimeDataMgr: IRuntimeDataManger, runId: number) {
         return runtimeDataMgr.getVar(name, runId);
     }
     /*
     * @private
     */
-    static setTempVar(/*todo delte*/target: IBluePrintSubclass,value: any,name: string, runtimeDataMgr: IRuntimeDataManger, runId: number) {
+    static setTempVar(value: any,name: string, runtimeDataMgr: IRuntimeDataManger, runId: number) {
         return runtimeDataMgr.setVar(name, value, runId);
     }
     /**

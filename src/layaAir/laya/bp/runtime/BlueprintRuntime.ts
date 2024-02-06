@@ -71,7 +71,7 @@ export class BlueprintRuntime {
         this.mainBlock.name = mainBlockData.name;
         this.mainBlock.dataMap = this.dataMap;
         this.mainBlock.cls = newCls;
-        this.mainBlock.parse(bpjson, getCNodeByNode, varMap);
+        this.mainBlock.parse(bpjson, getCNodeByNode, {});
     }
 
     parseFunction(funData: TBPStageData, getCNodeByNode: (node: TBPNode) => TBPCNode) {
@@ -80,7 +80,13 @@ export class BlueprintRuntime {
         fun.name = funData.name;
         fun.dataMap = this.dataMap;
         //TODO Function varMap
-        fun.parse(bpjson, getCNodeByNode, this.varMap);
+        let varMap = {} as Record<string, TBPVarProperty>;
+        if (funData.variable) {
+            funData.variable.forEach(item => {
+                varMap[item.name] = item;
+            })
+        }
+        fun.parse(bpjson, getCNodeByNode, varMap);
         this.funBlockMap.set(funId, fun);
     }
 

@@ -36,10 +36,11 @@ export enum ComponentType {
 
 
 
+
 export interface TBPStageData {
     //events: string[],
-    id: number,
     name: string,
+    id: number,
     uiData?: {
         /**场景的x坐标位置 */
         x: number;
@@ -48,6 +49,8 @@ export interface TBPStageData {
         /**场景的缩放 */
         scale: number;
     },
+    /**临时变量数据 */
+    variable?: TBPVarProperty[],
     /**是否是当前显示的节点 */
     isShow?: boolean;
     arr: Array<TBPNode>;
