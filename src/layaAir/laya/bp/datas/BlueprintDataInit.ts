@@ -53,6 +53,16 @@ export const BlueprintDataList: TBPCNode[] = [
         ],
     },
     {
+        name: "tmp_get",
+        menuPath: "none",
+        type: BPType.GetTmpValue,
+        output: [
+            {
+                type: "any",
+            },
+        ],
+    },
+    {
         name: "get",
         menuPath: "none",
         type: BPType.GetValue,
@@ -80,6 +90,32 @@ export const BlueprintDataList: TBPCNode[] = [
             {
                 name: 'target',
                 type: 'any',
+            },
+            {
+                name: 'set',
+                type: "any",
+            },
+        ],
+        output: [
+            {
+                name: "then",
+                type: "exec"
+            },
+            {
+                name: "return",
+                type: "any",
+            }
+        ],
+    },
+    
+    {
+        name: "tmp_set",
+        menuPath: "none",
+        type: BPType.SetTmpValue,
+        input: [
+            {
+                name: "execute",
+                type: "exec",
             },
             {
                 name: 'set',
