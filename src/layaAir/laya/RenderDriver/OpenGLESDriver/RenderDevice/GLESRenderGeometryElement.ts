@@ -18,7 +18,7 @@ export class GLESRenderGeometryElement implements IRenderGeometryElement {
 
   /**@internal */
   constructor(mode: MeshTopology, drawType: DrawType) {
-    this._nativeObj = new (window as any).conchRenderGeometryElement(mode, drawType);
+    this._nativeObj = new (window as any).conchGLESRenderGeometryElement(mode, drawType);
     this.drawParams = new SingletonList();
   }
 

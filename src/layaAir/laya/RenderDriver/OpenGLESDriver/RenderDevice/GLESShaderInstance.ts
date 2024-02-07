@@ -25,8 +25,7 @@ export class GLESShaderInstance implements IShaderInstance {
 		for (var k in shaderProcessInfo.attributeMap) {
 			attributeMap[k] = shaderProcessInfo.attributeMap[k][0];
 		}
-		var renderState: any = (<ShaderPass>shaderPass).renderState;
-		this._nativeObj = new (window as any).conchShaderInstance((LayaGL.renderEngine as any)._nativeObj, shaderObj.vs, shaderObj.fs, attributeMap, renderState._nativeObj);
+		this._nativeObj = new (window as any).conchGLESShaderInstance(shaderProcessInfo.is2D, shaderObj.vs, shaderObj.fs, attributeMap, (shaderPass.moduleData as any)._nativeObj);
 		
 	}
 

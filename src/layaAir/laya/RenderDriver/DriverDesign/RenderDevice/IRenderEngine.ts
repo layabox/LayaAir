@@ -2,6 +2,7 @@
 import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
 import { RenderParams } from "../../../RenderEngine/RenderEnum/RenderParams";
 import { RenderStatisticsInfo } from "../../../RenderEngine/RenderEnum/RenderStatInfo";
+import { IDefineDatas } from "../../RenderModuleData/Design/IDefineDatas";
 import { ShaderDefine } from "../../RenderModuleData/Design/ShaderDefine";
 import { IRenderEngineFactory } from "./IRenderEngineFactory";
 import { ITextureContext } from "./ITextureContext";
@@ -19,6 +20,9 @@ export interface IRenderEngine {
 
     propertyNameToID(name: string): number;
     propertyIDToName(id: number): string;
+
+    getDefineByName(name: string): ShaderDefine;
+    getNamesByDefineData(defineData: IDefineDatas, out: Array<string>): void;
 
     addTexGammaDefine(key:number,value:ShaderDefine):void;
 

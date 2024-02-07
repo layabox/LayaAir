@@ -73,7 +73,7 @@ export class RTSubShader implements ISubshaderData {
 
     _nativeObj: any;
     constructor() {
-        this._nativeObj = new (window as any).conchSubShader();
+        this._nativeObj = new (window as any).conchRTSubShader();
     }
     destroy(): void {
         this._nativeObj.destroy();
@@ -92,7 +92,7 @@ export class RTShaderPass implements IShaderPassData {
     _nativeObj: any;
     private _pass: ShaderPass;
     constructor(pass: ShaderPass) {
-        this._nativeObj = new (window as any).conchShaderPass();
+        this._nativeObj = new (window as any).conchRTShaderPass();
         this._createShaderInstanceFun = this.nativeCreateShaderInstance.bind(this);
     }
     renderState: RTRenderState;
@@ -103,7 +103,7 @@ export class RTShaderPass implements IShaderPassData {
     }
 
     destory(): void {
-        //TODO
+        this._nativeObj.destory();
     }
 
     setCacheShader(defines: IDefineDatas, shaderInstance: IShaderInstance): void {

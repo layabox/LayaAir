@@ -30,14 +30,14 @@ export class RTDefineDatas implements IDefineDatas {
      * @internal
      */
     _intersectionDefineDatas(define: RTDefineDatas): void {
-        this._nativeobj._intersectionDefineDatas(define._nativeobj);
+        this._nativeobj._intersectionDefineDatas(define);
     }
 
     add(define: RTShaderDefine): void {
-        this._nativeobj.add(define._nativeobj);
+        this._nativeobj.add(define);
     }
     remove(define: RTShaderDefine): void {
-        this._nativeobj.remove(define._nativeobj);
+        this._nativeobj.remove(define);
     }
     addDefineDatas(define: RTDefineDatas): void {
         this._nativeobj.addDefineDatas(define._nativeobj);
@@ -46,7 +46,7 @@ export class RTDefineDatas implements IDefineDatas {
         this._nativeobj.removeDefineDatas(define._nativeobj);
     }
     has(define: RTShaderDefine): boolean {
-        return this._nativeobj.has(define._nativeobj);
+        return this._nativeobj.has(define);
     }
     clear(): void {
         this._nativeobj.clear();

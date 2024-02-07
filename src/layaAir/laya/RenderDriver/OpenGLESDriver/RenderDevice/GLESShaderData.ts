@@ -23,7 +23,7 @@ export class GLESShaderData extends ShaderData {
      */
     constructor(ownerResource: Resource = null) {
         super(ownerResource)
-        this._nativeObj = new (window as any).conchRTShaderData();
+        this._nativeObj = new (window as any).conchGLESShaderData();
         this._defineDatas = new RTDefineDatas(this._nativeObj.getOwnerDefineData());
         this._textureData = {};
     }
@@ -294,7 +294,9 @@ export class GLESShaderData extends ShaderData {
         var lastValue: BaseTexture = this._textureData[index];
         //维护Reference
         this._textureData[index] = value;
-        this._setInternalTexture(index, value._texture);
+        if (value) {
+            this._setInternalTexture(index, value._texture);
+        }
         lastValue && lastValue._removeReference();
         value && value._addReference();
     }

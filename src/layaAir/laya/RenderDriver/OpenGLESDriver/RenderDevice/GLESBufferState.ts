@@ -7,14 +7,20 @@ export class GLESBufferState implements IBufferState {
     _vertexBuffers: IVertexBuffer[];
     _nativeObj:any;
     constructor(){
-        //
+        this._nativeObj = new (window as any).conchGLESBufferState();
     }
     applyState(vertexBuffers: IVertexBuffer[], indexBuffer: IIndexBuffer): void {
-        throw new Error("Method not implemented.");
+        this._vertexBuffers = vertexBuffers;
+        this._bindedIndexBuffer = indexBuffer;
+
+        let tempVertexBuffers: any = [];
+        vertexBuffers.forEach((element) => {
+            tempVertexBuffers.push((element as any).conchGLESVertexBuffer);
+        });
+
+        this._nativeObj.applyState(tempVertexBuffers, (indexBuffer as any).conchGLESIndexBuffer)
     }
     destroy(): void {
-        throw new Error("Method not implemented.");
+        this._nativeObj.destroy();
     }
-
-
 }
