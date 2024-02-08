@@ -218,7 +218,7 @@ export class GLESShaderData extends ShaderData {
      * @returns 颜色
      */
     getColor(index: number): Color {
-        return this._nativeObj.gecColor(index);
+        return this._nativeObj.getColor(index);
     }
 
     /**

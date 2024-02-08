@@ -105,6 +105,6 @@ export class GLESRenderElement3D implements IRenderElement3D {
     }
 
     protected init(): void {
-        this._nativeObj = new (window as any).conchRenderElementOBJ();
+        this._nativeObj = new (window as any).conchGLESRenderElement3D();
     }
 }

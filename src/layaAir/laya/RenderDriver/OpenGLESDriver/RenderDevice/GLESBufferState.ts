@@ -15,10 +15,9 @@ export class GLESBufferState implements IBufferState {
 
         let tempVertexBuffers: any = [];
         vertexBuffers.forEach((element) => {
-            tempVertexBuffers.push((element as any).conchGLESVertexBuffer);
+            tempVertexBuffers.push((element as any)._nativeObj);
         });
-
-        this._nativeObj.applyState(tempVertexBuffers, (indexBuffer as any).conchGLESIndexBuffer)
+        this._nativeObj.applyState(tempVertexBuffers, indexBuffer ? (indexBuffer as any)._nativeObj : null)
     }
     destroy(): void {
         this._nativeObj.destroy();

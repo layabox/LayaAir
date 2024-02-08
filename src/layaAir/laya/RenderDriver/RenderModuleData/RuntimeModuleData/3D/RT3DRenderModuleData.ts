@@ -3,6 +3,7 @@ import { Matrix4x4 } from "../../../../maths/Matrix4x4";
 import { IShaderInstance } from "../../../DriverDesign/RenderDevice/IShaderInstance";
 import { ICameraNodeData, ISceneNodeData, IShaderPassData, ISubshaderData } from "../../Design/3D/I3DRenderModuleData";
 import { IDefineDatas } from "../../Design/IDefineDatas";
+import { RenderState } from "../../Design/RenderState";
 import { RTDefineDatas } from "../RTDefineDatas";
 import { RTRenderState } from "../RTRenderState";
 import { NativeTransform3D } from "./NativeTransform3D";
@@ -94,8 +95,16 @@ export class RTShaderPass implements IShaderPassData {
     constructor(pass: ShaderPass) {
         this._nativeObj = new (window as any).conchRTShaderPass();
         this._createShaderInstanceFun = this.nativeCreateShaderInstance.bind(this);
+        this._renderState = new RenderState();
+        this._renderState.setNull();
     }
-    renderState: RTRenderState;
+    private _renderState: RenderState;
+    public get renderState(): RenderState {
+        return this._renderState;
+    }
+    public set renderState(value: RenderState) {
+        this._renderState = value;
+    }
 
     nativeCreateShaderInstance() {
         let instance = ShaderPass.createShaderInstance(this._pass, false, RTShaderPass.TempDefine) as IShaderInstance;

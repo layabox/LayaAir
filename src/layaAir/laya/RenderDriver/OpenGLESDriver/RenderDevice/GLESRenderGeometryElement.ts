@@ -33,7 +33,7 @@ export class GLESRenderGeometryElement implements IRenderGeometryElement {
   setDrawElemenParams(count: number, offset: number): void {
     this.drawParams.add(offset);
     this.drawParams.add(count);
-    this._nativeObj.setDrawElemenParams(count, offset);
+    this._nativeObj.setDrawElementParams(count, offset);
   }
   
   /**@internal */
@@ -49,7 +49,7 @@ export class GLESRenderGeometryElement implements IRenderGeometryElement {
   set bufferState(value: IBufferState) {
     this._bufferState = value;
     if (value) {
-      this._nativeObj.bufferState = (value as any)._nativeVertexArrayObject._nativeObj;
+      this._nativeObj.bufferState = (value as any)._nativeObj;
     }
     else {
       this._nativeObj.bufferState = null;

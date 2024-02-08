@@ -69,7 +69,12 @@ export class GLESEngine implements IRenderEngine {
   getStatisticsInfo(info: RenderStatisticsInfo): number {
     return this._nativeObj.getStatisticsInfo(info);
   }
-
+  viewport(x: number, y: number, width: number, height: number): void {
+    this._nativeObj.viewport(x, y, width, height);
+  }
+  scissor(x: number, y: number, width: number, height: number) {
+    this._nativeObj.scissor(x, y, width, height);
+  }
 }
 
 

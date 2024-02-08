@@ -61,7 +61,7 @@ export class GLESTextureContext implements ITextureContext  {
         this.setTexturePixelsData(texture, sourceData, false, false);
     }
     setTextureDDSData(texture: InternalTexture, ddsInfo: DDSTextureInfo) {
-        this._native.setTextureKTXData(texture, ddsInfo);
+        this._native.setTextureDDSData(texture, ddsInfo);
     }
 
     setTextureKTXData(texture: InternalTexture, ktxInfo: KTXTextureInfo) {
