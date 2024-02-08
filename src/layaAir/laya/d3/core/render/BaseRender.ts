@@ -280,7 +280,7 @@ export class BaseRender extends Component {
      * 间接光照功能查询
      */
     get irradientMode() {
-        return this._baseRenderNode.lightmapIndex;
+        return this._baseRenderNode.irradientMode;
     }
 
     /**

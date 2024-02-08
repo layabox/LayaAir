@@ -16,6 +16,6 @@ export class GLESSkinRenderElement3D extends GLESRenderElement3D {
         this._nativeObj._skinnedData = data;
     }
     init(): void {
-        this._nativeObj = new (window as any).conchRenderElement(RenderElementType.Skin, (LayaGL.renderEngine as any)._nativeObj);
+        this._nativeObj = new (window as any).conchGLESSkinRenderElement3D();
     }
 }

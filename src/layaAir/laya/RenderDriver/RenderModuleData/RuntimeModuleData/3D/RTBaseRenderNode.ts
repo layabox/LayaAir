@@ -199,7 +199,7 @@ export class RTBaseRenderNode implements IBaseRenderNode {
     }
 
     constructor() {
-        this._nativeObj = this._getNativeObj();
+        this._getNativeObj();
     }
     _applyLightProb(): void {
        //TODO

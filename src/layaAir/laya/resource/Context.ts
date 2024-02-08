@@ -2686,5 +2686,5 @@ class ContextParams {
 // native
 if ((window as any).conch && !(window as any).conchConfig.conchWebGL) {
     //@ts-ignore
-    Context = NativeContext;
+    //lvtodoContext = NativeContext;
 }

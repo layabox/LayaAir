@@ -85,7 +85,7 @@ export class GLESForwardAddClusterRP implements IForwardAddClusterRP {
     }
     public set skyRenderNode(value: RTBaseRenderNode) {
         this._skyRenderNode = value;
-        this._nativeObj.setSkyRenderNode(value._nativeObj);
+        this._nativeObj.setSkyRenderNode(value ? value._nativeObj : null);
     }
     public get depthTextureMode(): DepthTextureMode {
         return this._nativeObj._depthTextureMode;
@@ -143,20 +143,21 @@ export class GLESForwardAddClusterRP implements IForwardAddClusterRP {
     }
 
     setBeforeForwardCmds(value: CommandBuffer[]): void {
-        throw new Error("Method not implemented.");
+        //throw new Error("Method not implemented.");
     }
 
     setBeforeSkyboxCmds(value: CommandBuffer[]): void {
-        throw new Error("Method not implemented.");
+        //throw new Error("Method not implemented.");
     }
 
     setBeforeTransparentCmds(value: CommandBuffer[]): void {
-        throw new Error("Method not implemented.");
+        //throw new Error("Method not implemented.");
     }
 
     _nativeObj: any;
 
     constructor() {
+        this._cameraCullInfo = new CameraCullInfo();
         this._nativeObj = new (window as any).conchRTForwardAddClusterRP();
     }
 

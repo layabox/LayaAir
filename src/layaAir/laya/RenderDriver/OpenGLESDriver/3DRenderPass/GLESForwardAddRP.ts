@@ -51,7 +51,7 @@ export class GLESForwardAddRP implements IForwardAddRP {
     }
 
     setAfterEventCmd(value: CommandBuffer[]): void {
-        throw new Error("Method not implemented.");
+        //throw new Error("Method not implemented.");
     }
 
     _nativeObj: any;
