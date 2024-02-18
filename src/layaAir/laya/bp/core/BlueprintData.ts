@@ -1,7 +1,7 @@
 import { BlueprintDataList } from "../datas/BlueprintDataInit";
 import { extendsData } from "../datas/BlueprintExtends";
 import { TBPDeclaration } from "../datas/types/BlueprintDeclaration";
-import { BPType, TBPCNode, TBPNode } from "../datas/types/BlueprintTypes";
+import { BPConstNode, BPType, TBPCNode, TBPNode } from "../datas/types/BlueprintTypes";
 import { BlueprintFactory } from "../runtime/BlueprintFactory";
 import { BlueprintImpl } from "../runtime/resource/BlueprintImpl";
 import { BlueprintUtil } from "./BlueprintUtil";
@@ -21,7 +21,10 @@ export class BlueprintData {
     }
     private static defEventOut = this.defFunOut;
     /**所有的数据 */
-    allData: Record<string, TBPCNode> = {};
+    //allData: Record<string, TBPCNode> = {};
+    constData: Record<string, BPConstNode> = {};
+
+
     /**自動生成的模板數據，這些數據不會在鼠標右鍵菜單中出現，也不會傳輸到ide層去 */
     autoCreateData: Record<string, TBPCNode> = {};
     private static readonly funlike = [BPType.Function, BPType.CustomFun, BPType.Pure];
@@ -29,11 +32,13 @@ export class BlueprintData {
 
     constructor() {
         let list = BlueprintDataList;
+        if (null == this.constData['system']) this.constData['system'] = {};
         for (let i = list.length - 1; i >= 0; i--) {
             let o = list[i];
             if (null == o.id) o.id = o.name;
             if (null == o.bpType) o.bpType = 'function';
-            this.allData[o.id] = o;
+            if (null == this.constData['system'].funs) this.constData['system'].funs = {};
+            this.constData['system'].funs[o.id] = o;
             let input = o.input;
             if (input) {
                 for (let i = input.length - 1; i >= 0; i--) {
@@ -84,13 +89,54 @@ export class BlueprintData {
         }
         this.initData(extendsData);
     }
+    getConstDataById(target: string, dataId: string): any {
+        let targetData = this.constData[target];
+        if (targetData) {
+            if (targetData.events && targetData.events[dataId]) {
+                return targetData.events[dataId];
+            }
+            if (targetData.props && targetData.props[dataId]) {
+                return targetData.props[dataId];
+            }
+            if (targetData.funs && targetData.funs[dataId]) {
+                return targetData.funs[dataId];
+            }
+            if (null != targetData.parent) {
+                return this.getConstDataById(target, dataId);
+            }
+        }
+        return null;
+    }
+    private _getConstData(cid: string, target = 'system'): any {
+        let targetData = this.constData[target];
+        if (targetData) {
+            if (targetData.funs && targetData.funs[cid]) {
+                return targetData.funs[cid];
+            }
+            if (targetData.construct && targetData.construct[cid]) {
+                return targetData.construct[cid];
+            }
+            if (targetData.events && targetData.events[cid]) {
+                return targetData.events[cid];
+            }
+            if (targetData.props && targetData.props[cid]) {
+                return targetData.props[cid];
+            }
+            if (null != targetData.parent) {
+                return this._getConstData(cid, targetData.parent);
+            } else if ('system' != target) {
+                return this._getConstData(cid);
+            }
+        }
+        return null;
+    }
+
     getConstNode(node?: TBPNode) {
         if (null != node.dataId) {
             let id = node.cid + "_" + node.dataId;
-            if (null != this.allData[id]) return this.allData[id];
             if (null != this.autoCreateData[id]) return this.autoCreateData[id];
-            let cdata = this.allData[node.cid];
-            let data: any = this.allData[node.dataId];
+            let cdata = this._getConstData(node.cid);
+            let data: any = null;
             if (null == data) {
                 let obj = BlueprintImpl.loadedBPData.get(node.target);
                 if (obj) {
@@ -133,7 +179,7 @@ export class BlueprintData {
                 return cdata;
             }
         } else {
-            let ret = this.allData[node.cid];
+            let ret = this._getConstData(node.cid);
             if (node.debugType) {
                 ret = BlueprintUtil.clone(ret);
                 ret.debugType = node.debugType;
@@ -149,6 +195,12 @@ export class BlueprintData {
             let cls = BlueprintUtil.getClass(ext);
             if (!cls) continue;
             let o = data[ext];
+
+            if (null == this.constData[ext]) this.constData[ext] = {};
+            if (o.extends) {
+
+            }
+
             if (o?.props) {
                 o.props.forEach((po: any) => {
                     po.id = po.id || 'var_' + ext + "_" + po.name;
@@ -156,7 +208,8 @@ export class BlueprintData {
                     po.target = po.target || ext;
                     po.bpType = 'prop';
                     po.const = true;
-                    this.allData[po.id] = po;
+                    if (null == this.constData[ext].props) this.constData[ext].props = {};
+                    this.constData[ext].props[po.id] = po;
                 });
             }
 
@@ -170,8 +223,8 @@ export class BlueprintData {
                     type: BPType.NewTarget,
                     output: [{ name: "return", type: ext }]
                 }
-
-                this.allData[cdata.id] = cdata;
+                if (null == this.constData[ext].construct) this.constData[ext].construct = {};
+                this.constData[ext].construct[cdata.id] = cdata;
 
                 if (o.construct.params) {
                     cdata.input = o.construct.params.map(param => ({ name: param.name, type: param.type }));
@@ -185,7 +238,9 @@ export class BlueprintData {
                     eve.targetAliasName = o.name;
                     eve.target = ext;
                     eve.const = true;
-                    this.allData[eve.id] = eve;
+                    if (null == this.constData[ext].events) this.constData[ext].events = {};
+                    this.constData[ext].events[eve.id] = eve;
+                    //this.allData[eve.id] = eve;
                 })
             }
 
@@ -204,7 +259,9 @@ export class BlueprintData {
                             }
                         }
                         BlueprintData.handleCDataTypes(cdata, fun, ext);
-                        this.allData[cdata.id] = cdata;
+                        if (null == this.constData[ext].funs) this.constData[ext].funs = {};
+                        this.constData[ext].funs[cdata.id] = cdata;
+                        //this.allData[cdata.id] = cdata;
                     }
                 });
             }

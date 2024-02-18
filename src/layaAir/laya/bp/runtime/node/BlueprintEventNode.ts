@@ -24,7 +24,7 @@ export class BlueprintEventNode extends BlueprintRuntimeBaseNode {
 
     protected onParseLinkData(node: TBPNode, manger: INodeManger<BlueprintEventNode>) {
         if (node.dataId) {
-            this.eventName = BlueprintUtil.bpData.allData[node.dataId].name;//(manger.dataMap[node.dataId] as TBPEventProperty).name;
+            this.eventName = BlueprintUtil.getConstDataById(node.target, node.dataId).name;//(manger.dataMap[node.dataId] as TBPEventProperty).name;
         }
         else {
             this.eventName = node.name;
@@ -55,8 +55,8 @@ export class BlueprintEventNode extends BlueprintRuntimeBaseNode {
                     runtimeDataMgr.setPinData(_this.outPutParmPins[index], value, newRunId);
                 })
 
-                let nextPin=_this.outExcute.linkTo[0] as BlueprintPinRuntime;
-                if(nextPin){
+                let nextPin = _this.outExcute.linkTo[0] as BlueprintPinRuntime;
+                if (nextPin) {
                     runner.runByContext(context, runtimeDataMgr, nextPin.owner, enableDebugPause, null, newRunId, nextPin);
                 }
             }

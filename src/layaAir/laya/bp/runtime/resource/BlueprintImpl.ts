@@ -191,9 +191,31 @@ export class BlueprintImpl extends Resource {
 
         if (this.data.functions) {
             let funcs = dec.funcs;
+            let decProps = dec.props;
             this.data.functions.forEach((ele) => {
                 //@ts-ignore
                 dataMap[ele.id] = ele;
+
+                if (ele.variable) {
+                    ele.variable.forEach((ele) => {
+                        dataMap[ele.id] = ele;
+                        varMap[ele.id] = ele;
+
+                        let decProp: TBPDeclarationProp = {
+                            name: ele.name,
+                            type: ele.type as string,
+                            modifiers: {
+                                isPublic: true
+                            }
+                        }
+
+                        if (ele.const) {
+                            decProp.modifiers.isPublic = false;
+                            decProp.modifiers.isPrivate = true;
+                        }
+                        decProps.push(decProp);
+                    });
+                }
 
                 this._initTarget(ele.arr);
 

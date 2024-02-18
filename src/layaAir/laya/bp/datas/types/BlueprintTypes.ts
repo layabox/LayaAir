@@ -13,10 +13,10 @@ export enum BPType {
     Operator = "operator",
     GetValue = "getvalue",
     SetValue = "setvalue",
-    GetTmpValue="getTmpValue",
-    SetTmpValue="setTmpValue",
+    GetTmpValue = "getTmpValue",
+    SetTmpValue = "setTmpValue",
     Branch = "branch",
-    Block ="Block",
+    Block = "Block",
     Sequence = "sequence",
     NewTarget = "newtarget",
     CustomFun = "customFun",
@@ -132,12 +132,24 @@ export interface TBPConnType {
     name?: string,
 }
 
+export interface BPConstNode {
+    parent?: string,
+    funs?: Record<string, TBPCNode>,
+    props?: Record<string, TBPVarProperty>,
+    events?: Record<string, TBPEventProperty>,
+    construct?: Record<string, TBPCNode>,
+}
+
 
 export interface TBPCNode {
     /**程序中用到的名字 */
     name: string,
     /** */
     bpType?: "function" | "event" | "prop" | "construct",
+
+
+    /**函数中的临时变量数据 */
+    variable?: Record<string, TBPVarProperty>
 
     module?: string
     /**如果是自定义函数会有这个id号 */

@@ -23,8 +23,8 @@ export class BlueprintUtil {
         this.initConstNode();
         return this.bpData.getConstNode(node);
     }
-    static getConstDataById(id: string) {
-        return this.bpData.allData[id];
+    static getConstDataById(target: string, dataId: string) {
+        return this.bpData.getConstDataById(target, dataId);
     }
 
     /**

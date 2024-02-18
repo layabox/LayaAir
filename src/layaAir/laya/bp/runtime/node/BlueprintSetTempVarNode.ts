@@ -17,7 +17,7 @@ export class BlueprintSetTempVarNode extends BlueprintFunNode {
 
     protected onParseLinkData(node: TBPNode, manger: INodeManger<BlueprintRuntimeBaseNode>) {
         let cfg = manger.dataMap[node.dataId];
-        this._varKey = cfg ? cfg.name : BlueprintUtil.getConstDataById(node.dataId).name;
+        this._varKey = cfg ? cfg.name : BlueprintUtil.getConstDataById(node.target,node.dataId).name;
     }
 
     step(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, fromExcute: boolean, runner: IBPRutime, enableDebugPause: boolean, runId: number, fromPin: BlueprintPinRuntime): BlueprintPinRuntime {

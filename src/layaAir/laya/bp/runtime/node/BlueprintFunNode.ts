@@ -28,12 +28,12 @@ export class BlueprintFunNode extends BlueprintRuntimeBaseNode {
 
     protected onParseLinkData(node: TBPNode, manger: INodeManger<BlueprintRuntimeBaseNode>) {
         if (node.dataId) {
-            this.eventName = BlueprintUtil.bpData.allData[node.dataId].name//(manger.dataMap[node.dataId] as TBPEventProperty).name;
+            this.eventName = BlueprintUtil.getConstDataById(node.target, node.dataId).name//(manger.dataMap[node.dataId] as TBPEventProperty).name;
             this.excuteFun = this.excuteHookFun;
         }
     }
 
-    private excuteHookFun(context: IRunAble, runtimeDataMgr: IRuntimeDataManger,runner: IBPRutime, caller: any, parmsArray: any[], runId: number, fromPin: BlueprintPinRuntime) {
+    private excuteHookFun(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, runner: IBPRutime, caller: any, parmsArray: any[], runId: number, fromPin: BlueprintPinRuntime) {
         parmsArray.unshift(this.eventName);
         return context.excuteFun(this.nativeFun, this.outPutParmPins, runtimeDataMgr, caller, parmsArray, runId);
     }
