@@ -8,6 +8,7 @@ import { IBPRutime } from "../interface/IBPRutime";
 import { BlueprintUtil } from "../../core/BlueprintUtil";
 import { BlueprintPinRuntime } from "../BlueprintPinRuntime";
 import { IRuntimeDataManger } from "../../core/interface/IRuntimeDataManger";
+import { BlueprintPromise } from "../BlueprintPromise";
 
 export class BlueprintSetTempVarNode extends BlueprintFunNode {
     private _varKey: string;
@@ -17,10 +18,10 @@ export class BlueprintSetTempVarNode extends BlueprintFunNode {
 
     protected onParseLinkData(node: TBPNode, manger: INodeManger<BlueprintRuntimeBaseNode>) {
         let cfg = manger.dataMap[node.dataId];
-        this._varKey = cfg ? cfg.name : BlueprintUtil.getConstDataById(node.target,node.dataId).name;
+        this._varKey = cfg ? cfg.name : BlueprintUtil.getConstDataById(node.target, node.dataId).name;
     }
 
-    step(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, fromExcute: boolean, runner: IBPRutime, enableDebugPause: boolean, runId: number, fromPin: BlueprintPinRuntime): BlueprintPinRuntime {
+    step(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, fromExcute: boolean, runner: IBPRutime, enableDebugPause: boolean, runId: number, fromPin: BlueprintPinRuntime): BlueprintPinRuntime | BlueprintPromise {
         let _parmsArray: any[] = this.colloctParam(context, runtimeDataMgr, this.inPutParmPins, runner, runId);
 
         context.parmFromCustom(_parmsArray, this._varKey, '"' + this._varKey + '"');

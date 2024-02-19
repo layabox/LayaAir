@@ -179,6 +179,9 @@ export class BlueprintData {
                     }
                 }
                 this.autoCreateData[id] = cdata;
+                if (node.debugType) {
+                    cdata.debugType = node.debugType;
+                }
                 return cdata;
             }
         } else {

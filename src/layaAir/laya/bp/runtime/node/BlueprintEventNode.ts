@@ -66,10 +66,6 @@ export class BlueprintEventNode extends BlueprintRuntimeBaseNode {
     }
 
     step(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, fromExcute: boolean, runner: IBPRutime, enableDebugPause: boolean, runId: number, fromPin: BlueprintPinRuntime): BlueprintPinRuntime | BlueprintPromise {
-        let result = fromExcute && context.beginExcute(this, runner, enableDebugPause, fromPin);
-        if (result) {
-            return result;
-        }
         if (fromExcute) {
             context.endExcute(this);
         }
