@@ -199,7 +199,7 @@ export class BlueprintImpl extends Resource {
                 if (ele.variable) {
                     ele.variable.forEach((ele) => {
                         dataMap[ele.id] = ele;
-                        varMap[ele.id] = ele;
+                        //varMap[ele.id] = ele;
 
                         let decProp: TBPDeclarationProp = {
                             name: ele.name,
