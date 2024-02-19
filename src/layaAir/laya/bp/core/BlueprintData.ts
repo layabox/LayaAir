@@ -135,7 +135,7 @@ export class BlueprintData {
         if (null != node.dataId) {
             let id = node.cid + "_" + node.dataId;
             if (null != this.autoCreateData[id]) return this.autoCreateData[id];
-            let cdata = this._getConstData(node.cid);
+            let cdata = this._getConstData(node.cid, node.target);
             let data: any = null;
             if (null == data) {
                 let obj = BlueprintImpl.loadedBPData.get(node.target);
@@ -179,7 +179,7 @@ export class BlueprintData {
                 return cdata;
             }
         } else {
-            let ret = this._getConstData(node.cid);
+            let ret = this._getConstData(node.cid, node.target);
             if (node.debugType) {
                 ret = BlueprintUtil.clone(ret);
                 ret.debugType = node.debugType;
