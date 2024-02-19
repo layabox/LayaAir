@@ -27,7 +27,7 @@ export class BlueprintSequenceNode extends BlueprintComplexNode {
                         if (result === false && cb) {
                             cb();
                         }
-                    }, runId,pin);
+                    }, runId,pin,true);
 
                     if (result === false) {
                         let promise = new Promise((resolve) => {

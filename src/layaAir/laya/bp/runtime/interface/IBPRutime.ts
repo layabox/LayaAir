@@ -5,5 +5,5 @@ import { IRunAble } from "./IRunAble";
 
 export interface IBPRutime {
     getRunID(): number;
-    runByContext(context: IRunAble,runtimeDataMgr: IRuntimeDataManger, node: IExcuteListInfo, enableDebugPause: boolean, cb: Function, runid: number,fromPin:BlueprintPinRuntime): boolean;
+    runByContext(context: IRunAble,runtimeDataMgr: IRuntimeDataManger, node: IExcuteListInfo, enableDebugPause: boolean, cb: Function, runid: number,fromPin:BlueprintPinRuntime,notRecover?:boolean): boolean;
 }
