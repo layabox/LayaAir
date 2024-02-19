@@ -20,12 +20,13 @@ export class BlueprintCustomFunReturn extends BlueprintRuntimeBaseNode {
         this.inExcutes = [];
     }
 
-    step(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, fromExcute: boolean, runner: IBPRutime, enableDebugPause: boolean, runId: number, fromPin: BlueprintPinRuntime): BlueprintPinRuntime | BlueprintPromise {
+    step(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, fromExcute: boolean, runner: IBPRutime, enableDebugPause: boolean, runId: number, fromPin: BlueprintPinRuntime): BlueprintPinRuntime | BlueprintPromise | number {
         let result = super.step(context, runtimeDataMgr, fromExcute, runner, enableDebugPause, runId, fromPin);
         let nodeContext = runtimeDataMgr.getDataById(this.nid) as BlueprintCustomFunReturnContext;
         nodeContext.returnResult(runId);
         if (this.inExcutes.length > 1) {//多个输出引脚
             nodeContext.runExcute(runId, this.inExcutes.indexOf(fromPin), context);
+            return 1;
         }
         return null;
     }

@@ -301,12 +301,13 @@ export class BluePrintBlock implements INodeManger<BlueprintRuntimeBaseNode>, IB
     }
 
 
-    runByContext(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, node: IExcuteListInfo, enableDebugPause: boolean, cb: Function, runId: number, fromPin: BlueprintPinRuntime): boolean {
+    runByContext(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, node: IExcuteListInfo, enableDebugPause: boolean, cb: Function, runId: number, fromPin: BlueprintPinRuntime,notRecover:boolean=false): boolean {
         if (runId == -1) {
             runId = this.getRunID();
         }
         const currentIndex = node.index;
         const excuteAbleList = this.excuteList;
+        let brecover = true;
         //let fromPin: BlueprintPinRuntime;
         for (let i = currentIndex, n = excuteAbleList.length; i < n;) {
             const bpNode = excuteAbleList[i];
@@ -322,12 +323,18 @@ export class BluePrintBlock implements INodeManger<BlueprintRuntimeBaseNode>, IB
                 })
                 return false;
             }
+            else if(index == null){
+                break;
+            }
             else {
+                brecover = false;
                 break;
             }
         }
         cb && cb();
-        this.recoverRunID(runId,runtimeDataMgr);
+        if(!notRecover&&brecover){
+            this.recoverRunID(runId,runtimeDataMgr);
+        }
         //console.log(">>>>>>>>>>>>>runID over:" + runId);
         return true;
     }
