@@ -46,7 +46,7 @@ export class GLESForwardAddRP implements IForwardAddRP {
     }
     public set renderpass(value: GLESForwardAddClusterRP) {
         this._renderpass = value;
-        this._nativeObj.setSpotLightShadowPass(value._nativeObj);
+        this._nativeObj.setForwardAddClusterRP(value._nativeObj);
     }
 
     setAfterEventCmd(value: CommandBuffer[]): void {

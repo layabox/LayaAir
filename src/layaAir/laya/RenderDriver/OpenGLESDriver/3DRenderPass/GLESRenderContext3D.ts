@@ -90,7 +90,7 @@ export class GLESRenderContext3D implements IRenderContext3D {
         return this._nativeObj.drawRenderElementList(list.elements, list.length);
     }
     drawRenderElementOne(node: IRenderElement3D): number {
-        throw new Error("Method not implemented.");
+        return this._nativeObj.drawRenderElementOne((node as any)._nativeObj);
     }
 
    _nativeObj: any;

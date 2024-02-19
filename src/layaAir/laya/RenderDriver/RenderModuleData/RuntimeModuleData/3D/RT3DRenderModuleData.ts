@@ -1,6 +1,7 @@
 import { ShaderPass } from "../../../../RenderEngine/RenderShader/ShaderPass";
 import { Matrix4x4 } from "../../../../maths/Matrix4x4";
 import { IShaderInstance } from "../../../DriverDesign/RenderDevice/IShaderInstance";
+import { GLESShaderInstance } from "../../../OpenGLESDriver/RenderDevice/GLESShaderInstance";
 import { ICameraNodeData, ISceneNodeData, IShaderPassData, ISubshaderData } from "../../Design/3D/I3DRenderModuleData";
 import { IDefineDatas } from "../../Design/IDefineDatas";
 import { RenderState } from "../../Design/RenderState";
@@ -85,16 +86,18 @@ export class RTSubShader implements ISubshaderData {
 }
 
 export class RTShaderPass implements IShaderPassData {
-    static TempDefine: IDefineDatas;//native 创建Shader要同步这个defineData
-    pipelineMode: string;
+    /** @internal */
+    static _compileDefine: RTDefineDatas = new RTDefineDatas();
     statefirst: boolean;
-    validDefine: RTDefineDatas = new RTDefineDatas();
-    private _createShaderInstanceFun: any;//想办法把这个传下去
+    private _validDefine: RTDefineDatas = new RTDefineDatas();
+    private _createShaderInstanceFun: any;
     _nativeObj: any;
     private _pass: ShaderPass;
     constructor(pass: ShaderPass) {
         this._nativeObj = new (window as any).conchRTShaderPass();
+        this._nativeObj.setCompileDefine(RTShaderPass._compileDefine._nativeobj);
         this._createShaderInstanceFun = this.nativeCreateShaderInstance.bind(this);
+        this._nativeObj.setCreateShaderInstanceFunction(this._createShaderInstanceFun);
         this._renderState = new RenderState();
         this._renderState.setNull();
     }
@@ -105,10 +108,22 @@ export class RTShaderPass implements IShaderPassData {
     public set renderState(value: RenderState) {
         this._renderState = value;
     }
-
+    public get pipelineMode(): string {
+        return this._nativeObj._pipelineMode;
+    }
+    public set pipelineMode(value: string) {
+        this._nativeObj._pipelineMode = value;
+    }
+    public get validDefine(): RTDefineDatas {
+        return this._validDefine;
+    }
+    public set validDefine(value: RTDefineDatas) {
+        this._validDefine = value;
+        this._nativeObj.setValidDefine(value._nativeobj);
+    }
     nativeCreateShaderInstance() {
-        let instance = ShaderPass.createShaderInstance(this._pass, false, RTShaderPass.TempDefine) as IShaderInstance;
-        this.setCacheShader(RTShaderPass.TempDefine, instance);
+        var shaderIns =  this._pass.withCompile(RTShaderPass._compileDefine) as GLESShaderInstance;
+        return shaderIns._nativeObj;
     }
 
     destory(): void {
@@ -121,8 +136,7 @@ export class RTShaderPass implements IShaderPassData {
     }
 
     getCacheShader(defines: IDefineDatas): IShaderInstance {
-        //TODO  不会调用到
-        return null;
+        return this._nativeObj.getCacheShader(defines);
     }
 }
 
