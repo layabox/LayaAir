@@ -295,6 +295,11 @@ export class BluePrintBlock implements INodeManger<BlueprintRuntimeBaseNode>, IB
         }
     }
 
+    recoverRunID(id: number,runtimeDataMgr:IRuntimeDataManger) {
+        this.poolIds.push(id);
+        runtimeDataMgr.clearVar(id);
+    }
+
 
     runByContext(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, node: IExcuteListInfo, enableDebugPause: boolean, cb: Function, runId: number, fromPin: BlueprintPinRuntime): boolean {
         if (runId == -1) {
@@ -322,7 +327,7 @@ export class BluePrintBlock implements INodeManger<BlueprintRuntimeBaseNode>, IB
             }
         }
         cb && cb();
-        this.poolIds.push(runId);
+        this.recoverRunID(runId,runtimeDataMgr);
         //console.log(">>>>>>>>>>>>>runID over:" + runId);
         return true;
     }

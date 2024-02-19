@@ -142,6 +142,9 @@ class RuntimeDataManger implements IRuntimeDataManger {
         }
         return a;
     }
+    clearVar(runId: number): void {
+        this.localVarMap.delete(runId);
+    }
 
     getVar(name: string, runId: number) {
         let varObj = this._initGetVarObj(runId);

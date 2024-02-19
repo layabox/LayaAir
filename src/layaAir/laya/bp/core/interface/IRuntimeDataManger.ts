@@ -13,4 +13,6 @@ export interface IRuntimeDataManger {
     getVar(name: string,runId: number): any;
 
     setVar(name: string, value: any,runId: number): void;
+
+    clearVar(runId: number): void;
 }
