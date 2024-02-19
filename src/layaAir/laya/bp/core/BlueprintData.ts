@@ -107,7 +107,8 @@ export class BlueprintData {
         }
         return null;
     }
-    private _getConstData(cid: string, target = 'system'): any {
+    private _getConstData(cid: string, target?: string): any {
+        if (null == target) target = 'system';
         let targetData = this.constData[target];
         if (targetData) {
             if (targetData.funs && targetData.funs[cid]) {
@@ -127,6 +128,8 @@ export class BlueprintData {
             } else if ('system' != target) {
                 return this._getConstData(cid);
             }
+        } else if ('system' != target) {
+            return this._getConstData(cid);
         }
         return null;
     }
