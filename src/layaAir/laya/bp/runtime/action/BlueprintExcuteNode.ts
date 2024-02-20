@@ -35,7 +35,7 @@ export class BlueprintExcuteNode extends BlueprintRunBase implements IRunAble {
         }
     }
     debuggerPause: boolean;
-    pushBack(excuteNode: IExcuteListInfo): void {
+    pushBack(excuteNode: IExcuteListInfo, callback: any): void {
         debugger;
         //throw new Error("Method not implemented.");
     }

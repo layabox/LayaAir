@@ -10,7 +10,7 @@ import { IBPRutime } from "./IBPRutime";
 export interface IRunAble {
     debuggerPause: boolean;
 
-    pushBack(excuteNode: IExcuteListInfo): void;
+    pushBack(excuteNode: IExcuteListInfo,callback:any): void;
 
     readonly vars: { [key: string]: any };
 
