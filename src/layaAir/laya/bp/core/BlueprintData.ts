@@ -208,7 +208,7 @@ export class BlueprintData {
             let o = data[ext];
 
             if (null == this.constData[ext]) this.constData[ext] = {};
-            if (o.extends && 1 < o.extends.length) {
+            if (o.extends && 1 <= o.extends.length) {
                 this.constData[ext].parent = o.extends[0];
             }
 
