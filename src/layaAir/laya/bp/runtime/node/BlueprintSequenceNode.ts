@@ -6,6 +6,7 @@ import { BlueprintConst } from "../../core/BlueprintConst";
 import { IBPRutime } from "../interface/IBPRutime";
 import { IRuntimeDataManger } from "../../core/interface/IRuntimeDataManger";
 import { BlueprintPromise } from "../BlueprintPromise";
+import { BlueprintRuntimeBaseNode } from "./BlueprintRuntimeBaseNode";
 
 export class BlueprintSequenceNode extends BlueprintComplexNode {
 
@@ -16,31 +17,47 @@ export class BlueprintSequenceNode extends BlueprintComplexNode {
             let item = this.outExcutes[i];
             let pin = (item.linkTo[0] as BlueprintPinRuntime);
             if (pin) {
+                let cb: any;
+                let result: boolean;
+                //TODO 代码待优化
                 if (context.debuggerPause) {
-                    debugger;
-                    context.pushBack(pin.owner);
+                    result = false;
+                    let callback = (owner: BlueprintRuntimeBaseNode) => {
+                        if (context.debuggerPause) {
+                            context.pushBack(owner, callback);
+                        }else{
+                            result = runner.runByContext(context, runtimeDataMgr, owner, enableDebugPause, () => {
+                                if (result === false && cb) {
+                                    cb();
+                                }
+                            }, runId, pin, true);
+
+                            if(result && cb){
+                                cb();
+                            }
+                        }
+                    }
+                    context.pushBack(pin.owner, callback);
                 }
                 else {
-                    let cb: any;
-                    let result: boolean;
                     result = runner.runByContext(context, runtimeDataMgr, pin.owner, enableDebugPause, () => {
                         if (result === false && cb) {
                             cb();
                         }
-                    }, runId,pin,true);
+                    }, runId, pin, true);
 
-                    if (result === false) {
-                        let promise = new Promise((resolve) => {
-                            cb = resolve;
-                        })
-                        arr.push(promise);
-                    }
+                }
+                if (result === false) {
+                    let promise = new Promise((resolve) => {
+                        cb = resolve;
+                    })
+                    arr.push(promise);
                 }
                 first = false;
                 //item.excute(context);
             }
         }
-        if(arr.length>0){
+        if (arr.length > 0) {
             let promise = BlueprintPromise.create();
             Promise.all(arr).then((value) => {
                 promise.index = BlueprintConst.MAX_CODELINE;
@@ -50,8 +67,8 @@ export class BlueprintSequenceNode extends BlueprintComplexNode {
             })
             return promise as any;
         }
-        else{
-            return null; 
+        else {
+            return null;
         }
     }
 
