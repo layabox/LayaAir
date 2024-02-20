@@ -95,11 +95,12 @@ export class RTShaderPass implements IShaderPassData {
     private _pass: ShaderPass;
     constructor(pass: ShaderPass) {
         this._nativeObj = new (window as any).conchRTShaderPass();
-        this._nativeObj.setCompileDefine(RTShaderPass._compileDefine._nativeobj);
+        this._nativeObj.setCompileDefine(RTShaderPass._compileDefine._nativeObj);
         this._createShaderInstanceFun = this.nativeCreateShaderInstance.bind(this);
         this._nativeObj.setCreateShaderInstanceFunction(this._createShaderInstanceFun);
         this._renderState = new RenderState();
         this._renderState.setNull();
+        this._pass = pass;
     }
     private _renderState: RenderState;
     public get renderState(): RenderState {
@@ -119,24 +120,24 @@ export class RTShaderPass implements IShaderPassData {
     }
     public set validDefine(value: RTDefineDatas) {
         this._validDefine = value;
-        this._nativeObj.setValidDefine(value._nativeobj);
+        this._nativeObj.setValidDefine(value._nativeObj);
     }
     nativeCreateShaderInstance() {
         var shaderIns =  this._pass.withCompile(RTShaderPass._compileDefine) as GLESShaderInstance;
         return shaderIns._nativeObj;
     }
-
     destory(): void {
         this._nativeObj.destory();
     }
 
     setCacheShader(defines: IDefineDatas, shaderInstance: IShaderInstance): void {
         //@ts-ignore
-        this._nativeObj.setCacheShader(defines, shaderInstance._nativeObj);
+        this._nativeObj.setCacheShader(defines._nativeObj, shaderInstance._nativeObj);
     }
 
     getCacheShader(defines: IDefineDatas): IShaderInstance {
-        return this._nativeObj.getCacheShader(defines);
+        //@ts-ignore
+        return this._nativeObj.getCacheShader(defines._nativeObj);
     }
 }
 
