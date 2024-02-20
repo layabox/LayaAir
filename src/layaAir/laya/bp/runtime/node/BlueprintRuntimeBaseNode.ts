@@ -90,7 +90,7 @@ export class BlueprintRuntimeBaseNode extends BlueprintNode<BlueprintPinRuntime>
             return result;
         }
         let _parmsArray: any[] = this.colloctParam(context, runtimeDataMgr, this.inPutParmPins, runner, runId);
-        context.parmFromOutPut(this.outPutParmPins, runtimeDataMgr, _parmsArray);
+        //context.parmFromOutPut(this.outPutParmPins, runtimeDataMgr, _parmsArray);
         if (this.nativeFun) {
             let caller = null;
             if (this.isMember) {
