@@ -102,7 +102,7 @@ export class BlueprintData {
                 return targetData.funs[dataId];
             }
             if (null != targetData.parent) {
-                return this.getConstDataById(target, dataId);
+                return this.getConstDataById(targetData.parent, dataId);
             }
         }
         return null;
@@ -203,8 +203,8 @@ export class BlueprintData {
             let o = data[ext];
 
             if (null == this.constData[ext]) this.constData[ext] = {};
-            if (o.extends) {
-
+            if (o.extends && 1 < o.extends.length) {
+                this.constData[ext].parent = o.extends[0];
             }
 
             if (o?.props) {
