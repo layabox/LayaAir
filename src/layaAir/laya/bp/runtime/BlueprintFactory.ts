@@ -29,6 +29,7 @@ import { BluePrintBlockNode } from "./node/BlueprintBlockNode";
 import { BPMathLib } from "../BPMathLib";
 import { BlueprintGetTempVarNode } from "./node/BlueprintGetTempVarNode";
 import { BlueprintSetTempVarNode } from "./node/BlueprintSetTempVarNode";
+import { BPArray } from "../export/BPArray";
 
 export class BlueprintFactory {
     public static readonly bpSymbol: unique symbol = Symbol("bpruntime");
@@ -78,6 +79,7 @@ export class BlueprintFactory {
 
     static __init__() {
         BPMathLib;
+        BPArray;
         if (!this._isInited) {
 
             this.BPRuntimeCls = BlueprintRuntime;

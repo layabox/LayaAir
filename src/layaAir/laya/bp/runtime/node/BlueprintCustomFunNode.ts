@@ -21,6 +21,12 @@ export class BlueprintCustomFunNode extends BlueprintFunNode {
         this.inExcutes = [];
     }
 
+    colloctParam(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, inputPins: BlueprintPinRuntime[], runner: IBPRutime, runId: number){
+        let parmsArray=super.colloctParam(context, runtimeDataMgr, this.inPutParmPins, runner, runId);
+        context.parmFromOutPut(this.outPutParmPins, runtimeDataMgr, parmsArray);
+        return parmsArray;
+    }
+
     protected onParseLinkData(node: TBPNode, manger: INodeManger<BlueprintFunNode>) {
         let id = node.dataId;
         if (id) {
