@@ -83,7 +83,7 @@ export class BlueprintCustomFunReturnContext extends RuntimeNodeData {
                 let nextPin = outExcute.linkTo[0] as BlueprintPinRuntime;
                 if (nextPin) {
                     let runner = this.runnerMap.get(runId);
-                    runner[0].runByContext(context, runner[1], nextPin.owner, false, null, runId, nextPin);
+                    runner[0].runByContext(context, runner[1], nextPin.owner, true, null, runId, nextPin);
                 }
             }
         }
