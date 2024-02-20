@@ -23,10 +23,15 @@ export class BlueprintCustomFunReturn extends BlueprintRuntimeBaseNode {
     step(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, fromExcute: boolean, runner: IBPRutime, enableDebugPause: boolean, runId: number, fromPin: BlueprintPinRuntime): BlueprintPinRuntime | BlueprintPromise | number {
         let result = super.step(context, runtimeDataMgr, fromExcute, runner, enableDebugPause, runId, fromPin);
         let nodeContext = runtimeDataMgr.getDataById(this.nid) as BlueprintCustomFunReturnContext;
-        nodeContext.returnResult(runId);
         if (this.inExcutes.length > 1) {//多个输出引脚
+            //let curRunId = nodeContext.runIdMap.get(runId);
+            nodeContext.returnResult(runId,runId);
             nodeContext.runExcute(runId, this.inExcutes.indexOf(fromPin), context);
             return 1;
+        }
+        else{
+            let curRunId = nodeContext.runIdMap.get(runId);
+            nodeContext.returnResult(runId,curRunId);
         }
         return null;
     }
@@ -89,9 +94,8 @@ export class BlueprintCustomFunReturnContext extends RuntimeNodeData {
         }
     }
 
-    returnResult(runId: number) {
+    returnResult(runId: number,curRunId: number) {
         let result = this.returnMap.get(runId);
-        let curRunId = this.runIdMap.get(runId);
         if (result) {
             result.forEach((parm, index) => {
                 parm.setValue(curRunId, this.getParamsArray(runId)[index]);
