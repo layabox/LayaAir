@@ -146,6 +146,11 @@ export class BlueprintData {
                     data = obj.allData[node.dataId];
                 }
             }
+
+            if (null == data) {
+                data = this._getConstData(node.dataId, node.target);
+            }
+
             if (data) {
                 cdata = BlueprintUtil.clone(cdata);
                 let arr = data.input;
