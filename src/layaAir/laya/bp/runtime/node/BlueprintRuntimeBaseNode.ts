@@ -86,7 +86,7 @@ export class BlueprintRuntimeBaseNode extends BlueprintNode<BlueprintPinRuntime>
 
     step(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, fromExcute: boolean, runner: IBPRutime, enableDebugPause: boolean, runId: number, fromPin: BlueprintPinRuntime): BlueprintPinRuntime | BlueprintPromise | number {
         let _parmsArray: any[] = this.colloctParam(context, runtimeDataMgr, this.inPutParmPins, runner, runId);
-        context.parmFromOutPut(this.outPutParmPins, runtimeDataMgr, _parmsArray);
+        // context.parmFromOutPut(this.outPutParmPins, runtimeDataMgr, _parmsArray);
         
         const result = fromExcute && context.beginExcute(this, runner, enableDebugPause, fromPin, _parmsArray);
         if (result) {
