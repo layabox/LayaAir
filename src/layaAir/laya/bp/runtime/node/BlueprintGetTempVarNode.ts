@@ -11,7 +11,7 @@ import { BlueprintPinRuntime } from "../BlueprintPinRuntime";
 import { BlueprintPromise } from "../BlueprintPromise";
 
 export class BlueprintGetTempVarNode extends BlueprintRuntimeBaseNode {
-    private _varKey: string;
+    protected _varKey: string;
     constructor() {
         super();
     }
