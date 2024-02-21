@@ -85,12 +85,13 @@ export class BlueprintRuntimeBaseNode extends BlueprintNode<BlueprintPinRuntime>
 
 
     step(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, fromExcute: boolean, runner: IBPRutime, enableDebugPause: boolean, runId: number, fromPin: BlueprintPinRuntime): BlueprintPinRuntime | BlueprintPromise | number {
-        const result = fromExcute && context.beginExcute(this, runner, enableDebugPause, fromPin);
+        let _parmsArray: any[] = this.colloctParam(context, runtimeDataMgr, this.inPutParmPins, runner, runId);
+        context.parmFromOutPut(this.outPutParmPins, runtimeDataMgr, _parmsArray);
+        
+        const result = fromExcute && context.beginExcute(this, runner, enableDebugPause, fromPin, _parmsArray);
         if (result) {
             return result;
         }
-        let _parmsArray: any[] = this.colloctParam(context, runtimeDataMgr, this.inPutParmPins, runner, runId);
-        context.parmFromOutPut(this.outPutParmPins, runtimeDataMgr, _parmsArray);
         if (this.nativeFun) {
             let caller = null;
             if (this.isMember) {
@@ -158,8 +159,4 @@ export class BlueprintRuntimeBaseNode extends BlueprintNode<BlueprintPinRuntime>
 
     }
 
-    parse(def: TBPCNode): void {
-        super.parse(def);
-        this.hasDebugger = !!def.debugType;
-    }
 }
