@@ -44,7 +44,7 @@ export class BlueprintCustomFunNode extends BlueprintFunNode {
             let result: any;
             let _funcContext = caller[BlueprintFactory.contextSymbol];
             result = caller[BlueprintFactory.bpSymbol].runCustomFun(_funcContext, this.functionID, parmsArray, () => {
-                this._excuteFun(_funcContext, cb);
+                this._excuteFun(_funcContext, cb, parmsArray);
             }, runId, this.inExcutes.indexOf(fromPin), this.outExcutes, runner, runtimeDataMgr);
             if (result === false) {
                 primise = new Promise((resolve, reject) => {
@@ -57,7 +57,7 @@ export class BlueprintCustomFunNode extends BlueprintFunNode {
         //return context.excuteFun(this.nativeFun, this.outPutParmPins, caller, parmsArray);
     }
 
-    protected _excuteFun(context: IRunAble, cb: any) {
+    protected _excuteFun(context: IRunAble, cb: any, parmsArray: any[]) {
         if (cb) {
             cb();
         }

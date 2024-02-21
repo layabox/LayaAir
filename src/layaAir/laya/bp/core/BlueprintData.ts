@@ -184,18 +184,10 @@ export class BlueprintData {
                     }
                 }
                 this.autoCreateData[id] = cdata;
-                if (node.debugType) {
-                    cdata.debugType = node.debugType;
-                }
                 return cdata;
             }
         } else {
-            let ret = this._getConstData(node.cid, node.target);
-            if (node.debugType) {
-                ret = BlueprintUtil.clone(ret);
-                ret.debugType = node.debugType;
-            }
-            return ret;
+            return this._getConstData(node.cid, node.target);
         }
         return null;
     }

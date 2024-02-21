@@ -59,7 +59,7 @@ export class BlueprintExcuteNode extends BlueprintRunBase implements IRunAble {
     getCode(): string {
         return "";
     }
-    beginExcute(runtimeNode: BlueprintRuntimeBaseNode, runner: IBPRutime, enableDebugPause: boolean, fromPin: BlueprintPinRuntime): BlueprintPromise {
+    beginExcute(runtimeNode: BlueprintRuntimeBaseNode, runner: IBPRutime, enableDebugPause: boolean, fromPin: BlueprintPinRuntime, parmsArray: any[]): BlueprintPromise {
         //throw new Error("Method not implemented.");
         if (this.listNode.indexOf(runtimeNode) == -1) {
             this.listNode.push(runtimeNode);

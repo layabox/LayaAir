@@ -11,7 +11,7 @@ import { IRuntimeDataManger } from "../../core/interface/IRuntimeDataManger";
 import { BlueprintPromise } from "../BlueprintPromise";
 
 export class BlueprintSetTempVarNode extends BlueprintFunNode {
-    private _varKey: string;
+    protected _varKey: string;
     constructor() {
         super();
     }
