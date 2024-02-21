@@ -33,7 +33,8 @@ export class GLESEngine implements IRenderEngine {
   }
 
   getNamesByDefineData(defineData: IDefineDatas, out: Array<string>): void {
-
+    out.length = 0;
+    this._nativeObj.getNamesByDefineData((defineData as any)._nativeObj, out);
   }
   addTexGammaDefine(key: number, value: RTShaderDefine): void {
     this._nativeObj.addTexGammaDefine(key, value);

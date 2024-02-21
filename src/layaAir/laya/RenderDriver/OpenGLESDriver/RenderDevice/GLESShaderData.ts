@@ -15,7 +15,7 @@ import { RTShaderDefine } from "../../RenderModuleData/RuntimeModuleData/RTShade
 export class GLESShaderData extends ShaderData {
     nativeObjID: number;
     _nativeObj: any;
-    _defineDatas: RTDefineDatas;
+    _defineDatas: RTDefineDatas = new RTDefineDatas();
     _textureData: { [key: number]: BaseTexture };
 
     /**
@@ -23,8 +23,7 @@ export class GLESShaderData extends ShaderData {
      */
     constructor(ownerResource: Resource = null) {
         super(ownerResource)
-        this._nativeObj = new (window as any).conchGLESShaderData();
-        this._defineDatas = new RTDefineDatas(this._nativeObj.getOwnerDefineData());
+        this._nativeObj = new (window as any).conchGLESShaderData((this._defineDatas as any)._nativeObj);
         this._textureData = {};
     }
 

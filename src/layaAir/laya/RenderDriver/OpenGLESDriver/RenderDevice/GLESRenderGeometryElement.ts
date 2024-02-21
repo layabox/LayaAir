@@ -48,12 +48,7 @@ export class GLESRenderGeometryElement implements IRenderGeometryElement {
 
   set bufferState(value: IBufferState) {
     this._bufferState = value;
-    if (value) {
-      this._nativeObj.bufferState = (value as any)._nativeObj;
-    }
-    else {
-      this._nativeObj.bufferState = null;
-    }
+    this._nativeObj.setBufferState(value ? (value as any)._nativeObj : null);
   }
 
   get bufferState(): IBufferState {

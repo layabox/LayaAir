@@ -87,7 +87,13 @@ export class RTSubShader implements ISubshaderData {
 
 export class RTShaderPass implements IShaderPassData {
     /** @internal */
-    static _compileDefine: RTDefineDatas = new RTDefineDatas();
+    static _compileDefine: RTDefineDatas = null;
+    static getCompileDefine(): RTDefineDatas {
+        if (!RTShaderPass._compileDefine) {
+            RTShaderPass._compileDefine = new RTDefineDatas();
+        }
+        return RTShaderPass._compileDefine;
+    }
     statefirst: boolean;
     private _validDefine: RTDefineDatas = new RTDefineDatas();
     private _createShaderInstanceFun: any;
@@ -95,7 +101,7 @@ export class RTShaderPass implements IShaderPassData {
     private _pass: ShaderPass;
     constructor(pass: ShaderPass) {
         this._nativeObj = new (window as any).conchRTShaderPass();
-        this._nativeObj.setCompileDefine(RTShaderPass._compileDefine._nativeObj);
+        this._nativeObj.setCompileDefine(RTShaderPass.getCompileDefine()._nativeObj);
         this._createShaderInstanceFun = this.nativeCreateShaderInstance.bind(this);
         this._nativeObj.setCreateShaderInstanceFunction(this._createShaderInstanceFun);
         this._renderState = new RenderState();
@@ -123,7 +129,7 @@ export class RTShaderPass implements IShaderPassData {
         this._nativeObj.setValidDefine(value._nativeObj);
     }
     nativeCreateShaderInstance() {
-        var shaderIns =  this._pass.withCompile(RTShaderPass._compileDefine) as GLESShaderInstance;
+        var shaderIns =  this._pass.withCompile(RTShaderPass.getCompileDefine()) as GLESShaderInstance;
         return shaderIns._nativeObj;
     }
     destory(): void {
@@ -132,7 +138,7 @@ export class RTShaderPass implements IShaderPassData {
 
     setCacheShader(defines: IDefineDatas, shaderInstance: IShaderInstance): void {
         //@ts-ignore
-        this._nativeObj.setCacheShader(defines._nativeObj, shaderInstance._nativeObj);
+        this._nativeObj.setCacheShader(defines._nativeObj, shaderInstance._nativeObj, shaderInstance);
     }
 
     getCacheShader(defines: IDefineDatas): IShaderInstance {

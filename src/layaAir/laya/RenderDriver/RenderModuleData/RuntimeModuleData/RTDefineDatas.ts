@@ -4,13 +4,8 @@ import { RTShaderDefine } from "./RTShaderDefine";
 
 export class RTDefineDatas implements IDefineDatas {
     _nativeObj: any;
-    constructor(value?: any) {
-        if (value) {
-            this._nativeObj = value;
-        }
-        else {
-            this._nativeObj = new (window as any).conchRTDefineDatas();
-        }
+    constructor() {
+        this._nativeObj = new (window as any).conchRTDefineDatas();
     }
     get _length(): number {
         return this._nativeObj._length;
@@ -55,7 +50,9 @@ export class RTDefineDatas implements IDefineDatas {
         this._nativeObj.cloneTo(destObject._nativeObj);
     }
     clone(): RTDefineDatas {
-        return new RTDefineDatas(this._nativeObj.clone());
+        var dest: RTDefineDatas = new RTDefineDatas();
+		this.cloneTo(dest);
+		return dest;
     }
     destroy(): void {
         this._nativeObj.destroy();
