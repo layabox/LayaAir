@@ -73,13 +73,8 @@ export class BlueprintCustomFunNode extends BlueprintFunNode {
     }
 
     optimize() {
-        if (this.outExcutes.length == 1) {
-            let linkto = this.outExcute.linkTo;
-            this.staticNext = linkto[0] as BlueprintPinRuntime;
-        }
-        else {
-            this.staticNext = null;
-        }
+        let linkto = this.outExcutes[0].linkTo;
+        this.staticNext = linkto[0] as BlueprintPinRuntime;
     }
 
 
