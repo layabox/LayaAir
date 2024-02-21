@@ -233,9 +233,8 @@ export class BlueprintFactory {
             funs.forEach(fun => {
                 bp.parseFunction(fun, c);
             })
-            //this.initEventFunc(parentName, newClass);
         }
-        this.initClassHook(parentName, newClass);
+        this.initClassHook(name, newClass);
         Object.defineProperty(newClass, 'name', { value: name });
 
         return newClass as unknown as T;

@@ -50,11 +50,8 @@ export class BlueprintEventNode extends BlueprintRuntimeBaseNode {
             data.eventName = this.eventName;
             data.callFun = data.callFun || function () {
                 let parms = Array.from(arguments);
-                let newRunId = runner.getRunID();
-                parms.forEach((value, index) => {
-                    runtimeDataMgr.setPinData(_this.outPutParmPins[index], value, newRunId);
-                })
-
+                let newRunId = runner.getRunID();                
+                _this.initData(runtimeDataMgr, parms, newRunId);
                 let nextPin = _this.outExcute.linkTo[0] as BlueprintPinRuntime;
                 if (nextPin) {
                     runner.runByContext(context, runtimeDataMgr, nextPin.owner, enableDebugPause, null, newRunId, nextPin);
