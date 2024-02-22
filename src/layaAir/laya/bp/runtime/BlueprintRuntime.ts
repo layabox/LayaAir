@@ -77,6 +77,7 @@ export class BlueprintRuntime {
     parseFunction(funData: TBPStageData, getCNodeByNode: (node: TBPNode) => TBPCNode) {
         let funId: number = funData.id, bpjson: Array<TBPNode> = funData.arr;
         let fun = new BluePrintFunBlock(funId);
+        fun.mainBlock = this.mainBlock;
         fun.name = funData.name;
         fun.dataMap = this.dataMap;
         //TODO Function varMap
@@ -149,7 +150,10 @@ export class BluePrintBlock implements INodeManger<BlueprintRuntimeBaseNode>, IB
         this._pendingClass = new Map();
         this.anonymousfuns = [];
     }
-
+    
+    get target(): string{
+        return this.name;
+    }
 
     getNodeById(id: any): BlueprintRuntimeBaseNode {
         return this.nodeMap.get(id);
@@ -402,11 +406,16 @@ export class BluePrintMainBlock extends BluePrintBlock {
 }
 
 export class BluePrintFunBlock extends BluePrintBlock {
-
+    mainBlock: BluePrintMainBlock;
 
     funStart: BlueprintCustomFunStart;
 
     funEnds: BlueprintCustomFunReturn[] = [];
+
+    get target(): string{
+        return this.mainBlock.name;
+    }
+
     optimize() {
         super.optimize();
         this.optimizeByStart(this.funStart, this.excuteList);
