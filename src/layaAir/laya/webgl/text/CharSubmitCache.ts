@@ -1,6 +1,6 @@
 import { ColorFilter } from "../../filters/ColorFilter"
 import { Matrix } from "../../maths/Matrix"
-import { Context } from "../../resource/Context"
+import { Context } from "../../renders/Context"
 import { Texture } from "../../resource/Texture"
 import { RenderSpriteData, Value2D } from "../shader/d2/value/Value2D"
 import { SubmitTexture } from "../submit/SubmitTexture"
@@ -75,7 +75,7 @@ export class CharSubmitCache {
     }
 
     submit(ctx: Context): void {
-        var n: number = this._ndata;
+        var n = this._ndata;
         if (!n)
             return;
 
@@ -91,15 +91,13 @@ export class CharSubmitCache {
         ctx._copyClipInfo(submit, this._clipMatrix);
         submit.clipInfoID = this._clipid;
 
-        for (var i: number = 0; i < n; i += 3) {
+        for (var i = 0; i < n; i += 3) {
             _mesh.addQuad(this._data[i], this._data[i + 1], this._data[i + 2], true);
             CharSubmitCache.__posPool[CharSubmitCache.__nPosPool++] = this._data[i];
         }
 
         n /= 3;
         submit._numEle += n * 6;
-        _mesh.indexNum += n * 6;
-        _mesh.vertNum += n * 4;
         ctx._drawCount += n;
         this._ndata = 0;
 

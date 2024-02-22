@@ -3,7 +3,7 @@ import { TextTexture } from "./TextTexture";
 import { Sprite } from "../../display/Sprite"
 import { Point } from "../../maths/Point"
 import { RenderInfo } from "../../renders/RenderInfo"
-import { Context } from "../../resource/Context"
+import { Context } from "../../renders/Context"
 import { Texture } from "../../resource/Texture"
 import { FontInfo } from "../../utils/FontInfo"
 import { WordText } from "../../utils/WordText"

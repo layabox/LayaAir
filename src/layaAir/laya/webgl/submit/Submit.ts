@@ -1,10 +1,7 @@
 import { Const } from "../../Const";
-import { Material } from "../../resource/Material";
-import { LayaGL } from "../../layagl/LayaGL";
-import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
-import { MeshTopology } from "../../RenderEngine/RenderEnum/RenderPologyMode";
 import { RenderStateContext } from "../../RenderEngine/RenderStateContext";
-import { Context } from "../../resource/Context";
+import { Context } from "../../renders/Context";
+import { Material } from "../../resource/Material";
 import { BlendMode } from "../canvas/BlendMode";
 import { Value2D } from "../shader/d2/value/Value2D";
 import { Mesh2D } from "../utils/Mesh2D";
@@ -33,8 +30,8 @@ export class Submit extends SubmitBase {
             this.shaderValue.texture = source;
         }
 
-        this._mesh.useMesh();//bind 顶点
-        this.shaderValue.upload(this.material);//绑定shader，uploadMaterial
+        /// this._mesh.useMesh();//bind 顶点
+        this.shaderValue.upload(this.material,this.shaderValue.shaderData);//绑定shader，uploadMaterial
 
         if (BlendMode.activeBlendFunction !== this._blendFn) {
             RenderStateContext.setBlend(true);
@@ -74,14 +71,14 @@ export class Submit extends SubmitBase {
         o._ref = 1;
         o._mesh = mesh;
         o._key.clear();
-        o._startIdx = mesh.indexNum * Const.BYTES_PIDX;
+        o._startIdx = mesh.indexNum * Const.INDEX_BYTES;
         o._numEle = 0;
         var blendType = context._nBlendType;
         o._blendFn = context._targets ? BlendMode.targetFns[blendType] : BlendMode.fns[blendType];
         o.shaderValue = sv;
         o.material = context.material;
-        var filters: any[] = context._shader2D.filters;
-        filters && o.shaderValue.setFilters(filters);
+        var filter = context._colorFiler;
+        filter && o.shaderValue.setFilter(filter);
         return o;
     }
 

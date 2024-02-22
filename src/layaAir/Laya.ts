@@ -8,7 +8,7 @@ import { Loader } from "./laya/net/Loader";
 import { LocalStorage } from "./laya/net/LocalStorage";
 import { Render } from "./laya/renders/Render";
 import { RenderSprite } from "./laya/renders/RenderSprite";
-import { Context } from "./laya/resource/Context";
+import { Context } from "./laya/renders/Context";
 import { HTMLCanvas } from "./laya/resource/HTMLCanvas";
 import { RenderTexture2D } from "./laya/resource/RenderTexture2D";
 import { Texture } from "./laya/resource/Texture";
@@ -37,6 +37,7 @@ import { Config } from "./Config";
 import { Shader3D } from "./laya/RenderEngine/RenderShader/Shader3D";
 import { LayaGL } from "./laya/layagl/LayaGL";
 import { Material } from "./laya/resource/Material";
+import { VertexElementFormat } from "./laya/renders/VertexElementFormat";
 
 /**
  * <code>Laya</code> 是全局对象的引用入口集。
@@ -167,7 +168,8 @@ export class Laya {
 
     static initRender2D(stageConfig: IStageConfig) {
         stage = ((<any>window)).stage = ILaya.stage = Laya.stage = new Stage();
-
+        
+        VertexElementFormat.__init__();
         Shader3D.init();
         MeshQuadTexture.__int__();
         MeshVG.__init__();
@@ -277,7 +279,7 @@ export class Laya {
             canvasHeight |= 0;
 
             var canv: HTMLCanvas = new HTMLCanvas(false);
-            var ctx: Context = canv.getContext('2d') as Context;
+            var ctx  = canv.getContext('2d') as Context;
             canv.size(canvasWidth, canvasHeight);
 
             ctx.asBitmap = true;

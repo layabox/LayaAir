@@ -1,11 +1,10 @@
 import { Config3D } from "../../../../Config3D";
 import { ILaya } from "../../../../ILaya";
 import { Sprite } from "../../../display/Sprite";
-import { Context } from "../../../resource/Context";
+import { Context } from "../../../renders/Context";
 import { Texture2D } from "../../../resource/Texture2D";
 import { Handler } from "../../../utils/Handler";
 import { Timer } from "../../../utils/Timer";
-import { ISubmit } from "../../../webgl/submit/ISubmit";
 import { SubmitKey } from "../../../webgl/submit/SubmitKey";
 import { Cluster } from "../../graphics/renderPath/Cluster";
 import { Viewport } from "../../math/Viewport";
@@ -65,7 +64,7 @@ export enum FogMode {
 /**
  * 用于实现3D场景。
  */
-export class Scene3D extends Sprite implements ISubmit {
+export class Scene3D extends Sprite {
     /** @internal */
     private static _lightTexture: Texture2D;
     /** @internal */
@@ -1172,7 +1171,9 @@ export class Scene3D extends Sprite implements ISubmit {
      */
     render(ctx: Context): void {
         if (this._children.length > 0) {
-            ctx.addRenderObject3D(this);
+            //temp
+            ctx.drawLeftData();
+            this.renderSubmit();
         }
     }
 
@@ -1231,19 +1232,6 @@ export class Scene3D extends Sprite implements ISubmit {
         cmd.run();
         cmd.recover();
         BlitFrameBufferCMD.shaderdata.removeDefine(BaseCamera.SHADERDEFINE_FXAA);
-    }
-
-    /**
-     * 获得渲染类型
-     */
-    getRenderType(): number {
-        return 0;
-    }
-
-    /**
-     * 删除渲染
-     */
-    releaseRender(): void {
     }
 
     /**

@@ -1,6 +1,6 @@
 import { Timer } from "./laya/utils/Timer";
 import { Loader } from "./laya/net/Loader";
-import { Context } from "./laya/resource/Context";
+import { Context } from "./laya/renders/Context";
 import { Browser } from "./laya/utils/Browser";
 import { Stage } from "./laya/display/Stage";
 

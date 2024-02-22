@@ -1,6 +1,6 @@
 import { ILaya } from "./../../ILaya";
 import { Config } from "./../../Config";
-import { Context } from "../resource/Context";
+import { Context } from "./Context";
 import { HTMLCanvas } from "../resource/HTMLCanvas";
 import { BlendMode } from "../webgl/canvas/BlendMode";
 import { Shader2D } from "../webgl/shader/d2/Shader2D";
@@ -132,12 +132,10 @@ export class Render {
 
         canvas.size(w, h);	//在ctx之后调用。
         ShaderDefines2D.__init__();
-        VertexElementFormat.__init__();
         Context.__init__();
         SubmitBase.__init__();
 
-        var ctx: Context = new Context();
-        Context._rendercontex = ctx;
+        var ctx = new Context();
         ctx.isMain = true;
         Render._context = ctx;
         canvas._setContext(ctx);

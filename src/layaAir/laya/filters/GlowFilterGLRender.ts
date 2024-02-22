@@ -2,7 +2,7 @@ import { BlendFactor } from "../RenderEngine/RenderEnum/BlendFactor"
 import { RenderStateContext } from "../RenderEngine/RenderStateContext"
 import { Matrix } from "../maths/Matrix"
 import { Vector4 } from "../maths/Vector4";
-import { Context } from "../resource/Context"
+import { Context } from "../renders/Context"
 import { RenderTexture2D } from "../resource/RenderTexture2D"
 import { TextureSV } from "../webgl/shader/d2/value/TextureSV";
 import { RenderSpriteData, Value2D } from "../webgl/shader/d2/value/Value2D"
@@ -12,7 +12,7 @@ import { GlowFilter } from "./GlowFilter";
  */
 export class GlowFilterGLRender {
 	private setShaderInfo(shader: Value2D, w: number, h: number, data: GlowFilter): void {
-		shader.defines.addDefine(data.typeDefine);
+		shader.shaderData.addDefine(data.typeDefine);
 		var sv = <TextureSV>shader;
 		//data._sv_blurInfo1;// [data.blur, data.blur, data.offX, -data.offY];
 		Vector4.tempVec4.setValue(data._sv_blurInfo1[0], data._sv_blurInfo1[1], data._sv_blurInfo1[2], data._sv_blurInfo1[3]);

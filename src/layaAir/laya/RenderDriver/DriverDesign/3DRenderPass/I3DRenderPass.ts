@@ -130,6 +130,10 @@ export interface IRenderContext3D {
     runCMDList(cmds: IRenderCMD[]): void;
 }
 
+export interface IRenderContext2D{
+    //TODO
+}
+
 export interface IRenderElement3D {
     geometry: IRenderGeometryElement;
     materialShaderData: ShaderData;
@@ -140,4 +144,21 @@ export interface IRenderElement3D {
     owner: IBaseRenderNode;
     subShader: SubShader;
     destroy(): void;
+}
+
+export interface IRenderElement2D{
+    geometry: IRenderGeometryElement;
+    materialShaderData: ShaderData;
+    value2DShaderData:ShaderData;
+    subShader: SubShader;
+    render(context:IRenderContext3D):void;
+    destroy():void;
+}
+
+export interface IVertexBuffer3D{
+    //TODO
+}
+
+export interface IIndexBuffer3D{
+    //TODO
 }

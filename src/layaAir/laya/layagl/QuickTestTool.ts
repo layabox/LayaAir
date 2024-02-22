@@ -2,7 +2,7 @@ import { Sprite } from "../display/Sprite"
 import { SpriteConst } from "../display/SpriteConst"
 import { Stage } from "../display/Stage"
 import { RenderSprite } from "../renders/RenderSprite"
-import { Context } from "../resource/Context"
+import { Context } from "../renders/Context"
 import { ILaya } from "../../ILaya";
 /**
  * ...
@@ -80,6 +80,7 @@ export class QuickTestTool {
         //{
         //debugger;
         //}
+        //@ts-ignore
         RenderSprite.renders[this._renderType]._fun(this, context, x + this._x, y + this._y);
         this._repaint = 0;
     }

@@ -1,7 +1,7 @@
 import { PerfData } from "./PerfData";
 import { Sprite } from "../display/Sprite"
 import { SpriteConst } from "../display/SpriteConst"
-import { Context } from "../resource/Context"
+import { Context } from "../renders/Context"
 /**
  * @internal
  */

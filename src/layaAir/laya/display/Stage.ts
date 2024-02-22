@@ -10,7 +10,7 @@ import { Matrix } from "../maths/Matrix"
 import { Point } from "../maths/Point"
 import { Render } from "../renders/Render"
 import { RenderInfo } from "../renders/RenderInfo"
-import { Context } from "../resource/Context"
+import { Context } from "../renders/Context"
 import { HTMLCanvas } from "../resource/HTMLCanvas"
 import { Browser } from "../utils/Browser"
 import { CallLater } from "../utils/CallLater"
@@ -23,6 +23,7 @@ import { ILaya } from "../../ILaya";
 import { ComponentDriver } from "../components/ComponentDriver";
 import { LayaEnv } from "../../LayaEnv";
 import { LayaGL } from "../layagl/LayaGL";
+import { Scene3D } from "../d3/core/scene/Scene3D";
 
 /**
  * stage大小经过重新调整时进行调度。
@@ -142,7 +143,7 @@ export class Stage extends Sprite {
     /**@private */
     private _alignH: string = "left";
     /**@private */
-    private _bgColor: string = "black";
+    private _bgColor: string = "gray";
     /**@internal */
     _mouseMoveTime: number = 0;
     /**@private */
@@ -160,7 +161,7 @@ export class Stage extends Sprite {
     /**@internal webgl Color*/
     _wgColor: number[] | null = [0, 0, 0, 1];
     /**@internal */
-    _scene3Ds: Node[] = [];
+    _scene3Ds: Scene3D[] = [];
 
     /**@private */
     private _globalRepaintSet: boolean = false;		// 设置全局重画标志。这个是给IDE用的。IDE的Image无法在onload的时候通知对应的sprite重画。
@@ -795,9 +796,9 @@ export class Stage extends Sprite {
     };
 
     /**@inheritDoc @override*/
-    render(context: Context, x: number, y: number): void {
+    render(context2D: Context, x: number, y: number): void {
         if (LayaEnv.isConch) {
-            this.renderToNative(context, x, y);
+            this.renderToNative(context2D, x, y);
             return;
         }
 
@@ -837,21 +838,19 @@ export class Stage extends Sprite {
         RenderInfo.loopCount = Stat.loopCount;
 
         if (this.renderingEnabled) {
+            context2D.startRender();
+
             for (let i = 0, n = this._scene3Ds.length; i < n; i++)//更新3D场景,必须提出来,否则在脚本中移除节点会导致BUG
                 (<any>this._scene3Ds[i])._update(delta);
             this._runComponents();
-
-            context.clear();
-
             this._componentDriver.callPreRender();
-
-            super.render(context, x, y);
-
-            Stat.render(context, x, y);
-
+            
             Stage.clear(this._bgColor);
+            super.render(context2D, x, y);
 
-            context.flush();
+            Stat.render(context2D, x, y);
+
+            context2D.endRender();
 
             this._componentDriver.callPostRender();
 

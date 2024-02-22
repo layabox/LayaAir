@@ -1,4 +1,4 @@
-import { Context } from "../../../resource/Context"
+import { Context } from "../../../renders/Context"
 export interface ISaveData {
     isSaveMark(): boolean;
     restore(context: Context): void;
