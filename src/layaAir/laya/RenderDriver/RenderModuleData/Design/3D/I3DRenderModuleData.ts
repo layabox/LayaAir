@@ -8,7 +8,6 @@ import { Color } from "../../../../maths/Color";
 import { Matrix4x4 } from "../../../../maths/Matrix4x4";
 import { Vector3 } from "../../../../maths/Vector3";
 import { Vector4 } from "../../../../maths/Vector4";
-import { Material } from "../../../../resource/Material";
 import { IRenderElement3D } from "../../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { IShaderInstance } from "../../../DriverDesign/RenderDevice/IShaderInstance";
 import { InternalTexture } from "../../../DriverDesign/RenderDevice/InternalTexture";
@@ -27,8 +26,6 @@ export interface IBaseRenderNode {
     bounds: Bounds;
     baseGeometryBounds: Bounds;
     boundsChange: boolean;
-    customCull: boolean;
-    customCullResoult: boolean;
     staticMask: number;
     shaderData: ShaderData;
     lightmapIndex: number;
@@ -200,5 +197,4 @@ export interface IShaderPassData {
     getCacheShader(defines: IDefineDatas): IShaderInstance;
     destory(): void;
 }
-
 

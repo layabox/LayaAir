@@ -1,3 +1,5 @@
+
+import { IRenderCMD } from "../../../../RenderDriver/DriverDesign/3DRenderPass/IRendderCMD";
 import { ShaderData } from "../../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { Shader3D } from "../../../../RenderEngine/RenderShader/Shader3D";
 import { LayaGL } from "../../../../layagl/LayaGL";
@@ -20,11 +22,11 @@ export class Command {
 	/** @internal */
 	static MAINTEXTURE_TEXELSIZE_NAME: string = "u_MainTex_TexelSize";//todo：
 	/** @internal */
-	static SCREENTEXTURE_ID: number ;//todo：
+	static SCREENTEXTURE_ID: number;//todo：
 	/** @internal */
 	static SCREENTEXTUREOFFSETSCALE_ID: number;//todo：
 	/** @internal */
-	static MAINTEXTURE_TEXELSIZE_ID: number ;//todo：
+	static MAINTEXTURE_TEXELSIZE_ID: number;//todo：
 
 	/**@internal */
 	_commandBuffer: CommandBuffer = null;
@@ -49,11 +51,9 @@ export class Command {
 	}
 
 	/**
-	 * 运行渲染指令
+	 * 组织渲染指令
 	 */
-	run(): void {
-
-	}
+	run?(): void;
 
 	/**
 	 * 回收渲染指令
@@ -61,20 +61,19 @@ export class Command {
 	recover(): void {
 		this._commandBuffer = null;
 	}
-
+	
 	/**
-	 * 设置渲染上下文
-	 * @param context 渲染上下文 
+	 * @override
+	 * @internal
+	 * @returns 
 	 */
-	setContext(context: RenderContext3D) {
-		this._context = context;
-	}
+	getRenderCMD?(): IRenderCMD;
 
 	/**
 	 * @internal
 	 * @destroy
 	 */
-	destroy(){
+	destroy() {
 		this._commandBuffer = null;
 		this._context = null;
 	}

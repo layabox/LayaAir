@@ -124,11 +124,10 @@ export class BlitFrameBufferCMD {
 		else {
 			shaderData.addDefine(RenderContext3D.GammaCorrect);
 		}
-		ScreenQuad.instance.invertY = false;
+		this._renderElement.setGeometry(ScreenQuad.InvertInstance); 
 		context.destTarget = dest;
 		context._contextOBJ.cameraUpdateMask = Camera._updateMark;
 		context.drawRenderElement(this._renderElement._renderElementOBJ);
-		//RenderContext3D._instance.invertY ? ScreenQuad.instance.renderInvertUV() : ScreenQuad.instance.render();
 	}
 	/**
 	 * @inheritDoc

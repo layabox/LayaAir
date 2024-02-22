@@ -184,8 +184,7 @@ export class GodRay extends PostProcessEffect {
         this.getcenter(context.camera, context.camera.scene, source.width / source.height);
         //getOcTexture
         let copyRT = RenderTexture.createFromPool(source.width, source.height, source.colorFormat, RenderTargetFormat.None, false, 1, false, true);
-        cmd.setRenderTarget(source);
-        cmd.clearRenderTarget(true, false, Color.BLACK);
+        cmd.setRenderTarget(source,true, false, Color.BLACK);
         cmd.blitScreenQuad(Texture2D.whiteTexture, source, null, this._ocShader, this._ocData);
         //get scallerTexture
         cmd.blitScreenQuad(source, copyRT, null, this._godRayShader, this._godRayData);

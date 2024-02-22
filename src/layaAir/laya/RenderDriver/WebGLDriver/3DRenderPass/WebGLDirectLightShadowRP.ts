@@ -22,8 +22,8 @@ import { WebDirectLight } from "../../RenderModuleData/WebModuleData/3D/WebDirec
 import { WebCameraNodeData } from "../../RenderModuleData/WebModuleData/3D/WebModuleData";
 import { WebGLShaderData } from "../../RenderModuleData/WebModuleData/WebGLShaderData";
 import { WebGLRenderContext3D } from "./WebGLRenderContext3D";
-import { WebGLCullUtil } from "./WebGLRenderUtil.ts/WebGLCullUtil";
-import { WebGLRenderListQueue } from "./WebGLRenderUtil.ts/WebGLRenderListQueue";
+import { WebGLCullUtil } from "./WebGLRenderUtil/WebGLCullUtil";
+import { WebGLRenderListQueue } from "./WebGLRenderUtil/WebGLRenderListQueue";
 
 export class ShadowCullInfo {
     position: Vector3;
@@ -39,11 +39,11 @@ export class WebGLDirectLightShadowRP implements IDirectLightShadowRP {
 
     /**@internal */
     shadowCastMode: ShadowCascadesMode;
-    /**@internal */
+ 
     camera: WebCameraNodeData;
-    /**@internal */
+   
     destTarget: InternalRenderTarget;
-    /**@internal */
+   
     shadowCasterCommanBuffer: CommandBuffer[];
 
     /**light */
@@ -85,7 +85,7 @@ export class WebGLDirectLightShadowRP implements IDirectLightShadowRP {
 
     /**@internal */
     private _renderQueue: WebGLRenderListQueue;
-    /**@internal */
+
     set light(value: WebDirectLight) {
         this._light = value;
         var lightWorld: Matrix4x4 = Matrix4x4.TEMPMatrix0;
@@ -244,7 +244,6 @@ export class WebGLDirectLightShadowRP implements IDirectLightShadowRP {
         if (!this.shadowCasterCommanBuffer || this.shadowCasterCommanBuffer.length == 0)
             return;
         this.shadowCasterCommanBuffer.forEach(function (value) {
-            //value._context = context;TODO
             value._apply();
         });
     }

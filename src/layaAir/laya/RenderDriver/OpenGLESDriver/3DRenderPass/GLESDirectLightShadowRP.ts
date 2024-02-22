@@ -1,3 +1,4 @@
+import { CommandBuffer } from "../../../d3/core/render/command/CommandBuffer";
 import { IDirectLightShadowRP } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRenderTarget";
 import { RTDirectLight } from "../../RenderModuleData/RuntimeModuleData/3D/RTDirectLight";
@@ -32,5 +33,12 @@ export class GLESDirectLightShadowRP implements IDirectLightShadowRP {
     _nativeObj: any;
     constructor() {
         this._nativeObj = new (window as any).conchRTDirectLightShadowCastRP();
+    }
+    private _shadowCasterCommanBuffer: CommandBuffer[];
+    public get shadowCasterCommanBuffer(): CommandBuffer[] {
+        return this._shadowCasterCommanBuffer;
+    }
+    public set shadowCasterCommanBuffer(value: CommandBuffer[]) {
+        this._shadowCasterCommanBuffer = value;
     }
 }

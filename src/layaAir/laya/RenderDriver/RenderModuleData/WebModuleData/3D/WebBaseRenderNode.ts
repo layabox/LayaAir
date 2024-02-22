@@ -47,13 +47,17 @@ export class WebBaseRenderNode implements IBaseRenderNode {
     private _caculateBoundingBoxFun: Function;
     private _renderUpdatePreCall: any;
     private _renderUpdatePreFun: Function;
+    private _updateMark: number;
 
     /**
     * context3D:GLESRenderContext3D
     * @internal
     */
     _renderUpdatePre(context3D: IRenderContext3D): void {
+        if (this._updateMark == context3D.cameraUpdateMask)
+            return;
         this._renderUpdatePreFun.call(this._renderUpdatePreCall, context3D);
+        this._updateMark = context3D.cameraUpdateMask;
     }
 
     _calculateBoundingBox() {

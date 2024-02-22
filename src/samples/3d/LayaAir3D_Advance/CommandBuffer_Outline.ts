@@ -26,6 +26,7 @@ import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 import { Color } from "laya/maths/Color";
 import { Vector4 } from "laya/maths/Vector4";
 import { RenderTexture } from "laya/resource/RenderTexture";
+import { URL } from "laya/net/URL";
 
 export class CommandBuffer_Outline {
 	private commandBuffer: CommandBuffer;
@@ -42,6 +43,7 @@ export class CommandBuffer_Outline {
 		//初始化引擎
 		Laya.init(0, 0).then(() => {
 			Stat.show();
+			URL.basePath += "sample-resource/";
 			Laya.stage.scaleMode = Stage.SCALE_FULL;
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
 			BlurEffect.init();
@@ -77,7 +79,7 @@ export class CommandBuffer_Outline {
 
 
 				//加载UI
-				this.loadUI();
+				//this.loadUI();
 			}));
 		});
 	}
@@ -90,13 +92,11 @@ export class CommandBuffer_Outline {
 		var viewPort: Viewport = camera.viewport;
 		var renderTexture = RenderTexture.createFromPool(viewPort.width, viewPort.height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.None, false, 1);
 		//将RenderTexture设置为渲染目标
-		buf.setRenderTarget(renderTexture);
-		//清楚渲染目标的颜色为黑色，不清理深度
-		buf.clearRenderTarget(true, false, new Color(0, 0, 0, 0));
+		buf.setRenderTarget(renderTexture, true, false, new Color(0, 0, 0, 0));
 
 		//将传入的Render渲染到纹理上
 		for (var i = 0, n = renders.length; i < n; i++) {
-			buf.drawRender(renders[i], materials[i], 0);
+			buf.drawRender(renders[i], materials[i]);
 		}
 		//创建新的RenderTexture
 		var subRendertexture = RenderTexture.createFromPool(viewPort.width, viewPort.height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.None, false, 1);

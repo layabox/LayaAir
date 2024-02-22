@@ -1,4 +1,5 @@
-import { IDirectLightShadowRP, IForwardAddClusterRP, IForwardAddRP, IIndexBuffer3D, IRender3DProcess, IRenderContext3D, IRenderElement3D, ISpotLightShadowRP, IVertexBuffer3D } from "./I3DRenderPass";
+import { IDirectLightShadowRP, IForwardAddClusterRP, IForwardAddRP, IRender3DProcess, IRenderContext3D, IRenderElement3D, ISpotLightShadowRP } from "./I3DRenderPass";
+import { DrawNodeCMDData, BlitQuadCMDData, DrawElementCMDData, SetViewportCMD, SetRenderTargetCMD, SetRenderDataCMD, SetShaderDefineCMD } from "./IRendderCMD";
 import { ISceneRenderManager } from "./ISceneRenderManager";
 
 export interface I3DRenderPassFactory {
@@ -16,15 +17,20 @@ export interface I3DRenderPassFactory {
 
     createRender3DProcess(): IRender3DProcess;
 
-    createVertexBuffer3D(): IVertexBuffer3D;
+    createRenderContext3D(): IRenderContext3D;
 
-    createIndexBuffer3D(): IIndexBuffer3D;
+    createRenderElement3D(): IRenderElement3D;
 
-    createRenderContext3D():IRenderContext3D;
-
-    createRenderElement3D():IRenderElement3D;
-        
     createSkinRenderElement(): IRenderElement3D;//TODO
 
     createSceneRenderManager(): ISceneRenderManager;
+
+    //Render CMD
+    createDrawNodeCMDData(): DrawNodeCMDData;
+    createBlitQuadCMDData(): BlitQuadCMDData;
+    createDrawElementCMDData(): DrawElementCMDData;
+    createSetViewportCMD(): SetViewportCMD;
+    createSetRenderTargetCMD(): SetRenderTargetCMD;
+    createSetRenderDataCMD(): SetRenderDataCMD;
+    createSetShaderDefineCMD(): SetShaderDefineCMD;
 }

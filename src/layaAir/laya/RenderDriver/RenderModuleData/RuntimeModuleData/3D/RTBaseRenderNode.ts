@@ -5,7 +5,6 @@ import { Vector4 } from "../../../../maths/Vector4";
 import { Material } from "../../../../resource/Material";
 import { IRenderElement3D } from "../../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { IBaseRenderNode } from "../../Design/3D/I3DRenderModuleData";
-import { GLESShaderData } from "../../../OpenglESDriver/RenderDevice/GLESShaderData";
 import { NativeTransform3D } from "./NativeTransform3D";
 import { RTLightmapData } from "./RTLightmap";
 import { RTReflectionProb } from "./RTReflectionProb";

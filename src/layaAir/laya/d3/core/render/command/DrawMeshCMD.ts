@@ -7,6 +7,8 @@ import { RenderElement } from "../RenderElement";
 import { Matrix4x4 } from "../../../../maths/Matrix4x4";
 import { Laya3DRender } from "../../../RenderObjs/Laya3DRender";
 import { Transform3D } from "../../Transform3D";
+import { DrawElementCMDData, DrawNodeCMDData } from "../../../../RenderDriver/DriverDesign/3DRenderPass/IRendderCMD";
+
 /**
  * @internal
  * <code>SetShaderDataTextureCMD</code> 类用于创建设置渲染目标指令。
@@ -22,7 +24,6 @@ export class DrawMeshCMD extends Command {
     static create(mesh: Mesh, matrix: Matrix4x4, material: Material, subMeshIndex: number, subShaderIndex: number, commandBuffer: CommandBuffer): DrawMeshCMD {
         var cmd: DrawMeshCMD;
         cmd = DrawMeshCMD._pool.length > 0 ? DrawMeshCMD._pool.pop() : new DrawMeshCMD();
-
         cmd._matrix = matrix;
         cmd._transform.worldMatrix = cmd._matrix;
         cmd.material = material;
@@ -57,21 +58,32 @@ export class DrawMeshCMD extends Command {
     /**@internal */
     _transform: Transform3D;
 
-    /**
-     * 
-     */
+    /**@internal */
+    _drawElementCMDData: DrawElementCMDData;
+
+    /**@internal */
+    _drawRenderCMDDData: DrawNodeCMDData;
+
     constructor() {
         super();
+        this._drawElementCMDData = Laya3DRender.Render3DPassFactory.createDrawElementCMDData();
+        this._drawRenderCMDDData = Laya3DRender.Render3DPassFactory.createDrawNodeCMDData();
         this._transform = Laya3DRender.Render3DModuleDataFactory.createTransform(null);
         this._meshRender = new MeshRenderer();
     }
 
+    /**
+     * @internal
+     */
     set material(value: Material) {
         this._material && this._material._removeReference(1);
         this._material = value;
         this._material && this._material._addReference(1);
     }
 
+    /**
+     * @internal
+     */
     set mesh(value: Mesh) {
         if (this._mesh == value)
             return;
@@ -85,24 +97,30 @@ export class DrawMeshCMD extends Command {
             element._subShaderIndex = this._subShaderIndex;
         });
     }
+
+    /**
+     * @override
+     * @internal
+     * @returns 
+     */
+    getRenderCMD(): DrawElementCMDData | DrawNodeCMDData {
+        if (this._subMeshIndex == -1)
+            return this._drawRenderCMDDData;
+        else
+            return this._drawElementCMDData;
+    }
+
     /**
      * @inheritDoc
      * @override
      */
     run(): void {
-        // var context = RenderContext3D._instance;
-        // this._meshRender.probReflection = context.scene.sceneReflectionProb;
-        // context._contextOBJ.applyContext(Camera._updateMark);
-        // let submeshs = this._mesh._subMeshes
-        // if (this._subMeshIndex == -1) {
-        //     for (let i = 0, n = submeshs.length; i < n; i++) {
-        //         let element = this._renderElemnts[i];
-        //         context.drawRenderElement(element);
-        //     }
-        // } else {
-        //     let element = this._renderElemnts[this._subMeshIndex];
-        //     context.drawRenderElement(element);
-        // }
+        if (this._subMeshIndex == -1) {
+            this._drawRenderCMDDData.node = this._meshRender._baseRenderNode;
+        } else {
+            let element = this._renderElemnts[this._subMeshIndex];
+            this._drawElementCMDData.setRenderelements([element._renderElementOBJ]);
+        }
     }
 
     /**
@@ -130,6 +148,6 @@ export class DrawMeshCMD extends Command {
         this._renderElemnts = null;
         this._transform = null;
         this._material = null;
-        this._matrix = null
+        this._matrix = null;
     }
 }

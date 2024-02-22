@@ -114,15 +114,14 @@ export class SeparableSSS_RenderDemo {
         //在我们前向渲染管线中  多浪费了几次drawMesh的性能
         //深度贴图
         let depthTexture = RenderTexture.createFromPool(viewPort.width, viewPort.height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.DEPTH_16, false, 1, true, true);
-        buf.setRenderTarget(depthTexture);
-        buf.clearRenderTarget(true, true, new Color(0.5, 0.5, 0.5, 1.0));
+        buf.setRenderTarget(depthTexture,true, true, new Color(0.5, 0.5, 0.5, 1.0));
+       
         buf.drawMesh(character, this.blinnphongCharacter.transform.worldMatrix, this.characterBlinnphongMaterial, 0, 0);
         depthTexture = depthTexture.depthStencilTexture as RenderTexture;
         //将漫反射和高光分别画到两个RenderTexture
         //漫反射颜色
         let diffuseRenderTexture = RenderTexture.createFromPool(viewPort.width, viewPort.height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.DEPTH_16, false, 1, true, true);
-        buf.setRenderTarget(diffuseRenderTexture);
-        buf.clearRenderTarget(true, true, new Color(0.5, 0.5, 0.5, 1.0));
+        buf.setRenderTarget(diffuseRenderTexture,true, true, new Color(0.5, 0.5, 0.5, 1.0));
         //@ts-ignore
         buf.setShaderDataColor(this.characterBlinnphongMaterial.shaderData, BlinnPhongMaterial.ALBEDOCOLOR, oriColor);
         //@ts-ignore
@@ -130,8 +129,7 @@ export class SeparableSSS_RenderDemo {
         buf.drawMesh(character, this.blinnphongCharacter.transform.worldMatrix, this.characterBlinnphongMaterial, 0, 0);
         // //高光颜色
         let specRrenderTexture = RenderTexture.createFromPool(viewPort.width, viewPort.height, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.DEPTH_16, false, 1, true, true);
-        buf.setRenderTarget(specRrenderTexture);
-        buf.clearRenderTarget(true, true, new Color(1.0, 0.0, 0.0, 0.0));
+        buf.setRenderTarget(specRrenderTexture,true, true, new Color(1.0, 0.0, 0.0, 0.0));
         //@ts-ignore
         buf.setShaderDataColor(this.characterBlinnphongMaterial.shaderData, BlinnPhongMaterial.MATERIALSPECULAR, oriSpec);
         // @ts-ignore

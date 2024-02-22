@@ -50,9 +50,7 @@ export class GLESForwardAddRP implements IForwardAddRP {
         this._nativeObj.setSpotLightShadowPass(value._nativeObj);
     }
 
-    setAfterEventCmd(value: CommandBuffer[]): void {
-        throw new Error("Method not implemented.");
-    }
+
 
     _nativeObj: any;
 
@@ -61,5 +59,13 @@ export class GLESForwardAddRP implements IForwardAddRP {
         this.directLightShadowPass = new GLESDirectLightShadowRP();
         this.spotLightShadowPass = new GLESSpotLightShadowRP();
         this.renderpass = new GLESForwardAddClusterRP();
+    }
+
+    setAfterEventCmd(value: CommandBuffer[]): void {
+        throw new Error("Method not implemented.");
+    }
+    
+    setBeforeImageEffect(value: CommandBuffer[]): void {
+        throw new Error("Method not implemented.");
     }
 }

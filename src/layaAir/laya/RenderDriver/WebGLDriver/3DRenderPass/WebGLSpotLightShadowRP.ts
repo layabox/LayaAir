@@ -23,8 +23,8 @@ import { WebBaseRenderNode } from "../../RenderModuleData/WebModuleData/3D/WebBa
 import { WebSpotLight } from "../../RenderModuleData/WebModuleData/3D/WebSpotLight";
 import { WebGLShaderData } from "../../RenderModuleData/WebModuleData/WebGLShaderData";
 import { WebGLRenderContext3D } from "./WebGLRenderContext3D";
-import { WebGLCullUtil } from "./WebGLRenderUtil.ts/WebGLCullUtil";
-import { WebGLRenderListQueue } from "./WebGLRenderUtil.ts/WebGLRenderListQueue";
+import { WebGLCullUtil } from "./WebGLRenderUtil/WebGLCullUtil";
+import { WebGLRenderListQueue } from "./WebGLRenderUtil/WebGLRenderListQueue";
 
 export class ShadowSpotData {
     cameraShaderValue: WebGLShaderData;
@@ -62,7 +62,6 @@ export class ShadowSpotData {
     }
 }
 export class WebGLSpotLightShadowRP implements ISpotLightShadowRP {
-    /**@internal */
     destTarget: InternalRenderTarget;
     /**@internal */
     shadowCasterCommanBuffer: CommandBuffer[];

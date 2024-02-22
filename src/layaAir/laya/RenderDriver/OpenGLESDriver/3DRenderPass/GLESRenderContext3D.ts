@@ -3,6 +3,7 @@ import { Color } from "../../../maths/Color";
 import { Vector4 } from "../../../maths/Vector4";
 import { SingletonList } from "../../../utils/SingletonList";
 import { IRenderContext3D, IRenderElement3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
+import { IRenderCMD } from "../../DriverDesign/3DRenderPass/IRendderCMD";
 import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRenderTarget";
 import { RTCameraNodeData, RTSceneNodeData } from "../../RenderModuleData/RuntimeModuleData/3D/RT3DRenderModuleData";
 import { GLESShaderData } from "../RenderDevice/GLESShaderData";
@@ -74,6 +75,13 @@ export class GLESRenderContext3D implements IRenderContext3D {
     public set invertY(value: boolean) {
         this._nativeObj._invertY = value;
     }
+
+
+    _nativeObj: any;
+
+    constructor() {
+        this._nativeObj = new (window as any).conchRTRenderContext3D();
+    }
     setRenderTarget(value: InternalRenderTarget): void {
         this._nativeObj.setRenderTarget(value);
     }
@@ -92,11 +100,11 @@ export class GLESRenderContext3D implements IRenderContext3D {
     drawRenderElementOne(node: IRenderElement3D): number {
         throw new Error("Method not implemented.");
     }
-
-   _nativeObj: any;
-
-    constructor() {
-        this._nativeObj = new (window as any).conchRTRenderContext3D();
+    runOneCMD(cmd: IRenderCMD): void {
+        throw new Error("Method not implemented.");
+    }
+    runCMDList(cmds: IRenderCMD[]): void {
+        throw new Error("Method not implemented.");
     }
 
 }

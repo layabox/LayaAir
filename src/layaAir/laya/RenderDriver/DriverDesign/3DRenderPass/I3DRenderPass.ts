@@ -13,6 +13,8 @@ import { IDirectLightData, ICameraNodeData, IBaseRenderNode, ISceneNodeData } fr
 import { ShaderData } from "../RenderDevice/ShaderData";
 import { IRenderGeometryElement } from "../RenderDevice/IRenderGeometryElement";
 import { InternalRenderTarget } from "../RenderDevice/InternalRenderTarget";
+import { IRenderCMD } from "./IRendderCMD";
+import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFlag";
 
 export interface ISpotLightShadowRP {
     light: SpotLightCom;
@@ -23,6 +25,8 @@ export interface IDirectLightShadowRP {
     light: IDirectLightData;
     camera: ICameraNodeData;
     destTarget: InternalRenderTarget;
+    shadowCasterCommanBuffer: CommandBuffer[];
+
 }
 
 export interface IForwardAddClusterRP {
@@ -70,6 +74,7 @@ export interface IForwardAddClusterRP {
     setBeforeForwardCmds(value: Array<CommandBuffer>): void;
     setBeforeSkyboxCmds(value: Array<CommandBuffer>): void;
     setBeforeTransparentCmds(value: Array<CommandBuffer>): void;
+
 }
 
 export interface IForwardAddRP {
@@ -94,7 +99,8 @@ export interface IForwardAddRP {
 
     /**main pass */
     renderpass: IForwardAddClusterRP;
-
+    
+    setBeforeImageEffect(value: Array<CommandBuffer>): void;
     /**Render end commanbuffer */
     setAfterEventCmd(value: Array<CommandBuffer>): void;
 }
@@ -110,17 +116,18 @@ export interface IRenderContext3D {
     sceneModuleData: ISceneNodeData;
     cameraModuleData: ICameraNodeData;
     cameraData: ShaderData;
-
     sceneUpdataMask: number;
     cameraUpdateMask: number;
     pipelineMode: PipelineMode;
     invertY: boolean;
-    setRenderTarget(value: InternalRenderTarget): void;
+    setRenderTarget(value: InternalRenderTarget, clearFlag: RenderClearFlag): void;
     setViewPort(value: Viewport): void;
     setScissor(value: Vector4): void;
     setClearData(clearFlag: number, clolor: Color, depth: number, stencil: number): number;
     drawRenderElementList(list: SingletonList<IRenderElement3D>): number;
     drawRenderElementOne(node: IRenderElement3D): number;
+    runOneCMD(cmd: IRenderCMD): void
+    runCMDList(cmds: IRenderCMD[]): void;
 }
 
 export interface IRenderElement3D {
@@ -133,12 +140,4 @@ export interface IRenderElement3D {
     owner: IBaseRenderNode;
     subShader: SubShader;
     destroy(): void;
-}
-
-export interface IVertexBuffer3D{
-    //TODO
-}
-
-export interface IIndexBuffer3D{
-    //TODO
 }

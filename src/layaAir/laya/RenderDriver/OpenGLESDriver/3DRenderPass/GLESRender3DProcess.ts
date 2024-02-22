@@ -10,6 +10,7 @@ export class GLESRender3DProcess implements IRender3DProcess {
     constructor() {
         this._nativeObj = new (window as any).conchRTRender3DProcess();
     }
+    
     renderFowarAddCameraPass(context: GLESRenderContext3D, renderpass: GLESForwardAddRP, list: RTBaseRenderNode[], count: number): void {
         this._nativeObj.renderFowarAddCameraPass(context._nativeObj, renderpass._nativeObj, list, count);
     }

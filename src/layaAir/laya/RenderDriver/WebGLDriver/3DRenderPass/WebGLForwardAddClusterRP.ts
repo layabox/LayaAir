@@ -12,8 +12,8 @@ import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRe
 import { WebBaseRenderNode } from "../../RenderModuleData/WebModuleData/3D/WebBaseRenderNode";
 import { WebCameraNodeData } from "../../RenderModuleData/WebModuleData/3D/WebModuleData";
 import { WebGLRenderContext3D } from "./WebGLRenderContext3D";
-import { WebGLCullUtil } from "./WebGLRenderUtil.ts/WebGLCullUtil";
-import { WebGLRenderListQueue } from "./WebGLRenderUtil.ts/WebGLRenderListQueue";
+import { WebGLCullUtil } from "./WebGLRenderUtil/WebGLCullUtil";
+import { WebGLRenderListQueue } from "./WebGLRenderUtil/WebGLRenderListQueue";
 import { PipelineMode } from "../../DriverDesign/3DRenderPass/I3DRenderPass"
 export class WebGLForwardAddClusterRP implements IForwardAddClusterRP {
 
@@ -99,14 +99,31 @@ export class WebGLForwardAddClusterRP implements IForwardAddClusterRP {
         this.cameraCullInfo.boundFrustum = value.boundFrustum;
         this.cameraCullInfo.useOcclusionCulling = value.useOcclusionCulling;
     }
+
     setBeforeForwardCmds(value: CommandBuffer[]): void {
-        this.beforeForwardCmds = value;
+        if (value && value.length > 0) {
+            this.beforeForwardCmds = value;
+            value.forEach(element => {
+                element._apply(false);
+            });
+        }
     }
     setBeforeSkyboxCmds(value: CommandBuffer[]): void {
-        this.beforeSkyboxCmds = value;
+        if (value && value.length > 0) {
+            this.beforeSkyboxCmds = value;
+            value.forEach(element => {
+                element._apply(false);
+            });
+        }
+
     }
     setBeforeTransparentCmds(value: CommandBuffer[]): void {
-        this.beforeTransparentCmds = value;
+        if (value && value.length > 0) {
+            this.beforeTransparentCmds = value;
+            value.forEach(element => {
+                element._apply(false);
+            });
+        }
     }
 
     /**
@@ -204,15 +221,15 @@ export class WebGLForwardAddClusterRP implements IForwardAddClusterRP {
         }
         this._rendercmd(this.beforeTransparentCmds, context);
         this._recoverRenderContext3D(context);
-        //this.transparent &&this.transparent.render;
+        this.transparent &&this.transparent.renderQueue(context);
+      
     }
 
     private _rendercmd(cmds: Array<CommandBuffer>, context: WebGLRenderContext3D) {
         if (!cmds || cmds.length == 0)
             return;
         cmds.forEach(function (value) {
-            //value._context = context; cmd TODO
-            value._apply();
+            context.runCMDList(value._renderCMDs);
         });
     }
 
