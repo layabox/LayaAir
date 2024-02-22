@@ -14,7 +14,7 @@ export interface IRunAble {
 
     readonly vars: { [key: string]: any };
 
-    beginExcute(runtimeNode: BlueprintRuntimeBaseNode, runner: IBPRutime, enableDebugPause: boolean, fromPin: BlueprintPinRuntime): BlueprintPromise;
+    beginExcute(runtimeNode: BlueprintRuntimeBaseNode, runner: IBPRutime, enableDebugPause: boolean, fromPin: BlueprintPinRuntime, parmsArray: any[]): BlueprintPromise;
 
     endExcute(runtimeNode: BlueprintRuntimeBaseNode): void;
 
