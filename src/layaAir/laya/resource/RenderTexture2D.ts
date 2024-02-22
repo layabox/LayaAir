@@ -318,7 +318,7 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
 // native
 if ((window as any).conch && !(window as any).conchConfig.conchWebGL) {
     //@ts-ignore
-    RenderTexture2D = NativeRenderTexture2D;
+    //lvtodo RenderTexture2D = NativeRenderTexture2D;
 }
 
 

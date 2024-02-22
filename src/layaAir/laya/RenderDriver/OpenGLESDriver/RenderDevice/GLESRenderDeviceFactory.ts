@@ -19,13 +19,18 @@ import { CommandUniformMap } from "../../DriverDesign/RenderDevice/CommandUnifor
 import { Resource } from "../../../resource/Resource";
 import { ShaderData } from "../../DriverDesign/RenderDevice/ShaderData";
 import { GLESShaderData } from "./GLESShaderData";
+import { GLESCommandUniformMap } from "./GLESCommandUniformMap";
 
 export class GLESRenderDeviceFactory implements IRenderDeviceFactory {
     createShaderData(ownerResource: Resource): ShaderData {
         return new GLESShaderData(ownerResource);
     }
-    createGlobalUniformMap(blockName: string): CommandUniformMap {
-        throw new Error("Method not implemented.");
+    private globalBlockMap: any = {};
+    createGlobalUniformMap(blockName: string): GLESCommandUniformMap {
+        let comMap = this.globalBlockMap[blockName];
+        if (!comMap)
+            comMap = this.globalBlockMap[blockName] = new GLESCommandUniformMap(blockName);;
+        return comMap;
     }
     createShaderInstance(shaderProcessInfo: ShaderProcessInfo, shaderPass: ShaderPass): IShaderInstance {
         let shaderIns = new GLESShaderInstance();

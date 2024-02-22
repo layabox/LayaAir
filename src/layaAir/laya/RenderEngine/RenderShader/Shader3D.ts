@@ -91,15 +91,9 @@ export class Shader3D {
     static _propertyNameMap: any = {};
     /**@internal */
     private static _propertyNameCounter: number = 0;
-    /**@internal */
-    private static _defineCounter: number = 0;
-    // todo  这个 map 和 get 函数转移到 ShaderDefine 里面
-    /**@internal */
-    private static _defineMap: { [key: string]: ShaderDefine } = {};
+   
     /**@internal */
     static _preCompileShader: { [key: string]: Shader3D } = {};
-    /**@internal */
-    static _maskMap: Array<{ [key: number]: string }> = [];
     /**@internal */
     static _debugShaderVariantInfo: ShaderVariant;
     /**是否开启调试模式。 */
@@ -119,20 +113,7 @@ export class Shader3D {
      * @internal
      */
     static _getNamesByDefineData(defineData: IDefineDatas, out: Array<string>): void {
-        var maskMap: Array<{ [key: number]: string }> = Shader3D._maskMap;
-        var mask: Array<number> = defineData._mask;
-        out.length = 0;
-        for (var i: number = 0, n: number = defineData._length; i < n; i++) {
-            var subMaskMap: { [key: number]: string } = maskMap[i];
-            var subMask: number = mask[i];
-            for (var j: number = 0; j < 32; j++) {
-                var d: number = 1 << j;
-                if (subMask > 0 && d > subMask)//如果31位存在subMask为负数,避免break
-                    break;
-                if (subMask & d)
-                    out.push(subMaskMap[d]);
-            }
-        }
+        LayaGL.renderEngine.getNamesByDefineData(defineData, out);
     }
 
     /**
@@ -140,22 +121,7 @@ export class Shader3D {
      * @param name 
      */
     static getDefineByName(name: string): ShaderDefine {
-        var define: ShaderDefine = Shader3D._defineMap[name];
-        if (!define) {
-            var maskMap = Shader3D._maskMap;
-            var counter: number = Shader3D._defineCounter;
-            var index: number = Math.floor(counter / 32);
-            var value: number = 1 << counter % 32;
-            define = new ShaderDefine(index, value);
-            Shader3D._defineMap[name] = define;
-            if (index == maskMap.length) {
-                maskMap.length++;
-                maskMap[index] = {};
-            }
-            maskMap[index][value] = name;
-            Shader3D._defineCounter++;
-        }
-        return define;
+        return LayaGL.renderEngine.getDefineByName(name);
     }
 
     /**

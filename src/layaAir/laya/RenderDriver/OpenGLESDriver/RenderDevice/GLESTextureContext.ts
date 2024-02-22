@@ -10,17 +10,17 @@ import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRe
 import { InternalTexture } from "../../DriverDesign/RenderDevice/InternalTexture";
 
 
-export class GLESTextureContext implements ITextureContext {
+export class GLESTextureContext implements ITextureContext  {
     needBitmap: boolean;
     protected _native: any;
 
-    constructor(engine: GLESTextureContext, native: any) {
+    constructor(native: any) {
         this._native = native;
         this.needBitmap = false;
     }
 
-    createTextureInternal(dimension: TextureDimension, width: number, height: number, format: TextureFormat, generateMipmap: boolean, sRGB: boolean): InternalTexture {
-        return this._native.createTextureInternal(dimension, width, height, format, generateMipmap, sRGB);
+    createTextureInternal(dimension: TextureDimension, width: number, height: number, format: TextureFormat, generateMipmap: boolean, sRGB: boolean, premultipliedAlpha: boolean): InternalTexture {
+        return this._native.createTextureInternal(dimension, width, height, format, generateMipmap, sRGB, premultipliedAlpha);
     }
 
     setTextureImageData(texture: InternalTexture, source: HTMLImageElement | HTMLCanvasElement | ImageBitmap, premultiplyAlpha: boolean, invertY: boolean) {
@@ -61,7 +61,7 @@ export class GLESTextureContext implements ITextureContext {
         this.setTexturePixelsData(texture, sourceData, false, false);
     }
     setTextureDDSData(texture: InternalTexture, ddsInfo: DDSTextureInfo) {
-        this._native.setTextureKTXData(texture, ddsInfo);
+        this._native.setTextureDDSData(texture, ddsInfo);
     }
 
     setTextureKTXData(texture: InternalTexture, ktxInfo: KTXTextureInfo) {
@@ -120,7 +120,7 @@ export class GLESTextureContext implements ITextureContext {
         return this._native.createRenderTargetCubeInternal(size, colorFormat, depthStencilFormat, generateMipmap, sRGB, multiSamples);
     }
     createRenderTextureCubeInternal(dimension: TextureDimension, size: number, format: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean): InternalTexture {
-        throw new Error("createRenderTextureCubeInternal Method not implemented.");
+        return this._native.createRenderTextureCubeInternal(dimension, size, format, generateMipmap, sRGB);
     }
     // todo  color 0, 1, 2, 3 ?
     setupRendertargetTextureAttachment(renderTarget: InternalRenderTarget, texture: InternalTexture) {

@@ -34,12 +34,11 @@ export class GLESForwardAddRP implements IForwardAddRP {
         this._spotLightShadowPass = value;
         this._nativeObj.setSpotLightShadowPass(value._nativeObj);
     }
-    private _enableSpotLightShadowPass: boolean;
     public get enableSpotLightShadowPass(): boolean {
-        return this._enableSpotLightShadowPass;
+        return this._nativeObj._enableSpotLightShadowPass;
     }
     public set enableSpotLightShadowPass(value: boolean) {
-        this._enableSpotLightShadowPass = value;
+        this._nativeObj._enableSpotLightShadowPass = value;
     }
     private _renderpass: GLESForwardAddClusterRP;
     public get renderpass(): GLESForwardAddClusterRP {
@@ -47,15 +46,19 @@ export class GLESForwardAddRP implements IForwardAddRP {
     }
     public set renderpass(value: GLESForwardAddClusterRP) {
         this._renderpass = value;
-        this._nativeObj.setSpotLightShadowPass(value._nativeObj);
+        this._nativeObj.setForwardAddClusterRP(value._nativeObj);
     }
 
+    }
 
 
     _nativeObj: any;
 
     constructor() {
         this._nativeObj = new (window as any).conchRTForwardAddRP();
+        this.shadowCastPass = false;
+        this.enableDirectLightShadow = false;
+        this.enableSpotLightShadowPass = false;
         this.directLightShadowPass = new GLESDirectLightShadowRP();
         this.spotLightShadowPass = new GLESSpotLightShadowRP();
         this.renderpass = new GLESForwardAddClusterRP();

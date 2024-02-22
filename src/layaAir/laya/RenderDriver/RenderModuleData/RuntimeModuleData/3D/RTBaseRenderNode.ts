@@ -10,9 +10,11 @@ import { RTLightmapData } from "./RTLightmap";
 import { RTReflectionProb } from "./RTReflectionProb";
 import { RTVolumetricGI } from "./RTVolumetricGI";
 import { ShaderData } from "../../../DriverDesign/RenderDevice/ShaderData";
+import { NativeBounds } from "./NativeBounds";
 
 
 export class RTBaseRenderNode implements IBaseRenderNode {
+    renderelements: IRenderElement3D[];
     private _transform: NativeTransform3D;
 
     public get transform(): NativeTransform3D {
@@ -76,7 +78,7 @@ export class RTBaseRenderNode implements IBaseRenderNode {
     }
     public set baseGeometryBounds(value: Bounds) {
         this._baseGeometryBounds = value;
-        //TODO this._nativeObj.setBaseGeometryBounds(value._nativeObj);
+        this._nativeObj.setBaseGeometryBounds((value._imp as any)._nativeObj);
     }
     public get boundsChange(): boolean {
         return this._nativeObj._boundsChange;
@@ -198,7 +200,8 @@ export class RTBaseRenderNode implements IBaseRenderNode {
     }
 
     constructor() {
-        this._nativeObj = this._getNativeObj();
+        this._getNativeObj();
+        this.renderelements = [];
     }
     _applyLightProb(): void {
        //TODO
@@ -209,7 +212,15 @@ export class RTBaseRenderNode implements IBaseRenderNode {
 
 
     setRenderelements(value: IRenderElement3D[]): void {
-        //TODO
+        var tempArray: any[] = [];
+        this.renderelements.length = 0;
+        for (var i = 0; i < value.length; i++) {
+            this.renderelements.push(value[i]);
+            value[i].owner = this;
+
+            tempArray.push((value[i] as any)._nativeObj);
+        }
+        this._nativeObj.setRenderElements(tempArray);
     }
 
     setWorldParams(value: Vector4): void {
