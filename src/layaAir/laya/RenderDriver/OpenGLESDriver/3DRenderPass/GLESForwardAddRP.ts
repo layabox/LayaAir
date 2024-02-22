@@ -49,9 +49,6 @@ export class GLESForwardAddRP implements IForwardAddRP {
         this._nativeObj.setForwardAddClusterRP(value._nativeObj);
     }
 
-    }
-
-
     _nativeObj: any;
 
     constructor() {
