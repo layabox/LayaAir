@@ -377,7 +377,7 @@ export class BluePrintMainBlock extends BluePrintBlock {
         const caller = args.shift();
         
         const funcContext: IRunAble = caller[BlueprintFactory.contextSymbol];
-        originFunc && originFunc.call(this, args);
+        originFunc && originFunc.call(caller, args);
         caller[BlueprintFactory.bpSymbol].run(funcContext, eventName, args);
     }
 
