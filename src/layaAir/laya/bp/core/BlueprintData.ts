@@ -270,7 +270,9 @@ export class BlueprintData {
         }
         if (o?.events) {
             o.events.forEach((eve: any) => {
-                eve.id = "event_" + eve.name;
+                if (null == eve.id) {
+                    eve.id = "event_" + eve.name;
+                }
                 if (null != eve.customId) {
                     eve.id = eve.customId;
                 }
