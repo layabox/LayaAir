@@ -150,7 +150,10 @@ export class BluePrintBlock implements INodeManger<BlueprintRuntimeBaseNode>, IB
         this._pendingClass = new Map();
         this.anonymousfuns = [];
     }
-
+    
+    get target(): string{
+        return this.name;
+    }
 
     getNodeById(id: any): BlueprintRuntimeBaseNode {
         return this.nodeMap.get(id);
@@ -408,6 +411,11 @@ export class BluePrintFunBlock extends BluePrintBlock {
     funStart: BlueprintCustomFunStart;
 
     funEnds: BlueprintCustomFunReturn[] = [];
+
+    get target(): string{
+        return this.mainBlock.name;
+    }
+
     optimize() {
         super.optimize();
         this.optimizeByStart(this.funStart, this.excuteList);

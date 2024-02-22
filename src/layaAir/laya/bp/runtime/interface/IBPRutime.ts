@@ -4,6 +4,8 @@ import { BlueprintPinRuntime } from "../BlueprintPinRuntime";
 import { IRunAble } from "./IRunAble";
 
 export interface IBPRutime {
+    //蓝图文件id
+    readonly target:string;
     getRunID(): number;
     runByContext(context: IRunAble,runtimeDataMgr: IRuntimeDataManger, node: IExcuteListInfo, enableDebugPause: boolean, cb: Function, runid: number,fromPin:BlueprintPinRuntime,notRecover?:boolean): boolean;
 }
