@@ -150,6 +150,7 @@ export class BlueprintImpl extends Resource {
             name: this.name,
             props: [],
             funcs: [],
+            events: [],
             extends: [this.data.extends],
         }
 
@@ -167,19 +168,20 @@ export class BlueprintImpl extends Resource {
             this.data.variable.forEach((ele) => {
                 dataMap[ele.id] = ele;
                 varMap[ele.id] = ele;
-
                 let decProp: TBPDeclarationProp = {
                     name: ele.name,
                     type: ele.type as string,
+                    customId: ele.id,
                     modifiers: {
                         isPublic: true
-                    }
+                    },
+                    value: ele.value,
                 }
 
-                if (ele.const) {
-                    decProp.modifiers.isPublic = false;
-                    decProp.modifiers.isPrivate = true;
-                }
+                // if (ele.const) {
+                //     decProp.modifiers.isPublic = false;
+                //     decProp.modifiers.isPrivate = true;
+                // }
                 decProps.push(decProp);
             });
         }
@@ -187,6 +189,7 @@ export class BlueprintImpl extends Resource {
         if (this.data.events)
             this.data.events.forEach((ele: any) => {
                 dataMap[ele.id] = ele;
+                dec.events.push(ele);
             });
 
         if (this.data.functions) {
@@ -201,19 +204,19 @@ export class BlueprintImpl extends Resource {
                         dataMap[ele.id] = ele;
                         //varMap[ele.id] = ele;
 
-                        let decProp: TBPDeclarationProp = {
-                            name: ele.name,
-                            type: ele.type as string,
-                            modifiers: {
-                                isPublic: true
-                            }
-                        }
+                        // let decProp: TBPDeclarationProp = {
+                        //     name: ele.name,
+                        //     type: ele.type as string,
+                        //     modifiers: {
+                        //         isPublic: true
+                        //     }
+                        // }
 
-                        if (ele.const) {
-                            decProp.modifiers.isPublic = false;
-                            decProp.modifiers.isPrivate = true;
-                        }
-                        decProps.push(decProp);
+                        // if (ele.const) {
+                        //     decProp.modifiers.isPublic = false;
+                        //     decProp.modifiers.isPrivate = true;
+                        // }
+                        //decProps.push(decProp);
                     });
                 }
 

@@ -7,7 +7,7 @@ export type TBPDecoratorsPropertType = "function" | "property" | "class" | "cons
 
 export type TBPDecoratorsFuncType = "pure" | "function" | "event" | BPType.Pure | BPType.Function | BPType.Event;
 
-export type TBPDeclarationType = "Node"|"Component"|"Others";
+export type TBPDeclarationType = "Node" | "Component" | "Others";
 
 /** 修饰符 */
 export type BPModifiers = {
@@ -31,11 +31,11 @@ export type TBPDeclaration = {
     /** 当前描述的具体类型 */
     type: TBPDeclarationType,
     /** 能否被继承 */
-    canInherited?:boolean;
+    canInherited?: boolean;
     /** 继承的类型数组，按次序从为父类的父类  */
     extends?: string[];
     /** 事件相关 */
-    events?:TBPDeclarationEvent[];
+    events?: TBPDeclarationEvent[];
     /** 实现的接口名 */
     implements?: string[];
     /** 该描述的属性列表 */
@@ -45,98 +45,101 @@ export type TBPDeclaration = {
     /** 构造函数 */
     construct?: TBPDeclarationConstructor;
     /** 显示名称，没有默认使用name */
-    caption?:string;
+    caption?: string;
     /** 分组 */
-    catalog?:string;
+    catalog?: string;
     /** 提示内容 */
-    tips?:string;
+    tips?: string;
 }
 
 export type TBPDeclarationEvent = {
-    name:string;
-    params?:TBPDeclarationEventData[];
+    name: string;
+    params?: TBPDeclarationEventData[];
 }
 
 export type TBPDeclarationEventData = {
-    id?:number;
+    id?: number;
     /** 参数名称 */
     name: string;
     /** 参数类型 */
     type: string;
     /** 显示名称，没有默认使用name */
-    caption?:string;
+    caption?: string;
     /** 分组 */
-    catalog?:string;
+    catalog?: string;
     /** 提示内容 */
-    tips?:string;
+    tips?: string;
 }
 
 export type TBPDeclarationConstructor = {
     params?: TBPDeclarationParam[];
     /** 显示名称，没有默认使用name */
-    caption?:string;
+    caption?: string;
     /** 分组 */
-    catalog?:string;
+    catalog?: string;
     /** 提示内容 */
-    tips?:string;
+    tips?: string;
 }
 
 export type TBPDeclarationProp = {
     /** 变量名称 */
     name: string;
+    value?: any;
     /** 变量类型 */
     type?: string;
+
+    customId?: string;
     /** 是否有getter 方法 */
     getter?: boolean;
     /** 是否有setter 方法 */
     setter?: boolean;
     /** 泛型 */
-    typeParameters?:any;
+    typeParameters?: any;
     /** 修饰符 */
-    modifiers?:BPModifiers;
+    modifiers?: BPModifiers;
     /** 是否来自父类 */
     fromParent?: string;
     /** 显示名称，没有默认使用name */
-    caption?:string;
+    caption?: string;
     /** 分组 */
-    catalog?:string;
+    catalog?: string;
     /** 提示内容 */
-    tips?:string;
+    tips?: string;
 }
 
 export type TBPDeclarationFunction = {
     /** 方法名称 */
     name: string;
     /**鼠标右键里面的菜单路径,如果填写none则代表不在菜单中显示 */
-    menuPath?:string;
+    menuPath?: string;
     /** 具体方法类型 */
-    type?:TBPDecoratorsFuncType;
+    type?: TBPDecoratorsFuncType;
     /** 修饰符 */
-    modifiers?:BPModifiers;
+    modifiers?: BPModifiers;
     /** 方法的参数列表 */
     params?: TBPDeclarationParam[];
     /** 方法的返回类型 */
-    returnType: string|any[];
+    returnType: string | any[];
     /** 泛型 */
-    typeParameters?:any;
+    typeParameters?: any;
     /** 注册的原始方法 */
-    originFunc?:Function;
+    originFunc?: Function;
 
     /** 是否来自父类 */
     fromParent?: string;
 
-    customId?:number;
-    
+    customId?: number;
+
     /** 显示名称，没有默认使用name */
-    caption?:string;
+    caption?: string;
     /** 分组 */
-    catalog?:string;
+    catalog?: string;
     /** 提示内容 */
-    tips?:string;
+    tips?: string;
 }
 
 export type TBPDeclarationParam = {
-    id?:number;
+    id?: number;
     /** 参数名称 */
     name: string;
     /** 参数类型 */
@@ -144,76 +147,76 @@ export type TBPDeclarationParam = {
     /** 是否为可选项 */
     optional?: boolean;
     /** 是否为...方法 */
-    dotdotdot?:boolean;
+    dotdotdot?: boolean;
     /** 显示名称，没有默认使用name */
-    caption?:string;
+    caption?: string;
     /** 分组 */
-    catalog?:string;
+    catalog?: string;
     /** 提示内容 */
-    tips?:string;
+    tips?: string;
 }
 
 
-export interface BPDecoratorsOptionBase{
+export interface BPDecoratorsOptionBase {
     /** 标题，如果不提供将使用name */
-    caption?:string;
+    caption?: string;
     /** 注册对象成员类型 */
-    propertType?:TBPDecoratorsPropertType;
+    propertType?: TBPDecoratorsPropertType;
     /** 修饰符 */
-    modifiers?:BPModifiers;
+    modifiers?: BPModifiers;
     /** 分类 */
-    catalog?:string;
+    catalog?: string;
     /** 提示内容 */
-    tips?:string;
+    tips?: string;
 }
 
-export interface BPDecoratorsOptionClass extends BPDecoratorsOptionBase{
+export interface BPDecoratorsOptionClass extends BPDecoratorsOptionBase {
     /** 注册名称 */
-    name:string;
+    name: string;
     /** 唯一识别id */
-    uuid?:string;
+    uuid?: string;
     /** 继承的父类 */
-    extends?:string;
+    extends?: string;
 }
 
-export interface BPDecoratorsOptionFunction extends BPDecoratorsOptionBase{
+export interface BPDecoratorsOptionFunction extends BPDecoratorsOptionBase {
     /** 方法或者构造函数参数，必填 */
-    params:TBPDeclarationParam[];
+    params: TBPDeclarationParam[];
     /** 
      * 方法分类
      * @default BPType.Function
      */
-    type?:TBPDecoratorsFuncType;
+    type?: TBPDecoratorsFuncType;
     /**
      * 返回类型
      */
-    returnType:string;
+    returnType: string;
 }
 
-export interface BPDecoratorsOptionProp extends BPDecoratorsOptionBase{
+export interface BPDecoratorsOptionProp extends BPDecoratorsOptionBase {
     /** 参数类型 */
-    type:string;
+    type: string;
 }
 
 
-var bpUserMap : Map<Function,TBPDeclaration> = new Map;
+var bpUserMap: Map<Function, TBPDeclaration> = new Map;
 
-function initDeclaration(name:string , cls:Function){
-    let type:TBPDeclarationType = "Others";
+function initDeclaration(name: string, cls: Function) {
+    let type: TBPDeclarationType = "Others";
     if (cls instanceof Node) {
         type = "Node";
-    }else if (cls instanceof Component) {
+    } else if (cls instanceof Component) {
         type = "Component"
     }
     // else if (cls instanceof Component) {
     //     type = "Component";
     // }
-    let declare:TBPDeclaration = {
+    let declare: TBPDeclaration = {
         name,
         type,
     }
 
-    bpUserMap.set(cls,declare);
+    bpUserMap.set(cls, declare);
     return declare;
 }
 
@@ -221,18 +224,18 @@ function initDeclaration(name:string , cls:Function){
  * 蓝图装饰器
  * @param options
  */
-export function bpClass( options : BPDecoratorsOptionClass){
-    
-    return function(target: any){
+export function bpClass(options: BPDecoratorsOptionClass) {
+
+    return function (target: any) {
         if (options.propertType && options.propertType != "class") {
-            console.error("BP:Reg class Fail :" , options.name ,  " , propertType is not class!");
-            return ;
+            console.error("BP:Reg class Fail :", options.name, " , propertType is not class!");
+            return;
         }
-    
+
         let declare = bpUserMap.get(target.prototype);
         if (!declare) {
-            initDeclaration(options.name , target );
-        }else{
+            initDeclaration(options.name, target);
+        } else {
             declare.name = options.name;
         }
 
@@ -243,39 +246,39 @@ export function bpClass( options : BPDecoratorsOptionClass){
         bpUserMap.delete(target.prototype);
         //以uuid为识别
         // customData[options.uuid] = declare;
-        BlueprintUtil.addCustomData(options.uuid,declare);
+        BlueprintUtil.addCustomData(options.uuid, declare);
     }
 }
 
 /**
  * 蓝图装饰器,属性
  */
-export function bpProperty( options : BPDecoratorsOptionProp){   
+export function bpProperty(options: BPDecoratorsOptionProp) {
 
-    return function(target: any, propertyKey: string){
+    return function (target: any, propertyKey: string) {
 
-        if (options.propertType  && options.propertType != "property") {
-            console.error("BP:Reg Property Fail :" , propertyKey ,  " , propertType is not property!");
+        if (options.propertType && options.propertType != "property") {
+            console.error("BP:Reg Property Fail :", propertyKey, " , propertType is not property!");
             return
         }
-    
+
         let declare = bpUserMap.get(target);
         if (!declare) {
-            declare = initDeclaration( "" , target );
+            declare = initDeclaration("", target);
         }
 
-        let prop:TBPDeclarationProp = {
+        let prop: TBPDeclarationProp = {
             name: propertyKey,
-            type : options.type,
-            caption : options.caption,
-            catalog : options.catalog,
-            modifiers : options.modifiers,
-            tips : options.tips
+            type: options.type,
+            caption: options.caption,
+            catalog: options.catalog,
+            modifiers: options.modifiers,
+            tips: options.tips
         };
 
-        if (!prop.modifiers) prop.modifiers = { };
+        if (!prop.modifiers) prop.modifiers = {};
         prop.modifiers.isPublic = true;
-        
+
         if (!declare.props) {
             declare.props = [];
         }
@@ -286,49 +289,48 @@ export function bpProperty( options : BPDecoratorsOptionProp){
 /**
  * 蓝图装饰器，方法包括getset
  */
-export function bpFunction( options : BPDecoratorsOptionFunction){
+export function bpFunction(options: BPDecoratorsOptionFunction) {
 
-    return function(target: any, propertyKey: string, descriptor: any){
+    return function (target: any, propertyKey: string, descriptor: any) {
 
-        if (options.propertType 
-            && options.propertType != "constructor" 
-            && options.propertType != "function") 
-        {
-            console.error("BP:Reg Function Fail :" ,propertyKey ,  " , propertType is not function or constructor!");
+        if (options.propertType
+            && options.propertType != "constructor"
+            && options.propertType != "function") {
+            console.error("BP:Reg Function Fail :", propertyKey, " , propertType is not function or constructor!");
             return;
         }
 
         let declare = bpUserMap.get(target.prototype);
         if (!declare) {
-            declare = initDeclaration( "" , target );
+            declare = initDeclaration("", target);
         }
 
         if (options.propertType == "constructor") {
-            let construct:TBPDeclarationConstructor = {
-                params:options.params,
+            let construct: TBPDeclarationConstructor = {
+                params: options.params,
 
             }
-            declare.construct = construct;            
-        }else{
-            let func:TBPDeclarationFunction = {
-                name:propertyKey,
+            declare.construct = construct;
+        } else {
+            let func: TBPDeclarationFunction = {
+                name: propertyKey,
                 type: options.type || BPType.Function,
                 returnType: options.returnType,
                 caption: options.caption,
                 catalog: options.catalog,
                 modifiers: options.modifiers,
                 tips: options.tips,
-                params:options.params,
+                params: options.params,
             }
 
-            if (!func.modifiers) func.modifiers = { };
+            if (!func.modifiers) func.modifiers = {};
             func.modifiers.isPublic = true;
             // func.originFunc = descriptor.value;
 
             if (!declare.funcs) {
                 declare.funcs = [];
             }
-    
+
             declare.funcs.push(func);
         }
     }
@@ -337,22 +339,22 @@ export function bpFunction( options : BPDecoratorsOptionFunction){
 /**
  * 蓝图装饰器，方法包括
  */
-export function bpAccessor( options : BPDecoratorsOptionProp){
-    
-    return function(target: any, propertyKey: string, descriptor: any){
+export function bpAccessor(options: BPDecoratorsOptionProp) {
 
-        if (options.propertType  && options.propertType != "property") {
-            console.error("BP:Reg Accessor Fail :" , propertyKey ,  " , propertType is not property!");
+    return function (target: any, propertyKey: string, descriptor: any) {
+
+        if (options.propertType && options.propertType != "property") {
+            console.error("BP:Reg Accessor Fail :", propertyKey, " , propertType is not property!");
             return;
         }
 
         let declare = bpUserMap.get(target);
         if (!declare) {
-            declare = initDeclaration( "" , target );
+            declare = initDeclaration("", target);
         }
 
-        let prop:TBPDeclarationProp = {
-            name:propertyKey,
+        let prop: TBPDeclarationProp = {
+            name: propertyKey,
             type: options.type,
             caption: options.caption,
             catalog: options.catalog,
@@ -368,7 +370,7 @@ export function bpAccessor( options : BPDecoratorsOptionProp){
         //     }
         // }
 
-        if(descriptor.get){
+        if (descriptor.get) {
             prop.getter = true;
         }
 

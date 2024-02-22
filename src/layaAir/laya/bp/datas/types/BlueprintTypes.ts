@@ -58,17 +58,19 @@ export interface TBPStageData {
     dataMap?: Record<string, TBPVarProperty | TBPEventProperty>;
 }
 export interface TBPVarProperty {
+    bpType?: "function" | "event" | "prop" | "construct",
     id: string,
     name: string,
-    aliasName?: string,
+    target?: string,
     value?: any,
     type: TypeParameter,
     desc?: string,
-    const?: boolean,
 }
 export interface TBPEventProperty {
+    bpType?: "function" | "event" | "prop" | "construct",
     id: string,
     name: string,
+    target?: string,
     input: TBPVarProperty[],
 }
 export interface TBPProperty {
@@ -133,11 +135,13 @@ export interface TBPConnType {
 }
 
 export interface BPConstNode {
-    parent?: string,
-    funs?: Record<string, TBPCNode>,
-    props?: Record<string, TBPVarProperty>,
-    events?: Record<string, TBPEventProperty>,
-    construct?: Record<string, TBPCNode>,
+    extends?: string[],
+    // funs?: Record<string, TBPCNode>,
+    // props?: Record<string, TBPVarProperty>,
+    // events?: Record<string, TBPEventProperty>,
+    // construct?: Record<string, TBPCNode>,
+    data: Record<string, TBPCNode | TBPVarProperty | TBPEventProperty>,
+    caption?:string,
 }
 
 
@@ -146,7 +150,7 @@ export interface TBPCNode {
     name: string,
     /** */
     bpType?: "function" | "event" | "prop" | "construct",
-
+    target?: string,
 
     /**函数中的临时变量数据 */
     variable?: Record<string, TBPVarProperty>
@@ -161,10 +165,7 @@ export interface TBPCNode {
     typeParameters?: Record<string, { extends?: string[] }>
     /** 修饰符 */
     modifiers?: BPModifiers;
-    /**来源的类 */
-    target?: string,
-    /**target的别名 */
-    targetAliasName?: string,
+
     /** 数据唯一的id号,可以不写，默认为name*/
     id?: string,
     /**该节点的类型 */

@@ -1,6 +1,6 @@
 import { BlueprintDataList } from "../datas/BlueprintDataInit";
 import { extendsData } from "../datas/BlueprintExtends";
-import { TBPDeclaration } from "../datas/types/BlueprintDeclaration";
+import { TBPDeclaration, TBPDeclarationFunction } from "../datas/types/BlueprintDeclaration";
 import { BPConstNode, BPType, TBPCNode, TBPNode } from "../datas/types/BlueprintTypes";
 import { BlueprintFactory } from "../runtime/BlueprintFactory";
 import { BlueprintImpl } from "../runtime/resource/BlueprintImpl";
@@ -32,13 +32,13 @@ export class BlueprintData {
 
     constructor() {
         let list = BlueprintDataList;
-        if (null == this.constData['system']) this.constData['system'] = {};
+        if (null == this.constData['system']) this.constData['system'] = { data: {} };
         for (let i = list.length - 1; i >= 0; i--) {
             let o = list[i];
             if (null == o.id) o.id = o.name;
             if (null == o.bpType) o.bpType = 'function';
-            if (null == this.constData['system'].funs) this.constData['system'].funs = {};
-            this.constData['system'].funs[o.id] = o;
+            this.constData['system'].data[o.id] = o;
+            if (null == o.target) o.target = 'system';
             let input = o.input;
             if (input) {
                 for (let i = input.length - 1; i >= 0; i--) {
@@ -92,46 +92,51 @@ export class BlueprintData {
     getConstDataById(target: string, dataId: string): any {
         let targetData = this.constData[target];
         if (targetData) {
-            if (targetData.events && targetData.events[dataId]) {
-                return targetData.events[dataId];
-            }
-            if (targetData.props && targetData.props[dataId]) {
-                return targetData.props[dataId];
-            }
-            if (targetData.funs && targetData.funs[dataId]) {
-                return targetData.funs[dataId];
-            }
-            if (null != targetData.parent) {
-                return this.getConstDataById(targetData.parent, dataId);
-            }
+            return targetData.data[dataId];
         }
+        // if (targetData) {
+        //     if (targetData.events && targetData.events[dataId]) {
+        //         return targetData.events[dataId];
+        //     }
+        //     if (targetData.props && targetData.props[dataId]) {
+        //         return targetData.props[dataId];
+        //     }
+        //     if (targetData.funs && targetData.funs[dataId]) {
+        //         return targetData.funs[dataId];
+        //     }
+        //     if (null != targetData.parent) {
+        //         return this.getConstDataById(targetData.parent, dataId);
+        //     }
+        // }
         return null;
     }
     private _getConstData(cid: string, target?: string): any {
+
+        if (null == cid) return null;
         if (null == target) target = 'system';
         let targetData = this.constData[target];
         if (targetData) {
-            if (targetData.funs && targetData.funs[cid]) {
-                return targetData.funs[cid];
-            }
-            if (targetData.construct && targetData.construct[cid]) {
-                return targetData.construct[cid];
-            }
-            if (targetData.events && targetData.events[cid]) {
-                return targetData.events[cid];
-            }
-            if (targetData.props && targetData.props[cid]) {
-                return targetData.props[cid];
-            }
-            if (null != targetData.parent) {
-                return this._getConstData(cid, targetData.parent);
-            } else if ('system' != target) {
+            let ret = targetData.data[cid];
+            if (null == ret && 'system' != target) {
                 return this._getConstData(cid);
             }
+            return ret;
         } else if ('system' != target) {
             return this._getConstData(cid);
         }
         return null;
+
+
+
+        // if (null == target) target = 'system';
+        // let targetData = this.constData[target];
+        // if (targetData) {
+        //     return targetData.data[cid];
+
+        // } else if ('system' != target) {
+        //     return this._getConstData(cid);
+        // }
+        // return null;
     }
 
     getConstNode(node?: TBPNode) {
@@ -139,6 +144,8 @@ export class BlueprintData {
             let id = node.cid + "_" + node.dataId;
             if (null != this.autoCreateData[id]) return this.autoCreateData[id];
             let cdata = this._getConstData(node.cid, node.target);
+            if ('get' == node.cid || 'set' == node.cid || 'tmp_get' == node.cid || 'tmp_set' == node.cid) return cdata;
+
             let data: any = null;
             if (null == data) {
                 let obj = BlueprintImpl.loadedBPData.get(node.target);
@@ -200,82 +207,120 @@ export class BlueprintData {
         return null;
     }
 
+    private _createExtData(data: Record<string, TBPDeclaration>, ext: string, cls: any, exts?: string[]) {
+        let co = this.constData[ext];
+        if (null != co) return co;
+        let o = data[ext];
+        if (null == o) {
+            if (null == exts || 0 == exts.length) {
+                this.constData[ext] = { data: {} };
+            } else {
+                let retExts = exts.slice();
+                let ret = this._createExtData(data, exts.shift(), cls, exts);
+                co = { data: Object.create(ret.data) };
+                co.extends = retExts;
+
+                this.constData[ext] = co;
+            }
+            return this.constData[ext];
+        }
+
+        if (null == exts && null != o.extends) {
+            exts = o.extends.slice();
+        }
+
+        //let exts = o.extends;
+        if (exts && 0 < exts.length) {
+            let ret = this._createExtData(data, exts.shift(), cls, exts);
+            co = { data: Object.create(ret.data) };
+            //co = Object.create();
+            co.extends = o.extends;
+            this._createConstData(o, co, ext, cls);
+        } else {
+            co = { data: {} };
+            this._createConstData(o, co, ext, cls);
+        }
+        if (o.name != ext) co.caption = o.name;
+        if (null != o.caption) co.caption = o.caption;
+        this.constData[ext] = co;
+        return co;
+    }
+    private _createConstData(o: TBPDeclaration, cdata: BPConstNode, ext: string, cls: any) {
+        if (o?.props) {
+            o.props.forEach((po: any) => {
+                po.id = "var_" + po.name;
+                if (null != po.customId) {
+                    po.id = po.customId;
+                }
+                if (po.modifiers && po.modifiers.isStatic) {
+                    po.id += "_static";
+                }
+                po.const = true;
+                po.target = ext;
+                po.bpType = 'prop';
+                cdata.data[po.id] = po;
+            });
+        }
+        if (o?.construct) {
+            let po: TBPCNode = {
+                name: ext,
+                target: ext,
+                menuPath: "createNew",
+                id: "construct_" + ext,
+                bpType: "construct",
+                type: BPType.NewTarget,
+                output: [{ name: "return", type: ext }]
+            }
+            cdata.data[po.id] = po;
+            if (o.construct.params) {
+                po.input = o.construct.params.map(param => ({ name: param.name, type: param.type }));
+            }
+        }
+        if (o?.events) {
+            o.events.forEach((eve: any) => {
+                eve.id = "event_" + eve.name;
+                if (null != eve.customId) {
+                    eve.id = eve.customId;
+                }
+                eve.bpType = 'event';
+                eve.target = ext;
+                eve.input = eve.params;
+                cdata.data[eve.id] = eve;
+            })
+        }
+        if (o?.funcs) {
+            o.funcs.forEach((fun: TBPDeclarationFunction) => {
+                if (fun.modifiers.isPublic || fun.modifiers.isProtected) {
+                    let po = BlueprintData.createCData(fun);
+                    po.target = ext;
+
+                    let func = fun.modifiers.isStatic ? cls[fun.name] : cls.prototype[fun.name];
+                    BlueprintFactory.regFunction(po.id, func, !fun.modifiers.isStatic, cls);
+
+                    if (fun.params && fun.params.length > 0) {
+                        if (BPType.Event == po.type) {
+                            po.output.push(...fun.params);
+                        } else {
+                            po.input = [...fun.params];
+                        }
+                    }
+                    BlueprintData.handleCDataTypes(po, fun, ext);
+
+                    cdata.data[po.id] = po;
+                }
+            });
+        }
+    }
+
 
     initData(data: Record<string, TBPDeclaration>) {
         for (let ext in data) {
+            delete this.constData[ext];
+        }
+        for (let ext in data) {
             let cls = BlueprintUtil.getClass(ext);
             if (!cls) continue;
-            let o = data[ext];
-
-            if (null == this.constData[ext]) this.constData[ext] = {};
-            if (o.extends && 1 <= o.extends.length) {
-                this.constData[ext].parent = o.extends[0];
-            }
-
-            if (o?.props) {
-                o.props.forEach((po: any) => {
-                    po.id = po.id || 'var_' + ext + "_" + po.name;
-                    po.targetAliasName = po.targetAliasName || o.name;
-                    po.target = po.target || ext;
-                    po.bpType = 'prop';
-                    po.const = true;
-                    if (null == this.constData[ext].props) this.constData[ext].props = {};
-                    this.constData[ext].props[po.id] = po;
-                });
-            }
-
-            if (o?.construct) {
-                let cdata: TBPCNode = {
-                    menuPath: "CreateNew",
-                    name: ext,
-                    target: ext,
-                    id: ext,
-                    bpType: "construct",
-                    type: BPType.NewTarget,
-                    output: [{ name: "return", type: ext }]
-                }
-                if (null == this.constData[ext].construct) this.constData[ext].construct = {};
-                this.constData[ext].construct[cdata.id] = cdata;
-
-                if (o.construct.params) {
-                    cdata.input = o.construct.params.map(param => ({ name: param.name, type: param.type }));
-                }
-            }
-            if (o?.events) {
-                o.events.forEach((eve: any) => {
-                    eve.id = eve.id || 'event_' + ext + "_" + eve.name;
-                    eve.bpType = 'event';
-                    eve.input = eve.params;
-                    eve.targetAliasName = o.name;
-                    eve.target = ext;
-                    eve.const = true;
-                    if (null == this.constData[ext].events) this.constData[ext].events = {};
-                    this.constData[ext].events[eve.id] = eve;
-                    //this.allData[eve.id] = eve;
-                })
-            }
-
-            if (o?.funcs) {
-                o.funcs.forEach((fun: any) => {
-                    if (fun.modifiers.isPublic || fun.modifiers.isProtected) {
-                        let cdata: TBPCNode = BlueprintData.createCData(fun, ext, o.name);
-                        let func = fun.modifiers.isStatic ? cls[fun.name] : cls.prototype[fun.name];
-                        BlueprintFactory.regFunction(cdata.id, func, !fun.modifiers.isStatic, cls);
-
-                        if (fun.params && fun.params.length > 0) {
-                            if (BPType.Event == cdata.type) {
-                                cdata.output.push(...fun.params);
-                            } else {
-                                cdata.input = [...fun.params];
-                            }
-                        }
-                        BlueprintData.handleCDataTypes(cdata, fun, ext);
-                        if (null == this.constData[ext].funs) this.constData[ext].funs = {};
-                        this.constData[ext].funs[cdata.id] = cdata;
-                        //this.allData[cdata.id] = cdata;
-                    }
-                });
-            }
+            this._createExtData(data, ext, cls);
         }
     }
     private static handleCDataTypes(cdata: TBPCNode, fun: any, ext: string) {
@@ -299,26 +344,24 @@ export class BlueprintData {
             }
         }
     }
-    private static createCData(fun: any, ext: string, name: string): TBPCNode {
+    private static createCData(fun: any): TBPCNode {
         let cdata: TBPCNode = {
             bpType: "function",
             modifiers: fun.modifiers,
-            target: ext,
-            targetAliasName: name,
             name: fun.name,
-            id: ext + "_" + fun.name,
+            id: "fun_" + fun.name,
             type: BPType.Function,
             output: [this.defEventOut]
         }
+        if (null != fun.customId) {
+            cdata.id = "fun_" + fun.customId;
+        }
         cdata.menuPath = fun.menuPath;
         cdata.type = [BPType.Pure, BPType.Function, BPType.Event].includes(fun.type) ? fun.type : cdata.type;
-        cdata.id = fun.customId ? ext + "_" + fun.customId : cdata.id;
         cdata.type = fun.customId ? BPType.CustomFun : cdata.type;
         cdata.customId = fun.customId || cdata.customId;
         cdata.typeParameters = fun.typeParameters || cdata.typeParameters;
         cdata.id = fun.modifiers.isStatic ? cdata.id + "_static" : cdata.id;
-        cdata.aliasName = fun.modifiers.isStatic ? fun.name + " (Static)" : cdata.aliasName;
-
         return cdata;
     }
 
