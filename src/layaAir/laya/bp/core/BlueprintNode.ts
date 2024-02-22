@@ -66,7 +66,7 @@ export abstract class BlueprintNode<T extends BlueprintPin>{
         // }
 
         this.setType(def.type);
-        let arr = BlueprintFactory.getFunction(def.id || def.name);
+        let arr = BlueprintFactory.getFunction(def.id || def.name,def.target);
         this.setFunction(arr ? arr[0] : null, arr ? arr[1] : false);
         if (def.input) {
             this.addInput(def.input as any);

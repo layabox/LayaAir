@@ -287,7 +287,7 @@ export class BlueprintData {
                     po.target = ext;
 
                     let func = fun.modifiers.isStatic ? cls[fun.name] : cls.prototype[fun.name];
-                    BlueprintFactory.regFunction(po.id, func, !fun.modifiers.isStatic, cls);
+                    BlueprintFactory.regFunction(po.id, func, !fun.modifiers.isStatic, cls,po.target);
 
                     if (fun.params && fun.params.length > 0) {
                         if (BPType.Event == po.type) {

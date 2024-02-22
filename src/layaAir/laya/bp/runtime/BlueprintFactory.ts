@@ -58,15 +58,15 @@ export class BlueprintFactory {
         this._bpMap.set(type, cls);
     }
 
-    static regFunction(fname: string, fun: Function, isMember: boolean = false, cls: any = null) {
+    static regFunction(fname: string, fun: Function, isMember: boolean = false, cls: any = null, target: string = "system") {
         if (isMember == false && cls && fun) {
             fun = fun.bind(cls);
         }
-        this._funMap.set(fname, [fun, isMember]);
+        this._funMap.set(fname + "_" + target, [fun, isMember]);
     }
 
-    static getFunction(fname: string) {
-        return this._funMap.get(fname);
+    static getFunction(fname: string, target: string) {
+        return this._funMap.get(fname + "_" + target);
     }
 
     static regBPContextData(type: BPType, cls: new () => RuntimeNodeData) {
@@ -142,8 +142,8 @@ export class BlueprintFactory {
             }, true);
 
 
-          //  this.regFunction("add", BlueprintStaticFun.add);
-          //  this.regFunction("waitTime", BlueprintStaticFun.waitTime);
+            //  this.regFunction("add", BlueprintStaticFun.add);
+            //  this.regFunction("waitTime", BlueprintStaticFun.waitTime);
             this.regFunction("get", BlueprintStaticFun.getVariable);
             this.regFunction("static_get", BlueprintStaticFun.getVariable);
             this.regFunction("set", BlueprintStaticFun.setVariable);
