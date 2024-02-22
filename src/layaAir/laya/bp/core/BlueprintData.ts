@@ -93,6 +93,9 @@ export class BlueprintData {
         let targetData = this.constData[target];
         if (targetData) {
             return targetData.data[dataId];
+        } else if (BlueprintUtil.customModify) {
+            BlueprintUtil.initConstNode();
+            return this.getConstDataById(target, dataId);
         }
         // if (targetData) {
         //     if (targetData.events && targetData.events[dataId]) {
@@ -291,7 +294,7 @@ export class BlueprintData {
                     po.target = ext;
 
                     let func = fun.modifiers.isStatic ? cls[fun.name] : cls.prototype[fun.name];
-                    BlueprintFactory.regFunction(po.id, func, !fun.modifiers.isStatic, cls,po.target);
+                    BlueprintFactory.regFunction(po.id, func, !fun.modifiers.isStatic, cls, po.target);
 
                     if (fun.params && fun.params.length > 0) {
                         if (BPType.Event == po.type) {

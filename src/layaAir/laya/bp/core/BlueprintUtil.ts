@@ -13,7 +13,7 @@ export class BlueprintUtil {
 
     static CustomClassFinish: string = "CustomClassFinish";
 
-    private static _customModify = false;
+    static customModify = false;
 
     static clone<T>(obj: T): T {
         if (null == obj) return obj;
@@ -34,7 +34,7 @@ export class BlueprintUtil {
      */
     static addCustomData(name: string, data: TBPDeclaration) {
         customData[name] = data;
-        BlueprintUtil._customModify = true;
+        BlueprintUtil.customModify = true;
         BlueprintUtil.eventManger.event(BlueprintUtil.CustomClassFinish, name);
     }
 
@@ -45,9 +45,9 @@ export class BlueprintUtil {
         if (null == this.bpData) {
             this.bpData = new BlueprintData();
         }
-        if (this._customModify) {
+        if (this.customModify) {
             this.bpData.initData(customData);
-            this._customModify = false;
+            this.customModify = false;
         }
     }
     static getClass(ext: any) {
