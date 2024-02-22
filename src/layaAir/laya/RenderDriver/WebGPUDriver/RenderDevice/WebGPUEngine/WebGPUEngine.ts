@@ -11,6 +11,7 @@ import { IRenderEngine } from "../../../DriverDesign/RenderDevice/IRenderEngine"
 import { IRenderEngineFactory } from "../../../DriverDesign/RenderDevice/IRenderEngineFactory";
 import { InternalTexture } from "../../../DriverDesign/RenderDevice/InternalTexture";
 import { ShaderDataType } from "../../../DriverDesign/RenderDevice/ShaderData";
+import { IDefineDatas } from "../../../RenderModuleData/Design/IDefineDatas";
 import { ShaderDefine } from "../../../RenderModuleData/Design/ShaderDefine";
 import { WGPURenderPipeline } from "../WebGPUOBJ/WebGPURenderPipelineHelper";
 import { WGPUBindGroupHelper } from "./WGPUBindGroupHelper";
@@ -83,6 +84,12 @@ export class WebGPUEngine implements IRenderEngine {
         }
 
 
+    }
+    getDefineByName(name: string): ShaderDefine {
+        throw new Error("Method not implemented.");
+    }
+    getNamesByDefineData(defineData: IDefineDatas, out: string[]): void {
+        throw new Error("Method not implemented.");
     }
     addTexGammaDefine(key: number, value: ShaderDefine): void {
         throw new Error("Method not implemented.");
