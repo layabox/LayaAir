@@ -278,7 +278,9 @@ export class BlueprintData {
                 }
                 eve.bpType = 'event';
                 eve.target = ext;
-                eve.input = eve.params;
+                if (null == eve.input && null != eve.params) {
+                    eve.input = eve.params;
+                }
                 cdata.data[eve.id] = eve;
             })
         }
