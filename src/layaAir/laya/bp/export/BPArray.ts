@@ -2,8 +2,11 @@ export class BPArray<T>{
     length: number;
 
     static getItem<T>(arr: Array<T>, index: number): T {
-        [].push
         return arr[index];
+    }
+
+    static setItem<T>(arr: Array<T>, index: number, value: T): void {
+        arr[index] = value;
     }
 
     push(item: T): number {

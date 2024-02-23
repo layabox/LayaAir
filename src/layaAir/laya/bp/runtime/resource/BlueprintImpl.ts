@@ -264,6 +264,13 @@ export class BlueprintImpl extends Resource {
                 funcs.push(func);
             })
         }
+        
+        if (runtime.prototype instanceof Component) {
+            dec.type = "Component";
+        }
+        this.dec = dec;
+        BlueprintUtil.addCustomData(this.uuid, dec);
+
         this.allData = dataMap;
         BlueprintImpl.loadedBPData.set(this.uuid, this);
         let cls = BlueprintFactory.createClsNew(this.uuid, extendClass, runtime, {
@@ -274,16 +281,11 @@ export class BlueprintImpl extends Resource {
         }, this.data.functions, varMap);
 
         this._cls = cls;
-        this.dec = dec;
-
-        if (this.cls.prototype instanceof Component) {
-            dec.type = "Component";
-        }
+        
         // }
-        ClassUtils.regClass(this.uuid, this.cls);
+        ClassUtils.regClass(this.uuid, this._cls);
         ClassUtils.regClass(this.typeName, Object);
 
-        BlueprintUtil.addCustomData(this.uuid, dec);
     }
 
     get obsolute(): boolean {
