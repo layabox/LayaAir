@@ -105,6 +105,8 @@ export class Context {
     /**@internal */
     _submits: any = null;
     /**@internal */
+    stopMerge=true;     //如果用设置_curSubmit的方法，可能导致渲染错误，因为_curSubmit保存上次的信息，不能任意改
+    /**@internal */
     _curSubmit: any = null;
     /**@internal */
     _submitKey = new SubmitKey();	//当前将要使用的设置。用来跟上一次的_curSubmit比较
@@ -540,7 +542,6 @@ export class Context {
         this._submits.length = 0;
         this._submits._length = 0;
         this._submits = null;
-        this._curSubmit = null;
         this._path = null;
         this._save = null;
         this.sprite = null;
@@ -588,7 +589,6 @@ export class Context {
         this._alpha = 1.0;
         this._nBlendType = 0;
         this._clipRect = Context.MAXCLIPRECT;
-        this._curSubmit = SubmitBase.RENDERBASE;
         SubmitBase.RENDERBASE._ref = 0xFFFFFF;
         SubmitBase.RENDERBASE._numEle = 0;
         this._fillStyle = this._strokeStyle = DrawStyle.DEFAULT;
@@ -784,7 +784,7 @@ export class Context {
         }
         if (lastBlend != this._nBlendType) {
             //阻止合并
-            this._curSubmit = SubmitBase.RENDERBASE;
+            this.stopMerge=true;
         }
     }
 
@@ -818,7 +818,7 @@ export class Context {
             submit && (
                 submit._key.submitType === SubmitBase.KEY_DRAWTEXTURE && 
                 submit._key.blendShader === this._nBlendType &&
-                this.isSameClipInfo(submit))
+                !this.isStopMerge(submit))
 
         if(!sameKey){
             this._drawToRender2D(this._curSubmit);
@@ -963,7 +963,7 @@ export class Context {
         SaveBase.save(this, SaveBase.TYPE_COLORFILTER, this, true);
         //_shader2D.filters = value;
         this._colorFiler = filter;
-        this._curSubmit = SubmitBase.RENDERBASE;
+        this.stopMerge=true;
         //_reCalculateBlendShader();
     }
 
@@ -1037,9 +1037,9 @@ export class Context {
         }
     }
 
-
-    private isSameClipInfo(submit: SubmitBase): boolean {
-        return (submit.clipInfoID === this._clipInfoID);
+    //通用的部分的比较
+    private isStopMerge(submit:SubmitBase){
+        return this.stopMerge || (submit.clipInfoID !== this._clipInfoID);
     }
 
     drawCallOptimize(enable: boolean): boolean {
@@ -1132,7 +1132,7 @@ export class Context {
         this._drawCount++;
 
         var sameKey = (imgid >= 0 && preKey.submitType === SubmitBase.KEY_DRAWTEXTURE && preKey.other === imgid) &&
-            this.isSameClipInfo(this._curSubmit) &&
+            !this.isStopMerge(this._curSubmit) &&
             this._mesh.vertexNum + 4 < Context._MAXVERTNUM 
 
         if(!sameKey){
@@ -1263,7 +1263,7 @@ export class Context {
      * 例如切换rt的时候
      */
     breakNextMerge(): void {
-        this._curSubmit = SubmitBase.RENDERBASE;
+        this.stopMerge=true;
     }
 
     //TODO:coverage
@@ -1369,14 +1369,6 @@ export class Context {
         if (!canvas) return;
         var src: Context = canvas.context;
         if (src._targets) {
-            //应用并清空canvas中的指令。如果内容需要重画，RenderSprite会给他重新加入submit
-            if (src._submits._length > 0) {
-                let submit = SubmitCMD.create([src, src._targets], this._flushToTarget, this);
-                this._submits[this._submits._length++] = submit;
-            }
-            //在这之前就已经渲染出结果了。
-            this._drawRenderTexture(src._targets, x, y, width, height, null, 1.0, RenderTexture2D.flipyuv);
-            this._curSubmit = SubmitBase.RENDERBASE;
         } else {
             var canv = <WebGLCacheAsNormalCanvas>(canvas as unknown);
             if (canv.touches) {
@@ -1422,7 +1414,7 @@ export class Context {
             return true;
         }
         //暂时drawTarget不合并
-        this._curSubmit = SubmitBase.RENDERBASE
+        this.stopMerge=true;
         return false;
     }
 
@@ -1629,6 +1621,8 @@ export class Context {
     endRender(){
         this.flush();
         this._render2D.renderEnd();
+        this._curSubmit = SubmitBase.RENDERBASE;
+
     }
 
     //合并mesh之后，最后一点数据还没有渲染，这里强制渲染
@@ -1687,7 +1681,7 @@ export class Context {
         var tPath = this._getPath();
         var submit = this._curSubmit;
         var sameKey = (submit._key.submitType === SubmitBase.KEY_VG && submit._key.blendShader === this._nBlendType) &&
-            this.isSameClipInfo(submit);
+            !this.isStopMerge(submit);
 
         if (!sameKey) {
             this._drawToRender2D(submit);
@@ -1787,7 +1781,7 @@ export class Context {
         var tPath = this._getPath();
         var submit = this._curSubmit;
         var sameKey = (submit._key.submitType === SubmitBase.KEY_VG && submit._key.blendShader === this._nBlendType) &&
-                        this.isSameClipInfo(submit);
+                        !this.isStopMerge(submit);
 
         if (!sameKey) {
             this._drawToRender2D(this._curSubmit);

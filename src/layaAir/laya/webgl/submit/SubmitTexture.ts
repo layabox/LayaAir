@@ -79,7 +79,7 @@ export class SubmitTexture extends SubmitBase {
        create方法只传对submit设置的值
      */
     static create(context: Context, mesh: Mesh2D, sv: Value2D): SubmitTexture {
-        var o = SubmitTexture._poolSize ? SubmitTexture.POOL[--SubmitTexture._poolSize] : new SubmitTexture(SubmitBase.TYPE_TEXTURE);
+        var o = new SubmitTexture(SubmitBase.TYPE_TEXTURE);
         o._mesh = mesh;
         o._key.clear();
         o._key.submitType = SubmitBase.KEY_DRAWTEXTURE;

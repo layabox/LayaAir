@@ -360,13 +360,11 @@ export class RenderSprite {
                 sprite._renderType |= SpriteConst.CANVAS;
                 ctx.endRender();
                 _cacheStyle.renderTexture = rt;
-                //this._canvas_repaint(sprite, context, x, y);
             }
             var tRec = _cacheStyle.cacheRect;
             context.material = sprite.graphics.material;
             context._drawRenderTexture(_cacheStyle.renderTexture,
                 x + tRec.x, y + tRec.y, tRec.width, tRec.height,null,1,[0,1, 1,1, 1,0, 0,0])
-            //context.drawCanvas(_cacheStyle.canvas, x + tRec.x, y + tRec.y, tRec.width, tRec.height);
         }else{
             if (sprite._needRepaint() || !_cacheStyle.canvas || textNeedRestore || cacheNeedRebuild || ILaya.stage.isGlobalRepaint()) {
                 if (_cacheStyle.cacheAs === 'normal') {
@@ -412,13 +410,6 @@ export class RenderSprite {
         h = tRec.height * scaleY;
         left = tRec.x;
         top = tRec.y;
-
-        if (tCacheType === 'bitmap' && (w > 2048 || h > 2048)) {
-            console.warn("cache bitmap size larger than 2048, cache ignored");
-            _cacheStyle.releaseContext();
-            _next._fun.call(_next, sprite, context, x, y);
-            return;
-        }
         if (!canvas) {
             _cacheStyle.createContext();
             canvas = _cacheStyle.canvas;
@@ -428,9 +419,6 @@ export class RenderSprite {
         tx.sprite = sprite;
 
         (canvas.width != w || canvas.height != h) && canvas.size(w, h);//asbitmap需要合理的大小，所以size放到前面
-
-        if (tCacheType === 'bitmap') tx.asBitmap = true;
-        else if (tCacheType === 'normal') tx.asBitmap = false;
 
         //清理画布。之前记录的submit会被全部清掉
         tx.clear();
