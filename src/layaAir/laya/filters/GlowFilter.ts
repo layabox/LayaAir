@@ -4,6 +4,7 @@ import { ColorUtils } from "../utils/ColorUtils"
 import { BlurFilter } from "./BlurFilter";
 import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
 import { ShaderDefine } from "../RenderDriver/RenderModuleData/Design/ShaderDefine";
+import { RenderTexture2D } from "../resource/RenderTexture2D";
 
 /**
  *  发光滤镜(也可以当成阴影滤使用）
@@ -43,13 +44,7 @@ export class GlowFilter extends Filter {
         this._glRender = new GlowFilterGLRender();
     }
 
-    /**
-     * @private
-     * 滤镜类型
-     * @override
-     */
-    get type(): number {
-        return BlurFilter.GLOW;
+    render(texture: RenderTexture2D, width: number, height: number): void {
     }
 
     /**@internal */

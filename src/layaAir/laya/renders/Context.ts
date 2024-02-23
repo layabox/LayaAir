@@ -107,7 +107,7 @@ export class Context {
     /**@internal */
     stopMerge=true;     //如果用设置_curSubmit的方法，可能导致渲染错误，因为_curSubmit保存上次的信息，不能任意改
     /**@internal */
-    _curSubmit: any = null;
+    _curSubmit: any = SubmitBase.RENDERBASE;
     /**@internal */
     _submitKey = new SubmitKey();	//当前将要使用的设置。用来跟上一次的_curSubmit比较
 
@@ -232,6 +232,10 @@ export class Context {
 
     set render2D(render:Render2D){
         this._render2D = render;
+    }
+
+    get render2D(){
+        return this._render2D;
     }
 
     set material(value: Material) {
@@ -1004,7 +1008,7 @@ export class Context {
 
     /**@internal */
     _drawRenderTexture(tex: RenderTexture2D, x: number, y: number, width: number, height: number, m: Matrix, alpha: number, uv: any[], color = 0xffffffff): boolean {
-        return this._inner_drawTexture(<Texture>(tex as any), -1, x, y, width, height, m, uv, alpha, false, color);
+        return this._inner_drawTexture(tex, -1, x, y, width, height, m, uv, alpha, false, color);
     }
 
     /**@internal */
@@ -1083,12 +1087,12 @@ export class Context {
      * @param	uv
      * @return
      */
-    _inner_drawTexture(tex: Texture, imgid: number, x: number, y: number, width: number, height: number, m: Matrix|null, uv: ArrayLike<number> | null, alpha: number, lastRender: boolean, color: number): boolean {
+    _inner_drawTexture(tex: Texture|RenderTexture2D, imgid: number, x: number, y: number, width: number, height: number, m: Matrix|null, uv: ArrayLike<number> | null, alpha: number, lastRender: boolean, color: number): boolean {
         if (width <= 0 || height <= 0) {
             return false;
         }
         var preKey = this._curSubmit._key;
-        uv = uv || tex._uv
+        uv = uv || (tex as Texture)._uv
         //为了优化，如果上次是画三角形，并且贴图相同，会认为他们是一组的，把这个也转成三角形，以便合并。
         //因为好多动画是drawTexture和drawTriangle混用的
         if (preKey.submitType === SubmitBase.KEY_TRIANGLES && preKey.other === imgid) {
@@ -1097,7 +1101,7 @@ export class Context {
             this._drawTriUseAbsMatrix = true;
             var tuv = this._tempUV;
             tuv[0] = uv[0]; tuv[1] = uv[1]; tuv[2] = uv[2]; tuv[3] = uv[3]; tuv[4] = uv[4]; tuv[5] = uv[5]; tuv[6] = uv[6]; tuv[7] = uv[7];
-            this.drawTriangles(tex, 0, 0, tv, tuv, this._drawTexToDrawTri_Index, m || this._curMat, alpha, null, null);//用tuv而不是uv会提高效率
+            this.drawTriangles(tex as Texture, 0, 0, tv, tuv, this._drawTexToDrawTri_Index, m || this._curMat, alpha, null, null);//用tuv而不是uv会提高效率
             this._drawTriUseAbsMatrix = false;
             return true;
         }
@@ -1125,7 +1129,7 @@ export class Context {
 
         //lastRender = false;
         if (lastRender) {
-            this._charSubmitCache.add(this, tex, imgid, ops, uv, rgba);
+            this._charSubmitCache.add(this, tex as Texture, imgid, ops, uv, rgba);
             return true;
         }
 
@@ -1139,7 +1143,7 @@ export class Context {
             this._drawToRender2D(this._curSubmit);
             this._mesh = this._meshQuatTex;
         }
-        this._lastTex = tex;
+        this._lastTex = tex as Texture;
 
         if (!sameKey) {
             let shaderValue = Value2D.create(RenderSpriteData.Texture2D);
@@ -1152,7 +1156,6 @@ export class Context {
         (this._mesh as MeshQuadTexture).addQuad(ops, uv, rgba, true);
         submit._numEle += 6;
         return true;
-
     }
 
     private fillShaderValue(shaderValue:Value2D){

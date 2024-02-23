@@ -17,12 +17,18 @@ export abstract class Render2D{
     constructor(out:RenderTexture2D=null){
         this._renderTexture = out;
     }
+    //可以随时设置rt
+    set out(out:RenderTexture2D){
+        this._renderTexture=out;
+    }
     //output:RenderTexture2D;
     abstract renderStart():void;
     // 有vb是外部提供的，因此，顶点描述也要由外部提供
     abstract setVertexDecl(decl:VertexDeclaration):void;
     //shaderdata放到mtl中。之所以传内存buffer是为了给后面合并subdata机会，以便提高效率
     abstract draw(vb:ArrayBuffer, ib:ArrayBuffer, vboff:number, vblen:number, iboff:number,iblen:number, mtl:Value2D ):void;
+    // 只是画一个方块
+    drawRect( texture:RenderTexture2D, width:number, height:number, mtl:Value2D){}
     abstract renderEnd():void;
 }
 
