@@ -3,6 +3,7 @@ import { IRenderElement3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass"
 import { NativeTransform3D } from "../../RenderModuleData/RuntimeModuleData/3D/NativeTransform3D";
 import { RTSubShader } from "../../RenderModuleData/RuntimeModuleData/3D/RT3DRenderModuleData";
 import { RTBaseRenderNode } from "../../RenderModuleData/RuntimeModuleData/3D/RTBaseRenderNode";
+import { RTDefineDatas } from "../../RenderModuleData/RuntimeModuleData/RTDefineDatas";
 import { GLESRenderGeometryElement } from "../RenderDevice/GLESRenderGeometryElement";
 import { GLESShaderData } from "../RenderDevice/GLESShaderData";
 export enum RenderElementType {
@@ -11,7 +12,14 @@ export enum RenderElementType {
     Instance = 2,
 }
 export class GLESRenderElement3D implements IRenderElement3D {
-
+    /** @internal */
+    static _compileDefine: RTDefineDatas = null;
+    static getCompileDefine(): RTDefineDatas {
+        if (!GLESRenderElement3D._compileDefine) {
+            GLESRenderElement3D._compileDefine = new RTDefineDatas();
+        }
+        return GLESRenderElement3D._compileDefine;
+    }
     private _geometry: GLESRenderGeometryElement;
 
     private _materialShaderData: GLESShaderData;
@@ -94,6 +102,7 @@ export class GLESRenderElement3D implements IRenderElement3D {
 
     constructor() {
         this.init();
+        (window as any).conchGLESRenderElement3D.setCompileDefine((GLESRenderElement3D.getCompileDefine() as any)._nativeObj)
     }
 
     destroy(): void {

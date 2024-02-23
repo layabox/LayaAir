@@ -1,19 +1,16 @@
-import { ISubmit } from "./ISubmit";
-import { SubmitKey } from "./SubmitKey";
-import { ColorFilter } from "../../filters/ColorFilter"
-import { Context } from "../../resource/Context"
-import { RenderTexture2D } from "../../resource/RenderTexture2D"
-import { BlendMode } from "../canvas/BlendMode"
-import { TextureSV } from "../shader/d2/value/TextureSV"
-import { Value2D } from "../shader/d2/value/Value2D"
-import { Mesh2D } from "../utils/Mesh2D"
-import { RenderStateContext } from "../../RenderEngine/RenderStateContext";
-import { MeshTopology } from "../../RenderEngine/RenderEnum/RenderPologyMode";
-import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
 import { Const } from "../../Const";
+import { RenderStateContext } from "../../RenderEngine/RenderStateContext";
+import { ColorFilter } from "../../filters/ColorFilter";
 import { Matrix4x4 } from "../../maths/Matrix4x4";
 import { Vector4 } from "../../maths/Vector4";
-import { LayaGL } from "../../layagl/LayaGL";
+import { Context } from "../../renders/Context";
+import { RenderTexture2D } from "../../resource/RenderTexture2D";
+import { BlendMode } from "../canvas/BlendMode";
+import { TextureSV } from "../shader/d2/value/TextureSV";
+import { Value2D } from "../shader/d2/value/Value2D";
+import { Mesh2D } from "../utils/Mesh2D";
+import { ISubmit } from "./ISubmit";
+import { SubmitKey } from "./SubmitKey";
 
 export class SubmitTarget implements ISubmit {
     /**@internal */
@@ -23,24 +20,24 @@ export class SubmitTarget implements ISubmit {
     /**@internal */
     _numEle: number;
     shaderValue: Value2D;
-    blendType: number = 0;
+    blendType = 0;
     /**@internal */
-    _ref: number = 1;
+    _ref = 1;
     /**@internal */
-    _key: SubmitKey = new SubmitKey();
+    _key = new SubmitKey();
     srcRT: RenderTexture2D;
+    static POOL: SubmitTarget[] = [];
 
     constructor() {
     }
 
-    static POOL: SubmitTarget[] = [];
     renderSubmit(): number {
-        this._mesh.useMesh();
+        /// this._mesh.useMesh();
 
         var target = this.srcRT;
         if (target) {//??为什么会出现为空的情况
             this.shaderValue.textureHost = target;
-            this.shaderValue.upload();
+            this.shaderValue.upload(null,this.shaderValue.shaderData);
             this.blend();
            // LayaGL.renderDrawContext.drawElements2DTemp(MeshTopology.Triangles, this._numEle, IndexFormat.UInt16, this._startIdx);
         }
@@ -70,7 +67,7 @@ export class SubmitTarget implements ISubmit {
         var o: SubmitTarget = (SubmitTarget.POOL as any)._length ? SubmitTarget.POOL[--(SubmitTarget.POOL as any)._length] : new SubmitTarget();
         o._mesh = mesh;
         o.srcRT = rt;
-        o._startIdx = mesh.indexNum * Const.BYTES_PIDX;
+        o._startIdx = mesh.indexNum * Const.INDEX_BYTES;
         o._ref = 1;
         o._key.clear();
         o._numEle = 0;
@@ -79,7 +76,7 @@ export class SubmitTarget implements ISubmit {
         o.shaderValue = sv;
         if (context._colorFiler) {
             var ft: ColorFilter = context._colorFiler;
-            sv.defines.addDefine(ft.typeDefine);
+            sv.shaderData.addDefine(ft.typeDefine);
             Matrix4x4.TEMPMatrix0.cloneByArray(ft._mat);
             (<TextureSV>sv).colorMat = Matrix4x4.TEMPMatrix0;
             Vector4.tempVec4.setValue(ft._alpha[0], ft._alpha[1], ft._alpha[2], ft._alpha[3]);
@@ -89,8 +86,6 @@ export class SubmitTarget implements ISubmit {
     }
 }
 
-{
-    (SubmitTarget.POOL as any)._length = 0;
-}
+(SubmitTarget.POOL as any)._length = 0;
 
 

@@ -1,6 +1,7 @@
 import { ShaderPass } from "../../../../RenderEngine/RenderShader/ShaderPass";
 import { Matrix4x4 } from "../../../../maths/Matrix4x4";
 import { IShaderInstance } from "../../../DriverDesign/RenderDevice/IShaderInstance";
+import { GLESRenderElement3D } from "../../../OpenGLESDriver/3DRenderPass/GLESRenderElement3D";
 import { GLESShaderInstance } from "../../../OpenGLESDriver/RenderDevice/GLESShaderInstance";
 import { ICameraNodeData, ISceneNodeData, IShaderPassData, ISubshaderData } from "../../Design/3D/I3DRenderModuleData";
 import { IDefineDatas } from "../../Design/IDefineDatas";
@@ -86,14 +87,6 @@ export class RTSubShader implements ISubshaderData {
 }
 
 export class RTShaderPass implements IShaderPassData {
-    /** @internal */
-    static _compileDefine: RTDefineDatas = null;
-    static getCompileDefine(): RTDefineDatas {
-        if (!RTShaderPass._compileDefine) {
-            RTShaderPass._compileDefine = new RTDefineDatas();
-        }
-        return RTShaderPass._compileDefine;
-    }
     statefirst: boolean;
     private _validDefine: RTDefineDatas = new RTDefineDatas();
     private _createShaderInstanceFun: any;
@@ -101,7 +94,6 @@ export class RTShaderPass implements IShaderPassData {
     private _pass: ShaderPass;
     constructor(pass: ShaderPass) {
         this._nativeObj = new (window as any).conchRTShaderPass();
-        this._nativeObj.setCompileDefine(RTShaderPass.getCompileDefine()._nativeObj);
         this._createShaderInstanceFun = this.nativeCreateShaderInstance.bind(this);
         this._nativeObj.setCreateShaderInstanceFunction(this._createShaderInstanceFun);
         this._renderState = new RenderState();
@@ -129,7 +121,7 @@ export class RTShaderPass implements IShaderPassData {
         this._nativeObj.setValidDefine(value._nativeObj);
     }
     nativeCreateShaderInstance() {
-        var shaderIns =  this._pass.withCompile(RTShaderPass.getCompileDefine()) as GLESShaderInstance;
+        var shaderIns =  this._pass.withCompile(GLESRenderElement3D.getCompileDefine()) as GLESShaderInstance;
         return shaderIns._nativeObj;
     }
     destory(): void {

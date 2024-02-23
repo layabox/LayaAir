@@ -1,34 +1,38 @@
 import { ISaveData } from "./ISaveData";
-import { Context } from "../../../resource/Context"
+import { Context } from "../../../renders/Context"
 import { SubmitBase } from "../../submit/SubmitBase"
 
 export class SaveBase implements ISaveData {
+    static TYPE_ALPHA = 0x1;
+    static TYPE_FILESTYLE = 0x2;
+    static TYPE_FONT = 0x8;
+    static TYPE_LINEWIDTH = 0x100;
+    static TYPE_STROKESTYLE = 0x200;
+    static TYPE_MARK = 0x400;
+    static TYPE_TRANSFORM = 0x800;
+    static TYPE_TRANSLATE = 0x1000;
+    static TYPE_ENABLEMERGE = 0x2000;
 
-    /*[FILEINDEX:1]*/
-    /*[DISBALEOUTCONST-BEGIN]*/
-    static TYPE_ALPHA: number = 0x1;
-    static TYPE_FILESTYLE: number = 0x2;
-    static TYPE_FONT: number = 0x8;
-    static TYPE_LINEWIDTH: number = 0x100;
-    static TYPE_STROKESTYLE: number = 0x200;
-    static TYPE_MARK: number = 0x400;
-    static TYPE_TRANSFORM: number = 0x800;
-    static TYPE_TRANSLATE: number = 0x1000;
-    static TYPE_ENABLEMERGE: number = 0x2000;
-
-    static TYPE_TEXTBASELINE: number = 0x4000;
-    static TYPE_TEXTALIGN: number = 0x8000;
-    static TYPE_GLOBALCOMPOSITEOPERATION: number = 0x10000;
-    static TYPE_CLIPRECT: number = 0x20000;
-    static TYPE_CLIPRECT_STENCIL: number = 0x40000;
-    static TYPE_IBVB: number = 0x80000;
-    static TYPE_SHADER: number = 0x100000;
-    static TYPE_FILTERS: number = 0x200000;
-    static TYPE_FILTERS_TYPE: number = 0x400000;
-    static TYPE_COLORFILTER: number = 0x800000;
-    /*[DISBALEOUTCONST-END]*/
+    static TYPE_TEXTBASELINE = 0x4000;
+    static TYPE_TEXTALIGN = 0x8000;
+    static TYPE_GLOBALCOMPOSITEOPERATION = 0x10000;
+    static TYPE_CLIPRECT = 0x20000;
+    static TYPE_CLIPRECT_STENCIL = 0x40000;
+    static TYPE_IBVB = 0x80000;
+    static TYPE_SHADER = 0x100000;
+    static TYPE_FILTERS = 0x200000;
+    static TYPE_FILTERS_TYPE = 0x400000;
+    static TYPE_COLORFILTER = 0x800000;
     private static POOL: any = SaveBase._createArray();
     private static _namemap: any = SaveBase._init();
+    private _valueName: string;
+    private _value: any;
+    private _dataObj: any;
+    private _newSubmit: boolean;
+
+    constructor() {
+    }
+
     /**@internal */
     static _createArray(): any[] {
         var value: any = [];
@@ -36,19 +40,15 @@ export class SaveBase implements ISaveData {
         return value;
     }
     /**@internal */
-    static _init(): any {
+    static _init() {
         var namemap: any = SaveBase._namemap = {};
-
         namemap[SaveBase.TYPE_ALPHA] = "ALPHA";
         namemap[SaveBase.TYPE_FILESTYLE] = "fillStyle";
         namemap[SaveBase.TYPE_FONT] = "font";
         namemap[SaveBase.TYPE_LINEWIDTH] = "lineWidth";
         namemap[SaveBase.TYPE_STROKESTYLE] = "strokeStyle";
-
         namemap[SaveBase.TYPE_ENABLEMERGE] = "_mergeID";
-
         namemap[SaveBase.TYPE_MARK] = namemap[SaveBase.TYPE_TRANSFORM] = namemap[SaveBase.TYPE_TRANSLATE] = [];
-
         namemap[SaveBase.TYPE_TEXTBASELINE] = "textBaseline";
         namemap[SaveBase.TYPE_TEXTALIGN] = "textAlign";
         namemap[SaveBase.TYPE_GLOBALCOMPOSITEOPERATION] = "_nBlendType";
@@ -56,14 +56,6 @@ export class SaveBase implements ISaveData {
         namemap[SaveBase.TYPE_FILTERS] = "filters";
         namemap[SaveBase.TYPE_COLORFILTER] = '_colorFiler';
         return namemap;
-    }
-
-    private _valueName: string;
-    private _value: any;
-    private _dataObj: any;
-    private _newSubmit: boolean;
-
-    constructor() {
     }
 
     isSaveMark(): boolean { return false; }

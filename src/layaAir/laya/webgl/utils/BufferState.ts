@@ -4,9 +4,6 @@ import { VertexAttributeLayout } from "../../RenderEngine/VertexAttributeLayout"
 import { IndexBuffer3D } from "../../d3/graphics/IndexBuffer3D";
 import { VertexBuffer3D } from "../../d3/graphics/VertexBuffer3D";
 import { LayaGL } from "../../layagl/LayaGL";
-import { IndexBuffer2D } from "./IndexBuffer2D";
-import { VertexBuffer2D } from "./VertexBuffer2D";
-
 
 
 /**
@@ -18,10 +15,10 @@ export class BufferState {
 	_deviceBufferState: IBufferState;
 
 	/**@internal [只读]*/
-	_bindedIndexBuffer: IndexBuffer3D | IndexBuffer2D;
+	_bindedIndexBuffer: IndexBuffer3D ;
 
 	/**@internal */
-	_vertexBuffers: VertexBuffer3D[] | VertexBuffer2D[];
+	_vertexBuffers: VertexBuffer3D[];
 
 	/**@internal */
 	vertexlayout: VertexAttributeLayout;//WGPU 先不管
@@ -33,7 +30,7 @@ export class BufferState {
 		this._deviceBufferState = LayaGL.renderDeviceFactory.createBufferState();
 	}
 
-	applyState(vertexBuffers: VertexBuffer3D[] | VertexBuffer2D[], indexBuffer: IndexBuffer3D | IndexBuffer2D | null) {
+	applyState(vertexBuffers: VertexBuffer3D[], indexBuffer: IndexBuffer3D | null) {
 		//this.vertexlayout = VertexAttributeLayout.getVertexLayoutByPool(vertexBuffers);
 		this._vertexBuffers = vertexBuffers;
 		this._bindedIndexBuffer = indexBuffer;

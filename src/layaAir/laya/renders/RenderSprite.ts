@@ -7,7 +7,7 @@ import { Filter } from "../filters/Filter";
 import { Matrix } from "../maths/Matrix";
 import { Point } from "../maths/Point";
 import { Rectangle } from "../maths/Rectangle";
-import { Context } from "../resource/Context";
+import { Context } from "./Context";
 import { HTMLCanvas } from "../resource/HTMLCanvas";
 import { RenderTexture2D } from "../resource/RenderTexture2D";
 import { Texture } from "../resource/Texture";
@@ -22,6 +22,7 @@ import { ILaya } from "../../ILaya";
 import { NativeFilter } from "../filters/NativeFilter";
 import { LayaEnv } from "../../LayaEnv";
 import { HitArea } from "../utils/HitArea";
+import { Render2D, Render2DSimple } from "./Render2D";
 
 /**
  * @private
@@ -44,7 +45,7 @@ export class RenderSprite {
     /** @internal */
     _next: RenderSprite;
     /** @internal */
-    _fun: Function;
+    _fun: (sp:Sprite, ctx:Context, x:number, y:number)=>void;
 
     /** @internal */
     static __init__(): void {
@@ -315,61 +316,91 @@ export class RenderSprite {
     /**@internal */
     _canvas(sprite: Sprite, context: Context, x: number, y: number): void {
 
-        var _cacheStyle: CacheStyle = sprite._cacheStyle;
-        var _next: RenderSprite = this._next;
+        var _cacheStyle = sprite._cacheStyle;
+        var _next = this._next;
 
         if (!_cacheStyle.enableCanvasRender || !context._drawingToTexture && _cacheStyle.mask && _cacheStyle.mask._getBit(NodeFlags.DISABLE_VISIBILITY)) {
             _next._fun.call(_next, sprite, context, x, y);
             return;
         }
-        _cacheStyle.cacheAs === 'bitmap' ? (Stat.canvasBitmap++) : (Stat.canvasNormal++);
+        let isbmp = _cacheStyle.cacheAs === 'bitmap' 
+        isbmp ? Stat.canvasBitmap++ : Stat.canvasNormal++;
 
         //检查保存的文字是否失效了
-        var cacheNeedRebuild: boolean = false;
-        var textNeedRestore: boolean = false;
+        var cacheNeedRebuild = false;
+        var textNeedRestore = false;
 
-        if (_cacheStyle.canvas) {
+        if (!isbmp && _cacheStyle.canvas) {
             // 检查文字是否被释放了，以及clip是否改变了，需要重新cache了
-            var canv: any = _cacheStyle.canvas;
+            var canv = _cacheStyle.canvas as unknown as WebGLCacheAsNormalCanvas;
             textNeedRestore = canv.isTextNeedRestore && canv.isTextNeedRestore();
             cacheNeedRebuild = canv.isCacheValid && !canv.isCacheValid();
         }
 
-        if (sprite._needRepaint() || (!_cacheStyle.canvas) || textNeedRestore || cacheNeedRebuild || ILaya.stage.isGlobalRepaint()) {
-            if (_cacheStyle.cacheAs === 'normal') {
-                if (context._targets) {// 如果有target说明父节点已经是一个cacheas bitmap了，就不再走cacheas normal的流程了
-                    _next._fun.call(_next, sprite, context, x, y);
-                    return;	//不再继续
-                } else {
-                    this._canvas_webgl_normal_repaint(sprite, context);
-                }
-            } else {
-                this._canvas_repaint(sprite, context, x, y);
+        if(isbmp){
+            //temp
+            if ( sprite._needRepaint() || !_cacheStyle.renderTexture || ILaya.stage.isGlobalRepaint()) {
+                //如果需要构造RenderTexture
+                // 先计算需要的texuture的大小。
+                let scaleInfo = sprite._cacheStyle._calculateCacheRect(sprite, sprite._cacheStyle.cacheAs, x, y);
+                let tRec = _cacheStyle.cacheRect;
+                //计算cache画布的大小
+                let w = tRec.width * scaleInfo.x;
+                let h = tRec.height * scaleInfo.y;
+                let rt = new RenderTexture2D(w,h);
+                let ctx = new Context();
+                ctx.copyState(context);
+                ctx.size(w,h);
+                ctx.render2D=new Render2DSimple(rt);
+                ctx.startRender();
+                //先把canvas标记去掉，这样才能走普通渲染
+                sprite._renderType &= ~SpriteConst.CANVAS;
+                sprite.render(ctx,-sprite.x,-sprite.y);
+                //恢复canvas
+                sprite._renderType |= SpriteConst.CANVAS;
+                ctx.endRender();
+                _cacheStyle.renderTexture = rt;
+                //this._canvas_repaint(sprite, context, x, y);
             }
+            var tRec = _cacheStyle.cacheRect;
+            context.material = sprite.graphics.material;
+            context._drawRenderTexture(_cacheStyle.renderTexture,
+                x + tRec.x, y + tRec.y, tRec.width, tRec.height,null,1,[0,1, 1,1, 1,0, 0,0])
+            //context.drawCanvas(_cacheStyle.canvas, x + tRec.x, y + tRec.y, tRec.width, tRec.height);
+        }else{
+            if (sprite._needRepaint() || !_cacheStyle.canvas || textNeedRestore || cacheNeedRebuild || ILaya.stage.isGlobalRepaint()) {
+                if (_cacheStyle.cacheAs === 'normal') {
+                    if (context._targets) {// 如果有target说明父节点已经是一个cacheas bitmap了，就不再走cacheas normal的流程了
+                        _next._fun.call(_next, sprite, context, x, y);
+                        return;	//不再继续
+                    } else {
+                        this._canvas_webgl_normal_repaint(sprite, context);
+                    }
+                } else {
+                    this._canvas_repaint(sprite, context, x, y);
+                }
+            }
+            var tRec = _cacheStyle.cacheRect;
+            context.material = sprite.graphics.material;
+            context.drawCanvas(_cacheStyle.canvas, x + tRec.x, y + tRec.y, tRec.width, tRec.height);
         }
-        var tRec: Rectangle = _cacheStyle.cacheRect;
-        //Stage._dbgSprite.graphics.drawRect(x, y, 30,30, null, 'red');
-        context.material = sprite.graphics.material;
-        context.drawCanvas(_cacheStyle.canvas, x + tRec.x, y + tRec.y, tRec.width, tRec.height);
     }
 
     /**@internal */
     _canvas_repaint(sprite: Sprite, context: Context, x: number, y: number): void {
-
-        var _cacheStyle: CacheStyle = sprite._cacheStyle;
-        var _next: RenderSprite = this._next;
+        var _cacheStyle = sprite._cacheStyle;
+        var _next = this._next;
         var tx: Context;
-        var canvas: HTMLCanvas = _cacheStyle.canvas;
+        var canvas = _cacheStyle.canvas;
         var left: number;
         var top: number;
         var tRec: Rectangle;
-        var tCacheType: string = _cacheStyle.cacheAs;
+        var tCacheType = _cacheStyle.cacheAs;
 
         var w: number, h: number;
         var scaleX: number, scaleY: number;
 
-        var scaleInfo: Point;
-        scaleInfo = _cacheStyle._calculateCacheRect(sprite, tCacheType, x, y);
+        var scaleInfo = _cacheStyle._calculateCacheRect(sprite, tCacheType, x, y);
         scaleX = scaleInfo.x;
         scaleY = scaleInfo.y;
 
@@ -392,9 +423,8 @@ export class RenderSprite {
             _cacheStyle.createContext();
             canvas = _cacheStyle.canvas;
         }
-        tx = canvas.context as Context;
+        tx = canvas.context;
 
-        //WebGL用
         tx.sprite = sprite;
 
         (canvas.width != w || canvas.height != h) && canvas.size(w, h);//asbitmap需要合理的大小，所以size放到前面

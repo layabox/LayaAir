@@ -7,7 +7,7 @@ import { Matrix } from "../maths/Matrix";
 import { Point } from "../maths/Point";
 import { Rectangle } from "../maths/Rectangle";
 import { RenderSprite } from "../renders/RenderSprite";
-import { Context } from "../resource/Context";
+import { Context } from "../renders/Context";
 import { HTMLCanvas } from "../resource/HTMLCanvas";
 import { Texture } from "../resource/Texture";
 import { Texture2D } from "../resource/Texture2D";
@@ -203,13 +203,11 @@ export class Sprite extends Node {
         return this._cacheStyle.userSetCache;
     }
 
-    /**@internal */
-    _setCacheAs(value: string): void {
-        //_dataf32[SpriteConst.POSCACHE] = value == "bitmap"?2:(value == "normal"?1:0);
-    }
-
     set cacheAs(value: string) {
         if (value === this._cacheStyle.userSetCache) return;
+        //debug ：normal现在效果不对，先去掉以免影响别人
+        if(value=='normal') return;
+        //debug
         if ('bitmap' == value && !(this._cacheStyle.canvas instanceof HTMLCanvas)) {
             this._cacheStyle.canvas = null;
         }
@@ -217,7 +215,6 @@ export class Sprite extends Node {
         this._getCacheStyle().userSetCache = value;
 
         if (this.mask && value === 'normal') return;
-        this._setCacheAs(value);
         this._checkCanvasEnable();
         this.repaint();
     }
@@ -226,7 +223,7 @@ export class Sprite extends Node {
      * 更新_cnavas相关的状态
      */
     private _checkCanvasEnable(): void {
-        var tEnable: boolean = this._cacheStyle.needEnableCanvasRender();
+        var tEnable = this._cacheStyle.needEnableCanvasRender();
         this._getCacheStyle().enableCanvasRender = tEnable;
         if (tEnable) {
             if (this._cacheStyle.needBitmapCache()) {
@@ -241,7 +238,6 @@ export class Sprite extends Node {
             this._cacheStyle.releaseContext();
             this._renderType &= ~SpriteConst.CANVAS;
         }
-        this._setCacheAs(this._cacheStyle.cacheAs);
     }
 
     /**设置cacheAs为非空时此值才有效，staticCache=true时，子对象变化时不会自动更新缓存，只能通过调用reCache方法手动刷新。*/
@@ -1184,7 +1180,7 @@ export class Sprite extends Node {
         offsetY |= 0;
         canvasWidth |= 0;
         canvasHeight |= 0;
-        var ctx: Context = new Context();
+        var ctx = new Context();
         ctx.size(canvasWidth, canvasHeight);
         ctx.asBitmap = true;
         ctx._targets.start();
@@ -1309,7 +1305,6 @@ export class Sprite extends Node {
                 this._checkCanvasEnable();
             }
         }
-        this._getCacheStyle().hasGlowFilter = this._isHaveGlowFilter();
         this.repaint();
     }
 
@@ -1643,9 +1638,6 @@ export class Sprite extends Node {
             if (this._cacheStyle) {
                 this._cacheStyle.releaseContext();
                 this._cacheStyle.releaseFilterCache();
-                if (this._cacheStyle.hasGlowFilter) {
-                    this._cacheStyle.hasGlowFilter = false;
-                }
             }
         }
         super._setDisplay(value);
