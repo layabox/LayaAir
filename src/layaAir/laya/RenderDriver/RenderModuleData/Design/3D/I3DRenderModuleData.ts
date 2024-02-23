@@ -16,6 +16,7 @@ import { RenderState } from "../RenderState";
 import { ShaderData } from "../../../DriverDesign/RenderDevice/ShaderData";
 //3D Render Node
 export interface IBaseRenderNode {
+  
     transform: Transform3D;
     distanceForSort: number;
     sortingFudge: number;

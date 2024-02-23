@@ -15,7 +15,6 @@ import { GLESBufferState } from "./GLESBufferState";
 import { GLESIndexBuffer } from "./GLESIndexBuffer";
 import { GLESRenderGeometryElement } from "./GLESRenderGeometryElement";
 import { GLESVertexBuffer } from "./GLESVertexBuffer";
-import { CommandUniformMap } from "../../DriverDesign/RenderDevice/CommandUniformMap";
 import { Resource } from "../../../resource/Resource";
 import { ShaderData } from "../../DriverDesign/RenderDevice/ShaderData";
 import { GLESShaderData } from "./GLESShaderData";

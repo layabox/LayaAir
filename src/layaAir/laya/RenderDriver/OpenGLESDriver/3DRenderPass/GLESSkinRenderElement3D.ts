@@ -1,5 +1,4 @@
-import { LayaGL } from "../../../layagl/LayaGL";
-import { GLESRenderElement3D, RenderElementType } from "./GLESRenderElement3D";
+import { GLESRenderElement3D } from "./GLESRenderElement3D";
 
 export class GLESSkinRenderElement3D extends GLESRenderElement3D {
 
