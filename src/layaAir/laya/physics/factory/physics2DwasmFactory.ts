@@ -474,6 +474,7 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
             jsDraw.DrawSolidCircle = this.DrawSolidCircle.bind(this);
             jsDraw.DrawTransform = this.DrawTransform.bind(this);
             jsDraw.DrawPoint = this.DrawPoint.bind(this);
+            jsDraw.DrawAABB = this.DrawAABB.bind(this);
         }
 
         this.world.SetDebugDraw(this._jsDraw);
@@ -1499,8 +1500,9 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
     DrawTransform(xf: any): void {
         xf = this.box2d.wrapPointer(xf, this.box2d.b2Transform);
         this._debugDraw.PushTransform(xf.p.x, xf.p.y, xf.q.GetAngle());
-        this._debugDraw.mG.drawLine(0, 0, 1, 0, this._debugDraw.Red, this._debugDraw.lineWidth);
-        this._debugDraw.mG.drawLine(0, 0, 0, 1, this._debugDraw.Green, this._debugDraw.lineWidth);
+        const length = 1 / Browser.pixelRatio;
+        this._debugDraw.mG.drawLine(0, 0, length, 0, this._debugDraw.Red, this._debugDraw.lineWidth);
+        this._debugDraw.mG.drawLine(0, 0, 0, length, this._debugDraw.Green, this._debugDraw.lineWidth);
         this._debugDraw.PopTransform();
     }
 
@@ -1509,8 +1511,8 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
         p = this.box2d.wrapPointer(p, this.box2d.b2Vec2);
         size *= this._debugDraw.camera.m_zoom;
         size /= this._debugDraw.camera.m_extent;
+        size /= Browser.pixelRatio;
         var hsize: any = size / 2;
-
         this._debugDraw.mG.drawRect(p.x - hsize, p.y - hsize, size, size, this.makeStyleString(color, 1), null);
     }
 
@@ -1525,13 +1527,19 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
     }
 
     /**@internal */
-    DrawAABB(aabb: any, color: any): void {
-        var x: number = aabb.lowerBound.x;
-        var y: number = aabb.lowerBound.y;
-        var w: number = aabb.upperBound.x - aabb.lowerBound.x;
-        var h: number = aabb.upperBound.y - aabb.lowerBound.y;
-
-        this._debugDraw.mG.drawRect(x, y, w, h, null, this.makeStyleString(color, 1), this._debugDraw.lineWidth);
+    DrawAABB(min: any, max: any, color: any): void {
+        min = this.box2d.wrapPointer(min, this.box2d.b2Vec2);
+        max = this.box2d.wrapPointer(max, this.box2d.b2Vec2);
+        var cx: number = (max.x + min.x) * 0.5;
+        var cy: number = (max.y + min.y) * 0.5;
+        var hw: number = (max.x - min.x) * 0.5;
+        var hh: number = (max.y - min.y) * 0.5;
+        const cs: string = this.makeStyleString(color, 1);
+        const linew: number = this._debugDraw.lineWidth;
+        this._debugDraw.mG.drawLine(cx - hw, cy - hh, cx + hw, cy - hh, cs, linew);
+        this._debugDraw.mG.drawLine(cx - hw, cy + hh, cx + hw, cy + hh, cs, linew);
+        this._debugDraw.mG.drawLine(cx - hw, cy - hh, cx - hw, cy + hh, cs, linew);
+        this._debugDraw.mG.drawLine(cx + hw, cy - hh, cx + hw, cy + hh, cs, linew);
     }
 
     /**@internal */
@@ -1604,6 +1612,11 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
 
     /**@internal */
     b2LinearStiffness(def: any, frequencyHertz: number, dampingRatio: number, bodyA: any, bodyB: any) {
+        if (bodyA == undefined || bodyB == undefined) {
+            def.stiffness = 0;
+            def.damping = 0;
+            return;
+        }
         const massA = bodyA.GetMass();
         const massB = bodyB.GetMass();
         let mass;
