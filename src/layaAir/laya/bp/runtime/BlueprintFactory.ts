@@ -186,14 +186,15 @@ export class BlueprintFactory {
                     }
 
                     _bp_init_() {
-                        /* if (this.__eventList__) {
-                            this.__eventList__.forEach(value => {
+                        let autoRegs = this[BlueprintFactory.bpSymbol].mainBlock.autoAnonymousfuns;
+                        if (autoRegs) {
+                            autoRegs.forEach(value => {
                                 let _this = this;
-                                this.on(value, this, function () {
-                                    _this[BlueprintFactory.bpSymbol].run(_this[BlueprintFactory.contextSymbol], value, Array.from(arguments),null);
+                                this.on(value.eventName, this, function () {
+                                    _this[BlueprintFactory.bpSymbol].run(_this[BlueprintFactory.contextSymbol], value, Array.from(arguments), null);
                                 })
                             })
-                        } */
+                        }
                     }
 
                     get _bp_contextData() {
@@ -222,7 +223,7 @@ export class BlueprintFactory {
         }
 
         let newClass = classFactory(name, cls);
-        
+
         ClassUtils.regClass(name, newClass);
         let bp = newClass.prototype[BlueprintFactory.bpSymbol] = new BlueprintFactory.BPRuntimeCls();
         bp.dataMap = data.dataMap;
@@ -286,6 +287,9 @@ export class BlueprintFactory {
         let cls = BlueprintFactory._bpMap.get(config.type) || BlueprintRuntimeBaseNode;
         let result = new cls();
         result.nid = item.id;
+        if(item.autoReg){
+            (result as BlueprintEventNode).autoReg = item.autoReg;
+        }
         result.parse(config);
         return result;
     }

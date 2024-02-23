@@ -17,6 +17,8 @@ export class BlueprintEventNode extends BlueprintRuntimeBaseNode {
 
     eventName: string;
 
+    autoReg: boolean;
+
     constructor() {
         super();
         this.tryExcute = this.emptyExcute;
@@ -50,7 +52,7 @@ export class BlueprintEventNode extends BlueprintRuntimeBaseNode {
             data.eventName = this.eventName;
             data.callFun = data.callFun || function () {
                 let parms = Array.from(arguments);
-                let newRunId = runner.getRunID();                
+                let newRunId = runner.getRunID();
                 _this.initData(runtimeDataMgr, parms, newRunId);
                 let nextPin = _this.outExcute.linkTo[0] as BlueprintPinRuntime;
                 if (nextPin) {

@@ -211,6 +211,7 @@ export interface TBPNode {
     debugType?: number;
     input?: Record<string, TBPInput>;
     output?: Record<string, TBPOutput>;
+    autoReg?: boolean;
 }
 
 export type TypeParameter = string | [TypeParameter] | ["Record", TypeParameter] | ["Map", TypeParameter];
