@@ -20,14 +20,10 @@ export class WebGLIndexBuffer implements IIndexBuffer {
         var curBufSta = WebGLBufferState._curBindedBufferState;
 
         if (curBufSta) {
-            if (curBufSta._bindedIndexBuffer === this) {
-                this._glBuffer.setDataLength(0);
-            } else {
-                curBufSta.unBind();//避免影响VAO
-                this._glBuffer.bindBuffer()
-                this._glBuffer.setDataLength(data);
-                curBufSta.bind();
-            }
+            curBufSta.unBind();//避免影响VAO
+            this._glBuffer.bindBuffer()
+            this._glBuffer.setDataLength(data);
+            curBufSta.bind();
         } else {
             this._glBuffer.bindBuffer()
             this._glBuffer.setDataLength(data);
@@ -38,14 +34,10 @@ export class WebGLIndexBuffer implements IIndexBuffer {
         var curBufSta = WebGLBufferState._curBindedBufferState;
 
         if (curBufSta) {
-            if (curBufSta._bindedIndexBuffer === this) {
-                this._glBuffer.setDataLength(0);
-            } else {
-                curBufSta.unBind();//避免影响VAO
-                this._glBuffer.bindBuffer()
-                this._glBuffer.setData(data, bufferOffset);
-                curBufSta.bind();
-            }
+            curBufSta.unBind();//避免影响VAO
+            this._glBuffer.bindBuffer()
+            this._glBuffer.setData(data, bufferOffset);
+            curBufSta.bind();
         } else {
             this._glBuffer.bindBuffer()
             this._glBuffer.setData(data, bufferOffset)

@@ -64,7 +64,6 @@ export class Render2DSimple extends Render2D{
 
     draw(vbbuff: ArrayBuffer, ibbuff: ArrayBuffer, vboff:number,vblen:number, iboff:number,iblen:number, mtl: Value2D): void {
         let geo = this.geo;
-        let stride = this._tex_vert_decl.vertexStride;
         let mesh = geo.bufferState
         let vb = mesh._vertexBuffers[0];
         let ib = mesh._bindedIndexBuffer;
