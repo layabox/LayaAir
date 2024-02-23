@@ -19,7 +19,7 @@ export class RevoluteJoint extends JointBase {
     private _motorSpeed: number = 0;
 
     /**@internal 启用马达后，可以施加的最大扭距，如果最大扭矩太小，会导致不旋转*/
-    private _maxMotorTorque: number = 0;
+    private _maxMotorTorque: number = 10000;
 
     /**@internal 是否对刚体的旋转范围加以约束*/
     private _enableLimit: boolean = false;
