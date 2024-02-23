@@ -283,7 +283,6 @@ export class BlueprintImpl extends Resource {
         this._cls = cls;
         
         // }
-        ClassUtils.regClass(this.uuid, this._cls);
         ClassUtils.regClass(this.typeName, Object);
 
     }

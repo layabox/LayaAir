@@ -30,6 +30,7 @@ import { BPMathLib } from "../BPMathLib";
 import { BlueprintGetTempVarNode } from "./node/BlueprintGetTempVarNode";
 import { BlueprintSetTempVarNode } from "./node/BlueprintSetTempVarNode";
 import { BPArray } from "../export/BPArray";
+import { ClassUtils } from "../../utils/ClassUtils";
 
 export class BlueprintFactory {
     public static readonly bpSymbol: unique symbol = Symbol("bpruntime");
@@ -221,6 +222,8 @@ export class BlueprintFactory {
         }
 
         let newClass = classFactory(name, cls);
+        
+        ClassUtils.regClass(name, newClass);
         let bp = newClass.prototype[BlueprintFactory.bpSymbol] = new BlueprintFactory.BPRuntimeCls();
         bp.dataMap = data.dataMap;
         // debugger;
