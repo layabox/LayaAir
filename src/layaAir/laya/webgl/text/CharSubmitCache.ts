@@ -79,7 +79,7 @@ export class CharSubmitCache {
         if (!n)
             return;
 
-        var _mesh: MeshQuadTexture = ctx._mesh;
+        var _mesh: MeshQuadTexture = (ctx as any)._mesh;
 
         var colorFiler: ColorFilter = ctx._colorFiler;
         ctx._colorFiler = this._colorFiler;

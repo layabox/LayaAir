@@ -80,15 +80,15 @@ export class WebGLCacheAsNormalCanvas {
         // 打断合并
         context._curSubmit = SubmitBase.RENDERBASE;
         // 接管context中的一些值
-        this._oldMesh = context._mesh;
-        this._oldPathMesh = context._pathMesh;
-        this._oldTriMesh = context._triangleMesh;
-        this._oldMeshList = context.meshlist;
+        // this._oldMesh = context._mesh;
+        // this._oldPathMesh = context._pathMesh;
+        // this._oldTriMesh = context._triangleMesh;
+        // this._oldMeshList = context.meshlist;
 
-        context._mesh = this._mesh;
-        context._pathMesh = this._pathMesh;
-        context._triangleMesh = this._triangleMesh;
-        context.meshlist = this.meshlist;
+        // context._mesh = this._mesh;
+        // context._pathMesh = this._pathMesh;
+        // context._triangleMesh = this._triangleMesh;
+        // context.meshlist = this.meshlist;
 
         // 要取消位置，因为以后会再传入位置。这里好乱
         this.oldTx = context._curMat.tx;
@@ -120,10 +120,10 @@ export class WebGLCacheAsNormalCanvas {
         parsubmits._length -= num;
 
         // 恢复原始context的值
-        context._mesh = this._oldMesh;
-        context._pathMesh = this._oldPathMesh;
-        context._triangleMesh = this._oldTriMesh;
-        context.meshlist = this._oldMeshList;
+        // context._mesh = this._oldMesh;
+        // context._pathMesh = this._oldPathMesh;
+        // context._triangleMesh = this._oldTriMesh;
+        // context.meshlist = this._oldMeshList;
 
         // 打断合并
         context._curSubmit = SubmitBase.RENDERBASE;

@@ -110,13 +110,10 @@ export class Context {
     _submitKey = new SubmitKey();	//当前将要使用的设置。用来跟上一次的_curSubmit比较
 
     /**@internal */
-    _mesh: MeshQuadTexture;			//用Mesh2D代替_vb,_ib. 当前使用的mesh
-    /**@internal */
-    _pathMesh: MeshVG | null = null;			//矢量专用mesh。
-    /**@internal */
-    _triangleMesh: MeshTexture | null = null;	//drawTriangles专用mesh。由于ib不固定，所以不能与_mesh通用
-
-    meshlist: Mesh2D[] = [];	//本context用到的mesh
+    private _mesh: Mesh2D;			//用Mesh2D代替_vb,_ib. 当前使用的mesh
+    private _meshQuatTex = new MeshQuadTexture();
+    private _meshVG=new MeshVG();
+    private _meshTex=new MeshTexture();
 
     //public var _vbs:Array = [];	//双buffer管理。TODO 临时删掉，需要mesh中加上
     private _transedPoints: any[] = new Array(8);	//临时的数组，用来计算4个顶点的转换后的位置。
@@ -282,27 +279,10 @@ export class Context {
         this.fillRect(x, y, width, height, null);
     }
 
-    ///**@private */
-    //public function transformByMatrix(value:Matrix):void {
-    //this.transform(value.a, value.b, value.c, value.d, value.tx, value.ty);
-    //}
-
-    /**@private */
-    //TODO:coverage
-    //public function setTransformByMatrix(value:Matrix):void {
-    //	this.setTransform(value.a, value.b, value.c, value.d, value.tx, value.ty);
-    //}
-
-    /**@private */
-    //TODO:coverage
-    drawTexture2(x: number, y: number, pivotX: number, pivotY: number, m: Matrix, args2: any[]): void {
-    }
-
 	getImageData(x: number, y: number, width: number, height: number): any {
 		throw new Error("Method not implemented.");
 	}
 
-    //=============新增==================
     transformByMatrix(matrix: Matrix, tx: number, ty: number): void {
         this.transform(matrix.a, matrix.b, matrix.c, matrix.d, matrix.tx + tx, matrix.ty + ty);
     }
@@ -337,7 +317,6 @@ export class Context {
     }
 
     /**@internal */
-    //TODO:coverage
     _transform(mat: Matrix, pivotX: number, pivotY: number): void {
         this.translate(pivotX, pivotY);
         this.transform(mat.a, mat.b, mat.c, mat.d, mat.tx, mat.ty);
@@ -558,19 +537,12 @@ export class Context {
         this._shader2D = null;
         this._charSubmitCache.clear();
 
-        for (var i = 0, n = this._submits._length; i < n; i++) {
-            this._submits[i].releaseRender();
-        }
         this._submits.length = 0;
         this._submits._length = 0;
         this._submits = null;
         this._curSubmit = null;
-
         this._path = null;
-        //_other && (_other.font = null);
         this._save = null;
-        this.meshlist.length = 0;
-
         this.sprite = null;
         if (!keepRT) {
             this._targets && (this._targets.destroy());
@@ -603,21 +575,14 @@ export class Context {
             this._curMat = Matrix.create();
             this._charSubmitCache = new CharSubmitCache();
             //_vb = _vbs[0] = VertexBuffer2D.create( -1);
-            this._mesh = new MeshQuadTexture(16*1024);//  MeshQuadTexture.getAMesh(this.isMain);
-            this.meshlist.push(this._mesh);
-            this._pathMesh = new MeshVG();// MeshVG.getAMesh(this.isMain);
-            this.meshlist.push(this._pathMesh);
-            this._triangleMesh = new MeshTexture();// MeshTexture.getAMesh(this.isMain);
-            this.meshlist.push(this._triangleMesh);
-            //if(Config.smartCache) _vbs[1] = VertexBuffer2D.create( -1);
+            this._mesh=this._meshQuatTex;
+            this._mesh.clearMesh();
             this._submits = [];
             this._save = [SaveMark.Create(this)];
             this._save.length = 10;
         }
 
         this._submitKey.clear();
-        //_targets && (_targets.repaint = true);
-
         this._drawCount = 1;
         this._other = ContextParams.DEFAULT;
         this._alpha = 1.0;
@@ -630,7 +595,6 @@ export class Context {
 
         for (let i = 0, n = this._submits._length; i < n; i++)
             this._submits[i].releaseRender();
-
         this._submits._length = 0;
 
         this._curMat.identity();
@@ -783,9 +747,6 @@ export class Context {
             SaveTranslate.save(this);
             if (this._curMat._bTransform) {
                 SaveTransform.save(this);
-                //_curMat.transformPointN(Point.TEMP.setTo(x, y));
-                //x = Point.TEMP.x;
-                //y = Point.TEMP.y;
                 //translate的话，相当于在当前坐标系下移动x,y，所以直接修改_curMat,然后x,y就消失了。
                 this._curMat.tx += (x * this._curMat.a + y * this._curMat.c);
                 this._curMat.ty += (x * this._curMat.b + y * this._curMat.d);
@@ -827,14 +788,6 @@ export class Context {
         }
     }
 
-    set font(str: string) {
-        //if (str == _other.font.toString())
-        //	return;
-        this._other = this._other.make();
-        SaveBase.save(this, SaveBase.TYPE_FONT, this._other, false);
-        //_other.font === FontInContext.EMPTY ? (_other.font = new FontInContext(str)) : (_other.font.setFont(str));
-    }
-
     fillText(txt: string | WordText, x: number, y: number, fontStr: string, color: string, align: string, lineWidth = 0, borderColor: string = ""): void {
         Context._textRender!.filltext(this, txt, x, y, fontStr, color, borderColor, lineWidth, align);
     }
@@ -860,22 +813,26 @@ export class Context {
 
     private _fillRect(x: number, y: number, width: number, height: number, rgba: number): void {
         var submit: Submit = this._curSubmit;
-        var sameKey = submit && (submit._key.submitType === SubmitBase.KEY_DRAWTEXTURE && submit._key.blendShader === this._nBlendType);
-        if (this._mesh.vertexNum + 4 > Context._MAXVERTNUM) {
-            this._mesh = new MeshQuadTexture();// MeshQuadTexture.getAMesh(this.isMain);//创建新的mesh  TODO 如果_mesh不是常见格式，这里就不能这么做了。以后把_mesh单独表示成常用模式 
-            this.meshlist.push(this._mesh);
-            sameKey = false;
+        var sameKey = 
+            this._mesh.vertexNum + 4 < Context._MAXVERTNUM &&
+            submit && (
+                submit._key.submitType === SubmitBase.KEY_DRAWTEXTURE && 
+                submit._key.blendShader === this._nBlendType &&
+                this.isSameClipInfo(submit))
+
+        if(!sameKey){
+            this._drawToRender2D(this._curSubmit);
+            this._mesh = this._meshQuatTex;
         }
 
-        //clipinfo
-        sameKey && (sameKey = sameKey && this.isSameClipInfo(submit));
+        let mesh = this._mesh as MeshQuadTexture;
 
         this.transformQuad(x, y, width, height, 0, this._curMat, this._transedPoints);
         if (!this.clipedOff(this._transedPoints)) {
-            this._mesh.addQuad(this._transedPoints, Texture.NO_UV, rgba, false);
+            mesh.addQuad(this._transedPoints, Texture.NO_UV, rgba, false);
             //if (GlUtils.fillRectImgVb(_mesh._vb, _clipRect, x, y, width, height, Texture.DEF_UV, _curMat, rgba,this)){
             if (!sameKey) {
-                submit = this._curSubmit = SubmitTexture.create(this, this._mesh, Value2D.create(RenderSpriteData.Texture2D));
+                submit = this._curSubmit = SubmitTexture.create(this, mesh, Value2D.create(RenderSpriteData.Texture2D));
                 this._submits[this._submits._length++] = submit;
                 this._copyClipInfo(submit, this._globalClipMatrix);
                 if (!this._lastTex || this._lastTex.destroyed) {
@@ -922,12 +879,9 @@ export class Context {
     /**@internal */
     _fillTexture(texture: Texture, texw: number, texh: number, texuvRect: number[], x: number, y: number, width: number, height: number, type: string, offsetx: number, offsety: number, color: number): void {
         var submit: Submit = this._curSubmit;
-        var sameKey = false;
-        if (this._mesh.vertexNum + 4 > Context._MAXVERTNUM) {
-            this._mesh = new MeshQuadTexture();// MeshQuadTexture.getAMesh(this.isMain);
-            this.meshlist.push(this._mesh);
-            sameKey = false;
-        }
+        //这个不合并，直接渲染
+        this._drawToRender2D(this._curSubmit);
+        this._mesh = this._meshQuatTex;
 
         //filltexture相关逻辑。计算rect大小以及对应的uv
         var repeatx = true;
@@ -981,7 +935,7 @@ export class Context {
             //rgba = _mixRGBandAlpha(rgba, alpha);	这个函数有问题，不能连续调用，输出作为输入
             var rgba = this._mixRGBandAlpha(color, this._alpha);
 
-            this._mesh.addQuad(this._transedPoints, uv, rgba, true);
+            (this._mesh as MeshQuadTexture).addQuad(this._transedPoints, uv, rgba, true);
 
             var sv = Value2D.create(RenderSpriteData.Texture2D) as TextureSV;
             //这个优化先不要了，因为没太弄明白wrapmode的设置，总是不起作用。
@@ -1053,22 +1007,13 @@ export class Context {
         return this._inner_drawTexture(<Texture>(tex as any), -1, x, y, width, height, m, uv, alpha, false, color);
     }
 
-    /*
-    private function copyClipInfo(submit:Submit, clipInfo:Array):void {
-        var cd:Array = submit.shaderValue.clipDir;
-        cd[0] = clipInfo[2]; cd[1] = clipInfo[3]; cd[2] = clipInfo[4]; cd[3] = clipInfo[5];
-        var cp:Array = submit.shaderValue.clipRect;
-        cp[0] = clipInfo[0]; cp[1] = clipInfo[1];
-        submit.clipInfoID = this._clipInfoID;
-    }
-    */
     /**@internal */
     _copyClipInfo(submit: SubmitBase, clipInfo: Matrix): void {
         let shaderValue = submit.shaderValue;
-        var cm: Vector4 = shaderValue.clipMatDir;
+        var cm = shaderValue.clipMatDir;
         cm.x = clipInfo.a; cm.y = clipInfo.b; cm.z = clipInfo.c; cm.w = clipInfo.d;
         shaderValue.clipMatDir = cm;
-        var cmp: Vector2 = shaderValue.clipMatPos;
+        var cmp = shaderValue.clipMatPos;
         cmp.x = clipInfo.tx; cmp.y = clipInfo.ty;
         shaderValue.clipMatPos = cmp;
         submit.clipInfoID = this._clipInfoID;
@@ -1080,10 +1025,10 @@ export class Context {
     }
 
     _copyClipInfoToShaderValue(shaderValue:Value2D, clipInfo: Matrix): void {
-        var cm: Vector4 = shaderValue.clipMatDir;
+        var cm = shaderValue.clipMatDir;
         cm.x = clipInfo.a; cm.y = clipInfo.b; cm.z = clipInfo.c; cm.w = clipInfo.d;
         shaderValue.clipMatDir = cm;
-        var cmp: Vector2 = shaderValue.clipMatPos;
+        var cmp = shaderValue.clipMatPos;
         cmp.x = clipInfo.tx; cmp.y = clipInfo.ty;
         shaderValue.clipMatPos = cmp;
         if (this._clipInCache) {
@@ -1095,42 +1040,18 @@ export class Context {
 
     private isSameClipInfo(submit: SubmitBase): boolean {
         return (submit.clipInfoID === this._clipInfoID);
-        /*
-        var cd:Array = submit.shaderValue.clipDir;
-        var cp:Array = submit.shaderValue.clipRect;
-        
-        if (clipInfo[0] != cp[0] || clipInfo[1] != cp[1] || clipInfo[2] != cd[0] || clipInfo[3] != cd[1] || clipInfo[4] != cd[2] || clipInfo[5] != cd[3] ) 
-            return false;
-        return true;
-        */
-    }
-
-    /**
-     * @internal
-     * 使用上面的设置（texture，submit，alpha，clip），画一个rect
-     */
-    _drawTexRect(x: number, y: number, w: number, h: number, uv: any[]): void {
-        this.transformQuad(x, y, w, h, this._italicDeg, this._curMat, this._transedPoints);
-        //这个是给文字用的，为了清晰，必须要按照屏幕像素对齐，并且四舍五入。
-        var ops: any[] = this._transedPoints;
-        ops[0] = (ops[0] + 0.5) | 0;
-        ops[1] = (ops[1] + 0.5) | 0;
-        ops[2] = (ops[2] + 0.5) | 0;
-        ops[3] = (ops[3] + 0.5) | 0;
-        ops[4] = (ops[4] + 0.5) | 0;
-        ops[5] = (ops[5] + 0.5) | 0;
-        ops[6] = (ops[6] + 0.5) | 0;
-        ops[7] = (ops[7] + 0.5) | 0;
-
-        if (!this.clipedOff(this._transedPoints)) {
-            this._mesh.addQuad(this._transedPoints, uv, this._fillColor, true);
-            this._curSubmit._numEle += 6;
-        }
     }
 
     drawCallOptimize(enable: boolean): boolean {
         this._charSubmitCache.enable(enable, this);
         return enable;
+    }
+
+    private _drawToRender2D(submit:Submit){
+        let mesh = this._mesh;
+        if(mesh.indexNum<=0)
+            return;
+        this._drawMesh(mesh,0,mesh.vertexNum,submit._startIdx,mesh.indexNum,submit.shaderValue);
     }
 
     //TODO 目前是为了方便，从设计上这样是不是不太好
@@ -1171,18 +1092,17 @@ export class Context {
         //为了优化，如果上次是画三角形，并且贴图相同，会认为他们是一组的，把这个也转成三角形，以便合并。
         //因为好多动画是drawTexture和drawTriangle混用的
         if (preKey.submitType === SubmitBase.KEY_TRIANGLES && preKey.other === imgid) {
-            var tv: Float32Array = this._drawTexToDrawTri_Vert;
+            var tv = this._drawTexToDrawTri_Vert;
             tv[0] = x; tv[1] = y; tv[2] = x + width, tv[3] = y, tv[4] = x + width, tv[5] = y + height, tv[6] = x, tv[7] = y + height;
             this._drawTriUseAbsMatrix = true;
-            var tuv: Float32Array = this._tempUV;
+            var tuv = this._tempUV;
             tuv[0] = uv[0]; tuv[1] = uv[1]; tuv[2] = uv[2]; tuv[3] = uv[3]; tuv[4] = uv[4]; tuv[5] = uv[5]; tuv[6] = uv[6]; tuv[7] = uv[7];
             this.drawTriangles(tex, 0, 0, tv, tuv, this._drawTexToDrawTri_Index, m || this._curMat, alpha, null, null);//用tuv而不是uv会提高效率
             this._drawTriUseAbsMatrix = false;
             return true;
         }
 
-        var mesh = this._mesh;
-        var submit: SubmitTexture = this._curSubmit;
+        var submit = this._curSubmit;
         var ops: any[] = lastRender ? this._charSubmitCache.getPos() : this._transedPoints;
 
         //凡是这个都是在_mesh上操作，不用考虑samekey
@@ -1211,42 +1131,28 @@ export class Context {
 
         this._drawCount++;
 
-        var sameKey = imgid >= 0 && preKey.submitType === SubmitBase.KEY_DRAWTEXTURE && preKey.other === imgid;
+        var sameKey = (imgid >= 0 && preKey.submitType === SubmitBase.KEY_DRAWTEXTURE && preKey.other === imgid) &&
+            this.isSameClipInfo(this._curSubmit) &&
+            this._mesh.vertexNum + 4 < Context._MAXVERTNUM 
 
-        //clipinfo
-        sameKey && (sameKey = sameKey && this.isSameClipInfo(submit));
-
+        if(!sameKey){
+            this._drawToRender2D(this._curSubmit);
+            this._mesh = this._meshQuatTex;
+        }
         this._lastTex = tex;
 
-        if (mesh.vertexNum + 4 > Context._MAXVERTNUM) {
-            mesh = this._mesh = new MeshQuadTexture();// MeshQuadTexture.getAMesh(this.isMain);//创建新的mesh  TODO 如果_mesh不是常见格式，这里就不能这么做了。以后把_mesh单独表示成常用模式 
-            this.meshlist.push(mesh);
-            sameKey = false;	//新的mesh不能算samekey了
+        if (!sameKey) {
+            let shaderValue = Value2D.create(RenderSpriteData.Texture2D);
+            this.fillShaderValue(shaderValue);
+            shaderValue.textureHost = tex;
+            this._curSubmit = submit = SubmitTexture.create(this, this._mesh, shaderValue);
+            submit._key.other = imgid;
+            this._copyClipInfo(submit, this._globalClipMatrix);
         }
+        (this._mesh as MeshQuadTexture).addQuad(ops, uv, rgba, true);
+        submit._numEle += 6;
+        return true;
 
-        {
-            if (!sameKey) {
-
-                //test
-                this._drawMesh(mesh,0,mesh.vertexNum,this._curSubmit._startIdx,mesh.indexNum,this._curSubmit.shaderValue);
-                //test
-
-                (this._curSubmit as SubmitTexture).renderSubmit();
-                //mesh = this._mesh = MeshQuadTexture.getAMesh(this.isMain);
-                let shaderValue = Value2D.create(RenderSpriteData.Texture2D);
-                this.fillShaderValue(shaderValue);
-                shaderValue.textureHost = tex;
-                
-                this._curSubmit = submit = SubmitTexture.create(this, mesh, shaderValue);
-                submit._key.other = imgid;
-
-                this._copyClipInfo(submit, this._globalClipMatrix);
-            }
-            mesh.addQuad(ops, uv, rgba, true);
-            submit._numEle += 6;
-            return true;
-        }
-        return false;
     }
 
     private fillShaderValue(shaderValue:Value2D){
@@ -1379,7 +1285,7 @@ export class Context {
      */
     drawTextureWithTransform(tex: Texture, x: number, y: number, width: number, height: number, transform: Matrix | null, tx: number, ty: number, alpha: number, blendMode: string | null, uv?: number[], color = 0xffffffff): void {
         var oldcomp: string;
-        var curMat: Matrix = this._curMat;
+        var curMat = this._curMat;
         if (blendMode) {
             oldcomp = this.globalCompositeOperation;
             this.globalCompositeOperation = blendMode;
@@ -1392,7 +1298,7 @@ export class Context {
             }
             return;
         }
-        var tmpMat: Matrix = this._tmpMatrix;
+        var tmpMat = this._tmpMatrix;
         //克隆transform,因为要应用tx，ty，这里不能修改原始的transform
         tmpMat.a = transform.a; tmpMat.b = transform.b; tmpMat.c = transform.c; tmpMat.d = transform.d; tmpMat.tx = transform.tx + tx; tmpMat.ty = transform.ty + ty;
         tmpMat._bTransform = transform._bTransform;
@@ -1499,16 +1405,13 @@ export class Context {
 
     drawTarget(rt: RenderTexture2D, x: number, y: number, width: number, height: number, m: Matrix, shaderValue: Value2D, uv: ArrayLike<number> | null = null, blend = -1, color = 0xffffffff): boolean {
         this._drawCount++;
-        if (this._mesh.vertexNum + 4 > Context._MAXVERTNUM) {
-            this._mesh = new MeshQuadTexture();// MeshQuadTexture.getAMesh(this.isMain);//创建新的mesh  TODO 如果_mesh不是常见格式，这里就不能这么做了。以后把_mesh单独表示成常用模式 
-            this.meshlist.push(this._mesh);
-        }
-
         //凡是这个都是在_mesh上操作，不用考虑samekey
+        this._drawToRender2D(this._curSubmit);
+        this._mesh = this._meshQuatTex;
+
         this.transformQuad(x, y, width, height, 0, m || this._curMat, this._transedPoints);
         if (!this.clipedOff(this._transedPoints)) {
-            this._mesh.addQuad(this._transedPoints, uv || Texture.DEF_UV, color, true);
-            //if (GlUtils.fillRectImgVb( _mesh._vb, _clipRect, x, y, width , height , uv || Texture.DEF_UV, m || _curMat, rgba, this)) {
+            (this._mesh as MeshQuadTexture).addQuad(this._transedPoints, uv || Texture.DEF_UV, color, true);
             var submit: SubmitTarget = this._curSubmit = SubmitTarget.create(this, this._mesh, shaderValue, rt);
             submit.blendType = (blend == -1) ? this._nBlendType : blend;
             this._copyClipInfo((<SubmitBase>(submit as any)), this._globalClipMatrix);
@@ -1544,23 +1447,23 @@ export class Context {
         this._drawCount++;
 
         // 为了提高效率，把一些变量放到这里
-        var tmpMat = this._tmpMatrix;
-        var triMesh = this._triangleMesh!;
-
+        var tmpMat = this._tmpMatrix;        
         var webGLImg = tex.bitmap;
         var preKey: SubmitKey = this._curSubmit._key;
-        var sameKey = preKey.submitType === SubmitBase.KEY_TRIANGLES && preKey.other === webGLImg.id && preKey.blendShader == this._nBlendType;
+        var sameKey = preKey.submitType === SubmitBase.KEY_TRIANGLES && 
+            preKey.other === webGLImg.id && 
+            preKey.blendShader == this._nBlendType &&
+            this._mesh.vertexNum + vertices.length / 2 < Context._MAXVERTNUM;
 
+        if(!sameKey){
+            this._drawToRender2D(this._curSubmit);
+            this._mesh = this._meshTex;
+        }
         //var rgba:int = mixRGBandAlpha(0xffffffff);
         //rgba = _mixRGBandAlpha(rgba, alpha);	这个函数有问题，不能连续调用，输出作为输入
-        if (triMesh.vertexNum + vertices.length / 2 > Context._MAXVERTNUM) {
-            triMesh = this._triangleMesh = new MeshTexture();// MeshTexture.getAMesh(this.isMain);//创建新的mesh  TODO 如果_mesh不是常见格式，这里就不能这么做了。以后把_mesh单独表示成常用模式 
-            this.meshlist.push(triMesh);
-            sameKey = false;	//新的mesh不能算samekey了
-        }
         if (!sameKey) {
             //添加一个新的submit
-            var submit: SubmitTexture = this._curSubmit = SubmitTexture.create(this, triMesh, Value2D.create(RenderSpriteData.Texture2D));
+            var submit: SubmitTexture = this._curSubmit = SubmitTexture.create(this, this._mesh, Value2D.create(RenderSpriteData.Texture2D));
             submit.shaderValue.textureHost = tex;
             submit._renderType = SubmitBase.TYPE_TEXTURE;
             submit._key.submitType = SubmitBase.KEY_TRIANGLES;
@@ -1577,10 +1480,10 @@ export class Context {
                 tmpMat.a = matrix.a; tmpMat.b = matrix.b; tmpMat.c = matrix.c; tmpMat.d = matrix.d; tmpMat.tx = matrix.tx + x; tmpMat.ty = matrix.ty + y;
             }
             Matrix.mul(tmpMat, this._curMat, tmpMat);
-            triMesh.addData(vertices, uvs, indices, tmpMat || this._curMat, rgba);
+            (this._mesh as MeshTexture).addData(vertices, uvs, indices, tmpMat || this._curMat, rgba);
         } else {
             // 这种情况是drawtexture转成的drawTriangle，直接使用matrix就行，传入的xy都是0
-            triMesh.addData(vertices, uvs, indices, matrix, rgba);
+            (this._mesh as MeshTexture).addData(vertices, uvs, indices, matrix, rgba);
         }
         this._curSubmit._numEle += indices.length;
 
@@ -1715,8 +1618,6 @@ export class Context {
             start += submit.renderSubmit();
             //本来做了个优化，如果是主画布，用完立即releaseRender. 但是实际没有什么效果，且由于submit需要用来对比，即使用完也不能修改，所以这个优化又去掉了
         }
-
-
         return ret;
     }
 
@@ -1732,21 +1633,8 @@ export class Context {
 
     //合并mesh之后，最后一点数据还没有渲染，这里强制渲染
     drawLeftData(){
-        //test
         //剩下的
-        let mesh:Mesh2D = this._mesh
-        let submit = this._curSubmit;
-        if(mesh.indexNum){
-            this._drawMesh(mesh,0,mesh.vertexNum,submit._startIdx,mesh.indexNum,submit.shaderValue)
-        }
-        mesh.clearMesh();
-
-        mesh = this._pathMesh;
-        if(mesh.indexNum){
-            this._drawMesh(mesh,0,mesh.vertexNum,submit._startIdx,mesh.indexNum,submit.shaderValue)
-        }
-        mesh.clearMesh();
-        //test
+        this._drawToRender2D(this._curSubmit);
     }
 
     flush() {
@@ -1754,20 +1642,9 @@ export class Context {
 
         this._clipID_Gen = 0;
         //var ret = this.submitElement(0, this._submits._length);
-
-        this._curSubmit && (this._curSubmit as SubmitBase).renderSubmit();
         this._path && this._path.reset();
-
         //Stat.mesh2DNum += meshlist.length;
         this._curSubmit = SubmitBase.RENDERBASE;
-
-        this.meshlist.forEach((mesh:Mesh2D)=>mesh.clearMesh());
-        this.meshlist.length = 0;
-        this._mesh = new MeshQuadTexture();// MeshQuadTexture.getAMesh(this.isMain);	//TODO 不要这样。
-        this._pathMesh = new MeshVG();// MeshVG.getAMesh(this.isMain);
-        this._triangleMesh = new MeshTexture();// MeshTexture.getAMesh(this.isMain);
-        this.meshlist.push(this._mesh, this._pathMesh, this._triangleMesh);
-
         this._flushCnt++;
         //charbook gc
         if (this._flushCnt % 60 == 0 && this.isMain) {
@@ -1778,12 +1655,10 @@ export class Context {
     }
 
     beginPath(convex = false): void {
-        var tPath: Path = this._getPath();
-        tPath.beginPath(convex);
+        this._getPath().beginPath(convex);
     }
 
     closePath(): void {
-        //_path.closePath = true;
         this._path.closePath();
     }
 
@@ -1808,17 +1683,16 @@ export class Context {
     }
 
     fill(): void {
-        var m: Matrix = this._curMat;
-        var tPath: Path = this._getPath();
-        var submit: Submit = this._curSubmit;
-        var sameKey = (submit._key.submitType === SubmitBase.KEY_VG && submit._key.blendShader === this._nBlendType);
-        sameKey && (sameKey = sameKey && this.isSameClipInfo(submit));
+        var m = this._curMat;
+        var tPath = this._getPath();
+        var submit = this._curSubmit;
+        var sameKey = (submit._key.submitType === SubmitBase.KEY_VG && submit._key.blendShader === this._nBlendType) &&
+            this.isSameClipInfo(submit);
+
         if (!sameKey) {
-            //test
-            let mesh = this._pathMesh;
-            this._drawMesh(mesh,0,mesh.vertexNum,0,mesh.indexNum,submit.shaderValue);
-            //test
-            this._curSubmit = this.addVGSubmit(this._pathMesh);
+            this._drawToRender2D(submit);
+            this._mesh = this._meshVG;
+            this._curSubmit = this.addVGSubmit(this._mesh);
             this.fillShaderValue(this._curSubmit.shaderValue);
         }
         var rgba = this.mixRGBandAlpha(this.fillStyle.toInt());
@@ -1826,7 +1700,7 @@ export class Context {
         var idx: any[];
         //如果有多个path的话，要一起填充mesh，使用相同的颜色和alpha
         for (var i = 0, sz = tPath.paths.length; i < sz; i++) {
-            var p: any = tPath.paths[i];
+            var p = tPath.paths[i];
             var vertNum = p.path.length / 2;
             if (vertNum < 3 || (vertNum == 3 && !p.convex))
                 continue;
@@ -1856,18 +1730,18 @@ export class Context {
                 }
             }
 
-            if (this._pathMesh.vertexNum + vertNum > Context._MAXVERTNUM) {
+            if (this._mesh.vertexNum + vertNum > Context._MAXVERTNUM) {
                 //;
                 //顶点数超了，要先提交一次
                 this._curSubmit._numEle += curEleNum;
                 curEleNum = 0;
                 //然后用新的mesh，和新的submit。
-                this._pathMesh = new MeshVG();// MeshVG.getAMesh(this.isMain);
-                this._curSubmit = this.addVGSubmit(this._pathMesh);
+                this._mesh = new MeshVG();// MeshVG.getAMesh(this.isMain);
+                this._curSubmit = this.addVGSubmit(this._mesh);
                 this.fillShaderValue(this._curSubmit.shaderValue);
             }
 
-            var curvert = this._pathMesh.vertexNum;
+            var curvert = this._mesh.vertexNum;
             //生成 ib
             if (p.convex) { //convex的ib比较容易
                 var faceNum = vertNum - 2;
@@ -1889,7 +1763,7 @@ export class Context {
                 }
             }
             //填充mesh
-            this._pathMesh.addVertAndIBToMesh(cpath, rgba, idx);
+            (this._mesh as MeshVG).addVertAndIBToMesh(cpath, rgba, idx);
             curEleNum += idx.length;
         }
         this._curSubmit._numEle += curEleNum;
@@ -1912,11 +1786,13 @@ export class Context {
         var rgba = this.mixRGBandAlpha(this.strokeStyle._color.numColor);
         var tPath = this._getPath();
         var submit = this._curSubmit;
-        var sameKey = (submit._key.submitType === SubmitBase.KEY_VG && submit._key.blendShader === this._nBlendType);
-        sameKey && (sameKey = sameKey && this.isSameClipInfo(submit));
+        var sameKey = (submit._key.submitType === SubmitBase.KEY_VG && submit._key.blendShader === this._nBlendType) &&
+                        this.isSameClipInfo(submit);
 
         if (!sameKey) {
-            this._curSubmit = this.addVGSubmit(this._pathMesh);
+            this._drawToRender2D(this._curSubmit);
+            this._mesh = this._meshVG;
+            this._curSubmit = this.addVGSubmit(this._mesh);
             this.fillShaderValue(this._curSubmit.shaderValue);
         }
         var curEleNum = 0;
@@ -1932,18 +1808,18 @@ export class Context {
             var maxVertexNum = p.path.length * 2;	//最大可能产生的顶点数。这个需要考虑考虑
             if (maxVertexNum < 2)
                 continue;
-            if (this._pathMesh.vertexNum + maxVertexNum > Context._MAXVERTNUM) {
+            if (this._mesh.vertexNum + maxVertexNum > Context._MAXVERTNUM) {
                 //顶点数超了，要先提交一次
                 this._curSubmit._numEle += curEleNum;
                 curEleNum = 0;
+                this._drawToRender2D(this._curSubmit);
                 //然后用新的mesh，和新的submit。
-                this._pathMesh = new MeshVG();// MeshVG.getAMesh(this.isMain);
-                this.meshlist.push(this._pathMesh);
-                this._curSubmit = this.addVGSubmit(this._pathMesh);
+                this._mesh = new MeshVG();// MeshVG.getAMesh(this.isMain);
+                this._curSubmit = this.addVGSubmit(this._mesh);
                 this.fillShaderValue(this._curSubmit.shaderValue);
             }
             //这个需要放在创建新的mesh的后面，因为需要mesh.vertNum,否则如果先调用这个，再创建mesh，那么ib就不对了
-            BasePoly.createLine2(p.path, idx, this.lineWidth, this._pathMesh.vertexNum, vertex, p.loop);	//_pathMesh.vertNum 是要加到生成的ib上的
+            BasePoly.createLine2(p.path, idx, this.lineWidth, this._mesh.vertexNum, vertex, p.loop);	//_pathMesh.vertNum 是要加到生成的ib上的
             // 变换所有的点
             var ptnum = vertex.length / 2;
             var m: Matrix = this._curMat;
@@ -1973,7 +1849,7 @@ export class Context {
 
             //this.drawPoly(0, 0, p.path, fillStyle._color.numColor, 0, 0, p.convex);
             //填充mesh
-            this._pathMesh.addVertAndIBToMesh(vertex, rgba, idx);
+            (this._mesh as MeshVG).addVertAndIBToMesh(vertex, rgba, idx);
             curEleNum += idx.length;
         }
         this._curSubmit._numEle += curEleNum;
