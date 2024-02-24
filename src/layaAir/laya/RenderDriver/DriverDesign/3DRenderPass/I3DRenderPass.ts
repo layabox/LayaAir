@@ -99,7 +99,7 @@ export interface IForwardAddRP {
 
     /**main pass */
     renderpass: IForwardAddClusterRP;
-    
+
     setBeforeImageEffect(value: Array<CommandBuffer>): void;
     /**Render end commanbuffer */
     setAfterEventCmd(value: Array<CommandBuffer>): void;
@@ -130,7 +130,7 @@ export interface IRenderContext3D {
     runCMDList(cmds: IRenderCMD[]): void;
 }
 
-export interface IRenderContext2D{
+export interface IRenderContext2D {
     //TODO
 }
 
@@ -143,22 +143,23 @@ export interface IRenderElement3D {
     isRender: boolean;
     owner: IBaseRenderNode;
     subShader: SubShader;
+    materialId: number;
     destroy(): void;
 }
 
-export interface IRenderElement2D{
+export interface IRenderElement2D {
     geometry: IRenderGeometryElement;
     materialShaderData: ShaderData;
-    value2DShaderData:ShaderData;
+    value2DShaderData: ShaderData;
     subShader: SubShader;
-    render(context:IRenderContext3D):void;
-    destroy():void;
+    render(context: IRenderContext3D): void;
+    destroy(): void;
 }
 
-export interface IVertexBuffer3D{
+export interface IVertexBuffer3D {
     //TODO
 }
 
-export interface IIndexBuffer3D{
+export interface IIndexBuffer3D {
     //TODO
 }

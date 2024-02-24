@@ -12,6 +12,12 @@ import { IReflectionProbeData } from "../../Design/3D/I3DRenderModuleData";
 
 
 export class WebReflectionProbe implements IReflectionProbeData {
+
+    private static _idCounter: number = 0;
+
+    /** @internal */
+    _id: number = ++WebReflectionProbe._idCounter;
+
     /**@internal */
     boxProjection: boolean;
     /**@internal */
@@ -105,7 +111,7 @@ export class WebReflectionProbe implements IReflectionProbeData {
                 data.setNumber(RenderableSprite3D.IBLROUGHNESSLEVEL, this.iblTex.maxMipmapLevel);
             };
             this.iblTexRGBD ? data.addDefine(Sprite3DRenderDeclaration.SHADERDEFINE_IBL_RGBD) : data.removeDefine(Sprite3DRenderDeclaration.SHADERDEFINE_IBL_RGBD);
-            this._ambientSH && data.setBuffer(RenderableSprite3D.AMBIENTSH,  this._ambientSH);
+            this._ambientSH && data.setBuffer(RenderableSprite3D.AMBIENTSH, this._ambientSH);
         }
         data.setNumber(RenderableSprite3D.AMBIENTINTENSITY, this.ambientIntensity);
         data.setNumber(RenderableSprite3D.REFLECTIONINTENSITY, this.reflectionIntensity);

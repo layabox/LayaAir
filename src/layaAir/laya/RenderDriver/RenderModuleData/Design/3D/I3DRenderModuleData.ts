@@ -16,11 +16,12 @@ import { RenderState } from "../RenderState";
 import { ShaderData } from "../../../DriverDesign/RenderDevice/ShaderData";
 //3D Render Node
 export interface IBaseRenderNode {
-  
+
     transform: Transform3D;
     distanceForSort: number;
     sortingFudge: number;
     castShadow: boolean;
+    receiveShadow: boolean;
     enable: boolean;
     renderbitFlag: number;
     layer: number;
@@ -127,6 +128,8 @@ export interface ILightMapData {
 }
 
 export interface IReflectionProbeData {
+    /** @internal */
+    _id: number;
     /**@internal */
     boxProjection: boolean;
     /**@internal */
@@ -156,6 +159,7 @@ export interface IReflectionProbeData {
 }
 
 export interface IVolumetricGIData {
+    _id: number;
     irradiance: InternalTexture;
     distance: InternalTexture;
     bound: Bounds;

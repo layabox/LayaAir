@@ -11,9 +11,9 @@ export class GLESRenderGeometryElement implements IRenderGeometryElement {
   /**@internal */
   private _bufferState: IBufferState;
 
-   /**@internal */
-   drawParams: SingletonList<number>;
-   
+  /**@internal */
+  drawParams: SingletonList<number>;
+
   _nativeObj: any;
 
   /**@internal */
@@ -37,7 +37,7 @@ export class GLESRenderGeometryElement implements IRenderGeometryElement {
     this.drawParams.add(count);
     this._nativeObj.setDrawElementParams(count, offset);
   }
-  
+
   /**@internal */
   destroy(): void {
     this._nativeObj.destroy();

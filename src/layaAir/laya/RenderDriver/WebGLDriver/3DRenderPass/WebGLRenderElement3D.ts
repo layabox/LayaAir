@@ -22,6 +22,8 @@ export class WebGLRenderElement3D implements IRenderElement3D {
 
     subShader: SubShader;
 
+    materialId: number;
+
     protected _shaderInstances: SingletonList<WebGLShaderInstance>;
 
     materialShaderData: WebGLShaderData;
@@ -55,7 +57,7 @@ export class WebGLRenderElement3D implements IRenderElement3D {
         this._invertFront = this._getInvertFront();
     }
 
-    private _getInvertFront(): boolean {
+    protected _getInvertFront(): boolean {
         let transform = this.owner?.transform;
         return transform ? transform._isFrontFaceInvert : false;
     }
@@ -115,7 +117,7 @@ export class WebGLRenderElement3D implements IRenderElement3D {
         }
     }
 
-    private _compileShader(context: WebGLRenderContext3D) {
+    protected _compileShader(context: WebGLRenderContext3D) {
         var passes: ShaderPass[] = this.subShader._passes;
         this._clearShaderInstance();
         for (var j: number = 0, m: number = passes.length; j < m; j++) {
@@ -140,9 +142,9 @@ export class WebGLRenderElement3D implements IRenderElement3D {
                 pass.nodeCommonMap = null;
             }
             comDef.addDefineDatas(this.materialShaderData._defineDatas);
-           
+
             var shaderIns = pass.withCompile(comDef) as WebGLShaderInstance;
-            
+
             //get shaderInstance
             //create ShaderInstance
 
@@ -151,7 +153,7 @@ export class WebGLRenderElement3D implements IRenderElement3D {
     }
 
     drawGeometry(shaderIns: WebGLShaderInstance) {
-       WebGLEngine.instance.getDrawContext().drawGeometryElement(this.geometry);
+        WebGLEngine.instance.getDrawContext().drawGeometryElement(this.geometry);
     }
 
     destroy() {
