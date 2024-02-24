@@ -1,10 +1,12 @@
+import { ShaderDefine } from "../RenderDriver/RenderModuleData/Design/ShaderDefine";
+import { Vector2 } from "../maths/Vector2";
+import { Vector4 } from "../maths/Vector4";
+import { RenderTexture2D } from "../resource/RenderTexture2D";
+import { ColorUtils } from "../utils/ColorUtils";
+import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
+import { TextureSV } from "../webgl/shader/d2/value/TextureSV";
 import { Filter } from "./Filter";
 import { GlowFilterGLRender } from "./GlowFilterGLRender";
-import { ColorUtils } from "../utils/ColorUtils"
-import { BlurFilter } from "./BlurFilter";
-import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
-import { ShaderDefine } from "../RenderDriver/RenderModuleData/Design/ShaderDefine";
-import { RenderTexture2D } from "../resource/RenderTexture2D";
 
 /**
  *  发光滤镜(也可以当成阴影滤使用）
@@ -12,11 +14,11 @@ import { RenderTexture2D } from "../resource/RenderTexture2D";
 export class GlowFilter extends Filter {
 
     /**数据的存储，顺序R,G,B,A,blurWidth,offX,offY;*/
-    private _elements: Float32Array = new Float32Array(9);
+    private _elements = new Float32Array(9);
     /**@internal */
     _sv_blurInfo1: number[] = new Array(4);	//给shader用
     /**@internal */
-    _sv_blurInfo2: number[] = [0, 0, 1, 0];
+    _sv_blurInfo2 = [0, 0, 1, 0];
     /**滤镜的颜色*/
     private _color: ColorUtils;
     /**@internal */
@@ -26,6 +28,9 @@ export class GlowFilter extends Filter {
     /**@internal */
     _blurInof2_native: Float32Array;
 
+    private shaderDataBlur:TextureSV;
+    private shaderDataCopy:TextureSV;
+
     /**
      * 创建发光滤镜
      * @param	color	滤镜的颜色
@@ -33,7 +38,7 @@ export class GlowFilter extends Filter {
      * @param	offX	X轴方向的偏移
      * @param	offY	Y轴方向的偏移
      */
-    constructor(color: string, blur: number = 4, offX: number = 6, offY: number = 6) {
+    constructor(color: string, blur = 4, offX = 6, offY = 6) {
         super();
         this._color = new ColorUtils(color || "#000");
         //限制最大效果为20
@@ -41,10 +46,55 @@ export class GlowFilter extends Filter {
         this.offX = offX;
         this.offY = offY;
         this._sv_blurInfo1[0] = this._sv_blurInfo1[1] = this.blur; this._sv_blurInfo1[2] = offX; this._sv_blurInfo1[3] = -offY;
-        this._glRender = new GlowFilterGLRender();
+        //this._glRender = new GlowFilterGLRender();
+        this.shaderDataBlur = new TextureSV();
+        this.shaderDataCopy = new TextureSV();
     }
 
-    render(texture: RenderTexture2D, width: number, height: number): void {
+    render(srctexture: RenderTexture2D, width: number, height: number): void {
+        let marginLeft=50;
+        let marginTop=50;
+        this.left=-marginLeft;
+        this.top=-marginTop;
+        let texwidth = width+2*marginLeft;
+        let texheight = height+2*marginTop;
+        this.width=texwidth;
+        this.height=texheight;
+        if(!this.texture || this.texture.destroyed || this.texture.width!=texwidth || this.texture.height!=texheight){
+            if(this.texture)
+                this.texture.destroy();
+            this.texture = new RenderTexture2D(texwidth,texheight);
+        }
+
+        let render2d = this._render2D;
+        render2d.out = this.texture;
+        render2d.renderStart();
+        //修改mesh
+        let rectVB = this._rectMeshVB;
+        let stridef32 = this._rectMesh.vertexDeclarition.vertexStride/4;
+        rectVB[0]=marginLeft; rectVB[1]=marginTop;  //v0.xy
+        rectVB[stridef32]=marginLeft+width;  rectVB[stridef32+1] = marginTop; //v1.xy
+        rectVB[stridef32*2]=marginLeft+width;     rectVB[stridef32*2+1]=marginTop+height; //v2.xy
+        rectVB[stridef32*3]=marginTop; rectVB[stridef32*3+1]=marginTop+height;   //v3.xy
+
+        //shaderdata
+        let shadersv = this.shaderDataBlur;
+        shadersv.shaderData.addDefine(ShaderDefines2D.FILTERGLOW);
+        shadersv.size = new Vector2(texwidth,texheight);
+        shadersv.textureHost = srctexture;
+        shadersv.blurInfo = new Vector2(texwidth,texheight);
+        shadersv.u_blurInfo1 = new Vector4(this._sv_blurInfo1[0], this._sv_blurInfo1[1], this._sv_blurInfo1[2], this._sv_blurInfo1[3])
+        shadersv.u_blurInfo2 = new Vector4(srctexture.width,srctexture.height,this._sv_blurInfo2[2],this._sv_blurInfo2[3]);
+        let color = this.getColor();
+        shadersv.color = new Vector4(color[0],color[1],color[2],color[3]);
+        render2d.setVertexDecl(this._rectMesh.vertexDeclarition);
+        render2d.draw(
+            this._rectMesh.vbBuffer,
+            this._rectMesh.ibBuffer,
+            0,4*this._rectMesh.vertexDeclarition.vertexStride,
+            0,12,
+            shadersv);
+        render2d.renderEnd();        
     }
 
     /**@internal */

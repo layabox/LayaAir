@@ -48,9 +48,10 @@ export class BlurFilter extends Filter {
         //修改mesh
         let rectVB = this._rectMeshVB;
         let stridef32 = this._rectMesh.vertexDeclarition.vertexStride/4;
-        rectVB[stridef32]=texwidth;//v1.x
-        rectVB[stridef32*2]=texwidth;     rectVB[stridef32*2+1]=texheight; //v2.xy
-        rectVB[stridef32*3+1]=texheight;   //v3.y
+        rectVB[0]=marginLeft; rectVB[1]=marginTop;  //v0.xy
+        rectVB[stridef32]=marginLeft+width;  rectVB[stridef32+1] = marginTop; //v1.xy
+        rectVB[stridef32*2]=marginLeft+width;     rectVB[stridef32*2+1]=marginTop+height; //v2.xy
+        rectVB[stridef32*3]=marginTop; rectVB[stridef32*3+1]=marginTop+height;   //v3.xy
         //shaderdata
         let shadersv = this.shaderData;
         shadersv.shaderData.addDefine(ShaderDefines2D.FILTERBLUR);
