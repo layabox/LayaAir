@@ -1,4 +1,5 @@
 import { ShaderDefine } from "../RenderDriver/RenderModuleData/Design/ShaderDefine";
+import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
 import { Vector2 } from "../maths/Vector2";
 import { Vector4 } from "../maths/Vector4";
 import { RenderTexture2D } from "../resource/RenderTexture2D";
@@ -63,7 +64,7 @@ export class GlowFilter extends Filter {
         if(!this.texture || this.texture.destroyed || this.texture.width!=texwidth || this.texture.height!=texheight){
             if(this.texture)
                 this.texture.destroy();
-            this.texture = new RenderTexture2D(texwidth,texheight);
+            this.texture = new RenderTexture2D(texwidth,texheight,RenderTargetFormat.R8G8B8A8);
         }
 
         let render2d = this._render2D;

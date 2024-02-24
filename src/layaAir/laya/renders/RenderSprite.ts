@@ -23,6 +23,7 @@ import { NativeFilter } from "../filters/NativeFilter";
 import { LayaEnv } from "../../LayaEnv";
 import { HitArea } from "../utils/HitArea";
 import { Render2D, Render2DSimple } from "./Render2D";
+import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
 
 /**
  * @private
@@ -372,7 +373,7 @@ export class RenderSprite {
      */
     static RenderToCacheTexture(sprite:Sprite,context:Context, curx:number, cury:number){
         var _cacheStyle = sprite._cacheStyle;
-        if ( sprite._needRepaint() || !_cacheStyle.renderTexture || ILaya.stage.isGlobalRepaint()) {
+        if ( true || sprite._needRepaint() || !_cacheStyle.renderTexture || ILaya.stage.isGlobalRepaint()) {
             if(_cacheStyle.renderTexture){
                 _cacheStyle.renderTexture.destroy();//TODO 优化， 如果大小相同，可以重复利用
             }
@@ -383,7 +384,7 @@ export class RenderSprite {
             //计算cache画布的大小
             let w = tRec.width * scaleInfo.x;
             let h = tRec.height * scaleInfo.y;
-            let rt = new RenderTexture2D(w,h);
+            let rt = new RenderTexture2D(w,h,RenderTargetFormat.R8G8B8A8);
             let ctx = new Context();
             ctx.copyState(context);
             ctx.size(w,h);

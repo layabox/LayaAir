@@ -5,6 +5,7 @@ import { TextureSV } from "../webgl/shader/d2/value/TextureSV";
 import { Vector2 } from "../maths/Vector2";
 import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
 import { Vector4 } from "../maths/Vector4";
+import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
 
 /**
  * 模糊滤镜
@@ -39,7 +40,7 @@ export class BlurFilter extends Filter {
         if(!this.texture || this.texture.destroyed || this.texture.width!=texwidth || this.texture.height!=texheight){
             if(this.texture)
                 this.texture.destroy();
-            this.texture = new RenderTexture2D(texwidth,texheight);
+            this.texture = new RenderTexture2D(texwidth,texheight,RenderTargetFormat.R8G8B8A8);
         }
 
         let render2d = this._render2D;
