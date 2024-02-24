@@ -1,12 +1,10 @@
-
-import { ClassUtils } from "../../utils/ClassUtils";
 import { BPType, TBPCNode, TBPNode } from "../datas/types/BlueprintTypes";
 import { BlueprintFactory } from "../runtime/BlueprintFactory";
 import { BlueprintPin } from "./BlueprintPin";
 import { BlueprintUtil } from "./BlueprintUtil";
-import { EBlueNodeType, EPinDirection } from "./EBluePrint";
+import { EPinDirection } from "./EBluePrint";
 import { INodeManger } from "./interface/INodeManger";
-import { TBPNodeDef, TBPPinData, TBPPinDef } from "./type/TBluePrint";
+import { TBPPinDef } from "./type/TBluePrint";
 
 export abstract class BlueprintNode<T extends BlueprintPin>{
     // static ExecInput: TBPPinDef[] = [{

@@ -1,9 +1,9 @@
 import { BlueprintImpl } from "../resource/BlueprintImpl";
 
-import { BlueprintConst } from "../../core/BlueprintConst";
-import { ILoadTask, IResourceLoader, Loader } from "../../../net/Loader";
-import { URL } from "../../../net/URL";
-import { HierarchyLoader } from "../../../loaders/HierarchyLoader";
+import { BlueprintConst } from "../../bp/core/BlueprintConst";
+import { ILoadTask, IResourceLoader, Loader } from "../../net/Loader";
+import { URL } from "../../net/URL";
+import { HierarchyLoader } from "../../loaders/HierarchyLoader";
 
 export class BlueprintLoaer implements IResourceLoader{
 

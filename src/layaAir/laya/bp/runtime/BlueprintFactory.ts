@@ -1,8 +1,5 @@
 //import { BPBaseTest } from "../../build/BPBaseTest";
 import { BPType, TBPCNode, TBPNode, TBPStageData, TBPVarProperty } from "../datas/types/BlueprintTypes";
-
-import { TBPNodeData, TBPNodeDef } from "../core/type/TBluePrint";
-
 import { BlueprintExcuteNode } from "./action/BlueprintExcuteNode";
 import { BlueprintRuntime } from "./BlueprintRuntime";
 import { BlueprintStaticFun } from "./BlueprintStaticFun";
@@ -17,20 +14,16 @@ import { BlueprintSetVarNode } from "./node/BlueprintSetVarNode";
 import { BlueprintUtil } from "../core/BlueprintUtil";
 import { BlueprintNewTargetNode } from "./node/BlueprintNewTargetNode";
 import { RuntimeNodeData } from "./action/RuntimeNodeData";
-import { LayaEnv } from "../../../LayaEnv";
 import { IBluePrintSubclass } from "../core/interface/IBluePrintSubclass";
 import { BlueprintCustomFunNode } from "./node/BlueprintCustomFunNode";
 import { BlueprintCustomFunStart } from "./node/BlueprintCustomFunStart";
 import { BlueprintCustomFunReturn, BlueprintCustomFunReturnContext } from "./node/BlueprintCustomFunReturn";
 import { BluePrintAsNode } from "./node/BlueprintAsNode";
-import { Laya } from "../../../Laya";
-import { Browser } from "../../utils/Browser";
 import { BluePrintBlockNode } from "./node/BlueprintBlockNode";
 import { BPMathLib } from "../BPMathLib";
 import { BlueprintGetTempVarNode } from "./node/BlueprintGetTempVarNode";
 import { BlueprintSetTempVarNode } from "./node/BlueprintSetTempVarNode";
 import { BPArray } from "../export/BPArray";
-import { ClassUtils } from "../../utils/ClassUtils";
 
 export class BlueprintFactory {
     public static readonly bpSymbol: unique symbol = Symbol("bpruntime");
@@ -163,7 +156,7 @@ export class BlueprintFactory {
     }
 
 
-    static createClsNew<T>(name: string, parentName: string, cls: T, data: TBPStageData, funs: TBPStageData[], varMap: Record<string, TBPVarProperty>): T {
+    static createClsNew<T>(name: string, isPlaying: boolean, cls: T, data: TBPStageData, funs: TBPStageData[], varMap: Record<string, TBPVarProperty>): T {
         function classFactory(className: string, SuperClass: any) {
             return {
                 [className]: class extends SuperClass implements IBluePrintSubclass {
@@ -224,7 +217,7 @@ export class BlueprintFactory {
 
         let newClass = classFactory(name, cls);
 
-        ClassUtils.regClass(name, newClass);
+        BlueprintUtil.regClass(name, newClass);
         let bp = newClass.prototype[BlueprintFactory.bpSymbol] = new BlueprintFactory.BPRuntimeCls();
         bp.dataMap = data.dataMap;
         // debugger;
@@ -232,7 +225,7 @@ export class BlueprintFactory {
             return BlueprintUtil.getConstNode(node) as TBPCNode;
         }
         bp.varMap = varMap;
-        if (LayaEnv.isPlaying) {
+        if (isPlaying) {
             bp.parse(data, c, varMap, newClass);
             funs.forEach(fun => {
                 bp.parseFunction(fun, c);
@@ -243,32 +236,6 @@ export class BlueprintFactory {
 
         return newClass as unknown as T;
     }
-
-    // static initEventFunc(parent: string, cls: Function) { // todo
-    //     if (!LayaEnv.isPlaying) {
-    //         return
-    //     }
-    //     let dec = BlueprintUtil.getDeclaration(parent);
-    //     if (dec && dec.funcs) {
-    //         for (let i = 0, len = dec.funcs.length; i < len; i++) {
-    //             let func = dec.funcs[i];
-    //             if (func.type == "event") {
-    //                 let eventList = cls.prototype.__eventList__;
-    //                 if (!eventList) {
-    //                     eventList = cls.prototype.__eventList__ = [];
-    //                 }
-
-    //                 let funcName = func.name;
-    //                 let originFunc: Function = cls.prototype[funcName];
-    //                 eventList.push(funcName);
-    //                 cls.prototype[funcName] = function (...args: any[]) {
-    //                     originFunc && originFunc.call(this, args);
-    //                     this[BlueprintFactory.bpSymbol].run(this[BlueprintFactory.contextSymbol], funcName, args);
-    //                 }
-    //             }
-    //         }
-    //     }
-    // }
 
     //给编辑时的钩子
     static initClassHook(parent: string, cls: Function) {

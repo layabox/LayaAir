@@ -1,11 +1,10 @@
 import { EventDispatcher } from "../../events/EventDispatcher";
-import { Browser } from "../../utils/Browser";
-import { ClassUtils } from "../../utils/ClassUtils";
 import { customData, extendsData } from "../datas/BlueprintExtends";
 import { TBPDeclaration } from "../datas/types/BlueprintDeclaration";
-import { BPType, TBPCNode, TBPNode, TBPSaveData, TBPStageData, TBPVarProperty } from "../datas/types/BlueprintTypes";
+import { TBPNode } from "../datas/types/BlueprintTypes";
 import { BlueprintData } from "./BlueprintData";
 export class BlueprintUtil {
+    static classMap: any = {};
 
     static bpData: BlueprintData;
 
@@ -51,7 +50,11 @@ export class BlueprintUtil {
         }
     }
     static getClass(ext: any) {
-        return ClassUtils.getClass(ext) || Browser.window.Laya[ext];
+        return this.classMap[ext];
+    }
+
+    static regClass(name: string, cls: any) {
+        this.classMap[name] = cls;
     }
 
 }

@@ -1,9 +1,11 @@
 import { Laya } from "../../Laya";
 import { JsonBinRead } from "../net/util/JsonBinRead";
-import { BlueprintConst } from "./core/BlueprintConst";
-import { BlueprintUtil } from "./core/BlueprintUtil";
-import { extendsData } from "./datas/BlueprintExtends";
-import { BlueprintFactory } from "./runtime/BlueprintFactory";
+import { BlueprintConst } from "../bp/core/BlueprintConst";
+import { BlueprintUtil } from "../bp/core/BlueprintUtil";
+import { extendsData } from "../bp/datas/BlueprintExtends";
+import { BlueprintFactory } from "../bp/runtime/BlueprintFactory";
+import { ClassUtils } from "../utils/ClassUtils";
+import { Browser } from "../utils/Browser";
 
 export class BlueprintCreateUtil{
 
@@ -11,6 +13,11 @@ export class BlueprintCreateUtil{
         let strs = BlueprintConst.configPath.split(".");
         let ext = strs[strs.length - 1];
         let isJson = ext == "json";
+        //注册函数
+        BlueprintUtil.getClass=function(ext: any) {
+            return ClassUtils.getClass(ext) || Browser.window.Laya[ext];
+        }
+        BlueprintUtil.regClass=ClassUtils.regClass;
 
         return Laya.loader.fetch(BlueprintConst.configPath , isJson ? "json" : "arraybuffer").then((result)=>{
             if (!result) {
