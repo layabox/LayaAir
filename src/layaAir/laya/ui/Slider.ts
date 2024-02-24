@@ -368,11 +368,17 @@ export class Slider extends UIComponent {
      * @param max 滑块的最小值。
      * @param value 滑块的当前值。
      */
-    setSlider(min: number, max: number, value: number): void {
+    setSlider(min: number, max: number, value?: number): void {
+        let scaleValue: number;
+        if (null == value) scaleValue = this._value / (this._max - this._min);
         this._value = -1;
         this._min = min;
         this._max = max > min ? max : min;
-        this.value = value < min ? min : value > max ? max : value;
+        if (null == scaleValue) {
+            this.value = value < min ? min : value > max ? max : value;
+        } else {
+            this.value = (this._max - this._min) * scaleValue;
+        }
     }
 
     /**
