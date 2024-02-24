@@ -279,7 +279,7 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
         RenderTexture2D._clearColor.a = a;
         //RenderTexture2D._clearColor.toLinear(RenderTexture2D._clearLinearColor);
         //@ts-ignore
-        LayaGL.renderEngine.clearRenderTexture(RenderClearFlag.Color | RenderClearFlag.Depth, new Color(0,1,0,1), 1);
+        LayaGL.renderEngine.clearRenderTexture(RenderClearFlag.Color | RenderClearFlag.Depth, RenderTexture2D._clearColor, 1);
     }
 
     /**
