@@ -1,12 +1,16 @@
 import { Filter } from "./Filter";
 import { BlurFilterGLRender } from "./BlurFilterGLRender";
 import { RenderTexture2D } from "../resource/RenderTexture2D";
+import { TextureSV } from "../webgl/shader/d2/value/TextureSV";
+import { Vector2 } from "../maths/Vector2";
+import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
 
 /**
  * 模糊滤镜
  */
 export class BlurFilter extends Filter {
 
+    shaderData = new TextureSV();
     /**模糊滤镜的强度(值越大，越不清晰 */
     strength: number;
     strength_sig2_2sig2_gauss1: number[] = [];//给shader用的。避免创建对象
@@ -19,22 +23,40 @@ export class BlurFilter extends Filter {
     constructor(strength = 4) {
         super();
         this.strength = strength;
-        this._glRender = new BlurFilterGLRender();
+        //this._glRender = new BlurFilterGLRender();
     }
 
-    render(texture: RenderTexture2D, width: number, height: number): void {
+    render(srctexture: RenderTexture2D, width: number, height: number): void {
         let marginLeft=50;
         let marginTop=50;
         this.left=-marginLeft;
         this.top=-marginTop;
-        if(!this.texture){
-            this.texture = new RenderTexture2D(width+2*marginLeft,height+2*marginTop);
+        let texwidth = width+2*marginLeft;
+        let texheight = height+2*marginTop;
+        this.width=texwidth;
+        this.height=texheight;
+        if(!this.texture || this.texture.destroyed || this.texture.width!=texwidth || this.texture.height!=texheight){
+            if(this.texture)
+                this.texture.destroy();
+            this.texture = new RenderTexture2D(texwidth,texheight);
         }
 
         let render2d = this._render2D;
         render2d.out = this.texture;
         render2d.renderStart();
-        render2d.drawRect(texture,width*2*marginLeft,height+2*marginTop,null);//TODO
+        //修改mesh
+        let rectVB = this._rectMeshVB;
+        let stridef32 = this._rectMesh.vertexDeclarition.vertexStride/4;
+        rectVB[0]=texwidth;//v1.x
+        rectVB[stridef32*2]=texwidth;     rectVB[stridef32*2+1]=texheight; //v2.xy
+        rectVB[stridef32*3+1]=texheight;   //v3.y
+        //shaderdata
+        let shadersv = this.shaderData;
+        shadersv.shaderData.addDefine(ShaderDefines2D.FILTERBLUR);
+        shadersv.size = new Vector2(texwidth,texheight);
+        shadersv.textureHost = srctexture;
+        render2d.setVertexDecl(this._rectMesh.vertexDeclarition);
+        render2d.draw(this._rectMesh.vbBuffer,this._rectMesh.ibBuffer,0,4*this._rectMesh.vertexDeclarition.vertexStride,0,12,shadersv);
         render2d.renderEnd();
     }
 

@@ -13,6 +13,7 @@ import { RenderSpriteData, Value2D } from "../webgl/shader/d2/value/Value2D"
 import { SubmitCMD } from "../webgl/submit/SubmitCMD"
 import { ColorFilter } from "./ColorFilter";
 import { Render2D } from "../renders/Render2D";
+import { MeshQuadTexture } from "../webgl/utils/MeshQuadTexture";
 
 /**
  * <code>Filter</code> 是滤镜基类。滤镜是针对节点的后处理过程，所以必然操作一个rendertexture
@@ -31,6 +32,14 @@ export abstract class Filter implements IFilter {
     protected height=0;
     protected texture:RenderTexture2D;  //TODO 创建 优化
     protected _render2D:Render2D;
+    protected _rectMesh:MeshQuadTexture;
+    protected _rectMeshVB:Float32Array;
+
+    constructor(){
+        let rect = this._rectMesh = new MeshQuadTexture();
+        rect.addQuad([0,0,1,0,1,1,0,1],[0,1,1,1,1,0,0,0],0xffffffff,true)
+        this._rectMeshVB = new Float32Array(rect.vbBuffer);
+    }
 
     set render2D(r:Render2D){
         this._render2D=r;
@@ -60,12 +69,14 @@ export abstract class Filter implements IFilter {
             return;
         }
 
+        let cache = sprite._cacheStyle;
         // 先把节点渲染到一个贴图上
         if(RenderSprite.RenderToCacheTexture(sprite,context,x,y)){
-            let src = sprite._cacheStyle.renderTexture;
+            let src = cache.renderTexture;
             let dst = src;
-            let width = sprite._cacheStyle.cacheRect.width;
-            let height = sprite._cacheStyle.cacheRect.height;
+            let width = cache.cacheRect.width;
+            let height = cache.cacheRect.height;
+            let lastRT = context.render2D.out;
             // 针对这个贴图，依次应用filter
             for (let i = 0; i < len; i++) {
                 src = dst;
@@ -76,12 +87,20 @@ export abstract class Filter implements IFilter {
                 height=filter.height;
                 dst = filter.texture;
             }
+            context.render2D.out=lastRT;
             // 把最终结果保存到cache
-            sprite._cacheStyle.renderTexture = dst;
-        }else{
-            //直接使用缓存的
-            //context._drawRenderTexture(out, x, y, b.width, b.height, Matrix.TEMP.identity(), 1.0, RenderTexture2D.defuv);
+            cache.renderTexture = dst;
+            cache.renderTexOffx=filters[len-1].top;
+            cache.renderTexOffy=filters[len-1].left;
         }
+        //直接使用缓存的
+        context._drawRenderTexture(cache.renderTexture, 
+            x+cache.renderTexOffx, 
+            y+cache.renderTexOffy, 
+            cache.renderTexture.width, 
+            cache.renderTexture.height, 
+            Matrix.TEMP.identity(), 1.0, RenderTexture2D.defuv);
+        return;
 
         //思路：依次遍历滤镜，每次滤镜都画到out的RenderTarget上，然后把out画取src的RenderTarget做原图，去叠加新的滤镜
         var svCP = Value2D.create(RenderSpriteData.Texture2D);	//拷贝用shaderValue

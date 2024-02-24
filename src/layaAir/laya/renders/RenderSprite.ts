@@ -378,7 +378,7 @@ export class RenderSprite {
             }
             //如果需要构造RenderTexture
             // 先计算需要的texuture的大小。
-            let scaleInfo = sprite._cacheStyle._calculateCacheRect(sprite, sprite._cacheStyle.cacheAs, curx, cury);
+            let scaleInfo = sprite._cacheStyle._calculateCacheRect(sprite, "bitmap"/*sprite._cacheStyle.cacheAs*/, curx, cury);
             let tRec = _cacheStyle.cacheRect;
             //计算cache画布的大小
             let w = tRec.width * scaleInfo.x;
