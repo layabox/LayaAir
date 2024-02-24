@@ -4,6 +4,7 @@ import { RenderTexture2D } from "../resource/RenderTexture2D";
 import { TextureSV } from "../webgl/shader/d2/value/TextureSV";
 import { Vector2 } from "../maths/Vector2";
 import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
+import { Vector4 } from "../maths/Vector4";
 
 /**
  * 模糊滤镜
@@ -47,7 +48,7 @@ export class BlurFilter extends Filter {
         //修改mesh
         let rectVB = this._rectMeshVB;
         let stridef32 = this._rectMesh.vertexDeclarition.vertexStride/4;
-        rectVB[0]=texwidth;//v1.x
+        rectVB[stridef32]=texwidth;//v1.x
         rectVB[stridef32*2]=texwidth;     rectVB[stridef32*2+1]=texheight; //v2.xy
         rectVB[stridef32*3+1]=texheight;   //v3.y
         //shaderdata
@@ -55,8 +56,18 @@ export class BlurFilter extends Filter {
         shadersv.shaderData.addDefine(ShaderDefines2D.FILTERBLUR);
         shadersv.size = new Vector2(texwidth,texheight);
         shadersv.textureHost = srctexture;
+        shadersv.blurInfo = new Vector2(texwidth,texheight);
+        var sigma = this.strength / 3.0;//3σ以外影响很小。即当σ=1的时候，半径为3;
+        var sigma2 = sigma * sigma;
+        shadersv.strength_sig2_2sig2_gauss1 = new Vector4(this.strength,sigma2,2.0 * sigma2,1.0 / (2.0 * Math.PI * sigma2))
+
         render2d.setVertexDecl(this._rectMesh.vertexDeclarition);
-        render2d.draw(this._rectMesh.vbBuffer,this._rectMesh.ibBuffer,0,4*this._rectMesh.vertexDeclarition.vertexStride,0,12,shadersv);
+        render2d.draw(
+            this._rectMesh.vbBuffer,
+            this._rectMesh.ibBuffer,
+            0,4*this._rectMesh.vertexDeclarition.vertexStride,
+            0,12,
+            shadersv);
         render2d.renderEnd();
     }
 

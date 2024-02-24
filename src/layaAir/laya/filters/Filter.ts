@@ -37,7 +37,7 @@ export abstract class Filter implements IFilter {
 
     constructor(){
         let rect = this._rectMesh = new MeshQuadTexture();
-        rect.addQuad([0,0,1,0,1,1,0,1],[0,1,1,1,1,0,0,0],0xffffffff,true)
+        rect.addQuad([0,0,1,0,1,1,0,1],[0,0,1,0,1,1,0,1],0xffffffff,true)
         this._rectMeshVB = new Float32Array(rect.vbBuffer);
     }
 
