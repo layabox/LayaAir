@@ -40,7 +40,7 @@ export class MotorJoint extends JointBase {
             def.bodyA = this.selfBody.getBody();
             def.bodyB = this.otherBody.getBody();
             def.linearOffset.setValue(this._linearOffset[0], this._linearOffset[1]);
-            def.angularOffset = Utils.toRadian(this._angularOffset);
+            def.angularOffset = Utils.toRadian(-this._angularOffset);
             def.maxForce = this._maxForce;
             def.maxTorque = this._maxTorque;
             def.correctionFactor = this._correctionFactor;
@@ -68,7 +68,7 @@ export class MotorJoint extends JointBase {
 
     set angularOffset(value: number) {
         this._angularOffset = value;
-        if (this._joint) this._factory.set_MotorJoint_SetAngularOffset(this._joint, Utils.toRadian(value));
+        if (this._joint) this._factory.set_MotorJoint_SetAngularOffset(this._joint, Utils.toRadian(-value));
     }
 
     /**当selfBody偏离目标位置时，为使其恢复到目标位置，马达关节所施加的最大作用力*/

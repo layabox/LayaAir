@@ -51,8 +51,8 @@ export class PrismaticJoint extends JointBase {
             if (!this.selfBody) throw "selfBody can not be empty";
 
             var def: physics2D_PrismaticJointDef = PrismaticJoint._temp || (PrismaticJoint._temp = new physics2D_PrismaticJointDef());
-            def.bodyA = this.selfBody ? this.selfBody.getBody() : Physics2D.I._emptyBody;
-            def.bodyB = this.otherBody.getBody();
+            def.bodyB = this.selfBody ? this.selfBody.getBody() : Physics2D.I._emptyBody;
+            def.bodyA = this.otherBody.getBody();
             let p = this.selfBody.GetWorldPoint(this.anchor[0], this.anchor[1]);
             def.anchor.setValue(p.x, p.y);
             let radian = Utils.toRadian(this.angle);
