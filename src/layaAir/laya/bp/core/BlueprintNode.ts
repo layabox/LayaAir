@@ -1,4 +1,6 @@
 
+import { Laya } from "../../../Laya";
+import { URL } from "../../net/URL";
 import { ClassUtils } from "../../utils/ClassUtils";
 import { BPType, TBPCNode, TBPNode } from "../datas/types/BlueprintTypes";
 import { BlueprintFactory } from "../runtime/BlueprintFactory";
@@ -66,7 +68,7 @@ export abstract class BlueprintNode<T extends BlueprintPin>{
         // }
 
         this.setType(def.type);
-        let arr = BlueprintFactory.getFunction(def.id || def.name,def.target);
+        let arr = BlueprintFactory.getFunction(def.id || def.name, def.target);
         this.setFunction(arr ? arr[0] : null, arr ? arr[1] : false);
         if (def.input) {
             this.addInput(def.input as any);
@@ -112,6 +114,8 @@ export abstract class BlueprintNode<T extends BlueprintPin>{
                 }
                 else if (item.class != undefined) {
                     pin.value = BlueprintUtil.getClass(item.class);
+                } else if (item.resource != undefined) {
+                    pin.value = Laya.loader.getRes(URL.getResURLByUUID(item.resource)).create();
                 }
             }
         }
