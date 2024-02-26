@@ -52,49 +52,66 @@ export class GlowFilter extends Filter {
         this.shaderDataCopy = new TextureSV();
     }
 
+    private _fillQuad(x:number, y:number, w:number, h:number){
+        let rectVB = this._rectMeshVB;
+        let stridef32 = this._rectMesh.vertexDeclarition.vertexStride/4;
+        rectVB[0          ]= x;   rectVB[1            ]= y; 
+        rectVB[stridef32  ]= x+w; rectVB[stridef32+1  ]= y;
+        rectVB[stridef32*2]= x+w; rectVB[stridef32*2+1]= y+h;
+        rectVB[stridef32*3]= y;   rectVB[stridef32*3+1]= y+h;
+    }
+
     render(srctexture: RenderTexture2D, width: number, height: number): void {
         let marginLeft=50;
         let marginTop=50;
         this.left=-marginLeft;
         this.top=-marginTop;
-        let texwidth = width+2*marginLeft;
-        let texheight = height+2*marginTop;
-        this.width=texwidth;
-        this.height=texheight;
-        if(!this.texture || this.texture.destroyed || this.texture.width!=texwidth || this.texture.height!=texheight){
+        let outTexWidth = width+2*marginLeft;
+        let outTexHeight = height+2*marginTop;
+        this.width=outTexWidth;
+        this.height=outTexHeight;
+        if(!this.texture || this.texture.destroyed || this.texture.width!=outTexWidth || this.texture.height!=outTexHeight){
             if(this.texture)
                 this.texture.destroy();
-            this.texture = new RenderTexture2D(texwidth,texheight,RenderTargetFormat.R8G8B8A8);
+            this.texture = new RenderTexture2D(outTexWidth,outTexHeight,RenderTargetFormat.R8G8B8A8);
         }
 
         let render2d = this._render2D;
         render2d.out = this.texture;
         render2d.renderStart();
         //修改mesh
-        let rectVB = this._rectMeshVB;
-        let stridef32 = this._rectMesh.vertexDeclarition.vertexStride/4;
-        rectVB[0]=marginLeft; rectVB[1]=marginTop;  //v0.xy
-        rectVB[stridef32]=marginLeft+width;  rectVB[stridef32+1] = marginTop; //v1.xy
-        rectVB[stridef32*2]=marginLeft+width;     rectVB[stridef32*2+1]=marginTop+height; //v2.xy
-        rectVB[stridef32*3]=marginTop; rectVB[stridef32*3+1]=marginTop+height;   //v3.xy
+        this._fillQuad(marginLeft, marginTop, width,height);    //注意这个是原始大小，实际要扩展margin
 
         //shaderdata
         let shadersv = this.shaderDataBlur;
         shadersv.shaderData.addDefine(ShaderDefines2D.FILTERGLOW);
-        shadersv.size = new Vector2(texwidth,texheight);
+        shadersv.size = new Vector2(outTexWidth,outTexHeight);
         shadersv.textureHost = srctexture;
-        shadersv.blurInfo = new Vector2(texwidth,texheight);
+        shadersv.blurInfo = new Vector2(outTexWidth,outTexHeight);
         shadersv.u_blurInfo1 = new Vector4(this._sv_blurInfo1[0], this._sv_blurInfo1[1], this._sv_blurInfo1[2], this._sv_blurInfo1[3])
         shadersv.u_blurInfo2 = new Vector4(srctexture.width,srctexture.height,this._sv_blurInfo2[2],this._sv_blurInfo2[3]);
         let color = this.getColor();
         shadersv.color = new Vector4(color[0],color[1],color[2],color[3]);
         render2d.setVertexDecl(this._rectMesh.vertexDeclarition);
+        //模糊的底
         render2d.draw(
             this._rectMesh.vbBuffer,
             this._rectMesh.ibBuffer,
             0,4*this._rectMesh.vertexDeclarition.vertexStride,
             0,12,
             shadersv);
+        //覆盖一下原始图片
+        shadersv = this.shaderDataCopy;
+        shadersv.size = new Vector2(outTexWidth,outTexHeight);
+        shadersv.textureHost = srctexture;
+        this._fillQuad(marginLeft,marginTop,srctexture.width,srctexture.height);
+        render2d.draw(
+            this._rectMesh.vbBuffer,
+            this._rectMesh.ibBuffer,
+            0,4*this._rectMesh.vertexDeclarition.vertexStride,
+            0,12,
+            shadersv);
+
         render2d.renderEnd();        
     }
 
