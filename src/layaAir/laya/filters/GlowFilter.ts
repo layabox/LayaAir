@@ -92,11 +92,9 @@ export class GlowFilter extends Filter {
         shadersv.u_blurInfo2 = new Vector4(srctexture.width,srctexture.height,this._sv_blurInfo2[2],this._sv_blurInfo2[3]);
         let color = this.getColor();
         shadersv.color = new Vector4(color[0],color[1],color[2],color[3]);
-        render2d.setVertexDecl(this._rectMesh.vertexDeclarition);
         //模糊的底
         render2d.draw(
-            this._rectMesh.vbBuffer,
-            this._rectMesh.ibBuffer,
+            this._rectMesh,
             0,4*this._rectMesh.vertexDeclarition.vertexStride,
             0,12,
             shadersv);
@@ -106,8 +104,7 @@ export class GlowFilter extends Filter {
         shadersv.textureHost = srctexture;
         this._fillQuad(marginLeft,marginTop,srctexture.width,srctexture.height);
         render2d.draw(
-            this._rectMesh.vbBuffer,
-            this._rectMesh.ibBuffer,
+            this._rectMesh,
             0,4*this._rectMesh.vertexDeclarition.vertexStride,
             0,12,
             shadersv);

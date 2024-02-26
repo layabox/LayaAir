@@ -11,6 +11,12 @@ import { VertexDeclaration } from "../RenderEngine/VertexDeclaration";
 import { RenderTexture2D } from "../resource/RenderTexture2D";
 import { Value2D } from "../webgl/shader/d2/value/Value2D";
 
+export interface IMesh2D{
+    readonly vertexDeclarition:VertexDeclaration;
+    vbBuffer:ArrayBuffer;
+    ibBuffer:ArrayBuffer;
+}
+
 export abstract class Render2D{
     protected _renderTexture:RenderTexture2D=null;
     //外部设置渲染结果。默认为null,null则渲染到canvas上
@@ -27,9 +33,9 @@ export abstract class Render2D{
     //output:RenderTexture2D;
     abstract renderStart():void;
     // 有vb是外部提供的，因此，顶点描述也要由外部提供
-    abstract setVertexDecl(decl:VertexDeclaration):void;
+    //abstract setVertexDecl(decl:VertexDeclaration):void;
     //shaderdata放到mtl中。之所以传内存buffer是为了给后面合并subdata机会，以便提高效率
-    abstract draw(vb:ArrayBuffer, ib:ArrayBuffer, vboff:number, vblen:number, iboff:number,iblen:number, mtl:Value2D ):void;
+    abstract draw(mesh:IMesh2D, vboff:number, vblen:number, iboff:number,iblen:number, mtl:Value2D ):void;
     // 只是画一个方块
     drawRect( texture:RenderTexture2D, width:number, height:number, mtl:Value2D,flipY=false){}
     abstract renderEnd():void;
@@ -63,7 +69,7 @@ export class Render2DSimple extends Render2D{
         geo.indexFormat = IndexFormat.UInt16;
     }
 
-    setVertexDecl(decl:VertexDeclaration){
+    private setVertexDecl(decl:VertexDeclaration){
         if(this._tex_vert_decl!=decl){
             this._tex_vert_decl=decl;
             this._createMesh();
@@ -77,15 +83,16 @@ export class Render2DSimple extends Render2D{
         }
     }
 
-    draw(vbbuff: ArrayBuffer, ibbuff: ArrayBuffer, vboff:number,vblen:number, iboff:number,iblen:number, mtl: Value2D): void {
+    draw(mesh2d:IMesh2D, vboff:number,vblen:number, iboff:number,iblen:number, mtl: Value2D): void {
+        this.setVertexDecl(mesh2d.vertexDeclarition);
         let geo = this.geo;
         let mesh = geo.bufferState
         let vb = mesh._vertexBuffers[0];
         let ib = mesh._bindedIndexBuffer;
         vb.setDataLength(vblen);
-        vb.setData(vbbuff,vboff,0,vblen)
+        vb.setData(mesh2d.vbBuffer,vboff,0,vblen)
         ib._setIndexDataLength(iblen)
-        ib._setIndexData(new Uint16Array(ibbuff,iboff,iblen/2),0)
+        ib._setIndexData(new Uint16Array(mesh2d.ibBuffer,iboff,iblen/2),0)
         geo.clearRenderParams();
         geo.setDrawElemenParams(iblen/2,0);
         mtl.setBlend();
@@ -114,7 +121,7 @@ export class Render2DMergeVB extends Render2D{
     renderStart(): void {
         throw new Error("Method not implemented.");
     }
-    draw(vb: ArrayBuffer, ib: ArrayBuffer, vboff:number, vblen:number,iboff:number,iblen:number,mtl: Value2D): void {
+    draw(mesh2d:IMesh2D, vboff:number, vblen:number,iboff:number,iblen:number,mtl: Value2D): void {
         throw new Error("Method not implemented.");
     }
     renderEnd(): void {

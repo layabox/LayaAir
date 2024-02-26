@@ -24,6 +24,9 @@ import { LayaEnv } from "../../LayaEnv";
 import { HitArea } from "../utils/HitArea";
 import { Render2D, Render2DSimple } from "./Render2D";
 import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
+import { TextureSV } from "../webgl/shader/d2/value/TextureSV";
+import { Vector2 } from "../maths/Vector2";
+import { MeshQuadTexture } from "../webgl/utils/MeshQuadTexture";
 
 /**
  * @private
@@ -31,6 +34,18 @@ import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetForma
  */
 export interface _RenderFunction {
     (sp: Sprite, ctx: Context, x: number, y: number): void;
+}
+
+let _simpleTextureSV:TextureSV;
+let _quadMesh: MeshQuadTexture;
+let _quadMeshVB:Float32Array;
+function _fillQuad(x:number, y:number, w:number, h:number){
+    let rectVB = _quadMeshVB;
+    let stridef32 = _quadMesh.vertexDeclarition.vertexStride/4;
+    rectVB[0          ]= x;   rectVB[1            ]= y; 
+    rectVB[stridef32  ]= x+w; rectVB[stridef32+1  ]= y;
+    rectVB[stridef32*2]= x+w; rectVB[stridef32*2+1]= y+h;
+    rectVB[stridef32*3]= y;   rectVB[stridef32*3+1]= y+h;
 }
 
 const INIT = 0x11111;
@@ -50,6 +65,11 @@ export class RenderSprite {
 
     /** @internal */
     static __init__(): void {
+        _simpleTextureSV = new TextureSV();
+        _quadMesh = new MeshQuadTexture();
+        _quadMesh.addQuad([0,0,1,0,1,1,0,1],[0,0,1,0,1,1,0,1],0xffffffff,true);
+        _quadMeshVB = new Float32Array(_quadMesh.vbBuffer);
+        
         LayaGLQuickRunner.__init__();
         var i: number, len: number;
         var initRender: RenderSprite;
@@ -537,7 +557,6 @@ export class RenderSprite {
 
     _mask(sprite: Sprite, ctx: Context, x: number, y: number): void {
         let cache = sprite._getCacheStyle();
-        debugger;
         //在sprite上缓存两个rt是为了优化当自己不变，mask变了的情况。
         //上面的不对，由于mask必须是sprite的子，因此mask变了必然导致sprite的重绘，所以就不缓存多个rt了
         if(this._renderNextToCacheRT(sprite,ctx)){
@@ -545,6 +564,24 @@ export class RenderSprite {
             let src = null;
             mask._getCacheStyle();
         }
+
+        let tex = cache.renderTexture;
+        let rect = cache.cacheRect;
+        // let shadersv = new TextureSV();
+        // shadersv.size = new Vector2(tex.width,tex.height);
+        // shadersv.textureHost = tex;
+        // _fillQuad(0,0,tex.width,tex.height);
+        // ctx.render2D.setVertexDecl(_quadMesh.vertexDeclarition);
+        // ctx.render2D.draw(
+        //     _quadMesh.vbBuffer,
+        //     _quadMesh.ibBuffer,
+        //     0,4* MeshQuadTexture.VertexDeclarition.vertexStride,
+        //     0,12,
+        //     shadersv);
+
+        ctx._drawRenderTexture(tex,
+            x + rect.x, y + rect.y, rect.width, rect.height,null,1,[0,1, 1,1, 1,0, 0,0])        
+
     }
 
     /**

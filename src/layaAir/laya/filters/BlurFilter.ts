@@ -63,10 +63,8 @@ export class BlurFilter extends Filter {
         var sigma2 = sigma * sigma;
         shadersv.strength_sig2_2sig2_gauss1 = new Vector4(this.strength,sigma2,2.0 * sigma2,1.0 / (2.0 * Math.PI * sigma2))
 
-        render2d.setVertexDecl(this._rectMesh.vertexDeclarition);
         render2d.draw(
-            this._rectMesh.vbBuffer,
-            this._rectMesh.ibBuffer,
+            this._rectMesh,
             0,4*this._rectMesh.vertexDeclarition.vertexStride,
             0,12,
             shadersv);

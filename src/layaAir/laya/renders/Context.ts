@@ -1062,10 +1062,8 @@ export class Context {
     private _drawMesh(mesh:Mesh2D, vboff:number, vertNum:number, iboff:number, indexNum:number,shaderValue:Value2D){
         if(mesh.indexNum){
             let render2D = this._render2D;
-            render2D.setVertexDecl(mesh.vertexDeclarition);
             render2D.draw( 
-                mesh.vbBuffer,
-                mesh.ibBuffer, 
+                mesh, 
                 vboff,vertNum*mesh.vertexDeclarition.vertexStride,
                 iboff, indexNum*2,
                 shaderValue
