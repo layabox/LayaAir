@@ -41,9 +41,6 @@ const packsDef = [{
             './layaAir/laya/maths/**/*.*',
             './layaAir/laya/media/**/*.*',
             './layaAir/laya/net/**/*.*',
-            "./layaAir/laya/bp/**/*.*",
-            "./layaAir/laya/bt/**/*.*",
-
             // './layaAir/laya/RenderEngine/**/*.*',
             './layaAir/laya/RenderEngine/RenderEngine/NativeGLEngine/**/*.*',
             './layaAir/laya/RenderEngine/RenderEngine/WebGLEngine/**/*.*',
@@ -217,6 +214,22 @@ const packsDef = [{
         "libName": 'performancetool',
         'input': [
             './extensions/performanceTool/**/*.*'
+        ],
+    },
+    {
+        'libName': "bpcore",
+        'input': [
+            "./layaAir/laya/bp/core/**/*.*",
+            "./layaAir/laya/bp/datas/**/*.*",
+            "./layaAir/laya/bp/export/**/*.*",
+            "./layaAir/laya/bp/runtime/**/*.*",
+        ],
+    },
+    {
+        'libName': "visualcode",
+        'input': [
+            "./layaAir/laya/bp/adapter/**/*.*",
+            "./layaAir/laya/bt/**/*.*"
         ],
     }
 ];
