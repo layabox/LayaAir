@@ -42,8 +42,8 @@ export class RevoluteJoint extends JointBase {
             this.selfBody = this.selfBody || this.owner.getComponent(RigidBody);
             if (!this.selfBody) throw "selfBody can not be empty";
             var def: physics2D_RevoluteJointDef = RevoluteJoint._temp || (RevoluteJoint._temp = new physics2D_RevoluteJointDef());
-            def.bodyA = this.selfBody.getBody();
-            def.bodyB = this.otherBody ? this.otherBody.getBody() : Physics2D.I._emptyBody;
+            def.bodyB = this.selfBody.getBody();
+            def.bodyA = this.otherBody ? this.otherBody.getBody() : Physics2D.I._emptyBody;
 
             let global = this.selfBody.GetWorldPoint(this.anchor[0], this.anchor[1]);
             def.anchor.setValue(global.x, global.y)
