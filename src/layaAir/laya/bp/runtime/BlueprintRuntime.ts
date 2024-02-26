@@ -1,4 +1,4 @@
-import { BPType, TBPCNode, TBPConnType, TBPEventProperty, TBPNode, TBPStageData, TBPVarProperty } from "../datas/types/BlueprintTypes";
+import { BPType, TBPCNode, TBPEventProperty, TBPNode, TBPStageData, TBPVarProperty } from "../datas/types/BlueprintTypes";
 import { INodeManger } from "../core/interface/INodeManger";
 
 import { BlueprintFactory } from "./BlueprintFactory";
@@ -10,17 +10,14 @@ import { BlueprintEventNode } from "./node/BlueprintEventNode";
 import { BlueprintRuntimeBaseNode } from "./node/BlueprintRuntimeBaseNode";
 import { BlueprintCustomFunStart } from "./node/BlueprintCustomFunStart";
 import { IExcuteListInfo } from "../core/interface/IExcuteListInfo";
-import { BlueprintCustomFunReturn, BlueprintCustomFunReturnContext } from "./node/BlueprintCustomFunReturn";
+import { BlueprintCustomFunReturn } from "./node/BlueprintCustomFunReturn";
 import { IRuntimeDataManger } from "../core/interface/IRuntimeDataManger";
 import { BluePrintAsNode } from "./node/BlueprintAsNode";
-import { BlueprintPin } from "../core/BlueprintPin";
 import { BlueprintUtil } from "../core/BlueprintUtil";
-import { BlueprintConst } from "../core/BlueprintConst";
 
 
 const mainScope = Symbol("mainScope");
 export class BlueprintRuntime {
-
     mainBlock: BluePrintMainBlock;
 
     funBlockMap: Map<number, BluePrintFunBlock>;
@@ -109,6 +106,8 @@ export class BlueprintRuntime {
 }
 
 export class BluePrintBlock implements INodeManger<BlueprintRuntimeBaseNode>, IBPRutime {
+    static EventId: number = 0;
+    private _eventId: number;
     localVarMap: Record<string, TBPVarProperty>;
 
     private poolIds: number[];
@@ -142,6 +141,7 @@ export class BluePrintBlock implements INodeManger<BlueprintRuntimeBaseNode>, IB
 
     constructor(id: symbol | number) {
         this.id = id;
+        this._eventId = BluePrintBlock.EventId++;
         this._maxID = 0;
         this.excuteList = [];
         this.nodeMap = new Map();
@@ -212,7 +212,7 @@ export class BluePrintBlock implements INodeManger<BlueprintRuntimeBaseNode>, IB
             this._pendingClass.delete(name);
         }
         if (this._pendingClass.size == 0) {
-            BlueprintUtil.eventManger.offAllCaller(this);
+            delete BlueprintUtil.onfinishCallbacks[this._eventId];
             this.parse(bpjson, getCNodeByNode, varMap);
         }
     }
@@ -245,7 +245,8 @@ export class BluePrintBlock implements INodeManger<BlueprintRuntimeBaseNode>, IB
             }
         });
         if (this._pendingClass.size > 0) {
-            BlueprintUtil.eventManger.on(BlueprintUtil.CustomClassFinish, this, this._onReParse, [bpjson, getCNodeByNode, varMap]);
+
+            BlueprintUtil.onfinishCallbacks[this._eventId] = [this._onReParse, this, [bpjson, getCNodeByNode, varMap]];
             return false;
         }
         return true;
