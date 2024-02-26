@@ -154,7 +154,7 @@ export class GLESBlitQuadCMDData extends BlitQuadCMDData {
 export class GLESDrawElementCMDData extends DrawElementCMDData {
     type: RenderCMDType;
     /**@internal */
-    _nativeObj
+    _nativeObj;
     private _elemets: GLESRenderElement3D[];
 
     constructor() {
@@ -281,7 +281,7 @@ export class GLESSetRenderTargetCMD extends SetRenderTargetCMD {
 
 
 // this._nativeObj = new (window as any).conchGLESSetRenderData();
-// this._nativeObj.setValue(this.value, this.dataType)
+// this._nativeObj.setValue(this.value)
 // this._nativeObj.setDest(value._nativeObj);
 // this._nativeObj.setPropertyID(value);
 // this._nativeObj.setDataType(value);
@@ -339,45 +339,45 @@ export class GLESSetRenderData extends SetRenderDataCMD {
             case ShaderDataType.Bool:
                 this.data_number = value as number;
                 this._value = this.data_number;
-                this._nativeObj.setValue(this.value, this.dataType)
+                this._nativeObj.setValue(this.value)
                 break;
             case ShaderDataType.Matrix4x4:
                 this.data_mat && (this.data_mat = new Matrix4x4());
                 (value as Matrix4x4).cloneTo(this.data_mat);
                 this._value = this.data_mat;
-                this._nativeObj.setValue(this.value, this.dataType)
+                this._nativeObj.setValue(this.value)
                 break;
             case ShaderDataType.Color:
                 this.data_Color && (this.data_Color = new Color());
                 (value as Color).cloneTo(this.data_Color);
                 this._value = this.data_Color;
-                this._nativeObj.setValue(this.value, this.dataType)
+                this._nativeObj.setValue(this.value)
                 break;
             case ShaderDataType.Texture2D:
                 this._value = this.data_texture = value as BaseTexture;
-                this._nativeObj.setValue((this.data_texture._texture as GLESInternalTex)._nativeObj, this.dataType)
+                this._nativeObj.setValue((this.data_texture._texture as GLESInternalTex)._nativeObj)
                 break;
             case ShaderDataType.Vector4:
                 this.data_v4 && (this.data_v4 = new Vector4());
                 (value as Vector4).cloneTo(this.data_v4);
                 this._value = this.data_v4;
-                this._nativeObj.setValue(this.value, this.dataType)
+                this._nativeObj.setValue(this.value)
                 break;
             case ShaderDataType.Vector2:
                 this.data_v2 && (this.data_v2 = new Vector2());
                 (value as Vector2).cloneTo(this.data_v2);
                 this._value = this.data_v2;
-                this._nativeObj.setValue(this.value, this.dataType)
+                this._nativeObj.setValue(this.value)
                 break;
             case ShaderDataType.Vector3:
                 this.data_v3 && (this.data_v3 = new Vector3());
                 (value as Vector3).cloneTo(this.data_v3);
                 this._value = this.data_v3;
-                this._nativeObj.setValue(this.value, this.dataType)
+                this._nativeObj.setValue(this.value)
                 break;
             case ShaderDataType.Buffer:
                 this._value = this.data_Buffer = value as Float32Array;
-                this._nativeObj.setValue(this.value, this.dataType)
+                this._nativeObj.setBufferValue(this.data_Buffer.buffer,this.data_Buffer.byteLength);
                 break;
             default:
                 //TODO  shaderDefine

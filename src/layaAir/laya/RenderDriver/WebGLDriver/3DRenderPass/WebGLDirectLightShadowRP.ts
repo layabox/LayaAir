@@ -44,7 +44,13 @@ export class WebGLDirectLightShadowRP implements IDirectLightShadowRP {
    
     destTarget: InternalRenderTarget;
    
-    shadowCasterCommanBuffer: CommandBuffer[];
+    private _shadowCasterCommanBuffer: CommandBuffer[];
+    public get shadowCasterCommanBuffer(): CommandBuffer[] {
+        return this._shadowCasterCommanBuffer;
+    }
+    public set shadowCasterCommanBuffer(value: CommandBuffer[]) {
+        this._shadowCasterCommanBuffer = value;
+    }
 
     /**light */
     private _light: WebDirectLight

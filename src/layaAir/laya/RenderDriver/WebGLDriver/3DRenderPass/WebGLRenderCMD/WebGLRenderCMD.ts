@@ -164,10 +164,12 @@ export class WebGLDrawElementCMDData extends DrawElementCMDData {
     apply(context: WebGLRenderContext3D): void {
         if (this._elemets.length == 1) {
             context.drawRenderElementOne(this._elemets[0]);
+        }else{
+            this._elemets.forEach(element => {
+                context.drawRenderElementOne(element);
+            });
         }
-        this._elemets.forEach(element => {
-            context.drawRenderElementOne(element);
-        });
+      
     }
 }
 

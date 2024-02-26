@@ -40,5 +40,19 @@ export class GLESDirectLightShadowRP implements IDirectLightShadowRP {
     }
     public set shadowCasterCommanBuffer(value: CommandBuffer[]) {
         this._shadowCasterCommanBuffer = value;
+        this._nativeObj.clearShadowCasterCommandBuffer();
+        value.forEach(element => {
+            this._setCmd(element);
+        });
+    }
+
+    private _setCmd(cmd: CommandBuffer) {
+        cmd._apply(false);
+        let cmds = cmd._renderCMDs;
+        let nativeobCMDs: any[] = [];
+        cmds.forEach(element => {
+            nativeobCMDs.push((element as any)._nativeObj);
+        });
+        this._nativeObj.addShadowCasterCommandBuffers(nativeobCMDs);
     }
 }
