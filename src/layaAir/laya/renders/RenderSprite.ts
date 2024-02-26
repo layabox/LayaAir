@@ -314,6 +314,39 @@ export class RenderSprite {
         textLastRender && context.drawCallOptimize(false);
     }
 
+    _renderNextToCacheRT(sprite:Sprite,context:Context){
+        var _cacheStyle = sprite._cacheStyle;
+        if (true|| sprite._needRepaint() || !_cacheStyle.renderTexture || ILaya.stage.isGlobalRepaint()) {
+            if(_cacheStyle.renderTexture){
+                _cacheStyle.renderTexture.destroy();//TODO 优化， 如果大小相同，可以重复利用
+            }
+            //如果需要构造RenderTexture
+            // 先计算需要的texuture的大小。
+            let scaleInfo = sprite._cacheStyle._calculateCacheRect(sprite, "bitmap"/*sprite._cacheStyle.cacheAs*/, 0, 0);
+            let tRec = _cacheStyle.cacheRect;
+            if(tRec.width<=0||tRec.height<=0)
+                return false;
+            //计算cache画布的大小
+
+            //左边可能有空白（例如图集的空白裁剪）,所以贴图的大小要把空白也考虑上
+            //因为对于空白的处理是保存在cmd中的，是在下面的_next._fun()的xy的基础上加的，所以要保证贴图够大，否则就被裁剪了
+            let w = tRec.x + tRec.width * scaleInfo.x;  //,
+            let h = tRec.y + tRec.height * scaleInfo.y;
+            let rt = new RenderTexture2D(w,h,RenderTargetFormat.R8G8B8A8);
+            let ctx = new Context();
+            ctx.copyState(context);
+            ctx.size(w,h);
+            ctx.render2D=new Render2DSimple(rt);
+            ctx.startRender();
+            //由于context是新的，所以画到0,0上就行
+            this._next._fun(sprite,ctx,0, 0);
+            ctx.endRender();
+            _cacheStyle.renderTexture = rt;
+            return true;    //重绘
+        }
+        return false;
+    }
+
     /**@internal */
     _canvas(sprite: Sprite, context: Context, x: number, y: number): void {
 
@@ -340,7 +373,8 @@ export class RenderSprite {
 
         if(isbmp){
             //temp
-            RenderSprite.RenderToCacheTexture(sprite,context,x,y)
+            this._renderNextToCacheRT(sprite,context);
+            // RenderSprite.RenderToCacheTexture(sprite,context,x,y)
             var tRec = _cacheStyle.cacheRect;
             context.material = sprite.graphics.material;
             context._drawRenderTexture(_cacheStyle.renderTexture,
@@ -373,7 +407,7 @@ export class RenderSprite {
      */
     static RenderToCacheTexture(sprite:Sprite,context:Context, curx:number, cury:number){
         var _cacheStyle = sprite._cacheStyle;
-        if ( true || sprite._needRepaint() || !_cacheStyle.renderTexture || ILaya.stage.isGlobalRepaint()) {
+        if (true|| sprite._needRepaint() || !_cacheStyle.renderTexture || ILaya.stage.isGlobalRepaint()) {
             if(_cacheStyle.renderTexture){
                 _cacheStyle.renderTexture.destroy();//TODO 优化， 如果大小相同，可以重复利用
             }
@@ -390,12 +424,12 @@ export class RenderSprite {
             ctx.size(w,h);
             ctx.render2D=new Render2DSimple(rt);
             ctx.startRender();
-            let oldType = sprite._renderType;
+            //let oldType = sprite._renderType;
             //先把cache相关标记去掉，避免再次进来
-            sprite._renderType &= ~(SpriteConst.FILTERS|SpriteConst.MASK|SpriteConst.CANVAS);
+            //sprite._renderType &= ~(SpriteConst.FILTERS|SpriteConst.MASK|SpriteConst.CANVAS);
             sprite.render(ctx,-sprite.x,-sprite.y);
             //恢复渲染标记
-            sprite._renderType =oldType;
+            //sprite._renderType =oldType;
             ctx.endRender();
             _cacheStyle.renderTexture = rt;
             return true;    //重绘
@@ -501,6 +535,18 @@ export class RenderSprite {
         }
     }
 
+    _mask(sprite: Sprite, ctx: Context, x: number, y: number): void {
+        let cache = sprite._getCacheStyle();
+        debugger;
+        //在sprite上缓存两个rt是为了优化当自己不变，mask变了的情况。
+        //上面的不对，由于mask必须是sprite的子，因此mask变了必然导致sprite的重绘，所以就不缓存多个rt了
+        if(this._renderNextToCacheRT(sprite,ctx)){
+            let mask = sprite.mask;
+            let src = null;
+            mask._getCacheStyle();
+        }
+    }
+
     /**
      * @internal
      * mask的渲染。 sprite有mask属性的情况下，来渲染这个sprite
@@ -509,7 +555,7 @@ export class RenderSprite {
      * @param	x
      * @param	y
      */
-    _mask(sprite: Sprite, ctx: Context, x: number, y: number): void {
+    _mask1(sprite: Sprite, ctx: Context, x: number, y: number): void {
         let next = this._next;
         let mask = sprite.mask;
         if (mask && (!mask._getBit(NodeFlags.DISABLE_VISIBILITY) || ctx._drawingToTexture)) {
