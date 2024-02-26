@@ -8,12 +8,13 @@ import { Resource } from "../../../resource/Resource";
 import { ClassUtils } from "../../../utils/ClassUtils";
 import { BlueprintUtil } from "../../core/BlueprintUtil";
 import { TBPDeclaration, TBPDeclarationFunction, TBPDeclarationParam, TBPDeclarationProp } from "../../datas/types/BlueprintDeclaration";
-import { BPType, TBPEventProperty, TBPNode, TBPSaveData, TBPStageData, TBPVarProperty } from "../../datas/types/BlueprintTypes";
-import { BlueprintFactory } from "../BlueprintFactory";
+import { TBPEventProperty, TBPNode, TBPSaveData, TBPStageData, TBPVarProperty } from "../../datas/types/BlueprintTypes";
+import { BlueprintFactory } from "../../runtime/BlueprintFactory";
+import { BlueprintData } from "../../core/BlueprintData";
+import { LayaEnv } from "../../../../LayaEnv";
 
 export class BlueprintImpl extends Resource {
 
-    static loadedBPData: Map<string, BlueprintImpl> = new Map();
     public readonly version: number;
 
     /** @private */
@@ -264,7 +265,7 @@ export class BlueprintImpl extends Resource {
                 funcs.push(func);
             })
         }
-        
+
         if (runtime.prototype instanceof Component) {
             dec.type = "Component";
         }
@@ -272,8 +273,8 @@ export class BlueprintImpl extends Resource {
         BlueprintUtil.addCustomData(this.uuid, dec);
 
         this.allData = dataMap;
-        BlueprintImpl.loadedBPData.set(this.uuid, this);
-        let cls = BlueprintFactory.createClsNew(this.uuid, extendClass, runtime, {
+        BlueprintData.allDataMap.set(this.uuid, dataMap);
+        let cls = BlueprintFactory.createClsNew(this.uuid, LayaEnv.isPlaying, runtime, {
             id: 0,
             name: this.uuid,
             dataMap,
@@ -281,7 +282,7 @@ export class BlueprintImpl extends Resource {
         }, this.data.functions, varMap);
 
         this._cls = cls;
-        
+
         // }
         ClassUtils.regClass(this.typeName, Object);
 

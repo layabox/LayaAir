@@ -3,10 +3,10 @@ import { extendsData } from "../datas/BlueprintExtends";
 import { TBPDeclaration, TBPDeclarationFunction } from "../datas/types/BlueprintDeclaration";
 import { BPConstNode, BPType, TBPCNode, TBPNode } from "../datas/types/BlueprintTypes";
 import { BlueprintFactory } from "../runtime/BlueprintFactory";
-import { BlueprintImpl } from "../runtime/resource/BlueprintImpl";
 import { BlueprintUtil } from "./BlueprintUtil";
 
 export class BlueprintData {
+    static allDataMap:Map<string,Record<string, any>> = new Map();
     private static defFunOut = {
         name: "then",
         type: "exec",
@@ -151,9 +151,9 @@ export class BlueprintData {
 
             let data: any = null;
             if (null == data) {
-                let obj = BlueprintImpl.loadedBPData.get(node.target);
+                let obj = BlueprintData.allDataMap.get(node.target);
                 if (obj) {
-                    data = obj.allData[node.dataId];
+                    data = obj[node.dataId];
                 }
             }
 

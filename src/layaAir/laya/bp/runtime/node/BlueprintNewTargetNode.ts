@@ -1,6 +1,3 @@
-import { Browser } from "../../../utils/Browser";
-import { ClassUtils } from "../../../utils/ClassUtils";
-import { BlueprintConst } from "../../core/BlueprintConst";
 import { BlueprintUtil } from "../../core/BlueprintUtil";
 import { IRuntimeDataManger } from "../../core/interface/IRuntimeDataManger";
 import { TBPCNode } from "../../datas/types/BlueprintTypes";
@@ -15,19 +12,9 @@ export class BlueprintNewTargetNode extends BlueprintRuntimeBaseNode {
 
     parse(def: TBPCNode) {
         super.parse(def);
-        let arr = def.target.split(".");
-        if (arr.length == 1) {
-            this.cls = BlueprintUtil.getClass(arr[0]);
-        }
-        else {
-            let cls = Browser.window;
-            arr.forEach(value => {
-                cls = cls[value];
-            })
-            this.cls = cls;
-        }
+        this.cls = BlueprintUtil.getClass(def.target);
         if (!this.cls) {
-            console.warn("regclass not find " + arr[0]);
+            console.warn("regclass not find " + def.target);
         }
     }
 

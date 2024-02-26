@@ -1,15 +1,13 @@
-import { EventDispatcher } from "../../events/EventDispatcher";
-import { Browser } from "../../utils/Browser";
-import { ClassUtils } from "../../utils/ClassUtils";
 import { customData, extendsData } from "../datas/BlueprintExtends";
 import { TBPDeclaration } from "../datas/types/BlueprintDeclaration";
-import { BPType, TBPCNode, TBPNode, TBPSaveData, TBPStageData, TBPVarProperty } from "../datas/types/BlueprintTypes";
+import { TBPNode } from "../datas/types/BlueprintTypes";
 import { BlueprintData } from "./BlueprintData";
 export class BlueprintUtil {
+    static classMap: any = {};
 
     static bpData: BlueprintData;
 
-    static eventManger: EventDispatcher = new EventDispatcher();
+    static onfinishCallbacks: Record<number, [Function,any,any[]]> = {};
 
     static CustomClassFinish: string = "CustomClassFinish";
 
@@ -35,7 +33,11 @@ export class BlueprintUtil {
     static addCustomData(name: string, data: TBPDeclaration) {
         customData[name] = data;
         BlueprintUtil.customModify = true;
-        BlueprintUtil.eventManger.event(BlueprintUtil.CustomClassFinish, name);
+        for (let key in this.onfinishCallbacks) {
+            let [fun,caller, args] = this.onfinishCallbacks[key];
+            let realArgs = args ? [name, ...args] : [name];
+            fun.apply(caller, realArgs);
+        }
     }
 
     static getDeclaration(name: string): TBPDeclaration {
@@ -51,7 +53,11 @@ export class BlueprintUtil {
         }
     }
     static getClass(ext: any) {
-        return ClassUtils.getClass(ext) || Browser.window.Laya[ext];
+        return this.classMap[ext];
+    }
+
+    static regClass(name: string, cls: any) {
+        this.classMap[name] = cls;
     }
 
 }
