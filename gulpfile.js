@@ -42,7 +42,6 @@ const packsDef = [{
             './layaAir/laya/media/**/*.*',
             './layaAir/laya/net/**/*.*',
             "./layaAir/laya/bp/**/*.*",
-            "./layaAir/laya/bpLayaLink/**/*.*",
             "./layaAir/laya/bt/**/*.*",
 
             // './layaAir/laya/RenderEngine/**/*.*',

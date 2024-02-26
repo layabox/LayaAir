@@ -1,7 +1,7 @@
-import { BlueprintUtil } from "../bp/core/BlueprintUtil";
-import { TBPDeclaration, TBPDeclarationType, BPDecoratorsOptionClass, BPDecoratorsOptionProp, TBPDeclarationProp, BPDecoratorsOptionFunction, TBPDeclarationConstructor, TBPDeclarationFunction } from "../bp/datas/types/BlueprintDeclaration";
-import { BPType } from "../bp/datas/types/BlueprintTypes";
-import { Component } from "../components/Component";
+import { BlueprintUtil } from "../core/BlueprintUtil";
+import { TBPDeclaration, TBPDeclarationType, BPDecoratorsOptionClass, BPDecoratorsOptionProp, TBPDeclarationProp, BPDecoratorsOptionFunction, TBPDeclarationConstructor, TBPDeclarationFunction } from "../datas/types/BlueprintDeclaration";
+import { BPType } from "../datas/types/BlueprintTypes";
+import { Component } from "../../components/Component";
 
 var bpUserMap: Map<Function, TBPDeclaration> = new Map;
 

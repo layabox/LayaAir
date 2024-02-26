@@ -20,7 +20,7 @@ import { BlueprintCustomFunStart } from "./node/BlueprintCustomFunStart";
 import { BlueprintCustomFunReturn, BlueprintCustomFunReturnContext } from "./node/BlueprintCustomFunReturn";
 import { BluePrintAsNode } from "./node/BlueprintAsNode";
 import { BluePrintBlockNode } from "./node/BlueprintBlockNode";
-import { BPMathLib } from "../BPMathLib";
+import { BPMathLib } from "../export/BPMathLib";
 import { BlueprintGetTempVarNode } from "./node/BlueprintGetTempVarNode";
 import { BlueprintSetTempVarNode } from "./node/BlueprintSetTempVarNode";
 import { BPArray } from "../export/BPArray";

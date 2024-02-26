@@ -1,11 +1,11 @@
-import { Laya } from "../../Laya";
-import { JsonBinRead } from "../net/util/JsonBinRead";
-import { BlueprintConst } from "../bp/core/BlueprintConst";
-import { BlueprintUtil } from "../bp/core/BlueprintUtil";
-import { extendsData } from "../bp/datas/BlueprintExtends";
-import { BlueprintFactory } from "../bp/runtime/BlueprintFactory";
-import { ClassUtils } from "../utils/ClassUtils";
-import { Browser } from "../utils/Browser";
+import { Laya } from "../../../Laya";
+import { JsonBinRead } from "../../net/util/JsonBinRead";
+import { BlueprintConst } from "../core/BlueprintConst";
+import { BlueprintUtil } from "../core/BlueprintUtil";
+import { extendsData } from "../datas/BlueprintExtends";
+import { BlueprintFactory } from "../runtime/BlueprintFactory";
+import { ClassUtils } from "../../utils/ClassUtils";
+import { Browser } from "../../utils/Browser";
 
 export class BlueprintCreateUtil{
 

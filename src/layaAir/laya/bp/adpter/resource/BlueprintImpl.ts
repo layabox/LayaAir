@@ -1,17 +1,17 @@
 
-import { Component } from "../../components/Component";
-import { HierarchyLoader } from "../../loaders/HierarchyLoader";
-import { ILoadTask } from "../../net/Loader";
-import { URL } from "../../net/URL";
-import { IHierarchyParserAPI } from "../../resource/PrefabImpl";
-import { Resource } from "../../resource/Resource";
-import { ClassUtils } from "../../utils/ClassUtils";
-import { BlueprintUtil } from "../../bp/core/BlueprintUtil";
-import { TBPDeclaration, TBPDeclarationFunction, TBPDeclarationParam, TBPDeclarationProp } from "../../bp/datas/types/BlueprintDeclaration";
-import { TBPEventProperty, TBPNode, TBPSaveData, TBPStageData, TBPVarProperty } from "../../bp/datas/types/BlueprintTypes";
-import { BlueprintFactory } from "../../bp/runtime/BlueprintFactory";
-import { BlueprintData } from "../../bp/core/BlueprintData";
-import { LayaEnv } from "../../../LayaEnv";
+import { Component } from "../../../components/Component";
+import { HierarchyLoader } from "../../../loaders/HierarchyLoader";
+import { ILoadTask } from "../../../net/Loader";
+import { URL } from "../../../net/URL";
+import { IHierarchyParserAPI } from "../../../resource/PrefabImpl";
+import { Resource } from "../../../resource/Resource";
+import { ClassUtils } from "../../../utils/ClassUtils";
+import { BlueprintUtil } from "../../core/BlueprintUtil";
+import { TBPDeclaration, TBPDeclarationFunction, TBPDeclarationParam, TBPDeclarationProp } from "../../datas/types/BlueprintDeclaration";
+import { TBPEventProperty, TBPNode, TBPSaveData, TBPStageData, TBPVarProperty } from "../../datas/types/BlueprintTypes";
+import { BlueprintFactory } from "../../runtime/BlueprintFactory";
+import { BlueprintData } from "../../core/BlueprintData";
+import { LayaEnv } from "../../../../LayaEnv";
 
 export class BlueprintImpl extends Resource {
 
