@@ -5,7 +5,7 @@ import { ILoadTask, IResourceLoader, Loader } from "../../../net/Loader";
 import { URL } from "../../../net/URL";
 import { HierarchyLoader } from "../../../loaders/HierarchyLoader";
 
-export class BlueprintLoaer implements IResourceLoader{
+export class BlueprintLoader implements IResourceLoader{
 
     load(task: ILoadTask):Promise<BlueprintImpl>{
         return task.loader.fetch(task.url,"json",task.progress.createCallback(0.2),task.options).then(data =>{
@@ -32,4 +32,4 @@ export class BlueprintLoaer implements IResourceLoader{
 }
 
 
-Loader.registerLoader([BlueprintConst.EXT],BlueprintLoaer, BlueprintConst.TYPE); 
+Loader.registerLoader([BlueprintConst.EXT],BlueprintLoader, BlueprintConst.TYPE); 
