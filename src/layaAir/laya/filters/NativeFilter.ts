@@ -60,7 +60,7 @@ export class NativeFilter implements IFilter {
             var source: any = null;
             var out: any = sprite._cacheStyle.filterCache || null;
             if (!out || sprite.getRepaint() != 0) {
-                tIsHaveGlowFilter = sprite._isHaveGlowFilter();
+                tIsHaveGlowFilter = false;//sprite._hasGlowFilter();
                 //glow需要扩展边缘
                 if (tIsHaveGlowFilter) {
                     tPadding = 50;
@@ -134,7 +134,7 @@ export class NativeFilter implements IFilter {
             } else {
 
                 // tIsHaveGlowFilter = sprite._cacheStyle.hasGlowFilter || false;
-                tIsHaveGlowFilter = sprite._isHaveGlowFilter() || false;
+                tIsHaveGlowFilter = false;//sprite._hasGlowFilter() || false;
                 if (tIsHaveGlowFilter) {
                     tPadding = 50;
                     tHalfPadding = 25;

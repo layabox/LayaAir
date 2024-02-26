@@ -36,6 +36,8 @@ export class CacheStyle {
     /**当前使用的canvas*/
     canvas: HTMLCanvas;
     renderTexture:RenderTexture2D;
+    renderTexOffx=0;
+    renderTexOffy=0;
     //TODO:webgl是否还需要
     /**滤镜数据*/
     filterCache: any;

@@ -105,7 +105,9 @@ export class Context {
     /**@internal */
     _submits: any = null;
     /**@internal */
-    _curSubmit: any = null;
+    stopMerge=true;     //如果用设置_curSubmit的方法，可能导致渲染错误，因为_curSubmit保存上次的信息，不能任意改
+    /**@internal */
+    _curSubmit: any = SubmitBase.RENDERBASE;
     /**@internal */
     _submitKey = new SubmitKey();	//当前将要使用的设置。用来跟上一次的_curSubmit比较
 
@@ -230,6 +232,10 @@ export class Context {
 
     set render2D(render:Render2D){
         this._render2D = render;
+    }
+
+    get render2D(){
+        return this._render2D;
     }
 
     set material(value: Material) {
@@ -540,7 +546,6 @@ export class Context {
         this._submits.length = 0;
         this._submits._length = 0;
         this._submits = null;
-        this._curSubmit = null;
         this._path = null;
         this._save = null;
         this.sprite = null;
@@ -588,7 +593,6 @@ export class Context {
         this._alpha = 1.0;
         this._nBlendType = 0;
         this._clipRect = Context.MAXCLIPRECT;
-        this._curSubmit = SubmitBase.RENDERBASE;
         SubmitBase.RENDERBASE._ref = 0xFFFFFF;
         SubmitBase.RENDERBASE._numEle = 0;
         this._fillStyle = this._strokeStyle = DrawStyle.DEFAULT;
@@ -784,7 +788,7 @@ export class Context {
         }
         if (lastBlend != this._nBlendType) {
             //阻止合并
-            this._curSubmit = SubmitBase.RENDERBASE;
+            this.stopMerge=true;
         }
     }
 
@@ -818,7 +822,7 @@ export class Context {
             submit && (
                 submit._key.submitType === SubmitBase.KEY_DRAWTEXTURE && 
                 submit._key.blendShader === this._nBlendType &&
-                this.isSameClipInfo(submit))
+                !this.isStopMerge(submit))
 
         if(!sameKey){
             this._drawToRender2D(this._curSubmit);
@@ -963,7 +967,7 @@ export class Context {
         SaveBase.save(this, SaveBase.TYPE_COLORFILTER, this, true);
         //_shader2D.filters = value;
         this._colorFiler = filter;
-        this._curSubmit = SubmitBase.RENDERBASE;
+        this.stopMerge=true;
         //_reCalculateBlendShader();
     }
 
@@ -1004,7 +1008,7 @@ export class Context {
 
     /**@internal */
     _drawRenderTexture(tex: RenderTexture2D, x: number, y: number, width: number, height: number, m: Matrix, alpha: number, uv: any[], color = 0xffffffff): boolean {
-        return this._inner_drawTexture(<Texture>(tex as any), -1, x, y, width, height, m, uv, alpha, false, color);
+        return this._inner_drawTexture(tex, -1, x, y, width, height, m, uv, alpha, false, color);
     }
 
     /**@internal */
@@ -1037,9 +1041,9 @@ export class Context {
         }
     }
 
-
-    private isSameClipInfo(submit: SubmitBase): boolean {
-        return (submit.clipInfoID === this._clipInfoID);
+    //通用的部分的比较
+    private isStopMerge(submit:SubmitBase){
+        return this.stopMerge || (submit.clipInfoID !== this._clipInfoID);
     }
 
     drawCallOptimize(enable: boolean): boolean {
@@ -1083,12 +1087,12 @@ export class Context {
      * @param	uv
      * @return
      */
-    _inner_drawTexture(tex: Texture, imgid: number, x: number, y: number, width: number, height: number, m: Matrix|null, uv: ArrayLike<number> | null, alpha: number, lastRender: boolean, color: number): boolean {
+    _inner_drawTexture(tex: Texture|RenderTexture2D, imgid: number, x: number, y: number, width: number, height: number, m: Matrix|null, uv: ArrayLike<number> | null, alpha: number, lastRender: boolean, color: number): boolean {
         if (width <= 0 || height <= 0) {
             return false;
         }
         var preKey = this._curSubmit._key;
-        uv = uv || tex._uv
+        uv = uv || (tex as Texture)._uv
         //为了优化，如果上次是画三角形，并且贴图相同，会认为他们是一组的，把这个也转成三角形，以便合并。
         //因为好多动画是drawTexture和drawTriangle混用的
         if (preKey.submitType === SubmitBase.KEY_TRIANGLES && preKey.other === imgid) {
@@ -1097,7 +1101,7 @@ export class Context {
             this._drawTriUseAbsMatrix = true;
             var tuv = this._tempUV;
             tuv[0] = uv[0]; tuv[1] = uv[1]; tuv[2] = uv[2]; tuv[3] = uv[3]; tuv[4] = uv[4]; tuv[5] = uv[5]; tuv[6] = uv[6]; tuv[7] = uv[7];
-            this.drawTriangles(tex, 0, 0, tv, tuv, this._drawTexToDrawTri_Index, m || this._curMat, alpha, null, null);//用tuv而不是uv会提高效率
+            this.drawTriangles(tex as Texture, 0, 0, tv, tuv, this._drawTexToDrawTri_Index, m || this._curMat, alpha, null, null);//用tuv而不是uv会提高效率
             this._drawTriUseAbsMatrix = false;
             return true;
         }
@@ -1125,21 +1129,21 @@ export class Context {
 
         //lastRender = false;
         if (lastRender) {
-            this._charSubmitCache.add(this, tex, imgid, ops, uv, rgba);
+            this._charSubmitCache.add(this, tex as Texture, imgid, ops, uv, rgba);
             return true;
         }
 
         this._drawCount++;
 
         var sameKey = (imgid >= 0 && preKey.submitType === SubmitBase.KEY_DRAWTEXTURE && preKey.other === imgid) &&
-            this.isSameClipInfo(this._curSubmit) &&
+            !this.isStopMerge(this._curSubmit) &&
             this._mesh.vertexNum + 4 < Context._MAXVERTNUM 
 
         if(!sameKey){
             this._drawToRender2D(this._curSubmit);
             this._mesh = this._meshQuatTex;
         }
-        this._lastTex = tex;
+        this._lastTex = tex as Texture;
 
         if (!sameKey) {
             let shaderValue = Value2D.create(RenderSpriteData.Texture2D);
@@ -1152,7 +1156,6 @@ export class Context {
         (this._mesh as MeshQuadTexture).addQuad(ops, uv, rgba, true);
         submit._numEle += 6;
         return true;
-
     }
 
     private fillShaderValue(shaderValue:Value2D){
@@ -1263,7 +1266,7 @@ export class Context {
      * 例如切换rt的时候
      */
     breakNextMerge(): void {
-        this._curSubmit = SubmitBase.RENDERBASE;
+        this.stopMerge=true;
     }
 
     //TODO:coverage
@@ -1369,14 +1372,6 @@ export class Context {
         if (!canvas) return;
         var src: Context = canvas.context;
         if (src._targets) {
-            //应用并清空canvas中的指令。如果内容需要重画，RenderSprite会给他重新加入submit
-            if (src._submits._length > 0) {
-                let submit = SubmitCMD.create([src, src._targets], this._flushToTarget, this);
-                this._submits[this._submits._length++] = submit;
-            }
-            //在这之前就已经渲染出结果了。
-            this._drawRenderTexture(src._targets, x, y, width, height, null, 1.0, RenderTexture2D.flipyuv);
-            this._curSubmit = SubmitBase.RENDERBASE;
         } else {
             var canv = <WebGLCacheAsNormalCanvas>(canvas as unknown);
             if (canv.touches) {
@@ -1422,7 +1417,7 @@ export class Context {
             return true;
         }
         //暂时drawTarget不合并
-        this._curSubmit = SubmitBase.RENDERBASE
+        this.stopMerge=true;
         return false;
     }
 
@@ -1629,6 +1624,8 @@ export class Context {
     endRender(){
         this.flush();
         this._render2D.renderEnd();
+        this._curSubmit = SubmitBase.RENDERBASE;
+
     }
 
     //合并mesh之后，最后一点数据还没有渲染，这里强制渲染
@@ -1687,7 +1684,7 @@ export class Context {
         var tPath = this._getPath();
         var submit = this._curSubmit;
         var sameKey = (submit._key.submitType === SubmitBase.KEY_VG && submit._key.blendShader === this._nBlendType) &&
-            this.isSameClipInfo(submit);
+            !this.isStopMerge(submit);
 
         if (!sameKey) {
             this._drawToRender2D(submit);
@@ -1787,7 +1784,7 @@ export class Context {
         var tPath = this._getPath();
         var submit = this._curSubmit;
         var sameKey = (submit._key.submitType === SubmitBase.KEY_VG && submit._key.blendShader === this._nBlendType) &&
-                        this.isSameClipInfo(submit);
+                        !this.isStopMerge(submit);
 
         if (!sameKey) {
             this._drawToRender2D(this._curSubmit);

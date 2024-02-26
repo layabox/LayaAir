@@ -215,7 +215,7 @@ export class Sprite extends Node {
         this._getCacheStyle().userSetCache = value;
 
         if (this.mask && value === 'normal') return;
-        this._checkCanvasEnable();
+        //this._checkCanvasEnable();
         this.repaint();
     }
 
@@ -1281,11 +1281,11 @@ export class Sprite extends Node {
     }
 
     /**滤镜集合。可以设置多个滤镜组合。*/
-    get filters(): any[] {
+    get filters(): Filter[] {
         return this._cacheStyle.filters;
     }
 
-    set filters(value: any[]) {
+    set filters(value: Filter[]) {
         value && value.length === 0 && (value = null);
         this._getCacheStyle().filters = value ? value.slice() : null;
         if (value)
@@ -1297,37 +1297,15 @@ export class Sprite extends Node {
             if (!this._getBit(NodeFlags.DISPLAY)) this._setBitUp(NodeFlags.DISPLAY);
             if (!(value.length == 1 && (value[0] instanceof ColorFilter))) {
                 this._getCacheStyle().cacheForFilters = true;
-                this._checkCanvasEnable();
+                //this._checkCanvasEnable();
             }
         } else {
             if (this._cacheStyle.cacheForFilters) {
                 this._cacheStyle.cacheForFilters = false;
-                this._checkCanvasEnable();
+                //this._checkCanvasEnable();
             }
         }
         this.repaint();
-    }
-
-    /**
-     * @internal
-     * 查看当前原件中是否包含发光滤镜。
-     * @return 一个 Boolean 值，表示当前原件中是否包含发光滤镜。
-     */
-    _isHaveGlowFilter(): boolean {
-        var i: number, len: number;
-        if (this.filters) {
-            for (i = 0; i < this.filters.length; i++) {
-                if (this.filters[i].type == Filter.GLOW) {
-                    return true;
-                }
-            }
-        }
-        for (i = 0, len = this._children.length; i < len; i++) {
-            if ((<Sprite>this._children[i])._isHaveGlowFilter()) {
-                return true;
-            }
-        }
-        return false;
     }
 
     /**
@@ -1512,6 +1490,9 @@ export class Sprite extends Node {
             this._repaint |= type;
             this.parentRepaint(type);
         }
+        if(this._cacheStyle){
+            this._cacheStyle.renderTexture=null;//TODO 重用
+        }
         if (this._cacheStyle && this._cacheStyle.maskParent) {
             this._cacheStyle.maskParent.repaint(type);
         }
@@ -1587,7 +1568,7 @@ export class Sprite extends Node {
 
         this._getCacheStyle().mask = value;
         this._setMask(value);
-        this._checkCanvasEnable();
+        //this._checkCanvasEnable();
 
         if (value) {
             value._getCacheStyle().maskParent = this;
