@@ -590,11 +590,11 @@ export class RenderSprite {
             rtx = x1; rty = y1;
             let rt = new RenderTexture2D(width1,height1,RenderTargetFormat.R8G8B8A8);
             let ctx = new Context();
-            ctx.size(spRect.width,spRect.height);
+            ctx.size(width1,height1);
             ctx.render2D= new Render2DSimple(rt);
             ctx.startRender();
             //渲染节点本身.由于spRect.xy是指贴图相对于节点的位置，所以需要取反表示在贴图空间的什么位置画出节点
-            this._next._fun(sprite,ctx, -spRect.x, -spRect.y);
+            this._next._fun(sprite,ctx, -x1, -y1);
 
             //渲染mask
             if(RenderSprite.RenderToCacheTexture(mask,null,0,0)){                
@@ -602,13 +602,16 @@ export class RenderSprite {
             let maskRT = maskcache.renderTexture;
             ctx.globalCompositeOperation='mask';
             ctx._drawRenderTexture(maskRT,
-                mask.x+maskRect.x-spRect.x,     //画到贴图空间，要先把mask贴图继承的空白减掉，然后再把sprite的空白减掉
-                mask.y+maskRect.y-spRect.y,
+                mask.x-x1+maskRect.x,     //x1作为原点，所以减去x1,然后加空白
+                mask.y-y1+maskRect.y,
                 maskRect.width,maskRect.height,null,1,
                 [0,1,1,1,1,0,0,0])
 
             ctx.endRender();
             cache.renderTexture = rt;
+            cache.cacheRect.x=x1; cache.cacheRect.y=y1;
+            cache.cacheRect.width=rt.width;
+            cache.cacheRect.height=rt.height;
     }
 
         let tex = cache.renderTexture;
@@ -626,7 +629,7 @@ export class RenderSprite {
         //     shadersv);
 
         ctx._drawRenderTexture(tex,
-            x + rect.x, y + rect.y, rect.width, rect.height,null,1,[0,1, 1,1, 1,0, 0,0])        
+            x + rect.x, y + rect.y, tex.width, tex.height,null,1,[0,1, 1,1, 1,0, 0,0])        
 
     }
 
