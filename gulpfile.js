@@ -22,201 +22,201 @@ const samplesBathURL = './src/samples';
 
 //编译新的库文件只需要在packsDef中配置一下新的库就可以了
 const packsDef = [{
-        'libName': "core",
-        'input': [
-            './layaAir/Decorators.ts',
-            './layaAir/Config.ts',
-            './layaAir/laya/Const.ts',
-            './layaAir/laya/ModuleDef.ts',
-            './layaAir/ILaya.ts',
-            './layaAir/Laya.ts',
-            './layaAir/LayaEnv.ts',
-            './layaAir/laya/components/**/*.*',
-            './layaAir/laya/display/**/*.*',
-            './layaAir/laya/effect/**/*.*',
-            './layaAir/laya/events/**/*.*',
-            './layaAir/laya/filters/**/*.*',
-            './layaAir/laya/layagl/**/*.*',
-            './layaAir/laya/loaders/**/*.*',
-            './layaAir/laya/maths/**/*.*',
-            './layaAir/laya/media/**/*.*',
-            './layaAir/laya/net/**/*.*',
+    'libName': "core",
+    'input': [
+        './layaAir/Decorators.ts',
+        './layaAir/Config.ts',
+        './layaAir/laya/Const.ts',
+        './layaAir/laya/ModuleDef.ts',
+        './layaAir/ILaya.ts',
+        './layaAir/Laya.ts',
+        './layaAir/LayaEnv.ts',
+        './layaAir/laya/components/**/*.*',
+        './layaAir/laya/display/**/*.*',
+        './layaAir/laya/effect/**/*.*',
+        './layaAir/laya/events/**/*.*',
+        './layaAir/laya/filters/**/*.*',
+        './layaAir/laya/layagl/**/*.*',
+        './layaAir/laya/loaders/**/*.*',
+        './layaAir/laya/maths/**/*.*',
+        './layaAir/laya/media/**/*.*',
+        './layaAir/laya/net/**/*.*',
 
-            // './layaAir/laya/RenderEngine/**/*.*',
-            './layaAir/laya/RenderEngine/RenderEngine/NativeGLEngine/**/*.*',
-            './layaAir/laya/RenderEngine/RenderEngine/WebGLEngine/**/*.*',
-            // './layaAir/laya/RenderEngine/RenderEngine/WebGPUEngine/**/*.*',
-            './layaAir/laya/RenderEngine/RenderEnum/**/*.*',
-            './layaAir/laya/RenderEngine/RenderInterface/**/*.*',
-            './layaAir/laya/RenderEngine/RenderShader/**/*.*',
-            './layaAir/laya/RenderEngine/*.*',
+        // './layaAir/laya/RenderEngine/**/*.*',
+        './layaAir/laya/RenderEngine/RenderEngine/NativeGLEngine/**/*.*',
+        './layaAir/laya/RenderEngine/RenderEngine/WebGLEngine/**/*.*',
+        // './layaAir/laya/RenderEngine/RenderEngine/WebGPUEngine/**/*.*',
+        './layaAir/laya/RenderEngine/RenderEnum/**/*.*',
+        './layaAir/laya/RenderEngine/RenderInterface/**/*.*',
+        './layaAir/laya/RenderEngine/RenderShader/**/*.*',
+        './layaAir/laya/RenderEngine/*.*',
 
-            './layaAir/laya/renders/**/*.*',
-            './layaAir/laya/resource/**/*.*',
-            './layaAir/laya/system/**/*.*',
-            './layaAir/laya/utils/**/*.*',
-            './layaAir/laya/html/**/*.*',
-            './layaAir/laya/webgl/**/*.*',
-            './layaAir/Config3D.ts',
+        './layaAir/laya/renders/**/*.*',
+        './layaAir/laya/resource/**/*.*',
+        './layaAir/laya/system/**/*.*',
+        './layaAir/laya/utils/**/*.*',
+        './layaAir/laya/html/**/*.*',
+        './layaAir/laya/webgl/**/*.*',
+        './layaAir/Config3D.ts',
 
 
-        ],
-    },
-    {
-        'libName': "d3",
-        'input': [
-            './layaAir/laya/d3/animation/**/*.*',
-            './layaAir/laya/d3/component/**/*.*',
-            './layaAir/laya/d3/core/**/*.*',
-            './layaAir/laya/d3/depthMap/*.*',
-            './layaAir/laya/d3/graphics/**/*.*',
-            './layaAir/laya/d3/loaders/**/*.*',
-            './layaAir/laya/d3/math/**/*.*',
-            './layaAir/laya/d3/resource/**/*.*',
-            './layaAir/laya/d3/shader/**/*.*',
-            './layaAir/laya/d3/shadowMap/**/*.*',
-            './layaAir/laya/d3/text/**/*.*',
-            './layaAir/laya/d3/utils/**/*.*',
-            './layaAir/laya/d3/WebXR/**/*.*',
-            './layaAir/laya/d3/Input3D.ts',
-            './layaAir/laya/d3/MouseTouch.ts',
-            './layaAir/laya/d3/Touch.ts',
-            './layaAir/laya/d3/ModuleDef.ts',
-            //'./layaAir/laya/d3/RenderObjs/**/*.*',
-            './layaAir/laya/d3/RenderObjs/NativeOBJ/*.*',
-            './layaAir/laya/d3/RenderObjs/RenderObj/*.*',
-            './layaAir/laya/d3/RenderObjs/IRenderEngine3DOBJFactory.ts',
-            './layaAir/laya/d3/RenderObjs/Laya3DRender.ts',
-            './layaAir/laya/d3/ModuleDef.ts',
-            './layaAir/ILaya3D.ts',
-            './layaAir/Laya3D.ts',
-            // interface and enum
-            './layaAir/laya/Physics3D/interface/**/*.*',
-            './layaAir/laya/Physics3D/physicsEnum/**/*.*',
-            './layaAir/laya/d3/physics/HitResult.ts',
-            './layaAir/laya/d3/physics/PhysicsSettings.ts',
-            './layaAir/laya/d3/physics/Collision.ts',
-            './layaAir/laya/d3/physics/ContactPoint.ts',
-        ],
-    },
-    {
-        'libName': "physics3D",
-        'input': [
-            './layaAir/laya/d3/physics/constraints/**/*.*',
-            './layaAir/laya/d3/physics/shape/**/*.*',
-            './layaAir/laya/d3/physics/ModuleDef.ts',
-            './layaAir/laya/d3/physics/CharacterController.ts',
-            './layaAir/laya/d3/physics/Constraint3D.ts',
-            './layaAir/laya/d3/physics/PhysicsCollider.ts',
-            './layaAir/laya/d3/physics/PhysicsColliderComponent.ts',
-            './layaAir/laya/d3/physics/PhysicsUpdateList.ts',
-            './layaAir/laya/d3/physics/RaycastVehicle.ts',
-            './layaAir/laya/d3/physics/RaycastWheel.ts',
-            './layaAir/laya/d3/physics/Rigidbody3D.ts',
-        ],
-    },
-    {
-        'libName': "gltf",
-        'input': [
-            './layaAir/laya/gltf/**/*.*',
-        ],
-    },
-    {
-        'libName': "bullet",
-        'input': [
-            // use this compile order to solve C_D problem
-            './layaAir/laya/Physics3D/Bullet/btPhysicsCreateUtil.ts',
-            './layaAir/laya/Physics3D/Bullet/Collider/**/*.*',
-            './layaAir/laya/Physics3D/Bullet/Shape/**/*.*',
-            './layaAir/laya/Physics3D/Bullet/Joint/**/*.*',
-            './layaAir/laya/Physics3D/Bullet/btInteractive.ts',
-            './layaAir/laya/Physics3D/Bullet/CollisionTool.ts',
-            './layaAir/laya/Physics3D/Bullet/btPhysicsManager.ts',
-            './layaAir/laya/Physics3D/Bullet/**/*.*',
-        ],
-    },
-    {
-        'libName': "physX",
-        'input': [
-            './layaAir/laya/Physics3D/PhysX/pxPhysicsCreateUtil.ts',
-            './layaAir/laya/Physics3D/PhysX/Collider/**/*.*',
-            './layaAir/laya/Physics3D/PhysX/Shape/**/*.*',
-            './layaAir/laya/Physics3D/PhysX/Joint/**/*.*',
-            './layaAir/laya/Physics3D/PhysX/pxPhysicsManager.ts',
-            './layaAir/laya/Physics3D/PhysX/pxPhysicsMaterial.ts',
-            './layaAir/laya/Physics3D/PhysX/**/*.*',
-        ],
-    },
-    {
-        'libName': 'device',
-        'input': [
-            './layaAir/laya/device/**/*.*'
-        ],
-    },
-    {
-        'libName': 'tiledmap',
-        'input': [
-            './layaAir/laya/map/**/*.*'
-        ],
-    },
-    {
-        'libName': 'physics2D',
-        'input': [
-            './layaAir/laya/physics/Collider2D/*.*',
-            './layaAir/laya/physics/joint/*.*',
-            './layaAir/laya/physics/IPhysiscs2DFactory.ts',
-            './layaAir/laya/physics/ModuleDef.ts',
-            './layaAir/laya/physics/Physics2D.ts',
-            './layaAir/laya/physics/Physics2DOption.ts',
-            './layaAir/laya/physics/RigidBody.ts',
-            './layaAir/laya/physics/RigidBody2DInfo.ts',
-            './layaAir/laya/physics/Physics2DDebugDraw.ts',
-        ],
-    },
+    ],
+},
+{
+    'libName': "d3",
+    'input': [
+        './layaAir/laya/d3/animation/**/*.*',
+        './layaAir/laya/d3/component/**/*.*',
+        './layaAir/laya/d3/core/**/*.*',
+        './layaAir/laya/d3/depthMap/*.*',
+        './layaAir/laya/d3/graphics/**/*.*',
+        './layaAir/laya/d3/loaders/**/*.*',
+        './layaAir/laya/d3/math/**/*.*',
+        './layaAir/laya/d3/resource/**/*.*',
+        './layaAir/laya/d3/shader/**/*.*',
+        './layaAir/laya/d3/shadowMap/**/*.*',
+        './layaAir/laya/d3/text/**/*.*',
+        './layaAir/laya/d3/utils/**/*.*',
+        './layaAir/laya/d3/WebXR/**/*.*',
+        './layaAir/laya/d3/Input3D.ts',
+        './layaAir/laya/d3/MouseTouch.ts',
+        './layaAir/laya/d3/Touch.ts',
+        './layaAir/laya/d3/ModuleDef.ts',
+        //'./layaAir/laya/d3/RenderObjs/**/*.*',
+        './layaAir/laya/d3/RenderObjs/NativeOBJ/*.*',
+        './layaAir/laya/d3/RenderObjs/RenderObj/*.*',
+        './layaAir/laya/d3/RenderObjs/IRenderEngine3DOBJFactory.ts',
+        './layaAir/laya/d3/RenderObjs/Laya3DRender.ts',
+        './layaAir/laya/d3/ModuleDef.ts',
+        './layaAir/ILaya3D.ts',
+        './layaAir/Laya3D.ts',
+        // interface and enum
+        './layaAir/laya/Physics3D/interface/**/*.*',
+        './layaAir/laya/Physics3D/physicsEnum/**/*.*',
+        './layaAir/laya/d3/physics/HitResult.ts',
+        './layaAir/laya/d3/physics/PhysicsSettings.ts',
+        './layaAir/laya/d3/physics/Collision.ts',
+        './layaAir/laya/d3/physics/ContactPoint.ts',
+    ],
+},
+{
+    'libName': "physics3D",
+    'input': [
+        './layaAir/laya/d3/physics/constraints/**/*.*',
+        './layaAir/laya/d3/physics/shape/**/*.*',
+        './layaAir/laya/d3/physics/ModuleDef.ts',
+        './layaAir/laya/d3/physics/CharacterController.ts',
+        './layaAir/laya/d3/physics/Constraint3D.ts',
+        './layaAir/laya/d3/physics/PhysicsCollider.ts',
+        './layaAir/laya/d3/physics/PhysicsColliderComponent.ts',
+        './layaAir/laya/d3/physics/PhysicsUpdateList.ts',
+        './layaAir/laya/d3/physics/RaycastVehicle.ts',
+        './layaAir/laya/d3/physics/RaycastWheel.ts',
+        './layaAir/laya/d3/physics/Rigidbody3D.ts',
+    ],
+},
+{
+    'libName': "gltf",
+    'input': [
+        './layaAir/laya/gltf/**/*.*',
+    ],
+},
+{
+    'libName': "bullet",
+    'input': [
+        // use this compile order to solve C_D problem
+        './layaAir/laya/Physics3D/Bullet/btPhysicsCreateUtil.ts',
+        './layaAir/laya/Physics3D/Bullet/Collider/**/*.*',
+        './layaAir/laya/Physics3D/Bullet/Shape/**/*.*',
+        './layaAir/laya/Physics3D/Bullet/Joint/**/*.*',
+        './layaAir/laya/Physics3D/Bullet/btInteractive.ts',
+        './layaAir/laya/Physics3D/Bullet/CollisionTool.ts',
+        './layaAir/laya/Physics3D/Bullet/btPhysicsManager.ts',
+        './layaAir/laya/Physics3D/Bullet/**/*.*',
+    ],
+},
+{
+    'libName': "physX",
+    'input': [
+        './layaAir/laya/Physics3D/PhysX/pxPhysicsCreateUtil.ts',
+        './layaAir/laya/Physics3D/PhysX/Collider/**/*.*',
+        './layaAir/laya/Physics3D/PhysX/Shape/**/*.*',
+        './layaAir/laya/Physics3D/PhysX/Joint/**/*.*',
+        './layaAir/laya/Physics3D/PhysX/pxPhysicsManager.ts',
+        './layaAir/laya/Physics3D/PhysX/pxPhysicsMaterial.ts',
+        './layaAir/laya/Physics3D/PhysX/**/*.*',
+    ],
+},
+{
+    'libName': 'device',
+    'input': [
+        './layaAir/laya/device/**/*.*'
+    ],
+},
+{
+    'libName': 'tiledmap',
+    'input': [
+        './layaAir/laya/map/**/*.*'
+    ],
+},
+{
+    'libName': 'physics2D',
+    'input': [
+        './layaAir/laya/physics/Collider2D/*.*',
+        './layaAir/laya/physics/joint/*.*',
+        './layaAir/laya/physics/IPhysiscs2DFactory.ts',
+        './layaAir/laya/physics/ModuleDef.ts',
+        './layaAir/laya/physics/Physics2D.ts',
+        './layaAir/laya/physics/Physics2DOption.ts',
+        './layaAir/laya/physics/RigidBody.ts',
+        './layaAir/laya/physics/RigidBody2DInfo.ts',
+        './layaAir/laya/physics/Physics2DDebugDraw.ts',
+    ],
+},
 
-    {
-        'libName': 'box2D',
-        'input': [
-            './layaAir/laya/physics/factory/physics2DwasmFactory.ts',
-        ],
-    },
-    {
-        'libName': 'box2D.wasm',
-        'input': [
-            './layaAir/laya/physics/factory/physics2DwasmFactory.ts',
-        ],
-    },
-    {
-        'libName': 'ui',
-        'input': [
-            './layaAir/laya/ui/**/*.*',
-            './layaAir/UIConfig.ts',
-        ],
-    },
-    {
-        'libName': 'spine',
-        'input': [
-            './layaAir/laya/spine/**/*.*'
-        ],
-    },
-    {
-        'libName': 'ani',
-        'input': [
-            './layaAir/laya/ani/**/*.*'
-        ],
-    },
-    {
-        'libName': 'debugtool',
-        'input': [
-            './extensions/debug/**/*.*'
-        ],
-    },
-    {
-        "libName": 'performancetool',
-        'input': [
-            './extensions/performanceTool/**/*.*'
-        ],
-    }
+{
+    'libName': 'box2D',
+    'input': [
+        './layaAir/laya/physics/factory/physics2DwasmFactory.ts',
+    ],
+},
+{
+    'libName': 'box2D.wasm',
+    'input': [
+        './layaAir/laya/physics/factory/physics2DwasmFactory.ts',
+    ],
+},
+{
+    'libName': 'ui',
+    'input': [
+        './layaAir/laya/ui/**/*.*',
+        './layaAir/UIConfig.ts',
+    ],
+},
+{
+    'libName': 'spine',
+    'input': [
+        './layaAir/laya/spine/**/*.*'
+    ],
+},
+{
+    'libName': 'ani',
+    'input': [
+        './layaAir/laya/ani/**/*.*'
+    ],
+},
+{
+    'libName': 'debugtool',
+    'input': [
+        './extensions/debug/**/*.*'
+    ],
+},
+{
+    "libName": 'performancetool',
+    'input': [
+        './extensions/performanceTool/**/*.*'
+    ],
+}
 ];
 
 /*
@@ -252,13 +252,13 @@ gulp.task('compileLayaAir', () => {
 
     return merge(
         proj.src()
-        .pipe(sourcemaps.init())
-        .pipe(proj())
-        .pipe(sourcemaps.write('.', {
-            sourceRoot: './',
-            includeContent: false
-        }))
-        .pipe(gulp.dest(tscOutPath + 'layaAir')),
+            .pipe(sourcemaps.init())
+            .pipe(proj())
+            .pipe(sourcemaps.write('.', {
+                sourceRoot: './',
+                includeContent: false
+            }))
+            .pipe(gulp.dest(tscOutPath + 'layaAir')),
 
         gulp.src([
             './src/layaAir/**/*.vs',
@@ -268,7 +268,7 @@ gulp.task('compileLayaAir', () => {
         ], {
             base: "src"
         })
-        .pipe(gulp.dest(tscOutPath))
+            .pipe(gulp.dest(tscOutPath))
     );
 });
 
@@ -389,44 +389,44 @@ gulp.task("buildJs", async () => {
         await bundle.write(outputOption);
     }
 
-    return merge(
-        packsDef.map(pack => {
+    await new Promise(resolve => {
+        merge(packsDef.map(pack => {
             return gulp.src(path.join("./build/libs", "laya." + pack.libName + ".js"))
                 .pipe(inject.replace(/var Laya = \(function \(exports.*\)/, "window.Laya = (function (exports)"))
                 .pipe(inject.replace(/}\)\({}, Laya\);/, "})({});"))
                 .pipe(inject.replace(/Laya\$1\./g, "exports."))
                 .pipe(inject.replace(/\(this.Laya = this.Laya \|\| {}, Laya\)/, "(window.Laya = window.Laya || {}, Laya)"))
                 .pipe(gulp.dest(process.platform == 'win32' ? '.' : './build/libs')); //在win下dest竟然突然变成src的相对目录
-        }),
-    );
+        })).on("queueDrain", resolve);
+    });
 });
 
 //拷贝引擎的第三方js库
 gulp.task("copyJsLibs", async () => {
     return gulp.src([
-            './src/layaAir/jsLibs/bullet.wasm',
-            './src/layaAir/jsLibs/*.js',
-            './src/layaAir/jsLibs/physx.release.wasm',
-            './src/layaAir/jsLibs/laya.Box2D.wasm.wasm',
-            '!./src/layaAir/jsLibs/{laya.Box2D.js,cannon.js,bullet.js,physx.release.js,laya.Box2D.wasm.js,bullet.wasm.js,physx.wasm.js,physx.release.js.mem}'
-        ])
+        './src/layaAir/jsLibs/bullet.wasm',
+        './src/layaAir/jsLibs/*.js',
+        './src/layaAir/jsLibs/physx.release.wasm',
+        './src/layaAir/jsLibs/laya.Box2D.wasm.wasm',
+        '!./src/layaAir/jsLibs/{laya.Box2D.js,cannon.js,bullet.js,physx.release.js,laya.Box2D.wasm.js,bullet.wasm.js,physx.wasm.js,physx.release.js.mem}'
+    ])
         .pipe(gulp.dest('./build/libs'));
 });
 
 //合并physics2D 和 box2d
 gulp.task('buildBox2dPhysics', () => {
     return gulp.src([
-            './build/libs/laya.box2D.js',
-            './src/layaAir/jsLibs/laya.Box2D.js',
-        ]).pipe(concat('laya.box2D.js'))
+        './build/libs/laya.box2D.js',
+        './src/layaAir/jsLibs/laya.Box2D.js',
+    ]).pipe(concat('laya.box2D.js'))
         .pipe(gulp.dest('./build/libs/'));
 });
 
 gulp.task('buildBox2dWasmPhysics', () => {
     return gulp.src([
-            './build/libs/laya.box2D.wasm.js',
-            './src/layaAir/jsLibs/laya.Box2D.wasm.js',
-        ]).pipe(concat('laya.box2D.wasm.js'))
+        './build/libs/laya.box2D.wasm.js',
+        './src/layaAir/jsLibs/laya.Box2D.wasm.js',
+    ]).pipe(concat('laya.box2D.wasm.js'))
         .pipe(gulp.dest('./build/libs/'));
 });
 
@@ -434,27 +434,27 @@ gulp.task('buildBox2dWasmPhysics', () => {
 //合并bullet物理引擎库 和 编译出来的physics.bullet.js
 gulp.task('buildBulletPhysics', () => {
     return gulp.src([
-            './build/libs/laya.bullet.js',
-            './src/layaAir/jsLibs/bullet.js',
-        ]).pipe(concat('laya.bullet.js'))
+        './build/libs/laya.bullet.js',
+        './src/layaAir/jsLibs/bullet.js',
+    ]).pipe(concat('laya.bullet.js'))
         .pipe(gulp.dest('./build/libs/'));
 });
 
 //合并bullet的wasm物理库 和 编译出来的physics.bullet.js
 gulp.task('buildBulletWASMPhysics', () => {
     return gulp.src([
-            './build/libs/laya.bullet.js',
-            './src/layaAir/jsLibs/bullet.wasm.js',
-        ]).pipe(concat('laya.bullet.wasm.js'))
+        './build/libs/laya.bullet.js',
+        './src/layaAir/jsLibs/bullet.wasm.js',
+    ]).pipe(concat('laya.bullet.wasm.js'))
         .pipe(gulp.dest('./build/libs/'));
 });
 
 //合并physX的wasm物理引擎库 和 编译出来的physics.physX.js
 gulp.task('buildPhysXWASMPhysics', () => {
     return gulp.src([
-            './build/libs/laya.physX.js',
-            './src/layaAir/jsLibs/physx.wasm.js',
-        ])
+        './build/libs/laya.physX.js',
+        './src/layaAir/jsLibs/physx.wasm.js',
+    ])
         .pipe(concat('laya.physX.wasm.js'))
         .pipe(gulp.dest('./build/libs/'));
 });
@@ -462,9 +462,9 @@ gulp.task('buildPhysXWASMPhysics', () => {
 //合并physX物理引擎库 和 编译出来的physics.physX.js
 gulp.task('buildPhysXPhysics', () => {
     return gulp.src([
-            './build/libs/laya.physX.js',
-            './src/layaAir/jsLibs/physx.release.js',
-        ])
+        './build/libs/laya.physX.js',
+        './src/layaAir/jsLibs/physx.release.js',
+    ])
         .pipe(concat('laya.physX.js'))
         .pipe(gulp.dest('./build/libs/'));
 });
@@ -633,7 +633,7 @@ function layaExpPlugin(options) {
         return !r.startsWith('..');
     }
     return ({
-        load(id) {},
+        load(id) { },
         resolveId(id, importer) {
             if (!importer)
                 return;
@@ -651,7 +651,7 @@ function layaExpPlugin(options) {
                 if (layafiles.indexOf(tsfile) < 0)
                     layafiles.push(tsfile);
                 return 'Laya';
-            } else {}
+            } else { }
         },
 
         renderChunk(code, chunk, options) {
