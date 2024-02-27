@@ -57,7 +57,7 @@ export class EnvironmentalReflection {
 			//天空盒
 			Material.load("res/threeDimen/skyBox/DawnDusk/SkyBox.lmat", Handler.create(this, function (mat: SkyBoxMaterial): void {
 				//获取相机的天空盒渲染体
-				var skyRenderer: SkyRenderer = camera.skyRenderer;
+				var skyRenderer: SkyRenderer = camera.scene.skyRenderer;
 				//设置天空盒mesh
 				skyRenderer.mesh = SkyBox.instance;
 				//设置天空盒材质

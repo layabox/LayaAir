@@ -38,7 +38,7 @@ export class WebGLRenderElement3D implements IRenderElement3D {
 
     owner: WebBaseRenderNode;//GLESRenderNode
 
-    private _invertFront: boolean;
+    protected _invertFront: boolean;
 
     constructor() {
         this._shaderInstances = new SingletonList();

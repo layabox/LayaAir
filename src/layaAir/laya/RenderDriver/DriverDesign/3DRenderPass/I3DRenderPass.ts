@@ -15,6 +15,7 @@ import { IRenderGeometryElement } from "../RenderDevice/IRenderGeometryElement";
 import { InternalRenderTarget } from "../RenderDevice/InternalRenderTarget";
 import { IRenderCMD } from "./IRendderCMD";
 import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFlag";
+import { Matrix4x4 } from "../../../maths/Matrix4x4";
 
 export interface ISpotLightShadowRP {
     light: SpotLightCom;
@@ -145,6 +146,11 @@ export interface IRenderElement3D {
     subShader: SubShader;
     materialId: number;
     destroy(): void;
+}
+
+export interface ISkyRenderElement3D extends IRenderElement3D {
+    skyViewMatrix: Matrix4x4;
+    skyProjectionMatrix: Matrix4x4;
 }
 
 export interface IRenderElement2D {

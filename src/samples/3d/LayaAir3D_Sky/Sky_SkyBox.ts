@@ -36,7 +36,7 @@ export class Sky_SkyBox {
 			//天空盒
 			Material.load("res/threeDimen/skyBox/DawnDusk/SkyBox.lmat", Handler.create(this, function (mat: SkyBoxMaterial): void {
 				//获取相机的天空渲染器
-				var skyRenderer: SkyRenderer = camera.skyRenderer;
+				var skyRenderer: SkyRenderer = camera.scene.skyRenderer;
 				//创建天空盒的mesh
 				skyRenderer.mesh = SkyDome.instance;
 				// 设置曝光值
