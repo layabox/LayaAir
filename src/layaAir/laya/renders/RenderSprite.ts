@@ -419,13 +419,14 @@ export class RenderSprite {
     }
 
     /**
-     * 
+     * 把sprite画在当前贴图的x,y位置
      * @param sprite 
      * @param context 
-     * @param curx 因为需要提供反向偏移，以便画到00上，所以需要提供当前位置，这个要再考虑考虑
-     * @param cury 
+     * @param x 
+     * @param y 
+     * @returns 
      */
-    static RenderToCacheTexture(sprite:Sprite,context:Context, curx:number, cury:number){
+    static RenderToCacheTexture(sprite:Sprite,context:Context|null, x:number, y:number){
         var _cacheStyle = sprite._cacheStyle;
         if (true|| sprite._needRepaint() || !_cacheStyle.renderTexture || ILaya.stage.isGlobalRepaint()) {
             if(_cacheStyle.renderTexture){
@@ -433,23 +434,19 @@ export class RenderSprite {
             }
             //如果需要构造RenderTexture
             // 先计算需要的texuture的大小。
-            let scaleInfo = sprite._cacheStyle._calculateCacheRect(sprite, "bitmap"/*sprite._cacheStyle.cacheAs*/, curx, cury);
+            let scaleInfo = sprite._cacheStyle._calculateCacheRect(sprite, "bitmap"/*sprite._cacheStyle.cacheAs*/, 0, 0,0);
             let tRec = _cacheStyle.cacheRect;
             //计算cache画布的大小
             let w = tRec.width * scaleInfo.x;
             let h = tRec.height * scaleInfo.y;
             let rt = new RenderTexture2D(w,h,RenderTargetFormat.R8G8B8A8);
             let ctx = new Context();
-            ctx.copyState(context);
+            context && ctx.copyState(context);
             ctx.size(w,h);
-            ctx.render2D=new Render2DSimple(rt);
+            ctx.render2D= new Render2DSimple(rt);
             ctx.startRender();
-            //let oldType = sprite._renderType;
-            //先把cache相关标记去掉，避免再次进来
-            //sprite._renderType &= ~(SpriteConst.FILTERS|SpriteConst.MASK|SpriteConst.CANVAS);
-            sprite.render(ctx,-sprite.x,-sprite.y);
-            //恢复渲染标记
-            //sprite._renderType =oldType;
+            //把位置移到0，所以要-sprite.xy, 考虑图集空白，所以要-tRec.xy,因为tRec.xy是sprite空间的，所以转到贴图空间是取反
+            sprite.render(ctx,x-sprite.x-tRec.x,y-sprite.y-tRec.y);
             ctx.endRender();
             _cacheStyle.renderTexture = rt;
             return true;    //重绘
@@ -557,13 +554,62 @@ export class RenderSprite {
 
     _mask(sprite: Sprite, ctx: Context, x: number, y: number): void {
         let cache = sprite._getCacheStyle();
+        let rtx=0;  //贴图显示偏移。由于裁剪等导致的，贴图不在原点
+        let rty=0;
         //在sprite上缓存两个rt是为了优化当自己不变，mask变了的情况。
         //上面的不对，由于mask必须是sprite的子，因此mask变了必然导致sprite的重绘，所以就不缓存多个rt了
-        if(this._renderNextToCacheRT(sprite,ctx)){
+        if (sprite._needRepaint() || !cache.renderTexture || cache.renderTexture.destroyed|| ILaya.stage.isGlobalRepaint()) {
+            if(cache.renderTexture){
+                cache.renderTexture.destroy();//TODO 优化， 如果大小相同，可以重复利用
+            }
+            //如果需要构造RenderTexture
+            // 先计算需要的texuture的大小。此时不要扩展rect，直接取实际的
+            sprite._cacheStyle._calculateCacheRect(sprite, "bitmap", 0, 0,0);
+            let spRect = cache.cacheRect;
+            if(spRect.width<=0||spRect.height<=0)
+                return;
+            //计算cache画布的大小
+    
+            //mask的大小
             let mask = sprite.mask;
-            let src = null;
-            mask._getCacheStyle();
-        }
+            //TODO mask如果非常简单，就不要先渲染到texture上
+            //mask是sprite的子，因此，计算包围盒用相对位置就行
+            let maskcache = mask._getCacheStyle();
+            maskcache._calculateCacheRect(mask, "bitmap", 0,0,0);  //后面的参数传入mask.xy没有效果，只能自己单独加上
+            let maskRect = maskcache.cacheRect;
+
+            //计算两个rect的交集作为渲染区域
+            let x1 = Math.max(spRect.x,maskRect.x+mask.x);
+            let y1 = Math.max(spRect.y, maskRect.y+mask.y);
+            let x2 = Math.min(spRect.x+spRect.width,mask.x+maskRect.x+maskRect.width);
+            let y2 = Math.min(spRect.y+spRect.height, mask.y+maskRect.y+maskRect.height);
+
+            let width1 = x2-x1;  if(width1<=0) return;
+            let height1 = y2-y1; if(height1<=0) return;
+
+            rtx = x1; rty = y1;
+            let rt = new RenderTexture2D(width1,height1,RenderTargetFormat.R8G8B8A8);
+            let ctx = new Context();
+            ctx.size(spRect.width,spRect.height);
+            ctx.render2D= new Render2DSimple(rt);
+            ctx.startRender();
+            //渲染节点本身.由于spRect.xy是指贴图相对于节点的位置，所以需要取反表示在贴图空间的什么位置画出节点
+            this._next._fun(sprite,ctx, -spRect.x, -spRect.y);
+
+            //渲染mask
+            if(RenderSprite.RenderToCacheTexture(mask,null,0,0)){                
+            }
+            let maskRT = maskcache.renderTexture;
+            ctx.globalCompositeOperation='mask';
+            ctx._drawRenderTexture(maskRT,
+                mask.x+maskRect.x-spRect.x,     //画到贴图空间，要先把mask贴图继承的空白减掉，然后再把sprite的空白减掉
+                mask.y+maskRect.y-spRect.y,
+                maskRect.width,maskRect.height,null,1,
+                [0,1,1,1,1,0,0,0])
+
+            ctx.endRender();
+            cache.renderTexture = rt;
+    }
 
         let tex = cache.renderTexture;
         let rect = cache.cacheRect;

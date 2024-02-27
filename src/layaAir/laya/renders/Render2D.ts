@@ -23,6 +23,8 @@ export abstract class Render2D{
     constructor(out:RenderTexture2D=null){
         this._renderTexture = out;
     }
+
+    abstract clone(out:RenderTexture2D):Render2D;
     //可以随时设置rt
     set out(out:RenderTexture2D){
         this._renderTexture=out;
@@ -56,6 +58,10 @@ export class Render2DSimple extends Render2D{
 
     private _createRectGeo(){
 
+    }
+
+    clone(out:RenderTexture2D):Render2D{
+        return new Render2DSimple(out);
     }
 
     private _createMesh(){
@@ -95,7 +101,6 @@ export class Render2DSimple extends Render2D{
         ib._setIndexData(new Uint16Array(mesh2d.ibBuffer,iboff,iblen/2),0)
         geo.clearRenderParams();
         geo.setDrawElemenParams(iblen/2,0);
-        mtl.setBlend();
         mtl.upload(null, mtl.shaderData)
         WebGLEngine.instance.getDrawContext().drawGeometryElement(geo);
     }
@@ -114,6 +119,10 @@ export class Render2DSimple extends Render2D{
 }
 
 export class Render2DMergeVB extends Render2D{
+    clone(out:RenderTexture2D):Render2D{
+        return new Render2DMergeVB(out);
+    }
+
     setVertexDecl(decl:VertexDeclaration){
 
     }
