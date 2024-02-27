@@ -336,7 +336,7 @@ export class RenderSprite {
 
     _renderNextToCacheRT(sprite:Sprite,context:Context){
         var _cacheStyle = sprite._cacheStyle;
-        if (true|| sprite._needRepaint() || !_cacheStyle.renderTexture || ILaya.stage.isGlobalRepaint()) {
+        if (sprite._needRepaint() || !_cacheStyle.renderTexture || ILaya.stage.isGlobalRepaint()) {
             if(_cacheStyle.renderTexture){
                 _cacheStyle.renderTexture.destroy();//TODO 优化， 如果大小相同，可以重复利用
             }
@@ -428,7 +428,7 @@ export class RenderSprite {
      */
     static RenderToCacheTexture(sprite:Sprite,context:Context|null, x:number, y:number){
         var _cacheStyle = sprite._cacheStyle;
-        if (true|| sprite._needRepaint() || !_cacheStyle.renderTexture || ILaya.stage.isGlobalRepaint()) {
+        if (sprite._needRepaint() || !_cacheStyle.renderTexture || ILaya.stage.isGlobalRepaint()) {
             if(_cacheStyle.renderTexture){
                 _cacheStyle.renderTexture.destroy();//TODO 优化， 如果大小相同，可以重复利用
             }
