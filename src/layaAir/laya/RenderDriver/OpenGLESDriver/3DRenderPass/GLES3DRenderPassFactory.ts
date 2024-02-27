@@ -6,16 +6,18 @@ import { ISceneRenderManager } from "../../DriverDesign/3DRenderPass/ISceneRende
 import { GLESDirectLightShadowRP } from "./GLESDirectLightShadowRP";
 import { GLESForwardAddClusterRP } from "./GLESForwardAddClusterRP";
 import { GLESForwardAddRP } from "./GLESForwardAddRP";
+import { GLESRender3DProcess } from "./GLESRender3DProcess";
+import { GLESRenderContext3D } from "./GLESRenderContext3D";
 import { GLESRenderElement3D } from "./GLESRenderElement3D";
 import { GLESSkinRenderElement3D } from "./GLESSkinRenderElement3D";
 import { GLESSpotLightShadowRP } from "./GLESSpotLightShadowRP";
 
 export class GLES3DRenderPassFactory implements I3DRenderPassFactory {
     createRender3DProcess(): IRender3DProcess {
-        throw new Error("Method not implemented.");
+        return new GLESRender3DProcess();
     }
     createRenderContext3D(): IRenderContext3D {
-        throw new Error("Method not implemented.");
+        return new GLESRenderContext3D()
     }
     createSetRenderDataCMD(): SetRenderDataCMD {
         throw new Error("Method not implemented.");
