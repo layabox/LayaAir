@@ -7,45 +7,54 @@ import { GLESDirectLightShadowRP } from "./GLESDirectLightShadowRP";
 import { GLESForwardAddClusterRP } from "./GLESForwardAddClusterRP";
 import { GLESForwardAddRP } from "./GLESForwardAddRP";
 import { GLESRender3DProcess } from "./GLESRender3DProcess";
+import { GLESBlitQuadCMDData, GLESDrawElementCMDData, GLESDrawNodeCMDData, GLESSetRenderData, GLESSetRenderTargetCMD, GLESSetShaderDefine, GLESSetViewportCMD } from "./GLESRenderCMD/GLESRenderCMD";
 import { GLESRenderContext3D } from "./GLESRenderContext3D";
 import { GLESRenderElement3D } from "./GLESRenderElement3D";
 import { GLESSkinRenderElement3D } from "./GLESSkinRenderElement3D";
 import { GLESSpotLightShadowRP } from "./GLESSpotLightShadowRP";
 
 export class GLES3DRenderPassFactory implements I3DRenderPassFactory {
+
     createRender3DProcess(): IRender3DProcess {
         return new GLESRender3DProcess();
     }
+
     createRenderContext3D(): IRenderContext3D {
-        return new GLESRenderContext3D()
+        return new GLESRenderContext3D();
     }
+
     createSetRenderDataCMD(): SetRenderDataCMD {
-        throw new Error("Method not implemented.");
+        return new GLESSetRenderData();
     }
+
     createSetShaderDefineCMD(): SetShaderDefineCMD {
-        throw new Error("Method not implemented.");
+        return new GLESSetShaderDefine();
     }
+
     createDrawNodeCMDData(): DrawNodeCMDData {
-        throw new Error("Method not implemented.");
+        return new GLESDrawNodeCMDData();
     }
+
     createBlitQuadCMDData(): BlitQuadCMDData {
-        throw new Error("Method not implemented.");
+        return new GLESBlitQuadCMDData();
     }
+
     createDrawElementCMDData(): DrawElementCMDData {
-        throw new Error("Method not implemented.");
+        return new GLESDrawElementCMDData();
     }
+
     createSetViewportCMD(): SetViewportCMD {
-        throw new Error("Method not implemented.");
+        return new GLESSetViewportCMD();
     }
+
     createSetRenderTargetCMD(): SetRenderTargetCMD {
-        throw new Error("Method not implemented.");
+        return new GLESSetRenderTargetCMD();
     }
+
     createSetRenderData() {
-        throw new Error("Method not implemented.");
+        return new GLESSetRenderData();
     }
-    createRenderCMDDriver() {
-        throw new Error("Method not implemented.");
-    }
+
     createSceneRenderManager(): ISceneRenderManager {
         return new SceneRenderManagerOBJ();
     }

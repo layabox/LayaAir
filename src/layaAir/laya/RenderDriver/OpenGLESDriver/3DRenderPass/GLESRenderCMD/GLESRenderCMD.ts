@@ -1,5 +1,4 @@
 import { SubShader } from "../../../../RenderEngine/RenderShader/SubShader";
-import { Command } from "../../../../d3/core/render/command/Command";
 import { Viewport } from "../../../../d3/math/Viewport";
 import { Color } from "../../../../maths/Color";
 import { Matrix4x4 } from "../../../../maths/Matrix4x4";
@@ -7,38 +6,45 @@ import { Vector2 } from "../../../../maths/Vector2";
 import { Vector3 } from "../../../../maths/Vector3";
 import { Vector4 } from "../../../../maths/Vector4";
 import { BaseTexture } from "../../../../resource/BaseTexture";
-import { BlitQuadCMDData, DrawElementCMDData, DrawNodeCMDData, SetRenderTargetCMD, SetViewportCMD, RenderCMDType, SetRenderDataCMD, SetShaderDefineCMD } from "../../../DriverDesign/3DRenderPass/IRendderCMD";
-import { InternalRenderTarget } from "../../../DriverDesign/RenderDevice/InternalRenderTarget";
-import { InternalTexture } from "../../../DriverDesign/RenderDevice/InternalTexture";
+import { BlitQuadCMDData, DrawElementCMDData, DrawNodeCMDData, RenderCMDType, SetRenderDataCMD, SetRenderTargetCMD, SetShaderDefineCMD, SetViewportCMD } from "../../../DriverDesign/3DRenderPass/IRendderCMD";
 import { ShaderDataItem, ShaderDataType } from "../../../DriverDesign/RenderDevice/ShaderData";
-import { ShaderDefine } from "../../../RenderModuleData/Design/ShaderDefine";
-import { WebBaseRenderNode } from "../../../RenderModuleData/WebModuleData/3D/WebBaseRenderNode";
-import { WebGLShaderData } from "../../../RenderModuleData/WebModuleData/WebGLShaderData";
-import { WebGLInternalRT } from "../../RenderDevice/WebGLInternalRT";
-import { WebGLRenderContext3D } from "../WebGLRenderContext3D";
-import { WebGLRenderElement3D } from "../WebGLRenderElement3D";
+import { RTSubShader } from "../../../RenderModuleData/RuntimeModuleData/3D/RT3DRenderModuleData";
+import { RTBaseRenderNode } from "../../../RenderModuleData/RuntimeModuleData/3D/RTBaseRenderNode";
+import { RTShaderDefine } from "../../../RenderModuleData/RuntimeModuleData/RTShaderDefine";
+import { GLESInternalRT } from "../../RenderDevice/GLESInternalRT";
+import { GLESInternalTex } from "../../RenderDevice/GLESInternalTex";
+import { GLESShaderData } from "../../RenderDevice/GLESShaderData";
+import { GLESRenderElement3D } from "../GLESRenderElement3D";
 
-
-export class WebGLDrawNodeCMDData extends DrawNodeCMDData {
+//new GLESDrawNodeCMDData
+//this._nativeObj.setBaseRenderNode(value._nativeObj);
+//this._nativeObj.setShaderData(value._nativeObj);
+//this._nativeObj.setSubShader((value.moduleData as any as RTSubShader)._nativeObj);
+export class GLESDrawNodeCMDData extends DrawNodeCMDData {
     type: RenderCMDType;
-    protected _node: WebBaseRenderNode;
-    protected _destShaderData: WebGLShaderData;
+    protected _node: RTBaseRenderNode;
+    protected _destShaderData: GLESShaderData;
     protected _destSubShader: SubShader;
 
-    get node(): WebBaseRenderNode {
+    /**@internal */
+    _nativeObj: any;
+
+    get node(): RTBaseRenderNode {
         return this._node;
     }
 
-    set node(value: WebBaseRenderNode) {
+    set node(value: RTBaseRenderNode) {
         this._node = value;
+        this._nativeObj.setBaseRenderNode(value._nativeObj);
     }
 
-    get destShaderData(): WebGLShaderData {
+    get destShaderData(): GLESShaderData {
         return this._destShaderData;
     }
 
-    set destShaderData(value: WebGLShaderData) {
+    set destShaderData(value: GLESShaderData) {
         this._destShaderData = value;
+        this._nativeObj.setShaderData(value._nativeObj);
     }
 
     get destSubShader(): SubShader {
@@ -47,44 +53,43 @@ export class WebGLDrawNodeCMDData extends DrawNodeCMDData {
 
     set destSubShader(value: SubShader) {
         this._destSubShader = value;
+        this._nativeObj.setSubShader((value.moduleData as any as RTSubShader)._nativeObj);
     }
 
     constructor() {
         super();
         this.type = RenderCMDType.DrawNode;
-    }
-
-    apply(context: WebGLRenderContext3D): void {
-        this.node._renderUpdatePre(context);
-        let elements = this.node.renderelements;
-        elements.forEach(element => {
-            let oriSubmesh = element.subShader;
-            let oriMatShaderData = element.materialShaderData;
-            element.subShader = this._destSubShader;
-            element.materialShaderData = this._destShaderData;
-            context.drawRenderElementOne(element as WebGLRenderElement3D);
-            element.subShader = oriSubmesh;
-            element.materialShaderData = oriMatShaderData;
-        });
+        this._nativeObj = new (window as any).conchGLESDrawNodeCMDData();
     }
 }
 
-export class WebGLBlitQuadCMDData extends BlitQuadCMDData {
+// this._nativeObj
+// this._nativeObj.setDest(value._nativeObj);
+// this._nativeObj.setViewport(value);
+// this._nativeObj.setSciccor(value);
+// this._nativeObj.setSource(value._nativeObj);
+// this._nativeObj.setSourceTexelSize(this._sourceTexelSize);
+// this._nativeObj.setOffsetScale(this._offsetScale);
+// this._nativeObj.setRenderElement(value._nativeObj);
+export class GLESBlitQuadCMDData extends BlitQuadCMDData {
     type: RenderCMDType;
     private _sourceTexelSize: Vector4;
-    protected _dest: WebGLInternalRT;
+    protected _dest: GLESInternalRT;
     protected _viewport: Viewport;
-    protected _source: InternalTexture;
+    protected _source: GLESInternalTex;
     protected _sciccor: Vector4;
     protected _offsetScale: Vector4;
-    protected _element: WebGLRenderElement3D;
+    protected _element: GLESRenderElement3D;
+    /**@internal */
+    _nativeObj: any;
 
-    get dest(): WebGLInternalRT {
+    get dest(): GLESInternalRT {
         return this._dest;
     }
 
-    set dest(value: WebGLInternalRT) {
+    set dest(value: GLESInternalRT) {
         this._dest = value;
+        this._nativeObj.setDest(value._nativeObj);
     }
 
     get viewport(): Viewport {
@@ -93,6 +98,7 @@ export class WebGLBlitQuadCMDData extends BlitQuadCMDData {
 
     set viewport(value: Viewport) {
         value.cloneTo(this._viewport);
+        this._nativeObj.setViewport(value);
     }
 
     get sciccor(): Vector4 {
@@ -101,17 +107,18 @@ export class WebGLBlitQuadCMDData extends BlitQuadCMDData {
 
     set sciccor(value: Vector4) {
         value.cloneTo(this._sciccor);
+        this._nativeObj.setSciccor(value);
     }
 
-    get source(): InternalTexture {
+    get source(): GLESInternalTex {
         return this._source;
     }
 
-    set source(value: InternalTexture) {
+    set source(value: GLESInternalTex) {
         this._source = value;
-        if (this._source) {
-            this._sourceTexelSize.setValue(1.0 / this._source.width, 1.0 / this._source.height, this._source.width, this._source.height);
-        }
+        this._nativeObj.setSource(value._nativeObj);
+        this._sourceTexelSize.setValue(1.0 / this._source.width, 1.0 / this._source.height, this._source.width, this._source.height);
+        this._nativeObj.setSourceTexelSize(this._sourceTexelSize);
     }
 
     get offsetScale(): Vector4 {
@@ -120,13 +127,15 @@ export class WebGLBlitQuadCMDData extends BlitQuadCMDData {
 
     set offsetScale(value: Vector4) {
         value.cloneTo(this._offsetScale);
+        this._nativeObj.setOffsetScale(this._offsetScale);
     }
 
-    get element(): WebGLRenderElement3D {
+    get element(): GLESRenderElement3D {
         return this._element;
     }
-    set element(value: WebGLRenderElement3D) {
+    set element(value: GLESRenderElement3D) {
         this._element = value;
+        this._nativeObj.setRenderElement(value._nativeObj);
     }
 
     constructor() {
@@ -136,45 +145,43 @@ export class WebGLBlitQuadCMDData extends BlitQuadCMDData {
         this._sciccor = new Vector4();
         this._offsetScale = new Vector4();
         this._sourceTexelSize = new Vector4();
-    }
-
-    apply(context: WebGLRenderContext3D): void {
-        this.element.materialShaderData._setInternalTexture(Command.SCREENTEXTURE_ID, this._source);
-        this.element.materialShaderData.setVector(Command.SCREENTEXTUREOFFSETSCALE_ID, this._offsetScale);
-        this.element.materialShaderData.setVector(Command.MAINTEXTURE_TEXELSIZE_ID, this._sourceTexelSize);
-        context.setViewPort(this._viewport);
-        context.setScissor(this._sciccor);
-        context.setRenderTarget(this.dest);
-        context.drawRenderElementOne(this.element);
+        this._nativeObj = new (window as any).conchGLESBlitQuadCMDData();
     }
 }
-
-export class WebGLDrawElementCMDData extends DrawElementCMDData {
+// this._nativeObj = new (window as any).conchGLESDrawElementCMDData();
+// this._nativeObj.clearElement();
+// this._nativeObj.addOneElement(element._nativeObj);
+export class GLESDrawElementCMDData extends DrawElementCMDData {
     type: RenderCMDType;
-    private _elemets: WebGLRenderElement3D[];
+    /**@internal */
+    _nativeObj;
+    private _elemets: GLESRenderElement3D[];
+
     constructor() {
         super();
         this.type = RenderCMDType.DrawElement;
+        this._nativeObj = new (window as any).conchGLESDrawElementCMDData();
     }
 
-    setRenderelements(value: WebGLRenderElement3D[]): void {
+    setRenderelements(value: GLESRenderElement3D[]): void {
         this._elemets = value;
-    }
-
-    apply(context: WebGLRenderContext3D): void {
-        if (this._elemets.length == 1) {
-            context.drawRenderElementOne(this._elemets[0]);
-        }else{
-            this._elemets.forEach(element => {
-                context.drawRenderElementOne(element);
-            });
+        this._nativeObj.clearElement();
+        if (value.length == 1) {
+            this._nativeObj.addOneElement(value[0]._nativeObj);
         }
-      
+        value.forEach(element => {
+            this._nativeObj.addOneElement(element._nativeObj);
+        });
     }
 }
 
-export class WebGLSetViewportCMD extends SetViewportCMD {
+// this._nativeObj = new (window as any).conchGLESDrawNodeCMDData();
+// this._nativeObj.setViewport(value);
+// this._nativeObj.setSciccor(value);
+export class GLESSetViewportCMD extends SetViewportCMD {
     type: RenderCMDType;
+    /**@internal */
+    _nativeObj: any;
     protected _viewport: Viewport;
     protected _sciccor: Vector4;
 
@@ -184,6 +191,7 @@ export class WebGLSetViewportCMD extends SetViewportCMD {
 
     set viewport(value: Viewport) {
         this._viewport = value;
+        this._nativeObj.setViewport(value);
     }
 
     get sciccor(): Vector4 {
@@ -192,6 +200,7 @@ export class WebGLSetViewportCMD extends SetViewportCMD {
 
     set sciccor(value: Vector4) {
         this._sciccor = value;
+        this._nativeObj.setSciccor(value);
     }
 
     constructor() {
@@ -199,27 +208,31 @@ export class WebGLSetViewportCMD extends SetViewportCMD {
         this.type = RenderCMDType.ChangeViewPort;
         this.sciccor = new Vector4();
         this.viewport = new Viewport();
-    }
-
-    apply(context: WebGLRenderContext3D): void {
-        context.setViewPort(this.viewport);
-        context.setScissor(this.sciccor);
+        this._nativeObj = new (window as any).conchGLESSetViewportCMD();
     }
 }
-export class WebGLSetRenderTargetCMD extends SetRenderTargetCMD {
+// this._nativeObj.setRT(value._nativeObj);
+// this._nativeObj.setClearFlag(value)
+// this._nativeObj.clearColorValue(value);
+// this._nativeObj.clearDepthValue(value);
+// this._nativeObj.clearStencilValue(value);
+export class GLESSetRenderTargetCMD extends SetRenderTargetCMD {
     type: RenderCMDType;
-    protected _rt: InternalRenderTarget;
+    /**@internal */
+    _nativeObj: any;
+    protected _rt: GLESInternalRT;
     protected _clearFlag: number;
     protected _clearColorValue: Color;
     protected _clearDepthValue: number;
     protected _clearStencilValue: number;
 
-    get rt(): InternalRenderTarget {
+    get rt(): GLESInternalRT {
         return this._rt;
     }
 
-    set rt(value: InternalRenderTarget) {
+    set rt(value: GLESInternalRT) {
         this._rt = value;
+        this._nativeObj.setRT(value._nativeObj);
     }
 
     get clearFlag(): number {
@@ -227,6 +240,7 @@ export class WebGLSetRenderTargetCMD extends SetRenderTargetCMD {
     }
     set clearFlag(value: number) {
         this._clearFlag = value;
+        this._nativeObj.setClearFlag(value)
     }
 
     get clearColorValue(): Color {
@@ -235,6 +249,7 @@ export class WebGLSetRenderTargetCMD extends SetRenderTargetCMD {
 
     set clearColorValue(value: Color) {
         value.cloneTo(this._clearColorValue);
+        this._nativeObj.clearColorValue(value);
     }
 
     get clearDepthValue(): number {
@@ -243,32 +258,40 @@ export class WebGLSetRenderTargetCMD extends SetRenderTargetCMD {
 
     set clearDepthValue(value: number) {
         this._clearDepthValue = value;
+        this._nativeObj.clearDepthValue(value);
     }
 
     get clearStencilValue(): number {
         return this._clearStencilValue;
+
     }
 
     set clearStencilValue(value: number) {
         this._clearStencilValue = value;
+        this._nativeObj.clearStencilValue(value);
     }
 
     constructor() {
         super();
         this.type = RenderCMDType.ChangeRenderTarget;
         this._clearColorValue = new Color();
-    }
-
-    apply(context: WebGLRenderContext3D): void {
-        context.setRenderTarget(this.rt);
-        context.setClearData(this.clearFlag, this.clearColorValue, this.clearDepthValue, this.clearStencilValue);
+        this._nativeObj = new (window as any).conchGLESSetRenderTargetCMD();
     }
 }
-export class WebGLSetRenderData extends SetRenderDataCMD {
+
+
+// this._nativeObj = new (window as any).conchGLESSetRenderData();
+// this._nativeObj.setValue(this.value)
+// this._nativeObj.setDest(value._nativeObj);
+// this._nativeObj.setPropertyID(value);
+// this._nativeObj.setDataType(value);
+export class GLESSetRenderData extends SetRenderDataCMD {
     type: RenderCMDType;
+    /**@internal */
+    _nativeObj: any;
     protected _dataType: ShaderDataType;
     protected _propertyID: number;
-    protected _dest: WebGLShaderData;
+    protected _dest: GLESShaderData;
     protected _value: ShaderDataItem;
 
     data_v4: Vector4;
@@ -285,6 +308,7 @@ export class WebGLSetRenderData extends SetRenderDataCMD {
 
     set dataType(value: ShaderDataType) {
         this._dataType = value;
+        this._nativeObj.setDataType(value);
     }
 
     get propertyID(): number {
@@ -293,14 +317,16 @@ export class WebGLSetRenderData extends SetRenderDataCMD {
 
     set propertyID(value: number) {
         this._propertyID = value;
+        this._nativeObj.setPropertyID(value);
     }
 
-    get dest(): WebGLShaderData {
+    get dest(): GLESShaderData {
         return this._dest;
     }
 
-    set dest(value: WebGLShaderData) {
+    set dest(value: GLESShaderData) {
         this._dest = value;
+        this._nativeObj.setDest(value._nativeObj);
     }
 
     get value(): ShaderDataItem {
@@ -313,37 +339,45 @@ export class WebGLSetRenderData extends SetRenderDataCMD {
             case ShaderDataType.Bool:
                 this.data_number = value as number;
                 this._value = this.data_number;
+                this._nativeObj.setValue(this.value)
                 break;
             case ShaderDataType.Matrix4x4:
                 this.data_mat && (this.data_mat = new Matrix4x4());
                 (value as Matrix4x4).cloneTo(this.data_mat);
                 this._value = this.data_mat;
+                this._nativeObj.setValue(this.value)
                 break;
             case ShaderDataType.Color:
                 this.data_Color && (this.data_Color = new Color());
                 (value as Color).cloneTo(this.data_Color);
                 this._value = this.data_Color;
+                this._nativeObj.setValue(this.value)
                 break;
             case ShaderDataType.Texture2D:
                 this._value = this.data_texture = value as BaseTexture;
+                this._nativeObj.setValue((this.data_texture._texture as GLESInternalTex)._nativeObj)
                 break;
             case ShaderDataType.Vector4:
                 this.data_v4 && (this.data_v4 = new Vector4());
                 (value as Vector4).cloneTo(this.data_v4);
                 this._value = this.data_v4;
+                this._nativeObj.setValue(this.value)
                 break;
             case ShaderDataType.Vector2:
                 this.data_v2 && (this.data_v2 = new Vector2());
                 (value as Vector2).cloneTo(this.data_v2);
                 this._value = this.data_v2;
+                this._nativeObj.setValue(this.value)
                 break;
             case ShaderDataType.Vector3:
                 this.data_v3 && (this.data_v3 = new Vector3());
                 (value as Vector3).cloneTo(this.data_v3);
                 this._value = this.data_v3;
+                this._nativeObj.setValue(this.value)
                 break;
             case ShaderDataType.Buffer:
                 this._value = this.data_Buffer = value as Float32Array;
+                this._nativeObj.setBufferValue(this.data_Buffer.buffer,this.data_Buffer.byteLength);
                 break;
             default:
                 //TODO  shaderDefine
@@ -354,67 +388,38 @@ export class WebGLSetRenderData extends SetRenderDataCMD {
     constructor() {
         super();
         this.type = RenderCMDType.ChangeData;
-    }
-
-    apply(context: WebGLRenderContext3D): void {
-        switch (this.dataType) {
-            case ShaderDataType.Int:
-                this.dest.setInt(this.propertyID as number, this.value as number);
-                break;
-            case ShaderDataType.Float:
-                this.dest.setNumber(this.propertyID as number, this.value as number);
-                break;
-            case ShaderDataType.Bool:
-                this.dest.setBool(this.propertyID as number, this.value as boolean);
-                break;
-            case ShaderDataType.Matrix4x4:
-                this.dest.setMatrix4x4(this.propertyID as number, this.value as Matrix4x4);
-                break;
-            case ShaderDataType.Color:
-                this.dest.setColor(this.propertyID as number, this.value as Color);
-                break;
-            case ShaderDataType.Texture2D:
-                this.dest.setTexture(this.propertyID as number, this.value as BaseTexture);
-                break;
-            case ShaderDataType.Vector4:
-                this.dest.setVector(this.propertyID as number, this.value as Vector4);
-                break;
-            case ShaderDataType.Vector2:
-                this.dest.setVector2(this.propertyID as number, this.value as Vector2);
-                break;
-            case ShaderDataType.Vector3:
-                this.dest.setVector3(this.propertyID as number, this.value as Vector3);
-                break;
-            case ShaderDataType.Buffer:
-                this.dest.setBuffer(this.propertyID as number, this.value as Float32Array);
-                break;
-            default:
-                //TODO  shaderDefine
-                break;
-        }
+        this._nativeObj = new (window as any).conchGLESSetRenderData();
     }
 }
 
-export class WebGLSetShaderDefine extends SetShaderDefineCMD {
+// this._nativeObj = new (window as any).conchGLESSetShaderDefine();
+// this._nativeObj.setDefine(value)
+// this._nativeObj.setDest(value._nativeObj)
+//this._nativeObj.setAdd(value);
+export class GLESSetShaderDefine extends SetShaderDefineCMD {
     type: RenderCMDType;
-    protected _define: ShaderDefine;
-    protected _dest: WebGLShaderData;
+    /**@internal */
+    _nativeObj: any;
+    protected _define: RTShaderDefine;
+    protected _dest: GLESShaderData;
     protected _add: boolean;
 
-    get define(): ShaderDefine {
+    get define(): RTShaderDefine {
         return this._define;
     }
 
-    set define(value: ShaderDefine) {
+    set define(value: RTShaderDefine) {
         this._define = value;
+        this._nativeObj.setDefine(value)
     }
 
-    get dest(): WebGLShaderData {
+    get dest(): GLESShaderData {
         return this._dest;
     }
 
-    set dest(value: WebGLShaderData) {
+    set dest(value: GLESShaderData) {
         this._dest = value;
+        this._nativeObj.setDest(value._nativeObj)
     }
 
     get add(): boolean {
@@ -423,18 +428,12 @@ export class WebGLSetShaderDefine extends SetShaderDefineCMD {
 
     set add(value: boolean) {
         this._add = value;
+        this._nativeObj.setAdd(value);
     }
 
     constructor() {
         super();
         this.type = RenderCMDType.ChangeShaderDefine;
-    }
-
-    apply(context: WebGLRenderContext3D): void {
-        if (this.add) {
-            this._dest.addDefine(this.define);
-        } else {
-            this._dest.removeDefine(this.define);
-        }
+        this._nativeObj = new (window as any).conchGLESSetShaderDefine();
     }
 }

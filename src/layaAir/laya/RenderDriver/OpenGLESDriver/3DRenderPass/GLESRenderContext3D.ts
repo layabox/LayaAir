@@ -105,10 +105,15 @@ export class GLESRenderContext3D implements IRenderContext3D {
         return this._nativeObj.drawRenderElementOne((node as any)._nativeObj);
     }
     runOneCMD(cmd: IRenderCMD): void {
-        throw new Error("Method not implemented.");
+        this._nativeObj.runOneCMD((cmd as any)._nativeObj);
     }
     runCMDList(cmds: IRenderCMD[]): void {
-        throw new Error("Method not implemented.");
+        let nativeobCMDs: any[] = [];
+        cmds.forEach(element => {
+            nativeobCMDs.push((element as any)._nativeObj);
+        });
+
+        this._nativeObj.runCMDList(nativeobCMDs);
     }
 
 }

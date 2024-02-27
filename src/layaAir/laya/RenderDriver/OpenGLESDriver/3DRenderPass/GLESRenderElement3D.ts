@@ -6,6 +6,7 @@ import { RTBaseRenderNode } from "../../RenderModuleData/RuntimeModuleData/3D/RT
 import { RTDefineDatas } from "../../RenderModuleData/RuntimeModuleData/RTDefineDatas";
 import { GLESRenderGeometryElement } from "../RenderDevice/GLESRenderGeometryElement";
 import { GLESShaderData } from "../RenderDevice/GLESShaderData";
+
 export enum RenderElementType {
     Base = 0,
     Skin = 1,

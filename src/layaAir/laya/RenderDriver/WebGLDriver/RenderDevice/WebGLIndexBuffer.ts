@@ -15,10 +15,8 @@ export class WebGLIndexBuffer implements IIndexBuffer {
         this._glBuffer = this._glBuffer = WebGLEngine.instance.createBuffer(targetType, bufferUsageType) as GLBuffer;
     }
 
-
     _setIndexDataLength(data: number): void {
         var curBufSta = WebGLBufferState._curBindedBufferState;
-
         if (curBufSta) {
             curBufSta.unBind();//避免影响VAO
             this._glBuffer.bindBuffer()
@@ -29,10 +27,9 @@ export class WebGLIndexBuffer implements IIndexBuffer {
             this._glBuffer.setDataLength(data);
         }
     }
+
     _setIndexData(data: Uint32Array | Uint16Array | Uint8Array, bufferOffset: number): void {
-
         var curBufSta = WebGLBufferState._curBindedBufferState;
-
         if (curBufSta) {
             curBufSta.unBind();//避免影响VAO
             this._glBuffer.bindBuffer()

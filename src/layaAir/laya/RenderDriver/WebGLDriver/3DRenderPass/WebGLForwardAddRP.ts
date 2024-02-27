@@ -14,7 +14,7 @@ export class WebGLForwardAddRP implements IForwardAddRP {
 
     setBeforeImageEffect(value: CommandBuffer[]): void {
         if (value && value.length > 0) {
-            this.beforeImageEffect = value;
+            this._beforeImageEffectCMDS = value;
             value.forEach(element => {
                 element._apply(false);
             });
@@ -23,7 +23,7 @@ export class WebGLForwardAddRP implements IForwardAddRP {
 
     setAfterEventCmd(value: CommandBuffer[]): void {
         if (value && value.length > 0) {
-            this.afterEventCmd = value;
+            this._afterAllRenderCMDS = value;
             value.forEach(element => {
                 element._apply(false);
             });
@@ -46,8 +46,9 @@ export class WebGLForwardAddRP implements IForwardAddRP {
 
     /**Render end commanbuffer */
     /**@internal */
-    afterEventCmd: Array<CommandBuffer>;
-    beforeImageEffect:Array<CommandBuffer>;
+    _afterAllRenderCMDS: Array<CommandBuffer>;
+    /**@internal */
+    _beforeImageEffectCMDS: Array<CommandBuffer>;
     //postProcess TODO
     /**main pass */
     renderpass: WebGLForwardAddClusterRP;

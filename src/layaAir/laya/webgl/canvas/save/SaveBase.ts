@@ -63,7 +63,7 @@ export class SaveBase implements ISaveData {
     restore(context: Context): void {
         this._dataObj[this._valueName] = this._value;
         SaveBase.POOL[SaveBase.POOL._length++] = this;
-        this._newSubmit && (context._curSubmit = SubmitBase.RENDERBASE);
+        this._newSubmit && (context.stopMerge = true);
     }
 
     static save(context: Context, type: number, dataObj: any, newSubmit: boolean): void {

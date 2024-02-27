@@ -17,12 +17,21 @@ export abstract class Render2D{
     constructor(out:RenderTexture2D=null){
         this._renderTexture = out;
     }
+    //可以随时设置rt
+    set out(out:RenderTexture2D){
+        this._renderTexture=out;
+    }
+    get out(){
+        return this._renderTexture;
+    }
     //output:RenderTexture2D;
     abstract renderStart():void;
     // 有vb是外部提供的，因此，顶点描述也要由外部提供
     abstract setVertexDecl(decl:VertexDeclaration):void;
     //shaderdata放到mtl中。之所以传内存buffer是为了给后面合并subdata机会，以便提高效率
     abstract draw(vb:ArrayBuffer, ib:ArrayBuffer, vboff:number, vblen:number, iboff:number,iblen:number, mtl:Value2D ):void;
+    // 只是画一个方块
+    drawRect( texture:RenderTexture2D, width:number, height:number, mtl:Value2D,flipY=false){}
     abstract renderEnd():void;
 }
 
@@ -32,9 +41,15 @@ export abstract class Render2D{
 export class Render2DSimple extends Render2D{
     private _tex_vert_decl:VertexDeclaration;
     private geo:WebGLRenderGeometryElement;
+    private static rectGeo:WebGLRenderGeometryElement;
 
     constructor(out:RenderTexture2D=null){
         super(out);
+
+    }
+
+    private _createRectGeo(){
+
     }
 
     private _createMesh(){
@@ -73,11 +88,13 @@ export class Render2DSimple extends Render2D{
         ib._setIndexData(new Uint16Array(ibbuff,iboff,iblen/2),0)
         geo.clearRenderParams();
         geo.setDrawElemenParams(iblen/2,0);
-
-
         mtl.setBlend();
         mtl.upload(null, mtl.shaderData)
         WebGLEngine.instance.getDrawContext().drawGeometryElement(geo);
+    }
+
+    drawRect( texture:RenderTexture2D, width:number, height:number, mtl:Value2D,flipY=false){
+
     }
 
     renderEnd(): void {
