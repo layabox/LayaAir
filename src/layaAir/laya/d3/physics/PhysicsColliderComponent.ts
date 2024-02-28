@@ -53,10 +53,6 @@ export class PhysicsColliderComponent extends Component {
     /**@internal */
     protected _restitutionCombine = 0.0;
     /** @internal */
-    protected _ccdMotionThreshold = 0.0;
-    /** @internal */
-    protected _ccdSweptSphereRadius = 0.0;
-    /** @internal */
     protected _collisionGroup: number = 0x1;
     /** @internal */
     protected _canCollideWith: number = -1;
@@ -175,34 +171,6 @@ export class PhysicsColliderComponent extends Component {
         return this._restitutionCombine;
     }
 
-
-
-    /**
-     * 用于连续碰撞检测(CCD)的速度阈值,当物体移动速度小于该值时不进行CCD检测,防止快速移动物体(例如:子弹)错误的穿过其它物体,0表示禁止。
-     */
-    get ccdMotionThreshold(): number {
-        return this._ccdMotionThreshold;
-    }
-
-    set ccdMotionThreshold(value: number) {
-        //TODO:
-        // this._ccdMotionThreshold = value;
-        // this._btColliderObject && ILaya3D.Physics3D._bullet.btCollisionObject_setCcdMotionThreshold(this._btColliderObject, value);
-    }
-
-    /**
-     * 获取用于进入连续碰撞检测(CCD)范围的球半径。
-     */
-    get ccdSweptSphereRadius(): number {
-        return this._ccdSweptSphereRadius;
-    }
-
-    set ccdSweptSphereRadius(value: number) {
-        //TODO:
-        // this._ccdSweptSphereRadius = value;
-        // this._btColliderObject && ILaya3D.Physics3D._bullet.btCollisionObject_setCcdSweptSphereRadius(this._btColliderObject, value);
-    }
-
     /**
      * 碰撞形状。
      */
@@ -284,11 +252,6 @@ export class PhysicsColliderComponent extends Component {
         this._initCollider();
         this._collider.setOwner(this.owner);
         if (this._colliderShape) this._collider.setColliderShape(this._colliderShape._shape);
-        // this.restitution = this._restitution;
-        // this.friction = this._friction;
-        // this.rollingFriction = this._rollingFriction;
-        this.ccdMotionThreshold = this._ccdMotionThreshold;
-        this.ccdSweptSphereRadius = this._ccdSweptSphereRadius;
         this.collisionGroup = this._collisionGroup;
         this.canCollideWith = this._canCollideWith;
     }
@@ -367,8 +330,6 @@ export class PhysicsColliderComponent extends Component {
         destPhysicsComponent.restitution = this._restitution;
         destPhysicsComponent.friction = this._friction;
         destPhysicsComponent.rollingFriction = this._rollingFriction;
-        destPhysicsComponent.ccdMotionThreshold = this._ccdMotionThreshold;
-        destPhysicsComponent.ccdSweptSphereRadius = this._ccdSweptSphereRadius;
 
         destPhysicsComponent.dynamicFriction = this.dynamicFriction;
         destPhysicsComponent.staticFriction = this.staticFriction;
@@ -423,8 +384,6 @@ export class PhysicsColliderComponent extends Component {
     _parse(data: any): void {
         (data.collisionGroup != null) && (this._collider.setCollisionGroup(data.collisionGroup));
         (data.canCollideWith != null) && (this._collider.setCanCollideWith(data.canCollideWith));
-        (data.ccdMotionThreshold != null) && (this.ccdMotionThreshold = data.ccdMotionThreshold);
-        (data.ccdSweptSphereRadius != null) && (this.ccdSweptSphereRadius = data.ccdSweptSphereRadius);
     }
 
 }

@@ -161,6 +161,12 @@ export class btPhysicsManager implements IPhysicsManager {
     public maxSubSteps = 1;
     /**物理模拟器帧的间隔时间:通过减少fixedTimeStep可增加模拟精度，默认是1.0 / 60.0。*/
     public fixedTimeStep = 1.0 / 60.0;
+    /**是否开启连续碰撞检测 */
+    public enableCCD: boolean = false;
+    /**连续碰撞检测阈值 */
+    public ccdThreshold: number = 0.0001;
+    /**连续碰撞检测球半径 */
+    public ccdSphereRadius: number = 0.0001;
     /**delta */
     public dt = 1 / 60;
     /**@internal */
@@ -226,6 +232,9 @@ export class btPhysicsManager implements IPhysicsManager {
         //Physcics World create
         this.maxSubSteps = physicsSettings.maxSubSteps;
         this.fixedTimeStep = physicsSettings.fixedTimeStep;
+        this.enableCCD = physicsSettings.enableCCD;
+        this.ccdThreshold = physicsSettings.ccdThreshold;
+        this.ccdSphereRadius = physicsSettings.ccdSphereRadius;
 
         this._btCollisionConfiguration = bt.btDefaultCollisionConfiguration_create();
         this._btDispatcher = bt.btCollisionDispatcher_create(this._btCollisionConfiguration);
@@ -312,7 +321,7 @@ export class btPhysicsManager implements IPhysicsManager {
         var elements: any = this._physicsUpdateList.elements;
         for (var i = 0, n = this._physicsUpdateList.length; i < n; i++) {
             var physicCollider: btCollider = elements[i];
-            physicCollider._derivePhysicsTransformation(false);
+            physicCollider._derivePhysicsTransformation(true);
             physicCollider.inPhysicUpdateListIndex = -1;//置空索引
         }
         this._physicsUpdateList.length = 0;//清空物理更新队列
