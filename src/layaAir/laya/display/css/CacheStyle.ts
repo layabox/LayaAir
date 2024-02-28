@@ -141,8 +141,9 @@ export class CacheStyle {
     static CANVAS_EXTEND_EDGE = 16;
     /**
     * @internal
+    * 没看懂传入x,y有什么用
     */
-    _calculateCacheRect(sprite: Sprite, tCacheType: string, x: number, y: number): Point {
+    _calculateCacheRect(sprite: Sprite, tCacheType: string, x: number, y: number,extend=16): Point {
         var _cacheStyle = sprite._cacheStyle;
         if (!_cacheStyle.cacheRect)
             _cacheStyle.cacheRect = Rectangle.create();
@@ -151,12 +152,13 @@ export class CacheStyle {
         //计算显示对象的绘图区域
         if (tCacheType === "bitmap") {
             tRec = sprite.getSelfBounds();
-            tRec.width = tRec.width + CacheStyle.CANVAS_EXTEND_EDGE * 2;
-            tRec.height = tRec.height + CacheStyle.CANVAS_EXTEND_EDGE * 2;
+            tRec.width = tRec.width + extend * 2;
+            tRec.height = tRec.height + extend * 2;
             tRec.x = tRec.x - sprite.pivotX;
             tRec.y = tRec.y - sprite.pivotY;
-            tRec.x = tRec.x - CacheStyle.CANVAS_EXTEND_EDGE;
-            tRec.y = tRec.y - CacheStyle.CANVAS_EXTEND_EDGE;
+            //关于xy这里有些迷惑，这里看来是表示相对于sprite原点的位置。
+            tRec.x = tRec.x - extend;
+            tRec.y = tRec.y - extend;
             tRec.x = Math.floor(tRec.x + x) - x;
             tRec.y = Math.floor(tRec.y + y) - y;
             tRec.width = Math.floor(tRec.width);

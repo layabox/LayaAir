@@ -731,6 +731,7 @@ export class Context {
 
     set globalCompositeOperation(value: string) {
         var n = BlendMode.TOINT[value];
+        this._drawToRender2D(this._curSubmit);
         n == null || (this._nBlendType === n) || (SaveBase.save(this, SaveBase.TYPE_GLOBALCOMPOSITEOPERATION, this, true), this._curSubmit = SubmitBase.RENDERBASE, this._nBlendType = n /*, _shader2D.ALPHA = 1*/);
     }
 
@@ -1055,6 +1056,18 @@ export class Context {
         let mesh = this._mesh;
         if(mesh.indexNum<=0)
             return;
+        let shaderValue = submit.shaderValue;
+        switch(this._nBlendType){
+            case 1://add
+            case 5:
+                shaderValue.blendAdd();
+            break;
+            case 6://mask
+                shaderValue.blendMask();
+            break;
+            default:
+                shaderValue.blendNormal();
+        }
         this._drawMesh(mesh,0,mesh.vertexNum,submit._startIdx,mesh.indexNum,submit.shaderValue);
     }
 
@@ -1062,10 +1075,8 @@ export class Context {
     private _drawMesh(mesh:Mesh2D, vboff:number, vertNum:number, iboff:number, indexNum:number,shaderValue:Value2D){
         if(mesh.indexNum){
             let render2D = this._render2D;
-            render2D.setVertexDecl(mesh.vertexDeclarition);
             render2D.draw( 
-                mesh.vbBuffer,
-                mesh.ibBuffer, 
+                mesh, 
                 vboff,vertNum*mesh.vertexDeclarition.vertexStride,
                 iboff, indexNum*2,
                 shaderValue
@@ -1394,6 +1405,7 @@ export class Context {
 
             Matrix.mul(canv.invMat, mat, mat);
 
+            this._drawToRender2D(this._curSubmit);
             this._curSubmit = SubmitBase.RENDERBASE;
         }
     }
@@ -1413,6 +1425,7 @@ export class Context {
             submit._numEle = 6;
             this._submits[this._submits._length++] = submit;
             //暂时drawTarget不合并
+            this._drawToRender2D(this._curSubmit);
             this._curSubmit = SubmitBase.RENDERBASE
             return true;
         }
