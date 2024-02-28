@@ -75,7 +75,7 @@ export class WebGLBlitQuadCMDData extends BlitQuadCMDData {
     protected _dest: WebGLInternalRT;
     protected _viewport: Viewport;
     protected _source: InternalTexture;
-    protected _sciccor: Vector4;
+    protected _scissor: Vector4;
     protected _offsetScale: Vector4;
     protected _element: WebGLRenderElement3D;
 
@@ -95,12 +95,12 @@ export class WebGLBlitQuadCMDData extends BlitQuadCMDData {
         value.cloneTo(this._viewport);
     }
 
-    get sciccor(): Vector4 {
-        return this._sciccor;
+    get scissor(): Vector4 {
+        return this._scissor;
     }
 
-    set sciccor(value: Vector4) {
-        value.cloneTo(this._sciccor);
+    set scissor(value: Vector4) {
+        value.cloneTo(this._scissor);
     }
 
     get source(): InternalTexture {
@@ -133,7 +133,7 @@ export class WebGLBlitQuadCMDData extends BlitQuadCMDData {
         super();
         this.type = RenderCMDType.Blit;
         this._viewport = new Viewport();
-        this._sciccor = new Vector4();
+        this._scissor = new Vector4();
         this._offsetScale = new Vector4();
         this._sourceTexelSize = new Vector4();
     }
@@ -143,7 +143,7 @@ export class WebGLBlitQuadCMDData extends BlitQuadCMDData {
         this.element.materialShaderData.setVector(Command.SCREENTEXTUREOFFSETSCALE_ID, this._offsetScale);
         this.element.materialShaderData.setVector(Command.MAINTEXTURE_TEXELSIZE_ID, this._sourceTexelSize);
         context.setViewPort(this._viewport);
-        context.setScissor(this._sciccor);
+        context.setScissor(this._scissor);
         context.setRenderTarget(this.dest);
         context.drawRenderElementOne(this.element);
     }
@@ -176,7 +176,7 @@ export class WebGLDrawElementCMDData extends DrawElementCMDData {
 export class WebGLSetViewportCMD extends SetViewportCMD {
     type: RenderCMDType;
     protected _viewport: Viewport;
-    protected _sciccor: Vector4;
+    protected _scissor Vector4;
 
     get viewport(): Viewport {
         return this._viewport;
@@ -186,24 +186,24 @@ export class WebGLSetViewportCMD extends SetViewportCMD {
         this._viewport = value;
     }
 
-    get sciccor(): Vector4 {
-        return this._sciccor;
+    get scissor(): Vector4 {
+        return this._scissor;
     }
 
-    set sciccor(value: Vector4) {
-        this._sciccor = value;
+    set scissor(value: Vector4) {
+        this._scissor = value;
     }
 
     constructor() {
         super();
         this.type = RenderCMDType.ChangeViewPort;
-        this.sciccor = new Vector4();
+        this.scissor = new Vector4();
         this.viewport = new Viewport();
     }
 
     apply(context: WebGLRenderContext3D): void {
         context.setViewPort(this.viewport);
-        context.setScissor(this.sciccor);
+        context.setScissor(this.scissor);
     }
 }
 export class WebGLSetRenderTargetCMD extends SetRenderTargetCMD {

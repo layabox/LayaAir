@@ -64,7 +64,7 @@ export class BlitQuadCMDData implements IRenderCMD {
     type: RenderCMDType;
     protected _dest: InternalRenderTarget;
     protected _viewport: Viewport;
-    protected _sciccor: Vector4;
+    protected _scissor: Vector4;
     protected _source: InternalTexture;
     protected _offsetScale: Vector4;
     protected _element: IRenderElement3D;
@@ -92,12 +92,12 @@ export class BlitQuadCMDData implements IRenderCMD {
         this._viewport = value;
     }
 
-    get sciccor(): Vector4 {
-        return this._sciccor;
+    get scissor(): Vector4 {
+        return this._scissor;
     }
 
-    set sciccor(value: Vector4) {
-        this._sciccor = value;
+    set scissor(value: Vector4) {
+        this._scissor = value;
     }
 
     get source(): InternalTexture {
@@ -136,7 +136,7 @@ export class DrawElementCMDData implements IRenderCMD {
 export class SetViewportCMD implements IRenderCMD {
     type: RenderCMDType;
     protected _viewport: Viewport;
-    protected _sciccor: Vector4;
+    protected _scissor: Vector4;
 
     public get viewport(): Viewport {
         return this._viewport;
@@ -146,12 +146,12 @@ export class SetViewportCMD implements IRenderCMD {
         this._viewport = value;
     }
 
-    public get sciccor(): Vector4 {
-        return this._sciccor;
+    public get scissor(): Vector4 {
+        return this._scissor;
     }
 
-    public set sciccor(value: Vector4) {
-        this._sciccor = value;
+    public set scissor(value: Vector4) {
+        this._scissor = value;
     }
 
     apply(context: IRenderContext3D): void {

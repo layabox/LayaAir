@@ -141,7 +141,7 @@ export class BlitScreenQuadCMD extends Command {
 			Viewport._tempViewport.set(0, 0, dest.width, dest.height);
 			Vector4.tempVec4.setValue(0, 0, dest.width, dest.height);
 			this._blitQuadCMDData.viewport = Viewport._tempViewport;
-			this._blitQuadCMDData.sciccor = Vector4.tempVec4;
+			this._blitQuadCMDData.scissor = Vector4.tempVec4;
 		} else {
 			let camera = this._commandBuffer._camera;
 			let viewport: Viewport = camera.viewport;
@@ -150,7 +150,7 @@ export class BlitScreenQuadCMD extends Command {
 			Viewport._tempViewport.set(viewport.x, vpY, viewport.width, vpH);
 			Vector4.tempVec4.setValue(viewport.x, vpY, viewport.width, vpH);
 			this._blitQuadCMDData.viewport = Viewport._tempViewport;
-			this._blitQuadCMDData.sciccor = Vector4.tempVec4;
+			this._blitQuadCMDData.scissor = Vector4.tempVec4;
 		}
 		this._renderElement.setGeometry((dest ? ScreenQuad.instance : false) ? ScreenQuad.InvertInstance : ScreenQuad.instance);
 		Stat.blitDrawCall++;
