@@ -17,7 +17,7 @@ export class GLESShaderData extends ShaderData {
     _nativeObj: any;
     _defineDatas: RTDefineDatas = new RTDefineDatas();
     _textureData: { [key: number]: BaseTexture };
-
+    _tempColor: Color = new Color();
     /**
      * @internal	
      */
@@ -217,7 +217,12 @@ export class GLESShaderData extends ShaderData {
      * @returns 颜色
      */
     getColor(index: number): Color {
-        return this._nativeObj.getColor(index);
+        let c = this._nativeObj.getColor(index);
+        this._tempColor.r = c.r;
+        this._tempColor.g = c.g;
+        this._tempColor.b = c.b;
+        this._tempColor.a = c.a;
+        return this._tempColor;
     }
 
     /**
@@ -226,6 +231,8 @@ export class GLESShaderData extends ShaderData {
      * @param value 颜色值
      */
     setColor(index: number, value: Color): void {
+        if (!value)
+			return;
         this._nativeObj.setColor(index, value);
     }
 

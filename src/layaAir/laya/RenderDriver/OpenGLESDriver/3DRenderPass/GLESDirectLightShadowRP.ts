@@ -1,3 +1,4 @@
+import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFlag";
 import { CommandBuffer } from "../../../d3/core/render/command/CommandBuffer";
 import { IDirectLightShadowRP } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRenderTarget";
@@ -28,7 +29,7 @@ export class GLESDirectLightShadowRP implements IDirectLightShadowRP {
     }
     public set destTarget(value: InternalRenderTarget) {
         this._destTarget = value;
-        this._nativeObj.setRenderTarget(value);
+        this._nativeObj.setRenderTarget(value, RenderClearFlag.Nothing);
     }
     _nativeObj: any;
     constructor() {

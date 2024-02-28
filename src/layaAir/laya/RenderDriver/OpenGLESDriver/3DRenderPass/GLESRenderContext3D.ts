@@ -1,3 +1,4 @@
+import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFlag";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { Viewport } from "../../../d3/math/Viewport";
 import { Color } from "../../../maths/Color";
@@ -81,12 +82,12 @@ export class GLESRenderContext3D implements IRenderContext3D {
     _nativeObj: any;
 
     constructor() {
-        this._nativeObj = new (window as any).conchRTRenderContext3D();
+        this._nativeObj = new (window as any).conchGLESRenderContext3D();
         this._nativeObj.setGlobalConfigShaderData((Shader3D._configDefineValues as any)._nativeObj);
         this.cameraUpdateMask = 0;
     }
-    setRenderTarget(value: InternalRenderTarget): void {
-        this._nativeObj.setRenderTarget(value);
+    setRenderTarget(value: InternalRenderTarget, clearFlag: RenderClearFlag = RenderClearFlag.Nothing): void {
+        this._nativeObj.setRenderTarget(value, clearFlag);
     }
     setViewPort(value: Viewport): void {
         this._nativeObj.setViewport(value);

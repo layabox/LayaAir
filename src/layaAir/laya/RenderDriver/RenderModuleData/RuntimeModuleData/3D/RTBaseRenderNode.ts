@@ -190,7 +190,6 @@ export class RTBaseRenderNode implements IBaseRenderNode {
 
         this._caculateBoundingBoxbindFun = fun.bind(call);
         this._nativeObj.setCalculateBoundingBox(this._caculateBoundingBoxbindFun);
-        //native
     }
 
     _nativeObj: any;
@@ -204,13 +203,11 @@ export class RTBaseRenderNode implements IBaseRenderNode {
         this.renderelements = [];
     }
     _applyLightProb(): void {
-       //TODO
-    }
-    _applyReflection(): void {
-        //TODO
-    }
-
-
+        this._nativeObj._applyLightProb();
+     }
+     _applyReflection(): void {
+        this._nativeObj._applyReflection();
+     }
     setRenderelements(value: IRenderElement3D[]): void {
         var tempArray: any[] = [];
         this.renderelements.length = 0;
@@ -236,7 +233,11 @@ export class RTBaseRenderNode implements IBaseRenderNode {
     }
 
     setOneMaterial(index: number, mat: Material): void {
-        //TODO
+        if (!this.renderelements[index])
+            return;
+        this.renderelements[index].materialShaderData = mat.shaderData;
+        this.renderelements[index].materialRenderQueue = mat.renderQueue;
+        this.renderelements[index].subShader = mat.shader.getSubShaderAt(0);
     }
 
     destroy(): void {

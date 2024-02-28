@@ -87,7 +87,6 @@ export class RTSubShader implements ISubshaderData {
 }
 
 export class RTShaderPass implements IShaderPassData {
-    statefirst: boolean;
     private _validDefine: RTDefineDatas = new RTDefineDatas();
     private _createShaderInstanceFun: any;
     _nativeObj: any;
@@ -96,9 +95,15 @@ export class RTShaderPass implements IShaderPassData {
         this._nativeObj = new (window as any).conchRTShaderPass();
         this._createShaderInstanceFun = this.nativeCreateShaderInstance.bind(this);
         this._nativeObj.setCreateShaderInstanceFunction(this._createShaderInstanceFun);
-        this._renderState = new RenderState();
-        this._renderState.setNull();
+        this.renderState = new RTRenderState();
+        this.renderState.setNull();
         this._pass = pass;
+    }
+    public get statefirst(): boolean {
+        return this._nativeObj._statefirst;
+    }
+    public set statefirst(value: boolean) {
+        this._nativeObj._statefirst = value;
     }
     private _renderState: RenderState;
     public get renderState(): RenderState {
@@ -106,6 +111,7 @@ export class RTShaderPass implements IShaderPassData {
     }
     public set renderState(value: RenderState) {
         this._renderState = value;
+        this._nativeObj.setRenderState((value as any)._nativeObj);
     }
     public get pipelineMode(): string {
         return this._nativeObj._pipelineMode;

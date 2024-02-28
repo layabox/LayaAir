@@ -215,6 +215,11 @@ export class Sprite extends Node {
         this._getCacheStyle().userSetCache = value;
 
         if (this.mask && value === 'normal') return;
+        if(value=='bitmap'||value=='normal'){
+            this._renderType |= SpriteConst.CANVAS;
+        }else{
+            this._renderType &= ~SpriteConst.CANVAS;
+        }
         //this._checkCanvasEnable();
         this.repaint();
     }
@@ -223,6 +228,7 @@ export class Sprite extends Node {
      * 更新_cnavas相关的状态
      */
     private _checkCanvasEnable(): void {
+        return;	//只有显式设置的才设置CANVAS标记，filter和mask不再设置这个标记
         var tEnable = this._cacheStyle.needEnableCanvasRender();
         this._getCacheStyle().enableCanvasRender = tEnable;
         if (tEnable) {

@@ -1,3 +1,4 @@
+import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFlag";
 import { SpotLightCom } from "../../../d3/core/light/SpotLightCom";
 import { ISpotLightShadowRP } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRenderTarget";
@@ -24,7 +25,7 @@ export class GLESSpotLightShadowRP implements ISpotLightShadowRP {
     
     public set destTarget(value: InternalRenderTarget) {
         this._destTarget = value;
-        this._nativeObj.setRenderTarget(value);
+        this._nativeObj.setRenderTarget(value, RenderClearFlag.Nothing);
     }
     _nativeObj: any;
     constructor() {

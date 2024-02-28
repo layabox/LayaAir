@@ -71,11 +71,12 @@ export abstract class Filter implements IFilter {
 
         let cache = sprite._cacheStyle;
         // 先把节点渲染到一个贴图上
-        if(RenderSprite.RenderToCacheTexture(sprite,context,x,y)){
+        //if(RenderSprite.RenderToCacheTexture(sprite,context,x,y)){
+        if(this._renderNextToCacheRT(sprite,context)){
             let src = cache.renderTexture;
             let dst = src;
-            let width = cache.cacheRect.width;
-            let height = cache.cacheRect.height;
+            let width = src.width;// cache.cacheRect.width;     不能用cacheRect,因为可能有空白，而src补充了这个空白
+            let height = src.height; //cache.cacheRect.height;
             let lastRT = context.render2D.out;
             // 针对这个贴图，依次应用filter
             for (let i = 0; i < len; i++) {
@@ -94,7 +95,7 @@ export abstract class Filter implements IFilter {
             cache.renderTexOffy=filters[len-1].left;
         }
         //直接使用缓存的
-        context._drawRenderTexture(cache.renderTexture, 
+        cache.renderTexture && context._drawRenderTexture(cache.renderTexture, 
             x+cache.renderTexOffx, 
             y+cache.renderTexOffy, 
             cache.renderTexture.width, 

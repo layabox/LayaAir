@@ -76,6 +76,15 @@ export class Value2D {
             this._inClassCache._length = 0;
         }
         this.clear();
+
+        //
+        let data = this.shaderData.getData();
+        data[Shader3D.DEPTH_WRITE] = false;
+        data[Shader3D.DEPTH_TEST] = RenderState.DEPTHTEST_OFF;
+        data[Shader3D.BLEND] = RenderState.BLEND_ENABLE_ALL;
+        data[Shader3D.BLEND_EQUATION] = RenderState.BLENDEQUATION_ADD;
+        data[Shader3D.BLEND_SRC] = RenderState.BLENDPARAM_ONE;
+        data[Shader3D.BLEND_DST] = RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA;
     }
 
     public static _initone(type: number, classT: any): void {
@@ -288,15 +297,29 @@ export class Value2D {
         this.clipOff = this.clipOff
     }
 
-    //临时
-    setBlend() {
+    //
+    blendNormal(){
         let data = this.shaderData.getData();
-        data[Shader3D.DEPTH_WRITE] = false;
-        data[Shader3D.DEPTH_TEST] = RenderState.DEPTHTEST_OFF;
-        data[Shader3D.BLEND] = RenderState.BLEND_ENABLE_ALL;
-        data[Shader3D.BLEND_EQUATION] = RenderState.BLENDEQUATION_ADD;
+        data[Shader3D.BLEND_SRC] = RenderState.BLENDPARAM_SRC_ALPHA;
+        data[Shader3D.BLEND_DST] = RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA;
+    }
+
+    blendPremulAlpha(){
+        let data = this.shaderData.getData();
         data[Shader3D.BLEND_SRC] = RenderState.BLENDPARAM_ONE;
         data[Shader3D.BLEND_DST] = RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA;
+    }
+
+    blendAdd(){
+        let data = this.shaderData.getData();
+        data[Shader3D.BLEND_SRC] = RenderState.BLENDPARAM_ONE;
+        data[Shader3D.BLEND_DST] = RenderState.BLENDPARAM_ONE;
+    }
+    
+    blendMask(){
+        let data = this.shaderData.getData();
+        data[Shader3D.BLEND_SRC] = RenderState.BLENDPARAM_ZERO;
+        data[Shader3D.BLEND_DST] = RenderState.BLENDPARAM_SRC_ALPHA;
     }
 
     release(): void {

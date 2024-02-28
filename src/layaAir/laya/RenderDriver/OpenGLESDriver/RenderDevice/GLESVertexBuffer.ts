@@ -12,6 +12,8 @@ export class GLESVertexBuffer implements IVertexBuffer {
 
     /**@internal */
     _shaderValues: { [key: number]: VertexStateContext };
+    /**@internal */
+	private _attributeMapTemp: Map<number, VertexStateContext> = new Map();
 
     public get vertexDeclaration(): VertexDeclaration {
         return this._vertexDeclaration;
@@ -20,7 +22,15 @@ export class GLESVertexBuffer implements IVertexBuffer {
     public set vertexDeclaration(value: VertexDeclaration) {
         this._vertexDeclaration = value;
         this._shaderValues = this._vertexDeclaration._shaderValues;
-        this._nativeObj.setVertexDeclaration(this._shaderValues);
+       
+        //this._attributeMapTemp.clear();
+        this._nativeObj.clearVertexDeclaration();
+		for (var k in this._shaderValues) {
+			//this._attributeMapTemp.set(parseInt(k), this._shaderValues[k]);
+            this._nativeObj.setVertexDeclaration(parseInt(k), this._shaderValues[k]);
+		}
+
+        //this._nativeObj.setVertexDeclaration(this._attributeMapTemp);
     }
     public get instanceBuffer(): boolean {
         return this._nativeObj._instanceBuffer;
