@@ -75,8 +75,11 @@ export class Base64Tool {
             encoded3 = Base64Tool.lookup[base64.charCodeAt(i + 2)];
             encoded4 = Base64Tool.lookup[base64.charCodeAt(i + 3)];
 
+            if(p + 1 > bufferLength) continue;
             bytes[p++] = (encoded1 << 2) | (encoded2 >> 4);
+            if(p + 1 > bufferLength) continue;
             bytes[p++] = ((encoded2 & 15) << 4) | (encoded3 >> 2);
+            if(p + 1 > bufferLength) continue;
             bytes[p++] = ((encoded3 & 3) << 6) | (encoded4 & 63);
         }
 

@@ -969,7 +969,7 @@ export class Loader extends EventDispatcher {
                 }
             });
 
-            loadTask.onProgressUpdate((res: any) => {
+            loadTask.onProgressUpdate && loadTask.onProgressUpdate((res: any) => {
                 progress && progress(res);
             });
         })

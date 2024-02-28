@@ -16,17 +16,17 @@ export class SpineSkeletonRenderer {
     vertexEffect: spine.VertexEffect = null;
     templet: SpineTemplet;
 
-    private tempColor = new spine.Color();
-    private tempColor2 = new spine.Color();
+    private tempColor = new window.spine.Color();
+    private tempColor2 = new window.spine.Color();
     private vertices: ArrayLike<number>;
     private vertexSize = 2 + 2 + 4;
     private twoColorTint = false;
     private renderable: Renderable;
     private clipper: spine.SkeletonClipping;
-    private temp = new spine.Vector2();
-    private temp2 = new spine.Vector2();
-    private temp3 = new spine.Color();
-    private temp4 = new spine.Color();
+    private temp = new window.spine.Vector2();
+    private temp2 = new window.spine.Vector2();
+    private temp3 = new window.spine.Color();
+    private temp4 = new window.spine.Color();
 
     constructor(templet: SpineTemplet, twoColorTint: boolean = true) {
         this.twoColorTint = twoColorTint;
