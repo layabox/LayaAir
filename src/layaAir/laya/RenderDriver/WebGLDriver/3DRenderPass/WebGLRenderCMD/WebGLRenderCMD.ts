@@ -164,19 +164,19 @@ export class WebGLDrawElementCMDData extends DrawElementCMDData {
     apply(context: WebGLRenderContext3D): void {
         if (this._elemets.length == 1) {
             context.drawRenderElementOne(this._elemets[0]);
-        }else{
+        } else {
             this._elemets.forEach(element => {
                 context.drawRenderElementOne(element);
             });
         }
-      
+
     }
 }
 
 export class WebGLSetViewportCMD extends SetViewportCMD {
     type: RenderCMDType;
     protected _viewport: Viewport;
-    protected _scissor Vector4;
+    protected _scissor: Vector4;
 
     get viewport(): Viewport {
         return this._viewport;

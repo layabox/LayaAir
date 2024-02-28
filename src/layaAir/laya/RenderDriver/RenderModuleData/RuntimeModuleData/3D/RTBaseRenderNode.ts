@@ -202,6 +202,7 @@ export class RTBaseRenderNode implements IBaseRenderNode {
         this._getNativeObj();
         this.renderelements = [];
     }
+    receiveShadow: boolean;
     _applyLightProb(): void {
         this._nativeObj._applyLightProb();
      }
