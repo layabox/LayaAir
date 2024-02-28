@@ -31,7 +31,7 @@ export class PulleyJoint extends JointBase {
     otherGroundPoint: any[] = [0, 0];
 
     /**[首次设置有效]两刚体移动距离比率*/
-    ratio: number = 1.5;
+    ratio: number = 1;
 
     /**[首次设置有效]两个刚体是否可以发生碰撞，默认为false*/
     collideConnected: boolean = false;
