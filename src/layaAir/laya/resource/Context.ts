@@ -601,7 +601,7 @@ export class Context {
         this._submits.length = 0;
         this._submits._length = 0;
         this._submits = null;
-        this._curSubmit = null;
+        this._curSubmit = SubmitBase.RENDERBASE;
 
         this._path = null;
         //_other && (_other.font = null);
@@ -916,15 +916,16 @@ export class Context {
 
     private _fillRect(x: number, y: number, width: number, height: number, rgba: number): void {
         var submit: Submit = this._curSubmit;
-        var sameKey: boolean = submit && (submit._key.submitType === SubmitBase.KEY_DRAWTEXTURE && submit._key.blendShader === this._nBlendType);
+        var sameKey = submit._key.submitType === SubmitBase.KEY_DRAWTEXTURE && 
+                        submit._key.blendShader === this._nBlendType &&
+                        this.isSameClipInfo(submit) &&
+                        this._curSubmit.material==this.material
+                ;
         if (this._mesh.vertNum + 4 > Context._MAXVERTNUM) {
             this._mesh = MeshQuadTexture.getAMesh(this.isMain);//创建新的mesh  TODO 如果_mesh不是常见格式，这里就不能这么做了。以后把_mesh单独表示成常用模式 
             this.meshlist.push(this._mesh);
             sameKey = false;
         }
-
-        //clipinfo
-        sameKey && (sameKey = sameKey && this.isSameClipInfo(submit));
 
         this.transformQuad(x, y, width, height, 0, this._curMat, this._transedPoints);
         if (!this.clipedOff(this._transedPoints)) {
@@ -980,11 +981,9 @@ export class Context {
     /**@internal */
     _fillTexture(texture: Texture, texw: number, texh: number, texuvRect: number[], x: number, y: number, width: number, height: number, type: string, offsetx: number, offsety: number, color: number): void {
         var submit: Submit = this._curSubmit;
-        var sameKey: boolean = false;
         if (this._mesh.vertNum + 4 > Context._MAXVERTNUM) {
             this._mesh = MeshQuadTexture.getAMesh(this.isMain);
             this.meshlist.push(this._mesh);
-            sameKey = false;
         }
 
         //filltexture相关逻辑。计算rect大小以及对应的uv
@@ -1269,10 +1268,8 @@ export class Context {
 
         this._drawCount++;
 
-        var sameKey: boolean = imgid >= 0 && preKey.submitType === SubmitBase.KEY_DRAWTEXTURE && preKey.other === imgid;
-
-        //clipinfo
-        sameKey && (sameKey = sameKey && this.isSameClipInfo(submit));
+        var sameKey = imgid >= 0 && preKey.submitType === SubmitBase.KEY_DRAWTEXTURE && preKey.other === imgid &&
+            this.isSameClipInfo(submit) && this._curSubmit.material==this.material;
 
         this._lastTex = tex;
 
@@ -1671,7 +1668,10 @@ export class Context {
 
         var webGLImg = tex.bitmap;
         var preKey: SubmitKey = this._curSubmit._key;
-        var sameKey: boolean = preKey.submitType === SubmitBase.KEY_TRIANGLES && preKey.other === webGLImg.id && preKey.blendShader == this._nBlendType;
+        var sameKey = preKey.submitType === SubmitBase.KEY_TRIANGLES && 
+                        preKey.other === webGLImg.id && 
+                        preKey.blendShader == this._nBlendType &&
+                        this._curSubmit.material==this.material;
 
         //var rgba:int = mixRGBandAlpha(0xffffffff);
         //rgba = _mixRGBandAlpha(rgba, alpha);	这个函数有问题，不能连续调用，输出作为输入
@@ -1922,8 +1922,11 @@ export class Context {
         var m: Matrix = this._curMat;
         var tPath: Path = this._getPath();
         var submit: Submit = this._curSubmit;
-        var sameKey: boolean = (submit._key.submitType === SubmitBase.KEY_VG && submit._key.blendShader === this._nBlendType);
-        sameKey && (sameKey = sameKey && this.isSameClipInfo(submit));
+        var sameKey = submit._key.submitType === SubmitBase.KEY_VG && 
+                    submit._key.blendShader === this._nBlendType &&
+                    this.isSameClipInfo(submit) &&
+                    this._curSubmit.material==this.material;
+
         if (!sameKey) {
             this._curSubmit = this.addVGSubmit(this._pathMesh);
         }
@@ -2016,8 +2019,10 @@ export class Context {
             var rgba: number = this.mixRGBandAlpha(this.strokeStyle._color.numColor);
             var tPath: Path = this._getPath();
             var submit: Submit = this._curSubmit;
-            var sameKey: boolean = (submit._key.submitType === SubmitBase.KEY_VG && submit._key.blendShader === this._nBlendType);
-            sameKey && (sameKey = sameKey && this.isSameClipInfo(submit));
+            var sameKey = submit._key.submitType === SubmitBase.KEY_VG && 
+                            submit._key.blendShader === this._nBlendType &&
+                            this.isSameClipInfo(submit) && 
+                            this._curSubmit.material==this.material;
 
             if (!sameKey) {
                 this._curSubmit = this.addVGSubmit(this._pathMesh);
