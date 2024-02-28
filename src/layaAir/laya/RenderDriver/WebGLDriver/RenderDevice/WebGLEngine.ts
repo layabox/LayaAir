@@ -443,13 +443,13 @@ export class WebGLEngine implements IRenderEngine {
             for (var j: number = 0; j < 32; j++) {
                 var d: number = 1 << j;
                 if (subMask > 0 && d > subMask)//如果31位存在subMask为负数,避免break
-                        break;
-                    if (subMask & d)
-                        out.push(subMaskMap[d]);
-                }
+                    break;
+                if (subMask & d)
+                    out.push(subMaskMap[d]);
             }
         }
-    
+    }
+
     /**
     * 注册宏定义。
     * @param name 

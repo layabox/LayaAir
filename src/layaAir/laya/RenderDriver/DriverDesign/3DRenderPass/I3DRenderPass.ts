@@ -151,7 +151,6 @@ export interface IRenderElement2D{
     materialShaderData: ShaderData;
     value2DShaderData:ShaderData;
     subShader: SubShader;
-    render(context:IRenderContext3D):void;
     destroy():void;
 }
 
