@@ -77,7 +77,7 @@ export class GLESBlitQuadCMDData extends BlitQuadCMDData {
     protected _dest: GLESInternalRT;
     protected _viewport: Viewport;
     protected _source: GLESInternalTex;
-    protected _sciccor: Vector4;
+    protected _scissor: Vector4;
     protected _offsetScale: Vector4;
     protected _element: GLESRenderElement3D;
     /**@internal */
@@ -101,13 +101,13 @@ export class GLESBlitQuadCMDData extends BlitQuadCMDData {
         this._nativeObj.setViewport(value);
     }
 
-    get sciccor(): Vector4 {
-        return this._sciccor;
+    get scissor(): Vector4 {
+        return this._scissor;
     }
 
-    set sciccor(value: Vector4) {
-        value.cloneTo(this._sciccor);
-        this._nativeObj.setSciccor(value);
+    set scissor(value: Vector4) {
+        value.cloneTo(this._scissor);
+        this._nativeObj.setScissor(value);
     }
 
     get source(): GLESInternalTex {
@@ -142,7 +142,7 @@ export class GLESBlitQuadCMDData extends BlitQuadCMDData {
         super();
         this.type = RenderCMDType.Blit;
         this._viewport = new Viewport();
-        this._sciccor = new Vector4();
+        this._scissor = new Vector4();
         this._offsetScale = new Vector4();
         this._sourceTexelSize = new Vector4();
         this._nativeObj = new (window as any).conchGLESBlitQuadCMDData();
@@ -183,7 +183,7 @@ export class GLESSetViewportCMD extends SetViewportCMD {
     /**@internal */
     _nativeObj: any;
     protected _viewport: Viewport;
-    protected _sciccor: Vector4;
+    protected _scissor: Vector4;
 
     get viewport(): Viewport {
         return this._viewport;
@@ -194,19 +194,19 @@ export class GLESSetViewportCMD extends SetViewportCMD {
         this._nativeObj.setViewport(value);
     }
 
-    get sciccor(): Vector4 {
-        return this._sciccor;
+    get scissor(): Vector4 {
+        return this._scissor;
     }
 
-    set sciccor(value: Vector4) {
-        this._sciccor = value;
-        this._nativeObj.setSciccor(value);
+    set scissor(value: Vector4) {
+        this._scissor = value;
+        this._nativeObj.setScissor(value);
     }
 
     constructor() {
         super();
         this.type = RenderCMDType.ChangeViewPort;
-        this.sciccor = new Vector4();
+        this.scissor = new Vector4();
         this.viewport = new Viewport();
         this._nativeObj = new (window as any).conchGLESSetViewportCMD();
     }

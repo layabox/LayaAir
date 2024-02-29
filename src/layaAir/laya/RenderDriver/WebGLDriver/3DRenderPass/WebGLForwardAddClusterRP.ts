@@ -15,6 +15,8 @@ import { WebGLRenderContext3D } from "./WebGLRenderContext3D";
 import { WebGLCullUtil } from "./WebGLRenderUtil/WebGLCullUtil";
 import { WebGLRenderListQueue } from "./WebGLRenderUtil/WebGLRenderListQueue";
 import { PipelineMode } from "../../DriverDesign/3DRenderPass/I3DRenderPass"
+import { WebGLRenderElement3D } from "./WebGLRenderElement3D";
+import { WebGLSkyRenderElement3D } from "./WebGLSkyRenderElement3D";
 export class WebGLForwardAddClusterRP implements IForwardAddClusterRP {
 
     /** @internal*/
@@ -211,18 +213,21 @@ export class WebGLForwardAddClusterRP implements IForwardAddClusterRP {
         this.enableOpaque && this.opaqueList.renderQueue(context);
         this._rendercmd(this.beforeSkyboxCmds, context);
 
-        // if (this.skyRenderNode) {
-        //     let skyRenderNode = <GLESBaseRenderNode>this.skyRenderNode;
-        //     context.drawRenderElementOne(skyRenderNode.renderelements[0]);
-        // }
+        if (this.skyRenderNode) {
+            let skyRenderNode = <WebBaseRenderNode>this.skyRenderNode;
+            let skyRenderElement = <WebGLSkyRenderElement3D>skyRenderNode.renderelements[0];
+            skyRenderElement.viewMatrixIndex = Camera.VIEWMATRIX;
+            skyRenderElement.projectionMatrixIndex = Camera.PROJECTMATRIX;
+            skyRenderElement.projectViewMatrixIndex = Camera.VIEWPROJECTMATRIX;
+            context.drawRenderElementOne(skyRenderElement);
+        }
 
         if (this.enableOpaque) {
             this.opaqueTexturePass();
         }
         this._rendercmd(this.beforeTransparentCmds, context);
         this._recoverRenderContext3D(context);
-        this.transparent &&this.transparent.renderQueue(context);
-      
+        this.transparent && this.transparent.renderQueue(context);
     }
 
     private _rendercmd(cmds: Array<CommandBuffer>, context: WebGLRenderContext3D) {

@@ -84,7 +84,7 @@ export class LoadResourceDemo {
 			//材质加载
 			Material.load("res/threeDimen/skyBox/skyBox2/skyBox2.lmat", Handler.create(this, (mat: Material) => {
 				//获取相机的天空渲染器
-				var skyRenderer: SkyRenderer = camera.skyRenderer;
+				var skyRenderer: SkyRenderer = camera.scene.skyRenderer;
 				//创建天空盒的mesh
 				skyRenderer.mesh = SkyBox.instance;
 				//设置天空盒材质
@@ -196,7 +196,7 @@ export class LoadResourceDemo {
 
 		//使用材质
 		var skyboxMaterial: Material = <Material>Loader.getRes("res/threeDimen/skyBox/skyBox2/skyBox2.lmat");
-		var skyRenderer: SkyRenderer = camera.skyRenderer;
+		var skyRenderer: SkyRenderer = camera.scene.skyRenderer;
 		skyRenderer.mesh = SkyDome.instance;
 		skyRenderer.material = skyboxMaterial;
 

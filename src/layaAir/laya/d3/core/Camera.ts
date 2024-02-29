@@ -522,6 +522,7 @@ export class Camera extends BaseCamera {
             viewMatE[10] /= scaleZ;
             this._viewMatrix.invert(this._viewMatrix);
             this._updateViewMatrix = false;
+            this.skyRenderElement.calculateViewMatrix(this._viewMatrix);
         }
         return this._viewMatrix;
     }
@@ -750,6 +751,7 @@ export class Camera extends BaseCamera {
             } else {
                 Matrix4x4.createPerspective(3.1416 * this.fieldOfView / 180.0, this.aspectRatio, this.nearPlane, this.farPlane, this._projectionMatrix);
             }
+            this.skyRenderElement.caluclateProjectionMatrix(this._projectionMatrix, this.aspectRatio, this.nearPlane, this.farPlane, this.fieldOfView, this.orthographic);
         }
     }
 
@@ -1172,7 +1174,7 @@ export class Camera extends BaseCamera {
                 clearColor = this.clearColor;
             }
             var clearFlag: number = this.clearFlag;
-            if (clearFlag === CameraClearFlags.Sky && !(this.skyRenderer._isAvailable()))
+            if (clearFlag === CameraClearFlags.Sky)
                 clearFlag = CameraClearFlags.SolidColor;
             let clearConst: number = 0;
             let stencilFlag = renderTex.depthStencilFormat == RenderTargetFormat.DEPTHSTENCIL_24_8 ? RenderClearFlag.Stencil : 0;
@@ -1213,6 +1215,7 @@ export class Camera extends BaseCamera {
         this._ForwardAddRP.setAfterEventCmd(this._cameraEventCommandBuffer[CameraEventFlags.AfterEveryThing]);
         this._ForwardAddRP.renderpass.setCameraCullInfo(this);
         if (this.clearFlag == CameraClearFlags.Sky) {
+            scene.skyRenderer.setRenderElement(this.skyRenderElement);
             this._ForwardAddRP.renderpass.skyRenderNode = scene.skyRenderer._baseRenderNode;
         }
         else {

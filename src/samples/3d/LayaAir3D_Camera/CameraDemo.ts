@@ -152,7 +152,7 @@ export class CameraDemo {
 				//使用加载天空盒材质
 				var skyboxMaterial: Material = (<Material>Loader.getRes("res/threeDimen/skyBox/skyBox2/skyBox2.lmat"));
 				//获取相机的天空渲染器
-				var skyRenderer: SkyRenderer = this.camera.skyRenderer;
+				var skyRenderer: SkyRenderer = this.camera.scene.skyRenderer;
 				//设置相机的天空渲染器的mesh
 				skyRenderer.mesh = SkyBox.instance;
 				//设置相机的天空渲染器的material

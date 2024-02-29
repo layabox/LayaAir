@@ -21,6 +21,12 @@ export class FastSinglelist<T> extends SingletonList<T> {
 }
 
 export class WebGLRenderGeometryElement implements IRenderGeometryElement {
+
+  private static _idCounter: number = 0;
+
+  /** @internal */
+  _id: number = ++WebGLRenderGeometryElement._idCounter;
+
   /**@internal */
   bufferState: WebGLBufferState;
 

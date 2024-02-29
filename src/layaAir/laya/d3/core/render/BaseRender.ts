@@ -373,6 +373,7 @@ export class BaseRender extends Component {
             else
                 this._baseRenderNode.shaderData.removeDefine(RenderableSprite3D.SHADERDEFINE_RECEIVE_SHADOW);
         }
+        this._baseRenderNode.receiveShadow = value;
     }
 
     /**

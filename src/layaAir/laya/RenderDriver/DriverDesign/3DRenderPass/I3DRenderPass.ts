@@ -15,6 +15,7 @@ import { IRenderGeometryElement } from "../RenderDevice/IRenderGeometryElement";
 import { InternalRenderTarget } from "../RenderDevice/InternalRenderTarget";
 import { IRenderCMD } from "./IRendderCMD";
 import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFlag";
+import { Matrix4x4 } from "../../../maths/Matrix4x4";
 
 export interface ISpotLightShadowRP {
     light: SpotLightCom;
@@ -99,7 +100,7 @@ export interface IForwardAddRP {
 
     /**main pass */
     renderpass: IForwardAddClusterRP;
-    
+
     setBeforeImageEffect(value: Array<CommandBuffer>): void;
     /**Render end commanbuffer */
     setAfterEventCmd(value: Array<CommandBuffer>): void;
@@ -130,7 +131,7 @@ export interface IRenderContext3D {
     runCMDList(cmds: IRenderCMD[]): void;
 }
 
-export interface IRenderContext2D{
+export interface IRenderContext2D {
     //TODO
 }
 
@@ -143,13 +144,21 @@ export interface IRenderElement3D {
     isRender: boolean;
     owner: IBaseRenderNode;
     subShader: SubShader;
+    materialId: number;
     destroy(): void;
 }
 
-export interface IRenderElement2D{
+export interface ISkyRenderElement3D extends IRenderElement3D {
+    skyViewMatrix: Matrix4x4;
+    skyProjectionMatrix: Matrix4x4;
+}
+
+export interface IRenderElement2D {
     geometry: IRenderGeometryElement;
     materialShaderData: ShaderData;
-    value2DShaderData:ShaderData;
+    value2DShaderData: ShaderData;
     subShader: SubShader;
-    destroy():void;
+    render(context: IRenderContext3D): void;
+    destroy(): void;
+
 }

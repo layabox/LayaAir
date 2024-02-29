@@ -99,6 +99,14 @@ export class GLESRenderElement3D implements IRenderElement3D {
         this._nativeObj.setSubShader((value.moduleData as any as RTSubShader)._nativeObj);
     }
 
+    // todo
+    public get materialId(): number {
+        return this._nativeObj._materialId;
+    }
+    public set materialId(value: number) {
+        this._nativeObj._materialId = value;
+    }
+
     _nativeObj: any;
 
     constructor() {

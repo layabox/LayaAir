@@ -7,6 +7,11 @@ import { IReflectionProbeData } from "../../Design/3D/I3DRenderModuleData";
 
 
 export class RTReflectionProb implements IReflectionProbeData {
+    private static _idCounter: number = 0;
+
+    /** @internal */
+    _id: number = ++RTReflectionProb._idCounter;
+
     public get boxProjection(): boolean {
         return this._nativeObj._boxProjection;
     }

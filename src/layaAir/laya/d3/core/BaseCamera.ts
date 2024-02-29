@@ -18,6 +18,7 @@ import { ShaderDataType, ShaderData } from "../../RenderDriver/DriverDesign/Rend
 import { ShaderDefine } from "../../RenderDriver/RenderModuleData/Design/ShaderDefine";
 import { IRenderEngine } from "../../RenderDriver/DriverDesign/RenderDevice/IRenderEngine";
 import { CommandUniformMap } from "../../RenderDriver/DriverDesign/RenderDevice/CommandUniformMap";
+import { SkyRenderElement } from "./render/SkyRenderElement";
 
 /**
  * <code>BaseCamera</code> 类用于创建摄像机的父类。
@@ -216,8 +217,9 @@ export class BaseCamera extends Sprite3D {
     protected _fieldOfView: number;
     /** 正交投影的垂直尺寸。*/
     private _orthographicVerticalSize: number;
-    /** skyRender */
-    private _skyRenderer: SkyRenderer = new SkyRenderer();
+
+    private _skyRenderElement: SkyRenderElement;
+
     /** 前向量*/
     _forward: Vector3 = new Vector3();
     /** up向量 */
@@ -256,8 +258,8 @@ export class BaseCamera extends Sprite3D {
     /**
      * 天空渲染器。
      */
-    get skyRenderer(): SkyRenderer {
-        return this._skyRenderer;
+    get skyRenderElement(): SkyRenderElement {
+        return this._skyRenderElement;
     }
 
     /**
@@ -390,6 +392,8 @@ export class BaseCamera extends Sprite3D {
             this._shaderValues._addCheckUBO(UniformBufferObject.UBONAME_CAMERA, this._cameraUniformUBO, this._cameraUniformData);
             this._shaderValues.setUniformBuffer(BaseCamera.CAMERAUNIFORMBLOCK, this._cameraUniformUBO);
         }
+
+        this._skyRenderElement = new SkyRenderElement();
     }
 
     private _caculateMaxLocalYRange() {
@@ -545,10 +549,6 @@ export class BaseCamera extends Sprite3D {
 
         var color: any[] = data.clearColor;
         this.clearColor = new Color(color[0], color[1], color[2], color[3]);
-        var skyboxMaterial: any = data.skyboxMaterial;
-        if (skyboxMaterial) {
-            this._skyRenderer.material = Loader.getRes(skyboxMaterial.path);
-        }
     }
 
     /**
@@ -560,8 +560,8 @@ export class BaseCamera extends Sprite3D {
     destroy(destroyChild: boolean = true): void {
         //postProcess = null;
         //AmbientLight = null;
-        this._skyRenderer.destroy();
-        this._skyRenderer = null;
+        this._skyRenderElement.destroy();
+        this._skyRenderElement = null;
 
         ILaya.stage.off(Event.RESIZE, this, this._onScreenSizeChanged);
         super.destroy(destroyChild);

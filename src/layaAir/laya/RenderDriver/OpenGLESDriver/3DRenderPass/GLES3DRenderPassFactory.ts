@@ -1,5 +1,5 @@
 import { SceneRenderManagerOBJ } from "../../../d3/core/scene/SceneRenderManagerOBJ";
-import { IRender3DProcess, IRenderContext3D, IRenderElement3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
+import { IRender3DProcess, IRenderContext3D, IRenderElement3D, ISkyRenderElement3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { I3DRenderPassFactory } from "../../DriverDesign/3DRenderPass/I3DRenderPassFactory";
 import { DrawNodeCMDData, BlitQuadCMDData, DrawElementCMDData, SetViewportCMD, SetRenderTargetCMD, SetRenderDataCMD, SetShaderDefineCMD } from "../../DriverDesign/3DRenderPass/IRendderCMD";
 import { ISceneRenderManager } from "../../DriverDesign/3DRenderPass/ISceneRenderManager";
@@ -15,6 +15,9 @@ import { GLESSpotLightShadowRP } from "./GLESSpotLightShadowRP";
 
 export class GLES3DRenderPassFactory implements I3DRenderPassFactory {
 
+    createSkyRenderElement(): ISkyRenderElement3D {
+        throw new Error("Method not implemented.");
+    }
     createRender3DProcess(): IRender3DProcess {
         return new GLESRender3DProcess();
     }

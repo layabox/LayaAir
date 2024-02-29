@@ -20,6 +20,7 @@ export class WebBaseRenderNode implements IBaseRenderNode {
     distanceForSort: number;
     sortingFudge: number;
     castShadow: boolean;
+    receiveShadow: boolean;
     enable: boolean;
     renderbitFlag: number;
     layer: number;
@@ -155,6 +156,7 @@ export class WebBaseRenderNode implements IBaseRenderNode {
         this.renderelements[index].materialShaderData = mat.shaderData;
         this.renderelements[index].materialRenderQueue = mat.renderQueue;
         this.renderelements[index].subShader = mat.shader.getSubShaderAt(0);
+        this.renderelements[index].materialId = mat._id;
     }
 
     /**

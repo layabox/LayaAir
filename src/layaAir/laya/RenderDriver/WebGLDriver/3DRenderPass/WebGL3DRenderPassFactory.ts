@@ -1,5 +1,5 @@
 import { SceneRenderManagerOBJ } from "../../../d3/core/scene/SceneRenderManagerOBJ";
-import { ISpotLightShadowRP, IRenderContext3D, IRenderElement3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
+import { ISpotLightShadowRP, IRenderContext3D, IRenderElement3D, ISkyRenderElement3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { I3DRenderPassFactory } from "../../DriverDesign/3DRenderPass/I3DRenderPassFactory";
 import { DrawNodeCMDData, BlitQuadCMDData, DrawElementCMDData, SetViewportCMD, SetRenderTargetCMD, SetRenderDataCMD, SetShaderDefineCMD } from "../../DriverDesign/3DRenderPass/IRendderCMD";
 import { ISceneRenderManager } from "../../DriverDesign/3DRenderPass/ISceneRenderManager";
@@ -11,6 +11,7 @@ import { WebGLBlitQuadCMDData, WebGLDrawElementCMDData, WebGLDrawNodeCMDData, We
 import { WebGLRenderContext3D } from "./WebGLRenderContext3D";
 import { WebGLRenderElement3D } from "./WebGLRenderElement3D";
 import { WebGLSkinRenderElement3D } from "./WebGLSkinRenderElement3D";
+import { WebGLSkyRenderElement3D } from "./WebGLSkyRenderElement3D";
 import { WebGLSpotLightShadowRP } from "./WebGLSpotLightShadowRP";
 
 
@@ -49,6 +50,11 @@ export class WebGL3DRenderPassFactory implements I3DRenderPassFactory {
     createRenderElement3D(): IRenderElement3D {
         return new WebGLRenderElement3D();
     }
+
+    createSkyRenderElement(): ISkyRenderElement3D {
+        return new WebGLSkyRenderElement3D();
+    }
+
     createDirectLightShadowRP(): WebGLDirectLightShadowRP {
         return new WebGLDirectLightShadowRP();
     }

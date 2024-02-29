@@ -6,6 +6,12 @@ import { InternalTexture } from "../../../DriverDesign/RenderDevice/InternalText
 import { IVolumetricGIData } from "../../Design/3D/I3DRenderModuleData";
 
 export class RTVolumetricGI implements IVolumetricGIData {
+
+    private static _idCounter: number = 0;
+
+    /** @internal */
+    _id: number = ++RTVolumetricGI._idCounter;
+
     private _irradiance: InternalTexture;
     public get irradiance(): InternalTexture {
         return this._irradiance;
