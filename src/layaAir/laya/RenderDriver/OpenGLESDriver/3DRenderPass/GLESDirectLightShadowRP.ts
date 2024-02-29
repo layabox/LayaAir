@@ -1,3 +1,5 @@
+import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFlag";
+import { CommandBuffer } from "../../../d3/core/render/command/CommandBuffer";
 import { IDirectLightShadowRP } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRenderTarget";
 import { RTDirectLight } from "../../RenderModuleData/RuntimeModuleData/3D/RTDirectLight";
@@ -27,10 +29,31 @@ export class GLESDirectLightShadowRP implements IDirectLightShadowRP {
     }
     public set destTarget(value: InternalRenderTarget) {
         this._destTarget = value;
-        this._nativeObj.setRenderTarget(value);
+        this._nativeObj.setRenderTarget(value, RenderClearFlag.Nothing);
     }
     _nativeObj: any;
     constructor() {
         this._nativeObj = new (window as any).conchRTDirectLightShadowCastRP();
+    }
+    private _shadowCasterCommanBuffer: CommandBuffer[];
+    public get shadowCasterCommanBuffer(): CommandBuffer[] {
+        return this._shadowCasterCommanBuffer;
+    }
+    public set shadowCasterCommanBuffer(value: CommandBuffer[]) {
+        this._shadowCasterCommanBuffer = value;
+        this._nativeObj.clearShadowCasterCommandBuffer();
+        value.forEach(element => {
+            this._setCmd(element);
+        });
+    }
+
+    private _setCmd(cmd: CommandBuffer) {
+        cmd._apply(false);
+        let cmds = cmd._renderCMDs;
+        let nativeobCMDs: any[] = [];
+        cmds.forEach(element => {
+            nativeobCMDs.push((element as any)._nativeObj);
+        });
+        this._nativeObj.addShadowCasterCommandBuffers(nativeobCMDs);
     }
 }

@@ -3,62 +3,59 @@ import { RTShaderDefine } from "./RTShaderDefine";
 
 
 export class RTDefineDatas implements IDefineDatas {
-    _nativeobj: any;
-    constructor(value?: any) {
-        if (value) {
-            this._nativeobj = value;
-        }
-        else {
-            this._nativeobj = new (window as any).conchRTDefineDatas();
-        }
+    _nativeObj: any;
+    constructor() {
+        this._nativeObj = new (window as any).conchRTDefineDatas();
     }
     get _length(): number {
-        return this._nativeobj._length;
+        return this._nativeObj._length;
     }
 
     set _length(value: number) {
-        this._nativeobj._length = value;
+        this._nativeObj._length = value;
     }
     get _mask(): number[] {
-        return this._nativeobj._mask;
+        return this._nativeObj._mask;
     }
 
     set _mask(value: number[]) {
-        this._nativeobj._mask = value;
+        this._nativeObj._mask = value;
     }
     /**
      * @internal
      */
     _intersectionDefineDatas(define: RTDefineDatas): void {
-        this._nativeobj._intersectionDefineDatas(define._nativeobj);
+        this._nativeObj._intersectionDefineDatas(define);
     }
 
     add(define: RTShaderDefine): void {
-        this._nativeobj.add(define._nativeobj);
+        this._nativeObj.add(define);
     }
     remove(define: RTShaderDefine): void {
-        this._nativeobj.remove(define._nativeobj);
+        this._nativeObj.remove(define);
     }
     addDefineDatas(define: RTDefineDatas): void {
-        this._nativeobj.addDefineDatas(define._nativeobj);
+        this._nativeObj.addDefineDatas(define._nativeObj);
     }
     removeDefineDatas(define: RTDefineDatas): void {
-        this._nativeobj.removeDefineDatas(define._nativeobj);
+        this._nativeObj.removeDefineDatas(define._nativeObj);
     }
     has(define: RTShaderDefine): boolean {
-        return this._nativeobj.has(define._nativeobj);
+        return this._nativeObj.has(define);
     }
     clear(): void {
-        this._nativeobj.clear();
+        this._nativeObj.clear();
     }
     cloneTo(destObject: RTDefineDatas): void {
-        this._nativeobj.cloneTo(destObject._nativeobj);
+        this._nativeObj.cloneTo(destObject._nativeObj);
     }
     clone(): RTDefineDatas {
-        return new RTDefineDatas(this._nativeobj.clone());
+        var dest: RTDefineDatas = new RTDefineDatas();
+		this.cloneTo(dest);
+		return dest;
     }
     destroy(): void {
-        this._nativeobj.destroy();
+        this._nativeObj.destroy();
     }
 
 }

@@ -1,7 +1,7 @@
 /**
-	 * ...
-	 * @author xie
-	 */
+ * ...
+ * @author xie
+ */
 export class SubmitKey {
     blendShader: number;
     submitType: number;
@@ -32,29 +32,24 @@ export class SubmitKey {
         this.submitType = submitType;
     }
 
-    //�Ƚ�3�����ⲿ�ṩ2��
     //TODO:coverage
     equal3_2(next: SubmitKey, submitType: number, other: number): boolean {
         return this.submitType === submitType && this.other === other && this.blendShader === next.blendShader;// && this.alpha === alpha;
     }
 
-    //ȫ�Ƚϡ��ⲿ�ṩ2��
     //TODO:coverage
     equal4_2(next: SubmitKey, submitType: number, other: number): boolean {
         return this.submitType === submitType && this.other === other && this.blendShader === next.blendShader;// && alpha === next.alpha;
     }
 
-    //�Ƚ�3��
     //TODO:coverage
     equal_3(next: SubmitKey): boolean {
         return this.submitType === next.submitType && this.blendShader === next.blendShader;// && alpha === next.alpha;
     }
-    //ȫ�Ƚϡ�4��
     //TODO:coverage
     equal(next: SubmitKey): boolean {
         return this.other === next.other && this.submitType === next.submitType && this.blendShader === next.blendShader;// && alpha === next.alpha;
     }
-
 }
 
 

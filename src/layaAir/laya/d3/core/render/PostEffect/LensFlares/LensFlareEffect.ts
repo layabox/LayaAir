@@ -380,7 +380,7 @@ export class LensFlareEffect extends PostProcessEffect {
     render(context: PostProcessRenderContext) {
         var cmd: CommandBuffer = context.command;
         let source: RenderTexture = context.indirectTarget;
-        cmd.setRenderTarget(source);
+        cmd.setRenderTarget(source,false,false);
         if (!this._light)
             return;
         switch (this._light.lightType) {

@@ -1,8 +1,7 @@
-import { Camera } from "../../Camera";
+import { DrawNodeCMDData } from "../../../../RenderDriver/DriverDesign/3DRenderPass/IRendderCMD";
 import { Material } from "../../../../resource/Material";
+import { Laya3DRender } from "../../../RenderObjs/Laya3DRender";
 import { BaseRender } from "../BaseRender";
-import { RenderContext3D } from "../RenderContext3D";
-import { RenderElement } from "../RenderElement";
 import { Command } from "./Command";
 import { CommandBuffer } from "./CommandBuffer";
 
@@ -13,12 +12,11 @@ export class DrawRenderCMD extends Command {
     /**
      * @internal
      */
-    static create(render: BaseRender, material: Material, subShaderIndex: number, commandBuffer: CommandBuffer): DrawRenderCMD {
+    static create(render: BaseRender, material: Material, commandBuffer: CommandBuffer): DrawRenderCMD {
         var cmd: DrawRenderCMD;
         cmd = DrawRenderCMD._pool.length > 0 ? DrawRenderCMD._pool.pop() : new DrawRenderCMD();
-        cmd._render = render;
+        cmd.render = render;
         cmd.material = material;
-        cmd._subShaderIndex = subShaderIndex;
         cmd._commandBuffer = commandBuffer;
         return cmd;
     }
@@ -28,51 +26,34 @@ export class DrawRenderCMD extends Command {
     /**@internal */
     private _material: Material;
     /**@internal */
-    private _render: BaseRender;
+    private _prematerial: Material;
     /**@internal */
-    private _subShaderIndex: number;
+    private _render: BaseRender;
 
+    /**@internal */
+    _drawNodeCMDData: DrawNodeCMDData;
 
     constructor() {
         super();
+        this._drawNodeCMDData = Laya3DRender.Render3DPassFactory.createDrawNodeCMDData();
     }
 
-    /**
-     * @internal
-     */
-    private _elementRender(renderElement: RenderElement, context: RenderContext3D): void {
-        renderElement.renderSubShader = this._material._shader.getSubShaderAt(this._subShaderIndex);//TODO
-        renderElement.material = this._material;
-        //context.drawRenderElement(renderElement);
+    set render(render: BaseRender) {
+        this._drawNodeCMDData.node = render._baseRenderNode;
+        this._render = render;
     }
 
     set material(value: Material) {
         this._material && this._material._removeReference(1);
         this._material = value;
         this._material && this._material._addReference(1);
+       this._drawNodeCMDData.destShaderData = value.shaderData;
+       this._drawNodeCMDData.destSubShader = value.shader.getSubShaderAt(0);
     }
 
-    /**
-     * @inheritDoc
-     * @override
-     */
-    run(): void {
-        if (!this._material)
-            throw "This render command material cannot be empty";
-        this.setContext(this._commandBuffer._context);
-        var context = this._context;
-       // context._contextOBJ.applyContext(Camera._updateMark);
-        var renderElements = this._render._renderElements;
-        for (var i: number = 0, n = renderElements.length; i < n; i++) {
-            var renderelement = renderElements[i];
-            //change Material
-            let mat = renderelement.material;
-            this._elementRender(renderelement, context);
-            //Recover Material
-            renderelement.material = mat;
-        }
+    getRenderCMD(): DrawNodeCMDData {
+        return this._drawNodeCMDData;
     }
-
 
     /**
      * @inheritDoc
@@ -83,6 +64,8 @@ export class DrawRenderCMD extends Command {
         super.recover();
         this._material && this._material._removeReference(1);
         this._material = null;
+        this.render.sharedMaterial = this._prematerial;
+        this.render = null;
     }
 
     destroy(): void {

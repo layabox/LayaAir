@@ -1,25 +1,21 @@
-import { SubmitBase } from "./SubmitBase";
-import { ColorFilter } from "../../filters/ColorFilter"
-import { Context } from "../../resource/Context"
-import { BlendMode } from "../canvas/BlendMode"
-import { TextureSV } from "../shader/d2/value/TextureSV"
-import { Value2D } from "../shader/d2/value/Value2D"
-import { Mesh2D } from "../utils/Mesh2D"
-import { RenderStateContext } from "../../RenderEngine/RenderStateContext";
-import { MeshTopology } from "../../RenderEngine/RenderEnum/RenderPologyMode";
-import { IndexFormat } from "../../RenderEngine/RenderEnum/IndexFormat";
 import { Const } from "../../Const";
+import { RenderStateContext } from "../../RenderEngine/RenderStateContext";
+import { ColorFilter } from "../../filters/ColorFilter";
 import { Matrix4x4 } from "../../maths/Matrix4x4";
 import { Vector4 } from "../../maths/Vector4";
+import { Context } from "../../renders/Context";
 import { Material } from "../../resource/Material";
-import { Laya } from "../../../Laya";
-import { LayaGL } from "../../layagl/LayaGL";
+import { BlendMode } from "../canvas/BlendMode";
+import { TextureSV } from "../shader/d2/value/TextureSV";
+import { Value2D } from "../shader/d2/value/Value2D";
+import { Mesh2D } from "../utils/Mesh2D";
+import { SubmitBase } from "./SubmitBase";
 
 export class SubmitTexture extends SubmitBase {
-    private static _poolSize: number = 0;
+    private static _poolSize = 0;
     private static POOL: SubmitTexture[] = [];
     material: Material;
-    constructor(renderType: number = SubmitBase.TYPE_2D) {
+    constructor(renderType = SubmitBase.TYPE_2D) {
         super(renderType);
     }
     /**
@@ -36,6 +32,10 @@ export class SubmitTexture extends SubmitBase {
     }
 
     renderSubmit(): number {
+        return 1;
+        //this.renderObj.render();
+        //return 1;
+
         if (this._numEle === 0)
             return 1;
 
@@ -45,7 +45,7 @@ export class SubmitTexture extends SubmitBase {
             if (!source) return 1;
         }
 
-        this._mesh.useMesh();//Mesh2D  ->    Geometry  Vao  Vb  ib
+        /// this._mesh.useMesh();//Mesh2D  ->    Geometry  Vao  Vb  ib
 
         //bind Shader uploadData
         this.shaderValue.updateShaderData();//Material   Shader   ShaderData
@@ -68,7 +68,7 @@ export class SubmitTexture extends SubmitBase {
             BlendMode.activeBlendFunction = this._blendFn;
         }
         this.shaderValue.texture = source;
-        this.shaderValue.upload(this.material);//Update Uniform
+        this.shaderValue.upload(this.material,this.shaderValue.shaderData);//Update Uniform
         //}
         //Draw
         //LayaGL.renderDrawContext.drawElements2DTemp(MeshTopology.Triangles, this._numEle, IndexFormat.UInt16, this._startIdx);
@@ -79,12 +79,12 @@ export class SubmitTexture extends SubmitBase {
        create方法只传对submit设置的值
      */
     static create(context: Context, mesh: Mesh2D, sv: Value2D): SubmitTexture {
-        var o = SubmitTexture._poolSize ? SubmitTexture.POOL[--SubmitTexture._poolSize] : new SubmitTexture(SubmitBase.TYPE_TEXTURE);
+        var o = new SubmitTexture(SubmitBase.TYPE_TEXTURE);
         o._mesh = mesh;
         o._key.clear();
         o._key.submitType = SubmitBase.KEY_DRAWTEXTURE;
         o._ref = 1;
-        o._startIdx = mesh.indexNum * Const.BYTES_PIDX;
+        o._startIdx = mesh.indexNum * Const.INDEX_BYTES;
         o._numEle = 0;
         var blendType = context._nBlendType;
         o._key.blendShader = blendType;
@@ -94,7 +94,7 @@ export class SubmitTexture extends SubmitBase {
         //sv.setValue(context._shader2D);
         if (context._colorFiler) {
             var ft: ColorFilter = context._colorFiler;
-            sv.defines.addDefine(ft.typeDefine);
+            sv.shaderData.addDefine(ft.typeDefine);
             Matrix4x4.TEMPMatrix0.cloneByArray(ft._mat);
             (<TextureSV>sv).colorMat = Matrix4x4.TEMPMatrix0;
             Vector4.tempVec4.setValue(ft._alpha[0], ft._alpha[1], ft._alpha[2], ft._alpha[3]);

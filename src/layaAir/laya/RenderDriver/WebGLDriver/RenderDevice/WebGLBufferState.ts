@@ -53,7 +53,7 @@ export class WebGLBufferState implements IBufferState {
         }
     }
 
-    isbind(): boolean {
+    isBind(): boolean {
         return (WebGLBufferState._curBindedBufferState == this);
     }
 

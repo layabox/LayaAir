@@ -7,7 +7,7 @@ import { Matrix } from "../maths/Matrix";
 import { Point } from "../maths/Point";
 import { Rectangle } from "../maths/Rectangle";
 import { RenderSprite } from "../renders/RenderSprite";
-import { Context } from "../resource/Context";
+import { Context } from "../renders/Context";
 import { HTMLCanvas } from "../resource/HTMLCanvas";
 import { Texture } from "../resource/Texture";
 import { Texture2D } from "../resource/Texture2D";
@@ -203,13 +203,11 @@ export class Sprite extends Node {
         return this._cacheStyle.userSetCache;
     }
 
-    /**@internal */
-    _setCacheAs(value: string): void {
-        //_dataf32[SpriteConst.POSCACHE] = value == "bitmap"?2:(value == "normal"?1:0);
-    }
-
     set cacheAs(value: string) {
         if (value === this._cacheStyle.userSetCache) return;
+        //debug ：normal现在效果不对，先去掉以免影响别人
+        if(value=='normal') return;
+        //debug
         if ('bitmap' == value && !(this._cacheStyle.canvas instanceof HTMLCanvas)) {
             this._cacheStyle.canvas = null;
         }
@@ -217,8 +215,12 @@ export class Sprite extends Node {
         this._getCacheStyle().userSetCache = value;
 
         if (this.mask && value === 'normal') return;
-        this._setCacheAs(value);
-        this._checkCanvasEnable();
+        if(value=='bitmap'||value=='normal'){
+            this._renderType |= SpriteConst.CANVAS;
+        }else{
+            this._renderType &= ~SpriteConst.CANVAS;
+        }
+        //this._checkCanvasEnable();
         this.repaint();
     }
 
@@ -226,7 +228,8 @@ export class Sprite extends Node {
      * 更新_cnavas相关的状态
      */
     private _checkCanvasEnable(): void {
-        var tEnable: boolean = this._cacheStyle.needEnableCanvasRender();
+        return;	//只有显式设置的才设置CANVAS标记，filter和mask不再设置这个标记
+        var tEnable = this._cacheStyle.needEnableCanvasRender();
         this._getCacheStyle().enableCanvasRender = tEnable;
         if (tEnable) {
             if (this._cacheStyle.needBitmapCache()) {
@@ -241,7 +244,6 @@ export class Sprite extends Node {
             this._cacheStyle.releaseContext();
             this._renderType &= ~SpriteConst.CANVAS;
         }
-        this._setCacheAs(this._cacheStyle.cacheAs);
     }
 
     /**设置cacheAs为非空时此值才有效，staticCache=true时，子对象变化时不会自动更新缓存，只能通过调用reCache方法手动刷新。*/
@@ -1184,7 +1186,7 @@ export class Sprite extends Node {
         offsetY |= 0;
         canvasWidth |= 0;
         canvasHeight |= 0;
-        var ctx: Context = new Context();
+        var ctx = new Context();
         ctx.size(canvasWidth, canvasHeight);
         ctx.asBitmap = true;
         ctx._targets.start();
@@ -1285,11 +1287,11 @@ export class Sprite extends Node {
     }
 
     /**滤镜集合。可以设置多个滤镜组合。*/
-    get filters(): any[] {
+    get filters(): Filter[] {
         return this._cacheStyle.filters;
     }
 
-    set filters(value: any[]) {
+    set filters(value: Filter[]) {
         value && value.length === 0 && (value = null);
         this._getCacheStyle().filters = value ? value.slice() : null;
         if (value)
@@ -1301,38 +1303,15 @@ export class Sprite extends Node {
             if (!this._getBit(NodeFlags.DISPLAY)) this._setBitUp(NodeFlags.DISPLAY);
             if (!(value.length == 1 && (value[0] instanceof ColorFilter))) {
                 this._getCacheStyle().cacheForFilters = true;
-                this._checkCanvasEnable();
+                //this._checkCanvasEnable();
             }
         } else {
             if (this._cacheStyle.cacheForFilters) {
                 this._cacheStyle.cacheForFilters = false;
-                this._checkCanvasEnable();
+                //this._checkCanvasEnable();
             }
         }
-        this._getCacheStyle().hasGlowFilter = this._isHaveGlowFilter();
         this.repaint();
-    }
-
-    /**
-     * @internal
-     * 查看当前原件中是否包含发光滤镜。
-     * @return 一个 Boolean 值，表示当前原件中是否包含发光滤镜。
-     */
-    _isHaveGlowFilter(): boolean {
-        var i: number, len: number;
-        if (this.filters) {
-            for (i = 0; i < this.filters.length; i++) {
-                if (this.filters[i].type == Filter.GLOW) {
-                    return true;
-                }
-            }
-        }
-        for (i = 0, len = this._children.length; i < len; i++) {
-            if ((<Sprite>this._children[i])._isHaveGlowFilter()) {
-                return true;
-            }
-        }
-        return false;
     }
 
     /**
@@ -1517,6 +1496,9 @@ export class Sprite extends Node {
             this._repaint |= type;
             this.parentRepaint(type);
         }
+        if(this._cacheStyle){
+            this._cacheStyle.renderTexture=null;//TODO 重用
+        }
         if (this._cacheStyle && this._cacheStyle.maskParent) {
             this._cacheStyle.maskParent.repaint(type);
         }
@@ -1592,7 +1574,7 @@ export class Sprite extends Node {
 
         this._getCacheStyle().mask = value;
         this._setMask(value);
-        this._checkCanvasEnable();
+        //this._checkCanvasEnable();
 
         if (value) {
             value._getCacheStyle().maskParent = this;
@@ -1643,9 +1625,6 @@ export class Sprite extends Node {
             if (this._cacheStyle) {
                 this._cacheStyle.releaseContext();
                 this._cacheStyle.releaseFilterCache();
-                if (this._cacheStyle.hasGlowFilter) {
-                    this._cacheStyle.hasGlowFilter = false;
-                }
             }
         }
         super._setDisplay(value);

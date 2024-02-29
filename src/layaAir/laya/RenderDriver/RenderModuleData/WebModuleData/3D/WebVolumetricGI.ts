@@ -10,6 +10,12 @@ import { IVolumetricGIData } from "../../Design/3D/I3DRenderModuleData";
 
 
 export class WebVolumetricGI implements IVolumetricGIData {
+
+    private static _idCounter: number = 0;
+
+    /** @internal */
+    _id: number = ++WebVolumetricGI._idCounter;
+
     private _probeCounts: Vector3 = new Vector3();
     private _probeStep: Vector3 = new Vector3();
     irradiance: InternalTexture;

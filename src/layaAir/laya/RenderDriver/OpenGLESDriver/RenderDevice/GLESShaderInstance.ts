@@ -13,7 +13,8 @@ export class GLESShaderInstance implements IShaderInstance {
 
 	/**@internal */
 	private _shaderPass: ShaderPass;
-
+	/**@internal */
+	private _attributeMapTemp: Map<string, number> = new Map();
 	constructor() {
 
 	}
@@ -21,12 +22,12 @@ export class GLESShaderInstance implements IShaderInstance {
 	_create(shaderProcessInfo: ShaderProcessInfo, shaderPass: ShaderPass): void {
 		this._shaderPass = shaderPass;
 		let shaderObj = GLSLCodeGenerator.GLShaderLanguageProcess3D(shaderProcessInfo.defineString, shaderProcessInfo.attributeMap, shaderProcessInfo.uniformMap, shaderProcessInfo.vs, shaderProcessInfo.ps);
-		var attributeMap: { [name: string]: number } = {};
+		this._attributeMapTemp.clear();
 		for (var k in shaderProcessInfo.attributeMap) {
-			attributeMap[k] = shaderProcessInfo.attributeMap[k][0];
+			this._attributeMapTemp.set(k, shaderProcessInfo.attributeMap[k][0]);
 		}
-		var renderState: any = (<ShaderPass>shaderPass).renderState;
-		this._nativeObj = new (window as any).conchShaderInstance((LayaGL.renderEngine as any)._nativeObj, shaderObj.vs, shaderObj.fs, attributeMap, renderState._nativeObj);
+	
+		this._nativeObj = new (window as any).conchGLESShaderInstance(shaderProcessInfo.is2D, shaderObj.vs, shaderObj.fs, this._attributeMapTemp, (shaderPass.moduleData as any)._nativeObj);
 		
 	}
 

@@ -1,6 +1,5 @@
 import { Texture2D } from "./Texture2D"
 import { BaseTexture } from "./BaseTexture"
-import { BaseShader } from "../webgl/shader/BaseShader"
 import { RenderState2D } from "../webgl/utils/RenderState2D"
 import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
 import { RenderClearFlag } from "../RenderEngine/RenderEnum/RenderClearFlag";
@@ -223,7 +222,6 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
         this._lastHeight = RenderState2D.height;
         RenderState2D.width = this._width;
         RenderState2D.height = this._height;
-        BaseShader.activeShader = null;
         ////}
     }
 
@@ -262,7 +260,6 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
         LayaGL.renderEngine.scissor(0, 0, this._lastWidth, this._lastHeight);
         RenderState2D.width = this._lastWidth;
         RenderState2D.height = this._lastHeight;
-        BaseShader.activeShader = null;
         //} else 
         //	gl.viewport(0, 0, Laya.stage.width, Laya.stage.height);
     }
@@ -318,7 +315,7 @@ export class RenderTexture2D extends BaseTexture implements IRenderTarget {
 // native
 if ((window as any).conch && !(window as any).conchConfig.conchWebGL) {
     //@ts-ignore
-    RenderTexture2D = NativeRenderTexture2D;
+    //lvtodo RenderTexture2D = NativeRenderTexture2D;
 }
 
 

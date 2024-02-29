@@ -3,15 +3,24 @@ import { IRenderElement3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass"
 import { NativeTransform3D } from "../../RenderModuleData/RuntimeModuleData/3D/NativeTransform3D";
 import { RTSubShader } from "../../RenderModuleData/RuntimeModuleData/3D/RT3DRenderModuleData";
 import { RTBaseRenderNode } from "../../RenderModuleData/RuntimeModuleData/3D/RTBaseRenderNode";
+import { RTDefineDatas } from "../../RenderModuleData/RuntimeModuleData/RTDefineDatas";
 import { GLESRenderGeometryElement } from "../RenderDevice/GLESRenderGeometryElement";
 import { GLESShaderData } from "../RenderDevice/GLESShaderData";
+
 export enum RenderElementType {
     Base = 0,
     Skin = 1,
     Instance = 2,
 }
 export class GLESRenderElement3D implements IRenderElement3D {
-
+    /** @internal */
+    static _compileDefine: RTDefineDatas = null;
+    static getCompileDefine(): RTDefineDatas {
+        if (!GLESRenderElement3D._compileDefine) {
+            GLESRenderElement3D._compileDefine = new RTDefineDatas();
+        }
+        return GLESRenderElement3D._compileDefine;
+    }
     private _geometry: GLESRenderGeometryElement;
 
     private _materialShaderData: GLESShaderData;
@@ -90,10 +99,19 @@ export class GLESRenderElement3D implements IRenderElement3D {
         this._nativeObj.setSubShader((value.moduleData as any as RTSubShader)._nativeObj);
     }
 
+    // todo
+    public get materialId(): number {
+        return this._nativeObj._materialId;
+    }
+    public set materialId(value: number) {
+        this._nativeObj._materialId = value;
+    }
+
     _nativeObj: any;
 
     constructor() {
         this.init();
+        (window as any).conchGLESRenderElement3D.setCompileDefine((GLESRenderElement3D.getCompileDefine() as any)._nativeObj)
     }
 
     destroy(): void {
@@ -105,6 +123,6 @@ export class GLESRenderElement3D implements IRenderElement3D {
     }
 
     protected init(): void {
-        this._nativeObj = new (window as any).conchRenderElementOBJ();
+        this._nativeObj = new (window as any).conchGLESRenderElement3D();
     }
 }

@@ -12,7 +12,6 @@ export interface InternalTexture {
      * gpu texture object
      */
     resource: any;
-    target: number;
 
     width: number;
     height: number;

@@ -5,7 +5,7 @@ export class GLESCommandUniformMap extends CommandUniformMap{
     _nativeObj:any;
     constructor(stateName: string){
         super(stateName);
-        this._nativeObj =  new (window as any).conchGLESCommandUniformMap(stateName);
+        this._nativeObj =  new (window as any).conchGLESCommandUniformMap.create(stateName);
     }
     	/**
 	 * 增加一个Uniform参数
@@ -13,7 +13,7 @@ export class GLESCommandUniformMap extends CommandUniformMap{
 	 * @param propertyID 
 	 * @param propertyKey 
 	 */
-	addShaderUniform(propertyID: number, propertyKey: string, uniformtype: ShaderDataType, block: string = null): void {
+	addShaderUniform(propertyID: number, propertyKey: string, uniformtype: ShaderDataType, block: string = ""): void {
         this._nativeObj.addShaderUniform(propertyID,propertyKey,uniformtype,block);
 	}
 

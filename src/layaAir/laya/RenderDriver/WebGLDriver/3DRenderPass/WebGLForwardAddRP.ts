@@ -12,8 +12,22 @@ export class WebGLForwardAddRP implements IForwardAddRP {
         this.renderpass = new WebGLForwardAddClusterRP();
     }
 
+    setBeforeImageEffect(value: CommandBuffer[]): void {
+        if (value && value.length > 0) {
+            this._beforeImageEffectCMDS = value;
+            value.forEach(element => {
+                element._apply(false);
+            });
+        }
+    }
+
     setAfterEventCmd(value: CommandBuffer[]): void {
-        this.afterEventCmd = value;
+        if (value && value.length > 0) {
+            this._afterAllRenderCMDS = value;
+            value.forEach(element => {
+                element._apply(false);
+            });
+        }
     }
     /**是否开启阴影 */
     shadowCastPass: boolean = false;
@@ -31,9 +45,11 @@ export class WebGLForwardAddRP implements IForwardAddRP {
     enableSpotLightShadowPass: boolean = false;
 
     /**Render end commanbuffer */
-    afterEventCmd: Array<CommandBuffer>;
+    /**@internal */
+    _afterAllRenderCMDS: Array<CommandBuffer>;
+    /**@internal */
+    _beforeImageEffectCMDS: Array<CommandBuffer>;
     //postProcess TODO
-
     /**main pass */
     renderpass: WebGLForwardAddClusterRP;
 }

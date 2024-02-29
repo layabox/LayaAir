@@ -280,7 +280,7 @@ export class BaseRender extends Component {
      * 间接光照功能查询
      */
     get irradientMode() {
-        return this._baseRenderNode.lightmapIndex;
+        return this._baseRenderNode.irradientMode;
     }
 
     /**
@@ -373,6 +373,7 @@ export class BaseRender extends Component {
             else
                 this._baseRenderNode.shaderData.removeDefine(RenderableSprite3D.SHADERDEFINE_RECEIVE_SHADOW);
         }
+        this._baseRenderNode.receiveShadow = value;
     }
 
     /**

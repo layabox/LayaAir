@@ -1,5 +1,4 @@
-import { LayaGL } from "../../../layagl/LayaGL";
-import { GLESRenderElement3D, RenderElementType } from "./GLESRenderElement3D";
+import { GLESRenderElement3D } from "./GLESRenderElement3D";
 
 export class GLESSkinRenderElement3D extends GLESRenderElement3D {
 
@@ -13,9 +12,9 @@ export class GLESSkinRenderElement3D extends GLESRenderElement3D {
     }
     set skinnedData(data: Float32Array[]) {
         this._skinnedData = data;
-        this._nativeObj._skinnedData = data;
+        this._nativeObj.setSkinnedData(data);
     }
     init(): void {
-        this._nativeObj = new (window as any).conchRenderElement(RenderElementType.Skin, (LayaGL.renderEngine as any)._nativeObj);
+        this._nativeObj = new (window as any).conchGLESSkinRenderElement3D();
     }
 }

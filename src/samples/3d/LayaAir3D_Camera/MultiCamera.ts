@@ -53,7 +53,7 @@ export class MultiCamera {
 			//设置相机清除标志，使用天空
 			camera2.clearFlag = CameraClearFlags.Sky;
 			Material.load("res/threeDimen/skyBox/skyBox2/skyBox2.lmat", Handler.create(this, function (mat: SkyBoxMaterial): void {
-				var skyRenderer: SkyRenderer = camera2.skyRenderer;
+				var skyRenderer: SkyRenderer = camera2.scene.skyRenderer;
 				skyRenderer.mesh = SkyBox.instance;
 				skyRenderer.material = mat;
 			}));

@@ -6,6 +6,7 @@ import { Color } from "../../../maths/Color";
 import { Vector4 } from "../../../maths/Vector4";
 import { DepthTextureMode } from "../../../resource/RenderTexture";
 import { IForwardAddClusterRP } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
+import { IRenderCMD } from "../../DriverDesign/3DRenderPass/IRendderCMD";
 import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRenderTarget";
 import { RTCameraNodeData } from "../../RenderModuleData/RuntimeModuleData/3D/RT3DRenderModuleData";
 import { RTBaseRenderNode } from "../../RenderModuleData/RuntimeModuleData/3D/RTBaseRenderNode";
@@ -85,7 +86,7 @@ export class GLESForwardAddClusterRP implements IForwardAddClusterRP {
     }
     public set skyRenderNode(value: RTBaseRenderNode) {
         this._skyRenderNode = value;
-        this._nativeObj.setSkyRenderNode(value._nativeObj);
+        this._nativeObj.setSkyRenderNode(value ? value._nativeObj : null);
     }
     public get depthTextureMode(): DepthTextureMode {
         return this._nativeObj._depthTextureMode;
@@ -142,21 +143,55 @@ export class GLESForwardAddClusterRP implements IForwardAddClusterRP {
         this._nativeObj.setScissor(value);
     }
 
+    private _getRenderCMDArray(cmds: IRenderCMD[]){
+        let nativeobCMDs: any[] = [];
+        cmds.forEach(element => {
+            nativeobCMDs.push((element as any)._nativeObj);
+        });
+        return nativeobCMDs;
+    }
+
     setBeforeForwardCmds(value: CommandBuffer[]): void {
-        throw new Error("Method not implemented.");
+        if (value && value.length > 0) {
+            this._nativeObj.clearBeforeForwardCmds();
+            value.forEach(element => {
+                element._apply(false);
+                this._nativeObj.addBeforeForwardCmds(this._getRenderCMDArray(element._renderCMDs));
+            });
+        } else {
+            this._nativeObj.clearBeforeForwardCmds();
+        }
     }
 
     setBeforeSkyboxCmds(value: CommandBuffer[]): void {
-        throw new Error("Method not implemented.");
+        if (value && value.length > 0) {
+            // this.beforeTransparentCmds = value;
+            this._nativeObj.clearBeforeSkyboxCmds();
+            value.forEach(element => {
+                element._apply(false);
+                this._nativeObj.addBeforeSkyboxCmds(this._getRenderCMDArray(element._renderCMDs));
+            });
+        } else {
+            this._nativeObj.clearBeforeSkyboxCmds();
+        }
     }
 
     setBeforeTransparentCmds(value: CommandBuffer[]): void {
-        throw new Error("Method not implemented.");
+        if (value && value.length > 0) {
+            this._nativeObj.clearBeforeTransparentCmds();
+            value.forEach(element => {
+                element._apply(false);
+                this._nativeObj.setAddBeforeTransparentCmds(this._getRenderCMDArray(element._renderCMDs));
+            });
+        }else{
+            this._nativeObj.clearBeforeTransparentCmds();
+        }
     }
 
     _nativeObj: any;
 
     constructor() {
+        this._cameraCullInfo = new CameraCullInfo();
         this._nativeObj = new (window as any).conchRTForwardAddClusterRP();
     }
 

@@ -5,7 +5,7 @@ import { SpriteConst } from "../display/SpriteConst"
 import { SpriteStyle } from "../display/css/SpriteStyle"
 import { Matrix } from "../maths/Matrix"
 import { Rectangle } from "../maths/Rectangle"
-import { Context } from "../resource/Context"
+import { Context } from "./Context"
 import { Texture } from "../resource/Texture"
 import { _RenderFunction } from "./RenderSprite"
 

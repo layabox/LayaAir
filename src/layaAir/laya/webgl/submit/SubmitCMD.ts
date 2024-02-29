@@ -6,7 +6,7 @@ export class SubmitCMD implements ISubmit {
     _this: any;
     args: any[];
     /**@internal */
-    _ref: number = 1;
+    _ref = 1;
     /**@internal */
     _key: SubmitKey = new SubmitKey();
 
@@ -42,6 +42,6 @@ export class SubmitCMD implements ISubmit {
         return o;
     }
 }
-{ (SubmitCMD.POOL as any)._length = 0 }
+(SubmitCMD.POOL as any)._length = 0
 
 

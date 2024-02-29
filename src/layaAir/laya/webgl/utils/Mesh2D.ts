@@ -1,25 +1,19 @@
-import { BufferUsage } from "../../RenderEngine/RenderEnum/BufferTargetType";
-import { Config } from "./../../../Config";
-import { BufferState } from "./BufferState";
-import { IndexBuffer2D } from "./IndexBuffer2D";
-import { VertexBuffer2D } from "./VertexBuffer2D";
+import { VertexDeclaration } from "../../RenderEngine/VertexDeclaration";
+import { IMesh2D } from "../../renders/Render2D";
 
 /**
- * Mesh2d只是保存数据。描述attribute用的。本身不具有渲染功能。
+ * Mesh2d只是保存数据。描述attribute用的。本身没有webgl数据。
  */
-export class Mesh2D {
-    _stride = 0;			//顶点结构大小。每个mesh的顶点结构是固定的。
-    vertNum = 0;				//当前的顶点的个数
-    indexNum = 0;			//实际index 个数。例如一个三角形是3个。由于ib本身可能超过实际使用的数量，所以需要一个indexNum
-    protected _applied = false;	//是否已经设置给webgl了
-    _vb: VertexBuffer2D;			//vb和ib都可能需要在外部修改，所以public
-    _ib: IndexBuffer2D;
-    private _vao: BufferState;						//webgl VAO对象。需要WebGL扩展。
-    private static _gvaoid = 0;
-    private _attribInfo: any[];			//保存起来的属性定义数组。
-    protected _quadNum = 0;
-    //public static var meshlist:Array = [];	//活着的mesh对象列表。
-    canReuse = false;	//用完以后，是删除还是回收。
+export abstract class Mesh2D implements IMesh2D{
+    //顶点结构大小。每个mesh的顶点结构是固定的。
+    protected _stride = 0;	
+    //当前的顶点的个数。对外只读		
+    protected _vertNum = 0;			
+    //实际index 个数。对外只读。例如一个三角形是3个。由于ib本身可能超过实际使用的数量，所以需要一个indexNum
+    protected _indexNum = 0;			
+
+    protected _VBBuff:ArrayBuffer;
+    protected _IBBuff:ArrayBuffer;
 
     /**
      * @param	stride
@@ -28,121 +22,63 @@ export class Mesh2D {
      */
     constructor(stride: number, vballoc: number, iballoc: number) {
         this._stride = stride;
-        this._vb = new VertexBuffer2D(stride, BufferUsage.Dynamic);
-        if (vballoc) {
-            this._vb.buffer2D._resizeBuffer(vballoc, false);
-        } else {
-            Config.webGL2D_MeshAllocMaxMem && this._vb.buffer2D._resizeBuffer(64 * 1024 * stride, false);
-        }
-        this._ib = new IndexBuffer2D();
-        if (iballoc) {
-            this._ib.buffer2D._resizeBuffer(iballoc, false);
-        }
-        //meshlist.push(this);
+        this._VBBuff = new ArrayBuffer(vballoc||32);
+        this._IBBuff = new ArrayBuffer(iballoc||8)
+        this.onVBRealloc(this._VBBuff);
+        this.onIBRealloc(this._IBBuff);
     }
 
-    /**
-     * 直接创建一个固定的ib。按照固定四边形的索引。
-     * @param	var QuadNum
-     */
-    createQuadIB(QuadNum: number): void {
-        this._quadNum = QuadNum;
-        this._ib.buffer2D._resizeBuffer(QuadNum * 6 * 2, false);	//short类型
-        this._ib.buffer2D.byteLength = this._ib.buffer2D.bufferLength;	//这个我也不知道是什么意思
-
-        var bd: Uint16Array = this._ib.buffer2D._uint16Array;
-        var idx: number = 0;
-        var curvert: number = 0;
-        for (var i: number = 0; i < QuadNum; i++) {
-            bd[idx++] = curvert;
-            bd[idx++] = curvert + 2;
-            bd[idx++] = curvert + 1;
-            bd[idx++] = curvert;
-            bd[idx++] = curvert + 3;
-            bd[idx++] = curvert + 2;
-            curvert += 4;
-        }
-
-        this._ib.buffer2D.setNeedUpload();
+    get vbBuffer():ArrayBuffer{
+        return this._VBBuff;
+    }
+    get ibBuffer():ArrayBuffer{
+        return this._IBBuff;
     }
 
+    get indexNum(){
+        return this._indexNum
+    }
+
+    get vertexNum(){
+        return this._vertNum
+    }
+
+    abstract get vertexDeclarition():VertexDeclaration;
+
+    clearMesh(){
+        this._vertNum=0;
+        this._indexNum=0;
+    }
+
+    protected abstract onVBRealloc(buff:ArrayBuffer):void;
+    protected abstract onIBRealloc(buff:ArrayBuffer):void;
+
     /**
-     * 设置mesh的属性。每3个一组，对应的location分别是0,1,2...
-     * 含义是：type,size,offset
-     * 不允许多流。因此stride是固定的，offset只是在一个vertex之内。
-     * @param	attribs
-     */
-    setAttributes(attribs: any[]): void {
-        this._attribInfo = attribs;
-        if (this._attribInfo.length % 3 != 0) {
-            throw 'Mesh2D setAttributes error!';
+    * 在当前的基础上需要多大空间，单位是byte
+    * @param	sz
+    */
+    protected expVBSize(len: number) {
+        if (len) {
+            let curLen = this._vertNum*this._stride;
+            if(curLen+len > this._VBBuff.byteLength){
+                let old = this._VBBuff;
+                this._VBBuff = new ArrayBuffer(curLen+len*8);
+                (new Uint8Array(this._VBBuff,0,curLen)).set(new Uint8Array(old,0,curLen));
+                this.onVBRealloc(this._VBBuff);
+            }
         }
     }
 
-    /**
-     * 初始化VAO的配置，只需要执行一次。以后使用的时候直接bind就行
-     * @param	gl
-     */
-    private configVAO(): void {
-        if (this._applied)
-            return;
-        this._applied = true;
-        if (!this._vao) {
-            //_vao = __JS__('gl.createVertexArray();');
-            this._vao = new BufferState();
-            //_vao.dbgid = _gvaoid++;
+    protected expIBSize(len:number){
+        if (len) {
+            let curlen = this._indexNum*2;
+            if(curlen+len > this._IBBuff.byteLength){
+                let old = this._IBBuff;
+                this._IBBuff = new ArrayBuffer(curlen+len*8);
+                (new Uint8Array(this._IBBuff,0,curlen)).set(new Uint8Array(old,0,curlen));
+                this.onIBRealloc(this._IBBuff);
+            }
         }
-        this._vao.applyState([this._vb], this._ib);
-        // var attribNum: number = this._attribInfo.length / 3;
-        // var idx: number = 0;
-        // for (var i: number = 0; i < attribNum; i++) {
-        //     var _size: number = this._attribInfo[idx + 1];
-        //     var _type: number = this._attribInfo[idx];
-        //     var _off: number = this._attribInfo[idx + 2];
-        //     gl.enableVertexAttribArray(i);
-        //     gl.vertexAttribPointer(i, _size, _type, false, this._stride, _off); //注意 normalize都设置为false了，想必没人要用这个功能把。
-        //     idx += 3;
-        // }
-        // this._vao.unBind();
-        //gl.bindVertexArray(null);
-    }
-
-    /**
-     * 应用这个mesh
-     * @param	gl
-     */
-    useMesh(): void {
-        //if ((this._vao && !this._vao.isbind()) || this._ib.buffer2D._upload || this._vb.buffer2D._upload) {
-        //    BufferState._curBindedBufferState && BufferState._curBindedBufferState.unBind();
-       // }
-        //要先bind，在bufferData
-        this._applied || this.configVAO();
-        this._ib.buffer2D._bind_upload();
-        this._vb.buffer2D._bind_upload();
-        //this._vao.bind();
-    }
-
-    // //TODO:coverage
-    // getEleNum(): number {
-    //     return this._ib.buffer2D.getBuffer().byteLength / 2;
-    // }
-
-    /**
-     * 子类实现。用来把自己放到对应的回收池中，以便复用。
-     */
-    releaseMesh(): void { }
-
-    /**
-     * 释放资源。
-     */
-    destroy(): void {
-    }
-
-    /**
-     * 清理vb数据
-     */
-    clearVB(): void {
-        this._vb.buffer2D.clear();
     }
 }
 

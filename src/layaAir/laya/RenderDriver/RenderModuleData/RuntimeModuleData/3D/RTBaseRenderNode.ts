@@ -5,15 +5,16 @@ import { Vector4 } from "../../../../maths/Vector4";
 import { Material } from "../../../../resource/Material";
 import { IRenderElement3D } from "../../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { IBaseRenderNode } from "../../Design/3D/I3DRenderModuleData";
-import { GLESShaderData } from "../../../OpenglESDriver/RenderDevice/GLESShaderData";
 import { NativeTransform3D } from "./NativeTransform3D";
 import { RTLightmapData } from "./RTLightmap";
 import { RTReflectionProb } from "./RTReflectionProb";
 import { RTVolumetricGI } from "./RTVolumetricGI";
 import { ShaderData } from "../../../DriverDesign/RenderDevice/ShaderData";
+import { NativeBounds } from "./NativeBounds";
 
 
 export class RTBaseRenderNode implements IBaseRenderNode {
+    renderelements: IRenderElement3D[];
     private _transform: NativeTransform3D;
 
     public get transform(): NativeTransform3D {
@@ -77,7 +78,7 @@ export class RTBaseRenderNode implements IBaseRenderNode {
     }
     public set baseGeometryBounds(value: Bounds) {
         this._baseGeometryBounds = value;
-        //TODO this._nativeObj.setBaseGeometryBounds(value._nativeObj);
+        this._nativeObj.setBaseGeometryBounds((value._imp as any)._nativeObj);
     }
     public get boundsChange(): boolean {
         return this._nativeObj._boundsChange;
@@ -189,7 +190,6 @@ export class RTBaseRenderNode implements IBaseRenderNode {
 
         this._caculateBoundingBoxbindFun = fun.bind(call);
         this._nativeObj.setCalculateBoundingBox(this._caculateBoundingBoxbindFun);
-        //native
     }
 
     _nativeObj: any;
@@ -199,18 +199,26 @@ export class RTBaseRenderNode implements IBaseRenderNode {
     }
 
     constructor() {
-        this._nativeObj = this._getNativeObj();
+        this._getNativeObj();
+        this.renderelements = [];
     }
+    receiveShadow: boolean;
     _applyLightProb(): void {
-       //TODO
-    }
-    _applyReflection(): void {
-        //TODO
-    }
-
-
+        this._nativeObj._applyLightProb();
+     }
+     _applyReflection(): void {
+        this._nativeObj._applyReflection();
+     }
     setRenderelements(value: IRenderElement3D[]): void {
-        //TODO
+        var tempArray: any[] = [];
+        this.renderelements.length = 0;
+        for (var i = 0; i < value.length; i++) {
+            this.renderelements.push(value[i]);
+            value[i].owner = this;
+
+            tempArray.push((value[i] as any)._nativeObj);
+        }
+        this._nativeObj.setRenderElements(tempArray);
     }
 
     setWorldParams(value: Vector4): void {
@@ -226,7 +234,11 @@ export class RTBaseRenderNode implements IBaseRenderNode {
     }
 
     setOneMaterial(index: number, mat: Material): void {
-        //TODO
+        if (!this.renderelements[index])
+            return;
+        this.renderelements[index].materialShaderData = mat.shaderData;
+        this.renderelements[index].materialRenderQueue = mat.renderQueue;
+        this.renderelements[index].subShader = mat.shader.getSubShaderAt(0);
     }
 
     destroy(): void {

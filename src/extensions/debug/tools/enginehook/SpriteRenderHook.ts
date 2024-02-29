@@ -6,8 +6,8 @@ import { RenderAnalyser } from "../RenderAnalyser"
 import { DebugInfoLayer } from "../../view/nodeInfo/DebugInfoLayer"
 import { Sprite } from "laya/display/Sprite"
 import { RenderSprite } from "laya/renders/RenderSprite"
-import { Context } from "laya/resource/Context"
 import { Browser } from "laya/utils/Browser"
+import { Context } from "laya/renders/Context";
 
 	/**
 	 * ...

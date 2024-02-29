@@ -8,8 +8,8 @@ import { PipelineMode, IRenderContext3D, IRenderElement3D } from "../../../Rende
 import { ShaderData } from "../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { ShaderDefine } from "../../../RenderDriver/RenderModuleData/Design/ShaderDefine";
 import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
-import { IShaderInstance } from "../../../RenderDriver/DriverDesign/RenderDevice/IShaderInstance";
 import { IRenderTarget } from "../../../RenderDriver/DriverDesign/RenderDevice/IRenderTarget";
+import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFlag";
 
 /**
  * <code>RenderContext3D</code> 类用于实现渲染状态。
@@ -55,7 +55,7 @@ export class RenderContext3D {
 
     /**@internal */
     set destTarget(value: IRenderTarget) {
-        this._contextOBJ.setRenderTarget(value ? value._renderTarget : null);
+        this._contextOBJ.setRenderTarget(value ? value._renderTarget : null, RenderClearFlag.Nothing);
     }
 
 

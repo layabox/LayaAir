@@ -258,7 +258,7 @@ export class ScalableAO extends PostProcessEffect {
         let shaderData: ShaderData = this._shaderData;
         //depthTexture;
         //depthNormalTexture;
-        cmd.blitScreenTriangle(null, finalTex, null, shader, shaderData, 0);
+        cmd.blitScreenTriangle(context.source, finalTex, null, shader, shaderData, 0);
         //context.source = finalTex;
         let blurTex: RenderTexture = RenderTexture.createFromPool(width, height, textureFormat, depthFormat, false, 1);
         //blur horizontal

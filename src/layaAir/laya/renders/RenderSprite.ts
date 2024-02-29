@@ -7,7 +7,7 @@ import { Filter } from "../filters/Filter";
 import { Matrix } from "../maths/Matrix";
 import { Point } from "../maths/Point";
 import { Rectangle } from "../maths/Rectangle";
-import { Context } from "../resource/Context";
+import { Context } from "./Context";
 import { HTMLCanvas } from "../resource/HTMLCanvas";
 import { RenderTexture2D } from "../resource/RenderTexture2D";
 import { Texture } from "../resource/Texture";
@@ -22,6 +22,11 @@ import { ILaya } from "../../ILaya";
 import { NativeFilter } from "../filters/NativeFilter";
 import { LayaEnv } from "../../LayaEnv";
 import { HitArea } from "../utils/HitArea";
+import { Render2D, Render2DSimple } from "./Render2D";
+import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
+import { TextureSV } from "../webgl/shader/d2/value/TextureSV";
+import { Vector2 } from "../maths/Vector2";
+import { MeshQuadTexture } from "../webgl/utils/MeshQuadTexture";
 
 /**
  * @private
@@ -29,6 +34,18 @@ import { HitArea } from "../utils/HitArea";
  */
 export interface _RenderFunction {
     (sp: Sprite, ctx: Context, x: number, y: number): void;
+}
+
+let _simpleTextureSV:TextureSV;
+let _quadMesh: MeshQuadTexture;
+let _quadMeshVB:Float32Array;
+function _fillQuad(x:number, y:number, w:number, h:number){
+    let rectVB = _quadMeshVB;
+    let stridef32 = _quadMesh.vertexDeclarition.vertexStride/4;
+    rectVB[0          ]= x;   rectVB[1            ]= y; 
+    rectVB[stridef32  ]= x+w; rectVB[stridef32+1  ]= y;
+    rectVB[stridef32*2]= x+w; rectVB[stridef32*2+1]= y+h;
+    rectVB[stridef32*3]= y;   rectVB[stridef32*3+1]= y+h;
 }
 
 const INIT = 0x11111;
@@ -44,10 +61,15 @@ export class RenderSprite {
     /** @internal */
     _next: RenderSprite;
     /** @internal */
-    _fun: Function;
+    _fun: (sp:Sprite, ctx:Context, x:number, y:number)=>void;
 
     /** @internal */
     static __init__(): void {
+        _simpleTextureSV = new TextureSV();
+        _quadMesh = new MeshQuadTexture();
+        _quadMesh.addQuad([0,0,1,0,1,1,0,1],[0,0,1,0,1,1,0,1],0xffffffff,true);
+        _quadMeshVB = new Float32Array(_quadMesh.vbBuffer);
+        
         LayaGLQuickRunner.__init__();
         var i: number, len: number;
         var initRender: RenderSprite;
@@ -312,64 +334,141 @@ export class RenderSprite {
         textLastRender && context.drawCallOptimize(false);
     }
 
+    _renderNextToCacheRT(sprite:Sprite,context:Context){
+        var _cacheStyle = sprite._cacheStyle;
+        if (sprite._needRepaint() || !_cacheStyle.renderTexture || ILaya.stage.isGlobalRepaint()) {
+            if(_cacheStyle.renderTexture){
+                _cacheStyle.renderTexture.destroy();//TODO 优化， 如果大小相同，可以重复利用
+            }
+            //如果需要构造RenderTexture
+            // 先计算需要的texuture的大小。
+            let scaleInfo = sprite._cacheStyle._calculateCacheRect(sprite, "bitmap"/*sprite._cacheStyle.cacheAs*/, 0, 0);
+            let tRec = _cacheStyle.cacheRect;
+            if(tRec.width<=0||tRec.height<=0)
+                return false;
+            //计算cache画布的大小
+
+            //左边可能有空白（例如图集的空白裁剪）,所以贴图的大小要把空白也考虑上
+            //因为对于空白的处理是保存在cmd中的，是在下面的_next._fun()的xy的基础上加的，所以要保证贴图够大，否则就被裁剪了
+            let w = tRec.x + tRec.width * scaleInfo.x;  //,
+            let h = tRec.y + tRec.height * scaleInfo.y;
+            let rt = new RenderTexture2D(w,h,RenderTargetFormat.R8G8B8A8);
+            let ctx = new Context();
+            ctx.copyState(context);
+            ctx.size(w,h);
+            ctx.render2D=new Render2DSimple(rt);
+            ctx.startRender();
+            //由于context是新的，所以画到0,0上就行
+            this._next._fun(sprite,ctx,0, 0);
+            ctx.endRender();
+            _cacheStyle.renderTexture = rt;
+            return true;    //重绘
+        }
+        return false;
+    }
+
     /**@internal */
     _canvas(sprite: Sprite, context: Context, x: number, y: number): void {
 
-        var _cacheStyle: CacheStyle = sprite._cacheStyle;
-        var _next: RenderSprite = this._next;
+        var _cacheStyle = sprite._cacheStyle;
+        var _next = this._next;
 
         if (!_cacheStyle.enableCanvasRender || !context._drawingToTexture && _cacheStyle.mask && _cacheStyle.mask._getBit(NodeFlags.DISABLE_VISIBILITY)) {
             _next._fun.call(_next, sprite, context, x, y);
             return;
         }
-        _cacheStyle.cacheAs === 'bitmap' ? (Stat.canvasBitmap++) : (Stat.canvasNormal++);
+        let isbmp = _cacheStyle.cacheAs === 'bitmap' 
+        isbmp ? Stat.canvasBitmap++ : Stat.canvasNormal++;
 
         //检查保存的文字是否失效了
-        var cacheNeedRebuild: boolean = false;
-        var textNeedRestore: boolean = false;
+        var cacheNeedRebuild = false;
+        var textNeedRestore = false;
 
-        if (_cacheStyle.canvas) {
+        if (!isbmp && _cacheStyle.canvas) {
             // 检查文字是否被释放了，以及clip是否改变了，需要重新cache了
-            var canv: any = _cacheStyle.canvas;
+            var canv = _cacheStyle.canvas as unknown as WebGLCacheAsNormalCanvas;
             textNeedRestore = canv.isTextNeedRestore && canv.isTextNeedRestore();
             cacheNeedRebuild = canv.isCacheValid && !canv.isCacheValid();
         }
 
-        if (sprite._needRepaint() || (!_cacheStyle.canvas) || textNeedRestore || cacheNeedRebuild || ILaya.stage.isGlobalRepaint()) {
-            if (_cacheStyle.cacheAs === 'normal') {
-                if (context._targets) {// 如果有target说明父节点已经是一个cacheas bitmap了，就不再走cacheas normal的流程了
-                    _next._fun.call(_next, sprite, context, x, y);
-                    return;	//不再继续
+        if(isbmp){
+            //temp
+            this._renderNextToCacheRT(sprite,context);
+            // RenderSprite.RenderToCacheTexture(sprite,context,x,y)
+            var tRec = _cacheStyle.cacheRect;
+            context.material = sprite.graphics.material;
+            context._drawRenderTexture(_cacheStyle.renderTexture,
+                x + tRec.x, y + tRec.y, tRec.width, tRec.height,null,1,[0,1, 1,1, 1,0, 0,0])
+        }else{
+            if (sprite._needRepaint() || !_cacheStyle.canvas || textNeedRestore || cacheNeedRebuild || ILaya.stage.isGlobalRepaint()) {
+                if (_cacheStyle.cacheAs === 'normal') {
+                    if (context._targets) {// 如果有target说明父节点已经是一个cacheas bitmap了，就不再走cacheas normal的流程了
+                        _next._fun.call(_next, sprite, context, x, y);
+                        return;	//不再继续
+                    } else {
+                        this._canvas_webgl_normal_repaint(sprite, context);
+                    }
                 } else {
-                    this._canvas_webgl_normal_repaint(sprite, context);
+                    this._canvas_repaint(sprite, context, x, y);
                 }
-            } else {
-                this._canvas_repaint(sprite, context, x, y);
             }
+            var tRec = _cacheStyle.cacheRect;
+            context.material = sprite.graphics.material;
+            context.drawCanvas(_cacheStyle.canvas, x + tRec.x, y + tRec.y, tRec.width, tRec.height);
         }
-        var tRec: Rectangle = _cacheStyle.cacheRect;
-        //Stage._dbgSprite.graphics.drawRect(x, y, 30,30, null, 'red');
-        context.material = sprite.graphics.material;
-        context.drawCanvas(_cacheStyle.canvas, x + tRec.x, y + tRec.y, tRec.width, tRec.height);
+    }
+
+    /**
+     * 把sprite画在当前贴图的x,y位置
+     * @param sprite 
+     * @param context 
+     * @param x 
+     * @param y 
+     * @returns 
+     */
+    static RenderToCacheTexture(sprite:Sprite,context:Context|null, x:number, y:number){
+        var _cacheStyle = sprite._cacheStyle;
+        if (sprite._needRepaint() || !_cacheStyle.renderTexture || ILaya.stage.isGlobalRepaint()) {
+            if(_cacheStyle.renderTexture){
+                _cacheStyle.renderTexture.destroy();//TODO 优化， 如果大小相同，可以重复利用
+            }
+            //如果需要构造RenderTexture
+            // 先计算需要的texuture的大小。
+            let scaleInfo = sprite._cacheStyle._calculateCacheRect(sprite, "bitmap"/*sprite._cacheStyle.cacheAs*/, 0, 0,0);
+            let tRec = _cacheStyle.cacheRect;
+            //计算cache画布的大小
+            let w = tRec.width * scaleInfo.x;
+            let h = tRec.height * scaleInfo.y;
+            let rt = new RenderTexture2D(w,h,RenderTargetFormat.R8G8B8A8);
+            let ctx = new Context();
+            context && ctx.copyState(context);
+            ctx.size(w,h);
+            ctx.render2D= new Render2DSimple(rt);
+            ctx.startRender();
+            //把位置移到0，所以要-sprite.xy, 考虑图集空白，所以要-tRec.xy,因为tRec.xy是sprite空间的，所以转到贴图空间是取反
+            sprite.render(ctx,x-sprite.x-tRec.x,y-sprite.y-tRec.y);
+            ctx.endRender();
+            _cacheStyle.renderTexture = rt;
+            return true;    //重绘
+        }
+        return false;
     }
 
     /**@internal */
     _canvas_repaint(sprite: Sprite, context: Context, x: number, y: number): void {
-
-        var _cacheStyle: CacheStyle = sprite._cacheStyle;
-        var _next: RenderSprite = this._next;
+        var _cacheStyle = sprite._cacheStyle;
+        var _next = this._next;
         var tx: Context;
-        var canvas: HTMLCanvas = _cacheStyle.canvas;
+        var canvas = _cacheStyle.canvas;
         var left: number;
         var top: number;
         var tRec: Rectangle;
-        var tCacheType: string = _cacheStyle.cacheAs;
+        var tCacheType = _cacheStyle.cacheAs;
 
         var w: number, h: number;
         var scaleX: number, scaleY: number;
 
-        var scaleInfo: Point;
-        scaleInfo = _cacheStyle._calculateCacheRect(sprite, tCacheType, x, y);
+        var scaleInfo = _cacheStyle._calculateCacheRect(sprite, tCacheType, x, y);
         scaleX = scaleInfo.x;
         scaleY = scaleInfo.y;
 
@@ -381,26 +480,15 @@ export class RenderSprite {
         h = tRec.height * scaleY;
         left = tRec.x;
         top = tRec.y;
-
-        if (tCacheType === 'bitmap' && (w > 2048 || h > 2048)) {
-            console.warn("cache bitmap size larger than 2048, cache ignored");
-            _cacheStyle.releaseContext();
-            _next._fun.call(_next, sprite, context, x, y);
-            return;
-        }
         if (!canvas) {
             _cacheStyle.createContext();
             canvas = _cacheStyle.canvas;
         }
-        tx = canvas.context as Context;
+        tx = canvas.context;
 
-        //WebGL用
         tx.sprite = sprite;
 
         (canvas.width != w || canvas.height != h) && canvas.size(w, h);//asbitmap需要合理的大小，所以size放到前面
-
-        if (tCacheType === 'bitmap') tx.asBitmap = true;
-        else if (tCacheType === 'normal') tx.asBitmap = false;
 
         //清理画布。之前记录的submit会被全部清掉
         tx.clear();
@@ -464,6 +552,87 @@ export class RenderSprite {
         }
     }
 
+    _mask(sprite: Sprite, ctx: Context, x: number, y: number): void {
+        let cache = sprite._getCacheStyle();
+        let rtx=0;  //贴图显示偏移。由于裁剪等导致的，贴图不在原点
+        let rty=0;
+        //在sprite上缓存两个rt是为了优化当自己不变，mask变了的情况。
+        //上面的不对，由于mask必须是sprite的子，因此mask变了必然导致sprite的重绘，所以就不缓存多个rt了
+        if (sprite._needRepaint() || !cache.renderTexture || cache.renderTexture.destroyed|| ILaya.stage.isGlobalRepaint()) {
+            if(cache.renderTexture){
+                cache.renderTexture.destroy();//TODO 优化， 如果大小相同，可以重复利用
+            }
+            //如果需要构造RenderTexture
+            // 先计算需要的texuture的大小。此时不要扩展rect，直接取实际的
+            sprite._cacheStyle._calculateCacheRect(sprite, "bitmap", 0, 0,0);
+            let spRect = cache.cacheRect;
+            if(spRect.width<=0||spRect.height<=0)
+                return;
+            //计算cache画布的大小
+    
+            //mask的大小
+            let mask = sprite.mask;
+            //TODO mask如果非常简单，就不要先渲染到texture上
+            //mask是sprite的子，因此，计算包围盒用相对位置就行
+            let maskcache = mask._getCacheStyle();
+            maskcache._calculateCacheRect(mask, "bitmap", 0,0,0);  //后面的参数传入mask.xy没有效果，只能自己单独加上
+            let maskRect = maskcache.cacheRect;
+
+            //计算两个rect的交集作为渲染区域
+            let x1 = Math.max(spRect.x,maskRect.x+mask.x);
+            let y1 = Math.max(spRect.y, maskRect.y+mask.y);
+            let x2 = Math.min(spRect.x+spRect.width,mask.x+maskRect.x+maskRect.width);
+            let y2 = Math.min(spRect.y+spRect.height, mask.y+maskRect.y+maskRect.height);
+
+            let width1 = x2-x1;  if(width1<=0) return;
+            let height1 = y2-y1; if(height1<=0) return;
+
+            rtx = x1; rty = y1;
+            let rt = new RenderTexture2D(width1,height1,RenderTargetFormat.R8G8B8A8);
+            let ctx = new Context();
+            ctx.size(width1,height1);
+            ctx.render2D= new Render2DSimple(rt);
+            ctx.startRender();
+            //渲染节点本身.由于spRect.xy是指贴图相对于节点的位置，所以需要取反表示在贴图空间的什么位置画出节点
+            this._next._fun(sprite,ctx, -x1, -y1);
+
+            //渲染mask
+            if(RenderSprite.RenderToCacheTexture(mask,null,0,0)){                
+            }
+            let maskRT = maskcache.renderTexture;
+            ctx.globalCompositeOperation='mask';
+            ctx._drawRenderTexture(maskRT,
+                mask.x-x1+maskRect.x,     //x1作为原点，所以减去x1,然后加空白
+                mask.y-y1+maskRect.y,
+                maskRect.width,maskRect.height,null,1,
+                [0,1,1,1,1,0,0,0])
+
+            ctx.endRender();
+            cache.renderTexture = rt;
+            cache.cacheRect.x=x1; cache.cacheRect.y=y1;
+            cache.cacheRect.width=rt.width;
+            cache.cacheRect.height=rt.height;
+    }
+
+        let tex = cache.renderTexture;
+        let rect = cache.cacheRect;
+        // let shadersv = new TextureSV();
+        // shadersv.size = new Vector2(tex.width,tex.height);
+        // shadersv.textureHost = tex;
+        // _fillQuad(0,0,tex.width,tex.height);
+        // ctx.render2D.setVertexDecl(_quadMesh.vertexDeclarition);
+        // ctx.render2D.draw(
+        //     _quadMesh.vbBuffer,
+        //     _quadMesh.ibBuffer,
+        //     0,4* MeshQuadTexture.VertexDeclarition.vertexStride,
+        //     0,12,
+        //     shadersv);
+
+        ctx._drawRenderTexture(tex,
+            x + rect.x, y + rect.y, tex.width, tex.height,null,1,[0,1, 1,1, 1,0, 0,0])        
+
+    }
+
     /**
      * @internal
      * mask的渲染。 sprite有mask属性的情况下，来渲染这个sprite
@@ -472,7 +641,7 @@ export class RenderSprite {
      * @param	x
      * @param	y
      */
-    _mask(sprite: Sprite, ctx: Context, x: number, y: number): void {
+    _mask1(sprite: Sprite, ctx: Context, x: number, y: number): void {
         let next = this._next;
         let mask = sprite.mask;
         if (mask && (!mask._getBit(NodeFlags.DISABLE_VISIBILITY) || ctx._drawingToTexture)) {

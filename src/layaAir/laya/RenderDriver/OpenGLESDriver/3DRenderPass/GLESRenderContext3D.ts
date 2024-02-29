@@ -1,8 +1,11 @@
+import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFlag";
+import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { Viewport } from "../../../d3/math/Viewport";
 import { Color } from "../../../maths/Color";
 import { Vector4 } from "../../../maths/Vector4";
 import { SingletonList } from "../../../utils/SingletonList";
 import { IRenderContext3D, IRenderElement3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
+import { IRenderCMD } from "../../DriverDesign/3DRenderPass/IRendderCMD";
 import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRenderTarget";
 import { RTCameraNodeData, RTSceneNodeData } from "../../RenderModuleData/RuntimeModuleData/3D/RT3DRenderModuleData";
 import { GLESShaderData } from "../RenderDevice/GLESShaderData";
@@ -74,8 +77,17 @@ export class GLESRenderContext3D implements IRenderContext3D {
     public set invertY(value: boolean) {
         this._nativeObj._invertY = value;
     }
-    setRenderTarget(value: InternalRenderTarget): void {
-        this._nativeObj.setRenderTarget(value);
+
+
+    _nativeObj: any;
+
+    constructor() {
+        this._nativeObj = new (window as any).conchGLESRenderContext3D();
+        this._nativeObj.setGlobalConfigShaderData((Shader3D._configDefineValues as any)._nativeObj);
+        this.cameraUpdateMask = 0;
+    }
+    setRenderTarget(value: InternalRenderTarget, clearFlag: RenderClearFlag = RenderClearFlag.Nothing): void {
+        this._nativeObj.setRenderTarget(value, clearFlag);
     }
     setViewPort(value: Viewport): void {
         this._nativeObj.setViewport(value);
@@ -90,13 +102,18 @@ export class GLESRenderContext3D implements IRenderContext3D {
         return this._nativeObj.drawRenderElementList(list.elements, list.length);
     }
     drawRenderElementOne(node: IRenderElement3D): number {
-        throw new Error("Method not implemented.");
+        return this._nativeObj.drawRenderElementOne((node as any)._nativeObj);
     }
+    runOneCMD(cmd: IRenderCMD): void {
+        this._nativeObj.runOneCMD((cmd as any)._nativeObj);
+    }
+    runCMDList(cmds: IRenderCMD[]): void {
+        let nativeobCMDs: any[] = [];
+        cmds.forEach(element => {
+            nativeobCMDs.push((element as any)._nativeObj);
+        });
 
-   _nativeObj: any;
-
-    constructor() {
-        this._nativeObj = new (window as any).conchRTRenderContext3D();
+        this._nativeObj.runCMDList(nativeobCMDs);
     }
 
 }

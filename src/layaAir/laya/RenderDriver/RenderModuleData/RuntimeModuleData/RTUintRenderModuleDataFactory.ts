@@ -8,9 +8,9 @@ export class RTUintRenderModuleDataFactory implements IUnitRenderModuleDataFacto
     createRenderState(): RTRenderState {
        return new RTRenderState();
     }
-    createShaderDefine(index: number, value: number): RTShaderDefine {
-       return new RTShaderDefine(index,value);
-    }
+    //createShaderDefine(index: number, value: number): RTShaderDefine {
+    //   return new RTShaderDefine(index,value);
+    //}
     createDefineDatas(): RTDefineDatas {
        return new RTDefineDatas();
     } 

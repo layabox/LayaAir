@@ -8,7 +8,6 @@ import { Color } from "../../../../maths/Color";
 import { Matrix4x4 } from "../../../../maths/Matrix4x4";
 import { Vector3 } from "../../../../maths/Vector3";
 import { Vector4 } from "../../../../maths/Vector4";
-import { Material } from "../../../../resource/Material";
 import { IRenderElement3D } from "../../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { IShaderInstance } from "../../../DriverDesign/RenderDevice/IShaderInstance";
 import { InternalTexture } from "../../../DriverDesign/RenderDevice/InternalTexture";
@@ -17,18 +16,18 @@ import { RenderState } from "../RenderState";
 import { ShaderData } from "../../../DriverDesign/RenderDevice/ShaderData";
 //3D Render Node
 export interface IBaseRenderNode {
+
     transform: Transform3D;
     distanceForSort: number;
     sortingFudge: number;
     castShadow: boolean;
+    receiveShadow: boolean;
     enable: boolean;
     renderbitFlag: number;
     layer: number;
     bounds: Bounds;
     baseGeometryBounds: Bounds;
     boundsChange: boolean;
-    customCull: boolean;
-    customCullResoult: boolean;
     staticMask: number;
     shaderData: ShaderData;
     lightmapIndex: number;
@@ -129,6 +128,8 @@ export interface ILightMapData {
 }
 
 export interface IReflectionProbeData {
+    /** @internal */
+    _id: number;
     /**@internal */
     boxProjection: boolean;
     /**@internal */
@@ -158,6 +159,7 @@ export interface IReflectionProbeData {
 }
 
 export interface IVolumetricGIData {
+    _id: number;
     irradiance: InternalTexture;
     distance: InternalTexture;
     bound: Bounds;
@@ -200,5 +202,4 @@ export interface IShaderPassData {
     getCacheShader(defines: IDefineDatas): IShaderInstance;
     destory(): void;
 }
-
 

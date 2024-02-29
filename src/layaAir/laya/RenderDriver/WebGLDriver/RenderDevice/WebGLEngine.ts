@@ -27,6 +27,8 @@ import { GlCapable } from "./WebGLEngine/GlCapable";
 import { WebGLConfig } from "./WebGLEngine/WebGLConfig";
 import { ShaderDefine } from "../../RenderModuleData/Design/ShaderDefine";
 import { WebGLShaderData } from "../../RenderModuleData/WebModuleData/WebGLShaderData";
+import { IDefineDatas } from "../../RenderModuleData/Design/IDefineDatas";
+import { WebGLInternalTex } from "./WebGLInternalTex";
 
 /**
  * 封装Webgl
@@ -116,7 +118,13 @@ export class WebGLEngine implements IRenderEngine {
 
     //GLRenderState
     _GLRenderState: GLRenderState;
-
+    // todo  这个 map 和 get 函数转移到 ShaderDefine 里面
+    /**@internal */
+    private static _defineMap: { [key: string]: ShaderDefine } = {};
+    /**@internal */
+    private static _defineCounter: number = 0;
+    /**@internal */
+    static _maskMap: Array<{ [key: number]: string }> = [];
     // //TODO:管理Buffer
     // private _bufferResourcePool: any;
     // //TODO:管理Texture
@@ -352,7 +360,7 @@ export class WebGLEngine implements IRenderEngine {
         //this._gl.disable(this._gl.SCISSOR_TEST);
     }
 
-    copySubFrameBuffertoTex(texture: InternalTexture, level: number, xoffset: number, yoffset: number, x: number, y: number, width: number, height: number) {
+    copySubFrameBuffertoTex(texture: WebGLInternalTex, level: number, xoffset: number, yoffset: number, x: number, y: number, width: number, height: number) {
         this._bindTexture(texture.target, texture.resource);
         this._context.copyTexSubImage2D(texture.target, level, xoffset, yoffset, x, y, width, height);
     }
@@ -426,6 +434,45 @@ export class WebGLEngine implements IRenderEngine {
         return this._propertyNameMap[id];
     }
 
+    getNamesByDefineData(defineData: IDefineDatas, out: Array<string>): void {
+        var maskMap: Array<{ [key: number]: string }> = WebGLEngine._maskMap;
+        var mask: Array<number> = defineData._mask;
+        out.length = 0;
+        for (var i: number = 0, n: number = defineData._length; i < n; i++) {
+            var subMaskMap: { [key: number]: string } = maskMap[i];
+            var subMask: number = mask[i];
+            for (var j: number = 0; j < 32; j++) {
+                var d: number = 1 << j;
+                if (subMask > 0 && d > subMask)//如果31位存在subMask为负数,避免break
+                    break;
+                if (subMask & d)
+                    out.push(subMaskMap[d]);
+            }
+        }
+    }
+
+    /**
+    * 注册宏定义。
+    * @param name 
+    */
+    getDefineByName(name: string): ShaderDefine {
+        var define: ShaderDefine = WebGLEngine._defineMap[name];
+        if (!define) {
+            var maskMap = WebGLEngine._maskMap;
+            var counter: number = WebGLEngine._defineCounter;
+            var index: number = Math.floor(counter / 32);
+            var value: number = 1 << counter % 32;
+            define = new ShaderDefine(index, value);
+            WebGLEngine._defineMap[name] = define;
+            if (index == maskMap.length) {
+                maskMap.length++;
+                maskMap[index] = {};
+            }
+            maskMap[index][value] = name;
+            WebGLEngine._defineCounter++;
+        }
+        return define;
+    }
     /**
      * @internal
      */

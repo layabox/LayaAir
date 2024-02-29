@@ -1,5 +1,5 @@
 import { Matrix } from "../../maths/Matrix"
-import { Context } from "../../resource/Context"
+import { Context } from "../../renders/Context"
 import { Pool } from "../../utils/Pool"
 
 /**

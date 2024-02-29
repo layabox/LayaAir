@@ -15,16 +15,15 @@ import { RTShaderDefine } from "../../RenderModuleData/RuntimeModuleData/RTShade
 export class GLESShaderData extends ShaderData {
     nativeObjID: number;
     _nativeObj: any;
-    _defineDatas: RTDefineDatas;
+    _defineDatas: RTDefineDatas = new RTDefineDatas();
     _textureData: { [key: number]: BaseTexture };
-
+    _tempColor: Color = new Color();
     /**
      * @internal	
      */
     constructor(ownerResource: Resource = null) {
         super(ownerResource)
-        this._nativeObj = new (window as any).conchRTShaderData();
-        this._defineDatas = new RTDefineDatas(this._nativeObj.getOwnerDefineData());
+        this._nativeObj = new (window as any).conchGLESShaderData((this._defineDatas as any)._nativeObj);
         this._textureData = {};
     }
 
@@ -218,7 +217,12 @@ export class GLESShaderData extends ShaderData {
      * @returns 颜色
      */
     getColor(index: number): Color {
-        return this._nativeObj.gecColor(index);
+        let c = this._nativeObj.getColor(index);
+        this._tempColor.r = c.r;
+        this._tempColor.g = c.g;
+        this._tempColor.b = c.b;
+        this._tempColor.a = c.a;
+        return this._tempColor;
     }
 
     /**
@@ -227,6 +231,8 @@ export class GLESShaderData extends ShaderData {
      * @param value 颜色值
      */
     setColor(index: number, value: Color): void {
+        if (!value)
+			return;
         this._nativeObj.setColor(index, value);
     }
 
@@ -294,7 +300,9 @@ export class GLESShaderData extends ShaderData {
         var lastValue: BaseTexture = this._textureData[index];
         //维护Reference
         this._textureData[index] = value;
-        this._setInternalTexture(index, value._texture);
+        if (value) {
+            this._setInternalTexture(index, value._texture);
+        }
         lastValue && lastValue._removeReference();
         value && value._addReference();
     }

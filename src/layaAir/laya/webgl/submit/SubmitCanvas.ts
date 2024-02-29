@@ -1,5 +1,7 @@
+import { ColorFilter } from "../../filters/ColorFilter";
 import { Matrix } from "../../maths/Matrix";
-import { Context } from "../../resource/Context";
+import { Context } from "../../renders/Context";
+import { WebGLCacheAsNormalCanvas } from "../canvas/WebGLCacheAsNormalCanvas";
 import { RenderSpriteData, Value2D } from "../shader/d2/value/Value2D";
 import { RenderState2D } from "../utils/RenderState2D";
 import { SubmitBase } from "./SubmitBase";
@@ -9,22 +11,22 @@ import { SubmitBase } from "./SubmitBase";
  */
 export class SubmitCanvas extends SubmitBase {
     /**@internal */
-    _matrix: Matrix = new Matrix();		// 用来计算当前的世界矩阵
-    canv: Context;
+    _matrix = new Matrix();		// 用来计算当前的世界矩阵
+    canv: Context|WebGLCacheAsNormalCanvas;
     /**@internal */
-    _matrix4: any[] = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
+    _matrix4 = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
 
     static POOL: SubmitCanvas[] = [];
 
-    static create(canvas: any, alpha: number, filters: any[]): SubmitCanvas {
-        var o = (!(SubmitCanvas.POOL as any)._length) ? (new SubmitCanvas()) : SubmitCanvas.POOL[--(SubmitCanvas.POOL as any)._length];
+    static create(canvas: any, alpha: number, filter: ColorFilter): SubmitCanvas {
+        var o = !(SubmitCanvas.POOL as any)._length ? new SubmitCanvas() : SubmitCanvas.POOL[--(SubmitCanvas.POOL as any)._length];
         o.canv = canvas;
         o._ref = 1;
         o._numEle = 0;
-        var v: Value2D = o.shaderValue;
+        let v = o.shaderValue;
         v.alpha = alpha;
-        v.defines.clearDefine();
-        filters && filters.length && v.setFilters(filters);
+        v.shaderData.clearDefine();
+        filter && v.setFilter(filter);
         return o;
     }
 
@@ -42,7 +44,7 @@ export class SubmitCanvas extends SubmitBase {
         var preMatrix4 = RenderState2D.worldMatrix4;
         var preMatrix = RenderState2D.worldMatrix;
 
-        var preFilters: any[] = RenderState2D.worldFilters;
+        var preFilters = RenderState2D.worldFilters;
         var preWorldShaderDefines = RenderState2D.worldShaderDefines;
 
         var v = this.shaderValue;
@@ -62,9 +64,9 @@ export class SubmitCanvas extends SubmitBase {
         RenderState2D.worldAlpha = RenderState2D.worldAlpha * v.alpha;
         if (v.filters && v.filters.length) {
             RenderState2D.worldFilters = v.filters;
-            RenderState2D.worldShaderDefines = v.defines;
+            RenderState2D.worldShaderDefines = v.shaderData;
         }
-        (this.canv as any)['flushsubmit']();
+        (this.canv as WebGLCacheAsNormalCanvas).flushsubmit();
         RenderState2D.worldAlpha = preAlpha;
         RenderState2D.worldMatrix4 = preMatrix4;
         RenderState2D.worldMatrix.destroy();
@@ -78,7 +80,7 @@ export class SubmitCanvas extends SubmitBase {
      * @override
      */
     releaseRender(): void {
-        if ((--this._ref) < 1) {
+        if (--this._ref < 1) {
             var cache = SubmitCanvas.POOL;
             //_vb = null;
             this._mesh = null;
@@ -93,4 +95,5 @@ export class SubmitCanvas extends SubmitBase {
     }
 
 }
-{ (SubmitCanvas.POOL as any)._length = 0 }
+
+(SubmitCanvas.POOL as any)._length = 0

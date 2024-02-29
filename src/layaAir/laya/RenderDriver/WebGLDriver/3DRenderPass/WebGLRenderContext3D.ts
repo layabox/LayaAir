@@ -6,6 +6,7 @@ import { Color } from "../../../maths/Color";
 import { Vector4 } from "../../../maths/Vector4";
 import { SingletonList } from "../../../utils/SingletonList";
 import { IRenderContext3D, PipelineMode } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
+import { IRenderCMD } from "../../DriverDesign/3DRenderPass/IRendderCMD";
 import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRenderTarget";
 import { WebCameraNodeData, WebSceneNodeData } from "../../RenderModuleData/WebModuleData/3D/WebModuleData";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
@@ -45,6 +46,8 @@ export class WebGLRenderContext3D implements IRenderContext3D {
     private _clearDepth: number;
     /**@internal */
     private _clearStencil: number;
+    /**@internal */
+    private _needStart: boolean = true;
 
 
     get sceneData(): WebGLShaderData {
@@ -89,17 +92,22 @@ export class WebGLRenderContext3D implements IRenderContext3D {
         this._globalShaderData = value;
     }
 
-    setRenderTarget(value: InternalRenderTarget) {
-        this._clearFlag = RenderClearFlag.Nothing;
+    setRenderTarget(value: InternalRenderTarget,clearFlag:RenderClearFlag = RenderClearFlag.Nothing) {
+        this._clearFlag =clearFlag;
+        if (value == this._renderTarget)
+            return;
         this._renderTarget = value;
+        this._needStart = true;
     }
 
     setViewPort(value: Viewport) {
         this._viewPort = value;
+        this._needStart = true;
     }
 
     setScissor(value: Vector4) {
         this._scissor = value;
+        this._needStart = true;
     }
 
 
@@ -148,6 +156,16 @@ export class WebGLRenderContext3D implements IRenderContext3D {
         this._globalConfigShaderData = Shader3D._configDefineValues;
         this.cameraUpdateMask = 0;
     }
+    
+    runOneCMD(cmd: IRenderCMD): void {
+        cmd.apply(this);
+    }
+
+    runCMDList(cmds: IRenderCMD[]): void {
+        cmds.forEach(element => {
+            element.apply(this);
+        });
+    }
 
     setClearData(clearFlag: number, color: Color, depth: number, stencil: number): number {
         this._clearFlag = clearFlag;
@@ -158,8 +176,11 @@ export class WebGLRenderContext3D implements IRenderContext3D {
     }
 
     drawRenderElementList(list: SingletonList<WebGLRenderElement3D>): number {
-        this._bindRenderTarget();
-        this._start();
+        if (this._needStart) {
+            this._bindRenderTarget();
+            this._start();
+            this._needStart = false;
+        }
         let elements = list.elements;
         for (var i: number = 0, n: number = list.length; i < n; i++) {
             elements[i]._preUpdatePre(this);//render
@@ -167,16 +188,18 @@ export class WebGLRenderContext3D implements IRenderContext3D {
         for (var i: number = 0, n: number = list.length; i < n; i++) {
             elements[i]._render(this);//render
         }
-        this._end();
         return 0;
     }
 
     drawRenderElementOne(node: WebGLRenderElement3D): number {
-        this._bindRenderTarget();
-        this._start();
+        if (this._needStart) {
+            this._bindRenderTarget();
+            this._start();
+            this._needStart = false;
+        }
+
         node._preUpdatePre(this);
         node._render(this);
-        this._end();
         return 0;
     }
 
@@ -193,10 +216,7 @@ export class WebGLRenderContext3D implements IRenderContext3D {
         WebGLEngine.instance.viewport(this._viewPort.x, this._viewPort.y, this._viewPort.width, this._viewPort.height);
         WebGLEngine.instance.scissor(this._scissor.x, this._scissor.y, this._scissor.z, this._scissor.w);
         if (this._clearFlag != RenderClearFlag.Nothing)
-          WebGLEngine.instance.clearRenderTexture(this._clearFlag, this._clearColor, this._clearDepth, this._clearStencil);
+            WebGLEngine.instance.clearRenderTexture(this._clearFlag, this._clearColor, this._clearDepth, this._clearStencil);
     }
 
-    private _end() {
-        //TODO
-    }
 }

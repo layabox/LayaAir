@@ -157,11 +157,11 @@ export class Camera extends BaseCamera {
                 pixelData = new Uint8Array(size * 4);
                 break;
         }
-        let rt = new RenderTexture(texture.width, texture.height, rtFormat, RenderTargetFormat.None, false, 0, false);
-        var blit: BlitScreenQuadCMD = BlitScreenQuadCMD.create(texture, rt);
-        blit.setContext(RenderContext3D._instance);
-        blit.run();
-        blit.recover();
+        let rt = RenderTexture.createFromPool(texture.width, texture.height, rtFormat, RenderTargetFormat.None, false, 0, false);
+        let cmd = new CommandBuffer();
+        cmd.blitScreenQuad(texture, rt);
+        cmd.context = RenderContext3D._instance;
+        cmd._applyOne();
         texture.filterMode = coverFilter;
         rt.getData(0, 0, texture.width, texture.height, pixelData);
         rt.destroy();//删除
@@ -522,6 +522,7 @@ export class Camera extends BaseCamera {
             viewMatE[10] /= scaleZ;
             this._viewMatrix.invert(this._viewMatrix);
             this._updateViewMatrix = false;
+            this.skyRenderElement.calculateViewMatrix(this._viewMatrix);
         }
         return this._viewMatrix;
     }
@@ -750,6 +751,7 @@ export class Camera extends BaseCamera {
             } else {
                 Matrix4x4.createPerspective(3.1416 * this.fieldOfView / 180.0, this.aspectRatio, this.nearPlane, this.farPlane, this._projectionMatrix);
             }
+            this.skyRenderElement.caluclateProjectionMatrix(this._projectionMatrix, this.aspectRatio, this.nearPlane, this.farPlane, this.fieldOfView, this.orthographic);
         }
     }
 
@@ -956,18 +958,18 @@ export class Camera extends BaseCamera {
         }
     }
 
-    /**
-     * apply 
-     * @internal
-     */
-    _applyCasterPassCommandBuffer(context: RenderContext3D) {
-        if (!this._shadowCasterCommanBuffer || this._shadowCasterCommanBuffer.length == 0)
-            return;
-        this._shadowCasterCommanBuffer.forEach(function (value) {
-            value._context = context;
-            value._apply();
-        });
-    }
+    // /**
+    //  * apply 
+    //  * @internal
+    //  */
+    // _applyCasterPassCommandBuffer(context: RenderContext3D) {
+    //     if (!this._shadowCasterCommanBuffer || this._shadowCasterCommanBuffer.length == 0)
+    //         return;
+    //     this._shadowCasterCommanBuffer.forEach(function (value) {
+    //         value._context = context;
+    //         value._apply();
+    //     });
+    // }
 
     /**
     * @internal
@@ -1005,22 +1007,19 @@ export class Camera extends BaseCamera {
         if (needInternalRT && !this._offScreenRenderTexture && (this.clearFlag == CameraClearFlags.DepthOnly || this.clearFlag == CameraClearFlags.Nothing)) {
             if (RenderTexture.bindCanvasRender) {//解决iOS中使用CopyTexSubImage2D特别慢的bug
                 if (RenderTexture.bindCanvasRender != this._internalRenderTexture) {
-                    var blit: BlitScreenQuadCMD = BlitScreenQuadCMD.create(RenderTexture.bindCanvasRender, this._internalRenderTexture);
-                    blit.setContext(context);
-                    blit.run();
-                    blit.recover();
+                    this._internalCommandBuffer.clear();
+                    this._internalCommandBuffer.blitScreenQuad(RenderTexture.bindCanvasRender, this._internalRenderTexture);
+                    this._internalCommandBuffer._applyOne();
+
                 }
             } else {
                 if (this._enableHDR) {//internal RT is HDR can't directly copy
                     var grabTexture: RenderTexture = RenderTexture.createFromPool(viewport.width, viewport.height, RenderTargetFormat.R8G8B8, RenderTargetFormat.DEPTH_16, false, 1);
                     grabTexture.filterMode = FilterMode.Bilinear;
                     this._renderEngine.copySubFrameBuffertoTex(grabTexture._texture, 0, 0, 0, viewport.x, RenderContext3D.clientHeight - (viewport.y + viewport.height), viewport.width, viewport.height);
-                    // this._renderEngine.bindTexture(gl.TEXTURE_2D, grabTexture._getSource());
-                    // gl.copyTexSubImage2D(gl.TEXTURE_2D, 0, 0, 0, viewport.x, RenderContext3D.clientHeight - (viewport.y + viewport.height), viewport.width, viewport.height);
-                    var blit: BlitScreenQuadCMD = BlitScreenQuadCMD.create(grabTexture, this._internalRenderTexture);
-                    blit.setContext(context);
-                    blit.run();
-                    blit.recover();
+                    this._internalCommandBuffer.clear();
+                    this._internalCommandBuffer.blitScreenQuad(grabTexture, this._internalRenderTexture);
+                    this._internalCommandBuffer._applyOne();
                     RenderTexture.recoverToPool(grabTexture);
                 }
             }
@@ -1119,10 +1118,10 @@ export class Camera extends BaseCamera {
 
             this._shaderValues.setVector(BaseCamera.OPAQUETEXTUREPARAMS, opaqueTexParams);
         }
-        var blit: BlitScreenQuadCMD = BlitScreenQuadCMD.create(currentTarget, this._opaqueTexture);
-        blit.setContext(renderContext);
-        blit.run();
-        blit.recover();
+        // var blit: BlitScreenQuadCMD = BlitScreenQuadCMD.create(currentTarget, this._opaqueTexture);
+        // blit.setContext(renderContext);
+        // blit.run();
+        // blit.recover();
     }
 
 
@@ -1175,7 +1174,7 @@ export class Camera extends BaseCamera {
                 clearColor = this.clearColor;
             }
             var clearFlag: number = this.clearFlag;
-            if (clearFlag === CameraClearFlags.Sky && !(this.skyRenderer._isAvailable()))
+            if (clearFlag === CameraClearFlags.Sky)
                 clearFlag = CameraClearFlags.SolidColor;
             let clearConst: number = 0;
             let stencilFlag = renderTex.depthStencilFormat == RenderTargetFormat.DEPTHSTENCIL_24_8 ? RenderClearFlag.Stencil : 0;
@@ -1212,9 +1211,11 @@ export class Camera extends BaseCamera {
         this._ForwardAddRP.renderpass.setBeforeSkyboxCmds(this._cameraEventCommandBuffer[CameraEventFlags.BeforeSkyBox]);
         this._ForwardAddRP.renderpass.setBeforeForwardCmds(this._cameraEventCommandBuffer[CameraEventFlags.BeforeForwardOpaque]);
         this._ForwardAddRP.renderpass.setBeforeTransparentCmds(this._cameraEventCommandBuffer[CameraEventFlags.BeforeTransparent]);
-        this._ForwardAddRP.setAfterEventCmd(this._cameraEventCommandBuffer[CameraEventFlags.BeforeTransparent]);
+        this._ForwardAddRP.setBeforeImageEffect(this._cameraEventCommandBuffer[CameraEventFlags.BeforeImageEffect]);
+        this._ForwardAddRP.setAfterEventCmd(this._cameraEventCommandBuffer[CameraEventFlags.AfterEveryThing]);
         this._ForwardAddRP.renderpass.setCameraCullInfo(this);
         if (this.clearFlag == CameraClearFlags.Sky) {
+            scene.skyRenderer.setRenderElement(this.skyRenderElement);
             this._ForwardAddRP.renderpass.skyRenderNode = scene.skyRenderer._baseRenderNode;
         }
         else {

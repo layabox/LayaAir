@@ -11,15 +11,17 @@ export class GLESRenderGeometryElement implements IRenderGeometryElement {
   /**@internal */
   private _bufferState: IBufferState;
 
-   /**@internal */
-   drawParams: SingletonList<number>;
-   
+  /**@internal */
+  drawParams: SingletonList<number>;
+
   _nativeObj: any;
 
   /**@internal */
   constructor(mode: MeshTopology, drawType: DrawType) {
-    this._nativeObj = new (window as any).conchRenderGeometryElement(mode, drawType);
+    this._nativeObj = new (window as any).conchGLESRenderGeometryElement();
+    this.mode = mode;
     this.drawParams = new SingletonList();
+    this.drawType = drawType;
   }
 
   /**@internal */
@@ -33,9 +35,9 @@ export class GLESRenderGeometryElement implements IRenderGeometryElement {
   setDrawElemenParams(count: number, offset: number): void {
     this.drawParams.add(offset);
     this.drawParams.add(count);
-    this._nativeObj.setDrawElemenParams(count, offset);
+    this._nativeObj.setDrawElementParams(count, offset);
   }
-  
+
   /**@internal */
   destroy(): void {
     this._nativeObj.destroy();
@@ -48,12 +50,7 @@ export class GLESRenderGeometryElement implements IRenderGeometryElement {
 
   set bufferState(value: IBufferState) {
     this._bufferState = value;
-    if (value) {
-      this._nativeObj.bufferState = (value as any)._nativeVertexArrayObject._nativeObj;
-    }
-    else {
-      this._nativeObj.bufferState = null;
-    }
+    this._nativeObj.setBufferState(value ? (value as any)._nativeObj : null);
   }
 
   get bufferState(): IBufferState {
