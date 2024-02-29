@@ -13,7 +13,6 @@ export class WebVolumetricGI implements IVolumetricGIData {
 
     private static _idCounter: number = 0;
 
-    /** @internal */
     _id: number = ++WebVolumetricGI._idCounter;
 
     private _probeCounts: Vector3 = new Vector3();
