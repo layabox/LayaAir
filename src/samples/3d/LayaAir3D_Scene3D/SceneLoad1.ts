@@ -14,6 +14,7 @@ import { LengencyRenderEngine3DFactory } from "laya/RenderDriver/DriverDesign/3D
 import { LayaGL } from "laya/layagl/LayaGL";
 import { WebGLRenderEngineFactory } from "laya/RenderDriver/WebGLDriver/RenderDevice/WebGLRenderEngineFactory";
 import { URL } from "laya/net/URL";
+
 export class SceneLoad1 {
 	constructor() {
 		//Laya3DRender.renderDriverPassCreate = new GLESRenderDriverPassFactory();
