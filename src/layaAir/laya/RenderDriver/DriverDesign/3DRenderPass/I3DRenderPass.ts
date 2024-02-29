@@ -153,11 +153,3 @@ export interface IRenderElement2D{
     subShader: SubShader;
     destroy():void;
 }
-
-export interface IVertexBuffer3D{
-    //TODO
-}
-
-export interface IIndexBuffer3D{
-    //TODO
-}

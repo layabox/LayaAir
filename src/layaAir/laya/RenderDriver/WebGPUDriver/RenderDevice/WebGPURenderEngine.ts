@@ -8,6 +8,7 @@ import { InternalTexture } from "../../DriverDesign/RenderDevice/InternalTexture
 import { IDefineDatas } from "../../RenderModuleData/Design/IDefineDatas";
 import { ShaderDefine } from "../../RenderModuleData/Design/ShaderDefine";
 import { WebGPURenderEngineFactory } from "./WebGPURenderEngineFactory";
+import { WebGPUTextureContext } from "./WebGPUTextureContext";
 export class WebGPUConfig {
     /**
   * Defines the category of adapter to use.
@@ -38,7 +39,7 @@ export class WebGPUConfig {
 
 export class WebGPURenderEngine implements IRenderEngine {
     static _offscreenFormat: GPUTextureFormat;
-
+    static _instance:WebGPURenderEngine;
     _isShaderDebugMode: boolean;
     _renderOBJCreateContext: IRenderEngineFactory;
 
@@ -57,6 +58,8 @@ export class WebGPURenderEngine implements IRenderEngine {
     private _device: GPUDevice;
 
     private _deviceEnabledExtensions: GPUFeatureName[];
+
+    private _textureContext:WebGPUTextureContext;
     /**
      * 实例化一个webgpuEngine
      */
@@ -68,7 +71,7 @@ export class WebGPURenderEngine implements IRenderEngine {
             console.error("WebGPU is not supported by your browser.");
             return;
         }
-
+        WebGPURenderEngine._instance = this;
 
     }
 
@@ -166,6 +169,10 @@ export class WebGPURenderEngine implements IRenderEngine {
                 })
     }
 
+    getDevice():GPUDevice{
+        return this._device;
+    }
+
     /**
      * get and config webgpu context
      */
@@ -190,6 +197,7 @@ export class WebGPURenderEngine implements IRenderEngine {
         await this._initAsync();
         this._initContext();
 
+        this._textureContext = new WebGPUTextureContext(this);
         // // this._samplerContext = new WebGPUSamplerContext(this);
         // // this._webGPUTextureContext = new WebGPUTextureContext(this);
         // // this._supportCapatable = new WebGPUCapable(this);
@@ -275,26 +283,32 @@ export class WebGPURenderEngine implements IRenderEngine {
         }
     }
     
-    private _texGammaDefine: { [key: number]: ShaderDefine } = {};
+    _texGammaDefine: { [key: number]: ShaderDefine } = {};
     addTexGammaDefine(key: number, value: ShaderDefine): void {
        this._texGammaDefine[key] = value;
     }
     
+    /**获得各个参数 */
     getParams(params: RenderParams): number {
         throw new Error("Method not implemented.");
     }
+    /**获得是否支持某种能力 */
     getCapable(capatableType: RenderCapable): boolean {
         throw new Error("Method not implemented.");
     }
     getTextureContext(): ITextureContext {
-        throw new Error("Method not implemented.");
+        return this._textureContext;
     }
     getCreateRenderOBJContext(): WebGPURenderEngineFactory {
       return new WebGPURenderEngineFactory()
     }
+
+    //统计相关
     clearStatisticsInfo(info: RenderStatisticsInfo): void {
         //throw new Error("Method not implemented.");
     }
+
+    //统计相关
     getStatisticsInfo(info: RenderStatisticsInfo): number {
         return 0;
         throw new Error("Method not implemented.");

@@ -28,6 +28,7 @@ import { WebGLConfig } from "./WebGLEngine/WebGLConfig";
 import { ShaderDefine } from "../../RenderModuleData/Design/ShaderDefine";
 import { WebGLShaderData } from "../../RenderModuleData/WebModuleData/WebGLShaderData";
 import { IDefineDatas } from "../../RenderModuleData/Design/IDefineDatas";
+import { WebGLInternalTex } from "./WebGLInternalTex";
 
 /**
  * 封装Webgl
@@ -359,7 +360,7 @@ export class WebGLEngine implements IRenderEngine {
         //this._gl.disable(this._gl.SCISSOR_TEST);
     }
 
-    copySubFrameBuffertoTex(texture: InternalTexture, level: number, xoffset: number, yoffset: number, x: number, y: number, width: number, height: number) {
+    copySubFrameBuffertoTex(texture: WebGLInternalTex, level: number, xoffset: number, yoffset: number, x: number, y: number, width: number, height: number) {
         this._bindTexture(texture.target, texture.resource);
         this._context.copyTexSubImage2D(texture.target, level, xoffset, yoffset, x, y, width, height);
     }
