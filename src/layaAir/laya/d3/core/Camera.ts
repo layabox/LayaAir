@@ -1180,6 +1180,9 @@ export class Camera extends BaseCamera {
         if (this._postProcess && this._postProcess.enable) {
             cameraDepthMode |= this._postProcess.cameraDepthTextureMode;
         }
+        if (!LayaGL.renderEngine.getCapable(RenderCapable.RenderTextureFormat_Depth)) {
+            cameraDepthMode &= ~DepthTextureMode.Depth;
+        }
         if ((cameraDepthMode & DepthTextureMode.Depth) != 0) {
             // todo
             if (!this.canblitDepth || !this._internalRenderTexture.depthStencilTexture) {
