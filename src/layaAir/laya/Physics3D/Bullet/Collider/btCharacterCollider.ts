@@ -55,8 +55,7 @@ export class btCharacterCollider extends btCollider implements ICharacterControl
         this._btCollider = ghostObject;
     }
     setShapelocalOffset(value: Vector3): void {
-        // bullet no shapeoffset,need set collidershape
-        // throw new Error("Method not implemented.");
+        this._btColliderShape && (this._btColliderShape as btCapsuleColliderShape).setOffset(value);
     }
     setSkinWidth?(width: number): void {
         // bullet no skinwidth
@@ -116,7 +115,7 @@ export class btCharacterCollider extends btCollider implements ICharacterControl
         this._characterCapableMap.set(ECharacterCapable.Character_PushForce, true);
         this._characterCapableMap.set(ECharacterCapable.Character_Radius, true);
         this._characterCapableMap.set(ECharacterCapable.Character_Height, true);
-        this._characterCapableMap.set(ECharacterCapable.Character_offset, false);
+        this._characterCapableMap.set(ECharacterCapable.Character_offset, true);
         this._characterCapableMap.set(ECharacterCapable.Character_Skin, false);
         this._characterCapableMap.set(ECharacterCapable.Character_minDistance, false);
         this._characterCapableMap.set(ECharacterCapable.Character_EventFilter, false);

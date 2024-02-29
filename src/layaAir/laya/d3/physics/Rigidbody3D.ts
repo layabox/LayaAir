@@ -40,6 +40,8 @@ export class Rigidbody3D extends PhysicsColliderComponent {
     private _sleepThreshold: number;
     /**@internal */
     private _trigger: boolean = false;
+    /**@internal */
+    private _collisionDetectionMode: number = 0;
 
     /**
      * @override
@@ -219,6 +221,19 @@ export class Rigidbody3D extends PhysicsColliderComponent {
         this._trigger = value;
         if (this._collider && this.collider.getCapable(EColliderCapable.Collider_AllowTrigger)) {
             this._collider.setTrigger(value);
+        }
+    }
+
+    /**
+     * 碰撞检测模式
+     */
+    public get collisionDetectionMode(): number {
+        return this._collisionDetectionMode;
+    }
+    public set collisionDetectionMode(value: number) {
+        this._collisionDetectionMode = value;
+        if (this._collider && this._collider.getCapable(EColliderCapable.Collider_CollisionDetectionMode)) {
+            this._collider.setCollisionDetectionMode(value);
         }
     }
 
