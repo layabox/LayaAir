@@ -52,7 +52,7 @@ export type WebGPUUniformItemType = {
     count: number, //非数组count=1，否则count=数组长度
 };
 
-const roundUp = (v: number, align: number) => (((v + align - 1) / align) | 0) * align;
+const roundUp = (n: number, align: number) => (((n + align - 1) / align) | 0) * align;
 
 /**
  * UniformBlock信息，用于建立PipelineLayout
