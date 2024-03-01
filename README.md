@@ -1,6 +1,6 @@
 <p align="center">
     <a href="https://layaair.layabox.com">
-        <img src="https://github.com/layabox/LayaAir/assets/38777031/b7052d96-c3d8-4b54-a9b5-f6cad2174bf5"
+        <img src="https://github.com/layabox/LayaAir/assets/38777031/5519a795-c050-4612-8ee0-0907a946260b"
     </a>
 </p>
 
