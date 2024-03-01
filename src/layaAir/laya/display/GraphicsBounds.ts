@@ -117,12 +117,12 @@ export class GraphicsBounds {
         rst = this._temp || (this._temp = []);
 
         rst.length = 0;
-        if (!cmds && this._graphics._one != null) {
+        if ((!cmds || cmds.length == 0) && this._graphics._one != null) {
             GraphicsBounds._tempCmds.length = 0;
             GraphicsBounds._tempCmds.push(this._graphics._one);
             cmds = GraphicsBounds._tempCmds;
         }
-        if (!cmds) return rst;
+        if (!cmds || cmds.length == 0) return rst;
 
         var matrixs: any[] = GraphicsBounds._tempMatrixArrays;
         matrixs.length = 0;
