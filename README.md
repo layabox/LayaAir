@@ -1,8 +1,8 @@
-[中文](README.zh_CN.md)
-
 # LayaAir Engine
 
 **[LayaAir](https://layaair.layabox.com/) engine, under the [Layabox](https://www.layabox.com/) brand, is a 3D engine that supports full-platform publishing. It can be applied in various fields such as games, education, advertising, marketing, digital twins, metaverse, AR guides, VR scenes, architectural design, industrial design, etc.**
+
+[中文](README.zh-CN.md)
 
 ![Screenshot of LayaAirIDE](https://github.com/layabox/LayaAir/assets/38777031/f520c762-98e4-41f0-8145-df6a6cb422d6)
 
