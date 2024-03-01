@@ -19,7 +19,7 @@ import { LayaGL } from "laya/layagl/LayaGL";
 import { WebGLRenderEngineFactory } from "laya/RenderDriver/WebGLDriver/RenderDevice/WebGLRenderEngineFactory";
 import { GLESRenderEngineFactory } from "laya/RenderDriver/OpenGLESDriver/RenderDevice/GLESRenderEngineFactory";
 import { URL } from "laya/net/URL";
-
+import { LayaEnv } from "LayaEnv";
 export class SceneLoad1 {
 	constructor() {
 		//Laya3DRender.renderDriverPassCreate = new GLESRenderDriverPassFactory();
@@ -105,4 +105,3 @@ export class SceneLoad1 {
 		}));
 	}
 }
-
