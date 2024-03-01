@@ -10,9 +10,9 @@ import { IShaderInstance } from "../../DriverDesign/RenderDevice/IShaderInstance
 import { ShaderDataType } from "../../DriverDesign/RenderDevice/ShaderData";
 import { WebGLCommandUniformMap } from "../../WebGLDriver/RenderDevice/WebGLCommandUniformMap";
 import { NagaWASM } from "../Naga/NagaWASM";
-import { TypeOutData } from "../ShaderCompile/ShaderCompileCode";
-import { ShaderCompileDef } from "../ShaderCompile/ShaderCompileDef";
-import { ShaderCompileUtil } from "../ShaderCompile/ShaderCompileUtil";
+import { TypeOutData } from "../ShaderCompile/WebGPUShaderCompileCode";
+import { WebGPUShaderCompileDef } from "../ShaderCompile/WebGPUShaderCompileDef";
+import { WebGPUShaderCompileUtil } from "../ShaderCompile/WebGPUShaderCompileUtil";
 import { WebGPURenderEngine } from "./WebGPURenderEngine";
 
 type NameAndType = { name: string; type: string; };
@@ -52,16 +52,21 @@ export type WebGPUUniformItemType = {
     count: number, //非数组count=1，否则count=数组长度
 };
 
+/**
+ * 向上圆整到align的整数倍
+ * @param n 
+ * @param align 
+ */
 const roundUp = (n: number, align: number) => (((n + align - 1) / align) | 0) * align;
 
 /**
- * UniformBlock信息，用于建立PipelineLayout
+ * UniformBlock信息
  */
 export class WebGPUUniformBlockInfo {
-    name: string;
-    size: number;
-    strID: string;
-    items: WebGPUUniformItemType[];
+    name: string; //名称
+    size: number; //Block字节长度
+    strID: string; //所有uniform名称串联成的字符串
+    items: WebGPUUniformItemType[]; //具体的uniform变量
 
     constructor(name: string, size: number) {
         this.name = name;
@@ -102,16 +107,19 @@ export class WebGPUUniformBlockInfo {
      */
     debugInfo() {
         if (this.items.length > 0) {
-            console.log("strID =", this.strID);
+            console.log('strID =', this.strID);
             for (let i = 0, len = this.items.length; i < len; i++) {
                 const item = this.items[i];
-                console.log("id: %d, name: %s, type: %s, size: %d, align: %d, offset: %d, elements: %d, count: %d",
+                console.log('id: %d, name: %s, type: %s, size: %d, align: %d, offset: %d, elements: %d, count: %d',
                     item.id, item.name, item.type, item.size, item.align, item.offset, item.elements, item.count);
             }
         }
     }
 }
 
+/**
+ * WGSL代码转译
+ */
 export class WGSLCodeGenerator {
     static naga: NagaWASM;
     static inited: boolean = false; //是否已经初始化
@@ -309,7 +317,7 @@ export class WGSLCodeGenerator {
     }
 
     /**
-     * 生成uniform字符串
+     * 生成sampler和texuture字符串
      * @param textureUniforms 
      * @param uniformInfo 
      * @param visibility 
@@ -368,7 +376,7 @@ export class WGSLCodeGenerator {
     }
 
     /**
-     * 去除转译报错的代码
+     * 去除naga转译报错的代码
      */
     static changeUnfitCode(code: string) {
         const regex1 = /\(\s*const\s+(?:in|highp|mediump|lowp)\s*/g;
@@ -633,10 +641,17 @@ mat4 inverse(mat4 m)
         }
     }
 
+    /**
+     * 执行WGSL转译
+     * @param defineString 
+     * @param attributeMap 
+     * @param uniformMap 
+     * @param VS 
+     * @param FS 
+     */
     static ShaderLanguageProcess(defineString: string[],
         attributeMap: { [name: string]: [number, ShaderDataType] },
         uniformMap: UniformMapType, VS: ShaderNode, FS: ShaderNode) {
-        //翻译转换和分析
 
         const arrayMap: NameNumberMap = {}; //uniform中的数组
         const varyingMap: NameStringMap = {};
@@ -677,10 +692,10 @@ mat4 inverse(mat4 m)
         //提取uniform和varying参数
         {
             const defs: Set<string> = new Set();
-            const ret = ShaderCompileDef.compile(vs.join('\n'), defs);
+            const ret = WebGPUShaderCompileDef.compile(vs.join('\n'), defs);
             if (!defs.has("Math_lib"))
                 vsNeedInverseFunc = true;
-            vsOut = ShaderCompileUtil.toscript(ret, { GL_FRAGMENT_PRECISION_HIGH: true }, vsTod);
+            vsOut = WebGPUShaderCompileUtil.toScript(ret, { GL_FRAGMENT_PRECISION_HIGH: true }, vsTod);
             if (vsTod.uniform)
                 for (const key in vsTod.uniform) {
                     if (!uniformMap[key]) {
@@ -706,10 +721,10 @@ mat4 inverse(mat4 m)
         }
         {
             const defs: Set<string> = new Set();
-            const ret = ShaderCompileDef.compile(fs.join('\n'), defs);
+            const ret = WebGPUShaderCompileDef.compile(fs.join('\n'), defs);
             if (!defs.has("Math_lib"))
                 fsNeedInverseFunc = true;
-            fsOut = ShaderCompileUtil.toscript(ret, { GL_FRAGMENT_PRECISION_HIGH: true }, fsTod);
+            fsOut = WebGPUShaderCompileUtil.toScript(ret, { GL_FRAGMENT_PRECISION_HIGH: true }, fsTod);
             if (fsTod.uniform)
                 for (const key in fsTod.uniform) {
                     if (!uniformMap[key]) {
@@ -732,6 +747,7 @@ mat4 inverse(mat4 m)
             if (varyingMapFS[key])
                 varyingMap[key] = varyingMapVS[key];
 
+        //生成各类GLSL4.5代码
         const attributeGLSL = this.attributeString(attributeMap);
         const varyingGLSL_vs = this.varyingString(varyingMap, "out");
         const varyingGLSL_fs = this.varyingString(varyingMap, "in");
@@ -787,6 +803,7 @@ ${uniformGLSL}
 ${textureGLSL_fs}
 `;
 
+        //合并成完整的GLSL4.5代码
         let dstVS = vertexHead + defineStr + (vsNeedInverseFunc ? inverseFunc : '') + vsOut;
         let dstFS = fragmentHead + defineStr + (fsNeedInverseFunc ? inverseFunc : '') + fsOut;
         if (this.forNaga) {
@@ -794,12 +811,16 @@ ${textureGLSL_fs}
             dstFS = this.changeUnfitCode(dstFS);
         }
 
+        //转译成WGSL代码
         const wgsl_vs = this.naga.compileGLSL2WGSL(dstVS, "vertex");
         const wgsl_fs = this.naga.compileGLSL2WGSL(dstFS, "fragment");
         return { vs: wgsl_vs, fs: wgsl_fs, uniformInfo };
     }
 }
 
+/**
+ * WebGPU着色器实例
+ */
 export class WebGPUShaderInstance implements IShaderInstance {
     /**@internal VertexState*/
     private _vsShader: GPUShaderModule;
@@ -808,9 +829,6 @@ export class WebGPUShaderInstance implements IShaderInstance {
 
     pipelineLayout: GPUPipelineLayout;
 
-    /**
-     * 创建一个 <code>ShaderInstance</code> 实例。
-     */
     constructor() {
     }
 
@@ -926,14 +944,10 @@ export class WebGPUShaderInstance implements IShaderInstance {
         }
 
         const bindGroupLayouts: GPUBindGroupLayout[] = [];
-        const group0 = _createBindGroupLayout(0, 'group0', info);
-        if (group0) bindGroupLayouts.push(group0);
-        const group1 = _createBindGroupLayout(1, 'group1', info);
-        if (group1) bindGroupLayouts.push(group1);
-        const group2 = _createBindGroupLayout(2, 'group2', info);
-        if (group2) bindGroupLayouts.push(group2);
-        const group3 = _createBindGroupLayout(3, 'group3', info);
-        if (group3) bindGroupLayouts.push(group3);
+        for (let i = 0; i < 4; i++) {
+            const group = _createBindGroupLayout(i, `group${i}`, info);
+            if (group) bindGroupLayouts.push(group);
+        }
 
         return device.createPipelineLayout({ label: name, bindGroupLayouts });
     }
