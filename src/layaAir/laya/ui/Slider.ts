@@ -374,7 +374,11 @@ export class Slider extends UIComponent {
             if (min >= max) {
                 value = this.value;
             } else {
-                scaleValue = this._value / (this._max - this._min);
+                if (this._max == this._min) {
+                    scaleValue = 0;
+                } else {
+                    scaleValue = this._value / (this._max - this._min);
+                }
             }
         }
         this._value = -1;
