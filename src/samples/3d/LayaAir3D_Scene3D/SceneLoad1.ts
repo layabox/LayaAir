@@ -95,4 +95,3 @@ export class SceneLoad1 {
 		}
 	}
 }
-
