@@ -1,7 +1,6 @@
 import { DrawType } from "../../../RenderEngine/RenderEnum/DrawType";
 import { IndexFormat } from "../../../RenderEngine/RenderEnum/IndexFormat";
 import { MeshTopology } from "../../../RenderEngine/RenderEnum/RenderPologyMode";
-import { SingletonList } from "../../../utils/SingletonList";
 import { IBufferState } from "./IBufferState";
 
 export interface IRenderGeometryElement{
@@ -11,8 +10,6 @@ export interface IRenderGeometryElement{
     mode:MeshTopology;
     /**@internal */
     drawType:DrawType;
-    /**@internal */
-    drawParams:SingletonList<number>;
     /**@internal */
     instanceCount:number;
     /**@internal */

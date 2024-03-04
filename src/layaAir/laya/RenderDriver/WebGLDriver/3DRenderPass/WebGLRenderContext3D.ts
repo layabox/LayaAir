@@ -16,6 +16,7 @@ import { WebGLRenderElement3D } from "./WebGLRenderElement3D";
 
 
 export class WebGLRenderContext3D implements IRenderContext3D {
+    _globalConfigShaderData: WebDefineDatas;
     private _globalShaderData: WebGLShaderData;
     /**@internal */
     private _sceneData: WebGLShaderData;
@@ -146,7 +147,7 @@ export class WebGLRenderContext3D implements IRenderContext3D {
         this._invertY = value;
     }
 
-    _globalConfigShaderData: WebDefineDatas;
+
 
     /**
      * <code>GLESRenderContext3D<code/>
@@ -194,6 +195,8 @@ export class WebGLRenderContext3D implements IRenderContext3D {
     drawRenderElementOne(node: WebGLRenderElement3D): number {
         if (this._needStart) {
             this._bindRenderTarget();
+
+            
             this._start();
             this._needStart = false;
         }

@@ -14,6 +14,10 @@ export class WebGPUInternalRT implements InternalRenderTarget {
     isSRGB: boolean;
     gpuMemory: number;
 
+
+    _colorState:Array<GPUColorTargetState>;
+   //_depthState:GPUColorTargetState;
+
     constructor(colorFormat: RenderTargetFormat,
         depthStencilFormat: RenderTargetFormat,
         isCube: boolean, generateMipmap: boolean,

@@ -7,6 +7,7 @@ export class VertexStateContext{
     normalized:number;//0 or 1
     vertexStride:number;
     elementOffset:number;
+    elementString:string;
 }
 /**
  * <code>VertexDeclaration</code> 类用于生成顶点声明。
@@ -70,6 +71,7 @@ export class VertexDeclaration {
             this._vertexElementsDic[name] = vertexElement;
             var value: VertexStateContext = new VertexStateContext();
             var elmentInfo: any[] = VertexElementFormat.getElementInfos(vertexElement._elementFormat);
+            value.elementString = vertexElement._elementFormat;
             value.elementCount = elmentInfo[0];
             value.elementType = elmentInfo[1];
             value.normalized = elmentInfo[2];

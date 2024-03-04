@@ -88,4 +88,5 @@ export class GLESRenderGeometryElement implements IRenderGeometryElement {
   get indexFormat(): IndexFormat {
     return this._nativeObj.indexFormat;
   }
+  
 }
