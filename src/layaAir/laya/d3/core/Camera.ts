@@ -331,8 +331,8 @@ export class Camera extends BaseCamera {
     /** 是否开启非透明物体通道 */
     private _opaquePass: boolean;
 
-
-    private _cameraEventCommandBuffer: { [key: string]: CommandBuffer[] } = {};
+    /** @internal */
+    _cameraEventCommandBuffer: { [key: string]: CommandBuffer[] } = {};
     /**@internal 实现CommanBuffer的阴影渲染 */
     private _shadowCasterCommanBuffer: CommandBuffer[] = [];
 
@@ -355,8 +355,6 @@ export class Camera extends BaseCamera {
     _cacheDepthTexture: RenderTexture;
 
     _renderDataModule: ICameraNodeData;
-
-    private _ForwardAddRP: IForwardAddRP;
 
     private _Render3DProcess: IRender3DProcess;
 
@@ -688,7 +686,6 @@ export class Camera extends BaseCamera {
     constructor(aspectRatio: number = 0, nearPlane: number = 0.3, farPlane: number = 1000) {
         super(nearPlane, farPlane);
         this._renderDataModule = Laya3DRender.Render3DModuleDataFactory.createCameraModuleData();
-        this._ForwardAddRP = Laya3DRender.Render3DPassFactory.createForwardAddRP();
         this._Render3DProcess = Laya3DRender.Render3DPassFactory.createRender3DProcess();
         this._renderDataModule.transform = this.transform;
         this._viewMatrix = new Matrix4x4();
@@ -871,7 +868,8 @@ export class Camera extends BaseCamera {
      */
     _updateCameraRenderData(context: RenderContext3D) {
         this._prepareCameraToRender();
-        this._applyViewProject(context, this.viewMatrix, this._projectionMatrix);
+        this._applyViewProject(this.viewMatrix, this._projectionMatrix, context.invertY);
+        this._contextApply(context);
     }
 
 
@@ -890,10 +888,20 @@ export class Camera extends BaseCamera {
 
     /**
      * @internal
+     * @param context 
      */
-    _applyViewProject(context: RenderContext3D, viewMat: Matrix4x4, proMat: Matrix4x4): void {
+    _contextApply(context: RenderContext3D) {
+        context.viewMatrix = this.viewMatrix;
+        context.projectionMatrix = this.projectionMatrix;
+        context.projectionViewMatrix = this.projectionViewMatrix;
+    }
+
+    /**
+     * @internal
+     */
+    _applyViewProject(viewMat: Matrix4x4, proMat: Matrix4x4, invertY: boolean): void {
         var projectView: Matrix4x4;
-        if (context.invertY) {
+        if (invertY) {
             Matrix4x4.multiply(BaseCamera._invertYScaleMatrix, proMat, BaseCamera._invertYProjectionMatrix);
             Matrix4x4.multiply(BaseCamera._invertYProjectionMatrix, viewMat, BaseCamera._invertYProjectionViewMatrix);
             proMat = BaseCamera._invertYProjectionMatrix;
@@ -904,10 +912,6 @@ export class Camera extends BaseCamera {
             this._renderDataModule.setProjectionViewMatrix(this._projectionViewMatrix);
             projectView = this._projectionViewMatrix;
         }
-
-        context.viewMatrix = viewMat;
-        context.projectionMatrix = proMat;
-        context.projectionViewMatrix = projectView;
         this._shaderValues.setMatrix4x4(BaseCamera.VIEWMATRIX, viewMat);
         this._shaderValues.setMatrix4x4(BaseCamera.PROJECTMATRIX, proMat);
         this._shaderValues.setMatrix4x4(BaseCamera.VIEWPROJECTMATRIX, projectView);
@@ -1027,40 +1031,6 @@ export class Camera extends BaseCamera {
     }
 
     /**
-     * 根据camera的深度贴图模式更新深度贴图
-     * @internal
-     */
-    _renderDepthMode() {
-        var cameraDepthMode = this._depthTextureMode;
-        if (this._postProcess && this._postProcess.enable) {
-            cameraDepthMode |= this._postProcess.cameraDepthTextureMode;
-        }
-        if ((cameraDepthMode & DepthTextureMode.Depth) != 0) {
-            // todo
-            if (!this.canblitDepth || !this._internalRenderTexture.depthStencilTexture) {
-                Camera.depthPass.getTarget(this, DepthTextureMode.Depth, this._depthTextureFormat);
-                this._ForwardAddRP.renderpass.depthTarget = (this._depthTexture as RenderTexture)._renderTarget;
-                this._shaderValues.setTexture(DepthPass.DEPTHTEXTURE, this._depthTexture);
-            }
-            else {
-
-                this.depthTexture = this._cacheDepthTexture.depthStencilTexture;
-                //@ts-ignore;
-                Camera.depthPass._depthTexture = this.depthTexture;
-                this._shaderValues.setTexture(DepthPass.DEPTHTEXTURE, this.depthTexture);
-                Camera.depthPass._setupDepthModeShaderValue(DepthTextureMode.Depth, this);
-                cameraDepthMode &= ~DepthTextureMode.Depth;
-            }
-        }
-        if ((cameraDepthMode & DepthTextureMode.DepthNormals) != 0) {
-            Camera.depthPass.getTarget(this, DepthTextureMode.DepthNormals, this._depthTextureFormat);
-            this._ForwardAddRP.renderpass.depthNormalTarget = this.depthNormalTexture._renderTarget;
-            this._shaderValues.setTexture(DepthPass.DEPTHNORMALSTEXTURE, this.depthNormalTexture);
-        }
-        this._ForwardAddRP.renderpass.depthTextureMode = cameraDepthMode;
-    }
-
-    /**
      * @internal
      * 深度贴图
      */
@@ -1131,139 +1101,54 @@ export class Camera extends BaseCamera {
      * @param replacementTag 替换标记。
      */
     render(scene: Scene3D): void {
-        var viewport: Viewport = this.viewport;
-        var needInternalRT: boolean = this._needInternalRenderTexture();
-        var context: RenderContext3D = RenderContext3D._instance;
+        // set context
+        let context = RenderContext3D._instance;
         context.scene = scene;
         context.camera = this;
-        scene._setCullCamera(this);//设置逻辑相机
+        scene._setCullCamera(this);
 
-        //准备CameraData数据
+        // camera data 
         this._prepareCameraToRender();
-        this._applyViewProject(context, this.viewMatrix, this._projectionMatrix);
-        if (this._cameraUniformData) {//需要在Depth之前更新数据
-            this._cameraUniformUBO && this._cameraUniformUBO.setDataByUniformBufferData(this._cameraUniformData);
+        this._applyViewProject(this.viewMatrix, this.projectionMatrix, context.invertY);
+        this._contextApply(context);
+        // todo proterty name
+        if (this._cameraUniformData && this._cameraUniformUBO) {
+            this._cameraUniformUBO.setDataByUniformBufferData(this._cameraUniformData);
         }
-        var multiLighting: boolean = Config3D._multiLighting;
-        (multiLighting) && (Cluster.instance.update(this, <Scene3D>(scene)));
 
-        //renderPass数据设置
-        let texFormat = this._getRenderTextureFormat();
+        let viewport = this.viewport;
+        let needInternalRT = this._needInternalRenderTexture();
+
+        // create internal rt if needed
         if (needInternalRT) {
-            if (this.msaa) {
-                this._internalRenderTexture = RenderTexture.createFromPool(viewport.width, viewport.height, texFormat, this._depthTextureFormat, false, 4, this.canblitDepth, this._needRenderGamma(texFormat));
-                this._internalRenderTexture.filterMode = FilterMode.Bilinear;
-            } else {
-                this._internalRenderTexture = RenderTexture.createFromPool(viewport.width, viewport.height, texFormat, this._depthTextureFormat, false, 1, this.canblitDepth, this._needRenderGamma(texFormat));
-                this._internalRenderTexture.filterMode = FilterMode.Bilinear;
-            }
+            let multiSampler = this.msaa ? 4 : 1;
+            let frameFormat = this._getRenderTextureFormat();
+            let depthFormat = this.depthTextureFormat;
+            let gamma = this._needRenderGamma(frameFormat);
+            let internalRT = RenderTexture.createFromPool(viewport.width, viewport.height, frameFormat, depthFormat, false, multiSampler, this.canblitDepth, gamma);
+            internalRT.filterMode = FilterMode.Bilinear;
+
+            this._internalRenderTexture = internalRT;
         }
         else {
             this._internalRenderTexture = null;
         }
-        var renderTex: RenderTexture = this._getRenderTexture();//如果有临时renderTexture则画到临时renderTexture,最后再画到屏幕或者离屏画布,如果无临时renderTexture则直接画到屏幕或离屏画布
-        if (renderTex && renderTex._isCameraTarget)//保证反转Y状态正确
-            context.invertY = true;
-        else
-            context.invertY = false;
-        this._ForwardAddRP.renderpass.destTarget = renderTex._renderTarget;
-        //clear Color
-        {
-            let clearColor = this._linearClearColor;
-            if (renderTex.gammaCorrection != 1) {
-                clearColor = this.clearColor;
-            }
-            var clearFlag: number = this.clearFlag;
-            if (clearFlag === CameraClearFlags.Sky)
-                clearFlag = CameraClearFlags.SolidColor;
-            let clearConst: number = 0;
-            let stencilFlag = renderTex.depthStencilFormat == RenderTargetFormat.DEPTHSTENCIL_24_8 ? RenderClearFlag.Stencil : 0;
-            switch (clearFlag) {
-                case CameraClearFlags.SolidColor:
-                    clearConst = RenderClearFlag.Color | RenderClearFlag.Depth | stencilFlag;
-                    break;
-                case CameraClearFlags.DepthOnly:
-                case CameraClearFlags.Sky:
-                    clearConst = RenderClearFlag.Depth | stencilFlag;
-                    break;
-                case CameraClearFlags.Nothing:
-                    clearConst = 0;
-                    break;
-                case CameraClearFlags.ColorOnly:
-                    clearConst = RenderClearFlag.Color;
-                    break;
-            }
 
-            this._ForwardAddRP.renderpass.clearColor = clearColor;
-            this._ForwardAddRP.renderpass.clearFlag = clearConst;
+        context.invertY = false;
+        let renderRT = this._getRenderTexture();
+        if (renderRT) {
+            context.invertY = renderRT._isCameraTarget ? true : false;
         }
 
-
-        this._ForwardAddRP.renderpass.pipelineMode = context.configPipeLineMode;
-        this._ForwardAddRP.renderpass.setViewPort(this.viewport);
-        Vector4.tempVec4.setValue(this.viewport.x, this.viewport.y, this.viewport.width, this.viewport.height);
-        this._ForwardAddRP.renderpass.setScissor(Vector4.tempVec4);
-        this._renderDepthMode();
-        this._ForwardAddRP.renderpass.enableOpaque = Stat.enableOpaque;
-        this._ForwardAddRP.renderpass.enableTransparent = Stat.enableTransparent;
-        //Sky TODO this._ForwardAddRP.renderpass.skyRenderNode = this.skyRenderer
-        this._ForwardAddRP.renderpass.enableCMD = Stat.enableCameraCMD;
-        this._ForwardAddRP.renderpass.setBeforeSkyboxCmds(this._cameraEventCommandBuffer[CameraEventFlags.BeforeSkyBox]);
-        this._ForwardAddRP.renderpass.setBeforeForwardCmds(this._cameraEventCommandBuffer[CameraEventFlags.BeforeForwardOpaque]);
-        this._ForwardAddRP.renderpass.setBeforeTransparentCmds(this._cameraEventCommandBuffer[CameraEventFlags.BeforeTransparent]);
-        this._ForwardAddRP.setBeforeImageEffect(this._cameraEventCommandBuffer[CameraEventFlags.BeforeImageEffect]);
-        this._ForwardAddRP.setAfterEventCmd(this._cameraEventCommandBuffer[CameraEventFlags.AfterEveryThing]);
-        this._ForwardAddRP.renderpass.setCameraCullInfo(this);
         if (this.clearFlag == CameraClearFlags.Sky) {
             scene.skyRenderer.setRenderElement(this.skyRenderElement);
-            this._ForwardAddRP.renderpass.skyRenderNode = scene.skyRenderer._baseRenderNode;
-        }
-        else {
-            this._ForwardAddRP.renderpass.skyRenderNode = null;
-        }
-        //postProcess TODO;
-
-        //shadowCaster 是否渲染阴影Pass
-        if (Scene3D._updateMark % scene._ShadowMapupdateFrequency != 0 || (!Stat.enableShadow)) {
-            this._ForwardAddRP.shadowCastPass = false;
-        } else {
-            this._ForwardAddRP.shadowCastPass = true;
-            //DirectLight ShadowCaster
-            var mainDirectLight: DirectionLightCom = scene._mainDirectionLight;
-            var needDirShadowCasterPass: boolean = mainDirectLight && mainDirectLight.shadowMode !== ShadowMode.None && ShadowUtils.supportShadow();
-            this._ForwardAddRP.enableDirectLightShadow = needDirShadowCasterPass;
-            if (needDirShadowCasterPass) {
-                scene._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW);
-                this._ForwardAddRP.directLightShadowPass.camera = this._renderDataModule;
-                this._ForwardAddRP.directLightShadowPass.light = mainDirectLight._dataModule;
-                let dirlightShadowmap = ILaya3D.Scene3D._shadowCasterPass.getDirectLightShadowMap(mainDirectLight);
-                this._ForwardAddRP.directLightShadowPass.destTarget = dirlightShadowmap._renderTarget;
-                scene._shaderValues.setTexture(ShadowCasterPass.SHADOW_MAP, dirlightShadowmap);
-            }
-            else {
-                scene._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW);
-            }
-
-            //spotLight ShadowCaster
-            var spotMainLight = scene._mainSpotLight;
-            var spotneedShadowCasterPass: boolean = spotMainLight && spotMainLight.shadowMode !== ShadowMode.None && ShadowUtils.supportShadow();
-            this._ForwardAddRP.enableSpotLightShadowPass = spotneedShadowCasterPass;
-            if (spotneedShadowCasterPass) {
-                scene._shaderValues.addDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SPOT);
-                this._ForwardAddRP.spotLightShadowPass.light = spotMainLight;
-                let spotShadowMap = ILaya3D.Scene3D._shadowCasterPass.getSpotLightShadowPassData(spotMainLight);
-                scene._shaderValues.setTexture(ShadowCasterPass.SHADOW_SPOTMAP, spotShadowMap);
-                this._ForwardAddRP.spotLightShadowPass.destTarget = spotShadowMap._renderTarget;
-            }
-            else {
-                scene._shaderValues.removeDefine(Scene3DShaderDeclaration.SHADERDEFINE_SHADOW_SPOT);
-            }
         }
 
         scene._componentDriver.callPreRender();
         this._preRenderMainPass(context, scene, needInternalRT, viewport);
-        this._Render3DProcess.renderFowarAddCameraPass(context._contextOBJ, this._ForwardAddRP, scene.sceneRenderableManager.renderBaselist.elements, scene.sceneRenderableManager.renderBaselist.length);
-        this._aftRenderMainPass(this._ForwardAddRP.shadowCastPass);
+
+        this._Render3DProcess.fowardRender(context._contextOBJ, this);
+
         scene._componentDriver.callPostRender();
     }
 
