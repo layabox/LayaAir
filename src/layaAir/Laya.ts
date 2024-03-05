@@ -88,7 +88,7 @@ export class Laya {
 	static loader: LoaderManager = null;
 	/** 当前引擎版本。*/
 
-	static version: string = "2.13.2beta";
+	static version: string = "2.13.4";
 
 	/**@private Render 类的引用。*/
 	static render: Render;
