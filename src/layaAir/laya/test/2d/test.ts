@@ -2,7 +2,7 @@ import test from "./simple1"
 
 let testfile = window.location.search.substring(1);
 async function testf(){
-    await import('./'+testfile);
+    //await import('./'+testfile);
 
 }
 export class LayaTest{

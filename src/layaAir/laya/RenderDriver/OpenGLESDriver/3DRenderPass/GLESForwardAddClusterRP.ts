@@ -5,7 +5,6 @@ import { CameraCullInfo } from "../../../d3/shadowMap/ShadowSliceData";
 import { Color } from "../../../maths/Color";
 import { Vector4 } from "../../../maths/Vector4";
 import { DepthTextureMode } from "../../../resource/RenderTexture";
-import { IForwardAddClusterRP } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { IRenderCMD } from "../../DriverDesign/3DRenderPass/IRendderCMD";
 import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRenderTarget";
 import { RTCameraNodeData } from "../../RenderModuleData/RuntimeModuleData/3D/RT3DRenderModuleData";
@@ -13,7 +12,7 @@ import { RTBaseRenderNode } from "../../RenderModuleData/RuntimeModuleData/3D/RT
 
 
 
-export class GLESForwardAddClusterRP implements IForwardAddClusterRP {
+export class GLESForwardAddClusterRP {
     public get enableOpaque(): boolean {
         return this._nativeObj._enableOpaque;
     }
@@ -143,7 +142,7 @@ export class GLESForwardAddClusterRP implements IForwardAddClusterRP {
         this._nativeObj.setScissor(value);
     }
 
-    private _getRenderCMDArray(cmds: IRenderCMD[]){
+    private _getRenderCMDArray(cmds: IRenderCMD[]) {
         let nativeobCMDs: any[] = [];
         cmds.forEach(element => {
             nativeobCMDs.push((element as any)._nativeObj);
@@ -183,7 +182,7 @@ export class GLESForwardAddClusterRP implements IForwardAddClusterRP {
                 element._apply(false);
                 this._nativeObj.setAddBeforeTransparentCmds(this._getRenderCMDArray(element._renderCMDs));
             });
-        }else{
+        } else {
             this._nativeObj.clearBeforeTransparentCmds();
         }
     }

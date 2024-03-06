@@ -1,12 +1,12 @@
 import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFlag";
 import { CommandBuffer } from "../../../d3/core/render/command/CommandBuffer";
-import { IDirectLightShadowRP } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRenderTarget";
+import { RTCameraNodeData } from "../../RenderModuleData/RuntimeModuleData/3D/RT3DRenderModuleData";
 import { RTDirectLight } from "../../RenderModuleData/RuntimeModuleData/3D/RTDirectLight";
 import { WebCameraNodeData } from "../../RenderModuleData/WebModuleData/3D/WebModuleData";
 
 
-export class GLESDirectLightShadowRP implements IDirectLightShadowRP {
+export class GLESDirectLightShadowRP {
     private _light: RTDirectLight;
     public get light(): RTDirectLight {
         return this._light;
@@ -15,11 +15,11 @@ export class GLESDirectLightShadowRP implements IDirectLightShadowRP {
         this._light = value;
         this._nativeObj.setLight(value._nativeObj);
     }
-    private _camera: WebCameraNodeData;
-    public get camera(): WebCameraNodeData {
+    private _camera: RTCameraNodeData;
+    public get camera(): RTCameraNodeData {
         return this._camera;
     }
-    public set camera(value: WebCameraNodeData) {
+    public set camera(value: RTCameraNodeData) {
         this._camera = value;
         this._nativeObj.setCameraNodeData(value);
     }

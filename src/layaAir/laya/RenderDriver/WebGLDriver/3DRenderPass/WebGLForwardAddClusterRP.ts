@@ -7,7 +7,6 @@ import { CameraCullInfo } from "../../../d3/shadowMap/ShadowSliceData";
 import { Color } from "../../../maths/Color";
 import { Vector4 } from "../../../maths/Vector4";
 import { DepthTextureMode } from "../../../resource/RenderTexture";
-import { IForwardAddClusterRP } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRenderTarget";
 import { WebBaseRenderNode } from "../../RenderModuleData/WebModuleData/3D/WebBaseRenderNode";
 import { WebCameraNodeData } from "../../RenderModuleData/WebModuleData/3D/WebModuleData";
@@ -17,7 +16,7 @@ import { WebGLRenderListQueue } from "./WebGLRenderUtil/WebGLRenderListQueue";
 import { PipelineMode } from "../../DriverDesign/3DRenderPass/I3DRenderPass"
 import { WebGLRenderElement3D } from "./WebGLRenderElement3D";
 import { WebGLSkyRenderElement3D } from "./WebGLSkyRenderElement3D";
-export class WebGLForwardAddClusterRP implements IForwardAddClusterRP {
+export class WebGLForwardAddClusterRP{
 
     /** @internal*/
     static _context3DViewPortCatch: Viewport = new Viewport(0, 0, 0, 0);

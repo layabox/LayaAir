@@ -8,10 +8,6 @@ export class WebUnitRenderModuleDataFactory implements IUnitRenderModuleDataFact
     createRenderState(): RenderState {
         return new RenderState();
     }
-
-    //createShaderDefine(index: number, value: number): ShaderDefine {
-    //    return new ShaderDefine(index, value);
-    //}
     
     createDefineDatas(): WebDefineDatas {
         return new WebDefineDatas();

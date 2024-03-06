@@ -37,12 +37,9 @@ import { WrapMode } from "../../RenderEngine/RenderEnum/WrapMode";
 import { LayaGL } from "../../layagl/LayaGL";
 
 import { Laya3DRender } from "../RenderObjs/Laya3DRender";
-import { ShadowCasterPass } from "../shadowMap/ShadowCasterPass";
-import { RenderClearFlag } from "../../RenderEngine/RenderEnum/RenderClearFlag";
-import { IForwardAddRP, IRender3DProcess } from "../../RenderDriver/DriverDesign/3DRenderPass/I3DRenderPass";
+import {  IRender3DProcess } from "../../RenderDriver/DriverDesign/3DRenderPass/I3DRenderPass";
 import { ICameraNodeData } from "../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
 import { Transform3D } from "./Transform3D";
-import { Scene3DShaderDeclaration } from "./scene/Scene3DShaderDeclaration";
 
 /**
  * 相机清除标记。

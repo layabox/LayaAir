@@ -1,11 +1,8 @@
 import { ILaya3D } from "../../../../ILaya3D";
-import { FilterMode } from "../../../RenderEngine/RenderEnum/FilterMode";
 import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFlag";
 import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTargetFormat";
-import { Laya3DRender } from "../../../d3/RenderObjs/Laya3DRender";
 import { Camera, CameraClearFlags, CameraEventFlags } from "../../../d3/core/Camera";
 import { ShadowMode } from "../../../d3/core/light/ShadowMode";
-import { ShadowUtils } from "../../../d3/core/light/ShadowUtils";
 import { RenderContext3D } from "../../../d3/core/render/RenderContext3D";
 import { Scene3D } from "../../../d3/core/scene/Scene3D";
 import { Scene3DShaderDeclaration } from "../../../d3/core/scene/Scene3DShaderDeclaration";
@@ -14,11 +11,10 @@ import { ShadowCasterPass } from "../../../d3/shadowMap/ShadowCasterPass";
 import { Vector4 } from "../../../maths/Vector4";
 import { DepthTextureMode, RenderTexture } from "../../../resource/RenderTexture";
 import { Stat } from "../../../utils/Stat";
-import { IRender3DProcess, IRenderContext3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
+import { IRender3DProcess } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { WebBaseRenderNode } from "../../RenderModuleData/WebModuleData/3D/WebBaseRenderNode";
 import { WebDirectLight } from "../../RenderModuleData/WebModuleData/3D/WebDirectLight";
 import { WebCameraNodeData } from "../../RenderModuleData/WebModuleData/3D/WebModuleData";
-import { WebSpotLight } from "../../RenderModuleData/WebModuleData/3D/WebSpotLight";
 import { WebGLForwardAddRP } from "./WebGLForwardAddRP";
 import { WebGLRenderContext3D } from "./WebGLRenderContext3D";
 
@@ -163,7 +159,6 @@ export class WebGLRender3DProcess implements IRender3DProcess {
             this.renderpass.renderpass.depthNormalTarget = (<RenderTexture>camera.depthNormalTexture)._renderTarget;
             camera._shaderValues.setTexture(DepthPass.DEPTHNORMALSTEXTURE, camera.depthNormalTexture);
         }
-
         this.renderpass.renderpass.depthTextureMode = depthMode;
     }
 
@@ -190,7 +185,6 @@ export class WebGLRender3DProcess implements IRender3DProcess {
             }
         }
         renderpass.renderpass.render(context, list, count);
-
         renderpass._beforeImageEffectCMDS && renderpass._beforeImageEffectCMDS.forEach(element => {
             context.runCMDList(element._renderCMDs);
         });

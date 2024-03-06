@@ -15,7 +15,6 @@ import { MathUtils3D } from "../../../maths/MathUtils3D";
 import { Matrix4x4 } from "../../../maths/Matrix4x4";
 import { Vector3 } from "../../../maths/Vector3";
 import { Vector4 } from "../../../maths/Vector4";
-import { IDirectLightShadowRP } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRenderTarget";
 import { WebBaseRenderNode } from "../../RenderModuleData/WebModuleData/3D/WebBaseRenderNode";
 import { WebDirectLight } from "../../RenderModuleData/WebModuleData/3D/WebDirectLight";
@@ -33,17 +32,17 @@ export class ShadowCullInfo {
     direction: Vector3;
 }
 
-export class WebGLDirectLightShadowRP implements IDirectLightShadowRP {
+export class WebGLDirectLightShadowRP{
     /** @internal 最大cascade*/
     private static _maxCascades: number = 4;
 
     /**@internal */
     shadowCastMode: ShadowCascadesMode;
- 
+
     camera: WebCameraNodeData;
-   
+
     destTarget: InternalRenderTarget;
-   
+
     private _shadowCasterCommanBuffer: CommandBuffer[];
     public get shadowCasterCommanBuffer(): CommandBuffer[] {
         return this._shadowCasterCommanBuffer;
