@@ -1,11 +1,10 @@
 import { CommandBuffer } from "../../../d3/core/render/command/CommandBuffer";
-import { IForwardAddRP } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { WebGLDirectLightShadowRP } from "./WebGLDirectLightShadowRP";
 import { WebGLForwardAddClusterRP } from "./WebGLForwardAddClusterRP";
 import { WebGLSpotLightShadowRP } from "./WebGLSpotLightShadowRP";
 
 
-export class WebGLForwardAddRP implements IForwardAddRP {
+export class WebGLForwardAddRP {
     constructor() {
         this.directLightShadowPass = new WebGLDirectLightShadowRP();
         this.spotLightShadowPass = new WebGLSpotLightShadowRP();

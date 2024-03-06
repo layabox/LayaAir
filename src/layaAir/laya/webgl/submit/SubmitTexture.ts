@@ -88,7 +88,7 @@ export class SubmitTexture extends SubmitBase {
         o._numEle = 0;
         var blendType = context._nBlendType;
         o._key.blendShader = blendType;
-        o._blendFn = context._targets ? BlendMode.targetFns[blendType] : BlendMode.fns[blendType];
+        o._blendFn = BlendMode.fns[blendType];
         o.shaderValue = sv;
         o.material = context.material;
         //sv.setValue(context._shader2D);

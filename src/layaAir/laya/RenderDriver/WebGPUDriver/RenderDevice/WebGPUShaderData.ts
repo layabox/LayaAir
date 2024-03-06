@@ -1,3 +1,4 @@
+import { CommandEncoder } from "../../../layagl/CommandEncoder";
 import { Color } from "../../../maths/Color";
 import { Matrix3x3 } from "../../../maths/Matrix3x3";
 import { Matrix4x4 } from "../../../maths/Matrix4x4";
@@ -8,14 +9,16 @@ import { BaseTexture } from "../../../resource/BaseTexture";
 import { Resource } from "../../../resource/Resource";
 import { InternalTexture } from "../../DriverDesign/RenderDevice/InternalTexture";
 import { ShaderData } from "../../DriverDesign/RenderDevice/ShaderData"
-import { GLESShaderData } from "../../OpenglESDriver/RenderDevice/GLESShaderData";
 import { ShaderDefine } from "../../RenderModuleData/Design/ShaderDefine";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
+import { WebGPURenderCommandEncoder } from "./WebGPURenderCommandEncoder";
 import { WebGPURenderEngine } from "./WebGPURenderEngine";
-import { WebGPUSubUniformBlockBuffer, WebGPUUniformBlockBuffer, WebGPUUniformBlockLayout } from "./WebGPUUniformBlockBuffer";
+import { WebGPUShaderInstance, WebGPUUniformBlockInfo, WebGPUUniformPropertyBindingInfo } from "./WebGPUShaderInstance";
+import { WebGPUSubUniformBlockBuffer, WebGPUUniformBlockBuffer } from "./WebGPUUniformBlockBuffer";
 export interface WebGPUShaderDataUBOProperty {
-    layout: WebGPUUniformBlockLayout;
+    layout: WebGPUUniformBlockInfo;
     subBuffer: WebGPUSubUniformBlockBuffer;
+
 }
 
 export class WebGPUShaderData extends ShaderData {
@@ -36,23 +39,36 @@ export class WebGPUShaderData extends ShaderData {
         this._uboPropertyMap = new Map();
     }
 
+    // /**
+    //  * 设置shaderData绑定某个UniformBlockLayout
+    //  * @param blockLayoutt 
+    //  */
+    // _setUniformBlockLayout(blockLayout: WebGPUUniformBlockInfo) {
+    //     //新来一个uniformBLockInfo  要把数据设置更新
+    //     // let blockProperty: WebGPUShaderDataUBOProperty = this._uboBlockMap.get(blockLayout);
+    //     // if (!blockProperty) {//创建WebGPUShaderDataUBOProperty
+    //     //     let uboBlockBuffer = WebGPUUniformBlockBuffer._map[blockLayout.UniformBlockID];
+    //     //     let subUniformBuffer = uboBlockBuffer.getSubUbOBuffer();
+    //     //     this._uboPropertyMap.set(blockLayout.UniformBlockID, { layout: blockLayout, subBuffer: subUniformBuffer });
+    //     //     blockProperty = this._uboPropertyMap.get(blockLayout.UniformBlockID);
+    //     // }
+    //     //绑定shaderData数据
+    //     // for (var i in blockProperty.layout.propertyIDs) {
+    //     //     this._uboPropertyMap.set(parseInt(i), blockProperty);
+    //     // }
+    //     // blockProperty.subBuffer.needUpdata = true;//设置subBuffer需要更新
+    // }
+
     /**
-     * 设置shaderData绑定某个UniformBlockLayout
-     * @param blockLayoutt 
+     * 根据ShaderInstance里面的bindinglayout生成bindGroup
+     * 1、要知道我这个shaderdata对应的BindingLayout
+     * @param shader 
      */
-    _setUniformBlockLayout(blockLayoutt: WebGPUUniformBlockLayout) {
-        let blockProperty: WebGPUShaderDataUBOProperty = this._uboBlockMap.get(blockLayoutt.UniformBlockID);
-        if (!blockProperty) {//创建WebGPUShaderDataUBOProperty
-            let uboBlockBuffer = WebGPUUniformBlockBuffer._map[blockLayoutt.UniformBlockID];
-            let subUniformBuffer = uboBlockBuffer.getSubUbOBuffer();
-            this._uboPropertyMap.set(blockLayoutt.UniformBlockID, { layout: blockLayoutt, subBuffer: subUniformBuffer });
-            blockProperty = this._uboPropertyMap.get(blockLayoutt.UniformBlockID);
-        }
-        //绑定shaderData数据
-        for (var i in blockProperty.layout.propertyIDs) {
-            this._uboPropertyMap.set(parseInt(i), blockProperty);
-        }
-        blockProperty.subBuffer.needUpdata = true;//设置subBuffer需要更新
+    _uploadUniform(unifoms: Array<WebGPUUniformPropertyBindingInfo>, command: WebGPURenderCommandEncoder) {
+        //根据unifoms 创建bindGroup 缓存起来
+        //for(unifoms)
+        //command.setBindGroup(index, bindGroup, dynamicOffsets);
+
     }
 
     /**
@@ -341,36 +357,36 @@ export class WebGPUShaderData extends ShaderData {
      */
     setTexture(index: number, value: BaseTexture): void {
         var lastValue: BaseTexture = this._data[index];
-		if (value) {
-			let shaderDefine = WebGPURenderEngine._instance._texGammaDefine[index];
-			if (shaderDefine && value && value.gammaCorrection > 1) {
-				this.addDefine(shaderDefine);
-			}
-			else {
-				shaderDefine && this.removeDefine(shaderDefine);
-			}
-		}
-		//维护Reference
-		this._data[index] = value;
-		lastValue && lastValue._removeReference();
-		value && value._addReference();
+        if (value) {
+            let shaderDefine = WebGPURenderEngine._instance._texGammaDefine[index];
+            if (shaderDefine && value && value.gammaCorrection > 1) {
+                this.addDefine(shaderDefine);
+            }
+            else {
+                shaderDefine && this.removeDefine(shaderDefine);
+            }
+        }
+        //维护Reference
+        this._data[index] = value;
+        lastValue && lastValue._removeReference();
+        value && value._addReference();
     }
 
     /**@internal */
     _setInternalTexture(index: number, value: InternalTexture) {
         var lastValue: InternalTexture = this._data[index];
-		if (value) {
-			let shaderDefine =  WebGPURenderEngine._instance._texGammaDefine[index];
-			if (shaderDefine && value && value.gammaCorrection > 1) {
-				this.addDefine(shaderDefine);
-			}
-			else {
-				// todo 自动的
-				shaderDefine && this.removeDefine(shaderDefine);
-			}
-		}
-		//维护Reference
-		this._data[index] = value;
+        if (value) {
+            let shaderDefine = WebGPURenderEngine._instance._texGammaDefine[index];
+            if (shaderDefine && value && value.gammaCorrection > 1) {
+                this.addDefine(shaderDefine);
+            }
+            else {
+                // todo 自动的
+                shaderDefine && this.removeDefine(shaderDefine);
+            }
+        }
+        //维护Reference
+        this._data[index] = value;
     }
 
     /**
@@ -379,18 +395,18 @@ export class WebGPUShaderData extends ShaderData {
      * @return  纹理。
      */
     getTexture(index: number): BaseTexture {
-        return  this._data[index];
+        return this._data[index];
     }
 
     getSourceIndex(value: any): number {
         for (var i in this._data) {
-			if (this._data[i] == value)
-				return Number(i);
-		}
-		return -1;
+            if (this._data[i] == value)
+                return Number(i);
+        }
+        return -1;
     }
 
-    cloneTo(destObject: GLESShaderData): void {
+    cloneTo(destObject: WebGPUShaderData): void {
         //TODO
     }
     /**
@@ -398,7 +414,7 @@ export class WebGPUShaderData extends ShaderData {
      * @return	 克隆副本。
      */
     clone(): any {
-        var dest: GLESShaderData = new GLESShaderData();
+        var dest: WebGPUShaderData = new WebGPUShaderData();
         this.cloneTo(dest);
         return dest;
     }

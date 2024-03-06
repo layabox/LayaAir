@@ -13,24 +13,24 @@ export class WebGPUInternalRT implements InternalRenderTarget {
     depthStencilFormat: RenderTargetFormat;
     isSRGB: boolean;
     gpuMemory: number;
+    _renderPassDescriptor: GPURenderPassDescriptor;
 
-
-    _colorState:Array<GPUColorTargetState>;
-   //_depthState:GPUColorTargetState;
+    _colorState: Array<GPUColorTargetState>;
+    //_depthState:GPUColorTargetState;
 
     constructor(colorFormat: RenderTargetFormat,
         depthStencilFormat: RenderTargetFormat,
         isCube: boolean, generateMipmap: boolean,
         samples: number) {
-            this._isCube = isCube;
-            this._generateMipmap = generateMipmap;
-            this.colorFormat = colorFormat;
-            this.depthStencilFormat = depthStencilFormat;
-            this._samples = samples;
-            this._textures = [];
-
+        this._isCube = isCube;
+        this._generateMipmap = generateMipmap;
+        this.colorFormat = colorFormat;
+        this.depthStencilFormat = depthStencilFormat;
+        this._samples = samples;
+        this._textures = [];
+        this._renderPassDescriptor = { colorAttachments: [] };
     }
-    
+
     dispose(): void {
         //TODO
     }

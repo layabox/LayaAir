@@ -4,12 +4,12 @@ import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { ShaderPass } from "../../../RenderEngine/RenderShader/ShaderPass";
 import { UniformMapType } from "../../../RenderEngine/RenderShader/SubShader";
 import { LayaGL } from "../../../layagl/LayaGL";
-import { ShaderProcessInfo } from "../../../webgl/utils/ShaderCompileDefineBase";
+import { ShaderCompileDefineBase, ShaderProcessInfo } from "../../../webgl/utils/ShaderCompileDefineBase";
 import { ShaderNode } from "../../../webgl/utils/ShaderNode";
 import { IShaderInstance } from "../../DriverDesign/RenderDevice/IShaderInstance";
 import { ShaderDataType } from "../../DriverDesign/RenderDevice/ShaderData";
 import { WebGLCommandUniformMap } from "../../WebGLDriver/RenderDevice/WebGLCommandUniformMap";
-import { NagaWASM } from "../Naga/NagaWASM";
+import { NagaWASM } from "./Naga/NagaWASM";
 import { TypeOutData } from "../ShaderCompile/WebGPUShaderCompileCode";
 import { WebGPUShaderCompileDef } from "../ShaderCompile/WebGPUShaderCompileDef";
 import { WebGPUShaderCompileUtil } from "../ShaderCompile/WebGPUShaderCompileUtil";
@@ -25,7 +25,7 @@ export enum WebGPUBindingInfoType {
     sampler,
 };
 
-export type WebGPUUniformPropertyBindingInfo = {
+export interface WebGPUUniformPropertyBindingInfo {
     set: number;
     binding: number;
     name: string;
@@ -822,6 +822,11 @@ ${textureGLSL_fs}
  * WebGPU着色器实例
  */
 export class WebGPUShaderInstance implements IShaderInstance {
+    static idCounter: number = 0;
+    _renderPipelineMap = {};//destroy 要删除
+    _id: number = WebGPUShaderInstance.idCounter++;
+    /**@internal */
+    _shaderPass: ShaderCompileDefineBase | ShaderPass;
     /**@internal VertexState*/
     private _vsShader: GPUShaderModule;
     /**@internal fragmentModule*/
@@ -829,6 +834,16 @@ export class WebGPUShaderInstance implements IShaderInstance {
 
     pipelineLayout: GPUPipelineLayout;
 
+    _renderPipelineDescriptor: GPURenderPipelineDescriptor;
+    _pipeLineLayout: GPUPipelineLayout;
+    _vertexState: GPUVertexState;
+    _fragment: GPUFragmentState;
+
+    uniformSetMap: { [key: number]: Array<WebGPUUniformPropertyBindingInfo> } = {};
+
+    /**
+     * 创建一个 <code>ShaderInstance</code> 实例。
+     */
     constructor() {
     }
 
@@ -838,9 +853,14 @@ export class WebGPUShaderInstance implements IShaderInstance {
             shaderProcessInfo.uniformMap, shaderProcessInfo.vs, shaderProcessInfo.ps);
         const device = WebGPURenderEngine._instance.getDevice();
 
+        shaderObj.uniformInfo.forEach((item) => {
+            if (!this.uniformSetMap[item.set])
+                this.uniformSetMap[item.set] = new Array<WebGPUUniformPropertyBindingInfo>();
+            this.uniformSetMap[item.set].push(item);
+        });
+
         //生成GPUPipeLineLayout
-        if (device) {
-            this.pipelineLayout = this._createPipelineLayout(device, 'pipe', shaderObj.uniformInfo);
+        this._pipeLineLayout = this._createPipelineLayout(device, "pipeLineLayout", shaderObj.uniformInfo);
 
             this._vsShader = device.createShaderModule({ code: shaderObj.vs });
             this._fsShader = device.createShaderModule({ code: shaderObj.fs });
@@ -952,6 +972,22 @@ export class WebGPUShaderInstance implements IShaderInstance {
         return device.createPipelineLayout({ label: name, bindGroupLayouts });
     }
 
+
+    private _createVertexState() {
+        this._vertexState = {
+            // buffers?: Iterable<GPUVertexBufferLayout | null>;
+            module: this._vsShader,
+            entryPoint: "main",
+            constants: null
+        }
+    }
+    private _createFragment() {
+        this._fragment = {
+            module: this._fsShader,
+            entryPoint: "main",
+            targets: []
+        }
+    }
     _disposeResource(): void {
         throw new Error("Method not implemented.");
     }

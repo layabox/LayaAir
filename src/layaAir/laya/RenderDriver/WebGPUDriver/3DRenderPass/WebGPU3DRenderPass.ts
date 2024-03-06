@@ -1,3 +1,4 @@
+import { ILaya3D } from "../../../../ILaya3D";
 import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFlag";
 import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTargetFormat";
 import { Camera, CameraClearFlags, CameraEventFlags } from "../../../d3/core/Camera";
@@ -5,28 +6,24 @@ import { ShadowMode } from "../../../d3/core/light/ShadowMode";
 import { RenderContext3D } from "../../../d3/core/render/RenderContext3D";
 import { Scene3D } from "../../../d3/core/scene/Scene3D";
 import { Scene3DShaderDeclaration } from "../../../d3/core/scene/Scene3DShaderDeclaration";
-import { DepthPass } from "../../../d3/depthMap/DepthPass";
 import { ShadowCasterPass } from "../../../d3/shadowMap/ShadowCasterPass";
 import { Vector4 } from "../../../maths/Vector4";
-import { DepthTextureMode, RenderTexture } from "../../../resource/RenderTexture";
 import { Stat } from "../../../utils/Stat";
-import { IRender3DProcess } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
-import { RTCameraNodeData } from "../../RenderModuleData/RuntimeModuleData/3D/RT3DRenderModuleData";
-import { RTBaseRenderNode } from "../../RenderModuleData/RuntimeModuleData/3D/RTBaseRenderNode";
-import { RTDirectLight } from "../../RenderModuleData/RuntimeModuleData/3D/RTDirectLight";
-import { GLESForwardAddRP } from "./GLESForwardAddRP";
-import { GLESRenderContext3D } from "./GLESRenderContext3D";
+import { IRender3DProcess, IRenderContext3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
+import { WebBaseRenderNode } from "../../RenderModuleData/WebModuleData/3D/WebBaseRenderNode";
+import { WebDirectLight } from "../../RenderModuleData/WebModuleData/3D/WebDirectLight";
+import { WebCameraNodeData } from "../../RenderModuleData/WebModuleData/3D/WebModuleData";
+import { WebGLForwardAddRP } from "../../WebGLDriver/3DRenderPass/WebGLForwardAddRP";
+import { WebGLRenderContext3D } from "../../WebGLDriver/3DRenderPass/WebGLRenderContext3D";
+import { WebGPURenderContext3D } from "./WebGPURenderContext3D";
 
+export class WebGPU3DRenderPass implements IRender3DProcess {
+    private renderpass: WebGLForwardAddRP = new WebGLForwardAddRP();
 
-export class GLESRender3DProcess implements IRender3DProcess {
-    private _nativeObj: any;
-    private _tempList: any = [];
-    private renderpass: GLESForwardAddRP = new GLESForwardAddRP();
     constructor() {
-        this._nativeObj = new (window as any).conchRTRender3DProcess();
     }
 
-    initRenderpass(camera: Camera, context: GLESRenderContext3D) {
+    initRenderpass(camera: Camera, context: WebGLRenderContext3D) {
         let renderpass = this.renderpass.renderpass;
 
         let renderRT = camera._getRenderTexture();
@@ -34,7 +31,7 @@ export class GLESRender3DProcess implements IRender3DProcess {
 
         // clear
         let clearConst = 0;
-        let clearFlag = camera.clearFlag;
+        let clearFlag: CameraClearFlags = camera.clearFlag;
         let hasStencil = renderRT.depthStencilFormat == RenderTargetFormat.DEPTHSTENCIL_24_8;
         let stencilFlag = hasStencil ? RenderClearFlag.Stencil : 0;
 
@@ -58,7 +55,7 @@ export class GLESRender3DProcess implements IRender3DProcess {
         let clearValue = camera._linearClearColor;
         clearValue = renderRT.gammaCorrection != 1 ? camera.clearColor : camera._linearClearColor;
 
-        renderpass.camera = <RTCameraNodeData>camera._renderDataModule;
+        renderpass.camera = <WebCameraNodeData>camera._renderDataModule;
 
         renderpass.destTarget = renderRT._renderTarget;
         renderpass.clearFlag = clearConst;
@@ -82,7 +79,7 @@ export class GLESRender3DProcess implements IRender3DProcess {
         renderpass.setCameraCullInfo(camera);
 
         if (camera.clearFlag == CameraClearFlags.Sky) {
-            renderpass.skyRenderNode = <RTBaseRenderNode>camera.scene.skyRenderer._baseRenderNode;
+            renderpass.skyRenderNode = <WebBaseRenderNode>camera.scene.skyRenderer._baseRenderNode;
         }
         else {
             renderpass.skyRenderNode = null;
@@ -107,9 +104,9 @@ export class GLESRender3DProcess implements IRender3DProcess {
 
             this.renderpass.enableDirectLightShadow = needDirectionShadow;
             if (needDirectionShadow) {
-                this.renderpass.directLightShadowPass.camera = <RTCameraNodeData>camera._renderDataModule;
-                this.renderpass.directLightShadowPass.light = <RTDirectLight>mainDirectionLight._dataModule;
-                let directionShadowMap = Scene3D._shadowCasterPass.getDirectLightShadowMap(mainDirectionLight);
+                this.renderpass.directLightShadowPass.camera = <WebCameraNodeData>camera._renderDataModule;
+                this.renderpass.directLightShadowPass.light = <WebDirectLight>mainDirectionLight._dataModule;
+                let directionShadowMap = ILaya3D.Scene3D._shadowCasterPass.getDirectLightShadowMap(mainDirectionLight);
                 this.renderpass.directLightShadowPass.destTarget = directionShadowMap._renderTarget;
 
                 camera.scene._shaderValues.setTexture(ShadowCasterPass.SHADOW_MAP, directionShadowMap);
@@ -127,61 +124,19 @@ export class GLESRender3DProcess implements IRender3DProcess {
             this.renderpass.enableSpotLightShadowPass = needSpotShadow;
             if (needSpotShadow) {
                 this.renderpass.spotLightShadowPass.light = mainSpotLight;
-                let spotShadowMap = Scene3D._shadowCasterPass.getSpotLightShadowPassData(mainSpotLight);
+                let spotShadowMap = ILaya3D.Scene3D._shadowCasterPass.getSpotLightShadowPassData(mainSpotLight);
                 this.renderpass.spotLightShadowPass.destTarget = spotShadowMap._renderTarget;
 
                 camera.scene._shaderValues.setTexture(ShadowCasterPass.SHADOW_SPOTMAP, spotShadowMap);
             }
         }
     }
-
-    renderDepth(camera: Camera) {
-
-        let depthMode = camera.depthTextureMode;
-        if (camera.postProcess && camera.postProcess.enable) {
-            depthMode |= camera.postProcess.cameraDepthTextureMode;
-        }
-        if ((depthMode & DepthTextureMode.Depth) != 0) {
-            let needDepthTex = camera.canblitDepth && camera._internalRenderTexture.depthStencilTexture;
-            if (needDepthTex) {
-                camera.depthTexture = camera._cacheDepthTexture.depthStencilTexture;
-                // @ts-ignore
-                Camera.depthPass._depthTexture = camera.depthTexture;
-                camera._shaderValues.setTexture(DepthPass.DEPTHTEXTURE, camera.depthTexture);
-                Camera.depthPass._setupDepthModeShaderValue(DepthTextureMode.Depth, camera);
-                depthMode &= ~DepthTextureMode.Depth;
-            }
-            else {
-                Camera.depthPass.getTarget(camera, DepthTextureMode.Depth, camera.depthTextureFormat);
-                this.renderpass.renderpass.depthTarget = (<RenderTexture>camera.depthTexture)._renderTarget;
-                camera._shaderValues.setTexture(DepthPass.DEPTHTEXTURE, camera.depthTexture);
-            }
-        }
-        if ((depthMode & DepthTextureMode.DepthNormals) != 0) {
-            Camera.depthPass.getTarget(camera, DepthTextureMode.DepthNormals, camera.depthTextureFormat);
-            this.renderpass.renderpass.depthNormalTarget = (<RenderTexture>camera.depthNormalTexture)._renderTarget;
-            camera._shaderValues.setTexture(DepthPass.DEPTHNORMALSTEXTURE, camera.depthNormalTexture);
-        }
-
-        this.renderpass.renderpass.depthTextureMode = depthMode;
-    }
-
-    fowardRender(context: GLESRenderContext3D, camera: Camera): void {
+    fowardRender(context: WebGPURenderContext3D, camera: Camera): void {
+        //@ts-ignore
         this.initRenderpass(camera, context);
-
-        this.renderDepth(camera);
-
-        let renderList = <RTBaseRenderNode[]>camera.scene.sceneRenderableManager.renderBaselist.elements;
-
-        this.renderFowarAddCameraPass(context, this.renderpass, renderList, renderList.length);
-    }
-
-    renderFowarAddCameraPass(context: GLESRenderContext3D, renderpass: GLESForwardAddRP, list: RTBaseRenderNode[], count: number): void {
-        this._tempList.length = 0;
-        list.forEach((element) => {
-            this._tempList.push((element as any)._nativeObj);
-        });
-        this._nativeObj.renderFowarAddCameraPass(context._nativeObj, renderpass._nativeObj, this._tempList, count);
+        let renderList = <WebBaseRenderNode[]>camera.scene.sceneRenderableManager.renderBaselist.elements;
+        //@ts-ignore
+        this.renderpass.renderpass.render(context, renderList, renderList.length);
     }
 
 }

@@ -1,11 +1,10 @@
 import { CommandBuffer } from "../../../d3/core/render/command/CommandBuffer";
-import { IForwardAddRP } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { GLESDirectLightShadowRP } from "./GLESDirectLightShadowRP";
 import { GLESForwardAddClusterRP } from "./GLESForwardAddClusterRP";
 import { GLESSpotLightShadowRP } from "./GLESSpotLightShadowRP";
 
 
-export class GLESForwardAddRP implements IForwardAddRP {
+export class GLESForwardAddRP{
     public get shadowCastPass(): boolean {
         return this._nativeObj._shadowCastPass;
     }
