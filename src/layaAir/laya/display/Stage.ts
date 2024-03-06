@@ -157,7 +157,7 @@ export class Stage extends Sprite {
 	/**@private */
 	private _isVisibility: boolean;
 	/**@internal webgl Color*/
-	_wgColor: number[]|null = [0, 0, 0, 1];
+	_wgColor: number[] | null = [0, 0, 0, 1];
 	/**@internal */
 	_scene3Ds: any[] = [];
 
@@ -169,7 +169,7 @@ export class Stage extends Sprite {
 	/**@internal */
 	_3dUI: Sprite[] = [];
 	/**@internal */
-	_curUIBase: Sprite|null = null; 		// 给鼠标事件capture用的。用来找到自己的根。因为3d界面的根不是stage（界面链会被3d对象打断）
+	_curUIBase: Sprite | null = null; 		// 给鼠标事件capture用的。用来找到自己的根。因为3d界面的根不是stage（界面链会被3d对象打断）
 	/**使用物理分辨率作为canvas大小，会改进渲染效果，但是会降低性能*/
 	useRetinalCanvas: boolean = false;
 	/**场景类，引擎中只有一个stage实例，此实例可以通过Laya.stage访问。*/
@@ -191,12 +191,12 @@ export class Stage extends Sprite {
 		var window: any = Browser.window;
 		//var _me = this;	
 
-		window.addEventListener("focus", ()=>{
+		window.addEventListener("focus", () => {
 			this._isFocused = true;
 			this.event(Event.FOCUS);
 			this.event(Event.FOCUS_CHANGE);
 		});
-		window.addEventListener("blur", ()=> {
+		window.addEventListener("blur", () => {
 			this._isFocused = false;
 			this.event(Event.BLUR);
 			this.event(Event.FOCUS_CHANGE);
@@ -220,7 +220,7 @@ export class Stage extends Sprite {
 			state = "webkitVisibilityState";
 		}
 
-		window.document.addEventListener(visibilityChange, ()=> {
+		window.document.addEventListener(visibilityChange, () => {
 			if (Browser.document[state] == "hidden") {
 				this._isVisibility = false;
 				if (this._isInputting()) (Input["inputElement"] as any).target.focus = false;
@@ -230,7 +230,7 @@ export class Stage extends Sprite {
 			this.renderingEnabled = this._isVisibility;
 			this.event(Event.VISIBILITY_CHANGE);
 		});
-		window.addEventListener("resize", ()=> {
+		window.addEventListener("resize", () => {
 			// 处理屏幕旋转。旋转后收起输入法。
 			var orientation: any = Browser.window.orientation;
 			if (orientation != null && orientation != this._previousOrientation && this._isInputting()) {
@@ -249,7 +249,7 @@ export class Stage extends Sprite {
 		});
 
 		// 微信的iframe不触发orientationchange。
-		window.addEventListener("orientationchange", (e: any)=>{
+		window.addEventListener("orientationchange", (e: any) => {
 			this._resetCanvas();
 		});
 
@@ -272,9 +272,9 @@ export class Stage extends Sprite {
 		ILaya.systemTimer.callLater(this, this._changeCanvasSize);
 	}
 	/**
-     * @inheritDoc 
-     * @override
-     */
+	 * @inheritDoc 
+	 * @override
+	 */
 	get width(): number {
 		return super.get_width();
 	}
@@ -286,7 +286,7 @@ export class Stage extends Sprite {
 		ILaya.systemTimer.callLater(this, this._changeCanvasSize);
 	}
 
-	/** @override*/  
+	/** @override*/
 	get height(): number {
 		return super.get_height();
 	}
@@ -295,7 +295,7 @@ export class Stage extends Sprite {
 	set transform(value: Matrix) {
 		super.set_transform(value);
 	}
-	/**@inheritDoc @override*/ 
+	/**@inheritDoc @override*/
 	get transform(): Matrix {
 		if (this._tfChanged) this._adjustTransform();
 		return (this._transform = this._transform || this._createTransform());
@@ -353,7 +353,6 @@ export class Stage extends Sprite {
 		this.canvasRotation = rotation;
 
 		var canvas: HTMLCanvas = Render._mainCanvas;
-		var canvasStyle: any = canvas.source.style;
 		var mat: Matrix = this._canvasTransform.identity();
 		var scaleMode: string = this._scaleMode;
 		var scaleX: number = screenWidth / this.designWidth
@@ -408,7 +407,7 @@ export class Stage extends Sprite {
 		}
 
 		if (this.useRetinalCanvas) {
-			realWidth =  canvasWidth = screenWidth;
+			realWidth = canvasWidth = screenWidth;
 			realHeight = canvasHeight = screenHeight;
 		}
 
@@ -463,16 +462,26 @@ export class Stage extends Sprite {
 		mat.ty = this._formatData(mat.ty);
 
 		super.set_transform(this.transform);
+		Stage._setStageStyle(canvas, canvasWidth, canvasHeight, mat);
+		//修正用户自行设置的偏移
+		if (this._safariOffsetY) mat.translate(0, -this._safariOffsetY);
+		this.visible = true;
+		this._repaint |= SpriteConst.REPAINT_CACHE;
+		this.event(Event.RESIZE);
+	}
+
+	/**
+	 * @internal
+	 * 适配淘宝小游戏
+	 * @param mainCanv 
+	 */
+	static _setStageStyle(mainCanv: HTMLCanvas, canvasWidth: number, canvasHeight: number, mat: Matrix) {
+		var canvasStyle: any = mainCanv.source.style;
 		canvasStyle.transformOrigin = canvasStyle.webkitTransformOrigin = canvasStyle.msTransformOrigin = canvasStyle.mozTransformOrigin = canvasStyle.oTransformOrigin = "0px 0px 0px";
 		canvasStyle.transform = canvasStyle.webkitTransform = canvasStyle.msTransform = canvasStyle.mozTransform = canvasStyle.oTransform = "matrix(" + mat.toString() + ")";
 		canvasStyle.width = canvasWidth;
 		canvasStyle.height = canvasHeight;
-		//修正用户自行设置的偏移
-		if (this._safariOffsetY) mat.translate(0, -this._safariOffsetY);
 		mat.translate(parseInt(canvasStyle.left) || 0, parseInt(canvasStyle.top) || 0);
-		this.visible = true;
-		this._repaint |= SpriteConst.REPAINT_CACHE;
-		this.event(Event.RESIZE);
 	}
 
 	/**@private */
@@ -550,6 +559,15 @@ export class Stage extends Sprite {
 		else
 			this._wgColor = null;
 
+		Stage._setStyleBgColor(value);
+	}
+
+	/**
+	 * @internal
+	 * 适配淘宝小游戏
+	 * @param value 
+	 */
+	static _setStyleBgColor(value: string) {
 		if (value) {
 			Render.canvas.style.background = value;
 		} else {
@@ -637,14 +655,24 @@ export class Stage extends Sprite {
 	set visible(value: boolean) {
 		if (this.visible !== value) {
 			super.set_visible(value);
-			var style: any = Render._mainCanvas.source.style;
-			style.visibility = value ? "visible" : "hidden";
+			Stage._setVisibleStyle(value);
 		}
 	}
+
 	/**
-     * @inheritDoc 
-     * @override
-     */
+	 * @internal
+	 * 适配淘宝小游戏
+	 * @param value 
+	 */
+	static _setVisibleStyle(value: boolean) {
+		var style: any = Render._mainCanvas.source.style;
+		style.visibility = value ? "visible" : "hidden";
+	}
+
+	/**
+	 * @inheritDoc 
+	 * @override
+	 */
 	get visible() {
 		return super.visible;
 	}

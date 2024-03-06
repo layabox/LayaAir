@@ -27,7 +27,7 @@ export class CharRender_Canvas extends ICharRender {
 			//为了避免被发现，设一个在屏幕外的绝对位置。
 			CharRender_Canvas.canvas.style.left = "-10000px";
 			CharRender_Canvas.canvas.style.position = "absolute";
-			document.body.appendChild(CharRender_Canvas.canvas);;
+			window.document.body.appendChild(CharRender_Canvas.canvas);;
 			this.ctx = CharRender_Canvas.canvas.getContext('2d');
 		}
 	}
