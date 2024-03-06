@@ -1,47 +1,9 @@
 import { BehaviorTreeComponent } from "./BehaviorTreeComponent";
-import { BTDecorator } from "./BTDecorator";
-import { BTNode, BTNodeContext } from "./BTNode";
-import { BTService } from "./BTService";
+import { BTExecutableNode } from "./BTExecutableNode";
+import { BTNodeContext } from "./BTNode";
 import { EBTNodeResult } from "./EBTNodeResult";
 
-export class BTTaskNode extends BTNode {
-
-    decorators: BTDecorator[];
-
-    services: BTService[];
-
-    addService(service: BTService) {
-        if (!this.services) {
-            this.services = [];
-        }
-        this.services.push(service);
-        service.parentNode = this.parentNode;
-        service.childIndex = this.parentNode.children.indexOf(this);
-
-    }
-
-    addDecorator(decorator: BTDecorator) {
-        if (!this.decorators) {
-            this.decorators = [];
-        }
-        this.decorators.push(decorator);
-        decorator.parentNode = this.parentNode;
-        decorator.childIndex = this.parentNode.children.indexOf(this);
-    }
-
-    preCheck(preNode: BTNode, btCmp: BehaviorTreeComponent): BTNode {
-        if (this.decorators) {
-            this.decorators.forEach(value => {
-                value.createNodeContext(btCmp);
-            })
-        }
-        if (this.services) {
-            this.services.forEach(value => {
-                value.createNodeContext(btCmp);
-            })
-        }
-        return super.preCheck(preNode, btCmp);
-    }
+export class BTTaskNode extends BTExecutableNode {
     /**
      * 由于有可能任务节点需要重新new一个对象，有些只需要实例化一个数据区
      * @param btCmp 
@@ -74,6 +36,10 @@ export class BTTaskNode extends BTNode {
         //a.a
     }
 
+    parse(config: any, btConfig: any): void {
+
+    }
+
     protected newContext() {
         return new BTTaskNodeContext();
     }
@@ -81,20 +47,12 @@ export class BTTaskNode extends BTNode {
     onEnter(btCmp: BehaviorTreeComponent) {
         //let a = this.getNodeContext(btCmp);
         //console.log(">>>>>>>>>>任务真的开始：" + a.nodeName + ">>>>:" + Laya.Stat.loopCount);
-        if (this.services) {
-            this.services.forEach(value => {
-                value.onEnter(btCmp);
-            })
-        }
+        super.onEnter(btCmp);
     }
 
 
     onActive(btCmp: BehaviorTreeComponent) {
-        if (this.decorators) {
-            this.decorators.forEach(value => {
-                value.onActive(btCmp);
-            })
-        }
+        super.onActive(btCmp);
         let a = this.getNodeContext(btCmp);
         //console.log(">>>>>>>>>>任务开始：" + a.nodeName + ">>>>:" + Laya.Stat.loopCount)
     }
@@ -102,24 +60,6 @@ export class BTTaskNode extends BTNode {
     onInactive(btCmp: BehaviorTreeComponent) {
         //let a = this.getNodeContext(btCmp);
         //console.log(">>>>>>>>>>任务结束：" + a.nodeName + ">>>>:" + Laya.Stat.loopCount)
-    }
-
-
-
-    onLeave(btCmp: BehaviorTreeComponent) {
-        // let a = this.getNodeContext(btCmp);
-        // console.log(">>>>>>>>>>任务真的结束：" + a.nodeName + ">>>>:" + Laya.Stat.loopCount);
-
-        if (this.services) {
-            this.services.forEach(value => {
-                value.onLeave(btCmp);
-            })
-        }
-        if (this.decorators) {
-            this.decorators.forEach(value => {
-                value.onLeave(btCmp);
-            })
-        }
     }
 
 }

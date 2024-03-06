@@ -243,7 +243,7 @@ export class TestBT {
         let service1 = new TestService();
         service1.name = "service1";
 
-        selector.addService(loop1);
+        selector.addDecorator(loop1);
         selector.addService(service1);
 
 

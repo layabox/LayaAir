@@ -1,3 +1,6 @@
+import { Laya } from "../../../Laya";
+import { URL } from "../../net/URL";
+import { BlackboardImpl } from "../adapter/resource/BlackboardImpl";
 import { EBBType } from "./EBlackBoard"
 
 export class BlackboardData {
@@ -28,6 +31,15 @@ export class BlackboardData {
         this.keys[data.name] = data;
     }
 
+    parse(config: any) {
+        if (config.extends) {
+            this.parent = (Laya.loader.getRes(URL.getResURLByUUID(config.blackboardAsset)) as BlackboardImpl).create();
+        }
+        let data: any[] = config.data;
+        data.forEach((item: any) => {
+            this.addKey(item);
+        });
+    }
 }
 
 

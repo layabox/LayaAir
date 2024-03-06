@@ -1,18 +1,14 @@
+import { BehaviorTreeFactory } from "../BehaviorTreeFactory";
 import { BehaviorTreeComponent, BTExcuteContext } from "./BehaviorTreeComponent";
 import { BTConst } from "./BTConst";
-import { BTDecorator } from "./BTDecorator";
+import { BTExecutableNode } from "./BTExecutableNode";
 import { BTNode, BTNodeContext } from "./BTNode";
-import { BTService } from "./BTService";
 import { BTTaskNode } from "./BTTaskNode";
 import { EBTNodeResult } from "./EBTNodeResult";
 
-export abstract class BTCompositeNode extends BTNode {
+export abstract class BTCompositeNode extends BTExecutableNode {
 
     children: BTNode[];
-
-    decorators: BTDecorator[];
-
-    services: BTService[];
 
     private _isFirstRun: boolean;
 
@@ -24,20 +20,12 @@ export abstract class BTCompositeNode extends BTNode {
     onEnter(btCmp: BehaviorTreeComponent) {
         //let a = this.getNodeContext(btCmp);
         //console.log(">>>>>>>>>>任务真的开始：" + a.nodeName + ">>>>:" + Laya.Stat.loopCount);
-        if (this.services) {
-            this.services.forEach(value => {
-                value.onEnter(btCmp);
-            })
-        }
+        super.onEnter(btCmp);
     }
 
 
     onActive(btCmp: BehaviorTreeComponent) {
-        if (this.decorators) {
-            this.decorators.forEach(value => {
-                value.onActive(btCmp);
-            })
-        }
+        super.onActive(btCmp);
     }
 
 
@@ -47,41 +35,11 @@ export abstract class BTCompositeNode extends BTNode {
 
 
     onLeave(btCmp: BehaviorTreeComponent) {
-        if (this.services) {
-            this.services.forEach(value => {
-                value.onLeave(btCmp);
-            })
-        }
-        if (this.decorators) {
-            this.decorators.forEach(value => {
-                value.onLeave(btCmp);
-            })
-        }
+        super.onLeave(btCmp);
     }
 
     canAddSubTree(btCmp: BehaviorTreeComponent, childId: number): boolean {
         return true;
-    }
-
-
-    addService(service: BTService) {
-        if (!this.services) {
-            this.services = [];
-        }
-        this.services.push(service);
-        service.parentNode = this.parentNode;
-        service.childIndex = this.parentNode.children.indexOf(this);
-
-    }
-
-
-    addDecorator(decorator: BTDecorator) {
-        if (!this.decorators) {
-            this.decorators = [];
-        }
-        this.decorators.push(decorator);
-        decorator.parentNode = this.parentNode;
-        decorator.childIndex = this.parentNode.children.indexOf(this);
     }
 
     addChild(node: BTNode): BTNode {
@@ -91,19 +49,17 @@ export abstract class BTCompositeNode extends BTNode {
         return node;
     }
 
+    parse(config: any, btConfig: any) {
+        this.name = config.name;
+        config.childs.forEach((child: any) => {
+            let node = BehaviorTreeFactory.instance.createNew(btConfig[child], btConfig);
+            this.addChild(node);
+        });
+    }
+
     preCheck(preNode: BTNode, btCmp: BehaviorTreeComponent): BTNode {
         let lastNode = super.preCheck(preNode, btCmp);
 
-        if (this.decorators) {
-            this.decorators.forEach(value => {
-                value.createNodeContext(btCmp);
-            })
-        }
-        if (this.services) {
-            this.services.forEach(value => {
-                value.createNodeContext(btCmp);
-            })
-        }
         this.children.forEach((value) => {
             lastNode = value.preCheck(lastNode, btCmp);
         })

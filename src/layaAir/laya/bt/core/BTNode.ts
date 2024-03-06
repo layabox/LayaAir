@@ -26,7 +26,9 @@ export class BTNode implements IClone {
         this.id = this.constructor.name + BTNode.ID++;
     }
 
-
+    parse(config: any, btConfig: any) {
+        
+    }
 
     onAdd(parentNode: BTCompositeNode) {
 

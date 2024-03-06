@@ -7,4 +7,8 @@ export class BTConst {
      * 调出到父节点
      */
     static breakOut: number = -2;
+
+    static EXT:string = "bt";
+
+    static TYPE:string = "behaviortree";
 }

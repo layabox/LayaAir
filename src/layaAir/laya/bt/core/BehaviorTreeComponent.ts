@@ -1,3 +1,4 @@
+import { Script } from "../../components/Script";
 import { Timer } from "../../utils/Timer";
 import { BlackboardComponent } from "../blackborad/BlackboardComponent";
 import { BehaviorTree } from "./BehaviorTree";
@@ -9,7 +10,7 @@ import { EBTExecutionMode } from "./EBTExecutionMode";
 import { EBTNodeResult } from "./EBTNodeResult";
 import { ITickManger } from "./ITickManger";
 
-export class BehaviorTreeComponent implements ITickManger {
+export class BehaviorTreeComponent extends Script implements ITickManger {
 
     //bTree:BehaviorTree;
     /**
@@ -34,6 +35,7 @@ export class BehaviorTreeComponent implements ITickManger {
     activeID: number;
     timer: Timer;
     constructor() {
+        super();
         this.timer = new Timer();
         this.list = [];
         this.excuteContext = new BTExcuteContext();
