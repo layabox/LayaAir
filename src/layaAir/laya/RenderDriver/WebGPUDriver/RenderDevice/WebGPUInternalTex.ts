@@ -144,6 +144,12 @@ export class WebGPUInternalTex implements InternalTexture {
 
         this._webgpuSampler = WebGPUSampler.getWebGPUSampler(this._webGPUSamplerParams);
     }
+
+
+    gettextureView(): GPUTextureView {
+        //TODO
+        return null;
+    }
     dispose(): void {
         //TODO好像需要延迟删除
         this.resource.destroy();

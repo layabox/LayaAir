@@ -1,31 +1,12 @@
 import { Vector2 } from "../../../maths/Vector2";
 import { WebGPUBuffer } from "./WebGPUBuffer";
+import { WebGPUUniformBlockInfo, WebGPUUniformItemType } from "./WebGPUShaderInstance";
 
-/**
- *描述UniformBuffer参数类型
- */
-export enum WebGPUPropertyParamsType {
-    Number,
-    Vector2,
-    Vector3,
-    Vector4,
-    Matrix4x4,
-    Vector4Array,//Numberarray, vec2array and vec3array occupy the same memory as vec4array, so only vector4 is provided
-    MatrixArray
-}
-
-export class WebGPUShaderVariable {
-    propertyID: number;//属性ID u_cameraPos=>id
-    blockID: number;//blockID  cameraBlock=>id
-    type: WebGPUPropertyParamsType;//数据类型  Vector3
-    offset: number;//数据基于SubUBOBuffer的偏移 在block里面的偏移
-    byteLength: number;//数据占用内存 
-}
 
 //根据unfiormBlock布局来更新数据
 export class WebGPUSubUniformBlockBuffer {
     owner: WebGPUUniformBlockBuffer
-    layout: WebGPUUniformBlockLayout;
+    layout: WebGPUUniformBlockInfo;
     updateRange: Vector2;//从哪里更新到哪里
     needUpdata: boolean;
 
@@ -48,7 +29,7 @@ export class WebGPUUniformBlockBuffer {
     static _map: { [key: number]: WebGPUUniformBlockBuffer } = {};
     _source: WebGPUBuffer;//大buffer本身
     uniformID: number;//get Uniform name TO ID
-    subLayout: WebGPUUniformBlockLayout;
+    subLayout: WebGPUUniformBlockInfo;
     isMergeBuffer: boolean;//是否是大buffer
     subBufferCount: number;//这个大Buffer包含
     pool: number[];//不用的回收到池子里
@@ -57,7 +38,7 @@ export class WebGPUUniformBlockBuffer {
     expansionSubBuffer: number;//如果subBuffer不够，每一次扩展需要扩多大的buffer
 
 
-    constructor(isMergeBuffer: boolean, subBuffersCount: number, layout: WebGPUUniformBlockLayout, expansion: number) {
+    constructor(isMergeBuffer: boolean, subBuffersCount: number, layout: WebGPUUniformBlockInfo, expansion: number) {
         this.subBufferCount = subBuffersCount;
         this.isMergeBuffer = isMergeBuffer;
         this.subLayout = layout;
@@ -86,16 +67,5 @@ export class WebGPUUniformBlockBuffer {
      */
     removeSubUboBuffer(subBuffer: WebGPUSubUniformBlockBuffer) {
         //回收一个SubUniformBlockBuffer
-    }
-}
-
-//描述uniformBlockBuffer的布局
-export class WebGPUUniformBlockLayout {
-    UniformBlockID: number;//get Uniform name TO ID
-    bytelength: number;
-    propertyIDs: { [key: number]: WebGPUShaderVariable }
-    constructor() {
-        //TODO 把所有的Property组织起来
-        this.propertyIDs = {};
     }
 }

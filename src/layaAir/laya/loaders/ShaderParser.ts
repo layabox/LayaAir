@@ -26,6 +26,7 @@ const shaderDataOBJ: Record<string, ShaderDataType> = {
     "Matrix3x3": ShaderDataType.Matrix3x3,
     "Texture2D": ShaderDataType.Texture2D,
     "TextureCube": ShaderDataType.TextureCube,
+    "Texture2DArray":ShaderDataType.Texture2DArray
 };
 
 //TODO 格式改变

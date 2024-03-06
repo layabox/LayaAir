@@ -8,6 +8,9 @@ export enum WebGPUVertexStepMode {
 }
 
 export class WebGPUBufferState implements IBufferState {
+    static IDCounter: number = 0;
+    _updateBufferLayoutFlag: number = 0;
+    _id: number;
     _vertexState: Array<GPUVertexBufferLayout> = new Array();//GPURenderPipelineDescriptor-GPUVertexState
     _bindedIndexBuffer: WebGPUIndexBuffer;
     _vertexBuffers: WebGPUVertexBuffer[];
@@ -15,12 +18,18 @@ export class WebGPUBufferState implements IBufferState {
     applyState(vertexBuffers: WebGPUVertexBuffer[], indexBuffer: WebGPUIndexBuffer): void {
         this._vertexBuffers = vertexBuffers;
         this._bindedIndexBuffer = indexBuffer;
+        this._getVertexBufferLayoutArray();
+        this._updateBufferLayoutFlag++;
     }
 
-    
+    constructor() {
+        this._id = WebGPUBufferState.IDCounter++;
+    }
+
 
     private _getVertexBufferLayoutArray() {
-        this._vertexBuffers.length = 0;
+
+        this._vertexState.length = 0;
         this._vertexBuffers.forEach(element => {
             let vertexDec = element.vertexDeclaration
             let vertexAttribute: GPUVertexAttribute[] = new Array<GPUVertexAttribute>();
