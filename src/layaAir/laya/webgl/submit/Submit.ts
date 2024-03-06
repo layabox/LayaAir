@@ -74,7 +74,7 @@ export class Submit extends SubmitBase {
         o._startIdx = mesh.indexNum * Const.INDEX_BYTES;
         o._numEle = 0;
         var blendType = context._nBlendType;
-        o._blendFn = context._targets ? BlendMode.targetFns[blendType] : BlendMode.fns[blendType];
+        o._blendFn = BlendMode.fns[blendType];
         o.shaderValue = sv;
         o.material = context.material;
         var filter = context._colorFiler;
@@ -101,7 +101,7 @@ export class Submit extends SubmitBase {
         var blendType = ctx._nBlendType;
         o._key.blendShader = blendType;
         o.material = ctx.material;
-        o._blendFn = ctx._targets ? BlendMode.targetFns[blendType] : BlendMode.fns[blendType];
+        o._blendFn = BlendMode.fns[blendType];
         return o;
     }
 }

@@ -29,6 +29,7 @@ import { LayaEnv } from "../../LayaEnv";
 import { SpriteUtils } from "../utils/SpriteUtils";
 import { IHitArea } from "../utils/IHitArea";
 import type { Material } from "../resource/Material";
+import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
 
 /**在显示对象上按下后调度。
  * @eventType Event.MOUSE_DOWN
@@ -1149,7 +1150,7 @@ export class Sprite extends Node {
      */
     drawToCanvas(canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number): HTMLCanvas {
         //console.log('drawToCanvas is deprecated, please use drawToTexture');
-        return Sprite.drawToCanvas(this, this._renderType, canvasWidth, canvasHeight, offsetX, offsetY);
+        return Sprite.drawToCanvas(this, canvasWidth, canvasHeight, offsetX, offsetY);
     }
 
     /**
@@ -1160,7 +1161,7 @@ export class Sprite extends Node {
      * @param offsetY 
      */
     drawToTexture(canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number, rt: RenderTexture2D | null = null): Texture | RenderTexture2D {
-        let res = Sprite.drawToTexture(this, this._renderType, canvasWidth, canvasHeight, offsetX, offsetY, rt);
+        let res = Sprite.drawToTexture(this, canvasWidth, canvasHeight, offsetX, offsetY, rt);
         return res;
     }
 
@@ -1179,32 +1180,19 @@ export class Sprite extends Node {
      * @private
      * 绘制到画布。
      */
-    static drawToCanvas(sprite: Sprite, _renderType: number, canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number): HTMLCanvas {
-        offsetX -= sprite.x;
-        offsetY -= sprite.y;
-        offsetX |= 0;
-        offsetY |= 0;
-        canvasWidth |= 0;
-        canvasHeight |= 0;
-        var ctx = new Context();
-        ctx.size(canvasWidth, canvasHeight);
-        ctx.asBitmap = true;
-        ctx._targets.start();
-        ctx._targets.clear(0, 0, 0, 0);
-        RenderSprite.renders[_renderType]._fun(sprite, ctx, offsetX, offsetY);
-        ctx.flush();
-        ctx._targets.end();
-        ctx._targets.restore();
-        var dt: Uint8Array = ctx._targets.getData(0, 0, canvasWidth, canvasHeight) as Uint8Array;
-        ctx.destroy();
-        var imgdata: any = new ImageData(canvasWidth, canvasHeight);;	//创建空的imagedata。因为下面要翻转，所以不直接设置内容
+    static drawToCanvas(sprite: Sprite, canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number): HTMLCanvas {
+        if(arguments.length>5){
+            throw 'drawToCanvas 接口参数不对'
+        }
+        let rt = Sprite.drawToTexture(sprite,canvasWidth,canvasHeight,offsetX, offsetY) as RenderTexture2D;
+        var dt = rt.getData(0, 0, canvasWidth, canvasHeight) as Uint8Array;
+        var imgdata = new ImageData(canvasWidth, canvasHeight);;	//创建空的imagedata。因为下面要翻转，所以不直接设置内容
         //翻转getData的结果。
-        var lineLen: number = canvasWidth * 4;
-        var temp: Uint8Array = new Uint8Array(lineLen);
-        var dst: Uint8Array = imgdata.data;
-        var y: number = canvasHeight - 1;
-        var off: number = y * lineLen;
-        var srcoff: number = 0;
+        var lineLen = canvasWidth * 4;
+        var dst = imgdata.data;
+        var y = canvasHeight - 1;
+        var off = y * lineLen;
+        var srcoff = 0;
         for (; y >= 0; y--) {
             dst.set(dt.subarray(srcoff, srcoff + lineLen), off);
             off -= lineLen;
@@ -1212,11 +1200,49 @@ export class Sprite extends Node {
         }
         //imgdata.data.set(dt);
         //画到2d画布上
-        var canv: HTMLCanvas = new HTMLCanvas(true);
+        var canv = new HTMLCanvas(true);
         canv.size(canvasWidth, canvasHeight);
-        var ctx2d: CanvasRenderingContext2D = <CanvasRenderingContext2D>(canv.getContext('2d') as any);
-        ctx2d.putImageData(imgdata, 0, 0);;
-        return canv;
+        var ctx2d = <CanvasRenderingContext2D>(canv.getContext('2d') as any);
+        ctx2d.putImageData(imgdata, 0, 0);
+        rt.destroy();
+        return canv;        
+        // offsetX -= sprite.x;
+        // offsetY -= sprite.y;
+        // offsetX |= 0;
+        // offsetY |= 0;
+        // canvasWidth |= 0;
+        // canvasHeight |= 0;
+        // var ctx = new Context();
+        // ctx.size(canvasWidth, canvasHeight);
+        // ctx.asBitmap = true;
+        // ctx._targets.start();
+        // ctx._targets.clear(0, 0, 0, 0);
+        // RenderSprite.renders[_renderType]._fun(sprite, ctx, offsetX, offsetY);
+        // ctx.flush();
+        // ctx._targets.end();
+        // ctx._targets.restore();
+        // var dt: Uint8Array = ctx._targets.getData(0, 0, canvasWidth, canvasHeight) as Uint8Array;
+        // ctx.destroy();
+        // var imgdata: any = new ImageData(canvasWidth, canvasHeight);;	//创建空的imagedata。因为下面要翻转，所以不直接设置内容
+        // //翻转getData的结果。
+        // var lineLen: number = canvasWidth * 4;
+        // var temp: Uint8Array = new Uint8Array(lineLen);
+        // var dst: Uint8Array = imgdata.data;
+        // var y: number = canvasHeight - 1;
+        // var off: number = y * lineLen;
+        // var srcoff: number = 0;
+        // for (; y >= 0; y--) {
+        //     dst.set(dt.subarray(srcoff, srcoff + lineLen), off);
+        //     off -= lineLen;
+        //     srcoff += lineLen;
+        // }
+        // //imgdata.data.set(dt);
+        // //画到2d画布上
+        // var canv: HTMLCanvas = new HTMLCanvas(true);
+        // canv.size(canvasWidth, canvasHeight);
+        // var ctx2d: CanvasRenderingContext2D = <CanvasRenderingContext2D>(canv.getContext('2d') as any);
+        // ctx2d.putImageData(imgdata, 0, 0);;
+        // return canv;
     }
 
     static drawtocanvCtx: Context;
@@ -1224,46 +1250,62 @@ export class Sprite extends Node {
      * @private 
      * 
      */
-    static drawToTexture(sprite: Sprite, _renderType: number, canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number, rt: RenderTexture2D | null = null): Texture | RenderTexture2D {
-        if (!Sprite.drawtocanvCtx) {
-            Sprite.drawtocanvCtx = new Context();
+    static drawToTexture(sprite: Sprite, canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number, rt: RenderTexture2D | null = null): Texture | RenderTexture2D {
+        let renderout = rt || new RenderTexture2D(canvasWidth,canvasHeight,RenderTargetFormat.R8G8B8A8);
+        let ctx = new Context();
+        if(rt){
+            ctx.size(rt.width,rt.height);
+        }else{
+            ctx.size(canvasWidth,canvasHeight)
         }
-        offsetX -= sprite.x;
-        offsetY -= sprite.y;
-        offsetX |= 0;
-        offsetY |= 0;
-        canvasWidth |= 0;
-        canvasHeight |= 0;
-        var ctx = rt ? Sprite.drawtocanvCtx : new Context();
-        ctx.clear();
-        ctx.size(canvasWidth, canvasHeight);
-        if (rt) {
-            ctx._targets = rt;
-        } else {
-            ctx.asBitmap = true;
-        }
-        let texRT;
-        if (ctx._targets) {
-            ctx._targets.start();
-            let color = RenderTexture2D._clearColor;
-            ctx._targets.clear(color.r, color.g, color.b, color.a);
-            ctx._drawingToTexture = true;
-            RenderSprite.renders[_renderType]._fun(sprite, ctx, offsetX, offsetY);
-            ctx._drawingToTexture = false;
-            ctx.flush();
-            ctx._targets.end();
-            ctx._targets.restore();
-            if (!rt)
-                texRT = ctx._targets;
-            ctx._targets = null;//IDE闪
-        }
-        if (!rt) {
-            var rtex: Texture = new Texture(((<Texture2D>(ctx._targets as any))) ? ((<Texture2D>(ctx._targets as any))) : texRT, Texture.INV_UV);
-            ctx.destroy(true);// 保留 _targets
-            return rtex;
-        }
-        sprite._repaint = 0;
-        return rt;
+        ctx.render2D = ctx.render2D.clone(renderout);
+        let outrt = RenderSprite.RenderToRenderTexture(sprite,ctx,offsetX,offsetY,renderout);
+        // if(!rt){
+        //     //这是原来的规则，如果没有提供rt就返回texture，否则就返回rt
+        //     var rtex: Texture = new Texture(outrt,Texture.INV_UV);
+        //     return rtex;
+        // }
+        return outrt;
+
+        // if (!Sprite.drawtocanvCtx) {
+        //     Sprite.drawtocanvCtx = new Context();
+        // }
+        // offsetX -= sprite.x;
+        // offsetY -= sprite.y;
+        // offsetX |= 0;
+        // offsetY |= 0;
+        // canvasWidth |= 0;
+        // canvasHeight |= 0;
+        // var ctx = rt ? Sprite.drawtocanvCtx : new Context();
+        // ctx.clear();
+        // ctx.size(canvasWidth, canvasHeight);
+        // if (rt) {
+        //     ctx._targets = rt;
+        // } else {
+        //     ctx.asBitmap = true;
+        // }
+        // let texRT;
+        // if (ctx._targets) {
+        //     ctx._targets.start();
+        //     let color = RenderTexture2D._clearColor;
+        //     ctx._targets.clear(color.r, color.g, color.b, color.a);
+        //     ctx._drawingToTexture = true;
+        //     RenderSprite.renders[_renderType]._fun(sprite, ctx, offsetX, offsetY);
+        //     ctx._drawingToTexture = false;
+        //     ctx.flush();
+        //     ctx._targets.end();
+        //     ctx._targets.restore();
+        //     if (!rt)
+        //         texRT = ctx._targets;
+        //     ctx._targets = null;//IDE闪
+        // }
+        // if (!rt) {
+        //     var rtex: Texture = new Texture(((<Texture2D>(ctx._targets as any))) ? ((<Texture2D>(ctx._targets as any))) : texRT, Texture.INV_UV);
+        //     ctx.destroy(true);// 保留 _targets
+        //     return rtex;
+        // }
+        // sprite._repaint = 0;
+        //return rt;
     }
 
     /**

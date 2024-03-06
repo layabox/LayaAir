@@ -108,6 +108,8 @@ export interface IForwardAddRP {
 
 export interface IRender3DProcess {
     renderFowarAddCameraPass(context: IRenderContext3D, renderpass: IForwardAddRP, list: IBaseRenderNode[], count: number): void;
+
+    fowardRender(context: IRenderContext3D, camera: Camera): void;
 }
 
 export declare type PipelineMode = "Forward" | "ShadowCaster" | "DepthNormal" | string;

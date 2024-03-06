@@ -5,6 +5,8 @@ import { Handler } from "../utils/Handler"
 import { ILaya } from "../../ILaya";
 import { BaseTexture } from "./BaseTexture";
 import { Resource } from "./Resource";
+import { RenderTexture2D } from "./RenderTexture2D";
+import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
 
 const _rect1 = new Rectangle();
 const _rect2 = new Rectangle();
@@ -365,7 +367,8 @@ export class Texture extends Resource {
         // 如果无法直接获取，只能先渲染出来
         var ctx = new ILaya.Context();
         ctx.size(width, height);
-        ctx.asBitmap = true;
+        let rt = new RenderTexture2D(width,height,RenderTargetFormat.R8G8B8A8);
+        ctx.render2D = ctx.render2D.clone(rt)
         var uv: number[] = null;
         if (x != 0 || y != 0 || width != tex2dw || height != tex2dh) {
             uv = (this._uv as number[]).slice();	// 复制一份uv
@@ -380,14 +383,12 @@ export class Texture extends Resource {
             stu + (rePosX + draww) * uk, stv + (rePosY + drawh) * vk,
             stu + rePosX * uk, stv + (rePosY + drawh) * vk];
         }
+        ctx.startRender();
         ctx._drawTextureM(this, marginL, marginT, draww, drawh, null, 1.0, uv, 0xffffffff);
-        //ctx.drawTexture(value, -x, -y, x + width, y + height);
-        ctx._targets.start();
-        ctx.flush();
-        ctx._targets.end();
-        ctx._targets.restore();
-        var dt: Uint8Array = ctx._targets.getData(0, 0, width, height) as Uint8Array;
+        ctx.endRender();
+        var dt: Uint8Array = rt.getData(0, 0, width, height) as Uint8Array;
         ctx.destroy();
+        rt.destroy();
         // 上下颠倒一下
         ret = new Uint8Array(width * height * 4);
         st = 0;

@@ -85,7 +85,6 @@ export class Context {
     private _tmpMatrix = new Matrix();		// chrome下静态的访问比从this访问要慢
 
     private static SEGNUM = 32;
-
     private static _contextcount = 0;
 
     private _drawTexToDrawTri_Vert = new Float32Array(8);		// 从速度考虑，不做成static了
@@ -94,7 +93,6 @@ export class Context {
     private _drawTriUseAbsMatrix = false;	//drawTriange函数的矩阵是全局的，不用再乘以当前矩阵了。这是一个补丁。
 
     private _other: ContextParams | null = null;
-    private _renderNextSubmitIndex = 0;
 
     private _path: Path | null = null;
     /**@internal */
@@ -102,8 +100,6 @@ export class Context {
     private _width = Const.MAX_CLIP_SIZE;
     private _height = Const.MAX_CLIP_SIZE;
     private _renderCount = 0;
-    /**@internal */
-    _submits: any = null;
     /**@internal */
     stopMerge=true;     //如果用设置_curSubmit的方法，可能导致渲染错误，因为_curSubmit保存上次的信息，不能任意改
     /**@internal */
@@ -123,7 +119,6 @@ export class Context {
 
     /**@internal */
     _clipRect = Context.MAXCLIPRECT;
-    //public var _transedClipInfo:Array = [0, 0, Const.MAX_CLIP_SIZE, 0, 0, Const.MAX_CLIP_SIZE];	//应用矩阵后的clip。ox,oy, xx,xy,yx,yy 	xx,xy等是缩放*宽高
     /**@internal */
     _globalClipMatrix = defaultClipMatrix.clone();	//用矩阵描述的clip信息。最终的点投影到这个矩阵上，在0~1之间就可见。
     /**@internal */
@@ -147,8 +142,6 @@ export class Context {
     _nBlendType = 0;
     /**@internal */
     _save: ISaveData[] & { _length?: number } = null;
-    /**@internal */
-    _targets: RenderTexture2D | null = null;
     /**@internal */
     _charSubmitCache: CharSubmitCache | null = null;
     /**@internal */
@@ -211,6 +204,14 @@ export class Context {
             this.defTexture = new Texture(defTex2d);
         }
         this._lastTex = this.defTexture;
+        this._other = ContextParams.DEFAULT;
+        this._curMat = Matrix.create();
+        this._charSubmitCache = new CharSubmitCache();
+        //_vb = _vbs[0] = VertexBuffer2D.create( -1);
+        this._mesh=this._meshQuatTex;
+        this._mesh.clearMesh();
+        this._save = [SaveMark.Create(this)];
+        this._save.length = 10;
         this.clear();
     }
 
@@ -531,43 +532,25 @@ export class Context {
 
     /**
      * 释放占用内存
-     * @param	keepRT  是否保留rendertarget
      */
-    private _releaseMem(keepRT = false): void {
-        if (!this._submits)
-            return;
-
+    private _releaseMem(): void {
         this._curMat && this._curMat.destroy();
         this._curMat = null;
         this._shader2D.destroy();
         this._shader2D = null;
         this._charSubmitCache.clear();
-
-        this._submits.length = 0;
-        this._submits._length = 0;
-        this._submits = null;
         this._path = null;
         this._save = null;
         this.sprite = null;
-        if (!keepRT) {
-            this._targets && (this._targets.destroy());
-            this._targets = null;
-        }
     }
 
     /**
      * 释放所有资源
-     * @param	keepRT  是否保留rendertarget
      */
-    destroy(keepRT = false): void {
+    destroy(): void {
         --Context._contextcount;
         this.sprite = null;
-        this._releaseMem(keepRT);
         this._charSubmitCache && this._charSubmitCache.destroy();
-        if (!keepRT) {
-            this._targets && this._targets.destroy();//用回收么？可能没什么重复利用的价值
-            this._targets = null;
-        }
         if (this.defTexture) {
             this.defTexture.bitmap && this.defTexture.bitmap.destroy();
             this.defTexture.destroy();
@@ -575,18 +558,6 @@ export class Context {
     }
 
     clear(): void {
-        if (!this._submits) {//第一次
-            this._other = ContextParams.DEFAULT;
-            this._curMat = Matrix.create();
-            this._charSubmitCache = new CharSubmitCache();
-            //_vb = _vbs[0] = VertexBuffer2D.create( -1);
-            this._mesh=this._meshQuatTex;
-            this._mesh.clearMesh();
-            this._submits = [];
-            this._save = [SaveMark.Create(this)];
-            this._save.length = 10;
-        }
-
         this._submitKey.clear();
         this._drawCount = 1;
         this._other = ContextParams.DEFAULT;
@@ -596,10 +567,6 @@ export class Context {
         SubmitBase.RENDERBASE._ref = 0xFFFFFF;
         SubmitBase.RENDERBASE._numEle = 0;
         this._fillStyle = this._strokeStyle = DrawStyle.DEFAULT;
-
-        for (let i = 0, n = this._submits._length; i < n; i++)
-            this._submits[i].releaseRender();
-        this._submits._length = 0;
 
         this._curMat.identity();
         this._other.clear();
@@ -617,12 +584,6 @@ export class Context {
         if (this._width != w || this._height != h) {
             this._width = w;
             this._height = h;
-            //TODO 问题：如果是rendertarget 计算内存会有问题，即canvas算一次，rt又算一次,所以这里要修改
-            //这种情况下canvas应该不占内存
-            if (this._targets) {
-                this._targets.destroy();
-                this._targets = new RenderTexture2D(w, h, RenderTargetFormat.R8G8B8A8, -1);
-            }
             //如果是主画布，要记录窗口大小
             //如果不是 TODO
             if (this.isMain) {
@@ -635,31 +596,6 @@ export class Context {
             }
         }
         if (w === 0 && h === 0) this._releaseMem();
-    }
-
-    /**
-     * 当前canvas请求保存渲染结果。
-     * 实现：
-     * 如果value==true，就要给_target赋值
-     * @param value {Boolean} 
-     */
-    set asBitmap(value: boolean) {
-        if (value) {
-            //缺省的RGB没有a，不合理把。况且没必要自定义一个常量。
-            //深度格式为-1表示不用深度缓存。
-            let rt = this._targets;
-            if (!this._width || !this._height)
-                throw Error("asBitmap no size!");
-            if (!rt || rt.width != this._width || rt.height != this._height) {
-                if (rt) {
-                    rt.destroy();
-                }
-                this._targets = new RenderTexture2D(this._width, this._height, RenderTargetFormat.R8G8B8A8);
-            }
-        } else {
-            this._targets && this._targets.destroy();
-            this._targets = null;
-        }
     }
 
     /**
@@ -823,7 +759,8 @@ export class Context {
             submit && (
                 submit._key.submitType === SubmitBase.KEY_DRAWTEXTURE && 
                 submit._key.blendShader === this._nBlendType &&
-                !this.isStopMerge(submit))
+                !this.isStopMerge(submit)) &&
+                this._curSubmit.material == this.material
 
         if(!sameKey){
             this._drawToRender2D(this._curSubmit);
@@ -834,12 +771,11 @@ export class Context {
 
         this.transformQuad(x, y, width, height, 0, this._curMat, this._transedPoints);
         if (!this.clipedOff(this._transedPoints)) {
-            mesh.addQuad(this._transedPoints, Texture.NO_UV, rgba, false);
             //if (GlUtils.fillRectImgVb(_mesh._vb, _clipRect, x, y, width, height, Texture.DEF_UV, _curMat, rgba,this)){
             if (!sameKey) {
                 submit = this._curSubmit = SubmitTexture.create(this, mesh, Value2D.create(RenderSpriteData.Texture2D));
-                this._submits[this._submits._length++] = submit;
-                this._copyClipInfo(submit, this._globalClipMatrix);
+                this.fillShaderValue(submit.shaderValue);
+                //this._copyClipInfo(submit, this._globalClipMatrix);
                 if (!this._lastTex || this._lastTex.destroyed) {
                     submit.shaderValue.textureHost = this.defTexture;
                 } else {
@@ -850,6 +786,7 @@ export class Context {
                 submit._key.other = (this._lastTex && this._lastTex.bitmap) ? (this._lastTex.bitmap as Texture2D).id : -1
                 submit._renderType = SubmitBase.TYPE_TEXTURE;
             }
+            mesh.addQuad(this._transedPoints, Texture.NO_UV, rgba, false);
             this._curSubmit._numEle += 6;
         }
     }
@@ -950,8 +887,8 @@ export class Context {
             Vector4.tempVec4.setValue(arry[0], arry[1], arry[2], arry[3]);
             sv.u_TexRange = Vector4.tempVec4;
             submit = this._curSubmit = SubmitTexture.create(this, this._mesh, sv);
-            this._submits[this._submits._length++] = submit;
-            this._copyClipInfo(submit, this._globalClipMatrix);
+            this.fillShaderValue(sv);
+            //this._copyClipInfo(submit, this._globalClipMatrix);
             submit.shaderValue.textureHost = texture;
             submit._renderType = SubmitBase.TYPE_TEXTURE;
             this._curSubmit._numEle += 6;
@@ -1148,7 +1085,8 @@ export class Context {
 
         var sameKey = (imgid >= 0 && preKey.submitType === SubmitBase.KEY_DRAWTEXTURE && preKey.other === imgid) &&
             !this.isStopMerge(this._curSubmit) &&
-            this._mesh.vertexNum + 4 < Context._MAXVERTNUM 
+            this._mesh.vertexNum + 4 < Context._MAXVERTNUM  &&
+            this._curSubmit.material == this.material
 
         if(!sameKey){
             this._drawToRender2D(this._curSubmit);
@@ -1248,30 +1186,6 @@ export class Context {
         }
     }
 
-    pushRT(): void {
-        this.addRenderObject(SubmitCMD.create(null, RenderTexture2D.pushRT, this));
-    }
-    popRT(): void {
-        this.addRenderObject(SubmitCMD.create(null, RenderTexture2D.popRT, this));
-        this.breakNextMerge();
-    }
-
-    //TODO:coverage
-    useRT(rt: RenderTexture2D): void {
-        //这里并没有做cliprect的保存恢复。因为认为调用这个函数的话，就是完全不走context流程了，完全自己控制。
-        function _use(rt: RenderTexture2D): void {
-            if (!rt) {
-                throw 'error useRT'
-            } else {
-                rt.start();
-                rt.clear(0, 0, 0, 0);
-            }
-        }
-
-        this.addRenderObject(SubmitCMD.create([rt], _use, this));
-        this.breakNextMerge();
-    }
-
     /**
      * 强制拒绝submit合并
      * 例如切换rt的时候
@@ -1333,64 +1247,15 @@ export class Context {
             this.globalCompositeOperation = oldcomp;
     }
 
-    /**
-     * * 把ctx中的submits提交。结果渲染到target上
-     * @param	ctx
-     * @param	target
-     */
-    private _flushToTarget(context: Context, target: RenderTexture2D): void {
-        //if (target._destroy) return;
-        //var preworldClipRect:Rectangle = RenderState2D.worldClipRect;
-        //裁剪不用考虑，现在是在context内部自己维护，不会乱窜
-        RenderState2D.worldScissorTest = false;
-      //  LayaGL.renderEngine.scissorTest(false);
-
-        var preAlpha = RenderState2D.worldAlpha;
-        var preMatrix4: any[] = RenderState2D.worldMatrix4;
-        var preMatrix: Matrix = RenderState2D.worldMatrix;
-
-        var preShaderDefines: ShaderDefines2D = RenderState2D.worldShaderDefines;
-
-        RenderState2D.worldMatrix = Matrix.EMPTY;
-
-        RenderState2D.restoreTempArray();
-        RenderState2D.worldMatrix4 = RenderState2D.TEMPMAT4_ARRAY;
-        RenderState2D.worldAlpha = 1;
-        //RenderState2D.worldFilters = null;
-        //RenderState2D.worldShaderDefines = null;
-
-        target.start();
-        // 如果没有命令就不要clear。这么改是因为嵌套cacheas出问题了
-        // 如果一个sprite cacheas normal ，他的子节点有cacheas bitmap的（包括mask等）就会不断的执行 _flushToTarget和drawCamvase,从而把target上的内容清掉
-        // 由于cacheas normal 导致 RenderSprite没有机会执行 _cacheStyle.canvas 存在的分支。在
-        if (context._submits._length > 0)
-            target.clear(0, 0, 0, 0);
-
-        context._curSubmit = SubmitBase.RENDERBASE;
-        context.flush();
-        context.clear();
-        target.restore();
-        context._curSubmit = SubmitBase.RENDERBASE;
-        //context._canvas
-        RenderState2D.worldAlpha = preAlpha;
-        RenderState2D.worldMatrix4 = preMatrix4;
-        RenderState2D.worldMatrix = preMatrix;
-        //RenderState2D.worldFilters = preFilters;
-        //RenderState2D.worldShaderDefines = preShaderDefines;
-    }
-
     drawCanvas(canvas: HTMLCanvas, x: number, y: number, width: number, height: number): void {
         if (!canvas) return;
         var src: Context = canvas.context;
-        if (src._targets) {
-        } else {
             var canv = <WebGLCacheAsNormalCanvas>(canvas as unknown);
             if (canv.touches) {
                 canv.touches.forEach(function (v: CharRenderInfo): void { v.touch(); });
             }
 
             let submit = SubmitCanvas.create(canvas, this._alpha, this._colorFiler) as SubmitCanvas;
-            this._submits[this._submits._length++] = submit;
             submit._key.clear();
             //var sx:Number = width / canvas.width;
             //var sy:Number = height / canvas.height;
@@ -1407,7 +1272,6 @@ export class Context {
 
             this._drawToRender2D(this._curSubmit);
             this._curSubmit = SubmitBase.RENDERBASE;
-        }
     }
 
     drawTarget(rt: RenderTexture2D, x: number, y: number, width: number, height: number, m: Matrix, shaderValue: Value2D, uv: ArrayLike<number> | null = null, blend = -1, color = 0xffffffff): boolean {
@@ -1420,10 +1284,10 @@ export class Context {
         if (!this.clipedOff(this._transedPoints)) {
             (this._mesh as MeshQuadTexture).addQuad(this._transedPoints, uv || Texture.DEF_UV, color, true);
             var submit: SubmitTarget = this._curSubmit = SubmitTarget.create(this, this._mesh, shaderValue, rt);
+            this.fillShaderValue(shaderValue);
             submit.blendType = (blend == -1) ? this._nBlendType : blend;
             this._copyClipInfo((<SubmitBase>(submit as any)), this._globalClipMatrix);
             submit._numEle = 6;
-            this._submits[this._submits._length++] = submit;
             //暂时drawTarget不合并
             this._drawToRender2D(this._curSubmit);
             this._curSubmit = SubmitBase.RENDERBASE
@@ -1461,7 +1325,8 @@ export class Context {
         var sameKey = preKey.submitType === SubmitBase.KEY_TRIANGLES && 
             preKey.other === webGLImg.id && 
             preKey.blendShader == this._nBlendType &&
-            this._mesh.vertexNum + vertices.length / 2 < Context._MAXVERTNUM;
+            this._mesh.vertexNum + vertices.length / 2 < Context._MAXVERTNUM &&
+            this._curSubmit.material == this.material;
 
         if(!sameKey){
             this._drawToRender2D(this._curSubmit);
@@ -1473,11 +1338,11 @@ export class Context {
             //添加一个新的submit
             var submit: SubmitTexture = this._curSubmit = SubmitTexture.create(this, this._mesh, Value2D.create(RenderSpriteData.Texture2D));
             submit.shaderValue.textureHost = tex;
+            this.fillShaderValue(submit.shaderValue);
             submit._renderType = SubmitBase.TYPE_TEXTURE;
             submit._key.submitType = SubmitBase.KEY_TRIANGLES;
             submit._key.other = webGLImg.id;
             this._copyClipInfo(submit, this._globalClipMatrix);
-            this._submits[this._submits._length++] = submit;
         }
 
         var rgba = this._mixRGBandAlpha(colorNum, this._alpha * alpha);
@@ -1599,36 +1464,6 @@ export class Context {
         //TEMP end
     }
 
-    addRenderObject(o: ISubmit): void {
-        this._submits[this._submits._length++] = o;
-    }
-
-    /**
-     * 
-     * @param	start
-     * @param	end
-     */
-    submitElement(start: number, end: number): number {
-        var mainCtx = this.isMain;
-        var renderList: any[] = this._submits;
-        var ret = ((<any>renderList))._length;
-        end < 0 && (end = ((<any>renderList))._length);
-        var submit = SubmitBase.RENDERBASE;
-        while (start < end) {
-            this._renderNextSubmitIndex = start + 1;
-            if (renderList[start] === SubmitBase.RENDERBASE) {
-                start++;
-                continue;
-            }
-            SubmitBase.preRender = submit;
-            submit = renderList[start];
-            //只有submitscissor才会返回多个
-            start += submit.renderSubmit();
-            //本来做了个优化，如果是主画布，用完立即releaseRender. 但是实际没有什么效果，且由于submit需要用来对比，即使用完也不能修改，所以这个优化又去掉了
-        }
-        return ret;
-    }
-
     startRender(){
         this._render2D.renderStart();
         this.clear();
@@ -1697,7 +1532,8 @@ export class Context {
         var tPath = this._getPath();
         var submit = this._curSubmit;
         var sameKey = (submit._key.submitType === SubmitBase.KEY_VG && submit._key.blendShader === this._nBlendType) &&
-            !this.isStopMerge(submit);
+            !this.isStopMerge(submit) &&
+            this._curSubmit.material == this.material;
 
         if (!sameKey) {
             this._drawToRender2D(submit);
@@ -1782,10 +1618,10 @@ export class Context {
     private addVGSubmit(mesh: Mesh2D): Submit {
         //elenum设为0，后面再加
         var submit: Submit = Submit.createShape(this, mesh, 0, Value2D.create(RenderSpriteData.Primitive));
+        this.fillShaderValue(submit.shaderValue);
         //submit._key.clear();
         //submit._key.blendShader = _submitKey.blendShader;	//TODO 这个在哪里赋值的啊
         submit._key.submitType = SubmitBase.KEY_VG;
-        this._submits[this._submits._length++] = submit;
         this._copyClipInfo(submit, this._globalClipMatrix);
         return submit;
     }
@@ -1797,7 +1633,8 @@ export class Context {
         var tPath = this._getPath();
         var submit = this._curSubmit;
         var sameKey = (submit._key.submitType === SubmitBase.KEY_VG && submit._key.blendShader === this._nBlendType) &&
-                        !this.isStopMerge(submit);
+                        !this.isStopMerge(submit) &&
+                        this._curSubmit.material == this.material
 
         if (!sameKey) {
             this._drawToRender2D(this._curSubmit);
@@ -2160,9 +1997,6 @@ export class Context {
     /*******************************************end矢量绘制***************************************************/
     //TODO:coverage
     drawParticle(x: number, y: number, pt: any): void {
-        pt.x = x;
-        pt.y = y;
-        this._submits[this._submits._length++] = pt;
     }
 
     private _getPath(): Path {
