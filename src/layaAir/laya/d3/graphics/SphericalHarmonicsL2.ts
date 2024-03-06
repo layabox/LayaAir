@@ -289,8 +289,6 @@ export class SphericalHarmonicsL2Generater {
      */
     static CalGradientSH(skyColor: Vector3, equatorColor: Vector3, groundColor: Vector3, isGamma: boolean = true): SphericalHarmonicsL2 {
 
-        console.time("Gradient SH");
-
         let skyPixels = this._tempSkyPixels;
         let equatorPixels = this._tempEquatorPixels;
         let groundPixels = this._tempGroundPixels;
@@ -324,7 +322,6 @@ export class SphericalHarmonicsL2Generater {
 
         let sh = SphericalHarmonicsL2Generater.CalCubemapSH(gradientPixles, 3, this.GradientSimulateSize, false);
 
-        console.timeEnd("Gradient SH");
         return sh;
     }
 }

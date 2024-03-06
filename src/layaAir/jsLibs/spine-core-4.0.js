@@ -2764,7 +2764,7 @@ var spine;
             //         path = this.downloader.rawDataUris[path];
             //     image.src = path;
             // }
-            let _Laya = Laya.Laya ? Laya.Laya : Laya;
+            let _Laya = window.Laya.Laya ? window.Laya.Laya : Laya;
             _Laya.loader.load([{type: _Laya.Loader.IMAGE, url: path}], _Laya.Handler.create(this, (re) => {
                 if (re) {
                     let texture = this.textureLoader(_Laya.loader.getRes(path), oriPath);
@@ -2870,7 +2870,7 @@ var spine;
             // request.onload = done;
             // request.onerror = done;
             // request.send();
-            let _Laya = Laya.Laya ? Laya.Laya : Laya;
+            let _Laya = window.Laya.Laya ? window.Laya.Laya : Laya;
             _Laya.loader.load([{type: _Laya.Loader.TEXT, url: url}], _Laya.Handler.create(this, (re) => {
                 if (re) {
                     this.finish(url, 200, _Laya.loader.getRes(url));
@@ -2904,7 +2904,7 @@ var spine;
             // };
             // request.onerror = onerror;
             // request.send();
-            let _Laya = Laya.Laya ? Laya.Laya : Laya;
+            let _Laya = window.Laya.Laya ? window.Laya.Laya : Laya;
             _Laya.loader.load([{type: _Laya.Loader.BUFFER, url: url}], _Laya.Handler.create(this, (re) => {
                 if (re) {
                     this.finish(url, 200, new Uint8Array(_Laya.loader.getRes(url)));
