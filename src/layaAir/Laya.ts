@@ -270,26 +270,26 @@ export class Laya {
             RenderState2D.clear();
         }
 
-        Sprite.drawToCanvas = function (sprite: Sprite, _renderType: number, canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number): any {
-            offsetX -= sprite.x;
-            offsetY -= sprite.y;
-            offsetX |= 0;
-            offsetY |= 0;
-            canvasWidth |= 0;
-            canvasHeight |= 0;
+        // Sprite.drawToCanvas = function (sprite: Sprite, _renderType: number, canvasWidth: number, canvasHeight: number, offsetX: number, offsetY: number): any {
+        //     offsetX -= sprite.x;
+        //     offsetY -= sprite.y;
+        //     offsetX |= 0;
+        //     offsetY |= 0;
+        //     canvasWidth |= 0;
+        //     canvasHeight |= 0;
 
-            var canv: HTMLCanvas = new HTMLCanvas(false);
-            var ctx  = canv.getContext('2d') as Context;
-            canv.size(canvasWidth, canvasHeight);
+        //     var canv: HTMLCanvas = new HTMLCanvas(false);
+        //     var ctx  = canv.getContext('2d') as Context;
+        //     canv.size(canvasWidth, canvasHeight);
 
-            ctx.asBitmap = true;
-            ctx._targets.start();
-            RenderSprite.renders[_renderType]._fun(sprite, ctx, offsetX, offsetY);
-            ctx.flush();
-            ctx._targets.end();
-            ctx._targets.restore();
-            return canv;
-        }
+        //     ctx.asBitmap = true;
+        //     ctx._targets.start();
+        //     RenderSprite.renders[_renderType]._fun(sprite, ctx, offsetX, offsetY);
+        //     ctx.flush();
+        //     ctx._targets.end();
+        //     ctx._targets.restore();
+        //     return canv;
+        // }
         //RenderTexture2D.prototype._uv = RenderTexture2D.flipyuv;
         Object["defineProperty"](RenderTexture2D.prototype, "uv", {
             "get": function (): any {

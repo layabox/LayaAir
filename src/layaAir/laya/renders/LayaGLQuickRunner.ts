@@ -219,7 +219,6 @@ export class LayaGLQuickRunner {
     static transform_drawNodes(sprite: Sprite, context: Context, x: number, y: number): void {
         //var transform:Matrix = sprite.transform;
         var textLastRender: boolean = sprite._getBit(NodeFlags.DRAWCALL_OPTIMIZE) && context.drawCallOptimize(true);
-        let drawingToTexture = context._drawingToTexture;
 
         var style: SpriteStyle = sprite._style;
         context.saveTransform(LayaGLQuickRunner.curMat);
@@ -246,10 +245,7 @@ export class LayaGLQuickRunner {
         for (let i = 0; i < n; ++i) {
             let ele = childs[i];
             let visFlag: boolean;
-            if (drawingToTexture)
-                visFlag = ele._visible && !ele._getBit(NodeFlags.ESCAPE_DRAWING_TO_TEXTURE);
-            else
-                visFlag = ele._visible || ele._getBit(NodeFlags.DISABLE_VISIBILITY);
+            visFlag = ele._visible || ele._getBit(NodeFlags.DISABLE_VISIBILITY);
             if (rect && ((_x = ele._x) >= right || (_x + ele.width) <= left || (_y = ele._y) >= bottom || (_y + ele.height) <= top))
                 visFlag = false;
 
