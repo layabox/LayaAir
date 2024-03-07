@@ -15,6 +15,7 @@ import { IDefineDatas } from "../../../../RenderDriver/RenderModuleData/Design/I
 import { WebGLShaderInstance } from "../../../../RenderDriver/WebGLDriver/RenderDevice/WebGLShaderInstance"
 import { RenderState } from "../../../../RenderDriver/RenderModuleData/Design/RenderState"
 import { ColorFilter } from "../../../../filters/ColorFilter"
+import { BaseTexture } from "../../../../resource/BaseTexture"
 
 export enum RenderSpriteData {
     Zero,
@@ -59,6 +60,12 @@ export class Value2D {
     constructor(mainID: RenderSpriteData) {
         this.shaderData = LayaGL.renderDeviceFactory.createShaderData(null);
         this.mainID = mainID;
+        if (this.mainID == RenderSpriteData.Texture2D) {
+            this.shaderData.addDefine(ShaderDefines2D.TEXTURESHADER);
+        }
+        if (this.mainID == RenderSpriteData.Primitive) {
+            this.shaderData.addDefine(ShaderDefines2D.PRIMITIVESHADER);
+        }
         this.textureHost = null;
         this.texture = null;
         //this.fillStyle = null;
@@ -75,7 +82,6 @@ export class Value2D {
             this._inClassCache = Value2D._cache[this._cacheID] = [];
             this._inClassCache._length = 0;
         }
-        this.clear();
 
         //
         let data = this.shaderData.getData();
@@ -141,9 +147,33 @@ export class Value2D {
     }
     public set textureHost(value: Texture | RenderTexture2D | TextTexture) {
         this._textureHost = value;
-        //var tex = value && value._getSource();
-        //@ts-ignore
-        this.shaderData.setTexture(ShaderDefines2D.UNIFORM_SPRITETEXTURE, value);
+        let textrueReadGamma: boolean = false;
+        if (this.textureHost) {
+            if (this.textureHost instanceof RenderTexture2D) {
+                textrueReadGamma = (this.textureHost as RenderTexture2D).gammaCorrection != 1;
+            } else if (this.textureHost instanceof Texture && (this.textureHost as Texture).bitmap) {
+                textrueReadGamma = (this.textureHost as Texture).bitmap.gammaCorrection != 1;
+            } else if (this.textureHost instanceof TextTexture && (this.textureHost as TextTexture).bitmap) {
+                // TextTexture
+                textrueReadGamma = (this.textureHost as TextTexture).gammaCorrection != 1;
+            }
+        }
+
+        if (textrueReadGamma) {
+            this.shaderData.addDefine(ShaderDefines2D.GAMMATEXTURE);
+        } else {
+            this.shaderData.removeDefine(ShaderDefines2D.GAMMATEXTURE);
+        }
+        let tex;
+        if (value instanceof Texture) {
+            tex = value.bitmap;
+        } else if (value instanceof BaseTexture) {
+            tex = value._getSource();
+        } else {
+            tex = value;
+        }
+        this.shaderData.setTexture(ShaderDefines2D.UNIFORM_SPRITETEXTURE, tex);
+
     }
     //public var fillStyle:DrawStyle;			//TODO 这个有什么用？
 
@@ -186,65 +216,13 @@ export class Value2D {
         return this.shaderData.getVector2(ShaderDefines2D.UNIFORM_CLIPOFF);
     }
 
-    /**
-     * 组织Define宏数据
-     */
-    updateShaderData() {
-        var renderstate2d: any = RenderState2D;
-        // 如果有矩阵的话，就设置 WORLDMAT 宏
-        RenderState2D.worldMatrix4 === RenderState2D.TEMPMAT4_ARRAY || this.shaderData.addDefine(ShaderDefines2D.WORLDMAT);
-        this._mmat.cloneByArray(renderstate2d.worldMatrix4);
-        this.mmat = this._mmat;
+  
 
-        if (RenderState2D.matWVP) {
-            this.shaderData.addDefine(ShaderDefines2D.MVP3D);
-            this.u_MvpMatrix = RenderState2D.matWVP;
-        }
-        let returnGamma: boolean = !(RenderTexture2D.currentActive) || ((RenderTexture2D.currentActive)._texture.gammaCorrection != 1);
-        //returnGamma = returnGamma && (this.textureHost && ((this.textureHost as RenderTexture2D).gammaCorrection == 1 || (this.textureHost as Texture).bitmap.gammaCorrection == 1));
-        let textrueReadGamma: boolean = false;
-        if (this.textureHost) {
-            if (this.textureHost instanceof RenderTexture2D) {
-                textrueReadGamma = (this.textureHost as RenderTexture2D).gammaCorrection != 1;
-            } else if (this.textureHost instanceof Texture && (this.textureHost as Texture).bitmap) {
-                textrueReadGamma = (this.textureHost as Texture).bitmap.gammaCorrection != 1;
-            } else if (this.textureHost instanceof TextTexture && (this.textureHost as TextTexture).bitmap) {
-                // TextTexture
-                textrueReadGamma = (this.textureHost as TextTexture).gammaCorrection != 1;
-            }
-        }
-
-        if (textrueReadGamma) {
-            this.shaderData.addDefine(ShaderDefines2D.GAMMATEXTURE);
-        } else {
-            this.shaderData.removeDefine(ShaderDefines2D.GAMMATEXTURE);
-        }
-
-        if (returnGamma) {
-            this.shaderData.addDefine(ShaderDefines2D.GAMMASPACE);
-        } else {
-            this.shaderData.removeDefine(ShaderDefines2D.GAMMASPACE);
-        }
-
-        if (RenderState2D.InvertY) {
-            this.shaderData.addDefine(ShaderDefines2D.INVERTY);
-        } else {
-            this.shaderData.removeDefine(ShaderDefines2D.INVERTY);
-        }
-
-        if (this.mainID == RenderSpriteData.Texture2D) {
-            this.shaderData.addDefine(ShaderDefines2D.TEXTURESHADER);
-        }
-        if (this.mainID == RenderSpriteData.Primitive) {
-            this.shaderData.addDefine(ShaderDefines2D.PRIMITIVESHADER);
-        }
-    }
-
-    upload(material: Material|null, shaderData:ShaderData): void {
+    upload(material: Material | null, shaderData: ShaderData): void {
         //this._size.setValue(RenderState2D.width, RenderState2D.height)
         //this.size = this._size;
         //update owner ShaderData
-        this.updateShaderData();
+        //this.updateShaderData();
         if (material) {
             //Custom Shader
             var shaderPass = material._shader._subShaders[0]._passes;
@@ -298,25 +276,25 @@ export class Value2D {
     }
 
     //
-    blendNormal(){
+    blendNormal() {
         let data = this.shaderData.getData();
         data[Shader3D.BLEND_SRC] = RenderState.BLENDPARAM_SRC_ALPHA;
         data[Shader3D.BLEND_DST] = RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA;
     }
 
-    blendPremulAlpha(){
+    blendPremulAlpha() {
         let data = this.shaderData.getData();
         data[Shader3D.BLEND_SRC] = RenderState.BLENDPARAM_ONE;
         data[Shader3D.BLEND_DST] = RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA;
     }
 
-    blendAdd(){
+    blendAdd() {
         let data = this.shaderData.getData();
         data[Shader3D.BLEND_SRC] = RenderState.BLENDPARAM_ONE;
         data[Shader3D.BLEND_DST] = RenderState.BLENDPARAM_ONE;
     }
-    
-    blendMask(){
+
+    blendMask() {
         let data = this.shaderData.getData();
         data[Shader3D.BLEND_SRC] = RenderState.BLENDPARAM_ZERO;
         data[Shader3D.BLEND_DST] = RenderState.BLENDPARAM_SRC_ALPHA;

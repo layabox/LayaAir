@@ -8,18 +8,19 @@ import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 import { Laya3DRender } from "laya/d3/RenderObjs/Laya3DRender";
 import { WebUnitRenderModuleDataFactory } from "laya/RenderDriver/RenderModuleData/WebModuleData/WebUnitRenderModuleDataFactory"
 import { Web3DRenderModuleFactory } from "laya/RenderDriver/RenderModuleData/WebModuleData/3D/Web3DRenderModuleFactory"
-import {WebGL3DRenderPassFactory} from "laya/RenderDriver/WebGLDriver/3DRenderPass/WebGL3DRenderPassFactory"
-import {WebGLRenderDeviceFactory} from "laya/RenderDriver/WebGLDriver/RenderDevice/WebGLRenderDeviceFactory"
-import {LengencyRenderEngine3DFactory} from "laya/RenderDriver/DriverDesign/3DRenderPass/LengencyRenderEngine3DFactory"
+import { WebGL3DRenderPassFactory } from "laya/RenderDriver/WebGLDriver/3DRenderPass/WebGL3DRenderPassFactory"
+import { WebGLRenderDeviceFactory } from "laya/RenderDriver/WebGLDriver/RenderDevice/WebGLRenderDeviceFactory"
+import { LengencyRenderEngine3DFactory } from "laya/RenderDriver/DriverDesign/3DRenderPass/LengencyRenderEngine3DFactory"
 import { LayaGL } from "laya/layagl/LayaGL";
-import {WebGLRenderEngineFactory} from "laya/RenderDriver/WebGLDriver/RenderDevice/WebGLRenderEngineFactory"
+import { WebGLRenderEngineFactory } from "laya/RenderDriver/WebGLDriver/RenderDevice/WebGLRenderEngineFactory"
 import { PrefabImpl } from "laya/resource/PrefabImpl";
 import { Sprite } from "laya/display/Sprite";
+import { WebGLRender2DProcess } from "laya/RenderDriver/WebGLDriver/2DRenderPass/WebGLRender2DProcess"
 
 let packurl = 'sample-resource/2d'
 //let sceneurl = packurl+'/cacheasbmp.ls';
-let sceneurl = packurl+'/fuza.ls';
-var is3d=false;
+let sceneurl = packurl + '/fuza.ls';
+var is3d = false;
 //alert('')
 export class SceneLoad1 {
 	constructor() {
@@ -30,6 +31,7 @@ export class SceneLoad1 {
 		Laya3DRender.Render3DModuleDataFactory = new Web3DRenderModuleFactory();
 		Laya3DRender.Render3DPassFactory = new WebGL3DRenderPassFactory();
 		LayaGL.renderOBJCreate = new WebGLRenderEngineFactory();
+		LayaGL.render2DRenderPassFactory = new WebGLRender2DProcess()
 		//初始化引擎
 		Laya.init(0, 0).then(async () => {
 			//Stat.show();
@@ -39,7 +41,7 @@ export class SceneLoad1 {
 
 			await Laya.loader.loadPackage(packurl, null, null);
 			await this.loadSceneResource();
-	
+
 			// //加载场景
 			// Scene3D.load("res/threeDimen/scene/LayaScene_dudeScene/Conventional/dudeScene.ls", Handler.create(this, function (scene: Scene3D): void {
 			// 	(<Scene3D>Laya.stage.addChild(scene));
@@ -63,16 +65,15 @@ export class SceneLoad1 {
 		});
 	}
 
-
 	async loadSceneResource() {
 		//加载场景
-		if(!is3d){
-			let scene:PrefabImpl = await Laya.loader.load(sceneurl);
+		if (!is3d) {
+			let scene: PrefabImpl = await Laya.loader.load(sceneurl);
 			Laya.stage.addChild(scene.create());
-		}else{
+		} else {
 			Scene3D.load(sceneurl, Handler.create(this, function (scene: Scene3D): void {
 				<Scene3D>Laya.stage.addChild(scene);
-	
+
 				// //获取场景中的相机
 				var camera: Camera = (<Camera>(scene as Scene3D).getChildByName("Main Camera"));
 				// let directionLight = new Sprite3D();
@@ -87,8 +88,8 @@ export class SceneLoad1 {
 				// //设置背景颜色
 				// camera.clearColor = new Color(0, 0, 0.6, 1);
 				// //加入摄像机移动控制脚本
-				if(camera) camera.addComponent(CameraMoveScript);
-	
+				if (camera) camera.addComponent(CameraMoveScript);
+
 				//设置灯光环境色
 				//scene.ambientColor = new Vector3(2.5, 0, 0);
 			}));

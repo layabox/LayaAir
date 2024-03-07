@@ -48,7 +48,7 @@ export class SubmitTexture extends SubmitBase {
         /// this._mesh.useMesh();//Mesh2D  ->    Geometry  Vao  Vb  ib
 
         //bind Shader uploadData
-        this.shaderValue.updateShaderData();//Material   Shader   ShaderData
+        // this.shaderValue.updateShaderData();//Material   Shader   ShaderData
 
         //如果shader参数都相同，只要提交texture就行了
         var lastSubmit = <SubmitTexture>SubmitBase.preRender;
@@ -68,7 +68,7 @@ export class SubmitTexture extends SubmitBase {
             BlendMode.activeBlendFunction = this._blendFn;
         }
         this.shaderValue.texture = source;
-        this.shaderValue.upload(this.material,this.shaderValue.shaderData);//Update Uniform
+        this.shaderValue.upload(this.material, this.shaderValue.shaderData);//Update Uniform
         //}
         //Draw
         //LayaGL.renderDrawContext.drawElements2DTemp(MeshTopology.Triangles, this._numEle, IndexFormat.UInt16, this._startIdx);

@@ -105,8 +105,6 @@ export class Shader3D {
     static init() {
         Shader3D.debugShaderVariantCollection = new ShaderVariantCollection();
         Shader3D._configDefineValues = LayaGL.unitRenderModuleDataFactory.createDefineDatas();
-
-    
     }
 
     /**

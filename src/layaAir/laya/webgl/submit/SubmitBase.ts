@@ -1,5 +1,3 @@
-import { WebGLRenderElement2D } from "../../RenderDriver/WebGLDriver/3DRenderPass/WebGLRenderElement2D";
-import { Laya3DRender } from "../../d3/RenderObjs/Laya3DRender";
 import { RenderSpriteData, Value2D } from "../shader/d2/value/Value2D";
 import { Mesh2D } from "../utils/Mesh2D";
 import { ISubmit } from "./ISubmit";
@@ -56,8 +54,6 @@ export class SubmitBase implements ISubmit {
     _ref = 1;	// 其实已经没有用了
 
     shaderValue: Value2D = null;
-
-    renderObj:WebGLRenderElement2D
 
     static __init__(): void {
         var s: SubmitBase = SubmitBase.RENDERBASE = new SubmitBase(-1);

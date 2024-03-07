@@ -695,8 +695,8 @@ export class RenderSprite {
 
     //static tempUV: any[] = new Array(8);
     static tmpTarget(ctx: Context, rt: RenderTexture2D, w: number, h: number): void {
-        rt.start();
-        rt.clear(0, 0, 0, 0);
+        // rt.start();
+        // rt.clear(0, 0, 0, 0);
     }
 
     static recycleTarget(rt: RenderTexture2D): void {

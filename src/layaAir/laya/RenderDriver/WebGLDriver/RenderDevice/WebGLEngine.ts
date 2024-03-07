@@ -2,7 +2,6 @@ import { LayaEnv } from "../../../../LayaEnv";
 import { CommandEncoder } from "../../../layagl/CommandEncoder";
 import { Color } from "../../../maths/Color";
 import { Vector4 } from "../../../maths/Vector4";
-import { InternalTexture } from "../../../RenderDriver/DriverDesign/RenderDevice/InternalTexture";
 import { ShaderDataType } from "../../DriverDesign/RenderDevice/ShaderData";
 import { BufferTargetType, BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
@@ -29,6 +28,7 @@ import { ShaderDefine } from "../../RenderModuleData/Design/ShaderDefine";
 import { WebGLShaderData } from "../../RenderModuleData/WebModuleData/WebGLShaderData";
 import { IDefineDatas } from "../../RenderModuleData/Design/IDefineDatas";
 import { WebGLInternalTex } from "./WebGLInternalTex";
+import { RenderState2D } from "../../../webgl/utils/RenderState2D";
 
 /**
  * 封装Webgl
@@ -103,7 +103,7 @@ export class WebGLEngine implements IRenderEngine {
     //bind viewport
     private _lastViewport: Vector4;
     private _lastScissor: Vector4;
-
+    private _scissorState: boolean;
     //bind clearColor
     private _lastClearColor: Color = new Color;
     private _lastClearDepth: number = 1;
@@ -255,6 +255,7 @@ export class WebGLEngine implements IRenderEngine {
         }
         this._context = gl;
 
+        this.scissorTest(true);
         //init Other
         this._initBindBufferMap();
         this._supportCapatable = new GlCapable(this);
@@ -323,7 +324,11 @@ export class WebGLEngine implements IRenderEngine {
         }
     }
 
+
     scissorTest(value: boolean) {
+        if (this._scissorState == value)
+            return;
+        this._scissorState = value;
         if (value)
             this._context.enable(this._context.SCISSOR_TEST);
         else
@@ -357,7 +362,6 @@ export class WebGLEngine implements IRenderEngine {
         }
         if (flag)
             this._context.clear(flag);
-        //this._gl.disable(this._gl.SCISSOR_TEST);
     }
 
     copySubFrameBuffertoTex(texture: WebGLInternalTex, level: number, xoffset: number, yoffset: number, x: number, y: number, width: number, height: number) {
