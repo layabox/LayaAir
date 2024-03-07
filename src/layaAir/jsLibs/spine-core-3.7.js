@@ -2079,7 +2079,7 @@ var spine;
             //     error(request.status, request.responseText);
             // };
             // request.send();
-            let _Laya = Laya.Laya ? Laya.Laya : Laya;
+            let _Laya = window.Laya.Laya ? window.Laya.Laya : Laya;
             _Laya.loader.load([{type: _Laya.Loader.TEXT, url: url}], _Laya.Handler.create(this, (re) => {
                 if (re) {
                     success(_Laya.loader.getRes(url));
@@ -2105,7 +2105,7 @@ var spine;
             //     error(request.status, request.responseText);
             // };
             // request.send();
-            let _Laya = Laya.Laya ? Laya.Laya : Laya;
+            let _Laya = window.Laya.Laya ? window.Laya.Laya : Laya;
             _Laya.loader.load([{type: _Laya.Loader.BUFFER, url: url}], _Laya.Handler.create(this, (re) => {
                 if (re) {
                     success(new Uint8Array(_Laya.loader.getRes(url)));
@@ -2153,7 +2153,7 @@ var spine;
             //         error(path, `Couldn't load image ${path}`);
             // };
             // img.src = path;
-            let _Laya = Laya.Laya ? Laya.Laya : Laya;
+            let _Laya = window.Laya.Laya ? window.Laya.Laya : Laya;
             _Laya.loader.load([{type: _Laya.Loader.IMAGE, url: path}], _Laya.Handler.create(this, (re) => {
                 if (re) {
                     let texture = this.textureLoader(_Laya.loader.getRes(path));
