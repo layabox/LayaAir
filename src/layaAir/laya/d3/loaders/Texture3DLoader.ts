@@ -16,7 +16,7 @@ export class Texture2DArrayLoader implements IResourceLoader {
         }
     }
 
-    load(task: ILoadTask): Promise<Texture2DArray> {
+    load(task: ILoadTask) {
         // todo internal resources
         if (task.url.indexOf("internal/") != -1) {
             const tex = internalResources[Utils.getBaseName(task.url)];
