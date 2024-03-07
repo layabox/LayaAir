@@ -379,8 +379,8 @@ export class WGSLCodeGenerator {
      * 去除naga转译报错的代码
      */
     static changeUnfitCode(code: string) {
-        const regex1 = /\(\s*const\s+(?:in|highp|mediump|lowp)\s*/g;
-        code = code.replace(regex1, '(in ');
+        const regex1 = /const\s+(?:in|highp|mediump|lowp)\s*/g;
+        code = code.replace(regex1, 'in ');
         const regex2 = /(?:texture2D|textureCube)\s*\(\s*/g;
         return code.replace(regex2, 'texture(');
     }
@@ -669,6 +669,8 @@ mat4 inverse(mat4 m)
         defineStr += "#define CLUSTER_Z_COUNT " + clusterSlices.z + "\n";
         defineStr += "#define MORPH_MAX_COUNT " + Config3D.maxMorphTargetCount + "\n";
         defineStr += "#define SHADER_CAPAILITY_LEVEL " + LayaGL.renderEngine.getParams(RenderParams.SHADER_CAPAILITY_LEVEL) + "\n";
+        //defineStr += "#define CalculateLightCount MAX_LIGHT_COUNT\n";
+        //defineStr += "#define DirectionCount u_DirationLightCount\n";
 
         for (let i = 0, len = defineString.length; i < len; i++) {
             const def = defineString[i];
@@ -721,7 +723,9 @@ mat4 inverse(mat4 m)
         }
         {
             const defs: Set<string> = new Set();
-            const ret = WebGPUShaderCompileDef.compile(fs.join('\n'), defs);
+            const fsOrg = fs.join('\n');
+            const ret = WebGPUShaderCompileDef.compile(fsOrg, defs);
+            //console.log(fsOrg, defs, ret);
             if (!defs.has("Math_lib"))
                 fsNeedInverseFunc = true;
             fsOut = WebGPUShaderCompileUtil.toScript(ret, { GL_FRAGMENT_PRECISION_HIGH: true }, fsTod);
@@ -810,6 +814,9 @@ ${textureGLSL_fs}
             dstVS = this.changeUnfitCode(dstVS);
             dstFS = this.changeUnfitCode(dstFS);
         }
+
+        //console.log(dstVS);
+        //console.log(dstFS);
 
         //转译成WGSL代码
         const wgsl_vs = this.naga.compileGLSL2WGSL(dstVS, "vertex");
@@ -971,7 +978,6 @@ export class WebGPUShaderInstance implements IShaderInstance {
         return device.createPipelineLayout({ label: name, bindGroupLayouts });
     }
 
-
     private _createVertexState() {
         this._vertexState = {
             // buffers?: Iterable<GPUVertexBufferLayout | null>;
@@ -1089,7 +1095,6 @@ export class WebGPUShaderInstance implements IShaderInstance {
 
 //         return device.createPipelineLayout({ label: name, bindGroupLayouts });
 //     }
-
 
 //     private _createVertexState() {
 //         this._vertexState = {

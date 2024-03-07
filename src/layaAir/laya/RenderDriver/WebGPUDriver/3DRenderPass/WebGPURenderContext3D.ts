@@ -40,7 +40,7 @@ export class WebGPURenderContext3D implements IRenderContext3D {
     /**@internal */
     private _clearFlag: number;
     /**@internal */
-    private _clearColor: Color;
+    private _clearColor: Color = new Color();
     /**@internal */
     private _clearDepth: number;
     /**@internal */
@@ -48,7 +48,7 @@ export class WebGPURenderContext3D implements IRenderContext3D {
     /**@internal */
     private _needStart: boolean = true;
 
-    _renderCommand: WebGPURenderCommandEncoder;
+    _renderCommand: WebGPURenderCommandEncoder = new WebGPURenderCommandEncoder();
 
     _destRT: WebGPUInternalRT;
 
@@ -59,7 +59,6 @@ export class WebGPURenderContext3D implements IRenderContext3D {
     set sceneData(value: WebGPUShaderData) {
         this._sceneData = value;
     }
-
 
     get cameraData(): WebGPUShaderData {
         return this._cameraData;
@@ -77,7 +76,6 @@ export class WebGPURenderContext3D implements IRenderContext3D {
         this._sceneModuleData = value;
     }
 
-
     get cameraModuleData(): WebCameraNodeData {
         return this._cameraModuleData;
     }
@@ -94,7 +92,6 @@ export class WebGPURenderContext3D implements IRenderContext3D {
         this._globalShaderData = value;
     }
 
-
     get sceneUpdataMask(): number {
         return this._sceneUpdataMask;
     }
@@ -102,7 +99,6 @@ export class WebGPURenderContext3D implements IRenderContext3D {
     set sceneUpdataMask(value: number) {
         this._sceneUpdataMask = value;
     }
-
 
     get cameraUpdateMask(): number {
         return this._cameraUpdateMask;
@@ -174,7 +170,6 @@ export class WebGPURenderContext3D implements IRenderContext3D {
         node._preUpdatePre(this);
         node._render(this);
         this.submit();
-
         return 0;
     }
     runOneCMD(cmd: IRenderCMD): void {
@@ -186,13 +181,13 @@ export class WebGPURenderContext3D implements IRenderContext3D {
         });
     }
 
-
     private _start() {
-        this._renderCommand.startRender(WebGPURenderPassHelper.getDescriptor(this._destRT, this._clearFlag, this._clearColor
-            , this._clearDepth, this._clearStencil));
-
-        this._renderCommand.setViewport(this._viewPort.x, this._viewPort.y, this._viewPort.width, this._viewPort.height, 0, 1);
-        this._renderCommand.setScissorRect(this._scissor.x, this._scissor.y, this._scissor.z, this._scissor.w);
+        if (this._destRT) {
+            this._renderCommand.startRender
+                (WebGPURenderPassHelper.getDescriptor(this._destRT, this._clearFlag, this._clearColor, this._clearDepth, this._clearStencil));
+            this._renderCommand.setViewport(this._viewPort.x, this._viewPort.y, this._viewPort.width, this._viewPort.height, 0, 1);
+            this._renderCommand.setScissorRect(this._scissor.x, this._scissor.y, this._scissor.z, this._scissor.w);
+        }
     }
 
     submit() {
@@ -200,5 +195,4 @@ export class WebGPURenderContext3D implements IRenderContext3D {
         WebGPURenderEngine._instance.getDevice().queue.submit([this._renderCommand.finish()]);
         this._needStart = true;
     }
-
 }

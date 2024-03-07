@@ -32,13 +32,12 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderpipelineI
     subShader: SubShader;
     materialId: number;
     private _invertFrontFace: boolean;
-    protected _shaderInstances: SingletonList<WebGPUShaderInstance>;
+    protected _shaderInstances: SingletonList<WebGPUShaderInstance> = new SingletonList<WebGPUShaderInstance>();
     geometry: WebGPURenderGeometry;
     blendState: WebGPUBlendStateCache;
     depthStencilState: WebGPUDepthStencilStateCache;
     cullMode: CullMode;
     frontFace: FrontFace;
-
 
     protected _getInvertFront(): boolean {
         let transform = this.owner?.transform;
@@ -177,7 +176,6 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderpipelineI
                 break;
             default:
                 throw "blendState set error"
-                break;
         }
         return blendState;
     }
@@ -219,7 +217,6 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderpipelineI
         // depth
         var depthWrite = datas[Shader3D.DEPTH_WRITE];
         depthWrite = depthWrite ?? RenderState.Default.depthWrite;
-
 
         var depthTest = datas[Shader3D.DEPTH_TEST];
         depthTest = depthTest ?? RenderState.Default.depthTest;
@@ -288,7 +285,6 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderpipelineI
                 break;
         }
     }
-
 
     _render(context: WebGPURenderContext3D) {
         var sceneShaderData = context.sceneData as WebGPUShaderData;

@@ -117,6 +117,7 @@ export class WebGPUInternalTex implements InternalTexture {
         filterMode: FilterMode.Bilinear,
         anisoLevel: 1
     };
+
     private _webgpuSampler: WebGPUSampler;
     constructor(width: number, height: number, depth: number, dimension: TextureDimension, mipmap: boolean, useSRGBLoader: boolean, gammaCorrection: number) {
         this.width = width;
@@ -145,11 +146,12 @@ export class WebGPUInternalTex implements InternalTexture {
         this._webgpuSampler = WebGPUSampler.getWebGPUSampler(this._webGPUSamplerParams);
     }
 
-
-    gettextureView(): GPUTextureView {
-        //TODO
+    getTextureView(): GPUTextureView {
+        if (this.resource)
+            return this.resource.createView();
         return null;
     }
+
     dispose(): void {
         //TODO好像需要延迟删除
         this.resource.destroy();

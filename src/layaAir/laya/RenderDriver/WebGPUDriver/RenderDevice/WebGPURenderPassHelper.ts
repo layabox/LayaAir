@@ -17,7 +17,7 @@ export class WebGPURenderPassHelper {
         for (let i = 0, n = textures.length; i < n; i++) {
             let attachment = colorArray[i];
             if (!attachment)
-                attachment = colorArray[i] = { view: textures[i].gettextureView(), loadOp: "clear", storeOp: "store" };
+                attachment = colorArray[i] = { view: textures[i].getTextureView(), loadOp: "clear", storeOp: "store" };
             if (clear) {
                 attachment.loadOp = "clear";
                 attachment.clearValue = { r: clearColor.r, g: clearColor.g, b: clearColor.b, a: clearColor.a };
@@ -28,7 +28,7 @@ export class WebGPURenderPassHelper {
 
     static setDepthAttachments(des: GPURenderPassDescriptor, depthTex: WebGPUInternalTex, clear: boolean, clearDepthValue: number = 1.0) {
         if (depthTex) {
-            let depthStencil: GPURenderPassDepthStencilAttachment = des.depthStencilAttachment = { view: depthTex.gettextureView() };
+            let depthStencil: GPURenderPassDepthStencilAttachment = des.depthStencilAttachment = { view: depthTex.getTextureView() };
             if (clear) {
                 depthStencil.depthClearValue = clearDepthValue;
                 depthStencil.depthLoadOp = "clear";

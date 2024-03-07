@@ -25,27 +25,31 @@ import { Texture2D } from "laya/resource/Texture2D";
 import { Stat } from "laya/utils/Stat";
 import { MeshFilter } from "laya/d3/core/MeshFilter";
 import { MeshRenderer } from "laya/d3/core/MeshRenderer";
+import { UnlitMaterial } from "laya/d3/core/material/UnlitMaterial";
 
 export class WebGPUTest {
     rotation: Vector3 = new Vector3(0, 0.01, 0);
+    useWebGPU: boolean = true;
 
     constructor() {
         LayaGL.unitRenderModuleDataFactory = new WebUnitRenderModuleDataFactory();
         Laya3DRender.renderOBJCreate = new LengencyRenderEngine3DFactory();
         Laya3DRender.Render3DModuleDataFactory = new Web3DRenderModuleFactory();
 
-        // LayaGL.renderOBJCreate = new WebGLRenderEngineFactory();
-        // LayaGL.renderDeviceFactory = new WebGLRenderDeviceFactory();
-        // Laya3DRender.Render3DPassFactory = new WebGL3DRenderPassFactory();
-
-        LayaGL.renderOBJCreate = new WebGPURenderEngineFactory();
-        LayaGL.renderDeviceFactory = new WebGPURenderDeviceFactory();
-        Laya3DRender.Render3DPassFactory = new WebGPU3DRenderPassFactory();
+        if (this.useWebGPU) {
+            LayaGL.renderOBJCreate = new WebGPURenderEngineFactory();
+            LayaGL.renderDeviceFactory = new WebGPURenderDeviceFactory();
+            Laya3DRender.Render3DPassFactory = new WebGPU3DRenderPassFactory();
+        } else {
+            LayaGL.renderOBJCreate = new WebGLRenderEngineFactory();
+            LayaGL.renderDeviceFactory = new WebGLRenderDeviceFactory();
+            Laya3DRender.Render3DPassFactory = new WebGL3DRenderPassFactory();
+        }
 
         Laya.init(0, 0).then(() => {
             Laya.stage.scaleMode = Stage.SCALE_FULL;
             Laya.stage.screenMode = Stage.SCREEN_NONE;
-            Stat.show();
+            //Stat.show();
 
             const scene: Scene3D = (<Scene3D>Laya.stage.addChild(new Scene3D()));
 
@@ -75,7 +79,8 @@ export class WebGPUTest {
             meshFilter2.sharedMesh = sphereMesh;
             earth2.transform.position = new Vector3(0.6, 0, 0);
 
-            const material: BlinnPhongMaterial = new BlinnPhongMaterial();
+            //const material = new BlinnPhongMaterial();
+            const material = new UnlitMaterial();
             //漫反射贴图
             Texture2D.load("res/threeDimen/texture/earth.jpg", Handler.create(this, (texture: Texture2D) => {
                 material.albedoTexture = texture;

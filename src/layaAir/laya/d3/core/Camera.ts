@@ -37,7 +37,7 @@ import { WrapMode } from "../../RenderEngine/RenderEnum/WrapMode";
 import { LayaGL } from "../../layagl/LayaGL";
 
 import { Laya3DRender } from "../RenderObjs/Laya3DRender";
-import {  IRender3DProcess } from "../../RenderDriver/DriverDesign/3DRenderPass/I3DRenderPass";
+import { IRender3DProcess } from "../../RenderDriver/DriverDesign/3DRenderPass/I3DRenderPass";
 import { ICameraNodeData } from "../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
 import { Transform3D } from "./Transform3D";
 
@@ -517,7 +517,8 @@ export class Camera extends BaseCamera {
             viewMatE[10] /= scaleZ;
             this._viewMatrix.invert(this._viewMatrix);
             this._updateViewMatrix = false;
-            this.skyRenderElement.calculateViewMatrix(this._viewMatrix);
+            if (this.skyRenderElement._renderElementOBJ)
+                this.skyRenderElement.calculateViewMatrix(this._viewMatrix);
         }
         return this._viewMatrix;
     }
@@ -745,7 +746,8 @@ export class Camera extends BaseCamera {
             } else {
                 Matrix4x4.createPerspective(3.1416 * this.fieldOfView / 180.0, this.aspectRatio, this.nearPlane, this.farPlane, this._projectionMatrix);
             }
-            this.skyRenderElement.caluclateProjectionMatrix(this._projectionMatrix, this.aspectRatio, this.nearPlane, this.farPlane, this.fieldOfView, this.orthographic);
+            if (this.skyRenderElement._renderElementOBJ)
+                this.skyRenderElement.caluclateProjectionMatrix(this._projectionMatrix, this.aspectRatio, this.nearPlane, this.farPlane, this.fieldOfView, this.orthographic);
         }
     }
 
