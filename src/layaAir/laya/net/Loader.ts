@@ -109,6 +109,7 @@ export class Loader extends EventDispatcher {
     static TEXTURE2D = "TEXTURE2D"; //这里是为了兼容，实际应该是BaseTexture
     /**TextureCube资源。*/
     static TEXTURECUBE = "TEXTURE2D"; //兼容处理，现在TEXTURE2D类型可以载入Texture或者TextureCube
+    static TEXTURE2DARRAY = "TEXTURE2D";
     /**AnimationClip资源。*/
     static ANIMATIONCLIP = "ANIMATIONCLIP";
     /**Terrain资源。*/

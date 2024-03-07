@@ -108,7 +108,7 @@ export class SubShader {
             else {
                 let unifromType = <ShaderDataType>uniformMap[key];
                 this._uniformTypeMap.set(key, unifromType);
-                if (unifromType == ShaderDataType.Texture2D || unifromType == ShaderDataType.TextureCube) {
+                if (unifromType == ShaderDataType.Texture2D || unifromType == ShaderDataType.TextureCube || unifromType == ShaderDataType.Texture3D || unifromType == ShaderDataType.Texture2DArray) {
                     let textureGammaDefine = Shader3D.getDefineByName(`Gamma_${key}`);
                     let uniformIndex = Shader3D.propertyNameToID(key);
                     ShaderDefine._texGammaDefine[uniformIndex] = textureGammaDefine;

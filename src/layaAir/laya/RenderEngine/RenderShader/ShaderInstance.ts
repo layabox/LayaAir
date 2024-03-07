@@ -172,7 +172,6 @@ ${uniformglsl}`;
     #define texture1DLodEXT texture1D
     #define texture2DLodEXT texture2D
     #define texture2DProjLodEXT texture2DProj
-    #define texture3DLodEXT texture3D
     #define textureCubeLodEXT textureCube
 #endif
 ${uniformglsl}`;
