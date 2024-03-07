@@ -7,12 +7,14 @@ import { ITextureContext } from "../../DriverDesign/RenderDevice/ITextureContext
 import { InternalTexture } from "../../DriverDesign/RenderDevice/InternalTexture";
 import { IDefineDatas } from "../../RenderModuleData/Design/IDefineDatas";
 import { ShaderDefine } from "../../RenderModuleData/Design/ShaderDefine";
+import { WebGPUCapable } from "./WebGPUCapable";
 import { WebGPURenderEngineFactory } from "./WebGPURenderEngineFactory";
 import { WebGPUTextureContext } from "./WebGPUTextureContext";
+
 export class WebGPUConfig {
     /**
-  * Defines the category of adapter to use.
-  */
+     * Defines the category of adapter to use.
+     */
     powerPreference: GPUPowerPreference;
     /**
      * Defines the device descriptor used to create a device.
@@ -34,12 +36,11 @@ export class WebGPUConfig {
      * color space
      */
     colorSpace? = "srgb" /* default="srgb" */;
-
 }
 
 export class WebGPURenderEngine implements IRenderEngine {
     static _offscreenFormat: GPUTextureFormat;
-    static _instance:WebGPURenderEngine;
+    static _instance: WebGPURenderEngine;
     _isShaderDebugMode: boolean;
     _renderOBJCreateContext: IRenderEngineFactory;
 
@@ -50,6 +51,8 @@ export class WebGPURenderEngine implements IRenderEngine {
     /**config */
     _config: WebGPUConfig;
 
+    _supportCapatable: WebGPUCapable;
+
     /**@internal */
     private _adapter: GPUAdapter;
 
@@ -59,7 +62,8 @@ export class WebGPURenderEngine implements IRenderEngine {
 
     private _deviceEnabledExtensions: GPUFeatureName[];
 
-    private _textureContext:WebGPUTextureContext;
+    private _textureContext: WebGPUTextureContext;
+
     /**
      * 实例化一个webgpuEngine
      */
@@ -72,7 +76,6 @@ export class WebGPURenderEngine implements IRenderEngine {
             return;
         }
         WebGPURenderEngine._instance = this;
-
     }
 
     /**
@@ -116,7 +119,6 @@ export class WebGPURenderEngine implements IRenderEngine {
     private _getGPUdevice(deviceDescriptor: GPUDeviceDescriptor): Promise<GPUDevice> {
         return this._adapter.requestDevice(deviceDescriptor);
     }
-
 
     /**
      * error handle
@@ -169,7 +171,7 @@ export class WebGPURenderEngine implements IRenderEngine {
                 })
     }
 
-    getDevice():GPUDevice{
+    getDevice(): GPUDevice {
         return this._device;
     }
 
@@ -192,7 +194,6 @@ export class WebGPURenderEngine implements IRenderEngine {
         WebGPURenderEngine._offscreenFormat = swapformat;
     }
 
-
     async initRenderEngine() {
         await this._initAsync();
         this._initContext();
@@ -200,7 +201,7 @@ export class WebGPURenderEngine implements IRenderEngine {
         this._textureContext = new WebGPUTextureContext(this);
         // // this._samplerContext = new WebGPUSamplerContext(this);
         // // this._webGPUTextureContext = new WebGPUTextureContext(this);
-        // // this._supportCapatable = new WebGPUCapable(this);
+        this._supportCapatable = new WebGPUCapable();
         // // //offscreen canvans
         // // this._cavansRT = new WebGPUInternalRT(this, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.DEPTHSTENCIL_24_Plus, false, false, 1);
         // // let _offscreenTex = new WebGPUInternalTex(this, 0, 0, TextureDimension.Tex2D, false);
@@ -215,6 +216,7 @@ export class WebGPURenderEngine implements IRenderEngine {
         // WGPUBindGroupHelper.device = this._device;
         // //TODO
     }
+
     copySubFrameBuffertoTex(texture: InternalTexture, level: number, xoffset: number, yoffset: number, x: number, y: number, width: number, height: number): void {
         throw new Error("Method not implemented.");
     }
@@ -223,8 +225,6 @@ export class WebGPURenderEngine implements IRenderEngine {
     private _propertyNameMap: any = {};
     /**@internal */
     private _propertyNameCounter: number = 0;
-
-
 
     propertyNameToID(name: string): number {
         if (this._propertyNameMap[name] != null) {
@@ -282,25 +282,33 @@ export class WebGPURenderEngine implements IRenderEngine {
             }
         }
     }
-    
+
     _texGammaDefine: { [key: number]: ShaderDefine } = {};
     addTexGammaDefine(key: number, value: ShaderDefine): void {
-       this._texGammaDefine[key] = value;
+        this._texGammaDefine[key] = value;
     }
-    
+
     /**获得各个参数 */
     getParams(params: RenderParams): number {
-        throw new Error("Method not implemented.");
+        //throw new Error("Method not implemented.");
+        return 0;
     }
     /**获得是否支持某种能力 */
     getCapable(capatableType: RenderCapable): boolean {
-        throw new Error("Method not implemented.");
+        //throw new Error("Method not implemented.");
+        return this._supportCapatable.getCapable(capatableType);
     }
     getTextureContext(): ITextureContext {
         return this._textureContext;
     }
     getCreateRenderOBJContext(): WebGPURenderEngineFactory {
-      return new WebGPURenderEngineFactory()
+        return new WebGPURenderEngineFactory()
+    }
+
+    viewport(x: number, y: number, width: number, height: number): void {
+    }
+
+    scissor(x: number, y: number, width: number, height: number): void {
     }
 
     //统计相关
@@ -313,5 +321,4 @@ export class WebGPURenderEngine implements IRenderEngine {
         return 0;
         throw new Error("Method not implemented.");
     }
-
 }

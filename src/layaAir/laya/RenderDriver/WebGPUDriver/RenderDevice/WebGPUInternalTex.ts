@@ -65,10 +65,10 @@ export class WebGPUInternalTex implements InternalTexture {
         return this._wrapV;
     }
     public set wrapV(value: WrapMode) {
-        if (this.wrapV != value) {
+        if (this._wrapV != value) {
             this._webGPUSamplerParams.wrapU = value;
             this._webgpuSampler = WebGPUSampler.getWebGPUSampler(this._webGPUSamplerParams);
-            this.wrapV = value;
+            this._wrapV = value;
         }
     }
 
@@ -77,10 +77,10 @@ export class WebGPUInternalTex implements InternalTexture {
         return this._wrapW;
     }
     public set wrapW(value: WrapMode) {
-        if (this.wrapW != value) {
+        if (this._wrapW != value) {
             this._webGPUSamplerParams.wrapU = value;
             this._webgpuSampler = WebGPUSampler.getWebGPUSampler(this._webGPUSamplerParams);
-            this.wrapW = value;
+            this._wrapW = value;
         }
     }
 

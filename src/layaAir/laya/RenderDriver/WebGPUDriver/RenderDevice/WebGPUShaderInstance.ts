@@ -862,59 +862,58 @@ export class WebGPUShaderInstance implements IShaderInstance {
         //生成GPUPipeLineLayout
         this._pipeLineLayout = this._createPipelineLayout(device, "pipeLineLayout", shaderObj.uniformInfo);
 
-            this._vsShader = device.createShaderModule({ code: shaderObj.vs });
-            this._fsShader = device.createShaderModule({ code: shaderObj.fs });
+        this._vsShader = device.createShaderModule({ code: shaderObj.vs });
+        this._fsShader = device.createShaderModule({ code: shaderObj.fs });
 
-            // //设置颜色目标模式
-            // const colorTargetState: GPUColorTargetState = {
-            //     format: Config.colorFormat,
-            //     blend: {
-            //         alpha: {
-            //             srcFactor: 'src-alpha',
-            //             dstFactor: 'one-minus-src-alpha',
-            //             operation: 'add',
-            //         },
-            //         color: {
-            //             srcFactor: 'src-alpha',
-            //             dstFactor: 'one-minus-src-alpha',
-            //             operation: 'add',
-            //         },
-            //     },
-            //     writeMask: GPUColorWrite.ALL,
-            // };
+        // //设置颜色目标模式
+        // const colorTargetState: GPUColorTargetState = {
+        //     format: Config.colorFormat,
+        //     blend: {
+        //         alpha: {
+        //             srcFactor: 'src-alpha',
+        //             dstFactor: 'one-minus-src-alpha',
+        //             operation: 'add',
+        //         },
+        //         color: {
+        //             srcFactor: 'src-alpha',
+        //             dstFactor: 'one-minus-src-alpha',
+        //             operation: 'add',
+        //         },
+        //     },
+        //     writeMask: GPUColorWrite.ALL,
+        // };
 
-            // //设置渲染管线描述
-            // const renderPipelineDesc: GPURenderPipelineDescriptor = {
-            //     label: 'render',
-            //     layout: this.pipelineLayout,
-            //     vertex: {
-            //         buffers: [vertexBufferLayout],
-            //         module: this._vsShader,
-            //         entryPoint: 'main',
-            //     },
-            //     fragment: {
-            //         module: this._fsShader,
-            //         entryPoint: 'main',
-            //         targets: [colorTargetState],
-            //     },
-            //     primitive: {
-            //         topology: 'triangle-list',
-            //         frontFace: 'ccw',
-            //         cullMode: 'back',
-            //     },
-            //     depthStencil: {
-            //         format: Config.depthFormat,
-            //         depthWriteEnabled: true,
-            //         depthCompare: 'less',
-            //     },
-            //     multisample: {
-            //         count: 1,
-            //     },
-            // };
+        // //设置渲染管线描述
+        // const renderPipelineDesc: GPURenderPipelineDescriptor = {
+        //     label: 'render',
+        //     layout: this.pipelineLayout,
+        //     vertex: {
+        //         buffers: [vertexBufferLayout],
+        //         module: this._vsShader,
+        //         entryPoint: 'main',
+        //     },
+        //     fragment: {
+        //         module: this._fsShader,
+        //         entryPoint: 'main',
+        //         targets: [colorTargetState],
+        //     },
+        //     primitive: {
+        //         topology: 'triangle-list',
+        //         frontFace: 'ccw',
+        //         cullMode: 'back',
+        //     },
+        //     depthStencil: {
+        //         format: Config.depthFormat,
+        //         depthWriteEnabled: true,
+        //         depthCompare: 'less',
+        //     },
+        //     multisample: {
+        //         count: 1,
+        //     },
+        // };
 
-            // const renderPipeline = device.createRenderPipeline(renderPipelineDesc);
-            // console.log(renderPipeline);
-        }
+        // const renderPipeline = device.createRenderPipeline(renderPipelineDesc);
+        // console.log(renderPipeline);
     }
 
     /**
@@ -1038,9 +1037,9 @@ export class WebGPUShaderInstance implements IShaderInstance {
 
 //     /**
 //      * 基于WebGPUUniformPropertyBindingInfo创建PipelineLayout
-//      * @param device 
-//      * @param name 
-//      * @param info 
+//      * @param device
+//      * @param name
+//      * @param info
 //      */
 //     private _createPipelineLayout(device: GPUDevice, name: string, info: WebGPUUniformPropertyBindingInfo[]) {
 //         const _createBindGroupLayout = (set: number, name: string, info: WebGPUUniformPropertyBindingInfo[]) => {

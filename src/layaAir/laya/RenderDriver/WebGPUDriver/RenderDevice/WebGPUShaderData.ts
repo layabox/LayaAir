@@ -15,14 +15,13 @@ import { WebGPURenderCommandEncoder } from "./WebGPURenderCommandEncoder";
 import { WebGPURenderEngine } from "./WebGPURenderEngine";
 import { WebGPUShaderInstance, WebGPUUniformBlockInfo, WebGPUUniformPropertyBindingInfo } from "./WebGPUShaderInstance";
 import { WebGPUSubUniformBlockBuffer, WebGPUUniformBlockBuffer } from "./WebGPUUniformBlockBuffer";
+
 export interface WebGPUShaderDataUBOProperty {
     layout: WebGPUUniformBlockInfo;
     subBuffer: WebGPUSubUniformBlockBuffer;
-
 }
 
 export class WebGPUShaderData extends ShaderData {
-
     /**@internal */
     _defineDatas: WebDefineDatas;
     /**@internal */
@@ -33,8 +32,11 @@ export class WebGPUShaderData extends ShaderData {
     _uboPropertyMap: Map<number, WebGPUShaderDataUBOProperty>;
     //shaderData里面需要绑定的的Ubo集合
     _uboBlockMap: Map<number, WebGPUShaderDataUBOProperty>;
+
     constructor(ownerResource: Resource = null) {
         super(ownerResource);
+        this._data = {};
+        this._gammaColorMap = new Map();
         this._defineDatas = new WebDefineDatas();
         this._uboPropertyMap = new Map();
     }
@@ -69,6 +71,14 @@ export class WebGPUShaderData extends ShaderData {
         //for(unifoms)
         //command.setBindGroup(index, bindGroup, dynamicOffsets);
 
+    }
+
+    getData() {
+        return this._data;
+    }
+
+    getDefineData() {
+        return this._defineDatas;
     }
 
     /**

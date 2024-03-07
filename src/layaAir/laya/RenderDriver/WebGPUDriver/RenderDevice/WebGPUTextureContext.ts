@@ -47,6 +47,7 @@ export enum GPUTextureFormat {
     rgba8sint = "rgba8sint",
     bgra8unorm = "bgra8unorm",
     bgra8unorm_srgb = "bgra8unorm-srgb",
+
     // Packed 32-bit formats
     rgb9e5ufloat = "rgb9e5ufloat",
     rgb10a2unorm = "rgb10a2unorm",
@@ -147,7 +148,6 @@ export class WebGPUTextureContext implements ITextureContext {
     private _getGPUTextureFormat(format: TextureFormat, useSRGB: boolean): GPUTextureFormat {
         let webgpuTextureFormat = GPUTextureFormat.rgba8uint;
         switch (format) {
-
             case TextureFormat.R5G6B5:
                 return null;
             case TextureFormat.R8G8B8://TODO
@@ -246,6 +246,7 @@ export class WebGPUTextureContext implements ITextureContext {
         let dimensionType: GPUTextureDimension;
         switch (dimension) {
             case TextureDimension.Tex2D:
+            case TextureDimension.Cube:
             case TextureDimension.Texture2DArray:
                 dimensionType = GPUTextureDimension.D2D;
                 break;
@@ -253,7 +254,7 @@ export class WebGPUTextureContext implements ITextureContext {
                 dimensionType = GPUTextureDimension.D3D;
                 break;
             default:
-                throw "DimensionType Unknown format"
+                throw "DimensionType Unknown format";
         }
         let textureDescriptor: GPUTextureDescriptor = {
             size: textureSize,
@@ -265,8 +266,6 @@ export class WebGPUTextureContext implements ITextureContext {
         }
         return textureDescriptor
     }
-
-
 
     createTextureInternal(dimension: TextureDimension, width: number, height: number, format: TextureFormat, generateMipmap: boolean, sRGB: boolean, premultipliedAlpha: boolean): InternalTexture {
         let layerCount;
@@ -321,8 +320,8 @@ export class WebGPUTextureContext implements ITextureContext {
         WebGPURenderEngine._instance.getDevice().queue.copyExternalImageToTexture(image, textureCopyView, copySize);
 
         //Generate mipmap TODO
-
     }
+
     setTextureSubImageData(texture: InternalTexture, source: HTMLCanvasElement | HTMLImageElement | ImageBitmap, x: number, y: number, premultiplyAlpha: boolean, invertY: boolean): void {
         const image: GPUImageCopyExternalImage = { source: source as any, flipY: invertY, origin: { x: 0, y: 0 } };
         const textureCopyView: GPUImageCopyTextureTagged = {
@@ -693,5 +692,4 @@ export class WebGPUTextureContext implements ITextureContext {
     getRenderTextureData(internalTex: InternalRenderTarget, x: number, y: number, width: number, height: number): ArrayBufferView {
         throw new Error("Method not implemented.");
     }
-
 }
