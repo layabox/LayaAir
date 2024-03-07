@@ -411,6 +411,9 @@ export class Camera extends BaseCamera {
 	}
 	set depthTextureMode(value: number) {
 		this._depthTextureMode = value;
+		if (!LayaGL.layaGPUInstance._webgl_depth_texture) {
+			this._depthTextureMode &= ~DepthTextureMode.Depth;
+		}
 	}
 
 	/**
@@ -419,7 +422,7 @@ export class Camera extends BaseCamera {
 	set opaquePass(value: boolean) {
 		if (value == this._opaquePass)
 			return;
-		if(!value){
+		if (!value) {
 			this._shaderValues.setTexture(BaseCamera.OPAQUETEXTURE, null);
 			this._opaqueTexture = null;
 		}
@@ -924,6 +927,9 @@ export class Camera extends BaseCamera {
 	_renderDepthMode(context: RenderContext3D) {
 		PerformancePlugin.begainSample(PerformancePlugin.PERFORMANCE_LAYA_3D_RENDER_RENDERDEPTHMDOE);
 		var cameraDepthMode = this._depthTextureMode;
+		if (!LayaGL.layaGPUInstance._webgl_depth_texture) {
+			cameraDepthMode &= ~DepthTextureMode.Depth;
+		}
 		if ((cameraDepthMode & DepthTextureMode.Depth) != 0) {
 			if (!this.canblitDepth || !this._internalRenderTexture.depthStencilTexture) {
 				Camera.depthPass.update(this, DepthTextureMode.Depth, this._depthTextureFormat);
@@ -958,7 +964,7 @@ export class Camera extends BaseCamera {
 	_createOpaqueTexture(currentTarget: RenderTexture, renderContext: RenderContext3D) {
 		if (!this._opaqueTexture) {
 			let tex = this._getRenderTexture();
-			this._opaqueTexture = RenderTexture.createFromPool(tex.width, tex.height, tex.format,RenderTextureDepthFormat.DEPTHSTENCIL_NONE);
+			this._opaqueTexture = RenderTexture.createFromPool(tex.width, tex.height, tex.format, RenderTextureDepthFormat.DEPTHSTENCIL_NONE);
 			this._shaderValues.setTexture(BaseCamera.OPAQUETEXTURE, this._opaqueTexture);
 		}
 		var blit: BlitScreenQuadCMD = BlitScreenQuadCMD.create(currentTarget, this._opaqueTexture);
