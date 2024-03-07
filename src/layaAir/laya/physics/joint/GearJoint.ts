@@ -33,7 +33,7 @@ export class GearJoint extends JointBase {
             def.bodyB = this.joint2.owner.getComponent(RigidBody).getBody();
             def.joint1 = this.joint1.joint;
             def.joint2 = this.joint2.joint;
-            def.ratio = this._ratio;
+            def.ratio = -this._ratio;
             def.collideConnected = this.collideConnected;
             this._joint = this._factory.create_GearJoint(def);
         }

@@ -370,7 +370,17 @@ export class Slider extends UIComponent {
      */
     setSlider(min: number, max: number, value?: number): void {
         let scaleValue: number;
-        if (null == value) scaleValue = this._value / (this._max - this._min);
+        if (null == value) {
+            if (min >= max) {
+                value = this.value;
+            } else {
+                if (this._max == this._min) {
+                    scaleValue = 0;
+                } else {
+                    scaleValue = this._value / (this._max - this._min);
+                }
+            }
+        }
         this._value = -1;
         this._min = min;
         this._max = max > min ? max : min;

@@ -82,6 +82,8 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
     protected _tempCircleShape: any;
     /**@internal  */
     protected _tempEdgeShape: any;
+    /**@internal  */
+    protected _tempWorldManifold: any;
 
 
 
@@ -294,6 +296,7 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
         this._tempRevoluteJointDef = new this.box2d.b2RevoluteJointDef();
         this._tempMotorJointDef = new this.box2d.b2MotorJointDef();
         this._tempPrismaticJointDef = new this.box2d.b2PrismaticJointDef();
+        this._tempWorldManifold = new this.box2d.b2WorldManifold();
 
         this.world.SetDestructionListener(this.getDestructionListener());
         this.world.SetContactListener(this.getContactListener());
@@ -371,6 +374,11 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
             this._tempPrismaticJointDef = null;
         }
 
+        if (this._tempWorldManifold) {
+            this.destory(this._tempWorldManifold);
+            this._tempWorldManifold = null;
+        }
+
         if (this._world) {
             this.box2d.destroy(this._world)
             this._world.destroyed = true;
@@ -416,10 +424,10 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
         let ownerB: any = colliderB.owner;
         let __this = this;
         contact.getHitInfo = function (): any {
-            var manifold: any = new this.box2d.b2WorldManifold();
+            var manifold: any = __this._tempWorldManifold;
             this.GetWorldManifold(manifold);
             //第一点？
-            let p: any = manifold.points[0];
+            let p: any = manifold.points;
             p.x = __this.phyToLayaValue(p.x);
             p.y = __this.phyToLayaValue(p.y);
             return manifold;

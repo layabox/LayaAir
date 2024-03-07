@@ -351,16 +351,12 @@ export class Animator extends Component {
 
         let clip = stateInfo._clip;
         let events = clip!._animationEvents;
-        if (!events || 0 == events.length) return;
+        if (!events || 0 == events.length || null == playStateInfo.animatorState) return;
         let clipDuration = clip!._duration;
         let time = playStateInfo._normalizedPlayTime * clipDuration;
         let parentPlayTime = playStateInfo._parentPlayTime;
         if (null == parentPlayTime) {
-            if (null == playStateInfo.animatorState) {
-                parentPlayTime = 0;
-            } else {
-                parentPlayTime = clipDuration * playStateInfo.animatorState.clipStart;
-            }
+            parentPlayTime = clipDuration * playStateInfo.animatorState.clipStart;
         }
         if (time < parentPlayTime) {
             this._eventScript(events, parentPlayTime, clipDuration * playStateInfo.animatorState.clipEnd);

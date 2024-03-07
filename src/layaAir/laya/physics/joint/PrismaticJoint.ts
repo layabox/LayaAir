@@ -1,6 +1,4 @@
 import { JointBase } from "./JointBase";
-import { Sprite } from "../../display/Sprite"
-import { Point } from "../../maths/Point"
 import { Physics2D } from "../Physics2D"
 import { RigidBody } from "../RigidBody"
 import { physics2D_PrismaticJointDef } from "./JointDefStructInfo";
@@ -51,8 +49,8 @@ export class PrismaticJoint extends JointBase {
             if (!this.selfBody) throw "selfBody can not be empty";
 
             var def: physics2D_PrismaticJointDef = PrismaticJoint._temp || (PrismaticJoint._temp = new physics2D_PrismaticJointDef());
-            def.bodyB = this.selfBody ? this.selfBody.getBody() : Physics2D.I._emptyBody;
-            def.bodyA = this.otherBody.getBody();
+            def.bodyB = this.selfBody.getBody();
+            def.bodyA = this.otherBody ? this.otherBody.getBody() : Physics2D.I._emptyBody;
             let p = this.selfBody.GetWorldPoint(this.anchor[0], this.anchor[1]);
             def.anchor.setValue(p.x, p.y);
             let radian = Utils.toRadian(this.angle);

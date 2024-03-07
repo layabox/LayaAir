@@ -48,6 +48,9 @@ export class pxPhysicsManager implements IPhysicsManager {
     /**fixedTimeStep */
     fixedTime: number = 1.0 / 60.0;
 
+    /** enable CCD */
+    enableCCD: boolean = false;
+
     /**@internal 碰撞开始数据表*/
     _contactCollisionsBegin: Map<number, Collision> = new Map();
 
@@ -105,6 +108,7 @@ export class pxPhysicsManager implements IPhysicsManager {
                 this.setDataToMap(lostTrigger, "onTriggerEnd", true);
             }
         };
+        this.enableCCD = physicsSettings.enableCCD;
         const pxPhysics = pxPhysicsCreateUtil._pxPhysics;
         pxPhysicsCreateUtil._physXSimulationCallbackInstance = pxPhysicsCreateUtil._physX.PxSimulationEventCallback.implement(triggerCallback);
         pxPhysicsCreateUtil._sceneDesc = pxPhysicsCreateUtil._physX.getDefaultSceneDesc(pxPhysics.getTolerancesScale(), 0, pxPhysicsCreateUtil._physXSimulationCallbackInstance);
@@ -115,7 +119,6 @@ export class pxPhysicsManager implements IPhysicsManager {
             this._pxScene.setPVDClient();
         }
         this.fixedTime = physicsSettings.fixedTimeStep;
-
     }
 
     setDataToMap(dataCallBack: any, eventType: string, isTrigger: boolean = false) {
@@ -341,12 +344,12 @@ export class pxPhysicsManager implements IPhysicsManager {
         // update Events
         this._updatePhysicsEvents();
     }
-    rayCast(ray: Ray, outHitResult: HitResult, distance:number = 1000000, collisonGroup: number = 1 << 4, collisionMask: number = Physics3DUtils.COLLISIONFILTERGROUP_ALLFILTER): boolean {
+    rayCast(ray: Ray, outHitResult: HitResult, distance: number = 1000000, collisonGroup: number = 1 << 4, collisionMask: number = Physics3DUtils.COLLISIONFILTERGROUP_ALLFILTER): boolean {
         let result: any = this._pxScene.raycastCloset(ray.origin, ray.direction, distance, collisonGroup);
         pxCollisionTool.getRayCastResult(outHitResult, result);
         return outHitResult.succeeded;
     }
-    rayCastAll?(ray: Ray, out: HitResult[], distance:number = 1000000, collisonGroup: number = 1 << 4, collisionMask: number = Physics3DUtils.COLLISIONFILTERGROUP_ALLFILTER): boolean {
+    rayCastAll?(ray: Ray, out: HitResult[], distance: number = 1000000, collisonGroup: number = 1 << 4, collisionMask: number = Physics3DUtils.COLLISIONFILTERGROUP_ALLFILTER): boolean {
         let results: any = this._pxScene.raycastAllHits(ray.origin, ray.direction, distance, collisonGroup);
         pxCollisionTool.getRayCastResults(out, results);
         return (out.length >= 1 ? true : false);

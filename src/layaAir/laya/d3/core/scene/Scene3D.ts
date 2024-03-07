@@ -89,7 +89,7 @@ export class Scene3D extends Sprite implements ISubmit {
     /** @internal */
     static _shadowCasterPass: ShadowCasterPass;
     /**@internal */
-    static physicsSettings: PhysicsSettings;
+    static physicsSettings: PhysicsSettings = new PhysicsSettings();
     /** reflection mode */
     static REFLECTIONMODE_SKYBOX: number = 0;
     static REFLECTIONMODE_CUSTOM: number = 1;
@@ -328,8 +328,6 @@ export class Scene3D extends Sprite implements ISubmit {
         if (Config3D._uniformBlock)
             configShaderValue.add(Shader3D.SHADERDEFINE_ENUNIFORMBLOCK);
 
-        Scene3D.physicsSettings = new PhysicsSettings();
-
         let supportFloatTex = LayaGL.renderEngine.getCapable(RenderCapable.TextureFormat_R32G32B32A32);
         if (supportFloatTex) {
             configShaderValue.add(Shader3D.SHADERDEFINE_FLOATTEXTURE);
@@ -401,7 +399,7 @@ export class Scene3D extends Sprite implements ISubmit {
     /**@internal */
     private _physicsStepTime: number = 0;
     /**@internal */
-    _lightmapDirtyFlag:number = -1
+    _lightmapDirtyFlag: number = -1;
     /**@internal */
     _sunColor: Color = new Color(1.0, 1.0, 1.0);
     /**@interanl */
