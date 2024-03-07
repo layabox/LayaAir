@@ -67,7 +67,7 @@ export class OpenDataContextView extends UIComponent {
         }
 
         if (Browser.onMiniGame) {//小游戏保护
-            if (canvas.tagName !== "CANVAS") {
+            if ((canvas as any).toTempFilePath) {
                 (<Texture2D>tex.bitmap).setImageData(canvas, true, false);
             }
         }else
