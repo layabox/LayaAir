@@ -6,6 +6,7 @@ import { extendsData } from "../datas/BlueprintExtends";
 import { BlueprintFactory } from "../runtime/BlueprintFactory";
 import { ClassUtils } from "../../utils/ClassUtils";
 import { Browser } from "../../utils/Browser";
+import { URL } from "../../net/URL";
 
 export class BlueprintCreateUtil{
 
@@ -38,4 +39,4 @@ export class BlueprintCreateUtil{
     }
 }
 
-Laya.addBeforeInitCallback(BlueprintCreateUtil.__init__);
+Laya.addAfterInitCallback( BlueprintCreateUtil.__init__ );

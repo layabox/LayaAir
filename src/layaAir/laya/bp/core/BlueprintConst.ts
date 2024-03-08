@@ -7,5 +7,5 @@ export class BlueprintConst{
 
     static TYPE:string = "blueprint";
 
-    static configPath:string = "internal/blueprint.lja";
+    static configPath:string = "~/internal/blueprint.lja";
 }
