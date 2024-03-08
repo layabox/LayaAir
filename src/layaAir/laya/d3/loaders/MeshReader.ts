@@ -9,7 +9,6 @@ import { LoadModelV05 } from "./LoadModelV05";
  */
 export class MeshReader {
 	/**
-	 *@internal
 	 */
 	static _parse(data: ArrayBuffer): Mesh {
 		var mesh: Mesh = new Mesh();

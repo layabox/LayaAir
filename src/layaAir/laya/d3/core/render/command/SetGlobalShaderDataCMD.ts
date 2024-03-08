@@ -22,12 +22,12 @@ export class SetGlobalShaderDataCMD extends Command {
 	/**@internal */
 	private _value: ShaderDataItem = null;
 	/**@internal */
-	private _dataType:number = -1;
+	private _dataType: number = -1;
 
 	/**
 	 * @internal
 	 */
-	static create(nameID: number, value:any,shaderDataType:ShaderDataType,commandBuffer:CommandBuffer): SetGlobalShaderDataCMD {
+	static create(nameID: number, value: any, shaderDataType: ShaderDataType, commandBuffer: CommandBuffer): SetGlobalShaderDataCMD {
 		var cmd: SetGlobalShaderDataCMD;
 		cmd = SetGlobalShaderDataCMD._pool.length > 0 ? SetGlobalShaderDataCMD._pool.pop() : new SetGlobalShaderDataCMD();
 		cmd._nameID = nameID;
@@ -45,38 +45,41 @@ export class SetGlobalShaderDataCMD extends Command {
 		//var shaderData:ShaderData = (this._commandBuffer._camera.scene as Scene3D)._shaderValues;
 		let context = RenderContext3D._instance;
 		let shaderData = context._contextOBJ.globalShaderData;
-		if(!shaderData)
-		shaderData = context._contextOBJ.globalShaderData = LayaGL.renderOBJCreate.createShaderData(null);
-		switch(this._dataType){
+		if (!shaderData)
+			shaderData = context._contextOBJ.globalShaderData = LayaGL.renderOBJCreate.createShaderData(null);
+		switch (this._dataType) {
 			case ShaderDataType.Int:
-				shaderData.setInt(this._nameID,this._value as number);
+				shaderData.setInt(this._nameID, this._value as number);
 				break;
 			case ShaderDataType.Float:
-				shaderData.setNumber(this._nameID,this._value as number);
+				shaderData.setNumber(this._nameID, this._value as number);
 				break;
 			case ShaderDataType.Bool:
-				shaderData.setBool(this._nameID,this._value as boolean);
+				shaderData.setBool(this._nameID, this._value as boolean);
 				break;
 			case ShaderDataType.Matrix4x4:
-				shaderData.setMatrix4x4(this._nameID,this._value as Matrix4x4);
+				shaderData.setMatrix4x4(this._nameID, this._value as Matrix4x4);
 				break;
 			case ShaderDataType.Texture2D:
-				shaderData.setTexture(this._nameID,this._value as BaseTexture);
+			case ShaderDataType.TextureCube:
+			case ShaderDataType.Texture2DArray:
+			case ShaderDataType.Texture3D:
+				shaderData.setTexture(this._nameID, this._value as BaseTexture);
 				break;
 			case ShaderDataType.Vector4:
-				shaderData.setVector(this._nameID,this._value as Vector4);
+				shaderData.setVector(this._nameID, this._value as Vector4);
 				break;
 			case ShaderDataType.Vector2:
-				shaderData.setVector2(this._nameID,this._value as Vector2);
+				shaderData.setVector2(this._nameID, this._value as Vector2);
 				break;
 			case ShaderDataType.Vector3:
-				shaderData.setVector3(this._nameID,this._value as Vector3);
+				shaderData.setVector3(this._nameID, this._value as Vector3);
 				break;
 			case ShaderDataType.Buffer:
-				shaderData.setBuffer(this._nameID,this._value as Float32Array);
+				shaderData.setBuffer(this._nameID, this._value as Float32Array);
 				break;
 			case ShaderDataType.Color:
-				shaderData.setColor(this._nameID,this._value as Color);
+				shaderData.setColor(this._nameID, this._value as Color);
 				break;
 			default:
 				throw "no type shaderValue on this CommendBuffer";

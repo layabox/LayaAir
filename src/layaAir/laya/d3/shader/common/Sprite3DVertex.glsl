@@ -61,4 +61,16 @@ mat4 getWorldMatrix()
     return worldMat;
 }
 
+vec2 getSimpleBoneCustomData(){
+    vec2 custom;
+    #ifdef SIMPLEBONE
+    #ifdef GPU_INSTANCE
+    custom=a_SimpleTextureParams.zw;
+    #else// GPU_INSTANCE
+    custom=u_SimpleAnimatorParams.zw;
+    #endif// GPU_INSTANCE
+    #endif// SIMPLEBONE
+    return custom;
+}
+
 #endif // Sprite3DVertex_lib

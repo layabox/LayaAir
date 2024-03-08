@@ -3,14 +3,11 @@ import { Physics2D } from "../Physics2D"
 import { RigidBody } from "../RigidBody"
 import { physics2D_DistancJointDef } from "./JointDefStructInfo";
 import { Sprite } from "../../display/Sprite";
-import { Point } from "../../maths/Point";
 
 /**
  * 距离关节：两个物体上面各自有一点，两点之间的距离固定不变
  */
 export class DistanceJoint extends JointBase {
-    /**@private */
-    private static _tempP: Point = new Point();
     /**@private */
     private static _temp: physics2D_DistancJointDef;
     /**[首次设置有效]关节的自身刚体*/
@@ -46,11 +43,18 @@ export class DistanceJoint extends JointBase {
             if (!this.selfBody) throw "selfBody can not be empty";
             let point = this.getBodyAnchor(this.selfBody, this.selfAnchor[0], this.selfAnchor[1]);
             var def = DistanceJoint._temp || (DistanceJoint._temp = new physics2D_DistancJointDef());
-            def.bodyA = this.selfBody.getBody();
-            def.localAnchorA.setValue(point.x, point.y);
-            def.bodyB = this.otherBody ? this.otherBody.getBody() : Physics2D.I._emptyBody;
-            point = this.getBodyAnchor(this.otherBody, this.otherAnchor[0], this.otherAnchor[1]);
+            def.bodyB = this.selfBody.getBody();
             def.localAnchorB.setValue(point.x, point.y);
+            this.selfBody.owner.on("shapeChange", this, this._refeahJoint);
+            if (this.otherBody) {
+                def.bodyA = this.otherBody.getBody();
+                point = this.getBodyAnchor(this.otherBody, this.otherAnchor[0], this.otherAnchor[1]);
+                def.localAnchorA.setValue(point.x, point.y);
+                this.otherBody.owner.on("shapeChange", this, this._refeahJoint);
+            } else {
+                def.bodyA = Physics2D.I._emptyBody;
+                def.localAnchorA.setValue(this.otherAnchor[0], this.otherAnchor[1]);
+            }
 
             def.dampingRatio = this._dampingRatio;
             def.frequency = this._frequency;
@@ -59,7 +63,21 @@ export class DistanceJoint extends JointBase {
             def.maxLength = this._maxLength;
             def.minLength = this._minLength;
             this._joint = this._factory.createDistanceJoint(def);
+
         }
+    }
+
+    /**@internal */
+    _refeahJoint(): void {
+        if (this._joint) {
+            this._factory.set_DistanceJointStiffnessDamping(this._joint, this._frequency, this._dampingRatio);
+        }
+    }
+
+    onDestroy(): void {
+        super.onDestroy();
+        this.selfBody.owner.off("shapeChange", this._refeahJoint);
+        if (this.otherBody) this.otherBody.owner.off("shapeChange", this._refeahJoint);
     }
 
     /**约束的目标静止长度*/

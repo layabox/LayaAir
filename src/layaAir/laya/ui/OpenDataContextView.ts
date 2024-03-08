@@ -5,6 +5,7 @@ import { Texture2D } from "../resource/Texture2D";
 import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
 import { ILaya } from "../../ILaya";
 import { LayaEnv } from "../../LayaEnv";
+import { Browser } from "../utils/Browser";
 
 /**
  * 微信开放数据展示组件，直接实例本组件，即可根据组件宽高，位置，以最优的方式显示开放域数据
@@ -64,7 +65,13 @@ export class OpenDataContextView extends UIComponent {
             tex.bitmap = new Texture2D(canvas.width, canvas.height, TextureFormat.R8G8B8A8, false, false, true, true);
             tex.bitmap.lock = true;
         }
-        (<Texture2D>tex.bitmap).setImageData(canvas, true, false);
+
+        if (Browser.onMiniGame) {//小游戏保护
+            if ((canvas as any).toTempFilePath) {
+                (<Texture2D>tex.bitmap).setImageData(canvas, true, false);
+            }
+        }else
+            (<Texture2D>tex.bitmap).setImageData(canvas, true, false);
     }
 
     /**

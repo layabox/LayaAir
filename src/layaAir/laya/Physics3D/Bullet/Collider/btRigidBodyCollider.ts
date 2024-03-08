@@ -107,6 +107,7 @@ export class btRigidBodyCollider extends btCollider implements IDynamicCollider 
         this._rigidBodyCapableMap.set(EColliderCapable.Collider_BounceCombine, false);
         this._rigidBodyCapableMap.set(EColliderCapable.Collider_FrictionCombine, false);
         this._rigidBodyCapableMap.set(EColliderCapable.Collider_EventFilter, false);
+        this._rigidBodyCapableMap.set(EColliderCapable.Collider_CollisionDetectionMode, false);
 
         this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_AllowSleep, false);
         this._rigidBodyCapableMap.set(EColliderCapable.RigidBody_Gravity, true);

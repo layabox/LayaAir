@@ -31,7 +31,6 @@ export class AnimationClip extends Resource {
 
 	/**
 	 * @inheritDoc
-	 * @internal
 	 */
 	static _parse(data: any): AnimationClip {
 		var clip = new AnimationClip();

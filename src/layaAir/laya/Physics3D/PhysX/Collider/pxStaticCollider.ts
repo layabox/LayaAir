@@ -27,6 +27,7 @@ export class pxStaticCollider extends pxCollider implements IStaticCollider {
         this._staticCapableMap.set(EColliderCapable.Collider_BounceCombine, true);
         this._staticCapableMap.set(EColliderCapable.Collider_FrictionCombine, true);
         this._staticCapableMap.set(EColliderCapable.Collider_EventFilter, true);
+        this._staticCapableMap.set(EColliderCapable.Collider_CollisionDetectionMode, true);
     }
 
 
@@ -42,7 +43,7 @@ export class pxStaticCollider extends pxCollider implements IStaticCollider {
 
     protected _initCollider() {
         this._pxActor = pxPhysicsCreateUtil._pxPhysics.createRigidStatic(this._transformTo(new Vector3(), new Quaternion()));
-        
+
     }
 
     setTrigger(value: boolean): void {

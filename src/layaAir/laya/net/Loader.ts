@@ -40,12 +40,14 @@ export interface ILoadOptions {
     priority?: number;
     group?: string;
     cache?: boolean;
+    ignoreCache?: boolean;
     noRetry?: boolean;
     silent?: boolean;
     useWorkerLoader?: boolean;
     constructParams?: TextureConstructParams;
     propertyParams?: TexturePropertyParams;
     blob?: ArrayBuffer;
+    initiator?: ILoadTask;
     [key: string]: any;
 }
 
@@ -107,6 +109,7 @@ export class Loader extends EventDispatcher {
     static TEXTURE2D = "TEXTURE2D"; //这里是为了兼容，实际应该是BaseTexture
     /**TextureCube资源。*/
     static TEXTURECUBE = "TEXTURE2D"; //兼容处理，现在TEXTURE2D类型可以载入Texture或者TextureCube
+    static TEXTURE2DARRAY = "TEXTURE2D";
     /**AnimationClip资源。*/
     static ANIMATIONCLIP = "ANIMATIONCLIP";
     /**Terrain资源。*/
@@ -220,7 +223,7 @@ export class Loader extends EventDispatcher {
      * @param priority	(default = 0)加载的优先级，数字越大优先级越高，优先级高的优先加载。
      * @param cache		是否缓存。
      * @param group		分组，方便对资源进行管理。
-     * @param ignoreCache	参数已废弃。
+     * @param ignoreCache	是否忽略缓存。
      * @param useWorkerLoader(default = false)是否使用worker加载（只针对IMAGE类型和ATLAS类型，并且浏览器支持的情况下生效）
      * @return Promise对象
      */
@@ -240,12 +243,14 @@ export class Loader extends EventDispatcher {
             options = arg1;
         }
 
-        if (priority != null || cache != null || group != null || useWorkerLoader != null) {
+        if (priority != null || cache != null || ignoreCache != null || group != null || useWorkerLoader != null) {
             if (options === dummyOptions)
-                options = { priority, cache, group, useWorkerLoader };
+                options = { priority, cache, ignoreCache, group, useWorkerLoader };
             else
-                options = Object.assign(options, { priority, cache, group, useWorkerLoader });
+                options = Object.assign(options, { priority, cache, ignoreCache, group, useWorkerLoader });
         }
+        if (options.cache === false)
+            options.ignoreCache = true;
 
         let onProgress: ProgressCallback;
         if (arg2 instanceof Handler)
@@ -330,7 +335,7 @@ export class Loader extends EventDispatcher {
         }
 
         let obsoluteRes: Resource;
-        if (options.cache == null || options.cache) {
+        if (!options.ignoreCache) {
             let cacheRes = Loader._getRes(formattedUrl, type);
             if (cacheRes !== undefined) {
                 if (cacheRes == null)
@@ -353,6 +358,10 @@ export class Loader extends EventDispatcher {
             loadingKey += "@" + typeId;
         let task = this._loadings.get(loadingKey);
         if (task) {
+            //fix recursive dependency
+            if (options.initiator === task) {
+                return Promise.resolve();
+            }
             if (onProgress)
                 task.onProgress.add(onProgress);
             return new Promise((resolve) => task.onComplete.add(resolve));
@@ -403,7 +412,7 @@ export class Loader extends EventDispatcher {
                 content._setCreateURL(url, uuid);
             }
 
-            if (task.options.cache == null || task.options.cache)
+            if (task.options.cache !== false)
                 Loader._cacheRes(formattedUrl, content, typeId, main);
 
             task.progress.update(-1, 1);
@@ -414,7 +423,7 @@ export class Loader extends EventDispatcher {
         }).catch(error => {
             !options.silent && Loader.warnFailed(url, error);
 
-            if (task.options.cache == null || task.options.cache)
+            if (task.options.cache !== false)
                 Loader._cacheRes(formattedUrl, null, typeId, main);
 
             task.onComplete.invoke(null);
@@ -934,7 +943,7 @@ export class Loader extends EventDispatcher {
             } else if (ILaya.Browser.onKGMiniGame || ILaya.Browser.onVVMiniGame || ILaya.Browser.onQGMiniGame) {
                 // mi/vivo/oppo
                 plat = ILaya.Browser.window.qg;
-            } else if (ILaya.Browser.onAlipayMiniGame) {
+            } else if (ILaya.Browser.onAlipayMiniGame || ILaya.Browser.onTBMiniGame) {
                 // alipay
                 plat = ILaya.Browser.window.my;
             } else {
@@ -961,7 +970,7 @@ export class Loader extends EventDispatcher {
                 }
             });
 
-            loadTask.onProgressUpdate((res: any) => {
+            loadTask.onProgressUpdate && loadTask.onProgressUpdate((res: any) => {
                 progress && progress(res);
             });
         })

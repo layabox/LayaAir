@@ -171,12 +171,16 @@ export class InstanceRenderElement extends RenderElement {
                         var offset: number = i * 4;
                         simpleAnimatorData[offset] = simpleAnimatorParams.x;
                         simpleAnimatorData[offset + 1] = simpleAnimatorParams.y;
+                        simpleAnimatorData[offset + 2] = simpleAnimatorParams.z;
+                        simpleAnimatorData[offset + 3] = simpleAnimatorParams.w;
                     }
                 }
                 else {
                     for (var i: number = 0; i < count; i++) {
                         simpleAnimatorData[offset] = 0;
                         simpleAnimatorData[offset + 1] = 0;
+                        simpleAnimatorData[offset + 2] = 0;
+                        simpleAnimatorData[offset + 3] = 0;
                     }
                 }
                 (this._renderElementOBJ as InstanceRenderElementOBJ).addUpdateBuffer(mesh._instanceSimpleAniVertexBuffer, 4)
@@ -214,7 +218,6 @@ export class InstanceRenderElement extends RenderElement {
     }
     recover(): void {
         InstanceRenderElement._pool.push(this);
-        this.render._updateRenderType = this.oriRendertype;
         this._isInPool = true;
     }
 }

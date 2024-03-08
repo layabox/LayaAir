@@ -10,6 +10,15 @@ export class PhysicsSettings {
 
     /**物理模拟器帧的间隔时间。*/
     fixedTimeStep: number = 1.0 / 60.0;
+
+    /**是否开启连续碰撞检测 */
+    enableCCD: boolean = false;
+
+    /**连续碰撞检测阈值 */
+    ccdThreshold: number = 0.0001;
+
+    /**连续碰撞检测球半径 */
+    ccdSphereRadius: number = 0.0001;
 }
 
 

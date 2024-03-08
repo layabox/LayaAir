@@ -88,10 +88,15 @@ export class Delegate {
         for (let i = 0; i < cnt; i += ITEM_LAYOUT) {
             if (0 == arr[i + 3]) continue;
             let fixedArgs = arr[i + 2];
-            if (fixedArgs != null)
-                arr[i].call(arr[i + 1], ...fixedArgs, ...args);
-            else
-                arr[i].call(arr[i + 1], ...args);
+            try {
+                if (fixedArgs != null)
+                    arr[i].call(arr[i + 1], ...fixedArgs, ...args);
+                else
+                    arr[i].call(arr[i + 1], ...args);
+            }
+            catch (err: any) {
+                console.error(err);
+            }
             if (arr[i + 3] == 2) {
                 arr[i + 3] = 0;
                 this._flag = 2;
