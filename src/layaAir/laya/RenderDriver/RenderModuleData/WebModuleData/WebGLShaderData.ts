@@ -103,6 +103,7 @@ export class WebGLShaderData extends ShaderData {
 	}
 
 	/**
+	 * 注意!!!!!! 不要获得data之后直接设置值，设置值请使用set函数
 	 * @internal
 	 */
 	getData(): any {
