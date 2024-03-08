@@ -373,11 +373,11 @@ export class RenderSprite {
         var _cacheStyle = sprite._cacheStyle;
         var _next = this._next;
 
-        if (!_cacheStyle.enableCanvasRender || !context._drawingToTexture && _cacheStyle.mask && _cacheStyle.mask._getBit(NodeFlags.DISABLE_VISIBILITY)) {
+        if ( !context._drawingToTexture && _cacheStyle.mask && _cacheStyle.mask._getBit(NodeFlags.DISABLE_VISIBILITY)) {
             _next._fun.call(_next, sprite, context, x, y);
             return;
         }
-        let isbmp = _cacheStyle.cacheAs === 'bitmap' 
+        let isbmp = sprite.cacheAs === 'bitmap' 
         isbmp ? Stat.canvasBitmap++ : Stat.canvasNormal++;
 
         //检查保存的文字是否失效了

@@ -523,11 +523,12 @@ export class Context {
     }
 
     clearBG(r: number, g: number, b: number, a: number): void {
-        RenderTexture2D._clearColor.r = r;
-        RenderTexture2D._clearColor.g = g;
-        RenderTexture2D._clearColor.b = b;
-        RenderTexture2D._clearColor.a = a;
-        RenderTexture2D._clear = true;
+        // var gl: WebGLRenderingContext = RenderStateContext.mainContext;
+        this.clearColor.r = r;
+        this.clearColor.g = g;
+        this.clearColor.b = b;
+        this.clearColor.a = a;
+     //   LayaGL.renderEngine.clearRenderTexture(RenderClearFlag.Color, this.clearColor, 1, 0);
     }
 
     /**
@@ -1303,8 +1304,10 @@ export class Context {
         vertices: Float32Array,
         uvs: Float32Array,
         indices: Uint16Array,
-        matrix: Matrix, alpha: number, blendMode: string, colorNum = 0xffffffff): void {
+        matrix: Matrix, alpha: number|null, blendMode: string, colorNum = 0xffffffff): void {
 
+        if(alpha==null) alpha=1.0;
+        
         if (!tex._getSource()) { //source内调用tex.active();
             if (this.sprite) {
                 ILaya.systemTimer.callLater(this, this._repaintSprite);
@@ -1353,10 +1356,10 @@ export class Context {
                 tmpMat.a = matrix.a; tmpMat.b = matrix.b; tmpMat.c = matrix.c; tmpMat.d = matrix.d; tmpMat.tx = matrix.tx + x; tmpMat.ty = matrix.ty + y;
             }
             Matrix.mul(tmpMat, this._curMat, tmpMat);
-            (this._mesh as MeshTexture).addData(vertices, uvs, indices, tmpMat || this._curMat, rgba);
+            (this._mesh as MeshTexture).addData(vertices, uvs, indices, tmpMat || this._curMat, rgba,tex.uvrect);
         } else {
             // 这种情况是drawtexture转成的drawTriangle，直接使用matrix就行，传入的xy都是0
-            (this._mesh as MeshTexture).addData(vertices, uvs, indices, matrix, rgba);
+            (this._mesh as MeshTexture).addData(vertices, uvs, indices, matrix, rgba,tex.uvrect);
         }
         this._curSubmit._numEle += indices.length;
 

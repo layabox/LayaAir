@@ -11,24 +11,27 @@ import { LayaEnv } from "../../../LayaEnv";
 import { TextRender } from "./TextRender";
 import { LayaGL } from "../../layagl/LayaGL";
 
+/**
+ * 保存文字的贴图
+ */
 export class TextTexture extends Resource {
     private static pool: any[] = new Array(10); // 回收用
-    private static poolLen: number = 0;
-    private static cleanTm: number = 0;
+    private static poolLen = 0;
+    private static cleanTm = 0;
 
     /**@internal */
     _source: Texture2D;	// webgl 贴图
     /**@internal */
-    _texW: number = 0;
+    _texW = 0;
     /**@internal */
-    _texH: number = 0;
+    _texH = 0;
     /**@internal */
-    _discardTm: number = 0;			//释放的时间。超过一定时间会被真正删除
-    genID: number = 0; 				// 这个对象会重新利用，为了能让引用他的人知道自己引用的是否有效，加个id
+    _discardTm = 0;			//释放的时间。超过一定时间会被真正删除
+    genID = 0; 				// 这个对象会重新利用，为了能让引用他的人知道自己引用的是否有效，加个id
     bitmap: any = { id: 0, _glTexture: null };						//samekey的判断用的
-    curUsedCovRate: number = 0; 	// 当前使用到的使用率。根据面积算的
-    curUsedCovRateAtlas: number = 0; 	// 大图集中的占用率。由于大图集分辨率低，所以会浪费一些空间
-    lastTouchTm: number = 0;
+    curUsedCovRate = 0; 	// 当前使用到的使用率。根据面积算的
+    curUsedCovRateAtlas = 0; 	// 大图集中的占用率。由于大图集分辨率低，所以会浪费一些空间
+    lastTouchTm = 0;
     ri: CharRenderInfo = null; 		// 如果是独立文字贴图的话带有这个信息
     //public var isIso:Boolean = false;
     get gammaCorrection(): number {
@@ -62,7 +65,7 @@ export class TextTexture extends Resource {
     }
 
     /**
-     * 
+     * 添加一个文字位图
      * @param	data
      * @param	x			拷贝位置。
      * @param	y
@@ -97,7 +100,8 @@ export class TextTexture extends Resource {
     }
 
     /**
-     * 玩一玩不支持 getImageData
+     * 添加一个文字
+     * 玩一玩不支持 getImageData，只能用canvas的方式
      * @param	canv
      * @param	x
      * @param	y
@@ -134,8 +138,8 @@ export class TextTexture extends Resource {
      */
     fillWhite(): void {
         !this._source && this.recreateResource();
-        var dt: Uint8Array = new Uint8Array(this._texW * this._texH * 4);
-        ((<any>dt)).fill(0xff);
+        var dt = new Uint8Array(this._texW * this._texH * 4);
+        dt.fill(0xff);
         LayaGL.textureContext.setTextureImageData(this._source._getSource(), dt as any, true, false);
     }
 
@@ -165,10 +169,10 @@ export class TextTexture extends Resource {
      * 为了简单，只有发生 getAPage 或者 discardPage的时候才检测是否需要清理
      */
     static clean(): void {
-        var curtm: number = RenderInfo.loopStTm;// Laya.stage.getFrameTm();
+        var curtm = RenderInfo.loopStTm;// Laya.stage.getFrameTm();
         if (TextTexture.cleanTm === 0) TextTexture.cleanTm = curtm;
         if (curtm - TextTexture.cleanTm >= TextRender.checkCleanTextureDt) {	//每10秒看看pool中的贴图有没有很老的可以删除的
-            for (var i: number = 0; i < TextTexture.poolLen; i++) {
+            for (var i = 0; i < TextTexture.poolLen; i++) {
                 var p: TextTexture = TextTexture.pool[i];
                 if (curtm - p._discardTm >= TextRender.destroyUnusedTextureDt) {//超过20秒没用的删掉
                     p.destroy();					//真正删除贴图
@@ -183,12 +187,13 @@ export class TextTexture extends Resource {
 
     touchRect(ri: CharRenderInfo, curloop: number): void {
         if (this.lastTouchTm != curloop) {
+            //每帧的第一次覆盖率都清零，然后随着touch覆盖率逐渐增加
             this.curUsedCovRate = 0;
             this.curUsedCovRateAtlas = 0;
             this.lastTouchTm = curloop;
         }
-        var texw2: number = TextRender.atlasWidth * TextRender.atlasWidth;
-        var gridw2: number = TextAtlas.atlasGridW * TextAtlas.atlasGridW;
+        var texw2 = TextRender.atlasWidth * TextRender.atlasWidth;
+        var gridw2 = TextAtlas.atlasGridW * TextAtlas.atlasGridW;
         this.curUsedCovRate += (ri.bmpWidth * ri.bmpHeight) / texw2;
         this.curUsedCovRateAtlas += (Math.ceil(ri.bmpWidth / TextAtlas.atlasGridW) * Math.ceil(ri.bmpHeight / TextAtlas.atlasGridW)) / (texw2 / gridw2);
     }
@@ -200,10 +205,5 @@ export class TextTexture extends Resource {
     /**@internal */
     _getSource(): any {
         return this._source._getSource();
-    }
-
-    // for debug
-    drawOnScreen(x: number, y: number): void {
-
     }
 }

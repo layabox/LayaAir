@@ -206,9 +206,6 @@ export class Sprite extends Node {
 
     set cacheAs(value: string) {
         if (value === this._cacheStyle.userSetCache) return;
-        //debug ：normal现在效果不对，先去掉以免影响别人
-        if(value=='normal') return;
-        //debug
         if ('bitmap' == value && !(this._cacheStyle.canvas instanceof HTMLCanvas)) {
             this._cacheStyle.canvas = null;
         }

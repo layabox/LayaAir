@@ -1,10 +1,11 @@
 import { RenderInfo } from "../../renders/RenderInfo"
+import { TextTexture } from "./TextTexture";
 /**
  * TODO如果占用内存较大,这个结构有很多成员可以临时计算
  */
 export class CharRenderInfo {
     char: string = '';				// 调试用
-    tex: any;						//
+    tex: TextTexture;						//
     deleted: boolean = false; 	// 已经被删除了
     uv: any[] = new Array(8);// [0, 0, 1, 1];		//uv
     pos: number = 0;					//数组下标
@@ -15,9 +16,9 @@ export class CharRenderInfo {
     orix: number = 0;				// 原点位置，通常都是所在区域的左上角
     oriy: number = 0;
     touchTick: number = 0;		//
-    isSpace: boolean = false;		//是否是空格，如果是空格，则只有width有效
+    isSpace = false;		//是否是空格，如果是空格，则只有width有效
     touch(): void {
-        var curLoop: number = RenderInfo.loopCount;
+        var curLoop = RenderInfo.loopCount;
         if (this.touchTick != curLoop) {// 这个保证每帧只调用一次
             this.tex.touchRect(this, curLoop);
         }
