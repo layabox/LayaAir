@@ -4,7 +4,7 @@
     "description": "",
     "main": "layaAir.config.js",
     "scripts": {
-        "start": "npm-run-all clean copyShaders --parallel watchShaders watchSamples",
+        "start": "npm-run-all clean copyShaders copyNaga --parallel watchShaders watchSamples",
         "build": "gulp build",
         "buildSamples": "gulp buildSamples",
         "buildDoc": "cd scripts&&cmd /k run.bat",
@@ -12,6 +12,7 @@
         "watchSamples": "cd ./src/samples && tsc -b --force --watch",
         "clean": "rimraf ./bin/tsc",
         "copyShaders": "copyfiles -u 1 ./src/**/*.{glsl,vs,fs} ./bin/tsc/",
+        "copyNaga": "copyfiles -u 1 ./src/**/naga.js ./bin/tsc/",
         "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s"
     },
     "author": "Layabox Inc.",
