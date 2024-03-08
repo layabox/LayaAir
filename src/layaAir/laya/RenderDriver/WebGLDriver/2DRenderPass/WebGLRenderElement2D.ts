@@ -24,7 +24,8 @@ export class WebGLRenderelement2D implements IRenderElement2D {
 
     protected _compileShader(context: WebglRenderContext2D) {
         var passes: ShaderPass[] = this.subShader._passes;
-        this._shaderInstances
+        this._shaderInstances.clear();
+
         for (var j: number = 0, m: number = passes.length; j < m; j++) {
             var pass: ShaderPass = passes[j];
             //NOTE:this will cause maybe a shader not render but do prepare before，but the developer can avoide this manual,for example shaderCaster=false.
