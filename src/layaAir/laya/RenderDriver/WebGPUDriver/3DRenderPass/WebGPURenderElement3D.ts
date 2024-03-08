@@ -108,7 +108,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderpipelineI
     }
 
     private _uploadRenderStateBlendByShader(shaderData: WebGPUShaderData, shader: WebGPUShaderInstance) {
-        var datas: any = shaderData.getData();
+        var datas: any = shaderData._data;
         var renderState = (shader._shaderPass as ShaderPass).renderState;
         //blend
         var blend: any = (renderState.blend ?? datas[Shader3D.BLEND]) ?? RenderState.Default.blend;
@@ -138,7 +138,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderpipelineI
 
     private _uploadRenderStateBlendByMaterial(shaderData: WebGPUShaderData, shader: WebGPUShaderInstance) {
         //这个可以缓存ID  TODO 优化
-        var datas: any = shaderData.getData();
+        var datas: any = shaderData._data;
         var blend: any = datas[Shader3D.BLEND];
         var blendState: any;
         blend = blend ?? RenderState.Default.blend;
@@ -190,7 +190,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderpipelineI
     }
 
     private _uploadRenderStateDepthByShader(shaderData: WebGPUShaderData, shader: WebGPUShaderInstance, dest: WebGPUInternalRT) {
-        var datas: any = shaderData.getData();
+        var datas: any = shaderData._data;
         var renderState: RenderState = (<ShaderPass>shader._shaderPass).renderState;
         var depthWrite: any = (renderState.depthWrite ?? datas[Shader3D.DEPTH_WRITE]) ?? RenderState.Default.depthWrite;
 
@@ -215,7 +215,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderpipelineI
     }
 
     private _uploadRenderStateDepthByMaterial(shaderData: WebGPUShaderData, dest: WebGPUInternalRT) {
-        var datas: any = shaderData.getData();
+        var datas: any = shaderData._data;
         // depth
         var depthWrite = datas[Shader3D.DEPTH_WRITE];
         depthWrite = depthWrite ?? RenderState.Default.depthWrite;
@@ -257,7 +257,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderpipelineI
 
     _getCullFrontMode(shaderData: WebGPUShaderData, shader: WebGPUShaderInstance, isTarget: boolean, invertFront: boolean) {
         var renderState: RenderState = (<ShaderPass>shader._shaderPass).renderState;
-        var datas: any = shaderData.getData();
+        var datas: any = shaderData._data;
         var cull: any = datas[Shader3D.CULL];
         if ((<ShaderPass>shader._shaderPass).statefirst) {
             cull = renderState.cull ?? cull;

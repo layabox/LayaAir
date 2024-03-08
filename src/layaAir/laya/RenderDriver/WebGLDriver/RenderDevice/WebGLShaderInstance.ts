@@ -182,7 +182,7 @@ export class WebGLShaderInstance implements IShaderInstance {
 	 * set blend depth stencil RenderState
 	 * @param shaderDatas 
 	 */
-	uploadRenderStateBlendDepth(shaderDatas: ShaderData): void {
+	uploadRenderStateBlendDepth(shaderDatas: WebGLShaderData): void {
 		if ((<ShaderPass>this._shaderPass).statefirst)
 			this.uploadRenderStateBlendDepthByShader(shaderDatas);
 		else
@@ -193,8 +193,8 @@ export class WebGLShaderInstance implements IShaderInstance {
 	 * set blend depth stencil RenderState frome Shader
 	 * @param shaderDatas 
 	 */
-	uploadRenderStateBlendDepthByShader(shaderDatas: ShaderData) {
-		var datas: any = shaderDatas.getData();
+	uploadRenderStateBlendDepthByShader(shaderDatas: WebGLShaderData) {
+		var datas: any = shaderDatas._data;
 		var renderState: RenderState = (<ShaderPass>this._shaderPass).renderState;
 		var depthWrite: any = (renderState.depthWrite ?? datas[Shader3D.DEPTH_WRITE]) ?? RenderState.Default.depthWrite;
 		RenderStateContext.setDepthMask(depthWrite);
