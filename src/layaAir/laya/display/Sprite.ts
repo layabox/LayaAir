@@ -1550,7 +1550,8 @@ export class Sprite extends Node {
      * @return 如果重新缓存值为 true，否则值为 false。
      */
     _needRepaint(): boolean {
-        return (this._repaint & SpriteConst.REPAINT_CACHE) && this._cacheStyle.enableCanvasRender && this._cacheStyle.reCache;
+        //return (this._repaint & SpriteConst.REPAINT_CACHE) && this._cacheStyle.enableCanvasRender && this._cacheStyle.reCache;
+        return !!(this._repaint & SpriteConst.REPAINT_CACHE);
     }
 
     /**@private	
@@ -1567,7 +1568,7 @@ export class Sprite extends Node {
 
     /**cacheAs时，设置所有父对象缓存失效。 */
     parentRepaint(type: number = SpriteConst.REPAINT_CACHE): void {
-        var p: Sprite = (<Sprite>this._parent);
+        var p: Sprite = <Sprite>this._parent;
         if (p && !(p._repaint & type)) {
             p._repaint |= type;
             p.parentRepaint(type);

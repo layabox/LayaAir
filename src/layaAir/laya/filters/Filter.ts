@@ -24,7 +24,7 @@ export abstract class Filter implements IFilter {
     /** @internal*/
     _glRender: any;
 
-    //结果的原点的位置，如果扩展了，left和top可能是负的
+    //结果的原点的坐标，相对于sprite的原始原点，如果扩展了，left和top可能是负的
     protected left=0;
     protected top=0;
     //渲染后大小
