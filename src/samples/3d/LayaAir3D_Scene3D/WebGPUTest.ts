@@ -79,8 +79,8 @@ export class WebGPUTest {
             meshFilter2.sharedMesh = sphereMesh;
             earth2.transform.position = new Vector3(0.6, 0, 0);
 
-            //const material = new BlinnPhongMaterial();
-            const material = new UnlitMaterial();
+            const material = new BlinnPhongMaterial();
+            //const material = new UnlitMaterial();
             //漫反射贴图
             Texture2D.load("res/threeDimen/texture/earth.jpg", Handler.create(this, (texture: Texture2D) => {
                 material.albedoTexture = texture;

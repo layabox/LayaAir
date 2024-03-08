@@ -11,7 +11,6 @@ import { Resource } from "laya/resource/Resource";
 import { Main } from "./Main";
 import { LayaGL } from "laya/layagl/LayaGL";
 import { MeshLoad } from "./3d/LayaAir3D_Mesh/MeshLoad";
-import { SceneLoad3 } from "./3d/LayaAir3D_Scene3D/SceneLoad3";
 import { WebGPUTest } from "./3d/LayaAir3D_Scene3D/WebGPUTest";
 import { WebGLRenderEngineFactory } from "laya/RenderDriver/WebGLDriver/RenderDevice/WebGLRenderEngineFactory"
 

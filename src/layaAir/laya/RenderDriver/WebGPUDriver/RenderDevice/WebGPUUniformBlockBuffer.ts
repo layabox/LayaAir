@@ -1,7 +1,6 @@
 import { Vector2 } from "../../../maths/Vector2";
 import { WebGPUBuffer } from "./WebGPUBuffer";
-import { WebGPUUniformBlockInfo, WebGPUUniformItemType } from "./WebGPUShaderInstance";
-
+import { WebGPUUniformBlockInfo } from "./WebGPUUniformBlockInfo";
 
 //根据unfiormBlock布局来更新数据
 export class WebGPUSubUniformBlockBuffer {
@@ -36,7 +35,6 @@ export class WebGPUUniformBlockBuffer {
     subBuffers: WebGPUUniformBlockBuffer[];//subUBOBuffer的集合
     subBuffersCount: number;//多少个SubBuffer
     expansionSubBuffer: number;//如果subBuffer不够，每一次扩展需要扩多大的buffer
-
 
     constructor(isMergeBuffer: boolean, subBuffersCount: number, layout: WebGPUUniformBlockInfo, expansion: number) {
         this.subBufferCount = subBuffersCount;

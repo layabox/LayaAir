@@ -1,4 +1,3 @@
-import { CommandEncoder } from "../../../layagl/CommandEncoder";
 import { Color } from "../../../maths/Color";
 import { Matrix3x3 } from "../../../maths/Matrix3x3";
 import { Matrix4x4 } from "../../../maths/Matrix4x4";
@@ -11,10 +10,11 @@ import { InternalTexture } from "../../DriverDesign/RenderDevice/InternalTexture
 import { ShaderData } from "../../DriverDesign/RenderDevice/ShaderData"
 import { ShaderDefine } from "../../RenderModuleData/Design/ShaderDefine";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
+import { WebGPUUniformPropertyBindingInfo } from "./WebGPUCodeGenerator";
 import { WebGPURenderCommandEncoder } from "./WebGPURenderCommandEncoder";
 import { WebGPURenderEngine } from "./WebGPURenderEngine";
-import { WebGPUShaderInstance, WebGPUUniformBlockInfo, WebGPUUniformPropertyBindingInfo } from "./WebGPUShaderInstance";
-import { WebGPUSubUniformBlockBuffer, WebGPUUniformBlockBuffer } from "./WebGPUUniformBlockBuffer";
+import { WebGPUSubUniformBlockBuffer } from "./WebGPUUniformBlockBuffer";
+import { WebGPUUniformBlockInfo } from "./WebGPUUniformBlockInfo";
 
 export interface WebGPUShaderDataUBOProperty {
     layout: WebGPUUniformBlockInfo;
@@ -70,7 +70,6 @@ export class WebGPUShaderData extends ShaderData {
         //根据unifoms 创建bindGroup 缓存起来
         //for(unifoms)
         //command.setBindGroup(index, bindGroup, dynamicOffsets);
-
     }
 
     getData() {
@@ -157,9 +156,6 @@ export class WebGPUShaderData extends ShaderData {
         this._data[index] = value;
         this._uboPropertyMap.get(index)?.subBuffer.markChangeProperty(index);
     }
-
-
-
 
     /**
      * 获取浮点。
@@ -419,6 +415,7 @@ export class WebGPUShaderData extends ShaderData {
     cloneTo(destObject: WebGPUShaderData): void {
         //TODO
     }
+
     /**
      * 克隆。
      * @return	 克隆副本。
@@ -428,6 +425,7 @@ export class WebGPUShaderData extends ShaderData {
         this.cloneTo(dest);
         return dest;
     }
+
     destroy(): void {
         super.destroy();
         //TODO

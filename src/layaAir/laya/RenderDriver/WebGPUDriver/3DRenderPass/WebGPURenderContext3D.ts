@@ -3,9 +3,8 @@ import { Viewport } from "../../../d3/math/Viewport";
 import { Color } from "../../../maths/Color";
 import { Vector4 } from "../../../maths/Vector4";
 import { SingletonList } from "../../../utils/SingletonList";
-import { IRenderContext3D, IRenderElement3D, PipelineMode } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
+import { IRenderContext3D, PipelineMode } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { IRenderCMD } from "../../DriverDesign/3DRenderPass/IRendderCMD";
-import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRenderTarget";
 import { WebCameraNodeData, WebSceneNodeData } from "../../RenderModuleData/WebModuleData/3D/WebModuleData";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
 import { WebGPUInternalRT } from "../RenderDevice/WebGPUInternalRT";
@@ -155,13 +154,15 @@ export class WebGPURenderContext3D implements IRenderContext3D {
         }
         let elements = list.elements;
         for (var i: number = 0, n: number = list.length; i < n; i++) {
-            elements[i]._preUpdatePre(this);//render
+            elements[i]._preUpdatePre(this);
         }
         for (var i: number = 0, n: number = list.length; i < n; i++) {
-            elements[i]._render(this);//render
+            elements[i]._render(this);
         }
+        this.submit();
         return 0;
     }
+
     drawRenderElementOne(node: WebGPURenderElement3D): number {
         if (this._needStart) {
             this._start();
@@ -172,9 +173,11 @@ export class WebGPURenderContext3D implements IRenderContext3D {
         this.submit();
         return 0;
     }
+
     runOneCMD(cmd: IRenderCMD): void {
         cmd.apply(this);
     }
+
     runCMDList(cmds: IRenderCMD[]): void {
         cmds.forEach(element => {
             element.apply(this);
@@ -191,8 +194,10 @@ export class WebGPURenderContext3D implements IRenderContext3D {
     }
 
     submit() {
-        this._renderCommand.end();
-        WebGPURenderEngine._instance.getDevice().queue.submit([this._renderCommand.finish()]);
-        this._needStart = true;
+        if (this._destRT) {
+            this._renderCommand.end();
+            WebGPURenderEngine._instance.getDevice().queue.submit([this._renderCommand.finish()]);
+            this._needStart = true;
+        }
     }
 }
