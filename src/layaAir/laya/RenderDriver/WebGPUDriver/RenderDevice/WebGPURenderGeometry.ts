@@ -28,8 +28,6 @@ interface WebGPUDrawInstanceInfo {
 
 export class WebGPURenderGeometry implements IRenderGeometryElement {
     /**@internal */
-    _primitiveState: GPUPrimitiveState;
-    /**@internal */
     _drawArrayInfo: WebGPUDrawArrayInfo[];
     /**@internal */
     _drawElementInfo: WebGPUDrawElementInfo[];
@@ -62,26 +60,6 @@ export class WebGPURenderGeometry implements IRenderGeometryElement {
     }
     set mode(value: MeshTopology) {
         this._mode = value;
-        switch (value) {
-            case MeshTopology.Points:
-                this._primitiveState.topology = WebGPUPrimitiveTopology.point_list;
-                break;
-            case MeshTopology.Lines:
-                this._primitiveState.topology = WebGPUPrimitiveTopology.line_list;
-                break;
-            case MeshTopology.LineStrip:
-                this._primitiveState.topology = WebGPUPrimitiveTopology.line_strip;
-                break;
-            case MeshTopology.Triangles:
-                this._primitiveState.topology = WebGPUPrimitiveTopology.triangle_list;
-                break;
-            case MeshTopology.TriangleStrip:
-                this._primitiveState.topology = WebGPUPrimitiveTopology.triangle_strip;
-                break;
-            default:
-                this._primitiveState.topology = WebGPUPrimitiveTopology.triangle_list;
-                break;
-        }
     }
 
     get indexFormat(): IndexFormat {
@@ -93,7 +71,6 @@ export class WebGPURenderGeometry implements IRenderGeometryElement {
 
     /**@internal */
     constructor(mode: MeshTopology, drawType: DrawType) {
-        this._primitiveState = {};
         this.mode = mode;
         this.drawType = drawType;
         this.indexFormat = IndexFormat.UInt16;

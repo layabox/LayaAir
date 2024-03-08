@@ -1,11 +1,10 @@
 import { RenderClearFlag } from "../../../RenderEngine/RenderEnum/RenderClearFlag";
 import { SpotLightCom } from "../../../d3/core/light/SpotLightCom";
-import { ISpotLightShadowRP } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRenderTarget";
 import { RTSpotLight } from "../../RenderModuleData/RuntimeModuleData/3D/RTSpotLight";
 
 
-export class GLESSpotLightShadowRP implements ISpotLightShadowRP {
+export class GLESSpotLightShadowRP{
     private _light: SpotLightCom;
     
     public get light(): SpotLightCom {

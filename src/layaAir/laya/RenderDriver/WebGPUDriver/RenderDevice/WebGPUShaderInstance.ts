@@ -4,12 +4,12 @@ import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { ShaderPass } from "../../../RenderEngine/RenderShader/ShaderPass";
 import { UniformMapType } from "../../../RenderEngine/RenderShader/SubShader";
 import { LayaGL } from "../../../layagl/LayaGL";
-import { ShaderProcessInfo } from "../../../webgl/utils/ShaderCompileDefineBase";
+import { ShaderCompileDefineBase, ShaderProcessInfo } from "../../../webgl/utils/ShaderCompileDefineBase";
 import { ShaderNode } from "../../../webgl/utils/ShaderNode";
 import { IShaderInstance } from "../../DriverDesign/RenderDevice/IShaderInstance";
 import { ShaderDataType } from "../../DriverDesign/RenderDevice/ShaderData";
 import { WebGLCommandUniformMap } from "../../WebGLDriver/RenderDevice/WebGLCommandUniformMap";
-import { NagaWASM } from "../Naga/NagaWASM";
+import { NagaWASM } from "./Naga/NagaWASM";
 import { TypeOutData } from "../ShaderCompile/WebGPUShaderCompileCode";
 import { WebGPUShaderCompileDef } from "../ShaderCompile/WebGPUShaderCompileDef";
 import { WebGPUShaderCompileUtil } from "../ShaderCompile/WebGPUShaderCompileUtil";
@@ -25,7 +25,7 @@ export enum WebGPUBindingInfoType {
     sampler,
 };
 
-export type WebGPUUniformPropertyBindingInfo = {
+export interface WebGPUUniformPropertyBindingInfo {
     set: number;
     binding: number;
     name: string;
@@ -379,8 +379,8 @@ export class WGSLCodeGenerator {
      * 去除naga转译报错的代码
      */
     static changeUnfitCode(code: string) {
-        const regex1 = /\(\s*const\s+(?:in|highp|mediump|lowp)\s*/g;
-        code = code.replace(regex1, '(in ');
+        const regex1 = /const\s+(?:in|highp|mediump|lowp)\s*/g;
+        code = code.replace(regex1, 'in ');
         const regex2 = /(?:texture2D|textureCube)\s*\(\s*/g;
         return code.replace(regex2, 'texture(');
     }
@@ -669,6 +669,8 @@ mat4 inverse(mat4 m)
         defineStr += "#define CLUSTER_Z_COUNT " + clusterSlices.z + "\n";
         defineStr += "#define MORPH_MAX_COUNT " + Config3D.maxMorphTargetCount + "\n";
         defineStr += "#define SHADER_CAPAILITY_LEVEL " + LayaGL.renderEngine.getParams(RenderParams.SHADER_CAPAILITY_LEVEL) + "\n";
+        //defineStr += "#define CalculateLightCount MAX_LIGHT_COUNT\n";
+        //defineStr += "#define DirectionCount u_DirationLightCount\n";
 
         for (let i = 0, len = defineString.length; i < len; i++) {
             const def = defineString[i];
@@ -721,7 +723,9 @@ mat4 inverse(mat4 m)
         }
         {
             const defs: Set<string> = new Set();
-            const ret = WebGPUShaderCompileDef.compile(fs.join('\n'), defs);
+            const fsOrg = fs.join('\n');
+            const ret = WebGPUShaderCompileDef.compile(fsOrg, defs);
+            //console.log(fsOrg, defs, ret);
             if (!defs.has("Math_lib"))
                 fsNeedInverseFunc = true;
             fsOut = WebGPUShaderCompileUtil.toScript(ret, { GL_FRAGMENT_PRECISION_HIGH: true }, fsTod);
@@ -811,6 +815,9 @@ ${textureGLSL_fs}
             dstFS = this.changeUnfitCode(dstFS);
         }
 
+        //console.log(dstVS);
+        //console.log(dstFS);
+
         //转译成WGSL代码
         const wgsl_vs = this.naga.compileGLSL2WGSL(dstVS, "vertex");
         const wgsl_fs = this.naga.compileGLSL2WGSL(dstFS, "fragment");
@@ -822,6 +829,9 @@ ${textureGLSL_fs}
  * WebGPU着色器实例
  */
 export class WebGPUShaderInstance implements IShaderInstance {
+    static idCounter: number = 0;
+    _renderPipelineMap = {};//destroy 要删除
+    _id: number = WebGPUShaderInstance.idCounter++;
     /**@internal */
     _shaderPass: ShaderCompileDefineBase | ShaderPass;
     /**@internal VertexState*/
@@ -829,18 +839,19 @@ export class WebGPUShaderInstance implements IShaderInstance {
     /**@internal fragmentModule*/
     private _fsShader: GPUShaderModule;
 
-    _layout: GPUPipelineLayout;
-    _layoutDescriptor: GPUPipelineLayoutDescriptor;
+    pipelineLayout: GPUPipelineLayout;
 
     _renderPipelineDescriptor: GPURenderPipelineDescriptor;
+    _pipeLineLayout: GPUPipelineLayout;
     _vertexState: GPUVertexState;
     _fragment: GPUFragmentState;
-    _pipeLineLayout: GPUPipelineLayout;
+
+    uniformSetMap: { [key: number]: Array<WebGPUUniformPropertyBindingInfo> } = {};
+
     /**
      * 创建一个 <code>ShaderInstance</code> 实例。
      */
     constructor() {
-
     }
 
     _create(shaderProcessInfo: ShaderProcessInfo, shaderPass: ShaderPass): void {
@@ -849,16 +860,67 @@ export class WebGPUShaderInstance implements IShaderInstance {
             shaderProcessInfo.uniformMap, shaderProcessInfo.vs, shaderProcessInfo.ps);
         const device = WebGPURenderEngine._instance.getDevice();
 
-        //生成GPUPipeLineLayout
+        shaderObj.uniformInfo.forEach((item) => {
+            if (!this.uniformSetMap[item.set])
+                this.uniformSetMap[item.set] = new Array<WebGPUUniformPropertyBindingInfo>();
+            this.uniformSetMap[item.set].push(item);
+        });
 
-        //
-        this._createVertexState();
-        this._createFragment();
-        this._renderPipelineDescriptor = {
-            vertex: this._vertexState,
-            fragment: this._fragment,
-            layout: this._pipeLineLayout
-        };
+        //生成GPUPipeLineLayout
+        this._pipeLineLayout = this._createPipelineLayout(device, "pipeLineLayout", shaderObj.uniformInfo);
+
+        this._vsShader = device.createShaderModule({ code: shaderObj.vs });
+        this._fsShader = device.createShaderModule({ code: shaderObj.fs });
+
+        // //设置颜色目标模式
+        // const colorTargetState: GPUColorTargetState = {
+        //     format: Config.colorFormat,
+        //     blend: {
+        //         alpha: {
+        //             srcFactor: 'src-alpha',
+        //             dstFactor: 'one-minus-src-alpha',
+        //             operation: 'add',
+        //         },
+        //         color: {
+        //             srcFactor: 'src-alpha',
+        //             dstFactor: 'one-minus-src-alpha',
+        //             operation: 'add',
+        //         },
+        //     },
+        //     writeMask: GPUColorWrite.ALL,
+        // };
+
+        // //设置渲染管线描述
+        // const renderPipelineDesc: GPURenderPipelineDescriptor = {
+        //     label: 'render',
+        //     layout: this.pipelineLayout,
+        //     vertex: {
+        //         buffers: [vertexBufferLayout],
+        //         module: this._vsShader,
+        //         entryPoint: 'main',
+        //     },
+        //     fragment: {
+        //         module: this._fsShader,
+        //         entryPoint: 'main',
+        //         targets: [colorTargetState],
+        //     },
+        //     primitive: {
+        //         topology: 'triangle-list',
+        //         frontFace: 'ccw',
+        //         cullMode: 'back',
+        //     },
+        //     depthStencil: {
+        //         format: Config.depthFormat,
+        //         depthWriteEnabled: true,
+        //         depthCompare: 'less',
+        //     },
+        //     multisample: {
+        //         count: 1,
+        //     },
+        // };
+
+        // const renderPipeline = device.createRenderPipeline(renderPipelineDesc);
+        // console.log(renderPipeline);
     }
 
     /**
@@ -916,18 +978,17 @@ export class WebGPUShaderInstance implements IShaderInstance {
         return device.createPipelineLayout({ label: name, bindGroupLayouts });
     }
 
-
     private _createVertexState() {
         this._vertexState = {
             // buffers?: Iterable<GPUVertexBufferLayout | null>;
-            module: this._vsshader,
+            module: this._vsShader,
             entryPoint: "main",
             constants: null
         }
     }
     private _createFragment() {
         this._fragment = {
-            module: this._psshader,
+            module: this._fsShader,
             entryPoint: "main",
             targets: []
         }
@@ -936,3 +997,121 @@ export class WebGPUShaderInstance implements IShaderInstance {
         throw new Error("Method not implemented.");
     }
 }
+
+// /**
+//  * WebGPU着色器实例
+//  */
+// export class WebGPUShaderInstance implements IShaderInstance {
+//     /**@internal */
+//     _shaderPass: ShaderCompileDefineBase | ShaderPass;
+//     /**@internal VertexState*/
+//     private _vsShader: GPUShaderModule;
+//     /**@internal fragmentModule*/
+//     private _fsShader: GPUShaderModule;
+
+//     _layout: GPUPipelineLayout;
+//     _layoutDescriptor: GPUPipelineLayoutDescriptor;
+
+//     _renderPipelineDescriptor: GPURenderPipelineDescriptor;
+//     _vertexState: GPUVertexState;
+//     _fragment: GPUFragmentState;
+//     _pipeLineLayout: GPUPipelineLayout;
+//     /**
+//      * 创建一个 <code>ShaderInstance</code> 实例。
+//      */
+//     constructor() {
+
+//     }
+
+//     _create(shaderProcessInfo: ShaderProcessInfo, shaderPass: ShaderPass): void {
+//         const shaderObj = WGSLCodeGenerator.ShaderLanguageProcess(
+//             shaderProcessInfo.defineString, shaderProcessInfo.attributeMap,
+//             shaderProcessInfo.uniformMap, shaderProcessInfo.vs, shaderProcessInfo.ps);
+//         const device = WebGPURenderEngine._instance.getDevice();
+
+//         //生成GPUPipeLineLayout
+
+//         //
+//         this._createVertexState();
+//         this._createFragment();
+//         this._renderPipelineDescriptor = {
+//             vertex: this._vertexState,
+//             fragment: this._fragment,
+//             layout: this._pipeLineLayout
+//         };
+//     }
+
+//     /**
+//      * 基于WebGPUUniformPropertyBindingInfo创建PipelineLayout
+//      * @param device
+//      * @param name
+//      * @param info
+//      */
+//     private _createPipelineLayout(device: GPUDevice, name: string, info: WebGPUUniformPropertyBindingInfo[]) {
+//         const _createBindGroupLayout = (set: number, name: string, info: WebGPUUniformPropertyBindingInfo[]) => {
+//             const data: WebGPUUniformPropertyBindingInfo[] = [];
+//             for (let i = 0; i < info.length; i++) {
+//                 const item = info[i];
+//                 if (item.set == set)
+//                     data.push(item);
+//             }
+//             if (data.length == 0) return null;
+//             const desc: GPUBindGroupLayoutDescriptor = {
+//                 label: name,
+//                 entries: [],
+//             };
+//             for (let i = 0; i < data.length; i++) {
+//                 if (data[i].type == WebGPUBindingInfoType.buffer) {
+//                     const entry: GPUBindGroupLayoutEntry = {
+//                         binding: data[i].binding,
+//                         visibility: data[i].visibility,
+//                         buffer: data[i].buffer,
+//                     };
+//                     (desc.entries as GPUBindGroupLayoutEntry[]).push(entry);
+//                 } else if (data[i].type == WebGPUBindingInfoType.sampler) {
+//                     const entry: GPUBindGroupLayoutEntry = {
+//                         binding: data[i].binding,
+//                         visibility: data[i].visibility,
+//                         sampler: data[i].sampler,
+//                     };
+//                     (desc.entries as GPUBindGroupLayoutEntry[]).push(entry);
+//                 } else if (data[i].type == WebGPUBindingInfoType.texture) {
+//                     const entry: GPUBindGroupLayoutEntry = {
+//                         binding: data[i].binding,
+//                         visibility: data[i].visibility,
+//                         texture: data[i].texture,
+//                     };
+//                     (desc.entries as GPUBindGroupLayoutEntry[]).push(entry);
+//                 }
+//             }
+//             return device.createBindGroupLayout(desc);
+//         }
+
+//         const bindGroupLayouts: GPUBindGroupLayout[] = [];
+//         for (let i = 0; i < 4; i++) {
+//             const group = _createBindGroupLayout(i, `group${i}`, info);
+//             if (group) bindGroupLayouts.push(group);
+//         }
+
+//         return device.createPipelineLayout({ label: name, bindGroupLayouts });
+//     }
+
+//     private _createVertexState() {
+//         this._vertexState = {
+//             // buffers?: Iterable<GPUVertexBufferLayout | null>;
+//             module: this._vsshader,
+//             entryPoint: "main",
+//             constants: null
+//         }
+//     }
+//     private _createFragment() {
+//         this._fragment = {
+//             module: this._psshader,
+//             entryPoint: "main",
+//             targets: []
+//         }
+//     }
+//     _disposeResource(): void {
+//         throw new Error("Method not implemented.");
+//     }
+// }

@@ -17,7 +17,6 @@ import { MathUtils3D } from "../../../maths/MathUtils3D";
 import { Matrix4x4 } from "../../../maths/Matrix4x4";
 import { Vector3 } from "../../../maths/Vector3";
 import { Vector4 } from "../../../maths/Vector4";
-import { ISpotLightShadowRP } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRenderTarget";
 import { WebBaseRenderNode } from "../../RenderModuleData/WebModuleData/3D/WebBaseRenderNode";
 import { WebSpotLight } from "../../RenderModuleData/WebModuleData/3D/WebSpotLight";
@@ -61,7 +60,7 @@ export class ShadowSpotData {
 
     }
 }
-export class WebGLSpotLightShadowRP implements ISpotLightShadowRP {
+export class WebGLSpotLightShadowRP {
     destTarget: InternalRenderTarget;
     /**@internal */
     shadowCasterCommanBuffer: CommandBuffer[];

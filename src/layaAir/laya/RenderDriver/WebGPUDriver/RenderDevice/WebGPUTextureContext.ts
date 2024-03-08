@@ -8,8 +8,10 @@ import { TextureFormat } from "../../../RenderEngine/RenderEnum/TextureFormat";
 import { ITextureContext } from "../../DriverDesign/RenderDevice/ITextureContext";
 import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRenderTarget";
 import { InternalTexture } from "../../DriverDesign/RenderDevice/InternalTexture";
+import { WebGPUInternalRT } from "./WebGPUInternalRT";
 import { WebGPUInternalTex } from "./WebGPUInternalTex";
 import { WebGPURenderEngine } from "./WebGPURenderEngine";
+import { WebGPURenderPassHelper } from "./WebGPURenderPassHelper";
 
 enum GPUTextureDimension {
     D1D = "1d",
@@ -47,6 +49,7 @@ export enum GPUTextureFormat {
     rgba8sint = "rgba8sint",
     bgra8unorm = "bgra8unorm",
     bgra8unorm_srgb = "bgra8unorm-srgb",
+
     // Packed 32-bit formats
     rgb9e5ufloat = "rgb9e5ufloat",
     rgb10a2unorm = "rgb10a2unorm",
@@ -144,10 +147,10 @@ export class WebGPUTextureContext implements ITextureContext {
         this._engine = engine;
     }
     needBitmap: boolean;
+
     private _getGPUTextureFormat(format: TextureFormat, useSRGB: boolean): GPUTextureFormat {
         let webgpuTextureFormat = GPUTextureFormat.rgba8uint;
         switch (format) {
-
             case TextureFormat.R5G6B5:
                 return null;
             case TextureFormat.R8G8B8://TODO
@@ -205,6 +208,27 @@ export class WebGPUTextureContext implements ITextureContext {
         return webgpuTextureFormat;
     }
 
+    private _getGPURenderTargetFormat(format: RenderTargetFormat, useSRGB: boolean): GPUTextureFormat {
+        let webgpuTextureFormat = GPUTextureFormat.rgba8uint;
+        switch (format) {
+            case RenderTargetFormat.R8G8B8://TODO
+            case RenderTargetFormat.R8G8B8A8:
+                webgpuTextureFormat = !useSRGB ? GPUTextureFormat.rgba8unorm : GPUTextureFormat.rgba8unorm_srgb;
+                break;
+            case RenderTargetFormat.R32G32B32://TODO
+            case RenderTargetFormat.R32G32B32A32:
+                webgpuTextureFormat = GPUTextureFormat.rgba32float;
+                break;
+            case RenderTargetFormat.R16G16B16://TODO
+            case RenderTargetFormat.R16G16B16A16:
+                webgpuTextureFormat = GPUTextureFormat.rgba16float;
+                break;
+            default:
+                throw "unknow TextureFormat";
+        }
+        return webgpuTextureFormat;
+    }
+
     private isCompressTexture(format: TextureFormat) {
         switch (format) {
             case TextureFormat.DXT1:
@@ -231,7 +255,7 @@ export class WebGPUTextureContext implements ITextureContext {
         }
     }
 
-    private _getGPUTextureDescriptor(dimension: TextureDimension, width: number, height: number, gouformat: GPUTextureFormat, layerCount: number, isCompressTexture: boolean): GPUTextureDescriptor {
+    private _getGPUTextureDescriptor(dimension: TextureDimension, width: number, height: number, gpuFormat: GPUTextureFormat, layerCount: number, isCompressTexture: boolean): GPUTextureDescriptor {
         const textureSize = {
             width: width,
             height: height,
@@ -239,13 +263,14 @@ export class WebGPUTextureContext implements ITextureContext {
         };
         const cancopy = !isCompressTexture;
         let usage = GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST | GPUTextureUsage.RENDER_ATTACHMENT;
-        let mipmapCount = 1;//TODO generateMipmap ? Math.max(Math.ceil(Math.log2(width)) + 1, Math.ceil(Math.log2(height)) + 1) : 1;
+        let mipmapCount = 1; //TODO generateMipmap ? Math.max(Math.ceil(Math.log2(width)) + 1, Math.ceil(Math.log2(height)) + 1) : 1;
         if (cancopy) {
             usage |= GPUTextureUsage.COPY_DST;
         }
         let dimensionType: GPUTextureDimension;
         switch (dimension) {
             case TextureDimension.Tex2D:
+            case TextureDimension.Cube:
             case TextureDimension.Texture2DArray:
                 dimensionType = GPUTextureDimension.D2D;
                 break;
@@ -253,20 +278,18 @@ export class WebGPUTextureContext implements ITextureContext {
                 dimensionType = GPUTextureDimension.D3D;
                 break;
             default:
-                throw "DimensionType Unknown format"
+                throw "DimensionType Unknown format";
         }
-        let textureDescriptor: GPUTextureDescriptor = {
+        const textureDescriptor: GPUTextureDescriptor = {
             size: textureSize,
             mipLevelCount: mipmapCount,
             sampleCount: 1,
             dimension: dimensionType,
-            format: gouformat,
-            usage: usage,
+            format: gpuFormat,
+            usage,
         }
         return textureDescriptor
     }
-
-
 
     createTextureInternal(dimension: TextureDimension, width: number, height: number, format: TextureFormat, generateMipmap: boolean, sRGB: boolean, premultipliedAlpha: boolean): InternalTexture {
         let layerCount;
@@ -321,8 +344,8 @@ export class WebGPUTextureContext implements ITextureContext {
         WebGPURenderEngine._instance.getDevice().queue.copyExternalImageToTexture(image, textureCopyView, copySize);
 
         //Generate mipmap TODO
-
     }
+
     setTextureSubImageData(texture: InternalTexture, source: HTMLCanvasElement | HTMLImageElement | ImageBitmap, x: number, y: number, premultiplyAlpha: boolean, invertY: boolean): void {
         const image: GPUImageCopyExternalImage = { source: source as any, flipY: invertY, origin: { x: 0, y: 0 } };
         const textureCopyView: GPUImageCopyTextureTagged = {
@@ -666,8 +689,19 @@ export class WebGPUTextureContext implements ITextureContext {
         throw new Error("Method not implemented.");
     }
     createRenderTargetInternal(width: number, height: number, format: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number): InternalRenderTarget {
-        throw new Error("Method not implemented.");
+        //throw new Error("Method not implemented.");
         //rt  layout  internalTexture
+
+        const gpuTextureformat = this._getGPURenderTargetFormat(format, sRGB);
+        const textureDescriptor = this._getGPUTextureDescriptor(TextureDimension.Tex2D, width, height, gpuTextureformat, 1, false);
+        const gpuTexture = this._engine.getDevice().createTexture(textureDescriptor);
+        const internalRT = new WebGPUInternalRT(format, depthStencilFormat, false, generateMipmap, 1);
+        internalRT._textures.push(new WebGPUInternalTex(width, height, 1, TextureDimension.Tex2D, generateMipmap, false, 1));
+        internalRT._textures[0].resource = gpuTexture;
+        WebGPURenderPassHelper.setColorAttachments(internalRT._renderPassDescriptor, internalRT._textures, true);
+        //internalRT._webGPUFormat = gpuTextureformat;
+
+        return internalRT;
     }
     createRenderTargetCubeInternal(size: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number): InternalRenderTarget {
         throw new Error("Method not implemented.");
@@ -693,5 +727,4 @@ export class WebGPUTextureContext implements ITextureContext {
     getRenderTextureData(internalTex: InternalRenderTarget, x: number, y: number, width: number, height: number): ArrayBufferView {
         throw new Error("Method not implemented.");
     }
-
 }

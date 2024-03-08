@@ -52,87 +52,87 @@ export class WebGLCacheAsNormalCanvas {
     }
 
     startRec(): void {
-		let context = this.context;
-        // 如果有文字优化，这里要先提交一下
-        if (context._charSubmitCache && context._charSubmitCache._enable) {
-            context._charSubmitCache.enable(false, context);
-            context._charSubmitCache.enable(true, context);
-        }
-        context._incache = true;
-        this.touches.length = 0;
-        //记录需要touch的文字资源
-        (<any>context).touches = this.touches;
-        context._globalClipMatrix.copyTo(this.cachedClipInfo);
+		// let context = this.context;
+        // // 如果有文字优化，这里要先提交一下
+        // if (context._charSubmitCache && context._charSubmitCache._enable) {
+        //     context._charSubmitCache.enable(false, context);
+        //     context._charSubmitCache.enable(true, context);
+        // }
+        // context._incache = true;
+        // this.touches.length = 0;
+        // //记录需要touch的文字资源
+        // (<any>context).touches = this.touches;
+        // context._globalClipMatrix.copyTo(this.cachedClipInfo);
 
-        this.submits.length = 0;
-        this.submitStartPos = context._submits._length;
+        // this.submits.length = 0;
+        // this.submitStartPos = context._submits._length;
 
-        this.meshlist.length = 0;
+        // this.meshlist.length = 0;
 
-        this._mesh = new MeshQuadTexture();
-        this._pathMesh = new  MeshVG();
-        this._triangleMesh = new MeshTexture();
+        // this._mesh = new MeshQuadTexture();
+        // this._pathMesh = new  MeshVG();
+        // this._triangleMesh = new MeshTexture();
 
-        this.meshlist.push(this._mesh);
-        this.meshlist.push(this._pathMesh);
-        this.meshlist.push(this._triangleMesh);
+        // this.meshlist.push(this._mesh);
+        // this.meshlist.push(this._pathMesh);
+        // this.meshlist.push(this._triangleMesh);
 
-        // 打断合并
-        context._curSubmit = SubmitBase.RENDERBASE;
-        // 接管context中的一些值
-        // this._oldMesh = context._mesh;
-        // this._oldPathMesh = context._pathMesh;
-        // this._oldTriMesh = context._triangleMesh;
-        // this._oldMeshList = context.meshlist;
+        // // 打断合并
+        // context._curSubmit = SubmitBase.RENDERBASE;
+        // // 接管context中的一些值
+        // // this._oldMesh = context._mesh;
+        // // this._oldPathMesh = context._pathMesh;
+        // // this._oldTriMesh = context._triangleMesh;
+        // // this._oldMeshList = context.meshlist;
 
-        // context._mesh = this._mesh;
-        // context._pathMesh = this._pathMesh;
-        // context._triangleMesh = this._triangleMesh;
-        // context.meshlist = this.meshlist;
+        // // context._mesh = this._mesh;
+        // // context._pathMesh = this._pathMesh;
+        // // context._triangleMesh = this._triangleMesh;
+        // // context.meshlist = this.meshlist;
 
-        // 要取消位置，因为以后会再传入位置。这里好乱
-        this.oldTx = context._curMat.tx;
-        this.oldTy = context._curMat.ty;
-        context._curMat.tx = 0;
-        context._curMat.ty = 0;
+        // // 要取消位置，因为以后会再传入位置。这里好乱
+        // this.oldTx = context._curMat.tx;
+        // this.oldTy = context._curMat.ty;
+        // context._curMat.tx = 0;
+        // context._curMat.ty = 0;
 
-        // 取消缩放等
-        context._curMat.copyTo(this.invMat);
-        this.invMat.invert();
-        //oldMatrix = context._curMat;
-        //context._curMat = matI;
+        // // 取消缩放等
+        // context._curMat.copyTo(this.invMat);
+        // this.invMat.invert();
+        // //oldMatrix = context._curMat;
+        // //context._curMat = matI;
     }
 
     endRec(): void {
-		let context = this.context;
-        // 如果有文字优化，这里要先提交一下
-        if (context._charSubmitCache && context._charSubmitCache._enable) {
-            context._charSubmitCache.enable(false, context);
-            context._charSubmitCache.enable(true, context);
-        }
-        // copy submit
-        var parsubmits: any = context._submits;
-        this.submitEndPos = parsubmits._length;
-        var num= this.submitEndPos - this.submitStartPos;
-        for (var i= 0; i < num; i++) {
-            this.submits.push(parsubmits[this.submitStartPos + i]);
-        }
-        parsubmits._length -= num;
+		// let context = this.context;
+        // // 如果有文字优化，这里要先提交一下
+        // if (context._charSubmitCache && context._charSubmitCache._enable) {
+        //     context._charSubmitCache.enable(false, context);
+        //     context._charSubmitCache.enable(true, context);
+        // }
+        // // copy submit
+        // var parsubmits: any = context._submits;
+        // this.submitEndPos = parsubmits._length;
+        // var num= this.submitEndPos - this.submitStartPos;
+        // for (var i= 0; i < num; i++) {
+        //     this.submits.push(parsubmits[this.submitStartPos + i]);
+        // }
+        // parsubmits._length -= num;
 
-        // 恢复原始context的值
-        // context._mesh = this._oldMesh;
-        // context._pathMesh = this._oldPathMesh;
-        // context._triangleMesh = this._oldTriMesh;
-        // context.meshlist = this._oldMeshList;
+        // // 恢复原始context的值
+        // // context._mesh = this._oldMesh;
+        // // context._pathMesh = this._oldPathMesh;
+        // // context._triangleMesh = this._oldTriMesh;
+        // // context.meshlist = this._oldMeshList;
 
-        // 打断合并
-        context._curSubmit = SubmitBase.RENDERBASE;
-        // 恢复matrix
-        //context._curMat = oldMatrix;
-        context._curMat.tx = this.oldTx;
-        context._curMat.ty = this.oldTy;
-        (<any>context).touches = null;
-        context._incache = false;
+        // // 打断合并
+        // context._curSubmit = SubmitBase.RENDERBASE;
+        // // 恢复matrix
+        // //context._curMat = oldMatrix;
+        // context._curMat.tx = this.oldTx;
+        // context._curMat.ty = this.oldTy;
+        // (<any>context).touches = null;
+        // context._incache = false;
     }
 
     /**

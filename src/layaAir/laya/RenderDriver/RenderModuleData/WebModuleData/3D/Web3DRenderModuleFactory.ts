@@ -15,56 +15,56 @@ import { WebSpotLight } from "./WebSpotLight";
 import { WebVolumetricGI } from "./WebVolumetricGI";
 
 export class Web3DRenderModuleFactory implements I3DRenderModuleFactory {
-    createShaderPass(pass: ShaderPass): IShaderPassData {
-        return new WebShaderPass(pass);
-    }
-    
-    createTransform(owner: Sprite3D): Transform3D {
-        return new Transform3D(owner);
-    }
-    
-    createBounds(min: Vector3, max: Vector3):BoundsImpl {
-        return new BoundsImpl(min,max);
-    }
-    
-    createVolumetricGI(): WebVolumetricGI {
-        return new WebVolumetricGI();
-    }
-    
-    createReflectionProbe(): WebReflectionProbe {
-      return new WebReflectionProbe();
-    }
-    
-    createLightmapData(): WebLightmap {
-     return new WebLightmap();
-    }
-    
-    createDirectLight(): WebDirectLight {
-       return new WebDirectLight();
-    }
-    
-    createSpotLight(): WebSpotLight {
-      return new WebSpotLight();
-    }
-    
-    createCameraModuleData(): WebCameraNodeData {
-        return new WebCameraNodeData();
-    }
-    
-    createSceneModuleData(): WebSceneNodeData {
-      return new WebSceneNodeData();
-    }
-    
-    createSubShader(): WebSubShader {
-       return new WebSubShader();
-    }
-    
-    createBaseRenderNode(): WebBaseRenderNode {
-       return new WebBaseRenderNode();
-    }
+  createShaderPass(pass: ShaderPass): IShaderPassData {
+    return new WebShaderPass(pass);
+  }
 
-    createMeshRenderNode(): WebMeshRenderNode {
-       return new WebMeshRenderNode();
-    }
+  createTransform(owner: Sprite3D): Transform3D {
+    return new Transform3D(owner);
+  }
+
+  createBounds(min: Vector3, max: Vector3): BoundsImpl {
+    return new BoundsImpl(min, max);
+  }
+
+  createVolumetricGI(): WebVolumetricGI {
+    return new WebVolumetricGI();
+  }
+
+  createReflectionProbe(): WebReflectionProbe {
+    return new WebReflectionProbe();
+  }
+
+  createLightmapData(): WebLightmap {
+    return new WebLightmap();
+  }
+
+  createDirectLight(): WebDirectLight {
+    return new WebDirectLight();
+  }
+
+  createSpotLight(): WebSpotLight {
+    return new WebSpotLight();
+  }
+
+  createCameraModuleData(): WebCameraNodeData {
+    return new WebCameraNodeData();
+  }
+
+  createSceneModuleData(): WebSceneNodeData {
+    return new WebSceneNodeData();
+  }
+
+  createSubShader(): WebSubShader {
+    return new WebSubShader();
+  }
+
+  createBaseRenderNode(): WebBaseRenderNode {
+    return new WebBaseRenderNode();
+  }
+
+  createMeshRenderNode(): WebMeshRenderNode {
+    return new WebMeshRenderNode();
+  }
 
 }

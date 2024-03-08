@@ -1,3 +1,4 @@
+import { CullMode, FrontFace } from "../../../RenderEngine/RenderEnum/CullMode";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { ShaderPass } from "../../../RenderEngine/RenderShader/ShaderPass";
 import { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
@@ -9,12 +10,15 @@ import { WebBaseRenderNode } from "../../RenderModuleData/WebModuleData/3D/WebBa
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
 import { WebGPUInternalRT } from "../RenderDevice/WebGPUInternalRT";
 import { WebGPURenderGeometry } from "../RenderDevice/WebGPURenderGeometry";
-import { WebGPUBlendState, WebGPUCullMode, WebGPUDepthStencilState, WebGPUFrontFace, WebGPURenderPipeline, renderpipelineInfo } from "../RenderDevice/WebGPURenderPipelineHelper";
+import { IRenderpipelineInfo, WebGPUBlendState, WebGPUBlendStateCache, WebGPUDepthStencilState, WebGPUDepthStencilStateCache, WebGPUFrontFace, WebGPURenderPipeline } from "../RenderDevice/WebGPURenderPipelineHelper";
 import { WebGPUShaderData } from "../RenderDevice/WebGPUShaderData";
 import { WebGPUShaderInstance } from "../RenderDevice/WebGPUShaderInstance";
 import { WebGPURenderContext3D } from "./WebGPURenderContext3D";
 
-export class WebGPURenderElement3D implements IRenderElement3D, renderpipelineInfo {
+export class WebGPURenderElement3D implements IRenderElement3D, IRenderpipelineInfo {
+    destroy(): void {
+        throw new Error("Method not implemented.");
+    }
 
     /** @internal */
     static _compileDefine: WebDefineDatas = new WebDefineDatas();
@@ -28,13 +32,12 @@ export class WebGPURenderElement3D implements IRenderElement3D, renderpipelineIn
     subShader: SubShader;
     materialId: number;
     private _invertFrontFace: boolean;
-    protected _shaderInstances: SingletonList<WebGPUShaderInstance>;
+    protected _shaderInstances: SingletonList<WebGPUShaderInstance> = new SingletonList<WebGPUShaderInstance>();
     geometry: WebGPURenderGeometry;
-    blendState: GPUBlendState;
-    depthStencilState: GPUDepthStencilState;
-    cullMode: GPUCullMode;
-    frontFace: GPUFrontFace;
-
+    blendState: WebGPUBlendStateCache;
+    depthStencilState: WebGPUDepthStencilStateCache;
+    cullMode: CullMode;
+    frontFace: FrontFace;
 
     protected _getInvertFront(): boolean {
         let transform = this.owner?.transform;
@@ -93,7 +96,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, renderpipelineIn
         this._getBlendState(shaderInstance);
         this._getDepthStencilState(shaderInstance, dest);
         this._getCullFrontMode(this.materialShaderData, shaderInstance, this._invertFrontFace, context.invertY)
-        return WebGPURenderPipeline.getWebGPURenderPipeline(this, shaderInstance, dest);
+        return WebGPURenderPipeline.getRenderPipeline(this, shaderInstance, dest);
     }
 
     _getBlendState(shader: WebGPUShaderInstance): void {
@@ -173,7 +176,6 @@ export class WebGPURenderElement3D implements IRenderElement3D, renderpipelineIn
                 break;
             default:
                 throw "blendState set error"
-                break;
         }
         return blendState;
     }
@@ -215,7 +217,6 @@ export class WebGPURenderElement3D implements IRenderElement3D, renderpipelineIn
         // depth
         var depthWrite = datas[Shader3D.DEPTH_WRITE];
         depthWrite = depthWrite ?? RenderState.Default.depthWrite;
-
 
         var depthTest = datas[Shader3D.DEPTH_TEST];
         depthTest = depthTest ?? RenderState.Default.depthTest;
@@ -261,33 +262,31 @@ export class WebGPURenderElement3D implements IRenderElement3D, renderpipelineIn
         cull = cull ?? RenderState.Default.cull;
         switch (cull) {
             case RenderState.CULL_NONE:
-                this.cullMode = WebGPUCullMode.None;
+                this.cullMode = CullMode.Off;
                 if (isTarget != invertFront)
-                    this.frontFace = WebGPUFrontFace.CCW;//gl.CCW
+                    this.frontFace = FrontFace.CCW;
                 else
-                    this.frontFace = WebGPUFrontFace.CW;
+                    this.frontFace = FrontFace.CW;
                 break;
             case RenderState.CULL_FRONT:
-                this.cullMode = WebGPUCullMode.Front;
+                this.cullMode = CullMode.Front;
                 if (isTarget == invertFront)
-                    this.frontFace = WebGPUFrontFace.CCW;//gl.CCW
+                    this.frontFace = FrontFace.CCW;
                 else
-                    this.frontFace = WebGPUFrontFace.CW;
+                    this.frontFace = FrontFace.CW;
                 break;
             case RenderState.CULL_BACK:
             default:
-                this.cullMode = WebGPUCullMode.Back;
+                this.cullMode = CullMode.Back;
                 if (isTarget != invertFront)
-                    this.frontFace = WebGPUFrontFace.CCW;//gl.CCW
+                    this.frontFace = FrontFace.CCW;
                 else
-                    this.frontFace = WebGPUFrontFace.CW;
+                    this.frontFace = FrontFace.CW;
                 break;
         }
     }
 
-
     _render(context: WebGPURenderContext3D) {
-        var forceInvertFace: boolean = context.invertY;
         var sceneShaderData = context.sceneData as WebGPUShaderData;
         var cameraShaderData = context.cameraData as WebGPUShaderData;
         if (this.isRender) {
@@ -297,13 +296,19 @@ export class WebGPURenderElement3D implements IRenderElement3D, renderpipelineIn
                 const shaderIns = passes[j] as WGPURenderPipelineInstance;
                 if (!shaderIns.complete)
                     continue;
-                let pipeline = this._getWebGPURenderPipeline(shaderIns,context._destRT,context);
-                
+                let pipeline = this._getWebGPURenderPipeline(shaderIns, context._destRT, context);
+                context._renderCommand.setPipeline(pipeline);
+                //scene
+                sceneShaderData && sceneShaderData._uploadUniform(shaderIns.uniformSetMap[0], context._renderCommand);
+                //camera
+                cameraShaderData && cameraShaderData._uploadUniform(shaderIns.uniformSetMap[1], context._renderCommand);
+                //render
+                this.renderShaderData && this.renderShaderData._uploadUniform(shaderIns.uniformSetMap[2], context._renderCommand);
+                //material
+                this.materialShaderData && this.materialShaderData._uploadUniform(shaderIns.uniformSetMap[3], context._renderCommand);
+                //draw
+                context._renderCommand.applyGeometry(this.geometry);
             }
         }
-
-        destroy(): void {
-            throw new Error("Method not implemented.");
-        }
-
     }
+}

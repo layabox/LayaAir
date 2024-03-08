@@ -17,8 +17,10 @@ export class SkyRenderElement extends RenderElement {
 
     protected _createRenderElementOBJ(): void {
         this._renderElementOBJ = Laya3DRender.Render3DPassFactory.createSkyRenderElement();
-        this._renderElementOBJ.skyViewMatrix = this.viewMatrix = new Matrix4x4();
-        this._renderElementOBJ.skyProjectionMatrix = this.projectionMatrix = new Matrix4x4();
+        if (this._renderElementOBJ) {
+            this._renderElementOBJ.skyViewMatrix = this.viewMatrix = new Matrix4x4();
+            this._renderElementOBJ.skyProjectionMatrix = this.projectionMatrix = new Matrix4x4();
+        }
     }
 
     calculateViewMatrix(cameraViewMat: Matrix4x4) {
