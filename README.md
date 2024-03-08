@@ -1,12 +1,12 @@
 <p align="center">
-    <a href="https://layaair.layabox.com">
+    <a href="https://layaair.com">
         <img src="https://github.com/layabox/LayaAir/assets/38777031/5519a795-c050-4612-8ee0-0907a946260b"
     </a>
 </p>
 
 # LayaAir Engine
 
-**[LayaAir](https://layaair.layabox.com/) engine, under the [Layabox](https://www.layabox.com/) brand, is a 3D engine that supports full-platform publishing. It can be applied in various fields such as games, education, advertising, marketing, digital twins, metaverse, AR guides, VR scenes, architectural design, industrial design, etc.**
+**[LayaAir](https://layaair.com/) engine, under the [Layabox](https://www.layabox.com/) brand, is a 3D engine that supports full-platform publishing. It can be applied in various fields such as games, education, advertising, marketing, digital twins, metaverse, AR guides, VR scenes, architectural design, industrial design, etc.**
 
 [中文](README.zh-CN.md)
 
@@ -26,7 +26,7 @@ LayaAir engine actively embraces AI and has built-in AIGC framework, providing A
 
 Download LayaAir IDE directly from the official website of LayaAir, which includes the corresponding version of the engine.
 
-[LayaAir Engine Download](https://layaair.layabox.com/#/engineDownload).
+[LayaAir Engine Download](https://layaair.com/#/engineDownload).
 
 ### Compiling from source
 
@@ -72,17 +72,17 @@ Fork an official open source project from github to your own repository, clone i
 
 ## Related links
 
-- Official website https://layaair.layabox.com/
+- Official website https://LayaAir.com/
 
-- Forum https://ask.layabox.com/
+- Forum https://ask.LayaAir.com/
 
-- Demo https://layaair.layabox.com/3.x/demo/
+- Demo https://LayaAir.com/3.x/demo/
 
-- Documents https://layaair.layabox.com/3.x/doc/
+- Documents https://LayaAir.com/3.x/doc/
 
-- API References https://layaair.layabox.com/3.x/api/
+- API References https://LayaAir.com/3.x/api/
 
-- Showcases https://layaair.layabox.com/#/enginedemo
+- Showcases https://LayaAir.com/#/enginedemo
 
 ## License
 
