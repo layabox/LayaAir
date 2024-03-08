@@ -62,7 +62,7 @@ export class BlackBoardUtils {
     }
 
 
-    static caculateOtherValue(blackBoradComp: BlackboardComponent, op: EBBOtherOperation, key: string, value: any) {
+    static caculateOtherValue(blackBoradComp: BlackboardComponent, op: EBBOtherOperation, key: string) {
         let result = blackBoradComp.getData(key) as any;
         switch (op) {
             case EBBOtherOperation.set:

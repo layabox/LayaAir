@@ -20,7 +20,7 @@ export class BTBlackBorad extends BTDecorator {
                 result = BlackBoardUtils.caculateStringValue(btCmp.blackBoradComp, this.op, this.keyName, this.value);
                 break;
             case EBBType.Other:
-                result = BlackBoardUtils.caculateOtherValue(btCmp.blackBoradComp, this.op, this.keyName, this.value);
+                result = BlackBoardUtils.caculateOtherValue(btCmp.blackBoradComp, this.op, this.keyName);
                 break;
         }
         return result;
