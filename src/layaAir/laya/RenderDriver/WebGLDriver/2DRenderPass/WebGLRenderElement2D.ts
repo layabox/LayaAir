@@ -16,7 +16,6 @@ export class WebGLRenderelement2D implements IRenderElement2D {
     /** @internal */
     static _compileDefine: WebDefineDatas = new WebDefineDatas();
     protected _shaderInstances: SingletonList<WebGLShaderInstance> = new SingletonList<WebGLShaderInstance>();
-    blendState: null;
     geometry: WebGLRenderGeometryElement;
     materialShaderData: WebGLShaderData;
     value2DShaderData: WebGLShaderData;
@@ -67,7 +66,6 @@ export class WebGLRenderelement2D implements IRenderElement2D {
     }
 
     _render(context: WebglRenderContext2D) {
-        this._compileShader(context);
         if (this._shaderInstances.length == 1) {
             this.renderByShaderInstance(this._shaderInstances.elements[0], context)
         } else {

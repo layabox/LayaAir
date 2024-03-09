@@ -7,6 +7,5 @@ export interface IRenderElement2D {
     materialShaderData: ShaderData;
     value2DShaderData: ShaderData;
     subShader: SubShader;
-    blendState:null;
     destroy(): void;
 }

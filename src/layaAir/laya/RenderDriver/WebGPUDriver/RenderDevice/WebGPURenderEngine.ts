@@ -60,6 +60,8 @@ export class WebGPURenderEngine implements IRenderEngine {
     private _deviceEnabledExtensions: GPUFeatureName[];
 
     private _textureContext:WebGPUTextureContext;
+
+    
     /**
      * 实例化一个webgpuEngine
      */
@@ -202,12 +204,12 @@ export class WebGPURenderEngine implements IRenderEngine {
         // // this._webGPUTextureContext = new WebGPUTextureContext(this);
         // // this._supportCapatable = new WebGPUCapable(this);
         // // //offscreen canvans
-        // // this._cavansRT = new WebGPUInternalRT(this, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.DEPTHSTENCIL_24_Plus, false, false, 1);
-        // // let _offscreenTex = new WebGPUInternalTex(this, 0, 0, TextureDimension.Tex2D, false);
-        // // this._cavansRT.isOffscreenRT = true;
-        // // _offscreenTex.resource = this._context.getCurrentTexture();
-        // // this._cavansRT._textures.push(_offscreenTex);
-        // // this._cavansRT._depthTexture = this._webGPUTextureContext.createRenderTextureInternal(TextureDimension.Tex2D, this._canvas.width, this._canvas.height, RenderTargetFormat.DEPTHSTENCIL_24_Plus, false, false);
+        // this._cavansRT = new WebGPUInternalRT(this, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.DEPTHSTENCIL_24_Plus, false, false, 1);
+        // let _offscreenTex = new WebGPUInternalTex(this, 0, 0, TextureDimension.Tex2D, false);
+        // this._cavansRT.isOffscreenRT = true;
+        // _offscreenTex.resource = this._context.getCurrentTexture();
+        // this._cavansRT._textures.push(_offscreenTex);
+        // this._cavansRT._depthTexture = this._webGPUTextureContext.createRenderTextureInternal(TextureDimension.Tex2D, this._canvas.width, this._canvas.height, RenderTargetFormat.DEPTHSTENCIL_24_Plus, false, false);
 
         // //limit TODO
         // ///this._adapter 得到Webgpu限制

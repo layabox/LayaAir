@@ -168,7 +168,7 @@ export class Value2D {
         if (value instanceof Texture) {
             tex = value.bitmap;
         } else if (value instanceof TextTexture) {
-            tex = value._getSource();
+            tex = value._source;
         } else {
             tex = value;
         }
