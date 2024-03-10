@@ -14,10 +14,10 @@ export class WebGPURenderEngineFactory implements IRenderEngineFactory {
     async createEngine(config: Config, canvas: any): Promise<void> {
         const gpuConfig = new WebGPUConfig();
         gpuConfig.alphaMode = Config.premultipliedAlpha ? "premultiplied" : "opaque";
-        gpuConfig.colorSpace = "srgb";//TODO 这里感觉会出问题
+        gpuConfig.colorSpace = "srgb"; //TODO 这里感觉会出问题
         switch (Config.powerPreference) {
             case "default":
-                gpuConfig.powerPreference = undefined;
+                gpuConfig.powerPreference = "high-performance";
                 break;
             default:
                 gpuConfig.powerPreference = Config.powerPreference;

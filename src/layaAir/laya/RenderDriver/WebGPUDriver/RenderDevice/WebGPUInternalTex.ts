@@ -4,7 +4,7 @@ import { TextureDimension } from "../../../RenderEngine/RenderEnum/TextureDimens
 import { WrapMode } from "../../../RenderEngine/RenderEnum/WrapMode";
 import { InternalTexture } from "../../DriverDesign/RenderDevice/InternalTexture";
 import { WebGPUSampler, WebGPUSamplerParams } from "./WebGPUSampler";
-import { GPUTextureFormat } from "./WebGPUTextureContext";
+import { WebGPUTextureFormat } from "./WebGPUTextureContext";
 
 export class WebGPUInternalTex implements InternalTexture {
     resource: GPUTexture;
@@ -21,7 +21,8 @@ export class WebGPUInternalTex implements InternalTexture {
     useSRGBLoad: boolean;
     gammaCorrection: number;
 
-    _webGPUFormat: GPUTextureFormat;
+    _webGPUFormat: WebGPUTextureFormat;
+
     //sampler 
     private _filterMode: FilterMode;
     public get filterMode(): FilterMode {
@@ -139,9 +140,8 @@ export class WebGPUInternalTex implements InternalTexture {
         // this._mipmapCount = this._mipmap ? Math.max(Math.ceil(Math.log2(width)) + 1, Math.ceil(Math.log2(height)) + 1) : 1;
         // this._maxMipmapLevel = this._mipmapCount - 1;
         this.baseMipmapLevel = 0;
-        //TODO
-        // this.useSRGBLoad = useSRGBLoader;
-        // this.gammaCorrection = gammaCorrection;
+        this.useSRGBLoad = useSRGBLoader;
+        this.gammaCorrection = gammaCorrection;
 
         this._webgpuSampler = WebGPUSampler.getWebGPUSampler(this._webGPUSamplerParams);
     }

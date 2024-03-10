@@ -2,7 +2,7 @@ import { Vector2 } from "../../../maths/Vector2";
 import { WebGPUBuffer } from "./WebGPUBuffer";
 import { WebGPUUniformBlockInfo } from "./WebGPUUniformBlockInfo";
 
-//根据unfiormBlock布局来更新数据
+//根据uniformBlock布局来更新数据
 export class WebGPUSubUniformBlockBuffer {
     owner: WebGPUUniformBlockBuffer
     layout: WebGPUUniformBlockInfo;
@@ -22,7 +22,7 @@ export class WebGPUSubUniformBlockBuffer {
     }
 }
 
-//根据unfiormBlock布局来更新数据
+//根据uniformBlock布局来更新数据
 export class WebGPUUniformBlockBuffer {
     //TODO 重名直接报错
     static _map: { [key: number]: WebGPUUniformBlockBuffer } = {};

@@ -10,12 +10,12 @@ export class WebGPURenderCommandEncoder {
     _commandEncoder: GPUCommandEncoder;
     _encoder: GPURenderPassEncoder;
     _engine: WebGPURenderEngine;
-    _cacheBindGroupMap: { [key: number]: GPUBindGroup } = {};  //Cache方案TODO
+    _cacheBindGroupMap: { [key: number]: GPUBindGroup } = {}; //Cache方案TODO
     _device: GPUDevice;
     /**
      * pipeline
      */
-    curpipeline: GPURenderPipeline;
+    curPipeline: GPURenderPipeline;
     curGeometry: WebGPURenderGeometry;
     //bindGroup cache TODO
     constructor() {
@@ -29,9 +29,9 @@ export class WebGPURenderCommandEncoder {
     }
 
     setPipeline(pipeline: GPURenderPipeline): void {
-        if (pipeline != this.curpipeline) {
+        if (pipeline != this.curPipeline) {
             this._encoder.setPipeline(pipeline);
-            this.curpipeline = pipeline;
+            this.curPipeline = pipeline;
         }
     }
 
@@ -53,7 +53,6 @@ export class WebGPURenderCommandEncoder {
 
     //bindCommand
     setBindGroup(index: GPUIndex32, bindGroup: GPUBindGroup, dynamicOffsets?: Iterable<GPUBufferDynamicOffset>) {
-
         // if (this._cacheBindGroupMap[index] != bindGroup) {
         //     this._cacheBindGroupMap[index] = bindGroup;
         this._encoder.setBindGroup(index, bindGroup, dynamicOffsets);
@@ -73,7 +72,6 @@ export class WebGPURenderCommandEncoder {
         this._encoder.setScissorRect(x, y, width, height);
     }
 
-
     end() {
         this._encoder.end();
     }
@@ -82,22 +80,20 @@ export class WebGPURenderCommandEncoder {
         return this._commandEncoder.finish();
     }
 
-
     /**
     * draw
     * @param geometry 
     */
     applyGeometry(geometry: WebGPURenderGeometry) {
-
         if (geometry != this.curGeometry) {
             this.curGeometry = geometry;
-            let vertexbuffers = geometry.bufferState._vertexBuffers;
-            let indexbuffer = geometry.bufferState._bindedIndexBuffer;
+            const vertexbuffers = geometry.bufferState._vertexBuffers;
+            const indexbuffer = geometry.bufferState._bindedIndexBuffer;
             for (let i = 0; i < vertexbuffers.length; i++) {
                 this.setVertexBuffer(i, vertexbuffers[i]._source._source, 0, vertexbuffers[i]._source._size);
             }
             if (indexbuffer) {
-                let format: GPUIndexFormat = (geometry.indexFormat == IndexFormat.UInt16) ? "uint16" : "uint32";
+                const format: GPUIndexFormat = (geometry.indexFormat == IndexFormat.UInt16) ? "uint16" : "uint32";
                 this.setIndexBuffer(indexbuffer._source._source, format, indexbuffer._source._size, 0);
             }
         }

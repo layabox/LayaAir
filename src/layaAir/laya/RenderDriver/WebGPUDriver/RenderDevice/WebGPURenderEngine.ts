@@ -1,6 +1,8 @@
 import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
 import { RenderParams } from "../../../RenderEngine/RenderEnum/RenderParams";
 import { RenderStatisticsInfo } from "../../../RenderEngine/RenderEnum/RenderStatInfo";
+import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTargetFormat";
+import { TextureDimension } from "../../../RenderEngine/RenderEnum/TextureDimension";
 import { IRenderEngine } from "../../DriverDesign/RenderDevice/IRenderEngine";
 import { IRenderEngineFactory } from "../../DriverDesign/RenderDevice/IRenderEngineFactory";
 import { ITextureContext } from "../../DriverDesign/RenderDevice/ITextureContext";
@@ -8,8 +10,15 @@ import { InternalTexture } from "../../DriverDesign/RenderDevice/InternalTexture
 import { IDefineDatas } from "../../RenderModuleData/Design/IDefineDatas";
 import { ShaderDefine } from "../../RenderModuleData/Design/ShaderDefine";
 import { WebGPUCapable } from "./WebGPUCapable";
+import { WebGPUInternalRT } from "./WebGPUInternalRT";
+import { WebGPUInternalTex } from "./WebGPUInternalTex";
+import { WebGPUBindGroupManager } from "./WebGPUMemoryManagers/WebGPUBindGroupManager";
+import { WebGPUBufferManager } from "./WebGPUMemoryManagers/WebGPUBufferManager";
+import { WebGPUPipelineManager } from "./WebGPUMemoryManagers/WebGPUPipelineManager";
+import { WebGPUTextureManager } from "./WebGPUMemoryManagers/WebGPUTextureManager";
+import { WebGPUVertexManager } from "./WebGPUMemoryManagers/WebGPUVertexManager";
 import { WebGPURenderEngineFactory } from "./WebGPURenderEngineFactory";
-import { WebGPUTextureContext } from "./WebGPUTextureContext";
+import { WebGPUTextureContext, WebGPUTextureFormat } from "./WebGPUTextureContext";
 
 export class WebGPUConfig {
     /**
@@ -23,7 +32,7 @@ export class WebGPUConfig {
     /**
      * context params 
      */
-    swapChainFormat?: GPUTextureFormat;
+    swapChainFormat?: WebGPUTextureFormat;
     /**
      * canvans alpha mode
      */
@@ -39,43 +48,42 @@ export class WebGPUConfig {
 }
 
 export class WebGPURenderEngine implements IRenderEngine {
-    static _offscreenFormat: GPUTextureFormat;
+    static _offscreenFormat: WebGPUTextureFormat;
     static _instance: WebGPURenderEngine;
     _isShaderDebugMode: boolean;
     _renderOBJCreateContext: IRenderEngineFactory;
 
-    /**canvas */
     _canvas: HTMLCanvasElement;
-    /**context */
     _context: GPUCanvasContext;
-    /**config */
     _config: WebGPUConfig;
+
+    _canvasRT: WebGPUInternalRT;
+    _renderPassDesc: GPURenderPassDescriptor;
 
     _supportCapatable: WebGPUCapable;
 
-    /**@internal */
     private _adapter: GPUAdapter;
+    private _device: GPUDevice;
+    private _textureContext: WebGPUTextureContext;
 
     private _adapterSupportedExtensions: GPUFeatureName[];
-
-    private _device: GPUDevice;
-
     private _deviceEnabledExtensions: GPUFeatureName[];
 
-    private _textureContext: WebGPUTextureContext;
+    gpuVertexMgr: WebGPUVertexManager;
+    gpuBufferMgr: WebGPUBufferManager;
+    gpuTextureMgr: WebGPUTextureManager;
+    gpuPipelineMgr: WebGPUPipelineManager;
+    gpuBindGroupMgr: WebGPUBindGroupManager;
 
     /**
      * 实例化一个webgpuEngine
      */
     constructor(config: WebGPUConfig, canvas: any) {
-        this._canvas = canvas;
         this._config = config;
-
-        if (!navigator.gpu) {
-            console.error("WebGPU is not supported by your browser.");
-            return;
-        }
-        WebGPURenderEngine._instance = this;
+        this._canvas = canvas;
+        if (navigator.gpu)
+            WebGPURenderEngine._instance = this;
+        else console.error("WebGPU is not supported by your browser");
     }
 
     /**
@@ -97,15 +105,13 @@ export class WebGPURenderEngine implements IRenderEngine {
             this._adapter = adapter;
             const deviceDescriptor = this._config.deviceDescriptor;
             this._adapterSupportedExtensions = [];
-            this._adapter.features?.forEach((feature) => this._adapterSupportedExtensions.push(feature as GPUFeatureName));
+            this._adapter.features?.forEach(feature => this._adapterSupportedExtensions.push(feature as GPUFeatureName));
             if (deviceDescriptor?.requiredFeatures) {
                 const requestedExtensions = deviceDescriptor.requiredFeatures;
                 const validExtensions: GPUFeatureName[] = [];
-                for (const extension of requestedExtensions) {
-                    if (this._adapterSupportedExtensions.indexOf(extension) !== -1) {
+                for (const extension of requestedExtensions)
+                    if (this._adapterSupportedExtensions.indexOf(extension) !== -1)
                         validExtensions.push(extension);
-                    }
-                }
                 deviceDescriptor.requiredFeatures = validExtensions;
             }
         }
@@ -124,7 +130,7 @@ export class WebGPURenderEngine implements IRenderEngine {
      * error handle
      * @param event 
      */
-    private _uncapturederrorCall(event: Event) {
+    private _unCapturedErrorCall(event: Event) {
         console.warn("WebGPU uncaptured error: " + (event as GPUUncapturedErrorEvent).error);
         console.warn("WebGPU uncaptured error message: " + (event as GPUUncapturedErrorEvent).error.message);
     }
@@ -134,7 +140,7 @@ export class WebGPURenderEngine implements IRenderEngine {
      * @param info 
      */
     private _deviceLostCall(info: GPUDeviceLostInfo) {
-        console.error("WebGPU context lost. " + info);
+        console.error("WebGPU context lost" + info);
     }
 
     /**
@@ -147,8 +153,22 @@ export class WebGPURenderEngine implements IRenderEngine {
         this._device.features.forEach(element => {
             this._deviceEnabledExtensions.push(element as GPUFeatureName);
         });
-        this._device.addEventListener("uncapturederror", this._uncapturederrorCall);
+        this._device.addEventListener("uncapturederror", this._unCapturedErrorCall);
         this._device.lost.then(this._deviceLostCall);
+        
+        this.gpuVertexMgr = new WebGPUVertexManager(device);
+        this.gpuBufferMgr = new WebGPUBufferManager(device);
+        this.gpuTextureMgr = new WebGPUTextureManager();
+        this.gpuPipelineMgr = new WebGPUPipelineManager();
+        this.gpuBindGroupMgr = new WebGPUBindGroupManager();
+
+        this.gpuBufferMgr.addBuffer('scene', 4096);
+        this.gpuBufferMgr.addBuffer('camera', 4096);
+        this.gpuBufferMgr.addBuffer('sprite3D', 10 * 1024 * 1024);
+        this.gpuBufferMgr.addBuffer('simpeSkinnedMesh', 10 * 1024 * 1024);
+        this.gpuBufferMgr.addBuffer('shurikenSprite3D', 5 * 1024 * 1024);
+        this.gpuBufferMgr.addBuffer('trailRender', 1 * 1024 * 1024);
+        this.gpuBufferMgr.addBuffer('material', 20 * 1024 * 1024);
     }
 
     /**
@@ -156,8 +176,8 @@ export class WebGPURenderEngine implements IRenderEngine {
     * @returns 
     */
     async _initAsync(): Promise<void> {
-        return await this._getAdapter().
-            then((adapter: GPUAdapter | null) => {
+        return await this._getAdapter()
+            .then((adapter: GPUAdapter | null) => {
                 this._initAdapter(adapter);
                 return this._getGPUdevice(this._config.deviceDescriptor);
             })
@@ -167,7 +187,7 @@ export class WebGPURenderEngine implements IRenderEngine {
             },
                 (e) => {
                     console.log(e);
-                    throw "couldnt get WebGPU Device";
+                    throw "could not get WebGPU device";
                 })
     }
 
@@ -180,18 +200,19 @@ export class WebGPURenderEngine implements IRenderEngine {
      */
     private _initContext() {
         this._context = this._canvas.getContext("webgpu") as GPUCanvasContext;
-        if (!this._context) {
-            throw "context cound not get "
-        }
-        let swapformat = this._config.swapChainFormat || navigator.gpu.getPreferredCanvasFormat();
-        let usages = this._config.usage ?? GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.COPY_SRC
+        if (!this._context)
+            throw "Could not get context";
+        const perferredFormat = navigator.gpu.getPreferredCanvasFormat();
+        console.log('perferredFormat =', perferredFormat);
+        const format = this._config.swapChainFormat || WebGPUTextureFormat.bgra8unorm;
+        const usage = this._config.usage ?? GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.COPY_SRC;
         this._context.configure({
             device: this._device,
-            format: swapformat,
-            usage: usages,
-            alphaMode: this._config.alphaMode
+            format,
+            usage,
+            alphaMode: this._config.alphaMode,
         });
-        WebGPURenderEngine._offscreenFormat = swapformat;
+        WebGPURenderEngine._offscreenFormat = format;
     }
 
     async initRenderEngine() {
@@ -203,12 +224,16 @@ export class WebGPURenderEngine implements IRenderEngine {
         // // this._webGPUTextureContext = new WebGPUTextureContext(this);
         this._supportCapatable = new WebGPUCapable();
         // // //offscreen canvans
-        // // this._cavansRT = new WebGPUInternalRT(this, RenderTargetFormat.R8G8B8A8, RenderTargetFormat.DEPTHSTENCIL_24_Plus, false, false, 1);
-        // // let _offscreenTex = new WebGPUInternalTex(this, 0, 0, TextureDimension.Tex2D, false);
-        // // this._cavansRT.isOffscreenRT = true;
-        // // _offscreenTex.resource = this._context.getCurrentTexture();
-        // // this._cavansRT._textures.push(_offscreenTex);
-        // // this._cavansRT._depthTexture = this._webGPUTextureContext.createRenderTextureInternal(TextureDimension.Tex2D, this._canvas.width, this._canvas.height, RenderTargetFormat.DEPTHSTENCIL_24_Plus, false, false);
+        //const format = this._config.swapChainFormat || navigator.gpu.getPreferredCanvasFormat();
+        //this._canvasRT = new WebGPUInternalRT(RenderTargetFormat.R8G8B8A8, RenderTargetFormat.DEPTHSTENCIL_24_Plus, false, false, 1);
+        //let _offscreenTex = new WebGPUInternalTex(0, 0, 1, TextureDimension.Tex2D, false, false, 1);
+        //this._canvasRT.isOffscreenRT = true;
+        //_offscreenTex.resource = this._context.getCurrentTexture();
+        //this._canvasRT._textures.push(_offscreenTex);
+        //this._canvasRT._depthTexture = this._textureContext.createRenderTextureInternal(TextureDimension.Tex2D, this._canvas.width, this._canvas.height, RenderTargetFormat.DEPTHSTENCIL_24_Plus, false, false);
+
+        this.createCanvasRT();
+        this.createRenderPassDesc();
 
         // //limit TODO
         // ///this._adapter 得到Webgpu限制
@@ -290,17 +315,18 @@ export class WebGPURenderEngine implements IRenderEngine {
 
     /**获得各个参数 */
     getParams(params: RenderParams): number {
-        //throw new Error("Method not implemented.");
         return 0;
     }
+
     /**获得是否支持某种能力 */
     getCapable(capatableType: RenderCapable): boolean {
-        //throw new Error("Method not implemented.");
         return this._supportCapatable.getCapable(capatableType);
     }
+
     getTextureContext(): ITextureContext {
         return this._textureContext;
     }
+
     getCreateRenderOBJContext(): WebGPURenderEngineFactory {
         return new WebGPURenderEngineFactory()
     }
@@ -313,12 +339,67 @@ export class WebGPURenderEngine implements IRenderEngine {
 
     //统计相关
     clearStatisticsInfo(info: RenderStatisticsInfo): void {
-        //throw new Error("Method not implemented.");
     }
 
     //统计相关
     getStatisticsInfo(info: RenderStatisticsInfo): number {
         return 0;
-        throw new Error("Method not implemented.");
+    }
+
+    /**
+     * 创建画布渲染目标
+     */
+    createCanvasRT() {
+        const device = this._device;
+        const canvas = this._canvas;
+        const context = this._context;
+        const width = canvas.width;
+        const height = canvas.height;
+        this._canvasRT = new WebGPUInternalRT(RenderTargetFormat.R8G8B8A8, RenderTargetFormat.DEPTHSTENCIL_24_8, false, false, 1);
+        this._canvasRT._textures.push(new WebGPUInternalTex(width, height, 1, TextureDimension.Tex2D, false, false, 1));
+        this._canvasRT._textures[0].resource = context.getCurrentTexture();
+        this._canvasRT._textures[0]._webGPUFormat = WebGPURenderEngine._offscreenFormat;
+        this._canvasRT._depthTexture = new WebGPUInternalTex(width, height, 1, TextureDimension.Tex2D, false, false, 1);
+        this._canvasRT._depthTexture.resource = device.createTexture({
+            size: { width, height },
+            sampleCount: 1,
+            format: 'depth24plus-stencil8',
+            usage: GPUTextureUsage.RENDER_ATTACHMENT,
+        });
+        this._canvasRT._depthTexture._webGPUFormat = WebGPUTextureFormat.depth24plus_stencil8;
+    }
+
+    /**
+     * 创建渲染过程描述
+     * @returns 描述对象
+     */
+    createRenderPassDesc() {
+        const device = this._device;
+        const canvas = this._canvas;
+        const context = this._context;
+        const width = canvas.width;
+        const height = canvas.height;
+        this._renderPassDesc = {
+            colorAttachments: [{
+                view: context.getCurrentTexture().createView(),
+                clearValue: { r: 0, g: 0, b: 1, a: 1 },
+                loadOp: "clear",
+                storeOp: "store",
+            }],
+            depthStencilAttachment: {
+                view: device.createTexture({
+                    size: { width, height },
+                    sampleCount: 1,
+                    format: "depth24plus-stencil8",
+                    usage: GPUTextureUsage.RENDER_ATTACHMENT,
+                }).createView(),
+                depthClearValue: 1,
+                depthLoadOp: "clear",
+                depthStoreOp: "store",
+                stencilClearValue: 0,
+                stencilLoadOp: "clear",
+                stencilStoreOp: "store",
+            },
+        };
     }
 }

@@ -23,7 +23,7 @@ import { WebGPUVertexBuffer } from "./WebGPUVertexBuffer";
 
 export class WebGPURenderDeviceFactory implements IRenderDeviceFactory {
     createShaderInstance(shaderProcessInfo: ShaderProcessInfo, shaderPass: ShaderCompileDefineBase): IShaderInstance {
-        let shaderIns = new WebGPUShaderInstance();
+        const shaderIns = new WebGPUShaderInstance(shaderPass.name);
         shaderIns._create(shaderProcessInfo, shaderPass as ShaderPass);
         return shaderIns;
     }

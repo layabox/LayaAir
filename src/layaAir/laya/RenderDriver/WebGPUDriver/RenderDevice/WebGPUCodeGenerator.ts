@@ -166,7 +166,7 @@ export class WebGPUCodeGenerator {
         const typeNum = 10;
         const visibility = GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT;
         const _procUniforms = (set: number, binding: number,
-            name: string, dynamicOffset: boolean, uniformMap?: WebGLCommandUniformMap, uniforms?: NameAndType[]) => {
+            name: string, uniformMap?: WebGLCommandUniformMap, uniforms?: NameAndType[]) => {
             const sortedUniforms: NameAndType[][] = [];
             for (let i = 0; i < typeNum; i++)
                 sortedUniforms[i] = [];
@@ -201,38 +201,24 @@ export class WebGPUCodeGenerator {
                 binding,
                 visibility,
                 type: WebGPUBindingInfoType.buffer,
+                name,
                 propertyID: Shader3D.propertyNameToID(name),
                 uniform: this.genUniformBlockInfo(name, sortedUniforms[0], arrayMap),
-                buffer: { type: 'uniform', hasDynamicOffset: dynamicOffset, minBindingSize: 0 },
+                buffer: { type: 'uniform', hasDynamicOffset: false, minBindingSize: 0 },
             } as WebGPUUniformPropertyBindingInfo);
             return sortedUniforms[0];
         };
 
-        let groupID = 0;
-        let haveSprite = false;
-        if (sceneUniforms.length > 0)
-            sceneUniforms = _procUniforms(groupID++, 0, "scene", false, sceneUniformMap);
-        if (cameraUniforms.length > 0)
-            cameraUniforms = _procUniforms(groupID++, 0, "camera", false, cameraUniformMap);
-        if (sprite3DUniforms.length > 0) {
-            haveSprite = true;
-            sprite3DUniforms = _procUniforms(groupID, 0, "sprite3D", true, sprite3DUniformMap);
-        }
-        if (simpleSkinnedMeshUniforms.length > 0) {
-            haveSprite = true;
-            simpleSkinnedMeshUniforms = _procUniforms(groupID, 1, "simpleSkinnedMesh", true, simpleSkinnedMeshUniformMap);
-        }
-        if (shurikenSprite3DUniforms.length > 0) {
-            haveSprite = true;
-            shurikenSprite3DUniforms = _procUniforms(groupID, 2, "shurikenSprite3D", true, shurikenSprite3DUniformMap);
-        }
-        if (trailRenderUniforms.length > 0) {
-            haveSprite = true;
-            trailRenderUniforms = _procUniforms(groupID, 3, "trailRender", true, trailRenderUniformMap);
-        }
-        if (haveSprite) groupID++;
-        if (materialUniforms.length > 0)
-            materialUniforms = _procUniforms(groupID, 0, "material", true, undefined, materialUniforms);
+        sceneUniforms = _procUniforms(0, 0, "scene", sceneUniformMap);
+        cameraUniforms = _procUniforms(1, 0, "camera", cameraUniformMap);
+        sprite3DUniforms = _procUniforms(2, 0, "sprite3D", sprite3DUniformMap);
+        if (simpleSkinnedMeshUniforms.length > 0)
+            simpleSkinnedMeshUniforms = _procUniforms(2, 1, "simpleSkinnedMesh", simpleSkinnedMeshUniformMap);
+        if (shurikenSprite3DUniforms.length > 0)
+            shurikenSprite3DUniforms = _procUniforms(2, 2, "shurikenSprite3D", shurikenSprite3DUniformMap);
+        if (trailRenderUniforms.length > 0)
+            trailRenderUniforms = _procUniforms(2, 3, "trailRender", trailRenderUniformMap);
+        materialUniforms = _procUniforms(3, 0, "material", undefined, materialUniforms);
 
         return {
             uniformGLSL,
@@ -249,8 +235,8 @@ export class WebGPUCodeGenerator {
      */
     static textureString(textureUniforms: NameAndType[], uniformInfo: WebGPUUniformPropertyBindingInfo[], visibility: GPUShaderStageFlags) {
         let res = '';
-        let set = uniformInfo[uniformInfo.length - 1].set;
-        let binding = uniformInfo[uniformInfo.length - 1].binding + 1;
+        const set = 3;
+        let binding = uniformInfo[set].binding + 1;
         if (textureUniforms.length > 0) {
             for (let i = 0, len = textureUniforms.length; i < len; i++) {
                 if (textureUniforms[i].type == "sampler2D") {
@@ -262,6 +248,7 @@ export class WebGPUCodeGenerator {
                         binding: binding - 2,
                         visibility,
                         type: WebGPUBindingInfoType.sampler,
+                        name: `${textureUniforms[i].name}Sampler`,
                         propertyID: Shader3D.propertyNameToID(`${textureUniforms[i].name}Sampler`),
                         sampler: { type: 'filtering' },
                     } as WebGPUUniformPropertyBindingInfo);
@@ -270,6 +257,7 @@ export class WebGPUCodeGenerator {
                         binding: binding - 1,
                         visibility,
                         type: WebGPUBindingInfoType.texture,
+                        name: `${textureUniforms[i].name}Texture`,
                         propertyID: Shader3D.propertyNameToID(`${textureUniforms[i].name}Texture`),
                         texture: { sampleType: 'float', viewDimension: '2d', multisampled: false },
                     } as WebGPUUniformPropertyBindingInfo);
@@ -283,6 +271,7 @@ export class WebGPUCodeGenerator {
                         binding: binding - 2,
                         visibility,
                         type: WebGPUBindingInfoType.sampler,
+                        name: `${textureUniforms[i].name}Sampler`,
                         propertyID: Shader3D.propertyNameToID(`${textureUniforms[i].name}Sampler`),
                         sampler: { type: 'filtering' },
                     } as WebGPUUniformPropertyBindingInfo);
@@ -291,6 +280,7 @@ export class WebGPUCodeGenerator {
                         binding: binding - 1,
                         visibility,
                         type: WebGPUBindingInfoType.texture,
+                        name: `${textureUniforms[i].name}Texture`,
                         propertyID: Shader3D.propertyNameToID(`${textureUniforms[i].name}Texture`),
                         texture: { sampleType: 'float', viewDimension: 'cube', multisampled: false },
                     } as WebGPUUniformPropertyBindingInfo);
@@ -594,8 +584,6 @@ mat4 inverse(mat4 m)
         defineStr += "#define CLUSTER_Z_COUNT " + clusterSlices.z + "\n";
         defineStr += "#define MORPH_MAX_COUNT " + Config3D.maxMorphTargetCount + "\n";
         defineStr += "#define SHADER_CAPAILITY_LEVEL " + LayaGL.renderEngine.getParams(RenderParams.SHADER_CAPAILITY_LEVEL) + "\n";
-        //defineStr += "#define CalculateLightCount MAX_LIGHT_COUNT\n";
-        //defineStr += "#define DirectionCount u_DirationLightCount\n";
 
         for (let i = 0, len = defineString.length; i < len; i++) {
             const def = defineString[i];
@@ -653,14 +641,12 @@ mat4 inverse(mat4 m)
             const defs: Set<string> = new Set();
             const fsOrg = fs.join('\n');
             const ret = WebGPUShaderCompileDef.compile(fsOrg, defs);
-            //console.log(fsOrg, defs, ret);
             if (!defs.has('Math_lib'))
                 fsNeedInverseFunc = true;
             const defMap: { [name: string]: boolean } = {};
             defineString.forEach(def => { defMap[def] = true; });
             defMap['GL_FRAGMENT_PRECISION_HIGH'] = true;
             fsOut = WebGPUShaderCompileUtil.toScript(ret, defMap, fsTod);
-            //console.log(fsOut);
             if (fsTod.uniform)
                 for (const key in fsTod.uniform) {
                     if (!uniformMap[key]) {

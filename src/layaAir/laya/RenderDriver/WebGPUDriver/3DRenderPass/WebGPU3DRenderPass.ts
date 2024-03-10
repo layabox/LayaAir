@@ -9,7 +9,7 @@ import { Scene3DShaderDeclaration } from "../../../d3/core/scene/Scene3DShaderDe
 import { ShadowCasterPass } from "../../../d3/shadowMap/ShadowCasterPass";
 import { Vector4 } from "../../../maths/Vector4";
 import { Stat } from "../../../utils/Stat";
-import { IRender3DProcess, IRenderContext3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
+import { IRender3DProcess } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { WebBaseRenderNode } from "../../RenderModuleData/WebModuleData/3D/WebBaseRenderNode";
 import { WebDirectLight } from "../../RenderModuleData/WebModuleData/3D/WebDirectLight";
 import { WebCameraNodeData } from "../../RenderModuleData/WebModuleData/3D/WebModuleData";
@@ -23,7 +23,7 @@ export class WebGPU3DRenderPass implements IRender3DProcess {
     constructor() {
     }
 
-    initRenderpass(camera: Camera, context: WebGLRenderContext3D) {
+    initRenderPass(camera: Camera, context: WebGLRenderContext3D) {
         let renderpass = this.renderpass.renderpass;
 
         let renderRT = camera._getRenderTexture();
@@ -53,7 +53,7 @@ export class WebGPU3DRenderPass implements IRender3DProcess {
         }
 
         let clearValue = camera._linearClearColor;
-        clearValue = renderRT.gammaCorrection != 1 ? camera.clearColor : camera._linearClearColor;
+        clearValue = renderRT._texture.gammaCorrection != 1 ? camera.clearColor : camera._linearClearColor;
 
         renderpass.camera = <WebCameraNodeData>camera._renderDataModule;
 
@@ -131,12 +131,12 @@ export class WebGPU3DRenderPass implements IRender3DProcess {
             }
         }
     }
+
     fowardRender(context: WebGPURenderContext3D, camera: Camera): void {
         //@ts-ignore
-        this.initRenderpass(camera, context);
+        this.initRenderPass(camera, context);
         let renderList = <WebBaseRenderNode[]>camera.scene.sceneRenderableManager.renderBaselist.elements;
         //@ts-ignore
         this.renderpass.renderpass.render(context, renderList, renderList.length);
     }
-
 }
