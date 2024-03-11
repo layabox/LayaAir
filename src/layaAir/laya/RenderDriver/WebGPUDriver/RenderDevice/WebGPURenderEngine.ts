@@ -39,7 +39,7 @@ export class WebGPUConfig {
 
 export class WebGPURenderEngine implements IRenderEngine {
     static _offscreenFormat: GPUTextureFormat;
-    static _instance:WebGPURenderEngine;
+    static _instance: WebGPURenderEngine;
     _isShaderDebugMode: boolean;
     _renderOBJCreateContext: IRenderEngineFactory;
 
@@ -59,9 +59,9 @@ export class WebGPURenderEngine implements IRenderEngine {
 
     private _deviceEnabledExtensions: GPUFeatureName[];
 
-    private _textureContext:WebGPUTextureContext;
+    private _textureContext: WebGPUTextureContext;
 
-    
+
     /**
      * 实例化一个webgpuEngine
      */
@@ -171,7 +171,11 @@ export class WebGPURenderEngine implements IRenderEngine {
                 })
     }
 
-    getDevice():GPUDevice{
+    resizeOffScreen(width: number, height: number): void {
+        //TODO 赵老师
+    }
+
+    getDevice(): GPUDevice {
         return this._device;
     }
 
@@ -284,12 +288,12 @@ export class WebGPURenderEngine implements IRenderEngine {
             }
         }
     }
-    
+
     _texGammaDefine: { [key: number]: ShaderDefine } = {};
     addTexGammaDefine(key: number, value: ShaderDefine): void {
-       this._texGammaDefine[key] = value;
+        this._texGammaDefine[key] = value;
     }
-    
+
     /**获得各个参数 */
     getParams(params: RenderParams): number {
         throw new Error("Method not implemented.");
@@ -302,7 +306,7 @@ export class WebGPURenderEngine implements IRenderEngine {
         return this._textureContext;
     }
     getCreateRenderOBJContext(): WebGPURenderEngineFactory {
-      return new WebGPURenderEngineFactory()
+        return new WebGPURenderEngineFactory()
     }
 
     //统计相关

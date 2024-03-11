@@ -1,6 +1,5 @@
 import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTargetFormat";
 import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRenderTarget";
-import { InternalTexture } from "../../DriverDesign/RenderDevice/InternalTexture";
 import { WebGPUInternalTex } from "./WebGPUInternalTex";
 
 export class WebGPUInternalRT implements InternalRenderTarget {

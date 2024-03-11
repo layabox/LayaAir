@@ -146,6 +146,9 @@ export class WebGLEngine implements IRenderEngine {
         this._initStatisticsInfo();
         WebGLEngine.instance = this;
     }
+    resizeOffScreen(width: number, height: number): void {
+
+    }
     addTexGammaDefine(key: number, value: ShaderDefine): void {
         WebGLEngine._texGammaDefine[key] = value;
     }

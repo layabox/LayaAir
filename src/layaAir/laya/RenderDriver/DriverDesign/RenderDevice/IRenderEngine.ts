@@ -17,6 +17,7 @@ export interface IRenderEngine {
     initRenderEngine(canvas: any): void;
     copySubFrameBuffertoTex(texture: InternalTexture, level: number, xoffset: number, yoffset: number, x: number, y: number, width: number, height: number): void;
 
+    resizeOffScreen(width: number, height: number): void;
 
     propertyNameToID(name: string): number;
     propertyIDToName(id: number): string;
