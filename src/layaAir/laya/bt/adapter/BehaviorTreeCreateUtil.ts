@@ -2,7 +2,7 @@ import { Laya } from "../../../Laya";
 import { JsonBinRead } from "../../net/util/JsonBinRead";
 import { BehaviorTreeFactory } from "../BehaviorTreeFactory";
 import { BTConst } from "../core/BTConst";
-import { extendsData } from "../datas/BehaviorTreeExtends";
+import { extendsBTData } from "../datas/BehaviorTreeExtends";
 
 /**
  * 
@@ -26,7 +26,7 @@ export class BehaviorTreeCreateUtil {
                 json = JsonBinRead.instance.read(result);
             }
             for (const key in json) {
-                extendsData[key] = json[key];
+                extendsBTData[key] = json[key];
             }
             BehaviorTreeFactory.__init__();
             return Promise.resolve();

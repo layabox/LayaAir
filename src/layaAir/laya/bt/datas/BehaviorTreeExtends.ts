@@ -38,5 +38,5 @@ import { TBPDeclaration } from "../../bp/datas/types/BlueprintDeclaration"
 /* export const customData : Record<string , TBPDeclaration> = {
 } */
 
-export const extendsData: Record<string, TBPDeclaration> = {
+export const extendsBTData: Record<string, TBPDeclaration> = {
 }
