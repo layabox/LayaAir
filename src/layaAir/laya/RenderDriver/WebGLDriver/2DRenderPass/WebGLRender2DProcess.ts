@@ -8,7 +8,7 @@ export class WebGLRender2DProcess implements I2DRenderPassFactory {
     createRenderElement2D(): IRenderElement2D {
         return new WebGLRenderelement2D();
     }
-    createREnderContext2D(): IRenderContext2D {
+    createRenderContext2D(): IRenderContext2D {
         return new WebglRenderContext2D();
     }
 

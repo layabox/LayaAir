@@ -62,7 +62,7 @@ export class Render2DSimple extends Render2D {
     constructor(out: RenderTexture2D = null) {
         super(out);
         if (!Render2DSimple.rendercontext2D) {
-            Render2DSimple.rendercontext2D = LayaGL.render2DRenderPassFactory.createREnderContext2D();
+            Render2DSimple.rendercontext2D = LayaGL.render2DRenderPassFactory.createRenderContext2D();
         }
         this._renderElement = LayaGL.render2DRenderPassFactory.createRenderElement2D();
     }
@@ -106,7 +106,7 @@ export class Render2DSimple extends Render2D {
             Render2DSimple.rendercontext2D.invertY = false;
             Render2DSimple.rendercontext2D.setOffscreenView(RenderState2D.width, RenderState2D.height);
             Render2DSimple.rendercontext2D.setRenderTarget(null, RenderTexture2D._clear, RenderTexture2D._clearColor);
-           
+
         }
 
         RenderTexture2D._clear = false;
