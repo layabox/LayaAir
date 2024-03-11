@@ -25,7 +25,8 @@ export class GLESEngine implements IRenderEngine {
   constructor(config: WebGLConfig, webglMode: WebGLMode = WebGLMode.Auto) {
     this._nativeObj = new (window as any).conchGLESEngine(config, webglMode);
   }
-  
+  resizeOffScreen(width: number, height: number): void {}
+
   getDefineByName(name: string): RTShaderDefine {
     let nativeRet: any = this._nativeObj.getDefineByName(name);
     let ret = new RTShaderDefine(nativeRet._index, nativeRet._value);

@@ -16,10 +16,9 @@ export class WebGL {
     }
 
     static onStageResize(width: number, height: number): void {
-        //@ts-ignore
-       // LayaGL.renderEngine.viewport(0, 0, width, height);
         RenderState2D.width = width;
         RenderState2D.height = height;
+        LayaGL.renderEngine.resizeOffScreen(width, height);
     }
 }
 
