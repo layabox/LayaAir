@@ -11,4 +11,7 @@ export class BTConst {
     static EXT:string = "bt";
 
     static TYPE:string = "behaviortree";
+
+    static configPath:string = "~/internal/behaviortree.lja";
+
 }
