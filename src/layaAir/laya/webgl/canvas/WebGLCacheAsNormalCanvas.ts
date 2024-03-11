@@ -1,7 +1,6 @@
 import { Sprite } from "../../display/Sprite"
 import { Matrix } from "../../maths/Matrix"
 import { Context } from "../../renders/Context"
-import { Submit } from "../submit/Submit"
 import { SubmitBase } from "../submit/SubmitBase"
 import { CharRenderInfo } from "../text/CharRenderInfo"
 import { Mesh2D } from "../utils/Mesh2D"
@@ -152,11 +151,11 @@ export class WebGLCacheAsNormalCanvas {
     }
     flushsubmit(): void {
         var curSubmit = SubmitBase.RENDERBASE;
-        this.submits.forEach((subm: Submit)=>{
+        this.submits.forEach((subm: SubmitBase)=>{
             if (subm == SubmitBase.RENDERBASE) return;
-            SubmitBase.preRender = curSubmit;
+            //// ni SubmitBase.preRender = curSubmit;
             curSubmit = subm;
-            subm.renderSubmit();
+            //// ni subm.renderSubmit();
         });
     }
 

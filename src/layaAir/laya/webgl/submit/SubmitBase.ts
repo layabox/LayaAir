@@ -1,9 +1,11 @@
+import { Const } from "../../Const";
+import { Context } from "../../renders/Context";
+import { Material } from "../../resource/Material";
 import { RenderSpriteData, Value2D } from "../shader/d2/value/Value2D";
 import { Mesh2D } from "../utils/Mesh2D";
-import { ISubmit } from "./ISubmit";
 import { SubmitKey } from "./SubmitKey";
 
-export class SubmitBase implements ISubmit {
+export class SubmitBase {
     static TYPE_2D = 10000;
     static TYPE_CANVAS = 10003;
     static TYPE_CMDSETRT = 10004;
@@ -29,36 +31,29 @@ export class SubmitBase implements ISubmit {
 
     static RENDERBASE: SubmitBase;
     static ID = 1;
-    static preRender: ISubmit = null;	//上一个submit，主要用来比较key,以减少uniform的重复提交。
 
     clipInfoID = -1;	//用来比较clipinfo
-    /**@internal */
-    _mesh: Mesh2D | null = null;			//代替 _vb,_ib
-    /**@internal */
-    _blendFn: Function = null;
+    blendType=-1;
     protected _id = 0;
     /**@internal */
     _renderType = 0;
-    /**@internal */
-    _parent: ISubmit = null;
     //渲染key，通过key判断是否是同一个
     /**@internal */
     _key = new SubmitKey();
+    _mesh:Mesh2D;
+    material:Material;
 
     // 从VB中什么地方开始画，画到哪
     /**@internal */
     _startIdx = 0;		//indexbuffer 的偏移，单位是byte
     /**@internal */
     _numEle = 0;
-    /**@internal */
-    _ref = 1;	// 其实已经没有用了
 
     shaderValue: Value2D = null;
 
     static __init__(): void {
         var s: SubmitBase = SubmitBase.RENDERBASE = new SubmitBase(-1);
         s.shaderValue = new Value2D(RenderSpriteData.Zero);
-        s._ref = 0xFFFFFFFF;
     }
 
     constructor(renderType = SubmitBase.TYPE_2D) {
@@ -71,18 +66,28 @@ export class SubmitBase implements ISubmit {
     getID(): number {
         return this._id;
     }
-
-
     getRenderType(): number {
         return this._renderType;
     }
 
-    toString(): string {
-        return "ibindex:" + this._startIdx + " num:" + this._numEle + " key=" + this._key;
+    /*
+       create方法只传对submit设置的值
+     */
+    static create(context: Context, mesh: Mesh2D, sv: Value2D): SubmitBase {
+        var o = new SubmitBase(SubmitBase.TYPE_TEXTURE);
+        o._mesh = mesh;
+        o._key.clear();
+        o._key.submitType = SubmitBase.KEY_DRAWTEXTURE;
+        o._startIdx = mesh.indexNum * Const.INDEX_BYTES;
+        o._numEle = 0;
+        var blendType = context._nBlendType;
+        o._key.blendShader = blendType;
+        o.shaderValue = sv;
+        o.material = context.material;
+        //sv.setValue(context._shader2D);
+        return o;
     }
 
-    renderSubmit(): number { return 1; }
-    releaseRender(): void { }
 }
 
 

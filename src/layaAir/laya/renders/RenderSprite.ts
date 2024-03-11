@@ -1,32 +1,28 @@
+import { ILaya } from "../../ILaya";
+import { LayaEnv } from "../../LayaEnv";
 import { NodeFlags } from "../Const";
-import { CacheStyle } from "../display/css/CacheStyle";
-import { SpriteStyle } from "../display/css/SpriteStyle";
+import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
 import { Sprite } from "../display/Sprite";
 import { SpriteConst } from "../display/SpriteConst";
+import { CacheStyle } from "../display/css/CacheStyle";
+import { SpriteStyle } from "../display/css/SpriteStyle";
 import { Filter } from "../filters/Filter";
+import { NativeFilter } from "../filters/NativeFilter";
 import { Matrix } from "../maths/Matrix";
-import { Point } from "../maths/Point";
 import { Rectangle } from "../maths/Rectangle";
-import { Context } from "./Context";
 import { HTMLCanvas } from "../resource/HTMLCanvas";
 import { RenderTexture2D } from "../resource/RenderTexture2D";
 import { Texture } from "../resource/Texture";
 import { WebGLRTMgr } from "../resource/WebGLRTMgr";
+import { HitArea } from "../utils/HitArea";
 import { Stat } from "../utils/Stat";
 import { BlendMode } from "../webgl/canvas/BlendMode";
 import { WebGLCacheAsNormalCanvas } from "../webgl/canvas/WebGLCacheAsNormalCanvas";
-import { RenderSpriteData, Value2D } from "../webgl/shader/d2/value/Value2D";
-import { SubmitCMD } from "../webgl/submit/SubmitCMD";
-import { LayaGLQuickRunner } from "./LayaGLQuickRunner";
-import { ILaya } from "../../ILaya";
-import { NativeFilter } from "../filters/NativeFilter";
-import { LayaEnv } from "../../LayaEnv";
-import { HitArea } from "../utils/HitArea";
-import { Render2D, Render2DSimple } from "./Render2D";
-import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
 import { TextureSV } from "../webgl/shader/d2/value/TextureSV";
-import { Vector2 } from "../maths/Vector2";
 import { MeshQuadTexture } from "../webgl/utils/MeshQuadTexture";
+import { Context } from "./Context";
+import { LayaGLQuickRunner } from "./LayaGLQuickRunner";
+import { Render2DSimple } from "./Render2D";
 
 /**
  * @private
@@ -395,6 +391,7 @@ export class RenderSprite {
             context._drawRenderTexture(_cacheStyle.renderTexture,
                 x + tRec.x, y + tRec.y, tRec.width, tRec.height,null,1,[0,1, 1,1, 1,0, 0,0])
         }else{
+            throw "nnn"
             if (sprite._needRepaint() || !_cacheStyle.canvas || textNeedRestore || ILaya.stage.isGlobalRepaint()) {
                 if (_cacheStyle.cacheAs === 'normal') {
                     this._canvas_webgl_normal_repaint(sprite, context);
@@ -404,7 +401,7 @@ export class RenderSprite {
             }
             var tRec = _cacheStyle.cacheRect;
             context.material = sprite.graphics.material;
-            context.drawCanvas(_cacheStyle.canvas, x + tRec.x, y + tRec.y, tRec.width, tRec.height);
+            //context.drawCanvas(_cacheStyle.canvas, x + tRec.x, y + tRec.y, tRec.width, tRec.height);
         }
     }
 

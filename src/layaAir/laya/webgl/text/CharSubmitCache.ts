@@ -3,9 +3,9 @@ import { Matrix } from "../../maths/Matrix"
 import { Context } from "../../renders/Context"
 import { Texture } from "../../resource/Texture"
 import { RenderSpriteData, Value2D } from "../shader/d2/value/Value2D"
-import { SubmitTexture } from "../submit/SubmitTexture"
 import { MeshQuadTexture } from "../utils/MeshQuadTexture"
 import { RenderInfo } from "../../renders/RenderInfo";
+import { SubmitBase } from "../submit/SubmitBase"
 /**
  * ...
  * @author laoxie
@@ -83,7 +83,7 @@ export class CharSubmitCache {
 
         var colorFiler: ColorFilter = ctx._colorFiler;
         ctx._colorFiler = this._colorFiler;
-        var submit: SubmitTexture = SubmitTexture.create(ctx, _mesh, Value2D.create(RenderSpriteData.Texture2D));
+        var submit: SubmitBase = SubmitBase.create(ctx, _mesh, Value2D.create(RenderSpriteData.Texture2D));
         //ctx._submits[ctx._submits._length++] = ctx._curSubmit = submit;
         submit.shaderValue.textureHost = this._tex;
         submit._key.other = this._imgId;

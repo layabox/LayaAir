@@ -4,6 +4,31 @@ const fs = require('fs');
 const app = express();
 const port = 3000;
 
+
+// 列出所有的2d测试
+app.get('/test', (req, res) => {
+    const directoryPath = path.join(__dirname, 'tsc/layaAir/laya/test/2d'); // 'test'目录路径
+    fs.readdir(directoryPath, function (err, files) {
+        // 处理读取目录的错误
+        if (err) {
+            res.status(500).send('Unable to read directory');
+            return console.log('Unable to scan directory: ' + err);
+        } 
+        let content = '<h1>测试用例</h1><ul>';
+        // 遍历目录中的文件
+        files.forEach(function (file) {
+			const extension = path.extname(file);
+			if (extension === '.js') {
+				// 为每个文件生成列表项
+				content += `<li><a href="test.html?${file.substring(0,file.length-3)}">${file}</a></li>`;
+			}
+        });
+        content += '</ul>';
+        // 发送生成的HTML到客户端
+        res.send(content);
+    });
+});
+
 app.use((req, res, next) => {
 	//如果是目录，但是不是以/结尾的，算文件，避免express返回301。因为遇到一个问题 SceneRenderManager.js所在目录有一个 SceneRenderManager 目录
 	console.log(req.path);

@@ -11,7 +11,6 @@ import { WordText } from "../utils/WordText";
 import { BlendMode } from "../webgl/canvas/BlendMode";
 import { NativeWebGLCacheAsNormalCanvas } from "../webgl/canvas/NativeWebGLCacheAsNormalCanvas";
 import { Value2D } from "../webgl/shader/d2/value/Value2D";
-import { ISubmit } from "../webgl/submit/ISubmit";
 import { HTMLCanvas } from "./HTMLCanvas";
 import { RenderTexture2D } from "./RenderTexture2D";
 import { Texture } from "./Texture";
@@ -868,7 +867,7 @@ export class NativeContext {
 
         return mat;
     }
-    addRenderObject3D(scene3D: ISubmit): void {
+    addRenderObject3D(scene3D:any): void {
         //this._nativeObj.addRenderObject3D((scene3D as any)._nativeObj);
         this._renderObject3DList.push((scene3D as any)._nativeObj);
         this._nativeObj.flushCommand();

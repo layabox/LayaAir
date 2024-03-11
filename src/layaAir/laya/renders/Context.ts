@@ -38,14 +38,8 @@ import { TextureSV } from "../webgl/shader/d2/value/TextureSV";
 import { RenderSpriteData, Value2D } from "../webgl/shader/d2/value/Value2D";
 import { BasePoly } from "../webgl/shapes/BasePoly";
 import { Earcut } from "../webgl/shapes/Earcut";
-import { ISubmit } from "../webgl/submit/ISubmit";
-import { Submit } from "../webgl/submit/Submit";
 import { SubmitBase } from "../webgl/submit/SubmitBase";
-import { SubmitCMD } from "../webgl/submit/SubmitCMD";
-import { SubmitCanvas } from "../webgl/submit/SubmitCanvas";
 import { SubmitKey } from "../webgl/submit/SubmitKey";
-import { SubmitTarget } from "../webgl/submit/SubmitTarget";
-import { SubmitTexture } from "../webgl/submit/SubmitTexture";
 import { CharRenderInfo } from "../webgl/text/CharRenderInfo";
 import { CharSubmitCache } from "../webgl/text/CharSubmitCache";
 import { TextRender } from "../webgl/text/TextRender";
@@ -102,7 +96,7 @@ export class Context {
     /**@internal */
     stopMerge = true;     //如果用设置_curSubmit的方法，可能导致渲染错误，因为_curSubmit保存上次的信息，不能任意改
     /**@internal */
-    _curSubmit: any = SubmitBase.RENDERBASE;
+    _curSubmit = SubmitBase.RENDERBASE;
     /**@internal */
     _submitKey = new SubmitKey();	//当前将要使用的设置。用来跟上一次的_curSubmit比较
 
@@ -564,8 +558,6 @@ export class Context {
         this._alpha = 1.0;
         this._nBlendType = 0;
         this._clipRect = Context.MAXCLIPRECT;
-        SubmitBase.RENDERBASE._ref = 0xFFFFFF;
-        SubmitBase.RENDERBASE._numEle = 0;
         this._fillStyle = this._strokeStyle = DrawStyle.DEFAULT;
 
         this._curMat.identity();
@@ -753,7 +745,7 @@ export class Context {
     }
 
     private _fillRect(x: number, y: number, width: number, height: number, rgba: number): void {
-        var submit: Submit = this._curSubmit;
+        var submit = this._curSubmit;
         var sameKey =
             this._mesh.vertexNum + 4 < Context._MAXVERTNUM &&
             submit && (
@@ -773,7 +765,7 @@ export class Context {
         if (!this.clipedOff(this._transedPoints)) {
             //if (GlUtils.fillRectImgVb(_mesh._vb, _clipRect, x, y, width, height, Texture.DEF_UV, _curMat, rgba,this)){
             if (!sameKey) {
-                submit = this._curSubmit = SubmitTexture.create(this, mesh, Value2D.create(RenderSpriteData.Texture2D));
+                submit = this._curSubmit = SubmitBase.create(this, mesh, Value2D.create(RenderSpriteData.Texture2D));
                 this.fillShaderValue(submit.shaderValue);
                 //this._copyClipInfo(submit, this._globalClipMatrix);
                 if (!this._lastTex || this._lastTex.destroyed) {
@@ -820,7 +812,7 @@ export class Context {
 
     /**@internal */
     _fillTexture(texture: Texture, texw: number, texh: number, texuvRect: number[], x: number, y: number, width: number, height: number, type: string, offsetx: number, offsety: number, color: number): void {
-        var submit: Submit = this._curSubmit;
+        var submit = this._curSubmit;
         //这个不合并，直接渲染
         this._drawToRender2D(this._curSubmit);
         this._mesh = this._meshQuatTex;
@@ -886,7 +878,7 @@ export class Context {
             var arry = texuvRect.concat();
             Vector4.tempVec4.setValue(arry[0], arry[1], arry[2], arry[3]);
             sv.u_TexRange = Vector4.tempVec4;
-            submit = this._curSubmit = SubmitTexture.create(this, this._mesh, sv);
+            submit = this._curSubmit = SubmitBase.create(this, this._mesh, sv);
             this.fillShaderValue(sv);
             //this._copyClipInfo(submit, this._globalClipMatrix);
             submit.shaderValue.textureHost = texture;
@@ -989,7 +981,7 @@ export class Context {
         return enable;
     }
 
-    private _drawToRender2D(submit: Submit) {
+    private _drawToRender2D(submit: SubmitBase) {
         let mesh = this._mesh;
         if (mesh.indexNum <= 0)
             return;
@@ -1098,7 +1090,7 @@ export class Context {
             let shaderValue = Value2D.create(RenderSpriteData.Texture2D);
             this.fillShaderValue(shaderValue);
             shaderValue.textureHost = tex;
-            this._curSubmit = submit = SubmitTexture.create(this, this._mesh, shaderValue);
+            this._curSubmit = submit = SubmitBase.create(this, this._mesh, shaderValue);
             submit._key.other = imgid;
             this._copyClipInfo(submit, this._globalClipMatrix);
         }
@@ -1247,33 +1239,6 @@ export class Context {
             this.globalCompositeOperation = oldcomp;
     }
 
-    drawCanvas(canvas: HTMLCanvas, x: number, y: number, width: number, height: number): void {
-        if (!canvas) return;
-        var src: Context = canvas.context;
-        var canv = <WebGLCacheAsNormalCanvas>(canvas as unknown);
-        if (canv.touches) {
-            canv.touches.forEach(function (v: CharRenderInfo): void { v.touch(); });
-        }
-
-        let submit = SubmitCanvas.create(canvas, this._alpha, this._colorFiler) as SubmitCanvas;
-        submit._key.clear();
-        //var sx:Number = width / canvas.width;
-        //var sy:Number = height / canvas.height;
-        var mat = submit._matrix;
-        this._curMat.copyTo(mat);
-        //sx != 1 && sy != 1 && mat.scale(sx, sy);
-        // 先加上位置，最后再乘逆
-        var tx = mat.tx, ty = mat.ty;
-        mat.tx = mat.ty = 0;
-        mat.transformPoint(Point.TEMP.setTo(x, y));	// 用当前矩阵变换 (x,y)
-        mat.translate(Point.TEMP.x + tx, Point.TEMP.y + ty);	// 加上原来的 (tx,ty)
-
-        Matrix.mul(canv.invMat, mat, mat);
-
-        this._drawToRender2D(this._curSubmit);
-        this._curSubmit = SubmitBase.RENDERBASE;
-    }
-
     drawTarget(rt: RenderTexture2D, x: number, y: number, width: number, height: number, m: Matrix, shaderValue: Value2D, uv: ArrayLike<number> | null = null, blend = -1, color = 0xffffffff): boolean {
         this._drawCount++;
         //凡是这个都是在_mesh上操作，不用考虑samekey
@@ -1283,7 +1248,7 @@ export class Context {
         this.transformQuad(x, y, width, height, 0, m || this._curMat, this._transedPoints);
         if (!this.clipedOff(this._transedPoints)) {
             (this._mesh as MeshQuadTexture).addQuad(this._transedPoints, uv || Texture.DEF_UV, color, true);
-            var submit: SubmitTarget = this._curSubmit = SubmitTarget.create(this, this._mesh, shaderValue, rt);
+            var submit = this._curSubmit = SubmitBase.create(this, this._mesh, shaderValue);
             this.fillShaderValue(shaderValue);
             submit.blendType = (blend == -1) ? this._nBlendType : blend;
             this._copyClipInfo((<SubmitBase>(submit as any)), this._globalClipMatrix);
@@ -1338,7 +1303,7 @@ export class Context {
         //rgba = _mixRGBandAlpha(rgba, alpha);	这个函数有问题，不能连续调用，输出作为输入
         if (!sameKey) {
             //添加一个新的submit
-            var submit: SubmitTexture = this._curSubmit = SubmitTexture.create(this, this._mesh, Value2D.create(RenderSpriteData.Texture2D));
+            var submit: SubmitBase = this._curSubmit = SubmitBase.create(this, this._mesh, Value2D.create(RenderSpriteData.Texture2D));
             submit.shaderValue.textureHost = tex;
             this.fillShaderValue(submit.shaderValue);
             submit._renderType = SubmitBase.TYPE_TEXTURE;
@@ -1617,9 +1582,9 @@ export class Context {
         this._curSubmit._numEle += curEleNum;
     }
 
-    private addVGSubmit(mesh: Mesh2D): Submit {
+    private addVGSubmit(mesh: Mesh2D): SubmitBase {
         //elenum设为0，后面再加
-        var submit: Submit = Submit.createShape(this, mesh, 0, Value2D.create(RenderSpriteData.Primitive));
+        var submit: SubmitBase = SubmitBase.create(this, mesh, Value2D.create(RenderSpriteData.Primitive));
         this.fillShaderValue(submit.shaderValue);
         //submit._key.clear();
         //submit._key.blendShader = _submitKey.blendShader;	//TODO 这个在哪里赋值的啊
