@@ -818,7 +818,7 @@ export class Scene3D extends Sprite implements ISubmit {
         this._sceneReflectionProb.reflectionIntensity = 1.0;
         this.ambientColor = new Color(0.212, 0.227, 0.259);
 
-        Scene3D.componentManagerMap.forEach((key, val) => {
+        Scene3D.componentManagerMap.forEach((val, key) => {
             let cla: any = val;
             this.componentElementMap.set(key, new cla());
         });

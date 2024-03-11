@@ -63,6 +63,7 @@ mat4 getWorldMatrix()
 
 vec2 getSimpleBoneCustomData(){
     vec2 custom;
+   #ifdef BONE
     #ifdef SIMPLEBONE
     #ifdef GPU_INSTANCE
     custom=a_SimpleTextureParams.zw;
@@ -70,6 +71,7 @@ vec2 getSimpleBoneCustomData(){
     custom=u_SimpleAnimatorParams.zw;
     #endif// GPU_INSTANCE
     #endif// SIMPLEBONE
+  #endif // BONE
     return custom;
 }
 
