@@ -192,7 +192,7 @@ export class RenderSprite {
         let next: RenderSprite = this._next;
         if (next == RenderSprite.NORENDER) return;
 
-        if (sprite._getBit(NodeFlags.DISABLE_INNER_CLIPPING) && !context._drawingToTexture) {
+        if (sprite._getBit(NodeFlags.DISABLE_INNER_CLIPPING)) {
             next._fun.call(next, sprite, context, x, y);
             return;
         }
@@ -248,7 +248,7 @@ export class RenderSprite {
 
     /**@internal IDE only*/
     _hitarea(sprite: Sprite, context: Context, x: number, y: number): void {
-        if (!context._drawingToTexture && sprite.hitArea) {
+        if (sprite.hitArea) {
             var style = sprite._style;
             var g = (<HitArea>sprite.hitArea)._hit;
             var temp: number = context.globalAlpha;
@@ -298,7 +298,6 @@ export class RenderSprite {
         x = x - sprite.pivotX;
         y = y - sprite.pivotY;
         let textLastRender: boolean = sprite._getBit(NodeFlags.DRAWCALL_OPTIMIZE) && context.drawCallOptimize(true);
-        let drawingToTexture = context._drawingToTexture;
         let rect: Rectangle;
         let left: number, top: number, right: number, bottom: number, x2: number, y2: number;
 
@@ -312,11 +311,7 @@ export class RenderSprite {
 
         for (let i = 0; i < n; ++i) {
             let ele = childs[i];
-            let visFlag: boolean;
-            if (drawingToTexture)
-                visFlag = ele._visible && !ele._getBit(NodeFlags.ESCAPE_DRAWING_TO_TEXTURE);
-            else
-                visFlag = ele._visible || ele._getBit(NodeFlags.DISABLE_VISIBILITY);
+            let visFlag = ele._visible || ele._getBit(NodeFlags.DISABLE_VISIBILITY);
             if (visFlag) {
                 if (rect && ((x2 = ele._x) >= right || (x2 + ele.width) <= left || (y2 = ele._y) >= bottom || (y2 + ele.height) <= top))
                     visFlag = false;
@@ -373,22 +368,22 @@ export class RenderSprite {
         var _cacheStyle = sprite._cacheStyle;
         var _next = this._next;
 
-        if ( !context._drawingToTexture && _cacheStyle.mask && _cacheStyle.mask._getBit(NodeFlags.DISABLE_VISIBILITY)) {
+        if ( _cacheStyle.mask && _cacheStyle.mask._getBit(NodeFlags.DISABLE_VISIBILITY)) {
+            //虽然有mask但是mask不可见，则不走这个流程。
             _next._fun.call(_next, sprite, context, x, y);
             return;
         }
+
         let isbmp = sprite.cacheAs === 'bitmap' 
         isbmp ? Stat.canvasBitmap++ : Stat.canvasNormal++;
 
         //检查保存的文字是否失效了
-        var cacheNeedRebuild = false;
         var textNeedRestore = false;
 
         if (!isbmp && _cacheStyle.canvas) {
             // 检查文字是否被释放了，以及clip是否改变了，需要重新cache了
             var canv = _cacheStyle.canvas as unknown as WebGLCacheAsNormalCanvas;
             textNeedRestore = canv.isTextNeedRestore && canv.isTextNeedRestore();
-            cacheNeedRebuild = canv.isCacheValid && !canv.isCacheValid();
         }
 
         if(isbmp){
@@ -400,7 +395,7 @@ export class RenderSprite {
             context._drawRenderTexture(_cacheStyle.renderTexture,
                 x + tRec.x, y + tRec.y, tRec.width, tRec.height,null,1,[0,1, 1,1, 1,0, 0,0])
         }else{
-            if (sprite._needRepaint() || !_cacheStyle.canvas || textNeedRestore || cacheNeedRebuild || ILaya.stage.isGlobalRepaint()) {
+            if (sprite._needRepaint() || !_cacheStyle.canvas || textNeedRestore || ILaya.stage.isGlobalRepaint()) {
                 if (_cacheStyle.cacheAs === 'normal') {
                     this._canvas_webgl_normal_repaint(sprite, context);
                 } else {

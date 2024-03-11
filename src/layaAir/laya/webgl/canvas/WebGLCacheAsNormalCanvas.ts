@@ -3,6 +3,7 @@ import { Matrix } from "../../maths/Matrix"
 import { Context } from "../../renders/Context"
 import { Submit } from "../submit/Submit"
 import { SubmitBase } from "../submit/SubmitBase"
+import { CharRenderInfo } from "../text/CharRenderInfo"
 import { Mesh2D } from "../utils/Mesh2D"
 import { MeshQuadTexture } from "../utils/MeshQuadTexture"
 import { MeshTexture } from "../utils/MeshTexture"
@@ -18,7 +19,7 @@ export class WebGLCacheAsNormalCanvas {
     submitStartPos= 0;	// 对应的context的submit的开始的地方
     submitEndPos= 0;
     context: Context;
-    touches: any[] = [];		//记录的文字信息。cacheas normal的话，文字要能正确touch
+    touches: CharRenderInfo[] = [];		//记录的文字信息。cacheas normal的话，文字要能正确touch
     submits: any[] = [];		// 从context中剪切的submit
     sprite: Sprite|null = null;	// 对应的sprite对象
 
@@ -135,17 +136,6 @@ export class WebGLCacheAsNormalCanvas {
         // context._incache = false;
     }
 
-    /**
-     * 当前缓存是否还有效。例如clip变了就失效了，因为clip太难自动处理
-     * @return
-     */
-    isCacheValid(): boolean {
-        var curclip = this.context._globalClipMatrix;
-        if (curclip.a != this.cachedClipInfo.a || curclip.b != this.cachedClipInfo.b || curclip.c != this.cachedClipInfo.c
-            || curclip.d != this.cachedClipInfo.d || curclip.tx != this.cachedClipInfo.tx || curclip.ty != this.cachedClipInfo.ty)
-            return false;
-        return true;
-    }
 
     isTextNeedRestore(): boolean {
         var textNeedRestore = false;

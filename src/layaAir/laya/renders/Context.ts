@@ -12,6 +12,7 @@ import { Point } from "../maths/Point";
 import { Rectangle } from "../maths/Rectangle";
 import { Vector2 } from "../maths/Vector2";
 import { Vector4 } from "../maths/Vector4";
+import { BaseTexture } from "../resource/BaseTexture";
 import { HTMLCanvas } from "../resource/HTMLCanvas";
 import { Material } from "../resource/Material";
 import { NativeContext } from "../resource/NativeContext";
@@ -65,8 +66,6 @@ export class Context {
 
     /**@internal */
     private _canvas: HTMLCanvas;
-    /**@internal */
-    _drawingToTexture: boolean;
 
     private static _MAXVERTNUM = 65535;
 
@@ -1036,7 +1035,7 @@ export class Context {
      * @param	uv
      * @return
      */
-    _inner_drawTexture(tex: Texture | RenderTexture2D, imgid: number, x: number, y: number, width: number, height: number, m: Matrix | null, uv: ArrayLike<number> | null, alpha: number, lastRender: boolean, color: number): boolean {
+    _inner_drawTexture(tex: Texture | BaseTexture, imgid: number, x: number, y: number, width: number, height: number, m: Matrix | null, uv: ArrayLike<number> | null, alpha: number, lastRender: boolean, color: number): boolean {
         if (width <= 0 || height <= 0) {
             return false;
         }

@@ -12,6 +12,7 @@ import { CharRender_Canvas } from "./CharRender_Canvas"
 import { ICharRender } from "./ICharRender"
 import { ILaya } from "../../../ILaya";
 import { Const } from "../../Const";
+import { BaseTexture } from "../../resource/BaseTexture";
 
 export class TextRender {
     //config
@@ -316,7 +317,7 @@ export class TextRender {
             if (!dt) continue;
             var pri: any[] = dt.words;
             var pisz = pri.length; if (pisz <= 0) continue;
-            var tex = ((<TextTexture>samePagesData[id].tex));
+            var tex = <BaseTexture>samePagesData[id].tex;
             for (var j = 0; j < pisz; j++) {
                 var riSaved: any = pri[j];
                 var ri: CharRenderInfo = riSaved.ri;
@@ -325,8 +326,7 @@ export class TextRender {
                 ctx.drawTexAlign = true;
                 //ctx._drawTextureM(ri.tex.texture as Texture, startx +riSaved.x -ri.orix / fontScaleX , starty + riSaved.y -ri.oriy / fontScaleY , riSaved.w, riSaved.h, null, 1.0, ri.uv);
 
-                let t = tex as TextTexture;
-                ctx._inner_drawTexture(t.texture, t.id,
+                ctx._inner_drawTexture(tex as BaseTexture, tex.id,
                     startx + riSaved.x - ri.orix, starty + riSaved.y - ri.oriy, riSaved.w, riSaved.h,
                      mat, ri.uv, 1.0, isLastRender, 0xffffffff);
                 
@@ -784,7 +784,7 @@ export class TextRender {
         });
         console.log('独立贴图文字(' + this.isoTextures.length + '个):');
         this.isoTextures.forEach(function (tex: TextTexture): void {
-            console.log('    size:', tex._texW, tex._texH, 'touch间隔:', (RenderInfo.loopCount - tex.lastTouchTm), 'char:', tex.ri.char);
+            console.log('    size:', tex.width, tex.height, 'touch间隔:', (RenderInfo.loopCount - tex.lastTouchTm), 'char:', tex.ri.char);
         });
         console.log('总缓存:', num, '总使用率:', totalUsedRate, '总当前图集使用率:', totalUsedRateAtlas);
 

@@ -8,7 +8,6 @@ import { Material } from "../../../../resource/Material"
 import { Vector2 } from "../../../../maths/Vector2"
 import { Matrix4x4 } from "../../../../maths/Matrix4x4"
 import { Vector4 } from "../../../../maths/Vector4"
-import { TextTexture } from "../../../text/TextTexture"
 import { LayaGL } from "../../../../layagl/LayaGL"
 import { ShaderData } from "../../../../RenderDriver/DriverDesign/RenderDevice/ShaderData"
 import { IDefineDatas } from "../../../../RenderDriver/RenderModuleData/Design/IDefineDatas"
@@ -52,7 +51,7 @@ export class Value2D {
     private _mmat = new Matrix4x4();
     filters: any[];
     texture: any;
-    private _textureHost: Texture | RenderTexture2D | TextTexture
+    private _textureHost: Texture | BaseTexture
     private _clipMatDir = new Vector4(Const.MAX_CLIP_SIZE, 0, 0, Const.MAX_CLIP_SIZE);
     private _clipMatpos = new Vector2();
     private _clipOff = new Vector2();//vector2			// 裁剪是否需要加上偏移，cacheas normal用
@@ -142,20 +141,17 @@ export class Value2D {
         return this.shaderData.getMatrix4x4(ShaderDefines2D.UNIFORM_MVPMatrix);
     }
 
-    public get textureHost(): Texture | RenderTexture2D | TextTexture {
+    public get textureHost(): Texture | BaseTexture {
         return this._textureHost
     }
-    public set textureHost(value: Texture | RenderTexture2D | TextTexture) {
+    public set textureHost(value: Texture | BaseTexture) {
         this._textureHost = value;
         let textrueReadGamma: boolean = false;
         if (this.textureHost) {
-            if (this.textureHost instanceof RenderTexture2D) {
-                textrueReadGamma = (this.textureHost as RenderTexture2D).gammaCorrection != 1;
+            if (this.textureHost instanceof BaseTexture) {
+                textrueReadGamma = (this.textureHost as BaseTexture).gammaCorrection != 1;
             } else if (this.textureHost instanceof Texture && (this.textureHost as Texture).bitmap) {
                 textrueReadGamma = (this.textureHost as Texture).bitmap.gammaCorrection != 1;
-            } else if (this.textureHost instanceof TextTexture && (this.textureHost as TextTexture).bitmap) {
-                // TextTexture
-                textrueReadGamma = (this.textureHost as TextTexture).gammaCorrection != 1;
             }
         }
 
@@ -167,8 +163,6 @@ export class Value2D {
         let tex;
         if (value instanceof Texture) {
             tex = value.bitmap;
-        } else if (value instanceof TextTexture) {
-            tex = value._source;
         } else {
             tex = value;
         }
