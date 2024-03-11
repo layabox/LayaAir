@@ -416,7 +416,7 @@ export class RenderSprite {
     static RenderToRenderTexture(sprite:Sprite,context:Context|null, x:number, y:number, renderTexture:RenderTexture2D=null){
         //如果需要构造RenderTexture
         // 先计算需要的texuture的大小。
-        let scaleInfo = sprite._cacheStyle._calculateCacheRect(sprite, "bitmap"/*sprite._cacheStyle.cacheAs*/, 0, 0,0);
+        let scaleInfo = sprite._cacheStyle._calculateCacheRect(sprite, "bitmap"/*sprite._cacheStyle.cacheAs*/, 0, 0);
         let tRec = sprite._cacheStyle.cacheRect;
         let ctx = new Context();
         context && ctx.copyState(context);
@@ -567,7 +567,7 @@ export class RenderSprite {
             }
             //如果需要构造RenderTexture
             // 先计算需要的texuture的大小。此时不要扩展rect，直接取实际的
-            sprite._cacheStyle._calculateCacheRect(sprite, "bitmap", 0, 0, 0);
+            sprite._cacheStyle._calculateCacheRect(sprite, "bitmap", 0, 0);
             let spRect = cache.cacheRect;
             if (spRect.width <= 0 || spRect.height <= 0)
                 return;
@@ -578,7 +578,7 @@ export class RenderSprite {
             //TODO mask如果非常简单，就不要先渲染到texture上
             //mask是sprite的子，因此，计算包围盒用相对位置就行
             let maskcache = mask._getCacheStyle();
-            maskcache._calculateCacheRect(mask, "bitmap", 0, 0, 0);  //后面的参数传入mask.xy没有效果，只能自己单独加上
+            maskcache._calculateCacheRect(mask, "bitmap", 0, 0);  //后面的参数传入mask.xy没有效果，只能自己单独加上
             let maskRect = maskcache.cacheRect;
 
             //计算两个rect的交集作为渲染区域
