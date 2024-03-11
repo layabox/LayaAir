@@ -57,7 +57,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
             else context.globalConfigShaderData.cloneTo(comDef);
 
             context.cameraData && comDef.addDefineDatas(context.cameraData._defineDatas);
-            if (this.renderShaderData) {
+            if (this.renderShaderData && this.owner) {
                 comDef.addDefineDatas(this.renderShaderData.getDefineData());
                 pass.nodeCommonMap = this.owner._commonUniformMap;
             } else pass.nodeCommonMap = null;
@@ -290,23 +290,35 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
     _render(context: WebGPURenderContext3D) {
         const sceneShaderData = context.sceneData as WebGPUShaderData;
         const cameraShaderData = context.cameraData as WebGPUShaderData;
+        if (!this.renderShaderData)
+            this.renderShaderData = new WebGPUShaderData();
         if (this.isRender) {
             const passes: WebGPUShaderInstance[] = this._shaderInstances.elements;
             for (let i = 0, m = passes.length; i < m; i++) {
                 const shaderIns = passes[i];
                 if (shaderIns.complete) {
+                    let complete = true;
                     const pipeline = this._getWebGPURenderPipeline(shaderIns, context.destRT, context);
                     context.renderCommand.setPipeline(pipeline);
                     //scene
-                    sceneShaderData && sceneShaderData.uploadUniform(0, shaderIns.uniformSetMap[0], context.renderCommand);
+                    if (sceneShaderData)
+                        if (!sceneShaderData.uploadUniform(0, shaderIns.uniformSetMap[0], context.renderCommand))
+                            complete = false;
                     //camera
-                    cameraShaderData && cameraShaderData.uploadUniform(1, shaderIns.uniformSetMap[1], context.renderCommand);
+                    if (cameraShaderData)
+                        if (!cameraShaderData.uploadUniform(1, shaderIns.uniformSetMap[1], context.renderCommand))
+                            complete = false;
                     //render
-                    this.renderShaderData && this.renderShaderData.uploadUniform(2, shaderIns.uniformSetMap[2], context.renderCommand);
+                    if (this.renderShaderData)
+                        if (!this.renderShaderData.uploadUniform(2, shaderIns.uniformSetMap[2], context.renderCommand))
+                            complete = false;
                     //material
-                    this.materialShaderData && this.materialShaderData.uploadUniform(3, shaderIns.uniformSetMap[3], context.renderCommand);
+                    if (this.materialShaderData)
+                        if (!this.materialShaderData.uploadUniform(3, shaderIns.uniformSetMap[3], context.renderCommand))
+                            complete = false;
                     //draw
-                    context.renderCommand.applyGeometry(this.geometry);
+                    if (complete)
+                        context.renderCommand.applyGeometry(this.geometry);
                 }
             }
         }

@@ -152,7 +152,8 @@ export class WebGPURenderContext3D implements IRenderContext3D {
         if (!this.destRT)
             this.setRenderTarget(WebGPURenderEngine._instance._canvasRT, RenderClearFlag.Nothing);
         if (this._needStart) {
-            this._start();
+            if (!this._start())
+                return 0;
             this._needStart = false;
         }
         const elements = list.elements;
@@ -168,7 +169,8 @@ export class WebGPURenderContext3D implements IRenderContext3D {
         if (!this.destRT)
             this.setRenderTarget(WebGPURenderEngine._instance._canvasRT, RenderClearFlag.Nothing);
         if (this._needStart) {
-            this._start();
+            if (!this._start())
+                return 0;
             this._needStart = false;
         }
         node._preUpdatePre(this);
@@ -186,17 +188,15 @@ export class WebGPURenderContext3D implements IRenderContext3D {
     }
 
     private _start() {
-        if (this.destRT)
+        if (this.destRT) {
             this.renderCommand.startRender
                 (WebGPURenderPassHelper.getDescriptor(this.destRT, this._clearFlag, this._clearColor, this._clearDepth, this._clearStencil));
-        else {
-            WebGPURenderEngine._instance.createRenderPassDesc();
-            this.renderCommand.startRender(WebGPURenderEngine._instance._renderPassDesc);
-        }
+        } else return false;
         this._viewPort.x = 0;
         this._viewPort.y = 0;
         this.renderCommand.setViewport(this._viewPort.x, this._viewPort.y, this._viewPort.width, this._viewPort.height, 0, 1);
         this.renderCommand.setScissorRect(this._scissor.x, this._scissor.y, this._scissor.z, this._scissor.w);
+        return true;
     }
 
     private _submit() {

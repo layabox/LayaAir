@@ -64,33 +64,33 @@ export class WebGPUTest {
             scene.addChild(directlightSprite);
             dircom.color.setValue(1, 1, 1, 1);
 
-            //创建一个SphereMesh
-            const sphereMesh: Mesh = PrimitiveMesh.createSphere();
+            // //创建一个SphereMesh
+            // const sphereMesh: Mesh = PrimitiveMesh.createSphere();
 
-            const earth1 = scene.addChild(new Sprite3D());
-            const meshFilter1 = earth1.addComponent(MeshFilter);
-            const meshRenderer1 = earth1.addComponent(MeshRenderer);
-            meshFilter1.sharedMesh = sphereMesh;
-            earth1.transform.position = new Vector3(-0.6, 0, 0);
+            // const earth1 = scene.addChild(new Sprite3D());
+            // const meshFilter1 = earth1.addComponent(MeshFilter);
+            // const meshRenderer1 = earth1.addComponent(MeshRenderer);
+            // meshFilter1.sharedMesh = sphereMesh;
+            // earth1.transform.position = new Vector3(-0.6, 0, 0);
 
-            const earth2 = scene.addChild(new Sprite3D());
-            const meshFilter2 = earth2.addComponent(MeshFilter);
-            const meshRenderer2 = earth2.addComponent(MeshRenderer);
-            meshFilter2.sharedMesh = sphereMesh;
-            earth2.transform.position = new Vector3(0.6, 0, 0);
+            // const earth2 = scene.addChild(new Sprite3D());
+            // const meshFilter2 = earth2.addComponent(MeshFilter);
+            // const meshRenderer2 = earth2.addComponent(MeshRenderer);
+            // meshFilter2.sharedMesh = sphereMesh;
+            // earth2.transform.position = new Vector3(0.6, 0, 0);
 
-            const material = new BlinnPhongMaterial();
-            //const material = new UnlitMaterial();
-            //漫反射贴图
-            Texture2D.load("res/threeDimen/texture/earth.jpg", Handler.create(this, (texture: Texture2D) => {
-                material.albedoTexture = texture;
-            }));
-            meshRenderer2.material = material;
+            // const material = new BlinnPhongMaterial();
+            // //const material = new UnlitMaterial();
+            // //漫反射贴图
+            // Texture2D.load("res/threeDimen/texture/earth.jpg", Handler.create(this, (texture: Texture2D) => {
+            //     material.albedoTexture = texture;
+            // }));
+            // meshRenderer2.material = material;
 
-            Laya.timer.frameLoop(1, this, () => {
-                earth1.transform.rotate(this.rotation, false);
-                earth2.transform.rotate(this.rotation, false);
-            });
+            // Laya.timer.frameLoop(1, this, () => {
+            //     earth1.transform.rotate(this.rotation, false);
+            //     earth2.transform.rotate(this.rotation, false);
+            // });
         });
     }
 }

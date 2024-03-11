@@ -27,15 +27,24 @@ export class WebGPURenderPassHelper {
 
     static setDepthAttachments(desc: GPURenderPassDescriptor, depthTex: WebGPUInternalTex, clear: boolean, clearDepthValue: number = 1) {
         if (depthTex) {
-            let depthStencil: GPURenderPassDepthStencilAttachment = desc.depthStencilAttachment = { view: depthTex.getTextureView() };
+            const hasStencil = depthTex._webGPUFormat.indexOf("stencil8") != -1;
+            const depthStencil: GPURenderPassDepthStencilAttachment = desc.depthStencilAttachment = { view: depthTex.getTextureView() };
             if (clear) {
                 depthStencil.depthClearValue = clearDepthValue;
                 depthStencil.depthLoadOp = "clear";
                 depthStencil.depthStoreOp = "store";
+                if (hasStencil) {
+                    depthStencil.stencilLoadOp = "clear";
+                    depthStencil.stencilStoreOp = "store";
+                }
             } else {
                 depthStencil.depthClearValue = clearDepthValue;
                 depthStencil.depthLoadOp = "load";
                 depthStencil.depthStoreOp = "store";
+                if (hasStencil) {
+                    depthStencil.stencilLoadOp = "load";
+                    depthStencil.stencilStoreOp = "store";
+                }
             }
         } else delete desc.depthStencilAttachment;
     }

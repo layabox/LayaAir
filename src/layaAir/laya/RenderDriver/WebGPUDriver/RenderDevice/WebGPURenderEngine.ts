@@ -45,6 +45,14 @@ export class WebGPUConfig {
      * color space
      */
     colorSpace? = "srgb" /* default="srgb" */;
+    /**
+     * depth and stencil
+     */
+    depthStencilFormat = WebGPUTextureFormat.depth24plus_stencil8;
+    /**
+     * multi sample
+     */
+    multiSamples = 1;
 }
 
 export class WebGPURenderEngine implements IRenderEngine {
@@ -155,7 +163,7 @@ export class WebGPURenderEngine implements IRenderEngine {
         });
         this._device.addEventListener("uncapturederror", this._unCapturedErrorCall);
         this._device.lost.then(this._deviceLostCall);
-        
+
         this.gpuVertexMgr = new WebGPUVertexManager(device);
         this.gpuBufferMgr = new WebGPUBufferManager(device);
         this.gpuTextureMgr = new WebGPUTextureManager();
@@ -189,6 +197,11 @@ export class WebGPURenderEngine implements IRenderEngine {
                     console.log(e);
                     throw "could not get WebGPU device";
                 })
+    }
+
+    resizeOffScreen(width: number, height: number): void {
+        console.log("canvas resize =", width, height);
+        this.createCanvasRT();
     }
 
     getDevice(): GPUDevice {
@@ -355,7 +368,15 @@ export class WebGPURenderEngine implements IRenderEngine {
         const context = this._context;
         const width = canvas.width;
         const height = canvas.height;
-        this._canvasRT = new WebGPUInternalRT(RenderTargetFormat.R8G8B8A8, RenderTargetFormat.DEPTHSTENCIL_24_8, false, false, 1);
+        // const format = this._config.swapChainFormat || WebGPUTextureFormat.bgra8unorm;
+        // const usage = this._config.usage ?? GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.COPY_SRC;
+        // this._context.configure({
+        //     device,
+        //     format,
+        //     usage,
+        //     alphaMode: this._config.alphaMode,
+        // });
+        this._canvasRT = new WebGPUInternalRT(RenderTargetFormat.R8G8B8A8, RenderTargetFormat.DEPTHSTENCIL_24_8, false, false, this._config.multiSamples);
         this._canvasRT._textures.push(new WebGPUInternalTex(width, height, 1, TextureDimension.Tex2D, false, false, 1));
         this._canvasRT._textures[0].resource = context.getCurrentTexture();
         this._canvasRT._textures[0]._webGPUFormat = WebGPURenderEngine._offscreenFormat;
@@ -363,7 +384,7 @@ export class WebGPURenderEngine implements IRenderEngine {
         this._canvasRT._depthTexture.resource = device.createTexture({
             size: { width, height },
             sampleCount: 1,
-            format: 'depth24plus-stencil8',
+            format: this._config.depthStencilFormat as GPUTextureFormat,
             usage: GPUTextureUsage.RENDER_ATTACHMENT,
         });
         this._canvasRT._depthTexture._webGPUFormat = WebGPUTextureFormat.depth24plus_stencil8;
@@ -390,7 +411,7 @@ export class WebGPURenderEngine implements IRenderEngine {
                 view: device.createTexture({
                     size: { width, height },
                     sampleCount: 1,
-                    format: "depth24plus-stencil8",
+                    format: this._config.depthStencilFormat as GPUTextureFormat,
                     usage: GPUTextureUsage.RENDER_ATTACHMENT,
                 }).createView(),
                 depthClearValue: 1,

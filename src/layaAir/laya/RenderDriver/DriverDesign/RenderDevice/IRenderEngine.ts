@@ -17,6 +17,7 @@ export interface IRenderEngine {
     initRenderEngine(canvas: any): void;
     copySubFrameBuffertoTex(texture: InternalTexture, level: number, xoffset: number, yoffset: number, x: number, y: number, width: number, height: number): void;
 
+    resizeOffScreen(width: number, height: number): void;
 
     propertyNameToID(name: string): number;
     propertyIDToName(id: number): string;
@@ -24,7 +25,7 @@ export interface IRenderEngine {
     getDefineByName(name: string): ShaderDefine;
     getNamesByDefineData(defineData: IDefineDatas, out: Array<string>): void;
 
-    addTexGammaDefine(key:number,value:ShaderDefine):void;
+    addTexGammaDefine(key: number, value: ShaderDefine): void;
 
     getParams(params: RenderParams): number;
     getCapable(capatableType: RenderCapable): boolean;

@@ -120,6 +120,10 @@ export class WebGPUInternalTex implements InternalTexture {
     };
 
     private _webgpuSampler: WebGPUSampler;
+    get sampler() {
+        return this._webgpuSampler;
+    }
+
     constructor(width: number, height: number, depth: number, dimension: TextureDimension, mipmap: boolean, useSRGBLoader: boolean, gammaCorrection: number) {
         this.width = width;
         this.height = height;

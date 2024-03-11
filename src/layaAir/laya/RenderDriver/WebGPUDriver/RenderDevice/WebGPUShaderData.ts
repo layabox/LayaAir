@@ -11,7 +11,8 @@ import { InternalTexture } from "../../DriverDesign/RenderDevice/InternalTexture
 import { ShaderData } from "../../DriverDesign/RenderDevice/ShaderData"
 import { ShaderDefine } from "../../RenderModuleData/Design/ShaderDefine";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
-import { WebGPUUniformPropertyBindingInfo } from "./WebGPUCodeGenerator";
+import { WebGPUBindingInfoType, WebGPUUniformPropertyBindingInfo } from "./WebGPUCodeGenerator";
+import { WebGPUInternalTex } from "./WebGPUInternalTex";
 import { UniformBuffer } from "./WebGPUMemoryManagers/WebGPUUniformBuffer";
 import { WebGPURenderCommandEncoder } from "./WebGPURenderCommandEncoder";
 import { WebGPURenderEngine } from "./WebGPURenderEngine";
@@ -48,8 +49,10 @@ export class WebGPUShaderData extends ShaderData {
     }
 
     setUniformBuffers(ubs: UniformBuffer[]) {
-        this._uniformBuffers = ubs;
-        this._updateUniformMap();
+        if (this._uniformBuffers != ubs) {
+            this._uniformBuffers = ubs;
+            this._updateUniformMap();
+        }
     }
 
     private _updateUniformMap() {
@@ -98,12 +101,85 @@ export class WebGPUShaderData extends ShaderData {
 
     /**
      * 根据ShaderInstance里面的bindinglayout生成bindGroup
-     * 1、要知道我这个shaderdata对应的BindingLayout
+     * 要知道我这个shaderdata对应的BindingLayout
      */
-    uploadUniform(groudId: number, unifoms: WebGPUUniformPropertyBindingInfo[], command: WebGPURenderCommandEncoder) {
-        //根据unifoms 创建bindGroup 缓存起来
-        //for(unifoms)
-        //command.setBindGroup(index, bindGroup, dynamicOffsets);
+    uploadUniform(groupId: number, uniforms: WebGPUUniformPropertyBindingInfo[], command: WebGPURenderCommandEncoder) {
+        const device = WebGPURenderEngine._instance.getDevice();
+        const bindGroupLayoutEntries = [];
+        const bindGroupEntries = [];
+
+        console.log(uniforms);
+
+        for (const item of uniforms) {
+            //确定资源类型
+            switch (item.type) {
+                
+            }
+            if (item.type == WebGPUBindingInfoType.buffer && item.uniform) {
+                const uniformInfo = item.uniform;
+                const buffer = device.createBuffer({
+                    size: uniformInfo.size,
+                    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+                });
+
+                //填充buffer数据，这里省略具体代码
+
+                bindGroupLayoutEntries.push({
+                    binding: item.binding,
+                    visibility: item.visibility,
+                    buffer: item.buffer || { type: 'uniform' },
+                });
+                bindGroupEntries.push({
+                    binding: item.binding,
+                    resource: {
+                        buffer
+                    } as GPUBufferBinding
+                });
+            } else if (item.type == WebGPUBindingInfoType.sampler && item.sampler) {
+                const texture = this.getTexture(item.propertyID);
+                console.log(texture);
+                if (!texture) return false;
+                else {
+                    bindGroupLayoutEntries.push({
+                        binding: item.binding,
+                        visibility: item.visibility,
+                        sampler: item.sampler,
+                    });
+                    bindGroupEntries.push({
+                        binding: item.binding,
+                        resource: (texture._texture as WebGPUInternalTex).sampler.source,
+                    });
+                }
+            } else if (item.type == WebGPUBindingInfoType.texture && item.texture) {
+                const texture = this.getTexture(item.propertyID);
+                console.log(texture);
+                if (!texture) return false;
+                else {
+                    bindGroupLayoutEntries.push({
+                        binding: item.binding,
+                        visibility: item.visibility,
+                        texture: item.texture,
+                    });
+                    bindGroupEntries.push({
+                        binding: item.binding,
+                        resource: texture._texture.resource.createView() as GPUTextureView,
+                    });
+                }
+            }
+        }
+
+        //创建绑定组布局
+        const bindGroupLayout = device.createBindGroupLayout({ entries: bindGroupLayoutEntries });
+
+        //创建绑定组
+        const bindGroup = device.createBindGroup({
+            layout: bindGroupLayout,
+            entries: bindGroupEntries,
+        });
+
+        //将绑定组附加到命令
+        command.setBindGroup(groupId, bindGroup);
+        return true;
     }
 
     getData() {
