@@ -39,8 +39,8 @@ export class WheelJoint extends JointBase {
     /**
     * @internal
     * @deprecated
-    * [首次设置有效]一个向量值，描述运动方向，比如1,0是沿X轴向右*/
-    _axis: any[] = [1, 0];
+      * [首次设置有效]一个向量值，用于定义弹性运动方向，即轮子在哪个方向可以如弹簧一样压缩和伸展，比如1,0是沿X轴向右，0,1是沿Y轴向下*/
+    _axis: any[] = [0, 1];
 
     /**[首次设置有效]关节的自身刚体*/
     selfBody: RigidBody;
@@ -54,8 +54,8 @@ export class WheelJoint extends JointBase {
     /**[首次设置有效]两个刚体是否可以发生碰撞，默认为false*/
     collideConnected: boolean = false;
 
-    /**[首次设置有效]一个角度，描述运动方向，比如0是沿X轴向右*/
-    angle: number = 0;
+    /**[首次设置有效]一个角度值，用于定义弹性运动方向，即轮子在哪个方向可以如弹簧一样压缩和伸展，比如0是沿X轴向右, 90是沿Y轴向下*/
+    angle: number = 90;
 
     /**弹簧系统的震动频率，可以视为弹簧的弹性系数，通常频率应该小于时间步长频率的一半*/
     get frequency(): number {
