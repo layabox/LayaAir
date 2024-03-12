@@ -31,9 +31,9 @@ export class WebGPURenderContext3D implements IRenderContext3D {
     /**@internal */
     private _scissor: Vector4;
     /**@internal */
-    private _sceneUpdataMask: number;
+    private _sceneUpdataMask: number = 0;
     /**@internal */
-    private _cameraUpdateMask: number;
+    private _cameraUpdateMask: number = 0;
     /**@internal */
     private _pipelineMode: PipelineMode;
     /**@internal */
@@ -41,7 +41,7 @@ export class WebGPURenderContext3D implements IRenderContext3D {
     /**@internal */
     private _clearFlag: number;
     /**@internal */
-    private _clearColor: Color = new Color();
+    private _clearColor: Color = Color.BLUE;
     /**@internal */
     private _clearDepth: number;
     /**@internal */
@@ -149,8 +149,9 @@ export class WebGPURenderContext3D implements IRenderContext3D {
     }
 
     drawRenderElementList(list: SingletonList<WebGPURenderElement3D>): number {
+        if (list.length == 0) return 0;
         if (!this.destRT)
-            this.setRenderTarget(WebGPURenderEngine._instance._canvasRT, RenderClearFlag.Nothing);
+            this.setRenderTarget(WebGPURenderEngine._instance._screenRT, RenderClearFlag.Color | RenderClearFlag.Depth);
         if (this._needStart) {
             if (!this._start())
                 return 0;
@@ -166,8 +167,9 @@ export class WebGPURenderContext3D implements IRenderContext3D {
     }
 
     drawRenderElementOne(node: WebGPURenderElement3D): number {
+        if (!node) return 0;
         if (!this.destRT)
-            this.setRenderTarget(WebGPURenderEngine._instance._canvasRT, RenderClearFlag.Nothing);
+            this.setRenderTarget(WebGPURenderEngine._instance._screenRT, RenderClearFlag.Color | RenderClearFlag.Depth);
         if (this._needStart) {
             if (!this._start())
                 return 0;
@@ -189,8 +191,10 @@ export class WebGPURenderContext3D implements IRenderContext3D {
 
     private _start() {
         if (this.destRT) {
-            this.renderCommand.startRender
-                (WebGPURenderPassHelper.getDescriptor(this.destRT, this._clearFlag, this._clearColor, this._clearDepth, this._clearStencil));
+            const renderPassDesc: GPURenderPassDescriptor
+                = WebGPURenderPassHelper.getDescriptor(this.destRT, this._clearFlag, this._clearColor, this._clearDepth, this._clearStencil);
+            this.renderCommand.startRender(renderPassDesc);
+            //console.log(renderPassDesc);
         } else return false;
         this._viewPort.x = 0;
         this._viewPort.y = 0;

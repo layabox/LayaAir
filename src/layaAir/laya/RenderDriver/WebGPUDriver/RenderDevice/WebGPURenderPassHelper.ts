@@ -12,8 +12,8 @@ export class WebGPURenderPassHelper {
 
     static setColorAttachments(desc: GPURenderPassDescriptor, textures: WebGPUInternalTex[], clear: boolean, clearColor: Color = Color.BLACK) {
         //TODO mutisampled
-        let colorArray = desc.colorAttachments as Array<GPURenderPassColorAttachment>;
-        (colorArray as Array<GPURenderPassColorAttachment>).length = textures.length;
+        const colorArray = desc.colorAttachments as GPURenderPassColorAttachment[];
+        colorArray.length = textures.length;
         for (let i = 0, n = textures.length; i < n; i++) {
             let attachment = colorArray[i];
             if (!attachment)
@@ -28,7 +28,8 @@ export class WebGPURenderPassHelper {
     static setDepthAttachments(desc: GPURenderPassDescriptor, depthTex: WebGPUInternalTex, clear: boolean, clearDepthValue: number = 1) {
         if (depthTex) {
             const hasStencil = depthTex._webGPUFormat.indexOf("stencil8") != -1;
-            const depthStencil: GPURenderPassDepthStencilAttachment = desc.depthStencilAttachment = { view: depthTex.getTextureView() };
+            const depthStencil: GPURenderPassDepthStencilAttachment
+                = desc.depthStencilAttachment = { view: depthTex.getTextureView() };
             if (clear) {
                 depthStencil.depthClearValue = clearDepthValue;
                 depthStencil.depthLoadOp = "clear";
@@ -42,6 +43,7 @@ export class WebGPURenderPassHelper {
                 depthStencil.depthLoadOp = "load";
                 depthStencil.depthStoreOp = "store";
                 if (hasStencil) {
+                    depthStencil.stencilClearValue = 0;
                     depthStencil.stencilLoadOp = "load";
                     depthStencil.stencilStoreOp = "store";
                 }

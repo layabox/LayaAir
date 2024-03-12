@@ -151,9 +151,7 @@ export class WebGPUInternalTex implements InternalTexture {
     }
 
     getTextureView(): GPUTextureView {
-        if (this.resource)
-            return this.resource.createView();
-        return null;
+        return this.resource.createView();
     }
 
     dispose(): void {

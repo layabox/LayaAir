@@ -30,6 +30,7 @@ export enum WebGPUBindingInfoType {
 };
 
 export interface WebGPUUniformPropertyBindingInfo {
+    sn: number;
     set: number;
     binding: number;
     name: string;
@@ -249,7 +250,7 @@ export class WebGPUCodeGenerator {
                         visibility,
                         type: WebGPUBindingInfoType.sampler,
                         name: `${textureUniforms[i].name}Sampler`,
-                        propertyID: Shader3D.propertyNameToID(`${textureUniforms[i].name}Sampler`),
+                        propertyID: Shader3D.propertyNameToID(textureUniforms[i].name),
                         sampler: { type: 'filtering' },
                     } as WebGPUUniformPropertyBindingInfo);
                     uniformInfo.push({
@@ -258,7 +259,7 @@ export class WebGPUCodeGenerator {
                         visibility,
                         type: WebGPUBindingInfoType.texture,
                         name: `${textureUniforms[i].name}Texture`,
-                        propertyID: Shader3D.propertyNameToID(`${textureUniforms[i].name}Texture`),
+                        propertyID: Shader3D.propertyNameToID(textureUniforms[i].name),
                         texture: { sampleType: 'float', viewDimension: '2d', multisampled: false },
                     } as WebGPUUniformPropertyBindingInfo);
                 }
@@ -272,7 +273,7 @@ export class WebGPUCodeGenerator {
                         visibility,
                         type: WebGPUBindingInfoType.sampler,
                         name: `${textureUniforms[i].name}Sampler`,
-                        propertyID: Shader3D.propertyNameToID(`${textureUniforms[i].name}Sampler`),
+                        propertyID: Shader3D.propertyNameToID(textureUniforms[i].name),
                         sampler: { type: 'filtering' },
                     } as WebGPUUniformPropertyBindingInfo);
                     uniformInfo.push({
@@ -281,7 +282,7 @@ export class WebGPUCodeGenerator {
                         visibility,
                         type: WebGPUBindingInfoType.texture,
                         name: `${textureUniforms[i].name}Texture`,
-                        propertyID: Shader3D.propertyNameToID(`${textureUniforms[i].name}Texture`),
+                        propertyID: Shader3D.propertyNameToID(textureUniforms[i].name),
                         texture: { sampleType: 'float', viewDimension: 'cube', multisampled: false },
                     } as WebGPUUniformPropertyBindingInfo);
                 }
@@ -739,6 +740,8 @@ ${textureGLSL_fs}
         //转译成WGSL代码
         const wgsl_vs = this.naga.compileGLSL2WGSL(dstVS, 'vertex');
         const wgsl_fs = this.naga.compileGLSL2WGSL(dstFS, 'fragment');
+        //console.log(wgsl_vs);
+        //console.log(wgsl_fs);
         return { vs: wgsl_vs, fs: wgsl_fs, uniformInfo };
     }
 }

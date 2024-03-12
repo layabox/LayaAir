@@ -1,4 +1,4 @@
-import { WebGPUBufferManager } from "./WebGPUBufferManager";
+import { WebGPUBufferBlock, WebGPUBufferManager } from "./WebGPUBufferManager";
 import { Vector2 } from "../../../../maths/Vector2";
 import { Vector3 } from "../../../../maths/Vector3";
 import { Vector4 } from "../../../../maths/Vector4";
@@ -53,6 +53,7 @@ export class UniformBuffer {
     set: number;
     binding: number;
     offset: number;
+    block: WebGPUBufferBlock;
 
     private _gpu_Buffer: GPUBuffer;
     private _gpu_BindGroupEntry: GPUBindGroupEntry;
@@ -68,7 +69,7 @@ export class UniformBuffer {
 
         this.set = set;
         this.binding = binding;
-        this.offset = gpuBuffer.getBlock(name, size);
+        this.block = gpuBuffer.getBlock(name, size);
 
         //@ts-ignore
         this._gpu_Buffer = gpuBuffer.getBuffer(name);
@@ -500,6 +501,13 @@ export class UniformBuffer {
      */
     getArrayBuffer() {
         return this.arrayBuffer;
+    }
+
+    /**
+     * 获取GPUBuffer
+     */
+    getGPUBuffer() {
+        return this._gpu_Buffer;
     }
 
     /**

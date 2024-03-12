@@ -1,7 +1,30 @@
+import { roundUp } from "../../../../RenderEngine/RenderShader/wgslCode/uniform/TypeConst";
+
 type OffsetAndSize = { offset: number, size: number };
 
 /**
- * GPU内存块
+ * GPU内存块（小内存块）
+ */
+export class WebGPUBufferBlock {
+    sn: number;
+    buffer: WebGPUBuffer;
+    offset: number;
+    size: number;
+    alignedSize: number;
+    destroyed: boolean;
+
+    constructor(sn: number, buffer: WebGPUBuffer, offset: number, size: number, alignedSize: number) {
+        this.sn = sn;
+        this.buffer = buffer;
+        this.offset = offset;
+        this.size = size;
+        this.alignedSize = size;
+        this.destroyed = false;
+    }
+}
+
+/**
+ * GPU内存块（大内存块）
  */
 class WebGPUBuffer {
     buffer: GPUBuffer;
@@ -9,7 +32,7 @@ class WebGPUBuffer {
     size: number;
     left: number;
     free: OffsetAndSize[] = [];
-    used: OffsetAndSize[] = [];
+    used: WebGPUBufferBlock[] = [];
 
     constructor(device: GPUDevice, name: string, size: number) {
         this.name = name;
@@ -26,34 +49,43 @@ class WebGPUBuffer {
     /**
      * 获取内存块
      * @param size 
+     * @returns 偏移地址（256字节对齐）
      */
     getBlock(size: number) {
+        let offset = 0;
+        let bb: WebGPUBufferBlock;
+        const alignedSize = roundUp(size, 256);
         for (let i = 0, len = this.free.length; i < len; i++) {
-            if (this.free[i].size == size) {
-                this.used.push({ ...this.free[i] });
-                this.left -= size;
-                return this.free.splice(i, 1)[0].offset;
-            } else if (this.free[i].size > size) {
-                this.used.push({ offset: this.free[i].offset, size });
-                this.free[i].offset += size;
-                this.free[i].size -= size;
-                this.left -= size;
-                return this.free[i].offset - size;
+            if (this.free[i].size == alignedSize) {
+                //this.used.push({ ...this.free[i] });
+                this.left -= alignedSize;
+                offset = this.free.splice(i, 1)[0].offset;
+                bb = new WebGPUBufferBlock(WebGPUBufferManager.snCounter++, this, offset, size, alignedSize);
+                this.used.push(bb);
+                return bb;
+            } else if (this.free[i].size > alignedSize) {
+                //this.used.push({ offset: this.free[i].offset, size: alignedSize });
+                offset = this.free[i].offset;
+                this.free[i].offset += alignedSize;
+                this.free[i].size -= alignedSize;
+                this.left -= alignedSize;
+                bb = new WebGPUBufferBlock(WebGPUBufferManager.snCounter++, this, offset, size, alignedSize);
+                this.used.push(bb);
+                return bb;
             }
         }
-        return -1;
+        return null;
     }
 
     /**
      * 释放内存块
-     * @param offset 
      */
-    freeBlock(offset: number) {
+    freeBlock(bb: WebGPUBufferBlock) {
         let doFree = false;
         for (let i = 0, len = this.used.length; i < len; i++) {
-            if (this.used[i].offset == offset) {
-                this.free.push({ ...this.used[i] });
-                this.left += this.used[i].size;
+            if (this.used[i] == bb) {
+                this.free.push({ offset: bb.offset, size: bb.alignedSize });
+                this.left += bb.alignedSize;
                 this.used.splice(i, 1);
                 doFree = true;
                 break;
@@ -108,6 +140,8 @@ export class WebGPUBufferManager {
     device: GPUDevice;
     namedBuffers: Map<string, WebGPUBuffer>;
 
+    static snCounter: number = 0;
+
     constructor(device: GPUDevice) {
         this.device = device;
         this.namedBuffers = new Map();
@@ -152,18 +186,18 @@ export class WebGPUBufferManager {
         const buffer = this.namedBuffers.get(name);
         if (buffer)
             return buffer.getBlock(size);
-        return -2;
+        return null;
     }
 
     /**
      * 释放内存块
      * @param name 
-     * @param offset 
+     * @param bb 
      */
-    freeBlock(name: string, offset: number) {
+    freeBlock(name: string, bb: WebGPUBufferBlock) {
         const buffer = this.namedBuffers.get(name);
         if (buffer)
-            return buffer.freeBlock(offset);
+            return buffer.freeBlock(bb);
         return false;
     }
 

@@ -207,6 +207,7 @@ export class WebGPUShaderInstance implements IShaderInstance {
             if (info.uniform) {
                 const gpuBuffer = WebGPURenderEngine._instance.gpuBufferMgr;
                 const uniformBuffer = new UniformBuffer(info.name, info.set, info.binding, info.uniform.size, gpuBuffer);
+                info.sn = uniformBuffer.block.sn;
                 for (let i = 0, len = info.uniform.items.length; i < len; i++) {
                     const uniform = info.uniform.items[i];
                     uniformBuffer.addUniform(uniform.id, uniform.type, uniform.offset, uniform.align, uniform.size, uniform.elements, uniform.count);
@@ -216,12 +217,12 @@ export class WebGPUShaderInstance implements IShaderInstance {
             return null;
         };
 
-        const unformBuffers: UniformBuffer[] = [];
+        const uniformBuffers: UniformBuffer[] = [];
         for (let i = 0; i < infos.length; i++) {
             const uniformBuffer = _createUniformBuffer(infos[i]);
-            if (uniformBuffer) unformBuffers.push(uniformBuffer);
+            if (uniformBuffer) uniformBuffers.push(uniformBuffer);
         }
-        return unformBuffers;
+        return uniformBuffers;
     }
 
     // /**

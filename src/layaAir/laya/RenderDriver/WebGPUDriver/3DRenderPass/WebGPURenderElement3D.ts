@@ -64,7 +64,10 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
             comDef.addDefineDatas(this.materialShaderData._defineDatas);
 
             const shaderInstance = pass.withCompile(comDef) as WebGPUShaderInstance;
-            this.materialShaderData.setUniformBuffers(shaderInstance.uniformBuffers);
+            if (this.materialShaderData)
+                this.materialShaderData.setUniformBuffers(shaderInstance.uniformBuffers);
+            if (this.renderShaderData)
+                this.renderShaderData.setUniformBuffers(shaderInstance.uniformBuffers);
             this._addShaderInstance(shaderInstance);
         }
     }
@@ -302,19 +305,19 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
                     context.renderCommand.setPipeline(pipeline);
                     //scene
                     if (sceneShaderData)
-                        if (!sceneShaderData.uploadUniform(0, shaderIns.uniformSetMap[0], context.renderCommand))
+                        if (!sceneShaderData.uploadUniform(0, 'scene', shaderIns.uniformSetMap[0], context.renderCommand))
                             complete = false;
                     //camera
                     if (cameraShaderData)
-                        if (!cameraShaderData.uploadUniform(1, shaderIns.uniformSetMap[1], context.renderCommand))
+                        if (!cameraShaderData.uploadUniform(1, 'camera', shaderIns.uniformSetMap[1], context.renderCommand))
                             complete = false;
                     //render
                     if (this.renderShaderData)
-                        if (!this.renderShaderData.uploadUniform(2, shaderIns.uniformSetMap[2], context.renderCommand))
+                        if (!this.renderShaderData.uploadUniform(2, 'sprite', shaderIns.uniformSetMap[2], context.renderCommand))
                             complete = false;
                     //material
                     if (this.materialShaderData)
-                        if (!this.materialShaderData.uploadUniform(3, shaderIns.uniformSetMap[3], context.renderCommand))
+                        if (!this.materialShaderData.uploadUniform(3, 'material', shaderIns.uniformSetMap[3], context.renderCommand))
                             complete = false;
                     //draw
                     if (complete)

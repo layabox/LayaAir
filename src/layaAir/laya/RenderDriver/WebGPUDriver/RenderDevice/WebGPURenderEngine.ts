@@ -2,7 +2,6 @@ import { RenderCapable } from "../../../RenderEngine/RenderEnum/RenderCapable";
 import { RenderParams } from "../../../RenderEngine/RenderEnum/RenderParams";
 import { RenderStatisticsInfo } from "../../../RenderEngine/RenderEnum/RenderStatInfo";
 import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTargetFormat";
-import { TextureDimension } from "../../../RenderEngine/RenderEnum/TextureDimension";
 import { IRenderEngine } from "../../DriverDesign/RenderDevice/IRenderEngine";
 import { IRenderEngineFactory } from "../../DriverDesign/RenderDevice/IRenderEngineFactory";
 import { ITextureContext } from "../../DriverDesign/RenderDevice/ITextureContext";
@@ -11,7 +10,6 @@ import { IDefineDatas } from "../../RenderModuleData/Design/IDefineDatas";
 import { ShaderDefine } from "../../RenderModuleData/Design/ShaderDefine";
 import { WebGPUCapable } from "./WebGPUCapable";
 import { WebGPUInternalRT } from "./WebGPUInternalRT";
-import { WebGPUInternalTex } from "./WebGPUInternalTex";
 import { WebGPUBindGroupManager } from "./WebGPUMemoryManagers/WebGPUBindGroupManager";
 import { WebGPUBufferManager } from "./WebGPUMemoryManagers/WebGPUBufferManager";
 import { WebGPUPipelineManager } from "./WebGPUMemoryManagers/WebGPUPipelineManager";
@@ -65,13 +63,11 @@ export class WebGPURenderEngine implements IRenderEngine {
     _context: GPUCanvasContext;
     _config: WebGPUConfig;
 
-    _canvasRT: WebGPUInternalRT;
-    _renderPassDesc: GPURenderPassDescriptor;
-
-    _supportCapatable: WebGPUCapable;
+    _screenRT: WebGPUInternalRT;
 
     private _adapter: GPUAdapter;
     private _device: GPUDevice;
+    private _supportCapatable: WebGPUCapable;
     private _textureContext: WebGPUTextureContext;
 
     private _adapterSupportedExtensions: GPUFeatureName[];
@@ -200,8 +196,14 @@ export class WebGPURenderEngine implements IRenderEngine {
     }
 
     resizeOffScreen(width: number, height: number): void {
-        console.log("canvas resize =", width, height);
-        this.createCanvasRT();
+        const w = width | 0;
+        const h = height | 0;
+        if (!this._screenRT
+            || this._screenRT._depthTexture.width != w
+            || this._screenRT._depthTexture.height != h) {
+            console.log("canvas resize =", w, h);
+            this.createScreenRT();
+        }
     }
 
     getDevice(): GPUDevice {
@@ -233,26 +235,11 @@ export class WebGPURenderEngine implements IRenderEngine {
         this._initContext();
 
         this._textureContext = new WebGPUTextureContext(this);
-        // // this._samplerContext = new WebGPUSamplerContext(this);
-        // // this._webGPUTextureContext = new WebGPUTextureContext(this);
         this._supportCapatable = new WebGPUCapable();
-        // // //offscreen canvans
-        //const format = this._config.swapChainFormat || navigator.gpu.getPreferredCanvasFormat();
-        //this._canvasRT = new WebGPUInternalRT(RenderTargetFormat.R8G8B8A8, RenderTargetFormat.DEPTHSTENCIL_24_Plus, false, false, 1);
-        //let _offscreenTex = new WebGPUInternalTex(0, 0, 1, TextureDimension.Tex2D, false, false, 1);
-        //this._canvasRT.isOffscreenRT = true;
-        //_offscreenTex.resource = this._context.getCurrentTexture();
-        //this._canvasRT._textures.push(_offscreenTex);
-        //this._canvasRT._depthTexture = this._textureContext.createRenderTextureInternal(TextureDimension.Tex2D, this._canvas.width, this._canvas.height, RenderTargetFormat.DEPTHSTENCIL_24_Plus, false, false);
+        this.createScreenRT();
 
-        this.createCanvasRT();
-        this.createRenderPassDesc();
-
-        // //limit TODO
-        // ///this._adapter 得到Webgpu限制
-
-        // WGPUBindGroupHelper.device = this._device;
-        // //TODO
+        // limit TODO
+        // this._adapter 得到Webgpu限制
     }
 
     copySubFrameBuffertoTex(texture: InternalTexture, level: number, xoffset: number, yoffset: number, x: number, y: number, width: number, height: number): void {
@@ -283,7 +270,7 @@ export class WebGPURenderEngine implements IRenderEngine {
     /**@internal */
     private _defineCounter: number = 0;
     /**@internal */
-    private _maskMap: Array<{ [key: number]: string }> = [];
+    private _maskMap: { [key: number]: string }[] = [];
 
     getDefineByName(name: string): ShaderDefine {
         var define: ShaderDefine = this._defineMap[name];
@@ -360,67 +347,13 @@ export class WebGPURenderEngine implements IRenderEngine {
     }
 
     /**
-     * 创建画布渲染目标
+     * 创建屏幕渲染目标
      */
-    createCanvasRT() {
-        const device = this._device;
-        const canvas = this._canvas;
-        const context = this._context;
-        const width = canvas.width;
-        const height = canvas.height;
-        // const format = this._config.swapChainFormat || WebGPUTextureFormat.bgra8unorm;
-        // const usage = this._config.usage ?? GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.COPY_SRC;
-        // this._context.configure({
-        //     device,
-        //     format,
-        //     usage,
-        //     alphaMode: this._config.alphaMode,
-        // });
-        this._canvasRT = new WebGPUInternalRT(RenderTargetFormat.R8G8B8A8, RenderTargetFormat.DEPTHSTENCIL_24_8, false, false, this._config.multiSamples);
-        this._canvasRT._textures.push(new WebGPUInternalTex(width, height, 1, TextureDimension.Tex2D, false, false, 1));
-        this._canvasRT._textures[0].resource = context.getCurrentTexture();
-        this._canvasRT._textures[0]._webGPUFormat = WebGPURenderEngine._offscreenFormat;
-        this._canvasRT._depthTexture = new WebGPUInternalTex(width, height, 1, TextureDimension.Tex2D, false, false, 1);
-        this._canvasRT._depthTexture.resource = device.createTexture({
-            size: { width, height },
-            sampleCount: 1,
-            format: this._config.depthStencilFormat as GPUTextureFormat,
-            usage: GPUTextureUsage.RENDER_ATTACHMENT,
-        });
-        this._canvasRT._depthTexture._webGPUFormat = WebGPUTextureFormat.depth24plus_stencil8;
-    }
-
-    /**
-     * 创建渲染过程描述
-     * @returns 描述对象
-     */
-    createRenderPassDesc() {
-        const device = this._device;
-        const canvas = this._canvas;
-        const context = this._context;
-        const width = canvas.width;
-        const height = canvas.height;
-        this._renderPassDesc = {
-            colorAttachments: [{
-                view: context.getCurrentTexture().createView(),
-                clearValue: { r: 0, g: 0, b: 1, a: 1 },
-                loadOp: "clear",
-                storeOp: "store",
-            }],
-            depthStencilAttachment: {
-                view: device.createTexture({
-                    size: { width, height },
-                    sampleCount: 1,
-                    format: this._config.depthStencilFormat as GPUTextureFormat,
-                    usage: GPUTextureUsage.RENDER_ATTACHMENT,
-                }).createView(),
-                depthClearValue: 1,
-                depthLoadOp: "clear",
-                depthStoreOp: "store",
-                stencilClearValue: 0,
-                stencilLoadOp: "clear",
-                stencilStoreOp: "store",
-            },
-        };
+    createScreenRT() {
+        this._screenRT =
+            this._textureContext.createRenderTargetInternal
+                (this._canvas.width, this._canvas.height, RenderTargetFormat.R8G8B8A8,
+                    RenderTargetFormat.DEPTHSTENCIL_24_8, false, false, this._config.multiSamples) as WebGPUInternalRT;
+        this._screenRT._textures[0].resource = this._context.getCurrentTexture();
     }
 }
