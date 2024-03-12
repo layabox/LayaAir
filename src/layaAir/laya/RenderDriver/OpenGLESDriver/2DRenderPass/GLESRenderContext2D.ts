@@ -23,9 +23,10 @@ export class GLESREnderContext2D implements IRenderContext2D {
     constructor() {
         this._nativeObj = new (window as any).conchGLESRenderContext2D();
         this._nativeObj.setGlobalConfigShaderData((Shader3D._configDefineValues as any)._nativeObj);
+        this._nativeObj.pipelineMode = "Forward";
     }
     setRenderTarget(value: GLESInternalRT, clear: boolean, clearColor: Color): void {
-        this._nativeObj.setRenderTarget(value._nativeObj, clear, clearColor);
+        this._nativeObj.setRenderTarget(value?value._nativeObj:null, clear, clearColor);
     }
     setOffscreenView(width: number, height: number): void {
         this._nativeObj.setOffscreenView(width, height);

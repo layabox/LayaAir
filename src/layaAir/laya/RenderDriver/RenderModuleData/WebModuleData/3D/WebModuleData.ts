@@ -37,6 +37,7 @@ export class WebSubShader implements ISubshaderData {
 }
 
 export class WebShaderPass implements IShaderPassData {
+    is2D: boolean;
     pipelineMode: string;
     statefirst: boolean;
     private _validDefine: WebDefineDatas;

@@ -90,6 +90,7 @@ export class RTShaderPass implements IShaderPassData {
     private _validDefine: RTDefineDatas = new RTDefineDatas();
     private _createShaderInstanceFun: any;
     _nativeObj: any;
+    is2D: boolean = false;
     private _pass: ShaderPass;
     constructor(pass: ShaderPass) {
         this._nativeObj = new (window as any).conchRTShaderPass();
@@ -127,7 +128,7 @@ export class RTShaderPass implements IShaderPassData {
         this._nativeObj.setValidDefine(value._nativeObj);
     }
     nativeCreateShaderInstance() {
-        var shaderIns = this._pass.withCompile(GLESRenderElement3D.getCompileDefine()) as GLESShaderInstance;
+        var shaderIns = this._pass.withCompile(GLESRenderElement3D.getCompileDefine(),this._nativeObj.is2D) as GLESShaderInstance;
         return shaderIns._nativeObj;
     }
     destory(): void {

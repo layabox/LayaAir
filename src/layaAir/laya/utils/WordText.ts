@@ -14,14 +14,10 @@ export class WordText {
     _splitRender: boolean;	// 强制拆分渲染
 
     constructor() {
-        if ((window as any).conch && !(window as any).conchConfig.conchWebGL)
-            this._nativeObj = new (window as any)._conchWordText();
-        else {
-            this.width = -1;
-            this.pageChars = [];
-            this.scalex = 1;
-            this.scaley = 1;
-        }
+        this.width = -1;
+        this.pageChars = [];
+        this.scalex = 1;
+        this.scaley = 1;
     }
 
     setText(txt: string): void {
