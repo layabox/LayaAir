@@ -194,6 +194,7 @@ export interface ISubshaderData {
 
 
 export interface IShaderPassData {
+    is2D: boolean;
     pipelineMode: string;
     statefirst: boolean;
     validDefine: IDefineDatas;

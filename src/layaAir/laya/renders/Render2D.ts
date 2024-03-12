@@ -1,11 +1,6 @@
 import { IRenderContext2D } from "../RenderDriver/DriverDesign/2DRenderPass/IRenderContext2D";
 import { IRenderElement2D } from "../RenderDriver/DriverDesign/2DRenderPass/IRenderElement2D";
 import { IRenderGeometryElement } from "../RenderDriver/DriverDesign/RenderDevice/IRenderGeometryElement";
-import { WebGLBufferState } from "../RenderDriver/WebGLDriver/RenderDevice/WebGLBufferState";
-import { WebGLEngine } from "../RenderDriver/WebGLDriver/RenderDevice/WebGLEngine";
-import { WebGLIndexBuffer } from "../RenderDriver/WebGLDriver/RenderDevice/WebGLIndexBuffer";
-import { WebGLRenderGeometryElement } from "../RenderDriver/WebGLDriver/RenderDevice/WebGLRenderGeometryElement";
-import { WebGLVertexBuffer } from "../RenderDriver/WebGLDriver/RenderDevice/WebGLVertexBuffer";
 import { BufferTargetType, BufferUsage } from "../RenderEngine/RenderEnum/BufferTargetType";
 import { DrawType } from "../RenderEngine/RenderEnum/DrawType";
 import { IndexFormat } from "../RenderEngine/RenderEnum/IndexFormat";
@@ -76,12 +71,12 @@ export class Render2DSimple extends Render2D {
     }
 
     private _createMesh() {
-        let geo = this.geo = new WebGLRenderGeometryElement(MeshTopology.Triangles, DrawType.DrawElement);
-        let mesh = new WebGLBufferState();
+        let geo = this.geo = LayaGL.renderDeviceFactory.createRenderGeometryElement(MeshTopology.Triangles, DrawType.DrawElement);
+        let mesh = LayaGL.renderDeviceFactory.createBufferState();
         geo.bufferState = mesh;
-        let vb = new WebGLVertexBuffer(BufferTargetType.ARRAY_BUFFER, BufferUsage.Dynamic);
+        let vb =LayaGL.renderDeviceFactory.createVertexBuffer( BufferUsage.Dynamic);
         vb.vertexDeclaration = this._tex_vert_decl;
-        let ib = new WebGLIndexBuffer(BufferTargetType.ELEMENT_ARRAY_BUFFER, BufferUsage.Dynamic);
+        let ib =LayaGL.renderDeviceFactory.createIndexBuffer( BufferUsage.Dynamic);
         mesh.applyState([vb], ib)
         geo.indexFormat = IndexFormat.UInt16;
     }

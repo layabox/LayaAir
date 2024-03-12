@@ -14,9 +14,16 @@ import { LengencyRenderEngine3DFactory } from "laya/RenderDriver/DriverDesign/3D
 import { LayaGL } from "laya/layagl/LayaGL";
 import { WebGLRenderEngineFactory } from "laya/RenderDriver/WebGLDriver/RenderDevice/WebGLRenderEngineFactory"
 import { PrefabImpl } from "laya/resource/PrefabImpl";
-import { Sprite } from "laya/display/Sprite";
 import { WebGLRender2DProcess } from "laya/RenderDriver/WebGLDriver/2DRenderPass/WebGLRender2DProcess"
 
+
+import { RTUintRenderModuleDataFactory } from "laya/RenderDriver/RenderModuleData/RuntimeModuleData/RTUintRenderModuleDataFactory";
+import {GLESRenderDeviceFactory} from "laya/RenderDriver/OpenGLESDriver/RenderDevice/GLESRenderDeviceFactory";
+import {RT3DRenderModuleFactory} from "laya/RenderDriver/RenderModuleData/RuntimeModuleData/3D/RT3DRenderModuleFactory";
+import {GLES3DRenderPassFactory} from "laya/RenderDriver/OpenGLESDriver/3DRenderPass/GLES3DRenderPassFactory";
+import {GLESRenderEngineFactory} from "laya/RenderDriver/OpenGLESDriver/RenderDevice/GLESRenderEngineFactory";
+import {GLESRender2DProcess} from "laya/RenderDriver/OpenGLESDriver/2DRenderPass/GLESRender2DProcess";
+import { LayaEnv } from "LayaEnv";
 let packurl = 'sample-resource/2d'
 //let sceneurl = packurl+'/cacheasbmp.ls';
 let sceneurl = packurl + '/fuza.ls';
@@ -24,14 +31,24 @@ var is3d = false;
 //alert('')
 export class SceneLoad1 {
 	constructor() {
-		//Laya3DRender.renderDriverPassCreate = new GLESRenderDriverPassFactory();
-		LayaGL.unitRenderModuleDataFactory = new WebUnitRenderModuleDataFactory();
-		LayaGL.renderDeviceFactory = new WebGLRenderDeviceFactory();
-		Laya3DRender.renderOBJCreate = new LengencyRenderEngine3DFactory();
-		Laya3DRender.Render3DModuleDataFactory = new Web3DRenderModuleFactory();
-		Laya3DRender.Render3DPassFactory = new WebGL3DRenderPassFactory();
-		LayaGL.renderOBJCreate = new WebGLRenderEngineFactory();
-		LayaGL.render2DRenderPassFactory = new WebGLRender2DProcess()
+		if(!LayaEnv.isConch){
+			LayaGL.unitRenderModuleDataFactory = new WebUnitRenderModuleDataFactory();
+			LayaGL.renderDeviceFactory = new WebGLRenderDeviceFactory();
+			Laya3DRender.renderOBJCreate = new LengencyRenderEngine3DFactory();
+			Laya3DRender.Render3DModuleDataFactory = new Web3DRenderModuleFactory();
+			Laya3DRender.Render3DPassFactory = new WebGL3DRenderPassFactory();
+			LayaGL.renderOBJCreate = new WebGLRenderEngineFactory();
+			LayaGL.render2DRenderPassFactory = new WebGLRender2DProcess()
+		}else{
+			LayaGL.unitRenderModuleDataFactory = new RTUintRenderModuleDataFactory();
+			LayaGL.renderDeviceFactory = new GLESRenderDeviceFactory();
+			Laya3DRender.renderOBJCreate = new LengencyRenderEngine3DFactory();
+			Laya3DRender.Render3DModuleDataFactory = new RT3DRenderModuleFactory();
+			Laya3DRender.Render3DPassFactory = new GLES3DRenderPassFactory();
+			LayaGL.renderOBJCreate = new GLESRenderEngineFactory();
+			LayaGL.render2DRenderPassFactory = new GLESRender2DProcess()
+		}
+	
 		//初始化引擎
 		Laya.init(0, 0).then(async () => {
 			//Stat.show();
