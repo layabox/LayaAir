@@ -15,7 +15,6 @@ import { Vector4 } from "../maths/Vector4";
 import { BaseTexture } from "../resource/BaseTexture";
 import { HTMLCanvas } from "../resource/HTMLCanvas";
 import { Material } from "../resource/Material";
-import { NativeContext } from "../resource/NativeContext";
 import { RenderTexture } from "../resource/RenderTexture";
 import { RenderTexture2D } from "../resource/RenderTexture2D";
 import { Texture } from "../resource/Texture";
@@ -590,6 +589,19 @@ export class Context {
         if (w === 0 && h === 0) this._releaseMem();
     }
 
+    get width(){
+        return this._width;
+    }
+    set width(w:number){
+        this.size(w,this._height);
+    }
+    get height(){
+        return this._height;
+    }
+    set height(h:number){
+        this.size(this._width,h);
+    }
+
     /**
      * 获得当前矩阵的缩放值
      * 避免每次都计算getScaleX
@@ -776,7 +788,6 @@ export class Context {
                 //这里有一个问题。例如 clip1, drawTex(tex1), clip2, fillRect, drawTex(tex2)	会被分成3个submit，
                 //submit._key.copyFrom2(_submitKey, SubmitBase.KEY_DRAWTEXTURE, (_lastTex && _lastTex.bitmap)?_lastTex.bitmap.id: -1);
                 submit._key.other = (this._lastTex && this._lastTex.bitmap) ? (this._lastTex.bitmap as Texture2D).id : -1
-                submit._renderType = SubmitBase.TYPE_TEXTURE;
             }
             mesh.addQuad(this._transedPoints, Texture.NO_UV, rgba, false);
             this._curSubmit._numEle += 6;
@@ -882,7 +893,6 @@ export class Context {
             this.fillShaderValue(sv);
             //this._copyClipInfo(submit, this._globalClipMatrix);
             submit.shaderValue.textureHost = texture;
-            submit._renderType = SubmitBase.TYPE_TEXTURE;
             this._curSubmit._numEle += 6;
         }
         this.breakNextMerge();	//暂不合并
@@ -1306,7 +1316,6 @@ export class Context {
             var submit: SubmitBase = this._curSubmit = SubmitBase.create(this, this._mesh, Value2D.create(RenderSpriteData.Texture2D));
             submit.shaderValue.textureHost = tex;
             this.fillShaderValue(submit.shaderValue);
-            submit._renderType = SubmitBase.TYPE_TEXTURE;
             submit._key.submitType = SubmitBase.KEY_TRIANGLES;
             submit._key.other = webGLImg.id;
             this._copyClipInfo(submit, this._globalClipMatrix);
