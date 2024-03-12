@@ -26,9 +26,9 @@ async function test(){
     await Laya.loader.loadPackage(packurl, null, null);
     let tex = await Laya.loader.load('atlas/comp/image.png')
     let sp = new Sprite();
-    //sp.graphics.drawTexture(tex,10,100,null,null,null);
+    sp.graphics.drawTexture(tex,10,100,null,null,null);
     sp.graphics.fillText('Abc文字',100,100,'36px Arial','red',"left");
-    //sp.graphics.drawTexture(tex,100,100,null,null,null);
+    sp.graphics.drawTexture(tex,100,100,null,null,null);
     sp.cacheAs='normal';
     Laya.stage.addChild(sp);
 

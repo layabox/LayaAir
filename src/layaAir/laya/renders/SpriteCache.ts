@@ -1,4 +1,5 @@
 import { ILaya } from "../../ILaya";
+import { VertexDeclaration } from "../RenderEngine/VertexDeclaration";
 import { Sprite } from "../display/Sprite";
 import { Vector2 } from "../maths/Vector2";
 import { Value2D } from "../webgl/shader/d2/value/Value2D";
@@ -7,13 +8,27 @@ import { IMesh2D } from "./Render2D";
 import { RenderSprite } from "./RenderSprite";
 import { RenderToCache } from "./RenderToCache";
 
-export class RenderObject2D{
-    mesh2d: IMesh2D;
+export class RenderObject2D implements IMesh2D{
     vboff: number;
     vblen: number;
     iboff: number;
     iblen: number;
     mtl: Value2D
+    vertexDeclarition: VertexDeclaration;
+    vbBuffer: ArrayBuffer;
+    ibBuffer: ArrayBuffer;
+    constructor(mesh:IMesh2D,vboff:number,vblen:number,iboff:number,iblen:number,mtl:Value2D){
+        this.vertexDeclarition = mesh.vertexDeclarition;
+        this.vbBuffer = new ArrayBuffer(vblen);
+        this.ibBuffer = new ArrayBuffer(iblen);
+        (new Uint8Array(this.vbBuffer)).set(new Uint8Array(mesh.vbBuffer,vboff,vblen));
+        (new Uint8Array(this.ibBuffer)).set(new Uint8Array(mesh.ibBuffer,iboff,iblen));
+        this.mtl = mtl; //TODO clone?
+        this.vboff=0;
+        this.vblen=vblen;
+        this.iboff=0;
+        this.iblen=iblen;        
+    }
 }
 
 
@@ -47,7 +62,7 @@ export class SpriteCache{
             //TODO
             vec21.setValue(context.width, context.height);
             curMtl.size=vec21;
-            render.draw(renderinfo.mesh2d,renderinfo.vboff,renderinfo.vblen, renderinfo.iboff, renderinfo.iblen, curMtl);
+            render.draw(renderinfo,renderinfo.vboff,renderinfo.vblen, renderinfo.iboff, renderinfo.iblen, curMtl);
         })
     }
 
