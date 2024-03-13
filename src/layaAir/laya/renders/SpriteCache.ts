@@ -2,6 +2,7 @@ import { ILaya } from "../../ILaya";
 import { VertexDeclaration } from "../RenderEngine/VertexDeclaration";
 import { Sprite } from "../display/Sprite";
 import { Vector2 } from "../maths/Vector2";
+import { Stat } from "../utils/Stat";
 import { Value2D } from "../webgl/shader/d2/value/Value2D";
 import { Context } from "./Context";
 import { IMesh2D } from "./Render2D";
@@ -41,6 +42,7 @@ export class SpriteCache{
     renderCacheAsNormal(context:Context,sprite:Sprite,next:RenderSprite){
         var cacheResult = sprite._cacheStyle.cacheAsNormal;
         if (!cacheResult || sprite._needRepaint() || ILaya.stage.isGlobalRepaint()) {
+            Stat.canvasNormal++;
             let ctx = new Context();
             //ctx.copyState(context);
             //ctx.size(w,h);

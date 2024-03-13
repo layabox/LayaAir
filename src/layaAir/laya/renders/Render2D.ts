@@ -25,7 +25,7 @@ export abstract class Render2D {
     constructor(out: RenderTexture2D = null) {
         this._renderTexture = out;
     }
-
+    setRenderTarget(rt:RenderTexture2D){};//临时
     abstract clone(out: RenderTexture2D): Render2D;
     //可以随时设置rt
     set out(out: RenderTexture2D) {
@@ -40,8 +40,6 @@ export abstract class Render2D {
     //abstract setVertexDecl(decl:VertexDeclaration):void;
     //shaderdata放到mtl中。之所以传内存buffer是为了给后面合并subdata机会，以便提高效率
     abstract draw(mesh: IMesh2D, vboff: number, vblen: number, iboff: number, iblen: number, mtl: Value2D): void;
-    // 只是画一个方块
-    drawRect(texture: RenderTexture2D, width: number, height: number, mtl: Value2D, flipY = false) { }
     abstract renderEnd(): void;
 }
 
@@ -101,10 +99,14 @@ export class Render2DSimple extends Render2D {
             Render2DSimple.rendercontext2D.invertY = false;
             Render2DSimple.rendercontext2D.setOffscreenView(RenderState2D.width, RenderState2D.height);
             Render2DSimple.rendercontext2D.setRenderTarget(null, RenderTexture2D._clear, RenderTexture2D._clearColor);
-
         }
 
         RenderTexture2D._clear = false;
+    }
+
+    //临时。恢复rt用，以后要做到没有rt的嵌套
+    override setRenderTarget(rt:RenderTexture2D){
+        Render2DSimple.rendercontext2D.setRenderTarget(rt?._renderTarget, false, RenderTexture2D._clearColor);
     }
 
     draw(mesh2d: IMesh2D, vboff: number, vblen: number, iboff: number, iblen: number, mtl: Value2D): void {
