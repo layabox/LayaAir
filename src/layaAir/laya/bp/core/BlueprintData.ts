@@ -6,7 +6,7 @@ import { BlueprintFactory } from "../runtime/BlueprintFactory";
 import { BlueprintUtil } from "./BlueprintUtil";
 
 export class BlueprintData {
-    static allDataMap:Map<string,Record<string, any>> = new Map();
+    static allDataMap: Map<string, Record<string, any>> = new Map();
     private static defFunOut = {
         name: "then",
         type: "exec",

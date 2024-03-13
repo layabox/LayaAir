@@ -191,7 +191,7 @@ export const BlueprintDataList: TBPCNode[] = [
         type: BPType.Event,
         output: [
             {
-                name: "event",
+                name: "",
                 type: "bpFun"
             },
             {
@@ -206,7 +206,7 @@ export const BlueprintDataList: TBPCNode[] = [
         type: BPType.Function,
         input: [
             {
-                name: "event",
+                name: "",
                 type: "bpFun"
             }
         ]
@@ -217,7 +217,7 @@ export const BlueprintDataList: TBPCNode[] = [
         type: BPType.Function,
         input: [
             {
-                name: "event",
+                name: "",
                 type: "bpFun"
             }
         ]
