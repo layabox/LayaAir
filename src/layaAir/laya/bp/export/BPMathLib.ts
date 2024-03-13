@@ -130,6 +130,16 @@ export class BPMathLib {
     }
 
     /**
+     * 计算 y/x（弧度表示）的反正切值
+     * @param y y 轴坐标
+     * @param x x 轴坐标
+     * @returns 弧度
+     */
+    static atan2(y: number, x: number): number {
+        return Math.atan2(y, x);
+    }
+
+    /**
      * 计算两点之间的距离
      * @param x1 第一个点的x坐标
      * @param y1 第一个点的y坐标
