@@ -169,8 +169,6 @@ export class Context {
 
     private _isMain = false;				// 是否是主context
 
-    clearColor = new Color();
-
     private _render2D: Render2D = null;
 
     //temp
@@ -516,10 +514,11 @@ export class Context {
 
     clearBG(r: number, g: number, b: number, a: number): void {
         // var gl: WebGLRenderingContext = RenderStateContext.mainContext;
-        this.clearColor.r = r;
-        this.clearColor.g = g;
-        this.clearColor.b = b;
-        this.clearColor.a = a;
+        RenderTexture2D._clearColor.r = r;
+        RenderTexture2D._clearColor.g = g;
+        RenderTexture2D._clearColor.b = b;
+        RenderTexture2D._clearColor.a = a;
+        RenderTexture2D._clear = true;
      //   LayaGL.renderEngine.clearRenderTexture(RenderClearFlag.Color, this.clearColor, 1, 0);
     }
 

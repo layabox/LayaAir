@@ -54,6 +54,7 @@ import { ISceneNodeData } from "../../../RenderDriver/RenderModuleData/Design/3D
 import { ShaderDataType, ShaderData, ShaderDataItem } from "../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
 import { CommandUniformMap } from "../../../RenderDriver/DriverDesign/RenderDevice/CommandUniformMap";
+import { RenderTexture2D } from "../../../resource/RenderTexture2D";
 
 export enum FogMode {
     Linear = 0, //Linear
@@ -1231,6 +1232,7 @@ export class Scene3D extends Sprite {
         var cmd = BlitFrameBufferCMD.create(source, null, Scene3D.mainCavansViewPort, null, null, BlitFrameBufferCMD.shaderdata);
         cmd.run();
         cmd.recover();
+        RenderTexture2D._clear = false;
         BlitFrameBufferCMD.shaderdata.removeDefine(BaseCamera.SHADERDEFINE_FXAA);
     }
 
