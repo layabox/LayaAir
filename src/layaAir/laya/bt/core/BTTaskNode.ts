@@ -36,7 +36,7 @@ export class BTTaskNode extends BTExecutableNode {
         //a.a
     }
 
-    parse(config: any, btConfig: any): void {
+    parse(config: any): void {
 
     }
 

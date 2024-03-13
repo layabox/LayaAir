@@ -49,12 +49,8 @@ export abstract class BTCompositeNode extends BTExecutableNode {
         return node;
     }
 
-    parse(config: any, btConfig: any) {
+    parse(config: any) {
         this.name = config.name;
-        config.childs.forEach((child: any) => {
-            let node = BehaviorTreeFactory.instance.createNew(btConfig[child], btConfig);
-            this.addChild(node);
-        });
     }
 
     preCheck(preNode: BTNode, btCmp: BehaviorTreeComponent): BTNode {
@@ -135,7 +131,7 @@ export abstract class BTCompositeNode extends BTExecutableNode {
             }
             result = this.children[nextCID];
             nodeContext.curChild = nextCID;
-            if (BTCompositeNode.canExcute(result as BTTaskNode, btCmp)) {
+            if (BTCompositeNode.canExcute(result as BTExecutableNode, btCmp)) {
                 this._checkInacitive(before, btCmp);
                 if (nextCID != before) {
                     this._checkLeave(before, btCmp);
@@ -158,7 +154,7 @@ export abstract class BTCompositeNode extends BTExecutableNode {
      * @param btCmp 
      * @returns 
      */
-    static canExcute(btnode: BTTaskNode | BTCompositeNode, btCmp: BehaviorTreeComponent): boolean {
+    static canExcute(btnode: BTExecutableNode, btCmp: BehaviorTreeComponent): boolean {
         let result = true;
         let decorators = btnode.decorators;
         if (decorators) {
