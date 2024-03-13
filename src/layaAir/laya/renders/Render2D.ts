@@ -101,9 +101,7 @@ export class Render2DSimple extends Render2D {
             Render2DSimple.rendercontext2D.invertY = false;
             Render2DSimple.rendercontext2D.setOffscreenView(RenderState2D.width, RenderState2D.height);
             Render2DSimple.rendercontext2D.setRenderTarget(null, RenderTexture2D._clear, RenderTexture2D._clearColor);
-
         }
-
         RenderTexture2D._clear = false;
     }
 

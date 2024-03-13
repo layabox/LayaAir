@@ -71,7 +71,6 @@ export class RTSceneNodeData implements ISceneNodeData {
     }
 }
 
-
 export class RTSubShader implements ISubshaderData {
 
     _nativeObj: any;

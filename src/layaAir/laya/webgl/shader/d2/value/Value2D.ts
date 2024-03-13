@@ -85,11 +85,11 @@ export class Value2D {
         //
         this._defaultShader = Shader3D.find("2D");
         this.shaderData.setBool(Shader3D.DEPTH_WRITE, false);
-        this.shaderData.setNumber(Shader3D.DEPTH_TEST, RenderState.DEPTHTEST_OFF);
-        this.shaderData.setNumber(Shader3D.BLEND, RenderState.BLEND_ENABLE_ALL);
-        this.shaderData.setNumber(Shader3D.BLEND_EQUATION, RenderState.BLENDEQUATION_ADD);
-        this.shaderData.setNumber(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_ONE);
-        this.shaderData.setNumber(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA);
+        this.shaderData.setInt(Shader3D.DEPTH_TEST, RenderState.DEPTHTEST_OFF);
+        this.shaderData.setInt(Shader3D.BLEND, RenderState.BLEND_ENABLE_ALL);
+        this.shaderData.setInt(Shader3D.BLEND_EQUATION, RenderState.BLENDEQUATION_ADD);
+        this.shaderData.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_ONE);
+        this.shaderData.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA);
     }
 
     public static _initone(type: number, classT: any): void {
@@ -271,23 +271,23 @@ export class Value2D {
 
     //
     blendNormal() {
-        this.shaderData.setNumber(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_SRC_ALPHA);
-        this.shaderData.setNumber(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA);
+        this.shaderData.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_SRC_ALPHA);
+        this.shaderData.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA);
     }
 
     blendPremulAlpha() {
-        this.shaderData.setNumber(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_ONE);
-        this.shaderData.setNumber(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA);
+        this.shaderData.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_ONE);
+        this.shaderData.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA);
     }
 
     blendAdd() {
-        this.shaderData.setNumber(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_ONE);
-        this.shaderData.setNumber(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ONE);
+        this.shaderData.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_ONE);
+        this.shaderData.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ONE);
     }
 
     blendMask() {
-        this.shaderData.setNumber(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_ZERO);
-        this.shaderData.setNumber(Shader3D.BLEND_DST, RenderState.BLENDPARAM_SRC_ALPHA);
+        this.shaderData.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_ZERO);
+        this.shaderData.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_SRC_ALPHA);
     }
 
     release(): void {
