@@ -17,6 +17,7 @@ export class TextTexture extends Texture2D {
     private static pool: any[] = new Array(10); // 回收用
     private static poolLen = 0;
     private static cleanTm = 0;
+    static EVENT_REUSE='texture_recycling'
 
     /**@internal */
     _discardTm = 0;			//释放的时间。超过一定时间会被真正删除
@@ -149,6 +150,8 @@ export class TextTexture extends Texture2D {
                 var p: TextTexture = TextTexture.pool[i];
                 if (curtm - p._discardTm >= TextRender.destroyUnusedTextureDt) {//超过20秒没用的删掉
                     p.destroy();					//真正删除贴图
+                    // 如果回收的话要正确通知使用这个贴图的
+                    //p.event(TextTexture.EVENT_REUSE)
                     TextTexture.pool[i] = TextTexture.pool[TextTexture.poolLen - 1];
                     TextTexture.poolLen--;
                     i--;	//这个还要处理，用来抵消i++

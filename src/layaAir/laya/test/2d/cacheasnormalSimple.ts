@@ -11,6 +11,7 @@ import { Laya } from "../../../Laya";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { Stage } from "../../display/Stage";
 import { RenderSprite } from "../../renders/RenderSprite";
+import { Sprite } from "../../display/Sprite";
 
 //HierarchyLoader和MaterialLoader等是通过前面的import完成的
 let packurl = 'sample-resource/2d'
@@ -23,10 +24,13 @@ async function test(){
 
     RenderSprite;
     await Laya.loader.loadPackage(packurl, null, null);
-    let scene = await Laya.loader.load(packurl+'/cacheasbmp.ls');
-    let inst = scene.create();
-    inst._children[0].cacheAs='none';//'normal';
-    Laya.stage.addChild(inst);
+    let tex = await Laya.loader.load('atlas/comp/image.png')
+    let sp = new Sprite();
+    sp.graphics.drawTexture(tex,10,100,null,null,null);
+    sp.graphics.fillText('Abc文字',100,100,'36px Arial','red',"left");
+    sp.graphics.drawTexture(tex,100,100,null,null,null);
+    sp.cacheAs='normal';
+    Laya.stage.addChild(sp);
 
     function renderloop(){
         requestAnimationFrame(renderloop);

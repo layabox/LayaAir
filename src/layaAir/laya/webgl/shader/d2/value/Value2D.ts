@@ -301,3 +301,8 @@ export class Value2D {
         }
     }
 }
+
+
+export class Value2DManager{
+    
+}
