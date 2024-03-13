@@ -300,14 +300,16 @@ export class WebGPURenderPipeline {
      * @returns 
      */
     static getRenderPipeline(info: IRenderPipelineInfo, shader: WebGPUShaderInstance, rt: WebGPUInternalRT) {
-        let map = shader._renderPipelineMap;
+        const map = shader.renderPipelineMap;
         const primitiveState = WebGPUPrimitiveState.getGPUPrimitiveState(info.geometry.mode, info.frontFace, info.cullMode);
         const bufferState = info.geometry.bufferState;
         const strId = `${primitiveState.id}_${info.blendState.id}_${info.depthStencilState.id}_${rt.formatId}_${bufferState._id}_${bufferState._updateBufferLayoutFlag}`;
         let renderPipeline = map.get(strId);
         if (!renderPipeline) {
             console.log(info.blendState.state, info.depthStencilState.state, primitiveState.state, bufferState._vertexState, shader, rt);
-            renderPipeline = WebGPURenderPipeline.createRenderPipeline
+            //@ts-ignore
+            //console.log(WebGPURenderEngine._instance._propertyNameMap);
+            renderPipeline = this.createRenderPipeline
                 (info.blendState.state, info.depthStencilState.state, primitiveState.state, bufferState._vertexState, shader, rt);
             map.set(strId, renderPipeline);
         }
@@ -326,7 +328,7 @@ export class WebGPURenderPipeline {
      */
     static createRenderPipeline(blendState: GPUBlendState, depthState: GPUDepthStencilState,
         primitiveState: GPUPrimitiveState, vertexBuffers: GPUVertexBufferLayout[], shader: WebGPUShaderInstance, rt: WebGPUInternalRT) {
-        const descriptor = shader._renderPipelineDescriptor;
+        const descriptor = shader.renderPipelineDescriptor;
         descriptor.vertex.buffers = vertexBuffers;
         //descriptor.vertex.constants TODO
         if (rt._colorState.length == rt._textures.length) {
@@ -345,6 +347,8 @@ export class WebGPURenderPipeline {
         descriptor.fragment.targets = rt._colorState;
         descriptor.primitive = primitiveState;
         descriptor.depthStencil = depthState;
-        return WebGPURenderEngine._instance.getDevice().createRenderPipeline(descriptor);
+        const renderPipeline = WebGPURenderEngine._instance.getDevice().createRenderPipeline(descriptor);
+        console.log("create renderPipeline", descriptor, renderPipeline);
+        return renderPipeline;
     }
 }

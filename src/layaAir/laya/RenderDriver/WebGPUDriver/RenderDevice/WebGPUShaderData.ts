@@ -12,14 +12,9 @@ import { ShaderDefine } from "../../RenderModuleData/Design/ShaderDefine";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
 import { WebGPUBindingInfoType, WebGPUUniformPropertyBindingInfo } from "./WebGPUCodeGenerator";
 import { WebGPUInternalTex } from "./WebGPUInternalTex";
-import { UniformBuffer } from "./WebGPUMemoryManagers/WebGPUUniformBuffer";
+import { UniformBuffer } from "./WebGPUUniform/WebGPUUniformBuffer";
 import { WebGPURenderCommandEncoder } from "./WebGPURenderCommandEncoder";
 import { WebGPURenderEngine } from "./WebGPURenderEngine";
-
-// export interface WebGPUShaderDataUBOProperty {
-//     layout: WebGPUUniformBlockInfo;
-//     subBuffer: WebGPUSubUniformBlockBuffer;
-// }
 
 export class WebGPUShaderData extends ShaderData {
     /**@internal */
@@ -27,14 +22,14 @@ export class WebGPUShaderData extends ShaderData {
     /**@internal */
     _data: any = null;
     /**@internal */
+    _name: string;
+    /**@internal */
     protected _gammaColorMap: Map<number, Color>;
-    // //每一个UniformPorperty对应的block
-    // _uboPropertyMap: Map<number, WebGPUShaderDataUBOProperty>;
-    // //shaderData里面需要绑定的的Ubo集合
-    // _uboBlockMap: Map<number, WebGPUShaderDataUBOProperty>;
 
     private _uniformBuffers: UniformBuffer[] = [];
     private _uniformBufferMap: Map<number, UniformBuffer>;
+
+    private _bindGroupMap: Map<string, GPUBindGroup>;
 
     constructor(ownerResource: Resource = null) {
         super(ownerResource);
@@ -42,32 +37,34 @@ export class WebGPUShaderData extends ShaderData {
         this._gammaColorMap = new Map();
         this._defineDatas = new WebDefineDatas();
         this._uniformBufferMap = new Map();
-        //this._uboPropertyMap = new Map();
+        this._bindGroupMap = new Map();
     }
 
     setUniformBuffers(ubs: UniformBuffer[]) {
         if (this._uniformBuffers != ubs) {
             this._uniformBuffers = ubs;
             this._updateUniformMap();
+            this._updateUniformData();
+            console.log(this);
         }
     }
 
     private _updateUniformMap() {
         this._uniformBufferMap.clear();
-        // const keys = Object.keys(this._data);
-        // for (let i = keys.length - 1; i > -1; i--) {
-        //     const id = Number(keys[i]);
-        //     for (let j = this._uniformBuffers.length - 1; j > -1; j--)
-        //         if (this._uniformBuffers[j].hasUniform(id))
-        //             this._uniformBufferMap.set(id, this._uniformBuffers[j]);
-        // }
         for (const idStr in this._data) {
             const id = Number(idStr);
             for (let i = this._uniformBuffers.length - 1; i > -1; i--)
                 if (this._uniformBuffers[i].hasUniform(id))
                     this._uniformBufferMap.set(id, this._uniformBuffers[i]);
         }
-        //console.log(this._uniformBufferMap);
+    }
+
+    private _updateUniformData() {
+        for (const idStr in this._data) {
+            const id = Number(idStr);
+            const value = this._data[idStr];
+            this._uniformBufferMap.get(id)?.setUniformData(id, value);
+        }
     }
 
     private _addToUniformMap(id: number) {
@@ -76,112 +73,91 @@ export class WebGPUShaderData extends ShaderData {
                 this._uniformBufferMap.set(id, this._uniformBuffers[i]);
     }
 
-    // /**
-    //  * 设置shaderData绑定某个UniformBlockLayout
-    //  * @param blockLayoutt 
-    //  */
-    // _setUniformBlockLayout(blockLayout: WebGPUUniformBlockInfo) {
-    //     //新来一个uniformBLockInfo  要把数据设置更新
-    //     // let blockProperty: WebGPUShaderDataUBOProperty = this._uboBlockMap.get(blockLayout);
-    //     // if (!blockProperty) {//创建WebGPUShaderDataUBOProperty
-    //     //     let uboBlockBuffer = WebGPUUniformBlockBuffer._map[blockLayout.UniformBlockID];
-    //     //     let subUniformBuffer = uboBlockBuffer.getSubUbOBuffer();
-    //     //     this._uboPropertyMap.set(blockLayout.UniformBlockID, { layout: blockLayout, subBuffer: subUniformBuffer });
-    //     //     blockProperty = this._uboPropertyMap.get(blockLayout.UniformBlockID);
-    //     // }
-    //     //绑定shaderData数据
-    //     // for (var i in blockProperty.layout.propertyIDs) {
-    //     //     this._uboPropertyMap.set(parseInt(i), blockProperty);
-    //     // }
-    //     // blockProperty.subBuffer.needUpdata = true;//设置subBuffer需要更新
-    // }
-
     /**
-     * 根据ShaderInstance里面的bindinglayout生成bindGroup
-     * 要知道我这个shaderdata对应的BindingLayout
+     * 生成bindGroup并上传数据
      */
     uploadUniform(groupId: number, name: string, uniforms: WebGPUUniformPropertyBindingInfo[], command: WebGPURenderCommandEncoder) {
-        const device = WebGPURenderEngine._instance.getDevice();
-        const bindGroupLayoutEntries = [];
-        const bindGroupEntries = [];
+        //根据uniforms中的内容生成一个key, 用于查找缓存
+        let key = name + '_';
+        key += uniforms.map(item => item.sn).join('_');
+        key += uniforms.map(item => item.set).join('_');
+        key += uniforms.map(item => item.binding).join('_');
+        key += uniforms.map(item => item.propertyID).join('_');
+        let bindGroup = this._bindGroupMap.get(key);
 
-        for (const item of uniforms) {
-            //确定资源类型
-            switch (item.type) {
-                case WebGPUBindingInfoType.buffer:
-                    if (item.uniform) {
-                        const uniformBuffer = this.findUniformBuffer(item.sn);
-                        if (!uniformBuffer) return false;
-                        bindGroupLayoutEntries.push({
-                            binding: item.binding,
-                            visibility: item.visibility,
-                            buffer: item.buffer || { type: 'uniform' },
-                        });
-                        bindGroupEntries.push(uniformBuffer.getGPUBindEntry());
-                    }
-                    break;
-                case WebGPUBindingInfoType.texture:
-                    if (item.texture) {
-                        const texture = this.getTexture(item.propertyID);
-                        if (!texture) return false;
-                        else {
+        //如果没有缓存, 则创建一个新的bindGroup
+        if (!bindGroup) {
+            const device = WebGPURenderEngine._instance.getDevice();
+            const bindGroupLayoutEntries = [];
+            const bindGroupEntries = [];
+            for (const item of uniforms) {
+                switch (item.type) {
+                    case WebGPUBindingInfoType.buffer:
+                        if (item.uniform) {
+                            const uniformBuffer = this._findUniformBuffer(item.sn);
+                            if (!uniformBuffer) return false;
                             bindGroupLayoutEntries.push({
                                 binding: item.binding,
                                 visibility: item.visibility,
-                                texture: item.texture,
+                                buffer: item.buffer,
                             });
-                            bindGroupEntries.push({
-                                binding: item.binding,
-                                resource: (texture._texture as WebGPUInternalTex).getTextureView(),
-                            });
+                            bindGroupEntries.push(uniformBuffer.getGPUBindEntry());
                         }
-                    }
-                    break;
-                case WebGPUBindingInfoType.sampler:
-                    if (item.sampler) {
-                        const texture = this.getTexture(item.propertyID);
-                        if (!texture) return false;
-                        else {
-                            bindGroupLayoutEntries.push({
-                                binding: item.binding,
-                                visibility: item.visibility,
-                                sampler: item.sampler,
-                            });
-                            bindGroupEntries.push({
-                                binding: item.binding,
-                                resource: (texture._texture as WebGPUInternalTex).sampler.source,
-                            });
+                        break;
+                    case WebGPUBindingInfoType.texture:
+                        if (item.texture) {
+                            const texture = this.getTexture(item.propertyID);
+                            if (!texture) return false;
+                            else {
+                                bindGroupLayoutEntries.push({
+                                    binding: item.binding,
+                                    visibility: item.visibility,
+                                    texture: item.texture,
+                                });
+                                bindGroupEntries.push({
+                                    binding: item.binding,
+                                    resource: (texture._texture as WebGPUInternalTex).getTextureView(),
+                                });
+                            }
                         }
-                    }
-                    break;
+                        break;
+                    case WebGPUBindingInfoType.sampler:
+                        if (item.sampler) {
+                            const texture = this.getTexture(item.propertyID);
+                            if (!texture) return false;
+                            else {
+                                bindGroupLayoutEntries.push({
+                                    binding: item.binding,
+                                    visibility: item.visibility,
+                                    sampler: item.sampler,
+                                });
+                                bindGroupEntries.push({
+                                    binding: item.binding,
+                                    resource: (texture._texture as WebGPUInternalTex).sampler.source,
+                                });
+                            }
+                        }
+                        break;
+                }
             }
+
+            //创建绑定组
+            const bindGroupLayoutDesc: GPUBindGroupLayoutDescriptor = { entries: bindGroupLayoutEntries };
+            bindGroup = device.createBindGroup({
+                label: name,
+                layout: device.createBindGroupLayout(bindGroupLayoutDesc),
+                entries: bindGroupEntries,
+            });
+            this._bindGroupMap.set(key, bindGroup);
+            console.log('create bindGroup', key, bindGroupLayoutDesc, bindGroupEntries, bindGroup);
         }
 
-        //创建绑定组
-        const bindGroup = device.createBindGroup({
-            label: name,
-            layout: device.createBindGroupLayout({ entries: bindGroupLayoutEntries }),
-            entries: bindGroupEntries,
-        });
-
         //将绑定组附加到命令
-        //console.log(groupId, bindGroupLayoutEntries, bindGroupEntries);
         command.setBindGroup(groupId, bindGroup);
-        this._uniformBufferMap
         return true;
     }
 
-    // createUniformBuffer(info: WebGPUUniformPropertyBindingInfo) {
-    //     const gpuBuffer = WebGPURenderEngine._instance.gpuBufferMgr;
-    //     const uniformBuffer = new UniformBuffer(info.name, info.set, info.binding, info.uniform.size, gpuBuffer);
-    //     for (let i = 0, len = info.uniform.items.length; i < len; i++) {
-    //         const uniform = info.uniform.items[i];
-    //         uniformBuffer.addUniform(uniform.id, uniform.type, uniform.offset, uniform.align, uniform.size, uniform.elements, uniform.count);
-    //     }
-    //     return uniformBuffer;
-    // };
-
-    findUniformBuffer(sn: number) {
+    private _findUniformBuffer(sn: number) {
         if (this._uniformBuffers) {
             for (let i = this._uniformBuffers.length - 1; i > -1; i--)
                 if (this._uniformBuffers[i].block.sn == sn)

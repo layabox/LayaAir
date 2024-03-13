@@ -1,4 +1,4 @@
-import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
+import { Shader3D } from "../../../../RenderEngine/RenderShader/Shader3D";
 
 /**
  * 每一个具体Uniform变量的信息

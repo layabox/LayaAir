@@ -3,15 +3,13 @@ import { ShaderProcessInfo } from "../../../webgl/utils/ShaderCompileDefineBase"
 import { IShaderInstance } from "../../DriverDesign/RenderDevice/IShaderInstance";
 import { WebGPURenderEngine } from "./WebGPURenderEngine";
 import { WebGPUBindingInfoType, WebGPUCodeGenerator, WebGPUUniformPropertyBindingInfo } from "./WebGPUCodeGenerator";
-import { UniformBuffer } from "./WebGPUMemoryManagers/WebGPUUniformBuffer";
-import { TextureBuffer } from "./WebGPUMemoryManagers/WebGPUTextureManager";
+import { UniformBuffer } from "./WebGPUUniform/WebGPUUniformBuffer";
 
 /**
  * WebGPU着色器实例
  */
 export class WebGPUShaderInstance implements IShaderInstance {
     static idCounter: number = 0;
-    _renderPipelineMap: Map<string, any> = new Map();
     _id: number = WebGPUShaderInstance.idCounter++;
     /**@internal */
     _shaderPass: ShaderPass;
@@ -23,12 +21,11 @@ export class WebGPUShaderInstance implements IShaderInstance {
     name: string;
     complete: boolean = false;
 
-    _renderPipelineDescriptor: GPURenderPipelineDescriptor;
-    _pipelineLayout: GPUPipelineLayout;
-    _bindGroupLayouts: GPUBindGroupLayout[];
+    renderPipelineDescriptor: GPURenderPipelineDescriptor;
+    renderPipelineMap: Map<string, any> = new Map();
 
     uniformBuffers: UniformBuffer[];
-    uniformSetMap: { [set: number]: Array<WebGPUUniformPropertyBindingInfo> } = {};
+    uniformSetMap: { [set: number]: WebGPUUniformPropertyBindingInfo[] } = {};
 
     /**
      * 创建一个 <code>WebGPUShaderInstance</code> 实例
@@ -51,37 +48,17 @@ export class WebGPUShaderInstance implements IShaderInstance {
         });
 
         //生成pipeLineLayout
-        const { pipelineLayout, bindGroupLayouts } = this._createPipelineLayout(device, 'pipelineLayout', shaderObj.uniformInfo);
-        this._pipelineLayout = pipelineLayout;
-        this._bindGroupLayouts = bindGroupLayouts;
+        const pipelineLayout = this._createPipelineLayout(device, 'pipelineLayout', shaderObj.uniformInfo);
+        //this._pipelineLayout = pipelineLayout;
+        //this.bindGroupLayouts = bindGroupLayouts;
 
         //建立uniform资源
         this.uniformBuffers = this._createUniformBuffers(shaderObj.uniformInfo);
-        console.log(this.uniformBuffers);
-        // uniformBuffers.forEach(ub => ub.upload(device));
-        // console.log('uniform资源 =', uniformBuffers);
-
-        // //建立sampler资源
-        // const samplerBuffers = this._createSamplerBuffers(shaderObj.uniformInfo);
-        // console.log('sampler资源 =', samplerBuffers);
-
-        // //建立texture资源
-        // const textureBuffers = this._createTextureBuffers(device, shaderObj.uniformInfo);
-        // console.log('texture资源 =', textureBuffers);
-
-        // //建立资源绑定组
-        // const bindGroups = this._createBindGroups(device, uniformBuffers, samplerBuffers, textureBuffers, bindGroupLayouts);
-        // engine.gpuBindGroupMgr.addBindGroup(this.name, bindGroups);
-        // console.log('资源绑定组 =', bindGroups);
-
-        // console.log('gpuBufferMgr =', engine.gpuBufferMgr);
-        // console.log('gpuBindGroupMgr =', engine.gpuBindGroupMgr);
 
         this._vsShader = device.createShaderModule({ code: shaderObj.vs });
         this._fsShader = device.createShaderModule({ code: shaderObj.fs });
 
         this._shaderPass = shaderPass;
-        this.complete = true;
 
         //设置颜色目标模式
         const colorTargetState: GPUColorTargetState = {
@@ -102,9 +79,9 @@ export class WebGPUShaderInstance implements IShaderInstance {
         };
 
         //设置渲染管线描述
-        this._renderPipelineDescriptor = {
+        this.renderPipelineDescriptor = {
             label: 'render',
-            layout: this._pipelineLayout,
+            layout: pipelineLayout,
             vertex: {
                 buffers: [],
                 module: this._vsShader,
@@ -129,6 +106,8 @@ export class WebGPUShaderInstance implements IShaderInstance {
                 count: 1,
             },
         };
+
+        this.complete = true;
     }
 
     /**
@@ -195,7 +174,7 @@ export class WebGPUShaderInstance implements IShaderInstance {
             if (group) bindGroupLayouts.push(group);
         }
 
-        return { pipelineLayout: device.createPipelineLayout({ label: name, bindGroupLayouts }), bindGroupLayouts };
+        return device.createPipelineLayout({ label: name, bindGroupLayouts });
     }
 
     /**
@@ -244,37 +223,37 @@ export class WebGPUShaderInstance implements IShaderInstance {
     //     return samplerBuffers;
     // }
 
-    /**
-     * 基于WebGPUUniformPropertyBindingInfo创建TextureBuffers
-     * @param device 
-     * @param infos
-     */
-    private _createTextureBuffers(device: GPUDevice, infos: WebGPUUniformPropertyBindingInfo[]) {
-        const _createTextureBuffer = (info: WebGPUUniformPropertyBindingInfo) => {
-            if (info.texture) {
-                const texture = device.createTexture({
-                    size: {
-                        width: 1024,
-                        height: 1024,
-                        depthOrArrayLayers: 1,
-                    },
-                    format: 'rgba8unorm',
-                    mipLevelCount: 1,
-                    sampleCount: 1,
-                    usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST,
-                });
-                return new TextureBuffer(info.name, info.set, info.binding, texture);
-            }
-            return null;
-        };
+    // /**
+    //  * 基于WebGPUUniformPropertyBindingInfo创建TextureBuffers
+    //  * @param device 
+    //  * @param infos
+    //  */
+    // private _createTextureBuffers(device: GPUDevice, infos: WebGPUUniformPropertyBindingInfo[]) {
+    //     const _createTextureBuffer = (info: WebGPUUniformPropertyBindingInfo) => {
+    //         if (info.texture) {
+    //             const texture = device.createTexture({
+    //                 size: {
+    //                     width: 1024,
+    //                     height: 1024,
+    //                     depthOrArrayLayers: 1,
+    //                 },
+    //                 format: 'rgba8unorm',
+    //                 mipLevelCount: 1,
+    //                 sampleCount: 1,
+    //                 usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST,
+    //             });
+    //             return new TextureBuffer(info.name, info.set, info.binding, texture);
+    //         }
+    //         return null;
+    //     };
 
-        const textureBuffers: TextureBuffer[] = [];
-        for (let i = 0; i < infos.length; i++) {
-            const textureBuffer = _createTextureBuffer(infos[i]);
-            if (textureBuffer) textureBuffers.push(textureBuffer);
-        }
-        return textureBuffers;
-    }
+    //     const textureBuffers: TextureBuffer[] = [];
+    //     for (let i = 0; i < infos.length; i++) {
+    //         const textureBuffer = _createTextureBuffer(infos[i]);
+    //         if (textureBuffer) textureBuffers.push(textureBuffer);
+    //     }
+    //     return textureBuffers;
+    // }
 
     // /**
     //  * 基于UniformBuffers创建BindGroups
@@ -315,6 +294,6 @@ export class WebGPUShaderInstance implements IShaderInstance {
     // }
 
     _disposeResource(): void {
-        this._renderPipelineMap.clear();
+        this.renderPipelineMap.clear();
     }
 }

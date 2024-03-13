@@ -1,6 +1,11 @@
-import { roundUp } from "../../../../RenderEngine/RenderShader/wgslCode/uniform/TypeConst";
-
 type OffsetAndSize = { offset: number, size: number };
+
+/**
+ * 向上圆整到align的整数倍
+ * @param n 
+ * @param align 
+ */
+const roundUp = (n: number, align: number) => (((n + align - 1) / align) | 0) * align;
 
 /**
  * GPU内存块（小内存块）
@@ -18,7 +23,7 @@ export class WebGPUBufferBlock {
         this.buffer = buffer;
         this.offset = offset;
         this.size = size;
-        this.alignedSize = size;
+        this.alignedSize = alignedSize;
         this.destroyed = false;
     }
 }
@@ -57,14 +62,12 @@ class WebGPUBuffer {
         const alignedSize = roundUp(size, 256);
         for (let i = 0, len = this.free.length; i < len; i++) {
             if (this.free[i].size == alignedSize) {
-                //this.used.push({ ...this.free[i] });
                 this.left -= alignedSize;
                 offset = this.free.splice(i, 1)[0].offset;
                 bb = new WebGPUBufferBlock(WebGPUBufferManager.snCounter++, this, offset, size, alignedSize);
                 this.used.push(bb);
                 return bb;
             } else if (this.free[i].size > alignedSize) {
-                //this.used.push({ offset: this.free[i].offset, size: alignedSize });
                 offset = this.free[i].offset;
                 this.free[i].offset += alignedSize;
                 this.free[i].size -= alignedSize;
@@ -82,11 +85,13 @@ class WebGPUBuffer {
      */
     freeBlock(bb: WebGPUBufferBlock) {
         let doFree = false;
+        if (bb.destroyed) return doFree;
         for (let i = 0, len = this.used.length; i < len; i++) {
             if (this.used[i] == bb) {
                 this.free.push({ offset: bb.offset, size: bb.alignedSize });
                 this.left += bb.alignedSize;
                 this.used.splice(i, 1);
+                bb.destroyed = true;
                 doFree = true;
                 break;
             }
@@ -102,6 +107,7 @@ class WebGPUBuffer {
     clear() {
         this.left = this.size;
         this.free = [{ offset: 0, size: this.size }];
+        this.used.forEach(bb => bb.destroyed = true);
         this.used.length = 0;
     }
 

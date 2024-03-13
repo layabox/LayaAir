@@ -10,11 +10,7 @@ import { IDefineDatas } from "../../RenderModuleData/Design/IDefineDatas";
 import { ShaderDefine } from "../../RenderModuleData/Design/ShaderDefine";
 import { WebGPUCapable } from "./WebGPUCapable";
 import { WebGPUInternalRT } from "./WebGPUInternalRT";
-import { WebGPUBindGroupManager } from "./WebGPUMemoryManagers/WebGPUBindGroupManager";
-import { WebGPUBufferManager } from "./WebGPUMemoryManagers/WebGPUBufferManager";
-import { WebGPUPipelineManager } from "./WebGPUMemoryManagers/WebGPUPipelineManager";
-import { WebGPUTextureManager } from "./WebGPUMemoryManagers/WebGPUTextureManager";
-import { WebGPUVertexManager } from "./WebGPUMemoryManagers/WebGPUVertexManager";
+import { WebGPUBufferManager } from "./WebGPUUniform/WebGPUBufferManager";
 import { WebGPURenderEngineFactory } from "./WebGPURenderEngineFactory";
 import { WebGPUTextureContext, WebGPUTextureFormat } from "./WebGPUTextureContext";
 
@@ -73,11 +69,7 @@ export class WebGPURenderEngine implements IRenderEngine {
     private _adapterSupportedExtensions: GPUFeatureName[];
     private _deviceEnabledExtensions: GPUFeatureName[];
 
-    gpuVertexMgr: WebGPUVertexManager;
     gpuBufferMgr: WebGPUBufferManager;
-    gpuTextureMgr: WebGPUTextureManager;
-    gpuPipelineMgr: WebGPUPipelineManager;
-    gpuBindGroupMgr: WebGPUBindGroupManager;
 
     /**
      * 实例化一个webgpuEngine
@@ -160,14 +152,9 @@ export class WebGPURenderEngine implements IRenderEngine {
         this._device.addEventListener("uncapturederror", this._unCapturedErrorCall);
         this._device.lost.then(this._deviceLostCall);
 
-        this.gpuVertexMgr = new WebGPUVertexManager(device);
         this.gpuBufferMgr = new WebGPUBufferManager(device);
-        this.gpuTextureMgr = new WebGPUTextureManager();
-        this.gpuPipelineMgr = new WebGPUPipelineManager();
-        this.gpuBindGroupMgr = new WebGPUBindGroupManager();
-
-        this.gpuBufferMgr.addBuffer('scene', 4096);
-        this.gpuBufferMgr.addBuffer('camera', 4096);
+        this.gpuBufferMgr.addBuffer('scene', 4 * 1024);
+        this.gpuBufferMgr.addBuffer('camera', 4 * 1024);
         this.gpuBufferMgr.addBuffer('sprite3D', 10 * 1024 * 1024);
         this.gpuBufferMgr.addBuffer('simpeSkinnedMesh', 10 * 1024 * 1024);
         this.gpuBufferMgr.addBuffer('shurikenSprite3D', 5 * 1024 * 1024);

@@ -26,11 +26,11 @@ type TypedArrayConstructor =
     | Float64ArrayConstructor;
 
 /**
- * 将一个数圆整到指定跨度的整数倍
- * @param v 
- * @param multiple 
+ * 向上圆整到align的整数倍
+ * @param n 
+ * @param align 
  */
-const roundUp = (v: number, multiple: number) => (((v + multiple - 1) / multiple) | 0) * multiple;
+const roundUp = (n: number, align: number) => (((n + align - 1) / align) | 0) * align;
 
 export type UniformItemType = {
     view: TypedArray, //ArrayBufferView

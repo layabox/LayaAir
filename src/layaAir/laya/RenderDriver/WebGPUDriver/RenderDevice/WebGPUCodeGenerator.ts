@@ -10,7 +10,7 @@ import { WebGLCommandUniformMap } from "../../WebGLDriver/RenderDevice/WebGLComm
 import { TypeOutData } from "../ShaderCompile/WebGPUShaderCompileCode";
 import { WebGPUShaderCompileDef } from "../ShaderCompile/WebGPUShaderCompileDef";
 import { WebGPUShaderCompileUtil } from "../ShaderCompile/WebGPUShaderCompileUtil";
-import { WebGPUUniformBlockInfo } from "./WebGPUUniformBlockInfo";
+import { WebGPUUniformBlockInfo } from "./WebGPUUniform/WebGPUUniformBlockInfo";
 
 type NameAndType = { name: string; type: string; };
 type NameStringMap = Record<string, string>;
@@ -459,12 +459,12 @@ mat4 inverse(mat4 m)
         };
 
         const size = _calcUniformBufferSize(uniforms, arrayMap);
-        const ubInfo = new WebGPUUniformBlockInfo(name, size.byteLength);
+        const uniformBlockInfo = new WebGPUUniformBlockInfo(name, size.byteLength);
         for (let i = 0, len = size.layout.length; i < len; i++) {
             const uniform = size.layout[i];
-            ubInfo.addUniform(uniform.name, uniform.type, uniform.offset, uniform.align, uniform.size, uniform.elements, uniform.count);
+            uniformBlockInfo.addUniform(uniform.name, uniform.type, uniform.offset, uniform.align, uniform.size, uniform.elements, uniform.count);
         }
-        return ubInfo;
+        return uniformBlockInfo;
     }
 
     /**

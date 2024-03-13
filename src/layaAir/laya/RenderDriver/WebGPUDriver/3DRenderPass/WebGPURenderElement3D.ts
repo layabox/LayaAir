@@ -64,10 +64,22 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
             comDef.addDefineDatas(this.materialShaderData._defineDatas);
 
             const shaderInstance = pass.withCompile(comDef) as WebGPUShaderInstance;
-            if (this.materialShaderData)
+            if (this.materialShaderData) {
+                this.materialShaderData._name = "material";
                 this.materialShaderData.setUniformBuffers(shaderInstance.uniformBuffers);
-            if (this.renderShaderData)
+            }
+            if (this.renderShaderData) {
+                this.renderShaderData._name = "sprite";
                 this.renderShaderData.setUniformBuffers(shaderInstance.uniformBuffers);
+            }
+            if (context.cameraData) {
+                context.cameraData._name = "camera";
+                context.cameraData.setUniformBuffers(shaderInstance.uniformBuffers);
+            }
+            if (context.sceneData) {
+                context.sceneData._name = "scene";
+                context.sceneData.setUniformBuffers(shaderInstance.uniformBuffers);
+            }
             this._addShaderInstance(shaderInstance);
         }
     }
@@ -293,8 +305,10 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
     _render(context: WebGPURenderContext3D) {
         const sceneShaderData = context.sceneData as WebGPUShaderData;
         const cameraShaderData = context.cameraData as WebGPUShaderData;
-        if (!this.renderShaderData)
+        if (!this.renderShaderData) {
             this.renderShaderData = new WebGPUShaderData();
+            this.renderShaderData._name = "sprite";
+        }
         if (this.isRender) {
             const passes: WebGPUShaderInstance[] = this._shaderInstances.elements;
             for (let i = 0, m = passes.length; i < m; i++) {
