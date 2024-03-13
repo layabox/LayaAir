@@ -26,6 +26,7 @@ import { Stat } from "laya/utils/Stat";
 import { MeshFilter } from "laya/d3/core/MeshFilter";
 import { MeshRenderer } from "laya/d3/core/MeshRenderer";
 import { UnlitMaterial } from "laya/d3/core/material/UnlitMaterial";
+import { Color } from "laya/maths/Color";
 
 export class WebGPUTest {
     rotation: Vector3 = new Vector3(0, 0.01, 0);
@@ -56,6 +57,7 @@ export class WebGPUTest {
             const camera: Camera = (<Camera>(scene.addChild(new Camera(0, 0.1, 100))));
             camera.transform.translate(new Vector3(0, 0.5, 1.5));
             camera.transform.rotate(new Vector3(-15, 0, 0), true, false);
+            camera.clearColor = Color.RED;
             camera.clearFlag = CameraClearFlags.SolidColor;
             camera.addComponent(CameraMoveScript);
 
