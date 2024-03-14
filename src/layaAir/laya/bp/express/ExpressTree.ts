@@ -1,3 +1,5 @@
+import { BlueprintFactory } from "../runtime/BlueprintFactory";
+import { IRunAble } from "../runtime/interface/IRunAble";
 import { ExpressParse } from "./ExpressParse";
 import { Precedence } from "./Precedence";
 
@@ -92,7 +94,7 @@ export class ExpressTree {
                     let param = tparams[i];
                     if (!ExpressTree.isNumber(param)) {
                         if (this.isExpress(param)) {
-                            params[i] = new ExpressParse().parse(param);
+                            params[i] = ExpressParse.instance.parse(param);
                         } else {
                             params[i] = this.parseProperty(param)
                         }
@@ -247,7 +249,17 @@ export class ExpressProperty extends ExpressTree {
     call(context: any) {
         let result = context;
         this.propertys.forEach((item, index) => {
-            result = result[item];
+            if (result) {
+                if (result[BlueprintFactory.contextSymbol]) {
+                    result = (result[BlueprintFactory.contextSymbol] as IRunAble).getVar(item);
+                }
+                else {
+                    result = result[item];
+                }
+            }
+            else {
+                console.warn(this.propertys, item + "属性不存在")
+            }
         });
         return result;
     }
@@ -255,18 +267,15 @@ export class ExpressProperty extends ExpressTree {
 }
 
 
-export class ExpressFunction extends ExpressTree {
-    propertys: string[];
+export class ExpressFunction extends ExpressProperty {
     params: ExpressTree[];
-    constructor(value: any) {
-        super(value);
-        this.propertys = value;
-    }
+
     call(context: any) {
-        let result = context;
-        this.propertys.forEach((item, index) => {
-            result = result[item];
-        });
+        let result = super.call(context);
+        if(!result){
+            console.warn(this.propertys, "函数不存在")
+            return null;
+        }
         let tparams: any[] = [];
         this.params.forEach((item, index) => {
             tparams.push(item.call(context));

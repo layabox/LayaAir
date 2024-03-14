@@ -2,6 +2,7 @@ import { ExpressTree } from "./ExpressTree";
 import { Precedence } from "./Precedence";
 
 export class ExpressParse {
+    _catch:Map<string,ExpressTree> = new Map();
     private static _instance: ExpressParse;
     static get instance() {
         if (!this._instance) {
@@ -74,6 +75,9 @@ export class ExpressParse {
     }
 
     parse(expression: string): ExpressTree {
+        if (this._catch.has(expression)) {
+            return this._catch.get(expression) as ExpressTree;
+        }
         const tokens = this.tokenize(expression);
         const operationsStack: string[] = [];
         const valuesStack: ExpressTree[] = [];
@@ -111,7 +115,9 @@ export class ExpressParse {
             applyOperator();
         }
 
-        return valuesStack.pop() as ExpressTree;
+        let result=valuesStack.pop() as ExpressTree;
+        this._catch.set(expression,result);
+        return result;
     }
 
 }

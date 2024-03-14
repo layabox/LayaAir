@@ -140,6 +140,7 @@ export class BlueprintFactory {
             //  this.regFunction("waitTime", BlueprintStaticFun.waitTime);
             this.regFunction("get", BlueprintStaticFun.getVariable);
             this.regFunction("static_get", BlueprintStaticFun.getVariable);
+            this.regFunction("get_self", BlueprintStaticFun.getSelf);
             this.regFunction("set", BlueprintStaticFun.setVariable);
             this.regFunction("tmp_get", BlueprintStaticFun.getTempVar);
             this.regFunction("tmp_set", BlueprintStaticFun.setTempVar);
@@ -161,7 +162,7 @@ export class BlueprintFactory {
             return {
                 [className]: class extends SuperClass implements IBluePrintSubclass {
                     static [BlueprintFactory.contextSymbol]: IRunAble;
-                    
+
                     __eventList__: string[];
                     [BlueprintFactory.bpSymbol]: BlueprintRuntime;
                     [BlueprintFactory.contextSymbol]: IRunAble;

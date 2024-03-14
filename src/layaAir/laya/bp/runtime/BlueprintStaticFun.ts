@@ -76,6 +76,16 @@ export class BlueprintStaticFun {
         }
     }
     /**
+    * @private
+    * @param target 
+    * @param name 
+    * @param context 
+    * @returns 
+    */
+    static getSelf(name: string, context: IRunAble): any {
+        return context.getSelf();
+    }
+    /**
      * @private
      * @param target 
      * @param value 
@@ -282,10 +292,10 @@ export class BlueprintStaticFun {
      * @param c 
      * @returns 
      */
-    static runExpress(express:string,a:any,b:any,c:any):any{
+    static runExpress(express: string, a: any, b: any, c: any): any {
         debugger;
-        let expressTree=ExpressParse.instance.parse(express);
-        let context={a:a,b:b,c:c,Math:Math};
+        let expressTree = ExpressParse.instance.parse(express);
+        let context = { a: a, b: b, c: c, Math: Math };
         return expressTree.call(context);
     }
 
@@ -294,7 +304,7 @@ export class BlueprintStaticFun {
         if (!bt) {
             bt = owner.addComponent(BehaviorTreeComponent);
         }
-        if((behaviorTree as any).blackboardAsset){
+        if ((behaviorTree as any).blackboardAsset) {
             let bb = new BlackboardComponent();
             bb.init((behaviorTree as any).blackboardAsset);
             bt.blackBoradComp = bb;
