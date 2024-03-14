@@ -186,8 +186,8 @@ export class WebGPURenderEngine implements IRenderEngine {
         const w = width | 0;
         const h = height | 0;
         if (!this._screenRT
-            || this._screenRT._depthTexture.width != w
-            || this._screenRT._depthTexture.height != h) {
+            || this._screenRT._textures[0].width != w
+            || this._screenRT._textures[0].height != h) {
             console.log("canvas resize =", w, h);
             this.createScreenRT();
         }
@@ -340,7 +340,7 @@ export class WebGPURenderEngine implements IRenderEngine {
         this._screenRT =
             this._textureContext.createRenderTargetInternal
                 (this._canvas.width, this._canvas.height, RenderTargetFormat.R8G8B8A8,
-                    RenderTargetFormat.DEPTHSTENCIL_24_8, false, false, this._config.multiSamples) as WebGPUInternalRT;
+                    RenderTargetFormat.None, false, false, this._config.multiSamples) as WebGPUInternalRT;
         this._screenRT._textures[0].resource = this._context.getCurrentTexture();
     }
 }

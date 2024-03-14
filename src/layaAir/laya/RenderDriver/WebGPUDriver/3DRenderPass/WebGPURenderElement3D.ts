@@ -3,6 +3,7 @@ import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { ShaderPass } from "../../../RenderEngine/RenderShader/ShaderPass";
 import { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
 import { Transform3D } from "../../../d3/core/Transform3D";
+import { ScreenQuad } from "../../../d3/core/render/ScreenQuad";
 import { SingletonList } from "../../../utils/SingletonList";
 import { IRenderElement3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { RenderState } from "../../RenderModuleData/Design/RenderState";
@@ -199,9 +200,11 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
     }
 
     private _getDepthStencilState(shader: WebGPUShaderInstance, dest: WebGPUInternalRT): void {
-        if ((shader._shaderPass as ShaderPass).statefirst)
-            this.depthStencilState = this._getRenderStateDepthByShader(this.materialShaderData, shader, dest);
-        else this.depthStencilState = this._getRenderStateDepthByMaterial(this.materialShaderData, dest);
+        if (dest._depthTexture) {
+            if ((shader._shaderPass as ShaderPass).statefirst)
+                this.depthStencilState = this._getRenderStateDepthByShader(this.materialShaderData, shader, dest);
+            else this.depthStencilState = this._getRenderStateDepthByMaterial(this.materialShaderData, dest);
+        } else this.depthStencilState = null;
     }
 
     private _getRenderStateDepthByShader(shaderData: WebGPUShaderData, shader: WebGPUShaderInstance, dest: WebGPUInternalRT) {
@@ -334,8 +337,10 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
                         if (!this.materialShaderData.uploadUniform(3, 'material', shaderIns.uniformSetMap[3], context.renderCommand))
                             complete = false;
                     //draw
-                    if (complete)
+                    if (complete) {
                         context.renderCommand.applyGeometry(this.geometry);
+                        //console.log(this.geometry);
+                    }
                 }
             }
         }

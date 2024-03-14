@@ -12,7 +12,7 @@ import { WebGPUShaderCompileDef } from "../ShaderCompile/WebGPUShaderCompileDef"
 import { WebGPUShaderCompileUtil } from "../ShaderCompile/WebGPUShaderCompileUtil";
 import { WebGPUUniformBlockInfo } from "./WebGPUUniform/WebGPUUniformBlockInfo";
 
-type NameAndType = { name: string; type: string; };
+type NameAndType = { name: string; type: string; set: number };
 type NameStringMap = Record<string, string>;
 type NameNumberMap = Record<string, number>;
 
@@ -127,31 +127,31 @@ export class WebGPUCodeGenerator {
         let trailRenderUniforms: NameAndType[] = [];
         let textureUniforms: NameAndType[] = [];
 
-        let uniformInfo: WebGPUUniformPropertyBindingInfo[] = [];
+        const uniformInfo: WebGPUUniformPropertyBindingInfo[] = [];
 
         const regex = /\[(.*?)\]/g;
         const _catalog = (name: string, type: string) => {
             const id = Shader3D.propertyNameToID(name.replace(regex, ''));
             if (sceneUniformMap.hasPtrID(id))
-                sceneUniforms.push({ name, type });
+                sceneUniforms.push({ name, type, set: 0 });
             else if (cameraUniformMap.hasPtrID(id))
-                cameraUniforms.push({ name, type });
+                cameraUniforms.push({ name, type, set: 1 });
             else if (sprite3DUniformMap.hasPtrID(id))
-                sprite3DUniforms.push({ name, type });
+                sprite3DUniforms.push({ name, type, set: 2 });
             else if (simpleSkinnedMeshUniformMap.hasPtrID(id))
-                simpleSkinnedMeshUniforms.push({ name, type });
+                simpleSkinnedMeshUniforms.push({ name, type, set: 2 });
             else if (shurikenSprite3DUniformMap.hasPtrID(id))
-                shurikenSprite3DUniforms.push({ name, type });
+                shurikenSprite3DUniforms.push({ name, type, set: 2 });
             else if (trailRenderUniformMap.hasPtrID(id))
-                trailRenderUniforms.push({ name, type });
+                trailRenderUniforms.push({ name, type, set: 2 });
             else if (type == "sampler2D" || type == "samplerCube")
-                textureUniforms.push({ name, type });
-            else materialUniforms.push({ name, type });
+                textureUniforms.push({ name, type, set: 3 });
+            else materialUniforms.push({ name, type, set: 3 });
         }
 
         for (const key in uniformMap) {
             if (typeof uniformMap[key] == "object") { //block
-                const blockUniforms = <{ [uniformName: string]: ShaderDataType }>uniformMap[key];
+                const blockUniforms = <{ [name: string]: ShaderDataType }>uniformMap[key];
                 for (const uniformName in blockUniforms) {
                     const dataType = this.getAttributeT2S(blockUniforms[uniformName]);
                     _catalog(uniformName, dataType);
@@ -177,8 +177,8 @@ export class WebGPUCodeGenerator {
                     const nameStr = uniforms[i].name;
                     const typeStr = uniforms[i].type;
                     if (typeStr == 'sampler2D' || typeStr == 'samplerCube')
-                        textureUniforms.push({ name: nameStr, type: typeStr });
-                    sortedUniforms[this.getAttributeS2N(typeStr)].push({ name: nameStr, type: typeStr });
+                        textureUniforms.push({ name: nameStr, type: typeStr, set });
+                    sortedUniforms[this.getAttributeS2N(typeStr)].push({ name: nameStr, type: typeStr, set });
                 }
             } else if (uniformMap) {
                 const data = uniformMap._idata;
@@ -188,8 +188,8 @@ export class WebGPUCodeGenerator {
                     if (data[key].propertyName.indexOf('.') != -1) continue;
                     if (typeStr == '') continue;
                     else if (typeStr == 'sampler2D' || typeStr == 'samplerCube')
-                        textureUniforms.push({ name: nameStr, type: typeStr });
-                    else sortedUniforms[this.getAttributeS2N(typeStr)].push({ name: nameStr, type: typeStr });
+                        textureUniforms.push({ name: nameStr, type: typeStr, set });
+                    else sortedUniforms[this.getAttributeS2N(typeStr)].push({ name: nameStr, type: typeStr, set });
                 }
             }
             for (let i = 1; i < typeNum; i++)
@@ -236,53 +236,53 @@ export class WebGPUCodeGenerator {
      */
     static textureString(textureUniforms: NameAndType[], uniformInfo: WebGPUUniformPropertyBindingInfo[], visibility: GPUShaderStageFlags) {
         let res = '';
-        const set = 3;
-        let binding = uniformInfo[set].binding + 1;
+        let binding = [1, 1, 1, 1];
         if (textureUniforms.length > 0) {
             for (let i = 0, len = textureUniforms.length; i < len; i++) {
-                if (textureUniforms[i].type == "sampler2D") {
-                    res = `${res}layout(set = ${set}, binding = ${binding++}) uniform sampler ${textureUniforms[i].name}Sampler;\n`;
-                    res = `${res}layout(set = ${set}, binding = ${binding++}) uniform texture2D ${textureUniforms[i].name}Texture;\n`;
-                    res = `${res}#define ${textureUniforms[i].name} sampler2D(${textureUniforms[i].name}Texture, ${textureUniforms[i].name}Sampler)\n\n`;
+                const tu = textureUniforms[i];
+                if (tu.type == "sampler2D") {
+                    res = `${res}layout(set = ${tu.set}, binding = ${binding[tu.set]++}) uniform sampler ${tu.name}Sampler;\n`;
+                    res = `${res}layout(set = ${tu.set}, binding = ${binding[tu.set]++}) uniform texture2D ${tu.name}Texture;\n`;
+                    res = `${res}#define ${tu.name} sampler2D(${tu.name}Texture, ${tu.name}Sampler)\n\n`;
                     uniformInfo.push({
-                        set,
-                        binding: binding - 2,
+                        set: tu.set,
+                        binding: binding[tu.set] - 2,
                         visibility,
                         type: WebGPUBindingInfoType.sampler,
-                        name: `${textureUniforms[i].name}Sampler`,
-                        propertyID: Shader3D.propertyNameToID(textureUniforms[i].name),
+                        name: `${tu.name}Sampler`,
+                        propertyID: Shader3D.propertyNameToID(tu.name),
                         sampler: { type: 'filtering' },
                     } as WebGPUUniformPropertyBindingInfo);
                     uniformInfo.push({
-                        set,
-                        binding: binding - 1,
+                        set: tu.set,
+                        binding: binding[tu.set] - 1,
                         visibility,
                         type: WebGPUBindingInfoType.texture,
-                        name: `${textureUniforms[i].name}Texture`,
-                        propertyID: Shader3D.propertyNameToID(textureUniforms[i].name),
+                        name: `${tu.name}Texture`,
+                        propertyID: Shader3D.propertyNameToID(tu.name),
                         texture: { sampleType: 'float', viewDimension: '2d', multisampled: false },
                     } as WebGPUUniformPropertyBindingInfo);
                 }
-                if (textureUniforms[i].type == "samplerCube") {
-                    res = `${res}layout(set = ${set}, binding = ${binding++}) uniform sampler ${textureUniforms[i].name}Sampler;\n`;
-                    res = `${res}layout(set = ${set}, binding = ${binding++}) uniform textureCube ${textureUniforms[i].name}Texture;\n`;
-                    res = `${res}#define ${textureUniforms[i].name} samplerCube(${textureUniforms[i].name}Texture, ${textureUniforms[i].name}Sampler)\n\n`;
+                if (tu.type == "samplerCube") {
+                    res = `${res}layout(set = ${tu.set}, binding = ${binding[tu.set]++}) uniform sampler ${tu.name}Sampler;\n`;
+                    res = `${res}layout(set = ${tu.set}, binding = ${binding[tu.set]++}) uniform textureCube ${tu.name}Texture;\n`;
+                    res = `${res}#define ${tu.name} samplerCube(${tu.name}Texture, ${tu.name}Sampler)\n\n`;
                     uniformInfo.push({
-                        set,
-                        binding: binding - 2,
+                        set: tu.set,
+                        binding: binding[tu.set] - 2,
                         visibility,
                         type: WebGPUBindingInfoType.sampler,
-                        name: `${textureUniforms[i].name}Sampler`,
-                        propertyID: Shader3D.propertyNameToID(textureUniforms[i].name),
+                        name: `${tu.name}Sampler`,
+                        propertyID: Shader3D.propertyNameToID(tu.name),
                         sampler: { type: 'filtering' },
                     } as WebGPUUniformPropertyBindingInfo);
                     uniformInfo.push({
-                        set,
-                        binding: binding - 1,
+                        set: tu.set,
+                        binding: binding[tu.set] - 1,
                         visibility,
                         type: WebGPUBindingInfoType.texture,
-                        name: `${textureUniforms[i].name}Texture`,
-                        propertyID: Shader3D.propertyNameToID(textureUniforms[i].name),
+                        name: `${tu.name}Texture`,
+                        propertyID: Shader3D.propertyNameToID(tu.name),
                         texture: { sampleType: 'float', viewDimension: 'cube', multisampled: false },
                     } as WebGPUUniformPropertyBindingInfo);
                 }
@@ -733,7 +733,6 @@ ${textureGLSL_fs}
             dstVS = this.changeUnfitCode(dstVS);
             dstFS = this.changeUnfitCode(dstFS);
         }
-
         //console.log(dstVS);
         //console.log(dstFS);
 
@@ -742,6 +741,7 @@ ${textureGLSL_fs}
         const wgsl_fs = this.naga.compileGLSL2WGSL(dstFS, 'fragment');
         //console.log(wgsl_vs);
         //console.log(wgsl_fs);
+
         return { vs: wgsl_vs, fs: wgsl_fs, uniformInfo };
     }
 }

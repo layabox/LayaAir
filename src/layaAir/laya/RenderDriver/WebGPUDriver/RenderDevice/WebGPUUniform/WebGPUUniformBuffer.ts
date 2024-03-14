@@ -33,6 +33,7 @@ type TypedArrayConstructor =
 const roundUp = (n: number, align: number) => (((n + align - 1) / align) | 0) * align;
 
 export type UniformItemType = {
+    name: string, //名称
     view: TypedArray, //ArrayBufferView
     type: string, //int, float, vec2 ...
     align: number, //字节对齐
@@ -45,14 +46,12 @@ export class UniformBuffer {
     name: string;
     strID: string;
     arrayBuffer: ArrayBuffer;
-    bytes: Uint8Array;
     items: Map<number, UniformItemType>;
     itemNum: number;
     needUpload: boolean;
 
     set: number;
     binding: number;
-    offset: number;
     block: WebGPUBufferBlock;
 
     private _gpu_Buffer: GPUBuffer;
@@ -60,7 +59,6 @@ export class UniformBuffer {
 
     constructor(name: string, set: number, binding: number, size: number, gpuBuffer: WebGPUBufferManager) {
         this.arrayBuffer = new ArrayBuffer(size);
-        this.bytes = new Uint8Array(this.arrayBuffer);
         this.name = name;
         this.strID = '';
         this.items = new Map();
@@ -77,7 +75,7 @@ export class UniformBuffer {
             binding,
             resource: { //@ts-ignore
                 buffer: this._gpu_Buffer,
-                offset: this.offset,
+                offset: this.block.offset,
                 size,
             },
         };
@@ -86,6 +84,7 @@ export class UniformBuffer {
     /**
      * 添加uniform字段
      * @param id 
+     * @param name 
      * @param type 
      * @param offset 
      * @param align 
@@ -93,12 +92,12 @@ export class UniformBuffer {
      * @param elements 
      * @param count 
      */
-    addUniform(id: number, type: string, offset: number, align: number, size: number, elements: number, count: number) {
+    addUniform(id: number, name: string, type: string, offset: number, align: number, size: number, elements: number, count: number) {
         if (this.items.has(id)) return; //该Uniform已经存在
-        this.items.set(id, this._getUniformItem(UniformBuffer._typeArray(type), type, offset, align, size, elements, count));
+        this.items.set(id, this._getUniformItem(name, UniformBuffer._typeArray(type), type, offset, align, size, elements, count));
         if (this.strID.length > 0)
             this.strID += '|';
-        this.strID += name;
+        this.strID += id;
         this.itemNum++;
     }
 
@@ -480,8 +479,9 @@ export class UniformBuffer {
      */
     upload(device: GPUDevice) {
         if (this.needUpload) {
-            device.queue.writeBuffer(this._gpu_Buffer, this.offset, this.arrayBuffer);
+            device.queue.writeBuffer(this._gpu_Buffer, this.block.offset, this.arrayBuffer);
             this.needUpload = false;
+            //console.log('upload uniform data', new Float32Array(this.arrayBuffer), this, this.name);
         }
     }
 
@@ -519,6 +519,7 @@ export class UniformBuffer {
 
     /**
      * 获取一个unifromItem
+     * @param name 
      * @param tac 
      * @param type 
      * @param offset 
@@ -527,9 +528,9 @@ export class UniformBuffer {
      * @param elements 
      * @param count 
      */
-    private _getUniformItem(tac: TypedArrayConstructor, type: string, offset: number, align: number, size: number, elements: number, count: number) {
+    private _getUniformItem(name: string, tac: TypedArrayConstructor, type: string, offset: number, align: number, size: number, elements: number, count: number) {
         const view = new tac(this.arrayBuffer, offset, this._typeElements(type) * count);
-        return { view, type, align, size, elements, count };
+        return { name, view, type, align, size, elements, count };
     }
 
     /**

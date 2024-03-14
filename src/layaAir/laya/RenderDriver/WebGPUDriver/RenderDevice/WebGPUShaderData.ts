@@ -45,7 +45,6 @@ export class WebGPUShaderData extends ShaderData {
             this._uniformBuffers = ubs;
             this._updateUniformMap();
             this._updateUniformData();
-            console.log(this);
         }
     }
 
@@ -77,6 +76,8 @@ export class WebGPUShaderData extends ShaderData {
      * 生成bindGroup并上传数据
      */
     uploadUniform(groupId: number, name: string, uniforms: WebGPUUniformPropertyBindingInfo[], command: WebGPURenderCommandEncoder) {
+        const device = WebGPURenderEngine._instance.getDevice();
+
         //根据uniforms中的内容生成一个key, 用于查找缓存
         let key = name + '_';
         key += uniforms.map(item => item.sn).join('_');
@@ -87,7 +88,6 @@ export class WebGPUShaderData extends ShaderData {
 
         //如果没有缓存, 则创建一个新的bindGroup
         if (!bindGroup) {
-            const device = WebGPURenderEngine._instance.getDevice();
             const bindGroupLayoutEntries = [];
             const bindGroupEntries = [];
             for (const item of uniforms) {
@@ -151,6 +151,9 @@ export class WebGPUShaderData extends ShaderData {
             this._bindGroupMap.set(key, bindGroup);
             console.log('create bindGroup', key, bindGroupLayoutDesc, bindGroupEntries, bindGroup);
         }
+
+        //上传数据
+        this._uniformBuffers.forEach(uniform => uniform.upload(device));
 
         //将绑定组附加到命令
         command.setBindGroup(groupId, bindGroup);

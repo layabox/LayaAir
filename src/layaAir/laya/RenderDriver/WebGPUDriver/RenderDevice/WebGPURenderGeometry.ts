@@ -3,6 +3,7 @@ import { IndexFormat } from "../../../RenderEngine/RenderEnum/IndexFormat";
 import { MeshTopology } from "../../../RenderEngine/RenderEnum/RenderPologyMode";
 import { IRenderGeometryElement } from "../../DriverDesign/RenderDevice/IRenderGeometryElement";
 import { WebGPUBufferState } from "./WebGPUBufferState";
+
 export enum WebGPUPrimitiveTopology {
     point_list = "point-list",
     line_list = "line-list",
@@ -29,6 +30,7 @@ interface WebGPUDrawInstanceInfo {
 export class WebGPURenderGeometry implements IRenderGeometryElement {
     /**@internal */
     _drawArrayInfo: WebGPUDrawArrayInfo[];
+
     /**@internal */
     _drawElementInfo: WebGPUDrawElementInfo[];
 
@@ -47,6 +49,8 @@ export class WebGPURenderGeometry implements IRenderGeometryElement {
     /**@internal */
     drawType: DrawType;
 
+    private _id: number;
+    static _idCounter: number = 0;
 
     get instanceCount(): number {
         return this._instanceCount;
@@ -76,8 +80,8 @@ export class WebGPURenderGeometry implements IRenderGeometryElement {
         this.indexFormat = IndexFormat.UInt16;
         this._drawArrayInfo = [];
         this._drawElementInfo = [];
+        this._id = WebGPURenderGeometry._idCounter++;
     }
-
 
     setDrawArrayParams(first: number, count: number): void {
         this._drawArrayInfo.push({
@@ -85,7 +89,6 @@ export class WebGPURenderGeometry implements IRenderGeometryElement {
             count: count
         });
     }
-
 
     setDrawElemenParams(count: number, offset: number): void {
         this._drawElementInfo.push({
@@ -106,5 +109,4 @@ export class WebGPURenderGeometry implements IRenderGeometryElement {
     destroy(): void {
         throw new Error("Method not implemented.");
     }
-
 }

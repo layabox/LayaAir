@@ -265,10 +265,10 @@ export class WebGPUPrimitiveState {
                 state.cullMode = "none";
                 break;
             case CullMode.Back:
-                state.cullMode = "front";
+                state.cullMode = "back";
                 break;
             case CullMode.Front:
-                state.cullMode = "back";
+                state.cullMode = "front";
                 break;
         }
         switch (frontFace) {
@@ -303,14 +303,15 @@ export class WebGPURenderPipeline {
         const map = shader.renderPipelineMap;
         const primitiveState = WebGPUPrimitiveState.getGPUPrimitiveState(info.geometry.mode, info.frontFace, info.cullMode);
         const bufferState = info.geometry.bufferState;
-        const strId = `${primitiveState.id}_${info.blendState.id}_${info.depthStencilState.id}_${rt.formatId}_${bufferState._id}_${bufferState._updateBufferLayoutFlag}`;
+        const depthStencilId = info.depthStencilState ? info.depthStencilState.id : -1;
+        const strId = `${primitiveState.id}_${info.blendState.id}_${depthStencilId}_${rt.formatId}_${bufferState._id}_${bufferState._updateBufferLayoutFlag}`;
         let renderPipeline = map.get(strId);
         if (!renderPipeline) {
-            console.log(info.blendState.state, info.depthStencilState.state, primitiveState.state, bufferState._vertexState, shader, rt);
+            console.log(info.blendState.state, info.depthStencilState?.state, primitiveState.state, bufferState._vertexState, shader, rt);
             //@ts-ignore
             //console.log(WebGPURenderEngine._instance._propertyNameMap);
             renderPipeline = this.createRenderPipeline
-                (info.blendState.state, info.depthStencilState.state, primitiveState.state, bufferState._vertexState, shader, rt);
+                (info.blendState.state, info.depthStencilState?.state, primitiveState.state, bufferState._vertexState, shader, rt);
             map.set(strId, renderPipeline);
         }
         return renderPipeline;
@@ -346,7 +347,9 @@ export class WebGPURenderPipeline {
         }
         descriptor.fragment.targets = rt._colorState;
         descriptor.primitive = primitiveState;
-        descriptor.depthStencil = depthState;
+        if (depthState)
+            descriptor.depthStencil = depthState;
+        else delete descriptor.depthStencil;
         const renderPipeline = WebGPURenderEngine._instance.getDevice().createRenderPipeline(descriptor);
         console.log("create renderPipeline", descriptor, renderPipeline);
         return renderPipeline;

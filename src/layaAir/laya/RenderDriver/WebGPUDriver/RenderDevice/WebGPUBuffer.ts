@@ -12,17 +12,22 @@ export enum WebGPUBufferUsage {
     INDIRECT = GPUBufferUsage.INDIRECT,
     QUERY_RESOLVE = GPUBufferUsage.QUERY_RESOLVE
 }
+
 export enum GPUMapModeFlag {
     READ = GPUMapMode.READ,
     Write = GPUMapMode.WRITE
 }
+
 export class WebGPUBuffer {
     _source: GPUBuffer;
     _usage: GPUBufferUsageFlags;
-    _size: number = 0;//bytelength
+    _size: number = 0; //bytelength
 
     private _isCreate: boolean = false;
     private _mappedAtCreation = false;
+
+    private _id: number;
+    static _idCounter: number = 0;
 
     constructor(usage: GPUBufferUsageFlags, byteSize: number = 0, mappedAtCreation: boolean = false) {
         this._size = byteSize;
@@ -31,17 +36,16 @@ export class WebGPUBuffer {
         if (this._size > 0) {
             this._create();
         }
+        this._id = WebGPUBuffer._idCounter++;
     }
 
     /**
-     * 
      * @param srcData 
      */
     setDataLength(srcData: number): void {
         this._size = srcData;
         this._create();
     }
-
 
     private _create() {
         if (this._isCreate) {
@@ -60,31 +64,26 @@ export class WebGPUBuffer {
         return (bytelength + 3) & ~3;// 4 bytes alignments (because of the upload which requires this)
     }
 
-
     private _memorychange(bytelength: number) {
         // this._engine._addStatisticsInfo(RenderStatisticsInfoMemory, bytelength);
         // this._engine._addStatisticsInfo(RenderStatisticsInfo.GPUMemory, bytelength);
     }
 
-
     setData(srcData: ArrayBuffer | ArrayBufferView, offset: number) {
-        if ((srcData as ArrayBufferView).buffer) {
+        if ((srcData as ArrayBufferView).buffer)
             srcData = (srcData as ArrayBufferView).buffer;
-        }
         WebGPURenderEngine._instance.getDevice().queue.writeBuffer(this._source, 0, srcData, offset, srcData.byteLength);
     }
 
     setDataEx(srcData: ArrayBuffer | ArrayBufferView, offset: number, bytelength: number, dstOffset: number = 0) {
-        if ((srcData as ArrayBufferView).buffer) {
+        if ((srcData as ArrayBufferView).buffer)
             srcData = (srcData as ArrayBufferView).buffer;
-        }
         WebGPURenderEngine._instance.getDevice().queue.writeBuffer(this._source, dstOffset, srcData, offset, bytelength);
     }
 
     setSubDataEx(srcData: ArrayBuffer | ArrayBufferView, offset: number, bytelength: number, dstOffset: number = 0) {
-        if ((srcData as ArrayBufferView).buffer) {
+        if ((srcData as ArrayBufferView).buffer)
             srcData = (srcData as ArrayBufferView).buffer;
-        }
         WebGPURenderEngine._instance.getDevice().queue.writeBuffer(this._source, dstOffset, srcData, offset, bytelength);
     }
 
@@ -96,11 +95,8 @@ export class WebGPUBuffer {
         //gpuBuffer.unmap();
     }
 
-
-
     release() {
         //好像需要延迟删除
         this._source.destroy();
     }
-
 }

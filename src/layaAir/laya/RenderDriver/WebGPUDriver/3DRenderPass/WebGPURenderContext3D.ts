@@ -150,11 +150,7 @@ export class WebGPURenderContext3D implements IRenderContext3D {
 
     drawRenderElementList(list: SingletonList<WebGPURenderElement3D>): number {
         if (list.length == 0) return 0;
-        if (!this.destRT) {
-            const context = WebGPURenderEngine._instance._context;
-            WebGPURenderEngine._instance._screenRT._textures[0].resource = context.getCurrentTexture();
-            this.setRenderTarget(WebGPURenderEngine._instance._screenRT, RenderClearFlag.Color | RenderClearFlag.Depth);
-        }
+        this._setScreenRT();
         if (this._needStart) {
             this._start();
             this._needStart = false;
@@ -169,18 +165,13 @@ export class WebGPURenderContext3D implements IRenderContext3D {
     }
 
     drawRenderElementOne(node: WebGPURenderElement3D): number {
-        if (!node) return 0;
-        if (!this.destRT) {
-            const context = WebGPURenderEngine._instance._context;
-            WebGPURenderEngine._instance._screenRT._textures[0].resource = context.getCurrentTexture();
-            this.setRenderTarget(WebGPURenderEngine._instance._screenRT, RenderClearFlag.Color | RenderClearFlag.Depth);
-        }
+        this._setScreenRT();
         if (this._needStart) {
             this._start();
             this._needStart = false;
         }
-        //node._preUpdatePre(this);
-        //node._render(this);
+        node._preUpdatePre(this);
+        node._render(this);
         this._submit();
         return 0;
     }
@@ -193,43 +184,20 @@ export class WebGPURenderContext3D implements IRenderContext3D {
         cmds.forEach(cmd => cmd.apply(this));
     }
 
+    private _setScreenRT() {
+        if (!this.destRT) {
+            const context = WebGPURenderEngine._instance._context;
+            WebGPURenderEngine._instance._screenRT._textures[0].resource = context.getCurrentTexture();
+            this.setRenderTarget(WebGPURenderEngine._instance._screenRT, RenderClearFlag.Color | RenderClearFlag.Depth);
+        }
+    }
+
     private _start() {
-        // const device = WebGPURenderEngine._instance.getDevice();
-        // const context = WebGPURenderEngine._instance._context;
-        // this.destRT._textures[0].resource = context.getCurrentTexture();
         const renderPassDesc: GPURenderPassDescriptor
-           = WebGPURenderPassHelper.getDescriptor(this.destRT, this._clearFlag, this._clearColor, this._clearDepth, this._clearStencil);
-
-        // // 创建命令编码器
-        // const textureView = context.getCurrentTexture().createView();
-        // const depthTexture = device.createTexture({
-        //     size: { width: this._viewPort.width, height: this._viewPort.height, depthOrArrayLayers: 1 },
-        //     format: 'depth24plus-stencil8',
-        //     usage: GPUTextureUsage.RENDER_ATTACHMENT,
-        // });
-
-        // const renderPassDesc = {
-        //     colorAttachments: [{
-        //         view: this.destRT._textures[0].getTextureView(),
-        //         loadOp: 'clear' as GPULoadOp,
-        //         storeOp: 'store' as GPUStoreOp,
-        //         clearValue: { r: 1, g: 0, b: 0, a: 1 },
-        //     }],
-        //     depthStencilAttachment: {
-        //         view: this.destRT._depthTexture.getTextureView(),
-        //         depthLoadOp: 'clear' as GPULoadOp,
-        //         depthStoreOp: 'store' as GPUStoreOp,
-        //         depthClearValue: 1,
-        //         stencilLoadOp: 'clear' as GPULoadOp,
-        //         stencilStoreOp: 'store' as GPUStoreOp,
-        //         stencilClearValue: 0,
-        //     }
-        // };
-        
+            = WebGPURenderPassHelper.getDescriptor(this.destRT, this._clearFlag, this._clearColor, this._clearDepth, this._clearStencil);
         this.renderCommand.startRender(renderPassDesc);
-        console.log(renderPassDesc);
-        this._viewPort.x = 0;
         this._viewPort.y = 0;
+        this._scissor.y = 0;
         this.renderCommand.setViewport(this._viewPort.x, this._viewPort.y, this._viewPort.width, this._viewPort.height, 0, 1);
         this.renderCommand.setScissorRect(this._scissor.x, this._scissor.y, this._scissor.z, this._scissor.w);
     }
@@ -238,42 +206,5 @@ export class WebGPURenderContext3D implements IRenderContext3D {
         this.renderCommand.end();
         WebGPURenderEngine._instance.getDevice().queue.submit([this.renderCommand.finish()]);
         this._needStart = true;
-
-        // const device = WebGPURenderEngine._instance.getDevice();
-        // const context = WebGPURenderEngine._instance._context;
-
-        // // 创建命令编码器
-        // const commandEncoder = device.createCommandEncoder();
-        // const textureView = context.getCurrentTexture().createView();
-        // const depthTexture = device.createTexture({
-        //     size: { width: this._viewPort.width, height: this._viewPort.height, depthOrArrayLayers: 1 },
-        //     format: 'depth24plus-stencil8',
-        //     usage: GPUTextureUsage.RENDER_ATTACHMENT,
-        // });
-
-        // const renderPassDescriptor = {
-        //     colorAttachments: [{
-        //         view: textureView,
-        //         loadOp: 'clear' as GPULoadOp,
-        //         storeOp: 'store' as GPUStoreOp,
-        //         clearValue: { r: 0, g: 1, b: 0, a: 1 },
-        //     }],
-        //     depthStencilAttachment: {
-        //         view: depthTexture.createView(),
-        //         depthLoadOp: 'clear' as GPULoadOp,
-        //         depthStoreOp: 'store' as GPUStoreOp,
-        //         depthClearValue: 1,
-        //         stencilLoadOp: 'clear' as GPULoadOp,
-        //         stencilStoreOp: 'store' as GPUStoreOp,
-        //         stencilClearValue: 0,
-        //     }
-        // };
-
-        // // 开始渲染传递
-        // const passEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
-        // passEncoder.end();
-
-        // // 提交命令队列
-        // device.queue.submit([commandEncoder.finish()]);
     }
 }

@@ -27,6 +27,10 @@ import { MeshFilter } from "laya/d3/core/MeshFilter";
 import { MeshRenderer } from "laya/d3/core/MeshRenderer";
 import { UnlitMaterial } from "laya/d3/core/material/UnlitMaterial";
 import { Color } from "laya/maths/Color";
+import { Material } from "laya/resource/Material";
+import { Quaternion } from "laya/maths/Quaternion";
+import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
+import { ScreenQuad } from "laya/d3/core/render/ScreenQuad";
 
 export class WebGPUTest {
     rotation: Vector3 = new Vector3(0, 0.01, 0);
@@ -47,52 +51,62 @@ export class WebGPUTest {
             Laya3DRender.Render3DPassFactory = new WebGL3DRenderPassFactory();
         }
 
-        Laya.init(0, 0).then(() => {
+        Laya.init(0, 0).then(async () => {
             Laya.stage.scaleMode = Stage.SCALE_FULL;
             Laya.stage.screenMode = Stage.SCREEN_NONE;
             //Stat.show();
+
+            await Laya.loader.load("res/testMaterial/UnLight.shader");
 
             const scene: Scene3D = (<Scene3D>Laya.stage.addChild(new Scene3D()));
 
             const camera: Camera = (<Camera>(scene.addChild(new Camera(0, 0.1, 100))));
             camera.transform.translate(new Vector3(0, 0.5, 1.5));
             camera.transform.rotate(new Vector3(-15, 0, 0), true, false);
-            camera.clearColor = Color.RED;
+            camera.clearColor = Color.BLUE;
             camera.clearFlag = CameraClearFlags.SolidColor;
             camera.addComponent(CameraMoveScript);
 
-            const directlightSprite = new Sprite3D();
-            const dircom = directlightSprite.addComponent(DirectionLightCom);
-            scene.addChild(directlightSprite);
-            dircom.color.setValue(1, 1, 1, 1);
+            // const directlightSprite = new Sprite3D();
+            // const dircom = directlightSprite.addComponent(DirectionLightCom);
+            // scene.addChild(directlightSprite);
+            // dircom.color.setValue(1, 1, 1, 1);
 
-            // //创建一个SphereMesh
-            // const sphereMesh: Mesh = PrimitiveMesh.createSphere();
+            const sphereMesh: Mesh = PrimitiveMesh.createSphere(0.5);
+            const boxMesh = PrimitiveMesh.createBox(0.5, 0.5, 0.5);
 
             // const earth1 = scene.addChild(new Sprite3D());
             // const meshFilter1 = earth1.addComponent(MeshFilter);
             // const meshRenderer1 = earth1.addComponent(MeshRenderer);
             // meshFilter1.sharedMesh = sphereMesh;
-            // earth1.transform.position = new Vector3(-0.6, 0, 0);
+            // earth1.transform.position = new Vector3(-0.5, 0, 0);
+            // meshRenderer1.castShadow = false;
+            // meshRenderer1.receiveShadow = false;
 
-            // const earth2 = scene.addChild(new Sprite3D());
-            // const meshFilter2 = earth2.addComponent(MeshFilter);
-            // const meshRenderer2 = earth2.addComponent(MeshRenderer);
-            // meshFilter2.sharedMesh = sphereMesh;
-            // earth2.transform.position = new Vector3(0.6, 0, 0);
+            const earth2 = scene.addChild(new Sprite3D());
+            const meshFilter2 = earth2.addComponent(MeshFilter);
+            const meshRenderer2 = earth2.addComponent(MeshRenderer);
+            meshFilter2.sharedMesh = boxMesh;
+            earth2.transform.position = new Vector3(0, 0, 0);
 
-            // const material = new BlinnPhongMaterial();
-            // //const material = new UnlitMaterial();
-            // //漫反射贴图
-            // Texture2D.load("res/threeDimen/texture/earth.jpg", Handler.create(this, (texture: Texture2D) => {
-            //     material.albedoTexture = texture;
-            // }));
-            // meshRenderer2.material = material;
+            //const material = new BlinnPhongMaterial();
+            const material = new UnlitMaterial();
+            //const material = new Material();
+            //material.setShaderName('UnLight');
+            //漫反射贴图
+            Texture2D.load("res/threeDimen/texture/earth.jpg", Handler.create(this, (texture: Texture2D) => {
+                material.albedoTexture = texture;
+                //material.setTexture('u_AlbedoTexture', texture);
+                //material.addDefine(Shader3D.getDefineByName('ALBEDOTEXTURE'));
+            }));
+            meshRenderer2.material = material;
+            meshRenderer2.castShadow = false;
+            meshRenderer2.receiveShadow = false;
 
-            // Laya.timer.frameLoop(1, this, () => {
-            //     earth1.transform.rotate(this.rotation, false);
-            //     earth2.transform.rotate(this.rotation, false);
-            // });
+            Laya.timer.frameLoop(1, this, () => {
+                //earth1.transform.rotate(this.rotation, false);
+                earth2.transform.rotate(this.rotation, false);
+            });
         });
     }
 }

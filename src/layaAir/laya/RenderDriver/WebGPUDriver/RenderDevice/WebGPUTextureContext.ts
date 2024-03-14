@@ -709,12 +709,14 @@ export class WebGPUTextureContext implements ITextureContext {
         internalRT._textures[0].resource = gpuColorTexture;
         internalRT._textures[0]._webGPUFormat = gpuColorFormat;
 
-        const gpuDepthFormat = this._getGPURenderTargetFormat(depthStencilFormat, false);
-        const gpuDepthDescriptor = this._getGPUTextureDescriptor(TextureDimension.Tex2D, width, height, gpuDepthFormat, 1, false);
-        const gpuDepthTexture = this._engine.getDevice().createTexture(gpuDepthDescriptor);
-        internalRT._depthTexture = new WebGPUInternalTex(width, height, 1, TextureDimension.Tex2D, false, false, 1);
-        internalRT._depthTexture.resource = gpuDepthTexture;
-        internalRT._depthTexture._webGPUFormat = gpuDepthFormat;
+        if (depthStencilFormat != RenderTargetFormat.None) {
+            const gpuDepthFormat = this._getGPURenderTargetFormat(depthStencilFormat, false);
+            const gpuDepthDescriptor = this._getGPUTextureDescriptor(TextureDimension.Tex2D, width, height, gpuDepthFormat, 1, false);
+            const gpuDepthTexture = this._engine.getDevice().createTexture(gpuDepthDescriptor);
+            internalRT._depthTexture = new WebGPUInternalTex(width, height, 1, TextureDimension.Tex2D, false, false, 1);
+            internalRT._depthTexture.resource = gpuDepthTexture;
+            internalRT._depthTexture._webGPUFormat = gpuDepthFormat;
+        }
 
         WebGPURenderPassHelper.setColorAttachments(internalRT._renderPassDescriptor, internalRT._textures, true);
         WebGPURenderPassHelper.setDepthAttachments(internalRT._renderPassDescriptor, internalRT._depthTexture, true);

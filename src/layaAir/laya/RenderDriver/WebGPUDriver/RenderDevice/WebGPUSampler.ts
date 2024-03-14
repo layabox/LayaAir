@@ -72,7 +72,7 @@ export class WebGPUSampler {
     }
 
     private _createGPUSampler(params: WebGPUSamplerParams): GPUSampler {
-        this._descriptor = this._getSamplerDescriptor(params)
+        this._descriptor = this._getSamplerDescriptor(params);
         return WebGPURenderEngine._instance.getDevice().createSampler(this._descriptor);
     }
 

@@ -4,26 +4,24 @@ import { IIndexBuffer } from "../../DriverDesign/RenderDevice/IIndexBuffer";
 import { WebGPUBuffer, WebGPUBufferUsage } from "./WebGPUBuffer";
 
 export class WebGPUIndexBuffer implements IIndexBuffer {
-    _source: WebGPUBuffer;
+    source: WebGPUBuffer;
     indexType: IndexFormat;
     indexCount: number;
+
     constructor(targetType: BufferTargetType, bufferUsageType: BufferUsage) {
         let usage = WebGPUBufferUsage.INDEX | WebGPUBufferUsage.COPY_DST;
-        this._source = new WebGPUBuffer(usage, 0);
+        this.source = new WebGPUBuffer(usage, 0);
     }
 
     destroy(): void {
-        this._source.release();
+        this.source.release();
     }
 
-    _setIndexDataLength(data: number): void {
-        this._source.setDataLength(data);
+    _setIndexDataLength(length: number): void {
+        this.source.setDataLength(length);
     }
-    
+
     _setIndexData(data: Uint8Array | Uint16Array | Uint32Array, bufferOffset: number): void {
-        this._source.setData(data, bufferOffset);
-
+        this.source.setData(data, bufferOffset);
     }
-
-
 }

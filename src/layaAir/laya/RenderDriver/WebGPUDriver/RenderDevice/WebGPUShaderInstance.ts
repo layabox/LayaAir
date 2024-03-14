@@ -49,8 +49,6 @@ export class WebGPUShaderInstance implements IShaderInstance {
 
         //生成pipeLineLayout
         const pipelineLayout = this._createPipelineLayout(device, 'pipelineLayout', shaderObj.uniformInfo);
-        //this._pipelineLayout = pipelineLayout;
-        //this.bindGroupLayouts = bindGroupLayouts;
 
         //建立uniform资源
         this.uniformBuffers = this._createUniformBuffers(shaderObj.uniformInfo);
@@ -165,6 +163,7 @@ export class WebGPUShaderInstance implements IShaderInstance {
                     (desc.entries as GPUBindGroupLayoutEntry[]).push(entry);
                 }
             }
+            console.log(desc);
             return device.createBindGroupLayout(desc);
         }
 
@@ -189,7 +188,7 @@ export class WebGPUShaderInstance implements IShaderInstance {
                 info.sn = uniformBuffer.block.sn;
                 for (let i = 0, len = info.uniform.items.length; i < len; i++) {
                     const uniform = info.uniform.items[i];
-                    uniformBuffer.addUniform(uniform.id, uniform.type, uniform.offset, uniform.align, uniform.size, uniform.elements, uniform.count);
+                    uniformBuffer.addUniform(uniform.id, uniform.name, uniform.type, uniform.offset, uniform.align, uniform.size, uniform.elements, uniform.count);
                 }
                 return uniformBuffer;
             }
