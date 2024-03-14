@@ -13,8 +13,9 @@ import { ICharRender } from "./ICharRender"
 import { ILaya } from "../../../ILaya";
 import { Const } from "../../Const";
 import { IFontMeasure } from "./MeasureFont";
+import { EventDispatcher } from "../../events/EventDispatcher";
 
-export class TextRender {
+export class TextRender extends EventDispatcher{
     //config
     static useOldCharBook = false;
     static atlasWidth = 1024;
@@ -72,6 +73,7 @@ export class TextRender {
     private _fontMeasure:IFontMeasure=null;
 
     constructor() {
+        super();
         var bugIOS = false;//是否是有bug的ios版本
         //在微信下有时候不显示文字，所以采用canvas模式，现在测试微信好像都好了，所以去掉了。
         var miniadp: any = ILaya.Laya['MiniAdpter']; //头条也继承了这个bug
@@ -590,6 +592,7 @@ export class TextRender {
                 curatlas.destroy();
                 this.textAtlases[maxWasteRateID] = this.textAtlases[this.textAtlases.length - 1];
                 this.textAtlases.length = this.textAtlases.length - 1;
+                this.event('GC');
             }
         }
 

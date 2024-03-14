@@ -169,7 +169,13 @@ export class TextTexture extends Texture2D {
      * 这个是基于贴图的，更简单，效率更高
      */
     touchTexture(){
-        this.lastTouchTm = RenderInfo.loopCount;
+        let frame = RenderInfo.loopCount;
+        if (this.lastTouchTm != frame) {
+            //每帧都重新统计覆盖率
+            this.curUsedCovRate = 0;
+            this.curUsedCovRateAtlas = 0;
+            this.lastTouchTm = frame;
+        }
     }
 
     touchRect(ri: CharRenderInfo, frame: number): void {
