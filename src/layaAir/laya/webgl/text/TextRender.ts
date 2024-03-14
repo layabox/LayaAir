@@ -13,6 +13,7 @@ import { ICharRender } from "./ICharRender"
 import { ILaya } from "../../../ILaya";
 import { Const } from "../../Const";
 import { BaseTexture } from "../../resource/BaseTexture";
+import { WebGLCacheAsNormalCanvas } from "../canvas/WebGLCacheAsNormalCanvas";
 
 export class TextRender {
     //config
@@ -198,18 +199,18 @@ export class TextRender {
         font._italic && (ctx._italicDeg = 13);
         //准备bmp
         //拷贝到texture上,得到一个gltexture和uv
-        var wt = <WordText>data;
-        var isWT = data instanceof WordText;
-        var str = data && data.toString();//(<string>data);guo 某种情况下，str还是WordText（没找到为啥），这里保护一下
+        let wt = <WordText>data;
+        let isWT = data instanceof WordText;
+        let str = data && data.toString();//(<string>data);guo 某种情况下，str还是WordText（没找到为啥），这里保护一下
 
         /**
          * sameTexData 
          * WordText 中保存了一个数组，这个数组是根据贴图排序的，目的是为了能相同的贴图合并。
          * 类型是 {ri:CharRenderInfo,stx:int,sty:int,...}[文字个数][贴图分组]
          */
-        var sameTexData: any[] = isWT ? wt.pageChars : [];
+        let sameTexData: any[] = isWT ? wt.pageChars : [];
 
-        var strWidth = 0;
+        let strWidth = 0;
         if (isWT) {
             str = wt.text;
             strWidth = wt.width;
@@ -241,9 +242,8 @@ export class TextRender {
             // 	sameTexData = wt.pageChars = [];
             // }
         }
-        var ri: CharRenderInfo = null;
         //var oneTex: boolean = isWT || TextRender.forceWholeRender;	// 如果能缓存的话，就用一张贴图
-        var splitTex = this.renderPerChar = (!isWT) || TextRender.forceSplitRender || (isWT && wt.splitRender); 	// 拆分字符串渲染，这个优先级高
+        let splitTex = this.renderPerChar = (!isWT) || TextRender.forceSplitRender || (isWT && wt.splitRender); 	// 拆分字符串渲染，这个优先级高
         if (!sameTexData || sameTexData.length < 1) {
             if (isWT) {
                 wt.scalex = this.fontScaleX;
@@ -253,16 +253,16 @@ export class TextRender {
             // TODO 还是要ctx.scale么
             if (splitTex) {
                 // 如果要拆分字符渲染
-                var stx = 0;
-                var sty = 0;
+                let stx = 0;
+                let sty = 0;
 
                 this._curStrPos = 0;
-                var curstr: string | null;
+                let curstr: string | null;
                 while (true) {
                     curstr = this.getNextChar(str);
                     if (!curstr)
                         break;
-                    ri = this.getCharRenderInfo(curstr, font, color, strokeColor, lineWidth, false);
+                    let ri = this.getCharRenderInfo(curstr, font, color, strokeColor, lineWidth, false);
                     if (!ri) {
                         // 没有分配到。。。
                         break;
@@ -272,7 +272,7 @@ export class TextRender {
                         //分组保存
                         var add = sameTexData[ri.texture.id];
                         if (!add) {
-                            var o1 = { texgen: (<TextTexture>ri.texture).genID, tex: ri.texture, words: new Array() };	// 根据genid来减少是否释放的判断量
+                            var o1 = { texgen: ri.texture.genID, tex: ri.texture, words: new Array() };	// 根据genid来减少是否释放的判断量
                             sameTexData[ri.texture.id] = o1;
                             add = o1.words;
                         } else {
@@ -286,11 +286,11 @@ export class TextRender {
 
             } else {
                 // 如果要整句话渲染
-                var margin = (font._size / 3 | 0);  // margin保持与charrender_canvas的一致
-                var isotex = TextRender.noAtlas || (strWidth + margin + margin) * this.fontScaleX > TextRender.atlasWidth;	// 独立贴图还是大图集。需要考虑margin
-                ri = this.getCharRenderInfo(str, font, color, strokeColor, lineWidth, isotex);
+                let margin = (font._size / 3 | 0);  // margin保持与charrender_canvas的一致
+                let isotex = TextRender.noAtlas || (strWidth + margin + margin) * this.fontScaleX > TextRender.atlasWidth;	// 独立贴图还是大图集。需要考虑margin
+                let ri = this.getCharRenderInfo(str, font, color, strokeColor, lineWidth, isotex);
                 // 整句渲染，则只有一个贴图
-                sameTexData[0] = { texgen: (<TextTexture>ri.texture).genID, tex: ri.texture, words: [{ ri: ri, x: 0, y: 0, w: ri.bmpWidth / this.fontScaleX, h: ri.bmpHeight / this.fontScaleY }] };
+                sameTexData[0] = { texgen: ri.texture.genID, tex: ri.texture, words: [{ ri: ri, x: 0, y: 0, w: ri.bmpWidth / this.fontScaleX, h: ri.bmpHeight / this.fontScaleY }] };
             }
             isWT && (wt.pagecharsCtx = ctx);
             //TODO getbmp 考虑margin 字体与标准字体的关系
@@ -306,34 +306,31 @@ export class TextRender {
      * @param  startx 保存的数据是相对位置，所以需要加上这个偏移。用相对位置更灵活一些。
      * @param y {int} 因为这个只能画在一行上所以没有必要保存y。所以这里再把y传进来
      */
-    protected _drawResortedWords(ctx: Context, startx: number, starty: number, samePagesData: any[]): void {
+    protected _drawResortedWords(ctx: Context, startx: number, starty: number, samePagesData: {[key:number]:any}): void {
         var isLastRender = ctx._charSubmitCache ? ctx._charSubmitCache._enable : false;
         var mat = ctx._curMat;
-        //var slen = samePagesData.length;
-        //for (var id = 0; id < slen; id++) {
-        for (var id in samePagesData) {// TODO samePagesData可能是个不连续的数组，比如只有一个samePagesData[29999] = dt;
-            // TODO 想个更好的方法
+        //samePagesData可能是个不连续的数组，比如只有一个samePagesData[29999] = dt; 所以不要用普通for循环
+        for (var id in samePagesData) {
             var dt = samePagesData[id];
             if (!dt) continue;
             var pri: any[] = dt.words;
-            var pisz = pri.length; if (pisz <= 0) continue;
-            var tex = <BaseTexture>samePagesData[id].tex;
-            for (var j = 0; j < pisz; j++) {
+            var count = pri.length; if (count <= 0) continue;
+            var tex = <TextTexture>samePagesData[id].tex;
+            for (var j = 0; j < count; j++) {
                 var riSaved: any = pri[j];
                 var ri: CharRenderInfo = riSaved.ri;
                 if (ri.isSpace) continue;
-                ri.touch();
+                ctx.touchRes(ri);
                 ctx.drawTexAlign = true;
-                //ctx._drawTextureM(ri.tex.texture as Texture, startx +riSaved.x -ri.orix / fontScaleX , starty + riSaved.y -ri.oriy / fontScaleY , riSaved.w, riSaved.h, null, 1.0, ri.uv);
 
-                ctx._inner_drawTexture(tex as BaseTexture, tex.id,
+                ctx._inner_drawTexture(tex, tex.id,
                     startx + riSaved.x - ri.orix, starty + riSaved.y - ri.oriy, riSaved.w, riSaved.h,
                      mat, ri.uv, 1.0, isLastRender, 0xffffffff);
                 
 
-                if ((<any>ctx).touches) {
-                    (<any>ctx).touches.push(ri);
-                }
+                // if ((ctx as unknown as WebGLCacheAsNormalCanvas).touches) {
+                //     (<any>ctx).touches.push(ri);
+                // }
             }
         }
         //不要影响别人
@@ -510,7 +507,6 @@ export class TextRender {
         var sz = this.textAtlases.length;
         var dt = 0;
         var destroyDt = TextRender.destroyAtlasDt;
-        var totalUsedRate = 0;	// 总使用率
         var totalUsedRateAtlas = 0;
         var curloop = RenderInfo.loopCount;
 
@@ -525,7 +521,6 @@ export class TextRender {
             curatlas = this.textAtlases[i];
             tex = curatlas.texture;
             if (tex) {
-                totalUsedRate += tex.curUsedCovRate;
                 totalUsedRateAtlas += tex.curUsedCovRateAtlas;
                 // 浪费掉的图集
                 // (已经占用的图集和当前使用的图集的差。图集不可局部重用，所以有占用的和使用的的区别)
@@ -587,7 +582,7 @@ export class TextRender {
             }
         }
 
-        TextTexture.clean();
+        //TextTexture.clean();
     }
 
     /**

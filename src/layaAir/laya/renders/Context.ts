@@ -48,6 +48,7 @@ import { MeshTexture } from "../webgl/utils/MeshTexture";
 import { MeshVG } from "../webgl/utils/MeshVG";
 import { RenderState2D } from "../webgl/utils/RenderState2D";
 import { Render2D, Render2DSimple } from "./Render2D";
+import { IAutoExpiringResource } from "./ResNeedTouch";
 
 const defaultClipMatrix = new Matrix(Const.MAX_CLIP_SIZE, 0, 0, Const.MAX_CLIP_SIZE, 0, 0);
 
@@ -140,7 +141,6 @@ export class Context {
     _saveMark: SaveMark | null = null;
     /**@internal */
     private _shader2D = new Shader2D();	//
-
 
     /**
      * 所cacheAs精灵
@@ -263,6 +263,14 @@ export class Context {
 
     /**@private */
     set miterLimit(value: string) {
+    }
+
+    /**
+     * 添加需要touch的资源
+     * @param res 
+     */
+    touchRes(res:IAutoExpiringResource){
+        res.touch();
     }
 
     /**@private */

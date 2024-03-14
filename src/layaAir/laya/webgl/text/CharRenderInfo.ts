@@ -1,9 +1,11 @@
 import { RenderInfo } from "../../renders/RenderInfo"
+import { IAutoExpiringResource } from "../../renders/ResNeedTouch";
 import { TextTexture } from "./TextTexture";
 /**
  * TODO如果占用内存较大,这个结构有很多成员可以临时计算
  */
-export class CharRenderInfo {
+export class CharRenderInfo implements IAutoExpiringResource{
+    isRandomTouch=true;
     char = '';	    			// 调试用
     texture: TextTexture;
     deleted = false; 	        // 已经被删除了
