@@ -11,6 +11,8 @@ export class BTNode implements IClone {
      */
     id: string;
 
+    nid: number;
+
     parentNode: BTCompositeNode;
 
     name: string;
@@ -26,8 +28,8 @@ export class BTNode implements IClone {
         this.id = this.constructor.name + BTNode.ID++;
     }
 
-    parse(config: any, btConfig: any) {
-        
+    parse(config: any) {
+
     }
 
     onAdd(parentNode: BTCompositeNode) {
