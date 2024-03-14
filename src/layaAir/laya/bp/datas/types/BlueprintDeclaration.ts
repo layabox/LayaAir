@@ -117,6 +117,8 @@ export type TBPDeclarationFunction = {
     params?: TBPDeclarationParam[];
     /** 方法的返回类型 */
     returnType: string | any[];
+    /** 方法的返回注释 */
+    returnTips?: string;
     /** 泛型 */
     typeParameters?: any;
     /** 注册的原始方法 */
