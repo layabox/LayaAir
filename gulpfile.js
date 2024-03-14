@@ -222,6 +222,7 @@ const packsDef = [{
             "./layaAir/laya/bp/core/**/*.*",
             "./layaAir/laya/bp/datas/**/*.*",
             "./layaAir/laya/bp/export/**/*.*",
+            "./layaAir/laya/bp/express/**/*.*",
             "./layaAir/laya/bp/runtime/**/*.*",
         ],
     },

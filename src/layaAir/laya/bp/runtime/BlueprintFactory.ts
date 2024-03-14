@@ -140,6 +140,7 @@ export class BlueprintFactory {
             //  this.regFunction("waitTime", BlueprintStaticFun.waitTime);
             this.regFunction("get", BlueprintStaticFun.getVariable);
             this.regFunction("static_get", BlueprintStaticFun.getVariable);
+            this.regFunction("get_self", BlueprintStaticFun.getSelf);
             this.regFunction("set", BlueprintStaticFun.setVariable);
             this.regFunction("tmp_get", BlueprintStaticFun.getTempVar);
             this.regFunction("tmp_set", BlueprintStaticFun.setTempVar);
@@ -160,6 +161,8 @@ export class BlueprintFactory {
         function classFactory(className: string, SuperClass: any) {
             return {
                 [className]: class extends SuperClass implements IBluePrintSubclass {
+                    static [BlueprintFactory.contextSymbol]: IRunAble;
+
                     __eventList__: string[];
                     [BlueprintFactory.bpSymbol]: BlueprintRuntime;
                     [BlueprintFactory.contextSymbol]: IRunAble;
@@ -216,7 +219,7 @@ export class BlueprintFactory {
         }
 
         let newClass = classFactory(name, cls);
-
+        newClass[BlueprintFactory.contextSymbol] = new BlueprintFactory.BPExcuteCls(newClass);
         BlueprintUtil.regClass(name, newClass);
         let bp = newClass.prototype[BlueprintFactory.bpSymbol] = new BlueprintFactory.BPRuntimeCls();
         bp.dataMap = data.dataMap;
@@ -254,7 +257,7 @@ export class BlueprintFactory {
         let cls = BlueprintFactory._bpMap.get(config.type) || BlueprintRuntimeBaseNode;
         let result = new cls();
         result.nid = item.id;
-        if(item.autoReg){
+        if (item.autoReg) {
             (result as BlueprintEventNode).autoReg = item.autoReg;
         }
         result.parse(config);

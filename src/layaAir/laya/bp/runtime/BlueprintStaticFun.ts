@@ -6,6 +6,8 @@ import { BTTaskBluePrintBase } from "../../bt/tasks/BTTaskBluePrintBase";
 import { Node } from "../../display/Node";
 import { IBluePrintSubclass } from "../core/interface/IBluePrintSubclass";
 import { IRuntimeDataManger } from "../core/interface/IRuntimeDataManger";
+import { ExpressParse } from "../express/ExpressParse";
+import { ExpressTree } from "../express/ExpressTree";
 import { BlueprintFactory } from "./BlueprintFactory";
 import { BlueprintPinRuntime } from "./BlueprintPinRuntime";
 import { IBPRutime } from "./interface/IBPRutime";
@@ -72,6 +74,16 @@ export class BlueprintStaticFun {
                 return target[name];
             }
         }
+    }
+    /**
+    * @private
+    * @param target 
+    * @param name 
+    * @param context 
+    * @returns 
+    */
+    static getSelf(name: string, context: IRunAble): any {
+        return context.getSelf();
     }
     /**
      * @private
@@ -272,13 +284,27 @@ export class BlueprintStaticFun {
             return outExcutes[1].excute(context, runtimeDataMgr, runner, runId);
         }
     }
+    /**
+     * 执行表达式
+     * @param express 
+     * @param a 
+     * @param b 
+     * @param c 
+     * @returns 
+     */
+    static runExpress(express: string, a: any, b: any, c: any): any {
+        debugger;
+        let expressTree = ExpressParse.instance.parse(express);
+        let context = { a: a, b: b, c: c, Math: Math };
+        return expressTree.call(context);
+    }
 
     static runBehaviorTree<T extends BehaviorTree>(owner: Node, behaviorTree: new () => T, excution?: number) {
         let bt: BehaviorTreeComponent = owner.getComponent(BehaviorTreeComponent);
         if (!bt) {
             bt = owner.addComponent(BehaviorTreeComponent);
         }
-        if((behaviorTree as any).blackboardAsset){
+        if ((behaviorTree as any).blackboardAsset) {
             let bb = new BlackboardComponent();
             bb.init((behaviorTree as any).blackboardAsset);
             bt.blackBoradComp = bb;
