@@ -4,6 +4,7 @@ import { Sprite } from "../display/Sprite";
 import { Vector2 } from "../maths/Vector2";
 import { Stat } from "../utils/Stat";
 import { Value2D } from "../webgl/shader/d2/value/Value2D";
+import { TextTexture } from "../webgl/text/TextTexture";
 import { Context } from "./Context";
 import { IMesh2D } from "./Render2D";
 import { RenderSprite } from "./RenderSprite";
@@ -60,6 +61,9 @@ export class SpriteCache{
         cacheResult.forEach(renderinfo=>{
             let render = context.render2D;
             let curMtl = renderinfo.mtl;
+            if(curMtl.textureHost instanceof TextTexture){
+                curMtl.textureHost.touchTexture();
+            }
             //通过context的裁剪，透明，矩阵等参数修改当前材质
             //TODO
             vec21.setValue(context.width, context.height);

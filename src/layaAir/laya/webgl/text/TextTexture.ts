@@ -161,12 +161,20 @@ export class TextTexture extends Texture2D {
         }
     }
 
-    touchRect(ri: CharRenderInfo, curloop: number): void {
-        if (this.lastTouchTm != curloop) {
-            //每帧的第一次覆盖率都清零，然后随着touch覆盖率逐渐增加
+    /**
+     * 这个贴图被当前帧使用了。
+     * 这个是基于贴图的，更简单，效率更高
+     */
+    touchTexture(){
+        this.lastTouchTm = RenderInfo.loopCount;
+    }
+
+    touchRect(ri: CharRenderInfo, frame: number): void {
+        if (this.lastTouchTm != frame) {
+            //每帧都重新统计覆盖率
             this.curUsedCovRate = 0;
             this.curUsedCovRateAtlas = 0;
-            this.lastTouchTm = curloop;
+            this.lastTouchTm = frame;
         }
         var texw2 = TextRender.atlasWidth * TextRender.atlasWidth;
         var gridw2 = TextAtlas.atlasGridW * TextAtlas.atlasGridW;

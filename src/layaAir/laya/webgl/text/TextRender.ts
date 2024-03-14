@@ -270,10 +270,10 @@ export class TextRender {
                     if (ri.isSpace) {	// 空格什么都不做
                     } else {
                         //分组保存
-                        var add = sameTexData[ri.tex.id];
+                        var add = sameTexData[ri.texture.id];
                         if (!add) {
-                            var o1 = { texgen: ((<TextTexture>ri.tex)).genID, tex: ri.tex, words: new Array() };	// 根据genid来减少是否释放的判断量
-                            sameTexData[ri.tex.id] = o1;
+                            var o1 = { texgen: (<TextTexture>ri.texture).genID, tex: ri.texture, words: new Array() };	// 根据genid来减少是否释放的判断量
+                            sameTexData[ri.texture.id] = o1;
                             add = o1.words;
                         } else {
                             add = add.words;
@@ -290,7 +290,7 @@ export class TextRender {
                 var isotex = TextRender.noAtlas || (strWidth + margin + margin) * this.fontScaleX > TextRender.atlasWidth;	// 独立贴图还是大图集。需要考虑margin
                 ri = this.getCharRenderInfo(str, font, color, strokeColor, lineWidth, isotex);
                 // 整句渲染，则只有一个贴图
-                sameTexData[0] = { texgen: ((<TextTexture>ri.tex)).genID, tex: ri.tex, words: [{ ri: ri, x: 0, y: 0, w: ri.bmpWidth / this.fontScaleX, h: ri.bmpHeight / this.fontScaleY }] };
+                sameTexData[0] = { texgen: (<TextTexture>ri.texture).genID, tex: ri.texture, words: [{ ri: ri, x: 0, y: 0, w: ri.bmpWidth / this.fontScaleX, h: ri.bmpHeight / this.fontScaleY }] };
             }
             isWT && (wt.pagecharsCtx = ctx);
             //TODO getbmp 考虑margin 字体与标准字体的关系
@@ -350,7 +350,7 @@ export class TextRender {
         for (let i in txts) {
             var pri = txts[i];
             if (!pri) continue;
-            var tex = (<TextTexture>pri.tex);
+            var tex = <TextTexture>pri.tex;
             if (tex.destroyed || tex.genID != pri.texgen) {
                 return true;
             }
@@ -419,7 +419,7 @@ export class TextRender {
             if (imgdt) {
                 var tex = TextTexture.getTextTexture(imgdt.width, imgdt.height);
                 tex.addChar(imgdt, 0, 0, ri.uv);
-                ri.tex = tex;
+                ri.texture = tex;
                 ri.orix = margin; // 这里是原始的，不需要乘scale,因为scale的会创建一个scale之前的rect
                 ri.oriy = margin;
                 tex.ri = ri;
@@ -497,7 +497,7 @@ export class TextRender {
         }
         if (find) {
             atlas.texture.addChar(data, this.tmpAtlasPos.x, this.tmpAtlasPos.y, ri.uv);
-            ri.tex = atlas.texture;
+            ri.texture = atlas.texture;
         }
         return atlas;
     }
@@ -564,7 +564,7 @@ export class TextRender {
             dt = curloop - tex.lastTouchTm;
             if (dt > TextRender.destroyUnusedTextureDt) {
                 tex.ri.deleted = true;
-                tex.ri.tex = null;
+                tex.ri.texture = null;
                 // 直接删除，不回收
                 tex.destroy();
                 this.isoTextures[i] = this.isoTextures[sz - 1];
