@@ -80,13 +80,13 @@ export abstract class BTExecutableNode extends BTNode {
     parseAuxiliary(config: any, btConfig: any) {
         if (config.decorators) {
             config.decorators.forEach((value: any) => {
-                let node = BehaviorTreeFactory.instance.createNew(btConfig[value], btConfig) as BTDecorator;
+                let node = BehaviorTreeFactory.instance.createNew(btConfig[value]) as BTDecorator;
                 this.addDecorator(node);
             })
         }
         if (config.services) {
             config.services.forEach((value: any) => {
-                let node = BehaviorTreeFactory.instance.createNew(btConfig[value], btConfig) as BTService;
+                let node = BehaviorTreeFactory.instance.createNew(btConfig[value]) as BTService;
                 this.addService(node);
             })
         }

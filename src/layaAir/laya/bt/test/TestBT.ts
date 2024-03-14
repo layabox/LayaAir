@@ -136,7 +136,8 @@ export class TestBT {
 
         let bb = this.createBlackBoard();
         // let btTree = this.createSimpleTree(bb);
-        let btTree = this.createSimpleCompose(bb);
+        // let btTree = this.createSimpleCompose(bb);
+        let btTree = this.createSimpleTree2(bb);
 
         let bbc = new BlackboardComponent();
         bbc.init(btTree.blackboardAsset);
@@ -316,7 +317,43 @@ export class TestBT {
         btTree.rootNode = sq;
         btTree.blackboardAsset = bb;
         return btTree;
+    }
 
+    createSimpleTree2(bb: BlackboardData): BehaviorTree {
+        let st = new BTCompositeSelector();
+        st.name = "Selector";
 
+        let btFalse = new BTTaskFinishWithResult();
+        btFalse.name = "btFalse";
+        btFalse.result = EBTNodeResult.Failed;
+
+        let test = new BTTaskTest();
+        test.name = "test";
+
+        let wait1 = new BTTaskWait();
+        wait1.waitTime = 1;
+        wait1.name = "wait1"
+
+        let test1 = new BTTaskTest();
+        test1.name = "test1";
+
+        let btTrue = new BTTaskFinishWithResult();
+        btTrue.name = "btTrue";
+        btTrue.result = EBTNodeResult.Succeeded;
+
+        let test2 = new BTTaskTest();
+        test2.name = "test2";
+
+        st.addChild(btFalse);
+        st.addChild(test);
+        st.addChild(wait1);
+        st.addChild(test1);
+        st.addChild(btTrue);
+        st.addChild(test2);
+
+        let bt = new BehaviorTree();
+        bt.rootNode = st;
+        bt.blackboardAsset = bb;
+        return bt;
     }
 }

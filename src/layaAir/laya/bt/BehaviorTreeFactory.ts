@@ -2,9 +2,15 @@ import { BTCompositeSelector } from "./composites/BTCompositeSelector";
 import { BTCompositeSequence } from "./composites/BTCompositeSequence";
 import { BTSimpleParallel } from "./composites/BTSimpleParallel";
 import { BTNode } from "./core/BTNode";
-import { BTType } from "./core/BehaviorTreeTypes";
+import { BTType, TBTNode } from "./datas/types/BehaviorTreeTypes";
 import { BTBlackBorad } from "./decorators/BTBlackBorad";
+import { BTCompareBBEntries } from "./decorators/BTCompareBBEntries";
+import { BTConditionalLoop } from "./decorators/BTConditionalLoop";
+import { BTCooldown } from "./decorators/BTCooldown";
+import { BTDecoratorBluePrintBase } from "./decorators/BTDecoratorBluePrintBase";
+import { BTForceSuccess } from "./decorators/BTForceSuccess";
 import { BTLoop } from "./decorators/BTLoop";
+import { BTServiceBluePrintBase } from "./services/BTServiceBluePrintBase";
 import { TestService } from "./services/TestService";
 import { BTTaskBluePrintBase } from "./tasks/BTTaskBluePrintBase";
 import { BTTaskFinishWithResult } from "./tasks/BTTaskFinishWithResult";
@@ -29,11 +35,18 @@ export class BehaviorTreeFactory {
         this.regBTClass(BTType.Sequence, BTCompositeSequence);
 
         this.regBTClass(BTType.Loop, BTLoop);
+        this.regBTClass(BTType.Cooldown, BTCooldown);
         this.regBTClass(BTType.BlackBorad, BTBlackBorad);
+        this.regBTClass(BTType.ForceSuccess, BTForceSuccess);
+        this.regBTClass(BTType.ConditionalLoop, BTConditionalLoop);
+        this.regBTClass(BTType.CompareBBEntries, BTCompareBBEntries);
 
         TestService;
 
+        BTDecoratorBluePrintBase;
+        BTServiceBluePrintBase;
         BTTaskBluePrintBase;
+        
         this.regBTClass(BTType.Test, BTTaskTest);
         this.regBTClass(BTType.Wait, BTTaskWait);
         this.regBTClass(BTType.RunBehavior, BTTaskRunBehavior);
@@ -44,10 +57,11 @@ export class BehaviorTreeFactory {
         this._btMap.set(type, cls);
     }
 
-    createNew(config: any, btConfig: any) {
+    createNew(config: TBTNode) {
         let cls = BehaviorTreeFactory._btMap.get(config.cid);
         let result = new cls();
-        result.parse(config, btConfig);
+        result.nid = config.id;
+        result.parse(config);
         return result;
     }
 

@@ -142,11 +142,12 @@ export interface BPConstNode {
     // events?: Record<string, TBPEventProperty>,
     // construct?: Record<string, TBPCNode>,
     data: Record<string, TBPCNode | TBPVarProperty | TBPEventProperty>,
-    caption?:string,
+    caption?: string,
 }
 
 
 export interface TBPCNode {
+    isSelf?: boolean,
     /**程序中用到的名字 */
     name: string,
     /** */
