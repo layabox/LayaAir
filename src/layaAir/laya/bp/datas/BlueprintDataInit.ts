@@ -21,6 +21,23 @@ export const BlueprintDataList: TBPCNode[] = [
         ],
     },
     {
+        name: "get_self",
+        aliasName: "GetSelf",
+        bpType: 'prop',
+        type: BPType.GetValue,
+        isSelf: true,
+        modifiers: {
+            isStatic: true,
+            isReadonly: true,
+        },
+        output: [
+            {
+                name: 'self',
+                type: "any",
+            },
+        ]
+    },
+    {
         name: "static_set",
         menuPath: "none",
         type: BPType.SetValue,
@@ -107,7 +124,7 @@ export const BlueprintDataList: TBPCNode[] = [
             }
         ],
     },
-    
+
     {
         name: "tmp_set",
         menuPath: "none",
