@@ -12,8 +12,7 @@ import { CharRender_Canvas } from "./CharRender_Canvas"
 import { ICharRender } from "./ICharRender"
 import { ILaya } from "../../../ILaya";
 import { Const } from "../../Const";
-import { BaseTexture } from "../../resource/BaseTexture";
-import { WebGLCacheAsNormalCanvas } from "../canvas/WebGLCacheAsNormalCanvas";
+import { IFontMeasure } from "./MeasureFont";
 
 export class TextRender {
     //config
@@ -40,40 +39,37 @@ export class TextRender {
      * xdist,ydist 是像素起点到排版原点的距离，都是正的，表示实际数据往左和上偏多少，如果实际往右和下偏，则算作0，毕竟这个只是一个大概
      * 例如 [Arial]=0x00002020, 表示宽高都是32
      */
-    private fontSizeInfo: any = {};
-    static atlasWidth2: number;
-    private charRender: ICharRender;
-    private static tmpRI: CharRenderInfo = new CharRenderInfo();
-    private static pixelBBX: number[] = [0, 0, 0, 0];
+    private fontSizeInfo: {[key:string]:number} = {};
+    charRender: ICharRender;
     private mapFont: any = {};		// 把font名称映射到数字
-    private fontID: number = 0;
+    private fontID = 0;
 
-    private fontScaleX: number = 1.0;						//临时缩放。
-    private fontScaleY: number = 1.0;
+    private fontScaleX = 1.0;						//临时缩放。
+    private fontScaleY = 1.0;
 
     //private var charMaps:Object = {};	// 所有的都放到一起
 
-    private _curStrPos: number = 0;		//解开一个字符串的时候用的。表示当前解到什么位置了
+    private _curStrPos = 0;		//解开一个字符串的时候用的。表示当前解到什么位置了
     static textRenderInst: TextRender;	//debug
 
     textAtlases: TextAtlas[] = [];		// 所有的大图集
     private isoTextures: TextTexture[] = [];	// 所有的独立贴图
 
-    private bmpData32: Uint32Array;
-    private static imgdtRect: any[] = [0, 0, 0, 0];
+    private static imgdtRect = [0, 0, 0, 0];
 
     // 当前字体的测量信息。
     private lastFont: FontInfo | null = null;
-    private fontSizeW: number = 0;
-    private fontSizeH: number = 0;
-    private fontSizeOffX: number = 0;
-    private fontSizeOffY: number = 0;
+    private fontSizeW = 0;
+    private fontSizeH = 0;
+    private fontSizeOffX = 0;
+    private fontSizeOffY = 0;
 
-    private renderPerChar: boolean = true;	// 是否是单个字符渲染。这个是结果，上面的是配置
-    private tmpAtlasPos: Point = new Point();
-    private textureMem: number = 0; 			// 当前贴图所占用的内存
-    private fontStr: string;					// 因为要去掉italic，所以自己保存一份
-    static simClean: boolean = false;				// 测试用。强制清理占用低的图集
+    private renderPerChar = true;	// 是否是单个字符渲染。这个是结果，上面的是配置
+    private tmpAtlasPos = new Point();
+    private fontStr: string;				// 因为要去掉italic，所以自己保存一份
+    static simClean = false;				// 测试用。强制清理占用低的图集
+
+    private _fontMeasure:IFontMeasure=null;
 
     constructor() {
         var bugIOS = false;//是否是有bug的ios版本
@@ -83,17 +79,47 @@ export class TextRender {
             bugIOS = miniadp.systemInfo.system.toLowerCase() === 'ios 10.1.1';
             //12.3
         }
-        if ((ILaya.Browser.onMiniGame || ILaya.Browser.onTTMiniGame || ILaya.Browser.onBLMiniGame || ILaya.Browser.onAlipayMiniGame || ILaya.Browser.onTBMiniGame) /*&& !Browser.onAndroid*/ && !bugIOS) TextRender.isWan1Wan = true; //android 微信下 字边缘发黑，所以不用getImageData了
+        if ((ILaya.Browser.onMiniGame || 
+            ILaya.Browser.onTTMiniGame || 
+            ILaya.Browser.onBLMiniGame || 
+            ILaya.Browser.onAlipayMiniGame || 
+            ILaya.Browser.onTBMiniGame) && 
+                !bugIOS) TextRender.isWan1Wan = true; //android 微信下 字边缘发黑，所以不用getImageData了
         //TextRender.isWan1Wan = true;
         this.charRender = new CharRender_Canvas(2048, 2048, TextRender.scaleFontWithCtx, !TextRender.isWan1Wan, false);
         TextRender.textRenderInst = this;
         ILaya.Laya['textRender'] = this;
-        TextRender.atlasWidth2 = TextRender.atlasWidth * TextRender.atlasWidth;
-        //TEST
-        //forceSplitRender = true;
-        //noAtlas = true;
-        //forceWholeRender = true;
-        //TEST
+    }
+
+    set fontMeasure(m:IFontMeasure){
+        this._fontMeasure=m;
+    }
+
+    get fontMeasure(){
+        return this._fontMeasure;
+    }
+
+    private _wan1wansz(font:string,size:number){
+        let fontstr = 'bold ' + size + 'px ' + font;
+        // 这时候无法获得imagedata，只能采取保险测量
+        let fontSizeW = this.charRender.getWidth(fontstr, '有') * 1.5;
+        let fontSizeH = size * 1.5;
+        var szinfo = fontSizeW << 8 | fontSizeH;
+        this.fontSizeInfo[font] = szinfo;
+        return szinfo;
+    }
+
+    private getFontSizeInfo(font:string){
+        var finfo = this.fontSizeInfo[font];
+        let fontsz=0;
+        if (!finfo ){
+            if(TextRender.isWan1Wan){
+                fontsz = this._wan1wansz(font,TextRender.standardFontSize)
+            }else{
+                fontsz = this._fontMeasure.getFontSizeInfo(font,TextRender.standardFontSize);
+            }
+        }
+        return fontsz;
     }
 
     /**
@@ -187,7 +213,6 @@ export class TextRender {
         if (TextRender.scaleFontWithCtx) {
             let sx = ctx.getMatScaleX();
             let sy = ctx.getMatScaleY();
-
 
             if (sx < 1e-4 || sy < 1e-1)
                 return;
@@ -326,15 +351,8 @@ export class TextRender {
                 ctx._inner_drawTexture(tex, tex.id,
                     startx + riSaved.x - ri.orix, starty + riSaved.y - ri.oriy, riSaved.w, riSaved.h,
                      mat, ri.uv, 1.0, isLastRender, 0xffffffff);
-                
-
-                // if ((ctx as unknown as WebGLCacheAsNormalCanvas).touches) {
-                //     (<any>ctx).touches.push(ri);
-                // }
             }
         }
-        //不要影响别人
-        //ctx._curSubmit._key.other = -1;
     }
 
     /**
@@ -360,13 +378,6 @@ export class TextRender {
         if (fid == undefined) {
             this.mapFont[font._family] = fid = this.fontID++;
         }
-        /*
-        var cid:int = mapColor[color];
-        if (cid == undefined) {
-            mapColor[color] = cid = colorID++;
-        }
-        var scid:int = mapColor[strokeColor];
-        */
         var key = str + '_' + fid + '_' + font._size + '_' + color;
         if (lineWidth > 0)
             key += '_' + strokeColor! + lineWidth;
@@ -592,160 +603,6 @@ export class TextRender {
         // TODO 根据覆盖率决定是否清理
     }
 
-    getCharBmp(c: string): any {
-
-    }
-
-    /**
-     * 检查当前线是否存在数据
-     * @param	data
-     * @param	l
-     * @param	sx
-     * @param	ex
-     * @return
-     */
-    private checkBmpLine(data: ImageData, l: number, sx: number, ex: number): boolean {
-        if (this.bmpData32.buffer != data.data.buffer) {
-            this.bmpData32 = new Uint32Array(data.data.buffer);
-        }
-        var stpos = data.width * l + sx;
-        for (var x = sx; x < ex; x++) {
-            if (this.bmpData32[stpos++] != 0) return true;
-        }
-        return false;
-    }
-
-    /**
-     * 根据bmp数据和当前的包围盒，更新包围盒
-     * 由于选择的文字是连续的，所以可以用二分法
-     * @param	data
-     * @param	curbbx 	[l,t,r,b]
-     * @param   onlyH 不检查左右
-     */
-    private updateBbx(data: ImageData, curbbx: number[], onlyH: boolean = false): void {
-        var w = data.width;
-        var h = data.height;
-        var x = 0;
-        // top
-        var sy = curbbx[1];	//从t到0 sy表示有数据的行
-        var ey = 0;
-        var y = sy;
-        if (this.checkBmpLine(data, sy, 0, w)) {
-            // 如果当前行有数据，就要往上找
-            while (true) {
-                y = (sy + ey) / 2 | 0;	// 必须是int
-                if (y + 1 >= sy) {// 
-                    // 找到了。严格来说还不知道这个是否有像素，不过这里要求不严格，可以认为有
-                    curbbx[1] = y;
-                    break;
-                }
-                if (this.checkBmpLine(data, y, 0, w)) {
-                    //中间线有数据，搜索上半部分
-                    sy = y;
-                } else {
-                    //中间线没有有数据，搜索下半部分
-                    ey = y;
-                }
-            }
-        }
-        // 下半部分
-        if (curbbx[3] > h) curbbx[3] = h;
-        else {
-            y = sy = curbbx[3];
-            ey = h;
-            if (this.checkBmpLine(data, sy, 0, w)) {
-                while (true) {
-                    y = (sy + ey) / 2 | 0;
-                    if (y - 1 <= sy) {
-                        curbbx[3] = y;
-                        break;
-                    }
-                    if (this.checkBmpLine(data, y, 0, w)) {
-                        sy = y;
-                    } else {
-                        ey = y;
-                    }
-                }
-            }
-        }
-
-        if (onlyH)
-            return;
-
-        // 左半部分
-        var minx = curbbx[0];
-        var stpos = w * curbbx[1]; //w*cy+0
-        for (y = curbbx[1]; y < curbbx[3]; y++) {
-            for (x = 0; x < minx; x++) {
-                if (this.bmpData32[stpos + x] != 0) {
-                    minx = x;
-                    break;
-                }
-            }
-            stpos += w;
-        }
-        curbbx[0] = minx;
-        // 右半部分
-        var maxx = curbbx[2];
-        stpos = w * curbbx[1]; //w*cy
-        for (y = curbbx[1]; y < curbbx[3]; y++) {
-            for (x = maxx; x < w; x++) {
-                if (this.bmpData32[stpos + x] != 0) {
-                    maxx = x;
-                    break;
-                }
-            }
-            stpos += w;
-        }
-        curbbx[2] = maxx;
-    }
-
-    getFontSizeInfo(font: string): number {
-        var finfo: any = this.fontSizeInfo[font];
-        if (finfo != undefined)
-            return finfo;
-
-        var fontstr: string = 'bold ' + TextRender.standardFontSize + 'px ' + font;
-        if (TextRender.isWan1Wan) {
-            // 这时候无法获得imagedata，只能采取保险测量
-            this.fontSizeW = this.charRender.getWidth(fontstr, '有') * 1.5;
-            this.fontSizeH = TextRender.standardFontSize * 1.5;
-            var szinfo: number = this.fontSizeW << 8 | this.fontSizeH;
-            this.fontSizeInfo[font] = szinfo;
-            return szinfo;
-        }
-        // bbx初始大小
-        TextRender.pixelBBX[0] = TextRender.standardFontSize / 2;// 16;
-        TextRender.pixelBBX[1] = TextRender.standardFontSize / 2;// 16;
-        TextRender.pixelBBX[2] = TextRender.standardFontSize;// 32;
-        TextRender.pixelBBX[3] = TextRender.standardFontSize;// 32;
-
-        var orix: number = 16;		// 左边留白，也就是x原点的位置
-        var oriy: number = 16;
-        var marginr: number = 16;
-        var marginb: number = 16;
-        this.charRender.scale(1, 1);
-        TextRender.tmpRI.height = TextRender.standardFontSize;
-        this.charRender.fontsz = TextRender.standardFontSize;
-        var bmpdt = this.charRender.getCharBmp('g', fontstr, 0, 'red', null, TextRender.tmpRI, orix, oriy, marginr, marginb);
-        this.bmpData32 = new Uint32Array(bmpdt.data.buffer);
-        //测量宽度是 tmpRI.width
-        this.updateBbx(bmpdt, TextRender.pixelBBX, false);
-        bmpdt = this.charRender.getCharBmp('有', fontstr, 0, 'red', null, TextRender.tmpRI, oriy, oriy, marginr, marginb);// '有'比'国'大
-        this.bmpData32 = new Uint32Array(bmpdt.data.buffer);
-        // 国字的宽度就用系统测量的，不再用像素检测
-        if (TextRender.pixelBBX[2] < orix + TextRender.tmpRI.width)
-            TextRender.pixelBBX[2] = orix + TextRender.tmpRI.width;
-        this.updateBbx(bmpdt, TextRender.pixelBBX, false);//TODO 改成 true
-        // 原点在 16,16
-        var xoff = Math.max(orix - TextRender.pixelBBX[0], 0);
-        var yoff = Math.max(oriy - TextRender.pixelBBX[1], 0);
-        var bbxw = TextRender.pixelBBX[2] - TextRender.pixelBBX[0];
-        var bbxh = TextRender.pixelBBX[3] - TextRender.pixelBBX[1];
-        var sizeinfo = xoff << 24 | yoff << 16 | bbxw << 8 | bbxh;
-        this.fontSizeInfo[font] = sizeinfo;
-        return sizeinfo;
-    }
 
     printDbgInfo(): void {
         console.log('图集个数:' + this.textAtlases.length + ',每个图集大小:' + TextRender.atlasWidth + 'x' + TextRender.atlasWidth, ' 用canvas:', TextRender.isWan1Wan);
@@ -807,36 +664,36 @@ export class TextRender {
             bitmap: { id: texttex.id },
             _uv: Texture.DEF_UV
         };
-        ((<any>sp)).size = function (w: number, h: number): Sprite {
+        (<any>sp).size = function (w: number, h: number): Sprite {
             this.width = w;
             this.height = h;
             sp.graphics.clear();
             sp.graphics.drawRect(0, 0, sp.width, sp.height, bgcolor);
-            sp.graphics.drawTexture((<Texture>texture), 0, 0, sp.width, sp.height);
-            return (<Sprite>this);
+            sp.graphics.drawTexture(<Texture>texture, 0, 0, sp.width, sp.height);
+            return <Sprite>this;
         }
         sp.graphics.drawRect(0, 0, w, h, bgcolor);
-        sp.graphics.drawTexture((<Texture>texture), 0, 0, w, h);
+        sp.graphics.drawTexture(<Texture>texture, 0, 0, w, h);
         sp.pos(x, y);
         ILaya.stage.addChild(sp);
         return sp;
     }
 
     /////// native ///////
-    filltext_native(ctx: Context, data: string | WordText, x: number, y: number, fontStr: string, color: string, strokeColor: string, lineWidth: number, textAlign: string): void {
-        if (data && data.length <= 0) return;
+    // filltext_native(ctx: Context, data: string | WordText, x: number, y: number, fontStr: string, color: string, strokeColor: string, lineWidth: number, textAlign: string): void {
+    //     if (data && data.length <= 0) return;
 
-        var font = FontInfo.parse(fontStr);
+    //     var font = FontInfo.parse(fontStr);
 
-        var nTextAlign = 0;
-        switch (textAlign) {
-            case 'center':
-                nTextAlign = Const.ENUM_TEXTALIGN_CENTER;
-                break;
-            case 'right':
-                nTextAlign = Const.ENUM_TEXTALIGN_RIGHT;
-                break;
-        }
-        return this._fast_filltext(ctx, data, x, y, font, color, strokeColor, lineWidth, nTextAlign);
-    }
+    //     var nTextAlign = 0;
+    //     switch (textAlign) {
+    //         case 'center':
+    //             nTextAlign = Const.ENUM_TEXTALIGN_CENTER;
+    //             break;
+    //         case 'right':
+    //             nTextAlign = Const.ENUM_TEXTALIGN_RIGHT;
+    //             break;
+    //     }
+    //     return this._fast_filltext(ctx, data, x, y, font, color, strokeColor, lineWidth, nTextAlign);
+    // }
 }

@@ -41,6 +41,7 @@ import { SubmitBase } from "../webgl/submit/SubmitBase";
 import { SubmitKey } from "../webgl/submit/SubmitKey";
 import { CharRenderInfo } from "../webgl/text/CharRenderInfo";
 import { CharSubmitCache } from "../webgl/text/CharSubmitCache";
+import { MeasureFont } from "../webgl/text/MeasureFont";
 import { TextRender } from "../webgl/text/TextRender";
 import { Mesh2D } from "../webgl/utils/Mesh2D";
 import { MeshQuadTexture } from "../webgl/utils/MeshQuadTexture";
@@ -150,7 +151,7 @@ export class Context {
     sprite: Sprite | null = null;
 
     /**@internal */
-    public static _textRender: TextRender | null = null;// new TextRender();
+    private static _textRender: TextRender | null = null;// new TextRender();
     /**@internal */
     _italicDeg = 0;//文字的倾斜角度
     /**@internal */
@@ -177,15 +178,16 @@ export class Context {
     static __init__(): void {
         Context.MAXCLIPRECT = new Rectangle(0, 0, Const.MAX_CLIP_SIZE, Const.MAX_CLIP_SIZE);
         ContextParams.DEFAULT = new ContextParams();
-        WebGLCacheAsNormalCanvas;
+        if(!Context._textRender){
+            let textRender = Context._textRender = new TextRender();
+            textRender.fontMeasure = new MeasureFont(textRender.charRender);
+        }
     }
 
     constructor() {
         //默认值。可以外面设置
         this.render2D = new Render2DSimple();
-
         Context._contextcount++;
-        Context._textRender = Context._textRender || new TextRender();
         //_ib = IndexBuffer2D.QuadrangleIB;
         if (!this.defTexture) {
             var defTex2d = new Texture2D(2, 2, TextureFormat.R8G8B8A8, true, false, false);
@@ -1015,6 +1017,7 @@ export class Context {
                 shaderValue.blendNormal();
         }
         this._drawMesh(mesh, 0, mesh.vertexNum, submit._startIdx, mesh.indexNum, submit.shaderValue);
+        this.stopMerge=false;
     }
 
     //TODO 目前是为了方便，从设计上这样是不是不太好
