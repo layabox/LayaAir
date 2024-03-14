@@ -170,10 +170,12 @@ export class BlueprintData {
                             if (null == arr[i].name || "" == arr[i].name.trim()) continue;
                             if (BPType.Event == cdata.type || BPType.CustomFunStart == cdata.type) {
                                 if (null == cdata.output) cdata.output = [];
-                                cdata.output.push(arr[i]);
+                                //cdata.output.push(arr[i]);
+                                this._checkAndPush(cdata.output, arr[i]);
                             } else {
                                 if (null == cdata.input) cdata.input = [];
-                                cdata.input.push(arr[i]);
+                                //cdata.input.push(arr[i]);
+                                this._checkAndPush(cdata.input, arr[i]);
                             }
                         }
                     }
@@ -185,10 +187,11 @@ export class BlueprintData {
                             if (null == arr[i].name || "" == arr[i].name.trim()) continue;
                             if (BPType.CustomFunReturn == cdata.type) {
                                 if (null == cdata.input) cdata.input = [];
-                                cdata.input.push(arr[i]);
+                                this._checkAndPush(cdata.input, arr[i]);
                             } else {
                                 if (null == cdata.output) cdata.output = [];
-                                cdata.output.push(arr[i]);
+                                this._checkAndPush(cdata.output, arr[i]);
+                                //cdata.output.push(arr[i]);
                             }
                         }
                     }
@@ -200,6 +203,13 @@ export class BlueprintData {
             return this._getConstData(node.cid, node.target);
         }
         return null;
+    }
+
+    private _checkAndPush(arr: any[], obj: any) {
+        for (let i = arr.length - 1; i >= 0; i--) {
+            if (arr[i].name == obj.name) return;
+        }
+        arr.push(obj);
     }
 
     private _createExtData(data: Record<string, TBPDeclaration>, ext: string, cls: any, exts?: string[]) {
@@ -353,7 +363,7 @@ export class BlueprintData {
             output: [this.defEventOut]
         }
         if (null != fun.customId) {
-            cdata.id = "fun_" + fun.customId;
+            cdata.id = fun.customId;
         }
         cdata.menuPath = fun.menuPath;
         cdata.type = [BPType.Pure, BPType.Function, BPType.Event].includes(fun.type) ? fun.type : cdata.type;
