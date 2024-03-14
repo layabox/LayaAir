@@ -1,5 +1,7 @@
 import { IBluePrintSubclass } from "../core/interface/IBluePrintSubclass";
 import { IRuntimeDataManger } from "../core/interface/IRuntimeDataManger";
+import { ExpressParse } from "../express/ExpressParse";
+import { ExpressTree } from "../express/ExpressTree";
 import { BlueprintFactory } from "./BlueprintFactory";
 import { BlueprintPinRuntime } from "./BlueprintPinRuntime";
 import { IBPRutime } from "./interface/IBPRutime";
@@ -265,6 +267,20 @@ export class BlueprintStaticFun {
             breakNode.initValue(ERunStat.end);
             return outExcutes[1].excute(context, runtimeDataMgr, runner, runId);
         }
+    }
+    /**
+     * 执行表达式
+     * @param express 
+     * @param a 
+     * @param b 
+     * @param c 
+     * @returns 
+     */
+    static runExpress(express:string,a:any,b:any,c:any):any{
+        debugger;
+        let expressTree=ExpressParse.instance.parse(express);
+        let context={a:a,b:b,c:c,Math:Math};
+        return expressTree.call(context);
     }
 }
 
