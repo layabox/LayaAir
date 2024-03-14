@@ -16,6 +16,33 @@ export class BPArray<T>{
     pop(): T {
         return null;
     }
+
+    splice(start: number, deleteCount?: number):T {
+        return null;
+    }
+
+    shift():T{
+        return null;
+    }
+
+
+    unshift(item: T):T{
+        return null;
+    }
+
+    join(separator?: string):string{
+        return "";
+    }
+
+    concat(item: ConcatArray<T>):T{
+        return null;
+    }
+
 }
 BPArray.prototype.push = Array.prototype.push;
 BPArray.prototype.pop = Array.prototype.pop;
+BPArray.prototype.splice = Array.prototype.splice;
+BPArray.prototype.shift = Array.prototype.shift;
+BPArray.prototype.unshift = Array.prototype.unshift;
+BPArray.prototype.join = Array.prototype.join;
+BPArray.prototype.concat = Array.prototype.concat;
