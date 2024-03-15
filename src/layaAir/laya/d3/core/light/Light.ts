@@ -6,7 +6,7 @@ import { Component } from "../../../components/Component";
 import { Color } from "../../../maths/Color";
 import { Matrix4x4 } from "../../../maths/Matrix4x4";
 import { Vector3 } from "../../../maths/Vector3";
-import { IDirectLightData, ISpotLightData } from "../../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
+import { IDirectLightData, IPointLightData, ISpotLightData } from "../../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
 
 
 
@@ -28,7 +28,7 @@ export enum LightMode {
  */
 export class Light extends Component {
     /**@internal 下沉数据集合 */
-    protected _dataModule: IDirectLightData | ISpotLightData;
+    protected _dataModule: IDirectLightData | ISpotLightData | IPointLightData;
     /** @internal */
     protected _shadowMode: ShadowMode = ShadowMode.None;
 
@@ -168,9 +168,9 @@ export class Light extends Component {
         return this._lightType;
     }
 
-   
 
-  
+
+
     /**
      * 创建一个 <code>LightSprite</code> 实例。
      */
@@ -191,12 +191,12 @@ export class Light extends Component {
         this.shadowMode = ShadowMode.None;
     }
 
-    protected _creatModuleData(){
+    protected _creatModuleData() {
         //overrid it
     }
 
-     /**@internal */
-     _setOwner(node: Sprite3D): void {
+    /**@internal */
+    _setOwner(node: Sprite3D): void {
         super._setOwner(node);
         this._dataModule.transform = (this.owner as Sprite3D).transform;
     }

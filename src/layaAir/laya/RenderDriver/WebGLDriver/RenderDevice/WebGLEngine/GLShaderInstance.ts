@@ -473,8 +473,8 @@ export class GLShaderInstance extends GLObject {
         return 0;
     }
 
-    _uniform_sampler3D(one: any, texture: InternalTexture): number {//TODO:TEXTURTE ARRAY
-        var value: any = texture ? texture.resource : Texture2D.errorTexture._getSource();
+    _uniform_sampler3D(one: any, texture: BaseTexture): number {//TODO:TEXTURTE ARRAY
+        var value: any = texture ? texture._getSource() : Texture2D.errorTexture._getSource();
         var gl: WebGL2RenderingContext = this._gl as WebGL2RenderingContext;
         this._bindTexture(one.textureID, gl.TEXTURE_3D, value);
         return 0;
@@ -483,8 +483,8 @@ export class GLShaderInstance extends GLObject {
     /**
      * @internal
      */
-    _uniform_samplerCube(one: any, texture: InternalTexture): number {//TODO:TEXTURTECUBE ARRAY
-        var value: any = texture ? texture.resource : TextureCube.errorTexture._getSource();
+    _uniform_samplerCube(one: any, texture: BaseTexture): number {//TODO:TEXTURTECUBE ARRAY
+        var value: any = texture ? texture._getSource() : TextureCube.errorTexture._getSource();
         var gl: WebGLRenderingContext = this._gl;
         this._bindTexture(one.textureID, gl.TEXTURE_CUBE_MAP, value);
         return 0;
