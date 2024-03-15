@@ -1,7 +1,9 @@
 import { ILaya } from "../../ILaya";
 import { Const } from "../Const";
+import { RenderState } from "../RenderDriver/RenderModuleData/Design/RenderState";
 import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
 import { TextureFormat } from "../RenderEngine/RenderEnum/TextureFormat";
+import { Shader3D } from "../RenderEngine/RenderShader/Shader3D";
 import { Sprite } from "../display/Sprite";
 import { ColorFilter } from "../filters/ColorFilter";
 import { LayaGL } from "../layagl/LayaGL";
@@ -679,8 +681,8 @@ export class Context {
     }
 
     set globalCompositeOperation(value: string) {
-        var n = BlendMode.TOINT[value];
         this._drawToRender2D(this._curSubmit);
+        var n = BlendMode.TOINT[value];
         n == null || (this._nBlendType === n) || (SaveBase.save(this, SaveBase.TYPE_GLOBALCOMPOSITEOPERATION, this, true), this._curSubmit = SubmitBase.RENDERBASE, this._nBlendType = n /*, _shader2D.ALPHA = 1*/);
     }
 
@@ -1005,13 +1007,20 @@ export class Context {
         if (mesh.indexNum <= 0)
             return;
         let shaderValue = submit.shaderValue;
-        switch (this._nBlendType) {
+        switch (submit._key.blendShader) {
             case 1://add
+                shaderValue.shaderData.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_ONE);
+                shaderValue.shaderData.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ONE);
+                break;
             case 5:
                 shaderValue.blendAdd();
                 break;
             case 6://mask
                 shaderValue.blendMask();
+                break;
+            case 7:
+                shaderValue.shaderData.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_ZERO);
+                shaderValue.shaderData.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ZERO);
                 break;
             default:
                 shaderValue.blendNormal();
