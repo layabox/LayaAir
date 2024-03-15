@@ -408,7 +408,7 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
      * @param type 
      * @param contact 
      */
-    sendEvent(type: number, contact: any): void {
+    sendEvent(type: string, contact: any): void {
         if (contact.GetFixtureA() == null || contact.GetFixtureB() == null) {
             return;
         }
@@ -434,31 +434,11 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
         }
         if (ownerA) {
             var args: any[] = [colliderB, colliderA, contact];
-            if (type === 0) {
-                ownerA.event("triggerenter", args);
-                if (!ownerA["_triggered"]) {
-                    ownerA["_triggered"] = true;
-                } else {
-                    ownerA.event("triggerstay", args);
-                }
-            } else {
-                ownerA["_triggered"] = false;
-                ownerA.event("triggerexit", args);
-            }
+            ownerA.event(type, args);
         }
         if (ownerB) {
             args = [colliderA, colliderB, contact];
-            if (type === 0) {
-                ownerB.event("triggerenter", args);
-                if (!ownerB["_triggered"]) {
-                    ownerB["_triggered"] = true;
-                } else {
-                    ownerB.event("triggerstay", args);
-                }
-            } else {
-                ownerB["_triggered"] = false;
-                ownerB.event("triggerexit", args);
-            }
+            ownerB.event(type, args);
         }
     }
 
@@ -1556,15 +1536,15 @@ export class physics2DwasmFactory implements IPhysiscs2DFactory {
         let _this = this;
         var listner = new this.box2d.JSContactListener();
         listner.BeginContact = function (contact: any): void {
-            Physics2D.I._eventList.push(0, box2d.wrapPointer(contact, box2d.b2Contact));
+            Physics2D.I._eventList.push("triggerenter", box2d.wrapPointer(contact, box2d.b2Contact));
         }
 
         listner.EndContact = function (contact: any): void {
-            Physics2D.I._eventList.push(1, box2d.wrapPointer(contact, box2d.b2Contact));
+            Physics2D.I._eventList.push("triggerexit", box2d.wrapPointer(contact, box2d.b2Contact));
         }
 
         listner.PreSolve = function (contact: any, oldManifold: any): void {
-            //console.log("PreSolve", contact);
+            Physics2D.I._eventList.push("triggerstay", box2d.wrapPointer(contact, box2d.b2Contact));
         }
 
         listner.PostSolve = function (contact: any, impulse: any): void {
