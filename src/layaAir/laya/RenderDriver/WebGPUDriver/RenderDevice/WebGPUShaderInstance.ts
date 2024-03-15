@@ -4,6 +4,7 @@ import { IShaderInstance } from "../../DriverDesign/RenderDevice/IShaderInstance
 import { WebGPURenderEngine } from "./WebGPURenderEngine";
 import { WebGPUBindingInfoType, WebGPUCodeGenerator, WebGPUUniformPropertyBindingInfo } from "./WebGPUCodeGenerator";
 import { UniformBuffer } from "./WebGPUUniform/WebGPUUniformBuffer";
+import { WebGPUGlobal } from "./WebGPUStatis/WebGPUGlobal";
 
 /**
  * WebGPU着色器实例
@@ -27,11 +28,15 @@ export class WebGPUShaderInstance implements IShaderInstance {
     uniformBuffers: UniformBuffer[];
     uniformSetMap: { [set: number]: WebGPUUniformPropertyBindingInfo[] } = {};
 
+    globalId: number;
+    objectName: string = 'WebGPUShaderInstance';
+
     /**
      * 创建一个 <code>WebGPUShaderInstance</code> 实例
      */
     constructor(name: string) {
         this.name = name;
+        this.globalId = WebGPUGlobal.getId(this);
     }
 
     _create(shaderProcessInfo: ShaderProcessInfo, shaderPass: ShaderPass): void {
@@ -108,17 +113,17 @@ export class WebGPUShaderInstance implements IShaderInstance {
         this.complete = true;
     }
 
-    /**
-     * 基于名字获取UniformBufer
-     * @param name 
-     */
-    getUniformBuffer(name: string) {
-        if (this.uniformBuffers)
-            for (let i = this.uniformBuffers.length - 1; i > -1; i--)
-                if (this.uniformBuffers[i].name == name)
-                    return this.uniformBuffers[i];
-        return null;
-    }
+    // /**
+    //  * 基于名字获取UniformBufer
+    //  * @param name 
+    //  */
+    // getUniformBuffer(name: string) {
+    //     if (this.uniformBuffers)
+    //         for (let i = this.uniformBuffers.length - 1; i > -1; i--)
+    //             if (this.uniformBuffers[i].name == name)
+    //                 return this.uniformBuffers[i];
+    //     return null;
+    // }
 
     /**
      * 基于WebGPUUniformPropertyBindingInfo创建PipelineLayout
@@ -293,6 +298,7 @@ export class WebGPUShaderInstance implements IShaderInstance {
     // }
 
     _disposeResource(): void {
+        WebGPUGlobal.releaseId(this);
         this.renderPipelineMap.clear();
     }
 }

@@ -1,6 +1,7 @@
 import { RenderTargetFormat } from "../../../RenderEngine/RenderEnum/RenderTargetFormat";
 import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRenderTarget";
 import { WebGPUInternalTex } from "./WebGPUInternalTex";
+import { WebGPUGlobal } from "./WebGPUStatis/WebGPUGlobal";
 
 export class WebGPUInternalRT implements InternalRenderTarget {
     _isCube: boolean;
@@ -20,6 +21,9 @@ export class WebGPUInternalRT implements InternalRenderTarget {
 
     _renderPassDescriptor: GPURenderPassDescriptor;
 
+    globalId: number;
+    objectName: string = 'WebGPUInternalRT';
+
     constructor(colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat,
         isCube: boolean, generateMipmap: boolean, samples: number) {
         this._isCube = isCube;
@@ -31,9 +35,12 @@ export class WebGPUInternalRT implements InternalRenderTarget {
         this._colorState = [];
         this._renderPassDescriptor = { colorAttachments: [] };
         this.formatId = (this.depthStencilFormat << 10) + this.colorFormat;
+
+        this.globalId = WebGPUGlobal.getId(this);
     }
 
     dispose(): void {
         //TODO
+        WebGPUGlobal.releaseId(this);
     }
 }

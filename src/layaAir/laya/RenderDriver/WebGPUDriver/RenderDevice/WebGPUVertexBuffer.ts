@@ -9,13 +9,13 @@ export class WebGPUVertexBuffer implements IVertexBuffer {
     vertexDeclaration: VertexDeclaration;
     instanceBuffer: boolean;
 
-    private _id: number;
-    name: string = 'WebGPUVertexBuffer';
+    globalId: number;
+    objectName: string = 'WebGPUVertexBuffer';
 
     constructor(targetType: BufferTargetType, bufferUsageType: BufferUsage) {
         let usage = WebGPUBufferUsage.VERTEX | WebGPUBufferUsage.COPY_DST;
         this.source = new WebGPUBuffer(usage, 0);
-        this._id = WebGPUGlobal.getId(this);
+        this.globalId = WebGPUGlobal.getId(this);
     }
 
     setData(buffer: ArrayBuffer, bufferOffset: number, dataStartIndex: number, dataCount: number): void {

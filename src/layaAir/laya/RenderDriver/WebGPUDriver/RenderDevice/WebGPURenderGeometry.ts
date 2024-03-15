@@ -3,6 +3,7 @@ import { IndexFormat } from "../../../RenderEngine/RenderEnum/IndexFormat";
 import { MeshTopology } from "../../../RenderEngine/RenderEnum/RenderPologyMode";
 import { IRenderGeometryElement } from "../../DriverDesign/RenderDevice/IRenderGeometryElement";
 import { WebGPUBufferState } from "./WebGPUBufferState";
+import { WebGPUGlobal } from "./WebGPUStatis/WebGPUGlobal";
 
 export enum WebGPUPrimitiveTopology {
     point_list = "point-list",
@@ -73,6 +74,9 @@ export class WebGPURenderGeometry implements IRenderGeometryElement {
         this._indexFormat = value;
     }
 
+    globalId: number;
+    objectName: string = 'WebGPURenderGeometry';
+
     /**@internal */
     constructor(mode: MeshTopology, drawType: DrawType) {
         this.mode = mode;
@@ -81,6 +85,8 @@ export class WebGPURenderGeometry implements IRenderGeometryElement {
         this._drawArrayInfo = [];
         this._drawElementInfo = [];
         this._id = WebGPURenderGeometry._idCounter++;
+
+        this.globalId = WebGPUGlobal.getId(this);
     }
 
     setDrawArrayParams(first: number, count: number): void {
@@ -107,6 +113,6 @@ export class WebGPURenderGeometry implements IRenderGeometryElement {
     }
 
     destroy(): void {
-        throw new Error("Method not implemented.");
+        WebGPUGlobal.releaseId(this);
     }
 }

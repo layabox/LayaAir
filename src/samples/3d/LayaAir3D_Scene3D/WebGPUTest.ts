@@ -74,6 +74,7 @@ export class WebGPUTest {
             // scene.addChild(directlightSprite);
             // dircom.color.setValue(1, 1, 1, 1);
 
+            const sphereMesh1 = PrimitiveMesh.createSphere(0.35, 16, 16);
             const boxMesh1 = PrimitiveMesh.createBox(0.5, 0.5, 0.5);
             //const boxMesh2 = PrimitiveMesh.createBox(0.6, 0.6, 0.6);
 
@@ -85,30 +86,30 @@ export class WebGPUTest {
             meshRenderer1.castShadow = false;
             meshRenderer1.receiveShadow = false;
 
-            // const earth2 = scene.addChild(new Sprite3D());
-            // earth2.transform.position = new Vector3(0.5, 0, 0);
-            // const meshFilter2 = earth2.addComponent(MeshFilter);
-            // const meshRenderer2 = earth2.addComponent(MeshRenderer);
-            // meshFilter2.sharedMesh = boxMesh2;
-            // meshRenderer2.castShadow = false;
-            // meshRenderer2.receiveShadow = false;
+            const earth2 = scene.addChild(new Sprite3D());
+            earth2.transform.position = new Vector3(0.5, 0, 0);
+            const meshFilter2 = earth2.addComponent(MeshFilter);
+            const meshRenderer2 = earth2.addComponent(MeshRenderer);
+            meshFilter2.sharedMesh = sphereMesh1;
+            meshRenderer2.castShadow = false;
+            meshRenderer2.receiveShadow = false;
 
             const material1 = new UnlitMaterial();
-            //const material2 = new UnlitMaterial();
+            const material2 = new UnlitMaterial();
             //const material = new Material();
             //material.setShaderName('UnLight');
             Texture2D.load("res/threeDimen/texture/earth.jpg", Handler.create(this, (texture: Texture2D) => {
                 material1.albedoTexture = texture;
-                //material2.albedoTexture = texture;
+                material2.albedoTexture = texture;
                 //material.setTexture('u_AlbedoTexture', texture);
                 //material.addDefine(Shader3D.getDefineByName('ALBEDOTEXTURE'));
             }));
             meshRenderer1.material = material1;
-            //meshRenderer2.material = material2;
+            meshRenderer2.material = material2;
 
             Laya.timer.frameLoop(1, this, () => {
                 earth1.transform.rotate(this.rotation1, false);
-                //earth2.transform.rotate(this.rotation2, false);
+                earth2.transform.rotate(this.rotation2, false);
             });
 
             Laya.timer.once(3000, this, () => { WebGPUStatis.printStatisticsAsTable(); });

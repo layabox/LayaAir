@@ -12,6 +12,7 @@ import { WebGPURenderCommandEncoder } from "../RenderDevice/WebGPURenderCommandE
 import { WebGPURenderEngine } from "../RenderDevice/WebGPURenderEngine";
 import { WebGPURenderPassHelper } from "../RenderDevice/WebGPURenderPassHelper";
 import { WebGPUShaderData } from "../RenderDevice/WebGPUShaderData";
+import { WebGPUGlobal } from "../RenderDevice/WebGPUStatis/WebGPUGlobal";
 import { WebGPURenderElement3D } from "./WebGPURenderElement3D";
 
 export class WebGPURenderContext3D implements IRenderContext3D {
@@ -51,6 +52,13 @@ export class WebGPURenderContext3D implements IRenderContext3D {
 
     destRT: WebGPUInternalRT;
     renderCommand: WebGPURenderCommandEncoder = new WebGPURenderCommandEncoder();
+
+    globalId: number;
+    objectName: string = 'WebGPURenderContext3D';
+
+    constructor() {
+        this.globalId = WebGPUGlobal.getId(this);
+    }
 
     get sceneData(): WebGPUShaderData {
         return this._sceneData;
@@ -206,5 +214,9 @@ export class WebGPURenderContext3D implements IRenderContext3D {
         this.renderCommand.end();
         WebGPURenderEngine._instance.getDevice().queue.submit([this.renderCommand.finish()]);
         this._needStart = true;
+    }
+
+    destroy() {
+        WebGPUGlobal.releaseId(this);
     }
 }

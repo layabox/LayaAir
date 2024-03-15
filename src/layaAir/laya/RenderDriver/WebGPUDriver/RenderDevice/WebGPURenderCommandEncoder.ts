@@ -2,6 +2,7 @@ import { DrawType } from "../../../RenderEngine/RenderEnum/DrawType";
 import { IndexFormat } from "../../../RenderEngine/RenderEnum/IndexFormat";
 import { WebGPURenderEngine } from "./WebGPURenderEngine";
 import { WebGPURenderGeometry } from "./WebGPURenderGeometry";
+import { WebGPUGlobal } from "./WebGPUStatis/WebGPUGlobal";
 
 export class WebGPURenderCommandEncoder {
     _commandEncoder: GPUCommandEncoder;
@@ -13,9 +14,15 @@ export class WebGPURenderCommandEncoder {
     //curPipeline: GPURenderPipeline;
     //curGeometry: WebGPURenderGeometry;
     //bindGroup cache TODO
+
+    globalId: number;
+    objectName: string = 'WebGPURenderCommandEncoder';
+
     constructor() {
         this._engine = WebGPURenderEngine._instance;
         this._device = this._engine.getDevice();
+
+        this.globalId = WebGPUGlobal.getId(this);
     }
 
     startRender(renderpassDes: GPURenderPassDescriptor): void {
@@ -106,5 +113,9 @@ export class WebGPURenderCommandEncoder {
                 }
                 break;
         }
+    }
+
+    destroy() {
+        WebGPUGlobal.releaseId(this);
     }
 }

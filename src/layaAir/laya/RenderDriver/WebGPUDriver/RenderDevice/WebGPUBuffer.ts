@@ -22,13 +22,13 @@ export enum GPUMapModeFlag {
 export class WebGPUBuffer {
     _source: GPUBuffer;
     _usage: GPUBufferUsageFlags;
-    _size: number = 0; //bytelength
+    _size: number = 0;
 
     private _isCreate: boolean = false;
     private _mappedAtCreation = false;
 
-    private _id: number;
-    name: string = 'WebGPUBuffer';
+    globalId: number;
+    objectName: string = 'WebGPUBuffer';
 
     constructor(usage: GPUBufferUsageFlags, byteSize: number = 0, mappedAtCreation: boolean = false) {
         this._size = byteSize;
@@ -36,14 +36,14 @@ export class WebGPUBuffer {
         this._mappedAtCreation = mappedAtCreation;
         if (this._size > 0)
             this._create();
-        this._id = WebGPUGlobal.getId(this);
+        this.globalId = WebGPUGlobal.getId(this);
     }
 
     /**
-     * @param srcData 
+     * @param length 
      */
-    setDataLength(srcData: number): void {
-        this._size = srcData;
+    setDataLength(length: number): void {
+        this._size = length;
         this._create();
     }
 
@@ -58,6 +58,7 @@ export class WebGPUBuffer {
             mappedAtCreation: this._mappedAtCreation
         });
         this._isCreate = true;
+        WebGPUGlobal.action(this, 'allocMemory', this._size);
     }
 
     private _alignedLength(bytelength: number) {
@@ -97,6 +98,7 @@ export class WebGPUBuffer {
 
     release() {
         //好像需要延迟删除
+        WebGPUGlobal.releaseId(this);
         this._source.destroy();
     }
 }

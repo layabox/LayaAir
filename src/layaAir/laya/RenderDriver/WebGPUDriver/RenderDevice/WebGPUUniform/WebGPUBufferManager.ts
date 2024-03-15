@@ -1,3 +1,5 @@
+import { WebGPUGlobal } from "../WebGPUStatis/WebGPUGlobal";
+
 type OffsetAndSize = { offset: number, size: number };
 
 /**
@@ -12,43 +14,65 @@ const roundUp = (n: number, align: number) => (((n + align - 1) / align) | 0) * 
  */
 export class WebGPUBufferBlock {
     sn: number;
-    buffer: WebGPUBuffer;
+    buffer: WebGPUBufferCluster;
     offset: number;
     size: number;
     alignedSize: number;
     destroyed: boolean;
 
-    constructor(sn: number, buffer: WebGPUBuffer, offset: number, size: number, alignedSize: number) {
+    globalId: number;
+    objectName: string;
+
+    constructor(sn: number, buffer: WebGPUBufferCluster, offset: number, size: number, alignedSize: number) {
         this.sn = sn;
         this.buffer = buffer;
         this.offset = offset;
         this.size = size;
         this.alignedSize = alignedSize;
         this.destroyed = false;
+
+        this.objectName = 'WebGPUBufferBlock | ' + buffer.name;
+        this.globalId = WebGPUGlobal.getId(this);
+        WebGPUGlobal.action(this, 'getMemory', alignedSize);
+    }
+
+    destroy() {
+        WebGPUGlobal.action(this, 'backMemory', this.alignedSize);
+        WebGPUGlobal.releaseId(this);
+        this.destroyed = true;
     }
 }
 
 /**
  * GPU内存块（大内存块）
  */
-class WebGPUBuffer {
+class WebGPUBufferCluster {
     buffer: GPUBuffer;
     name: string;
     size: number;
     left: number;
     free: OffsetAndSize[] = [];
     used: WebGPUBufferBlock[] = [];
+    single: boolean = false;
 
-    constructor(device: GPUDevice, name: string, size: number) {
+    globalId: number;
+    objectName: string;
+
+    constructor(device: GPUDevice, name: string, size: number, single: boolean = false) {
         this.name = name;
         this.size = size;
         this.left = size;
+        this.single = single;
         this.buffer = device.createBuffer({
             size,
             usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
             mappedAtCreation: false,
         });
         this.free.push({ offset: 0, size });
+
+        this.objectName = 'WebGPUBufferCluster | ' + name;
+        this.globalId = WebGPUGlobal.getId(this);
+        WebGPUGlobal.action(this, 'allocMemory', size);
     }
 
     /**
@@ -60,6 +84,8 @@ class WebGPUBuffer {
         let offset = 0;
         let bb: WebGPUBufferBlock;
         const alignedSize = roundUp(size, 256);
+        if (this.single && this.used.length > 0)
+            return this.used[0];
         for (let i = 0, len = this.free.length; i < len; i++) {
             if (this.free[i].size == alignedSize) {
                 this.left -= alignedSize;
@@ -91,7 +117,7 @@ class WebGPUBuffer {
                 this.free.push({ offset: bb.offset, size: bb.alignedSize });
                 this.left += bb.alignedSize;
                 this.used.splice(i, 1);
-                bb.destroyed = true;
+                bb.destroy();
                 doFree = true;
                 break;
             }
@@ -107,8 +133,15 @@ class WebGPUBuffer {
     clear() {
         this.left = this.size;
         this.free = [{ offset: 0, size: this.size }];
-        this.used.forEach(bb => bb.destroyed = true);
+        this.used.forEach(bb => bb.destroy());
         this.used.length = 0;
+    }
+
+    destroy() {
+        this.clear();
+        this.buffer.destroy();
+        WebGPUGlobal.action(this, 'releaseMemory', this.size);
+        WebGPUGlobal.releaseId(this);
     }
 
     /**
@@ -144,7 +177,7 @@ class WebGPUBuffer {
  */
 export class WebGPUBufferManager {
     device: GPUDevice;
-    namedBuffers: Map<string, WebGPUBuffer>;
+    namedBuffers: Map<string, WebGPUBufferCluster>;
 
     static snCounter: number = 0;
 
@@ -157,13 +190,14 @@ export class WebGPUBufferManager {
      * 添加内存
      * @param name 
      * @param size 
+     * @param single 
      */
-    addBuffer(name: string, size: number) {
+    addBuffer(name: string, size: number, single: boolean = false) {
         if (this.namedBuffers.has(name)) {
             console.warn(`namedBuffer with name: ${name} already exist!`);
             return false;
         }
-        this.namedBuffers.set(name, new WebGPUBuffer(this.device, name, size));
+        this.namedBuffers.set(name, new WebGPUBufferCluster(this.device, name, size, single));
         return true;
     }
 

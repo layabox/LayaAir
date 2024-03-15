@@ -4,6 +4,7 @@ import { TextureDimension } from "../../../RenderEngine/RenderEnum/TextureDimens
 import { WrapMode } from "../../../RenderEngine/RenderEnum/WrapMode";
 import { InternalTexture } from "../../DriverDesign/RenderDevice/InternalTexture";
 import { WebGPUSampler, WebGPUSamplerParams } from "./WebGPUSampler";
+import { WebGPUGlobal } from "./WebGPUStatis/WebGPUGlobal";
 import { WebGPUTextureFormat } from "./WebGPUTextureContext";
 
 export class WebGPUInternalTex implements InternalTexture {
@@ -22,6 +23,9 @@ export class WebGPUInternalTex implements InternalTexture {
     gammaCorrection: number;
 
     _webGPUFormat: WebGPUTextureFormat;
+
+    globalId: number;
+    objectName: string = 'WebGPUInternalTex';
 
     //sampler 
     private _filterMode: FilterMode;
@@ -148,6 +152,8 @@ export class WebGPUInternalTex implements InternalTexture {
         this.gammaCorrection = gammaCorrection;
 
         this._webgpuSampler = WebGPUSampler.getWebGPUSampler(this._webGPUSamplerParams);
+
+        this.globalId = WebGPUGlobal.getId(this);
     }
 
     getTextureView(): GPUTextureView {
@@ -156,6 +162,7 @@ export class WebGPUInternalTex implements InternalTexture {
 
     dispose(): void {
         //TODO好像需要延迟删除
+        WebGPUGlobal.releaseId(this);
         this.resource.destroy();
     }
 }

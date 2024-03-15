@@ -1,4 +1,5 @@
 import { Shader3D } from "../../../../RenderEngine/RenderShader/Shader3D";
+import { WebGPUGlobal } from "../WebGPUStatis/WebGPUGlobal";
 
 /**
  * 每一个具体Uniform变量的信息
@@ -23,11 +24,16 @@ export class WebGPUUniformBlockInfo {
     strID: string; //所有uniform名称串联成的字符串
     items: WebGPUUniformItemType[]; //具体的uniform变量
 
+    globalId: number;
+    objectName: string = 'WebGPUUniformBlockInfo';
+
     constructor(name: string, size: number) {
         this.name = name;
         this.size = size;
         this.strID = '';
         this.items = [];
+
+        this.globalId = WebGPUGlobal.getId(this);
     }
 
     /**
@@ -58,6 +64,17 @@ export class WebGPUUniformBlockInfo {
     }
 
     /**
+     * 是否具有特点的uniform
+     * @param id 
+     */
+    hasUniform(id: number) {
+        for (let i = this.items.length - 1; i > -1; i--)
+            if (this.items[i].id === id)
+                return true;
+        return false;
+    }
+
+    /**
      * 输出调试信息
      */
     debugInfo() {
@@ -69,5 +86,9 @@ export class WebGPUUniformBlockInfo {
                     item.id, item.name, item.type, item.size, item.align, item.offset, item.elements, item.count);
             }
         }
+    }
+
+    destroy() {
+        WebGPUGlobal.releaseId(this);
     }
 }

@@ -9,13 +9,13 @@ export class WebGPUIndexBuffer implements IIndexBuffer {
     indexType: IndexFormat;
     indexCount: number;
 
-    private _id: number;
-    name: string = 'WebGPUIndexBuffer';
+    globalId: number;
+    objectName: string = 'WebGPUIndexBuffer';
 
     constructor(targetType: BufferTargetType, bufferUsageType: BufferUsage) {
         let usage = WebGPUBufferUsage.INDEX | WebGPUBufferUsage.COPY_DST;
         this.source = new WebGPUBuffer(usage, 0);
-        this._id = WebGPUGlobal.getId(this);
+        this.globalId = WebGPUGlobal.getId(this);
     }
 
     _setIndexDataLength(length: number): void {

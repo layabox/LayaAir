@@ -13,6 +13,7 @@ import { WebGPUInternalRT } from "./WebGPUInternalRT";
 import { WebGPUBufferManager } from "./WebGPUUniform/WebGPUBufferManager";
 import { WebGPURenderEngineFactory } from "./WebGPURenderEngineFactory";
 import { WebGPUTextureContext, WebGPUTextureFormat } from "./WebGPUTextureContext";
+import { WebGPUGlobal } from "./WebGPUStatis/WebGPUGlobal";
 
 export class WebGPUConfig {
     /**
@@ -71,6 +72,9 @@ export class WebGPURenderEngine implements IRenderEngine {
 
     gpuBufferMgr: WebGPUBufferManager;
 
+    globalId: number;
+    objectName: string = 'WebGPURenderEngine';
+
     /**
      * 实例化一个webgpuEngine
      */
@@ -80,6 +84,8 @@ export class WebGPURenderEngine implements IRenderEngine {
         if (navigator.gpu)
             WebGPURenderEngine._instance = this;
         else console.error("WebGPU is not supported by your browser");
+
+        this.globalId = WebGPUGlobal.getId(this);
     }
 
     /**
@@ -153,8 +159,8 @@ export class WebGPURenderEngine implements IRenderEngine {
         this._device.lost.then(this._deviceLostCall);
 
         this.gpuBufferMgr = new WebGPUBufferManager(device);
-        this.gpuBufferMgr.addBuffer('scene', 4 * 1024);
-        this.gpuBufferMgr.addBuffer('camera', 4 * 1024);
+        this.gpuBufferMgr.addBuffer('scene', 4 * 1024, true);
+        this.gpuBufferMgr.addBuffer('camera', 4 * 1024, true);
         this.gpuBufferMgr.addBuffer('sprite3D', 10 * 1024 * 1024);
         this.gpuBufferMgr.addBuffer('simpeSkinnedMesh', 10 * 1024 * 1024);
         this.gpuBufferMgr.addBuffer('shurikenSprite3D', 5 * 1024 * 1024);

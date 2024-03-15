@@ -2,6 +2,7 @@ import { FilterMode } from "../../../RenderEngine/RenderEnum/FilterMode";
 import { TextureCompareMode } from "../../../RenderEngine/RenderEnum/TextureCompareMode";
 import { WrapMode } from "../../../RenderEngine/RenderEnum/WrapMode";
 import { WebGPURenderEngine } from "./WebGPURenderEngine";
+import { WebGPUGlobal } from "./WebGPUStatis/WebGPUGlobal";
 
 enum GPUAddressMode {
     clamp = "clamp-to-edge",
@@ -67,8 +68,13 @@ export class WebGPUSampler {
     /**@internal */
     source: GPUSampler;
 
+    globalId: number;
+    objectName: string = 'WebGPUSamper';
+
     constructor(obj: WebGPUSamplerParams) {
         this.source = this._createGPUSampler(obj);
+
+        this.globalId = WebGPUGlobal.getId(this);
     }
 
     private _createGPUSampler(params: WebGPUSamplerParams): GPUSampler {

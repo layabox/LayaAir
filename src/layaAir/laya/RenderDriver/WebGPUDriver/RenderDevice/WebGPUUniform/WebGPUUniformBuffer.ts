@@ -4,6 +4,7 @@ import { Vector3 } from "../../../../maths/Vector3";
 import { Vector4 } from "../../../../maths/Vector4";
 import { Matrix3x3 } from "../../../../maths/Matrix3x3";
 import { Matrix4x4 } from "../../../../maths/Matrix4x4";
+import { WebGPUGlobal } from "../WebGPUStatis/WebGPUGlobal";
 
 type TypedArray =
     | Int8Array
@@ -57,6 +58,9 @@ export class UniformBuffer {
     private _gpu_Buffer: GPUBuffer;
     private _gpu_BindGroupEntry: GPUBindGroupEntry;
 
+    globalId: number;
+    objectName: string = 'UniformBuffer';
+
     constructor(name: string, set: number, binding: number, size: number, gpuBuffer: WebGPUBufferManager) {
         this.arrayBuffer = new ArrayBuffer(size);
         this.name = name;
@@ -79,6 +83,8 @@ export class UniformBuffer {
                 size,
             },
         };
+
+        this.globalId = WebGPUGlobal.getId(this);
     }
 
     /**
@@ -494,6 +500,11 @@ export class UniformBuffer {
         this.items.clear();
         this.itemNum = 0;
         this.needUpload = false;
+    }
+
+    desroy() {
+        WebGPUGlobal.releaseId(this);
+        this.clear();
     }
 
     /**

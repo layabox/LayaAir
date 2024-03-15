@@ -15,12 +15,17 @@ import { WebDirectLight } from "../../RenderModuleData/WebModuleData/3D/WebDirec
 import { WebCameraNodeData } from "../../RenderModuleData/WebModuleData/3D/WebModuleData";
 import { WebGLForwardAddRP } from "../../WebGLDriver/3DRenderPass/WebGLForwardAddRP";
 import { WebGLRenderContext3D } from "../../WebGLDriver/3DRenderPass/WebGLRenderContext3D";
+import { WebGPUGlobal } from "../RenderDevice/WebGPUStatis/WebGPUGlobal";
 import { WebGPURenderContext3D } from "./WebGPURenderContext3D";
 
 export class WebGPU3DRenderPass implements IRender3DProcess {
     private renderpass: WebGLForwardAddRP = new WebGLForwardAddRP();
 
+    globalId: number;
+    objectName: string = 'WebGPU3DRenderPass';
+
     constructor() {
+        this.globalId = WebGPUGlobal.getId(this);
     }
 
     initRenderPass(camera: Camera, context: WebGLRenderContext3D) {
@@ -138,5 +143,9 @@ export class WebGPU3DRenderPass implements IRender3DProcess {
         let renderList = <WebBaseRenderNode[]>camera.scene.sceneRenderableManager.renderBaselist.elements;
         //@ts-ignore
         this.renderpass.renderpass.render(context, renderList, renderList.length);
+    }
+
+    destroy() {
+        WebGPUGlobal.releaseId(this);
     }
 }

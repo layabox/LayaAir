@@ -6,13 +6,18 @@ export class WebGPUGlobal {
 
     static getId(object?: any) {
         if (this.debug && object)
-            WebGPUStatis.trackObjectCreation(object.name ? object.name : 'unknown', this._idCounter, object, 0);
+            WebGPUStatis.trackObjectCreation(object.objectName || 'unknown', this._idCounter, object, 0);
         return this._idCounter++;
     }
 
     static releaseId(object: any) {
         if (this.debug && object)
-            WebGPUStatis.trackObjectRelease(object.name ? object.name : 'unknown', object._id, object, 0);
+            WebGPUStatis.trackObjectRelease(object.objectName || 'unknown', object.globalId, object, 0);
+    }
+
+    static action(object: any, action: string, memory: number = 0) {
+        if (this.debug && object)
+            WebGPUStatis.trackObjectAction(object.objectName || 'unknown', object.globalId, action, object, memory);
     }
 
     static reset() {

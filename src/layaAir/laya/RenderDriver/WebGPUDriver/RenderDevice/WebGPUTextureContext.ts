@@ -12,6 +12,7 @@ import { WebGPUInternalRT } from "./WebGPUInternalRT";
 import { WebGPUInternalTex } from "./WebGPUInternalTex";
 import { WebGPURenderEngine } from "./WebGPURenderEngine";
 import { WebGPURenderPassHelper } from "./WebGPURenderPassHelper";
+import { WebGPUGlobal } from "./WebGPUStatis/WebGPUGlobal";
 
 enum WebGPUTextureDimension {
     D1D = "1d",
@@ -147,6 +148,56 @@ export class WebGPUTextureContext implements ITextureContext {
         this._engine = engine;
     }
     needBitmap: boolean;
+
+    private _getGPUTexturePixelByteSize(format: TextureFormat) {
+        switch (format) {
+            case TextureFormat.R5G6B5:
+                return 2;
+            case TextureFormat.R8G8B8:
+                return 3;
+            case TextureFormat.R8G8B8A8:
+                return 4;
+            case TextureFormat.R32G32B32:
+                return 12;
+            case TextureFormat.R32G32B32A32:
+                return 16;
+            case TextureFormat.R16G16B16:
+                return 6;
+            case TextureFormat.R16G16B16A16:
+                return 8;
+            default:
+                return 4;
+        }
+    }
+
+    private _getGPURenderTexturePixelByteSize(format: RenderTargetFormat) {
+        switch (format) {
+            case RenderTargetFormat.R8G8B8:
+                return 3;
+            case RenderTargetFormat.R8G8B8A8:
+                return 4;
+            case RenderTargetFormat.R32G32B32:
+                return 12;
+            case RenderTargetFormat.R32G32B32A32:
+                return 16;
+            case RenderTargetFormat.R16G16B16:
+                return 6;
+            case RenderTargetFormat.R16G16B16A16:
+                return 8;
+            case RenderTargetFormat.DEPTH_16:
+                return 2;
+            case RenderTargetFormat.DEPTH_32:
+                return 4;
+            case RenderTargetFormat.DEPTHSTENCIL_24_8:
+                return 4;
+            case RenderTargetFormat.DEPTHSTENCIL_24_Plus:
+                return 4;
+            case RenderTargetFormat.STENCIL_8:
+                return 1;
+            default:
+                return 4;
+        }
+    }
 
     private _getGPUTextureFormat(format: TextureFormat, useSRGB: boolean): WebGPUTextureFormat {
         let webgpuTextureFormat = WebGPUTextureFormat.rgba8uint;
@@ -328,12 +379,15 @@ export class WebGPUTextureContext implements ITextureContext {
         //     gammaCorrection = 2.2;
         // }
 
+        const pixelByteSize = this._getGPUTexturePixelByteSize(format);
         const gpuTextureFormat = this._getGPUTextureFormat(format, sRGB);
         const textureDescriptor = this._getGPUTextureDescriptor(dimension, width, height, gpuTextureFormat, layerCount, this.isCompressTexture(format));
         const gpuTexture = this._engine.getDevice().createTexture(textureDescriptor);
         const internalTex = new WebGPUInternalTex(width, height, 1, dimension, generateMipmap, false, 1);
         internalTex.resource = gpuTexture;
         internalTex._webGPUFormat = gpuTextureFormat;
+        WebGPUGlobal.action(internalTex, 'allocMemory', (width * height * pixelByteSize * (generateMipmap ? 1.33333 : 1)) | 0);
+
         return internalTex;
     }
 
@@ -701,6 +755,7 @@ export class WebGPUTextureContext implements ITextureContext {
         throw new Error("Method not implemented.");
     }
     createRenderTargetInternal(width: number, height: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number): InternalRenderTarget {
+        const pixelByteSize = this._getGPURenderTexturePixelByteSize(colorFormat);
         const gpuColorFormat = this._getGPURenderTargetFormat(colorFormat, sRGB);
         const gpuColorDescriptor = this._getGPUTextureDescriptor(TextureDimension.Tex2D, width, height, gpuColorFormat, 1, false);
         const gpuColorTexture = this._engine.getDevice().createTexture(gpuColorDescriptor);
@@ -708,14 +763,17 @@ export class WebGPUTextureContext implements ITextureContext {
         internalRT._textures.push(new WebGPUInternalTex(width, height, 1, TextureDimension.Tex2D, generateMipmap, false, 1));
         internalRT._textures[0].resource = gpuColorTexture;
         internalRT._textures[0]._webGPUFormat = gpuColorFormat;
+        WebGPUGlobal.action(internalRT._textures[0], 'allocMemory', (width * height * pixelByteSize * (generateMipmap ? 1.33333 : 1)) | 0);
 
         if (depthStencilFormat != RenderTargetFormat.None) {
+            const pixelByteSize = this._getGPURenderTexturePixelByteSize(depthStencilFormat);
             const gpuDepthFormat = this._getGPURenderTargetFormat(depthStencilFormat, false);
             const gpuDepthDescriptor = this._getGPUTextureDescriptor(TextureDimension.Tex2D, width, height, gpuDepthFormat, 1, false);
             const gpuDepthTexture = this._engine.getDevice().createTexture(gpuDepthDescriptor);
             internalRT._depthTexture = new WebGPUInternalTex(width, height, 1, TextureDimension.Tex2D, false, false, 1);
             internalRT._depthTexture.resource = gpuDepthTexture;
             internalRT._depthTexture._webGPUFormat = gpuDepthFormat;
+            WebGPUGlobal.action(internalRT._depthTexture, 'allocMemory', width * height * pixelByteSize);
         }
 
         WebGPURenderPassHelper.setColorAttachments(internalRT._renderPassDescriptor, internalRT._textures, true);

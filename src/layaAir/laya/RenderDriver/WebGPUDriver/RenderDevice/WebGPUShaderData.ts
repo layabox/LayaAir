@@ -15,6 +15,7 @@ import { WebGPUInternalTex } from "./WebGPUInternalTex";
 import { UniformBuffer } from "./WebGPUUniform/WebGPUUniformBuffer";
 import { WebGPURenderCommandEncoder } from "./WebGPURenderCommandEncoder";
 import { WebGPURenderEngine } from "./WebGPURenderEngine";
+import { WebGPUGlobal } from "./WebGPUStatis/WebGPUGlobal";
 
 export class WebGPUShaderData extends ShaderData {
     /**@internal */
@@ -26,10 +27,14 @@ export class WebGPUShaderData extends ShaderData {
     /**@internal */
     protected _gammaColorMap: Map<number, Color>;
 
+    private _uniformBuffer: UniformBuffer;
     private _uniformBuffers: UniformBuffer[] = [];
     private _uniformBufferMap: Map<number, UniformBuffer>;
 
     private _bindGroupMap: Map<string, GPUBindGroup>;
+
+    globalId: number;
+    objectName: string = 'WebGPUShaderData';
 
     constructor(ownerResource: Resource = null) {
         super(ownerResource);
@@ -38,7 +43,28 @@ export class WebGPUShaderData extends ShaderData {
         this._defineDatas = new WebDefineDatas();
         this._uniformBufferMap = new Map();
         this._bindGroupMap = new Map();
+
+        this.globalId = WebGPUGlobal.getId(this);
     }
+
+    createUniformBuffer(info: WebGPUUniformPropertyBindingInfo[]) {
+        const infoMap = new Map<number, WebGPUUniformPropertyBindingInfo>();
+        for (const idStr in this._data) {
+            const id = Number(idStr);
+            for (let i = info.length - 1; i > -1; i--)
+                if (info[i].uniform && info[i].uniform.hasUniform(id))
+                    infoMap.set(id, info[i]);
+        }
+        // if (info.uniform) {
+        //     const gpuBuffer = WebGPURenderEngine._instance.gpuBufferMgr;
+        //     this._uniformBuffer = new UniformBuffer(info.name, info.set, info.binding, info.uniform.size, gpuBuffer);
+        //     info.sn = this._uniformBuffer.block.sn;
+        //     for (let i = 0, len = info.uniform.items.length; i < len; i++) {
+        //         const uniform = info.uniform.items[i];
+        //         this._uniformBuffer.addUniform(uniform.id, uniform.name, uniform.type, uniform.offset, uniform.align, uniform.size, uniform.elements, uniform.count);
+        //     }
+        // }
+    };
 
     setUniformBuffers(ubs: UniformBuffer[]) {
         if (this._uniformBuffers != ubs) {
@@ -85,6 +111,8 @@ export class WebGPUShaderData extends ShaderData {
         key += uniforms.map(item => item.binding).join('_');
         key += uniforms.map(item => item.propertyID).join('_');
         let bindGroup = this._bindGroupMap.get(key);
+
+        uniforms.forEach(item => console.log(item));
 
         //如果没有缓存, 则创建一个新的bindGroup
         if (!bindGroup) {
@@ -537,6 +565,7 @@ export class WebGPUShaderData extends ShaderData {
     }
 
     destroy(): void {
+        WebGPUGlobal.releaseId(this);
         super.destroy();
         //TODO
     }

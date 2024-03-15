@@ -2,6 +2,7 @@ import { ScreenQuad } from "../../../d3/core/render/ScreenQuad";
 import { VertexElementFormat } from "../../../renders/VertexElementFormat";
 import { IBufferState } from "../../DriverDesign/RenderDevice/IBufferState";
 import { WebGPUIndexBuffer } from "./WebGPUIndexBuffer";
+import { WebGPUGlobal } from "./WebGPUStatis/WebGPUGlobal";
 import { WebGPUVertexBuffer } from "./WebGPUVertexBuffer";
 
 export enum WebGPUVertexStepMode {
@@ -17,6 +18,9 @@ export class WebGPUBufferState implements IBufferState {
     _bindedIndexBuffer: WebGPUIndexBuffer;
     _vertexBuffers: WebGPUVertexBuffer[];
 
+    globalId: number;
+    objectName: string = 'WebGPUBufferState';
+
     applyState(vertexBuffers: WebGPUVertexBuffer[], indexBuffer: WebGPUIndexBuffer): void {
         this._vertexBuffers = vertexBuffers.slice();
         this._bindedIndexBuffer = indexBuffer;
@@ -26,6 +30,7 @@ export class WebGPUBufferState implements IBufferState {
 
     constructor() {
         this._id = WebGPUBufferState.IDCounter++;
+        this.globalId = WebGPUGlobal.getId(this);
     }
 
     private _getVertexBufferLayoutArray() {
@@ -82,5 +87,6 @@ export class WebGPUBufferState implements IBufferState {
     }
 
     destroy(): void {
+        WebGPUGlobal.releaseId(this);
     }
 }
