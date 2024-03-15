@@ -393,7 +393,7 @@ export class RenderSprite {
                 return;
             }else{
                 let normalCacheRender = new SpriteCache();
-                normalCacheRender.renderCacheAsNormal(context,sprite,this._next);
+                normalCacheRender.renderCacheAsNormal(context,sprite,this._next,x,y);
             }
 
             // if (sprite._needRepaint() || !_cacheStyle.canvas || textNeedRestore || ILaya.stage.isGlobalRepaint()) {
@@ -432,7 +432,7 @@ export class RenderSprite {
         sprite.render(ctx,x-sprite.x-tRec.x,y-sprite.y-tRec.y);
         ctx.endRender();
         //临时，恢复
-        ctx.render2D.setRenderTarget(context.render2D.out);
+        context && ctx.render2D.setRenderTarget(context.render2D.out);
         return rt;
     }
     /**
@@ -588,6 +588,10 @@ export class RenderSprite {
             let width1 = x2 - x1; if (width1 <= 0) return;
             let height1 = y2 - y1; if (height1 <= 0) return;
 
+            //先渲染mask，避免rt混乱的可能性。这里的ctx目前只是用来恢复rt的
+            if (RenderSprite.RenderToCacheTexture(mask, ctx, 0, 0)) {
+            }
+
             rtx = x1; rty = y1;
             let rt = new RenderTexture2D(width1, height1, RenderTargetFormat.R8G8B8A8);
             let ctx1 = new Context();
@@ -596,10 +600,6 @@ export class RenderSprite {
             ctx1.startRender();
             //渲染节点本身.由于spRect.xy是指贴图相对于节点的位置，所以需要取反表示在贴图空间的什么位置画出节点
             this._next._fun(sprite, ctx1, -x1, -y1);
-
-            //渲染mask
-            if (RenderSprite.RenderToCacheTexture(mask, null, 0, 0)) {
-            }
             let maskRT = maskcache.renderTexture;
             ctx1.globalCompositeOperation = 'mask';
             ctx1._drawRenderTexture(maskRT,

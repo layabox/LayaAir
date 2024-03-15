@@ -42,7 +42,7 @@ var vec21 = new Vector2();
  * 把渲染结果保存成mesh和材质
  */
 export class SpriteCache{
-    renderCacheAsNormal(context:Context,sprite:Sprite,next:RenderSprite){
+    renderCacheAsNormal(context:Context,sprite:Sprite,next:RenderSprite,x:number,y:number){
         var cacheResult = sprite._cacheStyle.cacheAsNormal;
         if (!cacheResult || sprite._needRepaint() || ILaya.stage.isGlobalRepaint()) {
             cacheResult = sprite._cacheStyle.cacheAsNormal = new resultForCacheAsNormal();
@@ -54,7 +54,7 @@ export class SpriteCache{
             ctx.render2D= renderer;
             ctx.startRender();
             //由于context是新的，所以画到0,0上就行
-            next._fun(sprite,ctx,0, 0);
+            next._fun(sprite,ctx,x, y);
             ctx.endRender();
 
             cacheResult.meshes = renderer.renderResult;
