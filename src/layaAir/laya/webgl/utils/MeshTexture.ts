@@ -67,8 +67,8 @@ export class MeshTexture extends Mesh2D {
         if(uvrect){
             uvminx=uvrect[0];
             uvminy=uvrect[1];
-            uvu=uvrect[2]-uvminx;
-            uvv=uvrect[3]-uvminy;
+            uvu=uvrect[2];
+            uvv=uvrect[3];
         }
         for (i = 0; i < vertsz; i++) {
             var x= vertices[ci], y= vertices[ci + 1];

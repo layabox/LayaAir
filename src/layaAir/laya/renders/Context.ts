@@ -1353,7 +1353,8 @@ export class Context {
         //rgba = _mixRGBandAlpha(rgba, alpha);	这个函数有问题，不能连续调用，输出作为输入
         if (!sameKey) {
             //添加一个新的submit
-            var submit: SubmitBase = this._curSubmit = SubmitBase.create(this, this._mesh, Value2D.create(RenderSpriteData.Texture2D));
+            var submit = this._curSubmit = SubmitBase.create(this, this._mesh, 
+                Value2D.create(RenderSpriteData.Texture2D));
             submit.shaderValue.textureHost = tex;
             this.fillShaderValue(submit.shaderValue);
             submit._key.submitType = SubmitBase.KEY_TRIANGLES;
@@ -1369,10 +1370,11 @@ export class Context {
                 tmpMat.a = matrix.a; tmpMat.b = matrix.b; tmpMat.c = matrix.c; tmpMat.d = matrix.d; tmpMat.tx = matrix.tx + x; tmpMat.ty = matrix.ty + y;
             }
             Matrix.mul(tmpMat, this._curMat, tmpMat);
-            (this._mesh as MeshTexture).addData(vertices, uvs, indices, tmpMat || this._curMat, rgba,tex.uvrect);
+            //由于2d动画部分的uvs是绝对的（例如图集的话就是相对图集的）所以最后不传uvrect了。
+            (this._mesh as MeshTexture).addData(vertices, uvs, indices, tmpMat || this._curMat, rgba,null);
         } else {
             // 这种情况是drawtexture转成的drawTriangle，直接使用matrix就行，传入的xy都是0
-            (this._mesh as MeshTexture).addData(vertices, uvs, indices, matrix, rgba,tex.uvrect);
+            (this._mesh as MeshTexture).addData(vertices, uvs, indices, matrix, rgba,null);
         }
         this._curSubmit._numEle += indices.length;
 
