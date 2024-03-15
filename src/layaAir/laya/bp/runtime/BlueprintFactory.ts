@@ -173,7 +173,9 @@ export class BlueprintFactory {
                         let varMap = this[BlueprintFactory.bpSymbol].varMap;
                         if (varMap) {
                             for (let str in varMap) {
-                                this[BlueprintFactory.contextSymbol].initVar(varMap[str].name, varMap[str].value);
+                                if(!varMap[str].modifiers?.isStatic){
+                                    this[BlueprintFactory.contextSymbol].initVar(varMap[str].name, varMap[str].value);
+                                }
                                 //a[str]
                             }
                         }
@@ -219,7 +221,15 @@ export class BlueprintFactory {
         }
 
         let newClass = classFactory(name, cls);
-        newClass[BlueprintFactory.contextSymbol] = new BlueprintFactory.BPExcuteCls(newClass);
+        let staticContext:IRunAble=newClass[BlueprintFactory.contextSymbol] = new BlueprintFactory.BPExcuteCls(newClass);
+        if (varMap) {
+            for (let str in varMap) {
+                if(varMap[str].modifiers?.isStatic){
+                    staticContext.initVar(varMap[str].name, varMap[str].value);
+                }
+                //a[str]
+            }
+        }
         BlueprintUtil.regClass(name, newClass);
         let bp:BlueprintRuntime = newClass.prototype[BlueprintFactory.bpSymbol] = new BlueprintFactory.BPRuntimeCls();
         bp.dataMap = data.dataMap;
