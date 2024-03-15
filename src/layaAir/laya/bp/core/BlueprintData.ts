@@ -14,10 +14,12 @@ export class BlueprintData {
     private static defFunIn = {
         name: "execute",
         type: "exec",
+        id: -1
     };
     private static defTarget = {
         name: "target",
         type: "any",
+        id: -2
     }
     private static defEventOut = this.defFunOut;
     /**所有的数据 */
@@ -336,7 +338,7 @@ export class BlueprintData {
         if (this.funlike.includes(cdata.type)) {
             cdata.input = cdata.input || [];
             if (!fun.modifiers.isStatic) {
-                cdata.input.unshift({ name: "target", type: ext });
+                cdata.input.unshift({ name: "target", type: ext, id: -2 });
             }
             if (cdata.type == BPType.Pure) {
                 cdata.output.shift();
