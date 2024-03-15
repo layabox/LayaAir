@@ -10,6 +10,7 @@ import { LayaGL } from "../layagl/LayaGL";
 import { Bezier } from "../maths/Bezier";
 import { Color } from "../maths/Color";
 import { Matrix } from "../maths/Matrix";
+import { Matrix4x4 } from "../maths/Matrix4x4";
 import { Point } from "../maths/Point";
 import { Rectangle } from "../maths/Rectangle";
 import { Vector2 } from "../maths/Vector2";
@@ -1035,6 +1036,16 @@ export class Context {
                 shaderdata.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_SRC_ALPHA);
                 shaderdata.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA);
         }
+
+        if (submit._colorFiler) {
+            var ft = submit._colorFiler;
+            shaderValue.setFilter(ft);
+            Matrix4x4.TEMPMatrix0.cloneByArray(ft._mat);
+            shaderdata.setMatrix4x4(ShaderDefines2D.UNIFORM_COLORMAT, Matrix4x4.TEMPMatrix0);
+            Vector4.tempVec4.setValue(ft._alpha[0], ft._alpha[1], ft._alpha[2], ft._alpha[3]);
+            shaderdata.setVector(ShaderDefines2D.UNIFORM_COLORALPHA, Vector4.tempVec4);
+        }
+        
         this._drawMesh(mesh, 0, mesh.vertexNum, submit._startIdx, mesh.indexNum, submit.shaderValue);
         this.stopMerge=false;
     }

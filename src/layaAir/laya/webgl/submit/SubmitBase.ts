@@ -1,4 +1,5 @@
 import { Const } from "../../Const";
+import { ColorFilter } from "../../filters/ColorFilter";
 import { Context } from "../../renders/Context";
 import { Material } from "../../resource/Material";
 import { Value2D } from "../shader/d2/value/Value2D";
@@ -32,6 +33,7 @@ export class SubmitBase {
     /**@internal */
     _numEle = 0;
 
+    _colorFiler:ColorFilter=null;
     shaderValue: Value2D = null;
 
     constructor() {
@@ -53,6 +55,7 @@ export class SubmitBase {
         o.shaderValue = sv;
         o.material = context.material;
         //sv.setValue(context._shader2D);
+        o._colorFiler = context._colorFiler;
         return o;
     }
 }

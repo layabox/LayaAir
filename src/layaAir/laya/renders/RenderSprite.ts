@@ -4,25 +4,20 @@ import { NodeFlags } from "../Const";
 import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
 import { Sprite } from "../display/Sprite";
 import { SpriteConst } from "../display/SpriteConst";
-import { CacheStyle } from "../display/css/CacheStyle";
 import { SpriteStyle } from "../display/css/SpriteStyle";
 import { Filter } from "../filters/Filter";
 import { Matrix } from "../maths/Matrix";
 import { Rectangle } from "../maths/Rectangle";
-import { HTMLCanvas } from "../resource/HTMLCanvas";
 import { RenderTexture2D } from "../resource/RenderTexture2D";
 import { Texture } from "../resource/Texture";
 import { WebGLRTMgr } from "../resource/WebGLRTMgr";
 import { HitArea } from "../utils/HitArea";
 import { Stat } from "../utils/Stat";
 import { BlendMode } from "../webgl/canvas/BlendMode";
-import { WebGLCacheAsNormalCanvas } from "../webgl/canvas/WebGLCacheAsNormalCanvas";
-import { TextureSV } from "../webgl/shader/d2/value/TextureSV";
 import { MeshQuadTexture } from "../webgl/utils/MeshQuadTexture";
 import { Context } from "./Context";
 import { LayaGLQuickRunner } from "./LayaGLQuickRunner";
 import { Render2DSimple } from "./Render2D";
-import { RenderToCache } from "./RenderToCache";
 import { SpriteCache } from "./SpriteCache";
 
 /**
@@ -33,7 +28,6 @@ export interface _RenderFunction {
     (sp: Sprite, ctx: Context, x: number, y: number): void;
 }
 
-let _simpleTextureSV:TextureSV;
 let _quadMesh: MeshQuadTexture;
 let _quadMeshVB:Float32Array;
 function _fillQuad(x:number, y:number, w:number, h:number){
@@ -64,7 +58,6 @@ export class RenderSprite {
 
     /** @internal */
     static __init__(): void {
-        _simpleTextureSV = new TextureSV();
         _quadMesh = new MeshQuadTexture();
         _quadMesh.addQuad([0,0,1,0,1,1,0,1],[0,0,1,0,1,1,0,1],0xffffffff,true);
         _quadMeshVB = new Float32Array(_quadMesh.vbBuffer);
