@@ -2,18 +2,20 @@ import { BufferTargetType, BufferUsage } from "../../../RenderEngine/RenderEnum/
 import { VertexDeclaration } from "../../../RenderEngine/VertexDeclaration";
 import { IVertexBuffer } from "../../DriverDesign/RenderDevice/IVertexBuffer";
 import { WebGPUBuffer, WebGPUBufferUsage } from "./WebGPUBuffer";
+import { WebGPUGlobal } from "./WebGPUStatis/WebGPUGlobal";
 
 export class WebGPUVertexBuffer implements IVertexBuffer {
     source: WebGPUBuffer;
     vertexDeclaration: VertexDeclaration;
     instanceBuffer: boolean;
+
     private _id: number;
-    static _idCounter: number = 0;
+    name: string = 'WebGPUVertexBuffer';
 
     constructor(targetType: BufferTargetType, bufferUsageType: BufferUsage) {
         let usage = WebGPUBufferUsage.VERTEX | WebGPUBufferUsage.COPY_DST;
         this.source = new WebGPUBuffer(usage, 0);
-        this._id = WebGPUVertexBuffer._idCounter++;
+        this._id = WebGPUGlobal.getId(this);
     }
 
     setData(buffer: ArrayBuffer, bufferOffset: number, dataStartIndex: number, dataCount: number): void {
@@ -29,7 +31,8 @@ export class WebGPUVertexBuffer implements IVertexBuffer {
     }
 
     destory(): void {
+        WebGPUGlobal.releaseId(this);
         this.source.release();
-        this.vertexDeclaration = null
+        this.vertexDeclaration = null;
     }
 }

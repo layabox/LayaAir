@@ -31,9 +31,11 @@ import { Material } from "laya/resource/Material";
 import { Quaternion } from "laya/maths/Quaternion";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 import { ScreenQuad } from "laya/d3/core/render/ScreenQuad";
+import { WebGPUStatis } from "laya/RenderDriver/WebGPUDriver/RenderDevice/WebGPUStatis/WebGPUStatis";
 
 export class WebGPUTest {
-    rotation: Vector3 = new Vector3(0, 0.01, 0);
+    rotation1: Vector3 = new Vector3(0, 0.01, 0);
+    rotation2: Vector3 = new Vector3(0, 0.02, 0);
     useWebGPU: boolean = true;
 
     constructor() {
@@ -72,41 +74,44 @@ export class WebGPUTest {
             // scene.addChild(directlightSprite);
             // dircom.color.setValue(1, 1, 1, 1);
 
-            const sphereMesh: Mesh = PrimitiveMesh.createSphere(0.5);
-            const boxMesh = PrimitiveMesh.createBox(0.5, 0.5, 0.5);
+            const boxMesh1 = PrimitiveMesh.createBox(0.5, 0.5, 0.5);
+            //const boxMesh2 = PrimitiveMesh.createBox(0.6, 0.6, 0.6);
 
-            // const earth1 = scene.addChild(new Sprite3D());
-            // const meshFilter1 = earth1.addComponent(MeshFilter);
-            // const meshRenderer1 = earth1.addComponent(MeshRenderer);
-            // meshFilter1.sharedMesh = sphereMesh;
-            // earth1.transform.position = new Vector3(-0.5, 0, 0);
-            // meshRenderer1.castShadow = false;
-            // meshRenderer1.receiveShadow = false;
+            const earth1 = scene.addChild(new Sprite3D());
+            earth1.transform.position = new Vector3(0, 0, 0);
+            const meshFilter1 = earth1.addComponent(MeshFilter);
+            const meshRenderer1 = earth1.addComponent(MeshRenderer);
+            meshFilter1.sharedMesh = boxMesh1;
+            meshRenderer1.castShadow = false;
+            meshRenderer1.receiveShadow = false;
 
-            const earth2 = scene.addChild(new Sprite3D());
-            const meshFilter2 = earth2.addComponent(MeshFilter);
-            const meshRenderer2 = earth2.addComponent(MeshRenderer);
-            meshFilter2.sharedMesh = boxMesh;
-            earth2.transform.position = new Vector3(0, 0, 0);
+            // const earth2 = scene.addChild(new Sprite3D());
+            // earth2.transform.position = new Vector3(0.5, 0, 0);
+            // const meshFilter2 = earth2.addComponent(MeshFilter);
+            // const meshRenderer2 = earth2.addComponent(MeshRenderer);
+            // meshFilter2.sharedMesh = boxMesh2;
+            // meshRenderer2.castShadow = false;
+            // meshRenderer2.receiveShadow = false;
 
-            //const material = new BlinnPhongMaterial();
-            const material = new UnlitMaterial();
+            const material1 = new UnlitMaterial();
+            //const material2 = new UnlitMaterial();
             //const material = new Material();
             //material.setShaderName('UnLight');
-            //漫反射贴图
             Texture2D.load("res/threeDimen/texture/earth.jpg", Handler.create(this, (texture: Texture2D) => {
-                material.albedoTexture = texture;
+                material1.albedoTexture = texture;
+                //material2.albedoTexture = texture;
                 //material.setTexture('u_AlbedoTexture', texture);
                 //material.addDefine(Shader3D.getDefineByName('ALBEDOTEXTURE'));
             }));
-            meshRenderer2.material = material;
-            meshRenderer2.castShadow = false;
-            meshRenderer2.receiveShadow = false;
+            meshRenderer1.material = material1;
+            //meshRenderer2.material = material2;
 
             Laya.timer.frameLoop(1, this, () => {
-                //earth1.transform.rotate(this.rotation, false);
-                earth2.transform.rotate(this.rotation, false);
+                earth1.transform.rotate(this.rotation1, false);
+                //earth2.transform.rotate(this.rotation2, false);
             });
+
+            Laya.timer.once(3000, this, () => { WebGPUStatis.printStatisticsAsTable(); });
         });
     }
 }

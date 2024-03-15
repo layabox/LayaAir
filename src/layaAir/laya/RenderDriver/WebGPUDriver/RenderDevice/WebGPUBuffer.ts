@@ -1,4 +1,5 @@
 import { WebGPURenderEngine } from "./WebGPURenderEngine";
+import { WebGPUGlobal } from "./WebGPUStatis/WebGPUGlobal";
 
 export enum WebGPUBufferUsage {
     MAP_READ = GPUBufferUsage.MAP_READ,
@@ -27,16 +28,15 @@ export class WebGPUBuffer {
     private _mappedAtCreation = false;
 
     private _id: number;
-    static _idCounter: number = 0;
+    name: string = 'WebGPUBuffer';
 
     constructor(usage: GPUBufferUsageFlags, byteSize: number = 0, mappedAtCreation: boolean = false) {
         this._size = byteSize;
         this._usage = usage;
         this._mappedAtCreation = mappedAtCreation;
-        if (this._size > 0) {
+        if (this._size > 0)
             this._create();
-        }
-        this._id = WebGPUBuffer._idCounter++;
+        this._id = WebGPUGlobal.getId(this);
     }
 
     /**
