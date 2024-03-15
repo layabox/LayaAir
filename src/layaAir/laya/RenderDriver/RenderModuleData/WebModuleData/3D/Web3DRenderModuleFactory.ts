@@ -3,13 +3,14 @@ import { Sprite3D } from "../../../../d3/core/Sprite3D";
 import { Transform3D } from "../../../../d3/core/Transform3D";
 import { BoundsImpl } from "../../../../d3/math/BoundsImpl";
 import { Vector3 } from "../../../../maths/Vector3";
-import { IShaderPassData } from "../../Design/3D/I3DRenderModuleData";
+import { IPointLightData, IShaderPassData } from "../../Design/3D/I3DRenderModuleData";
 import { I3DRenderModuleFactory } from "../../Design/3D/I3DRenderModuleFactory";
 import { WebBaseRenderNode } from "./WebBaseRenderNode";
 import { WebDirectLight } from "./WebDirectLight";
 import { WebLightmap } from "./WebLightmap";
 import { WebMeshRenderNode } from "./WebMeshRenderNode";
 import { WebCameraNodeData, WebSceneNodeData, WebShaderPass, WebSubShader } from "./WebModuleData";
+import { WebPointLight } from "./WebPointLight";
 import { WebReflectionProbe } from "./WebReflectionProb";
 import { WebSpotLight } from "./WebSpotLight";
 import { WebVolumetricGI } from "./WebVolumetricGI";
@@ -45,6 +46,10 @@ export class Web3DRenderModuleFactory implements I3DRenderModuleFactory {
 
   createSpotLight(): WebSpotLight {
     return new WebSpotLight();
+  }
+
+  createPointLight(): IPointLightData {
+    throw new WebPointLight();
   }
 
   createCameraModuleData(): WebCameraNodeData {

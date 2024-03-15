@@ -118,6 +118,18 @@ export interface ISpotLightData {
     setDirection(value: Vector3): void;
 }
 
+export interface IPointLightData {
+    transform: Transform3D;
+    range: number;
+    shadowResolution: number;
+    shadowDistance: number;
+    shadowMode: ShadowMode;
+    shadowStrength: number;
+    shadowDepthBias: number;
+    shadowNormalBias: number;
+    shadowNearPlane: number;
+}
+
 export interface ILightMapData {
     /**@internal */
     lightmapColor: InternalTexture;

@@ -10,8 +10,8 @@ import { ISpotLightData } from "../../../RenderDriver/RenderModuleData/Design/3D
  * <code>SpotLight</code> 类用于创建聚光。
  */
 export class SpotLightCom extends Light {
-	/**@internal */
-	_dataModule: ISpotLightData;
+	 
+	declare _dataModule: ISpotLightData;
 
 	/** @internal */
 	private _direction: Vector3;
