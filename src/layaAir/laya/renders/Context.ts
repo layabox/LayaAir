@@ -1011,8 +1011,8 @@ export class Context {
         let shaderdata = shaderValue.shaderData;
         switch (submit._key.blendShader) {
             case 1://add
-            case 3:
-            case 5:
+            case 3://screen
+            case 5://light
                 shaderdata.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_ONE);
                 shaderdata.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ONE);
                 break;
@@ -1024,16 +1024,16 @@ export class Context {
                 shaderdata.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_ZERO);
                 shaderdata.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_SRC_ALPHA);
                 break;
-            case 7:
+            case 7://destination
                 shaderdata.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_ZERO);
                 shaderdata.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ZERO);
                 break;
-            case 9:
+            case 9:// not premul alpha
                 shaderdata.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_SRC_ALPHA);
                 shaderdata.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA);
                 break;
-            default:
-                shaderdata.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_SRC_ALPHA);
+            default:// premul alpha
+                shaderdata.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_ONE);
                 shaderdata.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA);
         }
 
