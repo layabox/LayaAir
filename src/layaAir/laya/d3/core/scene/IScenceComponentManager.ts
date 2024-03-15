@@ -5,10 +5,10 @@ export interface IElementComponentManager {
 
     /**@internal name used find manager by scene3D */
     name: string;
-    
+
     /**@internal init by Scene3D Init*/
-    Init(): void;
-    
+    Init(data: any): void;
+
     /**@internal update when frame loop */
-    update(): void;
+    update(dt: number): void;
 }

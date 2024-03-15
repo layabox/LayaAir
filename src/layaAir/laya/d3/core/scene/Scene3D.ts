@@ -456,7 +456,8 @@ export class Scene3D extends Sprite implements ISubmit {
 
     componentElementMap: Map<string, IElementComponentManager> = new Map();
 
-
+    /** @internal */
+    private _componentElementDatasMap: any = {};
 
     /**
      * Scene3D所属的2D场景，使用IDE编辑的场景载入后具有此属性。
@@ -825,6 +826,20 @@ export class Scene3D extends Sprite implements ISubmit {
     }
 
     /**
+   * @internal
+   */
+    set componentElementDatasMap(value: any) {
+        this._componentElementDatasMap = value;
+        this.componentElementMap.forEach((value, key) => {
+            value.Init(this._componentElementDatasMap[key])
+        });
+    }
+
+    get componentElementDatasMap(): any {
+        return this._componentElementDatasMap;
+    }
+
+    /**
      *@internal
      */
     protected _update(): void {
@@ -848,6 +863,9 @@ export class Scene3D extends Sprite implements ISubmit {
         else
             this._volumeManager.handleMotionlist();
 
+        this.componentElementMap.forEach((value) => {
+            value.update(delta);
+        });
         this._componentDriver.callStart();
         this._componentDriver.callUpdate();
 
