@@ -39,6 +39,8 @@ export enum ComponentType {
 
 export interface TBPStageData {
     //events: string[],
+    /** 修饰符 */
+    modifiers?: BPModifiers,
     name: string,
     id: number,
     uiData?: {
@@ -58,6 +60,8 @@ export interface TBPStageData {
     dataMap?: Record<string, TBPVarProperty | TBPEventProperty>;
 }
 export interface TBPVarProperty {
+    /** 修饰符 */
+    modifiers?: BPModifiers,
     bpType?: "function" | "event" | "prop" | "construct",
     id: string,
     name: string,
