@@ -1007,23 +1007,33 @@ export class Context {
         if (mesh.indexNum <= 0)
             return;
         let shaderValue = submit.shaderValue;
+        let shaderdata = shaderValue.shaderData;
         switch (submit._key.blendShader) {
             case 1://add
-                shaderValue.shaderData.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_ONE);
-                shaderValue.shaderData.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ONE);
-                break;
+            case 3:
             case 5:
-                shaderValue.blendAdd();
+                shaderdata.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_ONE);
+                shaderdata.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ONE);
+                break;
+            case 2://BlendMultiply
+                shaderdata.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_DST_COLOR);
+                shaderdata.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA);
                 break;
             case 6://mask
-                shaderValue.blendMask();
+                shaderdata.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_ZERO);
+                shaderdata.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_SRC_ALPHA);
                 break;
             case 7:
-                shaderValue.shaderData.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_ZERO);
-                shaderValue.shaderData.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ZERO);
+                shaderdata.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_ZERO);
+                shaderdata.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ZERO);
+                break;
+            case 9:
+                shaderdata.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_SRC_ALPHA);
+                shaderdata.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA);
                 break;
             default:
-                shaderValue.blendNormal();
+                shaderdata.setInt(Shader3D.BLEND_SRC, RenderState.BLENDPARAM_SRC_ALPHA);
+                shaderdata.setInt(Shader3D.BLEND_DST, RenderState.BLENDPARAM_ONE_MINUS_SRC_ALPHA);
         }
         this._drawMesh(mesh, 0, mesh.vertexNum, submit._startIdx, mesh.indexNum, submit.shaderValue);
         this.stopMerge=false;
