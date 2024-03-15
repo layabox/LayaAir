@@ -1,4 +1,3 @@
-bin/res
 bin/tsc
 node_modules
 .cache
