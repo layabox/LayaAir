@@ -195,9 +195,9 @@ export class WebBaseRenderNode implements IBaseRenderNode {
      * 全局贴图
      */
     _applyLightMapParams(): void {
+        let shaderValues = this.shaderData;
         if (this.lightmap) {
-            var lightMap = this.lightmap;
-            var shaderValues = this.shaderData;
+            let lightMap = this.lightmap;
             shaderValues.setVector(RenderableSprite3D.LIGHTMAPSCALEOFFSET, this.lightmapScaleOffset);
             shaderValues._setInternalTexture(RenderableSprite3D.LIGHTMAP, lightMap.lightmapColor);
             shaderValues.addDefine(RenderableSprite3D.SAHDERDEFINE_LIGHTMAP);
