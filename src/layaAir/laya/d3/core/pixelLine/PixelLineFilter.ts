@@ -40,7 +40,7 @@ export class PixelLineFilter extends GeometryElement {
 	/** @internal */
 	private _floatBound: Float32Array = new Float32Array(6);
 	/** @internal */
-	private _calculateBound: boolean = false;
+	private _calculateBound: boolean = true;
 
 	/** @internal */
 	_ownerRender: PixelLineRenderer;
@@ -223,6 +223,7 @@ export class PixelLineFilter extends GeometryElement {
 	_updateLineData(index: number, startPosition: Vector3, endPosition: Vector3, startColor: Color, endColor: Color): void {
 		var floatCount: number = this._floatCountPerVertices * 2;
 		this._updateLineVertices(index * floatCount, startPosition, endPosition, startColor, endColor);
+		this._calculateBound = true;
 	}
 
 	/**
@@ -235,6 +236,7 @@ export class PixelLineFilter extends GeometryElement {
 			var line: PixelLineData = data[i];
 			this._updateLineVertices((index + i) * floatCount, line.startPosition, line.endPosition, line.startColor, line.endColor);
 		}
+		this._calculateBound = data.length > 0;
 	}
 
 	/**

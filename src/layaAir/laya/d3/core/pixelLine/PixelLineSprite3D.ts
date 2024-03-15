@@ -12,6 +12,9 @@ import { Vector3 } from "../../../maths/Vector3";
  * <code>PixelLineSprite3D</code> 类用于像素线渲染精灵。
  */
 export class PixelLineSprite3D extends RenderableSprite3D {
+
+    declare _render: PixelLineRenderer;
+
     /** @private 是否调用active */
     private _isRenderActive: Boolean = false;
     /** @private 是否加入渲染队列*/
@@ -67,7 +70,7 @@ export class PixelLineSprite3D extends RenderableSprite3D {
      * @param	endColor	   结束点颜色
      */
     addLine(startPosition: Vector3, endPosition: Vector3, startColor: Color, endColor: Color): void {
-        (this._render as PixelLineRenderer).addLine(startPosition, endPosition, startColor, endColor);
+        this._render.addLine(startPosition, endPosition, startColor, endColor);
     }
 
     /**
@@ -75,7 +78,7 @@ export class PixelLineSprite3D extends RenderableSprite3D {
      * @param	lines  线段数据
      */
     addLines(lines: PixelLineData[]): void {
-        (this._render as PixelLineRenderer).addLines(lines);
+        this._render.addLines(lines);
     }
 
     /**
@@ -83,7 +86,7 @@ export class PixelLineSprite3D extends RenderableSprite3D {
      * @param index 索引。
      */
     removeLine(index: number): void {
-        (this._render as PixelLineRenderer).removeLine(index);
+        this._render.removeLine(index);
     }
 
     /**
