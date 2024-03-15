@@ -81,7 +81,8 @@ export abstract class Filter implements IFilter {
                 height=filter.height;
                 dst = filter.texture;
             }
-            context.render2D.out=lastRT;
+            context.render2D.setRenderTarget(lastRT);
+            //context.render2D.out=lastRT;
             // 把最终结果保存到cache
             cache.renderTexture = dst;
             cache.renderTexOffx=filters[len-1].top;

@@ -28,9 +28,9 @@ export abstract class Render2D {
     setRenderTarget(rt:RenderTexture2D){};//临时
     abstract clone(out: RenderTexture2D): Render2D;
     //可以随时设置rt
-    set out(out: RenderTexture2D) {
-        this._renderTexture = out;
-    }
+    // set out(out: RenderTexture2D) {
+    //     this._renderTexture = out;
+    // }
     get out() {
         return this._renderTexture;
     }

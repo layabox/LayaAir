@@ -75,16 +75,17 @@ export class GlowFilter extends Filter {
         this.width=outTexWidth;
         this.height=outTexHeight;
 
-        let render2d = this._render2D;
-
+        
         //先把贴图画到扩展后的贴图上，这样可以避免处理边界问题。后面直接拿着扩展后的贴图处理就行了
         if(!this.textureExtend || this.textureExtend.destroyed || this.textureExtend.width!=outTexWidth || 
             this.textureExtend.height!=outTexHeight){
-            if(this.textureExtend)
+                if(this.textureExtend)
                 this.textureExtend.destroy();
             this.textureExtend = new RenderTexture2D(outTexWidth,outTexHeight,RenderTargetFormat.R8G8B8A8);
         }
-        render2d.out = this.textureExtend;
+
+        let render2d = this._render2D.clone(this.textureExtend);
+        //render2d.out = this.textureExtend;
         render2d.renderStart();
         this.shaderDataCopy1.size = new Vector2(outTexWidth,outTexHeight);
         this.shaderDataCopy1.textureHost = srctexture;
@@ -102,7 +103,8 @@ export class GlowFilter extends Filter {
             this.texture = new RenderTexture2D(outTexWidth,outTexHeight,RenderTargetFormat.R8G8B8A8);
         }
 
-        render2d.out = this.texture;
+        render2d = render2d.clone(this.texture)
+        //render2d.out = this.texture;
         render2d.renderStart();
         //修改mesh
         this._fillQuad(0, 0, outTexWidth,outTexHeight,[0,1,1,0]);    //翻转y
