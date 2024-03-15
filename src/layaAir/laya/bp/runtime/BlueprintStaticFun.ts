@@ -293,7 +293,6 @@ export class BlueprintStaticFun {
      * @returns 
      */
     static runExpress(express: string, a: any, b: any, c: any): any {
-        debugger;
         let expressTree = ExpressParse.instance.parse(express);
         let context = { a: a, b: b, c: c, Math: Math };
         return expressTree.call(context);

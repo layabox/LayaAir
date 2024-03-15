@@ -56,6 +56,7 @@ export interface TBPStageData {
     /**是否是当前显示的节点 */
     isShow?: boolean;
     arr: Array<TBPNode>;
+    isStatic?: boolean;
     /**保存的时候不会有这个值，这是build的时候传值用的 */
     dataMap?: Record<string, TBPVarProperty | TBPEventProperty>;
 }

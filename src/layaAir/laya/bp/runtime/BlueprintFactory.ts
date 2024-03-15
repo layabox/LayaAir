@@ -221,7 +221,7 @@ export class BlueprintFactory {
         let newClass = classFactory(name, cls);
         newClass[BlueprintFactory.contextSymbol] = new BlueprintFactory.BPExcuteCls(newClass);
         BlueprintUtil.regClass(name, newClass);
-        let bp = newClass.prototype[BlueprintFactory.bpSymbol] = new BlueprintFactory.BPRuntimeCls();
+        let bp:BlueprintRuntime = newClass.prototype[BlueprintFactory.bpSymbol] = new BlueprintFactory.BPRuntimeCls();
         bp.dataMap = data.dataMap;
         // debugger;
         let c = function (node: TBPNode): TBPCNode {
