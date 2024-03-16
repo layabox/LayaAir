@@ -1,4 +1,3 @@
-import { ScreenQuad } from "../../../d3/core/render/ScreenQuad";
 import { VertexElementFormat } from "../../../renders/VertexElementFormat";
 import { IBufferState } from "../../DriverDesign/RenderDevice/IBufferState";
 import { WebGPUIndexBuffer } from "./WebGPUIndexBuffer";
@@ -11,10 +10,10 @@ export enum WebGPUVertexStepMode {
 }
 
 export class WebGPUBufferState implements IBufferState {
-    static IDCounter: number = 0;
-    _id: number;
-    _updateBufferLayoutFlag: number = 0;
-    _vertexState: Array<GPUVertexBufferLayout> = new Array();//GPURenderPipelineDescriptor-GPUVertexState
+    static IdCounter: number = 0;
+    id: number;
+    updateBufferLayoutFlag: number = 0;
+    vertexState: Array<GPUVertexBufferLayout> = new Array();//GPURenderPipelineDescriptor-GPUVertexState
     _bindedIndexBuffer: WebGPUIndexBuffer;
     _vertexBuffers: WebGPUVertexBuffer[];
 
@@ -25,16 +24,16 @@ export class WebGPUBufferState implements IBufferState {
         this._vertexBuffers = vertexBuffers.slice();
         this._bindedIndexBuffer = indexBuffer;
         this._getVertexBufferLayoutArray();
-        this._updateBufferLayoutFlag++;
+        this.updateBufferLayoutFlag++;
     }
 
     constructor() {
-        this._id = WebGPUBufferState.IDCounter++;
+        this.id = WebGPUBufferState.IdCounter++;
         this.globalId = WebGPUGlobal.getId(this);
     }
 
     private _getVertexBufferLayoutArray() {
-        this._vertexState.length = 0;
+        this.vertexState.length = 0;
         this._vertexBuffers.forEach(element => {
             const vertexDec = element.vertexDeclaration
             const vertexAttribute: GPUVertexAttribute[] = new Array<GPUVertexAttribute>();
@@ -51,7 +50,7 @@ export class WebGPUBufferState implements IBufferState {
                 stepMode: element.instanceBuffer ? WebGPUVertexStepMode.instance : WebGPUVertexStepMode.vertex,
                 attributes: vertexAttribute
             };
-            this._vertexState.push(verteBufferLayout);
+            this.vertexState.push(verteBufferLayout);
         });
     }
 

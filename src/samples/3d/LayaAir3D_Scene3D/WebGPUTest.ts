@@ -33,6 +33,7 @@ import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 import { ScreenQuad } from "laya/d3/core/render/ScreenQuad";
 import { WebGPUStatis } from "laya/RenderDriver/WebGPUDriver/RenderDevice/WebGPUStatis/WebGPUStatis";
 import { Config3D } from "Config3D";
+import { WebGPURenderEngine } from "laya/RenderDriver/WebGPUDriver/RenderDevice/WebGPURenderEngine";
 
 export class WebGPUTest {
     rotation1: Vector3 = new Vector3(0, 0.01, 0);
@@ -149,6 +150,7 @@ export class WebGPUTest {
             });
 
             Laya.timer.once(5000, this, () => { WebGPUStatis.printStatisticsAsTable(); });
+            Laya.timer.once(6000, this, () => { console.log(WebGPURenderEngine._instance.gpuBufferMgr.namedBuffers.get('sprite3D')); });
         });
     }
 }

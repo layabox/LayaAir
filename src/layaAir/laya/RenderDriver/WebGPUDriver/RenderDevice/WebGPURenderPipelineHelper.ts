@@ -304,15 +304,13 @@ export class WebGPURenderPipeline {
         const primitiveState = WebGPUPrimitiveState.getGPUPrimitiveState(info.geometry.mode, info.frontFace, info.cullMode);
         const bufferState = info.geometry.bufferState;
         const depthStencilId = info.depthStencilState ? info.depthStencilState.id : -1;
-        const strId = `${primitiveState.id}_${info.blendState.id}_${depthStencilId}_${rt.formatId}_${bufferState._id}_${bufferState._updateBufferLayoutFlag}`;
+        const strId = `${primitiveState.id}_${info.blendState.id}_${depthStencilId}_${rt.formatId}_${bufferState.id}_${bufferState.updateBufferLayoutFlag}`;
         let renderPipeline = map.get(strId);
         if (!renderPipeline) {
-            //console.log(info.blendState.state, info.depthStencilState?.state, primitiveState.state, bufferState._vertexState, shader, rt);
-            //@ts-ignore
-            //console.log(WebGPURenderEngine._instance._propertyNameMap);
             renderPipeline = this.createRenderPipeline
-                (info.blendState.state, info.depthStencilState?.state, primitiveState.state, bufferState._vertexState, shader, rt);
+                (info.blendState.state, info.depthStencilState?.state, primitiveState.state, bufferState.vertexState, shader, rt);
             map.set(strId, renderPipeline);
+            console.log(strId);
         }
         return renderPipeline;
     }

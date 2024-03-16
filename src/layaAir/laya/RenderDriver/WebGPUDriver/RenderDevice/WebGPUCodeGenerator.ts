@@ -125,25 +125,52 @@ export class WebGPUCodeGenerator {
 
         const uniformInfo: WebGPUUniformPropertyBindingInfo[] = [];
 
+        const _have = (group: NameAndType[], name: string) => {
+            for (let i = group.length - 1; i > -1; i--)
+                if (group[i].name == name)
+                    return true;
+            return false;
+        }
+
         const regex = /\[(.*?)\]/g;
         const _catalog = (name: string, type: string) => {
-            const id = Shader3D.propertyNameToID(name.replace(regex, ''));
-            if (sceneUniformMap.hasPtrID(id))
-                sceneUniforms.push({ name, type, set: 0 });
-            else if (cameraUniformMap.hasPtrID(id))
-                cameraUniforms.push({ name, type, set: 1 });
-            else if (sprite3DUniformMap.hasPtrID(id))
-                sprite3DUniforms.push({ name, type, set: 2 });
-            else if (simpleSkinnedMeshUniformMap.hasPtrID(id))
-                sprite3DUniforms.push({ name, type, set: 2 });
-            else if (shurikenSprite3DUniformMap.hasPtrID(id))
-                sprite3DUniforms.push({ name, type, set: 2 });
-            else if (trailRenderUniformMap.hasPtrID(id))
-                sprite3DUniforms.push({ name, type, set: 2 });
-            else if (type == "sampler2D" || type == "samplerCube")
-                textureUniforms.push({ name, type, set: 3 });
-            else materialUniforms.push({ name, type, set: 3 });
+            const id = Shader3D.propertyNameToID(name.replace(regex, '_'));
+            if (sceneUniformMap.hasPtrID(id)) {
+                if (!_have(sceneUniforms, name))
+                    sceneUniforms.push({ name, type, set: 0 });
+            }
+            else if (cameraUniformMap.hasPtrID(id)) {
+                if (!_have(cameraUniforms, name))
+                    cameraUniforms.push({ name, type, set: 1 });
+            }
+            else if (sprite3DUniformMap.hasPtrID(id)) {
+                if (!_have(sprite3DUniforms, name))
+                    sprite3DUniforms.push({ name, type, set: 2 });
+            }
+            else if (simpleSkinnedMeshUniformMap.hasPtrID(id)) {
+                if (!_have(sprite3DUniforms, name))
+                    sprite3DUniforms.push({ name, type, set: 2 });
+            }
+            else if (shurikenSprite3DUniformMap.hasPtrID(id)) {
+                if (!_have(sprite3DUniforms, name))
+                    sprite3DUniforms.push({ name, type, set: 2 });
+            }
+            else if (trailRenderUniformMap.hasPtrID(id)) {
+                if (!_have(sprite3DUniforms, name))
+                    sprite3DUniforms.push({ name, type, set: 2 });
+            }
+            else if (type == "sampler2D" || type == "samplerCube") {
+                if (!_have(textureUniforms, name))
+                    textureUniforms.push({ name, type, set: 3 });
+            }
+            else if (!_have(materialUniforms, name))
+                materialUniforms.push({ name, type, set: 3 });
         }
+
+        if (sprite3DUniforms.length == 0)
+            sprite3DUniforms.push({ name: 'u_WorldMat', type: 'mat4', set: 2 });
+        if (materialUniforms.length == 0)
+            materialUniforms.push({ name: 'u_AlbedoColor', type: 'vec4', set: 3 });
 
         for (const key in uniformMap) {
             if (typeof uniformMap[key] == "object") { //block
@@ -208,7 +235,8 @@ export class WebGPUCodeGenerator {
 
         sceneUniforms = _procUniforms(0, 0, "scene", sceneUniformMap);
         cameraUniforms = _procUniforms(1, 0, "camera", cameraUniformMap);
-        sprite3DUniforms = _procUniforms(2, 0, "sprite3D", sprite3DUniformMap);
+        //sprite3DUniforms = _procUniforms(2, 0, "sprite3D", sprite3DUniformMap);
+        sprite3DUniforms = _procUniforms(2, 0, "sprite3D", undefined, sprite3DUniforms);
         materialUniforms = _procUniforms(3, 0, "material", undefined, materialUniforms);
 
         return {
@@ -605,6 +633,8 @@ mat4 inverse(mat4 m)
             defineString.forEach(def => { defMap[def] = true; });
             defMap['GL_FRAGMENT_PRECISION_HIGH'] = true;
             vsOut = WebGPUShaderCompileUtil.toScript(ret, defMap, vsTod);
+            if (vsOut.indexOf('inverse') == -1)
+                vsNeedInverseFunc = false;
             if (vsTod.uniform)
                 for (const key in vsTod.uniform) {
                     if (!uniformMap[key]) {
@@ -638,6 +668,8 @@ mat4 inverse(mat4 m)
             defineString.forEach(def => { defMap[def] = true; });
             defMap['GL_FRAGMENT_PRECISION_HIGH'] = true;
             fsOut = WebGPUShaderCompileUtil.toScript(ret, defMap, fsTod);
+            if (fsOut.indexOf('inverse') == -1)
+                fsNeedInverseFunc = false;
             if (fsTod.uniform)
                 for (const key in fsTod.uniform) {
                     if (!uniformMap[key]) {
