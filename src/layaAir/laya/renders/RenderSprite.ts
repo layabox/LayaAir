@@ -363,6 +363,7 @@ export class RenderSprite {
         return false;
     }
 
+    static normalCacheRender:SpriteCache=null;
     /**@internal */
     _canvas(sprite: Sprite, context: Context, x: number, y: number): void {
 
@@ -378,6 +379,7 @@ export class RenderSprite {
         let isbmp = sprite.cacheAs === 'bitmap';
         if(isbmp){
             //temp
+            context.drawLeftData();
             this._renderNextToCacheRT(sprite,context);
             // RenderSprite.RenderToCacheTexture(sprite,context,x,y)
             var tRec = _cacheStyle.cacheRect;
@@ -389,8 +391,11 @@ export class RenderSprite {
                 _next._fun.call(_next, sprite, context, x, y);
                 return;
             }else{
-                let normalCacheRender = new SpriteCache();
-                normalCacheRender.renderCacheAsNormal(context,sprite,this._next,x,y);
+                if(!RenderSprite.normalCacheRender){
+                    RenderSprite.normalCacheRender = new SpriteCache();
+                }
+                context.drawLeftData();
+                RenderSprite.normalCacheRender.renderCacheAsNormal(context,sprite,this._next,x,y);
             }
 
             // if (sprite._needRepaint() || !_cacheStyle.canvas || textNeedRestore || ILaya.stage.isGlobalRepaint()) {
