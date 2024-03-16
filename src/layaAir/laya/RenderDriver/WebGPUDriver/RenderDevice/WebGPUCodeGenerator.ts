@@ -30,7 +30,6 @@ export enum WebGPUBindingInfoType {
 };
 
 export interface WebGPUUniformPropertyBindingInfo {
-    sn: number;
     set: number;
     binding: number;
     name: string;
@@ -120,11 +119,8 @@ export class WebGPUCodeGenerator {
         const trailRenderUniformMap = LayaGL.renderDeviceFactory.createGlobalUniformMap("TrailRender") as WebGLCommandUniformMap;
         let sceneUniforms: NameAndType[] = [];
         let cameraUniforms: NameAndType[] = [];
-        let materialUniforms: NameAndType[] = [];
         let sprite3DUniforms: NameAndType[] = [];
-        let simpleSkinnedMeshUniforms: NameAndType[] = [];
-        let shurikenSprite3DUniforms: NameAndType[] = [];
-        let trailRenderUniforms: NameAndType[] = [];
+        let materialUniforms: NameAndType[] = [];
         let textureUniforms: NameAndType[] = [];
 
         const uniformInfo: WebGPUUniformPropertyBindingInfo[] = [];
@@ -139,11 +135,11 @@ export class WebGPUCodeGenerator {
             else if (sprite3DUniformMap.hasPtrID(id))
                 sprite3DUniforms.push({ name, type, set: 2 });
             else if (simpleSkinnedMeshUniformMap.hasPtrID(id))
-                simpleSkinnedMeshUniforms.push({ name, type, set: 2 });
+                sprite3DUniforms.push({ name, type, set: 2 });
             else if (shurikenSprite3DUniformMap.hasPtrID(id))
-                shurikenSprite3DUniforms.push({ name, type, set: 2 });
+                sprite3DUniforms.push({ name, type, set: 2 });
             else if (trailRenderUniformMap.hasPtrID(id))
-                trailRenderUniforms.push({ name, type, set: 2 });
+                sprite3DUniforms.push({ name, type, set: 2 });
             else if (type == "sampler2D" || type == "samplerCube")
                 textureUniforms.push({ name, type, set: 3 });
             else materialUniforms.push({ name, type, set: 3 });
@@ -213,12 +209,6 @@ export class WebGPUCodeGenerator {
         sceneUniforms = _procUniforms(0, 0, "scene", sceneUniformMap);
         cameraUniforms = _procUniforms(1, 0, "camera", cameraUniformMap);
         sprite3DUniforms = _procUniforms(2, 0, "sprite3D", sprite3DUniformMap);
-        if (simpleSkinnedMeshUniforms.length > 0)
-            simpleSkinnedMeshUniforms = _procUniforms(2, 1, "simpleSkinnedMesh", simpleSkinnedMeshUniformMap);
-        if (shurikenSprite3DUniforms.length > 0)
-            shurikenSprite3DUniforms = _procUniforms(2, 2, "shurikenSprite3D", shurikenSprite3DUniformMap);
-        if (trailRenderUniforms.length > 0)
-            trailRenderUniforms = _procUniforms(2, 3, "trailRender", trailRenderUniformMap);
         materialUniforms = _procUniforms(3, 0, "material", undefined, materialUniforms);
 
         return {

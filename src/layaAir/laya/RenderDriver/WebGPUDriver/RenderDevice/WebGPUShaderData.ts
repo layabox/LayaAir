@@ -27,11 +27,10 @@ export class WebGPUShaderData extends ShaderData {
     /**@internal */
     protected _gammaColorMap: Map<number, Color>;
 
+    private _infoId: number;
     private _uniformBuffer: UniformBuffer;
-    private _uniformBuffers: UniformBuffer[] = [];
-    private _uniformBufferMap: Map<number, UniformBuffer>;
-
-    private _bindGroupMap: Map<string, GPUBindGroup>;
+    private _bindKey: string;
+    private _bindGroup: GPUBindGroup;
 
     globalId: number;
     objectName: string = 'WebGPUShaderData';
@@ -41,61 +40,38 @@ export class WebGPUShaderData extends ShaderData {
         this._data = {};
         this._gammaColorMap = new Map();
         this._defineDatas = new WebDefineDatas();
-        this._uniformBufferMap = new Map();
-        this._bindGroupMap = new Map();
 
         this.globalId = WebGPUGlobal.getId(this);
     }
 
-    createUniformBuffer(info: WebGPUUniformPropertyBindingInfo[]) {
-        const infoMap = new Map<number, WebGPUUniformPropertyBindingInfo>();
-        for (const idStr in this._data) {
-            const id = Number(idStr);
-            for (let i = info.length - 1; i > -1; i--)
-                if (info[i].uniform && info[i].uniform.hasUniform(id))
-                    infoMap.set(id, info[i]);
+    needUpdateBindGroup() {
+        this._bindKey = null;
+        this._bindGroup = null;
+    }
+
+    createUniformBuffer(info: WebGPUUniformPropertyBindingInfo, single: boolean = false) {
+        if (single && this._uniformBuffer) return;
+        if (info && info.uniform) {
+            if (!this._uniformBuffer || this._infoId != info.uniform.globalId) {
+                this._infoId = info.uniform.globalId;
+                const gpuBuffer = WebGPURenderEngine._instance.gpuBufferMgr;
+                this._uniformBuffer = new UniformBuffer(info.name, info.set, info.binding, info.uniform.size, gpuBuffer, this);
+                for (let i = 0, len = info.uniform.items.length; i < len; i++) {
+                    const uniform = info.uniform.items[i];
+                    this._uniformBuffer.addUniform(uniform.id, uniform.name, uniform.type, uniform.offset, uniform.align, uniform.size, uniform.elements, uniform.count);
+                }
+                this._updateUniformData();
+                //console.log(this._uniformBuffer);
+            }
         }
-        // if (info.uniform) {
-        //     const gpuBuffer = WebGPURenderEngine._instance.gpuBufferMgr;
-        //     this._uniformBuffer = new UniformBuffer(info.name, info.set, info.binding, info.uniform.size, gpuBuffer);
-        //     info.sn = this._uniformBuffer.block.sn;
-        //     for (let i = 0, len = info.uniform.items.length; i < len; i++) {
-        //         const uniform = info.uniform.items[i];
-        //         this._uniformBuffer.addUniform(uniform.id, uniform.name, uniform.type, uniform.offset, uniform.align, uniform.size, uniform.elements, uniform.count);
-        //     }
-        // }
     };
-
-    setUniformBuffers(ubs: UniformBuffer[]) {
-        if (this._uniformBuffers != ubs) {
-            this._uniformBuffers = ubs;
-            this._updateUniformMap();
-            this._updateUniformData();
-        }
-    }
-
-    private _updateUniformMap() {
-        this._uniformBufferMap.clear();
-        for (const idStr in this._data) {
-            const id = Number(idStr);
-            for (let i = this._uniformBuffers.length - 1; i > -1; i--)
-                if (this._uniformBuffers[i].hasUniform(id))
-                    this._uniformBufferMap.set(id, this._uniformBuffers[i]);
-        }
-    }
 
     private _updateUniformData() {
         for (const idStr in this._data) {
             const id = Number(idStr);
             const value = this._data[idStr];
-            this._uniformBufferMap.get(id)?.setUniformData(id, value);
+            this._uniformBuffer.setUniformData(id, value);
         }
-    }
-
-    private _addToUniformMap(id: number) {
-        for (let i = this._uniformBuffers.length - 1; i > -1; i--)
-            if (this._uniformBuffers[i].hasUniform(id))
-                this._uniformBufferMap.set(id, this._uniformBuffers[i]);
     }
 
     /**
@@ -105,14 +81,11 @@ export class WebGPUShaderData extends ShaderData {
         const device = WebGPURenderEngine._instance.getDevice();
 
         //根据uniforms中的内容生成一个key, 用于查找缓存
-        let key = name + '_';
-        key += uniforms.map(item => item.sn).join('_');
+        let key = name + '_' + this._infoId + '_';
         key += uniforms.map(item => item.set).join('_');
         key += uniforms.map(item => item.binding).join('_');
         key += uniforms.map(item => item.propertyID).join('_');
-        let bindGroup = this._bindGroupMap.get(key);
-
-        uniforms.forEach(item => console.log(item));
+        let bindGroup = key == this._bindKey ? this._bindGroup : null;
 
         //如果没有缓存, 则创建一个新的bindGroup
         if (!bindGroup) {
@@ -122,14 +95,13 @@ export class WebGPUShaderData extends ShaderData {
                 switch (item.type) {
                     case WebGPUBindingInfoType.buffer:
                         if (item.uniform) {
-                            const uniformBuffer = this._findUniformBuffer(item.sn);
-                            if (!uniformBuffer) return false;
+                            if (!this._uniformBuffer) return false;
                             bindGroupLayoutEntries.push({
                                 binding: item.binding,
                                 visibility: item.visibility,
                                 buffer: item.buffer,
                             });
-                            bindGroupEntries.push(uniformBuffer.getGPUBindEntry());
+                            bindGroupEntries.push(this._uniformBuffer.getGPUBindEntry());
                         }
                         break;
                     case WebGPUBindingInfoType.texture:
@@ -176,25 +148,17 @@ export class WebGPUShaderData extends ShaderData {
                 layout: device.createBindGroupLayout(bindGroupLayoutDesc),
                 entries: bindGroupEntries,
             });
-            this._bindGroupMap.set(key, bindGroup);
-            console.log('create bindGroup', key, bindGroupLayoutDesc, bindGroupEntries, bindGroup);
+            this._bindKey = key;
+            this._bindGroup = bindGroup;
+            //console.log('create bindGroup', key, bindGroupLayoutDesc, bindGroupEntries, bindGroup);
         }
 
         //上传数据
-        this._uniformBuffers.forEach(uniform => uniform.upload(device));
+        this._uniformBuffer.upload(device);
 
         //将绑定组附加到命令
         command.setBindGroup(groupId, bindGroup);
         return true;
-    }
-
-    private _findUniformBuffer(sn: number) {
-        if (this._uniformBuffers) {
-            for (let i = this._uniformBuffers.length - 1; i > -1; i--)
-                if (this._uniformBuffers[i].block.sn == sn)
-                    return this._uniformBuffers[i];
-        }
-        return null;
     }
 
     getData() {
@@ -255,12 +219,10 @@ export class WebGPUShaderData extends ShaderData {
      * @param value 布尔。
      */
     setBool(index: number, value: boolean): void {
-        if (this._data[index] == undefined)
-            this._addToUniformMap(index);
-        else if (this._data[index] == value) return;
+        if (this._data[index] == value) return;
         this._data[index] = value;
-        this._uniformBufferMap.get(index)?.setBool(index, value);
-        //this._uboPropertyMap.get(index)?.subBuffer.markChangeProperty(index);
+        if (this._uniformBuffer)
+            this._uniformBuffer.setBool(index, value);
     }
 
     /**
@@ -278,12 +240,10 @@ export class WebGPUShaderData extends ShaderData {
      * @param value 整形。
      */
     setInt(index: number, value: number): void {
-        if (this._data[index] == undefined)
-            this._addToUniformMap(index);
-        else if (this._data[index] == value) return;
+        if (this._data[index] == value) return;
         this._data[index] = value;
-        this._uniformBufferMap.get(index)?.setInt(index, value);
-        //this._uboPropertyMap.get(index)?.subBuffer.markChangeProperty(index);
+        if (this._uniformBuffer)
+            this._uniformBuffer.setInt(index, value);
     }
 
     /**
@@ -301,12 +261,10 @@ export class WebGPUShaderData extends ShaderData {
      * @param value 浮点。
      */
     setNumber(index: number, value: number): void {
-        if (this._data[index] == undefined)
-            this._addToUniformMap(index);
-        else if (this._data[index] == value) return;
+        if (this._data[index] == value) return;
         this._data[index] = value;
-        this._uniformBufferMap.get(index)?.setFloat(index, value);
-        //this._uboPropertyMap.get(index)?.subBuffer.markChangeProperty(index);
+        if (this._uniformBuffer)
+            this._uniformBuffer.setFloat(index, value);
     }
 
     /**
@@ -324,15 +282,13 @@ export class WebGPUShaderData extends ShaderData {
      * @param value Vector2向量。
      */
     setVector2(index: number, value: Vector2): void {
-        if (this._data[index] == undefined)
-            this._addToUniformMap(index);
         const v2 = this._data[index];
         if (v2) {
             if (Vector2.equals(v2, value)) return;
             value.cloneTo(this._data[index]);
         } else this._data[index] = value.clone();
-        this._uniformBufferMap.get(index)?.setVector2(index, value);
-        //this._uboPropertyMap.get(index)?.subBuffer.markChangeProperty(index);
+        if (this._uniformBuffer)
+            this._uniformBuffer.setVector2(index, value);
     }
 
     /**
@@ -350,15 +306,13 @@ export class WebGPUShaderData extends ShaderData {
      * @param value Vector3向量。
      */
     setVector3(index: number, value: Vector3): void {
-        if (this._data[index] == undefined)
-            this._addToUniformMap(index);
         const v3 = this._data[index];
         if (v3) {
             if (Vector3.equals(v3, value)) return;
             value.cloneTo(this._data[index]);
         } else this._data[index] = value.clone();
-        this._uniformBufferMap.get(index)?.setVector3(index, value);
-        //this._uboPropertyMap.get(index)?.subBuffer.markChangeProperty(index);
+        if (this._uniformBuffer)
+            this._uniformBuffer.setVector3(index, value);
     }
 
     /**
@@ -376,15 +330,13 @@ export class WebGPUShaderData extends ShaderData {
      * @param value 向量。
      */
     setVector(index: number, value: Vector4): void {
-        if (this._data[index] == undefined)
-            this._addToUniformMap(index);
         const v4 = this._data[index]
         if (v4) {
             if (Vector4.equals(v4, value)) return;
             value.cloneTo(this._data[index]);
         } else this._data[index] = value.clone();
-        this._uniformBufferMap.get(index)?.setVector4(index, value);
-        //this._uboPropertyMap.get(index)?.subBuffer.markChangeProperty(index);
+        if (this._uniformBuffer)
+            this._uniformBuffer.setVector4(index, value);
     }
 
     /**
@@ -403,8 +355,6 @@ export class WebGPUShaderData extends ShaderData {
      */
     setColor(index: number, value: Color): void {
         if (!value) return;
-        if (this._data[index] == undefined)
-            this._addToUniformMap(index);
         if (this._data[index]) {
             const gammaColor = this._gammaColorMap.get(index);
             if ((this._data[index] as Color).equal(gammaColor))
@@ -415,7 +365,8 @@ export class WebGPUShaderData extends ShaderData {
             linearColor.y = Color.gammaToLinearSpace(value.g);
             linearColor.z = Color.gammaToLinearSpace(value.b);
             linearColor.w = value.a;
-            this._uniformBufferMap.get(index)?.setVector4(index, linearColor);
+            if (this._uniformBuffer)
+                this._uniformBuffer.setVector4(index, linearColor);
         }
         else {
             const linearColor = new Vector4();
@@ -425,35 +376,9 @@ export class WebGPUShaderData extends ShaderData {
             linearColor.w = value.a;
             this._data[index] = linearColor;
             this._gammaColorMap.set(index, value.clone());
-            this._uniformBufferMap.get(index)?.setVector4(index, linearColor);
+            if (this._uniformBuffer)
+                this._uniformBuffer.setVector4(index, linearColor);
         }
-        //this._uboPropertyMap.get(index)?.subBuffer.markChangeProperty(index);
-    }
-
-    /**
-     * 获取矩阵。
-     * @param index shader索引。
-     * @return 矩阵。
-     */
-    getMatrix4x4(index: number): Matrix4x4 {
-        return this._data[index];
-    }
-
-    /**
-     * 设置矩阵。
-     * @param index shader索引。
-     * @param value 矩阵。
-     */
-    setMatrix4x4(index: number, value: Matrix4x4): void {
-        if (this._data[index] == undefined)
-            this._addToUniformMap(index);
-        const mat = this._data[index] as Matrix4x4;
-        if (mat) {
-            if (mat.equalsOtherMatrix(value)) return;
-            value.cloneTo(this._data[index]);
-        } else this._data[index] = value.clone();
-        this._uniformBufferMap.get(index)?.setMatrix4x4(index, value);
-        //this._uboPropertyMap.get(index)?.subBuffer.markChangeProperty(index);
     }
 
     /**
@@ -471,14 +396,36 @@ export class WebGPUShaderData extends ShaderData {
      * @param value 
      */
     setMatrix3x3(index: number, value: Matrix3x3): void {
-        if (this._data[index] == undefined)
-            this._addToUniformMap(index);
         const mat = this._data[index] as Matrix3x3;
         if (mat) {
             value.cloneTo(this._data[index]);
         } else this._data[index] = value.clone();
-        this._uniformBufferMap.get(index)?.setMatrix3x3(index, value);
-        //this._uboPropertyMap.get(index)?.subBuffer.markChangeProperty(index);
+        if (this._uniformBuffer)
+            this._uniformBuffer.setMatrix3x3(index, value);
+    }
+
+    /**
+     * 获取矩阵。
+     * @param index shader索引。
+     * @return 矩阵。
+     */
+    getMatrix4x4(index: number): Matrix4x4 {
+        return this._data[index];
+    }
+
+    /**
+     * 设置矩阵。
+     * @param index shader索引。
+     * @param value 矩阵。
+     */
+    setMatrix4x4(index: number, value: Matrix4x4): void {
+        const mat = this._data[index] as Matrix4x4;
+        if (mat) {
+            if (mat.equalsOtherMatrix(value)) return;
+            value.cloneTo(this._data[index]);
+        } else this._data[index] = value.clone();
+        if (this._uniformBuffer)
+            this._uniformBuffer.setMatrix4x4(index, value);
     }
 
     /**
@@ -496,11 +443,8 @@ export class WebGPUShaderData extends ShaderData {
      * @param value buffer数据。
      */
     setBuffer(index: number, value: Float32Array): void {
-        if (this._data[index] == undefined)
-            this._addToUniformMap(index);
         this._data[index] = value;
-        this._uniformBufferMap.get(index)?.setBuffer(index, value);
-        //this._uboPropertyMap.get(index)?.subBuffer.markChangeProperty(index);
+        this._uniformBuffer.setBuffer(index, value);
     }
 
     /**
@@ -524,7 +468,6 @@ export class WebGPUShaderData extends ShaderData {
 
     /**@internal */
     _setInternalTexture(index: number, value: InternalTexture) {
-        //const lastValue: InternalTexture = this._data[index];
         if (value) {
             const shaderDefine = WebGPURenderEngine._instance._texGammaDefine[index];
             if (shaderDefine && value && value.gammaCorrection > 1)

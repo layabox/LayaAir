@@ -32,6 +32,7 @@ import { Quaternion } from "laya/maths/Quaternion";
 import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 import { ScreenQuad } from "laya/d3/core/render/ScreenQuad";
 import { WebGPUStatis } from "laya/RenderDriver/WebGPUDriver/RenderDevice/WebGPUStatis/WebGPUStatis";
+import { Config3D } from "Config3D";
 
 export class WebGPUTest {
     rotation1: Vector3 = new Vector3(0, 0.01, 0);
@@ -56,14 +57,15 @@ export class WebGPUTest {
         Laya.init(0, 0).then(async () => {
             Laya.stage.scaleMode = Stage.SCALE_FULL;
             Laya.stage.screenMode = Stage.SCREEN_NONE;
+            Config3D.enableDynamicBatch = false;
             //Stat.show();
 
             await Laya.loader.load("res/testMaterial/UnLight.shader");
 
             const scene: Scene3D = (<Scene3D>Laya.stage.addChild(new Scene3D()));
 
-            const camera: Camera = (<Camera>(scene.addChild(new Camera(0, 0.1, 100))));
-            camera.transform.translate(new Vector3(0, 0.5, 1.5));
+            const camera: Camera = (<Camera>(scene.addChild(new Camera(0, 0.1, 200))));
+            camera.transform.translate(new Vector3(0, 0.5, 5));
             camera.transform.rotate(new Vector3(-15, 0, 0), true, false);
             camera.clearColor = Color.BLUE;
             camera.clearFlag = CameraClearFlags.SolidColor;
@@ -74,45 +76,75 @@ export class WebGPUTest {
             // scene.addChild(directlightSprite);
             // dircom.color.setValue(1, 1, 1, 1);
 
-            const sphereMesh1 = PrimitiveMesh.createSphere(0.35, 16, 16);
-            const boxMesh1 = PrimitiveMesh.createBox(0.5, 0.5, 0.5);
-            //const boxMesh2 = PrimitiveMesh.createBox(0.6, 0.6, 0.6);
-
-            const earth1 = scene.addChild(new Sprite3D());
-            earth1.transform.position = new Vector3(0, 0, 0);
-            const meshFilter1 = earth1.addComponent(MeshFilter);
-            const meshRenderer1 = earth1.addComponent(MeshRenderer);
-            meshFilter1.sharedMesh = boxMesh1;
-            meshRenderer1.castShadow = false;
-            meshRenderer1.receiveShadow = false;
-
-            const earth2 = scene.addChild(new Sprite3D());
-            earth2.transform.position = new Vector3(0.5, 0, 0);
-            const meshFilter2 = earth2.addComponent(MeshFilter);
-            const meshRenderer2 = earth2.addComponent(MeshRenderer);
-            meshFilter2.sharedMesh = sphereMesh1;
-            meshRenderer2.castShadow = false;
-            meshRenderer2.receiveShadow = false;
+            const sphereMesh1 = PrimitiveMesh.createSphere(0.15, 16, 16);
+            const boxMesh1 = PrimitiveMesh.createBox(0.2, 0.2, 0.2);
+            const boxMesh2 = PrimitiveMesh.createBox(0.6, 0.6, 0.6);
 
             const material1 = new UnlitMaterial();
             const material2 = new UnlitMaterial();
-            //const material = new Material();
-            //material.setShaderName('UnLight');
+
+            const boxS3D = [];
+            const sphereS3D = [];
+
+            const n = 10;
+            const m = 10;
+            const l = 10;
+            for (let i = 0; i < n; i++) {
+                for (let j = 0; j < m; j++) {
+                    for (let k = 0; k < l; k++) {
+                        const bs3d = scene.addChild(new Sprite3D());
+                        boxS3D.push(bs3d);
+                        bs3d.transform.position = new Vector3(i - n * 0.5, j - m * 0.5, k - l * 0.5);
+                        bs3d.addComponent(MeshFilter).sharedMesh = boxMesh1;
+                        bs3d.addComponent(MeshRenderer).material = material1;
+                    }
+                }
+            }
+            for (let i = 0; i < n; i++) {
+                for (let j = 0; j < m; j++) {
+                    for (let k = 0; k < l; k++) {
+                        const sp3d = scene.addChild(new Sprite3D());
+                        sphereS3D.push(sp3d);
+                        sp3d.transform.position = new Vector3(i - n * 0.5 - 0.5, j - m * 0.5, k - l * 0.5);
+                        sp3d.addComponent(MeshFilter).sharedMesh = sphereMesh1;
+                        sp3d.addComponent(MeshRenderer).material = material2;
+                    }
+                }
+            }
+
+            // const earth1 = scene.addChild(new Sprite3D());
+            // earth1.transform.position = new Vector3(0, 0, 0);
+            // const meshFilter1 = earth1.addComponent(MeshFilter);
+            // const meshRenderer1 = earth1.addComponent(MeshRenderer);
+            // meshFilter1.sharedMesh = boxMesh1;
+            // meshRenderer1.castShadow = false;
+            // meshRenderer1.receiveShadow = false;
+
+            // const earth2 = scene.addChild(new Sprite3D());
+            // earth2.transform.position = new Vector3(0.5, 0, 0);
+            // const meshFilter2 = earth2.addComponent(MeshFilter);
+            // const meshRenderer2 = earth2.addComponent(MeshRenderer);
+            // meshFilter2.sharedMesh = sphereMesh1;
+            // meshRenderer2.castShadow = false;
+            // meshRenderer2.receiveShadow = false;
+
             Texture2D.load("res/threeDimen/texture/earth.jpg", Handler.create(this, (texture: Texture2D) => {
                 material1.albedoTexture = texture;
-                material2.albedoTexture = texture;
-                //material.setTexture('u_AlbedoTexture', texture);
-                //material.addDefine(Shader3D.getDefineByName('ALBEDOTEXTURE'));
             }));
-            meshRenderer1.material = material1;
-            meshRenderer2.material = material2;
+            Texture2D.load("res/threeDimen/texture/brick.jpg", Handler.create(this, (texture: Texture2D) => {
+                material2.albedoTexture = texture;
+            }));
 
             Laya.timer.frameLoop(1, this, () => {
-                earth1.transform.rotate(this.rotation1, false);
-                earth2.transform.rotate(this.rotation2, false);
+                for (let i = boxS3D.length - 1; i > -1; i--) {
+                    boxS3D[i].transform.rotate(this.rotation1, false);
+                }
+                for (let i = sphereS3D.length - 1; i > -1; i--) {
+                    sphereS3D[i].transform.rotate(this.rotation2, false);
+                }
             });
 
-            Laya.timer.once(3000, this, () => { WebGPUStatis.printStatisticsAsTable(); });
+            Laya.timer.once(5000, this, () => { WebGPUStatis.printStatisticsAsTable(); });
         });
     }
 }

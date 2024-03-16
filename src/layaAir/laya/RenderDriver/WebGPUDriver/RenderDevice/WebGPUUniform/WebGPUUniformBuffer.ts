@@ -5,6 +5,7 @@ import { Vector4 } from "../../../../maths/Vector4";
 import { Matrix3x3 } from "../../../../maths/Matrix3x3";
 import { Matrix4x4 } from "../../../../maths/Matrix4x4";
 import { WebGPUGlobal } from "../WebGPUStatis/WebGPUGlobal";
+import { WebGPUShaderData } from "../WebGPUShaderData";
 
 type TypedArray =
     | Int8Array
@@ -54,6 +55,8 @@ export class UniformBuffer {
     set: number;
     binding: number;
     block: WebGPUBufferBlock;
+    gpuBuffer: WebGPUBufferManager;
+    user: WebGPUShaderData;
 
     private _gpu_Buffer: GPUBuffer;
     private _gpu_BindGroupEntry: GPUBindGroupEntry;
@@ -61,7 +64,7 @@ export class UniformBuffer {
     globalId: number;
     objectName: string = 'UniformBuffer';
 
-    constructor(name: string, set: number, binding: number, size: number, gpuBuffer: WebGPUBufferManager) {
+    constructor(name: string, set: number, binding: number, size: number, gpuBuffer: WebGPUBufferManager, user: WebGPUShaderData) {
         this.arrayBuffer = new ArrayBuffer(size);
         this.name = name;
         this.strID = '';
@@ -71,20 +74,39 @@ export class UniformBuffer {
 
         this.set = set;
         this.binding = binding;
-        this.block = gpuBuffer.getBlock(name, size);
+        this.block = gpuBuffer.getBlock(name, size, this);
 
-        //@ts-ignore
         this._gpu_Buffer = gpuBuffer.getBuffer(name);
         this._gpu_BindGroupEntry = {
             binding,
-            resource: { //@ts-ignore
+            resource: {
                 buffer: this._gpu_Buffer,
                 offset: this.block.offset,
                 size,
             },
         };
 
+        this.user = user;
+        this.gpuBuffer = gpuBuffer;
         this.globalId = WebGPUGlobal.getId(this);
+    }
+
+    /**
+     * 通知GPUBuffer改变
+     */
+    notifyGPUBufferChange() {
+        this._gpu_Buffer = this.gpuBuffer.getBuffer(this.name);
+        this._gpu_BindGroupEntry = {
+            binding: this.binding,
+            resource: {
+                buffer: this._gpu_Buffer,
+                offset: this.block.offset,
+                size: this.arrayBuffer.byteLength,
+            },
+        };
+        this.needUpload = true;
+        if (this.user)
+            this.user.needUpdateBindGroup();
     }
 
     /**
@@ -512,13 +534,6 @@ export class UniformBuffer {
      */
     getArrayBuffer() {
         return this.arrayBuffer;
-    }
-
-    /**
-     * 获取GPUBuffer
-     */
-    getGPUBuffer() {
-        return this._gpu_Buffer;
     }
 
     /**

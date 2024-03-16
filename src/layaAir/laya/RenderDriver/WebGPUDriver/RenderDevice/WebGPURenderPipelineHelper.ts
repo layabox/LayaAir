@@ -307,7 +307,7 @@ export class WebGPURenderPipeline {
         const strId = `${primitiveState.id}_${info.blendState.id}_${depthStencilId}_${rt.formatId}_${bufferState._id}_${bufferState._updateBufferLayoutFlag}`;
         let renderPipeline = map.get(strId);
         if (!renderPipeline) {
-            console.log(info.blendState.state, info.depthStencilState?.state, primitiveState.state, bufferState._vertexState, shader, rt);
+            //console.log(info.blendState.state, info.depthStencilState?.state, primitiveState.state, bufferState._vertexState, shader, rt);
             //@ts-ignore
             //console.log(WebGPURenderEngine._instance._propertyNameMap);
             renderPipeline = this.createRenderPipeline

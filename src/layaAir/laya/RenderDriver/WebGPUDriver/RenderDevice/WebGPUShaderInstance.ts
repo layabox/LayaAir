@@ -3,7 +3,6 @@ import { ShaderProcessInfo } from "../../../webgl/utils/ShaderCompileDefineBase"
 import { IShaderInstance } from "../../DriverDesign/RenderDevice/IShaderInstance";
 import { WebGPURenderEngine } from "./WebGPURenderEngine";
 import { WebGPUBindingInfoType, WebGPUCodeGenerator, WebGPUUniformPropertyBindingInfo } from "./WebGPUCodeGenerator";
-import { UniformBuffer } from "./WebGPUUniform/WebGPUUniformBuffer";
 import { WebGPUGlobal } from "./WebGPUStatis/WebGPUGlobal";
 
 /**
@@ -25,7 +24,7 @@ export class WebGPUShaderInstance implements IShaderInstance {
     renderPipelineDescriptor: GPURenderPipelineDescriptor;
     renderPipelineMap: Map<string, any> = new Map();
 
-    uniformBuffers: UniformBuffer[];
+    uniformInfo: WebGPUUniformPropertyBindingInfo[];
     uniformSetMap: { [set: number]: WebGPUUniformPropertyBindingInfo[] } = {};
 
     globalId: number;
@@ -45,6 +44,9 @@ export class WebGPUShaderInstance implements IShaderInstance {
         const shaderObj = WebGPUCodeGenerator.ShaderLanguageProcess(
             shaderProcessInfo.defineString, shaderProcessInfo.attributeMap,
             shaderProcessInfo.uniformMap, shaderProcessInfo.vs, shaderProcessInfo.ps);
+        console.log(shaderObj);
+
+        this.uniformInfo = shaderObj.uniformInfo;
 
         shaderObj.uniformInfo.forEach(item => {
             if (!this.uniformSetMap[item.set])
@@ -54,9 +56,6 @@ export class WebGPUShaderInstance implements IShaderInstance {
 
         //生成pipeLineLayout
         const pipelineLayout = this._createPipelineLayout(device, 'pipelineLayout', shaderObj.uniformInfo);
-
-        //建立uniform资源
-        this.uniformBuffers = this._createUniformBuffers(shaderObj.uniformInfo);
 
         this._vsShader = device.createShaderModule({ code: shaderObj.vs });
         this._fsShader = device.createShaderModule({ code: shaderObj.fs });
@@ -113,18 +112,6 @@ export class WebGPUShaderInstance implements IShaderInstance {
         this.complete = true;
     }
 
-    // /**
-    //  * 基于名字获取UniformBufer
-    //  * @param name 
-    //  */
-    // getUniformBuffer(name: string) {
-    //     if (this.uniformBuffers)
-    //         for (let i = this.uniformBuffers.length - 1; i > -1; i--)
-    //             if (this.uniformBuffers[i].name == name)
-    //                 return this.uniformBuffers[i];
-    //     return null;
-    // }
-
     /**
      * 基于WebGPUUniformPropertyBindingInfo创建PipelineLayout
      * @param device 
@@ -180,122 +167,6 @@ export class WebGPUShaderInstance implements IShaderInstance {
 
         return device.createPipelineLayout({ label: name, bindGroupLayouts });
     }
-
-    /**
-     * 基于WebGPUUniformPropertyBindingInfo创建UniformBuffers
-     * @param infos
-     */
-    private _createUniformBuffers(infos: WebGPUUniformPropertyBindingInfo[]) {
-        const _createUniformBuffer = (info: WebGPUUniformPropertyBindingInfo) => {
-            if (info.uniform) {
-                const gpuBuffer = WebGPURenderEngine._instance.gpuBufferMgr;
-                const uniformBuffer = new UniformBuffer(info.name, info.set, info.binding, info.uniform.size, gpuBuffer);
-                info.sn = uniformBuffer.block.sn;
-                for (let i = 0, len = info.uniform.items.length; i < len; i++) {
-                    const uniform = info.uniform.items[i];
-                    uniformBuffer.addUniform(uniform.id, uniform.name, uniform.type, uniform.offset, uniform.align, uniform.size, uniform.elements, uniform.count);
-                }
-                return uniformBuffer;
-            }
-            return null;
-        };
-
-        const uniformBuffers: UniformBuffer[] = [];
-        for (let i = 0; i < infos.length; i++) {
-            const uniformBuffer = _createUniformBuffer(infos[i]);
-            if (uniformBuffer) uniformBuffers.push(uniformBuffer);
-        }
-        return uniformBuffers;
-    }
-
-    // /**
-    //  * 基于WebGPUUniformPropertyBindingInfo创建SamplerBuffers
-    //  * @param infos
-    //  */
-    // private _createSamplerBuffers(infos: WebGPUUniformPropertyBindingInfo[]) {
-    //     const _createSamplerBuffer = (info: WebGPUUniformPropertyBindingInfo) => {
-    //         if (info.sampler)
-    //             return new SamplerBuffer(info.name, info.set, info.binding, this.gpuSampler);
-    //         return null;
-    //     };
-
-    //     const samplerBuffers: SamplerBuffer[] = [];
-    //     for (let i = 0; i < infos.length; i++) {
-    //         const samplerBuffer = _createSamplerBuffer(infos[i]);
-    //         if (samplerBuffer) samplerBuffers.push(samplerBuffer);
-    //     }
-    //     return samplerBuffers;
-    // }
-
-    // /**
-    //  * 基于WebGPUUniformPropertyBindingInfo创建TextureBuffers
-    //  * @param device 
-    //  * @param infos
-    //  */
-    // private _createTextureBuffers(device: GPUDevice, infos: WebGPUUniformPropertyBindingInfo[]) {
-    //     const _createTextureBuffer = (info: WebGPUUniformPropertyBindingInfo) => {
-    //         if (info.texture) {
-    //             const texture = device.createTexture({
-    //                 size: {
-    //                     width: 1024,
-    //                     height: 1024,
-    //                     depthOrArrayLayers: 1,
-    //                 },
-    //                 format: 'rgba8unorm',
-    //                 mipLevelCount: 1,
-    //                 sampleCount: 1,
-    //                 usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST,
-    //             });
-    //             return new TextureBuffer(info.name, info.set, info.binding, texture);
-    //         }
-    //         return null;
-    //     };
-
-    //     const textureBuffers: TextureBuffer[] = [];
-    //     for (let i = 0; i < infos.length; i++) {
-    //         const textureBuffer = _createTextureBuffer(infos[i]);
-    //         if (textureBuffer) textureBuffers.push(textureBuffer);
-    //     }
-    //     return textureBuffers;
-    // }
-
-    // /**
-    //  * 基于UniformBuffers创建BindGroups
-    //  * @param device 
-    //  * @param uniformBuffers 
-    //  * @param samplerBuffers 
-    //  * @param textureBuffers 
-    //  * @param bindGroupLayouts 
-    //  */
-    // private _createBindGroups(device: GPUDevice, uniformBuffers: UniformBuffer[],
-    //     samplerBuffers: SamplerBuffer[], textureBuffers: TextureBuffer[], bindGroupLayouts: GPUBindGroupLayout[]) {
-    //     const _createBindGroup = (uniformBuffers: UniformBuffer[], bindGroupLayout: GPUBindGroupLayout, set: number) => {
-    //         const bindGroupDesc: GPUBindGroupDescriptor = {
-    //             label: `group${set}`,
-    //             layout: bindGroupLayout,
-    //             entries: [],
-    //         };
-
-    //         for (let i = 0; i < uniformBuffers.length; i++)
-    //             if (uniformBuffers[i].set == set)
-    //                 (bindGroupDesc.entries as GPUBindGroupEntry[]).push(uniformBuffers[i].getGPUBindEntry());
-
-    //         for (let i = 0; i < samplerBuffers.length; i++)
-    //             if (samplerBuffers[i].set == set)
-    //                 (bindGroupDesc.entries as GPUBindGroupEntry[]).push(samplerBuffers[i].getGPUBindEntry());
-
-    //         for (let i = 0; i < textureBuffers.length; i++)
-    //             if (textureBuffers[i].set == set)
-    //                 (bindGroupDesc.entries as GPUBindGroupEntry[]).push(textureBuffers[i].getGPUBindEntry());
-
-    //         return device.createBindGroup(bindGroupDesc);
-    //     };
-
-    //     const bindGroups: GPUBindGroup[] = [];
-    //     for (let i = 0; i < bindGroupLayouts.length; i++)
-    //         bindGroups.push(_createBindGroup(uniformBuffers, bindGroupLayouts[i], i));
-    //     return bindGroups;
-    // }
 
     _disposeResource(): void {
         WebGPUGlobal.releaseId(this);

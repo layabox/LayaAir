@@ -36,8 +36,6 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
     private _invertFrontFace: boolean;
     protected _shaderInstances: SingletonList<WebGPUShaderInstance> = new SingletonList<WebGPUShaderInstance>();
 
-
-
     globalId: number;
     objectName: string = 'WebGPURenderElement3D';
 
@@ -74,24 +72,21 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
             comDef.addDefineDatas(this.materialShaderData._defineDatas);
 
             const shaderInstance = pass.withCompile(comDef) as WebGPUShaderInstance;
-            if (this.materialShaderData) {
-                this.materialShaderData._name = "material";
-                this.materialShaderData.setUniformBuffers(shaderInstance.uniformBuffers);
-                this.materialShaderData.createUniformBuffer(shaderInstance.uniformSetMap[3])
-                console.log('XXXXX =', shaderInstance.uniformBuffers, pass.pipelineMode, this.subShader._owner.name);
-            }
-            if (this.renderShaderData) {
-                this.renderShaderData._name = "sprite";
-                this.renderShaderData.setUniformBuffers(shaderInstance.uniformBuffers);
-                console.log('YYYYY =', shaderInstance.uniformBuffers, pass.pipelineMode, this.subShader._owner.name);
+            if (context.sceneData) {
+                context.sceneData._name = "scene";
+                context.sceneData.createUniformBuffer(shaderInstance.uniformInfo[0], true);
             }
             if (context.cameraData) {
                 context.cameraData._name = "camera";
-                context.cameraData.setUniformBuffers(shaderInstance.uniformBuffers);
+                context.cameraData.createUniformBuffer(shaderInstance.uniformInfo[1], true);
             }
-            if (context.sceneData) {
-                context.sceneData._name = "scene";
-                context.sceneData.setUniformBuffers(shaderInstance.uniformBuffers);
+            if (this.renderShaderData) {
+                this.renderShaderData._name = "sprite";
+                this.renderShaderData.createUniformBuffer(shaderInstance.uniformInfo[2]);
+            }
+            if (this.materialShaderData) {
+                this.materialShaderData._name = "material";
+                this.materialShaderData.createUniformBuffer(shaderInstance.uniformInfo[3]);
             }
             this._addShaderInstance(shaderInstance);
         }
@@ -325,7 +320,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
             this.renderShaderData._name = "sprite";
         }
         if (this.isRender) {
-            console.log('RenderElement Start Render');
+            //console.log('RenderElement Start Render');
             const passes: WebGPUShaderInstance[] = this._shaderInstances.elements;
             for (let i = 0, m = passes.length; i < m; i++) {
                 const shaderIns = passes[i];
@@ -333,9 +328,9 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
                     let complete = true;
                     const pipeline = this._getWebGPURenderPipeline(shaderIns, context.destRT, context);
                     context.renderCommand.setPipeline(pipeline);
-                    console.log(this.geometry);
-                    console.log(shaderIns);
-                    console.log(this.owner);
+                    //console.log(this.geometry);
+                    //console.log(shaderIns);
+                    //console.log(this.owner);
                     //scene
                     if (sceneShaderData)
                         if (!sceneShaderData.uploadUniform(0, 'scene', shaderIns.uniformSetMap[0], context.renderCommand))
@@ -360,7 +355,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
                     }
                 }
             }
-            console.log('RenderElement End Render');
+            //console.log('RenderElement End Render');
         }
     }
 

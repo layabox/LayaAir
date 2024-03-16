@@ -1,4 +1,5 @@
 import { WebGPUGlobal } from "../WebGPUStatis/WebGPUGlobal";
+import { UniformBuffer } from "./WebGPUUniformBuffer";
 
 type OffsetAndSize = { offset: number, size: number };
 
@@ -18,17 +19,19 @@ export class WebGPUBufferBlock {
     offset: number;
     size: number;
     alignedSize: number;
+    user: UniformBuffer;
     destroyed: boolean;
 
     globalId: number;
     objectName: string;
 
-    constructor(sn: number, buffer: WebGPUBufferCluster, offset: number, size: number, alignedSize: number) {
+    constructor(sn: number, buffer: WebGPUBufferCluster, offset: number, size: number, alignedSize: number, user: UniformBuffer) {
         this.sn = sn;
         this.buffer = buffer;
         this.offset = offset;
         this.size = size;
         this.alignedSize = alignedSize;
+        this.user = user;
         this.destroyed = false;
 
         this.objectName = 'WebGPUBufferBlock | ' + buffer.name;
@@ -47,6 +50,7 @@ export class WebGPUBufferBlock {
  * GPU内存块（大内存块）
  */
 class WebGPUBufferCluster {
+    device: GPUDevice;
     buffer: GPUBuffer;
     name: string;
     size: number;
@@ -54,15 +58,18 @@ class WebGPUBufferCluster {
     free: OffsetAndSize[] = [];
     used: WebGPUBufferBlock[] = [];
     single: boolean = false;
+    expand: number; //每次扩展数量
 
     globalId: number;
     objectName: string;
 
-    constructor(device: GPUDevice, name: string, size: number, single: boolean = false) {
+    constructor(device: GPUDevice, name: string, size: number, expand: number, single: boolean = false) {
         this.name = name;
         this.size = size;
         this.left = size;
         this.single = single;
+        this.expand = expand;
+        this.device = device;
         this.buffer = device.createBuffer({
             size,
             usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
@@ -75,35 +82,129 @@ class WebGPUBufferCluster {
         WebGPUGlobal.action(this, 'allocMemory', size);
     }
 
+    // /**
+    //  * 获取内存块
+    //  * @param size 
+    //  * @param user 
+    //  * @returns 偏移地址（256字节对齐）
+    //  */
+    // getBlock(size: number, user: UniformBuffer) {
+    //     let offset = 0;
+    //     let bb: WebGPUBufferBlock;
+    //     const alignedSize = roundUp(size, 256);
+    //     if (this.single && this.used.length > 0)
+    //         return this.used[0];
+    //     for (let i = 0, len = this.free.length; i < len; i++) {
+    //         if (this.free[i].size == alignedSize) {
+    //             this.left -= alignedSize;
+    //             offset = this.free.splice(i, 1)[0].offset;
+    //             bb = new WebGPUBufferBlock(WebGPUBufferManager.snCounter++, this, offset, size, alignedSize, user);
+    //             this.used.push(bb);
+    //             return bb;
+    //         } else if (this.free[i].size > alignedSize) {
+    //             offset = this.free[i].offset;
+    //             this.free[i].offset += alignedSize;
+    //             this.free[i].size -= alignedSize;
+    //             this.left -= alignedSize;
+    //             bb = new WebGPUBufferBlock(WebGPUBufferManager.snCounter++, this, offset, size, alignedSize, user);
+    //             this.used.push(bb);
+    //             return bb;
+    //         }
+    //     }
+    //     return null;
+    // }
+
     /**
      * 获取内存块
      * @param size 
+     * @param user 
      * @returns 偏移地址（256字节对齐）
      */
-    getBlock(size: number) {
-        let offset = 0;
+    getBlock(size: number, user: UniformBuffer) {
         let bb: WebGPUBufferBlock;
         const alignedSize = roundUp(size, 256);
         if (this.single && this.used.length > 0)
             return this.used[0];
+
+        const block = this._findOrCreateFreeBlock(alignedSize);
+        if (block) {
+            bb = new WebGPUBufferBlock(WebGPUBufferManager.snCounter++, this, block.offset, size, alignedSize, user);
+            this.used.push(bb);
+            return bb;
+        }
+
+        return null;
+    }
+
+    /**
+     * 查找或创建一个足够大的空闲块，若有必要则扩展大内存块
+     */
+    private _findOrCreateFreeBlock(requiredSize: number): any {
         for (let i = 0, len = this.free.length; i < len; i++) {
-            if (this.free[i].size == alignedSize) {
-                this.left -= alignedSize;
-                offset = this.free.splice(i, 1)[0].offset;
-                bb = new WebGPUBufferBlock(WebGPUBufferManager.snCounter++, this, offset, size, alignedSize);
-                this.used.push(bb);
-                return bb;
-            } else if (this.free[i].size > alignedSize) {
-                offset = this.free[i].offset;
-                this.free[i].offset += alignedSize;
-                this.free[i].size -= alignedSize;
-                this.left -= alignedSize;
-                bb = new WebGPUBufferBlock(WebGPUBufferManager.snCounter++, this, offset, size, alignedSize);
-                this.used.push(bb);
-                return bb;
+            const block = this.free[i];
+            if (block.size >= requiredSize) {
+                if (block.size === requiredSize) {
+                    // 完美匹配，移除并返回当前空闲块
+                    this.left -= requiredSize;
+                    return this.free.splice(i, 1)[0];
+                } else {
+                    // 分割当前空闲块
+                    const newBlock = { offset: block.offset, size: requiredSize };
+                    block.offset += requiredSize;
+                    block.size -= requiredSize;
+                    this.left -= requiredSize;
+                    return newBlock;
+                }
             }
         }
-        return null;
+
+        // 找不到足够的空间，尝试扩展缓冲区
+        if (this._expandBuffer(requiredSize)) {
+            // 扩展成功后，再次尝试找到或创建空闲块
+            return this._findOrCreateFreeBlock(requiredSize);
+        } else {
+            // 无法扩展
+            return null;
+        }
+    }
+
+    /**
+     * 扩展GPU缓冲区
+     */
+    private _expandBuffer(extraSize: number) {
+        const expandSize = Math.max(extraSize, this.expand);
+        const newSize = this.size + expandSize;
+
+        try {
+            // 例如，创建一个新的GPUBuffer
+            const newBuffer = this.device.createBuffer({
+                size: newSize,
+                usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+                mappedAtCreation: false,
+            });
+
+            // 通知所有Block重新上传数据
+            this.used.forEach(used => used.user.notifyGPUBufferChange());
+
+            // 销毁旧的GPUBuffer（旧的会自动销毁）
+            //this.buffer.destroy();
+
+            // 更新引用和相关属性
+            this.buffer = newBuffer;
+            this.free.push({ offset: this.size, size: expandSize });  // 添加刚扩展空间作为新的空闲块
+            this.size = newSize;
+            this.left += expandSize;
+
+            // 合并空闲内存
+            this._mergeFree();
+
+            WebGPUGlobal.action(this, 'expandMemory', expandSize);
+            console.log("GPUBuffer expand, newSize =", newSize, this.name);
+            return true;
+        } catch (error) {
+            console.error("Failed to expand GPUBuffer:", error, this.name);
+            return false;
+        }
     }
 
     /**
@@ -190,14 +291,15 @@ export class WebGPUBufferManager {
      * 添加内存
      * @param name 
      * @param size 
+     * @param expand 
      * @param single 
      */
-    addBuffer(name: string, size: number, single: boolean = false) {
+    addBuffer(name: string, size: number, expand: number, single: boolean = false) {
         if (this.namedBuffers.has(name)) {
             console.warn(`namedBuffer with name: ${name} already exist!`);
             return false;
         }
-        this.namedBuffers.set(name, new WebGPUBufferCluster(this.device, name, size, single));
+        this.namedBuffers.set(name, new WebGPUBufferCluster(this.device, name, size, expand, single));
         return true;
     }
 
@@ -221,11 +323,12 @@ export class WebGPUBufferManager {
      * 获取内存块
      * @param name 
      * @param size 
+     * @param user 
      */
-    getBlock(name: string, size: number) {
+    getBlock(name: string, size: number, user: UniformBuffer) {
         const buffer = this.namedBuffers.get(name);
         if (buffer)
-            return buffer.getBlock(size);
+            return buffer.getBlock(size, user);
         return null;
     }
 
