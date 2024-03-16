@@ -47,7 +47,6 @@ export type UniformItemType = {
 export class UniformBuffer {
     name: string;
     strID: string;
-    arrayBuffer: ArrayBuffer;
     items: Map<number, UniformItemType>;
     itemNum: number;
     needUpload: boolean;
@@ -65,7 +64,6 @@ export class UniformBuffer {
     objectName: string = 'UniformBuffer';
 
     constructor(name: string, set: number, binding: number, size: number, gpuBuffer: WebGPUBufferManager, user: WebGPUShaderData) {
-        this.arrayBuffer = new ArrayBuffer(size);
         this.name = name;
         this.strID = '';
         this.items = new Map();
@@ -88,7 +86,7 @@ export class UniformBuffer {
 
         this.user = user;
         this.gpuBuffer = gpuBuffer;
-        this.globalId = WebGPUGlobal.getId(this);
+        //this.globalId = WebGPUGlobal.getId(this);
     }
 
     /**
@@ -101,12 +99,20 @@ export class UniformBuffer {
             resource: {
                 buffer: this._gpu_Buffer,
                 offset: this.block.offset,
-                size: this.arrayBuffer.byteLength,
+                size: this.block.size,
             },
         };
         this.needUpload = true;
+        this._updateItemView();
         if (this.user)
             this.user.needUpdateBindGroup();
+    }
+
+    private _updateItemView() {
+        this.items.forEach(item => {
+            item.view = new (UniformBuffer._typeArray(item.type))
+                (this.block.buffer.arrayBuffer, item.view.byteOffset, this._typeElements(item.type) * item.count);
+        });
     }
 
     /**
@@ -505,11 +511,10 @@ export class UniformBuffer {
     /**
      * 上传数据
      */
-    upload(device: GPUDevice) {
+    upload() {
         if (this.needUpload) {
-            device.queue.writeBuffer(this._gpu_Buffer, this.block.offset, this.arrayBuffer);
+            this.block.buffer.needUpload = true;
             this.needUpload = false;
-            //console.log('upload uniform data', new Float32Array(this.arrayBuffer), this, this.name);
         }
     }
 
@@ -517,7 +522,7 @@ export class UniformBuffer {
      * 清除所有uniform
      */
     clear() {
-        new Uint8Array(this.arrayBuffer).fill(0);
+        new Uint8Array(this.block.buffer.arrayBuffer).fill(0, this.block.offset, this.block.offset + this.block.size);
         this.strID = '';
         this.items.clear();
         this.itemNum = 0;
@@ -527,13 +532,6 @@ export class UniformBuffer {
     desroy() {
         WebGPUGlobal.releaseId(this);
         this.clear();
-    }
-
-    /**
-     * 获取数据
-     */
-    getArrayBuffer() {
-        return this.arrayBuffer;
     }
 
     /**
@@ -555,7 +553,7 @@ export class UniformBuffer {
      * @param count 
      */
     private _getUniformItem(name: string, tac: TypedArrayConstructor, type: string, offset: number, align: number, size: number, elements: number, count: number) {
-        const view = new tac(this.arrayBuffer, offset, this._typeElements(type) * count);
+        const view = new tac(this.block.buffer.arrayBuffer, this.block.offset + offset, this._typeElements(type) * count);
         return { name, view, type, align, size, elements, count };
     }
 
@@ -616,7 +614,7 @@ export class UniformBuffer {
                 return 'Unknown';
             }
             console.log("arrayBuffer");
-            console.log("byteLength =", this.arrayBuffer.byteLength);
+            console.log("byteLength =", this.block.size);
             console.log("strID =", this.strID);
             this.items.forEach((item, key) => {
                 console.log("key: %d, type: %s, view: %s, offset: %d, size: %d, padding: %d, elements: %d, count: %d",

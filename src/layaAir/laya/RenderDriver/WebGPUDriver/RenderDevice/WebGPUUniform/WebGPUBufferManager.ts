@@ -35,8 +35,8 @@ export class WebGPUBufferBlock {
         this.destroyed = false;
 
         this.objectName = 'WebGPUBufferBlock | ' + buffer.name;
-        this.globalId = WebGPUGlobal.getId(this);
-        WebGPUGlobal.action(this, 'getMemory', alignedSize);
+        //this.globalId = WebGPUGlobal.getId(this);
+        //WebGPUGlobal.action(this, 'getMemory', alignedSize);
     }
 
     destroy() {
@@ -60,6 +60,9 @@ class WebGPUBufferCluster {
     single: boolean = false;
     expand: number; //每次扩展数量
 
+    needUpload: boolean = false;
+    arrayBuffer: ArrayBuffer;
+
     globalId: number;
     objectName: string;
 
@@ -75,44 +78,13 @@ class WebGPUBufferCluster {
             usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
             mappedAtCreation: false,
         });
+        this.arrayBuffer = new ArrayBuffer(size);
         this.free.push({ offset: 0, size });
 
         this.objectName = 'WebGPUBufferCluster | ' + name;
         this.globalId = WebGPUGlobal.getId(this);
         WebGPUGlobal.action(this, 'allocMemory', size);
     }
-
-    // /**
-    //  * 获取内存块
-    //  * @param size 
-    //  * @param user 
-    //  * @returns 偏移地址（256字节对齐）
-    //  */
-    // getBlock(size: number, user: UniformBuffer) {
-    //     let offset = 0;
-    //     let bb: WebGPUBufferBlock;
-    //     const alignedSize = roundUp(size, 256);
-    //     if (this.single && this.used.length > 0)
-    //         return this.used[0];
-    //     for (let i = 0, len = this.free.length; i < len; i++) {
-    //         if (this.free[i].size == alignedSize) {
-    //             this.left -= alignedSize;
-    //             offset = this.free.splice(i, 1)[0].offset;
-    //             bb = new WebGPUBufferBlock(WebGPUBufferManager.snCounter++, this, offset, size, alignedSize, user);
-    //             this.used.push(bb);
-    //             return bb;
-    //         } else if (this.free[i].size > alignedSize) {
-    //             offset = this.free[i].offset;
-    //             this.free[i].offset += alignedSize;
-    //             this.free[i].size -= alignedSize;
-    //             this.left -= alignedSize;
-    //             bb = new WebGPUBufferBlock(WebGPUBufferManager.snCounter++, this, offset, size, alignedSize, user);
-    //             this.used.push(bb);
-    //             return bb;
-    //         }
-    //     }
-    //     return null;
-    // }
 
     /**
      * 获取内存块
@@ -176,15 +148,17 @@ class WebGPUBufferCluster {
         const newSize = this.size + expandSize;
 
         try {
-            // 例如，创建一个新的GPUBuffer
+            // 创建一个新的GPUBuffer
             const newBuffer = this.device.createBuffer({
                 size: newSize,
                 usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
                 mappedAtCreation: false,
             });
 
-            // 通知所有Block重新上传数据
-            this.used.forEach(used => used.user.notifyGPUBufferChange());
+            // 将旧数据拷贝过来
+            const newArrayBuffer = new ArrayBuffer(newSize);
+            new Uint8Array(newArrayBuffer).set(new Uint8Array(this.arrayBuffer));
+            this.arrayBuffer = newArrayBuffer;
 
             // 销毁旧的GPUBuffer（旧的会自动销毁）
             //this.buffer.destroy();
@@ -197,6 +171,9 @@ class WebGPUBufferCluster {
 
             // 合并空闲内存
             this._mergeFree();
+
+            // 通知所有Block重新上传数据
+            this.used.forEach(used => used.user.notifyGPUBufferChange());
 
             WebGPUGlobal.action(this, 'expandMemory', expandSize);
             console.log("GPUBuffer expand, newSize =", newSize, this.name);
@@ -228,6 +205,13 @@ class WebGPUBufferCluster {
         return doFree;
     }
 
+    upload() {
+        if (this.needUpload) {
+            this.device.queue.writeBuffer(this.buffer, 0, this.arrayBuffer);
+            this.needUpload = false;
+        }
+    }
+
     /**
      * 清理
      */
@@ -238,6 +222,9 @@ class WebGPUBufferCluster {
         this.used.length = 0;
     }
 
+    /**
+     * 销毁
+     */
     destroy() {
         this.clear();
         this.buffer.destroy();
@@ -350,6 +337,13 @@ export class WebGPUBufferManager {
      */
     clearBuffer(name: string) {
         this.namedBuffers.delete(name);
+    }
+
+    /**
+     * 上传数据
+     */
+    upload() {
+        this.namedBuffers.forEach(buf => buf.upload());
     }
 
     /**

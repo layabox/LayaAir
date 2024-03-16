@@ -86,9 +86,9 @@ export class WebGPUTest {
             const boxS3D = [];
             const sphereS3D = [];
 
-            const n = 10;
-            const m = 10;
-            const l = 10;
+            const n = 5;
+            const m = 5;
+            const l = 5;
             for (let i = 0; i < n; i++) {
                 for (let j = 0; j < m; j++) {
                     for (let k = 0; k < l; k++) {
@@ -97,6 +97,8 @@ export class WebGPUTest {
                         bs3d.transform.position = new Vector3(i - n * 0.5, j - m * 0.5, k - l * 0.5);
                         bs3d.addComponent(MeshFilter).sharedMesh = boxMesh1;
                         bs3d.addComponent(MeshRenderer).material = material1;
+                        //@ts-ignore
+                        bs3d.rotate = new Vector3((Math.random() - 0.5) * 0.02, (Math.random() - 0.5) * 0.02, (Math.random() - 0.5) * 0.02);
                     }
                 }
             }
@@ -108,6 +110,8 @@ export class WebGPUTest {
                         sp3d.transform.position = new Vector3(i - n * 0.5 - 0.5, j - m * 0.5, k - l * 0.5);
                         sp3d.addComponent(MeshFilter).sharedMesh = sphereMesh1;
                         sp3d.addComponent(MeshRenderer).material = material2;
+                        //@ts-ignore
+                        sp3d.rotate = new Vector3((Math.random() - 0.5) * 0.02, (Math.random() - 0.5) * 0.02, (Math.random() - 0.5) * 0.02);
                     }
                 }
             }
@@ -137,10 +141,10 @@ export class WebGPUTest {
 
             Laya.timer.frameLoop(1, this, () => {
                 for (let i = boxS3D.length - 1; i > -1; i--) {
-                    boxS3D[i].transform.rotate(this.rotation1, false);
+                    boxS3D[i].transform.rotate(boxS3D[i].rotate, false);
                 }
                 for (let i = sphereS3D.length - 1; i > -1; i--) {
-                    sphereS3D[i].transform.rotate(this.rotation2, false);
+                    sphereS3D[i].transform.rotate(sphereS3D[i].rotate, false);
                 }
             });
 

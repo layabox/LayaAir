@@ -37,17 +37,6 @@ export class WebGPUStatis {
         this._memory += memory;
     }
 
-    // static saveStatisticsAsJson(filename: string) {
-    //     const json = JSON.stringify(this._dataCreate);
-    //     const blob = new Blob([json], { type: 'application/json' });
-    //     const url = URL.createObjectURL(blob);
-    //     const a = document.createElement('a');
-    //     a.href = url;
-    //     a.download = filename;
-    //     a.click();
-    //     URL.revokeObjectURL(url);
-    // }
-
     static printStatisticsAsTable() {
         console.log('GPU Memory Used: %d MB', this._memory / 1024 / 1024);
         if (this._dataTiming.length > 0) {

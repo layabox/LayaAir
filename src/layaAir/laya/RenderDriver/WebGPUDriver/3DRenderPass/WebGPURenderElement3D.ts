@@ -40,7 +40,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
     objectName: string = 'WebGPURenderElement3D';
 
     constructor() {
-        this.globalId = WebGPUGlobal.getId(this);
+        //this.globalId = WebGPUGlobal.getId(this);
     }
 
     protected _getInvertFront(): boolean {
@@ -52,6 +52,16 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
         const passes: ShaderPass[] = this.subShader._passes;
         this._clearShaderInstance();
 
+        const comDef = WebGPURenderElement3D._compileDefine;
+        // 将场景或全局配置的定义一次性准备好
+        if (context.sceneData) {
+            context.sceneData._defineDatas.cloneTo(comDef);
+        } else context.globalConfigShaderData.cloneTo(comDef);
+
+        // 如果存在，添加相机数据定义
+        if (context.cameraData)
+            comDef.addDefineDatas(context.cameraData._defineDatas);
+
         for (let i = 0, m = passes.length; i < m; i++) {
             const pass: ShaderPass = passes[i];
             //NOTE: this will cause maybe a shader not render but do prepare before，
@@ -59,12 +69,6 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
             if (pass.pipelineMode !== context.pipelineMode)
                 continue;
 
-            const comDef = WebGPURenderElement3D._compileDefine;
-            if (context.sceneData)
-                context.sceneData._defineDatas.cloneTo(comDef);
-            else context.globalConfigShaderData.cloneTo(comDef);
-
-            context.cameraData && comDef.addDefineDatas(context.cameraData._defineDatas);
             if (this.renderShaderData && this.owner) {
                 comDef.addDefineDatas(this.renderShaderData.getDefineData());
                 pass.nodeCommonMap = this.owner._commonUniformMap;
@@ -328,9 +332,6 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
                     let complete = true;
                     const pipeline = this._getWebGPURenderPipeline(shaderIns, context.destRT, context);
                     context.renderCommand.setPipeline(pipeline);
-                    //console.log(this.geometry);
-                    //console.log(shaderIns);
-                    //console.log(this.owner);
                     //scene
                     if (sceneShaderData)
                         if (!sceneShaderData.uploadUniform(0, 'scene', shaderIns.uniformSetMap[0], context.renderCommand))
@@ -349,10 +350,8 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
                         if (!this.materialShaderData.uploadUniform(3, 'material', shaderIns.uniformSetMap[3], context.renderCommand))
                             complete = false;
                     //draw
-                    if (complete) {
+                    if (complete)
                         context.renderCommand.applyGeometry(this.geometry);
-                        //console.log(this.geometry);
-                    }
                 }
             }
             //console.log('RenderElement End Render');

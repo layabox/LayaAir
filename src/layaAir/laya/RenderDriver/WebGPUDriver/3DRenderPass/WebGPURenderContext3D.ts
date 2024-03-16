@@ -42,7 +42,7 @@ export class WebGPURenderContext3D implements IRenderContext3D {
     /**@internal */
     private _clearFlag: number;
     /**@internal */
-    private _clearColor: Color = Color.RED;
+    private _clearColor: Color = Color.BLACK;
     /**@internal */
     private _clearDepth: number;
     /**@internal */
@@ -212,6 +212,7 @@ export class WebGPURenderContext3D implements IRenderContext3D {
 
     private _submit() {
         this.renderCommand.end();
+        WebGPURenderEngine._instance.upload(); //上传所有Uniform数据
         WebGPURenderEngine._instance.getDevice().queue.submit([this.renderCommand.finish()]);
         this._needStart = true;
     }

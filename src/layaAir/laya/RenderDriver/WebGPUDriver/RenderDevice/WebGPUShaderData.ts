@@ -41,7 +41,7 @@ export class WebGPUShaderData extends ShaderData {
         this._gammaColorMap = new Map();
         this._defineDatas = new WebDefineDatas();
 
-        this.globalId = WebGPUGlobal.getId(this);
+        //this.globalId = WebGPUGlobal.getId(this);
     }
 
     needUpdateBindGroup() {
@@ -154,7 +154,7 @@ export class WebGPUShaderData extends ShaderData {
         }
 
         //上传数据
-        this._uniformBuffer.upload(device);
+        this._uniformBuffer.upload();
 
         //将绑定组附加到命令
         command.setBindGroup(groupId, bindGroup);

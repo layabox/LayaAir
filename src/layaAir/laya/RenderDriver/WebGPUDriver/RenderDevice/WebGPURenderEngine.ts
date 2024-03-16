@@ -50,6 +50,9 @@ export class WebGPUConfig {
     multiSamples = 1;
 }
 
+/**
+ * WebGPU渲染引擎
+ */
 export class WebGPURenderEngine implements IRenderEngine {
     static _offscreenFormat: WebGPUTextureFormat;
     static _instance: WebGPURenderEngine;
@@ -60,7 +63,7 @@ export class WebGPURenderEngine implements IRenderEngine {
     _context: GPUCanvasContext;
     _config: WebGPUConfig;
 
-    _screenRT: WebGPUInternalRT;
+    _screenRT: WebGPUInternalRT; //屏幕渲染目标（绑定Canvas）
 
     private _adapter: GPUAdapter;
     private _device: GPUDevice;
@@ -70,7 +73,7 @@ export class WebGPURenderEngine implements IRenderEngine {
     private _adapterSupportedExtensions: GPUFeatureName[];
     private _deviceEnabledExtensions: GPUFeatureName[];
 
-    gpuBufferMgr: WebGPUBufferManager;
+    gpuBufferMgr: WebGPUBufferManager; //GPU大内存管理器
 
     globalId: number;
     objectName: string = 'WebGPURenderEngine';
@@ -89,15 +92,14 @@ export class WebGPURenderEngine implements IRenderEngine {
     }
 
     /**
-     * get adapter by computer
-     * @returns 
+     * 获取适配器
      */
     private _getAdapter(): Promise<GPUAdapter> {
         return navigator.gpu!.requestAdapter({ powerPreference: this._config.powerPreference });
     }
 
     /**
-     * init Adapter
+     * 初始化适配器
      * @param adapter 
      */
     private _initAdapter(adapter: GPUAdapter) {
@@ -120,25 +122,24 @@ export class WebGPURenderEngine implements IRenderEngine {
     }
 
     /**
-     * get GPUDevice
+     * 获取WebGPU设备
      * @param deviceDescriptor 
-     * @returns 
      */
     private _getGPUdevice(deviceDescriptor: GPUDeviceDescriptor): Promise<GPUDevice> {
         return this._adapter.requestDevice(deviceDescriptor);
     }
 
     /**
-     * error handle
+     * 显示错误信息
      * @param event 
      */
     private _unCapturedErrorCall(event: Event) {
-        console.warn("WebGPU uncaptured error: " + (event as GPUUncapturedErrorEvent).error);
-        console.warn("WebGPU uncaptured error message: " + (event as GPUUncapturedErrorEvent).error.message);
+        console.warn("WebGPU unCaptured error: " + (event as GPUUncapturedErrorEvent).error);
+        console.warn("WebGPU unCaptured error message: " + (event as GPUUncapturedErrorEvent).error.message);
     }
 
     /**
-     * device lost handle
+     * 设备丢失
      * @param info 
      */
     private _deviceLostCall(info: GPUDeviceLostInfo) {
@@ -146,10 +147,10 @@ export class WebGPURenderEngine implements IRenderEngine {
     }
 
     /**
-     * get init Device info
+     * 初始化WebGPU设备
      * @param device 
      */
-    private _initGPUDevice(device: GPUDevice) {
+    private _initDevice(device: GPUDevice) {
         this._device = device;
         this._deviceEnabledExtensions = [];
         this._device.features.forEach(element => {
@@ -161,17 +162,13 @@ export class WebGPURenderEngine implements IRenderEngine {
         this.gpuBufferMgr = new WebGPUBufferManager(device);
         this.gpuBufferMgr.addBuffer('scene', 4 * 1024, 1024, true);
         this.gpuBufferMgr.addBuffer('camera', 4 * 1024, 1024, true);
-        this.gpuBufferMgr.addBuffer('sprite3D', 1 * 256 * 1024, 256 * 1024);
-        this.gpuBufferMgr.addBuffer('material', 1 * 256 * 1024, 256 * 1024);
-        //this.gpuBufferMgr.addBuffer('simpeSkinnedMesh', 10 * 1024 * 1024);
-        //this.gpuBufferMgr.addBuffer('shurikenSprite3D', 5 * 1024 * 1024);
-        //this.gpuBufferMgr.addBuffer('trailRender', 1 * 1024 * 1024);
+        this.gpuBufferMgr.addBuffer('sprite3D', 512 * 1024, 128 * 1024);
+        this.gpuBufferMgr.addBuffer('material', 512 * 1024, 128 * 1024);
     }
 
     /**
-    * init webgpu environment
-    * @returns 
-    */
+     * 初始化WebGPU
+     */
     async _initAsync(): Promise<void> {
         return await this._getAdapter()
             .then((adapter: GPUAdapter | null) => {
@@ -179,7 +176,7 @@ export class WebGPURenderEngine implements IRenderEngine {
                 return this._getGPUdevice(this._config.deviceDescriptor);
             })
             .then((device: GPUDevice) => {
-                this._initGPUDevice(device);
+                this._initDevice(device);
                 return Promise.resolve();
             },
                 (e) => {
@@ -188,6 +185,11 @@ export class WebGPURenderEngine implements IRenderEngine {
                 })
     }
 
+    /**
+     * 画布尺寸改变
+     * @param width 
+     * @param height 
+     */
     resizeOffScreen(width: number, height: number): void {
         const w = width | 0;
         const h = height | 0;
@@ -204,7 +206,14 @@ export class WebGPURenderEngine implements IRenderEngine {
     }
 
     /**
-     * get and config webgpu context
+     * 上传数据
+     */
+    upload() {
+        this.gpuBufferMgr.upload();
+    }
+
+    /**
+     * 设置WebGPU画图上下文
      */
     private _initContext() {
         this._context = this._canvas.getContext("webgpu") as GPUCanvasContext;
@@ -223,6 +232,9 @@ export class WebGPURenderEngine implements IRenderEngine {
         WebGPURenderEngine._offscreenFormat = format;
     }
 
+    /**
+     * 初始化渲染引擎
+     */
     async initRenderEngine() {
         await this._initAsync();
         this._initContext();
@@ -243,12 +255,11 @@ export class WebGPURenderEngine implements IRenderEngine {
     private _propertyNameMap: any = {};
     /**@internal */
     private _propertyNameCounter: number = 0;
-
     propertyNameToID(name: string): number {
         if (this._propertyNameMap[name] != null) {
             return this._propertyNameMap[name];
         } else {
-            var id: number = this._propertyNameCounter++;
+            const id = this._propertyNameCounter++;
             this._propertyNameMap[name] = id;
             this._propertyNameMap[id] = name;
             return id;
@@ -264,14 +275,13 @@ export class WebGPURenderEngine implements IRenderEngine {
     private _defineCounter: number = 0;
     /**@internal */
     private _maskMap: { [key: number]: string }[] = [];
-
     getDefineByName(name: string): ShaderDefine {
-        var define: ShaderDefine = this._defineMap[name];
+        let define: ShaderDefine = this._defineMap[name];
         if (!define) {
-            var maskMap = this._maskMap;
-            var counter: number = this._defineCounter;
-            var index: number = Math.floor(counter / 32);
-            var value: number = 1 << counter % 32;
+            const maskMap = this._maskMap;
+            const counter = this._defineCounter;
+            const index = Math.floor(counter / 32);
+            const value = 1 << counter % 32;
             define = new ShaderDefine(index, value);
             this._defineMap[name] = define;
             if (index == maskMap.length) {
@@ -283,17 +293,16 @@ export class WebGPURenderEngine implements IRenderEngine {
         }
         return define;
     }
-
     getNamesByDefineData(defineData: IDefineDatas, out: string[]): void {
-        var maskMap: Array<{ [key: number]: string }> = this._maskMap;
-        var mask: Array<number> = defineData._mask;
+        const maskMap: Array<{ [key: number]: string }> = this._maskMap;
+        const mask: Array<number> = defineData._mask;
         out.length = 0;
-        for (var i: number = 0, n: number = defineData._length; i < n; i++) {
-            var subMaskMap: { [key: number]: string } = maskMap[i];
-            var subMask: number = mask[i];
-            for (var j: number = 0; j < 32; j++) {
-                var d: number = 1 << j;
-                if (subMask > 0 && d > subMask)//如果31位存在subMask为负数,避免break
+        for (let i = 0, n = defineData._length; i < n; i++) {
+            const subMaskMap: { [key: number]: string } = maskMap[i];
+            const subMask: number = mask[i];
+            for (let j = 0; j < 32; j++) {
+                const d = 1 << j;
+                if (subMask > 0 && d > subMask) //如果31位存在subMask为负数, 避免break
                     break;
                 if (subMask & d)
                     out.push(subMaskMap[d]);
@@ -347,6 +356,5 @@ export class WebGPURenderEngine implements IRenderEngine {
             this._textureContext.createRenderTargetInternal
                 (this._canvas.width, this._canvas.height, RenderTargetFormat.R8G8B8A8,
                     RenderTargetFormat.None, false, false, this._config.multiSamples) as WebGPUInternalRT;
-        this._screenRT._textures[0].resource = this._context.getCurrentTexture();
     }
 }
