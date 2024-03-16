@@ -88,7 +88,7 @@ export class CharSubmitCache {
         submit.shaderValue.textureHost = this._tex;
         submit._key.other = this._imgId;
         ctx._colorFiler = colorFiler;
-        ctx._copyClipInfo(submit, this._clipMatrix);
+        ctx._copyClipInfo(submit.shaderValue, this._clipMatrix);
         submit.clipInfoID = this._clipid;
 
         for (var i = 0; i < n; i += 3) {

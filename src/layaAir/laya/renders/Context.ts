@@ -964,15 +964,13 @@ export class Context {
     }
 
     /**@internal */
-    _copyClipInfo(submit: SubmitBase, clipInfo: Matrix): void {
-        let shaderValue = submit.shaderValue;
+    _copyClipInfo(shaderValue: Value2D, clipInfo: Matrix): void {
         var cm = shaderValue.clipMatDir;
         cm.x = clipInfo.a; cm.y = clipInfo.b; cm.z = clipInfo.c; cm.w = clipInfo.d;
         shaderValue.clipMatDir = cm;
         var cmp = shaderValue.clipMatPos;
         cmp.x = clipInfo.tx; cmp.y = clipInfo.ty;
         shaderValue.clipMatPos = cmp;
-        submit.clipInfoID = this._clipInfoID;
 
         if (this._clipInCache) {
             shaderValue.clipOff.x = 1;
@@ -1142,7 +1140,8 @@ export class Context {
             shaderValue.textureHost = tex;
             this._curSubmit = submit = SubmitBase.create(this, this._mesh, shaderValue);
             submit._key.other = imgid;
-            this._copyClipInfo(submit, this._globalClipMatrix);
+            this._copyClipInfo(submit.shaderValue, this._globalClipMatrix);
+            submit.clipInfoID = this._clipInfoID;
         }
         (this._mesh as MeshQuadTexture).addQuad(ops, uv, rgba, true);
         submit._numEle += 6;
@@ -1301,7 +1300,8 @@ export class Context {
             var submit = this._curSubmit = SubmitBase.create(this, this._mesh, shaderValue);
             this.fillShaderValue(shaderValue);
             submit.blendType = (blend == -1) ? this._nBlendType : blend;
-            this._copyClipInfo((<SubmitBase>(submit as any)), this._globalClipMatrix);
+            this._copyClipInfo(submit.shaderValue, this._globalClipMatrix);
+            submit.clipInfoID = this._clipInfoID;
             submit._numEle = 6;
             //暂时drawTarget不合并
             this._drawToRender2D(this._curSubmit);
@@ -1359,7 +1359,8 @@ export class Context {
             this.fillShaderValue(submit.shaderValue);
             submit._key.submitType = SubmitBase.KEY_TRIANGLES;
             submit._key.other = webGLImg.id;
-            this._copyClipInfo(submit, this._globalClipMatrix);
+            this._copyClipInfo(submit.shaderValue, this._globalClipMatrix);
+            submit.clipInfoID = this._clipInfoID;
         }
 
         var rgba = this._mixRGBandAlpha(colorNum, this._alpha * alpha);
@@ -1640,7 +1641,8 @@ export class Context {
         //submit._key.clear();
         //submit._key.blendShader = _submitKey.blendShader;	//TODO 这个在哪里赋值的啊
         submit._key.submitType = SubmitBase.KEY_VG;
-        this._copyClipInfo(submit, this._globalClipMatrix);
+        this._copyClipInfo(submit.shaderValue, this._globalClipMatrix);
+        submit.clipInfoID = this._clipInfoID;
         return submit;
     }
 

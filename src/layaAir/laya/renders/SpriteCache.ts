@@ -97,6 +97,7 @@ export class SpriteCache{
             //TODO
             vec21.setValue(context.width, context.height);
             curMtl.size=vec21;
+            context._copyClipInfo(curMtl,context._globalClipMatrix);
             //世界矩阵
             let mate = worldMat4.elements;
             mate[0]=worldMat.a; mate[1]=worldMat.b;
