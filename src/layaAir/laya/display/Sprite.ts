@@ -718,20 +718,20 @@ export class Sprite extends Node {
     /**@private */
     protected _adjustTransform(): Matrix {
         this._tfChanged = false;
-        var style: SpriteStyle = this._style;
-        var sx: number = style.scaleX, sy: number = style.scaleY;
-        var sskx: number = style.skewX;
-        var ssky: number = style.skewY;
-        var rot: number = style.rotation;
-        var m: Matrix = this._transform || (this._transform = this._createTransform());
+        var style = this._style;
+        var sx = style.scaleX, sy = style.scaleY;
+        var sskx = style.skewX;
+        var ssky = style.skewY;
+        var rot = style.rotation;
+        var m = this._transform || (this._transform = this._createTransform());
         if (rot || sx !== 1 || sy !== 1 || sskx !== 0 || ssky !== 0) {
             m._bTransform = true;
-            var skx: number = (rot - sskx) * 0.0174532922222222;//laya.CONST.PI180;
-            var sky: number = (rot + ssky) * 0.0174532922222222;
-            var cx: number = Math.cos(sky);
-            var ssx: number = Math.sin(sky);
-            var cy: number = Math.sin(skx);
-            var ssy: number = Math.cos(skx);
+            var skx = (rot - sskx) * 0.0174532922222222;//laya.CONST.PI180;
+            var sky = (rot + ssky) * 0.0174532922222222;
+            var cx = Math.cos(sky);
+            var ssx = Math.sin(sky);
+            var cy = Math.sin(skx);
+            var ssy = Math.cos(skx);
             m.a = sx * cx;
             m.b = sx * ssx;
             m.c = -sy * cy;
@@ -1040,7 +1040,7 @@ export class Sprite extends Node {
                 }
 
                 if (this.cacheGlobal) {
-                    let flag: number = Sprite.Sprite_GlobalDeltaFlage_Position_X | Sprite.Sprite_GlobalDeltaFlage_Position_Y;
+                    let flag = Sprite.Sprite_GlobalDeltaFlage_Position_X | Sprite.Sprite_GlobalDeltaFlage_Position_Y;
                     this._setGlobalCacheFlag(flag, true);
                     this._syncGlobalFlag(flag, true);
                 }
@@ -1120,8 +1120,11 @@ export class Sprite extends Node {
     /**
      * 更新、呈现显示对象。由系统调用。
      * @param	context 渲染的上下文引用。
-     * @param	x X轴坐标。
+     * @param	x X轴坐标。 
      * @param	y Y轴坐标。
+     * 关于上面的xy的含义比较复杂，在没有旋转的情况下，他就是当前节点的世界坐标的位置
+     * 如果此节点的某个某个父节点有旋转，xy会在那里被重置为00，然后继续累加
+     * 所以可以认为这个xy是表示当前节点到某个有旋转的节点（或者根节点）的累加值
      */
     render(ctx: Context, x: number, y: number): void {
         RenderSprite.renders[this._renderType]._fun(this, ctx, x + this._x, y + this._y);

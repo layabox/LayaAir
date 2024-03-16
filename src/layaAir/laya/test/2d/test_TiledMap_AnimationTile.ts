@@ -13,6 +13,7 @@ import { URL } from "../../net/URL";
 import { TiledMap } from "../../map/TiledMap";
 import { Rectangle } from "../../maths/Rectangle";
 import { Handler } from "../../utils/Handler";
+import { RenderSprite } from "../../renders/RenderSprite";
 
 //HierarchyLoader和MaterialLoader等是通过前面的import完成的
 
@@ -22,6 +23,7 @@ async function test(){
     Laya.stage.scaleMode = Stage.SCALE_FULL;
     Laya.stage.screenMode = Stage.SCREEN_NONE;
     Shader3D.debugMode = true;
+    (window as any).RenderSprite = RenderSprite;
     URL.basePath += "sample-resource/";
 
     let tiledMap = new TiledMap();
