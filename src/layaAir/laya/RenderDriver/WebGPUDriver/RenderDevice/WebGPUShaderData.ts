@@ -32,6 +32,8 @@ export class WebGPUShaderData extends ShaderData {
     private _bindKey: string;
     private _bindGroup: GPUBindGroup;
 
+    isStatic: boolean = false; //是否静态
+
     globalId: number;
     objectName: string = 'WebGPUShaderData';
 
@@ -61,7 +63,6 @@ export class WebGPUShaderData extends ShaderData {
                     this._uniformBuffer.addUniform(uniform.id, uniform.name, uniform.type, uniform.offset, uniform.align, uniform.size, uniform.elements, uniform.count);
                 }
                 this._updateUniformData();
-                //console.log(this._uniformBuffer);
             }
         }
     };
@@ -75,9 +76,13 @@ export class WebGPUShaderData extends ShaderData {
     }
 
     /**
-     * 生成bindGroup并上传数据
+     * 绑定资源组
+     * @param groupId 
+     * @param name 
+     * @param uniforms 
+     * @param command 
      */
-    uploadUniform(groupId: number, name: string, uniforms: WebGPUUniformPropertyBindingInfo[], command: WebGPURenderCommandEncoder) {
+    bindGroup(groupId: number, name: string, uniforms: WebGPUUniformPropertyBindingInfo[], command: WebGPURenderCommandEncoder) {
         const device = WebGPURenderEngine._instance.getDevice();
 
         //根据uniforms中的内容生成一个key, 用于查找缓存
@@ -150,15 +155,19 @@ export class WebGPUShaderData extends ShaderData {
             });
             this._bindKey = key;
             this._bindGroup = bindGroup;
-            //console.log('create bindGroup', key, bindGroupLayoutDesc, bindGroupEntries, bindGroup);
+            console.log('create bindGroup', key, bindGroupLayoutDesc, bindGroupEntries, bindGroup);
         }
-
-        //上传数据
-        this._uniformBuffer.upload();
 
         //将绑定组附加到命令
         command.setBindGroup(groupId, bindGroup);
         return true;
+    }
+
+    /**
+     * 上传数据
+     */
+    uploadUniform() {
+        this._uniformBuffer.upload();
     }
 
     getData() {

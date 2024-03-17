@@ -15,6 +15,7 @@ import { WebDirectLight } from "../../RenderModuleData/WebModuleData/3D/WebDirec
 import { WebCameraNodeData } from "../../RenderModuleData/WebModuleData/3D/WebModuleData";
 import { WebGLForwardAddRP } from "../../WebGLDriver/3DRenderPass/WebGLForwardAddRP";
 import { WebGPUGlobal } from "../RenderDevice/WebGPUStatis/WebGPUGlobal";
+import { WebGPUStatis } from "../RenderDevice/WebGPUStatis/WebGPUStatis";
 import { WebGPURenderContext3D } from "./WebGPURenderContext3D";
 
 export class WebGPU3DRenderPass implements IRender3DProcess {
@@ -125,6 +126,7 @@ export class WebGPU3DRenderPass implements IRender3DProcess {
     }
 
     fowardRender(context: WebGPURenderContext3D, camera: Camera): void {
+        WebGPUStatis.startFrame();
         this.initRenderPass(camera, context);
         const renderList = <WebBaseRenderNode[]>camera.scene.sceneRenderableManager.renderBaselist.elements;
         //@ts-ignore

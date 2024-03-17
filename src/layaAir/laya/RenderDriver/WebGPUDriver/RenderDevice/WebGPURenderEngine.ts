@@ -160,10 +160,11 @@ export class WebGPURenderEngine implements IRenderEngine {
         this._device.lost.then(this._deviceLostCall);
 
         this.gpuBufferMgr = new WebGPUBufferManager(device);
-        this.gpuBufferMgr.addBuffer('scene', 4 * 1024, 1024, true);
-        this.gpuBufferMgr.addBuffer('camera', 4 * 1024, 1024, true);
-        this.gpuBufferMgr.addBuffer('sprite3D', 512 * 1024, 128 * 1024);
-        this.gpuBufferMgr.addBuffer('material', 512 * 1024, 128 * 1024);
+        this.gpuBufferMgr.addBuffer('scene', 4 * 1024, 1, true);
+        this.gpuBufferMgr.addBuffer('camera', 4 * 1024, 1, true);
+        this.gpuBufferMgr.addBuffer('sprite3D', 64 * 1024, 4);
+        this.gpuBufferMgr.addBuffer('material', 64 * 1024, 1);
+        this.gpuBufferMgr.addBuffer('sprite3D_static', 64 * 1024, 4);
     }
 
     /**

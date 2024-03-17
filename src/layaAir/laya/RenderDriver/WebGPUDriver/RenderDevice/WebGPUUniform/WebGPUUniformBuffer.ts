@@ -64,7 +64,7 @@ export class UniformBuffer {
     objectName: string = 'UniformBuffer';
 
     constructor(name: string, set: number, binding: number, size: number, gpuBuffer: WebGPUBufferManager, user: WebGPUShaderData) {
-        this.name = name;
+        this.name = name + (user.isStatic ? '_static' : '');
         this.strID = '';
         this.items = new Map();
         this.itemNum = 0;
@@ -72,9 +72,9 @@ export class UniformBuffer {
 
         this.set = set;
         this.binding = binding;
-        this.block = gpuBuffer.getBlock(name, size, this);
+        this.block = gpuBuffer.getBlock(this.name, size, this);
 
-        this._gpu_Buffer = gpuBuffer.getBuffer(name);
+        this._gpu_Buffer = gpuBuffer.getBuffer(this.name);
         this._gpu_BindGroupEntry = {
             binding,
             resource: {
@@ -513,7 +513,7 @@ export class UniformBuffer {
      */
     upload() {
         if (this.needUpload) {
-            this.block.buffer.needUpload = true;
+            this.block.needUpload();
             this.needUpload = false;
         }
     }

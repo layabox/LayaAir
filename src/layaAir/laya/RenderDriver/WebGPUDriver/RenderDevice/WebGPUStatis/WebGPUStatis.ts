@@ -5,6 +5,16 @@ export class WebGPUStatis {
     private static _dataCreate: { [key: string]: { id: number[], count: number, time: number[], memory: number, object: any[] } } = {};
     private static _dataRelease: { [key: string]: { id: number[], count: number, time: number[], memory: number, object: any[] } } = {};
 
+    private static _uploadNum: number = 0;
+
+    static startFrame() {
+        this._uploadNum = 0;
+    }
+
+    static addUploadNum(n: number = 1) {
+        this._uploadNum += n;
+    }
+
     static trackObjectCreation(name: string, id: number, object?: any, memory?: number) {
         const time = Date.now() - this._start;
         this._dataTiming.push({ action: 'create', name, id, time, memory, object });
@@ -51,5 +61,9 @@ export class WebGPUStatis {
             console.log('object release statistics: ');
             console.table(this._dataRelease);
         }
+    }
+
+    static printFrameStatis() {
+        console.log('uploadNum =', this._uploadNum);
     }
 }

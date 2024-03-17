@@ -1,4 +1,5 @@
 import { WebGPUGlobal } from "../WebGPUStatis/WebGPUGlobal";
+import { WebGPUStatis } from "../WebGPUStatis/WebGPUStatis";
 import { UniformBuffer } from "./WebGPUUniformBuffer";
 
 type OffsetAndSize = { offset: number, size: number };
@@ -14,16 +15,16 @@ const roundUp = (n: number, align: number) => (((n + align - 1) / align) | 0) * 
  * GPU内存块（小内存块）
  */
 export class WebGPUBufferBlock {
-    sn: number;
-    buffer: WebGPUBufferCluster;
-    offset: number;
-    size: number;
-    alignedSize: number;
-    user: UniformBuffer;
-    destroyed: boolean;
+    sn: number; //序列号
+    buffer: WebGPUBufferCluster; //大内存管理对象
+    offset: number; //在大内存中的偏移
+    size: number; //实际尺寸
+    alignedSize: number; //256字节对齐后的尺寸
+    user: UniformBuffer; //内存块使用者
+    destroyed: boolean; //该内存块是否已经销毁
 
-    globalId: number;
-    objectName: string;
+    globalId: number; //全局id
+    objectName: string; //本对象名称
 
     constructor(sn: number, buffer: WebGPUBufferCluster, offset: number, size: number, alignedSize: number, user: UniformBuffer) {
         this.sn = sn;
@@ -39,6 +40,11 @@ export class WebGPUBufferBlock {
         //WebGPUGlobal.action(this, 'getMemory', alignedSize);
     }
 
+    needUpload() {
+        this.buffer.needUpload[this.offset / this.buffer.sliceSize | 0] = true;
+        this.buffer.needUpload[(this.offset + this.size) / this.buffer.sliceSize | 0] = true;
+    }
+
     destroy() {
         WebGPUGlobal.action(this, 'backMemory', this.alignedSize);
         WebGPUGlobal.releaseId(this);
@@ -49,50 +55,58 @@ export class WebGPUBufferBlock {
 /**
  * GPU内存块（大内存块）
  */
-class WebGPUBufferCluster {
-    device: GPUDevice;
-    buffer: GPUBuffer;
-    name: string;
-    size: number;
-    left: number;
-    free: OffsetAndSize[] = [];
-    used: WebGPUBufferBlock[] = [];
-    single: boolean = false;
+export class WebGPUBufferCluster {
+    device: GPUDevice; //GPU设备
+    name: string; //名称
+    sliceSize: number; //分割尺寸
+    sliceNum: number; //分割数量
+    totalSize: number; //总体尺寸
+    totalLeft: number; //剩余尺寸
+
+    buffer: GPUBuffer; //GPU内存
+    free: OffsetAndSize[]; //空闲块
+    used: WebGPUBufferBlock[] = []; //占用块
+    single: boolean = false; //是否只分配一个块
     expand: number; //每次扩展数量
 
-    needUpload: boolean = false;
-    arrayBuffer: ArrayBuffer;
+    needUpload: boolean[] = []; //哪些块需要上传
+    arrayBuffer: ArrayBuffer; //数据
 
-    globalId: number;
-    objectName: string;
+    globalId: number; //全局id
+    objectName: string; //本对象名称
 
-    constructor(device: GPUDevice, name: string, size: number, expand: number, single: boolean = false) {
-        this.name = name;
-        this.size = size;
-        this.left = size;
-        this.single = single;
-        this.expand = expand;
+    constructor(device: GPUDevice, name: string, sliceSize: number, sliceNum: number, single: boolean = false) {
         this.device = device;
-        this.buffer = device.createBuffer({
-            size,
-            usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
-            mappedAtCreation: false,
-        });
-        this.arrayBuffer = new ArrayBuffer(size);
-        this.free.push({ offset: 0, size });
+        this.name = name;
+        this.sliceSize = sliceSize;
+        this.sliceNum = sliceNum;
+        this.single = single;
 
-        this.objectName = 'WebGPUBufferCluster | ' + name;
-        this.globalId = WebGPUGlobal.getId(this);
-        WebGPUGlobal.action(this, 'allocMemory', size);
+        this.totalSize = sliceSize * sliceNum;
+        this.expand = 1; // 默认每次扩展数量
+
+        this.totalLeft = this.totalSize;
+        this.arrayBuffer = new ArrayBuffer(this.totalSize);
+
+        this.buffer = device.createBuffer({
+            size: this.totalSize,
+            usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+        });
+
+        this.needUpload.length = this.sliceNum;
+
+        //初始化，整个buffer最初可用
+        this.free = [{ offset: 0, size: this.totalSize }];
     }
 
     /**
      * 获取内存块
-     * @param size 
-     * @param user 
+     * @param size 需求尺寸
+     * @param user 使用者
      * @returns 偏移地址（256字节对齐）
      */
     getBlock(size: number, user: UniformBuffer) {
+        //根据需求尺寸获取一个空闲块，获取的空闲块要求按照256字节对齐
         let bb: WebGPUBufferBlock;
         const alignedSize = roundUp(size, 256);
         if (this.single && this.used.length > 0)
@@ -111,115 +125,122 @@ class WebGPUBufferCluster {
     /**
      * 查找或创建一个足够大的空闲块，若有必要则扩展大内存块
      */
-    private _findOrCreateFreeBlock(requiredSize: number): any {
-        for (let i = 0, len = this.free.length; i < len; i++) {
-            const block = this.free[i];
-            if (block.size >= requiredSize) {
-                if (block.size === requiredSize) {
-                    // 完美匹配，移除并返回当前空闲块
-                    this.left -= requiredSize;
-                    return this.free.splice(i, 1)[0];
-                } else {
-                    // 分割当前空闲块
-                    const newBlock = { offset: block.offset, size: requiredSize };
-                    block.offset += requiredSize;
-                    block.size -= requiredSize;
-                    this.left -= requiredSize;
-                    return newBlock;
-                }
-            }
+    private _findOrCreateFreeBlock(requiredSize: number): OffsetAndSize {
+        let blockIndex = this.free.findIndex(block => block.size == requiredSize);
+        if (blockIndex != -1) {
+            //精确匹配大小，直接返回该块
+            this.totalLeft -= requiredSize;
+            return this.free.splice(blockIndex, 1)[0];
         }
-
-        // 找不到足够的空间，尝试扩展缓冲区
-        if (this._expandBuffer(requiredSize)) {
-            // 扩展成功后，再次尝试找到或创建空闲块
-            return this._findOrCreateFreeBlock(requiredSize);
-        } else {
-            // 无法扩展
-            return null;
+        blockIndex = this.free.findIndex(block => block.size > requiredSize);
+        if (blockIndex != -1) {
+            //找到了合适的块
+            const block = this.free[blockIndex];
+            const newBlock = { offset: block.offset, size: requiredSize };
+            block.offset += requiredSize;
+            block.size -= requiredSize;
+            this.totalLeft -= requiredSize;
+            return newBlock;
         }
+        //未找到合适的块，尝试扩展
+        this._expandBuffer();
+        //再次尝试找到块，此时因为扩展，理应能找到
+        return this._findOrCreateFreeBlock(requiredSize);
     }
 
     /**
      * 扩展GPU缓冲区
      */
-    private _expandBuffer(extraSize: number) {
-        const expandSize = Math.max(extraSize, this.expand);
-        const newSize = this.size + expandSize;
+    private _expandBuffer() {
+        //添加扩展空间作为新的空闲块
+        const expandSize = this.sliceSize * this.expand;
+        this.free.push({ offset: this.totalSize, size: expandSize });
 
-        try {
-            // 创建一个新的GPUBuffer
-            const newBuffer = this.device.createBuffer({
-                size: newSize,
-                usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
-                mappedAtCreation: false,
-            });
+        //计算扩展尺寸
+        this.sliceNum += this.expand;
+        this.totalSize += expandSize;
+        this.totalLeft += expandSize;
 
-            // 将旧数据拷贝过来
-            const newArrayBuffer = new ArrayBuffer(newSize);
-            new Uint8Array(newArrayBuffer).set(new Uint8Array(this.arrayBuffer));
-            this.arrayBuffer = newArrayBuffer;
+        //创建一个新的CPUBuffer，将旧数据拷贝过来
+        const newArrayBuffer = new ArrayBuffer(this.totalSize);
+        new Uint8Array(newArrayBuffer).set(new Uint8Array(this.arrayBuffer));
+        this.arrayBuffer = newArrayBuffer;
 
-            // 销毁旧的GPUBuffer（旧的会自动销毁）
-            //this.buffer.destroy();
+        //创建一个新的GPUBuffer
+        const newBuffer = this.device.createBuffer({
+            size: this.totalSize,
+            usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+        });
+        this.buffer = newBuffer;
 
-            // 更新引用和相关属性
-            this.buffer = newBuffer;
-            this.free.push({ offset: this.size, size: expandSize });  // 添加刚扩展空间作为新的空闲块
-            this.size = newSize;
-            this.left += expandSize;
+        //旧的GPUBuffer失去引用时会自动销毁
+        //this.buffer.destroy();
 
-            // 合并空闲内存
-            this._mergeFree();
+        //合并空闲内存
+        this._mergeFree();
 
-            // 通知所有Block重新上传数据
-            this.used.forEach(used => used.user.notifyGPUBufferChange());
+        //通知所有使用者
+        this.used.forEach(used => used.user.notifyGPUBufferChange());
 
-            WebGPUGlobal.action(this, 'expandMemory', expandSize);
-            console.log("GPUBuffer expand, newSize =", newSize, this.name);
-            return true;
-        } catch (error) {
-            console.error("Failed to expand GPUBuffer:", error, this.name);
-            return false;
-        }
+        WebGPUGlobal.action(this, 'expandMemory', expandSize);
+        console.log("GPUBuffer expand, newSize =", this.totalSize / 1024 + 'KB,', this.name);
     }
 
     /**
      * 释放内存块
      */
     freeBlock(bb: WebGPUBufferBlock) {
-        let doFree = false;
-        if (bb.destroyed) return doFree;
-        for (let i = 0, len = this.used.length; i < len; i++) {
-            if (this.used[i] == bb) {
-                this.free.push({ offset: bb.offset, size: bb.alignedSize });
-                this.left += bb.alignedSize;
-                this.used.splice(i, 1);
-                bb.destroy();
-                doFree = true;
-                break;
-            }
+        //根据传入的块信息，将块信息从used数组中移除，并添加到free数组中
+        const index = this.used.findIndex(block => block == bb);
+        if (index != -1) {
+            this.used.splice(index, 1);
+            this.free.push({ offset: bb.offset, size: bb.alignedSize });
+            this.totalLeft += bb.alignedSize;
+            bb.destroy();
+            this._mergeFree(); // 尝试合并空闲块
+            return true;
         }
-        if (doFree)
-            this._mergeFree();
-        return doFree;
-    }
-
-    upload() {
-        if (this.needUpload) {
-            this.device.queue.writeBuffer(this.buffer, 0, this.arrayBuffer);
-            this.needUpload = false;
-        }
+        return false;
     }
 
     /**
-     * 清理
+     * 将数据上传到GPU内存
      */
-    clear() {
-        this.left = this.size;
-        this.free = [{ offset: 0, size: this.size }];
-        this.used.forEach(bb => bb.destroy());
+    upload() {
+        //遍历所有需要上传的内存块，执行上传操作
+        let count = 0;
+        for (let i = this.needUpload.length - 1; i > -1; i--) {
+            if (this.needUpload[i]) {
+                const offset = i * this.sliceSize;
+                const size = this.sliceSize;
+                this.device.queue.writeBuffer(this.buffer, offset, this.arrayBuffer, offset, size);
+                this.needUpload[i] = false;
+                count++;
+            }
+        }
+        WebGPUStatis.addUploadNum(count);
+    }
+
+    /**
+     * 清理，释放所有内存块，回到内存未占用状态
+     * @param sliceNum 保留多少分割数量
+     */
+    clear(sliceNum?: number) {
+        this.used.forEach(block => block.destroy());
         this.used.length = 0;
+        if (sliceNum != undefined && sliceNum >= 0 && sliceNum != this.sliceNum) {
+            this.sliceNum = sliceNum;
+            this.totalSize = this.sliceSize * this.sliceNum;
+            //创建一个新的GPUBuffer
+            this.buffer = this.device.createBuffer({
+                size: this.totalSize,
+                usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+            });
+            this.arrayBuffer = new ArrayBuffer(this.totalSize);
+        }
+        this.totalLeft = this.totalSize;
+        this.free = [{ offset: 0, size: this.totalSize }];
+        this.needUpload.length = this.sliceNum;
     }
 
     /**
@@ -228,7 +249,7 @@ class WebGPUBufferCluster {
     destroy() {
         this.clear();
         this.buffer.destroy();
-        WebGPUGlobal.action(this, 'releaseMemory', this.size);
+        WebGPUGlobal.action(this, 'releaseMemory', this.totalSize);
         WebGPUGlobal.releaseId(this);
     }
 
@@ -236,20 +257,20 @@ class WebGPUBufferCluster {
      * 合并内存块
      */
     private _mergeFree() {
-        // 首先，根据offset对数组进行排序
+        //首先，根据offset对数组进行排序
         this.free.sort((a, b) => a.offset - b.offset);
 
-        // 创建一个新数组来存储合并后的内存块
+        //创建一个新数组来存储合并后的内存块
         const merged: OffsetAndSize[] = [];
 
-        // 遍历排序后的数组，并合并连续的内存块
+        //遍历排序后的数组，并合并连续的内存块
         let doMerge = false;
         for (const block of this.free) {
-            // 如果merged数组为空，或当前内存块与前一个内存块不连续，则直接将当前内存块添加到merged数组中
+            //如果merged数组为空，或当前内存块与前一个内存块不连续，则直接将当前内存块添加到merged数组中
             if (merged.length == 0 || block.offset > (merged[merged.length - 1].offset + merged[merged.length - 1].size)) {
                 merged.push({ ...block });
             } else {
-                // 如果当前内存块与前一个内存块连续，则将当前内存块的大小合并到前一个内存块中
+                //如果当前内存块与前一个内存块连续，则将当前内存块的大小合并到前一个内存块中
                 merged[merged.length - 1].size += block.size;
                 doMerge = true;
             }
@@ -277,16 +298,16 @@ export class WebGPUBufferManager {
     /**
      * 添加内存
      * @param name 
-     * @param size 
-     * @param expand 
+     * @param sliceSize 
+     * @param sliceNum 
      * @param single 
      */
-    addBuffer(name: string, size: number, expand: number, single: boolean = false) {
+    addBuffer(name: string, sliceSize: number, sliceNum: number, single: boolean = false) {
         if (this.namedBuffers.has(name)) {
             console.warn(`namedBuffer with name: ${name} already exist!`);
             return false;
         }
-        this.namedBuffers.set(name, new WebGPUBufferCluster(this.device, name, size, expand, single));
+        this.namedBuffers.set(name, new WebGPUBufferCluster(this.device, name, sliceSize, sliceNum, single));
         return true;
     }
 
