@@ -149,7 +149,7 @@ export class BlueprintData {
             let id = node.cid + "_" + node.dataId;
             if (null != this.autoCreateData[id]) return this.autoCreateData[id];
             let cdata = this._getConstData(node.cid, node.target);
-            if ('get' == node.cid || 'set' == node.cid || 'tmp_get' == node.cid || 'tmp_set' == node.cid) return cdata;
+            if ("static_get" == node.cid || "static_set" == node.cid || 'get' == node.cid || 'set' == node.cid || 'tmp_get' == node.cid || 'tmp_set' == node.cid) return cdata;
 
             let data: any = null;
             if (null == data) {
