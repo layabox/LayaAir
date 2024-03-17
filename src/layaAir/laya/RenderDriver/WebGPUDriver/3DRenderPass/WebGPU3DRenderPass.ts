@@ -129,8 +129,7 @@ export class WebGPU3DRenderPass implements IRender3DProcess {
         WebGPUStatis.startFrame();
         this.initRenderPass(camera, context);
         const renderList = <WebBaseRenderNode[]>camera.scene.sceneRenderableManager.renderBaselist.elements;
-        //@ts-ignore
-        this._renderPass.renderpass.render(context, renderList, renderList.length);
+        this._renderPass.renderpass.render(context as any, renderList, renderList.length);
     }
 
     destroy() {

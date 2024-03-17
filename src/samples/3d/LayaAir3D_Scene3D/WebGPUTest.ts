@@ -167,9 +167,10 @@ export class WebGPUTest {
             // meshRenderer2.castShadow = false;
             // meshRenderer2.receiveShadow = false;
 
-            Laya.timer.loop(1000, this, () => { WebGPUStatis.printFrameStatis(); });
+            Laya.timer.loop(3000, this, () => { WebGPUStatis.printFrameStatis(); });
             Laya.timer.once(5000, this, () => {
                 WebGPUStatis.printStatisticsAsTable();
+                WebGPUStatis.printTotalStatis();
                 console.log(WebGPURenderEngine._instance.gpuBufferMgr.namedBuffers.get('scene'));
                 console.log(WebGPURenderEngine._instance.gpuBufferMgr.namedBuffers.get('camera'));
                 console.log(WebGPURenderEngine._instance.gpuBufferMgr.namedBuffers.get('material'));

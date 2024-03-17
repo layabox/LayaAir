@@ -1,18 +1,17 @@
 export class WebGPUStatis {
     private static _start: number = Date.now();
-    private static _memory: number = 0;
+    private static _totalStatis: { memory: number } = { memory: 0 };
+    private static _frameStatis: { uploadNum: number } = { uploadNum: 0 };
     private static _dataTiming: { action: string, name: string, id: number, time: number, memory: number, object: any }[] = [];
     private static _dataCreate: { [key: string]: { id: number[], count: number, time: number[], memory: number, object: any[] } } = {};
     private static _dataRelease: { [key: string]: { id: number[], count: number, time: number[], memory: number, object: any[] } } = {};
 
-    private static _uploadNum: number = 0;
-
     static startFrame() {
-        this._uploadNum = 0;
+        this._frameStatis.uploadNum = 0;
     }
 
     static addUploadNum(n: number = 1) {
-        this._uploadNum += n;
+        this._frameStatis.uploadNum += n;
     }
 
     static trackObjectCreation(name: string, id: number, object?: any, memory?: number) {
@@ -25,7 +24,7 @@ export class WebGPUStatis {
         this._dataCreate[name].time.push(time);
         this._dataCreate[name].memory += memory;
         this._dataCreate[name].object.push(object);
-        this._memory += memory;
+        this._totalStatis.memory += memory;
     }
 
     static trackObjectRelease(name: string, id: number, object?: any, memory?: number) {
@@ -38,17 +37,16 @@ export class WebGPUStatis {
         this._dataRelease[name].time.push(time);
         this._dataRelease[name].memory += memory;
         this._dataRelease[name].object.push(object);
-        this._memory -= memory;
+        this._totalStatis.memory -= memory;
     }
 
     static trackObjectAction(name: string, id: number, action: string, object?: any, memory?: number) {
         const time = Date.now() - this._start;
         this._dataTiming.push({ action, name, id, time, memory, object });
-        this._memory += memory;
+        this._totalStatis.memory += memory;
     }
 
     static printStatisticsAsTable() {
-        console.log('GPU Memory Used: %d MB', this._memory / 1024 / 1024);
         if (this._dataTiming.length > 0) {
             console.log('timing statistics: ');
             console.table(this._dataTiming);
@@ -63,7 +61,11 @@ export class WebGPUStatis {
         }
     }
 
+    static printTotalStatis() {
+        console.table(this._totalStatis);
+    }
+
     static printFrameStatis() {
-        console.log('uploadNum =', this._uploadNum);
+        console.table(this._frameStatis);
     }
 }

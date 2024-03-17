@@ -3,7 +3,6 @@ import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { ShaderPass } from "../../../RenderEngine/RenderShader/ShaderPass";
 import { SubShader } from "../../../RenderEngine/RenderShader/SubShader";
 import { Transform3D } from "../../../d3/core/Transform3D";
-import { SingletonList } from "../../../utils/SingletonList";
 import { IRenderElement3D } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { RenderState } from "../../RenderModuleData/Design/RenderState";
 import { WebBaseRenderNode } from "../../RenderModuleData/WebModuleData/3D/WebBaseRenderNode";
@@ -34,7 +33,6 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
     cullMode: CullMode;
     frontFace: FrontFace;
     private _invertFrontFace: boolean;
-    //protected _shaderInstances: SingletonList<WebGPUShaderInstance> = new SingletonList<WebGPUShaderInstance>();
 
     private _shaderKey: string = '';
     private _shaderInstances: WebGPUShaderInstance[] = [];
@@ -91,7 +89,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
                 context.cameraData.createUniformBuffer(shaderInstance.uniformInfo[1], true);
             }
             if (this.renderShaderData) {
-                this.renderShaderData._name = "sprite";
+                this.renderShaderData._name = "sprite3D";
                 this.renderShaderData.createUniformBuffer(shaderInstance.uniformInfo[2]);
             }
             if (this.materialShaderData) {
