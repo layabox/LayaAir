@@ -3,6 +3,11 @@ import { WebGPUStatis } from "./WebGPUStatis";
 export class WebGPUGlobal {
     static debug: boolean = true;
     private static _idCounter: number = 0;
+    private static _uniformInfoIdCounter: number = 0;
+
+    static getUniformInfoId() {
+        return this._uniformInfoIdCounter++;
+    }
 
     static getId(object?: any) {
         if (this.debug && object)

@@ -10,6 +10,7 @@ import { WebGLCommandUniformMap } from "../../WebGLDriver/RenderDevice/WebGLComm
 import { TypeOutData } from "../ShaderCompile/WebGPUShaderCompileCode";
 import { WebGPUShaderCompileDef } from "../ShaderCompile/WebGPUShaderCompileDef";
 import { WebGPUShaderCompileUtil } from "../ShaderCompile/WebGPUShaderCompileUtil";
+import { WebGPUGlobal } from "./WebGPUStatis/WebGPUGlobal";
 import { WebGPUUniformBlockInfo } from "./WebGPUUniform/WebGPUUniformBlockInfo";
 
 type NameAndType = { name: string; type: string; set: number };
@@ -30,10 +31,11 @@ export enum WebGPUBindingInfoType {
 };
 
 export interface WebGPUUniformPropertyBindingInfo {
+    id: number;
     set: number;
     binding: number;
     name: string;
-    propertyID: number;
+    propertyId: number;
     visibility: GPUShaderStageFlags;
     type: WebGPUBindingInfoType;
     uniform?: WebGPUUniformBlockInfo;
@@ -221,12 +223,13 @@ export class WebGPUCodeGenerator {
                 uniformGLSL = `${uniformGLSL}    ${sortedUniforms[0][i].type} ${sortedUniforms[0][i].name};\n`;
             uniformGLSL = `${uniformGLSL}};\n\n`;
             uniformInfo.push({
+                id: WebGPUGlobal.getUniformInfoId(),
                 set,
                 binding,
                 visibility,
                 type: WebGPUBindingInfoType.buffer,
                 name,
-                propertyID: Shader3D.propertyNameToID(name),
+                propertyId: Shader3D.propertyNameToID(name),
                 uniform: this.genUniformBlockInfo(name, sortedUniforms[0], arrayMap),
                 buffer: { type: 'uniform', hasDynamicOffset: false, minBindingSize: 0 },
             } as WebGPUUniformPropertyBindingInfo);
@@ -263,21 +266,23 @@ export class WebGPUCodeGenerator {
                     res = `${res}layout(set = ${tu.set}, binding = ${binding[tu.set]++}) uniform texture2D ${tu.name}Texture;\n`;
                     res = `${res}#define ${tu.name} sampler2D(${tu.name}Texture, ${tu.name}Sampler)\n\n`;
                     uniformInfo.push({
+                        id: WebGPUGlobal.getUniformInfoId(),
                         set: tu.set,
                         binding: binding[tu.set] - 2,
                         visibility,
                         type: WebGPUBindingInfoType.sampler,
                         name: `${tu.name}Sampler`,
-                        propertyID: Shader3D.propertyNameToID(tu.name),
+                        propertyId: Shader3D.propertyNameToID(tu.name),
                         sampler: { type: 'filtering' },
                     } as WebGPUUniformPropertyBindingInfo);
                     uniformInfo.push({
+                        id: WebGPUGlobal.getUniformInfoId(),
                         set: tu.set,
                         binding: binding[tu.set] - 1,
                         visibility,
                         type: WebGPUBindingInfoType.texture,
                         name: `${tu.name}Texture`,
-                        propertyID: Shader3D.propertyNameToID(tu.name),
+                        propertyId: Shader3D.propertyNameToID(tu.name),
                         texture: { sampleType: 'float', viewDimension: '2d', multisampled: false },
                     } as WebGPUUniformPropertyBindingInfo);
                 }
@@ -286,21 +291,23 @@ export class WebGPUCodeGenerator {
                     res = `${res}layout(set = ${tu.set}, binding = ${binding[tu.set]++}) uniform textureCube ${tu.name}Texture;\n`;
                     res = `${res}#define ${tu.name} samplerCube(${tu.name}Texture, ${tu.name}Sampler)\n\n`;
                     uniformInfo.push({
+                        id: WebGPUGlobal.getUniformInfoId(),
                         set: tu.set,
                         binding: binding[tu.set] - 2,
                         visibility,
                         type: WebGPUBindingInfoType.sampler,
                         name: `${tu.name}Sampler`,
-                        propertyID: Shader3D.propertyNameToID(tu.name),
+                        propertyId: Shader3D.propertyNameToID(tu.name),
                         sampler: { type: 'filtering' },
                     } as WebGPUUniformPropertyBindingInfo);
                     uniformInfo.push({
+                        id: WebGPUGlobal.getUniformInfoId(),
                         set: tu.set,
                         binding: binding[tu.set] - 1,
                         visibility,
                         type: WebGPUBindingInfoType.texture,
                         name: `${tu.name}Texture`,
-                        propertyID: Shader3D.propertyNameToID(tu.name),
+                        propertyId: Shader3D.propertyNameToID(tu.name),
                         texture: { sampleType: 'float', viewDimension: 'cube', multisampled: false },
                     } as WebGPUUniformPropertyBindingInfo);
                 }
@@ -583,7 +590,7 @@ mat4 inverse(mat4 m)
      * @param VS 
      * @param FS 
      */
-    static ShaderLanguageProcess(defineString: string[],
+    static shaderLanguageProcess(defineString: string[],
         attributeMap: { [name: string]: [number, ShaderDataType] },
         uniformMap: UniformMapType, VS: ShaderNode, FS: ShaderNode) {
 

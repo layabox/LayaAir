@@ -105,7 +105,7 @@ export class UniformBuffer {
         this.needUpload = true;
         this._updateItemView();
         if (this.user)
-            this.user.needUpdateBindGroup();
+            this.user.clearBindGroup();
     }
 
     private _updateItemView() {

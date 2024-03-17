@@ -34,7 +34,10 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
     cullMode: CullMode;
     frontFace: FrontFace;
     private _invertFrontFace: boolean;
-    protected _shaderInstances: SingletonList<WebGPUShaderInstance> = new SingletonList<WebGPUShaderInstance>();
+    //protected _shaderInstances: SingletonList<WebGPUShaderInstance> = new SingletonList<WebGPUShaderInstance>();
+
+    private _shaderKey: string = '';
+    private _shaderInstances: WebGPUShaderInstance[] = [];
 
     globalId: number;
     objectName: string = 'WebGPURenderElement3D';
@@ -50,7 +53,6 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
 
     protected _compileShader(context: WebGPURenderContext3D) {
         const passes: ShaderPass[] = this.subShader._passes;
-        this._clearShaderInstance();
 
         const comDef = WebGPURenderElement3D._compileDefine;
         // 将场景或全局配置的定义一次性准备好
@@ -62,12 +64,13 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
         if (context.cameraData)
             comDef.addDefineDatas(context.cameraData._defineDatas);
 
+        let shaderKey = '';
+        const shaderInstances = [];
         for (let i = 0, m = passes.length; i < m; i++) {
             const pass: ShaderPass = passes[i];
             //NOTE: this will cause maybe a shader not render but do prepare before，
             //but the developer can avoide this manual, for example: shaderCaster = false.
-            if (pass.pipelineMode !== context.pipelineMode)
-                continue;
+            if (pass.pipelineMode !== context.pipelineMode) continue;
 
             if (this.renderShaderData && this.owner) {
                 comDef.addDefineDatas(this.renderShaderData.getDefineData());
@@ -76,6 +79,9 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
             comDef.addDefineDatas(this.materialShaderData._defineDatas);
 
             const shaderInstance = pass.withCompile(comDef) as WebGPUShaderInstance;
+            shaderInstances.push(shaderInstance);
+            shaderKey += shaderInstance.globalId + '_';
+
             if (context.sceneData) {
                 context.sceneData._name = "scene";
                 context.sceneData.createUniformBuffer(shaderInstance.uniformInfo[0], true);
@@ -92,16 +98,15 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
                 this.materialShaderData._name = "material";
                 this.materialShaderData.createUniformBuffer(shaderInstance.uniformInfo[3]);
             }
-            this._addShaderInstance(shaderInstance);
         }
-    }
-
-    private _addShaderInstance(shader: WebGPUShaderInstance) {
-        this._shaderInstances.add(shader);
-    }
-
-    private _clearShaderInstance() {
-        this._shaderInstances.length = 0;
+        if (this._shaderKey != shaderKey) {
+            this._shaderInstances = shaderInstances;
+            this._shaderKey = shaderKey;
+            if (this.renderShaderData)
+                this.renderShaderData.clearBindGroup();
+            if (this.materialShaderData)
+                this.materialShaderData.clearBindGroup();
+        }
     }
 
     private _getWebGPURenderPipeline(shaderInstance: WebGPUShaderInstance, dest: WebGPUInternalRT, context: WebGPURenderContext3D): GPURenderPipeline {
@@ -327,30 +332,30 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
         const cameraShaderData = context.cameraData as WebGPUShaderData;
         if (this.isRender) {
             //console.log('RenderElement Start Render');
-            const passes: WebGPUShaderInstance[] = this._shaderInstances.elements;
+            const passes: WebGPUShaderInstance[] = this._shaderInstances;
             for (let i = 0, m = passes.length; i < m; i++) {
-                const shaderIns = passes[i];
-                if (shaderIns.complete) {
+                const shaderInstance = passes[i];
+                if (shaderInstance.complete) {
                     let complete = true;
-                    const pipeline = this._getWebGPURenderPipeline(shaderIns, context.destRT, context);
+                    const pipeline = this._getWebGPURenderPipeline(shaderInstance, context.destRT, context);
                     context.renderCommand.setPipeline(pipeline);
                     if (sceneShaderData) {
-                        if (!sceneShaderData.bindGroup(0, 'scene', shaderIns.uniformSetMap[0], context.renderCommand))
+                        if (!sceneShaderData.bindGroup(0, 'scene', shaderInstance.uniformSetMap[0], context.renderCommand))
                             complete = false;
                         else sceneShaderData.uploadUniform();
                     }
                     if (cameraShaderData) {
-                        if (!cameraShaderData.bindGroup(1, 'camera', shaderIns.uniformSetMap[1], context.renderCommand))
+                        if (!cameraShaderData.bindGroup(1, 'camera', shaderInstance.uniformSetMap[1], context.renderCommand))
                             complete = false;
                         else cameraShaderData.uploadUniform();
                     }
                     if (this.renderShaderData) {
-                        if (!this.renderShaderData.bindGroup(2, 'sprite', shaderIns.uniformSetMap[2], context.renderCommand))
+                        if (!this.renderShaderData.bindGroup(2, 'sprite', shaderInstance.uniformSetMap[2], context.renderCommand))
                             complete = false;
                         else this.renderShaderData.uploadUniform();
                     }
                     if (this.materialShaderData)
-                        if (!this.materialShaderData.bindGroup(3, 'material', shaderIns.uniformSetMap[3], context.renderCommand))
+                        if (!this.materialShaderData.bindGroup(3, 'material', shaderInstance.uniformSetMap[3], context.renderCommand))
                             complete = false;
                         else this.materialShaderData.uploadUniform();
 

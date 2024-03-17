@@ -170,6 +170,9 @@ export class WebGPUTest {
             Laya.timer.loop(1000, this, () => { WebGPUStatis.printFrameStatis(); });
             Laya.timer.once(5000, this, () => {
                 WebGPUStatis.printStatisticsAsTable();
+                console.log(WebGPURenderEngine._instance.gpuBufferMgr.namedBuffers.get('scene'));
+                console.log(WebGPURenderEngine._instance.gpuBufferMgr.namedBuffers.get('camera'));
+                console.log(WebGPURenderEngine._instance.gpuBufferMgr.namedBuffers.get('material'));
                 console.log(WebGPURenderEngine._instance.gpuBufferMgr.namedBuffers.get('sprite3D'));
                 console.log(WebGPURenderEngine._instance.gpuBufferMgr.namedBuffers.get('sprite3D_static'));
             });

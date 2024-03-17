@@ -29,7 +29,6 @@ export class WebGPUShaderData extends ShaderData {
 
     private _infoId: number;
     private _uniformBuffer: UniformBuffer;
-    private _bindKey: string;
     private _bindGroup: GPUBindGroup;
 
     isStatic: boolean = false; //是否静态
@@ -44,11 +43,6 @@ export class WebGPUShaderData extends ShaderData {
         this._defineDatas = new WebDefineDatas();
 
         //this.globalId = WebGPUGlobal.getId(this);
-    }
-
-    needUpdateBindGroup() {
-        this._bindKey = null;
-        this._bindGroup = null;
     }
 
     createUniformBuffer(info: WebGPUUniformPropertyBindingInfo, single: boolean = false) {
@@ -76,6 +70,13 @@ export class WebGPUShaderData extends ShaderData {
     }
 
     /**
+     * 清理缓存的BindGroup
+     */
+    clearBindGroup() {
+        this._bindGroup = null;
+    }
+
+    /**
      * 绑定资源组
      * @param groupId 
      * @param name 
@@ -85,15 +86,8 @@ export class WebGPUShaderData extends ShaderData {
     bindGroup(groupId: number, name: string, uniforms: WebGPUUniformPropertyBindingInfo[], command: WebGPURenderCommandEncoder) {
         const device = WebGPURenderEngine._instance.getDevice();
 
-        //根据uniforms中的内容生成一个key, 用于查找缓存
-        let key = name + '_' + this._infoId + '_';
-        key += uniforms.map(item => item.set).join('_');
-        key += uniforms.map(item => item.binding).join('_');
-        key += uniforms.map(item => item.propertyID).join('_');
-        let bindGroup = key == this._bindKey ? this._bindGroup : null;
-
-        //如果没有缓存, 则创建一个新的bindGroup
-        if (!bindGroup) {
+        //如果没有缓存, 则创建一个BindGroup
+        if (!this._bindGroup) {
             const bindGroupLayoutEntries = [];
             const bindGroupEntries = [];
             for (const item of uniforms) {
@@ -111,7 +105,7 @@ export class WebGPUShaderData extends ShaderData {
                         break;
                     case WebGPUBindingInfoType.texture:
                         if (item.texture) {
-                            const texture = this.getTexture(item.propertyID);
+                            const texture = this.getTexture(item.propertyId);
                             if (!texture) return false;
                             else {
                                 bindGroupLayoutEntries.push({
@@ -128,7 +122,7 @@ export class WebGPUShaderData extends ShaderData {
                         break;
                     case WebGPUBindingInfoType.sampler:
                         if (item.sampler) {
-                            const texture = this.getTexture(item.propertyID);
+                            const texture = this.getTexture(item.propertyId);
                             if (!texture) return false;
                             else {
                                 bindGroupLayoutEntries.push({
@@ -148,18 +142,16 @@ export class WebGPUShaderData extends ShaderData {
 
             //创建绑定组
             const bindGroupLayoutDesc: GPUBindGroupLayoutDescriptor = { entries: bindGroupLayoutEntries };
-            bindGroup = device.createBindGroup({
+            this._bindGroup = device.createBindGroup({
                 label: name,
                 layout: device.createBindGroupLayout(bindGroupLayoutDesc),
                 entries: bindGroupEntries,
             });
-            this._bindKey = key;
-            this._bindGroup = bindGroup;
-            console.log('create bindGroup', key, bindGroupLayoutDesc, bindGroupEntries, bindGroup);
+            //console.log('create bindGroup', bindGroupLayoutDesc, bindGroupEntries, this._bindGroup);
         }
 
         //将绑定组附加到命令
-        command.setBindGroup(groupId, bindGroup);
+        command.setBindGroup(groupId, this._bindGroup);
         return true;
     }
 
