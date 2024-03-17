@@ -55,6 +55,7 @@ import { ShaderDataType, ShaderData, ShaderDataItem } from "../../../RenderDrive
 import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
 import { CommandUniformMap } from "../../../RenderDriver/DriverDesign/RenderDevice/CommandUniformMap";
 import { RenderTexture2D } from "../../../resource/RenderTexture2D";
+import { BaseRender } from "../render/BaseRender";
 
 export enum FogMode {
     Linear = 0, //Linear
@@ -1104,7 +1105,7 @@ export class Scene3D extends Sprite {
     /**
      * @internal
      */
-    _addRenderObject(render: any): void {
+    _addRenderObject(render: BaseRender): void {
         this._sceneRenderManager.addRenderObject(render);
         render._addReflectionProbeUpdate();
     }
@@ -1112,7 +1113,7 @@ export class Scene3D extends Sprite {
     /**
      * @internal
      */
-    _removeRenderObject(render: any): void {
+    _removeRenderObject(render: BaseRender): void {
         this._sceneRenderManager.removeRenderObject(render);
     }
 

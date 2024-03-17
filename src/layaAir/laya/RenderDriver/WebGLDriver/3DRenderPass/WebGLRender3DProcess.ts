@@ -32,6 +32,11 @@ export class WebGLRender3DProcess implements IRender3DProcess {
         // clear
         let clearConst = 0;
         let clearFlag: CameraClearFlags = camera.clearFlag;
+
+        if (clearFlag == CameraClearFlags.Sky && !camera.scene.skyRenderer._isAvailable()) {
+            clearFlag = CameraClearFlags.SolidColor;
+        }
+
         let hasStencil = renderRT.depthStencilFormat == RenderTargetFormat.DEPTHSTENCIL_24_8;
         let stencilFlag = hasStencil ? RenderClearFlag.Stencil : 0;
 
@@ -78,7 +83,7 @@ export class WebGLRender3DProcess implements IRender3DProcess {
 
         renderpass.setCameraCullInfo(camera);
 
-        if (camera.clearFlag == CameraClearFlags.Sky) {
+        if (clearFlag == CameraClearFlags.Sky) {
             renderpass.skyRenderNode = <WebBaseRenderNode>camera.scene.skyRenderer._baseRenderNode;
         }
         else {
@@ -177,8 +182,9 @@ export class WebGLRender3DProcess implements IRender3DProcess {
         this.renderDepth(camera);
 
         let renderList = <WebBaseRenderNode[]>camera.scene.sceneRenderableManager.renderBaselist.elements;
+        let count = camera.scene.sceneRenderableManager.renderBaselist.length;
 
-        this.renderFowarAddCameraPass(context, this.renderpass, renderList, renderList.length);
+        this.renderFowarAddCameraPass(context, this.renderpass, renderList, count);
     }
 
     renderFowarAddCameraPass(context: WebGLRenderContext3D, renderpass: WebGLForwardAddRP, list: WebBaseRenderNode[], count: number): void {

@@ -173,9 +173,6 @@ export class BaseRender extends Component {
     /**@interface */
     _receiveShadow: boolean;
 
-    /**@internal */
-    protected _lightmapDirtyFlag: number = -1;
-
     /** @internal */
     protected _bounds: Bounds;
 
@@ -271,6 +268,13 @@ export class BaseRender extends Component {
 
     set lightmapIndex(value: number) {
         this._baseRenderNode.lightmapIndex = value;
+    }
+
+    /**
+     * @internal
+     * @param value 
+     */
+    setLightmapIndex(value: number) {
         (value != -1) && (this._baseRenderNode.lightmap = (this._scene as Scene3D).lightmaps[value]._dataModule);
         //this._scene && this._applyLightMapParams(); todo miner
         this._getIrradientMode();
@@ -591,7 +595,8 @@ export class BaseRender extends Component {
             (this.owner as Sprite3D).off(Event.LAYERCHANGE, this, this._changeLayer);
             (this.owner as Sprite3D).off(Event.staticMask, this, this._changeStaticMask);
         }
-        this.owner.scene._removeRenderObject(this);
+        let scene = <Scene3D>this.owner.scene;
+        scene._removeRenderObject(this);
         this._setUnBelongScene();
         this.volume = null;
     }
@@ -706,7 +711,7 @@ export class BaseRender extends Component {
         this._onWorldMatNeedChange(1);
         this._isSupportRenderFeature();
         this._batchRender && this._batchRender._batchOneRender(this);
-        this.lightmapIndex = this.lightmapIndex;
+        this.setLightmapIndex(this.lightmapIndex);
         Stat.renderNode++;
     }
 

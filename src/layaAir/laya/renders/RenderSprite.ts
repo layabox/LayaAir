@@ -4,25 +4,20 @@ import { NodeFlags } from "../Const";
 import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
 import { Sprite } from "../display/Sprite";
 import { SpriteConst } from "../display/SpriteConst";
-import { CacheStyle } from "../display/css/CacheStyle";
 import { SpriteStyle } from "../display/css/SpriteStyle";
 import { Filter } from "../filters/Filter";
 import { Matrix } from "../maths/Matrix";
 import { Rectangle } from "../maths/Rectangle";
-import { HTMLCanvas } from "../resource/HTMLCanvas";
 import { RenderTexture2D } from "../resource/RenderTexture2D";
 import { Texture } from "../resource/Texture";
 import { WebGLRTMgr } from "../resource/WebGLRTMgr";
 import { HitArea } from "../utils/HitArea";
 import { Stat } from "../utils/Stat";
 import { BlendMode } from "../webgl/canvas/BlendMode";
-import { WebGLCacheAsNormalCanvas } from "../webgl/canvas/WebGLCacheAsNormalCanvas";
-import { TextureSV } from "../webgl/shader/d2/value/TextureSV";
 import { MeshQuadTexture } from "../webgl/utils/MeshQuadTexture";
 import { Context } from "./Context";
 import { LayaGLQuickRunner } from "./LayaGLQuickRunner";
 import { Render2DSimple } from "./Render2D";
-import { RenderToCache } from "./RenderToCache";
 import { SpriteCache } from "./SpriteCache";
 
 /**
@@ -33,7 +28,6 @@ export interface _RenderFunction {
     (sp: Sprite, ctx: Context, x: number, y: number): void;
 }
 
-let _simpleTextureSV:TextureSV;
 let _quadMesh: MeshQuadTexture;
 let _quadMeshVB:Float32Array;
 function _fillQuad(x:number, y:number, w:number, h:number){
@@ -64,7 +58,6 @@ export class RenderSprite {
 
     /** @internal */
     static __init__(): void {
-        _simpleTextureSV = new TextureSV();
         _quadMesh = new MeshQuadTexture();
         _quadMesh.addQuad([0,0,1,0,1,1,0,1],[0,0,1,0,1,1,0,1],0xffffffff,true);
         _quadMeshVB = new Float32Array(_quadMesh.vbBuffer);
@@ -323,6 +316,13 @@ export class RenderSprite {
         textLastRender && context.drawCallOptimize(false);
     }
 
+    /**
+     * 把sprite的下一步渲染到缓存的rt上
+     * 要求外面可以直接使用，不用考虑图集的偏移之类的问题
+     * @param sprite 
+     * @param context 
+     * @returns 
+     */
     _renderNextToCacheRT(sprite:Sprite,context:Context){
         var _cacheStyle = sprite._cacheStyle;
         if (sprite._needRepaint() || !_cacheStyle.renderTexture || ILaya.stage.isGlobalRepaint()) {
@@ -336,26 +336,34 @@ export class RenderSprite {
             if(tRec.width<=0||tRec.height<=0)
                 return false;
             //计算cache画布的大小
+            Stat.canvasBitmap++;
 
-            //左边可能有空白（例如图集的空白裁剪）,所以贴图的大小要把空白也考虑上
-            //因为对于空白的处理是保存在cmd中的，是在下面的_next._fun()的xy的基础上加的，所以要保证贴图够大，否则就被裁剪了
-            let w = tRec.x + tRec.width * scaleInfo.x;  //,
-            let h = tRec.y + tRec.height * scaleInfo.y;
+            let w = tRec.width * scaleInfo.x;  //,
+            let h = tRec.height * scaleInfo.y;
             let rt = new RenderTexture2D(w,h,RenderTargetFormat.R8G8B8A8);
             let ctx = new Context();
             ctx.copyState(context);
             ctx.size(w,h);
             ctx.render2D=new Render2DSimple(rt);
             ctx.startRender();
-            //由于context是新的，所以画到0,0上就行
-            this._next._fun(sprite,ctx,0, 0);
+            /*
+                由于tRec与rt的原点并不重合：
+                1. 图集中的小图可能有被裁掉的空白，这时候tRec.x>0 ，rt的原点就在节点原点的右边
+                2. 节点下的子可能在负的位置渲染，这时候rt的原点就在原点的左边
+                所以为了rt能正确的包含节点的渲染效果，应该偏移一下节点再渲染，具体就是取节点在rt坐标系下的值
+                当使用这个rt的时候，要反向偏移，即偏移rt在节点坐标系下的值
+            */
+            this._next._fun(sprite,ctx,-tRec.x, -tRec.y);
             ctx.endRender();
+            //临时，恢复
+            ctx.render2D.setRenderTarget(context.render2D.out);
             _cacheStyle.renderTexture = rt;
             return true;    //重绘
         }
         return false;
     }
 
+    static normalCacheRender:SpriteCache=null;
     /**@internal */
     _canvas(sprite: Sprite, context: Context, x: number, y: number): void {
 
@@ -368,23 +376,26 @@ export class RenderSprite {
             return;
         }
 
-        let isbmp = sprite.cacheAs === 'bitmap' 
-        isbmp ? Stat.canvasBitmap++ : Stat.canvasNormal++;
+        let isbmp = sprite.cacheAs === 'bitmap';
         if(isbmp){
             //temp
+            context.drawLeftData();
             this._renderNextToCacheRT(sprite,context);
             // RenderSprite.RenderToCacheTexture(sprite,context,x,y)
             var tRec = _cacheStyle.cacheRect;
             context.material = sprite.graphics.material;
-            context._drawRenderTexture(_cacheStyle.renderTexture,
-                x + tRec.x, y + tRec.y, tRec.width, tRec.height,null,1,[0,1, 1,1, 1,0, 0,0]);
+            let rt = _cacheStyle.renderTexture;
+            rt && context._drawRenderTexture(rt,x+tRec.x , y+tRec.y , rt.width, rt.height,null,1,[0,1, 1,1, 1,0, 0,0]);
         }else{
             if(!RenderSprite.cacheNormalEnable){
                 _next._fun.call(_next, sprite, context, x, y);
                 return;
             }else{
-                let normalCacheRender = new SpriteCache();
-                normalCacheRender.renderCacheAsNormal(context,sprite,this._next);
+                if(!RenderSprite.normalCacheRender){
+                    RenderSprite.normalCacheRender = new SpriteCache();
+                }
+                context.drawLeftData();
+                RenderSprite.normalCacheRender.renderCacheAsNormal(context,sprite,this._next,x,y);
             }
 
             // if (sprite._needRepaint() || !_cacheStyle.canvas || textNeedRestore || ILaya.stage.isGlobalRepaint()) {
@@ -422,6 +433,8 @@ export class RenderSprite {
         //把位置移到0，所以要-sprite.xy, 考虑图集空白，所以要-tRec.xy,因为tRec.xy是sprite空间的，所以转到贴图空间是取反
         sprite.render(ctx,x-sprite.x-tRec.x,y-sprite.y-tRec.y);
         ctx.endRender();
+        //临时，恢复
+        context && ctx.render2D.setRenderTarget(context.render2D.out);
         return rt;
     }
     /**
@@ -577,27 +590,30 @@ export class RenderSprite {
             let width1 = x2 - x1; if (width1 <= 0) return;
             let height1 = y2 - y1; if (height1 <= 0) return;
 
+            //先渲染mask，避免rt混乱的可能性。这里的ctx目前只是用来恢复rt的
+            if (RenderSprite.RenderToCacheTexture(mask, ctx, 0, 0)) {
+            }
+
             rtx = x1; rty = y1;
             let rt = new RenderTexture2D(width1, height1, RenderTargetFormat.R8G8B8A8);
-            let ctx = new Context();
-            ctx.size(width1, height1);
-            ctx.render2D = new Render2DSimple(rt);
-            ctx.startRender();
+            let ctx1 = new Context();
+            ctx1.size(width1, height1);
+            ctx1.render2D = new Render2DSimple(rt);
+            ctx1.startRender();
             //渲染节点本身.由于spRect.xy是指贴图相对于节点的位置，所以需要取反表示在贴图空间的什么位置画出节点
-            this._next._fun(sprite, ctx, -x1, -y1);
-
-            //渲染mask
-            if (RenderSprite.RenderToCacheTexture(mask, null, 0, 0)) {
-            }
+            this._next._fun(sprite, ctx1, -x1, -y1);
             let maskRT = maskcache.renderTexture;
-            ctx.globalCompositeOperation = 'mask';
-            ctx._drawRenderTexture(maskRT,
+            ctx1.globalCompositeOperation = 'mask';
+            ctx1._drawRenderTexture(maskRT,
                 mask.x - x1 + maskRect.x,     //x1作为原点，所以减去x1,然后加空白
                 mask.y - y1 + maskRect.y,
                 maskRect.width, maskRect.height, null, 1,
                 [0, 1, 1, 1, 1, 0, 0, 0])
 
-            ctx.endRender();
+            ctx1.endRender();
+            //临时，恢复
+            ctx1.render2D.setRenderTarget(ctx.render2D.out);
+
             cache.renderTexture = rt;
             cache.cacheRect.x = x1; cache.cacheRect.y = y1;
             cache.cacheRect.width = rt.width;

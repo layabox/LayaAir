@@ -14,7 +14,7 @@ import { LayaGL } from "../../layagl/LayaGL";
  * 保存文字的贴图
  */
 export class TextTexture extends Texture2D {
-    private static pool: any[] = new Array(10); // 回收用
+    private static pool: TextTexture[] = new Array(10); // 回收用
     private static poolLen = 0;
     private static cleanTm = 0;
     static EVENT_REUSE='texture_recycling'
@@ -141,13 +141,16 @@ export class TextTexture extends Texture2D {
     /**
      * 定期清理
      * 为了简单，只有发生 getAPage 或者 discardPage的时候才检测是否需要清理
+     * 
+     * 暂时先不用这个了。
      */
     static clean(): void {
         var curtm = RenderInfo.loopStTm;// Laya.stage.getFrameTm();
         if (TextTexture.cleanTm === 0) TextTexture.cleanTm = curtm;
-        if (curtm - TextTexture.cleanTm >= TextRender.checkCleanTextureDt) {	//每10秒看看pool中的贴图有没有很老的可以删除的
-            for (var i = 0; i < TextTexture.poolLen; i++) {
-                var p: TextTexture = TextTexture.pool[i];
+        //每隔checkCleanTextureDt看看pool中的贴图有没有很老的可以删除的
+        if (curtm - TextTexture.cleanTm >= TextRender.checkCleanTextureDt) {	
+            for (let i = 0; i < TextTexture.poolLen; i++) {
+                var p = TextTexture.pool[i];
                 if (curtm - p._discardTm >= TextRender.destroyUnusedTextureDt) {//超过20秒没用的删掉
                     p.destroy();					//真正删除贴图
                     // 如果回收的话要正确通知使用这个贴图的
@@ -161,12 +164,26 @@ export class TextTexture extends Texture2D {
         }
     }
 
-    touchRect(ri: CharRenderInfo, curloop: number): void {
-        if (this.lastTouchTm != curloop) {
-            //每帧的第一次覆盖率都清零，然后随着touch覆盖率逐渐增加
+    /**
+     * 这个贴图被当前帧使用了。
+     * 这个是基于贴图的，更简单，效率更高
+     */
+    touchTexture(){
+        let frame = RenderInfo.loopCount;
+        if (this.lastTouchTm != frame) {
+            //每帧都重新统计覆盖率
             this.curUsedCovRate = 0;
             this.curUsedCovRateAtlas = 0;
-            this.lastTouchTm = curloop;
+            this.lastTouchTm = frame;
+        }
+    }
+
+    touchRect(ri: CharRenderInfo, frame: number): void {
+        if (this.lastTouchTm != frame) {
+            //每帧都重新统计覆盖率
+            this.curUsedCovRate = 0;
+            this.curUsedCovRateAtlas = 0;
+            this.lastTouchTm = frame;
         }
         var texw2 = TextRender.atlasWidth * TextRender.atlasWidth;
         var gridw2 = TextAtlas.atlasGridW * TextAtlas.atlasGridW;

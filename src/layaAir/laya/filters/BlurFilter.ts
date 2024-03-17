@@ -42,8 +42,8 @@ export class BlurFilter extends Filter {
             this.texture = new RenderTexture2D(texwidth,texheight,RenderTargetFormat.R8G8B8A8);
         }
 
-        let render2d = this._render2D;
-        render2d.out = this.texture;
+        let render2d = this._render2D.clone(this.texture);
+        //render2d.out = this.texture;
         render2d.renderStart();
         //修改mesh
         let rectVB = this._rectMeshVB;

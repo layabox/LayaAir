@@ -5,6 +5,7 @@ import { Vector3 } from "../../../maths/Vector3";
 import { IMeshRenderNode } from "../../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
 
 import { Material } from "../../../resource/Material";
+import { Bounds } from "../../math/Bounds";
 import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
 import { MeshSprite3DShaderDeclaration } from "../MeshSprite3DShaderDeclaration";
 import { BaseRender } from "../render/BaseRender";
@@ -42,6 +43,12 @@ export class PixelLineRenderer extends BaseRender {
         this._pixelLineFilter = new PixelLineFilter(this, 20);
         this._baseRenderNode.shaderData.addDefine(MeshSprite3DShaderDeclaration.SHADERDEFINE_COLOR);
         this.geometryBounds = this._pixelLineFilter._bounds;
+    }
+
+    get bounds(): Bounds {
+        var lineFilter: PixelLineFilter = this._pixelLineFilter;
+        lineFilter._reCalculateBound();
+        return super.bounds;
     }
 
     private _lines: PixelLineData[] = [];
@@ -104,16 +111,19 @@ export class PixelLineRenderer extends BaseRender {
         return Laya3DRender.Render3DModuleDataFactory.createMeshRenderNode();
     }
 
-    /**
-     * @inheritDoc
-     * @override
-     * @internal
-     */
-    _calculateBoundingBox(): void {
-        var lineFilter: PixelLineFilter = this._pixelLineFilter;
-        lineFilter._reCalculateBound();
-        this.geometryBounds = lineFilter._bounds;
-    }
+    // /**
+    //  * @inheritDoc
+    //  * @override
+    //  * @internal
+    //  */
+    // _calculateBoundingBox(): void {
+    //     var lineFilter: PixelLineFilter = this._pixelLineFilter;
+    //     lineFilter._reCalculateBound();
+    //     this.geometryBounds = lineFilter._bounds;
+
+    //     //
+    //     this.geometryBounds._tranform(this._transform.worldMatrix, this._baseRenderNode.bounds);
+    // }
 
     renderUpdate(context: RenderContext3D): void {
         this._renderElements.forEach(element => {
@@ -179,10 +189,13 @@ export class PixelLineRenderer extends BaseRender {
      * @param	endColor	   结束点颜色
      */
     addLine(startPosition: Vector3, endPosition: Vector3, startColor: Color, endColor: Color): void {
-        if (this._pixelLineFilter._lineCount !== this._pixelLineFilter._maxLineCount)
+        if (this._pixelLineFilter._lineCount !== this._pixelLineFilter._maxLineCount) {
             this._pixelLineFilter._updateLineData(this._pixelLineFilter._lineCount++, startPosition, endPosition, startColor, endColor);
-        else
+        }
+        else {
             throw "PixelLineSprite3D: lineCount has equal with maxLineCount.";
+        }
+
         if (this._isRenderActive && !this._isInRenders && this._pixelLineFilter._lineCount > 0) {
             this.owner.scene && this.owner.scene._addRenderObject(this);
             this._isInRenders = true;
@@ -199,9 +212,11 @@ export class PixelLineRenderer extends BaseRender {
         var addCount: number = lines.length;
         if (lineCount + addCount > this._pixelLineFilter._maxLineCount) {
             throw "PixelLineSprite3D: lineCount plus lines count must less than maxLineCount.";
-        } else {
+        }
+        else {
             this._pixelLineFilter._updateLineDatas(lineCount, lines);
             this._pixelLineFilter._lineCount += addCount;
+            this.boundsChange = true;
         }
         if (this._isRenderActive && !this._isInRenders && this._pixelLineFilter._lineCount > 0) {
             this.owner.scene && this.owner.scene._addRenderObject(this);

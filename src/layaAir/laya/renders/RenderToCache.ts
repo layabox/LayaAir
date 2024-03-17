@@ -1,6 +1,7 @@
 import { VertexDeclaration } from "../RenderEngine/VertexDeclaration";
 import { Material } from "../resource/Material";
 import { RenderTexture2D } from "../resource/RenderTexture2D";
+import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
 import { Value2D } from "../webgl/shader/d2/value/Value2D";
 import { IMesh2D, Render2D } from "./Render2D";
 import { RenderObject2D } from "./SpriteCache";
@@ -41,6 +42,7 @@ export class RenderToCache extends Render2D {
     draw(mesh2d: IMesh2D, vboff: number, vblen: number, iboff: number, iblen: number, mtl: Value2D): void {
         this.setVertexDecl(mesh2d.vertexDeclarition);
         let submesh = new RenderObject2D(mesh2d,vboff,vblen,iboff,iblen,mtl);
+        mtl.shaderData.addDefine(ShaderDefines2D.WORLDMAT);
         this.renderResult.push(submesh);
         // let geo = this.geo;
         // let mesh = geo.bufferState

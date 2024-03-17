@@ -11,6 +11,8 @@ import { Laya } from "../../../Laya";
 import { Shader3D } from "../../RenderEngine/RenderShader/Shader3D";
 import { Stage } from "../../display/Stage";
 import { usewebgl } from "./utils";
+import { Event } from "../../events/Event";
+import { Sprite } from "../../display/Sprite";
 
 //HierarchyLoader和MaterialLoader等是通过前面的import完成的
 
@@ -24,9 +26,25 @@ async function test(){
     Shader3D.debugMode = true;
 
     await Laya.loader.loadPackage(packurl, null, null);
-    let scene = await Laya.loader.load(packurl+'/cacheasbmp.ls');
-    Laya.stage.addChild(scene.create());
+    let scene = (await Laya.loader.load(packurl+'/cacheasbmp.ls')).create();
+    Laya.stage.addChild(scene);
 
+    let state = new Sprite();
+    Laya.stage.addChild(state);
+    state.graphics.fillText('bitmap',100,100,'40px Arial','red','left');
+
+    Laya.stage.on(Event.CLICK,()=>{
+        let cur = scene._children[0].cacheAs;
+        if(cur=='bitmap'){
+            scene._children[0].cacheAs='none'
+            state.graphics.clear();
+            state.graphics.fillText('none',100,100,'40px Arial','red','left');
+        }else{
+            scene._children[0].cacheAs='bitmap'
+            state.graphics.clear();
+            state.graphics.fillText('bitmap',100,100,'40px Arial','red','left');
+        }
+    })
     function renderloop(){
         requestAnimationFrame(renderloop);
     }
