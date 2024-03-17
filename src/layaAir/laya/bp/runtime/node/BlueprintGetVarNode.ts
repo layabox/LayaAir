@@ -1,4 +1,4 @@
-import { TBPNode } from "../../datas/types/BlueprintTypes";
+import { TBPNode, TBPVarProperty } from "../../datas/types/BlueprintTypes";
 import { BlueprintConst } from "../../core/BlueprintConst";
 import { INodeManger } from "../../core/interface/INodeManger";
 import { IRunAble } from "../interface/IRunAble";
@@ -17,8 +17,10 @@ export class BlueprintGetVarNode extends BlueprintRuntimeBaseNode {
     }
 
     protected onParseLinkData(node: TBPNode, manger: INodeManger<BlueprintRuntimeBaseNode>) {
-        let cfg = manger.dataMap[node.dataId];
-        this._varKey = cfg ? cfg.name : BlueprintUtil.getConstDataById(node.target,node.dataId).name;
+        let cfg: TBPVarProperty = BlueprintUtil.getConstDataById(node.target, node.dataId);
+        if (cfg) {
+            this._varKey = cfg.name;
+        }
     }
 
     step(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, fromExcute: boolean, runner: IBPRutime, enableDebugPause: boolean, runId: number, fromPin: BlueprintPinRuntime): BlueprintPinRuntime | BlueprintPromise {

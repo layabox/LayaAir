@@ -74,7 +74,7 @@ export class BlueprintRuntime {
     parseFunction(funData: TBPStageData, getCNodeByNode: (node: TBPNode) => TBPCNode) {
         let funId: number = funData.id, bpjson: Array<TBPNode> = funData.arr;
         let fun = new BluePrintFunBlock(funId);
-        fun.isStatic = funData.isStatic;
+        fun.isStatic = funData.modifiers?.isStatic;
         fun.mainBlock = this.mainBlock;
         fun.name = funData.name;
         fun.dataMap = this.dataMap;
