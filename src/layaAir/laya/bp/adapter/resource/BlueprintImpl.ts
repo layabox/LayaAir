@@ -178,6 +178,11 @@ export class BlueprintImpl extends Resource {
                     },
                     value: ele.value,
                 }
+                if (ele.modifiers) {
+                    for (let k in ele.modifiers) {
+                        (decProp.modifiers as any)[k] = (ele.modifiers as any)[k];
+                    }
+                }
 
                 // if (ele.const) {
                 //     decProp.modifiers.isPublic = false;
@@ -234,6 +239,12 @@ export class BlueprintImpl extends Resource {
                         isPublic: true
                     },
                     returnType: "void"
+                }
+
+                if (ele.modifiers) {
+                    for (let k in ele.modifiers) {
+                        (func.modifiers as any)[k] = (ele.modifiers as any)[k];
+                    }
                 }
 
                 //@ts-ignore

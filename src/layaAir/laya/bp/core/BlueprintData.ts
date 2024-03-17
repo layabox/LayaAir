@@ -258,8 +258,7 @@ export class BlueprintData {
                 po.id = "var_" + po.name;
                 if (null != po.customId) {
                     po.id = po.customId;
-                }
-                if (po.modifiers && po.modifiers.isStatic) {
+                } else if (po.modifiers && po.modifiers.isStatic) {
                     po.id += "_static";
                 }
                 po.const = true;
