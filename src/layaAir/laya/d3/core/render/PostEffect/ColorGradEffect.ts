@@ -77,7 +77,6 @@ export class ColorGradEffect extends PostProcessEffect {
 
 	private _needBuildLUT: boolean = false;
 
-	private _lutCommond: CommandBuffer;
 	_lutTex: RenderTexture;
 	private _lutBuilderMat = new Material();
 
@@ -513,7 +512,6 @@ export class ColorGradEffect extends PostProcessEffect {
 		this._blitlutParams = new Vector4();
 		this._lutShaderData = LayaGL.renderDeviceFactory.createShaderData(null);
 		this.lutSize = 32;
-		this._lutCommond = new CommandBuffer();
 		this._lutBuilderMat = new Material();
 	}
 
@@ -614,12 +612,9 @@ export class ColorGradEffect extends PostProcessEffect {
 		} else {
 			this._lutBuilderMat.removeDefine(ColorGradEffect.SHADERDEFINE_ACES);
 		}
-		this._lutCommond.blitScreenQuadByMaterial(Texture2D.whiteTexture, this._lutTex, null, this._lutBuilderMat);
-		this._lutCommond.context = RenderContext3D._instance;
-		this._lutCommond._apply();
-		this._lutCommond.clear();
+		this._postProcess._context.command.blitScreenQuadByMaterial(Texture2D.whiteTexture, this._lutTex, null, this._lutBuilderMat);
 	}
-
+	private _postProcess:PostProcess
 	/**
 	 * 添加到后期处理栈时,会调用
 	 */
@@ -629,6 +624,7 @@ export class ColorGradEffect extends PostProcessEffect {
 		this._LUTShader = Shader3D.find("blitLUTShader");
 		postprocess._enableColorGrad = true;
 		postprocess._ColorGradEffect = this;
+		this._postProcess = postprocess;
 		// this._shader = Shader3D.find("PostProcessBloom");
 		// this._pyramid = new Array(BloomEffect.MAXPYRAMIDSIZE * 2);
 	}
