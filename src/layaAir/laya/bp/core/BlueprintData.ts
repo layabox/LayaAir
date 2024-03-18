@@ -365,13 +365,14 @@ export class BlueprintData {
         }
         if (null != fun.customId) {
             cdata.id = fun.customId;
+        } else {
+            cdata.id = fun.modifiers.isStatic ? cdata.id + "_static" : cdata.id;
         }
         cdata.menuPath = fun.menuPath;
         cdata.type = [BPType.Pure, BPType.Function, BPType.Event].includes(fun.type) ? fun.type : cdata.type;
         cdata.type = fun.customId ? BPType.CustomFun : cdata.type;
         cdata.customId = fun.customId || cdata.customId;
         cdata.typeParameters = fun.typeParameters || cdata.typeParameters;
-        cdata.id = fun.modifiers.isStatic ? cdata.id + "_static" : cdata.id;
         return cdata;
     }
 
