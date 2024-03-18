@@ -100,9 +100,9 @@ export class WebGPUTest {
                 material2.albedoTexture = Laya.loader.getRes("res/threeDimen/texture/brick.jpg", Loader.TEXTURE2D);
                 material3.albedoTexture = Laya.loader.getRes("res/threeDimen/texture/grass.jpg", Loader.TEXTURE2D);
 
-                const n = 10;
-                const m = 10;
-                const l = 10;
+                const n = 3;
+                const m = 3;
+                const l = 3;
                 for (let i = 0; i < n; i++) {
                     for (let j = 0; j < m; j++) {
                         for (let k = 0; k < l; k++) {
@@ -167,10 +167,11 @@ export class WebGPUTest {
             // meshRenderer2.castShadow = false;
             // meshRenderer2.receiveShadow = false;
 
-            Laya.timer.loop(3000, this, () => { WebGPUStatis.printFrameStatis(); });
+            //Laya.timer.loop(3000, this, () => { WebGPUStatis.printFrameStatis(); });
             Laya.timer.once(5000, this, () => {
                 WebGPUStatis.printStatisticsAsTable();
                 WebGPUStatis.printTotalStatis();
+                WebGPUStatis.printTextureStatis();
                 console.log(WebGPURenderEngine._instance.gpuBufferMgr.namedBuffers.get('scene'));
                 console.log(WebGPURenderEngine._instance.gpuBufferMgr.namedBuffers.get('camera'));
                 console.log(WebGPURenderEngine._instance.gpuBufferMgr.namedBuffers.get('material'));

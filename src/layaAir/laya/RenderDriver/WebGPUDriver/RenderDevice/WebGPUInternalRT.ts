@@ -37,6 +37,7 @@ export class WebGPUInternalRT implements InternalRenderTarget {
         this.formatId = (this.depthStencilFormat << 10) + this.colorFormat;
 
         this.globalId = WebGPUGlobal.getId(this);
+        //WebGPUGlobal.addTextureStatis(this);
     }
 
     dispose(): void {

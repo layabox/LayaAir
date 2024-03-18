@@ -455,6 +455,7 @@ export class WebGPUShaderData extends ShaderData {
      */
     setTexture(index: number, value: BaseTexture): void {
         const lastValue: BaseTexture = this._data[index];
+        if (lastValue === value) return;
         if (value) {
             const shaderDefine = WebGPURenderEngine._instance._texGammaDefine[index];
             if (shaderDefine && value && value.gammaCorrection > 1)
@@ -465,18 +466,20 @@ export class WebGPUShaderData extends ShaderData {
         this._data[index] = value;
         lastValue && lastValue._removeReference();
         value && value._addReference();
+        this.clearBindGroup(); //清理绑定组（重建绑定）
     }
 
-    /**@internal */
-    _setInternalTexture(index: number, value: InternalTexture) {
-        if (value) {
-            const shaderDefine = WebGPURenderEngine._instance._texGammaDefine[index];
-            if (shaderDefine && value && value.gammaCorrection > 1)
-                this.addDefine(shaderDefine);
-            else if (shaderDefine) this.removeDefine(shaderDefine);
-        }
-        this._data[index] = value;
-    }
+    // /**@internal */
+    // _setInternalTexture(index: number, value: InternalTexture) {
+    //     if (value) {
+    //         const shaderDefine = WebGPURenderEngine._instance._texGammaDefine[index];
+    //         if (shaderDefine && value && value.gammaCorrection > 1)
+    //             this.addDefine(shaderDefine);
+    //         else if (shaderDefine) this.removeDefine(shaderDefine);
+    //     }
+    //     this._data[index] = value;
+    //     this.clearBindGroup();
+    // }
 
     /**
      * 获取纹理。

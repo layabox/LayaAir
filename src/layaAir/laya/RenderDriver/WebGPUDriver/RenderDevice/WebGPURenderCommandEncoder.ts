@@ -25,9 +25,9 @@ export class WebGPURenderCommandEncoder {
         this.globalId = WebGPUGlobal.getId(this);
     }
 
-    startRender(renderpassDes: GPURenderPassDescriptor): void {
+    startRender(renderpassDesc: GPURenderPassDescriptor): void {
         this._commandEncoder = this._device.createCommandEncoder();
-        this._encoder = this._commandEncoder.beginRenderPass(renderpassDes);
+        this._encoder = this._commandEncoder.beginRenderPass(renderpassDesc);
     }
 
     setPipeline(pipeline: GPURenderPipeline): void {

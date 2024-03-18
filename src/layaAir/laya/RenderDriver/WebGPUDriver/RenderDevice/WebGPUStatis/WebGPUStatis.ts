@@ -5,6 +5,7 @@ export class WebGPUStatis {
     private static _dataTiming: { action: string, name: string, id: number, time: number, memory: number, object: any }[] = [];
     private static _dataCreate: { [key: string]: { id: number[], count: number, time: number[], memory: number, object: any[] } } = {};
     private static _dataRelease: { [key: string]: { id: number[], count: number, time: number[], memory: number, object: any[] } } = {};
+    private static _textureStatis: any[] = [];
 
     static startFrame() {
         this._frameStatis.uploadNum = 0;
@@ -12,6 +13,10 @@ export class WebGPUStatis {
 
     static addUploadNum(n: number = 1) {
         this._frameStatis.uploadNum += n;
+    }
+
+    static addTextureStatis(texture: any) {
+        this._textureStatis.push(texture);
     }
 
     static trackObjectCreation(name: string, id: number, object?: any, memory?: number) {
@@ -67,5 +72,10 @@ export class WebGPUStatis {
 
     static printFrameStatis() {
         console.table(this._frameStatis);
+    }
+
+    static printTextureStatis() {
+        console.log('texture statistics: ');
+        console.table(this._textureStatis);
     }
 }

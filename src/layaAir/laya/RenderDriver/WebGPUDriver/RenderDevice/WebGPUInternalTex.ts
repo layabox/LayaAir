@@ -154,6 +154,7 @@ export class WebGPUInternalTex implements InternalTexture {
         this._webgpuSampler = WebGPUSampler.getWebGPUSampler(this._webGPUSamplerParams);
 
         this.globalId = WebGPUGlobal.getId(this);
+        WebGPUGlobal.addTextureStatis(this);
     }
 
     getTextureView(): GPUTextureView {
