@@ -6,7 +6,7 @@ import { LayaGL } from "../../../layagl/LayaGL";
 import { SingletonList } from "../../../utils/SingletonList";
 import { BatchMark } from "../../core/render/BatchMark";
 
-export class WebGLMeshRenderBatch {
+export class WebGLInstanceRenderBatch {
 
     private revocerList: SingletonList<WebGLInstanceRenderElement3D>;
 
@@ -48,7 +48,7 @@ export class WebGLMeshRenderBatch {
         if (!Config3D.enableDynamicBatch || !LayaGL.renderEngine.getCapable(RenderCapable.DrawElement_Instance)) {
             return;
         }
-
+        this.recoverData();
         let elementCount = elements.length;
 
         let elementArray = elements.elements;
@@ -86,14 +86,13 @@ export class WebGLMeshRenderBatch {
                         // 替换 renderElement
                         let instanceRenderElement = WebGLInstanceRenderElement3D.create();
                         this.revocerList.add(instanceRenderElement);
-
-                        instanceRenderElement.geometry = element.geometry;
                         instanceRenderElement.subShader = element.subShader;
                         instanceRenderElement.materialShaderData = element.materialShaderData;
                         instanceRenderElement.materialRenderQueue = element.materialRenderQueue;
                         instanceRenderElement.renderShaderData = element.renderShaderData;
-                        instanceRenderElement.isRender = element.isRender;
                         instanceRenderElement.owner = element.owner;
+                        instanceRenderElement.setGeometry(element.geometry);
+
 
                         let list = instanceRenderElement._instanceElementList;
                         list.length = 0;
@@ -101,7 +100,6 @@ export class WebGLMeshRenderBatch {
                         list.add(element);
                         elementArray[instanceIndex] = instanceRenderElement;
                         instanceMark.batched = true;
-                        // instanceRenderElement._isUpdateData = true;
                         instanceRenderElement._invertFrontFace = element.transform ? element.transform._isFrontFaceInvert : false;
 
                     }
@@ -112,7 +110,6 @@ export class WebGLMeshRenderBatch {
                     instanceMark.batched = false;
                     elements.add(element);
                 }
-
             }
             else {
                 // shader 不支持 Instance

@@ -498,6 +498,7 @@ export class BaseRender extends Component {
         this._baseRenderNode.staticMask = 1;
 
         this.castShadow = false;
+        this._baseRenderNode.renderNodeType = 0;
     }
     /**
      * 每一帧计算包围盒会调用的函数

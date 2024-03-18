@@ -19,12 +19,8 @@ import { BoundFrustum } from "../math/BoundFrustum";
 import { Laya3DRender } from "../RenderObjs/Laya3DRender";
 import { Vector4 } from "../../maths/Vector4";
 import { Transform3D } from "./Transform3D";
-import { IBaseRenderNode } from "../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
+import { BaseRenderType, IBaseRenderNode } from "../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
 import { IRenderContext3D } from "../../RenderDriver/DriverDesign/3DRenderPass/I3DRenderPass";
-
-export class aaaa {
-
-}
 /**
  * <code>SkinMeshRenderer</code> 类用于蒙皮渲染器。
  */
@@ -57,7 +53,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
     protected _skinnedMatrixCachesBufferForNative: Int32Array = null;
     /**@internal */
     protected _bonesTransformForNative: Transform3D[] = null;
-
+    /**@internal */
     protected _worldParams = new Vector4();
 
     /**
@@ -121,6 +117,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
         super();
         this._localBounds = new Bounds(Vector3.ZERO, Vector3.ZERO);
         this._baseRenderNode.shaderData.addDefine(SkinnedMeshSprite3DShaderDeclaration.SHADERDEFINE_BONE);
+        this._baseRenderNode.renderNodeType = BaseRenderType.SkinnedMeshRender;
     }
 
     // protected

@@ -8,6 +8,8 @@ import { Component } from "../../components/Component";
 import { Vector2 } from "../../maths/Vector2";
 import { Vector4 } from "../../maths/Vector4";
 import { IRenderContext3D } from "../../RenderDriver/DriverDesign/3DRenderPass/I3DRenderPass";
+import { BaseRenderType } from "../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
+import { RenderContext3D } from "./render/RenderContext3D";
 
 export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
     /**@internal 解决循环引用 */
@@ -72,12 +74,18 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
         this._simpleAnimatorOffset = new Vector2();
         this._baseRenderNode.shaderData.addDefine(SkinnedMeshSprite3DShaderDeclaration.SHADERDEFINE_SIMPLEBONE);
         this._baseRenderNode.shaderData.addDefine(SkinnedMeshSprite3DShaderDeclaration.SHADERDEFINE_BONE);
+        this._baseRenderNode.renderNodeType = BaseRenderType.SimpleSkinRender;
+        this._baseRenderNode.shaderData.setVector(SimpleSkinnedMeshRenderer.SIMPLE_SIMPLEANIMATORPARAMS, new Vector4());
     }
 
     protected _getcommonUniformMap(): string[] {
         return ["Sprite3D", "SimpleSkinnedMesh"];
     }
 
+    renderUpdate(context: RenderContext3D) {
+        this._computeAnimatorParamsData();
+
+    }
     /**
      *@inheritDoc
      *@override
@@ -95,6 +103,7 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
         if (this._cacheMesh) {
             this._simpleAnimatorParams.x = this._simpleAnimatorOffset.x;
             this._simpleAnimatorParams.y = Math.round(this._simpleAnimatorOffset.y) * this._bonesNums * 4;
+            this._baseRenderNode.shaderData.setVector(SimpleSkinnedMeshRenderer.SIMPLE_SIMPLEANIMATORPARAMS, this._simpleAnimatorParams);
         }
     }
 
@@ -132,7 +141,6 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
         // }
         // this._computeAnimatorParamsData();
         // this._shaderValues.setVector(SimpleSkinnedMeshRenderer.SIMPLE_SIMPLEANIMATORPARAMS, this._simpleAnimatorParams);
-
     }
 
     _cloneTo(dest: Component): void {

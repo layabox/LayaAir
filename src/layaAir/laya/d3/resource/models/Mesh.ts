@@ -132,10 +132,6 @@ export class Mesh extends Resource implements IClone {
     _indexFormat: IndexFormat = IndexFormat.UInt16;
 
     /** @internal */
-    instanceWorldMatrixData: Float32Array;
-    /** @internal */
-    instanceSimpleAnimatorData: Float32Array;
-    /** @internal */
     instanceLightMapScaleOffsetData: Float32Array;
 
     morphTargetData: MorphTargetData;
@@ -376,8 +372,6 @@ export class Mesh extends Resource implements IClone {
         this._instanceWorldVertexBuffer && this._instanceWorldVertexBuffer.destroy();
         this._instanceSimpleAniVertexBuffer && this._instanceSimpleAniVertexBuffer.destroy();
         this._instanceLightMapVertexBuffer && this._instanceLightMapVertexBuffer.destroy();
-        this.instanceWorldMatrixData && (this.instanceWorldMatrixData = null);
-        this.instanceSimpleAnimatorData && (this.instanceSimpleAnimatorData = null);
         this.instanceLightMapScaleOffsetData && (this.instanceLightMapScaleOffsetData = null);
         this._setCPUMemory(0);
         this._setGPUMemory(0);
@@ -427,14 +421,12 @@ export class Mesh extends Resource implements IClone {
         instanceBuffer3D.vertexDeclaration = VertexMesh.instanceWorldMatrixDeclaration;
         instanceBuffer3D.instanceBuffer = true;
         vertexArray.push(instanceBuffer3D);
-        this.instanceWorldMatrixData = new Float32Array(InstanceRenderElement.maxInstanceCount * 16);
         switch (instanceBufferStateType) {
             case Mesh.MESH_INSTANCEBUFFER_TYPE_SIMPLEANIMATOR:
                 //new SimpleVertexBuffer3D
                 let instanceSimpleAnimatorBuffer = this._instanceSimpleAniVertexBuffer = Laya3DRender.renderOBJCreate.createVertexBuffer3D(InstanceRenderElement.maxInstanceCount * 4 * 4, BufferUsage.Dynamic, false);
                 instanceSimpleAnimatorBuffer.vertexDeclaration = VertexMesh.instanceSimpleAnimatorDeclaration;
                 instanceSimpleAnimatorBuffer.instanceBuffer = true;
-                this.instanceSimpleAnimatorData = new Float32Array(InstanceRenderElement.maxInstanceCount * 4);
                 vertexArray.push(instanceSimpleAnimatorBuffer);
                 break;
             case Mesh.MESH_INSTANCEBUFFER_TYPE_NORMAL:
