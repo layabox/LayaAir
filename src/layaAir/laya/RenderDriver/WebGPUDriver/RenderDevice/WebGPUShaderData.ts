@@ -16,6 +16,7 @@ import { WebGPUUniformBuffer } from "./WebGPUUniform/WebGPUUniformBuffer";
 import { WebGPURenderCommandEncoder } from "./WebGPURenderCommandEncoder";
 import { WebGPURenderEngine } from "./WebGPURenderEngine";
 import { WebGPUGlobal } from "./WebGPUStatis/WebGPUGlobal";
+import { TextureFormat } from "../../../RenderEngine/RenderEnum/TextureFormat";
 
 export class WebGPUShaderData extends ShaderData {
     /**@internal */
@@ -29,7 +30,7 @@ export class WebGPUShaderData extends ShaderData {
 
     private _infoId: number;
     private _uniformBuffer: WebGPUUniformBuffer;
-    private _bindGroupMap: Map<string, GPUBindGroup>;
+    private _bindGroupMap: Map<string, [GPUBindGroup, GPUBindGroupLayoutEntry[]]>;
 
     isStatic: boolean = false; //是否静态
 
@@ -90,11 +91,13 @@ export class WebGPUShaderData extends ShaderData {
         let key = name + '_' + this._infoId + ' | ';
         for (let i = uniforms.length - 1; i > -1; i--)
             key += uniforms[i].propertyId + '_';
-        let bindGroup = this._bindGroupMap.get(key);
+        const bindInfo = this._bindGroupMap.get(key);
+        let bindGroup = bindInfo ? bindInfo[0] : null;
+        let bindGroupLayoutEntries = bindInfo ? bindInfo[1] : null;
 
         //如果没有缓存, 则创建一个BindGroup
         if (!bindGroup) {
-            const bindGroupLayoutEntries = [];
+            bindGroupLayoutEntries = [];
             const bindGroupEntries = [];
             for (const item of uniforms) {
                 switch (item.type) {
@@ -114,6 +117,8 @@ export class WebGPUShaderData extends ShaderData {
                             const texture = this.getTexture(item.propertyId);
                             if (!texture) return false;
                             else {
+                                if (texture.format == TextureFormat.R32G32B32A32)
+                                    item.texture.sampleType = 'unfilterable-float';
                                 bindGroupLayoutEntries.push({
                                     binding: item.binding,
                                     visibility: item.visibility,
@@ -131,6 +136,8 @@ export class WebGPUShaderData extends ShaderData {
                             const texture = this.getTexture(item.propertyId);
                             if (!texture) return false;
                             else {
+                                if (texture.format == TextureFormat.R32G32B32A32)
+                                    item.sampler.type = 'non-filtering';
                                 bindGroupLayoutEntries.push({
                                     binding: item.binding,
                                     visibility: item.visibility,
@@ -153,13 +160,13 @@ export class WebGPUShaderData extends ShaderData {
                 layout: device.createBindGroupLayout(bindGroupLayoutDesc),
                 entries: bindGroupEntries,
             });
-            this._bindGroupMap.set(key, bindGroup);
+            this._bindGroupMap.set(key, [bindGroup, bindGroupLayoutEntries]);
             console.log('create bindGroup', key, bindGroupLayoutDesc, bindGroupEntries, bindGroup);
         }
 
         //将绑定组附加到命令
         command.setBindGroup(groupId, bindGroup);
-        return true;
+        return bindGroupLayoutEntries;
     }
 
     /**

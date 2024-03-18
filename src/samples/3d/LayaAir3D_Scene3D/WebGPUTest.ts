@@ -84,9 +84,9 @@ export class WebGPUTest {
             const coneMesh1 = PrimitiveMesh.createCone(0.2, 0.6, 16);
             const sphereMesh1 = PrimitiveMesh.createSphere(0.15, 16, 16);
 
-            const material1 = new UnlitMaterial();
-            const material2 = new UnlitMaterial();
-            const material3 = new UnlitMaterial();
+            const material1 = new BlinnPhongMaterial();
+            const material2 = new BlinnPhongMaterial();
+            const material3 = new BlinnPhongMaterial();
 
             const boxS3D = [];
             const sphereS3D = [];

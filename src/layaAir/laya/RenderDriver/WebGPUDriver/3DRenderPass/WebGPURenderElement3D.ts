@@ -335,8 +335,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
                 const shaderInstance = passes[i];
                 if (shaderInstance.complete) {
                     let complete = true;
-                    const pipeline = this._getWebGPURenderPipeline(shaderInstance, context.destRT, context);
-                    context.renderCommand.setPipeline(pipeline);
+
                     if (sceneShaderData) {
                         if (!sceneShaderData.bindGroup(0, 'scene3D', shaderInstance.uniformSetMap[0], context.renderCommand))
                             complete = false;
@@ -352,10 +351,14 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
                             complete = false;
                         else this.renderShaderData.uploadUniform();
                     }
-                    if (this.materialShaderData)
+                    if (this.materialShaderData) {
                         if (!this.materialShaderData.bindGroup(3, 'material', shaderInstance.uniformSetMap[3], context.renderCommand))
                             complete = false;
                         else this.materialShaderData.uploadUniform();
+                    }
+
+                    const pipeline = this._getWebGPURenderPipeline(shaderInstance, context.destRT, context);
+                    context.renderCommand.setPipeline(pipeline);
 
                     if (complete)
                         context.renderCommand.applyGeometry(this.geometry);
