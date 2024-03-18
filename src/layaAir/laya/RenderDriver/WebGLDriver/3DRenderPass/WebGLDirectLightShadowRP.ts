@@ -32,7 +32,7 @@ export class ShadowCullInfo {
     direction: Vector3;
 }
 
-export class WebGLDirectLightShadowRP{
+export class WebGLDirectLightShadowRP {
     /** @internal 最大cascade*/
     private static _maxCascades: number = 4;
 

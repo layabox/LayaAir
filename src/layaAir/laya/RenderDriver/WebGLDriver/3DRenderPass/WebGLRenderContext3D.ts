@@ -93,8 +93,8 @@ export class WebGLRenderContext3D implements IRenderContext3D {
         this._globalShaderData = value;
     }
 
-    setRenderTarget(value: InternalRenderTarget,clearFlag:RenderClearFlag = RenderClearFlag.Nothing) {
-        this._clearFlag =clearFlag;
+    setRenderTarget(value: InternalRenderTarget, clearFlag: RenderClearFlag = RenderClearFlag.Nothing) {
+        this._clearFlag = clearFlag;
         if (value == this._renderTarget)
             return;
         this._renderTarget = value;
@@ -157,7 +157,7 @@ export class WebGLRenderContext3D implements IRenderContext3D {
         this._globalConfigShaderData = Shader3D._configDefineValues;
         this.cameraUpdateMask = 0;
     }
-    
+
     runOneCMD(cmd: IRenderCMD): void {
         cmd.apply(this);
     }
@@ -195,8 +195,6 @@ export class WebGLRenderContext3D implements IRenderContext3D {
     drawRenderElementOne(node: WebGLRenderElement3D): number {
         if (this._needStart) {
             this._bindRenderTarget();
-
-            
             this._start();
             this._needStart = false;
         }
@@ -217,9 +215,10 @@ export class WebGLRenderContext3D implements IRenderContext3D {
     private _start() {
         WebGLEngine.instance.scissorTest(true);
         WebGLEngine.instance.viewport(this._viewPort.x, this._viewPort.y, this._viewPort.width, this._viewPort.height);
-        WebGLEngine.instance.scissor(this._scissor.x, this._scissor.y, this._scissor.z, this._scissor.w);
+        WebGLEngine.instance.scissor(this._viewPort.x, this._viewPort.y, this._viewPort.width, this._viewPort.height);
         if (this._clearFlag != RenderClearFlag.Nothing)
             WebGLEngine.instance.clearRenderTexture(this._clearFlag, this._clearColor, this._clearDepth, this._clearStencil);
+        WebGLEngine.instance.scissor(this._scissor.x, this._scissor.y, this._scissor.z, this._scissor.w);
     }
 
 }
