@@ -30,7 +30,7 @@ import { Stat } from "../../utils/Stat";
 import { WrapMode } from "../../RenderEngine/RenderEnum/WrapMode";
 import { LayaGL } from "../../layagl/LayaGL";
 import { Laya3DRender } from "../RenderObjs/Laya3DRender";
-import {  IRender3DProcess } from "../../RenderDriver/DriverDesign/3DRenderPass/I3DRenderPass";
+import { IRender3DProcess } from "../../RenderDriver/DriverDesign/3DRenderPass/I3DRenderPass";
 import { ICameraNodeData } from "../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
 import { Transform3D } from "./Transform3D";
 
@@ -1097,15 +1097,6 @@ export class Camera extends BaseCamera {
         context.camera = this;
         scene._setCullCamera(this);
 
-        // camera data 
-        this._prepareCameraToRender();
-        this._applyViewProject(this.viewMatrix, this.projectionMatrix, context.invertY);
-        this._contextApply(context);
-        // todo proterty name
-        if (this._cameraUniformData && this._cameraUniformUBO) {
-            this._cameraUniformUBO.setDataByUniformBufferData(this._cameraUniformData);
-        }
-
         let viewport = this.viewport;
         let needInternalRT = this._needInternalRenderTexture();
 
@@ -1128,6 +1119,15 @@ export class Camera extends BaseCamera {
         let renderRT = this._getRenderTexture();
         if (renderRT) {
             context.invertY = renderRT._isCameraTarget ? true : false;
+        }
+
+        // camera data 
+        this._prepareCameraToRender();
+        this._applyViewProject(this.viewMatrix, this.projectionMatrix, context.invertY);
+        this._contextApply(context);
+        // todo proterty name
+        if (this._cameraUniformData && this._cameraUniformUBO) {
+            this._cameraUniformUBO.setDataByUniformBufferData(this._cameraUniformData);
         }
 
         if (this.clearFlag == CameraClearFlags.Sky) {
