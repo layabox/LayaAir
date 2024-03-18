@@ -29,7 +29,7 @@ export class WebGPUShaderData extends ShaderData {
 
     private _infoId: number;
     private _uniformBuffer: WebGPUUniformBuffer;
-    private _bindGroup: GPUBindGroup;
+    private _bindGroupMap: Map<string, GPUBindGroup>;
 
     isStatic: boolean = false; //是否静态
 
@@ -40,6 +40,7 @@ export class WebGPUShaderData extends ShaderData {
         super(ownerResource);
         this._data = {};
         this._gammaColorMap = new Map();
+        this._bindGroupMap = new Map();
         this._defineDatas = new WebDefineDatas();
 
         //this.globalId = WebGPUGlobal.getId(this);
@@ -73,7 +74,7 @@ export class WebGPUShaderData extends ShaderData {
      * 清理缓存的BindGroup
      */
     clearBindGroup() {
-        this._bindGroup = null;
+        this._bindGroupMap.clear();
     }
 
     /**
@@ -86,8 +87,13 @@ export class WebGPUShaderData extends ShaderData {
     bindGroup(groupId: number, name: string, uniforms: WebGPUUniformPropertyBindingInfo[], command: WebGPURenderCommandEncoder) {
         const device = WebGPURenderEngine._instance.getDevice();
 
+        let key = name + '_' + this._infoId + ' | ';
+        for (let i = uniforms.length - 1; i > -1; i--)
+            key += uniforms[i].propertyId + '_';
+        let bindGroup = this._bindGroupMap.get(key);
+
         //如果没有缓存, 则创建一个BindGroup
-        if (!this._bindGroup) {
+        if (!bindGroup) {
             const bindGroupLayoutEntries = [];
             const bindGroupEntries = [];
             for (const item of uniforms) {
@@ -142,16 +148,17 @@ export class WebGPUShaderData extends ShaderData {
 
             //创建绑定组
             const bindGroupLayoutDesc: GPUBindGroupLayoutDescriptor = { entries: bindGroupLayoutEntries };
-            this._bindGroup = device.createBindGroup({
+            bindGroup = device.createBindGroup({
                 label: name,
                 layout: device.createBindGroupLayout(bindGroupLayoutDesc),
                 entries: bindGroupEntries,
             });
-            //console.log('create bindGroup', bindGroupLayoutDesc, bindGroupEntries, this._bindGroup);
+            this._bindGroupMap.set(key, bindGroup);
+            console.log('create bindGroup', key, bindGroupLayoutDesc, bindGroupEntries, bindGroup);
         }
 
         //将绑定组附加到命令
-        command.setBindGroup(groupId, this._bindGroup);
+        command.setBindGroup(groupId, bindGroup);
         return true;
     }
 

@@ -102,9 +102,9 @@ export class WebGPUTest {
                 material2.albedoTexture = Laya.loader.getRes("res/threeDimen/texture/brick.jpg", Loader.TEXTURE2D);
                 material3.albedoTexture = Laya.loader.getRes("res/threeDimen/texture/grass.jpg", Loader.TEXTURE2D);
 
-                const n = 5;
-                const m = 5;
-                const l = 5;
+                const n = 1;
+                const m = 1;
+                const l = 1;
                 for (let i = 0; i < n; i++) {
                     for (let j = 0; j < m; j++) {
                         for (let k = 0; k < l; k++) {
