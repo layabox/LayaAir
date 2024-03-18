@@ -47,6 +47,10 @@ export class BlueprintData {
                     let o = input[i];
                     if (null == o.name) {
                         o.name = String.fromCharCode(97 + i);
+                    } else if ('execute' == o.name && 'exec' == o.type && null == o.id) {
+                        o.id = -1;
+                    } else if ('target' == o.name && null == o.id) {
+                        o.id = -2;
                     }
                 }
             }
