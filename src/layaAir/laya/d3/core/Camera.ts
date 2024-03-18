@@ -33,6 +33,7 @@ import { Laya3DRender } from "../RenderObjs/Laya3DRender";
 import { IRender3DProcess } from "../../RenderDriver/DriverDesign/3DRenderPass/I3DRenderPass";
 import { ICameraNodeData } from "../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
 import { Transform3D } from "./Transform3D";
+import { Cluster } from "../graphics/renderPath/Cluster";
 
 /**
  * 相机清除标记。
@@ -1136,6 +1137,11 @@ export class Camera extends BaseCamera {
 
         scene._componentDriver.callPreRender();
         this._preRenderMainPass(context, scene, needInternalRT, viewport);
+
+        let multiLight = Config3D._multiLighting;
+        if (multiLight) { 
+            Cluster.instance.update(this, scene);
+        }
 
         this._Render3DProcess.fowardRender(context._contextOBJ, this);
 
