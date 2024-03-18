@@ -5,6 +5,7 @@ import { WrapMode } from "../../../RenderEngine/RenderEnum/WrapMode";
 import { InternalTexture } from "../../DriverDesign/RenderDevice/InternalTexture";
 import { WebGPUSampler, WebGPUSamplerParams } from "./WebGPUSampler";
 import { WebGPUGlobal } from "./WebGPUStatis/WebGPUGlobal";
+import { WebGPUStatis } from "./WebGPUStatis/WebGPUStatis";
 import { WebGPUTextureFormat } from "./WebGPUTextureContext";
 
 export class WebGPUInternalTex implements InternalTexture {
@@ -154,7 +155,7 @@ export class WebGPUInternalTex implements InternalTexture {
         this._webgpuSampler = WebGPUSampler.getWebGPUSampler(this._webGPUSamplerParams);
 
         this.globalId = WebGPUGlobal.getId(this);
-        WebGPUGlobal.addTextureStatis(this);
+        WebGPUStatis.addTexture(this);
     }
 
     getTextureView(): GPUTextureView {

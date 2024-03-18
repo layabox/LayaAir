@@ -58,7 +58,7 @@ export class WebGPUBuffer {
             mappedAtCreation: this._mappedAtCreation
         });
         this._isCreate = true;
-        WebGPUGlobal.action(this, 'allocMemory', this._size);
+        WebGPUGlobal.action(this, 'allocMemory | buffer', this._size);
     }
 
     private _alignedLength(bytelength: number) {

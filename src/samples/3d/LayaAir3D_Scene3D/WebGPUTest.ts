@@ -36,7 +36,7 @@ import { Config3D } from "Config3D";
 import { WebGPURenderEngine } from "laya/RenderDriver/WebGPUDriver/RenderDevice/WebGPURenderEngine";
 import { Loader } from "laya/net/Loader";
 import { WebGLRender2DProcess } from "laya/RenderDriver/WebGLDriver/2DRenderPass/WebGLRender2DProcess";
-import { WebGPURender2DProcess } from "laya/RenderDriver/WebGPUDriver/2DRenderPassFake/WebGPURender2DProcess";
+import { WebGPURender2DProcess } from "laya/RenderDriver/WebGPUDriver/2DRenderPass/WebGPURender2DProcess";
 
 export class WebGPUTest {
     useWebGPU: boolean = true;
@@ -75,9 +75,9 @@ export class WebGPUTest {
             camera.clearFlag = CameraClearFlags.SolidColor;
             camera.addComponent(CameraMoveScript);
 
-            const directlightSprite = new Sprite3D();
-            const dircom = directlightSprite.addComponent(DirectionLightCom);
-            scene.addChild(directlightSprite);
+            const directLight = new Sprite3D();
+            const dircom = directLight.addComponent(DirectionLightCom);
+            scene.addChild(directLight);
             dircom.color.setValue(1, 1, 1, 1);
 
             const boxMesh1 = PrimitiveMesh.createBox(0.2, 0.2, 0.2);
@@ -144,12 +144,10 @@ export class WebGPUTest {
                 }
 
                 Laya.timer.frameLoop(1, this, () => {
-                    for (let i = boxS3D.length - 1; i > -1; i--) {
+                    for (let i = boxS3D.length - 1; i > -1; i--)
                         boxS3D[i].transform.rotate(boxS3D[i].rotate, false);
-                    }
-                    for (let i = sphereS3D.length - 1; i > -1; i--) {
+                    for (let i = sphereS3D.length - 1; i > -1; i--)
                         sphereS3D[i].transform.rotate(sphereS3D[i].rotate, false);
-                    }
                 });
             }));
 
@@ -169,7 +167,7 @@ export class WebGPUTest {
             // meshRenderer2.castShadow = false;
             // meshRenderer2.receiveShadow = false;
 
-            //Laya.timer.loop(3000, this, () => { WebGPUStatis.printFrameStatis(); });
+            Laya.timer.loop(3000, this, () => { WebGPUStatis.printFrameStatis(); });
             Laya.timer.once(5000, this, () => {
                 WebGPUStatis.printStatisticsAsTable();
                 WebGPUStatis.printTotalStatis();

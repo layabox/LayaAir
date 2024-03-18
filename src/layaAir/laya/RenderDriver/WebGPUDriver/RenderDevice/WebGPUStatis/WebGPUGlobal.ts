@@ -5,10 +5,6 @@ export class WebGPUGlobal {
     private static _idCounter: number = 0;
     private static _uniformInfoIdCounter: number = 0;
 
-    static addTextureStatis(texture: any) {
-        WebGPUStatis.addTextureStatis(texture);
-    }
-
     static getUniformInfoId() {
         return this._uniformInfoIdCounter++;
     }

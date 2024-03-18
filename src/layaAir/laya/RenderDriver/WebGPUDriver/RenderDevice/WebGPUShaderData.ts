@@ -12,7 +12,7 @@ import { ShaderDefine } from "../../RenderModuleData/Design/ShaderDefine";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
 import { WebGPUBindingInfoType, WebGPUUniformPropertyBindingInfo } from "./WebGPUCodeGenerator";
 import { WebGPUInternalTex } from "./WebGPUInternalTex";
-import { UniformBuffer } from "./WebGPUUniform/WebGPUUniformBuffer";
+import { WebGPUUniformBuffer } from "./WebGPUUniform/WebGPUUniformBuffer";
 import { WebGPURenderCommandEncoder } from "./WebGPURenderCommandEncoder";
 import { WebGPURenderEngine } from "./WebGPURenderEngine";
 import { WebGPUGlobal } from "./WebGPUStatis/WebGPUGlobal";
@@ -28,7 +28,7 @@ export class WebGPUShaderData extends ShaderData {
     protected _gammaColorMap: Map<number, Color>;
 
     private _infoId: number;
-    private _uniformBuffer: UniformBuffer;
+    private _uniformBuffer: WebGPUUniformBuffer;
     private _bindGroup: GPUBindGroup;
 
     isStatic: boolean = false; //是否静态
@@ -51,7 +51,7 @@ export class WebGPUShaderData extends ShaderData {
             if (!this._uniformBuffer || this._infoId != info.uniform.globalId) {
                 this._infoId = info.uniform.globalId;
                 const gpuBuffer = WebGPURenderEngine._instance.gpuBufferMgr;
-                this._uniformBuffer = new UniformBuffer(info.name, info.set, info.binding, info.uniform.size, gpuBuffer, this);
+                this._uniformBuffer = new WebGPUUniformBuffer(info.name, info.set, info.binding, info.uniform.size, gpuBuffer, this);
                 for (let i = 0, len = info.uniform.items.length; i < len; i++) {
                     const uniform = info.uniform.items[i];
                     this._uniformBuffer.addUniform(uniform.id, uniform.name, uniform.type, uniform.offset, uniform.align, uniform.size, uniform.elements, uniform.count);

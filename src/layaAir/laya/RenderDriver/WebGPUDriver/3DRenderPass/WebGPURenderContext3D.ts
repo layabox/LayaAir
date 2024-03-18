@@ -13,6 +13,7 @@ import { WebGPURenderEngine } from "../RenderDevice/WebGPURenderEngine";
 import { WebGPURenderPassHelper } from "../RenderDevice/WebGPURenderPassHelper";
 import { WebGPUShaderData } from "../RenderDevice/WebGPUShaderData";
 import { WebGPUGlobal } from "../RenderDevice/WebGPUStatis/WebGPUGlobal";
+import { WebGPUStatis } from "../RenderDevice/WebGPUStatis/WebGPUStatis";
 import { WebGPURenderElement3D } from "./WebGPURenderElement3D";
 
 export class WebGPURenderContext3D implements IRenderContext3D {
@@ -169,6 +170,7 @@ export class WebGPURenderContext3D implements IRenderContext3D {
         for (let i = 0, n = list.length; i < n; i++)
             elements[i]._render(this);
         this._submit();
+        WebGPUStatis.addRenderElement(list.length);
         return 0;
     }
 
@@ -181,6 +183,7 @@ export class WebGPURenderContext3D implements IRenderContext3D {
         node._preUpdatePre(this);
         node._render(this);
         this._submit();
+        WebGPUStatis.addRenderElement(1);
         return 0;
     }
 
@@ -204,7 +207,7 @@ export class WebGPURenderContext3D implements IRenderContext3D {
         const renderPassDesc: GPURenderPassDescriptor
             = WebGPURenderPassHelper.getDescriptor(this.destRT, this._clearFlag, this._clearColor, this._clearDepth, this._clearStencil);
         this.renderCommand.startRender(renderPassDesc);
-        this._viewPort.y = 0;
+        this._viewPort.y = 0; //不设零会报错
         this._scissor.y = 0;
         this.renderCommand.setViewport(this._viewPort.x, this._viewPort.y, this._viewPort.width, this._viewPort.height, 0, 1);
         this.renderCommand.setScissorRect(this._scissor.x, this._scissor.y, this._scissor.z, this._scissor.w);
@@ -215,6 +218,7 @@ export class WebGPURenderContext3D implements IRenderContext3D {
         WebGPURenderEngine._instance.upload(); //上传所有Uniform数据
         WebGPURenderEngine._instance.getDevice().queue.submit([this.renderCommand.finish()]);
         this._needStart = true;
+        WebGPUStatis.addSubmit();
     }
 
     destroy() {

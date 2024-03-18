@@ -1,11 +1,12 @@
-import { WebGPUBufferBlock, WebGPUBufferManager } from "./WebGPUBufferManager";
 import { Vector2 } from "../../../../maths/Vector2";
 import { Vector3 } from "../../../../maths/Vector3";
 import { Vector4 } from "../../../../maths/Vector4";
 import { Matrix3x3 } from "../../../../maths/Matrix3x3";
 import { Matrix4x4 } from "../../../../maths/Matrix4x4";
-import { WebGPUGlobal } from "../WebGPUStatis/WebGPUGlobal";
 import { WebGPUShaderData } from "../WebGPUShaderData";
+import { WebGPUBufferBlock } from "./WebGPUBufferBlock";
+import { WebGPUBufferManager } from "./WebGPUBufferManager";
+import { WebGPUGlobal } from "../WebGPUStatis/WebGPUGlobal";
 
 type TypedArray =
     | Int8Array
@@ -34,7 +35,7 @@ type TypedArrayConstructor =
  */
 const roundUp = (n: number, align: number) => (((n + align - 1) / align) | 0) * align;
 
-export type UniformItemType = {
+type UniformItemType = {
     name: string, //名称
     view: TypedArray, //ArrayBufferView
     type: string, //int, float, vec2 ...
@@ -44,7 +45,7 @@ export type UniformItemType = {
     count: number, //非数组count=1，否则count=数组长度
 };
 
-export class UniformBuffer {
+export class WebGPUUniformBuffer {
     name: string;
     strID: string;
     items: Map<number, UniformItemType>;
@@ -110,7 +111,7 @@ export class UniformBuffer {
 
     private _updateItemView() {
         this.items.forEach(item => {
-            item.view = new (UniformBuffer._typeArray(item.type))
+            item.view = new (WebGPUUniformBuffer._typeArray(item.type))
                 (this.block.buffer.arrayBuffer, item.view.byteOffset, this._typeElements(item.type) * item.count);
         });
     }
@@ -128,7 +129,7 @@ export class UniformBuffer {
      */
     addUniform(id: number, name: string, type: string, offset: number, align: number, size: number, elements: number, count: number) {
         if (this.items.has(id)) return; //该Uniform已经存在
-        this.items.set(id, this._getUniformItem(name, UniformBuffer._typeArray(type), type, offset, align, size, elements, count));
+        this.items.set(id, this._getUniformItem(name, WebGPUUniformBuffer._typeArray(type), type, offset, align, size, elements, count));
         if (this.strID.length > 0)
             this.strID += '|';
         this.strID += id;

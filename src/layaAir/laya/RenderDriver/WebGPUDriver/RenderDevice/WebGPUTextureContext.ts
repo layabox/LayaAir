@@ -386,7 +386,7 @@ export class WebGPUTextureContext implements ITextureContext {
         const internalTex = new WebGPUInternalTex(width, height, 1, dimension, generateMipmap, false, 1);
         internalTex.resource = gpuTexture;
         internalTex._webGPUFormat = gpuTextureFormat;
-        WebGPUGlobal.action(internalTex, 'allocMemory', (width * height * pixelByteSize * (generateMipmap ? 1.33333 : 1)) | 0);
+        WebGPUGlobal.action(internalTex, 'allocMemory | texture', (width * height * pixelByteSize * (generateMipmap ? 1.33333 : 1)) | 0);
 
         return internalTex;
     }
@@ -763,7 +763,7 @@ export class WebGPUTextureContext implements ITextureContext {
         internalRT._textures.push(new WebGPUInternalTex(width, height, 1, TextureDimension.Tex2D, generateMipmap, false, 1));
         internalRT._textures[0].resource = gpuColorTexture;
         internalRT._textures[0]._webGPUFormat = gpuColorFormat;
-        WebGPUGlobal.action(internalRT._textures[0], 'allocMemory', (width * height * pixelByteSize * (generateMipmap ? 1.33333 : 1)) | 0);
+        WebGPUGlobal.action(internalRT._textures[0], 'allocMemory | texture', (width * height * pixelByteSize * (generateMipmap ? 1.33333 : 1)) | 0);
 
         if (depthStencilFormat != RenderTargetFormat.None) {
             const pixelByteSize = this._getGPURenderTexturePixelByteSize(depthStencilFormat);
@@ -773,7 +773,7 @@ export class WebGPUTextureContext implements ITextureContext {
             internalRT._depthTexture = new WebGPUInternalTex(width, height, 1, TextureDimension.Tex2D, false, false, 1);
             internalRT._depthTexture.resource = gpuDepthTexture;
             internalRT._depthTexture._webGPUFormat = gpuDepthFormat;
-            WebGPUGlobal.action(internalRT._depthTexture, 'allocMemory', width * height * pixelByteSize);
+            WebGPUGlobal.action(internalRT._depthTexture, 'allocMemory | texture_depth', width * height * pixelByteSize);
         }
 
         WebGPURenderPassHelper.setColorAttachments(internalRT._renderPassDescriptor, internalRT._textures, true);
