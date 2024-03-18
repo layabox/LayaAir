@@ -28,6 +28,10 @@ export class WebGLSkyRenderElement3D extends WebGLRenderElement3D implements ISk
         super();
         this.projectionMatrix = new Matrix4x4();
         this.projectViewMatrix = new Matrix4x4();
+
+        this.cameraViewMat = new Matrix4x4();
+        this.cameraProjMat = new Matrix4x4();
+        this.cameraProjViewMat = new Matrix4x4();
     }
 
     _preUpdatePre(context: WebGLRenderContext3D): void {
@@ -42,9 +46,9 @@ export class WebGLSkyRenderElement3D extends WebGLRenderElement3D implements ISk
         }
 
         let cameraData = context.cameraData;
-        this.cameraViewMat = cameraData.getMatrix4x4(this.viewMatrixIndex);
-        this.cameraProjMat = cameraData.getMatrix4x4(this.projectionMatrixIndex);
-        this.cameraProjViewMat = cameraData.getMatrix4x4(this.projectViewMatrixIndex);
+        cameraData.getMatrix4x4(this.viewMatrixIndex).cloneTo(this.cameraViewMat);
+        cameraData.getMatrix4x4(this.projectionMatrixIndex).cloneTo(this.cameraProjMat);
+        cameraData.getMatrix4x4(this.projectViewMatrixIndex).cloneTo(this.cameraProjViewMat);
     }
 
     _render(context: WebGLRenderContext3D): void {

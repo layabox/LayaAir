@@ -338,18 +338,22 @@ export class RenderSprite {
             //计算cache画布的大小
             Stat.canvasBitmap++;
 
-            //左边可能有空白（例如图集的空白裁剪）,所以贴图的大小要把空白也考虑上
-            //因为对于空白的处理是保存在cmd中的，是在下面的_next._fun()的xy的基础上加的，所以要保证贴图够大，否则就被裁剪了
-            let w = tRec.x + tRec.width * scaleInfo.x;  //,
-            let h = tRec.y + tRec.height * scaleInfo.y;
+            let w = tRec.width * scaleInfo.x;  //,
+            let h = tRec.height * scaleInfo.y;
             let rt = new RenderTexture2D(w,h,RenderTargetFormat.R8G8B8A8);
             let ctx = new Context();
             ctx.copyState(context);
             ctx.size(w,h);
             ctx.render2D=new Render2DSimple(rt);
             ctx.startRender();
-            //由于context是新的，所以画到0,0上就行
-            this._next._fun(sprite,ctx,0, 0);
+            /*
+                由于tRec与rt的原点并不重合：
+                1. 图集中的小图可能有被裁掉的空白，这时候tRec.x>0 ，rt的原点就在节点原点的右边
+                2. 节点下的子可能在负的位置渲染，这时候rt的原点就在原点的左边
+                所以为了rt能正确的包含节点的渲染效果，应该偏移一下节点再渲染，具体就是取节点在rt坐标系下的值
+                当使用这个rt的时候，要反向偏移，即偏移rt在节点坐标系下的值
+            */
+            this._next._fun(sprite,ctx,-tRec.x, -tRec.y);
             ctx.endRender();
             //临时，恢复
             ctx.render2D.setRenderTarget(context.render2D.out);
@@ -359,6 +363,7 @@ export class RenderSprite {
         return false;
     }
 
+    static normalCacheRender:SpriteCache=null;
     /**@internal */
     _canvas(sprite: Sprite, context: Context, x: number, y: number): void {
 
@@ -374,19 +379,23 @@ export class RenderSprite {
         let isbmp = sprite.cacheAs === 'bitmap';
         if(isbmp){
             //temp
+            context.drawLeftData();
             this._renderNextToCacheRT(sprite,context);
             // RenderSprite.RenderToCacheTexture(sprite,context,x,y)
-            //var tRec = _cacheStyle.cacheRect;
+            var tRec = _cacheStyle.cacheRect;
             context.material = sprite.graphics.material;
             let rt = _cacheStyle.renderTexture;
-            rt && context._drawRenderTexture(rt,x , y , rt.width, rt.height,null,1,[0,1, 1,1, 1,0, 0,0]);
+            rt && context._drawRenderTexture(rt,x+tRec.x , y+tRec.y , rt.width, rt.height,null,1,[0,1, 1,1, 1,0, 0,0]);
         }else{
             if(!RenderSprite.cacheNormalEnable){
                 _next._fun.call(_next, sprite, context, x, y);
                 return;
             }else{
-                let normalCacheRender = new SpriteCache();
-                normalCacheRender.renderCacheAsNormal(context,sprite,this._next,x,y);
+                if(!RenderSprite.normalCacheRender){
+                    RenderSprite.normalCacheRender = new SpriteCache();
+                }
+                context.drawLeftData();
+                RenderSprite.normalCacheRender.renderCacheAsNormal(context,sprite,this._next,x,y);
             }
 
             // if (sprite._needRepaint() || !_cacheStyle.canvas || textNeedRestore || ILaya.stage.isGlobalRepaint()) {

@@ -135,6 +135,15 @@ export class WebGLRender3DProcess implements IRender3DProcess {
                 camera.scene._shaderValues.setTexture(ShadowCasterPass.SHADOW_SPOTMAP, spotShadowMap);
             }
         }
+
+        if (Stat.enablePostprocess && camera.postProcess) {
+            this.renderpass.enablePostProcess = Stat.enablePostprocess;
+            this.renderpass.postProcess = camera.postProcess._context.command;
+            camera.postProcess._render(camera);
+            this.renderpass.postProcess._apply(false);
+        } else {
+            this.renderpass.enablePostProcess = false;
+        }
     }
 
     renderDepth(camera: Camera) {
@@ -173,8 +182,9 @@ export class WebGLRender3DProcess implements IRender3DProcess {
         this.renderDepth(camera);
 
         let renderList = <WebBaseRenderNode[]>camera.scene.sceneRenderableManager.renderBaselist.elements;
+        let count = camera.scene.sceneRenderableManager.renderBaselist.length;
 
-        this.renderFowarAddCameraPass(context, this.renderpass, renderList, renderList.length);
+        this.renderFowarAddCameraPass(context, this.renderpass, renderList, count);
     }
 
     renderFowarAddCameraPass(context: WebGLRenderContext3D, renderpass: WebGLForwardAddRP, list: WebBaseRenderNode[], count: number): void {
@@ -193,7 +203,7 @@ export class WebGLRender3DProcess implements IRender3DProcess {
         renderpass._beforeImageEffectCMDS && renderpass._beforeImageEffectCMDS.forEach(element => {
             context.runCMDList(element._renderCMDs);
         });
-
+        context.runCMDList(renderpass.postProcess._renderCMDs);
         renderpass._afterAllRenderCMDS && renderpass._afterAllRenderCMDS.forEach(element => {
             context.runCMDList(element._renderCMDs);
         });

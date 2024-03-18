@@ -595,7 +595,8 @@ export class BaseRender extends Component {
             (this.owner as Sprite3D).off(Event.LAYERCHANGE, this, this._changeLayer);
             (this.owner as Sprite3D).off(Event.staticMask, this, this._changeStaticMask);
         }
-        this.owner.scene._removeRenderObject(this);
+        let scene = <Scene3D>this.owner.scene;
+        scene._removeRenderObject(this);
         this._setUnBelongScene();
         this.volume = null;
     }

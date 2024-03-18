@@ -23,7 +23,7 @@ export class WebGLBufferState implements IBufferState {
 	}
 
     applyState(vertexBuffers: WebGLVertexBuffer[], indexBuffer: WebGLIndexBuffer): void {
-        this._vertexBuffers = vertexBuffers;
+        this._vertexBuffers = vertexBuffers.slice();
         this._bindedIndexBuffer = indexBuffer;
         indexBuffer && indexBuffer._glBuffer.unbindBuffer();//清空绑定
         this.bind();
