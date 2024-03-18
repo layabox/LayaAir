@@ -48,7 +48,10 @@ export class WebGLForwardAddRP {
     _afterAllRenderCMDS: Array<CommandBuffer>;
     /**@internal */
     _beforeImageEffectCMDS: Array<CommandBuffer>;
-    //postProcess TODO
+    
+    enablePostProcess: boolean = true;
+    /**@internal */
+    postProcess: CommandBuffer;
     /**main pass */
     renderpass: WebGLForwardAddClusterRP;
 }

@@ -35,6 +35,11 @@ export class GLESRender3DProcess implements IRender3DProcess {
         // clear
         let clearConst = 0;
         let clearFlag = camera.clearFlag;
+
+        if (clearFlag == CameraClearFlags.Sky && !camera.scene.skyRenderer._isAvailable()) {
+            clearFlag = CameraClearFlags.SolidColor;
+        }
+
         let hasStencil = renderRT.depthStencilFormat == RenderTargetFormat.DEPTHSTENCIL_24_8;
         let stencilFlag = hasStencil ? RenderClearFlag.Stencil : 0;
 
@@ -81,7 +86,7 @@ export class GLESRender3DProcess implements IRender3DProcess {
 
         renderpass.setCameraCullInfo(camera);
 
-        if (camera.clearFlag == CameraClearFlags.Sky) {
+        if (clearFlag == CameraClearFlags.Sky) {
             renderpass.skyRenderNode = <RTBaseRenderNode>camera.scene.skyRenderer._baseRenderNode;
         }
         else {
@@ -171,9 +176,9 @@ export class GLESRender3DProcess implements IRender3DProcess {
 
         this.renderDepth(camera);
 
-        let renderList = <RTBaseRenderNode[]>camera.scene.sceneRenderableManager.renderBaselist.elements;
+        let renderList = camera.scene.sceneRenderableManager.renderBaselist;
 
-        this.renderFowarAddCameraPass(context, this.renderpass, renderList, renderList.length);
+        this.renderFowarAddCameraPass(context, this.renderpass, <RTBaseRenderNode[]>renderList.elements, renderList.length);
     }
 
     renderFowarAddCameraPass(context: GLESRenderContext3D, renderpass: GLESForwardAddRP, list: RTBaseRenderNode[], count: number): void {
