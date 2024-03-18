@@ -8,7 +8,6 @@ export class CommandUniformMap {
 	}
 	/**
 	 * 增加一个Uniform参数
-	 * @internal
 	 * @param propertyID 
 	 * @param propertyKey 
 	 */

@@ -1,4 +1,4 @@
-#define SHADER_NAME 2DPrimitiveVS
+#define SHADER_NAME PrimitiveVS2D
 #include "Sprite2DVertex.glsl";
 
 

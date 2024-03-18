@@ -1,19 +1,12 @@
-import { IFilter } from "./IFilter";
-import { Sprite } from "../display/Sprite"
-import { Matrix } from "../maths/Matrix"
-import { Point } from "../maths/Point"
-import { Rectangle } from "../maths/Rectangle"
-import { RenderSprite } from "../renders/RenderSprite"
-import { Context } from "../renders/Context"
-import { RenderTexture2D } from "../resource/RenderTexture2D"
-import { Texture2D } from "../resource/Texture2D"
-import { WebGLRTMgr } from "../resource/WebGLRTMgr"
-import { BlendMode } from "../webgl/canvas/BlendMode"
-import { RenderSpriteData, Value2D } from "../webgl/shader/d2/value/Value2D"
-import { SubmitCMD } from "../webgl/submit/SubmitCMD"
-import { ColorFilter } from "./ColorFilter";
+import { Sprite } from "../display/Sprite";
+import { Matrix } from "../maths/Matrix";
+import { Context } from "../renders/Context";
 import { Render2D } from "../renders/Render2D";
+import { RenderSprite } from "../renders/RenderSprite";
+import { RenderTexture2D } from "../resource/RenderTexture2D";
 import { MeshQuadTexture } from "../webgl/utils/MeshQuadTexture";
+import { ColorFilter } from "./ColorFilter";
+import { IFilter } from "./IFilter";
 
 /**
  * <code>Filter</code> 是滤镜基类。滤镜是针对节点的后处理过程，所以必然操作一个rendertexture
@@ -24,7 +17,7 @@ export abstract class Filter implements IFilter {
     /** @internal*/
     _glRender: any;
 
-    //结果的原点的位置，如果扩展了，left和top可能是负的
+    //结果的原点的坐标，相对于sprite的原始原点，如果扩展了，left和top可能是负的
     protected left=0;
     protected top=0;
     //渲染后大小
@@ -88,7 +81,8 @@ export abstract class Filter implements IFilter {
                 height=filter.height;
                 dst = filter.texture;
             }
-            context.render2D.out=lastRT;
+            context.render2D.setRenderTarget(lastRT);
+            //context.render2D.out=lastRT;
             // 把最终结果保存到cache
             cache.renderTexture = dst;
             cache.renderTexOffx=filters[len-1].top;

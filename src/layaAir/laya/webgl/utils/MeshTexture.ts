@@ -42,7 +42,7 @@ export class MeshTexture extends Mesh2D {
      * @param matrix 
      * @param rgba 
      */
-    addData(vertices: Float32Array, uvs: Float32Array, idx: Uint16Array, matrix: Matrix, rgba: number): void {
+    addData(vertices: Float32Array, uvs: Float32Array, idx: Uint16Array, matrix: Matrix, rgba: number, uvrect:number[]=null): void {
         //vb
         let addVert = vertices.length/2;
         this.expVBSize(addVert*MeshTexture.const_stride);
@@ -60,12 +60,22 @@ export class MeshTexture extends Mesh2D {
         var ty= matrix.ty;
         var i= 0;
         //var clipinfo:Array = ctx.getTransedClipInfo();
+        let uvminx=0;
+        let uvminy=0;
+        let uvu=1;
+        let uvv=1;
+        if(uvrect){
+            uvminx=uvrect[0];
+            uvminy=uvrect[1];
+            uvu=uvrect[2];
+            uvv=uvrect[3];
+        }
         for (i = 0; i < vertsz; i++) {
             var x= vertices[ci], y= vertices[ci + 1];
             vbdata[f32pos] = x * m00 + y * m10 + tx;
             vbdata[f32pos + 1] = x * m01 + y * m11 + ty;
-            vbdata[f32pos + 2] = uvs[ci];
-            vbdata[f32pos + 3] = uvs[ci + 1];
+            vbdata[f32pos + 2] = uvminx + uvs[ci]*uvu;
+            vbdata[f32pos + 3] = uvminy + uvs[ci + 1]*uvv;
             vbu32Arr[f32pos + 4] = rgba;
             vbu32Arr[f32pos + 5] = 0xff;
             f32pos += 6;

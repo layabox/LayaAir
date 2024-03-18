@@ -38,10 +38,6 @@ export interface IRenderContext3D {
     runCMDList(cmds: IRenderCMD[]): void;
 }
 
-export interface IRenderContext2D {
-    //TODO
-}
-
 export interface IRenderElement3D {
     geometry: IRenderGeometryElement;
     materialShaderData: ShaderData;
@@ -58,14 +54,4 @@ export interface IRenderElement3D {
 export interface ISkyRenderElement3D extends IRenderElement3D {
     skyViewMatrix: Matrix4x4;
     skyProjectionMatrix: Matrix4x4;
-}
-
-export interface IRenderElement2D {
-    geometry: IRenderGeometryElement;
-    materialShaderData: ShaderData;
-    value2DShaderData: ShaderData;
-    subShader: SubShader;
-    render(context: IRenderContext3D): void;
-    destroy(): void;
-
 }

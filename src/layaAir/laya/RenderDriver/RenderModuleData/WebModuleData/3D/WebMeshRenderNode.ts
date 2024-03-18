@@ -16,8 +16,9 @@ export class WebMeshRenderNode extends WebBaseRenderNode implements IMeshRenderN
      * @internal
      */
     _renderUpdate(context: IRenderContext3D): void {
-        if (this.lightmapDirtyFlag) {
-            (this.lightmapDirtyFlag == context.sceneModuleData?.lightmapDirtyFlag) && this._applyLightMapParams();
+        if (context.sceneModuleData.lightmapDirtyFlag != this.lightmapDirtyFlag) {
+            this._applyLightMapParams();
+            this.lightmapDirtyFlag = context.sceneModuleData.lightmapDirtyFlag;
         }
         this._applyReflection();
         this._applyLightProb();

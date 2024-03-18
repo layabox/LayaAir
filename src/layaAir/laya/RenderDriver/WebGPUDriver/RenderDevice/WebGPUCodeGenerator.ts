@@ -113,13 +113,13 @@ export class WebGPUCodeGenerator {
      * @param arrayMap 
      */
     static uniformString(uniformMap: UniformMapType, arrayMap: NameNumberMap) {
-        const sceneUniformMap = LayaGL.renderDeviceFactory.createGlobalUniformMap("Scene3D") as WebGLCommandUniformMap;
+        const scene3DUniformMap = LayaGL.renderDeviceFactory.createGlobalUniformMap("Scene3D") as WebGLCommandUniformMap;
         const cameraUniformMap = LayaGL.renderDeviceFactory.createGlobalUniformMap("BaseCamera") as WebGLCommandUniformMap;
         const sprite3DUniformMap = LayaGL.renderDeviceFactory.createGlobalUniformMap("Sprite3D") as WebGLCommandUniformMap;
         const simpleSkinnedMeshUniformMap = LayaGL.renderDeviceFactory.createGlobalUniformMap("SimpleSkinnedMesh") as WebGLCommandUniformMap;
         const shurikenSprite3DUniformMap = LayaGL.renderDeviceFactory.createGlobalUniformMap("ShurikenSprite3D") as WebGLCommandUniformMap;
         const trailRenderUniformMap = LayaGL.renderDeviceFactory.createGlobalUniformMap("TrailRender") as WebGLCommandUniformMap;
-        let sceneUniforms: NameAndType[] = [];
+        let scene3DUniforms: NameAndType[] = [];
         let cameraUniforms: NameAndType[] = [];
         let sprite3DUniforms: NameAndType[] = [];
         let materialUniforms: NameAndType[] = [];
@@ -137,9 +137,9 @@ export class WebGPUCodeGenerator {
         const regex = /\[(.*?)\]/g;
         const _catalog = (name: string, type: string) => {
             const id = Shader3D.propertyNameToID(name.replace(regex, '_'));
-            if (sceneUniformMap.hasPtrID(id)) {
-                if (!_have(sceneUniforms, name))
-                    sceneUniforms.push({ name, type, set: 0 });
+            if (scene3DUniformMap.hasPtrID(id)) {
+                if (!_have(scene3DUniforms, name))
+                    scene3DUniforms.push({ name, type, set: 0 });
             }
             else if (cameraUniformMap.hasPtrID(id)) {
                 if (!_have(cameraUniforms, name))
@@ -236,7 +236,7 @@ export class WebGPUCodeGenerator {
             return sortedUniforms[0];
         };
 
-        sceneUniforms = _procUniforms(0, 0, "scene", sceneUniformMap);
+        scene3DUniforms = _procUniforms(0, 0, "scene3D", scene3DUniformMap);
         cameraUniforms = _procUniforms(1, 0, "camera", cameraUniformMap);
         //sprite3DUniforms = _procUniforms(2, 0, "sprite3D", sprite3DUniformMap);
         sprite3DUniforms = _procUniforms(2, 0, "sprite3D", undefined, sprite3DUniforms);

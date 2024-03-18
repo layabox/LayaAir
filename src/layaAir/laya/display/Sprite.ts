@@ -104,6 +104,7 @@ export class Sprite extends Node {
     _style: SpriteStyle = SpriteStyle.EMPTY;
     /**@internal */
     _cacheStyle: CacheStyle = CacheStyle.EMPTY;
+    private _filters:Filter[]=null;
     /**@internal */
     _boundStyle: BoundsStyle | null = null;
     /**@internal */
@@ -206,13 +207,6 @@ export class Sprite extends Node {
 
     set cacheAs(value: string) {
         if (value === this._cacheStyle.userSetCache) return;
-        //debug ：normal现在效果不对，先去掉以免影响别人
-        if(value=='normal') return;
-        //debug
-        if ('bitmap' == value && !(this._cacheStyle.canvas instanceof HTMLCanvas)) {
-            this._cacheStyle.canvas = null;
-        }
-
         this._getCacheStyle().userSetCache = value;
 
         if (this.mask && value === 'normal') return;
@@ -230,36 +224,42 @@ export class Sprite extends Node {
      */
     private _checkCanvasEnable(): void {
         return;	//只有显式设置的才设置CANVAS标记，filter和mask不再设置这个标记
-        var tEnable = this._cacheStyle.needEnableCanvasRender();
-        this._getCacheStyle().enableCanvasRender = tEnable;
-        if (tEnable) {
-            if (this._cacheStyle.needBitmapCache()) {
-                this._cacheStyle.cacheAs = "bitmap";
-            } else {
-                this._cacheStyle.cacheAs = this._cacheStyle.userSetCache;
-            }
-            this._cacheStyle.reCache = true;
-            this._renderType |= SpriteConst.CANVAS;
-        } else {
-            this._cacheStyle.cacheAs = "none";
-            this._cacheStyle.releaseContext();
-            this._renderType &= ~SpriteConst.CANVAS;
-        }
+        // var tEnable = this._cacheStyle.needEnableCanvasRender();
+        // this._getCacheStyle().enableCanvasRender = tEnable;
+        // if (tEnable) {
+        //     if (this._cacheStyle.needBitmapCache()) {
+        //         this._cacheStyle.cacheAs = "bitmap";
+        //     } else {
+        //         this._cacheStyle.cacheAs = this._cacheStyle.userSetCache;
+        //     }
+        //     this._cacheStyle.reCache = true;
+        //     this._renderType |= SpriteConst.CANVAS;
+        // } else {
+        //     this._cacheStyle.cacheAs = "none";
+        //     this._cacheStyle.releaseContext();
+        //     this._renderType &= ~SpriteConst.CANVAS;
+        // }
     }
 
-    /**设置cacheAs为非空时此值才有效，staticCache=true时，子对象变化时不会自动更新缓存，只能通过调用reCache方法手动刷新。*/
+    /**设置cacheAs为非空时此值才有效，staticCache=true时，子对象变化时不会自动更新缓存，只能通过调用reCache方法手动刷新。
+     * 
+     * @deprecated
+     */
     get staticCache(): boolean {
         return this._cacheStyle.staticCache;
     }
 
+    /**@deprecated */
     set staticCache(value: boolean) {
         this._getCacheStyle().staticCache = value;
         if (!value) this.reCache();
     }
 
-    /**在设置cacheAs的情况下，调用此方法会重新刷新缓存。*/
+    /**在设置cacheAs的情况下，调用此方法会重新刷新缓存。
+     * 
+     * @deprecated
+     */
     reCache(): void {
-        this._cacheStyle.reCache = true;
         this._repaint |= SpriteConst.REPAINT_CACHE;
     }
 
@@ -1330,12 +1330,12 @@ export class Sprite extends Node {
 
     /**滤镜集合。可以设置多个滤镜组合。*/
     get filters(): Filter[] {
-        return this._cacheStyle.filters;
+        return this._filters;
     }
 
     set filters(value: Filter[]) {
         value && value.length === 0 && (value = null);
-        this._getCacheStyle().filters = value ? value.slice() : null;
+        this._filters = value ? value.slice() : null;
         if (value)
             this._renderType |= SpriteConst.FILTERS;
         else
@@ -1343,15 +1343,6 @@ export class Sprite extends Node {
 
         if (value && value.length > 0) {
             if (!this._getBit(NodeFlags.DISPLAY)) this._setBitUp(NodeFlags.DISPLAY);
-            if (!(value.length == 1 && (value[0] instanceof ColorFilter))) {
-                this._getCacheStyle().cacheForFilters = true;
-                //this._checkCanvasEnable();
-            }
-        } else {
-            if (this._cacheStyle.cacheForFilters) {
-                this._cacheStyle.cacheForFilters = false;
-                //this._checkCanvasEnable();
-            }
         }
         this.repaint();
     }
@@ -1553,7 +1544,8 @@ export class Sprite extends Node {
      * @return 如果重新缓存值为 true，否则值为 false。
      */
     _needRepaint(): boolean {
-        return (this._repaint & SpriteConst.REPAINT_CACHE) && this._cacheStyle.enableCanvasRender && this._cacheStyle.reCache;
+        //return (this._repaint & SpriteConst.REPAINT_CACHE) && this._cacheStyle.enableCanvasRender && this._cacheStyle.reCache;
+        return !!(this._repaint & SpriteConst.REPAINT_CACHE);
     }
 
     /**@private	
@@ -1570,7 +1562,7 @@ export class Sprite extends Node {
 
     /**cacheAs时，设置所有父对象缓存失效。 */
     parentRepaint(type: number = SpriteConst.REPAINT_CACHE): void {
-        var p: Sprite = (<Sprite>this._parent);
+        var p: Sprite = <Sprite>this._parent;
         if (p && !(p._repaint & type)) {
             p._repaint |= type;
             p.parentRepaint(type);
@@ -1663,11 +1655,8 @@ export class Sprite extends Node {
      * @override
     */
     _setDisplay(value: boolean): void {
-        if (!value) {
-            if (this._cacheStyle) {
-                this._cacheStyle.releaseContext();
-                this._cacheStyle.releaseFilterCache();
-            }
+        if (!value && this._cacheStyle) {
+            this._cacheStyle.onInvisible();
         }
         super._setDisplay(value);
     }

@@ -1,5 +1,6 @@
 import { ShaderDefine } from "../RenderDriver/RenderModuleData/Design/ShaderDefine";
 import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
+import { WrapMode } from "../RenderEngine/RenderEnum/WrapMode";
 import { Vector2 } from "../maths/Vector2";
 import { Vector4 } from "../maths/Vector4";
 import { RenderTexture2D } from "../resource/RenderTexture2D";
@@ -31,6 +32,8 @@ export class GlowFilter extends Filter {
 
     private shaderDataBlur:TextureSV;
     private shaderDataCopy:TextureSV;
+    private textureExtend:RenderTexture2D;    //扩展边界用
+    private shaderDataCopy1:TextureSV;
 
     /**
      * 创建发光滤镜
@@ -50,15 +53,16 @@ export class GlowFilter extends Filter {
         //this._glRender = new GlowFilterGLRender();
         this.shaderDataBlur = new TextureSV();
         this.shaderDataCopy = new TextureSV();
+        this.shaderDataCopy1 = new TextureSV();
     }
 
-    private _fillQuad(x:number, y:number, w:number, h:number){
+    private _fillQuad(x:number, y:number, w:number, h:number,uvrect=[0,0,1,1]){
         let rectVB = this._rectMeshVB;
         let stridef32 = this._rectMesh.vertexDeclarition.vertexStride/4;
-        rectVB[0          ]= x;   rectVB[1            ]= y; 
-        rectVB[stridef32  ]= x+w; rectVB[stridef32+1  ]= y;
-        rectVB[stridef32*2]= x+w; rectVB[stridef32*2+1]= y+h;
-        rectVB[stridef32*3]= y;   rectVB[stridef32*3+1]= y+h;
+        rectVB[0          ]= x;   rectVB[1            ]= y;   rectVB[2          ]= uvrect[0];   rectVB[3            ]= uvrect[1]; 
+        rectVB[stridef32  ]= x+w; rectVB[stridef32+1  ]= y;   rectVB[stridef32+2]= uvrect[2];   rectVB[stridef32+3  ]= uvrect[1];
+        rectVB[stridef32*2]= x+w; rectVB[stridef32*2+1]= y+h; rectVB[stridef32*2+2]= uvrect[2];   rectVB[stridef32*2+3]= uvrect[3];
+        rectVB[stridef32*3]= y;   rectVB[stridef32*3+1]= y+h; rectVB[stridef32*3+2]= uvrect[0];   rectVB[stridef32*3+3]= uvrect[3];
     }
 
     render(srctexture: RenderTexture2D, width: number, height: number): void {
@@ -70,23 +74,49 @@ export class GlowFilter extends Filter {
         let outTexHeight = height+2*marginTop;
         this.width=outTexWidth;
         this.height=outTexHeight;
+
+        
+        //先把贴图画到扩展后的贴图上，这样可以避免处理边界问题。后面直接拿着扩展后的贴图处理就行了
+        if(!this.textureExtend || this.textureExtend.destroyed || this.textureExtend.width!=outTexWidth || 
+            this.textureExtend.height!=outTexHeight){
+                if(this.textureExtend)
+                this.textureExtend.destroy();
+            this.textureExtend = new RenderTexture2D(outTexWidth,outTexHeight,RenderTargetFormat.R8G8B8A8);
+        }
+
+        let render2d = this._render2D.clone(this.textureExtend);
+        //render2d.out = this.textureExtend;
+        render2d.renderStart();
+        this.shaderDataCopy1.size = new Vector2(outTexWidth,outTexHeight);
+        this.shaderDataCopy1.textureHost = srctexture;
+        this._fillQuad(marginLeft,marginTop,srctexture.width,srctexture.height);
+        render2d.draw(
+            this._rectMesh,
+            0,4*this._rectMesh.vertexDeclarition.vertexStride,
+            0,12,
+            this.shaderDataCopy1);
+        render2d.renderEnd();
+
         if(!this.texture || this.texture.destroyed || this.texture.width!=outTexWidth || this.texture.height!=outTexHeight){
             if(this.texture)
                 this.texture.destroy();
             this.texture = new RenderTexture2D(outTexWidth,outTexHeight,RenderTargetFormat.R8G8B8A8);
         }
 
-        let render2d = this._render2D;
-        render2d.out = this.texture;
+        render2d = render2d.clone(this.texture)
+        //render2d.out = this.texture;
         render2d.renderStart();
         //修改mesh
-        this._fillQuad(marginLeft, marginTop, width,height);    //注意这个是原始大小，实际要扩展margin
+        this._fillQuad(0, 0, outTexWidth,outTexHeight,[0,1,1,0]);    //翻转y
+
+        //srctexture.wrapModeU = WrapMode.Clamp;
+        //srctexture.wrapModeV = WrapMode.Clamp;
 
         //shaderdata
         let shadersv = this.shaderDataBlur;
         shadersv.shaderData.addDefine(ShaderDefines2D.FILTERGLOW);
         shadersv.size = new Vector2(outTexWidth,outTexHeight);
-        shadersv.textureHost = srctexture;
+        shadersv.textureHost = this.textureExtend;
         shadersv.blurInfo = new Vector2(outTexWidth,outTexHeight);
         shadersv.u_blurInfo1 = new Vector4(this._sv_blurInfo1[0], this._sv_blurInfo1[1], this._sv_blurInfo1[2], this._sv_blurInfo1[3])
         shadersv.u_blurInfo2 = new Vector4(srctexture.width,srctexture.height,this._sv_blurInfo2[2],this._sv_blurInfo2[3]);
@@ -99,15 +129,15 @@ export class GlowFilter extends Filter {
             0,12,
             shadersv);
         //覆盖一下原始图片
-        shadersv = this.shaderDataCopy;
-        shadersv.size = new Vector2(outTexWidth,outTexHeight);
-        shadersv.textureHost = srctexture;
+        let shadercpy = this.shaderDataCopy;
+        shadercpy.size = new Vector2(outTexWidth,outTexHeight);
+        shadercpy.textureHost = srctexture;
         this._fillQuad(marginLeft,marginTop,srctexture.width,srctexture.height);
         render2d.draw(
             this._rectMesh,
             0,4*this._rectMesh.vertexDeclarition.vertexStride,
             0,12,
-            shadersv);
+            shadercpy);
 
         render2d.renderEnd();        
     }

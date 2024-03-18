@@ -309,7 +309,7 @@ export class Graphics {
      * @param y			Y轴偏移量。
      * @param vertices  顶点数组。
      * @param indices	顶点索引。
-     * @param uvData	UV数据。
+     * @param uvData	UV数据。注意这里的uv是直接使用的，如果texture是图集中的资源，这里的uv也是图集中的，即不需要转换直接用。
      * @param matrix	缩放矩阵。
      * @param alpha		alpha
      * @param color		颜色变换

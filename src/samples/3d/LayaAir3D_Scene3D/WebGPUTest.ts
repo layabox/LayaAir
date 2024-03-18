@@ -35,10 +35,10 @@ import { WebGPUStatis } from "laya/RenderDriver/WebGPUDriver/RenderDevice/WebGPU
 import { Config3D } from "Config3D";
 import { WebGPURenderEngine } from "laya/RenderDriver/WebGPUDriver/RenderDevice/WebGPURenderEngine";
 import { Loader } from "laya/net/Loader";
+import { WebGLRender2DProcess } from "laya/RenderDriver/WebGLDriver/2DRenderPass/WebGLRender2DProcess";
+import { WebGPURender2DProcess } from "laya/RenderDriver/WebGPUDriver/2DRenderPassFake/WebGPURender2DProcess";
 
 export class WebGPUTest {
-    rotation1: Vector3 = new Vector3(0, 0.01, 0);
-    rotation2: Vector3 = new Vector3(0, 0.02, 0);
     useWebGPU: boolean = true;
 
     constructor() {
@@ -49,10 +49,12 @@ export class WebGPUTest {
         if (this.useWebGPU) {
             LayaGL.renderOBJCreate = new WebGPURenderEngineFactory();
             LayaGL.renderDeviceFactory = new WebGPURenderDeviceFactory();
+            LayaGL.render2DRenderPassFactory = new WebGPURender2DProcess();
             Laya3DRender.Render3DPassFactory = new WebGPU3DRenderPassFactory();
         } else {
             LayaGL.renderOBJCreate = new WebGLRenderEngineFactory();
             LayaGL.renderDeviceFactory = new WebGLRenderDeviceFactory();
+            LayaGL.render2DRenderPassFactory = new WebGLRender2DProcess();
             Laya3DRender.Render3DPassFactory = new WebGL3DRenderPassFactory();
         }
 
@@ -73,10 +75,10 @@ export class WebGPUTest {
             camera.clearFlag = CameraClearFlags.SolidColor;
             camera.addComponent(CameraMoveScript);
 
-            // const directlightSprite = new Sprite3D();
-            // const dircom = directlightSprite.addComponent(DirectionLightCom);
-            // scene.addChild(directlightSprite);
-            // dircom.color.setValue(1, 1, 1, 1);
+            const directlightSprite = new Sprite3D();
+            const dircom = directlightSprite.addComponent(DirectionLightCom);
+            scene.addChild(directlightSprite);
+            dircom.color.setValue(1, 1, 1, 1);
 
             const boxMesh1 = PrimitiveMesh.createBox(0.2, 0.2, 0.2);
             const coneMesh1 = PrimitiveMesh.createCone(0.2, 0.6, 16);
@@ -100,9 +102,9 @@ export class WebGPUTest {
                 material2.albedoTexture = Laya.loader.getRes("res/threeDimen/texture/brick.jpg", Loader.TEXTURE2D);
                 material3.albedoTexture = Laya.loader.getRes("res/threeDimen/texture/grass.jpg", Loader.TEXTURE2D);
 
-                const n = 3;
-                const m = 3;
-                const l = 3;
+                const n = 5;
+                const m = 5;
+                const l = 5;
                 for (let i = 0; i < n; i++) {
                     for (let j = 0; j < m; j++) {
                         for (let k = 0; k < l; k++) {
@@ -172,7 +174,7 @@ export class WebGPUTest {
                 WebGPUStatis.printStatisticsAsTable();
                 WebGPUStatis.printTotalStatis();
                 WebGPUStatis.printTextureStatis();
-                console.log(WebGPURenderEngine._instance.gpuBufferMgr.namedBuffers.get('scene'));
+                console.log(WebGPURenderEngine._instance.gpuBufferMgr.namedBuffers.get('scene3D'));
                 console.log(WebGPURenderEngine._instance.gpuBufferMgr.namedBuffers.get('camera'));
                 console.log(WebGPURenderEngine._instance.gpuBufferMgr.namedBuffers.get('material'));
                 console.log(WebGPURenderEngine._instance.gpuBufferMgr.namedBuffers.get('sprite3D'));

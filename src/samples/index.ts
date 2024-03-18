@@ -13,6 +13,7 @@ import { LayaGL } from "laya/layagl/LayaGL";
 import { MeshLoad } from "./3d/LayaAir3D_Mesh/MeshLoad";
 import { WebGPUTest } from "./3d/LayaAir3D_Scene3D/WebGPUTest";
 import { WebGLRenderEngineFactory } from "laya/RenderDriver/WebGLDriver/RenderDevice/WebGLRenderEngineFactory"
+import { SceneLoad1 } from "./3d/LayaAir3D_Scene3D/SceneLoad1";
 
 Resource.DEBUG = true;
 LayaGL.renderOBJCreate = new WebGLRenderEngineFactory();

@@ -185,7 +185,7 @@ export class Stage extends Sprite {
         this._isVisibility = true;
 
         //this.drawCallOptimize=true;
-        this.useRetinalCanvas = Config.useRetinalCanvas;
+        this.useRetinalCanvas =LayaEnv.isConch?true:Config.useRetinalCanvas;
 
         var window: any = Browser.window;
         //var _me = this;	
@@ -797,10 +797,10 @@ export class Stage extends Sprite {
 
     /**@inheritDoc @override*/
     render(context2D: Context, x: number, y: number): void {
-        if (LayaEnv.isConch) {
-            this.renderToNative(context2D, x, y);
-            return;
-        }
+        // if (LayaEnv.isConch) {
+        //     this.renderToNative(context2D, x, y);
+        //     return;
+        // }
 
         let delta: number = ILaya.timer._delta / 1000;
         if (this._frameRate === Stage.FRAME_SLEEP) {

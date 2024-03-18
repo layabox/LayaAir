@@ -32,12 +32,7 @@ export class RenderState2D {
     }
 
     static clear(): void {
-        RenderState2D.worldScissorTest = false;
-        //worldFilters = null;
         RenderState2D.worldAlpha = 1;
-        //worldClipRect.x = worldClipRect.y = 0;
-        //worldClipRect.width = width;
-        //worldClipRect.height = height;
     }
 
 }

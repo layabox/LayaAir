@@ -12,11 +12,11 @@ import { WebGLRenderGeometryElement } from "../RenderDevice/WebGLRenderGeometryE
 import { WebGLShaderInstance } from "../RenderDevice/WebGLShaderInstance";
 import { WebGLRenderContext3D } from "./WebGLRenderContext3D";
 
-
-
 export class WebGLRenderElement3D implements IRenderElement3D {
     /** @internal */
     static _compileDefine: WebDefineDatas = new WebDefineDatas();
+
+    protected _shaderInstances: SingletonList<WebGLShaderInstance>;
 
     geometry: WebGLRenderGeometryElement;
 
@@ -24,7 +24,6 @@ export class WebGLRenderElement3D implements IRenderElement3D {
 
     materialId: number;
 
-    protected _shaderInstances: SingletonList<WebGLShaderInstance>;
 
     materialShaderData: WebGLShaderData;
 

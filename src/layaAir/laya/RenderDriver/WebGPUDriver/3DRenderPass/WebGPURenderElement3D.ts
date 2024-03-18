@@ -81,7 +81,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
             shaderKey += shaderInstance.globalId + '_';
 
             if (context.sceneData) {
-                context.sceneData._name = "scene";
+                context.sceneData._name = "scene3D";
                 context.sceneData.createUniformBuffer(shaderInstance.uniformInfo[0], true);
             }
             if (context.cameraData) {
@@ -317,7 +317,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
     _preUpdatePre(context: WebGPURenderContext3D) {
         if (!this.renderShaderData) {
             this.renderShaderData = new WebGPUShaderData();
-            this.renderShaderData._name = "sprite";
+            this.renderShaderData._name = "sprite3D";
         }
         if (this.transform?.owner?.isStatic)
             this.renderShaderData.isStatic = true;
@@ -338,7 +338,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
                     const pipeline = this._getWebGPURenderPipeline(shaderInstance, context.destRT, context);
                     context.renderCommand.setPipeline(pipeline);
                     if (sceneShaderData) {
-                        if (!sceneShaderData.bindGroup(0, 'scene', shaderInstance.uniformSetMap[0], context.renderCommand))
+                        if (!sceneShaderData.bindGroup(0, 'scene3D', shaderInstance.uniformSetMap[0], context.renderCommand))
                             complete = false;
                         else sceneShaderData.uploadUniform();
                     }
@@ -348,7 +348,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderPipelineI
                         else cameraShaderData.uploadUniform();
                     }
                     if (this.renderShaderData) {
-                        if (!this.renderShaderData.bindGroup(2, 'sprite', shaderInstance.uniformSetMap[2], context.renderCommand))
+                        if (!this.renderShaderData.bindGroup(2, 'sprite3D', shaderInstance.uniformSetMap[2], context.renderCommand))
                             complete = false;
                         else this.renderShaderData.uploadUniform();
                     }

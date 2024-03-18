@@ -1,8 +1,13 @@
+import { IPointLightData } from "../../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
 import { Component } from "../../../components/Component";
+import { Laya3DRender } from "../../RenderObjs/Laya3DRender";
 import { Light, LightType } from "./Light";
 
 
 export class PointLightCom extends Light {
+
+    declare _dataModule: IPointLightData;
+
     /** @internal */
     private _range: number;
 
@@ -16,6 +21,7 @@ export class PointLightCom extends Light {
 
     set range(value: number) {
         this._range = value;
+        this._dataModule.range = value;
     }
 
     /**
@@ -23,10 +29,14 @@ export class PointLightCom extends Light {
      */
     constructor() {
         super();
-        this._range = 6.0;
         this._lightType = LightType.Point;
+
+        this.range = 6.0;
     }
 
+    protected _creatModuleData(): void {
+        this._dataModule = Laya3DRender.Render3DModuleDataFactory.createPointLight();
+    }
 
     /**
      * @internal

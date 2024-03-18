@@ -1,11 +1,10 @@
-import { Filter } from "./Filter";
-import { BlurFilterGLRender } from "./BlurFilterGLRender";
-import { RenderTexture2D } from "../resource/RenderTexture2D";
-import { TextureSV } from "../webgl/shader/d2/value/TextureSV";
-import { Vector2 } from "../maths/Vector2";
-import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
-import { Vector4 } from "../maths/Vector4";
 import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
+import { Vector2 } from "../maths/Vector2";
+import { Vector4 } from "../maths/Vector4";
+import { RenderTexture2D } from "../resource/RenderTexture2D";
+import { ShaderDefines2D } from "../webgl/shader/d2/ShaderDefines2D";
+import { TextureSV } from "../webgl/shader/d2/value/TextureSV";
+import { Filter } from "./Filter";
 
 /**
  * 模糊滤镜
@@ -43,8 +42,8 @@ export class BlurFilter extends Filter {
             this.texture = new RenderTexture2D(texwidth,texheight,RenderTargetFormat.R8G8B8A8);
         }
 
-        let render2d = this._render2D;
-        render2d.out = this.texture;
+        let render2d = this._render2D.clone(this.texture);
+        //render2d.out = this.texture;
         render2d.renderStart();
         //修改mesh
         let rectVB = this._rectMeshVB;

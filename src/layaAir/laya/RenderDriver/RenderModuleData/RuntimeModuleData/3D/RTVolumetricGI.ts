@@ -9,7 +9,6 @@ export class RTVolumetricGI implements IVolumetricGIData {
 
     private static _idCounter: number = 0;
 
-    /** @internal */
     _id: number = ++RTVolumetricGI._idCounter;
 
     private _irradiance: InternalTexture;

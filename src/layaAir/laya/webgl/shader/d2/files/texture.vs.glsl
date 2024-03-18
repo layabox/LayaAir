@@ -1,4 +1,4 @@
-#define SHADER_NAME 2DTextureVS
+#define SHADER_NAME TextureVS2D
 #include "Sprite2DVertex.glsl";
 
 void main() {

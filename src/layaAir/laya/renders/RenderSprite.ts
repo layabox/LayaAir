@@ -1,32 +1,24 @@
+import { ILaya } from "../../ILaya";
+import { LayaEnv } from "../../LayaEnv";
 import { NodeFlags } from "../Const";
-import { CacheStyle } from "../display/css/CacheStyle";
-import { SpriteStyle } from "../display/css/SpriteStyle";
+import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
 import { Sprite } from "../display/Sprite";
 import { SpriteConst } from "../display/SpriteConst";
+import { SpriteStyle } from "../display/css/SpriteStyle";
 import { Filter } from "../filters/Filter";
 import { Matrix } from "../maths/Matrix";
-import { Point } from "../maths/Point";
 import { Rectangle } from "../maths/Rectangle";
-import { Context } from "./Context";
-import { HTMLCanvas } from "../resource/HTMLCanvas";
 import { RenderTexture2D } from "../resource/RenderTexture2D";
 import { Texture } from "../resource/Texture";
 import { WebGLRTMgr } from "../resource/WebGLRTMgr";
+import { HitArea } from "../utils/HitArea";
 import { Stat } from "../utils/Stat";
 import { BlendMode } from "../webgl/canvas/BlendMode";
-import { WebGLCacheAsNormalCanvas } from "../webgl/canvas/WebGLCacheAsNormalCanvas";
-import { RenderSpriteData, Value2D } from "../webgl/shader/d2/value/Value2D";
-import { SubmitCMD } from "../webgl/submit/SubmitCMD";
-import { LayaGLQuickRunner } from "./LayaGLQuickRunner";
-import { ILaya } from "../../ILaya";
-import { NativeFilter } from "../filters/NativeFilter";
-import { LayaEnv } from "../../LayaEnv";
-import { HitArea } from "../utils/HitArea";
-import { Render2D, Render2DSimple } from "./Render2D";
-import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
-import { TextureSV } from "../webgl/shader/d2/value/TextureSV";
-import { Vector2 } from "../maths/Vector2";
 import { MeshQuadTexture } from "../webgl/utils/MeshQuadTexture";
+import { Context } from "./Context";
+import { LayaGLQuickRunner } from "./LayaGLQuickRunner";
+import { Render2DSimple } from "./Render2D";
+import { SpriteCache } from "./SpriteCache";
 
 /**
  * @private
@@ -36,7 +28,6 @@ export interface _RenderFunction {
     (sp: Sprite, ctx: Context, x: number, y: number): void;
 }
 
-let _simpleTextureSV:TextureSV;
 let _quadMesh: MeshQuadTexture;
 let _quadMeshVB:Float32Array;
 function _fillQuad(x:number, y:number, w:number, h:number){
@@ -54,6 +45,8 @@ const INIT = 0x11111;
  * 精灵渲染器
  */
 export class RenderSprite {
+    /** @private*/
+    static cacheNormalEnable=true;
     /** @private */
     static renders: RenderSprite[] = [];
     /** @private */
@@ -65,7 +58,6 @@ export class RenderSprite {
 
     /** @internal */
     static __init__(): void {
-        _simpleTextureSV = new TextureSV();
         _quadMesh = new MeshQuadTexture();
         _quadMesh.addQuad([0,0,1,0,1,1,0,1],[0,0,1,0,1,1,0,1],0xffffffff,true);
         _quadMeshVB = new Float32Array(_quadMesh.vbBuffer);
@@ -150,12 +142,7 @@ export class RenderSprite {
                 this._fun = this._texture;
                 return;
             case SpriteConst.FILTERS:
-                if (LayaEnv.isConch && !(window as any).conchConfig.conchWebGL) {
-                    this._fun = NativeFilter._filter;
-                }
-                else {
-                    this._fun = Filter._filter;
-                }
+                this._fun = Filter._filter;
                 return;
             case SpriteConst.HITAREA:
                 this._fun = this._hitarea;
@@ -192,7 +179,7 @@ export class RenderSprite {
         let next: RenderSprite = this._next;
         if (next == RenderSprite.NORENDER) return;
 
-        if (sprite._getBit(NodeFlags.DISABLE_INNER_CLIPPING) && !context._drawingToTexture) {
+        if (sprite._getBit(NodeFlags.DISABLE_INNER_CLIPPING)) {
             next._fun.call(next, sprite, context, x, y);
             return;
         }
@@ -248,7 +235,7 @@ export class RenderSprite {
 
     /**@internal IDE only*/
     _hitarea(sprite: Sprite, context: Context, x: number, y: number): void {
-        if (!context._drawingToTexture && sprite.hitArea) {
+        if (sprite.hitArea) {
             var style = sprite._style;
             var g = (<HitArea>sprite.hitArea)._hit;
             var temp: number = context.globalAlpha;
@@ -298,7 +285,6 @@ export class RenderSprite {
         x = x - sprite.pivotX;
         y = y - sprite.pivotY;
         let textLastRender: boolean = sprite._getBit(NodeFlags.DRAWCALL_OPTIMIZE) && context.drawCallOptimize(true);
-        let drawingToTexture = context._drawingToTexture;
         let rect: Rectangle;
         let left: number, top: number, right: number, bottom: number, x2: number, y2: number;
 
@@ -312,11 +298,7 @@ export class RenderSprite {
 
         for (let i = 0; i < n; ++i) {
             let ele = childs[i];
-            let visFlag: boolean;
-            if (drawingToTexture)
-                visFlag = ele._visible && !ele._getBit(NodeFlags.ESCAPE_DRAWING_TO_TEXTURE);
-            else
-                visFlag = ele._visible || ele._getBit(NodeFlags.DISABLE_VISIBILITY);
+            let visFlag = ele._visible || ele._getBit(NodeFlags.DISABLE_VISIBILITY);
             if (visFlag) {
                 if (rect && ((x2 = ele._x) >= right || (x2 + ele.width) <= left || (y2 = ele._y) >= bottom || (y2 + ele.height) <= top))
                     visFlag = false;
@@ -334,6 +316,13 @@ export class RenderSprite {
         textLastRender && context.drawCallOptimize(false);
     }
 
+    /**
+     * 把sprite的下一步渲染到缓存的rt上
+     * 要求外面可以直接使用，不用考虑图集的偏移之类的问题
+     * @param sprite 
+     * @param context 
+     * @returns 
+     */
     _renderNextToCacheRT(sprite:Sprite,context:Context){
         var _cacheStyle = sprite._cacheStyle;
         if (sprite._needRepaint() || !_cacheStyle.renderTexture || ILaya.stage.isGlobalRepaint()) {
@@ -347,6 +336,7 @@ export class RenderSprite {
             if(tRec.width<=0||tRec.height<=0)
                 return false;
             //计算cache画布的大小
+            Stat.canvasBitmap++;
 
             //左边可能有空白（例如图集的空白裁剪）,所以贴图的大小要把空白也考虑上
             //因为对于空白的处理是保存在cmd中的，是在下面的_next._fun()的xy的基础上加的，所以要保证贴图够大，否则就被裁剪了
@@ -361,6 +351,8 @@ export class RenderSprite {
             //由于context是新的，所以画到0,0上就行
             this._next._fun(sprite,ctx,0, 0);
             ctx.endRender();
+            //临时，恢复
+            ctx.render2D.setRenderTarget(context.render2D.out);
             _cacheStyle.renderTexture = rt;
             return true;    //重绘
         }
@@ -373,50 +365,47 @@ export class RenderSprite {
         var _cacheStyle = sprite._cacheStyle;
         var _next = this._next;
 
-        if (!_cacheStyle.enableCanvasRender || !context._drawingToTexture && _cacheStyle.mask && _cacheStyle.mask._getBit(NodeFlags.DISABLE_VISIBILITY)) {
+        if ( _cacheStyle.mask && _cacheStyle.mask._getBit(NodeFlags.DISABLE_VISIBILITY)) {
+            //虽然有mask但是mask不可见，则不走这个流程。
             _next._fun.call(_next, sprite, context, x, y);
             return;
         }
-        let isbmp = _cacheStyle.cacheAs === 'bitmap' 
-        isbmp ? Stat.canvasBitmap++ : Stat.canvasNormal++;
 
-        //检查保存的文字是否失效了
-        var cacheNeedRebuild = false;
-        var textNeedRestore = false;
-
-        if (!isbmp && _cacheStyle.canvas) {
-            // 检查文字是否被释放了，以及clip是否改变了，需要重新cache了
-            var canv = _cacheStyle.canvas as unknown as WebGLCacheAsNormalCanvas;
-            textNeedRestore = canv.isTextNeedRestore && canv.isTextNeedRestore();
-            cacheNeedRebuild = canv.isCacheValid && !canv.isCacheValid();
-        }
-
+        let isbmp = sprite.cacheAs === 'bitmap';
         if(isbmp){
             //temp
             this._renderNextToCacheRT(sprite,context);
             // RenderSprite.RenderToCacheTexture(sprite,context,x,y)
-            var tRec = _cacheStyle.cacheRect;
+            //var tRec = _cacheStyle.cacheRect;
             context.material = sprite.graphics.material;
-            context._drawRenderTexture(_cacheStyle.renderTexture,
-                x + tRec.x, y + tRec.y, tRec.width, tRec.height,null,1,[0,1, 1,1, 1,0, 0,0])
+            let rt = _cacheStyle.renderTexture;
+            rt && context._drawRenderTexture(rt,x , y , rt.width, rt.height,null,1,[0,1, 1,1, 1,0, 0,0]);
         }else{
-            if (sprite._needRepaint() || !_cacheStyle.canvas || textNeedRestore || cacheNeedRebuild || ILaya.stage.isGlobalRepaint()) {
-                if (_cacheStyle.cacheAs === 'normal') {
-                    this._canvas_webgl_normal_repaint(sprite, context);
-                } else {
-                    this._canvas_repaint(sprite, context, x, y);
-                }
+            if(!RenderSprite.cacheNormalEnable){
+                _next._fun.call(_next, sprite, context, x, y);
+                return;
+            }else{
+                let normalCacheRender = new SpriteCache();
+                normalCacheRender.renderCacheAsNormal(context,sprite,this._next,x,y);
             }
-            var tRec = _cacheStyle.cacheRect;
-            context.material = sprite.graphics.material;
-            context.drawCanvas(_cacheStyle.canvas, x + tRec.x, y + tRec.y, tRec.width, tRec.height);
+
+            // if (sprite._needRepaint() || !_cacheStyle.canvas || textNeedRestore || ILaya.stage.isGlobalRepaint()) {
+            //     if (_cacheStyle.cacheAs === 'normal') {
+            //         this._canvas_webgl_normal_repaint(sprite, context);
+            //     } else {
+            //         this._canvas_repaint(sprite, context, x, y);
+            //     }
+            // }
+            // var tRec = _cacheStyle.cacheRect;
+            // context.material = sprite.graphics.material;
+            //context.drawCanvas(_cacheStyle.canvas, x + tRec.x, y + tRec.y, tRec.width, tRec.height);
         }
     }
 
     static RenderToRenderTexture(sprite:Sprite,context:Context|null, x:number, y:number, renderTexture:RenderTexture2D=null){
         //如果需要构造RenderTexture
         // 先计算需要的texuture的大小。
-        let scaleInfo = sprite._cacheStyle._calculateCacheRect(sprite, "bitmap"/*sprite._cacheStyle.cacheAs*/, 0, 0,0);
+        let scaleInfo = sprite._cacheStyle._calculateCacheRect(sprite, "bitmap"/*sprite._cacheStyle.cacheAs*/, 0, 0);
         let tRec = sprite._cacheStyle.cacheRect;
         let ctx = new Context();
         context && ctx.copyState(context);
@@ -435,6 +424,8 @@ export class RenderSprite {
         //把位置移到0，所以要-sprite.xy, 考虑图集空白，所以要-tRec.xy,因为tRec.xy是sprite空间的，所以转到贴图空间是取反
         sprite.render(ctx,x-sprite.x-tRec.x,y-sprite.y-tRec.y);
         ctx.endRender();
+        //临时，恢复
+        context && ctx.render2D.setRenderTarget(context.render2D.out);
         return rt;
     }
     /**
@@ -459,84 +450,84 @@ export class RenderSprite {
 
     /**@internal */
     _canvas_repaint(sprite: Sprite, context: Context, x: number, y: number): void {
-        var _cacheStyle = sprite._cacheStyle;
-        var _next = this._next;
-        var tx: Context;
-        var canvas = _cacheStyle.canvas;
-        var left: number;
-        var top: number;
-        var tRec: Rectangle;
-        var tCacheType = _cacheStyle.cacheAs;
+        // var _cacheStyle = sprite._cacheStyle;
+        // var _next = this._next;
+        // var tx: Context;
+        // var canvas = _cacheStyle.canvas;
+        // var left: number;
+        // var top: number;
+        // var tRec: Rectangle;
+        // var tCacheType = _cacheStyle.cacheAs;
 
-        var w: number, h: number;
-        var scaleX: number, scaleY: number;
+        // var w: number, h: number;
+        // var scaleX: number, scaleY: number;
 
-        var scaleInfo = _cacheStyle._calculateCacheRect(sprite, tCacheType, x, y);
-        scaleX = scaleInfo.x;
-        scaleY = scaleInfo.y;
+        // var scaleInfo = _cacheStyle._calculateCacheRect(sprite, tCacheType, x, y);
+        // scaleX = scaleInfo.x;
+        // scaleY = scaleInfo.y;
 
-        //显示对象实际的绘图区域
-        tRec = _cacheStyle.cacheRect;
+        // //显示对象实际的绘图区域
+        // tRec = _cacheStyle.cacheRect;
 
-        //计算cache画布的大小
-        w = tRec.width * scaleX;
-        h = tRec.height * scaleY;
-        left = tRec.x;
-        top = tRec.y;
-        if (!canvas) {
-            _cacheStyle.createContext();
-            canvas = _cacheStyle.canvas;
-        }
-        tx = canvas.context;
+        // //计算cache画布的大小
+        // w = tRec.width * scaleX;
+        // h = tRec.height * scaleY;
+        // left = tRec.x;
+        // top = tRec.y;
+        // if (!canvas) {
+        //     _cacheStyle.createContext();
+        //     canvas = _cacheStyle.canvas;
+        // }
+        // tx = canvas.context;
 
-        tx.sprite = sprite;
+        // tx.sprite = sprite;
 
-        (canvas.width != w || canvas.height != h) && canvas.size(w, h);//asbitmap需要合理的大小，所以size放到前面
+        // (canvas.width != w || canvas.height != h) && canvas.size(w, h);//asbitmap需要合理的大小，所以size放到前面
 
-        //清理画布。之前记录的submit会被全部清掉
-        tx.clear();
+        // //清理画布。之前记录的submit会被全部清掉
+        // tx.clear();
 
-        //TODO:测试webgl下是否有缓存模糊
-        if (scaleX != 1 || scaleY != 1) {
-            var ctx: any = tx;
-            ctx.save();
-            ctx.scale(scaleX, scaleY);
-            _next._fun.call(_next, sprite, tx, -left, -top);
-            ctx.restore();
-            sprite._applyFilters();
-        } else {
-            ctx = tx;
-            _next._fun.call(_next, sprite, tx, -left, -top);
-            sprite._applyFilters();
-        }
+        // //TODO:测试webgl下是否有缓存模糊
+        // if (scaleX != 1 || scaleY != 1) {
+        //     var ctx: any = tx;
+        //     ctx.save();
+        //     ctx.scale(scaleX, scaleY);
+        //     _next._fun.call(_next, sprite, tx, -left, -top);
+        //     ctx.restore();
+        //     sprite._applyFilters();
+        // } else {
+        //     ctx = tx;
+        //     _next._fun.call(_next, sprite, tx, -left, -top);
+        //     sprite._applyFilters();
+        // }
 
-        if (_cacheStyle.staticCache) _cacheStyle.reCache = false;
-        Stat.canvasReCache++;
+        // if (_cacheStyle.staticCache) _cacheStyle.reCache = false;
+        // Stat.canvasReCache++;
     }
 
     /**@internal */
     _canvas_webgl_normal_repaint(sprite: Sprite, context: Context): void {
 
-        var _cacheStyle: CacheStyle = sprite._cacheStyle;
-        var _next: RenderSprite = this._next;
-        var canvas: WebGLCacheAsNormalCanvas = _cacheStyle.canvas as unknown as WebGLCacheAsNormalCanvas;
+        // var _cacheStyle: CacheStyle = sprite._cacheStyle;
+        // var _next: RenderSprite = this._next;
+        // var canvas: WebGLCacheAsNormalCanvas = _cacheStyle.canvas as unknown as WebGLCacheAsNormalCanvas;
 
-        var tCacheType: string = _cacheStyle.cacheAs;
-        _cacheStyle._calculateCacheRect(sprite, tCacheType, 0, 0);
+        // var tCacheType: string = _cacheStyle.cacheAs;
+        // _cacheStyle._calculateCacheRect(sprite, tCacheType, 0, 0);
 
-        if (!canvas) {
-            canvas = new WebGLCacheAsNormalCanvas(context, sprite);
-            _cacheStyle.canvas = ((canvas as any) as HTMLCanvas);
-        }
-        var tx: Context = canvas.context as Context;
+        // if (!canvas) {
+        //     canvas = new WebGLCacheAsNormalCanvas(context, sprite);
+        //     _cacheStyle.canvas = ((canvas as any) as HTMLCanvas);
+        // }
+        // var tx: Context = canvas.context as Context;
 
 
-        canvas.startRec();
-        _next._fun.call(_next, sprite, tx, sprite.pivotX, sprite.pivotY);	// 由于后面的渲染会减去pivot，而cacheas normal并不希望这样，只希望创建一个原始的图像。所以在这里补偿。
-        sprite._applyFilters();
+        // canvas.startRec();
+        // _next._fun.call(_next, sprite, tx, sprite.pivotX, sprite.pivotY);	// 由于后面的渲染会减去pivot，而cacheas normal并不希望这样，只希望创建一个原始的图像。所以在这里补偿。
+        // sprite._applyFilters();
 
-        Stat.canvasReCache++;
-        canvas.endRec();
+        // Stat.canvasReCache++;
+        // canvas.endRec();
 
         //context.drawCanvas(canvas, x , y , 1, 1); // 这种情况下宽高没用
     }
@@ -567,7 +558,7 @@ export class RenderSprite {
             }
             //如果需要构造RenderTexture
             // 先计算需要的texuture的大小。此时不要扩展rect，直接取实际的
-            sprite._cacheStyle._calculateCacheRect(sprite, "bitmap", 0, 0, 0);
+            sprite._cacheStyle._calculateCacheRect(sprite, "bitmap", 0, 0);
             let spRect = cache.cacheRect;
             if (spRect.width <= 0 || spRect.height <= 0)
                 return;
@@ -578,7 +569,7 @@ export class RenderSprite {
             //TODO mask如果非常简单，就不要先渲染到texture上
             //mask是sprite的子，因此，计算包围盒用相对位置就行
             let maskcache = mask._getCacheStyle();
-            maskcache._calculateCacheRect(mask, "bitmap", 0, 0, 0);  //后面的参数传入mask.xy没有效果，只能自己单独加上
+            maskcache._calculateCacheRect(mask, "bitmap", 0, 0);  //后面的参数传入mask.xy没有效果，只能自己单独加上
             let maskRect = maskcache.cacheRect;
 
             //计算两个rect的交集作为渲染区域
@@ -590,27 +581,30 @@ export class RenderSprite {
             let width1 = x2 - x1; if (width1 <= 0) return;
             let height1 = y2 - y1; if (height1 <= 0) return;
 
+            //先渲染mask，避免rt混乱的可能性。这里的ctx目前只是用来恢复rt的
+            if (RenderSprite.RenderToCacheTexture(mask, ctx, 0, 0)) {
+            }
+
             rtx = x1; rty = y1;
             let rt = new RenderTexture2D(width1, height1, RenderTargetFormat.R8G8B8A8);
-            let ctx = new Context();
-            ctx.size(width1, height1);
-            ctx.render2D = new Render2DSimple(rt);
-            ctx.startRender();
+            let ctx1 = new Context();
+            ctx1.size(width1, height1);
+            ctx1.render2D = new Render2DSimple(rt);
+            ctx1.startRender();
             //渲染节点本身.由于spRect.xy是指贴图相对于节点的位置，所以需要取反表示在贴图空间的什么位置画出节点
-            this._next._fun(sprite, ctx, -x1, -y1);
-
-            //渲染mask
-            if (RenderSprite.RenderToCacheTexture(mask, null, 0, 0)) {
-            }
+            this._next._fun(sprite, ctx1, -x1, -y1);
             let maskRT = maskcache.renderTexture;
-            ctx.globalCompositeOperation = 'mask';
-            ctx._drawRenderTexture(maskRT,
+            ctx1.globalCompositeOperation = 'mask';
+            ctx1._drawRenderTexture(maskRT,
                 mask.x - x1 + maskRect.x,     //x1作为原点，所以减去x1,然后加空白
                 mask.y - y1 + maskRect.y,
                 maskRect.width, maskRect.height, null, 1,
                 [0, 1, 1, 1, 1, 0, 0, 0])
 
-            ctx.endRender();
+            ctx1.endRender();
+            //临时，恢复
+            ctx1.render2D.setRenderTarget(ctx.render2D.out);
+
             cache.renderTexture = rt;
             cache.cacheRect.x = x1; cache.cacheRect.y = y1;
             cache.cacheRect.width = rt.width;
@@ -695,8 +689,8 @@ export class RenderSprite {
 
     //static tempUV: any[] = new Array(8);
     static tmpTarget(ctx: Context, rt: RenderTexture2D, w: number, h: number): void {
-        rt.start();
-        rt.clear(0, 0, 0, 0);
+        // rt.start();
+        // rt.clear(0, 0, 0, 0);
     }
 
     static recycleTarget(rt: RenderTexture2D): void {

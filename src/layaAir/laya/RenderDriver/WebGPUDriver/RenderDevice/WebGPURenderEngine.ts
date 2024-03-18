@@ -54,7 +54,7 @@ export class WebGPUConfig {
  * WebGPU渲染引擎
  */
 export class WebGPURenderEngine implements IRenderEngine {
-    static _offscreenFormat: WebGPUTextureFormat;
+    static _offscreenFormat: GPUTextureFormat;
     static _instance: WebGPURenderEngine;
     _isShaderDebugMode: boolean;
     _renderOBJCreateContext: IRenderEngineFactory;
@@ -160,7 +160,7 @@ export class WebGPURenderEngine implements IRenderEngine {
         this._device.lost.then(this._deviceLostCall);
 
         this.gpuBufferMgr = new WebGPUBufferManager(device);
-        this.gpuBufferMgr.addBuffer('scene', 2 * 1024, 1, true);
+        this.gpuBufferMgr.addBuffer('scene3D', 2 * 1024, 1, true);
         this.gpuBufferMgr.addBuffer('camera', 2 * 1024, 1, true);
         this.gpuBufferMgr.addBuffer('material', 16 * 1024, 1);
         this.gpuBufferMgr.addBuffer('sprite3D', 64 * 1024, 2);

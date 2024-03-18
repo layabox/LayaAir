@@ -3,16 +3,11 @@ export class ICharRender {
     fontsz = 16;
     getWidth(font: string, str: string): number { return 0; }
 
-    scale(sx: number, sy: number): void {
-    }
+    scale(sx: number, sy: number): void {}
 
-    get canvasWidth(): number {
-        return 0;
-    }
-
-    set canvasWidth(w: number) {
-
-    }
+    get canvasWidth(): number {  return 0;  }
+    set canvasWidth(w: number) {   }
+    
     /**
      *TODO stroke 
      * @param	char

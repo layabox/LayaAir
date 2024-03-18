@@ -27,6 +27,6 @@ export interface I3DRenderPassFactory {
     createSetRenderTargetCMD(): SetRenderTargetCMD;
 
     createSetRenderDataCMD(): SetRenderDataCMD;
-    
+
     createSetShaderDefineCMD(): SetShaderDefineCMD;
 }
