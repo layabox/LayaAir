@@ -298,19 +298,6 @@ export class BlueprintStaticFun {
         return expressTree.call(context);
     }
 
-    static runBehaviorTree<T extends BehaviorTree>(owner: Node, behaviorTree: new () => T, excution?: number) {
-        let bt: BehaviorTreeComponent = owner.getComponent(BehaviorTreeComponent);
-        if (!bt) {
-            bt = owner.addComponent(BehaviorTreeComponent);
-        }
-        if ((behaviorTree as any).blackboardAsset) {
-            let bb = new BlackboardComponent();
-            bb.init((behaviorTree as any).blackboardAsset);
-            bt.blackBoradComp = bb;
-        }
-        bt.startTree(behaviorTree as any, excution);
-        return true;
-    }
 }
 
 /**
