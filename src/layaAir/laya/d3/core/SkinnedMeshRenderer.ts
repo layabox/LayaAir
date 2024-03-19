@@ -19,12 +19,8 @@ import { BoundFrustum } from "../math/BoundFrustum";
 import { Laya3DRender } from "../RenderObjs/Laya3DRender";
 import { Vector4 } from "../../maths/Vector4";
 import { Transform3D } from "./Transform3D";
-import { IBaseRenderNode } from "../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
+import { BaseRenderType, IBaseRenderNode } from "../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
 import { IRenderContext3D } from "../../RenderDriver/DriverDesign/3DRenderPass/I3DRenderPass";
-
-export class aaaa {
-
-}
 /**
  * <code>SkinMeshRenderer</code> 类用于蒙皮渲染器。
  */
@@ -57,7 +53,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
     protected _skinnedMatrixCachesBufferForNative: Int32Array = null;
     /**@internal */
     protected _bonesTransformForNative: Transform3D[] = null;
-
+    /**@internal */
     protected _worldParams = new Vector4();
 
     /**
@@ -121,6 +117,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
         super();
         this._localBounds = new Bounds(Vector3.ZERO, Vector3.ZERO);
         this._baseRenderNode.shaderData.addDefine(SkinnedMeshSprite3DShaderDeclaration.SHADERDEFINE_BONE);
+        this._baseRenderNode.renderNodeType = BaseRenderType.SkinnedMeshRender;
     }
 
     // protected
@@ -384,12 +381,11 @@ export class SkinnedMeshRenderer extends MeshRenderer {
      * @override
      * @param dest 
      */
-    _cloneTo(dest: Component): void {
-        let render = (dest as SkinnedMeshRenderer);
+    _cloneTo(dest: SkinnedMeshRenderer): void {
 
-        render._inverseBindPosesBufferForNative = null;
-        render._skinnedMatrixCachesBufferForNative = null;
-        render._bonesTransformForNative = null;
+        dest._inverseBindPosesBufferForNative = null;
+        dest._skinnedMatrixCachesBufferForNative = null;
+        dest._bonesTransformForNative = null;
 
         //get common parent
         let getCommomParent = (rootNode: Sprite3D, rootCheckNode: Sprite3D): Sprite3D => {
@@ -422,24 +418,24 @@ export class SkinnedMeshRenderer extends MeshRenderer {
         //rootBone Clone
         var rootBone: Sprite3D = this.rootBone;
         if (rootBone) {
-            let node = cloneHierachFun(this.owner as Sprite3D, this.rootBone as Sprite3D, render.owner as Sprite3D);
+            let node = cloneHierachFun(this.owner as Sprite3D, this.rootBone as Sprite3D, dest.owner as Sprite3D);
             if (node)
-                render.rootBone = node;
+                dest.rootBone = node;
             else
-                render.rootBone = rootBone;
+                dest.rootBone = rootBone;
         }
         //BonesClone
         var bones: Sprite3D[] = this.bones;
-        var destBone: Sprite3D[] = render.bones;
+        var destBone: Sprite3D[] = dest.bones;
         let n = destBone.length = bones.length;
         for (var i = 0; i < n; i++) {
             let ceckNode = bones[i];
-            destBone[i] = cloneHierachFun(this.owner as Sprite3D, ceckNode, render.owner as Sprite3D);
+            destBone[i] = cloneHierachFun(this.owner as Sprite3D, ceckNode, dest.owner as Sprite3D);
         }
         //bounds
         var lbb: Bounds = this.localBounds;
-        (lbb) && (lbb.cloneTo(render.localBounds));
-        (render.localBounds) && (render.localBounds = render.localBounds);
+        (lbb) && (lbb.cloneTo(dest.localBounds));
+        (dest.localBounds) && (dest.localBounds = dest.localBounds);
         super._cloneTo(dest);
     }
 

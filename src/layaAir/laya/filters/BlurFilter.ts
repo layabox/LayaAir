@@ -1,4 +1,5 @@
 import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
+import { Color } from "../maths/Color";
 import { Vector2 } from "../maths/Vector2";
 import { Vector4 } from "../maths/Vector4";
 import { RenderTexture2D } from "../resource/RenderTexture2D";
@@ -44,7 +45,7 @@ export class BlurFilter extends Filter {
 
         let render2d = this._render2D.clone(this.texture);
         //render2d.out = this.texture;
-        render2d.renderStart();
+        render2d.renderStart(true,new Color(0,0,0,0));
         //修改mesh
         let rectVB = this._rectMeshVB;
         let stridef32 = this._rectMesh.vertexDeclarition.vertexStride/4;

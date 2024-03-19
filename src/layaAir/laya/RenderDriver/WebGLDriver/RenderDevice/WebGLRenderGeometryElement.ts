@@ -54,11 +54,11 @@ export class WebGLRenderGeometryElement implements IRenderGeometryElement {
   /**
    * index format
    */
-  public get indexFormat(): IndexFormat {
+  get indexFormat(): IndexFormat {
     return this._indexFormat;
   }
 
-  public set indexFormat(value: IndexFormat) {
+  set indexFormat(value: IndexFormat) {
     this._indexFormat = value;
     this._glindexFormat = WebGLEngine.instance.getDrawContext().getIndexType(this._indexFormat);
   }
@@ -102,5 +102,14 @@ export class WebGLRenderGeometryElement implements IRenderGeometryElement {
   /**@internal */
   clearRenderParams() {
     this.drawParams.length = 0;
+  }
+
+  cloneTo(obj: WebGLRenderGeometryElement) {
+    obj.mode = this.mode;
+    obj.drawType = this.drawType;
+    obj.indexFormat = this.indexFormat;
+    obj.instanceCount = this.instanceCount;
+    obj.drawParams.elements = this.drawParams.elements.slice();
+    obj.drawParams.length = this.drawParams.length;
   }
 }

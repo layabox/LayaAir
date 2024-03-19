@@ -1,9 +1,8 @@
-import { WebGLMeshRenderBatch } from "../../../../d3/graphics/Batch/WebGLMeshRenderBatch";
+import { WebGLInstanceRenderBatch } from "../../../../d3/graphics/Batch/WebGLInstanceRenderBatch";
 import { SingletonList } from "../../../../utils/SingletonList";
 import { WebGLRenderContext3D } from "../WebGLRenderContext3D";
 import { WebGLRenderElement3D } from "../WebGLRenderElement3D";
 import { WebGLQuickSort } from "./WebGLQuickSort";
-
 
 export class WebGLRenderListQueue {
     /** @internal */
@@ -11,12 +10,12 @@ export class WebGLRenderListQueue {
     private quickSort: WebGLQuickSort;
     private _isTransparent: boolean;
 
-    _batch: WebGLMeshRenderBatch;
+    _batch: WebGLInstanceRenderBatch;
 
     constructor(isTransParent: boolean) {
         this._isTransparent = isTransParent;
         this.quickSort = new WebGLQuickSort();
-        this._batch = new WebGLMeshRenderBatch();
+        this._batch = new WebGLInstanceRenderBatch();
     }
 
     addRenderElement(renderelement: WebGLRenderElement3D) {
@@ -34,8 +33,6 @@ export class WebGLRenderListQueue {
         var count: number = this._elements.length;
         this.quickSort.sort(this._elements, this._isTransparent, 0, count - 1);
         context.drawRenderElementList(this._elements);
-
-        this._batch.recoverData();
     }
 
     clear(): void {

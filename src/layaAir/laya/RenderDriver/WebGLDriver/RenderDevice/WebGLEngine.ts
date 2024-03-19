@@ -106,7 +106,7 @@ export class WebGLEngine implements IRenderEngine {
     private _scissorState: boolean;
     //bind clearColor
     private _lastClearColor: Color = new Color;
-    private _lastClearDepth: number = 1;
+    private _lastClearDepth: number = -1;
 
     //GL参数
     private _GLParams: GLParams;

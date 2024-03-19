@@ -33,6 +33,7 @@ import { Laya3DRender } from "../RenderObjs/Laya3DRender";
 import { IRender3DProcess } from "../../RenderDriver/DriverDesign/3DRenderPass/I3DRenderPass";
 import { ICameraNodeData } from "../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
 import { Transform3D } from "./Transform3D";
+import { Cluster } from "../graphics/renderPath/Cluster";
 
 /**
  * 相机清除标记。
@@ -1099,15 +1100,6 @@ export class Camera extends BaseCamera {
         context.camera = this;
         scene._setCullCamera(this);
 
-        // camera data 
-        this._prepareCameraToRender();
-        this._applyViewProject(this.viewMatrix, this.projectionMatrix, context.invertY);
-        this._contextApply(context);
-        // todo proterty name
-        if (this._cameraUniformData && this._cameraUniformUBO) {
-            this._cameraUniformUBO.setDataByUniformBufferData(this._cameraUniformData);
-        }
-
         let viewport = this.viewport;
         let needInternalRT = this._needInternalRenderTexture();
 
@@ -1132,12 +1124,27 @@ export class Camera extends BaseCamera {
             context.invertY = renderRT._isCameraTarget ? true : false;
         }
 
+        // camera data 
+        this._prepareCameraToRender();
+        this._applyViewProject(this.viewMatrix, this.projectionMatrix, context.invertY);
+        this._contextApply(context);
+        // todo proterty name
+        if (this._cameraUniformData && this._cameraUniformUBO) {
+            this._cameraUniformUBO.setDataByUniformBufferData(this._cameraUniformData);
+        }
+
         if (this.clearFlag == CameraClearFlags.Sky) {
             scene.skyRenderer.setRenderElement(this.skyRenderElement);
+            this.skyRenderElement.renderpre(context);
         }
 
         scene._componentDriver.callPreRender();
         this._preRenderMainPass(context, scene, needInternalRT, viewport);
+
+        let multiLight = Config3D._multiLighting;
+        if (multiLight) {
+            Cluster.instance.update(this, scene);
+        }
 
         this._Render3DProcess.fowardRender(context._contextOBJ, this);
 

@@ -203,7 +203,7 @@ export class WebGLRender3DProcess implements IRender3DProcess {
         renderpass._beforeImageEffectCMDS && renderpass._beforeImageEffectCMDS.forEach(element => {
             context.runCMDList(element._renderCMDs);
         });
-        context.runCMDList(renderpass.postProcess._renderCMDs);
+        renderpass.postProcess && context.runCMDList(renderpass.postProcess._renderCMDs);
         renderpass._afterAllRenderCMDS && renderpass._afterAllRenderCMDS.forEach(element => {
             context.runCMDList(element._renderCMDs);
         });

@@ -175,6 +175,9 @@ export class Context {
 
     private _render2D: Render2D = null;
 
+    private _clearColor = new Color(0,0,0,0);
+    private _clear=true;
+
     //temp
     //batchManager:RenderBatchManager2D=null;
 
@@ -527,11 +530,12 @@ export class Context {
 
     clearBG(r: number, g: number, b: number, a: number): void {
         // var gl: WebGLRenderingContext = RenderStateContext.mainContext;
-        RenderTexture2D._clearColor.r = r;
-        RenderTexture2D._clearColor.g = g;
-        RenderTexture2D._clearColor.b = b;
-        RenderTexture2D._clearColor.a = a;
-        RenderTexture2D._clear = true;
+        if(r==null || r==undefined){
+            this._clear=false;
+        }else{
+            this._clearColor.setValue(r,g,b,a);
+            this._clear=true;
+        }
      //   LayaGL.renderEngine.clearRenderTexture(RenderClearFlag.Color, this.clearColor, 1, 0);
     }
 
@@ -1484,7 +1488,7 @@ export class Context {
     }
 
     startRender() {
-        this._render2D.renderStart();
+        this._render2D.renderStart(this._clear, this._clearColor);
         this.clear();
     }
 

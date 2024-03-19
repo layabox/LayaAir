@@ -15,7 +15,9 @@ import { WebReflectionProbe } from "./WebReflectionProb";
 import { WebVolumetricGI } from "./WebVolumetricGI";
 
 
+
 export class WebBaseRenderNode implements IBaseRenderNode {
+    renderNodeType: number;
     boundsChange: boolean;
     distanceForSort: number;
     sortingFudge: number;

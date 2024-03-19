@@ -1,6 +1,7 @@
 import { ShaderDefine } from "../RenderDriver/RenderModuleData/Design/ShaderDefine";
 import { RenderTargetFormat } from "../RenderEngine/RenderEnum/RenderTargetFormat";
 import { WrapMode } from "../RenderEngine/RenderEnum/WrapMode";
+import { Color } from "../maths/Color";
 import { Vector2 } from "../maths/Vector2";
 import { Vector4 } from "../maths/Vector4";
 import { RenderTexture2D } from "../resource/RenderTexture2D";
@@ -86,7 +87,7 @@ export class GlowFilter extends Filter {
 
         let render2d = this._render2D.clone(this.textureExtend);
         //render2d.out = this.textureExtend;
-        render2d.renderStart();
+        render2d.renderStart(true, new Color(0,0,0,0));
         this.shaderDataCopy1.size = new Vector2(outTexWidth,outTexHeight);
         this.shaderDataCopy1.textureHost = srctexture;
         this._fillQuad(marginLeft,marginTop,srctexture.width,srctexture.height);
@@ -105,7 +106,7 @@ export class GlowFilter extends Filter {
 
         render2d = render2d.clone(this.texture)
         //render2d.out = this.texture;
-        render2d.renderStart();
+        render2d.renderStart(true,new Color(0,0,0,0));
         //修改mesh
         this._fillQuad(0, 0, outTexWidth,outTexHeight,[0,1,1,0]);    //翻转y
 

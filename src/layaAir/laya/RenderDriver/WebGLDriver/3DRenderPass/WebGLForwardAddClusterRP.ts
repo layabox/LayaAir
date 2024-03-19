@@ -15,7 +15,6 @@ import { WebGLCullUtil } from "./WebGLRenderUtil/WebGLCullUtil";
 import { WebGLRenderListQueue } from "./WebGLRenderUtil/WebGLRenderListQueue";
 import { PipelineMode } from "../../DriverDesign/3DRenderPass/I3DRenderPass"
 import { WebGLRenderElement3D } from "./WebGLRenderElement3D";
-import { WebGLSkyRenderElement3D } from "./WebGLSkyRenderElement3D";
 export class WebGLForwardAddClusterRP{
 
     /** @internal*/
@@ -214,10 +213,7 @@ export class WebGLForwardAddClusterRP{
 
         if (this.skyRenderNode) {
             let skyRenderNode = <WebBaseRenderNode>this.skyRenderNode;
-            let skyRenderElement = <WebGLSkyRenderElement3D>skyRenderNode.renderelements[0];
-            skyRenderElement.viewMatrixIndex = Camera.VIEWMATRIX;
-            skyRenderElement.projectionMatrixIndex = Camera.PROJECTMATRIX;
-            skyRenderElement.projectViewMatrixIndex = Camera.VIEWPROJECTMATRIX;
+            let skyRenderElement = skyRenderNode.renderelements[0] as WebGLRenderElement3D;
             context.drawRenderElementOne(skyRenderElement);
         }
 
