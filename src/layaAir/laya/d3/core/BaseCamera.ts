@@ -153,7 +153,7 @@ export class BaseCamera extends Sprite3D {
             camerauniformMap.addShaderUniform(BaseCamera.CAMERAPOS, "u_CameraPos", ShaderDataType.Vector3);
             camerauniformMap.addShaderUniform(BaseCamera.VIEWMATRIX, "u_View", ShaderDataType.Matrix4x4);
             camerauniformMap.addShaderUniform(BaseCamera.PROJECTMATRIX, "u_Projection", ShaderDataType.Matrix4x4);
-            camerauniformMap.addShaderUniform(BaseCamera.VIEWPROJECTMATRIX, "u_ViewProjection", ShaderDataType.Vector4);
+            camerauniformMap.addShaderUniform(BaseCamera.VIEWPROJECTMATRIX, "u_ViewProjection", ShaderDataType.Matrix4x4);
             camerauniformMap.addShaderUniform(BaseCamera.CAMERADIRECTION, "u_CameraDirection", ShaderDataType.Vector3);
             camerauniformMap.addShaderUniform(BaseCamera.CAMERAUP, "u_CameraUp", ShaderDataType.Vector3);
             camerauniformMap.addShaderUniform(BaseCamera.VIEWPORT, "u_Viewport", ShaderDataType.Vector4);

@@ -511,7 +511,8 @@ export class Camera extends BaseCamera {
             viewMatE[10] /= scaleZ;
             this._viewMatrix.invert(this._viewMatrix);
             this._updateViewMatrix = false;
-            this.skyRenderElement.calculateViewMatrix(this._viewMatrix);
+            if (this.skyRenderElement._renderElementOBJ)
+                this.skyRenderElement.calculateViewMatrix(this._viewMatrix);
         }
         return this._viewMatrix;
     }
@@ -739,7 +740,8 @@ export class Camera extends BaseCamera {
             } else {
                 Matrix4x4.createPerspective(3.1416 * this.fieldOfView / 180.0, this.aspectRatio, this.nearPlane, this.farPlane, this._projectionMatrix);
             }
-            this.skyRenderElement.caluclateProjectionMatrix(this._projectionMatrix, this.aspectRatio, this.nearPlane, this.farPlane, this.fieldOfView, this.orthographic);
+            if (this.skyRenderElement._renderElementOBJ)
+                this.skyRenderElement.caluclateProjectionMatrix(this._projectionMatrix, this.aspectRatio, this.nearPlane, this.farPlane, this.fieldOfView, this.orthographic);
         }
     }
 

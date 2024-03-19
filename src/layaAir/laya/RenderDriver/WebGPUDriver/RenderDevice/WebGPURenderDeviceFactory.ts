@@ -23,7 +23,8 @@ import { WebGPUVertexBuffer } from "./WebGPUVertexBuffer";
 
 export class WebGPURenderDeviceFactory implements IRenderDeviceFactory {
     createShaderInstance(shaderProcessInfo: ShaderProcessInfo, shaderPass: ShaderCompileDefineBase): IShaderInstance {
-        let shaderIns = new WebGPUShaderInstance();
+        //@ts-ignore
+        const shaderIns = new WebGPUShaderInstance(shaderPass._owner._owner.name);
         shaderIns._create(shaderProcessInfo, shaderPass as ShaderPass);
         return shaderIns;
     }
@@ -54,12 +55,9 @@ export class WebGPURenderDeviceFactory implements IRenderDeviceFactory {
     createShaderData(ownerResource?: Resource): ShaderData {
         return new WebGPUShaderData(ownerResource);
     }
-
 }
 
-
 export class WebGPUCommandUniformMap extends CommandUniformMap {
-
     /**@internal */
     _idata: {
         [key: number]: {
@@ -97,5 +95,4 @@ export class WebGPUCommandUniformMap extends CommandUniformMap {
         //webgpu can't support block uniform
         return null;
     }
-
 }

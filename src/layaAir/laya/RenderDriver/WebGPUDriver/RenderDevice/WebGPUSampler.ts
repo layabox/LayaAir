@@ -2,16 +2,17 @@ import { FilterMode } from "../../../RenderEngine/RenderEnum/FilterMode";
 import { TextureCompareMode } from "../../../RenderEngine/RenderEnum/TextureCompareMode";
 import { WrapMode } from "../../../RenderEngine/RenderEnum/WrapMode";
 import { WebGPURenderEngine } from "./WebGPURenderEngine";
+import { WebGPUGlobal } from "./WebGPUStatis/WebGPUGlobal";
 
 enum GPUAddressMode {
-    Clamp = "clamp-to-edge",
+    clamp = "clamp-to-edge",
     repeat = "repeat",
     mirror = "mirror-repeat"
 };
 
 enum GPUFilterMode {
-    Nearest = "nearest",
-    Linear = "linear"
+    nearest = "nearest",
+    linear = "linear"
 };
 
 enum GPUCompareFunction {
@@ -32,7 +33,7 @@ export interface WebGPUSamplerParams {
     warpW: WrapMode,
     mipmapFilter: FilterMode,
     filterMode: FilterMode,
-    anisoLevel: number;
+    anisoLevel: number
 }
 
 export class WebGPUSampler {
@@ -42,15 +43,14 @@ export class WebGPUSampler {
     static pointer_filterMode: number = 6;
     static pointer_mipmapFilter: number = 8;
     static pointer_comparedMode: number = 10;
-    static pointer_anisoLevel: number = 14;//0-16
+    static pointer_anisoLevel: number = 14; //0-16
 
     private static _cacheMap: { [key: number]: WebGPUSampler } = {};
 
     static getWebGPUSampler(params: WebGPUSamplerParams) {
         let cacheKey = WebGPUSampler._getCatchSamplerKey(params);
-        if (!this._cacheMap[cacheKey]) {
+        if (!this._cacheMap[cacheKey])
             this._cacheMap[cacheKey] = new WebGPUSampler(params);
-        }
         return this._cacheMap[cacheKey];
     }
 
@@ -63,17 +63,22 @@ export class WebGPUSampler {
             (params.comparedMode << WebGPUSampler.pointer_comparedMode) +
             (params.anisoLevel << WebGPUSampler.pointer_anisoLevel);
     }
-    private descriptor: GPUSamplerDescriptor
-    /**@internal */
-    _source: GPUSampler;
+
+    private _descriptor: GPUSamplerDescriptor
+    source: GPUSampler;
+
+    globalId: number;
+    objectName: string = 'WebGPUSamper';
 
     constructor(obj: WebGPUSamplerParams) {
-        this._source = this._createGPUSampler(obj);
+        this.source = this._createGPUSampler(obj);
+
+        this.globalId = WebGPUGlobal.getId(this);
     }
 
     private _createGPUSampler(params: WebGPUSamplerParams): GPUSampler {
-        this.descriptor = this._getSamplerDescriptor(params)
-        return WebGPURenderEngine._instance.getDevice().createSampler(this.descriptor);
+        this._descriptor = this._getSamplerDescriptor(params);
+        return WebGPURenderEngine._instance.getDevice().createSampler(this._descriptor);
     }
 
     private _getSamplerDescriptor(params: WebGPUSamplerParams) {
@@ -102,13 +107,13 @@ export class WebGPUSampler {
     }
 
     private _getSamplerAddressMode(warpmode: WrapMode): GPUAddressMode {
-        let mode = GPUAddressMode.Clamp;
+        let mode = GPUAddressMode.clamp;
         switch (warpmode) {
             case WrapMode.Repeat:
                 mode = GPUAddressMode.repeat;
                 break;
             case WrapMode.Clamp:
-                mode = GPUAddressMode.Clamp;
+                mode = GPUAddressMode.clamp;
                 break;
             case WrapMode.Mirrored:
                 mode = GPUAddressMode.mirror;
@@ -120,11 +125,11 @@ export class WebGPUSampler {
     private _getFilterMode(mode: FilterMode): GPUFilterMode {
         switch (mode) {
             case FilterMode.Point:
-                return GPUFilterMode.Nearest;
+                return GPUFilterMode.nearest;
             case FilterMode.Bilinear:
-                return GPUFilterMode.Linear;
+                return GPUFilterMode.linear;
             default:
-                return GPUFilterMode.Nearest;
+                return GPUFilterMode.nearest;
         }
     }
 
@@ -150,5 +155,4 @@ export class WebGPUSampler {
                 return null;
         }
     }
-
 }

@@ -21,22 +21,22 @@ vec4 linearToGamma(in vec4 value)
     return vec4(linearToGamma(value.rgb), value.a);
 }
 
-vec4 sampleTexture(sampler2D spriteTexture, vec2 uv)
-{
-    vec4 color = texture2D(spriteTexture, uv);
-#ifndef GAMMATEXTURE
-    //是linear数据
-    #ifdef GAMMASPACE
-        color.xyz = linearToGamma(color.xyz);    
-    #endif
-#else
-    //gamma数据
-    #ifndef GAMMASPACE
-        color.xyz = gammaToLinear(color.xyz);
-    #endif
-#endif
-    return color;
-}
+// vec4 sampleTexture(sampler2D spriteTexture, vec2 uv)
+// {
+//     vec4 color = texture2D(spriteTexture, uv);
+// #ifndef GAMMATEXTURE
+//     //是linear数据
+//     #ifdef GAMMASPACE
+//         color.xyz = linearToGamma(color.xyz);    
+//     #endif
+// #else
+//     //gamma数据
+//     #ifndef GAMMASPACE
+//         color.xyz = gammaToLinear(color.xyz);
+//     #endif
+// #endif
+//     return color;
+// }
 
 #if defined(PRIMITIVEMESH)
     varying vec4 v_color;
@@ -119,10 +119,25 @@ vec4 sampleTexture(sampler2D spriteTexture, vec2 uv)
 
     vec4 getSpriteTextureColor(){
         #ifdef FILLTEXTURE
-            return sampleTexture(u_spriteTexture, fract(v_texcoordAlpha.xy) * u_TexRange.zw + u_TexRange.xy);
+            vec4 color = texture2D(u_spriteTexture, fract(v_texcoordAlpha.xy) * u_TexRange.zw + u_TexRange.xy);
+            //return sampleTexture(u_spriteTexture, fract(v_texcoordAlpha.xy) * u_TexRange.zw + u_TexRange.xy);
         #else
-            return sampleTexture(u_spriteTexture, v_texcoordAlpha.xy);
+            vec4 color = texture2D(u_spriteTexture, v_texcoordAlpha.xy);
+            //return sampleTexture(u_spriteTexture, v_texcoordAlpha.xy);
         #endif
+
+        #ifndef GAMMATEXTURE
+            //是linear数据
+            #ifdef GAMMASPACE
+                color.xyz = linearToGamma(color.xyz);
+            #endif
+        #else
+            //gamma数据
+            #ifndef GAMMASPACE
+                color.xyz = gammaToLinear(color.xyz);
+            #endif
+        #endif
+        return color;
     }
 
     void setglColor(in vec4 color){

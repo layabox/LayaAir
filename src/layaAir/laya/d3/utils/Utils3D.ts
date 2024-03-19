@@ -40,7 +40,7 @@ export class Utils3D {
         floatTex.filterMode = FilterMode.Point;
         floatTex.wrapModeU = WrapMode.Clamp;
         floatTex.wrapModeV = WrapMode.Clamp;
-        floatTex.anisoLevel = 0;
+        floatTex.anisoLevel = 1;
         return floatTex;
     }
 

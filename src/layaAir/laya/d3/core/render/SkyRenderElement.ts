@@ -19,7 +19,6 @@ export class SkyRenderElement extends RenderElement {
         this._viewMatrix = new Matrix4x4();
         this._projectionMatrix = new Matrix4x4();
         this._projectViewMatrix = new Matrix4x4();
-
     }
 
     calculateViewMatrix(cameraViewMat: Matrix4x4) {

@@ -4,7 +4,9 @@ import { TextureDimension } from "../../../RenderEngine/RenderEnum/TextureDimens
 import { WrapMode } from "../../../RenderEngine/RenderEnum/WrapMode";
 import { InternalTexture } from "../../DriverDesign/RenderDevice/InternalTexture";
 import { WebGPUSampler, WebGPUSamplerParams } from "./WebGPUSampler";
-import { GPUTextureFormat } from "./WebGPUTextureContext";
+import { WebGPUGlobal } from "./WebGPUStatis/WebGPUGlobal";
+import { WebGPUStatis } from "./WebGPUStatis/WebGPUStatis";
+import { WebGPUTextureFormat } from "./WebGPUTextureContext";
 
 export class WebGPUInternalTex implements InternalTexture {
     resource: GPUTexture;
@@ -21,14 +23,18 @@ export class WebGPUInternalTex implements InternalTexture {
     useSRGBLoad: boolean;
     gammaCorrection: number;
 
-    _webGPUFormat: GPUTextureFormat;
+    _webGPUFormat: WebGPUTextureFormat;
+
+    globalId: number;
+    objectName: string = 'WebGPUInternalTex';
+
     //sampler 
     private _filterMode: FilterMode;
     public get filterMode(): FilterMode {
         return this._filterMode;
     }
     public set filterMode(value: FilterMode) {
-        if (this._filterMode != value) {
+        if (this._filterMode !== value) {
             switch (value) {
                 case FilterMode.Point:
                     this._webGPUSamplerParams.filterMode = FilterMode.Point;
@@ -53,7 +59,7 @@ export class WebGPUInternalTex implements InternalTexture {
         return this._wrapU;
     }
     public set wrapU(value: WrapMode) {
-        if (this._wrapU != value) {
+        if (this._wrapU !== value) {
             this._webGPUSamplerParams.wrapU = value;
             this._webgpuSampler = WebGPUSampler.getWebGPUSampler(this._webGPUSamplerParams);
             this._wrapU = value;
@@ -65,10 +71,10 @@ export class WebGPUInternalTex implements InternalTexture {
         return this._wrapV;
     }
     public set wrapV(value: WrapMode) {
-        if (this.wrapV != value) {
+        if (this._wrapV !== value) {
             this._webGPUSamplerParams.wrapU = value;
             this._webgpuSampler = WebGPUSampler.getWebGPUSampler(this._webGPUSamplerParams);
-            this.wrapV = value;
+            this._wrapV = value;
         }
     }
 
@@ -77,10 +83,10 @@ export class WebGPUInternalTex implements InternalTexture {
         return this._wrapW;
     }
     public set wrapW(value: WrapMode) {
-        if (this.wrapW != value) {
+        if (this._wrapW !== value) {
             this._webGPUSamplerParams.wrapU = value;
             this._webgpuSampler = WebGPUSampler.getWebGPUSampler(this._webGPUSamplerParams);
-            this.wrapW = value;
+            this._wrapW = value;
         }
     }
 
@@ -89,7 +95,7 @@ export class WebGPUInternalTex implements InternalTexture {
         return this._anisoLevel;
     }
     public set anisoLevel(value: number) {
-        if (this._anisoLevel != value && this.resource) {
+        if (this._anisoLevel !== value && this.resource) {
             this._webGPUSamplerParams.anisoLevel = value;
             this._webgpuSampler = WebGPUSampler.getWebGPUSampler(this._webGPUSamplerParams);
             this._anisoLevel = value;
@@ -101,7 +107,7 @@ export class WebGPUInternalTex implements InternalTexture {
         return this._compareMode;
     }
     public set compareMode(value: TextureCompareMode) {
-        if (this._compareMode != value) {
+        if (this._compareMode !== value) {
             this._webGPUSamplerParams.comparedMode = value;
             this._webgpuSampler = WebGPUSampler.getWebGPUSampler(this._webGPUSamplerParams);
             this._compareMode = value;
@@ -117,7 +123,12 @@ export class WebGPUInternalTex implements InternalTexture {
         filterMode: FilterMode.Bilinear,
         anisoLevel: 1
     };
+
     private _webgpuSampler: WebGPUSampler;
+    get sampler() {
+        return this._webgpuSampler;
+    }
+
     constructor(width: number, height: number, depth: number, dimension: TextureDimension, mipmap: boolean, useSRGBLoader: boolean, gammaCorrection: number) {
         this.width = width;
         this.height = height;
@@ -129,7 +140,7 @@ export class WebGPUInternalTex implements InternalTexture {
         }
 
         this.isPotSize = isPot(width) && isPot(height);
-        if (dimension == TextureDimension.Tex3D) {
+        if (dimension === TextureDimension.Tex3D) {
             this.isPotSize = this.isPotSize && isPot(this.depth);
         }
 
@@ -138,20 +149,22 @@ export class WebGPUInternalTex implements InternalTexture {
         // this._mipmapCount = this._mipmap ? Math.max(Math.ceil(Math.log2(width)) + 1, Math.ceil(Math.log2(height)) + 1) : 1;
         // this._maxMipmapLevel = this._mipmapCount - 1;
         this.baseMipmapLevel = 0;
-        //TODO
-        // this.useSRGBLoad = useSRGBLoader;
-        // this.gammaCorrection = gammaCorrection;
+        this.useSRGBLoad = useSRGBLoader;
+        this.gammaCorrection = gammaCorrection;
 
         this._webgpuSampler = WebGPUSampler.getWebGPUSampler(this._webGPUSamplerParams);
+
+        this.globalId = WebGPUGlobal.getId(this);
+        WebGPUStatis.addTexture(this);
     }
 
-
-    gettextureView(): GPUTextureView {
-        //TODO
-        return null;
+    getTextureView(): GPUTextureView {
+        return this.resource.createView();
     }
+
     dispose(): void {
         //TODO好像需要延迟删除
+        WebGPUGlobal.releaseId(this);
         this.resource.destroy();
     }
 }

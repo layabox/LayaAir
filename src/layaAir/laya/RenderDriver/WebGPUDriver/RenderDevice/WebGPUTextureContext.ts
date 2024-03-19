@@ -8,16 +8,19 @@ import { TextureFormat } from "../../../RenderEngine/RenderEnum/TextureFormat";
 import { ITextureContext } from "../../DriverDesign/RenderDevice/ITextureContext";
 import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRenderTarget";
 import { InternalTexture } from "../../DriverDesign/RenderDevice/InternalTexture";
+import { WebGPUInternalRT } from "./WebGPUInternalRT";
 import { WebGPUInternalTex } from "./WebGPUInternalTex";
 import { WebGPURenderEngine } from "./WebGPURenderEngine";
+import { WebGPURenderPassHelper } from "./WebGPURenderPassHelper";
+import { WebGPUGlobal } from "./WebGPUStatis/WebGPUGlobal";
 
-enum GPUTextureDimension {
+enum WebGPUTextureDimension {
     D1D = "1d",
     D2D = "2d",
     D3D = "3d"
 };
 
-export enum GPUTextureFormat {
+export enum WebGPUTextureFormat {
     // 8-bit formats
     r8unorm = "r8unorm",
     r8snorm = "r8snorm",
@@ -47,6 +50,7 @@ export enum GPUTextureFormat {
     rgba8sint = "rgba8sint",
     bgra8unorm = "bgra8unorm",
     bgra8unorm_srgb = "bgra8unorm-srgb",
+
     // Packed 32-bit formats
     rgb9e5ufloat = "rgb9e5ufloat",
     rgb10a2unorm = "rgb10a2unorm",
@@ -144,63 +148,148 @@ export class WebGPUTextureContext implements ITextureContext {
         this._engine = engine;
     }
     needBitmap: boolean;
-    private _getGPUTextureFormat(format: TextureFormat, useSRGB: boolean): GPUTextureFormat {
-        let webgpuTextureFormat = GPUTextureFormat.rgba8uint;
-        switch (format) {
 
+    private _getGPUTexturePixelByteSize(format: TextureFormat) {
+        switch (format) {
+            case TextureFormat.R5G6B5:
+                return 2;
+            case TextureFormat.R8G8B8:
+                return 3;
+            case TextureFormat.R8G8B8A8:
+                return 4;
+            case TextureFormat.R32G32B32:
+                return 12;
+            case TextureFormat.R32G32B32A32:
+                return 16;
+            case TextureFormat.R16G16B16:
+                return 6;
+            case TextureFormat.R16G16B16A16:
+                return 8;
+            default:
+                return 4;
+        }
+    }
+
+    private _getGPURenderTexturePixelByteSize(format: RenderTargetFormat) {
+        switch (format) {
+            case RenderTargetFormat.R8G8B8:
+                return 3;
+            case RenderTargetFormat.R8G8B8A8:
+                return 4;
+            case RenderTargetFormat.R32G32B32:
+                return 12;
+            case RenderTargetFormat.R32G32B32A32:
+                return 16;
+            case RenderTargetFormat.R16G16B16:
+                return 6;
+            case RenderTargetFormat.R16G16B16A16:
+                return 8;
+            case RenderTargetFormat.DEPTH_16:
+                return 2;
+            case RenderTargetFormat.DEPTH_32:
+                return 4;
+            case RenderTargetFormat.DEPTHSTENCIL_24_8:
+                return 4;
+            case RenderTargetFormat.DEPTHSTENCIL_24_Plus:
+                return 4;
+            case RenderTargetFormat.STENCIL_8:
+                return 1;
+            default:
+                return 4;
+        }
+    }
+
+    private _getGPUTextureFormat(format: TextureFormat, useSRGB: boolean): WebGPUTextureFormat {
+        let webgpuTextureFormat = WebGPUTextureFormat.rgba8uint;
+        switch (format) {
             case TextureFormat.R5G6B5:
                 return null;
             case TextureFormat.R8G8B8://TODO
             case TextureFormat.R8G8B8A8:
-                webgpuTextureFormat = !useSRGB ? GPUTextureFormat.rgba8unorm : GPUTextureFormat.rgba8unorm_srgb;
+                webgpuTextureFormat = !useSRGB ? WebGPUTextureFormat.rgba8unorm : WebGPUTextureFormat.rgba8unorm_srgb;
                 break;
             case TextureFormat.R32G32B32://TODO
             case TextureFormat.R32G32B32A32:
-                webgpuTextureFormat = GPUTextureFormat.rgba32float;
+                webgpuTextureFormat = WebGPUTextureFormat.rgba32float;
                 break;
             case TextureFormat.R16G16B16://TODO
             case TextureFormat.R16G16B16A16:
-                webgpuTextureFormat = GPUTextureFormat.rgba16float;
+                webgpuTextureFormat = WebGPUTextureFormat.rgba16float;
                 break;
             case TextureFormat.DXT1:
-                webgpuTextureFormat = !useSRGB ? GPUTextureFormat.bc1_rgba_unorm : GPUTextureFormat.bc1_rgba_unorm_srgb;
+                webgpuTextureFormat = !useSRGB ? WebGPUTextureFormat.bc1_rgba_unorm : WebGPUTextureFormat.bc1_rgba_unorm_srgb;
                 break;
             case TextureFormat.DXT3:
-                webgpuTextureFormat = !useSRGB ? GPUTextureFormat.bc2_rgba_unorm : GPUTextureFormat.bc2_rgba_unorm_srgb;
+                webgpuTextureFormat = !useSRGB ? WebGPUTextureFormat.bc2_rgba_unorm : WebGPUTextureFormat.bc2_rgba_unorm_srgb;
                 break;
             case TextureFormat.DXT5:
-                webgpuTextureFormat = !useSRGB ? GPUTextureFormat.bc3_rgba_unorm : GPUTextureFormat.bc3_rgba_unorm_srgb;
+                webgpuTextureFormat = !useSRGB ? WebGPUTextureFormat.bc3_rgba_unorm : WebGPUTextureFormat.bc3_rgba_unorm_srgb;
                 break;
             case TextureFormat.ETC2RGBA:
             case TextureFormat.ETC1RGB:
             case TextureFormat.ETC2RGB:
             case TextureFormat.ETC2SRGB:
             case TextureFormat.ETC2SRGB_Alpha8:
-                webgpuTextureFormat = !useSRGB ? GPUTextureFormat.etc2_rgba8unorm : GPUTextureFormat.etc2_rgba8unorm_srgb;
+                webgpuTextureFormat = !useSRGB ? WebGPUTextureFormat.etc2_rgba8unorm : WebGPUTextureFormat.etc2_rgba8unorm_srgb;
                 break;
             case TextureFormat.ASTC4x4:
             case TextureFormat.ASTC4x4SRGB:
-                webgpuTextureFormat = !useSRGB ? GPUTextureFormat.astc_4x4_unorm : GPUTextureFormat.astc_4x4_unorm_srgb;
+                webgpuTextureFormat = !useSRGB ? WebGPUTextureFormat.astc_4x4_unorm : WebGPUTextureFormat.astc_4x4_unorm_srgb;
                 break;
             case TextureFormat.ASTC6x6:
             case TextureFormat.ASTC6x6SRGB:
-                webgpuTextureFormat = !useSRGB ? GPUTextureFormat.astc_6x6_unorm : GPUTextureFormat.astc_6x6_unorm_srgb;
+                webgpuTextureFormat = !useSRGB ? WebGPUTextureFormat.astc_6x6_unorm : WebGPUTextureFormat.astc_6x6_unorm_srgb;
                 break
             case TextureFormat.ASTC8x8:
             case TextureFormat.ASTC8x8SRGB:
-                webgpuTextureFormat = !useSRGB ? GPUTextureFormat.astc_8x8_unorm : GPUTextureFormat.astc_8x8_unorm_srgb;
+                webgpuTextureFormat = !useSRGB ? WebGPUTextureFormat.astc_8x8_unorm : WebGPUTextureFormat.astc_8x8_unorm_srgb;
                 break
             case TextureFormat.ASTC10x10:
             case TextureFormat.ASTC10x10SRGB:
-                webgpuTextureFormat = !useSRGB ? GPUTextureFormat.astc_10x10_unorm : GPUTextureFormat.astc_10x10_unorm_srgb;
+                webgpuTextureFormat = !useSRGB ? WebGPUTextureFormat.astc_10x10_unorm : WebGPUTextureFormat.astc_10x10_unorm_srgb;
                 break
             case TextureFormat.ASTC12x12:
             case TextureFormat.ASTC12x12SRGB:
-                webgpuTextureFormat = !useSRGB ? GPUTextureFormat.astc_12x12_unorm : GPUTextureFormat.astc_12x12_unorm_srgb;
+                webgpuTextureFormat = !useSRGB ? WebGPUTextureFormat.astc_12x12_unorm : WebGPUTextureFormat.astc_12x12_unorm_srgb;
                 break
             default:
                 throw "unknow TextureFormat"
+        }
+        return webgpuTextureFormat;
+    }
+
+    private _getGPURenderTargetFormat(format: RenderTargetFormat, useSRGB: boolean): WebGPUTextureFormat {
+        let webgpuTextureFormat = WebGPUTextureFormat.rgba8uint;
+        switch (format) {
+            case RenderTargetFormat.R8G8B8://TODO
+            case RenderTargetFormat.R8G8B8A8:
+                webgpuTextureFormat = !useSRGB ? WebGPUTextureFormat.bgra8unorm : WebGPUTextureFormat.bgra8unorm_srgb;
                 break;
+            case RenderTargetFormat.R32G32B32://TODO
+            case RenderTargetFormat.R32G32B32A32:
+                webgpuTextureFormat = WebGPUTextureFormat.rgba32float;
+                break;
+            case RenderTargetFormat.R16G16B16://TODO
+            case RenderTargetFormat.R16G16B16A16:
+                webgpuTextureFormat = WebGPUTextureFormat.rgba16float;
+                break;
+            case RenderTargetFormat.DEPTH_16:
+                webgpuTextureFormat = WebGPUTextureFormat.depth16unorm;
+                break;
+            case RenderTargetFormat.DEPTH_32:
+                webgpuTextureFormat = WebGPUTextureFormat.depth32float;
+                break;
+            case RenderTargetFormat.DEPTHSTENCIL_24_8:
+                webgpuTextureFormat = WebGPUTextureFormat.depth24plus_stencil8;
+                break;
+            case RenderTargetFormat.DEPTHSTENCIL_24_Plus:
+                webgpuTextureFormat = WebGPUTextureFormat.depth24plus;
+                break;
+            case RenderTargetFormat.STENCIL_8:
+                webgpuTextureFormat = WebGPUTextureFormat.stencil8;
+                break;
+            default:
+                throw "unknow TextureFormat";
         }
         return webgpuTextureFormat;
     }
@@ -231,42 +320,41 @@ export class WebGPUTextureContext implements ITextureContext {
         }
     }
 
-    private _getGPUTextureDescriptor(dimension: TextureDimension, width: number, height: number, gouformat: GPUTextureFormat, layerCount: number, isCompressTexture: boolean): GPUTextureDescriptor {
+    private _getGPUTextureDescriptor(dimension: TextureDimension, width: number, height: number, gpuFormat: WebGPUTextureFormat, layerCount: number, isCompressTexture: boolean): GPUTextureDescriptor {
         const textureSize = {
             width: width,
             height: height,
             depthOrArrayLayers: layerCount,
         };
         const cancopy = !isCompressTexture;
-        let usage = GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST | GPUTextureUsage.RENDER_ATTACHMENT;
-        let mipmapCount = 1;//TODO generateMipmap ? Math.max(Math.ceil(Math.log2(width)) + 1, Math.ceil(Math.log2(height)) + 1) : 1;
+        let usage = GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.RENDER_ATTACHMENT;
+        const mipLevelCount = 1; //TODO generateMipmap ? Math.max(Math.ceil(Math.log2(width)) + 1, Math.ceil(Math.log2(height)) + 1) : 1;
         if (cancopy) {
             usage |= GPUTextureUsage.COPY_DST;
         }
-        let dimensionType: GPUTextureDimension;
+        let dimensionType: WebGPUTextureDimension;
         switch (dimension) {
             case TextureDimension.Tex2D:
+            case TextureDimension.Cube:
             case TextureDimension.Texture2DArray:
-                dimensionType = GPUTextureDimension.D2D;
+                dimensionType = WebGPUTextureDimension.D2D;
                 break;
             case TextureDimension.Tex3D:
-                dimensionType = GPUTextureDimension.D3D;
+                dimensionType = WebGPUTextureDimension.D3D;
                 break;
             default:
-                throw "DimensionType Unknown format"
+                throw "DimensionType Unknown format";
         }
-        let textureDescriptor: GPUTextureDescriptor = {
+        const textureDescriptor: GPUTextureDescriptor = {
             size: textureSize,
-            mipLevelCount: mipmapCount,
+            mipLevelCount,
             sampleCount: 1,
             dimension: dimensionType,
-            format: gouformat,
-            usage: usage,
+            format: gpuFormat,
+            usage,
         }
-        return textureDescriptor
+        return textureDescriptor;
     }
-
-
 
     createTextureInternal(dimension: TextureDimension, width: number, height: number, format: TextureFormat, generateMipmap: boolean, sRGB: boolean, premultipliedAlpha: boolean): InternalTexture {
         let layerCount;
@@ -278,7 +366,7 @@ export class WebGPUTextureContext implements ITextureContext {
                 layerCount = 6;
                 break;
         }
-        if (dimension == TextureDimension.Tex3D) {
+        if (dimension === TextureDimension.Tex3D) {
             throw "error";
         }
         //TODO
@@ -291,12 +379,14 @@ export class WebGPUTextureContext implements ITextureContext {
         //     gammaCorrection = 2.2;
         // }
 
-        const gpuTextureformat = this._getGPUTextureFormat(format, sRGB);
-        let textureDescriptor = this._getGPUTextureDescriptor(dimension, width, height, gpuTextureformat, layerCount, this.isCompressTexture(format));
+        const pixelByteSize = this._getGPUTexturePixelByteSize(format);
+        const gpuTextureFormat = this._getGPUTextureFormat(format, sRGB);
+        const textureDescriptor = this._getGPUTextureDescriptor(dimension, width, height, gpuTextureFormat, layerCount, this.isCompressTexture(format));
         const gpuTexture = this._engine.getDevice().createTexture(textureDescriptor);
-        let internalTex = new WebGPUInternalTex(width, height, 1, dimension, generateMipmap, false, 1);
+        const internalTex = new WebGPUInternalTex(width, height, 1, dimension, generateMipmap, false, 1);
         internalTex.resource = gpuTexture;
-        internalTex._webGPUFormat = gpuTextureformat;
+        internalTex._webGPUFormat = gpuTextureFormat;
+        WebGPUGlobal.action(internalTex, 'allocMemory | texture', (width * height * pixelByteSize * (generateMipmap ? 1.33333 : 1)) | 0);
 
         return internalTex;
     }
@@ -313,16 +403,15 @@ export class WebGPUTextureContext implements ITextureContext {
             },
             mipLevel: 0,
             premultipliedAlpha: premultiplyAlpha,
-            colorSpace: texture.useSRGBLoad ? "srgb" : undefined
-
+            colorSpace: texture.useSRGBLoad ? "srgb" : undefined,
         };
         let copySize: GPUExtent3DStrict = { width: source.width, height: source.height };
 
         WebGPURenderEngine._instance.getDevice().queue.copyExternalImageToTexture(image, textureCopyView, copySize);
 
         //Generate mipmap TODO
-
     }
+
     setTextureSubImageData(texture: InternalTexture, source: HTMLCanvasElement | HTMLImageElement | ImageBitmap, x: number, y: number, premultiplyAlpha: boolean, invertY: boolean): void {
         const image: GPUImageCopyExternalImage = { source: source as any, flipY: invertY, origin: { x: 0, y: 0 } };
         const textureCopyView: GPUImageCopyTextureTagged = {
@@ -342,148 +431,148 @@ export class WebGPUTextureContext implements ITextureContext {
     }
 
     /**@internal */
-    private _getBlockInformationFromFormat(format: GPUTextureFormat): { width: number; height: number; length: number } {
+    private _getBlockInformationFromFormat(format: WebGPUTextureFormat): { width: number; height: number; length: number } {
         switch (format) {
             // 8 bits formats
-            case GPUTextureFormat.r8unorm:
-            case GPUTextureFormat.r8snorm:
-            case GPUTextureFormat.r8uint:
-            case GPUTextureFormat.r8sint:
+            case WebGPUTextureFormat.r8unorm:
+            case WebGPUTextureFormat.r8snorm:
+            case WebGPUTextureFormat.r8uint:
+            case WebGPUTextureFormat.r8sint:
                 return { width: 1, height: 1, length: 1 };
             // 16 bits formats
-            case GPUTextureFormat.r16uint:
-            case GPUTextureFormat.r16sint:
-            case GPUTextureFormat.r16float:
-            case GPUTextureFormat.rg8unorm:
-            case GPUTextureFormat.rg8snorm:
-            case GPUTextureFormat.rg8uint:
-            case GPUTextureFormat.rg8sint:
+            case WebGPUTextureFormat.r16uint:
+            case WebGPUTextureFormat.r16sint:
+            case WebGPUTextureFormat.r16float:
+            case WebGPUTextureFormat.rg8unorm:
+            case WebGPUTextureFormat.rg8snorm:
+            case WebGPUTextureFormat.rg8uint:
+            case WebGPUTextureFormat.rg8sint:
                 return { width: 1, height: 1, length: 2 };
             // 32 bits formats
-            case GPUTextureFormat.r32uint:
-            case GPUTextureFormat.r32sint:
-            case GPUTextureFormat.r32float:
-            case GPUTextureFormat.rg16uint:
-            case GPUTextureFormat.rg16sint:
-            case GPUTextureFormat.rg16float:
-            case GPUTextureFormat.rgba8unorm:
-            case GPUTextureFormat.rgba8unorm_srgb:
-            case GPUTextureFormat.rgba8snorm:
-            case GPUTextureFormat.rgba8uint:
-            case GPUTextureFormat.rgba8sint:
-            case GPUTextureFormat.bgra8unorm:
-            case GPUTextureFormat.bgra8unorm_srgb:
-            case GPUTextureFormat.rgb9e5ufloat:
-            case GPUTextureFormat.rgb10a2unorm:
-            case GPUTextureFormat.rg11b10ufloat:
+            case WebGPUTextureFormat.r32uint:
+            case WebGPUTextureFormat.r32sint:
+            case WebGPUTextureFormat.r32float:
+            case WebGPUTextureFormat.rg16uint:
+            case WebGPUTextureFormat.rg16sint:
+            case WebGPUTextureFormat.rg16float:
+            case WebGPUTextureFormat.rgba8unorm:
+            case WebGPUTextureFormat.rgba8unorm_srgb:
+            case WebGPUTextureFormat.rgba8snorm:
+            case WebGPUTextureFormat.rgba8uint:
+            case WebGPUTextureFormat.rgba8sint:
+            case WebGPUTextureFormat.bgra8unorm:
+            case WebGPUTextureFormat.bgra8unorm_srgb:
+            case WebGPUTextureFormat.rgb9e5ufloat:
+            case WebGPUTextureFormat.rgb10a2unorm:
+            case WebGPUTextureFormat.rg11b10ufloat:
                 return { width: 1, height: 1, length: 4 };
             // 64 bits formats
-            case GPUTextureFormat.rg32uint:
-            case GPUTextureFormat.rg32sint:
-            case GPUTextureFormat.rg32float:
-            case GPUTextureFormat.rgba16uint:
-            case GPUTextureFormat.rgba16sint:
-            case GPUTextureFormat.rgba16float:
+            case WebGPUTextureFormat.rg32uint:
+            case WebGPUTextureFormat.rg32sint:
+            case WebGPUTextureFormat.rg32float:
+            case WebGPUTextureFormat.rgba16uint:
+            case WebGPUTextureFormat.rgba16sint:
+            case WebGPUTextureFormat.rgba16float:
                 return { width: 1, height: 1, length: 8 };
             // 128 bits formats
-            case GPUTextureFormat.rgba32uint:
-            case GPUTextureFormat.rgba32sint:
-            case GPUTextureFormat.rgba32float:
+            case WebGPUTextureFormat.rgba32uint:
+            case WebGPUTextureFormat.rgba32sint:
+            case WebGPUTextureFormat.rgba32float:
                 return { width: 1, height: 1, length: 16 };
 
             // Depth and stencil formats
-            case GPUTextureFormat.stencil8:
+            case WebGPUTextureFormat.stencil8:
                 throw "No fixed size for Stencil8 format!";
-            case GPUTextureFormat.depth16unorm:
+            case WebGPUTextureFormat.depth16unorm:
                 return { width: 1, height: 1, length: 2 };
-            case GPUTextureFormat.depth24plus:
+            case WebGPUTextureFormat.depth24plus:
                 throw "No fixed size for Depth24Plus format!";
-            case GPUTextureFormat.depth24plus_stencil8:
+            case WebGPUTextureFormat.depth24plus_stencil8:
                 throw "No fixed size for Depth24PlusStencil8 format!";
-            case GPUTextureFormat.depth32float:
+            case WebGPUTextureFormat.depth32float:
                 return { width: 1, height: 1, length: 4 };
             // case GPUTextureFormat.Depth24UnormStencil8:
             //     return { width: 1, height: 1, length: 4 };
-            case GPUTextureFormat.depth32float_stencil8:
+            case WebGPUTextureFormat.depth32float_stencil8:
                 return { width: 1, height: 1, length: 5 };
 
             // BC compressed formats usable if "texture-compression-bc" is both
             // supported by the device/user agent and enabled in requestDevice.
-            case GPUTextureFormat.bc7_rgba_unorm:
-            case GPUTextureFormat.bc7_rgba_unorm_srgb:
-            case GPUTextureFormat.bc6h_rgb_float:
-            case GPUTextureFormat.bc6h_rgb_ufloat:
-            case GPUTextureFormat.bc5_rg_unorm:
-            case GPUTextureFormat.bc5_rg_snorm:
-            case GPUTextureFormat.bc3_rgba_unorm:
-            case GPUTextureFormat.bc3_rgba_unorm_srgb:
-            case GPUTextureFormat.bc2_rgba_unorm:
-            case GPUTextureFormat.bc2_rgba_unorm_srgb:
+            case WebGPUTextureFormat.bc7_rgba_unorm:
+            case WebGPUTextureFormat.bc7_rgba_unorm_srgb:
+            case WebGPUTextureFormat.bc6h_rgb_float:
+            case WebGPUTextureFormat.bc6h_rgb_ufloat:
+            case WebGPUTextureFormat.bc5_rg_unorm:
+            case WebGPUTextureFormat.bc5_rg_snorm:
+            case WebGPUTextureFormat.bc3_rgba_unorm:
+            case WebGPUTextureFormat.bc3_rgba_unorm_srgb:
+            case WebGPUTextureFormat.bc2_rgba_unorm:
+            case WebGPUTextureFormat.bc2_rgba_unorm_srgb:
                 return { width: 4, height: 4, length: 16 };
-            case GPUTextureFormat.bc4_r_unorm:
-            case GPUTextureFormat.bc4_r_snorm:
-            case GPUTextureFormat.bc1_rgba_unorm:
-            case GPUTextureFormat.bc1_rgba_unorm_srgb:
+            case WebGPUTextureFormat.bc4_r_unorm:
+            case WebGPUTextureFormat.bc4_r_snorm:
+            case WebGPUTextureFormat.bc1_rgba_unorm:
+            case WebGPUTextureFormat.bc1_rgba_unorm_srgb:
                 return { width: 4, height: 4, length: 8 };
 
             // ETC2 compressed formats usable if "texture-compression-etc2" is both
             // supported by the device/user agent and enabled in requestDevice.
-            case GPUTextureFormat.etc2_rgb8unorm:
-            case GPUTextureFormat.etc2_rgb8unorm_srgb:
-            case GPUTextureFormat.etc2_rgb8a1unorm:
-            case GPUTextureFormat.etc2_rgb8a1unorm_srgb:
+            case WebGPUTextureFormat.etc2_rgb8unorm:
+            case WebGPUTextureFormat.etc2_rgb8unorm_srgb:
+            case WebGPUTextureFormat.etc2_rgb8a1unorm:
+            case WebGPUTextureFormat.etc2_rgb8a1unorm_srgb:
                 //case GPUTextureFormat.EACR11Unorm:
                 //case GPUTextureFormat.EACR11Snorm:
                 return { width: 4, height: 4, length: 8 };
-            case GPUTextureFormat.etc2_rgb8unorm:
-            case GPUTextureFormat.etc2_rgba8unorm_srgb:
+            case WebGPUTextureFormat.etc2_rgb8unorm:
+            case WebGPUTextureFormat.etc2_rgba8unorm_srgb:
                 //case GPUTextureFormat.EACRG11Unorm:
                 //case GPUTextureFormat.EACRG11Snorm:
                 return { width: 4, height: 4, length: 16 };
 
             // ASTC compressed formats usable if "texture-compression-astc" is both
             // supported by the device/user agent and enabled in requestDevice.
-            case GPUTextureFormat.astc_4x4_unorm:
-            case GPUTextureFormat.astc_4x4_unorm_srgb:
+            case WebGPUTextureFormat.astc_4x4_unorm:
+            case WebGPUTextureFormat.astc_4x4_unorm_srgb:
                 return { width: 4, height: 4, length: 16 };
-            case GPUTextureFormat.astc_5x4_unorm:
-            case GPUTextureFormat.astc_5x4_unorm_srgb:
+            case WebGPUTextureFormat.astc_5x4_unorm:
+            case WebGPUTextureFormat.astc_5x4_unorm_srgb:
                 return { width: 5, height: 4, length: 16 };
-            case GPUTextureFormat.astc_5x5_unorm:
-            case GPUTextureFormat.astc_5x5_unorm_srgb:
+            case WebGPUTextureFormat.astc_5x5_unorm:
+            case WebGPUTextureFormat.astc_5x5_unorm_srgb:
                 return { width: 5, height: 5, length: 16 };
-            case GPUTextureFormat.astc_6x5_unorm:
-            case GPUTextureFormat.astc_6x5_unorm_srgb:
+            case WebGPUTextureFormat.astc_6x5_unorm:
+            case WebGPUTextureFormat.astc_6x5_unorm_srgb:
                 return { width: 6, height: 5, length: 16 };
-            case GPUTextureFormat.astc_6x6_unorm:
-            case GPUTextureFormat.astc_6x6_unorm_srgb:
+            case WebGPUTextureFormat.astc_6x6_unorm:
+            case WebGPUTextureFormat.astc_6x6_unorm_srgb:
                 return { width: 6, height: 6, length: 16 };
-            case GPUTextureFormat.astc_8x5_unorm:
-            case GPUTextureFormat.astc_8x5_unorm_srgb:
+            case WebGPUTextureFormat.astc_8x5_unorm:
+            case WebGPUTextureFormat.astc_8x5_unorm_srgb:
                 return { width: 8, height: 5, length: 16 };
-            case GPUTextureFormat.astc_8x6_unorm:
-            case GPUTextureFormat.astc_8x6_unorm_srgb:
+            case WebGPUTextureFormat.astc_8x6_unorm:
+            case WebGPUTextureFormat.astc_8x6_unorm_srgb:
                 return { width: 8, height: 6, length: 16 };
-            case GPUTextureFormat.astc_8x8_unorm:
-            case GPUTextureFormat.astc_8x8_unorm_srgb:
+            case WebGPUTextureFormat.astc_8x8_unorm:
+            case WebGPUTextureFormat.astc_8x8_unorm_srgb:
                 return { width: 8, height: 8, length: 16 };
-            case GPUTextureFormat.astc_10x5_unorm:
-            case GPUTextureFormat.astc_10x5_unorm_srgb:
+            case WebGPUTextureFormat.astc_10x5_unorm:
+            case WebGPUTextureFormat.astc_10x5_unorm_srgb:
                 return { width: 10, height: 5, length: 16 };
-            case GPUTextureFormat.astc_10x6_unorm:
-            case GPUTextureFormat.astc_10x6_unorm_srgb:
+            case WebGPUTextureFormat.astc_10x6_unorm:
+            case WebGPUTextureFormat.astc_10x6_unorm_srgb:
                 return { width: 10, height: 6, length: 16 };
-            case GPUTextureFormat.astc_10x8_unorm:
-            case GPUTextureFormat.astc_10x8_unorm_srgb:
+            case WebGPUTextureFormat.astc_10x8_unorm:
+            case WebGPUTextureFormat.astc_10x8_unorm_srgb:
                 return { width: 10, height: 8, length: 16 };
-            case GPUTextureFormat.astc_10x10_unorm:
-            case GPUTextureFormat.astc_10x10_unorm_srgb:
+            case WebGPUTextureFormat.astc_10x10_unorm:
+            case WebGPUTextureFormat.astc_10x10_unorm_srgb:
                 return { width: 10, height: 10, length: 16 };
-            case GPUTextureFormat.astc_12x10_unorm:
-            case GPUTextureFormat.astc_12x10_unorm_srgb:
+            case WebGPUTextureFormat.astc_12x10_unorm:
+            case WebGPUTextureFormat.astc_12x10_unorm_srgb:
                 return { width: 12, height: 10, length: 16 };
-            case GPUTextureFormat.astc_12x12_unorm:
-            case GPUTextureFormat.astc_12x12_unorm_srgb:
+            case WebGPUTextureFormat.astc_12x12_unorm:
+            case WebGPUTextureFormat.astc_12x12_unorm_srgb:
                 return { width: 12, height: 12, length: 16 };
         }
 
@@ -619,7 +708,7 @@ export class WebGPUTextureContext implements ITextureContext {
     }
     setCubeSubPixelData(texture: WebGPUInternalTex, source: ArrayBufferView[], mipmapLevel: number, generateMipmap: boolean, xOffset: number, yOffset: number, width: number, height: number, premultiplyAlpha: boolean, invertY: boolean): void {
         //invert TODO
-        generateMipmap = generateMipmap && mipmapLevel == 0;
+        generateMipmap = generateMipmap && mipmapLevel === 0;
         for (let index = 0; index < 6; index++) {
             let sourceData = source[index];
             let imageCopy: GPUImageCopyTextureTagged = {
@@ -665,9 +754,31 @@ export class WebGPUTextureContext implements ITextureContext {
     createRenderTextureInternal(dimension: TextureDimension, width: number, height: number, format: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean): InternalTexture {
         throw new Error("Method not implemented.");
     }
-    createRenderTargetInternal(width: number, height: number, format: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number): InternalRenderTarget {
-        throw new Error("Method not implemented.");
-        //rt  layout  internalTexture
+    createRenderTargetInternal(width: number, height: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number): InternalRenderTarget {
+        const pixelByteSize = this._getGPURenderTexturePixelByteSize(colorFormat);
+        const gpuColorFormat = this._getGPURenderTargetFormat(colorFormat, sRGB);
+        const gpuColorDescriptor = this._getGPUTextureDescriptor(TextureDimension.Tex2D, width, height, gpuColorFormat, 1, false);
+        const gpuColorTexture = this._engine.getDevice().createTexture(gpuColorDescriptor);
+        const internalRT = new WebGPUInternalRT(colorFormat, depthStencilFormat, false, generateMipmap, multiSamples);
+        internalRT._textures.push(new WebGPUInternalTex(width, height, 1, TextureDimension.Tex2D, generateMipmap, false, 1));
+        internalRT._textures[0].resource = gpuColorTexture;
+        internalRT._textures[0]._webGPUFormat = gpuColorFormat;
+        WebGPUGlobal.action(internalRT._textures[0], 'allocMemory | texture', (width * height * pixelByteSize * (generateMipmap ? 1.33333 : 1)) | 0);
+
+        if (depthStencilFormat !== RenderTargetFormat.None) {
+            const pixelByteSize = this._getGPURenderTexturePixelByteSize(depthStencilFormat);
+            const gpuDepthFormat = this._getGPURenderTargetFormat(depthStencilFormat, false);
+            const gpuDepthDescriptor = this._getGPUTextureDescriptor(TextureDimension.Tex2D, width, height, gpuDepthFormat, 1, false);
+            const gpuDepthTexture = this._engine.getDevice().createTexture(gpuDepthDescriptor);
+            internalRT._depthTexture = new WebGPUInternalTex(width, height, 1, TextureDimension.Tex2D, false, false, 1);
+            internalRT._depthTexture.resource = gpuDepthTexture;
+            internalRT._depthTexture._webGPUFormat = gpuDepthFormat;
+            WebGPUGlobal.action(internalRT._depthTexture, 'allocMemory | texture_depth', width * height * pixelByteSize);
+        }
+
+        WebGPURenderPassHelper.setColorAttachments(internalRT._renderPassDescriptor, internalRT._textures, true);
+        WebGPURenderPassHelper.setDepthAttachments(internalRT._renderPassDescriptor, internalRT._depthTexture, true);
+        return internalRT;
     }
     createRenderTargetCubeInternal(size: number, colorFormat: RenderTargetFormat, depthStencilFormat: RenderTargetFormat, generateMipmap: boolean, sRGB: boolean, multiSamples: number): InternalRenderTarget {
         throw new Error("Method not implemented.");
@@ -693,5 +804,4 @@ export class WebGPUTextureContext implements ITextureContext {
     getRenderTextureData(internalTex: InternalRenderTarget, x: number, y: number, width: number, height: number): ArrayBufferView {
         throw new Error("Method not implemented.");
     }
-
 }

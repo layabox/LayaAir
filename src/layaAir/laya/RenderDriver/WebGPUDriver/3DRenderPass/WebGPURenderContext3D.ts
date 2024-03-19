@@ -3,9 +3,8 @@ import { Viewport } from "../../../d3/math/Viewport";
 import { Color } from "../../../maths/Color";
 import { Vector4 } from "../../../maths/Vector4";
 import { SingletonList } from "../../../utils/SingletonList";
-import { IRenderContext3D, IRenderElement3D, PipelineMode } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
+import { IRenderContext3D, PipelineMode } from "../../DriverDesign/3DRenderPass/I3DRenderPass";
 import { IRenderCMD } from "../../DriverDesign/3DRenderPass/IRendderCMD";
-import { InternalRenderTarget } from "../../DriverDesign/RenderDevice/InternalRenderTarget";
 import { WebCameraNodeData, WebSceneNodeData } from "../../RenderModuleData/WebModuleData/3D/WebModuleData";
 import { WebDefineDatas } from "../../RenderModuleData/WebModuleData/WebDefineDatas";
 import { WebGPUInternalRT } from "../RenderDevice/WebGPUInternalRT";
@@ -13,15 +12,19 @@ import { WebGPURenderCommandEncoder } from "../RenderDevice/WebGPURenderCommandE
 import { WebGPURenderEngine } from "../RenderDevice/WebGPURenderEngine";
 import { WebGPURenderPassHelper } from "../RenderDevice/WebGPURenderPassHelper";
 import { WebGPUShaderData } from "../RenderDevice/WebGPUShaderData";
+import { WebGPUGlobal } from "../RenderDevice/WebGPUStatis/WebGPUGlobal";
+import { WebGPUStatis } from "../RenderDevice/WebGPUStatis/WebGPUStatis";
 import { WebGPURenderElement3D } from "./WebGPURenderElement3D";
 
 export class WebGPURenderContext3D implements IRenderContext3D {
-    _globalConfigShaderData: WebDefineDatas;
+    globalConfigShaderData: WebDefineDatas;
+    /**@internal */
     private _globalShaderData: WebGPUShaderData;
     /**@internal */
     private _sceneData: WebGPUShaderData;
     /**@internal */
     private _sceneModuleData: WebSceneNodeData;
+    /**@internal */
     private _cameraModuleData: WebCameraNodeData;
     /**@internal */
     private _cameraData: WebGPUShaderData;
@@ -30,9 +33,9 @@ export class WebGPURenderContext3D implements IRenderContext3D {
     /**@internal */
     private _scissor: Vector4;
     /**@internal */
-    private _sceneUpdataMask: number;
+    private _sceneUpdataMask: number = 0;
     /**@internal */
-    private _cameraUpdateMask: number;
+    private _cameraUpdateMask: number = 0;
     /**@internal */
     private _pipelineMode: PipelineMode;
     /**@internal */
@@ -40,7 +43,7 @@ export class WebGPURenderContext3D implements IRenderContext3D {
     /**@internal */
     private _clearFlag: number;
     /**@internal */
-    private _clearColor: Color;
+    private _clearColor: Color = Color.BLACK;
     /**@internal */
     private _clearDepth: number;
     /**@internal */
@@ -48,9 +51,15 @@ export class WebGPURenderContext3D implements IRenderContext3D {
     /**@internal */
     private _needStart: boolean = true;
 
-    _renderCommand: WebGPURenderCommandEncoder;
+    destRT: WebGPUInternalRT;
+    renderCommand: WebGPURenderCommandEncoder = new WebGPURenderCommandEncoder();
 
-    _destRT: WebGPUInternalRT;
+    globalId: number;
+    objectName: string = 'WebGPURenderContext3D';
+
+    constructor() {
+        this.globalId = WebGPUGlobal.getId(this);
+    }
 
     get sceneData(): WebGPUShaderData {
         return this._sceneData;
@@ -59,7 +68,6 @@ export class WebGPURenderContext3D implements IRenderContext3D {
     set sceneData(value: WebGPUShaderData) {
         this._sceneData = value;
     }
-
 
     get cameraData(): WebGPUShaderData {
         return this._cameraData;
@@ -77,7 +85,6 @@ export class WebGPURenderContext3D implements IRenderContext3D {
         this._sceneModuleData = value;
     }
 
-
     get cameraModuleData(): WebCameraNodeData {
         return this._cameraModuleData;
     }
@@ -94,7 +101,6 @@ export class WebGPURenderContext3D implements IRenderContext3D {
         this._globalShaderData = value;
     }
 
-
     get sceneUpdataMask(): number {
         return this._sceneUpdataMask;
     }
@@ -102,7 +108,6 @@ export class WebGPURenderContext3D implements IRenderContext3D {
     set sceneUpdataMask(value: number) {
         this._sceneUpdataMask = value;
     }
-
 
     get cameraUpdateMask(): number {
         return this._cameraUpdateMask;
@@ -128,12 +133,12 @@ export class WebGPURenderContext3D implements IRenderContext3D {
         this._invertY = value;
     }
 
-    setRenderTarget(value: WebGPUInternalRT, clearFlag: RenderClearFlag): void {
+    setRenderTarget(rt: WebGPUInternalRT, clearFlag: RenderClearFlag): void {
         this._clearFlag = clearFlag;
-        if (value == this._destRT)
-            return;
-        this._destRT = value as WebGPUInternalRT;
-        this._needStart = true;
+        if (rt !== this.destRT) {
+            this.destRT = rt;
+            this._needStart = true;
+        }
     }
 
     setViewPort(value: Viewport): void {
@@ -144,61 +149,79 @@ export class WebGPURenderContext3D implements IRenderContext3D {
         this._scissor = value;
     }
 
-    setClearData(clearFlag: number, color: Color, depth: number, stencil: number): number {
-        this._clearFlag = clearFlag;
-        color.cloneTo(this._clearColor);
+    setClearData(flag: number, color: Color, depth: number, stencil: number): number {
+        this._clearFlag = flag;
         this._clearDepth = depth;
         this._clearStencil = stencil;
+        color.cloneTo(this._clearColor);
         return 0;
     }
 
     drawRenderElementList(list: SingletonList<WebGPURenderElement3D>): number {
+        if (list.length === 0) return 0;
+        this._setScreenRT();
         if (this._needStart) {
             this._start();
             this._needStart = false;
         }
-        let elements = list.elements;
-        for (var i: number = 0, n: number = list.length; i < n; i++) {
-            elements[i]._preUpdatePre(this);//render
-        }
-        for (var i: number = 0, n: number = list.length; i < n; i++) {
-            elements[i]._render(this);//render
-        }
+        const elements = list.elements;
+        for (let i = 0, n = list.length; i < n; i++)
+            elements[i]._preUpdatePre(this);
+        for (let i = 0, n = list.length; i < n; i++)
+            elements[i]._render(this);
+        this._submit();
+        WebGPUStatis.addRenderElement(list.length);
         return 0;
     }
+
     drawRenderElementOne(node: WebGPURenderElement3D): number {
+        this._setScreenRT();
         if (this._needStart) {
             this._start();
             this._needStart = false;
         }
         node._preUpdatePre(this);
         node._render(this);
-        this.submit();
-
+        this._submit();
+        WebGPUStatis.addRenderElement(1);
         return 0;
     }
+
     runOneCMD(cmd: IRenderCMD): void {
         cmd.apply(this);
     }
+
     runCMDList(cmds: IRenderCMD[]): void {
-        cmds.forEach(element => {
-            element.apply(this);
-        });
+        cmds.forEach(cmd => cmd.apply(this));
     }
 
+    private _setScreenRT() {
+        if (!this.destRT) {
+            const context = WebGPURenderEngine._instance._context;
+            WebGPURenderEngine._instance._screenRT._textures[0].resource = context.getCurrentTexture();
+            this.setRenderTarget(WebGPURenderEngine._instance._screenRT, RenderClearFlag.Color | RenderClearFlag.Depth);
+        }
+    }
 
     private _start() {
-        this._renderCommand.startRender(WebGPURenderPassHelper.getDescriptor(this._destRT, this._clearFlag, this._clearColor
-            , this._clearDepth, this._clearStencil));
-
-        this._renderCommand.setViewport(this._viewPort.x, this._viewPort.y, this._viewPort.width, this._viewPort.height, 0, 1);
-        this._renderCommand.setScissorRect(this._scissor.x, this._scissor.y, this._scissor.z, this._scissor.w);
+        const renderPassDesc: GPURenderPassDescriptor
+            = WebGPURenderPassHelper.getDescriptor(this.destRT, this._clearFlag, this._clearColor, this._clearDepth, this._clearStencil);
+        this.renderCommand.startRender(renderPassDesc);
+        this._viewPort.y = 0; //不设零会报错
+        this._scissor.y = 0;
+        this.renderCommand.setViewport(this._viewPort.x, this._viewPort.y, this._viewPort.width, this._viewPort.height, 0, 1);
+        this.renderCommand.setScissorRect(this._scissor.x, this._scissor.y, this._scissor.z, this._scissor.w);
     }
 
-    submit() {
-        this._renderCommand.end();
-        WebGPURenderEngine._instance.getDevice().queue.submit([this._renderCommand.finish()]);
+    private _submit() {
+        this.renderCommand.end();
+        WebGPURenderEngine._instance.upload(); //上传所有Uniform数据
+        WebGPURenderEngine._instance.getDevice().queue.submit([this.renderCommand.finish()]);
         this._needStart = true;
+        WebGPUStatis.addSubmit();
     }
 
+    destroy() {
+        WebGPUGlobal.releaseId(this);
+    }
 }

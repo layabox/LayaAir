@@ -25,7 +25,7 @@ export interface IRenderEngine {
     getDefineByName(name: string): ShaderDefine;
     getNamesByDefineData(defineData: IDefineDatas, out: Array<string>): void;
 
-    addTexGammaDefine(key:number,value:ShaderDefine):void;
+    addTexGammaDefine(key: number, value: ShaderDefine): void;
 
     getParams(params: RenderParams): number;
     getCapable(capatableType: RenderCapable): boolean;
