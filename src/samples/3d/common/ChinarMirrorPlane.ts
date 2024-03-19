@@ -9,6 +9,8 @@ import { Matrix4x4 } from "laya/maths/Matrix4x4";
 import { Vector3 } from "laya/maths/Vector3";
 import { Vector4 } from "laya/maths/Vector4";
 import { RenderTexture } from "laya/resource/RenderTexture";
+import { Sprite3D } from "laya/d3/core/Sprite3D";
+import { MeshRenderer } from "laya/d3/core/MeshRenderer";
 
 export class ChinarMirrorPlane extends Script {
 
@@ -19,7 +21,7 @@ export class ChinarMirrorPlane extends Script {
 
 
 
-    public _mirrorPlane: MeshSprite3D;
+    public _mirrorPlane: Sprite3D;
     public mainCamera: Camera;
     private mirrorCamera: Camera = new Camera(); // 镜像摄像机
 
@@ -58,10 +60,15 @@ export class ChinarMirrorPlane extends Script {
 
     set mirrorPlane(value: MeshSprite3D) {
         this._mirrorPlane = value;
+
         var material: UnlitMaterial = new UnlitMaterial();
-        value.meshRenderer.sharedMaterial = material;
         material.albedoTexture = this.renderTexture;
         material.tilingOffset = new Vector4(-1, 1, 0, 0);
+
+        let render = value.getComponent(MeshRenderer);
+        if (render) {
+            render.sharedMaterial = material;
+        }
     }
 
     set onlyMainCamera(value: Camera) {
