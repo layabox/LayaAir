@@ -13,10 +13,6 @@ import { SkyRenderElement } from "../../core/render/SkyRenderElement";
 import { SkyBox } from "./SkyBox";
 import { SkyDome } from "./SkyDome";
 
-const InvertYScaleMat = new Matrix4x4(1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
-
-const ProjectionViewMat = new Matrix4x4();
-
 /**
  * <code>SkyRenderer</code> 类用于实现天空渲染器。
  */
@@ -37,9 +33,9 @@ export class SkyRenderer {
         const commandUniform = LayaGL.renderDeviceFactory.createGlobalUniformMap("SkyRenderer");
         commandUniform.addShaderUniform(SkyRenderer.SUNLIGHTDIRECTION, "u_SunLight_direction", ShaderDataType.Vector3);
         commandUniform.addShaderUniform(SkyRenderer.SUNLIGHTDIRCOLOR, "u_SunLight_color", ShaderDataType.Color);
-        commandUniform.addShaderUniform(SkyRenderer.SKYVIEWMATRIX,"u_SkyViewMat",ShaderDataType.Matrix4x4);
-        commandUniform.addShaderUniform(SkyRenderer.SKYPROJECTIONMATRIX,"u_SkyProjectionMat",ShaderDataType.Matrix4x4);
-        commandUniform.addShaderUniform(SkyRenderer.SKYPROJECTIONVIEWMATRIX,"u_SkyProjectionViewMat",ShaderDataType.Matrix4x4);
+        commandUniform.addShaderUniform(SkyRenderer.SKYVIEWMATRIX, "u_SkyViewMat", ShaderDataType.Matrix4x4);
+        commandUniform.addShaderUniform(SkyRenderer.SKYPROJECTIONMATRIX, "u_SkyProjectionMat", ShaderDataType.Matrix4x4);
+        commandUniform.addShaderUniform(SkyRenderer.SKYPROJECTIONVIEWMATRIX, "u_SkyProjectionViewMat", ShaderDataType.Matrix4x4);
     }
 
     /** @internal */
