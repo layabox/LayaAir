@@ -33,6 +33,10 @@ export class BlueprintPromise implements IExcuteListInfo {
         }
     }
 
+    hasCallBack(): boolean {
+        return this._callback != null;
+    }
+
     complete() {
         this._completed = true;
         this._callback && this._callback(this);

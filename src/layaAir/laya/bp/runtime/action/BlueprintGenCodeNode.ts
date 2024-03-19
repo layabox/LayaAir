@@ -16,6 +16,7 @@ export class BlueprintGenCodeNode extends BlueprintRunBase implements IRunAble {
     }
 
     debuggerPause: boolean;
+    readCache: boolean;
     pushBack(excuteNode: IExcuteListInfo): void {
         throw new Error("Method not implemented.");
     }

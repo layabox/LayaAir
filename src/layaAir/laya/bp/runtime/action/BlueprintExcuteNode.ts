@@ -14,6 +14,7 @@ export class BlueprintExcuteNode extends BlueprintRunBase implements IRunAble {
     owner: any;
     varDefineMap: Map<string, boolean>;
     runtimeDataMgrMap: Map<number | symbol, RuntimeDataManger>;
+    readCache: boolean;
 
 
     constructor(data: any) {
@@ -98,10 +99,10 @@ export class BlueprintExcuteNode extends BlueprintRunBase implements IRunAble {
 
     excuteFun(nativeFun: Function, outPutParmPins: BlueprintPinRuntime[], runtimeDataMgr: IRuntimeDataManger, caller: any, parmsArray: any[], runId: number): any {
         let result = nativeFun.apply(caller, parmsArray);
-        if (result != undefined && !(result instanceof Promise)) {
-            runtimeDataMgr.setPinData(outPutParmPins[0], result, runId);
-            //outPutParmPins[0].setValue(result);
-        }
+        //if (result != undefined && !(result instanceof Promise)) {
+        outPutParmPins[0] && runtimeDataMgr.setPinData(outPutParmPins[0], result, runId);
+        //outPutParmPins[0].setValue(result);
+        //}
         return result;
     }
 

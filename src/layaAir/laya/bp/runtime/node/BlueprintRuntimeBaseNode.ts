@@ -73,21 +73,59 @@ export class BlueprintRuntimeBaseNode extends BlueprintNode<BlueprintPinRuntime>
             const curInput = inputPins[i];
             let from = curInput.linkTo[0];
             if (from) {
-                (from as BlueprintPinRuntime).step(context, runtimeDataMgr, runner, runId);
+                if(!context.readCache){
+                    (from as BlueprintPinRuntime).step(context, runtimeDataMgr, runner, runId);
+                }
                 context.parmFromOtherPin(curInput, runtimeDataMgr, from as BlueprintPinRuntime, _parmsArray, runId);
             }
             else {
                 context.parmFromSelf(curInput, runtimeDataMgr, _parmsArray, runId);
             }
         }
+        context.readCache=false;
         return _parmsArray;
     }
-
+    private _checkRun(parmsArray: any[]):Promise<any>{
+        let promiseList:Promise<any>[];
+        parmsArray.forEach((parm)=>{
+            if(parm instanceof Promise){
+                if(!promiseList) promiseList=[];
+                promiseList.push(parm);
+            }
+        });
+        if(promiseList){
+            return Promise.all(promiseList);
+        }
+        else{
+            return null;
+        }
+    }
 
     step(context: IRunAble, runtimeDataMgr: IRuntimeDataManger, fromExcute: boolean, runner: IBPRutime, enableDebugPause: boolean, runId: number, fromPin: BlueprintPinRuntime): BlueprintPinRuntime | BlueprintPromise | number {
         let _parmsArray: any[] = this.colloctParam(context, runtimeDataMgr, this.inPutParmPins, runner, runId);
         // context.parmFromOutPut(this.outPutParmPins, runtimeDataMgr, _parmsArray);
-        
+        let promise=this._checkRun(_parmsArray);
+        if(promise){
+            let bPromise = BlueprintPromise.create();
+            this.outPutParmPins[0] && runtimeDataMgr.setPinData(this.outPutParmPins[0], promise, runId);
+            promise.then((value)=>{
+                //debugger;
+                if(bPromise.hasCallBack()){
+                    bPromise.index = this.index;
+                    bPromise.pin = fromPin;
+                    bPromise.listIndex = this.listIndex;
+                    context.readCache=true;
+                    bPromise.complete();
+                }
+                else{
+                    context.readCache=true;
+                    this.step(context, runtimeDataMgr, fromExcute, runner, enableDebugPause, runId, fromPin);
+                }
+                bPromise.recover();
+                //let result =this.step(context, runtimeDataMgr, fromExcute, runner, enableDebugPause, runId, fromPin);
+            });
+            return bPromise;
+        }
         const result = fromExcute && context.beginExcute(this, runner, enableDebugPause, fromPin, _parmsArray);
         if (result) {
             return result;
