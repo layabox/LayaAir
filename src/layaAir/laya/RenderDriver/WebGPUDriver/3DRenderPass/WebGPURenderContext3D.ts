@@ -135,7 +135,7 @@ export class WebGPURenderContext3D implements IRenderContext3D {
 
     setRenderTarget(rt: WebGPUInternalRT, clearFlag: RenderClearFlag): void {
         this._clearFlag = clearFlag;
-        if (rt != this.destRT) {
+        if (rt !== this.destRT) {
             this.destRT = rt;
             this._needStart = true;
         }
@@ -158,7 +158,7 @@ export class WebGPURenderContext3D implements IRenderContext3D {
     }
 
     drawRenderElementList(list: SingletonList<WebGPURenderElement3D>): number {
-        if (list.length == 0) return 0;
+        if (list.length === 0) return 0;
         this._setScreenRT();
         if (this._needStart) {
             this._start();

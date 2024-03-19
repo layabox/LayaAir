@@ -85,7 +85,7 @@ export class WebGPURenderCommandEncoder {
         for (let i = 0; i < vertexbuffers.length; i++)
             this.setVertexBuffer(i, vertexbuffers[i].source._source, 0, vertexbuffers[i].source._size);
         if (indexbuffer) {
-            const format: GPUIndexFormat = (geometry.indexFormat == IndexFormat.UInt16) ? "uint16" : "uint32";
+            const format: GPUIndexFormat = (geometry.indexFormat === IndexFormat.UInt16) ? "uint16" : "uint32";
             this.setIndexBuffer(indexbuffer.source._source, format, indexbuffer.source._size, 0);
         }
 

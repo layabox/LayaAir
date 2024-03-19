@@ -1,17 +1,9 @@
+import { OffsetAndSize, roundUp } from "../WebGPUCommon";
 import { WebGPUGlobal } from "../WebGPUStatis/WebGPUGlobal";
 import { WebGPUStatis } from "../WebGPUStatis/WebGPUStatis";
 import { WebGPUBufferBlock } from "./WebGPUBufferBlock";
 import { WebGPUBufferManager } from "./WebGPUBufferManager";
 import { WebGPUUniformBuffer } from "./WebGPUUniformBuffer";
-
-type OffsetAndSize = { offset: number, size: number };
-
-/**
- * 向上圆整到align的整数倍
- * @param n 
- * @param align 
- */
-const roundUp = (n: number, align: number) => (((n + align - 1) / align) | 0) * align;
 
 /**
  * GPU内存块（大内存块）
@@ -79,7 +71,6 @@ export class WebGPUBufferCluster {
             this.used.push(bb);
             return bb;
         }
-
         return null;
     }
 
@@ -88,8 +79,8 @@ export class WebGPUBufferCluster {
      */
     freeBlock(bb: WebGPUBufferBlock) {
         //根据传入的块信息，将块信息从used数组中移除，并添加到free数组中
-        const index = this.used.findIndex(block => block == bb);
-        if (index != -1) {
+        const index = this.used.findIndex(block => block === bb);
+        if (index !== -1) {
             this.used.splice(index, 1);
             this.free.push({ offset: bb.offset, size: bb.alignedSize });
             this.totalLeft += bb.alignedSize;
@@ -101,20 +92,47 @@ export class WebGPUBufferCluster {
     }
 
     /**
-     * 将数据上传到GPU内存
+     * 将数据上传到GPU内存，合并相邻块，尽可能减少上传次数
      */
     upload() {
-        //遍历所有需要上传的内存块，执行上传操作
         let count = 0;
-        for (let i = this.needUpload.length - 1; i > -1; i--) {
+        let next = false;
+        let startIndex = -1;
+        let endIndex = -1;
+        let offset = 0;
+        let size = 0;
+        
+        //遍历needUpload数组，找到需要上传的块，然后合并相邻块，上传数据
+        for (let i = 0, len = this.needUpload.length; i < len; i++) {
             if (this.needUpload[i]) {
-                const offset = i * this.sliceSize;
-                const size = this.sliceSize;
-                this.device.queue.writeBuffer(this.buffer, offset, this.arrayBuffer, offset, size);
+                if (startIndex === -1)
+                    startIndex = i;
+                endIndex = i;
+                next = true;
                 this.needUpload[i] = false;
-                count++;
+            } else {
+                //如果当前块不需要上传，且之前有需要上传的块，则上传数据
+                if (next) {
+                    offset = startIndex * this.sliceSize;
+                    size = (endIndex - startIndex + 1) * this.sliceSize;
+                    this.device.queue.writeBuffer(this.buffer, offset, this.arrayBuffer, offset, size);
+                    count++;
+                    startIndex = -1;
+                    endIndex = -1;
+                    next = false;
+                }
             }
         }
+
+        //如果最后一个块需要上传，则上传数据
+        if (next) {
+            offset = startIndex * this.sliceSize;
+            size = (endIndex - startIndex + 1) * this.sliceSize;
+            this.device.queue.writeBuffer(this.buffer, offset, this.arrayBuffer, offset, size);
+            count++;
+        }
+
+        //记录上传次数
         WebGPUStatis.addUploadNum(count);
     }
 
@@ -125,7 +143,7 @@ export class WebGPUBufferCluster {
     clear(sliceNum?: number) {
         this.used.forEach(block => block.destroy());
         this.used.length = 0;
-        if (sliceNum != undefined && sliceNum >= 0 && sliceNum != this.sliceNum) {
+        if (sliceNum !== undefined && sliceNum >= 0 && sliceNum !== this.sliceNum) {
             this.sliceNum = sliceNum;
             this.totalSize = this.sliceSize * this.sliceNum;
             //创建一个新的GPUBuffer
@@ -144,14 +162,14 @@ export class WebGPUBufferCluster {
      * 查找或创建一个足够大的空闲块，若有必要则扩展大内存块
      */
     private _findOrCreateFreeBlock(requiredSize: number): OffsetAndSize {
-        let blockIndex = this.free.findIndex(block => block.size == requiredSize);
-        if (blockIndex != -1) {
+        let blockIndex = this.free.findIndex(block => block.size === requiredSize);
+        if (blockIndex !== -1) {
             //精确匹配大小，直接返回该块
             this.totalLeft -= requiredSize;
             return this.free.splice(blockIndex, 1)[0];
         }
         blockIndex = this.free.findIndex(block => block.size > requiredSize);
-        if (blockIndex != -1) {
+        if (blockIndex !== -1) {
             //找到了合适的块
             const block = this.free[blockIndex];
             const newBlock = { offset: block.offset, size: requiredSize };
@@ -218,7 +236,7 @@ export class WebGPUBufferCluster {
         let doMerge = false;
         for (const block of this.free) {
             //如果merged数组为空，或当前内存块与前一个内存块不连续，则直接将当前内存块添加到merged数组中
-            if (merged.length == 0 || block.offset > (merged[merged.length - 1].offset + merged[merged.length - 1].size)) {
+            if (merged.length === 0 || block.offset > (merged[merged.length - 1].offset + merged[merged.length - 1].size)) {
                 merged.push({ ...block });
             } else {
                 //如果当前内存块与前一个内存块连续，则将当前内存块的大小合并到前一个内存块中

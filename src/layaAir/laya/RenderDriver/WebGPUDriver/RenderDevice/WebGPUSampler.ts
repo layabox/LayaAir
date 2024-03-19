@@ -65,7 +65,6 @@ export class WebGPUSampler {
     }
 
     private _descriptor: GPUSamplerDescriptor
-    /**@internal */
     source: GPUSampler;
 
     globalId: number;

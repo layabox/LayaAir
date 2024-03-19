@@ -32,7 +32,9 @@ export class WebGPUShaderData extends ShaderData {
     private _uniformBuffer: WebGPUUniformBuffer;
     private _bindGroupMap: Map<string, [GPUBindGroup, GPUBindGroupLayoutEntry[]]>;
 
-    isStatic: boolean = false; //是否静态
+    private static _bindGroupCounter: number = 0;
+
+    isStatic: boolean = false; //是否静态，静态的节点会使用静态的大Buffer，减少上传次数
 
     globalId: number;
     objectName: string = 'WebGPUShaderData';
@@ -47,22 +49,34 @@ export class WebGPUShaderData extends ShaderData {
         //this.globalId = WebGPUGlobal.getId(this);
     }
 
+    /**
+     * 创建UniformBuffer
+     * @param info 
+     * @param single 
+     */
     createUniformBuffer(info: WebGPUUniformPropertyBindingInfo, single: boolean = false) {
+        //如果指明了这种类型UniformBuffer是single的，则不会重复创建
         if (single && this._uniformBuffer) return;
         if (info && info.uniform) {
-            if (!this._uniformBuffer || this._infoId != info.uniform.globalId) {
+            //如果UniformBuffer还没有创建，或者创建UniformBuffer所使用的信息发生了变化，则创建
+            if (!this._uniformBuffer || this._infoId !== info.uniform.globalId) {
+                if (this._uniformBuffer)
+                    this._uniformBuffer.destroy();
                 this._infoId = info.uniform.globalId;
                 const gpuBuffer = WebGPURenderEngine._instance.gpuBufferMgr;
                 this._uniformBuffer = new WebGPUUniformBuffer(info.name, info.set, info.binding, info.uniform.size, gpuBuffer, this);
                 for (let i = 0, len = info.uniform.items.length; i < len; i++) {
                     const uniform = info.uniform.items[i];
-                    this._uniformBuffer.addUniform(uniform.id, uniform.name, uniform.type, uniform.offset, uniform.align, uniform.size, uniform.elements, uniform.count);
+                    this._uniformBuffer.addUniform(uniform.propertyId, uniform.name, uniform.type, uniform.offset, uniform.align, uniform.size, uniform.element, uniform.count);
                 }
                 this._updateUniformData();
             }
         }
     };
 
+    /**
+     * 将数据更新到UniformBuffer中
+     */
     private _updateUniformData() {
         for (const idStr in this._data) {
             const id = Number(idStr);
@@ -82,15 +96,23 @@ export class WebGPUShaderData extends ShaderData {
      * 绑定资源组
      * @param groupId 
      * @param name 
-     * @param uniforms 
+     * @param info 
      * @param command 
      */
-    bindGroup(groupId: number, name: string, uniforms: WebGPUUniformPropertyBindingInfo[], command: WebGPURenderCommandEncoder) {
+    bindGroup(groupId: number, name: string, info: WebGPUUniformPropertyBindingInfo[], command: WebGPURenderCommandEncoder) {
         const device = WebGPURenderEngine._instance.getDevice();
 
+        //同一个ShaderData可能需要不同的bindGroup，因为某些ShaderData是共享的（比如Scene3D和Camera）
+        //具体原因是bindGroup中还包含了texture和sampler，不同的RendlerElement共享了同一个ShaderData，
+        //但是他们的texture和sampler是有可能不同的，比如使用了UnlitMaterial和BlinnPhongMaterial的渲染节点共享了
+        //同一个Scene3D的ShaderData（对应bindGroup0），但UnlitMaterial不使用灯光，从而不使用u_lightButter，
+        //但BlinnPhongMaterial使用灯光，使用u_lightBuffer贴图，因此这两个渲染节点的bindGroup0是不同的，
+        //不同的bindGroup可以通过info中propertyId区分开来。
+
+        //构建key，查找缓存bindGroup
         let key = name + '_' + this._infoId + ' | ';
-        for (let i = uniforms.length - 1; i > -1; i--)
-            key += uniforms[i].propertyId + '_';
+        for (let i = info.length - 1; i > -1; i--)
+            key += info[i].propertyId + '_';
         const bindInfo = this._bindGroupMap.get(key);
         let bindGroup = bindInfo ? bindInfo[0] : null;
         let bindGroupLayoutEntries = bindInfo ? bindInfo[1] : null;
@@ -99,11 +121,11 @@ export class WebGPUShaderData extends ShaderData {
         if (!bindGroup) {
             bindGroupLayoutEntries = [];
             const bindGroupEntries = [];
-            for (const item of uniforms) {
+            for (const item of info) {
                 switch (item.type) {
                     case WebGPUBindingInfoType.buffer:
                         if (item.uniform) {
-                            if (!this._uniformBuffer) return false;
+                            if (!this._uniformBuffer) return null;
                             bindGroupLayoutEntries.push({
                                 binding: item.binding,
                                 visibility: item.visibility,
@@ -115,10 +137,11 @@ export class WebGPUShaderData extends ShaderData {
                     case WebGPUBindingInfoType.texture:
                         if (item.texture) {
                             const texture = this.getTexture(item.propertyId);
-                            if (!texture) return false;
+                            if (!texture) return null;
                             else {
-                                if (texture.format == TextureFormat.R32G32B32A32)
+                                if (texture.format === TextureFormat.R32G32B32A32)
                                     item.texture.sampleType = 'unfilterable-float';
+                                else item.texture.sampleType = 'float';
                                 bindGroupLayoutEntries.push({
                                     binding: item.binding,
                                     visibility: item.visibility,
@@ -134,10 +157,11 @@ export class WebGPUShaderData extends ShaderData {
                     case WebGPUBindingInfoType.sampler:
                         if (item.sampler) {
                             const texture = this.getTexture(item.propertyId);
-                            if (!texture) return false;
+                            if (!texture) return null;
                             else {
-                                if (texture.format == TextureFormat.R32G32B32A32)
+                                if (texture.format === TextureFormat.R32G32B32A32)
                                     item.sampler.type = 'non-filtering';
+                                else item.sampler.type = 'filtering';
                                 bindGroupLayoutEntries.push({
                                     binding: item.binding,
                                     visibility: item.visibility,
@@ -156,16 +180,18 @@ export class WebGPUShaderData extends ShaderData {
             //创建绑定组
             const bindGroupLayoutDesc: GPUBindGroupLayoutDescriptor = { entries: bindGroupLayoutEntries };
             bindGroup = device.createBindGroup({
-                label: name,
+                label: name + '_' + this._infoId,
                 layout: device.createBindGroupLayout(bindGroupLayoutDesc),
                 entries: bindGroupEntries,
             });
+            //缓存绑定组
             this._bindGroupMap.set(key, [bindGroup, bindGroupLayoutEntries]);
-            console.log('create bindGroup', key, bindGroupLayoutDesc, bindGroupEntries, bindGroup);
+            console.log('create bindGroup_' + WebGPUShaderData._bindGroupCounter++, key, bindGroupLayoutDesc, bindGroupEntries, bindGroup);
         }
 
         //将绑定组附加到命令
         command.setBindGroup(groupId, bindGroup);
+        //返回绑定组结构（用于建立pipeline）
         return bindGroupLayoutEntries;
     }
 
@@ -234,7 +260,7 @@ export class WebGPUShaderData extends ShaderData {
      * @param value 布尔。
      */
     setBool(index: number, value: boolean): void {
-        if (this._data[index] == value) return;
+        if (this._data[index] === value) return;
         this._data[index] = value;
         if (this._uniformBuffer)
             this._uniformBuffer.setBool(index, value);
@@ -255,7 +281,7 @@ export class WebGPUShaderData extends ShaderData {
      * @param value 整形。
      */
     setInt(index: number, value: number): void {
-        if (this._data[index] == value) return;
+        if (this._data[index] === value) return;
         this._data[index] = value;
         if (this._uniformBuffer)
             this._uniformBuffer.setInt(index, value);
@@ -276,7 +302,7 @@ export class WebGPUShaderData extends ShaderData {
      * @param value 浮点。
      */
     setNumber(index: number, value: number): void {
-        if (this._data[index] == value) return;
+        if (this._data[index] === value) return;
         this._data[index] = value;
         if (this._uniformBuffer)
             this._uniformBuffer.setFloat(index, value);
@@ -506,7 +532,7 @@ export class WebGPUShaderData extends ShaderData {
 
     getSourceIndex(value: any): number {
         for (const i in this._data)
-            if (this._data[i] == value)
+            if (this._data[i] === value)
                 return Number(i);
         return -1;
     }
@@ -528,6 +554,6 @@ export class WebGPUShaderData extends ShaderData {
     destroy(): void {
         WebGPUGlobal.releaseId(this);
         super.destroy();
-        //TODO
+        this.clearBindGroup();
     }
 }

@@ -366,7 +366,7 @@ export class WebGPUTextureContext implements ITextureContext {
                 layerCount = 6;
                 break;
         }
-        if (dimension == TextureDimension.Tex3D) {
+        if (dimension === TextureDimension.Tex3D) {
             throw "error";
         }
         //TODO
@@ -708,7 +708,7 @@ export class WebGPUTextureContext implements ITextureContext {
     }
     setCubeSubPixelData(texture: WebGPUInternalTex, source: ArrayBufferView[], mipmapLevel: number, generateMipmap: boolean, xOffset: number, yOffset: number, width: number, height: number, premultiplyAlpha: boolean, invertY: boolean): void {
         //invert TODO
-        generateMipmap = generateMipmap && mipmapLevel == 0;
+        generateMipmap = generateMipmap && mipmapLevel === 0;
         for (let index = 0; index < 6; index++) {
             let sourceData = source[index];
             let imageCopy: GPUImageCopyTextureTagged = {
@@ -765,7 +765,7 @@ export class WebGPUTextureContext implements ITextureContext {
         internalRT._textures[0]._webGPUFormat = gpuColorFormat;
         WebGPUGlobal.action(internalRT._textures[0], 'allocMemory | texture', (width * height * pixelByteSize * (generateMipmap ? 1.33333 : 1)) | 0);
 
-        if (depthStencilFormat != RenderTargetFormat.None) {
+        if (depthStencilFormat !== RenderTargetFormat.None) {
             const pixelByteSize = this._getGPURenderTexturePixelByteSize(depthStencilFormat);
             const gpuDepthFormat = this._getGPURenderTargetFormat(depthStencilFormat, false);
             const gpuDepthDescriptor = this._getGPUTextureDescriptor(TextureDimension.Tex2D, width, height, gpuDepthFormat, 1, false);

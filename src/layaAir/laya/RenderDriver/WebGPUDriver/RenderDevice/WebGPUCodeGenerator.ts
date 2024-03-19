@@ -2,7 +2,6 @@ import { Config3D } from "../../../../Config3D";
 import { RenderParams } from "../../../RenderEngine/RenderEnum/RenderParams";
 import { Shader3D } from "../../../RenderEngine/RenderShader/Shader3D";
 import { UniformMapType } from "../../../RenderEngine/RenderShader/SubShader";
-import { NagaWASM } from "../../../RenderEngine/RenderShader/wgslCode/naga/NagaWASM";
 import { LayaGL } from "../../../layagl/LayaGL";
 import { ShaderNode } from "../../../webgl/utils/ShaderNode";
 import { ShaderDataType } from "../../DriverDesign/RenderDevice/ShaderData";
@@ -10,19 +9,10 @@ import { WebGLCommandUniformMap } from "../../WebGLDriver/RenderDevice/WebGLComm
 import { TypeOutData } from "../ShaderCompile/WebGPUShaderCompileCode";
 import { WebGPUShaderCompileDef } from "../ShaderCompile/WebGPUShaderCompileDef";
 import { WebGPUShaderCompileUtil } from "../ShaderCompile/WebGPUShaderCompileUtil";
+import { NagaWASM } from "./Naga/NagaWASM";
+import { NameAndType, NameNumberMap, NameStringMap, roundUp } from "./WebGPUCommon";
 import { WebGPUGlobal } from "./WebGPUStatis/WebGPUGlobal";
 import { WebGPUUniformBlockInfo } from "./WebGPUUniform/WebGPUUniformBlockInfo";
-
-type NameAndType = { name: string; type: string; set: number };
-type NameStringMap = Record<string, string>;
-type NameNumberMap = Record<string, number>;
-
-/**
- * 向上圆整到align的整数倍
- * @param n 
- * @param align 
- */
-const roundUp = (n: number, align: number) => (((n + align - 1) / align) | 0) * align;
 
 export enum WebGPUBindingInfoType {
     buffer,
@@ -78,11 +68,11 @@ export class WebGPUCodeGenerator {
         for (const key in attributeMap) {
             let loc = attributeMap[key][0];
             const type = this.getAttributeT2S(attributeMap[key][1]);
-            if (type == "mat3") {
+            if (type === "mat3") {
                 res = `${res}layout(location = ${loc++}) in vec3 ${key}_0;\n`;
                 res = `${res}layout(location = ${loc++}) in vec3 ${key}_1;\n`;
                 res = `${res}layout(location = ${loc++}) in vec3 ${key}_2;\n`;
-            } else if (type == "mat4") {
+            } else if (type === "mat4") {
                 res = `${res}layout(location = ${loc++}) in vec4 ${key}_0;\n`;
                 res = `${res}layout(location = ${loc++}) in vec4 ${key}_1;\n`;
                 res = `${res}layout(location = ${loc++}) in vec4 ${key}_2;\n`;
@@ -129,7 +119,7 @@ export class WebGPUCodeGenerator {
 
         const _have = (group: NameAndType[], name: string) => {
             for (let i = group.length - 1; i > -1; i--)
-                if (group[i].name == name)
+                if (group[i].name === name)
                     return true;
             return false;
         }
@@ -161,7 +151,7 @@ export class WebGPUCodeGenerator {
                 if (!_have(sprite3DUniforms, name))
                     sprite3DUniforms.push({ name, type, set: 2 });
             }
-            else if (type == "sampler2D" || type == "samplerCube") {
+            else if (type === "sampler2D" || type === "samplerCube") {
                 if (!_have(textureUniforms, name))
                     textureUniforms.push({ name, type, set: 3 });
             }
@@ -169,13 +159,13 @@ export class WebGPUCodeGenerator {
                 materialUniforms.push({ name, type, set: 3 });
         }
 
-        if (sprite3DUniforms.length == 0)
+        if (sprite3DUniforms.length === 0)
             sprite3DUniforms.push({ name: 'u_WorldMat', type: 'mat4', set: 2 });
-        if (materialUniforms.length == 0)
+        if (materialUniforms.length === 0)
             materialUniforms.push({ name: 'u_AlbedoColor', type: 'vec4', set: 3 });
 
         for (const key in uniformMap) {
-            if (typeof uniformMap[key] == "object") { //block
+            if (typeof uniformMap[key] === "object") { //block
                 const blockUniforms = <{ [name: string]: ShaderDataType }>uniformMap[key];
                 for (const uniformName in blockUniforms) {
                     const dataType = this.getAttributeT2S(blockUniforms[uniformName]);
@@ -201,7 +191,7 @@ export class WebGPUCodeGenerator {
                 for (let i = 0, len = uniforms.length; i < len; i++) {
                     const nameStr = uniforms[i].name;
                     const typeStr = uniforms[i].type;
-                    if (typeStr == 'sampler2D' || typeStr == 'samplerCube')
+                    if (typeStr === 'sampler2D' || typeStr === 'samplerCube')
                         textureUniforms.push({ name: nameStr, type: typeStr, set });
                     sortedUniforms[this.getAttributeS2N(typeStr)].push({ name: nameStr, type: typeStr, set });
                 }
@@ -210,9 +200,9 @@ export class WebGPUCodeGenerator {
                 for (const key in data) {
                     const nameStr = data[key].propertyName;
                     const typeStr = this.getAttributeT2S(data[key].uniformtype);
-                    if (data[key].propertyName.indexOf('.') != -1) continue;
-                    if (typeStr == '') continue;
-                    else if (typeStr == 'sampler2D' || typeStr == 'samplerCube')
+                    if (data[key].propertyName.indexOf('.') !== -1) continue;
+                    if (typeStr === '') continue;
+                    else if (typeStr === 'sampler2D' || typeStr === 'samplerCube')
                         textureUniforms.push({ name: nameStr, type: typeStr, set });
                     else sortedUniforms[this.getAttributeS2N(typeStr)].push({ name: nameStr, type: typeStr, set });
                 }
@@ -230,7 +220,7 @@ export class WebGPUCodeGenerator {
                 type: WebGPUBindingInfoType.buffer,
                 name,
                 propertyId: Shader3D.propertyNameToID(name),
-                uniform: this.genUniformBlockInfo(name, sortedUniforms[0], arrayMap),
+                uniform: this._genUniformBlockInfo(name, sortedUniforms[0], arrayMap),
                 buffer: { type: 'uniform', hasDynamicOffset: false, minBindingSize: 0 },
             } as WebGPUUniformPropertyBindingInfo);
             return sortedUniforms[0];
@@ -238,7 +228,6 @@ export class WebGPUCodeGenerator {
 
         scene3DUniforms = _procUniforms(0, 0, "scene3D", scene3DUniformMap);
         cameraUniforms = _procUniforms(1, 0, "camera", cameraUniformMap);
-        //sprite3DUniforms = _procUniforms(2, 0, "sprite3D", sprite3DUniformMap);
         sprite3DUniforms = _procUniforms(2, 0, "sprite3D", undefined, sprite3DUniforms);
         materialUniforms = _procUniforms(3, 0, "material", undefined, materialUniforms);
 
@@ -261,7 +250,7 @@ export class WebGPUCodeGenerator {
         if (textureUniforms.length > 0) {
             for (let i = 0, len = textureUniforms.length; i < len; i++) {
                 const tu = textureUniforms[i];
-                if (tu.type == "sampler2D") {
+                if (tu.type === "sampler2D") {
                     res = `${res}layout(set = ${tu.set}, binding = ${binding[tu.set]++}) uniform sampler ${tu.name}Sampler;\n`;
                     res = `${res}layout(set = ${tu.set}, binding = ${binding[tu.set]++}) uniform texture2D ${tu.name}Texture;\n`;
                     res = `${res}#define ${tu.name} sampler2D(${tu.name}Texture, ${tu.name}Sampler)\n\n`;
@@ -286,7 +275,7 @@ export class WebGPUCodeGenerator {
                         texture: { sampleType: 'float', viewDimension: '2d', multisampled: false },
                     } as WebGPUUniformPropertyBindingInfo);
                 }
-                if (tu.type == "samplerCube") {
+                if (tu.type === "samplerCube") {
                     res = `${res}layout(set = ${tu.set}, binding = ${binding[tu.set]++}) uniform sampler ${tu.name}Sampler;\n`;
                     res = `${res}layout(set = ${tu.set}, binding = ${binding[tu.set]++}) uniform textureCube ${tu.name}Texture;\n`;
                     res = `${res}#define ${tu.name} samplerCube(${tu.name}Texture, ${tu.name}Sampler)\n\n`;
@@ -384,8 +373,8 @@ mat4 inverse(mat4 m)
      * @param uniforms 
      * @param arrayMap 
      */
-    static genUniformBlockInfo(name: string, uniforms: NameAndType[], arrayMap: NameNumberMap) {
-        if (uniforms.length == 0) return undefined;
+    private static _genUniformBlockInfo(name: string, uniforms: NameAndType[], arrayMap: NameNumberMap) {
+        if (uniforms.length === 0) return undefined;
         const _getUniformAlign = (type: string) => {
             switch (type) {
                 case 'int':
@@ -618,11 +607,11 @@ mat4 inverse(mat4 m)
         }
 
         const vs = VS.toscript(defMap, []);
-        if (vs[0].indexOf('#version') == 0)
+        if (vs[0].indexOf('#version') === 0)
             vs.shift();
 
         const fs = FS.toscript(defMap, []);
-        if (fs[0].indexOf('#version') == 0)
+        if (fs[0].indexOf('#version') === 0)
             fs.shift();
 
         let vsOut = "", fsOut = "";
@@ -640,7 +629,7 @@ mat4 inverse(mat4 m)
             defineString.forEach(def => { defMap[def] = true; });
             defMap['GL_FRAGMENT_PRECISION_HIGH'] = true;
             vsOut = WebGPUShaderCompileUtil.toScript(ret, defMap, vsTod);
-            if (vsOut.indexOf('inverse') == -1)
+            if (vsOut.indexOf('inverse') === -1)
                 vsNeedInverseFunc = false;
             if (vsTod.uniform)
                 for (const key in vsTod.uniform) {
@@ -675,7 +664,7 @@ mat4 inverse(mat4 m)
             defineString.forEach(def => { defMap[def] = true; });
             defMap['GL_FRAGMENT_PRECISION_HIGH'] = true;
             fsOut = WebGPUShaderCompileUtil.toScript(ret, defMap, fsTod);
-            if (fsOut.indexOf('inverse') == -1)
+            if (fsOut.indexOf('inverse') === -1)
                 fsNeedInverseFunc = false;
             if (fsTod.uniform)
                 for (const key in fsTod.uniform) {

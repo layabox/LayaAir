@@ -53,7 +53,7 @@ export class WebGPUShaderInstance implements IShaderInstance {
         });
 
         //生成pipeLineLayout
-        const pipelineLayout = this._createPipelineLayout(device, 'pipelineLayout', shaderObj.uniformInfo);
+        //const pipelineLayout = this.createPipelineLayout(device, 'pipelineLayout');
 
         this._vsShader = device.createShaderModule({ code: shaderObj.vs });
         this._fsShader = device.createShaderModule({ code: shaderObj.fs });
@@ -81,7 +81,7 @@ export class WebGPUShaderInstance implements IShaderInstance {
         //设置渲染管线描述
         this.renderPipelineDescriptor = {
             label: 'render',
-            layout: pipelineLayout,
+            layout: 'auto',
             vertex: {
                 buffers: [],
                 module: this._vsShader,
@@ -114,43 +114,47 @@ export class WebGPUShaderInstance implements IShaderInstance {
      * 基于WebGPUUniformPropertyBindingInfo创建PipelineLayout
      * @param device 
      * @param name 
-     * @param info 
+     * @param entries 
      */
-    private _createPipelineLayout(device: GPUDevice, name: string, info: WebGPUUniformPropertyBindingInfo[]) {
-        const _createBindGroupLayout = (set: number, name: string, info: WebGPUUniformPropertyBindingInfo[]) => {
+    createPipelineLayout(device: GPUDevice, name: string, entries?: any) {
+        const _createBindGroupLayout = (set: number, name: string,
+            info: WebGPUUniformPropertyBindingInfo[]) => {
             const data: WebGPUUniformPropertyBindingInfo[] = [];
             for (let i = 0; i < info.length; i++) {
                 const item = info[i];
-                if (item.set == set)
+                if (item.set === set)
                     data.push(item);
             }
-            if (data.length == 0) return null;
+            if (data.length === 0) return null;
             const desc: GPUBindGroupLayoutDescriptor = {
                 label: name,
-                entries: [],
+                entries: entries ? entries[set] : [],
             };
-            for (let i = 0; i < data.length; i++) {
-                if (data[i].type == WebGPUBindingInfoType.buffer) {
-                    const entry: GPUBindGroupLayoutEntry = {
-                        binding: data[i].binding,
-                        visibility: data[i].visibility,
-                        buffer: data[i].buffer,
-                    };
-                    (desc.entries as GPUBindGroupLayoutEntry[]).push(entry);
-                } else if (data[i].type == WebGPUBindingInfoType.sampler) {
-                    const entry: GPUBindGroupLayoutEntry = {
-                        binding: data[i].binding,
-                        visibility: data[i].visibility,
-                        sampler: data[i].sampler,
-                    };
-                    (desc.entries as GPUBindGroupLayoutEntry[]).push(entry);
-                } else if (data[i].type == WebGPUBindingInfoType.texture) {
-                    const entry: GPUBindGroupLayoutEntry = {
-                        binding: data[i].binding,
-                        visibility: data[i].visibility,
-                        texture: data[i].texture,
-                    };
-                    (desc.entries as GPUBindGroupLayoutEntry[]).push(entry);
+            if (!entries) {
+                for (let i = 0; i < data.length; i++) {
+                    switch (data[i].type) {
+                        case WebGPUBindingInfoType.buffer:
+                            (desc.entries as any).push({
+                                binding: data[i].binding,
+                                visibility: data[i].visibility,
+                                buffer: data[i].buffer,
+                            });
+                            break;
+                        case WebGPUBindingInfoType.sampler:
+                            (desc.entries as any).push({
+                                binding: data[i].binding,
+                                visibility: data[i].visibility,
+                                sampler: data[i].sampler,
+                            });
+                            break;
+                        case WebGPUBindingInfoType.texture:
+                            (desc.entries as any).push({
+                                binding: data[i].binding,
+                                visibility: data[i].visibility,
+                                texture: data[i].texture,
+                            });
+                            break;
+                    }
                 }
             }
             return device.createBindGroupLayout(desc);
@@ -158,7 +162,7 @@ export class WebGPUShaderInstance implements IShaderInstance {
 
         const bindGroupLayouts: GPUBindGroupLayout[] = [];
         for (let i = 0; i < 4; i++) {
-            const group = _createBindGroupLayout(i, `group${i}`, info);
+            const group = _createBindGroupLayout(i, `group${i}`, this.uniformInfo);
             if (group) bindGroupLayouts.push(group);
         }
 

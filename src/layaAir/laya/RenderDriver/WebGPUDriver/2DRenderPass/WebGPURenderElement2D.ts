@@ -20,42 +20,33 @@ export class WebGPURenderelement2D implements IRenderElement2D {
     subShader: SubShader;
 
     protected _compileShader(context: WebGPURenderContext2D) {
-        var passes: ShaderPass[] = this.subShader._passes;
+        const passes: ShaderPass[] = this.subShader._passes;
         this._shaderInstances.clear();
 
-        for (var j: number = 0, m: number = passes.length; j < m; j++) {
-            var pass: ShaderPass = passes[j];
-            //NOTE:this will cause maybe a shader not render but do prepare before，but the developer can avoide this manual,for example shaderCaster=false.
-            if (pass.pipelineMode !== context.pipelineMode)
-                continue;
+        for (let j = 0, m = passes.length; j < m; j++) {
+            const pass: ShaderPass = passes[j];
+            if (pass.pipelineMode !== context.pipelineMode) continue;
 
-            var comDef = WebGPURenderelement2D._compileDefine;
+            const comDef = WebGPURenderelement2D._compileDefine;
 
             if (context.sceneData) {
                 context.sceneData._defineDatas.cloneTo(comDef);
-            } else {
-                context._globalConfigShaderData.cloneTo(comDef);
-            }
-            let returnGamma: boolean = !(context._destRT) || ((context._destRT)._textures[0].gammaCorrection != 1);
-            if (returnGamma) {
+            } else context._globalConfigShaderData.cloneTo(comDef);
+            const returnGamma = !(context._destRT) || ((context._destRT)._textures[0].gammaCorrection != 1);
+            if (returnGamma)
                 comDef.add(ShaderDefines2D.GAMMASPACE);
-            } else {
-                comDef.remove(ShaderDefines2D.GAMMASPACE);
-            }
+            else comDef.remove(ShaderDefines2D.GAMMASPACE);
 
-            if (context.invertY) {
+            if (context.invertY)
                 comDef.add(ShaderDefines2D.INVERTY);
-            } else {
-                comDef.remove(ShaderDefines2D.INVERTY);
-            }
+            else comDef.remove(ShaderDefines2D.INVERTY);
 
-            if (this.value2DShaderData) {
+            if (this.value2DShaderData)
                 comDef.addDefineDatas(this.value2DShaderData.getDefineData());
-            }
             if (this.materialShaderData)
                 comDef.addDefineDatas(this.materialShaderData._defineDatas);
 
-            var shaderIns = pass.withCompile(comDef, true) as WebGPUShaderInstance;
+            const shaderIns = pass.withCompile(comDef, true) as WebGPUShaderInstance;
             this._shaderInstances.add(shaderIns);
         }
     }
@@ -65,13 +56,12 @@ export class WebGPURenderelement2D implements IRenderElement2D {
     }
 
     _render(context: WebGPURenderContext2D) {
-        if (this._shaderInstances.length == 1) {
+        if (this._shaderInstances.length === 1) {
             this.renderByShaderInstance(this._shaderInstances.elements[0], context)
         } else {
-            var passes: WebGPUShaderInstance[] = this._shaderInstances.elements;
-            for (var j: number = 0, m: number = this._shaderInstances.length; j < m; j++) {
+            const passes: WebGPUShaderInstance[] = this._shaderInstances.elements;
+            for (let j = 0, m = this._shaderInstances.length; j < m; j++)
                 this.renderByShaderInstance(passes[j], context);
-            }
         }
     }
 

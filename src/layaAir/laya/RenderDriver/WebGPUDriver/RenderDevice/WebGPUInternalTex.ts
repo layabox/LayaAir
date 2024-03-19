@@ -34,7 +34,7 @@ export class WebGPUInternalTex implements InternalTexture {
         return this._filterMode;
     }
     public set filterMode(value: FilterMode) {
-        if (this._filterMode != value) {
+        if (this._filterMode !== value) {
             switch (value) {
                 case FilterMode.Point:
                     this._webGPUSamplerParams.filterMode = FilterMode.Point;
@@ -59,7 +59,7 @@ export class WebGPUInternalTex implements InternalTexture {
         return this._wrapU;
     }
     public set wrapU(value: WrapMode) {
-        if (this._wrapU != value) {
+        if (this._wrapU !== value) {
             this._webGPUSamplerParams.wrapU = value;
             this._webgpuSampler = WebGPUSampler.getWebGPUSampler(this._webGPUSamplerParams);
             this._wrapU = value;
@@ -71,7 +71,7 @@ export class WebGPUInternalTex implements InternalTexture {
         return this._wrapV;
     }
     public set wrapV(value: WrapMode) {
-        if (this._wrapV != value) {
+        if (this._wrapV !== value) {
             this._webGPUSamplerParams.wrapU = value;
             this._webgpuSampler = WebGPUSampler.getWebGPUSampler(this._webGPUSamplerParams);
             this._wrapV = value;
@@ -83,7 +83,7 @@ export class WebGPUInternalTex implements InternalTexture {
         return this._wrapW;
     }
     public set wrapW(value: WrapMode) {
-        if (this._wrapW != value) {
+        if (this._wrapW !== value) {
             this._webGPUSamplerParams.wrapU = value;
             this._webgpuSampler = WebGPUSampler.getWebGPUSampler(this._webGPUSamplerParams);
             this._wrapW = value;
@@ -95,7 +95,7 @@ export class WebGPUInternalTex implements InternalTexture {
         return this._anisoLevel;
     }
     public set anisoLevel(value: number) {
-        if (this._anisoLevel != value && this.resource) {
+        if (this._anisoLevel !== value && this.resource) {
             this._webGPUSamplerParams.anisoLevel = value;
             this._webgpuSampler = WebGPUSampler.getWebGPUSampler(this._webGPUSamplerParams);
             this._anisoLevel = value;
@@ -107,7 +107,7 @@ export class WebGPUInternalTex implements InternalTexture {
         return this._compareMode;
     }
     public set compareMode(value: TextureCompareMode) {
-        if (this._compareMode != value) {
+        if (this._compareMode !== value) {
             this._webGPUSamplerParams.comparedMode = value;
             this._webgpuSampler = WebGPUSampler.getWebGPUSampler(this._webGPUSamplerParams);
             this._compareMode = value;
@@ -140,7 +140,7 @@ export class WebGPUInternalTex implements InternalTexture {
         }
 
         this.isPotSize = isPot(width) && isPot(height);
-        if (dimension == TextureDimension.Tex3D) {
+        if (dimension === TextureDimension.Tex3D) {
             this.isPotSize = this.isPotSize && isPot(this.depth);
         }
 

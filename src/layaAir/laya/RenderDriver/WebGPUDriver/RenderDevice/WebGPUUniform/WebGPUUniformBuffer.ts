@@ -7,35 +7,9 @@ import { WebGPUShaderData } from "../WebGPUShaderData";
 import { WebGPUBufferBlock } from "./WebGPUBufferBlock";
 import { WebGPUBufferManager } from "./WebGPUBufferManager";
 import { WebGPUGlobal } from "../WebGPUStatis/WebGPUGlobal";
+import { TypedArray, TypedArrayConstructor, roundUp } from "../WebGPUCommon";
 
-type TypedArray =
-    | Int8Array
-    | Uint8Array
-    | Int16Array
-    | Uint16Array
-    | Int32Array
-    | Uint32Array
-    | Float32Array
-    | Float64Array;
-
-type TypedArrayConstructor =
-    | Int8ArrayConstructor
-    | Uint8ArrayConstructor
-    | Int16ArrayConstructor
-    | Uint16ArrayConstructor
-    | Int32ArrayConstructor
-    | Uint32ArrayConstructor
-    | Float32ArrayConstructor
-    | Float64ArrayConstructor;
-
-/**
- * 向上圆整到align的整数倍
- * @param n 
- * @param align 
- */
-const roundUp = (n: number, align: number) => (((n + align - 1) / align) | 0) * align;
-
-type UniformItemType = {
+type ItemType = {
     name: string, //名称
     view: TypedArray, //ArrayBufferView
     type: string, //int, float, vec2 ...
@@ -48,7 +22,7 @@ type UniformItemType = {
 export class WebGPUUniformBuffer {
     name: string;
     strID: string;
-    items: Map<number, UniformItemType>;
+    items: Map<number, ItemType>;
     itemNum: number;
     needUpload: boolean;
 
@@ -58,8 +32,8 @@ export class WebGPUUniformBuffer {
     gpuBuffer: WebGPUBufferManager;
     user: WebGPUShaderData;
 
-    private _gpu_Buffer: GPUBuffer;
-    private _gpu_BindGroupEntry: GPUBindGroupEntry;
+    private _gpuBuffer: GPUBuffer;
+    private _gpuBindGroupEntry: GPUBindGroupEntry;
 
     globalId: number;
     objectName: string = 'UniformBuffer';
@@ -75,11 +49,11 @@ export class WebGPUUniformBuffer {
         this.binding = binding;
         this.block = gpuBuffer.getBlock(this.name, size, this);
 
-        this._gpu_Buffer = gpuBuffer.getBuffer(this.name);
-        this._gpu_BindGroupEntry = {
+        this._gpuBuffer = gpuBuffer.getBuffer(this.name);
+        this._gpuBindGroupEntry = {
             binding,
             resource: {
-                buffer: this._gpu_Buffer,
+                buffer: this._gpuBuffer,
                 offset: this.block.offset,
                 size,
             },
@@ -94,11 +68,11 @@ export class WebGPUUniformBuffer {
      * 通知GPUBuffer改变
      */
     notifyGPUBufferChange() {
-        this._gpu_Buffer = this.gpuBuffer.getBuffer(this.name);
-        this._gpu_BindGroupEntry = {
+        this._gpuBuffer = this.gpuBuffer.getBuffer(this.name);
+        this._gpuBindGroupEntry = {
             binding: this.binding,
             resource: {
-                buffer: this._gpu_Buffer,
+                buffer: this._gpuBuffer,
                 offset: this.block.offset,
                 size: this.block.size,
             },
@@ -148,7 +122,7 @@ export class WebGPUUniformBuffer {
             switch (item.type) {
                 case 'int':
                 case 'float':
-                    if (item.count == 1)
+                    if (item.count === 1)
                         item.view[0] = data;
                     else {
                         for (let i = 0, len = Math.min(item.count, data.length); i < len; i++)
@@ -156,7 +130,7 @@ export class WebGPUUniformBuffer {
                     }
                     break;
                 case 'vec2':
-                    if (item.count == 1) {
+                    if (item.count === 1) {
                         item.view[0] = data.x;
                         item.view[1] = data.y;
                     }
@@ -168,7 +142,7 @@ export class WebGPUUniformBuffer {
                     }
                     break;
                 case 'vec3':
-                    if (item.count == 1) {
+                    if (item.count === 1) {
                         item.view[0] = data.x;
                         item.view[1] = data.y;
                         item.view[2] = data.z;
@@ -182,7 +156,7 @@ export class WebGPUUniformBuffer {
                     }
                     break;
                 case 'vec4':
-                    if (item.count == 1) {
+                    if (item.count === 1) {
                         item.view[0] = data.x;
                         item.view[1] = data.y;
                         item.view[2] = data.z;
@@ -198,7 +172,7 @@ export class WebGPUUniformBuffer {
                     }
                     break;
                 case 'mat3':
-                    if (item.count == 1) {
+                    if (item.count === 1) {
                         for (let i = 0; i < 3; i++) {
                             item.view[i * 4 + 0] = data.elements[i * 3 + 0];
                             item.view[i * 4 + 1] = data.elements[i * 3 + 1];
@@ -216,7 +190,7 @@ export class WebGPUUniformBuffer {
                     }
                     break;
                 case 'mat4':
-                    if (item.count == 1)
+                    if (item.count === 1)
                         item.view.set(data.elements);
                     else {
                         for (let i = 0, len = Math.min(item.count, data.length); i < len; i++)
@@ -506,7 +480,7 @@ export class WebGPUUniformBuffer {
      * @param strID 
      */
     isMe(strID: string) {
-        return this.strID == strID;
+        return this.strID === strID;
     }
 
     /**
@@ -530,16 +504,16 @@ export class WebGPUUniformBuffer {
         this.needUpload = false;
     }
 
-    desroy() {
+    destroy() {
         WebGPUGlobal.releaseId(this);
-        this.clear();
+        this.gpuBuffer.freeBlock(this.name, this.block);
     }
 
     /**
      * 获取WebGPU绑定资源入口
      */
     getGPUBindEntry() {
-        return this._gpu_BindGroupEntry;
+        return this._gpuBindGroupEntry;
     }
 
     /**

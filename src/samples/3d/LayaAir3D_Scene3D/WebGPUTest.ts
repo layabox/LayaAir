@@ -37,6 +37,8 @@ import { WebGPURenderEngine } from "laya/RenderDriver/WebGPUDriver/RenderDevice/
 import { Loader } from "laya/net/Loader";
 import { WebGLRender2DProcess } from "laya/RenderDriver/WebGLDriver/2DRenderPass/WebGLRender2DProcess";
 import { WebGPURender2DProcess } from "laya/RenderDriver/WebGPUDriver/2DRenderPass/WebGPURender2DProcess";
+import { PBRMaterial } from "laya/d3/core/material/PBRMaterial";
+import { PBRStandardMaterial } from "laya/d3/core/material/PBRStandardMaterial";
 
 export class WebGPUTest {
     useWebGPU: boolean = true;
@@ -68,7 +70,7 @@ export class WebGPUTest {
 
             const scene: Scene3D = (<Scene3D>Laya.stage.addChild(new Scene3D()));
 
-            const camera: Camera = (<Camera>(scene.addChild(new Camera(0, 0.1, 200))));
+            const camera: Camera = (<Camera>(scene.addChild(new Camera(0, 0.1, 300))));
             camera.transform.translate(new Vector3(0, 0.5, 5));
             camera.transform.rotate(new Vector3(-15, 0, 0), true, false);
             camera.clearColor = Color.BLUE;
@@ -78,15 +80,15 @@ export class WebGPUTest {
             const directLight = new Sprite3D();
             const dircom = directLight.addComponent(DirectionLightCom);
             scene.addChild(directLight);
-            dircom.color.setValue(1, 1, 1, 1);
+            dircom.color.setValue(0.8, 0.8, 0.8, 1);
 
             const boxMesh1 = PrimitiveMesh.createBox(0.2, 0.2, 0.2);
-            const coneMesh1 = PrimitiveMesh.createCone(0.2, 0.6, 16);
+            const coneMesh1 = PrimitiveMesh.createCone(0.2, 0.6, 64);
             const sphereMesh1 = PrimitiveMesh.createSphere(0.15, 16, 16);
 
             const material1 = new BlinnPhongMaterial();
             const material2 = new BlinnPhongMaterial();
-            const material3 = new BlinnPhongMaterial();
+            const material3 = new PBRStandardMaterial();
 
             const boxS3D = [];
             const sphereS3D = [];
@@ -96,13 +98,16 @@ export class WebGPUTest {
                 { url: "res/threeDimen/texture/earth.jpg", type: Loader.TEXTURE2D },
                 { url: "res/threeDimen/texture/brick.jpg", type: Loader.TEXTURE2D },
                 { url: "res/threeDimen/texture/grass.jpg", type: Loader.TEXTURE2D },
+                { url: "res/threeDimen/texture/rock_normal.jpg", type: Loader.TEXTURE2D },
             ];
             Laya.loader.load(res, Handler.create(this, () => {
                 material1.albedoTexture = Laya.loader.getRes("res/threeDimen/texture/earth.jpg", Loader.TEXTURE2D);
                 material2.albedoTexture = Laya.loader.getRes("res/threeDimen/texture/brick.jpg", Loader.TEXTURE2D);
                 material3.albedoTexture = Laya.loader.getRes("res/threeDimen/texture/grass.jpg", Loader.TEXTURE2D);
+                material3.normalTexture = Laya.loader.getRes("res/threeDimen/texture/rock_normal.jpg", Loader.TEXTURE2D);
+                material3.metallicGlossTexture = Laya.loader.getRes("res/threeDimen/texture/rock_normal.jpg", Loader.TEXTURE2D);
 
-                const n = 1;
+                const n = 4;
                 const m = 1;
                 const l = 1;
                 for (let i = 0; i < n; i++) {

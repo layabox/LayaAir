@@ -195,8 +195,8 @@ export class WebGPURenderEngine implements IRenderEngine {
         const w = width | 0;
         const h = height | 0;
         if (!this._screenRT
-            || this._screenRT._textures[0].width != w
-            || this._screenRT._textures[0].height != h) {
+            || this._screenRT._textures[0].width !== w
+            || this._screenRT._textures[0].height !== h) {
             console.log("canvas resize =", w, h);
             this.createScreenRT();
         }
@@ -257,7 +257,7 @@ export class WebGPURenderEngine implements IRenderEngine {
     /**@internal */
     private _propertyNameCounter: number = 0;
     propertyNameToID(name: string): number {
-        if (this._propertyNameMap[name] != null) {
+        if (this._propertyNameMap[name] !== undefined) {
             return this._propertyNameMap[name];
         } else {
             const id = this._propertyNameCounter++;
@@ -285,7 +285,7 @@ export class WebGPURenderEngine implements IRenderEngine {
             const value = 1 << counter % 32;
             define = new ShaderDefine(index, value);
             this._defineMap[name] = define;
-            if (index == maskMap.length) {
+            if (index === maskMap.length) {
                 maskMap.length++;
                 maskMap[index] = {};
             }

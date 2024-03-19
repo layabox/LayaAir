@@ -1,6 +1,6 @@
 export class WebGPUStatis {
     private static _start: number = Date.now();
-    private static _totalStatis: { memory?: number } = {};
+    private static _totalStatis: { memory: number } = { memory: 0 };
     private static _frameStatis: { renderElement?: number, uploadNum?: number, submit?: number } = {};
     private static _dataTiming: { action: string, name: string, id: number, time: number, memory: number, object: any }[] = [];
     private static _dataCreate: { [key: string]: { id: number[], count: number, time: number[], memory: number, object: any[] } } = {};
@@ -8,9 +8,9 @@ export class WebGPUStatis {
     private static _textureStatis: any[] = [];
 
     static startFrame() {
+        this._frameStatis.submit = 0;
         this._frameStatis.uploadNum = 0;
         this._frameStatis.renderElement = 0;
-        this._frameStatis.submit = 0;
     }
 
     static addUploadNum(n: number = 1) {

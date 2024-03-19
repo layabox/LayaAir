@@ -13,7 +13,7 @@ export class WebGPUVertexBuffer implements IVertexBuffer {
     objectName: string = 'WebGPUVertexBuffer';
 
     constructor(targetType: BufferTargetType, bufferUsageType: BufferUsage) {
-        let usage = WebGPUBufferUsage.VERTEX | WebGPUBufferUsage.COPY_DST;
+        const usage = WebGPUBufferUsage.VERTEX | WebGPUBufferUsage.COPY_DST;
         this.source = new WebGPUBuffer(usage, 0);
         this.globalId = WebGPUGlobal.getId(this);
     }

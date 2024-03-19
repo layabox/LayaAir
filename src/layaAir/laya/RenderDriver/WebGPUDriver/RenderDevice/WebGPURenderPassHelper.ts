@@ -4,9 +4,10 @@ import { WebGPUInternalRT } from "./WebGPUInternalRT";
 import { WebGPUInternalTex } from "./WebGPUInternalTex";
 
 export class WebGPURenderPassHelper {
-    static getDescriptor(rt: WebGPUInternalRT, clearflag: RenderClearFlag, clearColor: Color = null, clearDepth: number = 1, clearStencilValue = 0): GPURenderPassDescriptor {
-        WebGPURenderPassHelper.setColorAttachments(rt._renderPassDescriptor, rt._textures, !!(clearflag & RenderClearFlag.Color), clearColor);
-        WebGPURenderPassHelper.setDepthAttachments(rt._renderPassDescriptor, rt._depthTexture, !!(clearflag & RenderClearFlag.Depth), clearDepth);
+    static getDescriptor(rt: WebGPUInternalRT, clearflag: RenderClearFlag,
+        clearColor: Color = null, clearDepthValue: number = 1, clearStencilValue = 0): GPURenderPassDescriptor {
+        this.setColorAttachments(rt._renderPassDescriptor, rt._textures, !!(clearflag & RenderClearFlag.Color), clearColor);
+        this.setDepthAttachments(rt._renderPassDescriptor, rt._depthTexture, !!(clearflag & RenderClearFlag.Depth), clearDepthValue, clearStencilValue);
         return rt._renderPassDescriptor;
     }
 
@@ -26,9 +27,9 @@ export class WebGPURenderPassHelper {
         }
     }
 
-    static setDepthAttachments(desc: GPURenderPassDescriptor, depthTex: WebGPUInternalTex, clear: boolean, clearDepthValue: number = 1) {
+    static setDepthAttachments(desc: GPURenderPassDescriptor, depthTex: WebGPUInternalTex, clear: boolean, clearDepthValue: number = 1, clearStencilValue = 0) {
         if (depthTex) {
-            const hasStencil = depthTex._webGPUFormat.indexOf("stencil8") != -1;
+            const hasStencil = depthTex._webGPUFormat.indexOf("stencil8") !== -1;
             const depthStencil: GPURenderPassDepthStencilAttachment
                 = desc.depthStencilAttachment = { view: depthTex.getTextureView() };
             if (clear) {
@@ -36,7 +37,7 @@ export class WebGPURenderPassHelper {
                 depthStencil.depthLoadOp = "clear";
                 depthStencil.depthStoreOp = "store";
                 if (hasStencil) {
-                    depthStencil.stencilClearValue = 0;
+                    depthStencil.stencilClearValue = clearStencilValue;
                     depthStencil.stencilLoadOp = "clear";
                     depthStencil.stencilStoreOp = "store";
                 } else {
@@ -49,7 +50,7 @@ export class WebGPURenderPassHelper {
                 depthStencil.depthLoadOp = "load";
                 depthStencil.depthStoreOp = "store";
                 if (hasStencil) {
-                    depthStencil.stencilClearValue = 0;
+                    depthStencil.stencilClearValue = clearStencilValue;
                     depthStencil.stencilLoadOp = "load";
                     depthStencil.stencilStoreOp = "store";
                 } else {
