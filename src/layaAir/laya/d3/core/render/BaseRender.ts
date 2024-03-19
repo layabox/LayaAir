@@ -777,8 +777,8 @@ export class BaseRender extends Component {
         var material: Material = this._sharedMaterials[0];
         if (material && !this._materialsInstance[0]) {
             var insMat: Material = this._getInstanceMaterial(material, 0);
-            //var renderElement: RenderElement = this._renderElements[0];
-            //(renderElement) && (renderElement.material = insMat);
+            var renderElement: RenderElement = this._renderElements[0];
+            (renderElement) && (renderElement.material = insMat);
         }
         return this._sharedMaterials[0];
     }

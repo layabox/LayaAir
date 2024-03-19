@@ -1,3 +1,4 @@
+import { Config3D } from "Config3D";
 import { Laya } from "Laya";
 import { Camera } from "laya/d3/core/Camera";
 import { DirectionLightCom } from "laya/d3/core/light/DirectionLightCom";
@@ -10,6 +11,8 @@ import { Stage } from "laya/display/Stage";
 import { Matrix4x4 } from "laya/maths/Matrix4x4";
 import { Vector3 } from "laya/maths/Vector3";
 import { Loader } from "laya/net/Loader";
+import { URL } from "laya/net/URL";
+import { Shader3D } from "laya/RenderEngine/RenderShader/Shader3D";
 import { Texture2D } from "laya/resource/Texture2D";
 import { Handler } from "laya/utils/Handler";
 import { Stat } from "laya/utils/Stat";
@@ -26,7 +29,6 @@ export class BlinnPhong_NormalMap {
 			Laya.stage.scaleMode = Stage.SCALE_FULL;
 			Laya.stage.screenMode = Stage.SCREEN_NONE;
 			Stat.show();
-
 			this.scene = (<Scene3D>Laya.stage.addChild(new Scene3D()));
 
 			var camera: Camera = (<Camera>(this.scene.addChild(new Camera(0, 0.1, 100))));
@@ -56,10 +58,13 @@ export class BlinnPhong_NormalMap {
 			monster2.transform.localScale = new Vector3(0.075, 0.075, 0.075);
 			for (var i: number = 0; i < monster2.getChildByName("lizard").numChildren; i++) {
 				var meshSprite3D: MeshSprite3D = (<MeshSprite3D>monster2.getChildByName("lizard").getChildAt(i));
-				var material: BlinnPhongMaterial = (<BlinnPhongMaterial>meshSprite3D.getComponent(MeshRenderer).material);
+				let render = <MeshRenderer>meshSprite3D.getComponent(MeshRenderer);
+				var material = render.material;
 				//法线贴图
 				Texture2D.load(this.normalMapUrl[i], Handler.create(this, function (mat: BlinnPhongMaterial, texture: Texture2D): void {
-					mat.normalTexture = texture;
+					// 对应 BlinnPhong shader
+					mat.addDefine(Shader3D.getDefineByName("NORMALMAP"));
+					mat.setTexture("u_NormalTexture", texture);
 				}, [material]));
 			}
 
