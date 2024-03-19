@@ -81,5 +81,6 @@ class BTSimpleParallelContext extends BTCompositeContext {
 }
 
 enum EBTFinishMode {
-
+    Immediate,
+    Delayed
 }

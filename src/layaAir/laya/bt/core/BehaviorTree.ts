@@ -46,8 +46,8 @@ export class BehaviorTree {
             }
         }
         
-        if (config.blackboardAsset)
-            this.blackboardAsset = (Laya.loader.getRes(URL.getResURLByUUID(config.blackboardAsset)) as BlackboardImpl).create();
+        if (config.blackboard)
+            this.blackboardAsset = (Laya.loader.getRes(URL.getResURLByUUID(config.blackboard)) as BlackboardImpl).create();
     }
 
     append(node: BTExecutableNode, item: any) {

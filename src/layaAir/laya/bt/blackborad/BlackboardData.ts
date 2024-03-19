@@ -33,7 +33,7 @@ export class BlackboardData {
 
     parse(config: any) {
         if (config.extends) {
-            this.parent = (Laya.loader.getRes(URL.getResURLByUUID(config.blackboardAsset)) as BlackboardImpl).create();
+            this.parent = (Laya.loader.getRes(URL.getResURLByUUID(config.extends)) as BlackboardImpl).create();
         }
         let data: any[] = config.data;
         data.forEach((item: any) => {
