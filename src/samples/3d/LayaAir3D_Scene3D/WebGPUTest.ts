@@ -107,9 +107,9 @@ export class WebGPUTest {
                 material3.normalTexture = Laya.loader.getRes("res/threeDimen/texture/rock_normal.jpg", Loader.TEXTURE2D);
                 material3.metallicGlossTexture = Laya.loader.getRes("res/threeDimen/texture/rock_normal.jpg", Loader.TEXTURE2D);
 
-                const n = 4;
-                const m = 1;
-                const l = 1;
+                const n = 10;
+                const m = 10;
+                const l = 10;
                 for (let i = 0; i < n; i++) {
                     for (let j = 0; j < m; j++) {
                         for (let k = 0; k < l; k++) {
