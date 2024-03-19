@@ -1133,13 +1133,14 @@ export class Camera extends BaseCamera {
 
         if (this.clearFlag == CameraClearFlags.Sky) {
             scene.skyRenderer.setRenderElement(this.skyRenderElement);
+            this.skyRenderElement.renderpre(context);
         }
 
         scene._componentDriver.callPreRender();
         this._preRenderMainPass(context, scene, needInternalRT, viewport);
 
         let multiLight = Config3D._multiLighting;
-        if (multiLight) { 
+        if (multiLight) {
             Cluster.instance.update(this, scene);
         }
 

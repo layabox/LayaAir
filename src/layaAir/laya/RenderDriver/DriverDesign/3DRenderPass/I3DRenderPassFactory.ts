@@ -11,8 +11,6 @@ export interface I3DRenderPassFactory {
 
     createSkinRenderElement(): IRenderElement3D;//TODO
 
-    createSkyRenderElement(): ISkyRenderElement3D;
-
     createSceneRenderManager(): ISceneRenderManager;
 
     //Render CMD

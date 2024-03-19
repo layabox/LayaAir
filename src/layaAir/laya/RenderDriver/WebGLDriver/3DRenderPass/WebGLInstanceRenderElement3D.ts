@@ -1,7 +1,6 @@
 import { BufferTargetType, BufferUsage } from "../../../RenderEngine/RenderEnum/BufferTargetType";
 import { DrawType } from "../../../RenderEngine/RenderEnum/DrawType";
 import { VertexMesh } from "../../../RenderEngine/RenderShader/VertexMesh";
-import { StaticInstanceBatchRender } from "../../../d3/component/Volume/BatchVolume/StaticInstanceBatchRender";
 import { MeshSprite3DShaderDeclaration } from "../../../d3/core/MeshSprite3DShaderDeclaration";
 import { RenderableSprite3D } from "../../../d3/core/RenderableSprite3D";
 import { SimpleSkinnedMeshRenderer } from "../../../d3/core/SimpleSkinnedMeshRenderer";

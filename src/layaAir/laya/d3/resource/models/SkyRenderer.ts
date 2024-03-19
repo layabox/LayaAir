@@ -24,13 +24,22 @@ export class SkyRenderer {
 
     static SUNLIGHTDIRECTION: number;
     static SUNLIGHTDIRCOLOR: number;
+    static SKYVIEWMATRIX: number;
+    static SKYPROJECTIONMATRIX: number;
+    static SKYPROJECTIONVIEWMATRIX: number;
 
     static __init__() {
         SkyRenderer.SUNLIGHTDIRECTION = Shader3D.propertyNameToID("u_SunLight_direction");
         SkyRenderer.SUNLIGHTDIRCOLOR = Shader3D.propertyNameToID("u_SunLight_color");
-        const commandUniform = LayaGL.renderDeviceFactory.createGlobalUniformMap("Sprite3D");
+        SkyRenderer.SKYVIEWMATRIX = Shader3D.propertyNameToID("u_SkyViewMat");
+        SkyRenderer.SKYPROJECTIONMATRIX = Shader3D.propertyNameToID("u_SkyProjectionMat");
+        SkyRenderer.SKYPROJECTIONVIEWMATRIX = Shader3D.propertyNameToID("u_SkyProjectionViewMat");
+        const commandUniform = LayaGL.renderDeviceFactory.createGlobalUniformMap("SkyRenderer");
         commandUniform.addShaderUniform(SkyRenderer.SUNLIGHTDIRECTION, "u_SunLight_direction", ShaderDataType.Vector3);
         commandUniform.addShaderUniform(SkyRenderer.SUNLIGHTDIRCOLOR, "u_SunLight_color", ShaderDataType.Color);
+        commandUniform.addShaderUniform(SkyRenderer.SKYVIEWMATRIX,"u_SkyViewMat",ShaderDataType.Matrix4x4);
+        commandUniform.addShaderUniform(SkyRenderer.SKYPROJECTIONMATRIX,"u_SkyProjectionMat",ShaderDataType.Matrix4x4);
+        commandUniform.addShaderUniform(SkyRenderer.SKYPROJECTIONVIEWMATRIX,"u_SkyProjectionViewMat",ShaderDataType.Matrix4x4);
     }
 
     /** @internal */
@@ -43,7 +52,7 @@ export class SkyRenderer {
 
     private _renderData: BaseRender;
 
-    private renderGeometry: boolean;
+    private _renderGeometry: boolean;
 
     private _cacheRenderElement: SkyRenderElement;
 
@@ -114,7 +123,7 @@ export class SkyRenderer {
 
     renderUpdate(context: RenderContext3D) {
         let geomettry = this.mesh;
-        this.renderGeometry = geomettry._prepareRender(context);
+        this._renderGeometry = geomettry._prepareRender(context);
         geomettry._updateRenderParams(context);
     }
 
@@ -123,10 +132,14 @@ export class SkyRenderer {
             skyRenderElement.setGeometry(this.mesh);
             skyRenderElement.material = this._material;
             skyRenderElement.render = this._renderData;
-            skyRenderElement._renderElementOBJ.isRender = this.renderGeometry;
+            skyRenderElement._renderElementOBJ.isRender = this._renderGeometry;
             this._baseRenderNode.setRenderelements([skyRenderElement._renderElementOBJ]);
+            this._baseRenderNode.setCommonUniformMap([
+                "Sprite3D",
+                "SkyRenderer"
+            ]);
+            this._cacheRenderElement = skyRenderElement;
         }
-        this._cacheRenderElement = skyRenderElement;
     }
 
     /**
