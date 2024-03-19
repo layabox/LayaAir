@@ -381,12 +381,11 @@ export class SkinnedMeshRenderer extends MeshRenderer {
      * @override
      * @param dest 
      */
-    _cloneTo(dest: Component): void {
-        let render = (dest as SkinnedMeshRenderer);
+    _cloneTo(dest: SkinnedMeshRenderer): void {
 
-        render._inverseBindPosesBufferForNative = null;
-        render._skinnedMatrixCachesBufferForNative = null;
-        render._bonesTransformForNative = null;
+        dest._inverseBindPosesBufferForNative = null;
+        dest._skinnedMatrixCachesBufferForNative = null;
+        dest._bonesTransformForNative = null;
 
         //get common parent
         let getCommomParent = (rootNode: Sprite3D, rootCheckNode: Sprite3D): Sprite3D => {
@@ -419,24 +418,24 @@ export class SkinnedMeshRenderer extends MeshRenderer {
         //rootBone Clone
         var rootBone: Sprite3D = this.rootBone;
         if (rootBone) {
-            let node = cloneHierachFun(this.owner as Sprite3D, this.rootBone as Sprite3D, render.owner as Sprite3D);
+            let node = cloneHierachFun(this.owner as Sprite3D, this.rootBone as Sprite3D, dest.owner as Sprite3D);
             if (node)
-                render.rootBone = node;
+                dest.rootBone = node;
             else
-                render.rootBone = rootBone;
+                dest.rootBone = rootBone;
         }
         //BonesClone
         var bones: Sprite3D[] = this.bones;
-        var destBone: Sprite3D[] = render.bones;
+        var destBone: Sprite3D[] = dest.bones;
         let n = destBone.length = bones.length;
         for (var i = 0; i < n; i++) {
             let ceckNode = bones[i];
-            destBone[i] = cloneHierachFun(this.owner as Sprite3D, ceckNode, render.owner as Sprite3D);
+            destBone[i] = cloneHierachFun(this.owner as Sprite3D, ceckNode, dest.owner as Sprite3D);
         }
         //bounds
         var lbb: Bounds = this.localBounds;
-        (lbb) && (lbb.cloneTo(render.localBounds));
-        (render.localBounds) && (render.localBounds = render.localBounds);
+        (lbb) && (lbb.cloneTo(dest.localBounds));
+        (dest.localBounds) && (dest.localBounds = dest.localBounds);
         super._cloneTo(dest);
     }
 

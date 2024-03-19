@@ -342,7 +342,9 @@ export class BaseRender extends Component {
                 var mat: Material = value[i];
                 if (lastMat !== mat) {
                     materialsInstance[i] = false;
-                    this._renderElements[i].material = mat;
+                    if (this._renderElements[i]) {
+                        this._renderElements[i].material = mat;
+                    }
                 }
                 if (mat) {
                     mat._addReference();
