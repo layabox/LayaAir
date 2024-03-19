@@ -191,7 +191,7 @@ export class GLESForwardAddClusterRP {
 
     constructor() {
         this._cameraCullInfo = new CameraCullInfo();
-        this._nativeObj = new (window as any).conchRTForwardAddClusterRP();
+        this._nativeObj = new (window as any).conchGLESForwardAddClusterRP();
     }
 
 }

@@ -29,8 +29,6 @@ export class GLESRenderElement3D implements IRenderElement3D {
 
     private _transform: NativeTransform3D;
 
-    _isRender: boolean;
-
     set geometry(data: GLESRenderGeometryElement) {
         this._geometry = data;
         this._nativeObj.setGeometry((data as any)._nativeObj);
@@ -68,17 +66,17 @@ export class GLESRenderElement3D implements IRenderElement3D {
     }
 
     get isRender(): boolean {
-        return this._nativeObj._isRender;
+        return this._nativeObj.isRender;
     }
 
     set isRender(data: boolean) {
-        this._nativeObj._isRender = data;
+        this._nativeObj.isRender = data;
     }
     public get materialRenderQueue(): number {
-        return this._nativeObj._materialRenderQueue;
+        return this._nativeObj.materialRenderQueue;
     }
     public set materialRenderQueue(value: number) {
-        this._nativeObj._materialRenderQueue = value;
+        this._nativeObj.materialRenderQueue = value;
     }
 
     private _owner: RTBaseRenderNode;
@@ -100,10 +98,10 @@ export class GLESRenderElement3D implements IRenderElement3D {
     }
 
     get canDynamicBatch(): boolean {
-        return this._nativeObj._canDynamicBatch;
+        return this._nativeObj.canDynamicBatch;
     }
     set canDynamicBatch(value: boolean) {
-        this._nativeObj._canDynamicBatch = value;
+        this._nativeObj.canDynamicBatch = value;
     }
 
     // todo

@@ -15,9 +15,6 @@ import { GLESSpotLightShadowRP } from "./GLESSpotLightShadowRP";
 
 export class GLES3DRenderPassFactory implements I3DRenderPassFactory {
 
-    createSkyRenderElement(): ISkyRenderElement3D {
-        throw new Error("Method not implemented.");
-    }
     createRender3DProcess(): IRender3DProcess {
         return new GLESRender3DProcess();
     }

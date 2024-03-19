@@ -44,7 +44,7 @@ export class CommandBuffer {
 	/**@internal */
 	private _commands: Command[] = [];
 	/**@internal */
-	_renderCMDs: IRenderCMD[] = [];
+	_renderCMDs: any[] = [];
 
 	/**
 	 * 创建一个 <code>CommandBuffer</code> 实例。

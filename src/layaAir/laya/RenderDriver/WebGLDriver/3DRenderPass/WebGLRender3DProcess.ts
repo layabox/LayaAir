@@ -136,7 +136,7 @@ export class WebGLRender3DProcess implements IRender3DProcess {
             }
         }
 
-        if (Stat.enablePostprocess && camera.postProcess) {
+        if (Stat.enablePostprocess && camera.postProcess&& camera.postProcess.enable) {
             this.renderpass.enablePostProcess = Stat.enablePostprocess;
             this.renderpass.postProcess = camera.postProcess._context.command;
             camera.postProcess._render(camera);

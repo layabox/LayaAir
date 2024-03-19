@@ -178,76 +178,76 @@ export class WebGLShaderInstance implements IShaderInstance {
         Stat.uploadUniform += WebGLEngine.instance.uploadUniforms(this._renderShaderInstance, shaderUniform, shaderDatas, uploadUnTexture);
     }
 
-	/**
-	 * set blend depth stencil RenderState
-	 * @param shaderDatas 
-	 */
-	uploadRenderStateBlendDepth(shaderDatas: WebGLShaderData): void {
-		if ((<ShaderPass>this._shaderPass).statefirst)
-			this.uploadRenderStateBlendDepthByShader(shaderDatas);
-		else
-			this.uploadRenderStateBlendDepthByMaterial(shaderDatas);
-	}
+    /**
+     * set blend depth stencil RenderState
+     * @param shaderDatas 
+     */
+    uploadRenderStateBlendDepth(shaderDatas: WebGLShaderData): void {
+        if ((<ShaderPass>this._shaderPass).statefirst)
+            this.uploadRenderStateBlendDepthByShader(shaderDatas);
+        else
+            this.uploadRenderStateBlendDepthByMaterial(shaderDatas);
+    }
 
-	/**
-	 * set blend depth stencil RenderState frome Shader
-	 * @param shaderDatas 
-	 */
-	uploadRenderStateBlendDepthByShader(shaderDatas: WebGLShaderData) {
-		var datas: any = shaderDatas._data;
-		var renderState: RenderState = (<ShaderPass>this._shaderPass).renderState;
-		var depthWrite: any = (renderState.depthWrite ?? datas[Shader3D.DEPTH_WRITE]) ?? RenderState.Default.depthWrite;
-		RenderStateContext.setDepthMask(depthWrite);
-		var depthTest: any = (renderState.depthTest ?? datas[Shader3D.DEPTH_TEST]) ?? RenderState.Default.depthTest;
-		if (depthTest == RenderState.DEPTHTEST_OFF)
-			RenderStateContext.setDepthTest(false);
-		else {
-			RenderStateContext.setDepthTest(true);
-			RenderStateContext.setDepthFunc(depthTest);
-		}
-		//Stencil
-		var stencilWrite: any = (renderState.stencilWrite ?? datas[Shader3D.STENCIL_WRITE]) ?? RenderState.Default.stencilWrite;
-		var stencilWrite: any = (renderState.stencilWrite ?? datas[Shader3D.STENCIL_WRITE]) ?? RenderState.Default.stencilWrite;
-		var stencilTest: any = (renderState.stencilTest ?? datas[Shader3D.STENCIL_TEST]) ?? RenderState.Default.stencilTest;
-		RenderStateContext.setStencilMask(stencilWrite);
-		if (stencilWrite) {
-			var stencilOp: any = (renderState.stencilOp ?? datas[Shader3D.STENCIL_Op]) ?? RenderState.Default.stencilOp;
-			RenderStateContext.setstencilOp(stencilOp.x, stencilOp.y, stencilOp.z);
-		}
-		if (stencilTest == RenderState.STENCILTEST_OFF) {
-			RenderStateContext.setStencilTest(false);
-		} else {
-			var stencilRef: any = (renderState.stencilRef ?? datas[Shader3D.STENCIL_Ref]) ?? RenderState.Default.stencilRef;
-			RenderStateContext.setStencilTest(true);
-			RenderStateContext.setStencilFunc(stencilTest, stencilRef);
-		}
-		//blend
-		var blend: any = (renderState.blend ?? datas[Shader3D.BLEND]) ?? RenderState.Default.blend;
-		switch (blend) {
-			case RenderState.BLEND_DISABLE:
-				RenderStateContext.setBlend(false);
-				break;
-			case RenderState.BLEND_ENABLE_ALL:
-				var blendEquation: any = (renderState.blendEquation ?? datas[Shader3D.BLEND_EQUATION]) ?? RenderState.Default.blendEquation;
-				var srcBlend: any = (renderState.srcBlend ?? datas[Shader3D.BLEND_SRC]) ?? RenderState.Default.srcBlend;
-				var dstBlend: any = (renderState.dstBlend ?? datas[Shader3D.BLEND_DST]) ?? RenderState.Default.dstBlend;
-				RenderStateContext.setBlend(true);
-				RenderStateContext.setBlendEquation(blendEquation);
-				RenderStateContext.setBlendFunc(srcBlend, dstBlend);
-				break;
-			case RenderState.BLEND_ENABLE_SEPERATE:
-				var blendEquationRGB: any = (renderState.blendEquationRGB ?? datas[Shader3D.BLEND_EQUATION_RGB]) ?? RenderState.Default.blendEquationRGB;
-				var blendEquationAlpha: any = (renderState.blendEquationAlpha ?? datas[Shader3D.BLEND_EQUATION_ALPHA]) ?? RenderState.Default.blendEquationAlpha;
-				var srcRGB: any = (renderState.srcBlendRGB ?? datas[Shader3D.BLEND_SRC_RGB]) ?? RenderState.Default.srcBlendRGB;
-				var dstRGB: any = (renderState.dstBlendRGB ?? datas[Shader3D.BLEND_DST_RGB]) ?? RenderState.Default.dstBlendRGB;
-				var srcAlpha: any = (renderState.srcBlendAlpha ?? datas[Shader3D.BLEND_SRC_ALPHA]) ?? RenderState.Default.srcBlendAlpha;
-				var dstAlpha: any = (renderState.dstBlendAlpha ?? datas[Shader3D.BLEND_DST_ALPHA]) ?? RenderState.Default.dstBlendAlpha;
-				RenderStateContext.setBlend(true);
-				RenderStateContext.setBlendEquationSeparate(blendEquationRGB, blendEquationAlpha);
-				RenderStateContext.setBlendFuncSeperate(srcRGB, dstRGB, srcAlpha, dstAlpha);
-				break;
-		}
-	}
+    /**
+     * set blend depth stencil RenderState frome Shader
+     * @param shaderDatas 
+     */
+    uploadRenderStateBlendDepthByShader(shaderDatas: WebGLShaderData) {
+        var datas: any = shaderDatas._data;
+        var renderState: RenderState = (<ShaderPass>this._shaderPass).renderState;
+        var depthWrite: any = (renderState.depthWrite ?? datas[Shader3D.DEPTH_WRITE]) ?? RenderState.Default.depthWrite;
+        RenderStateContext.setDepthMask(depthWrite);
+        var depthTest: any = (renderState.depthTest ?? datas[Shader3D.DEPTH_TEST]) ?? RenderState.Default.depthTest;
+        if (depthTest == RenderState.DEPTHTEST_OFF)
+            RenderStateContext.setDepthTest(false);
+        else {
+            RenderStateContext.setDepthTest(true);
+            RenderStateContext.setDepthFunc(depthTest);
+        }
+        //Stencil
+        var stencilWrite: any = (renderState.stencilWrite ?? datas[Shader3D.STENCIL_WRITE]) ?? RenderState.Default.stencilWrite;
+        var stencilWrite: any = (renderState.stencilWrite ?? datas[Shader3D.STENCIL_WRITE]) ?? RenderState.Default.stencilWrite;
+        var stencilTest: any = (renderState.stencilTest ?? datas[Shader3D.STENCIL_TEST]) ?? RenderState.Default.stencilTest;
+        RenderStateContext.setStencilMask(stencilWrite);
+        if (stencilWrite) {
+            var stencilOp: any = (renderState.stencilOp ?? datas[Shader3D.STENCIL_Op]) ?? RenderState.Default.stencilOp;
+            RenderStateContext.setstencilOp(stencilOp.x, stencilOp.y, stencilOp.z);
+        }
+        if (stencilTest == RenderState.STENCILTEST_OFF) {
+            RenderStateContext.setStencilTest(false);
+        } else {
+            var stencilRef: any = (renderState.stencilRef ?? datas[Shader3D.STENCIL_Ref]) ?? RenderState.Default.stencilRef;
+            RenderStateContext.setStencilTest(true);
+            RenderStateContext.setStencilFunc(stencilTest, stencilRef);
+        }
+        //blend
+        var blend: any = (renderState.blend ?? datas[Shader3D.BLEND]) ?? RenderState.Default.blend;
+        switch (blend) {
+            case RenderState.BLEND_DISABLE:
+                RenderStateContext.setBlend(false);
+                break;
+            case RenderState.BLEND_ENABLE_ALL:
+                var blendEquation: any = (renderState.blendEquation ?? datas[Shader3D.BLEND_EQUATION]) ?? RenderState.Default.blendEquation;
+                var srcBlend: any = (renderState.srcBlend ?? datas[Shader3D.BLEND_SRC]) ?? RenderState.Default.srcBlend;
+                var dstBlend: any = (renderState.dstBlend ?? datas[Shader3D.BLEND_DST]) ?? RenderState.Default.dstBlend;
+                RenderStateContext.setBlend(true);
+                RenderStateContext.setBlendEquation(blendEquation);
+                RenderStateContext.setBlendFunc(srcBlend, dstBlend);
+                break;
+            case RenderState.BLEND_ENABLE_SEPERATE:
+                var blendEquationRGB: any = (renderState.blendEquationRGB ?? datas[Shader3D.BLEND_EQUATION_RGB]) ?? RenderState.Default.blendEquationRGB;
+                var blendEquationAlpha: any = (renderState.blendEquationAlpha ?? datas[Shader3D.BLEND_EQUATION_ALPHA]) ?? RenderState.Default.blendEquationAlpha;
+                var srcRGB: any = (renderState.srcBlendRGB ?? datas[Shader3D.BLEND_SRC_RGB]) ?? RenderState.Default.srcBlendRGB;
+                var dstRGB: any = (renderState.dstBlendRGB ?? datas[Shader3D.BLEND_DST_RGB]) ?? RenderState.Default.dstBlendRGB;
+                var srcAlpha: any = (renderState.srcBlendAlpha ?? datas[Shader3D.BLEND_SRC_ALPHA]) ?? RenderState.Default.srcBlendAlpha;
+                var dstAlpha: any = (renderState.dstBlendAlpha ?? datas[Shader3D.BLEND_DST_ALPHA]) ?? RenderState.Default.dstBlendAlpha;
+                RenderStateContext.setBlend(true);
+                RenderStateContext.setBlendEquationSeparate(blendEquationRGB, blendEquationAlpha);
+                RenderStateContext.setBlendFuncSeperate(srcRGB, dstRGB, srcAlpha, dstAlpha);
+                break;
+        }
+    }
 
     /**
      * set blend depth stencil RenderState frome Material
