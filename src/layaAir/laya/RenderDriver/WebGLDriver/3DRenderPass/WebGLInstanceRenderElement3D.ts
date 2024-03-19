@@ -108,8 +108,6 @@ export class WebGLInstanceRenderElement3D extends WebGLRenderElement3D {
         return this._invertFrontFace;
     }
 
-
-
     constructor() {
         super();
         this._instanceElementList = new SingletonList();

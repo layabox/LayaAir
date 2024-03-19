@@ -439,15 +439,16 @@ export class MeshRenderer extends BaseRender {
      * @override
      * @param dest 
      */
-    _cloneTo(dest: Component): void {
+    _cloneTo(dest: MeshRenderer): void {
         super._cloneTo(dest);
         // todo clone morphtarget weight
         // onMeshChange in onEnable
+        dest._onMeshChange(this._mesh);
         if (this.morphTargetWeight) {
-            (<MeshRenderer>dest).morphTargetWeight = new Float32Array(this.morphTargetWeight);
+            dest.morphTargetWeight = new Float32Array(this.morphTargetWeight);
         }
         for (const key in this._morphTargetValues) {
-            (<MeshRenderer>dest)._morphTargetValues[key] = this._morphTargetValues[key];
+            dest._morphTargetValues[key] = this._morphTargetValues[key];
         }
     }
 }

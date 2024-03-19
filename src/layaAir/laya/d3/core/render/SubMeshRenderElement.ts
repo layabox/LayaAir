@@ -10,7 +10,7 @@ import { RenderElement } from "./RenderElement";
 /**
  * @internal
  */
-export class SubMeshRenderElement extends RenderElement{
+export class SubMeshRenderElement extends RenderElement {
 
 	/** @internal */
 	private _dynamicWorldPositionNormalNeedUpdate: boolean;
@@ -39,7 +39,7 @@ export class SubMeshRenderElement extends RenderElement{
 	constructor() {
 		super();
 		this._dynamicWorldPositionNormalNeedUpdate = true;
-		//this._canBatch = true;
+		this._renderElementOBJ.canDynamicBatch = true;
 	}
 
 	/**
@@ -79,7 +79,7 @@ export class SubMeshRenderElement extends RenderElement{
 	 * @override
 	 */
 	destroy(): void {
-		if(!this._renderElementOBJ)return;
+		if (!this._renderElementOBJ) return;
 		(this.transform) && this.transform.off(Event.TRANSFORM_CHANGED, this, this._onWorldMatrixChanged);
 		super.destroy();
 		//this.staticBatch = null;

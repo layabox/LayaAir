@@ -143,11 +143,10 @@ export class SimpleSkinnedMeshRenderer extends SkinnedMeshRenderer {
         // this._shaderValues.setVector(SimpleSkinnedMeshRenderer.SIMPLE_SIMPLEANIMATORPARAMS, this._simpleAnimatorParams);
     }
 
-    _cloneTo(dest: Component): void {
-        let render = dest as SimpleSkinnedMeshRenderer;
-        render.simpleAnimatorOffset = this.simpleAnimatorOffset;
-        render.simpleAnimatorTexture = this.simpleAnimatorTexture;
-        render._bonesNums = this._bonesNums;
+    _cloneTo(dest: SimpleSkinnedMeshRenderer): void {
+        dest.simpleAnimatorOffset = this.simpleAnimatorOffset;
+        dest.simpleAnimatorTexture = this.simpleAnimatorTexture;
+        dest._bonesNums = this._bonesNums;
         super._cloneTo(dest);
     }
 
