@@ -63,14 +63,6 @@ export class GLESDrawNodeCMDData extends DrawNodeCMDData {
     }
 }
 
-// this._nativeObj
-// this._nativeObj.setDest(value._nativeObj);
-// this._nativeObj.setViewport(value);
-// this._nativeObj.setSciccor(value);
-// this._nativeObj.setSource(value._nativeObj);
-// this._nativeObj.setSourceTexelSize(this._sourceTexelSize);
-// this._nativeObj.setOffsetScale(this._offsetScale);
-// this._nativeObj.setRenderElement(value._nativeObj);
 export class GLESBlitQuadCMDData extends BlitQuadCMDData {
     type: RenderCMDType;
     private _sourceTexelSize: Vector4;
@@ -89,7 +81,7 @@ export class GLESBlitQuadCMDData extends BlitQuadCMDData {
 
     set dest(value: GLESInternalRT) {
         this._dest = value;
-        this._nativeObj.setDest(value._nativeObj);
+        this._nativeObj.setDest(value);
     }
 
     get viewport(): Viewport {
@@ -116,7 +108,7 @@ export class GLESBlitQuadCMDData extends BlitQuadCMDData {
 
     set source(value: GLESInternalTex) {
         this._source = value;
-        this._nativeObj.setSource(value._nativeObj);
+        this._nativeObj.setSource(value);
         this._sourceTexelSize.setValue(1.0 / this._source.width, 1.0 / this._source.height, this._source.width, this._source.height);
         this._nativeObj.setSourceTexelSize(this._sourceTexelSize);
     }
@@ -148,9 +140,7 @@ export class GLESBlitQuadCMDData extends BlitQuadCMDData {
         this._nativeObj = new (window as any).conchGLESBlitQuadCMDData();
     }
 }
-// this._nativeObj = new (window as any).conchGLESDrawElementCMDData();
-// this._nativeObj.clearElement();
-// this._nativeObj.addOneElement(element._nativeObj);
+
 export class GLESDrawElementCMDData extends DrawElementCMDData {
     type: RenderCMDType;
     /**@internal */
@@ -168,16 +158,15 @@ export class GLESDrawElementCMDData extends DrawElementCMDData {
         this._nativeObj.clearElement();
         if (value.length == 1) {
             this._nativeObj.addOneElement(value[0]._nativeObj);
+        }else{
+            value.forEach(element => {
+                this._nativeObj.addOneElement(element._nativeObj);
+            });
         }
-        value.forEach(element => {
-            this._nativeObj.addOneElement(element._nativeObj);
-        });
+      
     }
 }
 
-// this._nativeObj = new (window as any).conchGLESDrawNodeCMDData();
-// this._nativeObj.setViewport(value);
-// this._nativeObj.setSciccor(value);
 export class GLESSetViewportCMD extends SetViewportCMD {
     type: RenderCMDType;
     /**@internal */
@@ -211,11 +200,7 @@ export class GLESSetViewportCMD extends SetViewportCMD {
         this._nativeObj = new (window as any).conchGLESSetViewportCMD();
     }
 }
-// this._nativeObj.setRT(value._nativeObj);
-// this._nativeObj.setClearFlag(value)
-// this._nativeObj.clearColorValue(value);
-// this._nativeObj.clearDepthValue(value);
-// this._nativeObj.clearStencilValue(value);
+
 export class GLESSetRenderTargetCMD extends SetRenderTargetCMD {
     type: RenderCMDType;
     /**@internal */
@@ -232,7 +217,7 @@ export class GLESSetRenderTargetCMD extends SetRenderTargetCMD {
 
     set rt(value: GLESInternalRT) {
         this._rt = value;
-        this._nativeObj.setRT(value._nativeObj);
+        this._nativeObj.setRT(value);
     }
 
     get clearFlag(): number {
@@ -279,12 +264,6 @@ export class GLESSetRenderTargetCMD extends SetRenderTargetCMD {
     }
 }
 
-
-// this._nativeObj = new (window as any).conchGLESSetRenderData();
-// this._nativeObj.setValue(this.value)
-// this._nativeObj.setDest(value._nativeObj);
-// this._nativeObj.setPropertyID(value);
-// this._nativeObj.setDataType(value);
 export class GLESSetRenderData extends SetRenderDataCMD {
     type: RenderCMDType;
     /**@internal */
@@ -355,7 +334,7 @@ export class GLESSetRenderData extends SetRenderDataCMD {
                 break;
             case ShaderDataType.Texture2D:
                 this._value = this.data_texture = value as BaseTexture;
-                this._nativeObj.setValue((this.data_texture._texture as GLESInternalTex)._nativeObj)
+                this._nativeObj.setValue((this.data_texture._texture as GLESInternalTex))
                 break;
             case ShaderDataType.Vector4:
                 this.data_v4 && (this.data_v4 = new Vector4());
@@ -392,10 +371,6 @@ export class GLESSetRenderData extends SetRenderDataCMD {
     }
 }
 
-// this._nativeObj = new (window as any).conchGLESSetShaderDefine();
-// this._nativeObj.setDefine(value)
-// this._nativeObj.setDest(value._nativeObj)
-//this._nativeObj.setAdd(value);
 export class GLESSetShaderDefine extends SetShaderDefineCMD {
     type: RenderCMDType;
     /**@internal */
