@@ -429,6 +429,7 @@ export class RenderSprite {
             ctx.size(w,h);
         }
         ctx.render2D= ctx.render2D.clone(rt);
+        ctx.clearBG(0,0,0,0);
         ctx.startRender();
         //把位置移到0，所以要-sprite.xy, 考虑图集空白，所以要-tRec.xy,因为tRec.xy是sprite空间的，所以转到贴图空间是取反
         sprite.render(ctx,x-sprite.x-tRec.x,y-sprite.y-tRec.y);
@@ -597,6 +598,7 @@ export class RenderSprite {
             rtx = x1; rty = y1;
             let rt = new RenderTexture2D(width1, height1, RenderTargetFormat.R8G8B8A8);
             let ctx1 = new Context();
+            ctx1.clearBG(0,0,0,0);
             ctx1.size(width1, height1);
             ctx1.render2D = new Render2DSimple(rt);
             ctx1.startRender();

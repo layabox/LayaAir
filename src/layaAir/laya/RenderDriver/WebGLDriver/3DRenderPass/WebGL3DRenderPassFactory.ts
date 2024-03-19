@@ -5,7 +5,6 @@ import { WebGLBlitQuadCMDData, WebGLDrawElementCMDData, WebGLDrawNodeCMDData, We
 import { WebGLRenderContext3D } from "./WebGLRenderContext3D";
 import { WebGLRenderElement3D } from "./WebGLRenderElement3D";
 import { WebGLSkinRenderElement3D } from "./WebGLSkinRenderElement3D";
-import { WebGLSkyRenderElement3D } from "./WebGLSkyRenderElement3D";
 
 
 export class WebGL3DRenderPassFactory implements I3DRenderPassFactory {
@@ -42,10 +41,6 @@ export class WebGL3DRenderPassFactory implements I3DRenderPassFactory {
     }
     createRenderElement3D(): WebGLRenderElement3D {
         return new WebGLRenderElement3D();
-    }
-
-    createSkyRenderElement(): WebGLSkyRenderElement3D {
-        return new WebGLSkyRenderElement3D();
     }
 
     createRender3DProcess(): WebGLRender3DProcess {

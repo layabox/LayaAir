@@ -15,6 +15,7 @@ import ShadingFragGLSL from "./common/ShadingFrag.glsl";
 
 import SceneGLSL from "./common/SceneCommon.glsl";
 import CameraGLSL from "./common/CameraCommon.glsl";
+import SkyCommon from "./common/SkyCommon.glsl";
 import Sprite3DCommonGLSL from "./common/Sprite3DCommon.glsl";
 import Sprite3DVertexGLSL from "./common/Sprite3DVertex.glsl";
 import Sprite3DFragGLSL from "./common/Sprite3DFrag.glsl";
@@ -75,6 +76,9 @@ export class ShaderInit3D {
 
 		// camera
 		Shader3D.addInclude("Camera.glsl", CameraGLSL);
+
+		//sky
+		Shader3D.addInclude("SkyCommon.glsl", SkyCommon);
 
 		// sprite3D
 		Shader3D.addInclude("Sprite3DCommon.glsl", Sprite3DCommonGLSL);

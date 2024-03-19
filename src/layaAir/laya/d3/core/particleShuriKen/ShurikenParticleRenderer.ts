@@ -19,6 +19,7 @@ import { LayaGL } from "../../../layagl/LayaGL";
 import { ShaderData, ShaderDataType } from "../../../RenderDriver/DriverDesign/RenderDevice/ShaderData";
 import { IRenderContext3D } from "../../../RenderDriver/DriverDesign/3DRenderPass/I3DRenderPass";
 import { Transform3D } from "../Transform3D";
+import { BaseRenderType } from "../../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData";
 
 
 
@@ -128,6 +129,7 @@ export class ShurikenParticleRenderer extends BaseRender {
     constructor() {
         super();
         this.renderMode = 0;
+        this._baseRenderNode.renderNodeType = BaseRenderType.ParticleRender
     }
 
     protected _getcommonUniformMap(): Array<string> {

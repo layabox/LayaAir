@@ -14,9 +14,20 @@ import { InternalTexture } from "../../../DriverDesign/RenderDevice/InternalText
 import { IDefineDatas } from "../IDefineDatas";
 import { RenderState } from "../RenderState";
 import { ShaderData } from "../../../DriverDesign/RenderDevice/ShaderData";
+export enum BaseRenderType{
+    BaseRender = 0,
+    MeshRender = 1,
+    ParticleRender = 2,
+    TrailRender = 3,
+    LineRender = 4,
+    TerrainRender = 5,
+    SkyRender = 7,
+    SimpleSkinRender = 8,
+    SkinnedMeshRender = 9,
+}
 //3D Render Node
 export interface IBaseRenderNode {
-
+    renderNodeType: number;//Flag
     transform: Transform3D;
     distanceForSort: number;
     sortingFudge: number;

@@ -30,6 +30,7 @@ export class WebglRenderContext2D implements IRenderContext2D {
 
     setRenderTarget(value: InternalRenderTarget, clear: boolean, clearColor: Color): void {
         this._destRT = value;
+        clearColor.cloneTo(this._clearColor);
         if (this._destRT) {
             WebGLEngine.instance.getTextureContext().bindRenderTarget(this._destRT);
             WebGLEngine.instance.viewport(0, 0, this._destRT._textures[0].width, this._destRT._textures[0].height);

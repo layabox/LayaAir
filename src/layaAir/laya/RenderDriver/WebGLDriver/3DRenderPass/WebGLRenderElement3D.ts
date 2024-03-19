@@ -24,6 +24,7 @@ export class WebGLRenderElement3D implements IRenderElement3D {
 
     materialId: number;
 
+    canDynamicBatch: boolean;
 
     materialShaderData: WebGLShaderData;
 

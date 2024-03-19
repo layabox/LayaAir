@@ -2,7 +2,7 @@ import { Config3D } from "../../../Config3D"
 import { Component } from "../../components/Component"
 import { LayaGL } from "../../layagl/LayaGL"
 import { Matrix4x4 } from "../../maths/Matrix4x4"
-import { IMeshRenderNode } from "../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData"
+import { BaseRenderType, IMeshRenderNode } from "../../RenderDriver/RenderModuleData/Design/3D/I3DRenderModuleData"
 import { ShaderData } from "../../RenderDriver/DriverDesign/RenderDevice/ShaderData"
 import { ShaderDefine } from "../../RenderDriver/RenderModuleData/Design/ShaderDefine"
 import { RenderCapable } from "../../RenderEngine/RenderEnum/RenderCapable"
@@ -64,7 +64,7 @@ export class MeshRenderer extends BaseRender {
     constructor() {
         super();
         this._projectionViewWorldMatrix = new Matrix4x4();
-        //this._moduleData = Laya3DRender.renderOBJCreate();TODO miner
+        this._baseRenderNode.renderNodeType = BaseRenderType.MeshRender;
     }
 
 
@@ -74,6 +74,7 @@ export class MeshRenderer extends BaseRender {
      * @returns 
      */
     protected _createBaseRenderNode(): IMeshRenderNode {
+       
         return Laya3DRender.Render3DModuleDataFactory.createMeshRenderNode();
     }
 
@@ -368,7 +369,6 @@ export class MeshRenderer extends BaseRender {
     }
 
     renderUpdate(context: RenderContext3D): void {
-        context.camera
         this._mesh.morphTargetData && this._applyMorphdata();
         if (this._renderElements.length == 1) {
             this._renderElements[0]._renderElementOBJ.isRender = this._renderElements[0]._geometry._prepareRender(context);
@@ -439,15 +439,16 @@ export class MeshRenderer extends BaseRender {
      * @override
      * @param dest 
      */
-    _cloneTo(dest: Component): void {
+    _cloneTo(dest: MeshRenderer): void {
         super._cloneTo(dest);
         // todo clone morphtarget weight
         // onMeshChange in onEnable
+        dest._onMeshChange(this._mesh);
         if (this.morphTargetWeight) {
-            (<MeshRenderer>dest).morphTargetWeight = new Float32Array(this.morphTargetWeight);
+            dest.morphTargetWeight = new Float32Array(this.morphTargetWeight);
         }
         for (const key in this._morphTargetValues) {
-            (<MeshRenderer>dest)._morphTargetValues[key] = this._morphTargetValues[key];
+            dest._morphTargetValues[key] = this._morphTargetValues[key];
         }
     }
 }

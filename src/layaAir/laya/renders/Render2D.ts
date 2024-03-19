@@ -7,6 +7,7 @@ import { IndexFormat } from "../RenderEngine/RenderEnum/IndexFormat";
 import { MeshTopology } from "../RenderEngine/RenderEnum/RenderPologyMode";
 import { VertexDeclaration } from "../RenderEngine/VertexDeclaration";
 import { LayaGL } from "../layagl/LayaGL";
+import { Color } from "../maths/Color";
 import { Material } from "../resource/Material";
 import { RenderTexture2D } from "../resource/RenderTexture2D";
 import { Value2D } from "../webgl/shader/d2/value/Value2D";
@@ -35,7 +36,7 @@ export abstract class Render2D {
         return this._renderTexture;
     }
     //output:RenderTexture2D;
-    abstract renderStart(): void;
+    abstract renderStart(clear:boolean,clearColor:Color): void;
     // 有vb是外部提供的，因此，顶点描述也要由外部提供
     //abstract setVertexDecl(decl:VertexDeclaration):void;
     //shaderdata放到mtl中。之所以传内存buffer是为了给后面合并subdata机会，以便提高效率
@@ -86,7 +87,7 @@ export class Render2DSimple extends Render2D {
         }
     }
 
-    renderStart(): void {
+    renderStart(clear:boolean,clearColor:Color): void {
         //分层
         // if (this._renderTexture) {
         //     this._renderTexture.start();
@@ -94,11 +95,11 @@ export class Render2DSimple extends Render2D {
         // }
         if (this._renderTexture) {
             Render2DSimple.rendercontext2D.invertY = this._renderTexture._invertY;
-            Render2DSimple.rendercontext2D.setRenderTarget(this._renderTexture._renderTarget, RenderTexture2D._clear, RenderTexture2D._clearColor);
+            Render2DSimple.rendercontext2D.setRenderTarget(this._renderTexture._renderTarget, clear, clearColor);
         } else {
             Render2DSimple.rendercontext2D.invertY = false;
             Render2DSimple.rendercontext2D.setOffscreenView(RenderState2D.width, RenderState2D.height);
-            Render2DSimple.rendercontext2D.setRenderTarget(null, RenderTexture2D._clear, RenderTexture2D._clearColor);
+            Render2DSimple.rendercontext2D.setRenderTarget(null, clear, clearColor);
         }
         RenderTexture2D._clear = false;
     }
@@ -161,7 +162,7 @@ export class Render2DMergeVB extends Render2D {
 
     }
 
-    renderStart(): void {
+    renderStart(clear:boolean,clearColor:Color): void {
         throw new Error("Method not implemented.");
     }
     draw(mesh2d: IMesh2D, vboff: number, vblen: number, iboff: number, iblen: number, mtl: Value2D): void {

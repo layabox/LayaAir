@@ -342,7 +342,9 @@ export class BaseRender extends Component {
                 var mat: Material = value[i];
                 if (lastMat !== mat) {
                     materialsInstance[i] = false;
-                    this._renderElements[i].material = mat;
+                    if (this._renderElements[i]) {
+                        this._renderElements[i].material = mat;
+                    }
                 }
                 if (mat) {
                     mat._addReference();
@@ -498,6 +500,7 @@ export class BaseRender extends Component {
         this._baseRenderNode.staticMask = 1;
 
         this.castShadow = false;
+        this._baseRenderNode.renderNodeType = 0;
     }
     /**
      * 每一帧计算包围盒会调用的函数
@@ -774,8 +777,8 @@ export class BaseRender extends Component {
         var material: Material = this._sharedMaterials[0];
         if (material && !this._materialsInstance[0]) {
             var insMat: Material = this._getInstanceMaterial(material, 0);
-            //var renderElement: RenderElement = this._renderElements[0];
-            //(renderElement) && (renderElement.material = insMat);
+            var renderElement: RenderElement = this._renderElements[0];
+            (renderElement) && (renderElement.material = insMat);
         }
         return this._sharedMaterials[0];
     }
