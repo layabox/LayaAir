@@ -185,6 +185,8 @@ export class WebGLRender3DProcess implements IRender3DProcess {
         let count = camera.scene.sceneRenderableManager.renderBaselist.length;
 
         this.renderFowarAddCameraPass(context, this.renderpass, renderList, count);
+
+        Camera.depthPass.cleanUp();
     }
 
     renderFowarAddCameraPass(context: WebGLRenderContext3D, renderpass: WebGLForwardAddRP, list: WebBaseRenderNode[], count: number): void {
@@ -207,5 +209,6 @@ export class WebGLRender3DProcess implements IRender3DProcess {
         renderpass._afterAllRenderCMDS && renderpass._afterAllRenderCMDS.forEach(element => {
             context.runCMDList(element._renderCMDs);
         });
+
     }
 }
