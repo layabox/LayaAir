@@ -60,7 +60,7 @@ export class WebGLInstanceRenderBatch {
         for (let i = 0; i < elementCount; i++) {
             let element = elementArray[i];
 
-            if (element.subShader._owner._enableInstancing) {
+            if (element.canDynamicBatch && element.subShader._owner._enableInstancing) {
                 // shader 支持 Instance
                 let instanceMark = this.getBathMark(element);
                 if (this._updateCountMark == instanceMark.updateMark) {
@@ -112,7 +112,7 @@ export class WebGLInstanceRenderBatch {
                 }
             }
             else {
-                // shader 不支持 Instance
+                // can not Instance
                 elements.add(element);
             }
         }

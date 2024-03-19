@@ -99,6 +99,13 @@ export class GLESRenderElement3D implements IRenderElement3D {
         this._nativeObj.setSubShader((value.moduleData as any as RTSubShader)._nativeObj);
     }
 
+    get canDynamicBatch(): boolean {
+        return this._nativeObj._canDynamicBatch;
+    }
+    set canDynamicBatch(value: boolean) {
+        this._nativeObj._canDynamicBatch = value;
+    }
+
     // todo
     public get materialId(): number {
         return this._nativeObj._materialId;

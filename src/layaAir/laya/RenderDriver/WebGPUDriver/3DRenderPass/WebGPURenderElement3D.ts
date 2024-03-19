@@ -27,6 +27,7 @@ export class WebGPURenderElement3D implements IRenderElement3D, IRenderpipelineI
     materialRenderQueue: number;
     renderShaderData: WebGPUShaderData;
     transform: Transform3D;
+    canDynamicBatch: boolean;
     isRender: boolean;
     owner: WebBaseRenderNode;
     subShader: SubShader;

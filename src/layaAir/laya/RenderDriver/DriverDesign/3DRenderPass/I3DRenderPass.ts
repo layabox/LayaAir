@@ -44,6 +44,7 @@ export interface IRenderElement3D {
     materialRenderQueue: number;
     renderShaderData: ShaderData;
     transform: Transform3D;
+    canDynamicBatch: boolean;
     isRender: boolean;
     owner: IBaseRenderNode;
     subShader: SubShader;
