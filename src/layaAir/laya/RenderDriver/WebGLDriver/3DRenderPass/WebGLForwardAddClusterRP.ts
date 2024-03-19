@@ -15,7 +15,7 @@ import { WebGLCullUtil } from "./WebGLRenderUtil/WebGLCullUtil";
 import { WebGLRenderListQueue } from "./WebGLRenderUtil/WebGLRenderListQueue";
 import { PipelineMode } from "../../DriverDesign/3DRenderPass/I3DRenderPass"
 import { WebGLRenderElement3D } from "./WebGLRenderElement3D";
-export class WebGLForwardAddClusterRP{
+export class WebGLForwardAddClusterRP {
 
     /** @internal*/
     static _context3DViewPortCatch: Viewport = new Viewport(0, 0, 0, 0);
@@ -90,6 +90,9 @@ export class WebGLForwardAddClusterRP{
         this._viewPort = new Viewport();
         this._defaultNormalDepthColor = new Color(0.5, 0.5, 1.0, 0.0);
         this.clearColor = new Color();
+
+        this.depthPipelineMode = "ShadowCaster";
+        this.depthNormalPipelineMode = "DepthNormal";
     }
 
     setCameraCullInfo(value: Camera): void {
@@ -162,8 +165,8 @@ export class WebGLForwardAddClusterRP{
         Vector4.tempVec4.setValue(viewport.x, viewport.y, viewport.width, viewport.height);
         context.setViewPort(Viewport._tempViewport);
         context.setScissor(Vector4.tempVec4);
-        context.setClearData(RenderClearFlag.Depth, Color.BLACK, 1, 0);
         context.setRenderTarget(this.depthTarget);
+        context.setClearData(RenderClearFlag.Depth, Color.BLACK, 1, 0);
         this.opaqueList.renderQueue(context);
         //渲染完后传入使用的参数
         var far = this.camera.farplane;
